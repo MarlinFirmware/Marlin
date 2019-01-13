@@ -43,7 +43,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Home-aj X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home-aj Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Home-aj Z")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibriraj Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Home-aj XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klikni za početak")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Sljedeća točka")

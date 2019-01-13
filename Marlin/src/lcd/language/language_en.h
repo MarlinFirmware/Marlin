@@ -103,9 +103,6 @@
 #ifndef MSG_AUTO_Z_ALIGN
   #define MSG_AUTO_Z_ALIGN                    _UxGT("Auto Z-Align")
 #endif
-#ifndef MSG_TMC_Z_CALIBRATION
-  #define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrate Z")
-#endif
 #ifndef MSG_LEVEL_BED_HOMING
   #define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
 #endif

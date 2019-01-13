@@ -180,7 +180,13 @@ namespace ExtUI {
     return thermalManager.degTargetHotend(extruder - E0);
   }
 
-  float getFan_percent(const fan_t fan) { return ((float(fan_speed[fan - FAN0]) + 1) * 100) / 256; }
+  float getTargetFan_percent(const fan_t fan) {
+    return thermalManager.fanPercent(thermalManager.fan_speed[fan - FAN0]);
+  }
+
+  float getActualFan_percent(const fan_t fan) {
+    return thermalManager.fanPercent((thermalManager.fan_speed[fan - FAN0] * uint16_t(thermalManager.fan_speed_scaler[fan - FAN0])) >> 7);
+  }
 
   float getAxisPosition_mm(const axis_t axis) {
     return flags.manual_motion ? destination[axis] : current_position[axis];
@@ -517,10 +523,10 @@ namespace ExtUI {
   }
 
   #if ENABLED(PRINTCOUNTER)
-    char* getTotalPrints_str(char buffer[21])    { strcpy(buffer,itostr3left(print_job_timer.getStats().totalPrints));    return buffer; }
-    char* getFinishedPrints_str(char buffer[21]) { strcpy(buffer,itostr3left(print_job_timer.getStats().finishedPrints)); return buffer; }
-    char* getTotalPrintTime_str(char buffer[21]) { duration_t(print_job_timer.getStats().printTime).toString(buffer);     return buffer; }
-    char* getLongestPrint_str(char buffer[21])   { duration_t(print_job_timer.getStats().printTime).toString(buffer);     return buffer; }
+    char* getTotalPrints_str(char buffer[21])    { strcpy(buffer,i16tostr3left(print_job_timer.getStats().totalPrints));    return buffer; }
+    char* getFinishedPrints_str(char buffer[21]) { strcpy(buffer,i16tostr3left(print_job_timer.getStats().finishedPrints)); return buffer; }
+    char* getTotalPrintTime_str(char buffer[21]) { duration_t(print_job_timer.getStats().printTime).toString(buffer);       return buffer; }
+    char* getLongestPrint_str(char buffer[21])   { duration_t(print_job_timer.getStats().printTime).toString(buffer);       return buffer; }
     char* getFilamentUsed_str(char buffer[21])   {
       printStatistics stats = print_job_timer.getStats();
       sprintf_P(buffer, PSTR("%ld.%im"), long(stats.filamentUsed / 1000), int16_t(stats.filamentUsed / 100) % 10);
@@ -560,9 +566,9 @@ namespace ExtUI {
     thermalManager.setTargetHotend(clamp(value, 0, heater_maxtemp[e] - 15), e);
   }
 
-  void setFan_percent(float value, const fan_t fan) {
+  void setTargetFan_percent(const float value, const fan_t fan) {
     if (fan < FAN_COUNT)
-      fan_speed[fan - FAN0] = clamp(round(value * 255 / 100), 0, 255);
+      thermalManager.set_fan_speed(fan - FAN0, map(value, 0, 100, 0, 255));
   }
 
   void setFeedrate_percent(const float value) {
@@ -578,7 +584,7 @@ namespace ExtUI {
   }
 
   bool isPrintingFromMedia() {
-    return IFSD(card.flag.cardOK && card.isFileOpen(), false);
+    return IFSD(card.isFileOpen(), false);
   }
 
   bool isPrinting() {
@@ -586,7 +592,7 @@ namespace ExtUI {
   }
 
   bool isMediaInserted() {
-    return IFSD(IS_SD_INSERTED() && card.flag.cardOK, false);
+    return IFSD(IS_SD_INSERTED() && card.isDetected(), false);
   }
 
   void pausePrint() {
@@ -703,13 +709,13 @@ void MarlinUI::update() {
       last_sd_status = sd_status;
       if (sd_status) {
         card.initsd();
-        if (card.flag.cardOK)
+        if (card.isDetected())
           ExtUI::onMediaInserted();
         else
           ExtUI::onMediaError();
       }
       else {
-        const bool ok = card.flag.cardOK;
+        const bool ok = card.isDetected();
         card.release();
         if (ok) ExtUI::onMediaRemoved();
       }

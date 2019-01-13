@@ -77,6 +77,8 @@
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
+  //#define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
+
   /**
    * Whenever an M104, M109, or M303 increases the target temperature, the
    * firmware will wait for the WATCH_TEMP_PERIOD to expire. If the temperature
@@ -1477,22 +1479,6 @@
    * M122 S0/1 will enable continous reporting.
    */
   //#define TMC_DEBUG
-
-  /**
-   * M915 Z Axis Calibration
-   *
-   * - Adjust Z stepper current,
-   * - Drive the Z axis to its physical maximum, and
-   * - Home Z to account for the lost steps.
-   *
-   * Use M915 Snn to specify the current.
-   * Use M925 Znn to add extra Z height to Z_MAX_POS.
-   */
-  //#define TMC_Z_CALIBRATION
-  #if ENABLED(TMC_Z_CALIBRATION)
-    #define CALIBRATION_CURRENT 250
-    #define CALIBRATION_EXTRA_HEIGHT 10
-  #endif
 
   /**
    * You can set your own advanced settings by filling in predefined functions.

@@ -30,33 +30,38 @@
 
 #include "menu.h"
 #include "../../module/temperature.h"
+#include "../../gcode/queue.h"
+#include "../../module/printcounter.h"
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/power_loss_recovery.h"
+#endif
+
+void lcd_pause() {
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (recovery.enabled) recovery.save(true, false);
+  #endif
+
+  #if ENABLED(PARK_HEAD_ON_PAUSE)
+    pause_print(PAUSE_PARK_RETRACT_LENGTH, NOZZLE_PARK_POINT, 0, true);
+  #elif ENABLED(SDSUPPORT)
+    enqueue_and_echo_commands_P(PSTR("M25"));
+  #elif defined(ACTION_ON_PAUSE)
+    SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+  #endif
+}
+
+void lcd_resume() {
+  #if ENABLED(SDSUPPORT)
+    if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
+  #elif defined(ACTION_ON_RESUME)
+    SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
+  #endif
+}
 
 #if ENABLED(SDSUPPORT)
 
   #include "../../sd/cardreader.h"
-  #include "../../gcode/queue.h"
-  #include "../../module/printcounter.h"
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    #include "../../feature/power_loss_recovery.h"
-  #endif
-
-  void lcd_sdcard_pause() {
-    #if ENABLED(POWER_LOSS_RECOVERY)
-      if (recovery.enabled) recovery.save(true, false);
-    #endif
-    enqueue_and_echo_commands_P(PSTR("M25"));
-  }
-
-  void lcd_sdcard_resume() {
-    #if ENABLED(PARK_HEAD_ON_PAUSE)
-      enqueue_and_echo_commands_P(PSTR("M24"));
-    #else
-      card.startFileprint();
-      print_job_timer.start();
-      ui.reset_status();
-    #endif
-  }
 
   void lcd_sdcard_stop() {
     wait_for_heatup = wait_for_user = false;
@@ -88,35 +93,18 @@ void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
 
-  #if ENABLED(SDSUPPORT)
-    if (card.flag.cardOK) {
-      if (card.isFileOpen()) {
-        if (IS_SD_PRINTING())
-          MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
-        else
-          MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
-
-        MENU_ITEM(submenu, MSG_STOP_PRINT, menu_sdcard_abort_confirm);
-      }
-      else {
-        MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
-        #if !PIN_EXISTS(SD_DETECT)
-          MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
-        #endif
-      }
-    }
-    else {
-      MENU_ITEM(function, MSG_NO_CARD, NULL);
-      #if !PIN_EXISTS(SD_DETECT)
-        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
-      #endif
-    }
-  #endif // SDSUPPORT
-
   const bool busy = printer_busy();
-  if (busy)
+
+  if (busy) {
+    MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_pause);
     MENU_ITEM(submenu, MSG_TUNE, menu_tune);
+  }
   else {
+    MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
+    #if ENABLED(SDSUPPORT)
+      if (card.isFileOpen())
+        MENU_ITEM(submenu, MSG_STOP_PRINT, menu_sdcard_abort_confirm);
+    #endif
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
     MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
   }
@@ -164,6 +152,20 @@ void menu_main() {
       MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
   #endif
 
+#if ENABLED(SDSUPPORT)
+    if (card.isDetected() && !card.isFileOpen()) {
+      MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
+      #if !PIN_EXISTS(SD_DETECT)
+        MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
+      #endif
+    }
+    else {
+      MENU_ITEM(function, MSG_NO_CARD, NULL);
+      #if !PIN_EXISTS(SD_DETECT)
+        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
+      #endif
+    }
+  #endif
   END_MENU();
 }
 
