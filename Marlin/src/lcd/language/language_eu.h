@@ -46,7 +46,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("X jatorrira")
 #define MSG_AUTO_HOME_Y                     _UxGT("Y jatorrira")
 #define MSG_AUTO_HOME_Z                     _UxGT("Z jatorrira")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibratu Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("XYZ hasieraratzen")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klik egin hasteko")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Hurrengo Puntua")

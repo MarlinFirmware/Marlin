@@ -1193,6 +1193,7 @@
 
 #if ENABLED(LEVEL_BED_CORNERS)
   #define LEVEL_CORNERS_INSET 30    // (mm) An inset for corner leveling
+  #define LEVEL_CORNERS_Z_HOP  4.0  // (mm) Move nozzle up before moving between corners
   //#define LEVEL_CENTER_TOO        // Move to the center after the last corner
 #endif
 
@@ -1884,6 +1885,15 @@
 // be placed in "src/lcd/extensible_ui/lib"
 //
 //#define EXTENSIBLE_UI
+
+//=============================================================================
+//=============================== Graphical TFTs ==============================
+//=============================================================================
+
+//
+// MKS Robin 320x240 color display
+//
+//#define MKS_ROBIN_TFT
 
 //=============================================================================
 //============================  Other Controllers  ============================

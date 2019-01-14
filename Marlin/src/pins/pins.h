@@ -100,6 +100,8 @@
   #include "pins_BAM_DICE_DUE.h"      // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 #elif MB(MKS_BASE)
   #include "pins_MKS_BASE.h"          // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
+#elif MB(MKS_BASE_14)
+  #include "pins_MKS_BASE_14.h"       // ATmega2560                                 env:megaatmega2560
 #elif MB(MKS_BASE_15)
   #include "pins_MKS_BASE_15.h"       // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 #elif MB(MKS_BASE_HEROIC)
@@ -158,6 +160,8 @@
   #include "pins_FYSETC_F6_13.h"      // ATmega2560                                 env:megaatmega2560
 #elif MB(DUPLICATOR_I3_PLUS)
   #include "pins_DUPLICATOR_I3_PLUS.h" // ATmega2560                                 env:megaatmega2560
+#elif MB(VORON)
+  #include "pins_VORON.h"             // ATmega2560                                 env:megaatmega2560
 
 //
 // Other ATmega1280, ATmega2560
@@ -415,6 +419,8 @@
   #include "pins_STM32F4.h"           // STM32F4                                    env:STM32F4
 #elif MB(ARMED)
   #include "pins_ARMED.h"             // STM32F4                                    env:ARMED
+#elif MB(RUMBA32)
+  #include "pins_RUMBA32.h"           // STM32F4                                    env:RUMBA32
 
 //
 // ARM Cortex M7

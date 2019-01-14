@@ -39,7 +39,7 @@ typedef struct {
   bool saving:1,
        logging:1,
        sdprinting:1,
-       cardOK:1,
+       detected:1,
        filenameIsDir:1,
        abort_sd_printing:1
        #if ENABLED(FAST_FILE_TRANSFER)
@@ -70,7 +70,7 @@ public:
       const bool re_sort=false
     #endif
   );
-  static void getStatus(
+  static void report_status(
     #if NUM_SERIAL > 1
       const int8_t port = -1
     #endif
@@ -127,7 +127,10 @@ public:
   #endif
 
   static inline void pauseSDPrint() { flag.sdprinting = false; }
-  static inline bool isFileOpen() { return file.isOpen(); }
+  static inline bool isDetected() { return flag.detected; }
+  static inline bool isFileOpen() { return isDetected() && file.isOpen(); }
+  static inline bool isPaused() { return isFileOpen() && !flag.sdprinting; }
+  static inline bool isPrinting() { return flag.sdprinting; }
   static inline bool eof() { return sdpos >= filesize; }
   static inline int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
   static inline void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }

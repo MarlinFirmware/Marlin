@@ -124,7 +124,7 @@ CardReader::CardReader() {
       //sort_reverse = false;
     #endif
   #endif
-  flag.sdprinting = flag.cardOK = flag.saving = flag.logging = false;
+  flag.sdprinting = flag.detected = flag.saving = flag.logging = false;
   filesize = sdpos = 0;
   file_subcall_ctr = 0;
 
@@ -360,7 +360,7 @@ void CardReader::printFilename(
 }
 
 void CardReader::initsd() {
-  flag.cardOK = false;
+  flag.detected = false;
   if (root.isOpen()) root.close();
 
   #ifndef SPI_SPEED
@@ -380,7 +380,7 @@ void CardReader::initsd() {
   else if (!root.openRoot(&volume))
     SERIAL_ERROR_MSG(MSG_SD_OPENROOT_FAIL);
   else {
-    flag.cardOK = true;
+    flag.detected = true;
     SERIAL_ECHO_MSG(MSG_SD_CARD_OK);
   }
   setroot();
@@ -390,7 +390,7 @@ void CardReader::initsd() {
 
 void CardReader::release() {
   stopSDPrint();
-  flag.cardOK = false;
+  flag.detected = false;
 }
 
 void CardReader::openAndPrintFile(const char *name) {
@@ -402,7 +402,7 @@ void CardReader::openAndPrintFile(const char *name) {
 }
 
 void CardReader::startFileprint() {
-  if (flag.cardOK) {
+  if (isDetected()) {
     flag.sdprinting = true;
     #if SD_RESORT
       flush_presort();
@@ -452,7 +452,7 @@ void CardReader::getAbsFilename(char *t) {
 
 void CardReader::openFile(char * const path, const bool read, const bool subcall/*=false*/) {
 
-  if (!flag.cardOK) return;
+  if (!isDetected()) return;
 
   uint8_t doing = 0;
   if (isFileOpen()) {                     // Replacing current file or doing a subroutine
@@ -535,7 +535,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
 }
 
 void CardReader::removeFile(const char * const name) {
-  if (!flag.cardOK) return;
+  if (!isDetected()) return;
 
   //stopSDPrint();
 
@@ -556,12 +556,12 @@ void CardReader::removeFile(const char * const name) {
   }
 }
 
-void CardReader::getStatus(
+void CardReader::report_status(
   #if NUM_SERIAL > 1
     const int8_t port/*= -1*/
   #endif
 ) {
-  if (flag.cardOK && flag.sdprinting) {
+  if (isPrinting()) {
     SERIAL_ECHOPGM_P(port, MSG_SD_PRINTING_BYTE);
     SERIAL_ECHO_P(port, sdpos);
     SERIAL_CHAR_P(port, '/');
@@ -600,9 +600,9 @@ void CardReader::checkautostart() {
 
   if (autostart_index < 0 || flag.sdprinting) return;
 
-  if (!flag.cardOK) initsd();
+  if (!isDetected()) initsd();
 
-  if (flag.cardOK
+  if (isDetected()
     #if ENABLED(POWER_LOSS_RECOVERY)
       && !recovery.valid() // Don't run auto#.g when a resume file exists
     #endif
@@ -1022,7 +1022,7 @@ void CardReader::printingHasFinished() {
       presort();
     #endif
 
-    #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    #if (ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
       ui.progress_bar_percent = 0;
     #endif
 
@@ -1045,7 +1045,7 @@ void CardReader::printingHasFinished() {
     millis_t current_ms = millis();
     if (auto_report_sd_interval && ELAPSED(current_ms, next_sd_report_ms)) {
       next_sd_report_ms = current_ms + 1000UL * auto_report_sd_interval;
-      getStatus(
+      report_status(
         #if NUM_SERIAL > 1
           serialport
         #endif
@@ -1065,7 +1065,7 @@ void CardReader::printingHasFinished() {
   }
 
   void CardReader::openJobRecoveryFile(const bool read) {
-    if (!flag.cardOK) return;
+    if (!isDetected()) return;
     if (recovery.file.isOpen()) return;
     if (!recovery.file.open(&root, job_recovery_file_name, read ? O_READ : O_CREAT | O_WRITE | O_TRUNC | O_SYNC)) {
       SERIAL_ECHOPAIR(MSG_SD_OPEN_FILE_FAIL, job_recovery_file_name);

@@ -169,7 +169,7 @@ static void lcd_factory_settings() {
   void menu_case_light() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM_EDIT_CALLBACK(int8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
+    MENU_ITEM_EDIT_CALLBACK(uint8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
     MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
     END_MENU();
   }
@@ -217,7 +217,7 @@ static void lcd_factory_settings() {
     dac_driver_getValues();
     START_MENU();
     MENU_BACK(MSG_CONTROL);
-    #define EDIT_DAC_PERCENT(N) MENU_ITEM_EDIT_CALLBACK(int8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
+    #define EDIT_DAC_PERCENT(N) MENU_ITEM_EDIT_CALLBACK(uint8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
     EDIT_DAC_PERCENT(Z);
@@ -274,7 +274,7 @@ static void lcd_factory_settings() {
     #endif
     START_MENU();
     MENU_BACK(MSG_CONFIGURATION);
-    MENU_ITEM_EDIT(int8, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
+    MENU_ITEM_EDIT(uint8, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
     #if HAS_TEMP_HOTEND
       MENU_ITEM_EDIT(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
     #endif

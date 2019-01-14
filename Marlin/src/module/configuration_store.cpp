@@ -487,6 +487,9 @@ void MarlinSettings::postprocess() {
           dummy = float(DEFAULT_EJERK);
           EEPROM_WRITE(dummy);
         #endif
+      #else
+        const float planner_max_jerk[XYZE] = { float(DEFAULT_EJERK) };
+        EEPROM_WRITE(planner_max_jerk);
       #endif
 
       #if ENABLED(JUNCTION_DEVIATION)
@@ -693,7 +696,7 @@ void MarlinSettings::postprocess() {
     // LCD Preheat settings
     //
     {
-      _FIELD_TEST(lcd_preheat_hotend_temp);
+      _FIELD_TEST(ui_preheat_hotend_temp);
 
       #if HAS_LCD_MENU
         const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
@@ -2350,7 +2353,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M203 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)]));
       }
     #endif
 
@@ -2367,7 +2370,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M201 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]));
       }
     #endif
 

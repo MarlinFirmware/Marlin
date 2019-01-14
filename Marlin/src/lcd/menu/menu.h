@@ -43,9 +43,11 @@ bool printer_busy();
     static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
   };
 
-DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        itostr3,         1     );
-DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        itostr4sign,     1     );
-DECLARE_MENU_EDIT_TYPE(uint8_t,  int8,        i8tostr3,        1     );
+DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        i16tostr3,       1     );
+DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        i16tostr4sign,   1     );
+DECLARE_MENU_EDIT_TYPE(int8_t,   int8,        i8tostr3,        1     );
+DECLARE_MENU_EDIT_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );
+DECLARE_MENU_EDIT_TYPE(uint16_t, uint16,      ui16tostr3,      1     );
 DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );
 DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );
 DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );
@@ -102,6 +104,8 @@ FORCE_INLINE void draw_menu_item_edit_P(const bool sel, const uint8_t row, PGM_P
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int3);
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int4);
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int8);
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint8);
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16);
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);
@@ -154,8 +158,8 @@ template<typename NAME>
 class TMenuItem : MenuItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    inline static float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
-    inline static float scale(const float value)      { return value * NAME::scale;           }
+    static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
+    static inline float scale(const float value)      { return value * NAME::scale;           }
     static void  load(void *ptr, const int32_t value) { *((type_t*)ptr) = unscale(value);     }
     static char* to_string(const int32_t value)       { return NAME::strfunc(unscale(value)); }
   public:
@@ -171,6 +175,8 @@ class TMenuItem : MenuItemBase {
 DECLARE_MENU_EDIT_ITEM(int3);
 DECLARE_MENU_EDIT_ITEM(int4);
 DECLARE_MENU_EDIT_ITEM(int8);
+DECLARE_MENU_EDIT_ITEM(uint8);
+DECLARE_MENU_EDIT_ITEM(uint16);
 DECLARE_MENU_EDIT_ITEM(float3);
 DECLARE_MENU_EDIT_ITEM(float52);
 DECLARE_MENU_EDIT_ITEM(float43);

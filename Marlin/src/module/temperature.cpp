@@ -55,6 +55,10 @@
   #include "../feature/leds/printer_event_leds.h"
 #endif
 
+#if ENABLED(SINGLENOZZLE)
+  #include "tool_change.h"
+#endif
+
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
@@ -92,13 +96,98 @@ Temperature thermalManager;
 
 // public:
 
-float Temperature::current_temperature[HOTENDS] = { 0.0 };
-int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
-        Temperature::target_temperature[HOTENDS] = { 0 };
+float Temperature::current_temperature[HOTENDS]; // = { 0.0 };
+int16_t Temperature::current_temperature_raw[HOTENDS], // = { 0 }
+        Temperature::target_temperature[HOTENDS]; // = { 0 }
 
 #if ENABLED(AUTO_POWER_E_FANS)
-  uint8_t Temperature::autofan_speed[HOTENDS] = { 0 };
+  uint8_t Temperature::autofan_speed[HOTENDS]; // = { 0 }
 #endif
+
+#if FAN_COUNT > 0
+
+  uint8_t Temperature::fan_speed[FAN_COUNT]; // = { 0 }
+
+  #if ENABLED(EXTRA_FAN_SPEED)
+    uint8_t Temperature::old_fan_speed[FAN_COUNT], Temperature::new_fan_speed[FAN_COUNT];
+
+    void Temperature::set_temp_fan_speed(const uint8_t fan, const int16_t tmp_temp) {
+      switch (tmp_temp) {
+        case 1:
+          set_fan_speed(fan, old_fan_speed[fan]);
+          break;
+        case 2:
+          old_fan_speed[fan] = fan_speed[fan];
+          set_fan_speed(fan, new_fan_speed[fan]);
+          break;
+        default:
+          new_fan_speed[fan] = MIN(tmp_temp, 255U);
+          break;
+      }
+    }
+
+  #endif
+
+  #if ENABLED(PROBING_FANS_OFF)
+    bool Temperature::fans_paused; // = false;
+    uint8_t Temperature::paused_fan_speed[FAN_COUNT]; // = { 0 }
+  #endif
+
+  #if ENABLED(ADAPTIVE_FAN_SLOWING)
+    uint8_t Temperature::fan_speed_scaler[FAN_COUNT] = ARRAY_N(FAN_COUNT, 128, 128, 128, 128, 128, 128);
+  #endif
+
+  #if HAS_LCD_MENU
+
+    uint8_t Temperature::lcd_tmpfan_speed[
+      #if ENABLED(SINGLENOZZLE)
+        MAX(EXTRUDERS, FAN_COUNT)
+      #else
+        FAN_COUNT
+      #endif
+    ]; // = { 0 }
+
+  #endif
+
+  void Temperature::set_fan_speed(uint8_t target, uint16_t speed) {
+
+    NOMORE(speed, 255U);
+
+    #if ENABLED(SINGLENOZZLE)
+      if (target != active_extruder) {
+        if (target < EXTRUDERS) singlenozzle_fan_speed[target] = speed;
+        return;
+      }
+      target = 0; // Always use fan index 0 with SINGLENOZZLE
+    #endif
+
+    if (target >= FAN_COUNT) return;
+    
+    fan_speed[target] = speed;
+    #if ENABLED(ULTRA_LCD)
+      lcd_tmpfan_speed[target] = speed;
+    #endif
+  }
+
+  #if ENABLED(PROBING_FANS_OFF)
+
+    void Temperature::set_fans_paused(const bool p) {
+      if (p != fans_paused) {
+        fans_paused = p;
+        if (p)
+          for (uint8_t x = 0; x < FAN_COUNT; x++) {
+            paused_fan_speed[x] = fan_speed[x];
+            fan_speed[x] = 0;
+          }
+        else
+          for (uint8_t x = 0; x < FAN_COUNT; x++)
+            fan_speed[x] = paused_fan_speed[x];
+      }
+    }
+
+  #endif // PROBING_FANS_OFF
+
+#endif // FAN_COUNT > 0
 
 #if HAS_HEATED_BED
   float Temperature::current_temperature_bed = 0.0;
@@ -1149,7 +1238,7 @@ void Temperature::init() {
     OUT_WRITE(HEATER_3_PIN, HEATER_3_INVERTING);
   #endif
   #if HAS_HEATER_4
-    OUT_WRITE(HEATER_3_PIN, HEATER_4_INVERTING);
+    OUT_WRITE(HEATER_4_PIN, HEATER_4_INVERTING);
   #endif
   #if HAS_HEATED_BED
     OUT_WRITE(HEATER_BED_PIN, HEATER_BED_INVERTING);
@@ -1529,18 +1618,38 @@ void Temperature::init() {
     switch (*state) {
       // Inactive state waits for a target temperature to be set
       case TRInactive: break;
+
       // When first heating, wait for the temperature to be reached then go to Stable state
       case TRFirstHeating:
         if (current < tr_target_temperature[heater_index]) break;
         *state = TRStable;
+
       // While the temperature is stable watch for a bad temperature
       case TRStable:
+
+        #if ENABLED(ADAPTIVE_FAN_SLOWING) && FAN_COUNT > 0
+          if (heater_id >= 0) {
+            const int fan_index = MIN(heater_id, FAN_COUNT - 1);
+            if (fan_speed[fan_index] == 0 || current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.25f))
+              fan_speed_scaler[fan_index] = 128;
+            else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.3335f))
+              fan_speed_scaler[fan_index] = 96;
+            else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.5f))
+              fan_speed_scaler[fan_index] = 64;
+            else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.8f))
+              fan_speed_scaler[fan_index] = 32;
+            else
+              fan_speed_scaler[fan_index] = 0;
+          }
+        #endif
+
         if (current >= tr_target_temperature[heater_index] - hysteresis_degc) {
           *timer = millis() + period_seconds * 1000UL;
           break;
         }
         else if (PENDING(millis(), *timer)) break;
         *state = TRRunaway;
+
       case TRRunaway:
         _temp_error(heater_id, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, heater_id));
     }
@@ -2470,7 +2579,7 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-  #if ENABLED(ULTRA_LCD)
+  #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       #if HOTENDS > 1

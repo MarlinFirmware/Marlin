@@ -320,6 +320,71 @@ class Temperature {
       static float analog_to_celsiusChamber(const int raw);
     #endif
 
+    #if FAN_COUNT > 0
+
+      static uint8_t fan_speed[FAN_COUNT];
+      #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
+
+      static void set_fan_speed(const uint8_t target, const uint16_t speed);
+
+      #if ENABLED(PROBING_FANS_OFF)
+        static bool fans_paused;
+        static uint8_t paused_fan_speed[FAN_COUNT];
+      #endif
+
+      static constexpr inline uint8_t fanPercent(const uint8_t speed) { return (int(speed) * 100 + 127) / 255; }
+
+      #if ENABLED(ADAPTIVE_FAN_SLOWING)
+        static uint8_t fan_speed_scaler[FAN_COUNT];
+      #else
+        static constexpr uint8_t fan_speed_scaler[FAN_COUNT] = ARRAY_N(FAN_COUNT, 128, 128, 128, 128, 128, 128);
+      #endif
+
+      static inline uint8_t lcd_fanSpeedActual(const uint8_t target) {
+        return (fan_speed[target] * uint16_t(fan_speed_scaler[target])) >> 7;
+      }
+
+      #if ENABLED(EXTRA_FAN_SPEED)
+        static uint8_t old_fan_speed[FAN_COUNT], new_fan_speed[FAN_COUNT];
+        static void set_temp_fan_speed(const uint8_t fan, const int16_t tmp_temp);
+      #endif
+
+      #if HAS_LCD_MENU
+
+        static uint8_t lcd_tmpfan_speed[
+          #if ENABLED(SINGLENOZZLE)
+            MAX(EXTRUDERS, FAN_COUNT)
+          #else
+            FAN_COUNT
+          #endif
+        ];
+
+        static inline void lcd_setFanSpeed(const uint8_t target) { set_fan_speed(target, lcd_tmpfan_speed[target]); }
+
+        #if HAS_FAN0
+          FORCE_INLINE static void lcd_setFanSpeed0() { lcd_setFanSpeed(0); }
+        #endif
+        #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
+          FORCE_INLINE static void lcd_setFanSpeed1() { lcd_setFanSpeed(1); }
+        #endif
+        #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
+          FORCE_INLINE static void lcd_setFanSpeed2() { lcd_setFanSpeed(2); }
+        #endif
+
+      #endif // HAS_LCD_MENU
+
+      #if ENABLED(PROBING_FANS_OFF)
+        void set_fans_paused(const bool p);
+      #endif
+
+    #endif // FAN_COUNT > 0
+
+    static inline void zero_fan_speeds() {
+      #if FAN_COUNT > 0
+        FANS_LOOP(i) fan_speed[i] = 0;
+      #endif
+    }
+
     /**
      * Called from the Temperature ISR
      */
@@ -618,7 +683,7 @@ class Temperature {
       #endif
     #endif
 
-    #if ENABLED(ULTRA_LCD)
+    #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
       static void set_heating_message(const uint8_t e);
     #endif
 

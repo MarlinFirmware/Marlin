@@ -115,7 +115,7 @@ void MenuItem_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode);
  *
  * The prerequisite is that in the header the type was already declared:
  *
- *   DECLARE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1)
+ *   DECLARE_MENU_EDIT_TYPE(int16_t, int3, i16tostr3, 1)
  *
  * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into these functions:
  *
@@ -163,6 +163,8 @@ void MenuItemBase::init(PGM_P const el, void * const ev, const int32_t minv, con
 DEFINE_MENU_EDIT_ITEM(int3);
 DEFINE_MENU_EDIT_ITEM(int4);
 DEFINE_MENU_EDIT_ITEM(int8);
+DEFINE_MENU_EDIT_ITEM(uint8);
+DEFINE_MENU_EDIT_ITEM(uint16);
 DEFINE_MENU_EDIT_ITEM(float3);
 DEFINE_MENU_EDIT_ITEM(float52);
 DEFINE_MENU_EDIT_ITEM(float43);

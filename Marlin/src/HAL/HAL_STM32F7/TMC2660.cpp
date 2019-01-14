@@ -127,7 +127,7 @@ uint8_t current_scaling = 0;
  * dir_pin - the pin where the direction pin is connected
  * step_pin - the pin where the step pin is connected
  */
-TMC26XStepper::TMC26XStepper(int16_t number_of_steps, int16_t cs_pin, int16_t dir_pin, int16_t step_pin, uint16_t current, uint16_t resistor) {
+TMC26XStepper::TMC26XStepper(const int16_t in_steps, int16_t cs_pin, int16_t dir_pin, int16_t step_pin, uint16_t current, uint16_t resistor) {
   // We are not started yet
   started = false;
 
@@ -165,7 +165,7 @@ TMC26XStepper::TMC26XStepper(int16_t number_of_steps, int16_t cs_pin, int16_t di
   // Set a nice microstepping value
   setMicrosteps(DEFAULT_MICROSTEPPING_VALUE);
   // Save the number of steps
-  this->number_of_steps = number_of_steps;
+  number_of_steps = in_steps;
 }
 
 
@@ -389,52 +389,29 @@ char TMC26XStepper::getStallGuardFilter(void) {
  * any value in between will be mapped to the next smaller value
  * 0 and 1 set the motor in full step mode
  */
-void TMC26XStepper::setMicrosteps(int16_t number_of_steps) {
-  long setting_pattern;
-  //poor mans log
-  if (number_of_steps >= 256) {
-    setting_pattern = 0;
-    microsteps = 256;
-  }
-  else if (number_of_steps >= 128) {
-    setting_pattern = 1;
-    microsteps = 128;
-  }
-  else if (number_of_steps >= 64) {
-    setting_pattern = 2;
-    microsteps = 64;
-  }
-  else if (number_of_steps >= 32) {
-    setting_pattern = 3;
-    microsteps = 32;
-  }
-  else if (number_of_steps >= 16) {
-    setting_pattern = 4;
-    microsteps = 16;
-  }
-  else if (number_of_steps >= 8) {
-    setting_pattern = 5;
-    microsteps = 8;
-  }
-  else if (number_of_steps >= 4) {
-    setting_pattern = 6;
-    microsteps = 4;
-  }
-  else if (number_of_steps >= 2) {
-    setting_pattern = 7;
-    microsteps = 2;
-    //1 and 0 lead to full step
-  }
-  else if (number_of_steps <= 1) {
-    setting_pattern = 8;
-    microsteps = 1;
-  }
+void TMC26XStepper::setMicrosteps(const int16_t in_steps) {
+  uint16_t setting_pattern;
+
+       if (in_steps >= 256) setting_pattern = 0;
+  else if (in_steps >= 128) setting_pattern = 1;
+  else if (in_steps >=  64) setting_pattern = 2;
+  else if (in_steps >=  32) setting_pattern = 3;
+  else if (in_steps >=  16) setting_pattern = 4;
+  else if (in_steps >=   8) setting_pattern = 5;
+  else if (in_steps >=   4) setting_pattern = 6;
+  else if (in_steps >=   2) setting_pattern = 7;
+  else if (in_steps <=   1) setting_pattern = 8; // 1 and 0 lead to full step
+
+  microsteps = _BV(8 - setting_pattern);
+
   #ifdef TMC_DEBUG0 // crashes
     //SERIAL_PRINTF("Microstepping: ");
     SERIAL_ECHOPAIR("\n Microstepping: ", microsteps);
   #endif
+
   // Delete the old value
-  this->driver_control_register_value &= 0xFFFF0UL;
+  this->driver_control_register_value &= 0x000FFFF0UL;
+
   // Set the new value
   this->driver_control_register_value |= setting_pattern;
 

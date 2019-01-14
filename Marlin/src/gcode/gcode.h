@@ -488,7 +488,7 @@ private:
     static void M49();
   #endif
 
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && (ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI))
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
     static void M73();
   #endif
 
@@ -803,9 +803,6 @@ private:
     #endif
     #if USE_SENSORLESS
       static void M914();
-    #endif
-    #if ENABLED(TMC_Z_CALIBRATION)
-      static void M915();
     #endif
   #endif
 

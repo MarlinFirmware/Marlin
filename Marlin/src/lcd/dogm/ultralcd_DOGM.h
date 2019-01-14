@@ -117,6 +117,10 @@
   // Connected via motherboard header
   #define U8G_CLASS U8GLIB_SH1106_128X64
   #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS
+#elif ENABLED(MKS_ROBIN_TFT)
+  // Unspecified 320x240 TFT pre-initialized by built-in bootloader
+  #define U8G_CLASS U8GLIB_TFT_320X240_UPSCALE_FROM_128X64
+  #define U8G_PARAM FSMC_CS_PIN, FSMC_RS_PIN
 #else
   // for regular DOGM128 display with HW-SPI
   //#define U8G_CLASS U8GLIB_DOGM128

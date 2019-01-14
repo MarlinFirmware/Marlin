@@ -84,8 +84,8 @@ void PrintJobRecovery::changed() {
  */
 void PrintJobRecovery::check() {
   if (enabled) {
-    if (!card.flag.cardOK) card.initsd();
-    if (card.flag.cardOK) {
+    if (!card.isDetected()) card.initsd();
+    if (card.isDetected()) {
       load();
       if (!valid()) return purge();
       enqueue_and_echo_commands_P(PSTR("M1000 S"));
@@ -162,7 +162,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     #endif
 
     #if FAN_COUNT
-      COPY(info.fan_speed, fan_speed);
+      COPY(info.fan_speed, thermalManager.fan_speed);
     #endif
 
     #if HAS_LEVELING

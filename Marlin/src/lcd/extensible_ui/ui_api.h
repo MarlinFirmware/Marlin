@@ -72,7 +72,8 @@ namespace ExtUI {
   float getActualTemp_celsius(const extruder_t);
   float getTargetTemp_celsius(const heater_t);
   float getTargetTemp_celsius(const extruder_t);
-  float getFan_percent(const fan_t);
+  float getTargetFan_percent(const fan_t);
+  float getActualFan_percent(const fan_t);
   float getAxisPosition_mm(const axis_t);
   float getAxisPosition_mm(const extruder_t);
   float getAxisSteps_per_mm(const axis_t);
@@ -100,7 +101,7 @@ namespace ExtUI {
 
   void setTargetTemp_celsius(const float, const heater_t);
   void setTargetTemp_celsius(const float, const extruder_t);
-  void setFan_percent(const float, const fan_t);
+  void setTargetFan_percent(const float, const fan_t);
   void setAxisPosition_mm(const float, const axis_t);
   void setAxisPosition_mm(const float, const extruder_t);
   void setAxisSteps_per_mm(const float, const axis_t);

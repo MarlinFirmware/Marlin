@@ -44,7 +44,7 @@ uint8_t MarlinUI::preheat_fan_speed[2];
 //
 
 void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const uint8_t fan) {
-  if (temph > 0) thermalManager.setTargetHotend(MIN(heater_maxtemp[endnum], temph), endnum);
+  if (temph > 0) thermalManager.setTargetHotend(MIN(heater_maxtemp[endnum] - 15, temph), endnum);
   #if HAS_HEATED_BED
     if (tempb >= 0) thermalManager.setTargetBed(tempb);
   #else
@@ -52,9 +52,9 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
   #endif
   #if FAN_COUNT > 0
     #if FAN_COUNT > 1
-      fan_speed[active_extruder < FAN_COUNT ? active_extruder : 0] = fan;
+      thermalManager.set_fan_speed(active_extruder < FAN_COUNT ? active_extruder : 0, fan);
     #else
-      fan_speed[0] = fan;
+      thermalManager.set_fan_speed(0, fan);
     #endif
   #else
     UNUSED(fan);
@@ -292,7 +292,7 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
   }
 
   void lcd_cooldown() {
-    zero_fan_speeds();
+    thermalManager.zero_fan_speeds();
     thermalManager.disable_all_heaters();
     ui.return_to_status();
   }
@@ -339,21 +339,21 @@ void menu_temperature() {
   //
   #if FAN_COUNT > 0
     #if HAS_FAN0
-      MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fan_speed[0], 0, 255);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(uint8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &thermalManager.lcd_tmpfan_speed[0], 0, 255, thermalManager.lcd_setFanSpeed0);
       #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fan_speed[0], 3, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(uint8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
     #endif
-    #if HAS_FAN1
-      MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 2", &fan_speed[1], 0, 255);
+    #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(uint8, MSG_FAN_SPEED " 2", &thermalManager.lcd_tmpfan_speed[1], 0, 255, thermalManager.lcd_setFanSpeed1);
       #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 2", &new_fan_speed[1], 3, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(uint8, MSG_EXTRA_FAN_SPEED " 2", &thermalManager.new_fan_speed[1], 3, 255);
       #endif
     #endif
-    #if HAS_FAN2
-      MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 3", &fan_speed[2], 0, 255);
+    #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(uint8, MSG_FAN_SPEED " 3", &thermalManager.lcd_tmpfan_speed[2], 0, 255, thermalManager.lcd_setFanSpeed2);
       #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 3", &new_fan_speed[2], 3, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(uint8, MSG_EXTRA_FAN_SPEED " 3", &thermalManager.new_fan_speed[2], 3, 255);
       #endif
     #endif
   #endif // FAN_COUNT > 0

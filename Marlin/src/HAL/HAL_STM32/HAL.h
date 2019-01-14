@@ -24,10 +24,6 @@
 
 #define CPU_32_BIT
 
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
-
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
@@ -105,8 +101,6 @@
   #define NUM_SERIAL 1
 #endif
 
-#define _BV(b) (1 << (b))
-
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
@@ -177,7 +171,7 @@ void _delay_ms(const int delay);
 
 extern "C" char* _sbrk(int incr);
 
-static int freeMemory() {
+static inline int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }

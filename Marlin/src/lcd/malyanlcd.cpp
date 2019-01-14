@@ -255,7 +255,7 @@ void process_lcd_p_command(const char* command) {
         quickstop_stepper();
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
-        zero_fan_speeds();
+        thermalManager.zero_fan_speeds();
         wait_for_heatup = false;
         write_to_lcd_P(PSTR("{SYS:STARTED}"));
       #endif
@@ -330,7 +330,7 @@ void process_lcd_s_command(const char* command) {
 
     case 'L': {
       #if ENABLED(SDSUPPORT)
-        if (!card.flag.cardOK) card.initsd();
+        if (!card.isDetected()) card.initsd();
 
         // A more efficient way to do this would be to
         // implement a callback in the ls_SerialPrint code, but

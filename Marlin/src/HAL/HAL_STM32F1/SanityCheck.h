@@ -70,3 +70,7 @@
 #if ENABLED(EMERGENCY_PARSER)
   #error "EMERGENCY_PARSER is not yet implemented for STM32F1. Disable EMERGENCY_PARSER to continue."
 #endif
+
+#if ENABLED(SDIO_SUPPORT) && DISABLED(SDSUPPORT)
+  #error "SDIO_SUPPORT requires SDSUPPORT. Enable SDSUPPORT to continue."
+#endif
