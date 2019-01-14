@@ -185,6 +185,12 @@
 #endif
 
 //
+// Extruder Auto Fan Pins
+//
+#define ORIG_E0_AUTO_FAN_PIN EX1_FAN_PIN
+#define ORIG_E1_AUTO_FAN_PIN EX2_FAN_PIN
+
+//
 // Misc. Functions
 //
 #define LED_PIN            13   // B7
