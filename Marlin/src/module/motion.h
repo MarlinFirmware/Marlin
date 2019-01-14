@@ -289,14 +289,14 @@ void homeaxis(const AxisEnum axis);
 
   // Return true if the given position is within the machine bounds.
   inline bool position_is_reachable(const float &rx, const float &ry) {
-    if (!WITHIN(ry, Y_MIN_POS - slop, Y_MAX_POS + slop)) return false;
+    if (!WITHIN(ry, LOGICAL_Y_POSITION(Y_MIN_POS - slop), RAW_Y_POSITION(Y_MAX_POS + slop))) return false;
     #if ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
-        return WITHIN(rx, X2_MIN_POS - slop, X2_MAX_POS + slop);
+        return WITHIN(rx, LOGICAL_X_POSITION(X2_MIN_POS - slop), RAW_X_POSITION(X2_MAX_POS + slop));
       else
-        return WITHIN(rx, X1_MIN_POS - slop, X1_MAX_POS + slop);
+        return WITHIN(rx, LOGICAL_X_POSITION(X1_MIN_POS - slop), RAW_X_POSITION(X1_MAX_POS + slop));
     #else
-      return WITHIN(rx, X_MIN_POS - slop, X_MAX_POS + slop);
+      return WITHIN(rx, LOGICAL_X_POSITION(X_MIN_POS - slop), RAW_X_POSITION(X_MAX_POS + slop));
     #endif
   }
 
@@ -310,8 +310,8 @@ void homeaxis(const AxisEnum axis);
      */
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
       return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
-          && WITHIN(rx, MIN_PROBE_X - slop, MAX_PROBE_X + slop)
-          && WITHIN(ry, MIN_PROBE_Y - slop, MAX_PROBE_Y + slop);
+          && WITHIN(rx, LOGICAL_X_POSITION(MIN_PROBE_X - slop), RAW_X_POSITION(MAX_PROBE_X + slop))
+          && WITHIN(ry, LOGICAL_X_POSITION(MIN_PROBE_Y - slop), RAW_Y_POSITION(MAX_PROBE_Y + slop));
     }
   #endif
 
