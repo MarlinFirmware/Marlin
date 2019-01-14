@@ -122,9 +122,11 @@ void LEDLights::set_color(const LEDColor &incol
     // Update I2C LED driver
     pca9632_set_led_color(incol);
   #endif
+
   #if ENABLED(PCA9533)
-    RGBsetColor(incol.r , incol.g, incol.b, true);
+    RGBsetColor(incol.r, incol.g, incol.b, true);
   #endif
+
   #if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
     // Don't update the color when OFF
     lights_on = !incol.is_off();

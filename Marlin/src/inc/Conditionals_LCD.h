@@ -298,9 +298,10 @@
 // 2 wire Non-latching LCD SR from:
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 #if ENABLED(FF_INTERFACEBOARD)
-  #define SR_LCD_3W_NL    // Non latching 2 wire shift register
+  #define SR_LCD_3W_NL    // Non latching 3 wire shift register
   #define ULTIPANEL
 #endif
+
 #if ENABLED(SAV_3DLCD)
   #define SR_LCD_2W_NL    // Non latching 2 wire shift register
   #define ULTIPANEL

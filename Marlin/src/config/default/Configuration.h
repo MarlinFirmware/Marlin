@@ -1728,11 +1728,11 @@
 //#define SAV_3DLCD
 
 //
-//3 wire SR LCD with strobe using 74HC4094
-//https://github.com/mikeshub/SailfishLCD
-//uses the code directly from Sailfish
+// 3-wire SR LCD with strobe using 74HC4094
+// https://github.com/mikeshub/SailfishLCD
+// Uses the code directly from Sailfish
 //
-// #define FF_INTERFACEBOARD
+//#define FF_INTERFACEBOARD
 
 //=============================================================================
 //=======================   LCD / Controller Selection  =======================
@@ -1964,8 +1964,8 @@
 //#define PCA9632
 
 // Support for PCA9533 PWM LED driver
-//https://github.com/mikeshub/SailfishRGB_LED
-// #define PCA9533
+// https://github.com/mikeshub/SailfishRGB_LED
+//#define PCA9533
 
 /**
  * RGB LED / LED Strip Control
