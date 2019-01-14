@@ -148,15 +148,16 @@ void menu_main() {
       MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 
-  //
-  // Autostart
-  //
-  #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
-    if (!busy)
-      MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
-  #endif
+  #if ENABLED(SDSUPPORT)
 
-#if ENABLED(SDSUPPORT)
+    //
+    // Autostart
+    //
+    #if ENABLED(MENU_ADDAUTOSTART)
+      if (!busy)
+        MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
+    #endif
+
     if (card.isDetected()) {
       if(!card.isFileOpen()) {
       MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
@@ -166,12 +167,13 @@ void menu_main() {
       }
     }
     else {
-      MENU_ITEM(function, MSG_NO_CARD, NULL);
       #if !PIN_EXISTS(SD_DETECT)
-        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
+        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually init SD-card
       #endif
+      MENU_ITEM(function, MSG_NO_CARD, NULL);
     }
-  #endif
+  #endif // SDSUPPORT
+
   END_MENU();
 }
 
