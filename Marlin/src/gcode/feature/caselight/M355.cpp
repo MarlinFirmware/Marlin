@@ -61,4 +61,4 @@
       else SERIAL_ECHOLNPAIR("Case light: ", case_light_brightness);
     }
   }
-#endif
+#endif // HAS_CASE_LIGHT
