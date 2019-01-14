@@ -662,9 +662,6 @@ void GcodeSuite::process_parsed_command(
         #if USE_SENSORLESS
           case 914: M914(); break;                                // M914: Set StallGuard sensitivity.
         #endif
-        #if ENABLED(TMC_Z_CALIBRATION)
-          case 915: M915(); break;                                // M915: TMC Z axis calibration.
-        #endif
       #endif
 
       #if HAS_MICROSTEPS

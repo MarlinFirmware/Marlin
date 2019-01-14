@@ -48,7 +48,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("X 홈으로")
 #define MSG_AUTO_HOME_Y                     _UxGT("Y 홈으로")
 #define MSG_AUTO_HOME_Z                     _UxGT("Z 홈으로")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Z 캘리브레이션")
 #define MSG_LEVEL_BED_HOMING                _UxGT("XYZ 홈으로")
 #define MSG_LEVEL_BED_WAITING               _UxGT("누르면 시작합니다")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("다음 Point")
