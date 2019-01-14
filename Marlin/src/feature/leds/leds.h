@@ -187,6 +187,7 @@ public:
     static LEDColor color; // last non-off color
     static bool lights_on; // the last set color was "on"
   #endif
+
   #if ENABLED(LED_CONTROL_MENU)
     static void toggle();  // swap "off" with color
     static inline void update() { set_color(color); }
