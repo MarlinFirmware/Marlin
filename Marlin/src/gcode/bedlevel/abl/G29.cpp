@@ -391,11 +391,16 @@ G29_TYPE GcodeSuite::G29() {
         back_probe_bed_position  = MIN(front_probe_bed_position + size, MAX_PROBE_Y);
       }
       else {
-        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : LEFT_PROBE_BED_POSITION;
-        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : RIGHT_PROBE_BED_POSITION;
-        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
-        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
+        left_probe_bed_position  = parser.seenval('L') ? (int)parser.value_linear_units() : LEFT_PROBE_BED_POSITION;
+        right_probe_bed_position = parser.seenval('R') ? (int)parser.value_linear_units() : RIGHT_PROBE_BED_POSITION;
+        front_probe_bed_position = parser.seenval('F') ? (int)parser.value_linear_units() : FRONT_PROBE_BED_POSITION;
+        back_probe_bed_position  = parser.seenval('B') ? (int)parser.value_linear_units() : BACK_PROBE_BED_POSITION;
       }
+
+      left_probe_bed_position  = RAW_X_POSITION(left_probe_bed_position);
+      right_probe_bed_position = RAW_X_POSITION(right_probe_bed_position);
+      front_probe_bed_position = RAW_Y_POSITION(front_probe_bed_position);
+      back_probe_bed_position  = RAW_Y_POSITION(back_probe_bed_position);
 
       if (
         #if IS_SCARA || ENABLED(DELTA)
