@@ -22,23 +22,7 @@
 
 /**
  * Mightyboard Rev.E pin assignments
- */
-
-/**
- *
- * This is a starting-point to support the Makerbot Replicator series of 3D printers.
- * It's not functional because Marlin has limited support for some features.
- * Marlin will need the following augmentations before it will be supportable:
- *
- *   - Support for two or more MAX6675 thermocouples
- *   - Support for multiple i2c buses to control the MCP4018 digital pots
- *   - Support for one additional unidirectional SPI bus, to read the thermocouples
- *   - Support for an RGB LED that may work differently from BLINKM
- *
- * The MCP4018 requires separate I2C buses because it has a fixed address (0x2F << 1 = 0x5E)
- * The thermocouples share the same SCK and DO pins, with their own CS pins.
- * The controller interface port connects to a 3-wire shift-register display controller
- *
+ * also works for Rev D boards. It's all rev E despite what the silk screen says
  */
 
 /**
@@ -48,7 +32,7 @@
  *    M3, M4 & M5 spindle control commands
  *    case light
  *
- *  Corrected pin assignment for MOSFET_B_PIN pin. Changed it from 9 to 11.  The port
+ *  Corrected pin assignment for EX2_HEAT_PIN pin. Changed it from 9 to 11.  The port
  *  number (B5) agrees with the schematic but B5 is assigned to logical pin 11.
  */
 
@@ -119,12 +103,14 @@
 #define DIGIPOTS_I2C_SDA_Z  65   // K3
 #define DIGIPOTS_I2C_SDA_E0 27   // A5
 #define DIGIPOTS_I2C_SDA_E1 77   // J6
+
 #define DIGIPOT_I2C_ADDRESS_A 0x2F   // unshifted slave address (5E <- 2F << 1)
 
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN        15   // K7 - 69 / ADC15 - 15
+// K7 - 69 / ADC15 - 15
+#define TEMP_BED_PIN       15
 
 // SPI for Max6675 or Max31855 Thermocouple
 // Uses a separate SPI bus
@@ -151,10 +137,14 @@
 // 2 extruders or 1 extruder and a heated bed.
 // With no heated bed, an additional 24V fan is possible.
 //
-#define MOSFET_A_PIN        6   // H3
-#define MOSFET_B_PIN       11   // B5 - Rev A of this file had this pin assigned to 9
-#define MOSFET_C_PIN       45   // L4
-#define MOSFET_D_PIN       44   // L5
+
+// Labels from the schematic:
+#define EX1_HEAT_PIN        6   // H3
+#define EX1_FAN_PIN         7   // H4
+#define EX2_HEAT_PIN       11   // B5
+#define EX2_FAN_PIN        12   // B6
+#define HBP_PIN            45   // L4
+#define EXTRA_FET_PIN      44   // L5
 
 #if HOTENDS > 1
   #if TEMP_SENSOR_BED
@@ -171,34 +161,34 @@
 //
 // Heaters / Fans (24V)
 //
-#define HEATER_0_PIN     MOSFET_A_PIN
+#define HEATER_0_PIN       EX1_HEAT_PIN
 
 #if ENABLED(IS_EFB)                            // Hotend, Fan, Bed
-  #define HEATER_BED_PIN   MOSFET_C_PIN
+  #define HEATER_BED_PIN   HBP_PIN
 #elif ENABLED(IS_EEF)                          // Hotend, Hotend, Fan
-  #define HEATER_1_PIN     MOSFET_B_PIN
+  #define HEATER_1_PIN     EX2_HEAT_PIN
 #elif ENABLED(IS_EEB)                          // Hotend, Hotend, Bed
-  #define HEATER_1_PIN     MOSFET_B_PIN
-  #define HEATER_BED_PIN   MOSFET_C_PIN
+  #define HEATER_1_PIN     EX2_HEAT_PIN
+  #define HEATER_BED_PIN   HBP_PIN
 #elif ENABLED(IS_EFF)                          // Hotend, Fan, Fan
-  #define FAN1_PIN         MOSFET_C_PIN
+  #define FAN1_PIN         HBP_PIN
 #endif
 
 #ifndef FAN_PIN
   #if ENABLED(IS_EFB) || ENABLED(IS_EFF)       // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN_PIN        MOSFET_B_PIN
+    #define FAN_PIN        EX2_HEAT_PIN
   #elif ENABLED(IS_EEF) || ENABLED(IS_SF)      // Hotend, Hotend, Fan or Spindle, Fan
-    #define FAN_PIN        MOSFET_C_PIN
+    #define FAN_PIN        HBP_PIN
   #else
-    #define FAN_PIN        MOSFET_D_PIN
+    #define FAN_PIN        EXTRA_FET_PIN
   #endif
 #endif
 
 //
 // Extruder Auto Fan Pins
 //
-#define ORIG_E0_AUTO_FAN_PIN  7   // H4
-#define ORIG_E1_AUTO_FAN_PIN 12   // B6
+#define ORIG_E0_AUTO_FAN_PIN EX1_FAN_PIN
+#define ORIG_E1_AUTO_FAN_PIN EX2_FAN_PIN
 
 //
 // Misc. Functions
@@ -239,20 +229,24 @@
   // Replicator uses a 3-wire SR controller with HD44780
   // For now, pretend it's the SAV
   //
+  //#define FF_INTERFACEBOARD
 
-  #define SAV_3DLCD
   #define SR_DATA_PIN      34   // C3
   #define SR_CLK_PIN       35   // C2
   #define SR_STROBE_PIN    33   // C4
 
   #define BTN_UP           75   // J4
-  #define BTN_DOWN         73   // J3
-  #define BTN_LEFT         72   // J2
-  #define BTN_RIGHT        14   // J1
+  #define BTN_DWN          73   // J3
+  #define BTN_LFT          72   // J2
+  #define BTN_RT           14   // J1
   #define BTN_CENTER       15   // J0
   #define BTN_ENC          BTN_CENTER
 
-  #define BEEPER_PIN        4   // G5
+  // Disable encoder
+  #undef BTN_EN1
+  #undef BTN_EN2
+
+  #define BEEPER_PIN         4   // G5
 
   #define STAT_LED_RED_PIN  32   // C5
   #define STAT_LED_BLUE_PIN 31   // C6 (Actually green)
@@ -264,7 +258,6 @@
 //
 #define SDSS               53   // B0
 #define SD_DETECT_PIN       9   // H6
-
 #define MAX_PIN             THERMO_SCK_PIN
 
 //

@@ -80,6 +80,14 @@
     #endif
   );
 
+#elif ENABLED(SR_LCD_3W_NL)
+
+  // NewLiquidCrystal was not working
+  // https://github.com/mikeshub/SailfishLCD
+  // uses the code directly from Sailfish
+
+  LCD_CLASS lcd(SR_STROBE_PIN, SR_DATA_PIN, SR_CLK_PIN);
+
 #elif ENABLED(LCM1602)
 
   LCD_CLASS lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);

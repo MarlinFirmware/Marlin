@@ -57,8 +57,8 @@ static void _change_filament_temp(const uint16_t temperature) {
   thermalManager.setTargetHotend(temperature, _change_filament_temp_extruder);
   lcd_enqueue_command(cmd);
 }
-inline void _lcd_change_filament_temp_1_func()    { _change_filament_temp(PREHEAT_1_TEMP_HOTEND); }
-inline void _lcd_change_filament_temp_2_func()    { _change_filament_temp(PREHEAT_2_TEMP_HOTEND); }
+inline void _lcd_change_filament_temp_1_func()    { _change_filament_temp(ui.preheat_hotend_temp[0]); }
+inline void _lcd_change_filament_temp_2_func()    { _change_filament_temp(ui.preheat_hotend_temp[1]); }
 inline void _lcd_change_filament_temp_custom_cb() { _change_filament_temp(thermalManager.target_temperature[_change_filament_temp_extruder]); }
 
 static PGM_P change_filament_header(const AdvancedPauseMode mode) {

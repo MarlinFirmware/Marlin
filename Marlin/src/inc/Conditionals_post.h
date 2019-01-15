@@ -145,7 +145,7 @@
   #if ENABLED(DELTA)
     #define X_HOME_POS 0
   #else
-    #define X_HOME_POS ((X_BED_SIZE) * (X_HOME_DIR) * 0.5)
+    #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
   #endif
 #else
   #if ENABLED(DELTA)
@@ -161,7 +161,7 @@
   #if ENABLED(DELTA)
     #define Y_HOME_POS 0
   #else
-    #define Y_HOME_POS ((Y_BED_SIZE) * (Y_HOME_DIR) * 0.5)
+    #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
   #endif
 #else
   #if ENABLED(DELTA)

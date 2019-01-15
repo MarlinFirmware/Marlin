@@ -38,6 +38,10 @@
   #include "pca9632.h"
 #endif
 
+#if ENABLED(PCA9533)
+  #include "SailfishRGB_LED.h"
+#endif
+
 #if ENABLED(LED_COLOR_PRESETS)
   const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
     LED_USER_PRESET_RED,
@@ -117,6 +121,10 @@ void LEDLights::set_color(const LEDColor &incol
   #if ENABLED(PCA9632)
     // Update I2C LED driver
     pca9632_set_led_color(incol);
+  #endif
+
+  #if ENABLED(PCA9533)
+    RGBsetColor(incol.r, incol.g, incol.b, true);
   #endif
 
   #if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
