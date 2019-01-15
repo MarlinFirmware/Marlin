@@ -31,8 +31,12 @@
 #include "menu.h"
 #include "../../module/temperature.h"
 
-#if FAN_COUNT > 1
+#if FAN_COUNT > 1 || ENABLED(SINGLENOZZLE)
   #include "../../module/motion.h"
+#endif
+
+#if ENABLED(SINGLENOZZLE)
+  #include "../../module/tool_change.h"
 #endif
 
 // Initialized by settings.load()
@@ -326,6 +330,10 @@ void menu_temperature() {
       #endif // HOTENDS > 3
     #endif // HOTENDS > 2
   #endif // HOTENDS > 1
+
+  #if ENABLED(SINGLENOZZLE)
+    MENU_MULTIPLIER_ITEM_EDIT(uint16_3, MSG_NOZZLE_STANDBY, &singlenozzle_temp[active_extruder ? 0 : 1], 0, HEATER_0_MAXTEMP - 15);
+  #endif
 
   //
   // Bed:
