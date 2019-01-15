@@ -31,6 +31,10 @@
 #include "../../../sd/cardreader.h"
 #include "../../../module/printcounter.h"
 
+#if HAS_LCD_MENU
+  #include "../../../lcd/ultralcd.h"
+#endif
+
 /**
  * M125: Store current position and move to filament change position.
  *       Called on pause (by M25) to prevent material leaking onto the
@@ -74,12 +78,17 @@ void GcodeSuite::M125() {
     constexpr bool sd_printing = false;
   #endif
 
-  if (pause_print(retract, park_point)) {
-    // SD Printing simply pauses, leaving the machine in a ready state,
-    // and can be resumed at any time, so don't wait in a loop here.
-    if (!sd_printing) {
-      wait_for_confirmation();
-      resume_print();
+  #if HAS_LCD_MENU
+    const bool show_lcd = parser.seenval('P');
+    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, active_extruder);
+  #else
+    constexpr bool show_lcd = false;
+  #endif
+
+  if (pause_print(retract, park_point, 0, show_lcd)) {
+    if (!sd_printing || show_lcd ) {
+      wait_for_confirmation(false, 0);
+      resume_print(0, 0, PAUSE_PARK_RETRACT_LENGTH, 0);
     }
   }
 }

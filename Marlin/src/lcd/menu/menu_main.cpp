@@ -32,6 +32,7 @@
 #include "../../module/temperature.h"
 #include "../../gcode/queue.h"
 #include "../../module/printcounter.h"
+#include "../../module/stepper.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/power_loss_recovery.h"
@@ -43,12 +44,14 @@ void lcd_pause() {
   #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    pause_print(PAUSE_PARK_RETRACT_LENGTH, NOZZLE_PARK_POINT, 0, true);
+    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, active_extruder);
+    enqueue_and_echo_commands_P(PSTR("M25 P; \n M24"));
   #elif ENABLED(SDSUPPORT)
     enqueue_and_echo_commands_P(PSTR("M25"));
   #elif defined(ACTION_ON_PAUSE)
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
   #endif
+  planner.synchronize();
 }
 
 void lcd_resume() {
@@ -97,14 +100,15 @@ void menu_main() {
 
   if (busy) {
     MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_pause);
-    MENU_ITEM(submenu, MSG_TUNE, menu_tune);
-  }
-  else {
-    MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
     #if ENABLED(SDSUPPORT)
       if (card.isFileOpen())
         MENU_ITEM(submenu, MSG_STOP_PRINT, menu_sdcard_abort_confirm);
     #endif
+    MENU_ITEM(submenu, MSG_TUNE, menu_tune);
+  }
+  else {
+    MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
+    
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
     MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
   }
@@ -154,11 +158,13 @@ void menu_main() {
         MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
     #endif
 
-    if (card.isDetected() && !card.isFileOpen()) {
+    if (card.isDetected()) {
+      if(!card.isFileOpen()) {
+      MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
       #if !PIN_EXISTS(SD_DETECT)
         MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
       #endif
-      MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
+      }
     }
     else {
       #if !PIN_EXISTS(SD_DETECT)
@@ -166,7 +172,6 @@ void menu_main() {
       #endif
       MENU_ITEM(function, MSG_NO_CARD, NULL);
     }
-
   #endif // SDSUPPORT
 
   END_MENU();
