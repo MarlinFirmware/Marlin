@@ -130,10 +130,6 @@ void menu_main() {
     #endif
   #endif
 
-  #if ENABLED(LCD_INFO_MENU)
-    MENU_ITEM(submenu, MSG_INFO_MENU, menu_info);
-  #endif
-
   #if ENABLED(LED_CONTROL_MENU)
     MENU_ITEM(submenu, MSG_LED_CONTROL, menu_led);
   #endif
@@ -162,7 +158,7 @@ void menu_main() {
       if(!card.isFileOpen()) {
       MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
       #if !PIN_EXISTS(SD_DETECT)
-        MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
+        MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21")); // SD-card changed by user
       #endif
       }
     }
@@ -173,6 +169,10 @@ void menu_main() {
       MENU_ITEM(function, MSG_NO_CARD, NULL);
     }
   #endif // SDSUPPORT
+
+  #if ENABLED(LCD_INFO_MENU)
+    MENU_ITEM(submenu, MSG_INFO_MENU, menu_info);
+  #endif
 
   END_MENU();
 }
