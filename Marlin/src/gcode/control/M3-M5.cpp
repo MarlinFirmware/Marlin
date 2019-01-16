@@ -77,7 +77,7 @@ inline void ocr_val_mode() {
   analogWrite(SPINDLE_LASER_PWM_PIN, spindle_laser_power);
 }
 
-void GcodeSuite::M3_M4(bool is_M3) {
+void GcodeSuite::M3_M4(const bool is_M3) {
 
   planner.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
   #if SPINDLE_DIR_CHANGE
