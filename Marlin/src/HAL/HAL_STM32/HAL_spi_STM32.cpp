@@ -116,7 +116,7 @@ uint8_t spiRec(void) {
  */
 void spiRead(uint8_t* buf, uint16_t nbyte) {
   if (nbyte == 0) return;
-  memset(buf, 0xff, nbyte);
+  memset(buf, 0xFF, nbyte);
   SPI.beginTransaction(spiConfig);
   SPI.transfer(buf, nbyte);
   SPI.endTransaction();
