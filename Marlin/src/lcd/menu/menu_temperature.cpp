@@ -299,15 +299,46 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
 
 #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
 
-#if ENABLED(SPINDLE_LASER_ENABLE) && DISABLED(SPINDLE_LASER_PWM)
-void menu_LASER() {
+#if ENABLED(SPINDLE_LASER_ENABLE)
+
+  extern uint8_t spindle_laser_power;
+  bool spindle_laser_enabled();
+  void set_spindle_laser_enabled(const bool enabled);
+  #if ENABLED(SPINDLE_LASER_PWM)
+    void update_spindle_laser_power();
+  #endif
+
+  inline void _lcd_spindle_laser_off() { set_spindle_laser_enabled(false); }
+  inline void _lcd_spindle_laser_on(const bool is_M4) {
+    #if SPINDLE_DIR_CHANGE
+      set_spindle_direction(is_M4);
+    #endif
+    set_spindle_laser_enabled(true);
+  }
+  inline void _lcd_spindle_laser_on() { _lcd_spindle_laser_on(false); }
+  #if SPINDLE_DIR_CHANGE
+    inline void _lcd_spindle_on_reverse() { _lcd_spindle_laser_on(true); }
+  #endif
+
+  void menu_spindle_laser() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM(gcode, MSG_LASER_ON,  PSTR("M3"));
-    MENU_ITEM(gcode, MSG_LASER_OFF, PSTR("M5"));
+    if (spindle_laser_enabled()) {
+      #if ENABLED(SPINDLE_LASER_PWM)
+        MENU_ITEM_EDIT_CALLBACK(int3, MSG_LASER_POWER, &spindle_laser_power, SPEED_POWER_MIN, SPEED_POWER_MAX, update_spindle_laser_power);
+      #endif
+      MENU_ITEM(function, MSG_LASER_OFF, _lcd_spindle_laser_off);
+    }
+    else {
+      MENU_ITEM(function, MSG_LASER_ON, _lcd_spindle_laser_on);
+      #if SPINDLE_DIR_CHANGE
+        MENU_ITEM(function, MSG_SPINDLE_REVERSE, _lcd_spindle_on_reverse);
+      #endif
+    }
     END_MENU();
   }
-#endif
+
+#endif // SPINDLE_LASER_ENABLE
 
 void menu_temperature() {
   START_MENU();
@@ -393,8 +424,8 @@ void menu_temperature() {
 
   #endif // HAS_TEMP_HOTEND
 
-  #if ENABLED(SPINDLE_LASER_ENABLE) && DISABLED(SPINDLE_LASER_PWM)
-    MENU_ITEM(submenu, MSG_LASER_MENU, menu_LASER);
+  #if ENABLED(SPINDLE_LASER_ENABLE)
+    MENU_ITEM(submenu, MSG_LASER_MENU, menu_spindle_laser);
   #endif
 
   END_MENU();
