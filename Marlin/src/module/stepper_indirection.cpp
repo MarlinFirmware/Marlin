@@ -207,10 +207,10 @@
 
     CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
-    chopconf.toff = chopper_timing[0];
+    chopconf.toff = chopper_timing.toff;
     chopconf.intpol = INTERPOLATE;
-    chopconf.hend = chopper_timing[1] + 3;
-    chopconf.hstrt = chopper_timing[2] - 1;
+    chopconf.hend = chopper_timing.hstrt + 3;
+    chopconf.hstrt = chopper_timing.hend - 1;
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -451,10 +451,10 @@
 
     TMC2208_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 0b01; // blank_time = 24
-    chopconf.toff = chopper_timing[0];
+    chopconf.toff = chopper_timing.toff;
     chopconf.intpol = INTERPOLATE;
-    chopconf.hend = chopper_timing[1] + 3;
-    chopconf.hstrt = chopper_timing[2] - 1;
+    chopconf.hend = chopper_timing.hstrt + 3;
+    chopconf.hstrt = chopper_timing.hend - 1;
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -545,9 +545,9 @@
 
     TMC2660_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
-    chopconf.toff = chopper_timing[0];
-    chopconf.hend = chopper_timing[1] + 3;
-    chopconf.hstrt = chopper_timing[2] - 1;
+    chopconf.toff = chopper_timing.toff;
+    chopconf.hend = chopper_timing.hstrt + 3;
+    chopconf.hstrt = chopper_timing.hend - 1;
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA);
