@@ -205,14 +205,12 @@
   void tmc_init(TMCMarlin<TMC2130Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
     st.begin();
 
-    static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
-
     CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
-    chopconf.toff = timings[0];
+    chopconf.toff = chopper_timing.toff;
     chopconf.intpol = INTERPOLATE;
-    chopconf.hend = timings[1] + 3;
-    chopconf.hstrt = timings[2] - 1;
+    chopconf.hend = chopper_timing.hstrt + 3;
+    chopconf.hstrt = chopper_timing.hend - 1;
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -221,6 +219,7 @@
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
 
     st.en_pwm_mode(stealth);
+    st.stored.stealthChop_enabled = stealth;
 
     PWMCONF_t pwmconf{0};
     pwmconf.pwm_freq = 0b01; // f_pwm = 2/683 f_clk
@@ -442,21 +441,20 @@
 
   template<char AXIS_LETTER, char DRIVER_ID>
   void tmc_init(TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
-    static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
-
     TMC2208_n::GCONF_t gconf{0};
     gconf.pdn_disable = true; // Use UART
     gconf.mstep_reg_select = true; // Select microsteps with UART
     gconf.i_scale_analog = false;
     gconf.en_spreadcycle = !stealth;
     st.GCONF(gconf.sr);
+    st.stored.stealthChop_enabled = stealth;
 
     TMC2208_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 0b01; // blank_time = 24
-    chopconf.toff = timings[0];
+    chopconf.toff = chopper_timing.toff;
     chopconf.intpol = INTERPOLATE;
-    chopconf.hend = timings[1] + 3;
-    chopconf.hstrt = timings[2] - 1;
+    chopconf.hend = chopper_timing.hstrt + 3;
+    chopconf.hstrt = chopper_timing.hend - 1;
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -545,13 +543,11 @@
   void tmc_init(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const float, const bool) {
     st.begin();
 
-    static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
-
     TMC2660_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
-    chopconf.toff = timings[0];
-    chopconf.hend = timings[1] + 3;
-    chopconf.hstrt = timings[2] - 1;
+    chopconf.toff = chopper_timing.toff;
+    chopconf.hend = chopper_timing.hstrt + 3;
+    chopconf.hstrt = chopper_timing.hend - 1;
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA);

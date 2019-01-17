@@ -85,6 +85,10 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if HAS_TRINAMIC
+  #include "../feature/tmc_util.h"
+#endif
+
 #if HAS_ENCODER_ACTION
   volatile uint8_t MarlinUI::buttons;
   #if HAS_SLOW_BUTTONS
@@ -254,6 +258,10 @@ void MarlinUI::init() {
 
   #if HAS_ENCODER_ACTION
     encoderDiff = 0;
+  #endif
+
+  #if HAS_TRINAMIC
+    init_tmc_section();
   #endif
 }
 

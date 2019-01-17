@@ -698,6 +698,11 @@ void MarlinUI::init() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
+
+  #if HAS_TRINAMIC
+    init_tmc_section();
+  #endif
+
   ExtUI::onStartup();
 }
 
