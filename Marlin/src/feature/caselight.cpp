@@ -69,7 +69,6 @@ void update_case_light() {
 
   #else // !CASE_LIGHT_USE_NEOPIXEL
 
-    SET_OUTPUT(CASE_LIGHT_PIN);
     if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
       analogWrite(CASE_LIGHT_PIN, n10ct);
     else {
