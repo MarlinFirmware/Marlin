@@ -448,13 +448,13 @@ void Stepper::set_directions() {
       // L6470_E_dir_commands[6] is an array that holds direction command for each extruder
 
       //scan E command array and copy matches into L6470_Transfer
-      for (uint8_t j = 1; j <= L6470_chain[0] ; j++)
+      for (uint8_t j = 1; j <= L6470_chain[0]; j++)
         if (L6470_chain[j] >= L6470_E0_INDEX)
           L6470_buf[j] = L6470_E_dir_commands[L6470_chain[j] - L6470_E0_INDEX];
 
     #endif
 
-    void L6470_Transfer(uint8_t L6470_buf[] , uint8_t length);
+    void L6470_Transfer(uint8_t L6470_buf[], uint8_t length);
     L6470_Transfer(L6470_buf, L6470_chain[0]);  // send the command stream to the drivers
 
   #endif

@@ -1514,14 +1514,13 @@
  *
  * On an axis with multiple stepper drivers, if one driver is a L6470 then all must be L6470s.
  *
- * The following MUST be defined in the pins_YOUR_BOARD.h file
+ * The following MUST be defined here or in the pins_YOUR_BOARD.h file
  *   L6470_CHAIN_SCK_PIN
  *   L6470_CHAIN_MISO_PIN
  *   L6470_CHAIN_MOSI_PIN
  *   L6470_CHAIN_SS_PIN
  */
 #if HAS_DRIVER(ST_L6470)
-
 
   #define X_MICROSTEPS       128 // number of microsteps (VALID: 1, 2, 4, 8, 16, 32, 64 & 128)
   #define X_OVERCURRENT     2000 // current in mA where the driver will detect an over current (VALID: 375 x (1-16) - 6A max - rounds up)
@@ -1602,21 +1601,21 @@
   #define E5_CHAIN_POS         0
 
   /**
-    * Monitor L6470 drivers for error conditions like over temperature and over current.
-    * In the case of over temperature Marlin can decrease the drive until the error condition clears.
-    * Other detected conditions can be used to stop the current print.
-    * Relevant g-codes:
-    * M906 - I1/2/3/4/5  Set or get motor drive level using axis codes X, Y, Z, E. Report values if no axis codes given.
-    *         I not present or I0 or I1 - X, Y, Z or E0
-    *         I2 - X2, Y2, Z2 or E1
-    *         I3 - Z3 or E3
-    *         I4 - E4
-    *         I5 - E5
-    * M916 - Increase drive level until get thermal warning
-    * M917 - Find minimum current thresholds
-    * M918 - Increase speed until max or error
-    * M122 S0/1 - Report driver parameters
-  */
+   * Monitor L6470 drivers for error conditions like over temperature and over current.
+   * In the case of over temperature Marlin can decrease the drive until the error condition clears.
+   * Other detected conditions can be used to stop the current print.
+   * Relevant g-codes:
+   * M906 - I1/2/3/4/5  Set or get motor drive level using axis codes X, Y, Z, E. Report values if no axis codes given.
+   *         I not present or I0 or I1 - X, Y, Z or E0
+   *         I2 - X2, Y2, Z2 or E1
+   *         I3 - Z3 or E3
+   *         I4 - E4
+   *         I5 - E5
+   * M916 - Increase drive level until get thermal warning
+   * M917 - Find minimum current thresholds
+   * M918 - Increase speed until max or error
+   * M122 S0/1 - Report driver parameters
+   */
   #define MONITOR_L6470_DRIVER_STATUS
 
   #if ENABLED(MONITOR_L6470_DRIVER_STATUS)

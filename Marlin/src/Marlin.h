@@ -53,7 +53,20 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 //
 // X, Y, Z Stepper enable / disable
 //
-#if !AXIS_DRIVER_TYPE(X, ST_L6470)
+#if AXIS_DRIVER_TYPE(X, ST_L6470)
+
+  extern L6470 stepperX;
+  extern L6470 stepperX2;
+
+  #define enable_X() NOOP
+
+  #if AXIS_DRIVER_TYPE(X2, ST_L6470)
+    #define disable_X() do{ stepperX.free(); stepperX2.free(); CBI(axis_known_position, X_AXIS); }while(0)
+  #else
+    #define disable_X() do{ stepperX.free(); CBI(axis_known_position, X_AXIS); }while(0)
+  #endif
+
+#else
 
   #if HAS_X2_ENABLE
     #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
@@ -66,22 +79,22 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
     #define disable_X() NOOP
   #endif
 
-#else
-
-  extern L6470 stepperX;
-  extern L6470 stepperX2;
-
-  #if AXIS_DRIVER_TYPE(X2, ST_L6470)
-    #define disable_X() do{ stepperX.free(); stepperX2.free(); CBI(axis_known_position, X_AXIS); }while(0)
-  #else
-    #define disable_X() do{ stepperX.free(); CBI(axis_known_position, X_AXIS); }while(0)
-  #endif
-
-  #define  enable_X() NOOP
-
 #endif
 
-#if !AXIS_DRIVER_TYPE(Y, ST_L6470)
+#if AXIS_DRIVER_TYPE(Y, ST_L6470)
+
+  extern L6470 stepperY;
+  extern L6470 stepperY2;
+
+  #define enable_Y() NOOP
+
+  #if AXIS_DRIVER_TYPE(Y2, ST_L6470)
+    #define disable_Y() do{ stepperY.free(); stepperY2.free(); CBI(axis_known_position, Y_AXIS); }while(0)
+  #else
+    #define disable_Y() do{ stepperY.free(); CBI(axis_known_position, Y_AXIS); }while(0)
+  #endif
+
+#else
 
   #if HAS_Y2_ENABLE
     #define  enable_Y() do{ Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }while(0)
@@ -94,22 +107,25 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
     #define disable_Y() NOOP
   #endif
 
-#else
-
-  extern L6470 stepperY;
-  extern L6470 stepperY2;
-
-  #if AXIS_DRIVER_TYPE(Y2, ST_L6470)
-    #define disable_Y() do{ stepperY.free(); stepperY2.free(); CBI(axis_known_position, Y_AXIS); }while(0)
-  #else
-    #define disable_Y() do{ stepperY.free(); CBI(axis_known_position, Y_AXIS); }while(0)
-  #endif
-
-  #define  enable_Y() NOOP
-
 #endif
 
-#if !AXIS_DRIVER_TYPE(Z, ST_L6470)
+#if AXIS_DRIVER_TYPE(Z, ST_L6470)
+
+  extern L6470 stepperZ;
+  extern L6470 stepperZ2;
+  extern L6470 stepperZ3;
+
+  #define enable_Z() NOOP
+
+  #if AXIS_DRIVER_TYPE(Z3, ST_L6470)
+    #define disable_Z() do{ stepperZ.free(); stepperZ2.free(); stepperZ3.free(); CBI(axis_known_position, Z_AXIS); }while(0)
+  #elif AXIS_DRIVER_TYPE(Z2, ST_L6470)
+    #define disable_Z() do{ stepperZ.free(); stepperZ2.free(); CBI(axis_known_position, Z_AXIS); }while(0)
+  #else
+    #define disable_Z() do{ stepperZ.free(); CBI(axis_known_position, Z_AXIS); }while(0)
+  #endif
+
+#else
 
   #if HAS_Z3_ENABLE
     #define  enable_Z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); Z3_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
@@ -125,29 +141,68 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
     #define disable_Z() NOOP
   #endif
 
-#else
-
-  extern L6470 stepperZ;
-  extern L6470 stepperZ2;
-  extern L6470 stepperZ3;
-
-  #if AXIS_DRIVER_TYPE(Z3, ST_L6470)
-    #define disable_Z() do{ stepperZ.free(); stepperZ2.free(); stepperZ3.free(); CBI(axis_known_position, Z_AXIS); }while(0)
-  #elif AXIS_DRIVER_TYPE(Z2, ST_L6470)
-    #define disable_Z() do{ stepperZ.free(); stepperZ2.free(); CBI(axis_known_position, Z_AXIS); }while(0)
-  #else
-    #define disable_Z() do{ stepperZ.free(); CBI(axis_known_position, Z_AXIS); }while(0)
-  #endif
-
-  #define  enable_Z() NOOP
-
 #endif  // end  X, Y, Z Stepper enable / disable
-
 
 //
 // Extruder Stepper enable / disable
 //
-#if !AXIS_DRIVER_TYPE(E0, ST_L6470)
+#if AXIS_DRIVER_TYPE(E0, ST_L6470)
+
+ // L6470 Extruder Stepper enable / disable
+
+ // all L6470 drivers are enabled and have direction set simultaneously so
+ // there is no need for distinctions based on MIXING_EXTRUDER
+
+  #define enable_E0() NOOP
+  #define enable_E1() NOOP
+  #define enable_E2() NOOP
+  #define enable_E3() NOOP
+  #define enable_E4() NOOP
+  #define enable_E5() NOOP
+
+  #if AXIS_DRIVER_TYPE(E0, ST_L6470)
+    extern L6470 stepperE0;
+    #define disable_E0() do{ stepperE0.free(); CBI(axis_known_position, E_AXIS); }while(0)
+  #else
+    #define disable_E0() NOOP
+  #endif
+
+  #if AXIS_DRIVER_TYPE(E1, ST_L6470)
+    extern L6470 stepperE1;
+    #define disable_E1() do{ stepperE1.free(); CBI(axis_known_position, E_AXIS); }while(0)
+  #else
+    #define disable_E1() NOOP
+  #endif
+
+  #if AXIS_DRIVER_TYPE(E2, ST_L6470)
+    extern L6470 stepperE2;
+    #define disable_E2() do{ stepperE2.free(); CBI(axis_known_position, E_AXIS); }while(0)
+  #else
+    #define disable_E2() NOOP
+  #endif
+
+  #if AXIS_DRIVER_TYPE(E3, ST_L6470)
+    extern L6470 stepperE3;
+    #define disable_E3() do{ stepperE3.free(); CBI(axis_known_position, E_AXIS); }while(0)
+  #else
+    #define disable_E3() NOOP
+  #endif
+
+  #if AXIS_DRIVER_TYPE(E4, ST_L6470)
+    extern L6470 stepperE2;
+    #define disable_E4() do{ stepperE4.free(); CBI(axis_known_position, E_AXIS); }while(0)
+  #else
+    #define disable_E4() NOOP
+  #endif
+
+  #if AXIS_DRIVER_TYPE(E5, ST_L6470)
+    extern L6470 stepperE5;
+    #define disable_E5() do{ stepperE5.free(); CBI(axis_known_position, E_AXIS); }while(0)
+  #else
+    #define disable_E5() NOOP
+  #endif
+
+#else
 
   #if ENABLED(MIXING_EXTRUDER)
 
@@ -233,66 +288,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 
   #endif // !MIXING_EXTRUDER
 
-#else
-
- // L6470 Extruder Stepper enable / disable
-
- // all L6470 drivers are enabled and have direction set simultaneously so
- // there is no need for distinctions based on MIXING_EXTRUDER
-
-  #if AXIS_DRIVER_TYPE(E0, ST_L6470)
-    extern L6470 stepperE0;
-    #define disable_E0() do{ stepperE0.free(); CBI(axis_known_position, E_AXIS); }while(0)
-  #else
-    #define disable_E0() NOOP
-  #endif
-
-  #if AXIS_DRIVER_TYPE(E1, ST_L6470)
-    extern L6470 stepperE1;
-    #define disable_E1() do{ stepperE1.free(); CBI(axis_known_position, E_AXIS); }while(0)
-  #else
-    #define disable_E1() NOOP
-  #endif
-
-  #if AXIS_DRIVER_TYPE(E2, ST_L6470)
-    extern L6470 stepperE2;
-    #define disable_E2() do{ stepperE2.free(); CBI(axis_known_position, E_AXIS); }while(0)
-  #else
-    #define disable_E2() NOOP
-  #endif
-
-  #if AXIS_DRIVER_TYPE(E3, ST_L6470)
-    extern L6470 stepperE3;
-    #define disable_E3() do{ stepperE3.free(); CBI(axis_known_position, E_AXIS); }while(0)
-  #else
-    #define disable_E3() NOOP
-  #endif
-
-  #if AXIS_DRIVER_TYPE(E4, ST_L6470)
-    extern L6470 stepperE2;
-    #define disable_E4() do{ stepperE4.free(); CBI(axis_known_position, E_AXIS); }while(0)
-  #else
-    #define disable_E4() NOOP
-  #endif
-
-  #if AXIS_DRIVER_TYPE(E5, ST_L6470)
-    extern L6470 stepperE5;
-    #define disable_E5() do{ stepperE5.free(); CBI(axis_known_position, E_AXIS); }while(0)
-  #else
-    #define disable_E5() NOOP
-  #endif
-
-
-  #define  enable_E0() NOOP
-  #define  enable_E1() NOOP
-  #define  enable_E2() NOOP
-  #define  enable_E3() NOOP
-  #define  enable_E4() NOOP
-  #define  enable_E5() NOOP
-
 #endif // end Extruder Stepper enable / disable
-
-
 
 #if ENABLED(EXPERIMENTAL_I2CBUS)
   #include "feature/twibus.h"

@@ -100,7 +100,7 @@
           SERIAL_ECHO(L6470_index_to_Axis[Q][1]);                  \
           temp = L6470_GetParam(L6470_ABS_POS,Q);                  \
           if (temp & ABS_POS_SIGN_MASK) temp |= ABS_POS_SIGN_MASK; \
-          sprintf(temp_buf, ":%8ld   ", temp)  ;                   \
+          sprintf_P(temp_buf, PSTR(":%8ld   "), temp)  ;           \
           SERIAL_ECHO(temp_buf);                                   \
         } while (0)
 

@@ -275,7 +275,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Y2_STEP_WRITE(STATE) WRITE(Y2_STEP_PIN,STATE)
   #define Y2_STEP_READ READ(Y2_STEP_PIN)
 #else
-  #define Z_DIR_WRITE(STATE) NOOP
+  #define Y2_DIR_WRITE(STATE) NOOP
 #endif
 
 // Z2 Stepper
@@ -355,7 +355,6 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #else
   #define Z3_DIR_WRITE(STATE) NOOP
 #endif
-
 
 // E0 Stepper
 #if AXIS_DRIVER_TYPE(E0, ST_L6470)

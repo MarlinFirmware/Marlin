@@ -62,11 +62,10 @@
 
 void GcodeSuite::M916() {
 
-  SERIAL_ECHOLN("M916");
+  SERIAL_ECHOLNPGM("M916");
 
-
-  // variables used by L6470_get_user_input function - some may not be used
-  char axis_mon[3][3] = {"  ", "  ", "  "};  // list of Axis to be monitored
+  // Variables used by L6470_get_user_input function - some may not be used
+  char axis_mon[3][3] = { "  ", "  ", "  " };  // list of Axes to be monitored
   uint8_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
@@ -77,11 +76,11 @@ void GcodeSuite::M916() {
   uint8_t OCD_TH_val = 0;
   uint8_t STALL_TH_val = 0;
   uint16_t over_current_threshold;
-  bool over_current_flag = false;  // M916 doesn't play with the overcurrent thresholds
+  constexpr bool over_current_flag = false;  // M916 doesn't play with the overcurrent thresholds
 
   uint8_t j;   // general purpose counter
 
-  if (L6470_get_user_input( &driver_count, axis_index, axis_mon, &position_max, &position_min, &final_feedrate, &kval_hold, over_current_flag, &OCD_TH_val, &STALL_TH_val, &over_current_threshold) )
+  if (L6470_get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   SERIAL_ECHOLNPAIR("feedrate = ",final_feedrate);
@@ -91,14 +90,12 @@ void GcodeSuite::M916() {
   for (j = 0; j < driver_count; j++)
     L6470_get_status(axis_index[j]);  // clear out any pre-existing error flags
 
-
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
   char gcode_string[80];
-  uint16_t status_composit = 0;
+  uint16_t status_composite = 0;
 
-  SERIAL_ECHOLNPGM(".");
-  SERIAL_ECHOLNPGM(".");
+  SERIAL_ECHOLNPGM(".\n.");
 
   do {
 
@@ -108,25 +105,25 @@ void GcodeSuite::M916() {
       L6470_set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
 
     // turn the motor(s) both directions
-    sprintf(gcode_string, "G0 %s%4.3f  F%4.3f", temp_axis_string, position_min, final_feedrate);
+    sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
     gcode.process_subcommands_now_P(gcode_string);
 
-    sprintf(gcode_string, "G0 %s%4.3f  F%4.3f", temp_axis_string, position_max, final_feedrate);
+    sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_max, final_feedrate);
     gcode.process_subcommands_now_P(gcode_string);
 
     // get the status after the motors have stopped
     planner.synchronize();
 
-    status_composit = 0;    // clear out the old bits
+    status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
       axis_status[j] = (~L6470_get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
-      status_composit |= axis_status[j] ;
+      status_composite |= axis_status[j] ;
     }
 
-    if (status_composit) {
-      if (status_composit & STATUS_UVLO) {
-        SERIAL_ECHOLNPGM("test aborted because Undervoltage lockout is active");
+    if (status_composite) {
+      if (status_composite & STATUS_UVLO) {
+        SERIAL_ECHOLNPGM("Test aborted because Undervoltage lockout is active");
         for (j = 0; j < driver_count; j++) {
           SERIAL_ECHOPGM("...");
           L6470_error_status_decode(axis_status[j], axis_index[j]);
@@ -135,43 +132,34 @@ void GcodeSuite::M916() {
       }
     }
 
-
     // increment KVAL_HOLD if not yet at thermal warning/shutdown
-    if (!(status_composit & (STATUS_TH_WRN | STATUS_TH_SD)))
+    if (!(status_composite & (STATUS_TH_WRN | STATUS_TH_SD)))
       kval_hold++;
 
+  } while (!(status_composite & (STATUS_TH_WRN | STATUS_TH_SD)) && kval_hold);  // exit when kval_hold == 0 (rolls over)
 
-  } while ( !(status_composit & (STATUS_TH_WRN | STATUS_TH_SD))  && kval_hold );  // exit when kval_hold == 0 (rolls over)
-
-  SERIAL_ECHOLNPGM(".");
-  SERIAL_ECHOLNPGM(".");
-  if ((status_composit & (STATUS_TH_WRN | STATUS_TH_SD))) {
+  SERIAL_ECHOLNPGM(".\n.");
+  if ((status_composite & (STATUS_TH_WRN | STATUS_TH_SD))) {
     SERIAL_ECHOLNPGM("Thermal warning/shutdown has occurred");
     for (j = 0; j < driver_count; j++) {
       SERIAL_ECHOPGM("...");
       L6470_error_status_decode(axis_status[j], axis_index[j]);
     }
   }
-  else {
+  else
     SERIAL_ECHOLNPGM("Unable to get to thermal warning/shutdown");
-  }
+
   SERIAL_ECHOLNPGM(".");
-
 }
-
-
-
-
-
 
 /**
  *
- * M917: find minimum current thresholds
+ * M917: Find minimum current thresholds
  *
- *   decrease OCD current until overcurrent error
- *   increase OCD until overcurrent error goes away
- *   decrease stall threshold until stall
- *   increase stall until stall error goes away
+ *   Decrease OCD current until overcurrent error
+ *   Increase OCD until overcurrent error goes away
+ *   Decrease stall threshold until stall
+ *   Increase stall until stall error goes away
  *
  * J - select which driver(s) to monitor on multi-driver axis
  *     0 - (default) monitor all drivers on the axis or E0
@@ -181,9 +169,9 @@ void GcodeSuite::M916() {
  *     xxx (1-255) is distance moved on either side of current position
  *
  * F - feedrate
- *     optional - will use default max feedrate from configuration.h if not specified
+ *     optional - will use default max feedrate from Configuration.h if not specified
  *
- * I - staring over current threshold
+ * I - starting over-current threshold
  *     optional - will report current value from driver if not specified
  *     if there are multiple drivers on the axis then all will be set the same
  *
@@ -191,11 +179,9 @@ void GcodeSuite::M916() {
  *     optional - will report current value from driver if not specified
  *
  */
-
-
 void GcodeSuite::M917() {
 
-  SERIAL_ECHOLN("M917");
+  SERIAL_ECHOLNPGM("M917");
 
   char axis_mon[3][3] = {"  ", "  ", "  "};  // list of Axis to be monitored
   uint8_t axis_index[3];
@@ -208,14 +194,14 @@ void GcodeSuite::M917() {
   uint8_t OCD_TH_val = 0;
   uint8_t STALL_TH_val = 0;
   uint16_t over_current_threshold;
-  bool over_current_flag = true;
+  constexpr bool over_current_flag = true;
 
   uint8_t j;   // general purpose counter
 
-  if (L6470_get_user_input( &driver_count, axis_index, axis_mon, &position_max, &position_min, &final_feedrate, &kval_hold, over_current_flag, &OCD_TH_val, &STALL_TH_val, &over_current_threshold) )
+  if (L6470_get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
-  SERIAL_ECHOLNPAIR("feedrate = ",final_feedrate);
+  SERIAL_ECHOLNPAIR("feedrate = ", final_feedrate);
 
   planner.synchronize();                             // wait for all current movement commands to complete
   for (j = 0; j < driver_count; j++)
@@ -223,7 +209,7 @@ void GcodeSuite::M917() {
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
   char gcode_string[80];
-  uint16_t status_composit = 0;
+  uint16_t status_composite = 0;
   uint8_t test_phase = 0;
         // 0 - decreasing OCD - exit when OCD warning occurs (ignore STALL)
         // 1 - increasing OCD - exit when OCD warning stops (ignore STALL) -
@@ -245,23 +231,23 @@ void GcodeSuite::M917() {
     SERIAL_ECHOPAIR("STALL threshold : ", (STALL_TH_val + 1) * 31.25);
     SERIAL_ECHOLNPAIR("   OCD threshold : ", (OCD_TH_val + 1) * 375);
 
-    sprintf(gcode_string, "G0 %s%4.3f  F%4.3f", temp_axis_string, position_min, final_feedrate);
+    sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
     gcode.process_subcommands_now_P(gcode_string);
 
-    sprintf(gcode_string, "G0 %s%4.3f  F%4.3f", temp_axis_string, position_max, final_feedrate);
+    sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_max, final_feedrate);
     gcode.process_subcommands_now_P(gcode_string);
 
     planner.synchronize();
 
-    status_composit = 0;    // clear out the old bits
+    status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
       axis_status[j] = (~L6470_get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
-      status_composit |= axis_status[j] ;
+      status_composite |= axis_status[j] ;
     }
 
-    if (status_composit) {
-      if (status_composit & STATUS_UVLO) {
+    if (status_composite) {
+      if (status_composite & STATUS_UVLO) {
         SERIAL_ECHOLNPGM("test aborted because Undervoltage lockout is active");
         for (j = 0; j < driver_count; j++) {
           SERIAL_ECHOPGM("...");
@@ -272,9 +258,9 @@ void GcodeSuite::M917() {
     }
 
 
-    if (status_composit & (STATUS_TH_WRN | STATUS_TH_SD)) {
+    if (status_composite & (STATUS_TH_WRN | STATUS_TH_SD)) {
       SERIAL_ECHOLNPGM("thermal problem - waiting for chip(s) to cool down ");
-      uint16_t status_composit_temp = 0;
+      uint16_t status_composite_temp = 0;
       uint8_t k = 0;
       do {
         k++;
@@ -290,19 +276,19 @@ void GcodeSuite::M917() {
         gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
         watchdog_reset();   // beat the dog
         safe_delay(5000);
-        status_composit_temp = 0;
+        status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {
           axis_status[j] = (~L6470_get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
-          status_composit_temp |= axis_status[j];
+          status_composite_temp |= axis_status[j];
         }
       }
-      while (status_composit_temp & (STATUS_TH_WRN | STATUS_TH_SD));
+      while (status_composite_temp & (STATUS_TH_WRN | STATUS_TH_SD));
       SERIAL_EOL();
     }
-    if (status_composit & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B | STATUS_OCD)) {
+    if (status_composite & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B | STATUS_OCD)) {
       switch (test_phase) {
         case 0: {
-                  if (status_composit & STATUS_OCD) {
+                  if (status_composite & STATUS_OCD) {
                     // phase 0 with OCD warning - time to go to next phase
                     if (OCD_TH_val >=15) {
                       OCD_TH_val = 15;           // limit to max
@@ -328,7 +314,7 @@ void GcodeSuite::M917() {
                   break;
                 }
         case 1: {
-                  if (status_composit & STATUS_OCD) {
+                  if (status_composite & STATUS_OCD) {
                     // phase 1 with OCD warning - increment if can
                     if (OCD_TH_val >= 15) {
                       OCD_TH_val = 15;           // limit to max
@@ -347,7 +333,7 @@ void GcodeSuite::M917() {
                   break;
                 }
         case 2: {
-                  if (status_composit & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)) {
+                  if (status_composite & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)) {
                     // phase 2 with stall warning - time to go to next phase
                     if (STALL_TH_val >= 127) {
                       STALL_TH_val = 127;  // limit to max
@@ -375,7 +361,7 @@ void GcodeSuite::M917() {
                   break;
                 }
         case 3: {
-                  if (status_composit & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)) {
+                  if (status_composite & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)) {
                     // phase 3 with stall warning - increment if can
                     if (STALL_TH_val >= 127) {
                       STALL_TH_val = 127; // limit to max
@@ -440,7 +426,7 @@ void GcodeSuite::M917() {
 
   } while (test_phase != 4);
 
-  if (status_composit) {
+  if (status_composite) {
     SERIAL_ECHOLNPGM("Completed with errors");
     for (j = 0; j < driver_count; j++) {
       SERIAL_ECHOPGM("...");
@@ -482,88 +468,94 @@ void GcodeSuite::M918() {
 
   SERIAL_ECHOLN("M918");
 
-  char axis_mon[3][3] = {"  ", "  ", "  "};  // list of Axis to be monitored
+  char axis_mon[3][3] = { "  ", "  ", "  " };  // List of axes to monitor
   uint8_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
-  float position_max;
-  float position_min;
+  float position_max, position_min;
   float final_feedrate;
   uint8_t kval_hold;
   uint8_t OCD_TH_val = 0;
   uint8_t STALL_TH_val = 0;
   uint16_t over_current_threshold;
-  bool over_current_flag = true;
+  constexpr bool over_current_flag = true;
 
   uint8_t j;   // general purpose counter
 
-  if (L6470_get_user_input( &driver_count, axis_index, axis_mon, &position_max, &position_min, &final_feedrate, &kval_hold, over_current_flag, &OCD_TH_val, &STALL_TH_val, &over_current_threshold) )
+  if (L6470_get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   uint8_t m_steps = parser.byteval('M');
+  LIMIT(m_steps, 0, 128);
   SERIAL_ECHOLNPAIR("M = ", m_steps);
-  LIMIT(m_steps,0,128);
-  uint8_t m_bits;
-  if ( m_steps > 85) { m_bits = 7 ; SERIAL_ECHOLNPGM("128 uSTEPS");}  // 128 (no synch output)
-  if ( m_steps > 42) { m_bits = 6 ; SERIAL_ECHOLNPGM(" 64 uSTEPS");}  //  64 (no synch output)
-  if ( m_steps > 22) { m_bits = 5 ; SERIAL_ECHOLNPGM(" 32 uSTEPS");}  //  32 (no synch output)
-  if ( m_steps > 12) { m_bits = 4 ; SERIAL_ECHOLNPGM(" 16 uSTEPS");}  //  16 (no synch output)
-  if ( m_steps > 5)  { m_bits = 3 ; SERIAL_ECHOLNPGM("  8 uSTEPS");}  //   8 (no synch output)
-  if ( m_steps > 2)  { m_bits = 2 ; SERIAL_ECHOLNPGM("  4 uSTEPS");}  //   4 (no synch output)
-  if ( m_steps == 2) { m_bits = 1 ; SERIAL_ECHOLNPGM("  2 uSTEPS");}  //   2 (no synch output)
-  if ( m_steps == 1) { m_bits = 0 ; SERIAL_ECHOLNPGM("  1 uSTEPS");}  //   1 (no synch output)
-  if ( m_steps == 0) { m_bits = 7 ; SERIAL_ECHOLNPGM("128 uSTEPS");}  // 128 (no synch output)
+
+  int8_t m_bits = -1;
+       if (m_steps > 85) m_bits = 7;  // 128 (no synch output)
+  else if (m_steps > 42) m_bits = 6;  //  64 (no synch output)
+  else if (m_steps > 22) m_bits = 5;  //  32 (no synch output)
+  else if (m_steps > 12) m_bits = 4;  //  16 (no synch output)
+  else if (m_steps >  5) m_bits = 3;  //   8 (no synch output)
+  else if (m_steps >  2) m_bits = 2;  //   4 (no synch output)
+  else if (m_steps == 2) m_bits = 1;  //   2 (no synch output)
+  else if (m_steps == 1) m_bits = 0;  //   1 (no synch output)
+  else if (m_steps == 0) m_bits = 7;  // 128 (no synch output)
+
+  if (m_bits >= 0) {
+    const int micros = _BV(m_bits);
+    if (micros < 100) { SERIAL_CHAR(' '); if (micros < 10) SERIAL_CHAR(' '); }
+    SERIAL_ECHO(micros);
+    SERIAL_ECHOPGM(" uSTEPS");
+  }
 
   for (j = 0; j < driver_count; j++)
     L6470_set_param(axis_index[j], L6470_STEP_MODE, m_bits);   // set microsteps
 
   SERIAL_ECHOLNPAIR("target (maximum) feedrate = ",final_feedrate);
 
-  float feedrate_increment = final_feedrate/10;      // start at 1/10 of max & go up by 1/10 per step)
-  float current_feedrate = 0;
-  planner.synchronize();                             // wait for all current movement commands to complete
+  float feedrate_inc = final_feedrate / 10, // start at 1/10 of max & go up by 1/10 per step)
+        current_feedrate = 0;
+
+  planner.synchronize();                  // wait for all current movement commands to complete
+
   for (j = 0; j < driver_count; j++)
-    L6470_get_status(axis_index[j]);  // clear out any pre-existing error flags
-  char temp_axis_string[] = " ";
-  temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
+    L6470_get_status(axis_index[j]);      // clear all error flags
+
+  char temp_axis_string[2];
+  temp_axis_string[0] = axis_mon[0][0];   // need to have a string for use within sprintf format section
+  temp_axis_string[1] = '\n';
+
   char gcode_string[80];
-  uint16_t status_composit = 0;
-  SERIAL_ECHOLNPGM(".");  //make the feedrate prints easier to see
-  SERIAL_ECHOLNPGM(".");
-  SERIAL_ECHOLNPGM(".");
+  uint16_t status_composite = 0;
+  SERIAL_ECHOLNPGM(".\n.\n.");            // make the feedrate prints easier to see
 
   do {
-    current_feedrate += feedrate_increment;
+    current_feedrate += feedrate_inc;
     SERIAL_ECHOLNPAIR("...feedrate = ",current_feedrate);
 
-    sprintf(gcode_string, "G0 %s%4.3f  F%4.3f", temp_axis_string, position_min, current_feedrate);
+    sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, current_feedrate);
     gcode.process_subcommands_now_P(gcode_string);
 
-    sprintf(gcode_string, "G0 %s%4.3f  F%4.3f", temp_axis_string, position_max, current_feedrate);
+    sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_max, current_feedrate);
     gcode.process_subcommands_now_P(gcode_string);
 
     planner.synchronize();
 
     for (j = 0; j < driver_count; j++) {
       axis_status[j] = (~L6470_get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
-      status_composit |= axis_status[j];
+      status_composite |= axis_status[j];
     }
-    if (status_composit) break;       // quit if any errors flags are raised
+    if (status_composite) break;       // quit if any errors flags are raised
   } while ( current_feedrate  < final_feedrate * 0.99);
 
-  if (status_composit) {
+  if (status_composite) {
     SERIAL_ECHOLNPGM("Completed with errors");
     for (j = 0; j < driver_count; j++) {
       SERIAL_ECHOPGM("...");
       L6470_error_status_decode(axis_status[j], axis_index[j]);
     }
   }
-  else {
+  else
     SERIAL_ECHOLNPGM("Completed with no errors");
-  }
-
-}  // end of M918
-
-
+}
 
 #endif // HAS_DRIVER(ST_L6470)
