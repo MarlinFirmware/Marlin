@@ -60,6 +60,14 @@
 LEDLights leds;
 
 void LEDLights::setup() {
+  #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
+    SET_OUTPUT(RGB_LED_R_PIN);
+    SET_OUTPUT(RGB_LED_G_PIN);
+    SET_OUTPUT(RGB_LED_B_PIN);
+    #if ENABLED(RGBW_LED)
+      SET_OUTPUT(RGB_LED_W_PIN);
+    #endif
+  #endif
   #if ENABLED(NEOPIXEL_LED)
     setup_neopixel();
   #endif
