@@ -864,7 +864,6 @@ void setup() {
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
       SET_OUTPUT(CASE_LIGHT_PIN);
     #endif
-
     update_case_light();
   #endif
 
