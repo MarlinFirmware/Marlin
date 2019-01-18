@@ -160,7 +160,7 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper,
 
     #if STEALTHCHOP_ENABLED
       inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
-      inline bool get_stealthChop_status() { !this->en_spreadCycle(); }
+      inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
     #endif
 
     #if HAS_LCD_MENU
