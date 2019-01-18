@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(ST_L6470)
+#if HAS_DRIVER(L6470)
 
 #include <L6470.h>
 
@@ -31,8 +31,8 @@
 #define L6470_ERROR_MASK  (STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD  | STATUS_OCD | STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)
 #define dSPIN_STEP_CLOCK_FWD dSPIN_STEP_CLOCK
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
-#define HAS_L6470_EXTRUDER ( AXIS_DRIVER_TYPE(E0, ST_L6470) || AXIS_DRIVER_TYPE(E1, ST_L6470) || AXIS_DRIVER_TYPE(E2, ST_L6470) \
-                          || AXIS_DRIVER_TYPE(E3, ST_L6470) || AXIS_DRIVER_TYPE(E4, ST_L6470) || AXIS_DRIVER_TYPE(E5, ST_L6470) )
+#define HAS_L6470_EXTRUDER ( AXIS_DRIVER_TYPE(E0, L6470) || AXIS_DRIVER_TYPE(E1, L6470) || AXIS_DRIVER_TYPE(E2, L6470) \
+                          || AXIS_DRIVER_TYPE(E3, L6470) || AXIS_DRIVER_TYPE(E4, L6470) || AXIS_DRIVER_TYPE(E5, L6470) )
 
 #if HAS_L6470_EXTRUDER
   #define L6470_E0_INDEX  ((L6470_driver_enum)E0)       // Start of extruder indexes
@@ -60,5 +60,7 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis);
 void monitor_L6470_driver();
 
 void L6470_init();
+void L6470_SPI_init();
+void L6470_init_to_defaults();
 
-#endif // HAS_DRIVER(ST_L6470)
+#endif // HAS_DRIVER(L6470)

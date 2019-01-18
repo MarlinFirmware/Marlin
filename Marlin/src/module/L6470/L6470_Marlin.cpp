@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(ST_L6470)
+#if HAS_DRIVER(L6470)
 
 #include "L6470_Marlin.h"
 #include "../stepper_indirection.h"
@@ -81,9 +81,50 @@ uint8_t L6470_axis_xref[MAX_L6470] = {
   AxisEnum(E_AXIS)  // E5
 };
 
-void L6470_init_to_defaults();
-void L6470_populate_chain_array();
-void L6470_SPI_init();
+void L6470_populate_chain_array() {
+
+  #define _L6470_INIT_SPI(Q)  do{ stepper##Q.set_chain_info(Q, Q##_CHAIN_POS); }while(0)
+
+  #if AXIS_DRIVER_TYPE(X, L6470)
+    _L6470_INIT_SPI(X);
+  #endif
+  #if AXIS_DRIVER_TYPE(X2, L6470)
+    _L6470_INIT_SPI(X2);
+  #endif
+  #if AXIS_DRIVER_TYPE(Y, L6470)
+    _L6470_INIT_SPI(Y);
+  #endif
+  #if AXIS_DRIVER_TYPE(Y2, L6470)
+    _L6470_INIT_SPI(Y2);
+  #endif
+  #if AXIS_DRIVER_TYPE(Z, L6470)
+    _L6470_INIT_SPI(Z);
+  #endif
+  #if AXIS_DRIVER_TYPE(Z2, L6470)
+    _L6470_INIT_SPI(Z2);
+  #endif
+  #if AXIS_DRIVER_TYPE(Z3, L6470)
+    _L6470_INIT_SPI(Z3);
+  #endif
+  #if AXIS_DRIVER_TYPE(E0, L6470)
+    _L6470_INIT_SPI(E0);
+  #endif
+  #if AXIS_DRIVER_TYPE(E1, L6470)
+    _L6470_INIT_SPI(E1);
+  #endif
+  #if AXIS_DRIVER_TYPE(E2, L6470)
+    _L6470_INIT_SPI(E2);
+  #endif
+  #if AXIS_DRIVER_TYPE(E3, L6470)
+    _L6470_INIT_SPI(E3);
+  #endif
+  #if AXIS_DRIVER_TYPE(E4, L6470)
+    _L6470_INIT_SPI(E4);
+  #endif
+  #if AXIS_DRIVER_TYPE(E5, L6470)
+    _L6470_INIT_SPI(E5);
+  #endif
+}
 
 void L6470_init() {               // Set up SPI and then init chips
   L6470_populate_chain_array();   // Set up array to control where in the SPI transfer sequence a particular stepper's data goes
@@ -96,43 +137,43 @@ uint16_t L6470_get_status(uint8_t axis) {
   #define GET_L6470_STATUS(Q) stepper##Q.getStatus()
 
   switch (axis) {
-    #if AXIS_DRIVER_TYPE_X(ST_L6470)
+    #if AXIS_DRIVER_TYPE_X(L6470)
       case 0: return GET_L6470_STATUS(X);
     #endif
-    #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y(L6470)
       case 1: return GET_L6470_STATUS(Y);
     #endif
-    #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z(L6470)
       case 2: return GET_L6470_STATUS(Z);
     #endif
-    #if AXIS_DRIVER_TYPE_X2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_X2(L6470)
       case 3: return GET_L6470_STATUS(X2);
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y2(L6470)
       case 4: return GET_L6470_STATUS(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z2(L6470)
       case 5: return GET_L6470_STATUS(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z3(L6470)
       case 6: return GET_L6470_STATUS(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE_E0(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E0(L6470)
       case 7: return GET_L6470_STATUS(E0);
     #endif
-    #if AXIS_DRIVER_TYPE_E1(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E1(L6470)
       case 8: return GET_L6470_STATUS(E1);
     #endif
-    #if AXIS_DRIVER_TYPE_E2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E2(L6470)
       case 9: return GET_L6470_STATUS(E2);
     #endif
-    #if AXIS_DRIVER_TYPE_E3(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E3(L6470)
       case 10: return GET_L6470_STATUS(E3);
     #endif
-    #if AXIS_DRIVER_TYPE_E4(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E4(L6470)
       case 11: return GET_L6470_STATUS(E4);
     #endif
-    #if AXIS_DRIVER_TYPE_E5(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E5(L6470)
       case 12: return GET_L6470_STATUS(E5);
     #endif
   }
@@ -145,43 +186,43 @@ uint32_t L6470_get_param(uint8_t axis, uint8_t param) {
   #define GET_L6470_PARAM(Q) stepper##Q.GetParam(param)
 
   switch (axis) {
-    #if AXIS_DRIVER_TYPE_X(ST_L6470)
+    #if AXIS_DRIVER_TYPE_X(L6470)
       case 0: return  GET_L6470_PARAM(X);
     #endif
-    #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y(L6470)
       case 1: return  GET_L6470_PARAM(Y);
     #endif
-    #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z(L6470)
       case 2: return  GET_L6470_PARAM(Z);
     #endif
-    #if AXIS_DRIVER_TYPE_X2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_X2(L6470)
       case 3: return  GET_L6470_PARAM(X2);
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y2(L6470)
       case 4: return  GET_L6470_PARAM(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z2(L6470)
       case 5: return  GET_L6470_PARAM(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z3(L6470)
       case 6: return  GET_L6470_PARAM(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE_E0(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E0(L6470)
       case 7: return  GET_L6470_PARAM(E0);
     #endif
-    #if AXIS_DRIVER_TYPE_E1(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E1(L6470)
       case 8: return  GET_L6470_PARAM(E1);
     #endif
-    #if AXIS_DRIVER_TYPE_E2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E2(L6470)
       case 9: return  GET_L6470_PARAM(E2);
     #endif
-    #if AXIS_DRIVER_TYPE_E3(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E3(L6470)
       case 10: return  GET_L6470_PARAM(E3);
     #endif
-    #if AXIS_DRIVER_TYPE_E4(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E4(L6470)
       case 11: return  GET_L6470_PARAM(E4);
     #endif
-    #if AXIS_DRIVER_TYPE_E5(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E5(L6470)
       case 12: return  GET_L6470_PARAM(E5);
     #endif
   }
@@ -194,43 +235,43 @@ void L6470_set_param(uint8_t axis, uint8_t param, uint32_t value) {
   #define SET_L6470_PARAM(Q) stepper##Q.SetParam(param, value)
 
   switch (axis) {
-    #if AXIS_DRIVER_TYPE_X(ST_L6470)
+    #if AXIS_DRIVER_TYPE_X(L6470)
       case 0: SET_L6470_PARAM(X);
     #endif
-    #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y(L6470)
       case 1: SET_L6470_PARAM(Y);
     #endif
-    #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z(L6470)
       case 2: SET_L6470_PARAM(Z);
     #endif
-    #if AXIS_DRIVER_TYPE_X2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_X2(L6470)
       case 3: SET_L6470_PARAM(X2);
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y2(L6470)
       case 4: SET_L6470_PARAM(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z2(L6470)
       case 5: SET_L6470_PARAM(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z3(L6470)
       case 6: SET_L6470_PARAM(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE_E0(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E0(L6470)
       case 7: SET_L6470_PARAM(E0);
     #endif
-    #if AXIS_DRIVER_TYPE_E1(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E1(L6470)
       case 8: SET_L6470_PARAM(E1);
     #endif
-    #if AXIS_DRIVER_TYPE_E2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E2(L6470)
       case 9: SET_L6470_PARAM(E2);
     #endif
-    #if AXIS_DRIVER_TYPE_E3(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E3(L6470)
       case 10: SET_L6470_PARAM(E3);
     #endif
-    #if AXIS_DRIVER_TYPE_E4(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E4(L6470)
       case 11: SET_L6470_PARAM(E4);
     #endif
-    #if AXIS_DRIVER_TYPE_E5(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E5(L6470)
       case 12: SET_L6470_PARAM(E5);
     #endif
   }
@@ -527,43 +568,43 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
   };
 
   L6470_driver_data driver_L6470_data[] = {
-    #if AXIS_DRIVER_TYPE_X(ST_L6470)
+    #if AXIS_DRIVER_TYPE_X(L6470)
       {  0, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y(L6470)
       {  1, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z(L6470)
       {  2, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_X2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_X2(L6470)
       {  3, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y2(L6470)
       {  4, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z2(L6470)
       {  5, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z3(L6470)
       {  6, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E0(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E0(L6470)
       {  7, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E1(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E1(L6470)
       {  8, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E2(L6470)
       {  9, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E3(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E3(L6470)
       { 10, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E4(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E4(L6470)
       { 11, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E5(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E5(L6470)
       { 12, 0, 0, 0, 0, 0, 0 }
     #endif
   };
@@ -676,43 +717,43 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
     if (ELAPSED(millis(), next_cOT)) {
       next_cOT = millis() + 500;
 
-      #if AXIS_DRIVER_TYPE_X(ST_L6470)
+      #if AXIS_DRIVER_TYPE_X(L6470)
         MONITOR_L6470_DRIVE(X);
       #endif
-      #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+      #if AXIS_DRIVER_TYPE_Y(L6470)
         MONITOR_L6470_DRIVE(Y);
       #endif
-      #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+      #if AXIS_DRIVER_TYPE_Z(L6470)
         MONITOR_L6470_DRIVE(Z);
       #endif
-      #if AXIS_DRIVER_TYPE_X2(ST_L6470)
+      #if AXIS_DRIVER_TYPE_X2(L6470)
         MONITOR_L6470_DRIVE(X2);
       #endif
-      #if AXIS_DRIVER_TYPE_Y2(ST_L6470)
+      #if AXIS_DRIVER_TYPE_Y2(L6470)
         MONITOR_L6470_DRIVE(Y2);
       #endif
-      #if AXIS_DRIVER_TYPE_Z2(ST_L6470)
+      #if AXIS_DRIVER_TYPE_Z2(L6470)
         MONITOR_L6470_DRIVE(Z2);
       #endif
-      #if AXIS_DRIVER_TYPE_Z3(ST_L6470)
+      #if AXIS_DRIVER_TYPE_Z3(L6470)
         MONITOR_L6470_DRIVE(Z3);
       #endif
-      #if AXIS_DRIVER_TYPE_E0(ST_L6470)
+      #if AXIS_DRIVER_TYPE_E0(L6470)
         MONITOR_L6470_DRIVE(E0);
       #endif
-      #if AXIS_DRIVER_TYPE_E1(ST_L6470)
+      #if AXIS_DRIVER_TYPE_E1(L6470)
         MONITOR_L6470_DRIVE(E1);
       #endif
-      #if AXIS_DRIVER_TYPE_E2(ST_L6470)
+      #if AXIS_DRIVER_TYPE_E2(L6470)
         MONITOR_L6470_DRIVE(E2);
       #endif
-      #if AXIS_DRIVER_TYPE_E3(ST_L6470)
+      #if AXIS_DRIVER_TYPE_E3(L6470)
         MONITOR_L6470_DRIVE(E3);
       #endif
-      #if AXIS_DRIVER_TYPE_E4(ST_L6470)
+      #if AXIS_DRIVER_TYPE_E4(L6470)
         MONITOR_L6470_DRIVE(E4);
       #endif
-      #if AXIS_DRIVER_TYPE_E5(ST_L6470)
+      #if AXIS_DRIVER_TYPE_E5(L6470)
         MONITOR_L6470_DRIVE(E5);
       #endif
 
@@ -724,4 +765,4 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
 
 #endif // MONITOR_L6470_DRIVER_STATUS
 
-#endif // HAS_DRIVER(ST_L6470)
+#endif // HAS_DRIVER(L6470)

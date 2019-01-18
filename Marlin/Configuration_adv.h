@@ -1504,10 +1504,10 @@
 
 #endif // HAS_TRINAMIC
 
-// @section ST_L6470
+// @section L6470
 
 /**
- * ST_L6470 Stepper Driver options
+ * L6470 Stepper Driver options
  *
  * Arduino-L6470 library (0.7.0 or higher) is required for this stepper driver.
  * https://github.com/ameyer/Arduino-L6470
@@ -1520,7 +1520,7 @@
  *   L6470_CHAIN_MOSI_PIN
  *   L6470_CHAIN_SS_PIN
  */
-#if HAS_DRIVER(ST_L6470)
+#if HAS_DRIVER(L6470)
 
   #define X_MICROSTEPS       128 // number of microsteps (VALID: 1, 2, 4, 8, 16, 32, 64 & 128)
   #define X_OVERCURRENT     2000 // current in mA where the driver will detect an over current (VALID: 375 x (1-16) - 6A max - rounds up)

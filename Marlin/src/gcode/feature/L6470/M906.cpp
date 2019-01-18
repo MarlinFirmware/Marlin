@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(ST_L6470)
+#if HAS_DRIVER(L6470)
 
 #include "../../gcode.h"
 #include "../../../module/L6470/L6470_Marlin.h"
@@ -132,7 +132,7 @@ void GcodeSuite::M906() {
 
   bool report_current = true;
 
-  #if HAS_DRIVER(ST_L6470)
+  #if HAS_DRIVER(L6470)
     const uint8_t index = parser.byteval('I');
   #endif
 
@@ -140,29 +140,29 @@ void GcodeSuite::M906() {
     report_current = false;
     switch (i) {
       case X_AXIS:
-        #if AXIS_DRIVER_TYPE_X(ST_L6470)
+        #if AXIS_DRIVER_TYPE_X(L6470)
           if (index == 0) L6470_SET_KVAL_HOLD(X);
         #endif
-        #if AXIS_DRIVER_TYPE_X2(ST_L6470)
+        #if AXIS_DRIVER_TYPE_X2(L6470)
           if (index == 1) L6470_SET_KVAL_HOLD(X2);
         #endif
         break;
       case Y_AXIS:
-        #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+        #if AXIS_DRIVER_TYPE_Y(L6470)
           if (index == 0) L6470_SET_KVAL_HOLD(Y);
         #endif
-        #if AXIS_DRIVER_TYPE_Y2(ST_L6470)
+        #if AXIS_DRIVER_TYPE_Y2(L6470)
           if (index == 1) L6470_SET_KVAL_HOLD(Y2);
         #endif
         break;
       case Z_AXIS:
-        #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+        #if AXIS_DRIVER_TYPE_Z(L6470)
           if (index == 0) L6470_SET_KVAL_HOLD(Z);
         #endif
-        #if AXIS_DRIVER_TYPE_Z2(ST_L6470)
+        #if AXIS_DRIVER_TYPE_Z2(L6470)
           if (index == 1) L6470_SET_KVAL_HOLD(Z2);
         #endif
-        #if AXIS_DRIVER_TYPE_Z3(ST_L6470)
+        #if AXIS_DRIVER_TYPE_Z3(L6470)
           if (index == 2) L6470_SET_KVAL_HOLD(Z3);
         #endif
         break;
@@ -170,22 +170,22 @@ void GcodeSuite::M906() {
         const int8_t target_extruder = get_target_extruder_from_command();
         if (target_extruder < 0) return;
         switch (target_extruder) {
-          #if AXIS_DRIVER_TYPE_E0(ST_L6470)
+          #if AXIS_DRIVER_TYPE_E0(L6470)
             case 0: L6470_SET_KVAL_HOLD(E0); break;
           #endif
-          #if AXIS_DRIVER_TYPE_E1(ST_L6470)
+          #if AXIS_DRIVER_TYPE_E1(L6470)
             case 1: L6470_SET_KVAL_HOLD(E1); break;
           #endif
-          #if AXIS_DRIVER_TYPE_E2(ST_L6470)
+          #if AXIS_DRIVER_TYPE_E2(L6470)
             case 2: L6470_SET_KVAL_HOLD(E2); break;
           #endif
-          #if AXIS_DRIVER_TYPE_E3(ST_L6470)
+          #if AXIS_DRIVER_TYPE_E3(L6470)
             case 3: L6470_SET_KVAL_HOLD(E3); break;
           #endif
-          #if AXIS_DRIVER_TYPE_E4(ST_L6470)
+          #if AXIS_DRIVER_TYPE_E4(L6470)
             case 4: L6470_SET_KVAL_HOLD(E4); break;
           #endif
-          #if AXIS_DRIVER_TYPE_E5(ST_L6470)
+          #if AXIS_DRIVER_TYPE_E5(L6470)
             case 5: L6470_SET_KVAL_HOLD(E5); break;
           #endif
         }
@@ -246,43 +246,43 @@ void GcodeSuite::M906() {
     }
     SERIAL_ECHO(temp_buf);
 
-    #if AXIS_DRIVER_TYPE_X2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_X2(L6470)
       L6470_GET_INFO_CURRENT(X2);
     #endif
-    #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y(L6470)
       L6470_GET_INFO_CURRENT(Y);
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y2(L6470)
       L6470_GET_INFO_CURRENT(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z(L6470)
       L6470_GET_INFO_CURRENT(Z);
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z2(L6470)
       L6470_GET_INFO_CURRENT(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z3(L6470)
       L6470_GET_INFO_CURRENT(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE_E0(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E0(L6470)
       L6470_GET_INFO_CURRENT(E0);
     #endif
-    #if AXIS_DRIVER_TYPE_E1(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E1(L6470)
       L6470_GET_INFO_CURRENT(E1);
     #endif
-    #if AXIS_DRIVER_TYPE_E2(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E2(L6470)
       L6470_GET_INFO_CURRENT(E2);
     #endif
-    #if AXIS_DRIVER_TYPE_E3(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E3(L6470)
       L6470_GET_INFO_CURRENT(E3);
     #endif
-    #if AXIS_DRIVER_TYPE_E4(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E4(L6470)
       L6470_GET_INFO_CURRENT(E4);
     #endif
-    #if AXIS_DRIVER_TYPE_E5(ST_L6470)
+    #if AXIS_DRIVER_TYPE_E5(L6470)
       L6470_GET_INFO_CURRENT(E5);
     #endif
   }
 }
 
-#endif // HAS_DRIVER(ST_L6470)
+#endif // HAS_DRIVER(L6470)

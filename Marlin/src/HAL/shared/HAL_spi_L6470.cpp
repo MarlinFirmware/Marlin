@@ -31,7 +31,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(ST_L6470)
+#if HAS_DRIVER(L6470)
 
 #include "Delay.h"
 
@@ -130,4 +130,4 @@ void L6470_SPI_init() {
 
 #pragma GCC reset_options
 
-#endif // HAS_DRIVER(ST_L6470)
+#endif // HAS_DRIVER(L6470)

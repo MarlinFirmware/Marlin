@@ -28,7 +28,7 @@
 
 #if ENABLED(M114_DETAIL)
 
-  #if HAS_DRIVER(ST_L6470)
+  #if HAS_DRIVER(L6470)
     //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\gcode\host\M114.cpp
     //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\module\bob_L6470.cpp
 
@@ -89,7 +89,7 @@
 
     planner.synchronize();
 
-    #if HAS_DRIVER(ST_L6470)
+    #if HAS_DRIVER(L6470)
       char temp_buf[80];
       int32_t temp;
       //#define ABS_POS_SIGN_MASK 0b1111 1111 1110 0000 0000 0000 0000 0000
@@ -108,55 +108,55 @@
       LOOP_XYZE(i)
         switch (i) {
           case X_AXIS:
-            #if AXIS_DRIVER_TYPE_X(ST_L6470)
+            #if AXIS_DRIVER_TYPE_X(L6470)
               REPORT_ABSOLUTE_POS(X);
             #endif
-            #if AXIS_DRIVER_TYPE_X2(ST_L6470)
+            #if AXIS_DRIVER_TYPE_X2(L6470)
               REPORT_ABSOLUTE_POS(X2);
             #endif
             break;
           case Y_AXIS:
-            #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+            #if AXIS_DRIVER_TYPE_Y(L6470)
               REPORT_ABSOLUTE_POS(Y);
             #endif
-            #if AXIS_DRIVER_TYPE_Y2(ST_L6470)
+            #if AXIS_DRIVER_TYPE_Y2(L6470)
               REPORT_ABSOLUTE_POS(Y2);
             #endif
             break;
           case Z_AXIS:
-            #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+            #if AXIS_DRIVER_TYPE_Z(L6470)
               REPORT_ABSOLUTE_POS(Z);
             #endif
-            #if AXIS_DRIVER_TYPE_Z2(ST_L6470)
+            #if AXIS_DRIVER_TYPE_Z2(L6470)
               REPORT_ABSOLUTE_POS(Z2);
             #endif
-            #if AXIS_DRIVER_TYPE_Z3(ST_L6470)
+            #if AXIS_DRIVER_TYPE_Z3(L6470)
               REPORT_ABSOLUTE_POS(Z3);
             #endif
             break;
           case E_AXIS:
-            #if AXIS_DRIVER_TYPE_E0(ST_L6470)
+            #if AXIS_DRIVER_TYPE_E0(L6470)
               REPORT_ABSOLUTE_POS(E0);
             #endif
-            #if AXIS_DRIVER_TYPE_E1(ST_L6470)
+            #if AXIS_DRIVER_TYPE_E1(L6470)
               REPORT_ABSOLUTE_POS(E1);
             #endif
-            #if AXIS_DRIVER_TYPE_E2(ST_L6470)
+            #if AXIS_DRIVER_TYPE_E2(L6470)
               REPORT_ABSOLUTE_POS(E2);
             #endif
-            #if AXIS_DRIVER_TYPE_E3(ST_L6470)
+            #if AXIS_DRIVER_TYPE_E3(L6470)
               REPORT_ABSOLUTE_POS(E3);
             #endif
-            #if AXIS_DRIVER_TYPE_E4(ST_L6470)
+            #if AXIS_DRIVER_TYPE_E4(L6470)
               REPORT_ABSOLUTE_POS(E4);
             #endif
-            #if AXIS_DRIVER_TYPE_E5(ST_L6470)
+            #if AXIS_DRIVER_TYPE_E5(L6470)
               REPORT_ABSOLUTE_POS(E5);
             #endif
             break;
         }
       SERIAL_EOL();
-    #endif // HAS_DRIVER(ST_L6470)
+    #endif // HAS_DRIVER(L6470)
 
     SERIAL_ECHOPGM("Stepper:");
     LOOP_XYZE(i) {

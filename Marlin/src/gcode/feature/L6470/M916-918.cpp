@@ -23,7 +23,7 @@
 #include "../../../inc/MarlinConfig.h"
 
 
-#if HAS_DRIVER(ST_L6470)
+#if HAS_DRIVER(L6470)
 
 #include "../../gcode.h"
 #include "../../../module/stepper_indirection.h"
@@ -558,4 +558,4 @@ void GcodeSuite::M918() {
     SERIAL_ECHOLNPGM("Completed with no errors");
 }
 
-#endif // HAS_DRIVER(ST_L6470)
+#endif // HAS_DRIVER(L6470)

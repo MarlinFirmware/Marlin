@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(ST_L6470)
+#if HAS_DRIVER(L6470)
 
 #include "../../gcode.h"
 #include "../../../module/L6470/L6470_Marlin.h"
@@ -64,45 +64,45 @@ void GcodeSuite::M122() {
   // tmc_set_report_status(parser.value_bool());
   //else
 
-  #if AXIS_DRIVER_TYPE_X(ST_L6470)
+  #if AXIS_DRIVER_TYPE_X(L6470)
     L6470_SAY_STATUS(X);
   #endif
-  #if AXIS_DRIVER_TYPE_X2(ST_L6470)
+  #if AXIS_DRIVER_TYPE_X2(L6470)
     L6470_SAY_STATUS(X2);
   #endif
-  #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+  #if AXIS_DRIVER_TYPE_Y(L6470)
     L6470_SAY_STATUS(Y);
   #endif
-  #if AXIS_DRIVER_TYPE_Y2(ST_L6470)
+  #if AXIS_DRIVER_TYPE_Y2(L6470)
     L6470_SAY_STATUS(Y2);
   #endif
-  #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+  #if AXIS_DRIVER_TYPE_Z(L6470)
     L6470_SAY_STATUS(Z);
   #endif
-  #if AXIS_DRIVER_TYPE_Z2(ST_L6470)
+  #if AXIS_DRIVER_TYPE_Z2(L6470)
     L6470_SAY_STATUS(Z2);
   #endif
-  #if AXIS_DRIVER_TYPE_Z3(ST_L6470)
+  #if AXIS_DRIVER_TYPE_Z3(L6470)
     L6470_SAY_STATUS(Z3);
   #endif
-  #if AXIS_DRIVER_TYPE_E0(ST_L6470)
+  #if AXIS_DRIVER_TYPE_E0(L6470)
     L6470_SAY_STATUS(E0);
   #endif
-  #if AXIS_DRIVER_TYPE_E1(ST_L6470)
+  #if AXIS_DRIVER_TYPE_E1(L6470)
     L6470_SAY_STATUS(E1);
   #endif
-  #if AXIS_DRIVER_TYPE_E2(ST_L6470)
+  #if AXIS_DRIVER_TYPE_E2(L6470)
     L6470_SAY_STATUS(E2);
   #endif
-  #if AXIS_DRIVER_TYPE_E3(ST_L6470)
+  #if AXIS_DRIVER_TYPE_E3(L6470)
     L6470_SAY_STATUS(E3);
   #endif
-  #if AXIS_DRIVER_TYPE_E4(ST_L6470)
+  #if AXIS_DRIVER_TYPE_E4(L6470)
     L6470_SAY_STATUS(E4);
   #endif
-  #if AXIS_DRIVER_TYPE_E5(ST_L6470)
+  #if AXIS_DRIVER_TYPE_E5(L6470)
     L6470_SAY_STATUS(E5);
   #endif
 }
 
-#endif // HAS_DRIVER(ST_L6470)
+#endif // HAS_DRIVER(L6470)

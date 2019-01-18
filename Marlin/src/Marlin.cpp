@@ -160,7 +160,7 @@
   #include "lcd/extensible_ui/ui_api.h"
 #endif
 
-#if HAS_DRIVER(ST_L6470)
+#if HAS_DRIVER(L6470)
   #include "module/L6470/L6470_Marlin.h"
 #endif
 
@@ -697,7 +697,7 @@ void setup() {
     HAL_init();
   #endif
 
-  #if HAS_DRIVER(ST_L6470)
+  #if HAS_DRIVER(L6470)
     L6470_init();         // setup SPI and then init chips
   #endif
 

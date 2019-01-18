@@ -350,7 +350,7 @@ void Stepper::wake_up() {
  */
 void Stepper::set_directions() {
 
-  #if HAS_DRIVER(ST_L6470)
+  #if HAS_DRIVER(L6470)
 
     #include "../module/L6470/L6470_Marlin.h"
 
@@ -394,7 +394,7 @@ void Stepper::set_directions() {
     }
 
   #if HAS_X_DIR
-    #if AXIS_DRIVER_TYPE_X(ST_L6470)
+    #if AXIS_DRIVER_TYPE_X(L6470)
       L6470_SET_STEP_DIR(X); // A
     #else
       SET_STEP_DIR(X); // A
@@ -402,7 +402,7 @@ void Stepper::set_directions() {
   #endif
 
   #if HAS_Y_DIR
-    #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Y(L6470)
       L6470_SET_STEP_DIR(Y); // B
     #else
       SET_STEP_DIR(Y); // B
@@ -410,7 +410,7 @@ void Stepper::set_directions() {
   #endif
 
   #if HAS_Z_DIR
-    #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+    #if AXIS_DRIVER_TYPE_Z(L6470)
       L6470_SET_STEP_DIR(Z); // C
     #else
       SET_STEP_DIR(Z); // C
@@ -441,7 +441,7 @@ void Stepper::set_directions() {
     #endif
   #endif // !LIN_ADVANCE
 
-  #if HAS_DRIVER(ST_L6470)
+  #if HAS_DRIVER(L6470)
 
     #if HAS_L6470_EXTRUDER
 
@@ -1833,7 +1833,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
 
 
-      #if !HAS_DRIVER(ST_L6470)   // always set direction if using L6470 driver(s) - this also enables the chips
+      #if !HAS_DRIVER(L6470)   // always set direction if using L6470 driver(s) - this also enables the chips
         if (current_block->direction_bits != last_direction_bits
           #if DISABLED(MIXING_EXTRUDER)
             || stepper_extruder != last_moved_extruder

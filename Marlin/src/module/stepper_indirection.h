@@ -89,16 +89,15 @@ void disable_all_steppers();
 #endif
 
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI
-#if HAS_DRIVER(ST_L6470)
+#if HAS_DRIVER(L6470)
   #include "L6470/L6470_Marlin.h"
-  void L6470_init_to_defaults();
 #endif
 
 void restore_stepper_drivers();  // Called by PSU_ON
 void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // X Stepper
-#if AXIS_DRIVER_TYPE(X, ST_L6470)
+#if AXIS_DRIVER_TYPE(X, L6470)
   extern L6470 stepperX;
   #define X_ENABLE_INIT NOOP
   #define X_ENABLE_WRITE(STATE) NOOP
@@ -133,7 +132,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define X_STEP_READ READ(X_STEP_PIN)
 
 // Y Stepper
-#if AXIS_DRIVER_TYPE(Y, ST_L6470)
+#if AXIS_DRIVER_TYPE(Y, L6470)
   extern L6470 stepperY;
   #define Y_ENABLE_INIT NOOP
   #define Y_ENABLE_WRITE(STATE) NOOP
@@ -168,7 +167,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define Y_STEP_READ READ(Y_STEP_PIN)
 
 // Z Stepper
-#if AXIS_DRIVER_TYPE(Z, ST_L6470)
+#if AXIS_DRIVER_TYPE(Z, L6470)
   extern L6470 stepperZ;
   #define Z_ENABLE_INIT NOOP
   #define Z_ENABLE_WRITE(STATE) NOOP
@@ -204,7 +203,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // X2 Stepper
 #if HAS_X2_ENABLE
-  #if AXIS_DRIVER_TYPE(X2, ST_L6470)
+  #if AXIS_DRIVER_TYPE(X2, L6470)
     extern L6470 stepperX2;
     #define X2_ENABLE_INIT NOOP
     #define X2_ENABLE_WRITE(STATE) NOOP
@@ -241,7 +240,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // Y2 Stepper
 #if HAS_Y2_ENABLE
-  #if AXIS_DRIVER_TYPE(Y2, ST_L6470)
+  #if AXIS_DRIVER_TYPE(Y2, L6470)
     extern L6470 stepperY2;
     #define Y2_ENABLE_INIT NOOP
     #define Y2_ENABLE_WRITE(STATE) NOOP
@@ -280,7 +279,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // Z2 Stepper
 #if HAS_Z2_ENABLE
-  #if AXIS_DRIVER_TYPE(Z2, ST_L6470)
+  #if AXIS_DRIVER_TYPE(Z2, L6470)
     extern L6470 stepperZ2;
     #define Z2_ENABLE_INIT NOOP
     #define Z2_ENABLE_WRITE(STATE) NOOP
@@ -319,7 +318,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // Z3 Stepper
 #if HAS_Z3_ENABLE
-  #if ENABLED(Z3_IS_ST_L6470)
+  #if ENABLED(Z3_IS_L6470)
     extern L6470 stepperZ3;
     #define Z3_ENABLE_INIT NOOP
     #define Z3_ENABLE_WRITE(STATE) NOOP
@@ -357,7 +356,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 // E0 Stepper
-#if AXIS_DRIVER_TYPE(E0, ST_L6470)
+#if AXIS_DRIVER_TYPE(E0, L6470)
   extern L6470 stepperE0;
   #define E0_ENABLE_INIT NOOP
   #define E0_ENABLE_WRITE(STATE) NOOP
@@ -392,7 +391,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define E0_STEP_READ READ(E0_STEP_PIN)
 
 // E1 Stepper
-#if AXIS_DRIVER_TYPE(E1, ST_L6470)
+#if AXIS_DRIVER_TYPE(E1, L6470)
   extern L6470 stepperE1;
   #define E1_ENABLE_INIT NOOP
   #define E1_ENABLE_WRITE(STATE) NOOP
@@ -427,7 +426,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define E1_STEP_READ READ(E1_STEP_PIN)
 
 // E2 Stepper
-#if AXIS_DRIVER_TYPE(E2, ST_L6470)
+#if AXIS_DRIVER_TYPE(E2, L6470)
   extern L6470 stepperE2;
   #define E2_ENABLE_INIT NOOP
   #define E2_ENABLE_WRITE(STATE) NOOP
@@ -462,7 +461,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define E2_STEP_READ READ(E2_STEP_PIN)
 
 // E3 Stepper
-#if AXIS_DRIVER_TYPE(E3, ST_L6470)
+#if AXIS_DRIVER_TYPE(E3, L6470)
   extern L6470 stepperE3;
   #define E3_ENABLE_INIT NOOP
   #define E3_ENABLE_WRITE(STATE) NOOP
@@ -497,7 +496,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define E3_STEP_READ READ(E3_STEP_PIN)
 
 // E4 Stepper
-#if AXIS_DRIVER_TYPE(E4, ST_L6470)
+#if AXIS_DRIVER_TYPE(E4, L6470)
   extern L6470 stepperE4;
   #define E4_ENABLE_INIT NOOP
   #define E4_ENABLE_WRITE(STATE) NOOP
@@ -532,7 +531,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define E4_STEP_READ READ(E4_STEP_PIN)
 
 // E5 Stepper
-#if AXIS_DRIVER_TYPE(E5, ST_L6470)
+#if AXIS_DRIVER_TYPE(E5, L6470)
   extern L6470 stepperE5;
   #define E5_ENABLE_INIT NOOP
   #define E5_ENABLE_WRITE(STATE) NOOP

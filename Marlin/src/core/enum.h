@@ -43,7 +43,7 @@ enum AxisEnum : unsigned char {
   NO_AXIS   = 0xFF
 };
 
-#if HAS_DRIVER(ST_L6470)
+#if HAS_DRIVER(L6470)
   enum L6470_driver_enum : byte {
     X     = 0,
     Y     = 1,
