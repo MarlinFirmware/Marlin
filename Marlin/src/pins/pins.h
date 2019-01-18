@@ -387,6 +387,8 @@
   #include "pins_ARCHIM2.h"           // SAM3X8E                                    env:DUE env:DUE_debug
 #elif MB(ALLIGATOR)
   #include "pins_ALLIGATOR_R2.h"      // SAM3X8E                                    env:DUE env:DUE_debug
+#elif MB(ADSK)
+  #include "pins_ADSK.h"              // SAM3X8E                                    env:DUE env:DUE_debug
 
 //
 // STM32 ARM Cortex-M3
