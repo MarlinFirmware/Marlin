@@ -184,6 +184,7 @@ void plan_arc(
     raw[q_axis] = center_Q + r_Q;
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       raw[l_axis] = start_L;
+      UNUSED(linear_per_segment);
     #else
       raw[l_axis] += linear_per_segment;
     #endif

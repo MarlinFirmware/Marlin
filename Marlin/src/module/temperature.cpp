@@ -111,7 +111,7 @@ int16_t Temperature::current_temperature_raw[HOTENDS], // = { 0 }
   #if ENABLED(EXTRA_FAN_SPEED)
     uint8_t Temperature::old_fan_speed[FAN_COUNT], Temperature::new_fan_speed[FAN_COUNT];
 
-    void Temperature::set_temp_fan_speed(const uint8_t fan, const int16_t tmp_temp) {
+    void Temperature::set_temp_fan_speed(const uint8_t fan, const uint16_t tmp_temp) {
       switch (tmp_temp) {
         case 1:
           set_fan_speed(fan, old_fan_speed[fan]);

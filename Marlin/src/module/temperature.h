@@ -346,7 +346,7 @@ class Temperature {
 
       #if ENABLED(EXTRA_FAN_SPEED)
         static uint8_t old_fan_speed[FAN_COUNT], new_fan_speed[FAN_COUNT];
-        static void set_temp_fan_speed(const uint8_t fan, const int16_t tmp_temp);
+        static void set_temp_fan_speed(const uint8_t fan, const uint16_t tmp_temp);
       #endif
 
       #if HAS_LCD_MENU

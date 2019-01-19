@@ -48,7 +48,7 @@ void GcodeSuite::M106() {
   if (p < MIN(EXTRUDERS, FAN_COUNT)) {
 
     #if ENABLED(EXTRA_FAN_SPEED)
-      const int16_t t = parser.intval('T');
+      const uint16_t t = parser.intval('T');
       if (t > 0) return thermalManager.set_temp_fan_speed(p, t);
     #endif
 
