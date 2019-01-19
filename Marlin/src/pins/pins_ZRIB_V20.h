@@ -26,8 +26,10 @@
  * that'll affect the pin-outs
  */
 
-#define ZRIB_V20_D6_PIN 6
-#define ZRIB_V20_D9_PIN 9
+#include "pins_MKS_GEN_13.h"
+
+#define ZRIB_V20_D6_PIN 6 // Fan
+#define ZRIB_V20_D9_PIN 9 // Fan2
 #define ZRIB_V20_A10_PIN 10
 #define ZRIB_V20_D16_PIN 16
 #define ZRIB_V20_D17_PIN 17
@@ -37,17 +39,25 @@
 #define ZRIB_V20_D29_PIN 29
 #define ZRIB_V20_D37_PIN 37
 
-#define RAMPS_D9_PIN         ZRIB_V20_D6_PIN
-#define ORIG_E0_AUTO_FAN_PIN ZRIB_V20_D9_PIN
-#define ORIG_E1_AUTO_FAN_PIN ZRIB_V20_D9_PIN
-#define ORIG_E2_AUTO_FAN_PIN ZRIB_V20_D9_PIN
-#define ORIG_E3_AUTO_FAN_PIN ZRIB_V20_D9_PIN
+#define ORIG_E0_AUTO_FAN_PIN ZRIB_V20_D6_PIN
+#define ORIG_E1_AUTO_FAN_PIN ZRIB_V20_D6_PIN
+#define ORIG_E2_AUTO_FAN_PIN ZRIB_V20_D6_PIN
+#define ORIG_E3_AUTO_FAN_PIN ZRIB_V20_D6_PIN
 
 #ifndef FILWIDTH_PIN
   #define FILWIDTH_PIN 11   // Analog Input
 #endif
 
 #if ENABLED(ZONESTAR_LCD)
+  #undef LCD_PINS_RS
+  #undef LCD_PINS_ENABLE
+  #undef LCD_PINS_D4
+  #undef LCD_PINS_D5
+  #undef LCD_PINS_D6
+  #undef LCD_PINS_D7
+  #undef ADC_KEYPAD_PIN
+  #undef BEEPER_PIN
+
   #define LCD_PINS_RS     ZRIB_V20_D16_PIN
   #define LCD_PINS_ENABLE ZRIB_V20_D17_PIN
   #define LCD_PINS_D4     ZRIB_V20_D23_PIN
@@ -57,5 +67,3 @@
   #define ADC_KEYPAD_PIN  ZRIB_V20_A10_PIN
   #define BEEPER_PIN      ZRIB_V20_D37_PIN
 #endif
-
-#include "pins_MKS_GEN_13.h"

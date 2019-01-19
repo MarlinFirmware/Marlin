@@ -370,24 +370,12 @@
 
     #elif ENABLED(ZONESTAR_LCD)
 
-      #ifndef LCD_PINS_RS
-        #define LCD_PINS_RS       64
-      #endif
-      #ifndef LCD_PINS_ENABLE
-        #define LCD_PINS_ENABLE   44
-      #endif
-      #ifndef LCD_PINS_D4
-        #define LCD_PINS_D4       63
-      #endif
-      #ifndef LCD_PINS_D5
-        #define LCD_PINS_D5       40
-      #endif
-      #ifndef LCD_PINS_D6
-        #define LCD_PINS_D6       42
-      #endif
-      #ifndef LCD_PINS_D7
-        #define LCD_PINS_D7       65
-      #endif
+      #define LCD_PINS_RS       64
+      #define LCD_PINS_ENABLE   44
+      #define LCD_PINS_D4       63
+      #define LCD_PINS_D5       40
+      #define LCD_PINS_D6       42
+      #define LCD_PINS_D7       65
 
     #else
 
@@ -555,9 +543,8 @@
       #define KILL_PIN          64
 
     #elif ENABLED(ZONESTAR_LCD)
-      #ifndef ADC_KEYPAD_PIN
-        #define ADC_KEYPAD_PIN    12
-      #endif
+
+      #define ADC_KEYPAD_PIN    12
 
     #elif ENABLED(AZSMZ_12864)
 
