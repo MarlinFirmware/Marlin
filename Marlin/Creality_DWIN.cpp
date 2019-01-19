@@ -275,16 +275,31 @@ void RTSSHOW::RTS_Init()
 	//AutoLevelStatus = eeprom_read_byte((unsigned char*)FONT_EEPROM+2);
 	LanguageRecbuf = 0;
 	AutoLevelStatus = 1;
-	if(AutoLevelStatus) 
-	{
-		RTS_SndData(2, AutoLevelIcon);/*Off*/
-		//settings.reset();
-	}
-	else 
-	{
-		RTS_SndData(3, AutoLevelIcon);/*On*/
-		//settings.load();
-	}
+	int showcount = 0;
+	
+	#if HAS_MESH
+		if (leveling_is_valid())
+		{
+			for(int xCount  = 0; xCount < GRID_MAX_POINTS_X; xCount++)
+			{
+				for(int yCount  = 0; yCount < GRID_MAX_POINTS_X; yCount++)
+				{
+					if((showcount++) < 16)
+					{
+						rtscheck.RTS_SndData(z_values[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
+						rtscheck.RTS_SndData(showcount,AutolevelIcon);
+					}
+				}
+			}
+			RTS_SndData(2, AutoLevelIcon);/*On*/
+			enqueue_and_echo_commands_P((PSTR("M420 S1")));
+		}
+		else 
+		{
+			RTS_SndData(3, AutoLevelIcon);/*Off*/
+			//settings.load();
+		}
+	#endif
 	
 	//VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
 	//if(VolumeSet < 0 || VolumeSet > 0xFF)
