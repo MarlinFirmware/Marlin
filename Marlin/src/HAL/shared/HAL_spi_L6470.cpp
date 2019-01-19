@@ -57,8 +57,7 @@
 
 // run at ~4Mhz
 uint8_t L6470_SpiTransfer_Mode_0(uint8_t b) { // using Mode 0
-  int bits = 8;
-  do {
+  for (uint8_t bits = 8; bits--;) {
     WRITE(L6470_CHAIN_MOSI_PIN, b & 0x80);
     b <<= 1;        // little setup time
 
@@ -69,23 +68,22 @@ uint8_t L6470_SpiTransfer_Mode_0(uint8_t b) { // using Mode 0
 
     WRITE(L6470_CHAIN_SCK_PIN, LOW);
     DELAY_NS(125);  // 10 cycles @ 84mhz
-  } while (--bits);
+  }
   return b;
 }
 
 uint8_t L6470_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
-  int bits = 8;
-  do {
+  for (uint8_t bits = 8; bits--;) {
     WRITE(L6470_CHAIN_SCK_PIN, LOW);
-    WRITE(L6470_CHAIN_MOSI_PIN, b & 0x80);
 
+    WRITE(L6470_CHAIN_MOSI_PIN, b & 0x80);
     DELAY_NS(125);  // 10 cycles @ 84mhz
 
     WRITE(L6470_CHAIN_SCK_PIN, HIGH);
 
-    b <<= 1;        // little setup time
+    b <<= 1;
     b |= (READ(L6470_CHAIN_MISO_PIN) != 0);
-  } while (--bits);
+  }
 
   DELAY_NS(125);  // 10 cycles @ 84mhz
   return b;

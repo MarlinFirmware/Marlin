@@ -767,18 +767,24 @@ void reset_stepper_drivers() {
   // not using L6470 library's init command because it
   // briefly sends power to the steppers
 
-  #define _L6470_INIT_CHIP(Q) do{ \
-    stepper##Q.softFree(); \
-    stepper##Q.SetParam(L6470_CONFIG, CONFIG_PWM_DIV_1 | CONFIG_PWM_MUL_2 | CONFIG_SR_290V_us| CONFIG_OC_SD_DISABLE | CONFIG_VS_COMP_DISABLE | CONFIG_SW_HARD_STOP | CONFIG_INT_16MHZ); \
-    stepper##Q.SetParam(L6470_KVAL_RUN, 0xFF); \
-    stepper##Q.SetParam(L6470_KVAL_ACC, 0xFF); \
-    stepper##Q.SetParam(L6470_KVAL_DEC, 0xFF); \
-    stepper##Q.setMicroSteps(Q##_MICROSTEPS); \
-    stepper##Q.setOverCurrent(Q##_OVERCURRENT); \
-    stepper##Q.setStallCurrent(Q##_STALLCURRENT); \
-    stepper##Q.SetParam(L6470_KVAL_HOLD, Q##_MAX_VOLTAGE);\
-    stepper##Q.SetParam(L6470_ABS_POS, 0); \
-    stepper##Q.getStatus();\
+  #define _L6470_INIT_CHIP(Q) do{                             \
+    stepper##Q.softFree();                                    \
+    stepper##Q.SetParam(L6470_CONFIG, CONFIG_PWM_DIV_1        \
+                                    | CONFIG_PWM_MUL_2        \
+                                    | CONFIG_SR_290V_us       \
+                                    | CONFIG_OC_SD_DISABLE    \
+                                    | CONFIG_VS_COMP_DISABLE  \
+                                    | CONFIG_SW_HARD_STOP     \
+                                    | CONFIG_INT_16MHZ);      \
+    stepper##Q.SetParam(L6470_KVAL_RUN, 0xFF);                \
+    stepper##Q.SetParam(L6470_KVAL_ACC, 0xFF);                \
+    stepper##Q.SetParam(L6470_KVAL_DEC, 0xFF);                \
+    stepper##Q.setMicroSteps(Q##_MICROSTEPS);                 \
+    stepper##Q.setOverCurrent(Q##_OVERCURRENT);               \
+    stepper##Q.setStallCurrent(Q##_STALLCURRENT);             \
+    stepper##Q.SetParam(L6470_KVAL_HOLD, Q##_MAX_VOLTAGE);    \
+    stepper##Q.SetParam(L6470_ABS_POS, 0);                    \
+    stepper##Q.getStatus();                                   \
   }while(0)
 
   void L6470_init_to_defaults() {

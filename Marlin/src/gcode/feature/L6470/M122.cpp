@@ -32,9 +32,8 @@ inline void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR(" YES") : PS
 
 void L6470_status_decode(const uint16_t status, const uint8_t axis) {
   char temp_buf[10];
-  SERIAL_ECHOPAIR("AXIS: ", L6470_index_to_Axis[axis][0]);
-  SERIAL_ECHO(L6470_index_to_Axis[axis][1]);
-  sprintf_P(temp_buf, PSTR("  %4x   "), status);
+  L6470_say_axis(axis);
+  sprintf_P(temp_buf, PSTR(" %4x   "), status);
   SERIAL_ECHO(temp_buf);
   print_bin(status);
   SERIAL_ECHOPGM("\n...OUTPUT: ");

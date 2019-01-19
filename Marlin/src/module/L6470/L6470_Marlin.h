@@ -22,9 +22,29 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(L6470)
-
 #include <L6470.h>
+
+//#define L6470_CHITCHAT
+
+#if ENABLED(L6470_CHITCHAT)
+  #define L6470_EOL()           SERIAL_EOL()
+  #define L6470_CHAR(C)         SERIAL_CHAR(C)
+  #define L6470_ECHO(V)         SERIAL_ECHO(V)
+  #define L6470_ECHOPGM(S)      SERIAL_ECHOPGM(S)
+  #define L6470_ECHOLNPGM(S)    SERIAL_ECHOLNPGM(S)
+  #define L6470_ECHOPAIR(S,V)   SERIAL_ECHOPAIR(S,V)
+  #define L6470_ECHOLNPAIR(S,V) SERIAL_ECHOLNPAIR(S,V)
+#else
+  #define L6470_EOL()           NOOP
+  #define L6470_CHAR(C)         NOOP
+  #define L6470_ECHO(V)         NOOP
+  #define L6470_ECHOPGM(S)      NOOP
+  #define L6470_ECHOLNPGM(S)    NOOP
+  #define L6470_ECHOPAIR(S,V)   NOOP
+  #define L6470_ECHOLNPAIR(S,V) NOOP
+#endif
+
+#define L6470_GETPARAM(P,Q) stepper##Q.GetParam(P)
 
 #define MAX_L6470  (7 + MAX_EXTRUDERS) // Maximum number of axes in Marlin
 
@@ -62,5 +82,7 @@ void monitor_L6470_driver();
 void L6470_init();
 void L6470_SPI_init();
 void L6470_init_to_defaults();
+void L6470_Transfer(uint8_t L6470_buf[], const uint8_t length);
+uint8_t L6470_Transfer(uint8_t data, int _SSPin, const uint8_t chain_position);
 
-#endif // HAS_DRIVER(L6470)
+void L6470_say_axis(const uint8_t axis, const bool label=true);

@@ -31,12 +31,8 @@
   #if HAS_DRIVER(L6470)
     //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\gcode\host\M114.cpp
     //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\module\bob_L6470.cpp
-
     #include "../../module/L6470/L6470_Marlin.h"
-
   #endif
-
-
 
   void report_xyze(const float pos[], const uint8_t n = 4, const uint8_t precision = 3) {
     char str[12];
@@ -94,67 +90,54 @@
       int32_t temp;
       //#define ABS_POS_SIGN_MASK 0b1111 1111 1110 0000 0000 0000 0000 0000
       #define ABS_POS_SIGN_MASK 0b11111111111000000000000000000000
-      #define L6470_GetParam(P,Q) stepper##Q.GetParam(P)
-      #define REPORT_ABSOLUTE_POS(Q) do {                          \
-          SERIAL_ECHOPAIR("  ", L6470_index_to_Axis[Q][0]);        \
-          SERIAL_ECHO(L6470_index_to_Axis[Q][1]);                  \
-          temp = L6470_GetParam(L6470_ABS_POS,Q);                  \
-          if (temp & ABS_POS_SIGN_MASK) temp |= ABS_POS_SIGN_MASK; \
-          sprintf_P(temp_buf, PSTR(":%8ld   "), temp)  ;           \
-          SERIAL_ECHO(temp_buf);                                   \
-        } while (0)
+      #define REPORT_ABSOLUTE_POS(Q) do{                            \
+          L6470_say_axis(Q,false);                                  \
+          temp = L6470_GETPARAM(L6470_ABS_POS,Q);                   \
+          if (temp & ABS_POS_SIGN_MASK) temp |= ABS_POS_SIGN_MASK;  \
+          sprintf_P(temp_buf, PSTR(":%8ld   "), temp);              \
+          L6470_ECHO(temp_buf);                                     \
+        }while(0)
 
-      SERIAL_ECHOPGM("\nL6470_absolute_positions:");
-      LOOP_XYZE(i)
-        switch (i) {
-          case X_AXIS:
-            #if AXIS_DRIVER_TYPE_X(L6470)
-              REPORT_ABSOLUTE_POS(X);
-            #endif
-            #if AXIS_DRIVER_TYPE_X2(L6470)
-              REPORT_ABSOLUTE_POS(X2);
-            #endif
-            break;
-          case Y_AXIS:
-            #if AXIS_DRIVER_TYPE_Y(L6470)
-              REPORT_ABSOLUTE_POS(Y);
-            #endif
-            #if AXIS_DRIVER_TYPE_Y2(L6470)
-              REPORT_ABSOLUTE_POS(Y2);
-            #endif
-            break;
-          case Z_AXIS:
-            #if AXIS_DRIVER_TYPE_Z(L6470)
-              REPORT_ABSOLUTE_POS(Z);
-            #endif
-            #if AXIS_DRIVER_TYPE_Z2(L6470)
-              REPORT_ABSOLUTE_POS(Z2);
-            #endif
-            #if AXIS_DRIVER_TYPE_Z3(L6470)
-              REPORT_ABSOLUTE_POS(Z3);
-            #endif
-            break;
-          case E_AXIS:
-            #if AXIS_DRIVER_TYPE_E0(L6470)
-              REPORT_ABSOLUTE_POS(E0);
-            #endif
-            #if AXIS_DRIVER_TYPE_E1(L6470)
-              REPORT_ABSOLUTE_POS(E1);
-            #endif
-            #if AXIS_DRIVER_TYPE_E2(L6470)
-              REPORT_ABSOLUTE_POS(E2);
-            #endif
-            #if AXIS_DRIVER_TYPE_E3(L6470)
-              REPORT_ABSOLUTE_POS(E3);
-            #endif
-            #if AXIS_DRIVER_TYPE_E4(L6470)
-              REPORT_ABSOLUTE_POS(E4);
-            #endif
-            #if AXIS_DRIVER_TYPE_E5(L6470)
-              REPORT_ABSOLUTE_POS(E5);
-            #endif
-            break;
-        }
+      L6470_ECHOPGM("\nL6470:");
+      #if AXIS_DRIVER_TYPE_X(L6470)
+        REPORT_ABSOLUTE_POS(X);
+      #endif
+      #if AXIS_DRIVER_TYPE_X2(L6470)
+        REPORT_ABSOLUTE_POS(X2);
+      #endif
+      #if AXIS_DRIVER_TYPE_Y(L6470)
+        REPORT_ABSOLUTE_POS(Y);
+      #endif
+      #if AXIS_DRIVER_TYPE_Y2(L6470)
+        REPORT_ABSOLUTE_POS(Y2);
+      #endif
+      #if AXIS_DRIVER_TYPE_Z(L6470)
+        REPORT_ABSOLUTE_POS(Z);
+      #endif
+      #if AXIS_DRIVER_TYPE_Z2(L6470)
+        REPORT_ABSOLUTE_POS(Z2);
+      #endif
+      #if AXIS_DRIVER_TYPE_Z3(L6470)
+        REPORT_ABSOLUTE_POS(Z3);
+      #endif
+      #if AXIS_DRIVER_TYPE_E0(L6470)
+        REPORT_ABSOLUTE_POS(E0);
+      #endif
+      #if AXIS_DRIVER_TYPE_E1(L6470)
+        REPORT_ABSOLUTE_POS(E1);
+      #endif
+      #if AXIS_DRIVER_TYPE_E2(L6470)
+        REPORT_ABSOLUTE_POS(E2);
+      #endif
+      #if AXIS_DRIVER_TYPE_E3(L6470)
+        REPORT_ABSOLUTE_POS(E3);
+      #endif
+      #if AXIS_DRIVER_TYPE_E4(L6470)
+        REPORT_ABSOLUTE_POS(E4);
+      #endif
+      #if AXIS_DRIVER_TYPE_E5(L6470)
+        REPORT_ABSOLUTE_POS(E5);
+      #endif
       SERIAL_EOL();
     #endif // HAS_DRIVER(L6470)
 

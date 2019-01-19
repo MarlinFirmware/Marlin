@@ -820,7 +820,6 @@ private:
     static void M916();
     static void M917();
     static void M918();
-
   #endif
 
   #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || ENABLED(DIGIPOT_I2C) || ENABLED(DAC_STEPPER_CURRENT)

@@ -33,8 +33,6 @@
 #include "../../gcode/gcode.h"
 #include "../planner.h"
 
-uint8_t L6470_Transfer(uint8_t data, uint8_t Axis, uint8_t* chain_position_array);
-
 #if HAS_L6470_EXTRUDER
   uint8_t L6470_E_dir_commands[MAX_EXTRUDERS];
 #endif
@@ -140,34 +138,34 @@ uint16_t L6470_get_status(uint8_t axis) {
 
   switch (axis) {
     #if AXIS_DRIVER_TYPE_X(L6470)
-      case 0: return GET_L6470_STATUS(X);
+      case  0: return GET_L6470_STATUS(X);
     #endif
     #if AXIS_DRIVER_TYPE_Y(L6470)
-      case 1: return GET_L6470_STATUS(Y);
+      case  1: return GET_L6470_STATUS(Y);
     #endif
     #if AXIS_DRIVER_TYPE_Z(L6470)
-      case 2: return GET_L6470_STATUS(Z);
+      case  2: return GET_L6470_STATUS(Z);
     #endif
     #if AXIS_DRIVER_TYPE_X2(L6470)
-      case 3: return GET_L6470_STATUS(X2);
+      case  3: return GET_L6470_STATUS(X2);
     #endif
     #if AXIS_DRIVER_TYPE_Y2(L6470)
-      case 4: return GET_L6470_STATUS(Y2);
+      case  4: return GET_L6470_STATUS(Y2);
     #endif
     #if AXIS_DRIVER_TYPE_Z2(L6470)
-      case 5: return GET_L6470_STATUS(Z2);
+      case  5: return GET_L6470_STATUS(Z2);
     #endif
     #if AXIS_DRIVER_TYPE_Z3(L6470)
-      case 6: return GET_L6470_STATUS(Z3);
+      case  6: return GET_L6470_STATUS(Z3);
     #endif
     #if AXIS_DRIVER_TYPE_E0(L6470)
-      case 7: return GET_L6470_STATUS(E0);
+      case  7: return GET_L6470_STATUS(E0);
     #endif
     #if AXIS_DRIVER_TYPE_E1(L6470)
-      case 8: return GET_L6470_STATUS(E1);
+      case  8: return GET_L6470_STATUS(E1);
     #endif
     #if AXIS_DRIVER_TYPE_E2(L6470)
-      case 9: return GET_L6470_STATUS(E2);
+      case  9: return GET_L6470_STATUS(E2);
     #endif
     #if AXIS_DRIVER_TYPE_E3(L6470)
       case 10: return GET_L6470_STATUS(E3);
@@ -185,47 +183,47 @@ uint16_t L6470_get_status(uint8_t axis) {
 
 uint32_t L6470_get_param(uint8_t axis, uint8_t param) {
 
-  #define GET_L6470_PARAM(Q) stepper##Q.GetParam(param)
+  #define GET_L6470_PARAM(Q) L6470_GETPARAM(param,Q)
 
   switch (axis) {
     #if AXIS_DRIVER_TYPE_X(L6470)
-      case 0: return  GET_L6470_PARAM(X);
+      case  0: return GET_L6470_PARAM(X);
     #endif
     #if AXIS_DRIVER_TYPE_Y(L6470)
-      case 1: return  GET_L6470_PARAM(Y);
+      case  1: return GET_L6470_PARAM(Y);
     #endif
     #if AXIS_DRIVER_TYPE_Z(L6470)
-      case 2: return  GET_L6470_PARAM(Z);
+      case  2: return GET_L6470_PARAM(Z);
     #endif
     #if AXIS_DRIVER_TYPE_X2(L6470)
-      case 3: return  GET_L6470_PARAM(X2);
+      case  3: return GET_L6470_PARAM(X2);
     #endif
     #if AXIS_DRIVER_TYPE_Y2(L6470)
-      case 4: return  GET_L6470_PARAM(Y2);
+      case  4: return GET_L6470_PARAM(Y2);
     #endif
     #if AXIS_DRIVER_TYPE_Z2(L6470)
-      case 5: return  GET_L6470_PARAM(Z2);
+      case  5: return GET_L6470_PARAM(Z2);
     #endif
     #if AXIS_DRIVER_TYPE_Z3(L6470)
-      case 6: return  GET_L6470_PARAM(Z3);
+      case  6: return GET_L6470_PARAM(Z3);
     #endif
     #if AXIS_DRIVER_TYPE_E0(L6470)
-      case 7: return  GET_L6470_PARAM(E0);
+      case  7: return GET_L6470_PARAM(E0);
     #endif
     #if AXIS_DRIVER_TYPE_E1(L6470)
-      case 8: return  GET_L6470_PARAM(E1);
+      case  8: return GET_L6470_PARAM(E1);
     #endif
     #if AXIS_DRIVER_TYPE_E2(L6470)
-      case 9: return  GET_L6470_PARAM(E2);
+      case  9: return GET_L6470_PARAM(E2);
     #endif
     #if AXIS_DRIVER_TYPE_E3(L6470)
-      case 10: return  GET_L6470_PARAM(E3);
+      case 10: return GET_L6470_PARAM(E3);
     #endif
     #if AXIS_DRIVER_TYPE_E4(L6470)
-      case 11: return  GET_L6470_PARAM(E4);
+      case 11: return GET_L6470_PARAM(E4);
     #endif
     #if AXIS_DRIVER_TYPE_E5(L6470)
-      case 12: return  GET_L6470_PARAM(E5);
+      case 12: return GET_L6470_PARAM(E5);
     #endif
   }
 
@@ -238,34 +236,34 @@ void L6470_set_param(uint8_t axis, uint8_t param, uint32_t value) {
 
   switch (axis) {
     #if AXIS_DRIVER_TYPE_X(L6470)
-      case 0: SET_L6470_PARAM(X);
+      case  0: SET_L6470_PARAM(X);
     #endif
     #if AXIS_DRIVER_TYPE_Y(L6470)
-      case 1: SET_L6470_PARAM(Y);
+      case  1: SET_L6470_PARAM(Y);
     #endif
     #if AXIS_DRIVER_TYPE_Z(L6470)
-      case 2: SET_L6470_PARAM(Z);
+      case  2: SET_L6470_PARAM(Z);
     #endif
     #if AXIS_DRIVER_TYPE_X2(L6470)
-      case 3: SET_L6470_PARAM(X2);
+      case  3: SET_L6470_PARAM(X2);
     #endif
     #if AXIS_DRIVER_TYPE_Y2(L6470)
-      case 4: SET_L6470_PARAM(Y2);
+      case  4: SET_L6470_PARAM(Y2);
     #endif
     #if AXIS_DRIVER_TYPE_Z2(L6470)
-      case 5: SET_L6470_PARAM(Z2);
+      case  5: SET_L6470_PARAM(Z2);
     #endif
     #if AXIS_DRIVER_TYPE_Z3(L6470)
-      case 6: SET_L6470_PARAM(Z3);
+      case  6: SET_L6470_PARAM(Z3);
     #endif
     #if AXIS_DRIVER_TYPE_E0(L6470)
-      case 7: SET_L6470_PARAM(E0);
+      case  7: SET_L6470_PARAM(E0);
     #endif
     #if AXIS_DRIVER_TYPE_E1(L6470)
-      case 8: SET_L6470_PARAM(E1);
+      case  8: SET_L6470_PARAM(E1);
     #endif
     #if AXIS_DRIVER_TYPE_E2(L6470)
-      case 9: SET_L6470_PARAM(E2);
+      case  9: SET_L6470_PARAM(E2);
     #endif
     #if AXIS_DRIVER_TYPE_E3(L6470)
       case 10: SET_L6470_PARAM(E3);
@@ -280,17 +278,17 @@ void L6470_set_param(uint8_t axis, uint8_t param, uint32_t value) {
 }
 
 inline void echo_min_max(const char a, const float &min, const float &max) {
-  SERIAL_CHAR(' '); SERIAL_CHAR(a);
-  SERIAL_ECHOPAIR(" min = ", min);
-  SERIAL_ECHOLNPAIR("  max = ", max);
+  L6470_CHAR(' '); L6470_CHAR(a);
+  L6470_ECHOPAIR(" min = ", min);
+  L6470_ECHOLNPAIR("  max = ", max);
 }
 inline void echo_oct_used(const float &oct, const bool stall) {
-  SERIAL_ECHOPAIR("over_current_threshold used     : ", oct);
+  L6470_ECHOPAIR("over_current_threshold used     : ", oct);
   serialprintPGM(stall ? PSTR("  (Stall") : PSTR("  (OCD"));
-  SERIAL_ECHOLNPGM(" threshold)");
+  L6470_ECHOLNPGM(" threshold)");
 }
 inline void err_out_of_bounds() {
-  SERIAL_ECHOLNPGM("ERROR - motion outside known endstop position");
+  L6470_ECHOLNPGM("ERROR - motion out of bounds");
 }
 
 bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axis_mon[3][3],
@@ -303,7 +301,7 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
   uint8_t j;   // general purpose counter
 
   if (!all_axes_homed()) {
-    SERIAL_ECHOLNPGM("ERROR - must home all axis before running this command");
+    L6470_ECHOLNPGM("ERROR - home all before running this command");
     //return true;
   }
 
@@ -398,11 +396,9 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
     } break;
   }
 
-
   //
   // Work on the drivers
   //
-
   for (uint8_t k = 0; k < driver_count; k++) {
     bool not_found = true;
     for (j = 1; j <= L6470_chain[0]; j++) {
@@ -420,13 +416,13 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
   }
 
   if (driver_count == 0) {
-    SERIAL_ECHOLNPGM("ERROR - not a L6470 axis");
+    L6470_ECHOLNPGM("ERROR - not a L6470 axis");
     return true;
   }
 
-  SERIAL_ECHOPGM("Monitoring:");
-  for (j = 0; j < driver_count; j++) SERIAL_ECHOPAIR("  ", axis_mon[j]);
-  SERIAL_EOL();
+  L6470_ECHOPGM("Monitoring:");
+  for (j = 0; j < driver_count; j++) L6470_ECHOPAIR("  ", axis_mon[j]);
+  L6470_EOL();
 
   // now have a list of driver(s) to monitor
 
@@ -436,14 +432,14 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
 
   kval_hold = parser.byteval('K');
   if (kval_hold) {
-    SERIAL_ECHOLNPAIR("kval_hold = ", kval_hold);
+    L6470_ECHOLNPAIR("kval_hold = ", kval_hold);
     for (j = 0; j < driver_count; j++)
       L6470_set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
   }
   else {
     // only print the KVAL_HOLD from one of the drivers
     kval_hold = L6470_get_param(axis_index[0], L6470_KVAL_HOLD);
-    SERIAL_ECHOLNPAIR("KVAL_HOLD = ", kval_hold);
+    L6470_ECHOLNPAIR("KVAL_HOLD = ", kval_hold);
   }
 
   //
@@ -470,7 +466,7 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
         OCD_TH_actual = (OCD_TH_val_local + 1) * 375;
       }
 
-      SERIAL_ECHOLNPAIR("over_current_threshold specified: ", over_current_threshold);
+      L6470_ECHOLNPAIR("over_current_threshold specified: ", over_current_threshold);
       echo_oct_used(STALL_TH_actual, true);
       echo_oct_used(OCD_TH_actual, false);
 
@@ -526,30 +522,44 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
   return false;   // FALSE indicates no user input problems
 }
 
-void print_bin(const uint16_t val) {
-  for (uint8_t i = 16; i--;) {
-    SERIAL_ECHO(TEST(val, i));
-    if (!(i & 0x3)) SERIAL_CHAR(' ');
+#if ENABLED(L6470_CHITCHAT)
+
+  void print_bin(const uint16_t val) {
+    for (uint8_t i = 16; i--;) {
+      L6470_ECHO(TEST(val, i));
+      if (!(i & 0x3)) L6470_CHAR(' ');
+    }
   }
-}
 
-inline void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR("YES") : PSTR("NO ")); }
+  inline void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR("YES") : PSTR("NO ")); }
 
-void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // assumes status bits have been inverted
-  char temp_buf[10];
-  SERIAL_ECHOPGM("AXIS: ");
+#endif
+
+void L6470_say_axis(const uint8_t axis, const bool label/*=true*/) {
+  if (label) SERIAL_ECHOPGM("AXIS:");
+  SERIAL_CHAR(' ');
   SERIAL_CHAR(L6470_index_to_Axis[axis][0]);
   SERIAL_CHAR(L6470_index_to_Axis[axis][1]);
-  sprintf_P(temp_buf, PSTR("  %4x   "), status);
-  SERIAL_ECHO(temp_buf);
-  print_bin(status);
-  SERIAL_ECHOPGM("  THERMAL: ");
-  serialprintPGM((status & STATUS_TH_SD) ? PSTR("SHUTDOWN") : (status & STATUS_TH_WRN) ? PSTR("WARNING ") : PSTR("OK      "));
-  SERIAL_ECHOPGM("   OVERCURRENT: ");
-  echo_yes_no(status & STATUS_OCD);
-  SERIAL_ECHOPGM("   STALL: ");
-  echo_yes_no(status & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B));
-  SERIAL_EOL();
+  SERIAL_CHAR(' ');
+}
+
+void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // assumes status bits have been inverted
+  #if ENABLED(L6470_CHITCHAT)
+    char temp_buf[10];
+    L6470_say_axis(axis);
+    sprintf_P(temp_buf, PSTR("  %4x   "), status);
+    L6470_ECHO(temp_buf);
+    print_bin(status);
+    L6470_ECHOPGM("  THERMAL: ");
+    serialprintPGM((status & STATUS_TH_SD) ? PSTR("SHUTDOWN") : (status & STATUS_TH_WRN) ? PSTR("WARNING ") : PSTR("OK      "));
+    L6470_ECHOPGM("   OVERCURRENT: ");
+    echo_yes_no(status & STATUS_OCD);
+    L6470_ECHOPGM("   STALL: ");
+    echo_yes_no(status & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B));
+    L6470_EOL();
+  #else
+    UNUSED(status); UNUSED(axis);
+  #endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -623,7 +633,7 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
     char* p = &temp_buf[0];
     uint8_t j;
     for (j = 0; j < L6470_chain[0]; j++) // find the table for this stepper
-      if (driver_L6470_data[j].driver_index == stepper_index ) break;
+      if (driver_L6470_data[j].driver_index == stepper_index) break;
 
     driver_L6470_data[j].driver_status = status;
     uint16_t _status = ~status;     // all error bits are active low
@@ -631,39 +641,53 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
     if (status == 0 || status == 0xFFFF) {              // com problem
       if (driver_L6470_data[j].com_counter == 0) {      // warn user when it first happens
         driver_L6470_data[j].com_counter++;
-        append_stepper_err(p, stepper_index, PSTR(" - communications lost\n"));
-        SERIAL_ECHO(temp_buf);
+        #if ENABLED(L6470_CHITCHAT)
+          append_stepper_err(p, stepper_index, PSTR(" - communications lost\n"));
+          L6470_ECHO(temp_buf);
+        #endif
       }
       else {
         driver_L6470_data[j].com_counter++;
         if (driver_L6470_data[j].com_counter > 240) {  // remind of com problem about every 2 minutes
           driver_L6470_data[j].com_counter = 1;
-          append_stepper_err(p, stepper_index, PSTR(" - still no communications\n"));
-          SERIAL_ECHO(temp_buf);
+          #if ENABLED(L6470_CHITCHAT)
+            append_stepper_err(p, stepper_index, PSTR(" - still no communications\n"));
+            L6470_ECHO(temp_buf);
+          #endif
         }
       }
     }
     else {
       if (driver_L6470_data[j].com_counter) {   // comms re-established
         driver_L6470_data[j].com_counter = 0;
-        append_stepper_err(p, stepper_index, PSTR(" - communications re-established\n.. setting all drivers to default values\n"));
-        SERIAL_ECHO(temp_buf);
+        #if ENABLED(L6470_CHITCHAT)
+          append_stepper_err(p, stepper_index, PSTR(" - communications re-established\n.. setting all drivers to default values\n"));
+          L6470_ECHO(temp_buf);
+        #endif
         L6470_init_to_defaults();
       }
       else {
         // no com problems - do the usual checks
         if (_status & L6470_ERROR_MASK) {
-          append_stepper_err(p, stepper_index);
+          #if ENABLED(L6470_CHITCHAT)
+            append_stepper_err(p, stepper_index);
+          #endif
 
           if (_status & STATUS_HIZ) {                         // the driver has shut down
             driver_L6470_data[j].is_hi_Z = true;
-            p += sprintf_P(p, PSTR(" IS SHUT DOWN"));
+            #if ENABLED(L6470_CHITCHAT)
+              p += sprintf_P(p, PSTR(" IS SHUT DOWN"));
+            #endif
             if (_status & STATUS_TH_SD) {
-              p += sprintf_P(p, PSTR(" due to over temperature"));
+              #if ENABLED(L6470_CHITCHAT)
+                p += sprintf_P(p, PSTR(" due to over temperature"));
+              #endif
               driver_L6470_data[j].is_ot = true;
               kval_hold = L6470_get_param(stepper_index, L6470_KVAL_HOLD) - 2 * KVAL_HOLD_STEP_DOWN;
-              L6470_set_param(stepper_index, L6470_KVAL_HOLD, kval_hold );     // reduce KVAL_HOLD
-              p += sprintf_P(p, PSTR(" - KVAL_HOLD reduced by %d to %d"), 2 * KVAL_HOLD_STEP_DOWN, kval_hold);   // let user know
+              L6470_set_param(stepper_index, L6470_KVAL_HOLD, kval_hold);     // reduce KVAL_HOLD
+              #if ENABLED(L6470_CHITCHAT)
+                p += sprintf_P(p, PSTR(" - KVAL_HOLD reduced by %d to %d"), 2 * KVAL_HOLD_STEP_DOWN, kval_hold);   // let user know
+              #endif
             }
             else
               driver_L6470_data[j].is_ot = false;
@@ -676,43 +700,48 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
             driver_L6470_data[j].otw_counter++;
             if (driver_L6470_data[j].otw_counter > 4) {  // otw present for 2 - 2.5 seconds, reduce KVAL_HOLD
               kval_hold = L6470_get_param(stepper_index, L6470_KVAL_HOLD) - KVAL_HOLD_STEP_DOWN;
-              L6470_set_param(stepper_index, L6470_KVAL_HOLD, kval_hold );     // reduce KVAL_HOLD
-              p += sprintf_P(p, PSTR(" - KVAL_HOLD reduced by %d to %d"), KVAL_HOLD_STEP_DOWN, kval_hold);   // let user know
+              L6470_set_param(stepper_index, L6470_KVAL_HOLD, kval_hold);     // reduce KVAL_HOLD
+              #if ENABLED(L6470_CHITCHAT)
+                p += sprintf_P(p, PSTR(" - KVAL_HOLD reduced by %d to %d"), KVAL_HOLD_STEP_DOWN, kval_hold);   // let user know
+              #endif
               driver_L6470_data[j].otw_counter = 0;
               driver_L6470_data[j].is_otw = true;
             }
-            else if (driver_L6470_data[j].otw_counter)
-              p += sprintf_P(p, PSTR(" - thermal warning %d"), kval_hold);   // warn user
+            else if (driver_L6470_data[j].otw_counter) {
+              #if ENABLED(L6470_CHITCHAT)
+                p += sprintf_P(p, PSTR(" - thermal warning %d"), kval_hold);   // warn user
+              #endif
+            }
           }
           else {
             driver_L6470_data[j].otw_counter = 0;   //clear out warning indicators
             driver_L6470_data[j].is_otw = false;
           }
 
-          if (_status & STATUS_OCD)
-            p += sprintf_P(p, PSTR(" overcurrent"));
+          #if ENABLED(L6470_CHITCHAT)
+            if (_status & STATUS_OCD)
+              p += sprintf_P(p, PSTR(" overcurrent"));
 
-          if (_status & (STATUS_STEP_LOSS_A |STATUS_STEP_LOSS_B ))
-            p += sprintf_P(p, PSTR(" stall"));
+            if (_status & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B))
+              p += sprintf_P(p, PSTR(" stall"));
 
-          if (_status & STATUS_UVLO)
-            p += sprintf_P(p, PSTR(" under voltage lock out"));
+            if (_status & STATUS_UVLO)
+              p += sprintf_P(p, PSTR(" under voltage lock out"));
 
-          p += sprintf_P(p, PSTR("\n"));
-
+            p += sprintf_P(p, PSTR("\n"));
+          #endif
 
           #ifdef L6470_STOP_ON_ERROR
             if (_status & (STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD))
               kill(temp_buf);
           #endif
 
-          SERIAL_ECHOLN(temp_buf);
+          L6470_ECHOLN(temp_buf);
 
-        }  //end usual checks
+        } // end usual checks
       }
-    } //comms re-established
+    } // comms re-established
   } // end L6470_monitor_update()
-
 
   #define MONITOR_L6470_DRIVE(Q) L6470_monitor_update(Q, stepper##Q.getStatus())
 
@@ -762,7 +791,7 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
       #endif
 
       #if ENABLED(L6470_DEBUG)
-        if (report_L6470_status) SERIAL_EOL();
+        if (report_L6470_status) L6470_EOL();
       #endif
     }
   }

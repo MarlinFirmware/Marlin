@@ -44,13 +44,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-extern uint8_t axis_known_position;
-
-void disable_e_steppers();
-void disable_e_stepper(const uint8_t e);
-
-void disable_all_steppers();
-
 // TMC26X drivers have STEP/DIR on normal pins, but ENABLE via SPI
 #if HAS_DRIVER(TMC26X)
   #include <SPI.h>

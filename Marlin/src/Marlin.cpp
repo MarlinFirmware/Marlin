@@ -323,7 +323,6 @@ void disable_all_steppers() {
  *  - Check if cooling fan needs to be switched on
  *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
  */
-bool already_shutdown_steppers = false;
 void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -348,6 +347,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   if (stepper_inactive_time) {
+    static bool already_shutdown_steppers; // = false
     if (planner.has_blocks_queued())
       gcode.previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
     else if (MOVE_AWAY_TEST && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
@@ -373,9 +373,8 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
         #endif
       }
     }
-    else {
+    else
       already_shutdown_steppers = false;
-    }
   }
 
   #if PIN_EXISTS(CHDK) // Check if pin should be set to LOW (after M240 set it HIGH)
