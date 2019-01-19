@@ -108,7 +108,7 @@
   comp_coef = 1600 / L6470_ADC_out_limited;                                                                                       \
   SERIAL_ECHOPAIR("   ADC_OUT: ", L6470_ADC_out) ;                                                                                \
   SERIAL_ECHOPAIR("   Vs_compensation: ", (L6470_GetParam(L6470_CONFIG, Q) & CONFIG_EN_VSCOMP) ? "ENABLED " : "DISABLED" );       \
-  sprintf_P(temp_buf, PSTR("   Compensation coefficient: %4.2f (approximately)\n"), comp_coef / * 0.01f);                         \
+  sprintf_P(temp_buf, PSTR("   Compensation coefficient: %4.2f (approximately)\n"), comp_coef * 0.01f);                         \
   SERIAL_ECHO(temp_buf);                                                                                                          \
   SERIAL_ECHOPAIR("...KVAL_HOLD: ", L6470_GetParam(L6470_KVAL_HOLD, Q));                                                          \
   SERIAL_ECHOPAIR("   KVAL_RUN : ", L6470_GetParam(L6470_KVAL_RUN, Q));                                                          \

@@ -91,10 +91,10 @@ uint8_t L6470_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
   return b;
 }
 
-uint8_t L6470_Transfer(uint8_t data, const pin_t _SSPin, const uint8_t chain_position) {
+uint8_t L6470_Transfer(uint8_t data, int _SSPin, const uint8_t chain_position) {
   #define CMD_NOP 0
   uint8_t data_out = 0;
-  data--;
+
   // first device in chain has data sent last
   digitalWrite(_SSPin, LOW);
 

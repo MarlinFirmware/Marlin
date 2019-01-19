@@ -47,9 +47,9 @@ void L6470_status_decode(const uint16_t status, const uint8_t axis) {
   SERIAL_ECHOPGM("VALID    ");
   serialprintPGM(status & STATUS_NOTPERF_CMD ? PSTR("Not PERFORMED") : PSTR("COMPLETED    "));
   SERIAL_ECHOPAIR("\n...THERMAL: ", !(status & STATUS_TH_SD) ? "SHUTDOWN" : !(status & STATUS_TH_WRN) ? "WARNING " : "OK      ");
-  SERIAL_ECHOPGM("   OVERCURRENT:"); echo_yes_no(status & STATUS_OCD);
+  SERIAL_ECHOPGM("   OVERCURRENT:"); echo_yes_no(!(status & STATUS_OCD));
   SERIAL_ECHOPGM("   STALL:"); echo_yes_no(!(status & STATUS_STEP_LOSS_A) || !(status & STATUS_STEP_LOSS_B));
-  SERIAL_ECHOPGM("   STEP-CLOCK MODE:") echo_yes_no(status & STATUS_SCK_MOD);
+  SERIAL_ECHOPGM("   STEP-CLOCK MODE:"); echo_yes_no(status & STATUS_SCK_MOD);
   SERIAL_EOL();
 }
 

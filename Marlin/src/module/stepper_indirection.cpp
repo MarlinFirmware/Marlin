@@ -709,7 +709,9 @@ void reset_stepper_drivers() {
     TMC_ADV()
   #endif
 
-  stepper.set_directions();
+  #if HAS_TRINAMIC
+    stepper.set_directions();
+  #endif
 }
 
 //
