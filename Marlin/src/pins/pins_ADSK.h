@@ -12,21 +12,21 @@
 #if defined(ZONESTAR_LCD)
 
 /*
- The 2004 LCD power should be connected to 5V.
+ The 2004 LCD should be powered with 5V.
  The next LCD pins RS,D4,D5,D6,D7 have internal pull-ups to 5V and as result the 5V will be on these pins.
  Luckily these internal pull-ups have really high resistance and adding 33K pull-down resistors will create
  simple voltage divider that will bring the voltage down just slightly bellow 3.3V.
  
  This LCD also has buttons that connected to the same ADC pin with different voltage divider combinations.
- The internal pull-up resistor of the 4.7K is connected to 5V.
+ On the LCD panel there is internal pull-up resistor of the 4.7K connected to 5V.
  Connecting another 4.7K pull-down resistor between ADC pin and the GND
-   will result in scaled values for voltage dividers and will bring it down to be always below 3.3V.
+   will result in scaled values for voltage dividers and will bring them down to be always below 3.3V.
  
  For 2004 LCD to work with 3.3V board like Arduino DUE the next required:
  Pull-down resistors of 33K between each of LCD pins RS,D4,D5,D6,D7 and the GND.
  Pull-down resistor of 4.7K between ADC_KEYPAD_PIN and the GND
  
- All these modification will still work with 5V based boards
+ All these modifications will still work with 5V based boards but require proper scaled ADC values
  */
 
 #if defined(__SAM3X8E__)

@@ -932,27 +932,28 @@ void MarlinUI::update() {
 
 
 #if !defined(ADC_BUTTONS_VALUE_SCALE)
-    #define ADC_BUTTONS_VALUE_SCALE         1.0
+    #define ADC_BUTTONS_VALUE_SCALE         1.0  // for the power voltage equal to the reference voltage
 #endif
 #if !defined(ADC_BUTTONS_R_PULLUP)
-    #define ADC_BUTTONS_R_PULLUP            4.7
+    #define ADC_BUTTONS_R_PULLUP            4.7  // common pull-up resistor in the voltage divider
 #endif
 #if !defined(ADC_BUTTONS_LEFT_R_PULLDOWN)
-    #define ADC_BUTTONS_LEFT_R_PULLDOWN     0.47
+    #define ADC_BUTTONS_LEFT_R_PULLDOWN     0.47 // pull-down resistor for LEFT button voltage divider
 #endif
 #if !defined(ADC_BUTTONS_RIGHT_R_PULLDOWN)
-    #define ADC_BUTTONS_RIGHT_R_PULLDOWN    4.7
+    #define ADC_BUTTONS_RIGHT_R_PULLDOWN    4.7  // pull-down resistor for RIGHT button voltage divider
 #endif
 #if !defined(ADC_BUTTONS_UP_R_PULLDOWN)
-    #define ADC_BUTTONS_UP_R_PULLDOWN       1.0
+    #define ADC_BUTTONS_UP_R_PULLDOWN       1.0  // pull-down resistor for UP button voltage divider
 #endif
 #if !defined(ADC_BUTTONS_DOWN_R_PULLDOWN)
-    #define ADC_BUTTONS_DOWN_R_PULLDOWN     10.0
+    #define ADC_BUTTONS_DOWN_R_PULLDOWN     10.0 // pull-down resistor for DOWN button voltage divider
 #endif
 #if !defined(ADC_BUTTONS_MIDDLE_R_PULLDOWN)
-    #define ADC_BUTTONS_MIDDLE_R_PULLDOWN   2.2
+    #define ADC_BUTTONS_MIDDLE_R_PULLDOWN   2.2  // pull-down resistor for MIDDLE button voltage divider
 #endif
 
+// calculate the ADC value for the voltage divider with specified pull-down resistor value
 #define ADC_BUTTON_VALUE(r)  (int(4096.0*ADC_BUTTONS_VALUE_SCALE*r/(r+ADC_BUTTONS_R_PULLUP)))
 
 static const _stADCKeypadTable_ stADCKeyTable[] PROGMEM = {
