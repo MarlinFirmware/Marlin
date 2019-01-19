@@ -293,6 +293,7 @@ void RTSSHOW::RTS_Init()
 			}
 			RTS_SndData(2, AutoLevelIcon);/*On*/
 			enqueue_and_echo_commands_P((PSTR("M420 S1")));
+			AutoLevelStatus = planner.leveling_active;
 		}
 		else 
 		{
@@ -2001,7 +2002,6 @@ void EachMomentUpdate()
 	millis_t ms = millis();
 	if(ms > next_rts_update_ms && InforShowStatus)
 	{
-		
 		if ((power_off_type_yes == 0)  && lcd_sd_status && (power_off_commands_count > 0)) // print the file before the power is off.
 		{
 			SERIAL_PROTOCOLLN("  ***test1*** ");
@@ -2219,11 +2219,13 @@ void EachMomentUpdate()
 				rtscheck.RTS_SndData(AutoHomeIconNum++,AutoZeroIcon);
 				if(AutoHomeIconNum > 9)	AutoHomeIconNum = 0;
 			}
-
 		}
-		
-		next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + Update_Time_Value;
 
+		if(planner.leveling_active) 
+			rtscheck.RTS_SndData(2, AutoLevelIcon);/*Off*/
+		else
+			rtscheck.RTS_SndData(3, AutoLevelIcon);/*On*/
+		next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + Update_Time_Value;
 	}
 
 }
@@ -2239,7 +2241,7 @@ void RTSUpdate()	//looping at the loop function
 	//SERIAL_ECHOPAIR("\n ***FilementStatus[1] =",FilementStatus[1]);
 	//SERIAL_ECHOPAIR("\n ***card.sdprinting =",card.sdprinting);
 
-	if(FilementStatus[1] == 2 && true==card.sdprinting)
+	if(FilementStatus[1] == 2 && (true==card.sdprinting || true==print_job_timer.isRunning))
 	{	
 		
 	//SERIAL_ECHOPAIR("\n FIL_RUNOUT_PIN =",card.sdprinting);

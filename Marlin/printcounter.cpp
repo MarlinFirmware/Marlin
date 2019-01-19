@@ -32,6 +32,7 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 #include "printcounter.h"
 #include "duration_t.h"
 #include "Marlin.h"
+#include "Creality_DWIN.h"
 
 PrintCounter print_job_timer;   // Global Print Job Timer instance
 
@@ -201,6 +202,28 @@ bool PrintCounter::start() {
     if (!paused) {
       data.totalPrints++;
       lastDuration = 0;
+      #if ENABLED(CREALITY_DWIN)
+       
+			if(LanguageRecbuf != 0)
+				{
+					rtscheck.RTS_SndData(1,IconPrintstatus);	// 1 for Heating 
+					delay(2);
+					rtscheck.RTS_SndData(ExchangePageBase + 10, ExchangepageAddr); //exchange to 10 page
+				}
+				else
+				{
+					rtscheck.RTS_SndData(1+CEIconGrap,IconPrintstatus);	// 1 for Heating 
+					delay(2);
+					rtscheck.RTS_SndData(ExchangePageBase + 52, ExchangepageAddr); 
+				}
+				TPShowStatus = InforShowStatus = true;
+				PrintStatue[1] = 0;
+				PrinterStatusKey[0] = 1;
+				PrinterStatusKey[1] = 3;
+				CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
+				Update_Time_Value = 0;
+		
+      #endif
     }
     return true;
   }
