@@ -61,3 +61,10 @@ env = Environment(
     LINKFLAGS='-Wall -static -std=gnu++11 -march=armv6 -mlittle-endian ' + debug_flags)
 env.VariantDir('armv6l', 'src', duplicate=0)
 add_program(env, 'armv6l')
+
+env = Environment(
+    CXX='aarch64-linux-gnu-g++',
+    CPPFLAGS= '-Wall -static -std=gnu++11 -MMD ' + debug_flags,
+    LINKFLAGS='-Wall -static -std=gnu++11 ' + debug_flags)
+env.VariantDir('aarch64', 'src', duplicate=0)
+add_program(env, 'aarch64')
