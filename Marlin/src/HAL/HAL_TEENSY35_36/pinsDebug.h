@@ -53,16 +53,16 @@
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(9)) || ((P) >= analogInputToDigitalPin(12) && (P) <= analogInputToDigitalPin(20))
 
 void HAL_print_analog_pin(char buffer[], int8_t pin) {
-  if (pin <= 23)      sprintf(buffer, "(A%2d)  ", int(pin - 14));
-  else if (pin <= 39) sprintf(buffer, "(A%2d)  ", int(pin - 19));
+  if (pin <= 23)      sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 14));
+  else if (pin <= 39) sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 19));
 }
 
 void HAL_analog_pin_state(char buffer[], int8_t pin) {
-  if (pin <= 23)      sprintf(buffer, "Analog in =% 5d", analogRead(pin - 14));
-  else if (pin <= 39) sprintf(buffer, "Analog in =% 5d", analogRead(pin - 19));
+  if (pin <= 23)      sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 14));
+  else if (pin <= 39) sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 19));
 }
 
-#define PWM_PRINT(V) do{ sprintf(buffer, "PWM:  %4d", 22); SERIAL_ECHO(buffer); }while(0)
+#define PWM_PRINT(V) do{ sprintf_P(buffer, PSTR("PWM:  %4d"), 22); SERIAL_ECHO(buffer); }while(0)
 #define FTM_CASE(N,Z) \
   case FTM##N##_CH##Z##_PIN: \
     if (FTM##N##_C##Z##V) { \

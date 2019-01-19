@@ -120,14 +120,14 @@ static uint8_t buffer[256] = {0},   // The RAM buffer to accumulate writes
     const uint8_t* c = (const uint8_t*) data;
     char buffer[80];
 
-    sprintf(buffer, "Page: %d (0x%04x)\n", page, page);
+    sprintf_P(buffer, PSTR("Page: %d (0x%04x)\n"), page, page);
     SERIAL_ECHO(buffer);
 
     char* p = &buffer[0];
     for (int i = 0; i< PageSize; ++i) {
-      if ((i & 0xF) == 0) p += sprintf(p,"%04x] ", i);
+      if ((i & 0xF) == 0) p += sprintf_P(p, PSTR("%04x] "), i);
 
-      p += sprintf(p," %02x", c[i]);
+      p += sprintf_P(p, PSTR(" %02x"), c[i]);
       if ((i & 0xF) == 0xF) {
         *p++ = '\n';
         *p = 0;

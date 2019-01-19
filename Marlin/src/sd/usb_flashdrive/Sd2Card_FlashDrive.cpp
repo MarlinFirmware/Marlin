@@ -110,7 +110,7 @@ bool Sd2Card::init(const uint8_t sckRateID/*=0*/, const pin_t chipSelectPin/*=SD
 
   const uint32_t sectorSize = bulk.GetSectorSize(0);
   if (sectorSize != 512) {
-    SERIAL_ECHOLNPAIR("Expecting sector size of 512, got:", sectorSize);
+    SERIAL_ECHOLNPAIR("Expecting sector size of 512. Got: ", sectorSize);
     return false;
   }
 

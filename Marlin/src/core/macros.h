@@ -56,9 +56,7 @@
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
-#if !defined(ARDUINO_ARCH_STM32) || defined(STM32GENERIC)
-  #define UNUSED(x) ((void)(x))
-#endif
+#define UNUSED(x) ((void)(x))
 
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
