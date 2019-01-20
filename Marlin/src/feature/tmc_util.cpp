@@ -838,18 +838,14 @@
     bool stealthchop_was_enabled = st.en_pwm_mode();
 
     st.TCOOLTHRS(0xFFFFF);
-    #if STEALTHCHOP_ENABLED
-      st.en_pwm_mode(false);
-    #endif
+    st.en_pwm_mode(false);
     st.diag1_stall(true);
 
     return stealthchop_was_enabled;
   }
   void tmc_disable_stallguard(TMC2130Stepper &st, const bool restore_stealth) {
     st.TCOOLTHRS(0);
-    #if STEALTHCHOP_ENABLED
-      st.en_pwm_mode(restore_stealth);
-    #endif
+    st.en_pwm_mode(restore_stealth);
     st.diag1_stall(false);
   }
   bool tmc_enable_stallguard(TMC2660Stepper) {

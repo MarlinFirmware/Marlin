@@ -241,7 +241,7 @@ void menu_tmc_current() {
 
 #endif
 
-#if STEALTHCHOP_ENABLED
+#if HAS_STEALTHCHOP
 
   #define TMC_EDIT_STEP_MODE(ST) MENU_ITEM_EDIT_CALLBACK(bool, MSG_##ST, &stepper##ST.stored.stealthChop_enabled, refresh_stepping_mode_##ST)
 
@@ -343,7 +343,7 @@ void menu_tmc() {
   #if ENABLED(SENSORLESS_HOMING)
     MENU_ITEM(submenu, MSG_TMC_HOMING_THRS, menu_tmc_homing_thrs);
   #endif
-  #if STEALTHCHOP_ENABLED
+  #if HAS_STEALTHCHOP
     MENU_ITEM(submenu, MSG_TMC_STEPPING_MODE, menu_tmc_step_mode);
   #endif
   END_MENU();
