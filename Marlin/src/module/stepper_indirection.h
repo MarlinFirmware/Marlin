@@ -68,8 +68,8 @@
 
   typedef struct {
     uint8_t toff;
-    int8_t hstrt;
-    uint8_t hend;
+    int8_t hend;
+    uint8_t hstrt;
   } chopper_timing_t;
 
   static constexpr chopper_timing_t chopper_timing = CHOPPER_TIMING;
