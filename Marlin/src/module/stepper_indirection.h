@@ -97,7 +97,7 @@ void restore_stepper_drivers();  // Called by PSU_ON
 void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // X Stepper
-#if AXIS_DRIVER_TYPE(X, L6470)
+#if AXIS_DRIVER_TYPE_X(L6470)
   extern L6470 stepperX;
   #define X_ENABLE_INIT NOOP
   #define X_ENABLE_WRITE(STATE) NOOP
@@ -109,7 +109,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #if AXIS_IS_TMC(X)
     extern TMC_CLASS(X) stepperX;
   #endif
-  #if AXIS_DRIVER_TYPE(X, TMC26X)
+  #if AXIS_DRIVER_TYPE_X(TMC26X)
     extern TMC26XStepper stepperX;
     #define X_ENABLE_INIT NOOP
     #define X_ENABLE_WRITE(STATE) stepperX.setEnabled(STATE)
@@ -132,7 +132,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define X_STEP_READ READ(X_STEP_PIN)
 
 // Y Stepper
-#if AXIS_DRIVER_TYPE(Y, L6470)
+#if AXIS_DRIVER_TYPE_Y(L6470)
   extern L6470 stepperY;
   #define Y_ENABLE_INIT NOOP
   #define Y_ENABLE_WRITE(STATE) NOOP
@@ -144,7 +144,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #if AXIS_IS_TMC(Y)
     extern TMC_CLASS(Y) stepperY;
   #endif
-  #if AXIS_DRIVER_TYPE(Y, TMC26X)
+  #if AXIS_DRIVER_TYPE_Y(TMC26X)
     extern TMC26XStepper stepperY;
     #define Y_ENABLE_INIT NOOP
     #define Y_ENABLE_WRITE(STATE) stepperY.setEnabled(STATE)
@@ -167,7 +167,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define Y_STEP_READ READ(Y_STEP_PIN)
 
 // Z Stepper
-#if AXIS_DRIVER_TYPE(Z, L6470)
+#if AXIS_DRIVER_TYPE_Z(L6470)
   extern L6470 stepperZ;
   #define Z_ENABLE_INIT NOOP
   #define Z_ENABLE_WRITE(STATE) NOOP
@@ -179,7 +179,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #if AXIS_IS_TMC(Z)
     extern TMC_CLASS(Z) stepperZ;
   #endif
-  #if AXIS_DRIVER_TYPE(Z, TMC26X)
+  #if AXIS_DRIVER_TYPE_Z(TMC26X)
     extern TMC26XStepper stepperZ;
     #define Z_ENABLE_INIT NOOP
     #define Z_ENABLE_WRITE(STATE) stepperZ.setEnabled(STATE)
@@ -203,7 +203,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // X2 Stepper
 #if HAS_X2_ENABLE
-  #if AXIS_DRIVER_TYPE(X2, L6470)
+  #if AXIS_DRIVER_TYPE_X2(L6470)
     extern L6470 stepperX2;
     #define X2_ENABLE_INIT NOOP
     #define X2_ENABLE_WRITE(STATE) NOOP
@@ -215,7 +215,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #if AXIS_IS_TMC(X2)
       extern TMC_CLASS(X2) stepperX2;
     #endif
-    #if AXIS_DRIVER_TYPE(X2, TMC26X)
+    #if AXIS_DRIVER_TYPE_X2(TMC26X)
       extern TMC26XStepper stepperX2;
       #define X2_ENABLE_INIT NOOP
       #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
@@ -240,7 +240,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // Y2 Stepper
 #if HAS_Y2_ENABLE
-  #if AXIS_DRIVER_TYPE(Y2, L6470)
+  #if AXIS_DRIVER_TYPE_Y2(L6470)
     extern L6470 stepperY2;
     #define Y2_ENABLE_INIT NOOP
     #define Y2_ENABLE_WRITE(STATE) NOOP
@@ -252,7 +252,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #if AXIS_IS_TMC(Y2)
       extern TMC_CLASS(Y2) stepperY2;
     #endif
-    #if AXIS_DRIVER_TYPE(Y2, TMC26X)
+    #if AXIS_DRIVER_TYPE_Y2(TMC26X)
       extern TMC26XStepper stepperY2;
       #define Y2_ENABLE_INIT NOOP
       #define Y2_ENABLE_WRITE(STATE) stepperY2.setEnabled(STATE)
@@ -279,7 +279,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // Z2 Stepper
 #if HAS_Z2_ENABLE
-  #if AXIS_DRIVER_TYPE(Z2, L6470)
+  #if AXIS_DRIVER_TYPE_Z2(L6470)
     extern L6470 stepperZ2;
     #define Z2_ENABLE_INIT NOOP
     #define Z2_ENABLE_WRITE(STATE) NOOP
@@ -291,7 +291,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #if AXIS_IS_TMC(Z2)
       extern TMC_CLASS(Z2) stepperZ2;
     #endif
-    #if AXIS_DRIVER_TYPE(Z2, TMC26X)
+    #if AXIS_DRIVER_TYPE_Z2(TMC26X)
       extern TMC26XStepper stepperZ2;
       #define Z2_ENABLE_INIT NOOP
       #define Z2_ENABLE_WRITE(STATE) stepperZ2.setEnabled(STATE)
@@ -356,7 +356,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 // E0 Stepper
-#if AXIS_DRIVER_TYPE(E0, L6470)
+#if AXIS_DRIVER_TYPE_E0(L6470)
   extern L6470 stepperE0;
   #define E0_ENABLE_INIT NOOP
   #define E0_ENABLE_WRITE(STATE) NOOP
@@ -368,7 +368,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #if AXIS_IS_TMC(E0)
     extern TMC_CLASS(E0) stepperE0;
   #endif
-  #if AXIS_DRIVER_TYPE(E0, TMC26X)
+  #if AXIS_DRIVER_TYPE_E0(TMC26X)
     extern TMC26XStepper stepperE0;
     #define E0_ENABLE_INIT NOOP
     #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
@@ -391,7 +391,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define E0_STEP_READ READ(E0_STEP_PIN)
 
 // E1 Stepper
-#if AXIS_DRIVER_TYPE(E1, L6470)
+#if AXIS_DRIVER_TYPE_E1(L6470)
   extern L6470 stepperE1;
   #define E1_ENABLE_INIT NOOP
   #define E1_ENABLE_WRITE(STATE) NOOP
@@ -403,7 +403,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #if AXIS_IS_TMC(E1)
     extern TMC_CLASS(E1) stepperE1;
   #endif
-  #if AXIS_DRIVER_TYPE(E1, TMC26X)
+  #if AXIS_DRIVER_TYPE_E1(TMC26X)
     extern TMC26XStepper stepperE1;
     #define E1_ENABLE_INIT NOOP
     #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
@@ -426,7 +426,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define E1_STEP_READ READ(E1_STEP_PIN)
 
 // E2 Stepper
-#if AXIS_DRIVER_TYPE(E2, L6470)
+#if AXIS_DRIVER_TYPE_E2(L6470)
   extern L6470 stepperE2;
   #define E2_ENABLE_INIT NOOP
   #define E2_ENABLE_WRITE(STATE) NOOP
@@ -438,7 +438,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #if AXIS_IS_TMC(E2)
     extern TMC_CLASS(E2) stepperE2;
   #endif
-  #if AXIS_DRIVER_TYPE(E2, TMC26X)
+  #if AXIS_DRIVER_TYPE_E2(TMC26X)
     extern TMC26XStepper stepperE2;
     #define E2_ENABLE_INIT NOOP
     #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
@@ -461,7 +461,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define E2_STEP_READ READ(E2_STEP_PIN)
 
 // E3 Stepper
-#if AXIS_DRIVER_TYPE(E3, L6470)
+#if AXIS_DRIVER_TYPE_E3(L6470)
   extern L6470 stepperE3;
   #define E3_ENABLE_INIT NOOP
   #define E3_ENABLE_WRITE(STATE) NOOP
@@ -473,7 +473,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #if AXIS_IS_TMC(E3)
     extern TMC_CLASS(E3) stepperE3;
   #endif
-  #if AXIS_DRIVER_TYPE(E3, TMC26X)
+  #if AXIS_DRIVER_TYPE_E3(TMC26X)
     extern TMC26XStepper stepperE3;
     #define E3_ENABLE_INIT NOOP
     #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
@@ -496,7 +496,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define E3_STEP_READ READ(E3_STEP_PIN)
 
 // E4 Stepper
-#if AXIS_DRIVER_TYPE(E4, L6470)
+#if AXIS_DRIVER_TYPE_E4(L6470)
   extern L6470 stepperE4;
   #define E4_ENABLE_INIT NOOP
   #define E4_ENABLE_WRITE(STATE) NOOP
@@ -508,7 +508,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #if AXIS_IS_TMC(E4)
     extern TMC_CLASS(E4) stepperE4;
   #endif
-  #if AXIS_DRIVER_TYPE(E4, TMC26X)
+  #if AXIS_DRIVER_TYPE_E4(TMC26X)
     extern TMC26XStepper stepperE4;
     #define E4_ENABLE_INIT NOOP
     #define E4_ENABLE_WRITE(STATE) stepperE4.setEnabled(STATE)
@@ -531,7 +531,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define E4_STEP_READ READ(E4_STEP_PIN)
 
 // E5 Stepper
-#if AXIS_DRIVER_TYPE(E5, L6470)
+#if AXIS_DRIVER_TYPE_E5(L6470)
   extern L6470 stepperE5;
   #define E5_ENABLE_INIT NOOP
   #define E5_ENABLE_WRITE(STATE) NOOP
@@ -543,7 +543,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #if AXIS_IS_TMC(E5)
     extern TMC_CLASS(E5) stepperE5;
   #endif
-  #if AXIS_DRIVER_TYPE(E5, TMC26X)
+  #if AXIS_DRIVER_TYPE_E5(TMC26X)
     extern TMC26XStepper stepperE5;
     #define E5_ENABLE_INIT NOOP
     #define E5_ENABLE_WRITE(STATE) stepperE5.setEnabled(STATE)

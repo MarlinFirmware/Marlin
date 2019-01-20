@@ -33,7 +33,7 @@
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
 //
-#if !AXIS_DRIVER_TYPE(X, TMC2130) || !AXIS_DRIVER_TYPE(Y, TMC2130) || !AXIS_DRIVER_TYPE(Z, TMC2130) || !AXIS_DRIVER_TYPE(E0, TMC2130)
+#if !AXIS_DRIVER_TYPE_X(TMC2130) || !AXIS_DRIVER_TYPE_Y(TMC2130) || !AXIS_DRIVER_TYPE_Z(TMC2130) || !AXIS_DRIVER_TYPE_E0(TMC2130)
   #error "You must set ([XYZ]|E0)_DRIVER_TYPE to TMC2130 in Configuration.h for EinsyRambo."
 #endif
 
