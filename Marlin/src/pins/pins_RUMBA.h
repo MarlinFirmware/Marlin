@@ -76,17 +76,23 @@
 #define Z_DIR_PIN          56
 #define Z_ENABLE_PIN       62
 
-#define E0_STEP_PIN        23
-#define E0_DIR_PIN         22
-#define E0_ENABLE_PIN      24
+#ifndef E0_STEP_PIN
+  #define E0_STEP_PIN      23
+  #define E0_DIR_PIN       22
+  #define E0_ENABLE_PIN    24
+#endif
 
-#define E1_STEP_PIN        26
-#define E1_DIR_PIN         25
-#define E1_ENABLE_PIN      27
+#ifndef E1_STEP_PIN
+  #define E1_STEP_PIN      26
+  #define E1_DIR_PIN       25
+  #define E1_ENABLE_PIN    27
+#endif
 
-#define E2_STEP_PIN        29
-#define E2_DIR_PIN         28
-#define E2_ENABLE_PIN      39
+#if E1_STEP_PIN != 29
+  #define E2_STEP_PIN      29
+  #define E2_DIR_PIN       28
+  #define E2_ENABLE_PIN    39
+#endif
 
 //
 // Temperature Sensors
@@ -140,7 +146,6 @@
 //
 // Misc. Functions
 //
-#define SDSS               53
 #define LED_PIN            13
 #define PS_ON_PIN          45
 #define KILL_PIN           46
@@ -162,13 +167,6 @@
 //
 // LCD / Controller
 //
-#define SD_DETECT_PIN      49
-#define BEEPER_PIN         44
-#define LCD_PINS_D7        40
-#define BTN_EN1            11
-#define BTN_EN2            12
-#define BTN_ENC            43
-
 #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
   #define LCD_PINS_DC      38   // Set as output on init
   #define LCD_PINS_RS      41   // Pull low for 1s to init
@@ -183,4 +181,23 @@
   #define LCD_PINS_D4      18
   #define LCD_PINS_D5      38
   #define LCD_PINS_D6      41
+#endif
+
+#define LCD_PINS_D7        40
+
+//
+// Beeper, SD Card, Encoder
+//
+#define BEEPER_PIN         44
+
+#if ENABLED(SDSUPPORT)
+  #define SDPOWER          -1
+  #define SDSS             53
+  #define SD_DETECT_PIN    49
+#endif
+
+#if ENABLED(NEWPANEL)
+  #define BTN_EN1          11
+  #define BTN_EN2          12
+  #define BTN_ENC          43
 #endif
