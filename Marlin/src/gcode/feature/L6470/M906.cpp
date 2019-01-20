@@ -78,57 +78,54 @@
  *    Vs compensation (if enabled)
  */
 
-#define L6470_GetParam(P,Q) stepper##Q.GetParam(P)
-#define L6470_status(Q) stepper##Q.getStatus()
+#define L6470_STATUS(Q) stepper##Q.getStatus()
 
-#define L6470_GET_INFO_CURRENT(Q) {                                                                                               \
-  SERIAL_ECHOPAIR("AXIS: ", L6470_index_to_Axis[Q][0]);                                                                           \
-  SERIAL_ECHO(L6470_index_to_Axis[Q][1]);                                                                                         \
-  OverCurrent_Threshold = (uint8_t)L6470_GetParam(L6470_OCD_TH, Q);                                                               \
-  sprintf_P(temp_buf, PSTR("...OverCurrent Threshold: %2d (%4d mA)"), OverCurrent_Threshold, (OverCurrent_Threshold + 1) * 375);  \
-  SERIAL_ECHO(temp_buf);                                                                                                          \
-  Stall_Threshold = (uint8_t)L6470_GetParam(L6470_STALL_TH, Q);                                                                   \
-  sprintf_P(temp_buf, PSTR("   Stall Threshold: %2d (%7.2f mA)"), Stall_Threshold, (Stall_Threshold + 1) * 31.25);                \
-  SERIAL_ECHO(temp_buf);                                                                                                          \
-  motor_status = (L6470_status(Q) & (STATUS_MOT_STATUS)) >> 13;                                                                   \
-  SERIAL_ECHO("   Motor Status: ");                                                                                               \
-  switch (motor_status) {                                                                                                         \
-    case 0: SERIAL_ECHO("stopped"); break;                                                                                        \
-    case 1: SERIAL_ECHO("accelerating"); break;                                                                                   \
-    case 2: SERIAL_ECHO("decelerating"); break;                                                                                   \
-    case 3: SERIAL_ECHO("at constant speed"); break;                                                                              \
-  }                                                                                                                               \
-  SERIAL_EOL();                                                                                                                   \
-  MicroSteps = L6470_GetParam(L6470_STEP_MODE, Q) & 0x07;                                                                         \
-  MicroSteps = 0x1 << MicroSteps;                                                                                                 \
-  SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps);                                                                                 \
-  L6470_ADC_out = L6470_GetParam(L6470_ADC_OUT, Q);                                                                               \
-  L6470_ADC_out_limited = L6470_ADC_out;                                                                                          \
-  LIMIT(L6470_ADC_out_limited, 8, 24);                                                                                            \
-  comp_coef = 1600 / L6470_ADC_out_limited;                                                                                       \
-  SERIAL_ECHOPAIR("   ADC_OUT: ", L6470_ADC_out) ;                                                                                \
-  SERIAL_ECHOPAIR("   Vs_compensation: ", (L6470_GetParam(L6470_CONFIG, Q) & CONFIG_EN_VSCOMP) ? "ENABLED " : "DISABLED" );       \
-  sprintf_P(temp_buf, PSTR("   Compensation coefficient: %4.2f (approximately)\n"), comp_coef * 0.01f);                         \
-  SERIAL_ECHO(temp_buf);                                                                                                          \
-  SERIAL_ECHOPAIR("...KVAL_HOLD: ", L6470_GetParam(L6470_KVAL_HOLD, Q));                                                          \
-  SERIAL_ECHOPAIR("   KVAL_RUN : ", L6470_GetParam(L6470_KVAL_RUN, Q));                                                          \
-  SERIAL_ECHOPAIR("   KVAL_ACC: ", L6470_GetParam(L6470_KVAL_ACC, Q));                                                            \
-  SERIAL_ECHOPAIR("   KVAL_DEC: ", L6470_GetParam(L6470_KVAL_DEC, Q));                                                            \
-  SERIAL_ECHO("   V motor max =  ");                                                                                              \
-  switch (motor_status) {                                                                                                         \
-    case 0: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_HOLD)\n"), float(L6470_GetParam(L6470_KVAL_HOLD, Q)) * 100 / 256); break;    \
-    case 1: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_RUN) \n"), float(L6470_GetParam(L6470_KVAL_RUN,  Q)) * 100 / 256); break;    \
-    case 2: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_ACC) \n"), float(L6470_GetParam(L6470_KVAL_ACC,  Q)) * 100 / 256); break;    \
-    case 3: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_DEC) \n"), float(L6470_GetParam(L6470_KVAL_DEC,  Q)) * 100 / 256); break;    \
-  }                                                                                                                               \
-  SERIAL_ECHO(temp_buf);                                                                                                          \
+void L6470_report_current(L6470 &motor, const uint8_t axis) {
+  const uint8_t OverCurrent_Threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
+                Stall_Threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
+                motor_status = (motor.getStatus() & (STATUS_MOT_STATUS)) >> 13,
+                L6470_ADC_out = motor.GetParam(L6470_ADC_OUT),
+                L6470_ADC_out_limited = constrain(L6470_ADC_out, 8, 24);
+  const float comp_coef = 1600.0f / L6470_ADC_out_limited;
+  const int MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
+  char temp_buf[80];
+  L6470_say_axis(axis);
+  sprintf_P(temp_buf, PSTR("...OverCurrent Threshold: %2d (%4d mA)"), OverCurrent_Threshold, (OverCurrent_Threshold + 1) * 375);
+  SERIAL_ECHO(temp_buf);
+  sprintf_P(temp_buf, PSTR("   Stall Threshold: %2d (%7.2f mA)"), Stall_Threshold, (Stall_Threshold + 1) * 31.25);
+  SERIAL_ECHO(temp_buf);
+  SERIAL_ECHOPGM("   Motor Status: ");
+  switch (motor_status) {
+    case 0: SERIAL_ECHOPGM("stopped"); break;
+    case 1: SERIAL_ECHOPGM("accelerating"); break;
+    case 2: SERIAL_ECHOPGM("decelerating"); break;
+    case 3: SERIAL_ECHOPGM("at constant speed"); break;
+  }
+  SERIAL_EOL();
+  SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps);
+  SERIAL_ECHOPAIR("   ADC_OUT: ", L6470_ADC_out);
+  SERIAL_ECHOPGM("   Vs_compensation: ");
+  serialprintPGM((motor.GetParam(L6470_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
+  sprintf_P(temp_buf, PSTR("   Compensation coefficient: ~%4.2f\n"), comp_coef * 0.01f);
+  SERIAL_ECHO(temp_buf);
+  SERIAL_ECHOPAIR("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD));
+  SERIAL_ECHOPAIR("   KVAL_RUN : ", motor.GetParam(L6470_KVAL_RUN));
+  SERIAL_ECHOPAIR("   KVAL_ACC: ", motor.GetParam(L6470_KVAL_ACC));
+  SERIAL_ECHOPAIR("   KVAL_DEC: ", motor.GetParam(L6470_KVAL_DEC));
+  SERIAL_ECHOPGM("   V motor max =  ");
+  switch (motor_status) {
+    case 0: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_HOLD)\n"), float(motor.GetParam(L6470_KVAL_HOLD)) * 100 / 256); break;
+    case 1: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_RUN) \n"), float(motor.GetParam(L6470_KVAL_RUN)) * 100 / 256); break;
+    case 2: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_ACC) \n"), float(motor.GetParam(L6470_KVAL_ACC)) * 100 / 256); break;
+    case 3: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_DEC) \n"), float(motor.GetParam(L6470_KVAL_DEC)) * 100 / 256); break;
+  }
+  SERIAL_ECHO(temp_buf);
 }
-
 
 void GcodeSuite::M906() {
   #define L6470_SET_KVAL_HOLD(Q) stepper##Q.SetParam(L6470_KVAL_HOLD, value)
 
-  SERIAL_ECHOLN("M906");
+  L6470_ECHOLNPGM("M906");
 
   bool report_current = true;
 
@@ -194,93 +191,46 @@ void GcodeSuite::M906() {
   }
 
   if (report_current) {
-    // variables used by macro
-    char temp_buf[80];
-    uint8_t OverCurrent_Threshold,
-            MicroSteps,
-            Stall_Threshold,
-            motor_status,
-            L6470_ADC_out,
-            L6470_ADC_out_limited;
-    float comp_coef;
+    #define L6470_REPORT_CURRENT(Q) L6470_report_current(stepper##Q, Q)
 
-    SERIAL_ECHOPAIR("AXIS: ", L6470_index_to_Axis[X][0]);
-    SERIAL_ECHO(L6470_index_to_Axis[X][1]);
-    OverCurrent_Threshold = (uint8_t)L6470_GetParam(L6470_OCD_TH, X);
-    sprintf_P(temp_buf, PSTR("...OverCurrent Threshold: %2d  (%4d mA)"), OverCurrent_Threshold, (OverCurrent_Threshold + 1) * 375 ) ;
-    SERIAL_ECHO(temp_buf);
-    Stall_Threshold = (uint8_t)L6470_GetParam(L6470_STALL_TH, X);
-    sprintf_P(temp_buf, PSTR("   Stall Threshold:  %2d  (%7.2f mA)"),  Stall_Threshold, (Stall_Threshold + 1) * 31.25 )  ;
-    SERIAL_ECHO(temp_buf);
-    motor_status = (L6470_status(X) & STATUS_MOT_STATUS ) >> 13 ;
-    SERIAL_ECHO("   Motor Status: ");
-    switch (motor_status ) {
-      case 0: SERIAL_ECHO(" stopped"); break;
-      case 1: SERIAL_ECHO(" accelerating"); break;
-      case 2: SERIAL_ECHO(" decelerating"); break;
-      case 3: SERIAL_ECHO(" at constant speed"); break;
-    }
-    SERIAL_EOL();
-
-    MicroSteps = L6470_GetParam(L6470_STEP_MODE, X)  & 0x07;
-    MicroSteps = 0x1 << MicroSteps;
-    SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps);
-    L6470_ADC_out = L6470_GetParam(L6470_ADC_OUT, X);
-    L6470_ADC_out_limited = L6470_ADC_out;
-    LIMIT(L6470_ADC_out_limited, 8,24);
-    comp_coef = 1600/L6470_ADC_out_limited;
-    SERIAL_ECHOPAIR("   ADC_OUT: ", L6470_ADC_out) ;
-    SERIAL_ECHOPAIR("   Vs_compensation: ", (L6470_GetParam(L6470_CONFIG, X) & CONFIG_EN_VSCOMP) ? "ENABLED " : "DISABLED" );
-    sprintf_P(temp_buf, PSTR("   Compensation coefficient: %4.2f (approximately)\n"), comp_coef * 0.01f);
-    SERIAL_ECHO(temp_buf);
-    SERIAL_ECHOPAIR("...KVAL_HOLD: ", L6470_GetParam(L6470_KVAL_HOLD, X));
-    SERIAL_ECHOPAIR("   KVAL_RUN : ", L6470_GetParam(L6470_KVAL_RUN , X));
-    SERIAL_ECHOPAIR("   KVAL_ACC: ", L6470_GetParam(L6470_KVAL_ACC, X));
-    SERIAL_ECHOPAIR("   KVAL_DEC: ", L6470_GetParam(L6470_KVAL_DEC, X));
-    SERIAL_ECHO("   V motor max =  ");
-    switch (motor_status) {
-      case 0: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_HOLD)\n"), float(L6470_GetParam(L6470_KVAL_HOLD, X)) * 100 / 256); break;
-      case 1: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_RUN) \n"), float(L6470_GetParam(L6470_KVAL_RUN, X)) * 100 / 256); break;
-      case 2: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_ACC) \n"), float(L6470_GetParam(L6470_KVAL_ACC, X)) * 100 / 256); break;
-      case 3: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_DEC) \n"), float(L6470_GetParam(L6470_KVAL_DEC, X)) * 100 / 256); break;
-    }
-    SERIAL_ECHO(temp_buf);
-
+    #if AXIS_DRIVER_TYPE_X(L6470)
+      L6470_REPORT_CURRENT(X);
+    #endif
     #if AXIS_DRIVER_TYPE_X2(L6470)
-      L6470_GET_INFO_CURRENT(X2);
+      L6470_REPORT_CURRENT(X2);
     #endif
     #if AXIS_DRIVER_TYPE_Y(L6470)
-      L6470_GET_INFO_CURRENT(Y);
+      L6470_REPORT_CURRENT(Y);
     #endif
     #if AXIS_DRIVER_TYPE_Y2(L6470)
-      L6470_GET_INFO_CURRENT(Y2);
+      L6470_REPORT_CURRENT(Y2);
     #endif
     #if AXIS_DRIVER_TYPE_Z(L6470)
-      L6470_GET_INFO_CURRENT(Z);
+      L6470_REPORT_CURRENT(Z);
     #endif
     #if AXIS_DRIVER_TYPE_Z2(L6470)
-      L6470_GET_INFO_CURRENT(Z2);
+      L6470_REPORT_CURRENT(Z2);
     #endif
     #if AXIS_DRIVER_TYPE_Z3(L6470)
-      L6470_GET_INFO_CURRENT(Z3);
+      L6470_REPORT_CURRENT(Z3);
     #endif
     #if AXIS_DRIVER_TYPE_E0(L6470)
-      L6470_GET_INFO_CURRENT(E0);
+      L6470_REPORT_CURRENT(E0);
     #endif
     #if AXIS_DRIVER_TYPE_E1(L6470)
-      L6470_GET_INFO_CURRENT(E1);
+      L6470_REPORT_CURRENT(E1);
     #endif
     #if AXIS_DRIVER_TYPE_E2(L6470)
-      L6470_GET_INFO_CURRENT(E2);
+      L6470_REPORT_CURRENT(E2);
     #endif
     #if AXIS_DRIVER_TYPE_E3(L6470)
-      L6470_GET_INFO_CURRENT(E3);
+      L6470_REPORT_CURRENT(E3);
     #endif
     #if AXIS_DRIVER_TYPE_E4(L6470)
-      L6470_GET_INFO_CURRENT(E4);
+      L6470_REPORT_CURRENT(E4);
     #endif
     #if AXIS_DRIVER_TYPE_E5(L6470)
-      L6470_GET_INFO_CURRENT(E5);
+      L6470_REPORT_CURRENT(E5);
     #endif
   }
 }
