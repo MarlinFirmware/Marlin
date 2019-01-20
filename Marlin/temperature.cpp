@@ -445,11 +445,19 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
                 temp_change_ms = ms + watch_temp_period * 1000UL;   // - move the expiration timer up
                 if (current > watch_temp_target) heated = true;     // - Flag if target temperature reached
               }
-              else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
+              else if (ELAPSED(ms, temp_change_ms))  {               // Watch timer expired
+              #if ENABLED(CREALITY_DWIN) && ENABLED(TM3DTouchscreenUpdates)
+                rtscheck.RTS_SndData(ExchangePageBase + 25, ExchangepageAddr); //Goto screen 1
+              #endif
                 _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, hotend));
+              }
             }
-            else if (current < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
+            else if (current < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) { // Heated, then temperature fell too far?
+              #if ENABLED(CREALITY_DWIN) && ENABLED(TM3DTouchscreenUpdates)
+                rtscheck.RTS_SndData(ExchangePageBase + 21, ExchangepageAddr); //Goto screen 1
+              #endif
               _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, hotend));
+            }
           }
         #endif
       } // every 2 seconds
@@ -604,10 +612,16 @@ void Temperature::_temp_error(const int8_t e, const char * const serial_msg, con
 }
 
 void Temperature::max_temp_error(const int8_t e) {
+  #if ENABLED(CREALITY_DWIN) && ENABLED(TM3DTouchscreenUpdates)
+    rtscheck.RTS_SndData(ExchangePageBase + 27, ExchangepageAddr); //Goto screen 1
+  #endif
   _temp_error(e, PSTR(MSG_T_MAXTEMP), TEMP_ERR_PSTR(MSG_ERR_MAXTEMP, e));
 }
 
 void Temperature::min_temp_error(const int8_t e) {
+  #if ENABLED(CREALITY_DWIN) && ENABLED(TM3DTouchscreenUpdates)
+    rtscheck.RTS_SndData(ExchangePageBase + 27, ExchangepageAddr); //Goto screen 1
+  #endif
   _temp_error(e, PSTR(MSG_T_MINTEMP), TEMP_ERR_PSTR(MSG_ERR_MINTEMP, e));
 }
 
@@ -828,8 +842,12 @@ void Temperature::manage_heater() {
     #if WATCH_HOTENDS
       // Make sure temperature is increasing
       if (watch_heater_next_ms[e] && ELAPSED(ms, watch_heater_next_ms[e])) { // Time to check this extruder?
-        if (degHotend(e) < watch_target_temp[e])                             // Failed to increase enough?
+        if (degHotend(e) < watch_target_temp[e])  {                           // Failed to increase enough?
+          #if ENABLED(CREALITY_DWIN) && ENABLED(TM3DTouchscreenUpdates)
+            rtscheck.RTS_SndData(ExchangePageBase + 25, ExchangepageAddr); //Goto screen 1
+          #endif
           _temp_error(e, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, e));
+        }
         else                                                                 // Start again if the target is still far off
           start_watching_heater(e);
       }
@@ -868,8 +886,12 @@ void Temperature::manage_heater() {
     #if WATCH_THE_BED
       // Make sure temperature is increasing
       if (watch_bed_next_ms && ELAPSED(ms, watch_bed_next_ms)) {        // Time to check the bed?
-        if (degBed() < watch_target_bed_temp)                           // Failed to increase enough?
+        if (degBed() < watch_target_bed_temp) {                           // Failed to increase enough?
+          #if ENABLED(CREALITY_DWIN) && ENABLED(TM3DTouchscreenUpdates)
+            rtscheck.RTS_SndData(ExchangePageBase + 25, ExchangepageAddr); //Goto screen 1
+          #endif
           _temp_error(-1, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, -1));
+        }
         else                                                            // Start again if the target is still far off
           start_watching_bed();
       }
@@ -1515,6 +1537,9 @@ void Temperature::init() {
         else if (PENDING(millis(), *timer)) break;
         *state = TRRunaway;
       case TRRunaway:
+        #if ENABLED(CREALITY_DWIN) && ENABLED(TM3DTouchscreenUpdates)
+          rtscheck.RTS_SndData(ExchangePageBase + 21, ExchangepageAddr); //Goto screen 1
+        #endif
         _temp_error(heater_id, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, heater_id));
     }
   }

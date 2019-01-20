@@ -2539,6 +2539,10 @@ void clean_up_after_endstop_or_probe_move() {
       LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
+      #if ENABLED(CREALITY_DWIN) && ENABLED(TM3DTouchscreenUpdates)
+        rtscheck.RTS_SndData(ExchangePageBase + 1, ExchangepageAddr); //Goto screen 1
+        kill(PSTR(MSG_ERR_PROBING_FAILED));
+      #endif
     }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)

@@ -32,9 +32,11 @@
 //#define GraphicLCD //Full graphics LCD for Ender 4
 //#define ForceCRXDisplay
 //#define Force10SProDisplay
+#define TM3DTouchscreenUpdates // Enables TM3D Error screens and eeprom screen not found in Creality screen firmware
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
 //#define DualFilSensors //Using dual filament sensors on XMax and YMAX
+
 /*
    Hotend Type
    Choose one option below.

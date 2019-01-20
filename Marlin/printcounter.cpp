@@ -32,7 +32,10 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 #include "printcounter.h"
 #include "duration_t.h"
 #include "Marlin.h"
-#include "Creality_DWIN.h"
+
+#if ENABLED(CREALITY_DWIN)
+  #include "Creality_DWIN.h"
+#endif
 
 PrintCounter print_job_timer;   // Global Print Job Timer instance
 

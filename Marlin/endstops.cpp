@@ -35,6 +35,10 @@
   #include "endstop_interrupts.h"
 #endif
 
+#if ENABLED(CREALITY_DWIN)
+  #include "Creality_DWIN.h"
+#endif
+
 Endstops endstops;
 
 // public:
@@ -233,7 +237,12 @@ void Endstops::not_homing() {
   // If the last move failed to trigger an endstop, call kill
   void Endstops::validate_homing_move() {
     if (trigger_state()) hit_on_purpose();
-    else kill(PSTR(MSG_ERR_HOMING_FAILED));
+    else {
+      #if ENABLED(CREALITY_DWIN) && ENABLED(TM3DTouchscreenUpdates)
+        rtscheck.RTS_SndData(ExchangePageBase + 15, ExchangepageAddr); //Goto screen 1
+      #endif
+      kill(PSTR(MSG_ERR_HOMING_FAILED));
+    }
   }
 #endif
 

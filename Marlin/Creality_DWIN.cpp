@@ -1632,23 +1632,34 @@ SERIAL_ECHO(Checkkey);
 		break;
 
 	case LanguageChoice:
-		LanguageRecbuf = recdat.data[0];
-		//eeprom_write_byte((unsigned char*)FONT_EEPROM, LanguageRecbuf);
-		/*next step:record the data to EEPROM*/
-		if(card.cardOK)
-		{
-			if(LanguageRecbuf != 0)
-				RTS_SndData(0,IconPrintstatus);	// 0 for Ready
+		#if DISABLED(TM3DTouchscreenUpdates)
+			LanguageRecbuf = recdat.data[0];
+			//eeprom_write_byte((unsigned char*)FONT_EEPROM, LanguageRecbuf);
+			/*next step:record the data to EEPROM*/
+			if(card.cardOK)
+			{
+				if(LanguageRecbuf != 0)
+					RTS_SndData(0,IconPrintstatus);	// 0 for Ready
+				else
+					RTS_SndData(0+CEIconGrap,IconPrintstatus);
+				}
 			else
-				RTS_SndData(0+CEIconGrap,IconPrintstatus);
+			{
+				if(LanguageRecbuf != 0)
+					RTS_SndData(6,IconPrintstatus);	// 6 for Card Removed
+				else
+					RTS_SndData(6+CEIconGrap,IconPrintstatus);
 			}
-		else
-		{
-			if(LanguageRecbuf != 0)
-				RTS_SndData(6,IconPrintstatus);	// 6 for Card Removed
-			else
-				RTS_SndData(6+CEIconGrap,IconPrintstatus);
-		}
+		#else
+			SERIAL_ECHOPAIR("\n ***recdat.data[0] =",recdat.data[0]);
+			if(recdat.data[0]==1) {
+				settings.save();
+			}
+			else {
+				enqueue_and_echo_commands_P(PSTR("M300"));
+			}
+
+		#endif
 		break;
 		
 	case No_Filement:
