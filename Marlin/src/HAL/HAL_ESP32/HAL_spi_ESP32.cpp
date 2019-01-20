@@ -61,9 +61,9 @@ void spiInit(uint8_t spiRate) {
   uint32_t clock;
 
   switch (spiRate) {
-    case SPI_FULL_SPEED:    clock = SPI_CLOCK_DIV2 ; break;
-    case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4 ; break;
-    case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8 ; break;
+    case SPI_FULL_SPEED:    clock = SPI_CLOCK_DIV2;  break;
+    case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4;  break;
+    case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8;  break;
     case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
     case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;

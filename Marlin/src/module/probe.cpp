@@ -38,8 +38,8 @@
 #include "../gcode/gcode.h"
 #include "../lcd/ultralcd.h"
 
-#if ENABLED(BLTOUCH) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
-  #include "../Marlin.h" // for stop()
+#if ENABLED(BLTOUCH) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST) || (QUIET_PROBING && ENABLED(PROBING_STEPPERS_OFF))
+  #include "../Marlin.h" // for stop(), disable_e_steppers
 #endif
 
 #if HAS_LEVELING

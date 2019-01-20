@@ -21,7 +21,7 @@
  */
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for stepper_inactive_time
+#include "../../Marlin.h" // for stepper_inactive_time, disable_e_steppers
 #include "../../lcd/ultralcd.h"
 #include "../../module/stepper.h"
 
