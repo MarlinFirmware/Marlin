@@ -38,6 +38,10 @@
   #include "../../feature/power_loss_recovery.h"
 #endif
 
+#if ENABLED(SDSUPPORT)
+  #include "../../sd/cardreader.h"
+#endif
+
 void lcd_pause() {
   #if ENABLED(POWER_LOSS_RECOVERY)
     if (recovery.enabled) recovery.save(true, false);
@@ -62,25 +66,24 @@ void lcd_resume() {
   #endif
 }
 
-#if ENABLED(SDSUPPORT)
-
-  #include "../../sd/cardreader.h"
-
-  void lcd_sdcard_stop() {
+void lcd_stop() {
+  #if ENABLED(SDSUPPORT)
     wait_for_heatup = wait_for_user = false;
     card.flag.abort_sd_printing = true;
-    ui.set_status_P(PSTR(MSG_PRINT_ABORTED), -1);
-    ui.return_to_status();
-  }
+  #endif
+  #ifdef ACTION_ON_CANCEL
+    SERIAL_ECHOLNPGM("//action:" ACTION_ON_CANCEL);
+  #endif
+  ui.set_status_P(PSTR(MSG_PRINT_ABORTED), -1);
+  ui.return_to_status();
+}
 
-  void menu_sdcard_abort_confirm() {
-    START_MENU();
-    MENU_BACK(MSG_MAIN);
-    MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
-    END_MENU();
-  }
-
-#endif // SDSUPPORT
+void menu_abort_confirm() {
+  START_MENU();
+  MENU_BACK(MSG_MAIN);
+  MENU_ITEM(function, MSG_STOP_PRINT, lcd_stop);
+  END_MENU();
+}
 
 void menu_tune();
 void menu_motion();
@@ -100,9 +103,8 @@ void menu_main() {
 
   if (busy) {
     MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_pause);
-    #if ENABLED(SDSUPPORT)
-      if (card.isFileOpen())
-        MENU_ITEM(submenu, MSG_STOP_PRINT, menu_sdcard_abort_confirm);
+    #if ENABLED(SDSUPPORT) || defined(ACTION_ON_CANCEL)
+      MENU_ITEM(submenu, MSG_STOP_PRINT, menu_abort_confirm);
     #endif
     #if !defined(ACTION_ON_RESUME) && ENABLED(SDSUPPORT)
       if (card.isFileOpen())
