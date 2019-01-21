@@ -81,18 +81,19 @@ inline void set_spindle_laser_ocr(const uint8_t ocr) {
 
   void update_spindle_laser_power() {
     if (spindle_laser_power == 0) {
-      WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);                                    // turn spindle off (active low)
-      analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);                           // only write low byte
+      WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);                      // turn spindle off (active low)
+      analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);             // only write low byte
       delay_for_power_down();
     }
-    else {
-      int16_t ocr_val = (spindle_laser_power - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));  // convert RPM to PWM duty cycle
-      NOMORE(ocr_val, 255);                                                                             // limit to max the Atmel PWM will support
-      if (spindle_laser_power <= SPEED_POWER_MIN)
-        ocr_val = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));            // minimum setting
-      if (spindle_laser_power >= SPEED_POWER_MAX)
-        ocr_val = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));            // limit to max RPM
-      set_spindle_laser_ocr(ocr_val & 0xFF);
+    else {                                                                                // Convert RPM to PWM duty cycle
+      constexpr float inv_slope = 1.0f / (SPEED_POWER_SLOPE),
+                      min_ocr = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * inv_slope,  // Minimum allowed
+                      max_ocr = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * inv_slope;  // Maximum allowed
+      int16_t ocr_val;
+           if (spindle_laser_power <= SPEED_POWER_MIN) ocr_val = min_ocr;                 // Use minimum if set below
+      else if (spindle_laser_power >= SPEED_POWER_MAX) ocr_val = max_ocr;                 // Use maximum if set above
+      else ocr_val = (spindle_laser_power - (SPEED_POWER_INTERCEPT)) * inv_slope;         // Use calculated OCR value
+      set_spindle_laser_ocr(ocr_val & 0xFF);                                              // ...limited to Atmel PWM max
       delay_for_power_up();
     }
   }
