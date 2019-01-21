@@ -82,7 +82,7 @@ class TMCStorage {
     }
 
     struct {
-      #if STEALTHCHOP_ENABLED
+      #if HAS_STEALTHCHOP
         bool stealthChop_enabled = false;
       #endif
       #if ENABLED(HYBRID_THRESHOLD)
@@ -113,7 +113,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       TMC::rms_current(mA, mult);
     }
 
-    #if STEALTHCHOP_ENABLED
+    #if HAS_STEALTHCHOP
       inline void refresh_stepping_mode() { this->en_pwm_mode(this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return this->en_pwm_mode(); }
     #endif
@@ -158,7 +158,7 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper,
       TMC2208Stepper::rms_current(mA, mult);
     }
 
-    #if STEALTHCHOP_ENABLED
+    #if HAS_STEALTHCHOP
       inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
     #endif
@@ -168,9 +168,6 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper,
       inline void init_lcd_variables(const AxisEnum spmm_id) {
         #if ENABLED(HYBRID_THRESHOLD)
           this->stored.hybrid_thrs = _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[spmm_id]);
-        #endif
-        #if STEALTHCHOP_ENABLED
-          this->stored.stealthChop_enabled = !this->en_spreadCycle();
         #endif
       }
 
