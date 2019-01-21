@@ -437,7 +437,7 @@ private:
   #endif
 
   #if ENABLED(SPINDLE_LASER_ENABLE)
-    static void M3_M4(bool is_M3);
+    static void M3_M4(const bool is_M4);
     static void M5();
   #endif
 
