@@ -38,6 +38,10 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+#if ENABLED(SINGLENOZZLE)
+  #include "../../module/tool_change.h"
+#endif
+
 // Refresh the E factor after changing flow
 void _lcd_refresh_e_factor_0() { planner.refresh_e_factor(0); }
 #if EXTRUDERS > 1
@@ -128,6 +132,10 @@ void menu_tune() {
       #endif // HOTENDS > 3
     #endif // HOTENDS > 2
   #endif // HOTENDS > 1
+
+  #if ENABLED(SINGLENOZZLE)
+    MENU_MULTIPLIER_ITEM_EDIT(uint16_3, MSG_NOZZLE_STANDBY, &singlenozzle_temp[active_extruder ? 0 : 1], 0, HEATER_0_MAXTEMP - 15);
+  #endif
 
   //
   // Bed:

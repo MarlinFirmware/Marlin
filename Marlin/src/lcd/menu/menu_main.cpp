@@ -104,9 +104,36 @@ void menu_main() {
       if (card.isFileOpen())
         MENU_ITEM(submenu, MSG_STOP_PRINT, menu_sdcard_abort_confirm);
     #endif
+    #if !defined(ACTION_ON_RESUME) && ENABLED(SDSUPPORT)
+      if (card.isFileOpen())
+    #endif
     MENU_ITEM(submenu, MSG_TUNE, menu_tune);
   }
   else {
+    #if !HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
+      //
+      // Autostart
+      //
+      #if ENABLED(MENU_ADDAUTOSTART)
+        if (!busy) MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
+      #endif
+
+      if (card.isDetected()) {
+        if (!card.isFileOpen()) {
+          MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
+          #if !PIN_EXISTS(SD_DETECT)
+            MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
+          #endif
+        }
+      }
+      else {
+        #if !PIN_EXISTS(SD_DETECT)
+          MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually init SD-card
+        #endif
+        MENU_ITEM(function, MSG_NO_CARD, NULL);
+      }
+    #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
+
     MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
     
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
@@ -148,22 +175,20 @@ void menu_main() {
       MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 
-  #if ENABLED(SDSUPPORT)
-
+  #if HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
     //
     // Autostart
     //
     #if ENABLED(MENU_ADDAUTOSTART)
-      if (!busy)
-        MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
+      if (!busy) MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
     #endif
 
     if (card.isDetected()) {
-      if(!card.isFileOpen()) {
-      MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
-      #if !PIN_EXISTS(SD_DETECT)
-        MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
-      #endif
+      if (!card.isFileOpen()) {
+        MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
+        #if !PIN_EXISTS(SD_DETECT)
+          MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
+        #endif
       }
     }
     else {
@@ -172,7 +197,7 @@ void menu_main() {
       #endif
       MENU_ITEM(function, MSG_NO_CARD, NULL);
     }
-  #endif // SDSUPPORT
+  #endif // HAS_ENCODER_WHEEL && SDSUPPORT
 
   END_MENU();
 }

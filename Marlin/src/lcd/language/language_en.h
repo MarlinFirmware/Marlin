@@ -810,6 +810,9 @@
 #ifndef MSG_SINGLENOZZLE_RETRACT_SPD
   #define MSG_SINGLENOZZLE_RETRACT_SPD        _UxGT("Retract Speed")
 #endif
+#ifndef MSG_NOZZLE_STANDBY
+  #define MSG_NOZZLE_STANDBY                  _UxGT("Nozzle Standby")
+#endif
 #ifndef MSG_FILAMENTCHANGE
   #define MSG_FILAMENTCHANGE                  _UxGT("Change filament")
 #endif
