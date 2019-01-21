@@ -22,22 +22,21 @@
 
 /**
  * ZRIB V2.0 & V3.0 pin assignments
- * V2 and V3 Boards only differ in USB-Controller, nothing
- * that'll affect the pin-outs
+ * V2 and V3 Boards only differ in USB controller, nothing affecting the pins.
  */
 
 #include "pins_MKS_GEN_13.h"
 
-#define ZRIB_V20_D6_PIN 6 // Fan
-#define ZRIB_V20_D9_PIN 9 // Fan2
-#define ZRIB_V20_A10_PIN 10
-#define ZRIB_V20_D16_PIN 16
-#define ZRIB_V20_D17_PIN 17
-#define ZRIB_V20_D23_PIN 23
-#define ZRIB_V20_D25_PIN 25
-#define ZRIB_V20_D27_PIN 27
-#define ZRIB_V20_D29_PIN 29
-#define ZRIB_V20_D37_PIN 37
+#define ZRIB_V20_D6_PIN      6   // Fan
+#define ZRIB_V20_D9_PIN      9   // Fan2
+#define ZRIB_V20_A10_PIN    10
+#define ZRIB_V20_D16_PIN    16
+#define ZRIB_V20_D17_PIN    17
+#define ZRIB_V20_D23_PIN    23
+#define ZRIB_V20_D25_PIN    25
+#define ZRIB_V20_D27_PIN    27
+#define ZRIB_V20_D29_PIN    29
+#define ZRIB_V20_D37_PIN    37
 
 #define ORIG_E0_AUTO_FAN_PIN ZRIB_V20_D6_PIN
 #define ORIG_E1_AUTO_FAN_PIN ZRIB_V20_D6_PIN
@@ -45,7 +44,7 @@
 #define ORIG_E3_AUTO_FAN_PIN ZRIB_V20_D6_PIN
 
 #ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN 11   // Analog Input
+  #define FILWIDTH_PIN      11   // Analog Input
 #endif
 
 #if ENABLED(ZONESTAR_LCD)
