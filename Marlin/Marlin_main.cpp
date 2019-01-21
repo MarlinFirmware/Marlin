@@ -9253,6 +9253,37 @@ inline void gcode_M18_M84() {
       if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }
+  #if ENABLED(CREALITY_DWIN)
+    rtscheck.RTS_SndData(11, FilenameIcon); 
+	
+    delay(1000);
+    rtscheck.RTS_SndData(0,PrintscheduleIcon);
+    rtscheck.RTS_SndData(0,PrintscheduleIcon+1);
+    rtscheck.RTS_SndData(0,Percentage);
+    delay(2);
+    for(int j = 0;j < 10;j++)	
+    {
+      rtscheck.RTS_SndData(0,Printfilename+j); //clean screen.
+      rtscheck.RTS_SndData(0,Choosefilename+j); //clean filename
+    }
+    for(int j = 0;j < 8;j++)
+      rtscheck.RTS_SndData(0,FilenameCount+j);
+    TPShowStatus = false;
+    SERIAL_ECHO("\n SD Stop Setting Screen ");
+    if(LanguageRecbuf != 0)
+    {
+      rtscheck.RTS_SndData(0,IconPrintstatus);	// 0 for ready 
+      delay(2);
+      rtscheck.RTS_SndData(ExchangePageBase + 1, ExchangepageAddr); //exchange to 1 page
+    }
+    else
+    {
+      rtscheck.RTS_SndData(0+CEIconGrap,IconPrintstatus);	// 0 for ready 
+      delay(2);
+      rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); //exchange to 45 page
+    }
+    waitway = 0;
+  #endif
 }
 
 /**

@@ -605,6 +605,7 @@ void RTSSHOW::RTS_SDcard_Stop()
 	waitway = 4;
 	card.stopSDPrint();
 	clear_command_queue();
+	SERIAL_ECHOLNPGM("//action:cancel");
 	quickstop_stepper();
 	thermalManager.disable_all_heaters();
 	print_job_timer.reset();
@@ -628,39 +629,7 @@ void RTSSHOW::RTS_SDcard_Stop()
 	wait_for_heatup = false;
 	PrinterStatusKey[0] = 0;
 	enqueue_and_echo_commands_P(PSTR("M84"));	//shut down the stepper motor.
-	RTS_SndData(11, FilenameIcon); 
 	
-	delay(1000);	//for system
-	//RTS_SndData(0,Timehour);
-	//delay(2);
-	//RTS_SndData(0,Timemin);
-	//delay(2);
-	RTS_SndData(0,PrintscheduleIcon);
-	RTS_SndData(0,PrintscheduleIcon+1);
-	RTS_SndData(0,Percentage);
-	delay(2);
-	for(int j = 0;j < 10;j++)	
-	{
-		RTS_SndData(0,Printfilename+j); //clean screen.
-		RTS_SndData(0,Choosefilename+j); //clean filename
-	}
-	for(int j = 0;j < 8;j++)
-		RTS_SndData(0,FilenameCount+j);
-	TPShowStatus = false;
-	SERIAL_ECHO("\n SD Stop Setting Screen ");
-	if(LanguageRecbuf != 0)
-	{
-		RTS_SndData(0,IconPrintstatus);	// 0 for ready 
-		delay(2);
-		RTS_SndData(ExchangePageBase + 1, ExchangepageAddr); //exchange to 1 page
-	}
-	else
-	{
-		RTS_SndData(0+CEIconGrap,IconPrintstatus);	// 0 for ready 
-		delay(2);
-		RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); //exchange to 45 page
-	}
-	waitway = 0;
 }
 
 
@@ -2124,7 +2093,7 @@ void EachMomentUpdate()
 				rtscheck.RTS_SndData(elapsed.value/3600,Timehour);		
 				rtscheck.RTS_SndData((elapsed.value%3600)/60,Timemin);	
 
-				if(card.sdprinting && last_cardpercentValue != card.percentDone())
+				if((card.sdprinting || print_job_timer.isRunning) && last_cardpercentValue != card.percentDone())
 				{
 					if((unsigned int) card.percentDone() > 0)
 					{	
