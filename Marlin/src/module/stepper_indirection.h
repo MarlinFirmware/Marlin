@@ -62,7 +62,9 @@
     #error "Update TMCStepper library to 0.2.2 or newer."
   #endif
 
-  #define __TMC_CLASS(MODEL, A, I) TMCMarlin<TMC##MODEL##Stepper, A, I>
+  #define ____TMC_CLASS(MODEL, A, I) TMCMarlin<TMC##MODEL##Stepper, A, I>
+  #define ___TMC_CLASS(MODEL, A, I) ____TMC_CLASS(MODEL, A, I)
+  #define __TMC_CLASS(MODEL, A, I) ___TMC_CLASS(_##MODEL, A, I)
   #define _TMC_CLASS(MODEL, L) __TMC_CLASS(MODEL, L)
   #define TMC_CLASS(ST) _TMC_CLASS(ST##_DRIVER_TYPE, TMC_##ST##_LABEL)
 
