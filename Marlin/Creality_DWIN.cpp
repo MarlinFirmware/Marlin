@@ -1639,7 +1639,9 @@ SERIAL_ECHO(Checkkey);
 		if(recdat.data[0] == 1)
 		{
 			/**************checking filement status during changing filement************/
-			if(RTS_CheckFilement(0)) break;
+			#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
+				if(RTS_CheckFilement(0)) break;
+			#endif
 			
 			if(FilementStatus[0] == 1)	// check filement before starting to print
 			{
