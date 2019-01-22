@@ -22,7 +22,9 @@
 #endif
 
 const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
-
+#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+  uint8_t progress_bar_percent;
+#endif
 int startprogress = 0;
 CRec CardRecbuf;
 int temphot=0;

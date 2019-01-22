@@ -528,8 +528,8 @@
 #define LCD_TIMEOUT_TO_STATUS 15000
 
 // Add an 'M73' G-code to set the current percentage
- #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard) && DISABLED(CREALITY_DWIN))
-#define LCD_SET_PROGRESS_MANUALLY
+ #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+  #define LCD_SET_PROGRESS_MANUALLY
 #endif
 #if ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY)
   #if((ENABLED(MachineEnder4) && DISABLED(GraphicLCD)))
