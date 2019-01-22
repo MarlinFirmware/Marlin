@@ -40,6 +40,10 @@
   #endif
 #endif
 
+#if HAS_LCD_MENU
+  #include "../module/stepper.h"
+#endif
+
 /**
  * Check for over temperature or short to ground error flags.
  * Report and log warning of overtemperature condition.
@@ -834,18 +838,14 @@
     bool stealthchop_was_enabled = st.en_pwm_mode();
 
     st.TCOOLTHRS(0xFFFFF);
-    #if STEALTHCHOP_ENABLED
-      st.en_pwm_mode(false);
-    #endif
+    st.en_pwm_mode(false);
     st.diag1_stall(true);
 
     return stealthchop_was_enabled;
   }
   void tmc_disable_stallguard(TMC2130Stepper &st, const bool restore_stealth) {
     st.TCOOLTHRS(0);
-    #if STEALTHCHOP_ENABLED
-      st.en_pwm_mode(restore_stealth);
-    #endif
+    st.en_pwm_mode(restore_stealth);
     st.diag1_stall(false);
   }
   bool tmc_enable_stallguard(TMC2660Stepper) {
@@ -979,5 +979,51 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
   if (axis_connection) ui.set_status_P(PSTR("TMC CONNECTION ERROR"));
 }
+
+#if HAS_LCD_MENU
+
+  void init_tmc_section() {
+    #if AXIS_IS_TMC(X)
+      stepperX.init_lcd_variables(X_AXIS);
+    #endif
+    #if AXIS_IS_TMC(Y)
+      stepperY.init_lcd_variables(Y_AXIS);
+    #endif
+    #if AXIS_IS_TMC(Z)
+      stepperZ.init_lcd_variables(Z_AXIS);
+    #endif
+    #if AXIS_IS_TMC(X2)
+      stepperX2.init_lcd_variables(X_AXIS);
+    #endif
+    #if AXIS_IS_TMC(Y2)
+      stepperY2.init_lcd_variables(Y_AXIS);
+    #endif
+    #if AXIS_IS_TMC(Z2)
+      stepperZ2.init_lcd_variables(Z_AXIS);
+    #endif
+    #if AXIS_IS_TMC(Z3)
+      stepperZ3.init_lcd_variables(Z_AXIS);
+    #endif
+    #if AXIS_IS_TMC(E0)
+      stepperE0.init_lcd_variables(E_AXIS);
+    #endif
+    #if AXIS_IS_TMC(E1)
+      stepperE1.init_lcd_variables(E_AXIS_N(1));
+    #endif
+    #if AXIS_IS_TMC(E2)
+      stepperE2.init_lcd_variables(E_AXIS_N(2));
+    #endif
+    #if AXIS_IS_TMC(E3)
+      stepperE3.init_lcd_variables(E_AXIS_N(3));
+    #endif
+    #if AXIS_IS_TMC(E4)
+      stepperE4.init_lcd_variables(E_AXIS_N(4));
+    #endif
+    #if AXIS_IS_TMC(E5)
+      stepperE5.init_lcd_variables(E_AXIS_N(5));
+    #endif
+  }
+
+#endif
 
 #endif // HAS_TRINAMIC

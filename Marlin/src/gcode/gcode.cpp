@@ -285,8 +285,8 @@ void GcodeSuite::process_parsed_command(
       #endif
 
       #if ENABLED(SPINDLE_LASER_ENABLE)
-        case 3: M3_M4(true ); break;                              // M3: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CW
-        case 4: M3_M4(false); break;                              // M4: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CCW
+        case 3: M3_M4(false); break;                              // M3: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CW
+        case 4: M3_M4(true ); break;                              // M4: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CCW
         case 5: M5(); break;                                      // M5 - turn spindle/laser off
       #endif
 
@@ -652,6 +652,9 @@ void GcodeSuite::process_parsed_command(
       #if HAS_TRINAMIC
         case 122: M122(); break;
         case 906: M906(); break;                                  // M906: Set motor current in milliamps using axis codes X, Y, Z, E
+        #if HAS_STEALTHCHOP
+          case 569: M569(); break;                                // M569: Enable stealthChop on an axis.
+        #endif
         #if ENABLED(MONITOR_DRIVER_STATUS)
           case 911: M911(); break;                                // M911: Report TMC2130 prewarn triggered flags
           case 912: M912(); break;                                // M912: Clear TMC2130 prewarn triggered flags
@@ -669,7 +672,9 @@ void GcodeSuite::process_parsed_command(
         case 351: M351(); break;                                  // M351: Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
       #endif
 
-      case 355: M355(); break;                                    // M355: Set case light brightness
+      #if HAS_CASE_LIGHT
+        case 355: M355(); break;                                  // M355: Set case light brightness
+      #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         case 800: parser.debug(); break;                          // M800: GCode Parser Test for M

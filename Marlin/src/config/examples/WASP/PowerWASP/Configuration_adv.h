@@ -629,7 +629,7 @@
     //#define PROGRESS_MSG_ONCE           // Show the message for MSG_TIME then clear it
     //#define LCD_PROGRESS_BAR_TEST       // Add a menu item to test the progress bar
   #endif
-#endif // HAS_PRINT_PROGRESS
+#endif
 
 /**
  * LED Control Menu
@@ -1382,6 +1382,14 @@
   //#define TMC_SW_SCK        -1
 
   /**
+   * Software enable
+   *
+   * Use for drivers that do not use a dedicated enable pin, but rather handle the same
+   * function through a communication line such as SPI or UART.
+   */
+  //#define SOFTWARE_DRIVER_ENABLE
+
+  /**
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */
@@ -1479,22 +1487,6 @@
    * M122 S0/1 will enable continous reporting.
    */
   //#define TMC_DEBUG
-
-  /**
-   * M915 Z Axis Calibration
-   *
-   * - Adjust Z stepper current,
-   * - Drive the Z axis to its physical maximum, and
-   * - Home Z to account for the lost steps.
-   *
-   * Use M915 Snn to specify the current.
-   * Use M925 Znn to add extra Z height to Z_MAX_POS.
-   */
-  //#define TMC_Z_CALIBRATION
-  #if ENABLED(TMC_Z_CALIBRATION)
-    #define CALIBRATION_CURRENT 250
-    #define CALIBRATION_EXTRA_HEIGHT 10
-  #endif
 
   /**
    * You can set your own advanced settings by filling in predefined functions.

@@ -38,40 +38,40 @@
 //
 // Servos
 //
-#define SERVO0_PIN          P1_23
+#define SERVO0_PIN         P1_23
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN           P1_24
-#define X_MAX_PIN           P1_25
-#define Y_MIN_PIN           P1_26
-#define Y_MAX_PIN           P1_27
-#define Z_MIN_PIN           P1_28
-#define Z_MAX_PIN           P1_29
+#define X_MIN_PIN          P1_24
+#define X_MAX_PIN          P1_25
+#define Y_MIN_PIN          P1_26
+#define Y_MAX_PIN          P1_27
+#define Z_MIN_PIN          P1_28
+#define Z_MAX_PIN          P1_29
 
 //
 // Steppers
 //
-#define X_STEP_PIN          P2_00
-#define X_DIR_PIN           P0_05
-#define X_ENABLE_PIN        P0_04
+#define X_STEP_PIN         P2_00
+#define X_DIR_PIN          P0_05
+#define X_ENABLE_PIN       P0_04
 
-#define Y_STEP_PIN          P2_01
-#define Y_DIR_PIN           P0_11
-#define Y_ENABLE_PIN        P0_10
+#define Y_STEP_PIN         P2_01
+#define Y_DIR_PIN          P0_11
+#define Y_ENABLE_PIN       P0_10
 
-#define Z_STEP_PIN          P2_02
-#define Z_DIR_PIN           P0_20
-#define Z_ENABLE_PIN        P0_19
+#define Z_STEP_PIN         P2_02
+#define Z_DIR_PIN          P0_20
+#define Z_ENABLE_PIN       P0_19
 
-#define E0_STEP_PIN         P2_03
-#define E0_DIR_PIN          P0_22
-#define E0_ENABLE_PIN       P0_21
+#define E0_STEP_PIN        P2_03
+#define E0_DIR_PIN         P0_22
+#define E0_ENABLE_PIN      P0_21
 
-#define E1_STEP_PIN         P2_08
-#define E1_DIR_PIN          P2_13
-#define E1_ENABLE_PIN       P4_29
+#define E1_STEP_PIN        P2_08
+#define E1_DIR_PIN         P2_13
+#define E1_ENABLE_PIN      P4_29
 
 //
 // Temperature Sensors
@@ -85,28 +85,28 @@
 //
 // Heaters / Fans
 //
-#define HEATER_BED_PIN      P2_05
-#define HEATER_0_PIN        P2_07
-#define HEATER_1_PIN        P1_23
+#define HEATER_BED_PIN     P2_05
+#define HEATER_0_PIN       P2_07
+#define HEATER_1_PIN       P1_23
 #ifndef FAN_PIN
-  #define FAN_PIN           P2_06
+  #define FAN_PIN          P2_06
 #endif
-#define FAN1_PIN            P2_04
+#define FAN1_PIN           P2_04
 
 //
 // Display
 //
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN        P1_31
-  //#define DOGLCD_A0       P2_06
-  #define DOGLCD_CS         P0_16
+  #define BEEPER_PIN       P1_31
+  //#define DOGLCD_A0      P2_06
+  #define DOGLCD_CS        P0_16
 
-  #define BTN_EN1           P3_25
-  #define BTN_EN2           P3_26
-  #define BTN_ENC           P2_11
+  #define BTN_EN1          P3_25
+  #define BTN_EN2          P3_26
+  #define BTN_ENC          P2_11
 
-  #define SD_DETECT_PIN     P1_18
-  #define SDSS              P1_21
+  #define SD_DETECT_PIN    P1_18
+  #define SDSS             P1_21
 
   #define STAT_LED_RED_PIN  P1_19
   #define STAT_LED_BLUE_PIN P1_20

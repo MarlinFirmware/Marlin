@@ -80,10 +80,19 @@
 #elif ENABLED(SR_LCD_2W_NL)
   // 2 wire Non-latching LCD SR from:
   // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
-  extern "C" void __cxa_pure_virtual() { while (1); }
+//  extern "C" void __cxa_pure_virtual() { while (1); }
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
+#elif ENABLED(SR_LCD_3W_NL)
+
+//NewLiquidCrystal was not working for me, but this worked first try
+//https://github.com/mikeshub/SailfishLCD
+//uses the code directly from Sailfish
+
+  #include <LCD.h>
+  #include <SailfishLCD.h>
+  #define LCD_CLASS LiquidCrystalSerial
 
 #elif ENABLED(LCM1602)
   #include <Wire.h>

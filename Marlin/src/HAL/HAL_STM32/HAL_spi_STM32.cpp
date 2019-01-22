@@ -116,10 +116,9 @@ uint8_t spiRec(void) {
  */
 void spiRead(uint8_t* buf, uint16_t nbyte) {
   if (nbyte == 0) return;
+  memset(buf, 0xFF, nbyte);
   SPI.beginTransaction(spiConfig);
-  for (int i = 0; i < nbyte; i++) {
-    buf[i] = SPI.transfer(0xFF);
-  }
+  SPI.transfer(buf, nbyte);
   SPI.endTransaction();
 }
 
@@ -145,9 +144,10 @@ void spiSend(uint8_t b) {
  * @details Use DMA
  */
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  uint8_t rxBuf[512];
   SPI.beginTransaction(spiConfig);
   SPI.transfer(token);
-  SPI.transfer((uint8_t*)buf, (uint8_t*)0, 512);
+  SPI.transfer((uint8_t*)buf, &rxBuf, 512);
   SPI.endTransaction();
 }
 

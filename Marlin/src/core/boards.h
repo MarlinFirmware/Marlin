@@ -75,6 +75,7 @@
 #define BOARD_ULTIMAIN_2        72    // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
 #define BOARD_RUMBA             80    // Rumba
 #define BOARD_RUMBA_RAISE3D     333   // Raise3D N series Rumba derivative
+#define BOARD_RL200             801   // Rapide Lite 200 (v1, low-cost RUMBA clone with drv)
 #define BOARD_FORMBOT_TREX2PLUS 95    // Formbot T-Rex 2 Plus
 #define BOARD_FORMBOT_TREX3     96    // Formbot T-Rex 3
 #define BOARD_FORMBOT_RAPTOR    97    // Formbot Raptor
@@ -220,6 +221,7 @@
 #define BOARD_ARCHIM1          1591   // UltiMachine Archim1 (with DRV8825 drivers)
 #define BOARD_ARCHIM2          1592   // UltiMachine Archim2 (with TMC2130 drivers)
 #define BOARD_ALLIGATOR        1602   // Alligator Board R2
+#define BOARD_ADSK             1610   // Arduino DUE Shield Kit (ADSK)
 
 //
 // STM32 ARM Cortex-M3
@@ -242,6 +244,7 @@
 #define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
 #define BOARD_ARMED            1807   // Arm'ed STM32F4 based controller
 #define BOARD_RUMBA32          1809   // RUMBA32 STM32F4 based controller
+#define BOARD_STEVAL           1866   // STEVAL-3DP001V1 3D PRINTER BOARD
 
 //
 // ARM Cortex M7

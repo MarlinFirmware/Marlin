@@ -437,3 +437,10 @@
   #define MSG_FILAMENT_CHANGE_CONT_PURGE_2  _UxGT("der Fila-Entladung")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Fortsetzen...")
 #endif // LCD_HEIGHT < 4
+
+#define MSG_TMC_DRIVERS                     _UxGT("TMC Treiber") // Max length 18 characters
+#define MSG_TMC_CURRENT                     _UxGT("Treiber Strom")
+#define MSG_TMC_HYBRID_THRS                 _UxGT("Hybrid threshold")
+#define MSG_TMC_HOMING_THRS                 _UxGT("Sensorloses Homing")
+#define MSG_TMC_STEPPING_MODE               _UxGT("Schrittmodus")
+#define MSG_TMC_STEALTH_ENABLED             _UxGT("StealthChop einsch.")

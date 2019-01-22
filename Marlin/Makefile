@@ -196,6 +196,7 @@ else ifeq ($(HARDWARE_MOTHERBOARD),7)
 # Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 else ifeq ($(HARDWARE_MOTHERBOARD),71)
   MCU ?= atmega1280
+
 # Azteeg X3
 else ifeq ($(HARDWARE_MOTHERBOARD),67)
 # Azteeg X3 Pro
@@ -206,6 +207,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),72)
 else ifeq ($(HARDWARE_MOTHERBOARD),80)
 # Raise3D Rumba
 else ifeq ($(HARDWARE_MOTHERBOARD),333)
+# Rapide Lite RL200 Rumba
+else ifeq ($(HARDWARE_MOTHERBOARD),801)
 # Formbot T-Rex 2 Plus
 else ifeq ($(HARDWARE_MOTHERBOARD),95)
 # Formbot T-Rex 3
@@ -740,7 +743,7 @@ ifeq (${AVRDUDE_PROGRAMMER}, arduino)
 	stty -hup < $(UPLOAD_PORT); true
 endif
 
-  # Display size of file.
+# Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(BUILD_DIR)/$(TARGET).hex
 ELFSIZE = $(SIZE)  $(SIZE_FLAGS) $(BUILD_DIR)/$(TARGET).elf; \
           $(SIZE)  $(BUILD_DIR)/$(TARGET).elf
@@ -790,7 +793,7 @@ extcoff: $(TARGET).elf
 .elf.sym:
 	$(NM) -n $< > $@
 
-  # Link: create ELF output file from library.
+# Link: create ELF output file from library.
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Configuration.h
 	$(Pecho) "  CXX   $@"

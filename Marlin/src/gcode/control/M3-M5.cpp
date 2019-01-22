@@ -27,6 +27,8 @@
 #include "../gcode.h"
 #include "../../module/stepper.h"
 
+uint8_t spindle_laser_power; // = 0
+
 /**
  * M3: Spindle Clockwise
  * M4: Spindle Counter-clockwise
@@ -59,10 +61,10 @@
  */
 
 // Wait for spindle to come up to speed
-inline void delay_for_power_up() { gcode.dwell(SPINDLE_LASER_POWERUP_DELAY); }
+inline void delay_for_power_up() { safe_delay(SPINDLE_LASER_POWERUP_DELAY); }
 
 // Wait for spindle to stop turning
-inline void delay_for_power_down() { gcode.dwell(SPINDLE_LASER_POWERDOWN_DELAY); }
+inline void delay_for_power_down() { safe_delay(SPINDLE_LASER_POWERDOWN_DELAY); }
 
 /**
  * ocr_val_mode() is used for debugging and to get the points needed to compute the RPM vs ocr_val line
@@ -70,26 +72,72 @@ inline void delay_for_power_down() { gcode.dwell(SPINDLE_LASER_POWERDOWN_DELAY);
  * it accepts inputs of 0-255
  */
 
-inline void ocr_val_mode() {
-  uint8_t spindle_laser_power = parser.value_byte();
+inline void set_spindle_laser_ocr(const uint8_t ocr) {
   WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT); // turn spindle on (active low)
-  if (SPINDLE_LASER_PWM_INVERT) spindle_laser_power = 255 - spindle_laser_power;
-  analogWrite(SPINDLE_LASER_PWM_PIN, spindle_laser_power);
+  analogWrite(SPINDLE_LASER_PWM_PIN, (SPINDLE_LASER_PWM_INVERT) ? 255 - ocr : ocr);
 }
 
-void GcodeSuite::M3_M4(bool is_M3) {
+#if ENABLED(SPINDLE_LASER_PWM)
 
-  planner.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
-  #if SPINDLE_DIR_CHANGE
-    const bool rotation_dir = (is_M3 != SPINDLE_INVERT_DIR);
-    if (SPINDLE_STOP_ON_DIR_CHANGE \
-       && READ(SPINDLE_LASER_ENABLE_PIN) == SPINDLE_LASER_ENABLE_INVERT \
-       && READ(SPINDLE_DIR_PIN) != rotation_dir
-    ) {
-      WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // turn spindle off
+  void update_spindle_laser_power() {
+    if (spindle_laser_power == 0) {
+      WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);                      // turn spindle off (active low)
+      analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);             // only write low byte
       delay_for_power_down();
     }
-    WRITE(SPINDLE_DIR_PIN, rotation_dir);
+    else {                                                                                // Convert RPM to PWM duty cycle
+      constexpr float inv_slope = 1.0f / (SPEED_POWER_SLOPE),
+                      min_ocr = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * inv_slope,  // Minimum allowed
+                      max_ocr = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * inv_slope;  // Maximum allowed
+      int16_t ocr_val;
+           if (spindle_laser_power <= SPEED_POWER_MIN) ocr_val = min_ocr;                 // Use minimum if set below
+      else if (spindle_laser_power >= SPEED_POWER_MAX) ocr_val = max_ocr;                 // Use maximum if set above
+      else ocr_val = (spindle_laser_power - (SPEED_POWER_INTERCEPT)) * inv_slope;         // Use calculated OCR value
+      set_spindle_laser_ocr(ocr_val & 0xFF);                                              // ...limited to Atmel PWM max
+      delay_for_power_up();
+    }
+  }
+
+#endif // SPINDLE_LASER_PWM
+
+bool spindle_laser_enabled() {
+  return !!spindle_laser_power; // READ(SPINDLE_LASER_ENABLE_PIN) == SPINDLE_LASER_ENABLE_INVERT;
+}
+
+void set_spindle_laser_enabled(const bool enable) {
+  // Enabled by PWM setting elsewhere
+  spindle_laser_power = enable ? 255 : 0;
+  #if ENABLED(SPINDLE_LASER_PWM)
+    update_spindle_laser_power();
+  #else
+    if (enable) {
+      WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT);
+      delay_for_power_up();
+    }
+    else {
+      WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);
+      delay_for_power_down();
+    }
+  #endif
+}
+
+#if SPINDLE_DIR_CHANGE
+
+  void set_spindle_direction(const bool reverse_dir) {
+    const bool dir_state = (reverse_dir == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
+    if (SPINDLE_STOP_ON_DIR_CHANGE && spindle_laser_enabled() && READ(SPINDLE_DIR_PIN) != dir_state)
+      set_spindle_laser_enabled(false);
+    WRITE(SPINDLE_DIR_PIN, dir_state);
+  }
+
+#endif
+
+void GcodeSuite::M3_M4(const bool is_M4) {
+
+  planner.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
+
+  #if SPINDLE_DIR_CHANGE
+    set_spindle_direction(is_M4);
   #endif
 
   /**
@@ -98,30 +146,16 @@ void GcodeSuite::M3_M4(bool is_M3) {
    * Then needed to AND the uint16_t result with 0x00FF to make sure we only wrote the byte of interest.
    */
   #if ENABLED(SPINDLE_LASER_PWM)
-    if (parser.seen('O')) ocr_val_mode();
+    if (parser.seen('O')) {
+      spindle_laser_power = parser.value_byte();
+      set_spindle_laser_ocr(spindle_laser_power);
+    }
     else {
-      const float spindle_laser_power = parser.floatval('S');
-      if (spindle_laser_power == 0) {
-        WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);                                    // turn spindle off (active low)
-        analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);                           // only write low byte
-        delay_for_power_down();
-      }
-      else {
-        int16_t ocr_val = (spindle_laser_power - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));  // convert RPM to PWM duty cycle
-        NOMORE(ocr_val, 255);                                                                             // limit to max the Atmel PWM will support
-        if (spindle_laser_power <= SPEED_POWER_MIN)
-          ocr_val = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));            // minimum setting
-        if (spindle_laser_power >= SPEED_POWER_MAX)
-          ocr_val = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));            // limit to max RPM
-        if (SPINDLE_LASER_PWM_INVERT) ocr_val = 255 - ocr_val;
-        WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT);                                     // turn spindle on (active low)
-        analogWrite(SPINDLE_LASER_PWM_PIN, ocr_val & 0xFF);                                               // only write low byte
-        delay_for_power_up();
-      }
+      spindle_laser_power = parser.intval('S', 255);
+      update_spindle_laser_power();
     }
   #else
-    WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT); // turn spindle on (active low) if spindle speed option not enabled
-    delay_for_power_up();
+    set_spindle_laser_enabled(true);
   #endif
 }
 
@@ -130,11 +164,7 @@ void GcodeSuite::M3_M4(bool is_M3) {
  */
 void GcodeSuite::M5() {
   planner.synchronize();
-  WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);
-  #if ENABLED(SPINDLE_LASER_PWM)
-    analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);
-  #endif
-  delay_for_power_down();
+  set_spindle_laser_enabled(false);
 }
 
 #endif // SPINDLE_LASER_ENABLE

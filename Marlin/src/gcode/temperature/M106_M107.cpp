@@ -48,7 +48,7 @@ void GcodeSuite::M106() {
   if (p < MIN(EXTRUDERS, FAN_COUNT)) {
 
     #if ENABLED(EXTRA_FAN_SPEED)
-      const int16_t t = parser.intval('T');
+      const uint16_t t = parser.intval('T');
       if (t > 0) return thermalManager.set_temp_fan_speed(p, t);
     #endif
 
@@ -63,7 +63,8 @@ void GcodeSuite::M106() {
  * M107: Fan Off
  */
 void GcodeSuite::M107() {
-  thermalManager.set_fan_speed(parser.byteval('P', active_extruder), 0);
+  const uint8_t p = parser.byteval('P', MIN(active_extruder, FAN_COUNT - 1));
+  thermalManager.set_fan_speed(p, 0);
 }
 
 #endif // FAN_COUNT > 0

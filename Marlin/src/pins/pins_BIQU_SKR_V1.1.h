@@ -78,7 +78,7 @@
   #define FAN1_PIN         P2_04
 #else
   #define HEATER_1_PIN     P2_04
-#endif 
+#endif
 #define FAN_PIN            P2_03
 #define HEATER_BED_PIN     P2_05
 

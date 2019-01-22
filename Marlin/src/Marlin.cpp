@@ -809,10 +809,6 @@ void setup() {
     OUT_WRITE(PHOTOGRAPH_PIN, LOW);
   #endif
 
-  #if HAS_CASE_LIGHT
-    update_case_light();
-  #endif
-
   #if ENABLED(SPINDLE_LASER_ENABLE)
     OUT_WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // init spindle to off
     #if SPINDLE_DIR_CHANGE
@@ -864,13 +860,11 @@ void setup() {
     leds.setup();
   #endif
 
-  #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
-    SET_OUTPUT(RGB_LED_R_PIN);
-    SET_OUTPUT(RGB_LED_G_PIN);
-    SET_OUTPUT(RGB_LED_B_PIN);
-    #if ENABLED(RGBW_LED)
-      SET_OUTPUT(RGB_LED_W_PIN);
+  #if HAS_CASE_LIGHT
+    #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
+      SET_OUTPUT(CASE_LIGHT_PIN);
     #endif
+    update_case_light();
   #endif
 
   #if ENABLED(MK2_MULTIPLEXER)

@@ -77,6 +77,8 @@
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
+  //#define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
+
   /**
    * Whenever an M104, M109, or M303 increases the target temperature, the
    * firmware will wait for the WATCH_TEMP_PERIOD to expire. If the temperature
@@ -499,6 +501,7 @@
 
   // Add runtime configuration and tuning of backlash values (M425)
   //#define BACKLASH_GCODE
+
   #if ENABLED(BACKLASH_GCODE)
     // Measure the Z backlash when probing (G29) and set with "M425 Z"
     #define MEASURE_BACKLASH_WHEN_PROBING
@@ -626,7 +629,7 @@
     //#define PROGRESS_MSG_ONCE           // Show the message for MSG_TIME then clear it
     //#define LCD_PROGRESS_BAR_TEST       // Add a menu item to test the progress bar
   #endif
-#endif // HAS_PRINT_PROGRESS
+#endif
 
 /**
  * LED Control Menu
@@ -1379,6 +1382,14 @@
   //#define TMC_SW_SCK        -1
 
   /**
+   * Software enable
+   *
+   * Use for drivers that do not use a dedicated enable pin, but rather handle the same
+   * function through a communication line such as SPI or UART.
+   */
+  //#define SOFTWARE_DRIVER_ENABLE
+
+  /**
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */
@@ -1476,22 +1487,6 @@
    * M122 S0/1 will enable continous reporting.
    */
   //#define TMC_DEBUG
-
-  /**
-   * M915 Z Axis Calibration
-   *
-   * - Adjust Z stepper current,
-   * - Drive the Z axis to its physical maximum, and
-   * - Home Z to account for the lost steps.
-   *
-   * Use M915 Snn to specify the current.
-   * Use M925 Znn to add extra Z height to Z_MAX_POS.
-   */
-  //#define TMC_Z_CALIBRATION
-  #if ENABLED(TMC_Z_CALIBRATION)
-    #define CALIBRATION_CURRENT 250
-    #define CALIBRATION_EXTRA_HEIGHT 10
-  #endif
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
@@ -1793,10 +1788,8 @@
 
   #define USER_DESC_1 "Test Print"
   #define USER_GCODE_1 "G28\nG29\nG26"
-/*
-  #define USER_DESC_1 "Home & UBL Info"
-  #define USER_GCODE_1 "G28\nG29 W"
 
+  /*
   #define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
   #define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
 
@@ -1808,7 +1801,7 @@
 
   #define USER_DESC_5 "Home & Info"
   #define USER_GCODE_5 "G28\nM503"
-*/  
+  */
 #endif
 
 /**

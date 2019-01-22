@@ -525,10 +525,7 @@ bool Sd2Card::readStop() {
  */
 bool Sd2Card::setSckRate(const uint8_t sckRateID) {
   const bool success = (sckRateID <= 6);
-  if (success) 
-    spiRate_ = sckRateID;
-  else
-    error(SD_CARD_ERROR_SCK_RATE);
+  if (success) spiRate_ = sckRateID; else error(SD_CARD_ERROR_SCK_RATE);
   return success;
 }
 
@@ -539,9 +536,7 @@ bool Sd2Card::setSckRate(const uint8_t sckRateID) {
  */
 bool Sd2Card::waitNotBusy(const millis_t timeout_ms) {
   const millis_t wait_timeout = millis() + timeout_ms;
-  while (spiRec() != 0xFF)
-    if (ELAPSED(millis(), wait_timeout)) return false;
-
+  while (spiRec() != 0xFF) if (ELAPSED(millis(), wait_timeout)) return false;
   return true;
 }
 

@@ -71,6 +71,10 @@
   #include "../../module/printcounter.h"
 #endif
 
+#if HAS_TRINAMIC && HAS_LCD_MENU
+  #include "../../feature/tmc_util.h"
+#endif
+
 #include "ui_api.h"
 
 #if ENABLED(BACKLASH_GCODE)
@@ -698,6 +702,11 @@ void MarlinUI::init() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
+
+  #if HAS_TRINAMIC && HAS_LCD_MENU
+    init_tmc_section();
+  #endif
+
   ExtUI::onStartup();
 }
 

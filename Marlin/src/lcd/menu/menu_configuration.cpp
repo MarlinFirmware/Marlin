@@ -44,6 +44,7 @@
 
 void menu_advanced_settings();
 void menu_delta_calibrate();
+void menu_tmc();
 
 static void lcd_factory_settings() {
   settings.reset();
@@ -351,6 +352,10 @@ void menu_configuration() {
   #endif
   #if HAS_MOTOR_CURRENT_PWM
     MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_pwm);
+  #endif
+
+  #if HAS_TRINAMIC
+    MENU_ITEM(submenu, MSG_TMC_DRIVERS, menu_tmc);
   #endif
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
