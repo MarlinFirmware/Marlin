@@ -727,12 +727,16 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
             #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              do_pause_e_move(toolchange_settings.swap_length, toolchange_settings.prime_speed);
+              do_pause_e_move(toolchange_settings.swap_length + TOOLCHANGE_FIL_EXTRA_PRIME, toolchange_settings.prime_speed);
             #else
-              current_position[E_AXIS] += toolchange_settings.swap_length / planner.e_factor[tmp_extruder];
+              current_position[E_AXIS] += (toolchange_settings.swap_length + TOOLCHANGE_FIL_EXTRA_PRIME) / planner.e_factor[tmp_extruder];
               planner.buffer_line(current_position, toolchange_settings.prime_speed, tmp_extruder);
             #endif
             planner.synchronize();
+
+            #if TOOLCHANGE_FIL_EXTRA_PRIME
+              planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = current_position[E_AXIS] - (TOOLCHANGE_FIL_EXTRA_PRIME)));
+            #endif
           }
         #endif
 
@@ -757,6 +761,21 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #if SWITCHING_NOZZLE_TWO_SERVOS
         lower_nozzle(active_extruder);
       #endif
+
+      #if ENABLED(TOOLCHANGE_FILAMENT_SWAP) && ADVANCED_PAUSE_RESUME_PRIME != 0
+        if (should_swap && !too_cold) {
+          const float resume_eaxis = current_position[E_AXIS];
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            do_pause_e_move(toolchange_settings.swap_length, toolchange_settings.prime_speed);
+          #else
+            current_position[E_AXIS] += (ADVANCED_PAUSE_RESUME_PRIME) / planner.e_factor[active_extruder];
+            planner.buffer_line(current_position, ADVANCED_PAUSE_PURGE_FEEDRATE, active_extruder);
+          #endif
+          planner.synchronize();
+          planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = resume_eaxis));
+        }
+      #endif
+
     } // (tmp_extruder != active_extruder)
 
     planner.synchronize();

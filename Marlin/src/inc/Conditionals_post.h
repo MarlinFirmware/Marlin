@@ -1275,6 +1275,10 @@
   #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH 0
 #endif
 
+#if EXTRUDERS > 1 && !defined(TOOLCHANGE_FIL_EXTRA_PRIME)
+  #define TOOLCHANGE_FIL_EXTRA_PRIME 0
+#endif
+
 /**
  * Only constrain Z on DELTA / SCARA machines
  */
