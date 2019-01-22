@@ -2097,9 +2097,12 @@ void EachMomentUpdate()
 
 				if((card.sdprinting || print_job_timer.isRunning) && last_cardpercentValue != card.percentDone())
 				{
-					if((unsigned int) card.percentDone() > 0)
+					if((card.sdprinting && (unsigned int)card.percentDone() > 0) || (!card.sdprinting && progress_bar_percent > 0 ))
 					{	
-						Percentrecord = card.percentDone()+1;
+						if(card.sdprinting)
+							Percentrecord = card.percentDone()+1;
+						else
+							Percentrecord = progress_bar_percent+1;
 						if(Percentrecord<= 50)
 						{
 							rtscheck.RTS_SndData((unsigned int)Percentrecord*2 ,PrintscheduleIcon);
@@ -2117,7 +2120,10 @@ void EachMomentUpdate()
 						rtscheck.RTS_SndData(0,PrintscheduleIcon+1);
 					}
 					rtscheck.RTS_SndData((unsigned int) card.percentDone(),Percentage);
-					last_cardpercentValue = card.percentDone();
+					if(card.sdprinting)
+							last_cardpercentValue = card.percentDone();
+						else
+							last_cardpercentValue = progress_bar_percent;
 				}
 			}
 			
