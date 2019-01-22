@@ -572,7 +572,7 @@ namespace ExtUI {
 
   void setTargetFan_percent(const float value, const fan_t fan) {
     if (fan < FAN_COUNT)
-      thermalManager.set_fan_speed(fan - FAN0, map(value, 0, 100, 0, 255));
+      thermalManager.set_fan_speed(fan - FAN0, map(clamp(value, 0, 100), 0, 100, 0, 255));
   }
 
   void setFeedrate_percent(const float value) {
