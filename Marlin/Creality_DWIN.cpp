@@ -279,7 +279,7 @@ void RTSSHOW::RTS_Init()
 	AutoLevelStatus = 1;
 	int showcount = 0;
 	
-	#if HAS_MESH
+	#if HAS_MESH && (ENABLED(MachineCR10SPro) || ENABLED(Force10SProDisplay))
 		if (leveling_is_valid())
 		{
 			for(int xCount  = 0; xCount < GRID_MAX_POINTS_X; xCount++)
