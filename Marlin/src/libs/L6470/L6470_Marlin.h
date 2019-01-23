@@ -54,34 +54,40 @@
 #define HAS_L6470_EXTRUDER ( AXIS_DRIVER_TYPE_E0(L6470) || AXIS_DRIVER_TYPE_E1(L6470) || AXIS_DRIVER_TYPE_E2(L6470) \
                           || AXIS_DRIVER_TYPE_E3(L6470) || AXIS_DRIVER_TYPE_E4(L6470) || AXIS_DRIVER_TYPE_E5(L6470) )
 
+class L6470_Marlin {
+public:
+  static bool index_to_dir[MAX_L6470];
+  static uint8_t axis_xref[MAX_L6470];
+  static char index_to_axis[MAX_L6470][3];
+  static uint8_t dir_commands[MAX_L6470];
 
-extern bool L6470_index_to_DIR[MAX_L6470];
-extern uint8_t L6470_axis_xref[MAX_L6470];
-extern char L6470_index_to_Axis[MAX_L6470][3];
-extern uint8_t L6470_dir_commands[MAX_L6470];
-extern volatile bool L6470_SPI_abort;           // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
-extern bool L6470_SPI_active;                   // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
+  // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
+  static volatile bool spi_abort;
+  static bool spi_active;
 
-uint16_t L6470_get_status(uint8_t axis);
+  L6470_Marlin() {}
 
-uint32_t L6470_get_param(uint8_t axis, uint8_t param);
+  static uint16_t get_status(const uint8_t axis);
 
-void L6470_set_param(uint8_t axis, uint8_t param, uint32_t value);
+  static uint32_t get_param(uint8_t axis, uint8_t param);
 
-bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axis_mon[3][3],
-                          float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
-                          bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold);
+  static void set_param(uint8_t axis, uint8_t param, uint32_t value);
 
-void print_bin(const uint16_t val);
+  static bool get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axis_mon[3][3],
+                             float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
+                             bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold);
 
-void L6470_error_status_decode(const uint16_t status, const uint8_t axis);
+  static void error_status_decode(const uint16_t status, const uint8_t axis);
 
-void monitor_L6470_driver();
+  static void monitor_driver();
 
-void L6470_init();
-void L6470_SPI_init();
-void L6470_init_to_defaults();
-void L6470_Transfer(uint8_t L6470_buf[], const uint8_t length);
-uint8_t L6470_Transfer(uint8_t data, int _SSPin, const uint8_t chain_position);
+  static void init();
+  static void init_to_defaults();
 
-void L6470_say_axis(const uint8_t axis, const bool label=true);
+  static void say_axis(const uint8_t axis, const bool label=true);
+
+private:
+  void populate_chain_array();
+};
+
+extern L6470_Marlin L6470;

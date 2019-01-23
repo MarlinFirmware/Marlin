@@ -80,36 +80,39 @@
  */
 
 void L6470_report_current(L6470 &motor, const uint8_t axis) {
-  if (L6470_SPI_abort) return;  // don't do anything if set_directions() has occurred
+  if (L6470.spi_abort) return;  // don't do anything if set_directions() has occurred
   const uint16_t status = motor.getStatus() ;
-  const uint8_t OverCurrent_Threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
-                Stall_Threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
+  const uint8_t overcurrent_threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
+                stall_threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
                 motor_status = (status  & (STATUS_MOT_STATUS)) >> 13,
-                L6470_ADC_out = motor.GetParam(L6470_ADC_OUT),
-                L6470_ADC_out_limited = constrain(L6470_ADC_out, 8, 24);
-  const float comp_coef = 1600.0f / L6470_ADC_out_limited;
-  const int MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
+                adc_out = motor.GetParam(L6470_ADC_OUT),
+                adc_out_limited = constrain(adc_out, 8, 24);
+  const float comp_coef = 1600.0f / adc_out_limited;
+  const int microsteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
   char temp_buf[80];
-  L6470_say_axis(axis);
+  L6470.say_axis(axis);
   #if ENABLED(L6470_CHITCHAT)
     sprintf_P(temp_buf, PSTR("   status: %4x   "), status);
     SERIAL_ECHO(temp_buf);
     print_bin(status);
   #endif
-  sprintf_P(temp_buf, PSTR("\n...OverCurrent Threshold: %2d (%4d mA)"), OverCurrent_Threshold, (OverCurrent_Threshold + 1) * 375);
+  sprintf_P(temp_buf, PSTR("\n...OverCurrent Threshold: %2d (%4d mA)"), overcurrent_threshold, (overcurrent_threshold + 1) * 375);
   SERIAL_ECHO(temp_buf);
-  sprintf_P(temp_buf, PSTR("   Stall Threshold: %2d (%7.2f mA)"), Stall_Threshold, (Stall_Threshold + 1) * 31.25);
+  sprintf_P(temp_buf, PSTR("   Stall Threshold: %2d (%7.2f mA)"), stall_threshold, (stall_threshold + 1) * 31.25);
   SERIAL_ECHO(temp_buf);
   SERIAL_ECHOPGM("   Motor Status: ");
+  const char * const stat_str;
   switch (motor_status) {
-    case 0: SERIAL_ECHOPGM("stopped"); break;
-    case 1: SERIAL_ECHOPGM("accelerating"); break;
-    case 2: SERIAL_ECHOPGM("decelerating"); break;
-    case 3: SERIAL_ECHOPGM("at constant speed"); break;
+    default:
+    case 0: stat_str = PSTR("stopped"); break;
+    case 1: stat_str = PSTR("accelerating"); break;
+    case 2: stat_str = PSTR("decelerating"); break;
+    case 3: stat_str = PSTR("at constant speed"); break;
   }
+  serialprintPGM(stat_str);
   SERIAL_EOL();
-  SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps);
-  SERIAL_ECHOPAIR("   ADC_OUT: ", L6470_ADC_out);
+  SERIAL_ECHOPAIR("...microsteps: ", microsteps);
+  SERIAL_ECHOPAIR("   ADC_OUT: ", adc_out);
   SERIAL_ECHOPGM("   Vs_compensation: ");
   serialprintPGM((motor.GetParam(L6470_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
   sprintf_P(temp_buf, PSTR("   Compensation coefficient: ~%4.2f\n"), comp_coef * 0.01f);
@@ -206,7 +209,7 @@ void GcodeSuite::M906() {
   if (report_current) {
     #define L6470_REPORT_CURRENT(Q) L6470_report_current(stepper##Q, Q)
 
-    L6470_SPI_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
+    L6470.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
 
     #if AXIS_DRIVER_TYPE_X(L6470)
       L6470_REPORT_CURRENT(X);
@@ -248,8 +251,8 @@ void GcodeSuite::M906() {
       L6470_REPORT_CURRENT(E5);
     #endif
 
-    L6470_SPI_active = false;   // done with all SPI transfers - clear handshake flags
-    L6470_SPI_abort = false;
+    L6470.spi_active = false;   // done with all SPI transfers - clear handshake flags
+    L6470.spi_abort = false;
   }
 }
 

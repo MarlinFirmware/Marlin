@@ -21,7 +21,7 @@
  */
 
 /**
- *  The monitor_L6470_driver routines are a close copy of the TMC code
+ *  The monitor_driver routines are a close copy of the TMC code
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -29,39 +29,42 @@
 #if HAS_DRIVER(L6470)
 
 #include "L6470_Marlin.h"
+
+L6470_Marlin L6470;
+
 #include "../stepper_indirection.h"
 #include "../../gcode/gcode.h"
 #include "../planner.h"
 
-uint8_t L6470_dir_commands[MAX_L6470];  // array to hold direction command for each driver
+uint8_t L6470_Marlin::dir_commands[MAX_L6470];  // array to hold direction command for each driver
 
-char L6470_index_to_Axis[MAX_L6470][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
+char L6470_Marlin::index_to_axis[MAX_L6470][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
 
-bool L6470_index_to_DIR[MAX_L6470] =  { INVERT_X_DIR                        ,  // 0 X
-                                        INVERT_Y_DIR                        ,  // 1 Y
-                                        INVERT_Z_DIR                        ,  // 2 Z
-                                        #if ENABLED(X_DUAL_STEPPER_DRIVERS)
-                                          INVERT_X_DIR ^ INVERT_X2_VS_X_DIR ,  // 3 X2
-                                        #else
-                                          INVERT_X_DIR                      ,  // 3 X2
-                                        #endif
-                                        #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-                                          INVERT_Y_DIR ^ INVERT_Y2_VS_Y_DIR ,  // 4 Y2
-                                        #else
-                                          INVERT_Y_DIR                      ,  // 4 Y2
-                                        #endif
-                                        INVERT_Z_DIR                        ,  // 5 Z2
-                                        INVERT_Z_DIR                        ,  // 6 Z3
-                                        INVERT_E0_DIR                       ,  // 7 E0
-                                        INVERT_E1_DIR                       ,  // 8 E1
-                                        INVERT_E2_DIR                       ,  // 9 E2
-                                        INVERT_E3_DIR                       ,  //10 E3
-                                        INVERT_E4_DIR                       ,  //11 E4
-                                        INVERT_E5_DIR                       ,  //12 E5
-                                      };
+bool L6470_Marlin::index_to_dir[MAX_L6470] =  {
+  INVERT_X_DIR                        ,  // 0 X
+  INVERT_Y_DIR                        ,  // 1 Y
+  INVERT_Z_DIR                        ,  // 2 Z
+  #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+    INVERT_X_DIR ^ INVERT_X2_VS_X_DIR ,  // 3 X2
+  #else
+    INVERT_X_DIR                      ,  // 3 X2
+  #endif
+  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+    INVERT_Y_DIR ^ INVERT_Y2_VS_Y_DIR ,  // 4 Y2
+  #else
+    INVERT_Y_DIR                      ,  // 4 Y2
+  #endif
+  INVERT_Z_DIR                        ,  // 5 Z2
+  INVERT_Z_DIR                        ,  // 6 Z3
+  INVERT_E0_DIR                       ,  // 7 E0
+  INVERT_E1_DIR                       ,  // 8 E1
+  INVERT_E2_DIR                       ,  // 9 E2
+  INVERT_E3_DIR                       ,  //10 E3
+  INVERT_E4_DIR                       ,  //11 E4
+  INVERT_E5_DIR                       ,  //12 E5
+};
 
-
-uint8_t L6470_axis_xref[MAX_L6470] = {
+uint8_t L6470_Marlin::axis_xref[MAX_L6470] = {
   AxisEnum(X_AXIS), // X
   AxisEnum(Y_AXIS), // Y
   AxisEnum(Z_AXIS), // Z
@@ -77,11 +80,10 @@ uint8_t L6470_axis_xref[MAX_L6470] = {
   AxisEnum(E_AXIS)  // E5
 };
 
-volatile bool L6470_SPI_abort = false;           // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
-bool L6470_SPI_active = false;                   // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
+volatile bool L6470_Marlin::spi_abort = false;
+bool L6470_Marlin::spi_active = false;
 
-
-void L6470_populate_chain_array() {
+void L6470_Marlin::populate_chain_array() {
 
   #define _L6470_INIT_SPI(Q)  do{ stepper##Q.set_chain_info(Q, Q##_CHAIN_POS); }while(0)
 
@@ -126,19 +128,19 @@ void L6470_populate_chain_array() {
   #endif
 }
 
-void L6470_init() {               // Set up SPI and then init chips
+void L6470_Marlin::init() {               // Set up SPI and then init chips
   #if PIN_EXISTS(L6470_RESET_CHAIN)
     OUT_WRITE(L6470_RESET_CHAIN_PIN, LOW);  // hardware reset of drivers
     delay(1);
     OUT_WRITE(L6470_RESET_CHAIN_PIN, HIGH);
-    delay(1);                               // need about 650uS for the chip to fully start up
+    delay(1);                     // need about 650uS for the chip to fully start up
   #endif
-  L6470_populate_chain_array();   // Set up array to control where in the SPI transfer sequence a particular stepper's data goes
-  L6470_SPI_init();               // Set up L6470 soft SPI pins
-  L6470_init_to_defaults();       // init the chips
+  populate_chain_array();   // Set up array to control where in the SPI transfer sequence a particular stepper's data goes
+  L6470_spi_init();               // Set up L6470 soft SPI pins
+  init_to_defaults();             // init the chips
 }
 
-uint16_t L6470_get_status(uint8_t axis) {
+uint16_t L6470_Marlin::get_status(const uint8_t axis) {
 
   #define GET_L6470_STATUS(Q) stepper##Q.getStatus()
 
@@ -187,7 +189,7 @@ uint16_t L6470_get_status(uint8_t axis) {
   return 0; // Not needed but kills a compiler warning
 }
 
-uint32_t L6470_get_param(uint8_t axis, uint8_t param) {
+uint32_t L6470_Marlin::get_param(uint8_t axis, uint8_t param) {
 
   #define GET_L6470_PARAM(Q) L6470_GETPARAM(param,Q)
 
@@ -236,7 +238,7 @@ uint32_t L6470_get_param(uint8_t axis, uint8_t param) {
   return 0 ; // not needed but kills a compiler warning
 }
 
-void L6470_set_param(uint8_t axis, uint8_t param, uint32_t value) {
+void L6470_Marlin::set_param(uint8_t axis, uint8_t param, uint32_t value) {
 
   #define SET_L6470_PARAM(Q) stepper##Q.SetParam(param, value)
 
@@ -297,7 +299,7 @@ inline void err_out_of_bounds() {
   L6470_ECHOLNPGM("ERROR - motion out of bounds");
 }
 
-bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axis_mon[3][3],
+bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axis_mon[3][3],
                           float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
                           bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold
 ) {
@@ -317,14 +319,14 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
     axis_mon[0][0] = axis_codes[i];   // axis ASCII value (target character)
     if (axis_offset >= 2 || axis_mon[0][0] == 'E')  // Single axis, E0, or E1
       axis_mon[0][1] = axis_offset + '0';
-    else if (axis_offset == 0) {               // one or more axis
+    else if (axis_offset == 0) {              // one or more axes
       uint8_t driver_count_local = 0;         // can't use "driver_count" directly as a subscript because it's passed by reference
       for (j = 0; j < MAX_L6470; j++)         // see how many drivers on this axis
-        if (axis_mon[0][0] == L6470_index_to_Axis[j][0]) {
+        if (axis_mon[0][0] == index_to_axis[j][0]) {
           axis_mon[driver_count_local][0] = axis_mon[0][0];
-          axis_mon[driver_count_local][1] = L6470_index_to_Axis[j][1];
-          axis_mon[driver_count_local][2] = L6470_index_to_Axis[j][2];   // append end of string
-          axis_index[driver_count_local] = j;                           // set axis index
+          axis_mon[driver_count_local][1] = index_to_axis[j][1];
+          axis_mon[driver_count_local][2] = index_to_axis[j][2];   // append end of string
+          axis_index[driver_count_local] = j;                      // set axis index
           driver_count_local++;
         }
       driver_count = driver_count_local;
@@ -336,17 +338,19 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
   // Position calcs & checks
   //
 
-  const float X_center = LOGICAL_X_POSITION(current_position[X_AXIS]),
-              Y_center = LOGICAL_Y_POSITION(current_position[Y_AXIS]),
-              Z_center = LOGICAL_Z_POSITION(current_position[Z_AXIS]),
-              E_center = current_position[E_AXIS];
+  const float center[] = {
+    LOGICAL_X_POSITION(current_position[X_AXIS]),
+    LOGICAL_Y_POSITION(current_position[Y_AXIS]),
+    LOGICAL_Z_POSITION(current_position[Z_AXIS]),
+    current_position[E_AXIS]
+  };
 
   switch (axis_mon[0][0]) {
     default: position_max = position_min = 0; break;
 
     case 'X': {
-      position_min = X_center - displacement;
-      position_max = X_center + displacement;
+      position_min = center[X_AXIS] - displacement;
+      position_max = center[X_AXIS] + displacement;
       echo_min_max('X', position_min, position_max);
       if (false
         #ifdef X_MIN_POS
@@ -362,8 +366,8 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
     } break;
 
     case 'Y': {
-      position_min = Y_center - displacement;
-      position_max = Y_center + displacement;
+      position_min = center[Y_AXIS] - displacement;
+      position_max = center[Y_AXIS] + displacement;
       echo_min_max('Y', position_min, position_max);
       if (false
         #ifdef Y_MIN_POS
@@ -379,8 +383,8 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
     } break;
 
     case 'Z': {
-      position_min = Z_center - displacement;
-      position_max = Z_center + displacement;
+      position_min = center[E_AXIS] - displacement;
+      position_max = center[E_AXIS] + displacement;
       echo_min_max('Z', position_min, position_max);
       if (false
         #ifdef Z_MIN_POS
@@ -396,8 +400,8 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
     } break;
 
     case 'E': {
-      position_min = E_center - displacement;
-      position_max = E_center + displacement;
+      position_min = center[E_AXIS] - displacement;
+      position_max = center[E_AXIS] + displacement;
       echo_min_max('E', position_min, position_max);
     } break;
   }
@@ -408,7 +412,7 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
   for (uint8_t k = 0; k < driver_count; k++) {
     bool not_found = true;
     for (j = 1; j <= L6470_chain[0]; j++) {
-      const char * const ind_axis = L6470_index_to_Axis[L6470_chain[j]];
+      const char * const ind_axis = index_to_axis[L6470_chain[j]];
       if (ind_axis[0] == axis_mon[k][0] && ind_axis[1] == axis_mon[k][1]) { // See if a L6470 driver
         not_found = false;
         break;
@@ -440,11 +444,11 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
   if (kval_hold) {
     L6470_ECHOLNPAIR("kval_hold = ", kval_hold);
     for (j = 0; j < driver_count; j++)
-      L6470_set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
+      set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
   }
   else {
     // only print the KVAL_HOLD from one of the drivers
-    kval_hold = L6470_get_param(axis_index[0], L6470_KVAL_HOLD);
+    kval_hold = get_param(axis_index[0], L6470_KVAL_HOLD);
     L6470_ECHOLNPAIR("KVAL_HOLD = ", kval_hold);
   }
 
@@ -479,22 +483,22 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
       #define SET_OVER_CURRENT(Q) do { stepper##Q.SetParam(L6470_STALL_TH, STALL_TH_val_local); stepper##Q.SetParam(L6470_OCD_TH, OCD_TH_val_local);} while (0)
 
       for (j = 0; j < driver_count; j++) {
-        L6470_set_param(axis_index[j], L6470_STALL_TH, STALL_TH_val_local);
-        L6470_set_param(axis_index[j], L6470_OCD_TH, OCD_TH_val_local);
+        set_param(axis_index[j], L6470_STALL_TH, STALL_TH_val_local);
+        set_param(axis_index[j], L6470_OCD_TH, OCD_TH_val_local);
       }
     }
     else {
       // only get & print the OVER_CURRENT values from one of the drivers
-      STALL_TH_val_local = L6470_get_param(axis_index[0], L6470_STALL_TH);
-      OCD_TH_val_local = L6470_get_param(axis_index[0], L6470_OCD_TH);
+      STALL_TH_val_local = get_param(axis_index[0], L6470_STALL_TH);
+      OCD_TH_val_local = get_param(axis_index[0], L6470_OCD_TH);
 
       echo_oct_used((STALL_TH_val_local + 1) * 31.25, true);
       echo_oct_used((OCD_TH_val_local + 1) * 375, false);
     } // over_current_threshold
 
     for (j = 0; j < driver_count; j++) {                 // set all drivers on axis the same
-      L6470_set_param(axis_index[j], L6470_STALL_TH, STALL_TH_val_local);
-      L6470_set_param(axis_index[j], L6470_OCD_TH, OCD_TH_val_local);
+      set_param(axis_index[j], L6470_STALL_TH, STALL_TH_val_local);
+      set_param(axis_index[j], L6470_OCD_TH, OCD_TH_val_local);
     }
 
     OCD_TH_val = OCD_TH_val_local;        // force compiler to update the main routine's copy
@@ -529,30 +533,21 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
 }
 
 #if ENABLED(L6470_CHITCHAT)
-
-  void print_bin(const uint16_t val) {
-    for (uint8_t i = 16; i--;) {
-      L6470_ECHO(TEST(val, i));
-      if (!(i & 0x3)) L6470_CHAR(' ');
-    }
-  }
-
   inline void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR("YES") : PSTR("NO ")); }
-
 #endif
 
-void L6470_say_axis(const uint8_t axis, const bool label/*=true*/) {
+void L6470_Marlin::say_axis(const uint8_t axis, const bool label/*=true*/) {
   if (label) SERIAL_ECHOPGM("AXIS:");
   SERIAL_CHAR(' ');
-  SERIAL_CHAR(L6470_index_to_Axis[axis][0]);
-  SERIAL_CHAR(L6470_index_to_Axis[axis][1]);
+  SERIAL_CHAR(index_to_axis[axis][0]);
+  SERIAL_CHAR(index_to_axis[axis][1]);
   SERIAL_CHAR(' ');
 }
 
-void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // assumes status bits have been inverted
+void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis) {  // assumes status bits have been inverted
   #if ENABLED(L6470_CHITCHAT)
     char temp_buf[10];
-    L6470_say_axis(axis);
+    say_axis(axis);
     sprintf_P(temp_buf, PSTR("  %4x   "), status);
     L6470_ECHO(temp_buf);
     print_bin(status);
@@ -629,12 +624,12 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
   };
 
   inline void append_stepper_err(char * &p, const uint8_t stepper_index, const char * const err=NULL) {
-    p += sprintf_P(p, PSTR("Stepper %c%c "), char(L6470_index_to_Axis[stepper_index][0]), char(L6470_index_to_Axis[stepper_index][1]));
+    p += sprintf_P(p, PSTR("Stepper %c%c "), char(index_to_axis[stepper_index][0]), char(index_to_axis[stepper_index][1]));
     if (err) p += sprintf_P(p, err);
   }
 
   void L6470_monitor_update(uint8_t stepper_index, uint16_t status) {
-    if (L6470_SPI_abort) return;  // don't do anything if set_directions() has occurred
+    if (spi_abort) return;  // don't do anything if set_directions() has occurred
     uint8_t kval_hold;
     char temp_buf[120];
     char* p = &temp_buf[0];
@@ -665,7 +660,7 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
         driver_L6470_data[j].com_counter = 0;
         append_stepper_err(p, stepper_index, PSTR(" - communications re-established\n.. setting all drivers to default values\n"));
         L6470_ECHO(temp_buf);
-        L6470_init_to_defaults();
+        init_to_defaults();
       }
       else {
         // no com problems - do the usual checks
@@ -679,8 +674,8 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
             if (_status & STATUS_TH_WRN) {                    // over current shutdown
               p += sprintf_P(p, PSTR("%cdue to over temperature"), ' ');
               driver_L6470_data[j].is_ot = true;
-              kval_hold = L6470_get_param(stepper_index, L6470_KVAL_HOLD) - 2 * KVAL_HOLD_STEP_DOWN;
-              L6470_set_param(stepper_index, L6470_KVAL_HOLD, kval_hold);     // reduce KVAL_HOLD
+              kval_hold = get_param(stepper_index, L6470_KVAL_HOLD) - 2 * KVAL_HOLD_STEP_DOWN;
+              set_param(stepper_index, L6470_KVAL_HOLD, kval_hold);     // reduce KVAL_HOLD
               p += sprintf_P(p, PSTR(" - KVAL_HOLD reduced by %d to %d"), 2 * KVAL_HOLD_STEP_DOWN, kval_hold);   // let user know
             }
             else
@@ -692,10 +687,10 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
             if (_status & STATUS_TH_WRN) {     // have an over temperature warning
               driver_L6470_data[j].is_otw = true;
               driver_L6470_data[j].otw_counter++;
-              kval_hold = L6470_get_param(stepper_index, L6470_KVAL_HOLD);
+              kval_hold = get_param(stepper_index, L6470_KVAL_HOLD);
               if (driver_L6470_data[j].otw_counter > 4) {  // otw present for 2 - 2.5 seconds, reduce KVAL_HOLD
                 kval_hold -= KVAL_HOLD_STEP_DOWN;
-                L6470_set_param(stepper_index, L6470_KVAL_HOLD, kval_hold);     // reduce KVAL_HOLD
+                set_param(stepper_index, L6470_KVAL_HOLD, kval_hold);     // reduce KVAL_HOLD
                 p += sprintf_P(p, PSTR(" - KVAL_HOLD reduced by %d to %d"), KVAL_HOLD_STEP_DOWN, kval_hold);   // let user know
                 driver_L6470_data[j].otw_counter = 0;
                 driver_L6470_data[j].is_otw = true;
@@ -739,12 +734,12 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
 
   #define MONITOR_L6470_DRIVE(Q) L6470_monitor_update(Q, stepper##Q.getStatus())
 
-  void monitor_L6470_driver() {
+  void L6470_Marlin::monitor_driver() {
     static millis_t next_cOT = 0;
     if (ELAPSED(millis(), next_cOT)) {
       next_cOT = millis() + 500;
 
-      L6470_SPI_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
+      spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
 
       #if AXIS_DRIVER_TYPE_X(L6470)
         MONITOR_L6470_DRIVE(X);
@@ -790,8 +785,8 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
         if (report_L6470_status) L6470_EOL();
       #endif
 
-      L6470_SPI_active = false;   // done with all SPI transfers - clear handshake flags
-      L6470_SPI_abort = false;
+      spi_active = false;   // done with all SPI transfers - clear handshake flags
+      spi_abort = false;
     }
   }
 

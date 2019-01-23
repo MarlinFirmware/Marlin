@@ -89,13 +89,19 @@ uint8_t L6470_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
   return b;
 }
 
-uint8_t L6470_Transfer(uint8_t data, int _SSPin, const uint8_t chain_position) {
+/**
+ * The following are weak-linked and defined as do-nothing
+ * functions by the L6470-Arduino library. They must be
+ * defined by the client (Marlin) to provide an SPI interface.
+ */
+
+uint8_t L6470_transfer(uint8_t data, int _SSPin, const uint8_t chain_position) {
   uint8_t data_out = 0;
 
   // first device in chain has data sent last
   digitalWrite(_SSPin, LOW);
 
-  for (uint8_t i = L6470_chain[0]; (i >= 1) && !L6470_SPI_abort; i--) {    // stop sending data if L6470_SPI_abort is active
+  for (uint8_t i = L6470_chain[0]; (i >= 1) && !spi_abort; i--) {    // stop sending data if spi_abort is active
     DISABLE_ISRS();  // disable interrupts during SPI transfer (can't allow partial command to chips)
     uint8_t temp = L6470_SpiTransfer_Mode_3(uint8_t(i == chain_position ? data : dSPIN_NOP));
     ENABLE_ISRS();  // enable interrupts
@@ -106,10 +112,10 @@ uint8_t L6470_Transfer(uint8_t data, int _SSPin, const uint8_t chain_position) {
   return data_out;
 }
 
-void L6470_Transfer(uint8_t L6470_buf[], const uint8_t length) {
+void L6470_transfer(uint8_t L6470_buf[], const uint8_t length) {
   // first device in chain has data sent last
 
-  if (L6470_SPI_active) {              // interrupted SPI transfer so need to
+  if (spi_active) {                    // interrupted SPI transfer so need to
     WRITE(L6470_CHAIN_SS_PIN, HIGH);   // guarantee min high of 650nS
     DELAY_US(1);
   }
@@ -120,7 +126,7 @@ void L6470_Transfer(uint8_t L6470_buf[], const uint8_t length) {
   WRITE(L6470_CHAIN_SS_PIN, HIGH);
 }
 
-void L6470_SPI_init() {
+void L6470_spi_init() {
   OUT_WRITE(L6470_CHAIN_SS_PIN, HIGH);
   OUT_WRITE(L6470_CHAIN_SCK_PIN, HIGH);
   OUT_WRITE(L6470_CHAIN_MOSI_PIN, HIGH);

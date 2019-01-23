@@ -610,7 +610,7 @@ void reset_stepper_drivers() {
   #endif
 
   #if HAS_DRIVER(L6470)
-    L6470_init_to_defaults();
+    L6470.init_to_defaults();
   #endif
 
   #if HAS_TRINAMIC
@@ -788,7 +788,7 @@ void reset_stepper_drivers() {
     stepper##Q.getStatus();                                   \
   }while(0)
 
-  void L6470_init_to_defaults() {
+  void L6470_Marlin::init_to_defaults() {
     #if AXIS_DRIVER_TYPE_X(L6470)
       _L6470_INIT_CHIP(X);
     #endif
