@@ -84,5 +84,4 @@ void L6470_init_to_defaults();
 void L6470_Transfer(uint8_t L6470_buf[], const uint8_t length);
 uint8_t L6470_Transfer(uint8_t data, int _SSPin, const uint8_t chain_position);
 
-void L6470_say_axis(const uint8_t axis, const bool label);
-void L6470_say_axis(const uint8_t axis);
+void L6470_say_axis(const uint8_t axis, const bool label=true);

@@ -541,15 +541,13 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
 
 #endif
 
-void L6470_say_axis(const uint8_t axis, const bool label=true) {
+void L6470_say_axis(const uint8_t axis, const bool label/*=true*/) {
   if (label) SERIAL_ECHOPGM("AXIS:");
   SERIAL_CHAR(' ');
   SERIAL_CHAR(L6470_index_to_Axis[axis][0]);
   SERIAL_CHAR(L6470_index_to_Axis[axis][1]);
   SERIAL_CHAR(' ');
 }
-
-void L6470_say_axis(const uint8_t axis) { L6470_say_axis(axis, true); }
 
 void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // assumes status bits have been inverted
   #if ENABLED(L6470_CHITCHAT)
