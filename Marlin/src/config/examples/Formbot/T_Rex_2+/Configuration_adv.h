@@ -1567,11 +1567,11 @@
   #define Z3_MAX_VOLTAGE     127
   #define Z3_CHAIN_POS         0
 
-  #define E0_MICROSTEPS       64
-  #define E0_OVERCURRENT    1125
-  #define E0_STALLCURRENT   1000
+  #define E0_MICROSTEPS      128
+  #define E0_OVERCURRENT    2000
+  #define E0_STALLCURRENT   1500
   #define E0_MAX_VOLTAGE     127
-  #define E0_CHAIN_POS         5
+  #define E0_CHAIN_POS         0
 
   #define E1_MICROSTEPS      128
   #define E1_OVERCURRENT    2000
