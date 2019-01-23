@@ -97,7 +97,7 @@ A stepper for E0 extruder
 #define X_STEP_PIN          2
 #define X_DIR_PIN           5
 #define X_ENABLE_PIN        8
-    
+
 #define Y_STEP_PIN          3
 #define Y_DIR_PIN           6
 #define Y_ENABLE_PIN        8
@@ -137,16 +137,16 @@ A stepper for E0 extruder
    * The next LCD pins RS,D4,D5,D6,D7 have internal pull-ups to 5V and as result the 5V will be on these pins.
    * Luckily these internal pull-ups have really high resistance and adding 33K pull-down resistors will create
    * simple voltage divider that will bring the voltage down just slightly bellow 3.3V.
-   * 
+   *
    * This LCD also has buttons that connected to the same ADC pin with different voltage divider combinations.
    * On the LCD panel there is internal pull-up resistor of the 4.7K connected to 5V.
    * Connecting another 4.7K pull-down resistor between ADC pin and the GND
    *   will result in scaled values for voltage dividers and will bring them down to be always below 3.3V.
-   * 
+   *
    * For 2004 LCD to work with 3.3V board like Arduino DUE the next required:
    * Pull-down resistors of 33K between each of LCD pins RS,D4,D5,D6,D7 and the GND.
    * Pull-down resistor of 4.7K between ADC_KEYPAD_PIN and the GND
-   * 
+   *
    * All these modifications will still work with 5V based boards but require proper scaled ADC values
    */
 
@@ -167,7 +167,7 @@ A stepper for E0 extruder
   #define LCD_PINS_D7      19
   #define ADC_KEYPAD_PIN    6   //60 // Analog pin 6, Digital pin 60
 
-  /** 
+  /**
    * The below defines will scale all the values to work properly on both
    * 5V (Mega) and 3.3V (DUE) boards with all pull-up resistors added for 3.3V
    */
@@ -175,7 +175,7 @@ A stepper for E0 extruder
   #define ADC_BUTTONS_VALUE_SCALE         (5.0/AREF_VOLTS) // The LCD module pullup voltage is 5.0V but ADC reference voltage is 3.3V
 
   #define ADC_BUTTONS_R_PULLDOWN          4.7  // Moves voltage down to be bellow 3.3V instead of 5V
-  // the resistors values will be scaled because of 4.7K pulldown parallel resistor 
+  // the resistors values will be scaled because of 4.7K pulldown parallel resistor
   #define _ADC_BUTTONS_R_SCALED(R)        ((R) * (ADC_BUTTONS_R_PULLDOWN) / ((R) + ADC_BUTTONS_R_PULLDOWN))
 
   // buttons pullup resistor
@@ -191,7 +191,7 @@ A stepper for E0 extruder
 
 /**
  * RJ45 8 pins extruder connector
- * 
+ *
  * 1 - GND (Please do not connect to the same GND as extruder heater to prevent ground offset voltage)
  * 2 - thermistor
  * 3 - SERVO PWM
@@ -200,8 +200,8 @@ A stepper for E0 extruder
  * 6 - FAN (extruder cooling)
  * 7 - Probe signal
  * 8 - 5V
- * 
+ *
  * Standard ethernet pairs: 1&2, 3&6, 4&5, 7&8
  * Use CAT7 cable to have all pairs shielded
- * 
+ *
  */
