@@ -172,6 +172,9 @@
 #ifndef MSG_LASER
   #define MSG_LASER                           _UxGT("Laser")
 #endif
+#ifndef MSG_LASER_MENU
+  #define MSG_LASER_MENU                      MSG_LASER _UxGT(" Control")
+#endif
 #ifndef MSG_LASER_OFF
   #define MSG_LASER_OFF                       MSG_LASER _UxGT(" Off")
 #endif
