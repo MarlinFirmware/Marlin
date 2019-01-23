@@ -64,15 +64,14 @@
 #include "../shared/Delay.h"
 
 void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
-   PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
-     g_APinDescription[u8g->pin_list[pin_index]].ulPin, g_APinDescription[u8g->pin_list[pin_index]].ulPinConfiguration);  // OUTPUT
+  PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
+    g_APinDescription[u8g->pin_list[pin_index]].ulPin, g_APinDescription[u8g->pin_list[pin_index]].ulPinConfiguration);  // OUTPUT
 }
 
 void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
   volatile Pio* port = g_APinDescription[u8g->pin_list[pin_index]].pPort;
   uint32_t mask = g_APinDescription[u8g->pin_list[pin_index]].ulPin;
-  if (level) port->PIO_SODR = mask;
-  else port->PIO_CODR = mask;
+  if (level) port->PIO_SODR = mask; else port->PIO_CODR = mask;
 }
 
 Pio *SCK_pPio, *MOSI_pPio;
@@ -95,25 +94,14 @@ static void spiSend_sw_DUE(uint8_t val) { // 800KHz
 static uint8_t rs_last_state = 255;
 
 static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
-  uint8_t i;
-
-  if ( rs != rs_last_state) {  // time to send a command/data byte
+  if (rs != rs_last_state) {  // time to send a command/data byte
     rs_last_state = rs;
-
-    if ( rs == 0 )
-      /* command */
-      spiSend_sw_DUE(0x0F8);
-    else
-       /* data */
-      spiSend_sw_DUE(0x0FA);
-
+    spiSend_sw_DUE(rs ? 0x0FA : 0x0F8); // Command or Data
     DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
   }
-
   spiSend_sw_DUE(val & 0x0F0);
   spiSend_sw_DUE(val << 4);
 }
-
 
 uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
   switch (msg) {
