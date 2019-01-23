@@ -75,13 +75,13 @@ uint8_t L6470_SpiTransfer_Mode_0(uint8_t b) { // using Mode 0
 uint8_t L6470_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
   for (uint8_t bits = 8; bits--;) {
     WRITE(L6470_CHAIN_SCK_PIN, LOW);
-
     WRITE(L6470_CHAIN_MOSI_PIN, b & 0x80);
+
     DELAY_NS(125);  // 10 cycles @ 84mhz
 
     WRITE(L6470_CHAIN_SCK_PIN, HIGH);
 
-    b <<= 1;
+    b <<= 1;        // little setup time
     b |= (READ(L6470_CHAIN_MISO_PIN) != 0);
   }
 
@@ -90,14 +90,15 @@ uint8_t L6470_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
 }
 
 uint8_t L6470_Transfer(uint8_t data, int _SSPin, const uint8_t chain_position) {
-  #define CMD_NOP 0
   uint8_t data_out = 0;
 
   // first device in chain has data sent last
   digitalWrite(_SSPin, LOW);
 
-  for (uint8_t i = L6470_chain[0]; i >= 1; i--) {
-    uint8_t temp = L6470_SpiTransfer_Mode_3(uint8_t(i == chain_position ? data : CMD_NOP));
+  for (uint8_t i = L6470_chain[0]; (i >= 1) && !L6470_SPI_abort; i--) {    // stop sending data if L6470_SPI_abort is active
+    DISABLE_ISRS();  // disable interrupts during SPI transfer (can't allow partial command to chips)
+    uint8_t temp = L6470_SpiTransfer_Mode_3(uint8_t(i == chain_position ? data : dSPIN_NOP));
+    ENABLE_ISRS();  // enable interrupts
     if (i == chain_position) data_out = temp;
   }
 
@@ -107,9 +108,15 @@ uint8_t L6470_Transfer(uint8_t data, int _SSPin, const uint8_t chain_position) {
 
 void L6470_Transfer(uint8_t L6470_buf[], const uint8_t length) {
   // first device in chain has data sent last
+
+  if (L6470_SPI_active) {              // interrupted SPI transfer so need to
+    WRITE(L6470_CHAIN_SS_PIN, HIGH);   // guarantee min high of 650nS
+    DELAY_US(1);
+  }
+
   WRITE(L6470_CHAIN_SS_PIN, LOW);
   for (uint8_t i = length; i >= 1; i--)
-    L6470_buf[i] = L6470_SpiTransfer_Mode_3(uint8_t(L6470_buf[i]));
+    L6470_SpiTransfer_Mode_3(uint8_t(L6470_buf[i]));
   WRITE(L6470_CHAIN_SS_PIN, HIGH);
 }
 

@@ -33,10 +33,6 @@
 #include "../../gcode/gcode.h"
 #include "../planner.h"
 
-#if HAS_L6470_EXTRUDER
-  uint8_t L6470_E_dir_commands[MAX_EXTRUDERS];
-#endif
-
 uint8_t L6470_dir_commands[MAX_L6470];  // array to hold direction command for each driver
 
 char L6470_index_to_Axis[MAX_L6470][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
@@ -50,7 +46,7 @@ bool L6470_index_to_DIR[MAX_L6470] =  { INVERT_X_DIR                        ,  /
                                           INVERT_X_DIR                      ,  // 3 X2
                                         #endif
                                         #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-                                          INVERT_Y_DIR ^ INVERT_Y2_VS_Y_DIR ,  // 4 52
+                                          INVERT_Y_DIR ^ INVERT_Y2_VS_Y_DIR ,  // 4 Y2
                                         #else
                                           INVERT_Y_DIR                      ,  // 4 Y2
                                         #endif
@@ -80,6 +76,10 @@ uint8_t L6470_axis_xref[MAX_L6470] = {
   AxisEnum(E_AXIS), // E4
   AxisEnum(E_AXIS)  // E5
 };
+
+volatile bool L6470_SPI_abort = false;           // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
+bool L6470_SPI_active = false;                   // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
+
 
 void L6470_populate_chain_array() {
 
@@ -127,6 +127,12 @@ void L6470_populate_chain_array() {
 }
 
 void L6470_init() {               // Set up SPI and then init chips
+  #if PIN_EXISTS(L6470_RESET_CHAIN)
+    OUT_WRITE(L6470_RESET_CHAIN_PIN, LOW);  // hardware reset of drivers
+    delay(1);
+    OUT_WRITE(L6470_RESET_CHAIN_PIN, HIGH);
+    delay(1);                               // need about 650uS for the chip to fully start up
+  #endif
   L6470_populate_chain_array();   // Set up array to control where in the SPI transfer sequence a particular stepper's data goes
   L6470_SPI_init();               // Set up L6470 soft SPI pins
   L6470_init_to_defaults();       // init the chips
@@ -535,13 +541,15 @@ bool L6470_get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axi
 
 #endif
 
-void L6470_say_axis(const uint8_t axis, const bool label/*=true*/) {
+void L6470_say_axis(const uint8_t axis, const bool label=true) {
   if (label) SERIAL_ECHOPGM("AXIS:");
   SERIAL_CHAR(' ');
   SERIAL_CHAR(L6470_index_to_Axis[axis][0]);
   SERIAL_CHAR(L6470_index_to_Axis[axis][1]);
   SERIAL_CHAR(' ');
 }
+
+void L6470_say_axis(const uint8_t axis) { L6470_say_axis(axis, true); }
 
 void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // assumes status bits have been inverted
   #if ENABLED(L6470_CHITCHAT)
@@ -628,6 +636,7 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
   }
 
   void L6470_monitor_update(uint8_t stepper_index, uint16_t status) {
+    if (L6470_SPI_abort) return;  // don't do anything if set_directions() has occurred
     uint8_t kval_hold;
     char temp_buf[120];
     char* p = &temp_buf[0];
@@ -641,105 +650,92 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
     if (status == 0 || status == 0xFFFF) {              // com problem
       if (driver_L6470_data[j].com_counter == 0) {      // warn user when it first happens
         driver_L6470_data[j].com_counter++;
-        #if ENABLED(L6470_CHITCHAT)
-          append_stepper_err(p, stepper_index, PSTR(" - communications lost\n"));
-          L6470_ECHO(temp_buf);
-        #endif
+        append_stepper_err(p, stepper_index, PSTR(" - communications lost\n"));
+        L6470_ECHO(temp_buf);
       }
       else {
         driver_L6470_data[j].com_counter++;
         if (driver_L6470_data[j].com_counter > 240) {  // remind of com problem about every 2 minutes
           driver_L6470_data[j].com_counter = 1;
-          #if ENABLED(L6470_CHITCHAT)
-            append_stepper_err(p, stepper_index, PSTR(" - still no communications\n"));
-            L6470_ECHO(temp_buf);
-          #endif
+          append_stepper_err(p, stepper_index, PSTR(" - still no communications\n"));
+          L6470_ECHO(temp_buf);
         }
       }
     }
     else {
       if (driver_L6470_data[j].com_counter) {   // comms re-established
         driver_L6470_data[j].com_counter = 0;
-        #if ENABLED(L6470_CHITCHAT)
-          append_stepper_err(p, stepper_index, PSTR(" - communications re-established\n.. setting all drivers to default values\n"));
-          L6470_ECHO(temp_buf);
-        #endif
+        append_stepper_err(p, stepper_index, PSTR(" - communications re-established\n.. setting all drivers to default values\n"));
+        L6470_ECHO(temp_buf);
         L6470_init_to_defaults();
       }
       else {
         // no com problems - do the usual checks
         if (_status & L6470_ERROR_MASK) {
-          #if ENABLED(L6470_CHITCHAT)
-            append_stepper_err(p, stepper_index);
-          #endif
+          append_stepper_err(p, stepper_index);
 
-          if (_status & STATUS_HIZ) {                         // the driver has shut down
+          if (status & STATUS_HIZ) {                         // the driver has shut down  HiZ is active high
             driver_L6470_data[j].is_hi_Z = true;
-            #if ENABLED(L6470_CHITCHAT)
-              p += sprintf_P(p, PSTR(" IS SHUT DOWN"));
-            #endif
-            if (_status & STATUS_TH_SD) {
-              #if ENABLED(L6470_CHITCHAT)
-                p += sprintf_P(p, PSTR(" due to over temperature"));
-              #endif
+            p += sprintf_P(p, PSTR("%cIS SHUT DOWN"), ' ');
+            //         if (_status & STATUS_TH_SD) {                     // strange - TH_SD never seems to go active, must be implied by the HiZ and TH_WRN
+            if (_status & STATUS_TH_WRN) {                    // over current shutdown
+              p += sprintf_P(p, PSTR("%cdue to over temperature"), ' ');
               driver_L6470_data[j].is_ot = true;
               kval_hold = L6470_get_param(stepper_index, L6470_KVAL_HOLD) - 2 * KVAL_HOLD_STEP_DOWN;
               L6470_set_param(stepper_index, L6470_KVAL_HOLD, kval_hold);     // reduce KVAL_HOLD
-              #if ENABLED(L6470_CHITCHAT)
-                p += sprintf_P(p, PSTR(" - KVAL_HOLD reduced by %d to %d"), 2 * KVAL_HOLD_STEP_DOWN, kval_hold);   // let user know
-              #endif
+              p += sprintf_P(p, PSTR(" - KVAL_HOLD reduced by %d to %d"), 2 * KVAL_HOLD_STEP_DOWN, kval_hold);   // let user know
             }
             else
               driver_L6470_data[j].is_ot = false;
           }
-          else
+          else {
             driver_L6470_data[j].is_hi_Z = false;
 
-          if (_status & STATUS_TH_WRN) {     // have an over temperature warning
-            driver_L6470_data[j].is_otw = true;
-            driver_L6470_data[j].otw_counter++;
-            if (driver_L6470_data[j].otw_counter > 4) {  // otw present for 2 - 2.5 seconds, reduce KVAL_HOLD
-              kval_hold = L6470_get_param(stepper_index, L6470_KVAL_HOLD) - KVAL_HOLD_STEP_DOWN;
-              L6470_set_param(stepper_index, L6470_KVAL_HOLD, kval_hold);     // reduce KVAL_HOLD
-              #if ENABLED(L6470_CHITCHAT)
-                p += sprintf_P(p, PSTR(" - KVAL_HOLD reduced by %d to %d"), KVAL_HOLD_STEP_DOWN, kval_hold);   // let user know
-              #endif
-              driver_L6470_data[j].otw_counter = 0;
+            if (_status & STATUS_TH_WRN) {     // have an over temperature warning
               driver_L6470_data[j].is_otw = true;
-            }
-            else if (driver_L6470_data[j].otw_counter) {
-              #if ENABLED(L6470_CHITCHAT)
-                p += sprintf_P(p, PSTR(" - thermal warning %d"), kval_hold);   // warn user
-              #endif
+              driver_L6470_data[j].otw_counter++;
+              kval_hold = L6470_get_param(stepper_index, L6470_KVAL_HOLD);
+              if (driver_L6470_data[j].otw_counter > 4) {  // otw present for 2 - 2.5 seconds, reduce KVAL_HOLD
+                kval_hold -= KVAL_HOLD_STEP_DOWN;
+                L6470_set_param(stepper_index, L6470_KVAL_HOLD, kval_hold);     // reduce KVAL_HOLD
+                p += sprintf_P(p, PSTR(" - KVAL_HOLD reduced by %d to %d"), KVAL_HOLD_STEP_DOWN, kval_hold);   // let user know
+                driver_L6470_data[j].otw_counter = 0;
+                driver_L6470_data[j].is_otw = true;
+              }
+              else if (driver_L6470_data[j].otw_counter)
+                p += sprintf_P(p, PSTR("%c- thermal warning"), ' ');   // warn user
             }
           }
-          else {
-            driver_L6470_data[j].otw_counter = 0;   //clear out warning indicators
-            driver_L6470_data[j].is_otw = false;
-          }
-
-          #if ENABLED(L6470_CHITCHAT)
-            if (_status & STATUS_OCD)
-              p += sprintf_P(p, PSTR(" overcurrent"));
-
-            if (_status & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B))
-              p += sprintf_P(p, PSTR(" stall"));
-
-            if (_status & STATUS_UVLO)
-              p += sprintf_P(p, PSTR(" under voltage lock out"));
-
-            p += sprintf_P(p, PSTR("\n"));
-          #endif
 
           #ifdef L6470_STOP_ON_ERROR
             if (_status & (STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD))
-              kill(temp_buf);
+            kill(temp_buf);
           #endif
 
-          L6470_ECHOLN(temp_buf);
+
+          #if ENABLED(L6470_CHITCHAT)
+
+            if (_status & STATUS_OCD)
+            p += sprintf_P(p, PSTR("%c  over current"), ' ');
+
+            if (_status & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B))
+            p += sprintf_P(p, PSTR("%c  stall"), ' ');
+
+            if (_status & STATUS_UVLO)
+            p += sprintf_P(p, PSTR("%c  under voltage lock out"), ' ');
+
+            p += sprintf_P(p, PSTR("%c\n"), ' ');
+          #endif
+
+          L6470_ECHOLN(temp_buf);  // print the error message
+        }
+        else {
+          driver_L6470_data[j].is_ot = false;
+          driver_L6470_data[j].otw_counter = 0;   //clear out warning indicators
+          driver_L6470_data[j].is_otw = false;
 
         } // end usual checks
-      }
+      } // comms established but have errors
     } // comms re-established
   } // end L6470_monitor_update()
 
@@ -749,6 +745,8 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
     static millis_t next_cOT = 0;
     if (ELAPSED(millis(), next_cOT)) {
       next_cOT = millis() + 500;
+
+      L6470_SPI_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
 
       #if AXIS_DRIVER_TYPE_X(L6470)
         MONITOR_L6470_DRIVE(X);
@@ -793,6 +791,9 @@ void L6470_error_status_decode(const uint16_t status, const uint8_t axis) {  // 
       #if ENABLED(L6470_DEBUG)
         if (report_L6470_status) L6470_EOL();
       #endif
+
+      L6470_SPI_active = false;   // done with all SPI transfers - clear handshake flags
+      L6470_SPI_abort = false;
     }
   }
 

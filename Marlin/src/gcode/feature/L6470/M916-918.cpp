@@ -448,7 +448,7 @@ void GcodeSuite::M917() {
  */
 void GcodeSuite::M918() {
 
-  L6470_ECHOLN("M918");
+  L6470_ECHOLNPGM("M918");
 
   char axis_mon[3][3] = { "  ", "  ", "  " };  // List of axes to monitor
   uint8_t axis_index[3];
@@ -538,6 +538,7 @@ void GcodeSuite::M918() {
   }
   else
     L6470_ECHOLNPGM("Completed with no errors");
+
 } // M918
 
 #endif // HAS_DRIVER(L6470)

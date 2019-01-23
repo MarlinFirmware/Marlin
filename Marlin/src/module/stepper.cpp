@@ -79,6 +79,8 @@
 
 #include "stepper.h"
 
+Stepper stepper; // Singleton
+
 #ifdef __AVR__
   #include "speed_lookuptable.h"
 #endif
@@ -107,10 +109,12 @@
   #include "../feature/mixing.h"
 #endif
 
-Stepper stepper; // Singleton
-
 #if FILAMENT_RUNOUT_DISTANCE_MM > 0
   #include "../feature/runout.h"
+#endif
+
+#if HAS_DRIVER(L6470)
+  #include "../module/L6470/L6470_Marlin.h"
 #endif
 
 // public:
@@ -341,10 +345,6 @@ void Stepper::wake_up() {
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 
-#if HAS_DRIVER(L6470)
-  #include "../module/L6470/L6470_Marlin.h"
-#endif
-
 /**
  * Set the stepper direction of each axis
  *
@@ -355,27 +355,7 @@ void Stepper::wake_up() {
 void Stepper::set_directions() {
 
   #if HAS_DRIVER(L6470)
-
     uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
-
-    // 1. set direction bits using same logic as done with all other drivers
-    // 2. scan chain and find all matches for this axis
-    // 3. save direction command(s) based on invert options
-
-    // ASSUMES ALL DRIVERS ON AN AXIS ARE THE SAME
-
-    #define L6470_SET_STEP_DIR(A) do{                      \
-      const bool md = motor_direction(_AXIS(A));           \
-      count_direction[_AXIS(A)] = md ? -1 : 1;             \
-      for (uint8_t j = 1; j <= L6470_chain[0]; j++) {      \
-        const uint8_t cv = L6470_chain[j];                 \
-        if (AxisEnum(A##_AXIS) == L6470_axis_xref[cv]) {   \
-          L6470_buf[j] = (md == L6470_index_to_DIR[cv])    \
-            ? dSPIN_STEP_CLOCK_REV : dSPIN_STEP_CLOCK_FWD; \
-        }                                                  \
-      }                                                    \
-    }while(0)
-
   #endif
 
   #define SET_STEP_DIR(A)                       \
@@ -389,27 +369,15 @@ void Stepper::set_directions() {
     }
 
   #if HAS_X_DIR
-    #if AXIS_DRIVER_TYPE_X(L6470)
-      L6470_SET_STEP_DIR(X); // A
-    #else
-      SET_STEP_DIR(X); // A
-    #endif
+    SET_STEP_DIR(X); // A
   #endif
 
   #if HAS_Y_DIR
-    #if AXIS_DRIVER_TYPE_Y(L6470)
-      L6470_SET_STEP_DIR(Y); // B
-    #else
-      SET_STEP_DIR(Y); // B
-    #endif
+    SET_STEP_DIR(Y); // B
   #endif
 
   #if HAS_Z_DIR
-    #if AXIS_DRIVER_TYPE_Z(L6470)
-      L6470_SET_STEP_DIR(Z); // C
-    #else
-      SET_STEP_DIR(Z); // C
-    #endif
+    SET_STEP_DIR(Z); // C
   #endif
 
   #if DISABLED(LIN_ADVANCE)
@@ -438,18 +406,20 @@ void Stepper::set_directions() {
 
   #if HAS_DRIVER(L6470)
 
-    #if HAS_L6470_EXTRUDER
+    if (L6470_SPI_active) {
+      L6470_SPI_abort = true;                     // interrupted a SPI transfer - need to shut it down gracefully
+      for (uint8_t j = 1; j <= L6470_chain[0]; j++)
+        L6470_buf[j] = dSPIN_NOP;                 // fill buffer with NOOP commands
+      L6470_Transfer(L6470_buf, L6470_chain[0]);  // send enough NOOPs to complete any command
+      L6470_Transfer(L6470_buf, L6470_chain[0]);
+      L6470_Transfer(L6470_buf, L6470_chain[0]);
+    }
 
-      // L6470_E_dir_commands[6] is an array that holds direction command for each extruder
+    // L6470_dir_commands[] is an array that holds direction command for each stepper
 
-      //scan E command array and copy matches into L6470_Transfer
-      for (uint8_t j = 1; j <= L6470_chain[0]; j++) {
-        const uint8_t cv = L6470_chain[j];
-        if (cv >= L6470_E0_INDEX)
-          L6470_buf[j] = L6470_E_dir_commands[cv - L6470_E0_INDEX];
-      }
-
-    #endif
+    //scan command array and copy matches into L6470_Transfer
+    for (uint8_t j = 1; j <= L6470_chain[0] ; j++)
+      L6470_buf[j] = L6470_dir_commands[L6470_chain[j]];
 
     L6470_Transfer(L6470_buf, L6470_chain[0]);  // send the command stream to the drivers
 
@@ -1827,18 +1797,16 @@ uint32_t Stepper::stepper_block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      #if HAS_DRIVER(L6470) // always set direction for L6470 (This also enables the chips)
-        #define DIR_CONDITION true
-      #else
-        #define _DIR_CONDITION (current_block->direction_bits != last_direction_bits)
-        #if ENABLED(MIXING_EXTRUDER)
-          #define DIR_CONDITION _DIR_CONDITION
+      if (
+        #if HAS_DRIVER(L6470)
+          true  // Always set direction for L6470 (This also enables the chips)
         #else
-          #define DIR_CONDITION (_DIR_CONDITION || stepper_extruder != last_moved_extruder)
+          current_block->direction_bits != last_direction_bits
+          #if DISABLED(MIXING_EXTRUDER)
+            || stepper_extruder != last_moved_extruder
+          #endif
         #endif
-      #endif
-
-      if (DIR_CONDITION) {
+      ) {
         last_direction_bits = current_block->direction_bits;
         #if EXTRUDERS > 1
           last_moved_extruder = stepper_extruder;

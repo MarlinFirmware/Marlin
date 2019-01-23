@@ -27,6 +27,7 @@
 #include "../../gcode.h"
 #include "../../../module/L6470/L6470_Marlin.h"
 #include "../../../module/stepper_indirection.h"
+#include "../../../module/planner.h"
 
 /**
  *
@@ -78,19 +79,24 @@
  *    Vs compensation (if enabled)
  */
 
-#define L6470_STATUS(Q) stepper##Q.getStatus()
-
 void L6470_report_current(L6470 &motor, const uint8_t axis) {
+  if (L6470_SPI_abort) return;  // don't do anything if set_directions() has occurred
+  const uint16_t status = motor.getStatus() ;
   const uint8_t OverCurrent_Threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
                 Stall_Threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
-                motor_status = (motor.getStatus() & (STATUS_MOT_STATUS)) >> 13,
+                motor_status = (status  & (STATUS_MOT_STATUS)) >> 13,
                 L6470_ADC_out = motor.GetParam(L6470_ADC_OUT),
                 L6470_ADC_out_limited = constrain(L6470_ADC_out, 8, 24);
   const float comp_coef = 1600.0f / L6470_ADC_out_limited;
   const int MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
   char temp_buf[80];
   L6470_say_axis(axis);
-  sprintf_P(temp_buf, PSTR("...OverCurrent Threshold: %2d (%4d mA)"), OverCurrent_Threshold, (OverCurrent_Threshold + 1) * 375);
+  #if ENABLED(L6470_CHITCHAT)
+    sprintf_P(temp_buf, PSTR("   status: %4x   "), status);
+    SERIAL_ECHO(temp_buf);
+    print_bin(status);
+  #endif
+  sprintf_P(temp_buf, PSTR("\n...OverCurrent Threshold: %2d (%4d mA)"), OverCurrent_Threshold, (OverCurrent_Threshold + 1) * 375);
   SERIAL_ECHO(temp_buf);
   sprintf_P(temp_buf, PSTR("   Stall Threshold: %2d (%7.2f mA)"), Stall_Threshold, (Stall_Threshold + 1) * 31.25);
   SERIAL_ECHO(temp_buf);
@@ -134,7 +140,14 @@ void GcodeSuite::M906() {
   #endif
 
   LOOP_XYZE(i) if (uint8_t value = parser.byteval(axis_codes[i])) {
+
     report_current = false;
+
+    if (planner.has_blocks_queued() || planner.cleaning_buffer_counter) {
+      SERIAL_ECHOLNPGM("ERROR - can't set KVAL_HOLD while steppers are moving");
+      return;
+    }
+
     switch (i) {
       case X_AXIS:
         #if AXIS_DRIVER_TYPE_X(L6470)
@@ -193,6 +206,8 @@ void GcodeSuite::M906() {
   if (report_current) {
     #define L6470_REPORT_CURRENT(Q) L6470_report_current(stepper##Q, Q)
 
+    L6470_SPI_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
+
     #if AXIS_DRIVER_TYPE_X(L6470)
       L6470_REPORT_CURRENT(X);
     #endif
@@ -232,6 +247,9 @@ void GcodeSuite::M906() {
     #if AXIS_DRIVER_TYPE_E5(L6470)
       L6470_REPORT_CURRENT(E5);
     #endif
+
+    L6470_SPI_active = false;   // done with all SPI transfers - clear handshake flags
+    L6470_SPI_abort = false;
   }
 }
 

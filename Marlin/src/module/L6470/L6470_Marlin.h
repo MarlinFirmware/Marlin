@@ -24,12 +24,11 @@
 
 #include <L6470.h>
 
-//#define L6470_CHITCHAT
-
 #if ENABLED(L6470_CHITCHAT)
   #define L6470_EOL()           SERIAL_EOL()
   #define L6470_CHAR(C)         SERIAL_CHAR(C)
   #define L6470_ECHO(V)         SERIAL_ECHO(V)
+  #define L6470_ECHOLN(V)       SERIAL_ECHOLN(V)
   #define L6470_ECHOPGM(S)      SERIAL_ECHOPGM(S)
   #define L6470_ECHOLNPGM(S)    SERIAL_ECHOLNPGM(S)
   #define L6470_ECHOPAIR(S,V)   SERIAL_ECHOPAIR(S,V)
@@ -38,6 +37,7 @@
   #define L6470_EOL()           NOOP
   #define L6470_CHAR(C)         NOOP
   #define L6470_ECHO(V)         NOOP
+  #define L6470_ECHOLN(V)       NOOP
   #define L6470_ECHOPGM(S)      NOOP
   #define L6470_ECHOLNPGM(S)    NOOP
   #define L6470_ECHOPAIR(S,V)   NOOP
@@ -54,14 +54,13 @@
 #define HAS_L6470_EXTRUDER ( AXIS_DRIVER_TYPE_E0(L6470) || AXIS_DRIVER_TYPE_E1(L6470) || AXIS_DRIVER_TYPE_E2(L6470) \
                           || AXIS_DRIVER_TYPE_E3(L6470) || AXIS_DRIVER_TYPE_E4(L6470) || AXIS_DRIVER_TYPE_E5(L6470) )
 
-#if HAS_L6470_EXTRUDER
-  #define L6470_E0_INDEX  ((L6470_driver_enum)E0)       // Start of extruder indexes
-  extern uint8_t L6470_E_dir_commands[MAX_EXTRUDERS];   // Array to hold direction command for each extruder
-#endif
 
 extern bool L6470_index_to_DIR[MAX_L6470];
 extern uint8_t L6470_axis_xref[MAX_L6470];
 extern char L6470_index_to_Axis[MAX_L6470][3];
+extern uint8_t L6470_dir_commands[MAX_L6470];
+extern volatile bool L6470_SPI_abort;           // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
+extern bool L6470_SPI_active;                   // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
 
 uint16_t L6470_get_status(uint8_t axis);
 
@@ -85,4 +84,5 @@ void L6470_init_to_defaults();
 void L6470_Transfer(uint8_t L6470_buf[], const uint8_t length);
 uint8_t L6470_Transfer(uint8_t data, int _SSPin, const uint8_t chain_position);
 
-void L6470_say_axis(const uint8_t axis, const bool label=true);
+void L6470_say_axis(const uint8_t axis, const bool label);
+void L6470_say_axis(const uint8_t axis);

@@ -768,6 +768,7 @@ void reset_stepper_drivers() {
   // briefly sends power to the steppers
 
   #define _L6470_INIT_CHIP(Q) do{                             \
+    stepper##Q.resetDev();                                    \
     stepper##Q.softFree();                                    \
     stepper##Q.SetParam(L6470_CONFIG, CONFIG_PWM_DIV_1        \
                                     | CONFIG_PWM_MUL_2        \

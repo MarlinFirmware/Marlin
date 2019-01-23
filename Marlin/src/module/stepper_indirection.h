@@ -84,6 +84,7 @@
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI
 #if HAS_DRIVER(L6470)
   #include "L6470/L6470_Marlin.h"
+  #define L6470_WRITE_DIR_COMMAND(STATE,Q) do{ L6470_dir_commands[Q] = (STATE ?  dSPIN_STEP_CLOCK_REV : dSPIN_STEP_CLOCK_FWD); }while(0)
 #endif
 
 void restore_stepper_drivers();  // Called by PSU_ON
@@ -96,7 +97,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define X_ENABLE_WRITE(STATE) NOOP
   #define X_ENABLE_READ (stepperX.getStatus() & STATUS_HIZ)
   #define X_DIR_INIT NOOP
-  #define X_DIR_WRITE(STATE) NOOP
+  #define X_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,X)
   #define X_DIR_READ (stepperX.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(X)
@@ -131,7 +132,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Y_ENABLE_WRITE(STATE) NOOP
   #define Y_ENABLE_READ (stepperY.getStatus() & STATUS_HIZ)
   #define Y_DIR_INIT NOOP
-  #define Y_DIR_WRITE(STATE) NOOP
+  #define Y_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Y)
   #define Y_DIR_READ (stepperY.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(Y)
@@ -166,7 +167,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Z_ENABLE_WRITE(STATE) NOOP
   #define Z_ENABLE_READ (stepperZ.getStatus() & STATUS_HIZ)
   #define Z_DIR_INIT NOOP
-  #define Z_DIR_WRITE(STATE) NOOP
+  #define Z_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Z)
   #define Z_DIR_READ (stepperZ.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(Z)
@@ -202,7 +203,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define X2_ENABLE_WRITE(STATE) NOOP
     #define X2_ENABLE_READ (stepperX2.getStatus() & STATUS_HIZ)
     #define X2_DIR_INIT NOOP
-    #define X2_DIR_WRITE(STATE) NOOP
+    #define X2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,X2)
     #define X2_DIR_READ (stepperX2.getStatus() & STATUS_DIR)
   #else
     #if AXIS_IS_TMC(X2)
@@ -239,7 +240,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Y2_ENABLE_WRITE(STATE) NOOP
     #define Y2_ENABLE_READ (stepperY2.getStatus() & STATUS_HIZ)
     #define Y2_DIR_INIT NOOP
-    #define Y2_DIR_WRITE(STATE) NOOP
+    #define Y2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Y2)
     #define Y2_DIR_READ (stepperY2.getStatus() & STATUS_DIR)
   #else
     #if AXIS_IS_TMC(Y2)
@@ -278,7 +279,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z2_ENABLE_WRITE(STATE) NOOP
     #define Z2_ENABLE_READ (stepperZ2.getStatus() & STATUS_HIZ)
     #define Z2_DIR_INIT NOOP
-    #define Z2_DIR_WRITE(STATE) NOOP
+    #define Z2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Z2)
     #define Z2_DIR_READ (stepperZ2.getStatus() & STATUS_DIR)
   #else
     #if AXIS_IS_TMC(Z2)
@@ -311,13 +312,13 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // Z3 Stepper
 #if HAS_Z3_ENABLE
-  #if ENABLED(Z3_IS_L6470)
+  #if AXIS_DRIVER_TYPE_Z3(L6470)
     extern L6470 stepperZ3;
     #define Z3_ENABLE_INIT NOOP
     #define Z3_ENABLE_WRITE(STATE) NOOP
     #define Z3_ENABLE_READ (stepperZ3.getStatus() & STATUS_HIZ)
     #define Z3_DIR_INIT NOOP
-    #define Z3_DIR_WRITE(STATE) NOOP
+    #define Z3_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Z3)
     #define Z3_DIR_READ (stepperZ3.getStatus() & STATUS_DIR)
   #else
     #if AXIS_IS_TMC(Z3)
@@ -355,7 +356,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E0_ENABLE_WRITE(STATE) NOOP
   #define E0_ENABLE_READ (stepperE0.getStatus() & STATUS_HIZ)
   #define E0_DIR_INIT NOOP
-  #define E0_DIR_WRITE(STATE) NOOP
+  #define E0_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E0)
   #define E0_DIR_READ (stepperE0.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E0)
@@ -390,7 +391,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E1_ENABLE_WRITE(STATE) NOOP
   #define E1_ENABLE_READ (stepperE1.getStatus() & STATUS_HIZ)
   #define E1_DIR_INIT NOOP
-  #define E1_DIR_WRITE(STATE) NOOP
+  #define E1_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E1)
   #define E1_DIR_READ (stepperE1.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E1)
@@ -425,7 +426,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E2_ENABLE_WRITE(STATE) NOOP
   #define E2_ENABLE_READ (stepperE2.getStatus() & STATUS_HIZ)
   #define E2_DIR_INIT NOOP
-  #define E2_DIR_WRITE(STATE) NOOP
+  #define E2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E2)
   #define E2_DIR_READ (stepperE2.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E2)
@@ -460,7 +461,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E3_ENABLE_WRITE(STATE) NOOP
   #define E3_ENABLE_READ (stepperE3.getStatus() & STATUS_HIZ)
   #define E3_DIR_INIT NOOP
-  #define E3_DIR_WRITE(STATE) NOOP
+  #define E3_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E3)
   #define E3_DIR_READ (stepperE3.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E3)
@@ -495,7 +496,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E4_ENABLE_WRITE(STATE) NOOP
   #define E4_ENABLE_READ (stepperE4.getStatus() & STATUS_HIZ)
   #define E4_DIR_INIT NOOP
-  #define E4_DIR_WRITE(STATE) NOOP
+  #define E4_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E4)
   #define E4_DIR_READ (stepperE4.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E4)
@@ -530,7 +531,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E5_ENABLE_WRITE(STATE) NOOP
   #define E5_ENABLE_READ (stepperE5.getStatus() & STATUS_HIZ)
   #define E5_DIR_INIT NOOP
-  #define E5_DIR_WRITE(STATE) NOOP
+  #define E5_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E5)
   #define E5_DIR_READ (stepperE5.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E5)

@@ -31,11 +31,14 @@
 inline void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR(" YES") : PSTR(" NO ")); }
 
 void L6470_status_decode(const uint16_t status, const uint8_t axis) {
-  char temp_buf[10];
+  if (L6470_SPI_abort) return;  // don't do anything if set_directions() has occurred
   L6470_say_axis(axis);
-  sprintf_P(temp_buf, PSTR(" %4x   "), status);
-  SERIAL_ECHO(temp_buf);
-  print_bin(status);
+  #if ENABLED(L6470_CHITCHAT)
+    char temp_buf[20];
+    sprintf_P(temp_buf, PSTR("   status: %4x   "), status);
+    SERIAL_ECHO(temp_buf);
+    print_bin(status);
+  #endif
   SERIAL_ECHOPGM("\n...OUTPUT: ");
   serialprintPGM(status & STATUS_HIZ ? PSTR("OFF") : PSTR("ON "));
   SERIAL_ECHOPGM("   BUSY: "); echo_yes_no(!(status & STATUS_BUSY));
@@ -56,6 +59,8 @@ void L6470_status_decode(const uint16_t status, const uint8_t axis) {
  * M122: Debug L6470 drivers
  */
 void GcodeSuite::M122() {
+
+  L6470_SPI_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
 
   #define L6470_SAY_STATUS(Q) L6470_status_decode(stepper##Q.getStatus(), Q)
 
@@ -102,6 +107,9 @@ void GcodeSuite::M122() {
   #if AXIS_DRIVER_TYPE_E5(L6470)
     L6470_SAY_STATUS(E5);
   #endif
+
+  L6470_SPI_active = false;   // done with all SPI transfers - clear handshake flags
+  L6470_SPI_abort = false;
 }
 
 #endif // HAS_DRIVER(L6470)
