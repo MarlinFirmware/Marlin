@@ -190,7 +190,6 @@ extern float pause_z;
 extern char PrintStatue[2];
 extern char PrinterStatusKey[2];
 extern const char *injected_commands_P;
-  #if defined(LCD_SET_PROGRESS_MANUALLY)
-    extern uint8_t progress_bar_percent;
-  #endif
+extern uint8_t progress_bar_percent;
+
 #endif// RTS_H
