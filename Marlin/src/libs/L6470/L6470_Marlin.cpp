@@ -295,9 +295,7 @@ inline void echo_oct_used(const float &oct, const bool stall) {
   serialprintPGM(stall ? PSTR("  (Stall") : PSTR("  (OCD"));
   L6470_ECHOLNPGM(" threshold)");
 }
-inline void err_out_of_bounds() {
-  L6470_ECHOLNPGM("ERROR - motion out of bounds");
-}
+inline void err_out_of_bounds() { L6470_ECHOLNPGM("ERROR - motion out of bounds"); }
 
 bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axis_mon[3][3],
                           float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
@@ -411,8 +409,8 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
   //
   for (uint8_t k = 0; k < driver_count; k++) {
     bool not_found = true;
-    for (j = 1; j <= L6470_chain[0]; j++) {
-      const char * const ind_axis = index_to_axis[L6470_chain[j]];
+    for (j = 1; j <= L6470::chain[0]; j++) {
+      const char * const ind_axis = index_to_axis[L6470::chain[j]];
       if (ind_axis[0] == axis_mon[k][0] && ind_axis[1] == axis_mon[k][1]) { // See if a L6470 driver
         not_found = false;
         break;
@@ -634,7 +632,7 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
     char temp_buf[120];
     char* p = &temp_buf[0];
     uint8_t j;
-    for (j = 0; j < L6470_chain[0]; j++) // find the table for this stepper
+    for (j = 0; j < L6470::chain[0]; j++) // find the table for this stepper
       if (driver_L6470_data[j].driver_index == stepper_index) break;
 
     driver_L6470_data[j].driver_status = status;

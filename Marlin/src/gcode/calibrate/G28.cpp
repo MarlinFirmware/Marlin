@@ -447,8 +447,8 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #if HAS_DRIVER(L6470)
     // Set L6470 absolute position registers to counts
-    for (uint8_t j = 1; j <= L6470_chain[0]; j++) {
-      const uint8_t cv = L6470_chain[j];
+    for (uint8_t j = 1; j <= L6470::chain[0]; j++) {
+      const uint8_t cv = L6470::chain[j];
       L6470.set_param(cv, L6470_ABS_POS, stepper.position((AxisEnum)L6470.axis_xref[cv]));
     }
   #endif

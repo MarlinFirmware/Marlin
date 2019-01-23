@@ -408,20 +408,20 @@ void Stepper::set_directions() {
 
     if (L6470.spi_active) {
       L6470.spi_abort = true;                     // interrupted a SPI transfer - need to shut it down gracefully
-      for (uint8_t j = 1; j <= L6470_chain[0]; j++)
+      for (uint8_t j = 1; j <= L6470::chain[0]; j++)
         L6470_buf[j] = dSPIN_NOP;                 // fill buffer with NOOP commands
-      L6470.transfer(L6470_buf, L6470_chain[0]);  // send enough NOOPs to complete any command
-      L6470.transfer(L6470_buf, L6470_chain[0]);
-      L6470.transfer(L6470_buf, L6470_chain[0]);
+      L6470.transfer(L6470_buf, L6470::chain[0]);  // send enough NOOPs to complete any command
+      L6470.transfer(L6470_buf, L6470::chain[0]);
+      L6470.transfer(L6470_buf, L6470::chain[0]);
     }
 
     // The L6470.dir_commands[] array holds the direction command for each stepper
 
     //scan command array and copy matches into L6470.transfer
-    for (uint8_t j = 1; j <= L6470_chain[0]; j++)
-      L6470_buf[j] = L6470.dir_commands[L6470_chain[j]];
+    for (uint8_t j = 1; j <= L6470::chain[0]; j++)
+      L6470_buf[j] = L6470.dir_commands[L6470::chain[j]];
 
-    L6470.transfer(L6470_buf, L6470_chain[0]);  // send the command stream to the drivers
+    L6470.transfer(L6470_buf, L6470::chain[0]);  // send the command stream to the drivers
 
   #endif
 
