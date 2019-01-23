@@ -3548,13 +3548,8 @@ inline void gcode_G0_G1(
       }
       else if(waitway == 2)
         waitway = 0;
-      
-      
-	    //SERIAL_ECHOPAIR("\n ***G1 Status =",FilementStatus[1]);
-      if(FilementStatus[1] == 1)
-        FilementStatus[1] = 2;	
 
-        if (true==card.sdprinting && FilementStatus[1] != 0)
+        if ((card.sdprinting || print_job_timer.isRunning) && FilementStatus[1] != 0)
           FilementStatus[1] = 2;
     #endif
   }

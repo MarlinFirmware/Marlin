@@ -603,10 +603,13 @@ void RTSSHOW::RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd
 void RTSSHOW::RTS_SDcard_Stop()
 {
 	waitway = 4;
-	card.stopSDPrint();
-	clear_command_queue();
+	if(card.sdprinting) {
+		card.stopSDPrint();
+		clear_command_queue();
+		quickstop_stepper();
+	}
+	SERIAL_ECHO("\n   stopping ==\n");
 	SERIAL_ECHOLNPGM("//action:cancel");
-	quickstop_stepper();
 	thermalManager.disable_all_heaters();
 	print_job_timer.reset();
 	#if ENABLED(SDSUPPORT) && ENABLED(POWEROFF_SAVE_SD_FILE)
@@ -629,7 +632,7 @@ void RTSSHOW::RTS_SDcard_Stop()
 	wait_for_heatup = false;
 	PrinterStatusKey[0] = 0;
 	enqueue_and_echo_commands_P(PSTR("M84"));	//shut down the stepper motor.
-	
+	SERIAL_ECHOLNPGM("//action:cancel");
 }
 
 
@@ -867,8 +870,8 @@ SERIAL_ECHO(Checkkey);
  			card.pauseSDPrint();
 			print_job_timer.pause();
 			#ifdef ACTION_ON_PAUSE
+			  SERIAL_ECHOLNPGM("From Pauseprint\n");
     		  SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
-			//SERIAL_ECHOLNPGM("From Pauseprint");
     		#endif
  			temphot=thermalManager.degTargetHotend(0); //thermalManager.target_temperature[0];
  			//tempbed=thermalManager.degTargetBed();//thermalManager.target_temperature_bed;
@@ -2224,10 +2227,9 @@ void RTSUpdate()	//looping at the loop function
 	//SERIAL_ECHOPAIR("\n ***FilementStatus[1] =",FilementStatus[1]);
 	//SERIAL_ECHOPAIR("\n ***card.sdprinting =",card.sdprinting);
 
-	if(FilementStatus[1] == 2 && (true==card.sdprinting || true==print_job_timer.isRunning))
+	if(FilementStatus[1] == 2 && (card.sdprinting || planner.movesplanned()))
 	{	
-		
-	//SERIAL_ECHOPAIR("\n FIL_RUNOUT_PIN =",card.sdprinting);
+		//SERIAL_ECHOPAIR("\n FIL_RUNOUT_PIN =",card.sdprinting);
 		//char cmd[2][30];
 		if(READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING)
 		{
@@ -2264,8 +2266,8 @@ void RTSUpdate()	//looping at the loop function
 				//injected_commands_P =commandbuf;// PSTR("G28 X0 Y0");//commandbuf;
 
 				#ifdef ACTION_ON_PAUSE
+					SERIAL_ECHOLNPGM("\nFrom Runout\n");
 					SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
-					//SERIAL_ECHOLNPGM("From Runout");
 				#endif
 				planner.synchronize();
 				enqueue_and_echo_commands_P(PSTR("M25"));
