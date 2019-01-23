@@ -2117,7 +2117,7 @@ void EachMomentUpdate()
 						rtscheck.RTS_SndData(0,PrintscheduleIcon);
 						rtscheck.RTS_SndData(0,PrintscheduleIcon+1);
 					}
-					rtscheck.RTS_SndData((unsigned int) card.percentDone(),Percentage);
+					rtscheck.RTS_SndData((unsigned int)progress_bar_percent,Percentage);
 					last_cardpercentValue = progress_bar_percent;
 				}
 			}
