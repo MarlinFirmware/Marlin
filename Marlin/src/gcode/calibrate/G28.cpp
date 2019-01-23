@@ -46,7 +46,7 @@
 #include "../../lcd/ultralcd.h"
 
 #if HAS_DRIVER(L6470)                         // set L6470 absolute position registers to counts
-  #include "../../module/L6470/L6470_Marlin.h"
+  #include "../../libs/L6470/L6470_Marlin.h"
 #endif
 
 #if ENABLED(QUICK_HOME)

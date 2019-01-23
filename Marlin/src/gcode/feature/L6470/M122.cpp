@@ -25,7 +25,7 @@
 #if HAS_DRIVER(L6470)
 
 #include "../../gcode.h"
-#include "../../../module/L6470/L6470_Marlin.h"
+#include "../../../libs/L6470/L6470_Marlin.h"
 #include "../../../module/stepper_indirection.h"
 
 inline void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR(" YES") : PSTR(" NO ")); }

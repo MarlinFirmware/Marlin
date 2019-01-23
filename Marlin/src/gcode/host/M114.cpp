@@ -31,7 +31,7 @@
   #if HAS_DRIVER(L6470)
     //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\gcode\host\M114.cpp
     //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\module\bob_L6470.cpp
-    #include "../../module/L6470/L6470_Marlin.h"
+    #include "../../libs/L6470/L6470_Marlin.h"
   #endif
 
   void report_xyze(const float pos[], const uint8_t n = 4, const uint8_t precision = 3) {

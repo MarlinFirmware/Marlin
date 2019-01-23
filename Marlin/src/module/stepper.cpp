@@ -114,7 +114,7 @@ Stepper stepper; // Singleton
 #endif
 
 #if HAS_DRIVER(L6470)
-  #include "../module/L6470/L6470_Marlin.h"
+  #include "../libs/L6470/L6470_Marlin.h"
 #endif
 
 // public:

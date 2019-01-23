@@ -27,7 +27,7 @@
 #include "../../gcode.h"
 #include "../../../module/stepper_indirection.h"
 #include "../../../module/planner.h"
-#include "../../../module/L6470/L6470_Marlin.h"
+#include "../../../libs/L6470/L6470_Marlin.h"
 
 /**
  *
