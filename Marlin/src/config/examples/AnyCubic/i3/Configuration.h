@@ -175,6 +175,16 @@
   //#define E_MUX2_PIN 44  // Needed for 5 to 8 inputs
 #endif
 
+/**
+ * Prusa Multi-Material Unit v2
+ *
+ * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
+ * Requires EXTRUDERS = 5
+ *
+ * For additional configuration see Configuration_adv.h
+ */
+//#define PRUSA_MMU2
+
 // A dual extruder that uses a single stepper motor
 //#define SWITCHING_EXTRUDER
 #if ENABLED(SWITCHING_EXTRUDER)
@@ -403,7 +413,7 @@
   // ANYCUBIC I3 240C and 8 cycles
   #define  DEFAULT_Kp 17.80
   #define  DEFAULT_Ki 0.84
-  #define  DEFAULT_Kd 64.84 
+  #define  DEFAULT_Kd 64.84
 
   // Ultimaker
   //#define DEFAULT_Kp 22.2
