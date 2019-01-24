@@ -79,11 +79,11 @@
 #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" nast.")
 #define MSG_PREHEAT_CUSTOM                  _UxGT("Vlastné zahriatie")
 #define MSG_COOLDOWN                        _UxGT("Schladiť")
-#define MSG_LASER                           _UxGT("laser")
-#define MSG_LASER_MENU                      _UxGT("Nastavenie ") MSG_LASER _UxGT("a")
-#define MSG_LASER_OFF                       _UxGT("Vypnúť ") MSG_LASER
-#define MSG_LASER_ON                        _UxGT("Zapnúť ") MSG_LASER
-#define MSG_LASER_POWER                     _UxGT("Výkon ") MSG_LASER _UxGT("a")
+#define MSG_LASER                           _UxGT("Laser")
+#define MSG_LASER_MENU                      _UxGT("Nastavenie lasera")
+#define MSG_LASER_OFF                       _UxGT("Vypnúť laser")
+#define MSG_LASER_ON                        _UxGT("Zapnúť laser")
+#define MSG_LASER_POWER                     _UxGT("Výkon lasera")
 #define MSG_SPINDLE_REVERSE                 _UxGT("Spät. chod vretena")
 #define MSG_SWITCH_PS_ON                    _UxGT("Zapnúť napájanie")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Vypnúť napájanie")
