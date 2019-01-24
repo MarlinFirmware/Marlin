@@ -95,11 +95,11 @@ uint8_t L6470_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
  * defined by the client (Marlin) to provide an SPI interface.
  */
 
-uint8_t L6470_transfer(uint8_t data, int _SSPin, const uint8_t chain_position) {
+uint8_t L6470_transfer(uint8_t data, int16_t ss_pin, const uint8_t chain_position) {
   uint8_t data_out = 0;
 
   // first device in chain has data sent last
-  digitalWrite(_SSPin, LOW);
+  digitalWrite(ss_pin, LOW);
 
   for (uint8_t i = L6470::chain[0]; (i >= 1) && !spi_abort; i--) {    // stop sending data if spi_abort is active
     DISABLE_ISRS();  // disable interrupts during SPI transfer (can't allow partial command to chips)
@@ -108,7 +108,7 @@ uint8_t L6470_transfer(uint8_t data, int _SSPin, const uint8_t chain_position) {
     if (i == chain_position) data_out = temp;
   }
 
-  digitalWrite(_SSPin, HIGH);
+  digitalWrite(ss_pin, HIGH);
   return data_out;
 }
 
