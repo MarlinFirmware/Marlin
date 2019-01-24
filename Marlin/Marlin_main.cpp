@@ -1383,7 +1383,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
       }
     #elif ENABLED(DELTA)
       soft_endstop_min[axis] = base_min_pos(axis);
-      soft_endstop_max[axis] = axis == Z_AXIS ? delta_height 
+      soft_endstop_max[axis] = axis == Z_AXIS ? delta_height
       #if HAS_BED_PROBE
         - zprobe_zoffset
       #endif
@@ -1521,7 +1521,7 @@ static void set_axis_is_at_home(const AxisEnum axis) {
       - zprobe_zoffset
     #endif
     : base_home_pos(axis));
-  #else  
+  #else
     current_position[axis] = base_home_pos(axis);
   #endif
 
@@ -4067,7 +4067,11 @@ inline void gcode_G4() {
     #endif
 
     // Move all carriages together linearly until an endstop is hit.
-    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
+    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10
+      #if HAS_BED_PROBE
+        - zprobe_zoffset
+      #endif
+    );
     feedrate_mm_s = homing_feedrate(X_AXIS);
     buffer_line_to_current_position();
     planner.synchronize();
