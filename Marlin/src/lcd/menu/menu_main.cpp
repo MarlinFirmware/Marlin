@@ -53,7 +53,7 @@ void lcd_pause() {
   #elif ENABLED(SDSUPPORT)
     enqueue_and_echo_commands_P(PSTR("M25"));
   #elif defined(ACTION_ON_PAUSE)
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+    host_action_pause();
   #endif
   planner.synchronize();
 }
@@ -62,7 +62,7 @@ void lcd_resume() {
   #if ENABLED(SDSUPPORT)
     if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
   #elif defined(ACTION_ON_RESUME)
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
+    host_action_resume();
   #endif
 }
 
@@ -72,7 +72,7 @@ void lcd_stop() {
     card.flag.abort_sd_printing = true;
   #endif
   #ifdef ACTION_ON_CANCEL
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_CANCEL);
+    host_action_cancel();
   #endif
   ui.set_status_P(PSTR(MSG_PRINT_ABORTED), -1);
   ui.return_to_status();

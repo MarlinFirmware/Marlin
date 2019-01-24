@@ -99,9 +99,11 @@ class TFilamentMonitor : public FilamentMonitorBase {
           #endif
           #ifdef ACTION_ON_FILAMENT_RUNOUT
             #if NUM_RUNOUT_SENSORS > 1
-              SERIAL_ECHOLNPAIR("//action:" ACTION_ON_FILAMENT_RUNOUT " ", int(active_extruder));
+              host_action_filament_runout(false);
+              SERIAL_CHAR(' ');
+              SERIAL_ECHO(int(active_extruder));
             #else
-              SERIAL_ECHOLNPGM("//action:" ACTION_ON_FILAMENT_RUNOUT);
+              host_action_filament_runout();
             #endif
             if (!IS_SD_PRINTING())
               reset();

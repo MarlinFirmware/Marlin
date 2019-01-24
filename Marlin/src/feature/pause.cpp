@@ -323,10 +323,10 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
 
   if (did_pause_print) return false; // already paused
 
-  #if defined(ACTION_ON_PAUSED)
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSED);
+  #ifdef ACTION_ON_PAUSED
+    host_action_paused();
   #elif defined(ACTION_ON_PAUSE)
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+    host_action_pause();
   #endif
 
   #if HAS_LCD_MENU
@@ -572,10 +572,10 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
   #endif
 
-  #if defined(ACTION_ON_RESUMED)
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUMED);
+  #ifdef ACTION_ON_RESUMED
+    host_action_resumed();
   #elif defined(ACTION_ON_RESUME)
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
+    host_action_resume();
   #endif
 
   --did_pause_print;
