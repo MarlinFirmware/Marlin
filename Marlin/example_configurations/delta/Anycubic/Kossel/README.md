@@ -26,10 +26,10 @@ The Kossel comes in 3 versions:
  * Pulley
  * Linear
  * Linear Plus
- 
+
 Pulley and Linear use the same configuration, the Linear Plus is bigger and uses slightly different configurations.
- 
-Typically the probes for the Anycubic Delta Kossel printers come in two different versions. 
+
+Typically the probes for the Anycubic Delta Kossel printers come in two different versions.
 
   * Version 1: Z Probe Offset of -19.0mm
 
