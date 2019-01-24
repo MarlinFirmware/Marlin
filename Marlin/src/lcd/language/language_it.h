@@ -435,7 +435,7 @@
 #endif // LCD_HEIGHT < 4
 
 #define MSG_TMC_DRIVERS                     _UxGT("Drivers TMC")
-#define MSG_TMC_CURRENT                     _UxGT("Corrente driver")
+#define MSG_TMC_CURRENT                     _UxGT("Driver in uso")
 #define MSG_TMC_HYBRID_THRS                 _UxGT("Soglia modo ibrido")
 #define MSG_TMC_HOMING_THRS                 _UxGT("Azzer. sensorless")
 #define MSG_TMC_STEPPING_MODE               _UxGT("Modo stepping")
