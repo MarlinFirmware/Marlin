@@ -1948,23 +1948,21 @@
  * Will be sent in the form '//action:ACTION_ON_PAUSE', e.g. '//action:pause'.
  * The host must be configured to handle the action command.
  * 
- * PAUSE / RESUME : Used in non-parking scenarios where the host has full control
- * of action taken, machine continues to process G-Code. (M24/M25)
+ *   PAUSE / RESUME : Used in non-parking scenarios where the host handles the
+ *                    action while Marlin continues to process G-Code. (M24/M25)
  * 
- * PAUSED / RESUMED : used on parking scenarios where the machine handles pause
- * and filament change actions and the host just needs to stop sending commands
- * until the machine becomes ready. (M125/M600)
+ * PAUSED / RESUMED : Used in scenarios where Marlin handles pause and filament-
+ *                    change actions and the host needs to stop sending commands
+ *                    until the machine is ready to resume. (M125/M600)
  * 
- * CANCEL : Instructs the host to abort current print job. Used from Menu.
+ *           CANCEL : Instructs the host to abort the print job. Used when the
+ *                    print is canceled from the LCD menu.
  */
-
-//#define ACTION_ON_PAUSE "pause"
-//#define ACTION_ON_RESUME "resume"
-
-//#define ACTION_ON_PAUSED "paused"
+//#define ACTION_ON_PAUSE   "pause"
+//#define ACTION_ON_RESUME  "resume"
+//#define ACTION_ON_PAUSED  "paused"
 //#define ACTION_ON_RESUMED "resumed"
-
-//#define ACTION_ON_CANCEL "cancel"
+//#define ACTION_ON_CANCEL  "cancel"
 
 //===========================================================================
 //====================== I2C Position Encoder Settings ======================
