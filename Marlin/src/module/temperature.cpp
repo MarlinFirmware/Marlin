@@ -164,7 +164,7 @@ int16_t Temperature::current_temperature_raw[HOTENDS], // = { 0 }
     if (target >= FAN_COUNT) return;
 
     fan_speed[target] = speed;
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_LCD_MENU
       lcd_tmpfan_speed[target] = speed;
     #endif
   }
