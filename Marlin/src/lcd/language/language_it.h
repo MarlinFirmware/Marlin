@@ -71,6 +71,12 @@
 #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2_N _UxGT("conf")
 #define MSG_PREHEAT_CUSTOM                  _UxGT("Prerisc.personal.")
 #define MSG_COOLDOWN                        _UxGT("Raffredda")
+#define MSG_LASER                           _UxGT("Laser")
+#define MSG_LASER_MENU                      _UxGT("Controllo ") MSG_LASER
+#define MSG_LASER_OFF                       MSG_LASER _UxGT(" Off")
+#define MSG_LASER_ON                        MSG_LASER _UxGT(" On")
+#define MSG_LASER_POWER                     _UxGT("Potenza ") MSG_LASER
+#define MSG_SPINDLE_REVERSE                 _UxGT("Inverti mandrino")
 #define MSG_SWITCH_PS_ON                    _UxGT("Accendi aliment.")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Spegni aliment.")
 #define MSG_EXTRUDE                         _UxGT("Estrudi")
@@ -290,6 +296,7 @@
 #define MSG_TOOL_CHANGE_ZLIFT               _UxGT("Risalita Z")
 #define MSG_SINGLENOZZLE_PRIME_SPD          _UxGT("Velocità innesco")
 #define MSG_SINGLENOZZLE_RETRACT_SPD        _UxGT("Velocità retrazione")
+#define MSG_NOZZLE_STANDBY                  _UxGT("Standby ugello")
 #define MSG_FILAMENTCHANGE                  _UxGT("Cambia filamento")
 #define MSG_FILAMENTLOAD                    _UxGT("Carica filamento")
 #define MSG_FILAMENTUNLOAD                  _UxGT("Rimuovi filamento")
