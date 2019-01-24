@@ -79,6 +79,8 @@
 
 #include "stepper.h"
 
+Stepper stepper; // Singleton
+
 #ifdef __AVR__
   #include "speed_lookuptable.h"
 #endif
@@ -107,10 +109,12 @@
   #include "../feature/mixing.h"
 #endif
 
-Stepper stepper; // Singleton
-
 #if FILAMENT_RUNOUT_DISTANCE_MM > 0
   #include "../feature/runout.h"
+#endif
+
+#if HAS_DRIVER(L6470)
+  #include "../libs/L6470/L6470_Marlin.h"
 #endif
 
 // public:
@@ -350,22 +354,28 @@ void Stepper::wake_up() {
  */
 void Stepper::set_directions() {
 
-  #define SET_STEP_DIR(A) \
-    if (motor_direction(_AXIS(A))) { \
-      A##_APPLY_DIR(INVERT_## A##_DIR, false); \
-      count_direction[_AXIS(A)] = -1; \
-    } \
-    else { \
+  #if HAS_DRIVER(L6470)
+    uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
+  #endif
+
+  #define SET_STEP_DIR(A)                       \
+    if (motor_direction(_AXIS(A))) {            \
+      A##_APPLY_DIR(INVERT_## A##_DIR, false);  \
+      count_direction[_AXIS(A)] = -1;           \
+    }                                           \
+    else {                                      \
       A##_APPLY_DIR(!INVERT_## A##_DIR, false); \
-      count_direction[_AXIS(A)] = 1; \
+      count_direction[_AXIS(A)] = 1;            \
     }
 
   #if HAS_X_DIR
     SET_STEP_DIR(X); // A
   #endif
+
   #if HAS_Y_DIR
     SET_STEP_DIR(Y); // B
   #endif
+
   #if HAS_Z_DIR
     SET_STEP_DIR(Z); // C
   #endif
@@ -393,6 +403,27 @@ void Stepper::set_directions() {
       }
     #endif
   #endif // !LIN_ADVANCE
+
+  #if HAS_DRIVER(L6470)
+
+    if (L6470.spi_active) {
+      L6470.spi_abort = true;                     // interrupted a SPI transfer - need to shut it down gracefully
+      for (uint8_t j = 1; j <= L6470::chain[0]; j++)
+        L6470_buf[j] = dSPIN_NOP;                 // fill buffer with NOOP commands
+      L6470.transfer(L6470_buf, L6470::chain[0]);  // send enough NOOPs to complete any command
+      L6470.transfer(L6470_buf, L6470::chain[0]);
+      L6470.transfer(L6470_buf, L6470::chain[0]);
+    }
+
+    // The L6470.dir_commands[] array holds the direction command for each stepper
+
+    //scan command array and copy matches into L6470.transfer
+    for (uint8_t j = 1; j <= L6470::chain[0]; j++)
+      L6470_buf[j] = L6470.dir_commands[L6470::chain[j]];
+
+    L6470.transfer(L6470_buf, L6470::chain[0]);  // send the command stream to the drivers
+
+  #endif
 
   // A small delay may be needed after changing direction
   #if MINIMUM_STEPPER_DIR_DELAY > 0
@@ -1766,10 +1797,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      if (current_block->direction_bits != last_direction_bits
+      if (
+        #if HAS_DRIVER(L6470)
+          true  // Always set direction for L6470 (This also enables the chips)
+        #else
+          current_block->direction_bits != last_direction_bits
           #if DISABLED(MIXING_EXTRUDER)
             || stepper_extruder != last_moved_extruder
           #endif
+        #endif
       ) {
         last_direction_bits = current_block->direction_bits;
         #if EXTRUDERS > 1
@@ -2113,7 +2149,10 @@ void Stepper::init() {
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
   sei();
-  set_directions(); // Init directions to last_direction_bits = 0  Keeps Z from being reversed
+
+  Z_DIR_WRITE(0);    // Init directions to last_direction_bits = 0  Keeps Z from being reversed
+  Z2_DIR_WRITE(0);
+  Z3_DIR_WRITE(0);
 }
 
 /**

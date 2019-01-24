@@ -37,6 +37,10 @@
 
 #include "../module/stepper.h"
 
+#if HAS_DRIVER(L6470)
+  #include "L6470/L6470_Marlin.h"
+#endif
+
 //
 // TMC26X Driver objects and inits
 //
@@ -51,43 +55,43 @@
 
   #define _TMC26X_DEFINE(ST) TMC26XStepper stepper##ST(200, ST##_CS_PIN, ST##_STEP_PIN, ST##_DIR_PIN, ST##_MAX_CURRENT, ST##_SENSE_RESISTOR)
 
-  #if AXIS_DRIVER_TYPE(X, TMC26X)
+  #if AXIS_DRIVER_TYPE_X(TMC26X)
     _TMC26X_DEFINE(X);
   #endif
-  #if AXIS_DRIVER_TYPE(X2, TMC26X)
+  #if AXIS_DRIVER_TYPE_X2(TMC26X)
     _TMC26X_DEFINE(X2);
   #endif
-  #if AXIS_DRIVER_TYPE(Y, TMC26X)
+  #if AXIS_DRIVER_TYPE_Y(TMC26X)
     _TMC26X_DEFINE(Y);
   #endif
-  #if AXIS_DRIVER_TYPE(Y2, TMC26X)
+  #if AXIS_DRIVER_TYPE_Y2(TMC26X)
     _TMC26X_DEFINE(Y2);
   #endif
-  #if AXIS_DRIVER_TYPE(Z, TMC26X)
+  #if AXIS_DRIVER_TYPE_Z(TMC26X)
     _TMC26X_DEFINE(Z);
   #endif
-  #if AXIS_DRIVER_TYPE(Z2, TMC26X)
+  #if AXIS_DRIVER_TYPE_Z2(TMC26X)
     _TMC26X_DEFINE(Z2);
   #endif
-  #if AXIS_DRIVER_TYPE(Z3, TMC26X)
+  #if AXIS_DRIVER_TYPE_Z3(TMC26X)
     _TMC26X_DEFINE(Z3);
   #endif
-  #if AXIS_DRIVER_TYPE(E0, TMC26X)
+  #if AXIS_DRIVER_TYPE_E0(TMC26X)
     _TMC26X_DEFINE(E0);
   #endif
-  #if AXIS_DRIVER_TYPE(E1, TMC26X)
+  #if AXIS_DRIVER_TYPE_E1(TMC26X)
     _TMC26X_DEFINE(E1);
   #endif
-  #if AXIS_DRIVER_TYPE(E2, TMC26X)
+  #if AXIS_DRIVER_TYPE_E2(TMC26X)
     _TMC26X_DEFINE(E2);
   #endif
-  #if AXIS_DRIVER_TYPE(E3, TMC26X)
+  #if AXIS_DRIVER_TYPE_E3(TMC26X)
     _TMC26X_DEFINE(E3);
   #endif
-  #if AXIS_DRIVER_TYPE(E4, TMC26X)
+  #if AXIS_DRIVER_TYPE_E4(TMC26X)
     _TMC26X_DEFINE(E4);
   #endif
-  #if AXIS_DRIVER_TYPE(E5, TMC26X)
+  #if AXIS_DRIVER_TYPE_E5(TMC26X)
     _TMC26X_DEFINE(E5);
   #endif
 
@@ -97,43 +101,43 @@
   }while(0)
 
   void tmc26x_init_to_defaults() {
-    #if AXIS_DRIVER_TYPE(X, TMC26X)
+    #if AXIS_DRIVER_TYPE_X(TMC26X)
       _TMC26X_INIT(X);
     #endif
-    #if AXIS_DRIVER_TYPE(X2, TMC26X)
+    #if AXIS_DRIVER_TYPE_X2(TMC26X)
       _TMC26X_INIT(X2);
     #endif
-    #if AXIS_DRIVER_TYPE(Y, TMC26X)
+    #if AXIS_DRIVER_TYPE_Y(TMC26X)
       _TMC26X_INIT(Y);
     #endif
-    #if AXIS_DRIVER_TYPE(Y2, TMC26X)
+    #if AXIS_DRIVER_TYPE_Y2(TMC26X)
       _TMC26X_INIT(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE(Z, TMC26X)
+    #if AXIS_DRIVER_TYPE_Z(TMC26X)
       _TMC26X_INIT(Z);
     #endif
-    #if AXIS_DRIVER_TYPE(Z2, TMC26X)
+    #if AXIS_DRIVER_TYPE_Z2(TMC26X)
       _TMC26X_INIT(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE(Z3, TMC26X)
+    #if AXIS_DRIVER_TYPE_Z3(TMC26X)
       _TMC26X_INIT(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE(E0, TMC26X)
+    #if AXIS_DRIVER_TYPE_E0(TMC26X)
       _TMC26X_INIT(E0);
     #endif
-    #if AXIS_DRIVER_TYPE(E1, TMC26X)
+    #if AXIS_DRIVER_TYPE_E1(TMC26X)
       _TMC26X_INIT(E1);
     #endif
-    #if AXIS_DRIVER_TYPE(E2, TMC26X)
+    #if AXIS_DRIVER_TYPE_E2(TMC26X)
       _TMC26X_INIT(E2);
     #endif
-    #if AXIS_DRIVER_TYPE(E3, TMC26X)
+    #if AXIS_DRIVER_TYPE_E3(TMC26X)
       _TMC26X_INIT(E3);
     #endif
-    #if AXIS_DRIVER_TYPE(E4, TMC26X)
+    #if AXIS_DRIVER_TYPE_E4(TMC26X)
       _TMC26X_INIT(E4);
     #endif
-    #if AXIS_DRIVER_TYPE(E5, TMC26X)
+    #if AXIS_DRIVER_TYPE_E5(TMC26X)
       _TMC26X_INIT(E5);
     #endif
   }
@@ -161,43 +165,43 @@
     #define TMC2130_DEFINE(ST) _TMC2130_DEFINE(ST, TMC_##ST##_LABEL)
   #endif
   // Stepper objects of TMC2130 steppers used
-  #if AXIS_DRIVER_TYPE(X, TMC2130)
+  #if AXIS_DRIVER_TYPE_X(TMC2130)
     TMC2130_DEFINE(X);
   #endif
-  #if AXIS_DRIVER_TYPE(X2, TMC2130)
+  #if AXIS_DRIVER_TYPE_X2(TMC2130)
     TMC2130_DEFINE(X2);
   #endif
-  #if AXIS_DRIVER_TYPE(Y, TMC2130)
+  #if AXIS_DRIVER_TYPE_Y(TMC2130)
     TMC2130_DEFINE(Y);
   #endif
-  #if AXIS_DRIVER_TYPE(Y2, TMC2130)
+  #if AXIS_DRIVER_TYPE_Y2(TMC2130)
     TMC2130_DEFINE(Y2);
   #endif
-  #if AXIS_DRIVER_TYPE(Z, TMC2130)
+  #if AXIS_DRIVER_TYPE_Z(TMC2130)
     TMC2130_DEFINE(Z);
   #endif
-  #if AXIS_DRIVER_TYPE(Z2, TMC2130)
+  #if AXIS_DRIVER_TYPE_Z2(TMC2130)
     TMC2130_DEFINE(Z2);
   #endif
-  #if AXIS_DRIVER_TYPE(Z3, TMC2130)
+  #if AXIS_DRIVER_TYPE_Z3(TMC2130)
     TMC2130_DEFINE(Z3);
   #endif
-  #if AXIS_DRIVER_TYPE(E0, TMC2130)
+  #if AXIS_DRIVER_TYPE_E0(TMC2130)
     TMC2130_DEFINE(E0);
   #endif
-  #if AXIS_DRIVER_TYPE(E1, TMC2130)
+  #if AXIS_DRIVER_TYPE_E1(TMC2130)
     TMC2130_DEFINE(E1);
   #endif
-  #if AXIS_DRIVER_TYPE(E2, TMC2130)
+  #if AXIS_DRIVER_TYPE_E2(TMC2130)
     TMC2130_DEFINE(E2);
   #endif
-  #if AXIS_DRIVER_TYPE(E3, TMC2130)
+  #if AXIS_DRIVER_TYPE_E3(TMC2130)
     TMC2130_DEFINE(E3);
   #endif
-  #if AXIS_DRIVER_TYPE(E4, TMC2130)
+  #if AXIS_DRIVER_TYPE_E4(TMC2130)
     TMC2130_DEFINE(E4);
   #endif
-  #if AXIS_DRIVER_TYPE(E5, TMC2130)
+  #if AXIS_DRIVER_TYPE_E5(TMC2130)
     TMC2130_DEFINE(E5);
   #endif
 
@@ -253,91 +257,91 @@
   #define TMC2208_DEFINE_SOFTWARE(ST) _TMC2208_DEFINE_SOFTWARE(ST, TMC_##ST##_LABEL)
 
   // Stepper objects of TMC2208 steppers used
-  #if AXIS_DRIVER_TYPE(X, TMC2208)
+  #if AXIS_DRIVER_TYPE_X(TMC2208)
     #ifdef X_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(X);
     #else
       TMC2208_DEFINE_SOFTWARE(X);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(X2, TMC2208)
+  #if AXIS_DRIVER_TYPE_X2(TMC2208)
     #ifdef X2_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(X2);
     #else
       TMC2208_DEFINE_SOFTWARE(X2);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(Y, TMC2208)
+  #if AXIS_DRIVER_TYPE_Y(TMC2208)
     #ifdef Y_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(Y);
     #else
       TMC2208_DEFINE_SOFTWARE(Y);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(Y2, TMC2208)
+  #if AXIS_DRIVER_TYPE_Y2(TMC2208)
     #ifdef Y2_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(Y2);
     #else
       TMC2208_DEFINE_SOFTWARE(Y2);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(Z, TMC2208)
+  #if AXIS_DRIVER_TYPE_Z(TMC2208)
     #ifdef Z_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(Z);
     #else
       TMC2208_DEFINE_SOFTWARE(Z);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(Z2, TMC2208)
+  #if AXIS_DRIVER_TYPE_Z2(TMC2208)
     #ifdef Z2_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(Z2);
     #else
       TMC2208_DEFINE_SOFTWARE(Z2);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(Z3, TMC2208)
+  #if AXIS_DRIVER_TYPE_Z3(TMC2208)
     #ifdef Z3_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(Z3);
     #else
       TMC2208_DEFINE_SOFTWARE(Z3);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(E0, TMC2208)
+  #if AXIS_DRIVER_TYPE_E0(TMC2208)
     #ifdef E0_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(E0);
     #else
       TMC2208_DEFINE_SOFTWARE(E0);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(E1, TMC2208)
+  #if AXIS_DRIVER_TYPE_E1(TMC2208)
     #ifdef E1_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(E1);
     #else
       TMC2208_DEFINE_SOFTWARE(E1);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(E2, TMC2208)
+  #if AXIS_DRIVER_TYPE_E2(TMC2208)
     #ifdef E2_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(E2);
     #else
       TMC2208_DEFINE_SOFTWARE(E2);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(E3, TMC2208)
+  #if AXIS_DRIVER_TYPE_E3(TMC2208)
     #ifdef E3_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(E3);
     #else
       TMC2208_DEFINE_SOFTWARE(E3);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(E4, TMC2208)
+  #if AXIS_DRIVER_TYPE_E4(TMC2208)
     #ifdef E4_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(E4);
     #else
       TMC2208_DEFINE_SOFTWARE(E4);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE(E5, TMC2208)
+  #if AXIS_DRIVER_TYPE_E5(TMC2208)
     #ifdef E5_HARDWARE_SERIAL
       TMC2208_DEFINE_HARDWARE(E5);
     #else
@@ -346,91 +350,91 @@
   #endif
 
   void tmc2208_serial_begin() {
-    #if AXIS_DRIVER_TYPE(X, TMC2208)
+    #if AXIS_DRIVER_TYPE_X(TMC2208)
       #ifdef X_HARDWARE_SERIAL
         X_HARDWARE_SERIAL.begin(115200);
       #else
         stepperX.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(X2, TMC2208)
+    #if AXIS_DRIVER_TYPE_X2(TMC2208)
       #ifdef X2_HARDWARE_SERIAL
         X2_HARDWARE_SERIAL.begin(115200);
       #else
         stepperX2.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(Y, TMC2208)
+    #if AXIS_DRIVER_TYPE_Y(TMC2208)
       #ifdef Y_HARDWARE_SERIAL
         Y_HARDWARE_SERIAL.begin(115200);
       #else
         stepperY.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(Y2, TMC2208)
+    #if AXIS_DRIVER_TYPE_Y2(TMC2208)
       #ifdef Y2_HARDWARE_SERIAL
         Y2_HARDWARE_SERIAL.begin(115200);
       #else
         stepperY2.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(Z, TMC2208)
+    #if AXIS_DRIVER_TYPE_Z(TMC2208)
       #ifdef Z_HARDWARE_SERIAL
         Z_HARDWARE_SERIAL.begin(115200);
       #else
         stepperZ.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(Z2, TMC2208)
+    #if AXIS_DRIVER_TYPE_Z2(TMC2208)
       #ifdef Z2_HARDWARE_SERIAL
         Z2_HARDWARE_SERIAL.begin(115200);
       #else
         stepperZ2.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(Z3, TMC2208)
+    #if AXIS_DRIVER_TYPE_Z3(TMC2208)
       #ifdef Z3_HARDWARE_SERIAL
         Z3_HARDWARE_SERIAL.begin(115200);
       #else
         stepperZ3.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(E0, TMC2208)
+    #if AXIS_DRIVER_TYPE_E0(TMC2208)
       #ifdef E0_HARDWARE_SERIAL
         E0_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE0.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(E1, TMC2208)
+    #if AXIS_DRIVER_TYPE_E1(TMC2208)
       #ifdef E1_HARDWARE_SERIAL
         E1_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE1.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(E2, TMC2208)
+    #if AXIS_DRIVER_TYPE_E2(TMC2208)
       #ifdef E2_HARDWARE_SERIAL
         E2_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE2.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(E3, TMC2208)
+    #if AXIS_DRIVER_TYPE_E3(TMC2208)
       #ifdef E3_HARDWARE_SERIAL
         E3_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE3.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(E4, TMC2208)
+    #if AXIS_DRIVER_TYPE_E4(TMC2208)
       #ifdef E4_HARDWARE_SERIAL
         E4_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE4.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE(E5, TMC2208)
+    #if AXIS_DRIVER_TYPE_E5(TMC2208)
       #ifdef E5_HARDWARE_SERIAL
         E5_HARDWARE_SERIAL.begin(115200);
       #else
@@ -502,40 +506,40 @@
   #endif
 
   // Stepper objects of TMC2660 steppers used
-  #if AXIS_DRIVER_TYPE(X, TMC2660)
+  #if AXIS_DRIVER_TYPE_X(TMC2660)
     TMC2660_DEFINE(X);
   #endif
-  #if AXIS_DRIVER_TYPE(X2, TMC2660)
+  #if AXIS_DRIVER_TYPE_X2(TMC2660)
     TMC2660_DEFINE(X2);
   #endif
-  #if AXIS_DRIVER_TYPE(Y, TMC2660)
+  #if AXIS_DRIVER_TYPE_Y(TMC2660)
     TMC2660_DEFINE(Y);
   #endif
-  #if AXIS_DRIVER_TYPE(Y2, TMC2660)
+  #if AXIS_DRIVER_TYPE_Y2(TMC2660)
     TMC2660_DEFINE(Y2);
   #endif
-  #if AXIS_DRIVER_TYPE(Z, TMC2660)
+  #if AXIS_DRIVER_TYPE_Z(TMC2660)
     TMC2660_DEFINE(Z);
   #endif
-  #if AXIS_DRIVER_TYPE(Z2, TMC2660)
+  #if AXIS_DRIVER_TYPE_Z2(TMC2660)
     TMC2660_DEFINE(Z2);
   #endif
-  #if AXIS_DRIVER_TYPE(E0, TMC2660)
+  #if AXIS_DRIVER_TYPE_E0(TMC2660)
     TMC2660_DEFINE(E0);
   #endif
-  #if AXIS_DRIVER_TYPE(E1, TMC2660)
+  #if AXIS_DRIVER_TYPE_E1(TMC2660)
     TMC2660_DEFINE(E1);
   #endif
-  #if AXIS_DRIVER_TYPE(E2, TMC2660)
+  #if AXIS_DRIVER_TYPE_E2(TMC2660)
     TMC2660_DEFINE(E2);
   #endif
-  #if AXIS_DRIVER_TYPE(E3, TMC2660)
+  #if AXIS_DRIVER_TYPE_E3(TMC2660)
     TMC2660_DEFINE(E3);
   #endif
-  #if AXIS_DRIVER_TYPE(E4, TMC2660)
+  #if AXIS_DRIVER_TYPE_E4(TMC2660)
     TMC2660_DEFINE(E4);
   #endif
-  #if AXIS_DRIVER_TYPE(E5, TMC2660)
+  #if AXIS_DRIVER_TYPE_E5(TMC2660)
     TMC2660_DEFINE(E5);
   #endif
 
@@ -600,11 +604,13 @@ void restore_stepper_drivers() {
 }
 
 void reset_stepper_drivers() {
+
   #if HAS_DRIVER(TMC26X)
     tmc26x_init_to_defaults();
   #endif
-  #if ENABLED(HAVE_L6470DRIVER)
-    L6470_init_to_defaults();
+
+  #if HAS_DRIVER(L6470)
+    L6470.init_to_defaults();
   #endif
 
   #if HAS_TRINAMIC
@@ -703,7 +709,9 @@ void reset_stepper_drivers() {
     TMC_ADV()
   #endif
 
-  stepper.set_directions();
+  #if HAS_TRINAMIC
+    stepper.set_directions();
+  #endif
 }
 
 //
@@ -711,99 +719,114 @@ void reset_stepper_drivers() {
 //
 #if HAS_DRIVER(L6470)
 
-  #include <SPI.h>
-  #include <L6470.h>
+  // create stepper objects
 
-  #define _L6470_DEFINE(ST) L6470 stepper##ST(ST##_ENABLE_PIN)
+  #define _L6470_DEFINE(ST) L6470 stepper##ST((const int)L6470_CHAIN_SS_PIN)
 
   // L6470 Stepper objects
-  #if AXIS_DRIVER_TYPE(X, L6470)
+  #if AXIS_DRIVER_TYPE_X(L6470)
     _L6470_DEFINE(X);
   #endif
-  #if AXIS_DRIVER_TYPE(X2, L6470)
+  #if AXIS_DRIVER_TYPE_X2(L6470)
     _L6470_DEFINE(X2);
   #endif
-  #if AXIS_DRIVER_TYPE(Y, L6470)
+  #if AXIS_DRIVER_TYPE_Y(L6470)
     _L6470_DEFINE(Y);
   #endif
-  #if AXIS_DRIVER_TYPE(Y2, L6470)
+  #if AXIS_DRIVER_TYPE_Y2(L6470)
     _L6470_DEFINE(Y2);
   #endif
-  #if AXIS_DRIVER_TYPE(Z, L6470)
+  #if AXIS_DRIVER_TYPE_Z(L6470)
     _L6470_DEFINE(Z);
   #endif
-  #if AXIS_DRIVER_TYPE(Z2, L6470)
+  #if AXIS_DRIVER_TYPE_Z2(L6470)
     _L6470_DEFINE(Z2);
   #endif
-  #if AXIS_DRIVER_TYPE(Z3, L6470)
+  #if AXIS_DRIVER_TYPE_Z3(L6470)
     _L6470_DEFINE(Z3);
   #endif
-  #if AXIS_DRIVER_TYPE(E0, L6470)
+  #if AXIS_DRIVER_TYPE_E0(L6470)
     _L6470_DEFINE(E0);
   #endif
-  #if AXIS_DRIVER_TYPE(E1, L6470)
+  #if AXIS_DRIVER_TYPE_E1(L6470)
     _L6470_DEFINE(E1);
   #endif
-  #if AXIS_DRIVER_TYPE(E2, L6470)
+  #if AXIS_DRIVER_TYPE_E2(L6470)
     _L6470_DEFINE(E2);
   #endif
-  #if AXIS_DRIVER_TYPE(E3, L6470)
+  #if AXIS_DRIVER_TYPE_E3(L6470)
     _L6470_DEFINE(E3);
   #endif
-  #if AXIS_DRIVER_TYPE(E4, L6470)
+  #if AXIS_DRIVER_TYPE_E4(L6470)
     _L6470_DEFINE(E4);
   #endif
-  #if AXIS_DRIVER_TYPE(E5, L6470)
+  #if AXIS_DRIVER_TYPE_E5(L6470)
     _L6470_DEFINE(E5);
   #endif
 
-  #define _L6470_INIT(A) do{ \
-    stepper##A.init(); \
-    stepper##A.softFree(); \
-    stepper##A.setMicroSteps(A##_MICROSTEPS); \
-    stepper##A.setOverCurrent(A##_OVERCURRENT); \
-    stepper##A.setStallCurrent(A##_STALLCURRENT); \
+  // not using L6470 library's init command because it
+  // briefly sends power to the steppers
+
+  #define _L6470_INIT_CHIP(Q) do{                             \
+    stepper##Q.resetDev();                                    \
+    stepper##Q.softFree();                                    \
+    stepper##Q.SetParam(L6470_CONFIG, CONFIG_PWM_DIV_1        \
+                                    | CONFIG_PWM_MUL_2        \
+                                    | CONFIG_SR_290V_us       \
+                                    | CONFIG_OC_SD_DISABLE    \
+                                    | CONFIG_VS_COMP_DISABLE  \
+                                    | CONFIG_SW_HARD_STOP     \
+                                    | CONFIG_INT_16MHZ);      \
+    stepper##Q.SetParam(L6470_KVAL_RUN, 0xFF);                \
+    stepper##Q.SetParam(L6470_KVAL_ACC, 0xFF);                \
+    stepper##Q.SetParam(L6470_KVAL_DEC, 0xFF);                \
+    stepper##Q.setMicroSteps(Q##_MICROSTEPS);                 \
+    stepper##Q.setOverCurrent(Q##_OVERCURRENT);               \
+    stepper##Q.setStallCurrent(Q##_STALLCURRENT);             \
+    stepper##Q.SetParam(L6470_KVAL_HOLD, Q##_MAX_VOLTAGE);    \
+    stepper##Q.SetParam(L6470_ABS_POS, 0);                    \
+    stepper##Q.getStatus();                                   \
   }while(0)
 
-  void L6470_init_to_defaults() {
-    #if AXIS_DRIVER_TYPE(X, L6470)
-      _L6470_INIT(X);
+  void L6470_Marlin::init_to_defaults() {
+    #if AXIS_DRIVER_TYPE_X(L6470)
+      _L6470_INIT_CHIP(X);
     #endif
-    #if AXIS_DRIVER_TYPE(X2, L6470)
-      _L6470_INIT(X2);
+    #if AXIS_DRIVER_TYPE_X2(L6470)
+      _L6470_INIT_CHIP(X2);
     #endif
-    #if AXIS_DRIVER_TYPE(Y, L6470)
-      _L6470_INIT(Y);
+    #if AXIS_DRIVER_TYPE_Y(L6470)
+      _L6470_INIT_CHIP(Y);
     #endif
-    #if AXIS_DRIVER_TYPE(Y2, L6470)
-      _L6470_INIT(Y2);
+    #if AXIS_DRIVER_TYPE_Y2(L6470)
+      _L6470_INIT_CHIP(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE(Z, L6470)
-      _L6470_INIT(Z);
+    #if AXIS_DRIVER_TYPE_Z(L6470)
+      _L6470_INIT_CHIP(Z);
     #endif
-    #if AXIS_DRIVER_TYPE(Z2, L6470)
-      _L6470_INIT(Z2);
+    #if AXIS_DRIVER_TYPE_Z2(L6470)
+      _L6470_INIT_CHIP(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE(Z3, L6470)
-      _L6470_INIT(Z3);
+    #if AXIS_DRIVER_TYPE_Z3(L6470)
+      _L6470_INIT_CHIP(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE(E0, L6470)
-      _L6470_INIT(E0);
+    #if AXIS_DRIVER_TYPE_E0(L6470)
+      _L6470_INIT_CHIP(E0);
     #endif
-    #if AXIS_DRIVER_TYPE(E1, L6470)
-      _L6470_INIT(E1);
+    #if AXIS_DRIVER_TYPE_E1(L6470)
+      _L6470_INIT_CHIP(E1);
     #endif
-    #if AXIS_DRIVER_TYPE(E2, L6470)
-      _L6470_INIT(E2);
+    #if AXIS_DRIVER_TYPE_E2(L6470)
+      _L6470_INIT_CHIP(E2);
     #endif
-    #if AXIS_DRIVER_TYPE(E3, L6470)
-      _L6470_INIT(E3);
+    #if AXIS_DRIVER_TYPE_E3(L6470)
+      _L6470_INIT_CHIP(E3);
     #endif
-    #if AXIS_DRIVER_TYPE(E4, L6470)
-      _L6470_INIT(E4);
+    #if AXIS_DRIVER_TYPE_E4(L6470)
+      _L6470_INIT_CHIP(E4);
     #endif
-    #if AXIS_DRIVER_TYPE(E5, L6470)
-      _L6470_INIT(E5);
+    #if AXIS_DRIVER_TYPE_E5(L6470)
+      _L6470_INIT_CHIP(E5);
     #endif
   }
 
