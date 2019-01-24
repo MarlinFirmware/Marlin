@@ -125,7 +125,7 @@
 #define PIN_P2_11          P2_11   // Interrupt Capable
 
 //
-// Prusa i3 MK2 Multi Material Multiplexer Support
+// Průša i3 MK2 Multi Material Multiplexer Support
 //
 #if ENABLED(MK2_MULTIPLEXER)
   #define E_MUX0_PIN       P1_23   // J8-3

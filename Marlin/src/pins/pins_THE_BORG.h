@@ -142,7 +142,7 @@
 //#define NEOPIXEL_PIN      PF13
 
 //
-// Prusa i3 MK2 Multi Material Multiplexer Support
+// Průša i3 MK2 Multi Material Multiplexer Support
 //
 
 #define E_MUX0_PIN         PG3
