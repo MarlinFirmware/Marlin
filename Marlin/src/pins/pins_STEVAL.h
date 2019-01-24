@@ -28,6 +28,7 @@
   #define MACHINE_NAME "STEVAL-3DP001V1"
 #endif
 
+#undef  TEMP_TIMER
 #define TEMP_TIMER 9 // the Marlin default of timer 7 doesn't exist on the STM32MF401 series
 
 //
