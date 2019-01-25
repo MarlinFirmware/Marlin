@@ -30,20 +30,20 @@
 
 #include "L6470_Marlin.h"
 
-L64XX_Marlin L64xx_MARLIN;
+extern L6470_Marlin L64helper;
 
 #include "../../module/stepper_indirection.h"
 #include "../../gcode/gcode.h"
 #include "../../module/planner.h"
 
-char L64XX_Marlin::index_to_axis[MAX_L6470][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
+const char * const L6470_Marlin::index_to_axis[MAX_L6470] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
 
-uint8_t L64XX_Marlin::dir_commands[MAX_L6470];  // array to hold direction command for each driver
+uint8_t L6470_Marlin::dir_commands[MAX_L6470];  // array to hold direction command for each driver
 
-bool L64XX_Marlin::index_to_dir[MAX_L6470] =  { INVERT_X_DIR                        ,  // 0 X
+bool L6470_Marlin::index_to_dir[MAX_L6470] =  { INVERT_X_DIR                        ,  // 0 X
                                                 INVERT_Y_DIR                        ,  // 1 Y
                                                 INVERT_Z_DIR                        ,  // 2 Z
                                                 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
@@ -66,10 +66,10 @@ bool L64XX_Marlin::index_to_dir[MAX_L6470] =  { INVERT_X_DIR                    
                                                 INVERT_E5_DIR                          //12 E5
                                               };
 
-volatile bool L64XX_Marlin::spi_abort = false;
-bool L64XX_Marlin::spi_active = false;
+volatile bool L6470_Marlin::spi_abort = false;
+bool L6470_Marlin::spi_active = false;
 
-L64XX_Marlin::L64XX_shadow_t L64XX_Marlin::shadow;
+L6470_Marlin::L64XX_shadow_t L6470_Marlin::shadow;
 
 //uint32_t UVLO_ADC = 0x0400; // ADC undervoltage event
 
@@ -118,7 +118,7 @@ void L6470_populate_chain_array() {
   #endif
 }
 
-void L64XX_Marlin::init() {               // Set up SPI and then init chips
+void L6470_Marlin::init() {               // Set up SPI and then init chips
   #ifdef L6470_RESET_CHAIN_PIN
     OUT_WRITE(L6470_RESET_CHAIN_PIN,0);   // hardware reset of drivers
     delay(1);
@@ -140,7 +140,7 @@ void L64XX_Marlin::init() {               // Set up SPI and then init chips
  *   3. copy status layout
  *   4. make all error bits active low (if needed)
  */
-uint16_t L64XX_Marlin::get_stepper_status(L64XX &st) {
+uint16_t L6470_Marlin::get_stepper_status(const L64XX &st) {
   shadow.STATUS_AXIS_RAW           = st.getStatus();
   shadow.STATUS_AXIS               = shadow.STATUS_AXIS_RAW;
   shadow.STATUS_AXIS_LAYOUT        = st.L6470_status_layout;
@@ -166,12 +166,11 @@ uint16_t L64XX_Marlin::get_stepper_status(L64XX &st) {
   return shadow.STATUS_AXIS;
 }
 
-uint16_t L64XX_Marlin::get_status(const L6470_axis_t axis) {
+uint16_t L6470_Marlin::get_status(const L6470_axis_t axis) {
 
   #define STATUS_L6470(Q) get_stepper_status(stepper##Q)
 
   switch (axis) {
-    default: break;
     #if AXIS_IS_L64XX(X)
       case X : return STATUS_L6470(X);
     #endif
@@ -216,12 +215,11 @@ uint16_t L64XX_Marlin::get_status(const L6470_axis_t axis) {
   return 0; // Not needed but kills a compiler warning
 }
 
-uint32_t L64XX_Marlin::get_param(const L6470_axis_t axis, const uint8_t param) {
+uint32_t L6470_Marlin::get_param(const L6470_axis_t axis, const uint8_t param) {
 
   #define GET_L6470_PARAM(Q) L6470_GETPARAM(param,Q)
 
   switch (axis) {
-    default: break;
     #if AXIS_IS_L64XX(X)
       case X : return GET_L6470_PARAM(X);
     #endif
@@ -266,12 +264,11 @@ uint32_t L64XX_Marlin::get_param(const L6470_axis_t axis, const uint8_t param) {
   return 0 ; // not needed but kills a compiler warning
 }
 
-void L64XX_Marlin::set_param(const L6470_axis_t axis, const uint8_t param, const uint32_t value) {
+void L6470_Marlin::set_param(const L6470_axis_t axis, const uint8_t param, const uint32_t value) {
 
   #define SET_L6470_PARAM(Q) stepper##Q.SetParam(param, value)
 
   switch (axis) {
-    default: break;
     #if AXIS_IS_L64XX(X)
       case X : SET_L6470_PARAM(X);
     #endif
@@ -326,7 +323,7 @@ inline void echo_oct_used(const float &oct, const bool stall) {
 }
 inline void err_out_of_bounds() { DEBUG_ECHOLNPGM("ERROR - motion out of bounds"); }
 
-bool L64XX_Marlin::get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3],  char axis_mon[3][3],
+bool L6470_Marlin::get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3], char* axis_mon[3],
                                  float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
                                  bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold
 ) {
@@ -565,7 +562,7 @@ bool L64XX_Marlin::get_user_input(uint8_t &driver_count, L6470_axis_t axis_index
 #endif
 
 /*
-char* L64XX_Marlin::index_to_axis(const uint8_t index) {
+char* L6470_Marlin::index_to_axis(const uint8_t index) {
   static PGM_P const _axis_string[MAX_L6470] = PROGMEM {
     PSTR("X "), PSTR("Y "), PSTR("Z "),
     PSTR("X2"), PSTR("Y2"), PSTR("Z2"), PSTR("Z3"),
@@ -575,7 +572,7 @@ char* L64XX_Marlin::index_to_axis(const uint8_t index) {
 }
 */
 
-void L64XX_Marlin::say_axis(const L6470_axis_t axis, const bool label/*=true*/) {
+void L6470_Marlin::say_axis(const L6470_axis_t axis, const bool label/*=true*/) {
   if (label) SERIAL_ECHOPGM("AXIS:");
   const char * const str = index_to_axis[axis];
   SERIAL_CHAR(' ');
@@ -584,13 +581,10 @@ void L64XX_Marlin::say_axis(const L6470_axis_t axis, const bool label/*=true*/) 
   SERIAL_CHAR(' ');
 }
 
-void L64XX_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t axis,
-      const uint16_t _status_axis_th_sd, const uint16_t _status_axis_th_wrn,
-      const uint16_t _status_axis_step_loss_a, const uint16_t _status_axis_step_loss_b,
-      const uint16_t _status_axis_ocd) {  // assumes status bits have been inverted
+void L6470_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t axis) {  // assumes status bits have been inverted
   #if ENABLED(L6470_CHITCHAT)
     char temp_buf[10];
-    L64xx_MARLIN.say_axis(axis);
+    L64helper.say_axis(axis);
     sprintf_P(temp_buf, PSTR("  %4x   "), status);
     DEBUG_ECHO(temp_buf);
     print_bin(status);
@@ -678,7 +672,7 @@ void L64XX_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t
     if (err) p += sprintf_P(p, err, NULL);
   }
 
-  void L64XX_Marlin::monitor_update(uint8_t stepper_index, uint16_t status) {
+  void L6470_Marlin::monitor_update(uint8_t stepper_index, uint16_t status) {
     if (spi_abort) return;  // don't do anything if set_directions() has occurred
     uint8_t kval_hold;
     char temp_buf[120];

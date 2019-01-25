@@ -74,9 +74,9 @@ inline uint8_t L6470_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
 }
 
 /**
- * L64XX methods for SPI init and transfer
+ * L64XXHelper methods for SPI init and transfer
  */
-void L64XX_Marlin::spi_init() {
+void L6470_Marlin::spi_init() {
   OUT_WRITE(L6470_CHAIN_SS_PIN, HIGH);
   OUT_WRITE(L6470_CHAIN_SCK_PIN, HIGH);
   OUT_WRITE(L6470_CHAIN_MOSI_PIN, HIGH);
@@ -89,7 +89,7 @@ void L64XX_Marlin::spi_init() {
   OUT_WRITE(L6470_CHAIN_MOSI_PIN, HIGH);
 }
 
-uint8_t L64XX_Marlin::transfer_single(uint8_t data, int16_t ss_pin) {
+uint8_t L6470_Marlin::transfer(uint8_t data, int16_t ss_pin) {
   // first device in chain has data sent last
   extDigitalWrite(ss_pin, LOW);
 
@@ -101,27 +101,27 @@ uint8_t L64XX_Marlin::transfer_single(uint8_t data, int16_t ss_pin) {
   return data_out;
 }
 
-uint8_t L64XX_Marlin::transfer_chain(uint8_t data, int16_t ss_pin, uint8_t chain_position) {
+uint8_t L6470_Marlin::transfer(uint8_t data, int16_t ss_pin, uint8_t chain_position) {
   uint8_t data_out = 0;
 
   // first device in chain has data sent last
-  extDigitalWrite(ss_pin, LOW);
+  digitalWrite(ss_pin, LOW);
 
-  for (uint8_t i = L64XX::chain[0]; (i >= 1) && !L64xx_MARLIN.spi_abort; i--) {    // stop sending data if spi_abort is active
+  for (uint8_t i = L64XX::chain[0]; (i >= 1) && !L64helper.spi_abort; i--) {    // stop sending data if spi_abort is active
     DISABLE_ISRS();  // disable interrupts during SPI transfer (can't allow partial command to chips)
     const uint8_t temp = L6470_SpiTransfer_Mode_3(uint8_t(i == chain_position ? data : dSPIN_NOP));
     ENABLE_ISRS();  // enable interrupts
     if (i == chain_position) data_out = temp;
   }
 
-  extDigitalWrite(ss_pin, HIGH);
+  digitalWrite(ss_pin, HIGH);
   return data_out;
 }
 
 /**
  * Platform-supplied L6470 buffer transfer method
  */
-void L64XX_Marlin::transfer(uint8_t L6470_buf[], const uint8_t length) {
+void L6470_Marlin::transfer(uint8_t L6470_buf[], const uint8_t length) {
     // First device in chain has its data sent last
 
     if (spi_active) {        // interrupted SPI transfer so need to

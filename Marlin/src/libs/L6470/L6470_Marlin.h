@@ -35,9 +35,9 @@
 
 typedef enum : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 } L6470_axis_t;
 
-class L64XX_Marlin : public L64XXHelper {
+class L6470_Marlin : public L64XXHelper {
 public:
-  static char index_to_axis[MAX_L6470][3];
+  static const char * const index_to_axis[MAX_L6470];
 
   static bool index_to_dir[MAX_L6470];
   static uint8_t dir_commands[MAX_L6470];
@@ -46,12 +46,12 @@ public:
   static volatile bool spi_abort;
   static bool spi_active;
 
-  L64XX_Marlin() {}
+  L6470_Marlin() { L64XX::set_helper(*this); }
 
   static void init();
   static void init_to_defaults();
 
-  static uint16_t get_stepper_status(L64XX &st);
+  static uint16_t get_stepper_status(const L64XX &st);
 
   static uint16_t get_status(const L6470_axis_t axis);
 
@@ -61,7 +61,7 @@ public:
 
   //static void send_command(const L6470_axis_t axis, uint8_t command);
 
-  static bool get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3], char axis_mon[3][3],
+  static bool get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3], char* axis_mon[3],
                             float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
                             bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold);
 
@@ -73,10 +73,7 @@ public:
 
   //static char* index_to_axis(const uint8_t index);
   static void say_axis(const L6470_axis_t axis, const bool label=true);
-  static void error_status_decode(const uint16_t status, const L6470_axis_t axis,
-      const uint16_t _status_axis_th_sd, const uint16_t _status_axis_th_wrn,
-      const uint16_t _status_axis_step_loss_a, const uint16_t _status_axis_step_loss_b,
-      const uint16_t _status_axis_ocd);
+  static void error_status_decode(const uint16_t status, const L6470_axis_t axis);
 
   // ~40 bytes SRAM to simplify status decode routines
   typedef struct {
@@ -104,12 +101,13 @@ public:
 
   static L64XX_shadow_t shadow;
 
-//protected:
+  //static uint32_t UVLO_ADC;               // ADC undervoltage event
+
+protected:
   // L64XXHelper methods
   static void spi_init();
-  static uint8_t transfer_single(uint8_t data, int16_t ss_pin);
-  static uint8_t transfer_chain(uint8_t data, int16_t ss_pin, uint8_t chain_position);
-
+  static uint8_t transfer(uint8_t data, int16_t ss_pin);
+  static uint8_t transfer(uint8_t data, int16_t ss_pin, uint8_t chain_position);
 };
 
-extern L64XX_Marlin L64xx_MARLIN;
+extern L6470_Marlin L64helper;

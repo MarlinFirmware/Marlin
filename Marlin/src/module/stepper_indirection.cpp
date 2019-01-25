@@ -915,7 +915,7 @@ void reset_stepper_drivers() {
   #endif
 
   #if HAS_L64XX
-    L64xx_MARLIN.init_to_defaults();
+    L64helper.init_to_defaults();
   #endif
 
   #if HAS_TRINAMIC
@@ -1068,7 +1068,6 @@ void reset_stepper_drivers() {
   // briefly sends power to the steppers
 
   inline void L6470_init_chip(L64XX &st, const int ms, const int oc, const int sc, const int mv, const int slew_rate) {
-    st.set_handlers(L64xx_MARLIN.spi_init, L64xx_MARLIN.transfer_single, L64xx_MARLIN.transfer_chain);  // specify which external SPI routines to use
     st.resetDev();
     st.softFree();
     st.SetParam(st.L64XX_CONFIG, CONFIG_PWM_DIV_1 | CONFIG_PWM_MUL_2 | CONFIG_OC_SD_DISABLE | CONFIG_VS_COMP_DISABLE | CONFIG_SW_HARD_STOP | CONFIG_INT_16MHZ);
@@ -1090,13 +1089,9 @@ void reset_stepper_drivers() {
         case 3:
         case 2: st.SetParam(st.L64XX_CONFIG, config_temp | CONFIG_SR_260V_us); break;
       }
-      st.getStatus();
-      st.getStatus();
     }
     else {
       st.SetParam(st.L64XX_CONFIG,(st.GetParam(st.L64XX_CONFIG) | PWR_VCC_7_5V));
-      st.getStatus();     // must clear out status bits before can set slew rate
-      st.getStatus();
       switch (slew_rate) {
         case 0: st.SetParam(L6470_GATECFG1, CONFIG1_SR_220V_us); st.SetParam(L6470_GATECFG2, CONFIG2_SR_220V_us); break;
         default:
@@ -1105,11 +1100,13 @@ void reset_stepper_drivers() {
         case 3: st.SetParam(L6470_GATECFG1, CONFIG1_SR_980V_us); st.SetParam(L6470_GATECFG2, CONFIG2_SR_980V_us); break;
       }
     }
+    st.getStatus();
+    st.getStatus();
   }
 
   #define L6470_INIT_CHIP(Q) L6470_init_chip(stepper##Q, Q##_MICROSTEPS, Q##_OVERCURRENT, Q##_STALLCURRENT, Q##_MAX_VOLTAGE, Q##_SLEW_RATE)
 
-  void L64XX_Marlin::init_to_defaults() {
+  void L6470_Marlin::init_to_defaults() {
     #if AXIS_IS_L64XX(X)
       L6470_INIT_CHIP(X);
     #endif

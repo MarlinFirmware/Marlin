@@ -84,7 +84,7 @@
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI
 #if HAS_L64XX
   #include "../libs/L6470/L6470_Marlin.h"
-  #define L6470_WRITE_DIR_COMMAND(STATE,Q) do{ L64xx_MARLIN.dir_commands[Q] = (STATE ?  dSPIN_STEP_CLOCK_REV : dSPIN_STEP_CLOCK_FWD); }while(0)
+  #define L6470_WRITE_DIR_COMMAND(STATE,Q) do{ L64helper.dir_commands[Q] = (STATE ?  dSPIN_STEP_CLOCK_REV : dSPIN_STEP_CLOCK_FWD); }while(0)
 #endif
 
 void restore_stepper_drivers();  // Called by PSU_ON
