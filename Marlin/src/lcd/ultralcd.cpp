@@ -260,7 +260,7 @@ void MarlinUI::init() {
     encoderDiff = 0;
   #endif
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC && HAS_LCD_MENU
     init_tmc_section();
   #endif
 }

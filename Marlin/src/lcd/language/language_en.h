@@ -169,17 +169,17 @@
 #ifndef MSG_COOLDOWN
   #define MSG_COOLDOWN                        _UxGT("Cooldown")
 #endif
-#ifndef MSG_LASER
-  #define MSG_LASER                           _UxGT("Laser")
+#ifndef MSG_LASER_MENU
+  #define MSG_LASER_MENU                      _UxGT("Laser Control")
 #endif
 #ifndef MSG_LASER_OFF
-  #define MSG_LASER_OFF                       MSG_LASER _UxGT(" Off")
+  #define MSG_LASER_OFF                       _UxGT("Laser Off")
 #endif
 #ifndef MSG_LASER_ON
-  #define MSG_LASER_ON                        MSG_LASER _UxGT(" On")
+  #define MSG_LASER_ON                        _UxGT("Laser On")
 #endif
 #ifndef MSG_LASER_POWER
-  #define MSG_LASER_POWER                     MSG_LASER _UxGT(" power")
+  #define MSG_LASER_POWER                     _UxGT("Laser power")
 #endif
 #ifndef MSG_SPINDLE_REVERSE
   #define MSG_SPINDLE_REVERSE                 _UxGT("Spindle Reverse")

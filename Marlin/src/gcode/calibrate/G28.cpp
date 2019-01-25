@@ -45,6 +45,10 @@
 
 #include "../../lcd/ultralcd.h"
 
+#if HAS_DRIVER(L6470)                         // set L6470 absolute position registers to counts
+  #include "../../libs/L6470/L6470_Marlin.h"
+#endif
+
 #if ENABLED(QUICK_HOME)
 
   static void quick_home_xy() {
@@ -439,5 +443,13 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G28");
+  #endif
+
+  #if HAS_DRIVER(L6470)
+    // Set L6470 absolute position registers to counts
+    for (uint8_t j = 1; j <= L6470::chain[0]; j++) {
+      const uint8_t cv = L6470::chain[j];
+      L6470.set_param(cv, L6470_ABS_POS, stepper.position((AxisEnum)L6470.axis_xref[cv]));
+    }
   #endif
 }

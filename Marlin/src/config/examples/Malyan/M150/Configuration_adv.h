@@ -1236,57 +1236,83 @@
  */
 #if HAS_DRIVER(TMC26X)
 
-  #define X_MAX_CURRENT     1000 // in mA
-  #define X_SENSE_RESISTOR    91 // in mOhms
-  #define X_MICROSTEPS        16 // number of microsteps
+  #if AXIS_DRIVER_TYPE_X(TMC26X)
+    #define X_MAX_CURRENT     1000  // (mA)
+    #define X_SENSE_RESISTOR    91  // (mOhms)
+    #define X_MICROSTEPS        16  // Number of microsteps
+  #endif
 
-  #define X2_MAX_CURRENT    1000
-  #define X2_SENSE_RESISTOR   91
-  #define X2_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_X2(TMC26X)
+    #define X2_MAX_CURRENT    1000
+    #define X2_SENSE_RESISTOR   91
+    #define X2_MICROSTEPS       16
+  #endif
 
-  #define Y_MAX_CURRENT     1000
-  #define Y_SENSE_RESISTOR    91
-  #define Y_MICROSTEPS        16
+  #if AXIS_DRIVER_TYPE_Y(TMC26X)
+    #define Y_MAX_CURRENT     1000
+    #define Y_SENSE_RESISTOR    91
+    #define Y_MICROSTEPS        16
+  #endif
 
-  #define Y2_MAX_CURRENT    1000
-  #define Y2_SENSE_RESISTOR   91
-  #define Y2_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_Y2(TMC26X)
+    #define Y2_MAX_CURRENT    1000
+    #define Y2_SENSE_RESISTOR   91
+    #define Y2_MICROSTEPS       16
+  #endif
 
-  #define Z_MAX_CURRENT     1000
-  #define Z_SENSE_RESISTOR    91
-  #define Z_MICROSTEPS        16
+  #if AXIS_DRIVER_TYPE_Z(TMC26X)
+    #define Z_MAX_CURRENT     1000
+    #define Z_SENSE_RESISTOR    91
+    #define Z_MICROSTEPS        16
+  #endif
 
-  #define Z2_MAX_CURRENT    1000
-  #define Z2_SENSE_RESISTOR   91
-  #define Z2_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_Z2(TMC26X)
+    #define Z2_MAX_CURRENT    1000
+    #define Z2_SENSE_RESISTOR   91
+    #define Z2_MICROSTEPS       16
+  #endif
 
-  #define Z3_MAX_CURRENT    1000
-  #define Z3_SENSE_RESISTOR   91
-  #define Z3_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_Z3(TMC26X)
+    #define Z3_MAX_CURRENT    1000
+    #define Z3_SENSE_RESISTOR   91
+    #define Z3_MICROSTEPS       16
+  #endif
 
-  #define E0_MAX_CURRENT    1000
-  #define E0_SENSE_RESISTOR   91
-  #define E0_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_E0(TMC26X)
+    #define E0_MAX_CURRENT    1000
+    #define E0_SENSE_RESISTOR   91
+    #define E0_MICROSTEPS       16
+  #endif
 
-  #define E1_MAX_CURRENT    1000
-  #define E1_SENSE_RESISTOR   91
-  #define E1_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_E1(TMC26X)
+    #define E1_MAX_CURRENT    1000
+    #define E1_SENSE_RESISTOR   91
+    #define E1_MICROSTEPS       16
+  #endif
 
-  #define E2_MAX_CURRENT    1000
-  #define E2_SENSE_RESISTOR   91
-  #define E2_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_E2(TMC26X)
+    #define E2_MAX_CURRENT    1000
+    #define E2_SENSE_RESISTOR   91
+    #define E2_MICROSTEPS       16
+  #endif
 
-  #define E3_MAX_CURRENT    1000
-  #define E3_SENSE_RESISTOR   91
-  #define E3_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_E3(TMC26X)
+    #define E3_MAX_CURRENT    1000
+    #define E3_SENSE_RESISTOR   91
+    #define E3_MICROSTEPS       16
+  #endif
 
-  #define E4_MAX_CURRENT    1000
-  #define E4_SENSE_RESISTOR   91
-  #define E4_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_E4(TMC26X)
+    #define E4_MAX_CURRENT    1000
+    #define E4_SENSE_RESISTOR   91
+    #define E4_MICROSTEPS       16
+  #endif
 
-  #define E5_MAX_CURRENT    1000
-  #define E5_SENSE_RESISTOR   91
-  #define E5_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_E5(TMC26X)
+    #define E5_MAX_CURRENT    1000
+    #define E5_SENSE_RESISTOR   91
+    #define E5_MICROSTEPS       16
+  #endif
 
 #endif // TMC26X
 
@@ -1313,44 +1339,70 @@
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
   #define INTERPOLATE       true  // Interpolate X/Y/Z_MICROSTEPS to 256
 
-  #define X_CURRENT          800  // rms current in mA. Multiply by 1.41 for peak current.
-  #define X_MICROSTEPS        16  // 0..256
+  #if AXIS_IS_TMC(X)
+    #define X_CURRENT     800  // (mA) RMS current. Multiply by 1.414 for peak current.
+    #define X_MICROSTEPS   16  // 0..256
+  #endif
 
-  #define Y_CURRENT          800
-  #define Y_MICROSTEPS        16
+  #if AXIS_IS_TMC(X2)
+    #define X2_CURRENT    800
+    #define X2_MICROSTEPS  16
+  #endif
 
-  #define Z_CURRENT          800
-  #define Z_MICROSTEPS        16
+  #if AXIS_IS_TMC(Y)
+    #define Y_CURRENT     800
+    #define Y_MICROSTEPS   16
+  #endif
 
-  #define X2_CURRENT         800
-  #define X2_MICROSTEPS       16
+  #if AXIS_IS_TMC(Y2)
+    #define Y2_CURRENT    800
+    #define Y2_MICROSTEPS  16
+  #endif
 
-  #define Y2_CURRENT         800
-  #define Y2_MICROSTEPS       16
+  #if AXIS_IS_TMC(Z)
+    #define Z_CURRENT     800
+    #define Z_MICROSTEPS   16
+  #endif
 
-  #define Z2_CURRENT         800
-  #define Z2_MICROSTEPS       16
+  #if AXIS_IS_TMC(Z2)
+    #define Z2_CURRENT    800
+    #define Z2_MICROSTEPS  16
+  #endif
 
-  #define Z3_CURRENT         800
-  #define Z3_MICROSTEPS       16
+  #if AXIS_IS_TMC(Z3)
+    #define Z3_CURRENT    800
+    #define Z3_MICROSTEPS  16
+  #endif
 
-  #define E0_CURRENT         800
-  #define E0_MICROSTEPS       16
+  #if AXIS_IS_TMC(E0)
+    #define E0_CURRENT    800
+    #define E0_MICROSTEPS  16
+  #endif
 
-  #define E1_CURRENT         800
-  #define E1_MICROSTEPS       16
+  #if AXIS_IS_TMC(E1)
+    #define E1_CURRENT    800
+    #define E1_MICROSTEPS  16
+  #endif
 
-  #define E2_CURRENT         800
-  #define E2_MICROSTEPS       16
+  #if AXIS_IS_TMC(E2)
+    #define E2_CURRENT    800
+    #define E2_MICROSTEPS  16
+  #endif
 
-  #define E3_CURRENT         800
-  #define E3_MICROSTEPS       16
+  #if AXIS_IS_TMC(E3)
+    #define E3_CURRENT    800
+    #define E3_MICROSTEPS  16
+  #endif
 
-  #define E4_CURRENT         800
-  #define E4_MICROSTEPS       16
+  #if AXIS_IS_TMC(E4)
+    #define E4_CURRENT    800
+    #define E4_MICROSTEPS  16
+  #endif
 
-  #define E5_CURRENT         800
-  #define E5_MICROSTEPS       16
+  #if AXIS_IS_TMC(E5)
+    #define E5_CURRENT    800
+    #define E5_MICROSTEPS  16
+  #endif
 
   /**
    * Override default SPI pins for TMC2130 and TMC2660 drivers here.
@@ -1508,62 +1560,146 @@
 /**
  * L6470 Stepper Driver options
  *
- * The Arduino-L6470 library is required for this stepper driver.
+ * Arduino-L6470 library (0.7.0 or higher) is required for this stepper driver.
  * https://github.com/ameyer/Arduino-L6470
+ *
+ * Requires the following to be defined in your pins_YOUR_BOARD file
+ *     L6470_CHAIN_SCK_PIN
+ *     L6470_CHAIN_MISO_PIN
+ *     L6470_CHAIN_MOSI_PIN
+ *     L6470_CHAIN_SS_PIN
+ *     L6470_RESET_CHAIN_PIN  (optional)
  */
 #if HAS_DRIVER(L6470)
 
-  #define X_MICROSTEPS        16 // number of microsteps
-  #define X_OVERCURRENT     2000 // maxc current in mA. If the current goes over this value, the driver will switch off
-  #define X_STALLCURRENT    1500 // current in mA where the driver will detect a stall
+  //#define L6470_CHITCHAT        // Display additional status info
 
-  #define X2_MICROSTEPS       16
-  #define X2_OVERCURRENT    2000
-  #define X2_STALLCURRENT   1500
+  #if AXIS_DRIVER_TYPE_X(L6470)
+    #define X_MICROSTEPS     128  // Number of microsteps (VALID: 1, 2, 4, 8, 16, 32, 128)
+    #define X_OVERCURRENT   2000  // (mA) Current where the driver detects an over current (VALID: 375 x (1 - 16) - 6A max - rounds down)
+    #define X_STALLCURRENT  1500  // (mA) Current where the driver detects a stall (VALID: 31.25 * (1-128) -  4A max - rounds down)
+    #define X_MAX_VOLTAGE    127  // 0-255, Maximum effective voltage seen by stepper
+    #define X_CHAIN_POS        0  // Position in SPI chain, 0=Not in chain, 1=Nearest MOSI
+  #endif
 
-  #define Y_MICROSTEPS        16
-  #define Y_OVERCURRENT     2000
-  #define Y_STALLCURRENT    1500
+  #if AXIS_DRIVER_TYPE_X2(L6470)
+    #define X2_MICROSTEPS      128
+    #define X2_OVERCURRENT    2000
+    #define X2_STALLCURRENT   1500
+    #define X2_MAX_VOLTAGE     127
+    #define X2_CHAIN_POS         0
+  #endif
 
-  #define Y2_MICROSTEPS       16
-  #define Y2_OVERCURRENT    2000
-  #define Y2_STALLCURRENT   1500
+  #if AXIS_DRIVER_TYPE_Y(L6470)
+    #define Y_MICROSTEPS       128
+    #define Y_OVERCURRENT     2000
+    #define Y_STALLCURRENT    1500
+    #define Y_MAX_VOLTAGE      127
+    #define Y_CHAIN_POS          0
+  #endif
 
-  #define Z_MICROSTEPS        16
-  #define Z_OVERCURRENT     2000
-  #define Z_STALLCURRENT    1500
+  #if AXIS_DRIVER_TYPE_Y2(L6470)
+    #define Y2_MICROSTEPS      128
+    #define Y2_OVERCURRENT    2000
+    #define Y2_STALLCURRENT   1500
+    #define Y2_MAX_VOLTAGE     127
+    #define Y2_CHAIN_POS         0
+  #endif
 
-  #define Z2_MICROSTEPS       16
-  #define Z2_OVERCURRENT    2000
-  #define Z2_STALLCURRENT   1500
+  #if AXIS_DRIVER_TYPE_Z(L6470)
+    #define Z_MICROSTEPS       128
+    #define Z_OVERCURRENT     2000
+    #define Z_STALLCURRENT    1500
+    #define Z_MAX_VOLTAGE      127
+    #define Z_CHAIN_POS          0
+  #endif
 
-  #define Z3_MICROSTEPS       16
-  #define Z3_OVERCURRENT    2000
-  #define Z3_STALLCURRENT   1500
+  #if AXIS_DRIVER_TYPE_Z2(L6470)
+    #define Z2_MICROSTEPS      128
+    #define Z2_OVERCURRENT    2000
+    #define Z2_STALLCURRENT   1500
+    #define Z2_MAX_VOLTAGE     127
+    #define Z2_CHAIN_POS         0
+  #endif
 
-  #define E0_MICROSTEPS       16
-  #define E0_OVERCURRENT    2000
-  #define E0_STALLCURRENT   1500
+  #if AXIS_DRIVER_TYPE_Z3(L6470)
+    #define Z3_MICROSTEPS      128
+    #define Z3_OVERCURRENT    2000
+    #define Z3_STALLCURRENT   1500
+    #define Z3_MAX_VOLTAGE     127
+    #define Z3_CHAIN_POS         0
+  #endif
 
-  #define E1_MICROSTEPS       16
-  #define E1_OVERCURRENT    2000
-  #define E1_STALLCURRENT   1500
+  #if AXIS_DRIVER_TYPE_E0(L6470)
+    #define E0_MICROSTEPS      128
+    #define E0_OVERCURRENT    2000
+    #define E0_STALLCURRENT   1500
+    #define E0_MAX_VOLTAGE     127
+    #define E0_CHAIN_POS         0
+  #endif
 
-  #define E2_MICROSTEPS       16
-  #define E2_OVERCURRENT    2000
-  #define E2_STALLCURRENT   1500
+  #if AXIS_DRIVER_TYPE_E1(L6470)
+    #define E1_MICROSTEPS      128
+    #define E1_OVERCURRENT    2000
+    #define E1_STALLCURRENT   1500
+    #define E1_MAX_VOLTAGE     127
+    #define E1_CHAIN_POS         0
+  #endif
 
-  #define E3_MICROSTEPS       16
-  #define E3_OVERCURRENT    2000
-  #define E3_STALLCURRENT   1500
+  #if AXIS_DRIVER_TYPE_E2(L6470)
+    #define E2_MICROSTEPS      128
+    #define E2_OVERCURRENT    2000
+    #define E2_STALLCURRENT   1500
+    #define E2_MAX_VOLTAGE     127
+    #define E2_CHAIN_POS         0
+  #endif
 
-  #define E4_MICROSTEPS       16
-  #define E4_OVERCURRENT    2000
-  #define E4_STALLCURRENT   1500
+  #if AXIS_DRIVER_TYPE_E3(L6470)
+    #define E3_MICROSTEPS      128
+    #define E3_OVERCURRENT    2000
+    #define E3_STALLCURRENT   1500
+    #define E3_MAX_VOLTAGE     127
+    #define E3_CHAIN_POS         0
+  #endif
 
-  #define E5_MICROSTEPS       16
-  #define E5_OVERCURRENT    2000
-  #define E5_STALLCURRENT   1500
+  #if AXIS_DRIVER_TYPE_E4(L6470)
+    #define E4_MICROSTEPS      128
+    #define E4_OVERCURRENT    2000
+    #define E4_STALLCURRENT   1500
+    #define E4_MAX_VOLTAGE     127
+    #define E4_CHAIN_POS         0
+  #endif
+
+  #if AXIS_DRIVER_TYPE_E5(L6470)
+    #define E5_MICROSTEPS      128
+    #define E5_OVERCURRENT    2000
+    #define E5_STALLCURRENT   1500
+    #define E5_MAX_VOLTAGE     127
+    #define E5_CHAIN_POS         0
+  #endif
+
+  /**
+   * Monitor L6470 drivers for error conditions like over temperature and over current.
+   * In the case of over temperature Marlin can decrease the drive until the error condition clears.
+   * Other detected conditions can be used to stop the current print.
+   * Relevant g-codes:
+   * M906 - I1/2/3/4/5  Set or get motor drive level using axis codes X, Y, Z, E. Report values if no axis codes given.
+   *         I not present or I0 or I1 - X, Y, Z or E0
+   *         I2 - X2, Y2, Z2 or E1
+   *         I3 - Z3 or E3
+   *         I4 - E4
+   *         I5 - E5
+   * M916 - Increase drive level until get thermal warning
+   * M917 - Find minimum current thresholds
+   * M918 - Increase speed until max or error
+   * M122 S0/1 - Report driver parameters
+   */
+  //#define MONITOR_L6470_DRIVER_STATUS
+
+  #if ENABLED(MONITOR_L6470_DRIVER_STATUS)
+    #define KVAL_HOLD_STEP_DOWN     1
+    //#define L6470_STOP_ON_ERROR
+  #endif
 
 #endif // L6470
 

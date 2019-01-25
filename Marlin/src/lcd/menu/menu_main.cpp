@@ -135,7 +135,7 @@ void menu_main() {
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
     MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
-    
+
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
     MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
   }

@@ -441,3 +441,10 @@ void safe_delay(millis_t ms) {
   }
 
 #endif // DEBUG_LEVELING_FEATURE
+
+void print_bin(const uint16_t val) {
+  for (uint8_t i = 16; i--;) {
+    SERIAL_ECHO(TEST(val, i));
+    if (!(i & 0x3)) SERIAL_CHAR(' ');
+  }
+}

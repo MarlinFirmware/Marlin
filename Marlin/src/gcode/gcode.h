@@ -240,6 +240,8 @@
  * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
  * M914 - Set StallGuard sensitivity. (Requires SENSORLESS_HOMING or SENSORLESS_PROBING)
+ * M917 - L6470 tuning: Find minimum current thresholds
+ * M918 - L6470 tuning: Increase speed until max or error
  *
  * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
  * M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
@@ -810,6 +812,14 @@ private:
     #if USE_SENSORLESS
       static void M914();
     #endif
+  #endif
+
+  #if HAS_DRIVER(L6470)
+    static void M122();
+    static void M906();
+    static void M916();
+    static void M917();
+    static void M918();
   #endif
 
   #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || ENABLED(DIGIPOT_I2C) || ENABLED(DAC_STEPPER_CURRENT)

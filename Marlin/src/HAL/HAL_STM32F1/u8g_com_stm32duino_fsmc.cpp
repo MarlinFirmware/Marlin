@@ -26,10 +26,11 @@
  * Communication interface for FSMC
  */
 
+#if defined(STM32F1) || defined(STM32F1xx)
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_GRAPHICAL_LCD
-#if defined(STM32F1) || defined(STM32F1xx)
 
 #include "U8glib.h"
 #include "libmaple/fsmc.h"
@@ -227,29 +228,30 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
 }
 
 void LCD_IO_WriteData(uint16_t RegValue) {
-	LCD->RAM = RegValue;
-	__DSB();
+  LCD->RAM = RegValue;
+  __DSB();
 }
 
 void LCD_IO_WriteReg(uint8_t Reg) {
-	LCD->REG = (uint16_t)Reg;
-	__DSB();
+  LCD->REG = (uint16_t)Reg;
+  __DSB();
 }
 
 uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize) {
-	volatile uint32_t data;
-	LCD->REG = (uint16_t)RegValue;
-	__DSB();
+  volatile uint32_t data;
+  LCD->REG = (uint16_t)RegValue;
+  __DSB();
 
-	data = LCD->RAM; // dummy read
-	data = LCD->RAM & 0x00FF;
+  data = LCD->RAM; // dummy read
+  data = LCD->RAM & 0x00FF;
 
-	while (--ReadSize) {
-		data <<= 8;
-		data |= (LCD->RAM & 0x00FF);
-	}
-	return (uint32_t)data;
+  while (--ReadSize) {
+    data <<= 8;
+    data |= (LCD->RAM & 0x00FF);
+  }
+  return (uint32_t)data;
 }
 
-#endif // STM32F1 || STM32F1xx
 #endif // HAS_GRAPHICAL_LCD
+
+#endif // STM32F1 || STM32F1xx
