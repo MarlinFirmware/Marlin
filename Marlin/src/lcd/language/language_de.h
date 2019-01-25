@@ -77,7 +77,7 @@
 #define MSG_LASER_OFF                       _UxGT("Laser aus")
 #define MSG_LASER_ON                        _UxGT("Laser an")
 #define MSG_LASER_POWER                     _UxGT("Laserleistung")
-#define MSG_SPINDLE_REVERSE                 _UxGT("Spindel Richtung")
+#define MSG_SPINDLE_REVERSE                 _UxGT("Spindelrichtung")
 #define MSG_SWITCH_PS_ON                    _UxGT("Netzteil ein")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Netzteil aus")
 #define MSG_EXTRUDE                         _UxGT("Extrudieren")
