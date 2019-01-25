@@ -630,7 +630,8 @@ inline void get_serial_commands() {
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          else if (card.flag.saving && command[0] == 'M' && command[1] == '2' && command[2] == '9' && (command[3] == '\0' || command[3] == ' '))
+          // Pronterface "M29" and "M29 " has no line number 
+          else if (card.flag.saving && !(command[0] == 'M' && command[1] == '2' && command[2] == '9' && (command[3] == '\0' || command[3] == ' ')))
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
