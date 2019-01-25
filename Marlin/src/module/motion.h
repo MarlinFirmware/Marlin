@@ -101,6 +101,8 @@ FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_by
   FORCE_INLINE type array(AxisEnum axis) { return pgm_read_any(&array##_P[axis]); } \
   typedef void __void_##CONFIG##__
 
+//#define XYZ_CONSTS(type, array, CONFIG) constexpr type array##_P[XYZ] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG }
+
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
 XYZ_DEFS(float, base_max_pos,   MAX_POS);
 XYZ_DEFS(float, base_home_pos,  HOME_POS);

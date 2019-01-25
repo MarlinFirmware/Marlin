@@ -30,11 +30,11 @@
 
 #include "L6470_Marlin.h"
 
-L6470_Marlin L6470;
+L6470_Marlin Marlin_L6470;
 
-#include "../stepper_indirection.h"
+#include "../../module/stepper_indirection.h"
 #include "../../gcode/gcode.h"
-#include "../planner.h"
+#include "../../module/planner.h"
 
 uint8_t L6470_Marlin::dir_commands[MAX_L6470];  // array to hold direction command for each driver
 
@@ -83,7 +83,9 @@ uint8_t L6470_Marlin::axis_xref[MAX_L6470] = {
 volatile bool L6470_Marlin::spi_abort = false;
 bool L6470_Marlin::spi_active = false;
 
-void L6470_Marlin::populate_chain_array() {
+void L6470_spi_init();
+
+void populate_chain_array() {
 
   #define _L6470_INIT_SPI(Q)  do{ stepper##Q.set_chain_info(Q, Q##_CHAIN_POS); }while(0)
 
@@ -409,8 +411,8 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
   //
   for (uint8_t k = 0; k < driver_count; k++) {
     bool not_found = true;
-    for (j = 1; j <= L6470::chain[0]; j++) {
-      const char * const ind_axis = index_to_axis[L6470::chain[j]];
+    for (j = 1; j <= L6470_chain[0]; j++) {
+      const char * const ind_axis = index_to_axis[L6470_chain[j]];
       if (ind_axis[0] == axis_mon[k][0] && ind_axis[1] == axis_mon[k][1]) { // See if a L6470 driver
         not_found = false;
         break;
@@ -632,7 +634,7 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
     char temp_buf[120];
     char* p = &temp_buf[0];
     uint8_t j;
-    for (j = 0; j < L6470::chain[0]; j++) // find the table for this stepper
+    for (j = 0; j < L6470_chain[0]; j++) // find the table for this stepper
       if (driver_L6470_data[j].driver_index == stepper_index) break;
 
     driver_L6470_data[j].driver_status = status;

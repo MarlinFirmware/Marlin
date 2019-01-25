@@ -20,6 +20,8 @@
  *
  */
 
+#pragma once
+
 #include "../../inc/MarlinConfig.h"
 
 #include <L6470.h>
@@ -54,6 +56,9 @@
 #define HAS_L6470_EXTRUDER ( AXIS_DRIVER_TYPE_E0(L6470) || AXIS_DRIVER_TYPE_E1(L6470) || AXIS_DRIVER_TYPE_E2(L6470) \
                           || AXIS_DRIVER_TYPE_E3(L6470) || AXIS_DRIVER_TYPE_E4(L6470) || AXIS_DRIVER_TYPE_E5(L6470) )
 
+uint8_t L6470_transfer(uint8_t data, int16_t ss_pin, const uint8_t chain_position);
+void L6470_transfer(uint8_t L6470_buf[], const uint8_t length);
+
 class L6470_Marlin {
 public:
   static bool index_to_dir[MAX_L6470];
@@ -86,8 +91,6 @@ public:
 
   static void say_axis(const uint8_t axis, const bool label=true);
 
-private:
-  void populate_chain_array();
 };
 
-extern L6470_Marlin L6470;
+extern L6470_Marlin Marlin_L6470;

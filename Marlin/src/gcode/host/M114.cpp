@@ -29,9 +29,7 @@
 #if ENABLED(M114_DETAIL)
 
   #if HAS_DRIVER(L6470)
-    //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\gcode\host\M114.cpp
-    //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\module\bob_L6470.cpp
-    #include "../../module/L6470/L6470_Marlin.h"
+    #include "../../libs/L6470/L6470_Marlin.h"
   #endif
 
   void report_xyze(const float pos[], const uint8_t n = 4, const uint8_t precision = 3) {
@@ -91,7 +89,7 @@
       //#define ABS_POS_SIGN_MASK 0b1111 1111 1110 0000 0000 0000 0000 0000
       #define ABS_POS_SIGN_MASK 0b11111111111000000000000000000000
       #define REPORT_ABSOLUTE_POS(Q) do{                            \
-          L6470.say_axis(Q, false);                                 \
+          Marlin_L6470.say_axis(Q, false);                                 \
           temp = L6470_GETPARAM(L6470_ABS_POS,Q);                   \
           if (temp & ABS_POS_SIGN_MASK) temp |= ABS_POS_SIGN_MASK;  \
           sprintf_P(temp_buf, PSTR(":%8ld   "), temp);              \

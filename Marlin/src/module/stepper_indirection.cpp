@@ -38,7 +38,7 @@
 #include "../module/stepper.h"
 
 #if HAS_DRIVER(L6470)
-  #include "L6470/L6470_Marlin.h"
+  #include "../libs/L6470/L6470_Marlin.h"
 #endif
 
 //
@@ -610,7 +610,7 @@ void reset_stepper_drivers() {
   #endif
 
   #if HAS_DRIVER(L6470)
-    L6470.init_to_defaults();
+    Marlin_L6470.init_to_defaults();
   #endif
 
   #if HAS_TRINAMIC

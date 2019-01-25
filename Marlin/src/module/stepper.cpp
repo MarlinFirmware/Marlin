@@ -354,10 +354,6 @@ void Stepper::wake_up() {
  */
 void Stepper::set_directions() {
 
-  #if HAS_DRIVER(L6470)
-    uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
-  #endif
-
   #define SET_STEP_DIR(A)                       \
     if (motor_direction(_AXIS(A))) {            \
       A##_APPLY_DIR(INVERT_## A##_DIR, false);  \
@@ -406,22 +402,24 @@ void Stepper::set_directions() {
 
   #if HAS_DRIVER(L6470)
 
-    if (L6470.spi_active) {
-      L6470.spi_abort = true;                     // interrupted a SPI transfer - need to shut it down gracefully
-      for (uint8_t j = 1; j <= L6470::chain[0]; j++)
+    uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
+
+    if (Marlin_L6470.spi_active) {
+      Marlin_L6470.spi_abort = true;                     // interrupted a SPI transfer - need to shut it down gracefully
+      for (uint8_t j = 1; j <= L6470_chain[0]; j++)
         L6470_buf[j] = dSPIN_NOP;                 // fill buffer with NOOP commands
-      L6470.transfer(L6470_buf, L6470::chain[0]);  // send enough NOOPs to complete any command
-      L6470.transfer(L6470_buf, L6470::chain[0]);
-      L6470.transfer(L6470_buf, L6470::chain[0]);
+      L6470_transfer(L6470_buf, L6470_chain[0]);  // send enough NOOPs to complete any command
+      L6470_transfer(L6470_buf, L6470_chain[0]);
+      L6470_transfer(L6470_buf, L6470_chain[0]);
     }
 
-    // The L6470.dir_commands[] array holds the direction command for each stepper
+    // The Marlin_L6470.dir_commands[] array holds the direction command for each stepper
 
-    //scan command array and copy matches into L6470.transfer
-    for (uint8_t j = 1; j <= L6470::chain[0]; j++)
-      L6470_buf[j] = L6470.dir_commands[L6470::chain[j]];
+    //scan command array and copy matches into Marlin_L6470.dir_commands
+    for (uint8_t j = 1; j <= L6470_chain[0]; j++)
+      L6470_buf[j] = Marlin_L6470.dir_commands[L6470_chain[j]];
 
-    L6470.transfer(L6470_buf, L6470::chain[0]);  // send the command stream to the drivers
+    L6470_transfer(L6470_buf, L6470_chain[0]);  // send the command stream to the drivers
 
   #endif
 

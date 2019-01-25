@@ -77,7 +77,7 @@ void GcodeSuite::M916() {
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (Marlin_L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
     return;  // quit if invalid user input
 
   L6470_ECHOLNPAIR("feedrate = ", final_feedrate);
@@ -85,7 +85,7 @@ void GcodeSuite::M916() {
   planner.synchronize();                             // wait for all current movement commands to complete
 
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    Marlin_L6470.get_status(axis_index[j]);  // clear out any pre-existing error flags
 
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
@@ -99,7 +99,7 @@ void GcodeSuite::M916() {
     L6470_ECHOLNPAIR("kval_hold = ", kval_hold);   // set & report KVAL_HOLD for this run
 
     for (j = 0; j < driver_count; j++)
-      L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
+      Marlin_L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
 
     // turn the motor(s) both directions
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
@@ -114,7 +114,7 @@ void GcodeSuite::M916() {
     status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
+      axis_status[j] = (~Marlin_L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
       status_composite |= axis_status[j] ;
     }
 
@@ -122,7 +122,7 @@ void GcodeSuite::M916() {
       L6470_ECHOLNPGM("Test aborted (Undervoltage lockout active)");
       for (j = 0; j < driver_count; j++) {
         L6470_ECHOPGM("...");
-        L6470.error_status_decode(axis_status[j], axis_index[j]);
+        Marlin_L6470.error_status_decode(axis_status[j], axis_index[j]);
       }
       return;
     }
@@ -138,7 +138,7 @@ void GcodeSuite::M916() {
     L6470_ECHOLNPGM("has occurred");
     for (j = 0; j < driver_count; j++) {
       L6470_ECHOPGM("...");
-      L6470.error_status_decode(axis_status[j], axis_index[j]);
+      Marlin_L6470.error_status_decode(axis_status[j], axis_index[j]);
     }
   }
   else
@@ -193,14 +193,14 @@ void GcodeSuite::M917() {
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (Marlin_L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
     return;  // quit if invalid user input
 
   L6470_ECHOLNPAIR("feedrate = ", final_feedrate);
 
   planner.synchronize();                             // wait for all current movement commands to complete
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    Marlin_L6470.get_status(axis_index[j]);  // clear out any pre-existing error flags
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
   char gcode_string[80];
@@ -233,7 +233,7 @@ void GcodeSuite::M917() {
     status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
+      axis_status[j] = (~Marlin_L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
       status_composite |= axis_status[j];
     }
 
@@ -241,7 +241,7 @@ void GcodeSuite::M917() {
       L6470_ECHOLNPGM("Test aborted (Undervoltage lockout active)");
       for (j = 0; j < driver_count; j++) {
         L6470_ECHOPGM("...");
-        L6470.error_status_decode(axis_status[j], axis_index[j]);
+        Marlin_L6470.error_status_decode(axis_status[j], axis_index[j]);
       }
       return;
     }
@@ -257,7 +257,7 @@ void GcodeSuite::M917() {
           L6470_EOL();
           L6470_ECHOLNPAIR("Lowering KVAL_HOLD by about 5% to ", kval_hold);
           for (j = 0; j < driver_count; j++)
-            L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
+            Marlin_L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         L6470_ECHOLNPGM(".");
         gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
@@ -265,7 +265,7 @@ void GcodeSuite::M917() {
         safe_delay(5000);
         status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {
-          axis_status[j] = (~L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
+          axis_status[j] = (~Marlin_L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
           status_composite_temp |= axis_status[j];
         }
       }
@@ -407,10 +407,10 @@ void GcodeSuite::M917() {
 
     if (test_phase != 4) {
       for (j = 0; j < driver_count; j++) {                       // update threshold(s)
-        L6470.set_param(axis_index[j], L6470_OCD_TH, ocd_th_val);
-        L6470.set_param(axis_index[j], L6470_STALL_TH, stall_th_val);
-        if (L6470.get_param(axis_index[j], L6470_OCD_TH) != ocd_th_val) L6470_ECHOLNPGM("OCD mismatch");
-        if (L6470.get_param(axis_index[j], L6470_STALL_TH) != stall_th_val) L6470_ECHOLNPGM("STALL mismatch");
+        Marlin_L6470.set_param(axis_index[j], L6470_OCD_TH, ocd_th_val);
+        Marlin_L6470.set_param(axis_index[j], L6470_STALL_TH, stall_th_val);
+        if (Marlin_L6470.get_param(axis_index[j], L6470_OCD_TH) != ocd_th_val) L6470_ECHOLNPGM("OCD mismatch");
+        if (Marlin_L6470.get_param(axis_index[j], L6470_STALL_TH) != stall_th_val) L6470_ECHOLNPGM("STALL mismatch");
       }
     }
 
@@ -420,7 +420,7 @@ void GcodeSuite::M917() {
     L6470_ECHOLNPGM("Completed with errors");
     for (j = 0; j < driver_count; j++) {
       L6470_ECHOPGM("...");
-      L6470.error_status_decode(axis_status[j], axis_index[j]);
+      Marlin_L6470.error_status_decode(axis_status[j], axis_index[j]);
     }
   }
   else
@@ -464,7 +464,7 @@ void GcodeSuite::M918() {
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (Marlin_L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
     return;  // quit if invalid user input
 
   uint8_t m_steps = parser.byteval('M');
@@ -490,7 +490,7 @@ void GcodeSuite::M918() {
   }
 
   for (j = 0; j < driver_count; j++)
-    L6470.set_param(axis_index[j], L6470_STEP_MODE, m_bits);   // set microsteps
+    Marlin_L6470.set_param(axis_index[j], L6470_STEP_MODE, m_bits);   // set microsteps
 
   L6470_ECHOLNPAIR("target (maximum) feedrate = ",final_feedrate);
 
@@ -500,7 +500,7 @@ void GcodeSuite::M918() {
   planner.synchronize();                  // wait for all current movement commands to complete
 
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);      // clear all error flags
+    Marlin_L6470.get_status(axis_index[j]);      // clear all error flags
 
   char temp_axis_string[2];
   temp_axis_string[0] = axis_mon[0][0];   // need to have a string for use within sprintf format section
@@ -523,7 +523,7 @@ void GcodeSuite::M918() {
     planner.synchronize();
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L6470.get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
+      axis_status[j] = (~Marlin_L6470.get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
       status_composite |= axis_status[j];
     }
     if (status_composite) break;       // quit if any errors flags are raised
@@ -533,7 +533,7 @@ void GcodeSuite::M918() {
     L6470_ECHOLNPGM("Completed with errors");
     for (j = 0; j < driver_count; j++) {
       L6470_ECHOPGM("...");
-      L6470.error_status_decode(axis_status[j], axis_index[j]);
+      Marlin_L6470.error_status_decode(axis_status[j], axis_index[j]);
     }
   }
   else

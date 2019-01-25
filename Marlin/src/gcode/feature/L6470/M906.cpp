@@ -80,7 +80,7 @@
  */
 
 void L6470_report_current(L6470 &motor, const uint8_t axis) {
-  if (L6470.spi_abort) return;  // don't do anything if set_directions() has occurred
+  if (Marlin_L6470.spi_abort) return;  // don't do anything if set_directions() has occurred
   const uint16_t status = motor.getStatus() ;
   const uint8_t overcurrent_threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
                 stall_threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
@@ -90,7 +90,7 @@ void L6470_report_current(L6470 &motor, const uint8_t axis) {
   const float comp_coef = 1600.0f / adc_out_limited;
   const int microsteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
   char temp_buf[80];
-  L6470.say_axis(axis);
+  Marlin_L6470.say_axis(axis);
   #if ENABLED(L6470_CHITCHAT)
     sprintf_P(temp_buf, PSTR("   status: %4x   "), status);
     SERIAL_ECHO(temp_buf);
@@ -101,7 +101,7 @@ void L6470_report_current(L6470 &motor, const uint8_t axis) {
   sprintf_P(temp_buf, PSTR("   Stall Threshold: %2d (%7.2f mA)"), stall_threshold, (stall_threshold + 1) * 31.25);
   SERIAL_ECHO(temp_buf);
   SERIAL_ECHOPGM("   Motor Status: ");
-  const char * const stat_str;
+  char * stat_str;
   switch (motor_status) {
     default:
     case 0: stat_str = PSTR("stopped"); break;
@@ -209,7 +209,7 @@ void GcodeSuite::M906() {
   if (report_current) {
     #define L6470_REPORT_CURRENT(Q) L6470_report_current(stepper##Q, Q)
 
-    L6470.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
+    Marlin_L6470.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
 
     #if AXIS_DRIVER_TYPE_X(L6470)
       L6470_REPORT_CURRENT(X);
@@ -251,8 +251,8 @@ void GcodeSuite::M906() {
       L6470_REPORT_CURRENT(E5);
     #endif
 
-    L6470.spi_active = false;   // done with all SPI transfers - clear handshake flags
-    L6470.spi_abort = false;
+    Marlin_L6470.spi_active = false;   // done with all SPI transfers - clear handshake flags
+    Marlin_L6470.spi_abort = false;
   }
 }
 
