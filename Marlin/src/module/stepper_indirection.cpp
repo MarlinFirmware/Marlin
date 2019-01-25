@@ -37,8 +37,8 @@
 
 #include "stepper.h"
 
-#if HAS_DRIVER(L6470)
-  #include "L6470/L6470_Marlin.h"
+#if HAS_L64XX
+  #include "../libs/L6470/L6470_Marlin.h"
 #endif
 
 //
@@ -914,8 +914,8 @@ void reset_stepper_drivers() {
     tmc26x_init_to_defaults();
   #endif
 
-  #if HAS_DRIVER(L6470)
-    L6470.init_to_defaults();
+  #if HAS_L64XX
+    L64helper.init_to_defaults();
   #endif
 
   #if HAS_TRINAMIC
@@ -1022,117 +1022,130 @@ void reset_stepper_drivers() {
 //
 // L6470 Driver objects and inits
 //
-#if HAS_DRIVER(L6470)
+#if HAS_L64XX
 
-  // create stepper objects
-
-  #define _L6470_DEFINE(ST) L6470 stepper##ST((const int)L6470_CHAIN_SS_PIN)
-
-  // L6470 Stepper objects
-  #if AXIS_DRIVER_TYPE_X(L6470)
-    _L6470_DEFINE(X);
+  #if AXIS_IS_L64XX(X)
+    AXIS_CLASS_X stepperX(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_X2(L6470)
-    _L6470_DEFINE(X2);
+  #if AXIS_IS_L64XX(X2)
+    AXIS_CLASS_X2 stepperX2(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_Y(L6470)
-    _L6470_DEFINE(Y);
+  #if AXIS_IS_L64XX(Y)
+    AXIS_CLASS_Y stepperY(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_Y2(L6470)
-    _L6470_DEFINE(Y2);
+  #if AXIS_IS_L64XX(Y2)
+    AXIS_CLASS_Y2 stepperY2(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_Z(L6470)
-    _L6470_DEFINE(Z);
+  #if AXIS_IS_L64XX(Z)
+    AXIS_CLASS_Z stepperZ(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_Z2(L6470)
-    _L6470_DEFINE(Z2);
+  #if AXIS_IS_L64XX(Z2)
+    AXIS_CLASS_Z2 stepperZ2(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_Z3(L6470)
-    _L6470_DEFINE(Z3);
+  #if AXIS_IS_L64XX(Z3)
+    AXIS_CLASS_Z3 stepperZ3(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_E0(L6470)
-    _L6470_DEFINE(E0);
+  #if AXIS_IS_L64XX(E0)
+    AXIS_CLASS_E0 stepperE0(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_E1(L6470)
-    _L6470_DEFINE(E1);
+  #if AXIS_IS_L64XX(E1)
+    AXIS_CLASS_E1 stepperE1(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_E2(L6470)
-    _L6470_DEFINE(E2);
+  #if AXIS_IS_L64XX(E2)
+    AXIS_CLASS_E2 stepperE2(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_E3(L6470)
-    _L6470_DEFINE(E3);
+  #if AXIS_IS_L64XX(E3)
+    AXIS_CLASS_E3 stepperE3(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_E4(L6470)
-    _L6470_DEFINE(E4);
+  #if AXIS_IS_L64XX(E4)
+    AXIS_CLASS_E4 stepperE4(L6470_CHAIN_SS_PIN);
   #endif
-  #if AXIS_DRIVER_TYPE_E5(L6470)
-    _L6470_DEFINE(E5);
+  #if AXIS_IS_L64XX(E5)
+    AXIS_CLASS_E5 stepperE5(L6470_CHAIN_SS_PIN);
   #endif
 
-  // not using L6470 library's init command because it
+  // Not using L64XX class init method because it
   // briefly sends power to the steppers
 
-  #define _L6470_INIT_CHIP(Q) do{                             \
-    stepper##Q.resetDev();                                    \
-    stepper##Q.softFree();                                    \
-    stepper##Q.SetParam(L6470_CONFIG, CONFIG_PWM_DIV_1        \
-                                    | CONFIG_PWM_MUL_2        \
-                                    | CONFIG_SR_290V_us       \
-                                    | CONFIG_OC_SD_DISABLE    \
-                                    | CONFIG_VS_COMP_DISABLE  \
-                                    | CONFIG_SW_HARD_STOP     \
-                                    | CONFIG_INT_16MHZ);      \
-    stepper##Q.SetParam(L6470_KVAL_RUN, 0xFF);                \
-    stepper##Q.SetParam(L6470_KVAL_ACC, 0xFF);                \
-    stepper##Q.SetParam(L6470_KVAL_DEC, 0xFF);                \
-    stepper##Q.setMicroSteps(Q##_MICROSTEPS);                 \
-    stepper##Q.setOverCurrent(Q##_OVERCURRENT);               \
-    stepper##Q.setStallCurrent(Q##_STALLCURRENT);             \
-    stepper##Q.SetParam(L6470_KVAL_HOLD, Q##_MAX_VOLTAGE);    \
-    stepper##Q.SetParam(L6470_ABS_POS, 0);                    \
-    stepper##Q.getStatus();                                   \
-  }while(0)
+  inline void L6470_init_chip(L64XX &st, const int ms, const int oc, const int sc, const int mv, const int slew_rate) {
+    st.resetDev();
+    st.softFree();
+    st.SetParam(st.L64XX_CONFIG, CONFIG_PWM_DIV_1 | CONFIG_PWM_MUL_2 | CONFIG_OC_SD_DISABLE | CONFIG_VS_COMP_DISABLE | CONFIG_SW_HARD_STOP | CONFIG_INT_16MHZ);
+    st.SetParam(L6470_KVAL_RUN, 0xFF);
+    st.SetParam(L6470_KVAL_ACC, 0xFF);
+    st.SetParam(L6470_KVAL_DEC, 0xFF);
+    st.setMicroSteps(ms);
+    st.setOverCurrent(oc);
+    st.setStallCurrent(sc);
+    st.SetParam(L6470_KVAL_HOLD, mv);
+    st.SetParam(L6470_ABS_POS, 0);
+    if (st.L6470_status_layout) {
+      uint32_t config_temp = st.GetParam(st.L64XX_CONFIG);
+      config_temp &= ~CONFIG_POW_SR;
+      switch (slew_rate) {
+        case 0: st.SetParam(st.L64XX_CONFIG, config_temp | CONFIG_SR_75V_us); break;
+        default:
+        case 1: st.SetParam(st.L64XX_CONFIG, config_temp | CONFIG_SR_110V_us); break;
+        case 3:
+        case 2: st.SetParam(st.L64XX_CONFIG, config_temp | CONFIG_SR_260V_us); break;
+      }
+    }
+    else {
+      st.SetParam(st.L64XX_CONFIG,(st.GetParam(st.L64XX_CONFIG) | PWR_VCC_7_5V));
+      switch (slew_rate) {
+        case 0: st.SetParam(L6470_GATECFG1, CONFIG1_SR_220V_us); st.SetParam(L6470_GATECFG2, CONFIG2_SR_220V_us); break;
+        default:
+        case 1: st.SetParam(L6470_GATECFG1, CONFIG1_SR_400V_us); st.SetParam(L6470_GATECFG2, CONFIG2_SR_400V_us); break;
+        case 2: st.SetParam(L6470_GATECFG1, CONFIG1_SR_520V_us); st.SetParam(L6470_GATECFG2, CONFIG2_SR_520V_us); break;
+        case 3: st.SetParam(L6470_GATECFG1, CONFIG1_SR_980V_us); st.SetParam(L6470_GATECFG2, CONFIG2_SR_980V_us); break;
+      }
+    }
+    st.getStatus();
+    st.getStatus();
+  }
+
+  #define L6470_INIT_CHIP(Q) L6470_init_chip(stepper##Q, Q##_MICROSTEPS, Q##_OVERCURRENT, Q##_STALLCURRENT, Q##_MAX_VOLTAGE, Q##_SLEW_RATE)
 
   void L6470_Marlin::init_to_defaults() {
-    #if AXIS_DRIVER_TYPE_X(L6470)
-      _L6470_INIT_CHIP(X);
+    #if AXIS_IS_L64XX(X)
+      L6470_INIT_CHIP(X);
     #endif
-    #if AXIS_DRIVER_TYPE_X2(L6470)
-      _L6470_INIT_CHIP(X2);
+    #if AXIS_IS_L64XX(X2)
+      L6470_INIT_CHIP(X2);
     #endif
-    #if AXIS_DRIVER_TYPE_Y(L6470)
-      _L6470_INIT_CHIP(Y);
+    #if AXIS_IS_L64XX(Y)
+      L6470_INIT_CHIP(Y);
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(L6470)
-      _L6470_INIT_CHIP(Y2);
+    #if AXIS_IS_L64XX(Y2)
+      L6470_INIT_CHIP(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z(L6470)
-      _L6470_INIT_CHIP(Z);
+    #if AXIS_IS_L64XX(Z)
+      L6470_INIT_CHIP(Z);
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(L6470)
-      _L6470_INIT_CHIP(Z2);
+    #if AXIS_IS_L64XX(Z2)
+      L6470_INIT_CHIP(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(L6470)
-      _L6470_INIT_CHIP(Z3);
+    #if AXIS_IS_L64XX(Z3)
+      L6470_INIT_CHIP(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE_E0(L6470)
-      _L6470_INIT_CHIP(E0);
+    #if AXIS_IS_L64XX(E0)
+      L6470_INIT_CHIP(E0);
     #endif
-    #if AXIS_DRIVER_TYPE_E1(L6470)
-      _L6470_INIT_CHIP(E1);
+    #if AXIS_IS_L64XX(E1)
+      L6470_INIT_CHIP(E1);
     #endif
-    #if AXIS_DRIVER_TYPE_E2(L6470)
-      _L6470_INIT_CHIP(E2);
+    #if AXIS_IS_L64XX(E2)
+      L6470_INIT_CHIP(E2);
     #endif
-    #if AXIS_DRIVER_TYPE_E3(L6470)
-      _L6470_INIT_CHIP(E3);
+    #if AXIS_IS_L64XX(E3)
+      L6470_INIT_CHIP(E3);
     #endif
-    #if AXIS_DRIVER_TYPE_E4(L6470)
-      _L6470_INIT_CHIP(E4);
+    #if AXIS_IS_L64XX(E4)
+      L6470_INIT_CHIP(E4);
     #endif
-    #if AXIS_DRIVER_TYPE_E5(L6470)
-      _L6470_INIT_CHIP(E5);
+    #if AXIS_IS_L64XX(E5)
+      L6470_INIT_CHIP(E5);
     #endif
   }
 
-#endif // L6470
+#endif // HAS_L64XX

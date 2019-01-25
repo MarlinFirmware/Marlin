@@ -101,6 +101,12 @@ Stepper stepper; // Singleton
 #include "../Marlin.h"
 #include "../HAL/shared/Delay.h"
 
+#if HAS_L64XX
+  #include "../libs/L6470/L6470_Marlin.h"
+  uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
+  bool L64XX_OK_to_power_up = false;  // flag to keep L64xx steppers powered down after a reset or power up
+#endif
+
 #if MB(ALLIGATOR)
   #include "../feature/dac/dac_dac084s085.h"
 #endif
@@ -115,10 +121,6 @@ Stepper stepper; // Singleton
 
 #if FILAMENT_RUNOUT_DISTANCE_MM > 0
   #include "../feature/runout.h"
-#endif
-
-#if HAS_DRIVER(L6470)
-  #include "../libs/L6470/L6470_Marlin.h"
 #endif
 
 // public:
@@ -358,10 +360,6 @@ void Stepper::wake_up() {
  */
 void Stepper::set_directions() {
 
-  #if HAS_DRIVER(L6470)
-    uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
-  #endif
-
   #define SET_STEP_DIR(A)                       \
     if (motor_direction(_AXIS(A))) {            \
       A##_APPLY_DIR(INVERT_## A##_DIR, false);  \
@@ -408,25 +406,25 @@ void Stepper::set_directions() {
     #endif
   #endif // !LIN_ADVANCE
 
-  #if HAS_DRIVER(L6470)
+  #if HAS_L64XX
+    if (L64XX_OK_to_power_up) { // OK to send the direction commands (which powers up the L64XX steppers)
+      if (L64helper.spi_active) {
+        L64helper.spi_abort = true;                      // Interrupted a SPI transfer - need to shut it down gracefully
+        for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
+          L6470_buf[j] = dSPIN_NOP;                       // Fill buffer with NOOP commands
+        L64helper.transfer(L6470_buf, L64XX::chain[0]);  // Send enough NOOPs to complete any command
+        L64helper.transfer(L6470_buf, L64XX::chain[0]);
+        L64helper.transfer(L6470_buf, L64XX::chain[0]);
+      }
 
-    if (L6470.spi_active) {
-      L6470.spi_abort = true;                     // interrupted a SPI transfer - need to shut it down gracefully
-      for (uint8_t j = 1; j <= L6470::chain[0]; j++)
-        L6470_buf[j] = dSPIN_NOP;                 // fill buffer with NOOP commands
-      L6470.transfer(L6470_buf, L6470::chain[0]);  // send enough NOOPs to complete any command
-      L6470.transfer(L6470_buf, L6470::chain[0]);
-      L6470.transfer(L6470_buf, L6470::chain[0]);
+      // L64helper.dir_commands[] is an array that holds direction command for each stepper
+
+      // Scan command array, copy matches into L64helper.transfer
+      for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
+        L6470_buf[j] = L64helper.dir_commands[L64XX::chain[j]];
+
+      L64helper.transfer(L6470_buf, L64XX::chain[0]);  // send the command stream to the drivers
     }
-
-    // The L6470.dir_commands[] array holds the direction command for each stepper
-
-    //scan command array and copy matches into L6470.transfer
-    for (uint8_t j = 1; j <= L6470::chain[0]; j++)
-      L6470_buf[j] = L6470.dir_commands[L6470::chain[j]];
-
-    L6470.transfer(L6470_buf, L6470::chain[0]);  // send the command stream to the drivers
-
   #endif
 
   // A small delay may be needed after changing direction
@@ -1806,22 +1804,26 @@ uint32_t Stepper::stepper_block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      if (
-        #if HAS_DRIVER(L6470)
-          true  // Always set direction for L6470 (This also enables the chips)
-        #else
-          current_block->direction_bits != last_direction_bits
+      #if !HAS_L64XX   // always set direction if using L6470 driver(s) - this also enables the chips
+        if (current_block->direction_bits != last_direction_bits
           #if DISABLED(MIXING_EXTRUDER)
             || stepper_extruder != last_moved_extruder
           #endif
+          )
         #endif
-      ) {
-        last_direction_bits = current_block->direction_bits;
-        #if EXTRUDERS > 1
-          last_moved_extruder = stepper_extruder;
-        #endif
-        set_directions();
-      }
+        {
+
+          last_direction_bits = current_block->direction_bits;
+          #if EXTRUDERS > 1
+            last_moved_extruder = stepper_extruder;
+          #endif
+
+          #if HAS_L64XX
+            L64XX_OK_to_power_up = true;
+          #endif
+
+          set_directions();
+        }
 
       // At this point, we must ensure the movement about to execute isn't
       // trying to force the head against a limit switch. If using interrupt-

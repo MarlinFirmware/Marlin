@@ -28,6 +28,8 @@
 #define _DRV8825            0x003
 #define _LV8729             0x004
 #define _L6470              0x105
+#define _L6480              0x106
+#define _powerSTEP01        0x107
 #define _TB6560             0x006
 #define _TB6600             0x007
 #define _TMC2100            0x008
@@ -82,3 +84,191 @@
                          AXIS_DRIVER_TYPE_##A(TMC2660) || \
                          AXIS_DRIVER_TYPE_##A(TMC5130) || \
                          AXIS_DRIVER_TYPE_##A(TMC5160))
+
+#define HAS_L64XX (HAS_DRIVER(L6470) || HAS_DRIVER(L6480) || HAS_DRIVER(powerSTEP01))
+
+#define AXIS_IS_L64XX(A) (AXIS_DRIVER_TYPE_##A(L6470) || AXIS_DRIVER_TYPE_##A(L6480) || AXIS_DRIVER_TYPE_##A(powerSTEP01))
+
+#define AXIS_CLASS(A) AXIS_CLASS_##A
+
+#if AXIS_IS_TMC(X)
+  #define AXIS_CLASS_X TMC_CLASS(X)
+#elif AXIS_DRIVER_TYPE_X(TMC26X)
+  #define AXIS_CLASS_X TMC26XStepper
+#elif AXIS_DRIVER_TYPE_X(L6470)
+  #define AXIS_CLASS_X L6470
+#elif AXIS_DRIVER_TYPE_X(L6480)
+  #define AXIS_CLASS_X L6480
+#elif AXIS_DRIVER_TYPE_X(powerSTEP01)
+  #define AXIS_CLASS_X powerSTEP01
+#else
+  #define AXIS_CLASS_X no_class
+#endif
+
+#if AXIS_IS_TMC(Y)
+  #define AXIS_CLASS_Y TMC_CLASS(Y)
+#elif AXIS_DRIVER_TYPE_Y(TMC26X)
+  #define AXIS_CLASS_Y TMC26XStepper
+#elif AXIS_DRIVER_TYPE_Y(L6470)
+  #define AXIS_CLASS_Y L6470
+#elif AXIS_DRIVER_TYPE_Y(L6480)
+  #define AXIS_CLASS_Y L6480
+#elif AXIS_DRIVER_TYPE_Y(powerSTEP01)
+  #define AXIS_CLASS_Y powerSTEP01
+#else
+  #define AXIS_CLASS_Y no_class
+#endif
+
+#if AXIS_IS_TMC(Z)
+  #define AXIS_CLASS_Z TMC_CLASS(Z)
+#elif AXIS_DRIVER_TYPE_Z(TMC26X)
+  #define AXIS_CLASS_Z TMC26XStepper
+#elif AXIS_DRIVER_TYPE_Z(L6470)
+  #define AXIS_CLASS_Z L6470
+#elif AXIS_DRIVER_TYPE_Z(L6480)
+  #define AXIS_CLASS_Z L6480
+#elif AXIS_DRIVER_TYPE_Z(powerSTEP01)
+  #define AXIS_CLASS_Z powerSTEP01
+#else
+  #define AXIS_CLASS_Z no_class
+#endif
+
+#if AXIS_IS_TMC(X2)
+  #define AXIS_CLASS_X2 TMC_CLASS(X2)
+#elif AXIS_DRIVER_TYPE_X2(TMC26X)
+  #define AXIS_CLASS_X2 TMC26XStepper
+#elif AXIS_DRIVER_TYPE_X2(L6470)
+  #define AXIS_CLASS_X2 L6470
+#elif AXIS_DRIVER_TYPE_X2(L6480)
+  #define AXIS_CLASS_X2 L6480
+#elif AXIS_DRIVER_TYPE_X2(powerSTEP01)
+  #define AXIS_CLASS_X2 powerSTEP01
+#else
+  #define AXIS_CLASS_X2 no_class
+#endif
+
+#if AXIS_IS_TMC(Y2)
+  #define AXIS_CLASS_Y2 TMC_CLASS(Y2)
+#elif AXIS_DRIVER_TYPE_Y2(TMC26X)
+  #define AXIS_CLASS_Y2 TMC26XStepper
+#elif AXIS_DRIVER_TYPE_Y2(L6470)
+  #define AXIS_CLASS_Y2 L6470
+#elif AXIS_DRIVER_TYPE_Y2(L6480)
+  #define AXIS_CLASS_Y2 L6480
+#elif AXIS_DRIVER_TYPE_Y2(powerSTEP01)
+  #define AXIS_CLASS_Y2 powerSTEP01
+#else
+  #define AXIS_CLASS_Y2 no_class
+#endif
+
+#if AXIS_IS_TMC(Z2)
+  #define AXIS_CLASS_Z2 TMC_CLASS(Z2)
+#elif AXIS_DRIVER_TYPE_Z2(TMC26X)
+  #define AXIS_CLASS_Z2 TMC26XStepper
+#elif AXIS_DRIVER_TYPE_Z2(L6470)
+  #define AXIS_CLASS_Z2 L6470
+#elif AXIS_DRIVER_TYPE_Z2(L6480)
+  #define AXIS_CLASS_Z2 L6480
+#elif AXIS_DRIVER_TYPE_Z2(powerSTEP01)
+  #define AXIS_CLASS_Z2 powerSTEP01
+#else
+  #define AXIS_CLASS_Z2 no_class
+#endif
+
+#if AXIS_IS_TMC(Z3)
+  #define AXIS_CLASS_Z3 TMC_CLASS(Z3)
+#elif AXIS_DRIVER_TYPE_Z3(TMC26X)
+  #define AXIS_CLASS_Z3 TMC26XStepper
+#elif AXIS_DRIVER_TYPE_Z3(L6470)
+  #define AXIS_CLASS_Z3 L6470
+#elif AXIS_DRIVER_TYPE_Z3(L6480)
+  #define AXIS_CLASS_Z3 L6480
+#elif AXIS_DRIVER_TYPE_Z3(powerSTEP01)
+  #define AXIS_CLASS_Z3 powerSTEP01
+#else
+  #define AXIS_CLASS_Z3 no_class
+#endif
+
+#if AXIS_IS_TMC(E0)
+  #define AXIS_CLASS_E0 TMC_CLASS(E0)
+#elif AXIS_DRIVER_TYPE_E0(TMC26X)
+  #define AXIS_CLASS_E0 TMC26XStepper
+#elif AXIS_DRIVER_TYPE_E0(L6470)
+  #define AXIS_CLASS_E0 L6470
+#elif AXIS_DRIVER_TYPE_E0(L6480)
+  #define AXIS_CLASS_E0 L6480
+#elif AXIS_DRIVER_TYPE_E0(powerSTEP01)
+  #define AXIS_CLASS_E0 powerSTEP01
+#else
+  #define AXIS_CLASS_E0 no_class
+#endif
+
+#if AXIS_IS_TMC(E1)
+  #define AXIS_CLASS_E1 TMC_CLASS(E1)
+#elif AXIS_DRIVER_TYPE_E1(TMC26X)
+  #define AXIS_CLASS_E1 TMC26XStepper
+#elif AXIS_DRIVER_TYPE_E1(L6470)
+  #define AXIS_CLASS_E1 L6470
+#elif AXIS_DRIVER_TYPE_E1(L6480)
+  #define AXIS_CLASS_E1 L6480
+#elif AXIS_DRIVER_TYPE_E1(powerSTEP01)
+  #define AXIS_CLASS_E1 powerSTEP01
+#else
+  #define AXIS_CLASS_E1 no_class
+#endif
+
+#if AXIS_IS_TMC(E2)
+  #define AXIS_CLASS_E2 TMC_CLASS(E2)
+#elif AXIS_DRIVER_TYPE_E2(TMC26X)
+  #define AXIS_CLASS_E2 TMC26XStepper
+#elif AXIS_DRIVER_TYPE_E2(L6470)
+  #define AXIS_CLASS_E2 L6470
+#elif AXIS_DRIVER_TYPE_E2(L6480)
+  #define AXIS_CLASS_E2 L6480
+#elif AXIS_DRIVER_TYPE_E2(powerSTEP01)
+  #define AXIS_CLASS_E2 powerSTEP01
+#else
+  #define AXIS_CLASS_E2 no_class
+#endif
+
+#if AXIS_IS_TMC(E3)
+  #define AXIS_CLASS_E3 TMC_CLASS(E3)
+#elif AXIS_DRIVER_TYPE_E3(TMC26X)
+  #define AXIS_CLASS_E3 TMC26XStepper
+#elif AXIS_DRIVER_TYPE_E3(L6470)
+  #define AXIS_CLASS_E3 L6470
+#elif AXIS_DRIVER_TYPE_E3(L6480)
+  #define AXIS_CLASS_E3 L6480
+#elif AXIS_DRIVER_TYPE_E3(powerSTEP01)
+  #define AXIS_CLASS_E3 powerSTEP01
+#else
+  #define AXIS_CLASS_E3 no_class
+#endif
+
+#if AXIS_IS_TMC(E4)
+  #define AXIS_CLASS_E4 TMC_CLASS(E4)
+#elif AXIS_DRIVER_TYPE_E4(TMC26X)
+  #define AXIS_CLASS_E4 TMC26XStepper
+#elif AXIS_DRIVER_TYPE_E4(L6470)
+  #define AXIS_CLASS_E4 L6470
+#elif AXIS_DRIVER_TYPE_E4(L6480)
+  #define AXIS_CLASS_E4 L6480
+#elif AXIS_DRIVER_TYPE_E4(powerSTEP01)
+  #define AXIS_CLASS_E4 powerSTEP01
+#else
+  #define AXIS_CLASS_E4 no_class
+#endif
+
+#if AXIS_IS_TMC(E5)
+  #define AXIS_CLASS_E5 TMC_CLASS(E5)
+#elif AXIS_DRIVER_TYPE_E5(TMC26X)
+  #define AXIS_CLASS_E5 TMC26XStepper
+#elif AXIS_DRIVER_TYPE_E5(L6470)
+  #define AXIS_CLASS_E5 L6470
+#elif AXIS_DRIVER_TYPE_E5(L6480)
+  #define AXIS_CLASS_E5 L6480
+#elif AXIS_DRIVER_TYPE_E5(powerSTEP01)
+  #define AXIS_CLASS_E5 powerSTEP01
+#else
+  #define AXIS_CLASS_E5 no_class
+#endif

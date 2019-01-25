@@ -49,46 +49,85 @@
 
 #define MAX_L6470  (7 + MAX_EXTRUDERS) // Maximum number of axes in Marlin
 
-#define L6470_ERROR_MASK  (STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD  | STATUS_OCD | STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)
 #define dSPIN_STEP_CLOCK_FWD dSPIN_STEP_CLOCK
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
-#define HAS_L6470_EXTRUDER ( AXIS_DRIVER_TYPE_E0(L6470) || AXIS_DRIVER_TYPE_E1(L6470) || AXIS_DRIVER_TYPE_E2(L6470) \
-                          || AXIS_DRIVER_TYPE_E3(L6470) || AXIS_DRIVER_TYPE_E4(L6470) || AXIS_DRIVER_TYPE_E5(L6470) )
+#define HAS_L64XX_EXTRUDER (AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5))
 
-class L6470_Marlin {
+typedef enum : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 } L6470_axis_t;
+
+class L6470_Marlin : public L64XXHelper {
 public:
+  static const char * const index_to_axis[MAX_L6470];
+
   static bool index_to_dir[MAX_L6470];
-  static uint8_t axis_xref[MAX_L6470];
-  static char index_to_axis[MAX_L6470][3];
   static uint8_t dir_commands[MAX_L6470];
 
   // Flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
   static volatile bool spi_abort;
   static bool spi_active;
 
-  L6470_Marlin() {}
-
-  static uint16_t get_status(const uint8_t axis);
-
-  static uint32_t get_param(uint8_t axis, uint8_t param);
-
-  static void set_param(uint8_t axis, uint8_t param, uint32_t value);
-
-  static bool get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axis_mon[3][3],
-                             float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
-                             bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold);
-
-  static void error_status_decode(const uint16_t status, const uint8_t axis);
-
-  static void monitor_driver();
+  L6470_Marlin() { L64XX::set_helper(*this); }
 
   static void init();
   static void init_to_defaults();
 
-  static void say_axis(const uint8_t axis, const bool label=true);
+  static uint16_t get_stepper_status(const L64XX &st);
 
-private:
-  void populate_chain_array();
+  static uint16_t get_status(const L6470_axis_t axis);
+
+  static uint32_t get_param(const L6470_axis_t axis, const uint8_t param);
+
+  static void set_param(const L6470_axis_t axis, const uint8_t param, const uint32_t value);
+
+  //static void send_command(const L6470_axis_t axis, uint8_t command);
+
+  static bool get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3], char* axis_mon[3],
+                            float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
+                            bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold);
+
+  static void monitor_update(uint8_t stepper_index, uint16_t status);
+
+  static void monitor_driver();
+
+  static void transfer(uint8_t L6470_buf[], const uint8_t length);
+
+  //static char* index_to_axis(const uint8_t index);
+  static void say_axis(const L6470_axis_t axis, const bool label=true);
+  static void error_status_decode(const uint16_t status, const L6470_axis_t axis);
+
+  // ~40 bytes SRAM to simplify status decode routines
+  typedef struct {
+    bool STATUS_AXIS_LAYOUT;              // Copy of L6470_status_layout
+    uint8_t AXIS_OCD_TH_MAX;              // Size of OCD_TH field
+    uint8_t AXIS_STALL_TH_MAX;            // Size of STALL_TH field
+    float AXIS_OCD_CURRENT_CONSTANT_INV;   // mA per count
+    float AXIS_STALL_CURRENT_CONSTANT_INV; // mA per count
+    uint8_t L6470_AXIS_CONFIG,            // Address of the CONFIG register
+            L6470_AXIS_STATUS;            // Address of the STATUS register
+    uint16_t L6470_ERROR_MASK,            // STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD  | STATUS_OCD | STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B
+             STATUS_AXIS_RAW,             // Copy of status register contents
+             STATUS_AXIS,                 // Copy of status register contents but with all error bits active low
+             STATUS_AXIS_OCD,             // Overcurrent detected bit position
+             STATUS_AXIS_SCK_MOD,         // Step clock mode is active bit position
+             STATUS_AXIS_STEP_LOSS_A,     // Stall detected on A bridge bit position
+             STATUS_AXIS_STEP_LOSS_B,     // Stall detected on B bridge bit position
+             STATUS_AXIS_TH_SD,           // Thermal shutdown bit position
+             STATUS_AXIS_TH_WRN,          // Thermal warning bit position
+             STATUS_AXIS_UVLO,            // Undervoltage lockout is active bit position
+             STATUS_AXIS_WRONG_CMD,       // Last command not valid bit position
+             STATUS_AXIS_CMD_ERR,         // Command error bit position
+             STATUS_AXIS_NOTPERF_CMD;     // Last command not performed bit position
+  } L64XX_shadow_t;
+
+  static L64XX_shadow_t shadow;
+
+  //static uint32_t UVLO_ADC;               // ADC undervoltage event
+
+protected:
+  // L64XXHelper methods
+  static void spi_init();
+  static uint8_t transfer(uint8_t data, int16_t ss_pin);
+  static uint8_t transfer(uint8_t data, int16_t ss_pin, uint8_t chain_position);
 };
 
-extern L6470_Marlin L6470;
+extern L6470_Marlin L64helper;
