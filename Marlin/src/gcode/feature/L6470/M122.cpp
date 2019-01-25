@@ -42,6 +42,7 @@ inline void L6470_say_status(const L6470_axis_t axis) {
     print_bin(sh.STATUS_AXIS_RAW);
     serialprintPGM(sh.STATUS_AXIS_LAYOUT ? PSTR("   L6470") : PSTR("   L6480/powerSTEP01"));
   #endif
+  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
   SERIAL_ECHOPGM("\n...OUTPUT: ");
   serialprintPGM(sh.STATUS_AXIS & STATUS_HIZ ? PSTR("OFF") : PSTR("ON "));
   SERIAL_ECHOPGM("   BUSY: "); echo_yes_no(!(sh.STATUS_AXIS & STATUS_BUSY));

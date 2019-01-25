@@ -138,6 +138,8 @@ public:
   #define OCT 8
   #define BIN 2
 
+  void print_bin(const uint16_t val);
+
   void print_bin(uint32_t value, uint8_t num_digits) {
     uint32_t mask = 1 << (num_digits -1);
     for (uint8_t i = 0; i < num_digits; i++) {

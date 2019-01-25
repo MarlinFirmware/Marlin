@@ -666,9 +666,16 @@ void L64XX_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t
     #endif
   };
 
-  inline void append_stepper_err(char * &p, const uint8_t stepper_index, const char * const err=nullptr) {
-    p += sprintf_P(p, PSTR("Stepper %c%c "), char(index_to_axis[stepper_index][0]), char(index_to_axis[stepper_index][1]));
-    if (err) p += sprintf_P(p, err);
+  inline void append_stepper_err(char * &p, const uint8_t stepper_index) {
+    const char * const str = L64helper.index_to_axis[stepper_index];
+    strcpy_P(p, PSTR("Stepper "));
+    p[8] = str[0]; p[9] = str[1]; p[10] = ' '; p[11] = '\0';
+    p += 11;
+  }
+
+  inline void append_stepper_err(char * &p, const uint8_t stepper_index, const char * const err) {
+    append_stepper_err(p, stepper_index);
+    if (err) p += sprintf_P(p, err, NULL);
   }
 
   void L64XX_Marlin::monitor_update(uint8_t stepper_index, uint16_t status) {
