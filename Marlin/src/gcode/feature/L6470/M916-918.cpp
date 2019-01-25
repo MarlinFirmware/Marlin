@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(L6470)
+#if HAS_L64XX
 
 #include "../../gcode.h"
 #include "../../../module/stepper_indirection.h"
@@ -61,23 +61,23 @@ void GcodeSuite::M916() {
 
   L6470_ECHOLNPGM("M916");
 
-  // Variables used by L6470_get_user_input function - some may not be used
-  char axis_mon[3][3] = { "  ", "  ", "  " };  // list of Axes to be monitored
-  uint8_t axis_index[3];
+  // Variables used by L64helper.get_user_input function - some may not be used
+  char *axis_mon[3] = { "  ", "  ", "  " };  // list of Axes to be monitored
+  L6470_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
   float position_max;
   float position_min;
   float final_feedrate;
   uint8_t kval_hold;
-  uint8_t ocd_th_val = 0;
-  uint8_t stall_th_val = 0;
+  uint8_t OCD_TH_val = 0;
+  uint8_t STALL_TH_val = 0;
   uint16_t over_current_threshold;
   constexpr bool over_current_flag = false;  // M916 doesn't play with the overcurrent thresholds
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (L64helper.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   L6470_ECHOLNPAIR("feedrate = ", final_feedrate);
@@ -85,12 +85,13 @@ void GcodeSuite::M916() {
   planner.synchronize();                             // wait for all current movement commands to complete
 
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    L64helper.get_status(axis_index[j]);  // clear out any pre-existing error flags
 
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
   char gcode_string[80];
   uint16_t status_composite = 0;
+  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
 
   L6470_ECHOLNPGM(".\n.");
 
@@ -99,7 +100,7 @@ void GcodeSuite::M916() {
     L6470_ECHOLNPAIR("kval_hold = ", kval_hold);   // set & report KVAL_HOLD for this run
 
     for (j = 0; j < driver_count; j++)
-      L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
+      L64helper.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
 
     // turn the motor(s) both directions
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
@@ -114,31 +115,31 @@ void GcodeSuite::M916() {
     status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
+      axis_status[j] = (~L64helper.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
       status_composite |= axis_status[j] ;
     }
 
-    if (status_composite && (status_composite & STATUS_UVLO)) {
+    if (status_composite && (status_composite & sh.STATUS_AXIS_UVLO)) {
       L6470_ECHOLNPGM("Test aborted (Undervoltage lockout active)");
       for (j = 0; j < driver_count; j++) {
         L6470_ECHOPGM("...");
-        L6470.error_status_decode(axis_status[j], axis_index[j]);
+        L64helper.error_status_decode(axis_status[j], axis_index[j]);
       }
       return;
     }
 
     // increment KVAL_HOLD if not yet at thermal warning/shutdown
-    if (!(status_composite & (STATUS_TH_WRN | STATUS_TH_SD)))
+    if (!(status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD)))
       kval_hold++;
 
-  } while (!(status_composite & (STATUS_TH_WRN | STATUS_TH_SD)) && kval_hold);  // exit when kval_hold == 0 (rolls over)
+  } while (!(status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD)) && kval_hold);  // exit when kval_hold == 0 (rolls over)
 
   L6470_ECHOPGM(".\n.\nThermal warning/shutdown ");
-  if ((status_composite & (STATUS_TH_WRN | STATUS_TH_SD))) {
+  if ((status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD))) {
     L6470_ECHOLNPGM("has occurred");
     for (j = 0; j < driver_count; j++) {
       L6470_ECHOPGM("...");
-      L6470.error_status_decode(axis_status[j], axis_index[j]);
+      L64helper.error_status_decode(axis_status[j], axis_index[j]);
     }
   }
   else
@@ -178,29 +179,29 @@ void GcodeSuite::M917() {
 
   L6470_ECHOLNPGM("M917");
 
-  char axis_mon[3][3] = { "  ", "  ", "  " };  // list of axes to be monitored
-  uint8_t axis_index[3];
+  char *axis_mon[3] = { "  ", "  ", "  " };  // list of axes to be monitored
+  L6470_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
   float position_max;
   float position_min;
   float final_feedrate;
   uint8_t kval_hold;
-  uint8_t ocd_th_val = 0;
-  uint8_t stall_th_val = 0;
+  uint8_t OCD_TH_val = 0;
+  uint8_t STALL_TH_val = 0;
   uint16_t over_current_threshold;
   constexpr bool over_current_flag = true;
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (L64helper.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   L6470_ECHOLNPAIR("feedrate = ", final_feedrate);
 
   planner.synchronize();                             // wait for all current movement commands to complete
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    L64helper.get_status(axis_index[j]);  // clear out any pre-existing error flags
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
   char gcode_string[80];
@@ -211,16 +212,18 @@ void GcodeSuite::M917() {
         // 2 - OCD finalized - decreasing STALL - exit when STALL warning happens
         // 3 - OCD finalized - increasing STALL - exit when STALL warning stop
         // 4 - all testing completed
-  L6470_ECHOPAIR(".\n.\n.\nover_current threshold : ", (ocd_th_val + 1) * 375);   // first status display
-  L6470_ECHOPAIR("  (OCD_TH:  : ", ocd_th_val);
-  L6470_ECHOPAIR(")   Stall threshold: ", (stall_th_val + 1) * 31.25);
-  L6470_ECHOPAIR("  (STALL_TH: ", stall_th_val);
+  L6470_ECHOPAIR(".\n.\n.\nover_current threshold : ", (OCD_TH_val + 1) * 375);   // first status display
+  L6470_ECHOPAIR("  (OCD_TH:  : ", OCD_TH_val);
+  L6470_ECHOPAIR(")   Stall threshold: ", (STALL_TH_val + 1) * 31.25);
+  L6470_ECHOPAIR("  (STALL_TH: ", STALL_TH_val);
   L6470_ECHOLNPGM(")");
+
+  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
 
   do {
 
-    L6470_ECHOPAIR("STALL threshold : ", (stall_th_val + 1) * 31.25);
-    L6470_ECHOLNPAIR("   OCD threshold : ", (ocd_th_val + 1) * 375);
+    L6470_ECHOPAIR("STALL threshold : ", (STALL_TH_val + 1) * 31.25);
+    L6470_ECHOLNPAIR("   OCD threshold : ", (OCD_TH_val + 1) * 375);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
     gcode.process_subcommands_now_P(gcode_string);
@@ -233,20 +236,20 @@ void GcodeSuite::M917() {
     status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
+      axis_status[j] = (~L64helper.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
       status_composite |= axis_status[j];
     }
 
-    if (status_composite && (status_composite & STATUS_UVLO)) {
+    if (status_composite && (status_composite & sh.STATUS_AXIS_UVLO)) {
       L6470_ECHOLNPGM("Test aborted (Undervoltage lockout active)");
       for (j = 0; j < driver_count; j++) {
         L6470_ECHOPGM("...");
-        L6470.error_status_decode(axis_status[j], axis_index[j]);
+        L64helper.error_status_decode(axis_status[j], axis_index[j]);
       }
       return;
     }
 
-    if (status_composite & (STATUS_TH_WRN | STATUS_TH_SD)) {
+    if (status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD)) {
       L6470_ECHOLNPGM("thermal problem - waiting for chip(s) to cool down ");
       uint16_t status_composite_temp = 0;
       uint8_t k = 0;
@@ -257,7 +260,7 @@ void GcodeSuite::M917() {
           L6470_EOL();
           L6470_ECHOLNPAIR("Lowering KVAL_HOLD by about 5% to ", kval_hold);
           for (j = 0; j < driver_count; j++)
-            L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
+            L64helper.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         L6470_ECHOLNPGM(".");
         gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
@@ -265,33 +268,33 @@ void GcodeSuite::M917() {
         safe_delay(5000);
         status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {
-          axis_status[j] = (~L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
+          axis_status[j] = (~L64helper.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
           status_composite_temp |= axis_status[j];
         }
       }
-      while (status_composite_temp & (STATUS_TH_WRN | STATUS_TH_SD));
+      while (status_composite_temp & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD));
       L6470_EOL();
     }
-    if (status_composite & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B | STATUS_OCD)) {
+    if (status_composite & (sh.STATUS_AXIS_STEP_LOSS_A | sh.STATUS_AXIS_STEP_LOSS_B | sh.STATUS_AXIS_OCD)) {
       switch (test_phase) {
 
         case 0: {
-          if (status_composite & STATUS_OCD) {
+          if (status_composite & sh.STATUS_AXIS_OCD) {
             // phase 0 with OCD warning - time to go to next phase
-            if (ocd_th_val >=15) {
-              ocd_th_val = 15;           // limit to max
+            if (OCD_TH_val >= sh.AXIS_OCD_TH_MAX) {
+              OCD_TH_val = sh.AXIS_OCD_TH_MAX;           // limit to max
               test_phase = 2;            // at highest value so skip phase 1
               L6470_ECHOLNPGM("LOGIC E0A OCD at highest - skip to 2");
             }
             else {
-              ocd_th_val++;              // normal exit to next phase
+              OCD_TH_val++;              // normal exit to next phase
               test_phase = 1;            // setup for first pass of phase 1
               L6470_ECHOLNPGM("LOGIC E0B - inc OCD  & go to 1");
             }
           }
           else {  // phase 0 without OCD warning - keep on decrementing if can
-            if (ocd_th_val) {
-              ocd_th_val--;              // try lower value
+            if (OCD_TH_val) {
+              OCD_TH_val--;              // try lower value
               L6470_ECHOLNPGM("LOGIC E0C - dec OCD");
             }
             else {
@@ -302,15 +305,15 @@ void GcodeSuite::M917() {
         } break;
 
         case 1: {
-          if (status_composite & STATUS_OCD) {
+          if (status_composite & sh.STATUS_AXIS_OCD) {
             // phase 1 with OCD warning - increment if can
-            if (ocd_th_val >= 15) {
-              ocd_th_val = 15;           // limit to max
+            if (OCD_TH_val >= sh.AXIS_OCD_TH_MAX) {
+              OCD_TH_val = sh.AXIS_OCD_TH_MAX;           // limit to max
               test_phase = 2;            // at highest value so go to next phase
               L6470_ECHOLNPGM("LOGIC E1A - OCD at max - go to 2");
             }
             else {
-              ocd_th_val++;              // try a higher value
+              OCD_TH_val++;              // try a higher value
               L6470_ECHOLNPGM("LOGIC E1B - inc OCD");
             }
           }
@@ -321,23 +324,23 @@ void GcodeSuite::M917() {
         } break;
 
         case 2: {
-          if (status_composite & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)) {
+          if (status_composite & (sh.STATUS_AXIS_STEP_LOSS_A | sh.STATUS_AXIS_STEP_LOSS_B)) {
             // phase 2 with stall warning - time to go to next phase
-            if (stall_th_val >= 127) {
-              stall_th_val = 127;  // limit to max
+            if (STALL_TH_val >= sh.AXIS_STALL_TH_MAX) {
+              STALL_TH_val = sh.AXIS_STALL_TH_MAX;  // limit to max
               L6470_ECHOLNPGM("LOGIC E2A - STALL warning, STALL at max, quit");
               L6470_ECHOLNPGM("finished - STALL at maximum value but still have stall warning");
               test_phase = 4;
             }
             else {
               test_phase = 3;              // normal exit to next phase (found failing value of STALL)
-              stall_th_val++;              // setup for first pass of phase 3
+              STALL_TH_val++;              // setup for first pass of phase 3
               L6470_ECHOLNPGM("LOGIC E2B - INC - STALL warning, inc Stall, go to 3");
             }
           }
           else {  // phase 2 without stall warning - decrement if can
-            if (stall_th_val) {
-              stall_th_val--;              // try a lower value
+            if (STALL_TH_val) {
+              STALL_TH_val--;              // try a lower value
               L6470_ECHOLNPGM("LOGIC E2C - no STALL, dec STALL");
             }
             else {
@@ -349,16 +352,16 @@ void GcodeSuite::M917() {
         } break;
 
         case 3: {
-          if (status_composite & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)) {
+          if (status_composite & (sh.STATUS_AXIS_STEP_LOSS_A | sh.STATUS_AXIS_STEP_LOSS_B)) {
             // phase 3 with stall warning - increment if can
-            if (stall_th_val >= 127) {
-              stall_th_val = 127; // limit to max
+            if (STALL_TH_val >= sh.AXIS_STALL_TH_MAX) {
+              STALL_TH_val = sh.AXIS_STALL_TH_MAX; // limit to max
               L6470_ECHOLNPGM("finished - STALL at maximum value but still have stall warning");
               test_phase = 4;
               L6470_ECHOLNPGM("LOGIC E3A - STALL, at max so quit");
             }
             else {
-              stall_th_val++;              // still looking for passing value
+              STALL_TH_val++;              // still looking for passing value
               L6470_ECHOLNPGM("LOGIC E3B - STALL, inc stall");
             }
           }
@@ -375,8 +378,8 @@ void GcodeSuite::M917() {
     else {
       switch (test_phase) {
         case 0: { // phase 0 without OCD warning - keep on decrementing if can
-          if (ocd_th_val) {
-            ocd_th_val--;             // try lower value
+          if (OCD_TH_val) {
+            OCD_TH_val--;             // try lower value
             L6470_ECHOLNPGM("LOGIC N0A - DEC OCD");
           }
           else {
@@ -388,8 +391,8 @@ void GcodeSuite::M917() {
         case 1: L6470_ECHOLNPGM("LOGIC N1 (go directly to 2)"); // phase 1 without OCD warning - drop directly to phase 2
 
         case 2: { // phase 2 without stall warning - keep on decrementing if can
-          if (stall_th_val) {
-            stall_th_val--;              // try a lower value (stay in phase 2)
+          if (STALL_TH_val) {
+            STALL_TH_val--;              // try a lower value (stay in phase 2)
             L6470_ECHOLNPGM("LOGIC N2B - dec STALL");
           }
           else {
@@ -407,10 +410,10 @@ void GcodeSuite::M917() {
 
     if (test_phase != 4) {
       for (j = 0; j < driver_count; j++) {                       // update threshold(s)
-        L6470.set_param(axis_index[j], L6470_OCD_TH, ocd_th_val);
-        L6470.set_param(axis_index[j], L6470_STALL_TH, stall_th_val);
-        if (L6470.get_param(axis_index[j], L6470_OCD_TH) != ocd_th_val) L6470_ECHOLNPGM("OCD mismatch");
-        if (L6470.get_param(axis_index[j], L6470_STALL_TH) != stall_th_val) L6470_ECHOLNPGM("STALL mismatch");
+        L64helper.set_param(axis_index[j], L6470_OCD_TH, OCD_TH_val);
+        L64helper.set_param(axis_index[j], L6470_STALL_TH, STALL_TH_val);
+        if (L64helper.get_param(axis_index[j], L6470_OCD_TH) != OCD_TH_val) L6470_ECHOLNPGM("OCD mismatch");
+        if (L64helper.get_param(axis_index[j], L6470_STALL_TH) != STALL_TH_val) L6470_ECHOLNPGM("STALL mismatch");
       }
     }
 
@@ -420,7 +423,7 @@ void GcodeSuite::M917() {
     L6470_ECHOLNPGM("Completed with errors");
     for (j = 0; j < driver_count; j++) {
       L6470_ECHOPGM("...");
-      L6470.error_status_decode(axis_status[j], axis_index[j]);
+      L64helper.error_status_decode(axis_status[j], axis_index[j]);
     }
   }
   else
@@ -450,21 +453,21 @@ void GcodeSuite::M918() {
 
   L6470_ECHOLNPGM("M918");
 
-  char axis_mon[3][3] = { "  ", "  ", "  " };  // List of axes to monitor
-  uint8_t axis_index[3];
+  char *axis_mon[3] = { "  ", "  ", "  " };  // List of axes to monitor
+  L6470_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
   float position_max, position_min;
   float final_feedrate;
   uint8_t kval_hold;
-  uint8_t ocd_th_val = 0;
-  uint8_t stall_th_val = 0;
+  uint8_t OCD_TH_val = 0;
+  uint8_t STALL_TH_val = 0;
   uint16_t over_current_threshold;
   constexpr bool over_current_flag = true;
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (L64helper.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   uint8_t m_steps = parser.byteval('M');
@@ -490,7 +493,7 @@ void GcodeSuite::M918() {
   }
 
   for (j = 0; j < driver_count; j++)
-    L6470.set_param(axis_index[j], L6470_STEP_MODE, m_bits);   // set microsteps
+    L64helper.set_param(axis_index[j], L6470_STEP_MODE, m_bits);   // set microsteps
 
   L6470_ECHOLNPAIR("target (maximum) feedrate = ",final_feedrate);
 
@@ -500,11 +503,11 @@ void GcodeSuite::M918() {
   planner.synchronize();                  // wait for all current movement commands to complete
 
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);      // clear all error flags
+    L64helper.get_status(axis_index[j]);      // clear all error flags
 
-  char temp_axis_string[2];
+  char temp_axis_string[2] = " ";
   temp_axis_string[0] = axis_mon[0][0];   // need to have a string for use within sprintf format section
-  temp_axis_string[1] = '\n';
+  //temp_axis_string[1] = '\n';
 
   char gcode_string[80];
   uint16_t status_composite = 0;
@@ -523,7 +526,7 @@ void GcodeSuite::M918() {
     planner.synchronize();
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L6470.get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
+      axis_status[j] = (~L64helper.get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
       status_composite |= axis_status[j];
     }
     if (status_composite) break;       // quit if any errors flags are raised
@@ -533,12 +536,11 @@ void GcodeSuite::M918() {
     L6470_ECHOLNPGM("Completed with errors");
     for (j = 0; j < driver_count; j++) {
       L6470_ECHOPGM("...");
-      L6470.error_status_decode(axis_status[j], axis_index[j]);
+      L64helper.error_status_decode(axis_status[j], axis_index[j]);
     }
   }
   else
     L6470_ECHOLNPGM("Completed with no errors");
-
 } // M918
 
-#endif // HAS_DRIVER(L6470)
+#endif // HAS_L64XX

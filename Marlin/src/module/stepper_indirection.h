@@ -82,17 +82,22 @@
 #endif
 
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI
-#if HAS_DRIVER(L6470)
-  #include "L6470/L6470_Marlin.h"
-  #define L6470_WRITE_DIR_COMMAND(STATE,Q) do{ L6470_dir_commands[Q] = (STATE ?  dSPIN_STEP_CLOCK_REV : dSPIN_STEP_CLOCK_FWD); }while(0)
+#if HAS_L64XX
+  #include "../libs/L6470/L6470_Marlin.h"
+  #define L6470_WRITE_DIR_COMMAND(STATE,Q) do{ L64helper.dir_commands[Q] = (STATE ?  dSPIN_STEP_CLOCK_REV : dSPIN_STEP_CLOCK_FWD); }while(0)
 #endif
 
 void restore_stepper_drivers();  // Called by PSU_ON
 void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
+class no_class { };
+
+extern AXIS_CLASS_X stepperX;
+extern AXIS_CLASS_Y stepperY;
+extern AXIS_CLASS_Z stepperZ;
+
 // X Stepper
-#if AXIS_DRIVER_TYPE_X(L6470)
-  extern L6470 stepperX;
+#if AXIS_IS_L64XX(X)
   #define X_ENABLE_INIT NOOP
   #define X_ENABLE_WRITE(STATE) NOOP
   #define X_ENABLE_READ (stepperX.getStatus() & STATUS_HIZ)
@@ -100,11 +105,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define X_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,X)
   #define X_DIR_READ (stepperX.getStatus() & STATUS_DIR)
 #else
-  #if AXIS_IS_TMC(X)
-    extern TMC_CLASS(X) stepperX;
-  #endif
   #if AXIS_DRIVER_TYPE_X(TMC26X)
-    extern TMC26XStepper stepperX;
     #define X_ENABLE_INIT NOOP
     #define X_ENABLE_WRITE(STATE) stepperX.setEnabled(STATE)
     #define X_ENABLE_READ stepperX.isEnabled()
@@ -126,8 +127,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define X_STEP_READ READ(X_STEP_PIN)
 
 // Y Stepper
-#if AXIS_DRIVER_TYPE_Y(L6470)
-  extern L6470 stepperY;
+#if AXIS_IS_L64XX(Y)
   #define Y_ENABLE_INIT NOOP
   #define Y_ENABLE_WRITE(STATE) NOOP
   #define Y_ENABLE_READ (stepperY.getStatus() & STATUS_HIZ)
@@ -135,11 +135,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Y_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Y)
   #define Y_DIR_READ (stepperY.getStatus() & STATUS_DIR)
 #else
-  #if AXIS_IS_TMC(Y)
-    extern TMC_CLASS(Y) stepperY;
-  #endif
   #if AXIS_DRIVER_TYPE_Y(TMC26X)
-    extern TMC26XStepper stepperY;
     #define Y_ENABLE_INIT NOOP
     #define Y_ENABLE_WRITE(STATE) stepperY.setEnabled(STATE)
     #define Y_ENABLE_READ stepperY.isEnabled()
@@ -161,8 +157,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define Y_STEP_READ READ(Y_STEP_PIN)
 
 // Z Stepper
-#if AXIS_DRIVER_TYPE_Z(L6470)
-  extern L6470 stepperZ;
+#if AXIS_IS_L64XX(Z)
   #define Z_ENABLE_INIT NOOP
   #define Z_ENABLE_WRITE(STATE) NOOP
   #define Z_ENABLE_READ (stepperZ.getStatus() & STATUS_HIZ)
@@ -170,11 +165,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Z_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Z)
   #define Z_DIR_READ (stepperZ.getStatus() & STATUS_DIR)
 #else
-  #if AXIS_IS_TMC(Z)
-    extern TMC_CLASS(Z) stepperZ;
-  #endif
   #if AXIS_DRIVER_TYPE_Z(TMC26X)
-    extern TMC26XStepper stepperZ;
     #define Z_ENABLE_INIT NOOP
     #define Z_ENABLE_WRITE(STATE) stepperZ.setEnabled(STATE)
     #define Z_ENABLE_READ stepperZ.isEnabled()
@@ -197,8 +188,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // X2 Stepper
 #if HAS_X2_ENABLE
-  #if AXIS_DRIVER_TYPE_X2(L6470)
-    extern L6470 stepperX2;
+  extern AXIS_CLASS_X2 stepperX2;
+  #if AXIS_IS_L64XX(X2)
     #define X2_ENABLE_INIT NOOP
     #define X2_ENABLE_WRITE(STATE) NOOP
     #define X2_ENABLE_READ (stepperX2.getStatus() & STATUS_HIZ)
@@ -206,11 +197,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define X2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,X2)
     #define X2_DIR_READ (stepperX2.getStatus() & STATUS_DIR)
   #else
-    #if AXIS_IS_TMC(X2)
-      extern TMC_CLASS(X2) stepperX2;
-    #endif
     #if AXIS_DRIVER_TYPE_X2(TMC26X)
-      extern TMC26XStepper stepperX2;
       #define X2_ENABLE_INIT NOOP
       #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
       #define X2_ENABLE_READ stepperX2.isEnabled()
@@ -234,8 +221,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // Y2 Stepper
 #if HAS_Y2_ENABLE
-  #if AXIS_DRIVER_TYPE_Y2(L6470)
-    extern L6470 stepperY2;
+  extern AXIS_CLASS_Y2 stepperY2;
+  #if AXIS_IS_L64XX(Y2)
     #define Y2_ENABLE_INIT NOOP
     #define Y2_ENABLE_WRITE(STATE) NOOP
     #define Y2_ENABLE_READ (stepperY2.getStatus() & STATUS_HIZ)
@@ -243,11 +230,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Y2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Y2)
     #define Y2_DIR_READ (stepperY2.getStatus() & STATUS_DIR)
   #else
-    #if AXIS_IS_TMC(Y2)
-      extern TMC_CLASS(Y2) stepperY2;
-    #endif
     #if AXIS_DRIVER_TYPE_Y2(TMC26X)
-      extern TMC26XStepper stepperY2;
       #define Y2_ENABLE_INIT NOOP
       #define Y2_ENABLE_WRITE(STATE) stepperY2.setEnabled(STATE)
       #define Y2_ENABLE_READ stepperY2.isEnabled()
@@ -273,8 +256,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // Z2 Stepper
 #if HAS_Z2_ENABLE
-  #if AXIS_DRIVER_TYPE_Z2(L6470)
-    extern L6470 stepperZ2;
+  extern AXIS_CLASS_Z2 stepperZ2;
+  #if AXIS_IS_L64XX(Z2)
     #define Z2_ENABLE_INIT NOOP
     #define Z2_ENABLE_WRITE(STATE) NOOP
     #define Z2_ENABLE_READ (stepperZ2.getStatus() & STATUS_HIZ)
@@ -282,11 +265,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Z2)
     #define Z2_DIR_READ (stepperZ2.getStatus() & STATUS_DIR)
   #else
-    #if AXIS_IS_TMC(Z2)
-      extern TMC_CLASS(Z2) stepperZ2;
-    #endif
     #if AXIS_DRIVER_TYPE_Z2(TMC26X)
-      extern TMC26XStepper stepperZ2;
       #define Z2_ENABLE_INIT NOOP
       #define Z2_ENABLE_WRITE(STATE) stepperZ2.setEnabled(STATE)
       #define Z2_ENABLE_READ stepperZ2.isEnabled()
@@ -312,8 +291,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // Z3 Stepper
 #if HAS_Z3_ENABLE
-  #if AXIS_DRIVER_TYPE_Z3(L6470)
-    extern L6470 stepperZ3;
+  extern AXIS_CLASS_Z3 stepperZ3;
+  #if AXIS_IS_L64XX(Z3)
     #define Z3_ENABLE_INIT NOOP
     #define Z3_ENABLE_WRITE(STATE) NOOP
     #define Z3_ENABLE_READ (stepperZ3.getStatus() & STATUS_HIZ)
@@ -321,11 +300,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z3_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Z3)
     #define Z3_DIR_READ (stepperZ3.getStatus() & STATUS_DIR)
   #else
-    #if AXIS_IS_TMC(Z3)
-      extern TMC_CLASS(Z3) stepperZ3;
-    #endif
     #if ENABLED(Z3_IS_TMC26X)
-      extern TMC26XStepper stepperZ3;
       #define Z3_ENABLE_INIT NOOP
       #define Z3_ENABLE_WRITE(STATE) stepperZ3.setEnabled(STATE)
       #define Z3_ENABLE_READ stepperZ3.isEnabled()
@@ -350,214 +325,202 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 // E0 Stepper
-#if AXIS_DRIVER_TYPE_E0(L6470)
-  extern L6470 stepperE0;
-  #define E0_ENABLE_INIT NOOP
-  #define E0_ENABLE_WRITE(STATE) NOOP
-  #define E0_ENABLE_READ (stepperE0.getStatus() & STATUS_HIZ)
-  #define E0_DIR_INIT NOOP
-  #define E0_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E0)
-  #define E0_DIR_READ (stepperE0.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E0)
-    extern TMC_CLASS(E0) stepperE0;
-  #endif
-  #if AXIS_DRIVER_TYPE_E0(TMC26X)
-    extern TMC26XStepper stepperE0;
+#if HAS_E0_ENABLE
+  extern AXIS_CLASS_E0 stepperE0;
+  #if AXIS_IS_L64XX(E0)
     #define E0_ENABLE_INIT NOOP
-    #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
-    #define E0_ENABLE_READ stepperE0.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E0)
-    #define E0_ENABLE_INIT NOOP
-    #define E0_ENABLE_WRITE(STATE) stepperE0.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E0_ENABLE_READ stepperE0.isEnabled()
+    #define E0_ENABLE_WRITE(STATE) NOOP
+    #define E0_ENABLE_READ (stepperE0.getStatus() & STATUS_HIZ)
+    #define E0_DIR_INIT NOOP
+    #define E0_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E0)
+    #define E0_DIR_READ (stepperE0.getStatus() & STATUS_DIR)
   #else
-    #define E0_ENABLE_INIT SET_OUTPUT(E0_ENABLE_PIN)
-    #define E0_ENABLE_WRITE(STATE) WRITE(E0_ENABLE_PIN,STATE)
-    #define E0_ENABLE_READ READ(E0_ENABLE_PIN)
+    #if AXIS_DRIVER_TYPE_E0(TMC26X)
+      #define E0_ENABLE_INIT NOOP
+      #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
+      #define E0_ENABLE_READ stepperE0.isEnabled()
+    #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E0)
+      #define E0_ENABLE_INIT NOOP
+      #define E0_ENABLE_WRITE(STATE) stepperE0.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
+      #define E0_ENABLE_READ stepperE0.isEnabled()
+    #else
+      #define E0_ENABLE_INIT SET_OUTPUT(E0_ENABLE_PIN)
+      #define E0_ENABLE_WRITE(STATE) WRITE(E0_ENABLE_PIN,STATE)
+      #define E0_ENABLE_READ READ(E0_ENABLE_PIN)
+    #endif
+    #define E0_DIR_INIT SET_OUTPUT(E0_DIR_PIN)
+    #define E0_DIR_WRITE(STATE) WRITE(E0_DIR_PIN,STATE)
+    #define E0_DIR_READ READ(E0_DIR_PIN)
   #endif
-  #define E0_DIR_INIT SET_OUTPUT(E0_DIR_PIN)
-  #define E0_DIR_WRITE(STATE) WRITE(E0_DIR_PIN,STATE)
-  #define E0_DIR_READ READ(E0_DIR_PIN)
+  #define E0_STEP_INIT SET_OUTPUT(E0_STEP_PIN)
+  #define E0_STEP_WRITE(STATE) WRITE(E0_STEP_PIN,STATE)
+  #define E0_STEP_READ READ(E0_STEP_PIN)
 #endif
-#define E0_STEP_INIT SET_OUTPUT(E0_STEP_PIN)
-#define E0_STEP_WRITE(STATE) WRITE(E0_STEP_PIN,STATE)
-#define E0_STEP_READ READ(E0_STEP_PIN)
 
 // E1 Stepper
-#if AXIS_DRIVER_TYPE_E1(L6470)
-  extern L6470 stepperE1;
-  #define E1_ENABLE_INIT NOOP
-  #define E1_ENABLE_WRITE(STATE) NOOP
-  #define E1_ENABLE_READ (stepperE1.getStatus() & STATUS_HIZ)
-  #define E1_DIR_INIT NOOP
-  #define E1_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E1)
-  #define E1_DIR_READ (stepperE1.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E1)
-    extern TMC_CLASS(E1) stepperE1;
-  #endif
-  #if AXIS_DRIVER_TYPE_E1(TMC26X)
-    extern TMC26XStepper stepperE1;
+#if HAS_E1_ENABLE
+  extern AXIS_CLASS_E1 stepperE1;
+  #if AXIS_IS_L64XX(E1)
     #define E1_ENABLE_INIT NOOP
-    #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
-    #define E1_ENABLE_READ stepperE1.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1)
-    #define E1_ENABLE_INIT NOOP
-    #define E1_ENABLE_WRITE(STATE) stepperE1.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E1_ENABLE_READ stepperE1.isEnabled()
+    #define E1_ENABLE_WRITE(STATE) NOOP
+    #define E1_ENABLE_READ (stepperE1.getStatus() & STATUS_HIZ)
+    #define E1_DIR_INIT NOOP
+    #define E1_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E1)
+    #define E1_DIR_READ (stepperE1.getStatus() & STATUS_DIR)
   #else
-    #define E1_ENABLE_INIT SET_OUTPUT(E1_ENABLE_PIN)
-    #define E1_ENABLE_WRITE(STATE) WRITE(E1_ENABLE_PIN,STATE)
-    #define E1_ENABLE_READ READ(E1_ENABLE_PIN)
+    #if AXIS_DRIVER_TYPE_E1(TMC26X)
+      #define E1_ENABLE_INIT NOOP
+      #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
+      #define E1_ENABLE_READ stepperE1.isEnabled()
+    #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1)
+      #define E1_ENABLE_INIT NOOP
+      #define E1_ENABLE_WRITE(STATE) stepperE1.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
+      #define E1_ENABLE_READ stepperE1.isEnabled()
+    #else
+      #define E1_ENABLE_INIT SET_OUTPUT(E1_ENABLE_PIN)
+      #define E1_ENABLE_WRITE(STATE) WRITE(E1_ENABLE_PIN,STATE)
+      #define E1_ENABLE_READ READ(E1_ENABLE_PIN)
+    #endif
+    #define E1_DIR_INIT SET_OUTPUT(E1_DIR_PIN)
+    #define E1_DIR_WRITE(STATE) WRITE(E1_DIR_PIN,STATE)
+    #define E1_DIR_READ READ(E1_DIR_PIN)
   #endif
-  #define E1_DIR_INIT SET_OUTPUT(E1_DIR_PIN)
-  #define E1_DIR_WRITE(STATE) WRITE(E1_DIR_PIN,STATE)
-  #define E1_DIR_READ READ(E1_DIR_PIN)
+  #define E1_STEP_INIT SET_OUTPUT(E1_STEP_PIN)
+  #define E1_STEP_WRITE(STATE) WRITE(E1_STEP_PIN,STATE)
+  #define E1_STEP_READ READ(E1_STEP_PIN)
 #endif
-#define E1_STEP_INIT SET_OUTPUT(E1_STEP_PIN)
-#define E1_STEP_WRITE(STATE) WRITE(E1_STEP_PIN,STATE)
-#define E1_STEP_READ READ(E1_STEP_PIN)
 
 // E2 Stepper
-#if AXIS_DRIVER_TYPE_E2(L6470)
-  extern L6470 stepperE2;
-  #define E2_ENABLE_INIT NOOP
-  #define E2_ENABLE_WRITE(STATE) NOOP
-  #define E2_ENABLE_READ (stepperE2.getStatus() & STATUS_HIZ)
-  #define E2_DIR_INIT NOOP
-  #define E2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E2)
-  #define E2_DIR_READ (stepperE2.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E2)
-    extern TMC_CLASS(E2) stepperE2;
-  #endif
-  #if AXIS_DRIVER_TYPE_E2(TMC26X)
-    extern TMC26XStepper stepperE2;
+#if HAS_E2_ENABLE
+  extern AXIS_CLASS_E2 stepperE2;
+  #if AXIS_IS_L64XX(E2)
     #define E2_ENABLE_INIT NOOP
-    #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
-    #define E2_ENABLE_READ stepperE2.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2)
-    #define E2_ENABLE_INIT NOOP
-    #define E2_ENABLE_WRITE(STATE) stepperE2.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E2_ENABLE_READ stepperE2.isEnabled()
+    #define E2_ENABLE_WRITE(STATE) NOOP
+    #define E2_ENABLE_READ (stepperE2.getStatus() & STATUS_HIZ)
+    #define E2_DIR_INIT NOOP
+    #define E2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E2)
+    #define E2_DIR_READ (stepperE2.getStatus() & STATUS_DIR)
   #else
-    #define E2_ENABLE_INIT SET_OUTPUT(E2_ENABLE_PIN)
-    #define E2_ENABLE_WRITE(STATE) WRITE(E2_ENABLE_PIN,STATE)
-    #define E2_ENABLE_READ READ(E2_ENABLE_PIN)
+    #if AXIS_DRIVER_TYPE_E2(TMC26X)
+      #define E2_ENABLE_INIT NOOP
+      #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
+      #define E2_ENABLE_READ stepperE2.isEnabled()
+    #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2)
+      #define E2_ENABLE_INIT NOOP
+      #define E2_ENABLE_WRITE(STATE) stepperE2.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
+      #define E2_ENABLE_READ stepperE2.isEnabled()
+    #else
+      #define E2_ENABLE_INIT SET_OUTPUT(E2_ENABLE_PIN)
+      #define E2_ENABLE_WRITE(STATE) WRITE(E2_ENABLE_PIN,STATE)
+      #define E2_ENABLE_READ READ(E2_ENABLE_PIN)
+    #endif
+    #define E2_DIR_INIT SET_OUTPUT(E2_DIR_PIN)
+    #define E2_DIR_WRITE(STATE) WRITE(E2_DIR_PIN,STATE)
+    #define E2_DIR_READ READ(E2_DIR_PIN)
   #endif
-  #define E2_DIR_INIT SET_OUTPUT(E2_DIR_PIN)
-  #define E2_DIR_WRITE(STATE) WRITE(E2_DIR_PIN,STATE)
-  #define E2_DIR_READ READ(E2_DIR_PIN)
+  #define E2_STEP_INIT SET_OUTPUT(E2_STEP_PIN)
+  #define E2_STEP_WRITE(STATE) WRITE(E2_STEP_PIN,STATE)
+  #define E2_STEP_READ READ(E2_STEP_PIN)
 #endif
-#define E2_STEP_INIT SET_OUTPUT(E2_STEP_PIN)
-#define E2_STEP_WRITE(STATE) WRITE(E2_STEP_PIN,STATE)
-#define E2_STEP_READ READ(E2_STEP_PIN)
 
 // E3 Stepper
-#if AXIS_DRIVER_TYPE_E3(L6470)
-  extern L6470 stepperE3;
-  #define E3_ENABLE_INIT NOOP
-  #define E3_ENABLE_WRITE(STATE) NOOP
-  #define E3_ENABLE_READ (stepperE3.getStatus() & STATUS_HIZ)
-  #define E3_DIR_INIT NOOP
-  #define E3_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E3)
-  #define E3_DIR_READ (stepperE3.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E3)
-    extern TMC_CLASS(E3) stepperE3;
-  #endif
-  #if AXIS_DRIVER_TYPE_E3(TMC26X)
-    extern TMC26XStepper stepperE3;
+#if HAS_E3_ENABLE
+  extern AXIS_CLASS_E3 stepperE3;
+  #if AXIS_IS_L64XX(E3)
     #define E3_ENABLE_INIT NOOP
-    #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
-    #define E3_ENABLE_READ stepperE3.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3)
-    #define E3_ENABLE_INIT NOOP
-    #define E3_ENABLE_WRITE(STATE) stepperE3.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E3_ENABLE_READ stepperE3.isEnabled()
+    #define E3_ENABLE_WRITE(STATE) NOOP
+    #define E3_ENABLE_READ (stepperE3.getStatus() & STATUS_HIZ)
+    #define E3_DIR_INIT NOOP
+    #define E3_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E3)
+    #define E3_DIR_READ (stepperE3.getStatus() & STATUS_DIR)
   #else
-    #define E3_ENABLE_INIT SET_OUTPUT(E3_ENABLE_PIN)
-    #define E3_ENABLE_WRITE(STATE) WRITE(E3_ENABLE_PIN,STATE)
-    #define E3_ENABLE_READ READ(E3_ENABLE_PIN)
+    #if AXIS_DRIVER_TYPE_E3(TMC26X)
+      #define E3_ENABLE_INIT NOOP
+      #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
+      #define E3_ENABLE_READ stepperE3.isEnabled()
+    #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3)
+      #define E3_ENABLE_INIT NOOP
+      #define E3_ENABLE_WRITE(STATE) stepperE3.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
+      #define E3_ENABLE_READ stepperE3.isEnabled()
+    #else
+      #define E3_ENABLE_INIT SET_OUTPUT(E3_ENABLE_PIN)
+      #define E3_ENABLE_WRITE(STATE) WRITE(E3_ENABLE_PIN,STATE)
+      #define E3_ENABLE_READ READ(E3_ENABLE_PIN)
+    #endif
+    #define E3_DIR_INIT SET_OUTPUT(E3_DIR_PIN)
+    #define E3_DIR_WRITE(STATE) WRITE(E3_DIR_PIN,STATE)
+    #define E3_DIR_READ READ(E3_DIR_PIN)
   #endif
-  #define E3_DIR_INIT SET_OUTPUT(E3_DIR_PIN)
-  #define E3_DIR_WRITE(STATE) WRITE(E3_DIR_PIN,STATE)
-  #define E3_DIR_READ READ(E3_DIR_PIN)
+  #define E3_STEP_INIT SET_OUTPUT(E3_STEP_PIN)
+  #define E3_STEP_WRITE(STATE) WRITE(E3_STEP_PIN,STATE)
+  #define E3_STEP_READ READ(E3_STEP_PIN)
 #endif
-#define E3_STEP_INIT SET_OUTPUT(E3_STEP_PIN)
-#define E3_STEP_WRITE(STATE) WRITE(E3_STEP_PIN,STATE)
-#define E3_STEP_READ READ(E3_STEP_PIN)
 
 // E4 Stepper
-#if AXIS_DRIVER_TYPE_E4(L6470)
-  extern L6470 stepperE4;
-  #define E4_ENABLE_INIT NOOP
-  #define E4_ENABLE_WRITE(STATE) NOOP
-  #define E4_ENABLE_READ (stepperE4.getStatus() & STATUS_HIZ)
-  #define E4_DIR_INIT NOOP
-  #define E4_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E4)
-  #define E4_DIR_READ (stepperE4.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E4)
-    extern TMC_CLASS(E4) stepperE4;
-  #endif
-  #if AXIS_DRIVER_TYPE_E4(TMC26X)
-    extern TMC26XStepper stepperE4;
+#if HAS_E4_ENABLE
+  extern AXIS_CLASS_E4 stepperE4;
+  #if AXIS_IS_L64XX(E4)
     #define E4_ENABLE_INIT NOOP
-    #define E4_ENABLE_WRITE(STATE) stepperE4.setEnabled(STATE)
-    #define E4_ENABLE_READ stepperE4.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4)
-    #define E4_ENABLE_INIT NOOP
-    #define E4_ENABLE_WRITE(STATE) stepperE4.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E4_ENABLE_READ stepperE4.isEnabled()
+    #define E4_ENABLE_WRITE(STATE) NOOP
+    #define E4_ENABLE_READ (stepperE4.getStatus() & STATUS_HIZ)
+    #define E4_DIR_INIT NOOP
+    #define E4_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E4)
+    #define E4_DIR_READ (stepperE4.getStatus() & STATUS_DIR)
   #else
-    #define E4_ENABLE_INIT SET_OUTPUT(E4_ENABLE_PIN)
-    #define E4_ENABLE_WRITE(STATE) WRITE(E4_ENABLE_PIN,STATE)
-    #define E4_ENABLE_READ READ(E4_ENABLE_PIN)
+    #if AXIS_DRIVER_TYPE_E4(TMC26X)
+      #define E4_ENABLE_INIT NOOP
+      #define E4_ENABLE_WRITE(STATE) stepperE4.setEnabled(STATE)
+      #define E4_ENABLE_READ stepperE4.isEnabled()
+    #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4)
+      #define E4_ENABLE_INIT NOOP
+      #define E4_ENABLE_WRITE(STATE) stepperE4.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
+      #define E4_ENABLE_READ stepperE4.isEnabled()
+    #else
+      #define E4_ENABLE_INIT SET_OUTPUT(E4_ENABLE_PIN)
+      #define E4_ENABLE_WRITE(STATE) WRITE(E4_ENABLE_PIN,STATE)
+      #define E4_ENABLE_READ READ(E4_ENABLE_PIN)
+    #endif
+    #define E4_DIR_INIT SET_OUTPUT(E4_DIR_PIN)
+    #define E4_DIR_WRITE(STATE) WRITE(E4_DIR_PIN,STATE)
+    #define E4_DIR_READ READ(E4_DIR_PIN)
   #endif
-  #define E4_DIR_INIT SET_OUTPUT(E4_DIR_PIN)
-  #define E4_DIR_WRITE(STATE) WRITE(E4_DIR_PIN,STATE)
-  #define E4_DIR_READ READ(E4_DIR_PIN)
+  #define E4_STEP_INIT SET_OUTPUT(E4_STEP_PIN)
+  #define E4_STEP_WRITE(STATE) WRITE(E4_STEP_PIN,STATE)
+  #define E4_STEP_READ READ(E4_STEP_PIN)
 #endif
-#define E4_STEP_INIT SET_OUTPUT(E4_STEP_PIN)
-#define E4_STEP_WRITE(STATE) WRITE(E4_STEP_PIN,STATE)
-#define E4_STEP_READ READ(E4_STEP_PIN)
 
 // E5 Stepper
-#if AXIS_DRIVER_TYPE_E5(L6470)
-  extern L6470 stepperE5;
-  #define E5_ENABLE_INIT NOOP
-  #define E5_ENABLE_WRITE(STATE) NOOP
-  #define E5_ENABLE_READ (stepperE5.getStatus() & STATUS_HIZ)
-  #define E5_DIR_INIT NOOP
-  #define E5_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E5)
-  #define E5_DIR_READ (stepperE5.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E5)
-    extern TMC_CLASS(E5) stepperE5;
-  #endif
-  #if AXIS_DRIVER_TYPE_E5(TMC26X)
-    extern TMC26XStepper stepperE5;
+#if HAS_E5_ENABLE
+  extern AXIS_CLASS_E5 stepperE5;
+  #if AXIS_IS_L64XX(E5)
     #define E5_ENABLE_INIT NOOP
-    #define E5_ENABLE_WRITE(STATE) stepperE5.setEnabled(STATE)
-    #define E5_ENABLE_READ stepperE5.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5)
-    #define E5_ENABLE_INIT NOOP
-    #define E5_ENABLE_WRITE(STATE) stepperE5.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E5_ENABLE_READ stepperE5.isEnabled()
+    #define E5_ENABLE_WRITE(STATE) NOOP
+    #define E5_ENABLE_READ (stepperE5.getStatus() & STATUS_HIZ)
+    #define E5_DIR_INIT NOOP
+    #define E5_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E5)
+    #define E5_DIR_READ (stepperE5.getStatus() & STATUS_DIR)
   #else
-    #define E5_ENABLE_INIT SET_OUTPUT(E5_ENABLE_PIN)
-    #define E5_ENABLE_WRITE(STATE) WRITE(E5_ENABLE_PIN,STATE)
-    #define E5_ENABLE_READ READ(E5_ENABLE_PIN)
+    #if AXIS_DRIVER_TYPE_E5(TMC26X)
+      #define E5_ENABLE_INIT NOOP
+      #define E5_ENABLE_WRITE(STATE) stepperE5.setEnabled(STATE)
+      #define E5_ENABLE_READ stepperE5.isEnabled()
+    #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5)
+      #define E5_ENABLE_INIT NOOP
+      #define E5_ENABLE_WRITE(STATE) stepperE5.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
+      #define E5_ENABLE_READ stepperE5.isEnabled()
+    #else
+      #define E5_ENABLE_INIT SET_OUTPUT(E5_ENABLE_PIN)
+      #define E5_ENABLE_WRITE(STATE) WRITE(E5_ENABLE_PIN,STATE)
+      #define E5_ENABLE_READ READ(E5_ENABLE_PIN)
+    #endif
+    #define E5_DIR_INIT SET_OUTPUT(E5_DIR_PIN)
+    #define E5_DIR_WRITE(STATE) WRITE(E5_DIR_PIN,STATE)
+    #define E5_DIR_READ READ(E5_DIR_PIN)
   #endif
-  #define E5_DIR_INIT SET_OUTPUT(E5_DIR_PIN)
-  #define E5_DIR_WRITE(STATE) WRITE(E5_DIR_PIN,STATE)
-  #define E5_DIR_READ READ(E5_DIR_PIN)
+  #define E5_STEP_INIT SET_OUTPUT(E5_STEP_PIN)
+  #define E5_STEP_WRITE(STATE) WRITE(E5_STEP_PIN,STATE)
+  #define E5_STEP_READ READ(E5_STEP_PIN)
 #endif
-#define E5_STEP_INIT SET_OUTPUT(E5_STEP_PIN)
-#define E5_STEP_WRITE(STATE) WRITE(E5_STEP_PIN,STATE)
-#define E5_STEP_READ READ(E5_STEP_PIN)
 
 /**
  * Extruder indirection for the single E axis
