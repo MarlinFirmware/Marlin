@@ -223,6 +223,8 @@ void GcodeSuite::M917() {
 
   const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
 
+  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
+
   do {
 
     DEBUG_ECHOPAIR("STALL threshold : ", (stall_th_val + 1) * 31.25);

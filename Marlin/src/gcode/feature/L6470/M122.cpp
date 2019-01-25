@@ -110,6 +110,48 @@ inline void L6470_say_status(const L6470_axis_t axis) {
   SERIAL_EOL();
 }
 
+#define L6470_STATUS_DECODE(Q) L6470_status_decode(stepper##Q.getStatus(), Q)
+
+#endif
+
+inline void L6470_say_status(const L6470_axis_t axis) {
+  if (L64helper.spi_abort) return;
+  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
+  L64helper.get_status(axis);
+  L64helper.say_axis(axis);
+  #if ENABLED(L6470_CHITCHAT)
+    char temp_buf[20];
+    sprintf_P(temp_buf, PSTR("   status: %4x   "), sh.STATUS_AXIS_RAW);
+    SERIAL_ECHO(temp_buf);
+    print_bin(sh.STATUS_AXIS_RAW);
+    serialprintPGM(sh.STATUS_AXIS_LAYOUT ? PSTR("   L6470") : PSTR("   L6480/powerSTEP01"));
+  #endif
+  SERIAL_ECHOPGM("\n...OUTPUT: ");
+  serialprintPGM(sh.STATUS_AXIS & STATUS_HIZ ? PSTR("OFF") : PSTR("ON "));
+  SERIAL_ECHOPGM("   BUSY: "); echo_yes_no(!(sh.STATUS_AXIS & STATUS_BUSY));
+  SERIAL_ECHOPGM("   DIR: ");
+  serialprintPGM((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64helper.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
+  SERIAL_ECHOPGM("   Last Command: ");
+  if (sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD) SERIAL_ECHOPGM("IN");
+  SERIAL_ECHOPGM("VALID    ");
+  if (sh.STATUS_AXIS_LAYOUT) {
+    serialprintPGM(sh.STATUS_AXIS & sh.STATUS_AXIS_NOTPERF_CMD ? PSTR("Not PERFORMED") : PSTR("COMPLETED    "));
+    SERIAL_ECHOPAIR("\n...THERMAL: ", !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_SD) ? "SHUTDOWN       " : !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_WRN) ? "WARNING        " : "OK             ");
+  }
+  else {
+    SERIAL_ECHOPGM("\n...THERMAL: ");
+    switch ((sh.STATUS_AXIS & (sh.STATUS_AXIS_TH_SD | sh.STATUS_AXIS_TH_WRN)) >> 11) {
+      case 0: SERIAL_ECHOPGM("DEVICE SHUTDOWN"); break;
+      case 1: SERIAL_ECHOPGM("BRIDGE SHUTDOWN"); break;
+      case 2: SERIAL_ECHOPGM("WARNING        "); break;
+      case 3: SERIAL_ECHOPGM("OK             "); break;
+    }
+  }
+  SERIAL_ECHOPGM("   OVERCURRENT:"); echo_yes_no(!(sh.STATUS_AXIS & sh.STATUS_AXIS_OCD));
+  SERIAL_ECHOPGM("   STALL:"); echo_yes_no(!(sh.STATUS_AXIS & sh.STATUS_AXIS_STEP_LOSS_A) || !(sh.STATUS_AXIS & sh.STATUS_AXIS_STEP_LOSS_B));
+  SERIAL_ECHOLNPGM("   STEP-CLOCK MODE:"); echo_yes_no(sh.STATUS_AXIS & sh.STATUS_AXIS_SCK_MOD);
+}
+
 /**
  * M122: Debug L6470 drivers
  */
