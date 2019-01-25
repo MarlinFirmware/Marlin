@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(L6470)
+#if HAS_L64XX
 
 #include "../../gcode.h"
 #include "../../../module/stepper_indirection.h"
@@ -64,23 +64,23 @@ void GcodeSuite::M916() {
 
   DEBUG_ECHOLNPGM("M916");
 
-  // Variables used by L6470_get_user_input function - some may not be used
-  char axis_mon[3][3] = { "  ", "  ", "  " };  // list of Axes to be monitored
-  uint8_t axis_index[3];
+  // Variables used by L64helper.get_user_input function - some may not be used
+  char *axis_mon[3] = { "  ", "  ", "  " };  // list of Axes to be monitored
+  L6470_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
   float position_max;
   float position_min;
   float final_feedrate;
   uint8_t kval_hold;
-  uint8_t ocd_th_val = 0;
-  uint8_t stall_th_val = 0;
+  uint8_t OCD_TH_val = 0;
+  uint8_t STALL_TH_val = 0;
   uint16_t over_current_threshold;
   constexpr bool over_current_flag = false;  // M916 doesn't play with the overcurrent thresholds
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (L64helper.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   DEBUG_ECHOLNPAIR("feedrate = ", final_feedrate);
@@ -88,12 +88,13 @@ void GcodeSuite::M916() {
   planner.synchronize();                             // wait for all current movement commands to complete
 
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    L64helper.get_status(axis_index[j]);  // clear out any pre-existing error flags
 
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
   char gcode_string[80];
   uint16_t status_composite = 0;
+  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
 
   DEBUG_ECHOLNPGM(".\n.");
 
@@ -102,7 +103,7 @@ void GcodeSuite::M916() {
     DEBUG_ECHOLNPAIR("kval_hold = ", kval_hold);   // set & report KVAL_HOLD for this run
 
     for (j = 0; j < driver_count; j++)
-      L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
+      L64helper.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
 
     // turn the motor(s) both directions
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
@@ -117,7 +118,7 @@ void GcodeSuite::M916() {
     status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
+      axis_status[j] = (~L64helper.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
       status_composite |= axis_status[j] ;
     }
 
@@ -131,10 +132,10 @@ void GcodeSuite::M916() {
     }
 
     // increment KVAL_HOLD if not yet at thermal warning/shutdown
-    if (!(status_composite & (STATUS_TH_WRN | STATUS_TH_SD)))
+    if (!(status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD)))
       kval_hold++;
 
-  } while (!(status_composite & (STATUS_TH_WRN | STATUS_TH_SD)) && kval_hold);  // exit when kval_hold == 0 (rolls over)
+  } while (!(status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD)) && kval_hold);  // exit when kval_hold == 0 (rolls over)
 
   DEBUG_ECHOPGM(".\n.\nThermal warning/shutdown ");
   if ((status_composite & (STATUS_TH_WRN | STATUS_TH_SD))) {
@@ -181,29 +182,29 @@ void GcodeSuite::M917() {
 
   DEBUG_ECHOLNPGM("M917");
 
-  char axis_mon[3][3] = { "  ", "  ", "  " };  // list of axes to be monitored
-  uint8_t axis_index[3];
+  char *axis_mon[3] = { "  ", "  ", "  " };  // list of axes to be monitored
+  L6470_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
   float position_max;
   float position_min;
   float final_feedrate;
   uint8_t kval_hold;
-  uint8_t ocd_th_val = 0;
-  uint8_t stall_th_val = 0;
+  uint8_t OCD_TH_val = 0;
+  uint8_t STALL_TH_val = 0;
   uint16_t over_current_threshold;
   constexpr bool over_current_flag = true;
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (L64helper.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   DEBUG_ECHOLNPAIR("feedrate = ", final_feedrate);
 
   planner.synchronize();                             // wait for all current movement commands to complete
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    L64helper.get_status(axis_index[j]);  // clear out any pre-existing error flags
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
   char gcode_string[80];
@@ -219,6 +220,8 @@ void GcodeSuite::M917() {
   DEBUG_ECHOPAIR(")   Stall threshold: ", (stall_th_val + 1) * 31.25);
   DEBUG_ECHOPAIR("  (STALL_TH: ", stall_th_val);
   DEBUG_ECHOLNPGM(")");
+
+  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
 
   do {
 
@@ -236,7 +239,7 @@ void GcodeSuite::M917() {
     status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
+      axis_status[j] = (~L64helper.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
       status_composite |= axis_status[j];
     }
 
@@ -260,7 +263,7 @@ void GcodeSuite::M917() {
           L6470_EOL();
           DEBUG_ECHOLNPAIR("Lowering KVAL_HOLD by about 5% to ", kval_hold);
           for (j = 0; j < driver_count; j++)
-            L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
+            L64helper.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         DEBUG_ECHOLNPGM(".");
         gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
@@ -268,26 +271,26 @@ void GcodeSuite::M917() {
         safe_delay(5000);
         status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {
-          axis_status[j] = (~L6470.get_status(axis_index[j])) & L6470_ERROR_MASK;    // bits of interest are all active low
+          axis_status[j] = (~L64helper.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
           status_composite_temp |= axis_status[j];
         }
       }
-      while (status_composite_temp & (STATUS_TH_WRN | STATUS_TH_SD));
+      while (status_composite_temp & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD));
       L6470_EOL();
     }
-    if (status_composite & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B | STATUS_OCD)) {
+    if (status_composite & (sh.STATUS_AXIS_STEP_LOSS_A | sh.STATUS_AXIS_STEP_LOSS_B | sh.STATUS_AXIS_OCD)) {
       switch (test_phase) {
 
         case 0: {
-          if (status_composite & STATUS_OCD) {
+          if (status_composite & sh.STATUS_AXIS_OCD) {
             // phase 0 with OCD warning - time to go to next phase
-            if (ocd_th_val >=15) {
-              ocd_th_val = 15;           // limit to max
+            if (OCD_TH_val >= sh.AXIS_OCD_TH_MAX) {
+              OCD_TH_val = sh.AXIS_OCD_TH_MAX;           // limit to max
               test_phase = 2;            // at highest value so skip phase 1
               DEBUG_ECHOLNPGM("LOGIC E0A OCD at highest - skip to 2");
             }
             else {
-              ocd_th_val++;              // normal exit to next phase
+              OCD_TH_val++;              // normal exit to next phase
               test_phase = 1;            // setup for first pass of phase 1
               DEBUG_ECHOLNPGM("LOGIC E0B - inc OCD  & go to 1");
             }
@@ -305,10 +308,10 @@ void GcodeSuite::M917() {
         } break;
 
         case 1: {
-          if (status_composite & STATUS_OCD) {
+          if (status_composite & sh.STATUS_AXIS_OCD) {
             // phase 1 with OCD warning - increment if can
-            if (ocd_th_val >= 15) {
-              ocd_th_val = 15;           // limit to max
+            if (OCD_TH_val >= sh.AXIS_OCD_TH_MAX) {
+              OCD_TH_val = sh.AXIS_OCD_TH_MAX;           // limit to max
               test_phase = 2;            // at highest value so go to next phase
               DEBUG_ECHOLNPGM("LOGIC E1A - OCD at max - go to 2");
             }
@@ -324,7 +327,7 @@ void GcodeSuite::M917() {
         } break;
 
         case 2: {
-          if (status_composite & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)) {
+          if (status_composite & (sh.STATUS_AXIS_STEP_LOSS_A | sh.STATUS_AXIS_STEP_LOSS_B)) {
             // phase 2 with stall warning - time to go to next phase
             if (stall_th_val >= 127) {
               stall_th_val = 127;  // limit to max
@@ -352,7 +355,7 @@ void GcodeSuite::M917() {
         } break;
 
         case 3: {
-          if (status_composite & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)) {
+          if (status_composite & (sh.STATUS_AXIS_STEP_LOSS_A | sh.STATUS_AXIS_STEP_LOSS_B)) {
             // phase 3 with stall warning - increment if can
             if (stall_th_val >= 127) {
               stall_th_val = 127; // limit to max
@@ -453,21 +456,21 @@ void GcodeSuite::M918() {
 
   DEBUG_ECHOLNPGM("M918");
 
-  char axis_mon[3][3] = { "  ", "  ", "  " };  // List of axes to monitor
-  uint8_t axis_index[3];
+  char *axis_mon[3] = { "  ", "  ", "  " };  // List of axes to monitor
+  L6470_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
   float position_max, position_min;
   float final_feedrate;
   uint8_t kval_hold;
-  uint8_t ocd_th_val = 0;
-  uint8_t stall_th_val = 0;
+  uint8_t OCD_TH_val = 0;
+  uint8_t STALL_TH_val = 0;
   uint16_t over_current_threshold;
   constexpr bool over_current_flag = true;
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (L64helper.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   uint8_t m_steps = parser.byteval('M');
@@ -493,7 +496,7 @@ void GcodeSuite::M918() {
   }
 
   for (j = 0; j < driver_count; j++)
-    L6470.set_param(axis_index[j], L6470_STEP_MODE, m_bits);   // set microsteps
+    L64helper.set_param(axis_index[j], L6470_STEP_MODE, m_bits);   // set microsteps
 
   DEBUG_ECHOLNPAIR("target (maximum) feedrate = ",final_feedrate);
 
@@ -503,11 +506,11 @@ void GcodeSuite::M918() {
   planner.synchronize();                  // wait for all current movement commands to complete
 
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);      // clear all error flags
+    L64helper.get_status(axis_index[j]);      // clear all error flags
 
-  char temp_axis_string[2];
+  char temp_axis_string[2] = " ";
   temp_axis_string[0] = axis_mon[0][0];   // need to have a string for use within sprintf format section
-  temp_axis_string[1] = '\n';
+  //temp_axis_string[1] = '\n';
 
   char gcode_string[80];
   uint16_t status_composite = 0;
@@ -526,7 +529,7 @@ void GcodeSuite::M918() {
     planner.synchronize();
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L6470.get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
+      axis_status[j] = (~L64helper.get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
       status_composite |= axis_status[j];
     }
     if (status_composite) break;       // quit if any errors flags are raised
@@ -545,4 +548,4 @@ void GcodeSuite::M918() {
 
 } // M918
 
-#endif // HAS_DRIVER(L6470)
+#endif // HAS_L64XX

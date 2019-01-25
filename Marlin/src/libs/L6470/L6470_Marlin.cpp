@@ -26,264 +26,287 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(L6470)
+#if HAS_L64XX
 
 #include "L6470_Marlin.h"
 
-L6470_Marlin L6470;
+extern L6470_Marlin L64helper;
 
-#include "../stepper_indirection.h"
+#include "../../module/stepper_indirection.h"
 #include "../../gcode/gcode.h"
-#include "../planner.h"
+#include "../../module/planner.h"
+
+const char * const L6470_Marlin::index_to_axis[MAX_L6470] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
 
 uint8_t L6470_Marlin::dir_commands[MAX_L6470];  // array to hold direction command for each driver
 
-char L6470_Marlin::index_to_axis[MAX_L6470][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
-
-bool L6470_Marlin::index_to_dir[MAX_L6470] =  {
-  INVERT_X_DIR                        ,  // 0 X
-  INVERT_Y_DIR                        ,  // 1 Y
-  INVERT_Z_DIR                        ,  // 2 Z
-  #if ENABLED(X_DUAL_STEPPER_DRIVERS)
-    INVERT_X_DIR ^ INVERT_X2_VS_X_DIR ,  // 3 X2
-  #else
-    INVERT_X_DIR                      ,  // 3 X2
-  #endif
-  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-    INVERT_Y_DIR ^ INVERT_Y2_VS_Y_DIR ,  // 4 Y2
-  #else
-    INVERT_Y_DIR                      ,  // 4 Y2
-  #endif
-  INVERT_Z_DIR                        ,  // 5 Z2
-  INVERT_Z_DIR                        ,  // 6 Z3
-  INVERT_E0_DIR                       ,  // 7 E0
-  INVERT_E1_DIR                       ,  // 8 E1
-  INVERT_E2_DIR                       ,  // 9 E2
-  INVERT_E3_DIR                       ,  //10 E3
-  INVERT_E4_DIR                       ,  //11 E4
-  INVERT_E5_DIR                       ,  //12 E5
-};
-
-uint8_t L6470_Marlin::axis_xref[MAX_L6470] = {
-  AxisEnum(X_AXIS), // X
-  AxisEnum(Y_AXIS), // Y
-  AxisEnum(Z_AXIS), // Z
-  AxisEnum(X_AXIS), // X2
-  AxisEnum(Y_AXIS), // Y2
-  AxisEnum(Z_AXIS), // Z2
-  AxisEnum(Z_AXIS), // Z3
-  AxisEnum(E_AXIS), // E0
-  AxisEnum(E_AXIS), // E1
-  AxisEnum(E_AXIS), // E2
-  AxisEnum(E_AXIS), // E3
-  AxisEnum(E_AXIS), // E4
-  AxisEnum(E_AXIS)  // E5
-};
+bool L6470_Marlin::index_to_dir[MAX_L6470] =  { INVERT_X_DIR                        ,  // 0 X
+                                                INVERT_Y_DIR                        ,  // 1 Y
+                                                INVERT_Z_DIR                        ,  // 2 Z
+                                                #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+                                                  INVERT_X_DIR ^ INVERT_X2_VS_X_DIR ,  // 3 X2
+                                                #else
+                                                  INVERT_X_DIR                      ,  // 3 X2
+                                                #endif
+                                                #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+                                                  INVERT_Y_DIR ^ INVERT_Y2_VS_Y_DIR ,  // 4 Y2
+                                                #else
+                                                  INVERT_Y_DIR                      ,  // 4 Y2
+                                                #endif
+                                                INVERT_Z_DIR                        ,  // 5 Z2
+                                                INVERT_Z_DIR                        ,  // 6 Z3
+                                                INVERT_E0_DIR                       ,  // 7 E0
+                                                INVERT_E1_DIR                       ,  // 8 E1
+                                                INVERT_E2_DIR                       ,  // 9 E2
+                                                INVERT_E3_DIR                       ,  //10 E3
+                                                INVERT_E4_DIR                       ,  //11 E4
+                                                INVERT_E5_DIR                          //12 E5
+                                              };
 
 volatile bool L6470_Marlin::spi_abort = false;
 bool L6470_Marlin::spi_active = false;
 
-void L6470_Marlin::populate_chain_array() {
+L6470_Marlin::L64XX_shadow_t L6470_Marlin::shadow;
+
+//uint32_t UVLO_ADC = 0x0400; // ADC undervoltage event
+
+void L6470_populate_chain_array() {
 
   #define _L6470_INIT_SPI(Q)  do{ stepper##Q.set_chain_info(Q, Q##_CHAIN_POS); }while(0)
 
-  #if AXIS_DRIVER_TYPE_X(L6470)
+  #if AXIS_IS_L64XX(X)
     _L6470_INIT_SPI(X);
   #endif
-  #if AXIS_DRIVER_TYPE_X2(L6470)
+  #if AXIS_IS_L64XX(X2)
     _L6470_INIT_SPI(X2);
   #endif
-  #if AXIS_DRIVER_TYPE_Y(L6470)
+  #if AXIS_IS_L64XX(Y)
     _L6470_INIT_SPI(Y);
   #endif
-  #if AXIS_DRIVER_TYPE_Y2(L6470)
+  #if AXIS_IS_L64XX(Y2)
     _L6470_INIT_SPI(Y2);
   #endif
-  #if AXIS_DRIVER_TYPE_Z(L6470)
+  #if AXIS_IS_L64XX(Z)
     _L6470_INIT_SPI(Z);
   #endif
-  #if AXIS_DRIVER_TYPE_Z2(L6470)
+  #if AXIS_IS_L64XX(Z2)
     _L6470_INIT_SPI(Z2);
   #endif
-  #if AXIS_DRIVER_TYPE_Z3(L6470)
+  #if AXIS_IS_L64XX(Z3)
     _L6470_INIT_SPI(Z3);
   #endif
-  #if AXIS_DRIVER_TYPE_E0(L6470)
+  #if AXIS_IS_L64XX(E0)
     _L6470_INIT_SPI(E0);
   #endif
-  #if AXIS_DRIVER_TYPE_E1(L6470)
+  #if AXIS_IS_L64XX(E1)
     _L6470_INIT_SPI(E1);
   #endif
-  #if AXIS_DRIVER_TYPE_E2(L6470)
+  #if AXIS_IS_L64XX(E2)
     _L6470_INIT_SPI(E2);
   #endif
-  #if AXIS_DRIVER_TYPE_E3(L6470)
+  #if AXIS_IS_L64XX(E3)
     _L6470_INIT_SPI(E3);
   #endif
-  #if AXIS_DRIVER_TYPE_E4(L6470)
+  #if AXIS_IS_L64XX(E4)
     _L6470_INIT_SPI(E4);
   #endif
-  #if AXIS_DRIVER_TYPE_E5(L6470)
+  #if AXIS_IS_L64XX(E5)
     _L6470_INIT_SPI(E5);
   #endif
 }
 
 void L6470_Marlin::init() {               // Set up SPI and then init chips
-  #if PIN_EXISTS(L6470_RESET_CHAIN)
-    OUT_WRITE(L6470_RESET_CHAIN_PIN, LOW);  // hardware reset of drivers
+  #ifdef L6470_RESET_CHAIN_PIN
+    OUT_WRITE(L6470_RESET_CHAIN_PIN,0);   // hardware reset of drivers
     delay(1);
-    OUT_WRITE(L6470_RESET_CHAIN_PIN, HIGH);
-    delay(1);                     // need about 650uS for the chip to fully start up
+    OUT_WRITE(L6470_RESET_CHAIN_PIN,1);
+    delay(1);                             // need about 650uS for the chip to fully start up
   #endif
-  populate_chain_array();   // Set up array to control where in the SPI transfer sequence a particular stepper's data goes
-  L6470_spi_init();               // Set up L6470 soft SPI pins
-  init_to_defaults();             // init the chips
+  L6470_populate_chain_array();           // Set up array to control where in the SPI transfer sequence a particular stepper's data goes
+
+  spi_init();                             // Since L64XX SPI pins are unset we must init SPI here
+
+  init_to_defaults();                     // init the chips
 }
 
-uint16_t L6470_Marlin::get_status(const uint8_t axis) {
+/**
+ * Some status bit positions & definitions change depending on the driver chip.  Copy all status info into known locations
+ * so check/display logic is simplified
+ *   1. copy stepper status
+ *   2. copy status bit definitions
+ *   3. copy status layout
+ *   4. make all error bits active low (if needed)
+ */
+uint16_t L6470_Marlin::get_stepper_status(const L64XX &st) {
+  shadow.STATUS_AXIS_RAW           = st.getStatus();
+  shadow.STATUS_AXIS               = shadow.STATUS_AXIS_RAW;
+  shadow.STATUS_AXIS_LAYOUT        = st.L6470_status_layout;
+  shadow.AXIS_OCD_TH_MAX           = st.OCD_TH_MAX;
+  shadow.AXIS_STALL_TH_MAX         = st.STALL_TH_MAX;
+  shadow.AXIS_OCD_CURRENT_CONSTANT_INV   = st.OCD_CURRENT_CONSTANT_INV;
+  shadow.AXIS_STALL_CURRENT_CONSTANT_INV = st.STALL_CURRENT_CONSTANT_INV;
+  shadow.L6470_AXIS_CONFIG         = st.L64XX_CONFIG;
+  shadow.L6470_AXIS_STATUS         = st.L64XX_STATUS;
+  shadow.STATUS_AXIS_OCD           = st.STATUS_OCD;
+  shadow.STATUS_AXIS_SCK_MOD       = st.STATUS_SCK_MOD;
+  shadow.STATUS_AXIS_STEP_LOSS_A   = st.STATUS_STEP_LOSS_A;
+  shadow.STATUS_AXIS_STEP_LOSS_B   = st.STATUS_STEP_LOSS_B;
+  shadow.STATUS_AXIS_TH_SD         = st.STATUS_TH_SD;
+  shadow.STATUS_AXIS_TH_WRN        = st.STATUS_TH_WRN;
+  shadow.STATUS_AXIS_UVLO          = st.STATUS_UVLO;
+  shadow.STATUS_AXIS_WRONG_CMD     = st.STATUS_WRONG_CMD;
+  shadow.STATUS_AXIS_CMD_ERR       = st.STATUS_CMD_ERR;
+  shadow.STATUS_AXIS_NOTPERF_CMD   = st.STATUS_NOTPERF_CMD;
+  shadow.L6470_ERROR_MASK          = shadow.STATUS_AXIS_UVLO | shadow.STATUS_AXIS_TH_WRN | shadow.STATUS_AXIS_TH_SD | shadow.STATUS_AXIS_OCD | shadow.STATUS_AXIS_STEP_LOSS_A | shadow.STATUS_AXIS_STEP_LOSS_B;
+  shadow.STATUS_AXIS_LAYOUT        = st.L6470_status_layout;
+  if (!shadow.STATUS_AXIS_LAYOUT) shadow.STATUS_AXIS ^= (shadow.STATUS_AXIS_TH_SD | shadow.STATUS_AXIS_TH_WRN);
+  return shadow.STATUS_AXIS;
+}
 
-  #define GET_L6470_STATUS(Q) stepper##Q.getStatus()
+uint16_t L6470_Marlin::get_status(const L6470_axis_t axis) {
+
+  #define STATUS_L6470(Q) get_stepper_status(stepper##Q)
 
   switch (axis) {
-    #if AXIS_DRIVER_TYPE_X(L6470)
-      case  0: return GET_L6470_STATUS(X);
+    #if AXIS_IS_L64XX(X)
+      case X : return STATUS_L6470(X);
     #endif
-    #if AXIS_DRIVER_TYPE_Y(L6470)
-      case  1: return GET_L6470_STATUS(Y);
+    #if AXIS_IS_L64XX(Y)
+      case Y : return STATUS_L6470(Y);
     #endif
-    #if AXIS_DRIVER_TYPE_Z(L6470)
-      case  2: return GET_L6470_STATUS(Z);
+    #if AXIS_IS_L64XX(Z)
+      case Z : return STATUS_L6470(Z);
     #endif
-    #if AXIS_DRIVER_TYPE_X2(L6470)
-      case  3: return GET_L6470_STATUS(X2);
+    #if AXIS_IS_L64XX(X2)
+      case X2: return STATUS_L6470(X2);
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(L6470)
-      case  4: return GET_L6470_STATUS(Y2);
+    #if AXIS_IS_L64XX(Y2)
+      case Y2: return STATUS_L6470(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(L6470)
-      case  5: return GET_L6470_STATUS(Z2);
+    #if AXIS_IS_L64XX(Z2)
+      case Z2: return STATUS_L6470(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(L6470)
-      case  6: return GET_L6470_STATUS(Z3);
+    #if AXIS_IS_L64XX(Z3)
+      case Z3: return STATUS_L6470(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE_E0(L6470)
-      case  7: return GET_L6470_STATUS(E0);
+    #if AXIS_IS_L64XX(E0)
+      case E0: return STATUS_L6470(E0);
     #endif
-    #if AXIS_DRIVER_TYPE_E1(L6470)
-      case  8: return GET_L6470_STATUS(E1);
+    #if AXIS_IS_L64XX(E1)
+      case E1: return STATUS_L6470(E1);
     #endif
-    #if AXIS_DRIVER_TYPE_E2(L6470)
-      case  9: return GET_L6470_STATUS(E2);
+    #if AXIS_IS_L64XX(E2)
+      case E2: return STATUS_L6470(E2);
     #endif
-    #if AXIS_DRIVER_TYPE_E3(L6470)
-      case 10: return GET_L6470_STATUS(E3);
+    #if AXIS_IS_L64XX(E3)
+      case E3: return STATUS_L6470(E3);
     #endif
-    #if AXIS_DRIVER_TYPE_E4(L6470)
-      case 11: return GET_L6470_STATUS(E4);
+    #if AXIS_IS_L64XX(E4)
+      case E4: return STATUS_L6470(E4);
     #endif
-    #if AXIS_DRIVER_TYPE_E5(L6470)
-      case 12: return GET_L6470_STATUS(E5);
+    #if AXIS_IS_L64XX(E5)
+      case E5: return STATUS_L6470(E5);
     #endif
   }
 
   return 0; // Not needed but kills a compiler warning
 }
 
-uint32_t L6470_Marlin::get_param(uint8_t axis, uint8_t param) {
+uint32_t L6470_Marlin::get_param(const L6470_axis_t axis, const uint8_t param) {
 
   #define GET_L6470_PARAM(Q) L6470_GETPARAM(param,Q)
 
   switch (axis) {
-    #if AXIS_DRIVER_TYPE_X(L6470)
-      case  0: return GET_L6470_PARAM(X);
+    #if AXIS_IS_L64XX(X)
+      case X : return GET_L6470_PARAM(X);
     #endif
-    #if AXIS_DRIVER_TYPE_Y(L6470)
-      case  1: return GET_L6470_PARAM(Y);
+    #if AXIS_IS_L64XX(Y)
+      case Y : return GET_L6470_PARAM(Y);
     #endif
-    #if AXIS_DRIVER_TYPE_Z(L6470)
-      case  2: return GET_L6470_PARAM(Z);
+    #if AXIS_IS_L64XX(Z)
+      case Z : return GET_L6470_PARAM(Z);
     #endif
-    #if AXIS_DRIVER_TYPE_X2(L6470)
-      case  3: return GET_L6470_PARAM(X2);
+    #if AXIS_IS_L64XX(X2)
+      case X2: return GET_L6470_PARAM(X2);
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(L6470)
-      case  4: return GET_L6470_PARAM(Y2);
+    #if AXIS_IS_L64XX(Y2)
+      case Y2: return GET_L6470_PARAM(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(L6470)
-      case  5: return GET_L6470_PARAM(Z2);
+    #if AXIS_IS_L64XX(Z2)
+      case Z2: return GET_L6470_PARAM(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(L6470)
-      case  6: return GET_L6470_PARAM(Z3);
+    #if AXIS_IS_L64XX(Z3)
+      case Z3: return GET_L6470_PARAM(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE_E0(L6470)
-      case  7: return GET_L6470_PARAM(E0);
+    #if AXIS_IS_L64XX(E0)
+      case E0: return GET_L6470_PARAM(E0);
     #endif
-    #if AXIS_DRIVER_TYPE_E1(L6470)
-      case  8: return GET_L6470_PARAM(E1);
+    #if AXIS_IS_L64XX(E1)
+      case E1: return GET_L6470_PARAM(E1);
     #endif
-    #if AXIS_DRIVER_TYPE_E2(L6470)
-      case  9: return GET_L6470_PARAM(E2);
+    #if AXIS_IS_L64XX(E2)
+      case E2: return GET_L6470_PARAM(E2);
     #endif
-    #if AXIS_DRIVER_TYPE_E3(L6470)
-      case 10: return GET_L6470_PARAM(E3);
+    #if AXIS_IS_L64XX(E3)
+      case E3: return GET_L6470_PARAM(E3);
     #endif
-    #if AXIS_DRIVER_TYPE_E4(L6470)
-      case 11: return GET_L6470_PARAM(E4);
+    #if AXIS_IS_L64XX(E4)
+      case E4: return GET_L6470_PARAM(E4);
     #endif
-    #if AXIS_DRIVER_TYPE_E5(L6470)
-      case 12: return GET_L6470_PARAM(E5);
+    #if AXIS_IS_L64XX(E5)
+      case E5: return GET_L6470_PARAM(E5);
     #endif
   }
 
   return 0 ; // not needed but kills a compiler warning
 }
 
-void L6470_Marlin::set_param(uint8_t axis, uint8_t param, uint32_t value) {
+void L6470_Marlin::set_param(const L6470_axis_t axis, const uint8_t param, const uint32_t value) {
 
   #define SET_L6470_PARAM(Q) stepper##Q.SetParam(param, value)
 
   switch (axis) {
-    #if AXIS_DRIVER_TYPE_X(L6470)
-      case  0: SET_L6470_PARAM(X);
+    #if AXIS_IS_L64XX(X)
+      case X : SET_L6470_PARAM(X);
     #endif
-    #if AXIS_DRIVER_TYPE_Y(L6470)
-      case  1: SET_L6470_PARAM(Y);
+    #if AXIS_IS_L64XX(Y)
+      case Y : SET_L6470_PARAM(Y);
     #endif
-    #if AXIS_DRIVER_TYPE_Z(L6470)
-      case  2: SET_L6470_PARAM(Z);
+    #if AXIS_IS_L64XX(Z)
+      case Z : SET_L6470_PARAM(Z);
     #endif
-    #if AXIS_DRIVER_TYPE_X2(L6470)
-      case  3: SET_L6470_PARAM(X2);
+    #if AXIS_IS_L64XX(X2)
+      case X2: SET_L6470_PARAM(X2);
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(L6470)
-      case  4: SET_L6470_PARAM(Y2);
+    #if AXIS_IS_L64XX(Y2)
+      case Y2: SET_L6470_PARAM(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(L6470)
-      case  5: SET_L6470_PARAM(Z2);
+    #if AXIS_IS_L64XX(Z2)
+      case Z2: SET_L6470_PARAM(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(L6470)
-      case  6: SET_L6470_PARAM(Z3);
+    #if AXIS_IS_L64XX(Z3)
+      case Z3: SET_L6470_PARAM(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE_E0(L6470)
-      case  7: SET_L6470_PARAM(E0);
+    #if AXIS_IS_L64XX(E0)
+      case E0: SET_L6470_PARAM(E0);
     #endif
-    #if AXIS_DRIVER_TYPE_E1(L6470)
-      case  8: SET_L6470_PARAM(E1);
+    #if AXIS_IS_L64XX(E1)
+      case E1: SET_L6470_PARAM(E1);
     #endif
-    #if AXIS_DRIVER_TYPE_E2(L6470)
-      case  9: SET_L6470_PARAM(E2);
+    #if AXIS_IS_L64XX(E2)
+      case E2: SET_L6470_PARAM(E2);
     #endif
-    #if AXIS_DRIVER_TYPE_E3(L6470)
-      case 10: SET_L6470_PARAM(E3);
+    #if AXIS_IS_L64XX(E3)
+      case E3: SET_L6470_PARAM(E3);
     #endif
-    #if AXIS_DRIVER_TYPE_E4(L6470)
-      case 11: SET_L6470_PARAM(E4);
+    #if AXIS_IS_L64XX(E4)
+      case E4: SET_L6470_PARAM(E4);
     #endif
-    #if AXIS_DRIVER_TYPE_E5(L6470)
-      case 12: SET_L6470_PARAM(E5);
+    #if AXIS_IS_L64XX(E5)
+      case E5: SET_L6470_PARAM(E5);
     #endif
   }
 }
@@ -300,9 +323,9 @@ inline void echo_oct_used(const float &oct, const bool stall) {
 }
 inline void err_out_of_bounds() { DEBUG_ECHOLNPGM("ERROR - motion out of bounds"); }
 
-bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axis_mon[3][3],
-                          float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
-                          bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold
+bool L6470_Marlin::get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3], char* axis_mon[3],
+                                 float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
+                                 bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold
 ) {
   // Return TRUE if the calling routine needs to abort/kill
 
@@ -320,16 +343,19 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
     axis_mon[0][0] = axis_codes[i];   // axis ASCII value (target character)
     if (axis_offset >= 2 || axis_mon[0][0] == 'E')  // Single axis, E0, or E1
       axis_mon[0][1] = axis_offset + '0';
-    else if (axis_offset == 0) {              // one or more axes
-      uint8_t driver_count_local = 0;         // can't use "driver_count" directly as a subscript because it's passed by reference
-      for (j = 0; j < MAX_L6470; j++)         // see how many drivers on this axis
-        if (axis_mon[0][0] == index_to_axis[j][0]) {
-          axis_mon[driver_count_local][0] = axis_mon[0][0];
-          axis_mon[driver_count_local][1] = index_to_axis[j][1];
-          axis_mon[driver_count_local][2] = index_to_axis[j][2];   // append end of string
-          axis_index[driver_count_local] = j;                      // set axis index
+    else if (axis_offset == 0) {              // One or more axes
+      uint8_t driver_count_local = 0;         // Can't use "driver_count" directly as a subscript because it's passed by reference
+      for (j = 0; j < MAX_L6470; j++) {       // See how many drivers on this axis
+        const char * const str = index_to_axis[j];
+        if (axis_mon[0][0] == str[0]) {
+          char * const mon = axis_mon[driver_count_local];
+          mon[0] = str[0];
+          mon[1] = str[1];
+          mon[2] = str[2];   // append end of string
+          axis_index[driver_count_local] = (L6470_axis_t)j;        // set axis index
           driver_count_local++;
         }
+      }
       driver_count = driver_count_local;
     }
     break; // only take first axis found
@@ -339,19 +365,17 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
   // Position calcs & checks
   //
 
-  const float center[] = {
-    LOGICAL_X_POSITION(current_position[X_AXIS]),
-    LOGICAL_Y_POSITION(current_position[Y_AXIS]),
-    LOGICAL_Z_POSITION(current_position[Z_AXIS]),
-    current_position[E_AXIS]
-  };
+  const float X_center = LOGICAL_X_POSITION(current_position[X_AXIS]),
+              Y_center = LOGICAL_Y_POSITION(current_position[Y_AXIS]),
+              Z_center = LOGICAL_Z_POSITION(current_position[Z_AXIS]),
+              E_center = current_position[E_AXIS];
 
   switch (axis_mon[0][0]) {
     default: position_max = position_min = 0; break;
 
     case 'X': {
-      position_min = center[X_AXIS] - displacement;
-      position_max = center[X_AXIS] + displacement;
+      position_min = X_center - displacement;
+      position_max = X_center + displacement;
       echo_min_max('X', position_min, position_max);
       if (false
         #ifdef X_MIN_POS
@@ -367,8 +391,8 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
     } break;
 
     case 'Y': {
-      position_min = center[Y_AXIS] - displacement;
-      position_max = center[Y_AXIS] + displacement;
+      position_min = Y_center - displacement;
+      position_max = Y_center + displacement;
       echo_min_max('Y', position_min, position_max);
       if (false
         #ifdef Y_MIN_POS
@@ -384,8 +408,8 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
     } break;
 
     case 'Z': {
-      position_min = center[E_AXIS] - displacement;
-      position_max = center[E_AXIS] + displacement;
+      position_min = Z_center - displacement;
+      position_max = Z_center + displacement;
       echo_min_max('Z', position_min, position_max);
       if (false
         #ifdef Z_MIN_POS
@@ -401,8 +425,8 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
     } break;
 
     case 'E': {
-      position_min = center[E_AXIS] - displacement;
-      position_max = center[E_AXIS] + displacement;
+      position_min = E_center - displacement;
+      position_max = E_center + displacement;
       echo_min_max('E', position_min, position_max);
     } break;
   }
@@ -412,8 +436,8 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
   //
   for (uint8_t k = 0; k < driver_count; k++) {
     bool not_found = true;
-    for (j = 1; j <= L6470::chain[0]; j++) {
-      const char * const ind_axis = index_to_axis[L6470::chain[j]];
+    for (j = 1; j <= L64XX::chain[0]; j++) {
+      const char * const ind_axis = index_to_axis[L64XX::chain[j]];
       if (ind_axis[0] == axis_mon[k][0] && ind_axis[1] == axis_mon[k][1]) { // See if a L6470 driver
         not_found = false;
         break;
@@ -537,18 +561,30 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
   inline void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR("YES") : PSTR("NO ")); }
 #endif
 
-void L6470_Marlin::say_axis(const uint8_t axis, const bool label/*=true*/) {
+/*
+char* L6470_Marlin::index_to_axis(const uint8_t index) {
+  static PGM_P const _axis_string[MAX_L6470] = PROGMEM {
+    PSTR("X "), PSTR("Y "), PSTR("Z "),
+    PSTR("X2"), PSTR("Y2"), PSTR("Z2"), PSTR("Z3"),
+    PSTR("E0"), PSTR("E1"), PSTR("E2"), PSTR("E3"), PSTR("E4"), PSTR("E5")
+  };
+  return (char*)pgm_read_ptr(&_axis_string[index]);
+}
+*/
+
+void L6470_Marlin::say_axis(const L6470_axis_t axis, const bool label/*=true*/) {
   if (label) SERIAL_ECHOPGM("AXIS:");
+  const char * const str = index_to_axis[axis];
   SERIAL_CHAR(' ');
-  SERIAL_CHAR(index_to_axis[axis][0]);
-  SERIAL_CHAR(index_to_axis[axis][1]);
+  SERIAL_CHAR(str[0]);
+  SERIAL_CHAR(str[1]);
   SERIAL_CHAR(' ');
 }
 
-void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis) {  // assumes status bits have been inverted
+void L6470_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t axis) {  // assumes status bits have been inverted
   #if ENABLED(L6470_CHITCHAT)
     char temp_buf[10];
-    say_axis(axis);
+    L64helper.say_axis(axis);
     sprintf_P(temp_buf, PSTR("  %4x   "), status);
     DEBUG_ECHO(temp_buf);
     print_bin(status);
@@ -570,7 +606,7 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
 ////
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if ENABLED(MONITOR_L6470_DRIVER_STATUS)
+#ifdef MONITOR_L6470_DRIVER_STATUS
 
   struct L6470_driver_data {
     uint8_t driver_index;
@@ -583,43 +619,43 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
   };
 
   L6470_driver_data driver_L6470_data[] = {
-    #if AXIS_DRIVER_TYPE_X(L6470)
+    #if AXIS_IS_L64XX(X)
       {  0, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_Y(L6470)
+    #if AXIS_IS_L64XX(Y)
       {  1, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_Z(L6470)
+    #if AXIS_IS_L64XX(Z)
       {  2, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_X2(L6470)
+    #if AXIS_IS_L64XX(X2)
       {  3, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(L6470)
+    #if AXIS_IS_L64XX(Y2)
       {  4, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(L6470)
+    #if AXIS_IS_L64XX(Z2)
       {  5, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(L6470)
+    #if AXIS_IS_L64XX(Z3)
       {  6, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E0(L6470)
+    #if AXIS_IS_L64XX(E0)
       {  7, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E1(L6470)
+    #if AXIS_IS_L64XX(E1)
       {  8, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E2(L6470)
+    #if AXIS_IS_L64XX(E2)
       {  9, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E3(L6470)
+    #if AXIS_IS_L64XX(E3)
       { 10, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E4(L6470)
+    #if AXIS_IS_L64XX(E4)
       { 11, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_DRIVER_TYPE_E5(L6470)
+    #if AXIS_IS_L64XX(E5)
       { 12, 0, 0, 0, 0, 0, 0 }
     #endif
   };
@@ -629,13 +665,13 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
     if (err) p += sprintf_P(p, err);
   }
 
-  void L6470_monitor_update(uint8_t stepper_index, uint16_t status) {
+  void L6470_Marlin::monitor_update(uint8_t stepper_index, uint16_t status) {
     if (spi_abort) return;  // don't do anything if set_directions() has occurred
     uint8_t kval_hold;
     char temp_buf[120];
     char* p = &temp_buf[0];
     uint8_t j;
-    for (j = 0; j < L6470::chain[0]; j++) // find the table for this stepper
+    for (j = 0; j < L64XX::chain[0]; j++) // find the table for this stepper
       if (driver_L6470_data[j].driver_index == stepper_index) break;
 
     driver_L6470_data[j].driver_status = status;
@@ -665,14 +701,14 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
       }
       else {
         // no com problems - do the usual checks
-        if (_status & L6470_ERROR_MASK) {
+        if (_status & shadow.L6470_ERROR_MASK) {
           append_stepper_err(p, stepper_index);
 
-          if (status & STATUS_HIZ) {                         // the driver has shut down  HiZ is active high
+          if (status & STATUS_HIZ) {                         // The driver has shut down. HiZ is active high
             driver_L6470_data[j].is_hi_Z = true;
             p += sprintf_P(p, PSTR("%cIS SHUT DOWN"), ' ');
-            //         if (_status & STATUS_TH_SD) {                     // strange - TH_SD never seems to go active, must be implied by the HiZ and TH_WRN
-            if (_status & STATUS_TH_WRN) {                    // over current shutdown
+            //if (_status & shadow.STATUS_AXIS_TH_SD) { // strange - TH_SD never seems to go active, must be implied by the HiZ and TH_WRN
+            if (_status & shadow.STATUS_AXIS_TH_WRN) {                    // over current shutdown
               p += sprintf_P(p, PSTR("%cdue to over temperature"), ' ');
               driver_L6470_data[j].is_ot = true;
               kval_hold = get_param(stepper_index, L6470_KVAL_HOLD) - 2 * KVAL_HOLD_STEP_DOWN;
@@ -685,7 +721,7 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
           else {
             driver_L6470_data[j].is_hi_Z = false;
 
-            if (_status & STATUS_TH_WRN) {     // have an over temperature warning
+            if (_status & shadow.STATUS_AXIS_TH_WRN) {     // have an over temperature warning
               driver_L6470_data[j].is_otw = true;
               driver_L6470_data[j].otw_counter++;
               kval_hold = get_param(stepper_index, L6470_KVAL_HOLD);
@@ -701,22 +737,20 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
             }
           }
 
-          #ifdef L6470_STOP_ON_ERROR
-            if (_status & (STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD))
-            kill(temp_buf);
+          #if ENABLED(L6470_STOP_ON_ERROR)
+            if (_status & (shadow.STATUS_AXIS_UVLO | shadow.STATUS_AXIS_TH_WRN | shadow.STATUS_AXIS_TH_SD))
+              kill(temp_buf);
           #endif
 
-
           #if ENABLED(L6470_CHITCHAT)
+            if (_status & shadow.STATUS_AXIS_OCD)
+              p += sprintf_P(p, PSTR("%c  over current"), ' ');
 
-            if (_status & STATUS_OCD)
-            p += sprintf_P(p, PSTR("%c  over current"), ' ');
+            if (_status & (shadow.STATUS_AXIS_STEP_LOSS_A | shadow.STATUS_AXIS_STEP_LOSS_B))
+              p += sprintf_P(p, PSTR("%c  stall"), ' ');
 
-            if (_status & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B))
-            p += sprintf_P(p, PSTR("%c  stall"), ' ');
-
-            if (_status & STATUS_UVLO)
-            p += sprintf_P(p, PSTR("%c  under voltage lock out"), ' ');
+            if (_status & shadow.STATUS_AXIS_UVLO)
+              p += sprintf_P(p, PSTR("%c  under voltage lock out"), ' ');
 
             p += sprintf_P(p, PSTR("%c\n"), ' ');
           #endif
@@ -727,13 +761,11 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
           driver_L6470_data[j].is_ot = false;
           driver_L6470_data[j].otw_counter = 0;   //clear out warning indicators
           driver_L6470_data[j].is_otw = false;
-
         } // end usual checks
-      } // comms established but have errors
-    } // comms re-established
-  } // end L6470_monitor_update()
 
-  #define MONITOR_L6470_DRIVE(Q) L6470_monitor_update(Q, stepper##Q.getStatus())
+      }// comms established but have errors
+    } // comms re-established
+  } // end monitor_update()
 
   void L6470_Marlin::monitor_driver() {
     static millis_t next_cOT = 0;
@@ -742,43 +774,45 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
 
       spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
 
-      #if AXIS_DRIVER_TYPE_X(L6470)
+      #define MONITOR_L6470_DRIVE(Q) monitor_update(Q, stepper##Q.getStatus())
+
+      #if AXIS_IS_L64XX(X)
         MONITOR_L6470_DRIVE(X);
       #endif
-      #if AXIS_DRIVER_TYPE_Y(L6470)
+      #if AXIS_IS_L64XX(Y)
         MONITOR_L6470_DRIVE(Y);
       #endif
-      #if AXIS_DRIVER_TYPE_Z(L6470)
+      #if AXIS_IS_L64XX(Z)
         MONITOR_L6470_DRIVE(Z);
       #endif
-      #if AXIS_DRIVER_TYPE_X2(L6470)
+      #if AXIS_IS_L64XX(X2)
         MONITOR_L6470_DRIVE(X2);
       #endif
-      #if AXIS_DRIVER_TYPE_Y2(L6470)
+      #if AXIS_IS_L64XX(Y2)
         MONITOR_L6470_DRIVE(Y2);
       #endif
-      #if AXIS_DRIVER_TYPE_Z2(L6470)
+      #if AXIS_IS_L64XX(Z2)
         MONITOR_L6470_DRIVE(Z2);
       #endif
-      #if AXIS_DRIVER_TYPE_Z3(L6470)
+      #if AXIS_IS_L64XX(Z3)
         MONITOR_L6470_DRIVE(Z3);
       #endif
-      #if AXIS_DRIVER_TYPE_E0(L6470)
+      #if AXIS_IS_L64XX(E0)
         MONITOR_L6470_DRIVE(E0);
       #endif
-      #if AXIS_DRIVER_TYPE_E1(L6470)
+      #if AXIS_IS_L64XX(E1)
         MONITOR_L6470_DRIVE(E1);
       #endif
-      #if AXIS_DRIVER_TYPE_E2(L6470)
+      #if AXIS_IS_L64XX(E2)
         MONITOR_L6470_DRIVE(E2);
       #endif
-      #if AXIS_DRIVER_TYPE_E3(L6470)
+      #if AXIS_IS_L64XX(E3)
         MONITOR_L6470_DRIVE(E3);
       #endif
-      #if AXIS_DRIVER_TYPE_E4(L6470)
+      #if AXIS_IS_L64XX(E4)
         MONITOR_L6470_DRIVE(E4);
       #endif
-      #if AXIS_DRIVER_TYPE_E5(L6470)
+      #if AXIS_IS_L64XX(E5)
         MONITOR_L6470_DRIVE(E5);
       #endif
 
@@ -793,4 +827,4 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
 
 #endif // MONITOR_L6470_DRIVER_STATUS
 
-#endif // HAS_DRIVER(L6470)
+#endif // HAS_L64XX

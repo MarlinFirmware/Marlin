@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(L6470)
+#if HAS_L64XX
 
 #include "../../gcode.h"
 #include "../../../libs/L6470/L6470_Marlin.h"
@@ -82,42 +82,40 @@
  *    Vs compensation (if enabled)
  */
 
-void L6470_report_current(L6470 &motor, const uint8_t axis) {
-  if (L6470.spi_abort) return;  // don't do anything if set_directions() has occurred
-  const uint16_t status = motor.getStatus() ;
-  const uint8_t overcurrent_threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
-                stall_threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
-                motor_status = (status  & (STATUS_MOT_STATUS)) >> 13,
-                adc_out = motor.GetParam(L6470_ADC_OUT),
-                adc_out_limited = constrain(adc_out, 8, 24);
-  const float comp_coef = 1600.0f / adc_out_limited;
-  const int microsteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
+void L6470_report_current(L64XX &motor, const L6470_axis_t axis) {
+  if (L64helper.spi_abort) return;  // don't do anything if set_directions() has occurred
+  const uint16_t status = L64helper.get_status(axis);
+  const uint8_t OverCurrent_Threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
+                Stall_Threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
+                motor_status = (status  & (STATUS_MOT_STATUS)) >> 5,
+                L6470_ADC_out = motor.GetParam(L6470_ADC_OUT),
+                L6470_ADC_out_limited = constrain(L6470_ADC_out, 8, 24);
+  const float comp_coef = 1600.0f / L6470_ADC_out_limited;
+  const int MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
   char temp_buf[80];
-  L6470.say_axis(axis);
+  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
+  L64helper.say_axis(axis);
   #if ENABLED(L6470_CHITCHAT)
     sprintf_P(temp_buf, PSTR("   status: %4x   "), status);
     DEBUG_ECHO(temp_buf);
     print_bin(status);
   #endif
-  sprintf_P(temp_buf, PSTR("\n...OverCurrent Threshold: %2d (%4d mA)"), overcurrent_threshold, (overcurrent_threshold + 1) * 375);
+  sprintf_P(temp_buf, PSTR("\n...OverCurrent Threshold: %2d (%7.0f mA)"), OverCurrent_Threshold, (OverCurrent_Threshold + 1) * motor.OCD_CURRENT_CONSTANT_INV);
   SERIAL_ECHO(temp_buf);
-  sprintf_P(temp_buf, PSTR("   Stall Threshold: %2d (%7.2f mA)"), stall_threshold, (stall_threshold + 1) * 31.25);
+  sprintf_P(temp_buf, PSTR("   Stall Threshold: %2d (%7.0f mA)"), Stall_Threshold, (Stall_Threshold + 1) * motor.STALL_CURRENT_CONSTANT_INV);
   SERIAL_ECHO(temp_buf);
   SERIAL_ECHOPGM("   Motor Status: ");
-  const char * const stat_str;
   switch (motor_status) {
-    default:
-    case 0: stat_str = PSTR("stopped"); break;
-    case 1: stat_str = PSTR("accelerating"); break;
-    case 2: stat_str = PSTR("decelerating"); break;
-    case 3: stat_str = PSTR("at constant speed"); break;
+    case 0: SERIAL_ECHOPGM("stopped"); break;
+    case 1: SERIAL_ECHOPGM("accelerating"); break;
+    case 2: SERIAL_ECHOPGM("decelerating"); break;
+    case 3: SERIAL_ECHOPGM("at constant speed"); break;
   }
-  serialprintPGM(stat_str);
   SERIAL_EOL();
-  SERIAL_ECHOPAIR("...microsteps: ", microsteps);
-  SERIAL_ECHOPAIR("   ADC_OUT: ", adc_out);
+  SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps);
+  SERIAL_ECHOPAIR("   ADC_OUT: ", L6470_ADC_out);
   SERIAL_ECHOPGM("   Vs_compensation: ");
-  serialprintPGM((motor.GetParam(L6470_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
+  serialprintPGM((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
   sprintf_P(temp_buf, PSTR("   Compensation coefficient: ~%4.2f\n"), comp_coef * 0.01f);
   SERIAL_ECHO(temp_buf);
   SERIAL_ECHOPAIR("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD));
@@ -132,6 +130,26 @@ void L6470_report_current(L6470 &motor, const uint8_t axis) {
     case 3: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_DEC) \n"), float(motor.GetParam(L6470_KVAL_DEC)) * 100 / 256); break;
   }
   SERIAL_ECHO(temp_buf);
+  #if ENABLED(L6470_CHITCHAT)
+    SERIAL_ECHOPGM("...SLEW RATE: ");
+    if (sh.STATUS_AXIS_LAYOUT) {
+      switch ((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_POW_SR) >> CONFIG_POW_SR_BIT) {
+        case 0: {SERIAL_ECHOLNPGM("320V/uS") ; break; }
+        case 1: {SERIAL_ECHOLNPGM("75V/uS")  ; break; }
+        case 2: {SERIAL_ECHOLNPGM("110V/uS") ; break; }
+        case 3: {SERIAL_ECHOLNPGM("260V/uS") ; break; }
+      }
+    }
+    else {
+      switch (motor.GetParam(L6470_GATECFG1)) {
+        case CONFIG1_SR_220V_us: {SERIAL_ECHOLNPGM("220V/uS") ; break; }
+        case CONFIG1_SR_400V_us: {SERIAL_ECHOLNPGM("400V/uS") ; break; }
+        case CONFIG1_SR_520V_us: {SERIAL_ECHOLNPGM("520V/uS") ; break; }
+        case CONFIG1_SR_980V_us: {SERIAL_ECHOLNPGM("980V/uS") ; break; }
+        default: {SERIAL_ECHOLNPGM("unknown") ; break; }
+      }
+    }
+  #endif
 }
 
 void GcodeSuite::M906() {
@@ -141,7 +159,7 @@ void GcodeSuite::M906() {
 
   bool report_current = true;
 
-  #if HAS_DRIVER(L6470)
+  #if HAS_L64XX
     const uint8_t index = parser.byteval('I');
   #endif
 
@@ -156,29 +174,29 @@ void GcodeSuite::M906() {
 
     switch (i) {
       case X_AXIS:
-        #if AXIS_DRIVER_TYPE_X(L6470)
+        #if AXIS_IS_L64XX(X)
           if (index == 0) L6470_SET_KVAL_HOLD(X);
         #endif
-        #if AXIS_DRIVER_TYPE_X2(L6470)
+        #if AXIS_IS_L64XX(X2)
           if (index == 1) L6470_SET_KVAL_HOLD(X2);
         #endif
         break;
       case Y_AXIS:
-        #if AXIS_DRIVER_TYPE_Y(L6470)
+        #if AXIS_IS_L64XX(Y)
           if (index == 0) L6470_SET_KVAL_HOLD(Y);
         #endif
-        #if AXIS_DRIVER_TYPE_Y2(L6470)
+        #if AXIS_IS_L64XX(Y2)
           if (index == 1) L6470_SET_KVAL_HOLD(Y2);
         #endif
         break;
       case Z_AXIS:
-        #if AXIS_DRIVER_TYPE_Z(L6470)
+        #if AXIS_IS_L64XX(Z)
           if (index == 0) L6470_SET_KVAL_HOLD(Z);
         #endif
-        #if AXIS_DRIVER_TYPE_Z2(L6470)
+        #if AXIS_IS_L64XX(Z2)
           if (index == 1) L6470_SET_KVAL_HOLD(Z2);
         #endif
-        #if AXIS_DRIVER_TYPE_Z3(L6470)
+        #if AXIS_IS_L64XX(Z3)
           if (index == 2) L6470_SET_KVAL_HOLD(Z3);
         #endif
         break;
@@ -186,22 +204,22 @@ void GcodeSuite::M906() {
         const int8_t target_extruder = get_target_extruder_from_command();
         if (target_extruder < 0) return;
         switch (target_extruder) {
-          #if AXIS_DRIVER_TYPE_E0(L6470)
+          #if AXIS_IS_L64XX(E0)
             case 0: L6470_SET_KVAL_HOLD(E0); break;
           #endif
-          #if AXIS_DRIVER_TYPE_E1(L6470)
+          #if AXIS_IS_L64XX(E1)
             case 1: L6470_SET_KVAL_HOLD(E1); break;
           #endif
-          #if AXIS_DRIVER_TYPE_E2(L6470)
+          #if AXIS_IS_L64XX(E2)
             case 2: L6470_SET_KVAL_HOLD(E2); break;
           #endif
-          #if AXIS_DRIVER_TYPE_E3(L6470)
+          #if AXIS_IS_L64XX(E3)
             case 3: L6470_SET_KVAL_HOLD(E3); break;
           #endif
-          #if AXIS_DRIVER_TYPE_E4(L6470)
+          #if AXIS_IS_L64XX(E4)
             case 4: L6470_SET_KVAL_HOLD(E4); break;
           #endif
-          #if AXIS_DRIVER_TYPE_E5(L6470)
+          #if AXIS_IS_L64XX(E5)
             case 5: L6470_SET_KVAL_HOLD(E5); break;
           #endif
         }
@@ -212,51 +230,51 @@ void GcodeSuite::M906() {
   if (report_current) {
     #define L6470_REPORT_CURRENT(Q) L6470_report_current(stepper##Q, Q)
 
-    L6470.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
+    L64helper.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
 
-    #if AXIS_DRIVER_TYPE_X(L6470)
+    #if AXIS_IS_L64XX(X)
       L6470_REPORT_CURRENT(X);
     #endif
-    #if AXIS_DRIVER_TYPE_X2(L6470)
+    #if AXIS_IS_L64XX(X2)
       L6470_REPORT_CURRENT(X2);
     #endif
-    #if AXIS_DRIVER_TYPE_Y(L6470)
+    #if AXIS_IS_L64XX(Y)
       L6470_REPORT_CURRENT(Y);
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(L6470)
+    #if AXIS_IS_L64XX(Y2)
       L6470_REPORT_CURRENT(Y2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z(L6470)
+    #if AXIS_IS_L64XX(Z)
       L6470_REPORT_CURRENT(Z);
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(L6470)
+    #if AXIS_IS_L64XX(Z2)
       L6470_REPORT_CURRENT(Z2);
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(L6470)
+    #if AXIS_IS_L64XX(Z3)
       L6470_REPORT_CURRENT(Z3);
     #endif
-    #if AXIS_DRIVER_TYPE_E0(L6470)
+    #if AXIS_IS_L64XX(E0)
       L6470_REPORT_CURRENT(E0);
     #endif
-    #if AXIS_DRIVER_TYPE_E1(L6470)
+    #if AXIS_IS_L64XX(E1)
       L6470_REPORT_CURRENT(E1);
     #endif
-    #if AXIS_DRIVER_TYPE_E2(L6470)
+    #if AXIS_IS_L64XX(E2)
       L6470_REPORT_CURRENT(E2);
     #endif
-    #if AXIS_DRIVER_TYPE_E3(L6470)
+    #if AXIS_IS_L64XX(E3)
       L6470_REPORT_CURRENT(E3);
     #endif
-    #if AXIS_DRIVER_TYPE_E4(L6470)
+    #if AXIS_IS_L64XX(E4)
       L6470_REPORT_CURRENT(E4);
     #endif
-    #if AXIS_DRIVER_TYPE_E5(L6470)
+    #if AXIS_IS_L64XX(E5)
       L6470_REPORT_CURRENT(E5);
     #endif
 
-    L6470.spi_active = false;   // done with all SPI transfers - clear handshake flags
-    L6470.spi_abort = false;
+    L64helper.spi_active = false;   // done with all SPI transfers - clear handshake flags
+    L64helper.spi_abort = false;
   }
 }
 
-#endif // HAS_DRIVER(L6470)
+#endif // HAS_L64XX

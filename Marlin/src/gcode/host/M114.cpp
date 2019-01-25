@@ -87,7 +87,7 @@
 
     planner.synchronize();
 
-    #if HAS_DRIVER(L6470)
+    #if HAS_L64XX
       char temp_buf[80];
       int32_t temp;
       //#define ABS_POS_SIGN_MASK 0b1111 1111 1110 0000 0000 0000 0000 0000
@@ -104,44 +104,44 @@
       #if AXIS_DRIVER_TYPE_X(L6470)
         REPORT_ABSOLUTE_POS(X);
       #endif
-      #if AXIS_DRIVER_TYPE_X2(L6470)
+      #if AXIS_IS_L64XX(X2)
         REPORT_ABSOLUTE_POS(X2);
       #endif
-      #if AXIS_DRIVER_TYPE_Y(L6470)
+      #if AXIS_IS_L64XX(Y)
         REPORT_ABSOLUTE_POS(Y);
       #endif
-      #if AXIS_DRIVER_TYPE_Y2(L6470)
+      #if AXIS_IS_L64XX(Y2)
         REPORT_ABSOLUTE_POS(Y2);
       #endif
-      #if AXIS_DRIVER_TYPE_Z(L6470)
+      #if AXIS_IS_L64XX(Z)
         REPORT_ABSOLUTE_POS(Z);
       #endif
-      #if AXIS_DRIVER_TYPE_Z2(L6470)
+      #if AXIS_IS_L64XX(Z2)
         REPORT_ABSOLUTE_POS(Z2);
       #endif
-      #if AXIS_DRIVER_TYPE_Z3(L6470)
+      #if AXIS_IS_L64XX(Z3)
         REPORT_ABSOLUTE_POS(Z3);
       #endif
-      #if AXIS_DRIVER_TYPE_E0(L6470)
+      #if AXIS_IS_L64XX(E0)
         REPORT_ABSOLUTE_POS(E0);
       #endif
-      #if AXIS_DRIVER_TYPE_E1(L6470)
+      #if AXIS_IS_L64XX(E1)
         REPORT_ABSOLUTE_POS(E1);
       #endif
-      #if AXIS_DRIVER_TYPE_E2(L6470)
+      #if AXIS_IS_L64XX(E2)
         REPORT_ABSOLUTE_POS(E2);
       #endif
-      #if AXIS_DRIVER_TYPE_E3(L6470)
+      #if AXIS_IS_L64XX(E3)
         REPORT_ABSOLUTE_POS(E3);
       #endif
-      #if AXIS_DRIVER_TYPE_E4(L6470)
+      #if AXIS_IS_L64XX(E4)
         REPORT_ABSOLUTE_POS(E4);
       #endif
-      #if AXIS_DRIVER_TYPE_E5(L6470)
+      #if AXIS_IS_L64XX(E5)
         REPORT_ABSOLUTE_POS(E5);
       #endif
       SERIAL_EOL();
-    #endif // HAS_DRIVER(L6470)
+    #endif // HAS_L64XX
 
     SERIAL_ECHOPGM("Stepper:");
     LOOP_XYZE(i) {

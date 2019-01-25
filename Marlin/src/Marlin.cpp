@@ -173,7 +173,7 @@
   #include "lcd/extensible_ui/ui_api.h"
 #endif
 
-#if HAS_DRIVER(L6470)
+#if HAS_L64XX
   #include "libs/L6470/L6470_Marlin.h"
 #endif
 
@@ -637,7 +637,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(MONITOR_L6470_DRIVER_STATUS)
-    L6470.monitor_driver();
+    L64helper.monitor_driver();
   #endif
 
   // Limit check_axes_activity frequency to 10Hz
@@ -841,8 +841,8 @@ void setup() {
     HAL_init();
   #endif
 
-  #if HAS_DRIVER(L6470)
-    L6470.init();         // setup SPI and then init chips
+  #if HAS_L64XX
+    L64helper.init();         // setup SPI and init chips
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
