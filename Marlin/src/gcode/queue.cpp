@@ -630,7 +630,8 @@ inline void get_serial_commands() {
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          else if (card.flag.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
+          else if (card.flag.saving &&        // No line number with M29 in Pronterface
+                      ((strcmp(command, "M29") != 0) && strcmp(command, "M29 ") != 0))
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
