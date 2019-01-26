@@ -601,6 +601,10 @@ void idle(
     }
   #endif
 
+  #if ENABLED(PRUSA_MMU2)
+    mmu2.mmuLoop();
+  #endif
+
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     Sd2Card::idle();
   #endif
@@ -955,6 +959,10 @@ void setup() {
 
   #if ENABLED(SDSUPPORT) && DISABLED(ULTRA_LCD)
     card.beginautostart();
+  #endif
+
+  #if ENABLED(PRUSA_MMU2)
+    mmu2.init();
   #endif
 
   #if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)

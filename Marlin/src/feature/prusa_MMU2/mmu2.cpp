@@ -38,6 +38,10 @@ MMU2 mmu2;
 #include "../../module/stepper_indirection.h"
 #include "../../Marlin.h"
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #include "../runout.h"
+#endif
+
 #define MMU_TODELAY 100
 #define MMU_TIMEOUT 10
 #define MMU_CMD_TIMEOUT 60000ul //5min timeout for mmu commands (except P0)
@@ -79,6 +83,14 @@ MMU2 mmu2;
 
 #define mmuSerial   MMU2_SERIAL
 
+bool MMU2::enabled, MMU2::ready, MMU2::mmu_print_saved;
+uint8_t MMU2::cmd, MMU2::cmd_arg, MMU2::last_cmd, MMU2::extruder;
+int8_t MMU2::state = 0;
+volatile int8_t MMU2::finda = 1;
+volatile bool MMU2::findaRunoutValid;
+int16_t MMU2::version = -1, MMU2::buildnr = -1;
+millis_t MMU2::next_request, MMU2::next_response;
+char MMU2::rx_buffer[16], MMU2::tx_buffer[16];
 
 #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
 
@@ -154,7 +166,7 @@ void MMU2::mmuLoop() {
         SERIAL_ECHOLNPGM("MMU not responding - DISABLED");
         state = 0;
       }
-      return;
+      break;
 
     case -2:
       if (rx_ok()) {
@@ -168,7 +180,7 @@ void MMU2::mmuLoop() {
         tx_str_P(PSTR("S2\n")); // read build number
         state = -3;
       }
-      return;
+      break;
 
     case -3:
       if (rx_ok()) {
@@ -196,7 +208,7 @@ void MMU2::mmuLoop() {
           state = -4;
         #endif
       }
-      return;
+      break;
 
     case -5:
       // response to M1
@@ -214,9 +226,9 @@ void MMU2::mmuLoop() {
         tx_str_P(PSTR("P0\n")); // read finda
         state = -4;
       }
-      return;
+      break;
 
-    case -4:
+    case -4: 
       if (rx_ok()) {
         sscanf(rx_buffer, "%hhuok\n", &finda);
 
@@ -228,11 +240,11 @@ void MMU2::mmuLoop() {
         enabled = true;
         state = 1;
       }
-      return;
+      break;
 
     case 1:
       if (cmd) {
-        if ((cmd >= MMU_CMD_T0) && (cmd <= MMU_CMD_T4)) {
+        if (WITHIN(cmd, MMU_CMD_T0, MMU_CMD_T4)) {
           // tool change
           int filament = cmd - MMU_CMD_T0;
 
@@ -243,7 +255,7 @@ void MMU2::mmuLoop() {
           tx_printf_P(PSTR("T%d\n"), filament);
           state = 3; // wait for response
         }
-        else if ((cmd >= MMU_CMD_L0) && (cmd <= MMU_CMD_L4)) {
+        else if (WITHIN(cmd, MMU_CMD_L0, MMU_CMD_L4)) {
           // load
           int filament = cmd - MMU_CMD_L0;
 
@@ -273,7 +285,7 @@ void MMU2::mmuLoop() {
           tx_str_P(PSTR("U0\n"));
           state = 3; // wait for response
         }
-        else if ((cmd >= MMU_CMD_E0) && (cmd <= MMU_CMD_E4)) {
+        else if (WITHIN(cmd, MMU_CMD_E0, MMU_CMD_E4)) {
           // eject filament
           int filament = cmd - MMU_CMD_E0;
 
@@ -292,7 +304,7 @@ void MMU2::mmuLoop() {
           tx_str_P(PSTR("R0\n"));
           state = 3; // wait for response
         }
-        else if ((cmd >= MMU_CMD_F0) && (cmd <= MMU_CMD_F4)) {
+        else if (WITHIN(cmd, MMU_CMD_F0, MMU_CMD_F4)) {
           // filament type
           int filament = cmd - MMU_CMD_F0;
           #if ENABLED(MMU2_DEBUG)
@@ -309,12 +321,12 @@ void MMU2::mmuLoop() {
         last_cmd = cmd;
         cmd = MMU_CMD_NONE;
       }
-      else if ((last_response + 300) < millis()) {
+      else if (ELAPSED(millis(), next_response)) {
         // read FINDA
         tx_str_P(PSTR("P0\n"));
         state = 2; // wait for response
       }
-      return;
+      break;
 
     case 2:   // response to command P0
       if (rx_ok()) {
@@ -338,14 +350,12 @@ void MMU2::mmuLoop() {
 
         if (!finda && findaRunoutValid) filamentRunout();
       }
-      else if ((last_request + MMU_P0_TIMEOUT) < millis()) {
-        //resend request after timeout (30s)
+      else if (ELAPSED(millis(), next_request)) // Resend request after timeout (30s)
         state = 1;
-      }
-      return;
 
-    case 3:
-      //response to mmu commands
+      break;
+
+    case 3:   // response to mmu commands
       if (rx_ok()) {
         #if ENABLED(MMU2_DEBUG)
           SERIAL_ECHOLNPGM("MMU => 'ok'");
@@ -355,8 +365,8 @@ void MMU2::mmuLoop() {
         state = 1;
         last_cmd = MMU_CMD_NONE;
       }
-      else if ((last_request + MMU_CMD_TIMEOUT) < millis()) {
-        //resend request after timeout
+      else if (ELAPSED(millis(), next_request)) {
+        // resend request after timeout
         if (last_cmd) {
           #if ENABLED(MMU2_DEBUG)
             SERIAL_ECHOLNPGM("MMU retry");
@@ -367,7 +377,7 @@ void MMU2::mmuLoop() {
         }
         state = 1;
       }
-      return;
+      break;
   }
 }
 
@@ -378,7 +388,7 @@ void MMU2::mmuLoop() {
 bool MMU2::rx_start() {
   // check for start message
   if (rx_str_P(PSTR("start\n"))) {
-    last_response = millis();
+    next_response = millis() + 300;
     return true;
   }
   return false;
@@ -429,7 +439,7 @@ void MMU2::tx_str_P(const char* str) {
   uint8_t len = strlen_P(str);
   for (uint8_t i = 0; i < len; i++) mmuSerial.write(pgm_read_byte(str++));
   rx_buffer[0] = '\0';
-  last_request = millis();
+  next_request = millis() + MMU_P0_TIMEOUT;
 }
 
 
@@ -441,8 +451,7 @@ void MMU2::tx_printf_P(const char* format, int argument = -1) {
   uint8_t len = sprintf_P(tx_buffer, format, argument);
   for (uint8_t i = 0; i < len; i++) mmuSerial.write(tx_buffer[i]);
   rx_buffer[0] = '\0';
-
-  last_request = millis();
+  next_request = millis() + MMU_P0_TIMEOUT;
 }
 
 
@@ -454,9 +463,7 @@ void MMU2::tx_printf_P(const char* format, int argument1, int argument2) {
   uint8_t len = sprintf_P(tx_buffer, format, argument1, argument2);
   for (uint8_t i = 0; i < len; i++) mmuSerial.write(tx_buffer[i]);
   rx_buffer[0] = '\0';
-
-  last_request = millis();
-
+  next_request = millis() + MMU_P0_TIMEOUT;
 }
 
 
@@ -474,7 +481,7 @@ void MMU2::clear_rx_buffer() {
  */
 bool MMU2::rx_ok() {
   if (rx_str_P(PSTR("ok\n"))) {
-    last_response = millis();
+    next_response = millis() + 300;
     return true;
   }
   return false;
@@ -572,7 +579,7 @@ void MMU2::toolChange(const char* special) {
 
       case 'c': {
         while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
-        executeExtruderSequence((const E_Step *)loadToNozzle_sequence, sizeof(loadToNozzle_sequence)/sizeof(E_Step));
+        executeExtruderSequence((const E_Step *)loadToNozzle_sequence, COUNT(loadToNozzle_sequence));
       } break;
     }
 
@@ -587,7 +594,7 @@ void MMU2::toolChange(const char* special) {
 /**
  * Set next command
  */
-void MMU2::command(uint8_t mmu_cmd) {
+void MMU2::command(const uint8_t mmu_cmd) {
   if (!enabled) return;
   cmd = mmu_cmd;
   ready = false;
@@ -621,7 +628,7 @@ void MMU2::manageResponse(bool move_axes, bool turn_off_nozzle) {
   mmu_print_saved = false;
   point_t park_point = NOZZLE_PARK_POINT;
   float resume_position[XYZE];
-  float resume_hotend_temp;
+  int16_t resume_hotend_temp;
 
   while (!response) {
 
@@ -658,7 +665,7 @@ void MMU2::manageResponse(bool move_axes, bool turn_off_nozzle) {
       SERIAL_ECHOLNPGM("MMU starts responding\n");
       KEEPALIVE_STATE(IN_HANDLER);
 
-      if (turn_off_nozzle && resume_hotend_temp > 0.0) {
+      if (turn_off_nozzle && resume_hotend_temp) {
         thermalManager.setTargetHotend(resume_hotend_temp, active_extruder);
         LCD_MESSAGEPGM(MSG_HEATING);
         BUZZ(200, 40);
@@ -758,11 +765,10 @@ void MMU2::filamentRunout() {
    */
   void MMU2::loadToNozzle() {
     if (!enabled) return;
-    executeExtruderSequence((const E_Step *)loadToNozzle_sequence, sizeof(loadToNozzle_sequence)/sizeof(E_Step));
+    executeExtruderSequence((const E_Step *)loadToNozzle_sequence, COUNT(loadToNozzle_sequence));
   }
 
-
-  boolean MMU2::ejectFilament(uint8_t index, bool recover) {
+  bool MMU2::ejectFilament(uint8_t index, bool recover) {
 
     if (!enabled) return false;
 
@@ -774,11 +780,8 @@ void MMU2::filamentRunout() {
 
     KEEPALIVE_STATE(IN_HANDLER);
     LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
-    bool saved_e_relative_mode = GcodeSuite::axis_relative_modes[E_AXIS];
-
-    if (!saved_e_relative_mode) {
-      GcodeSuite::axis_relative_modes[E_AXIS] = true;
-    }
+    const bool saved_e_relative_mode = gcode.axis_relative_modes[E_AXIS];
+    gcode.axis_relative_modes[E_AXIS] = true;
 
     enable_E0();
     current_position[E_AXIS] -= MMU2_FILAMENTCHANGE_EJECT_FEED;
@@ -809,9 +812,7 @@ void MMU2::filamentRunout() {
 
     KEEPALIVE_STATE(NOT_BUSY);
 
-    if (!saved_e_relative_mode) {
-      GcodeSuite::axis_relative_modes[E_AXIS] = false;
-    }
+    gcode.axis_relative_modes[E_AXIS] = saved_e_relative_mode;
 
     disable_E0();
 
@@ -863,11 +864,8 @@ void MMU2::filamentRunout() {
     planner.synchronize();
     enable_E0();
 
-    bool saved_e_relative_mode = GcodeSuite::axis_relative_modes[E_AXIS];
-
-    if (!saved_e_relative_mode) {
-          GcodeSuite::axis_relative_modes[E_AXIS] = true;
-    }
+    const bool saved_e_relative_mode = gcode.axis_relative_modes[E_AXIS];
+    gcode.axis_relative_modes[E_AXIS] = true;
 
     const E_Step* step = sequence;
 
@@ -890,9 +888,7 @@ void MMU2::filamentRunout() {
       step++;
     }
 
-    if (!saved_e_relative_mode) {
-          GcodeSuite::axis_relative_modes[E_AXIS] = false;
-    }
+    gcode.axis_relative_modes[E_AXIS] = saved_e_relative_mode;
 
     disable_E0();
   }

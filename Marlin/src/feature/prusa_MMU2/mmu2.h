@@ -27,66 +27,56 @@
 struct E_Step;
 
 class MMU2 {
+public:
+  MMU2();
 
-  public:
-    MMU2();
+  static void init();
+  static void reset();
+  static void mmuLoop();
+  static void toolChange(uint8_t index);
+  static void toolChange(const char* special);
+  static uint8_t getCurrentTool();
+  static void setFilamentType(uint8_t index, uint8_t type);
 
-    void init();
-    void reset();
-    void mmuLoop();
-    void toolChange(uint8_t index);
-    void toolChange(const char* special);
-    uint8_t getCurrentTool();
-    void setFilamentType(uint8_t index, uint8_t type);
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
-    bool unload();
-    void loadFilament(uint8_t);
-    void loadAll();
-    bool loadFilamentToNozzle(uint8_t index);
-    bool ejectFilament(uint8_t index, bool recover);
-#endif
+  #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
+    static bool unload();
+    static void loadFilament(uint8_t);
+    static void loadAll();
+    static bool loadFilamentToNozzle(uint8_t index);
+    static bool ejectFilament(uint8_t index, bool recover);
+  #endif
 
-  private:
-    bool rx_str_P(const char* str);
-    void tx_str_P(const char* str);
-    void tx_printf_P(const char* format, int argument);
-    void tx_printf_P(const char* format, int argument1, int argument2);
-    void clear_rx_buffer();
+private:
+  static bool rx_str_P(const char* str);
+  static void tx_str_P(const char* str);
+  static void tx_printf_P(const char* format, int argument);
+  static void tx_printf_P(const char* format, int argument1, int argument2);
+  static void clear_rx_buffer();
 
-    bool rx_ok();
-    bool rx_start();
-    void checkVersion();
-    
-    void command(uint8_t cmd);
-    bool getResponse(void);
-    void manageResponse(bool move_axes, bool turn_off_nozzle);
+  static bool rx_ok();
+  static bool rx_start();
+  static void checkVersion();
 
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)        
-    void loadToNozzle();
-    void filamentRamming();
+  static void command(const uint8_t cmd);
+  static bool getResponse(void);
+  static void manageResponse(bool move_axes, bool turn_off_nozzle);
 
-    void executeExtruderSequence(const E_Step * sequence, int steps);
-#endif
-  
-    void filamentRunout();
-  
-    bool enabled = false;
-    bool ready = false;
-    bool mmu_print_saved = false;
-    uint8_t cmd = 0;
-    uint8_t cmd_arg;
-    uint8_t last_cmd = 0;
-    int8_t state = 0;
-    uint8_t extruder;
-    volatile int8_t finda = 1;
-    volatile bool findaRunoutValid = false;
-    int16_t version = -1;
-    int16_t buildnr = -1;
-    uint32_t last_request = 0;
-    uint32_t last_response = 0;
-    char rx_buffer[16];
-    char tx_buffer[16];
+  #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
+    static void loadToNozzle();
+    static void filamentRamming();
+    static void executeExtruderSequence(const E_Step * sequence, int steps);
+  #endif
 
+  static void filamentRunout();
+
+  static bool enabled, ready, mmu_print_saved;
+  static uint8_t cmd, cmd_arg, last_cmd, extruder;
+  static int8_t state;
+  static volatile int8_t finda;
+  static volatile bool findaRunoutValid;
+  static int16_t version, buildnr;
+  static millis_t next_request, next_response;
+  static char rx_buffer[16], tx_buffer[16];
 };
 
 extern MMU2 mmu2;
