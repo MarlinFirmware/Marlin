@@ -251,14 +251,6 @@ void flush_and_request_resend() {
   ok_to_send();
 }
 
-void gcode_line_error(PGM_P err, uint8_t port) {
-  SERIAL_ERROR_START_P(port);
-  serialprintPGM_P(port, err);
-  SERIAL_ECHOLN_P(port, gcode_LastN);
-  flush_and_request_resend();
-  serial_count[port] = 0;
-}
-
 static bool serial_data_available() {
   return false
     || MYSERIAL0.available()
@@ -276,6 +268,15 @@ static int read_serial(const uint8_t index) {
     #endif
     default: return -1;
   }
+}
+
+void gcode_line_error(PGM_P err, uint8_t port) {
+  SERIAL_ERROR_START_P(port);
+  serialprintPGM_P(port, err);
+  SERIAL_ECHOLN_P(port, gcode_LastN);
+  while (read_serial(port) != -1);           // clear out the RX buffer
+  flush_and_request_resend();
+  serial_count[port] = 0;
 }
 
 #if ENABLED(FAST_FILE_TRANSFER)
