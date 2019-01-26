@@ -34,6 +34,11 @@
 #endif
 
 //
+// Servos
+//
+#define SERVO0_PIN         11   //13 untested  3Dtouch
+
+//
 // Limit Switches
 //
 #define X_MIN_PIN          24
@@ -98,7 +103,6 @@
 #define LED_PIN             6
 #define PS_ON_PIN          12
 #define SUICIDE_PIN        54   //PIN that has to be turned on right after start, to keep power flowing.
-#define SERVO0_PIN         11   //13 untested  3Dtouch
 
 #ifndef CASE_LIGHT_PIN
   //#define CASE_LIGHT_PIN 21
