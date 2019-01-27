@@ -2143,16 +2143,14 @@ void Stepper::init() {
     E_AXIS_INIT(5);
   #endif
 
+  set_directions();
+
   // Init Stepper ISR to 122 Hz for quick starting
   HAL_timer_start(STEP_TIMER_NUM, 122);
 
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
   sei();
-
-  Z_DIR_WRITE(0);    // Init directions to last_direction_bits = 0  Keeps Z from being reversed
-  Z2_DIR_WRITE(0);
-  Z3_DIR_WRITE(0);
 }
 
 /**
