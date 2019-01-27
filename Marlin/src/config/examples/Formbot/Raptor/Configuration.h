@@ -1088,18 +1088,17 @@
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
 
-  // The FILAMENT_RUNOUT_SCRIPT will execute when a runout is detected. If
-  // ACTION_ON_FILAMENT_RUNOUT is defined, it will only execute when a runout
-  // happens when printing from an SD card.
+  // Set one or more commands to run on filament runout.
+  //  - Always applies to SD-card printing.
+  //  - Applies to host-based printing if ACTION_ON_FILAMENT_RUNOUT is not set.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 
-  // When ACTION_ON_FILAMENT_RUNOUT is declared and printing from the host (i.e, not
-  // a SD print), the host will be notified and will be responsible for pausing
-  // the print (the FILAMENT_RUNOUT_SCRIPT will not run in this case).
+  // With this option, if filament runs out during host-based printing, Marlin
+  // will send "//action:<ACTION_ON_FILAMENT_RUNOUT>" to the host and let the
+  // host handle filament change. If left undefined the FILAMENT_RUNOUT_SCRIPT
+  // will be used on filament runout for both host-based and SD-card printing.
   //
-  // The notification will be '//action:ACTION_ON_FILAMENT_RUNOUT <extruder_number>',
-  // e.g. '//action:filament_runout 0'. The host must be configured to handle
-  // the action command and execute a pause (i.e. by stopping to send commands).
+  // The host must be able to respond to the //action: command set here.
   //
   //#define ACTION_ON_FILAMENT_RUNOUT "pause: filament_runout"
 
