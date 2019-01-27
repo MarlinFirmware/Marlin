@@ -44,8 +44,8 @@ void lcd_pause() {
   #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, active_extruder);
-    enqueue_and_echo_commands_P(PSTR("M25 P; \n M24"));
+    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
+    enqueue_and_echo_commands_P(PSTR("M25 P\nM24"));
   #elif ENABLED(SDSUPPORT)
     enqueue_and_echo_commands_P(PSTR("M25"));
   #elif defined(ACTION_ON_PAUSE)

@@ -129,6 +129,9 @@ void GcodeSuite::M600() {
     #endif
   );
 
+  #if HAS_LCD_MENU
+    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT);
+  #endif
   if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
     wait_for_confirmation(true, beep_count DXC_PASS);
     resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);

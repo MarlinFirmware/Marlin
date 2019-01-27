@@ -327,12 +327,6 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
   #endif
 
-  #if HAS_LCD_MENU
-    if (show_lcd) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT);
-  #else
-    UNUSED(show_lcd);
-  #endif
-
   if (!DEBUGGING(DRYRUN) && unload_length && thermalManager.targetTooColdToExtrude(active_extruder)) {
     SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
 
@@ -341,6 +335,8 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
         LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
       }
+    #else
+      UNUSED(show_lcd);
     #endif
 
     return false; // unable to reach safe temperature
