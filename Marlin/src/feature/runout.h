@@ -97,13 +97,19 @@ class TFilamentMonitor : public FilamentMonitorBase {
           #if ENABLED(EXTENSIBLE_UI)
             ExtUI::onFilamentRunout(ExtUI::getActiveTool());
           #endif
-          #ifdef FILAMENT_RUNOUT_ACTION
-            SERIAL_ECHOLNPAIR("//action:" FILAMENT_RUNOUT_ACTION " ", active_extruder);
+          #ifdef ACTION_ON_FILAMENT_RUNOUT
+            #if NUM_RUNOUT_SENSORS > 1
+              SERIAL_ECHOLNPAIR("//action:" ACTION_ON_FILAMENT_RUNOUT " ", int(active_extruder));
+            #else
+              SERIAL_ECHOLNPGM("//action:" ACTION_ON_FILAMENT_RUNOUT);
+            #endif
             if (!IS_SD_PRINTING())
               reset();
             else
           #endif
-          enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+            {
+              enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+            }
           planner.synchronize();
         }
       }
