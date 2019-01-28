@@ -79,8 +79,8 @@ void GcodeSuite::M125() {
   #endif
 
   #if HAS_LCD_MENU
+    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT);
     const bool show_lcd = parser.seenval('P');
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, active_extruder);
   #else
     constexpr bool show_lcd = false;
   #endif
