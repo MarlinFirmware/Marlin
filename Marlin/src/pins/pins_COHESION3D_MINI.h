@@ -25,8 +25,8 @@
  * Cohesion3D Mini pin assignments
  */
 
-#ifndef TARGET_LPC1768
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
+#if !defined(TARGET_LPC1768) && !defined(LPC1769)
+  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
 #define BOARD_NAME "Cohesion3D Mini"
@@ -97,7 +97,7 @@
 #define HEATER_BED_PIN     P2_05
 #define HEATER_0_PIN       P2_07   // FET 1
 #ifndef FAN_PIN
-  #define FAN_PIN          P2_06   // ReMix FET 4, Mini FET 3
+  #define FAN_PIN          P2_06   // FET 3
 #endif
 
 //
@@ -123,7 +123,7 @@
   #undef HEATER_BED_PIN
   #define SPINDLE_LASER_PWM_PIN     P2_05   // Bed FET
   #undef FAN_PIN
-  #define SPINDLE_DIR_PIN           P2_06   // ReMix FET 4, Mini FET 3
+  #define SPINDLE_DIR_PIN           P2_06   // FET 3
 #endif
 
 //
