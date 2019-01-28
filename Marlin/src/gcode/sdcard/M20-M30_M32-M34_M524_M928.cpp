@@ -104,7 +104,7 @@ void GcodeSuite::M24() {
   }
 
   #ifdef ACTION_ON_RESUME
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
+    host_action_resume();
   #endif
 
   ui.reset_status();
@@ -127,7 +127,7 @@ void GcodeSuite::M25() {
     ui.reset_status();
 
     #ifdef ACTION_ON_PAUSE
-      SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+      host_action_pause();
     #endif
   #endif
 }
