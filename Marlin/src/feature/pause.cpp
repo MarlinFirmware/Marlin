@@ -323,14 +323,10 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
 
   if (did_pause_print) return false; // already paused
 
-  #ifdef ACTION_ON_PAUSE
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
-  #endif
-
-  #if HAS_LCD_MENU
-    if (show_lcd) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT);
-  #else
-    UNUSED(show_lcd);
+  #ifdef ACTION_ON_PAUSED
+    host_action_paused();
+  #elif defined(ACTION_ON_PAUSE)
+    host_action_pause();
   #endif
 
   if (!DEBUGGING(DRYRUN) && unload_length && thermalManager.targetTooColdToExtrude(active_extruder)) {
@@ -341,6 +337,8 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
         LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
       }
+    #else
+      UNUSED(show_lcd);
     #endif
 
     return false; // unable to reach safe temperature
@@ -570,8 +568,10 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
   #endif
 
-  #ifdef ACTION_ON_RESUME
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
+  #ifdef ACTION_ON_RESUMED
+    host_action_resumed();
+  #elif defined(ACTION_ON_RESUME)
+    host_action_resume();
   #endif
 
   --did_pause_print;
