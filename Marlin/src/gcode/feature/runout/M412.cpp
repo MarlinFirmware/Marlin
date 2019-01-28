@@ -33,7 +33,26 @@
 void GcodeSuite::M412() {
   if (parser.seen('S')) {
     runout.reset();
-    runout.enabled = parser.value_bool();
+    if(parser.value_bool()) {
+      runout.enabled = true;
+      SERIAL_ECHOLN("Runout Enabled");
+    }
+    else {
+      runout.enabled = false;
+      SERIAL_ECHOLN("Runout Disabled");
+    }
+    
+  }
+  else if (parser.seen('R')) {
+    runout.reset();
+    SERIAL_ECHOLN("Runout Reset");
+  }
+  else if (parser.seen('H')) {
+    runout.host_handling = parser.value_bool();
+    if(runout.host_handling)
+      SERIAL_ECHOLN("Runout Host Mode");
+    else
+      SERIAL_ECHOLN("Runout Local Mode");
   }
   else {
     SERIAL_ECHO_START();

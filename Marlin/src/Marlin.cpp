@@ -315,7 +315,7 @@ void disable_all_steppers() {
   disable_e_steppers();
 }
 
-#if HAS_ACTION_COMMANDS
+#if HOST_ACTION_COMMANDS
 
   void host_action(const char * const pstr, const bool eol=true) {
     SERIAL_ECHOPGM("//action:");
@@ -341,11 +341,107 @@ void disable_all_steppers() {
   #ifdef ACTION_ON_CANCEL
     void host_action_cancel() { host_action(PSTR(ACTION_ON_CANCEL)); }
   #endif
-  #ifdef ACTION_ON_FILAMENT_RUNOUT
-    void host_action_filament_runout(const bool eol/*=true*/) { host_action(PSTR(ACTION_ON_FILAMENT_RUNOUT), eol); }
-  #endif
+#endif  // HOST_ACTION_COMMANDS
 
-#endif // HAS_ACTION_COMMANDS
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  void event_filament_runout(const bool eol/*=true*/) {
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onFilamentRunout(ExtUI::getActiveTool());
+    #endif
+    #ifdef ACTION_ON_G29_FAILURE
+      host_action(PSTR(ACTION_ON_FILAMENT_RUNOUT), eol);
+    #endif
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_reason = PROMPT_FILAMENT_RUNOUT_TRIPPED;
+      SERIAL_ECHOLN("//action:prompt_end"); //ensure any current prompt is closed before we begin a new one
+      SERIAL_ECHO("//action:prompt_begin FilamentRunout T");
+      #if NUM_RUNOUT_SENSORS > 1
+        SERIAL_ECHOLN(int(active_extruder));
+      #else
+        SERIAL_ECHOLN('0');
+      #endif
+      SERIAL_ECHOLN("//action:prompt_show");
+    #endif
+    if(!runout.host_handling)
+      enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+  }
+#endif
+
+#if ENABLED(G29_RETRY_AND_RECOVER)
+  void event_probe_failure() {
+    #ifdef G29_FAILURE_COMMANDS
+      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+    #endif
+    #ifdef ACTION_ON_G29_FAILURE
+      host_action(PSTR(ACTION_ON_G29_FAILURE)); }
+    #endif
+    #if ENABLED(G29_HALT_ON_FAILURE)
+      #ifdef ACTION_ON_CANCEL
+        host_action_cancel();
+      #endif
+      kill(PSTR(MSG_ERR_PROBING_FAILED));
+    #endif
+  }
+  
+  void event_probe_recover() {
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_reason = PROMPT_G29_RETRY;
+      SERIAL_ECHOLN("//action:prompt_end"); //ensure any current prompt is closed before we begin a new one
+       SERIAL_ECHOLN("//action:prompt_begin G29 Retrying");
+      SERIAL_ECHOLN("//action:prompt_show");
+    #endif
+    #ifdef G29_RECOVER_COMMANDS
+      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+    #endif
+    #ifdef ACTION_ON_G29_RECOVER
+      host_action(PSTR(ACTION_ON_G29_RECOVER));
+    #endif
+  }
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  char host_prompt_reason = PROMPT_NOT_DEFINED;
+  void host_response_handler(char c) { host_response_handler((int)strtol(&c, NULL, 1)); }
+  void host_response_handler(int response) {
+    switch(host_prompt_reason)
+    {
+      case PROMPT_FILAMENT_RUNOUT_TRIPPED:
+        if(response==0) {
+          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE;
+        } 
+        else if (response==1) {
+          #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+            runout.enabled = false;
+            runout.reset();
+          #endif
+          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_RESUME_PRINT;
+        }
+        SERIAL_ECHOLN("M876 Responding PROMPT_FILAMENT_RUNOUT_TRIPPED");
+        break;
+      case PROMPT_FILAMENT_RUNOUT_CONTINUE:
+        if(response==0) {
+          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE;
+        } 
+        else if (response==1) {
+          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_RESUME_PRINT;
+        }
+        SERIAL_ECHOLN("M876 Responding PROMPT_FILAMENT_RUNOUT_CONTINUE");
+        break;
+      case PROMPT_FILAMENT_RUNOUT_REHEAT:
+        wait_for_user = false;
+        SERIAL_ECHOLN("M876 Responding PROMPT_FILAMENT_RUNOUT_REHEAT");
+        break;
+      case PROMPT_LCD_PAUSE_RESUME:
+        SERIAL_ECHOLN("M876 Responding PROMPT_LCD_PAUSE_RESUME");
+        break;
+      case PROMPT_GCODE_PAUSE:
+        SERIAL_ECHOLN("M876 Responding PROMPT_GCODE_PAUSE");
+        break;
+      default:
+        break;
+    }
+  }
+#endif
 
 /**
  * Manage several activities:

@@ -418,6 +418,24 @@ void show_continue_prompt(const bool is_reload) {
   #endif
   SERIAL_ECHO_START();
   serialprintPGM(is_reload ? PSTR(_PMSG(MSG_FILAMENT_CHANGE_INSERT) "\n") : PSTR(_PMSG(MSG_FILAMENT_CHANGE_WAIT) "\n"));
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    host_prompt_reason = PROMPT_FILAMENT_RUNOUT_CONTINUE;
+    SERIAL_ECHOLN("//action:prompt_end"); //ensure any current prompt is closed before we begin a new one
+    SERIAL_ECHOLN("//action:prompt_begin Paused");
+    SERIAL_ECHOLN("//action:prompt_button  PurgeMore");
+    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    if (runout.filament_ran_out)
+    #else
+    if(false)
+    #endif
+      SERIAL_ECHOLN("//action:prompt_button  DisableRunout");
+    else {
+      host_prompt_reason = PROMPT_FILAMENT_RUNOUT_TRIPPED;
+      SERIAL_ECHOLN("//action:prompt_button  Continue");
+    }
+    SERIAL_ECHOLN("//action:prompt_show");
+  #endif
+
 }
 
 void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
@@ -462,9 +480,22 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_HEAT);
       #endif
       SERIAL_ECHO_MSG(_PMSG(MSG_FILAMENT_CHANGE_HEAT));
-
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        host_prompt_reason = PROMPT_FILAMENT_RUNOUT_REHEAT;
+        SERIAL_ECHOLN("//action:prompt_end"); //ensure any current prompt is closed before we begin a new one
+        SERIAL_ECHOLN("//action:prompt_begin HeaterTimout");
+        SERIAL_ECHOLN("//action:prompt_button  Reheat");
+        SERIAL_ECHOLN("//action:prompt_show");
+      #endif
       // Wait for LCD click or M108
       while (wait_for_user) idle(true);
+
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        host_prompt_reason = PROMPT_FILAMENT_RUNOUT_REHEAT;
+        SERIAL_ECHOLN("//action:prompt_end"); //ensure any current prompt is closed before we begin a new one
+        SERIAL_ECHOLN("//action:prompt_begin Reheating");
+        SERIAL_ECHOLN("//action:prompt_show");
+      #endif
 
       // Re-enable the heaters if they timed out
       HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);

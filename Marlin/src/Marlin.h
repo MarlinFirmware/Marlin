@@ -370,7 +370,7 @@ void protected_pin_err();
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }
 #endif
 
-#if HAS_ACTION_COMMANDS
+#if HOST_ACTION_COMMANDS
   #ifdef ACTION_ON_KILL
     void host_action_kill();
   #endif
@@ -389,7 +389,29 @@ void protected_pin_err();
   #ifdef ACTION_ON_CANCEL
     void host_action_cancel();
   #endif
-  #ifdef ACTION_ON_FILAMENT_RUNOUT
-    void host_action_filament_runout(const bool eol=true);
-  #endif
+#endif
+
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  void event_filament_runout(const bool eol=true);
+#endif
+
+#if ENABLED(G29_RETRY_AND_RECOVER)
+   void event_probe_recover();
+  void event_probe_failure();
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  enum PromptReasons : char {
+    PROMPT_NOT_DEFINED,
+    PROMPT_FILAMENT_RUNOUT_TRIPPED,
+    PROMPT_FILAMENT_RUNOUT_CONTINUE,
+    PROMPT_FILAMENT_RUNOUT_REHEAT,
+    PROMPT_LCD_PAUSE_RESUME,
+    PROMPT_GCODE_PAUSE,
+    PROMPT_G29_RETRY
+  };
+
+  extern char host_prompt_reason;
+  void host_response_handler(char c);
+  void host_response_handler(int response);
 #endif

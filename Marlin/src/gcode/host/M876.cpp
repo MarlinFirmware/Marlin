@@ -19,26 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#include "../../inc/MarlinConfig.h"
 
+#if DISABLED(EMERGENCY_PARSER) && ENABLED(HOST_PROMPT_SUPPORT)
+
+#include "../gcode.h"
+#include "../../Marlin.h"
 /**
- * emergency_parser.cpp - Intercept special commands directly in the serial stream
+ * M110: Handle Prompt Response
  */
+void GcodeSuite::M876() {
+  if (parser.seenval('S')) host_response_handler(parser.value_int());
+}
 
-#include "../inc/MarlinConfigPre.h"
-
-#if ENABLED(EMERGENCY_PARSER)
-
-#include "emergency_parser.h"
-
-// Static data members
-bool EmergencyParser::killed_by_M112, // = false
-     EmergencyParser::enabled;
-
-#if ENABLED(HOST_PROMPT_SUPPORT)
-    char EmergencyParser::M876_SChar = '0';
 #endif
-
-// Global instance
-EmergencyParser emergency_parser;
-
-#endif // EMERGENCY_PARSER

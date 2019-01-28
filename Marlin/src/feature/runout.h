@@ -42,6 +42,7 @@ class FilamentMonitorBase {
   public:
     static bool enabled;
     static bool filament_ran_out;
+    static bool host_handling;
 };
 
 template<class RESPONSE_T, class SENSOR_T>
@@ -92,24 +93,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
         #endif
         if (ran_out) {
           filament_ran_out = true;
-          #if ENABLED(EXTENSIBLE_UI)
-            ExtUI::onFilamentRunout(ExtUI::getActiveTool());
-          #endif
-          #ifdef ACTION_ON_FILAMENT_RUNOUT
-            #if NUM_RUNOUT_SENSORS > 1
-              host_action_filament_runout(false);
-              SERIAL_CHAR(' ');
-              SERIAL_ECHOLN(int(active_extruder));
-            #else
-              host_action_filament_runout();
-            #endif
-            if (!IS_SD_PRINTING())
-              reset();
-            else
-          #endif
-            {
-              enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
-            }
+          event_filament_runout(false);
           planner.synchronize();
         }
       }
