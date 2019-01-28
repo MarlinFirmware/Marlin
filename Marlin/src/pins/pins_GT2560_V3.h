@@ -44,6 +44,22 @@
 #define Z_MAX_PIN          32
 
 //
+// Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   66
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN  67
+#endif
+
+//
+// Power Recovery
+//
+#define POWER_LOSS_PIN   69 // Pin to detect power loss
+#define POWER_LOSS_STATE LOW
+
+//
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
@@ -89,6 +105,9 @@
 #define HEATER_2_PIN        1
 #define HEATER_BED_PIN      4
 #define FAN_PIN             9
+//#define FAN1_PIN            8
+//#define FAN2_PIN            7
+
 
 //
 // Misc. Functions
