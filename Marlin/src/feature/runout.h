@@ -101,7 +101,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
             #if NUM_RUNOUT_SENSORS > 1
               host_action_filament_runout(false);
               SERIAL_CHAR(' ');
-              SERIAL_ECHO(int(active_extruder));
+              SERIAL_ECHOLN(int(active_extruder));
             #else
               host_action_filament_runout();
             #endif
