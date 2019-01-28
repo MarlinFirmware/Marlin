@@ -1009,7 +1009,7 @@
   //
   // The host must be able to respond to the //action: command set here.
   //
-  //#define ACTION_ON_FILAMENT_RUNOUT "pause: filament_runout"
+  //#define ACTION_ON_FILAMENT_RUNOUT "out_of_filament"
 
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
