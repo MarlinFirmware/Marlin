@@ -956,8 +956,8 @@
    * Will be sent in the form '//action:ACTION_ON_G29_FAILURE', e.g. '//action:probe_failed'.
    * The host must be configured to handle the action command.
    */
-  #define G29_ACTION_ON_RECOVER "probe_rewipe"
-  #define G29_ACTION_ON_FAILURE "probe_failed"
+  #define ACTION_ON_G29_RECOVER "probe_rewipe"
+  #define ACTION_ON_G29_FAILURE "probe_failed"
 #endif
 
 // @section extras

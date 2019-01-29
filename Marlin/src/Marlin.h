@@ -392,4 +392,10 @@ void protected_pin_err();
   #ifdef ACTION_ON_FILAMENT_RUNOUT
     void host_action_filament_runout(const bool eol=true);
   #endif
+  #ifdef ACTION_ON_G29_FAILURE
+    void host_action_probe_failure();
+  #endif
+  #ifdef ACTION_ON_G29_RECOVER
+    void host_action_probe_recover();
+  #endif
 #endif
