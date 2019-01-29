@@ -43,20 +43,20 @@ bool printer_busy();
     static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
   };
 
-DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        i16tostr3,       1     );
-DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        i16tostr4sign,   1     );
-DECLARE_MENU_EDIT_TYPE(int8_t,   int8,        i8tostr3,        1     );
-DECLARE_MENU_EDIT_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );
-DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_3,    ui16tostr3,      1     );
-DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_4,    ui16tostr4,      0.1   );
-DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );
-DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );
-DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );
-DECLARE_MENU_EDIT_TYPE(float,    float5,      ftostr5rj,       0.01f );
-DECLARE_MENU_EDIT_TYPE(float,    float51,     ftostr51sign,   10     );
-DECLARE_MENU_EDIT_TYPE(float,    float52sign, ftostr52sign,  100     );
-DECLARE_MENU_EDIT_TYPE(float,    float62,     ftostr62rj,    100     );
-DECLARE_MENU_EDIT_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );
+DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        i16tostr3,       1     );   // 123, -12   right-justified
+DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        i16tostr4sign,   1     );   // 1234, -123 right-justified
+DECLARE_MENU_EDIT_TYPE(int8_t,   int8,        i8tostr3,        1     );   // 123, -12   right-justified
+DECLARE_MENU_EDIT_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );   // 123        right-justified
+DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_3,    ui16tostr3,      1     );   // 123, -12   right-justified
+DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_4,    ui16tostr4,      0.1   );   // 1234, -123 right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );   // 123        right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );   // 123.45
+DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );   // 1.234
+DECLARE_MENU_EDIT_TYPE(float,    float5,      ftostr5rj,       0.01f );   // 12345      right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float51,     ftostr51sign,   10     );   // +1234.5
+DECLARE_MENU_EDIT_TYPE(float,    float52sign, ftostr52sign,  100     );   // +123.45
+DECLARE_MENU_EDIT_TYPE(float,    float62,     ftostr62rj,    100     );   // 1234.56    right-justified
+DECLARE_MENU_EDIT_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );   // 12345      right-justified
 
 ////////////////////////////////////////////
 ///////// Menu Item Draw Functions /////////
@@ -102,20 +102,20 @@ FORCE_INLINE void draw_menu_item_edit_P(const bool sel, const uint8_t row, PGM_P
   typedef void NAME##_void
 #define DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(NAME) _DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(MenuItemInfo_##NAME::type_t, NAME, MenuItemInfo_##NAME::strfunc)
 
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int3);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int4);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int8);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint8);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16_3);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16_4);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52sign);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float62);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5);
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int3);             // 123, -12   right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int4);             // 1234, -123 right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int8);             // 123, -12   right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint8);            // 123        right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16_3);         // 123, -12   right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16_4);         // 1234, -123 right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);           // 123        right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);          // 123.45
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);          // 1.234
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5);           // 12345      right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51);          // +1234.5
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52sign);      // +123.45
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float62);          // 1234.56    right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5);            // 12345      right-justified
 
 #define draw_menu_item_edit_bool(sel, row, pstr, pstr2, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
 #define draw_menu_item_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
