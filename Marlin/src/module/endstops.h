@@ -97,6 +97,8 @@ class Endstops {
       );
     }
 
+    static inline bool global_enabled() { return enabled_globally; }
+
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
      */
