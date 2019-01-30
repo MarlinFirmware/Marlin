@@ -390,9 +390,17 @@
 
   // ANET A8 Standard Extruder at 210 Degree Celsius and 100% Fan
   //(measured after M106 S255 with M303 E0 S210 C8)
-  #define DEFAULT_Kp 21.0
-  #define DEFAULT_Ki 1.25
-  #define DEFAULT_Kd 86.0
+  //#define DEFAULT_Kp 21.0
+  //#define DEFAULT_Ki 1.25
+  //#define DEFAULT_Kd 86.0
+
+  // ANET A8 E3Dv6 Extruder at 210 Degree Celsius and 100% Fan
+  //(measured after M106 S255 with M303 E0 S210 C8)
+  #define DEFAULT_Kp 23.0
+  #define DEFAULT_Ki 1.82
+  #define DEFAULT_Kd 72.55
+
+
 
 #endif // PIDTEMP
 
@@ -431,15 +439,20 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 10.00
-  #define DEFAULT_bedKi .023
-  #define DEFAULT_bedKd 305.4
+  //#define DEFAULT_bedKp 10.00
+  //#define DEFAULT_bedKi .023
+  //#define DEFAULT_bedKd 305.4
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
   //#define DEFAULT_bedKp 97.1
   //#define DEFAULT_bedKi 1.41
   //#define DEFAULT_bedKd 1675.16
+
+  //Anet A8 Bed found with autotune
+  #define DEFAULT_bedKp 256.52
+  #define DEFAULT_bedKi 18.64
+  #define DEFAULT_bedKd 882.6
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -608,7 +621,8 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 400, 100 }
+ // Manual 50mm feed and calculation for E0
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 400, 95.057 }
 
 /**
  * Default Max Feed Rate (mm/s)
