@@ -194,11 +194,17 @@
   #endif
 #endif
 
-// A dual-nozzle that uses a servomotor to raise/lower one of the nozzles
+// A dual-nozzle that uses a servomotor to raise/lower one (or both) of the nozzles
 //#define SWITCHING_NOZZLE
 #if ENABLED(SWITCHING_NOZZLE)
   #define SWITCHING_NOZZLE_SERVO_NR 0
   #define SWITCHING_NOZZLE_SERVO_ANGLES { 0, 90 }   // Angles for E0, E1
+
+  // Uncomment the following if there are two servos, one for each
+  // nozzle. The first angle in SWITCHING_NOZZLE_SERVO_ANGLES will
+  // be used to lower a nozzle, while the second will be used to
+  // raise a nozzle.
+  //#define SWITCHING_NOZZLE_INDEPENDENT_SERVOS
 #endif
 
 /**

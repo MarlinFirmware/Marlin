@@ -100,11 +100,25 @@
 #endif // DO_SWITCH_EXTRUDER
 
 #if ENABLED(SWITCHING_NOZZLE)
-  void move_nozzle_servo(const uint8_t e) {
-    planner.synchronize();
-    MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_NOZZLE_SERVO_NR][e]);
-    safe_delay(500);
-  }
+  #if ENABLED(SWITCHING_NOZZLE_INDEPENDENT_SERVOS)
+    void lower_nozzle(const uint8_t e) {
+      constexpr int16_t angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+      planner.synchronize();
+      MOVE_SERVO(e, angles[0]);
+    }
+
+    void raise_nozzle(const uint8_t e) {
+      constexpr int16_t angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+      planner.synchronize();
+      MOVE_SERVO(e, angles[1]);
+    }
+  #else
+    void move_nozzle_servo(const uint8_t e) {
+      planner.synchronize();
+      MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_NOZZLE_SERVO_NR][e]);
+      safe_delay(500);
+    }
+  #endif
 #endif // SWITCHING_NOZZLE
 
 #if ENABLED(PARKING_EXTRUDER)
@@ -581,6 +595,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     #endif // TOOLCHANGE_FILAMENT_SWAP
 
     if (tmp_extruder != active_extruder) {
+
+      #if ENABLED(SWITCHING_NOZZLE_INDEPENDENT_SERVOS)
+        raise_nozzle(active_extruder);
+      #endif
+
       const float old_feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : feedrate_mm_s;
       feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
@@ -639,8 +658,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         parking_extruder_tool_change(tmp_extruder, no_move);
       #elif ENABLED(SWITCHING_TOOLHEAD) // Switching Toolhead
         switching_toolhead_tool_change(tmp_extruder, fr_mm_s, no_move);
-      #elif ENABLED(SWITCHING_NOZZLE)
-        // Always raise by a configured distance to avoid workpiece
+      #elif ENABLED(SWITCHING_NOZZLE) && DISABLED(SWITCHING_NOZZLE_INDEPENDENT_SERVOS)
+        // Raise by a configured distance to avoid workpiece, except with
+        // SWITCHING_NOZZLE_INDEPENDENT_SERVOS, as both nozzles will lift instead.
         current_position[Z_AXIS] += MAX(-zdiff, 0.0) + toolchange_settings.z_raise;
         #if HAS_SOFTWARE_ENDSTOPS
           NOMORE(current_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
@@ -729,6 +749,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         mmu2.toolChange(tmp_extruder);
       #endif
 
+      #if ENABLED(SWITCHING_NOZZLE_INDEPENDENT_SERVOS)
+        lower_nozzle(active_extruder);
+      #endif
     } // (tmp_extruder != active_extruder)
 
     planner.synchronize();
