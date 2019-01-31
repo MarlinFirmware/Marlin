@@ -558,12 +558,6 @@ void menu_advanced_settings() {
   START_MENU();
   MENU_BACK(MSG_CONFIGURATION);
 
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-  #elif HAS_BED_PROBE
-    MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
-  #endif
-
   #if DISABLED(SLIM_LCD_MENUS)
 
     #if HAS_M206_COMMAND

@@ -61,7 +61,8 @@ void lcd_pause() {
 void lcd_resume() {
   #if ENABLED(SDSUPPORT)
     if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
-  #elif defined(ACTION_ON_RESUME)
+  #endif
+  #ifdef ACTION_ON_RESUME
     host_action_resume();
   #endif
 }
