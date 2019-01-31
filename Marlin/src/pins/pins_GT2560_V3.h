@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
  * GT2560 V3.0 pin assignment
  */
@@ -56,8 +55,8 @@
 //
 // Power Recovery
 //
-#define POWER_LOSS_PIN   69 // Pin to detect power loss
-#define POWER_LOSS_STATE LOW
+#define POWER_LOSS_PIN     69   // Pin to detect power loss
+#define POWER_LOSS_STATE   LOW
 
 //
 // Z Probe (when not Z_MIN_PIN)
