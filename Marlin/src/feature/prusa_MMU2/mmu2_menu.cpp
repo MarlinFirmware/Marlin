@@ -178,9 +178,9 @@ void menu_mmu2_chooseFilament() {
 // MMU2 Filament Runout
 //
 
-inline void action_mmu2_loadCurrentFilament()         { mmu2.loadFilament(currentTool); }
-inline void action_mmu2_loadCurrentFilamentToNozzle() { mmu2.loadFilamentToNozzle(currentTool); }
-inline void action_mmu2_ejectCurrentFilament()        { mmu2.ejectFilament(currentTool, false); }
+inline void action_mmu2_M600_loadCurrentFilament()         { mmu2.loadFilament(currentTool); }
+inline void action_mmu2_M600_loadCurrentFilamentToNozzle() { mmu2.loadFilamentToNozzle(currentTool); }
+inline void action_mmu2_M600_unloadFilament()        { mmu2.unload(); }
 inline void action_mmu2_M600_resume()                 { mmuMenuWait = false; }
 
 void menu_mmu2_advanced_pause() {
@@ -189,10 +189,10 @@ void menu_mmu2_advanced_pause() {
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_MMU2_FILAMENT_CHANGE_HEADER, true, true);
   #endif
-  MENU_ITEM(function, MSG_MMU2_EJECT_FILAMENT, action_mmu2_ejectCurrentFilament);
-  MENU_ITEM(function, MSG_MMU2_LOAD_FILAMENT, action_mmu2_loadCurrentFilament);
-  MENU_ITEM(function, MSG_MMU2_LOAD_TO_NOZZLE, action_mmu2_loadCurrentFilamentToNozzle);
   MENU_ITEM(function, MSG_MMU2_RESUME, action_mmu2_M600_resume);
+  MENU_ITEM(function, MSG_MMU2_UNLOAD_FILAMENT, action_mmu2_M600_unloadFilament);
+  MENU_ITEM(function, MSG_MMU2_LOAD_FILAMENT, action_mmu2_M600_loadCurrentFilament);
+  MENU_ITEM(function, MSG_MMU2_LOAD_TO_NOZZLE, action_mmu2_M600_loadCurrentFilamentToNozzle);
   END_MENU();
 }
 
