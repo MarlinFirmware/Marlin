@@ -40,6 +40,10 @@
   #include "../../feature/power_loss_recovery.h"
 #endif
 
+#if HAS_BED_PROBE
+  #include "../../module/probe.h"
+#endif
+
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
@@ -305,6 +309,12 @@ void menu_configuration() {
   #endif
 
   MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, menu_advanced_settings);
+
+  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+    MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+  #elif HAS_BED_PROBE
+    MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+  #endif
 
   const bool busy = printer_busy();
   if (!busy) {
