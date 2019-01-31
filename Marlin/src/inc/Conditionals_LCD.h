@@ -428,11 +428,11 @@
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define XYZE_N (XYZ + E_STEPPERS)
-  #define E_AXIS_N(E) (uint8_t(E_AXIS) + E)
+  #define E_AXIS_N(E) (E_AXIS + E)
 #else
   #undef DISTINCT_E_FACTORS
   #define XYZE_N XYZE
-  #define E_AXIS_N(E) uint8_t(E_AXIS)
+  #define E_AXIS_N(E) E_AXIS
 #endif
 
 /**
