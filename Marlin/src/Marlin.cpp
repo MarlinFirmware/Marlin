@@ -56,6 +56,10 @@
 #include "gcode/parser.h"
 #include "gcode/queue.h"
 
+#if ENABLED(HOST_ACTION_COMMANDS)
+  #include "feature/host_actions.h"
+#endif
+
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "libs/buzzer.h"
 #endif
@@ -315,59 +319,70 @@ void disable_all_steppers() {
   disable_e_steppers();
 }
 
-#if HOST_ACTION_COMMANDS
-
-  void host_action(const char * const pstr, const bool eol=true) {
-    SERIAL_ECHOPGM("//action:");
-    serialprintPGM(pstr);
-    if (eol) SERIAL_EOL();
-  }
-
-  #ifdef ACTION_ON_KILL
-    void host_action_kill() { host_action(PSTR(ACTION_ON_KILL)); }
-  #endif
-  #ifdef ACTION_ON_PAUSE
-    void host_action_pause() { host_action(PSTR(ACTION_ON_PAUSE)); }
-  #endif
-  #ifdef ACTION_ON_PAUSED
-    void host_action_paused() { host_action(PSTR(ACTION_ON_PAUSED)); }
-  #endif
-  #ifdef ACTION_ON_RESUME
-    void host_action_resume() { host_action(PSTR(ACTION_ON_RESUME)); }
-  #endif
-  #ifdef ACTION_ON_RESUMED
-    void host_action_resumed() { host_action(PSTR(ACTION_ON_RESUMED)); }
-  #endif
-  #ifdef ACTION_ON_CANCEL
-    void host_action_cancel() { host_action(PSTR(ACTION_ON_CANCEL)); }
-  #endif
-#endif  // HOST_ACTION_COMMANDS
-
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  void event_filament_runout(const bool eol/*=true*/) {
+
+  void event_filament_runout() {
+
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
+    #endif
+
     #if ENABLED(EXTENSIBLE_UI)
       ExtUI::onFilamentRunout(ExtUI::getActiveTool());
     #endif
-    #ifdef ACTION_ON_G29_FAILURE
-      host_action(PSTR(ACTION_ON_FILAMENT_RUNOUT), eol);
-    #endif
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_reason = PROMPT_FILAMENT_RUNOUT_TRIPPED;
-      SERIAL_ECHOLN("//action:prompt_end"); //ensure any current prompt is closed before we begin a new one
-      SERIAL_ECHO("//action:prompt_begin FilamentRunout T");
+
+    const char tool = '0'
       #if NUM_RUNOUT_SENSORS > 1
-        SERIAL_ECHOLN(int(active_extruder));
-      #else
-        SERIAL_ECHOLN('0');
+        + active_extruder
       #endif
-      SERIAL_ECHOLN("//action:prompt_show");
+    ;
+
+    //action:out_of_filament
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_reason = PROMPT_FILAMENT_RUNOUT;
+      host_action_prompt_end();
+      host_action_prompt_begin(PSTR("FilamentRunout T"), false);
+      SERIAL_CHAR(tool);
+      SERIAL_EOL();
+      host_action_prompt_show();
     #endif
-    if(!runout.host_handling)
+
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      if (!runout.host_handling
+        && ( strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
+          || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            || strstr(FILAMENT_RUNOUT_SCRIPT, "M25")
+          #endif
+        )
+      ) {
+        host_action_paused(false);
+      }
+      else {
+        // Legacy Repetier command for use until newer version supports standard dialog
+        // To be removed later when pause command also triggers dialog
+        #ifdef ACTION_ON_FILAMENT_RUNOUT
+          host_action(PSTR(ACTION_ON_FILAMENT_RUNOUT " T"), false);
+          SERIAL_CHAR(tool);
+          SERIAL_EOL();
+        #endif
+
+        host_action_pause(false);
+      }
+      SERIAL_ECHOPGM(" " ACTION_REASON_ON_FILAMENT_RUNOUT " ");
+      SERIAL_CHAR(tool);
+      SERIAL_EOL();
+
+    #endif // HOST_ACTION_COMMANDS
+
+    if (!runout.host_handling)
       enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
   }
-#endif
+
+#endif // FILAMENT_RUNOUT_SENSOR
 
 #if ENABLED(G29_RETRY_AND_RECOVER)
+
   void event_probe_failure() {
     #ifdef G29_FAILURE_COMMANDS
       process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
@@ -382,13 +397,10 @@ void disable_all_steppers() {
       kill(PSTR(MSG_ERR_PROBING_FAILED));
     #endif
   }
-  
+
   void event_probe_recover() {
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_reason = PROMPT_G29_RETRY;
-      SERIAL_ECHOLN("//action:prompt_end"); //ensure any current prompt is closed before we begin a new one
-       SERIAL_ECHOLN("//action:prompt_begin G29 Retrying");
-      SERIAL_ECHOLN("//action:prompt_show");
+      host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"));
     #endif
     #ifdef G29_RECOVER_COMMANDS
       process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
@@ -397,50 +409,7 @@ void disable_all_steppers() {
       host_action(PSTR(ACTION_ON_G29_RECOVER));
     #endif
   }
-#endif
 
-#if ENABLED(HOST_PROMPT_SUPPORT)
-  char host_prompt_reason = PROMPT_NOT_DEFINED;
-  void host_response_handler(char c) { host_response_handler((int)strtol(&c, NULL, 1)); }
-  void host_response_handler(int response) {
-    switch(host_prompt_reason)
-    {
-      case PROMPT_FILAMENT_RUNOUT_TRIPPED:
-        if(response==0) {
-          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE;
-        } 
-        else if (response==1) {
-          #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-            runout.enabled = false;
-            runout.reset();
-          #endif
-          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_RESUME_PRINT;
-        }
-        SERIAL_ECHOLN("M876 Responding PROMPT_FILAMENT_RUNOUT_TRIPPED");
-        break;
-      case PROMPT_FILAMENT_RUNOUT_CONTINUE:
-        if(response==0) {
-          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE;
-        } 
-        else if (response==1) {
-          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_RESUME_PRINT;
-        }
-        SERIAL_ECHOLN("M876 Responding PROMPT_FILAMENT_RUNOUT_CONTINUE");
-        break;
-      case PROMPT_FILAMENT_RUNOUT_REHEAT:
-        wait_for_user = false;
-        SERIAL_ECHOLN("M876 Responding PROMPT_FILAMENT_RUNOUT_REHEAT");
-        break;
-      case PROMPT_LCD_PAUSE_RESUME:
-        SERIAL_ECHOLN("M876 Responding PROMPT_LCD_PAUSE_RESUME");
-        break;
-      case PROMPT_GCODE_PAUSE:
-        SERIAL_ECHOLN("M876 Responding PROMPT_GCODE_PAUSE");
-        break;
-      default:
-        break;
-    }
-  }
 #endif
 
 /**

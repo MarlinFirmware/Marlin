@@ -42,9 +42,17 @@
   #include "../../sd/cardreader.h"
 #endif
 
+#if ENABLED(HOST_ACTION_COMMANDS)
+  #include "../../feature/host_actions.h"
+#endif
+
 void lcd_pause() {
   #if ENABLED(POWER_LOSS_RECOVERY)
     if (recovery.enabled) recovery.save(true, false);
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume"));
   #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
@@ -74,6 +82,9 @@ void lcd_stop() {
   #endif
   #ifdef ACTION_ON_CANCEL
     host_action_cancel();
+  #endif
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    host_prompt_open(PROMPT_INFO, PSTR("UI Abort"));
   #endif
   ui.set_status_P(PSTR(MSG_PRINT_ABORTED), -1);
   ui.return_to_status();
@@ -147,9 +158,12 @@ void menu_main() {
       }
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
-    #if ENABLED(SDSUPPORT) || defined(ACTION_ON_RESUME)
-      #if ENABLED(SDSUPPORT)
+    #if ENABLED(SDSUPPORT) || ENABLED(HOST_ACTION_COMMANDS)
+      #if DISABLED(HOST_ACTION_COMMANDS)
         if (card.isFileOpen() && card.isPaused())
+      #endif
+      #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+        if (print_job_timer.isPaused())
       #endif
           MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
     #endif

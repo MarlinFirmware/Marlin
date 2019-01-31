@@ -38,6 +38,10 @@ MMU2 mmu2;
 #include "../../module/stepper_indirection.h"
 #include "../../Marlin.h"
 
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../../feature/host_actions.h"
+#endif
+
 #define MMU_TODELAY 100
 #define MMU_TIMEOUT 10
 #define MMU_CMD_TIMEOUT 60000ul //5min timeout for mmu commands (except P0)
@@ -791,6 +795,9 @@ void MMU2::filamentRunout() {
       LCD_MESSAGEPGM(MSG_MMU2_EJECT_RECOVER);
       BUZZ(200, 404);
       wait_for_user = true;
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), PSTR("Continue"));
+      #endif
       while (wait_for_user) idle();
       BUZZ(200, 404);
       BUZZ(200, 404);

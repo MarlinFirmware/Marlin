@@ -36,13 +36,21 @@
   #include "../lcd/extensible_ui/ui_api.h"
 #endif
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #include "pause.h"
+#endif
+
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG
 
 class FilamentMonitorBase {
   public:
-    static bool enabled;
-    static bool filament_ran_out;
-    static bool host_handling;
+    static bool enabled, filament_ran_out;
+
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      static bool host_handling;
+    #else
+      constexpr static bool host_handling = false;
+    #endif
 };
 
 template<class RESPONSE_T, class SENSOR_T>
@@ -81,7 +89,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static inline void run() {
-      if (enabled && !filament_ran_out && (IS_SD_PRINTING() || print_job_timer.isRunning())) {
+      if (enabled && !filament_ran_out && (IS_SD_PRINTING() || print_job_timer.isRunning() || did_pause_print)) {
         #if FILAMENT_RUNOUT_DISTANCE_MM > 0
           cli(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         #endif
@@ -93,7 +101,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
         #endif
         if (ran_out) {
           filament_ran_out = true;
-          event_filament_runout(false);
+          event_filament_runout();
           planner.synchronize();
         }
       }
@@ -301,7 +309,11 @@ class FilamentSensorBase {
       }
 
       static inline void block_completed(const block_t* const b) {
-        if (b->steps[X_AXIS] || b->steps[Y_AXIS] || b->steps[Z_AXIS]) {
+        if (b->steps[X_AXIS] || b->steps[Y_AXIS] || b->steps[Z_AXIS]
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            || did_pause_print // Allow pause purge move to re-trigger runout state
+          #endif
+        ) {
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
           const int32_t steps = b->steps[E_AXIS];

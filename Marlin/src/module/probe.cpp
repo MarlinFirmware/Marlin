@@ -364,6 +364,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), PSTR("Continue"));
+    #endif
     while (wait_for_user) idle();
     ui.reset_status();
     KEEPALIVE_STATE(IN_HANDLER);

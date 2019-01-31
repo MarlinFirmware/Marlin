@@ -36,6 +36,10 @@ GcodeSuite gcode;
   #include "../module/printcounter.h"
 #endif
 
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../feature/host_actions.h"
+#endif
+
 #include "../Marlin.h" // for idle() and suspend_auto_report
 
 millis_t GcodeSuite::previous_move_ms;
@@ -134,8 +138,12 @@ void GcodeSuite::dwell(millis_t time) {
         return;
       }
     }
+
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      if (host_prompt_reason == PROMPT_G29_RETRY) host_action_prompt_end();
+    #endif
+
     #ifdef G29_SUCCESS_COMMANDS
-      if(host_prompt_reason == PROMPT_G29_RETRY) SERIAL_ECHOLN("//action:prompt_end");
       process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
     #endif
   }
@@ -355,7 +363,7 @@ void GcodeSuite::process_parsed_command(
           case 876: M876(); break;                                  // M876: Handle Host prompt responses
         #endif
       #else
-        case 108: case 112: case 410: 
+        case 108: case 112: case 410:
         #if ENABLED(HOST_PROMPT_SUPPORT)
           case 876:
         #endif
