@@ -554,11 +554,12 @@ void MMU2::toolChange(const char* special) {
   #if ENABLED(MMU2_MENUS)
 
     findaRunoutValid = false;
+    uint8_t index;
     KEEPALIVE_STATE(IN_HANDLER);
 
     switch(*special) {
       case '?': {
-        uint8_t index = mmu2_chooseFilament();
+        index = mmu2_chooseFilament();
         while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
         loadFilamentToNozzle(index);
       } break;
