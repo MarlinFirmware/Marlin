@@ -371,6 +371,7 @@ void protected_pin_err();
 #endif
 
 #if HAS_ACTION_COMMANDS
+  void host_action(const char * const pstr, const bool eol=true);
   #ifdef ACTION_ON_KILL
     void host_action_kill();
   #endif

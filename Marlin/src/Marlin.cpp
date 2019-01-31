@@ -313,7 +313,7 @@ void disable_all_steppers() {
 
 #if HAS_ACTION_COMMANDS
 
-  void host_action(const char * const pstr, const bool eol=true) {
+  void host_action(const char * const pstr, const bool eol) {
     SERIAL_ECHOPGM("//action:");
     serialprintPGM(pstr);
     if (eol) SERIAL_EOL();
