@@ -106,9 +106,6 @@ void menu_main() {
     #if ENABLED(SDSUPPORT) || defined(ACTION_ON_CANCEL)
       MENU_ITEM(submenu, MSG_STOP_PRINT, menu_abort_confirm);
     #endif
-    #if !defined(ACTION_ON_RESUME) && ENABLED(SDSUPPORT)
-      if (card.isFileOpen())
-    #endif
     MENU_ITEM(submenu, MSG_TUNE, menu_tune);
   }
   else {
