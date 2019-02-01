@@ -957,10 +957,6 @@ void setup() {
     card.beginautostart();
   #endif
 
-  #if ENABLED(PRUSA_MMU2)
-    mmu2.init();
-  #endif
-
   #if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)
     test_tmc_connection(true, true, true, true);
   #endif
