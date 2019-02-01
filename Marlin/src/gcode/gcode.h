@@ -191,6 +191,7 @@
  * M400 - Finish all moves.
  * M401 - Deploy and activate Z probe. (Requires a probe)
  * M402 - Deactivate and stow Z probe. (Requires a probe)
+ * M403 - Set filament type for PRUSA MMU2
  * M404 - Display or set the Nominal Filament Width: "W<diameter>". (Requires FILAMENT_WIDTH_SENSOR)
  * M405 - Enable Filament Sensor flow control. "M405 D<delay_cm>". (Requires FILAMENT_WIDTH_SENSOR)
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
@@ -697,6 +698,10 @@ private:
   #if HAS_BED_PROBE
     static void M401();
     static void M402();
+  #endif
+
+  #if ENABLED(PRUSA_MMU2)
+    static void M403();
   #endif
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)

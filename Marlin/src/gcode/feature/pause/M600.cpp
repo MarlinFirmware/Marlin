@@ -37,6 +37,10 @@
   #include "../../../lcd/ultralcd.h"
 #endif
 
+#if ENABLED(PRUSA_MMU2)
+  #include "../../../feature/prusa_MMU2/mmu2_menu.h"
+#endif
+
 /**
  * M600: Pause for filament change
  *
@@ -71,7 +75,7 @@ void GcodeSuite::M600() {
   #endif
 
   // Show initial "wait for start" message
-  #if HAS_LCD_MENU
+  #if HAS_LCD_MENU && DISABLED(PRUSA_MMU2)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, target_extruder);
   #endif
 
@@ -110,16 +114,23 @@ void GcodeSuite::M600() {
     park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
   #endif
 
-  // Unload filament
-  const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
-                                                     : fc_settings[active_extruder].unload_length);
+  #if ENABLED(PRUSA_MMU2)
+    // For MMU2 reset retract and load/unload values so they don't mess with MMU filament handling
+    constexpr float unload_length = 0.5f,
+                    slow_load_length = 0.0f,
+                    fast_load_length = 0.0f;
+  #else
+    // Unload filament
+    const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
+                                                      : fc_settings[active_extruder].unload_length);
 
-  // Slow load filament
-  constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
+    // Slow load filament
+    constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
 
-  // Fast load filament
-  const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
-                                                       : fc_settings[active_extruder].load_length);
+    // Fast load filament
+    const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
+                                                        : fc_settings[active_extruder].load_length);
+  #endif
 
   const int beep_count = parser.intval('B',
     #ifdef FILAMENT_CHANGE_ALERT_BEEPS
@@ -130,8 +141,13 @@ void GcodeSuite::M600() {
   );
 
   if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
-    wait_for_confirmation(true, beep_count DXC_PASS);
-    resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
+    #if ENABLED(PRUSA_MMU2)
+      mmu2_M600();
+      resume_print(slow_load_length, fast_load_length, 0, beep_count DXC_PASS);
+    #else
+      wait_for_confirmation(true, beep_count DXC_PASS);
+      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
+    #endif
   }
 
   #if EXTRUDERS > 1

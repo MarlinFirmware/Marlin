@@ -402,7 +402,7 @@ void ST7920_Lite_Status_Screen::draw_degree_symbol(uint8_t x, uint8_t y, const b
     const bool    oddChar = x & 1;
     const uint8_t x_word  = x >> 1,
                   y_top   = degree_symbol_y_top,
-                  y_bot   = y_top + sizeof(degree_symbol)/sizeof(degree_symbol[0]);
+                  y_bot   = y_top + COUNT(degree_symbol);
     for (uint8_t i = y_top; i < y_bot; i++) {
       uint8_t byte = pgm_read_byte(p_bytes++);
       set_gdram_address(x_word, i + y * 16);
