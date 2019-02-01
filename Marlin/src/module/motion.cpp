@@ -1050,7 +1050,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
    * Set sensorless homing if the axis has it, accounting for Core Kinematics.
    */
   sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis) {
-    sensorless_t stealth_states { false, false, false };
+    sensorless_t stealth_states { false, false, false, false, false, false, false };
 
     switch (axis) {
       default: break;
@@ -1058,7 +1058,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
         case X_AXIS:
           stealth_states.x = tmc_enable_stallguard(stepperX);
           #if AXIS_HAS_STALLGUARD(X2)
-            tmc_enable_stallguard(stepperX2);
+            stealth_states.x2 = tmc_enable_stallguard(stepperX2);
           #endif
           #if CORE_IS_XY && Y_SENSORLESS
             stealth_states.y = tmc_enable_stallguard(stepperY);
@@ -1071,7 +1071,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
         case Y_AXIS:
           stealth_states.y = tmc_enable_stallguard(stepperY);
           #if AXIS_HAS_STALLGUARD(Y2)
-            tmc_enable_stallguard(stepperY2);
+            stealth_states.y2 = tmc_enable_stallguard(stepperY2);
           #endif
           #if CORE_IS_XY && X_SENSORLESS
             stealth_states.x = tmc_enable_stallguard(stepperX);
@@ -1084,10 +1084,10 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
         case Z_AXIS:
           stealth_states.z = tmc_enable_stallguard(stepperZ);
           #if AXIS_HAS_STALLGUARD(Z2)
-            tmc_enable_stallguard(stepperZ2);
+            stealth_states.z2 = tmc_enable_stallguard(stepperZ2);
           #endif
           #if AXIS_HAS_STALLGUARD(Z3)
-            tmc_enable_stallguard(stepperZ3);
+            stealth_states.z3 = tmc_enable_stallguard(stepperZ3);
           #endif
           #if CORE_IS_XZ && X_SENSORLESS
             stealth_states.x = tmc_enable_stallguard(stepperX);
@@ -1107,7 +1107,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
         case X_AXIS:
           tmc_disable_stallguard(stepperX, enable_stealth.x);
           #if AXIS_HAS_STALLGUARD(X2)
-            tmc_disable_stallguard(stepperX2, enable_stealth.x);
+            tmc_disable_stallguard(stepperX2, enable_stealth.x2);
           #endif
           #if CORE_IS_XY && Y_SENSORLESS
             tmc_disable_stallguard(stepperY, enable_stealth.y);
@@ -1120,7 +1120,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
         case Y_AXIS:
           tmc_disable_stallguard(stepperY, enable_stealth.y);
           #if AXIS_HAS_STALLGUARD(Y2)
-            tmc_disable_stallguard(stepperY2, enable_stealth.y);
+            tmc_disable_stallguard(stepperY2, enable_stealth.y2);
           #endif
           #if CORE_IS_XY && X_SENSORLESS
             tmc_disable_stallguard(stepperX, enable_stealth.x);
@@ -1133,10 +1133,10 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
         case Z_AXIS:
           tmc_disable_stallguard(stepperZ, enable_stealth.z);
           #if AXIS_HAS_STALLGUARD(Z2)
-            tmc_disable_stallguard(stepperZ2, enable_stealth.z);
+            tmc_disable_stallguard(stepperZ2, enable_stealth.z2);
           #endif
           #if AXIS_HAS_STALLGUARD(Z3)
-            tmc_disable_stallguard(stepperZ3, enable_stealth.z);
+            tmc_disable_stallguard(stepperZ3, enable_stealth.z3);
           #endif
           #if CORE_IS_XZ && X_SENSORLESS
             tmc_disable_stallguard(stepperX, enable_stealth.x);

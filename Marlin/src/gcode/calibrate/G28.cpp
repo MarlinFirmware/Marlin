@@ -71,14 +71,14 @@
                 fr_mm_s = MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
 
     #if ENABLED(SENSORLESS_HOMING)
-      sensorless_t stealth_states { false, false, false };
+      sensorless_t stealth_states { false, false, false, false, false, false, false };
       stealth_states.x = tmc_enable_stallguard(stepperX);
       stealth_states.y = tmc_enable_stallguard(stepperY);
       #if AXIS_HAS_STALLGUARD(X2)
-        tmc_enable_stallguard(stepperX2);
+        stealth_states.x2 = tmc_enable_stallguard(stepperX2);
       #endif
       #if AXIS_HAS_STALLGUARD(Y2)
-        tmc_enable_stallguard(stepperY2);
+        stealth_states.y2 = tmc_enable_stallguard(stepperY2);
       #endif
     #endif
 
@@ -92,10 +92,10 @@
       tmc_disable_stallguard(stepperX, stealth_states.x);
       tmc_disable_stallguard(stepperY, stealth_states.y);
       #if AXIS_HAS_STALLGUARD(X2)
-        tmc_disable_stallguard(stepperX2, stealth_states.x);
+        tmc_disable_stallguard(stepperX2, stealth_states.x2);
       #endif
       #if AXIS_HAS_STALLGUARD(Y2)
-        tmc_disable_stallguard(stepperY2, stealth_states.y);
+        tmc_disable_stallguard(stepperY2, stealth_states.y2);
       #endif
     #endif
   }

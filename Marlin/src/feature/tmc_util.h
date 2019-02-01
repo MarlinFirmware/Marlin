@@ -278,7 +278,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 #if USE_SENSORLESS
   // Track enabled status of stealthChop and only re-enable where applicable
   struct sensorless_t {
-    bool x, y, z;
+    bool x, y, z, x2, y2, z2, z3;
   };
 
   bool tmc_enable_stallguard(TMC2130Stepper &st);
