@@ -38,6 +38,10 @@
   #include "../../../lcd/ultralcd.h"
 #endif
 
+#if ENABLED(PRUSA_MMU2)
+  #include "../../../feature/prusa_MMU2/mmu2.h"
+#endif
+
 /**
  * M701: Load filament
  *
@@ -67,7 +71,7 @@ void GcodeSuite::M701() {
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, ADVANCED_PAUSE_MODE_LOAD_FILAMENT, target_extruder);
   #endif
 
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1 && DISABLED(PRUSA_MMU2)
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder)
@@ -79,21 +83,25 @@ void GcodeSuite::M701() {
     do_blocking_move_to_z(MIN(current_position[Z_AXIS] + park_point.z, Z_MAX_POS), NOZZLE_PARK_Z_FEEDRATE);
 
   // Load filament
-  constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
-  const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
-                                                       : fc_settings[active_extruder].load_length);
-  load_filament(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS,
-                true, thermalManager.still_heating(target_extruder), ADVANCED_PAUSE_MODE_LOAD_FILAMENT
-                #if ENABLED(DUAL_X_CARRIAGE)
-                  , target_extruder
-                #endif
-              );
+  #if ENABLED(PRUSA_MMU2)
+    mmu2.loadFilamentToNozzle(target_extruder);
+  #else
+    constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
+    const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
+                                                        : fc_settings[active_extruder].load_length);
+    load_filament(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS,
+                  true, thermalManager.still_heating(target_extruder), ADVANCED_PAUSE_MODE_LOAD_FILAMENT
+                  #if ENABLED(DUAL_X_CARRIAGE)
+                    , target_extruder
+                  #endif
+                );
+  #endif
 
   // Restore Z axis
   if (park_point.z > 0)
     do_blocking_move_to_z(MAX(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
 
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1 && DISABLED(PRUSA_MMU2)
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, 0, false);
@@ -134,7 +142,7 @@ void GcodeSuite::M702() {
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD, ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, target_extruder);
   #endif
 
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1 && DISABLED(PRUSA_MMU2)
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder)
@@ -146,28 +154,32 @@ void GcodeSuite::M702() {
     do_blocking_move_to_z(MIN(current_position[Z_AXIS] + park_point.z, Z_MAX_POS), NOZZLE_PARK_Z_FEEDRATE);
 
   // Unload filament
-  #if EXTRUDERS > 1 && ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
-    if (!parser.seenval('T')) {
-      HOTEND_LOOP() {
-        if (e != active_extruder) tool_change(e, 0, false);
-        unload_filament(-fc_settings[e].unload_length, true, ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT);
+  #if ENABLED(PRUSA_MMU2)
+    mmu2.unload();
+  #else
+    #if EXTRUDERS > 1 && ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
+      if (!parser.seenval('T')) {
+        HOTEND_LOOP() {
+          if (e != active_extruder) tool_change(e, 0, false);
+          unload_filament(-fc_settings[e].unload_length, true, ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT);
+        }
       }
-    }
-    else
-  #endif
-  {
-    // Unload length
-    const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
-                                                      : fc_settings[target_extruder].unload_length);
+      else
+    #endif
+    {
+      // Unload length
+      const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
+                                                        : fc_settings[target_extruder].unload_length);
 
-    unload_filament(unload_length, true, ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT);
-  }
+      unload_filament(unload_length, true, ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT);
+    }
+  #endif
 
   // Restore Z axis
   if (park_point.z > 0)
     do_blocking_move_to_z(MAX(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
 
-  #if EXTRUDERS > 1
+  #if EXTRUDERS > 1 && DISABLED(PRUSA_MMU2)
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, 0, false);

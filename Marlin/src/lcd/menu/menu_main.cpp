@@ -61,7 +61,8 @@ void lcd_pause() {
 void lcd_resume() {
   #if ENABLED(SDSUPPORT)
     if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
-  #elif defined(ACTION_ON_RESUME)
+  #endif
+  #ifdef ACTION_ON_RESUME
     host_action_resume();
   #endif
 }
@@ -85,6 +86,10 @@ void menu_abort_confirm() {
   END_MENU();
 }
 
+#if ENABLED(PRUSA_MMU2)
+  #include "../../feature/prusa_MMU2/mmu2_menu.h"
+#endif
+
 void menu_tune();
 void menu_motion();
 void menu_temperature();
@@ -105,9 +110,6 @@ void menu_main() {
     MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_pause);
     #if ENABLED(SDSUPPORT) || defined(ACTION_ON_CANCEL)
       MENU_ITEM(submenu, MSG_STOP_PRINT, menu_abort_confirm);
-    #endif
-    #if !defined(ACTION_ON_RESUME) && ENABLED(SDSUPPORT)
-      if (card.isFileOpen())
     #endif
     MENU_ITEM(submenu, MSG_TUNE, menu_tune);
   }
@@ -140,6 +142,10 @@ void menu_main() {
 
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
     MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
+
+    #if ENABLED(MMU2_MENUS)
+      MENU_ITEM(submenu, MSG_MMU2_MENU, menu_mmu2);
+    #endif
   }
 
   MENU_ITEM(submenu, MSG_CONFIGURATION, menu_configuration);

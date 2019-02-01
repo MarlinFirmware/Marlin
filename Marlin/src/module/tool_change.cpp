@@ -70,6 +70,10 @@
   #include "../feature/fanmux.h"
 #endif
 
+#if ENABLED(PRUSA_MMU2)
+  #include "../feature/prusa_MMU2/mmu2.h"
+#endif
+
 #if HAS_LCD_MENU
   #include "../lcd/ultralcd.h"
 #endif
@@ -508,6 +512,13 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       mixer.T(uint_fast8_t(tmp_extruder));
     #endif
 
+  #elif ENABLED(PRUSA_MMU2)
+
+    UNUSED(fr_mm_s); UNUSED(no_move);
+
+    mmu2.toolChange(tmp_extruder);
+
+
   #elif EXTRUDERS < 2
 
     UNUSED(fr_mm_s); UNUSED(no_move);
@@ -714,6 +725,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           do_blocking_move_to_z(destination[Z_AXIS], planner.settings.max_feedrate_mm_s[Z_AXIS]);
         }
       #endif
+
+      #if ENABLED(PRUSA_MMU2)
+        mmu2.toolChange(tmp_extruder);
+      #endif
+
     } // (tmp_extruder != active_extruder)
 
     planner.synchronize();

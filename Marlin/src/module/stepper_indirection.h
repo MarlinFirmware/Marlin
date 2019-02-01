@@ -584,6 +584,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define   NORM_E_DIR(E)   do{ E0_DIR_WRITE(E ?  INVERT_E0_DIR : !INVERT_E0_DIR); }while(0)
     #define    REV_E_DIR(E)   do{ E0_DIR_WRITE(E ? !INVERT_E0_DIR :  INVERT_E0_DIR); }while(0)
   #endif
+#elif ENABLED(PRUSA_MMU2)
+  #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
+  #define   NORM_E_DIR(E)   E0_DIR_WRITE(!INVERT_E0_DIR)
+  #define    REV_E_DIR(E)   E0_DIR_WRITE( INVERT_E0_DIR)
+
 #elif ENABLED(MK2_MULTIPLEXER) // One multiplexed stepper driver, reversed on odd index
   #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
   #define   NORM_E_DIR(E)   do{ E0_DIR_WRITE(TEST(E, 0) ? !INVERT_E0_DIR:  INVERT_E0_DIR); }while(0)

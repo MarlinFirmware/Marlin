@@ -1117,6 +1117,94 @@
   #define MSG_M600_TOO_COLD                   _UxGT("M600: Too cold")
 #endif
 
+#ifndef MSG_MMU2_FILAMENT_CHANGE_HEADER
+  #define MSG_MMU2_FILAMENT_CHANGE_HEADER     _UxGT("FILAMENT CHANGE")
+#endif
+#ifndef MSG_MMU2_CHOOSE_FILAMENT_HEADER
+  #define MSG_MMU2_CHOOSE_FILAMENT_HEADER     _UxGT("CHOOSE FILAMENT")
+#endif
+#ifndef MSG_MMU2_MENU
+  #define MSG_MMU2_MENU                       _UxGT("MMU")
+#endif
+#ifndef MSG_MMU2_WRONG_FIRMWARE
+  #define MSG_MMU2_WRONG_FIRMWARE             _UxGT("Update MMU firmware!")
+#endif
+#ifndef MSG_MMU2_NOT_RESPONDING
+  #define MSG_MMU2_NOT_RESPONDING             _UxGT("MMU needs attention.")
+#endif
+#ifndef MSG_MMU2_RESUME
+  #define MSG_MMU2_RESUME                     _UxGT("Resume print")
+#endif
+#ifndef MSG_MMU2_RESUMING
+  #define MSG_MMU2_RESUMING                   _UxGT("Resuming...")
+#endif
+#ifndef MSG_MMU2_LOAD_FILAMENT
+  #define MSG_MMU2_LOAD_FILAMENT              _UxGT("Load filament")
+#endif
+#ifndef MSG_MMU2_LOAD_ALL
+  #define MSG_MMU2_LOAD_ALL                   _UxGT("Load all")
+#endif
+#ifndef MSG_MMU2_LOAD_TO_NOZZLE
+  #define MSG_MMU2_LOAD_TO_NOZZLE             _UxGT("Load to nozzle")
+#endif
+#ifndef MSG_MMU2_EJECT_FILAMENT
+  #define MSG_MMU2_EJECT_FILAMENT             _UxGT("Eject filament")
+#endif
+#ifndef MSG_MMU2_EJECT_FILAMENT0
+  #define MSG_MMU2_EJECT_FILAMENT0            _UxGT("Eject filament 1")
+#endif
+#ifndef MSG_MMU2_EJECT_FILAMENT1
+  #define MSG_MMU2_EJECT_FILAMENT1            _UxGT("Eject filament 2")
+#endif
+#ifndef MSG_MMU2_EJECT_FILAMENT2
+  #define MSG_MMU2_EJECT_FILAMENT2            _UxGT("Eject filament 3")
+#endif
+#ifndef MSG_MMU2_EJECT_FILAMENT3
+  #define MSG_MMU2_EJECT_FILAMENT3            _UxGT("Eject filament 4")
+#endif
+#ifndef MSG_MMU2_EJECT_FILAMENT4
+  #define MSG_MMU2_EJECT_FILAMENT4            _UxGT("Eject filament 5")
+#endif
+#ifndef MSG_MMU2_UNLOAD_FILAMENT
+  #define MSG_MMU2_UNLOAD_FILAMENT            _UxGT("Unload filament")
+#endif
+#ifndef MSG_MMU2_LOADING_FILAMENT
+  #define MSG_MMU2_LOADING_FILAMENT           _UxGT("Loading fil. %i...")
+#endif
+#ifndef MSG_MMU2_EJECTING_FILAMENT
+  #define MSG_MMU2_EJECTING_FILAMENT          _UxGT("Ejecting fil. ...")
+#endif
+#ifndef MSG_MMU2_UNLOADING_FILAMENT
+  #define MSG_MMU2_UNLOADING_FILAMENT         _UxGT("Unloading fil....")
+#endif
+#ifndef MSG_MMU2_ALL
+  #define MSG_MMU2_ALL                        _UxGT("All")
+#endif
+#ifndef MSG_MMU2_FILAMENT0
+  #define MSG_MMU2_FILAMENT0                  _UxGT("Filament 1")
+#endif
+#ifndef MSG_MMU2_FILAMENT1
+  #define MSG_MMU2_FILAMENT1                  _UxGT("Filament 2")
+#endif
+#ifndef MSG_MMU2_FILAMENT2
+  #define MSG_MMU2_FILAMENT2                  _UxGT("Filament 3")
+#endif
+#ifndef MSG_MMU2_FILAMENT3
+  #define MSG_MMU2_FILAMENT3                  _UxGT("Filament 4")
+#endif
+#ifndef MSG_MMU2_FILAMENT4
+  #define MSG_MMU2_FILAMENT4                  _UxGT("Filament 5")
+#endif
+#ifndef MSG_MMU2_RESET
+  #define MSG_MMU2_RESET                      _UxGT("Reset MMU")
+#endif
+#ifndef MSG_MMU2_RESETTING
+  #define MSG_MMU2_RESETTING                  _UxGT("Resetting MMU...")
+#endif
+#ifndef MSG_MMU2_EJECT_RECOVER
+  #define MSG_MMU2_EJECT_RECOVER              _UxGT("Remove, click")
+#endif
+
 //
 // Filament Change screens show up to 3 lines on a 4-line display
 //                        ...or up to 2 lines on a 3-line display

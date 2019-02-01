@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
  * GT2560 V3.0 pin assignment
  */
@@ -34,6 +33,11 @@
 #endif
 
 //
+// Servos
+//
+#define SERVO0_PIN         11   //13 untested  3Dtouch
+
+//
 // Limit Switches
 //
 #define X_MIN_PIN          24
@@ -42,6 +46,22 @@
 #define Y_MAX_PIN          26
 #define Z_MIN_PIN          30
 #define Z_MAX_PIN          32
+
+//
+// Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   66
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN  67
+#endif
+
+//
+// Power Recovery
+//
+#define POWER_LOSS_PIN     69   // Pin to detect power loss
+#define POWER_LOSS_STATE   LOW
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -89,6 +109,9 @@
 #define HEATER_2_PIN        1
 #define HEATER_BED_PIN      4
 #define FAN_PIN             9
+//#define FAN1_PIN            8
+//#define FAN2_PIN            7
+
 
 //
 // Misc. Functions
@@ -98,7 +121,6 @@
 #define LED_PIN             6
 #define PS_ON_PIN          12
 #define SUICIDE_PIN        54   //PIN that has to be turned on right after start, to keep power flowing.
-#define SERVO0_PIN         11   //13 untested  3Dtouch
 
 #ifndef CASE_LIGHT_PIN
   //#define CASE_LIGHT_PIN 21

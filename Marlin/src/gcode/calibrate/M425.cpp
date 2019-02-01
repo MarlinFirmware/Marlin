@@ -74,7 +74,7 @@ void GcodeSuite::M425() {
 
   if (parser.seen('F')) {
     planner.synchronize();
-    backlash_correction = max(0, min(1.0, parser.value_linear_units()));
+    backlash_correction = MAX(0, MIN(1.0, parser.value_linear_units()));
     noArgs = false;
   }
 

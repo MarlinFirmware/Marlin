@@ -235,7 +235,7 @@ void PrintJobRecovery::resume() {
 
   // Set Z to 0, raise Z by 2mm, and Home (XY only for Cartesian) with no raise
   // (Only do simulated homing in Marlin Dev Mode.)
-  gcode.process_subcommands_now_P(PSTR("G92.0 Z0|G1 Z" STRINGIFY(RECOVERY_ZRAISE) "|G28 R0"
+  gcode.process_subcommands_now_P(PSTR("G92.0 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
     #if ENABLED(MARLIN_DEV_MODE)
       " S"
     #elif !IS_KINEMATIC
