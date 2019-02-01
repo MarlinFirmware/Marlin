@@ -46,6 +46,53 @@
   #include "../../module/temperature.h"
 #endif
 
+void menu_tmc();
+
+#if ENABLED(DAC_STEPPER_CURRENT)
+
+  #include "../../feature/dac/stepper_dac.h"
+
+  uint8_t driverPercent[XYZE];
+  inline void dac_driver_getValues() { LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i); }
+  static void dac_driver_commit() { dac_current_set_percents(driverPercent); }
+
+  void menu_dac() {
+    dac_driver_getValues();
+    START_MENU();
+    MENU_BACK(MSG_CONTROL);
+    #define EDIT_DAC_PERCENT(N) MENU_ITEM_EDIT_CALLBACK(uint8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
+    EDIT_DAC_PERCENT(X);
+    EDIT_DAC_PERCENT(Y);
+    EDIT_DAC_PERCENT(Z);
+    EDIT_DAC_PERCENT(E);
+    MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_commit_eeprom);
+    END_MENU();
+  }
+
+#endif
+
+#if HAS_MOTOR_CURRENT_PWM
+
+  #include "../../module/stepper.h"
+
+  void menu_pwm() {
+    START_MENU();
+    MENU_BACK(MSG_CONTROL);
+    #define EDIT_CURRENT_PWM(LABEL,I) MENU_ITEM_EDIT_CALLBACK(long5, LABEL, &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+      EDIT_CURRENT_PWM(MSG_X MSG_Y, 0);
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+      EDIT_CURRENT_PWM(MSG_Z, 1);
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+      EDIT_CURRENT_PWM(MSG_E, 2);
+    #endif
+    END_MENU();
+  }
+
+#endif
+
 #if HAS_M206_COMMAND
   //
   // Set the home offset based on the current_position
@@ -580,8 +627,18 @@ void menu_advanced_settings() {
       // M92 - Steps Per mm
       MENU_ITEM(submenu, MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
     }
-
   #endif // !SLIM_LCD_MENUS
+
+  #if ENABLED(DAC_STEPPER_CURRENT)
+    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_dac);
+  #endif
+  #if HAS_MOTOR_CURRENT_PWM
+    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_pwm);
+  #endif
+
+  #if HAS_TRINAMIC
+    MENU_ITEM(submenu, MSG_TMC_DRIVERS, menu_tmc);
+  #endif
 
   MENU_ITEM(submenu, MSG_TEMPERATURE, menu_advanced_temperature);
 
