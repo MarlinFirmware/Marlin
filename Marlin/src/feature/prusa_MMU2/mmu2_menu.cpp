@@ -180,8 +180,8 @@ void menu_mmu2_chooseFilament() {
 
 inline void action_mmu2_M600_loadCurrentFilament()         { mmu2.loadFilament(currentTool); }
 inline void action_mmu2_M600_loadCurrentFilamentToNozzle() { mmu2.loadFilamentToNozzle(currentTool); }
-inline void action_mmu2_M600_unloadFilament()        { mmu2.unload(); }
-inline void action_mmu2_M600_resume()                 { mmuMenuWait = false; }
+inline void action_mmu2_M600_unloadFilament()              { mmu2.unload(); }
+inline void action_mmu2_M600_resume()                      { mmuMenuWait = false; }
 
 void menu_mmu2_advanced_pause() {
   currentTool = mmu2.getCurrentTool();
