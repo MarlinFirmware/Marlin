@@ -2009,3 +2009,16 @@ static_assert(sanity_arr_3[0] > 0 && sanity_arr_3[1] > 0 && sanity_arr_3[2] > 0
 #if ENABLED(BACKLASH_COMPENSATION) && IS_CORE
   #error "BACKLASH_COMPENSATION is incompatible with CORE kinematics."
 #endif
+
+/**
+ * Prusa MMU2 requirements
+ */
+#if ENABLED(PRUSA_MMU2)
+  #if DISABLED(NOZZLE_PARK_FEATURE)
+    #error "PRUSA_MMU2 requires NOZZLE_PARK_FEATURE."
+  #elif EXTRUDERS != 5
+    #error "PRUSA_MMU2 requires EXTRUDERS = 5."
+  #elif DISABLED(ADVANCED_PAUSE_FEATURE)
+    static_assert(NULL == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2.");
+  #endif
+#endif
