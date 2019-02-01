@@ -74,6 +74,12 @@
       sensorless_t stealth_states { false, false, false };
       stealth_states.x = tmc_enable_stallguard(stepperX);
       stealth_states.y = tmc_enable_stallguard(stepperY);
+      #if AXIS_HAS_STALLGUARD(X2)
+        tmc_enable_stallguard(stepperX2);
+      #endif
+      #if AXIS_HAS_STALLGUARD(Y2)
+        tmc_enable_stallguard(stepperY2);
+      #endif
     #endif
 
     do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_s);
@@ -85,6 +91,12 @@
     #if ENABLED(SENSORLESS_HOMING)
       tmc_disable_stallguard(stepperX, stealth_states.x);
       tmc_disable_stallguard(stepperY, stealth_states.y);
+      #if AXIS_HAS_STALLGUARD(X2)
+        tmc_disable_stallguard(stepperX2, stealth_states.x);
+      #endif
+      #if AXIS_HAS_STALLGUARD(Y2)
+        tmc_disable_stallguard(stepperY2, stealth_states.y);
+      #endif
     #endif
   }
 
