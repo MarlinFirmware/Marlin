@@ -554,19 +554,18 @@ void MMU2::toolChange(const char* special) {
   #if ENABLED(MMU2_MENUS)
 
     findaRunoutValid = false;
-    uint8_t index;
     KEEPALIVE_STATE(IN_HANDLER);
 
     switch(*special) {
       case '?': {
-        index = mmu2_chooseFilament();
+        uint8_t index = mmu2_chooseFilament();
         while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
         loadFilamentToNozzle(index);
       } break;
 
       case 'x': {
         planner.synchronize();
-        index = mmu2_chooseFilament();
+        uint8_t index = mmu2_chooseFilament();
         disable_E0();
         command(MMU_CMD_T0 + index);
         manageResponse(true, true);
