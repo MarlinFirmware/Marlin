@@ -131,7 +131,7 @@
 #define FAN1_PIN           12
 
 #define NUM_RUNOUT_SENSORS  2
-#define FIL_RUNOUT_PIN     23
+#define FIL_RUNOUT_PIN     22
 #define FIL_RUNOUT2_PIN    21
 
 //
