@@ -132,7 +132,7 @@ Stepper stepper; // Singleton
 block_t* Stepper::current_block = NULL; // A pointer to the block currently being traced
 
 uint8_t Stepper::last_direction_bits = 0,
-        Stepper::axis_did_move;
+        Stepper::axis_did_move = 0;
 
 bool Stepper::abort_current_block;
 
@@ -2151,6 +2151,13 @@ void Stepper::init() {
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
   sei();
+
+  // initialize the direction bits for first moves
+  last_direction_bits = 0;
+  SET_BIT_TO(last_direction_bits, X_AXIS, INVERT_X_DIR);
+  SET_BIT_TO(last_direction_bits, Y_AXIS, INVERT_Y_DIR);
+  SET_BIT_TO(last_direction_bits, Z_AXIS, INVERT_Z_DIR);
+  set_directions();
 }
 
 /**
