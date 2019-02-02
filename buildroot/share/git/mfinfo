@@ -12,9 +12,6 @@
 #   - Current Branch
 #
 
-# usage() { echo "usage: `basename $0` [1|2] [branch]" 1>&2 ; }
-# [[ $# < 3 && $1 != "-h" && $1 != "--help" ]] || { usage; exit 1; }
-
 CURR=$(git branch 2>/dev/null | grep ^* | sed 's/\* //g')
 [[ -z $CURR ]] && { echo "No git repository here!" 1>&2 ; exit 1; }
 [[ $CURR == "(no"* ]] && { echo "Git is busy with merge, rebase, etc." 1>&2 ; exit 1; }
@@ -55,5 +52,9 @@ case "$REPO" in
   Marlin              ) TARG=bugfix-1.1.x ; [[ $INDEX == 2 ]] && TARG=bugfix-2.0.x ;;
   MarlinDocumentation ) TARG=master ;;
 esac
+
+[[ $BRANCH =~ ^[0-9]$ ]] && USAGE=1
+
+[[ $USAGE ]] && { echo "usage: `basename $0` [1|2] [branch]" 1>&2 ; exit 1 ; }
 
 echo "$ORG $FORK $REPO $TARG $BRANCH $CURR $MORE"
