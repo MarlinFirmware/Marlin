@@ -967,7 +967,7 @@ void setup() {
 
   #if ENABLED(SWITCHING_NOZZLE)
     // Initialize nozzle servo(s)
-    #if ENABLED(SWITCHING_NOZZLE_INDEPENDENT_SERVOS)
+    #if SWITCHING_NOZZLE_TWO_SERVOS
       lower_nozzle(0);
       raise_nozzle(1);
     #else

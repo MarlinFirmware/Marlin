@@ -45,11 +45,11 @@
 #endif
 
 #if ENABLED(SWITCHING_NOZZLE)
-  #if ENABLED(SWITCHING_NOZZLE_INDEPENDENT_SERVOS)
+  #if SWITCHING_NOZZLE_TWO_SERVOS
     void lower_nozzle(const uint8_t e);
     void raise_nozzle(const uint8_t e);
   #else
-    void move_nozzle_servo(const uint8_t e);
+    void move_nozzle_servo(const uint8_t angle_index);
   #endif
 #endif
 
