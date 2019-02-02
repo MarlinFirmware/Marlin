@@ -1117,8 +1117,8 @@
 */
 #if ENABLED(MachineCRX) && ENABLED(HotendStock)
   #if ENABLED(ABL_BLTOUCH)
-    #define X_PROBE_OFFSET_FROM_EXTRUDER -41  // X offset: -left  +right  [of the nozzle]
-    #define Y_PROBE_OFFSET_FROM_EXTRUDER -8  // Y offset: -front +behind [the nozzle]
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -22  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER -45  // Y offset: -front +behind [the nozzle]
     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
   #endif
 
@@ -1579,6 +1579,7 @@ GRID_MAX_POINTS_X 3
 #define MIN_PROBE_EDGE 10
 
 // Set the boundaries for probing (where the probe can reach).
+
 #if( (X_PROBE_OFFSET_FROM_EXTRUDER + 15) > 0 )
 #define LEFT_PROBE_BED_POSITION (X_PROBE_OFFSET_FROM_EXTRUDER + 5)
 #else
@@ -1602,6 +1603,8 @@ GRID_MAX_POINTS_X 3
 #else
 #define BACK_PROBE_BED_POSITION (Y_BED_SIZE - 25)
 #endif
+
+
 
 // Probe along the Y axis, advancing X after each column
 //#define PROBE_Y_FIRST
