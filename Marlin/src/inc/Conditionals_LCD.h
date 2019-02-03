@@ -534,3 +534,16 @@
 #define IS_CARTESIAN !IS_KINEMATIC
 
 #define HAS_ACTION_COMMANDS (defined(ACTION_ON_KILL) || defined(ACTION_ON_PAUSE) || defined(ACTION_ON_PAUSED) || defined(ACTION_ON_RESUME) || defined(ACTION_ON_RESUMED) || defined(ACTION_ON_CANCEL) || defined(G29_ACTION_ON_RECOVER) || defined(G29_ACTION_ON_FAILURE) || defined(ACTION_ON_FILAMENT_RUNOUT))
+
+#ifndef INVERT_X_DIR
+  #define INVERT_X_DIR false
+#endif
+#ifndef INVERT_Y_DIR
+  #define INVERT_Y_DIR false
+#endif
+#ifndef INVERT_Z_DIR
+  #define INVERT_Z_DIR false
+#endif
+#ifndef INVERT_E_DIR
+  #define INVERT_E_DIR false
+#endif

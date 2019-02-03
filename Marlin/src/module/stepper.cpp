@@ -129,10 +129,10 @@ Stepper stepper; // Singleton
 
 // private:
 
-block_t* Stepper::current_block = NULL; // A pointer to the block currently being traced
+block_t* Stepper::current_block; // (= NULL) A pointer to the block currently being traced
 
-uint8_t Stepper::last_direction_bits = 0,
-        Stepper::axis_did_move;
+uint8_t Stepper::last_direction_bits, // = 0
+        Stepper::axis_did_move; // = 0
 
 bool Stepper::abort_current_block;
 
@@ -2143,14 +2143,20 @@ void Stepper::init() {
     E_AXIS_INIT(5);
   #endif
 
-  set_directions();
-
   // Init Stepper ISR to 122 Hz for quick starting
   HAL_timer_start(STEP_TIMER_NUM, 122);
 
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
   sei();
+
+  // Init direction bits for first moves
+  last_direction_bits = 0
+    | (INVERT_X_DIR ? _BV(X_AXIS) : 0)
+    | (INVERT_Y_DIR ? _BV(Y_AXIS) : 0)
+    | (INVERT_Z_DIR ? _BV(Z_AXIS) : 0);
+
+  set_directions();
 }
 
 /**
