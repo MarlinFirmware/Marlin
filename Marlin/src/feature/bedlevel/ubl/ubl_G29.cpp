@@ -1407,7 +1407,7 @@
         #endif
 
         if (abort_flag) {
-          SERIAL_ECHOPGM("?Error probing point.  Aborting operation.\n");
+          SERIAL_ECHOLNPGM("?Error probing point.  Aborting operation.");
           return;
         }
       }

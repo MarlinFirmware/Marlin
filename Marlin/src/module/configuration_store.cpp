@@ -1961,7 +1961,7 @@ void MarlinSettings::postprocess() {
         const bool status = persistentStore.write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
         persistentStore.access_finish();
 
-        if (status) SERIAL_ECHOPGM("?Unable to save mesh data.\n");
+        if (status) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
         else        CHITCHAT_ECHOLNPAIR("Mesh saved in slot ", slot);
 
       #else
@@ -1990,7 +1990,7 @@ void MarlinSettings::postprocess() {
         const uint16_t status = persistentStore.read_data(pos, dest, sizeof(ubl.z_values), &crc);
         persistentStore.access_finish();
 
-        if (status) SERIAL_ECHOPGM("?Unable to load mesh data.\n");
+        if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
         else        CHITCHAT_ECHOLNPAIR("Mesh loaded from slot ", slot);
 
         EEPROM_FINISH();
