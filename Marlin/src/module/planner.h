@@ -114,7 +114,7 @@ typedef struct block_t {
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
-    MIXER_BLOCK_DEFINITION;                 // Normalized color for the mixing steppers
+    MIXER_BLOCK_FIELD;                      // Normalized color for the mixing steppers
   #endif
 
   // Settings for the trapezoid generator

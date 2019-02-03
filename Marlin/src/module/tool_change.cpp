@@ -507,9 +507,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
       return invalid_extruder_error(tmp_extruder);
 
-    #if MIXING_VIRTUAL_TOOLS >  1
+    #if MIXING_VIRTUAL_TOOLS > 1
       // T0-Tnnn: Switch virtual tool by changing the index to the mix
-      mixer.T(uint_fast8_t(tmp_extruder));
+      mixer.T(tmp_extruder);
     #endif
 
   #elif ENABLED(PRUSA_MMU2)
@@ -517,7 +517,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     UNUSED(fr_mm_s); UNUSED(no_move);
 
     mmu2.toolChange(tmp_extruder);
-
 
   #elif EXTRUDERS < 2
 
