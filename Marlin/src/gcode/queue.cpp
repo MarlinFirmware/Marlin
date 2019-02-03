@@ -144,7 +144,7 @@ bool enqueue_and_echo_command(const char* cmd) {
   //SERIAL_ECHOPGM("\") \n");
 
   if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') {
-    //SERIAL_ECHOPGM("Null command found...   Did not queue!\n");
+    //SERIAL_ECHOLNPGM("Null command found...   Did not queue!");
     return true;
   }
 

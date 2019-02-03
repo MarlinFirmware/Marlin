@@ -62,7 +62,7 @@ void Mixer::normalize(const uint8_t tool_index) {
       SERIAL_ECHO_F(collector[i] / csum, 3);
       SERIAL_CHAR(' ');
     }
-    SERIAL_ECHOPGM("]\n");
+    SERIAL_ECHOLNPGM("]");
   #endif
 
   // Scale all values so their maximum is COLOR_A_MASK
