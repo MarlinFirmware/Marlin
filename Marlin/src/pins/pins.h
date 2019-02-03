@@ -94,6 +94,8 @@
   #include "pins_K8200.h"             // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560 (3DRAG)
 #elif MB(K8400)
   #include "pins_K8400.h"             // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560 (3DRAG)
+#elif MB(K8800)
+  #include "pins_K8800.h"             // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560 (3DRAG)
 #elif MB(BAM_DICE)
   #include "pins_RAMPS.h"             // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 #elif MB(BAM_DICE_DUE)
