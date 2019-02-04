@@ -474,7 +474,7 @@ namespace ExtUI {
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles) {
       const float mm = steps * planner.steps_to_mm[axis];
 
-      if(!babystepAxis_steps(steps, axis)) return;
+      if (!babystepAxis_steps(steps, axis)) return;
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         // Make it so babystepping in Z adjusts the Z probe offset.
