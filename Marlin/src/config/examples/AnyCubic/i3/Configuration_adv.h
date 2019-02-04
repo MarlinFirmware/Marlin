@@ -1163,6 +1163,7 @@
   //#define TOOLCHANGE_FILAMENT_SWAP
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     #define TOOLCHANGE_FIL_SWAP_LENGTH          12  // (mm)
+    #define TOOLCHANGE_FIL_EXTRA_PRIME           2  // (mm)
     #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED 3600  // (mm/m)
     #define TOOLCHANGE_FIL_SWAP_PRIME_SPEED   3600  // (mm/m)
   #endif
