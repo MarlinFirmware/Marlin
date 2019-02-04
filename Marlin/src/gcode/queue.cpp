@@ -251,7 +251,7 @@ void flush_and_request_resend() {
   ok_to_send();
 }
 
-static bool serial_data_available() {
+inline bool serial_data_available() {
   return false
     || MYSERIAL0.available()
     #if NUM_SERIAL > 1
@@ -260,7 +260,7 @@ static bool serial_data_available() {
   ;
 }
 
-static int read_serial(const uint8_t index) {
+inline int read_serial(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
     #if NUM_SERIAL > 1
@@ -287,7 +287,7 @@ void gcode_line_error(PGM_P err, uint8_t port) {
     #define CARD_ECHOLN_P(V) SERIAL_ECHOLN_P(card.transfer_port, V)
   #endif
 
-  static bool serial_data_available(const uint8_t index) {
+  inline bool serial_data_available(const uint8_t index) {
     switch (index) {
       case 0: return MYSERIAL0.available();
       #if NUM_SERIAL > 1
