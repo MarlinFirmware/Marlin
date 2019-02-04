@@ -139,11 +139,20 @@ void safe_delay(millis_t ms) {
             SERIAL_ECHOLNPAIR("Z Fade: ", planner.z_fade_height);
         #endif
         #if ABL_PLANAR
-          const float diff[XYZ] = {
+          const float
+          #if ENABLED(E_AXIS_HOMING)
+            diff[XYZE]
+          #else
+            diff[XYZ]
+          #endif
+          = {
             planner.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
             planner.get_axis_position_mm(Y_AXIS) - current_position[Y_AXIS],
             planner.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]
-          };
+            #if ENABLED(E_AXIS_HOMING)
+              , planner.get_axis_position_mm(E_AXIS) - current_position[E_AXIS]
+            #endif
+            };
           SERIAL_ECHOPGM("ABL Adjustment X");
           if (diff[X_AXIS] > 0) SERIAL_CHAR('+');
           SERIAL_ECHO(diff[X_AXIS]);
@@ -153,6 +162,10 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM(" Z");
           if (diff[Z_AXIS] > 0) SERIAL_CHAR('+');
           SERIAL_ECHO(diff[Z_AXIS]);
+          #if ENABLED(E_AXIS_HOMING)
+            if (diff[E_AXIS] > 0) SERIAL_CHAR('+');
+            SERIAL_ECHO(diff[E_AXIS]);
+          #endif
         #else
           #if ENABLED(AUTO_BED_LEVELING_UBL)
             SERIAL_ECHOPGM("UBL Adjustment Z");

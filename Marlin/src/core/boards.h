@@ -145,6 +145,7 @@
 #define BOARD_STB_11                  1407  // STB V1.1
 #define BOARD_AZTEEG_X1               1408  // Azteeg X1
 #define BOARD_ANET_10                 1409  // Anet 1.0 (Melzi clone)
+#define BOARD_DERANDERE_PB_1          1410  // Repurposed Anet 1.0 (Melzi clone)
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P

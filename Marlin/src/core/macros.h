@@ -34,9 +34,11 @@
 #define _XMIN_ 100
 #define _YMIN_ 200
 #define _ZMIN_ 300
+#define _EMIN_ 400
 #define _XMAX_ 101
 #define _YMAX_ 201
 #define _ZMAX_ 301
+#define _EMAX_ 401
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline

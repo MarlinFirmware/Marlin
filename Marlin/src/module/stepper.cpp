@@ -214,8 +214,11 @@ int32_t Stepper::ticks_nominal = -1;
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
 #endif
 
-volatile int32_t Stepper::endstops_trigsteps[XYZ];
-
+#if ENABLED(E_AXIS_HOMING)
+  volatile int32_t Stepper::endstops_trigsteps[XYZE];
+#else
+  volatile int32_t Stepper::endstops_trigsteps[XYZ];
+#endif
 volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
 int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
 
@@ -1729,7 +1732,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
       if (X_MOVE_TEST) SBI(axis_bits, A_AXIS);
       if (Y_MOVE_TEST) SBI(axis_bits, B_AXIS);
       if (Z_MOVE_TEST) SBI(axis_bits, C_AXIS);
-      //if (!!current_block->steps[E_AXIS]) SBI(axis_bits, E_AXIS);
+      #if ENABLED(E_AXIS_HOMING)
+        if (!!current_block->steps[E_AXIS]) SBI(axis_bits, E_AXIS);
+      #endif
       //if (!!current_block->steps[A_AXIS]) SBI(axis_bits, X_HEAD);
       //if (!!current_block->steps[B_AXIS]) SBI(axis_bits, Y_HEAD);
       //if (!!current_block->steps[C_AXIS]) SBI(axis_bits, Z_HEAD);
@@ -2273,6 +2278,9 @@ void Stepper::report_positions() {
   const int32_t xpos = count_position[X_AXIS],
                 ypos = count_position[Y_AXIS],
                 zpos = count_position[Z_AXIS];
+  #if ENABLED(E_AXIS_HOMING)
+  	const int32_t epos = count_position[E_AXIS];
+  #endif
 
   if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
 
@@ -2296,6 +2304,11 @@ void Stepper::report_positions() {
     SERIAL_ECHOPGM(" Z:");
   #endif
   SERIAL_ECHO(zpos);
+
+  #if ENABLED(E_AXIS_HOMING) 
+    SERIAL_ECHOPGM(" E:");
+    SERIAL_ECHO(epos);
+  #endif
 
   SERIAL_EOL();
 }

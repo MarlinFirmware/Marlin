@@ -596,15 +596,36 @@
 
 // @section homing
 
+/**
+ * E_AXIS_HOMING (status: Experimental). Copyright 2019 DerAndere, see https://github.com/DerAndere1/Marlin/tree/Marlin2ForPipetBot .
+ * Should NEVER be enabled if the E-axis is used for an actual extruder. Only use if the E-axis stepper motor is repurposed (4 axis robot). Uncommenting the option below
+ * enables homing of four axes (XYZ and E). Only possible if
+ * all of the following conditions are true:
+ * 1) cartesian 4 axis robot (not CORE, DELTA or SCARA).
+ * 2) exactly one endstop (limit switch) per axis.
+ * 3) E_STOP_PIN > 0 defined (usually in pins_MOTHERBOARD.h file, where
+ *     MOTHERBOARD is the identifier for the controller board in use) and
+ *     connected to the limit switch for the E-axis
+ * 4) No multi-carriage setup (untested)
+ * 5) No multiple stepper drivers per axis (untested)
+ * 6) LINEAR_ADVANCE disabled
+ * 7) No z-probe (untested)
+ * When E_AXIS_HOMING is enabled (#define 'd), enabling MIN_SOFTWARE_ENDSTOP_E and
+ * MAX_SOFTWARE_ENDSTOP_E (see below) is recommended
+ */
+//#define E_AXIS_HOMING
+
 // Specify here all the endstop connectors that are connected to any endstop or probe.
 // Almost all printers will be using one per axis. Probes will use one or more of the
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
 #define USE_XMIN_PLUG
 #define USE_YMIN_PLUG
 #define USE_ZMIN_PLUG
+//#define USE_EMIN_PLUG
 //#define USE_XMAX_PLUG
 //#define USE_YMAX_PLUG
 //#define USE_ZMAX_PLUG
+//#define USE_EMAX_PLUG
 
 // Enable pullup for all endstops to prevent a floating state
 #define ENDSTOPPULLUPS
@@ -640,6 +661,9 @@
 #define Y_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
+
+#define E_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define E_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 
 /**
  * Stepper Drivers
@@ -1031,6 +1055,9 @@
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
+#if ENABLED(E_AXIS_HOMING)
+  #define E_HOME_DIR -1
+#endif
 
 // @section machine
 
@@ -1044,7 +1071,11 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 200
+#define Z_MAX_POS 240
+#if ENABLED(E_AXIS_HOMING)
+  #define E_MIN_POS 0
+  #define E_MAX_POS 100
+#endif
 
 /**
  * Software Endstops
@@ -1061,6 +1092,7 @@
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
   #define MIN_SOFTWARE_ENDSTOP_Z
+  //#define MIN_SOFTWARE_ENDSTOP_E // uncomment when E_AXIS_HOMING is enabled
 #endif
 
 // Max software endstops constrain movement within maximum coordinate bounds
@@ -1069,6 +1101,7 @@
   #define MAX_SOFTWARE_ENDSTOP_X
   #define MAX_SOFTWARE_ENDSTOP_Y
   #define MAX_SOFTWARE_ENDSTOP_Z
+  //#define MAX_SOFTWARE_ENDSTOP_E // uncomment when E_AXIS_HOMING is enabled
 #endif
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
@@ -1307,6 +1340,7 @@
 //#define MANUAL_X_HOME_POS 0
 //#define MANUAL_Y_HOME_POS 0
 //#define MANUAL_Z_HOME_POS 0
+//#define MANUAL_E_HOME_POS 0
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
@@ -1327,7 +1361,9 @@
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (50*60)
 #define HOMING_FEEDRATE_Z  (4*60)
-
+#if ENABLED(E_AXIS_HOMING)
+  #define HOMING_FEEDRATE_E  (4*60)
+#endif
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
 

@@ -68,15 +68,27 @@ void print_bin(const uint16_t val) {
   }
 }
 
-void print_xyz(PGM_P const prefix, PGM_P const suffix, const float x, const float y, const float z) {
+void print_xyz(PGM_P const prefix, PGM_P const suffix, const float x, const float y, const float z
+  #if ENABLED(E_HOMING_AXIS)
+    , const float e/*=0*/
+  #endif
+) {
   serialprintPGM(prefix);
   SERIAL_CHAR('(');
   SERIAL_ECHO(x);
-  SERIAL_ECHOPAIR(", ", y, ", ", z);
+  SERIAL_ECHOPAIR(", ", y, ", ", z
+    #if ENABLED(E_AXIS_HOMING)
+      , ", ", e
+    #endif
+  );
   SERIAL_CHAR(')');
   if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
 }
 
 void print_xyz(PGM_P const prefix, PGM_P const suffix, const float xyz[]) {
-  print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
+  print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]
+    #if ENABLED(E_AXIS_HOMING)
+      , xyz[E_AXIS]
+    #endif
+  );
 }
