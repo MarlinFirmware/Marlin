@@ -138,7 +138,12 @@ void menu_main() {
       }
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
-    MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
+    #if ENABLED(SDSUPPORT) || defined(ACTION_ON_RESUME)
+      #if ENABLED(SDSUPPORT)
+        if (card.isFileOpen() && card.isPaused())
+      #endif
+          MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
+    #endif
 
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
     MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
