@@ -183,7 +183,7 @@ void GcodeSuite::M420() {
 
     }
     else if (to_enable || seenV) {
-      SERIAL_ERROR_MSG("Invalid mesh.");
+      SERIAL_ECHO_MSG("Invalid mesh.");
       goto EXIT_M420;
     }
 
