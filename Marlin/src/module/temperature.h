@@ -565,6 +565,12 @@ class Temperature {
     #if HAS_PID_HEATING
       static void PID_autotune(const float &target, const int8_t hotend, const int8_t ncycles, const bool set_result=false);
 
+      #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
+        static bool adaptive_fan_slowing;
+      #elif ENABLED(ADAPTIVE_FAN_SLOWING)
+        constexpr static bool adaptive_fan_slowing = true;
+      #endif
+
       /**
        * Update the temp manager when PID values change
        */
