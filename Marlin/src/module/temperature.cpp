@@ -96,6 +96,10 @@ Temperature thermalManager;
 
 // public:
 
+#if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
+  bool Temperature::adaptive_fan_slowing = true;
+#endif
+
 float Temperature::current_temperature[HOTENDS]; // = { 0.0 };
 int16_t Temperature::current_temperature_raw[HOTENDS], // = { 0 }
         Temperature::target_temperature[HOTENDS]; // = { 0 }
@@ -392,6 +396,10 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
       LEDColor color = ONHEATINGSTART();
     #endif
 
+    #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
+      adaptive_fan_slowing = false;
+    #endif
+
     // PID Tuning loop
     while (wait_for_heatup) {
 
@@ -570,18 +578,27 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
             _SET_BED_PID();
           #endif
         }
+
         #if ENABLED(PRINTER_EVENT_LEDS)
           printerEventLEDs.onPidTuningDone(color);
         #endif
 
-        return;
+        goto EXIT_M303;
       }
       ui.update();
     }
+
     disable_all_heaters();
+
     #if ENABLED(PRINTER_EVENT_LEDS)
       printerEventLEDs.onPidTuningDone(color);
     #endif
+
+    EXIT_M303:
+      #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
+        adaptive_fan_slowing = true;
+      #endif
+      return;
   }
 
 #endif // HAS_PID_HEATING
@@ -1627,8 +1644,8 @@ void Temperature::init() {
       // While the temperature is stable watch for a bad temperature
       case TRStable:
 
-        #if ENABLED(ADAPTIVE_FAN_SLOWING) && FAN_COUNT > 0
-          if (heater_id >= 0) {
+        #if ENABLED(ADAPTIVE_FAN_SLOWING)
+          if (adaptive_fan_slowing && heater_id >= 0) {
             const int fan_index = MIN(heater_id, FAN_COUNT - 1);
             if (fan_speed[fan_index] == 0 || current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.25f))
               fan_speed_scaler[fan_index] = 128;
