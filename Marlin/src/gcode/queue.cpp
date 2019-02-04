@@ -632,7 +632,7 @@ inline void get_serial_commands() {
         }
         #if ENABLED(SDSUPPORT)
           // Pronterface "M29" and "M29 " has no line number 
-          else if (card.flag.saving && !(command[0] == 'M' && command[1] == '2' && command[2] == '9' && (command[3] == '\0' || command[3] == ' ')))
+          else if (card.flag.saving && !(command[0] == 'M' && command[1] == '2' && command[2] == '9' && (command[3] == '\0' || command[3] == ' ' ||  || command[3] == '*')))
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
@@ -841,7 +841,7 @@ void advance_command_queue() {
 
     if (card.flag.saving) {
       char* command = command_queue[cmd_queue_index_r];
-      if (command[0] == 'M' && command[1] == '2' && command[2] == '9' && (command[3] == '\0' || command[3] == ' ')) {
+      if (command[0] == 'M' && command[1] == '2' && command[2] == '9' && (command[3] == '\0' || command[3] == ' ' ||  || command[3] == '*')) {
         // M29 closes the file
         card.closefile();
         SERIAL_ECHOLNPGM(MSG_FILE_SAVED);
