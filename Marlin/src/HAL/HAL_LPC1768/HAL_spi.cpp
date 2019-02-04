@@ -68,53 +68,41 @@
 
   static uint8_t SPI_speed = 0;
 
-  static uint8_t spiTransfer(uint8_t b) {
+  static inline uint8_t spiTransfer(const uint8_t b) {
     return swSpiTransfer(b, SPI_speed, SCK_PIN, MISO_PIN, MOSI_PIN);
   }
 
-  void spiBegin() {
+  inline void spiBegin() {
     swSpiBegin(SCK_PIN, MISO_PIN, MOSI_PIN);
   }
 
-  void spiInit(uint8_t spiRate) {
+  inline void spiInit(const uint8_t spiRate) {
     SPI_speed = swSpiInit(spiRate, SCK_PIN, MOSI_PIN);
   }
 
-  uint8_t spiRec() {
-    uint8_t b = spiTransfer(0xFF);
-    return b;
-  }
+  inline uint8_t spiRec() { return spiTransfer(0xFF); }
 
-  void spiRead(uint8_t*buf, uint16_t nbyte) {
+  inline void spiRead(uint8_t * const buf, const uint16_t nbyte) {
     if (nbyte == 0) return;
-    for (int i = 0; i < nbyte; i++) {
+    for (int i = 0; i < nbyte; i++)
       buf[i] = spiTransfer(0xFF);
-    }
   }
 
-  void spiSend(uint8_t b) {
+  inline void spiSend(const uint8_t b) {
     uint8_t response = spiTransfer(b);
     UNUSED(response);
   }
 
-  void spiSend(const uint8_t* buf, size_t n) {
-    uint8_t response;
+  inline void spiSend(const uint8_t* buf, const size_t n) {
     if (n == 0) return;
-    for (uint16_t i = 0; i < n; i++) {
-      response = spiTransfer(buf[i]);
-    }
-    UNUSED(response);
+    for (uint16_t i = 0; i < n; i++)
+      (void)spiTransfer(buf[i]);
   }
 
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
-    uint8_t response;
-    response = spiTransfer(token);
-
-    for (uint16_t i = 0; i < 512; i++) {
-      response = spiTransfer(buf[i]);
-    }
-    UNUSED(response);
-    WRITE(SS_PIN, HIGH);
+  inline void spiSendBlock(const uint8_t token, const uint8_t * const buf) {
+    (void)spiTransfer(token);
+    for (uint16_t i = 0; i < 512; i++)
+      (void)spiTransfer(buf[i]);
   }
 
 #else
@@ -143,7 +131,7 @@
     #define LPC_SSPn LPC_SSP1
   #endif
 
-  void spiBegin() {  // setup SCK, MOSI & MISO pins for SSP0
+  inline void spiBegin() {  // setup SCK, MOSI & MISO pins for SSP0
     PINSEL_CFG_Type PinCfg;  // data structure to hold init values
     PinCfg.Funcnum = 2;
     PinCfg.OpenDrain = 0;
@@ -168,7 +156,7 @@
     SSP_Cmd(LPC_SSPn, ENABLE);  // start SSP running
   }
 
-  void spiInit(uint8_t spiRate) {
+  inline void spiInit(const uint8_t spiRate) {
     // table to convert Marlin spiRates (0-5 plus default) into bit rates
     uint32_t Marlin_speed[7]; // CPSR is always 2
     Marlin_speed[0] = 8333333; //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
@@ -186,66 +174,49 @@
     SSP_Init(LPC_SSPn, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
   }
 
-
-  static uint8_t doio(uint8_t b) {
+  static inline uint8_t doio(const uint8_t b) {
     /* send and receive a single byte */
     SSP_SendData(LPC_SSPn, b & 0x00FF);
     while (SSP_GetStatus(LPC_SSPn, SSP_STAT_BUSY));  // wait for it to finish
     return SSP_ReceiveData(LPC_SSPn) & 0x00FF;
   }
 
-  void spiSend(uint8_t b) {
-    doio(b);
-  }
+  inline void spiSend(const uint8_t b) { doio(b); }
 
-
-  void spiSend(const uint8_t* buf, size_t n) {
+  inline void spiSend(const uint8_t* buf, const size_t n) {
     if (n == 0) return;
-    for (uint16_t i = 0; i < n; i++) {
-      doio(buf[i]);
-    }
+    for (uint16_t i = 0; i < n; i++) doio(buf[i]);
   }
 
-  void spiSend(uint32_t chan, byte b) {
+  inline void spiSend(const uint32_t chan, const byte b) {
   }
 
-  void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
+  inline void spiSend(const uint32_t chan, const uint8_t * const buf, const size_t n) {
   }
 
   // Read single byte from SPI
-  uint8_t spiRec() {
-    return doio(0xff);
-  }
+  inline uint8_t spiRec() { return doio(0xFF); }
 
-  uint8_t spiRec(uint32_t chan) {
-    return 0;
-  }
+  inline uint8_t spiRec(const uint32_t chan) { return 0; }
 
   // Read from SPI into buffer
-  void spiRead(uint8_t*buf, uint16_t nbyte) {
+  inline void spiRead(uint8_t * const buf, const uint16_t nbyte) {
     if (nbyte == 0) return;
-    for (int i = 0; i < nbyte; i++) {
-      buf[i] = doio(0xff);
-    }
+    for (int i = 0; i < nbyte; i++)
+      buf[i] = doio(0xFF);
   }
 
-  static uint8_t spiTransfer(uint8_t b) {
-    return doio(b);
-  }
+  static uint8_t spiTransfer(const uint8_t b) { return doio(b); }
 
   // Write from buffer to SPI
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
-    uint8_t response;
-    response = spiTransfer(token);
-
-    for (uint16_t i = 0; i < 512; i++) {
-      response = spiTransfer(buf[i]);
-    }
-    UNUSED(response);
+  inline void spiSendBlock(const uint8_t token, const uint8_t * const buf) {
+    (void)spiTransfer(token);
+    for (uint16_t i = 0; i < 512; i++)
+      (void)spiTransfer(buf[i]);
   }
 
   /** Begin SPI transaction, set clock, bit order, data mode */
-  void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
+  inline void spiBeginTransaction(const uint32_t spiClock, const uint8_t bitOrder, const uint8_t dataMode) {
     // TODO: to be implemented
 
   }
@@ -254,29 +225,26 @@
 
 void SPIClass::begin() { spiBegin(); }
 
-void SPIClass::beginTransaction(SPISettings cfg) {
+void SPIClass::beginTransaction(const SPISettings cfg) {
   uint8_t spiRate;
-  switch(cfg.spiRate()) {
-    case 8000000: spiRate=0 ;break;
-    case 4000000: spiRate=1 ;break;
-    case 2000000: spiRate=2 ;break;
-    case 1000000: spiRate=3 ;break;
-    case  500000: spiRate=4 ;break;
-    case  250000: spiRate=5 ;break;
-    case  125000: spiRate=6 ;break;
-    default: spiRate=2; break;
+  switch (cfg.spiRate()) {
+    case 8000000: spiRate = 0 ;break;
+    case 4000000: spiRate = 1 ;break;
+    case 2000000: spiRate = 2 ;break;
+    case 1000000: spiRate = 3 ;break;
+    case  500000: spiRate = 4 ;break;
+    case  250000: spiRate = 5 ;break;
+    case  125000: spiRate = 6 ;break;
+    default: spiRate = 2; break;
   }
   spiInit(spiRate);
 }
 
-uint8_t SPIClass::transfer(uint8_t B) {
-  return spiTransfer(B);
-}
-uint16_t SPIClass::transfer16(uint16_t data) {
-  uint16_t buffer;
-  buffer = transfer((data>>8) & 0xFF) << 8;
-  buffer |= transfer(data & 0xFF) && 0xFF;
-  return buffer;
+uint8_t SPIClass::transfer(const uint8_t B) { return spiTransfer(B); }
+
+uint16_t SPIClass::transfer16(const uint16_t data) {
+  return (transfer((data >> 8) & 0xFF) << 8);
+       | (transfer(data & 0xFF) & 0xFF);
 }
 
 SPIClass SPI;
