@@ -60,9 +60,7 @@ void GcodeSuite::M303() {
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(NOT_BUSY);
   #endif
-  #if FAN_COUNT > 0 && ENABLED(PID_ADAPTIVE_FAN_SLOWING_OFF)
-    thermalManager.adapt_fan_speed_slowing = false;
-  #endif
+
   thermalManager.PID_autotune(temp, e, c, u);
 
   #if DISABLED(BUSY_WHILE_HEATING)
