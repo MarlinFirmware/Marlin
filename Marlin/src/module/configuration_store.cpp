@@ -89,7 +89,7 @@
 #endif
 
 #if HAS_BED_PROBE
-  #include "../module/probe.h"
+  #include "probe.h"
 #endif
 
 #include "../feature/fwretract.h"
