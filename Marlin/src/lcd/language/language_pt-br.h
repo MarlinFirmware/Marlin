@@ -396,7 +396,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Purgar mais")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Continuar Impressão")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Bocal: ")
-#define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Sensor filamento")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Sensor filamento")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Falha ao ir à origem")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Falha ao sondar")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: Muito frio")

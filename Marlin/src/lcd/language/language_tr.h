@@ -388,7 +388,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Daha Fazla Tasviye")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Baskıyı sürdür")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozul: ")
-#define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Runout Sensörü")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Runout Sensörü")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Sıfırlama Başarısız")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Probing Başarısız")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: Çok Soğuk")

@@ -394,7 +394,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Mehr entladen")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Druck weiter")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Düse: ")
-#define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Auslaufsensor")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Auslaufsensor")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Homing gescheitert")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Probing gescheitert")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: zu kalt")

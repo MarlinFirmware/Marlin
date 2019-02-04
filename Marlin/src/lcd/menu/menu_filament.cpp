@@ -354,7 +354,7 @@ void menu_advanced_pause_option() {
   MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_PURGE, lcd_advanced_pause_extrude_more);
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     if (runout.filament_ran_out)
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR_ENABLE, &runout.enabled, runout.reset);
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
     else
   #endif
       MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_advanced_pause_resume_print);

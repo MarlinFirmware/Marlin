@@ -372,7 +372,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Purge more")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Continue")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozzle: ")
-#define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Runout Sensor")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Runout Sensor")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Homing failed")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Probing failed")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: Too cold")
