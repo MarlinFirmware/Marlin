@@ -228,7 +228,7 @@ void MMU2::mmuLoop() {
       }
       break;
 
-    case -4: 
+    case -4:
       if (rx_ok()) {
         sscanf(rx_buffer, "%hhuok\n", &finda);
 
