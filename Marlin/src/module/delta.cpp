@@ -37,6 +37,10 @@
 #include "../lcd/ultralcd.h"
 #include "../Marlin.h"
 
+#if HAS_BED_PROBE
+  #include "probe.h"
+#endif
+
 #if ENABLED(SENSORLESS_HOMING)
   #include "../feature/tmc_util.h"
   #include "stepper_indirection.h"
@@ -229,7 +233,11 @@ void home_delta() {
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  destination[Z_AXIS] = (delta_height + 10);
+  destination[Z_AXIS] = (delta_height
+    #if HAS_BED_PROBE
+      - zprobe_zoffset
+    #endif
+    + 10);
   buffer_line_to_destination(homing_feedrate(X_AXIS));
   planner.synchronize();
 
