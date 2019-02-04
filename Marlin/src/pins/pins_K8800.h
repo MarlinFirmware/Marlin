@@ -21,85 +21,88 @@
  */
 
 /**
- * Velleman K8400 (Vertex)
- * 3DRAG clone
- *
- * K8400 has some minor differences over a normal 3Drag:
- *  - No X/Y max endstops
- *  - Second extruder step pin has moved
- *  - No power supply control
- *  - Second heater has moved pin
+ * Velleman K8800 (Vertex)
  */
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define DEFAULT_MACHINE_NAME    "Vertex Delta"
-#define DEFAULT_SOURCE_CODE_URL "https://github.com/Psychokiller1888/Vertex-Delta-Firmware"
-#define BOARD_NAME              "K8800 MOTHERBOARD"
+#define DEFAULT_MACHINE_NAME "Vertex Delta"
+#define BOARD_NAME           "K8800"
 
 //#define LCD_SCREEN_ROT_180
 
-#define LARGE_FLASH true
+//
+// Limit Switches
+//
+#define X_STOP_PIN          3
+#define Y_STOP_PIN         14
+#define Z_MIN_PIN          68  // Used for bed leveling
+#define Z_MAX_PIN          66
 
-#define X_STEP_PIN          54
-#define X_DIR_PIN           55
-#define X_MIN_PIN           -1
-#define X_MAX_PIN            3
-#define X_ENABLE_PIN        38
+//
+// Steppers
+//
+#define X_STEP_PIN         54
+#define X_DIR_PIN          55
+#define X_ENABLE_PIN       38
 
-#define Y_STEP_PIN          60
-#define Y_DIR_PIN           61
-#define Y_MIN_PIN           -1
-#define Y_MAX_PIN           14
-#define Y_ENABLE_PIN        56
+#define Y_STEP_PIN         60
+#define Y_DIR_PIN          61
+#define Y_ENABLE_PIN       56
 
-#define Z_STEP_PIN          46
-#define Z_DIR_PIN           48
-#define Z_MIN_PIN           68 //USED FOR BED LEVELING
-#define Z_MAX_PIN           66
-#define Z_ENABLE_PIN        63
+#define Z_STEP_PIN         46
+#define Z_DIR_PIN          48
+#define Z_ENABLE_PIN       63
 
-#define HEATER_0_PIN        10 //EXTRUDER 1
-#define TEMP_0_PIN          13
+#define E0_STEP_PIN        26
+#define E0_DIR_PIN         28
+#define E0_ENABLE_PIN      24
 
-#define E0_STEP_PIN         26
-#define E0_DIR_PIN          28
-#define E0_ENABLE_PIN       24
+#define E1_STEP_PIN        32
+#define E1_DIR_PIN         34
+#define E1_ENABLE_PIN      30
 
-#define E1_STEP_PIN         32
-#define E1_DIR_PIN          34
-#define E1_ENABLE_PIN       30
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN         13
 
-#define FAN_PIN              8 //FILAMENT FAN
-#define FAN1_PIN             9 //CONTROLLER FAN
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       10
+#define FAN_PIN             8
+#define CONTROLLER_FAN_PIN  9
 
-#define SDSS                25
+//
+// Misc. Functions
+//
+#define SDSS               25
 
-#define FIL_RUNOUT_PIN      69 //PK7
-#define KILL_PIN            20 //PD1
+#define FIL_RUNOUT_PIN     69   // PK7
+#define KILL_PIN           20   // PD1
 
-#define LED_PIN             -1
-#define PS_ON_PIN           -1
-#define SUICIDE_PIN         -1
+//
+// LCD / Controller
+//
+#define SD_DETECT_PIN      21   // PD0
+#define LCD_SDSS           53
+#define BEEPER_PIN          6
 
-#define LCD_SDSS            53
-#define DOGLCD_CS           29
-#define DOGLCD_A0           27
+#define DOGLCD_CS          29
+#define DOGLCD_A0          27
 
-#define BEEPER_PIN        6
+#define LCD_PINS_RS        27
+#define LCD_PINS_ENABLE    29
+#define LCD_PINS_D4        37
+#define LCD_PINS_D5        35
+#define LCD_PINS_D6        33
+#define LCD_PINS_D7        31
 
-#define LCD_PINS_RS       27
-#define LCD_PINS_ENABLE   29
-#define LCD_PINS_D4       37
-#define LCD_PINS_D5       35
-#define LCD_PINS_D6       33
-#define LCD_PINS_D7       31
-
-#define BTN_EN1           17
-#define BTN_EN2           16
-#define BTN_ENC           23 //BUTTON
-
-#define SD_DETECT_PIN     21 //PD0
-
+#if ENABLED(NEWPANEL)
+  #define BTN_EN1          17
+  #define BTN_EN2          16
+  #define BTN_ENC          23
+#endif
