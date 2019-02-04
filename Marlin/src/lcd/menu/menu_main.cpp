@@ -104,10 +104,10 @@ void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
 
-  const bool busy = printer_busy(),
+  const bool busy = printer_busy()
     #if ENABLED(SDSUPPORT)
-      card_detected = card.isDetected(),
-      card_open = card_detected && card.isFileOpen()
+      , card_detected = card.isDetected()
+      , card_open = card_detected && card.isFileOpen()
     #endif
   ;
 
