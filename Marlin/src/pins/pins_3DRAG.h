@@ -39,11 +39,11 @@
 //
 // Heaters / Fans
 //
-#define RAMPS_D8_PIN 9
-#define RAMPS_D9_PIN 8
-#define MOSFET_D_PIN 12
+#define RAMPS_D8_PIN        9
+#define RAMPS_D9_PIN        8
+#define MOSFET_D_PIN       12
 
-#define CASE_LIGHT_PIN -1     // MUST BE HARDWARE PWM but one is not available on expansion header
+#define CASE_LIGHT_PIN     -1   // MUST BE HARDWARE PWM but one is not available on expansion header
 
 #include "pins_RAMPS.h"
 
@@ -51,7 +51,6 @@
 // Limit Switches
 //
 #undef Z_MAX_PIN
-#define Z_MAX_PIN          -1
 
 //
 // Steppers
@@ -78,7 +77,6 @@
 //
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   #undef BEEPER_PIN
-  #define BEEPER_PIN       -1
 
   #undef LCD_PINS_RS
   #undef LCD_PINS_ENABLE
