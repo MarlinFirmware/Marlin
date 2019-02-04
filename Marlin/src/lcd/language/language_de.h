@@ -73,7 +73,7 @@
 #define MSG_PREHEAT_2_SETTINGS              _UxGT("Vorw. " PREHEAT_2_LABEL " Einst.")
 #define MSG_PREHEAT_CUSTOM                  _UxGT("benutzerdef. Heizen")
 #define MSG_COOLDOWN                        _UxGT("Abkühlen")
-#define MSG_LASER_MENU                      _UxGT("Laser Menü")
+#define MSG_LASER_MENU                      _UxGT("Laser")
 #define MSG_LASER_OFF                       _UxGT("Laser aus")
 #define MSG_LASER_ON                        _UxGT("Laser an")
 #define MSG_LASER_POWER                     _UxGT("Laserleistung")
