@@ -38,11 +38,11 @@
 #include "../module/temperature.h"
 
 #if ENABLED(FWRETRACT)
-  #include "../feature/fwretract.h"
+  #include "fwretract.h"
 #endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #include "../feature/runout.h"
+  #include "runout.h"
 #endif
 
 #include "../lcd/ultralcd.h"

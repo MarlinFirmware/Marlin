@@ -31,7 +31,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if IS_SCARA
-  #include "../module/scara.h"
+  #include "scara.h"
 #endif
 
 // Axis homed and known-position states

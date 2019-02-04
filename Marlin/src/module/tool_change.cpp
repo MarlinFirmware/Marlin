@@ -47,7 +47,7 @@
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(SWITCHING_NOZZLE) || ENABLED(SWITCHING_TOOLHEAD)
-  #include "../module/servo.h"
+  #include "servo.h"
 #endif
 
 #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)

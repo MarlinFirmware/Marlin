@@ -29,7 +29,7 @@
 
 #include "../Marlin.h"
 #include "../sd/cardreader.h"
-#include "../module/temperature.h"
+#include "temperature.h"
 #include "../lcd/ultralcd.h"
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
@@ -37,7 +37,7 @@
 #endif
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
-  #include "../module/printcounter.h" // for print_job_timer
+  #include "printcounter.h" // for print_job_timer
 #endif
 
 Endstops endstops;

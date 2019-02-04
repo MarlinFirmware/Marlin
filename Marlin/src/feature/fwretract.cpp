@@ -37,7 +37,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 #include "../module/stepper.h"
 
 #if ENABLED(RETRACT_SYNC_MIXING)
-  #include "../feature/mixing.h"
+  #include "mixing.h"
 #endif
 
 // private:

@@ -223,7 +223,7 @@
   #include "speed_lookuptable.h"
 #endif
 
-#include "../module/planner.h"
+#include "planner.h"
 #include "../core/language.h"
 
 class Stepper {

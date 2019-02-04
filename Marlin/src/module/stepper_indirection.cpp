@@ -35,7 +35,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#include "../module/stepper.h"
+#include "stepper.h"
 
 #if HAS_DRIVER(L6470)
   #include "L6470/L6470_Marlin.h"

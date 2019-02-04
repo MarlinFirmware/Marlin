@@ -47,7 +47,7 @@
 #endif
 
 #if ENABLED(DELTA)
-  #include "../module/delta.h"
+  #include "delta.h"
 #endif
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -57,7 +57,7 @@
 float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_Z_SERVO_PROBE
-  #include "../module/servo.h"
+  #include "servo.h"
 #endif
 
 #if ENABLED(SENSORLESS_PROBING)
