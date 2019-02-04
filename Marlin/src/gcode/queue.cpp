@@ -251,15 +251,7 @@ void flush_and_request_resend() {
   ok_to_send();
 }
 
-void gcode_line_error(PGM_P err, uint8_t port) {
-  SERIAL_ERROR_START_P(port);
-  serialprintPGM_P(port, err);
-  SERIAL_ECHOLN_P(port, gcode_LastN);
-  flush_and_request_resend();
-  serial_count[port] = 0;
-}
-
-static bool serial_data_available() {
+inline bool serial_data_available() {
   return false
     || MYSERIAL0.available()
     #if NUM_SERIAL > 1
@@ -268,7 +260,7 @@ static bool serial_data_available() {
   ;
 }
 
-static int read_serial(const uint8_t index) {
+inline int read_serial(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
     #if NUM_SERIAL > 1
@@ -276,6 +268,15 @@ static int read_serial(const uint8_t index) {
     #endif
     default: return -1;
   }
+}
+
+void gcode_line_error(PGM_P err, uint8_t port) {
+  SERIAL_ERROR_START_P(port);
+  serialprintPGM_P(port, err);
+  SERIAL_ECHOLN_P(port, gcode_LastN);
+  while (read_serial(port) != -1);           // clear out the RX buffer
+  flush_and_request_resend();
+  serial_count[port] = 0;
 }
 
 #if ENABLED(FAST_FILE_TRANSFER)
@@ -286,7 +287,7 @@ static int read_serial(const uint8_t index) {
     #define CARD_ECHOLN_P(V) SERIAL_ECHOLN_P(card.transfer_port, V)
   #endif
 
-  static bool serial_data_available(const uint8_t index) {
+  inline bool serial_data_available(const uint8_t index) {
     switch (index) {
       case 0: return MYSERIAL0.available();
       #if NUM_SERIAL > 1
