@@ -224,13 +224,13 @@ void SPIClass::begin() { spiBegin(); }
 void SPIClass::beginTransaction(SPISettings cfg) {
   uint8_t spiRate;
   switch (cfg.spiRate()) {
-    case 8000000: spiRate = 0 ;break;
-    case 4000000: spiRate = 1 ;break;
-    case 2000000: spiRate = 2 ;break;
-    case 1000000: spiRate = 3 ;break;
-    case  500000: spiRate = 4 ;break;
-    case  250000: spiRate = 5 ;break;
-    case  125000: spiRate = 6 ;break;
+    case 8000000: spiRate = 0; break;
+    case 4000000: spiRate = 1; break;
+    case 2000000: spiRate = 2; break;
+    case 1000000: spiRate = 3; break;
+    case  500000: spiRate = 4; break;
+    case  250000: spiRate = 5; break;
+    case  125000: spiRate = 6; break;
     default: spiRate = 2; break;
   }
   spiInit(spiRate);
