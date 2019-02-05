@@ -48,6 +48,13 @@
 #define Z_MAX_PIN          32
 
 //
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  32
+#endif
+
+//
 // Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
@@ -62,13 +69,6 @@
 //
 #define POWER_LOSS_PIN     69   // Pin to detect power loss
 #define POWER_LOSS_STATE   LOW
-
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  32
-#endif
 
 //
 // Steppers
@@ -109,9 +109,8 @@
 #define HEATER_2_PIN        1
 #define HEATER_BED_PIN      4
 #define FAN_PIN             9
-//#define FAN1_PIN            8
-//#define FAN2_PIN            7
-
+//#define FAN1_PIN          8
+//#define FAN2_PIN          7
 
 //
 // Misc. Functions
@@ -120,11 +119,10 @@
 #define SDSS               53
 #define LED_PIN             6
 #define PS_ON_PIN          12
-#define SUICIDE_PIN        54   //PIN that has to be turned on right after start, to keep power flowing.
+#define SUICIDE_PIN        54   // This pin must be enabled at boot to keep power flowing
 
 #ifndef CASE_LIGHT_PIN
-  //#define CASE_LIGHT_PIN 21
-  #define CASE_LIGHT_PIN    6
+  #define CASE_LIGHT_PIN    6   // 21
 #endif
 
 //
