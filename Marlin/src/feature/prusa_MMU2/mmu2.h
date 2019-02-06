@@ -24,6 +24,10 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #include "../runout.h"
+#endif
+
 struct E_Step;
 
 class MMU2 {
@@ -75,8 +79,16 @@ private:
   static volatile int8_t finda;
   static volatile bool findaRunoutValid;
   static int16_t version, buildnr;
-  static millis_t next_request, next_response;
+  static millis_t last_request, next_P0_request;
   static char rx_buffer[16], tx_buffer[16];
+
+  static inline void set_runout_valid(const bool valid) {
+    findaRunoutValid = valid;
+    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+      if (valid) runout.reset();
+    #endif
+  }
+
 };
 
 extern MMU2 mmu2;
