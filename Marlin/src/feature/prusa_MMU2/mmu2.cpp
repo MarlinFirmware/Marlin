@@ -25,7 +25,7 @@
 #if ENABLED(PRUSA_MMU2)
 
 #include "mmu2.h"
-#include "mmu2_menu.h"
+#include "../../lcd/menu/menu_mmu2.h"
 
 MMU2 mmu2;
 
