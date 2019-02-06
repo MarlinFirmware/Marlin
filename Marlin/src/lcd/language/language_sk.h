@@ -403,7 +403,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Vytlačiť viacej")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Obnoviť tlač")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Tryska: ")
-#define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Senzor filamentu")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Senzor filamentu")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Parkovanie zlyhalo")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Kalibrácia zlyhala")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: Príliš studený")

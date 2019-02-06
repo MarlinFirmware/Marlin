@@ -108,6 +108,9 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
 }
 
 void do_pause_e_move(const float &length, const float &fr) {
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    runout.reset();
+  #endif
   current_position[E_AXIS] += length / planner.e_factor[active_extruder];
   planner.buffer_line(current_position, fr, active_extruder);
   planner.synchronize();
@@ -442,6 +445,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   // Wait for filament insert by user and press button
   KEEPALIVE_STATE(PAUSED_FOR_USER);
   wait_for_user = true;    // LCD click or M108 will clear this
+
   while (wait_for_user) {
     #if HAS_BUZZER
       filament_change_beep(max_beep_count);
@@ -554,13 +558,13 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   // Move Z_AXIS to saved position
   do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
 
+  #if ADVANCED_PAUSE_RESUME_PRIME != 0
+    do_pause_e_move(ADVANCED_PAUSE_RESUME_PRIME, ADVANCED_PAUSE_PURGE_FEEDRATE);
+  #endif
+
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
   planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS]));
-
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    runout.reset();
-  #endif
 
   #if HAS_LCD_MENU
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);

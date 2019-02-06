@@ -41,8 +41,6 @@
 class FilamentMonitorBase {
   public:
     static bool enabled;
-
-  protected:
     static bool filament_ran_out;
 };
 
