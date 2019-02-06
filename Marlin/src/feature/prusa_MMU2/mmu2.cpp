@@ -38,10 +38,6 @@ MMU2 mmu2;
 #include "../../module/stepper_indirection.h"
 #include "../../Marlin.h"
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #include "../runout.h"
-#endif
-
 #define MMU_TODELAY 100
 #define MMU_TIMEOUT 10
 #define MMU_CMD_TIMEOUT 60000ul //5min timeout for mmu commands (except P0)
@@ -109,7 +105,8 @@ MMU2::MMU2() {
 }
 
 void MMU2::init() {
-  findaRunoutValid = false;
+
+  set_runout_valid(false);
 
   #if PIN_EXISTS(MMU2_RST)
     // TODO use macros for this
@@ -508,7 +505,7 @@ void MMU2::toolChange(uint8_t index) {
 
   if (!enabled) return;
 
-  findaRunoutValid = false;
+  set_runout_valid(false);
 
   if (index != extruder) {
 
@@ -534,7 +531,7 @@ void MMU2::toolChange(uint8_t index) {
     KEEPALIVE_STATE(NOT_BUSY);
   }
 
-  findaRunoutValid = true;
+  set_runout_valid(true);
 }
 
 
@@ -553,7 +550,7 @@ void MMU2::toolChange(const char* special) {
 
   #if ENABLED(MMU2_MENUS)
 
-    findaRunoutValid = false;
+    set_runout_valid(false);
     KEEPALIVE_STATE(IN_HANDLER);
 
     switch(*special) {
@@ -585,7 +582,7 @@ void MMU2::toolChange(const char* special) {
 
     KEEPALIVE_STATE(NOT_BUSY);
 
-    findaRunoutValid = true;
+    set_runout_valid(true);
 
   #endif
 }
@@ -806,7 +803,8 @@ void MMU2::filamentRunout() {
 
     // no active tool
     extruder = MMU2_NO_TOOL;
-    findaRunoutValid = false;
+
+    set_runout_valid(false);
 
     BUZZ(200, 404);
 
@@ -845,7 +843,8 @@ void MMU2::filamentRunout() {
 
     // no active tool
     extruder = MMU2_NO_TOOL;
-    findaRunoutValid = false;
+
+    set_runout_valid(false);
 
     KEEPALIVE_STATE(NOT_BUSY);
 
