@@ -449,49 +449,86 @@ namespace ExtUI {
   void setRetractAcceleration_mm_s2(const float acc)  { planner.settings.retract_acceleration = acc; }
   void setTravelAcceleration_mm_s2(const float acc)   { planner.settings.travel_acceleration = acc; }
 
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    float getZOffset_mm() {
-      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        if (active_extruder != 0)
-          return hotend_offset[Z_AXIS][active_extruder];
-        else
+  #if ENABLED(BABYSTEPPING)
+    bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
+      switch (axis) {
+        #if ENABLED(BABYSTEP_XY)
+          case X: thermalManager.babystep_axis(X_AXIS, steps); break;
+          case Y: thermalManager.babystep_axis(Y_AXIS, steps); break;
+        #endif
+        case Z: thermalManager.babystep_axis(Z_AXIS, steps); break;
+        default: return false;
+      };
+      return true;
+    }
+
+    /**
+     * This function adjusts an axis during a print.
+     *
+     * When linked_nozzles is false, each nozzle in a multi-nozzle
+     * printer can be babystepped independently of the others. This
+     * lets the user to fine tune the Z-offset and Nozzle Offsets
+     * while observing the first layer of a print, regardless of
+     * what nozzle is printing.
+     */
+    void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles) {
+      const float mm = steps * planner.steps_to_mm[axis];
+
+      if (!babystepAxis_steps(steps, axis)) return;
+
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        // Make it so babystepping in Z adjusts the Z probe offset.
+        if (axis == Z
+          #if EXTRUDERS > 1
+            && (linked_nozzles || active_extruder == 0)
+          #endif
+        ) zprobe_zoffset += mm;
       #endif
-          return zprobe_zoffset;
+
+      #if EXTRUDERS > 1
+        /**
+         * When linked_nozzles is false, as an axis is babystepped
+         * adjust the hotend offsets so that the other nozzles are
+         * unaffected by the babystepping of the active nozzle.
+         */
+        if (!linked_nozzles) {
+          HOTEND_LOOP()
+            if (e != active_extruder)
+              hotend_offset[axis][e] += mm;
+
+          normalizeNozzleOffset(X);
+          normalizeNozzleOffset(Y);
+          normalizeNozzleOffset(Z);
+        }
+      #else
+        UNUSED(linked_nozzles);
+      #endif
+    }
+
+    /**
+     * Converts a mm displacement to a number of whole number of
+     * steps that is at least mm long.
+     */
+    int16_t mmToWholeSteps(const float mm, const axis_t axis) {
+      const float steps = mm / planner.steps_to_mm[axis];
+      return steps > 0 ? ceil(steps) : floor(steps);
+    }
+  #endif
+
+  #if HAS_BED_PROBE
+    float getZOffset_mm() {
+      return zprobe_zoffset;
     }
 
     void setZOffset_mm(const float value) {
-      const float diff = (value - getZOffset_mm()) / planner.steps_to_mm[Z_AXIS];
-      addZOffset_steps(diff > 0 ? CEIL(diff) : FLOOR(diff));
-    }
-
-    void addZOffset_steps(int16_t babystep_increment) {
-      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        const bool do_probe = (active_extruder == 0);
-      #else
-        constexpr bool do_probe = true;
-      #endif
-      const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
-                  new_probe_offset = zprobe_zoffset + diff,
-                  new_offs =
-                    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-                      do_probe ? new_probe_offset : hotend_offset[Z_AXIS][active_extruder] - diff
-                    #else
-                      new_probe_offset
-                    #endif
-                  ;
-      if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-
-        thermalManager.babystep_axis(Z_AXIS, babystep_increment);
-
-        if (do_probe) zprobe_zoffset = new_offs;
-        #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          else hotend_offset[Z_AXIS][active_extruder] = new_offs;
-        #endif
+      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        zprobe_zoffset = value;
       }
     }
-  #endif // ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #endif // HAS_BED_PROBE
 
   #if HOTENDS > 1
+
     float getNozzleOffset_mm(const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return 0;
       return hotend_offset[axis][extruder - E0];
@@ -501,7 +538,18 @@ namespace ExtUI {
       if (extruder - E0 >= HOTENDS) return;
       hotend_offset[axis][extruder - E0] = value;
     }
-  #endif
+
+    /**
+     * The UI should call this if needs to guarantee the first
+     * nozzle offset is zero (such as when it doesn't allow the
+     * user to edit the offset the first nozzle).
+     */
+    void normalizeNozzleOffset(const axis_t axis) {
+      const float offs = hotend_offset[axis][0];
+      HOTEND_LOOP() hotend_offset[axis][e] -= offs;
+    }
+
+  #endif // HOTENDS > 1
 
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t axis)       { return backlash_distance_mm[axis]; }
