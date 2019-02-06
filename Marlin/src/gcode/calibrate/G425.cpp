@@ -89,17 +89,11 @@ class TemporaryGlobalEndstopsState {
     ~TemporaryGlobalEndstopsState() {endstops.enable_globally(saved);}
 };
 
-#define TEMPORARY_ENDSTOP_STATE(enable) \
-    REMEMBER(soft_endstops_enabled, enable); \
-    TemporaryGlobalEndstopsState g(enable);
-
+#define TEMPORARY_ENDSTOP_STATE(enable) REMEMBER(soft_endstops_enabled, enable); TemporaryGlobalEndstopsState g(enable)
 #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-  #define TEMPORARY_BACKLASH_STATE(enable) \
-    REMEMBER(backlash_correction, enable); \
-    REMEMBER(backlash_smoothing_mm, 0);
-#elif  ENABLED(BACKLASH_GCODE)
-  #define TEMPORARY_BACKLASH_STATE(enable) \
-    REMEMBER(backlash_correction, enable);
+  #define TEMPORARY_BACKLASH_STATE(enable) REMEMBER(backlash_correction, enable); REMEMBER(backlash_smoothing_mm, 0)
+#elif ENABLED(BACKLASH_GCODE)
+  #define TEMPORARY_BACKLASH_STATE(enable) REMEMBER(backlash_correction, enable);
 #else
   #define TEMPORARY_BACKLASH_STATE(enable)
 #endif
@@ -570,11 +564,11 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 /**
  * Perform a full auto-calibration routine:
  *
- *   1) For each nozzle, touches top and sides of object to determine object position and
+ *   1) For each nozzle, touch top and sides of object to determine object position and
  *      nozzle offsets. Do a fast but rough search over a wider area.
  *   2) With the first nozzle, touch top and sides of object to determine backlash values
  *      for all axis (if BACKLASH_GCODE is enabled)
- *   3) For each nozzle, touches top and sides of object slowly to determine precise
+ *   3) For each nozzle, touch top and sides of object slowly to determine precise
  *      position of object. Adjust coordinate system and nozzle offsets so probed object
  *      location corresponds to known object location with a high degree of precision.
  */

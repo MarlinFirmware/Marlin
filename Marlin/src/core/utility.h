@@ -128,7 +128,7 @@ class restorer {
   T  val_;
 public:
   restorer(T& perm) : ref_(perm), val_(perm) {}
-  restorer(T& perm, T temp_val) : ref_(perm), val_(perm) {perm = temp_val;}
+  restorer(T& perm, T temp_val) : ref_(perm), val_(perm) { perm = temp_val; }
   ~restorer() { restore(); }
   inline void restore() { ref_ = val_; }
 };
