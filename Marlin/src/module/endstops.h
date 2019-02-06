@@ -97,6 +97,8 @@ class Endstops {
       );
     }
 
+    static inline bool global_enabled() { return enabled_globally; }
+
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
      */
@@ -173,3 +175,17 @@ class Endstops {
 };
 
 extern Endstops endstops;
+
+/**
+ * A class to save and change the endstop state,
+ * then restore it when it goes out of scope.
+ */
+class TemporaryGlobalEndstopsState {
+  bool saved;
+
+  public:
+    TemporaryGlobalEndstopsState(const bool enable) : saved(endstops.global_enabled()) {
+      endstops.enable_globally(enable);
+    }
+    ~TemporaryGlobalEndstopsState() { endstops.enable_globally(saved); }
+};

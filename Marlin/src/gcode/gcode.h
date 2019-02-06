@@ -436,6 +436,10 @@ private:
 
   static void G92();
 
+  #if ENABLED(CALIBRATION_GCODE)
+    static void G425();
+  #endif
+
   #if HAS_RESUME_CONTINUE
     static void M0_M1();
   #endif
