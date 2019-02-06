@@ -33,21 +33,22 @@ class SPIclass {
     FORCE_INLINE static uint8_t receive() { return softSPI.receive(); }
 };
 
-
 // Hardware SPI
 template<>
 class SPIclass<MISO_PIN, MOSI_PIN, SCK_PIN> {
   public:
     FORCE_INLINE static void init() {
-        OUT_WRITE(SCK_PIN, LOW);
-        OUT_WRITE(MOSI_PIN, HIGH);
-        SET_INPUT(MISO_PIN);
-        WRITE(MISO_PIN, HIGH);
+      OUT_WRITE(SCK_PIN, LOW);
+      OUT_WRITE(MOSI_PIN, HIGH);
+      SET_INPUT_PULLUP(MISO_PIN);
     }
     FORCE_INLINE static uint8_t receive() {
-      SPDR = 0;
-      for (;!TEST(SPSR, SPIF););
-      return SPDR;
+      #if defined(__AVR__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
+        SPDR = 0;
+        for (;!TEST(SPSR, SPIF););
+        return SPDR;
+      #else
+        return spiRec();
+      #endif
     }
-
 };
