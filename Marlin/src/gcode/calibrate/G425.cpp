@@ -75,18 +75,18 @@ const float measurements_t::true_center[XYZ] = CALIBRATION_OBJECT_CENTER;
 
 const float measurements_t::dimensions[]  = CALIBRATION_OBJECT_DIMENSIONS;
 
-#define TEMPORARY_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable); TemporaryGlobalEndstopsState g(enable)
+#define TEMPORARY_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable); TemporaryGlobalEndstopsState tges(enable)
 
 #if ENABLED(BACKLASH_GCODE)
-  #define TEMPORARY_BACKLASH_STATE(enable) REMEMBER(tbs, backlash_correction, enable)
+  #define TEMPORARY_BACKLASH_STATE(enable) REMEMBER(tbst, backlash_correction, enable)
 #else
   #define TEMPORARY_BACKLASH_STATE(enable)
 #endif
 
 #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-  #define TEMPORARY_BACKLASH_SMOOTHING(enable) REMEMBER(tbs, backlash_smoothing_mm, 0)
+  #define TEMPORARY_BACKLASH_SMOOTHING(value) REMEMBER(tbsm, backlash_smoothing_mm, value)
 #else
-  #define TEMPORARY_BACKLASH_SMOOTHING(enable)
+  #define TEMPORARY_BACKLASH_SMOOTHING(value)
 #endif
 
 /**
@@ -434,8 +434,9 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
   // Backlash compensation should be off while measuring backlash
 
   {
-    // New scope for TEMPORARY_ENDSTOP_STATE
-    TEMPORARY_ENDSTOP_STATE(false);
+    // New scope for TEMPORARY_BACKLASH_STATE
+    TEMPORARY_BACKLASH_STATE(false);
+    TEMPORARY_BACKLASH_SMOOTHING(0);
 
     probe_sides(m, uncertainty);
 
@@ -465,8 +466,9 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
     // directions to take up any backlash
 
     {
-      // New scope for TEMPORARY_ENDSTOP_STATE
-      TEMPORARY_ENDSTOP_STATE(false);
+      // New scope for TEMPORARY_BACKLASH_STATE
+      TEMPORARY_BACKLASH_STATE(true);
+      TEMPORARY_BACKLASH_SMOOTHING(0);
       move_to(
         X_AXIS, current_position[X_AXIS] + 3,
         Y_AXIS, current_position[Y_AXIS] + 3,
@@ -499,7 +501,8 @@ inline void update_measurements(measurements_t &m, const AxisEnum axis) {
  *    - Call calibrate_backlash() beforehand for best accuracy
  */
 inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const uint8_t extruder) {
-  TEMPORARY_ENDSTOP_STATE(true);
+  TEMPORARY_BACKLASH_STATE(true);
+  TEMPORARY_BACKLASH_SMOOTHING(0);
 
   #if HOTENDS > 1
     set_nozzle(m, extruder);
@@ -542,7 +545,8 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
  *   uncertainty    in     - How far away from the object to begin probing
  */
 inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) {
-  TEMPORARY_ENDSTOP_STATE(true);
+  TEMPORARY_BACKLASH_STATE(true);
+  TEMPORARY_BACKLASH_SMOOTHING(0);
 
   HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
 
@@ -570,7 +574,9 @@ inline void calibrate_all() {
     reset_nozzle_offsets();
   #endif
 
-  TEMPORARY_ENDSTOP_STATE(true);
+  TEMPORARY_BACKLASH_STATE(true);
+  TEMPORARY_BACKLASH_SMOOTHING(0);
+
 
   /* Do a fast and rough calibration of the toolheads */
   calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNKNOWN);
