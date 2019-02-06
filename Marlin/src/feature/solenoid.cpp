@@ -28,60 +28,70 @@
 
 #include "../module/motion.h" // for active_extruder
 
-void enable_solenoid(const uint8_t num) {
+#if ENABLED(MANUAL_SOLENOID_CONTROL)
+  #define HAS_SOLENOID(N) HAS_SOLENOID_##N
+#else
+  #define HAS_SOLENOID(N) (HAS_SOLENOID_##N && EXTRUDERS > N)
+#endif
+
+// Used primarily with MANUAL_SOLENOID_CONTROL
+static void set_solenoid(const uint8_t num, const bool active) {
+  const uint8_t value = active ? HIGH : LOW;
   switch (num) {
     case 0:
-      OUT_WRITE(SOL0_PIN, HIGH);
+      OUT_WRITE(SOL0_PIN, value);
       break;
-      #if HAS_SOLENOID_1 && EXTRUDERS > 1
-        case 1:
-          OUT_WRITE(SOL1_PIN, HIGH);
-          break;
-      #endif
-      #if HAS_SOLENOID_2 && EXTRUDERS > 2
-        case 2:
-          OUT_WRITE(SOL2_PIN, HIGH);
-          break;
-      #endif
-      #if HAS_SOLENOID_3 && EXTRUDERS > 3
-        case 3:
-          OUT_WRITE(SOL3_PIN, HIGH);
-          break;
-      #endif
-      #if HAS_SOLENOID_4 && EXTRUDERS > 4
-        case 4:
-          OUT_WRITE(SOL4_PIN, HIGH);
-          break;
-      #endif
-      #if HAS_SOLENOID_5 && EXTRUDERS > 5
-        case 5:
-          OUT_WRITE(SOL5_PIN, HIGH);
-          break;
-      #endif
+    #if HAS_SOLENOID(1)
+      case 1:
+        OUT_WRITE(SOL1_PIN, value);
+        break;
+    #endif
+    #if HAS_SOLENOID(2)
+      case 2:
+        OUT_WRITE(SOL2_PIN, value);
+        break;
+    #endif
+    #if HAS_SOLENOID(3)
+      case 3:
+        OUT_WRITE(SOL3_PIN, value);
+        break;
+    #endif
+    #if HAS_SOLENOID(4)
+      case 4:
+        OUT_WRITE(SOL4_PIN, value);
+        break;
+    #endif
+    #if HAS_SOLENOID(5)
+      case 5:
+        OUT_WRITE(SOL5_PIN, value);
+        break;
+    #endif
     default:
       SERIAL_ECHO_MSG(MSG_INVALID_SOLENOID);
       break;
   }
 }
 
+void enable_solenoid(const uint8_t num) { set_solenoid(num, true); }
+void disable_solenoid(const uint8_t num) { set_solenoid(num, false); }
 void enable_solenoid_on_active_extruder() { enable_solenoid(active_extruder); }
 
 void disable_all_solenoids() {
-  OUT_WRITE(SOL0_PIN, LOW);
-  #if HAS_SOLENOID_1 && EXTRUDERS > 1
-    OUT_WRITE(SOL1_PIN, LOW);
+  disable_solenoid(0);
+  #if HAS_SOLENOID(1)
+    disable_solenoid(1);
   #endif
-  #if HAS_SOLENOID_2 && EXTRUDERS > 2
-    OUT_WRITE(SOL2_PIN, LOW);
+  #if HAS_SOLENOID(2)
+    disable_solenoid(2);
   #endif
-  #if HAS_SOLENOID_3 && EXTRUDERS > 3
-    OUT_WRITE(SOL3_PIN, LOW);
+  #if HAS_SOLENOID(3)
+    disable_solenoid(3);
   #endif
-  #if HAS_SOLENOID_4 && EXTRUDERS > 4
-    OUT_WRITE(SOL4_PIN, LOW);
+  #if HAS_SOLENOID(4)
+    disable_solenoid(4);
   #endif
-  #if HAS_SOLENOID_5 && EXTRUDERS > 5
-    OUT_WRITE(SOL5_PIN, LOW);
+  #if HAS_SOLENOID(5)
+    disable_solenoid(5);
   #endif
 }
 
