@@ -70,12 +70,8 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-#if ENABLED(E_AXIS_HOMING)
-  #define XYZ_CONSTS(type, array, CONFIG) const PROGMEM type array##_P[XYZE] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG, E_##CONFIG }
-#else
-  #define XYZ_CONSTS(type, array, CONFIG) const PROGMEM type array##_P[XYZ] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG }
-#endif
-
+#define XYZ_CONSTS(type, array, CONFIG) const PROGMEM type array##_P[SOFT_AXES] = \
+                                          ARRAY_N(SOFT_AXES, X_##CONFIG, Y_##CONFIG, Z_##CONFIG, E_##CONFIG)
 XYZ_CONSTS(float, base_min_pos,   MIN_POS);
 XYZ_CONSTS(float, base_max_pos,   MAX_POS);
 XYZ_CONSTS(float, base_home_pos,  HOME_POS);
@@ -143,17 +139,13 @@ float feedrate_mm_s = MMM_TO_MMS(1500.0f);
 int16_t feedrate_percentage = 100;
 
 // Homing feedrate is const progmem - compare to constexpr in the header
-#if ENABLED(E_AXIS_HOMING)
-  const float homing_feedrate_mm_s[XYZE] PROGMEM = {
-#else
-  const float homing_feedrate_mm_s[XYZ] PROGMEM = {
-#endif
+const float homing_feedrate_mm_s[SOFT_AXES] PROGMEM = {
   #if ENABLED(DELTA)
-    MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z),
+    MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z)
   #else
-    MMM_TO_MMS(HOMING_FEEDRATE_XY), MMM_TO_MMS(HOMING_FEEDRATE_XY),
+    MMM_TO_MMS(HOMING_FEEDRATE_XY), MMM_TO_MMS(HOMING_FEEDRATE_XY)
   #endif
-  MMM_TO_MMS(HOMING_FEEDRATE_Z)
+  , MMM_TO_MMS(HOMING_FEEDRATE_Z)
   #if ENABLED(E_AXIS_HOMING)
     , MMM_TO_MMS(HOMING_FEEDRATE_E)
   #endif
@@ -188,28 +180,18 @@ float cartes[XYZ];
  */
 #if HAS_POSITION_SHIFT
   // The distance that XYZ has been offset by G92. Reset by G28.
-  #if ENABLED(E_AXIS_HOMING)
-    float position_shift[XYZE] = { 0 };
-  #else
-    float position_shift[XYZ] = { 0 };
-  #endif
+  float position_shift[SOFT_AXES] = { 0 };
 #endif
+
 #if HAS_HOME_OFFSET
   // This offset is added to the configured home position.
   // Set by M206, M428, or menu item. Saved to EEPROM.
-  #if ENABLED(E_AXIS_HOMING)
-    float home_offset[XYZE] = { 0 };
-  #else
-    float home_offset[XYZ] = { 0 };
-  #endif
+  float home_offset[SOFT_AXES] = { 0 };
 #endif
+
 #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
   // The above two are combined to save on computes
-  #if ENABLED(E_AXIS_HOMING)
-    float workspace_offset[XYZE] = { 0 };
-  #else
-    float workspace_offset[XYZ] = { 0 };
-  #endif
+  float workspace_offset[SOFT_AXES] = { 0 };
 #endif
 
 #if HAS_ABL_NOT_UBL
@@ -224,7 +206,7 @@ void report_current_position() {
   SERIAL_ECHOPAIR(" Y:", LOGICAL_Y_POSITION(current_position[Y_AXIS]));
   SERIAL_ECHOPAIR(" Z:", LOGICAL_Z_POSITION(current_position[Z_AXIS]));
   #if ENABLED(E_AXIS_HOMING)
-    SERIAL_ECHOPAIR(" E:", current_position[E_AXIS]);
+    SERIAL_ECHOPAIR(" E:", LOGICAL_E_POSITION(current_position[E_AXIS]));
   #endif
   stepper.report_positions();
 
@@ -1062,41 +1044,34 @@ bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool
   #if ENABLED(HOME_AFTER_DEACTIVATE)
     const bool xx = x && !TEST(axis_known_position, X_AXIS),
                yy = y && !TEST(axis_known_position, Y_AXIS),
-               zz = z && !TEST(axis_known_position, Z_AXIS)
+               zz = z && !TEST(axis_known_position, Z_AXIS),
+               ee = false
                  #if ENABLED(E_AXIS_HOMING)
-                   , ee = e && !TEST(axis_known_position, E_AXIS)
+                   || (e && !TEST(axis_known_position, E_AXIS))
                  #endif
                ;
   #else
     const bool xx = x && !TEST(axis_homed, X_AXIS),
                yy = y && !TEST(axis_homed, Y_AXIS),
-               zz = z && !TEST(axis_homed, Z_AXIS)
+               zz = z && !TEST(axis_homed, Z_AXIS),
+               ee = false
                  #if ENABLED(E_AXIS_HOMING)
-                   , ee = e && !TEST(axis_homed, E_AXIS)
+                   || (e && !TEST(axis_homed, E_AXIS))
                  #endif
                ;
   #endif
-  if (xx || yy || zz
-    #if ENABLED(E_AXIS_HOMING)
-      || ee
-    #endif
-  ) {
+
+  if (xx || yy || zz || ee) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_HOME " ");
     if (xx) SERIAL_CHAR('X');
     if (yy) SERIAL_CHAR('Y');
     if (zz) SERIAL_CHAR('Z');
-    #if ENABLED(E_AXIS_HOMING)
-      if (ee) SERIAL_CHAR('E');
-    #endif
+    if (ee) SERIAL_CHAR('E');
     SERIAL_ECHOLNPGM(" " MSG_FIRST);
 
     #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
-      #if ENABLED(E_AXIS_HOMING)
-        ui.status_printf_P(0, PSTR(MSG_HOME " %s%s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "", ee ? MSG_E : "");
-      #else
-        ui.status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
-      #endif
+      ui.status_printf_P(0, PSTR(MSG_HOME " %s%s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "", ee ? MSG_E : "");
     #endif
     return true;
   }
@@ -1435,11 +1410,11 @@ void homeaxis(const AxisEnum axis) {
   #else
     #define CAN_HOME(A) \
       (axis == _AXIS(A) && ((A##_MIN_PIN > -1 && A##_HOME_DIR < 0) || (A##_MAX_PIN > -1 && A##_HOME_DIR > 0)))
-    #if ENABLED(E_AXIS_HOMING)
-      if (!CAN_HOME(X) && !CAN_HOME(Y) && !CAN_HOME(Z) && !CAN_HOME(E)) return;
-    #else
-      if (!CAN_HOME(X) && !CAN_HOME(Y) && !CAN_HOME(Z)) return;
-    #endif
+      if (!CAN_HOME(X) && !CAN_HOME(Y) && !CAN_HOME(Z)
+        #if ENABLED(E_AXIS_HOMING)
+          && !CAN_HOME(E)
+        #endif
+      ) return;
   #endif
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> homeaxis(", axis_codes[axis], ")");

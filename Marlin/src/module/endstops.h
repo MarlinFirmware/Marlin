@@ -32,10 +32,16 @@ enum EndstopEnum : char {
   X_MIN,
   Y_MIN,
   Z_MIN,
+  #if ENABLED(E_AXIS_HOMING)
+    E_MIN,
+  #endif
   Z_MIN_PROBE,
   X_MAX,
   Y_MAX,
   Z_MAX,
+  #if ENABLED(E_AXIS_HOMING)
+    E_MAX,
+  #endif
   X2_MIN,
   X2_MAX,
   Y2_MIN,
@@ -43,17 +49,26 @@ enum EndstopEnum : char {
   Z2_MIN,
   Z2_MAX,
   Z3_MIN,
-  Z3_MAX,
-  E_MIN,
-  E_MAX
+  Z3_MAX
 };
 
 class Endstops {
 
   public:
 
-    #if HAS_EXTRA_ENDSTOPS
+    #if ENABLED(E_AXIS_HOMING) || HAS_EXTRA_ENDSTOPS
       typedef uint16_t esbits_t;
+    #else
+      typedef uint8_t esbits_t;
+    #endif
+
+    #if ENABLED(E_AXIS_HOMING)
+      typedef uint16_t hitstate_t;
+    #else
+      typedef uint8_t hitstate_t;
+    #endif
+
+    #if HAS_EXTRA_ENDSTOPS
       #if ENABLED(X_DUAL_ENDSTOPS)
         static float x2_endstop_adj;
       #endif
@@ -66,14 +81,12 @@ class Endstops {
       #if ENABLED(Z_TRIPLE_ENDSTOPS)
         static float z3_endstop_adj;
       #endif
-    #else
-      typedef uint16_t esbits_t;
     #endif
 
   private:
     static bool enabled, enabled_globally;
     static esbits_t live_state;
-    static volatile uint16_t hit_state;      // Use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT index
+    static volatile hitstate_t hit_state;      // Use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT index
 
     #if ENDSTOP_NOISE_THRESHOLD
       static esbits_t validated_live_state;
@@ -116,7 +129,7 @@ class Endstops {
     /**
      * Get Endstop hit state.
      */
-    FORCE_INLINE static uint16_t trigger_state() { return hit_state; }
+    FORCE_INLINE static hitstate_t trigger_state() { return hit_state; }
 
     /**
      * Get current endstops state

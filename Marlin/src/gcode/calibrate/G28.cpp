@@ -252,20 +252,20 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #else // NOT DELTA
 
-    const bool homeX = parser.seen('X'), homeY = parser.seen('Y'), homeZ = parser.seen('Z'), homeE =
-                 #if ENABLED(E_AXIS_HOMING)
-                   parser.seen('E')
-                 #else
-                   homeX
-                 #endif
-               , home_all = always_home_all || (homeX == homeY && homeX == homeZ && homeX == homeE)
-               , doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ, doE =
-                 #if ENABLED(E_AXIS_HOMING)
-                   home_all || homeE
-                 #else
-                   home_all
-                 #endif
-               ;
+  const bool homeX = parser.seen('X'), homeY = parser.seen('Y'), homeZ = parser.seen('Z'), homeE =
+               #if ENABLED(E_AXIS_HOMING)
+                 parser.seen('E')
+               #else
+                 homeX
+               #endif
+             , home_all = always_home_all || (homeX == homeY && homeX == homeZ && homeX == homeE)
+             , doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ, doE =
+               #if ENABLED(E_AXIS_HOMING)
+                 home_all || homeE
+               #else
+                 home_all
+               #endif
+             ;
 
     set_destination_from_current();
 
@@ -364,34 +364,24 @@ void GcodeSuite::G28(const bool always_home_all) {
       } // doZ
     #endif // Z_HOME_DIR < 0
 
-
+    #if ENABLED(E_AXIS_HOMING)
       // Home E
-    if (home_all || homeE) {
+      if (home_all || homeE) {
 
-      #if ENABLED(DUAL_X_CARRIAGE)
+        #if ENABLED(DUAL_X_CARRIAGE)
 
-        // Always home the 2nd (right) extruder first
-        active_extruder = 1;
-        homeaxis(E_AXIS);
+          // Always home the 2nd (right) extruder first
+          active_extruder = 1;
+          homeaxis(E_AXIS);
 
-        // Remember this extruder's position for later tool change
-        inactive_extruder_x_pos = current_position[X_AXIS];
+          // Home the 1st (left) extruder
+          active_extruder = 0;
 
-        // Home the 1st (left) extruder
-        active_extruder = 0;
-        homeaxis(E_AXIS);
-
-        // Consider the active extruder to be parked
-        COPY(raised_parked_position, current_position);
-        delayed_move_time = 0;
-        active_extruder_parked = true;
-
-      #else
+        #endif
 
         homeaxis(E_AXIS);
-
-      #endif
       }
+    #endif
 
     sync_plan_position();
 

@@ -485,28 +485,24 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * E_AXIS_HOMING
+ * E Axis homing
  */
-#if (ENABLED(MIN_SOFTWARE_ENDSTOP_E) || ENABLED(MAX_SOFTWARE_ENDSTOP_E)) && DISABLED(E_AXIS_HOMING)
-  #error "(MIN|MAX)_SOFTWARE_ENDSTOP_E requires E_AXIS_HOMING."
-#endif
-#if ENABLED(E_AXIS_HOMING) && (!IS_CARTESIAN || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS) || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_Y_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS) || ENABLED(Y_DUAL_STEPPER_DRIVERS) || ENABLED(Z_DUAL_STEPPER_DRIVERS) || ENABLED(Z_TRIPLE_STEPPER_DRIVERS))
-  #error "With this firmware version, E_AXIS_HOMING requires CARTESIAN setup with 1 endstop per axis. Untested for multiple carriages or multiple stepperdrivers per axis."
-#endif
-#if ENABLED(E_AXIS_HOMING) && ENABLED(SENSORLESS_HOMING)
-  #error "With this firmware version, E_AXIS_HOMING is not compatible with SENSORLESS_HOMING (untested)."
-#endif
-#if ENABLED(E_AXIS_HOMING) && ENABLED(LINEAR_ADVANCE)
-  #error "E_AXIS_HOMING is not compatible with LINEAR_ADVANCE."
-#endif
+#if ENABLED(E_AXIS_HOMING)
+  #if !IS_CARTESIAN || HAS_EXTRA_ENDSTOPS || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_Y_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS) || ENABLED(Y_DUAL_STEPPER_DRIVERS) || ENABLED(Z_DUAL_STEPPER_DRIVERS) || ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+    #error "E_AXIS_HOMING currently requires a Cartesian with 1 endstop per axis. Untested for multiple carriages or multiple stepper drivers per axis."
+  #elif ENABLED(SENSORLESS_HOMING)
+    #error "E_AXIS_HOMING is not currently compatible with SENSORLESS_HOMING (untested)."
+  #elif ENABLED(LINEAR_ADVANCE)
+    #error "E_AXIS_HOMING is not compatible with LINEAR_ADVANCE."
+  #endif
 
   /**
    * Require pin options and pins to be defined
    */
-#if ENABLED(E_AXIS_HOMING) && !HAS_E_MIN && !HAS_E_MAX
-  #error "E_AXIS_HOMING requires E_STOP_PIN to be defined > 0)."
+  #if !HAS_E_MIN && !HAS_E_MAX
+    #error "E_AXIS_HOMING requires E_STOP_PIN to be defined > 0)."
+  #endif
 #endif
-
 
 #if !defined(TARGET_LPC1768) && ( \
      ENABLED(ENDSTOPPULLDOWNS) \
@@ -1131,8 +1127,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Z_MIN_PROBE_PIN must be defined if Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN is not enabled."
   #endif
 
-
-
   /**
    * Make sure Z raise values are set
    */
@@ -1649,7 +1643,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if _AXIS_PLUG_UNUSED_TEST(Z)
   #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
 #endif
-#if _AXIS_PLUG_UNUSED_TEST(E)
+#if ENABLED(E_AXIS_HOMING) && _AXIS_PLUG_UNUSED_TEST(E)
   #error "You must enable USE_EMIN_PLUG or USE_EMAX_PLUG."
 #endif
 
@@ -1663,12 +1657,16 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Enable USE_YMIN_PLUG when homing Y to MIN."
   #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
     #error "Enable USE_YMAX_PLUG when homing Y to MAX."
-  #elif E_HOME_DIR < 0 && DISABLED(USE_EMIN_PLUG)
-    #error "Enable USE_EMIN_PLUG when homing E to MIN."
-  #elif E_HOME_DIR > 0 && DISABLED(USE_EMAX_PLUG)
-    #error "Enable USE_EMAX_PLUG when homing E to MAX."
+  #endif
+  #if ENABLED(E_AXIS_HOMING)
+    #if E_HOME_DIR < 0 && DISABLED(USE_EMIN_PLUG)
+      #error "Enable USE_EMIN_PLUG when homing E to MIN."
+    #elif E_HOME_DIR > 0 && DISABLED(USE_EMAX_PLUG)
+      #error "Enable USE_EMAX_PLUG when homing E to MAX."
+    #endif
   #endif
 #endif
+
 #if Z_HOME_DIR < 0 && DISABLED(USE_ZMIN_PLUG)
   #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
 #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)

@@ -597,21 +597,11 @@
 // @section homing
 
 /**
- * E_AXIS_HOMING (status: Experimental). Copyright 2019 DerAndere, see https://github.com/DerAndere1/Marlin/tree/Marlin2ForPipetBot .
- * Should NEVER be enabled if the E-axis is used for an actual extruder. Only use if the E-axis stepper motor is repurposed (4 axis robot). Uncommenting the option below
- * enables homing of four axes (XYZ and E). Only possible if
- * all of the following conditions are true:
- * 1) cartesian 4 axis robot (not CORE, DELTA or SCARA).
- * 2) exactly one endstop (limit switch) per axis.
- * 3) E_STOP_PIN > 0 defined (usually in pins_MOTHERBOARD.h file, where
- *     MOTHERBOARD is the identifier for the controller board in use) and
- *     connected to the limit switch for the E-axis
- * 4) No multi-carriage setup (untested)
- * 5) No multiple stepper drivers per axis (untested)
- * 6) LINEAR_ADVANCE disabled
- * 7) No z-probe (untested)
- * When E_AXIS_HOMING is enabled (#define 'd), enabling MIN_SOFTWARE_ENDSTOP_E and
- * MAX_SOFTWARE_ENDSTOP_E (see below) is recommended
+ * E_AXIS_HOMING (status: Experimental)
+ * Enable homing of four axes (XYZ and E)
+ * See https://github.com/DerAndere1/Marlin/tree/Marlin2ForPipetBot
+ *
+ * Only use if the E-axis has been repurposed (i.e., a 4-axis robot).
  */
 //#define E_AXIS_HOMING
 
@@ -1071,7 +1061,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 240
+#define Z_MAX_POS 200
 #if ENABLED(E_AXIS_HOMING)
   #define E_MIN_POS 0
   #define E_MAX_POS 100
@@ -1092,7 +1082,7 @@
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
   #define MIN_SOFTWARE_ENDSTOP_Z
-  //#define MIN_SOFTWARE_ENDSTOP_E // uncomment when E_AXIS_HOMING is enabled
+  #define MIN_SOFTWARE_ENDSTOP_E
 #endif
 
 // Max software endstops constrain movement within maximum coordinate bounds
@@ -1101,7 +1091,7 @@
   #define MAX_SOFTWARE_ENDSTOP_X
   #define MAX_SOFTWARE_ENDSTOP_Y
   #define MAX_SOFTWARE_ENDSTOP_Z
-  //#define MAX_SOFTWARE_ENDSTOP_E // uncomment when E_AXIS_HOMING is enabled
+  #define MAX_SOFTWARE_ENDSTOP_E
 #endif
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
@@ -1362,8 +1352,9 @@
 #define HOMING_FEEDRATE_XY (50*60)
 #define HOMING_FEEDRATE_Z  (4*60)
 #if ENABLED(E_AXIS_HOMING)
-  #define HOMING_FEEDRATE_E  (4*60)
+  #define HOMING_FEEDRATE_E (4*60)
 #endif
+
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
 

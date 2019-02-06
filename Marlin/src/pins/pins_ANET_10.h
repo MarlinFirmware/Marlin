@@ -92,7 +92,9 @@
   #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.' (For PlatformIO, use 'melzi' or 'melzi_optiboot.')"
 #endif
 
-#define BOARD_NAME "Anet 1.0"
+#ifndef BOARD_NAME
+  #define BOARD_NAME "Anet 1.0"
+#endif
 
 //
 // Limit Switches

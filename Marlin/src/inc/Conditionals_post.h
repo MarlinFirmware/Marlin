@@ -61,9 +61,11 @@
 #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
 #define Y_MAX_LENGTH (Y_MAX_POS - (Y_MIN_POS))
 #define Z_MAX_LENGTH (Z_MAX_POS - (Z_MIN_POS))
+
 #if ENABLED(E_AXIS_HOMING)
   #define E_MAX_LENGTH (E_MAX_POS - (E_MIN_POS))
 #endif
+
 // Defined only if the sanity-check is bypassed
 #ifndef X_BED_SIZE
   #define X_BED_SIZE X_MAX_LENGTH
@@ -86,9 +88,11 @@
   #define Y_CENTER ((Y_BED_SIZE) / 2)
 #endif
 #define Z_CENTER ((Z_MIN_POS + Z_MAX_POS) / 2)
+
 #if ENABLED(E_AXIS_HOMING)
   #define E_CENTER ((E_MIN_POS + E_MAX_POS) / 2)
 #endif
+
 // Get the linear boundaries of the bed
 #define X_MIN_BED (X_CENTER - (X_BED_SIZE) / 2)
 #define X_MAX_BED (X_CENTER + (X_BED_SIZE) / 2)
@@ -198,6 +202,7 @@
     #define E_HOME_POS (E_HOME_DIR < 0 ? E_MIN_POS : E_MAX_POS)
   #endif
 #endif
+
 /**
  * If DELTA_HEIGHT isn't defined use the old setting
  */
