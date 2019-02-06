@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+#if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
 
 #include "../gcode.h"
 
@@ -59,7 +59,7 @@
     #endif
   }
 
-#elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+#elif HAS_EXTRA_ENDSTOPS
 
   #include "../../module/endstops.h"
 
@@ -107,6 +107,6 @@
     }
   }
 
-#endif // X_DUAL_ENDSTOPS || Y_DUAL_ENDSTOPS || Z_DUAL_ENDSTOPS
+#endif // HAS_EXTRA_ENDSTOPS
 
-#endif // DELTA || X_DUAL_ENDSTOPS || Y_DUAL_ENDSTOPS || Z_DUAL_ENDSTOPS
+#endif // DELTA || HAS_EXTRA_ENDSTOPS

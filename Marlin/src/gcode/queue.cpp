@@ -635,7 +635,7 @@ inline void get_serial_commands() {
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          // Pronterface "M29" and "M29 " has no line number 
+          // Pronterface "M29" and "M29 " has no line number
           else if (card.flag.saving && !is_M29(command))
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
