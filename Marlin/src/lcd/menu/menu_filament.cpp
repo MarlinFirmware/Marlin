@@ -31,7 +31,9 @@
 #include "menu.h"
 #include "../../module/temperature.h"
 #include "../../feature/pause.h"
-
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #include "../../feature/runout.h"
+#endif
 //
 // Change Filament > Change/Unload/Load Filament
 //
@@ -349,8 +351,13 @@ void menu_advanced_pause_option() {
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER, true, false);
   #endif
-  MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_advanced_pause_resume_print);
   MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_PURGE, lcd_advanced_pause_extrude_more);
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    if (runout.filament_ran_out)
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+    else
+  #endif
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_advanced_pause_resume_print);
   END_MENU();
 }
 

@@ -203,7 +203,7 @@
 
     SERIAL_ECHOPGM("\nBed Topography Report");
     if (human) {
-      SERIAL_ECHOPGM(":\n\n");
+      SERIAL_ECHOLNPGM(":\n");
       serial_echo_xy(4, MESH_MIN_X, MESH_MAX_Y);
       serial_echo_xy(twixt, MESH_MAX_X, MESH_MAX_Y);
       SERIAL_EOL();

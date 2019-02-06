@@ -61,7 +61,7 @@
          is_s2gb,
          is_error;
   };
-  #if HAS_DRIVER(TMC2130)
+  #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5130) || HAS_DRIVER(TMC5160)
     #if ENABLED(TMC_DEBUG)
       static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
       static uint8_t get_status_response(TMC2130Stepper &st, uint32_t) { return st.status_response & 0xF; }
@@ -220,7 +220,7 @@
     #endif
   }
 
-  #define HAS_HW_COMMS(ST) AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2660) || (AXIS_DRIVER_TYPE(ST, TMC2208) && defined(ST##_HARDWARE_SERIAL))
+  #define HAS_HW_COMMS(ST) AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) || AXIS_DRIVER_TYPE(ST, TMC2660) || AXIS_DRIVER_TYPE(ST, TMC5130) || AXIS_DRIVER_TYPE(ST, TMC5160) || (AXIS_DRIVER_TYPE(ST, TMC2208) && defined(ST##_HARDWARE_SERIAL))
 
   void monitor_tmc_driver() {
     static millis_t next_poll = 0;
@@ -295,6 +295,7 @@
     TMC_MAX_CURRENT,
     TMC_IRUN,
     TMC_IHOLD,
+    TMC_GLOBAL_SCALER,
     TMC_CS_ACTUAL,
     TMC_PWM_SCALE,
     TMC_VSENSE,
@@ -359,7 +360,7 @@
   template<class TMC>
   static void print_vsense(TMC &st) { serialprintPGM(st.vsense() ? PSTR("1=.18") : PSTR("0=.325")); }
 
-  #if HAS_DRIVER(TMC2130)
+  #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5130) || HAS_DRIVER(TMC5160)
     static void tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
@@ -374,6 +375,27 @@
         case TMC_SG_RESULT:  SERIAL_PRINT(st.sg_result(), DEC);   break;
         case TMC_FSACTIVE:   if (st.fsactive())   SERIAL_CHAR('X'); break;
         case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
+        default: break;
+      }
+    }
+  #endif
+
+  #if HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5160)
+    template<char AXIS_LETTER, char DRIVER_ID> void print_vsense(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID> &st) { UNUSED(st); }
+    template<char AXIS_LETTER, char DRIVER_ID> void print_vsense(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID> &st) { UNUSED(st); }
+
+    static void tmc_status(TMC2160Stepper &st, const TMC_debug_enum i) {
+      switch (i) {
+        case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
+        case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
+        case TMC_STEALTHCHOP: serialprintPGM(st.en_pwm_mode() ? PSTR("true") : PSTR("false")); break;
+        case TMC_GLOBAL_SCALER:
+          {
+            uint16_t value = st.GLOBAL_SCALER();
+            SERIAL_PRINT(value ? value : 256, DEC);
+            SERIAL_ECHOPGM("/256");
+          }
+          break;
         default: break;
       }
     }
@@ -657,6 +679,9 @@
     TMC_REPORT("MAX current",        TMC_MAX_CURRENT);
     TMC_REPORT("Run current",        TMC_IRUN);
     TMC_REPORT("Hold current",       TMC_IHOLD);
+    #if HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5160)
+      TMC_REPORT("Global scaler",    TMC_GLOBAL_SCALER);
+    #endif
     TMC_REPORT("CS actual\t",        TMC_CS_ACTUAL);
     TMC_REPORT("PWM scale",          TMC_PWM_SCALE);
     TMC_REPORT("vsense\t",           TMC_VSENSE);
@@ -677,7 +702,7 @@
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
 
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
-    #if HAS_DRIVER(TMC2130)
+    #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5130) || HAS_DRIVER(TMC5160)
       DRV_REPORT("stallguard\t",     TMC_STALLGUARD);
       DRV_REPORT("sg_result\t",      TMC_SG_RESULT);
       DRV_REPORT("fsactive\t",       TMC_FSACTIVE);
@@ -703,7 +728,7 @@
 
   #define PRINT_TMC_REGISTER(REG_CASE) case TMC_GET_##REG_CASE: print_hex_long(st.REG_CASE(), ':'); break
 
-  #if HAS_DRIVER(TMC2130)
+  #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5130) || HAS_DRIVER(TMC5160)
     static void tmc_get_ic_registers(TMC2130Stepper &st, const TMC_get_registers_enum i) {
       switch (i) {
         PRINT_TMC_REGISTER(TCOOLTHRS);
@@ -1023,7 +1048,6 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
       stepperE5.init_lcd_variables(E_AXIS_N(5));
     #endif
   }
-
 #endif
 
 #endif // HAS_TRINAMIC

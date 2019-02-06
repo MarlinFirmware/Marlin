@@ -31,9 +31,8 @@
  *  - Second heater has moved pin
  */
 
-#define BOARD_NAME              "K8400"
 #define DEFAULT_MACHINE_NAME    "Vertex"
-#define DEFAULT_SOURCE_CODE_URL "https://github.com/birkett/Vertex-K8400-Firmware"
+#define BOARD_NAME              "K8400"
 
 #include "pins_3DRAG.h"
 
@@ -52,13 +51,13 @@
 // Steppers
 //
 #undef E1_STEP_PIN
-#define E1_STEP_PIN   32
+#define E1_STEP_PIN 32
 
 //
 // Heaters / Fans
 //
 #undef HEATER_1_PIN
-#define HEATER_1_PIN  11
+#define HEATER_1_PIN 11
 
 //
 // Misc. Functions

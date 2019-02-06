@@ -63,8 +63,8 @@
 
       if (dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE) {
         if (previous_mode != DXC_DUPLICATION_MODE) {
-          SERIAL_ECHOPGM("Printer must be in DXC_DUPLICATION_MODE prior to \n");
-          SERIAL_ECHOPGM("specifying DXC_SCALED_DUPLICATION_MODE.\n");
+          SERIAL_ECHOLNPGM("Printer must be in DXC_DUPLICATION_MODE prior to ");
+          SERIAL_ECHOLNPGM("specifying DXC_SCALED_DUPLICATION_MODE.");
           dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
           return;
         }

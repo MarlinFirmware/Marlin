@@ -37,7 +37,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 #include "../module/stepper.h"
 
 #if ENABLED(RETRACT_SYNC_MIXING)
-  #include "../feature/mixing.h"
+  #include "mixing.h"
 #endif
 
 // private:
@@ -142,7 +142,7 @@ void FWRetract::retract(const bool retracting
   set_destination_from_current();
 
   #if ENABLED(RETRACT_SYNC_MIXING)
-    uint8_t old_mixing_tool = mixer.get_current_v_tool();
+    uint8_t old_mixing_tool = mixer.get_current_vtool();
     mixer.T(MIXER_AUTORETRACT_TOOL);
   #endif
 

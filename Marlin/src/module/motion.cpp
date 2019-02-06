@@ -117,13 +117,13 @@ float feedrate_mm_s = MMM_TO_MMS(1500.0f);
 int16_t feedrate_percentage = 100;
 
 // Homing feedrate is const progmem - compare to constexpr in the header
-const float homing_feedrate_mm_s[4] PROGMEM = {
+const float homing_feedrate_mm_s[XYZ] PROGMEM = {
   #if ENABLED(DELTA)
     MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z),
   #else
     MMM_TO_MMS(HOMING_FEEDRATE_XY), MMM_TO_MMS(HOMING_FEEDRATE_XY),
   #endif
-  MMM_TO_MMS(HOMING_FEEDRATE_Z), 0
+  MMM_TO_MMS(HOMING_FEEDRATE_Z)
 };
 
 // Cartesian conversion result goes here:
@@ -1050,13 +1050,16 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
    * Set sensorless homing if the axis has it, accounting for Core Kinematics.
    */
   sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis) {
-    sensorless_t stealth_states { false, false, false };
+    sensorless_t stealth_states { false, false, false, false, false, false, false };
 
     switch (axis) {
       default: break;
       #if X_SENSORLESS
         case X_AXIS:
           stealth_states.x = tmc_enable_stallguard(stepperX);
+          #if AXIS_HAS_STALLGUARD(X2)
+            stealth_states.x2 = tmc_enable_stallguard(stepperX2);
+          #endif
           #if CORE_IS_XY && Y_SENSORLESS
             stealth_states.y = tmc_enable_stallguard(stepperY);
           #elif CORE_IS_XZ && Z_SENSORLESS
@@ -1067,6 +1070,9 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       #if Y_SENSORLESS
         case Y_AXIS:
           stealth_states.y = tmc_enable_stallguard(stepperY);
+          #if AXIS_HAS_STALLGUARD(Y2)
+            stealth_states.y2 = tmc_enable_stallguard(stepperY2);
+          #endif
           #if CORE_IS_XY && X_SENSORLESS
             stealth_states.x = tmc_enable_stallguard(stepperX);
           #elif CORE_IS_YZ && Z_SENSORLESS
@@ -1077,6 +1083,12 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       #if Z_SENSORLESS
         case Z_AXIS:
           stealth_states.z = tmc_enable_stallguard(stepperZ);
+          #if AXIS_HAS_STALLGUARD(Z2)
+            stealth_states.z2 = tmc_enable_stallguard(stepperZ2);
+          #endif
+          #if AXIS_HAS_STALLGUARD(Z3)
+            stealth_states.z3 = tmc_enable_stallguard(stepperZ3);
+          #endif
           #if CORE_IS_XZ && X_SENSORLESS
             stealth_states.x = tmc_enable_stallguard(stepperX);
           #elif CORE_IS_YZ && Y_SENSORLESS
@@ -1094,6 +1106,9 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       #if X_SENSORLESS
         case X_AXIS:
           tmc_disable_stallguard(stepperX, enable_stealth.x);
+          #if AXIS_HAS_STALLGUARD(X2)
+            tmc_disable_stallguard(stepperX2, enable_stealth.x2);
+          #endif
           #if CORE_IS_XY && Y_SENSORLESS
             tmc_disable_stallguard(stepperY, enable_stealth.y);
           #elif CORE_IS_XZ && Z_SENSORLESS
@@ -1104,6 +1119,9 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       #if Y_SENSORLESS
         case Y_AXIS:
           tmc_disable_stallguard(stepperY, enable_stealth.y);
+          #if AXIS_HAS_STALLGUARD(Y2)
+            tmc_disable_stallguard(stepperY2, enable_stealth.y2);
+          #endif
           #if CORE_IS_XY && X_SENSORLESS
             tmc_disable_stallguard(stepperX, enable_stealth.x);
           #elif CORE_IS_YZ && Z_SENSORLESS
@@ -1114,6 +1132,12 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       #if Z_SENSORLESS
         case Z_AXIS:
           tmc_disable_stallguard(stepperZ, enable_stealth.z);
+          #if AXIS_HAS_STALLGUARD(Z2)
+            tmc_disable_stallguard(stepperZ2, enable_stealth.z2);
+          #endif
+          #if AXIS_HAS_STALLGUARD(Z3)
+            tmc_disable_stallguard(stepperZ3, enable_stealth.z3);
+          #endif
           #if CORE_IS_XZ && X_SENSORLESS
             tmc_disable_stallguard(stepperX, enable_stealth.x);
           #elif CORE_IS_YZ && Y_SENSORLESS
@@ -1397,7 +1421,7 @@ void homeaxis(const AxisEnum axis) {
   #endif
 
   // Set flags for X, Y, Z motor locking
-  #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+  #if HAS_EXTRA_ENDSTOPS
     switch (axis) {
       #if ENABLED(X_DUAL_ENDSTOPS)
         case X_AXIS:
@@ -1475,7 +1499,7 @@ void homeaxis(const AxisEnum axis) {
     #endif
   }
 
-  #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+  #if HAS_EXTRA_ENDSTOPS
     const bool pos_dir = axis_home_dir > 0;
     #if ENABLED(X_DUAL_ENDSTOPS)
       if (axis == X_AXIS) {

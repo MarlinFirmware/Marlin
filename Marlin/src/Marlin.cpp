@@ -148,7 +148,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER) || ENABLED(MAGNETIC_PARKING_EXTRUDER)
   #include "module/tool_change.h"
 #endif
 
@@ -966,11 +966,21 @@ void setup() {
   #endif
 
   #if ENABLED(SWITCHING_NOZZLE)
-    move_nozzle_servo(0);     // Initialize nozzle servo
+    // Initialize nozzle servo(s)
+    #if SWITCHING_NOZZLE_TWO_SERVOS
+      lower_nozzle(0);
+      raise_nozzle(1);
+    #else
+      move_nozzle_servo(0);
+    #endif
+  #endif
+
+  #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
+    mpe_settings_init();
   #endif
 
   #if ENABLED(PARKING_EXTRUDER)
-    pe_magnet_init();
+    pe_solenoid_init();
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)

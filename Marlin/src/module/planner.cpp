@@ -65,7 +65,7 @@
 #include "planner.h"
 #include "stepper.h"
 #include "motion.h"
-#include "../module/temperature.h"
+#include "temperature.h"
 #include "../lcd/ultralcd.h"
 #include "../core/language.h"
 #include "../gcode/parser.h"
@@ -1540,7 +1540,7 @@ void Planner::synchronize() {
   while (
     has_blocks_queued() || cleaning_buffer_counter
     #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-      || !READ(CLOSED_LOOP_MOVE_COMPLETE_PIN)
+      || (READ(CLOSED_LOOP_ENABLE_PIN) && !READ(CLOSED_LOOP_MOVE_COMPLETE_PIN))
     #endif
   ) idle();
 }
@@ -2161,7 +2161,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       // In worst case, only one extruder running, no change is needed.
       // In best case, all extruders run the same amount, we can divide by MIXING_STEPPERS
       float delta_mm_i = 0;
-      if (i == E_AXIS && mixer.get_current_v_tool() == MIXER_AUTORETRACT_TOOL)
+      if (i == E_AXIS && mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
         delta_mm_i = delta_mm[i] / MIXING_STEPPERS;
       else
         delta_mm_i = delta_mm[i];

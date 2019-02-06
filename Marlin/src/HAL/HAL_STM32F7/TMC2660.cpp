@@ -176,7 +176,7 @@ TMC26XStepper::TMC26XStepper(const int16_t in_steps, int16_t cs_pin, int16_t dir
 void TMC26XStepper::start() {
 
   #ifdef TMC_DEBUG1
-    SERIAL_ECHOPGM("\n  TMC26X stepper library  \n");
+    SERIAL_ECHOLNPGM("\n  TMC26X stepper library");
     SERIAL_ECHOPAIR("\n  CS pin: ", cs_pin);
     SERIAL_ECHOPAIR("\n  DIR pin: ", dir_pin);
     SERIAL_ECHOPAIR("\n  STEP pin: ", step_pin);

@@ -702,6 +702,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "SWITCHING_NOZZLE requires exactly 2 EXTRUDERS."
   #elif NUM_SERVOS < 1
     #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
+  #endif
+
+  #ifndef SWITCHING_NOZZLE_SERVO_NR
+    #error "SWITCHING_NOZZLE requires SWITCHING_NOZZLE_SERVO_NR."
   #elif SWITCHING_NOZZLE_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
     #error "SERVO0_PIN must be defined for your SWITCHING_NOZZLE."
   #elif SWITCHING_NOZZLE_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
@@ -710,6 +714,20 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "SERVO2_PIN must be defined for your SWITCHING_NOZZLE."
   #elif SWITCHING_NOZZLE_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
     #error "SERVO3_PIN must be defined for your SWITCHING_NOZZLE."
+  #endif
+
+  #ifdef SWITCHING_NOZZLE_E1_SERVO_NR
+    #if SWITCHING_NOZZLE_E1_SERVO_NR == SWITCHING_NOZZLE_SERVO_NR
+      #error "SWITCHING_NOZZLE_E1_SERVO_NR must be different from SWITCHING_NOZZLE_SERVO_NR."
+    #elif SWITCHING_NOZZLE_E1_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
+      #error "SERVO0_PIN must be defined for your SWITCHING_NOZZLE."
+    #elif SWITCHING_NOZZLE_E1_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
+      #error "SERVO1_PIN must be defined for your SWITCHING_NOZZLE."
+    #elif SWITCHING_NOZZLE_E1_SERVO_NR == 2 && !PIN_EXISTS(SERVO2)
+      #error "SERVO2_PIN must be defined for your SWITCHING_NOZZLE."
+    #elif SWITCHING_NOZZLE_E1_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
+      #error "SERVO3_PIN must be defined for your SWITCHING_NOZZLE."
+    #endif
   #endif
 #endif
 
@@ -773,7 +791,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Parking Extruder requirements
+ * (Magnetic) Parking Extruder requirements
  */
 #if ENABLED(PARKING_EXTRUDER)
   #if ENABLED(DUAL_X_CARRIAGE)
@@ -782,6 +800,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "PARKING_EXTRUDER and SINGLENOZZLE are incompatible."
   #elif ENABLED(EXT_SOLENOID)
     #error "PARKING_EXTRUDER and EXT_SOLENOID are incompatible. (Pins are used twice.)"
+  #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
+    #error "Enable only one of PARKING_EXTRUDER and MAGNETIC_PARKING_EXTRUDER."
   #elif EXTRUDERS != 2
     #error "PARKING_EXTRUDER requires exactly 2 EXTRUDERS."
   #elif !PIN_EXISTS(SOL0) || !PIN_EXISTS(SOL1)
@@ -796,6 +816,22 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE must be defined as HIGH or LOW."
   #elif !defined(PARKING_EXTRUDER_SOLENOIDS_DELAY) || !WITHIN(PARKING_EXTRUDER_SOLENOIDS_DELAY, 0, 2000)
     #error "PARKING_EXTRUDER_SOLENOIDS_DELAY must be between 0 and 2000 (ms)."
+  #endif
+#elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #error "MAGNETIC_PARKING_EXTRUDER and DUAL_X_CARRIAGE are incompatible."
+  #elif ENABLED(SINGLENOZZLE)
+    #error "MAGNETIC_PARKING_EXTRUDER and SINGLENOZZLE are incompatible."
+  #elif ENABLED(EXT_SOLENOID)
+    #error "MAGNETIC_PARKING_EXTRUDER and EXT_SOLENOID are incompatible. (Pins are used twice.)"
+  #elif EXTRUDERS != 2
+    #error "MAGNETIC_PARKING_EXTRUDER requires exactly 2 EXTRUDERS."
+  #elif !defined(PARKING_EXTRUDER_PARKING_X)
+    #error "MAGNETIC_PARKING_EXTRUDER requires PARKING_EXTRUDER_PARKING_X."
+  #elif !defined(TOOLCHANGE_ZRAISE)
+    #error "MAGNETIC_PARKING_EXTRUDER requires TOOLCHANGE_ZRAISE."
+  #elif TOOLCHANGE_ZRAISE < 0
+    #error "TOOLCHANGE_ZRAISE must be 0 or higher."
   #endif
 #endif
 
@@ -1887,11 +1923,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(HYBRID_THRESHOLD) && !STEALTHCHOP_ENABLED
   #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
 #elif ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
-  #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
+  #error "SENSORLESS_HOMING requires TMC2130 or TMC2160 or TMC5160 stepper drivers."
 #elif ENABLED(SENSORLESS_PROBING) && !HAS_STALLGUARD
   #error "SENSORLESS_PROBING requires TMC2130 stepper drivers."
 #elif STEALTHCHOP_ENABLED && !HAS_STEALTHCHOP
-  #error "STEALTHCHOP requires TMC2130 or TMC2208 stepper drivers."
+  #error "STEALTHCHOP requires TMC2130 or TMC2160 or TMC2208 or TMC5160 stepper drivers."
 #endif
 
 #if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
@@ -2004,6 +2040,29 @@ static_assert(sanity_arr_3[0] > 0 && sanity_arr_3[1] > 0 && sanity_arr_3[2] > 0
 
 #if ENABLED(GCODE_MACROS) && !WITHIN(GCODE_MACROS_SLOTS, 1, 10)
   #error "GCODE_MACROS_SLOTS must be a number from 1 to 10."
+#endif
+
+#if ENABLED(CUSTOM_USER_MENUS)
+  #ifdef USER_GCODE_1
+    constexpr char _chr1 = USER_GCODE_1[strlen(USER_GCODE_1) - 1];
+    static_assert(_chr1 != '\n' && _chr1 != '\r', "USER_GCODE_1 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_2
+    constexpr char _chr2 = USER_GCODE_2[strlen(USER_GCODE_2) - 1];
+    static_assert(_chr2 != '\n' && _chr2 != '\r', "USER_GCODE_2 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_3
+    constexpr char _chr3 = USER_GCODE_3[strlen(USER_GCODE_3) - 1];
+    static_assert(_chr3 != '\n' && _chr3 != '\r', "USER_GCODE_3 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_4
+    constexpr char _chr4 = USER_GCODE_4[strlen(USER_GCODE_4) - 1];
+    static_assert(_chr4 != '\n' && _chr4 != '\r', "USER_GCODE_4 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_5
+    constexpr char _chr5 = USER_GCODE_5[strlen(USER_GCODE_5) - 1];
+    static_assert(_chr5 != '\n' && _chr5 != '\r', "USER_GCODE_5 cannot have a newline at the end. Please remove it.");
+  #endif
 #endif
 
 #if ENABLED(BACKLASH_COMPENSATION) && IS_CORE

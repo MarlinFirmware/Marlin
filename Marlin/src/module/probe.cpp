@@ -47,7 +47,7 @@
 #endif
 
 #if ENABLED(DELTA)
-  #include "../module/delta.h"
+  #include "delta.h"
 #endif
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -57,7 +57,7 @@
 float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_Z_SERVO_PROBE
-  #include "../module/servo.h"
+  #include "servo.h"
 #endif
 
 #if ENABLED(SENSORLESS_PROBING)
@@ -551,7 +551,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
-    sensorless_t stealth_states { false, false, false };
+    sensorless_t stealth_states { false, false, false, false, false, false, false };
     #if ENABLED(DELTA)
       stealth_states.x = tmc_enable_stallguard(stepperX);
       stealth_states.y = tmc_enable_stallguard(stepperY);

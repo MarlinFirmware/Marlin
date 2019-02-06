@@ -89,7 +89,7 @@
 #endif
 
 #if HAS_BED_PROBE
-  #include "../module/probe.h"
+  #include "probe.h"
 #endif
 
 #include "../feature/fwretract.h"
@@ -1961,7 +1961,7 @@ void MarlinSettings::postprocess() {
         const bool status = persistentStore.write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
         persistentStore.access_finish();
 
-        if (status) SERIAL_ECHOPGM("?Unable to save mesh data.\n");
+        if (status) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
         else        CHITCHAT_ECHOLNPAIR("Mesh saved in slot ", slot);
 
       #else
@@ -1990,7 +1990,7 @@ void MarlinSettings::postprocess() {
         const uint16_t status = persistentStore.read_data(pos, dest, sizeof(ubl.z_values), &crc);
         persistentStore.access_finish();
 
-        if (status) SERIAL_ECHOPGM("?Unable to load mesh data.\n");
+        if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
         else        CHITCHAT_ECHOLNPAIR("Mesh loaded from slot ", slot);
 
         EEPROM_FINISH();
@@ -2076,6 +2076,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       toolchange_settings.change_point = TOOLCHANGE_PARK_XY;
     #endif
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
+  #endif
+
+  #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
+    mpe_settings_init();
   #endif
 
   //
@@ -2366,6 +2370,13 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #define SAY_UNITS_P(PORT, COLON) say_units(COLON)
   #endif
 
+  void report_M92(
+    #if NUM_SERIAL > 1
+      const int8_t port,
+    #endif
+    const bool echo=true, const int8_t e=-1
+  );
+
   /**
    * M503 - Report current settings in RAM
    *
@@ -2458,21 +2469,12 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif // !NO_VOLUMETRICS
 
     CONFIG_ECHO_HEADING("Steps per unit:");
-    CONFIG_ECHO_START();
-    SERIAL_ECHOPAIR_P(port, "  M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
-    #if DISABLED(DISTINCT_E_FACTORS)
-      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
-    #endif
-    SERIAL_EOL_P(port);
-    #if ENABLED(DISTINCT_E_FACTORS)
-      CONFIG_ECHO_START();
-      for (uint8_t i = 0; i < E_STEPPERS; i++) {
-        SERIAL_ECHOPAIR_P(port, "  M92 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS + i]));
-      }
-    #endif
+    report_M92(
+      #if NUM_SERIAL > 1
+        port,
+      #endif
+      !forReplay
+    );
 
     CONFIG_ECHO_HEADING("Maximum feedrates (units/s):");
     CONFIG_ECHO_START();

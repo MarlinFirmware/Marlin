@@ -216,7 +216,7 @@ void GcodeSuite::M28() {
  * Processed in write to file routine
  */
 void GcodeSuite::M29() {
-  // card.flag.saving = false;
+  card.flag.saving = false;
 }
 
 /**

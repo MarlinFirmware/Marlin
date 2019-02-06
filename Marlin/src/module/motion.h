@@ -31,7 +31,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if IS_SCARA
-  #include "../module/scara.h"
+  #include "scara.h"
 #endif
 
 // Axis homed and known-position states
@@ -71,7 +71,7 @@ extern float cartes[XYZ];
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-extern const float homing_feedrate_mm_s[4];
+extern const float homing_feedrate_mm_s[XYZ];
 FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
 
 extern float feedrate_mm_s;

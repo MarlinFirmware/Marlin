@@ -162,7 +162,7 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
     u8g.firstPage();
     do {
       u8g.drawBitmapP(offx, offy, (START_BMPWIDTH + 7) / 8, START_BMPHEIGHT, start_bmp);
-      ui.set_font(FONT_MENU);
+      set_font(FONT_MENU);
       #ifndef STRING_SPLASH_LINE2
         const uint8_t txt1X = width - (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH);
         u8g.drawStr(txt1X, (height + MENU_FONT_HEIGHT) / 2, STRING_SPLASH_LINE1);

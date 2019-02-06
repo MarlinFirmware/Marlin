@@ -232,7 +232,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
     currentScreen = screen;
     encoderPosition = encoder;
     if (screen == status_screen) {
-      ui.defer_status_screen(false);
+      defer_status_screen(false);
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         ubl.lcd_map_control = false;
       #endif
