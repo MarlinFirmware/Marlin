@@ -75,7 +75,7 @@ private:
   static volatile int8_t finda;
   static volatile bool findaRunoutValid;
   static int16_t version, buildnr;
-  static millis_t next_request, next_response;
+  static millis_t last_request, next_P0_request;
   static char rx_buffer[16], tx_buffer[16];
 };
 

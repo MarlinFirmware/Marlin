@@ -89,7 +89,7 @@ int8_t MMU2::state = 0;
 volatile int8_t MMU2::finda = 1;
 volatile bool MMU2::findaRunoutValid;
 int16_t MMU2::version = -1, MMU2::buildnr = -1;
-millis_t MMU2::next_request, MMU2::next_response;
+millis_t MMU2::last_request, MMU2::next_P0_request;
 char MMU2::rx_buffer[16], MMU2::tx_buffer[16];
 
 #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
@@ -321,7 +321,7 @@ void MMU2::mmuLoop() {
         last_cmd = cmd;
         cmd = MMU_CMD_NONE;
       }
-      else if (ELAPSED(millis(), next_response)) {
+      else if (ELAPSED(millis(), next_P0_request)) {
         // read FINDA
         tx_str_P(PSTR("P0\n"));
         state = 2; // wait for response
@@ -350,7 +350,7 @@ void MMU2::mmuLoop() {
 
         if (!finda && findaRunoutValid) filamentRunout();
       }
-      else if (ELAPSED(millis(), next_request)) // Resend request after timeout (30s)
+      else if (ELAPSED(millis(), last_request + MMU_P0_TIMEOUT)) // Resend request after timeout (30s)
         state = 1;
 
       break;
@@ -365,7 +365,7 @@ void MMU2::mmuLoop() {
         state = 1;
         last_cmd = MMU_CMD_NONE;
       }
-      else if (ELAPSED(millis(), next_request)) {
+      else if (ELAPSED(millis(), last_request + MMU_CMD_TIMEOUT)) {
         // resend request after timeout
         if (last_cmd) {
           #if ENABLED(MMU2_DEBUG)
@@ -388,7 +388,7 @@ void MMU2::mmuLoop() {
 bool MMU2::rx_start() {
   // check for start message
   if (rx_str_P(PSTR("start\n"))) {
-    next_response = millis() + 300;
+    next_P0_request = millis() + 300;
     return true;
   }
   return false;
@@ -439,7 +439,7 @@ void MMU2::tx_str_P(const char* str) {
   uint8_t len = strlen_P(str);
   for (uint8_t i = 0; i < len; i++) mmuSerial.write(pgm_read_byte(str++));
   rx_buffer[0] = '\0';
-  next_request = millis() + MMU_P0_TIMEOUT;
+  last_request = millis();
 }
 
 
@@ -451,7 +451,7 @@ void MMU2::tx_printf_P(const char* format, int argument = -1) {
   uint8_t len = sprintf_P(tx_buffer, format, argument);
   for (uint8_t i = 0; i < len; i++) mmuSerial.write(tx_buffer[i]);
   rx_buffer[0] = '\0';
-  next_request = millis() + MMU_P0_TIMEOUT;
+  last_request = millis();
 }
 
 
@@ -463,7 +463,7 @@ void MMU2::tx_printf_P(const char* format, int argument1, int argument2) {
   uint8_t len = sprintf_P(tx_buffer, format, argument1, argument2);
   for (uint8_t i = 0; i < len; i++) mmuSerial.write(tx_buffer[i]);
   rx_buffer[0] = '\0';
-  next_request = millis() + MMU_P0_TIMEOUT;
+  last_request = millis();
 }
 
 
@@ -481,7 +481,7 @@ void MMU2::clear_rx_buffer() {
  */
 bool MMU2::rx_ok() {
   if (rx_str_P(PSTR("ok\n"))) {
-    next_response = millis() + 300;
+    next_P0_request = millis() + 300;
     return true;
   }
   return false;
