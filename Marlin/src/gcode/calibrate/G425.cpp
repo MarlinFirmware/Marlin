@@ -75,27 +75,18 @@ const float measurements_t::true_center[XYZ] = CALIBRATION_OBJECT_CENTER;
 
 const float measurements_t::dimensions[]  = CALIBRATION_OBJECT_DIMENSIONS;
 
-/**
- * A class to save and change the endstop state,
- * then restore it when it goes out of scope.
- */
-class TemporaryGlobalEndstopsState {
-  bool saved;
+#define TEMPORARY_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable); TemporaryGlobalEndstopsState g(enable)
 
-  public:
-    TemporaryGlobalEndstopsState(bool enable) : saved(endstops.global_enabled()) {
-      endstops.enable_globally(enable);
-    }
-    ~TemporaryGlobalEndstopsState() {endstops.enable_globally(saved);}
-};
-
-#define TEMPORARY_ENDSTOP_STATE(enable) REMEMBER(soft_endstops_enabled, enable); TemporaryGlobalEndstopsState g(enable)
-#if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-  #define TEMPORARY_BACKLASH_STATE(enable) REMEMBER(backlash_correction, enable); REMEMBER(backlash_smoothing_mm, 0)
-#elif ENABLED(BACKLASH_GCODE)
-  #define TEMPORARY_BACKLASH_STATE(enable) REMEMBER(backlash_correction, enable);
+#if ENABLED(BACKLASH_GCODE)
+  #define TEMPORARY_BACKLASH_STATE(enable) REMEMBER(tbs, backlash_correction, enable)
 #else
   #define TEMPORARY_BACKLASH_STATE(enable)
+#endif
+
+#if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
+  #define TEMPORARY_BACKLASH_SMOOTHING(enable) REMEMBER(tbs, backlash_smoothing_mm, 0)
+#else
+  #define TEMPORARY_BACKLASH_SMOOTHING(enable)
 #endif
 
 /**

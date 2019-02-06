@@ -133,5 +133,5 @@ public:
   inline void restore() { ref_ = val_; }
 };
 
-#define REMEMBER(X, ...) restorer<typeof(X)> X##_restorer(X, ##__VA_ARGS__)
-#define RESTORE(X) X##_restorer.restore()
+#define REMEMBER(N,X, ...) restorer<typeof(X)> N##_restorer(X, ##__VA_ARGS__)
+#define RESTORE(N) N##_restorer.restore()
