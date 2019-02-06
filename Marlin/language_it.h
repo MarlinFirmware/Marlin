@@ -278,6 +278,11 @@
 #define MSG_BLTOUCH_RESET                   _UxGT("Resetta BLTouch")
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("Estendi BLTouch")
 #define MSG_BLTOUCH_STOW                    _UxGT("Ritrai BLTouch")
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-Iniz. TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Z-Offset")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Salva TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("Test TouchMI")		
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("prima")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Offset")

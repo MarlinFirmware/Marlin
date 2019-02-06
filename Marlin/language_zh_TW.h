@@ -275,6 +275,11 @@
 #define MSG_BLTOUCH_RESET                   _UxGT("重置BLTouch")  // "Reset BLTouch"
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("部署BLTouch") // "Deploy BLTouch"
 #define MSG_BLTOUCH_STOW                    _UxGT("裝載BLTouch")   // "Stow BLTouch"
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-Init TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Z-Offset")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Save TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("Test TouchMI")		
 #define MSG_HOME                            _UxGT("歸位")  //"Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("先")  //"first"
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z偏移")  //"Z Offset"

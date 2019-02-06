@@ -169,6 +169,11 @@
 #define MSG_ZPROBE_OUT                      _UxGT("Probe udenfor plade")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Selv-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-Init TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Z-Offset")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Gem i TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("Test TouchMI")    
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("først")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Offset")

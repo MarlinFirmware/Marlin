@@ -275,6 +275,11 @@
 #define MSG_BLTOUCH_RESET                   _UxGT("BLTouch berrabia.")
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("BLTouch jaitsi/luzatu")
 #define MSG_BLTOUCH_STOW                    _UxGT("BLTouch igo/jaso")
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-hasieratu TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Z Konpentsatu")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Gorde TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("Proba TouchMI")		
 #define MSG_HOME                            _UxGT("Etxera")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("lehenengo")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Konpentsatu")

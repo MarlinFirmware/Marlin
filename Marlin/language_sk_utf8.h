@@ -287,6 +287,11 @@
 #define MSG_BLTOUCH_RESET                   _UxGT("BLTouch Reset")
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("BLTouch Vysunúť")
 #define MSG_BLTOUCH_STOW                    _UxGT("BLTouch Zasunúť")
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-Inic. TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Z-Offset")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Uložiť TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("Test TouchMI")		
 #define MSG_HOME                            _UxGT("Najprv")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("domov")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z offset")

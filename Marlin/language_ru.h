@@ -280,6 +280,11 @@
 #define MSG_BLTOUCH_RESET                   _UxGT("Сброс BLTouch")
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("Установка BLTouch")
 #define MSG_BLTOUCH_STOW                    _UxGT("Набивка BLTouch")
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-Инициализация TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Смещение Z")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Сохранить TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("тест TouchMI")		
 #define MSG_HOME                            _UxGT("Паркуй") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("первый")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Смещение Z")

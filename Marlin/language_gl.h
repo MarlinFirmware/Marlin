@@ -166,6 +166,11 @@
 #define MSG_INIT_SDCARD                     _UxGT("Iniciando SD")
 #define MSG_CNG_SDCARD                      _UxGT("Cambiar SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda-Z sen cama")
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-Inic. TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Offset Z")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Gardar TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("Proba TouchMI")    
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_BLTOUCH_SELFTEST                _UxGT("Comprobar BLTouch")
 #define MSG_BLTOUCH_RESET                   _UxGT("Iniciar BLTouch")

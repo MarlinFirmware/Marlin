@@ -168,6 +168,11 @@
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z fuera")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Auto-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-Encetan. TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Desfase-Z")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Alzar TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("Test TouchMI")    
 #define MSG_HOME                            _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("first")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Desfase Z")

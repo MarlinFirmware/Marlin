@@ -979,6 +979,29 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // BLTOUCH
 
+ #if ENABLED(TOUCHMI)
+     /**
+     *
+     * "TouchMI" submenu
+     *
+     */
+    static void touchmi_menu() {
+      defer_return_to_status = true;
+      START_MENU();
+      //
+      // ^ Main
+      //
+      MENU_ITEM(function, MSG_BACK, lcd_goto_previous_menu_no_defer);
+      MENU_ITEM(gcode, MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nM500\nG1 Z0 F200"));
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+          MENU_ITEM(submenu, MSG_TOUCHMI_ZOFFSET, lcd_babystep_zoffset);
+      #endif 
+      MENU_ITEM(gcode, MSG_TOUCHMI_SAVE, PSTR("M500\nG28 X Y"));
+      MENU_ITEM(gcode, MSG_TOUCHMI_TEST, PSTR("G28\nG1 Z0"));
+      END_MENU();
+      
+    }
+  #endif // TOUCHMI					  
   #if ENABLED(LCD_PROGRESS_BAR_TEST)
 
     static void progress_bar_test() {
@@ -1566,6 +1589,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
 
+#if DISABLED(TOUCHMI) || ENABLED(TOUCHMI_PREHEAT)												   
   /**
    *
    * "Prepare" submenu items
@@ -1784,6 +1808,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
 
   #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
+	#endif //DISABLED(TOUCHMI) || ENABLED(TOUCHMI_PREHEAT)													
 
   void lcd_cooldown() {
     #if FAN_COUNT > 0
@@ -2756,6 +2781,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       #endif
       if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 
+	#if DISABLED(TOUCHMI) || ENABLED(TOUCHMI_PREHEAT)												   
       //
       // Preheat for Material 1 and 2
       //
@@ -2766,7 +2792,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
         MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
       #endif
-
+   #endif //DISABLED(TOUCHMI) || ENABLED(TOUCHMI_PREHEAT)
     #endif // HAS_TEMP_HOTEND
 
     //
@@ -3357,6 +3383,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
     #endif
 
+	#if ENABLED(TOUCHMI)
+      MENU_ITEM(submenu, MSG_TOUCHMI, touchmi_menu);
+    #endif				
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
       MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
@@ -3576,6 +3605,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     #endif // PIDTEMP
 
+	#if DISABLED(TOUCHMI) || ENABLED(TOUCHMI_PREHEAT)												 
     #if DISABLED(SLIM_LCD_MENUS)
       //
       // Preheat Material 1 conf
@@ -3587,7 +3617,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       //
       MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
     #endif
-
+    #endif // DISABLED(TOUCHMI) || ENABLED(TOUCHMI_PREHEAT)
     END_MENU();
   }
 

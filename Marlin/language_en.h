@@ -768,6 +768,21 @@
 #ifndef MSG_BLTOUCH_STOW
   #define MSG_BLTOUCH_STOW                    _UxGT("Stow BLTouch")
 #endif
+#ifndef MSG_TOUCHMI
+  #define MSG_TOUCHMI                         _UxGT("TouchMI")
+#endif
+#ifndef MSG_TOUCHMI_INIT
+  #define MSG_TOUCHMI_INIT                _UxGT("1-Init TouchMI")
+#endif
+#ifndef MSG_TOUCHMI__ZOFFSET
+  #define MSG_TOUCHMI_ZOFFSET               _UxGT("2-Z-Offset")
+#endif
+#ifndef MSG_TOUCHMI_SAVE
+  #define MSG_TOUCHMI_SAVE                   _UxGT("3-Save TouchMI")
+#endif
+#ifndef MSG_TOUCHMI_TEST
+  #define MSG_TOUCHMI_TEST                   _UxGT("Test TouchMI")
+#endif
 #ifndef MSG_HOME
   #define MSG_HOME                            _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #endif

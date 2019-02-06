@@ -160,6 +160,11 @@
 #define MSG_ZPROBE_OUT                      _UxGT("Z дет. не в межах")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Само-Тест")
 #define MSG_BLTOUCH_RESET                   _UxGT("Скинути BLTouch")
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-Старт TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Зміщення Zt")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Зберегти TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("Тест TouchMI")    
 #define MSG_HOME                            _UxGT("Дім")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("перший")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Зміщення Z")

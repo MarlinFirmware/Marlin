@@ -745,6 +745,15 @@
  * Warning: Does not respect endstops!
  */
 //#define BABYSTEPPING
+#if ENABLED(TOUCHMI)
+    #if !ENABLED(BABYSTEPPING)
+	  #define BABYSTEPPING
+    #endif
+    #if !ENABLED(BABYSTEP_ZPROBE_OFFSET)
+		#define BABYSTEP_ZPROBE_OFFSET
+    #endif  
+#endif
+
 #if ENABLED(BABYSTEPPING)
   //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way

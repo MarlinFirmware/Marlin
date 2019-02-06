@@ -180,6 +180,11 @@
 #define MSG_ZPROBE_OUT                      _UxGT("Z Prob Açık. Tabla")                                 // Z Prob Açık. Tabla
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")                                  // BLTouch Self-Test
 #define MSG_BLTOUCH_RESET                   _UxGT("Sıfırla BLTouch")                                    // Sıfırla BLTouch
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-Init TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Z-Offset")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Hafızaya Al TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("Test TouchMI")    
 #define MSG_HOME                            _UxGT("Sıfırla")                                            // Sıfırla
 #define MSG_FIRST                           _UxGT("önce")                                               // Önce
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Offset")                                           // Z Offset

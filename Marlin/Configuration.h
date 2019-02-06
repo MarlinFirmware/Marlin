@@ -732,6 +732,15 @@
   //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
 #endif
 
+//For tuning Autoleveling sensor "TouchMi" on lcd 
+//#define TOUCHMI 
+#if ENABLED(TOUCHMI)
+      #define FIX_MOUNTED_PROBE
+	  #define Z_SAFE_HOMING
+	  #define Z_HOMING_HEIGHT 20
+#endif
+//#define TOUCHMI_PREHEAT // Uncomment if you have much memory on your board. (Preheat PLA & ABS on LCD)
+	
 /**
  * Enable one or more of the following if probing seems unreliable.
  * Heaters and/or fans can be disabled during probing to minimize electrical

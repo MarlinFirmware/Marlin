@@ -171,6 +171,11 @@
 #define MSG_CNG_SDCARD                      _UxGT("Canvia SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z fora")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reinicia BLTouch")
+#define MSG_TOUCHMI                         _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("1-Inic. TouchMI")
+#define MSG_TOUCHMI_ZOFFSET                 _UxGT("2-Decalatge Z")
+#define MSG_TOUCHMI_SAVE                    _UxGT("3-Desa TouchMI")
+#define MSG_TOUCHMI_TEST                    _UxGT("Test TouchMI")    
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("primer")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Decalatge Z")
