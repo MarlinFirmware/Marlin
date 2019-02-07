@@ -399,6 +399,36 @@
 #define MSG_ERR_PROBING_FAILED              _UxGT("Probing gescheitert")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: zu kalt")
 
+#define MSG_MMU2_FILAMENT_CHANGE_HEADER     _UxGT("FILAMENT WECHSEL")
+#define MSG_MMU2_CHOOSE_FILAMENT_HEADER     _UxGT("FILAMENT WÄHLEN")
+#define MSG_MMU2_MENU                       _UxGT("MMU")
+#define MSG_MMU2_WRONG_FIRMWARE             _UxGT("Update MMU Firmware!")
+#define MSG_MMU2_NOT_RESPONDING             _UxGT("MMU handeln erforder.")
+#define MSG_MMU2_RESUME                     _UxGT("Druck fortsetzen")
+#define MSG_MMU2_RESUMING                   _UxGT("Fortfahren...")
+#define MSG_MMU2_LOAD_FILAMENT              MSG_FILAMENTLOAD
+#define MSG_MMU2_LOAD_ALL                   _UxGT("Lade alle")
+#define MSG_MMU2_LOAD_TO_NOZZLE             _UxGT("Düse laden")
+#define MSG_MMU2_EJECT_FILAMENT             _UxGT("Filament auswerfen")
+#define MSG_MMU2_EJECT_FILAMENT0            _UxGT("Filament 1 auswerfen")
+#define MSG_MMU2_EJECT_FILAMENT1            _UxGT("Filament 2 auswerfen")
+#define MSG_MMU2_EJECT_FILAMENT2            _UxGT("Filament 3 auswerfen")
+#define MSG_MMU2_EJECT_FILAMENT3            _UxGT("Filament 4 auswerfen")
+#define MSG_MMU2_EJECT_FILAMENT4            _UxGT("Filament 5 auswerfen")
+#define MSG_MMU2_UNLOAD_FILAMENT            MSG_FILAMENTUNLOAD
+#define MSG_MMU2_LOADING_FILAMENT           _UxGT("Lade Fila. %i...")
+#define MSG_MMU2_EJECTING_FILAMENT          _UxGT("Fila. auswerfen...")
+#define MSG_MMU2_UNLOADING_FILAMENT         _UxGT("Fila. entladen...")
+#define MSG_MMU2_ALL                        _UxGT("Alle")
+#define MSG_MMU2_FILAMENT0                  _UxGT("Filament 1")
+#define MSG_MMU2_FILAMENT1                  _UxGT("Filament 2")
+#define MSG_MMU2_FILAMENT2                  _UxGT("Filament 3")
+#define MSG_MMU2_FILAMENT3                  _UxGT("Filament 4")
+#define MSG_MMU2_FILAMENT4                  _UxGT("Filament 5")
+#define MSG_MMU2_RESET                      _UxGT("setz MMU zurück")
+#define MSG_MMU2_RESETTING                  _UxGT("MMU zurücksetzen...")
+#define MSG_MMU2_EJECT_RECOVER              _UxGT("Entfernen, klicken")
+
 //
 // Die Filament-Change-Bildschirme können bis zu 3 Zeilen auf einem 4-Zeilen-Display anzeigen
 //                                       ...oder 2 Zeilen auf einem 3-Zeilen-Display.
