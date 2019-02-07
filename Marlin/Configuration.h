@@ -744,9 +744,7 @@
 	#if ENABLED(Z_HOMING_HEIGHT)
 	  #undef Z_HOMING_HEIGHT
 	#endif
-	#if DISABLED(Z_HOMING_HEIGHT)
-	  #define Z_HOMING_HEIGHT 20
-	#endif
+	#define Z_HOMING_HEIGHT 20
 #endif
 //#define TOUCHMI_PREHEAT // Uncomment if you have much memory on your board. (Preheat PLA & ABS on LCD)
 	
