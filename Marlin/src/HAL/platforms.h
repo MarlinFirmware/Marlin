@@ -37,6 +37,8 @@
   #define HAL_PLATFORM HAL_STM32F4
 #elif defined(STM32GENERIC) && defined(STM32F7)
   #define HAL_PLATFORM HAL_STM32F7
+#elif defined(STM32H7)
+  #define HAL_PLATFORM HAL_STM32H7
 #elif defined(ARDUINO_ARCH_STM32)
   #define HAL_PLATFORM HAL_STM32
 #elif defined(ARDUINO_ARCH_ESP32)

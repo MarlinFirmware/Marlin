@@ -442,8 +442,6 @@
 #elif MB(STEVAL)
   #include "pins_STEVAL.h"            // STM32F4                                    env:STM32F4
 
-
-
 //
 // ARM Cortex M7
 //
@@ -452,6 +450,8 @@
   #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F7
 #elif MB(REMRAM_V1)
   #include "pins_REMRAM_V1.h"         // STM32F7                                    env:STM32F7xx
+#elif MB(NUCLEO)
+  #include "pins_NUCLEO.h"            // STM32H7                                    env:STM32H7
 
 //
 // Espressif ESP32
