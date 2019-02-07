@@ -735,9 +735,18 @@
 //For tuning Autoleveling sensor "TouchMi" on lcd 
 //#define TOUCHMI 
 #if ENABLED(TOUCHMI)
-      #define FIX_MOUNTED_PROBE
+	#if DISABLED(FIX_MOUNTED_PROBE)
+	  #define FIX_MOUNTED_PROBE
+	#endif
+	#if DISABLED(Z_SAFE_HOMING)
 	  #define Z_SAFE_HOMING
+	#endif
+	#if ENABLED(Z_HOMING_HEIGHT)
+	  #undef Z_HOMING_HEIGHT
+	#endif
+	#if DISABLED(Z_HOMING_HEIGHT)
 	  #define Z_HOMING_HEIGHT 20
+	#endif
 #endif
 //#define TOUCHMI_PREHEAT // Uncomment if you have much memory on your board. (Preheat PLA & ABS on LCD)
 	
