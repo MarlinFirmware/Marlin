@@ -706,14 +706,14 @@ float Temperature::get_pid_output(const int8_t e) {
   #else
     #define _HOTEND_TEST (e == active_extruder)
   #endif
+  float pid_output;
   #if ENABLED(PIDTEMP)
     #if DISABLED(PID_OPENLOOP)
       static hotend_pid_t work_pid[HOTENDS];
       static float temp_iState[HOTENDS] = { 0 },
                    temp_dState[HOTENDS] = { 0 };
       static bool pid_reset[HOTENDS] = { false };
-      float pid_output,
-            pid_error = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
+      float pid_error = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
       work_pid[HOTEND_INDEX].Kd = PID_K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + float(PID_K1) * work_pid[HOTEND_INDEX].Kd;
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
       #if HEATER_IDLE_HANDLER

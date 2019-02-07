@@ -906,6 +906,17 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * PID LCD menus dependecies
+ */
+#if ENABLED(PID_AUTOTUNE_MENU) && DISABLED(PID_MENU)
+  #error "To use PID_AUTOTUNE_MENU you must enable PID_MENU."
+#endif
+#if ENABLED(PID_MENU) && DISABLED(PIDTEMP)
+  #error "To use PID_MENU you must enable PIDTEMP."
+#endif
+
+
+/**
  * Kinematics
  */
 
