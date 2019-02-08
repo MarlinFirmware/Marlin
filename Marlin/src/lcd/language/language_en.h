@@ -1358,3 +1358,7 @@
 #ifndef MSG_TMC_STEALTH_ENABLED
   #define MSG_TMC_STEALTH_ENABLED             _UxGT("StealthChop enabled")
 #endif
+
+#ifndef MSG_SERVICE_RESET
+  #define MSG_SERVICE_RESET                           _UxGT("Reset")
+#endif
