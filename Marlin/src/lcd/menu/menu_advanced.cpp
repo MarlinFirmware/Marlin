@@ -262,7 +262,7 @@ void menu_tmc();
 
 #endif // PID_AUTOTUNE_MENU
 
-#if ENABLED(PID_MENU)
+#if ENABLED(PID_EDIT_MENU)
 
   float raw_Ki, raw_Kd; // place-holders for Ki and Kd edits
 
@@ -286,39 +286,46 @@ void menu_tmc();
     void copy_and_scalePID_i_E ## N() { copy_and_scalePID_i(N); } \
     void copy_and_scalePID_d_E ## N() { copy_and_scalePID_d(N); }
 
-  #if ENABLED(PID_AUTOTUNE_MENU)
-    #define DEFINE_PIDTEMP_FUNCS(N) \
-      _DEFINE_PIDTEMP_BASE_FUNCS(N); \
-      void lcd_autotune_callback_E ## N() { _lcd_autotune(N); } typedef void _pid_##N##_void
-  #else
-    #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N) typedef void _pid_##N##_void
-  #endif
+#else
 
-  DEFINE_PIDTEMP_FUNCS(0);
-  #if ENABLED(PID_PARAMS_PER_HOTEND)
-    #if HOTENDS > 1
-      DEFINE_PIDTEMP_FUNCS(1);
-      #if HOTENDS > 2
-        DEFINE_PIDTEMP_FUNCS(2);
-        #if HOTENDS > 3
-          DEFINE_PIDTEMP_FUNCS(3);
-          #if HOTENDS > 4
-            DEFINE_PIDTEMP_FUNCS(4);
-            #if HOTENDS > 5
-              DEFINE_PIDTEMP_FUNCS(5);
-            #endif // HOTENDS > 5
-          #endif // HOTENDS > 4
-        #endif // HOTENDS > 3
-      #endif // HOTENDS > 2
-    #endif // HOTENDS > 1
-  #endif // PID_PARAMS_PER_HOTEND
+  #define _DEFINE_PIDTEMP_BASE_FUNCS(N) //
 
-#endif // PID_MENU
+#endif
+
+#if ENABLED(PID_AUTOTUNE_MENU)
+  #define DEFINE_PIDTEMP_FUNCS(N) \
+    _DEFINE_PIDTEMP_BASE_FUNCS(N); \
+    void lcd_autotune_callback_E ## N() { _lcd_autotune(N); } //
+#else
+  #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N); //
+#endif
+
+DEFINE_PIDTEMP_FUNCS(0);
+#if ENABLED(PID_PARAMS_PER_HOTEND)
+  #if HOTENDS > 1
+    DEFINE_PIDTEMP_FUNCS(1);
+    #if HOTENDS > 2
+      DEFINE_PIDTEMP_FUNCS(2);
+      #if HOTENDS > 3
+        DEFINE_PIDTEMP_FUNCS(3);
+        #if HOTENDS > 4
+          DEFINE_PIDTEMP_FUNCS(4);
+          #if HOTENDS > 5
+            DEFINE_PIDTEMP_FUNCS(5);
+          #endif // HOTENDS > 5
+        #endif // HOTENDS > 4
+      #endif // HOTENDS > 3
+    #endif // HOTENDS > 2
+  #endif // HOTENDS > 1
+#endif // PID_PARAMS_PER_HOTEND
+
+#define SHOW_MENU_ADVANCED_TEMPERATURE ((ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(PID_EDIT_MENU))
 
 //
 // Advanced Settings > Temperature
 //
-#if ENABLED(AUTOTEMP) || ENABLED(PID_MENU)
+#if SHOW_MENU_ADVANCED_TEMPERATURE
+
   void menu_advanced_temperature() {
     START_MENU();
     MENU_BACK(MSG_ADVANCED_SETTINGS);
@@ -340,7 +347,8 @@ void menu_tmc();
     // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
     // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
     //
-    #if ENABLED(PID_MENU)
+    #if ENABLED(PID_EDIT_MENU)
+
       #define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
         raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
@@ -349,44 +357,50 @@ void menu_tmc();
         MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
 
       #if ENABLED(PID_EXTRUSION_SCALING)
-        #define _PID_MENU_ITEMS(ELABEL, eindex) \
+        #define _PID_EDIT_MENU_ITEMS(ELABEL, eindex) \
           _PID_BASE_MENU_ITEMS(ELABEL, eindex); \
           MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
       #else
-        #define _PID_MENU_ITEMS(ELABEL, eindex) _PID_BASE_MENU_ITEMS(ELABEL, eindex)
+        #define _PID_EDIT_MENU_ITEMS(ELABEL, eindex) _PID_BASE_MENU_ITEMS(ELABEL, eindex)
       #endif
 
-      #if ENABLED(PID_AUTOTUNE_MENU)
-        #define PID_MENU_ITEMS(ELABEL, eindex) \
-          _PID_MENU_ITEMS(ELABEL, eindex); \
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PID_AUTOTUNE ELABEL, &autotune_temp[eindex], 150, heater_maxtemp[eindex] - 15, lcd_autotune_callback_E ## eindex)
-      #else
-        #define PID_MENU_ITEMS(ELABEL, eindex) _PID_MENU_ITEMS(ELABEL, eindex)
-      #endif
+    #else
 
-      #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
-        PID_MENU_ITEMS(" " MSG_E1, 0);
-        PID_MENU_ITEMS(" " MSG_E2, 1);
-        #if HOTENDS > 2
-          PID_MENU_ITEMS(" " MSG_E3, 2);
-          #if HOTENDS > 3
-            PID_MENU_ITEMS(" " MSG_E4, 3);
-            #if HOTENDS > 4
-              PID_MENU_ITEMS(" " MSG_E5, 4);
-              #if HOTENDS > 5
-                PID_MENU_ITEMS(" " MSG_E6, 5);
-              #endif // HOTENDS > 5
-            #endif // HOTENDS > 4
-          #endif // HOTENDS > 3
-        #endif // HOTENDS > 2
-      #else // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
-        PID_MENU_ITEMS("", 0);
-      #endif // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
-    #endif // PID_MENU
+      #define _PID_EDIT_MENU_ITEMS(ELABEL, eindex) NOOP
+
+    #endif
+
+    #if ENABLED(PID_AUTOTUNE_MENU)
+      #define PID_EDIT_MENU_ITEMS(ELABEL, eindex) \
+        _PID_EDIT_MENU_ITEMS(ELABEL, eindex); \
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PID_AUTOTUNE ELABEL, &autotune_temp[eindex], 150, heater_maxtemp[eindex] - 15, lcd_autotune_callback_E ## eindex)
+    #else
+      #define PID_EDIT_MENU_ITEMS(ELABEL, eindex) _PID_EDIT_MENU_ITEMS(ELABEL, eindex)
+    #endif
+
+    #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
+      PID_EDIT_MENU_ITEMS(" " MSG_E1, 0);
+      PID_EDIT_MENU_ITEMS(" " MSG_E2, 1);
+      #if HOTENDS > 2
+        PID_EDIT_MENU_ITEMS(" " MSG_E3, 2);
+        #if HOTENDS > 3
+          PID_EDIT_MENU_ITEMS(" " MSG_E4, 3);
+          #if HOTENDS > 4
+            PID_EDIT_MENU_ITEMS(" " MSG_E5, 4);
+            #if HOTENDS > 5
+              PID_EDIT_MENU_ITEMS(" " MSG_E6, 5);
+            #endif // HOTENDS > 5
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #else // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
+      PID_EDIT_MENU_ITEMS("", 0);
+    #endif // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
 
     END_MENU();
   }
-#endif // AUTOTEMP || PID_MENU
+
+#endif // SHOW_MENU_ADVANCED_TEMPERATURE
 
 #if DISABLED(SLIM_LCD_MENUS)
 
@@ -640,7 +654,7 @@ void menu_advanced_settings() {
     MENU_ITEM(submenu, MSG_TMC_DRIVERS, menu_tmc);
   #endif
 
-  #if ENABLED(AUTOTEMP) || ENABLED(PID_MENU)
+  #if SHOW_MENU_ADVANCED_TEMPERATURE
     MENU_ITEM(submenu, MSG_TEMPERATURE, menu_advanced_temperature);
   #endif
 
