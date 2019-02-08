@@ -29,8 +29,8 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME          "Azteeg X5 GT"
-#define DEFAULT_WEBSITE_URL "https://www.panucatt.com/azteeg_X5_GT_reprap_3d_printer_controller_p/ax5gt.htm"
+#define BOARD_NAME        "Azteeg X5 GT"
+#define BOARD_WEBSITE_URL "https://www.panucatt.com/azteeg_X5_GT_reprap_3d_printer_controller_p/ax5gt.htm"
 
 //
 //  Set CPU
