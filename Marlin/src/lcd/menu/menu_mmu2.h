@@ -23,6 +23,6 @@
 
 #include <stdint.h>
 
-extern void menu_mmu2();
-extern void mmu2_M600();
-extern uint8_t mmu2_chooseFilament();
+void menu_mmu2();
+void mmu2_M600();
+uint8_t mmu2_chooseFilament();
