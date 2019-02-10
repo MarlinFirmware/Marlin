@@ -803,7 +803,7 @@ float Temperature::get_pid_output(const int8_t e) {
         pid_output = 0;
       else
     #endif
-    pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
+    pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? BANG_MAX : 0;
   #endif
 
   return pid_output;
