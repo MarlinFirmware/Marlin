@@ -100,6 +100,10 @@ void menu_change_filament();
 void menu_info();
 void menu_led();
 
+#if ENABLED(MIXING_EXTRUDER)
+  void menu_mixer();
+#endif
+
 void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
@@ -152,6 +156,10 @@ void menu_main() {
 
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
     MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
+
+    #if ENABLED(MIXING_EXTRUDER)
+      MENU_ITEM(submenu, MSG_MIXER, menu_mixer);
+    #endif
 
     #if ENABLED(MMU2_MENUS)
       MENU_ITEM(submenu, MSG_MMU2_MENU, menu_mmu2);

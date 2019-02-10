@@ -2069,6 +2069,10 @@ static_assert(sanity_arr_3[0] > 0 && sanity_arr_3[1] > 0 && sanity_arr_3[2] > 0
   #error "BACKLASH_COMPENSATION is incompatible with CORE kinematics."
 #endif
 
+#if ENABLED(GRADIENT_MIX) && MIXING_VIRTUAL_TOOLS < 2
+  #error "GRADIENT_MIX requires 2 or more MIXING_VIRTUAL_TOOLS."
+#endif
+
 /**
  * Prusa MMU2 requirements
  */

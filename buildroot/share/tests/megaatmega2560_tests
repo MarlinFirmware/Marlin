@@ -110,7 +110,7 @@ exec_test $1 $2 "MINIRAMBO for PWM_MOTOR_CURRENT etc"
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
-opt_enable MIXING_EXTRUDER CR10_STOCKDISPLAY
+opt_enable MIXING_EXTRUDER GRADIENT_MIX GRADIENT_VTOOL CR10_STOCKDISPLAY
 opt_set MIXING_STEPPERS 5
 opt_set LCD_LANGUAGE ru
 exec_test $1 $2 "Mixing Extruder with 5 steppers, Cyrillic"

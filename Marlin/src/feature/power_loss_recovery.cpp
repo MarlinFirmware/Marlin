@@ -176,6 +176,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       );
     #endif
 
+    #if ENABLED(GRADIENT_MIX)
+      memcpy(&info.gradient, &mixer.gradient, sizeof(info.gradient));
+    #endif
+
     #if ENABLED(FWRETRACT)
       COPY(info.retract, fwretract.current_retract);
       info.retract_hop = fwretract.current_hop;
@@ -303,6 +307,10 @@ void PrintJobRecovery::resume() {
       sprintf_P(cmd, PSTR("M420 S%i Z%s"), int(info.leveling), str_1);
       gcode.process_subcommands_now(cmd);
     }
+  #endif
+
+  #if ENABLED(GRADIENT_MIX)
+    memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
   #endif
 
   // Restore Z (plus raise) and E positions with G92.0
