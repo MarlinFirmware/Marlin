@@ -425,6 +425,25 @@
 #define MSG_MMU2_RESETTING                  _UxGT("Azzeramento MMU...")
 #define MSG_MMU2_EJECT_RECOVER              _UxGT("Rimuovi, click")
 
+#define MSG_MIX                             _UxGT("Miscela")
+#define MSG_MIX_COMPONENT                   _UxGT("Componente")
+#define MSG_MIXER                           _UxGT("Miscelatore")
+#define MSG_GRADIENT                        _UxGT("Gradiente")
+#define MSG_FULL_GRADIENT                   _UxGT("Gradiente pieno")
+#define MSG_TOGGLE_MIX                      _UxGT("Alterna miscela")
+//#define MSG_CYCLE_MIX                       _UxGT("Ciclo miscela")
+#define MSG_GRADIENT_MIX                    _UxGT("Miscela gradiente")
+#define MSG_REVERSE_GRADIENT                _UxGT("Inverti gradiente")
+#define MSG_ACTIVE_VTOOL                    _UxGT("V-tool attivo")
+//#define MSG_START_VTOOL                     _UxGT("V-tool inizio")
+//#define MSG_END_VTOOL                       _UxGT("V-tool fine")
+#define MSG_GRADIENT_ALIAS                  _UxGT("V-tool alias")
+#define MSG_RESET_VTOOLS                    _UxGT("Ripristina V-tools")
+#define MSG_COMMIT_VTOOL                    _UxGT("Commit mix V-tool")
+#define MSG_VTOOLS_RESET                    _UxGT("V-tools ripristin.")
+#define MSG_START_Z                         _UxGT("Z inizio")
+#define MSG_END_Z                           _UxGT("Z fine")
+
 //
 // Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe
 //                                                  ...o fino a 2 linee su un display a 3 righe.
