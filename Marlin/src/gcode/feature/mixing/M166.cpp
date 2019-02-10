@@ -69,12 +69,11 @@ void GcodeSuite::M166() {
 
   if (parser.seen('S')) mixer.gradient.enabled = parser.value_bool();
 
+  mixer.refresh_gradient();
+
   SERIAL_ECHOPGM("Gradient Mix ");
   serialprint_onoff(mixer.gradient.enabled);
-
   if (mixer.gradient.enabled) {
-
-    mixer.refresh_gradient();
 
     #if ENABLED(GRADIENT_VTOOL)
       if (mixer.gradient.vtool_index >= 0) {
