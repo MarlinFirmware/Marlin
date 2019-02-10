@@ -992,11 +992,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
       // ^ Main
       //
       MENU_ITEM(function, MSG_BACK, lcd_goto_previous_menu_no_defer);
-      MENU_ITEM(gcode, MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nM500\nG1 Z0 F200"));
+      MENU_ITEM(gcode, MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nM500\nG1 Z0 F200\nM211 S0"));
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
           MENU_ITEM(submenu, MSG_TOUCHMI_ZOFFSET, lcd_babystep_zoffset);
       #endif 
-      MENU_ITEM(gcode, MSG_TOUCHMI_SAVE, PSTR("M500\nG28 X Y"));
+      MENU_ITEM(gcode, MSG_TOUCHMI_SAVE, PSTR("M211 S1\nM500\nG28 X Y"));
       MENU_ITEM(gcode, MSG_TOUCHMI_TEST, PSTR("G28\nG1 Z0"));
       END_MENU();
       
