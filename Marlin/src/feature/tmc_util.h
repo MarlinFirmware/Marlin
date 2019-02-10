@@ -361,6 +361,16 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
   // Track enabled status of stealthChop and only re-enable where applicable
   struct sensorless_t { bool x, y, z, x2, y2, z2, z3; };
 
+  #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+    extern millis_t sg_guard_period;
+    constexpr uint16_t default_sg_guard_duration = 400;
+
+    struct slow_homing_t {
+      struct { uint32_t x, y; } acceleration;
+      struct { float x, y; } jerk;
+    };
+  #endif
+
   bool tmc_enable_stallguard(TMC2130Stepper &st);
   void tmc_disable_stallguard(TMC2130Stepper &st, const bool restore_stealth);
 
