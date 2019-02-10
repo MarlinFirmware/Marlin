@@ -330,6 +330,8 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
    *
    * Alternately heat and cool the nozzle, observing its behavior to
    * determine the best PID values to achieve a stable temperature.
+   * Needs sufficient heater power to make some overshoot at target
+   * temperature to succeed.
    */
   void Temperature::PID_autotune(const float &target, const int8_t heater, const int8_t ncycles, const bool set_result/*=false*/) {
     float current = 0.0;
@@ -540,7 +542,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
         break;
       }
 
-      if (cycles > ncycles) {
+      if (cycles > ncycles && cycles > 2) {
         SERIAL_ECHOLNPGM(MSG_PID_AUTOTUNE_FINISHED);
 
         #if HAS_PID_FOR_BOTH
