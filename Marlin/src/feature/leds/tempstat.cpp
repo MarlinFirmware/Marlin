@@ -47,11 +47,9 @@ void handle_status_leds(void) {
       red_led = new_led;
       #if PIN_EXISTS(STAT_LED_RED)
         WRITE(STAT_LED_RED_PIN, new_led);
-        #if PIN_EXISTS(STAT_LED_BLUE)
-          WRITE(STAT_LED_BLUE_PIN, !new_led);
-        #endif
-      #else
-        WRITE(STAT_LED_BLUE_PIN, new_led);
+      #endif
+      #if PIN_EXISTS(STAT_LED_BLUE)
+        WRITE(STAT_LED_BLUE_PIN, !new_led);
       #endif
     }
   }
