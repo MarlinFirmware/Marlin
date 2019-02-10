@@ -403,7 +403,7 @@
 #define MSG_MMU2_CHOOSE_FILAMENT_HEADER     _UxGT("FILAMENT WÄHLEN")
 #define MSG_MMU2_MENU                       _UxGT("MMU")
 #define MSG_MMU2_WRONG_FIRMWARE             _UxGT("Update MMU Firmware!")
-#define MSG_MMU2_NOT_RESPONDING             _UxGT("MMU handeln erforder.")
+#define MSG_MMU2_NOT_RESPONDING             _UxGT("MMU handeln erfor.")
 #define MSG_MMU2_RESUME                     _UxGT("Druck fortsetzen")
 #define MSG_MMU2_RESUMING                   _UxGT("Fortfahren...")
 #define MSG_MMU2_LOAD_FILAMENT              MSG_FILAMENTLOAD
