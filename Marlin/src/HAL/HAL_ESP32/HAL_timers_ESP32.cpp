@@ -113,7 +113,7 @@ void HAL_timer_start(const uint8_t timer_num, uint32_t frequency) {
   const tTimerConfig timer = TimerConfig[timer_num];
 
   timer_config_t config;
-  config.divider     = STEPPER_TIMER_PRESCALE;
+  config.divider     = timer.divider;
   config.counter_dir = TIMER_COUNT_UP;
   config.counter_en  = TIMER_PAUSE;
   config.alarm_en    = TIMER_ALARM_EN;

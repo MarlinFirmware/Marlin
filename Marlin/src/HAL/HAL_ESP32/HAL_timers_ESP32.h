@@ -43,9 +43,15 @@ typedef uint64_t hal_timer_t;
 
 #define HAL_TIMER_RATE APB_CLK_FREQ // frequency of timer peripherals
 
-#define STEPPER_TIMER_PRESCALE     40
-#define STEPPER_TIMER_RATE         (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE) // frequency of stepper timer, 2MHz
-#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000)          // stepper timer ticks per µs
+#if ENABLED(I2S_STEPPER_STREAM)
+  #define STEPPER_TIMER_PRESCALE     1
+  #define STEPPER_TIMER_RATE         250000                           // 250khz, 4us pulses of i2s word clock
+  #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs // wrong would be 0.25
+#else
+  #define STEPPER_TIMER_PRESCALE     40
+  #define STEPPER_TIMER_RATE         (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE) // frequency of stepper timer, 2MHz
+  #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000)          // stepper timer ticks per µs
+#endif
 
 #define STEP_TIMER_MIN_INTERVAL   8 // minimum time in µs between stepper interrupts
 

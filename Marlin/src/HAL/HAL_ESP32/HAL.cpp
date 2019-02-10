@@ -85,6 +85,8 @@ void HAL_init(void) {
   #if ENABLED(WIFISUPPORT)
     OTA_init();
   #endif
+
+  i2s_init();
 }
 
 void HAL_idletask(void) {
