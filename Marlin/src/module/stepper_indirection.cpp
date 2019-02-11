@@ -662,6 +662,10 @@
     st.microsteps(microsteps);
     st.intpol(INTERPOLATE);
     st.diss2g(true); // Disable short to ground protection. Too many false readings?
+
+    #if ENABLED(TMC_DEBUG)
+      st.rdsel(0b01);
+    #endif
   }
 #endif // TMC2660
 
