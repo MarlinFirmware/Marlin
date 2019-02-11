@@ -428,6 +428,7 @@
 #define MSG_MMU2_RESET                      _UxGT("setz MMU zurück")
 #define MSG_MMU2_RESETTING                  _UxGT("MMU zurücksetzen...")
 #define MSG_MMU2_EJECT_RECOVER              _UxGT("Entfernen, klicken")
+
 #define MSG_MIX                             _UxGT("Mix")
 #define MSG_MIX_COMPONENT                   _UxGT("Komponente")
 #define MSG_MIXER                           _UxGT("Mixer")
