@@ -429,6 +429,25 @@
 #define MSG_MMU2_RESETTING                  _UxGT("MMU zurücksetzen...")
 #define MSG_MMU2_EJECT_RECOVER              _UxGT("Entfernen, klicken")
 
+#define MSG_MIX                             _UxGT("Mix")
+#define MSG_MIX_COMPONENT                   _UxGT("Komponente")
+#define MSG_MIXER                           _UxGT("Mixer")
+#define MSG_GRADIENT                        _UxGT("Gradient") // equal Farbverlauf
+#define MSG_FULL_GRADIENT                   _UxGT("Volle Gradient")
+#define MSG_TOGGLE_MIX                      _UxGT("Mix umschalten")
+#define MSG_CYCLE_MIX                       _UxGT("Zyklus Mix")
+#define MSG_GRADIENT_MIX                    _UxGT("Gradient Mix")
+#define MSG_REVERSE_GRADIENT                _UxGT("Umgekehrte Gradient")
+#define MSG_ACTIVE_VTOOL                    _UxGT("Aktives V-Tool")
+#define MSG_START_VTOOL                     _UxGT("V-Tool Start")
+#define MSG_END_VTOOL                       _UxGT("V-Tool Ende")
+#define MSG_GRADIENT_ALIAS                  _UxGT("V-Tool Alias")
+#define MSG_RESET_VTOOLS                    _UxGT("V-Tools Reseten")
+#define MSG_COMMIT_VTOOL                    _UxGT("V-Tool Mix sichern")
+#define MSG_VTOOLS_RESET                    _UxGT("V-Tools ist resetet")
+#define MSG_START_Z                         _UxGT("Z Start")
+#define MSG_END_Z                           _UxGT("Z End")
+
 //
 // Die Filament-Change-Bildschirme können bis zu 3 Zeilen auf einem 4-Zeilen-Display anzeigen
 //                                       ...oder 2 Zeilen auf einem 3-Zeilen-Display.
