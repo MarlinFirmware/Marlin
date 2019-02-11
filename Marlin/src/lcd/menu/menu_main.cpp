@@ -155,16 +155,17 @@ void menu_main() {
     #endif
 
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
-    MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
-
-    #if ENABLED(MIXING_EXTRUDER)
-      MENU_ITEM(submenu, MSG_MIXER, menu_mixer);
-    #endif
-
-    #if ENABLED(MMU2_MENUS)
-      MENU_ITEM(submenu, MSG_MMU2_MENU, menu_mmu2);
-    #endif
   }
+
+  MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
+
+  #if ENABLED(MIXING_EXTRUDER)
+    MENU_ITEM(submenu, MSG_MIXER, menu_mixer);
+  #endif
+
+  #if ENABLED(MMU2_MENUS)
+    if (!busy) MENU_ITEM(submenu, MSG_MMU2_MENU, menu_mmu2);
+  #endif
 
   MENU_ITEM(submenu, MSG_CONFIGURATION, menu_configuration);
 
