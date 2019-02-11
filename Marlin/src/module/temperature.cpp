@@ -330,6 +330,8 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
    *
    * Alternately heat and cool the nozzle, observing its behavior to
    * determine the best PID values to achieve a stable temperature.
+   * Needs sufficient heater power to make some overshoot at target
+   * temperature to succeed.
    */
   void Temperature::PID_autotune(const float &target, const int8_t heater, const int8_t ncycles, const bool set_result/*=false*/) {
     float current = 0.0;
@@ -540,7 +542,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
         break;
       }
 
-      if (cycles > ncycles) {
+      if (cycles > ncycles && cycles > 2) {
         SERIAL_ECHOLNPGM(MSG_PID_AUTOTUNE_FINISHED);
 
         #if HAS_PID_FOR_BOTH
@@ -706,14 +708,14 @@ float Temperature::get_pid_output(const int8_t e) {
   #else
     #define _HOTEND_TEST (e == active_extruder)
   #endif
+  float pid_output;
   #if ENABLED(PIDTEMP)
     #if DISABLED(PID_OPENLOOP)
       static hotend_pid_t work_pid[HOTENDS];
       static float temp_iState[HOTENDS] = { 0 },
                    temp_dState[HOTENDS] = { 0 };
       static bool pid_reset[HOTENDS] = { false };
-      float pid_output,
-            pid_error = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
+      float pid_error = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
       work_pid[HOTEND_INDEX].Kd = PID_K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + float(PID_K1) * work_pid[HOTEND_INDEX].Kd;
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
       #if HEATER_IDLE_HANDLER

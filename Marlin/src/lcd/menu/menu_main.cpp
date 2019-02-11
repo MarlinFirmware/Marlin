@@ -87,7 +87,7 @@ void menu_abort_confirm() {
 }
 
 #if ENABLED(PRUSA_MMU2)
-  #include "../../feature/prusa_MMU2/mmu2_menu.h"
+  #include "../../lcd/menu/menu_mmu2.h"
 #endif
 
 void menu_tune();
@@ -99,6 +99,10 @@ void menu_temp_e0_filament_change();
 void menu_change_filament();
 void menu_info();
 void menu_led();
+
+#if ENABLED(MIXING_EXTRUDER)
+  void menu_mixer();
+#endif
 
 void menu_main() {
   START_MENU();
@@ -152,6 +156,10 @@ void menu_main() {
 
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
     MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
+
+    #if ENABLED(MIXING_EXTRUDER)
+      MENU_ITEM(submenu, MSG_MIXER, menu_mixer);
+    #endif
 
     #if ENABLED(MMU2_MENUS)
       MENU_ITEM(submenu, MSG_MMU2_MENU, menu_mmu2);

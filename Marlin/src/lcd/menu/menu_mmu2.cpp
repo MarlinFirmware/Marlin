@@ -24,9 +24,9 @@
 
 #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
 
-#include "mmu2.h"
-#include "mmu2_menu.h"
-#include "../../lcd/menu/menu.h"
+#include "../../feature/prusa_MMU2/mmu2.h"
+#include "menu_mmu2.h"
+#include "menu.h"
 
 uint8_t currentTool;
 bool mmuMenuWait;

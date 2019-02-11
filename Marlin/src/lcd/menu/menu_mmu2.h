@@ -19,13 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include <stdint.h>
 
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
-  extern void menu_mmu2();
-  extern void mmu2_M600();
-  extern uint8_t mmu2_chooseFilament();
-#endif
+void menu_mmu2();
+void mmu2_M600();
+uint8_t mmu2_chooseFilament();

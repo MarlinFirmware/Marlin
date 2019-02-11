@@ -270,6 +270,10 @@ void GcodeSuite::process_parsed_command(
         case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
       #endif
 
+      #if ENABLED(CALIBRATION_GCODE)
+        case 425: G425(); break;                                  // G425: Perform calibration with calibration cube
+      #endif
+
       #if ENABLED(DEBUG_GCODE_PARSER)
         case 800: parser.debug(); break;                          // G800: GCode Parser Test for G
       #endif
@@ -438,6 +442,9 @@ void GcodeSuite::process_parsed_command(
         case 164: M164(); break;                                  // M164: Save current mix as a virtual extruder
         #if ENABLED(DIRECT_MIXING_IN_G1)
           case 165: M165(); break;                                // M165: Set multiple mix weights
+        #endif
+        #if ENABLED(GRADIENT_MIX)
+          case 166: M166(); break;                                // M166: Set Gradient Mix
         #endif
       #endif
 

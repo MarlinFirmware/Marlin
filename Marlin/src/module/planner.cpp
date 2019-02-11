@@ -2584,6 +2584,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     COPY(position_float, target_float);
   #endif
 
+  #if ENABLED(GRADIENT_MIX)
+    mixer.gradient_control(target_float[Z_AXIS]);
+  #endif
+
   // Movement was accepted
   return true;
 } // _populate_block()

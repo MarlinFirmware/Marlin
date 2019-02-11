@@ -128,9 +128,10 @@ class restorer {
   T  val_;
 public:
   restorer(T& perm) : ref_(perm), val_(perm) {}
+  restorer(T& perm, T temp_val) : ref_(perm), val_(perm) { perm = temp_val; }
   ~restorer() { restore(); }
   inline void restore() { ref_ = val_; }
 };
 
-#define REMEMBER(X) restorer<typeof(X)> X##_restorer(X)
-#define RESTORE(X) X##_restorer.restore()
+#define REMEMBER(N,X, ...) restorer<typeof(X)> N##_restorer(X, ##__VA_ARGS__)
+#define RESTORE(N) N##_restorer.restore()

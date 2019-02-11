@@ -1474,7 +1474,12 @@ void Stepper::stepper_pulse_phase_isr() {
       #endif
     #endif
 
-    #if MINIMUM_STEPPER_PULSE
+    #if ENABLED(I2S_STEPPER_STREAM)
+      i2s_push_sample();
+    #endif
+
+    // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
+    #if MINIMUM_STEPPER_PULSE && DISABLED(I2S_STEPPER_STREAM)
       // Just wait for the requested pulse duration
       while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
     #endif
@@ -2143,12 +2148,11 @@ void Stepper::init() {
     E_AXIS_INIT(5);
   #endif
 
-  // Init Stepper ISR to 122 Hz for quick starting
-  HAL_timer_start(STEP_TIMER_NUM, 122);
-
-  ENABLE_STEPPER_DRIVER_INTERRUPT();
-
-  sei();
+  #if DISABLED(I2S_STEPPER_STREAM)
+    HAL_timer_start(STEP_TIMER_NUM, 122); // Init Stepper ISR to 122 Hz for quick starting
+    ENABLE_STEPPER_DRIVER_INTERRUPT();
+    sei();
+  #endif
 
   // Init direction bits for first moves
   last_direction_bits = 0

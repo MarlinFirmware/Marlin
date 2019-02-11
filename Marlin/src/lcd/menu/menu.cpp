@@ -158,7 +158,7 @@ void MenuItemBase::init(PGM_P const el, void * const ev, const int32_t minv, con
   liveEdit = le;
 }
 
-#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuItem<MenuItemInfo_##NAME>;
+#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuItem<MenuItemInfo_##NAME>
 
 DEFINE_MENU_EDIT_ITEM(int3);        // 123, -12   right-justified
 DEFINE_MENU_EDIT_ITEM(int4);        // 1234, -123 right-justified
