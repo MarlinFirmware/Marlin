@@ -132,9 +132,16 @@ void GcodeSuite::M115() {
       #endif
     );
 
-    // EMERGENCY_PARSER (M108, M112, M410)
+    // EMERGENCY_PARSER (M108, M112, M410, M876)
     cap_line(PSTR("EMERGENCY_PARSER")
       #if ENABLED(EMERGENCY_PARSER)
+        , true
+      #endif
+    );
+
+    // PROMPT SUPPORT (M876)
+    cap_line(PSTR("PROMPT_SUPPORT")
+      #if ENABLED(HOST_PROMPT_SUPPORT)
         , true
       #endif
     );

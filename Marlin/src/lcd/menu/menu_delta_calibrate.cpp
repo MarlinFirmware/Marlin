@@ -52,6 +52,9 @@ void _man_probe_pt(const float &rx, const float &ry) {
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     ui.defer_status_screen(true);
     wait_for_user = true;
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Delta Calibration in progress"), PSTR("Continue"));
+    #endif
     while (wait_for_user) idle();
     KEEPALIVE_STATE(IN_HANDLER);
     ui.goto_previous_screen_no_defer();

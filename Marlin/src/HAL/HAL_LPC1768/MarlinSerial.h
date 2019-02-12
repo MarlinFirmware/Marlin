@@ -54,9 +54,7 @@ public:
       emergency_parser.update(emergency_state, c);
       return true; // do not discard character
     }
-  #endif
 
-  #if ENABLED(EMERGENCY_PARSER)
     EmergencyParser::State emergency_state;
   #endif
 };

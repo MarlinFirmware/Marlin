@@ -33,7 +33,11 @@
 FilamentMonitor runout;
 
 bool FilamentMonitorBase::enabled = true,
-     FilamentMonitorBase::filament_ran_out; // = false
+     FilamentMonitorBase::filament_ran_out;  // = false
+
+#if ENABLED(HOST_ACTION_COMMANDS)
+  bool FilamentMonitorBase::host_handling; // = false
+#endif
 
 /**
  * Called by FilamentSensorSwitch::run when filament is detected.

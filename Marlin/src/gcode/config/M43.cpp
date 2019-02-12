@@ -34,6 +34,10 @@
   #include "../../module/servo.h"
 #endif
 
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../../feature/host_actions.h"
+#endif
+
 inline void toggle_pins() {
   const bool ignore_protection = parser.boolval('I');
   const int repeat = parser.intval('R', 1),
@@ -286,6 +290,9 @@ void GcodeSuite::M43() {
 
     #if HAS_RESUME_CONTINUE
       wait_for_user = true;
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), PSTR("Continue"));
+      #endif
       KEEPALIVE_STATE(PAUSED_FOR_USER);
     #endif
 

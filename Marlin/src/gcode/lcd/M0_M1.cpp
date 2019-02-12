@@ -37,6 +37,10 @@
   #include "../../feature/leds/printer_event_leds.h"
 #endif
 
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../../feature/host_actions.h"
+#endif
+
 /**
  * M0: Unconditional stop - Wait for user button press on LCD
  * M1: Conditional stop   - Wait for user button press on LCD
@@ -81,6 +85,10 @@ void GcodeSuite::M0_M1() {
 
   KEEPALIVE_STATE(PAUSED_FOR_USER);
   wait_for_user = true;
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M0/1 Break Called"), PSTR("Continue"));
+  #endif
 
   if (ms > 0) {
     ms += millis();  // wait until this time for a click

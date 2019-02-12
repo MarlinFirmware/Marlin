@@ -58,9 +58,12 @@
   #include "../../module/tool_change.h"
 #endif
 
+#if ENABLED(EMERGENCY_PARSER)
+  #include "../../feature/emergency_parser.h"
+#endif
+
 #if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
-  #include "../../feature/emergency_parser.h"
   #define IFSD(A,B) (A)
 #else
   #define IFSD(A,B) (B)

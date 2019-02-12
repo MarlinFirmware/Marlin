@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,26 +19,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
+
+#include "../../feature/host_actions.h"
+#include "../gcode.h"
+#include "../../Marlin.h"
 
 /**
- * emergency_parser.cpp - Intercept special commands directly in the serial stream
+ * M876: Handle Prompt Response
  */
+void GcodeSuite::M876() {
+  if (parser.seenval('S')) host_response_handler((uint8_t)parser.value_int());
+}
 
-#include "../inc/MarlinConfigPre.h"
-
-#if ENABLED(EMERGENCY_PARSER)
-
-#include "emergency_parser.h"
-
-// Static data members
-bool EmergencyParser::killed_by_M112, // = false
-     EmergencyParser::enabled;
-
-#if ENABLED(HOST_PROMPT_SUPPORT)
-  uint8_t EmergencyParser::M876_reason; // = 0
-#endif
-
-// Global instance
-EmergencyParser emergency_parser;
-
-#endif // EMERGENCY_PARSER
+#endif // HOST_PROMPT_SUPPORT && !EMERGENCY_PARSER

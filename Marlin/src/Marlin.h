@@ -370,26 +370,11 @@ void protected_pin_err();
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }
 #endif
 
-#if HAS_ACTION_COMMANDS
-  #ifdef ACTION_ON_KILL
-    void host_action_kill();
-  #endif
-  #ifdef ACTION_ON_PAUSE
-    void host_action_pause();
-  #endif
-  #ifdef ACTION_ON_PAUSED
-    void host_action_paused();
-  #endif
-  #ifdef ACTION_ON_RESUME
-    void host_action_resume();
-  #endif
-  #ifdef ACTION_ON_RESUMED
-    void host_action_resumed();
-  #endif
-  #ifdef ACTION_ON_CANCEL
-    void host_action_cancel();
-  #endif
-  #ifdef ACTION_ON_FILAMENT_RUNOUT
-    void host_action_filament_runout(const bool eol=true);
-  #endif
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  void event_filament_runout();
+#endif
+
+#if ENABLED(G29_RETRY_AND_RECOVER)
+  void event_probe_recover();
+  void event_probe_failure();
 #endif
