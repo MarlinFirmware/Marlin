@@ -384,7 +384,7 @@
 #define MSG_INFO_MIN_TEMP                   _UxGT("Min Temp")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Max Temp")
 #define MSG_INFO_PSU                        _UxGT("Netzteil")
-#define MSG_DRIVE_STRENGTH                  _UxGT("Treiberstärke")
+#define MSG_DRIVE_STRENGTH                  _UxGT("Motorleistung")
 #define MSG_DAC_PERCENT                     _UxGT("Treiber %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Werte speichern")
 #define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("DRUCK PAUSIERT")
