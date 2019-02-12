@@ -35,7 +35,7 @@
    * flash drives and simple USB hard drives.
    * Disable this by defining DELAY(x) to be delay(x).
    */
-  #define delay(x)  if((x) < 200) safe_delay(x)
+  #define delay(x)  if ((x) < 200) safe_delay(x)
   /* Almost all USB flash drives and simple USB hard drives fail the write
    * protect test and add 20 - 30 seconds to USB init.  Set SKIP_WRITE_PROTECT
    * to nonzero to skip the test and assume the drive is writable.

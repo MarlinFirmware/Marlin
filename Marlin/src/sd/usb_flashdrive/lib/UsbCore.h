@@ -231,8 +231,8 @@ public:
   };
 
   uint8_t RegisterDeviceClass(USBDeviceConfig *pdev) {
-    for(uint8_t i = 0; i < USB_NUMDEVICES; i++) {
-      if(!devConfig[i]) {
+    for (uint8_t i = 0; i < USB_NUMDEVICES; i++) {
+      if (!devConfig[i]) {
         devConfig[i] = pdev;
         return 0;
       }
