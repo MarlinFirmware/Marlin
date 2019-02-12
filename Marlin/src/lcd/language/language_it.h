@@ -495,3 +495,5 @@
 #define MSG_TMC_HOMING_THRS                 _UxGT("Azzer. sensorless")
 #define MSG_TMC_STEPPING_MODE               _UxGT("Modo stepping")
 #define MSG_TMC_STEALTH_ENABLED             _UxGT("StealthChop abil.")
+
+#define MSG_SERVICE_RESET                   _UxGT("Resetta")
