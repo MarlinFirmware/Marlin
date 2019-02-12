@@ -160,10 +160,7 @@ void menu_main() {
 
     #if ENABLED(SDSUPPORT) || ENABLED(HOST_ACTION_COMMANDS)
       #if DISABLED(HOST_ACTION_COMMANDS)
-        if (card.isFileOpen() && card.isPaused())
-      #endif
-      #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-        if (print_job_timer.isPaused())
+        if (card_open && card.isPaused())
       #endif
           MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
     #endif
