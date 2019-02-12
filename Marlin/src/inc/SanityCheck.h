@@ -2085,3 +2085,16 @@ static_assert(sanity_arr_3[0] > 0 && sanity_arr_3[1] > 0 && sanity_arr_3[2] > 0
     static_assert(NULL == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2.");
   #endif
 #endif
+
+/**
+ * Advanced PRINTCOUNTER settings
+ */
+#if ENABLED(PRINTCOUNTER)
+  #if defined(SERVICE_INTERVAL_1) != defined(SERVICE_NAME_1)
+    #error "Both SERVICE_NAME_1 and SERVICE_INTERVAL_1 are required."
+  #elif defined(SERVICE_INTERVAL_2) != defined(SERVICE_NAME_2)
+    #error "Both SERVICE_NAME_2 and SERVICE_INTERVAL_2 are required."
+  #elif defined(SERVICE_INTERVAL_3) != defined(SERVICE_NAME_3)
+    #error "Both SERVICE_NAME_3 and SERVICE_INTERVAL_3 are required."
+  #endif
+#endif
