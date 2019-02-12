@@ -45,7 +45,7 @@ void GcodeSuite::M380() {
  * M381: Disable all solenoids if EXT_SOLENOID
  *       Disable selected/active solenoid if MANUAL_SOLENOID_CONTROL
  */
-void GcodeSuite::M381() { 
+void GcodeSuite::M381() {
   #if ENABLED(MANUAL_SOLENOID_CONTROL)
     disable_solenoid(parser.intval('S', active_extruder));
   #else

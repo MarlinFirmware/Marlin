@@ -133,7 +133,7 @@
         parkingslowspeed,          // M951 J
         parkinghighspeed ,         // M951 H
         parkingtraveldistance,     // M951 D
-        compensationmultiplier;  
+        compensationmultiplier;
 
   inline void magnetic_parking_extruder_tool_change(const uint8_t tmp_extruder) {
 
@@ -178,20 +178,20 @@
     // STEP 2
 
     current_position[X_AXIS] = grabpos + offsetcompensation;
-  
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR("(2) Couple extruder ", int(tmp_extruder));
         DEBUG_POS(" to new extruder GrabPos", current_position);
       }
     #endif
-  
+
     planner.buffer_line(current_position, mpe_settings.slow_feedrate, tmp_extruder);
     planner.synchronize();
-  
+
     // Delay before moving tool, to allow magnetic coupling
     gcode.dwell(150);
-  
+
     // STEP 3
 
     current_position[X_AXIS] = mpe_settings.parking_xpos[tmp_extruder] + offsetcompensation;
