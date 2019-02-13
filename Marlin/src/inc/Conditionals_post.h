@@ -1317,12 +1317,6 @@
   #ifndef DELTA_TOWER_ANGLE_TRIM
     #define DELTA_TOWER_ANGLE_TRIM {0, 0, 0}
   #endif
-  #ifndef DELTA_RADIUS_TRIM_TOWER
-    #define DELTA_RADIUS_TRIM_TOWER {0, 0, 0}
-  #endif
-  #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER
-    #define DELTA_DIAGONAL_ROD_TRIM_TOWER {0, 0, 0}
-  #endif
 
   // Probing points may be verified at compile time within the radius
   // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
