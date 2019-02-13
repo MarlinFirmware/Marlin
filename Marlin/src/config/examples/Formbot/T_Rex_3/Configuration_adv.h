@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -1011,13 +1011,7 @@
   #define G29_SUCCESS_COMMANDS "M117 Bed leveling done."
   #define G29_RECOVER_COMMANDS "M117 Probe failed. Rewiping.\nG28\nG12 P0 S12 T0"
   #define G29_FAILURE_COMMANDS "M117 Bed leveling failed.\nG0 Z10\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nG4 S1"
-  /**
-   * Specify an action command to send to the host on a recovery attempt or failure.
-   * Will be sent in the form '//action:ACTION_ON_G29_FAILURE', e.g. '//action:probe_failed'.
-   * The host must be configured to handle the action command.
-   */
-  #define G29_ACTION_ON_RECOVER "probe_rewipe"
-  #define G29_ACTION_ON_FAILURE "probe_failed"
+
 #endif
 
 // @section extras
@@ -2013,32 +2007,23 @@
 #endif
 
 /**
- * Specify an action command to send to the host when the printer is killed.
- * Will be sent in the form '//action:ACTION_ON_KILL', e.g. '//action:poweroff'.
- * The host must be configured to handle the action command.
+ * Host Action Commands
+ *
+ * Define host streamer action commands in compliance with the standard.
+ *
+ * See https://reprap.org/wiki/G-code#Action_commands
+ * Common commands ........ poweroff, pause, paused, resume, resumed, cancel
+ * G29_RETRY_AND_RECOVER .. probe_rewipe, probe_failed
+ *
+ * Some features add reason codes to extend these commands.
+ *
+ * Host Prompt Support enables Marlin to use the host for user prompts so
+ * filament runout and other processes can be managed from the host side.
  */
-//#define ACTION_ON_KILL "poweroff"
-
-/**
- * Specify an action command to send to the host on pause and resume.
- * Will be sent in the form '//action:ACTION_ON_PAUSE', e.g. '//action:pause'.
- * The host must be configured to handle the action command.
- *
- *   PAUSE / RESUME : Used in non-parking scenarios where the host handles the
- *                    action while Marlin continues to process G-Code. (M24/M25)
- *
- * PAUSED / RESUMED : Used in scenarios where Marlin handles pause and filament-
- *                    change actions and the host needs to stop sending commands
- *                    until the machine is ready to resume. (M125/M600)
- *
- *           CANCEL : Instructs the host to abort the print job. Used when the
- *                    print is canceled from the LCD menu.
- */
-#define ACTION_ON_PAUSE   "pause"
-#define ACTION_ON_RESUME  "resume"
-//#define ACTION_ON_PAUSED  "paused"
-//#define ACTION_ON_RESUMED "resumed"
-//#define ACTION_ON_CANCEL  "cancel"
+//#define HOST_ACTION_COMMANDS
+#if ENABLED(HOST_ACTION_COMMANDS)
+  //#define HOST_PROMPT_SUPPORT
+#endif
 
 //===========================================================================
 //====================== I2C Position Encoder Settings ======================
@@ -2240,6 +2225,20 @@
   //#define MMU2_DEBUG  // Write debug info to serial output
 
 #endif // PRUSA_MMU2
+
+/**
+ * Advanced Print Counter settings
+ */
+#if ENABLED(PRINTCOUNTER)
+  #define SERVICE_WARNING_BUZZES  3
+  // Activate up to 3 service interval watchdogs
+  //#define SERVICE_NAME_1      "Service S"
+  //#define SERVICE_INTERVAL_1  100 // print hours
+  //#define SERVICE_NAME_2      "Service L"
+  //#define SERVICE_INTERVAL_2  200 // print hours
+  //#define SERVICE_NAME_3      "Service 3"
+  //#define SERVICE_INTERVAL_3    1 // print hours
+#endif
 
 // @section develop
 

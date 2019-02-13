@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,6 +28,7 @@
 #include "../ultralcd.h"
 #include "../../module/planner.h"
 #include "../../module/motion.h"
+#include "../../module/printcounter.h"
 #include "../../gcode/queue.h"
 #include "../../sd/cardreader.h"
 #include "../../libs/buzzer.h"
@@ -189,7 +190,9 @@ void MenuItem_bool::action_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
   void _lcd_set_z_fade_height() { set_z_fade_height(lcd_z_fade_height); }
 #endif
 
-bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING(); }
+bool printer_busy() {
+  return planner.movesplanned() || IS_SD_PRINTING() || print_job_timer.isRunning();
+}
 
 /**
  * General function to go directly to a screen

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -1286,6 +1286,15 @@ void MarlinUI::update() {
     static const char paused[] PROGMEM = MSG_PRINT_PAUSED;
     static const char printing[] PROGMEM = MSG_PRINTING;
     static const char welcome[] PROGMEM = WELCOME_MSG;
+    #if SERVICE_INTERVAL_1 > 0
+      static const char service1[] PROGMEM = { "> " SERVICE_NAME_1 "!" };
+    #endif
+    #if SERVICE_INTERVAL_2 > 0
+      static const char service2[] PROGMEM = { "> " SERVICE_NAME_2 "!" };
+    #endif
+    #if SERVICE_INTERVAL_3 > 0
+      static const char service3[] PROGMEM = { "> " SERVICE_NAME_3 "!" };
+    #endif
     PGM_P msg;
     if (!IS_SD_PRINTING() && print_job_timer.isPaused())
       msg = paused;
@@ -1295,6 +1304,17 @@ void MarlinUI::update() {
     #endif
     else if (print_job_timer.isRunning())
       msg = printing;
+
+    #if SERVICE_INTERVAL_1 > 0
+      else if (print_job_timer.needsService(1)) msg = service1;
+    #endif
+    #if SERVICE_INTERVAL_2 > 0
+      else if (print_job_timer.needsService(2)) msg = service2;
+    #endif
+    #if SERVICE_INTERVAL_3 > 0
+      else if (print_job_timer.needsService(3)) msg = service3;
+    #endif
+
     else
       msg = welcome;
 

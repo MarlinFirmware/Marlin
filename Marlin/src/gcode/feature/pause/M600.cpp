@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,7 +37,7 @@
   #include "../../../lcd/ultralcd.h"
 #endif
 
-#if ENABLED(PRUSA_MMU2)
+#if ENABLED(MMU2_MENUS)
   #include "../../../lcd/menu/menu_mmu2.h"
 #endif
 
@@ -65,7 +65,7 @@ void GcodeSuite::M600() {
     int8_t DXC_ext = target_extruder;
     if (!parser.seen('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
                               // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
-      #if ENABLED(FILAMENT_RUNOUT_SENSOR) && NUM_RUNOUT_SENSORS > 1
+      #if HAS_FILAMENT_SENSOR && NUM_RUNOUT_SENSORS > 1
         if (dxc_is_duplicating())
           DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING) ? 1 : 0;
       #else
@@ -75,7 +75,7 @@ void GcodeSuite::M600() {
   #endif
 
   // Show initial "wait for start" message
-  #if HAS_LCD_MENU && DISABLED(PRUSA_MMU2)
+  #if HAS_LCD_MENU && DISABLED(MMU2_MENUS)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, target_extruder);
   #endif
 
@@ -114,7 +114,7 @@ void GcodeSuite::M600() {
     park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
   #endif
 
-  #if ENABLED(PRUSA_MMU2)
+  #if ENABLED(MMU2_MENUS)
     // For MMU2 reset retract and load/unload values so they don't mess with MMU filament handling
     constexpr float unload_length = 0.5f,
                     slow_load_length = 0.0f,
@@ -141,7 +141,7 @@ void GcodeSuite::M600() {
   );
 
   if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
-    #if ENABLED(PRUSA_MMU2)
+    #if ENABLED(MMU2_MENUS)
       mmu2_M600();
       resume_print(slow_load_length, fast_load_length, 0, beep_count DXC_PASS);
     #else

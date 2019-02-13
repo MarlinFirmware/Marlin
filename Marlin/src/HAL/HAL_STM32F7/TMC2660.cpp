@@ -830,8 +830,8 @@ void TMC26XStepper::debugLastStatus() {
       uint32_t readout_config = driver_configuration_register_value & READ_SELECTION_PATTERN;
       const int16_t value = getReadoutValue();
       if (readout_config == READ_MICROSTEP_POSTION) {
-        //SERIAL_PRINTF("Microstep postion phase A: ");
-        SERIAL_ECHOPAIR("\n  Microstep postion phase A: ", value);
+        //SERIAL_PRINTF("Microstep position phase A: ");
+        SERIAL_ECHOPAIR("\n  Microstep position phase A: ", value);
       }
       else if (readout_config == READ_STALL_GUARD_READING) {
         //SERIAL_PRINTF("Stall Guard value:");

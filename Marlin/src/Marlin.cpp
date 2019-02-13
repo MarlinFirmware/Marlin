@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -55,6 +55,10 @@
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
 #include "gcode/queue.h"
+
+#if ENABLED(HOST_ACTION_COMMANDS)
+  #include "feature/host_actions.h"
+#endif
 
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "libs/buzzer.h"
@@ -132,7 +136,7 @@
   #include "feature/power_loss_recovery.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "feature/runout.h"
 #endif
 
@@ -315,37 +319,98 @@ void disable_all_steppers() {
   disable_e_steppers();
 }
 
-#if HAS_ACTION_COMMANDS
+#if HAS_FILAMENT_SENSOR
 
-  void host_action(const char * const pstr, const bool eol=true) {
-    SERIAL_ECHOPGM("//action:");
-    serialprintPGM(pstr);
-    if (eol) SERIAL_EOL();
+  void event_filament_runout() {
+
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
+    #endif
+
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onFilamentRunout(ExtUI::getActiveTool());
+    #endif
+
+    const char tool = '0'
+      #if NUM_RUNOUT_SENSORS > 1
+        + active_extruder
+      #endif
+    ;
+
+    //action:out_of_filament
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_reason = PROMPT_FILAMENT_RUNOUT;
+      host_action_prompt_end();
+      host_action_prompt_begin(PSTR("FilamentRunout T"), false);
+      SERIAL_CHAR(tool);
+      SERIAL_EOL();
+      host_action_prompt_show();
+    #endif
+
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      if (!runout.host_handling
+        && ( strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
+          || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            || strstr(FILAMENT_RUNOUT_SCRIPT, "M25")
+          #endif
+        )
+      ) {
+        host_action_paused(false);
+      }
+      else {
+        // Legacy Repetier command for use until newer version supports standard dialog
+        // To be removed later when pause command also triggers dialog
+        #ifdef ACTION_ON_FILAMENT_RUNOUT
+          host_action(PSTR(ACTION_ON_FILAMENT_RUNOUT " T"), false);
+          SERIAL_CHAR(tool);
+          SERIAL_EOL();
+        #endif
+
+        host_action_pause(false);
+      }
+      SERIAL_ECHOPGM(" " ACTION_REASON_ON_FILAMENT_RUNOUT " ");
+      SERIAL_CHAR(tool);
+      SERIAL_EOL();
+
+    #endif // HOST_ACTION_COMMANDS
+
+    if (!runout.host_handling)
+      enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
   }
 
-  #ifdef ACTION_ON_KILL
-    void host_action_kill() { host_action(PSTR(ACTION_ON_KILL)); }
-  #endif
-  #ifdef ACTION_ON_PAUSE
-    void host_action_pause() { host_action(PSTR(ACTION_ON_PAUSE)); }
-  #endif
-  #ifdef ACTION_ON_PAUSED
-    void host_action_paused() { host_action(PSTR(ACTION_ON_PAUSED)); }
-  #endif
-  #ifdef ACTION_ON_RESUME
-    void host_action_resume() { host_action(PSTR(ACTION_ON_RESUME)); }
-  #endif
-  #ifdef ACTION_ON_RESUMED
-    void host_action_resumed() { host_action(PSTR(ACTION_ON_RESUMED)); }
-  #endif
-  #ifdef ACTION_ON_CANCEL
-    void host_action_cancel() { host_action(PSTR(ACTION_ON_CANCEL)); }
-  #endif
-  #ifdef ACTION_ON_FILAMENT_RUNOUT
-    void host_action_filament_runout(const bool eol/*=true*/) { host_action(PSTR(ACTION_ON_FILAMENT_RUNOUT), eol); }
-  #endif
+#endif // HAS_FILAMENT_SENSOR
 
-#endif // HAS_ACTION_COMMANDS
+#if ENABLED(G29_RETRY_AND_RECOVER)
+
+  void event_probe_failure() {
+    #ifdef G29_FAILURE_COMMANDS
+      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+    #endif
+    #ifdef ACTION_ON_G29_FAILURE
+      host_action(PSTR(ACTION_ON_G29_FAILURE)); }
+    #endif
+    #if ENABLED(G29_HALT_ON_FAILURE)
+      #ifdef ACTION_ON_CANCEL
+        host_action_cancel();
+      #endif
+      kill(PSTR(MSG_ERR_PROBING_FAILED));
+    #endif
+  }
+
+  void event_probe_recover() {
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"));
+    #endif
+    #ifdef G29_RECOVER_COMMANDS
+      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+    #endif
+    #ifdef ACTION_ON_G29_RECOVER
+      host_action(PSTR(ACTION_ON_G29_RECOVER));
+    #endif
+  }
+
+#endif
 
 /**
  * Manage several activities:
@@ -361,7 +426,7 @@ void disable_all_steppers() {
  */
 void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     runout.run();
   #endif
 
@@ -762,7 +827,7 @@ void setup() {
     #endif
   #endif
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     runout.setup();
   #endif
 

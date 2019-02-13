@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -527,6 +527,8 @@
 #define HAS_COLOR_LEDS (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(PCA9533) || ENABLED(NEOPIXEL_LED))
 #define HAS_LEDS_OFF_FLAG (ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT) && HAS_RESUME_CONTINUE)
 #define HAS_PRINT_PROGRESS (ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY))
+#define HAS_SERVICE_INTERVALS (SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0)
+#define HAS_FILAMENT_SENSOR ENABLED(FILAMENT_RUNOUT_SENSOR)
 
 #define Z_MULTI_STEPPER_DRIVERS (ENABLED(Z_DUAL_STEPPER_DRIVERS) || ENABLED(Z_TRIPLE_STEPPER_DRIVERS))
 #define Z_MULTI_ENDSTOPS (ENABLED(Z_DUAL_ENDSTOPS) || ENABLED(Z_TRIPLE_ENDSTOPS))
@@ -535,8 +537,6 @@
 #define IS_SCARA     (ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA))
 #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
 #define IS_CARTESIAN !IS_KINEMATIC
-
-#define HAS_ACTION_COMMANDS (defined(ACTION_ON_KILL) || defined(ACTION_ON_PAUSE) || defined(ACTION_ON_PAUSED) || defined(ACTION_ON_RESUME) || defined(ACTION_ON_RESUMED) || defined(ACTION_ON_CANCEL) || defined(G29_ACTION_ON_RECOVER) || defined(G29_ACTION_ON_FAILURE) || defined(ACTION_ON_FILAMENT_RUNOUT))
 
 #ifndef INVERT_X_DIR
   #define INVERT_X_DIR false
@@ -549,4 +549,30 @@
 #endif
 #ifndef INVERT_E_DIR
   #define INVERT_E_DIR false
+#endif
+
+#if ENABLED(HOST_ACTION_COMMANDS)
+  #ifndef ACTION_ON_PAUSE
+    #define ACTION_ON_PAUSE   "pause"
+  #endif
+  #ifndef ACTION_ON_RESUME
+    #define ACTION_ON_RESUME  "resume"
+  #endif
+  #ifndef ACTION_ON_PAUSED
+    #define ACTION_ON_PAUSED  "paused"
+  #endif
+  #ifndef ACTION_ON_RESUMED
+    #define ACTION_ON_RESUMED "resumed"
+  #endif
+  #ifndef ACTION_ON_CANCEL
+    #define ACTION_ON_CANCEL  "cancel"
+  #endif
+  #if ENABLED(G29_RETRY_AND_RECOVER)
+    #ifndef ACTION_ON_G29_RECOVER
+      #define ACTION_ON_G29_RECOVER "probe_rewipe"
+    #endif
+    #ifndef ACTION_ON_G29_FAILURE
+      #define ACTION_ON_G29_FAILURE "probe_failed"
+    #endif
+  #endif
 #endif

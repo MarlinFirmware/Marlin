@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -1357,4 +1357,8 @@
 #endif
 #ifndef MSG_TMC_STEALTH_ENABLED
   #define MSG_TMC_STEALTH_ENABLED             _UxGT("StealthChop enabled")
+#endif
+
+#ifndef MSG_SERVICE_RESET
+  #define MSG_SERVICE_RESET                   _UxGT("Reset")
 #endif

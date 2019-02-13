@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,15 +27,20 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "host_actions.h"
+#endif
+
 // External references
 extern volatile bool wait_for_user, wait_for_heatup;
 void quickstop_stepper();
+void host_response_handler(const uint8_t response);
 
 class EmergencyParser {
 
 public:
 
-  // Currently looking for: M108, M112, M410
+  // Currently looking for: M108, M112, M410, M876
   enum State : char {
     EP_RESET,
     EP_N,
@@ -48,10 +53,21 @@ public:
     EP_M4,
     EP_M41,
     EP_M410,
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      EP_M8,
+      EP_M87,
+      EP_M876,
+      EP_M876S,
+      EP_M876SN,
+    #endif
     EP_IGNORE // to '\n'
   };
 
   static bool killed_by_M112;
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    static uint8_t M876_reason;
+  #endif
 
   EmergencyParser() { enable(); }
 
@@ -86,6 +102,9 @@ public:
           case ' ': break;
           case '1': state = EP_M1;     break;
           case '4': state = EP_M4;     break;
+          #if ENABLED(HOST_PROMPT_SUPPORT)
+            case '8': state = EP_M8;     break;
+          #endif
           default: state  = EP_IGNORE;
         }
         break;
@@ -114,6 +133,37 @@ public:
         state = (c == '0') ? EP_M410 : EP_IGNORE;
         break;
 
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+      case EP_M8:
+        state = (c == '7') ? EP_M87 : EP_IGNORE;
+        break;
+
+      case EP_M87:
+        state = (c == '6') ? EP_M876 : EP_IGNORE;
+        break;
+
+      case EP_M876:
+        switch(c) {
+          case ' ': break;
+          case 'S': state = EP_M876S; break;
+          default:  state = EP_IGNORE; break;
+        }
+        break;
+
+      case EP_M876S:
+        switch (c) {
+          case ' ': break;
+          case '0': case '1': case '2':
+          case '3': case '4': case '5':
+          case '6': case '7': case '8':
+          case '9':
+            state = EP_M876SN;
+            M876_reason = (uint8_t)(c - '0');
+            break;
+        }
+        break;
+      #endif
+
       case EP_IGNORE:
         if (c == '\n') state = EP_RESET;
         break;
@@ -124,6 +174,9 @@ public:
             case EP_M108: wait_for_user = wait_for_heatup = false; break;
             case EP_M112: killed_by_M112 = true; break;
             case EP_M410: quickstop_stepper(); break;
+            #if ENABLED(HOST_PROMPT_SUPPORT)
+              case EP_M876SN: host_response_handler(M876_reason); break;
+            #endif
             default: break;
           }
           state = EP_RESET;

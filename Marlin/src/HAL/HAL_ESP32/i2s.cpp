@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -162,19 +162,19 @@ int i2s_init() {
   periph_module_enable(PERIPH_I2S0_MODULE);
 
   /**
-   * Each i2s transfer will take 
+   * Each i2s transfer will take
    *   fpll = PLL_D2_CLK      -- clka_en = 0
-   * 
+   *
    *   fi2s = fpll / N + b/a  -- N = clkm_div_num
    *   fi2s = 160MHz / 2
    *   fi2s = 80MHz
-   *   
+   *
    *   fbclk = fi2s / M   -- M = tx_bck_div_num
    *   fbclk = 80MHz / 2
    *   fbclk = 40MHz
-   * 
+   *
    *   fwclk = fbclk / 32
-   * 
+   *
    *   for fwclk = 250kHz (4uS pulse time)
    *      N = 10
    *      M = 20
