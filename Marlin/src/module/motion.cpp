@@ -853,8 +853,8 @@ void clean_up_after_endstop_or_probe_move() {
 #endif // !UBL_SEGMENTED
 
 #if HAS_DUPLICATION_MODE
-  bool extruder_duplication_enabled;
-       //scaled_duplication_mode;
+  bool extruder_duplication_enabled,
+       mirrored_duplication_mode;
 #endif
 
 #if ENABLED(MULTI_NOZZLE_DUPLICATION) && HOTENDS > 2
@@ -923,7 +923,7 @@ void clean_up_after_endstop_or_probe_move() {
           active_extruder_parked = false;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Clear active_extruder_parked");
           break;
-        case DXC_SCALED_DUPLICATION_MODE:
+        case DXC_MIRRORED_MODE:
         case DXC_DUPLICATION_MODE:
           if (active_extruder == 0) {
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Set planner X", inactive_extruder_x_pos, " ... Line to X", current_position[X_AXIS] + duplicate_extruder_x_offset);

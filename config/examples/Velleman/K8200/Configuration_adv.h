@@ -430,18 +430,27 @@
       // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
       // without modifying the firmware (through the "M218 T1 X???" command).
       // Remember: you should set the second extruder x-offset to 0 in your slicer.
-
-  // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
-  //    Mode 0 (DXC_FULL_CONTROL_MODE): Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
-  //                                    as long as it supports dual x-carriages. (M605 S0)
-  //    Mode 1 (DXC_AUTO_PARK_MODE)   : Auto-park mode. The firmware will automatically park and unpark the x-carriages on tool changes so
-  //                                    that additional slicer support is not required. (M605 S1)
-  //    Mode 2 (DXC_DUPLICATION_MODE) : Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all
-  //                                    actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
-  //                                    once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
+  /**
+   * There are a few selectable movement modes for dual x-carriages using M605 S<mode>
+   * 
+   * Mode 0 (DXC_FULL_CONTROL_MODE): Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
+   *                                   as long as it supports dual x-carriages. (M605 S0)
+   * 
+   * Mode 1 (DXC_AUTO_PARK_MODE)   : Auto-park mode. The firmware will automatically park and unpark the x-carriages on tool changes so
+   *                                   that additional slicer support is not required. (M605 S1)
+   * 
+   * Mode 2 (DXC_DUPLICATION_MODE) : Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all
+   *                                   actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
+   *                                   once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
+   * 
+   * Mode 3 (DXC_MIRRORED_MODE)    : Enable the Formbot/Vivedino inspired Mirrored mode. The second extruder will duplicate the first extruder's
+   *                                   movement similar to DXC_DUPLICATION_MODE. However, the second extruder will be producing
+   *                                   a mirror image of the first extruder. The initial x-offset and temperature differential are
+   *                                   set with M605 S2 [Xnnn] [Rmmm] and then followed with a M605 S3 to start the mirrored movement.
+  */
 
   // This is the default power-up mode which can be later using M605.
-  #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_FULL_CONTROL_MODE
+  #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_AUTO_PARK_MODE
 
   // Default x offset in duplication mode (typically set to half print bed width)
   #define DEFAULT_DUPLICATION_X_OFFSET 100
