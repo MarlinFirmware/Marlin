@@ -277,13 +277,21 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   }
 
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+  #define X_INIT_ENABLE do{ X_ENABLE_INIT; if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH); X2_ENABLE_INIT; if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH); }while(0)
+  #define X_INIT_DIR do{ X_DIR_INIT; X2_DIR_INIT; }while(0)
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
+  #define X_INIT_STEP do{ X_STEP_INIT; X_STEP_WRITE(INVERT_X_STEP_PIN); X2_STEP_INIT; X2_STEP_WRITE(INVERT_X_STEP_PIN); disable_X(); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
     #define X_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(X,v)
   #else
     #define X_APPLY_STEP(v,Q) do{ X_STEP_WRITE(v); X2_STEP_WRITE(v); }while(0)
   #endif
+  #define X_APPLY_STEP_FIRST_PHASE_WIDTH MAX(X_STEP_FIRST_PHASE_WIDTH, X2_STEP_FIRST_PHASE_WIDTH)
+  #define X_APPLY_STEP_SECOND_PHASE_WIDTH MAX(X_STEP_SECOND_PHASE_WIDTH, X2_STEP_FIRST_PHASE_WIDTH)
+  #define X_APPLY_STEP_SECOND_PHASE_NEED X_STEP_SECOND_PHASE_NEED || X2_STEP_FIRST_PHASE_WIDTH
 #elif ENABLED(DUAL_X_CARRIAGE)
+  #define X_INIT_ENABLE do{ X_ENABLE_INIT; if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH); X2_ENABLE_INIT; if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH); }while(0)
+  #define X_INIT_DIR do{ X_DIR_INIT; X2_DIR_INIT; }while(0)
   #define X_APPLY_DIR(v,ALWAYS) \
     if (extruder_duplication_enabled || ALWAYS) { \
       X_DIR_WRITE(v); \
@@ -292,6 +300,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     else { \
       if (movement_extruder()) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
     }
+  #define X_INIT_STEP do{ X_STEP_INIT; X_STEP_WRITE(INVERT_X_STEP_PIN); X2_STEP_INIT; X2_STEP_WRITE(INVERT_X_STEP_PIN); disable_X(); }while(0)
   #define X_APPLY_STEP(v,ALWAYS) \
     if (extruder_duplication_enabled || ALWAYS) { \
       X_STEP_WRITE(v); \
@@ -300,25 +309,49 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     else { \
       if (movement_extruder()) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
     }
+  #define X_APPLY_STEP_FIRST_PHASE_WIDTH MAX(X_STEP_FIRST_PHASE_WIDTH, X2_STEP_FIRST_PHASE_WIDTH)
+  #define X_APPLY_STEP_SECOND_PHASE_WIDTH MAX(X_STEP_SECOND_PHASE_WIDTH, X2_STEP_FIRST_PHASE_WIDTH)
+  #define X_APPLY_STEP_SECOND_PHASE_NEED X_STEP_SECOND_PHASE_NEED || X2_STEP_FIRST_PHASE_WIDTH
 #else
+  #define X_INIT_ENABLE do{ X_ENABLE_INIT; if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH); }while(0)
+  #define X_INIT_DIR X_DIR_INIT
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
+  #define X_INIT_STEP do{ X_STEP_INIT; X_STEP_WRITE(INVERT_X_STEP_PIN); disable_X(); }while(0)
   #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
+  #define X_APPLY_STEP_FIRST_PHASE_WIDTH X_STEP_FIRST_PHASE_WIDTH
+  #define X_APPLY_STEP_SECOND_PHASE_WIDTH X_STEP_SECOND_PHASE_WIDTH
+  #define X_APPLY_STEP_SECOND_PHASE_NEED X_STEP_SECOND_PHASE_NEED
 #endif
 
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+  #define Y_INIT_ENABLE do{ Y_ENABLE_INIT; if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH); Y2_ENABLE_INIT; if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH); }while(0)
+  #define Y_INIT_DIR do{ Y_DIR_INIT; Y2_DIR_INIT; }while(0)
   #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR); }while(0)
+  #define Y_INIT_STEP do{ Y_STEP_INIT; Y_STEP_WRITE(INVERT_Y_STEP_PIN); Y2_STEP_INIT; Y2_STEP_WRITE(INVERT_Y_STEP_PIN); disable_Y(); }while(0)
   #if ENABLED(Y_DUAL_ENDSTOPS)
     #define Y_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Y,v)
   #else
     #define Y_APPLY_STEP(v,Q) do{ Y_STEP_WRITE(v); Y2_STEP_WRITE(v); }while(0)
   #endif
+  #define Y_APPLY_STEP_FIRST_PHASE_WIDTH MAX(Y_STEP_FIRST_PHASE_WIDTH, Y2_STEP_FIRST_PHASE_WIDTH)
+  #define Y_APPLY_STEP_SECOND_PHASE_WIDTH MAX(Y_STEP_SECOND_PHASE_WIDTH, Y2_STEP_FIRST_PHASE_WIDTH)
+  #define Y_APPLY_STEP_SECOND_PHASE_NEED Y_STEP_SECOND_PHASE_NEED || Y2_STEP_FIRST_PHASE_WIDTH
 #else
+  #define Y_INIT_ENABLE do{ Y_ENABLE_INIT; if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH); }while(0)
+  #define Y_INIT_DIR Y_DIR_INIT
   #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v)
+  #define Y_INIT_STEP do{ Y_STEP_INIT; Y_STEP_WRITE(INVERT_Y_STEP_PIN); disable_Y(); }while(0)
   #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)
+  #define Y_APPLY_STEP_FIRST_PHASE_WIDTH Y_STEP_FIRST_PHASE_WIDTH
+  #define Y_APPLY_STEP_SECOND_PHASE_WIDTH Y_STEP_SECOND_PHASE_WIDTH
+  #define Y_APPLY_STEP_SECOND_PHASE_NEED Y_STEP_SECOND_PHASE_NEED
 #endif
 
 #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+  #define Z_INIT_ENABLE do{ Z_ENABLE_INIT; if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH); Z2_ENABLE_INIT; if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH); Z3_ENABLE_INIT; if (!Z_ENABLE_ON) Z3_ENABLE_WRITE(HIGH); }while(0)
+  #define Z_INIT_DIR do{ Z_DIR_INIT; Z2_DIR_INIT; Z3_DIR_INIT; }while(0)
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); Z3_DIR_WRITE(v); }while(0)
+  #define Z_INIT_STEP do{ Z_STEP_INIT; Z_STEP_WRITE(INVERT_Z_STEP_PIN); Z2_STEP_INIT; Z2_STEP_WRITE(INVERT_Z_STEP_PIN); Z3_STEP_INIT; Z3_STEP_WRITE(INVERT_Z_STEP_PIN); disable_Z(); }while(0)
   #if ENABLED(Z_TRIPLE_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) TRIPLE_ENDSTOP_APPLY_STEP(Z,v)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -326,8 +359,14 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #else
     #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); Z3_STEP_WRITE(v); }while(0)
   #endif
+  #define Z_APPLY_STEP_FIRST_PHASE_WIDTH MAX(Z_STEP_FIRST_PHASE_WIDTH, Z2_STEP_FIRST_PHASE_WIDTH, Z3_STEP_FIRST_PHASE_WIDTH)
+  #define Z_APPLY_STEP_SECOND_PHASE_WIDTH MAX(Z_STEP_SECOND_PHASE_WIDTH, Z2_STEP_FIRST_PHASE_WIDTH, Z3_STEP_FIRST_PHASE_WIDTH)
+  #define Z_APPLY_STEP_SECOND_PHASE_NEED Z_STEP_SECOND_PHASE_NEED || Z2_STEP_FIRST_PHASE_WIDTH || Z3_STEP_FIRST_PHASE_WIDTH
 #elif ENABLED(Z_DUAL_STEPPER_DRIVERS)
+  #define Z_INIT_ENABLE do{ Z_ENABLE_INIT; if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH); Z2_ENABLE_INIT; if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH); }while(0)
+  #define Z_INIT_DIR do{ Z_DIR_INIT; Z2_DIR_INIT; }while(0)
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }while(0)
+  #define Z_INIT_STEP do{ Z_STEP_INIT; Z_STEP_WRITE(INVERT_Z_STEP_PIN); Z2_STEP_INIT; Z2_STEP_WRITE(INVERT_Z_STEP_PIN); disable_Z(); }while(0)
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Z,v)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -335,13 +374,25 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #else
     #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }while(0)
   #endif
+  #define Z_APPLY_STEP_FIRST_PHASE_WIDTH MAX(Z_STEP_FIRST_PHASE_WIDTH, Z2_STEP_FIRST_PHASE_WIDTH)
+  #define Z_APPLY_STEP_SECOND_PHASE_WIDTH MAX(Z_STEP_SECOND_PHASE_WIDTH, Z2_STEP_FIRST_PHASE_WIDTH)
+  #define Z_APPLY_STEP_SECOND_PHASE_NEED Z_STEP_SECOND_PHASE_NEED || Z2_STEP_FIRST_PHASE_WIDTH
 #else
+  #define Z_INIT_ENABLE do{ Z_ENABLE_INIT; if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH); }while(0)
+  #define Z_INIT_DIR Z_DIR_INIT
   #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
+  #define Z_INIT_STEP do{ Z_STEP_INIT; Z_STEP_WRITE(INVERT_Z_STEP_PIN); disable_Z(); }while(0)
   #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
+  #define Z_APPLY_STEP_FIRST_PHASE_WIDTH Z_STEP_FIRST_PHASE_WIDTH
+  #define Z_APPLY_STEP_SECOND_PHASE_WIDTH Z_STEP_SECOND_PHASE_WIDTH
+  #define Z_APPLY_STEP_SECOND_PHASE_NEED Z_STEP_SECOND_PHASE_NEED
 #endif
 
 #if DISABLED(MIXING_EXTRUDER)
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(stepper_extruder, v)
+  #define E_APPLY_STEP_FIRST_PHASE_WIDTH MINIMUM_STEPPER_PULSE / 2
+  #define E_APPLY_STEP_SECOND_PHASE_WIDTH MINIMUM_STEPPER_PULSE / 2
+  #define E_APPLY_STEP_SECOND_PHASE_NEED true
 #endif
 
 void Stepper::wake_up() {
@@ -1418,14 +1469,16 @@ void Stepper::stepper_pulse_phase_isr() {
   step_events_completed += events_to_do;
 
   // Get the timer count and estimate the end of the pulse
-  hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
-
-  const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
+  hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM);
 
   // Take multiple steps per interrupt (For high speed moves)
   do {
+    uint8_t minimum_phase_width = 0;
 
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
+    #define _STEP_FIRST_PHASE_WIDTH(AXIS) AXIS ##_APPLY_STEP_FIRST_PHASE_WIDTH
+    #define _STEP_SECOND_PHASE_WIDTH(AXIS) AXIS ##_APPLY_STEP_SECOND_PHASE_WIDTH
+    #define _STEP_SECOND_PHASE_NEED(AXIS) AXIS ##_APPLY_STEP_SECOND_PHASE_NEED
     #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
     // Start an active pulse, if Bresenham says so, and update position
@@ -1433,6 +1486,8 @@ void Stepper::stepper_pulse_phase_isr() {
       delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
       if (delta_error[_AXIS(AXIS)] >= 0) { \
         _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); \
+        if (minimum_phase_width < _STEP_FIRST_PHASE_WIDTH(AXIS)) \
+          minimum_phase_width = _STEP_FIRST_PHASE_WIDTH(AXIS); \
         count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
       } \
     }while(0)
@@ -1441,7 +1496,11 @@ void Stepper::stepper_pulse_phase_isr() {
     #define PULSE_STOP(AXIS) do { \
       if (delta_error[_AXIS(AXIS)] >= 0) { \
         delta_error[_AXIS(AXIS)] -= advance_divisor; \
-        _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
+        if(_STEP_SECOND_PHASE_NEED(AXIS)) { \
+          _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
+          if (minimum_phase_width < _STEP_SECOND_PHASE_WIDTH(AXIS)) \
+            minimum_phase_width = _STEP_SECOND_PHASE_WIDTH(AXIS); \
+        } \
       } \
     }while(0)
 
@@ -1482,14 +1541,15 @@ void Stepper::stepper_pulse_phase_isr() {
       i2s_push_sample();
     #endif
 
-    // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
-    #if MINIMUM_STEPPER_PULSE && DISABLED(I2S_STEPPER_STREAM)
-      // Just wait for the requested pulse duration
-      while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-    #endif
-
-    // Add the delay needed to ensure the maximum driver rate is enforced
-    if (signed(added_step_ticks) > 0) pulse_end += hal_timer_t(added_step_ticks);
+    if(minimum_phase_width) {
+      pulse_end += hal_timer_t(GET_PULSE_TICKS(minimum_phase_width));
+      // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
+      #if MINIMUM_STEPPER_PULSE && DISABLED(I2S_STEPPER_STREAM)
+        // Just wait for the requested pulse duration
+        while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+      #endif
+    }
+    minimum_phase_width = 0;
 
     // Pulse stop
     #if HAS_X_STEP
@@ -1519,13 +1579,10 @@ void Stepper::stepper_pulse_phase_isr() {
     --events_to_do;
 
     // For minimum pulse time wait after stopping pulses also
-    if (events_to_do) {
+    if (events_to_do && minimum_phase_width) {
+      pulse_end += hal_timer_t(GET_PULSE_TICKS(minimum_phase_width));
       // Just wait for the requested pulse duration
       while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-      #if MINIMUM_STEPPER_PULSE
-        // Add to the value, the time that the pulse must be active (to be used on the next loop)
-        pulse_end += hal_timer_t(MIN_PULSE_TICKS);
-      #endif
     }
 
   } while (events_to_do);
@@ -1995,25 +2052,13 @@ void Stepper::init() {
 
   // Init Dir Pins
   #if HAS_X_DIR
-    X_DIR_INIT;
-  #endif
-  #if HAS_X2_DIR
-    X2_DIR_INIT;
+    X_INIT_DIR;
   #endif
   #if HAS_Y_DIR
-    Y_DIR_INIT;
-    #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_DIR
-      Y2_DIR_INIT;
-    #endif
+    Y_INIT_DIR;
   #endif
   #if HAS_Z_DIR
-    Z_DIR_INIT;
-    #if Z_MULTI_STEPPER_DRIVERS && HAS_Z2_DIR
-      Z2_DIR_INIT;
-    #endif
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS) && HAS_Z3_DIR
-      Z3_DIR_INIT;
-    #endif
+    Z_INIT_DIR;
   #endif
   #if HAS_E0_DIR
     E0_DIR_INIT;
@@ -2036,32 +2081,13 @@ void Stepper::init() {
 
   // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
-    X_ENABLE_INIT;
-    if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
-    #if (ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)) && HAS_X2_ENABLE
-      X2_ENABLE_INIT;
-      if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
-    #endif
+    X_INIT_ENABLE;
   #endif
   #if HAS_Y_ENABLE
-    Y_ENABLE_INIT;
-    if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH);
-    #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_ENABLE
-      Y2_ENABLE_INIT;
-      if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH);
-    #endif
+    Y_INIT_ENABLE;
   #endif
   #if HAS_Z_ENABLE
-    Z_ENABLE_INIT;
-    if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH);
-    #if Z_MULTI_STEPPER_DRIVERS && HAS_Z2_ENABLE
-      Z2_ENABLE_INIT;
-      if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH);
-    #endif
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS) && HAS_Z3_ENABLE
-      Z3_ENABLE_INIT;
-      if (!Z_ENABLE_ON) Z3_ENABLE_WRITE(HIGH);
-    #endif
+    Y_INIT_ENABLE;
   #endif
   #if HAS_E0_ENABLE
     E0_ENABLE_INIT;
@@ -2101,31 +2127,15 @@ void Stepper::init() {
 
   // Init Step Pins
   #if HAS_X_STEP
-    #if ENABLED(X_DUAL_STEPPER_DRIVERS) || ENABLED(DUAL_X_CARRIAGE)
-      X2_STEP_INIT;
-      X2_STEP_WRITE(INVERT_X_STEP_PIN);
-    #endif
-    AXIS_INIT(X, X);
+    X_INIT_STEP;
   #endif
 
   #if HAS_Y_STEP
-    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-      Y2_STEP_INIT;
-      Y2_STEP_WRITE(INVERT_Y_STEP_PIN);
-    #endif
-    AXIS_INIT(Y, Y);
+    Y_INIT_STEP;
   #endif
 
   #if HAS_Z_STEP
-    #if Z_MULTI_STEPPER_DRIVERS
-      Z2_STEP_INIT;
-      Z2_STEP_WRITE(INVERT_Z_STEP_PIN);
-    #endif
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-      Z3_STEP_INIT;
-      Z3_STEP_WRITE(INVERT_Z_STEP_PIN);
-    #endif
-    AXIS_INIT(Z, Z);
+    Z_INIT_STEP;
   #endif
 
   #if E_STEPPERS > 0 && HAS_E0_STEP
