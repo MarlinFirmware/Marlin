@@ -44,9 +44,9 @@
    *                         units x-offset and an optional differential hotend temperature of
    *                         mmm degrees. E.g., with "M605 S2 X100 R2" the second extruder will duplicate
    *                         the first with a spacing of 100mm in the x direction and 2 degrees hotter.
-   *    M605 S3 : Enable Scaled Duplication mode.  The second extruder will duplicate the first extruder's
+   *    M605 S3 : Enable the Formbot/Vivedino inspired Mirrored mode. The second extruder will duplicate the first extruder's
    *              movement similar to the M605 S2 mode.   However, the second extruder will be producing
-   *              a scaled image of the first extruder.  The initial x-offset and temperature differential are
+   *              a mirror image of the first extruder.  The initial x-offset and temperature differential are
    *              set with M605 S2 [Xnnn] [Rmmm] and then followed with a M605 S3 to start the mirrored movement.
    *    M605 W  : IDEX What? command.
    *
@@ -59,16 +59,16 @@
       const DualXMode previous_mode = dual_x_carriage_mode;
 
       dual_x_carriage_mode = (DualXMode)parser.value_byte();
-      scaled_duplication_mode = false;
+      mirrored_duplication_mode = false;
 
-      if (dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE) {
+      if (dual_x_carriage_mode == DXC_MIRRORED_MODE) {
         if (previous_mode != DXC_DUPLICATION_MODE) {
           SERIAL_ECHOLNPGM("Printer must be in DXC_DUPLICATION_MODE prior to ");
-          SERIAL_ECHOLNPGM("specifying DXC_SCALED_DUPLICATION_MODE.");
+          SERIAL_ECHOLNPGM("specifying DXC_MIRRORED_MODE.");
           dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
           return;
         }
-        scaled_duplication_mode = true;
+        mirrored_duplication_mode = true;
         stepper.set_directions();
         float x_jog = current_position[X_AXIS] - .1;
         for (uint8_t i = 2; --i;) {
@@ -108,7 +108,7 @@
           case DXC_FULL_CONTROL_MODE:       SERIAL_ECHOPGM("DXC_FULL_CONTROL_MODE");       break;
           case DXC_AUTO_PARK_MODE:          SERIAL_ECHOPGM("DXC_AUTO_PARK_MODE");          break;
           case DXC_DUPLICATION_MODE:        SERIAL_ECHOPGM("DXC_DUPLICATION_MODE");        break;
-          case DXC_SCALED_DUPLICATION_MODE: SERIAL_ECHOPGM("DXC_SCALED_DUPLICATION_MODE"); break;
+          case DXC_MIRRORED_MODE: SERIAL_ECHOPGM("DXC_MIRRORED_MODE"); break;
         }
         SERIAL_ECHOPAIR("\nActive Ext: ", int(active_extruder));
         if (!active_extruder_parked) SERIAL_ECHOPGM(" NOT ");
