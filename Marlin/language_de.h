@@ -46,7 +46,7 @@
 #define MSG_AUTOSTART                       _UxGT("Autostart")
 #define MSG_DISABLE_STEPPERS                _UxGT("Motoren deaktivieren") // M84
 #define MSG_DEBUG_MENU                      _UxGT("Debug-Menü")
-#define MSG_PROGRESS_BAR_TEST               _UxGT("Fortschrittsb.-Test")
+#define MSG_PROGRESS_BAR_TEST               _UxGT("Statusbalken-Test")
 #define MSG_AUTO_HOME                       _UxGT("Home XYZ") // G28
 #define MSG_AUTO_HOME_X                     _UxGT("Home X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home Y")
