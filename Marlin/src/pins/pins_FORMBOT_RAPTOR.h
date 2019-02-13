@@ -149,7 +149,7 @@
   #define FAN_PIN           9
 #endif
 
-#if DISABLED(FILAMENT_RUNOUT_SENSOR)
+#if !HAS_FILAMENT_SENSOR
   #define FAN1_PIN          4
 #endif
 

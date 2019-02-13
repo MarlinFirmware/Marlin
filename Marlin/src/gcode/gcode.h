@@ -723,7 +723,7 @@ private:
     static void M407();
   #endif
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     static void M412();
   #endif
 

@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
 
 #include "../../gcode.h"
 #include "../../../feature/runout.h"
@@ -50,4 +50,4 @@ void GcodeSuite::M412() {
   }
 }
 
-#endif // FILAMENT_RUNOUT_SENSOR
+#endif // HAS_FILAMENT_SENSOR

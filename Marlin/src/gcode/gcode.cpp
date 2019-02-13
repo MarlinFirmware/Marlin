@@ -576,7 +576,7 @@ void GcodeSuite::process_parsed_command(
         case 407: M407(); break;                                  // M407: Display measured filament diameter
       #endif
 
-      #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+      #if HAS_FILAMENT_SENSOR
         case 412: M412(); break;                                  // M412: Enable/Disable filament runout detection
       #endif
 

@@ -41,7 +41,7 @@
   #include "fwretract.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "runout.h"
 #endif
 
@@ -112,7 +112,7 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
 }
 
 void do_pause_e_move(const float &length, const float &fr) {
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     runout.reset();
   #endif
   current_position[E_AXIS] += length / planner.e_factor[active_extruder];
@@ -251,7 +251,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
         host_action_prompt_begin(PSTR("Paused"));
         host_action_prompt_button(PSTR("PurgeMore"));
         if (false
-          #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+          #if HAS_FILAMENT_SENSOR
             || runout.filament_ran_out
           #endif
         )

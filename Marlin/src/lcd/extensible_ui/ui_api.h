@@ -167,7 +167,7 @@ namespace ExtUI {
     #endif
   #endif
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     bool getFilamentRunoutEnabled();
     void setFilamentRunoutEnabled(const bool);
 

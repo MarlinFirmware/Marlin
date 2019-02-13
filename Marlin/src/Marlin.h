@@ -370,7 +370,7 @@ void protected_pin_err();
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   void event_filament_runout();
 #endif
 

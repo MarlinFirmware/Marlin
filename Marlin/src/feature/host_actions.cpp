@@ -33,7 +33,7 @@
   #include "../gcode/queue.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "runout.h"
 #endif
 
@@ -115,7 +115,7 @@ void host_action(const char * const pstr, const bool eol) {
           host_action_prompt_begin(PSTR("Paused"));
           host_action_prompt_button(PSTR("Purge More"));
           if (false
-            #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+            #if HAS_FILAMENT_SENSOR
               || runout.filament_ran_out
             #endif
           )
@@ -127,7 +127,7 @@ void host_action(const char * const pstr, const bool eol) {
           host_action_prompt_show();
         }
         else if (response == 1) {
-          #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+          #if HAS_FILAMENT_SENSOR
             if (runout.filament_ran_out) {
               runout.enabled = false;
               runout.reset();

@@ -32,7 +32,7 @@
 
 #include "../../module/configuration_store.h"
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
 
@@ -312,7 +312,7 @@ void menu_configuration() {
     MENU_ITEM(submenu, MSG_RETRACT, menu_config_retract);
   #endif
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
   #endif
 

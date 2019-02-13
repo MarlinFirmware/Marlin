@@ -24,7 +24,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "../runout.h"
 #endif
 
@@ -84,7 +84,7 @@ private:
 
   static inline void set_runout_valid(const bool valid) {
     findaRunoutValid = valid;
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #if HAS_FILAMENT_SENSOR
       if (valid) runout.reset();
     #endif
   }

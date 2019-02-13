@@ -26,7 +26,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
 
 #include "runout.h"
 
@@ -58,4 +58,4 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
   int8_t RunoutResponseDebounced::runout_count; // = 0
 #endif
 
-#endif // FILAMENT_RUNOUT_SENSOR
+#endif // HAS_FILAMENT_SENSOR

@@ -136,7 +136,7 @@
   #include "feature/power_loss_recovery.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "feature/runout.h"
 #endif
 
@@ -319,7 +319,7 @@ void disable_all_steppers() {
   disable_e_steppers();
 }
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
 
   void event_filament_runout() {
 
@@ -379,7 +379,7 @@ void disable_all_steppers() {
       enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
   }
 
-#endif // FILAMENT_RUNOUT_SENSOR
+#endif // HAS_FILAMENT_SENSOR
 
 #if ENABLED(G29_RETRY_AND_RECOVER)
 
@@ -426,7 +426,7 @@ void disable_all_steppers() {
  */
 void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     runout.run();
   #endif
 
@@ -827,7 +827,7 @@ void setup() {
     #endif
   #endif
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     runout.setup();
   #endif
 
