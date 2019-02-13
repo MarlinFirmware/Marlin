@@ -1360,5 +1360,5 @@
 #endif
 
 #ifndef MSG_SERVICE_RESET
-  #define MSG_SERVICE_RESET                           _UxGT("Reset")
+  #define MSG_SERVICE_RESET                   _UxGT("Reset")
 #endif
