@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,23 +25,28 @@
 #if ENABLED(MIXING_EXTRUDER)
 
 //#define MIXER_NORMALIZER_DEBUG
-#ifdef MIXER_NORMALIZER_DEBUG
-  #include "../core/serial.h"
-#endif
 
 #include "mixing.h"
 
 Mixer mixer;
 
+#ifdef MIXER_NORMALIZER_DEBUG
+  #include "../core/serial.h"
+#endif
+
 // Used up to Planner level
-uint_fast8_t  Mixer::selected_v_tool = 0;
-float         Mixer::M163_collector[MIXING_STEPPERS]; // mix proportion. 0.0 = off, otherwise <= COLOR_A_MASK.
-mixer_color_t Mixer::color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
+uint_fast8_t  Mixer::selected_vtool = 0;
+float         Mixer::collector[MIXING_STEPPERS]; // mix proportion. 0.0 = off, otherwise <= COLOR_A_MASK.
+mixer_comp_t  Mixer::color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
 
 // Used in Stepper
 int_fast8_t   Mixer::runner = 0;
-mixer_color_t Mixer::s_color[MIXING_STEPPERS];
+mixer_comp_t  Mixer::s_color[MIXING_STEPPERS];
 mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
+
+#if DUAL_MIXING_EXTRUDER || ENABLED(GRADIENT_MIX)
+  mixer_perc_t Mixer::mix[MIXING_STEPPERS];
+#endif
 
 void Mixer::normalize(const uint8_t tool_index) {
   float cmax = 0;
@@ -49,45 +54,48 @@ void Mixer::normalize(const uint8_t tool_index) {
     float csum = 0;
   #endif
   MIXER_STEPPER_LOOP(i) {
-    cmax = max(cmax, M163_collector[i]);
+    const float v = collector[i];
+    NOLESS(cmax, v);
     #ifdef MIXER_NORMALIZER_DEBUG
-      csum += M163_collector[i];
+      csum += v;
     #endif
   }
   #ifdef MIXER_NORMALIZER_DEBUG
-    SERIAL_ECHOPGM("Mixer: Relation before normalizing: [ ");
+    SERIAL_ECHOPGM("Mixer: Old relation : [ ");
     MIXER_STEPPER_LOOP(i) {
-      SERIAL_ECHO_F(M163_collector[i] / csum, 3);
+      SERIAL_ECHO_F(collector[i] / csum, 3);
       SERIAL_CHAR(' ');
     }
-    SERIAL_ECHOPGM("]\n");
+    SERIAL_ECHOLNPGM("]");
   #endif
 
   // Scale all values so their maximum is COLOR_A_MASK
-  const float inverse_max = RECIPROCAL(cmax);
-  MIXER_STEPPER_LOOP(i)
-    color[tool_index][i] = M163_collector[i] * COLOR_A_MASK * inverse_max;
+  const float scale = float(COLOR_A_MASK) / cmax;
+  MIXER_STEPPER_LOOP(i) color[tool_index][i] = collector[i] * scale;
 
   #ifdef MIXER_NORMALIZER_DEBUG
     csum = 0;
-    SERIAL_ECHOPGM("Mixer: Normalizing to             : [ ");
+    SERIAL_ECHOPGM("Mixer: Normalize to : [ ");
     MIXER_STEPPER_LOOP(i) {
       SERIAL_ECHO(uint16_t(color[tool_index][i]));
       SERIAL_CHAR(' ');
       csum += color[tool_index][i];
     }
     SERIAL_ECHOLNPGM("]");
-    SERIAL_ECHOPGM("Mixer: Relation after normalizing:  [ ");
+    SERIAL_ECHOPGM("Mixer: New relation : [ ");
     MIXER_STEPPER_LOOP(i) {
       SERIAL_ECHO_F(uint16_t(color[tool_index][i]) / csum, 3);
       SERIAL_CHAR(' ');
     }
     SERIAL_ECHOLNPGM("]");
   #endif
+
+  #if ENABLED(GRADIENT_MIX)
+    refresh_gradient();
+  #endif
 }
 
-// called at boot
-void Mixer::init( void ) {
+void Mixer::reset_vtools() {
   // Virtual Tools 0, 1, 2, 3 = Filament 1, 2, 3, 4, etc.
   // Every virtual tool gets a pure filament
   for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS && t < MIXING_STEPPERS; t++)
@@ -95,11 +103,17 @@ void Mixer::init( void ) {
       color[t][i] = (t == i) ? COLOR_A_MASK : 0;
 
   // Remaining virtual tools are 100% filament 1
-  #if MIXING_STEPPERS < MIXING_VIRTUAL_TOOLS
+  #if MIXING_VIRTUAL_TOOLS > MIXING_STEPPERS
     for (uint8_t t = MIXING_STEPPERS; t < MIXING_VIRTUAL_TOOLS; t++)
       MIXER_STEPPER_LOOP(i)
         color[t][i] = (i == 0) ? COLOR_A_MASK : 0;
   #endif
+}
+
+// called at boot
+void Mixer::init() {
+
+  reset_vtools();
 
   #if ENABLED(RETRACT_SYNC_MIXING)
     // AUTORETRACT_TOOL gets the same amount of all filaments
@@ -107,7 +121,80 @@ void Mixer::init( void ) {
       color[MIXER_AUTORETRACT_TOOL][i] = COLOR_A_MASK;
   #endif
 
-  ZERO(M163_collector);
+  ZERO(collector);
+
+  #if DUAL_MIXING_EXTRUDER || ENABLED(GRADIENT_MIX)
+    update_mix_from_vtool();
+  #endif
+
+  #if ENABLED(GRADIENT_MIX)
+    update_gradient_for_planner_z();
+  #endif
 }
+
+void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=selected_vtool*/) {
+  float csum = 0, cmax = 0;
+  MIXER_STEPPER_LOOP(i) {
+    const float v = color[t][i];
+    cmax = MAX(cmax, v);
+    csum += v;
+  }
+  //SERIAL_ECHOPAIR("Mixer::refresh_collector(", proportion);
+  //SERIAL_ECHOPAIR(", ", int(t));
+  //SERIAL_ECHOPAIR(") cmax=", cmax);
+  //SERIAL_ECHOPAIR("  csum=", csum);
+  //SERIAL_ECHOPGM("  color");
+  const float inv_prop = proportion / csum;
+  MIXER_STEPPER_LOOP(i) {
+    collector[i] = color[t][i] * inv_prop;
+    //SERIAL_ECHOPAIR(" [", int(t));
+    //SERIAL_ECHOPAIR("][", int(i));
+    //SERIAL_ECHOPAIR("] = ", int(color[t][i]));
+    //SERIAL_ECHOPAIR(" (", collector[i]);
+    //SERIAL_ECHOPGM(")  ");
+  }
+  //SERIAL_EOL();
+}
+
+#if ENABLED(GRADIENT_MIX)
+
+  #include "../module/motion.h"
+  #include "../module/planner.h"
+
+  gradient_t Mixer::gradient = {
+    false,    // enabled
+    {0},      // color (array)
+    0, 0,     // start_z, end_z
+    0, 1,     // start_vtool, end_vtool
+    {0}, {0}  // start_mix[], end_mix[]
+    #if ENABLED(GRADIENT_VTOOL)
+      , -1    // vtool_index
+    #endif
+  };
+
+  float Mixer::prev_z; // = 0
+
+  void Mixer::update_gradient_for_z(const float z) {
+    if (z == prev_z) return;
+    prev_z = z;
+
+    const float slice = gradient.end_z - gradient.start_z;
+
+    float pct = (z - gradient.start_z) / slice;
+    NOLESS(pct, 0.0f); NOMORE(pct, 1.0f);
+
+    MIXER_STEPPER_LOOP(i) {
+      const mixer_perc_t sm = gradient.start_mix[i];
+      mix[i] = sm + (gradient.end_mix[i] - sm) * pct;
+    }
+
+    copy_mix_to_color(gradient.color);
+  }
+
+  void Mixer::update_gradient_for_planner_z() {
+    update_gradient_for_z(planner.get_axis_position_mm(Z_AXIS));
+  }
+
+#endif // GRADIENT_MIX
 
 #endif // MIXING_EXTRUDER

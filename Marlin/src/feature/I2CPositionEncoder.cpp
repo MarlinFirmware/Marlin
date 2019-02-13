@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -155,7 +155,7 @@ void I2CPositionEncoder::update() {
     #ifdef I2CPE_ERR_THRESH_ABORT
       if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.settings.axis_steps_per_mm[encoderAxis]) {
         //kill(PSTR("Significant Error"));
-        SERIAL_ECHOLNPAIR("Axis error greater than set threshold, aborting!", error);
+        SERIAL_ECHOLNPAIR("Axis error over threshold, aborting!", error);
         safe_delay(5000);
       }
     #endif
@@ -379,12 +379,12 @@ bool I2CPositionEncoder::test_axis() {
 
 void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
   if (type != I2CPE_ENC_TYPE_LINEAR) {
-    SERIAL_ECHOLNPGM("Steps per mm calibration is only available using linear encoders.");
+    SERIAL_ECHOLNPGM("Steps/mm calibration requires linear encoder.");
     return;
   }
 
   if (!(encoderAxis == X_AXIS || encoderAxis == Y_AXIS || encoderAxis == Z_AXIS)) {
-    SERIAL_ECHOLNPGM("Automatic steps / mm calibration not supported for this axis.");
+    SERIAL_ECHOLNPGM("Steps/mm calibration not supported for this axis.");
     return;
   }
 
@@ -436,18 +436,18 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
     travelledDistance = mm_from_count(ABS(stopCount - startCount));
 
-    SERIAL_ECHOPAIR("Attempted to travel: ", travelDistance);
-    SERIAL_ECHOLNPGM("mm.");
+    SERIAL_ECHOPAIR("Attempted travel: ", travelDistance);
+    SERIAL_ECHOLNPGM("mm");
 
-    SERIAL_ECHOPAIR("Actually travelled:  ", travelledDistance);
-    SERIAL_ECHOLNPGM("mm.");
+    SERIAL_ECHOPAIR("   Actual travel:  ", travelledDistance);
+    SERIAL_ECHOLNPGM("mm");
 
     //Calculate new axis steps per unit
     old_steps_mm = planner.settings.axis_steps_per_mm[encoderAxis];
     new_steps_mm = (old_steps_mm * travelDistance) / travelledDistance;
 
-    SERIAL_ECHOLNPAIR("Old steps per mm: ", old_steps_mm);
-    SERIAL_ECHOLNPAIR("New steps per mm: ", new_steps_mm);
+    SERIAL_ECHOLNPAIR("Old steps/mm: ", old_steps_mm);
+    SERIAL_ECHOLNPAIR("New steps/mm: ", new_steps_mm);
 
     //Save new value
     planner.settings.axis_steps_per_mm[encoderAxis] = new_steps_mm;
@@ -464,12 +464,12 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
   if (iter > 1) {
     total /= (float)iter;
-    SERIAL_ECHOLNPAIR("Average steps per mm: ", total);
+    SERIAL_ECHOLNPAIR("Average steps/mm: ", total);
   }
 
   ec = oldec;
 
-  SERIAL_ECHOLNPGM("Calculated steps per mm has been set. Please save to EEPROM (M500) if you wish to keep these values.");
+  SERIAL_ECHOLNPGM("Calculated steps/mm set. Use M500 to save to EEPROM.");
 }
 
 void I2CPositionEncoder::reset() {

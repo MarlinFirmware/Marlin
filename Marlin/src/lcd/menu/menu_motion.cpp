@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -248,12 +248,9 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   START_MENU();
   if (LCD_HEIGHT >= 4) {
     switch (axis) {
-      case X_AXIS:
-        STATIC_ITEM(MSG_MOVE_X, true, true); break;
-      case Y_AXIS:
-        STATIC_ITEM(MSG_MOVE_Y, true, true); break;
-      case Z_AXIS:
-        STATIC_ITEM(MSG_MOVE_Z, true, true); break;
+      case X_AXIS: STATIC_ITEM(MSG_MOVE_X, true, true); break;
+      case Y_AXIS: STATIC_ITEM(MSG_MOVE_Y, true, true); break;
+      case Z_AXIS: STATIC_ITEM(MSG_MOVE_Z, true, true); break;
       default:
         #if ENABLED(MANUAL_E_MOVES_RELATIVE)
           manual_move_e_origin = current_position[E_AXIS];
@@ -450,13 +447,6 @@ void menu_motion() {
   //
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
     MENU_ITEM(gcode, MSG_AUTO_Z_ALIGN, PSTR("G34"));
-  #endif
-
-  //
-  // TMC Z Calibration
-  //
-  #if ENABLED(TMC_Z_CALIBRATION)
-    MENU_ITEM(gcode, MSG_TMC_Z_CALIBRATION, PSTR("G28\nM915"));
   #endif
 
   //

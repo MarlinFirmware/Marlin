@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -144,7 +144,7 @@ bool enqueue_and_echo_command(const char* cmd) {
   //SERIAL_ECHOPGM("\") \n");
 
   if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') {
-    //SERIAL_ECHOPGM("Null command found...   Did not queue!\n");
+    //SERIAL_ECHOLNPGM("Null command found...   Did not queue!");
     return true;
   }
 
@@ -251,15 +251,7 @@ void flush_and_request_resend() {
   ok_to_send();
 }
 
-void gcode_line_error(PGM_P err, uint8_t port) {
-  SERIAL_ERROR_START_P(port);
-  serialprintPGM_P(port, err);
-  SERIAL_ECHOLN_P(port, gcode_LastN);
-  flush_and_request_resend();
-  serial_count[port] = 0;
-}
-
-static bool serial_data_available() {
+inline bool serial_data_available() {
   return false
     || MYSERIAL0.available()
     #if NUM_SERIAL > 1
@@ -268,7 +260,7 @@ static bool serial_data_available() {
   ;
 }
 
-static int read_serial(const uint8_t index) {
+inline int read_serial(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
     #if NUM_SERIAL > 1
@@ -276,6 +268,15 @@ static int read_serial(const uint8_t index) {
     #endif
     default: return -1;
   }
+}
+
+void gcode_line_error(PGM_P err, uint8_t port) {
+  SERIAL_ERROR_START_P(port);
+  serialprintPGM_P(port, err);
+  SERIAL_ECHOLN_P(port, gcode_LastN);
+  while (read_serial(port) != -1);           // clear out the RX buffer
+  flush_and_request_resend();
+  serial_count[port] = 0;
 }
 
 #if ENABLED(FAST_FILE_TRANSFER)
@@ -286,7 +287,7 @@ static int read_serial(const uint8_t index) {
     #define CARD_ECHOLN_P(V) SERIAL_ECHOLN_P(card.transfer_port, V)
   #endif
 
-  static bool serial_data_available(const uint8_t index) {
+  inline bool serial_data_available(const uint8_t index) {
     switch (index) {
       case 0: return MYSERIAL0.available();
       #if NUM_SERIAL > 1
@@ -535,6 +536,10 @@ static int read_serial(const uint8_t index) {
 
 #endif // FAST_FILE_TRANSFER
 
+FORCE_INLINE bool is_M29(const char * const cmd) {
+  return cmd[0] == 'M' && cmd[1] == '2' && cmd[2] == '9' && !WITHIN(cmd[3], '0', '9');
+}
+
 /**
  * Get all commands waiting on the serial port and queue them.
  * Exit when the buffer is full or when no more characters are
@@ -630,7 +635,8 @@ inline void get_serial_commands() {
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          else if (card.flag.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
+          // Pronterface "M29" and "M29 " has no line number
+          else if (card.flag.saving && !is_M29(command))
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
@@ -839,7 +845,7 @@ void advance_command_queue() {
 
     if (card.flag.saving) {
       char* command = command_queue[cmd_queue_index_r];
-      if (strstr_P(command, PSTR("M29"))) {
+      if (is_M29(command)) {
         // M29 closes the file
         card.closefile();
         SERIAL_ECHOLNPGM(MSG_FILE_SAVED);

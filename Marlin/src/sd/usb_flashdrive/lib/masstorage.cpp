@@ -1,25 +1,26 @@
-/* Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-Contact information
--------------------
-
-Circuits At Home, LTD
-Web      :  http://www.circuitsathome.com
-e-mail   :  support@circuitsathome.com
+/**
+ * Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Contact information
+ * -------------------
+ *
+ * Circuits At Home, LTD
+ * Web      :  http://www.circuitsathome.com
+ * e-mail   :  support@circuitsathome.com
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -33,9 +34,7 @@ const uint8_t BulkOnly::epDataOutIndex = 2;
 const uint8_t BulkOnly::epInterruptInIndex = 3;
 
 ////////////////////////////////////////////////////////////////////////////////
-
 // Interface code
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -225,9 +224,7 @@ again:
 // Only developer serviceable parts below!
 
 ////////////////////////////////////////////////////////////////////////////////
-
 // Main driver code
-
 ////////////////////////////////////////////////////////////////////////////////
 
 BulkOnly::BulkOnly(USB *p) :
@@ -328,7 +325,6 @@ FailGetDevDescr:
 };
 
 /**
- *
  * @param parent (not used)
  * @param port (not used)
  * @param lowspeed true if device is low speed
@@ -692,11 +688,7 @@ uint8_t BulkOnly::Poll() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
 // SCSI code
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -836,11 +828,7 @@ uint8_t BulkOnly::RequestSense(uint8_t lun, uint16_t size, uint8_t *buf) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
 // USB code
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -1241,13 +1229,8 @@ void BulkOnly::PrintEndpointDescriptor(const USB_ENDPOINT_DESCRIPTOR * ep_ptr) {
         Notify(PSTR("\r\n"), 0x80);
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
-
-
 // misc/to kill/to-do
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /* We won't be needing this... */

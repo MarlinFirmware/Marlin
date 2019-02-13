@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -36,6 +36,10 @@
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
+#if ENABLED(SINGLENOZZLE)
+  #include "../../module/tool_change.h"
 #endif
 
 // Refresh the E factor after changing flow
@@ -129,6 +133,10 @@ void menu_tune() {
     #endif // HOTENDS > 2
   #endif // HOTENDS > 1
 
+  #if ENABLED(SINGLENOZZLE)
+    MENU_MULTIPLIER_ITEM_EDIT(uint16_3, MSG_NOZZLE_STANDBY, &singlenozzle_temp[active_extruder ? 0 : 1], 0, HEATER_0_MAXTEMP - 15);
+  #endif
+
   //
   // Bed:
   //
@@ -141,21 +149,21 @@ void menu_tune() {
   //
   #if FAN_COUNT > 0
     #if HAS_FAN0
-      MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fan_speed[0], 0, 255);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(uint8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &thermalManager.lcd_tmpfan_speed[0], 0, 255, thermalManager.lcd_setFanSpeed0);
       #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fan_speed[0], 3, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(uint8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
     #endif
-    #if HAS_FAN1
-      MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 2", &fan_speed[1], 0, 255);
+    #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(uint8, MSG_FAN_SPEED " 2", &thermalManager.lcd_tmpfan_speed[1], 0, 255, thermalManager.lcd_setFanSpeed1);
       #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 2", &new_fan_speed[1], 3, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(uint8, MSG_EXTRA_FAN_SPEED " 2", &thermalManager.new_fan_speed[1], 3, 255);
       #endif
     #endif
-    #if HAS_FAN2
-      MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 3", &fan_speed[2], 0, 255);
+    #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(uint8, MSG_FAN_SPEED " 3", &thermalManager.lcd_tmpfan_speed[2], 0, 255, thermalManager.lcd_setFanSpeed2);
       #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 3", &new_fan_speed[2], 3, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(uint8, MSG_EXTRA_FAN_SPEED " 3", &thermalManager.new_fan_speed[2], 3, 255);
       #endif
     #endif
   #endif // FAN_COUNT > 0

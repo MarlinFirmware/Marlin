@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -113,7 +113,7 @@ void HAL_timer_start(const uint8_t timer_num, uint32_t frequency) {
   const tTimerConfig timer = TimerConfig[timer_num];
 
   timer_config_t config;
-  config.divider     = STEPPER_TIMER_PRESCALE;
+  config.divider     = timer.divider;
   config.counter_dir = TIMER_COUNT_UP;
   config.counter_en  = TIMER_PAUSE;
   config.alarm_en    = TIMER_ALARM_EN;

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -72,7 +72,8 @@ namespace ExtUI {
   float getActualTemp_celsius(const extruder_t);
   float getTargetTemp_celsius(const heater_t);
   float getTargetTemp_celsius(const extruder_t);
-  float getFan_percent(const fan_t);
+  float getTargetFan_percent(const fan_t);
+  float getActualFan_percent(const fan_t);
   float getAxisPosition_mm(const axis_t);
   float getAxisPosition_mm(const extruder_t);
   float getAxisSteps_per_mm(const axis_t);
@@ -100,7 +101,7 @@ namespace ExtUI {
 
   void setTargetTemp_celsius(const float, const heater_t);
   void setTargetTemp_celsius(const float, const extruder_t);
-  void setFan_percent(const float, const fan_t);
+  void setTargetFan_percent(const float, const fan_t);
   void setAxisPosition_mm(const float, const axis_t);
   void setAxisPosition_mm(const float, const extruder_t);
   void setAxisSteps_per_mm(const float, const axis_t);
@@ -135,16 +136,22 @@ namespace ExtUI {
   extruder_t getActiveTool();
   void setActiveTool(const extruder_t, bool no_move);
 
+  #if ENABLED(BABYSTEPPING)
+    int16_t mmToWholeSteps(const float mm, const axis_t axis);
+
+    bool babystepAxis_steps(const int16_t steps, const axis_t axis);
+    void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles);
+  #endif
 
   #if HOTENDS > 1
     float getNozzleOffset_mm(const axis_t, const extruder_t);
     void setNozzleOffset_mm(const float, const axis_t, const extruder_t);
+    void normalizeNozzleOffset(const axis_t axis);
   #endif
 
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #if HAS_BED_PROBE
     float getZOffset_mm();
     void setZOffset_mm(const float);
-    void addZOffset_steps(const int16_t);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
@@ -160,7 +167,7 @@ namespace ExtUI {
     #endif
   #endif
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     bool getFilamentRunoutEnabled();
     void setFilamentRunoutEnabled(const bool);
 
@@ -236,7 +243,7 @@ namespace ExtUI {
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
-  void onFilamentRunout();
+  void onFilamentRunout(const extruder_t extruder);
   void onStatusChanged(const char * const msg);
   void onFactoryReset();
   void onStoreSettings();

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,31 +21,11 @@
  */
 #pragma once
 
-/**
- * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
- */
+// current value of the outputs provided over i2s
+extern uint32_t i2s_port_data;
 
-#include <libmaple/iwdg.h>
+int i2s_init();
 
-#include "../../inc/MarlinConfig.h"
+void i2s_write(uint8_t pin, uint8_t val);
 
-/**
- *  The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and
- *  625 reload value (counts down to 0)
- *  use 1250 for 8 seconds
- */
-#define STM32F1_WD_RELOAD 625
-
-// Arduino STM32F1 core now has watchdog support
-
-// Initialize watchdog with a 4 second countdown time
-void watchdog_init();
-
-// Reset watchdog. MUST be called at least every 4 seconds after the
-// first watchdog_init or STM32F1 will reset.
-inline void watchdog_reset() {
-  #if PIN_EXISTS(LED)
-    TOGGLE(LED_PIN);  // heart beat indicator
-  #endif
-  iwdg_feed();
-}
+void i2s_push_sample();

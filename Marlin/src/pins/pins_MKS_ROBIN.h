@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,12 +32,20 @@
   #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_NAME "MKS Robin / STM32F103ZET6"
+#define BOARD_NAME "MKS Robin"
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
 #define DISABLE_DEBUG
+
+//
+// Servos
+//
+#define SERVO0_PIN         PC3   // XS1 - 5
+#define SERVO1_PIN         PA1   // XS1 - 6
+#define SERVO2_PIN         PF9   // XS2 - 5
+#define SERVO3_PIN         PF8   // XS2 - 6
 
 //
 // Limit Switches
@@ -88,13 +96,8 @@
 
 #define FAN_PIN            PA7   // FAN
 
-#define SERVO0_PIN         PC3  // XS1 - 5
-#define SERVO1_PIN         PA1  // XS1 - 6
-#define SERVO2_PIN         PF9  // XS2 - 5
-#define SERVO3_PIN         PF8  // XS2 - 6
-
 /**
- * Note: MKS Robin board is using SPI2 interface, make sure your stm32duino library is configured accordingly
+ * Note: MKS Robin board is using SPI2 interface. Make sure your stm32duino library is configured accordingly
  */
 //#define MAX6675_SS_PIN     PE5  // TC1 - CS1
 //#define MAX6675_SS_PIN     PE6  // TC2 - CS2
@@ -106,4 +109,17 @@
 #define BEEPER_PIN         PC13
 #define LED_PIN            PB2
 
+/**
+ * Note: MKS Robin TFT screens may have different TFT controllers
+ * If the screen stays white, disable 'LCD_RESET_PIN' to rely on the bootloader to do screen initialization.
+ *
+ * Enabling 'LCD_RESET_PIN' causes flickering when entering the LCD menu due to LCD controller reset.
+ * Reset feature was designed to "revive the LCD if static electricity killed it."
+ */
+//#define LCD_RESET_PIN      PF6
+#define LCD_BACKLIGHT_PIN  PG11
+#define FSMC_CS_PIN        PG12  // NE4
+#define FSMC_RS_PIN        PF0   // A0
+
+#define SD_DETECT_PIN      PF12
 #define SDSS               -1

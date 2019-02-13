@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -55,7 +55,6 @@
 #define MSG_AUTO_HOME_Y                     _UxGT("Y Sıfırla")
 #define MSG_AUTO_HOME_Z                     _UxGT("Z Sıfırla")
 #define MSG_AUTO_Z_ALIGN                    _UxGT("Oto. Z-Hizalama")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Z Ayarla")
 #define MSG_LEVEL_BED_HOMING                _UxGT("XYZ Sıfırlanıyor")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Başlatmak için tıkla")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Sonraki Nokta")
@@ -389,7 +388,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Daha Fazla Tasviye")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Baskıyı sürdür")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozul: ")
-#define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Runout Sensörü")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Runout Sensörü")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Sıfırlama Başarısız")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Probing Başarısız")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: Çok Soğuk")

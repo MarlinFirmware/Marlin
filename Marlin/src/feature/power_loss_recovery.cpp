@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -84,8 +84,8 @@ void PrintJobRecovery::changed() {
  */
 void PrintJobRecovery::check() {
   if (enabled) {
-    if (!card.flag.cardOK) card.initsd();
-    if (card.flag.cardOK) {
+    if (!card.isDetected()) card.initsd();
+    if (card.isDetected()) {
       load();
       if (!valid()) return purge();
       enqueue_and_echo_commands_P(PSTR("M1000 S"));
@@ -162,7 +162,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     #endif
 
     #if FAN_COUNT
-      COPY(info.fan_speed, fan_speed);
+      COPY(info.fan_speed, thermalManager.fan_speed);
     #endif
 
     #if HAS_LEVELING
@@ -174,6 +174,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
           0
         #endif
       );
+    #endif
+
+    #if ENABLED(GRADIENT_MIX)
+      memcpy(&info.gradient, &mixer.gradient, sizeof(info.gradient));
     #endif
 
     #if ENABLED(FWRETRACT)
@@ -235,7 +239,7 @@ void PrintJobRecovery::resume() {
 
   // Set Z to 0, raise Z by 2mm, and Home (XY only for Cartesian) with no raise
   // (Only do simulated homing in Marlin Dev Mode.)
-  gcode.process_subcommands_now_P(PSTR("G92.0 Z0|G1 Z" STRINGIFY(RECOVERY_ZRAISE) "|G28 R0"
+  gcode.process_subcommands_now_P(PSTR("G92.0 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
     #if ENABLED(MARLIN_DEV_MODE)
       " S"
     #elif !IS_KINEMATIC
@@ -303,6 +307,10 @@ void PrintJobRecovery::resume() {
       sprintf_P(cmd, PSTR("M420 S%i Z%s"), int(info.leveling), str_1);
       gcode.process_subcommands_now(cmd);
     }
+  #endif
+
+  #if ENABLED(GRADIENT_MIX)
+    memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
   #endif
 
   // Restore Z (plus raise) and E positions with G92.0
