@@ -90,7 +90,7 @@ void GcodeSuite::M600() {
     if (
       active_extruder != target_extruder
       #if ENABLED(DUAL_X_CARRIAGE)
-        && dual_x_carriage_mode != DXC_DUPLICATION_MODE && dual_x_carriage_mode != DXC_SCALED_DUPLICATION_MODE
+        && dual_x_carriage_mode != DXC_DUPLICATION_MODE && dual_x_carriage_mode != DXC_MIRRORED_MODE
       #endif
     ) tool_change(target_extruder, 0, false);
   #endif

@@ -874,7 +874,7 @@ void clamp_to_software_endstops(float target[XYZ]) {
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   bool extruder_duplication_enabled = false,                              // Used in Dual X mode 2 & 3
-       scaled_duplication_mode      = false;                              // Used in Dual X mode 2 & 3
+       mirrored_duplication_mode      = false;                              // Used in Dual X mode 2 & 3
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
@@ -941,7 +941,7 @@ void clamp_to_software_endstops(float target[XYZ]) {
             if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Clear active_extruder_parked");
           #endif
           break;
-        case DXC_SCALED_DUPLICATION_MODE:
+        case DXC_MIRRORED_MODE:
         case DXC_DUPLICATION_MODE:
           if (active_extruder == 0) {
             #if ENABLED(DEBUG_LEVELING_FEATURE)

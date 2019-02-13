@@ -330,7 +330,7 @@ void homeaxis(const AxisEnum axis);
  */
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
-              scaled_duplication_mode;            // Used in Dual X mode 3
+              mirrored_duplication_mode;            // Used in Dual X mode 3
 #endif
 
 /**
@@ -342,7 +342,7 @@ void homeaxis(const AxisEnum axis);
     DXC_FULL_CONTROL_MODE,
     DXC_AUTO_PARK_MODE,
     DXC_DUPLICATION_MODE,
-    DXC_SCALED_DUPLICATION_MODE
+    DXC_MIRRORED_MODE
   };
 
   extern DualXMode dual_x_carriage_mode;
