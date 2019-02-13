@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -23,10 +23,6 @@
 #pragma once
 
 #define CPU_32_BIT
-
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
 
 // --------------------------------------------------------------------------
 // Includes
@@ -105,8 +101,6 @@
   #define NUM_SERIAL 1
 #endif
 
-#define _BV(b) (1 << (b))
-
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
@@ -177,7 +171,7 @@ void _delay_ms(const int delay);
 
 extern "C" char* _sbrk(int incr);
 
-static int freeMemory() {
+static inline int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }

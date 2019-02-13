@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -65,7 +65,7 @@
 #include "planner.h"
 #include "stepper.h"
 #include "motion.h"
-#include "../module/temperature.h"
+#include "temperature.h"
 #include "../lcd/ultralcd.h"
 #include "../core/language.h"
 #include "../gcode/parser.h"
@@ -236,7 +236,6 @@ void Planner::init() {
 }
 
 #if ENABLED(S_CURVE_ACCELERATION)
-
   #ifdef __AVR__
     /**
      * This routine returns 0x1000000 / d, getting the inverse as fast as possible.
@@ -1179,10 +1178,9 @@ void Planner::check_axes_activity() {
   #endif
 
   if (has_blocks_queued()) {
-
     #if FAN_COUNT > 0
       FANS_LOOP(i)
-        tail_fan_speed[i] = block_buffer[block_buffer_tail].fan_speed[i];
+        tail_fan_speed[i] = (block_buffer[block_buffer_tail].fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
     #endif
 
     block_t* block;
@@ -1204,7 +1202,8 @@ void Planner::check_axes_activity() {
   }
   else {
     #if FAN_COUNT > 0
-      FANS_LOOP(i) tail_fan_speed[i] = fan_speed[i];
+      FANS_LOOP(i)
+        tail_fan_speed[i] = (thermalManager.fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1541,7 +1540,7 @@ void Planner::synchronize() {
   while (
     has_blocks_queued() || cleaning_buffer_counter
     #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-      || !READ(CLOSED_LOOP_MOVE_COMPLETE_PIN)
+      || (READ(CLOSED_LOOP_ENABLE_PIN) && !READ(CLOSED_LOOP_MOVE_COMPLETE_PIN))
     #endif
   ) idle();
 }
@@ -1570,7 +1569,7 @@ void Planner::synchronize() {
     #endif
   #endif
 
-  void Planner::add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block, float (&delta_mm)[ABCE]) {
+  void Planner::add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block) {
     static uint8_t last_direction_bits;
     uint8_t changed_dir = last_direction_bits ^ dm;
     // Ignore direction change if no steps are taken in that direction
@@ -1598,25 +1597,21 @@ void Planner::synchronize() {
       if (!changed_dir) return;
     #endif
 
-    const bool positive[XYZ] = {  da > 0,  db > 0, dc > 0 };
-    #ifdef BACKLASH_SMOOTHING_MM
-      const bool non_zero[XYZ] = { da != 0, db != 0, dc != 0 };
-    #endif
-    bool made_adjustment = false;
+    LOOP_XYZ(axis) {
+      if (backlash_distance_mm[axis]) {
+        const bool reversing = TEST(dm,axis);
 
-    LOOP_XYZ(i) {
-      if (backlash_distance_mm[i]) {
         // When an axis changes direction, add axis backlash to the residual error
-        if (TEST(changed_dir, i))
-          residual_error[i] += backlash_correction * (positive[i] ? 1.0f : -1.0f) * backlash_distance_mm[i] * planner.settings.axis_steps_per_mm[i];
+        if (TEST(changed_dir, axis))
+          residual_error[axis] += backlash_correction * (reversing ? -1.0f : 1.0f) * backlash_distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
 
         // Decide how much of the residual error to correct in this segment
-        int32_t error_correction = residual_error[i];
+        int32_t error_correction = residual_error[axis];
         #ifdef BACKLASH_SMOOTHING_MM
           if (error_correction && backlash_smoothing_mm != 0) {
             // Take up a portion of the residual_error in this segment, but only when
             // the current segment travels in the same direction as the correction
-            if (non_zero[i] && positive[i] == (error_correction > 0)) {
+            if (reversing == (error_correction < 0)) {
               if (segment_proportion == 0)
                 segment_proportion = MIN(1.0f, block->millimeters / backlash_smoothing_mm);
               error_correction *= segment_proportion;
@@ -1627,17 +1622,11 @@ void Planner::synchronize() {
         #endif
         // Making a correction reduces the residual error and modifies delta_mm
         if (error_correction) {
-          block->steps[i] += ABS(error_correction);
-          residual_error[i] -= error_correction;
-          delta_mm[i] = (positive[i] ? 1.0f : -1.0f) * block->steps[i] * steps_to_mm[i];
-          made_adjustment = true;
+          block->steps[axis] += ABS(error_correction);
+          residual_error[axis] -= error_correction;
         }
       }
     }
-
-    // If any of the axes were adjusted, recompute block->millimeters
-    if (made_adjustment)
-      block->millimeters = SQRT(sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS]));
   }
 #endif // BACKLASH_COMPENSATION
 
@@ -1889,11 +1878,17 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         #endif
       );
 
+    /**
+     * At this point at least one of the axes has more steps than
+     * MIN_STEPS_PER_SEGMENT, ensuring the segment won't get dropped as
+     * zero-length. It's important to not apply corrections
+     * to blocks that would get dropped!
+     *
+     * A correction function is permitted to add steps to an axis, it
+     * should *never* remove steps!
+     */
     #if ENABLED(BACKLASH_COMPENSATION)
-      // If we make it here, at least one of the axes has more steps than
-      // MIN_STEPS_PER_SEGMENT, so the segment won't get dropped by Marlin
-      // and it is okay to add steps for backlash correction.
-      add_backlash_correction_steps(da, db, dc, dm, block, delta_mm);
+      add_backlash_correction_steps(da, db, dc, dm, block);
     #endif
   }
 
@@ -1908,7 +1903,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   #if FAN_COUNT > 0
-    FANS_LOOP(i) block->fan_speed[i] = fan_speed[i];
+    FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
 
   #if ENABLED(BARICUDA)
@@ -2166,7 +2161,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       // In worst case, only one extruder running, no change is needed.
       // In best case, all extruders run the same amount, we can divide by MIXING_STEPPERS
       float delta_mm_i = 0;
-      if (i == E_AXIS && mixer.get_current_v_tool() == MIXER_AUTORETRACT_TOOL)
+      if (i == E_AXIS && mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
         delta_mm_i = delta_mm[i] / MIXING_STEPPERS;
       else
         delta_mm_i = delta_mm[i];
@@ -2344,7 +2339,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
 
   #if ENABLED(JUNCTION_DEVIATION)
-
     /**
      * Compute maximum allowable entry speed at junction by centripetal acceleration approximation.
      * Let a circle be tangent to both previous and current path line segments, where the junction
@@ -2396,6 +2390,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         delta_mm[Z_AXIS] * inverse_millimeters,
         delta_mm[E_AXIS] * inverse_millimeters
       };
+    #endif
+
+    #if IS_CORE && ENABLED(JUNCTION_DEVIATION)
+      /**
+       * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
+       * So taking Z and E into account, we cannot scale to a unit vector with "inverse_millimeters".
+       * => normalize the complete junction vector
+       */
+      normalize_junction_vector(unit_vec);
     #endif
 
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
@@ -2581,6 +2584,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     COPY(position_float, target_float);
   #endif
 
+  #if ENABLED(GRADIENT_MIX)
+    mixer.gradient_control(target_float[Z_AXIS]);
+  #endif
+
   // Movement was accepted
   return true;
 } // _populate_block()
@@ -2643,8 +2650,8 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
 
   // When changing extruders recalculate steps corresponding to the E position
   #if ENABLED(DISTINCT_E_FACTORS)
-    if (last_extruder != extruder && settings.axis_steps_per_mm[E_AXIS_N(extruder)] != settings.axis_steps_per_mm[E_AXIS + last_extruder]) {
-      position[E_AXIS] = LROUND(position[E_AXIS] * settings.axis_steps_per_mm[E_AXIS_N(extruder)] * steps_to_mm[E_AXIS + last_extruder]);
+    if (last_extruder != extruder && settings.axis_steps_per_mm[E_AXIS_N(extruder)] != settings.axis_steps_per_mm[E_AXIS_N(last_extruder)]) {
+      position[E_AXIS] = LROUND(position[E_AXIS] * settings.axis_steps_per_mm[E_AXIS_N(extruder)] * steps_to_mm[E_AXIS_N(last_extruder)]);
       last_extruder = extruder;
     }
   #endif

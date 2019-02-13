@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -131,7 +131,7 @@
 #define FAN1_PIN           12
 
 #define NUM_RUNOUT_SENSORS  2
-#define FIL_RUNOUT_PIN     23
+#define FIL_RUNOUT_PIN     22
 #define FIL_RUNOUT2_PIN    21
 
 //

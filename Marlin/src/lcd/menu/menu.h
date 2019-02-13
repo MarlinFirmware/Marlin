@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -43,17 +43,20 @@ bool printer_busy();
     static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
   };
 
-DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        itostr3,         1     );
-DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        itostr4sign,     1     );
-DECLARE_MENU_EDIT_TYPE(uint8_t,  int8,        i8tostr3,        1     );
-DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );
-DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );
-DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );
-DECLARE_MENU_EDIT_TYPE(float,    float5,      ftostr5rj,       0.01f );
-DECLARE_MENU_EDIT_TYPE(float,    float51,     ftostr51sign,   10     );
-DECLARE_MENU_EDIT_TYPE(float,    float52sign, ftostr52sign,  100     );
-DECLARE_MENU_EDIT_TYPE(float,    float62,     ftostr62rj,    100     );
-DECLARE_MENU_EDIT_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );
+DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        i16tostr3,       1     );   // 123, -12   right-justified
+DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        i16tostr4sign,   1     );   // 1234, -123 right-justified
+DECLARE_MENU_EDIT_TYPE(int8_t,   int8,        i8tostr3,        1     );   // 123, -12   right-justified
+DECLARE_MENU_EDIT_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );   // 123        right-justified
+DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_3,    ui16tostr3,      1     );   // 123, -12   right-justified
+DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_4,    ui16tostr4,      0.1   );   // 1234, -123 right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );   // 123        right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );   // 123.45
+DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );   // 1.234
+DECLARE_MENU_EDIT_TYPE(float,    float5,      ftostr5rj,       0.01f );   // 12345      right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float51,     ftostr51sign,   10     );   // +1234.5
+DECLARE_MENU_EDIT_TYPE(float,    float52sign, ftostr52sign,  100     );   // +123.45
+DECLARE_MENU_EDIT_TYPE(float,    float62,     ftostr62rj,    100     );   // 1234.56    right-justified
+DECLARE_MENU_EDIT_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );   // 12345      right-justified
 
 ////////////////////////////////////////////
 ///////// Menu Item Draw Functions /////////
@@ -99,17 +102,20 @@ FORCE_INLINE void draw_menu_item_edit_P(const bool sel, const uint8_t row, PGM_P
   typedef void NAME##_void
 #define DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(NAME) _DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(MenuItemInfo_##NAME::type_t, NAME, MenuItemInfo_##NAME::strfunc)
 
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int3);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int4);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int8);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52sign);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float62);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5);
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int3);             // 123, -12   right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int4);             // 1234, -123 right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int8);             // 123, -12   right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint8);            // 123        right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16_3);         // 123, -12   right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16_4);         // 1234, -123 right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);           // 123        right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);          // 123.45
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);          // 1.234
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5);           // 12345      right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51);          // +1234.5
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52sign);      // +123.45
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float62);          // 1234.56    right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5);            // 12345      right-justified
 
 #define draw_menu_item_edit_bool(sel, row, pstr, pstr2, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
 #define draw_menu_item_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
@@ -154,8 +160,8 @@ template<typename NAME>
 class TMenuItem : MenuItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    inline static float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
-    inline static float scale(const float value)      { return value * NAME::scale;           }
+    static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
+    static inline float scale(const float value)      { return value * NAME::scale;           }
     static void  load(void *ptr, const int32_t value) { *((type_t*)ptr) = unscale(value);     }
     static char* to_string(const int32_t value)       { return NAME::strfunc(unscale(value)); }
   public:
@@ -171,6 +177,9 @@ class TMenuItem : MenuItemBase {
 DECLARE_MENU_EDIT_ITEM(int3);
 DECLARE_MENU_EDIT_ITEM(int4);
 DECLARE_MENU_EDIT_ITEM(int8);
+DECLARE_MENU_EDIT_ITEM(uint8);
+DECLARE_MENU_EDIT_ITEM(uint16_3);
+DECLARE_MENU_EDIT_ITEM(uint16_4);
 DECLARE_MENU_EDIT_ITEM(float3);
 DECLARE_MENU_EDIT_ITEM(float52);
 DECLARE_MENU_EDIT_ITEM(float43);

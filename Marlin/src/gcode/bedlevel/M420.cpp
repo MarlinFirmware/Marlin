@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -183,7 +183,7 @@ void GcodeSuite::M420() {
 
     }
     else if (to_enable || seenV) {
-      SERIAL_ERROR_MSG("Invalid mesh.");
+      SERIAL_ECHO_MSG("Invalid mesh.");
       goto EXIT_M420;
     }
 
@@ -215,7 +215,9 @@ void GcodeSuite::M420() {
   // Enable leveling if specified, or if previously active
   set_bed_leveling_enabled(to_enable);
 
-  EXIT_M420:
+  #if HAS_MESH
+    EXIT_M420:
+  #endif
 
   // Error if leveling failed to enable or reenable
   if (to_enable && !planner.leveling_active)

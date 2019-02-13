@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,11 +33,34 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 #include "../Marlin.h"
 #include "../HAL/shared/persistent_store_api.h"
 
+#if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0
+  #include "../libs/buzzer.h"
+#endif
+
+// Service intervals
+#if HAS_SERVICE_INTERVALS
+  #if SERVICE_INTERVAL_1 > 0
+    #define SERVICE_INTERVAL_SEC_1   (3600UL * SERVICE_INTERVAL_1)
+  #else
+    #define SERVICE_INTERVAL_SEC_1   (3600UL * 100)
+  #endif
+  #if SERVICE_INTERVAL_2 > 0
+    #define SERVICE_INTERVAL_SEC_2   (3600UL * SERVICE_INTERVAL_2)
+  #else
+    #define SERVICE_INTERVAL_SEC_2   (3600UL * 100)
+  #endif
+  #if SERVICE_INTERVAL_3 > 0
+    #define SERVICE_INTERVAL_SEC_3   (3600UL * SERVICE_INTERVAL_3)
+  #else
+    #define SERVICE_INTERVAL_SEC_3   (3600UL * 100)
+  #endif
+#endif
+
 PrintCounter print_job_timer;   // Global Print Job Timer instance
 
 printStatistics PrintCounter::data;
 
-const PrintCounter::promdress PrintCounter::address = STATS_EEPROM_ADDRESS;
+const PrintCounter::eeprom_address_t PrintCounter::address = STATS_EEPROM_ADDRESS;
 
 millis_t PrintCounter::lastDuration;
 bool PrintCounter::loaded = false;
@@ -69,13 +92,29 @@ void PrintCounter::initStats() {
   #endif
 
   loaded = true;
-  data = { 0, 0, 0, 0, 0.0 };
+  data = { 0, 0, 0, 0, 0.0
+    #if HAS_SERVICE_INTERVALS
+      , SERVICE_INTERVAL_SEC_1, SERVICE_INTERVAL_SEC_2, SERVICE_INTERVAL_SEC_3
+    #endif
+  };
 
   saveStats();
   persistentStore.access_start();
   persistentStore.write_data(address, (uint8_t)0x16);
   persistentStore.access_finish();
 }
+
+#if HAS_SERVICE_INTERVALS
+  inline void _print_divider() { SERIAL_ECHO_MSG("============================================="); }
+  inline bool _service_warn(const char * const msg) {
+    _print_divider();
+    SERIAL_ECHO_START();
+    serialprintPGM(msg);
+    SERIAL_ECHOLNPGM("!");
+    _print_divider();
+    return true;
+  }
+#endif
 
 void PrintCounter::loadStats() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
@@ -92,6 +131,22 @@ void PrintCounter::loadStats() {
     persistentStore.read_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
   loaded = true;
+
+  #if HAS_SERVICE_INTERVALS
+    bool doBuzz = false;
+    #if SERVICE_INTERVAL_1 > 0
+      if (data.nextService1 == 0) doBuzz = _service_warn(PSTR(" " SERVICE_NAME_1));
+    #endif
+    #if SERVICE_INTERVAL_2 > 0
+      if (data.nextService2 == 0) doBuzz = _service_warn(PSTR(" " SERVICE_NAME_2));
+    #endif
+    #if SERVICE_INTERVAL_3 > 0
+      if (data.nextService3 == 0) doBuzz = _service_warn(PSTR(" " SERVICE_NAME_3));
+    #endif
+    #if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0
+      if (doBuzz) for (int i = 0; i < SERVICE_WARNING_BUZZES; i++) BUZZ(200, 404);
+    #endif
+  #endif // HAS_SERVICE_INTERVALS
 }
 
 void PrintCounter::saveStats() {
@@ -107,6 +162,16 @@ void PrintCounter::saveStats() {
   persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
 }
+
+#if HAS_SERVICE_INTERVALS
+  inline void _service_when(char buffer[], const char * const msg, const uint32_t when) {
+    duration_t elapsed = when;
+    elapsed.toString(buffer);
+    SERIAL_ECHOPGM(MSG_STATS);
+    serialprintPGM(msg);
+    SERIAL_ECHOLNPAIR(" in ", buffer);
+  }
+#endif
 
 void PrintCounter::showStats() {
   char buffer[21];
@@ -158,6 +223,16 @@ void PrintCounter::showStats() {
   SERIAL_CHAR('m');
 
   SERIAL_EOL();
+
+  #if SERVICE_INTERVAL_1 > 0
+    _service_when(buffer, PSTR(SERVICE_NAME_1), data.nextService1);
+  #endif
+  #if SERVICE_INTERVAL_2 > 0
+    _service_when(buffer, PSTR(SERVICE_NAME_2), data.nextService2);
+  #endif
+  #if SERVICE_INTERVAL_3 > 0
+    _service_when(buffer, PSTR(SERVICE_NAME_3), data.nextService3);
+  #endif
 }
 
 void PrintCounter::tick() {
@@ -170,7 +245,19 @@ void PrintCounter::tick() {
     #if ENABLED(DEBUG_PRINTCOUNTER)
       debug(PSTR("tick"));
     #endif
-    data.printTime += deltaDuration();
+    millis_t delta = deltaDuration();
+    data.printTime += delta;
+
+    #if SERVICE_INTERVAL_1 > 0
+      data.nextService1 -= MIN(delta, data.nextService1);
+    #endif
+    #if SERVICE_INTERVAL_2 > 0
+      data.nextService2 -= MIN(delta, data.nextService2);
+    #endif
+    #if SERVICE_INTERVAL_3 > 0
+      data.nextService3 -= MIN(delta, data.nextService3);
+    #endif
+
     update_next = now + updateInterval * 1000;
   }
 
@@ -229,6 +316,40 @@ void PrintCounter::reset() {
   lastDuration = 0;
 }
 
+#if HAS_SERVICE_INTERVALS
+
+  void PrintCounter::resetServiceInterval(const int index) {
+    switch (index) {
+      #if SERVICE_INTERVAL_1 > 0
+        case 1: data.nextService1 = SERVICE_INTERVAL_SEC_1;
+      #endif
+      #if SERVICE_INTERVAL_2 > 0
+        case 2: data.nextService2 = SERVICE_INTERVAL_SEC_2;
+      #endif
+      #if SERVICE_INTERVAL_3 > 0
+        case 3: data.nextService3 = SERVICE_INTERVAL_SEC_3;
+      #endif
+    }
+    saveStats();
+  }
+
+  bool PrintCounter::needsService(const int index) {
+    switch (index) {
+      #if SERVICE_INTERVAL_1 > 0
+        case 1: return data.nextService1 == 0;
+      #endif
+      #if SERVICE_INTERVAL_2 > 0
+        case 2: return data.nextService2 == 0;
+      #endif
+      #if SERVICE_INTERVAL_3 > 0
+        case 3: return data.nextService3 == 0;
+      #endif
+      default: return false;
+    }
+  }
+
+#endif // HAS_SERVICE_INTERVALS
+
 #if ENABLED(DEBUG_PRINTCOUNTER)
 
   void PrintCounter::debug(const char func[]) {
@@ -238,6 +359,7 @@ void PrintCounter::reset() {
       SERIAL_ECHOLNPGM("()");
     }
   }
+
 #endif
 
 #endif // PRINTCOUNTER

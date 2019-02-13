@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -47,10 +47,10 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_Stm32f1.h"
-#include "watchdog_Stm32f1.h"
+#include "fastio_STM32F1.h"
+#include "watchdog_STM32F1.h"
 
-#include "HAL_timers_Stm32f1.h"
+#include "HAL_timers_STM32F1.h"
 
 
 // --------------------------------------------------------------------------
