@@ -94,7 +94,7 @@ void GcodeSuite::M240() {
     constexpr float photo_position[XYZ] = PHOTO_POSITION;
     float raw[XYZ] = {
        parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : photo_position[X_AXIS],
-       parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : photo_position[X_AXIS],
+       parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : photo_position[Y_AXIS],
       (parser.seenval('Z') ? parser.value_linear_units() : photo_position[Z_AXIS]) + current_position[Z_AXIS]
     };
     clamp_to_software_endstops(raw);
