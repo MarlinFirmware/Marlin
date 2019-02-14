@@ -111,7 +111,7 @@ inline void move_to(
   destination[Z_AXIS] = MAX(MIN(destination[Z_AXIS], Z_MAX_POS), Z_MIN_POS);
 
   // Move to position
-  do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
+  do_blocking_move_to(destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
 }
 
 /**
@@ -182,7 +182,7 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
   set_destination_from_current();
   for (float travel = 0; travel < limit; travel += step) {
     destination[axis] += dir * step;
-    do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], mms);
+    do_blocking_move_to(destination, mms);
     planner.synchronize();
     if (read_calibration_pin() == stop_state)
       break;
@@ -214,7 +214,7 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
   }
   // Return to starting position
   destination[axis] = start_pos;
-  do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
+  do_blocking_move_to(destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
   return measured_pos;
 }
 

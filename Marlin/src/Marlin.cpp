@@ -331,11 +331,13 @@ void disable_all_steppers() {
       ExtUI::onFilamentRunout(ExtUI::getActiveTool());
     #endif
 
-    const char tool = '0'
-      #if NUM_RUNOUT_SENSORS > 1
-        + active_extruder
-      #endif
-    ;
+    #if ENABLED(HOST_PROMPT_SUPPORT) || ENABLED(HOST_ACTION_COMMANDS)
+      const char tool = '0'
+        #if NUM_RUNOUT_SENSORS > 1
+          + active_extruder
+        #endif
+      ;
+    #endif
 
     //action:out_of_filament
     #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -347,8 +349,10 @@ void disable_all_steppers() {
       host_action_prompt_show();
     #endif
 
+    const bool run_runout_script = !runout.host_handling;
+
     #if ENABLED(HOST_ACTION_COMMANDS)
-      if (!runout.host_handling
+      if (run_runout_script
         && ( strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
           || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -372,10 +376,9 @@ void disable_all_steppers() {
       SERIAL_ECHOPGM(" " ACTION_REASON_ON_FILAMENT_RUNOUT " ");
       SERIAL_CHAR(tool);
       SERIAL_EOL();
-
     #endif // HOST_ACTION_COMMANDS
 
-    if (!runout.host_handling)
+    if (run_runout_script)
       enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
   }
 
@@ -385,7 +388,7 @@ void disable_all_steppers() {
 
   void event_probe_failure() {
     #ifdef G29_FAILURE_COMMANDS
-      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+      gcode.process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
     #endif
     #ifdef ACTION_ON_G29_FAILURE
       host_action(PSTR(ACTION_ON_G29_FAILURE)); }
@@ -403,7 +406,7 @@ void disable_all_steppers() {
       host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"));
     #endif
     #ifdef G29_RECOVER_COMMANDS
-      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+      gcode.process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
     #endif
     #ifdef ACTION_ON_G29_RECOVER
       host_action(PSTR(ACTION_ON_G29_RECOVER));

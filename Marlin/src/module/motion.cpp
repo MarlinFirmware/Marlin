@@ -294,7 +294,7 @@ void buffer_line_to_destination(const float fr_mm_s) {
 #endif // IS_KINEMATIC
 
 /**
- *  Plan a move to (X, Y, Z) and set the current_position
+ * Plan a move to (X, Y, Z) and set the current_position
  */
 void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s/*=0.0*/) {
   const float old_feedrate_mm_s = feedrate_mm_s;
@@ -1032,7 +1032,7 @@ void prepare_move_to_destination() {
 /**
  * Homing bump feedrate (mm/s)
  */
-inline float get_homing_bump_feedrate(const AxisEnum axis) {
+float get_homing_bump_feedrate(const AxisEnum axis) {
   #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_SPEED_SLOW);
   #endif
