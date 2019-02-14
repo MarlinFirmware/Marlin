@@ -165,13 +165,6 @@
       #define LCD_PINS_D6  16
       #define LCD_PINS_D7  17
     #endif
-    #ifndef BTN_EN1
-      #define BTN_EN1      -1
-      #define BTN_EN2      -1
-    #endif
-    #ifndef BTN_ENC
-      #define BTN_ENC      -1
-    #endif
     #ifndef ADC_KEYPAD_PIN
       #define ADC_KEYPAD_PIN 1   // Analog Input
     #endif
