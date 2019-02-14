@@ -42,28 +42,27 @@
     #include "../../../feature/pause.h"
   #endif
 
-  inline void e_move_m240(const float length) {
-    if (_PHOTO_RETRACT_MM) {
-      constexpr float rfr = (MMS_TO_MMM(
+  #ifdef PHOTO_RETRACT_MM
+    inline void e_move_m240(const float length, const float fr_mm_s) {
+      if (length && thermalManager.hotEnoughToExtrude(active_extruder)) {
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          PAUSE_PARK_RETRACT_FEEDRATE
-        #elif ENABLED(FWRETRACT)
-          RETRACT_FEEDRATE
-        #else
-          45
-        #endif
-      ));
-      if (thermalManager.hotEnoughToExtrude(active_extruder)) {
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          do_pause_e_move(length, rfr);
+          do_pause_e_move(length, fr_mm_s);
         #else
           current_position[E_AXIS] += length / planner.e_factor[active_extruder];
-          planner.buffer_line(current_position, MMM_TO_MMS(rfr), active_extruder);
+          planner.buffer_line(current_position, fr_mm_s, active_extruder);
         #endif
       }
     }
-  }
+  #endif
 
+#endif
+
+#if PIN_EXISTS(PHOTOGRAPH)
+  constexpr uint8_t NUM_PULSES = 16;
+  constexpr float PULSE_LENGTH = 0.01524;
+  inline void set_photo_pin(const uint8_t state) { WRITE(PHOTOGRAPH_PIN, state); _delay_ms(PULSE_LENGTH); }
+  inline void tweak_photo_pin() { set_photo_pin(HIGH); set_photo_pin(LOW); }
+  inline void spin_photo_pin() { for (uint8_t i = NUM_PULSES; i--;) tweak_photo_pin(); }
 #endif
 
 /**
@@ -75,20 +74,41 @@
  *                            See http://www.doc-diy.net/photo/rc-1_hacked/
  *  - PHOTO_SWITCH_POSITION : Bump a physical switch with the X-carriage using a
  *                            configured position, delay, and retract length.
- * Parameters:
- *    X - Move to X before triggering the shutter (Requires PHOTO_POSITION)
- *    Y - Move to Y before triggering the shutter (Requires PHOTO_POSITION)
- *    Z - Raise Z by a distance before triggering the shutter (Requires PHOTO_POSITION)
- *    P - Delay (ms) after triggering the shutter
+ *
+ * PHOTO_POSITION parameters:
+ *    R - Retract/recover length (current units)
+ *    S - Retract/recover feedrate (mm/m)
+ *    X - Move to X before triggering the shutter
+ *    Y - Move to Y before triggering the shutter
+ *    Z - Raise Z by a distance before triggering the shutter
+ *
+ * PHOTO_SWITCH_POSITION parameters:
+ *    D - Duration (ms) to hold down switch (Requires PHOTO_SWITCH_MS)
+ *    P - Delay (ms) after triggering the shutter (Requires PHOTO_SWITCH_MS)
+ *    I - Switch trigger position override X
+ *    J - Switch trigger position override Y
  */
 void GcodeSuite::M240() {
 
   #ifdef PHOTO_POSITION
 
+    if (axis_unhomed_error()) return;
+
     const float old_pos[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
 
     #ifdef PHOTO_RETRACT_MM
-      e_move_m240(-(_PHOTO_RETRACT_MM));
+      constexpr float rfr = (MMS_TO_MMM(
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          PAUSE_PARK_RETRACT_FEEDRATE
+        #elif ENABLED(FWRETRACT)
+          RETRACT_FEEDRATE
+        #else
+          45
+        #endif
+      ));
+      const float rval = parser.seenval('R') ? parser.value_linear_units() : _PHOTO_RETRACT_MM,
+                  sval = parser.seenval('S') ? MMM_TO_MMS(parser.value_feedrate()) : rfr;
+      e_move_m240(-rval, sval);
     #endif
 
     constexpr float photo_position[XYZ] = PHOTO_POSITION;
@@ -101,10 +121,14 @@ void GcodeSuite::M240() {
     do_blocking_move_to(raw);
 
     #ifdef PHOTO_SWITCH_POSITION
-      const float photo_switch_position[2] = PHOTO_SWITCH_POSITION;
-      do_blocking_move_to_xy(photo_switch_position[X_AXIS], photo_switch_position[Y_AXIS], get_homing_bump_feedrate(X_AXIS));
+      constexpr float photo_switch_position[2] = PHOTO_SWITCH_POSITION;
+      const float sraw[] = {
+         parser.seenval('I') ? RAW_X_POSITION(parser.value_linear_units()) : photo_switch_position[X_AXIS],
+         parser.seenval('J') ? RAW_Y_POSITION(parser.value_linear_units()) : photo_switch_position[Y_AXIS]
+      };
+      do_blocking_move_to_xy(sraw[X_AXIS], sraw[Y_AXIS], get_homing_bump_feedrate(X_AXIS));
       #if PHOTO_SWITCH_MS > 0
-        safe_delay(PHOTO_SWITCH_MS);
+        safe_delay(parser.intval('D', PHOTO_SWITCH_MS));
       #endif
       do_blocking_move_to(raw);
     #endif
@@ -118,21 +142,9 @@ void GcodeSuite::M240() {
 
   #elif HAS_PHOTOGRAPH
 
-    const uint8_t NUM_PULSES = 16;
-    const float PULSE_LENGTH = 0.01524;
-    for (int i = 0; i < NUM_PULSES; i++) {
-      WRITE(PHOTOGRAPH_PIN, HIGH);
-      _delay_ms(PULSE_LENGTH);
-      WRITE(PHOTOGRAPH_PIN, LOW);
-      _delay_ms(PULSE_LENGTH);
-    }
+    spin_photo_pin();
     delay(7.33);
-    for (int i = 0; i < NUM_PULSES; i++) {
-      WRITE(PHOTOGRAPH_PIN, HIGH);
-      _delay_ms(PULSE_LENGTH);
-      WRITE(PHOTOGRAPH_PIN, LOW);
-      _delay_ms(PULSE_LENGTH);
-    }
+    spin_photo_pin();
 
   #endif
 
@@ -142,7 +154,7 @@ void GcodeSuite::M240() {
     #endif
     do_blocking_move_to(old_pos);
     #ifdef PHOTO_RETRACT_MM
-      e_move_m240(_PHOTO_RETRACT_MM);
+      e_move_m240(rval, sval);
     #endif
   #endif
 }
