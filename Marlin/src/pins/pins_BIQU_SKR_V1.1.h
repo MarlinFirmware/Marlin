@@ -57,7 +57,6 @@
 #define E0_DIR_PIN         P2_13
 #define E0_ENABLE_PIN      P2_12
 
-
 #define E1_STEP_PIN        P0_01
 #define E1_DIR_PIN         P0_00
 #define E1_ENABLE_PIN      P0_10
@@ -66,9 +65,10 @@
 // Temperature Sensors
 //  3.3V max when defined as an analog input
 //
-#define TEMP_BED_PIN       0
-#define TEMP_0_PIN         1
-#define TEMP_1_PIN         2
+#define TEMP_BED_PIN       0   // Analog Input
+#define TEMP_0_PIN         1   // Analog Input
+#define TEMP_1_PIN         2   // Analog Input
+
 //
 // Heaters / Fans
 //
@@ -84,16 +84,14 @@
 /**
  * LCD / Controller
  * 
- * Deinitions for the LCD displays that can be used with this board. as of 20/01/2019 only 
- * the REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER display has been tested with these 
- * settings. This display can be connected to the SKR just using standard cables via the
- * EXP1 and EXP2 ports. Some other displays may need a custom cable and/or require changes
- * to the pins defined below.
+ * As of 20 JAN 2019 only the REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER display has
+ * been tested with these settings. It can be connected to the SKR using standard cables
+ * via the EXP1 and EXP2 ports. Other displays may need a custom cable and/or changes to
+ * the pins defined below.
  *
- * 
- * SD card on the LCD uses the same SPI signals as the LCD. This results in garbage/lines
- * on the LCD display during accesses of the SD card. The menus/code has been arranged so
- * that the garbage/lines are erased immediately after the SD card accesses are completed.
+ * The SD card on the LCD controller uses the same SPI signals as the LCD, resulting in
+ * garbage/lines on the LCD display during SD card access. The LCD code mitigates this
+ * by redrawing the screen after SD card accesses.
  */
 
 #if ENABLED(ULTRA_LCD)
