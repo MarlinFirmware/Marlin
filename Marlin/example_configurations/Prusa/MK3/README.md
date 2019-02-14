@@ -5,14 +5,12 @@ printer firmware with the Prusa MK3 3D printer.
 
 ## Documentation and Resources
 
-A number of individuals are contributing to this effort. The best resources
-for questions or feedback is the #Marlin channel in the  ["602 Wasteland"
-Discord server] (https://discord.gg/R848Xn). Please read the rules there before
-posting.
+A number of individuals are contributing to this effort. The best resource
+for questions or feedback is the #Marlin channel in the  ["602 Wasteland" Discord server](https://discord.gg/R848Xn). 
+Please read the rules there before posting.
 
-The team also contributes to the [PrusaOwners
-Wiki](https://github.com/PrusaOwners/prusaowners/wiki) which contains a wealth
-of information on the Prusa MK3 printer.
+The team also contributes to the [PrusaOwners Wiki](https://github.com/PrusaOwners/prusaowners/wiki) 
+which contains a wealth of information on the Prusa MK3 printer.
 
 ## Summary of Changes
 
@@ -26,3 +24,5 @@ ramp-up on what changes were needed.
 TODO
 
 ### Configuration_adv.h
+
+TODO
