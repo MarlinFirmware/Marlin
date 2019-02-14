@@ -146,44 +146,43 @@
 
 #if HAS_TRINAMIC
   // Using TMC devices in intelligent mode requires extra connections to each device. Unfortunately
-  // the SKR does not have many free pins (especially if a display is in use). The SPI based devices
+  // the SKR does not have many free pins (especially if a display is in use). The SPI-based devices
   // will require 3 connections (clock, mosi, miso), plus a chip select line (CS) for each driver.
-  // The UART based devices require 2 pis per deriver (one of which must be interrupt capable). With SPI
-  // we are able to share the same SPI pins used for the display/sd card reader which means that the SPI
-  // based devices are probably a good choice for this board.
+  // The UART-based devices require 2 pis per deriver (one of which must be interrupt capable).
+  // The same SPI pins can be shared with the display/SD card reader, meaning SPI-based devices are
+  // probably a good choice for this board.
   //
-  // Use of SOFTWARE_DRIVER_ENABLE is a good option. This uses SPI to control the driver enable and
-  // allows the hardware ENABLE pins for each driver to be re-purposed as SPI chip select. To use
-  // this mode the driver modules will probably need to be modified. Removing the pin used for the
-  // enable line from the module and wiring this connection directly to GND (this is the case for TMC2130).
+  // SOFTWARE_DRIVER_ENABLE is a good option. It uses SPI to control the driver enable and allows the
+  // hardware ENABLE pins for each driver to be repurposed as SPI chip select. To use this mode the
+  // driver modules will probably need to be modified, removing the pin used for the enable line from
+  // the module and wiring this connection directly to GND (as is the case for TMC2130).
   // Using this option and sharing all of the SPI pins allows 5 TMC2130 drivers to be used along with
   // a REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER without requiring the use of any extra pins.
   //
-  // Other options will probably require the use of any free pins and the TFT serial port or
-  // the use of different type of display (like the TFT) and use of the pins normally used for the
-  // display and encoder. Unfotunately tests show that it is not possible to use endstop and thermister
-  // pins for chip select. Sample configurations are provided below, but only some have been tested.
+  // Other options will probably require the use of any free pins and the TFT serial port or a
+  // different type of display (like the TFT), using the pins normally used for the display and encoder.
+  // Unfortunately, tests show it's not possible to use endstop and thermistor pins for chip-select.
+  // Sample settings are provided below, but only some have been tested.
   //
-  // One other option is to share the enable and chip select pins when using SPI. Several users
-  // have reported that this works. However it is unlikely that this configuration will allow SPI
-  // communication with the device when the drivers are active. Which means that some of the more advanced
-  // TMC options may not be available.
+  // Another option is to share the enable and chip-select pins when using SPI. Several users have
+  // reported that this works. However, it's unlikely that this configuration will allow SPI communi-
+  // cation with the device when the drivers are active, meaning that some of the more advanced TMC
+  // options may not be available.
 
-  // We are using one or more TMC SPI based drivers, we will use software SPI because we may be sharing
-  // the pins with a display or sd card
+  // When using any TMC SPI-based drivers, software SPI is used
+  // because pins may be shared with the display or SD card.
   #define TMC_USE_SW_SPI
   #define TMC_SW_MOSI       P0_18
   #define TMC_SW_MISO       P0_17
-  // To minimise pin usage use the same clock pin as the display/SD card reader. Doing this may generate
-  // small glitches on the LCD display
+  // To minimize pin usage use the same clock pin as the display/SD card reader. (May generate LCD noise.)
   #define TMC_SW_SCK        P0_15
-  // If pin 2_06 is not in use for other purposes then it can be used for the clock to avoid the display glitches.
+  // If pin 2_06 is unused, it can be used for the clock to avoid the LCD noise.
   //#define TMC_SW_SCK        P2_06
 
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    // We are using software enable. This allows us to re-purpose the enable pins for use as chip-select.
-    // Note: This will require that the driver modules have been modified to always be enabled and the enable
-    // pin has been removed.
+
+    // Software enable allows the enable pins to be repurposed as chip-select pins.
+    // Note: Requires the driver modules to be modified to always be enabled with the enable pin removed.
     #if AXIS_DRIVER_TYPE_X(TMC2130)
       #define X_CS_PIN         P4_28
       #undef  X_ENABLE_PIN
@@ -214,14 +213,20 @@
       #undef  E1_ENABLE_PIN
       #define E1_ENABLE_PIN    -1
     #endif
-  #else
-    // We need to define a chip-select pin for each driver
-    // The following are example configurations
 
-    // Example 1. No LCD attached or a TFT style display that uses the RX/TX pins on the AUX header
-    // Note that LPC_SD_LCD must not be enabled Nothing should be connected to EXP1 and EXP2
+  #else // !SOFTWARE_DRIVER_ENABLE
+
+    // A chip-select pin is needed for each driver.
+
+    // EXAMPLES
+
+    // Example 1: No LCD attached or a TFT style display using the AUX header RX/TX pins.
+    //            LPC_SD_LCD must not be enabled. Nothing should be connected to EXP1/EXP2.
     //#define SKR_USE_LCD_PINS_FOR_CS
-    #ifdef SKR_USE_LCD_PINS_FOR_CS
+    #if ENABLED(SKR_USE_LCD_PINS_FOR_CS)
+      #if ENABLED(LPC_SD_LCD)
+        #error "LPC_SD_LCD must not be enabled with SKR_USE_LCD_PINS_FOR_CS."
+      #endif
       #define X_CS_PIN      P1_23
       #define Y_CS_PIN      P3_26
       #define Z_CS_PIN      P2_11
@@ -229,11 +234,14 @@
       #define E1_CS_PIN     P1_31
     #endif
 
-    // Example 2. A REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER display is in use. 
-    // Note that with this configuration the SD card reader attached to the LCD (if present) can not be
-    // used (as the pins will be in use). So LPC_SD_LCD must not be defined.
+    // Example 2: A REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    //            The SD card reader attached to the LCD (if present) can't be used because
+    //            the pins will be in use. So LPC_SD_LCD must not be defined.
     //#define SKR_USE_LCD_SD_CARD_PINS_FOR_CS
-    #ifdef SKR_USE_LCD_SD_CARD_PINS_FOR_CS
+    #if ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
+      #if ENABLED(LPC_SD_LCD)
+        #error "LPC_SD_LCD must not be enabled with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
+      #endif
       #define X_CS_PIN      P0_02
       #define Y_CS_PIN      P0_03
       #define Z_CS_PIN      P2_06
@@ -246,16 +254,18 @@
       #define E1_CS_PIN     P1_23
     #endif
 
-    // Example 3: We use the driver enable pins for chip select.
-    // Note that with this option we must not send commands to the drivers when they are enabled. This means
-    // that advanced features like driver monitoring will not be available.
+    // Example 3: Use the driver enable pins for chip-select.
+    //            Commands must not be sent to the drivers when enabled. So certain
+    //            advanced features (like driver monitoring) will not be available.
     //#define SKR_USE_ENABLE_CS
-    #ifdef SKR_USE_ENABLE_FOR_CS
+    #if ENABLED(SKR_USE_ENABLE_FOR_CS)
       #define X_CS_PIN      X_ENABLE_PIN
       #define Y_CS_PIN      Y_ENABLE_PIN
       #define Z_CS_PIN      Z_ENABLE_PIN
       #define E0_CS_PIN     E0_ENABLE_PIN
       #define E1_CS_PIN     E1_ENABLE_PIN
     #endif
-  #endif
+
+  #endif // SOFTWARE_DRIVER_ENABLE
+
 #endif
