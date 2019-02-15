@@ -12,6 +12,26 @@ Please read the rules there before posting.
 The team also contributes to the [PrusaOwners Wiki](https://github.com/PrusaOwners/prusaowners/wiki) 
 which contains a wealth of information on the Prusa MK3 printer.
 
+## Building the firmware for the Prusa i3 MK3
+
+Install PlatformIO (e.g. as a Plugin to Microsoft Visual Sudio Code). Open the Marlin directory as a PlatformIO project. Edit the file "platformio.ini" in the main directory. 
+
+    [platformio]
+    ...
+    env_default = rambo
+    
+    ...
+    #
+    # RAMBo
+    #
+    [env:rambo]
+    ...
+    monitor_speed     = 115200
+   
+Then copy the configuration files "Configuration.h", "Configuration_adv.h" and " pins_EINSY_RAMBO.h" from the directory "example_configurations/Prusa/i3-MK3" to the "Marlin" directory overwriting the existing files there.
+
+Build the firmware and upload to your EINSY board.
+
 ## Summary of Changes
 
 This section contains a description of each change to the Marlin configuration
