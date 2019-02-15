@@ -26,3 +26,9 @@ TODO
 ### Configuration_adv.h
 
 TODO
+
+### pins_EINSY_RAMBO.h
+
+Changed hotend fan to -1, so that automatic temperature control can be used.
+Changed pin of part cooling fan to Prusa default
+Added define for PINDA thermistor pin
