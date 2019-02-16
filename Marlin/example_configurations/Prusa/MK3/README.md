@@ -28,7 +28,7 @@ Install PlatformIO (e.g. as a Plugin to Microsoft Visual Sudio Code). Open the M
     ...
     monitor_speed     = 115200
    
-Then copy the configuration files "Configuration.h", "Configuration_adv.h" and " pins_EINSY_RAMBO.h" from the directory "example_configurations/Prusa/i3-MK3" to the "Marlin" directory overwriting the existing files there.
+Then copy the configuration files "Configuration.h" and "Configuration_adv.h" from the directory "example_configurations/Prusa/i3-MK3" to the "Marlin" directory overwriting the existing files there.
 
 Build the firmware and upload to your EINSY board.
 
