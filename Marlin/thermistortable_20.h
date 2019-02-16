@@ -51,6 +51,10 @@
   #define HEATER_CHAMBER_RAW_HI_TEMP 16383
   #define HEATER_CHAMBER_RAW_LO_TEMP 0
 #endif
+#if THERMISTORPINDA == 20
+  #define HEATER_PINDA_RAW_HI_TEMP 16383
+  #define HEATER_PINDA_RAW_LO_TEMP 0
+#endif
 const short temptable_20[][2] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },

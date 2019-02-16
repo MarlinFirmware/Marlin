@@ -321,10 +321,16 @@
 
 /**
  * PRUSA uses an inductive Z-leveling probe (PINDA) with a 
- * built-in thermistor. Define the pin for that here.
+ * built-in thermistor. Define the pin and thermistor type for that here.
  */
-#define TEMP_PINDA_PIN  3
+#define PINDA_THERMISTOR // Use name from Prusa firmware, in case anything gets migrated, 
+                         // but we also define HAS_TEMP_PINDA below to be consistent with Marin
 
+#ifdef PINDA_THERMISTOR
+  #define HAS_TEMP_PINDA
+  #define TEMP_PINDA_PIN  3
+  #define TEMP_PINDA_SENSOR 1
+#endif
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25

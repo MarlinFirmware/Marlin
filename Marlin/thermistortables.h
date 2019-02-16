@@ -29,7 +29,7 @@
 #define OVERSAMPLENR 16
 #define OV(N) int16_t((N)*(OVERSAMPLENR))
 
-#define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORHEATER_4 == n || THERMISTORBED == n || THERMISTORCHAMBER == n)
+#define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORHEATER_4 == n || THERMISTORBED == n || THERMISTORCHAMBER == n || THERMISTORPINDA == n)
 
 // Pt1000 and Pt100 handling
 //
@@ -201,6 +201,15 @@
   #error "No chamber thermistor table specified"
 #else
   #define CHAMBERTEMPTABLE_LEN 0
+#endif
+
+#ifdef THERMISTORPINDA
+  #define PINDATEMPTABLE TT_NAME(THERMISTORPINDA)
+  #define PINDATEMPTABLE_LEN COUNT(PINDATEMPTABLE)
+#elif defined(HEATER_PINDA_USES_THERMISTOR)
+  #error "No pinda thermistor table specified"
+#else
+  #define PINDATEMPTABLE_LEN 0
 #endif
 
 // The SCAN_THERMISTOR_TABLE macro needs alteration?

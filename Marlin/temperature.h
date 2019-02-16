@@ -88,6 +88,10 @@ enum ADCSensorState : char {
     PrepareTemp_CHAMBER,
     MeasureTemp_CHAMBER,
   #endif
+  #if HAS_TEMP_PINDA
+    PrepareTemp_PINDA,
+    MeasureTemp_PINDA,
+  #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     Prepare_FILWIDTH,
     Measure_FILWIDTH,
@@ -166,7 +170,6 @@ class Temperature {
         static float bedKp, bedKi, bedKd;
       #endif
     #endif
-
     #if ENABLED(BABYSTEPPING)
       static volatile int babystepsTodo[3];
     #endif
@@ -268,6 +271,12 @@ class Temperature {
       static int16_t current_temperature_chamber_raw;
     #endif
 
+    #if HAS_TEMP_PINDA
+      static uint16_t raw_temp_pinda_value;
+      static float current_temperature_pinda;
+      static int16_t current_temperature_pinda_raw;
+    #endif
+
     #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
       static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
@@ -325,6 +334,9 @@ class Temperature {
     #endif
     #if HAS_TEMP_CHAMBER
       static float analog2tempChamber(const int raw);
+    #endif
+    #if HAS_TEMP_PINDA
+      static float analog2tempPinda(const int raw);
     #endif
 
     /**
@@ -469,6 +481,13 @@ class Temperature {
         FORCE_INLINE static int16_t rawChamberTemp() { return current_temperature_chamber_raw; }
       #endif
       FORCE_INLINE static float degChamber() { return current_temperature_chamber; }
+    #endif
+
+    #if HAS_TEMP_PINDA
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        FORCE_INLINE static int16_t rawPindaTemp() { return current_temperature_pinda_raw; }
+      #endif
+      FORCE_INLINE static float degPinda() { return current_temperature_pinda; }
     #endif
 
     FORCE_INLINE static bool wait_for_heating(const uint8_t e) {
