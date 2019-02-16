@@ -1268,6 +1268,9 @@
    * }
    */
   #define TMC_ADV() { \
+    stepperX.high_sense_R(1);\
+    stepperY.high_sense_R(1);\
+    stepperE0.high_sense_R(1);\
     stepperX.hold_delay(8); \
     stepperY.hold_delay(8); \
     stepperZ.hold_delay(8); \
