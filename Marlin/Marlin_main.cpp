@@ -9459,12 +9459,12 @@ inline void gcode_M121() { endstops.enable_globally(false); }
     }
 
     //Force cool down
-    if (parser.seenval('C')) {
+    if (parser.seen('C')) {
       is_pinda_cooling = true;
     }
 
     //Force heat up
-    if (parser.seenval('W')) {
+    if (parser.seen('W')) {
       is_pinda_cooling = false;
     }
 
@@ -9484,17 +9484,17 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
     millis_t next_serial_status_ms = millis() + 1000UL;
 
-		while ( ((!is_pinda_cooling) && (current_temperature_pinda < target_temp)) || (is_pinda_cooling && (current_temperature_pinda > target_temp)) ) {
+		while ( ((!is_pinda_cooling) && (thermalManager.degPinda() < target_temp)) || (is_pinda_cooling && (thermalManager.degPinda() > target_temp)) ) {
 			if (ELAPSED(millis(), next_serial_status_ms)) //Print temp value every second while waiting on serial.
 			{
 				SERIAL_PROTOCOLPGM("P:");
-				SERIAL_PROTOCOL_F(current_temperature_pinda, 1);
+				SERIAL_PROTOCOL_F(thermalManager.degPinda(), 1);
 				SERIAL_PROTOCOLPGM("/");
 				SERIAL_PROTOCOL(target_temp);
         SERIAL_EOL();
 				next_serial_status_ms = millis() + 1000UL;
 			}
-      if (!timeout && ELAPSED(millis(), timeout)) {
+      if ((timeout != 0) && ELAPSED(millis(), timeout)) {
         SERIAL_PROTOCOLLNPGM("Timeout");
         break;
       }
