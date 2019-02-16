@@ -156,6 +156,7 @@
  * M165 - Set the mix for a mixing extruder wuth parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M190 - Sxxx Wait for bed current temp to reach target temp. ** Waits only when heating! **
  *        Rxxx Wait for bed current temp to reach target temp. ** Waits for heating or cooling. **
+ * M199 - Wait for temperature sensitive bed level sensor to reach target temperature. (Requires PINDA_THERMISTOR)
  * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
  * M201 - Set max acceleration in units/s^2 for print moves: "M201 X<accel> Y<accel> Z<accel> E<accel>"
  * M202 - Set max acceleration in units/s^2 for travel moves: "M202 X<accel> Y<accel> Z<accel> E<accel>" ** UNUSED IN MARLIN! **
@@ -9420,6 +9421,90 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
 #endif // HAS_COLOR_LEDS
 
+#if ENABLED(PINDA_THERMISTOR)
+
+  /**
+   * M199: Wait for temperature sensitive bed level sensor to reach target temperature. 
+   *       This is for the use of Prusa PINDAv2 bed level sensor with build-in thermistor.
+   *       On Prusa Firmware M860 is used, which is already in use in Marlin
+   *
+   *  S<temperature> - Set temperature to wait for. Without further arguments the printer waits
+   *                   until the sensor has warmed or cooled to the specified temperature. If 
+   *                   both heaters are off (bed and hotend), cooling will automatically be assumed.
+   *                   Otherwise warming is assumed.
+   * C               - Force cool down regardless of heater state (optional)
+   * W               - Force warm up regardless of heater state (optional)
+   * T<seconds>      - Timeout after <seconds> seconds if the set temperature has not been reached 
+   *                   (optional)
+   * 
+   * If both C and W are given, warm up is performed
+   */
+  inline void gcode_M199() {
+    int16_t target_temp = 0;
+    
+    // Target temperature
+		if (parser.seenval('S')) {
+      target_temp = parser.value_celsius();
+		}
+		else {
+			return;
+		}
+
+    bool is_pinda_cooling;
+    // Automatic
+		if ((thermalManager.degTargetBed() == 0) && (thermalManager.degTargetHotend(0) == 0)) {
+      is_pinda_cooling = true;
+		} else {
+      is_pinda_cooling = false;
+    }
+
+    //Force cool down
+    if (parser.seen('C')) {
+      is_pinda_cooling = true;
+    }
+
+    //Force heat up
+    if (parser.seen('W')) {
+      is_pinda_cooling = false;
+    }
+
+    //Timeout
+    millis_t timeout = 0;
+    if (parser.seenval('T')) {
+      timeout = millis() + parser.value_millis_from_seconds();
+		}
+
+		//LCD_MESSAGERPGM(_T(MSG_PLEASE_WAIT));
+
+		SERIAL_PROTOCOLPGM("Wait for sensor ");
+    is_pinda_cooling ? SERIAL_PROTOCOLPGM("cool down") : SERIAL_PROTOCOLPGM("warm up");
+    SERIAL_PROTOCOLPGM(" target temperature: ");
+		SERIAL_PROTOCOL(target_temp);
+    SERIAL_EOL();
+
+    millis_t next_serial_status_ms = millis() + 1000UL;
+
+		while ( ((!is_pinda_cooling) && (thermalManager.degPinda() < target_temp)) || (is_pinda_cooling && (thermalManager.degPinda() > target_temp)) ) {
+			if (ELAPSED(millis(), next_serial_status_ms)) //Print temp value every second while waiting on serial.
+			{
+				SERIAL_PROTOCOLPGM("P:");
+				SERIAL_PROTOCOL_F(thermalManager.degPinda(), 1);
+				SERIAL_PROTOCOLPGM("/");
+				SERIAL_PROTOCOL(target_temp);
+        SERIAL_EOL();
+				next_serial_status_ms = millis() + 1000UL;
+			}
+      if ((timeout != 0) && ELAPSED(millis(), timeout)) {
+        SERIAL_PROTOCOLLNPGM("Timeout");
+        break;
+      }
+			idle();
+		}
+		//LCD_MESSAGERPGM(MSG_OK);
+  }
+
+#endif // PINDA_THERMISTOR
+
 #if DISABLED(NO_VOLUMETRICS)
 
   /**
@@ -12894,6 +12979,10 @@ void process_parsed_command() {
         #if ENABLED(DIRECT_MIXING_IN_G1)
           case 165: gcode_M165(); break;                          // M165: Set Multiple Mixing Components
         #endif
+      #endif
+
+      #if ENABLED(PINDA_THERMISTOR)
+        case 199: gcode_M199(); break;                            // M119 -  Wait for temperature sensitive bed level sensor to reach target temperature. 
       #endif
 
       #if DISABLED(NO_VOLUMETRICS)
