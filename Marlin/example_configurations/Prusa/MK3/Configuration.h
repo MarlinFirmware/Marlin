@@ -327,9 +327,8 @@
                          // but we also define HAS_TEMP_PINDA below to be consistent with Marin
 
 #ifdef PINDA_THERMISTOR
-  #define HAS_TEMP_PINDA
   #define TEMP_PINDA_PIN  3
-  #define TEMP_PINDA_SENSOR 1
+  #define TEMP_SENSOR_PINDA 1
 #endif
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
