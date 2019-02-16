@@ -140,7 +140,7 @@
   #include "feature/runout.h"
 #endif
 
-#if ENABLED(TEMP_STAT_LEDS)
+#if ENABLED(TEMP_STAT_LEDS) || ENABLED(HEAT_STAT_LEDS)
   #include "feature/leds/tempstat.h"
 #endif
 
@@ -623,7 +623,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     }
   #endif
 
-  #if ENABLED(TEMP_STAT_LEDS)
+  #if ENABLED(TEMP_STAT_LEDS) || ENABLED(HEAT_STAT_LEDS)
     handle_status_leds();
   #endif
 
@@ -981,6 +981,14 @@ void setup() {
 
   #if PIN_EXISTS(STAT_LED_BLUE)
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
+  #endif
+  
+  #if PIN_EXISTS(HEAT_STAT_LED_RED)
+    OUT_WRITE(HEAT_STAT_LED_RED, LOW); //OFF
+  #endif
+  
+  #if PIN_EXISTS(HEAT_STAT_LED_GREEN)
+    OUT_WRITE(HEAT_STAT_LED_GREEN, LOW); //OFF
   #endif
 
   #if HAS_COLOR_LEDS

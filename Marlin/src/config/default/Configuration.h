@@ -1994,6 +1994,10 @@
 // then the BLUE led is on. Otherwise the RED led is on. (1C hysteresis)
 //#define TEMP_STAT_LEDS
 
+// LEDs that display when one or more heaters have not yet reached target
+// temperature. Heating = RED LED blinking. at target = Green LED
+//#define HEAT_STAT_LEDS
+
 // SkeinForge sends the wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
 
