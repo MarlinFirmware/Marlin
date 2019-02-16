@@ -94,7 +94,15 @@ void PrintCounter::initStats() {
   loaded = true;
   data = { 0, 0, 0, 0, 0.0
     #if HAS_SERVICE_INTERVALS
-      , SERVICE_INTERVAL_SEC_1, SERVICE_INTERVAL_SEC_2, SERVICE_INTERVAL_SEC_3
+      #if SERVICE_INTERVAL_1 > 0
+        , SERVICE_INTERVAL_SEC_1
+      #endif
+      #if SERVICE_INTERVAL_2 > 0
+        , SERVICE_INTERVAL_SEC_2
+      #endif
+      #if SERVICE_INTERVAL_3 > 0
+        , SERVICE_INTERVAL_SEC_3
+      #endif
     #endif
   };
 
