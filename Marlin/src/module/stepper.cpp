@@ -1496,7 +1496,7 @@ void Stepper::stepper_pulse_phase_isr() {
     #define PULSE_STOP(AXIS) do { \
       if (delta_error[_AXIS(AXIS)] >= 0) { \
         delta_error[_AXIS(AXIS)] -= advance_divisor; \
-        if(_STEP_SECOND_PHASE_NEED(AXIS)) { \
+        if (_STEP_SECOND_PHASE_NEED(AXIS)) { \
           _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
           if (minimum_phase_width < _STEP_SECOND_PHASE_WIDTH(AXIS)) \
             minimum_phase_width = _STEP_SECOND_PHASE_WIDTH(AXIS); \
@@ -1541,7 +1541,7 @@ void Stepper::stepper_pulse_phase_isr() {
       i2s_push_sample();
     #endif
 
-    if(minimum_phase_width) {
+    if (minimum_phase_width) {
       pulse_end += hal_timer_t(GET_PULSE_TICKS(minimum_phase_width));
       // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
       #if MINIMUM_STEPPER_PULSE && DISABLED(I2S_STEPPER_STREAM)
