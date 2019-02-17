@@ -943,17 +943,11 @@
   //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
     #define BABYSTEP_ON_STEPPER_ACTIVE      // Enable menu on stepper active instead of printer busy
-    #define BABYSTEP_DEFER_STEPPER_TIMOUT   // Prevents stepper timeout while on Babystepping screen
+    #define BABYSTEP_DEFER_STEPPER_TIMEOUT  // Prevents stepper timeout while on Babystepping screen
     #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
                                             // Note: Extra time may be added to mitigate controller latency.
   #endif
 
-  #define REQUIRE_HOME_BEFORE_BABYSTEP
-  #if ENABLED(REQUIRE_HOME_BEFORE_BABYSTEP)
-    #define AUTOHOME_BEFORE_BABYSTEP        // If homing is needed before babystepping can be done, do so
-                                            // on entry to the menu
-  #endif
-  
   //#define MOVE_Z_WHEN_IDLE                // Jump to the move Z menu on doubleclick when printer is idle.
   #if ENABLED(MOVE_Z_WHEN_IDLE)
     #define MOVE_Z_IDLE_MULTIPLICATOR 1     // Multiply 1mm by this factor for the move step size.
