@@ -162,7 +162,9 @@ The following tables shows all changes from Marlin (1.1.9) default values.
 |SDCARD_SORT_ALPHA            |+                        |Sort SD card files in alphabetical order
 |SDSORT_LIMIT                 |100                      |Maximum number of sorted items for SD card file list (expensive...)
 |BABYSTEPPING                 |+                        |Enables Z babystepping, which is the Marlin name for Live-Z
+|BABYSTEP_ZPROBE_OFFSET       |+                        |Combines M851 and babystepping (makes it closer to Prusa's Live-Z)
 |DOUBLECLICK_FOR_Z_BABYSTEPPING|+                       |Double-click on status screen goes to Z babystepping menu
+|DOUBLECLICK_MAX_INTERVAL     |2000                     |Increases slightly the allowed delay to detect a double-click. This is the value that TH3D is using in their Marlin firmware.
 |LIN_ADVANCE                  |+                        |Enable linear advance (woohoo!)
 |MESH_MIN_X                   |35                       |X axis lower inset for mesh bed leveling
 |MESH_MIN_Y                   |6                        |Y axis lower inset for mesh bed leveling

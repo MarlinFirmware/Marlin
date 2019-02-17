@@ -325,8 +325,7 @@
  */
 #define PINDA_THERMISTOR // Use name from Prusa firmware, in case anything gets migrated, 
                          // but we also define HAS_TEMP_PINDA below to be consistent with Marin
-
-#ifdef PINDA_THERMISTOR
+#if ENABLED(PINDA_THERMISTOR)
   #define TEMP_PINDA_PIN  3
   #define TEMP_SENSOR_PINDA 1
 #endif
