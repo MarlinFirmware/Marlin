@@ -4268,7 +4268,23 @@ inline void gcode_G28(const bool always_home_all) {
     extruder_duplication_enabled = false;
   #endif
 
+  #if ENABLED(SENSORLESS_HOMING_CURRENT) && ENABLED(SENSORLESS_HOMING)
+    #if AXIS_IS_TMC(X) && X_HOMING_CURRENT > 0
+      const uint16_t X_current = stepperX.getCurrent();
+      stepperX.setCurrent(X_HOMING_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+      #if AXIS_IS_TMC(Y) && Y_HOMING_CURRENT > 0
+      const uint16_t Y_current = stepperY.getCurrent();
+      stepperY.setCurrent(Y_HOMING_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+    #if AXIS_IS_TMC(Z) && Z_HOMING_CURRENT > 0
+      const uint16_t Z_current = stepperZ.getCurrent();
+      stepperZ.setCurrent(Z_HOMING_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+  #endif
+
   setup_for_endstop_or_probe_move();
+
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
   #endif
@@ -4406,6 +4422,18 @@ inline void gcode_G28(const bool always_home_all) {
   #endif
 
   clean_up_after_endstop_or_probe_move();
+
+  #if ENABLED(SENSORLESS_HOMING_CURRENT) && ENABLED(SENSORLESS_HOMING)
+    #if AXIS_IS_TMC(X) && X_HOMING_CURRENT > 0
+      stepperX.setCurrent(X_current, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+      #if AXIS_IS_TMC(Y) && Y_HOMING_CURRENT > 0
+      stepperY.setCurrent(Y_current, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+    #if AXIS_IS_TMC(Z) && Z_HOMING_CURRENT > 0
+      stepperZ.setCurrent(Z_current, R_SENSE, HOLD_MULTIPLIER);
+    #endif
+  #endif
 
   // Restore the active tool after homing
   #if HOTENDS > 1 && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
