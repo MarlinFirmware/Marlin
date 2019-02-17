@@ -943,8 +943,6 @@
 
   //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
-    #define BABYSTEP_ON_STEPPER_ACTIVE      // Enable menu on stepper active instead of printer busy
-    #define BABYSTEP_DEFER_STEPPER_TIMEOUT  // Prevents stepper timeout while on Babystepping screen
     #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
                                             // Note: Extra time may be added to mitigate controller latency.
   #endif

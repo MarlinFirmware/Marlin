@@ -449,21 +449,11 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     #define MOVE_AWAY_TEST true
   #endif
 
-  #if ENABLED(BABYSTEP_DEFER_STEPPER_TIMOUT)
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      #define BABYSTEP_DEFER currentScreen != lcd_babystep_zoffset
-    #else
-      #define BABYSTEP_DEFER currentScreen != lcd_babystep_z
-    #endif
-  #else
-    #define BABYSTEP_DEFER true
-  #endif
-
   if (stepper_inactive_time) {
     static bool already_shutdown_steppers; // = false
     if (planner.has_blocks_queued())
       gcode.previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
-    else if (MOVE_AWAY_TEST && BABYSTEP_DEFER && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
+    else if (MOVE_AWAY_TEST && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
       if (!already_shutdown_steppers) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
         #if ENABLED(DISABLE_INACTIVE_X)
