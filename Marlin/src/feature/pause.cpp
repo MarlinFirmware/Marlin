@@ -183,8 +183,6 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 
   #if HAS_LCD_MENU
     if (show_lcd) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, mode);
-  #else
-    UNUSED(show_lcd);
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
@@ -274,9 +272,9 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       #endif
 
       // Keep looping if "Purge More" was selected
-    } while (false
+    } while (show_lcd
       #if HAS_LCD_MENU
-        && show_lcd && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE
+        && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE
       #endif
     );
 
