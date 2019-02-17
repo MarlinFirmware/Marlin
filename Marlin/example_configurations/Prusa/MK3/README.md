@@ -51,12 +51,6 @@ The following tables shows all changes from Marlin 1.1.9 default values.
 |DEFAULT_NOMINAL_FILAMENT_DIA |1.75                     |Generally expected filament diameter.
 |TEMP_SENSOR_0                |5                        |Hotend thermistor type (E3D)
 |TEMP_SENSOR_BED              |1                        |Bed thermistor type
-|TEMP_RESIDENCY_TIME          |3                        |Extruder temperature must be close to target for this long before M109 returns success. Value was 10
-|TEMP_HYSTERESIS              |5                        |Range of +/- temperatures considered "close" to the target one. Value was 3.
-|TEMP_BED_RESIDENCY_TIME      |3                        |Bed temperature must be close to target for this long before M190 returns success. Value was 10.
-|TEMP_BED_HYSTERESIS          |5                        |Range of +/- temperatures considered "close" to the target one. Value was 3.
-|HEATER_0_MINTEMP             |15                       |Minimum hotend temperature below which firmware will consider thermistor as failed and disable heater. Value was 5.
-|BED_MINTEMP                  |15                       |Minimum heatbed temperature below which firmware will consider thermistor as failed and disable heater. Value was 5.
 |HEATER_0_MAXTEMP             |305                      |Maximum allowed temperature for hotend.
 |BED_MAXTEMP                  |125                      |Maximum allowed temperature for bed.
 |DEFAULT_Kp                   |16.13                    |Hotend PID constant - Proportional              
@@ -109,6 +103,7 @@ The following tables shows all changes from Marlin 1.1.9 default values.
 |GRID_MAX_POINTS_X            |5                        |5x5 grid for mesh bed leveling (GRID_MAX_POINTS_Y == GRID_MAX_POINTS_X)
 |Z_SAFE_HOMING                |+                        |Only allows Z homing after X/Y homing and if motors have not timed out.
 |HOMING_FEEDRATE_Z            |8*60                     |Homing speed for Z (8 mm/s, 480 mm/m)
+|SKEW_CORRECTION_GCODE        |+                        |Enables user to set skew at runtime via M852
 |EEPROM_SETTINGS              |+                        |Enables storing and retrieving settings to/from EEPROM with M500 and M501
 |PREHEAT_1_TEMP_HOTEND        |215                      |Hotend temp for Preheat menu 1 (String set to PLA in Configuration_adv.h)
 |PREHEAT_1_TEMP_BED           |60                       |Bed temp for Preheat menu 1 (String set to PLA in Configuration_adv.h)
@@ -126,14 +121,7 @@ The following tables shows all changes from Marlin 1.1.9 default values.
 
 #### Notes and Open Questions
 * Einsy has an on-board thermistor, referred to as "Ambient" in Prusa firmware. How do we enable this?
-* I don't think we should change TEMP_RESIDENCY_TIME and TEMP_HYSTERISIS? On my (mhumphr) printer, I actually inserted a pause in g-code to allow it to stabilize more.
-* Same comment as above for TEMP_BED_RESIDENCY_TIME and TEMP_BED_HYSTERESIS
-* I do not think we should change HEATER_0_MINTEMP or BED_MINTEMP from the defaults. Prusa has had people with cold rooms complain.
-* Need to look into endstop-related settings given we're using sensorless homing via TMC drivers.
-* Let's disable S-curve acceleration for now
-* Should we use AUTO_BED_LEVELING_UBL instead of AUTO_BED_LEVELING_BILINEAR?
-* stahlfabrik's Configuration.h changes MESH_TEST_HOTEND_TEMP, but G26_MESH_VALIDATION is disabled
-* Do we want to enable SKEW_CORRECTION_GCODE so user can enter skew corrections via M852?
+* Should we disable S-curve acceleration for now? It seems still an experimental feaure.
 * Is there any way to add more preheat settings w/o modifying code? If not, perhaps we should switch second menu item to PETG, since that is more common than ABS these days.
 * NOZZLE_PARK_FEATURE - is this enabled in Prusa FW?
 
@@ -199,14 +187,3 @@ The following table lists the changes to TMC2130 motor driver settings (also in 
 |CALIBRATION_CURRENT          |348                      |Z steppers are set to this current during Z calibration
 |TMC_ADV                      |(see Notes)              |This is a way of adding additional calls to tmc2130 class methods to set various custom values. See Configuration_adv.h for details (too numerous to list here)
 
-#### Notes and Open Questions
-* For what is AUTOTEMP used?
-* E0_AUTO_FAN_PIN value should be set to FAN_PIN (which comes from pins_EINSY_RAMBO.h)
-* Need to validate motor current values in Configuration_Adv.h. I think these are actually set via SPI
-* For BondTech + LDO 0.9 stepper, I recommend reducing E0_MICROSTEPS back to 16. Maybe this is another config variant?
-
-### pins_EINSY_RAMBO.h
-
-* Changed hotend fan to -1, so that automatic temperature control can be used.
-* Changed pin of part cooling fan to Prusa default
-* Added define for PINDA thermistor pin
