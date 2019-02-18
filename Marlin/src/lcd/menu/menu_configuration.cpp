@@ -105,7 +105,7 @@ static void lcd_factory_settings() {
   void menu_tool_change() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    #if ENABLED(TOOLCHANGE_PARK)
+    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, 200);
       MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
       MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);

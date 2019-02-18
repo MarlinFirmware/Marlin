@@ -30,6 +30,8 @@
 #include "../../module/planner.h"
 #include "../../module/tool_change.h"
 #include "../../module/endstops.h"
+#include "../../feature/bedlevel/bedlevel.h"
+
 
 /**
  * G425 backs away from the calibration object by various distances
@@ -60,8 +62,9 @@
 enum side_t : uint8_t { TOP, RIGHT, FRONT, LEFT, BACK, NUM_SIDES };
 
 struct measurements_t {
-  static const float dimensions[XYZ];
-  static const float true_center[XYZ]; // This cannot be constexpr since it is accessed by index in probe_side
+  static constexpr float dimensions[XYZ] = CALIBRATION_OBJECT_DIMENSIONS;
+  static constexpr float true_center[XYZ] = CALIBRATION_OBJECT_CENTER;
+
   float obj_center[XYZ] = CALIBRATION_OBJECT_CENTER;
   float obj_side[NUM_SIDES];
 
@@ -71,16 +74,13 @@ struct measurements_t {
   float nozzle_outer_dimension[2] = {CALIBRATION_NOZZLE_OUTER_DIAMETER, CALIBRATION_NOZZLE_OUTER_DIAMETER};
 };
 
-const float measurements_t::true_center[XYZ] = CALIBRATION_OBJECT_CENTER;
-
-const float measurements_t::dimensions[]  = CALIBRATION_OBJECT_DIMENSIONS;
-
-#define TEMPORARY_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable); TemporaryGlobalEndstopsState tges(enable)
+#define TEMPORARY_BED_LEVELING_STATE(enable) TemporaryBedLevelingState tbls(enable)
+#define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
 
 #if ENABLED(BACKLASH_GCODE)
-  #define TEMPORARY_BACKLASH_STATE(enable) REMEMBER(tbst, backlash_correction, enable)
+  #define TEMPORARY_BACKLASH_CORRECTION(value) REMEMBER(tbst, backlash_correction, value)
 #else
-  #define TEMPORARY_BACKLASH_STATE(enable)
+  #define TEMPORARY_BACKLASH_CORRECTION(value)
 #endif
 
 #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
@@ -88,6 +88,20 @@ const float measurements_t::dimensions[]  = CALIBRATION_OBJECT_DIMENSIONS;
 #else
   #define TEMPORARY_BACKLASH_SMOOTHING(value)
 #endif
+
+/**
+ * A class to save and change the bed leveling state,
+ * then restore it when it goes out of scope.
+ */
+class TemporaryBedLevelingState {
+  bool saved;
+
+  public:
+    TemporaryBedLevelingState(const bool enable) : saved(planner.leveling_active) {
+      set_bed_leveling_enabled(enable);
+    }
+    ~TemporaryBedLevelingState() { set_bed_leveling_enabled(saved); }
+};
 
 /**
  * Move to a particular location. Up to three individual axes
@@ -121,10 +135,10 @@ inline void move_to(
  *   uncertainty        in     - How far away from the object top to park
  */
 inline void park_above_object(measurements_t &m, const float uncertainty) {
-  /* Move to safe distance above calibration object */
+  // Move to safe distance above calibration object
   move_to(Z_AXIS, m.obj_center[Z_AXIS] + m.dimensions[Z_AXIS] / 2 + uncertainty);
 
-  /* Move to center of calibration object in XY */
+  // Move to center of calibration object in XY
   move_to(X_AXIS, m.obj_center[X_AXIS], Y_AXIS, m.obj_center[Y_AXIS]);
 }
 
@@ -228,6 +242,7 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
  *                               to find out height of edge
  */
 inline void probe_side(measurements_t &m, const float uncertainty, const side_t side, const bool probe_top_at_edge=false) {
+  const float dimensions[]  = CALIBRATION_OBJECT_DIMENSIONS;
   AxisEnum axis;
   float dir;
 
@@ -236,7 +251,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
   switch(side) {
     case TOP: {
       const float measurement = measure(Z_AXIS, -1, true, &m.backlash[TOP], uncertainty);
-      m.obj_center[Z_AXIS] = measurement - m.dimensions[Z_AXIS] / 2;
+      m.obj_center[Z_AXIS] = measurement - dimensions[Z_AXIS] / 2;
       m.obj_side[TOP] = measurement;
       return;
     }
@@ -250,18 +265,18 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
 
   if (probe_top_at_edge) {
     // Probe top nearest the side we are probing
-    move_to(axis, m.obj_center[axis] + (-dir) * (m.dimensions[axis] / 2 - m.nozzle_outer_dimension[axis]));
+    move_to(axis, m.obj_center[axis] + (-dir) * (dimensions[axis] / 2 - m.nozzle_outer_dimension[axis]));
     m.obj_side[TOP] = measure(Z_AXIS, -1, true, &m.backlash[TOP], uncertainty);
-    m.obj_center[Z_AXIS] = m.obj_side[TOP] - m.dimensions[Z_AXIS] / 2;
+    m.obj_center[Z_AXIS] = m.obj_side[TOP] - dimensions[Z_AXIS] / 2;
   }
 
   // Move to safe distance to the side of the calibration object
-  move_to(axis, m.obj_center[axis] + (-dir) * (m.dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2 + uncertainty));
+  move_to(axis, m.obj_center[axis] + (-dir) * (dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2 + uncertainty));
 
   // Plunge below the side of the calibration object and measure
   move_to(Z_AXIS, m.obj_side[TOP] - CALIBRATION_NOZZLE_TIP_HEIGHT * 0.7);
   const float measurement = measure(axis, dir, true, &m.backlash[side], uncertainty);
-  m.obj_center[axis] = measurement + dir * (m.dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2);
+  m.obj_center[axis] = measurement + dir * (dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2);
   m.obj_side[side] = measurement;
 }
 
@@ -272,14 +287,11 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
  *   uncertainty        in     - How far away from the calibration object to begin probing
  */
 inline void probe_sides(measurements_t &m, const float uncertainty) {
-  TEMPORARY_ENDSTOP_STATE(false);
-
   #ifdef CALIBRATION_MEASURE_AT_TOP_EDGES
     constexpr bool probe_top_at_edge = true;
   #else
-    /* Probing at the exact center only works if the center is flat. Probing on a washer
-     * or bolt will require probing the top near the side edges, away from the center.
-     */
+    // Probing at the exact center only works if the center is flat. Probing on a washer
+    // or bolt will require probing the top near the side edges, away from the center.
     constexpr bool probe_top_at_edge = false;
     probe_side(m, uncertainty, TOP);
   #endif
@@ -287,9 +299,11 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   #ifdef CALIBRATION_MEASURE_RIGHT
     probe_side(m, uncertainty, RIGHT, probe_top_at_edge);
   #endif
+
   #ifdef CALIBRATION_MEASURE_FRONT
     probe_side(m, uncertainty, FRONT, probe_top_at_edge);
   #endif
+
   #ifdef CALIBRATION_MEASURE_LEFT
     probe_side(m, uncertainty, LEFT,  probe_top_at_edge);
   #endif
@@ -297,7 +311,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     probe_side(m, uncertainty, BACK,  probe_top_at_edge);
   #endif
 
-  /* Compute the measured center of the calibration object. */
+  // Compute the measured center of the calibration object.
   #if HAS_X_CENTER
     m.obj_center[X_AXIS] = (m.obj_side[LEFT] + m.obj_side[RIGHT]) / 2;
   #endif
@@ -305,8 +319,8 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     m.obj_center[Y_AXIS] = (m.obj_side[FRONT] + m.obj_side[BACK]) / 2;
   #endif
 
-  /* Compute the outside diameter of the nozzle at the height
-   * at which it makes contact with the calibration object */
+  // Compute the outside diameter of the nozzle at the height
+  // at which it makes contact with the calibration object
   #if HAS_X_CENTER
     m.nozzle_outer_dimension[X_AXIS] = m.obj_side[RIGHT] - m.obj_side[LEFT] - m.dimensions[X_AXIS];
   #endif
@@ -316,8 +330,8 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 
   park_above_object(m, uncertainty);
 
-  /* The positional error is the difference between the known calibration
-   * object location and the measured calibration object location */
+  // The difference between the known and the measured location
+  // of the calibration object is the positional error
   m.pos_error[X_AXIS] =
   #if HAS_X_CENTER
     m.true_center[X_AXIS] - m.obj_center[X_AXIS];
@@ -434,9 +448,9 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
   // Backlash compensation should be off while measuring backlash
 
   {
-    // New scope for TEMPORARY_BACKLASH_STATE
-    TEMPORARY_BACKLASH_STATE(false);
-    TEMPORARY_BACKLASH_SMOOTHING(0);
+    // New scope for TEMPORARY_BACKLASH_CORRECTION
+    TEMPORARY_BACKLASH_CORRECTION(0.0f);
+    TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
     probe_sides(m, uncertainty);
 
@@ -466,9 +480,9 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
     // directions to take up any backlash
 
     {
-      // New scope for TEMPORARY_BACKLASH_STATE
-      TEMPORARY_BACKLASH_STATE(true);
-      TEMPORARY_BACKLASH_SMOOTHING(0);
+      // New scope for TEMPORARY_BACKLASH_CORRECTION
+      TEMPORARY_BACKLASH_CORRECTION(1.0f);
+      TEMPORARY_BACKLASH_SMOOTHING(0.0f);
       move_to(
         X_AXIS, current_position[X_AXIS] + 3,
         Y_AXIS, current_position[Y_AXIS] + 3,
@@ -484,8 +498,9 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
 }
 
 inline void update_measurements(measurements_t &m, const AxisEnum axis) {
+  const float true_center[XYZ] = CALIBRATION_OBJECT_CENTER;
   current_position[axis] += m.pos_error[axis];
-  m.obj_center[axis] = m.true_center[axis];
+  m.obj_center[axis] = true_center[axis];
   m.pos_error[axis] = 0;
 }
 
@@ -501,8 +516,8 @@ inline void update_measurements(measurements_t &m, const AxisEnum axis) {
  *    - Call calibrate_backlash() beforehand for best accuracy
  */
 inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const uint8_t extruder) {
-  TEMPORARY_BACKLASH_STATE(true);
-  TEMPORARY_BACKLASH_SMOOTHING(0);
+  TEMPORARY_BACKLASH_CORRECTION(1.0f);
+  TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   #if HOTENDS > 1
     set_nozzle(m, extruder);
@@ -510,7 +525,7 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
 
   probe_sides(m, uncertainty);
 
-  /* Adjust the hotend offset */
+  // Adjust the hotend offset
   #if HOTENDS > 1
     #if HAS_X_CENTER
       hotend_offset[X_AXIS][extruder] += m.pos_error[X_AXIS];
@@ -545,8 +560,8 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
  *   uncertainty    in     - How far away from the object to begin probing
  */
 inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) {
-  TEMPORARY_BACKLASH_STATE(true);
-  TEMPORARY_BACKLASH_SMOOTHING(0);
+  TEMPORARY_BACKLASH_CORRECTION(1.0f);
+  TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
 
@@ -574,23 +589,22 @@ inline void calibrate_all() {
     reset_nozzle_offsets();
   #endif
 
-  TEMPORARY_BACKLASH_STATE(true);
-  TEMPORARY_BACKLASH_SMOOTHING(0);
+  TEMPORARY_BACKLASH_CORRECTION(1.0f);
+  TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
-
-  /* Do a fast and rough calibration of the toolheads */
+  // Do a fast and rough calibration of the toolheads
   calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNKNOWN);
 
   #if ENABLED(BACKLASH_GCODE)
     calibrate_backlash(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
   #endif
 
-  /* Cycle the toolheads so the servos settle into their "natural" positions */
+  // Cycle the toolheads so the servos settle into their "natural" positions
   #if HOTENDS > 1
     HOTEND_LOOP() set_nozzle(m, e);
   #endif
 
-  /* Do a slow and precise calibration of the toolheads */
+  // Do a slow and precise calibration of the toolheads
   calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
 
   move_to(X_AXIS, 150); // Park nozzle away from calibration object
@@ -607,6 +621,9 @@ inline void calibrate_all() {
  *   no args     - Perform entire calibration sequence (backlash + position on all toolheads)
  */
 void GcodeSuite::G425() {
+  TEMPORARY_SOFT_ENDSTOP_STATE(false);
+  TEMPORARY_BED_LEVELING_STATE(false);
+
   if (axis_unhomed_error()) return;
 
   measurements_t m;

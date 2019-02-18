@@ -111,12 +111,12 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
   return thermalManager.wait_for_hotend(active_extruder);
 }
 
-void do_pause_e_move(const float &length, const float &fr) {
+void do_pause_e_move(const float &length, const float &fr_mm_s) {
   #if HAS_FILAMENT_SENSOR
     runout.reset();
   #endif
   current_position[E_AXIS] += length / planner.e_factor[active_extruder];
-  planner.buffer_line(current_position, fr, active_extruder);
+  planner.buffer_line(current_position, fr_mm_s, active_extruder);
   planner.synchronize();
 }
 

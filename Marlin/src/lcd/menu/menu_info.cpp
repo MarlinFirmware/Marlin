@@ -74,19 +74,19 @@
     #if SERVICE_INTERVAL_1 > 0
       elapsed = stats.nextService1;
       elapsed.toString(buffer);
-      STATIC_ITEM(SERVICE_NAME_1 " in:", false, false);                                            // Service X in:
+      STATIC_ITEM(SERVICE_NAME_1 MSG_SERVICE_IN, false, false);                                    // Service X in:
       STATIC_ITEM("> ", false, false, buffer);                                                     // > 7d 12h 11m 10s
     #endif
     #if SERVICE_INTERVAL_2 > 0
       elapsed = stats.nextService2;
       elapsed.toString(buffer);
-      STATIC_ITEM(SERVICE_NAME_2 " in:", false, false);
+      STATIC_ITEM(SERVICE_NAME_2 MSG_SERVICE_IN, false, false);
       STATIC_ITEM("> ", false, false, buffer);
     #endif
     #if SERVICE_INTERVAL_3 > 0
       elapsed = stats.nextService3;
       elapsed.toString(buffer);
-      STATIC_ITEM(SERVICE_NAME_3 " in:", false, false);
+      STATIC_ITEM(SERVICE_NAME_3 MSG_SERVICE_IN, false, false);
       STATIC_ITEM("> ", false, false, buffer);
     #endif
 
