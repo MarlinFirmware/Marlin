@@ -1689,7 +1689,13 @@ void Temperature::set_current_temp_raw() {
     current_temperature_chamber_raw = raw_temp_chamber_value;
   #endif
   #if HAS_TEMP_PINDA
-    current_temperature_pinda_raw = raw_temp_pinda_value;
+    #if ENABLED(PINDA_SMOOTHING) && (PINDA_SMOOTHING_DIVISOR_LOG2 > 0)
+      current_temperature_pinda_raw = (int16_t)
+        (((int32_t)current_temperature_pinda_raw * ((1 << PINDA_SMOOTHING_DIVISOR_LOG2)-1)
+        + raw_temp_pinda_value) >> PINDA_SMOOTHING_DIVISOR_LOG2);
+    #else
+      current_temperature_pinda_raw = raw_temp_pinda_value;
+    #endif
   #endif
   temp_meas_ready = true;
 }

@@ -328,6 +328,11 @@
 #if ENABLED(PINDA_THERMISTOR)
   #define TEMP_PINDA_PIN  3
   #define TEMP_SENSOR_PINDA 1
+
+  #define PINDA_SMOOTHING
+  #if ENABLED(PINDA_SMOOTHING)
+    #define PINDA_SMOOTHING_DIVISOR_LOG2 2
+  #endif
 #endif
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
