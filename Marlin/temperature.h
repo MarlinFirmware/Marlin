@@ -275,6 +275,10 @@ class Temperature {
       static uint16_t raw_temp_pinda_value;
       static float current_temperature_pinda;
       static int16_t current_temperature_pinda_raw;
+      #if ENABLED(PINDA_SMOOTHING)
+        static bool first_sample;
+        static uint16_t current_temperature_pinda_raw_remainder;
+      #endif
       static int16_t target_temperature_pinda;
     #endif
 
