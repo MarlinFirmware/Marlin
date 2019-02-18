@@ -136,6 +136,7 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
   float Temperature::current_temperature_pinda = 0.0;
   int16_t Temperature::current_temperature_pinda_raw = 0;
   uint16_t Temperature::raw_temp_pinda_value = 0;
+  int16_t Temperature::target_temperature_pinda = 0;
 #endif
 
 // Initialized by settings.load()
@@ -2410,7 +2411,7 @@ void Temperature::isr() {
       );
     #endif
     #if HAS_TEMP_PINDA
-      print_heater_state(degPinda(), 0
+      print_heater_state(degPinda(), degTargetPinda()
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawPindaTemp()
         #endif

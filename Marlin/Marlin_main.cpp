@@ -9468,67 +9468,74 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    * If both C and W are given, warm up is performed
    */
   inline void gcode_M199() {
-    int16_t target_temp = 0;
     
+    if (DEBUGGING(DRYRUN)) return;
+
     // Target temperature
 		if (parser.seenval('S')) {
-      target_temp = parser.value_celsius();
-		}
-		else {
-			return;
-		}
 
-    bool is_pinda_cooling;
-    // Automatic
-		if ((thermalManager.degTargetBed() == 0) && (thermalManager.degTargetHotend(0) == 0)) {
-      is_pinda_cooling = true;
-		} else {
-      is_pinda_cooling = false;
-    }
+      const int16_t target_temp = (int16_t)parser.value_celsius();
 
-    //Force cool down
-    if (parser.seen('C')) {
-      is_pinda_cooling = true;
-    }
-
-    //Force heat up
-    if (parser.seen('W')) {
-      is_pinda_cooling = false;
-    }
-
-    //Timeout
-    millis_t timeout = 0;
-    if (parser.seenval('T')) {
-      timeout = millis() + parser.value_millis_from_seconds();
-		}
-
-		//LCD_MESSAGERPGM(_T(MSG_PLEASE_WAIT));
-
-		SERIAL_PROTOCOLPGM("Wait for sensor ");
-    is_pinda_cooling ? SERIAL_PROTOCOLPGM("cool down") : SERIAL_PROTOCOLPGM("warm up");
-    SERIAL_PROTOCOLPGM(" target temperature: ");
-		SERIAL_PROTOCOL(target_temp);
-    SERIAL_EOL();
-
-    millis_t next_serial_status_ms = millis() + 1000UL;
-
-		while ( ((!is_pinda_cooling) && (thermalManager.degPinda() < target_temp)) || (is_pinda_cooling && (thermalManager.degPinda() > target_temp)) ) {
-			if (ELAPSED(millis(), next_serial_status_ms)) //Print temp value every second while waiting on serial.
-			{
-				SERIAL_PROTOCOLPGM("P:");
-				SERIAL_PROTOCOL_F(thermalManager.degPinda(), 1);
-				SERIAL_PROTOCOLPGM("/");
-				SERIAL_PROTOCOL(target_temp);
-        SERIAL_EOL();
-				next_serial_status_ms = millis() + 1000UL;
-			}
-      if ((timeout != 0) && ELAPSED(millis(), timeout)) {
-        SERIAL_PROTOCOLLNPGM("Timeout");
-        break;
+      const bool is_pinda_cooling = 
+          !parser.seen('W') && 
+          ( ((thermalManager.degTargetBed() == 0) && (thermalManager.degTargetHotend(0) == 0))
+            || parser.seen('C'));
+          
+      //Timeout
+      millis_t timeout = 0;
+      if (parser.seenval('T')) {
+        timeout = millis() + parser.value_millis_from_seconds();
       }
-			idle();
+
+      SERIAL_PROTOCOLPGM("Wait for sensor ");
+      is_pinda_cooling ? SERIAL_PROTOCOLPGM("cool down") : SERIAL_PROTOCOLPGM("warm up");
+      SERIAL_PROTOCOLPGM(" to target temperature: ");
+      SERIAL_PROTOCOL(target_temp);
+      SERIAL_EOL();
+
+      float pinda_temp;
+      millis_t now = millis();
+      millis_t next_serial_status_ms = now + 1000UL;;
+
+      thermalManager.setTargetPinda(target_temp);
+
+      do {        
+        pinda_temp = thermalManager.degPinda();
+
+        // PINDA temp is displayed in serial console in response to M105 commands.
+        // We display it here on the LCD
+        if (ELAPSED(now, next_serial_status_ms)) {
+          next_serial_status_ms = now + 1000UL;
+          thermalManager.print_heaterstates();
+          SERIAL_EOL();
+          #if ENABLED(ULTRA_LCD)
+            lcd_status_printf_P(0, is_pinda_cooling ? PSTR("P:%i/%i " MSG_COOLING) : PSTR("P:%i/%i " MSG_HEATING), int16_t(pinda_temp), target_temp);
+          #endif
+        }
+
+        idle();
+        reset_stepper_timeout(); // Keep steppers powered
+
+        now = millis();
+
+        if ((timeout != 0) && ELAPSED(now, timeout)) {
+          SERIAL_PROTOCOLPGM("TIMEOUT on sensor ");
+          if (is_pinda_cooling) {
+            SERIAL_PROTOCOLPGM("cool-down");
+          } 
+          else {
+            SERIAL_PROTOCOLPGM("warm-up");
+          }
+          SERIAL_EOL();
+          break;
+        }
+
+      } while ( ((!is_pinda_cooling) && (pinda_temp < target_temp)) 
+                 || (is_pinda_cooling && (pinda_temp > target_temp)) );
+
+      lcd_reset_status();
+      thermalManager.setTargetPinda(0);
 		}
-		//LCD_MESSAGERPGM(MSG_OK);
   }
 
 #endif // PINDA_THERMISTOR

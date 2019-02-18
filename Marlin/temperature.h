@@ -275,6 +275,7 @@ class Temperature {
       static uint16_t raw_temp_pinda_value;
       static float current_temperature_pinda;
       static int16_t current_temperature_pinda_raw;
+      static int16_t target_temperature_pinda;
     #endif
 
     #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
@@ -488,6 +489,10 @@ class Temperature {
         FORCE_INLINE static int16_t rawPindaTemp() { return current_temperature_pinda_raw; }
       #endif
       FORCE_INLINE static float degPinda() { return current_temperature_pinda; }
+      FORCE_INLINE static int16_t degTargetPinda()  { return target_temperature_pinda; }
+      static void setTargetPinda(const int16_t celsius) {
+        target_temperature_pinda = celsius;
+      }
     #endif
 
     FORCE_INLINE static bool wait_for_heating(const uint8_t e) {
