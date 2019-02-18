@@ -1385,7 +1385,7 @@ SERIAL_ECHO(Checkkey);
 				{
 					RTS_SndData(2, AutoLevelIcon);
 					AutoLevelStatus = true;
-					enqueue_and_echo_commands_P((PSTR("M420 0")));
+					enqueue_and_echo_commands_P((PSTR("M420 S0")));
 				}
 				last_zoffset = rts_probe_zoffset;
 				RTS_SndData(zprobe_zoffset*100, 0x1026); 
