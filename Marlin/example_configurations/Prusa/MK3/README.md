@@ -9,8 +9,59 @@ A number of individuals are contributing to this effort. The best resource
 for questions or feedback is the #Marlin channel in the  ["602 Wasteland" Discord server](https://discord.gg/R848Xn). 
 Please read the rules there before posting.
 
+The firmware itself is maintained on the [PrusaOwners/Marlin repository on Github](https://github.com/PrusaOwners/Marlin)
+
 The team also contributes to the [PrusaOwners Wiki](https://github.com/PrusaOwners/prusaowners/wiki) 
 which contains a wealth of information on the Prusa MK3 printer.
+
+## Why would I use this firmware?
+
+An obvious question is: why would someone want to use this firmware over the
+Prusa-provided firmware. Prusa's firmware itself is a "fork" of Marlin. At
+some point years ago, someone at Prusa made a copy of the Marlin firmware, and
+then Prusa proceeded to make changes to it for their purposes. Unfortunately,
+as happens often with forks of open source projects, the two projects have continued to
+diverge. This means that Prusa has not been able to take advantage of thew
+new Marlin features, for example, Linear Advance 1.5.
+
+So the first reason to choose this firmware is if you want to take advantage
+of the newer features in recent releases of Marlin, which in all likelihood
+Prusa will never support.
+
+The second reason you might want this firmware is because we are prioritizing
+stability over new features. While no-one writes bug-free code, our goal is to
+maintain a stable core feature set and above all to listen to the community
+and prioritize bug fixes over new features.
+
+The third reason is that our intent is to keep this repo in sync with Marlin.
+We will work hard to get any changes integrated back to Marlin, in the spirit
+of open source, and also to ensure future Marlin fixes and features can be
+readily integrated.
+
+### Additional Features over Prusa
+
+This section lists some of the benefits over Prusa
+
+* Linear Advance 1.5
+* S-Curve acceleration
+* Improved PINDA g-code support supports timeout, explicit cooldown and warmup, smoothed temperature measurements, serial console output integrated with other temperatures, and LCD status display.
+
+TODO - lots to document here
+
+## Project Goals
+
+The team started this project with the following goals in mind:
+
+* Create a Prusa MK3 compatible firmware based on the most recent stable release of Marlin, supporting all the features of Marlin that have become available since Prusa forked from that.
+* Maintain a stable release without bugs in the core feature-set.
+* Prioritize the core extensions needed to make a usable MK3 firmware. So for example, we focused on getting the PINDA probe working fully, but have a lower priority adding features like Power Panic.
+* Provide a good base firmware for those wishing to develop a firmware for Prusa clones or spin-offs. The Marlin firmware is designed to be easily customizable for use across a huge range of printers. We want to provide a firmware that users of variants of the MK3 can easily tweak to support their specific needs.
+* Listen to community feedback, and prefer high-priority bug fixes over adding new features.
+* Where possible, work to merge code changes back into the Marlin repo. This means minimizing changes to Marlin to those that are needed to support actual features. It also means following the [Marlin Coding Standards](http://marlinfw.org/docs/development/coding_standards.html)
+
+The following are not goals for this project:
+
+* To create an exact clone of Prusa's firmware. For example, the LCD status screen has the Marlin layout, not Prusa's. The menus are Marlin menus, not Prusas. Changes to both those things are possible, but they make it harder to re-integrate our changes back into Marlin.
 
 ## Building the firmware for the Prusa i3 MK3
 
@@ -32,12 +83,28 @@ Then copy the configuration files "Configuration.h" and "Configuration_adv.h" fr
 
 Build the firmware and upload to your EINSY board.
 
+*IMPORTANT* After uploading the firmware to your EINSY board, you should immediately clear the EEPROM using the printer menus or the M502 followed by the M500 commands. It is important to do this when coming from the Prusa firmware, because the layout of the EEPROM storage is different for Prusa, and this can create some strange, potentially even damaging behavior. 
+
 ## Summary of Changes
 
 This section contains a description of each change to the Marlin configuration
 files, Configuration.h and Configuration_adv.h.  The intent is to provide a
 reference to allow multiple developers to work on the project with a quick
 ramp-up on what changes were needed.
+
+### Feature Changes
+
+#### PINDA Probe
+
+* Reading of the PINDA thermistor was added to thermalManager (thermistor.h, thermistor.cpp)
+* A new g-code command M199 (M860 was taken already) was added (Marlin_main.cpp) to allow waiting for the PINDA to cool down or heat up
+* M199 supports a timeout value
+* M199 supports (optional) explicit control over whether cool-down or warm-up is desired
+* LCD status display of PINDA temperature and target during M199 warm-up or cool-down
+* M199 serial output includes full temperature output ala M105. This means that Octoprint will continue to update it's temperature graph during PINDA waiting
+* PINDA temperature, which is notoriously noisy, is now filtered via a running average. This provides more predictable and consistent behavior, as well as making it easier to track progress in the serial console and LCD.
+
+* [Coming Soon] Support for PINDA temperature compensation
 
 ### Configuration.h
 
@@ -82,7 +149,7 @@ The following tables shows all changes from Marlin 1.1.9 default values.
 |FIX_MOUNTED_PROBE            |+                        |Z-probe (PINDA2) is fixed and does not require automatic deployment
 |X_PROBE_OFFSET_FROM_EXTRUDER |23                       |Z-probe X offset: -left  +right  [of the nozzle]
 |Y_PROBE_OFFSET_FROM_EXTRUDER |5                        |Z-probe Y offset: -front +behind [the nozzle]
-|Z_PROBE_OFFSET_FROM_EXTRUDER |-0.4                     |Z-probe Z offset: -below +above  [the nozzle]
+|Z_PROBE_OFFSET_FROM_EXTRUDER |0                        |Z-probe Z offset: -below +above  [the nozzle]
 |XY_PROBE_SPEED               |10000                    |X and Y axis travel speed (mm/m) between z-probes
 |Z_PROBE_SPEED_SLOW           |(Z_PROBE_SPEED_FAST / 4) |Feedrate for the slow, more accurate movement during probing
 |MULTIPLE_PROBING             |2                        |Number of probes at each point (doesn't Prusa do 3?)
@@ -117,6 +184,8 @@ The following tables shows all changes from Marlin 1.1.9 default values.
 |INDIVIDUAL_AXIS_HOMING_MENU  |+                        |Adds individual axis homing items to the menu
 |SPEAKER                      |+                        |MK3 has a speaker that can produce tones
 |REPRAP_DISCOUNT_SMART_CONTROLLER |+                    |Using a RepRapDiscount Smart LCD/Controller
+|PINDA_TEMP_SMOOTHING         |+                        |New option that filters noise in PINDA temperature measurements
+|PINDA_TEMP_SMOOTHING_DIV_LOG2|6                        |Controls the running average used to filter noise in PINDA temperature measurements
 
 
 #### Notes and Open Questions

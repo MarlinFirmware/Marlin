@@ -135,7 +135,7 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 #if HAS_TEMP_PINDA
   float Temperature::current_temperature_pinda = 0.0;
   int16_t Temperature::current_temperature_pinda_raw = 0;
-  #if ENABLED(PINDA_SMOOTHING)
+  #if ENABLED(PINDA_TEMP_SMOOTHING)
     uint16_t Temperature::current_temperature_pinda_raw_remainder = 0;
     bool Temperature::first_sample = true;
   #endif
@@ -1693,8 +1693,8 @@ void Temperature::set_current_temp_raw() {
     current_temperature_chamber_raw = raw_temp_chamber_value;
   #endif
   #if HAS_TEMP_PINDA
-    #if ENABLED(PINDA_SMOOTHING) && (PINDA_SMOOTHING_DIVISOR_LOG2 > 0)
-      const uint16_t remainder_mask = (1 << PINDA_SMOOTHING_DIVISOR_LOG2)-1;
+    #if ENABLED(PINDA_TEMP_SMOOTHING) && (PINDA_TEMP_SMOOTHING_DIV_LOG2 > 0)
+      const uint16_t remainder_mask = (1 << PINDA_TEMP_SMOOTHING_DIV_LOG2)-1;
 
       if (first_sample) {
         current_temperature_pinda_raw = raw_temp_pinda_value;
@@ -1706,7 +1706,7 @@ void Temperature::set_current_temp_raw() {
           + raw_temp_pinda_value 
           + current_temperature_pinda_raw_remainder;
 
-        current_temperature_pinda_raw = (int16_t)(full_precision >> PINDA_SMOOTHING_DIVISOR_LOG2);
+        current_temperature_pinda_raw = (int16_t)(full_precision >> PINDA_TEMP_SMOOTHING_DIV_LOG2);
         current_temperature_pinda_raw_remainder = (uint16_t)(full_precision & remainder_mask);
       }
     #else
