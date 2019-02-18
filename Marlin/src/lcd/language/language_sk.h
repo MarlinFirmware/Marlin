@@ -506,3 +506,6 @@
 #define MSG_TMC_HOMING_THRS                 _UxGT("Bezsenzor. domov")
 #define MSG_TMC_STEPPING_MODE               _UxGT("Režim krokovania")
 #define MSG_TMC_STEALTH_ENABLED             _UxGT("StealthChop zapnutý")
+
+#define MSG_SERVICE_RESET                   _UxGT("Vynulovať")
+#define MSG_SERVICE_IN                      _UxGT(" za:")

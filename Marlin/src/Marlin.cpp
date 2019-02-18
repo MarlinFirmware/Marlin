@@ -195,7 +195,6 @@ millis_t max_inactive_time, // = 0
          stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
 #if PIN_EXISTS(CHDK)
-  extern bool chdk_active;
   extern millis_t chdk_timeout;
 #endif
 
@@ -482,8 +481,8 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   }
 
   #if PIN_EXISTS(CHDK) // Check if pin should be set to LOW (after M240 set it HIGH)
-    if (chdk_active && ELAPSED(ms, chdk_timeout)) {
-      chdk_active = false;
+    if (chdk_timeout && ELAPSED(ms, chdk_timeout)) {
+      chdk_timeout = 0;
       WRITE(CHDK_PIN, LOW);
     }
   #endif
