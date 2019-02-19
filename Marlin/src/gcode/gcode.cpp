@@ -140,7 +140,7 @@ void GcodeSuite::dwell(millis_t time) {
     }
 
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      if (host_prompt_reason == PROMPT_G29_RETRY) host_action_prompt_end();
+      host_action_prompt_end();
     #endif
 
     #ifdef G29_SUCCESS_COMMANDS
