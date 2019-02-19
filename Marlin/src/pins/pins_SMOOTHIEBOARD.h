@@ -93,9 +93,10 @@
 #define FAN1_PIN           P2_04
 
 //
-// Display
+// LCD / Controller
 //
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+
   #define BEEPER_PIN       P1_31
   //#define DOGLCD_A0      P2_06
   #define DOGLCD_CS        P0_16
@@ -109,4 +110,9 @@
 
   #define STAT_LED_RED_PIN  P1_19
   #define STAT_LED_BLUE_PIN P1_20
+
+#elif HAS_SPI_LCD
+
+  #error "Marlin's Smoothieboard support cannot drive your LCD."
+
 #endif
