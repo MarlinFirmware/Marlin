@@ -53,10 +53,8 @@
 #define CHOPPER_PRUSAMK3_24V { 4,  1, 4 }
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
 
-#if ENABLED(MONITOR_DRIVER_STATUS)
-  #ifndef MONITOR_DRIVER_STATUS_INTERVAL_MS
-    #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500u
-  #endif
+#if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
+  #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500u
 #endif
 
 constexpr uint16_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
