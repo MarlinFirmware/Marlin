@@ -386,11 +386,11 @@ void disable_all_steppers() {
 #if ENABLED(G29_RETRY_AND_RECOVER)
 
   void event_probe_failure() {
+    #ifdef ACTION_ON_G29_FAILURE
+      host_action(PSTR(ACTION_ON_G29_FAILURE));
+    #endif
     #ifdef G29_FAILURE_COMMANDS
       gcode.process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
-    #endif
-    #ifdef ACTION_ON_G29_FAILURE
-      host_action(PSTR(ACTION_ON_G29_FAILURE)); }
     #endif
     #if ENABLED(G29_HALT_ON_FAILURE)
       #ifdef ACTION_ON_CANCEL
@@ -404,11 +404,11 @@ void disable_all_steppers() {
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"));
     #endif
-    #ifdef G29_RECOVER_COMMANDS
-      gcode.process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
-    #endif
     #ifdef ACTION_ON_G29_RECOVER
       host_action(PSTR(ACTION_ON_G29_RECOVER));
+    #endif
+    #ifdef G29_RECOVER_COMMANDS
+      gcode.process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
     #endif
   }
 
