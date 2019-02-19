@@ -137,6 +137,10 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
                    const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
                    DXC_ARGS
 ) {
+  #if !HAS_LCD_MENU
+    UNUSED(show_lcd);
+  #endif
+
   if (!ensure_safe_temperature(mode)) {
     #if HAS_LCD_MENU
       if (show_lcd) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS, mode);
@@ -272,9 +276,9 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       #endif
 
       // Keep looping if "Purge More" was selected
-    } while (show_lcd
+    } while (false
       #if HAS_LCD_MENU
-        && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE
+        || (show_lcd && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE)
       #endif
     );
 
