@@ -37,7 +37,7 @@ void handle_status_leds(void) {
   #endif
   #if ENABLED(HEAT_STAT_LEDS)
     static uint8_t heating_state = -1;
-    static bool heat_led = false;
+    static uint8_t heat_led = -1;
   #endif
   static millis_t next_status_led_update_ms = 0;
   if (ELAPSED(millis(), next_status_led_update_ms)) {
@@ -65,54 +65,54 @@ void handle_status_leds(void) {
     HOTEND_LOOP()
       new_heating_state = MAX((
       #if HAS_HEATED_BED
-        thermalManager.degTargetBed() || 
-      #endif  
+        thermalManager.degTargetBed() ||
+      #endif
         thermalManager.degTargetHotend(e)) ? ((
-      #if HAS_HEATED_BED  
-        thermalManager.isHeatingBed() || 
-      #endif  
+      #if HAS_HEATED_BED
+        thermalManager.isHeatingBed() ||
+      #endif
       thermalManager.isHeatingHotend(e)) ? 2 : 1) : 0 ,new_heating_state);
     switch(new_heating_state) {
       case(0): //heaters off, led(s) off
         if(new_heating_state != heating_state) {
           heating_state = new_heating_state;
-          #if PIN_EXISTS(HSTAT_LED_GREEN) && PIN_EXISTS(HSTAT_LED_RED)
-            WRITE(HSTAT_LED_GREEN_PIN, LOW);
-            WRITE(HSTAT_LED_RED_PIN, LOW);
+          #if PIN_EXISTS(HEAT_STAT_LED_GREEN) && PIN_EXISTS(HEAT_STAT_LED_RED)
+            WRITE(HEAT_STAT_LED_GREEN_PIN, LOW);
+            WRITE(HEAT_STAT_LED_RED_PIN, LOW);
           #else
-            #if PIN_EXISTS(HSTAT_LED_RED)
-              WRITE(HSTAT_LED_RED_PIN, LOW);
+            #if PIN_EXISTS(HEAT_STAT_LED_RED)
+              WRITE(HEAT_STAT_LED_RED_PIN, LOW);
             #else
-              WRITE(HSTAT_LED_GREEN_PIN, LOW);
+              WRITE(HEAT_STAT_LED_GREEN_PIN, LOW);
             #endif
           #endif
         } break;
-      case(1): //on target, led on solid
+      case(1): //heaters on target, led on solid
         if(new_heating_state != heating_state) {
           heating_state = new_heating_state;
-          #if PIN_EXISTS(HSTAT_LED_GREEN) && PIN_EXISTS(HSTAT_LED_RED)
-            WRITE(HSTAT_LED_RED_PIN, LOW);
-            WRITE(HSTAT_LED_GREEN_PIN, HIGH);
+          #if PIN_EXISTS(HEAT_STAT_LED_GREEN) && PIN_EXISTS(HEAT_STAT_LED_RED)
+            WRITE(HEAT_STAT_LED_RED_PIN, LOW);
+            WRITE(HEAT_STAT_LED_GREEN_PIN, HIGH);
           #else
-            #if PIN_EXISTS(HSTAT_LED_RED)
-              WRITE(HSTAT_LED_RED_PIN, HIGH);
+            #if PIN_EXISTS(HEAT_STAT_LED_RED)
+              WRITE(HEAT_STAT_LED_RED_PIN, HIGH);
             #else
-              WRITE(HSTAT_LED_GREEN_PIN,HIGH);
+              WRITE(HEAT_STAT_LED_GREEN_PIN,HIGH);
             #endif
           #endif
         } break;
       case(2): //heating up, led is blinking
         if(new_heating_state != heating_state) {
           heating_state = new_heating_state;
-          #if PIN_EXISTS(HSTAT_LED_GREEN) && PIN_EXISTS(HSTAT_LED_RED)
-            WRITE(HSTAT_LED_GREEN_PIN, LOW);
+          #if PIN_EXISTS(HEAT_STAT_LED_GREEN) && PIN_EXISTS(HEAT_STAT_LED_RED)
+            WRITE(HEAT_STAT_LED_GREEN_PIN, LOW);
           #endif
         }
-        heat_led ^= 1; //toggle led state
-        #if PIN_EXISTS(HSTAT_LED_RED)
-          WRITE(HSTAT_LED_RED_PIN, heat_led ? HIGH : LOW);
+        heat_led = !heat_led; //toggle led state
+        #if PIN_EXISTS(HEAT_STAT_LED_RED)
+          WRITE(HEAT_STAT_LED_RED_PIN, heat_led);
         #else
-          WRITE(HSTAT_LED_GREEN_PIN, heat_led ? HIGH : LOW);
+          WRITE(HEAT_STAT_LED_GREEN_PIN, heat_led);
         #endif
         break;
     }

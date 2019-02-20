@@ -1434,11 +1434,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
 #endif
 
-/*  
- * Heating in progress LEDs
+/*
+ * Heating status LEDs
  */
-#if ENABLED(HEAT_STAT_LEDS) && (!defined(HSTAT_LED_RED_PIN) && !defined(HSTAT_LED_GREEN_PIN))
-  #error "HEAT_STAT_LEDS requires HSTAT_RED_PIN, HSTAT_GREEN_PIN, or both"
+#if ENABLED(HEAT_STAT_LEDS) && (!defined(HEAT_STAT_LED_RED_PIN) && !defined(HEAT_STAT_LED_GREEN_PIN))
+  #error "HEAT_STAT_LEDS requires HEAT_STAT_RED_PIN or HEAT_STAT_GREEN_PIN, preferably both"
 #endif
 
 /**
