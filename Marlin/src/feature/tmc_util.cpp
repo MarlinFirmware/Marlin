@@ -36,7 +36,7 @@
   #include "../module/planner.h"
   #include "../libs/hex_print_routines.h"
   #if ENABLED(MONITOR_DRIVER_STATUS)
-    static uint16_t report_tmc_status_interval; // = 0;
+    static uint16_t report_tmc_status_interval; // = 0
   #endif
 #endif
 
