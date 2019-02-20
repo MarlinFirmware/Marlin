@@ -662,7 +662,7 @@ void GcodeSuite::process_parsed_command(
       #endif
 
       #if HAS_TRINAMIC
-        case 122: M122(); break;
+        case 122: M122(); break;                                  // M122: Report driver configuration and status
         case 906: M906(); break;                                  // M906: Set motor current in milliamps using axis codes X, Y, Z, E
         #if HAS_STEALTHCHOP
           case 569: M569(); break;                                // M569: Enable stealthChop on an axis.
