@@ -74,14 +74,14 @@
 byte PCA_init = 0;
 
 static void PCA9632_WriteRegister(const byte addr, const byte regadd, const byte value) {
-  Wire.beginTransmission(addr);
+  Wire.beginTransmission(I2C_ADDRESS(addr));
   Wire.write(regadd);
   Wire.write(value);
   Wire.endTransmission();
 }
 
 static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte value1, const byte value2, const byte value3) {
-  Wire.beginTransmission(addr);
+  Wire.beginTransmission(I2C_ADDRESS(addr));
   Wire.write(PCA9632_AUTO_IND | regadd);
   Wire.write(value1);
   Wire.write(value2);
@@ -91,7 +91,7 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
 
 #if 0
   static byte PCA9632_ReadRegister(const byte addr, const byte regadd) {
-    Wire.beginTransmission(addr);
+    Wire.beginTransmission(I2C_ADDRESS(addr));
     Wire.write(regadd);
     const byte value = Wire.read();
     Wire.endTransmission();

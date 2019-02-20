@@ -69,7 +69,7 @@ uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value) {
  * This will also write current Vref, PowerDown, Gain settings to EEPROM
  */
 uint8_t mcp4728_eepromWrite() {
-  Wire.beginTransmission(DAC_DEV_ADDRESS);
+  Wire.beginTransmission(I2C_ADDRESS(DAC_DEV_ADDRESS));
   Wire.write(SEQWRITE);
   LOOP_XYZE(i) {
     Wire.write(DAC_STEPPER_VREF << 7 | DAC_STEPPER_GAIN << 4 | highByte(mcp4728_values[i]));
@@ -82,7 +82,7 @@ uint8_t mcp4728_eepromWrite() {
  * Write Voltage reference setting to all input regiters
  */
 uint8_t mcp4728_setVref_all(uint8_t value) {
-  Wire.beginTransmission(DAC_DEV_ADDRESS);
+  Wire.beginTransmission(I2C_ADDRESS(DAC_DEV_ADDRESS));
   Wire.write(VREFWRITE | (value ? 0x0F : 0x00));
   return Wire.endTransmission();
 }
@@ -90,7 +90,7 @@ uint8_t mcp4728_setVref_all(uint8_t value) {
  * Write Gain setting to all input regiters
  */
 uint8_t mcp4728_setGain_all(uint8_t value) {
-  Wire.beginTransmission(DAC_DEV_ADDRESS);
+  Wire.beginTransmission(I2C_ADDRESS(DAC_DEV_ADDRESS));
   Wire.write(GAINWRITE | (value ? 0x0F : 0x00));
   return Wire.endTransmission();
 }
@@ -133,7 +133,7 @@ void mcp4728_setDrvPct(uint8_t pct[XYZE]) {
  * No EEPROM update
  */
 uint8_t mcp4728_fastWrite() {
-  Wire.beginTransmission(DAC_DEV_ADDRESS);
+  Wire.beginTransmission(I2C_ADDRESS(DAC_DEV_ADDRESS));
   LOOP_XYZE(i) {
     Wire.write(highByte(mcp4728_values[i]));
     Wire.write(lowByte(mcp4728_values[i]));
@@ -145,7 +145,7 @@ uint8_t mcp4728_fastWrite() {
  * Common function for simple general commands
  */
 uint8_t mcp4728_simpleCommand(byte simpleCommand) {
-  Wire.beginTransmission(GENERALCALL);
+  Wire.beginTransmission(I2C_ADDRESS(GENERALCALL));
   Wire.write(simpleCommand);
   return Wire.endTransmission();
 }

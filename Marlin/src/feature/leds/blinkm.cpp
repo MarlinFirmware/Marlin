@@ -34,7 +34,7 @@
 
 void blinkm_set_led_color(const LEDColor &color) {
   Wire.begin();
-  Wire.beginTransmission(0x09);
+  Wire.beginTransmission(I2C_ADDRESS(0x09));
   Wire.write('o');                    //to disable ongoing script, only needs to be used once
   Wire.write('n');
   Wire.write(color.r);
