@@ -763,13 +763,13 @@ void MarlinUI::init() {
 }
 
 void MarlinUI::update() {
-  /**
+ /**
   * The flag prevent_rentry is used to prevent re-entry
   * into the ExtUI callback methods, which could cause
   * the UI to crash. Re-entry can happen because some
   * functions (such as planner.synchronize) call idle().
   */
-  if(!flags.prevent_rentry) {
+  if (!flags.prevent_rentry) {
     flags.prevent_rentry = true;
     #if ENABLED(SDSUPPORT)
       static bool last_sd_status;
