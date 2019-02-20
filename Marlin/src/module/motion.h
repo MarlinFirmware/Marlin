@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,7 +31,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if IS_SCARA
-  #include "../module/scara.h"
+  #include "scara.h"
 #endif
 
 // Axis homed and known-position states
@@ -71,8 +71,9 @@ extern float cartes[XYZ];
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-extern const float homing_feedrate_mm_s[4];
+extern const float homing_feedrate_mm_s[XYZ];
 FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
+float get_homing_bump_feedrate(const AxisEnum axis);
 
 extern float feedrate_mm_s;
 
@@ -170,11 +171,11 @@ void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0);
 void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0);
 void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0);
 
-FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s) {
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s=0) {
   do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
 }
 
-FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const float &fr_mm_s) {
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const float &fr_mm_s=0) {
   do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
 }
 

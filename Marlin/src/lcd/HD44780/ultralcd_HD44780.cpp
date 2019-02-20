@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -79,6 +79,14 @@
       , SR_STROBE_PIN
     #endif
   );
+
+#elif ENABLED(SR_LCD_3W_NL)
+
+  // NewLiquidCrystal was not working
+  // https://github.com/mikeshub/SailfishLCD
+  // uses the code directly from Sailfish
+
+  LCD_CLASS lcd(SR_STROBE_PIN, SR_DATA_PIN, SR_CLK_PIN);
 
 #elif ENABLED(LCM1602)
 
@@ -528,7 +536,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
-  lcd_put_u8str(itostr3(t1 + 0.5));
+  lcd_put_u8str(i16tostr3(t1 + 0.5));
   lcd_put_wchar('/');
 
   #if !HEATER_IDLE_HANDLER
@@ -548,7 +556,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
     }
     else
   #endif
-      lcd_put_u8str(itostr3left(t2 + 0.5));
+      lcd_put_u8str(i16tostr3left(t2 + 0.5));
 
   if (prefix >= 0) {
     lcd_put_wchar(LCD_STR_DEGREE[0]);
@@ -578,7 +586,7 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
       #endif
     ));
     if (progress)
-      lcd_put_u8str(itostr3(progress));
+      lcd_put_u8str(ui8tostr3(progress));
     else
       lcd_put_u8str_P(PSTR("---"));
     lcd_put_wchar('%');
@@ -627,7 +635,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       lcd_put_u8str_P(PSTR("Dia "));
       lcd_put_u8str(ftostr12ns(filament_width_meas));
       lcd_put_u8str_P(PSTR(" V"));
-      lcd_put_u8str(itostr3(100.0 * (
+      lcd_put_u8str(i16tostr3(100.0 * (
           parser.volumetric_enabled
             ? planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
             : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
@@ -733,7 +741,7 @@ void MarlinUI::draw_status_message(const bool blink) {
  *         |F---%  SD---% T--:--|
  *         |01234567890123456789|
  *
- *  LCD_INFO_SCREEN_STYLE 1 : Prusa-style Status Screen
+ *  LCD_INFO_SCREEN_STYLE 1 : Průša-style Status Screen
  *
  *  |T000/000°  Z 000.00 |
  *  |B000/000°  F---%    |
@@ -824,11 +832,35 @@ void MarlinUI::draw_status_screen() {
 
         #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
-          _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink);
+          #if DUAL_MIXING_EXTRUDER
 
-          lcd_put_wchar(' ');
+            // Two-component mix / gradient instead of XY
 
-          _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink);
+            char mixer_messages[12];
+            const char *mix_label;
+            #if ENABLED(GRADIENT_MIX)
+              if (mixer.gradient.enabled) {
+                mixer.update_mix_from_gradient();
+                mix_label = "Gr";
+              }
+              else
+            #endif
+              {
+                mixer.update_mix_from_vtool();
+                mix_label = "Mx";
+              }
+            sprintf_P(mixer_messages, PSTR("%s %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
+            lcd_put_u8str(mixer_messages);
+
+          #else
+
+            _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink);
+
+            lcd_put_wchar(' ');
+
+            _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink);
+
+          #endif
 
         #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
@@ -849,7 +881,7 @@ void MarlinUI::draw_status_screen() {
 
       lcd_moveto(0, 2);
       lcd_put_wchar(LCD_STR_FEEDRATE[0]);
-      lcd_put_u8str(itostr3(feedrate_percentage));
+      lcd_put_u8str(i16tostr3(feedrate_percentage));
       lcd_put_wchar('%');
 
       char buffer[14];
@@ -866,11 +898,15 @@ void MarlinUI::draw_status_screen() {
           _draw_print_progress();
         #else
           char c;
-          int per;
+          uint16_t per;
           #if HAS_FAN0
-            if (blink) {
-              c = 'F';
-              per = ((int(fan_speed[0]) + 1) * 100) / 256;
+            if (blink || thermalManager.fan_speed_scaler[0] < 128) {
+              uint16_t spd = thermalManager.fan_speed[0];
+              if (blink) c = 'F';
+              #if ENABLED(ADAPTIVE_FAN_SLOWING)
+                else { c = '*'; spd = (spd * thermalManager.fan_speed_scaler[0]) >> 7; }
+              #endif
+              per = thermalManager.fanPercent(spd);
             }
             else
           #endif
@@ -879,7 +915,7 @@ void MarlinUI::draw_status_screen() {
               per = planner.flow_percentage[0];
             }
           lcd_put_wchar(c);
-          lcd_put_u8str(itostr3(per));
+          lcd_put_u8str(i16tostr3(per));
           lcd_put_wchar('%');
         #endif
       #endif
@@ -920,7 +956,7 @@ void MarlinUI::draw_status_screen() {
 
     lcd_moveto(LCD_WIDTH - 9, 1);
     lcd_put_wchar(LCD_STR_FEEDRATE[0]);
-    lcd_put_u8str(itostr3(feedrate_percentage));
+    lcd_put_u8str(i16tostr3(feedrate_percentage));
     lcd_put_wchar('%');
 
     // ========== Line 3 ==========
@@ -969,7 +1005,7 @@ void MarlinUI::draw_status_screen() {
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       if (row < LCD_HEIGHT) {
         lcd_moveto(LCD_WIDTH - 9, row);
-        _draw_heater_status(extruder, LCD_STR_THERMOMETER[0], ui.get_blink());
+        _draw_heater_status(extruder, LCD_STR_THERMOMETER[0], get_blink());
       }
     }
 
@@ -1049,13 +1085,13 @@ void MarlinUI::draw_status_screen() {
       #if FAN_COUNT > 0
         if (0
           #if HAS_FAN0
-            || fan_speed[0]
+            || thermalManager.fan_speed[0]
           #endif
           #if HAS_FAN1
-            || fan_speed[1]
+            || thermalManager.fan_speed[1]
           #endif
           #if HAS_FAN2
-            || fan_speed[2]
+            || thermalManager.fan_speed[2]
           #endif
         ) leds |= LED_C;
       #endif // FAN_COUNT > 0
@@ -1374,9 +1410,9 @@ void MarlinUI::draw_status_screen() {
        */
       lcd_moveto(_LCD_W_POS, 0);
       lcd_put_wchar('(');
-      lcd_put_u8str(itostr3(x));
+      lcd_put_u8str(ui8tostr3(x));
       lcd_put_wchar(',');
-      lcd_put_u8str(itostr3(inverted_y));
+      lcd_put_u8str(ui8tostr3(inverted_y));
       lcd_put_wchar(')');
 
       #if LCD_HEIGHT <= 3   // 16x2 or 20x2 display

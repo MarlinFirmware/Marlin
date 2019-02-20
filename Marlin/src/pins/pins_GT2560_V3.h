@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
  * GT2560 V3.0 pin assignment
  */
@@ -32,6 +31,11 @@
 #ifndef BOARD_NAME
   #define BOARD_NAME "GT2560 V3.0"
 #endif
+
+//
+// Servos
+//
+#define SERVO0_PIN         11   //13 untested  3Dtouch
 
 //
 // Limit Switches
@@ -49,6 +53,22 @@
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  32
 #endif
+
+//
+// Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   66
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN  67
+#endif
+
+//
+// Power Recovery
+//
+#define POWER_LOSS_PIN     69   // Pin to detect power loss
+#define POWER_LOSS_STATE   LOW
 
 //
 // Steppers
@@ -89,6 +109,8 @@
 #define HEATER_2_PIN        1
 #define HEATER_BED_PIN      4
 #define FAN_PIN             9
+//#define FAN1_PIN          8
+//#define FAN2_PIN          7
 
 //
 // Misc. Functions
@@ -97,12 +119,10 @@
 #define SDSS               53
 #define LED_PIN             6
 #define PS_ON_PIN          12
-#define SUICIDE_PIN        54   //PIN that has to be turned on right after start, to keep power flowing.
-#define SERVO0_PIN         11   //13 untested  3Dtouch
+#define SUICIDE_PIN        54   // This pin must be enabled at boot to keep power flowing
 
 #ifndef CASE_LIGHT_PIN
-  //#define CASE_LIGHT_PIN 21
-  #define CASE_LIGHT_PIN    6
+  #define CASE_LIGHT_PIN    6   // 21
 #endif
 
 //

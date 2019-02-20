@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V63"
+#define EEPROM_VERSION "V64"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -48,12 +48,16 @@
 
 #if ADD_PORT_ARG
   #define PORTARG_SOLO     const int8_t port
+  #define PORTARG_BEFORE   const int8_t port,
   #define PORTARG_AFTER   ,const int8_t port
   #define PORTVAR_SOLO     port
+  #define PORTVAR_BEFORE   port,
 #else
   #define PORTARG_SOLO
+  #define PORTARG_BEFORE
   #define PORTARG_AFTER
   #define PORTVAR_SOLO
+  #define PORTVAR_BEFORE
 #endif
 
 #include "endstops.h"
@@ -85,7 +89,7 @@
 #endif
 
 #if HAS_BED_PROBE
-  #include "../module/probe.h"
+  #include "probe.h"
 #endif
 
 #include "../feature/fwretract.h"
@@ -112,6 +116,7 @@
 typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_stepper_current_t;
 typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_hybrid_threshold_t;
 typedef struct {  int16_t X, Y, Z;                                         } tmc_sgt_t;
+typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_stealth_enabled_t;
 
 // Limit an index to an array size
 #define ALIM(I,ARR) MIN(I, COUNT(ARR) - 1)
@@ -256,6 +261,7 @@ typedef struct SettingsDataStruct {
   tmc_stepper_current_t tmc_stepper_current;            // M906 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
   tmc_hybrid_threshold_t tmc_hybrid_threshold;          // M913 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
   tmc_sgt_t tmc_sgt;                                    // M914 X Y Z
+  tmc_stealth_enabled_t tmc_stealth_enabled;            // M569 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
 
   //
   // LIN_ADVANCE
@@ -488,7 +494,7 @@ void MarlinSettings::postprocess() {
           EEPROM_WRITE(dummy);
         #endif
       #else
-        const float planner_max_jerk[XYZE] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
+        const float planner_max_jerk[XYZE] = { float(DEFAULT_EJERK) };
         EEPROM_WRITE(planner_max_jerk);
       #endif
 
@@ -696,7 +702,7 @@ void MarlinSettings::postprocess() {
     // LCD Preheat settings
     //
     {
-      _FIELD_TEST(lcd_preheat_hotend_temp);
+      _FIELD_TEST(ui_preheat_hotend_temp);
 
       #if HAS_LCD_MENU
         const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
@@ -972,6 +978,70 @@ void MarlinSettings::postprocess() {
         #endif
       #endif
       EEPROM_WRITE(tmc_sgt);
+    }
+
+    //
+    // TMC stepping mode
+    //
+    {
+      _FIELD_TEST(tmc_stealth_enabled);
+
+      tmc_stealth_enabled_t tmc_stealth_enabled = { false, false, false, false, false, false, false, false, false, false, false, false, false };
+
+      #if HAS_STEALTHCHOP
+        #if AXIS_HAS_STEALTHCHOP(X)
+          tmc_stealth_enabled.X = stepperX.get_stealthChop_status();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y)
+          tmc_stealth_enabled.Y = stepperY.get_stealthChop_status();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z)
+          tmc_stealth_enabled.Z = stepperZ.get_stealthChop_status();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(X2)
+          tmc_stealth_enabled.X2 = stepperX2.get_stealthChop_status();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y2)
+          tmc_stealth_enabled.Y2 = stepperY2.get_stealthChop_status();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z2)
+          tmc_stealth_enabled.Z2 = stepperZ2.get_stealthChop_status();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z3)
+          tmc_stealth_enabled.Z3 = stepperZ3.get_stealthChop_status();
+        #endif
+        #if MAX_EXTRUDERS
+          #if AXIS_HAS_STEALTHCHOP(E0)
+            tmc_stealth_enabled.E0 = stepperE0.get_stealthChop_status();
+          #endif
+          #if MAX_EXTRUDERS > 1
+            #if AXIS_HAS_STEALTHCHOP(E1)
+              tmc_stealth_enabled.E1 = stepperE1.get_stealthChop_status();
+            #endif
+            #if MAX_EXTRUDERS > 2
+              #if AXIS_HAS_STEALTHCHOP(E2)
+                tmc_stealth_enabled.E2 = stepperE2.get_stealthChop_status();
+              #endif
+              #if MAX_EXTRUDERS > 3
+                #if AXIS_HAS_STEALTHCHOP(E3)
+                  tmc_stealth_enabled.E3 = stepperE3.get_stealthChop_status();
+                #endif
+                #if MAX_EXTRUDERS > 4
+                  #if AXIS_HAS_STEALTHCHOP(E4)
+                    tmc_stealth_enabled.E4 = stepperE4.get_stealthChop_status();
+                  #endif
+                  #if MAX_EXTRUDERS > 5
+                    #if AXIS_HAS_STEALTHCHOP(E5)
+                      tmc_stealth_enabled.E5 = stepperE5.get_stealthChop_status();
+                    #endif
+                  #endif // MAX_EXTRUDERS > 5
+                #endif // MAX_EXTRUDERS > 4
+              #endif // MAX_EXTRUDERS > 3
+            #endif // MAX_EXTRUDERS > 2
+          #endif // MAX_EXTRUDERS > 1
+        #endif // MAX_EXTRUDERS
+      #endif
+      EEPROM_WRITE(tmc_stealth_enabled);
     }
 
     //
@@ -1630,6 +1700,60 @@ void MarlinSettings::postprocess() {
         #endif
       }
 
+      // TMC stepping mode
+      {
+        _FIELD_TEST(tmc_stealth_enabled);
+
+        tmc_stealth_enabled_t tmc_stealth_enabled;
+        EEPROM_READ(tmc_stealth_enabled);
+
+        #if HAS_TRINAMIC
+
+          #define SET_STEPPING_MODE(ST) stepper##ST.stored.stealthChop_enabled = tmc_stealth_enabled.ST; stepper##ST.refresh_stepping_mode();
+          if (!validating) {
+            #if AXIS_HAS_STEALTHCHOP(X)
+              SET_STEPPING_MODE(X);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(Y)
+              SET_STEPPING_MODE(Y);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(Z)
+              SET_STEPPING_MODE(Z);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(X2)
+              SET_STEPPING_MODE(X2);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(Y2)
+              SET_STEPPING_MODE(Y2);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(Z2)
+              SET_STEPPING_MODE(Z2);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(Z3)
+              SET_STEPPING_MODE(Z3);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E0)
+              SET_STEPPING_MODE(E0);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E1)
+              SET_STEPPING_MODE(E1);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E2)
+              SET_STEPPING_MODE(E2);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E3)
+              SET_STEPPING_MODE(E3);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E4)
+              SET_STEPPING_MODE(E4);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E5)
+              SET_STEPPING_MODE(E5);
+            #endif
+          }
+        #endif
+      }
+
       //
       // Linear Advance
       //
@@ -1837,7 +1961,7 @@ void MarlinSettings::postprocess() {
         const bool status = persistentStore.write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
         persistentStore.access_finish();
 
-        if (status) SERIAL_ECHOPGM("?Unable to save mesh data.\n");
+        if (status) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
         else        CHITCHAT_ECHOLNPAIR("Mesh saved in slot ", slot);
 
       #else
@@ -1866,7 +1990,7 @@ void MarlinSettings::postprocess() {
         const uint16_t status = persistentStore.read_data(pos, dest, sizeof(ubl.z_values), &crc);
         persistentStore.access_finish();
 
-        if (status) SERIAL_ECHOPGM("?Unable to load mesh data.\n");
+        if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
         else        CHITCHAT_ECHOLNPAIR("Mesh loaded from slot ", slot);
 
         EEPROM_FINISH();
@@ -1912,6 +2036,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   planner.settings.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
 
   #if HAS_CLASSIC_JERK
+    #ifndef DEFAULT_XJERK
+      #define DEFAULT_XJERK 0
+    #endif
+    #ifndef DEFAULT_YJERK
+      #define DEFAULT_YJERK 0
+    #endif
+    #ifndef DEFAULT_ZJERK
+      #define DEFAULT_ZJERK 0
+    #endif
     planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
     planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
     planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
@@ -1952,6 +2085,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       toolchange_settings.change_point = TOOLCHANGE_PARK_XY;
     #endif
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
+  #endif
+
+  #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
+    mpe_settings_init();
   #endif
 
   //
@@ -2200,6 +2337,16 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   #if HAS_TRINAMIC
     void say_M906(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M906"); }
+    #if HAS_STEALTHCHOP
+      void say_M569(PORTARG_BEFORE const char * const etc=NULL) {
+        SERIAL_ECHOPGM_P(port, "  M569 S1");
+        if (etc) {
+          SERIAL_CHAR_P(port, ' ');
+          serialprintPGM_P(port, etc);
+          SERIAL_EOL_P(port);
+        }
+      }
+    #endif
     #if ENABLED(HYBRID_THRESHOLD)
       void say_M913(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M913"); }
     #endif
@@ -2231,6 +2378,13 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #else
     #define SAY_UNITS_P(PORT, COLON) say_units(COLON)
   #endif
+
+  void report_M92(
+    #if NUM_SERIAL > 1
+      const int8_t port,
+    #endif
+    const bool echo=true, const int8_t e=-1
+  );
 
   /**
    * M503 - Report current settings in RAM
@@ -2324,21 +2478,12 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif // !NO_VOLUMETRICS
 
     CONFIG_ECHO_HEADING("Steps per unit:");
-    CONFIG_ECHO_START();
-    SERIAL_ECHOPAIR_P(port, "  M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
-    #if DISABLED(DISTINCT_E_FACTORS)
-      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
-    #endif
-    SERIAL_EOL_P(port);
-    #if ENABLED(DISTINCT_E_FACTORS)
-      CONFIG_ECHO_START();
-      for (uint8_t i = 0; i < E_STEPPERS; i++) {
-        SERIAL_ECHOPAIR_P(port, "  M92 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS + i]));
-      }
-    #endif
+    report_M92(
+      #if NUM_SERIAL > 1
+        port,
+      #endif
+      !forReplay
+    );
 
     CONFIG_ECHO_HEADING("Maximum feedrates (units/s):");
     CONFIG_ECHO_START();
@@ -2353,7 +2498,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M203 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)]));
       }
     #endif
 
@@ -2370,7 +2515,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M201 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]));
       }
     #endif
 
@@ -2894,6 +3039,81 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         #endif
 
       #endif // USE_SENSORLESS
+
+      /**
+       * TMC stepping mode
+       */
+      #if HAS_STEALTHCHOP
+        CONFIG_ECHO_HEADING("Driver stepping mode:");
+        CONFIG_ECHO_START();
+        #if AXIS_HAS_STEALTHCHOP(X)
+          const bool chop_x = stepperX.get_stealthChop_status();
+        #else
+          constexpr bool chop_x = false;
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y)
+          const bool chop_y = stepperY.get_stealthChop_status();
+        #else
+          constexpr bool chop_y = false;
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z)
+          const bool chop_z = stepperZ.get_stealthChop_status();
+        #else
+          constexpr bool chop_z = false;
+        #endif
+
+        if (chop_x || chop_y || chop_z) say_M569(PORTVAR_SOLO);
+        if (chop_x) SERIAL_ECHOPGM_P(port, " X");
+        if (chop_y) SERIAL_ECHOPGM_P(port, " Y");
+        if (chop_z) SERIAL_ECHOPGM_P(port, " Z");
+        if (chop_x || chop_y || chop_z) SERIAL_EOL_P(port);
+
+        #if AXIS_HAS_STEALTHCHOP(X2)
+          const bool chop_x2 = stepperX2.get_stealthChop_status();
+        #else
+          constexpr bool chop_x2 = false;
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y2)
+          const bool chop_y2 = stepperY2.get_stealthChop_status();
+        #else
+          constexpr bool chop_y2 = false;
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z2)
+          const bool chop_z2 = stepperZ2.get_stealthChop_status();
+        #else
+          constexpr bool chop_z2 = false;
+        #endif
+
+        if (chop_x2 || chop_y2 || chop_z2) say_M569(PORTVAR_BEFORE PSTR("I1"));
+        if (chop_x2) SERIAL_ECHOPGM_P(port, " X");
+        if (chop_y2) SERIAL_ECHOPGM_P(port, " Y");
+        if (chop_z2) SERIAL_ECHOPGM_P(port, " Z");
+        if (chop_x2 || chop_y2 || chop_z2) SERIAL_EOL_P(port);
+
+        #if AXIS_HAS_STEALTHCHOP(Z3)
+          if (stepperZ3.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("I2 Z")); }
+        #endif
+
+        #if AXIS_HAS_STEALTHCHOP(E0)
+          if (stepperE0.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T0 E")); }
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E1)
+          if (stepperE1.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T1 E")); }
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E2)
+          if (stepperE2.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T2 E")); }
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E3)
+          if (stepperE3.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T3 E")); }
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E4)
+          if (stepperE4.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T4 E")); }
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E5)
+          if (stepperE5.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T5 E")); }
+        #endif
+
+      #endif // HAS_STEALTHCHOP
 
     #endif // HAS_TRINAMIC
 

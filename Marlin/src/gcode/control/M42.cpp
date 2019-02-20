@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,6 +23,10 @@
 #include "../gcode.h"
 #include "../../Marlin.h" // for pin_is_protected
 #include "../../inc/MarlinConfig.h"
+
+#if FAN_COUNT > 0
+  #include "../../module/temperature.h"
+#endif
 
 /**
  * M42: Change pin status via GCode
@@ -52,13 +56,13 @@ void GcodeSuite::M42() {
   #if FAN_COUNT > 0
     switch (pin) {
       #if HAS_FAN0
-        case FAN_PIN: fan_speed[0] = pin_status; break;
+        case FAN_PIN: thermalManager.fan_speed[0] = pin_status; break;
       #endif
       #if HAS_FAN1
-        case FAN1_PIN: fan_speed[1] = pin_status; break;
+        case FAN1_PIN: thermalManager.fan_speed[1] = pin_status; break;
       #endif
       #if HAS_FAN2
-        case FAN2_PIN: fan_speed[2] = pin_status; break;
+        case FAN2_PIN: thermalManager.fan_speed[2] = pin_status; break;
       #endif
     }
   #endif

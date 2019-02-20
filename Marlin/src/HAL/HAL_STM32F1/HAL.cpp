@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -43,7 +43,7 @@
 // --------------------------------------------------------------------------
 
 #define __I
-#define __IO
+#define __IO volatile
  typedef struct
  {
    __I  uint32_t CPUID;                   /*!< Offset: 0x000 (R/ )  CPUID Base Register                                   */
@@ -100,12 +100,12 @@ uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 STM32ADC adc(ADC1);
 
-uint8 adc_pins[] = {
+uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_0
     TEMP_0_PIN,
   #endif
   #if HAS_TEMP_ADC_1
-    TEMP_1_PIN
+    TEMP_1_PIN,
   #endif
   #if HAS_TEMP_ADC_2
     TEMP_2_PIN,
@@ -174,6 +174,24 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
 // --------------------------------------------------------------------------
 // Public functions
 // --------------------------------------------------------------------------
+
+//
+// Leave PA11/PA12 intact if USBSerial is not used
+//
+#if SERIAL_USB
+  namespace wirish { namespace priv {
+    #if SERIAL_PORT > 0
+      #if SERIAL_PORT2
+        #if SERIAL_PORT2 > 0
+          void board_setup_usb(void) {}
+        #endif
+      #else
+        void board_setup_usb(void) {}
+      #endif
+    #endif
+  } }
+#endif
+
 
 void HAL_init(void) {
   NVIC_SetPriorityGrouping(0x3);

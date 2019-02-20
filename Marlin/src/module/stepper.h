@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -49,18 +49,6 @@
 //
 // Estimate the amount of time the Stepper ISR will take to execute
 //
-
-#ifndef MINIMUM_STEPPER_PULSE
-  #define MINIMUM_STEPPER_PULSE 0UL
-#endif
-
-#ifndef MAXIMUM_STEPPER_RATE
-  #if MINIMUM_STEPPER_PULSE
-    #define MAXIMUM_STEPPER_RATE (1000000UL / (2UL * (unsigned long)(MINIMUM_STEPPER_PULSE)))
-  #else
-    #define MAXIMUM_STEPPER_RATE 500000UL
-  #endif
-#endif
 
 #ifdef CPU_32_BIT
 
@@ -235,14 +223,14 @@
   #include "speed_lookuptable.h"
 #endif
 
-#include "../module/planner.h"
+#include "planner.h"
 #include "../core/language.h"
 
 class Stepper {
 
   public:
 
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
       static bool separate_multi_axis;
     #endif
 
@@ -419,7 +407,7 @@ class Stepper {
       static void microstep_readings();
     #endif
 
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_separate_multi_axis(const bool state) { separate_multi_axis = state; }
     #endif
     #if ENABLED(X_DUAL_ENDSTOPS)

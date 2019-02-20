@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,15 +31,19 @@
 #include "../../../sd/cardreader.h"
 #include "../../../module/printcounter.h"
 
+#if HAS_LCD_MENU
+  #include "../../../lcd/ultralcd.h"
+#endif
+
 /**
  * M125: Store current position and move to filament change position.
  *       Called on pause (by M25) to prevent material leaking onto the
  *       object. On resume (M24) the head will be moved back and the
  *       print will resume.
  *
- *       If Marlin is compiled without SD Card support, M125 can be
- *       used directly to pause the print and move to park position,
- *       resuming with a button click or M108.
+ *       When not actively SD printing, M125 simply moves to the park
+ *       position and waits, resuming with a button click or M108.
+ *       Without PARK_HEAD_ON_PAUSE the M125 command does nothing.
  *
  *    L = override retract length
  *    X = override X
@@ -57,8 +61,8 @@ void GcodeSuite::M125() {
   point_t park_point = NOZZLE_PARK_POINT;
 
   // Move XY axes to filament change position or given position
-  if (parser.seenval('X')) park_point.x = parser.linearval('X');
-  if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
+  if (parser.seenval('X')) park_point.x = RAW_X_POSITION(parser.linearval('X'));
+  if (parser.seenval('Y')) park_point.y = RAW_X_POSITION(parser.linearval('Y'));
 
   // Lift Z axis
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
@@ -74,10 +78,17 @@ void GcodeSuite::M125() {
     constexpr bool sd_printing = false;
   #endif
 
-  if (pause_print(retract, park_point)) {
-    if (!sd_printing) {
-      wait_for_confirmation();
-      resume_print();
+  #if HAS_LCD_MENU
+    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT);
+    const bool show_lcd = parser.seenval('P');
+  #else
+    constexpr bool show_lcd = false;
+  #endif
+
+  if (pause_print(retract, park_point, 0, show_lcd)) {
+    if (!sd_printing || show_lcd ) {
+      wait_for_confirmation(false, 0);
+      resume_print(0, 0, PAUSE_PARK_RETRACT_LENGTH, 0);
     }
   }
 }

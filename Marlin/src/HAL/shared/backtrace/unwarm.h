@@ -103,7 +103,7 @@ typedef struct {
  *  Macros
  **************************************************************************/
 
-#define M_IsOriginValid(v) (((v) & 0x7F) ? true : false)
+#define M_IsOriginValid(v) !!((v) & 0x7F)
 #define M_Origin2Str(v)    ((v) ? "VALID" : "INVALID")
 
 #ifdef UNW_DEBUG

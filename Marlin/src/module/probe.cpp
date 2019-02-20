@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,8 +38,8 @@
 #include "../gcode/gcode.h"
 #include "../lcd/ultralcd.h"
 
-#if ENABLED(BLTOUCH) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
-  #include "../Marlin.h" // for stop()
+#if ENABLED(BLTOUCH) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST) || (QUIET_PROBING && ENABLED(PROBING_STEPPERS_OFF))
+  #include "../Marlin.h" // for stop(), disable_e_steppers
 #endif
 
 #if HAS_LEVELING
@@ -47,7 +47,7 @@
 #endif
 
 #if ENABLED(DELTA)
-  #include "../module/delta.h"
+  #include "delta.h"
 #endif
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -57,7 +57,7 @@
 float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_Z_SERVO_PROBE
-  #include "../module/servo.h"
+  #include "servo.h"
 #endif
 
 #if ENABLED(SENSORLESS_PROBING)
@@ -268,31 +268,13 @@ float zprobe_zoffset; // Initialized by settings.load()
 
 #endif // Z_PROBE_ALLEN_KEY
 
-#if ENABLED(PROBING_FANS_OFF)
-
-  void fans_pause(const bool p) {
-    if (p != fans_paused) {
-      fans_paused = p;
-      if (p)
-        for (uint8_t x = 0; x < FAN_COUNT; x++) {
-          paused_fan_speed[x] = fan_speed[x];
-          fan_speed[x] = 0;
-        }
-      else
-        for (uint8_t x = 0; x < FAN_COUNT; x++)
-          fan_speed[x] = paused_fan_speed[x];
-    }
-  }
-
-#endif // PROBING_FANS_OFF
-
 #if QUIET_PROBING
   void probing_pause(const bool p) {
     #if ENABLED(PROBING_HEATERS_OFF)
       thermalManager.pause(p);
     #endif
     #if ENABLED(PROBING_FANS_OFF)
-      fans_pause(p);
+      thermalManager.set_fans_paused(p);
     #endif
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
@@ -382,6 +364,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), PSTR("Continue"));
+    #endif
     while (wait_for_user) idle();
     ui.reset_status();
     KEEPALIVE_STATE(IN_HANDLER);
@@ -569,7 +554,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
-    sensorless_t stealth_states { false, false, false };
+    sensorless_t stealth_states { false, false, false, false, false, false, false };
     #if ENABLED(DELTA)
       stealth_states.x = tmc_enable_stallguard(stepperX);
       stealth_states.y = tmc_enable_stallguard(stepperY);

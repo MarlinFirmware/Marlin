@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,7 +21,7 @@
  */
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for stepper_inactive_time
+#include "../../Marlin.h" // for stepper_inactive_time, disable_e_steppers
 #include "../../lcd/ultralcd.h"
 #include "../../module/stepper.h"
 
@@ -55,7 +55,7 @@ void GcodeSuite::M18_M84() {
       if (parser.seen('Y')) disable_Y();
       if (parser.seen('Z')) disable_Z();
       // Only disable on boards that have separate ENABLE_PINS or another method for disabling the driver
-      #if (E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN) || AXIS_DRIVER_TYPE(E0, TMC2660) || AXIS_DRIVER_TYPE(E1, TMC2660) || AXIS_DRIVER_TYPE(E2, TMC2660) || AXIS_DRIVER_TYPE(E3, TMC2660) || AXIS_DRIVER_TYPE(E4, TMC2660) || AXIS_DRIVER_TYPE(E5, TMC2660)
+      #if (E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN) || AXIS_DRIVER_TYPE_E0(TMC2660) || AXIS_DRIVER_TYPE_E1(TMC2660) || AXIS_DRIVER_TYPE_E2(TMC2660) || AXIS_DRIVER_TYPE_E3(TMC2660) || AXIS_DRIVER_TYPE_E4(TMC2660) || AXIS_DRIVER_TYPE_E5(TMC2660)
         if (parser.seen('E')) disable_e_steppers();
       #endif
     }

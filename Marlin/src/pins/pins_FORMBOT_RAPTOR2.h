@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,7 +28,6 @@
 #define BOARD_NAME           "Formbot Raptor2"
 
 #define FAN_PIN             6
-#define SDSS                5
 
 #include "pins_FORMBOT_RAPTOR.h"
 

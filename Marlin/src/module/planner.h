@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -114,7 +114,7 @@ typedef struct block_t {
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
-    MIXER_BLOCK_DEFINITION;                 // Normalized color for the mixing steppers
+    MIXER_BLOCK_FIELD;                      // Normalized color for the mixing steppers
   #endif
 
   // Settings for the trapezoid generator
@@ -159,7 +159,7 @@ typedef struct block_t {
 
 } block_t;
 
-#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || ENABLED(SCARA_FEEDRATE_SCALING))
+#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || ENABLED(SCARA_FEEDRATE_SCALING) || ENABLED(GRADIENT_MIX))
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
@@ -339,7 +339,7 @@ class Planner {
     #endif
 
     #if ENABLED(BACKLASH_COMPENSATION)
-      static void add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block, float (&delta_mm)[ABCE]);
+      static void add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block);
     #endif
 
   public:
@@ -866,7 +866,7 @@ class Planner {
         #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)
           for (uint8_t i = 0; i < EXTRUDERS; i++)
-            max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS + i]);
+            max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]);
         #else
           max_e_jerk = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS]);
         #endif

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -155,7 +155,7 @@ void I2CPositionEncoder::update() {
     #ifdef I2CPE_ERR_THRESH_ABORT
       if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.settings.axis_steps_per_mm[encoderAxis]) {
         //kill(PSTR("Significant Error"));
-        SERIAL_ECHOLNPAIR("Axis error greater than set threshold, aborting!", error);
+        SERIAL_ECHOLNPAIR("Axis error over threshold, aborting!", error);
         safe_delay(5000);
       }
     #endif
@@ -379,12 +379,12 @@ bool I2CPositionEncoder::test_axis() {
 
 void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
   if (type != I2CPE_ENC_TYPE_LINEAR) {
-    SERIAL_ECHOLNPGM("Steps per mm calibration is only available using linear encoders.");
+    SERIAL_ECHOLNPGM("Steps/mm calibration requires linear encoder.");
     return;
   }
 
   if (!(encoderAxis == X_AXIS || encoderAxis == Y_AXIS || encoderAxis == Z_AXIS)) {
-    SERIAL_ECHOLNPGM("Automatic steps / mm calibration not supported for this axis.");
+    SERIAL_ECHOLNPGM("Steps/mm calibration not supported for this axis.");
     return;
   }
 
@@ -436,18 +436,18 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
     travelledDistance = mm_from_count(ABS(stopCount - startCount));
 
-    SERIAL_ECHOPAIR("Attempted to travel: ", travelDistance);
-    SERIAL_ECHOLNPGM("mm.");
+    SERIAL_ECHOPAIR("Attempted travel: ", travelDistance);
+    SERIAL_ECHOLNPGM("mm");
 
-    SERIAL_ECHOPAIR("Actually travelled:  ", travelledDistance);
-    SERIAL_ECHOLNPGM("mm.");
+    SERIAL_ECHOPAIR("   Actual travel:  ", travelledDistance);
+    SERIAL_ECHOLNPGM("mm");
 
     //Calculate new axis steps per unit
     old_steps_mm = planner.settings.axis_steps_per_mm[encoderAxis];
     new_steps_mm = (old_steps_mm * travelDistance) / travelledDistance;
 
-    SERIAL_ECHOLNPAIR("Old steps per mm: ", old_steps_mm);
-    SERIAL_ECHOLNPAIR("New steps per mm: ", new_steps_mm);
+    SERIAL_ECHOLNPAIR("Old steps/mm: ", old_steps_mm);
+    SERIAL_ECHOLNPAIR("New steps/mm: ", new_steps_mm);
 
     //Save new value
     planner.settings.axis_steps_per_mm[encoderAxis] = new_steps_mm;
@@ -464,16 +464,16 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
   if (iter > 1) {
     total /= (float)iter;
-    SERIAL_ECHOLNPAIR("Average steps per mm: ", total);
+    SERIAL_ECHOLNPAIR("Average steps/mm: ", total);
   }
 
   ec = oldec;
 
-  SERIAL_ECHOLNPGM("Calculated steps per mm has been set. Please save to EEPROM (M500) if you wish to keep these values.");
+  SERIAL_ECHOLNPGM("Calculated steps/mm set. Use M500 to save to EEPROM.");
 }
 
 void I2CPositionEncoder::reset() {
-  Wire.beginTransmission(i2cAddress);
+  Wire.beginTransmission(I2C_ADDRESS(i2cAddress));
   Wire.write(I2CPE_RESET_COUNT);
   Wire.endTransmission();
 
@@ -703,7 +703,7 @@ void I2CPositionEncodersMgr::report_position(const int8_t idx, const bool units,
 
 void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const uint8_t newaddr) {
   // First check 'new' address is not in use
-  Wire.beginTransmission(newaddr);
+  Wire.beginTransmission(I2C_ADDRESS(newaddr));
   if (!Wire.endTransmission()) {
     SERIAL_ECHOPAIR("?There is already a device with that address on the I2C bus! (", newaddr);
     SERIAL_ECHOLNPGM(")");
@@ -711,7 +711,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
   }
 
   // Now check that we can find the module on the oldaddr address
-  Wire.beginTransmission(oldaddr);
+  Wire.beginTransmission(I2C_ADDRESS(oldaddr));
   if (Wire.endTransmission()) {
     SERIAL_ECHOPAIR("?No module detected at this address! (", oldaddr);
     SERIAL_ECHOLNPGM(")");
@@ -722,7 +722,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
   SERIAL_ECHOLNPAIR(", changing address to ", newaddr);
 
   // Change the modules address
-  Wire.beginTransmission(oldaddr);
+  Wire.beginTransmission(I2C_ADDRESS(oldaddr));
   Wire.write(I2CPE_SET_ADDR);
   Wire.write(newaddr);
   Wire.endTransmission();
@@ -733,7 +733,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
   safe_delay(I2CPE_REBOOT_TIME);
 
   // Look for the module at the new address.
-  Wire.beginTransmission(newaddr);
+  Wire.beginTransmission(I2C_ADDRESS(newaddr));
   if (Wire.endTransmission()) {
     SERIAL_ECHOLNPGM("Address change failed! Check encoder module.");
     return;
@@ -753,7 +753,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
 
 void I2CPositionEncodersMgr::report_module_firmware(const uint8_t address) {
   // First check there is a module
-  Wire.beginTransmission(address);
+  Wire.beginTransmission(I2C_ADDRESS(address));
   if (Wire.endTransmission()) {
     SERIAL_ECHOPAIR("?No module detected at this address! (", address);
     SERIAL_ECHOLNPGM(")");
@@ -763,7 +763,7 @@ void I2CPositionEncodersMgr::report_module_firmware(const uint8_t address) {
   SERIAL_ECHOPAIR("Requesting version info from module at address ", address);
   SERIAL_ECHOLNPGM(":");
 
-  Wire.beginTransmission(address);
+  Wire.beginTransmission(I2C_ADDRESS(address));
   Wire.write(I2CPE_SET_REPORT_MODE);
   Wire.write(I2CPE_REPORT_VERSION);
   Wire.endTransmission();
@@ -777,7 +777,7 @@ void I2CPositionEncodersMgr::report_module_firmware(const uint8_t address) {
   }
 
   // Set module back to normal (distance) mode
-  Wire.beginTransmission(address);
+  Wire.beginTransmission(I2C_ADDRESS(address));
   Wire.write(I2CPE_SET_REPORT_MODE);
   Wire.write(I2CPE_REPORT_DISTANCE);
   Wire.endTransmission();

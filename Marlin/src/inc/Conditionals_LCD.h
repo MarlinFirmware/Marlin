@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -209,6 +209,15 @@
    #define NEWPANEL
  #endif
 
+ /**
+  * FSMC/SPI TFT PANELS
+  */
+ #if ENABLED(MKS_ROBIN_TFT)
+   #define ULTRA_LCD
+   #define DOGLCD
+   #define ULTIPANEL
+ #endif
+
 /**
  * I2C PANELS
  */
@@ -288,6 +297,10 @@
 // ---------------------
 // 2 wire Non-latching LCD SR from:
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+#if ENABLED(FF_INTERFACEBOARD)
+  #define SR_LCD_3W_NL    // Non latching 3 wire shift register
+  #define ULTIPANEL
+#endif
 
 #if ENABLED(SAV_3DLCD)
   #define SR_LCD_2W_NL    // Non latching 2 wire shift register
@@ -355,7 +368,8 @@
  *  E_MANUAL     - Number of E steppers for LCD move options
  *
  */
-#if ENABLED(SWITCHING_EXTRUDER)                               // One stepper for every two EXTRUDERS
+
+#if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
   #elif EXTRUDERS > 2
@@ -369,9 +383,15 @@
 #elif ENABLED(MIXING_EXTRUDER)
   #define E_STEPPERS      MIXING_STEPPERS
   #define E_MANUAL        1
+  #define DUAL_MIXING_EXTRUDER (MIXING_STEPPERS == 2)
 #elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
+#elif ENABLED(PRUSA_MMU2)
+  #define E_STEPPERS 1
+  #ifndef TOOLCHANGE_ZRAISE
+    #define TOOLCHANGE_ZRAISE 0
+  #endif
 #endif
 
 // No inactive extruders with MK2_MULTIPLEXER or SWITCHING_NOZZLE
@@ -379,8 +399,8 @@
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// MK2 Multiplexer forces SINGLENOZZLE
-#if ENABLED(MK2_MULTIPLEXER)
+// Prusa MK2 Multiplexer and MMU 2.0 force SINGLENOZZLE
+#if ENABLED(MK2_MULTIPLEXER) || ENABLED(PRUSA_MMU2)
   #define SINGLENOZZLE
 #endif
 
@@ -407,6 +427,7 @@
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 
 #define DO_SWITCH_EXTRUDER (ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR))
+#define SWITCHING_NOZZLE_TWO_SERVOS defined(SWITCHING_NOZZLE_E1_SERVO_NR)
 
 #define HAS_HOTEND_OFFSET (HOTENDS > 1)
 
@@ -415,11 +436,11 @@
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define XYZE_N (XYZ + E_STEPPERS)
-  #define E_AXIS_N(E) (uint8_t(E_AXIS) + E)
+  #define E_AXIS_N(E) (E_AXIS + E)
 #else
   #undef DISTINCT_E_FACTORS
   #define XYZE_N XYZE
-  #define E_AXIS_N(E) uint8_t(E_AXIS)
+  #define E_AXIS_N(E) E_AXIS
 #endif
 
 /**
@@ -503,13 +524,55 @@
 
 #define HAS_SOFTWARE_ENDSTOPS (ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS))
 #define HAS_RESUME_CONTINUE (ENABLED(EXTENSIBLE_UI) || ENABLED(NEWPANEL) || ENABLED(EMERGENCY_PARSER))
-#define HAS_COLOR_LEDS (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_LED))
+#define HAS_COLOR_LEDS (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(PCA9533) || ENABLED(NEOPIXEL_LED))
 #define HAS_LEDS_OFF_FLAG (ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT) && HAS_RESUME_CONTINUE)
 #define HAS_PRINT_PROGRESS (ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY))
+#define HAS_SERVICE_INTERVALS (SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0)
+#define HAS_FILAMENT_SENSOR ENABLED(FILAMENT_RUNOUT_SENSOR)
 
 #define Z_MULTI_STEPPER_DRIVERS (ENABLED(Z_DUAL_STEPPER_DRIVERS) || ENABLED(Z_TRIPLE_STEPPER_DRIVERS))
 #define Z_MULTI_ENDSTOPS (ENABLED(Z_DUAL_ENDSTOPS) || ENABLED(Z_TRIPLE_ENDSTOPS))
+#define HAS_EXTRA_ENDSTOPS (ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS)
 
 #define IS_SCARA     (ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA))
 #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
 #define IS_CARTESIAN !IS_KINEMATIC
+
+#ifndef INVERT_X_DIR
+  #define INVERT_X_DIR false
+#endif
+#ifndef INVERT_Y_DIR
+  #define INVERT_Y_DIR false
+#endif
+#ifndef INVERT_Z_DIR
+  #define INVERT_Z_DIR false
+#endif
+#ifndef INVERT_E_DIR
+  #define INVERT_E_DIR false
+#endif
+
+#if ENABLED(HOST_ACTION_COMMANDS)
+  #ifndef ACTION_ON_PAUSE
+    #define ACTION_ON_PAUSE   "pause"
+  #endif
+  #ifndef ACTION_ON_RESUME
+    #define ACTION_ON_RESUME  "resume"
+  #endif
+  #ifndef ACTION_ON_PAUSED
+    #define ACTION_ON_PAUSED  "paused"
+  #endif
+  #ifndef ACTION_ON_RESUMED
+    #define ACTION_ON_RESUMED "resumed"
+  #endif
+  #ifndef ACTION_ON_CANCEL
+    #define ACTION_ON_CANCEL  "cancel"
+  #endif
+  #if ENABLED(G29_RETRY_AND_RECOVER)
+    #ifndef ACTION_ON_G29_RECOVER
+      #define ACTION_ON_G29_RECOVER "probe_rewipe"
+    #endif
+    #ifndef ACTION_ON_G29_FAILURE
+      #define ACTION_ON_G29_FAILURE "probe_failed"
+    #endif
+  #endif
+#endif

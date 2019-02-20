@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,7 +31,9 @@
 #include "menu.h"
 #include "../../module/temperature.h"
 #include "../../feature/pause.h"
-
+#if HAS_FILAMENT_SENSOR
+  #include "../../feature/runout.h"
+#endif
 //
 // Change Filament > Change/Unload/Load Filament
 //
@@ -57,8 +59,8 @@ static void _change_filament_temp(const uint16_t temperature) {
   thermalManager.setTargetHotend(temperature, _change_filament_temp_extruder);
   lcd_enqueue_command(cmd);
 }
-inline void _lcd_change_filament_temp_1_func()    { _change_filament_temp(PREHEAT_1_TEMP_HOTEND); }
-inline void _lcd_change_filament_temp_2_func()    { _change_filament_temp(PREHEAT_2_TEMP_HOTEND); }
+inline void _lcd_change_filament_temp_1_func()    { _change_filament_temp(ui.preheat_hotend_temp[0]); }
+inline void _lcd_change_filament_temp_2_func()    { _change_filament_temp(ui.preheat_hotend_temp[1]); }
 inline void _lcd_change_filament_temp_custom_cb() { _change_filament_temp(thermalManager.target_temperature[_change_filament_temp_extruder]); }
 
 static PGM_P change_filament_header(const AdvancedPauseMode mode) {
@@ -349,8 +351,13 @@ void menu_advanced_pause_option() {
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER, true, false);
   #endif
-  MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_advanced_pause_resume_print);
   MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_PURGE, lcd_advanced_pause_extrude_more);
+  #if HAS_FILAMENT_SENSOR
+    if (runout.filament_ran_out)
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+    else
+  #endif
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_advanced_pause_resume_print);
   END_MENU();
 }
 

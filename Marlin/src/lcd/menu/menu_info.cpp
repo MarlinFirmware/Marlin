@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,7 +38,6 @@
 //   #include "../../feature/bedlevel/bedlevel.h"
 // #endif
 
-
 #if ENABLED(PRINTCOUNTER)
 
   #include "../../module/printcounter.h"
@@ -53,24 +52,44 @@
     printStatistics stats = print_job_timer.getStats();
 
     START_SCREEN();                                                                                // 12345678901234567890
-    STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, itostr3left(stats.totalPrints));          // Print Count: 999
-    STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS": ", false, false, itostr3left(stats.finishedPrints));   // Completed  : 666
+    STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, i16tostr3left(stats.totalPrints));        // Print Count: 999
+    STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS": ", false, false, i16tostr3left(stats.finishedPrints)); // Completed  : 666
 
     duration_t elapsed = stats.printTime;
     elapsed.toString(buffer);
 
-    STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", false, false);                                           // Total print Time:
-    STATIC_ITEM("", false, false, buffer);                                                         // 99y 364d 23h 59m 59s
+    STATIC_ITEM(MSG_INFO_PRINT_TIME ":", false, false);                                            // Total print Time:
+    STATIC_ITEM("> ", false, false, buffer);                                                       // > 99y 364d 23h 59m 59s
 
     elapsed = stats.longestPrint;
     elapsed.toString(buffer);
 
-    STATIC_ITEM(MSG_INFO_PRINT_LONGEST ": ", false, false);                                        // Longest job time:
-    STATIC_ITEM("", false, false, buffer);                                                         // 99y 364d 23h 59m 59s
+    STATIC_ITEM(MSG_INFO_PRINT_LONGEST ":", false, false);                                         // Longest job time:
+    STATIC_ITEM("> ", false, false, buffer);                                                       // > 99y 364d 23h 59m 59s
 
     sprintf_P(buffer, PSTR("%ld.%im"), long(stats.filamentUsed / 1000), int16_t(stats.filamentUsed / 100) % 10);
-    STATIC_ITEM(MSG_INFO_PRINT_FILAMENT ": ", false, false);                                       // Extruded total:
-    STATIC_ITEM("", false, false, buffer);                                                         // 125m
+    STATIC_ITEM(MSG_INFO_PRINT_FILAMENT ":", false, false);                                        // Extruded total:
+    STATIC_ITEM("> ", false, false, buffer);                                                       // > 125m
+
+    #if SERVICE_INTERVAL_1 > 0
+      elapsed = stats.nextService1;
+      elapsed.toString(buffer);
+      STATIC_ITEM(SERVICE_NAME_1 MSG_SERVICE_IN, false, false);                                    // Service X in:
+      STATIC_ITEM("> ", false, false, buffer);                                                     // > 7d 12h 11m 10s
+    #endif
+    #if SERVICE_INTERVAL_2 > 0
+      elapsed = stats.nextService2;
+      elapsed.toString(buffer);
+      STATIC_ITEM(SERVICE_NAME_2 MSG_SERVICE_IN, false, false);
+      STATIC_ITEM("> ", false, false, buffer);
+    #endif
+    #if SERVICE_INTERVAL_3 > 0
+      elapsed = stats.nextService3;
+      elapsed.toString(buffer);
+      STATIC_ITEM(SERVICE_NAME_3 MSG_SERVICE_IN, false, false);
+      STATIC_ITEM("> ", false, false, buffer);
+    #endif
+
     END_SCREEN();
   }
 

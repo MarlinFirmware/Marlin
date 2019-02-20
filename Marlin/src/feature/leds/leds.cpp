@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,6 +38,10 @@
   #include "pca9632.h"
 #endif
 
+#if ENABLED(PCA9533)
+  #include "SailfishRGB_LED.h"
+#endif
+
 #if ENABLED(LED_COLOR_PRESETS)
   const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
     LED_USER_PRESET_RED,
@@ -56,6 +60,14 @@
 LEDLights leds;
 
 void LEDLights::setup() {
+  #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
+    SET_OUTPUT(RGB_LED_R_PIN);
+    SET_OUTPUT(RGB_LED_G_PIN);
+    SET_OUTPUT(RGB_LED_B_PIN);
+    #if ENABLED(RGBW_LED)
+      SET_OUTPUT(RGB_LED_W_PIN);
+    #endif
+  #endif
   #if ENABLED(NEOPIXEL_LED)
     setup_neopixel();
   #endif
@@ -117,6 +129,10 @@ void LEDLights::set_color(const LEDColor &incol
   #if ENABLED(PCA9632)
     // Update I2C LED driver
     pca9632_set_led_color(incol);
+  #endif
+
+  #if ENABLED(PCA9533)
+    RGBsetColor(incol.r, incol.g, incol.b, true);
   #endif
 
   #if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
