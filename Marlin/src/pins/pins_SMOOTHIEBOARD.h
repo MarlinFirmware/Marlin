@@ -97,9 +97,9 @@
 //
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 
-  #define BEEPER_PIN        P1_31
-  #define DOGLCD_A0         P2_11
-  #define DOGLCD_CS         P0_16
+  #define BEEPER_PIN       P1_31
+  #define DOGLCD_A0        P2_11
+  #define DOGLCD_CS        P0_16
 
   #define BTN_EN1          P3_25
   #define BTN_EN2          P3_26
