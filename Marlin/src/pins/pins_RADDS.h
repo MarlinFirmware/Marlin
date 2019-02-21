@@ -247,7 +247,7 @@
     #define SDSS            10
     #define SD_DETECT_PIN   14
 
-  #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
+  #elif ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SSD1309) || ENABLED(U8GLIB_SH1106)
 
     #define BTN_EN1         50
     #define BTN_EN2         52
