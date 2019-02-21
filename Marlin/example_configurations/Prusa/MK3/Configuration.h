@@ -317,7 +317,7 @@
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
 #define TEMP_SENSOR_BED 1
-#define TEMP_SENSOR_CHAMBER 0
+#define TEMP_SENSOR_CHAMBER 104
 
 /**
  * PRUSA uses an inductive Z-leveling probe (PINDA) with a 
