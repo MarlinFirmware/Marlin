@@ -28,7 +28,6 @@
 #define BOARD_NAME           "Formbot Raptor2"
 
 #define FAN_PIN             6
-#define SDSS                5
 
 #include "pins_FORMBOT_RAPTOR.h"
 

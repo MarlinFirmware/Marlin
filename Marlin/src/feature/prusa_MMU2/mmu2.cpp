@@ -557,7 +557,7 @@ void MMU2::toolChange(const char* special) {
     set_runout_valid(false);
     KEEPALIVE_STATE(IN_HANDLER);
 
-    switch(*special) {
+    switch (*special) {
       case '?': {
         uint8_t index = mmu2_chooseFilament();
         while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);

@@ -95,9 +95,8 @@ uint8_t u8g_com_ssd_I2C_start_sequence(u8g_t *u8g) {
   if (u8g->pin_list[U8G_PI_SET_A0] == 0) return 1;
 
   /* setup bus, might be a repeated start */
-  if (u8g_i2c_start(I2C_SLA) == 0)
-    return 0;
-  if (u8g->pin_list[U8G_PI_A0_STATE] == 0 ) {
+  if (u8g_i2c_start(I2C_SLA) == 0) return 0;
+  if (u8g->pin_list[U8G_PI_A0_STATE] == 0) {
     if (u8g_i2c_send_byte(I2C_CMD_MODE) == 0) return 0;
   }
   else if (u8g_i2c_send_byte(I2C_DATA_MODE) == 0)
@@ -108,7 +107,7 @@ uint8_t u8g_com_ssd_I2C_start_sequence(u8g_t *u8g) {
 }
 
 uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
-  switch(msg) {
+  switch (msg) {
     case U8G_COM_MSG_INIT:
       //u8g_com_arduino_digital_write(u8g, U8G_PI_SCL, HIGH);
       //u8g_com_arduino_digital_write(u8g, U8G_PI_SDA, HIGH);

@@ -143,7 +143,7 @@ public:
         break;
 
       case EP_M876:
-        switch(c) {
+        switch (c) {
           case ' ': break;
           case 'S': state = EP_M876S; break;
           default:  state = EP_IGNORE; break;

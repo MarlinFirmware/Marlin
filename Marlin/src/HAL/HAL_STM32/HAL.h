@@ -176,7 +176,10 @@ static inline int freeMemory() {
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
+//
 // SPI: Extended functions which take a channel number (hardware SPI only)
+//
+
 /** Write single byte to specified SPI channel */
 void spiSend(uint32_t chan, byte b);
 /** Write buffer to specified SPI channel */
@@ -184,18 +187,19 @@ void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
 /** Read single byte from specified SPI channel */
 uint8_t spiRec(uint32_t chan);
 
-
+//
 // EEPROM
+//
 
-/**
- * Wire library should work for i2c eeproms.
- */
+// Wire library should work for i2c EEPROMs
 void eeprom_write_byte(uint8_t *pos, unsigned char value);
 uint8_t eeprom_read_byte(uint8_t *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
+//
 // ADC
+//
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 

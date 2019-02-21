@@ -24,8 +24,8 @@
  * Azteeg X5 MINI pin assignments
  */
 
-#ifndef TARGET_LPC1768
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
+#ifndef LPC1769
+  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
 #define BOARD_NAME        "Azteeg X5 MINI WIFI"
@@ -34,19 +34,23 @@
 //
 // LED
 //
-#define LED_PIN             P1_18
+#define LED_PIN            P1_18
 
 //
-// Servo
+// Servos
 //
 #define SERVO0_PIN         P1_29
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN          P1_24
-#define Y_MIN_PIN          P1_26
-#define Z_MIN_PIN          P1_28
+#define X_STOP_PIN         P1_24
+#define Y_STOP_PIN         P1_26
+#define Z_STOP_PIN         P1_28
+
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN     P2_04
+#endif
 
 //
 // Steppers
