@@ -20,7 +20,7 @@
  *
  */
 
-#ifdef __PLAT_X86_64__
+#ifdef __PLAT_LINUX__
 
 #include "../../../inc/MarlinConfig.h"
 #include "Clock.h"
@@ -29,4 +29,4 @@ std::chrono::nanoseconds Clock::startup = std::chrono::high_resolution_clock::no
 uint32_t Clock::frequency = F_CPU;
 double Clock::time_multiplier = 1.0;
 
-#endif // __PLAT_X86_64__
+#endif // __PLAT_LINUX__

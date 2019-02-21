@@ -263,6 +263,6 @@
 // Simulations
 //
 
-#define BOARD_LINUX_X86_64     2000
+#define BOARD_LINUX_RAMPS      2000
 
 #define MB(board) (defined(BOARD_##board) && MOTHERBOARD==BOARD_##board)

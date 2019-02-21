@@ -20,22 +20,19 @@
  *
  */
 
-#ifdef __PLAT_X86_64__
+#ifdef __PLAT_LINUX__
 
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(EEPROM_SETTINGS)
 
-#include "../persistent_store_api.h"
+#include "../shared/persistent_store_api.h"
 #include <stdio.h>
-
-namespace HAL {
-namespace PersistentStore {
 
 uint8_t buffer[E2END];
 char filename[] = "eeprom.dat";
 
-bool access_start() {
+bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;
   FILE * eeprom_file = fopen(filename, "rb");
   if (eeprom_file == NULL) return false;
@@ -52,11 +49,10 @@ bool access_start() {
   }
 
   fclose(eeprom_file);
-
   return true;
 }
 
-bool access_finish() {
+bool PersistentStore::access_finish() {
   FILE * eeprom_file = fopen(filename, "wb");
   if (eeprom_file == NULL) return false;
   fwrite(buffer, sizeof(uint8_t), sizeof(buffer), eeprom_file);
@@ -64,8 +60,7 @@ bool access_finish() {
   return true;
 }
 
-
-bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
   std::size_t bytes_written = 0;
 
   for (std::size_t i = 0; i < size; i++) {
@@ -78,7 +73,7 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   return (bytes_written != size);  // return true for any error
 }
 
-bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   std::size_t bytes_read = 0;
   if (writing) {
     for (std::size_t i = 0; i < size; i++) {
@@ -100,8 +95,7 @@ bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const boo
   return bytes_read != size;  // return true for any error
 }
 
-} // PersistentStore
-} // HAL
+size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
 
 #endif // EEPROM_SETTINGS
-#endif // __PLAT_X86_64__
+#endif // __PLAT_LINUX__

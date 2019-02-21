@@ -158,7 +158,7 @@
     }
   }
 
-#elif defined(__PLAT_X86_64__)
+#elif defined(__PLAT_LINUX__)
 
   // specified inside platform
 

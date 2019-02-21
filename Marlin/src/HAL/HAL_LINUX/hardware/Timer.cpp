@@ -20,7 +20,7 @@
  *
  */
 
-#ifdef __PLAT_X86_64__
+#ifdef __PLAT_LINUX__
 
 #include "Timer.h"
 #include <stdio.h>
@@ -115,4 +115,4 @@ uint32_t Timer::getCount() {
   return Clock::nanosToTicks(Clock::nanos() - this->start_time, frequency);
 }
 
-#endif // __PLAT_X86_64__
+#endif // __PLAT_LINUX__

@@ -20,7 +20,7 @@
  *
  */
 
-#ifdef __PLAT_X86_64__
+#ifdef __PLAT_LINUX__
 
 #include "../../inc/MarlinConfig.h"
 
@@ -43,4 +43,4 @@ void watchdog_reset() {}
   uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
 #endif // USE_WATCHDOG
 
-#endif // __PLAT_X86_64__
+#endif // __PLAT_LINUX__

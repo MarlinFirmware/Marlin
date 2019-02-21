@@ -20,12 +20,12 @@
  *
  */
 
-#ifdef __PLAT_X86_64__
+#ifdef __PLAT_LINUX__
 
 #include <iostream>
 #include "../../inc/MarlinConfig.h"
 #include "hardware/Clock.h"
-#include "../Delay.h"
+#include "../shared/Delay.h"
 
 // Interrupts
 void cli(void) { } // Disable
@@ -113,4 +113,4 @@ int map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-#endif // __PLAT_X86_64__
+#endif // __PLAT_LINUX__

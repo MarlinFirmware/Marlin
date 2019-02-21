@@ -18,7 +18,7 @@
  *
  */
 
-#ifdef __PLAT_X86_64__
+#ifdef __PLAT_LINUX__
 
 extern void setup();
 extern void loop();
@@ -31,7 +31,7 @@ extern void loop();
 #include "../../inc/MarlinConfig.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include "../Delay.h"
+#include "../shared/Delay.h"
 #include "hardware/IOLoggerCSV.h"
 #include "hardware/Heater.h"
 #include "hardware/LinearAxis.h"
@@ -134,4 +134,4 @@ int main(void) {
   read_serial.join();
 }
 
-#endif // __PLAT_X86_64__
+#endif // __PLAT_LINUX__

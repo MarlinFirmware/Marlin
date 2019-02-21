@@ -20,7 +20,7 @@
  *
  */
 
-#ifdef __PLAT_X86_64__
+#ifdef __PLAT_LINUX__
 
 #include "IOLoggerCSV.h"
 
@@ -47,4 +47,4 @@ void IOLoggerCSV::flush() {
   file.flush();
 }
 
-#endif // __PLAT_X86_64__
+#endif // __PLAT_LINUX__

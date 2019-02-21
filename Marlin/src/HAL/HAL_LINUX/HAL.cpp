@@ -20,10 +20,10 @@
  *
  */
 
-#ifdef __PLAT_X86_64__
+#ifdef __PLAT_LINUX__
 
 #include "../../inc/MarlinConfig.h"
-#include "../Delay.h"
+#include "../shared/Delay.h"
 
 HalSerial usb_serial;
 
@@ -60,9 +60,13 @@ void HAL_adc_enable_channel(int ch) {
 }
 
 uint8_t active_ch = 0;
-void HAL_adc_start_conversion(const uint8_t ch) { active_ch = ch; }
+void HAL_adc_start_conversion(const uint8_t ch) {
+  active_ch = ch;
+}
 
-bool HAL_adc_finished(void) { return true; }
+bool HAL_adc_finished(void) {
+  return true;
+}
 
 uint16_t HAL_adc_get_result(void) {
   pin_t pin = analogInputToDigitalPin(active_ch);
@@ -75,4 +79,4 @@ void HAL_pwm_init(void) {
 
 }
 
-#endif // __PLAT_X86_64__
+#endif // __PLAT_LINUX__

@@ -57,8 +57,8 @@ uint8_t _getc();
 
 #include <Arduino.h>
 
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
 #include "HAL_timers.h"
@@ -72,8 +72,14 @@ extern HalSerial usb_serial;
 #define ST7920_DELAY_2 DELAY_NS(750)
 #define ST7920_DELAY_3 DELAY_NS(750)
 
+//
+// Interrupts
+//
 #define CRITICAL_SECTION_START
 #define CRITICAL_SECTION_END
+#define ISRS_ENABLED()
+#define ENABLE_ISRS()
+#define DISABLE_ISRS()
 
 //Utility functions
 int freeMemory(void);
@@ -89,7 +95,8 @@ uint8_t spiRec(uint32_t chan);
 // ADC
 #define HAL_ANALOG_SELECT(pin) HAL_adc_enable_channel(pin)
 #define HAL_START_ADC(pin)     HAL_adc_start_conversion(pin)
-#define HAL_READ_ADC           HAL_adc_get_result()
+#define HAL_READ_ADC()         HAL_adc_get_result()
+#define HAL_ADC_READY()        true
 
 void HAL_adc_init(void);
 void HAL_adc_enable_channel(int pin);

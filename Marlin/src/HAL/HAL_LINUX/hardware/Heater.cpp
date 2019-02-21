@@ -20,7 +20,7 @@
  *
  */
 
-#ifdef __PLAT_X86_64__
+#ifdef __PLAT_LINUX__
 
 #include "Clock.h"
 #include <stdio.h>
@@ -58,4 +58,4 @@ void Heater::interrupt(GpioEvent ev) {
   // ununsed
 }
 
-#endif // __PLAT_X86_64__
+#endif // __PLAT_LINUX__
