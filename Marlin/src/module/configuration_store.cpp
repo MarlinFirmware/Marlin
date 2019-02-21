@@ -2036,6 +2036,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   planner.settings.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
 
   #if HAS_CLASSIC_JERK
+    #ifndef DEFAULT_XJERK
+      #define DEFAULT_XJERK 0
+    #endif
+    #ifndef DEFAULT_YJERK
+      #define DEFAULT_YJERK 0
+    #endif
+    #ifndef DEFAULT_ZJERK
+      #define DEFAULT_ZJERK 0
+    #endif
     planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
     planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
     planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;

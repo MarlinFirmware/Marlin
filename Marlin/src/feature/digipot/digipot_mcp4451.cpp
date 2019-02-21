@@ -50,7 +50,7 @@ static void i2c_send(const byte addr, const byte a, const byte b) {
     digipot_mcp4451_send_byte(a);
     digipot_mcp4451_send_byte(b);
   #else
-    Wire.beginTransmission(addr);
+    Wire.beginTransmission(I2C_ADDRESS(addr));
     Wire.write(a);
     Wire.write(b);
     Wire.endTransmission();

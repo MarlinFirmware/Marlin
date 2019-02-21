@@ -95,7 +95,7 @@ void u8g_SetPILevel_DUE_hw_spi(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
 }
 
 uint8_t u8g_com_HAL_DUE_shared_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
-  switch(msg) {
+  switch (msg) {
     case U8G_COM_MSG_STOP:
       break;
 

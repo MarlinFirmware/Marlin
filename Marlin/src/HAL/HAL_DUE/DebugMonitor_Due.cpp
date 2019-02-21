@@ -231,7 +231,7 @@ void HardFault_HandlerC(unsigned long *sp, unsigned long lr, unsigned long cause
 
   // Reset controller
   NVIC_SystemReset();
-  while(1) { WDT_Restart(WDT); }
+  for (;;) WDT_Restart(WDT);
 }
 
 __attribute__((naked)) void NMI_Handler(void) {

@@ -408,7 +408,7 @@ public:
 
   CommandBlockWrapper() :
   CommandBlockWrapperBase(0, 0, 0), bmReserved1(0), bmReserved2(0) {
-    for(int i = 0; i < 16; i++) CBWCB[i] = 0;
+    for (int i = 0; i < 16; i++) CBWCB[i] = 0;
   }
 
   // Generic Wrap, CDB zeroed.
@@ -416,7 +416,7 @@ public:
   CommandBlockWrapper(uint32_t tag, uint32_t xflen, uint8_t flgs, uint8_t lu, uint8_t cmdlen, uint8_t cmd) :
   CommandBlockWrapperBase(tag, xflen, flgs),
   bmCBWLUN(lu), bmReserved1(0), bmCBWCBLength(cmdlen), bmReserved2(0) {
-    for(int i = 0; i < 16; i++) CBWCB[i] = 0;
+    for (int i = 0; i < 16; i++) CBWCB[i] = 0;
     // Type punning can cause optimization problems and bugs.
     // Using reinterpret_cast to a dreinterpretifferent object is the proper way to do this.
     //(((BASICCDB_t *) CBWCB)->LUN) = cmd;
@@ -493,27 +493,17 @@ protected:
   bool WriteOk[MASS_MAX_SUPPORTED_LUN];
   void PrintEndpointDescriptor(const USB_ENDPOINT_DESCRIPTOR* ep_ptr);
 
-
   // Additional Initialization Method for Subclasses
 
-  virtual uint8_t OnInit() {
-    return 0;
-  };
+  virtual uint8_t OnInit() { return 0; }
 
 public:
   BulkOnly(USB *p);
 
-  uint8_t GetLastUsbError() {
-    return bLastUsbError;
-  };
+  uint8_t GetLastUsbError() { return bLastUsbError; };
 
-  uint8_t GetbMaxLUN() {
-    return bMaxLUN; // Max LUN
-  }
-
-  uint8_t GetbTheLUN() {
-    return bTheLUN; // Active LUN
-  }
+  uint8_t GetbMaxLUN() { return bMaxLUN; } // Max LUN
+  uint8_t GetbTheLUN() { return bTheLUN; } // Active LUN
 
   bool WriteProtected(uint8_t lun);
   uint8_t MediaCTL(uint8_t lun, uint8_t ctl);
@@ -533,16 +523,12 @@ public:
   uint8_t Release();
   uint8_t Poll();
 
-  virtual uint8_t GetAddress() {
-    return bAddress;
-  };
+  virtual uint8_t GetAddress() { return bAddress; }
 
   // UsbConfigXtracter implementation
   void EndpointXtract(uint8_t conf, uint8_t iface, uint8_t alt, uint8_t proto, const USB_ENDPOINT_DESCRIPTOR *ep);
 
-  virtual bool DEVCLASSOK(uint8_t klass) {
-    return (klass == USB_CLASS_MASS_STORAGE);
-  }
+  virtual bool DEVCLASSOK(uint8_t klass) { return klass == USB_CLASS_MASS_STORAGE; }
 
   uint8_t SCSITransaction6(CDB6_t *cdb, uint16_t buf_size, void *buf, uint8_t dir);
   uint8_t SCSITransaction10(CDB10_t *cdb, uint16_t buf_size, void *buf, uint8_t dir);
@@ -573,5 +559,4 @@ private:
   uint8_t Transaction(CommandBlockWrapper *cbw, uint16_t bsize, void *buf);
   uint8_t HandleUsbError(uint8_t error, uint8_t index);
   uint8_t HandleSCSIError(uint8_t status);
-
 };

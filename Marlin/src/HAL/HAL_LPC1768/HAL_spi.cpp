@@ -81,17 +81,15 @@
   uint8_t spiRec() { return spiTransfer(0xFF); }
 
   void spiRead(uint8_t*buf, uint16_t nbyte) {
-    if (nbyte)
-      for (int i = 0; i < nbyte; i++)
-        buf[i] = spiTransfer(0xFF);
+    for (int i = 0; i < nbyte; i++)
+      buf[i] = spiTransfer(0xFF);
   }
 
   void spiSend(uint8_t b) { (void)spiTransfer(b); }
 
-  void spiSend(const uint8_t* buf, size_t n) {
-    if (n)
-      for (uint16_t i = 0; i < n; i++)
-        (void)spiTransfer(buf[i]);
+  void spiSend(const uint8_t* buf, size_t nbyte) {
+    for (uint16_t i = 0; i < nbyte; i++)
+      (void)spiTransfer(buf[i]);
   }
 
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
@@ -178,15 +176,14 @@
 
   void spiSend(uint8_t b) { doio(b); }
 
-  void spiSend(const uint8_t* buf, size_t n) {
-    if (n)
-      for (uint16_t i = 0; i < n; i++) doio(buf[i]);
+  void spiSend(const uint8_t* buf, size_t nbyte) {
+    for (uint16_t i = 0; i < nbyte; i++) doio(buf[i]);
   }
 
   void spiSend(uint32_t chan, byte b) {
   }
 
-  void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
+  void spiSend(uint32_t chan, const uint8_t* buf, size_t nbyte) {
   }
 
   // Read single byte from SPI
@@ -195,9 +192,8 @@
   uint8_t spiRec(uint32_t chan) { return 0; }
 
   // Read from SPI into buffer
-  void spiRead(uint8_t*buf, uint16_t nbyte) {
-    if (nbyte)
-      for (int i = 0; i < nbyte; i++) buf[i] = doio(0xff);
+  void spiRead(uint8_t *buf, uint16_t nbyte) {
+    for (uint16_t i = 0; i < nbyte; i++) buf[i] = doio(0xFF);
   }
 
   static uint8_t spiTransfer(uint8_t b) {

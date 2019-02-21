@@ -58,7 +58,7 @@ uint8_t u8g_com_stm32duino_fsmc_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, voi
 
   static uint8_t isCommand;
 
-  switch(msg) {
+  switch (msg) {
     case U8G_COM_MSG_STOP:
       break;
     case U8G_COM_MSG_INIT:
@@ -154,7 +154,7 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
   if (fsmcInit) return;
   fsmcInit = 1;
 
-  switch(cs) {
+  switch (cs) {
     case FSMC_CS_NE1: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION1; break;
     case FSMC_CS_NE2: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION2; break;
     case FSMC_CS_NE3: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION3; break;
@@ -164,7 +164,7 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
 
   #define _ORADDR(N) controllerAddress |= (_BV32(N) - 2)
 
-  switch(rs) {
+  switch (rs) {
     case FSMC_RS_A0:  _ORADDR( 1); break;
     case FSMC_RS_A1:  _ORADDR( 2); break;
     case FSMC_RS_A2:  _ORADDR( 3); break;

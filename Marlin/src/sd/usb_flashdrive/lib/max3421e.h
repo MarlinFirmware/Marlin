@@ -22,11 +22,11 @@
  * Web      :  http://www.circuitsathome.com
  * e-mail   :  support@circuitsathome.com
  */
-#if !defined(_usb_h_) || defined(_max3421e_h_)
-#error "Never include max3421e.h directly; include Usb.h instead"
-#else
+#pragma once
 
-#define _max3421e_h_
+#ifndef _usb_h_
+  #error "Never include max3421e.h directly; include Usb.h instead"
+#endif
 
 /* MAX3421E register/bit names and bitmasks */
 
@@ -231,6 +231,3 @@
 
 #define MODE_FS_HOST    (bmDPPULLDN|bmDMPULLDN|bmHOST|bmSOFKAENAB)
 #define MODE_LS_HOST    (bmDPPULLDN|bmDMPULLDN|bmHOST|bmLOWSPEED|bmSOFKAENAB)
-
-
-#endif //_max3421e_h_

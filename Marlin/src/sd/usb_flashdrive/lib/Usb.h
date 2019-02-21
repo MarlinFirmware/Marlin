@@ -22,8 +22,9 @@
  * Web      :  http://www.circuitsathome.com
  * e-mail   :  support@circuitsathome.com
  */
+#pragma once
+
 /* USB functions */
-#ifndef _usb_h_
 #define _usb_h_
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -50,4 +51,4 @@
 #include "parsetools.h"
 #include "confdescparser.h"
 
-#endif //_usb_h_
+#undef _usb_h_
