@@ -207,7 +207,7 @@ void GcodeSuite::process_parsed_command(
         case 20: G20(); break;                                    // G20: Inch Mode
         case 21: G21(); break;                                    // G21: MM Mode
       #else
-        case 21: NOOP; break;                                     // G21: MM Mode
+        case 21: NOOP; break;                                     // No error on unknown G21
       #endif
 
       #if ENABLED(G26_MESH_VALIDATION)
