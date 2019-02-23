@@ -251,8 +251,6 @@
 #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("expulsar filamento")
 #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Esperado para")
 #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("cargar el filamento")
-#define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Esperado para")
-#define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("extruir el filamento")
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando imp.")
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("para resumir")
 #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Oprima botón para")
