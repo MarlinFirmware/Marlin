@@ -42,8 +42,6 @@
 #include "fastio_STM32.h"
 #include "watchdog_STM32.h"
 
-#include "HAL_timers_STM32.h"
-
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
@@ -100,6 +98,8 @@
 #else
   #define NUM_SERIAL 1
 #endif
+
+#include "HAL_timers_STM32.h"
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
