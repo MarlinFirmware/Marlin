@@ -5167,7 +5167,7 @@ void lcd_update() {
       lcd_sd_status = sd_status;
 
       if (sd_status) {
-        safe_delay(500); // Some boards need a delay to get settled
+        safe_delay(1000); // Some boards need a delay to get settled
         card.initsd();
         if (old_sd_status == 2)
           card.beginautostart();  // Initial boot

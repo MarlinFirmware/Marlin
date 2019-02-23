@@ -15252,7 +15252,8 @@ void setup() {
     enable_D();
   #endif
 
-  #if ENABLED(SDSUPPORT) && DISABLED(ULTRA_LCD)
+  #if ENABLED(SDSUPPORT)
+    if (!card.cardOK) card.initsd();
     card.beginautostart();
   #endif
 }
