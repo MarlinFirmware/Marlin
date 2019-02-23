@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Please fill in the bug report form
+about: Report a bug in Marlin
 title: "[BUG] (short description)"
 labels: ''
 assignees: ''
