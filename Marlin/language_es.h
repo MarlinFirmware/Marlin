@@ -251,26 +251,25 @@
 
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Boquilla: ")
 
-#define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Esperando iniciar")
+#define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Esperando para")
 
-#define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Inserte filamento")
+#define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Inserte el filamento")
 #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("y presione el boton")
 
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("del filamento")
-  #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("cambiar")
+  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("iniciar cambio")
+  #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("de filamento")
   #define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("para continuar...")
 #else // LCD_HEIGHT < 4
   // Up to 2 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("del fil. cambiar")
-  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Inserte filamento")
+  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("iniciar cambio fil.")
 #endif // LCD_HEIGHT < 4
 
-#define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Esperado por")
-#define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("filamento expulsado")
-#define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Esperado por")
-#define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("Cargar filamento")
+#define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Esperando para")
+#define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("expulsar filamento")
+#define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Esperado para")
+#define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("cargar el filamento")
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando imp.")
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("para resumir")
 #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Oprima boton para")
