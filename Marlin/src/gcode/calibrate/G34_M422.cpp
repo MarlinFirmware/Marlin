@@ -88,7 +88,7 @@ void GcodeSuite::G34() {
     }
 
     const float z_auto_align_amplification = parser.floatval('A', Z_STEPPER_ALIGN_AMP);
-    if (!WITHIN(z_auto_align_amplification, 0.5f, 2.0f)) {
+    if (!WITHIN(ABS(z_auto_align_amplification), 0.5f, 2.0f)) {
       SERIAL_ECHOLNPGM("?(A)mplification out of bounds (0.5-2.0).");
       break;
     }
@@ -137,7 +137,7 @@ void GcodeSuite::G34() {
       // For each iteration go through all probe positions (one per Z-Stepper)
       for (uint8_t zstepper = 0; zstepper < Z_STEPPER_COUNT; ++zstepper) {
         // Probe a Z height for each stepper
-        z_measured[zstepper] = probe_pt(z_auto_align_xpos[zstepper], z_auto_align_ypos[zstepper], PROBE_PT_RAISE, false);
+        z_measured[zstepper] = probe_pt(z_auto_align_xpos[zstepper], z_auto_align_ypos[zstepper], PROBE_PT_RAISE, 0, false);
 
         // Stop on error
         if (isnan(z_measured[zstepper])) {
