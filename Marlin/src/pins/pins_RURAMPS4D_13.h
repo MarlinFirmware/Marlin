@@ -214,7 +214,7 @@
 
     #define SD_DETECT_PIN   51
 
-  #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
+  #elif HAS_SSD1306_OLED_I2C
 
     #define BEEPER_PIN      62
     #define LCD_SDSS        10
