@@ -50,7 +50,11 @@ extern uint8_t marlin_debug_flags;
   extern int8_t serial_port_index;
   #define _PORT_REDIRECT(n,p)   REMEMBER(n,serial_port_index,p)
   #define _PORT_RESTORE(n)      RESTORE(n)
-  #define SERIAL_OUT(WHAT, ...)  (serial_port_index ? MYSERIAL1.WHAT(##__VA_ARGS__) : MYSERIAL0.WHAT(##__VA_ARGS__))
+  #define SERIAL_BOTH 0x7F
+  #define SERIAL_OUT(WHAT, ...) do{ \
+    if (!serial_port_index || serial_port_index == SERIAL_BOTH) MYSERIAL0.WHAT(##__VA_ARGS__); \
+    if ( serial_port_index) MYSERIAL1.WHAT(##__VA_ARGS__); \
+  }while(0)
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
   #define _PORT_RESTORE(n)      NOOP
