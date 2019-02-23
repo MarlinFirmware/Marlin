@@ -15253,7 +15253,8 @@ void setup() {
   #endif
 
   #if ENABLED(SDSUPPORT)
-    if (!card.cardOK) card.initsd();
+    if (!card.cardOK)
+      card.initsd();
     card.beginautostart();
   #endif
 }
