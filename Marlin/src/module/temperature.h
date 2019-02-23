@@ -381,7 +381,7 @@ class Temperature {
 
     static inline void zero_fan_speeds() {
       #if FAN_COUNT > 0
-        FANS_LOOP(i) fan_speed[i] = 0;
+        FANS_LOOP(i) set_fan_speed(i, 0);
       #endif
     }
 
