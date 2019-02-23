@@ -29,21 +29,12 @@ static const char errormagic[] PROGMEM = "Error:";
 static const char echomagic[]  PROGMEM = "echo:";
 
 #if NUM_SERIAL > 1
-
   int8_t serial_port_index = SERIAL_PORT;
-
-  void serialprintPGM(PGM_P str) {
-    while (char ch = pgm_read_byte(str++)) SERIAL_CHAR_P(ch);
-  }
-
-#else
-
-  void serialprintPGM(PGM_P str) {
-    while (char ch = pgm_read_byte(str++)) SERIAL_CHAR(ch);
-  }
-
 #endif
 
+void serialprintPGM(PGM_P str) {
+  while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
+}
 void serial_echo_start()  { serialprintPGM(echomagic); }
 void serial_error_start() { serialprintPGM(errormagic); }
 

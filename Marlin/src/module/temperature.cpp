@@ -2506,8 +2506,8 @@ void Temperature::isr() {
       UNUSED(e);
     #endif
 
-    SERIAL_CHAR_P(' ');
-    SERIAL_CHAR_P(
+    SERIAL_CHAR(' ');
+    SERIAL_CHAR(
       #if HAS_TEMP_CHAMBER && HAS_HEATED_BED && HAS_TEMP_HOTEND
         e == -2 ? 'C' : e == -1 ? 'B' : 'T'
       #elif HAS_HEATED_BED && HAS_TEMP_HOTEND
@@ -2519,14 +2519,14 @@ void Temperature::isr() {
       #endif
     );
     #if HOTENDS > 1
-      if (e >= 0) SERIAL_CHAR_P('0' + e);
+      if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
-    SERIAL_CHAR_P(':');
-    SERIAL_ECHO_P(c);
-    SERIAL_ECHOPAIR_P(" /" , t);
+    SERIAL_CHAR(':');
+    SERIAL_ECHO(c);
+    SERIAL_ECHOPAIR(" /" , t);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      SERIAL_ECHOPAIR_P(" (", r / OVERSAMPLENR);
-      SERIAL_CHAR_P(')');
+      SERIAL_ECHOPAIR(" (", r / OVERSAMPLENR);
+      SERIAL_CHAR(')');
     #endif
     delay(2);
   }
@@ -2572,17 +2572,17 @@ void Temperature::isr() {
         , e
       );
     #endif
-    SERIAL_ECHOPGM_P(" @:");
-    SERIAL_ECHO_P(getHeaterPower(target_extruder));
+    SERIAL_ECHOPGM(" @:");
+    SERIAL_ECHO(getHeaterPower(target_extruder));
     #if HAS_HEATED_BED
-      SERIAL_ECHOPGM_P(" B@:");
-      SERIAL_ECHO_P(getHeaterPower(-1));
+      SERIAL_ECHOPGM(" B@:");
+      SERIAL_ECHO(getHeaterPower(-1));
     #endif
     #if HOTENDS > 1
       HOTEND_LOOP() {
-        SERIAL_ECHOPAIR_P(" @", e);
-        SERIAL_CHAR_P(':');
-        SERIAL_ECHO_P(getHeaterPower(e));
+        SERIAL_ECHOPAIR(" @", e);
+        SERIAL_CHAR(':');
+        SERIAL_ECHO(getHeaterPower(e));
       }
     #endif
   }

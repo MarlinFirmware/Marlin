@@ -35,29 +35,29 @@
   #include "math.h"
 
   void unified_bed_leveling::echo_name() {
-    SERIAL_ECHOPGM_P("Unified Bed Leveling");
+    SERIAL_ECHOPGM("Unified Bed Leveling");
   }
 
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
-    SERIAL_ECHO_MSG_P("  G29 I99");
+    SERIAL_ECHO_MSG("  G29 I99");
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(z_values[x][y])) {
-          SERIAL_ECHO_START_P();
-          SERIAL_ECHOPAIR_P("  M421 I", x);
-          SERIAL_ECHOPAIR_P(" J", y);
-          SERIAL_ECHOPAIR_F_P(" Z", z_values[x][y], 2);
-          SERIAL_EOL_P();
+          SERIAL_ECHO_START();
+          SERIAL_ECHOPAIR("  M421 I", x);
+          SERIAL_ECHOPAIR(" J", y);
+          SERIAL_ECHOPAIR_F(" Z", z_values[x][y], 2);
+          SERIAL_EOL();
           serial_delay(75); // Prevent Printrun from exploding
         }
   }
 
   void unified_bed_leveling::report_state() {
     echo_name();
-    SERIAL_ECHOPGM_P(" System v" UBL_VERSION " ");
-    if (!planner.leveling_active) SERIAL_ECHOPGM_P("in");
-    SERIAL_ECHOLNPGM_P("active.");
+    SERIAL_ECHOPGM(" System v" UBL_VERSION " ");
+    if (!planner.leveling_active) SERIAL_ECHOPGM("in");
+    SERIAL_ECHOLNPGM("active.");
     serial_delay(50);
   }
 

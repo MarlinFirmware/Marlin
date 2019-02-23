@@ -42,6 +42,6 @@ void GcodeSuite::M31() {
   elapsed.toString(buffer);
   ui.set_status(buffer);
 
-  SERIAL_ECHO_START_P();
-  SERIAL_ECHOLNPAIR_P("Print time: ", buffer);
+  SERIAL_ECHO_START();
+  SERIAL_ECHOLNPAIR("Print time: ", buffer);
 }

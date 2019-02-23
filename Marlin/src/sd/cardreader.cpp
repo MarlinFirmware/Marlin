@@ -191,9 +191,9 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       SdFile dir;
       if (!dir.open(&parent, dosFilename, O_READ)) {
         if (lsAction == LS_SerialPrint) {
-          SERIAL_ECHO_START_P();
-          SERIAL_ECHOPGM_P(MSG_SD_CANT_OPEN_SUBDIR);
-          SERIAL_ECHOLN_P(dosFilename);
+          SERIAL_ECHO_START();
+          SERIAL_ECHOPGM(MSG_SD_CANT_OPEN_SUBDIR);
+          SERIAL_ECHOLN(dosFilename);
         }
       }
       lsDive(path, dir);
@@ -218,10 +218,10 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 
         case LS_SerialPrint:
           createFilename(filename, p);
-          if (prepend) SERIAL_ECHO_P(prepend);
-          SERIAL_ECHO_P(filename);
-          SERIAL_CHAR_P(' ');
-          SERIAL_ECHOLN_P(p.fileSize);
+          if (prepend) SERIAL_ECHO(prepend);
+          SERIAL_ECHO(filename);
+          SERIAL_CHAR(' ');
+          SERIAL_ECHOLN(p.fileSize);
           break;
 
         case LS_GetFilename:
@@ -254,7 +254,7 @@ void CardReader::ls() {
 
     int i, pathLen = strlen(path);
 
-    // SERIAL_ECHOPGM_P("Full Path: "); SERIAL_ECHOLN_P(path);
+    // SERIAL_ECHOPGM("Full Path: "); SERIAL_ECHOLN(path);
 
     // Zero out slashes to make segments
     for (i = 0; i < pathLen; i++) if (path[i] == '/') path[i] = '\0';
@@ -272,28 +272,28 @@ void CardReader::ls() {
       // Go to the next segment
       while (path[++i]) { }
 
-      // SERIAL_ECHOPGM_P("Looking for segment: "); SERIAL_ECHOLN_P(segment);
+      // SERIAL_ECHOPGM("Looking for segment: "); SERIAL_ECHOLN(segment);
 
       // Find the item, setting the long filename
       diveDir.rewind();
       lsDive(NULL, diveDir, segment);
 
       // Print /LongNamePart to serial output
-      SERIAL_CHAR_P('/');
-      SERIAL_ECHO_P(longFilename[0] ? longFilename : "???");
+      SERIAL_CHAR('/');
+      SERIAL_ECHO(longFilename[0] ? longFilename : "???");
 
       // If the filename was printed then that's it
       if (!flag.filenameIsDir) break;
 
-      // SERIAL_ECHOPGM_P("Opening dir: "); SERIAL_ECHOLN_P(segment);
+      // SERIAL_ECHOPGM("Opening dir: "); SERIAL_ECHOLN(segment);
 
       // Open the sub-item as the new dive parent
       SdFile dir;
       if (!dir.open(&diveDir, segment, O_READ)) {
-        SERIAL_EOL_P();
-        SERIAL_ECHO_START_P();
-        SERIAL_ECHOPGM_P(MSG_SD_CANT_OPEN_SUBDIR);
-        SERIAL_ECHO_P(segment);
+        SERIAL_EOL();
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPGM(MSG_SD_CANT_OPEN_SUBDIR);
+        SERIAL_ECHO(segment);
         break;
       }
 
@@ -302,7 +302,7 @@ void CardReader::ls() {
 
     } // while i<pathLen
 
-    SERIAL_EOL_P();
+    SERIAL_EOL();
   }
 
 #endif // LONG_FILENAME_HOST_SUPPORT
@@ -314,19 +314,19 @@ void CardReader::printFilename() {
   if (file.isOpen()) {
     char dosFilename[FILENAME_LENGTH];
     file.getFilename(dosFilename);
-    SERIAL_ECHO_P(dosFilename);
+    SERIAL_ECHO(dosFilename);
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
       getfilename(0, dosFilename);
       if (longFilename[0]) {
-        SERIAL_ECHO_P(' ');
-        SERIAL_ECHO_P(longFilename);
+        SERIAL_ECHO(' ');
+        SERIAL_ECHO(longFilename);
       }
     #endif
   }
   else
-    SERIAL_ECHOPGM_P("(no file)");
+    SERIAL_ECHOPGM("(no file)");
 
-  SERIAL_EOL_P();
+  SERIAL_EOL();
 }
 
 void CardReader::initsd() {
@@ -528,13 +528,13 @@ void CardReader::removeFile(const char * const name) {
 
 void CardReader::report_status() {
   if (isPrinting()) {
-    SERIAL_ECHOPGM_P(MSG_SD_PRINTING_BYTE);
-    SERIAL_ECHO_P(sdpos);
-    SERIAL_CHAR_P('/');
-    SERIAL_ECHOLN_P(filesize);
+    SERIAL_ECHOPGM(MSG_SD_PRINTING_BYTE);
+    SERIAL_ECHO(sdpos);
+    SERIAL_CHAR('/');
+    SERIAL_ECHOLN(filesize);
   }
   else
-    SERIAL_ECHOLNPGM_P(MSG_SD_NOT_PRINTING);
+    SERIAL_ECHOLNPGM(MSG_SD_NOT_PRINTING);
 }
 
 void CardReader::write_command(char *buf) {

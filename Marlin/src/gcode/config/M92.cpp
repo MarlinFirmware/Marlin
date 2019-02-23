@@ -24,21 +24,21 @@
 #include "../../module/planner.h"
 
 void report_M92(const bool echo=true, const int8_t e=-1) {
-  if (echo) SERIAL_ECHO_START_P(); else SERIAL_CHAR_P(' ');
-  SERIAL_ECHOPAIR_P(" M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
-  SERIAL_ECHOPAIR_P(" Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
-  SERIAL_ECHOPAIR_P(" Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
+  if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
+  SERIAL_ECHOPAIR(" M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
+  SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
+  SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
   #if DISABLED(DISTINCT_E_FACTORS)
-    SERIAL_ECHOPAIR_P(" E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
+    SERIAL_ECHOPAIR(" E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
   #endif
-  SERIAL_EOL_P();
+  SERIAL_EOL();
 
   #if ENABLED(DISTINCT_E_FACTORS)
     for (uint8_t i = 0; i < E_STEPPERS; i++) {
       if (e >= 0 && i != e) continue;
-      if (echo) SERIAL_ECHO_START_P(); else SERIAL_CHAR(' ');
-      SERIAL_ECHOPAIR_P(" M92 T", (int)i);
-      SERIAL_ECHOLNPAIR_P(" E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
+      if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
+      SERIAL_ECHOPAIR(" M92 T", (int)i);
+      SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
     }
   #endif
 }

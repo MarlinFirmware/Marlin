@@ -50,13 +50,13 @@
  * M20: List SD card to serial output
  */
 void GcodeSuite::M20() {
-  SERIAL_ECHOLNPGM_P(MSG_BEGIN_FILE_LIST);
+  SERIAL_ECHOLNPGM(MSG_BEGIN_FILE_LIST);
   card.ls(
     #if NUM_SERIAL > 1
       command_queue_port[cmd_queue_index_r]
     #endif
   );
-  SERIAL_ECHOLNPGM_P(MSG_END_FILE_LIST);
+  SERIAL_ECHOLNPGM(MSG_END_FILE_LIST);
 }
 
 /**
@@ -165,7 +165,7 @@ void GcodeSuite::M27() {
   #endif
 
   if (parser.seen('C')) {
-    SERIAL_ECHOPGM_P("Current file: ");
+    SERIAL_ECHOPGM("Current file: ");
     card.printFilename();
   }
 
@@ -203,9 +203,9 @@ void GcodeSuite::M28() {
 
     // Binary transfer mode
     if ((card.flag.binary_mode = binary_mode)) {
-      SERIAL_ECHO_START_P();
-      SERIAL_ECHO_P(" preparing to receive: ");
-      SERIAL_ECHOLN_P(p);
+      SERIAL_ECHO_START();
+      SERIAL_ECHO(" preparing to receive: ");
+      SERIAL_ECHOLN(p);
       card.openFile(p, false);
       #if NUM_SERIAL > 1
         card.transfer_port = command_queue_port[cmd_queue_index_r];

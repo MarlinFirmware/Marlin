@@ -80,6 +80,6 @@ void GcodeSuite::M502() {
    */
   void GcodeSuite::M504() {
     if (settings.validate())
-      SERIAL_ECHO_MSG_P("EEPROM OK");
+      SERIAL_ECHO_MSG("EEPROM OK");
   }
 #endif

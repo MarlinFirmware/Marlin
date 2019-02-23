@@ -29,10 +29,10 @@
 
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
-    SERIAL_ECHOPGM_P("Cap:");
-    serialprintPGM_P(name);
-    SERIAL_CHAR_P(':');
-    SERIAL_ECHOLN_P(int(ena ? 1 : 0));
+    SERIAL_ECHOPGM("Cap:");
+    serialprintPGM(name);
+    SERIAL_CHAR(':');
+    SERIAL_ECHOLN(int(ena ? 1 : 0));
   }
 #endif
 
@@ -41,7 +41,7 @@
  */
 void GcodeSuite::M115() {
 
-  SERIAL_ECHOLNPGM_P(MSG_M115_REPORT);
+  SERIAL_ECHOLNPGM(MSG_M115_REPORT);
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
