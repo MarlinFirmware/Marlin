@@ -426,10 +426,6 @@ void disable_all_steppers() {
  *  - Pulse FET_SAFETY_PIN if it exists
  */
 
-#if PIN_EXISTS(FET_SAFETY)
-  millis_t FET_next;
-#endif
-
 void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
   #if HAS_FILAMENT_SENSOR
@@ -647,6 +643,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   }
 
   #if PIN_EXISTS(FET_SAFETY)
+    static millis_t FET_next;
     if (ELAPSED(ms, FET_next)) {
       FET_next = ms + FET_SAFETY_DELAY;  // 2uS pulse every FET_SAFETY_DELAY mS
       OUT_WRITE(FET_SAFETY_PIN, !FET_SAFETY_INVERTED);
