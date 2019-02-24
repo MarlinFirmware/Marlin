@@ -23,27 +23,22 @@
 #include "../gcode.h"
 #include "../../module/planner.h"
 
-void report_M92(
-  #if NUM_SERIAL > 1
-    const int8_t port,
-  #endif
-  const bool echo=true, const int8_t e=-1
-) {
-  if (echo) SERIAL_ECHO_START_P(port); else SERIAL_CHAR(' ');
-  SERIAL_ECHOPAIR_P(port, " M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
-  SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
-  SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
+void report_M92(const bool echo=true, const int8_t e=-1) {
+  if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
+  SERIAL_ECHOPAIR(" M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
+  SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
+  SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
   #if DISABLED(DISTINCT_E_FACTORS)
-    SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
+    SERIAL_ECHOPAIR(" E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
   #endif
-  SERIAL_EOL_P(port);
+  SERIAL_EOL();
 
   #if ENABLED(DISTINCT_E_FACTORS)
     for (uint8_t i = 0; i < E_STEPPERS; i++) {
       if (e >= 0 && i != e) continue;
-      if (echo) SERIAL_ECHO_START_P(port); else SERIAL_CHAR(' ');
-      SERIAL_ECHOPAIR_P(port, " M92 T", (int)i);
-      SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
+      if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
+      SERIAL_ECHOPAIR(" M92 T", (int)i);
+      SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
     }
   #endif
 }
@@ -71,12 +66,7 @@ void GcodeSuite::M92() {
     #if ENABLED(MAGIC_NUMBERS_GCODE)
       "HL"
     #endif
-  )) return report_M92(
-    #if NUM_SERIAL > 1
-      command_queue_port[cmd_queue_index_r],
-    #endif
-    true, target_extruder
-  );
+  )) return report_M92(true, target_extruder);
 
   LOOP_XYZE(i) {
     if (parser.seenval(axis_codes[i])) {

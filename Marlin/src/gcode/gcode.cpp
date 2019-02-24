@@ -754,6 +754,8 @@ void GcodeSuite::process_parsed_command(
 void GcodeSuite::process_next_command() {
   char * const current_command = command_queue[cmd_queue_index_r];
 
+  PORT_REDIRECT(command_queue_port[cmd_queue_index_r]);
+
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLN(current_command);

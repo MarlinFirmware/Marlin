@@ -33,19 +33,15 @@
 
 void M217_report(const bool eeprom=false) {
 
-  #if NUM_SERIAL > 1
-    const int16_t port = command_queue_port[cmd_queue_index_r];
-  #endif
-
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    serialprintPGM_P(port, eeprom ? PSTR("  M217") : PSTR("Singlenozzle:"));
-    SERIAL_ECHOPAIR_P(port, " S", LINEAR_UNIT(toolchange_settings.swap_length));
-    SERIAL_ECHOPAIR_P(port, " P", LINEAR_UNIT(toolchange_settings.prime_speed));
-    SERIAL_ECHOPAIR_P(port, " R", LINEAR_UNIT(toolchange_settings.retract_speed));
+    serialprintPGM(eeprom ? PSTR("  M217") : PSTR("Singlenozzle:"));
+    SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length));
+    SERIAL_ECHOPAIR(" P", LINEAR_UNIT(toolchange_settings.prime_speed));
+    SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed));
 
     #if ENABLED(TOOLCHANGE_PARK)
-      SERIAL_ECHOPAIR_P(port, " X", LINEAR_UNIT(toolchange_settings.change_point.x));
-      SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(toolchange_settings.change_point.y));
+      SERIAL_ECHOPAIR(" X", LINEAR_UNIT(toolchange_settings.change_point.x));
+      SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(toolchange_settings.change_point.y));
     #endif
 
   #else
@@ -54,7 +50,7 @@ void M217_report(const bool eeprom=false) {
 
   #endif
 
-  SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(toolchange_settings.z_raise));
+  SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(toolchange_settings.z_raise));
   SERIAL_EOL();
 }
 

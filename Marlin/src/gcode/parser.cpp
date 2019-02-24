@@ -328,13 +328,10 @@ void GCodeParser::parse(char *p) {
 #endif // CNC_COORDINATE_SYSTEMS
 
 void GCodeParser::unknown_command_error() {
-  #if NUM_SERIAL > 1
-    const int16_t port = command_queue_port[cmd_queue_index_r];
-  #endif
-  SERIAL_ECHO_START_P(port);
-  SERIAL_ECHOPAIR_P(port, MSG_UNKNOWN_COMMAND, command_ptr);
-  SERIAL_CHAR_P(port, '"');
-  SERIAL_EOL_P(port);
+  SERIAL_ECHO_START();
+  SERIAL_ECHOPAIR(MSG_UNKNOWN_COMMAND, command_ptr);
+  SERIAL_CHAR('"');
+  SERIAL_EOL();
 }
 
 #if ENABLED(DEBUG_GCODE_PARSER)

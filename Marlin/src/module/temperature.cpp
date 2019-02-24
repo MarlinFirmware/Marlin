@@ -2500,17 +2500,14 @@ void Temperature::isr() {
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       , const float r
     #endif
-    #if NUM_SERIAL > 1
-      , const int8_t port=-1
-    #endif
     , const int8_t e=-3
   ) {
     #if !(HAS_HEATED_BED && HAS_TEMP_HOTEND && HAS_TEMP_CHAMBER) && HOTENDS <= 1
       UNUSED(e);
     #endif
 
-    SERIAL_CHAR_P(port, ' ');
-    SERIAL_CHAR_P(port,
+    SERIAL_CHAR(' ');
+    SERIAL_CHAR(
       #if HAS_TEMP_CHAMBER && HAS_HEATED_BED && HAS_TEMP_HOTEND
         e == -2 ? 'C' : e == -1 ? 'B' : 'T'
       #elif HAS_HEATED_BED && HAS_TEMP_HOTEND
@@ -2522,23 +2519,19 @@ void Temperature::isr() {
       #endif
     );
     #if HOTENDS > 1
-      if (e >= 0) SERIAL_CHAR_P(port, '0' + e);
+      if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
-    SERIAL_CHAR_P(port, ':');
-    SERIAL_ECHO_P(port, c);
-    SERIAL_ECHOPAIR_P(port, " /" , t);
+    SERIAL_CHAR(':');
+    SERIAL_ECHO(c);
+    SERIAL_ECHOPAIR(" /" , t);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      SERIAL_ECHOPAIR_P(port, " (", r / OVERSAMPLENR);
-      SERIAL_CHAR_P(port, ')');
+      SERIAL_ECHOPAIR(" (", r / OVERSAMPLENR);
+      SERIAL_CHAR(')');
     #endif
     delay(2);
   }
 
-  void Temperature::print_heater_states(const uint8_t target_extruder
-    #if NUM_SERIAL > 1
-      , const int8_t port
-    #endif
-  ) {
+  void Temperature::print_heater_states(const uint8_t target_extruder) {
     #if HAS_TEMP_HOTEND
       print_heater_state(degHotend(target_extruder), degTargetHotend(target_extruder)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -2579,17 +2572,17 @@ void Temperature::isr() {
         , e
       );
     #endif
-    SERIAL_ECHOPGM_P(port, " @:");
-    SERIAL_ECHO_P(port, getHeaterPower(target_extruder));
+    SERIAL_ECHOPGM(" @:");
+    SERIAL_ECHO(getHeaterPower(target_extruder));
     #if HAS_HEATED_BED
-      SERIAL_ECHOPGM_P(port, " B@:");
-      SERIAL_ECHO_P(port, getHeaterPower(-1));
+      SERIAL_ECHOPGM(" B@:");
+      SERIAL_ECHO(getHeaterPower(-1));
     #endif
     #if HOTENDS > 1
       HOTEND_LOOP() {
-        SERIAL_ECHOPAIR_P(port, " @", e);
-        SERIAL_CHAR_P(port, ':');
-        SERIAL_ECHO_P(port, getHeaterPower(e));
+        SERIAL_ECHOPAIR(" @", e);
+        SERIAL_CHAR(':');
+        SERIAL_ECHO(getHeaterPower(e));
       }
     #endif
   }

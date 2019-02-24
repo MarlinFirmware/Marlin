@@ -40,15 +40,15 @@ void GcodeSuite::M105() {
   #endif
 
   #if HAS_TEMP_SENSOR
-    SERIAL_ECHOPGM_P(port, MSG_OK);
+    SERIAL_ECHOPGM(MSG_OK);
     thermalManager.print_heater_states(target_extruder
       #if NUM_SERIAL > 1
         , port
       #endif
     );
   #else // !HAS_TEMP_SENSOR
-    SERIAL_ERROR_MSG_P(port, MSG_ERR_NO_THERMISTORS);
+    SERIAL_ERROR_MSG(MSG_ERR_NO_THERMISTORS);
   #endif
 
-  SERIAL_EOL_P(port);
+  SERIAL_EOL();
 }

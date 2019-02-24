@@ -40,14 +40,8 @@
  * M115: Capabilities string
  */
 void GcodeSuite::M115() {
-  #if NUM_SERIAL > 1
-    const int8_t port = command_queue_port[cmd_queue_index_r];
-    #define CAPLINE(STR,...) cap_line(PSTR(STR), port, __VA_ARGS__)
-  #else
-    #define CAPLINE(STR,...) cap_line(PSTR(STR), __VA_ARGS__)
-  #endif
 
-  SERIAL_ECHOLNPGM_P(port, MSG_M115_REPORT);
+  SERIAL_ECHOLNPGM(MSG_M115_REPORT);
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
