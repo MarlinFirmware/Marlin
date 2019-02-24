@@ -1,7 +1,9 @@
 # Prusa MK3 for Marlin 3D Printer Firmware
 
 This folder contains sample configuration files to allow use of the Marlin 3D
-printer firmware with the Prusa MK3 3D printer.
+printer firmware with the Prusa MK2.5 3D printer.
+
+***NOTE: At this time, this firmware has NOT BEEN TESTED on an actual printer. The authors do not have access to an MK2.5 to test. Use at your own risk.***
 
 ## Documentation and Resources
 
@@ -67,7 +69,9 @@ The following are not goals for this project:
 * To create an exact clone of Prusa's firmware. For example, the LCD status screen has the Marlin layout, not Prusa's. The menus are Marlin menus, not Prusas. Changes to both those things are possible, but they make it harder to re-integrate our changes back into Marlin.
 * To implement all the consumer-friendly features in the Prusa firmware. Prusa has some "wizards" for printer set-up. There are equivalent ways to achieve the same goals in Marlin, but they aren't simple "select and click" style options in the printer menus. At the same time, the results using the Marlin equivalent approach are usually better (bed skew compensation is a good example).
 
-## Building the firmware for the Prusa i3 MK3
+## Building the firmware for the Prusa i3 MK2.5
+
+**NOTE: This firmware currently only supports MK2.5 that have the newer miniRambo 1.3a board. The older 1.0a board is not yet supported.** Adding support for this board should be extremely simple, but at this time we do not have a way to test it.
 
 Install PlatformIO (e.g. as a Plugin to Microsoft Visual Sudio Code). Open the Marlin directory as a PlatformIO project. Edit the file "platformio.ini" in the main directory. 
 
@@ -83,7 +87,7 @@ Install PlatformIO (e.g. as a Plugin to Microsoft Visual Sudio Code). Open the M
     ...
     monitor_speed     = 115200
    
-Then copy the configuration files "Configuration.h" and "Configuration_adv.h" from the directory "example_configurations/Prusa/i3-MK3" to the "Marlin" directory overwriting the existing files there.
+Then copy the configuration files "Configuration.h" and "Configuration_adv.h" from the directory "example_configurations/Prusa/i3-MK2.5-" to the "Marlin" directory overwriting the existing files there.
 
 Build the firmware and upload to your printer.
 
@@ -115,8 +119,8 @@ The following tables shows all changes from Marlin 1.1.9 default values.
 |Symbol                       |Value                    |Notes
 |-----------------------------|-------------------------|---
 |BAUDRATE                     |115200                   |Lower communication speed of printer.
-|MOTHERBOARD                  |BOARD_EINSY_RAMBO        |Set controller board type
-|CUSTOM_MACHINE_NAME          |"Prusa i3 MK3"           |Machine name displayed in LCD "Ready" message.
+|MOTHERBOARD                  |BOARD_MINIRAMBO          |Set controller board type. In theory, you can set this to BOAR_MINIRAMBO_10A to support the older miniRambo 1.0a board.
+|CUSTOM_MACHINE_NAME          |"Prusa i3 MK2.5"         |Machine name displayed in LCD "Ready" message.
 |DEFAULT_NOMINAL_FILAMENT_DIA |1.75                     |Generally expected filament diameter.
 |TEMP_SENSOR_0                |5                        |Hotend thermistor type (E3D)
 |TEMP_SENSOR_BED              |1                        |Bed thermistor type
@@ -125,7 +129,7 @@ The following tables shows all changes from Marlin 1.1.9 default values.
 |TEMP_SENSOR_PINDA            |+                        |Leave this enabled
 |PINDA_TEMP_SMOOTHING         |+                        |Enables smoothing of noise in PINDA temperature readings via a running average
 |PINDA_TEMP_SMOOTHING_DIV_LOG2|6                        |PINDA temperature smoothing running average uses 1 part current reading with 2^6-1 (63) parts the previous average.
-|HEATER_0_MAXTEMP             |305                      |Maximum allowed temperature for hotend.
+|HEATER_0_MAXTEMP             |305                      |Maximum allowed temperature for hotend. 
 |BED_MAXTEMP                  |125                      |Maximum allowed temperature for bed.
 |DEFAULT_Kp                   |16.13                    |Hotend PID constant - Proportional              
 |DEFAULT_Kd                   |56.23                    |Hotend PID constant - Integral
@@ -135,14 +139,12 @@ The following tables shows all changes from Marlin 1.1.9 default values.
 |DEFAULT_bedKd                |0.023                    |Bed PID constant - Integral
 |DEFAULT_bedKi                |305.4                    |Bed PID constant - Derivative
 |EXTRUDE_MINTEMP              |175                      |Minimum allowed hotend temperature for extrusion. Value was 170.
-|X_MIN_ENDSTOP_INVERTING      |true                     |Inverts polarity of X endstop
-|Y_MIN_ENDSTOP_INVERTING      |true                     |Inverts polarity of Y endstop
-|X_DRIVER_TYPE                |TMC2130                  |Sets stepper motor driver type for axis.
-|Y_DRIVER_TYPE                |TMC2130                  |Sets stepper motor driver type for axis.
-|Z_DRIVER_TYPE                |TMC2130                  |Sets stepper motor driver type for axis.
-|E0_DRIVER_TYPE               |TMC2130                  |Sets stepper motor driver type for axis.
+|X_DRIVER_TYPE                |A4988                    |Sets stepper motor driver type for axis.
+|Y_DRIVER_TYPE                |A4988                    |Sets stepper motor driver type for axis.
+|Z_DRIVER_TYPE                |A4988                    |Sets stepper motor driver type for axis.
+|E0_DRIVER_TYPE               |A4988                    |Sets stepper motor driver type for axis.
 |ENDSTOP_INTERRUPTS_FEATURE   |+                        |Enables hardware interrupts for end-stops (as opposed to polling)
-|DEFAULT_AXIS_STEPS_PER_UNIT  |{ 100, 100, 3200/8, 280 }|Steps per mm for X,Y,Z,E axis.
+|DEFAULT_AXIS_STEPS_PER_UNIT  |{ 100, 100, 3200/8, 133 }|Steps per mm for X,Y,Z,E axis.
 |DEFAULT_MAX_FEEDRATE         |{ 200, 200, 12, 120 }    |Default max feedrate for X,Y,Z,E axis.
 |DEFAULT_MAX_ACCELERATION     |{ 1000, 1000, 200, 5000 }|Default max acceleration for X,Y,Z,E axis.
 |DEFAULT_ACCELERATION         |1250                     |Default acceleration for printing moves
@@ -161,16 +163,13 @@ The following tables shows all changes from Marlin 1.1.9 default values.
 |Z_CLEARANCE_DEPLOY_PROBE     |2                        |Z clearance between probing
 |Z_CLEARANCE_BETWEEN_PROBES   |2                        |Z clearance between probing
 |Z_CLEARANCE_MULTI_PROBE      |1                        |Z clearance between probing
-|INVERT_X_DIR                 |true                     |Invert X stepper direction   
 |INVERT_Y_DIR                 |false                    |Do not invert Y stepper direction    
-|INVERT_Z_DIR                 |true                     |Invert Z stepper direction
+|INVERT_E0_DIR                |true                     |Invert E0 stepper direction    
 |X_BED_SIZE                   |250                      |Print bed size (X)
 |Y_BED_SIZE                   |210                      |Print bed size (Y)
 |Y_MIN_POS                    |-4                       |Travel limits after homing
 |Z_MIN_POS                    |0.15                     |Travel limits after homing
-|X_MAX_POS                    |255                      |Travel limits after homing
-|Y_MAX_POS                    |212.5                    |Travel limits after homing
-|Z_MAX_POS                    |210                      |Travel limits after homing
+|Z_MAX_POS                    |210                      |Travel limits after homing. Note Z-axis is 10mm higher than actual value for Z calibration purposes.
 |AUTO_BED_LEVELING_BILINEAR   |+                        |Bed leveling with bilinear interpolation
 |GRID_MAX_POINTS_X            |5                        |5x5 grid for mesh bed leveling (GRID_MAX_POINTS_Y == GRID_MAX_POINTS_X)
 |LEFT_PROBE_BED_POSITION      |35                       |Set area for probing of bed during mesh leveling
@@ -193,8 +192,6 @@ The following tables shows all changes from Marlin 1.1.9 default values.
 |INDIVIDUAL_AXIS_HOMING_MENU  |+                        |Adds individual axis homing items to the menu
 |SPEAKER                      |+                        |MK3 has a speaker that can produce tones
 |REPRAP_DISCOUNT_SMART_CONTROLLER |+                    |Using a RepRapDiscount Smart LCD/Controller
-|PINDA_TEMP_SMOOTHING         |+                        |New option that filters noise in PINDA temperature measurements
-|PINDA_TEMP_SMOOTHING_DIV_LOG2|6                        |Controls the running average used to filter noise in PINDA temperature measurements
 
 
 ### Configuration_adv.h
@@ -210,12 +207,11 @@ The following tables shows all changes from Marlin (1.1.9) default values.
 |E0_AUTO_FAN_PIN              |8                        |Sets auto-extruder fan pin and enables when extruder temp rises above configured value
 |FAN_PIN                      |6                        |Overrides print-fan pin in board file (Prusa swaps fan connectors)
 |FAN1_PIN                     |-1                       |Fan pins are defined by E0_AUTO_FAN_PIN and FAN_PIN, so we disable this one.
-|X_HOME_BUMP_MM               |0                        |Disable second homing bump on X?
-|Y_HOME_BUMP_MM               |0                        |Disable second homing bump on Y?
 |DEFAULT_STEPPER_DEACTIVE_TIME|60                       |Time in seconds after last move before steppers are automatically disabled
 |HOME_AFTER_DEACTIVATE        |+                        |Requires rehoming after steppers are deactivated
 |JUNCTION_DEVIATION           |+                        |Enable feature that provides smoother direction and speed transitions
 |ADAPTIVE_STEP_SMOOTHING      |+                        |Increases resolution of multi-axis moves
+|PWM_MOTOR_CURRENT            |{ 540, 830, 500 }        |Motor currents, in milliamps, for MK2.5 (from Prusa firmware)
 |LCD_INFO_MENU                |+                        |Enable printer info page in LCD menu
 |STATUS_MESSAGE_SCROLLING     |+                        |Enable status message scrolling for long messages
 |LCD_TIMEOUT_TO_STATUS        |30000                    |Menu timeout (in ms)
@@ -226,36 +222,14 @@ The following tables shows all changes from Marlin (1.1.9) default values.
 |DOUBLECLICK_FOR_Z_BABYSTEPPING|+                       |Double-click on status screen goes to Z babystepping menu
 |DOUBLECLICK_MAX_INTERVAL     |2000                     |Increases slightly the allowed delay to detect a double-click. This is the value that TH3D is using in their Marlin firmware.
 |LIN_ADVANCE                  |+                        |Enable linear advance (woohoo!)
-|MESH_MIN_X                   |35                       |X axis lower inset for mesh bed leveling
-|MESH_MIN_Y                   |6                        |Y axis lower inset for mesh bed leveling
-|MESH_MAX_X                   |238                      |X axis upper inset (as bed size minus upper inset)
-|MESH_MAX_Y                   |202                      |Y axis upper inset (as bed size minus upper inset)
-|MINIMUM_STEPPER_DIR_DELAY    |20                       |Set to value listed as appropriate for TMC2xxx drivers
-|MINIMUM_STEPPER_PULSE        |0                        |Set to value listed as appropriate for TMC2xxx drivers
-|MAXIMUM_STEPPER_RATE         |400000                   |Set to the maximum value listed as appropriate for TMC2xxx drivers
+|MESH_MIN_X                   |35                       |Mesh probing area for unified bed leveling (UBL is disabled, but provided in case someone wants to use this)
+|MESH_MIN_Y                   |6                        |Mesh probing area for unified bed leveling (UBL is disabled, but provided in case someone wants to use this)
+|MESH_MAX_X                   |238                      |Mesh probing area for unified bed leveling (UBL is disabled, but provided in case someone wants to use this)
+|MESH_MAX_Y                   |202                      |Mesh probing area for unified bed leveling (UBL is disabled, but provided in case someone wants to use this)
+|MINIMUM_STEPPER_DIR_DELAY    |200                      |From A4982 datasheet
+|MINIMUM_STEPPER_PULSE        |1                        |From A4982 datasheet
+|MAXIMUM_STEPPER_RATE         |500000                   |From A4982 datasheet
 |ADVANCED_PAUSE_FEATURE       |+                        |Experimental feature for filament change support and for parking the nozzle when paused
 |PARK_HEAD_ON_PAUSE           |+                        |Park the nozzle during pause and filament change.
 |HOME_BEFORE_FILAMENT_CHANGE  |+                        |Ensure homing has been completed prior to parking for filament change
 |FILAMENT_LOAD_UNLOAD_GCODES  |+                        |Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
-
-The following table lists the changes to TMC2130 motor driver settings (also in Configuration_adv.h)
-
-|Symbol                       |Value                    |Notes
-|-----------------------------|-------------------------|---
-|R_SENSE                      |0.22                     |Current sense resistor value in ohms.
-|HOLD_MULTIPLIER              |1.0                      |Scales down the holding current from run current
-|X_CURRENT / X2_CURRENT       |282                      |X stepper driver current (holding and running) in RMS mA
-|Y_CURRENT / Y2_CURRENT       |348                      |Y stepper driver current (holding and running) in RMS mA
-|Z_CURRENT / Z2_CURRENT       |530                      |Z stepper driver current (holding and running) in RMS mA
-|E0_CURRENT .. E4_CURRENT     |514                      |Extruder 0..4 stepper driver current (holding and running) in RMS mA
-|E0_MICROSTEPS .. E4_MICROSTEPS|32                      |Extruder 0..4 stepper driver microsteps 
-|STEALTHCHOP                  |-                        |Disable StealChop (ultra-quiet stepping mode). SpreadCycle will be used instead.
-|MONITOR_DRIVER_STATUS        |+                        |Monitor Trinamic TMC2130 drivers for error conditions
-|SENSORLESS_HOMING            |+                        |Enable sensorless homing via TMC stallGuard2 feature.
-|X_HOMING_SENSITIVITY         |3                        |X homing sensitivity. Higher values make system less sensitive.
-|Y_HOMING_SENSITIVITY         |3                        |Y homing sensitivity. Higher values make system less sensitive.
-|Z_HOMING_SENSITIVITY         |3                        |Z homing sensitivity. Higher values make system less sensitive.
-|TMC_Z_CALIBRATION            |+                        |Enables Z calibration that Prusa does (ram into top of Z axis, then home Z via PINDA)
-|CALIBRATION_CURRENT          |348                      |Z steppers are set to this current during Z calibration
-|TMC_ADV                      |(see Notes)              |This is a way of adding additional calls to tmc2130 class methods to set various custom values. See Configuration_adv.h for details (too numerous to list here)
-

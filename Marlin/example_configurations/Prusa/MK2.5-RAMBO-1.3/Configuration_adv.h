@@ -239,8 +239,8 @@
  * the fan will turn on when any selected extruder is above the threshold.
  */
 
-/** Prusa MK3 connects hotend fan to:
- *    - Einsy RAMBO connector J5 (labeled as FAN0 in schematic)
+/** Prusa MK2/2.5 connects hotend fan to:
+ *    - RAMBO connector FAN1 (labeled as FAN0 in schematic)
  *    - ATMEGA2560 hardware pin 17, Port PH5
  *    - Marlin (logical) pin 8
  */
@@ -255,16 +255,15 @@
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
 /**
- * Prusa MK3 connects print fan to:
- *   - Einsy RAMBO connector J4 (labeled as FAN1 in schematic)
+ * Prusa MK2/2.5 connects print fan to:
+ *   - RAMBO connector FAN2 (labeled as FAN1)
  *   - ATMEGA2560 hardware pin 15, Port PH3
  *   - Marlin (logical) pin 6
  */
 #define FAN_PIN   6
 
 /**
- * To avoid a conflict, we need to un-map FAN1_PIN, which in 
- * pins_EINSY_RAMBO.h as 6
+ * To avoid a conflict, we need to un-map FAN1_PIN
  */
 #define FAN1_PIN -1
 
@@ -405,8 +404,8 @@
 // @section homing
 
 // Homing hits each endstop, retracts by these distances, then does a slower bump.
-#define X_HOME_BUMP_MM 0
-#define Y_HOME_BUMP_MM 0
+#define X_HOME_BUMP_MM 5
+#define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 2
 #define HOMING_BUMP_DIVISOR { 2, 2, 4 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 //#define QUICK_HOME                     // If homing includes X and Y, do a diagonal move initially
@@ -508,7 +507,7 @@
  *    M908 - BQ_ZUM_MEGA_3D, RAMBO, PRINTRBOARD_REVF, RIGIDBOARD_V2 & SCOOVO_X9H
  *    M909, M910 & LCD - only PRINTRBOARD_REVF & RIGIDBOARD_V2
  */
-//#define PWM_MOTOR_CURRENT { 1300, 1300, 1250 }          // Values in milliamps
+#define PWM_MOTOR_CURRENT { 540, 830, 500 }          // Values in milliamps
 //#define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 //#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 }    // Default drive percent - X, Y, Z, E axis
 
@@ -851,7 +850,7 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-#define MINIMUM_STEPPER_DIR_DELAY 20
+#define MINIMUM_STEPPER_DIR_DELAY 200
 
 /**
  * Minimum stepper driver pulse width (in µs)
@@ -864,7 +863,7 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-#define MINIMUM_STEPPER_PULSE 0
+#define MINIMUM_STEPPER_PULSE 1
 
 /**
  * Maximum stepping rate (in Hz) the stepper driver allows
@@ -878,7 +877,7 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-#define MAXIMUM_STEPPER_RATE 400000
+#define MAXIMUM_STEPPER_RATE 500000
 
 // @section temperature
 
@@ -1121,42 +1120,42 @@
  */
 #if HAS_TRINAMIC
 
-  #define R_SENSE           0.22  // R_sense resistor for SilentStepStick2130
-  #define HOLD_MULTIPLIER    1.0  // Scales down the holding current from run current
+  #define R_SENSE           0.11  // R_sense resistor for SilentStepStick2130
+  #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
   #define INTERPOLATE       true  // Interpolate X/Y/Z_MICROSTEPS to 256
 
-  #define X_CURRENT          282  // rms current in mA. Multiply by 1.41 for peak current.
+  #define X_CURRENT          800  // rms current in mA. Multiply by 1.41 for peak current.
   #define X_MICROSTEPS        16  // 0..256
 
-  #define Y_CURRENT          348
+  #define Y_CURRENT          800
   #define Y_MICROSTEPS        16
 
-  #define Z_CURRENT          530
+  #define Z_CURRENT          800
   #define Z_MICROSTEPS        16
 
-  #define X2_CURRENT         282
+  #define X2_CURRENT         800
   #define X2_MICROSTEPS       16
 
-  #define Y2_CURRENT         348
+  #define Y2_CURRENT         800
   #define Y2_MICROSTEPS       16
 
-  #define Z2_CURRENT         530
+  #define Z2_CURRENT         800
   #define Z2_MICROSTEPS       16
 
-  #define E0_CURRENT         514
-  #define E0_MICROSTEPS       32
+  #define E0_CURRENT         800
+  #define E0_MICROSTEPS       16
 
-  #define E1_CURRENT         514
-  #define E1_MICROSTEPS       32
+  #define E1_CURRENT         800
+  #define E1_MICROSTEPS       16
 
-  #define E2_CURRENT         514
-  #define E2_MICROSTEPS       32
+  #define E2_CURRENT         800
+  #define E2_MICROSTEPS       16
 
-  #define E3_CURRENT         514
-  #define E3_MICROSTEPS       32
+  #define E3_CURRENT         800
+  #define E3_MICROSTEPS       16
 
-  #define E4_CURRENT         514
-  #define E4_MICROSTEPS       32
+  #define E4_CURRENT         800
+  #define E4_MICROSTEPS       16
 
   /**
    * Use software SPI for TMC2130.
@@ -1172,7 +1171,7 @@
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */
-  //#define STEALTHCHOP
+  #define STEALTHCHOP
 
   /**
    * Monitor Trinamic TMC2130 and TMC2208 drivers for error conditions,
@@ -1185,7 +1184,7 @@
    * M912 - Clear stepper driver overtemperature pre-warn condition flag.
    * M122 S0/1 - Report driver parameters (Requires TMC_DEBUG)
    */
-  #define MONITOR_DRIVER_STATUS
+  //#define MONITOR_DRIVER_STATUS
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
     #define CURRENT_STEP_DOWN     50  // [mA]
@@ -1225,13 +1224,13 @@
    * It is advised to set X/Y/Z_HOME_BUMP_MM to 0.
    * M914 X/Y/Z to live tune the setting
    */
-  #define SENSORLESS_HOMING // TMC2130 only
+  //#define SENSORLESS_HOMING // TMC2130 only
 
   #if ENABLED(SENSORLESS_HOMING)
-    #define X_HOMING_SENSITIVITY  3
-    #define Y_HOMING_SENSITIVITY  3
-    #define Z_HOMING_SENSITIVITY  4
-        
+    #define X_HOMING_SENSITIVITY  8
+    #define Y_HOMING_SENSITIVITY  8
+    #define Z_HOMING_SENSITIVITY  8
+
     /**
      * SENSORLESS_HOMING_CURRENT allows setting a different stepper current during
      * the homing process. This can reduce the force applied when the motor hits
@@ -1239,11 +1238,11 @@
      * during homing for that access. All currents are restored to their original 
      * value after homing.
      */
-    #define SENSORLESS_HOMING_CURRENT
+    //#define SENSORLESS_HOMING_CURRENT
     #if ENABLED(SENSORLESS_HOMING_CURRENT)
-        #define X_HOMING_CURRENT    149
-        #define Y_HOMING_CURRENT    182
-        #define Z_HOMING_CURRENT    348
+        #define X_HOMING_CURRENT    -1
+        #define Y_HOMING_CURRENT    -1
+        #define Z_HOMING_CURRENT    -1
     #endif
   #endif
 
@@ -1263,9 +1262,9 @@
    * Use M915 Snn to specify the current.
    * Use M925 Znn to add extra Z height to Z_MAX_POS.
    */
-  #define TMC_Z_CALIBRATION
+  //#define TMC_Z_CALIBRATION
   #if ENABLED(TMC_Z_CALIBRATION)
-    #define CALIBRATION_CURRENT 348
+    #define CALIBRATION_CURRENT 250
     #define CALIBRATION_EXTRA_HEIGHT 10
   #endif
 
@@ -1281,53 +1280,7 @@
    *   stepperY.interpolate(0); \
    * }
    */
-  #define TMC_ADV() { \
-    stepperX.high_sense_R(1);\
-    stepperY.high_sense_R(1);\
-    stepperE0.high_sense_R(1);\
-    stepperX.hold_delay(8); \
-    stepperY.hold_delay(8); \
-    stepperZ.hold_delay(8); \
-    stepperE0.hold_delay(8); \
-    stepperX.power_down_delay(0); \
-    stepperY.power_down_delay(0); \
-    stepperZ.power_down_delay(0); \
-    stepperE0.power_down_delay(0); \
-    stepperX.blank_time(24); \
-    stepperY.blank_time(24); \
-    stepperZ.blank_time(24); \
-    stepperE0.blank_time(24); \
-    stepperX.off_time(3); \
-    stepperY.off_time(3); \
-    stepperZ.off_time(3); \
-    stepperE0.off_time(3); \
-    stepperX.hysteresis_end(1); \
-    stepperY.hysteresis_end(1); \
-    stepperZ.hysteresis_end(1); \
-    stepperE0.hysteresis_end(1); \
-    stepperX.hysteresis_start(5); \
-    stepperY.hysteresis_start(5); \
-    stepperZ.hysteresis_start(5); \
-    stepperE0.hysteresis_start(5); \
-    stepperX.stealth_freq(2); \
-    stepperY.stealth_freq(2); \
-    stepperZ.stealth_freq(2); \
-    stepperE0.stealth_freq(2); \
-    stepperX.stealth_gradient(4); \
-    stepperY.stealth_gradient(4); \
-    stepperZ.stealth_gradient(4); \
-    stepperE0.stealth_gradient(4); \
-    stepperX.stealth_amplitude(230); \
-    stepperY.stealth_amplitude(235); \
-    stepperZ.stealth_amplitude(200); \
-    stepperE0.stealth_amplitude(240); \
-    stepperX.stealth_autoscale(true); \
-    stepperY.stealth_autoscale(true); \
-    stepperZ.stealth_autoscale(true); \
-    stepperE0.stealth_autoscale(true); \
-    stepperE0.sg_stall_value(3); \
-  }
-// sg_stall_value is set a little above for X, Y, Z!
+  #define TMC_ADV() {  }
 
 #endif // TMC2130 || TMC2208
 
