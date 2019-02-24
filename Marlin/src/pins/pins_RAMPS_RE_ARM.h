@@ -196,7 +196,7 @@
 
 #define PS_ON_PIN          P2_12   // (12)
 
-#ifndef MAX6675_SS_PIN && !USE_ZMAX_PLUG
+#if !defined(MAX6675_SS_PIN) && DISABLED(USE_ZMAX_PLUG)
   #define MAX6675_SS_PIN   P1_28
 #endif
 
