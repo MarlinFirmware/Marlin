@@ -2537,18 +2537,12 @@ void Temperature::isr() {
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawHotendTemp(target_extruder)
         #endif
-        #if NUM_SERIAL > 1
-          , port
-        #endif
       );
     #endif
     #if HAS_HEATED_BED
       print_heater_state(degBed(), degTargetBed()
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawBedTemp()
-        #endif
-        #if NUM_SERIAL > 1
-          , port
         #endif
         , -1 // BED
       );
@@ -2565,9 +2559,6 @@ void Temperature::isr() {
       HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawHotendTemp(e)
-        #endif
-        #if NUM_SERIAL > 1
-          , port
         #endif
         , e
       );

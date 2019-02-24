@@ -51,11 +51,7 @@
  */
 void GcodeSuite::M20() {
   SERIAL_ECHOLNPGM(MSG_BEGIN_FILE_LIST);
-  card.ls(
-    #if NUM_SERIAL > 1
-      command_queue_port[cmd_queue_index_r]
-    #endif
-  );
+  card.ls();
   SERIAL_ECHOLNPGM(MSG_END_FILE_LIST);
 }
 
@@ -160,10 +156,6 @@ void GcodeSuite::M26() {
  *      OR, with 'C' get the current filename.
  */
 void GcodeSuite::M27() {
-  #if NUM_SERIAL > 1
-    const int16_t port = serial_port_index;
-  #endif
-
   if (parser.seen('C')) {
     SERIAL_ECHOPGM("Current file: ");
     card.printFilename();
@@ -171,19 +163,11 @@ void GcodeSuite::M27() {
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     else if (parser.seenval('S'))
-      card.set_auto_report_interval(parser.value_byte()
-        #if NUM_SERIAL > 1
-          , port
-        #endif
-      );
+      card.set_auto_report_interval(parser.value_byte());
   #endif
 
   else
-    card.report_status(
-      #if NUM_SERIAL > 1
-        port
-      #endif
-    );
+    card.report_status();
 }
 
 /**
@@ -281,11 +265,7 @@ void GcodeSuite::M32() {
    *   /Miscellaneous/Armchair/Armchair.gcode
    */
   void GcodeSuite::M33() {
-    card.printLongPath(parser.string_arg
-      #if NUM_SERIAL > 1
-        , command_queue_port[cmd_queue_index_r]
-      #endif
-    );
+    card.printLongPath(parser.string_arg);
   }
 
 #endif // LONG_FILENAME_HOST_SUPPORT
