@@ -37,7 +37,12 @@ The third reason is that our intent is to keep this repo in sync with Marlin.
 We will work hard to get any changes integrated back to Marlin, in the spirit
 of open source, and also to ensure future Marlin fixes and features can be
 readily integrated.
-
+### Features Missing Vs Prusa Firmware
+* Crash Detection
+* Power Panic
+* Filament Sensor
+* Automatic XYZ Calibration
+* Belt tension estimator
 ### Additional Features over Prusa
 
 This section lists some of the benefits over Prusa
@@ -45,9 +50,13 @@ This section lists some of the benefits over Prusa
 * Linear Advance 1.5
 * S-Curve acceleration
 * Junction Deviation
+* Adaptive Step Smoothing
+* ABL(Prusa calls Mesh Bed Leveling) set to 5x5 (can be higher with variable change)
 * Improved PINDA g-code support supports timeout, explicit cooldown and warmup, smoothed temperature measurements, serial console output integrated with other temperatures, and LCD status display.
 * More consistent control of hotend temperature. No mysterious 10C dips!
 * More control of the printer via G-Code. This firmware supports ALL of the Marlin G-Codes, except for a few that are hardware dependent.
+* Better documentation.  Marlin has [reference guide](http://marlinfw.org/meta/gcode/) for all gcodes
+* Increased modification support: BLTOUCH support
 
 TODO - lots to document here
 
@@ -88,7 +97,23 @@ Then copy the configuration files "Configuration.h" and "Configuration_adv.h" fr
 Build the firmware and upload to your printer.
 
 **IMPORTANT: After uploading the firmware to your printer, you should immediately clear the EEPROM using the printer menus or the M502 followed by the M500 commands.** It is important to do this when coming from the Prusa firmware, because the layout of the EEPROM storage is different for Prusa, and this can create some strange, potentially even damaging behavior. 
+## Getting Started
+- Clear EEPROM
+- Calibrate Z Offset
+ * Hold paper under nozzle, move until paper feels resistance when moving
+ * Set Z Offset using M851 Z
+ * Save Z Offset using M500
+- Skew Compensation(Optional)
+ * Follow instructions in Configuration.h
+- Recalibrate K factor for Linear Advance 1.5
+ * [Marlin K Factor Test Generator](http://marlinfw.org/tools/lin_advance/k-factor.html)
+- Modify Starting GCode in Slic3r
+ * G80 is now G29
+ * add x0 to move before purge line
+- First Print Adjustments
+ * Open babystepping(Live Z) by doubleclicking lcd wheel to make small adjustments to Z offset
 
+- 
 ## Summary of Changes
 
 This section contains a description of each change to the Marlin configuration
