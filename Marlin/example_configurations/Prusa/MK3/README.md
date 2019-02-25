@@ -14,6 +14,22 @@ The firmware itself is maintained on the [PrusaOwners/Marlin repository on Githu
 The team also contributes to the [PrusaOwners Wiki](https://github.com/PrusaOwners/prusaowners/wiki) 
 which contains a wealth of information on the Prusa MK3 printer.
 
+## Project Goals
+
+The team started this project with the following goals in mind:
+
+* Create a Prusa compatible firmware based on the most recent stable release of Marlin, supporting all the features of Marlin that have become available since Prusa forked from that.
+* Maintain a stable release without bugs in the core feature-set.
+* Prioritize the core extensions needed to make a usable MK3 firmware. So for example, we focused on getting the PINDA probe working fully, but have a lower priority adding features like Power Panic.
+* Provide a good base firmware for those wishing to develop a firmware for Prusa clones or spin-offs. The Marlin firmware is designed to be easily customizable for use across a huge range of printers. We want to provide a firmware that users of variants of the MK3 can easily tweak to support their specific needs.
+* Listen to community feedback, and prefer high-priority bug fixes over adding new features.
+* Where possible, work to merge code changes back into the Marlin repo. This means minimizing changes to Marlin to those that are needed to support actual features. It also means following the [Marlin Coding Standards](http://marlinfw.org/docs/development/coding_standards.html)
+
+The following are not goals for this project:
+
+* To create an exact clone of Prusa's firmware. For example, the LCD status screen has the Marlin layout, not Prusa's. The menus are Marlin menus, not Prusas. Changes to both those things are possible, but they make it harder to re-integrate our changes back into Marlin.
+* To implement all the consumer-friendly features in the Prusa firmware. Prusa has some "wizards" for printer set-up. There are equivalent ways to achieve the same goals in Marlin, but they aren't simple "select and click" style options in the printer menus. At the same time, the results using the Marlin equivalent approach are usually better (bed skew compensation is a good example).
+
 ## Why would I use this firmware?
 
 An obvious question is: why would someone want to use this firmware over the
@@ -37,48 +53,55 @@ The third reason is that our intent is to keep this repo in sync with Marlin.
 We will work hard to get any changes integrated back to Marlin, in the spirit
 of open source, and also to ensure future Marlin fixes and features can be
 readily integrated.
+
 ### Features Missing Vs Prusa Firmware
-* Crash Detection
-* Power Panic
-* Filament Sensor
-* Automatic XYZ Calibration
-* Belt tension estimator
+
+No all features present in the Prusa firmware have been implemented. Some are planned for future releases, but realistically some will never be added. In the table below, the main missing features are listed, along with the likelihood that this feature will be ported to this firmware.
+
+|Feature                           |Planned?|Comments
+|----------------------------------|--------|--------
+|Crash Detection                   |Yes     | 
+|Power Panic                       |No      |
+|Filament Sensor V1                |Maybe   |Note: Support for the new filament sensor is present, but not enabled pending testing.
+|Wizard-based XYZ Calibration      |No      |Marlin supports this feature by printing calibration targets, measuring, and using G-Code to calibrate.
+|Belt tension estimator            |No      |This feature is extremely unreliable in the Prusa firmware (basically a placebo)
+|PINDA temperature compensation    |Yes     |Pending validation that this feature actually works and is stable for any significant time.
+|Selftest                          |Maybe   |Minus bogus belt tension feature
+|Fan check (tachometer)            |Yes     |
+
 ### Additional Features over Prusa
 
 This section lists some of the benefits over Prusa
 
-* Linear Advance 1.5
-* S-Curve acceleration
-* Junction Deviation
-* Adaptive Step Smoothing
-* ABL(Prusa calls Mesh Bed Leveling) set to 5x5 (can be higher with variable change)
-* Improved PINDA g-code support supports timeout, explicit cooldown and warmup, smoothed temperature measurements, serial console output integrated with other temperatures, and LCD status display.
-* More consistent control of hotend temperature. No mysterious 10C dips!
-* More control of the printer via G-Code. This firmware supports ALL of the Marlin G-Codes, except for a few that are hardware dependent.
-* Better documentation.  Marlin has [reference guide](http://marlinfw.org/meta/gcode/) for all gcodes
-* Increased modification support: BLTOUCH support
+|Feature                           |Comments
+|----------------------------------|--------
+|Linear Advance 1.5                |Improves print quality, less taxing on microcontroller
+|S-Curve acceleration              |Improves print quality
+|Junction Deviation                |Improves print quality
+|Adaptive Step Smoothing           |Improves print quality
+|Automatic Bed Leveling (Bilinear) |Prusa supports only a 3x3 grid. Our Marlin builds are configured for a 5x5 grid, which gives a good compromise between results and leveling time. Larger meshes are supported via a simple configuration change.
+|Improved PINDA g-code support     |M850 has been moved to M199, and now supports a timeout, explicit cooldown and warmup, smoothed temperature measurements, and an LCD status display.
+|Better hotend temp control        |Marlin more consistently controls the hotend temperature, and even better there are no mysterious 10C dips!
+|More control via G-Code           |This firmware supports all of the Marlin G-Codes except for a few that are hardware dependent
+|Better documentation              |Marlin has [reference guide](http://marlinfw.org/meta/gcode/) for all gcodes and a large and active community of users. 
+|Increased modification support    |Marlin is designed to work on many different printers, with many different variations of hardware. For example, alternative Z probes such as BLTOUCH are already supported.
 
-TODO - lots to document here
+## Installation
 
-## Project Goals
+The installation process consists of:
 
-The team started this project with the following goals in mind:
+1. Build or download the firmware. Note: at this time, we're not yet making pre-built firmwares available. However, after we've had more time for testing by our "power users", we will make these available.
+1. Clear EEPROM
+1. Set your Live-Z / Probe Offset / Babystep value
+1. Reset or measure and update your linear advance K-Factor
+1. Update your slicer start-up g-code
+1. (Optional) Measure and calibrate skew correction
 
-* Create a Prusa compatible firmware based on the most recent stable release of Marlin, supporting all the features of Marlin that have become available since Prusa forked from that.
-* Maintain a stable release without bugs in the core feature-set.
-* Prioritize the core extensions needed to make a usable MK3 firmware. So for example, we focused on getting the PINDA probe working fully, but have a lower priority adding features like Power Panic.
-* Provide a good base firmware for those wishing to develop a firmware for Prusa clones or spin-offs. The Marlin firmware is designed to be easily customizable for use across a huge range of printers. We want to provide a firmware that users of variants of the MK3 can easily tweak to support their specific needs.
-* Listen to community feedback, and prefer high-priority bug fixes over adding new features.
-* Where possible, work to merge code changes back into the Marlin repo. This means minimizing changes to Marlin to those that are needed to support actual features. It also means following the [Marlin Coding Standards](http://marlinfw.org/docs/development/coding_standards.html)
+Each step is covered in detail in the sections below.
 
-The following are not goals for this project:
+### Building the firmware for the Prusa i3 MK3
 
-* To create an exact clone of Prusa's firmware. For example, the LCD status screen has the Marlin layout, not Prusa's. The menus are Marlin menus, not Prusas. Changes to both those things are possible, but they make it harder to re-integrate our changes back into Marlin.
-* To implement all the consumer-friendly features in the Prusa firmware. Prusa has some "wizards" for printer set-up. There are equivalent ways to achieve the same goals in Marlin, but they aren't simple "select and click" style options in the printer menus. At the same time, the results using the Marlin equivalent approach are usually better (bed skew compensation is a good example).
-
-## Building the firmware for the Prusa i3 MK3
-
-Install PlatformIO (e.g. as a Plugin to Microsoft Visual Sudio Code). Open the Marlin directory as a PlatformIO project. Edit the file "platformio.ini" in the main directory. 
+Install PlatformIO, [standalone](https://platformio.org/) or as a [Plugin to Microsoft Visual Sudio Code](https://platformio.org/install/ide?install=vscode). Open the Marlin directory as a PlatformIO project. Edit the file "platformio.ini" in the main directory. 
 
     [platformio]
     ...
@@ -92,28 +115,111 @@ Install PlatformIO (e.g. as a Plugin to Microsoft Visual Sudio Code). Open the M
     ...
     monitor_speed     = 115200
    
-Then copy the configuration files "Configuration.h" and "Configuration_adv.h" from the directory "example_configurations/Prusa/i3-MK3" to the "Marlin" directory overwriting the existing files there.
+Then copy the configuration files "Configuration.h" and "Configuration_adv.h" from the directory "example_configurations/Prusa/i3-MK3" to the "Marlin" directory overwriting the existing files there. 
+** It is very important that you do not forget to copy these two files FROM the "example_configurations/Prusa/i3-MK3" and INTO the "Marlin" directory before you build. If you do not do that, you
+will get an incorrect firmware and risk damaging your machine.
 
-Build the firmware and upload to your printer.
+Build the firmware and upload to your printer. [The Marlin site has some instructions](http://marlinfw.org/docs/basics/install_platformio.html) if you need helo with this.
 
-**IMPORTANT: After uploading the firmware to your printer, you should immediately clear the EEPROM using the printer menus or the M502 followed by the M500 commands.** It is important to do this when coming from the Prusa firmware, because the layout of the EEPROM storage is different for Prusa, and this can create some strange, potentially even damaging behavior. 
-## Getting Started
-- Clear EEPROM
-- Calibrate Z Offset
- * Hold paper under nozzle, move until paper feels resistance when moving
- * Set Z Offset using M851 Z
- * Save Z Offset using M500
-- Skew Compensation(Optional)
- * Follow instructions in Configuration.h
-- Recalibrate K factor for Linear Advance 1.5
- * [Marlin K Factor Test Generator](http://marlinfw.org/tools/lin_advance/k-factor.html)
-- Modify Starting GCode in Slic3r
- * G80 is now G29
- * add x0 to move before purge line
-- First Print Adjustments
- * Open babystepping(Live Z) by doubleclicking lcd wheel to make small adjustments to Z offset
+### Installing a pre-built firmware
 
-- 
+When the pre-built firmwares are available, you may install the provided .hex file using whatever tool you use to update the printer currently (for example, the Octoprint Firmware Updater plug-in works fine).
+
+### Clear EEPROM 
+
+**IMPORTANT: After uploading the firmware to your printer, you should immediately clear the EEPROM It is important to do this when coming from the Prusa firmware, because the layout of the EEPROM storage is different for Prusa, and this can create some strange, potentially even damaging behavior.**
+
+#### Clear the EEPROM via the menus
+
+1. Click the wheel to open the top-level menu, the select the "Control" sub-menu followed by Restore Failsafe"
+1. Select "Store Settings" from the "Control" menu
+
+Note: After setting your Z-offset (see below), you probably want to perform another "Store Settings" to save it.
+
+#### Clear the EEPROM via g-code
+
+Send the printer the following g-codes: ```M502``` to load firmware defaults, then ```M500``` to safe these defaults to EEPROM. Marlin also recommends you then issue an ```M501``` to load the values back from EEPROM.
+
+### Calibrate Z Offset
+
+The Marlin term for "Live-Z" is "Probe Z Offset". I have found that the value I was using with the Prusa firmware worked perfectly in Marlin. To set this, you have two options:
+
+1. Set via the M851 g-code. For example, to set the value to -0.725, you would send this g-code command to the printer: ```M851 Z-0.725``` . After doing this you should issue an ```M500``` to store the setting in EEPROM.
+1. To set the value via the printer menus, click the wheel to open the top-level menu, then select "Control" to open the sub-menu, then select "Motion", then "Probe Z Offset". Use the wheel to select your value (remember, 
+the value will be negative). Click the wheel when done. I recommend that you immediately save this new value in EEPROM so that it will be restored if the printer is reset or power cycled. You can do that by selecting 
+"Store Settings" from the control menu.
+
+If you don't have a good Live-Z value from the Prusa firmware, or want to remeasure, you should go through the usual process to do this (i.e. a test print). To adjust the value during a print, double-click the control wheel. 
+This should open the Babystep menu, which acts exactly like Prusa's Live-Z adjustment. 
+
+### Reset or Measure and Recalibrate Linear Advance K-Factor
+
+Marlin offers the newer 1.5 version of [Linear
+Advance](http://marlinfw.org/docs/features/lin_advance.html). This version
+offers improved print quality as well as being less taxing on the printer's
+microcontroller so that it is less likely to cause print issues because the
+microcontroller is overloaded with work. However, Linear Advance 1.5 uses a
+different range of K values. For the Linear Advance 1.5 offered by this Marlin
+firmware, values range friom 0 to 2.0. For the old Linear Advance, values
+generally ranged from 30 to 130. Therefore, if you are using Linear Advance, you will
+need to update your K-factor values. Note that the filament slicer profiles included
+in Prusa's Slic3r PE enable Linear Advance and set the K-factor in 
+```Filament Settings / Custom G-code / Start G-code```. Look for a line like this:
+
+    M900 K{if printer_notes=~/.*PRINTER_HAS_BOWDEN.*/}200{else}40{endif}; Filament gcode
+
+You will want to change the "40" to be the appropriate number you measure via using [Marlin's
+Linear Advance Calibration Pattern](http://marlinfw.org/tools/lin_advance/k-factor.html)
+
+If you just want to get printing quickly, just set the value to zero (set the
+"40" in the example above to "0"). This will disable linear advance, and you
+can come back and tweak it later. I do highly recommend you use it, however,
+as it really helps with oozing and stringing.
+
+Also note that it's possible to update this line in the Slic3r Configuration
+to have distinct values for printers depending on some printer attribute
+defined in the Printer Settings, Notes configuration section (this is how the ```PRINTER_HAS_BOWDEN```
+trick works in the Prusa-provided settings.
+
+### Update your start-up g-code
+
+At this point, you're almost ready to print. One last thing you need to do is
+make some small changes to the g-code that your Slicer places in the start of
+the file. A few of the g-code commands that Prusa uses have changed. In particular, you will need to:
+
+1. Replace the G80 and G81 (mesh bed level, display mesh results) with a G29. Note that G29 both measures and displays the mesh results. 
+1. If you are using M860 to manage the PINDA (Z) probe temperature, you will need to use M199 instead.
+1. If your start-up g-code has an dependency on the mesh level leaving the probe at X=0,
+you will need to add a line to your g-code after the mesh level to move to this position. Note that
+the exact position the prusa firmware leaves the probe seems to have changed over time, so if you need to do any post-leveling 
+movement in your start-up g-code, for example to print a prime line, I recommend you just put a full X/Y/Z move in rather than
+assuming some position. For example, the start-up g-code I was using with Prusa firmware included these lines:
+
+    G1 Y-3.0 F1000.0 ; go outside print area
+    G1 X60.0 E9.0  F500.0 ; prime line
+    G1 X100.0 E12.5  F500.0 ; prime line
+
+I changed the first line to:
+
+    G1 X0 Y-3.0 Z0.25 F1000.0 ; go outside print area
+
+(TODO: Is there a way to print out the mesh without remeasuring?)
+
+### Skew Compensation
+
+Prusa has an XYZ calibration wizard that in theory calculates print bed/frame
+skew and compensates for it somewhat. While Marlin does not have an automated
+tool to configure this, it does have a way to perform skew compensation.  To
+configure it, you will need to print some calibration targets, perform some
+measurements, use a calculator or spreadsheet to compute the skew factor, and
+then tell the printer about the skew factor values via G-code. This [video
+from Chris Riley](https://www.youtube.com/watch?v=YfAb5IaHDSo) will walk you
+through the print and measure steps. In Chris' video, however, he updates the
+values directly in the Marlin  firmware configuration file, and then rebuilds
+it. You should feel free to do this, but you will need to remember to do it
+again if you later get an updated firmware from our site. So as an
+alternative, I recommend setting the value via g-code M852.
+
 ## Summary of Changes
 
 This section contains a description of each change to the Marlin configuration
