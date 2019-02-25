@@ -263,9 +263,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   setup_for_endstop_or_probe_move();
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
-  #endif
+
   endstops.enable(true); // Enable endstops for next homing move
 
   #if ENABLED(DELTA)
