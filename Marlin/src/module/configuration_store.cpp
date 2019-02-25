@@ -387,11 +387,7 @@ void MarlinSettings::postprocess() {
   #define CHITCHAT_ECHO_START()         SERIAL_ECHO_START()
   #define CHITCHAT_ERROR_START()        SERIAL_ERROR_START()
   #define CHITCHAT_ERROR_MSG(STR)       SERIAL_ERROR_MSG(STR)
-  #define CHITCHAT_ECHO(VAL)            SERIAL_ECHO(VAL)
   #define CHITCHAT_ECHOPGM(STR)         SERIAL_ECHOPGM(STR)
-  #define CHITCHAT_ECHOLNPGM(STR)       SERIAL_ECHOLNPGM(STR)
-  #define CHITCHAT_ECHOPAIR(STR, VAL)   SERIAL_ECHOPAIR(STR, VAL)
-  #define CHITCHAT_ECHOLNPAIR(STR, VAL) SERIAL_ECHOLNPAIR(STR, VAL)
   #define CHITCHAT_EOL()                SERIAL_EOL()
 #else
   #define CHITCHAT_ECHO(V)              NOOP
@@ -401,11 +397,7 @@ void MarlinSettings::postprocess() {
   #define CHITCHAT_ECHO_START()         NOOP
   #define CHITCHAT_ERROR_START()        NOOP
   #define CHITCHAT_ERROR_MSG(STR)       NOOP
-  #define CHITCHAT_ECHO(VAL)            NOOP
   #define CHITCHAT_ECHOPGM(STR)         NOOP
-  #define CHITCHAT_ECHOLNPGM(STR)       NOOP
-  #define CHITCHAT_ECHOPAIR(STR, VAL)   NOOP
-  #define CHITCHAT_ECHOLNPAIR(STR, VAL) NOOP
   #define CHITCHAT_EOL()                NOOP
 #endif
 
