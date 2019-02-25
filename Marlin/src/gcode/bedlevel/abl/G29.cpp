@@ -26,7 +26,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if OLDSCHOOL_ABL
+#if HAS_ABL_NOT_UBL
 
 #include "../../gcode.h"
 #include "../../../feature/bedlevel/bedlevel.h"
@@ -1005,4 +1005,4 @@ G29_TYPE GcodeSuite::G29() {
   G29_RETURN(isnan(measured_z));
 }
 
-#endif // OLDSCHOOL_ABL
+#endif // HAS_ABL_NOT_UBL

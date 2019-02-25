@@ -155,7 +155,7 @@ float cartes[XYZ];
   float workspace_offset[XYZ] = { 0 };
 #endif
 
-#if OLDSCHOOL_ABL
+#if HAS_ABL_NOT_UBL
   float xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
 #endif
 

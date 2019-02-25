@@ -2556,7 +2556,7 @@ void MarlinSettings::reset() {
           SERIAL_ECHOLNPGM(":");
         }
 
-      #elif HAS_ABL
+      #elif HAS_ABL_OR_UBL
 
         CONFIG_ECHO_HEADING("Auto Bed Leveling:");
 

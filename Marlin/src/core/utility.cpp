@@ -358,7 +358,7 @@ void safe_delay(millis_t ms) {
       SERIAL_ECHOLNPGM(" Nozzle)");
     #endif
 
-    #if HAS_ABL
+    #if HAS_ABL_OR_UBL
       SERIAL_ECHOLNPGM("Auto Bed Leveling: "
         #if ENABLED(AUTO_BED_LEVELING_LINEAR)
           "LINEAR"
