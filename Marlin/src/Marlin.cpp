@@ -468,11 +468,14 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
         #if ENABLED(DISABLE_INACTIVE_E)
           disable_e_steppers();
         #endif
-        #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
-          if (ubl.lcd_map_control) {
-            ubl.lcd_map_control = false;
-            ui.defer_status_screen(false);
-          }
+        #if HAS_LCD_MENU
+          ui.status_screen();
+          #if ENABLED(AUTO_BED_LEVELING_UBL)
+            if (ubl.lcd_map_control) {
+              ubl.lcd_map_control = false;
+              ui.defer_status_screen(false);
+            }
+          #endif
         #endif
       }
     }

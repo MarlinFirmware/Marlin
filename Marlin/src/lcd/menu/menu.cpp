@@ -214,7 +214,19 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
           doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
       }
       else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
-        if (all_axes_known() && printer_busy()) {
+
+        #if ENABLED(BABYSTEP_WITHOUT_HOMING)
+          constexpr bool can_babystep = true;
+        #else
+          const bool can_babystep = all_axes_known();
+        #endif
+        #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
+          constexpr bool should_babystep = true;
+        #else
+          const bool should_babystep = printer_busy();
+        #endif
+
+        if (should_babystep && can_babystep) {
           screen =
             #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
               lcd_babystep_zoffset
@@ -246,10 +258,11 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
 
     // Re-initialize custom characters that may be re-used
     #if HAS_CHARACTER_LCD
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
-        if (!ubl.lcd_map_control)
-      #endif
-          set_custom_characters(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
+      if (true
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          && !ubl.lcd_map_control
+        #endif
+      ) set_custom_characters(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
     #endif
 
     refresh(LCDVIEW_CALL_REDRAW_NEXT);
