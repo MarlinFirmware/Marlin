@@ -26,6 +26,7 @@
 // --------------------------------------------------------------------------
 
 #include <stdint.h>
+
 #include "../../inc/MarlinConfig.h"
 
 // --------------------------------------------------------------------------
@@ -49,7 +50,7 @@
     #define TEMP_TIMER 17
   #endif
 
-#elif defined STM32F1xx
+#elif defined(STM32F1xx)
 
   #define HAL_TIMER_RATE (F_CPU) // frequency of timer peripherals
 
@@ -61,7 +62,7 @@
     #define TEMP_TIMER 2
   #endif
 
-#elif defined STM32F4xx
+#elif defined(STM32F4xx)
 
   #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
@@ -73,7 +74,7 @@
     #define TEMP_TIMER 7
   #endif
 
-#elif defined STM32F7xx
+#elif defined(STM32F7xx)
 
   #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
@@ -95,21 +96,21 @@
   #define TEMP_TIMER_IRQ_PRIO 2
 #endif
 
-#define STEP_TIMER_NUM 0  // index of timer to use for stepper
-#define TEMP_TIMER_NUM 1  // index of timer to use for temperature
+#define STEP_TIMER_NUM 0            // Stepper timer index
+#define TEMP_TIMER_NUM 1            // Temperature timer index
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
 
-#define TEMP_TIMER_RATE 72000 // 72 Khz
-#define TEMP_TIMER_PRESCALE ((HAL_TIMER_RATE)/(TEMP_TIMER_RATE))
-#define TEMP_TIMER_FREQUENCY 1000
+#define TEMP_TIMER_RATE             72000 // 72 Khz
+#define TEMP_TIMER_PRESCALE         ((HAL_TIMER_RATE)/(TEMP_TIMER_RATE))
+#define TEMP_TIMER_FREQUENCY        1000
 
-#define STEPPER_TIMER_RATE 2000000 // 2 Mhz
-#define STEPPER_TIMER_PRESCALE ((HAL_TIMER_RATE)/(STEPPER_TIMER_RATE))
-#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
+#define STEPPER_TIMER_RATE          2000000 // 2 Mhz
+#define STEPPER_TIMER_PRESCALE      ((HAL_TIMER_RATE)/(STEPPER_TIMER_RATE))
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 
-#define PULSE_TIMER_RATE STEPPER_TIMER_RATE
-#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
-#define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE
+#define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
 
 #define __TIMER_DEV(X) TIM##X
 #define _TIMER_DEV(X) __TIMER_DEV(X)
