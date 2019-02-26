@@ -159,10 +159,10 @@ extern uint16_t HAL_adc_result;
 #define __bss_end __bss_end__
 
 /** clear reset reason */
-void HAL_clear_reset_source (void);
+void HAL_clear_reset_source(void);
 
 /** reset reason */
-uint8_t HAL_get_reset_source (void);
+uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(const int delay);
 
@@ -180,10 +180,16 @@ static int freeMemory() {
   return top;
 }
 */
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 static int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
+
+#pragma GCC diagnostic pop
 
 //
 // SPI: Extended functions which take a channel number (hardware SPI only)
@@ -206,8 +212,8 @@ uint8_t spiRec(uint32_t chan);
  */
 void eeprom_write_byte(uint8_t *pos, unsigned char value);
 uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block (void *__dst, const void *__src, size_t __n);
-void eeprom_update_block (const void *__src, void *__dst, size_t __n);
+void eeprom_read_block(void *__dst, const void *__src, size_t __n);
+void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 //
 // ADC
