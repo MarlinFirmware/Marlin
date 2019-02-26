@@ -83,6 +83,6 @@ N234 G1 X-5 Y+2 *64 error
 ;                ^constant.numeric.checksum.gcode
 ;                  ^invalid.error.syntax.gcode
 
-N234 M107 *64     
+N234 M107 *64
 ;              ^-invalid.error.syntax.gcode
 
