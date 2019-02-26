@@ -91,7 +91,7 @@ static void u8g_com_LPC1768_st7920_write_byte_hw_spi(uint8_t rs, uint8_t val) {
 }
 
 uint8_t u8g_com_HAL_LPC1768_ST7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
-  switch(msg) {
+  switch (msg) {
     case U8G_COM_MSG_INIT:
       u8g_SetPILevel(u8g, U8G_PI_CS, 0);
       u8g_SetPIOutput(u8g, U8G_PI_CS);

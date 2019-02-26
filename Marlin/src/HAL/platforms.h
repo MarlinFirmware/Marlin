@@ -41,6 +41,8 @@
   #define HAL_PLATFORM HAL_STM32
 #elif defined(ARDUINO_ARCH_ESP32)
   #define HAL_PLATFORM HAL_ESP32
+#elif defined(__PLAT_LINUX__)
+  #define HAL_PLATFORM HAL_LINUX
 #else
   #error "Unsupported Platform!"
 #endif

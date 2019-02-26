@@ -53,6 +53,10 @@
 #define CHOPPER_PRUSAMK3_24V { 4,  1, 4 }
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
 
+#if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
+  #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500u
+#endif
+
 constexpr uint16_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
   return 12650000UL * msteps / (256 * thrs * spmm);
 }
@@ -258,7 +262,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
-    void tmc_set_report_status(const bool status);
+    void tmc_set_report_interval(const uint16_t update_interval);
   #endif
   void tmc_report_all(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
   void tmc_get_registers(const bool print_x, const bool print_y, const bool print_z, const bool print_e);

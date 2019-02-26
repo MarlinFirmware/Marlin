@@ -27,24 +27,14 @@
   #include "../HAL/shared/persistent_store_api.h"
 #endif
 
-#define ADD_PORT_ARG ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
-
-#if ADD_PORT_ARG
-  #define PORTINIT_SOLO    const int8_t port=-1
-  #define PORTINIT_AFTER  ,const int8_t port=-1
-#else
-  #define PORTINIT_SOLO
-  #define PORTINIT_AFTER
-#endif
-
 class MarlinSettings {
   public:
     MarlinSettings() { }
 
     static uint16_t datasize();
 
-    static void reset(PORTINIT_SOLO);
-    static bool save(PORTINIT_SOLO);    // Return 'true' if data was saved
+    static void reset();
+    static bool save();    // Return 'true' if data was saved
 
     FORCE_INLINE static bool init_eeprom() {
       reset();
@@ -65,8 +55,8 @@ class MarlinSettings {
     #endif
 
     #if ENABLED(EEPROM_SETTINGS)
-      static bool load(PORTINIT_SOLO);      // Return 'true' if data was loaded ok
-      static bool validate(PORTINIT_SOLO);  // Return 'true' if EEPROM data is ok
+      static bool load();      // Return 'true' if data was loaded ok
+      static bool validate();  // Return 'true' if EEPROM data is ok
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
@@ -86,11 +76,7 @@ class MarlinSettings {
     #endif
 
     #if DISABLED(DISABLE_M503)
-      static void report(const bool forReplay=false
-        #if NUM_SERIAL > 1
-          , const int8_t port=-1
-        #endif
-      );
+      static void report(const bool forReplay=false);
     #else
       FORCE_INLINE
       static void report(const bool forReplay=false) { UNUSED(forReplay); }
@@ -109,12 +95,9 @@ class MarlinSettings {
                                           // live at the very end of the eeprom
       #endif
 
-      static bool _load(PORTINIT_SOLO);
-      static bool size_error(const uint16_t size PORTINIT_AFTER);
+      static bool _load();
+      static bool size_error(const uint16_t size);
     #endif
 };
 
 extern MarlinSettings settings;
-
-#undef PORTINIT_SOLO
-#undef PORTINIT_AFTER

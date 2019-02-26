@@ -248,7 +248,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
 
   park_above_object(m, uncertainty);
 
-  switch(side) {
+  switch (side) {
     case TOP: {
       const float measurement = measure(Z_AXIS, -1, true, &m.backlash[TOP], uncertainty);
       m.obj_center[Z_AXIS] = measurement - dimensions[Z_AXIS] / 2;

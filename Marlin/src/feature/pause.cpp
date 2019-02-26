@@ -137,6 +137,10 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
                    const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
                    DXC_ARGS
 ) {
+  #if !HAS_LCD_MENU
+    UNUSED(show_lcd);
+  #endif
+
   if (!ensure_safe_temperature(mode)) {
     #if HAS_LCD_MENU
       if (show_lcd) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS, mode);
@@ -183,8 +187,6 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 
   #if HAS_LCD_MENU
     if (show_lcd) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, mode);
-  #else
-    UNUSED(show_lcd);
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
@@ -276,7 +278,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       // Keep looping if "Purge More" was selected
     } while (false
       #if HAS_LCD_MENU
-        && show_lcd && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE
+        || (show_lcd && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE)
       #endif
     );
 
@@ -298,6 +300,10 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
                      const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
 ) {
+  #if !HAS_LCD_MENU
+    UNUSED(show_lcd);
+  #endif
+
   if (!ensure_safe_temperature(mode)) {
     #if HAS_LCD_MENU
       if (show_lcd) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
@@ -308,8 +314,6 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
 
   #if HAS_LCD_MENU
     if (show_lcd) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD, mode);
-  #else
-    UNUSED(show_lcd);
   #endif
 
   // Retract filament
@@ -361,6 +365,10 @@ uint8_t did_pause_print = 0;
 
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length/*=0*/, const bool show_lcd/*=false*/ DXC_ARGS) {
 
+  #if !HAS_LCD_MENU
+    UNUSED(show_lcd);
+  #endif
+
   if (did_pause_print) return false; // already paused
 
   #if ENABLED(HOST_ACTION_COMMANDS)
@@ -382,8 +390,6 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
         LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
       }
-    #else
-      UNUSED(show_lcd);
     #endif
 
     return false; // unable to reach safe temperature

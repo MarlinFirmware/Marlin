@@ -68,31 +68,21 @@
 
 static pin_t SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL;
 static uint8_t SPI_speed = 0;
-static uint8_t rs_last_state = 255;
 
 static void u8g_com_LPC1768_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
-
-  if (rs != rs_last_state) {  // time to send a command/data byte
+  static uint8_t rs_last_state = 255;
+  if (rs != rs_last_state) {
+    // Transfer Data (FA) or Command (F8)
+    swSpiTransfer(rs ? 0x0FA : 0x0F8, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
     rs_last_state = rs;
-
-    if (rs == 0)
-      /* command */
-      swSpiTransfer(0x0F8, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
-    else
-       /* data */
-       swSpiTransfer(0x0FA, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
-
-    DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
+    DELAY_US(40); // Give the controller time to process the data: 20 is bad, 30 is OK, 40 is safe
   }
-
   swSpiTransfer(val & 0x0F0, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
   swSpiTransfer(val << 4, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
 }
 
-uint8_t u8g_com_HAL_LPC1768_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
-{
-  switch(msg)
-  {
+uint8_t u8g_com_HAL_LPC1768_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
+  switch (msg) {
     case U8G_COM_MSG_INIT:
       SCK_pin_ST7920_HAL = u8g->pin_list[U8G_PI_SCK];
       MOSI_pin_ST7920_HAL_HAL = u8g->pin_list[U8G_PI_MOSI];

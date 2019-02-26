@@ -473,7 +473,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 }
 
 void I2CPositionEncoder::reset() {
-  Wire.beginTransmission(i2cAddress);
+  Wire.beginTransmission(I2C_ADDRESS(i2cAddress));
   Wire.write(I2CPE_RESET_COUNT);
   Wire.endTransmission();
 
@@ -703,7 +703,7 @@ void I2CPositionEncodersMgr::report_position(const int8_t idx, const bool units,
 
 void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const uint8_t newaddr) {
   // First check 'new' address is not in use
-  Wire.beginTransmission(newaddr);
+  Wire.beginTransmission(I2C_ADDRESS(newaddr));
   if (!Wire.endTransmission()) {
     SERIAL_ECHOPAIR("?There is already a device with that address on the I2C bus! (", newaddr);
     SERIAL_ECHOLNPGM(")");
@@ -711,7 +711,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
   }
 
   // Now check that we can find the module on the oldaddr address
-  Wire.beginTransmission(oldaddr);
+  Wire.beginTransmission(I2C_ADDRESS(oldaddr));
   if (Wire.endTransmission()) {
     SERIAL_ECHOPAIR("?No module detected at this address! (", oldaddr);
     SERIAL_ECHOLNPGM(")");
@@ -722,7 +722,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
   SERIAL_ECHOLNPAIR(", changing address to ", newaddr);
 
   // Change the modules address
-  Wire.beginTransmission(oldaddr);
+  Wire.beginTransmission(I2C_ADDRESS(oldaddr));
   Wire.write(I2CPE_SET_ADDR);
   Wire.write(newaddr);
   Wire.endTransmission();
@@ -733,7 +733,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
   safe_delay(I2CPE_REBOOT_TIME);
 
   // Look for the module at the new address.
-  Wire.beginTransmission(newaddr);
+  Wire.beginTransmission(I2C_ADDRESS(newaddr));
   if (Wire.endTransmission()) {
     SERIAL_ECHOLNPGM("Address change failed! Check encoder module.");
     return;
@@ -753,7 +753,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
 
 void I2CPositionEncodersMgr::report_module_firmware(const uint8_t address) {
   // First check there is a module
-  Wire.beginTransmission(address);
+  Wire.beginTransmission(I2C_ADDRESS(address));
   if (Wire.endTransmission()) {
     SERIAL_ECHOPAIR("?No module detected at this address! (", address);
     SERIAL_ECHOLNPGM(")");
@@ -763,7 +763,7 @@ void I2CPositionEncodersMgr::report_module_firmware(const uint8_t address) {
   SERIAL_ECHOPAIR("Requesting version info from module at address ", address);
   SERIAL_ECHOLNPGM(":");
 
-  Wire.beginTransmission(address);
+  Wire.beginTransmission(I2C_ADDRESS(address));
   Wire.write(I2CPE_SET_REPORT_MODE);
   Wire.write(I2CPE_REPORT_VERSION);
   Wire.endTransmission();
@@ -777,7 +777,7 @@ void I2CPositionEncodersMgr::report_module_firmware(const uint8_t address) {
   }
 
   // Set module back to normal (distance) mode
-  Wire.beginTransmission(address);
+  Wire.beginTransmission(I2C_ADDRESS(address));
   Wire.write(I2CPE_SET_REPORT_MODE);
   Wire.write(I2CPE_REPORT_DISTANCE);
   Wire.endTransmission();

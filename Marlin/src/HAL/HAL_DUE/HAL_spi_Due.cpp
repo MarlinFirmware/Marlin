@@ -656,8 +656,8 @@
 
     // Read from SPI into buffer
     void spiRead(uint8_t* buf, uint16_t nbyte) {
-      if (nbyte-- == 0) return;
-
+      if (!nbyte) return;
+      --nbyte;
       for (int i = 0; i < nbyte; i++) {
         //WHILE_TX(0);
         SPI0->SPI_TDR = 0x000000FF | SPI_PCS(SPI_CHAN);
@@ -669,7 +669,7 @@
     }
 
     // Write single byte to SPI
-    void spiSend(byte b) {
+    void spiSend(const byte b) {
       // write byte with address and end transmission flag
       SPI0->SPI_TDR = (uint32_t)b | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
       WHILE_TX(0);
@@ -678,16 +678,17 @@
       //DELAY_US(1U);
     }
 
-    void spiSend(const uint8_t* buf, size_t n) {
-      if (n == 0) return;
-      for (size_t i = 0; i < n - 1; i++) {
+    void spiSend(const uint8_t* buf, size_t nbyte) {
+      if (!nbyte) return;
+      --nbyte;
+      for (size_t i = 0; i < nbyte; i++) {
         SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(SPI_CHAN);
         WHILE_TX(0);
         WHILE_RX(0);
         SPI0->SPI_RDR;
         //DELAY_US(1U);
       }
-      spiSend(buf[n - 1]);
+      spiSend(buf[nbyte]);
     }
 
     void spiSend(uint32_t chan, byte b) {
@@ -698,15 +699,16 @@
       FLUSH_RX();
     }
 
-    void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
-      if (n == 0) return;
-      for (int i = 0; i < (int)n - 1; i++) {
+    void spiSend(uint32_t chan, const uint8_t* buf, size_t nbyte) {
+      if (!nbyte) return;
+      --nbyte;
+      for (size_t i = 0; i < nbyte; i++) {
         WHILE_TX(0);
         SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(chan);
         WHILE_RX(0);
         FLUSH_RX();
       }
-      spiSend(chan, buf[n - 1]);
+      spiSend(chan, buf[nbyte]);
     }
 
     // Write from buffer to SPI
@@ -775,17 +777,15 @@
     uint8_t spiRec() { return (uint8_t)spiTransfer(0xFF); }
 
     void spiRead(uint8_t* buf, uint16_t nbyte) {
-      if (nbyte)
-        for (int i = 0; i < nbyte; i++)
-          buf[i] = spiTransfer(0xFF);
+      for (int i = 0; i < nbyte; i++)
+        buf[i] = spiTransfer(0xFF);
     }
 
     void spiSend(uint8_t data) { spiTransfer(data); }
 
     void spiSend(const uint8_t* buf, size_t nbyte) {
-      if (nbyte)
-        for (uint16_t i = 0; i < nbyte; i++)
-          spiTransfer(buf[i]);
+      for (uint16_t i = 0; i < nbyte; i++)
+        spiTransfer(buf[i]);
     }
 
     void spiSendBlock(uint8_t token, const uint8_t* buf) {

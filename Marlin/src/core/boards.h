@@ -259,4 +259,10 @@
 //
 #define BOARD_ESP32            1900
 
+//
+// Simulations
+//
+
+#define BOARD_LINUX_RAMPS      2000
+
 #define MB(board) (defined(BOARD_##board) && MOTHERBOARD==BOARD_##board)

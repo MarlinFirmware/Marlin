@@ -76,7 +76,7 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
  */
 bool HAL_pwm_status(int8_t pin) {
   char buffer[20];   // for the sprintf statements
-  switch(pin) {
+  switch (pin) {
     FTM_CASE(0,0);
     FTM_CASE(0,1);
     FTM_CASE(0,2);

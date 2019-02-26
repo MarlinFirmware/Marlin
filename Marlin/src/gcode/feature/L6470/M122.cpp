@@ -65,7 +65,7 @@ void GcodeSuite::M122() {
   #define L6470_SAY_STATUS(Q) L6470_status_decode(stepper##Q.getStatus(), Q)
 
   //if (parser.seen('S'))
-  // tmc_set_report_status(parser.value_bool());
+  // tmc_set_report_interval(parser.value_bool());
   //else
 
   #if AXIS_DRIVER_TYPE_X(L6470)

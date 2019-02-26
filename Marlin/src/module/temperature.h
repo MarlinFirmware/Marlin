@@ -381,7 +381,7 @@ class Temperature {
 
     static inline void zero_fan_speeds() {
       #if FAN_COUNT > 0
-        FANS_LOOP(i) fan_speed[i] = 0;
+        FANS_LOOP(i) set_fan_speed(i, 0);
       #endif
     }
 
@@ -672,11 +672,7 @@ class Temperature {
     #endif // HEATER_IDLE_HANDLER
 
     #if HAS_TEMP_SENSOR
-      static void print_heater_states(const uint8_t target_extruder
-        #if NUM_SERIAL > 1
-          , const int8_t port = -1
-        #endif
-      );
+      static void print_heater_states(const uint8_t target_extruder);
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         static uint8_t auto_report_temp_interval;
         static millis_t next_temp_report_ms;

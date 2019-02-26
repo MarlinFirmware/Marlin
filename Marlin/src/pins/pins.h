@@ -448,6 +448,13 @@
 #elif MB(ESP32)
   #include "pins_ESP32.h"
 
+//
+// Linux Native Debug board
+//
+
+#elif MB(LINUX_RAMPS)
+  #include "pins_RAMPS_LINUX.h"       // Linux                                      env:linux_native
+
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif

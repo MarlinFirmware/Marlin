@@ -206,7 +206,7 @@ void HardFault_HandlerC(unsigned long *sp, unsigned long lr, unsigned long cause
   // Reset controller
   NVIC_SystemReset();
 
-  while(1) { watchdog_init(); }
+  for (;;) watchdog_init();
 }
 
 extern "C" {

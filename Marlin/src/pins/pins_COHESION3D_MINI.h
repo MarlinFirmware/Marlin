@@ -24,7 +24,7 @@
  * Cohesion3D Mini pin assignments
  */
 
-#if !defined(TARGET_LPC1768) && !defined(LPC1769)
+#ifndef LPC1769
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 

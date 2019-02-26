@@ -34,14 +34,11 @@
  * M31: Get the time since the start of SD Print (or last M109)
  */
 void GcodeSuite::M31() {
-  #if NUM_SERIAL > 1
-    const int16_t port = command_queue_port[cmd_queue_index_r];
-  #endif
   char buffer[21];
   duration_t elapsed = print_job_timer.duration();
   elapsed.toString(buffer);
   ui.set_status(buffer);
 
-  SERIAL_ECHO_START_P(port);
-  SERIAL_ECHOLNPAIR_P(port, "Print time: ", buffer);
+  SERIAL_ECHO_START();
+  SERIAL_ECHOLNPAIR("Print time: ", buffer);
 }

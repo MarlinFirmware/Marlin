@@ -76,6 +76,9 @@
  *                            configured position, delay, and retract length.
  *
  * PHOTO_POSITION parameters:
+ *    A - X offset to the return position
+ *    B - Y offset to the return position
+ *    F - Override the XY movement feedrate
  *    R - Retract/recover length (current units)
  *    S - Retract/recover feedrate (mm/m)
  *    X - Move to X before triggering the shutter
@@ -94,7 +97,11 @@ void GcodeSuite::M240() {
 
     if (axis_unhomed_error()) return;
 
-    const float old_pos[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+    const float old_pos[XYZ] = {
+      current_position[X_AXIS] + parser.linearval('A'),
+      current_position[Y_AXIS] + parser.linearval('B'),
+      current_position[Z_AXIS]
+    };
 
     #ifdef PHOTO_RETRACT_MM
       constexpr float rfr = (MMS_TO_MMM(
@@ -111,6 +118,9 @@ void GcodeSuite::M240() {
       e_move_m240(-rval, sval);
     #endif
 
+    float fr_mm_s = MMM_TO_MMS(parser.linearval('F'));
+    if (fr_mm_s) NOLESS(fr_mm_s, 10.0f);
+
     constexpr float photo_position[XYZ] = PHOTO_POSITION;
     float raw[XYZ] = {
        parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : photo_position[X_AXIS],
@@ -118,7 +128,7 @@ void GcodeSuite::M240() {
       (parser.seenval('Z') ? parser.value_linear_units() : photo_position[Z_AXIS]) + current_position[Z_AXIS]
     };
     clamp_to_software_endstops(raw);
-    do_blocking_move_to(raw);
+    do_blocking_move_to(raw, fr_mm_s);
 
     #ifdef PHOTO_SWITCH_POSITION
       constexpr float photo_switch_position[2] = PHOTO_SWITCH_POSITION;
@@ -152,7 +162,7 @@ void GcodeSuite::M240() {
     #if PHOTO_DELAY_MS > 0
       safe_delay(parser.intval('P', PHOTO_DELAY_MS));
     #endif
-    do_blocking_move_to(old_pos);
+    do_blocking_move_to(old_pos, fr_mm_s);
     #ifdef PHOTO_RETRACT_MM
       e_move_m240(rval, sval);
     #endif

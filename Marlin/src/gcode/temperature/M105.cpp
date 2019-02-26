@@ -35,20 +35,12 @@ void GcodeSuite::M105() {
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
 
-  #if NUM_SERIAL > 1
-    const int16_t port = command_queue_port[cmd_queue_index_r];
-  #endif
-
   #if HAS_TEMP_SENSOR
-    SERIAL_ECHOPGM_P(port, MSG_OK);
-    thermalManager.print_heater_states(target_extruder
-      #if NUM_SERIAL > 1
-        , port
-      #endif
-    );
+    SERIAL_ECHOPGM(MSG_OK);
+    thermalManager.print_heater_states(target_extruder);
   #else // !HAS_TEMP_SENSOR
-    SERIAL_ERROR_MSG_P(port, MSG_ERR_NO_THERMISTORS);
+    SERIAL_ERROR_MSG(MSG_ERR_NO_THERMISTORS);
   #endif
 
-  SERIAL_EOL_P(port);
+  SERIAL_EOL();
 }

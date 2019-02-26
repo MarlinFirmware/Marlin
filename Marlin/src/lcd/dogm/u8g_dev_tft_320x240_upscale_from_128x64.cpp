@@ -125,7 +125,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
   uint16_t buffer[256];
   uint32_t i, j, k;
 
-  switch(msg) {
+  switch (msg) {
     case U8G_DEV_MSG_INIT:
       dev->com_fn(u8g, U8G_COM_MSG_INIT, U8G_SPI_CLK_CYCLE_NONE, &lcd_id);
       if (lcd_id == 0x040404) return 0; // No connected display on FSMC

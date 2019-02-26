@@ -72,7 +72,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
-  switch(timer_num) {
+  switch (timer_num) {
     case 0: NVIC_ENABLE_IRQ(IRQ_FTM0); break;
     case 1: NVIC_ENABLE_IRQ(IRQ_FTM1); break;
   }
@@ -99,7 +99,7 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
 }
 
 void HAL_timer_isr_prologue(const uint8_t timer_num) {
-  switch(timer_num) {
+  switch (timer_num) {
     case 0:
       FTM0_CNT = 0x0000;
       FTM0_SC &= ~FTM_SC_TOF; // Clear FTM Overflow flag

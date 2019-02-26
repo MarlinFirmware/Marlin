@@ -23,12 +23,11 @@
  * e-mail   :  support@circuitsathome.com
  */
 
-#if !defined(_usb_h_) || defined(_ch9_h_)
-#error "Never include usb_ch9.h directly; include Usb.h instead"
-#else
+#ifndef _usb_h_
+  #error "Never include usb_ch9.h directly; include Usb.h instead"
+#endif
 
 /* USB chapter 9 structures */
-#define _ch9_h_
 
 /* Misc.USB constants */
 #define DEV_DESCR_LEN   18      //device descriptor length
@@ -79,7 +78,6 @@
 #define USB_DESCRIPTOR_OTG                      0x09    // bDescriptorType for an OTG Descriptor.
 
 #define HID_DESCRIPTOR_HID                      0x21
-
 
 
 /* OTG SET FEATURE Constants    */
@@ -170,5 +168,3 @@ typedef struct {
         uint8_t bDescrType; // Type of class descriptor
         uint16_t wDescriptorLength; // Total size of the Report descriptor
 } __attribute__((packed)) HID_CLASS_DESCRIPTOR_LEN_AND_TYPE;
-
-#endif // _ch9_h_

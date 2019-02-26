@@ -71,23 +71,23 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
       OUT_WRITE(ST7920_CLK_PIN, HIGH);
 
       ST7920_CS();
-      u8g_Delay(120);                 //initial delay for boot up
+      u8g_Delay(120);                 // Initial delay for boot up
       ST7920_SET_CMD();
-      ST7920_WRITE_BYTE(0x20);       //non-extended mode
-      ST7920_WRITE_BYTE(0x08);       //display off, cursor+blink off
-      ST7920_WRITE_BYTE(0x01);       //clear DDRAM ram
-      u8g_Delay(15);                    //delay for DDRAM clear
-      ST7920_WRITE_BYTE(0x24);       //extended mode
-      ST7920_WRITE_BYTE(0x26);       //extended mode + GDRAM active
-      for (y = 0; y < (LCD_PIXEL_HEIGHT) / 2; y++) { //clear GDRAM
-        ST7920_WRITE_BYTE(0x80 | y); //set y
-        ST7920_WRITE_BYTE(0x80);     //set x = 0
+      ST7920_WRITE_BYTE(0x20);        // Non-extended mode
+      ST7920_WRITE_BYTE(0x08);        // Display off, cursor+blink off
+      ST7920_WRITE_BYTE(0x01);        // Clear DDRAM ram
+      u8g_Delay(15);                  // Delay for DDRAM clear
+      ST7920_WRITE_BYTE(0x24);        // Extended mode
+      ST7920_WRITE_BYTE(0x26);        // Extended mode + GDRAM active
+      for (y = 0; y < (LCD_PIXEL_HEIGHT) / 2; y++) {  // Clear GDRAM
+        ST7920_WRITE_BYTE(0x80 | y);  // Set y
+        ST7920_WRITE_BYTE(0x80);      // Set x = 0
         ST7920_SET_DAT();
-        for (i = 0; i < 2 * (LCD_PIXEL_WIDTH) / 8; i++) //2x width clears both segments
+        for (i = 0; i < 2 * (LCD_PIXEL_WIDTH) / 8; i++) // 2x width clears both segments
           ST7920_WRITE_BYTE(0);
         ST7920_SET_CMD();
       }
-      ST7920_WRITE_BYTE(0x0C); //display on, cursor+blink off
+      ST7920_WRITE_BYTE(0x0C);        // Display on, cursor+blink off
       ST7920_NCS();
     }
     break;
@@ -104,15 +104,15 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
       for (i = 0; i < PAGE_HEIGHT; i ++) {
         ST7920_SET_CMD();
         if (y < 32) {
-          ST7920_WRITE_BYTE(0x80 | y);       //y
-          ST7920_WRITE_BYTE(0x80);           //x=0
+          ST7920_WRITE_BYTE(0x80 | y);        // y
+          ST7920_WRITE_BYTE(0x80);            // x = 0
         }
         else {
-          ST7920_WRITE_BYTE(0x80 | (y - 32)); //y
-          ST7920_WRITE_BYTE(0x80 | 8);       //x=64
+          ST7920_WRITE_BYTE(0x80 | (y - 32)); // y
+          ST7920_WRITE_BYTE(0x80 | 8);        // x = 64
         }
         ST7920_SET_DAT();
-        ST7920_WRITE_BYTES(ptr, (LCD_PIXEL_WIDTH) / 8); //ptr is incremented inside of macro
+        ST7920_WRITE_BYTES(ptr, (LCD_PIXEL_WIDTH) / 8); // ptr incremented inside of macro!
         y++;
       }
       ST7920_NCS();
