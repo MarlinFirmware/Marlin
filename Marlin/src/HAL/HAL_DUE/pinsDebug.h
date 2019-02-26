@@ -69,6 +69,7 @@
 #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
 #define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%02d"), p); SERIAL_ECHO(buffer);} while (0)
 #define GET_ARRAY_PIN(p) pin_array[p].pin
+#define GET_ARRAY_IS_DIGITAL(p) pin_array[p].is_digital
 #define VALID_PIN(pin) (pin >= 0 && pin < (int8_t)NUMBER_PINS_TOTAL ? 1 : 0)
 #define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
 #define IS_ANALOG(P) WITHIN(P, char(analogInputToDigitalPin(0)), char(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
@@ -85,10 +86,6 @@ bool GET_PINMODE(int8_t pin) {  // 1: output, 0: input
           || pwm_status(pin));
 }
 
-bool GET_ARRAY_IS_DIGITAL(int8_t pin) {
-  uint8_t pin_status = g_pinStatus[pin] & 0xF;
-  return  !(pin_status == PIN_STATUS_ANALOG);
-}
 
 void pwm_details(int32_t pin) {
   if (pwm_status(pin)) {
