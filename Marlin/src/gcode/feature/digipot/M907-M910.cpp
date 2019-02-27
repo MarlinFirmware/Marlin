@@ -44,37 +44,37 @@
 void GcodeSuite::M907() {
   #if HAS_DIGIPOTSS
 
-    LOOP_XYZE(i) if (parser.seen(axis_codes[i])) stepper.digipot_current(i, parser.value_int());
-    if (parser.seen('B')) stepper.digipot_current(4, parser.value_int());
-    if (parser.seen('S')) for (uint8_t i = 0; i <= 4; i++) stepper.digipot_current(i, parser.value_int());
+    LOOP_XYZE(i) if (parser.seenval(axis_codes[i])) stepper.digipot_current(i, parser.value_int());
+    if (parser.seenval('B')) stepper.digipot_current(4, parser.value_int());
+    if (parser.seenval('S')) for (uint8_t i = 0; i <= 4; i++) stepper.digipot_current(i, parser.value_int());
 
   #elif HAS_MOTOR_CURRENT_PWM
 
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-      if (parser.seen('X')) stepper.digipot_current(0, parser.value_int());
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_X) || PIN_EXISTS(MOTOR_CURRENT_PWM_Y) || PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+      if (parser.seenval('X') || parser.seenval('Y')) stepper.digipot_current(0, parser.value_int());
     #endif
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-      if (parser.seen('Z')) stepper.digipot_current(1, parser.value_int());
+      if (parser.seenval('Z')) stepper.digipot_current(1, parser.value_int());
     #endif
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-      if (parser.seen('E')) stepper.digipot_current(2, parser.value_int());
+      if (parser.seenval('E')) stepper.digipot_current(2, parser.value_int());
     #endif
 
   #endif
 
   #if ENABLED(DIGIPOT_I2C)
     // this one uses actual amps in floating point
-    LOOP_XYZE(i) if (parser.seen(axis_codes[i])) digipot_i2c_set_current(i, parser.value_float());
+    LOOP_XYZE(i) if (parser.seenval(axis_codes[i])) digipot_i2c_set_current(i, parser.value_float());
     // for each additional extruder (named B,C,D,E..., channels 4,5,6,7...)
-    for (uint8_t i = NUM_AXIS; i < DIGIPOT_I2C_NUM_CHANNELS; i++) if (parser.seen('B' + i - (NUM_AXIS))) digipot_i2c_set_current(i, parser.value_float());
+    for (uint8_t i = NUM_AXIS; i < DIGIPOT_I2C_NUM_CHANNELS; i++) if (parser.seenval('B' + i - (NUM_AXIS))) digipot_i2c_set_current(i, parser.value_float());
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)
-    if (parser.seen('S')) {
+    if (parser.seenval('S')) {
       const float dac_percent = parser.value_float();
       for (uint8_t i = 0; i <= 4; i++) dac_current_percent(i, dac_percent);
     }
-    LOOP_XYZE(i) if (parser.seen(axis_codes[i])) dac_current_percent(i, parser.value_float());
+    LOOP_XYZE(i) if (parser.seenval(axis_codes[i])) dac_current_percent(i, parser.value_float());
   #endif
 }
 

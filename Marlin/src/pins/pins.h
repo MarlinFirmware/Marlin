@@ -393,6 +393,8 @@
   #include "pins_ALLIGATOR_R2.h"      // SAM3X8E                                    env:DUE env:DUE_debug
 #elif MB(ADSK)
   #include "pins_ADSK.h"              // SAM3X8E                                    env:DUE env:DUE_debug
+#elif MB(PRINTRBOARD_G2)
+  #include "pins_PRINTRBOARD_G2.h"    // SAM3X8C                                    env:DUE_USB
 
 //
 // STM32 ARM Cortex-M3
