@@ -43,6 +43,13 @@
   #include "stepper.h"
 #endif
 
+#if ENABLED(BABYSTEPPING)
+  #include "../module/motion.h"
+  #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
+    #include "../gcode/gcode.h"
+  #endif
+#endif
+
 #include "printcounter.h"
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -260,12 +267,10 @@ int16_t Temperature::current_temperature_raw[HOTENDS], // = { 0 }
 
 volatile bool Temperature::temp_meas_ready = false;
 
-#if ENABLED(PIDTEMP)
-  #if ENABLED(PID_EXTRUSION_SCALING)
-    long Temperature::last_e_position;
-    long Temperature::lpq[LPQ_MAX_LEN];
-    int Temperature::lpq_ptr = 0;
-  #endif
+#if ENABLED(PID_EXTRUSION_SCALING)
+  long Temperature::last_e_position;
+  long Temperature::lpq[LPQ_MAX_LEN];
+  int Temperature::lpq_ptr = 0;
 #endif
 
 uint16_t Temperature::raw_temp_value[MAX_EXTRUDERS] = { 0 };
@@ -311,6 +316,8 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
   millis_t Temperature::heater_idle_timeout_ms[HOTENDS] = { 0 };
   bool Temperature::heater_idle_timeout_exceeded[HOTENDS] = { false };
 #endif
+
+// public:
 
 #if HAS_ADC_BUTTONS
   uint32_t Temperature::current_ADCKey_raw = 0;
@@ -2475,15 +2482,22 @@ void Temperature::isr() {
   //
 
   #if ENABLED(BABYSTEPPING)
-    LOOP_XYZ(axis) {
-      const int16_t curTodo = babystepsTodo[axis]; // get rid of volatile for performance
-      if (curTodo) {
-        stepper.babystep((AxisEnum)axis, curTodo > 0);
-        if (curTodo > 0) babystepsTodo[axis]--;
-                    else babystepsTodo[axis]++;
+    #if ENABLED(BABYSTEP_XY) || ENABLED(I2C_POSITION_ENCODERS)
+      LOOP_XYZ(axis) {
+        const int16_t curTodo = babystepsTodo[axis]; // get rid of volatile for performance
+        if (curTodo) {
+          stepper.babystep((AxisEnum)axis, curTodo > 0);
+          if (curTodo > 0) babystepsTodo[axis]--; else babystepsTodo[axis]++;
+        }
       }
-    }
-  #endif // BABYSTEPPING
+    #else
+      const int16_t curTodo = babystepsTodo[Z_AXIS];
+      if (curTodo) {
+        stepper.babystep(Z_AXIS, curTodo > 0);
+        if (curTodo > 0) babystepsTodo[Z_AXIS]--; else babystepsTodo[Z_AXIS]++;
+      }
+    #endif
+  #endif
 
   // Poll endstops state, if required
   endstops.poll();
@@ -2491,6 +2505,70 @@ void Temperature::isr() {
   // Periodically call the planner timer
   planner.tick();
 }
+
+#if ENABLED(BABYSTEPPING)
+
+  #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
+    #define BSA_ENABLE(AXIS) do{ switch (AXIS) { case X_AXIS: enable_X(); break; case Y_AXIS: enable_Y(); break; case Z_AXIS: enable_Z(); } }while(0)
+  #else
+    #define BSA_ENABLE(AXIS) NOOP
+  #endif
+
+  #if ENABLED(BABYSTEP_WITHOUT_HOMING)
+    #define CAN_BABYSTEP(AXIS) true
+  #else
+    #define CAN_BABYSTEP(AXIS) TEST(axis_known_position, AXIS)
+  #endif
+
+  extern uint8_t axis_known_position;
+
+  void Temperature::babystep_axis(const AxisEnum axis, const int16_t distance) {
+    if (!CAN_BABYSTEP(axis)) return;
+    #if IS_CORE
+      #if ENABLED(BABYSTEP_XY)
+        switch (axis) {
+          case CORE_AXIS_1: // X on CoreXY and CoreXZ, Y on CoreYZ
+            BSA_ENABLE(CORE_AXIS_1);
+            BSA_ENABLE(CORE_AXIS_2);
+            babystepsTodo[CORE_AXIS_1] += distance * 2;
+            babystepsTodo[CORE_AXIS_2] += distance * 2;
+            break;
+          case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ and CoreYZ
+            BSA_ENABLE(CORE_AXIS_1);
+            BSA_ENABLE(CORE_AXIS_2);
+            babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
+            babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+            break;
+          case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
+          default:
+            BSA_ENABLE(NORMAL_AXIS);
+            babystepsTodo[NORMAL_AXIS] += distance;
+            break;
+        }
+      #elif CORE_IS_XZ || CORE_IS_YZ
+        // Only Z stepping needs to be handled here
+        BSA_ENABLE(CORE_AXIS_1);
+        BSA_ENABLE(CORE_AXIS_2);
+        babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
+        babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+      #else
+        BSA_ENABLE(Z_AXIS);
+        babystepsTodo[Z_AXIS] += distance;
+      #endif
+    #else
+      #if ENABLED(BABYSTEP_XY)
+        BSA_ENABLE(axis);
+      #else
+        BSA_ENABLE(Z_AXIS);
+      #endif
+      babystepsTodo[axis] += distance;
+    #endif
+    #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
+      gcode.reset_stepper_timeout();
+    #endif
+  }
+
+#endif // BABYSTEPPING
 
 #if HAS_TEMP_SENSOR
 
