@@ -2716,7 +2716,7 @@ void Temperature::isr() {
       #endif
 
       float target_temp = -1.0, old_temp = 9999.0;
-      bool wants_to_cool = false;
+      bool wants_to_cool = false, first_loop = true;
       wait_for_heatup = true;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       do {
@@ -2759,7 +2759,10 @@ void Temperature::isr() {
 
           if (!residency_start_ms) {
             // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_WINDOW) residency_start_ms = now;
+            if (temp_diff < TEMP_WINDOW) {
+              residency_start_ms = now;
+              if (first_loop) residency_start_ms += (TEMP_RESIDENCY_TIME) * 1000UL;
+            }
           }
           else if (temp_diff > TEMP_HYSTERESIS) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
@@ -2785,6 +2788,8 @@ void Temperature::isr() {
             ui.quick_feedback();
           }
         #endif
+
+        first_loop = false;
 
       } while (wait_for_heatup && TEMP_CONDITIONS);
 
@@ -2828,7 +2833,7 @@ void Temperature::isr() {
       #endif
 
       float target_temp = -1, old_temp = 9999;
-      bool wants_to_cool = false;
+      bool wants_to_cool = false, first_loop = true;
       wait_for_heatup = true;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
@@ -2883,6 +2888,7 @@ void Temperature::isr() {
           if (!residency_start_ms) {
             // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < TEMP_BED_WINDOW) residency_start_ms = now;
+            if (first_loop) residency_start_ms += (TEMP_BED_RESIDENCY_TIME) * 1000UL;
           }
           else if (temp_diff > TEMP_BED_HYSTERESIS) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
@@ -2908,6 +2914,8 @@ void Temperature::isr() {
             ui.quick_feedback();
           }
         #endif
+
+        first_loop = false;
 
       } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
