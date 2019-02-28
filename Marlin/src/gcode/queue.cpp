@@ -453,8 +453,9 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
                 stream_state = StreamState::STREAM_HEADER; // defer packet confirmation to STREAM_HEADER state
               else {
                 if (bytes_received < stream_header.filesize) {
-                  stream_state = StreamState::PACKET_RESET;    // reset and receive next packet
-                  SERIAL_ECHOLNPAIR("ok", packet.header.id);   // transmit confirm packet received and valid token
+                  stream_state = StreamState::PACKET_RESET; // reset and receive next packet
+                  SERIAL_ECHOLNPGM("ok");                   // transmit confirm packet received and valid token
+                  SERIAL_ECHOLN(packet.header.id);
                 }
                 else
                   stream_state = StreamState::STREAM_COMPLETE; // no more data required
