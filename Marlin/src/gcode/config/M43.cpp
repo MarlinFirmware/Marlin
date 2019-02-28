@@ -126,7 +126,7 @@ inline void servo_probe_test() {
 
       probe_inverting = Z_MIN_ENDSTOP_INVERTING;
 
-    #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
+    #elif USES_Z_MIN_PROBE_ENDSTOP
 
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       SERIAL_ECHOLNPAIR(". probe uses Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);

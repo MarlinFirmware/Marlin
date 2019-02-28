@@ -228,7 +228,7 @@ void Endstops::init() {
     #endif
   #endif
 
-  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #if USES_Z_MIN_PROBE_ENDSTOP
     #if ENABLED(ENDSTOPPULLUP_ZMIN_PROBE)
       SET_INPUT_PULLUP(Z_MIN_PROBE_PIN);
     #elif ENABLED(ENDSTOPPULLDOWN_ZMIN_PROBE)
@@ -351,7 +351,7 @@ void Endstops::event_handler() {
     ENDSTOP_HIT_TEST_Y();
     ENDSTOP_HIT_TEST_Z();
 
-    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+    #if USES_Z_MIN_PROBE_ENDSTOP
       #define P_AXIS Z_AXIS
       if (TEST(hit_state, Z_MIN_PROBE)) _ENDSTOP_HIT_ECHO(P, 'P');
     #endif
@@ -425,7 +425,7 @@ void _O2 Endstops::M119() {
   #if HAS_Z3_MAX
     ES_REPORT(Z3_MAX);
   #endif
-  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #if USES_Z_MIN_PROBE_ENDSTOP
     print_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_Z_PROBE));
   #endif
   #if HAS_FILAMENT_SENSOR
@@ -586,7 +586,7 @@ void Endstops::update() {
   #endif
 
   // When closing the gap check the enabled probe
-  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #if USES_Z_MIN_PROBE_ENDSTOP
     UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
   #endif
 
@@ -606,7 +606,7 @@ void Endstops::update() {
           COPY_LIVE_STATE(Z_MAX, Z3_MAX);
         #endif
       #endif
-    #elif DISABLED(Z_MIN_PROBE_ENDSTOP) || Z_MAX_PIN != Z_MIN_PROBE_PIN
+    #elif !USES_Z_MIN_PROBE_ENDSTOP || Z_MAX_PIN != Z_MIN_PROBE_PIN
       // If this pin isn't the bed probe it's the Z endstop
       UPDATE_ENDSTOP_BIT(Z, MAX);
     #endif
@@ -736,7 +736,7 @@ void Endstops::update() {
         #else
           #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
             if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN);
-          #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
+          #elif USES_Z_MIN_PROBE_ENDSTOP
             if (!z_probe_enabled) PROCESS_ENDSTOP(Z, MIN);
           #else
             PROCESS_ENDSTOP(Z, MIN);
@@ -745,7 +745,7 @@ void Endstops::update() {
       #endif
 
       // When closing the gap check the enabled probe
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+      #if USES_Z_MIN_PROBE_ENDSTOP
         if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN_PROBE);
       #endif
     }
@@ -755,7 +755,7 @@ void Endstops::update() {
           PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MAX);
         #elif ENABLED(Z_DUAL_ENDSTOPS)
           PROCESS_DUAL_ENDSTOP(Z, Z2, MAX);
-        #elif DISABLED(Z_MIN_PROBE_ENDSTOP) || Z_MAX_PIN != Z_MIN_PROBE_PIN
+        #elif !USES_Z_MIN_PROBE_ENDSTOP || Z_MAX_PIN != Z_MIN_PROBE_PIN
           // If this pin is not hijacked for the bed probe
           // then it belongs to the Z endstop
           PROCESS_ENDSTOP(Z, MAX);

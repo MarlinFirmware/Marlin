@@ -812,7 +812,7 @@
 //
 // Disable unused endstop / probe pins
 //
-#if !HAS_BED_PROBE || DISABLED(Z_MIN_PROBE_ENDSTOP)
+#if !USES_Z_MIN_PROBE_ENDSTOP
   #undef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN    -1
 #endif

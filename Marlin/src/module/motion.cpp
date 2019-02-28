@@ -1309,7 +1309,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
       #elif ENABLED(DEBUG_LEVELING_FEATURE)
 
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("*** Z HOMED TO ENDSTOP (Z_MIN_PROBE_ENDSTOP) ***");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("*** Z HOMED TO ENDSTOP ***");
 
       #endif
     }
