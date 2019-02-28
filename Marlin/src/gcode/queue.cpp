@@ -282,7 +282,7 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
   serial_count[port] = 0;
 }
 
-#if ENABLED(FAST_FILE_TRANSFER)
+#if ENABLED(BINARY_FILE_TRANSFER)
 
   inline bool serial_data_available(const uint8_t index) {
     switch (index) {
@@ -398,16 +398,12 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
               stream_state = StreamState::PACKET_RESET;
               bytes_received = 0;
               time_stream_start = millis();
-              SERIAL_ECHO("echo: Datastream initialized (");
-              SERIAL_ECHO(stream_header.filesize);
-              SERIAL_ECHOLN("Bytes expected)");
-              SERIAL_ECHO("so"); // confirm active stream and the maximum block size supported
-              SERIAL_CHAR(static_cast<uint8_t>(buffer_size & 0xFF));
-              SERIAL_CHAR(static_cast<uint8_t>((buffer_size >> 8) & 0xFF));
-              SERIAL_CHAR('\n');
+              SERIAL_ECHOPAIR("echo: Datastream initialized (", stream_header.filesize);
+              SERIAL_ECHOLNPGM(" bytes expected)");
+              SERIAL_ECHOLNPAIR("so", buffer_size); // confirm active stream and the maximum block size supported
             }
             else {
-              SERIAL_ECHOLN("echo: Datastream initialization error (invalid token)");
+              SERIAL_ECHO_MSG("Datastream init error (invalid token)");
               stream_state = StreamState::STREAM_FAILED;
             }
             buffer_next_index = 0;
@@ -423,7 +419,7 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
                 stream_state = StreamState::PACKET_DATA;
               }
               else {
-                SERIAL_ECHO("echo: Datastream packet out of order");
+                SERIAL_ECHO_MSG("Datastream packet out of order");
                 stream_state = StreamState::PACKET_FLUSHRX;
               }
             }
@@ -431,61 +427,60 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
           case StreamState::PACKET_DATA:
             if (!stream_read(data)) break;
 
-            if (buffer_next_index < buffer_size) {
+            if (buffer_next_index < buffer_size)
               buffer[buffer_next_index] = data;
-            }
             else {
-              SERIAL_ECHO("echo: Datastream packet data buffer overrun");
+              SERIAL_ECHO_MSG("Datastream packet data buffer overrun");
               stream_state = StreamState::STREAM_FAILED;
               break;
             }
 
             packet.checksum = checksum(packet.checksum, data);
-            packet.bytes_received ++;
-            buffer_next_index ++;
+            packet.bytes_received++;
+            buffer_next_index++;
 
-            if (packet.bytes_received == packet.header.size) {
+            if (packet.bytes_received == packet.header.size)
               stream_state = StreamState::PACKET_VALIDATE;
-            }
+
             break;
           case StreamState::PACKET_VALIDATE:
             if (packet.header.checksum == packet.checksum) {
               packet_retries = 0;
-              packets_received ++;
+              packets_received++;
               bytes_received += packet.header.size;
 
-              if (packet.header.id == 0) {                 // id 0 is always the stream descriptor
+              if (packet.header.id == 0)                   // id 0 is always the stream descriptor
                 stream_state = StreamState::STREAM_HEADER; // defer packet confirmation to STREAM_HEADER state
-              }
               else {
                 if (bytes_received < stream_header.filesize) {
-                  stream_state = StreamState::PACKET_RESET;    // reset and receive next packet
-                  SERIAL_ECHOLN("ok");   // transmit confirm packet received and valid token
+                  stream_state = StreamState::PACKET_RESET; // reset and receive next packet
+                  SERIAL_ECHOLNPGM("ok");                   // transmit confirm packet received and valid token
+                  SERIAL_ECHOLN(packet.header.id);
                 }
-                else  {
+                else
                   stream_state = StreamState::STREAM_COMPLETE; // no more data required
-                }
+
                 if (card.write(buffer, buffer_next_index) < 0) {
                   stream_state = StreamState::STREAM_FAILED;
-                  SERIAL_ECHO("echo: IO ERROR");
+                  SERIAL_ECHO_MSG("SDCard IO Error");
                   break;
                 };
               }
             }
             else {
-              SERIAL_ECHO("echo: Block(");
-              SERIAL_ECHO(packet.header.id);
-              SERIAL_ECHOLN(") Corrupt");
+              SERIAL_ECHO_START();
+              SERIAL_ECHOPAIR("Block(", packet.header.id);
+              SERIAL_ECHOLNPGM(") Corrupt");
               stream_state = StreamState::PACKET_FLUSHRX;
             }
             break;
           case StreamState::PACKET_RESEND:
             if (packet_retries < MAX_RETRIES) {
-              packet_retries ++;
+              packet_retries++;
               stream_state = StreamState::PACKET_RESET;
-              SERIAL_ECHO("echo: Resend request ");
-              SERIAL_ECHOLN(packet_retries);
-              SERIAL_ECHOLN("rs"); // transmit resend packet token
+              SERIAL_ECHO_START();
+              SERIAL_ECHOLNPAIR("Resend request ", int(packet_retries));
+              SERIAL_ECHOLNPAIR("rs", packet.header.id); // transmit resend packet token
             }
             else {
               stream_state = StreamState::STREAM_FAILED;
@@ -501,27 +496,28 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
             packet.timeout = millis() + STREAM_MAX_WAIT;
             break;
           case StreamState::PACKET_TIMEOUT:
-            SERIAL_ECHOLN("echo: Datastream timeout");
+            SERIAL_ECHO_START();
+            SERIAL_ECHOLNPGM("Datastream timeout");
             stream_state = StreamState::PACKET_RESEND;
             break;
           case StreamState::STREAM_COMPLETE:
             stream_state = StreamState::STREAM_RESET;
             card.flag.binary_mode = false;
-            card.closefile();
-            SERIAL_ECHO("echo: ");
+            SERIAL_ECHO_START();
             SERIAL_ECHO(card.filename);
-            SERIAL_ECHO(" transfer completed @ ");
-            SERIAL_ECHO(((bytes_received / (millis() - time_stream_start) * 1000) / 1024 ));
-            SERIAL_ECHOLN("KiB/s");
-            SERIAL_ECHOLN("sc"); // transmit stream complete token
+            SERIAL_ECHOPAIR(" transfer completed @ ", ((bytes_received / (millis() - time_stream_start) * 1000) / 1024));
+            SERIAL_ECHOLNPGM("KiB/s");
+            SERIAL_ECHOLNPGM("sc"); // transmit stream complete token
+            card.closefile();
             return;
           case StreamState::STREAM_FAILED:
             stream_state = StreamState::STREAM_RESET;
             card.flag.binary_mode = false;
             card.closefile();
             card.removeFile(card.filename);
-            SERIAL_ECHOLN("echo: File transfer failed");
-            SERIAL_ECHOLN("sf"); // transmit stream failed token
+            SERIAL_ECHO_START();
+            SERIAL_ECHOLNPGM("File transfer failed");
+            SERIAL_ECHOLNPGM("sf"); // transmit stream failed token
             return;
         }
       }
@@ -536,7 +532,7 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
 
   } binaryStream{};
 
-#endif // FAST_FILE_TRANSFER
+#endif // BINARY_FILE_TRANSFER
 
 FORCE_INLINE bool is_M29(const char * const cmd) {
   return cmd[0] == 'M' && cmd[1] == '2' && cmd[2] == '9' && !WITHIN(cmd[3], '0', '9');
@@ -555,7 +551,7 @@ inline void get_serial_commands() {
               #endif
             ;
 
-  #if ENABLED(FAST_FILE_TRANSFER)
+  #if ENABLED(BINARY_FILE_TRANSFER)
     if (card.flag.saving && card.flag.binary_mode) {
       /**
        * For binary stream file transfer, use serial_line_buffer as the working

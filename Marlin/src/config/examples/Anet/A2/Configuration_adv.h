@@ -835,7 +835,7 @@
   #endif
 
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
-  //#define FAST_FILE_TRANSFER
+  //#define BINARY_FILE_TRANSFER
 
 #endif // SDSUPPORT
 

@@ -175,7 +175,7 @@ void GcodeSuite::M27() {
  */
 void GcodeSuite::M28() {
 
-  #if ENABLED(FAST_FILE_TRANSFER)
+  #if ENABLED(BINARY_FILE_TRANSFER)
 
     bool binary_mode = false;
     char *p = parser.string_arg;
