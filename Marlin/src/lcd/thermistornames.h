@@ -102,6 +102,8 @@
   #define THERMISTOR_NAME "Formbot 350°C"
 #elif THERMISTOR_ID == 66
   #define THERMISTOR_NAME "Dyze 4.7M"
+#elif THERMISTOR_ID == 67
+  #define THERMISTOR_NAME "SliceEng 450°C"
 
 // Dummies for dev testing
 #elif THERMISTOR_ID == 998
