@@ -52,7 +52,7 @@ char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENA
 int8_t CardReader::autostart_index;
 
 #if ENABLED(BINARY_FILE_TRANSFER) && NUM_SERIAL > 1
-  int8_t CardReader::transfer_port;
+  int8_t CardReader::transfer_port_index;
 #endif
 
 // private:

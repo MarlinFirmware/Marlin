@@ -147,9 +147,9 @@ public:
 
   #if ENABLED(BINARY_FILE_TRANSFER)
     #if NUM_SERIAL > 1
-      static int8_t transfer_port;
+      static int8_t transfer_port_index;
     #else
-      static constexpr int8_t transfer_port = 0;
+      static constexpr int8_t transfer_port_index = 0;
     #endif
   #endif
 

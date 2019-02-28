@@ -367,8 +367,8 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
         stream_state = StreamState::PACKET_TIMEOUT;
         return false;
       }
-      if (!serial_data_available(card.transfer_port)) return false;
-      data = read_serial(card.transfer_port);
+      if (!serial_data_available(card.transfer_port_index)) return false;
+      data = read_serial(card.transfer_port_index);
       packet.timeout = millis() + STREAM_MAX_WAIT;
       return true;
     }
@@ -379,7 +379,7 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
       millis_t transfer_timeout = millis() + RX_TIMESLICE;
 
       #if ENABLED(SDSUPPORT)
-        PORT_REDIRECT(card.transfer_port);
+        PORT_REDIRECT(card.transfer_port_index);
       #endif
 
       while (PENDING(millis(), transfer_timeout)) {
@@ -491,8 +491,8 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
               stream_state = StreamState::PACKET_RESEND;
               break;
             }
-            if (!serial_data_available(card.transfer_port)) break;
-            read_serial(card.transfer_port); // throw away data
+            if (!serial_data_available(card.transfer_port_index)) break;
+            read_serial(card.transfer_port_index); // throw away data
             packet.timeout = millis() + STREAM_MAX_WAIT;
             break;
           case StreamState::PACKET_TIMEOUT:
@@ -558,7 +558,7 @@ inline void get_serial_commands() {
        * receive buffer (which limits the packet size to MAX_CMD_SIZE).
        * The receive buffer also limits the packet size for reliable transmission.
        */
-      binaryStream.receive(serial_line_buffer[card.transfer_port]);
+      binaryStream.receive(serial_line_buffer[card.transfer_port_index]);
       return;
     }
   #endif
