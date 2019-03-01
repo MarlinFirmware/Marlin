@@ -332,7 +332,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
-    stepper.refresh_motor_power();
+    if(stepper.is_initialized) stepper.refresh_motor_power();
   #endif
 
   #if ENABLED(FWRETRACT)

@@ -94,6 +94,8 @@
 
 Stepper stepper; // Singleton
 
+bool Stepper::is_initialized = false;
+
 // public:
 
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
@@ -2076,6 +2078,8 @@ void Stepper::init() {
   sei();
 
   set_directions(); // Init directions to last_direction_bits = 0
+
+  is_initialized = true;
 }
 
 /**

@@ -237,6 +237,8 @@ class Stepper {
       static uint32_t motor_current_setting[3];
     #endif
 
+    static bool is_initialized;
+
   private:
 
     static block_t* current_block;          // A pointer to the block currently being traced
