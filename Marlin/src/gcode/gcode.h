@@ -254,6 +254,7 @@
  *
  * ************ Custom codes - This can change to suit future G-code regulations
  * M928 - Start SD logging: "M928 filename.gco". Stop with M29. (Requires SDSUPPORT)
+ * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
  *
  * "T" Codes
@@ -856,6 +857,10 @@ private:
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
     static void M951();
+  #endif
+
+  #if ENABLED(PLATFORM_M997_SUPPORT)
+    static void M997();
   #endif
 
   static void M999();

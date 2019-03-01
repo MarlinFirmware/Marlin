@@ -59,4 +59,8 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval) {
   return ind > -2 ? ind : dval;
 }
 
+void flashFirmware(int16_t value) {
+  NVIC_SystemReset();
+}
+
 #endif // TARGET_LPC1768
