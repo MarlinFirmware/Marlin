@@ -369,7 +369,7 @@
 
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando impressao")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("continuar")
-#else LCD_HEIGHT < 4
+#else // LCD_HEIGHT < 4
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Aguarde...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Ejetando...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insira e Clique")

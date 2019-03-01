@@ -505,7 +505,7 @@ uint16_t max_display_update_time = 0;
           if (currentScreen == lcd_status_screen)
             doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
         }
-        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms) && (planner.movesplanned() || IS_SD_PRINTING))
+        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms) && (planner.movesplanned() || IS_SD_PRINTING()))
           screen =
             #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
               lcd_babystep_zoffset
@@ -652,7 +652,7 @@ void lcd_status_screen() {
 
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
     // Progress bar % comes from SD when actively printing
-    if (IS_SD_PRINTING)
+    if (IS_SD_PRINTING())
       progress_bar_percent = card.percentDone();
   #endif
 
@@ -854,11 +854,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
       lcd_reset_status();
     }
 
-    bool abort_sd_printing; // =false
-
     void lcd_sdcard_stop() {
       wait_for_heatup = wait_for_user = false;
-      abort_sd_printing = true;
+      card.abort_sd_printing = true;
       lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
       lcd_return_to_status();
     }
@@ -1109,7 +1107,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
     #endif
 
-    if (planner.movesplanned() || IS_SD_PRINTING)
+    if (planner.movesplanned() || IS_SD_PRINTING())
       MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
     else
       MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
@@ -1826,12 +1824,18 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #if ENABLED(LEVEL_BED_CORNERS)
 
+    #ifndef LEVEL_CORNERS_Z_HOP
+      #define LEVEL_CORNERS_Z_HOP 4.0
+    #endif
+
+    static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
+
     /**
      * Level corners, starting in the front-left corner.
      */
     static int8_t bed_corner;
     void _lcd_goto_next_corner() {
-      line_to_z(4.0);
+      line_to_z(LEVEL_CORNERS_Z_HOP);
       switch (bed_corner) {
         case 0:
           current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
@@ -2732,7 +2736,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     // Change filament
     //
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      if (!IS_SD_FILE_OPEN) {
+      if (!IS_SD_FILE_OPEN()) {
         #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
           if (thermalManager.targetHotEnoughToExtrude(active_extruder))
             MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
@@ -2887,8 +2891,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_BACK(MSG_MAIN);
       #if ENABLED(DELTA_AUTO_CALIBRATION)
         MENU_ITEM(gcode, MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
-        MENU_ITEM(gcode, MSG_DELTA_HEIGHT_CALIBRATE, PSTR("G33 P1"));
-        MENU_ITEM(gcode, MSG_DELTA_Z_OFFSET_CALIBRATE, PSTR("G33 P-1"));
         #if ENABLED(EEPROM_SETTINGS)
           MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
           MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
@@ -3412,14 +3414,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
         UNUSED(e);
       #endif
       PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
-      thermalManager.updatePID();
+      thermalManager.update_pid();
     }
     void copy_and_scalePID_d(int16_t e) {
       #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
         UNUSED(e);
       #endif
       PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
-      thermalManager.updatePID();
+      thermalManager.update_pid();
     }
     #define _DEFINE_PIDTEMP_BASE_FUNCS(N) \
       void copy_and_scalePID_i_E ## N() { copy_and_scalePID_i(N); } \
@@ -3522,7 +3524,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
       MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, float(HEATER_0_MAXTEMP) - 15);
       MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, float(HEATER_0_MAXTEMP) - 15);
-      MENU_ITEM_EDIT(float52, MSG_FACTOR, &planner.autotemp_factor, 0, 1);
+      MENU_ITEM_EDIT(float52, MSG_FACTOR, &planner.autotemp_factor, 0, 10);
     #endif
 
     //
@@ -4411,7 +4413,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #endif // E_STEPPERS == 1
 
         #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-          if (!planner.movesplanned() && !IS_SD_FILE_OPEN) {
+          if (!planner.movesplanned() && !IS_SD_FILE_OPEN()) {
             // Load filament
             #if E_STEPPERS == 1
               PGM_P msg0 = PSTR(MSG_FILAMENTLOAD);
@@ -5158,7 +5160,7 @@ void lcd_update() {
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
 
-    const uint8_t sd_status = (uint8_t)IS_SD_INSERTED;
+    const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
     if (sd_status != lcd_sd_status && lcd_detected()) {
 
       uint8_t old_sd_status = lcd_sd_status; // prevent re-entry to this block!
@@ -5604,15 +5606,14 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
         #endif // LCD_HAS_DIRECTIONAL_BUTTONS
 
-        buttons = newbutton;
         #if ENABLED(LCD_HAS_SLOW_BUTTONS)
-          buttons |= slow_buttons;
+          newbutton |= slow_buttons;
         #endif
+        buttons = newbutton;
 
         #if ENABLED(ADC_KEYPAD)
 
           uint8_t newbutton_reprapworld_keypad = 0;
-          buttons = 0;
           if (buttons_reprapworld_keypad == 0) {
             newbutton_reprapworld_keypad = get_ADC_keyValue();
             if (WITHIN(newbutton_reprapworld_keypad, 1, 8))

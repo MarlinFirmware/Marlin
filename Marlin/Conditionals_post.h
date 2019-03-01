@@ -190,11 +190,17 @@
  * Safe Homing Options
  */
 #if ENABLED(Z_SAFE_HOMING)
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    // Home close to center so grid points have z heights very close to 0
+    #define _SAFE_POINT(A) (((GRID_MAX_POINTS_##A) / 2) * (A##_BED_SIZE - 2 * (MESH_INSET)) / (GRID_MAX_POINTS_##A - 1) + MESH_INSET)
+  #else
+    #define _SAFE_POINT(A) A##_CENTER
+  #endif
   #ifndef Z_SAFE_HOMING_X_POINT
-    #define Z_SAFE_HOMING_X_POINT X_CENTER
+    #define Z_SAFE_HOMING_X_POINT _SAFE_POINT(X)
   #endif
   #ifndef Z_SAFE_HOMING_Y_POINT
-    #define Z_SAFE_HOMING_Y_POINT Y_CENTER
+    #define Z_SAFE_HOMING_Y_POINT _SAFE_POINT(Y)
   #endif
   #define X_TILT_FULCRUM Z_SAFE_HOMING_X_POINT
   #define Y_TILT_FULCRUM Z_SAFE_HOMING_Y_POINT
