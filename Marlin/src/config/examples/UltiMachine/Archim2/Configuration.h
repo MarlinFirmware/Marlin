@@ -764,11 +764,11 @@
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
 /**
- * Z_MIN_PROBE_ENDSTOP
+ * Z_MIN_PROBE_PIN
  *
- * Enable this option for a probe connected to any pin except Z-Min.
- * (By default Marlin assumes the Z-Max endstop pin.)
- * To use a custom Z Probe pin, set Z_MIN_PROBE_PIN below.
+ * Define this pin if the probe is not connected to Z_MIN_PIN.
+ * If not defined the default pin for the selected MOTHERBOARD
+ * will be used. Most of the time the default is what you want.
  *
  *  - The simplest option is to use a free endstop connector.
  *  - Use 5V for powered (usually inductive) sensors.
@@ -778,11 +778,8 @@
  *      - normally-closed switches to GND and D32.
  *      - normally-open switches to 5V and D32.
  *
- * WARNING: Setting the wrong pin may have unexpected and potentially
- * disastrous consequences. Use with caution and do your homework.
- *
  */
-//#define Z_MIN_PROBE_ENDSTOP
+//#define Z_MIN_PROBE_PIN 32 // Pin 32 is the RAMPS default
 
 /**
  * Probe Type

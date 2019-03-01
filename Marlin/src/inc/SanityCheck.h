@@ -343,6 +343,8 @@
   #error "MAX6675_SS2 is now MAX6675_SS2_PIN. Please update your configuration and/or pins."
 #elif defined(TMC_Z_CALIBRATION)
   #error "TMC_Z_CALIBRATION has been deprecated in favor of Z_STEPPER_AUTO_ALIGN. Please update your configuration."
+#elif defined(Z_MIN_PROBE_ENDSTOP)
+  #error "Z_MIN_PROBE_ENDSTOP is no longer required. Please remove it from Configuration.h."
 #endif
 
 #define BOARD_MKS_13     -47
@@ -1018,21 +1020,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "SENSORLESS_PROBING requires a TMC2130 driver on Z."
     #endif
   #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-      #error "Enable only one option: Z_MIN_PROBE_ENDSTOP or Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN."
-    #elif DISABLED(USE_ZMIN_PLUG)
+    #if DISABLED(USE_ZMIN_PLUG)
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires USE_ZMIN_PLUG to be enabled."
     #elif !HAS_Z_MIN
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires the Z_MIN_PIN to be defined."
     #elif Z_MIN_PROBE_ENDSTOP_INVERTING != Z_MIN_ENDSTOP_INVERTING
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires Z_MIN_ENDSTOP_INVERTING to match Z_MIN_PROBE_ENDSTOP_INVERTING."
     #endif
-  #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
-    #if !HAS_Z_MIN_PROBE_PIN
-      #error "Z_MIN_PROBE_ENDSTOP requires the Z_MIN_PROBE_PIN to be defined."
-    #endif
-  #else
-    #error "You must enable either Z_MIN_PROBE_ENDSTOP or Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN to use a probe."
+  #elif !HAS_Z_MIN_PROBE_PIN
+    #error "Z_MIN_PROBE_PIN must be defined if Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN is not enabled."
   #endif
 
   /**
