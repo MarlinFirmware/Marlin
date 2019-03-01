@@ -133,25 +133,28 @@
                  || (ENABLED(SWITCHING_EXTRUDER) && E_STEPPERS > N) \
                  || (DISABLED(SWITCHING_EXTRUDER) && DISABLED(MIXING_EXTRUDER) && EXTRUDERS > N)
 
-#if PIN_EXISTS(E0_CS)
-  #define _E0_CS E0_CS_PIN,
-#else
-  #define _E0_CS
-#endif
-#if PIN_EXISTS(E0_MS1)
-  #define _E0_MS1 E0_MS1_PIN,
-#else
-  #define _E0_MS1
-#endif
-#if PIN_EXISTS(E0_MS2)
-  #define _E0_MS2 E0_MS2_PIN,
-#else
-  #define _E0_MS2
-#endif
-#if PIN_EXISTS(E0_MS3)
-  #define _E0_MS3 E0_MS3_PIN,
-#else
-  #define _E0_MS3
+#define _E0_CS
+#define _E0_MS1
+#define _E0_MS2
+#define _E0_MS3
+
+#if E_NEEDED(0)
+  #if PIN_EXISTS(E0_CS)
+    #undef _E0_CS
+    #define _E0_CS E0_CS_PIN,
+  #endif
+  #if PIN_EXISTS(E0_MS1)
+    #undef _E0_MS1
+    #define _E0_MS1 E0_MS1_PIN,
+  #endif
+  #if PIN_EXISTS(E0_MS2)
+    #undef _E0_MS2
+    #define _E0_MS2 E0_MS2_PIN,
+  #endif
+  #if PIN_EXISTS(E0_MS3)
+    #undef _E0_MS3
+    #define _E0_MS3 E0_MS3_PIN,
+  #endif
 #endif
 
 #define _E1_CS
@@ -278,12 +281,17 @@
 // E Steppers
 //
 
-#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, _E0_CS _E0_MS1 _E0_MS2 _E0_MS3
+#define _E0_PINS
 #define _E1_PINS
 #define _E2_PINS
 #define _E3_PINS
 #define _E4_PINS
 #define _E5_PINS
+
+#if EXTRUDERS
+  #undef _E0_PINS
+  #define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, _E0_CS _E0_MS1 _E0_MS2 _E0_MS3
+#endif
 
 #if ENABLED(SWITCHING_EXTRUDER)
                       // Tools 0 and 1 use E0
@@ -320,33 +328,37 @@
 // Heaters, Fans, Temp Sensors
 //
 
-#define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_0_PIN),
+#define _H0_PINS
 #define _H1_PINS
 #define _H2_PINS
 #define _H3_PINS
 #define _H4_PINS
 #define _H5_PINS
 
-#if HOTENDS > 1
-  #undef _H1_PINS
-  #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_1_PIN),
-  #if HOTENDS > 2
-    #undef _H2_PINS
-    #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_2_PIN),
-    #if HOTENDS > 3
-      #undef _H3_PINS
-      #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_3_PIN),
-      #if HOTENDS > 4
-        #undef _H4_PINS
-        #define _H4_PINS HEATER_4_PIN, E4_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_4_PIN),
-        #if HOTENDS > 5
-          #undef _H5_PINS
-          #define _H5_PINS HEATER_5_PIN, E5_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_5_PIN),
-        #endif // HOTENDS > 5
-      #endif // HOTENDS > 4
-    #endif // HOTENDS > 3
-  #endif // HOTENDS > 2
-#endif // HOTENDS > 1
+#if HOTENDS
+  #undef _H0_PINS
+  #define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_0_PIN),
+  #if HOTENDS > 1
+    #undef _H1_PINS
+    #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_1_PIN),
+    #if HOTENDS > 2
+      #undef _H2_PINS
+      #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_2_PIN),
+      #if HOTENDS > 3
+        #undef _H3_PINS
+        #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_3_PIN),
+        #if HOTENDS > 4
+          #undef _H4_PINS
+          #define _H4_PINS HEATER_4_PIN, E4_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_4_PIN),
+          #if HOTENDS > 5
+            #undef _H5_PINS
+            #define _H5_PINS HEATER_5_PIN, E5_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_5_PIN),
+          #endif // HOTENDS > 5
+        #endif // HOTENDS > 4
+      #endif // HOTENDS > 3
+    #endif // HOTENDS > 2
+  #endif // HOTENDS > 1
+#endif // HOTENDS
 
 #define _BED_PINS HEATER_BED_PIN, analogInputToDigitalPin(TEMP_BED_PIN),
 

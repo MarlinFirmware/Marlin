@@ -43,23 +43,25 @@
 #endif
 
 // Refresh the E factor after changing flow
-void _lcd_refresh_e_factor_0() { planner.refresh_e_factor(0); }
-#if EXTRUDERS > 1
-  void _lcd_refresh_e_factor() { planner.refresh_e_factor(active_extruder); }
-  void _lcd_refresh_e_factor_1() { planner.refresh_e_factor(1); }
-  #if EXTRUDERS > 2
-    void _lcd_refresh_e_factor_2() { planner.refresh_e_factor(2); }
-    #if EXTRUDERS > 3
-      void _lcd_refresh_e_factor_3() { planner.refresh_e_factor(3); }
-      #if EXTRUDERS > 4
-        void _lcd_refresh_e_factor_4() { planner.refresh_e_factor(4); }
-        #if EXTRUDERS > 5
-          void _lcd_refresh_e_factor_5() { planner.refresh_e_factor(5); }
-        #endif // EXTRUDERS > 5
-      #endif // EXTRUDERS > 4
-    #endif // EXTRUDERS > 3
-  #endif // EXTRUDERS > 2
-#endif // EXTRUDERS > 1
+#if EXTRUDERS
+  void _lcd_refresh_e_factor_0() { planner.refresh_e_factor(0); }
+  #if EXTRUDERS > 1
+    void _lcd_refresh_e_factor() { planner.refresh_e_factor(active_extruder); }
+    void _lcd_refresh_e_factor_1() { planner.refresh_e_factor(1); }
+    #if EXTRUDERS > 2
+      void _lcd_refresh_e_factor_2() { planner.refresh_e_factor(2); }
+      #if EXTRUDERS > 3
+        void _lcd_refresh_e_factor_3() { planner.refresh_e_factor(3); }
+        #if EXTRUDERS > 4
+          void _lcd_refresh_e_factor_4() { planner.refresh_e_factor(4); }
+          #if EXTRUDERS > 5
+            void _lcd_refresh_e_factor_5() { planner.refresh_e_factor(5); }
+          #endif // EXTRUDERS > 5
+        #endif // EXTRUDERS > 4
+      #endif // EXTRUDERS > 3
+    #endif // EXTRUDERS > 2
+  #endif // EXTRUDERS > 1
+#endif // EXTRUDERS
 
 #if ENABLED(BABYSTEPPING)
 
@@ -174,7 +176,7 @@ void menu_tune() {
   //
   #if EXTRUDERS == 1
     MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
-  #else // EXTRUDERS > 1
+  #elif EXTRUDERS
     MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, _lcd_refresh_e_factor);
     #define EDIT_FLOW(N) MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_LCD_N##N, &planner.flow_percentage[N], 10, 999, _lcd_refresh_e_factor_##N)
     EDIT_FLOW(0);
@@ -191,7 +193,7 @@ void menu_tune() {
         #endif // EXTRUDERS > 4
       #endif // EXTRUDERS > 3
     #endif // EXTRUDERS > 2
-  #endif // EXTRUDERS > 1
+  #endif // EXTRUDERS
 
   //
   // Babystep X:

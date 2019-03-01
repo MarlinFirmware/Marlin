@@ -628,8 +628,12 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define   NORM_E_DIR(E)   do{ if (E == 0) { E0_DIR_WRITE(!INVERT_E0_DIR); } else { E1_DIR_WRITE(!INVERT_E1_DIR); } }while(0)
     #define    REV_E_DIR(E)   do{ if (E == 0) { E0_DIR_WRITE( INVERT_E0_DIR); } else { E1_DIR_WRITE( INVERT_E1_DIR); } }while(0)
   #endif
-#else
+#elif E_STEPPERS
   #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
   #define   NORM_E_DIR(E)   E0_DIR_WRITE(!INVERT_E0_DIR)
   #define    REV_E_DIR(E)   E0_DIR_WRITE( INVERT_E0_DIR)
+#else
+  #define E_STEP_WRITE(E,V) NOOP
+  #define   NORM_E_DIR(E)   NOOP
+  #define    REV_E_DIR(E)   NOOP
 #endif

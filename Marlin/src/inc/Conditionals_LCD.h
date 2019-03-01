@@ -370,6 +370,16 @@
  *
  */
 
+#if EXTRUDERS == 0
+  #undef DISTINCT_E_FACTORS
+  #undef SINGLENOZZLE
+  #undef SWITCHING_EXTRUDER
+  #undef SWITCHING_NOZZLE
+  #undef MIXING_EXTRUDER
+  #undef MK2_MULTIPLEXER
+  #undef PRUSA_MMU2
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
   #if EXTRUDERS > 4
     #define E_STEPPERS    3

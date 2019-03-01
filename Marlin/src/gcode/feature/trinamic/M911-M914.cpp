@@ -232,28 +232,30 @@
           #endif
           break;
         case E_AXIS: {
-          const int8_t target_extruder = get_target_extruder_from_command();
-          if (target_extruder < 0) return;
-          switch (target_extruder) {
-            #if AXIS_HAS_STEALTHCHOP(E0)
-              case 0: TMC_SET_PWMTHRS_E(0); break;
-            #endif
-            #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
-              case 1: TMC_SET_PWMTHRS_E(1); break;
-            #endif
-            #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
-              case 2: TMC_SET_PWMTHRS_E(2); break;
-            #endif
-            #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
-              case 3: TMC_SET_PWMTHRS_E(3); break;
-            #endif
-            #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
-              case 4: TMC_SET_PWMTHRS_E(4); break;
-            #endif
-            #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
-              case 5: TMC_SET_PWMTHRS_E(5); break;
-            #endif
-          }
+          #if E_STEPPERS
+            const int8_t target_extruder = get_target_extruder_from_command();
+            if (target_extruder < 0) return;
+            switch (target_extruder) {
+              #if AXIS_HAS_STEALTHCHOP(E0)
+                case 0: TMC_SET_PWMTHRS_E(0); break;
+              #endif
+              #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
+                case 1: TMC_SET_PWMTHRS_E(1); break;
+              #endif
+              #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
+                case 2: TMC_SET_PWMTHRS_E(2); break;
+              #endif
+              #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
+                case 3: TMC_SET_PWMTHRS_E(3); break;
+              #endif
+              #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
+                case 4: TMC_SET_PWMTHRS_E(4); break;
+              #endif
+              #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
+                case 5: TMC_SET_PWMTHRS_E(5); break;
+              #endif
+            }
+          #endif // E_STEPPERS
         } break;
       }
     }
@@ -280,7 +282,7 @@
       #if AXIS_HAS_STEALTHCHOP(Z3)
         TMC_SAY_PWMTHRS(Z,Z3);
       #endif
-      #if AXIS_HAS_STEALTHCHOP(E0)
+      #if E_STEPPERS && AXIS_HAS_STEALTHCHOP(E0)
         TMC_SAY_PWMTHRS_E(0);
       #endif
       #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
