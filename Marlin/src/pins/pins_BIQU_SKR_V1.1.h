@@ -137,7 +137,7 @@
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P1_23   // Chip select for SD card used by Marlin
+  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
   #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
 
 #endif

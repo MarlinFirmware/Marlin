@@ -156,11 +156,6 @@
 #define FAN_PIN            P2_03
 #define HEATER_BED_PIN     P2_05
 
-//
-// Misc. Functions
-//
-#define SDSS               P0_06   
-
 /*
 |               _____                                             _____
 |           NC | · · | GND                                    5V | · · | GND
@@ -172,7 +167,6 @@
 |               EXP2                                              EXP1  
 */
 #if ENABLED(ULTRA_LCD)
-
   #define BEEPER_PIN       P1_30   // (37) not 5V tolerant
   #define BTN_ENC          P0_28   // (58) open-drain
   #define LCD_PINS_RS      P1_19
@@ -180,20 +174,17 @@
   #define BTN_EN1          P3_26   // (31) J3-2 & AUX-4
   #define BTN_EN2          P3_25   // (33) J3-4 & AUX-4
   #define SD_DETECT_PIN    P1_31   // (49) (NOT 5V tolerant)
-  
+
   #define LCD_SDSS         P0_16   // (16) J3-7 & AUX-4
 
   #define LCD_PINS_ENABLE  P1_18  
   #define LCD_PINS_D4      P1_20  
 
   #if ENABLED(ULTIPANEL)
-
     #define LCD_PINS_D5    P1_21
     #define LCD_PINS_D6    P1_22
     #define LCD_PINS_D7    P1_23
-
   #endif
-
 #endif // ULTRA_LCD
 
 //#define USB_SD_DISABLED
@@ -216,14 +207,14 @@
     // When sharing the SD card with a PC we want the menu options to
     // mount/unmount the card and refresh it. So we disable card detect.
     #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN           // redefine detect pin onboard tf card
-    #define SD_DETECT_PIN  P0_27   // (57) open-drain
+    #undef SD_DETECT_PIN
+    //#define SD_DETECT_PIN  P0_27   // (57) open-drain
   #endif
 
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_16   // Chip select for SD card used by Marlin
+  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
   #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
 
 #endif
