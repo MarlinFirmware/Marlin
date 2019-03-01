@@ -175,7 +175,7 @@ void GcodeSuite::M27() {
  */
 void GcodeSuite::M28() {
 
-  #if ENABLED(FAST_FILE_TRANSFER)
+  #if ENABLED(BINARY_FILE_TRANSFER)
 
     bool binary_mode = false;
     char *p = parser.string_arg;
@@ -192,7 +192,7 @@ void GcodeSuite::M28() {
       SERIAL_ECHOLN(p);
       card.openFile(p, false);
       #if NUM_SERIAL > 1
-        card.transfer_port = command_queue_port[cmd_queue_index_r];
+        card.transfer_port_index = command_queue_port[cmd_queue_index_r];
       #endif
     }
     else

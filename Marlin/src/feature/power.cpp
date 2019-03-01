@@ -64,22 +64,24 @@ bool Power::is_power_needed() {
       #if HAS_Z2_ENABLE
         || Z2_ENABLE_READ == Z_ENABLE_ON
       #endif
-      || E0_ENABLE_READ == E_ENABLE_ON
-      #if E_STEPPERS > 1
-        || E1_ENABLE_READ == E_ENABLE_ON
-        #if E_STEPPERS > 2
-          || E2_ENABLE_READ == E_ENABLE_ON
-          #if E_STEPPERS > 3
-            || E3_ENABLE_READ == E_ENABLE_ON
-            #if E_STEPPERS > 4
-              || E4_ENABLE_READ == E_ENABLE_ON
-              #if E_STEPPERS > 5
-                || E5_ENABLE_READ == E_ENABLE_ON
-              #endif
-            #endif
-          #endif
-        #endif
-      #endif
+      #if E_STEPPERS
+        || E0_ENABLE_READ == E_ENABLE_ON
+        #if E_STEPPERS > 1
+          || E1_ENABLE_READ == E_ENABLE_ON
+          #if E_STEPPERS > 2
+            || E2_ENABLE_READ == E_ENABLE_ON
+            #if E_STEPPERS > 3
+              || E3_ENABLE_READ == E_ENABLE_ON
+              #if E_STEPPERS > 4
+                || E4_ENABLE_READ == E_ENABLE_ON
+                #if E_STEPPERS > 5
+                  || E5_ENABLE_READ == E_ENABLE_ON
+                #endif // E_STEPPERS > 5
+              #endif // E_STEPPERS > 4
+            #endif // E_STEPPERS > 3
+          #endif // E_STEPPERS > 2
+        #endif // E_STEPPERS > 1
+      #endif // E_STEPPERS
   ) return true;
 
   HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0) return true;

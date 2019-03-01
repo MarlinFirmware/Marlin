@@ -370,6 +370,16 @@
  *
  */
 
+#if EXTRUDERS == 0
+  #undef DISTINCT_E_FACTORS
+  #undef SINGLENOZZLE
+  #undef SWITCHING_EXTRUDER
+  #undef SWITCHING_NOZZLE
+  #undef MIXING_EXTRUDER
+  #undef MK2_MULTIPLEXER
+  #undef PRUSA_MMU2
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
@@ -505,6 +515,7 @@
 #define PROBE_SELECTED (HAS_BED_PROBE || ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING))
 
 #if HAS_BED_PROBE
+  #define USES_Z_MIN_PROBE_ENDSTOP DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #ifndef Z_PROBE_LOW_POINT
     #define Z_PROBE_LOW_POINT -5
   #endif
@@ -514,7 +525,6 @@
 #else
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-  #undef Z_MIN_PROBE_ENDSTOP
 #endif
 
 #define HOMING_Z_WITH_PROBE (HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))

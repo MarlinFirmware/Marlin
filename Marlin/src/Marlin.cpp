@@ -423,7 +423,9 @@ void disable_all_steppers() {
  *  - Check for HOME button held down
  *  - Check if cooling fan needs to be switched on
  *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
+ *  - Pulse FET_SAFETY_PIN if it exists
  */
+
 void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
   #if HAS_FILAMENT_SENSOR
@@ -466,11 +468,14 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
         #if ENABLED(DISABLE_INACTIVE_E)
           disable_e_steppers();
         #endif
-        #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
-          if (ubl.lcd_map_control) {
-            ubl.lcd_map_control = false;
-            ui.defer_status_screen(false);
-          }
+        #if HAS_LCD_MENU
+          ui.status_screen();
+          #if ENABLED(AUTO_BED_LEVELING_UBL)
+            if (ubl.lcd_map_control) {
+              ubl.lcd_map_control = false;
+              ui.defer_status_screen(false);
+            }
+          #endif
         #endif
       }
     }
@@ -639,6 +644,16 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     planner.check_axes_activity();
     next_check_axes_ms = ms + 100UL;
   }
+
+  #if PIN_EXISTS(FET_SAFETY)
+    static millis_t FET_next;
+    if (ELAPSED(ms, FET_next)) {
+      FET_next = ms + FET_SAFETY_DELAY;  // 2uS pulse every FET_SAFETY_DELAY mS
+      OUT_WRITE(FET_SAFETY_PIN, !FET_SAFETY_INVERTED);
+      DELAY_US(2);
+      WRITE(FET_SAFETY_PIN, FET_SAFETY_INVERTED);
+    }
+  #endif
 }
 
 /**
@@ -906,9 +921,7 @@ void setup() {
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
-    COPY(current_position, home_offset);
-  #else
-    ZERO(current_position);
+    LOOP_XYZ(a) current_position[a] += home_offset[a];
   #endif
 
   // Vital to init stepper/planner equivalent for current_position

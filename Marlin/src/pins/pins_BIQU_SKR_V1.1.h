@@ -83,7 +83,7 @@
 
 /**
  * LCD / Controller
- * 
+ *
  * As of 20 JAN 2019 only the REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER display has
  * been tested with these settings. It can be connected to the SKR using standard cables
  * via the EXP1 and EXP2 ports. Other displays may need a custom cable and/or changes to

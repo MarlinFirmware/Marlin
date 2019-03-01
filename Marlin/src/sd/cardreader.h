@@ -42,7 +42,7 @@ typedef struct {
        detected:1,
        filenameIsDir:1,
        abort_sd_printing:1
-       #if ENABLED(FAST_FILE_TRANSFER)
+       #if ENABLED(BINARY_FILE_TRANSFER)
          , binary_mode:1
        #endif
     ;
@@ -145,11 +145,11 @@ public:
   static char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   static int8_t autostart_index;
 
-  #if ENABLED(FAST_FILE_TRANSFER)
+  #if ENABLED(BINARY_FILE_TRANSFER)
     #if NUM_SERIAL > 1
-      static int8_t transfer_port;
+      static int8_t transfer_port_index;
     #else
-      static constexpr int8_t transfer_port = SERIAL_PORT;
+      static constexpr int8_t transfer_port_index = 0;
     #endif
   #endif
 

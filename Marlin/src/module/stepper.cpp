@@ -2485,99 +2485,107 @@ void Stepper::report_positions() {
 
 #endif // HAS_MOTOR_CURRENT_PWM
 
-#if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+#if !MB(PRINTRBOARD_G2)
 
-  void Stepper::digipot_current(const uint8_t driver, const int16_t current) {
+  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
 
-    #if HAS_DIGIPOTSS
+    void Stepper::digipot_current(const uint8_t driver, const int16_t current) {
 
-      const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
-      digitalPotWrite(digipot_ch[driver], current);
+      #if HAS_DIGIPOTSS
 
-    #elif HAS_MOTOR_CURRENT_PWM
+        const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
+        digitalPotWrite(digipot_ch[driver], current);
 
-      if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
-        motor_current_setting[driver] = current; // update motor_current_setting
+      #elif HAS_MOTOR_CURRENT_PWM
 
-      #define _WRITE_CURRENT_PWM(P) analogWrite(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
-      switch (driver) {
-        case 0:
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
-            _WRITE_CURRENT_PWM(X);
-          #endif
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
-            _WRITE_CURRENT_PWM(Y);
-          #endif
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-            _WRITE_CURRENT_PWM(XY);
-          #endif
-          break;
-        case 1:
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-            _WRITE_CURRENT_PWM(Z);
-          #endif
-          break;
-        case 2:
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-            _WRITE_CURRENT_PWM(E);
-          #endif
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
-            _WRITE_CURRENT_PWM(E0);
-          #endif
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
-            _WRITE_CURRENT_PWM(E1);
-          #endif
-          break;
-      }
-    #endif
-  }
+        if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
+          motor_current_setting[driver] = current; // update motor_current_setting
 
-  void Stepper::digipot_init() {
-
-    #if HAS_DIGIPOTSS
-
-      static const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
-
-      SPI.begin();
-      SET_OUTPUT(DIGIPOTSS_PIN);
-
-      for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
-        //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
-        digipot_current(i, digipot_motor_current[i]);
-      }
-
-    #elif HAS_MOTOR_CURRENT_PWM
-
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_X_PIN);
+        #define _WRITE_CURRENT_PWM(P) analogWrite(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+        switch (driver) {
+          case 0:
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
+              _WRITE_CURRENT_PWM(X);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
+              _WRITE_CURRENT_PWM(Y);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+              _WRITE_CURRENT_PWM(XY);
+            #endif
+            break;
+          case 1:
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+              _WRITE_CURRENT_PWM(Z);
+            #endif
+            break;
+          case 2:
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+              _WRITE_CURRENT_PWM(E);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
+              _WRITE_CURRENT_PWM(E0);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
+              _WRITE_CURRENT_PWM(E1);
+            #endif
+            break;
+        }
       #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_Y_PIN);
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_Z_PIN);
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_E0_PIN);
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_E1_PIN);
-      #endif
+    }
 
-      refresh_motor_power();
+    void Stepper::digipot_init() {
 
-      // Set Timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
-      #ifdef __AVR__
-        SET_CS5(PRESCALER_1);
+      #if HAS_DIGIPOTSS
+
+        static const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
+
+        SPI.begin();
+        SET_OUTPUT(DIGIPOTSS_PIN);
+
+        for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
+          //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
+          digipot_current(i, digipot_motor_current[i]);
+        }
+
+      #elif HAS_MOTOR_CURRENT_PWM
+
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_X_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_Y_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_Z_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_E0_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_E1_PIN);
+        #endif
+
+        refresh_motor_power();
+
+        // Set Timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
+        #ifdef __AVR__
+          SET_CS5(PRESCALER_1);
+        #endif
       #endif
-    #endif
-  }
+    }
+
+  #endif
+
+#else
+
+  #include "../HAL/HAL_DUE/G2_PWM.h"
 
 #endif
 
