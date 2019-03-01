@@ -1,0 +1,49 @@
+Baud rate 250000
+
+Lade die Firmware
+Menu -> Control -> Restore failsafe
+				-> Store Settings
+
+Install the probe
+
+After Homing and while the printer moves down, touch the Probe. If the printhead does not stop, turn off the printer!!
+
+Menu -> Prepare -> Delta Calibration -> Set Delta Height
+
+Restart the printer
+
+Menu -> Prepare -> Delta Calibration -> Auto Calibration
+
+Menu -> Prepare -> Delta Calibration -> Store Settings (Really! Pronterface will reset the controller)
+
+Remove the probe and connect pronterface
+
+G28
+
+Lay down a piece of paper
+
+g1 z5
+
+Lower the printhead until its touching the paper
+
+Note the Height
+
+Example: 
+Current Height = 2.9mm - 0.1mm
+Current Z-Offset = -16.50mm (M503 to report the current settings)
+-16,5 - 2.9 = -19,4
+
+M851 Z-19,4
+M500
+
+Install the Probe
+
+Menu -> Prepare -> Delta Calibration -> Set Delta Height
+
+Menu -> Prepare -> Delta Calibration -> Store Settings
+
+Done!
+
+
+Use Baby Z to adjust the first print.
+If needed edit your z-offset and set delta height again.
