@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../../inc/MarlinConfig.h"
-#include "../../pins/pins.h"
 
 #include <L6470.h>
 
@@ -72,7 +71,7 @@ public:
   static void init();
   static void init_to_defaults();
 
-  static uint16_t get_stepper_status(L64XX st);
+  static uint16_t get_stepper_status(L64XX &st);
 
   static uint16_t get_status(const L6470_axis_t axis);
 
