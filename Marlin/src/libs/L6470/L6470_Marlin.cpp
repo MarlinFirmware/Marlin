@@ -140,7 +140,7 @@ void L6470_Marlin::init() {               // Set up SPI and then init chips
  *   3. copy status layout
  *   4. make all error bits active low (if needed)
  */
-uint16_t L6470_Marlin::get_stepper_status(L64XX st) {
+uint16_t L6470_Marlin::get_stepper_status(L64XX &st) {
   shadow.STATUS_AXIS_RAW           = st.getStatus();
   shadow.STATUS_AXIS               = shadow.STATUS_AXIS_RAW;
   shadow.STATUS_AXIS_LAYOUT        = st.L6470_status_layout;
