@@ -112,7 +112,7 @@
           data.is_standstill = !!(spart & _BV(STST_bp - 24));
           data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
         #endif
-
+        UNUSED(CS_ACTUAL_sb);
       #else // !__AVR__
 
         data.is_ot = !!(data.drv_status & _BV(OT_bp));
@@ -159,6 +159,7 @@
           spart = data.drv_status >> 24;
           data.is_stealth = !!(spart & _BV(STEALTH_bp - 24));
           data.is_standstill = !!(spart & _BV(STST_bp - 24));
+          UNUSED(CS_ACTUAL_sb);
         #else
           data.cs_actual = (data.drv_status & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
           data.is_stealth = !!(data.drv_status & _BV(STEALTH_bp));
