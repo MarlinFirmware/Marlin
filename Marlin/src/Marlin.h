@@ -142,8 +142,6 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 #define  enable_Z() do{ Z_enable; Z2_enable; Z3_enable; }while(0)
 #define disable_Z() do{ Z_disable; Z2_disable; Z3_disable; CBI(axis_known_position, Z_AXIS); }while(0)
 
-// end  X, Y, Z Stepper enable / disable
-
 //
 // Extruder Stepper enable / disable
 //
@@ -220,7 +218,6 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define  E5_enable NOOP
   #define E5_disable NOOP
 #endif
-// end individual enables/disables
 
 #if ENABLED(MIXING_EXTRUDER)
 

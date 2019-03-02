@@ -114,6 +114,8 @@ void serialprint_onoff(const bool onoff);
 void serialprintln_onoff(const bool onoff);
 void serial_spaces(uint8_t count);
 
+void print_bin(const uint16_t val);
+
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void print_xyz(PGM_P const prefix, PGM_P const suffix, const float x, const float y, const float z);
   void print_xyz(PGM_P const prefix, PGM_P const suffix, const float xyz[]);

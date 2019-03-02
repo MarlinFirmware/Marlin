@@ -128,7 +128,7 @@ public:
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     static void auto_report_sd_status(void);
-    static inline void set_auto_report_interval(const uint8_t v) {
+    static inline void set_auto_report_interval(uint8_t v) {
       #if NUM_SERIAL > 1
         auto_report_port = serial_port_index;
       #endif

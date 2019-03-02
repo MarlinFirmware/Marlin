@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #include "../../inc/MarlinConfig.h"
 
@@ -61,7 +62,7 @@ public:
   static char index_to_axis[MAX_L6470][3];
   static uint8_t dir_commands[MAX_L6470];
 
-  // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
+  // Flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
   static volatile bool spi_abort;
   static bool spi_active;
 

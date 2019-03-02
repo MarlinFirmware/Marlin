@@ -52,6 +52,15 @@ void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (c
 void serialprint_onoff(const bool onoff) { serialprintPGM(onoff ? PSTR(MSG_ON) : PSTR(MSG_OFF)); }
 void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
 
+void print_bin(const uint16_t val) {
+  uint16_t mask = 0x8000;
+  for (uint8_t i = 16; i--;) {
+    if (i && !(i % 4)) SERIAL_CHAR(' ');
+    SERIAL_CHAR((val & mask) ? '1' : '0');
+    mask >>= 1;
+  }
+}
+
 #if ENABLED(DEBUG_LEVELING_FEATURE)
 
   #include "enum.h"

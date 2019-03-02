@@ -120,8 +120,6 @@ inline void serial_delay(const millis_t ms) {
   void log_machine_info();
 #endif
 
-void print_bin(const uint16_t val);
-
 template<typename T>
 class restorer {
   T& ref_;
