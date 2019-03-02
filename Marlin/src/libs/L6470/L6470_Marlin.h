@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../../inc/MarlinConfig.h"
-#include "../../pins/pins.h"
 
 #include <L6470.h>
 
