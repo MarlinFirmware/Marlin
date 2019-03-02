@@ -1073,7 +1073,7 @@ void setup() {
     init_closedloop();
   #endif
 
-  #if ENABLED(SDSUPPORT) && DISABLED(ULTRA_LCD)
+  #if ENABLED(SD_AUTO_START)
     card.beginautostart();
   #endif
 

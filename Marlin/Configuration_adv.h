@@ -706,6 +706,12 @@
 
 #if ENABLED(SDSUPPORT)
 
+  // Make SD card available to the Marlin board after Marlin boot.
+  // On platforms where SD card can be exposed as mass storage device to the host
+  // set this setting to "false", to keep SD disk attached to the host after Marlin boot.
+  // By default we make SD card available to the Marlin board when there is no LCD is configured.
+  #define SD_AUTO_START DISABLED(ULTRA_LCD)
+
   // Some RAMPS and other boards don't detect when an SD card is inserted. You can work
   // around this by connecting a push button or single throw switch to the pin defined
   // as SD_DETECT_PIN in your board's pins definitions.
