@@ -239,6 +239,7 @@ class Stepper {
         #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
       #endif
       static uint32_t motor_current_setting[3];
+      static bool initialized;
     #endif
 
   private:

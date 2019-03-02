@@ -2265,7 +2265,7 @@ void MarlinSettings::reset() {
   //
 
   #if HAS_MOTOR_CURRENT_PWM
-    uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
+    constexpr uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
     for (uint8_t q = 3; q--;)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
   #endif
