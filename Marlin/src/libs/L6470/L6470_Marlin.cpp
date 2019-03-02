@@ -170,7 +170,8 @@ uint16_t L6470_Marlin::get_status(const L6470_axis_t axis) {
 
   #define STATUS_L6470(Q) get_stepper_status(stepper##Q)
 
-  switch ((uint8_t)axis) {
+  switch (axis) {
+    default: break;
     #if AXIS_IS_L64XX(X)
       case X : return STATUS_L6470(X);
     #endif
@@ -219,7 +220,8 @@ uint32_t L6470_Marlin::get_param(const L6470_axis_t axis, const uint8_t param) {
 
   #define GET_L6470_PARAM(Q) L6470_GETPARAM(param,Q)
 
-  switch ((uint8_t)axis) {
+  switch (axis) {
+    default: break;
     #if AXIS_IS_L64XX(X)
       case X : return GET_L6470_PARAM(X);
     #endif
@@ -268,7 +270,8 @@ void L6470_Marlin::set_param(const L6470_axis_t axis, const uint8_t param, const
 
   #define SET_L6470_PARAM(Q) stepper##Q.SetParam(param, value)
 
-  switch ((uint8_t)axis) {
+  switch (axis) {
+    default: break;
     #if AXIS_IS_L64XX(X)
       case X : SET_L6470_PARAM(X);
     #endif
