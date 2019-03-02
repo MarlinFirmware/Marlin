@@ -2887,8 +2887,10 @@ void Temperature::isr() {
 
           if (!residency_start_ms) {
             // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_BED_WINDOW) residency_start_ms = now;
-            if (first_loop) residency_start_ms += (TEMP_BED_RESIDENCY_TIME) * 1000UL;
+            if (temp_diff < TEMP_BED_WINDOW) {
+              residency_start_ms = now;
+              if (first_loop) residency_start_ms += (TEMP_BED_RESIDENCY_TIME) * 1000UL;
+            }
           }
           else if (temp_diff > TEMP_BED_HYSTERESIS) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
