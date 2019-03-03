@@ -725,62 +725,57 @@ float Temperature::get_pid_output(const int8_t e) {
       float pid_error = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
       work_pid[HOTEND_INDEX].Kd = PID_K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + float(PID_K1) * work_pid[HOTEND_INDEX].Kd;
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
-      #if HEATER_IDLE_HANDLER
-        if (heater_idle_timeout_exceeded[HOTEND_INDEX]) {
-          pid_output = 0;
-          pid_reset[HOTEND_INDEX] = true;
+
+      if (target_temperature[HOTEND_INDEX] == 0
+        || pid_error < -(PID_FUNCTIONAL_RANGE)
+        #if HEATER_IDLE_HANDLER
+          || heater_idle_timeout_exceeded[HOTEND_INDEX]
+        #endif
+      ) {
+        pid_output = 0;
+        pid_reset[HOTEND_INDEX] = true;
+      }
+      else if (pid_error > PID_FUNCTIONAL_RANGE) {
+        pid_output = BANG_MAX;
+        pid_reset[HOTEND_INDEX] = true;
+      }
+      else {
+        if (pid_reset[HOTEND_INDEX]) {
+          temp_iState[HOTEND_INDEX] = 0.0;
+          pid_reset[HOTEND_INDEX] = false;
         }
-        else
-      #endif
-          if (pid_error > PID_FUNCTIONAL_RANGE) {
-            pid_output = BANG_MAX;
-            pid_reset[HOTEND_INDEX] = true;
-          }
-          else if (pid_error < -(PID_FUNCTIONAL_RANGE) || target_temperature[HOTEND_INDEX] == 0
-            #if HEATER_IDLE_HANDLER
-              || heater_idle_timeout_exceeded[HOTEND_INDEX]
-            #endif
-          ) {
-            pid_output = 0;
-            pid_reset[HOTEND_INDEX] = true;
-          }
-          else {
-            if (pid_reset[HOTEND_INDEX]) {
-              temp_iState[HOTEND_INDEX] = 0.0;
-              pid_reset[HOTEND_INDEX] = false;
+        temp_iState[HOTEND_INDEX] += pid_error;
+        work_pid[HOTEND_INDEX].Kp = PID_PARAM(Kp, HOTEND_INDEX) * pid_error;
+        work_pid[HOTEND_INDEX].Ki = PID_PARAM(Ki, HOTEND_INDEX) * temp_iState[HOTEND_INDEX];
+
+        pid_output = work_pid[HOTEND_INDEX].Kp + work_pid[HOTEND_INDEX].Ki - work_pid[HOTEND_INDEX].Kd;
+
+        #if ENABLED(PID_EXTRUSION_SCALING)
+          work_pid[HOTEND_INDEX].Kc = 0;
+          if (_HOTEND_TEST) {
+            const long e_position = stepper.position(E_AXIS);
+            if (e_position > last_e_position) {
+              lpq[lpq_ptr] = e_position - last_e_position;
+              last_e_position = e_position;
             }
-            temp_iState[HOTEND_INDEX] += pid_error;
-            work_pid[HOTEND_INDEX].Kp = PID_PARAM(Kp, HOTEND_INDEX) * pid_error;
-            work_pid[HOTEND_INDEX].Ki = PID_PARAM(Ki, HOTEND_INDEX) * temp_iState[HOTEND_INDEX];
+            else
+              lpq[lpq_ptr] = 0;
 
-            pid_output = work_pid[HOTEND_INDEX].Kp + work_pid[HOTEND_INDEX].Ki - work_pid[HOTEND_INDEX].Kd;
-
-            #if ENABLED(PID_EXTRUSION_SCALING)
-              work_pid[HOTEND_INDEX].Kc = 0;
-              if (_HOTEND_TEST) {
-                const long e_position = stepper.position(E_AXIS);
-                if (e_position > last_e_position) {
-                  lpq[lpq_ptr] = e_position - last_e_position;
-                  last_e_position = e_position;
-                }
-                else
-                  lpq[lpq_ptr] = 0;
-
-                if (++lpq_ptr >= lpq_len) lpq_ptr = 0;
-                work_pid[HOTEND_INDEX].Kc = (lpq[lpq_ptr] * planner.steps_to_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
-                pid_output += work_pid[HOTEND_INDEX].Kc;
-              }
-            #endif // PID_EXTRUSION_SCALING
-
-            if (pid_output > PID_MAX) {
-              if (pid_error > 0) temp_iState[HOTEND_INDEX] -= pid_error; // conditional un-integration
-              pid_output = PID_MAX;
-            }
-            else if (pid_output < 0) {
-              if (pid_error < 0) temp_iState[HOTEND_INDEX] -= pid_error; // conditional un-integration
-              pid_output = 0;
-            }
+            if (++lpq_ptr >= lpq_len) lpq_ptr = 0;
+            work_pid[HOTEND_INDEX].Kc = (lpq[lpq_ptr] * planner.steps_to_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
+            pid_output += work_pid[HOTEND_INDEX].Kc;
           }
+        #endif // PID_EXTRUSION_SCALING
+
+        if (pid_output > PID_MAX) {
+          if (pid_error > 0) temp_iState[HOTEND_INDEX] -= pid_error; // conditional un-integration
+          pid_output = PID_MAX;
+        }
+        else if (pid_output < 0) {
+          if (pid_error < 0) temp_iState[HOTEND_INDEX] -= pid_error; // conditional un-integration
+          pid_output = 0;
+        }
+      }
 
     #else // PID_OPENLOOP
 
@@ -806,11 +801,12 @@ float Temperature::get_pid_output(const int8_t e) {
 
   #else /* PID off */
     #if HEATER_IDLE_HANDLER
-      if (heater_idle_timeout_exceeded[HOTEND_INDEX])
-        pid_output = 0;
-      else
+      #define _TIMED_OUT_TEST heater_idle_timeout_exceeded[HOTEND_INDEX]
+    #else
+      #define _TIMED_OUT_TEST false
     #endif
-    pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? BANG_MAX : 0;
+    pid_output = (!_TIMED_OUT_TEST && current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? BANG_MAX : 0;
+    #undef _TIMED_OUT_TEST
   #endif
 
   return pid_output;
