@@ -27,10 +27,6 @@
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#if NUM_SERIAL > 1
-  #include "../../gcode/queue.h"
-#endif
-
 void M217_report(const bool eeprom=false) {
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)

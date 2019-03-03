@@ -23,10 +23,6 @@
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
 
-#if NUM_SERIAL > 1
-  #include "../../gcode/queue.h"
-#endif
-
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_ECHOPGM("Cap:");

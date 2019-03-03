@@ -29,10 +29,6 @@
   #include "../../lcd/extensible_ui/ui_api.h"
 #endif
 
-#if NUM_SERIAL > 1
-  #include "../../gcode/queue.h"
-#endif
-
 /**
  * M500: Store settings in EEPROM
  */
