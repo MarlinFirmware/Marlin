@@ -949,6 +949,19 @@ void Temperature::manage_heater() {
     }
   #endif
 
+  #if MB(ULTIMAIN_2) && EXTRUDERS > 0
+    // For the UM2 the head fan is connected to PJ6, which does not have an Arduino PIN definition. So use direct register access.
+    SBI(DDRJ, 6);
+    if (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE
+      #if EXTRUDERS > 1
+        || current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE
+        #if EXTRUDERS > 2
+          || current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE
+        #endif
+      #endif
+    ) SBI(PORTJ, 6); else CBI(PORTJ, 6);
+  #endif
+
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     /**
      * Filament Width Sensor dynamically sets the volumetric multiplier
