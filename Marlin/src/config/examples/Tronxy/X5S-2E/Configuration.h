@@ -132,18 +132,6 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-//  // Tronxy X5S-2E:
-//  // On the TRONXY-V3-1.0 mainboard the SERVO0, SERVO1 pins are D11, D12 (the latter can be PS_ON_PIN on a standard RAMPS board).
-//  #define SERVO1_PIN 12
-//
-//  #define MOTHERBOARD BOARD_RAMPS_14_EFB
-//  // Tronxy X5S-2E:
-//  // The OEM stock model uses a TRONXY-V3-1.0 mainboard which is essentially a RAMPS v1.4 EFB with soldered on HEROIC HR4982MTE stepper drivers.
-//  // See pinouts at bottom of this file.
-//  // In Arduino IDE, use:
-//  // 1. Tools > Board > Arduino/Genuino Mega or Mega 2560
-//  // 2. Tools > Processor > ATmega2560 (Mega 2560)
-//  // 3. Tools > Programmer > Atmel STK500 development board ... or an In-Circuit Serial Programmer of your choice.
   #define MOTHERBOARD BOARD_TRONXY_V3_1_0
 #endif
 
