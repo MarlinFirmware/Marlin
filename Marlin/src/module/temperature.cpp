@@ -632,15 +632,16 @@ int Temperature::getHeaterPower(const int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    static const pin_t fanPin[] PROGMEM = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN, E5_AUTO_FAN_PIN, CHAMBER_AUTO_FAN_PIN };
     static const uint8_t fanBit[] PROGMEM = {
                     0,
       AUTO_1_IS_0 ? 0 :               1,
       AUTO_2_IS_0 ? 0 : AUTO_2_IS_1 ? 1 :               2,
       AUTO_3_IS_0 ? 0 : AUTO_3_IS_1 ? 1 : AUTO_3_IS_2 ? 2 :               3,
-      AUTO_4_IS_0 ? 0 : AUTO_4_IS_1 ? 1 : AUTO_4_IS_2 ? 2 : AUTO_4_IS_3 ? 3 :                   4,
-      AUTO_5_IS_0 ? 0 : AUTO_5_IS_1 ? 1 : AUTO_5_IS_2 ? 2 : AUTO_5_IS_3 ? 3 : AUTO_5_IS_4 ? 4 : 5,
-      AUTO_CHAMBER_IS_0 ? 0 : AUTO_CHAMBER_IS_1 ? 1 : AUTO_CHAMBER_IS_2 ? 2 : AUTO_CHAMBER_IS_3 ? 3 : AUTO_CHAMBER_IS_4 ? 4 : 5
+      AUTO_4_IS_0 ? 0 : AUTO_4_IS_1 ? 1 : AUTO_4_IS_2 ? 2 : AUTO_4_IS_3 ? 3 :               4,
+      AUTO_5_IS_0 ? 0 : AUTO_5_IS_1 ? 1 : AUTO_5_IS_2 ? 2 : AUTO_5_IS_3 ? 3 : AUTO_5_IS_4 ? 4 : 5
+      #if HAS_TEMP_CHAMBER
+        , AUTO_CHAMBER_IS_0 ? 0 : AUTO_CHAMBER_IS_1 ? 1 : AUTO_CHAMBER_IS_2 ? 2 : AUTO_CHAMBER_IS_3 ? 3 : AUTO_CHAMBER_IS_4 ? 4 : AUTO_CHAMBER_IS_5 ? 5 : 6
+      #endif
     };
     uint8_t fanState = 0;
 
@@ -650,29 +651,50 @@ int Temperature::getHeaterPower(const int heater) {
 
     #if HAS_TEMP_CHAMBER
       if (current_temperature_chamber > EXTRUDER_AUTO_FAN_TEMPERATURE)
-        SBI(fanState, pgm_read_byte(&fanBit[5]));
+        SBI(fanState, pgm_read_byte(&fanBit[6]));
     #endif
 
+    #define _UPDATE_AUTO_FAN(P,D,A) do{           \
+      if (USEABLE_HARDWARE_PWM(P##_AUTO_FAN_PIN)) \
+        analogWrite(P##_AUTO_FAN_PIN, A);         \
+      else                                        \
+        WRITE(P##_AUTO_FAN_PIN, D);               \
+    }while(0)
+
     uint8_t fanDone = 0;
-    for (uint8_t f = 0; f < COUNT(fanPin); f++) {
-      const pin_t pin =
-        #ifdef ARDUINO
-          pgm_read_byte(&fanPin[f])
-        #else
-          fanPin[f]
-        #endif
-      ;
+    for (uint8_t f = 0; f < COUNT(fanBit); f++) {
       const uint8_t bit = pgm_read_byte(&fanBit[f]);
-      if (pin >= 0 && !TEST(fanDone, bit)) {
-        uint8_t newFanSpeed = TEST(fanState, bit) ? EXTRUDER_AUTO_FAN_SPEED : 0;
-        #if ENABLED(AUTO_POWER_E_FANS)
-          autofan_speed[f] = newFanSpeed;
+      if (TEST(fanDone, bit)) continue;
+      const bool fan_on = TEST(fanState, bit);
+      const uint8_t speed = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
+      #if ENABLED(AUTO_POWER_E_FANS)
+        autofan_speed[f] = speed;
+      #endif
+      switch (f) {
+        #if HAS_AUTO_FAN_0
+          case 0: _UPDATE_AUTO_FAN(E0, fan_on, speed); break;
         #endif
-        // this idiom allows both digital and PWM fan outputs (see M42 handling).
-        digitalWrite(pin, newFanSpeed);
-        analogWrite(pin, newFanSpeed);
-        SBI(fanDone, bit);
+        #if HAS_AUTO_FAN_1
+          case 1: _UPDATE_AUTO_FAN(E1, fan_on, speed); break;
+        #endif
+        #if HAS_AUTO_FAN_2
+          case 2: _UPDATE_AUTO_FAN(E2, fan_on, speed); break;
+        #endif
+        #if HAS_AUTO_FAN_3
+          case 3: _UPDATE_AUTO_FAN(E3, fan_on, speed); break;
+        #endif
+        #if HAS_AUTO_FAN_4
+          case 4: _UPDATE_AUTO_FAN(E4, fan_on, speed); break;
+        #endif
+        #if HAS_AUTO_FAN_5
+          case 5: _UPDATE_AUTO_FAN(E5, fan_on, speed); break;
+        #endif
+        #if HAS_AUTO_CHAMBER_FAN
+          case 6: _UPDATE_AUTO_FAN(CHAMBER, fan_on, speed); break;
+        #endif
       }
+      SBI(fanDone, bit);
+      UNUSED(fan_on); UNUSED(speed);
     }
   }
 
