@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cp Marlin/src/config/default/Configuration*.h Marlin
+cp config/default/Configuration*.h Marlin
 
 [ -f Marlin/src/pins/pins_RAMPS.h.backup ] && cp Marlin/src/pins/pins_RAMPS.h.backup Marlin/src/pins/pins_RAMPS.h
 rm -f Marlin/src/pins/pins_RAMPS.h.backup
