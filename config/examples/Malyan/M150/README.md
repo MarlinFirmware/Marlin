@@ -39,7 +39,7 @@ Config without automatic bed level sensor, or in other words, "as stock"
 
 1. Configure Marlin
     * Copy `_Bootscreen.h`, `Configuration.h`, and `Configuration_adv.h`
-    from `Marlin/config/examples/Malyan/M150` to `Marlin`
+    from `config/examples/Malyan/M150` to `Marlin`
     (overwrite files)
     * Read `Configuration.h` and make any necessary changes
 
