@@ -952,7 +952,6 @@
     #endif
   #endif
 
-
   //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
@@ -1655,99 +1654,99 @@
   #endif
 
   #if AXIS_DRIVER_TYPE_X2(L6470)
-    #define X2_MICROSTEPS    128
-    #define X2_OVERCURRENT  2000
-    #define X2_STALLCURRENT 1500
-    #define X2_MAX_VOLTAGE   127
-    #define X2_CHAIN_POS       0
+    #define X2_MICROSTEPS      128
+    #define X2_OVERCURRENT    2000
+    #define X2_STALLCURRENT   1500
+    #define X2_MAX_VOLTAGE     127
+    #define X2_CHAIN_POS         0
   #endif
 
   #if AXIS_DRIVER_TYPE_Y(L6470)
-    #define Y_MICROSTEPS     128
-    #define Y_OVERCURRENT   2000
-    #define Y_STALLCURRENT  1500
-    #define Y_MAX_VOLTAGE    127
-    #define Y_CHAIN_POS        0
+    #define Y_MICROSTEPS       128
+    #define Y_OVERCURRENT     2000
+    #define Y_STALLCURRENT    1500
+    #define Y_MAX_VOLTAGE      127
+    #define Y_CHAIN_POS          0
   #endif
 
   #if AXIS_DRIVER_TYPE_Y2(L6470)
-    #define Y2_MICROSTEPS    128
-    #define Y2_OVERCURRENT  2000
-    #define Y2_STALLCURRENT 1500
-    #define Y2_MAX_VOLTAGE   127
-    #define Y2_CHAIN_POS       0
+    #define Y2_MICROSTEPS      128
+    #define Y2_OVERCURRENT    2000
+    #define Y2_STALLCURRENT   1500
+    #define Y2_MAX_VOLTAGE     127
+    #define Y2_CHAIN_POS         0
   #endif
 
   #if AXIS_DRIVER_TYPE_Z(L6470)
-    #define Z_MICROSTEPS     128
-    #define Z_OVERCURRENT   2000
-    #define Z_STALLCURRENT  1500
-    #define Z_MAX_VOLTAGE    127
-    #define Z_CHAIN_POS        0
+    #define Z_MICROSTEPS       128
+    #define Z_OVERCURRENT     2000
+    #define Z_STALLCURRENT    1500
+    #define Z_MAX_VOLTAGE      127
+    #define Z_CHAIN_POS          0
   #endif
 
   #if AXIS_DRIVER_TYPE_Z2(L6470)
-    #define Z2_MICROSTEPS    128
-    #define Z2_OVERCURRENT  2000
-    #define Z2_STALLCURRENT 1500
-    #define Z2_MAX_VOLTAGE   127
-    #define Z2_CHAIN_POS       0
+    #define Z2_MICROSTEPS      128
+    #define Z2_OVERCURRENT    2000
+    #define Z2_STALLCURRENT   1500
+    #define Z2_MAX_VOLTAGE     127
+    #define Z2_CHAIN_POS         0
   #endif
 
   #if AXIS_DRIVER_TYPE_Z3(L6470)
-    #define Z3_MICROSTEPS    128
-    #define Z3_OVERCURRENT  2000
-    #define Z3_STALLCURRENT 1500
-    #define Z3_MAX_VOLTAGE   127
-    #define Z3_CHAIN_POS       0
+    #define Z3_MICROSTEPS      128
+    #define Z3_OVERCURRENT    2000
+    #define Z3_STALLCURRENT   1500
+    #define Z3_MAX_VOLTAGE     127
+    #define Z3_CHAIN_POS         0
   #endif
 
   #if AXIS_DRIVER_TYPE_E0(L6470)
-    #define E0_MICROSTEPS    128
-    #define E0_OVERCURRENT  2000
-    #define E0_STALLCURRENT 1500
-    #define E0_MAX_VOLTAGE   127
-    #define E0_CHAIN_POS       0
+    #define E0_MICROSTEPS      128
+    #define E0_OVERCURRENT    2000
+    #define E0_STALLCURRENT   1500
+    #define E0_MAX_VOLTAGE     127
+    #define E0_CHAIN_POS         0
   #endif
 
   #if AXIS_DRIVER_TYPE_E1(L6470)
-    #define E1_MICROSTEPS    128
-    #define E1_OVERCURRENT  2000
-    #define E1_STALLCURRENT 1500
-    #define E1_MAX_VOLTAGE   127
-    #define E1_CHAIN_POS       0
+    #define E1_MICROSTEPS      128
+    #define E1_OVERCURRENT    2000
+    #define E1_STALLCURRENT   1500
+    #define E1_MAX_VOLTAGE     127
+    #define E1_CHAIN_POS         0
   #endif
 
   #if AXIS_DRIVER_TYPE_E2(L6470)
-    #define E2_MICROSTEPS    128
-    #define E2_OVERCURRENT  2000
-    #define E2_STALLCURRENT 1500
-    #define E2_MAX_VOLTAGE   127
-    #define E2_CHAIN_POS       0
+    #define E2_MICROSTEPS      128
+    #define E2_OVERCURRENT    2000
+    #define E2_STALLCURRENT   1500
+    #define E2_MAX_VOLTAGE     127
+    #define E2_CHAIN_POS         0
   #endif
 
   #if AXIS_DRIVER_TYPE_E3(L6470)
-    #define E3_MICROSTEPS    128
-    #define E3_OVERCURRENT  2000
-    #define E3_STALLCURRENT 1500
-    #define E3_MAX_VOLTAGE   127
-    #define E3_CHAIN_POS       0
+    #define E3_MICROSTEPS      128
+    #define E3_OVERCURRENT    2000
+    #define E3_STALLCURRENT   1500
+    #define E3_MAX_VOLTAGE     127
+    #define E3_CHAIN_POS         0
   #endif
 
   #if AXIS_DRIVER_TYPE_E4(L6470)
-    #define E4_MICROSTEPS    128
-    #define E4_OVERCURRENT  2000
-    #define E4_STALLCURRENT 1500
-    #define E4_MAX_VOLTAGE   127
-    #define E4_CHAIN_POS       0
+    #define E4_MICROSTEPS      128
+    #define E4_OVERCURRENT    2000
+    #define E4_STALLCURRENT   1500
+    #define E4_MAX_VOLTAGE     127
+    #define E4_CHAIN_POS         0
   #endif
 
   #if AXIS_DRIVER_TYPE_E5(L6470)
-    #define E5_MICROSTEPS    128
-    #define E5_OVERCURRENT  2000
-    #define E5_STALLCURRENT 1500
-    #define E5_MAX_VOLTAGE   127
-    #define E5_CHAIN_POS       0
+    #define E5_MICROSTEPS      128
+    #define E5_OVERCURRENT    2000
+    #define E5_STALLCURRENT   1500
+    #define E5_MAX_VOLTAGE     127
+    #define E5_CHAIN_POS         0
   #endif
 
   /**
