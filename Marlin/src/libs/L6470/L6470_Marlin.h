@@ -46,7 +46,7 @@ public:
   static volatile bool spi_abort;
   static bool spi_active;
 
-  L6470_Marlin() { L64XX::set_helper(*this); }
+  L6470_Marlin() { L64XX::set_helper(this); }
 
   static void init();
   static void init_to_defaults();
