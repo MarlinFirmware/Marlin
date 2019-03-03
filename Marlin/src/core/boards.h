@@ -89,6 +89,7 @@
 #define BOARD_FYSETC_F6_13      541   // Fysetc F6
 #define BOARD_DUPLICATOR_I3_PLUS 31   // Wanhao Duplicator i3 Plus
 #define BOARD_VORON             441   // VORON Design
+#define BOARD_TRONXY_V3_1_0     442   // Tronxy TRONXY-V3-1.0
 
 //
 // Other ATmega1280, ATmega2560
