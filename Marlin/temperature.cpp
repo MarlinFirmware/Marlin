@@ -613,23 +613,18 @@ float Temperature::get_pid_output(const int8_t e) {
       pid_error[HOTEND_INDEX] = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
       dTerm[HOTEND_INDEX] = PID_K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + float(PID_K1) * dTerm[HOTEND_INDEX];
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
-      #if HEATER_IDLE_HANDLER
-        if (heater_idle_timeout_exceeded[HOTEND_INDEX]) {
-          pid_output = 0;
-          pid_reset[HOTEND_INDEX] = true;
-        }
-        else
-      #endif
-      if (pid_error[HOTEND_INDEX] > PID_FUNCTIONAL_RANGE) {
-        pid_output = BANG_MAX;
-        pid_reset[HOTEND_INDEX] = true;
-      }
-      else if (pid_error[HOTEND_INDEX] < -(PID_FUNCTIONAL_RANGE) || target_temperature[HOTEND_INDEX] == 0
+
+      if (target_temperature[HOTEND_INDEX] == 0
+        || pid_error[HOTEND_INDEX] < -(PID_FUNCTIONAL_RANGE)
         #if HEATER_IDLE_HANDLER
           || heater_idle_timeout_exceeded[HOTEND_INDEX]
         #endif
-        ) {
+      ) {
         pid_output = 0;
+        pid_reset[HOTEND_INDEX] = true;
+      }
+      else if (pid_error[HOTEND_INDEX] > PID_FUNCTIONAL_RANGE) {
+        pid_output = BANG_MAX;
         pid_reset[HOTEND_INDEX] = true;
       }
       else {
