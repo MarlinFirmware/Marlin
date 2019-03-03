@@ -166,6 +166,8 @@
   #include "pins_DUPLICATOR_I3_PLUS.h" // ATmega2560                                 env:megaatmega2560
 #elif MB(VORON)
   #include "pins_VORON.h"             // ATmega2560                                 env:megaatmega2560
+#elif MB(TRONXY_V3_1_0)
+  #include "pins_TRONXY_V3_1_0.h"     // ATmega2560                                 env:megaatmega2560
 
 //
 // Other ATmega1280, ATmega2560
