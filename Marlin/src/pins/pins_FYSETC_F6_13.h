@@ -200,3 +200,5 @@
     #define DOGLCD_CS      25
   #endif
 #endif
+
+#undef SD_DETECT_INVERTED
