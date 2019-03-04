@@ -53,6 +53,10 @@
 
 #define OUT_WRITE(IO,V)       do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 
+// digitalRead/Write wrappers
+#define extDigitalRead(IO)    digitalRead(IO)
+#define extDigitalWrite(IO,V) digitalWrite(IO,V)
+
 //
 // Ports and functions
 //

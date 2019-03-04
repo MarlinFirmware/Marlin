@@ -453,7 +453,7 @@ void _O2 Endstops::M119() {
         }
         SERIAL_ECHOPGM(MSG_FILAMENT_RUNOUT_SENSOR);
         if (i > 1) { SERIAL_CHAR(' '); SERIAL_CHAR('0' + i); }
-        print_es_state(digitalRead(pin) != FIL_RUNOUT_INVERTING);
+        print_es_state(extDigitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
     #endif
   #endif

@@ -156,13 +156,13 @@ uint32_t Sd2Card::cardSize() {
 }
 
 void Sd2Card::chipDeselect() {
-  digitalWrite(chipSelectPin_, HIGH);
+  extDigitalWrite(chipSelectPin_, HIGH);
   spiSend(0xFF); // Ensure MISO goes high impedance
 }
 
 void Sd2Card::chipSelect() {
   spiInit(spiRate_);
-  digitalWrite(chipSelectPin_, LOW);
+  extDigitalWrite(chipSelectPin_, LOW);
 }
 
 /**
@@ -241,8 +241,8 @@ bool Sd2Card::init(const uint8_t sckRateID/*=0*/, const pin_t chipSelectPin/*=SD
   #endif
 
   // Set pin modes
-  digitalWrite(chipSelectPin_, HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
-  pinMode(chipSelectPin_, OUTPUT);     // Solution for #8746 by @benlye
+  extDigitalWrite(chipSelectPin_, HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
+  pinMode(chipSelectPin_, OUTPUT);        // Solution for #8746 by @benlye
   spiBegin();
 
   // Set SCK rate for initialization commands
