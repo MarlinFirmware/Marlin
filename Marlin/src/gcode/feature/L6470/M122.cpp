@@ -108,7 +108,8 @@ inline void L6470_say_status(const L6470_axis_t axis) {
   }
   SERIAL_ECHOPGM("   OVERCURRENT:"); echo_yes_no(!(sh.STATUS_AXIS & sh.STATUS_AXIS_OCD));
   SERIAL_ECHOPGM("   STALL:"); echo_yes_no(!(sh.STATUS_AXIS & sh.STATUS_AXIS_STEP_LOSS_A) || !(sh.STATUS_AXIS & sh.STATUS_AXIS_STEP_LOSS_B));
-  SERIAL_ECHOLNPGM("   STEP-CLOCK MODE:"); echo_yes_no(sh.STATUS_AXIS & sh.STATUS_AXIS_SCK_MOD);
+  SERIAL_ECHOPGM("   STEP-CLOCK MODE:"); echo_yes_no(sh.STATUS_AXIS & sh.STATUS_AXIS_SCK_MOD);
+  SERIAL_EOL();
 }
 
 /**
