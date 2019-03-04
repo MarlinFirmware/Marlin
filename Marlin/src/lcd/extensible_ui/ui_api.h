@@ -234,6 +234,8 @@ namespace ExtUI {
    * Should be declared by EXTENSIBLE_UI and will be called by Marlin
    */
   void onStartup();
+  void OnShowBootscreen();
+  void OnExitBootscreen();
   void onIdle();
   void onMediaInserted();
   void onMediaError();

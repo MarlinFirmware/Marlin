@@ -353,7 +353,7 @@
 #endif
 
 // Boot screens
-#if !HAS_SPI_LCD
+#if !HAS_SPI_LCD && !ENABLED(EXTENSIBLE_UI)
   #undef SHOW_BOOTSCREEN
 #elif !defined(BOOTSCREEN_TIMEOUT)
   #define BOOTSCREEN_TIMEOUT 2500

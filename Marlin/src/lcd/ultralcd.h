@@ -285,6 +285,10 @@ public:
       static constexpr uint8_t get_progress() { return 0; }
     #endif
 
+    #if ENABLED(SHOW_BOOTSCREEN) && (HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI))
+      static void show_bootscreen();
+    #endif
+
     #if HAS_SPI_LCD
 
       static bool detected();
@@ -293,10 +297,6 @@ public:
       static inline bool should_draw() { return bool(lcdDrawUpdate); }
       static inline void refresh(const LCDViewAction type) { lcdDrawUpdate = type; }
       static inline void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
-
-      #if ENABLED(SHOW_BOOTSCREEN)
-        static void show_bootscreen();
-      #endif
 
       #if HAS_GRAPHICAL_LCD
 

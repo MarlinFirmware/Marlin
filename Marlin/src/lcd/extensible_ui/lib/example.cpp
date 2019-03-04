@@ -45,6 +45,8 @@ namespace ExtUI {
      *   READ(pin)
      */
   }
+  void OnShowBootscreen() {};
+  void OnExitBootscreen() {};
   void onIdle() {}
   void onPrinterKilled(const char* msg) {}
   void onMediaInserted() {};

@@ -781,6 +781,15 @@ void MarlinUI::update() {
       }
     }
   #endif // SDSUPPORT
+
+  #if ENABLED(SHOW_BOOTSCREEN)
+    static bool booted = false;
+    if (!booted && millis() >= BOOTSCREEN_TIMEOUT) {
+      booted = true;
+      ExtUI::OnExitBootscreen();
+    }
+  #endif
+
   ExtUI::_processManualMoveToDestination();
   ExtUI::onIdle();
 }
@@ -791,5 +800,11 @@ void MarlinUI::kill_screen(PGM_P const msg) {
     ExtUI::onPrinterKilled(msg);
   }
 }
+
+  #if ENABLED(SHOW_BOOTSCREEN)
+    void MarlinUI::show_bootscreen() {
+      ExtUI::OnShowBootscreen();
+    }
+  #endif
 
 #endif // EXTENSIBLE_UI
