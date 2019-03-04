@@ -69,10 +69,8 @@
   #define IFSD(A,B) (B)
 #endif
 
-#if ENABLED(PRINTCOUNTER)
-  #include "../../core/utility.h"
-  #include "../../module/printcounter.h"
-#endif
+#include "../../core/utility.h"
+#include "../../module/printcounter.h"
 
 #if HAS_TRINAMIC && HAS_LCD_MENU
   #include "../../feature/tmc_util.h"
