@@ -2660,6 +2660,7 @@ void Temperature::isr() {
     void Temperature::auto_report_temperatures() {
       if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
         next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
+        PORT_REDIRECT(SERIAL_BOTH);
         print_heater_states(active_extruder);
         SERIAL_EOL();
       }
