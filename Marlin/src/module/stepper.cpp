@@ -1979,11 +1979,6 @@ bool Stepper::is_block_busy(const block_t* const block) {
 
 void Stepper::init() {
 
-  // Init Digipot Motor Current
-  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
-    digipot_init();
-  #endif
-
   #if MB(ALLIGATOR)
     const float motor_current[] = MOTOR_CURRENT;
     unsigned int digipot_motor = 0;
@@ -2165,8 +2160,12 @@ void Stepper::init() {
     | (INVERT_Z_DIR ? _BV(Z_AXIS) : 0);
 
   set_directions();
-  #if HAS_MOTOR_CURRENT_PWM
-    initialized = true;
+
+  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+    #if HAS_MOTOR_CURRENT_PWM
+      initialized = true;
+    #endif
+    digipot_init();
   #endif
 }
 
