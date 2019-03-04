@@ -141,7 +141,7 @@ void L6470_report_current(L64XX &motor, const L6470_axis_t axis) {
       }
     }
     else {
-      switch (motor.GetParam(L6470_GATECFG1)) {
+      switch (motor.GetParam(L6470_GATECFG1) & CONFIG1_SR ) {
         case CONFIG1_SR_220V_us: {SERIAL_ECHOLNPGM("220V/uS") ; break; }
         case CONFIG1_SR_400V_us: {SERIAL_ECHOLNPGM("400V/uS") ; break; }
         case CONFIG1_SR_520V_us: {SERIAL_ECHOLNPGM("520V/uS") ; break; }
