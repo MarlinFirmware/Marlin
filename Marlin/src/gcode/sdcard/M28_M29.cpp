@@ -27,6 +27,10 @@
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
 
+#if NUM_SERIAL > 1
+  #include "../queue.h"
+#endif
+
 /**
  * M28: Start SD Write
  */
