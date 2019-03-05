@@ -69,8 +69,7 @@ void print_bin(const uint16_t val) {
     serialprintPGM(prefix);
     SERIAL_CHAR('(');
     SERIAL_ECHO(x);
-    SERIAL_ECHOPAIR(", ", y);
-    SERIAL_ECHOPAIR(", ", z);
+    SERIAL_ECHOPAIR(", ", y, ", ", z);
     SERIAL_CHAR(')');
     if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
   }

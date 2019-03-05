@@ -105,15 +105,12 @@ void dac_print_values() {
 
   SERIAL_ECHO_MSG("Stepper current values in % (Amps):");
   SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR(" X:",  dac_perc(X_AXIS));
-  SERIAL_ECHOPAIR(" (",   dac_amps(X_AXIS));
-  SERIAL_ECHOPAIR(") Y:", dac_perc(Y_AXIS));
-  SERIAL_ECHOPAIR(" (",   dac_amps(Y_AXIS));
-  SERIAL_ECHOPAIR(") Z:", dac_perc(Z_AXIS));
-  SERIAL_ECHOPAIR(" (",   dac_amps(Z_AXIS));
-  SERIAL_ECHOPAIR(") E:", dac_perc(E_AXIS));
-  SERIAL_ECHOPAIR(" (",   dac_amps(E_AXIS));
-  SERIAL_ECHOLNPGM(")");
+  SERIAL_ECHOLNPAIR(
+    " X:", dac_perc(X_AXIS), " (", dac_amps(X_AXIS), ")"
+    " Y:", dac_perc(Y_AXIS), " (", dac_amps(Y_AXIS), ")"
+    " Z:", dac_perc(Z_AXIS), " (", dac_amps(Z_AXIS), ")"
+    " E:", dac_perc(E_AXIS), " (", dac_amps(E_AXIS), ")"
+  );
 }
 
 void dac_commit_eeprom() {

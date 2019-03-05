@@ -346,12 +346,7 @@ inline bool look_for_lines_to_connect() {
             if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey)) {
 
               if (g26_debug_flag) {
-                SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=", sx);
-                SERIAL_ECHOPAIR(", sy=", sy);
-                SERIAL_ECHOPAIR(") -> (ex=", ex);
-                SERIAL_ECHOPAIR(", ey=", ey);
-                SERIAL_CHAR(')');
-                SERIAL_EOL();
+                SERIAL_ECHOLNPAIR(" Connecting with horizontal line (sx=", sx, ", sy=", sy, ") -> (ex=", ex, ", ey=", ey, ")");
                 //debug_current_and_destination(PSTR("Connecting horizontal line."));
               }
               print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);

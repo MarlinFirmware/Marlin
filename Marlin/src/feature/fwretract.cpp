@@ -112,15 +112,15 @@ void FWRetract::retract(const bool retracting
   #endif
 
   /* // debugging
-    SERIAL_ECHOLNPAIR("retracting ", retracting);
-    SERIAL_ECHOLNPAIR("swapping ", swapping);
-    SERIAL_ECHOLNPAIR("active extruder ", active_extruder);
+    SERIAL_ECHOLNPAIR(
+      "retracting ", retracting,
+      "swapping ", swapping
+      "active extruder ", active_extruder
+    );
     for (uint8_t i = 0; i < EXTRUDERS; ++i) {
-      SERIAL_ECHOPAIR("retracted[", i);
-      SERIAL_ECHOLNPAIR("] ", retracted[i]);
+      SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
       #if EXTRUDERS > 1
-        SERIAL_ECHOPAIR("retracted_swap[", i);
-        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
       #endif
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
@@ -209,11 +209,9 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("swapping ", swapping);
     SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
     for (uint8_t i = 0; i < EXTRUDERS; ++i) {
-      SERIAL_ECHOPAIR("retracted[", i);
-      SERIAL_ECHOLNPAIR("] ", retracted[i]);
+      SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
       #if EXTRUDERS > 1
-        SERIAL_ECHOPAIR("retracted_swap[", i);
-        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
       #endif
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);

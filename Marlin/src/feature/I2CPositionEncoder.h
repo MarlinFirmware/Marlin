@@ -238,8 +238,7 @@ class I2CPositionEncodersMgr {
 
     static void report_status(const int8_t idx) {
       CHECK_IDX();
-      SERIAL_ECHOPAIR("Encoder ", idx);
-      SERIAL_ECHOPGM(": ");
+      SERIAL_ECHOLNPAIR("Encoder ", idx, ": ");
       encoders[idx].get_raw_count();
       encoders[idx].passes_test(true);
     }
@@ -264,22 +263,19 @@ class I2CPositionEncodersMgr {
 
     static void report_error_count(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
-      SERIAL_ECHOPAIR("Error count on ", axis_codes[axis]);
-      SERIAL_ECHOLNPAIR(" axis is ", encoders[idx].get_error_count());
+      SERIAL_ECHOLNPAIR("Error count on ", axis_codes[axis], " axis is ", encoders[idx].get_error_count());
     }
 
     static void reset_error_count(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_error_count(0);
-      SERIAL_ECHOPAIR("Error count on ", axis_codes[axis]);
-      SERIAL_ECHOLNPGM(" axis has been reset.");
+      SERIAL_ECHOLNPAIR("Error count on ", axis_codes[axis], " axis has been reset.");
     }
 
     static void enable_ec(const int8_t idx, const bool enabled, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_ec_enabled(enabled);
-      SERIAL_ECHOPAIR("Error correction on ", axis_codes[axis]);
-      SERIAL_ECHOPGM(" axis is ");
+      SERIAL_ECHOPAIR("Error correction on ", axis_codes[axis], " axis is ");
       serialprintPGM(encoders[idx].get_ec_enabled() ? PSTR("en") : PSTR("dis"));
       SERIAL_ECHOLNPGM("abled.");
     }
@@ -287,17 +283,13 @@ class I2CPositionEncodersMgr {
     static void set_ec_threshold(const int8_t idx, const float newThreshold, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_ec_threshold(newThreshold);
-      SERIAL_ECHOPAIR("Error correct threshold for ", axis_codes[axis]);
-      SERIAL_ECHOPAIR(" axis set to ", FIXFLOAT(newThreshold));
-      SERIAL_ECHOLNPGM("mm.");
+      SERIAL_ECHOLNPAIR("Error correct threshold for ", axis_codes[axis], " axis set to ", FIXFLOAT(newThreshold), "mm.");
     }
 
     static void get_ec_threshold(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
       const float threshold = encoders[idx].get_ec_threshold();
-      SERIAL_ECHOPAIR("Error correct threshold for ", axis_codes[axis]);
-      SERIAL_ECHOPAIR(" axis is ", FIXFLOAT(threshold));
-      SERIAL_ECHOLNPGM("mm.");
+      SERIAL_ECHOLNPAIR("Error correct threshold for ", axis_codes[axis], " axis is ", FIXFLOAT(threshold), "mm.");
     }
 
     static int8_t idx_from_axis(const AxisEnum axis) {

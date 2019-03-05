@@ -804,12 +804,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #endif
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOPAIR("Offset Tool XY by { ", xdiff);
-          SERIAL_ECHOPAIR(", ", ydiff);
-          SERIAL_ECHOPAIR(", ", zdiff);
-          SERIAL_ECHOLNPGM(" }");
-        }
+        if (DEBUGGING(LEVELING))
+          SERIAL_ECHOLNPAIR("Offset Tool XY by { ", xdiff, ", ", ydiff, ", ", zdiff, " }");
       #endif
 
       // The newly-selected extruder XY is actually at...

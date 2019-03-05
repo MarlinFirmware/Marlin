@@ -910,8 +910,7 @@ void setup() {
   #endif
 
   SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR(MSG_FREE_MEMORY, freeMemory());
-  SERIAL_ECHOLNPAIR(MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
+  SERIAL_ECHOLNPAIR(MSG_FREE_MEMORY, freeMemory(), MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   queue_setup();
 

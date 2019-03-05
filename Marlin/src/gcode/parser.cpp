@@ -272,8 +272,7 @@ void GCodeParser::parse(char *p) {
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-          SERIAL_ECHOPAIR("Got letter ", code);
-          SERIAL_ECHOPAIR(" at index ", (int)(p - command_ptr - 1));
+          SERIAL_ECHOPAIR("Got letter ", code, " at index ", (int)(p - command_ptr - 1));
           if (has_num) SERIAL_ECHOPGM(" (has_num)");
         }
       #endif
@@ -329,47 +328,41 @@ void GCodeParser::parse(char *p) {
 
 void GCodeParser::unknown_command_error() {
   SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR(MSG_UNKNOWN_COMMAND, command_ptr);
-  SERIAL_CHAR('"');
-  SERIAL_EOL();
+  SERIAL_ECHOLNPAIR(MSG_UNKNOWN_COMMAND, command_ptr, "\"");
 }
 
 #if ENABLED(DEBUG_GCODE_PARSER)
 
   void GCodeParser::debug() {
-    SERIAL_ECHOPAIR("Command: ", command_ptr);
-    SERIAL_ECHOPAIR(" (", command_letter);
+    SERIAL_ECHOPAIR("Command: ", command_ptr, " (", command_letter);
     SERIAL_ECHO(codenum);
     SERIAL_ECHOLNPGM(")");
     #if ENABLED(FASTER_GCODE_PARSER)
-      SERIAL_ECHOPGM(" args: \"");
-      for (char c = 'A'; c <= 'Z'; ++c)
-        if (seen(c)) { SERIAL_CHAR(c); SERIAL_CHAR(' '); }
+      SERIAL_ECHOPGM(" args: { ");
+      for (char c = 'A'; c <= 'Z'; ++c) if (seen(c)) { SERIAL_CHAR(c); SERIAL_CHAR(' '); }
+      SERIAL_CHAR('}');
     #else
-      SERIAL_ECHOPAIR(" args: \"", command_args);
+      SERIAL_ECHOPAIR(" args: { ", command_args, " }");
     #endif
-    SERIAL_CHAR('"');
-    if (string_arg) {
-      SERIAL_ECHOPGM(" string: \"");
-      SERIAL_ECHO(string_arg);
-      SERIAL_CHAR('"');
-    }
+    if (string_arg) SERIAL_ECHOPAIR(" string: \"", string_arg, "\"");
     SERIAL_ECHOLNPGM("\n");
     for (char c = 'A'; c <= 'Z'; ++c) {
       if (seen(c)) {
         SERIAL_ECHOPAIR("Code '", c); SERIAL_ECHOPGM("':");
         if (has_value()) {
-          SERIAL_ECHOPAIR("\n    float: ", value_float());
-          SERIAL_ECHOPAIR("\n     long: ", value_long());
-          SERIAL_ECHOPAIR("\n    ulong: ", value_ulong());
-          SERIAL_ECHOPAIR("\n   millis: ", value_millis());
-          SERIAL_ECHOPAIR("\n   sec-ms: ", value_millis_from_seconds());
-          SERIAL_ECHOPAIR("\n      int: ", value_int());
-          SERIAL_ECHOPAIR("\n   ushort: ", value_ushort());
-          SERIAL_ECHOPAIR("\n     byte: ", (int)value_byte());
-          SERIAL_ECHOPAIR("\n     bool: ", (int)value_bool());
-          SERIAL_ECHOPAIR("\n   linear: ", value_linear_units());
-          SERIAL_ECHOPAIR("\n  celsius: ", value_celsius());
+          SERIAL_ECHOPAIR(
+            "\n    float: ", value_float(),
+            "\n     long: ", value_long(),
+            "\n    ulong: ", value_ulong(),
+            "\n   millis: ", value_millis(),
+            "\n   sec-ms: ", value_millis_from_seconds(),
+            "\n      int: ", value_int(),
+            "\n   ushort: ", value_ushort(),
+            "\n     byte: ", (int)value_byte(),
+            "\n     bool: ", (int)value_bool(),
+            "\n   linear: ", value_linear_units(),
+            "\n  celsius: ", value_celsius()
+          );
         }
         else
           SERIAL_ECHOPGM(" (no value)");
