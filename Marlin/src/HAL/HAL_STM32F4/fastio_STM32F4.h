@@ -54,6 +54,10 @@
 #define PWM_PIN(p) true
 #define USEABLE_HARDWARE_PWM(p) PWM_PIN(p)
 
+// digitalRead/Write wrappers
+#define extDigitalRead(IO)    digitalRead(IO)
+#define extDigitalWrite(IO,V) digitalWrite(IO,V)
+
 //
 // Pins Definitions
 //

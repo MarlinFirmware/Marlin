@@ -63,7 +63,7 @@
 
 #define NUMBER_PINS_TOTAL PINS_COUNT
 
-#define digitalRead_mod(p)  digitalRead(p)  // AVR digitalRead disabled PWM before it read the pin
+#define digitalRead_mod(p) extDigitalRead(p)  // AVR digitalRead disabled PWM before it read the pin
 #define PRINT_PORT(p)
 #define NAME_FORMAT(p) PSTR("%-##p##s")
 #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer);} while (0)

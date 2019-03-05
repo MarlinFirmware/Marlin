@@ -83,7 +83,7 @@ uint8_t L6470_transfer(uint8_t data, int16_t ss_pin, const uint8_t chain_positio
   uint8_t data_out = 0;
 
   // first device in chain has data sent last
-  digitalWrite(ss_pin, LOW);
+  extDigitalWrite(ss_pin, LOW);
 
   for (uint8_t i = L6470::chain[0]; (i >= 1) && !spi_abort; i--) {    // stop sending data if spi_abort is active
     DISABLE_ISRS();  // disable interrupts during SPI transfer (can't allow partial command to chips)
@@ -92,7 +92,7 @@ uint8_t L6470_transfer(uint8_t data, int16_t ss_pin, const uint8_t chain_positio
     if (i == chain_position) data_out = temp;
   }
 
-  digitalWrite(ss_pin, HIGH);
+  extDigitalWrite(ss_pin, HIGH);
   return data_out;
 }
 

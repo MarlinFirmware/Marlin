@@ -81,8 +81,6 @@
 // Toggle a pin
 #define _TOGGLE(IO) _WRITE(IO, !READ(IO))
 
-#include <pins_arduino.h>
-
 #if MB(PRINTRBOARD_G2)
 
   #include "G2_pins.h"
@@ -184,6 +182,10 @@
 
 // Shorthand
 #define OUT_WRITE(IO,V) { SET_OUTPUT(IO); WRITE(IO,V); }
+
+// digitalRead/Write wrappers
+#define extDigitalRead(IO)    digitalRead(IO)
+#define extDigitalWrite(IO,V) digitalWrite(IO,V)
 
 /**
  * Ports and functions

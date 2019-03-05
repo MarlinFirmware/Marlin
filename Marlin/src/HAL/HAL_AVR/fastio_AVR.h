@@ -85,6 +85,15 @@
 #define _GET_OUTPUT(IO)       TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 #define _GET_TIMER(IO)        DIO ## IO ## _PWM
 
+// digitalRead/Write wrappers
+#ifdef FASTIO_EXT_START
+  void extDigitalWrite(const int8_t pin, const uint8_t state);
+  uint8_t extDigitalRead(const int8_t pin);
+#else
+  #define extDigitalWrite(IO,V) digitalWrite(IO,V)
+  #define extDigitalRead(IO)    digitalRead(IO)
+#endif
+
 #define READ(IO)              _READ(IO)
 #define WRITE(IO,V)           _WRITE(IO,V)
 #define TOGGLE(IO)            _TOGGLE(IO)
