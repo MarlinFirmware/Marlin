@@ -51,8 +51,13 @@
 #include "../../module/planner.h"
 #include "../../module/probe.h"
 #include "../../module/temperature.h"
+#include "../../module/printcounter.h"
 #include "../../libs/duration_t.h"
 #include "../../HAL/shared/Delay.h"
+
+#if ENABLED(PRINTCOUNTER)
+  #include "../../core/utility.h"
+#endif
 
 #if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
   #include "../../module/tool_change.h"
@@ -67,11 +72,6 @@
   #define IFSD(A,B) (A)
 #else
   #define IFSD(A,B) (B)
-#endif
-
-#if ENABLED(PRINTCOUNTER)
-  #include "../../core/utility.h"
-  #include "../../module/printcounter.h"
 #endif
 
 #if HAS_TRINAMIC && HAS_LCD_MENU
