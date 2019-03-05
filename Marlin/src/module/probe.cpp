@@ -83,11 +83,7 @@ float zprobe_zoffset; // Initialized by settings.load()
    */
   static void dock_sled(bool stow) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("dock_sled(", stow);
-        SERIAL_CHAR(')');
-        SERIAL_EOL();
-      }
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("dock_sled(", stow, ")");
     #endif
 
     // Dock sled a bit closer to ensure proper capturing
@@ -317,11 +313,7 @@ float zprobe_zoffset; // Initialized by settings.load()
     bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("set_bltouch_deployed(", deploy);
-        SERIAL_CHAR(')');
-        SERIAL_EOL();
-      }
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("set_bltouch_deployed(", deploy, ")");
     #endif
 
     return false;
@@ -334,11 +326,7 @@ float zprobe_zoffset; // Initialized by settings.load()
  */
 inline void do_probe_raise(const float z_raise) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("do_probe_raise(", z_raise);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-    }
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("do_probe_raise(", z_raise, ")");
   #endif
 
   float z_dest = z_raise;
@@ -707,10 +695,7 @@ static float run_z_probe() {
     const float z2 = current_position[Z_AXIS];
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("2nd Probe Z:", z2);
-        SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - z2);
-      }
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("2nd Probe Z:", z2, " Discrepancy:", first_probe_z - z2);
     #endif
 
     // Return a weighted average of the fast and slow probes
@@ -742,12 +727,14 @@ static float run_z_probe() {
 float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> probe_pt(", LOGICAL_X_POSITION(rx));
-      SERIAL_ECHOPAIR(", ", LOGICAL_Y_POSITION(ry));
-      SERIAL_ECHOPAIR(", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none");
-      SERIAL_ECHOPAIR(", ", int(verbose_level));
-      SERIAL_ECHOPAIR(", ", probe_relative ? "probe" : "nozzle");
-      SERIAL_ECHOLNPGM("_relative)");
+      SERIAL_ECHOLNPAIR(
+        ">>> probe_pt(", LOGICAL_X_POSITION(rx),
+        ", ", LOGICAL_Y_POSITION(ry),
+        ", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none",
+        ", ", int(verbose_level),
+        ", ", probe_relative ? "probe" : "nozzle",
+        "_relative)"
+      );
       DEBUG_POS("", current_position);
     }
   #endif

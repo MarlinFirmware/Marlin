@@ -47,8 +47,7 @@ void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
 
   initialized++;
 
-  SERIAL_ECHOPAIR("Setting up encoder on ", axis_codes[encoderAxis]);
-  SERIAL_ECHOLNPAIR(" axis, addr = ", address);
+  SERIAL_ECHOLNPAIR("Setting up encoder on ", axis_codes[encoderAxis], " axis, addr = ", address);
 
   position = get_position();
 }
@@ -66,8 +65,7 @@ void I2CPositionEncoder::update() {
     /*
     if (trusted) { //commented out as part of the note below
       trusted = false;
-      SERIAL_ECHOPAIR("Fault detected on ", axis_codes[encoderAxis]);
-      SERIAL_ECHOLNPGM(" axis encoder. Disengaging error correction until module is trusted again.");
+      SERIAL_ECHOLMPAIR("Fault detected on ", axis_codes[encoderAxis], " axis encoder. Disengaging error correction until module is trusted again.");
     }
     */
     return;
@@ -92,8 +90,7 @@ void I2CPositionEncoder::update() {
       if (millis() - lastErrorTime > I2CPE_TIME_TRUSTED) {
         trusted = true;
 
-        SERIAL_ECHOPAIR("Untrusted encoder module on ", axis_codes[encoderAxis]);
-        SERIAL_ECHOLNPGM(" axis has been fault-free for set duration, reinstating error correction.");
+        SERIAL_ECHOLNPAIR("Untrusted encoder module on ", axis_codes[encoderAxis], " axis has been fault-free for set duration, reinstating error correction.");
 
         //the encoder likely lost its place when the error occured, so we'll reset and use the printer's
         //idea of where it the axis is to re-initialize
@@ -172,8 +169,7 @@ void I2CPositionEncoder::update() {
             LOOP_L_N(i, I2CPE_ERR_PRST_ARRAY_SIZE) sumP += errPrst[i];
             const int32_t errorP = int32_t(sumP * (1.0f / (I2CPE_ERR_PRST_ARRAY_SIZE)));
             SERIAL_ECHO(axis_codes[encoderAxis]);
-            SERIAL_ECHOPAIR(" - err detected: ", errorP * planner.steps_to_mm[encoderAxis]);
-            SERIAL_ECHOLNPGM("mm; correcting!");
+            SERIAL_ECHOLNPAIR(" - err detected: ", errorP * planner.steps_to_mm[encoderAxis], "mm; correcting!");
             thermalManager.babystepsTodo[encoderAxis] = -LROUND(errorP);
             errPrstIdx = 0;
           }
@@ -192,9 +188,7 @@ void I2CPositionEncoder::update() {
     if (ABS(error) > I2CPE_ERR_CNT_THRESH * planner.settings.axis_steps_per_mm[encoderAxis]) {
       const millis_t ms = millis();
       if (ELAPSED(ms, nextErrorCountTime)) {
-        SERIAL_ECHOPAIR("Large error on ", axis_codes[encoderAxis]);
-        SERIAL_ECHOPAIR(" axis. error: ", (int)error);
-        SERIAL_ECHOLNPAIR("; diffSum: ", diffSum);
+        SERIAL_ECHOLNPAIR("Large error on ", axis_codes[encoderAxis], " axis. error: ", (int)error, "; diffSum: ", diffSum);
         errorCount++;
         nextErrorCountTime = ms + I2CPE_ERR_CNT_DEBOUNCE_MS;
       }
@@ -215,8 +209,7 @@ void I2CPositionEncoder::set_homed() {
 
     #ifdef I2CPE_DEBUG
       SERIAL_ECHO(axis_codes[encoderAxis]);
-      SERIAL_ECHOPAIR(" axis encoder homed, offset of ", zeroOffset);
-      SERIAL_ECHOLNPGM(" ticks.");
+      SERIAL_ECHOLNPAIR(" axis encoder homed, offset of ", zeroOffset, " ticks.");
     #endif
   }
 }
@@ -261,9 +254,7 @@ float I2CPositionEncoder::get_axis_error_mm(const bool report) {
 
   if (report) {
     SERIAL_ECHO(axis_codes[encoderAxis]);
-    SERIAL_ECHOPAIR(" axis target: ", target);
-    SERIAL_ECHOPAIR(", actual: ", actual);
-    SERIAL_ECHOLNPAIR(", error : ",error);
+    SERIAL_ECHOLNPAIR(" axis target: ", target, ", actual: ", actual, ", error : ",error);
   }
 
   return error;
@@ -296,10 +287,7 @@ int32_t I2CPositionEncoder::get_axis_error_steps(const bool report) {
 
   if (report) {
     SERIAL_ECHO(axis_codes[encoderAxis]);
-    SERIAL_ECHOPAIR(" axis target: ", target);
-    SERIAL_ECHOPAIR(", actual: ", encoderCountInStepperTicksScaled);
-    SERIAL_ECHOLNPAIR(", error : ", error);
-
+    SERIAL_ECHOLNPAIR(" axis target: ", target, ", actual: ", encoderCountInStepperTicksScaled, ", error : ", error);
     if (suppressOutput) SERIAL_ECHOLNPGM("Discontinuity detected, suppressing error.");
   }
 
@@ -436,11 +424,9 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
     travelledDistance = mm_from_count(ABS(stopCount - startCount));
 
-    SERIAL_ECHOPAIR("Attempted travel: ", travelDistance);
-    SERIAL_ECHOLNPGM("mm");
+    SERIAL_ECHOLNPAIR("Attempted travel: ", travelDistance, "mm");
 
-    SERIAL_ECHOPAIR("   Actual travel:  ", travelledDistance);
-    SERIAL_ECHOLNPGM("mm");
+    SERIAL_ECHOLNPAIR("   Actual travel:  ", travelledDistance, "mm");
 
     //Calculate new axis steps per unit
     old_steps_mm = planner.settings.axis_steps_per_mm[encoderAxis];
@@ -705,21 +691,18 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
   // First check 'new' address is not in use
   Wire.beginTransmission(I2C_ADDRESS(newaddr));
   if (!Wire.endTransmission()) {
-    SERIAL_ECHOPAIR("?There is already a device with that address on the I2C bus! (", newaddr);
-    SERIAL_ECHOLNPGM(")");
+    SERIAL_ECHOLNPAIR("?There is already a device with that address on the I2C bus! (", newaddr, ")");
     return;
   }
 
   // Now check that we can find the module on the oldaddr address
   Wire.beginTransmission(I2C_ADDRESS(oldaddr));
   if (Wire.endTransmission()) {
-    SERIAL_ECHOPAIR("?No module detected at this address! (", oldaddr);
-    SERIAL_ECHOLNPGM(")");
+    SERIAL_ECHOLNPAIR("?No module detected at this address! (", oldaddr, ")");
     return;
   }
 
-  SERIAL_ECHOPAIR("Module found at ", oldaddr);
-  SERIAL_ECHOLNPAIR(", changing address to ", newaddr);
+  SERIAL_ECHOLNPAIR("Module found at ", oldaddr, ", changing address to ", newaddr);
 
   // Change the modules address
   Wire.beginTransmission(I2C_ADDRESS(oldaddr));
@@ -755,13 +738,11 @@ void I2CPositionEncodersMgr::report_module_firmware(const uint8_t address) {
   // First check there is a module
   Wire.beginTransmission(I2C_ADDRESS(address));
   if (Wire.endTransmission()) {
-    SERIAL_ECHOPAIR("?No module detected at this address! (", address);
-    SERIAL_ECHOLNPGM(")");
+    SERIAL_ECHOLNPAIR("?No module detected at this address! (", address, ")");
     return;
   }
 
-  SERIAL_ECHOPAIR("Requesting version info from module at address ", address);
-  SERIAL_ECHOLNPGM(":");
+  SERIAL_ECHOLNPAIR("Requesting version info from module at address ", address, ":");
 
   Wire.beginTransmission(I2C_ADDRESS(address));
   Wire.write(I2CPE_SET_REPORT_MODE);
@@ -808,15 +789,13 @@ int8_t I2CPositionEncodersMgr::parse() {
   else if (parser.seenval('I')) {
 
     if (!parser.has_value()) {
-      SERIAL_ECHOLNPAIR("?I seen, but no index specified! [0-", I2CPE_ENCODER_CNT - 1);
-      SERIAL_ECHOLNPGM("]");
+      SERIAL_ECHOLNPAIR("?I seen, but no index specified! [0-", I2CPE_ENCODER_CNT - 1, "]");
       return I2CPE_PARSE_ERR;
     };
 
     I2CPE_idx = parser.value_byte();
     if (I2CPE_idx >= I2CPE_ENCODER_CNT) {
-      SERIAL_ECHOLNPAIR("?Index out of range. [0-", I2CPE_ENCODER_CNT - 1);
-      SERIAL_ECHOLNPGM("]");
+      SERIAL_ECHOLNPAIR("?Index out of range. [0-", I2CPE_ENCODER_CNT - 1, "]");
       return I2CPE_PARSE_ERR;
     }
 
@@ -995,8 +974,7 @@ void I2CPositionEncodersMgr::M864() {
     else return;
   }
 
-  SERIAL_ECHOPAIR("Changing module at address ", I2CPE_addr);
-  SERIAL_ECHOLNPAIR(" to address ", newAddress);
+  SERIAL_ECHOLNPAIR("Changing module at address ", I2CPE_addr, " to address ", newAddress);
 
   change_module_address(I2CPE_addr, newAddress);
 }

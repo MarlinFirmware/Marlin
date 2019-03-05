@@ -581,11 +581,12 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
  */
 void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
   /*
-  SERIAL_ECHOLNPGM("start of resume_print()");
-  SERIAL_ECHOPAIR("\ndual_x_carriage_mode:", dual_x_carriage_mode);
-  SERIAL_ECHOPAIR("\nextruder_duplication_enabled:", extruder_duplication_enabled);
-  SERIAL_ECHOPAIR("\nactive_extruder:", active_extruder);
-  SERIAL_ECHOLNPGM("\n");
+  SERIAL_ECHOLNPAIR(
+    "start of resume_print()\ndual_x_carriage_mode:", dual_x_carriage_mode,
+    "\nextruder_duplication_enabled:", extruder_duplication_enabled,
+    "\nactive_extruder:", active_extruder,
+    "\n"
+  );
   //*/
 
   if (!did_pause_print) return;

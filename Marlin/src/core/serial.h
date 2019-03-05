@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
+#include "../core/minmax.h"
 #include HAL_PATH(../HAL, HAL.h)
 
 /**
@@ -62,7 +63,7 @@ extern uint8_t marlin_debug_flags;
 
 #define SERIAL_CHAR(x)          SERIAL_OUT(write, x)
 #define SERIAL_ECHO(x)          SERIAL_OUT(print, x)
-#define SERIAL_ECHO_F(x,y)      SERIAL_OUT(print, x, y)
+#define SERIAL_ECHO_F(...)      SERIAL_OUT(print, __VA_ARGS__)
 #define SERIAL_ECHOLN(x)        SERIAL_OUT(println, x)
 #define SERIAL_PRINT(x,b)       SERIAL_OUT(print, x, b)
 #define SERIAL_PRINTLN(x,b)     SERIAL_OUT(println, x, b)
@@ -75,22 +76,78 @@ extern uint8_t marlin_debug_flags;
   #define SERIAL_FLUSHTX()
 #endif
 
-#define SERIAL_ECHOPGM(x)                   (serialprintPGM(PSTR(x)))
-#define SERIAL_ECHOLNPGM(x)                 (serialprintPGM(PSTR(x "\n")))
-#define SERIAL_ECHOPAIR(pre, value)         (serial_echopair_PGM(PSTR(pre), value))
-#define SERIAL_ECHOLNPAIR(pre, value)       do{ SERIAL_ECHOPAIR(pre, value); SERIAL_EOL(); }while(0)
+// Print up to 12 pairs of values
+#define __SEP_N(N,...)      _SEP_##N(__VA_ARGS__)
+#define _SEP_N(N,...)       __SEP_N(N,__VA_ARGS__)
+#define _SEP_2(PRE,V)       serial_echopair_PGM(PSTR(PRE),V)
+#define _SEP_3(a,b,ETC)     do{ _SEP_2(a,b); SERIAL_ECHOPGM(ETC); }while(0)
+#define _SEP_4(a,b,...)     do{ _SEP_2(a,b); _SEP_2(__VA_ARGS__); }while(0)
+#define _SEP_5(a,b,...)     do{ _SEP_2(a,b); _SEP_3(__VA_ARGS__); }while(0)
+#define _SEP_6(a,b,...)     do{ _SEP_2(a,b); _SEP_4(__VA_ARGS__); }while(0)
+#define _SEP_7(a,b,...)     do{ _SEP_2(a,b); _SEP_5(__VA_ARGS__); }while(0)
+#define _SEP_8(a,b,...)     do{ _SEP_2(a,b); _SEP_6(__VA_ARGS__); }while(0)
+#define _SEP_9(a,b,...)     do{ _SEP_2(a,b); _SEP_7(__VA_ARGS__); }while(0)
+#define _SEP_10(a,b,...)    do{ _SEP_2(a,b); _SEP_8(__VA_ARGS__); }while(0)
+#define _SEP_11(a,b,...)    do{ _SEP_2(a,b); _SEP_9(__VA_ARGS__); }while(0)
+#define _SEP_12(a,b,...)    do{ _SEP_2(a,b); _SEP_10(__VA_ARGS__); }while(0)
+#define _SEP_13(a,b,...)    do{ _SEP_2(a,b); _SEP_11(__VA_ARGS__); }while(0)
+#define _SEP_14(a,b,...)    do{ _SEP_2(a,b); _SEP_12(__VA_ARGS__); }while(0)
+#define _SEP_15(a,b,...)    do{ _SEP_2(a,b); _SEP_13(__VA_ARGS__); }while(0)
+#define _SEP_16(a,b,...)    do{ _SEP_2(a,b); _SEP_14(__VA_ARGS__); }while(0)
+#define _SEP_17(a,b,...)    do{ _SEP_2(a,b); _SEP_15(__VA_ARGS__); }while(0)
+#define _SEP_18(a,b,...)    do{ _SEP_2(a,b); _SEP_16(__VA_ARGS__); }while(0)
+#define _SEP_19(a,b,...)    do{ _SEP_2(a,b); _SEP_17(__VA_ARGS__); }while(0)
+#define _SEP_20(a,b,...)    do{ _SEP_2(a,b); _SEP_18(__VA_ARGS__); }while(0)
+#define _SEP_21(a,b,...)    do{ _SEP_2(a,b); _SEP_19(__VA_ARGS__); }while(0)
+#define _SEP_22(a,b,...)    do{ _SEP_2(a,b); _SEP_20(__VA_ARGS__); }while(0)
+#define _SEP_23(a,b,...)    do{ _SEP_2(a,b); _SEP_21(__VA_ARGS__); }while(0)
+#define _SEP_24(a,b,...)    do{ _SEP_2(a,b); _SEP_22(__VA_ARGS__); }while(0)
 
-#define SERIAL_ECHOPAIR_F(pre, value, y)    do{ SERIAL_ECHO(pre); SERIAL_ECHO_F(value, y); }while(0)
-#define SERIAL_ECHOLNPAIR_F(pre, value, y)  do{ SERIAL_ECHOPAIR_F(pre, value, y); SERIAL_EOL(); }while(0)
+#define SERIAL_ECHOPAIR(...) _SEP_N(NUM_ARGS(__VA_ARGS__),__VA_ARGS__)
 
-#define SERIAL_ECHO_START()                 serial_echo_start()
-#define SERIAL_ERROR_START()                serial_error_start()
-#define SERIAL_EOL()                        SERIAL_CHAR('\n')
+// Print up to 12 pairs of values followed by newline
+#define __SELP_N(N,...)     _SELP_##N(__VA_ARGS__)
+#define _SELP_N(N,...)      __SELP_N(N,__VA_ARGS__)
+#define _SELP_2(PRE,V)      do{ serial_echopair_PGM(PSTR(PRE),V); SERIAL_EOL(); }while(0)
+#define _SELP_3(PRE,V,ETC)  do{ serial_echopair_PGM(PSTR(PRE),V); SERIAL_ECHOLNPGM(ETC); }while(0)
+#define _SELP_4(a,b,...)    do{ _SELP_2(a,b); _SELP_2(__VA_ARGS__); }while(0)
+#define _SELP_5(a,b,...)    do{ _SELP_2(a,b); _SELP_3(__VA_ARGS__); }while(0)
+#define _SELP_6(a,b,...)    do{ _SELP_2(a,b); _SELP_4(__VA_ARGS__); }while(0)
+#define _SELP_7(a,b,...)    do{ _SELP_2(a,b); _SELP_5(__VA_ARGS__); }while(0)
+#define _SELP_8(a,b,...)    do{ _SELP_2(a,b); _SELP_6(__VA_ARGS__); }while(0)
+#define _SELP_9(a,b,...)    do{ _SELP_2(a,b); _SELP_7(__VA_ARGS__); }while(0)
+#define _SELP_10(a,b,...)   do{ _SELP_2(a,b); _SELP_8(__VA_ARGS__); }while(0)
+#define _SELP_11(a,b,...)   do{ _SELP_2(a,b); _SELP_9(__VA_ARGS__); }while(0)
+#define _SELP_12(a,b,...)   do{ _SELP_2(a,b); _SELP_10(__VA_ARGS__); }while(0)
+#define _SELP_13(a,b,...)   do{ _SELP_2(a,b); _SELP_11(__VA_ARGS__); }while(0)
+#define _SELP_14(a,b,...)   do{ _SELP_2(a,b); _SELP_12(__VA_ARGS__); }while(0)
+#define _SELP_15(a,b,...)   do{ _SELP_2(a,b); _SELP_13(__VA_ARGS__); }while(0)
+#define _SELP_16(a,b,...)   do{ _SELP_2(a,b); _SELP_14(__VA_ARGS__); }while(0)
+#define _SELP_17(a,b,...)   do{ _SELP_2(a,b); _SELP_15(__VA_ARGS__); }while(0)
+#define _SELP_18(a,b,...)   do{ _SELP_2(a,b); _SELP_16(__VA_ARGS__); }while(0)
+#define _SELP_19(a,b,...)   do{ _SELP_2(a,b); _SELP_17(__VA_ARGS__); }while(0)
+#define _SELP_20(a,b,...)   do{ _SELP_2(a,b); _SELP_18(__VA_ARGS__); }while(0)
+#define _SELP_21(a,b,...)   do{ _SELP_2(a,b); _SELP_19(__VA_ARGS__); }while(0)
+#define _SELP_22(a,b,...)   do{ _SELP_2(a,b); _SELP_20(__VA_ARGS__); }while(0)
+#define _SELP_23(a,b,...)   do{ _SELP_2(a,b); _SELP_21(__VA_ARGS__); }while(0)
+#define _SELP_24(a,b,...)   do{ _SELP_2(a,b); _SELP_22(__VA_ARGS__); }while(0)
 
-#define SERIAL_ECHO_MSG(STR)                do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPGM(STR); }while(0)
-#define SERIAL_ERROR_MSG(STR)               do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPGM(STR); }while(0)
+#define SERIAL_ECHOLNPAIR(...) _SELP_N(NUM_ARGS(__VA_ARGS__),__VA_ARGS__)
 
-#define SERIAL_ECHO_SP(C)                   serial_spaces(C)
+#define SERIAL_ECHOPGM(S)           (serialprintPGM(PSTR(S)))
+#define SERIAL_ECHOLNPGM(S)         (serialprintPGM(PSTR(S "\n")))
+
+#define SERIAL_ECHOPAIR_F(pre, ...) do{ SERIAL_ECHO(pre); SERIAL_ECHO_F(__VA_ARGS__); }while(0)
+#define SERIAL_ECHOLNPAIR_F(...)    do{ SERIAL_ECHOPAIR_F(__VA_ARGS__); SERIAL_EOL(); }while(0)
+
+#define SERIAL_ECHO_START()         serial_echo_start()
+#define SERIAL_ERROR_START()        serial_error_start()
+#define SERIAL_EOL()                SERIAL_CHAR('\n')
+
+#define SERIAL_ECHO_MSG(S)          do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPGM(S); }while(0)
+#define SERIAL_ERROR_MSG(S)         do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPGM(S); }while(0)
+
+#define SERIAL_ECHO_SP(C)           serial_spaces(C)
 
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)

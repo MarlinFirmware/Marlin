@@ -357,8 +357,7 @@ void PrintJobRecovery::resume() {
 
   void PrintJobRecovery::debug(PGM_P const prefix) {
     serialprintPGM(prefix);
-    SERIAL_ECHOPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head));
-    SERIAL_ECHOLNPAIR(" valid_foot:", int(info.valid_foot));
+    SERIAL_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head), " valid_foot:", int(info.valid_foot));
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
         SERIAL_ECHOPGM("current_position: ");
@@ -394,8 +393,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_LEVELING
-          SERIAL_ECHOPAIR("leveling: ", int(info.leveling));
-          SERIAL_ECHOLNPAIR(" fade: ", int(info.fade));
+          SERIAL_ECHOLNPAIR("leveling: ", int(info.leveling), "\n fade: ", int(info.fade));
         #endif
         #if ENABLED(FWRETRACT)
           SERIAL_ECHOPGM("retract: ");

@@ -174,8 +174,7 @@ void MMU2::mmuLoop() {
         sscanf(rx_buffer, "%uok\n", &version);
 
         #if ENABLED(MMU2_DEBUG)
-          SERIAL_ECHOLNPAIR("MMU => ", version);
-          SERIAL_ECHOLNPGM("MMU <= 'S2'");
+          SERIAL_ECHOLNPAIR("MMU => ", version, "\nMMU <= 'S2'");
         #endif
 
         tx_str_P(PSTR("S2\n")); // read build number
@@ -234,8 +233,7 @@ void MMU2::mmuLoop() {
         sscanf(rx_buffer, "%hhuok\n", &finda);
 
         #if ENABLED(MMU2_DEBUG)
-          SERIAL_ECHOLNPAIR("MMU => ", finda);
-          SERIAL_ECHOLNPGM("MMU - ENABLED");
+          SERIAL_ECHOLNPAIR("MMU => ", finda, "\nMMU - ENABLED");
         #endif
 
         enabled = true;
@@ -309,8 +307,7 @@ void MMU2::mmuLoop() {
           // filament type
           int filament = cmd - MMU_CMD_F0;
           #if ENABLED(MMU2_DEBUG)
-            SERIAL_ECHOPAIR("MMU <= F", filament);
-            SERIAL_ECHOPGM(" ");
+            SERIAL_ECHOPAIR("MMU <= F", filament, " ");
             SERIAL_ECHO_F(cmd_arg, DEC);
             SERIAL_ECHOPGM("\n");
           #endif

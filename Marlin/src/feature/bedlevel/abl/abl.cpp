@@ -338,22 +338,11 @@ float bilinear_z_offset(const float raw[XYZ]) {
   /*
   static float last_offset = 0;
   if (ABS(last_offset - offset) > 0.2) {
-    SERIAL_ECHOPGM("Sudden Shift at ");
-    SERIAL_ECHOPAIR("x=", rx);
-    SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[X_AXIS]);
-    SERIAL_ECHOLNPAIR(" -> gridx=", gridx);
-    SERIAL_ECHOPAIR(" y=", ry);
-    SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[Y_AXIS]);
-    SERIAL_ECHOLNPAIR(" -> gridy=", gridy);
-    SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
-    SERIAL_ECHOLNPAIR(" ratio_y=", ratio_y);
-    SERIAL_ECHOPAIR(" z1=", z1);
-    SERIAL_ECHOPAIR(" z2=", z2);
-    SERIAL_ECHOPAIR(" z3=", z3);
-    SERIAL_ECHOLNPAIR(" z4=", z4);
-    SERIAL_ECHOPAIR(" L=", L);
-    SERIAL_ECHOPAIR(" R=", R);
-    SERIAL_ECHOLNPAIR(" offset=", offset);
+    SERIAL_ECHOLNPAIR("Sudden Shift at x=", rx, " / ", bilinear_grid_spacing[X_AXIS], " -> gridx=", gridx);
+    SERIAL_ECHOLNPAIR(" y=", ry, " / ", bilinear_grid_spacing[Y_AXIS], " -> gridy=", gridy);
+    SERIAL_ECHOLNPAIR(" ratio_x=", ratio_x, " ratio_y=", ratio_y);
+    SERIAL_ECHOLNPAIR(" z1=", z1, " z2=", z2, " z3=", z3, " z4=", z4);
+    SERIAL_ECHOLNPAIR(" L=", L, " R=", R, " offset=", offset);
   }
   last_offset = offset;
   //*/
