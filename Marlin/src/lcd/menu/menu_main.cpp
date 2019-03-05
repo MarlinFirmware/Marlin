@@ -46,56 +46,67 @@
   #include "../../feature/host_actions.h"
 #endif
 
-void lcd_pause() {
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    if (recovery.enabled) recovery.save(true, false);
-  #endif
+#define MACHINE_CAN_STOP (ENABLED(SDSUPPORT) || ENABLED(HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL))
+#define MACHINE_CAN_PAUSE (ENABLED(SDSUPPORT) || ENABLED(HOST_PROMPT_SUPPORT) || ENABLED(PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE))
 
-  #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume"));
-  #endif
+#if MACHINE_CAN_PAUSE
 
-  #if ENABLED(PARK_HEAD_ON_PAUSE)
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
-    enqueue_and_echo_commands_P(PSTR("M25 P\nM24"));
-  #elif ENABLED(SDSUPPORT)
-    enqueue_and_echo_commands_P(PSTR("M25"));
-  #elif defined(ACTION_ON_PAUSE)
-    host_action_pause();
-  #endif
-  planner.synchronize();
-}
+  void lcd_pause_job() {
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (recovery.enabled) recovery.save(true, false);
+    #endif
 
-void lcd_resume() {
-  #if ENABLED(SDSUPPORT)
-    if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
-  #endif
-  #ifdef ACTION_ON_RESUME
-    host_action_resume();
-  #endif
-}
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume"));
+    #endif
 
-void lcd_stop() {
-  #if ENABLED(SDSUPPORT)
-    wait_for_heatup = wait_for_user = false;
-    card.flag.abort_sd_printing = true;
-  #endif
-  #ifdef ACTION_ON_CANCEL
-    host_action_cancel();
-  #endif
-  #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_open(PROMPT_INFO, PSTR("UI Abort"));
-  #endif
-  ui.set_status_P(PSTR(MSG_PRINT_ABORTED), -1);
-  ui.return_to_status();
-}
+    #if ENABLED(PARK_HEAD_ON_PAUSE)
+      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
+      enqueue_and_echo_commands_P(PSTR("M25 P\nM24"));
+    #elif ENABLED(SDSUPPORT)
+      enqueue_and_echo_commands_P(PSTR("M25"));
+    #elif defined(ACTION_ON_PAUSE)
+      host_action_pause();
+    #endif
+    planner.synchronize();
+  }
 
-void menu_abort_confirm() {
-  START_MENU();
-  MENU_BACK(MSG_MAIN);
-  MENU_ITEM(function, MSG_STOP_PRINT, lcd_stop);
-  END_MENU();
-}
+  void lcd_resume() {
+    #if ENABLED(SDSUPPORT)
+      if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
+    #endif
+    #ifdef ACTION_ON_RESUME
+      host_action_resume();
+    #endif
+  }
+
+#endif // MACHINE_CAN_PAUSE
+
+#if MACHINE_CAN_STOP
+
+  void lcd_abort_job() {
+    #if ENABLED(SDSUPPORT)
+      wait_for_heatup = wait_for_user = false;
+      card.flag.abort_sd_printing = true;
+    #endif
+    #ifdef ACTION_ON_CANCEL
+      host_action_cancel();
+    #endif
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_open(PROMPT_INFO, PSTR("UI Abort"));
+    #endif
+    ui.set_status_P(PSTR(MSG_PRINT_ABORTED), -1);
+    ui.return_to_status();
+  }
+
+  void menu_abort_confirm() {
+    START_MENU();
+    MENU_BACK(MSG_MAIN);
+    MENU_ITEM(function, MSG_STOP_PRINT, lcd_abort_job);
+    END_MENU();
+  }
+
+#endif // MACHINE_CAN_STOP
 
 #if ENABLED(PRUSA_MMU2)
   #include "../../lcd/menu/menu_mmu2.h"
@@ -139,8 +150,10 @@ void menu_main() {
   ;
 
   if (busy) {
-    MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_pause);
-    #if ENABLED(SDSUPPORT) || defined(ACTION_ON_CANCEL)
+    #if MACHINE_CAN_PAUSE
+      MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_pause_job);
+    #endif
+    #if MACHINE_CAN_STOP
       MENU_ITEM(submenu, MSG_STOP_PRINT, menu_abort_confirm);
     #endif
     MENU_ITEM(submenu, MSG_TUNE, menu_tune);
@@ -170,11 +183,13 @@ void menu_main() {
       }
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
-    #if ENABLED(SDSUPPORT) || ENABLED(HOST_ACTION_COMMANDS)
-      #if DISABLED(HOST_ACTION_COMMANDS)
-        if (card_open && card.isPaused())
-      #endif
-          MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
+    #if MACHINE_CAN_PAUSE
+      const bool paused = (print_job_timer.isPaused()
+        #if ENABLED(SDSUPPORT)
+          || card.isPaused()
+        #endif
+      );
+      if (paused) MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
     #endif
 
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
