@@ -1770,7 +1770,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(SAV_3DGLCD) \
   + ENABLED(OLED_PANEL_TINYBOY2) \
   + ENABLED(ZONESTAR_LCD) \
-  + ENABLED(ULTI_CONTROLLER)
+  + ENABLED(ULTI_CONTROLLER) \
+  + ENABLED(EXTENSIBLE_UI)
   #error "Please select no more than one LCD controller option."
 #endif
 
