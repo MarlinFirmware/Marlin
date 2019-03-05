@@ -1737,24 +1737,19 @@
      * use cases for the users. So we can wait and see what to do with it.
      */
     void unified_bed_leveling::g29_compare_current_mesh_to_stored_mesh() {
-      int16_t a = settings.calc_num_meshes();
+      const int16_t a = settings.calc_num_meshes();
 
       if (!a) {
         SERIAL_ECHOLNPGM("?EEPROM storage not available.");
         return;
       }
 
-      if (!parser.has_value()) {
-        SERIAL_ECHOLNPAIR("?Storage slot # required.\n?Use 0 to ", a - 1);
+      if (!parser.has_value() || !WITHIN(g29_storage_slot, 0, a - 1)) {
+        SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
         return;
       }
 
       g29_storage_slot = parser.value_int();
-
-      if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-        SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
-        return;
-      }
 
       float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
       settings.load_mesh(g29_storage_slot, &tmp_z_values);
