@@ -280,6 +280,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define X_INIT_ENABLE do{ X_ENABLE_INIT; if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH); X2_ENABLE_INIT; if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH); }while(0)
   #define X_INIT_DIR do{ X_DIR_INIT; X2_DIR_INIT; }while(0)
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
+  #define X_APPLY_DIR_DELAY MAX(X_DIR_CHANGE_DELAY, X2_DIR_CHANGE_DELAY)
   #define X_INIT_STEP do{ X_STEP_INIT; X_STEP_WRITE(INVERT_X_STEP_PIN); X2_STEP_INIT; X2_STEP_WRITE(INVERT_X_STEP_PIN); disable_X(); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
     #define X_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(X,v)
@@ -304,6 +305,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     else { \
       if (movement_extruder()) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
     }
+  #define X_APPLY_DIR_DELAY MAX(X_DIR_CHANGE_DELAY, X2_DIR_CHANGE_DELAY)
   #define X_INIT_STEP do{ X_STEP_INIT; X_STEP_WRITE(INVERT_X_STEP_PIN); X2_STEP_INIT; X2_STEP_WRITE(INVERT_X_STEP_PIN); disable_X(); }while(0)
   #define X_APPLY_STEP(v,ALWAYS) \
     if (extruder_duplication_enabled || ALWAYS) { \
@@ -324,6 +326,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define X_INIT_ENABLE do{ X_ENABLE_INIT; if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH); }while(0)
   #define X_INIT_DIR X_DIR_INIT
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
+  #define X_APPLY_DIR_DELAY X_DIR_CHANGE_DELAY
   #define X_INIT_STEP do{ X_STEP_INIT; X_STEP_WRITE(INVERT_X_STEP_PIN); disable_X(); }while(0)
   #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
   #define X_APPLY_STEP_FIRST_PHASE_WIDTH X_STEP_FIRST_PHASE_WIDTH
@@ -339,6 +342,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define Y_INIT_ENABLE do{ Y_ENABLE_INIT; if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH); Y2_ENABLE_INIT; if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH); }while(0)
   #define Y_INIT_DIR do{ Y_DIR_INIT; Y2_DIR_INIT; }while(0)
   #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR); }while(0)
+  #define Y_APPLY_DIR_DELAY MAX(Y_DIR_CHANGE_DELAY, Y2_DIR_CHANGE_DELAY)
   #define Y_INIT_STEP do{ Y_STEP_INIT; Y_STEP_WRITE(INVERT_Y_STEP_PIN); Y2_STEP_INIT; Y2_STEP_WRITE(INVERT_Y_STEP_PIN); disable_Y(); }while(0)
   #if ENABLED(Y_DUAL_ENDSTOPS)
     #define Y_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Y,v)
@@ -356,6 +360,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define Y_INIT_ENABLE do{ Y_ENABLE_INIT; if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH); }while(0)
   #define Y_INIT_DIR Y_DIR_INIT
   #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v)
+  #define Y_APPLY_DIR_DELAY Y_DIR_CHANGE_DELAY
   #define Y_INIT_STEP do{ Y_STEP_INIT; Y_STEP_WRITE(INVERT_Y_STEP_PIN); disable_Y(); }while(0)
   #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)
   #define Y_APPLY_STEP_FIRST_PHASE_WIDTH Y_STEP_FIRST_PHASE_WIDTH
@@ -371,6 +376,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define Z_INIT_ENABLE do{ Z_ENABLE_INIT; if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH); Z2_ENABLE_INIT; if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH); Z3_ENABLE_INIT; if (!Z_ENABLE_ON) Z3_ENABLE_WRITE(HIGH); }while(0)
   #define Z_INIT_DIR do{ Z_DIR_INIT; Z2_DIR_INIT; Z3_DIR_INIT; }while(0)
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); Z3_DIR_WRITE(v); }while(0)
+  #define Z_APPLY_DIR_DELAY MAX(Z_DIR_CHANGE_DELAY, Z2_DIR_CHANGE_DELAY, Z3_DIR_CHANGE_DELAY)
   #define Z_INIT_STEP do{ Z_STEP_INIT; Z_STEP_WRITE(INVERT_Z_STEP_PIN); Z2_STEP_INIT; Z2_STEP_WRITE(INVERT_Z_STEP_PIN); Z3_STEP_INIT; Z3_STEP_WRITE(INVERT_Z_STEP_PIN); disable_Z(); }while(0)
   #if ENABLED(Z_TRIPLE_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) TRIPLE_ENDSTOP_APPLY_STEP(Z,v)
@@ -390,6 +396,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define Z_INIT_ENABLE do{ Z_ENABLE_INIT; if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH); Z2_ENABLE_INIT; if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH); }while(0)
   #define Z_INIT_DIR do{ Z_DIR_INIT; Z2_DIR_INIT; }while(0)
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }while(0)
+  #define Z_APPLY_DIR_DELAY MAX(Z_DIR_CHANGE_DELAY, Z2_DIR_CHANGE_DELAY)
   #define Z_INIT_STEP do{ Z_STEP_INIT; Z_STEP_WRITE(INVERT_Z_STEP_PIN); Z2_STEP_INIT; Z2_STEP_WRITE(INVERT_Z_STEP_PIN); disable_Z(); }while(0)
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Z,v)
@@ -409,6 +416,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define Z_INIT_ENABLE do{ Z_ENABLE_INIT; if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH); }while(0)
   #define Z_INIT_DIR Z_DIR_INIT
   #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
+  #define Z_APPLY_DIR_DELAY Z_DIR_CHANGE_DELAY
   #define Z_INIT_STEP do{ Z_STEP_INIT; Z_STEP_WRITE(INVERT_Z_STEP_PIN); disable_Z(); }while(0)
   #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
   #define Z_APPLY_STEP_FIRST_PHASE_WIDTH Z_STEP_FIRST_PHASE_WIDTH
@@ -567,9 +575,9 @@ void Stepper::set_directions() {
   #endif
 
   // A small delay may be needed after changing direction
-  #if MINIMUM_STEPPER_DIR_DELAY > 0
-    DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
-  #endif
+  if (MAX(X_APPLY_DIR_DELAY, Y_APPLY_DIR_DELAY, Z_APPLY_DIR_DELAY) > 0) {
+    DELAY_NS(MAX(X_APPLY_DIR_DELAY, Y_APPLY_DIR_DELAY, Z_APPLY_DIR_DELAY));
+  }
 }
 
 #if ENABLED(S_CURVE_ACCELERATION)
@@ -2437,7 +2445,7 @@ void Stepper::report_positions() {
       const uint8_t old_dir = _READ_DIR(AXIS);          \
       _ENABLE(AXIS);                                    \
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INVERT);   \
-      DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);              \
+      DELAY_NS(AXIS ## _APPLY_DIR_DELAY);               \
       _SAVE_START;                                      \
       _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
       _PULSE_WAIT;                                      \
@@ -2509,9 +2517,9 @@ void Stepper::report_positions() {
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
           Z_DIR_WRITE(INVERT_Z_DIR ^ z_direction);
 
-          #if MINIMUM_STEPPER_DIR_DELAY > 0
-            DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
-          #endif
+          if (MAX(X_APPLY_DIR_DELAY, Y_APPLY_DIR_DELAY, Z_APPLY_DIR_DELAY) > 0) {
+            DELAY_NS(MAX(X_APPLY_DIR_DELAY, Y_APPLY_DIR_DELAY, Z_APPLY_DIR_DELAY));
+          }
 
           _SAVE_START;
 
