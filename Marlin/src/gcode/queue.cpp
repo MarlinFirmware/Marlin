@@ -868,12 +868,8 @@ void advance_command_queue() {
           ok_to_send();
       }
     }
-    else {
+    else
       gcode.process_next_command();
-      #if ENABLED(POWER_LOSS_RECOVERY)
-        if (IS_SD_PRINTING()) recovery.save();
-      #endif
-    }
 
   #else
 
