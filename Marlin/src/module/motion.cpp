@@ -85,7 +85,7 @@ bool relative_mode; // = false;
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
- *   Used by 'buffer_line_to_current_position' to do a move after changing it.
+ *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
 float current_position[XYZE] = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
