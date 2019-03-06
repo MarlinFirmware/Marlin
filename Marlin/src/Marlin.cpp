@@ -1018,7 +1018,7 @@ void setup() {
   ui.init();
   ui.reset_status();
 
-  #if ENABLED(SHOW_BOOTSCREEN)
+  #if ENABLED(SHOW_BOOTSCREEN) && DISABLED(EXTENSIBLE_UI)
     ui.show_bootscreen();
   #endif
 
