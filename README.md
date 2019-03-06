@@ -12,7 +12,7 @@ Please test this firmware and let us know if it misbehaves in any way. Volunteer
 
 __Not for production use. Use with caution!__
 
-Marlin 2.0 takes this popular RepRap firmware to the next level with support for much faster 32-bit processor boards while maintaining backwards compatability wiht 8-bit AVR.
+Marlin 2.0 takes this popular RepRap firmware to the next level with support for much faster 32-bit processor boards while maintaining backwards compatability with 8-bit AVR.
 
 This branch is for patches to the latest 2.0.x release version. Periodically this branch will form the basis for the next minor 2.0.x release.
 
