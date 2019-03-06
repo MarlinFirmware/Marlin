@@ -134,13 +134,12 @@
 
   #define Z_SERIAL_TX_PIN  P1_14
   #define Z_SERIAL_RX_PIN  P1_10
-  
 
   #define E0_SERIAL_TX_PIN P1_09
   #define E0_SERIAL_RX_PIN P1_08
 
   #define E1_SERIAL_TX_PIN P1_04
-  #define E1_SERIAL_RX_PIN P1_01  
+  #define E1_SERIAL_RX_PIN P1_01
 #endif
 
 //
@@ -170,8 +169,8 @@
 |   (MOSI)0.18 | · · | 3.25(BTN_EN2)               (LCD_D5) 1.21 | · · | 1.20 (LCD_D4)
 |  (SD_SS)0.16 | · · | 3.26(BTN_EN1)               (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
 |    (SCK)0.15 | · · | 0.17(MISO)                 (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
-|               ￣￣                                               ￣￣  
-|               EXP2                                              EXP1  
+|               ￣￣                                               ￣￣
+|               EXP2                                              EXP1
 */
 #if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN       P1_30   // (37) not 5V tolerant
@@ -184,8 +183,8 @@
 
   #define LCD_SDSS         P0_16   // (16) J3-7 & AUX-4
 
-  #define LCD_PINS_ENABLE  P1_18  
-  #define LCD_PINS_D4      P1_20  
+  #define LCD_PINS_ENABLE  P1_18
+  #define LCD_PINS_D4      P1_20
 
   #if ENABLED(ULTIPANEL)
     #define LCD_PINS_D5    P1_21
