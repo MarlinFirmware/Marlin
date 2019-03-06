@@ -537,6 +537,9 @@
 #ifndef MSG_BED
   #define MSG_BED                             _UxGT("Bed")
 #endif
+#ifndef MSG_CHAMBER
+  #define MSG_CHAMBER                         _UxGT("Enclosure")
+#endif
 #ifndef MSG_FAN_SPEED
   #define MSG_FAN_SPEED                       _UxGT("Fan speed")
 #endif

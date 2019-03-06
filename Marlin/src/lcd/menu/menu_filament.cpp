@@ -61,7 +61,7 @@ static void _change_filament_temp(const uint16_t temperature) {
 }
 inline void _lcd_change_filament_temp_1_func()    { _change_filament_temp(ui.preheat_hotend_temp[0]); }
 inline void _lcd_change_filament_temp_2_func()    { _change_filament_temp(ui.preheat_hotend_temp[1]); }
-inline void _lcd_change_filament_temp_custom_cb() { _change_filament_temp(thermalManager.target_temperature[_change_filament_temp_extruder]); }
+inline void _lcd_change_filament_temp_custom_cb() { _change_filament_temp(thermalManager.temp_hotend[_change_filament_temp_extruder].target); }
 
 static PGM_P change_filament_header(const AdvancedPauseMode mode) {
   switch (mode) {
@@ -101,7 +101,7 @@ void _menu_temp_filament_op(const AdvancedPauseMode mode, const int8_t extruder)
       #endif
     #endif
   }
-  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PREHEAT_CUSTOM, &thermalManager.target_temperature[_change_filament_temp_extruder], EXTRUDE_MINTEMP, max_temp - 15, _lcd_change_filament_temp_custom_cb);
+  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_temp_extruder].target, EXTRUDE_MINTEMP, max_temp - 15, _lcd_change_filament_temp_custom_cb);
   END_MENU();
 }
 #if E_STEPPERS

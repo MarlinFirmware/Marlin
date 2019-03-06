@@ -208,7 +208,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
 
   if (PAGE_UNDER(7)) {
     #if HEATER_IDLE_HANDLER
-      const bool is_idle = IFBED(thermalManager.is_bed_idle(), thermalManager.is_heater_idle(heater)),
+      const bool is_idle = IFBED(thermalManager.bed_idle.timed_out, thermalManager.hotend_idle[heater].timed_out),
                  dodraw = (blink || !is_idle);
     #else
       constexpr bool dodraw = true;

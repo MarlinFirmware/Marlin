@@ -116,9 +116,9 @@ void menu_tune() {
   // Nozzle [1-4]:
   //
   #if HOTENDS == 1
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, thermalManager.start_watching_E0);
   #else // HOTENDS > 1
-    #define EDIT_NOZZLE(N) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_LCD_N##N, &thermalManager.target_temperature[N], 0, HEATER_##N##_MAXTEMP - 15, watch_temp_callback_E##N)
+    #define EDIT_NOZZLE(N) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_LCD_N##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, thermalManager.start_watching_E##N)
     EDIT_NOZZLE(0);
     EDIT_NOZZLE(1);
     #if HOTENDS > 2
@@ -143,7 +143,7 @@ void menu_tune() {
   // Bed:
   //
   #if HAS_HEATED_BED
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAXTEMP - 15, thermalManager.start_watching_bed);
   #endif
 
   //
