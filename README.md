@@ -12,7 +12,7 @@ Please test this firmware and let us know if it misbehaves in any way. Volunteer
 
 __Not for production use. Use with caution!__
 
-Marlin 2.0 takes this popular RepRap firmware to the next level with support for much faster 32-bit processor boards while maintaining backwards compatability with 8-bit AVR.
+Marlin 2.0 takes this popular RepRap firmware to the next level by adding support for much faster 32-bit and ARM-based boards while improving support for 8-bit AVR boards. Read about Marlin's decision to use a "Hardware Abstraction Layer" below.
 
 This branch is for patches to the latest 2.0.x release version. Periodically this branch will form the basis for the next minor 2.0.x release.
 
@@ -24,7 +24,7 @@ To build Marlin 2.0 you'll need [Arduino IDE 1.8.7 Or Newer](https://www.arduino
 
 ## Hardware Abstraction Layer (HAL)
 
-Marlin 2.0 adds a new abstraction layer so that Marlin can build and run on 32-bit boards while still retaining full 8-bit AVR compatibility. In this way, features can be enhanced for more powerful platforms while still supporting AVR, whereas splitting up the code would make it harder to maintain and keep everything in sync.
+Marlin 2.0 introduces a layer of abstraction so that all the existing high-level code can be built for 32-bit platforms while still retaining full 8-bit AVR compatibility. Retaining AVR compatibility and a single code-base is important to us, because we want to make sure that features and patches get as much testing and attention as possible, and that all platforms always benefit from the latest improvements.
 
 ### Current HALs
 
