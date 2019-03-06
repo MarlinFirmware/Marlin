@@ -13,7 +13,10 @@ exec_test $1 $2 "Build Re-ARM Default Configuration"
 restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
 opt_enable VIKI2 SDSUPPORT
-exec_test $1 $2 "ReARM EFB VIKI2 and SDSUPPORT"
+opt_enable SERIAL_PORT2
+opt_enable NEOPIXEL_LED
+opt_set NEOPIXEL_PIN P1_16
+exec_test $1 $2 "ReARM EFB VIKI2, SDSUPPORT, 2 Serial ports (USB CDC + UART0), NeoPixel"
 
 restore_configs
 use_example_configs Mks/Sbase
