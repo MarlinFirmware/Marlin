@@ -37,7 +37,7 @@
   #include "../../module/configuration_store.h"
 #endif
 
-#if WATCH_HOTENDS || WATCH_THE_BED || ENABLED(BABYSTEP_ZPROBE_OFFSET)
+#if WATCH_HOTENDS || WATCH_BED || ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../module/temperature.h"
 #endif
 
@@ -404,39 +404,6 @@ void MarlinUI::completion_feedback(const bool good/*=true*/) {
   }
 
 #endif // BABYSTEP_ZPROBE_OFFSET
-
-/**
- * Watch temperature callbacks
- */
-#if HAS_TEMP_HOTEND
-  #if WATCH_HOTENDS
-    #define _WATCH_FUNC(N) thermalManager.start_watching_heater(N)
-  #else
-    #define _WATCH_FUNC(N) NOOP
-  #endif
-  void watch_temp_callback_E0() { _WATCH_FUNC(0); }
-  #if HOTENDS > 1
-    void watch_temp_callback_E1() { _WATCH_FUNC(1); }
-    #if HOTENDS > 2
-      void watch_temp_callback_E2() { _WATCH_FUNC(2); }
-      #if HOTENDS > 3
-        void watch_temp_callback_E3() { _WATCH_FUNC(3); }
-        #if HOTENDS > 4
-          void watch_temp_callback_E4() { _WATCH_FUNC(4); }
-          #if HOTENDS > 5
-            void watch_temp_callback_E5() { _WATCH_FUNC(5); }
-          #endif // HOTENDS > 5
-        #endif // HOTENDS > 4
-      #endif // HOTENDS > 3
-    #endif // HOTENDS > 2
-  #endif // HOTENDS > 1
-#endif // HAS_TEMP_HOTEND
-
-void watch_temp_callback_bed() {
-  #if WATCH_THE_BED
-    thermalManager.start_watching_bed();
-  #endif
-}
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE)
 

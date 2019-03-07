@@ -340,14 +340,6 @@ void menu_move();
 void lcd_move_z();
 void _lcd_draw_homing();
 
-void watch_temp_callback_E0();
-void watch_temp_callback_E1();
-void watch_temp_callback_E2();
-void watch_temp_callback_E3();
-void watch_temp_callback_E4();
-void watch_temp_callback_E5();
-void watch_temp_callback_bed();
-
 #define HAS_LINE_TO_Z (ENABLED(DELTA) || ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING) || ENABLED(LEVEL_BED_CORNERS))
 
 #if HAS_LINE_TO_Z

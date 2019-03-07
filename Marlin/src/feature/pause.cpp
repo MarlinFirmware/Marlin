@@ -482,8 +482,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   // Start the heater idle timers
   const millis_t nozzle_timeout = (millis_t)(PAUSE_PARK_NOZZLE_TIMEOUT) * 1000UL;
 
-  HOTEND_LOOP()
-    thermalManager.start_heater_idle_timer(e, nozzle_timeout);
+  HOTEND_LOOP() thermalManager.hotend_idle[e].start(nozzle_timeout);
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
@@ -505,7 +504,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
     // If the nozzle has timed out...
     if (!nozzle_timed_out)
-      HOTEND_LOOP() nozzle_timed_out |= thermalManager.is_heater_idle(e);
+      HOTEND_LOOP() nozzle_timed_out |= thermalManager.hotend_idle[e].timed_out;
 
     // Wait for the user to press the button to re-heat the nozzle, then
     // re-heat the nozzle, re-show the continue prompt, restart idle timers, start over
@@ -538,8 +537,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       // Start the heater idle timers
       const millis_t nozzle_timeout = (millis_t)(PAUSE_PARK_NOZZLE_TIMEOUT) * 1000UL;
 
-      HOTEND_LOOP()
-        thermalManager.start_heater_idle_timer(e, nozzle_timeout);
+      HOTEND_LOOP() thermalManager.hotend_idle[e].start(nozzle_timeout);
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheat Done"), PSTR("Continue"));
       #endif
@@ -594,7 +592,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   // Re-enable the heaters if they timed out
   bool nozzle_timed_out = false;
   HOTEND_LOOP() {
-    nozzle_timed_out |= thermalManager.is_heater_idle(e);
+    nozzle_timed_out |= thermalManager.hotend_idle[e].timed_out;
     thermalManager.reset_heater_idle_timer(e);
   }
 

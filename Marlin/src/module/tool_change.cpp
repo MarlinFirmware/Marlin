@@ -838,7 +838,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             thermalManager.fan_speed[0] = singlenozzle_fan_speed[tmp_extruder];
           #endif
 
-          singlenozzle_temp[active_extruder] = thermalManager.target_temperature[0];
+          singlenozzle_temp[active_extruder] = thermalManager.temp_hotend[0].target;
           if (singlenozzle_temp[tmp_extruder] && singlenozzle_temp[tmp_extruder] != singlenozzle_temp[active_extruder]) {
             thermalManager.setTargetHotend(singlenozzle_temp[tmp_extruder], 0);
             #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)

@@ -39,7 +39,7 @@ void controllerfan_update() {
     // If any of the drivers or the bed are enabled...
     if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON
       #if HAS_HEATED_BED
-        || thermalManager.soft_pwm_amount_bed > 0
+        || thermalManager.temp_bed.soft_pwm_amount > 0
       #endif
         #if HAS_X2_ENABLE
           || X2_ENABLE_READ == X_ENABLE_ON

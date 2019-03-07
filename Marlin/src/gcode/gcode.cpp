@@ -392,6 +392,11 @@ void GcodeSuite::process_parsed_command(
         case 190: M190(); break;                                  // M190: Wait for bed temperature to reach target
       #endif
 
+      #if HAS_HEATED_CHAMBER
+        case 141: M141(); break;                                  // M141: Set chamber temperature
+        //case 191: M191(); break;                                // M191: Wait for chamber temperature to reach target
+      #endif
+
       case 105: M105(); KEEPALIVE_STATE(NOT_BUSY); return;        // M105: Report Temperatures (and say "ok")
 
       #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
