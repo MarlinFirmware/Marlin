@@ -551,6 +551,36 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #else
   #define ___Z3_DRIVER_TYPE A4988
 #endif
+#ifdef E0_DRIVER_TYPE
+  #define ___E0_DRIVER_TYPE E0_DRIVER_TYPE
+#else
+  #define ___E0_DRIVER_TYPE A4988
+#endif
+#ifdef E1_DRIVER_TYPE
+  #define ___E1_DRIVER_TYPE E1_DRIVER_TYPE
+#else
+  #define ___E1_DRIVER_TYPE A4988
+#endif
+#ifdef E2_DRIVER_TYPE
+  #define ___E2_DRIVER_TYPE E2_DRIVER_TYPE
+#else
+  #define ___E2_DRIVER_TYPE A4988
+#endif
+#ifdef E3_DRIVER_TYPE
+  #define ___E3_DRIVER_TYPE E3_DRIVER_TYPE
+#else
+  #define ___E3_DRIVER_TYPE A4988
+#endif
+#ifdef E4_DRIVER_TYPE
+  #define ___E4_DRIVER_TYPE E4_DRIVER_TYPE
+#else
+  #define ___E4_DRIVER_TYPE A4988
+#endif
+#ifdef E5_DRIVER_TYPE
+  #define ___E5_DRIVER_TYPE E5_DRIVER_TYPE
+#else
+  #define ___E5_DRIVER_TYPE A4988
+#endif
 
 #define _GET_AXIS_DRIVER_TYPE(AXIS) ___##AXIS##_DRIVER_TYPE
 #define ___DRIVER_REFERENCE(TYPE) _ ## TYPE ## _MODEL_REFERENCE
@@ -585,66 +615,66 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define _DRIVER_DIR_READ(AXIS) __DRIVER_DIR_READ(_GET_AXIS_DRIVER_TYPE(AXIS), AXIS)
 #define _DRIVER_DIR_CHANGE_DELAY(AXIS) ___ENFORCE_MINIMUM_STEPPER_DIR_DELAY(__DRIVER_DIR_CHANGE_DELAY(_GET_AXIS_DRIVER_TYPE(AXIS), AXIS))
 #define _DRIVER_STEP_INIT(AXIS) __DRIVER_STEP_INIT(_GET_AXIS_DRIVER_TYPE(AXIS), AXIS)
-#define _DRIVER_STEP_WRITE(AXIS, STATE) __DRIVER_STEP_WRITE(_GET_AXIS_DRIVER_TYPE(AXIS), AXIS, STATE)
-#define _DRIVER_STEP_READ(AXIS) __DRIVER_STEP_READ(_GET_AXIS_DRIVER_TYPE(AXIS), AXIS)
+#define _DRIVER_STEP_PULSE_START(AXIS, INVERT) __DRIVER_STEP_WRITE(_GET_AXIS_DRIVER_TYPE(AXIS), AXIS, !INVERT)
+#define _DRIVER_STEP_PULSE_STOP(AXIS, INVERT) __DRIVER_STEP_WRITE(_GET_AXIS_DRIVER_TYPE(AXIS), AXIS, INVERT)
 #define _DRIVER_STEP_FIRST_PHASE_WIDTH(AXIS) __DRIVER_STEP_FIRST_PHASE_WIDTH(_GET_AXIS_DRIVER_TYPE(AXIS))
 #define _DRIVER_STEP_SECOND_PHASE_WIDTH(AXIS) __DRIVER_STEP_SECOND_PHASE_WIDTH(_GET_AXIS_DRIVER_TYPE(AXIS))
 #define _DRIVER_STEP_SECOND_PHASE_NEED(AXIS) __DRIVER_STEP_SECOND_PHASE_NEED(_GET_AXIS_DRIVER_TYPE(AXIS))
 
 // X Stepper
-#define X_DRIVER_REFERENCE _DRIVER_REFERENCE(X)
-#define X_ENABLE_INIT _DRIVER_ENABLE_INIT(X)
+#define X_DRIVER_REFERENCE() _DRIVER_REFERENCE(X)
+#define X_ENABLE_INIT() _DRIVER_ENABLE_INIT(X)
 #define X_ENABLE_WRITE(STATE) _DRIVER_ENABLE_WRITE(X, STATE)
-#define X_ENABLE_READ _DRIVER_ENABLE_READ(X)
-#define X_DIR_INIT _DRIVER_DIR_INIT(X)
+#define X_ENABLE_READ() _DRIVER_ENABLE_READ(X)
+#define X_DIR_INIT() _DRIVER_DIR_INIT(X)
 #define X_DIR_WRITE(STATE) _DRIVER_DIR_WRITE(X, STATE)
-#define X_DIR_READ _DRIVER_DIR_READ(X)
+#define X_DIR_READ() _DRIVER_DIR_READ(X)
 #define X_DIR_CHANGE_DELAY _DRIVER_DIR_CHANGE_DELAY(X)
-#define X_STEP_INIT _DRIVER_STEP_INIT(X)
-#define X_STEP_WRITE(STATE) _DRIVER_STEP_WRITE(X, STATE)
-#define X_STEP_READ _DRIVER_STEP_READ(X)
+#define X_STEP_INIT() _DRIVER_STEP_INIT(X)
+#define X_STEP_PULSE_START(INVERT) _DRIVER_STEP_PULSE_START(X, INVERT)
+#define X_STEP_PULSE_STOP(INVERT) _DRIVER_STEP_PULSE_STOP(X, INVERT)
 #define X_STEP_FIRST_PHASE_WIDTH _DRIVER_STEP_FIRST_PHASE_WIDTH(X)
 #define X_STEP_SECOND_PHASE_WIDTH _DRIVER_STEP_SECOND_PHASE_WIDTH(X)
 #define X_STEP_SECOND_PHASE_NEED _DRIVER_STEP_SECOND_PHASE_NEED(X)
-X_DRIVER_REFERENCE;
+X_DRIVER_REFERENCE();
 
 // Y Stepper
-#define Y_DRIVER_REFERENCE _DRIVER_REFERENCE(Y)
-#define Y_ENABLE_INIT _DRIVER_ENABLE_INIT(Y)
+#define Y_DRIVER_REFERENCE() _DRIVER_REFERENCE(Y)
+#define Y_ENABLE_INIT() _DRIVER_ENABLE_INIT(Y)
 #define Y_ENABLE_WRITE(STATE) _DRIVER_ENABLE_WRITE(Y, STATE)
-#define Y_ENABLE_READ _DRIVER_ENABLE_READ(Y)
-#define Y_DIR_INIT _DRIVER_DIR_INIT(Y)
+#define Y_ENABLE_READ() _DRIVER_ENABLE_READ(Y)
+#define Y_DIR_INIT() _DRIVER_DIR_INIT(Y)
 #define Y_DIR_WRITE(STATE) _DRIVER_DIR_WRITE(Y, STATE)
-#define Y_DIR_READ _DRIVER_DIR_READ(Y)
+#define Y_DIR_READ() _DRIVER_DIR_READ(Y)
 #define Y_DIR_CHANGE_DELAY _DRIVER_DIR_CHANGE_DELAY(Y)
-#define Y_STEP_INIT _DRIVER_STEP_INIT(Y)
-#define Y_STEP_WRITE(STATE) _DRIVER_STEP_WRITE(Y, STATE)
-#define Y_STEP_READ _DRIVER_STEP_READ(Y)
+#define Y_STEP_INIT() _DRIVER_STEP_INIT(Y)
+#define Y_STEP_PULSE_START(INVERT) _DRIVER_STEP_PULSE_START(Y, INVERT)
+#define Y_STEP_PULSE_STOP(INVERT) _DRIVER_STEP_PULSE_STOP(Y, INVERT)
 #define Y_STEP_FIRST_PHASE_WIDTH _DRIVER_STEP_FIRST_PHASE_WIDTH(Y)
 #define Y_STEP_SECOND_PHASE_WIDTH _DRIVER_STEP_SECOND_PHASE_WIDTH(Y)
 #define Y_STEP_SECOND_PHASE_NEED _DRIVER_STEP_SECOND_PHASE_NEED(Y)
-Y_DRIVER_REFERENCE;
+Y_DRIVER_REFERENCE();
 
 // Z Stepper
-#define Z_DRIVER_REFERENCE _DRIVER_REFERENCE(Z)
-#define Z_ENABLE_INIT _DRIVER_ENABLE_INIT(Z)
+#define Z_DRIVER_REFERENCE() _DRIVER_REFERENCE(Z)
+#define Z_ENABLE_INIT() _DRIVER_ENABLE_INIT(Z)
 #define Z_ENABLE_WRITE(STATE) _DRIVER_ENABLE_WRITE(Z, STATE)
-#define Z_ENABLE_READ _DRIVER_ENABLE_READ(Z)
-#define Z_DIR_INIT _DRIVER_DIR_INIT(Z)
+#define Z_ENABLE_READ() _DRIVER_ENABLE_READ(Z)
+#define Z_DIR_INIT() _DRIVER_DIR_INIT(Z)
 #define Z_DIR_WRITE(STATE) _DRIVER_DIR_WRITE(Z, STATE)
-#define Z_DIR_READ _DRIVER_DIR_READ(Z)
+#define Z_DIR_READ() _DRIVER_DIR_READ(Z)
 #define Z_DIR_CHANGE_DELAY _DRIVER_DIR_CHANGE_DELAY(Z)
-#define Z_STEP_INIT _DRIVER_STEP_INIT(Z)
-#define Z_STEP_WRITE(STATE) _DRIVER_STEP_WRITE(Z, STATE)
-#define Z_STEP_READ _DRIVER_STEP_READ(Z)
+#define Z_STEP_INIT() _DRIVER_STEP_INIT(Z)
+#define Z_STEP_PULSE_START(INVERT) _DRIVER_STEP_PULSE_START(Z, INVERT)
+#define Z_STEP_PULSE_STOP(INVERT) _DRIVER_STEP_PULSE_STOP(Z, INVERT)
 #define Z_STEP_FIRST_PHASE_WIDTH _DRIVER_STEP_FIRST_PHASE_WIDTH(Z)
 #define Z_STEP_SECOND_PHASE_WIDTH _DRIVER_STEP_SECOND_PHASE_WIDTH(Z)
 #define Z_STEP_SECOND_PHASE_NEED _DRIVER_STEP_SECOND_PHASE_NEED(Z)
-Z_DRIVER_REFERENCE;
+Z_DRIVER_REFERENCE();
 
 // X2 Stepper
 #if HAS_X2_ENABLE
-  #define X2_DRIVER_REFERENCE _DRIVER_REFERENCE(X2)
+  #define X2_DRIVER_REFERENCE() _DRIVER_REFERENCE(X2)
   #define X2_ENABLE_INIT _DRIVER_ENABLE_INIT(X2)
   #define X2_ENABLE_WRITE(STATE) _DRIVER_ENABLE_WRITE(X2, STATE)
   #define X2_ENABLE_READ _DRIVER_ENABLE_READ(X2)
@@ -653,17 +683,17 @@ Z_DRIVER_REFERENCE;
   #define X2_DIR_READ _DRIVER_DIR_READ(X2)
   #define X2_DIR_CHANGE_DELAY _DRIVER_DIR_CHANGE_DELAY(X2)
   #define X2_STEP_INIT _DRIVER_STEP_INIT(X2)
-  #define X2_STEP_WRITE(STATE) _DRIVER_STEP_WRITE(X2, STATE)
-  #define X2_STEP_READ _DRIVER_STEP_READ(X2)
+  #define X2_STEP_PULSE_START(INVERT) _DRIVER_STEP_PULSE_START(X2, INVERT)
+  #define X2_STEP_PULSE_STOP(INVERT) _DRIVER_STEP_PULSE_STOP(X2, INVERT)
   #define X2_STEP_FIRST_PHASE_WIDTH _DRIVER_STEP_FIRST_PHASE_WIDTH(X2)
   #define X2_STEP_SECOND_PHASE_WIDTH _DRIVER_STEP_SECOND_PHASE_WIDTH(X2)
   #define X2_STEP_SECOND_PHASE_NEED _DRIVER_STEP_SECOND_PHASE_NEED(X2)
-  X2_DRIVER_REFERENCE;
+  X2_DRIVER_REFERENCE();
 #endif
 
 // Y2 Stepper
 #if HAS_Y2_ENABLE
-  #define Y2_DRIVER_REFERENCE _DRIVER_REFERENCE(Y2)
+  #define Y2_DRIVER_REFERENCE() _DRIVER_REFERENCE(Y2)
   #define Y2_ENABLE_INIT _DRIVER_ENABLE_INIT(Y2)
   #define Y2_ENABLE_WRITE(STATE) _DRIVER_ENABLE_WRITE(Y2, STATE)
   #define Y2_ENABLE_READ _DRIVER_ENABLE_READ(Y2)
@@ -672,19 +702,17 @@ Z_DRIVER_REFERENCE;
   #define Y2_DIR_READ _DRIVER_DIR_READ(Y2)
   #define Y2_DIR_CHANGE_DELAY _DRIVER_DIR_CHANGE_DELAY(Y2)
   #define Y2_STEP_INIT _DRIVER_STEP_INIT(Y2)
-  #define Y2_STEP_WRITE(STATE) _DRIVER_STEP_WRITE(Y2, STATE)
-  #define Y2_STEP_READ _DRIVER_STEP_READ(Y2)
+  #define Y2_STEP_PULSE_START(INVERT) _DRIVER_STEP_PULSE_START(Y2, INVERT)
+  #define Y2_STEP_PULSE_STOP(INVERT) _DRIVER_STEP_PULSE_STOP(Y2, INVERT)
   #define Y2_STEP_FIRST_PHASE_WIDTH _DRIVER_STEP_FIRST_PHASE_WIDTH(Y2)
   #define Y2_STEP_SECOND_PHASE_WIDTH _DRIVER_STEP_SECOND_PHASE_WIDTH(Y2)
   #define Y2_STEP_SECOND_PHASE_NEED _DRIVER_STEP_SECOND_PHASE_NEED(Y2)
-  Y2_DRIVER_REFERENCE;
-#else
-  #define Y2_DIR_WRITE(STATE) NOOP
+  Y2_DRIVER_REFERENCE();
 #endif
 
 // Z2 Stepper
 #if HAS_Z2_ENABLE
-  #define Z2_DRIVER_REFERENCE _DRIVER_REFERENCE(Z2)
+  #define Z2_DRIVER_REFERENCE() _DRIVER_REFERENCE(Z2)
   #define Z2_ENABLE_INIT _DRIVER_ENABLE_INIT(Z2)
   #define Z2_ENABLE_WRITE(STATE) _DRIVER_ENABLE_WRITE(Z2, STATE)
   #define Z2_ENABLE_READ _DRIVER_ENABLE_READ(Z2)
@@ -693,19 +721,17 @@ Z_DRIVER_REFERENCE;
   #define Z2_DIR_READ _DRIVER_DIR_READ(Z2)
   #define Z2_DIR_CHANGE_DELAY _DRIVER_DIR_CHANGE_DELAY(Z2)
   #define Z2_STEP_INIT _DRIVER_STEP_INIT(Z2)
-  #define Z2_STEP_WRITE(STATE) _DRIVER_STEP_WRITE(Z2, STATE)
-  #define Z2_STEP_READ _DRIVER_STEP_READ(Z2)
+  #define Z2_STEP_PULSE_START(INVERT) _DRIVER_STEP_PULSE_START(Z2, INVERT)
+  #define Z2_STEP_PULSE_STOP(INVERT) _DRIVER_STEP_PULSE_STOP(Z2, INVERT)
   #define Z2_STEP_FIRST_PHASE_WIDTH _DRIVER_STEP_FIRST_PHASE_WIDTH(Z2)
   #define Z2_STEP_SECOND_PHASE_WIDTH _DRIVER_STEP_SECOND_PHASE_WIDTH(Z2)
   #define Z2_STEP_SECOND_PHASE_NEED _DRIVER_STEP_SECOND_PHASE_NEED(Z2)
-  Z2_DRIVER_REFERENCE;
-#else
-  #define Z2_DIR_WRITE(STATE) NOOP
+  Z2_DRIVER_REFERENCE();
 #endif
 
 // Z3 Stepper
 #if HAS_Z3_ENABLE
-  #define Z3_DRIVER_REFERENCE _DRIVER_REFERENCE(Z3)
+  #define Z3_DRIVER_REFERENCE() _DRIVER_REFERENCE(Z3)
   #define Z3_ENABLE_INIT _DRIVER_ENABLE_INIT(Z3)
   #define Z3_ENABLE_WRITE(STATE) _DRIVER_ENABLE_WRITE(Z3, STATE)
   #define Z3_ENABLE_READ _DRIVER_ENABLE_READ(Z3)
@@ -714,248 +740,42 @@ Z_DRIVER_REFERENCE;
   #define Z3_DIR_READ _DRIVER_DIR_READ(Z3)
   #define Z3_DIR_CHANGE_DELAY _DRIVER_DIR_CHANGE_DELAY(Z3)
   #define Z3_STEP_INIT _DRIVER_STEP_INIT(Z3)
-  #define Z3_STEP_WRITE(STATE) _DRIVER_STEP_WRITE(Z3, STATE)
-  #define Z3_STEP_READ _DRIVER_STEP_READ(Z3)
+  #define Z3_STEP_PULSE_START(INVERT) _DRIVER_STEP_PULSE_START(Z3, INVERT)
+  #define Z3_STEP_PULSE_STOP(INVERT) _DRIVER_STEP_PULSE_STOP(Z3, INVERT)
   #define Z3_STEP_FIRST_PHASE_WIDTH _DRIVER_STEP_FIRST_PHASE_WIDTH(Z3)
   #define Z3_STEP_SECOND_PHASE_WIDTH _DRIVER_STEP_SECOND_PHASE_WIDTH(Z3)
   #define Z3_STEP_SECOND_PHASE_NEED _DRIVER_STEP_SECOND_PHASE_NEED(Z3)
-  Z3_DRIVER_REFERENCE;
-#else
-  #define Z3_DIR_WRITE(STATE) NOOP
+  Z3_DRIVER_REFERENCE();
 #endif
 
-// E0 Stepper
-#if AXIS_DRIVER_TYPE_E0(L6470)
-  extern L6470 stepperE0;
-  #define E0_ENABLE_INIT NOOP
-  #define E0_ENABLE_WRITE(STATE) NOOP
-  #define E0_ENABLE_READ (stepperE0.getStatus() & STATUS_HIZ)
-  #define E0_DIR_INIT NOOP
-  #define E0_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E0)
-  #define E0_DIR_READ (stepperE0.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E0)
-    extern TMC_CLASS(E0) stepperE0;
-  #endif
-  #if AXIS_DRIVER_TYPE_E0(TMC26X)
-    extern TMC26XStepper stepperE0;
-    #define E0_ENABLE_INIT NOOP
-    #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
-    #define E0_ENABLE_READ stepperE0.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E0)
-    #define E0_ENABLE_INIT NOOP
-    #define E0_ENABLE_WRITE(STATE) stepperE0.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E0_ENABLE_READ stepperE0.isEnabled()
-  #else
-    #define E0_ENABLE_INIT SET_OUTPUT(E0_ENABLE_PIN)
-    #define E0_ENABLE_WRITE(STATE) WRITE(E0_ENABLE_PIN,STATE)
-    #define E0_ENABLE_READ READ(E0_ENABLE_PIN)
-  #endif
-  #define E0_DIR_INIT SET_OUTPUT(E0_DIR_PIN)
-  #define E0_DIR_WRITE(STATE) WRITE(E0_DIR_PIN,STATE)
-  #define E0_DIR_READ READ(E0_DIR_PIN)
-#endif
-#define E0_STEP_INIT SET_OUTPUT(E0_STEP_PIN)
-#if AXIS_IS_TMC(E0) && ENABLED(USE_BOTH_EDGES_STEP)
-  #define E0_STEP_WRITE(STATE) if (STATE) { TOGGLE(E0_STEP_PIN); }
-#else
-  #define E0_STEP_WRITE(STATE) WRITE(E0_STEP_PIN,STATE)
-  #define E0_STEP_READ READ(E0_STEP_PIN)
-#endif
+// Ex Steppers
+#define E_ENABLE_INIT(AXIS) _DRIVER_ENABLE_INIT(AXIS)
+#define E_ENABLE_WRITE(AXIS, STATE) _DRIVER_ENABLE_WRITE(AXIS, STATE)
+#define E_ENABLE_READ(AXIS) _DRIVER_ENABLE_READ(AXIS)
+#define E_DIR_INIT(AXIS) _DRIVER_DIR_INIT(AXIS)
+#define E_DIR_CHANGE_DELAY(AXIS) _DRIVER_DIR_CHANGE_DELAY(AXIS)
+#define E_STEP_INIT(AXIS) _DRIVER_STEP_INIT(AXIS)
+#define E_STEP_FIRST_PHASE_WIDTH(AXIS) _DRIVER_STEP_FIRST_PHASE_WIDTH(AXIS)
+#define E_STEP_SECOND_PHASE_WIDTH(AXIS) _DRIVER_STEP_SECOND_PHASE_WIDTH(AXIS)
+#define E_STEP_SECOND_PHASE_NEED(AXIS) _DRIVER_STEP_SECOND_PHASE_NEED(AXIS)
 
-// E1 Stepper
-#if AXIS_DRIVER_TYPE_E1(L6470)
-  extern L6470 stepperE1;
-  #define E1_ENABLE_INIT NOOP
-  #define E1_ENABLE_WRITE(STATE) NOOP
-  #define E1_ENABLE_READ (stepperE1.getStatus() & STATUS_HIZ)
-  #define E1_DIR_INIT NOOP
-  #define E1_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E1)
-  #define E1_DIR_READ (stepperE1.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E1)
-    extern TMC_CLASS(E1) stepperE1;
-  #endif
-  #if AXIS_DRIVER_TYPE_E1(TMC26X)
-    extern TMC26XStepper stepperE1;
-    #define E1_ENABLE_INIT NOOP
-    #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
-    #define E1_ENABLE_READ stepperE1.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1)
-    #define E1_ENABLE_INIT NOOP
-    #define E1_ENABLE_WRITE(STATE) stepperE1.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E1_ENABLE_READ stepperE1.isEnabled()
-  #else
-    #define E1_ENABLE_INIT SET_OUTPUT(E1_ENABLE_PIN)
-    #define E1_ENABLE_WRITE(STATE) WRITE(E1_ENABLE_PIN,STATE)
-    #define E1_ENABLE_READ READ(E1_ENABLE_PIN)
-  #endif
-  #define E1_DIR_INIT SET_OUTPUT(E1_DIR_PIN)
-  #define E1_DIR_WRITE(STATE) WRITE(E1_DIR_PIN,STATE)
-  #define E1_DIR_READ READ(E1_DIR_PIN)
+#if E_STEPPERS
+  _DRIVER_REFERENCE(E0);
 #endif
-#define E1_STEP_INIT SET_OUTPUT(E1_STEP_PIN)
-#if AXIS_IS_TMC(E1) && ENABLED(USE_BOTH_EDGES_STEP)
-  #define E1_STEP_WRITE(STATE) if (STATE) { TOGGLE(E1_STEP_PIN); }
-#else
-  #define E1_STEP_WRITE(STATE) WRITE(E1_STEP_PIN,STATE)
-  #define E1_STEP_READ READ(E1_STEP_PIN)
+#if E_STEPPERS > 1
+  _DRIVER_REFERENCE(E1);
 #endif
-
-// E2 Stepper
-#if AXIS_DRIVER_TYPE_E2(L6470)
-  extern L6470 stepperE2;
-  #define E2_ENABLE_INIT NOOP
-  #define E2_ENABLE_WRITE(STATE) NOOP
-  #define E2_ENABLE_READ (stepperE2.getStatus() & STATUS_HIZ)
-  #define E2_DIR_INIT NOOP
-  #define E2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E2)
-  #define E2_DIR_READ (stepperE2.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E2)
-    extern TMC_CLASS(E2) stepperE2;
-  #endif
-  #if AXIS_DRIVER_TYPE_E2(TMC26X)
-    extern TMC26XStepper stepperE2;
-    #define E2_ENABLE_INIT NOOP
-    #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
-    #define E2_ENABLE_READ stepperE2.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2)
-    #define E2_ENABLE_INIT NOOP
-    #define E2_ENABLE_WRITE(STATE) stepperE2.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E2_ENABLE_READ stepperE2.isEnabled()
-  #else
-    #define E2_ENABLE_INIT SET_OUTPUT(E2_ENABLE_PIN)
-    #define E2_ENABLE_WRITE(STATE) WRITE(E2_ENABLE_PIN,STATE)
-    #define E2_ENABLE_READ READ(E2_ENABLE_PIN)
-  #endif
-  #define E2_DIR_INIT SET_OUTPUT(E2_DIR_PIN)
-  #define E2_DIR_WRITE(STATE) WRITE(E2_DIR_PIN,STATE)
-  #define E2_DIR_READ READ(E2_DIR_PIN)
+#if E_STEPPERS > 2
+  _DRIVER_REFERENCE(E2);
 #endif
-#define E2_STEP_INIT SET_OUTPUT(E2_STEP_PIN)
-#if AXIS_IS_TMC(E2) && ENABLED(USE_BOTH_EDGES_STEP)
-  #define E2_STEP_WRITE(STATE) if (STATE) { TOGGLE(E2_STEP_PIN); }
-#else
-  #define E2_STEP_WRITE(STATE) WRITE(E2_STEP_PIN,STATE)
-  #define E2_STEP_READ READ(E2_STEP_PIN)
+#if E_STEPPERS > 3
+  _DRIVER_REFERENCE(E3);
 #endif
-
-// E3 Stepper
-#if AXIS_DRIVER_TYPE_E3(L6470)
-  extern L6470 stepperE3;
-  #define E3_ENABLE_INIT NOOP
-  #define E3_ENABLE_WRITE(STATE) NOOP
-  #define E3_ENABLE_READ (stepperE3.getStatus() & STATUS_HIZ)
-  #define E3_DIR_INIT NOOP
-  #define E3_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E3)
-  #define E3_DIR_READ (stepperE3.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E3)
-    extern TMC_CLASS(E3) stepperE3;
-  #endif
-  #if AXIS_DRIVER_TYPE_E3(TMC26X)
-    extern TMC26XStepper stepperE3;
-    #define E3_ENABLE_INIT NOOP
-    #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
-    #define E3_ENABLE_READ stepperE3.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3)
-    #define E3_ENABLE_INIT NOOP
-    #define E3_ENABLE_WRITE(STATE) stepperE3.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E3_ENABLE_READ stepperE3.isEnabled()
-  #else
-    #define E3_ENABLE_INIT SET_OUTPUT(E3_ENABLE_PIN)
-    #define E3_ENABLE_WRITE(STATE) WRITE(E3_ENABLE_PIN,STATE)
-    #define E3_ENABLE_READ READ(E3_ENABLE_PIN)
-  #endif
-  #define E3_DIR_INIT SET_OUTPUT(E3_DIR_PIN)
-  #define E3_DIR_WRITE(STATE) WRITE(E3_DIR_PIN,STATE)
-  #define E3_DIR_READ READ(E3_DIR_PIN)
+#if E_STEPPERS > 4
+  _DRIVER_REFERENCE(E4);
 #endif
-#define E3_STEP_INIT SET_OUTPUT(E3_STEP_PIN)
-#if AXIS_IS_TMC(E3) && ENABLED(USE_BOTH_EDGES_STEP)
-  #define E3_STEP_WRITE(STATE) if (STATE) { TOGGLE(E3_STEP_PIN); }
-#else
-  #define E3_STEP_WRITE(STATE) WRITE(E3_STEP_PIN,STATE)
-  #define E3_STEP_READ READ(E3_STEP_PIN)
-#endif
-
-// E4 Stepper
-#if AXIS_DRIVER_TYPE_E4(L6470)
-  extern L6470 stepperE4;
-  #define E4_ENABLE_INIT NOOP
-  #define E4_ENABLE_WRITE(STATE) NOOP
-  #define E4_ENABLE_READ (stepperE4.getStatus() & STATUS_HIZ)
-  #define E4_DIR_INIT NOOP
-  #define E4_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E4)
-  #define E4_DIR_READ (stepperE4.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E4)
-    extern TMC_CLASS(E4) stepperE4;
-  #endif
-  #if AXIS_DRIVER_TYPE_E4(TMC26X)
-    extern TMC26XStepper stepperE4;
-    #define E4_ENABLE_INIT NOOP
-    #define E4_ENABLE_WRITE(STATE) stepperE4.setEnabled(STATE)
-    #define E4_ENABLE_READ stepperE4.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4)
-    #define E4_ENABLE_INIT NOOP
-    #define E4_ENABLE_WRITE(STATE) stepperE4.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E4_ENABLE_READ stepperE4.isEnabled()
-  #else
-    #define E4_ENABLE_INIT SET_OUTPUT(E4_ENABLE_PIN)
-    #define E4_ENABLE_WRITE(STATE) WRITE(E4_ENABLE_PIN,STATE)
-    #define E4_ENABLE_READ READ(E4_ENABLE_PIN)
-  #endif
-  #define E4_DIR_INIT SET_OUTPUT(E4_DIR_PIN)
-  #define E4_DIR_WRITE(STATE) WRITE(E4_DIR_PIN,STATE)
-  #define E4_DIR_READ READ(E4_DIR_PIN)
-#endif
-#define E4_STEP_INIT SET_OUTPUT(E4_STEP_PIN)
-#if AXIS_IS_TMC(E4) && ENABLED(USE_BOTH_EDGES_STEP)
-  #define E4_STEP_WRITE(STATE) if (STATE) { TOGGLE(E4_STEP_PIN); }
-#else
-  #define E4_STEP_WRITE(STATE) WRITE(E4_STEP_PIN,STATE)
-  #define E4_STEP_READ READ(E4_STEP_PIN)
-#endif
-
-// E5 Stepper
-#if AXIS_DRIVER_TYPE_E5(L6470)
-  extern L6470 stepperE5;
-  #define E5_ENABLE_INIT NOOP
-  #define E5_ENABLE_WRITE(STATE) NOOP
-  #define E5_ENABLE_READ (stepperE5.getStatus() & STATUS_HIZ)
-  #define E5_DIR_INIT NOOP
-  #define E5_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E5)
-  #define E5_DIR_READ (stepperE5.getStatus() & STATUS_DIR)
-#else
-  #if AXIS_IS_TMC(E5)
-    extern TMC_CLASS(E5) stepperE5;
-  #endif
-  #if AXIS_DRIVER_TYPE_E5(TMC26X)
-    extern TMC26XStepper stepperE5;
-    #define E5_ENABLE_INIT NOOP
-    #define E5_ENABLE_WRITE(STATE) stepperE5.setEnabled(STATE)
-    #define E5_ENABLE_READ stepperE5.isEnabled()
-  #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5)
-    #define E5_ENABLE_INIT NOOP
-    #define E5_ENABLE_WRITE(STATE) stepperE5.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
-    #define E5_ENABLE_READ stepperE5.isEnabled()
-  #else
-    #define E5_ENABLE_INIT SET_OUTPUT(E5_ENABLE_PIN)
-    #define E5_ENABLE_WRITE(STATE) WRITE(E5_ENABLE_PIN,STATE)
-    #define E5_ENABLE_READ READ(E5_ENABLE_PIN)
-  #endif
-  #define E5_DIR_INIT SET_OUTPUT(E5_DIR_PIN)
-  #define E5_DIR_WRITE(STATE) WRITE(E5_DIR_PIN,STATE)
-  #define E5_DIR_READ READ(E5_DIR_PIN)
-#endif
-#define E5_STEP_INIT SET_OUTPUT(E5_STEP_PIN)
-#if AXIS_IS_TMC(E5) && ENABLED(USE_BOTH_EDGES_STEP)
-  #define E5_STEP_WRITE(STATE) if (STATE) { TOGGLE(E5_STEP_PIN); }
-#else
-  #define E5_STEP_WRITE(STATE) WRITE(E5_STEP_PIN,STATE)
-  #define E5_STEP_READ READ(E5_STEP_PIN)
+#if E_STEPPERS > 5
+  _DRIVER_REFERENCE(E5);
 #endif
 
 /**
@@ -963,76 +783,90 @@ Z_DRIVER_REFERENCE;
  */
 #if ENABLED(SWITCHING_EXTRUDER) // One stepper driver per two extruders, reversed on odd index
   #if EXTRUDERS > 5
-    #define E_STEP_WRITE(E,V) do{ if (E < 2) { E0_STEP_WRITE(V); } else if (E < 4) { E1_STEP_WRITE(V); } else { E2_STEP_WRITE(V); } }while(0)
-    #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE( INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE( INVERT_E1_DIR); break; case 4: E2_DIR_WRITE(!INVERT_E2_DIR); case 5: E2_DIR_WRITE( INVERT_E2_DIR); } }while(0)
-    #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE( INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 4: E2_DIR_WRITE( INVERT_E2_DIR); case 5: E2_DIR_WRITE(!INVERT_E2_DIR); } }while(0)
+    #define E_STEP_PULSE_START(E) do{ if (E < 2) { _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); } else if (E < 4) { _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); } else { _DRIVER_STEP_PULSE_START(E2, INVERT_E_STEP_PIN); } }while(0)
+    #define  E_STEP_PULSE_STOP(E) do{ if (E < 2) {  _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); } else if (E < 4) {  _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); } else {  _DRIVER_STEP_PULSE_STOP(E2, INVERT_E_STEP_PIN); } }while(0)
+    #define         NORM_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 2: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); break; case 3: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); break; case 4: _DRIVER_DIR_WRITE(E2, !INVERT_E2_DIR); break; case 5: _DRIVER_DIR_WRITE(E2,  INVERT_E2_DIR); } }while(0)
+    #define          REV_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 2: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); break; case 3: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); break; case 4: _DRIVER_DIR_WRITE(E2,  INVERT_E2_DIR); break; case 5: _DRIVER_DIR_WRITE(E2, !INVERT_E2_DIR); } }while(0)
   #elif EXTRUDERS > 4
-    #define E_STEP_WRITE(E,V) do{ if (E < 2) { E0_STEP_WRITE(V); } else if (E < 4) { E1_STEP_WRITE(V); } else { E2_STEP_WRITE(V); } }while(0)
-    #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE( INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE( INVERT_E1_DIR); break; case 4: E2_DIR_WRITE(!INVERT_E2_DIR); } }while(0)
-    #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE( INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 4: E2_DIR_WRITE( INVERT_E2_DIR); } }while(0)
+    #define E_STEP_PULSE_START(E) do{ if (E < 2) { _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); } else if (E < 4) { _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); } else { _DRIVER_STEP_PULSE_START(E2, INVERT_E_STEP_PIN); } }while(0)
+    #define  E_STEP_PULSE_STOP(E) do{ if (E < 2) {  _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); } else if (E < 4) {  _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); } else {  _DRIVER_STEP_PULSE_STOP(E2, INVERT_E_STEP_PIN); } }while(0)
+    #define         NORM_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 2: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); break; case 3: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); break; case 4: _DRIVER_DIR_WRITE(E2, !INVERT_E2_DIR); } }while(0)
+    #define          REV_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 2: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); break; case 3: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); break; case 4: _DRIVER_DIR_WRITE(E2,  INVERT_E2_DIR); } }while(0)
   #elif EXTRUDERS > 3
-    #define E_STEP_WRITE(E,V) do{ if (E < 2) { E0_STEP_WRITE(V); } else { E1_STEP_WRITE(V); } }while(0)
-    #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE( INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE( INVERT_E1_DIR); } }while(0)
-    #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE( INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(!INVERT_E1_DIR); } }while(0)
+    #define E_STEP_PULSE_START(E) do{ if (E < 2) { _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); } else { _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); } }while(0)
+    #define  E_STEP_PULSE_STOP(E) do{ if (E < 2) {  _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); } else {  _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); } }while(0)
+    #define         NORM_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 2: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); break; case 3: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); } }while(0)
+    #define          REV_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 2: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); break; case 3: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); } }while(0)
   #elif EXTRUDERS > 2
-    #define E_STEP_WRITE(E,V) do{ if (E < 2) { E0_STEP_WRITE(V); } else { E1_STEP_WRITE(V); } }while(0)
-    #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE( INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); } }while(0)
-    #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE( INVERT_E1_DIR); } }while(0)
+    #define E_STEP_PULSE_START(E) do{ if (E < 2) { _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); } else { _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); } }while(0)
+    #define  E_STEP_PULSE_STOP(E) do{ if (E < 2) {  _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); } else {  _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); } }while(0)
+    #define         NORM_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 2: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); } }while(0)
+    #define          REV_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 2: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); } }while(0)
   #else
-    #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
-    #define   NORM_E_DIR(E)   do{ E0_DIR_WRITE(E ?  INVERT_E0_DIR : !INVERT_E0_DIR); }while(0)
-    #define    REV_E_DIR(E)   do{ E0_DIR_WRITE(E ? !INVERT_E0_DIR :  INVERT_E0_DIR); }while(0)
+    #define E_STEP_PULSE_START(E) _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN)
+    #define  E_STEP_PULSE_STOP(E) _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN)
+    #define         NORM_E_DIR(E) _DRIVER_DIR_WRITE(E0, (TEST(E, 0) ? !INVERT_E0_DIR:  INVERT_E0_DIR))
+    #define          REV_E_DIR(E) _DRIVER_DIR_WRITE(E0, (TEST(E, 0) ?  INVERT_E0_DIR: !INVERT_E0_DIR))
   #endif
 #elif ENABLED(PRUSA_MMU2)
-  #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
-  #define   NORM_E_DIR(E)   E0_DIR_WRITE(!INVERT_E0_DIR)
-  #define    REV_E_DIR(E)   E0_DIR_WRITE( INVERT_E0_DIR)
-
+  #define E_STEP_PULSE_START(E) _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN)
+  #define  E_STEP_PULSE_STOP(E) _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN)
+  #define         NORM_E_DIR(E) _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR)
+  #define          REV_E_DIR(E) _DRIVER_DIR_WRITE(E0, INVERT_E0_DIR)
 #elif ENABLED(MK2_MULTIPLEXER) // One multiplexed stepper driver, reversed on odd index
-  #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
-  #define   NORM_E_DIR(E)   do{ E0_DIR_WRITE(TEST(E, 0) ? !INVERT_E0_DIR:  INVERT_E0_DIR); }while(0)
-  #define    REV_E_DIR(E)   do{ E0_DIR_WRITE(TEST(E, 0) ?  INVERT_E0_DIR: !INVERT_E0_DIR); }while(0)
+  #define E_STEP_PULSE_START(E) _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN)
+  #define  E_STEP_PULSE_STOP(E) _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN)
+  #define         NORM_E_DIR(E) _DRIVER_DIR_WRITE(E0, (TEST(E, 0) ? !INVERT_E0_DIR:  INVERT_E0_DIR))
+  #define          REV_E_DIR(E) _DRIVER_DIR_WRITE(E0, (TEST(E, 0) ?  INVERT_E0_DIR: !INVERT_E0_DIR))
 #elif E_STEPPERS > 5
-  #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); break; case 4: E4_STEP_WRITE(V); case 5: E5_STEP_WRITE(V); } }while(0)
-  #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); case 5: E5_DIR_WRITE(!INVERT_E5_DIR); } }while(0)
-  #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); break; case 4: E4_DIR_WRITE( INVERT_E4_DIR); case 5: E5_DIR_WRITE( INVERT_E5_DIR); } }while(0)
+  #define E_STEP_PULSE_START(E) do{ switch (E) { case 0: _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); break; case 1: _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); break; case 2: _DRIVER_STEP_PULSE_START(E2, INVERT_E_STEP_PIN); break; case 3: _DRIVER_STEP_PULSE_START(E3, INVERT_E_STEP_PIN); break; case 4: _DRIVER_STEP_PULSE_START(E4, INVERT_E_STEP_PIN); case 5: _DRIVER_STEP_PULSE_START(E5, INVERT_E_STEP_PIN); } }while(0)
+  #define  E_STEP_PULSE_STOP(E) do{ switch (E) { case 0:  _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); break; case 1:  _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); break; case 2:  _DRIVER_STEP_PULSE_STOP(E2, INVERT_E_STEP_PIN); break; case 3:  _DRIVER_STEP_PULSE_STOP(E3, INVERT_E_STEP_PIN); break; case 4:  _DRIVER_STEP_PULSE_STOP(E4, INVERT_E_STEP_PIN); case 5:  _DRIVER_STEP_PULSE_STOP(E5, INVERT_E_STEP_PIN); } }while(0)
+  #define         NORM_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); break; case 2: _DRIVER_DIR_WRITE(E2, !INVERT_E2_DIR); break; case 3: _DRIVER_DIR_WRITE(E3, !INVERT_E3_DIR); break; case 4: _DRIVER_DIR_WRITE(E4, !INVERT_E4_DIR); case 5: _DRIVER_DIR_WRITE(E5, !INVERT_E5_DIR); } }while(0)
+  #define          REV_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); break; case 2: _DRIVER_DIR_WRITE(E2,  INVERT_E2_DIR); break; case 3: _DRIVER_DIR_WRITE(E3,  INVERT_E3_DIR); break; case 4: _DRIVER_DIR_WRITE(E4,  INVERT_E4_DIR); case 5: _DRIVER_DIR_WRITE(E5,  INVERT_E5_DIR); } }while(0)
 #elif E_STEPPERS > 4
-  #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); break; case 4: E4_STEP_WRITE(V); } }while(0)
-  #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); } }while(0)
-  #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); break; case 4: E4_DIR_WRITE( INVERT_E4_DIR); } }while(0)
+  #define E_STEP_PULSE_START(E) do{ switch (E) { case 0: _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); break; case 1: _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); break; case 2: _DRIVER_STEP_PULSE_START(E2, INVERT_E_STEP_PIN); break; case 3: _DRIVER_STEP_PULSE_START(E3, INVERT_E_STEP_PIN); break; case 4: _DRIVER_STEP_PULSE_START(E4, INVERT_E_STEP_PIN); } }while(0)
+  #define  E_STEP_PULSE_STOP(E) do{ switch (E) { case 0:  _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); break; case 1:  _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); break; case 2:  _DRIVER_STEP_PULSE_STOP(E2, INVERT_E_STEP_PIN); break; case 3:  _DRIVER_STEP_PULSE_STOP(E3, INVERT_E_STEP_PIN); break; case 4:  _DRIVER_STEP_PULSE_STOP(E4, INVERT_E_STEP_PIN); } }while(0)
+  #define         NORM_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); break; case 2: _DRIVER_DIR_WRITE(E2, !INVERT_E2_DIR); break; case 3: _DRIVER_DIR_WRITE(E3, !INVERT_E3_DIR); break; case 4: _DRIVER_DIR_WRITE(E4, !INVERT_E4_DIR); } }while(0)
+  #define          REV_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); break; case 2: _DRIVER_DIR_WRITE(E2,  INVERT_E2_DIR); break; case 3: _DRIVER_DIR_WRITE(E3,  INVERT_E3_DIR); break; case 4: _DRIVER_DIR_WRITE(E4,  INVERT_E4_DIR); } }while(0)
 #elif E_STEPPERS > 3
-  #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); } }while(0)
-  #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); } }while(0)
-  #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); } }while(0)
+  #define E_STEP_PULSE_START(E) do{ switch (E) { case 0: _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); break; case 1: _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); break; case 2: _DRIVER_STEP_PULSE_START(E2, INVERT_E_STEP_PIN); break; case 3: _DRIVER_STEP_PULSE_START(E3, INVERT_E_STEP_PIN); } }while(0)
+  #define  E_STEP_PULSE_STOP(E) do{ switch (E) { case 0:  _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); break; case 1:  _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); break; case 2:  _DRIVER_STEP_PULSE_STOP(E2, INVERT_E_STEP_PIN); break; case 3:  _DRIVER_STEP_PULSE_STOP(E3, INVERT_E_STEP_PIN); } }while(0)
+  #define         NORM_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); break; case 2: _DRIVER_DIR_WRITE(E2, !INVERT_E2_DIR); break; case 3: _DRIVER_DIR_WRITE(E3, !INVERT_E3_DIR); } }while(0)
+  #define          REV_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); break; case 2: _DRIVER_DIR_WRITE(E2,  INVERT_E2_DIR); break; case 3: _DRIVER_DIR_WRITE(E3,  INVERT_E3_DIR); } }while(0)
 #elif E_STEPPERS > 2
-  #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); } }while(0)
-  #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); } }while(0)
-  #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); } }while(0)
+  #define E_STEP_PULSE_START(E) do{ switch (E) { case 0: _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); break; case 1: _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); break; case 2: _DRIVER_STEP_PULSE_START(E2, INVERT_E_STEP_PIN); } }while(0)
+  #define  E_STEP_PULSE_STOP(E) do{ switch (E) { case 0:  _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); break; case 1:  _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); break; case 2:  _DRIVER_STEP_PULSE_STOP(E2, INVERT_E_STEP_PIN); } }while(0)
+  #define         NORM_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); break; case 2: _DRIVER_DIR_WRITE(E2, !INVERT_E2_DIR); } }while(0)
+  #define          REV_E_DIR(E) do{ switch (E) { case 0: _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); break; case 1: _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); break; case 2: _DRIVER_DIR_WRITE(E2,  INVERT_E2_DIR); } }while(0)
 #elif E_STEPPERS > 1
   #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
 
-    #define E_STEP_WRITE(E,V) do{ if (extruder_duplication_enabled)  { E0_STEP_WRITE(V); E1_STEP_WRITE(V); } \
-                                                  else if ((E) == 0) { E0_STEP_WRITE(V); } \
-                                                  else               { E1_STEP_WRITE(V); } }while(0)
-
-    #define   NORM_E_DIR(E)   do{ if (extruder_duplication_enabled)  { E0_DIR_WRITE(!INVERT_E0_DIR); E1_DIR_WRITE(!INVERT_E1_DIR); } \
-                                                  else if ((E) == 0) { E0_DIR_WRITE(!INVERT_E0_DIR); } \
-                                                  else               { E1_DIR_WRITE(!INVERT_E1_DIR); } }while(0)
-
-    #define    REV_E_DIR(E)   do{ if (extruder_duplication_enabled)  { E0_DIR_WRITE( INVERT_E0_DIR); E1_DIR_WRITE( INVERT_E1_DIR); } \
-                                                  else if ((E) == 0) { E0_DIR_WRITE( INVERT_E0_DIR); } \
-                                                  else               { E1_DIR_WRITE( INVERT_E1_DIR); } }while(0)
+    #define E_STEP_PULSE_START(E) do{ if (extruder_duplication_enabled)  { _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); } \
+                                                      else if ((E) == 0) { _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); } \
+                                                      else               { _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); } }while(0)
+    #define  E_STEP_PULSE_STOP(E) do{ if (extruder_duplication_enabled)  { _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); } \
+                                                      else if ((E) == 0) { _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); } \
+                                                      else               { _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); } }while(0)
+    #define         NORM_E_DIR(E) do{ if (extruder_duplication_enabled)  { _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); } \
+                                                      else if ((E) == 0) { _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); } \
+                                                      else               { _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); } }while(0)
+    #define          REV_E_DIR(E) do{ if (extruder_duplication_enabled)  { _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); } \
+                                                      else if ((E) == 0) { _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); } \
+                                                      else               { _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); } }while(0)
   #else
-    #define E_STEP_WRITE(E,V) do{ if (E == 0) { E0_STEP_WRITE(V); } else { E1_STEP_WRITE(V); } }while(0)
-    #define   NORM_E_DIR(E)   do{ if (E == 0) { E0_DIR_WRITE(!INVERT_E0_DIR); } else { E1_DIR_WRITE(!INVERT_E1_DIR); } }while(0)
-    #define    REV_E_DIR(E)   do{ if (E == 0) { E0_DIR_WRITE( INVERT_E0_DIR); } else { E1_DIR_WRITE( INVERT_E1_DIR); } }while(0)
+    #define E_STEP_PULSE_START(E) do{ if (E == 0) { _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN); } else { _DRIVER_STEP_PULSE_START(E1, INVERT_E_STEP_PIN); } }while(0)
+    #define  E_STEP_PULSE_STOP(E) do{ if (E == 0) {  _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN); } else {  _DRIVER_STEP_PULSE_STOP(E1, INVERT_E_STEP_PIN); } }while(0)
+    #define         NORM_E_DIR(E) do{ if (E == 0) { _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR); } else { _DRIVER_DIR_WRITE(E1, !INVERT_E1_DIR); } }while(0)
+    #define          REV_E_DIR(E) do{ if (E == 0) { _DRIVER_DIR_WRITE(E0,  INVERT_E0_DIR); } else { _DRIVER_DIR_WRITE(E1,  INVERT_E1_DIR); } }while(0)
   #endif
 #elif E_STEPPERS
-  #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
-  #define   NORM_E_DIR(E)   E0_DIR_WRITE(!INVERT_E0_DIR)
-  #define    REV_E_DIR(E)   E0_DIR_WRITE( INVERT_E0_DIR)
+  #define E_STEP_PULSE_START(E) _DRIVER_STEP_PULSE_START(E0, INVERT_E_STEP_PIN)
+  #define  E_STEP_PULSE_STOP(E) _DRIVER_STEP_PULSE_STOP(E0, INVERT_E_STEP_PIN)
+  #define         NORM_E_DIR(E) _DRIVER_DIR_WRITE(E0, !INVERT_E0_DIR)
+  #define          REV_E_DIR(E) _DRIVER_DIR_WRITE(E0, INVERT_E0_DIR)
 #else
-  #define E_STEP_WRITE(E,V) NOOP
-  #define   NORM_E_DIR(E)   NOOP
-  #define    REV_E_DIR(E)   NOOP
+  #define E_STEP_PULSE_START(E) NOOP
+  #define  E_STEP_PULSE_STOP(E) NOOP
+  #define         NORM_E_DIR(E) NOOP
+  #define          REV_E_DIR(E) NOOP
 #endif

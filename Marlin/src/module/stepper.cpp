@@ -323,12 +323,13 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     #define X_APPLY_STEP_SECOND_PHASE_WIDTH 0
   #endif
 #else
-  #define X_INIT_ENABLE do{ X_ENABLE_INIT; if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH); }while(0)
-  #define X_INIT_DIR X_DIR_INIT
+  #define X_INIT_ENABLE() do{ X_ENABLE_INIT(); if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH); }while(0)
+  #define X_INIT_DIR() X_DIR_INIT()
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
   #define X_APPLY_DIR_DELAY X_DIR_CHANGE_DELAY
-  #define X_INIT_STEP do{ X_STEP_INIT; X_STEP_WRITE(INVERT_X_STEP_PIN); disable_X(); }while(0)
-  #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
+  #define X_INIT_STEP() do{ X_STEP_INIT(); X_STEP_PULSE_STOP(INVERT_X_STEP_PIN); disable_X(); }while(0)
+  #define X_APPLY_STEP_PULSE_START() X_STEP_PULSE_START(INVERT_X_STEP_PIN)
+  #define X_APPLY_STEP_PULSE_STOP() X_STEP_PULSE_STOP(INVERT_X_STEP_PIN)
   #define X_APPLY_STEP_FIRST_PHASE_WIDTH X_STEP_FIRST_PHASE_WIDTH
   #define X_APPLY_STEP_SECOND_PHASE_NEED X_STEP_SECOND_PHASE_NEED
   #if X_APPLY_STEP_SECOND_PHASE_NEED
@@ -357,12 +358,13 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     #define Y_APPLY_STEP_SECOND_PHASE_WIDTH 0
   #endif
 #else
-  #define Y_INIT_ENABLE do{ Y_ENABLE_INIT; if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH); }while(0)
-  #define Y_INIT_DIR Y_DIR_INIT
+  #define Y_INIT_ENABLE() do{ Y_ENABLE_INIT(); if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH); }while(0)
+  #define Y_INIT_DIR() Y_DIR_INIT()
   #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v)
   #define Y_APPLY_DIR_DELAY Y_DIR_CHANGE_DELAY
-  #define Y_INIT_STEP do{ Y_STEP_INIT; Y_STEP_WRITE(INVERT_Y_STEP_PIN); disable_Y(); }while(0)
-  #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)
+  #define Y_INIT_STEP() do{ Y_STEP_INIT(); Y_STEP_PULSE_STOP(INVERT_Y_STEP_PIN); disable_Y(); }while(0)
+  #define Y_APPLY_STEP_PULSE_START() Y_STEP_PULSE_START(INVERT_Y_STEP_PIN)
+  #define Y_APPLY_STEP_PULSE_STOP() Y_STEP_PULSE_STOP(INVERT_Y_STEP_PIN)
   #define Y_APPLY_STEP_FIRST_PHASE_WIDTH Y_STEP_FIRST_PHASE_WIDTH
   #define Y_APPLY_STEP_SECOND_PHASE_NEED Y_STEP_SECOND_PHASE_NEED
   #if Y_APPLY_STEP_SECOND_PHASE_NEED
@@ -413,12 +415,13 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     #define Z_APPLY_STEP_SECOND_PHASE_WIDTH 0
   #endif
 #else
-  #define Z_INIT_ENABLE do{ Z_ENABLE_INIT; if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH); }while(0)
-  #define Z_INIT_DIR Z_DIR_INIT
+  #define Z_INIT_ENABLE() do{ Z_ENABLE_INIT(); if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH); }while(0)
+  #define Z_INIT_DIR() Z_DIR_INIT()
   #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
   #define Z_APPLY_DIR_DELAY Z_DIR_CHANGE_DELAY
-  #define Z_INIT_STEP do{ Z_STEP_INIT; Z_STEP_WRITE(INVERT_Z_STEP_PIN); disable_Z(); }while(0)
-  #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
+  #define Z_INIT_STEP() do{ Z_STEP_INIT(); Z_STEP_PULSE_STOP(INVERT_Z_STEP_PIN); disable_Z(); }while(0)
+  #define Z_APPLY_STEP_PULSE_START() Z_STEP_PULSE_START(INVERT_Z_STEP_PIN)
+  #define Z_APPLY_STEP_PULSE_STOP() Z_STEP_PULSE_STOP(INVERT_Z_STEP_PIN)
   #define Z_APPLY_STEP_FIRST_PHASE_WIDTH Z_STEP_FIRST_PHASE_WIDTH
   #define Z_APPLY_STEP_SECOND_PHASE_NEED Z_STEP_SECOND_PHASE_NEED
   #if Z_APPLY_STEP_SECOND_PHASE_WIDTH
@@ -428,8 +431,26 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #endif
 #endif
 
-#if DISABLED(MIXING_EXTRUDER)
-  #define E_APPLY_STEP(v,Q) E_STEP_WRITE(stepper_extruder, v)
+#define _AXIS_DISABLE(INDEX) disable_E## INDEX
+#define E_INIT_ENABLE(INDEX) do{ E_ENABLE_INIT(E## INDEX); if (!E_ENABLE_ON) E_ENABLE_WRITE(E## INDEX, HIGH); }while(0)
+#define E_INIT_DIR(INDEX) E_DIR_INIT(E## INDEX)
+#define E_INIT_STEP(INDEX) do{ E_STEP_INIT(E## INDEX); E_STEP_PULSE_STOP(E## INDEX); _AXIS_DISABLE(INDEX)(); }while(0)
+
+#if ENABLED(MIXING_EXTRUDER)
+  #define E_APPLY_STEP_PULSE_START() E_STEP_PULSE_START(mixer.get_next_stepper())
+  #define E_APPLY_STEP_PULSE_STOP() E_STEP_PULSE_STOP(mixer.get_stepper())
+
+  #define E_APPLY_STEP_FIRST_PHASE_WIDTH MINIMUM_STEPPER_PULSE / 2
+  #define E_APPLY_STEP_SECOND_PHASE_NEED true
+  #if E_APPLY_STEP_SECOND_PHASE_WIDTH
+    #define E_APPLY_STEP_SECOND_PHASE_WIDTH MINIMUM_STEPPER_PULSE / 2
+  #else
+    #define E_APPLY_STEP_SECOND_PHASE_WIDTH 0
+  #endif
+#else
+  #define E_APPLY_STEP_PULSE_START() E_STEP_PULSE_START(stepper_extruder)
+  #define E_APPLY_STEP_PULSE_STOP() E_STEP_PULSE_STOP(stepper_extruder)
+
   #define E_APPLY_STEP_FIRST_PHASE_WIDTH MINIMUM_STEPPER_PULSE / 2
   #define E_APPLY_STEP_SECOND_PHASE_NEED true
   #if E_APPLY_STEP_SECOND_PHASE_WIDTH
@@ -439,7 +460,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #endif
 #endif
 
-static const hal_timer_t step_pulse_first_phase_ticks[] = { // Precalculated step delays for each XYZE movement combination
+static constexpr hal_timer_t step_pulse_first_phase_ticks[] = { // Precalculated step delays for each XYZE movement combination
   GET_PULSE_TICKS(0)
   , GET_PULSE_TICKS(X_APPLY_STEP_FIRST_PHASE_WIDTH)
   , GET_PULSE_TICKS(Y_APPLY_STEP_FIRST_PHASE_WIDTH)
@@ -460,7 +481,7 @@ static const hal_timer_t step_pulse_first_phase_ticks[] = { // Precalculated ste
   #endif
 };
 
-static const hal_timer_t step_pulse_second_phase_ticks[] = { // Precalculated step delays for each XYZE movement combination
+static constexpr hal_timer_t step_pulse_second_phase_ticks[] = { // Precalculated step delays for each XYZE movement combination
   GET_PULSE_TICKS(0)
   , GET_PULSE_TICKS(X_APPLY_STEP_SECOND_PHASE_WIDTH)
   , GET_PULSE_TICKS(Y_APPLY_STEP_SECOND_PHASE_WIDTH)
@@ -481,7 +502,7 @@ static const hal_timer_t step_pulse_second_phase_ticks[] = { // Precalculated st
   #endif
 };
 
-static const uint8_t step_pulse_second_phase_need =
+static constexpr uint8_t step_pulse_second_phase_need =
   (X_APPLY_STEP_SECOND_PHASE_NEED << X_AXIS)
   | (Y_APPLY_STEP_SECOND_PHASE_NEED << Y_AXIS)
   | (Z_APPLY_STEP_SECOND_PHASE_NEED << Z_AXIS)
@@ -1569,15 +1590,15 @@ void Stepper::stepper_pulse_phase_isr() {
   do {
     uint8_t axis_has_step = 0;
 
-    #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
-    #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
+    #define _APPLY_STEP_PULSE_START(AXIS) AXIS ##_APPLY_STEP_PULSE_START
+    #define _APPLY_STEP_PULSE_STOP(AXIS) AXIS ##_APPLY_STEP_PULSE_STOP
     #define _STEP_SECOND_PHASE_NEED(AXIS) AXIS ##_APPLY_STEP_SECOND_PHASE_NEED
 
     // Start an active pulse, if Bresenham says so, and update position
     #define PULSE_START(AXIS) do{ \
       delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
       if (delta_error[_AXIS(AXIS)] >= 0) { \
-        _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); \
+        _APPLY_STEP_PULSE_START(AXIS)(); \
         axis_has_step |= 1 << _AXIS(AXIS); \
         count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
       } \
@@ -1588,7 +1609,7 @@ void Stepper::stepper_pulse_phase_isr() {
       if (delta_error[_AXIS(AXIS)] >= 0) { \
         delta_error[_AXIS(AXIS)] -= advance_divisor; \
         if (_STEP_SECOND_PHASE_NEED(AXIS)) { \
-          _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
+          _APPLY_STEP_PULSE_STOP(AXIS)(); \
         } \
       } \
     }while(0)
@@ -1617,7 +1638,7 @@ void Stepper::stepper_pulse_phase_isr() {
         #else // !LIN_ADVANCE && MIXING_EXTRUDER
           // Don't adjust delta_error[E_AXIS] here!
           // Being positive is the criteria for ending the pulse.
-          E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
+          E_APPLY_STEP_PULSE_START();
         #endif
       }
     #else // !LIN_ADVANCE && !MIXING_EXTRUDER
@@ -1653,7 +1674,7 @@ void Stepper::stepper_pulse_phase_isr() {
       #if ENABLED(MIXING_EXTRUDER)
         if (delta_error[E_AXIS] >= 0) {
           delta_error[E_AXIS] -= advance_divisor;
-          E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
+          E_APPLY_STEP_PULSE_STOP()
         }
       #else // !MIXING_EXTRUDER
         #if HAS_E0_STEP
@@ -2054,11 +2075,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     while (LA_steps) {
 
       // Set the STEP pulse ON
-      #if ENABLED(MIXING_EXTRUDER)
-        E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
-      #else
-        E_STEP_WRITE(stepper_extruder, !INVERT_E_STEP_PIN);
-      #endif
+      E_APPLY_STEP_PULSE_START();
 
       // Enforce a minimum duration for STEP pulse ON
       #if MINIMUM_STEPPER_PULSE
@@ -2072,11 +2089,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       LA_steps < 0 ? ++LA_steps : --LA_steps;
 
       // Set the STEP pulse OFF
-      #if ENABLED(MIXING_EXTRUDER)
-        E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
-      #else
-        E_STEP_WRITE(stepper_extruder, INVERT_E_STEP_PIN);
-      #endif
+      E_APPLY_STEP_PULSE_STOP();
 
       // For minimum pulse time wait before looping
       // Just wait for the requested pulse duration
@@ -2139,109 +2152,92 @@ void Stepper::init() {
 
   // Init Dir Pins
   #if HAS_X_DIR
-    X_INIT_DIR;
+    X_INIT_DIR();
   #endif
   #if HAS_Y_DIR
-    Y_INIT_DIR;
+    Y_INIT_DIR();
   #endif
   #if HAS_Z_DIR
-    Z_INIT_DIR;
+    Z_INIT_DIR();
   #endif
   #if HAS_E0_DIR
-    E0_DIR_INIT;
+    E_INIT_DIR(0);
   #endif
   #if HAS_E1_DIR
-    E1_DIR_INIT;
+    E_INIT_DIR(1);
   #endif
   #if HAS_E2_DIR
-    E2_DIR_INIT;
+    E_INIT_DIR(2);
   #endif
   #if HAS_E3_DIR
-    E3_DIR_INIT;
+    E_INIT_DIR(3);
   #endif
   #if HAS_E4_DIR
-    E4_DIR_INIT;
+    E_INIT_DIR(4);
   #endif
   #if HAS_E5_DIR
-    E5_DIR_INIT;
+    E_INIT_DIR(5);
   #endif
 
   // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
-    X_INIT_ENABLE;
+    X_INIT_ENABLE();
   #endif
   #if HAS_Y_ENABLE
-    Y_INIT_ENABLE;
+    Y_INIT_ENABLE();
   #endif
   #if HAS_Z_ENABLE
-    Z_INIT_ENABLE;
+    Z_INIT_ENABLE();
   #endif
   #if HAS_E0_ENABLE
-    E0_ENABLE_INIT;
-    if (!E_ENABLE_ON) E0_ENABLE_WRITE(HIGH);
+    E_INIT_ENABLE(0);
   #endif
   #if HAS_E1_ENABLE
-    E1_ENABLE_INIT;
-    if (!E_ENABLE_ON) E1_ENABLE_WRITE(HIGH);
+    E_INIT_ENABLE(1);
   #endif
   #if HAS_E2_ENABLE
-    E2_ENABLE_INIT;
-    if (!E_ENABLE_ON) E2_ENABLE_WRITE(HIGH);
+    E_INIT_ENABLE(2);
   #endif
   #if HAS_E3_ENABLE
-    E3_ENABLE_INIT;
-    if (!E_ENABLE_ON) E3_ENABLE_WRITE(HIGH);
+    E_INIT_ENABLE(3);
   #endif
   #if HAS_E4_ENABLE
-    E4_ENABLE_INIT;
-    if (!E_ENABLE_ON) E4_ENABLE_WRITE(HIGH);
+    E_INIT_ENABLE(4);
   #endif
   #if HAS_E5_ENABLE
-    E5_ENABLE_INIT;
-    if (!E_ENABLE_ON) E5_ENABLE_WRITE(HIGH);
+    E_INIT_ENABLE(5);
   #endif
-
-  #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
-  #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
-  #define _DISABLE(AXIS) disable_## AXIS()
-
-  #define AXIS_INIT(AXIS, PIN) \
-    _STEP_INIT(AXIS); \
-    _WRITE_STEP(AXIS, _INVERT_STEP_PIN(PIN)); \
-    _DISABLE(AXIS)
-
-  #define E_AXIS_INIT(NUM) AXIS_INIT(E## NUM, E)
 
   // Init Step Pins
   #if HAS_X_STEP
-    X_INIT_STEP;
+    X_INIT_STEP();
   #endif
 
   #if HAS_Y_STEP
-    Y_INIT_STEP;
+    Y_INIT_STEP();
   #endif
 
   #if HAS_Z_STEP
-    Z_INIT_STEP;
+    Z_INIT_STEP();
   #endif
 
   #if E_STEPPERS > 0 && HAS_E0_STEP
-    E_AXIS_INIT(0);
+    E_INIT_STEP(0);
   #endif
   #if E_STEPPERS > 1 && HAS_E1_STEP
-    E_AXIS_INIT(1);
+    E_INIT_STEP(1);
   #endif
   #if E_STEPPERS > 2 && HAS_E2_STEP
-    E_AXIS_INIT(2);
+    E_INIT_STEP(2);
   #endif
   #if E_STEPPERS > 3 && HAS_E3_STEP
-    E_AXIS_INIT(3);
+    E_INIT_STEP(3);
   #endif
   #if E_STEPPERS > 4 && HAS_E4_STEP
-    E_AXIS_INIT(4);
+    E_INIT_STEP(4);
   #endif
   #if E_STEPPERS > 5 && HAS_E5_STEP
-    E_AXIS_INIT(5);
+    E_INIT_STEP(5);
   #endif
 
   #if DISABLED(I2S_STEPPER_STREAM)

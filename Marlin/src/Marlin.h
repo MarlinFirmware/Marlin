@@ -152,8 +152,8 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define  E0_enable NOOP
   #define E0_disable do{ stepperE0.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif HAS_E0_ENABLE
-  #define  E0_enable E0_ENABLE_WRITE( E_ENABLE_ON)
-  #define E0_disable E0_ENABLE_WRITE(!E_ENABLE_ON)
+  #define  E0_enable E_ENABLE_WRITE(E0,  E_ENABLE_ON)
+  #define E0_disable E_ENABLE_WRITE(E0, !E_ENABLE_ON)
 #else
   #define  E0_enable NOOP
   #define E0_disable NOOP
@@ -164,8 +164,8 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define  E1_enable NOOP
   #define E1_disable do{ stepperE1.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif E_STEPPERS > 1 && HAS_E1_ENABLE
-  #define  E1_enable E1_ENABLE_WRITE( E_ENABLE_ON)
-  #define E1_disable E1_ENABLE_WRITE(!E_ENABLE_ON)
+  #define  E1_enable E_ENABLE_WRITE(E1,  E_ENABLE_ON)
+  #define E1_disable E_ENABLE_WRITE(E1, !E_ENABLE_ON)
 #else
   #define  E1_enable NOOP
   #define E1_disable NOOP
@@ -176,8 +176,8 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define  E2_enable NOOP
   #define E2_disable do{ stepperE2.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif E_STEPPERS > 2 && HAS_E2_ENABLE
-  #define  E2_enable E2_ENABLE_WRITE( E_ENABLE_ON)
-  #define E2_disable E2_ENABLE_WRITE(!E_ENABLE_ON)
+  #define  E2_enable E_ENABLE_WRITE(E2,  E_ENABLE_ON)
+  #define E2_disable E_ENABLE_WRITE(E2, !E_ENABLE_ON)
 #else
   #define  E2_enable NOOP
   #define E2_disable NOOP
@@ -188,8 +188,8 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define  E3_enable NOOP
   #define E3_disable do{ stepperE3.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif E_STEPPERS > 3 && HAS_E3_ENABLE
-  #define  E3_enable E3_ENABLE_WRITE( E_ENABLE_ON)
-  #define E3_disable E3_ENABLE_WRITE(!E_ENABLE_ON)
+  #define  E3_enable E_ENABLE_WRITE(E3,  E_ENABLE_ON)
+  #define E3_disable E_ENABLE_WRITE(E3, !E_ENABLE_ON)
 #else
   #define  E3_enable NOOP
   #define E3_disable NOOP
@@ -200,8 +200,8 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define  E4_enable NOOP
   #define E4_disable do{ stepperE4.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif E_STEPPERS > 4 && HAS_E4_ENABLE
-  #define  E4_enable E4_ENABLE_WRITE( E_ENABLE_ON)
-  #define E4_disable E4_ENABLE_WRITE(!E_ENABLE_ON)
+  #define  E4_enable E_ENABLE_WRITE(E4,  E_ENABLE_ON)
+  #define E4_disable E_ENABLE_WRITE(E4, !E_ENABLE_ON)
 #else
   #define  E4_enable NOOP
   #define E4_disable NOOP
@@ -212,8 +212,8 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define  E5_enable NOOP
   #define E5_disable do{ stepperE5.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif E_STEPPERS > 5 && HAS_E5_ENABLE
-  #define  E5_enable E5_ENABLE_WRITE( E_ENABLE_ON)
-  #define E5_disable E5_ENABLE_WRITE(!E_ENABLE_ON)
+  #define  E5_enable E_ENABLE_WRITE(E5,  E_ENABLE_ON)
+  #define E5_disable E_ENABLE_WRITE(E5, !E_ENABLE_ON)
 #else
   #define  E5_enable NOOP
   #define E5_disable NOOP
