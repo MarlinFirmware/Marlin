@@ -914,6 +914,7 @@
 #define HAS_TEMP_ADC_2 HAS_ADC_TEST(2)
 #define HAS_TEMP_ADC_3 HAS_ADC_TEST(3)
 #define HAS_TEMP_ADC_4 HAS_ADC_TEST(4)
+#define HAS_TEMP_ADC_5 HAS_ADC_TEST(5)
 #define HAS_TEMP_ADC_BED HAS_ADC_TEST(BED)
 #define HAS_TEMP_ADC_CHAMBER HAS_ADC_TEST(CHAMBER)
 
@@ -927,6 +928,7 @@
 #define HAS_HEATER_2 (PIN_EXISTS(HEATER_2))
 #define HAS_HEATER_3 (PIN_EXISTS(HEATER_3))
 #define HAS_HEATER_4 (PIN_EXISTS(HEATER_4))
+#define HAS_HEATER_5 (PIN_EXISTS(HEATER_5))
 #define HAS_HEATER_BED (PIN_EXISTS(HEATER_BED))
 
 // Shorthand for common combinations
@@ -1104,6 +1106,10 @@
 
 #if HAS_HEATER_4 && !defined(HEATER_4_INVERTING)
   #define HEATER_4_INVERTING false
+#endif
+
+#if HAS_HEATER_5 && !defined(HEATER_5_INVERTING)
+  #define HEATER_5_INVERTING false
 #endif
 
 /**

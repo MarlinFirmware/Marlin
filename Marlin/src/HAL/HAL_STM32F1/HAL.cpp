@@ -104,6 +104,12 @@ uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_0
     TEMP_0_PIN,
   #endif
+  #if HAS_HEATED_BED
+    TEMP_BED_PIN,
+  #endif
+  #if HAS_HEATED_CHAMBER
+    TEMP_CHAMBER_PIN,
+  #endif
   #if HAS_TEMP_ADC_1
     TEMP_1_PIN,
   #endif
@@ -116,8 +122,8 @@ uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_4
     TEMP_4_PIN,
   #endif
-  #if HAS_HEATED_BED
-    TEMP_BED_PIN,
+  #if HAS_TEMP_ADC_5
+    TEMP_5_PIN,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
@@ -127,6 +133,12 @@ uint8_t adc_pins[] = {
 enum TEMP_PINS : char {
   #if HAS_TEMP_ADC_0
     TEMP_0,
+  #endif
+  #if HAS_HEATED_BED
+    TEMP_BED,
+  #endif
+  #if HAS_HEATED_CHAMBER
+    TEMP_CHAMBER,
   #endif
   #if HAS_TEMP_ADC_1
     TEMP_1,
@@ -140,8 +152,8 @@ enum TEMP_PINS : char {
   #if HAS_TEMP_ADC_4
     TEMP_4,
   #endif
-  #if HAS_HEATED_BED
-    TEMP_BED,
+  #if HAS_TEMP_ADC_5
+    TEMP_5,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
@@ -268,6 +280,12 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_TEMP_ADC_0
       case TEMP_0_PIN: pin_index = TEMP_0; break;
     #endif
+    #if HAS_HEATED_BED
+      case TEMP_BED_PIN: pin_index = TEMP_BED; break;
+    #endif
+    #if HAS_HEATED_CHAMBER
+      case TEMP_CHAMBER_PIN: pin_index = TEMP_CHAMBER; break;
+    #endif
     #if HAS_TEMP_ADC_1
       case TEMP_1_PIN: pin_index = TEMP_1; break;
     #endif
@@ -280,8 +298,8 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_TEMP_ADC_4
       case TEMP_4_PIN: pin_index = TEMP_4; break;
     #endif
-    #if HAS_HEATED_BED
-      case TEMP_BED_PIN: pin_index = TEMP_BED; break;
+    #if HAS_TEMP_ADC_5
+      case TEMP_5_PIN: pin_index = TEMP_5; break;
     #endif
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;
