@@ -569,7 +569,7 @@ namespace ExtUI {
   #endif
 
   uint8_t getProgress_percent() {
-    return IFSD(card.percentDone(), 0);
+    return ui.get_progress();
   }
 
   uint32_t getProgress_seconds_elapsed() {
