@@ -143,18 +143,15 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
 }
 
 #if HOTENDS > 1
-
   inline void set_nozzle(measurements_t &m, const uint8_t extruder) {
     if (extruder != active_extruder) {
       park_above_object(m, CALIBRATION_MEASUREMENT_UNKNOWN);
       tool_change(extruder);
     }
   }
+#endif
 
-  inline void reset_nozzle_offsets() {
-    constexpr float tmp[XYZ][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
-    LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp[i][e];
-  }
+#if HAS_HOTEND_OFFSET
 
   inline void normalize_hotend_offsets() {
     for (uint8_t e = 1; e < HOTENDS; e++) {
@@ -167,7 +164,7 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
     hotend_offset[Z_AXIS][0] = 0;
   }
 
-#endif // HOTENDS > 1
+#endif
 
 inline bool read_calibration_pin() {
   #if HAS_CALIBRATION_PIN
@@ -526,7 +523,7 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
   probe_sides(m, uncertainty);
 
   // Adjust the hotend offset
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
     #if HAS_X_CENTER
       hotend_offset[X_AXIS][extruder] += m.pos_error[X_AXIS];
     #endif
@@ -534,7 +531,6 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
       hotend_offset[Y_AXIS][extruder] += m.pos_error[Y_AXIS];
     #endif
     hotend_offset[Z_AXIS][extruder] += m.pos_error[Z_AXIS];
-
     normalize_hotend_offsets();
   #endif
 
@@ -565,8 +561,11 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 
   HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
 
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
     normalize_hotend_offsets();
+  #endif
+
+  #if HOTENDS > 1
     set_nozzle(m, 0);
   #endif
 }
@@ -585,8 +584,8 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 inline void calibrate_all() {
   measurements_t m;
 
-  #if HOTENDS > 1
-    reset_nozzle_offsets();
+  #if HAS_HOTEND_OFFSET
+    reset_hotend_offsets();
   #endif
 
   TEMPORARY_BACKLASH_CORRECTION(1.0f);
