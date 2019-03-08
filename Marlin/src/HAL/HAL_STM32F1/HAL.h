@@ -51,46 +51,69 @@
 #include "watchdog_STM32F1.h"
 
 #include "HAL_timers_STM32F1.h"
-
+#include "../../inc/MarlinConfigPre.h"
 
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
 
-#if !WITHIN(SERIAL_PORT, -1, 3)
-  #error "SERIAL_PORT must be from -1 to 3"
+#ifdef SERIAL_USB
+  #define UsbSerial Serial
+  #define MSerial1  Serial1
+  #define MSerial2  Serial2
+  #define MSerial3  Serial3
+  #define MSerial4  Serial4
+  #define MSerial5  Serial5
+#else
+  extern USBSerial SerialUSB;
+  #define UsbSerial SerialUSB
+  #define MSerial1  Serial
+  #define MSerial2  Serial1
+  #define MSerial3  Serial2
+  #define MSerial4  Serial3
+  #define MSerial5  Serial4
+#endif
+
+#if !WITHIN(SERIAL_PORT, -1, 5)
+  #error "SERIAL_PORT must be from -1 to 5"
 #endif
 #if SERIAL_PORT == -1
-  extern USBSerial SerialUSB;
-  #define MYSERIAL0 SerialUSB
+  #define MYSERIAL0 UsbSerial
 #elif SERIAL_PORT == 0
-  #define MYSERIAL0 Serial
+  #error "Serial port 0 does not exist"
 #elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
+  #define MYSERIAL0 MSerial1
 #elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
+  #define MYSERIAL0 MSerial2
 #elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
+  #define MYSERIAL0 MSerial3
+#elif SERIAL_PORT == 4
+  #define MYSERIAL0 MSerial4
+#elif SERIAL_PORT == 5
+  #define MYSERIAL0 MSerial5
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if !WITHIN(SERIAL_PORT_2, -1, 3)
-    #error "SERIAL_PORT_2 must be from -1 to 3"
+  #if !WITHIN(SERIAL_PORT_2, -1, 5)
+    #error "SERIAL_PORT_2 must be from -1 to 5"
   #elif SERIAL_PORT_2 == SERIAL_PORT
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-    extern USBSerial SerialUSB;
-    #define MYSERIAL1 SerialUSB
+    #define MYSERIAL1 UsbSerial
   #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 Serial
+  #error "Serial port 0 does not exist"
   #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 Serial1
+    #define MYSERIAL1 MSerial1
   #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 Serial2
+    #define MYSERIAL1 MSerial2
   #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 Serial3
+    #define MYSERIAL1 MSerial3
+  #elif SERIAL_PORT_2 == 4
+    #define MYSERIAL1 MSerial4
+  #elif SERIAL_PORT_2 == 5
+    #define MYSERIAL1 MSerial5
   #endif
 #else
   #define NUM_SERIAL 1
