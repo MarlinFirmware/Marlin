@@ -162,7 +162,6 @@
 //
 // LCD / Controller
 //
-
 #if ENABLED(ULTRA_LCD)
 
   #define KILL_PIN         32
