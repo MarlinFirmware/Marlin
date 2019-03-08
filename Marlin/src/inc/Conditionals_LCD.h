@@ -338,13 +338,6 @@
   #endif
 #endif
 
-// Boot screens
-#if !HAS_SPI_LCD
-  #undef SHOW_BOOTSCREEN
-#elif !defined(BOOTSCREEN_TIMEOUT)
-  #define BOOTSCREEN_TIMEOUT 2500
-#endif
-
 /**
  * Extruders have some combination of stepper motors and hotends
  * so we separate these concepts into the defines:
