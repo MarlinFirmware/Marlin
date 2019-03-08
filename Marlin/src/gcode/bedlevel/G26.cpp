@@ -50,6 +50,10 @@
 #define INTERSECTION_CIRCLE_RADIUS 5
 #define CROSSHAIRS_SIZE 3
 
+#ifndef G26_XY_FEEDRATE
+  #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
+#endif
+
 #if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
   #error "CROSSHAIRS_SIZE must be less than INTERSECTION_CIRCLE_RADIUS."
 #endif
@@ -240,7 +244,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
 
   // Check if X or Y is involved in the movement.
   // Yes: a 'normal' movement. No: a retract() or recover()
-  feed_value = has_xy_component ? PLANNER_XY_FEEDRATE() / 3.0 : planner.settings.max_feedrate_mm_s[E_AXIS] / 1.5;
+  feed_value = has_xy_component ? G26_XY_FEEDRATE : planner.settings.max_feedrate_mm_s[E_AXIS] / 1.5;
 
   if (g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to() feed_value for XY:", feed_value);
 
@@ -567,8 +571,8 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('B')) {
     g26_bed_temp = parser.value_celsius();
-    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, 140)) {
-      SERIAL_ECHOLNPGM("?Specified bed temperature not plausible (40-140C).");
+    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 15))) {
+      SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 15), "C).");
       return;
     }
   }
@@ -597,7 +601,7 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('S')) {
     g26_nozzle = parser.value_float();
-    if (!WITHIN(g26_nozzle, 0.1, 1.0)) {
+    if (!WITHIN(g26_nozzle, 0.1, 2.0)) {
       SERIAL_ECHOLNPGM("?Specified nozzle size not plausible.");
       return;
     }
@@ -637,7 +641,7 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('H')) {
     g26_hotend_temp = parser.value_celsius();
-    if (!WITHIN(g26_hotend_temp, 165, 280)) {
+    if (!WITHIN(g26_hotend_temp, 165, (HEATER_0_MAXTEMP - 15))) {
       SERIAL_ECHOLNPGM("?Specified nozzle temperature not plausible.");
       return;
     }
