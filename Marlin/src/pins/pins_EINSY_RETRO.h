@@ -162,6 +162,7 @@
 //
 // LCD / Controller
 //
+
 #if ENABLED(ULTRA_LCD)
 
   #define KILL_PIN         32
@@ -176,8 +177,8 @@
       #define BTN_EN2         19
     #else
       #define LCD_PINS_RS     82
-      #define LCD_PINS_ENABLE 18
-      #define LCD_PINS_D4     19
+      #define LCD_PINS_ENABLE 18   // On 0.6b, use 61
+      #define LCD_PINS_D4     19   // On 0.6b, use 59
       #define LCD_PINS_D5     70
       #define LCD_PINS_D6     85
       #define LCD_PINS_D7     71
