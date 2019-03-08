@@ -24,16 +24,16 @@
  * Choose your version:
  */
 // normal size or plus?
-//#define ANYCUBIC_KOSSEL_PLUS
+#define ANYCUBIC_KOSSEL_PLUS
 
 // Anycubic Probe version 1 or 2 see README.md; 0 for no probe
-#define ANYCUBIC_PROBE_VERSION 0
+#define ANYCUBIC_PROBE_VERSION 2
 
 // Heated Bed:
 // 0 ... no heated bed
 // 1 ... aluminium heated bed with "BuildTak-like" sticker
 // 2 ... ultrabase heated bed
-#define ANYCUBIC_KOSSEL_ENABLE_BED 0
+#define ANYCUBIC_KOSSEL_ENABLE_BED 2
 
 /**
  * Configuration.h
@@ -84,15 +84,22 @@
 // example_configurations/SCARA and customize for your machine.
 //
 
+//===========================================================================
+//============================= HANGPRINTER =================================
+//===========================================================================
+// For a Hangprinter start with the configuration file in the
+// example_configurations/hangprinter directory and customize for your machine.
+//
+
 // @section info
 
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "@brandstaetter, @grbd" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "@brandstaetter, @grbd" // Who made the changes.  //last update by hagre
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 "Welcome to ANYCUBIC"         // will be shown during bootup in line 2
+#define STRING_SPLASH_LINE2 "Update 08 03 2019" // will be shown during bootup in line 2
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -131,7 +138,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 250000
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -144,7 +151,11 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "ANYCUBIC Kossel"
+#if ENABLED(ANYCUBIC_KOSSEL_PLUS)
+  #define CUSTOM_MACHINE_NAME "Anycubic Kossel L+  "
+#else
+  #define CUSTOM_MACHINE_NAME "Anycubic Kossel"
+#endif
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -323,13 +334,11 @@
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
-
 #if ANYCUBIC_KOSSEL_ENABLE_BED > 0
-   #define TEMP_SENSOR_BED 5
+  #define TEMP_SENSOR_BED 5
 #else
   #define TEMP_SENSOR_BED 0
 #endif
-
 #define TEMP_SENSOR_CHAMBER 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
@@ -369,7 +378,7 @@
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
-#define BED_MAXTEMP 120
+#define BED_MAXTEMP 130
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -388,7 +397,7 @@
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
-  #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
+  #define PID_FUNCTIONAL_RANGE 20 // If the temperature difference between the target temperature and the actual temperature
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
@@ -408,10 +417,10 @@
   //#define DEFAULT_Ki 2.25
   //#define DEFAULT_Kd 440
 
-  // Anycubic Kossel - run 'M106 S255' & 'M303 E0 C10 S200'
-  #define DEFAULT_Kp 22.36
-  #define DEFAULT_Ki 1.63
-  #define DEFAULT_Kd 76.48
+  // Anycubic Linear Plus e3dv5 witout siliconcover - run 'M106 S255' & 'M303 E0 C10 S200'
+  #define DEFAULT_Kp 21.88
+  #define DEFAULT_Ki 1.71
+  #define DEFAULT_Kd 70
 
 #endif // PIDTEMP
 
@@ -435,6 +444,7 @@
 #if ANYCUBIC_KOSSEL_ENABLE_BED > 0
   #define PIDTEMPBED
 #endif
+
 //#define BED_LIMIT_SWITCHING
 
 /**
@@ -455,19 +465,13 @@
     #define DEFAULT_bedKi 72.47
     #define DEFAULT_bedKd 482.59
   #elif ANYCUBIC_KOSSEL_ENABLE_BED == 2
-    // TODO get real PID values for Ultrabase Bed
-    #define DEFAULT_bedKp 374.03
-    #define DEFAULT_bedKi 72.47
-    #define DEFAULT_bedKd 482.59
+    //PID values for Ultrabase Bed (Sticker on Alubed)
+    #define DEFAULT_bedKp 830.0
+    #define DEFAULT_bedKi 160.0
+    #define DEFAULT_bedKd 1050.0
   #endif
 
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
-
-  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  //#define DEFAULT_bedKp 10.00
-  //#define DEFAULT_bedKi .023
-  //#define DEFAULT_bedKd 305.4
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -531,22 +535,16 @@
 //#define COREYX
 //#define COREZX
 //#define COREZY
-
-//===========================================================================
-//============================== Delta Settings =============================
-//===========================================================================
-// Enable DELTA kinematics and most of the default configuration for Deltas
 #define DELTA
 
 #if ENABLED(DELTA)
-
   // Make delta curves from many straight lines (linear interpolation).
   // This is a trade-off between visible corners (not enough segments)
   // and processor overload (too many expensive sqrt calls).
-  #define DELTA_SEGMENTS_PER_SECOND 80
+  #define DELTA_SEGMENTS_PER_SECOND 100
 
   // Convert feedrates to apply to the Effector instead of the Carriages
-  //#define DELTA_FEEDRATE_SCALING
+  #define DELTA_FEEDRATE_SCALING
 
   // After homing move down to a height where XY movement is unconstrained
   #define DELTA_HOME_TO_SAFE_ZONE
@@ -577,9 +575,9 @@
 
   #if ENABLED(ANYCUBIC_KOSSEL_PLUS)
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-    #define DELTA_PRINTABLE_RADIUS 116.0 // mm
+    #define DELTA_PRINTABLE_RADIUS 108.0 // mm
     // Center-to-center distance of the holes in the diagonal push rods.
-    #define DELTA_DIAGONAL_ROD 267 // mm
+    #define DELTA_DIAGONAL_ROD 268.5 // mm
       // Horizontal offset from middle of printer to smooth rod center.
     #define DELTA_SMOOTH_ROD_OFFSET 186 // mm
     // Horizontal offset of the universal joints on the end effector.
@@ -598,7 +596,7 @@
   #endif
 
   // height from z=0 to home position
-  #define DELTA_HEIGHT 320.00 // get this value from auto calibrate
+  #define DELTA_HEIGHT 305.00 // get this value from auto calibrate
 
   #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // get these from auto calibrate
 
@@ -630,6 +628,7 @@
 #define USE_XMAX_PLUG
 #define USE_YMAX_PLUG
 #define USE_ZMAX_PLUG
+
 
 // Enable pullup for all endstops to prevent a floating state
 #define ENDSTOPPULLUPS
@@ -706,6 +705,7 @@
 // @section motion
 
 // delta speeds must be the same on xyz
+
 /**
  * Default Settings
  *
@@ -741,7 +741,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 100, 100, 100, 100}
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 300, 200}
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -916,11 +916,11 @@
 #elif ANYCUBIC_PROBE_VERSION == 1
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -19.0 // Z offset: -below +above  [the nozzle]
 #else
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -16.8 // Z offset: -below +above  [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -16.5 // Z offset: -below +above  [the nozzle]
 #endif
 
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 20
+#define MIN_PROBE_EDGE 5
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 6000
@@ -935,7 +935,6 @@
 //   Set to 2 for a fast/slow probe, using the second probe result.
 //   Set to 3 or more for slow probes, averaging the results.
 #define MULTIPLE_PROBING 3
-
 /**
  * Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
  * Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
@@ -1005,8 +1004,8 @@
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
-#define Z_PROBE_OFFSET_RANGE_MIN -40
-#define Z_PROBE_OFFSET_RANGE_MAX 20
+#define Z_PROBE_OFFSET_RANGE_MIN -20
+#define Z_PROBE_OFFSET_RANGE_MAX 5
 
 // Enable the M48 repeatability test to test probe accuracy
 #if ANYCUBIC_PROBE_VERSION > 0
@@ -1051,7 +1050,7 @@
 
 // @section homing
 
-//#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed
+#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed
 
 //#define UNKNOWN_Z_NO_RAISE // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
 
@@ -1164,11 +1163,12 @@
 #if ANYCUBIC_PROBE_VERSION == 0
   #define AUTO_BED_LEVELING_3POINT
 #else
-//#define AUTO_BED_LEVELING_LINEAR
   #define AUTO_BED_LEVELING_BILINEAR
+#endif
+//#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
-#endif
+
 /**
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
@@ -1215,10 +1215,10 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION -(DELTA_PRINTABLE_RADIUS -(MIN_PROBE_EDGE))
-  #define RIGHT_PROBE_BED_POSITION DELTA_PRINTABLE_RADIUS -(MIN_PROBE_EDGE)
-  #define FRONT_PROBE_BED_POSITION -(DELTA_PRINTABLE_RADIUS -(MIN_PROBE_EDGE))
-  #define BACK_PROBE_BED_POSITION DELTA_PRINTABLE_RADIUS -(MIN_PROBE_EDGE)
+  #define LEFT_PROBE_BED_POSITION -(0.7 * DELTA_CALIBRATION_RADIUS) //0.7 ==cos/sin 45 (for circular Delta Printerss)
+  #define RIGHT_PROBE_BED_POSITION (0.7 * DELTA_CALIBRATION_RADIUS)
+  #define FRONT_PROBE_BED_POSITION -(0.7 * DELTA_CALIBRATION_RADIUS)
+  #define BACK_PROBE_BED_POSITION (0.7 * DELTA_CALIBRATION_RADIUS)
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1293,7 +1293,7 @@
 #define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
-  #define MBL_Z_STEP 0.05    // Step size while manually probing Z axis.
+  #define MBL_Z_STEP 0.025    // Step size while manually probing Z axis.
   #define LCD_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
 #endif
 
@@ -1333,15 +1333,16 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28).
   #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28).
 #endif
 
+// Homing speeds (mm/m)
 // Delta only homes to Z
-#define HOMING_FEEDRATE_Z  (100*60)
+#define HOMING_FEEDRATE_Z  (60*60)
 
 // @section calibrate
 
@@ -1452,7 +1453,7 @@
 
 #define PREHEAT_2_TEMP_HOTEND 240
 #define PREHEAT_2_TEMP_BED    100
-#define PREHEAT_2_FAN_SPEED   255 // Value from 0 to 255
+#define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
  * Nozzle Park
@@ -1584,7 +1585,8 @@
  *
  * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cn':'Chinese', 'cz':'Czech', 'cz_utf8':'Czech (UTF8)', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'es_utf8':'Spanish (UTF8)', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'fr_utf8':'French (UTF8)', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'kana':'Japanese', 'kana_utf8':'Japanese (UTF8)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'pt-br_utf8':'Portuguese (Brazilian UTF8)', 'pt_utf8':'Portuguese (UTF8)', 'ru':'Russian', 'sk_utf8':'Slovak (UTF8)', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Taiwan)', 'test':'TEST' }
  */
-#define LCD_LANGUAGE en
+#define LCD_LANGUAGE de
+
 
 /**
  * LCD Character Set
@@ -1634,7 +1636,7 @@
  *
  * Use CRC checks and retries on the SD communication.
  */
-//#define SD_CHECK_AND_RETRY
+#define SD_CHECK_AND_RETRY
 
 /**
  * LCD Menu Items
@@ -1682,7 +1684,7 @@
 //  If CLOCKWISE normally moves DOWN this makes it go UP.
 //  If CLOCKWISE normally moves UP this makes it go DOWN.
 //
-//#define REVERSE_MENU_DIRECTION
+#define REVERSE_MENU_DIRECTION
 
 //
 // Individual Axis Homing
@@ -1970,6 +1972,7 @@
 
 //
 // LCD for Malyan M200 printers.
+// This requires SDSUPPORT to be enabled
 //
 //#define MALYAN_LCD
 
