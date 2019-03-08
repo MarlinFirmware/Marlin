@@ -33,6 +33,7 @@
 
 #include "HAL.h"
 #include <STM32ADC.h>
+#include "../../inc/MarlinConfig.h"
 
 // --------------------------------------------------------------------------
 // Externals
@@ -91,7 +92,9 @@
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
-USBSerial SerialUSB;
+#ifdef SERIAL_USB
+  USBSerial SerialUSB;
+#endif
 
 uint16_t HAL_adc_result;
 
