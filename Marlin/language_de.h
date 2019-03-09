@@ -235,7 +235,7 @@
 #define MSG_MOTION                          _UxGT("Bewegung")
 #define MSG_FILAMENT                        _UxGT("Filament")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm³")
-#define MSG_FILAMENT_DIAM                   _UxGT("Durchm. Filament"")
+#define MSG_FILAMENT_DIAM                   _UxGT("Durchm. Filament")
 #define MSG_FILAMENT_UNLOAD                 _UxGT("Entladen mm")
 #define MSG_FILAMENT_LOAD                   _UxGT("Laden mm")
 #define MSG_ADVANCE_K                       _UxGT("Vorschubfaktor")
