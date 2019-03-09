@@ -1626,7 +1626,7 @@ void Planner::synchronize() {
             if (reversing == (error_correction < 0)) {
               if (segment_proportion == 0)
                 segment_proportion = MIN(1.0f, block->millimeters / backlash_smoothing_mm);
-              error_correction *= segment_proportion;
+              error_correction = ceil(segment_proportion * error_correction);
             }
             else
               error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
