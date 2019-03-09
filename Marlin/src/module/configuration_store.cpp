@@ -2028,15 +2028,7 @@ void MarlinSettings::reset() {
   #endif
 
   #if HAS_HOTEND_OFFSET
-    constexpr float tmp4[XYZ][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
-    static_assert(
-      tmp4[X_AXIS][0] == 0 && tmp4[Y_AXIS][0] == 0 && tmp4[Z_AXIS][0] == 0,
-      "Offsets for the first hotend must be 0.0."
-    );
-    LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp4[i][e];
-    #if ENABLED(DUAL_X_CARRIAGE)
-      hotend_offset[X_AXIS][1] = MAX(X2_HOME_POS, X2_MAX_POS);
-    #endif
+    reset_hotend_offsets();
   #endif
 
   #if EXTRUDERS > 1
