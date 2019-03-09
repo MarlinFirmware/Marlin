@@ -333,7 +333,7 @@ inline bool IsStopped() { return !Running; }
 extern volatile bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
-  extern volatile bool wait_for_user;
+  extern bool wait_for_user;
 #endif
 
 #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)

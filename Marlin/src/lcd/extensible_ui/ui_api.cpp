@@ -630,6 +630,12 @@ namespace ExtUI {
     feedrate_percentage = clamp(value, 10, 500);
   }
 
+  void setUserConfirmed(void) {
+    #if HAS_RESUME_CONTINUE
+      wait_for_user = false;
+    #endif
+  }
+
   void printFile(const char *filename) {
     IFSD(card.openAndPrintFile(filename), NOOP);
   }
