@@ -133,7 +133,6 @@
   #define EN_A _BV(BLEN_A)
   #define EN_B _BV(BLEN_B)
 
-  #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
   #if BUTTON_EXISTS(ENC)
