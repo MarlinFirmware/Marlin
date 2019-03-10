@@ -320,7 +320,15 @@
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 
 #define HAS_ADC_BUTTONS     ENABLED(ADC_KEYPAD)
-#define HAS_DIGITAL_BUTTONS (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL))
+// (EN1 cannot reasonably be used without EN2)
+#define HAS_DIGITAL_BUTTONS (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)\
+                            || (BUTTON_EXISTS(EN1) && BUTTON_EXISTS(EN2))\
+                            || BUTTON_EXISTS(ENC)\
+                            || BUTTON_EXISTS(BACK)\
+                            || BUTTON_EXISTS(UP)\
+                            || BUTTON_EXISTS(DWN)\
+                            || BUTTON_EXISTS(LFT)\
+                            || BUTTON_EXISTS(RT))
 #define HAS_SHIFT_ENCODER   (!HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_SPI_LCD && DISABLED(NEWPANEL))))
 #define HAS_ENCODER_WHEEL   ((!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || (BUTTON_EXISTS(EN1) && BUTTON_EXISTS(EN2)) )
 
