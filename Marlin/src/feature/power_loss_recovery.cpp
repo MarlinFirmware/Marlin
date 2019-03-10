@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -84,8 +84,8 @@ void PrintJobRecovery::changed() {
  */
 void PrintJobRecovery::check() {
   if (enabled) {
-    if (!card.flag.cardOK) card.initsd();
-    if (card.flag.cardOK) {
+    if (!card.isDetected()) card.initsd();
+    if (card.isDetected()) {
       load();
       if (!valid()) return purge();
       enqueue_and_echo_commands_P(PSTR("M1000 S"));
@@ -155,14 +155,14 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       info.active_hotend = active_extruder;
     #endif
 
-    COPY(info.target_temperature, thermalManager.target_temperature);
+    HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
 
     #if HAS_HEATED_BED
-      info.target_temperature_bed = thermalManager.target_temperature_bed;
+      info.target_temperature_bed = thermalManager.temp_bed.target;
     #endif
 
     #if FAN_COUNT
-      COPY(info.fan_speed, fan_speed);
+      COPY(info.fan_speed, thermalManager.fan_speed);
     #endif
 
     #if HAS_LEVELING
@@ -174,6 +174,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
           0
         #endif
       );
+    #endif
+
+    #if ENABLED(GRADIENT_MIX)
+      memcpy(&info.gradient, &mixer.gradient, sizeof(info.gradient));
     #endif
 
     #if ENABLED(FWRETRACT)
@@ -235,7 +239,7 @@ void PrintJobRecovery::resume() {
 
   // Set Z to 0, raise Z by 2mm, and Home (XY only for Cartesian) with no raise
   // (Only do simulated homing in Marlin Dev Mode.)
-  gcode.process_subcommands_now_P(PSTR("G92.0 Z0|G1 Z" STRINGIFY(RECOVERY_ZRAISE) "|G28 R0"
+  gcode.process_subcommands_now_P(PSTR("G92.0 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
     #if ENABLED(MARLIN_DEV_MODE)
       " S"
     #elif !IS_KINEMATIC
@@ -305,6 +309,10 @@ void PrintJobRecovery::resume() {
     }
   #endif
 
+  #if ENABLED(GRADIENT_MIX)
+    memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
+  #endif
+
   // Restore Z (plus raise) and E positions with G92.0
   dtostrf(info.current_position[Z_AXIS] + RECOVERY_ZRAISE, 1, 3, str_1);
   dtostrf(info.current_position[E_AXIS]
@@ -349,8 +357,7 @@ void PrintJobRecovery::resume() {
 
   void PrintJobRecovery::debug(PGM_P const prefix) {
     serialprintPGM(prefix);
-    SERIAL_ECHOPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head));
-    SERIAL_ECHOLNPAIR(" valid_foot:", int(info.valid_foot));
+    SERIAL_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head), " valid_foot:", int(info.valid_foot));
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
         SERIAL_ECHOPGM("current_position: ");
@@ -378,7 +385,7 @@ void PrintJobRecovery::resume() {
 
         #if FAN_COUNT
           SERIAL_ECHOPGM("fan_speed: ");
-          for (int8_t i = 0; i < FAN_COUNT; i++) {
+          FANS_LOOP(i) {
             SERIAL_ECHO(int(info.fan_speed[i]));
             if (i < FAN_COUNT - 1) SERIAL_CHAR(',');
           }
@@ -386,8 +393,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_LEVELING
-          SERIAL_ECHOPAIR("leveling: ", int(info.leveling));
-          SERIAL_ECHOLNPAIR(" fade: ", int(info.fade));
+          SERIAL_ECHOLNPAIR("leveling: ", int(info.leveling), "\n fade: ", int(info.fade));
         #endif
         #if ENABLED(FWRETRACT)
           SERIAL_ECHOPGM("retract: ");

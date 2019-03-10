@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -44,6 +44,53 @@
 
 #if ENABLED(PIDTEMP)
   #include "../../module/temperature.h"
+#endif
+
+void menu_tmc();
+
+#if ENABLED(DAC_STEPPER_CURRENT)
+
+  #include "../../feature/dac/stepper_dac.h"
+
+  uint8_t driverPercent[XYZE];
+  inline void dac_driver_getValues() { LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i); }
+  static void dac_driver_commit() { dac_current_set_percents(driverPercent); }
+
+  void menu_dac() {
+    dac_driver_getValues();
+    START_MENU();
+    MENU_BACK(MSG_CONTROL);
+    #define EDIT_DAC_PERCENT(N) MENU_ITEM_EDIT_CALLBACK(uint8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
+    EDIT_DAC_PERCENT(X);
+    EDIT_DAC_PERCENT(Y);
+    EDIT_DAC_PERCENT(Z);
+    EDIT_DAC_PERCENT(E);
+    MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_commit_eeprom);
+    END_MENU();
+  }
+
+#endif
+
+#if HAS_MOTOR_CURRENT_PWM
+
+  #include "../../module/stepper.h"
+
+  void menu_pwm() {
+    START_MENU();
+    MENU_BACK(MSG_CONTROL);
+    #define EDIT_CURRENT_PWM(LABEL,I) MENU_ITEM_EDIT_CALLBACK(long5, LABEL, &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+      EDIT_CURRENT_PWM(MSG_X MSG_Y, 0);
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+      EDIT_CURRENT_PWM(MSG_Z, 1);
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+      EDIT_CURRENT_PWM(MSG_E, 2);
+    #endif
+    END_MENU();
+  }
+
 #endif
 
 #if HAS_M206_COMMAND
@@ -215,7 +262,7 @@
 
 #endif // PID_AUTOTUNE_MENU
 
-#if ENABLED(PIDTEMP)
+#if ENABLED(PID_EDIT_MENU)
 
   float raw_Ki, raw_Kd; // place-holders for Ki and Kd edits
 
@@ -239,107 +286,121 @@
     void copy_and_scalePID_i_E ## N() { copy_and_scalePID_i(N); } \
     void copy_and_scalePID_d_E ## N() { copy_and_scalePID_d(N); }
 
-  #if ENABLED(PID_AUTOTUNE_MENU)
-    #define DEFINE_PIDTEMP_FUNCS(N) \
-      _DEFINE_PIDTEMP_BASE_FUNCS(N); \
-      void lcd_autotune_callback_E ## N() { _lcd_autotune(N); } typedef void _pid_##N##_void
-  #else
-    #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N) typedef void _pid_##N##_void
-  #endif
+#else
 
-  DEFINE_PIDTEMP_FUNCS(0);
-  #if ENABLED(PID_PARAMS_PER_HOTEND)
-    #if HOTENDS > 1
-      DEFINE_PIDTEMP_FUNCS(1);
-      #if HOTENDS > 2
-        DEFINE_PIDTEMP_FUNCS(2);
-        #if HOTENDS > 3
-          DEFINE_PIDTEMP_FUNCS(3);
-          #if HOTENDS > 4
-            DEFINE_PIDTEMP_FUNCS(4);
-            #if HOTENDS > 5
-              DEFINE_PIDTEMP_FUNCS(5);
-            #endif // HOTENDS > 5
-          #endif // HOTENDS > 4
-        #endif // HOTENDS > 3
-      #endif // HOTENDS > 2
-    #endif // HOTENDS > 1
-  #endif // PID_PARAMS_PER_HOTEND
+  #define _DEFINE_PIDTEMP_BASE_FUNCS(N) //
 
-#endif // PIDTEMP
+#endif
+
+#if ENABLED(PID_AUTOTUNE_MENU)
+  #define DEFINE_PIDTEMP_FUNCS(N) \
+    _DEFINE_PIDTEMP_BASE_FUNCS(N); \
+    void lcd_autotune_callback_E ## N() { _lcd_autotune(N); } //
+#else
+  #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N); //
+#endif
+
+DEFINE_PIDTEMP_FUNCS(0);
+#if ENABLED(PID_PARAMS_PER_HOTEND)
+  #if HOTENDS > 1
+    DEFINE_PIDTEMP_FUNCS(1);
+    #if HOTENDS > 2
+      DEFINE_PIDTEMP_FUNCS(2);
+      #if HOTENDS > 3
+        DEFINE_PIDTEMP_FUNCS(3);
+        #if HOTENDS > 4
+          DEFINE_PIDTEMP_FUNCS(4);
+          #if HOTENDS > 5
+            DEFINE_PIDTEMP_FUNCS(5);
+          #endif // HOTENDS > 5
+        #endif // HOTENDS > 4
+      #endif // HOTENDS > 3
+    #endif // HOTENDS > 2
+  #endif // HOTENDS > 1
+#endif // PID_PARAMS_PER_HOTEND
+
+#define SHOW_MENU_ADVANCED_TEMPERATURE ((ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(PID_EDIT_MENU))
 
 //
 // Advanced Settings > Temperature
 //
-void menu_advanced_temperature() {
-  START_MENU();
-  MENU_BACK(MSG_ADVANCED_SETTINGS);
-  //
-  // Autotemp, Min, Max, Fact
-  //
-  #if ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND
-    MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
-    MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, float(HEATER_0_MAXTEMP) - 15);
-    MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, float(HEATER_0_MAXTEMP) - 15);
-    MENU_ITEM_EDIT(float52, MSG_FACTOR, &planner.autotemp_factor, 0, 1);
-  #endif
+#if SHOW_MENU_ADVANCED_TEMPERATURE
 
-  //
-  // PID-P, PID-I, PID-D, PID-C, PID Autotune
-  // PID-P E1, PID-I E1, PID-D E1, PID-C E1, PID Autotune E1
-  // PID-P E2, PID-I E2, PID-D E2, PID-C E2, PID Autotune E2
-  // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
-  // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
-  // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
-  //
-  #if ENABLED(PIDTEMP)
+  void menu_advanced_temperature() {
+    START_MENU();
+    MENU_BACK(MSG_ADVANCED_SETTINGS);
+    //
+    // Autotemp, Min, Max, Fact
+    //
+    #if ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND
+      MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
+      MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, float(HEATER_0_MAXTEMP) - 15);
+      MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, float(HEATER_0_MAXTEMP) - 15);
+      MENU_ITEM_EDIT(float52, MSG_FACTOR, &planner.autotemp_factor, 0, 10);
+    #endif
 
-    #define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
-      raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
-      raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
-      MENU_ITEM_EDIT(float52sign, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
-      MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_PID_I ELABEL, &raw_Ki, 0.01f, 9990, copy_and_scalePID_i_E ## eindex); \
-      MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
+    //
+    // PID-P, PID-I, PID-D, PID-C, PID Autotune
+    // PID-P E1, PID-I E1, PID-D E1, PID-C E1, PID Autotune E1
+    // PID-P E2, PID-I E2, PID-D E2, PID-C E2, PID Autotune E2
+    // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
+    // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
+    // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
+    //
+    #if ENABLED(PID_EDIT_MENU)
 
-    #if ENABLED(PID_EXTRUSION_SCALING)
-      #define _PID_MENU_ITEMS(ELABEL, eindex) \
-        _PID_BASE_MENU_ITEMS(ELABEL, eindex); \
-        MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
+      #define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
+        raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
+        raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
+        MENU_ITEM_EDIT(float52sign, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
+        MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_PID_I ELABEL, &raw_Ki, 0.01f, 9990, copy_and_scalePID_i_E ## eindex); \
+        MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
+
+      #if ENABLED(PID_EXTRUSION_SCALING)
+        #define _PID_EDIT_MENU_ITEMS(ELABEL, eindex) \
+          _PID_BASE_MENU_ITEMS(ELABEL, eindex); \
+          MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
+      #else
+        #define _PID_EDIT_MENU_ITEMS(ELABEL, eindex) _PID_BASE_MENU_ITEMS(ELABEL, eindex)
+      #endif
+
     #else
-      #define _PID_MENU_ITEMS(ELABEL, eindex) _PID_BASE_MENU_ITEMS(ELABEL, eindex)
+
+      #define _PID_EDIT_MENU_ITEMS(ELABEL, eindex) NOOP
+
     #endif
 
     #if ENABLED(PID_AUTOTUNE_MENU)
-      #define PID_MENU_ITEMS(ELABEL, eindex) \
-        _PID_MENU_ITEMS(ELABEL, eindex); \
+      #define PID_EDIT_MENU_ITEMS(ELABEL, eindex) \
+        _PID_EDIT_MENU_ITEMS(ELABEL, eindex); \
         MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PID_AUTOTUNE ELABEL, &autotune_temp[eindex], 150, heater_maxtemp[eindex] - 15, lcd_autotune_callback_E ## eindex)
     #else
-      #define PID_MENU_ITEMS(ELABEL, eindex) _PID_MENU_ITEMS(ELABEL, eindex)
+      #define PID_EDIT_MENU_ITEMS(ELABEL, eindex) _PID_EDIT_MENU_ITEMS(ELABEL, eindex)
     #endif
 
     #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
-      PID_MENU_ITEMS(" " MSG_E1, 0);
-      PID_MENU_ITEMS(" " MSG_E2, 1);
+      PID_EDIT_MENU_ITEMS(" " MSG_E1, 0);
+      PID_EDIT_MENU_ITEMS(" " MSG_E2, 1);
       #if HOTENDS > 2
-        PID_MENU_ITEMS(" " MSG_E3, 2);
+        PID_EDIT_MENU_ITEMS(" " MSG_E3, 2);
         #if HOTENDS > 3
-          PID_MENU_ITEMS(" " MSG_E4, 3);
+          PID_EDIT_MENU_ITEMS(" " MSG_E4, 3);
           #if HOTENDS > 4
-            PID_MENU_ITEMS(" " MSG_E5, 4);
+            PID_EDIT_MENU_ITEMS(" " MSG_E5, 4);
             #if HOTENDS > 5
-              PID_MENU_ITEMS(" " MSG_E6, 5);
+              PID_EDIT_MENU_ITEMS(" " MSG_E6, 5);
             #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
     #else // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
-      PID_MENU_ITEMS("", 0);
+      PID_EDIT_MENU_ITEMS("", 0);
     #endif // !PID_PARAMS_PER_HOTEND || HOTENDS == 1
 
-  #endif // PIDTEMP
+    END_MENU();
+  }
 
-  END_MENU();
-}
+#endif // SHOW_MENU_ADVANCED_TEMPERATURE
 
 #if DISABLED(SLIM_LCD_MENUS)
 
@@ -368,7 +429,7 @@ void menu_advanced_temperature() {
       if (e == active_extruder)
         _planner_refresh_positioning();
       else
-        planner.steps_to_mm[E_AXIS + e] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS + e];
+        planner.steps_to_mm[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
     }
     void _planner_refresh_e0_positioning() { _planner_refresh_e_positioning(0); }
     void _planner_refresh_e1_positioning() { _planner_refresh_e_positioning(1); }
@@ -414,7 +475,7 @@ void menu_advanced_temperature() {
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
-    #else
+    #elif E_STEPPERS
       MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS], 1, 999);
     #endif
 
@@ -464,7 +525,7 @@ void menu_advanced_temperature() {
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
-    #else
+    #elif E_STEPPERS
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_acceleration_rates);
     #endif
 
@@ -527,7 +588,7 @@ void menu_advanced_temperature() {
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
-    #else
+    #elif E_STEPPERS
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
     #endif
 
@@ -558,12 +619,6 @@ void menu_advanced_settings() {
   START_MENU();
   MENU_BACK(MSG_CONFIGURATION);
 
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-  #elif HAS_BED_PROBE
-    MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
-  #endif
-
   #if DISABLED(SLIM_LCD_MENUS)
 
     #if HAS_M206_COMMAND
@@ -586,10 +641,22 @@ void menu_advanced_settings() {
       // M92 - Steps Per mm
       MENU_ITEM(submenu, MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
     }
-
   #endif // !SLIM_LCD_MENUS
 
-  MENU_ITEM(submenu, MSG_TEMPERATURE, menu_advanced_temperature);
+  #if ENABLED(DAC_STEPPER_CURRENT)
+    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_dac);
+  #endif
+  #if HAS_MOTOR_CURRENT_PWM
+    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_pwm);
+  #endif
+
+  #if HAS_TRINAMIC
+    MENU_ITEM(submenu, MSG_TMC_DRIVERS, menu_tmc);
+  #endif
+
+  #if SHOW_MENU_ADVANCED_TEMPERATURE
+    MENU_ITEM(submenu, MSG_TEMPERATURE, menu_advanced_temperature);
+  #endif
 
   #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
     MENU_ITEM(submenu, MSG_FILAMENT, menu_advanced_filament);

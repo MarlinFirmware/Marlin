@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -94,21 +94,9 @@ class unified_bed_leveling {
 
   public:
 
-    static void echo_name(
-      #if NUM_SERIAL > 1
-        const int8_t port = -1
-      #endif
-    );
-    static void report_current_mesh(
-      #if NUM_SERIAL > 1
-        const int8_t port = -1
-      #endif
-    );
-    static void report_state(
-      #if NUM_SERIAL > 1
-        const int8_t port = -1
-      #endif
-    );
+    static void echo_name();
+    static void report_current_mesh();
+    static void report_state();
     static void save_ubl_active_state_and_disable();
     static void restore_ubl_active_state_and_leave();
     static void display_map(const int) _O0;
@@ -214,11 +202,7 @@ class unified_bed_leveling {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             serialprintPGM( !WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) ? PSTR("x1_i") : PSTR("yi") );
-            SERIAL_ECHOPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0);
-            SERIAL_ECHOPAIR(",x1_i=", x1_i);
-            SERIAL_ECHOPAIR(",yi=", yi);
-            SERIAL_CHAR(')');
-            SERIAL_EOL();
+            SERIAL_ECHOLNPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0, ",x1_i=", x1_i, ",yi=", yi, ")");
           }
         #endif
 
@@ -247,12 +231,8 @@ class unified_bed_leveling {
       if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 1)) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            serialprintPGM( !WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) ? PSTR("xi") : PSTR("y1_i") );
-            SERIAL_ECHOPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0);
-            SERIAL_ECHOPAIR(", xi=", xi);
-            SERIAL_ECHOPAIR(", y1_i=", y1_i);
-            SERIAL_CHAR(')');
-            SERIAL_EOL();
+            serialprintPGM(!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) ? PSTR("xi") : PSTR("y1_i"));
+            SERIAL_ECHOLNPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0, ", xi=", xi, ", y1_i=", y1_i, ")");
           }
         #endif
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,8 +38,8 @@
 #include "../gcode/gcode.h"
 #include "../lcd/ultralcd.h"
 
-#if ENABLED(BLTOUCH) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
-  #include "../Marlin.h" // for stop()
+#if ENABLED(BLTOUCH) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST) || (QUIET_PROBING && ENABLED(PROBING_STEPPERS_OFF))
+  #include "../Marlin.h" // for stop(), disable_e_steppers
 #endif
 
 #if HAS_LEVELING
@@ -47,7 +47,7 @@
 #endif
 
 #if ENABLED(DELTA)
-  #include "../module/delta.h"
+  #include "delta.h"
 #endif
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -57,7 +57,7 @@
 float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_Z_SERVO_PROBE
-  #include "../module/servo.h"
+  #include "servo.h"
 #endif
 
 #if ENABLED(SENSORLESS_PROBING)
@@ -83,11 +83,7 @@ float zprobe_zoffset; // Initialized by settings.load()
    */
   static void dock_sled(bool stow) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("dock_sled(", stow);
-        SERIAL_CHAR(')');
-        SERIAL_EOL();
-      }
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("dock_sled(", stow, ")");
     #endif
 
     // Dock sled a bit closer to ensure proper capturing
@@ -268,31 +264,13 @@ float zprobe_zoffset; // Initialized by settings.load()
 
 #endif // Z_PROBE_ALLEN_KEY
 
-#if ENABLED(PROBING_FANS_OFF)
-
-  void fans_pause(const bool p) {
-    if (p != fans_paused) {
-      fans_paused = p;
-      if (p)
-        for (uint8_t x = 0; x < FAN_COUNT; x++) {
-          paused_fan_speed[x] = fan_speed[x];
-          fan_speed[x] = 0;
-        }
-      else
-        for (uint8_t x = 0; x < FAN_COUNT; x++)
-          fan_speed[x] = paused_fan_speed[x];
-    }
-  }
-
-#endif // PROBING_FANS_OFF
-
 #if QUIET_PROBING
   void probing_pause(const bool p) {
     #if ENABLED(PROBING_HEATERS_OFF)
       thermalManager.pause(p);
     #endif
     #if ENABLED(PROBING_FANS_OFF)
-      fans_pause(p);
+      thermalManager.set_fans_paused(p);
     #endif
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
@@ -335,11 +313,7 @@ float zprobe_zoffset; // Initialized by settings.load()
     bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("set_bltouch_deployed(", deploy);
-        SERIAL_CHAR(')');
-        SERIAL_EOL();
-      }
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("set_bltouch_deployed(", deploy, ")");
     #endif
 
     return false;
@@ -352,11 +326,7 @@ float zprobe_zoffset; // Initialized by settings.load()
  */
 inline void do_probe_raise(const float z_raise) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("do_probe_raise(", z_raise);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-    }
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("do_probe_raise(", z_raise, ")");
   #endif
 
   float z_dest = z_raise;
@@ -382,6 +352,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), PSTR("Continue"));
+    #endif
     while (wait_for_user) idle();
     ui.reset_status();
     KEEPALIVE_STATE(IN_HANDLER);
@@ -465,7 +438,7 @@ bool set_probe_deployed(const bool deploy) {
               oldYpos = current_position[Y_AXIS];
 
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
-    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+    #if USES_Z_MIN_PROBE_ENDSTOP
       #define PROBE_STOWED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
     #else
       #define PROBE_STOWED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
@@ -512,7 +485,7 @@ bool set_probe_deployed(const bool deploy) {
 #endif
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #if USES_Z_MIN_PROBE_ENDSTOP
     #define TEST_PROBE_PIN (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
   #else
     #define TEST_PROBE_PIN (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
@@ -569,7 +542,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
-    sensorless_t stealth_states { false, false, false };
+    sensorless_t stealth_states { false, false, false, false, false, false, false };
     #if ENABLED(DELTA)
       stealth_states.x = tmc_enable_stallguard(stepperX);
       stealth_states.y = tmc_enable_stallguard(stepperY);
@@ -722,10 +695,7 @@ static float run_z_probe() {
     const float z2 = current_position[Z_AXIS];
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("2nd Probe Z:", z2);
-        SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - z2);
-      }
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("2nd Probe Z:", z2, " Discrepancy:", first_probe_z - z2);
     #endif
 
     // Return a weighted average of the fast and slow probes
@@ -757,12 +727,14 @@ static float run_z_probe() {
 float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> probe_pt(", LOGICAL_X_POSITION(rx));
-      SERIAL_ECHOPAIR(", ", LOGICAL_Y_POSITION(ry));
-      SERIAL_ECHOPAIR(", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none");
-      SERIAL_ECHOPAIR(", ", int(verbose_level));
-      SERIAL_ECHOPAIR(", ", probe_relative ? "probe" : "nozzle");
-      SERIAL_ECHOLNPGM("_relative)");
+      SERIAL_ECHOLNPAIR(
+        ">>> probe_pt(", LOGICAL_X_POSITION(rx),
+        ", ", LOGICAL_Y_POSITION(ry),
+        ", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none",
+        ", ", int(verbose_level),
+        ", ", probe_relative ? "probe" : "nozzle",
+        "_relative)"
+      );
       DEBUG_POS("", current_position);
     }
   #endif

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -75,6 +75,7 @@
 #define BOARD_ULTIMAIN_2        72    // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
 #define BOARD_RUMBA             80    // Rumba
 #define BOARD_RUMBA_RAISE3D     333   // Raise3D N series Rumba derivative
+#define BOARD_RL200             801   // Rapide Lite 200 (v1, low-cost RUMBA clone with drv)
 #define BOARD_FORMBOT_TREX2PLUS 95    // Formbot T-Rex 2 Plus
 #define BOARD_FORMBOT_TREX3     96    // Formbot T-Rex 3
 #define BOARD_FORMBOT_RAPTOR    97    // Formbot Raptor
@@ -88,6 +89,7 @@
 #define BOARD_FYSETC_F6_13      541   // Fysetc F6
 #define BOARD_DUPLICATOR_I3_PLUS 31   // Wanhao Duplicator i3 Plus
 #define BOARD_VORON             441   // VORON Design
+#define BOARD_TRONXY_V3_1_0     442   // Tronxy TRONXY-V3-1.0
 
 //
 // Other ATmega1280, ATmega2560
@@ -116,6 +118,7 @@
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
 #define BOARD_GT2560_V3         76    // Geeetech GT2560 Rev B for A10(M/D)
 #define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2
+#define BOARD_GT2560_V3_A20     86    // Geeetech GT2560 Rev B for A20(M/D)
 #define BOARD_EINSTART_S        666   // Einstart retrofit
 
 //
@@ -189,6 +192,7 @@
 #define BOARD_AZTEEG_X5_MINI_WIFI 1758  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
 #define BOARD_BIQU_SKR_V1_1       1759  // BIQU SKR_V1.1 (Power outputs: Hotend0,Hotend1, Fan, Bed)
 #define BOARD_BIQU_B300_V1_0      1760  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
+#define BOARD_BIGTREE_SKR_V1_3    1761  // BIGTREE SKR_V1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 
 //
 // SAM3X8E ARM Cortex M3
@@ -222,6 +226,13 @@
 #define BOARD_ALLIGATOR        1602   // Alligator Board R2
 
 //
+// SAM3X8C ARM Cortex M3
+//
+
+#define BOARD_PRINTRBOARD_G2   1620   // PRINTRBOARD G2
+#define BOARD_ADSK             1610   // Arduino DUE Shield Kit (ADSK)
+
+//
 // STM32 ARM Cortex-M3
 //
 
@@ -241,6 +252,8 @@
 #define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
 #define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
 #define BOARD_ARMED            1807   // Arm'ed STM32F4 based controller
+#define BOARD_RUMBA32          1809   // RUMBA32 STM32F4 based controller
+#define BOARD_STEVAL           1866   // STEVAL-3DP001V1 3D PRINTER BOARD
 
 //
 // ARM Cortex M7
@@ -253,5 +266,11 @@
 // Espressif ESP32 WiFi
 //
 #define BOARD_ESP32            1900
+
+//
+// Simulations
+//
+
+#define BOARD_LINUX_RAMPS      2000
 
 #define MB(board) (defined(BOARD_##board) && MOTHERBOARD==BOARD_##board)

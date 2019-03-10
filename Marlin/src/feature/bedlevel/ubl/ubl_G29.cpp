@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -598,8 +598,7 @@
       }
 
       if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-        SERIAL_ECHOLNPGM("?Invalid storage slot.");
-        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
+        SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
         return;
       }
 
@@ -627,8 +626,7 @@
       }
 
       if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-        SERIAL_ECHOLNPGM("?Invalid storage slot.");
-        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
+        SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
         goto LEAVE;
       }
 
@@ -1241,8 +1239,8 @@
     out_mesh.distance = -99999.9f;
 
     // Get our reference position. Either the nozzle or probe location.
-    const float px = rx - (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
-                py = ry - (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
+    const float px = rx + (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
+                py = ry + (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
 
     float best_so_far = 99999.99f;
 
@@ -1407,7 +1405,7 @@
         #endif
 
         if (abort_flag) {
-          SERIAL_ECHOPGM("?Error probing point.  Aborting operation.\n");
+          SERIAL_ECHOLNPGM("?Error probing point.  Aborting operation.");
           return;
         }
       }
@@ -1640,10 +1638,8 @@
 
       if (storage_slot == -1)
         SERIAL_ECHOPGM("No Mesh Loaded.");
-      else {
-        SERIAL_ECHOPAIR("Mesh ", storage_slot);
-        SERIAL_ECHOPGM(" Loaded.");
-      }
+      else
+        SERIAL_ECHOPAIR("Mesh ", storage_slot, " Loaded.");
       SERIAL_EOL();
       serial_delay(50);
 
@@ -1683,19 +1679,16 @@
       SERIAL_EOL();
 
       #if HAS_KILL
-        SERIAL_ECHOPAIR("Kill pin on :", KILL_PIN);
-        SERIAL_ECHOLNPAIR("  state:", READ(KILL_PIN));
+        SERIAL_ECHOLNPAIR("Kill pin on :", int(KILL_PIN), "  state:", READ(KILL_PIN));
       #endif
       SERIAL_EOL();
       serial_delay(50);
 
       #if ENABLED(UBL_DEVEL_DEBUGGING)
-        SERIAL_ECHOLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation); SERIAL_EOL();
-        SERIAL_ECHOLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk); SERIAL_EOL();
+        SERIAL_ECHOLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation, "\nubl_state_recursion_chk :", ubl_state_recursion_chk);
         serial_delay(50);
 
-        SERIAL_ECHOPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()));
-        SERIAL_ECHOLNPAIR(" to ", hex_address((void*)settings.meshes_end_index()));
+        SERIAL_ECHOLNPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()), " to ", hex_address((void*)settings.meshes_end_index()));
         serial_delay(50);
 
         SERIAL_ECHOLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));         SERIAL_EOL();
@@ -1705,8 +1698,7 @@
         SERIAL_ECHOLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
         serial_delay(50);
 
-        SERIAL_ECHOPAIR("EEPROM can hold ", settings.calc_num_meshes());
-        SERIAL_ECHOLNPGM(" meshes.\n");
+        SERIAL_ECHOLNPAIR("EEPROM can hold ", settings.calc_num_meshes(), " meshes.\n");
         serial_delay(25);
       #endif // UBL_DEVEL_DEBUGGING
 
@@ -1745,32 +1737,24 @@
      * use cases for the users. So we can wait and see what to do with it.
      */
     void unified_bed_leveling::g29_compare_current_mesh_to_stored_mesh() {
-      int16_t a = settings.calc_num_meshes();
+      const int16_t a = settings.calc_num_meshes();
 
       if (!a) {
         SERIAL_ECHOLNPGM("?EEPROM storage not available.");
         return;
       }
 
-      if (!parser.has_value()) {
-        SERIAL_ECHOLNPGM("?Storage slot # required.");
-        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
+      if (!parser.has_value() || !WITHIN(g29_storage_slot, 0, a - 1)) {
+        SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
         return;
       }
 
       g29_storage_slot = parser.value_int();
 
-      if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-        SERIAL_ECHOLNPGM("?Invalid storage slot.");
-        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
-        return;
-      }
-
       float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
       settings.load_mesh(g29_storage_slot, &tmp_z_values);
 
-      SERIAL_ECHOPAIR("Subtracting mesh in slot ", g29_storage_slot);
-      SERIAL_ECHOLNPGM(" from current mesh.");
+      SERIAL_ECHOLNPAIR("Subtracting mesh in slot ", g29_storage_slot, " from current mesh.");
 
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
         for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)

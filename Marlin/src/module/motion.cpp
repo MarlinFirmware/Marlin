@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -85,10 +85,10 @@ bool relative_mode; // = false;
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
- *   Used by 'buffer_line_to_current_position' to do a move after changing it.
+ *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-float current_position[XYZE] = { 0 };
+float current_position[XYZE] = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
 
 /**
  * Cartesian Destination
@@ -96,7 +96,7 @@ float current_position[XYZE] = { 0 };
  *   and expected by functions like 'prepare_move_to_destination'.
  *   Set with 'get_destination_from_command' or 'set_destination_from_current'.
  */
-float destination[XYZE] = { 0 };
+float destination[XYZE]; // = { 0 }
 
 // The active extruder (tool). Set with T<extruder> command.
 #if EXTRUDERS > 1
@@ -106,6 +106,17 @@ float destination[XYZE] = { 0 };
 // Extruder offsets
 #if HAS_HOTEND_OFFSET
   float hotend_offset[XYZ][HOTENDS]; // Initialized by settings.load()
+  void reset_hotend_offsets() {
+    constexpr float tmp[XYZ][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
+    static_assert(
+      tmp[X_AXIS][0] == 0 && tmp[Y_AXIS][0] == 0 && tmp[Z_AXIS][0] == 0,
+      "Offsets for the first hotend must be 0.0."
+    );
+    LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp[i][e];
+    #if ENABLED(DUAL_X_CARRIAGE)
+      hotend_offset[X_AXIS][1] = MAX(X2_HOME_POS, X2_MAX_POS);
+    #endif
+  }
 #endif
 
 // The feedrate for the current move, often used as the default if
@@ -117,24 +128,36 @@ float feedrate_mm_s = MMM_TO_MMS(1500.0f);
 int16_t feedrate_percentage = 100;
 
 // Homing feedrate is const progmem - compare to constexpr in the header
-const float homing_feedrate_mm_s[4] PROGMEM = {
+const float homing_feedrate_mm_s[XYZ] PROGMEM = {
   #if ENABLED(DELTA)
     MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z),
   #else
     MMM_TO_MMS(HOMING_FEEDRATE_XY), MMM_TO_MMS(HOMING_FEEDRATE_XY),
   #endif
-  MMM_TO_MMS(HOMING_FEEDRATE_Z), 0
+  MMM_TO_MMS(HOMING_FEEDRATE_Z)
 };
 
 // Cartesian conversion result goes here:
 float cartes[XYZ];
 
 #if IS_KINEMATIC
-  float delta[ABC];
-#endif
 
-#if HAS_SCARA_OFFSET
-  float scara_home_offset[ABC];
+  float delta[ABC];
+
+  #if HAS_SCARA_OFFSET
+    float scara_home_offset[ABC];
+  #endif
+
+  #if HAS_SOFTWARE_ENDSTOPS
+    float soft_endstop_radius, soft_endstop_radius_2;
+  #elif IS_SCARA
+    constexpr float soft_endstop_radius = SCARA_PRINTABLE_RADIUS,
+                    soft_endstop_radius_2 = sq(SCARA_PRINTABLE_RADIUS);
+  #else // DELTA
+    constexpr float soft_endstop_radius = DELTA_PRINTABLE_RADIUS,
+                    soft_endstop_radius_2 = sq(DELTA_PRINTABLE_RADIUS);
+  #endif
+
 #endif
 
 /**
@@ -155,7 +178,7 @@ float cartes[XYZ];
   float workspace_offset[XYZ] = { 0 };
 #endif
 
-#if OLDSCHOOL_ABL
+#if HAS_ABL_NOT_UBL
   float xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
 #endif
 
@@ -253,8 +276,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-void line_to_current_position() {
-  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
+void line_to_current_position(const float &fr_mm_s/*=feedrate_mm_s*/) {
+  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], fr_mm_s, active_extruder);
 }
 
 /**
@@ -270,7 +293,7 @@ void buffer_line_to_destination(const float fr_mm_s) {
   /**
    * Calculate delta, start a line, and set current_position to destination
    */
-  void prepare_uninterpolated_move_to_destination(const float fr_mm_s/*=0.0*/) {
+  void prepare_uninterpolated_move_to_destination(const float &fr_mm_s/*=0.0*/) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
     #endif
@@ -294,22 +317,21 @@ void buffer_line_to_destination(const float fr_mm_s) {
 #endif // IS_KINEMATIC
 
 /**
- *  Plan a move to (X, Y, Z) and set the current_position
+ * Plan a move to (X, Y, Z) and set the current_position
  */
 void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s/*=0.0*/) {
-  const float old_feedrate_mm_s = feedrate_mm_s;
-
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) print_xyz(PSTR(">>> do_blocking_move_to"), NULL, rx, ry, rz);
   #endif
 
-  const float z_feedrate = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS);
+  const float z_feedrate  = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS),
+              xy_feedrate = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
   #if ENABLED(DELTA)
 
     if (!position_is_reachable(rx, ry)) return;
 
-    feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
+    REMEMBER(fr, feedrate_mm_s, xy_feedrate);
 
     set_destination_from_current();          // sync destination at the start
 
@@ -373,7 +395,7 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
 
     destination[X_AXIS] = rx;
     destination[Y_AXIS] = ry;
-    prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S);
+    prepare_uninterpolated_move_to_destination(xy_feedrate);
 
     // If Z needs to lower, do it after moving XY
     if (destination[Z_AXIS] > rz) {
@@ -385,26 +407,21 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
 
     // If Z needs to raise, do it before moving XY
     if (current_position[Z_AXIS] < rz) {
-      feedrate_mm_s = z_feedrate;
       current_position[Z_AXIS] = rz;
-      line_to_current_position();
+      line_to_current_position(z_feedrate);
     }
 
-    feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
     current_position[X_AXIS] = rx;
     current_position[Y_AXIS] = ry;
-    line_to_current_position();
+    line_to_current_position(xy_feedrate);
 
     // If Z needs to lower, do it after moving XY
     if (current_position[Z_AXIS] > rz) {
-      feedrate_mm_s = z_feedrate;
       current_position[Z_AXIS] = rz;
-      line_to_current_position();
+      line_to_current_position(z_feedrate);
     }
 
   #endif
-
-  feedrate_mm_s = old_feedrate_mm_s;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
@@ -423,31 +440,20 @@ void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm
 }
 
 //
-// Prepare to do endstop or probe moves
-// with custom feedrates.
+// Prepare to do endstop or probe moves with custom feedrates.
+//  - Save / restore current feedrate and multiplier
 //
-//  - Save current feedrates
-//  - Reset the rate multiplier
-//
-void bracket_probe_move(const bool before) {
-  static float saved_feedrate_mm_s;
-  static int16_t saved_feedrate_percentage;
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("bracket_probe_move", current_position);
-  #endif
-  if (before) {
-    saved_feedrate_mm_s = feedrate_mm_s;
-    saved_feedrate_percentage = feedrate_percentage;
-    feedrate_percentage = 100;
-  }
-  else {
-    feedrate_mm_s = saved_feedrate_mm_s;
-    feedrate_percentage = saved_feedrate_percentage;
-  }
+static float saved_feedrate_mm_s;
+static int16_t saved_feedrate_percentage;
+void setup_for_endstop_or_probe_move() {
+  saved_feedrate_mm_s = feedrate_mm_s;
+  saved_feedrate_percentage = feedrate_percentage;
+  feedrate_percentage = 100;
 }
-
-void setup_for_endstop_or_probe_move() { bracket_probe_move(true); }
-void clean_up_after_endstop_or_probe_move() { bracket_probe_move(false); }
+void clean_up_after_endstop_or_probe_move() {
+  feedrate_mm_s = saved_feedrate_mm_s;
+  feedrate_percentage = saved_feedrate_percentage;
+}
 
 #if HAS_SOFTWARE_ENDSTOPS
 
@@ -456,47 +462,6 @@ void clean_up_after_endstop_or_probe_move() { bracket_probe_move(false); }
   // Software Endstops are based on the configured limits.
   float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
         soft_endstop_max[XYZ] = { X_MAX_BED, Y_MAX_BED, Z_MAX_POS };
-
-  #if IS_KINEMATIC
-    float soft_endstop_radius, soft_endstop_radius_2;
-  #endif
-
-  /**
-   * Constrain the given coordinates to the software endstops.
-   *
-   * For DELTA/SCARA the XY constraint is based on the smallest
-   * radius within the set software endstops.
-   */
-  void clamp_to_software_endstops(float target[XYZ]) {
-    if (!soft_endstops_enabled) return;
-    #if IS_KINEMATIC
-      const float dist_2 = HYPOT2(target[X_AXIS], target[Y_AXIS]);
-      if (dist_2 > soft_endstop_radius_2) {
-        const float ratio = soft_endstop_radius / SQRT(dist_2); // 200 / 300 = 0.66
-        target[X_AXIS] *= ratio;
-        target[Y_AXIS] *= ratio;
-      }
-    #else
-      #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-        NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
-      #endif
-      #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-        NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
-      #endif
-      #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-        NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
-      #endif
-      #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-        NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
-      #endif
-    #endif
-    #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-      NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
-    #endif
-    #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-      NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
-    #endif
-  }
 
   /**
    * Software endstops can be used to monitor the open end of
@@ -507,7 +472,11 @@ void clean_up_after_endstop_or_probe_move() { bracket_probe_move(false); }
    * the software endstop positions must be refreshed to remain
    * at the same positions relative to the machine.
    */
-  void update_software_endstops(const AxisEnum axis) {
+  void update_software_endstops(const AxisEnum axis
+    #if HAS_HOTEND_OFFSET
+      , const uint8_t old_tool_index/*=0*/, const uint8_t new_tool_index/*=0*/
+    #endif
+  ) {
 
     #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -516,7 +485,7 @@ void clean_up_after_endstop_or_probe_move() { bracket_probe_move(false); }
         // In Dual X mode hotend_offset[X] is T1's home position
         const float dual_max_x = MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
 
-        if (active_extruder != 0) {
+        if (new_tool_index != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
           soft_endstop_min[X_AXIS] = X2_MIN_POS;
           soft_endstop_max[X_AXIS] = dual_max_x;
@@ -555,6 +524,22 @@ void clean_up_after_endstop_or_probe_move() { bracket_probe_move(false); }
         default: break;
       }
 
+    #elif HAS_HOTEND_OFFSET
+
+      // Software endstops are relative to the tool 0 workspace, so
+      // the movement limits must be shifted by the tool offset to
+      // retain the same physical limit when other tools are selected.
+      if (old_tool_index != new_tool_index) {
+        const float offs = hotend_offset[axis][new_tool_index] - hotend_offset[axis][old_tool_index];
+        soft_endstop_min[axis] += offs;
+        soft_endstop_max[axis] += offs;
+      }
+      else {
+        const float offs = hotend_offset[axis][active_extruder];
+        soft_endstop_min[axis] = base_min_pos(axis) + offs;
+        soft_endstop_max[axis] = base_max_pos(axis) + offs;
+      }
+
     #else
 
       soft_endstop_min[axis] = base_min_pos(axis);
@@ -571,7 +556,59 @@ void clean_up_after_endstop_or_probe_move() { bracket_probe_move(false); }
     #endif
   }
 
-#endif
+#endif // HAS_SOFTWARE_ENDSTOPS
+
+/**
+ * Constrain the given coordinates to the software endstops.
+ *
+ * For DELTA/SCARA the XY constraint is based on the smallest
+ * radius within the set software endstops.
+ */
+void clamp_to_software_endstops(float target[XYZ]) {
+
+  if (!soft_endstops_enabled) return;
+
+  #if IS_KINEMATIC
+
+    #if HAS_HOTEND_OFFSET && ENABLED(DELTA)
+      // The effector center position will be the target minus the hotend offset.
+      const float offx = hotend_offset[X_AXIS][active_extruder], offy = hotend_offset[Y_AXIS][active_extruder];
+    #else
+      // SCARA needs to consider the angle of the arm through the entire move, so for now use no tool offset.
+      constexpr float offx = 0, offy = 0;
+    #endif
+
+    const float dist_2 = HYPOT2(target[X_AXIS] - offx, target[Y_AXIS] - offy);
+    if (dist_2 > soft_endstop_radius_2) {
+      const float ratio = (soft_endstop_radius) / SQRT(dist_2); // 200 / 300 = 0.66
+      target[X_AXIS] *= ratio;
+      target[Y_AXIS] *= ratio;
+    }
+
+  #else
+
+    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+    #endif
+    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+    #endif
+    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+    #endif
+    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+    #endif
+
+  #endif
+
+  #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
+    NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
+  #endif
+  #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
+    NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
+  #endif
+}
 
 #if !UBL_SEGMENTED
 #if IS_KINEMATIC
@@ -1032,7 +1069,7 @@ void prepare_move_to_destination() {
 /**
  * Homing bump feedrate (mm/s)
  */
-inline float get_homing_bump_feedrate(const AxisEnum axis) {
+float get_homing_bump_feedrate(const AxisEnum axis) {
   #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_SPEED_SLOW);
   #endif
@@ -1050,13 +1087,16 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
    * Set sensorless homing if the axis has it, accounting for Core Kinematics.
    */
   sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis) {
-    sensorless_t stealth_states { false, false, false };
+    sensorless_t stealth_states { false, false, false, false, false, false, false };
 
     switch (axis) {
       default: break;
       #if X_SENSORLESS
         case X_AXIS:
           stealth_states.x = tmc_enable_stallguard(stepperX);
+          #if AXIS_HAS_STALLGUARD(X2)
+            stealth_states.x2 = tmc_enable_stallguard(stepperX2);
+          #endif
           #if CORE_IS_XY && Y_SENSORLESS
             stealth_states.y = tmc_enable_stallguard(stepperY);
           #elif CORE_IS_XZ && Z_SENSORLESS
@@ -1067,6 +1107,9 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       #if Y_SENSORLESS
         case Y_AXIS:
           stealth_states.y = tmc_enable_stallguard(stepperY);
+          #if AXIS_HAS_STALLGUARD(Y2)
+            stealth_states.y2 = tmc_enable_stallguard(stepperY2);
+          #endif
           #if CORE_IS_XY && X_SENSORLESS
             stealth_states.x = tmc_enable_stallguard(stepperX);
           #elif CORE_IS_YZ && Z_SENSORLESS
@@ -1077,6 +1120,12 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       #if Z_SENSORLESS
         case Z_AXIS:
           stealth_states.z = tmc_enable_stallguard(stepperZ);
+          #if AXIS_HAS_STALLGUARD(Z2)
+            stealth_states.z2 = tmc_enable_stallguard(stepperZ2);
+          #endif
+          #if AXIS_HAS_STALLGUARD(Z3)
+            stealth_states.z3 = tmc_enable_stallguard(stepperZ3);
+          #endif
           #if CORE_IS_XZ && X_SENSORLESS
             stealth_states.x = tmc_enable_stallguard(stepperX);
           #elif CORE_IS_YZ && Y_SENSORLESS
@@ -1094,6 +1143,9 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       #if X_SENSORLESS
         case X_AXIS:
           tmc_disable_stallguard(stepperX, enable_stealth.x);
+          #if AXIS_HAS_STALLGUARD(X2)
+            tmc_disable_stallguard(stepperX2, enable_stealth.x2);
+          #endif
           #if CORE_IS_XY && Y_SENSORLESS
             tmc_disable_stallguard(stepperY, enable_stealth.y);
           #elif CORE_IS_XZ && Z_SENSORLESS
@@ -1104,6 +1156,9 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       #if Y_SENSORLESS
         case Y_AXIS:
           tmc_disable_stallguard(stepperY, enable_stealth.y);
+          #if AXIS_HAS_STALLGUARD(Y2)
+            tmc_disable_stallguard(stepperY2, enable_stealth.y2);
+          #endif
           #if CORE_IS_XY && X_SENSORLESS
             tmc_disable_stallguard(stepperX, enable_stealth.x);
           #elif CORE_IS_YZ && Z_SENSORLESS
@@ -1114,6 +1169,12 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       #if Z_SENSORLESS
         case Z_AXIS:
           tmc_disable_stallguard(stepperZ, enable_stealth.z);
+          #if AXIS_HAS_STALLGUARD(Z2)
+            tmc_disable_stallguard(stepperZ2, enable_stealth.z2);
+          #endif
+          #if AXIS_HAS_STALLGUARD(Z3)
+            tmc_disable_stallguard(stepperZ3, enable_stealth.z3);
+          #endif
           #if CORE_IS_XZ && X_SENSORLESS
             tmc_disable_stallguard(stepperX, enable_stealth.x);
           #elif CORE_IS_YZ && Y_SENSORLESS
@@ -1302,7 +1363,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
       #elif ENABLED(DEBUG_LEVELING_FEATURE)
 
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("*** Z HOMED TO ENDSTOP (Z_MIN_PROBE_ENDSTOP) ***");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("*** Z HOMED TO ENDSTOP ***");
 
       #endif
     }
@@ -1397,7 +1458,7 @@ void homeaxis(const AxisEnum axis) {
   #endif
 
   // Set flags for X, Y, Z motor locking
-  #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+  #if HAS_EXTRA_ENDSTOPS
     switch (axis) {
       #if ENABLED(X_DUAL_ENDSTOPS)
         case X_AXIS:
@@ -1475,7 +1536,7 @@ void homeaxis(const AxisEnum axis) {
     #endif
   }
 
-  #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+  #if HAS_EXTRA_ENDSTOPS
     const bool pos_dir = axis_home_dir > 0;
     #if ENABLED(X_DUAL_ENDSTOPS)
       if (axis == X_AXIS) {

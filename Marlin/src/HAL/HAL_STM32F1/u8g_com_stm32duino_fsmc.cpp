@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,10 +26,11 @@
  * Communication interface for FSMC
  */
 
+#if defined(STM32F1) || defined(STM32F1xx)
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_GRAPHICAL_LCD
-#if defined(STM32F1) || defined(STM32F1xx)
 
 #include "U8glib.h"
 #include "libmaple/fsmc.h"
@@ -57,7 +58,7 @@ uint8_t u8g_com_stm32duino_fsmc_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, voi
 
   static uint8_t isCommand;
 
-  switch(msg) {
+  switch (msg) {
     case U8G_COM_MSG_STOP:
       break;
     case U8G_COM_MSG_INIT:
@@ -153,7 +154,7 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
   if (fsmcInit) return;
   fsmcInit = 1;
 
-  switch(cs) {
+  switch (cs) {
     case FSMC_CS_NE1: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION1; break;
     case FSMC_CS_NE2: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION2; break;
     case FSMC_CS_NE3: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION3; break;
@@ -163,7 +164,7 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
 
   #define _ORADDR(N) controllerAddress |= (_BV32(N) - 2)
 
-  switch(rs) {
+  switch (rs) {
     case FSMC_RS_A0:  _ORADDR( 1); break;
     case FSMC_RS_A1:  _ORADDR( 2); break;
     case FSMC_RS_A2:  _ORADDR( 3); break;
@@ -227,29 +228,30 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
 }
 
 void LCD_IO_WriteData(uint16_t RegValue) {
-	LCD->RAM = RegValue;
-	__DSB();
+  LCD->RAM = RegValue;
+  __DSB();
 }
 
 void LCD_IO_WriteReg(uint8_t Reg) {
-	LCD->REG = (uint16_t)Reg;
-	__DSB();
+  LCD->REG = (uint16_t)Reg;
+  __DSB();
 }
 
 uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize) {
-	volatile uint32_t data;
-	LCD->REG = (uint16_t)RegValue;
-	__DSB();
+  volatile uint32_t data;
+  LCD->REG = (uint16_t)RegValue;
+  __DSB();
 
-	data = LCD->RAM; // dummy read
-	data = LCD->RAM & 0x00FF;
+  data = LCD->RAM; // dummy read
+  data = LCD->RAM & 0x00FF;
 
-	while (--ReadSize) {
-		data <<= 8;
-		data |= (LCD->RAM & 0x00FF);
-	}
-	return (uint32_t)data;
+  while (--ReadSize) {
+    data <<= 8;
+    data |= (LCD->RAM & 0x00FF);
+  }
+  return (uint32_t)data;
 }
 
-#endif // STM32F1 || STM32F1xx
 #endif // HAS_GRAPHICAL_LCD
+
+#endif // STM32F1 || STM32F1xx

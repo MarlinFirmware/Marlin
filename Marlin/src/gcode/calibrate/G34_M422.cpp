@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -88,7 +88,7 @@ void GcodeSuite::G34() {
     }
 
     const float z_auto_align_amplification = parser.floatval('A', Z_STEPPER_ALIGN_AMP);
-    if (!WITHIN(z_auto_align_amplification, 0.5f, 2.0f)) {
+    if (!WITHIN(ABS(z_auto_align_amplification), 0.5f, 2.0f)) {
       SERIAL_ECHOLNPGM("?(A)mplification out of bounds (0.5-2.0).");
       break;
     }

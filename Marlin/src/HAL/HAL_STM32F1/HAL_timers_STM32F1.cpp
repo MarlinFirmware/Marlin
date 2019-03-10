@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -119,7 +119,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     case STEP_TIMER_NUM:
       timer_pause(STEP_TIMER_DEV);
       timer_set_count(STEP_TIMER_DEV, 0);
-      timer_set_prescaler(STEP_TIMER_DEV, (uint16)(STEPPER_TIMER_PRESCALE - 1));
+      timer_set_prescaler(STEP_TIMER_DEV, (uint16_t)(STEPPER_TIMER_PRESCALE - 1));
       timer_set_reload(STEP_TIMER_DEV, 0xFFFF);
       timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, MIN(HAL_TIMER_TYPE_MAX, (STEPPER_TIMER_RATE / frequency)));
       timer_attach_interrupt(STEP_TIMER_DEV, STEP_TIMER_CHAN, stepTC_Handler);
@@ -130,7 +130,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     case TEMP_TIMER_NUM:
       timer_pause(TEMP_TIMER_DEV);
       timer_set_count(TEMP_TIMER_DEV, 0);
-      timer_set_prescaler(TEMP_TIMER_DEV, (uint16)(TEMP_TIMER_PRESCALE - 1));
+      timer_set_prescaler(TEMP_TIMER_DEV, (uint16_t)(TEMP_TIMER_PRESCALE - 1));
       timer_set_reload(TEMP_TIMER_DEV, 0xFFFF);
       timer_set_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, MIN(HAL_TIMER_TYPE_MAX, ((F_CPU / TEMP_TIMER_PRESCALE) / frequency)));
       timer_attach_interrupt(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, tempTC_Handler);
@@ -157,7 +157,7 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   }
 }
 
-static inline bool timer_irq_enabled(const timer_dev * const dev, const uint8 interrupt) {
+static inline bool timer_irq_enabled(const timer_dev * const dev, const uint8_t interrupt) {
   return bool(*bb_perip(&(dev->regs).adv->DIER, interrupt));
 }
 

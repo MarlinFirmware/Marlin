@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -52,14 +52,14 @@ uint8_t ServoCount; //=0
 #define TAU_USEC        (TAU_MSEC * 1000)
 #define TAU_CYC         (TAU_MSEC * CYC_MSEC)
 #define SERVO_PRESCALER (TAU_CYC / MAX_OVERFLOW + 1)
-#define SERVO_OVERFLOW  ((uint16)round((double)TAU_CYC / SERVO_PRESCALER))
+#define SERVO_OVERFLOW  ((uint16_t)round((double)TAU_CYC / SERVO_PRESCALER))
 
 // Unit conversions
-#define US_TO_COMPARE(us) ((uint16)map((us), 0, TAU_USEC, 0, SERVO_OVERFLOW))
-#define COMPARE_TO_US(c)  ((uint32)map((c), 0, SERVO_OVERFLOW, 0, TAU_USEC))
-#define ANGLE_TO_US(a)    ((uint16)(map((a), this->minAngle, this->maxAngle, \
+#define US_TO_COMPARE(us) ((uint16_t)map((us), 0, TAU_USEC, 0, SERVO_OVERFLOW))
+#define COMPARE_TO_US(c)  ((uint32_t)map((c), 0, SERVO_OVERFLOW, 0, TAU_USEC))
+#define ANGLE_TO_US(a)    ((uint16_t)(map((a), this->minAngle, this->maxAngle, \
                                         SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_PW)))
-#define US_TO_ANGLE(us)   ((int16)(map((us), SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_PW,  \
+#define US_TO_ANGLE(us)   ((int16_t)(map((us), SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_PW,  \
                                        this->minAngle, this->maxAngle)))
 
 libServo::libServo() {
@@ -74,7 +74,7 @@ bool libServo::attach(const int32_t pin, const int32_t minAngle, const int32_t m
   this->maxAngle = maxAngle;
 
   timer_dev *tdev = PIN_MAP[this->pin].timer_device;
-  uint8 tchan = PIN_MAP[this->pin].timer_channel;
+  uint8_t tchan = PIN_MAP[this->pin].timer_channel;
 
   pinMode(this->pin, PWM);
   pwmWrite(this->pin, 0);
@@ -97,7 +97,7 @@ bool libServo::detach() {
 int32_t libServo::read() const {
   if (this->attached()) {
     timer_dev *tdev = PIN_MAP[this->pin].timer_device;
-    uint8 tchan = PIN_MAP[this->pin].timer_channel;
+    uint8_t tchan = PIN_MAP[this->pin].timer_channel;
     return US_TO_ANGLE(COMPARE_TO_US(timer_get_compare(tdev, tchan)));
   }
   return 0;

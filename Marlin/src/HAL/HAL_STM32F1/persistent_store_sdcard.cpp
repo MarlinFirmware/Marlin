@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
@@ -41,7 +41,7 @@ char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
 char eeprom_filename[] = "eeprom.dat";
 
 bool PersistentStore::access_start() {
-  if (!card.flag.cardOK) return false;
+  if (!card.isDetected()) return false;
   int16_t bytes_read = 0;
   constexpr char eeprom_zero = 0xFF;
   card.openFile(eeprom_filename, true);
@@ -54,7 +54,7 @@ bool PersistentStore::access_start() {
 }
 
 bool PersistentStore::access_finish() {
-  if (!card.flag.cardOK) return false;
+  if (!card.isDetected()) return false;
   card.openFile(eeprom_filename, true);
   int16_t bytes_written = card.write(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
   card.closefile();
@@ -62,7 +62,7 @@ bool PersistentStore::access_finish() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
-  for (int i = 0; i < size; i++)
+  for (size_t i = 0; i < size; i++)
     HAL_STM32F1_eeprom_content[pos + i] = value[i];
   crc16(crc, value, size);
   pos += size;
@@ -70,7 +70,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t si
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
-  for (int i = 0; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
     uint8_t c = HAL_STM32F1_eeprom_content[pos + i];
     if (writing) value[i] = c;
     crc16(crc, &c, 1);

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,7 +26,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if OLDSCHOOL_ABL
+#if HAS_ABL_NOT_UBL
 
 #include "../../gcode.h"
 #include "../../../feature/bedlevel/bedlevel.h"
@@ -1005,4 +1005,4 @@ G29_TYPE GcodeSuite::G29() {
   G29_RETURN(isnan(measured_z));
 }
 
-#endif // OLDSCHOOL_ABL
+#endif // HAS_ABL_NOT_UBL

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,12 +25,15 @@
 #if FAN_COUNT > 0
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for fan_speed
-
 #include "../../module/motion.h"
+#include "../../module/temperature.h"
 
 #if ENABLED(SINGLENOZZLE)
-  #include "../../module/tool_change.h"
+  #define _ALT_P active_extruder
+  #define _CNT_P EXTRUDERS
+#else
+  #define _ALT_P MIN(active_extruder, FAN_COUNT - 1)
+  #define _CNT_P MIN(EXTRUDERS, FAN_COUNT)
 #endif
 
 /**
@@ -47,42 +50,19 @@
  *           3-255 = Set the speed for use with T2
  */
 void GcodeSuite::M106() {
-  const uint8_t p = parser.byteval('P', MIN(active_extruder, FAN_COUNT - 1));
+  const uint8_t p = parser.byteval('P', _ALT_P);
 
-  if (p < MIN(EXTRUDERS, FAN_COUNT)) {
+  if (p < _CNT_P) {
+
+    #if ENABLED(EXTRA_FAN_SPEED)
+      const uint16_t t = parser.intval('T');
+      if (t > 0) return thermalManager.set_temp_fan_speed(p, t);
+    #endif
+
     uint16_t s = parser.ushortval('S', 255);
     NOMORE(s, 255U);
 
-    uint8_t np = p;
-
-    #if ENABLED(SINGLENOZZLE)
-      if (p != active_extruder) {
-        if (p < EXTRUDERS) singlenozzle_fan_speed[p] = s;
-        return;
-      }
-      np = 0; // Always use fan index 0 with SINGLENOZZLE
-    #endif
-
-    #if ENABLED(EXTRA_FAN_SPEED)
-      const int16_t t = parser.intval('T');
-      if (t > 0) {
-        switch (t) {
-          case 1:
-            fan_speed[np] = old_fan_speed[np];
-            break;
-          case 2:
-            old_fan_speed[np] = fan_speed[np];
-            fan_speed[np] = new_fan_speed[np];
-            break;
-          default:
-            new_fan_speed[np] = MIN(t, 255U);
-            break;
-        }
-        return;
-      }
-    #endif // EXTRA_FAN_SPEED
-
-    fan_speed[np] = s;
+    thermalManager.set_fan_speed(p, s);
   }
 }
 
@@ -90,16 +70,8 @@ void GcodeSuite::M106() {
  * M107: Fan Off
  */
 void GcodeSuite::M107() {
-  const uint16_t p = parser.byteval('P', active_extruder);
-
-  #if ENABLED(SINGLENOZZLE)
-    if (p != active_extruder) {
-      if (p < EXTRUDERS) singlenozzle_fan_speed[p] = 0;
-      return;
-    }
-  #endif
-
-  if (p < MIN(EXTRUDERS, FAN_COUNT)) fan_speed[p] = 0;
+  const uint8_t p = parser.byteval('P', _ALT_P);
+  thermalManager.set_fan_speed(p, 0);
 }
 
 #endif // FAN_COUNT > 0

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -79,6 +79,12 @@
 
 #include "stepper.h"
 
+Stepper stepper; // Singleton
+
+#if HAS_MOTOR_CURRENT_PWM
+  bool Stepper::initialized; // = false
+#endif
+
 #ifdef __AVR__
   #include "speed_lookuptable.h"
 #endif
@@ -87,7 +93,7 @@
 #include "planner.h"
 #include "motion.h"
 
-#include "../module/temperature.h"
+#include "temperature.h"
 #include "../lcd/ultralcd.h"
 #include "../core/language.h"
 #include "../gcode/queue.h"
@@ -107,15 +113,17 @@
   #include "../feature/mixing.h"
 #endif
 
-Stepper stepper; // Singleton
-
 #if FILAMENT_RUNOUT_DISTANCE_MM > 0
   #include "../feature/runout.h"
 #endif
 
+#if HAS_DRIVER(L6470)
+  #include "../libs/L6470/L6470_Marlin.h"
+#endif
+
 // public:
 
-#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
+#if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
   bool Stepper::separate_multi_axis = false;
 #endif
 
@@ -125,10 +133,10 @@ Stepper stepper; // Singleton
 
 // private:
 
-block_t* Stepper::current_block = NULL; // A pointer to the block currently being traced
+block_t* Stepper::current_block; // (= NULL) A pointer to the block currently being traced
 
-uint8_t Stepper::last_direction_bits = 0,
-        Stepper::axis_did_move;
+uint8_t Stepper::last_direction_bits, // = 0
+        Stepper::axis_did_move; // = 0
 
 bool Stepper::abort_current_block;
 
@@ -350,22 +358,28 @@ void Stepper::wake_up() {
  */
 void Stepper::set_directions() {
 
-  #define SET_STEP_DIR(A) \
-    if (motor_direction(_AXIS(A))) { \
-      A##_APPLY_DIR(INVERT_## A##_DIR, false); \
-      count_direction[_AXIS(A)] = -1; \
-    } \
-    else { \
+  #if HAS_DRIVER(L6470)
+    uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
+  #endif
+
+  #define SET_STEP_DIR(A)                       \
+    if (motor_direction(_AXIS(A))) {            \
+      A##_APPLY_DIR(INVERT_## A##_DIR, false);  \
+      count_direction[_AXIS(A)] = -1;           \
+    }                                           \
+    else {                                      \
       A##_APPLY_DIR(!INVERT_## A##_DIR, false); \
-      count_direction[_AXIS(A)] = 1; \
+      count_direction[_AXIS(A)] = 1;            \
     }
 
   #if HAS_X_DIR
     SET_STEP_DIR(X); // A
   #endif
+
   #if HAS_Y_DIR
     SET_STEP_DIR(Y); // B
   #endif
+
   #if HAS_Z_DIR
     SET_STEP_DIR(Z); // C
   #endif
@@ -393,6 +407,27 @@ void Stepper::set_directions() {
       }
     #endif
   #endif // !LIN_ADVANCE
+
+  #if HAS_DRIVER(L6470)
+
+    if (L6470.spi_active) {
+      L6470.spi_abort = true;                     // interrupted a SPI transfer - need to shut it down gracefully
+      for (uint8_t j = 1; j <= L6470::chain[0]; j++)
+        L6470_buf[j] = dSPIN_NOP;                 // fill buffer with NOOP commands
+      L6470.transfer(L6470_buf, L6470::chain[0]);  // send enough NOOPs to complete any command
+      L6470.transfer(L6470_buf, L6470::chain[0]);
+      L6470.transfer(L6470_buf, L6470::chain[0]);
+    }
+
+    // The L6470.dir_commands[] array holds the direction command for each stepper
+
+    //scan command array and copy matches into L6470.transfer
+    for (uint8_t j = 1; j <= L6470::chain[0]; j++)
+      L6470_buf[j] = L6470.dir_commands[L6470::chain[j]];
+
+    L6470.transfer(L6470_buf, L6470::chain[0]);  // send the command stream to the drivers
+
+  #endif
 
   // A small delay may be needed after changing direction
   #if MINIMUM_STEPPER_DIR_DELAY > 0
@@ -1443,7 +1478,12 @@ void Stepper::stepper_pulse_phase_isr() {
       #endif
     #endif
 
-    #if MINIMUM_STEPPER_PULSE
+    #if ENABLED(I2S_STEPPER_STREAM)
+      i2s_push_sample();
+    #endif
+
+    // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
+    #if MINIMUM_STEPPER_PULSE && DISABLED(I2S_STEPPER_STREAM)
       // Just wait for the requested pulse duration
       while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
     #endif
@@ -1766,10 +1806,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      if (current_block->direction_bits != last_direction_bits
+      if (
+        #if HAS_DRIVER(L6470)
+          true  // Always set direction for L6470 (This also enables the chips)
+        #else
+          current_block->direction_bits != last_direction_bits
           #if DISABLED(MIXING_EXTRUDER)
             || stepper_extruder != last_moved_extruder
           #endif
+        #endif
       ) {
         last_direction_bits = current_block->direction_bits;
         #if EXTRUDERS > 1
@@ -1933,11 +1978,6 @@ bool Stepper::is_block_busy(const block_t* const block) {
 }
 
 void Stepper::init() {
-
-  // Init Digipot Motor Current
-  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
-    digipot_init();
-  #endif
 
   #if MB(ALLIGATOR)
     const float motor_current[] = MOTOR_CURRENT;
@@ -2107,13 +2147,26 @@ void Stepper::init() {
     E_AXIS_INIT(5);
   #endif
 
-  // Init Stepper ISR to 122 Hz for quick starting
-  HAL_timer_start(STEP_TIMER_NUM, 122);
+  #if DISABLED(I2S_STEPPER_STREAM)
+    HAL_timer_start(STEP_TIMER_NUM, 122); // Init Stepper ISR to 122 Hz for quick starting
+    ENABLE_STEPPER_DRIVER_INTERRUPT();
+    sei();
+  #endif
 
-  ENABLE_STEPPER_DRIVER_INTERRUPT();
+  // Init direction bits for first moves
+  last_direction_bits = 0
+    | (INVERT_X_DIR ? _BV(X_AXIS) : 0)
+    | (INVERT_Y_DIR ? _BV(Y_AXIS) : 0)
+    | (INVERT_Z_DIR ? _BV(Z_AXIS) : 0);
 
-  sei();
-  set_directions(); // Init directions to last_direction_bits = 0  Keeps Z from being reversed
+  set_directions();
+
+  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+    #if HAS_MOTOR_CURRENT_PWM
+      initialized = true;
+    #endif
+    digipot_init();
+  #endif
 }
 
 /**
@@ -2419,6 +2472,7 @@ void Stepper::report_positions() {
 #if HAS_MOTOR_CURRENT_PWM
 
   void Stepper::refresh_motor_power() {
+    if (!initialized) return;
     LOOP_L_N(i, COUNT(motor_current_setting)) {
       switch (i) {
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY) || PIN_EXISTS(MOTOR_CURRENT_PWM_X) || PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
@@ -2438,99 +2492,109 @@ void Stepper::report_positions() {
 
 #endif // HAS_MOTOR_CURRENT_PWM
 
-#if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+#if !MB(PRINTRBOARD_G2)
 
-  void Stepper::digipot_current(const uint8_t driver, const int16_t current) {
+  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
 
-    #if HAS_DIGIPOTSS
+    void Stepper::digipot_current(const uint8_t driver, const int16_t current) {
 
-      const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
-      digitalPotWrite(digipot_ch[driver], current);
+      #if HAS_DIGIPOTSS
 
-    #elif HAS_MOTOR_CURRENT_PWM
+        const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
+        digitalPotWrite(digipot_ch[driver], current);
 
-      if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
-        motor_current_setting[driver] = current; // update motor_current_setting
+      #elif HAS_MOTOR_CURRENT_PWM
 
-      #define _WRITE_CURRENT_PWM(P) analogWrite(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
-      switch (driver) {
-        case 0:
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
-            _WRITE_CURRENT_PWM(X);
-          #endif
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
-            _WRITE_CURRENT_PWM(Y);
-          #endif
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-            _WRITE_CURRENT_PWM(XY);
-          #endif
-          break;
-        case 1:
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-            _WRITE_CURRENT_PWM(Z);
-          #endif
-          break;
-        case 2:
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-            _WRITE_CURRENT_PWM(E);
-          #endif
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
-            _WRITE_CURRENT_PWM(E0);
-          #endif
-          #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
-            _WRITE_CURRENT_PWM(E1);
-          #endif
-          break;
-      }
-    #endif
-  }
+        if (!initialized) return;
 
-  void Stepper::digipot_init() {
+        if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
+          motor_current_setting[driver] = current; // update motor_current_setting
 
-    #if HAS_DIGIPOTSS
-
-      static const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
-
-      SPI.begin();
-      SET_OUTPUT(DIGIPOTSS_PIN);
-
-      for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
-        //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
-        digipot_current(i, digipot_motor_current[i]);
-      }
-
-    #elif HAS_MOTOR_CURRENT_PWM
-
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_X_PIN);
+        #define _WRITE_CURRENT_PWM(P) analogWrite(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+        switch (driver) {
+          case 0:
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
+              _WRITE_CURRENT_PWM(X);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
+              _WRITE_CURRENT_PWM(Y);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+              _WRITE_CURRENT_PWM(XY);
+            #endif
+            break;
+          case 1:
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+              _WRITE_CURRENT_PWM(Z);
+            #endif
+            break;
+          case 2:
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+              _WRITE_CURRENT_PWM(E);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
+              _WRITE_CURRENT_PWM(E0);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
+              _WRITE_CURRENT_PWM(E1);
+            #endif
+            break;
+        }
       #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_Y_PIN);
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_Z_PIN);
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_E0_PIN);
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
-        SET_OUTPUT(MOTOR_CURRENT_PWM_E1_PIN);
-      #endif
+    }
 
-      refresh_motor_power();
+    void Stepper::digipot_init() {
 
-      // Set Timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
-      #ifdef __AVR__
-        SET_CS5(PRESCALER_1);
+      #if HAS_DIGIPOTSS
+
+        static const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
+
+        SPI.begin();
+        SET_OUTPUT(DIGIPOTSS_PIN);
+
+        for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
+          //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
+          digipot_current(i, digipot_motor_current[i]);
+        }
+
+      #elif HAS_MOTOR_CURRENT_PWM
+
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_X_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_Y_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_Z_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_E0_PIN);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
+          SET_OUTPUT(MOTOR_CURRENT_PWM_E1_PIN);
+        #endif
+
+        refresh_motor_power();
+
+        // Set Timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
+        #ifdef __AVR__
+          SET_CS5(PRESCALER_1);
+        #endif
       #endif
-    #endif
-  }
+    }
+
+  #endif
+
+#else
+
+  #include "../HAL/HAL_DUE/G2_PWM.h"
 
 #endif
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -51,14 +51,21 @@
   #include "../../module/printcounter.h"
 #endif
 
+#if DUAL_MIXING_EXTRUDER
+  #include "../../feature/mixing.h"
+#endif
+
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
-  const char *str = itostr3(temp);
+  const char *str = i16tostr3(temp);
   const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
   lcd_moveto(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty);
   lcd_put_u8str(&str[3-len]);
   lcd_put_wchar(LCD_STR_DEGREE[0]);
 }
 
+#define X_LABEL_POS      3
+#define X_VALUE_POS     11
+#define XYZ_SPACING     37
 #define XYZ_BASELINE    (30 + INFO_FONT_ASCENT)
 #define EXTRAS_BASELINE (40 + INFO_FONT_ASCENT)
 #define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
@@ -85,6 +92,12 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 #define MAX_HOTEND_DRAW MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
 #define STATUS_HEATERS_BOT (STATUS_HEATERS_Y + STATUS_HEATERS_HEIGHT - 1)
 
+#if ENABLED(MARLIN_DEV_MODE)
+  #define SHOW_ON_STATE READ(X_MIN_PIN)
+#else
+  #define SHOW_ON_STATE false
+#endif
+
 FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
@@ -97,10 +110,21 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
     #define IFBED(A,B) (B)
   #endif
 
-  const bool isHeat = IFBED(BED_ALT(), HOTEND_ALT(heater));
+  #if ENABLED(MARLIN_DEV_MODE)
+    constexpr bool isHeat = true;
+  #else
+    const bool isHeat = IFBED(BED_ALT(), HOTEND_ALT(heater));
+  #endif
+
   const uint8_t tx = IFBED(STATUS_BED_TEXT_X, STATUS_HOTEND_TEXT_X(heater));
-  const float temp = IFBED(thermalManager.degBed(), thermalManager.degHotend(heater)),
-              target = IFBED(thermalManager.degTargetBed(), thermalManager.degTargetHotend(heater));
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    const float temp = 20 + (millis() >> 8) % IFBED(100, 200);
+    const float target = IFBED(100, 200);
+  #else
+    const float temp = IFBED(thermalManager.degBed(), thermalManager.degHotend(heater)),
+                target = IFBED(thermalManager.degTargetBed(), thermalManager.degTargetHotend(heater));
+  #endif
 
   #if DISABLED(STATUS_HOTEND_ANIM)
     #define STATIC_HOTEND true
@@ -184,7 +208,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
 
   if (PAGE_UNDER(7)) {
     #if HEATER_IDLE_HANDLER
-      const bool is_idle = IFBED(thermalManager.is_bed_idle(), thermalManager.is_heater_idle(heater)),
+      const bool is_idle = IFBED(thermalManager.bed_idle.timed_out, thermalManager.hotend_idle[heater].timed_out),
                  dodraw = (blink || !is_idle);
     #else
       constexpr bool dodraw = true;
@@ -209,6 +233,10 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
 // Homed and known, display constantly.
 //
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
+  const uint8_t offs = (XYZ_SPACING) * axis;
+  lcd_moveto(X_LABEL_POS + offs, XYZ_BASELINE);
+  lcd_put_wchar('X' + axis);
+  lcd_moveto(X_VALUE_POS + offs, XYZ_BASELINE);
   if (blink)
     lcd_put_u8str(value);
   else {
@@ -225,7 +253,16 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
+#if ENABLED(MARLIN_DEV_MODE)
+  uint16_t count_renders = 0;
+  uint32_t total_cycles = 0;
+#endif
+
 void MarlinUI::draw_status_screen() {
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    if (first_page) count_renders++;
+  #endif
 
   static char xstring[5], ystring[5], zstring[8];
   #if ENABLED(FILAMENT_LCD_DISPLAY)
@@ -237,10 +274,10 @@ void MarlinUI::draw_status_screen() {
     #if ANIM_HOTEND || ANIM_BED
       uint8_t new_bits = 0;
       #if ANIM_HOTEND
-        HOTEND_LOOP() if (thermalManager.isHeatingHotend(e)) SBI(new_bits, e);
+        HOTEND_LOOP() if (thermalManager.isHeatingHotend(e) ^ SHOW_ON_STATE) SBI(new_bits, e);
       #endif
       #if ANIM_BED
-        if (thermalManager.isHeatingBed()) SBI(new_bits, 7);
+        if (thermalManager.isHeatingBed() ^ SHOW_ON_STATE) SBI(new_bits, 7);
       #endif
       heat_bits = new_bits;
     #endif
@@ -249,7 +286,7 @@ void MarlinUI::draw_status_screen() {
     strcpy(zstring, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])));
     #if ENABLED(FILAMENT_LCD_DISPLAY)
       strcpy(wstring, ftostr12ns(filament_width_meas));
-      strcpy(mstring, itostr3(100.0 * (
+      strcpy(mstring, i16tostr3(100.0 * (
           parser.volumetric_enabled
             ? planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
             : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
@@ -262,6 +299,10 @@ void MarlinUI::draw_status_screen() {
 
   // Status Menu Font
   set_font(FONT_STATUSMENU);
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    TCNT5 = 0;
+  #endif
 
   #if STATUS_LOGO_WIDTH
     if (PAGE_CONTAINS(STATUS_LOGO_Y, STATUS_LOGO_Y + STATUS_LOGO_HEIGHT - 1))
@@ -291,7 +332,7 @@ void MarlinUI::draw_status_screen() {
       static uint8_t fan_frame;
       if (old_blink != blink) {
         old_blink = blink;
-        if (!fan_speed[0] || ++fan_frame >= STATUS_FAN_FRAMES) fan_frame = 0;
+        if (!thermalManager.fan_speed[0] || ++fan_frame >= STATUS_FAN_FRAMES) fan_frame = 0;
       }
     #endif
     if (PAGE_CONTAINS(STATUS_FAN_Y, STATUS_FAN_Y + STATUS_FAN_HEIGHT - 1))
@@ -305,7 +346,7 @@ void MarlinUI::draw_status_screen() {
             fan_frame == 3 ? status_fan3_bmp :
           #endif
         #elif STATUS_FAN_FRAMES > 1
-          blink && fan_speed[0] ? status_fan1_bmp :
+          blink && thermalManager.fan_speed[0] ? status_fan1_bmp :
         #endif
         status_fan0_bmp
       );
@@ -328,15 +369,26 @@ void MarlinUI::draw_status_screen() {
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
       if (PAGE_CONTAINS(STATUS_FAN_TEXT_Y - INFO_FONT_ASCENT, STATUS_FAN_TEXT_Y - 1)) {
-        const int per = ((int(fan_speed[0]) + 1) * 100) / 256;
-        if (per) {
+        char c = '%';
+        uint16_t spd = thermalManager.fan_speed[0];
+        if (spd) {
+          #if ENABLED(ADAPTIVE_FAN_SLOWING)
+            if (!blink && thermalManager.fan_speed_scaler[0] < 128) {
+              spd = (spd * thermalManager.fan_speed_scaler[0]) >> 7;
+              c = '*';
+            }
+          #endif
           lcd_moveto(STATUS_FAN_TEXT_X, STATUS_FAN_TEXT_Y);
-          lcd_put_u8str(itostr3(per));
-          lcd_put_wchar('%');
+          lcd_put_u8str(i16tostr3(thermalManager.fanPercent(spd)));
+          lcd_put_wchar(c);
         }
       }
     #endif
   }
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    total_cycles += TCNT5;
+  #endif
 
   #if ENABLED(SDSUPPORT)
     //
@@ -386,7 +438,7 @@ void MarlinUI::draw_status_screen() {
         if (PAGE_CONTAINS(41, 48)) {
           // Percent complete
           lcd_moveto(55, 48);
-          lcd_put_u8str(itostr3(progress));
+          lcd_put_u8str(ui8tostr3(progress));
           lcd_put_wchar('%');
         }
       #endif
@@ -443,19 +495,35 @@ void MarlinUI::draw_status_screen() {
         u8g.setColorIndex(0); // white on black
       #endif
 
-      lcd_moveto(0 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      lcd_put_wchar('X');
-      lcd_moveto(0 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      _draw_axis_value(X_AXIS, xstring, blink);
+      #if DUAL_MIXING_EXTRUDER
 
-      lcd_moveto(1 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      lcd_put_wchar('Y');
-      lcd_moveto(1 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      _draw_axis_value(Y_AXIS, ystring, blink);
+        // Two-component mix / gradient instead of XY
 
-      lcd_moveto(2 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      lcd_put_wchar('Z');
-      lcd_moveto(2 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
+        lcd_moveto(X_LABEL_POS, XYZ_BASELINE);
+
+        char mixer_messages[12];
+        const char *mix_label;
+        #if ENABLED(GRADIENT_MIX)
+          if (mixer.gradient.enabled) {
+            mixer.update_mix_from_gradient();
+            mix_label = "Gr";
+          }
+          else
+        #endif
+          {
+            mixer.update_mix_from_vtool();
+            mix_label = "Mx";
+          }
+        sprintf_P(mixer_messages, PSTR("%s %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
+        lcd_put_u8str(mixer_messages);
+
+      #else
+
+        _draw_axis_value(X_AXIS, xstring, blink);
+        _draw_axis_value(Y_AXIS, ystring, blink);
+
+      #endif
+
       _draw_axis_value(Z_AXIS, zstring, blink);
 
       #if DISABLED(XYZ_HOLLOW_FRAME)
@@ -477,7 +545,7 @@ void MarlinUI::draw_status_screen() {
 
     set_font(FONT_STATUSMENU);
     lcd_moveto(12, EXTRAS_2_BASELINE);
-    lcd_put_u8str(itostr3(feedrate_percentage));
+    lcd_put_u8str(i16tostr3(feedrate_percentage));
     lcd_put_wchar('%');
 
     //
@@ -522,6 +590,17 @@ void MarlinUI::draw_status_screen() {
 }
 
 void MarlinUI::draw_status_message(const bool blink) {
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    if (PAGE_CONTAINS(64-8, 64-1)) {
+      lcd_put_int(total_cycles);
+      lcd_put_wchar('/');
+      lcd_put_int(count_renders);
+      lcd_put_wchar('=');
+      lcd_put_int(int(total_cycles / count_renders));
+      return;
+    }
+  #endif
 
   // Get the UTF8 character count of the string
   uint8_t slen = utf8_strlen(status_message);

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -79,7 +79,7 @@ extern uint8_t did_pause_print;
   #define DXC_PASS
 #endif
 
-void do_pause_e_move(const float &length, const float &fr);
+void do_pause_e_move(const float &length, const float &fr_mm_s);
 
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -65,7 +65,7 @@
 #include "planner.h"
 #include "stepper.h"
 #include "motion.h"
-#include "../module/temperature.h"
+#include "temperature.h"
 #include "../lcd/ultralcd.h"
 #include "../core/language.h"
 #include "../gcode/parser.h"
@@ -1178,10 +1178,9 @@ void Planner::check_axes_activity() {
   #endif
 
   if (has_blocks_queued()) {
-
     #if FAN_COUNT > 0
       FANS_LOOP(i)
-        tail_fan_speed[i] = block_buffer[block_buffer_tail].fan_speed[i];
+        tail_fan_speed[i] = (block_buffer[block_buffer_tail].fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
     #endif
 
     block_t* block;
@@ -1203,7 +1202,8 @@ void Planner::check_axes_activity() {
   }
   else {
     #if FAN_COUNT > 0
-      FANS_LOOP(i) tail_fan_speed[i] = fan_speed[i];
+      FANS_LOOP(i)
+        tail_fan_speed[i] = (thermalManager.fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1273,6 +1273,18 @@ void Planner::check_axes_activity() {
       #if HAS_FAN2
         thermalManager.soft_pwm_amount_fan[2] = CALC_FAN_SPEED(2);
       #endif
+
+    #elif ENABLED(FAST_PWM_FAN)
+      #if HAS_FAN0
+        thermalManager.set_pwm_duty(FAN_PIN, CALC_FAN_SPEED(0));
+      #endif
+      #if HAS_FAN1
+        thermalManager.set_pwm_duty(FAN1_PIN, CALC_FAN_SPEED(1));
+      #endif
+      #if HAS_FAN2
+        thermalManager.set_pwm_duty(FAN2_PIN, CALC_FAN_SPEED(2));
+      #endif
+
     #else
       #if HAS_FAN0
         analogWrite(FAN_PIN, CALC_FAN_SPEED(0));
@@ -1540,7 +1552,7 @@ void Planner::synchronize() {
   while (
     has_blocks_queued() || cleaning_buffer_counter
     #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-      || !READ(CLOSED_LOOP_MOVE_COMPLETE_PIN)
+      || (READ(CLOSED_LOOP_ENABLE_PIN) && !READ(CLOSED_LOOP_MOVE_COMPLETE_PIN))
     #endif
   ) idle();
 }
@@ -1614,7 +1626,7 @@ void Planner::synchronize() {
             if (reversing == (error_correction < 0)) {
               if (segment_proportion == 0)
                 segment_proportion = MIN(1.0f, block->millimeters / backlash_smoothing_mm);
-              error_correction *= segment_proportion;
+              error_correction = ceil(segment_proportion * error_correction);
             }
             else
               error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
@@ -1903,7 +1915,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   #if FAN_COUNT > 0
-    FANS_LOOP(i) block->fan_speed[i] = fan_speed[i];
+    FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
 
   #if ENABLED(BARICUDA)
@@ -2161,7 +2173,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       // In worst case, only one extruder running, no change is needed.
       // In best case, all extruders run the same amount, we can divide by MIXING_STEPPERS
       float delta_mm_i = 0;
-      if (i == E_AXIS && mixer.get_current_v_tool() == MIXER_AUTORETRACT_TOOL)
+      if (i == E_AXIS && mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
         delta_mm_i = delta_mm[i] / MIXING_STEPPERS;
       else
         delta_mm_i = delta_mm[i];
@@ -2392,6 +2404,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       };
     #endif
 
+    #if IS_CORE && ENABLED(JUNCTION_DEVIATION)
+      /**
+       * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
+       * So taking Z and E into account, we cannot scale to a unit vector with "inverse_millimeters".
+       * => normalize the complete junction vector
+       */
+      normalize_junction_vector(unit_vec);
+    #endif
+
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
     if (moves_queued && !UNEAR_ZERO(previous_nominal_speed_sqr)) {
       // Compute cosine of angle between previous and current path. (prev_unit_vec is negative)
@@ -2575,6 +2596,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     COPY(position_float, target_float);
   #endif
 
+  #if ENABLED(GRADIENT_MIX)
+    mixer.gradient_control(target_float[Z_AXIS]);
+  #endif
+
   // Movement was accepted
   return true;
 } // _populate_block()
@@ -2637,8 +2662,8 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
 
   // When changing extruders recalculate steps corresponding to the E position
   #if ENABLED(DISTINCT_E_FACTORS)
-    if (last_extruder != extruder && settings.axis_steps_per_mm[E_AXIS_N(extruder)] != settings.axis_steps_per_mm[E_AXIS + last_extruder]) {
-      position[E_AXIS] = LROUND(position[E_AXIS] * settings.axis_steps_per_mm[E_AXIS_N(extruder)] * steps_to_mm[E_AXIS + last_extruder]);
+    if (last_extruder != extruder && settings.axis_steps_per_mm[E_AXIS_N(extruder)] != settings.axis_steps_per_mm[E_AXIS_N(last_extruder)]) {
+      position[E_AXIS] = LROUND(position[E_AXIS] * settings.axis_steps_per_mm[E_AXIS_N(extruder)] * steps_to_mm[E_AXIS_N(last_extruder)]);
       last_extruder = extruder;
     }
   #endif

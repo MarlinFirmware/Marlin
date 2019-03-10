@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -65,12 +65,13 @@
               cell_dest_yi  = get_cell_index_y(end[Y_AXIS]);
 
     if (g26_debug_flag) {
-      SERIAL_ECHOPAIR(" ubl.line_to_destination_cartesian(xe=", destination[X_AXIS]);
-      SERIAL_ECHOPAIR(", ye=", destination[Y_AXIS]);
-      SERIAL_ECHOPAIR(", ze=", destination[Z_AXIS]);
-      SERIAL_ECHOPAIR(", ee=", destination[E_AXIS]);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
+      SERIAL_ECHOLNPAIR(
+        " ubl.line_to_destination_cartesian(xe=", destination[X_AXIS],
+        ", ye=", destination[Y_AXIS],
+        ", ze=", destination[Z_AXIS],
+        ", ee=", destination[E_AXIS],
+        ")"
+      );
       debug_current_and_destination(PSTR("Start of ubl.line_to_destination_cartesian()"));
     }
 

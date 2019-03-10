@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2018 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,6 +26,10 @@
 
 #ifndef __AVR_ATmega2560__
   #error "Oops! Select 'FYSETC F6' in 'Tools > Board.'"
+#endif
+
+#ifdef SD_DETECT_INVERTED
+  #error "SD_DETECT_INVERTED must be disabled for the FYSETC_F6_13 board."
 #endif
 
 #define BOARD_NAME "FYSETC F6 1.3"

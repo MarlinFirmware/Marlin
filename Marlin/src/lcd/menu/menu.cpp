@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,6 +28,7 @@
 #include "../ultralcd.h"
 #include "../../module/planner.h"
 #include "../../module/motion.h"
+#include "../../module/printcounter.h"
 #include "../../gcode/queue.h"
 #include "../../sd/cardreader.h"
 #include "../../libs/buzzer.h"
@@ -36,7 +37,7 @@
   #include "../../module/configuration_store.h"
 #endif
 
-#if WATCH_HOTENDS || WATCH_THE_BED || ENABLED(BABYSTEP_ZPROBE_OFFSET)
+#if WATCH_HOTENDS || WATCH_BED || ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../module/temperature.h"
 #endif
 
@@ -115,7 +116,7 @@ void MenuItem_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode);
  *
  * The prerequisite is that in the header the type was already declared:
  *
- *   DECLARE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1)
+ *   DECLARE_MENU_EDIT_TYPE(int16_t, int3, i16tostr3, 1)
  *
  * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into these functions:
  *
@@ -158,19 +159,22 @@ void MenuItemBase::init(PGM_P const el, void * const ev, const int32_t minv, con
   liveEdit = le;
 }
 
-#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuItem<MenuItemInfo_##NAME>;
+#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuItem<MenuItemInfo_##NAME>
 
-DEFINE_MENU_EDIT_ITEM(int3);
-DEFINE_MENU_EDIT_ITEM(int4);
-DEFINE_MENU_EDIT_ITEM(int8);
-DEFINE_MENU_EDIT_ITEM(float3);
-DEFINE_MENU_EDIT_ITEM(float52);
-DEFINE_MENU_EDIT_ITEM(float43);
-DEFINE_MENU_EDIT_ITEM(float5);
-DEFINE_MENU_EDIT_ITEM(float51);
-DEFINE_MENU_EDIT_ITEM(float52sign);
-DEFINE_MENU_EDIT_ITEM(float62);
-DEFINE_MENU_EDIT_ITEM(long5);
+DEFINE_MENU_EDIT_ITEM(int3);        // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM(int4);        // 1234, -123 right-justified
+DEFINE_MENU_EDIT_ITEM(int8);        // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM(uint8);       // 123        right-justified
+DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234, -123 right-justified
+DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
+DEFINE_MENU_EDIT_ITEM(float52);     // 123.45
+DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
+DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM(float51);     // +1234.5
+DEFINE_MENU_EDIT_ITEM(float52sign); // +123.45
+DEFINE_MENU_EDIT_ITEM(float62);     // 1234.56    right-justified
+DEFINE_MENU_EDIT_ITEM(long5);       // 12345      right-justified
 
 void MenuItem_bool::action_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
   UNUSED(pstr); *ptr ^= true; ui.refresh();
@@ -186,7 +190,9 @@ void MenuItem_bool::action_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
   void _lcd_set_z_fade_height() { set_z_fade_height(lcd_z_fade_height); }
 #endif
 
-bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING(); }
+bool printer_busy() {
+  return planner.movesplanned() || IS_SD_PRINTING() || print_job_timer.isRunning();
+}
 
 /**
  * General function to go directly to a screen
@@ -208,7 +214,19 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
           doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
       }
       else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
-        if (printer_busy()) {
+
+        #if ENABLED(BABYSTEP_WITHOUT_HOMING)
+          constexpr bool can_babystep = true;
+        #else
+          const bool can_babystep = all_axes_known();
+        #endif
+        #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
+          constexpr bool should_babystep = true;
+        #else
+          const bool should_babystep = printer_busy();
+        #endif
+
+        if (should_babystep && can_babystep) {
           screen =
             #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
               lcd_babystep_zoffset
@@ -229,7 +247,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
     currentScreen = screen;
     encoderPosition = encoder;
     if (screen == status_screen) {
-      ui.defer_status_screen(false);
+      defer_status_screen(false);
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         ubl.lcd_map_control = false;
       #endif
@@ -240,10 +258,11 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
 
     // Re-initialize custom characters that may be re-used
     #if HAS_CHARACTER_LCD
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
-        if (!ubl.lcd_map_control)
-      #endif
-          set_custom_characters(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
+      if (true
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          && !ubl.lcd_map_control
+        #endif
+      ) set_custom_characters(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
     #endif
 
     refresh(LCDVIEW_CALL_REDRAW_NEXT);
@@ -385,39 +404,6 @@ void MarlinUI::completion_feedback(const bool good/*=true*/) {
   }
 
 #endif // BABYSTEP_ZPROBE_OFFSET
-
-/**
- * Watch temperature callbacks
- */
-#if HAS_TEMP_HOTEND
-  #if WATCH_HOTENDS
-    #define _WATCH_FUNC(N) thermalManager.start_watching_heater(N)
-  #else
-    #define _WATCH_FUNC(N) NOOP
-  #endif
-  void watch_temp_callback_E0() { _WATCH_FUNC(0); }
-  #if HOTENDS > 1
-    void watch_temp_callback_E1() { _WATCH_FUNC(1); }
-    #if HOTENDS > 2
-      void watch_temp_callback_E2() { _WATCH_FUNC(2); }
-      #if HOTENDS > 3
-        void watch_temp_callback_E3() { _WATCH_FUNC(3); }
-        #if HOTENDS > 4
-          void watch_temp_callback_E4() { _WATCH_FUNC(4); }
-          #if HOTENDS > 5
-            void watch_temp_callback_E5() { _WATCH_FUNC(5); }
-          #endif // HOTENDS > 5
-        #endif // HOTENDS > 4
-      #endif // HOTENDS > 3
-    #endif // HOTENDS > 2
-  #endif // HOTENDS > 1
-#endif // HAS_TEMP_HOTEND
-
-void watch_temp_callback_bed() {
-  #if WATCH_THE_BED
-    thermalManager.start_watching_bed();
-  #endif
-}
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE)
 

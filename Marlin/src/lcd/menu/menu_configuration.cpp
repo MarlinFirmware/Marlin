@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,12 +32,16 @@
 
 #include "../../module/configuration_store.h"
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/power_loss_recovery.h"
+#endif
+
+#if HAS_BED_PROBE
+  #include "../../module/probe.h"
 #endif
 
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
@@ -101,7 +105,7 @@ static void lcd_factory_settings() {
   void menu_tool_change() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    #if ENABLED(TOOLCHANGE_PARK)
+    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, 200);
       MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
       MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);
@@ -169,7 +173,7 @@ static void lcd_factory_settings() {
   void menu_case_light() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM_EDIT_CALLBACK(int8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
+    MENU_ITEM_EDIT_CALLBACK(uint8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
     MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
     END_MENU();
   }
@@ -205,51 +209,6 @@ static void lcd_factory_settings() {
 
 #endif
 
-#if ENABLED(DAC_STEPPER_CURRENT)
-
-  #include "../../feature/dac/stepper_dac.h"
-
-  uint8_t driverPercent[XYZE];
-  inline void dac_driver_getValues() { LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i); }
-  static void dac_driver_commit() { dac_current_set_percents(driverPercent); }
-
-  void menu_dac() {
-    dac_driver_getValues();
-    START_MENU();
-    MENU_BACK(MSG_CONTROL);
-    #define EDIT_DAC_PERCENT(N) MENU_ITEM_EDIT_CALLBACK(int8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
-    EDIT_DAC_PERCENT(X);
-    EDIT_DAC_PERCENT(Y);
-    EDIT_DAC_PERCENT(Z);
-    EDIT_DAC_PERCENT(E);
-    MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_commit_eeprom);
-    END_MENU();
-  }
-
-#endif
-
-#if HAS_MOTOR_CURRENT_PWM
-
-  #include "../../module/stepper.h"
-
-  void menu_pwm() {
-    START_MENU();
-    MENU_BACK(MSG_CONTROL);
-    #define EDIT_CURRENT_PWM(LABEL,I) MENU_ITEM_EDIT_CALLBACK(long5, LABEL, &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-      EDIT_CURRENT_PWM(MSG_X MSG_Y, 0);
-    #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-      EDIT_CURRENT_PWM(MSG_Z, 1);
-    #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-      EDIT_CURRENT_PWM(MSG_E, 2);
-    #endif
-    END_MENU();
-  }
-
-#endif
-
 #if DISABLED(SLIM_LCD_MENUS)
 
   void _menu_configuration_preheat_settings(const uint8_t material) {
@@ -274,7 +233,7 @@ static void lcd_factory_settings() {
     #endif
     START_MENU();
     MENU_BACK(MSG_CONFIGURATION);
-    MENU_ITEM_EDIT(int8, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
+    MENU_ITEM_EDIT(uint8, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
     #if HAS_TEMP_HOTEND
       MENU_ITEM_EDIT(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
     #endif
@@ -304,6 +263,12 @@ void menu_configuration() {
   #endif
 
   MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, menu_advanced_settings);
+
+  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+    MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+  #elif HAS_BED_PROBE
+    MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+  #endif
 
   const bool busy = printer_busy();
   if (!busy) {
@@ -346,15 +311,9 @@ void menu_configuration() {
   #if ENABLED(FWRETRACT)
     MENU_ITEM(submenu, MSG_RETRACT, menu_config_retract);
   #endif
-  #if ENABLED(DAC_STEPPER_CURRENT)
-    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_dac);
-  #endif
-  #if HAS_MOTOR_CURRENT_PWM
-    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_pwm);
-  #endif
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR_ENABLE, &runout.enabled, runout.reset);
+  #if HAS_FILAMENT_SENSOR
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)

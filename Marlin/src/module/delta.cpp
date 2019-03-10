@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,9 +37,13 @@
 #include "../lcd/ultralcd.h"
 #include "../Marlin.h"
 
+#if HAS_BED_PROBE
+  #include "probe.h"
+#endif
+
 #if ENABLED(SENSORLESS_HOMING)
   #include "../feature/tmc_util.h"
-  #include "../module/stepper_indirection.h"
+  #include "stepper_indirection.h"
 #endif
 
 // Initialized by settings.load()
@@ -222,14 +226,18 @@ void home_delta() {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    sensorless_t stealth_states { false, false, false };
+    sensorless_t stealth_states { false, false, false, false, false, false, false };
     stealth_states.x = tmc_enable_stallguard(stepperX);
     stealth_states.y = tmc_enable_stallguard(stepperY);
     stealth_states.z = tmc_enable_stallguard(stepperZ);
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  destination[Z_AXIS] = (delta_height + 10);
+  destination[Z_AXIS] = (delta_height
+    #if HAS_BED_PROBE
+      - zprobe_zoffset
+    #endif
+    + 10);
   buffer_line_to_destination(homing_feedrate(X_AXIS));
   planner.synchronize();
 

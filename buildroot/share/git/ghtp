@@ -13,7 +13,7 @@ case "$1" in
   -[Hh]) TYPE=HTTPS ; MATCH="git@" ; FORMULA="$GH_SSH/$GH_HTTPS" ;;
   -[Ss]) TYPE=SSH ; MATCH="https:" ; FORMULA="$GH_HTTPS/$GH_SSH" ;;
   *)
-    echo "Usage: `basename $0` -h | -s" 1>&2
+    echo "usage: `basename $0` -h | -s" 1>&2
     echo -e " \e[0;92m-h\e[0m to switch to HTTPS" 1>&2
     echo -e " \e[0;92m-s\e[0m to switch to SSH" 1>&2
     exit 1

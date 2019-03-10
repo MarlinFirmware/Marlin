@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -48,7 +48,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("X 홈으로")
 #define MSG_AUTO_HOME_Y                     _UxGT("Y 홈으로")
 #define MSG_AUTO_HOME_Z                     _UxGT("Z 홈으로")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Z 캘리브레이션")
 #define MSG_LEVEL_BED_HOMING                _UxGT("XYZ 홈으로")
 #define MSG_LEVEL_BED_WAITING               _UxGT("누르면 시작합니다")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("다음 Point")
@@ -373,7 +372,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Purge more")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Continue")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozzle: ")
-#define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Runout Sensor")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Runout Sensor")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Homing failed")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Probing failed")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: Too cold")

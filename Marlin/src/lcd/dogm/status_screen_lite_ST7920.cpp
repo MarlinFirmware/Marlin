@@ -402,7 +402,7 @@ void ST7920_Lite_Status_Screen::draw_degree_symbol(uint8_t x, uint8_t y, const b
     const bool    oddChar = x & 1;
     const uint8_t x_word  = x >> 1,
                   y_top   = degree_symbol_y_top,
-                  y_bot   = y_top + sizeof(degree_symbol)/sizeof(degree_symbol[0]);
+                  y_bot   = y_top + COUNT(degree_symbol);
     for (uint8_t i = y_top; i < y_bot; i++) {
       uint8_t byte = pgm_read_byte(p_bytes++);
       set_gdram_address(x_word, i + y * 16);
@@ -707,7 +707,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   // them only during blinks we gain a bit of stability.
   const bool       blink             = ui.get_blink();
   const uint16_t   feedrate_perc     = feedrate_percentage;
-  const uint8_t    fs                = (((uint16_t)fan_speed[0] + 1) * 100) / 256;
+  const uint16_t   fs                = (thermalManager.fan_speed[0] * uint16_t(thermalManager.fan_speed_scaler[0])) >> 7;
   const int16_t    extruder_1_target = thermalManager.degTargetHotend(0);
   #if HOTENDS > 1
     const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
@@ -734,7 +734,6 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     const bool       blink             = ui.get_blink();
     const duration_t elapsed           = print_job_timer.duration();
     const uint16_t   feedrate_perc     = feedrate_percentage;
-    const uint8_t    fs                = (((uint16_t)fan_speed[0] + 1) * 100) / 256;
     const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
                      extruder_1_target = thermalManager.degTargetHotend(0);
     #if HOTENDS > 1
@@ -753,12 +752,20 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #if HAS_HEATED_BED
       draw_bed_temp(bed_temp, bed_target, forceUpdate);
     #endif
-    draw_fan_speed(fs);
+
+    uint16_t spd = thermalManager.fan_speed[0];
+
+    #if ENABLED(ADAPTIVE_FAN_SLOWING)
+      if (!blink && thermalManager.fan_speed_scaler[0] < 128)
+        spd = (spd * thermalManager.fan_speed_scaler[0]) >> 7;
+    #endif
+
+    draw_fan_speed(thermalManager.fanPercent(spd));
     draw_print_time(elapsed);
     draw_feedrate_percentage(feedrate_perc);
 
     // Update the fan and bed animations
-    if (fs) draw_fan_icon(blink);
+    if (spd) draw_fan_icon(blink);
     #if HAS_HEATED_BED
       draw_heat_icon(bed_target > 0 && blink, bed_target > 0);
     #endif

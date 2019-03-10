@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -138,7 +138,7 @@ bool SDIO_WriteBlock(uint32_t blockAddress, const uint8_t *data) {
 
   SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
 
-  uint32 timeout = millis() + SDIO_WRITE_TIMEOUT;
+  uint32_t timeout = millis() + SDIO_WRITE_TIMEOUT;
   while (timeout > millis()) {
     if (SDIO_GetCardState() == SDIO_CARD_TRANSFER) {
       return true;

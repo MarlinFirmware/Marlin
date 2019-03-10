@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,7 +31,9 @@
 #include "menu.h"
 #include "../../module/temperature.h"
 #include "../../feature/pause.h"
-
+#if HAS_FILAMENT_SENSOR
+  #include "../../feature/runout.h"
+#endif
 //
 // Change Filament > Change/Unload/Load Filament
 //
@@ -57,9 +59,9 @@ static void _change_filament_temp(const uint16_t temperature) {
   thermalManager.setTargetHotend(temperature, _change_filament_temp_extruder);
   lcd_enqueue_command(cmd);
 }
-inline void _lcd_change_filament_temp_1_func()    { _change_filament_temp(PREHEAT_1_TEMP_HOTEND); }
-inline void _lcd_change_filament_temp_2_func()    { _change_filament_temp(PREHEAT_2_TEMP_HOTEND); }
-inline void _lcd_change_filament_temp_custom_cb() { _change_filament_temp(thermalManager.target_temperature[_change_filament_temp_extruder]); }
+inline void _lcd_change_filament_temp_1_func()    { _change_filament_temp(ui.preheat_hotend_temp[0]); }
+inline void _lcd_change_filament_temp_2_func()    { _change_filament_temp(ui.preheat_hotend_temp[1]); }
+inline void _lcd_change_filament_temp_custom_cb() { _change_filament_temp(thermalManager.temp_hotend[_change_filament_temp_extruder].target); }
 
 static PGM_P change_filament_header(const AdvancedPauseMode mode) {
   switch (mode) {
@@ -99,35 +101,37 @@ void _menu_temp_filament_op(const AdvancedPauseMode mode, const int8_t extruder)
       #endif
     #endif
   }
-  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PREHEAT_CUSTOM, &thermalManager.target_temperature[_change_filament_temp_extruder], EXTRUDE_MINTEMP, max_temp - 15, _lcd_change_filament_temp_custom_cb);
+  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_temp_extruder].target, EXTRUDE_MINTEMP, max_temp - 15, _lcd_change_filament_temp_custom_cb);
   END_MENU();
 }
-void menu_temp_e0_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 0); }
-void menu_temp_e0_filament_load()    { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_LOAD_FILAMENT, 0); }
-void menu_temp_e0_filament_unload()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, 0); }
-#if E_STEPPERS > 1
-  void menu_temp_e1_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 1); }
-  void menu_temp_e1_filament_load()    { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_LOAD_FILAMENT, 1); }
-  void menu_temp_e1_filament_unload()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, 1); }
-  #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
-    void menu_unload_filament_all_temp() { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, -1); }
-  #endif
-  #if E_STEPPERS > 2
-    void menu_temp_e2_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 2); }
-    void menu_temp_e2_filament_load()    { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_LOAD_FILAMENT, 2); }
-    void menu_temp_e2_filament_unload()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, 2); }
-    #if E_STEPPERS > 3
-      void menu_temp_e3_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 3); }
-      void menu_temp_e3_filament_load()    { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_LOAD_FILAMENT, 3); }
-      void menu_temp_e3_filament_unload()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, 3); }
-      #if E_STEPPERS > 4
-        void menu_temp_e4_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 4); }
-        void menu_temp_e4_filament_load()    { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_LOAD_FILAMENT, 4); }
-        void menu_temp_e4_filament_unload()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, 4); }
-      #endif // E_STEPPERS > 4
-    #endif // E_STEPPERS > 3
-  #endif // E_STEPPERS > 2
-#endif // E_STEPPERS > 1
+#if E_STEPPERS
+  void menu_temp_e0_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 0); }
+  void menu_temp_e0_filament_load()    { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_LOAD_FILAMENT, 0); }
+  void menu_temp_e0_filament_unload()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, 0); }
+  #if E_STEPPERS > 1
+    void menu_temp_e1_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 1); }
+    void menu_temp_e1_filament_load()    { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_LOAD_FILAMENT, 1); }
+    void menu_temp_e1_filament_unload()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, 1); }
+    #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
+      void menu_unload_filament_all_temp() { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, -1); }
+    #endif
+    #if E_STEPPERS > 2
+      void menu_temp_e2_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 2); }
+      void menu_temp_e2_filament_load()    { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_LOAD_FILAMENT, 2); }
+      void menu_temp_e2_filament_unload()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, 2); }
+      #if E_STEPPERS > 3
+        void menu_temp_e3_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 3); }
+        void menu_temp_e3_filament_load()    { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_LOAD_FILAMENT, 3); }
+        void menu_temp_e3_filament_unload()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, 3); }
+        #if E_STEPPERS > 4
+          void menu_temp_e4_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 4); }
+          void menu_temp_e4_filament_load()    { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_LOAD_FILAMENT, 4); }
+          void menu_temp_e4_filament_unload()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, 4); }
+        #endif // E_STEPPERS > 4
+      #endif // E_STEPPERS > 3
+    #endif // E_STEPPERS > 2
+  #endif // E_STEPPERS > 1
+#endif // E_STEPPERS
 
 /**
  *
@@ -349,8 +353,13 @@ void menu_advanced_pause_option() {
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER, true, false);
   #endif
-  MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_advanced_pause_resume_print);
   MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_PURGE, lcd_advanced_pause_extrude_more);
+  #if HAS_FILAMENT_SENSOR
+    if (runout.filament_ran_out)
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+    else
+  #endif
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_advanced_pause_resume_print);
   END_MENU();
 }
 

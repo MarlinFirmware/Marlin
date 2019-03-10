@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,7 +32,7 @@
  *
  *       S<temperature> sets the target temperature. (default 150C / 70C)
  *       E<extruder> (-1 for the bed) (default 0)
- *       C<cycles>
+ *       C<cycles> Minimum 3. Default 5.
  *       U<bool> with a non-zero value will apply the result to current settings
  */
 void GcodeSuite::M303() {

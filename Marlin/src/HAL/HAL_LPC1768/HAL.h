@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -154,3 +154,6 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 
 #define HAL_IDLETASK 1
 void HAL_idletask(void);
+
+#define PLATFORM_M997_SUPPORT
+void flashFirmware(int16_t value);

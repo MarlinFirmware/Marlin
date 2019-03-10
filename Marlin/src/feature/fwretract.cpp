@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,7 +37,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 #include "../module/stepper.h"
 
 #if ENABLED(RETRACT_SYNC_MIXING)
-  #include "../feature/mixing.h"
+  #include "mixing.h"
 #endif
 
 // private:
@@ -112,15 +112,15 @@ void FWRetract::retract(const bool retracting
   #endif
 
   /* // debugging
-    SERIAL_ECHOLNPAIR("retracting ", retracting);
-    SERIAL_ECHOLNPAIR("swapping ", swapping);
-    SERIAL_ECHOLNPAIR("active extruder ", active_extruder);
+    SERIAL_ECHOLNPAIR(
+      "retracting ", retracting,
+      "swapping ", swapping
+      "active extruder ", active_extruder
+    );
     for (uint8_t i = 0; i < EXTRUDERS; ++i) {
-      SERIAL_ECHOPAIR("retracted[", i);
-      SERIAL_ECHOLNPAIR("] ", retracted[i]);
+      SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
       #if EXTRUDERS > 1
-        SERIAL_ECHOPAIR("retracted_swap[", i);
-        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
       #endif
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
@@ -142,7 +142,7 @@ void FWRetract::retract(const bool retracting
   set_destination_from_current();
 
   #if ENABLED(RETRACT_SYNC_MIXING)
-    uint8_t old_mixing_tool = mixer.get_current_v_tool();
+    const uint8_t old_mixing_tool = mixer.get_current_vtool();
     mixer.T(MIXER_AUTORETRACT_TOOL);
   #endif
 
@@ -209,11 +209,9 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("swapping ", swapping);
     SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
     for (uint8_t i = 0; i < EXTRUDERS; ++i) {
-      SERIAL_ECHOPAIR("retracted[", i);
-      SERIAL_ECHOLNPAIR("] ", retracted[i]);
+      SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
       #if EXTRUDERS > 1
-        SERIAL_ECHOPAIR("retracted_swap[", i);
-        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
       #endif
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);

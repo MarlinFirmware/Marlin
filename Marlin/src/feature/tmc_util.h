@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,6 +26,9 @@
 #if HAS_TRINAMIC
   #include <TMCStepper.h>
 #endif
+#if HAS_LCD_MENU
+  #include "../module/planner.h"
+#endif
 
 #define TMC_X_LABEL 'X', '0'
 #define TMC_Y_LABEL 'Y', '0'
@@ -50,29 +53,49 @@
 #define CHOPPER_PRUSAMK3_24V { 4,  1, 4 }
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
 
+#if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
+  #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500u
+#endif
+
+constexpr uint16_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
+  return 12650000UL * msteps / (256 * thrs * spmm);
+}
+
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCStorage {
   protected:
     // Only a child class has access to constructor => Don't create on its own! "Poor man's abstract class"
     TMCStorage() {}
 
+  public:
     uint16_t val_mA = 0;
 
-  public:
     #if ENABLED(MONITOR_DRIVER_STATUS)
       uint8_t otpw_count = 0,
               error_count = 0;
       bool flag_otpw = false;
-      bool getOTPW() { return flag_otpw; }
-      void clear_otpw() { flag_otpw = 0; }
+      inline bool getOTPW() { return flag_otpw; }
+      inline void clear_otpw() { flag_otpw = 0; }
     #endif
 
-    uint16_t getMilliamps() { return val_mA; }
+    inline uint16_t getMilliamps() { return val_mA; }
 
-    void printLabel() {
+    inline void printLabel() {
       SERIAL_CHAR(AXIS_LETTER);
       if (DRIVER_ID > '0') SERIAL_CHAR(DRIVER_ID);
     }
+
+    struct {
+      #if HAS_STEALTHCHOP
+        bool stealthChop_enabled = false;
+      #endif
+      #if ENABLED(HYBRID_THRESHOLD)
+        uint8_t hybrid_thrs = 0;
+      #endif
+      #if ENABLED(SENSORLESS_HOMING)
+        int8_t homing_thrs = 0;
+      #endif
+    } stored;
 };
 
 template<class TMC, char AXIS_LETTER, char DRIVER_ID>
@@ -84,15 +107,41 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     TMCMarlin(uint16_t CS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK) :
       TMC(CS, RS, pinMOSI, pinMISO, pinSCK)
       {}
-    uint16_t rms_current() { return TMC::rms_current(); }
-    void rms_current(uint16_t mA) {
+    inline uint16_t rms_current() { return TMC::rms_current(); }
+    inline void rms_current(uint16_t mA) {
       this->val_mA = mA;
       TMC::rms_current(mA);
     }
-    void rms_current(uint16_t mA, float mult) {
+    inline void rms_current(uint16_t mA, float mult) {
       this->val_mA = mA;
       TMC::rms_current(mA, mult);
     }
+
+    #if HAS_STEALTHCHOP
+      inline void refresh_stepping_mode() { this->en_pwm_mode(this->stored.stealthChop_enabled); }
+      inline bool get_stealthChop_status() { return this->en_pwm_mode(); }
+    #endif
+
+    #if HAS_LCD_MENU
+
+      inline void init_lcd_variables(const AxisEnum spmm_id) {
+        #if ENABLED(HYBRID_THRESHOLD)
+          this->stored.hybrid_thrs = _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[spmm_id]);
+        #endif
+        #if ENABLED(SENSORLESS_HOMING)
+          this->stored.homing_thrs = this->sgt();
+        #endif
+      }
+
+      inline void refresh_stepper_current() { rms_current(this->val_mA); }
+
+      #if ENABLED(HYBRID_THRESHOLD)
+        inline void refresh_hybrid_thrs(float spmm) { this->TPWMTHRS(_tmc_thrs(this->microsteps(), this->stored.hybrid_thrs, spmm)); }
+      #endif
+      #if ENABLED(SENSORLESS_HOMING)
+        inline void refresh_homing_thrs() { this->sgt(this->stored.homing_thrs); }
+      #endif
+    #endif
 };
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
@@ -104,19 +153,64 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper,
       TMC2208Stepper(RX, TX, RS, has_rx=true)
       {}
     uint16_t rms_current() { return TMC2208Stepper::rms_current(); }
-    void rms_current(uint16_t mA) {
+    inline void rms_current(uint16_t mA) {
       this->val_mA = mA;
       TMC2208Stepper::rms_current(mA);
     }
-    void rms_current(uint16_t mA, float mult) {
+    inline void rms_current(uint16_t mA, float mult) {
       this->val_mA = mA;
       TMC2208Stepper::rms_current(mA, mult);
     }
-};
 
-constexpr uint16_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
-  return 12650000UL * msteps / (256 * thrs * spmm);
-}
+    #if HAS_STEALTHCHOP
+      inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
+      inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
+    #endif
+
+    #if HAS_LCD_MENU
+
+      inline void init_lcd_variables(const AxisEnum spmm_id) {
+        #if ENABLED(HYBRID_THRESHOLD)
+          this->stored.hybrid_thrs = _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[spmm_id]);
+        #endif
+      }
+
+      inline void refresh_stepper_current() { rms_current(this->val_mA); }
+
+      #if ENABLED(HYBRID_THRESHOLD)
+        inline void refresh_hybrid_thrs(float spmm) { this->TPWMTHRS(_tmc_thrs(this->microsteps(), this->stored.hybrid_thrs, spmm)); }
+      #endif
+    #endif
+};
+template<char AXIS_LETTER, char DRIVER_ID>
+class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2660Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
+  public:
+    TMCMarlin(uint16_t cs_pin, float RS) :
+      TMC2660Stepper(cs_pin, RS)
+      {}
+    TMCMarlin(uint16_t CS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK) :
+      TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK)
+      {}
+    inline uint16_t rms_current() { return TMC2660Stepper::rms_current(); }
+    inline void rms_current(uint16_t mA) {
+      this->val_mA = mA;
+      TMC2660Stepper::rms_current(mA);
+    }
+
+    #if HAS_LCD_MENU
+      inline void init_lcd_variables(const AxisEnum spmm_id) {
+        #if ENABLED(SENSORLESS_HOMING)
+          this->stored.homing_thrs = this->sgt();
+        #endif
+      }
+
+      inline void refresh_stepper_current() { rms_current(this->val_mA); }
+
+      #if ENABLED(SENSORLESS_HOMING)
+        inline void refresh_homing_thrs() { this->sgt(this->stored.homing_thrs); }
+      #endif
+    #endif
+};
 
 template<typename TMC>
 void tmc_get_current(TMC &st) {
@@ -127,6 +221,7 @@ template<typename TMC>
 void tmc_set_current(TMC &st, const int mA) {
   st.rms_current(mA);
 }
+
 #if ENABLED(MONITOR_DRIVER_STATUS)
   template<typename TMC>
   void tmc_report_otpw(TMC &st) {
@@ -167,10 +262,14 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
-    void tmc_set_report_status(const bool status);
+    void tmc_set_report_interval(const uint16_t update_interval);
   #endif
   void tmc_report_all(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
   void tmc_get_registers(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
+#endif
+
+#if HAS_LCD_MENU
+  void init_tmc_section();
 #endif
 
 /**
@@ -183,7 +282,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 #if USE_SENSORLESS
   // Track enabled status of stealthChop and only re-enable where applicable
   struct sensorless_t {
-    bool x, y, z;
+    bool x, y, z, x2, y2, z2, z3;
   };
 
   bool tmc_enable_stallguard(TMC2130Stepper &st);

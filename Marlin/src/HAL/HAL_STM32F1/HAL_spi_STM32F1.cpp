@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -86,7 +86,7 @@ void spiBegin() {
 }
 
 /**
- * @brief  Initializes SPI port to required speed rate and transfer mode (MSB, SPI MODE 0)
+ * @brief  Initialize SPI port to required speed rate and transfer mode (MSB, SPI MODE 0)
  *
  * @param  spiRate Rate as declared in HAL.h (speed do not match AVR)
  * @return Nothing
@@ -109,7 +109,7 @@ void spiInit(uint8_t spiRate) {
 }
 
 /**
- * @brief  Receives a single byte from the SPI port.
+ * @brief  Receive a single byte from the SPI port.
  *
  * @return Byte received
  *
@@ -123,7 +123,7 @@ uint8_t spiRec(void) {
 }
 
 /**
- * @brief  Receives a number of bytes from the SPI port to a buffer
+ * @brief  Receive a number of bytes from the SPI port to a buffer
  *
  * @param  buf   Pointer to starting address of buffer to write to.
  * @param  nbyte Number of bytes to receive.
@@ -133,12 +133,12 @@ uint8_t spiRec(void) {
  */
 void spiRead(uint8_t* buf, uint16_t nbyte) {
   SPI.beginTransaction(spiConfig);
-  SPI.dmaTransfer(0, const_cast<uint8*>(buf), nbyte);
+  SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
   SPI.endTransaction();
 }
 
 /**
- * @brief  Sends a single byte on SPI port
+ * @brief  Send a single byte on SPI port
  *
  * @param  b Byte to send
  *
@@ -161,11 +161,20 @@ void spiSend(uint8_t b) {
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
   SPI.beginTransaction(spiConfig);
   SPI.send(token);
-  SPI.dmaSend(const_cast<uint8*>(buf), 512);
+  SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
   SPI.endTransaction();
 }
 
-/** Begin SPI transaction, set clock, bit order, data mode */
+/**
+ * @brief  Begin SPI transaction, set clock, bit order, data mode
+ *
+ * @param  spiClock   Clock setting
+ * @param  bitOrder   Bit Order setting
+ * @param  dataMode   Data Mode setting
+ * @return Nothing
+ *
+ * @details Uses an SPI Config via SPISettings
+ */
 void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
   spiConfig = SPISettings(spiClock, (BitOrder)bitOrder, dataMode);
   SPI.beginTransaction(spiConfig);
