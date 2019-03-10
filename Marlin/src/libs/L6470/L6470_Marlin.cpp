@@ -144,7 +144,6 @@ uint16_t L64XX_Marlin::get_stepper_status(L64XX &st) {
   shadow.STATUS_AXIS_RAW           = st.getStatus();
   shadow.STATUS_AXIS               = shadow.STATUS_AXIS_RAW;
   shadow.STATUS_AXIS_LAYOUT        = st.L6470_status_layout;
-shadow.BOB_TEMP          = st.bob_temp;
   shadow.AXIS_OCD_TH_MAX           = st.OCD_TH_MAX;
   shadow.AXIS_STALL_TH_MAX         = st.STALL_TH_MAX;
   shadow.AXIS_OCD_CURRENT_CONSTANT_INV   = st.OCD_CURRENT_CONSTANT_INV;
