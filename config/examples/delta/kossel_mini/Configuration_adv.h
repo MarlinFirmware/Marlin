@@ -1069,11 +1069,17 @@
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
 //#define BEZIER_CURVE_SUPPORT
 
-// G38.2 and G38.3 Probe Target
-// Set MULTIPLE_PROBING if you want G38 to double touch
+/**
+ * G38 Probe Target
+ *
+ * This option adds G38.2 and G38.3 (probe towards target)
+ * and optionally G38.4 and G38.5 (probe away from target).
+ * Set MULTIPLE_PROBING for G38 to probe more than once.
+ */
 //#define G38_PROBE_TARGET
 #if ENABLED(G38_PROBE_TARGET)
-  #define G38_MINIMUM_MOVE 0.0275 // minimum distance in mm that will produce a move (determined using the print statement in check_move)
+  //#define G38_PROBE_AWAY        // Include G38.4 and G38.5 to probe away from target
+  #define G38_MINIMUM_MOVE 0.0275 // (mm) Minimum distance that will produce a move.
 #endif
 
 // Moves (or segments) with fewer steps than this will be joined with the next move
