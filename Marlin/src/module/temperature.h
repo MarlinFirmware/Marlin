@@ -652,10 +652,10 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawChamberTemp() { return temp_chamber.raw; }
       #endif
-      FORCE_INLINE static float degChamber() { return temp_chambercurrent; }
+      FORCE_INLINE static float degChamber() { return temp_chamber.current; }
       #if HAS_HEATED_CHAMBER
-        FORCE_INLINE static bool isHeatingChamber()     { return temp_chamber.target > temp_chambercurrent; }
-        FORCE_INLINE static bool isCoolingChamber()     { return temp_chamber.target < temp_chambercurrent; }
+        FORCE_INLINE static bool isHeatingChamber()     { return temp_chamber.target > temp_chamber.current; }
+        FORCE_INLINE static bool isCoolingChamber()     { return temp_chamber.target < temp_chamber.current; }
         FORCE_INLINE static int16_t degTargetChamber() {return temp_chamber.target; }
       #endif
     #endif // HAS_TEMP_CHAMBER

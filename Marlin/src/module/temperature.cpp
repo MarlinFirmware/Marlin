@@ -629,7 +629,7 @@ int Temperature::getHeaterPower(const int heater) {
         SBI(fanState, pgm_read_byte(&fanBit[e]));
 
     #if HAS_TEMP_CHAMBER
-      if (temp_chambercurrent > EXTRUDER_AUTO_FAN_TEMPERATURE)
+      if (temp_chamber.current > EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[6]));
     #endif
 
@@ -1053,14 +1053,14 @@ void Temperature::manage_heater() {
       if (PENDING(ms, next_chamber_check_ms)) return;
       next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
 
-      if (WITHIN(temp_chambercurrent, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
+      if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
         #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-          if (temp_chambercurrent >= temp_chamber.target + CHAMBER_HYSTERESIS)
+          if (temp_chamber.current >= temp_chamber.target + CHAMBER_HYSTERESIS)
             temp_chamber.soft_pwm_amount = 0;
-          else if (temp_chambercurrent <= temp_chamber.target - (CHAMBER_HYSTERESIS))
+          else if (temp_chamber.current <= temp_chamber.target - (CHAMBER_HYSTERESIS))
             temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
         #else // !PIDTEMPCHAMBER && !CHAMBER_LIMIT_SWITCHING
-          temp_chamber.soft_pwm_amount = temp_chambercurrent < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
+          temp_chamber.soft_pwm_amount = temp_chamber.current < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
         #endif
       }
       else {
@@ -1069,11 +1069,11 @@ void Temperature::manage_heater() {
       }
 
       #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-        thermal_runaway_protection(tr_state_machine_chamber, temp_chambercurrent, temp_chamber.target, -2, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS);
+        thermal_runaway_protection(tr_state_machine_chamber, temp_chamber.current, temp_chamber.target, -2, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS);
       #endif
 
       // TODO: Implement true PID pwm
-      //temp_bed.soft_pwm_amount = WITHIN(temp_chambercurrent, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? (int)get_pid_output_chamber() >> 1 : 0;
+      //temp_bed.soft_pwm_amount = WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? (int)get_pid_output_chamber() >> 1 : 0;
 
     #endif // HAS_HEATED_CHAMBER
 
@@ -1235,7 +1235,7 @@ void Temperature::updateTemperaturesFromRawValues() {
     temp_bed.current = analog_to_celsius_bed(temp_bed.raw);
   #endif
   #if HAS_TEMP_CHAMBER
-    temp_chambercurrent = analog_to_celsius_chamber(temp_chamber.raw);
+    temp_chamber.current = analog_to_celsius_chamber(temp_chamber.raw);
   #endif
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     redundant_temperature = analog_to_celsius_hotend(redundant_temperature_raw, 1);
