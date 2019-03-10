@@ -53,6 +53,7 @@
 
 /**
  * This routine is also useful for determining the approximate KVAL_HOLD
+
  * where the stepper stops losing steps. The sound will get noticeably quieter
  * as it stops losing steps.
  */
@@ -62,7 +63,7 @@ void GcodeSuite::M916() {
   L6470_ECHOLNPGM("M916");
 
   // Variables used by L64helper.get_user_input function - some may not be used
-  char *axis_mon[3] = { "  ", "  ", "  " };  // list of Axes to be monitored
+  char axis_mon[3][3] = { {"  "}, {"  "}, {"  "} };   // list of Axes to be monitored
   L6470_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
@@ -179,7 +180,7 @@ void GcodeSuite::M917() {
 
   L6470_ECHOLNPGM("M917");
 
-  char *axis_mon[3] = { "  ", "  ", "  " };  // list of axes to be monitored
+  char axis_mon[3][3] = { {"  "}, {"  "}, {"  "} };   // list of Axes to be monitored
   L6470_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
@@ -453,7 +454,7 @@ void GcodeSuite::M918() {
 
   L6470_ECHOLNPGM("M918");
 
-  char *axis_mon[3] = { "  ", "  ", "  " };  // List of axes to monitor
+  char axis_mon[3][3] = { {"  "}, {"  "}, {"  "} };   // list of Axes to be monitored
   L6470_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
