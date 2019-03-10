@@ -61,7 +61,7 @@ public:
 
   //static void send_command(const L6470_axis_t axis, uint8_t command);
 
-  static bool get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3], char* axis_mon[3],
+  static bool get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3], char axis_mon[3][3],
                             float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
                             bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold);
 
