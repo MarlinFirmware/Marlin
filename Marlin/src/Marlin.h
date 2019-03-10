@@ -309,8 +309,8 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 #endif
 
 #if ENABLED(G38_PROBE_TARGET)
-  extern bool G38_move,        // flag to tell the interrupt handler that a G38 command is being run
-              G38_endstop_hit; // flag from the interrupt handler to indicate if the endstop went active
+  extern uint8_t G38_move;          // Flag to tell the ISR that G38 is in progress, and the type
+  extern bool G38_did_trigger;      // Flag from the ISR to indicate the endstop changed
 #endif
 
 /**

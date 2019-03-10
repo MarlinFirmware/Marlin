@@ -258,9 +258,14 @@ void GcodeSuite::process_parsed_command(
       #endif
 
       #if ENABLED(G38_PROBE_TARGET)
-        case 38:                                                  // G38.2 & G38.3: Probe towards target
-          if (parser.subcode == 2 || parser.subcode == 3)
-            G38(parser.subcode == 2);
+        case 38:                                                  // G38.2, G38.3: Probe towards target
+          if (WITHIN(parser.subcode, 2,
+            #if ENABLED(G38_PROBE_AWAY)
+              5
+            #else
+              3
+            #endif
+          )) G38(parser.subcode);                                 // G38.4, G38.5: Probe away from target
           break;
       #endif
 

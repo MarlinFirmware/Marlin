@@ -114,8 +114,8 @@
 #endif
 
 #if ENABLED(G38_PROBE_TARGET)
-  bool G38_move = false,
-       G38_endstop_hit = false;
+  uint8_t G38_move; // = 0
+  bool G38_did_trigger; // = false
 #endif
 
 #if ENABLED(DELTA)
