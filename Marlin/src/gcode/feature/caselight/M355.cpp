@@ -57,7 +57,7 @@
       SERIAL_ECHOLNPGM("Case light: off");
     }
     else {
-      if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM("Case light: on");
+      if (!PWM_PIN(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM("Case light: on");
       else SERIAL_ECHOLNPAIR("Case light: ", case_light_brightness);
     }
   }
