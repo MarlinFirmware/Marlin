@@ -210,6 +210,7 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
 
 void HAL_init(void) {
   NVIC_SetPriorityGrouping(0x3);
+  pinMode(FAN_PIN, PWM); 
 }
 
 /* VGPV Done with defines
