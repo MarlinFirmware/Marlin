@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * PWM print routines for Atmel 8 bit AVR CPUs
  */
-
-#ifndef _PINSDEBUG_AVR_8_BIT_
-#define _PINSDEBUG_AVR_8_BIT_
 
 #include "../../inc/MarlinConfig.h"
 
@@ -152,7 +150,7 @@ static bool pwm_status(uint8_t pin) {
     default:
       return false;
   }
-  SERIAL_PROTOCOL_SP(2);
+  SERIAL_ECHO_SP(2);
 } // pwm_status
 
 
@@ -224,24 +222,24 @@ const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 
 #define OCR_VAL(T, L)   pgm_read_word(&PWM_OCR[T][L])
 
-static void err_is_counter()     { SERIAL_PROTOCOLPGM("   non-standard PWM mode"); }
-static void err_is_interrupt()   { SERIAL_PROTOCOLPGM("   compare interrupt enabled"); }
-static void err_prob_interrupt() { SERIAL_PROTOCOLPGM("   overflow interrupt enabled"); }
-static void print_is_also_tied() { SERIAL_PROTOCOLPGM(" is also tied to this pin"); SERIAL_PROTOCOL_SP(14); }
+static void err_is_counter()     { SERIAL_ECHOPGM("   non-standard PWM mode"); }
+static void err_is_interrupt()   { SERIAL_ECHOPGM("   compare interrupt enabled"); }
+static void err_prob_interrupt() { SERIAL_ECHOPGM("   overflow interrupt enabled"); }
+static void print_is_also_tied() { SERIAL_ECHOPGM(" is also tied to this pin"); SERIAL_ECHO_SP(14); }
 
 void com_print(uint8_t N, uint8_t Z) {
   const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
-  SERIAL_PROTOCOLPGM("    COM");
-  SERIAL_PROTOCOLCHAR(N + '0');
+  SERIAL_ECHOPGM("    COM");
+  SERIAL_CHAR(N + '0');
   switch (Z) {
     case 'A':
-      SERIAL_PROTOCOLPAIR("A: ", ((*TCCRA & (_BV(7) | _BV(6))) >> 6));
+      SERIAL_ECHOPAIR("A: ", ((*TCCRA & (_BV(7) | _BV(6))) >> 6));
       break;
     case 'B':
-      SERIAL_PROTOCOLPAIR("B: ", ((*TCCRA & (_BV(5) | _BV(4))) >> 4));
+      SERIAL_ECHOPAIR("B: ", ((*TCCRA & (_BV(5) | _BV(4))) >> 4));
       break;
     case 'C':
-      SERIAL_PROTOCOLPAIR("C: ", ((*TCCRA & (_BV(3) | _BV(2))) >> 2));
+      SERIAL_ECHOPAIR("C: ", ((*TCCRA & (_BV(3) | _BV(2))) >> 2));
       break;
   }
 }
@@ -253,10 +251,10 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   uint8_t WGM = (((*TCCRB & _BV(WGM_2)) >> 1) | (*TCCRA & (_BV(WGM_0) | _BV(WGM_1))));
   if (N == 4) WGM |= ((*TCCRB & _BV(WGM_3)) >> 1);
 
-  SERIAL_PROTOCOLPGM("    TIMER");
-  SERIAL_PROTOCOLCHAR(T + '0');
-  SERIAL_PROTOCOLCHAR(L);
-  SERIAL_PROTOCOL_SP(3);
+  SERIAL_ECHOPGM("    TIMER");
+  SERIAL_CHAR(T + '0');
+  SERIAL_CHAR(L);
+  SERIAL_ECHO_SP(3);
 
   if (N == 3) {
     const uint8_t *OCRVAL8 = (uint8_t*)OCR_VAL(T, L - 'A');
@@ -266,22 +264,22 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
     const uint16_t *OCRVAL16 = (uint16_t*)OCR_VAL(T, L - 'A');
     PWM_PRINT(*OCRVAL16);
   }
-  SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+  SERIAL_ECHOPAIR("    WGM: ", WGM);
   com_print(T,L);
-  SERIAL_PROTOCOLPAIR("    CS: ", (*TCCRB & (_BV(CS_0) | _BV(CS_1) | _BV(CS_2)) ));
+  SERIAL_ECHOPAIR("    CS: ", (*TCCRB & (_BV(CS_0) | _BV(CS_1) | _BV(CS_2)) ));
 
-  SERIAL_PROTOCOLPGM("    TCCR");
-  SERIAL_PROTOCOLCHAR(T + '0');
-  SERIAL_PROTOCOLPAIR("A: ", *TCCRA);
+  SERIAL_ECHOPGM("    TCCR");
+  SERIAL_CHAR(T + '0');
+  SERIAL_ECHOPAIR("A: ", *TCCRA);
 
-  SERIAL_PROTOCOLPGM("    TCCR");
-  SERIAL_PROTOCOLCHAR(T + '0');
-  SERIAL_PROTOCOLPAIR("B: ", *TCCRB);
+  SERIAL_ECHOPGM("    TCCR");
+  SERIAL_CHAR(T + '0');
+  SERIAL_ECHOPAIR("B: ", *TCCRB);
 
   const uint8_t *TMSK = (uint8_t*)TIMSK(T);
-  SERIAL_PROTOCOLPGM("    TIMSK");
-  SERIAL_PROTOCOLCHAR(T + '0');
-  SERIAL_PROTOCOLPAIR(": ", *TMSK);
+  SERIAL_ECHOPGM("    TIMSK");
+  SERIAL_CHAR(T + '0');
+  SERIAL_ECHOPAIR(": ", *TMSK);
 
   const uint8_t OCIE = L - 'A' + 1;
   if (N == 3) { if (WGM == 0 || WGM == 2 || WGM ==  4 || WGM ==  6) err_is_counter(); }
@@ -338,22 +336,22 @@ static void pwm_details(uint8_t pin) {
     case NOT_ON_TIMER: break;
 
   }
-  SERIAL_PROTOCOLPGM("  ");
+  SERIAL_ECHOPGM("  ");
 
   // on pins that have two PWMs, print info on second PWM
   #if AVR_ATmega2560_FAMILY || AVR_AT90USB1286_FAMILY
     // looking for port B7 - PWMs 0A and 1C
     if (digitalPinToPort_DEBUG(pin) == 'B' - 64 && 0x80 == digitalPinToBitMask_DEBUG(pin)) {
       #if !AVR_AT90USB1286_FAMILY
-        SERIAL_PROTOCOLPGM("\n .");
-        SERIAL_PROTOCOL_SP(18);
-        SERIAL_PROTOCOLPGM("TIMER1C");
+        SERIAL_ECHOPGM("\n .");
+        SERIAL_ECHO_SP(18);
+        SERIAL_ECHOPGM("TIMER1C");
         print_is_also_tied();
         timer_prefix(1, 'C', 4);
       #else
-        SERIAL_PROTOCOLPGM("\n .");
-        SERIAL_PROTOCOL_SP(18);
-        SERIAL_PROTOCOLPGM("TIMER0A");
+        SERIAL_ECHOPGM("\n .");
+        SERIAL_ECHO_SP(18);
+        SERIAL_ECHOPGM("TIMER0A");
         print_is_also_tied();
         timer_prefix(0, 'A', 3);
       #endif
@@ -374,7 +372,7 @@ static void pwm_details(uint8_t pin) {
   void print_port(int8_t pin) {   // print port number
     #ifdef digitalPinToPort_DEBUG
       uint8_t x;
-      SERIAL_PROTOCOLPGM("  Port: ");
+      SERIAL_ECHOPGM("  Port: ");
       #if AVR_AT90USB1286_FAMILY
         x = (pin == 46 || pin == 47) ? 'E' : digitalPinToPort_DEBUG(pin) + 64;
       #else
@@ -397,7 +395,7 @@ static void pwm_details(uint8_t pin) {
       #endif
       SERIAL_CHAR(x);
     #else
-      SERIAL_PROTOCOL_SP(10);
+      SERIAL_ECHO_SP(10);
     #endif
   }
 
@@ -406,5 +404,3 @@ static void pwm_details(uint8_t pin) {
 #endif
 
 #define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer);} while (0)
-
-#endif // _PINSDEBUG_AVR_8_BIT_

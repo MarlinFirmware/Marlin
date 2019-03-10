@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __CASELIGHT_H__
-#define __CASELIGHT_H__
+#pragma once
 
 extern uint8_t case_light_brightness;
 extern bool case_light_on;
@@ -29,5 +27,3 @@ extern uint8_t case_light_brightness_sav;   // saves brighness info when case_li
 extern bool case_light_arg_flag;  // flag to notify if S or P argument type
 
 void update_case_light();
-
-#endif // __CASELIGHT_H__

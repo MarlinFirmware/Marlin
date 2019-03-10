@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -145,8 +145,8 @@ static const UnwindCallbacks UnwCallbacks = {
   UnwReadW,
   UnwReadH,
   UnwReadB
-  #if defined(UNW_DEBUG)
-   ,UnwPrintf
+  #ifdef UNW_DEBUG
+   , UnwPrintf
   #endif
 };
 
@@ -231,7 +231,7 @@ void HardFault_HandlerC(unsigned long *sp, unsigned long lr, unsigned long cause
 
   // Reset controller
   NVIC_SystemReset();
-  while(1) { WDT_Restart(WDT); }
+  for (;;) WDT_Restart(WDT);
 }
 
 __attribute__((naked)) void NMI_Handler(void) {

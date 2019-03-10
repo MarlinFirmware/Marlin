@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Description: HAL for Teensy 3.5 and Teensy 3.6
  */
-
-#ifndef _HAL_TEENSY_H
-#define _HAL_TEENSY_H
 
 #define CPU_32_BIT
 
@@ -167,9 +165,3 @@ uint16_t HAL_adc_get_result(void);
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
-
-// --------------------------------------------------------------------------
-//
-// --------------------------------------------------------------------------
-
-#endif // _HAL_TEENSY_H

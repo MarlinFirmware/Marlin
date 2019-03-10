@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -36,7 +36,7 @@ void fanmux_switch(const uint8_t e) {
   #if PIN_EXISTS(FANMUX1)
     WRITE(FANMUX1_PIN, TEST(e, 1) ? HIGH : LOW);
     #if PIN_EXISTS(FANMUX2)
-      WRITE(FANMUX2, TEST(e, 2) ? HIGH : LOW);
+      WRITE(FANMUX2_PIN, TEST(e, 2) ? HIGH : LOW);
     #endif
   #endif
 }

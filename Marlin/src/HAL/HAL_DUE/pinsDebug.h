@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2018 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -63,15 +63,16 @@
 
 #define NUMBER_PINS_TOTAL PINS_COUNT
 
-#define digitalRead_mod(p)  digitalRead(p)  // AVR digitalRead disabled PWM before it read the pin
+#define digitalRead_mod(p) extDigitalRead(p)  // AVR digitalRead disabled PWM before it read the pin
 #define PRINT_PORT(p)
 #define NAME_FORMAT(p) PSTR("%-##p##s")
 #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
 #define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%02d"), p); SERIAL_ECHO(buffer);} while (0)
 #define GET_ARRAY_PIN(p) pin_array[p].pin
+#define GET_ARRAY_IS_DIGITAL(p) pin_array[p].is_digital
 #define VALID_PIN(pin) (pin >= 0 && pin < (int8_t)NUMBER_PINS_TOTAL ? 1 : 0)
 #define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
-#define IS_ANALOG(P) (((P) >= analogInputToDigitalPin(0)) && ((P) <= analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
+#define IS_ANALOG(P) WITHIN(P, char(analogInputToDigitalPin(0)), char(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
 #define pwm_status(pin) (((g_pinStatus[pin] & 0xF) == PIN_STATUS_PWM) && \
                         ((g_APinDescription[pin].ulPinAttribute & PIN_ATTR_PWM) == PIN_ATTR_PWM))
 #define MULTI_NAME_PAD 14 // space needed to be pretty if not first name assigned to a pin
@@ -85,15 +86,11 @@ bool GET_PINMODE(int8_t pin) {  // 1: output, 0: input
           || pwm_status(pin));
 }
 
-bool GET_ARRAY_IS_DIGITAL(int8_t pin) {
-  uint8_t pin_status = g_pinStatus[pin] & 0xF;
-  return  !(pin_status == PIN_STATUS_ANALOG);
-}
 
 void pwm_details(int32_t pin) {
   if (pwm_status(pin)) {
     uint32_t chan = g_APinDescription[pin].ulPWMChannel;
-    SERIAL_PROTOCOLPAIR("PWM = ", PWM_INTERFACE->PWM_CH_NUM[chan].PWM_CDTY);
+    SERIAL_ECHOPAIR("PWM = ", PWM_INTERFACE->PWM_CH_NUM[chan].PWM_CDTY);
   }
 }
 

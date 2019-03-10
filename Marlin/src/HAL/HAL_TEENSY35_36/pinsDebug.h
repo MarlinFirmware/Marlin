@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -45,7 +45,7 @@
 #define FTM3_CH5_PIN 36
 #define FTM3_CH6_PIN 37
 #define FTM3_CH7_PIN 38
-#if defined(__MK66FX1M0__) // Teensy3.6
+#ifdef __MK66FX1M0__ // Teensy3.6
   #define TPM1_CH0_PIN 16
   #define TPM1_CH1_PIN 17
 #endif
@@ -53,16 +53,16 @@
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(9)) || ((P) >= analogInputToDigitalPin(12) && (P) <= analogInputToDigitalPin(20))
 
 void HAL_print_analog_pin(char buffer[], int8_t pin) {
-  if (pin <= 23)      sprintf(buffer, "(A%2d)  ", int(pin - 14));
-  else if (pin <= 39) sprintf(buffer, "(A%2d)  ", int(pin - 19));
+  if (pin <= 23)      sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 14));
+  else if (pin <= 39) sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 19));
 }
 
 void HAL_analog_pin_state(char buffer[], int8_t pin) {
-  if (pin <= 23)      sprintf(buffer, "Analog in =% 5d", analogRead(pin - 14));
-  else if (pin <= 39) sprintf(buffer, "Analog in =% 5d", analogRead(pin - 19));
+  if (pin <= 23)      sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 14));
+  else if (pin <= 39) sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 19));
 }
 
-#define PWM_PRINT(V) do{ sprintf(buffer, "PWM:  %4d", 22); SERIAL_ECHO(buffer); }while(0)
+#define PWM_PRINT(V) do{ sprintf_P(buffer, PSTR("PWM:  %4d"), 22); SERIAL_ECHO(buffer); }while(0)
 #define FTM_CASE(N,Z) \
   case FTM##N##_CH##Z##_PIN: \
     if (FTM##N##_C##Z##V) { \
@@ -76,7 +76,7 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
  */
 bool HAL_pwm_status(int8_t pin) {
   char buffer[20];   // for the sprintf statements
-  switch(pin) {
+  switch (pin) {
     FTM_CASE(0,0);
     FTM_CASE(0,1);
     FTM_CASE(0,2);
@@ -102,7 +102,7 @@ bool HAL_pwm_status(int8_t pin) {
     default:
       return false;
   }
-  SERIAL_PROTOCOLPGM("  ");
+  SERIAL_ECHOPGM("  ");
 }
 
 static void HAL_pwm_details(uint8_t pin) { /* TODO */ }

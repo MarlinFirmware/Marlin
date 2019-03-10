@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Russian
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_RU_H
-#define LANGUAGE_RU_H
 
 #define DISPLAY_CHARSET_ISO10646_5
 #define CHARSIZE 2
@@ -48,7 +47,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Парковка X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Парковка Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Парковка Z")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Калибровать Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Нулевое положение")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Нажмите чтобы начать")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Следующая точка")
@@ -57,13 +55,13 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Запомнить парковку")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Коррекции применены")
 #define MSG_SET_ORIGIN                      _UxGT("Запомнить ноль")
-#define MSG_PREHEAT_1                       _UxGT("Преднагрев PLA")
+#define MSG_PREHEAT_1                       _UxGT("Преднагрев " PREHEAT_1_LABEL)
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" всё")
 #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" сопло")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" стол")
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" настр.")
-#define MSG_PREHEAT_2                       _UxGT("Преднагрев ABS")
+#define MSG_PREHEAT_2                       _UxGT("Преднагрев " PREHEAT_2_LABEL)
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" всё")
 #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" сопло")
@@ -93,24 +91,24 @@
 #define MSG_UBL_MOVING_TO_NEXT              _UxGT("Двигаемся дальше")
 #define MSG_UBL_ACTIVATE_MESH               _UxGT("Активировать UBL")
 #define MSG_UBL_DEACTIVATE_MESH             _UxGT("Деактивировать UBL")
-#define MSG_UBL_SET_BED_TEMP                _UxGT("Температура стола")
-#define MSG_UBL_CUSTOM_BED_TEMP             MSG_UBL_SET_BED_TEMP
-#define MSG_UBL_SET_HOTEND_TEMP             _UxGT("Температура сопла")
-#define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
+#define MSG_UBL_SET_TEMP_BED                _UxGT("Температура стола")
+#define MSG_UBL_BED_TEMP_CUSTOM             MSG_UBL_SET_TEMP_BED
+#define MSG_UBL_SET_TEMP_HOTEND             _UxGT("Температура сопла")
+#define MSG_UBL_HOTEND_TEMP_CUSTOM          MSG_UBL_SET_TEMP_HOTEND
 #define MSG_UBL_MESH_EDIT                   _UxGT("Редактор сеток")
 #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Редакт. свою сетку")
 #define MSG_UBL_FINE_TUNE_MESH              _UxGT("Точная настр. сетки")
 #define MSG_UBL_DONE_EDITING_MESH           _UxGT("Ред. сетки завершено")
 #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("Построить свою сетку")
 #define MSG_UBL_BUILD_MESH_MENU             _UxGT("Построить сетку")
-#define MSG_UBL_BUILD_PLA_MESH              _UxGT("Построить сетку PLA")
-#define MSG_UBL_BUILD_ABS_MESH              _UxGT("Построить сетку ABS")
+#define MSG_UBL_BUILD_MESH_M1               _UxGT("Построить сетку " PREHEAT_1_LABEL)
+#define MSG_UBL_BUILD_MESH_M2               _UxGT("Построить сетку " PREHEAT_2_LABEL)
 #define MSG_UBL_BUILD_COLD_MESH             _UxGT("Построить хол. сетку")
 #define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("Устан. высоту сетки")
 #define MSG_UBL_MESH_HEIGHT_AMOUNT          _UxGT("Высота")
 #define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("Проверить сетку")
-#define MSG_UBL_VALIDATE_PLA_MESH           _UxGT("Проверить сетку PLA")
-#define MSG_UBL_VALIDATE_ABS_MESH           _UxGT("Проверить сетку ABS")
+#define MSG_UBL_VALIDATE_MESH_M1            _UxGT("Проверить сетку " PREHEAT_1_LABEL)
+#define MSG_UBL_VALIDATE_MESH_M2            _UxGT("Проверить сетку " PREHEAT_2_LABEL)
 #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Проверить свою сетку")
 #define MSG_UBL_CONTINUE_MESH               _UxGT("Продолжить сетку")
 #define MSG_UBL_MESH_LEVELING               _UxGT("Калибровка сетки")
@@ -124,7 +122,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Вывести в CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Забекапить сетку")
 #define MSG_UBL_INFO_UBL                    _UxGT("Вывод информации UBL")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Редактировать сетку")
+#define MSG_EDIT_MESH                       _UxGT("Редактировать сетку")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Кол-во заполнителя")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Ручное заполнение")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Умное заполнение")
@@ -185,8 +183,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Макс")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Фактор")
 #define MSG_AUTOTEMP                        _UxGT("Автотемпература")
-#define MSG_ON                              _UxGT("Вкл.")
-#define MSG_OFF                             _UxGT("Выкл.")
+#define MSG_LCD_ON                          _UxGT("Вкл.")
+#define MSG_LCD_OFF                         _UxGT("Выкл.")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -261,7 +259,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Втягивание мм")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Втягивание смены мм")
 #define MSG_CONTROL_RETRACTF                _UxGT("Втягивание V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Втяг. прыжка мм")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Втяг. прыжка мм")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Возврат мм")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Возврат смены мм")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Возврат V")
@@ -272,7 +270,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("Выгрузка филамента")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Выгрузить всё")
 #define MSG_INIT_SDCARD                     _UxGT("Иниц. SD карту")
-#define MSG_CNG_SDCARD                      _UxGT("Сменить SD карту")
+#define MSG_CHANGE_SDCARD                   _UxGT("Сменить SD карту")
 #define MSG_ZPROBE_OUT                      _UxGT("Z датчик вне стола")
 #define MSG_SKEW_FACTOR                     _UxGT("Фактор наклона")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
@@ -399,5 +397,3 @@
   #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Выдавливание...")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Возобновление...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_RU_H

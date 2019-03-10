@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,7 +21,7 @@
  */
 
 #if !defined(__STM32F1__) && !defined(__STM32F4__)
-  #error "Oops!  Make sure you have an STM32F1/4 board selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select an STM32F1/4 board in 'Tools > Board.'"
 #endif
 
 /**
@@ -286,4 +286,3 @@
 #define U_MIN_PIN          -1
 #define V_MIN_PIN          -1
 #define W_MIN_PIN          -1
-

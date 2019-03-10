@@ -1,7 +1,7 @@
 #######################################
 #
 # Marlin 3D Printer Firmware
-# Copyright (C) 2018 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+# Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
 #
 # Based on Sprinter and grbl.
 # Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -105,6 +105,7 @@ current_OS = platform.system()
 target_env = ''
 board_name = ''
 
+from datetime import datetime, date, time
 
 #########
 #  Python 2 error messages:
@@ -892,6 +893,8 @@ def run_PIO(dummy):
     write_to_screen_queue('\nBoard name: ' + board_name  + '\n')  # put build info at the bottom of the screen
     write_to_screen_queue('Build type: ' + build_type  + '\n')
     write_to_screen_queue('Environment used: ' + target_env  + '\n')
+    write_to_screen_queue(str(datetime.now()) + '\n')
+
 # end - run_PIO
 
 

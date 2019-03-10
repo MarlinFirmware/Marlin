@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -66,32 +66,41 @@
    *   S[segments-per-second] - Segments-per-second
    *   P[theta-psi-offset]    - Theta-Psi offset, added to the shoulder (A/X) angle
    *   T[theta-offset]        - Theta     offset, added to the elbow    (B/Y) angle
+   *   Z[z-offset]            - Z offset, added to Z
    *
    *   A, P, and X are all aliases for the shoulder angle
    *   B, T, and Y are all aliases for the elbow angle
    */
   void GcodeSuite::M665() {
-    if (parser.seen('S')) delta_segments_per_second = parser.value_float();
+    if (parser.seenval('S')) delta_segments_per_second = parser.value_float();
 
-    const bool hasA = parser.seen('A'), hasP = parser.seen('P'), hasX = parser.seen('X');
-    const uint8_t sumAPX = hasA + hasP + hasX;
-    if (sumAPX == 1)
-      home_offset[A_AXIS] = parser.value_float();
-    else if (sumAPX > 1) {
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM("Only one of A, P, or X is allowed.");
-      return;
-    }
+    #if HAS_SCARA_OFFSET
 
-    const bool hasB = parser.seen('B'), hasT = parser.seen('T'), hasY = parser.seen('Y');
-    const uint8_t sumBTY = hasB + hasT + hasY;
-    if (sumBTY == 1)
-      home_offset[B_AXIS] = parser.value_float();
-    else if (sumBTY > 1) {
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM("Only one of B, T, or Y is allowed.");
-      return;
-    }
+      if (parser.seenval('Z')) scara_home_offset[Z_AXIS] = parser.value_linear_units();
+
+      const bool hasA = parser.seenval('A'), hasP = parser.seenval('P'), hasX = parser.seenval('X');
+      const uint8_t sumAPX = hasA + hasP + hasX;
+      if (sumAPX) {
+        if (sumAPX == 1)
+          scara_home_offset[A_AXIS] = parser.value_float();
+        else {
+          SERIAL_ERROR_MSG("Only one of A, P, or X is allowed.");
+          return;
+        }
+      }
+
+      const bool hasB = parser.seenval('B'), hasT = parser.seenval('T'), hasY = parser.seenval('Y');
+      const uint8_t sumBTY = hasB + hasT + hasY;
+      if (sumBTY) {
+        if (sumBTY == 1)
+          scara_home_offset[B_AXIS] = parser.value_float();
+        else {
+          SERIAL_ERROR_MSG("Only one of B, T, or Y is allowed.");
+          return;
+        }
+      }
+
+    #endif // HAS_SCARA_OFFSET
   }
 
 #endif

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -905,7 +905,7 @@ int SdBaseFile::peek() {
 // print uint8_t with width 2
 static void print2u(const uint8_t v) {
   if (v < 10) SERIAL_CHAR('0');
-  SERIAL_ECHO_F(v, DEC);
+  SERIAL_ECHO(int(v));
 }
 
 /**

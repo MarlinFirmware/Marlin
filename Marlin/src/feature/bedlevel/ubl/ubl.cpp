@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,51 +34,30 @@
 
   #include "math.h"
 
-  uint8_t ubl_cnt = 0;
-
-  void unified_bed_leveling::echo_name(
-    #if NUM_SERIAL > 1
-      const int8_t port/*= -1*/
-    #endif
-  ) {
-    SERIAL_PROTOCOLPGM_P(port, "Unified Bed Leveling");
+  void unified_bed_leveling::echo_name() {
+    SERIAL_ECHOPGM("Unified Bed Leveling");
   }
 
-  void unified_bed_leveling::report_current_mesh(
-    #if NUM_SERIAL > 1
-      const int8_t port/*= -1*/
-    #endif
-  ) {
+  void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
-    SERIAL_ECHO_START_P(port);
-    SERIAL_ECHOLNPGM_P(port, "  G29 I99");
+    SERIAL_ECHO_MSG("  G29 I99");
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(z_values[x][y])) {
-          SERIAL_ECHO_START_P(port);
-          SERIAL_ECHOPAIR_P(port, "  M421 I", x);
-          SERIAL_ECHOPAIR_P(port, " J", y);
-          SERIAL_ECHOPGM_P(port, " Z");
-          SERIAL_ECHO_F_P(port, z_values[x][y], 2);
-          SERIAL_EOL_P(port);
-          safe_delay(75); // Prevent Printrun from exploding
+          SERIAL_ECHO_START();
+          SERIAL_ECHOPAIR("  M421 I", x, " J", y);
+          SERIAL_ECHOPAIR_F(" Z", z_values[x][y], 2);
+          SERIAL_EOL();
+          serial_delay(75); // Prevent Printrun from exploding
         }
   }
 
-  void unified_bed_leveling::report_state(
-    #if NUM_SERIAL > 1
-      const int8_t port/*= -1*/
-    #endif
-  ) {
-    echo_name(
-      #if NUM_SERIAL > 1
-        port
-      #endif
-    );
-    SERIAL_PROTOCOLPGM_P(port, " System v" UBL_VERSION " ");
-    if (!planner.leveling_active) SERIAL_PROTOCOLPGM_P(port, "in");
-    SERIAL_PROTOCOLLNPGM_P(port, "active.");
-    safe_delay(50);
+  void unified_bed_leveling::report_state() {
+    echo_name();
+    SERIAL_ECHOPGM(" System v" UBL_VERSION " ");
+    if (!planner.leveling_active) SERIAL_ECHOPGM("in");
+    SERIAL_ECHOLNPGM("active.");
+    serial_delay(50);
   }
 
   #if ENABLED(UBL_DEVEL_DEBUGGING)
@@ -106,30 +85,19 @@
 
       if (xy_dist == 0.0) return;
 
-      SERIAL_ECHOPGM("   fpmm=");
       const float fpmm = de / xy_dist;
-      SERIAL_ECHO_F(fpmm, 6);
-
-      SERIAL_ECHOPGM("    current=( ");
-      SERIAL_ECHO_F(current_position[X_AXIS], 6);
-      SERIAL_ECHOPGM(", ");
-      SERIAL_ECHO_F(current_position[Y_AXIS], 6);
-      SERIAL_ECHOPGM(", ");
-      SERIAL_ECHO_F(current_position[Z_AXIS], 6);
-      SERIAL_ECHOPGM(", ");
-      SERIAL_ECHO_F(current_position[E_AXIS], 6);
-      SERIAL_ECHOPGM(" )   destination=( ");
-      debug_echo_axis(X_AXIS);
-      SERIAL_ECHOPGM(", ");
-      debug_echo_axis(Y_AXIS);
-      SERIAL_ECHOPGM(", ");
-      debug_echo_axis(Z_AXIS);
-      SERIAL_ECHOPGM(", ");
-      debug_echo_axis(E_AXIS);
+      SERIAL_ECHOPAIR_F("   fpmm=", fpmm, 6);
+      SERIAL_ECHOPAIR_F("    current=( ", current_position[X_AXIS], 6);
+      SERIAL_ECHOPAIR_F(", ", current_position[Y_AXIS], 6);
+      SERIAL_ECHOPAIR_F(", ", current_position[Z_AXIS], 6);
+      SERIAL_ECHOPAIR_F(", ", current_position[E_AXIS], 6);
+      SERIAL_ECHOPGM(" )   destination=( "); debug_echo_axis(X_AXIS);
+      SERIAL_ECHOPGM(", "); debug_echo_axis(Y_AXIS);
+      SERIAL_ECHOPGM(", "); debug_echo_axis(Z_AXIS);
+      SERIAL_ECHOPGM(", "); debug_echo_axis(E_AXIS);
       SERIAL_ECHOPGM(" )   ");
       serialprintPGM(title);
       SERIAL_EOL();
-
     }
 
   #endif // UBL_DEVEL_DEBUGGING
@@ -143,14 +111,13 @@
   constexpr float unified_bed_leveling::_mesh_index_to_xpos[16],
                   unified_bed_leveling::_mesh_index_to_ypos[16];
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     bool unified_bed_leveling::lcd_map_control = false;
   #endif
 
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    ubl_cnt++;  // Debug counter to ensure we only have one UBL object present in memory.  We can eliminate this (and all references to ubl_cnt) very soon.
     reset();
   }
 
@@ -187,7 +154,7 @@
     if (y < 100) { SERIAL_CHAR(' '); if (y < 10) SERIAL_CHAR(' '); }
     SERIAL_ECHO(y);
     SERIAL_CHAR(')');
-    safe_delay(5);
+    serial_delay(5);
   }
 
   static void serial_echo_column_labels(const uint8_t sp) {
@@ -197,7 +164,7 @@
       SERIAL_ECHO(i);
       SERIAL_ECHO_SP(sp);
     }
-    safe_delay(10);
+    serial_delay(10);
   }
 
   /**
@@ -219,7 +186,7 @@
 
     SERIAL_ECHOPGM("\nBed Topography Report");
     if (human) {
-      SERIAL_ECHOPGM(":\n\n");
+      SERIAL_ECHOLNPGM(":\n");
       serial_echo_xy(4, MESH_MIN_X, MESH_MAX_Y);
       serial_echo_xy(twixt, MESH_MAX_X, MESH_MAX_Y);
       SERIAL_EOL();
@@ -230,8 +197,11 @@
       serialprintPGM(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
     }
 
-    const float current_xi = get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
-                current_yi = get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
+    // Add XY_PROBE_OFFSET_FROM_EXTRUDER because probe_pt() subtracts these when
+    // moving to the xy position to be measured. This ensures better agreement between
+    // the current Z position after G28 and the mesh values.
+    const float current_xi = find_closest_x_index(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
+                current_yi = find_closest_y_index(current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
     if (!lcd) SERIAL_EOL();
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
@@ -293,7 +263,7 @@
     uint8_t error_flag = 0;
 
     if (settings.calc_num_meshes() < 1) {
-      SERIAL_PROTOCOLLNPGM("?Mesh too big for EEPROM.");
+      SERIAL_ECHOLNPGM("?Mesh too big for EEPROM.");
       error_flag++;
     }
 

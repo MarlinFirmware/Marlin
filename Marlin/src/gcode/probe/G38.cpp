@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -108,10 +108,7 @@ void GcodeSuite::G38(const bool is_38_2) {
     if (ABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
       if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
       // If G38.2 fails throw an error
-      if (!G38_run_probe() && is_38_2) {
-        SERIAL_ERROR_START();
-        SERIAL_ERRORLNPGM("Failed to reach target");
-      }
+      if (!G38_run_probe() && is_38_2) SERIAL_ERROR_MSG("Failed to reach target");
       break;
     }
 

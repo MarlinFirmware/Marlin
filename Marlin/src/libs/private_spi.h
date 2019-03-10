@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __PRIVATE_SPI_H__
-#define __PRIVATE_SPI_H__
+#pragma once
 
 #include "softspi.h"
 #include <stdint.h>
@@ -35,23 +33,22 @@ class SPIclass {
     FORCE_INLINE static uint8_t receive() { return softSPI.receive(); }
 };
 
-
 // Hardware SPI
 template<>
 class SPIclass<MISO_PIN, MOSI_PIN, SCK_PIN> {
   public:
     FORCE_INLINE static void init() {
-        OUT_WRITE(SCK_PIN, LOW);
-        OUT_WRITE(MOSI_PIN, HIGH);
-        SET_INPUT(MISO_PIN);
-        WRITE(MISO_PIN, HIGH);
+      OUT_WRITE(SCK_PIN, LOW);
+      OUT_WRITE(MOSI_PIN, HIGH);
+      SET_INPUT_PULLUP(MISO_PIN);
     }
     FORCE_INLINE static uint8_t receive() {
-      SPDR = 0;
-      for (;!TEST(SPSR, SPIF););
-      return SPDR;
+      #if defined(__AVR__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
+        SPDR = 0;
+        for (;!TEST(SPSR, SPIF););
+        return SPDR;
+      #else
+        return spiRec();
+      #endif
     }
-
 };
-
-#endif // __PRIVATE_SPI_H__

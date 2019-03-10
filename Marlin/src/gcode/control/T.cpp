@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,37 +23,54 @@
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#if ENABLED(DEBUG_LEVELING_FEATURE) || HOTENDS > 1
+#if ENABLED(DEBUG_LEVELING_FEATURE) || EXTRUDERS > 1
   #include "../../module/motion.h"
 #endif
 
+#if ENABLED(PRUSA_MMU2)
+  #include "../../feature/prusa_MMU2/mmu2.h"
+#endif
+
 /**
- * T0-T3: Switch tool, usually switching extruders
+ * T0-T<n>: Switch tool, usually switching extruders
  *
  *   F[units/min] Set the movement feedrate
  *   S1           Don't move the tool in XY after change
+ *
+ * For PRUSA_MMU2:
+ *   T[n] Gcode to extrude at least 38.10 mm at feedrate 19.02 mm/s must follow immediately to load to extruder wheels.
+ *   T?   Gcode to extrude shouldn't have to follow. Load to extruder wheels is done automatically.
+ *   Tx   Same as T?, but nozzle doesn't have to be preheated. Tc requires a preheated nozzle to finish filament load.
+ *   Tc   Load to nozzle after filament was prepared by Tc and nozzle is already heated.
  */
-void GcodeSuite::T(const uint8_t tmp_extruder) {
+void GcodeSuite::T(const uint8_t tool_index) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> T(", tmp_extruder);
+      SERIAL_ECHOPAIR(">>> T(", tool_index);
       SERIAL_CHAR(')');
       SERIAL_EOL();
       DEBUG_POS("BEFORE", current_position);
     }
   #endif
 
-  #if HOTENDS == 1 || (ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1)
+  #if ENABLED(PRUSA_MMU2)
+    if (parser.string_arg) {
+      mmu2.toolChange(parser.string_arg);   // Special commands T?/Tx/Tc
+      return;
+    }
+  #endif
 
-    tool_change(tmp_extruder);
+  #if EXTRUDERS < 2
 
-  #elif HOTENDS > 1
+    tool_change(tool_index);
+
+  #else
 
     tool_change(
-      tmp_extruder,
+      tool_index,
       MMM_TO_MMS(parser.linearval('F')),
-      (tmp_extruder == active_extruder) || parser.boolval('S')
+      (tool_index == active_extruder) || parser.boolval('S')
     );
 
   #endif

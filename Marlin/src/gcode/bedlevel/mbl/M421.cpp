@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -48,14 +48,10 @@ void GcodeSuite::M421() {
   const int8_t iy = hasJ ? parser.value_int() : hasY ? mbl.probe_index_y(RAW_Y_POSITION(parser.value_linear_units())) : -1;
   const bool hasZ = parser.seen('Z'), hasQ = !hasZ && parser.seen('Q');
 
-  if (int(hasI && hasJ) + int(hasX && hasY) != 1 || !(hasZ || hasQ)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
-  }
-  else if (ix < 0 || iy < 0) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
-  }
+  if (int(hasI && hasJ) + int(hasX && hasY) != 1 || !(hasZ || hasQ))
+    SERIAL_ERROR_MSG(MSG_ERR_M421_PARAMETERS);
+  else if (ix < 0 || iy < 0)
+    SERIAL_ERROR_MSG(MSG_ERR_MESH_XY);
   else
     mbl.set_z(ix, iy, parser.value_linear_units() + (hasQ ? mbl.z_values[ix][iy] : 0));
 }

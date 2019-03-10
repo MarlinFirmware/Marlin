@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,6 +38,10 @@
   #include "pca9632.h"
 #endif
 
+#if ENABLED(PCA9533)
+  #include "SailfishRGB_LED.h"
+#endif
+
 #if ENABLED(LED_COLOR_PRESETS)
   const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
     LED_USER_PRESET_RED,
@@ -48,7 +52,7 @@
   );
 #endif
 
-#if ENABLED(LED_CONTROL_MENU)
+#if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
   LEDColor LEDLights::color;
   bool LEDLights::lights_on;
 #endif
@@ -56,6 +60,14 @@
 LEDLights leds;
 
 void LEDLights::setup() {
+  #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
+    SET_OUTPUT(RGB_LED_R_PIN);
+    SET_OUTPUT(RGB_LED_G_PIN);
+    SET_OUTPUT(RGB_LED_B_PIN);
+    #if ENABLED(RGBW_LED)
+      SET_OUTPUT(RGB_LED_W_PIN);
+    #endif
+  #endif
   #if ENABLED(NEOPIXEL_LED)
     setup_neopixel();
   #endif
@@ -72,7 +84,9 @@ void LEDLights::set_color(const LEDColor &incol
 
   #if ENABLED(NEOPIXEL_LED)
 
-    const uint32_t neocolor = pixels.Color(incol.r, incol.g, incol.b, incol.w);
+    const uint32_t neocolor = LEDColorWhite() == incol
+                            ? pixels.Color(NEO_WHITE)
+                            : pixels.Color(incol.r, incol.g, incol.b, incol.w);
     static uint16_t nextLed = 0;
 
     pixels.setBrightness(incol.i);
@@ -117,19 +131,14 @@ void LEDLights::set_color(const LEDColor &incol
     pca9632_set_led_color(incol);
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU)
+  #if ENABLED(PCA9533)
+    RGBsetColor(incol.r, incol.g, incol.b, true);
+  #endif
+
+  #if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
     // Don't update the color when OFF
     lights_on = !incol.is_off();
     if (lights_on) color = incol;
-  #endif
-}
-
-void LEDLights::set_white() {
-  #if ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(BLINKM) || ENABLED(PCA9632)
-    set_color(LEDColorWhite());
-  #endif
-  #if ENABLED(NEOPIXEL_LED)
-    set_neopixel_color(pixels.Color(NEO_WHITE));
   #endif
 }
 

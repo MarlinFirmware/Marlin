@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -71,13 +71,13 @@ bool Stopwatch::start() {
   else return false;
 }
 
-void Stopwatch::resume(const millis_t duration) {
+void Stopwatch::resume(const millis_t with_time) {
   #if ENABLED(DEBUG_STOPWATCH)
     Stopwatch::debug(PSTR("resume"));
   #endif
 
   reset();
-  if ((accumulator = duration)) state = RUNNING;
+  if ((accumulator = with_time)) state = RUNNING;
 }
 
 void Stopwatch::reset() {

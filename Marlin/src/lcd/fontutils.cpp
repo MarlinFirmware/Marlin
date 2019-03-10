@@ -180,4 +180,3 @@ uint8_t utf8_strlen(const char *pstart) {
 uint8_t utf8_strlen_P(PGM_P pstart) {
   return utf8_strlen_cb(pstart, read_byte_rom);
 }
-

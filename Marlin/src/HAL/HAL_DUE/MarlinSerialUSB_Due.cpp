@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -114,8 +114,8 @@ bool MarlinSerialUSB::available(void) {
       (usb_task_cdc_isenabled() && udi_cdc_is_rx_ready());
 }
 
-void MarlinSerialUSB::flush(void) {
-}
+void MarlinSerialUSB::flush(void) { }
+void MarlinSerialUSB::flushTX(void) { }
 
 void MarlinSerialUSB::write(const uint8_t c) {
 
@@ -143,8 +143,8 @@ void MarlinSerialUSB::write(const uint8_t c) {
 }
 
 /**
-* Imports from print.h
-*/
+ * Imports from print.h
+ */
 
 void MarlinSerialUSB::print(char c, int base) {
   print((long)c, base);
@@ -285,7 +285,7 @@ void MarlinSerialUSB::printFloat(double number, uint8_t digits) {
 }
 
 // Preinstantiate
-MarlinSerialUSB customizedSerial;
+MarlinSerialUSB customizedSerial1;
 
 #endif // SERIAL_PORT == -1
 

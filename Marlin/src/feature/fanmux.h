@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,15 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * feature/fanmux.h - Cooling Fan Multiplexer support functions
  */
 
-#ifndef _FANMUX_H_
-#define _FANMUX_H_
-
 extern void fanmux_switch(const uint8_t e);
 extern void fanmux_init(void);
-
-#endif // _FANMUX_H_

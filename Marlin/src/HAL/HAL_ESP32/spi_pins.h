@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,13 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef SPI_PINS_H_
-#define SPI_PINS_H_
+#pragma once
 
 #define SS_PIN    5
 #define SCK_PIN  18
 #define MISO_PIN 19
 #define MOSI_PIN 23
-
-#endif // SPI_PINS_H_

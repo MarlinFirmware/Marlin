@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -45,14 +45,14 @@
  */
 
 #if ENABLED(TARGET_LPC1768)
-  #error "Oops!  Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
+  #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
 #elif defined(__STM32F1__)
-  #error "Oops!  Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
+  #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
 #endif
 
 #if DISABLED(IS_RAMPS_SMART) && DISABLED(IS_RAMPS_DUO) && DISABLED(IS_RAMPS4DUE) && DISABLED(TARGET_LPC1768)
   #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-    #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+    #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
   #endif
 #endif
 
@@ -131,71 +131,6 @@
   #define E1_CS_PIN        44
 #endif
 
-/**
- * Default pins for TMC software SPI
- */
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    66
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    44
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     64
-  #endif
-#endif
-
-#if HAS_DRIVER(TMC2208)
-  /**
-   * TMC2208 stepper drivers
-   *
-   * Hardware serial communication ports.
-   * If undefined software serial is used according to the pins below
-   */
-  //#define X_HARDWARE_SERIAL  Serial1
-  //#define X2_HARDWARE_SERIAL Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Y2_HARDWARE_SERIAL Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define Z2_HARDWARE_SERIAL Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
-  //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
-
-  /**
-   * Software serial
-   */
-
-  #define X_SERIAL_TX_PIN    40
-  #define X_SERIAL_RX_PIN    63
-  #define X2_SERIAL_TX_PIN   -1
-  #define X2_SERIAL_RX_PIN   -1
-
-  #define Y_SERIAL_TX_PIN    59
-  #define Y_SERIAL_RX_PIN    64
-  #define Y2_SERIAL_TX_PIN   -1
-  #define Y2_SERIAL_RX_PIN   -1
-
-  #define Z_SERIAL_TX_PIN    42
-  #define Z_SERIAL_RX_PIN    65
-  #define Z2_SERIAL_TX_PIN   -1
-  #define Z2_SERIAL_RX_PIN   -1
-
-  #define E0_SERIAL_TX_PIN   44
-  #define E0_SERIAL_RX_PIN   66
-  #define E1_SERIAL_TX_PIN   -1
-  #define E1_SERIAL_RX_PIN   -1
-  #define E2_SERIAL_TX_PIN   -1
-  #define E2_SERIAL_RX_PIN   -1
-  #define E3_SERIAL_TX_PIN   -1
-  #define E3_SERIAL_RX_PIN   -1
-  #define E4_SERIAL_TX_PIN   -1
-  #define E4_SERIAL_RX_PIN   -1
-#endif
-
 //
 // Temperature Sensors
 //
@@ -205,9 +140,9 @@
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS       66   // Do not use pin 53 if there is even the remote possibility of using Display/SD card
+  #define MAX6675_SS_PIN   66   // Do not use pin 53 if there is even the remote possibility of using Display/SD card
 #else
-  #define MAX6675_SS       66   // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
+  #define MAX6675_SS_PIN   66   // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
 //
@@ -285,7 +220,7 @@
   #define FILWIDTH_PIN      5   // Analog Input on AUX2
 #endif
 
-// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
+// RAMPS 1.4 DIO 4 on the servos connector
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN    4
 #endif
@@ -317,6 +252,71 @@
     #define SPINDLE_LASER_PWM_PIN    44   // MUST BE HARDWARE PWM
     #define SPINDLE_DIR_PIN          65
   #endif
+#endif
+
+//
+// TMC software SPI
+//
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI    66
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO    44
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK     64
+  #endif
+#endif
+
+#if HAS_DRIVER(TMC2208)
+  /**
+   * TMC2208 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  //#define X_HARDWARE_SERIAL  Serial1
+  //#define X2_HARDWARE_SERIAL Serial1
+  //#define Y_HARDWARE_SERIAL  Serial1
+  //#define Y2_HARDWARE_SERIAL Serial1
+  //#define Z_HARDWARE_SERIAL  Serial1
+  //#define Z2_HARDWARE_SERIAL Serial1
+  //#define E0_HARDWARE_SERIAL Serial1
+  //#define E1_HARDWARE_SERIAL Serial1
+  //#define E2_HARDWARE_SERIAL Serial1
+  //#define E3_HARDWARE_SERIAL Serial1
+  //#define E4_HARDWARE_SERIAL Serial1
+
+  //
+  // Software serial
+  //
+
+  #define X_SERIAL_TX_PIN    40
+  #define X_SERIAL_RX_PIN    63
+  #define X2_SERIAL_TX_PIN   -1
+  #define X2_SERIAL_RX_PIN   -1
+
+  #define Y_SERIAL_TX_PIN    59
+  #define Y_SERIAL_RX_PIN    64
+  #define Y2_SERIAL_TX_PIN   -1
+  #define Y2_SERIAL_RX_PIN   -1
+
+  #define Z_SERIAL_TX_PIN    42
+  #define Z_SERIAL_RX_PIN    65
+  #define Z2_SERIAL_TX_PIN   -1
+  #define Z2_SERIAL_RX_PIN   -1
+
+  #define E0_SERIAL_TX_PIN   44
+  #define E0_SERIAL_RX_PIN   66
+  #define E1_SERIAL_TX_PIN   -1
+  #define E1_SERIAL_RX_PIN   -1
+  #define E2_SERIAL_TX_PIN   -1
+  #define E2_SERIAL_RX_PIN   -1
+  #define E3_SERIAL_TX_PIN   -1
+  #define E3_SERIAL_RX_PIN   -1
+  #define E4_SERIAL_TX_PIN   -1
+  #define E4_SERIAL_RX_PIN   -1
 #endif
 
 //

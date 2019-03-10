@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,9 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef HAL_SERVO_STM32F7_H
-#define HAL_SERVO_STM32F7_H
+#pragma once
 
 #include <../../libraries/Servo/src/Servo.h>
 
@@ -37,5 +35,3 @@ private:
     uint16_t max_ticks;
     uint8_t servoIndex;               // index into the channel data for this servo
 };
-
-#endif // HAL_SERVO_STM32F7_H

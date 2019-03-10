@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,30 +19,63 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Conditionals_adv.h
  * Defines that depend on advanced configuration.
  */
 
-#ifndef CONDITIONALS_ADV_H
-#define CONDITIONALS_ADV_H
-
-  #if !defined(__AVR__) || !defined(USBCON)
-    // Define constants and variables for buffering serial data.
-    // Use only 0 or powers of 2 greater than 1
-    // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
-    #ifndef RX_BUFFER_SIZE
-      #define RX_BUFFER_SIZE 128
-    #endif
-    // 256 is the max TX buffer limit due to uint8_t head and tail
-    // : [0, 4, 8, 16, 32, 64, 128, 256]
-    #ifndef TX_BUFFER_SIZE
-      #define TX_BUFFER_SIZE 32
-    #endif
-  #else
-    // SERIAL_XON_XOFF not supported on USB-native devices
-    #undef SERIAL_XON_XOFF
+#if !defined(__AVR__) || !defined(USBCON)
+  // Define constants and variables for buffering serial data.
+  // Use only 0 or powers of 2 greater than 1
+  // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
+  #ifndef RX_BUFFER_SIZE
+    #define RX_BUFFER_SIZE 128
   #endif
+  // 256 is the max TX buffer limit due to uint8_t head and tail
+  // : [0, 4, 8, 16, 32, 64, 128, 256]
+  #ifndef TX_BUFFER_SIZE
+    #define TX_BUFFER_SIZE 32
+  #endif
+#else
+  // SERIAL_XON_XOFF not supported on USB-native devices
+  #undef SERIAL_XON_XOFF
+#endif
 
-#endif // CONDITIONALS_ADV_H
+#if ENABLED(HOST_ACTION_COMMANDS)
+  #ifndef ACTION_ON_PAUSE
+    #define ACTION_ON_PAUSE   "pause"
+  #endif
+  #ifndef ACTION_ON_PAUSED
+    #define ACTION_ON_PAUSED  "paused"
+  #endif
+  #ifndef ACTION_ON_RESUME
+    #define ACTION_ON_RESUME  "resume"
+  #endif
+  #ifndef ACTION_ON_RESUMED
+    #define ACTION_ON_RESUMED "resumed"
+  #endif
+  #ifndef ACTION_ON_CANCEL
+    #define ACTION_ON_CANCEL  "cancel"
+  #endif
+  #ifndef ACTION_ON_KILL
+    #define ACTION_ON_KILL    "poweroff"
+  #endif
+  #if HAS_FILAMENT_SENSOR
+    #ifndef ACTION_ON_FILAMENT_RUNOUT
+      #define ACTION_ON_FILAMENT_RUNOUT "filament_runout"
+    #endif
+    #ifndef ACTION_REASON_ON_FILAMENT_RUNOUT
+      #define ACTION_REASON_ON_FILAMENT_RUNOUT "filament_runout"
+    #endif
+  #endif
+  #if ENABLED(G29_RETRY_AND_RECOVER)
+    #ifndef ACTION_ON_G29_RECOVER
+      #define ACTION_ON_G29_RECOVER "probe_rewipe"
+    #endif
+    #ifndef ACTION_ON_G29_FAILURE
+      #define ACTION_ON_G29_FAILURE "probe_failed"
+    #endif
+  #endif
+#endif

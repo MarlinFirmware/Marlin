@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ void eeprom_init() {
   }
 }
 
-void eeprom_write_byte(unsigned char *pos, unsigned char value) {
+void eeprom_write_byte(uint8_t *pos, unsigned char value) {
   uint16_t eeprom_address = (unsigned) pos;
 
   eeprom_init();
@@ -108,7 +108,7 @@ void eeprom_write_byte(unsigned char *pos, unsigned char value) {
   HAL_FLASH_Lock();
 }
 
-unsigned char eeprom_read_byte(unsigned char *pos) {
+uint8_t eeprom_read_byte(uint8_t *pos) {
   uint16_t data = 0xFF;
   uint16_t eeprom_address = (unsigned)pos;
 
@@ -137,4 +137,3 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n) {
 }
 
 #endif // STM32F7
-

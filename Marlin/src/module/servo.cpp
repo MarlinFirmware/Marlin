@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,7 +31,10 @@
 #include "servo.h"
 
 HAL_SERVO_LIB servo[NUM_SERVOS];
-uint16_t servo_angles[NUM_SERVOS][2];
+
+#if ENABLED(EDITABLE_SERVO_ANGLES)
+  uint16_t servo_angles[NUM_SERVOS][2];
+#endif
 
 void servo_init() {
   #if NUM_SERVOS >= 1 && HAS_SERVO_0

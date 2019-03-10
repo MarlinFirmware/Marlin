@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -78,11 +78,11 @@
 
   // run at ~8 .. ~10Mhz - Tx version (Rx data discarded)
   static uint8_t spiTransferTx0(uint8_t bout) { // using Mode 0
-    register uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(MOSI_PIN)) + 0x30;  /* SODR of port */
-    register uint32_t MOSI_MASK = PIN_MASK(MOSI_PIN);
-    register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
-    register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
-    register uint32_t idx = 0;
+    uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(MOSI_PIN)) + 0x30;  /* SODR of port */
+    uint32_t MOSI_MASK = PIN_MASK(MOSI_PIN);
+    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
+    uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
+    uint32_t idx = 0;
 
     /* Negate bout, as the assembler requires a negated value */
     bout = ~bout;
@@ -161,11 +161,11 @@
 
   // run at ~8 .. ~10Mhz - Rx version (Tx line not altered)
   static uint8_t spiTransferRx0(uint8_t bout) { // using Mode 0
-    register uint32_t bin = 0;
-    register uint32_t work = 0;
-    register uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(MISO_PIN))+0x3C, PIN_SHIFT(MISO_PIN));  /* PDSR of port in bitband area */
-    register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
-    register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
+    uint32_t bin = 0;
+    uint32_t work = 0;
+    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(MISO_PIN))+0x3C, PIN_SHIFT(MISO_PIN));  /* PDSR of port in bitband area */
+    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
+    uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
     UNUSED(bout);
 
     /* The software SPI routine */
@@ -250,7 +250,7 @@
   }
 
   // all the others
-  static uint32_t spiDelayCyclesX4 = (F_CPU/1000000); // 4uS => 125khz
+  static uint32_t spiDelayCyclesX4 = (F_CPU) / 1000000; // 4uS => 125khz
 
   static uint8_t spiTransferX(uint8_t b) { // using Mode 0
     int bits = 8;
@@ -281,12 +281,12 @@
 
   // Block transfers run at ~8 .. ~10Mhz - Tx version (Rx data discarded)
   static void spiTxBlock0(const uint8_t* ptr, uint32_t todo) {
-    register uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(MOSI_PIN)) + 0x30;  /* SODR of port */
-    register uint32_t MOSI_MASK = PIN_MASK(MOSI_PIN);
-    register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
-    register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
-    register uint32_t work = 0;
-    register uint32_t txval = 0;
+    uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(MOSI_PIN)) + 0x30;  /* SODR of port */
+    uint32_t MOSI_MASK = PIN_MASK(MOSI_PIN);
+    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
+    uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
+    uint32_t work = 0;
+    uint32_t txval = 0;
 
     /* The software SPI routine */
     __asm__ __volatile__(
@@ -360,11 +360,11 @@
   }
 
   static void spiRxBlock0(uint8_t* ptr, uint32_t todo) {
-    register uint32_t bin = 0;
-    register uint32_t work = 0;
-    register uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(MISO_PIN))+0x3C, PIN_SHIFT(MISO_PIN));  /* PDSR of port in bitband area */
-    register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
-    register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
+    uint32_t bin = 0;
+    uint32_t work = 0;
+    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(MISO_PIN))+0x3C, PIN_SHIFT(MISO_PIN));  /* PDSR of port in bitband area */
+    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
+    uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
 
     /* The software SPI routine */
     __asm__ __volatile__(
@@ -451,77 +451,48 @@
   static pfnSpiTxBlock spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
   static pfnSpiRxBlock spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
 
-  #if MB(ALLIGATOR)  // control SDSS pin
-    void spiBegin() {
-      SET_OUTPUT(SS_PIN);
-      WRITE(SS_PIN, HIGH);
-      SET_OUTPUT(SCK_PIN);
-      SET_INPUT(MISO_PIN);
-      SET_OUTPUT(MOSI_PIN);
+  #if MB(ALLIGATOR)
+    #define _SS_WRITE(S) WRITE(SS_PIN, S)
+  #else
+    #define _SS_WRITE(S) NOOP
+  #endif
+
+  void spiBegin() {
+    SET_OUTPUT(SS_PIN);
+    _SS_WRITE(HIGH);
+    SET_OUTPUT(SCK_PIN);
+    SET_INPUT(MISO_PIN);
+    SET_OUTPUT(MOSI_PIN);
+  }
+
+  uint8_t spiRec() {
+    _SS_WRITE(LOW);
+    WRITE(MOSI_PIN, HIGH); // Output 1s 1
+    uint8_t b = spiTransferRx(0xFF);
+    _SS_WRITE(HIGH);
+    return b;
+  }
+
+  void spiRead(uint8_t* buf, uint16_t nbyte) {
+    if (nbyte) {
+      _SS_WRITE(LOW);
+      WRITE(MOSI_PIN, HIGH); // Output 1s 1
+      spiRxBlock(buf, nbyte);
+      _SS_WRITE(HIGH);
     }
+  }
 
-    uint8_t spiRec() {
-      WRITE(SS_PIN, LOW);
-      WRITE(MOSI_PIN, 1); /* Output 1s 1*/
-      uint8_t b = spiTransferRx(0xFF);
-      WRITE(SS_PIN, HIGH);
-      return b;
-    }
+  void spiSend(uint8_t b) {
+    _SS_WRITE(LOW);
+    (void)spiTransferTx(b);
+    _SS_WRITE(HIGH);
+  }
 
-    void spiRead(uint8_t* buf, uint16_t nbyte) {
-      uint32_t todo = nbyte;
-      if (todo == 0) return;
-
-      WRITE(SS_PIN, LOW);
-      WRITE(MOSI_PIN, 1); /* Output 1s 1*/
-      spiRxBlock(buf,nbyte);
-      WRITE(SS_PIN, HIGH);
-    }
-
-    void spiSend(uint8_t b) {
-      WRITE(SS_PIN, LOW);
-      (void) spiTransferTx(b);
-      WRITE(SS_PIN, HIGH);
-    }
-
-    void spiSendBlock(uint8_t token, const uint8_t* buf) {
-      WRITE(SS_PIN, LOW);
-      (void) spiTransferTx(token);
-      spiTxBlock(buf,512);
-      WRITE(SS_PIN, HIGH);
-
-  #else   // let calling routine control SDSS
-    void spiBegin() {
-      SET_OUTPUT(SS_PIN);
-      SET_OUTPUT(SCK_PIN);
-      SET_INPUT(MISO_PIN);
-      SET_OUTPUT(MOSI_PIN);
-    }
-
-    uint8_t spiRec() {
-      WRITE(MOSI_PIN, 1); /* Output 1s 1*/
-      uint8_t b = spiTransferRx(0xFF);
-      return b;
-    }
-
-    void spiRead(uint8_t* buf, uint16_t nbyte) {
-      uint32_t todo = nbyte;
-      if (todo == 0) return;
-
-      WRITE(MOSI_PIN, 1); /* Output 1s 1*/
-      spiRxBlock(buf,nbyte);
-    }
-
-    void spiSend(uint8_t b) {
-      (void) spiTransferTx(b);
-    }
-
-    void spiSendBlock(uint8_t token, const uint8_t* buf) {
-      (void) spiTransferTx(token);
-      spiTxBlock(buf,512);
-
-    #endif
-
+  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+    _SS_WRITE(LOW);
+    (void)spiTransferTx(token);
+    spiTxBlock(buf, 512);
+    _SS_WRITE(HIGH);
   }
 
   /**
@@ -549,7 +520,7 @@
         spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
         break;
       default:
-        spiDelayCyclesX4 = (F_CPU/1000000) >> (6 - spiRate);
+        spiDelayCyclesX4 = ((F_CPU) / 1000000) >> (6 - spiRate);
         spiTransferTx = (pfnSpiTransfer)spiTransferX;
         spiTransferRx = (pfnSpiTransfer)spiTransferX;
         spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
@@ -557,9 +528,7 @@
         break;
     }
 
-    #if MB(ALLIGATOR)
-      WRITE(SS_PIN, HIGH);
-    #endif
+    _SS_WRITE(HIGH);
     WRITE(MOSI_PIN, HIGH);
     WRITE(SCK_PIN, LOW);
   }
@@ -573,6 +542,10 @@
 
 #else // !SOFTWARE_SPI
 
+  #define WHILE_TX(N) while ((SPI0->SPI_SR & SPI_SR_TDRE) == (N))
+  #define WHILE_RX(N) while ((SPI0->SPI_SR & SPI_SR_RDRF) == (N))
+  #define FLUSH_TX() do{ WHILE_RX(1) SPI0->SPI_RDR; }while(0)
+
   #if MB(ALLIGATOR)
 
     // slave selects controlled by SPI controller
@@ -581,194 +554,173 @@
     // --------------------------------------------------------------------------
     // hardware SPI
     // --------------------------------------------------------------------------
-    // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
-    int spiDueDividors[] = { 10, 21, 42, 84, 168, 255, 255 };
-    bool spiInitMaded = false;
-
-    void spiBegin() {
-      if (spiInitMaded == false) {
-        // Configure SPI pins
-        PIO_Configure(
-           g_APinDescription[SCK_PIN].pPort,
-           g_APinDescription[SCK_PIN].ulPinType,
-           g_APinDescription[SCK_PIN].ulPin,
-           g_APinDescription[SCK_PIN].ulPinConfiguration);
-        PIO_Configure(
-           g_APinDescription[MOSI_PIN].pPort,
-           g_APinDescription[MOSI_PIN].ulPinType,
-           g_APinDescription[MOSI_PIN].ulPin,
-           g_APinDescription[MOSI_PIN].ulPinConfiguration);
-        PIO_Configure(
-           g_APinDescription[MISO_PIN].pPort,
-           g_APinDescription[MISO_PIN].ulPinType,
-           g_APinDescription[MISO_PIN].ulPin,
-           g_APinDescription[MISO_PIN].ulPinConfiguration);
-
-        // set master mode, peripheral select, fault detection
-        SPI_Configure(SPI0, ID_SPI0, SPI_MR_MSTR | SPI_MR_MODFDIS | SPI_MR_PS);
-        SPI_Enable(SPI0);
-
-        #if MB(ALLIGATOR)
-          SET_OUTPUT(DAC0_SYNC);
-          #if EXTRUDERS > 1
-            SET_OUTPUT(DAC1_SYNC);
-            WRITE(DAC1_SYNC, HIGH);
-          #endif
-          SET_OUTPUT(SPI_EEPROM1_CS);
-          SET_OUTPUT(SPI_EEPROM2_CS);
-          SET_OUTPUT(SPI_FLASH_CS);
-          WRITE(DAC0_SYNC, HIGH);
-          WRITE(SPI_EEPROM1_CS, HIGH );
-          WRITE(SPI_EEPROM2_CS, HIGH );
-          WRITE(SPI_FLASH_CS, HIGH );
-          WRITE(SS_PIN, HIGH );
-        #endif // MB(ALLIGATOR)
-
-        OUT_WRITE(SDSS,0);
-
-        PIO_Configure(
-          g_APinDescription[SPI_PIN].pPort,
-          g_APinDescription[SPI_PIN].ulPinType,
-          g_APinDescription[SPI_PIN].ulPin,
-          g_APinDescription[SPI_PIN].ulPinConfiguration);
-
-        spiInit(1);
-        spiInitMaded = true;
-      }
-    }
+    static bool spiInitialized = false;
 
     void spiInit(uint8_t spiRate) {
-      if (spiInitMaded == false) {
-        if (spiRate > 6) spiRate = 1;
+      if (spiInitialized) return;
 
-        #if MB(ALLIGATOR)
-          // Set SPI mode 1, clock, select not active after transfer, with delay between transfers
-          SPI_ConfigureNPCS(SPI0, SPI_CHAN_DAC,
-                            SPI_CSR_CSAAT | SPI_CSR_SCBR(spiDueDividors[spiRate]) |
-                            SPI_CSR_DLYBCT(1));
-          // Set SPI mode 0, clock, select not active after transfer, with delay between transfers
-          SPI_ConfigureNPCS(SPI0, SPI_CHAN_EEPROM1, SPI_CSR_NCPHA |
-                            SPI_CSR_CSAAT | SPI_CSR_SCBR(spiDueDividors[spiRate]) |
-                            SPI_CSR_DLYBCT(1));
-        #endif//MB(ALLIGATOR)
+      // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
+      constexpr int spiDivider[] = { 10, 21, 42, 84, 168, 255, 255 };
+      if (spiRate > 6) spiRate = 1;
 
-        // Set SPI mode 0, clock, select not active after transfer, with delay between transfers
-        SPI_ConfigureNPCS(SPI0, SPI_CHAN, SPI_CSR_NCPHA |
-                          SPI_CSR_CSAAT | SPI_CSR_SCBR(spiDueDividors[spiRate]) |
-                          SPI_CSR_DLYBCT(1));
-        SPI_Enable(SPI0);
-        spiInitMaded = true;
-      }
+      // Set SPI mode 1, clock, select not active after transfer, with delay between transfers
+      SPI_ConfigureNPCS(SPI0, SPI_CHAN_DAC,
+                        SPI_CSR_CSAAT | SPI_CSR_SCBR(spiDivider[spiRate]) |
+                        SPI_CSR_DLYBCT(1));
+      // Set SPI mode 0, clock, select not active after transfer, with delay between transfers
+      SPI_ConfigureNPCS(SPI0, SPI_CHAN_EEPROM1, SPI_CSR_NCPHA |
+                        SPI_CSR_CSAAT | SPI_CSR_SCBR(spiDivider[spiRate]) |
+                        SPI_CSR_DLYBCT(1));
+
+      // Set SPI mode 0, clock, select not active after transfer, with delay between transfers
+      SPI_ConfigureNPCS(SPI0, SPI_CHAN, SPI_CSR_NCPHA |
+                        SPI_CSR_CSAAT | SPI_CSR_SCBR(spiDivider[spiRate]) |
+                        SPI_CSR_DLYBCT(1));
+      SPI_Enable(SPI0);
+      spiInitialized = true;
     }
 
-    // Write single byte to SPI
-    void spiSend(byte b) {
-      // write byte with address and end transmission flag
-      SPI0->SPI_TDR = (uint32_t)b | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
-      // wait for transmit register empty
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-      // wait for receive register
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-      // clear status
-      SPI0->SPI_RDR;
-      //DELAY_US(1U);
-    }
+    void spiBegin() {
+      if (spiInitialized) return;
 
-    void spiSend(const uint8_t* buf, size_t n) {
-      if (n == 0) return;
-      for (size_t i = 0; i < n - 1; i++) {
-        SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(SPI_CHAN);
-        while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-        while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-        SPI0->SPI_RDR;
-        //DELAY_US(1U);
-      }
-      spiSend(buf[n - 1]);
-    }
+      // Configure SPI pins
+      PIO_Configure(
+         g_APinDescription[SCK_PIN].pPort,
+         g_APinDescription[SCK_PIN].ulPinType,
+         g_APinDescription[SCK_PIN].ulPin,
+         g_APinDescription[SCK_PIN].ulPinConfiguration);
+      PIO_Configure(
+         g_APinDescription[MOSI_PIN].pPort,
+         g_APinDescription[MOSI_PIN].ulPinType,
+         g_APinDescription[MOSI_PIN].ulPin,
+         g_APinDescription[MOSI_PIN].ulPinConfiguration);
+      PIO_Configure(
+         g_APinDescription[MISO_PIN].pPort,
+         g_APinDescription[MISO_PIN].ulPinType,
+         g_APinDescription[MISO_PIN].ulPin,
+         g_APinDescription[MISO_PIN].ulPinConfiguration);
 
-    void spiSend(uint32_t chan, byte b) {
-      uint8_t dummy_read = 0;
-      // wait for transmit register empty
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-      // write byte with address and end transmission flag
-      SPI0->SPI_TDR = (uint32_t)b | SPI_PCS(chan) | SPI_TDR_LASTXFER;
-      // wait for receive register
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-      // clear status
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 1)
-        dummy_read = SPI0->SPI_RDR;
-      UNUSED(dummy_read);
-    }
+      // set master mode, peripheral select, fault detection
+      SPI_Configure(SPI0, ID_SPI0, SPI_MR_MSTR | SPI_MR_MODFDIS | SPI_MR_PS);
+      SPI_Enable(SPI0);
 
-    void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
-      uint8_t dummy_read = 0;
-      if (n == 0) return;
-      for (int i = 0; i < (int)n - 1; i++) {
-        while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-        SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(chan);
-        while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-        while ((SPI0->SPI_SR & SPI_SR_RDRF) == 1)
-          dummy_read = SPI0->SPI_RDR;
-        UNUSED(dummy_read);
-      }
-      spiSend(chan, buf[n - 1]);
+      SET_OUTPUT(DAC0_SYNC);
+      #if EXTRUDERS > 1
+        SET_OUTPUT(DAC1_SYNC);
+        WRITE(DAC1_SYNC, HIGH);
+      #endif
+      SET_OUTPUT(SPI_EEPROM1_CS);
+      SET_OUTPUT(SPI_EEPROM2_CS);
+      SET_OUTPUT(SPI_FLASH_CS);
+      WRITE(DAC0_SYNC, HIGH);
+      WRITE(SPI_EEPROM1_CS, HIGH);
+      WRITE(SPI_EEPROM2_CS, HIGH);
+      WRITE(SPI_FLASH_CS, HIGH);
+      WRITE(SS_PIN, HIGH);
+
+      OUT_WRITE(SDSS, LOW);
+
+      PIO_Configure(
+        g_APinDescription[SPI_PIN].pPort,
+        g_APinDescription[SPI_PIN].ulPinType,
+        g_APinDescription[SPI_PIN].ulPin,
+        g_APinDescription[SPI_PIN].ulPinConfiguration
+      );
+
+      spiInit(1);
     }
 
     // Read single byte from SPI
     uint8_t spiRec() {
       // write dummy byte with address and end transmission flag
       SPI0->SPI_TDR = 0x000000FF | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
-      // wait for transmit register empty
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
 
-      // wait for receive register
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-      // get byte from receive register
+      WHILE_TX(0);
+      WHILE_RX(0);
+
       //DELAY_US(1U);
       return SPI0->SPI_RDR;
     }
 
     uint8_t spiRec(uint32_t chan) {
-      uint8_t spirec_tmp;
-      // wait for transmit register empty
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 1)
-        spirec_tmp =  SPI0->SPI_RDR;
-        UNUSED(spirec_tmp);
+
+      WHILE_TX(0);
+      FLUSH_RX();
 
       // write dummy byte with address and end transmission flag
       SPI0->SPI_TDR = 0x000000FF | SPI_PCS(chan) | SPI_TDR_LASTXFER;
+      WHILE_RX(0);
 
-      // wait for receive register
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-      // get byte from receive register
       return SPI0->SPI_RDR;
     }
 
     // Read from SPI into buffer
     void spiRead(uint8_t* buf, uint16_t nbyte) {
-      if (nbyte-- == 0) return;
-
+      if (!nbyte) return;
+      --nbyte;
       for (int i = 0; i < nbyte; i++) {
-        //while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
+        //WHILE_TX(0);
         SPI0->SPI_TDR = 0x000000FF | SPI_PCS(SPI_CHAN);
-        while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
+        WHILE_RX(0);
         buf[i] = SPI0->SPI_RDR;
         //DELAY_US(1U);
       }
       buf[nbyte] = spiRec();
     }
 
+    // Write single byte to SPI
+    void spiSend(const byte b) {
+      // write byte with address and end transmission flag
+      SPI0->SPI_TDR = (uint32_t)b | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
+      WHILE_TX(0);
+      WHILE_RX(0);
+      SPI0->SPI_RDR;
+      //DELAY_US(1U);
+    }
+
+    void spiSend(const uint8_t* buf, size_t nbyte) {
+      if (!nbyte) return;
+      --nbyte;
+      for (size_t i = 0; i < nbyte; i++) {
+        SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(SPI_CHAN);
+        WHILE_TX(0);
+        WHILE_RX(0);
+        SPI0->SPI_RDR;
+        //DELAY_US(1U);
+      }
+      spiSend(buf[nbyte]);
+    }
+
+    void spiSend(uint32_t chan, byte b) {
+      WHILE_TX(0);
+      // write byte with address and end transmission flag
+      SPI0->SPI_TDR = (uint32_t)b | SPI_PCS(chan) | SPI_TDR_LASTXFER;
+      WHILE_RX(0);
+      FLUSH_RX();
+    }
+
+    void spiSend(uint32_t chan, const uint8_t* buf, size_t nbyte) {
+      if (!nbyte) return;
+      --nbyte;
+      for (size_t i = 0; i < nbyte; i++) {
+        WHILE_TX(0);
+        SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(chan);
+        WHILE_RX(0);
+        FLUSH_RX();
+      }
+      spiSend(chan, buf[nbyte]);
+    }
+
     // Write from buffer to SPI
     void spiSendBlock(uint8_t token, const uint8_t* buf) {
       SPI0->SPI_TDR = (uint32_t)token | SPI_PCS(SPI_CHAN);
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-      //while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
+      WHILE_TX(0);
+      //WHILE_RX(0);
       //SPI0->SPI_RDR;
       for (int i = 0; i < 511; i++) {
         SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(SPI_CHAN);
-        while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-        while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
+        WHILE_TX(0);
+        WHILE_RX(0);
         SPI0->SPI_RDR;
         //DELAY_US(1U);
       }
@@ -780,7 +732,7 @@
       // TODO: to be implemented
     }
 
-  #else  // U8G compatible hardware SPI
+  #else // U8G compatible hardware SPI
 
     #define SPI_MODE_0_DUE_HW 2  // DUE CPHA control bit is inverted
     #define SPI_MODE_1_DUE_HW 3
@@ -789,7 +741,7 @@
 
     void spiInit(uint8_t spiRate=6) {  // Default to slowest rate if not specified)
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
-      int spiDueDividors[] = { 10, 21, 42, 84, 168, 255, 255 };
+      constexpr int spiDivider[] = { 10, 21, 42, 84, 168, 255, 255 };
       if (spiRate > 6) spiRate = 1;
 
       // Enable PIOA and SPI0
@@ -797,7 +749,7 @@
 
       // Disable PIO on A26 and A27
       REG_PIOA_PDR = 0x0C000000;
-      OUT_WRITE(SDSS, 1);
+      OUT_WRITE(SDSS, HIGH);
 
       // Reset SPI0 (from sam lib)
       SPI0->SPI_CR = SPI_CR_SPIDIS;
@@ -809,47 +761,30 @@
       // Master mode, no fault detection, PCS bits in data written to TDR select CSR register
       SPI0->SPI_MR = SPI_MR_MSTR | SPI_MR_PS | SPI_MR_MODFDIS;
       // SPI mode 0, 8 Bit data transfer, baud rate
-      SPI0->SPI_CSR[3] = SPI_CSR_SCBR(spiDueDividors[spiRate]) | SPI_CSR_CSAAT | SPI_MODE_0_DUE_HW;  // use same CSR as TMC2130
+      SPI0->SPI_CSR[3] = SPI_CSR_SCBR(spiDivider[spiRate]) | SPI_CSR_CSAAT | SPI_MODE_0_DUE_HW;  // use same CSR as TMC2130
     }
 
+    void spiBegin() { spiInit(); }
+
     static uint8_t spiTransfer(uint8_t data) {
-
-      // Wait until tx register is empty
-      while( (SPI0->SPI_SR & SPI_SR_TDRE) == 0 );
-      // Send data
+      WHILE_TX(0);
       SPI0->SPI_TDR = (uint32_t)data | 0x00070000UL;  // Add TMC2130 PCS bits to every byte
-
-      // wait for transmit register empty
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-
-      // wait for receive register
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-      // get byte from receive register
+      WHILE_TX(0);
+      WHILE_RX(0);
       return SPI0->SPI_RDR;
     }
 
-    void spiBegin() {
-      spiInit();
-    }
-
-    uint8_t spiRec() {
-      uint8_t data = spiTransfer(0xFF);
-      return data;
-    }
+    uint8_t spiRec() { return (uint8_t)spiTransfer(0xFF); }
 
     void spiRead(uint8_t* buf, uint16_t nbyte) {
-      if (nbyte == 0) return;
       for (int i = 0; i < nbyte; i++)
         buf[i] = spiTransfer(0xFF);
     }
 
-    void spiSend(uint8_t data) {
-      spiTransfer(data);
-    }
+    void spiSend(uint8_t data) { spiTransfer(data); }
 
-    void spiSend(const uint8_t* buf, size_t n) {
-      if (n == 0) return;
-      for (uint16_t i = 0; i < n; i++)
+    void spiSend(const uint8_t* buf, size_t nbyte) {
+      for (uint16_t i = 0; i < nbyte; i++)
         spiTransfer(buf[i]);
     }
 

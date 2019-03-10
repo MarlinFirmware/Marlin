@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -55,7 +55,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
 
 #include <U8glib.h>
 
@@ -149,7 +149,7 @@ static const uint8_t u8g_dev_st7565_64128n_HAL_sleep_off[] PROGMEM = {
 };
 
 uint8_t u8g_dev_st7565_64128n_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, const uint8_t msg, void *arg) {
-  switch(msg) {
+  switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_64128n_HAL_init_seq);
@@ -183,7 +183,7 @@ uint8_t u8g_dev_st7565_64128n_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, const uint8_t m
 }
 
 uint8_t u8g_dev_st7565_64128n_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, const uint8_t msg, void *arg) {
-  switch(msg) {
+  switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_64128n_HAL_init_seq);
@@ -233,4 +233,4 @@ u8g_dev_t u8g_dev_st7565_64128n_HAL_2x_sw_spi = { u8g_dev_st7565_64128n_HAL_2x_f
 U8G_PB_DEV(u8g_dev_st7565_64128n_HAL_hw_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7565_64128n_HAL_fn, U8G_COM_HAL_HW_SPI_FN);
 u8g_dev_t u8g_dev_st7565_64128n_HAL_2x_hw_spi = { u8g_dev_st7565_64128n_HAL_2x_fn, &u8g_dev_st7565_64128n_HAL_2x_pb, U8G_COM_HAL_HW_SPI_FN };
 
-#endif // DOGLCD
+#endif // HAS_GRAPHICAL_LCD

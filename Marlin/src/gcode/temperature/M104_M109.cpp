@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,29 +31,34 @@
   #include "../../module/printcounter.h"
 #endif
 
-#if ENABLED(PRINTER_EVENT_LEDS)
-  #include "../../feature/leds/leds.h"
+#if ENABLED(SINGLENOZZLE)
+  #include "../../module/tool_change.h"
 #endif
 
 /**
  * M104: Set hot end temperature
  */
 void GcodeSuite::M104() {
-  if (get_target_extruder_from_command()) return;
+
   if (DEBUGGING(DRYRUN)) return;
 
-  const uint8_t e = target_extruder;
-
-  #if ENABLED(SINGLENOZZLE)
-    if (e != active_extruder) return;
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+    constexpr int8_t target_extruder = 0;
+  #else
+    const int8_t target_extruder = get_target_extruder_from_command();
+    if (target_extruder < 0) return;
   #endif
 
   if (parser.seenval('S')) {
     const int16_t temp = parser.value_celsius();
-    thermalManager.setTargetHotend(temp, e);
+    #if ENABLED(SINGLENOZZLE)
+      singlenozzle_temp[target_extruder] = temp;
+      if (target_extruder != active_extruder) return;
+    #endif
+    thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (dxc_is_duplicating() && e == 0)
+      if (dxc_is_duplicating() && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 
@@ -66,7 +71,7 @@ void GcodeSuite::M104() {
        */
       if (temp <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
-        lcd_reset_status();
+        ui.reset_status();
       }
     #endif
   }
@@ -82,17 +87,23 @@ void GcodeSuite::M104() {
  */
 void GcodeSuite::M109() {
 
-  if (get_target_extruder_from_command()) return;
   if (DEBUGGING(DRYRUN)) return;
 
-  #if ENABLED(SINGLENOZZLE)
-    if (target_extruder != active_extruder) return;
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+    constexpr int8_t target_extruder = 0;
+  #else
+    const int8_t target_extruder = get_target_extruder_from_command();
+    if (target_extruder < 0) return;
   #endif
 
   const bool no_wait_for_cooling = parser.seenval('S'),
              set_temp = no_wait_for_cooling || parser.seenval('R');
   if (set_temp) {
     const int16_t temp = parser.value_celsius();
+    #if ENABLED(SINGLENOZZLE)
+      singlenozzle_temp[target_extruder] = temp;
+      if (target_extruder != active_extruder) return;
+    #endif
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -108,20 +119,15 @@ void GcodeSuite::M109() {
        */
       if (parser.value_celsius() <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
-        lcd_reset_status();
+        ui.reset_status();
       }
       else
         print_job_timer.start();
     #endif
 
-    #if ENABLED(ULTRA_LCD)
-      const bool heating = thermalManager.isHeatingHotend(target_extruder);
-      if (heating || !no_wait_for_cooling)
-        #if HOTENDS > 1
-          lcd_status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), target_extruder + 1);
-        #else
-          lcd_setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
-        #endif
+    #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+      if (thermalManager.isHeatingHotend(target_extruder) || !no_wait_for_cooling)
+        thermalManager.set_heating_message(target_extruder);
     #endif
   }
 

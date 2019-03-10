@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,7 +31,7 @@
  *  and with the mainstream Marlin software.  All have been used with Arduino 1.6.12
  *
  *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
- *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools -> Boards' menu
+ *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools > Board' menu
  *
  *    Installation instructions are at the above URL.  Don't bother loading the
  *    libraries - they are not used with the Marlin software.
@@ -48,7 +48,7 @@
  *          hardware directory in Arduino.  The Arduino hardware directory will probably
  *          be located in a path similar to this: C:\Program Files (x86)\Arduino\hardware.
  *       3. Restart Arduino.
- *       4. Select "Printrboard" from the 'Tools -> Boards' menu.
+ *       4. Select "Printrboard" from the 'Tools > Board' menu.
  *
  *  Teensyduino is the most popular option. Printrboard is used if your board doesn't have
  *  the Teensyduino bootloader on it.
@@ -74,84 +74,84 @@
   */
 
 #if !defined(__AVR_AT90USB1286__) && !defined(__AVR_AT90USB1286P__)
-  #error "Oops!  Make sure you have 'Teensy++ 2.0' or 'Printrboard' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME         "Teensylu"
+#define BOARD_NAME "Teensylu"
 
 //
 // Limit Switch definitions that match the SCHEMATIC
 //
-//#define X_STOP_PIN              25   // B5
-//#define Y_STOP_PIN              26   // B6
-//#define Z_STOP_PIN              27   // B7
-//#define E_STOP_PIN              36   // E4
+//#define X_STOP_PIN       25   // B5
+//#define Y_STOP_PIN       26   // B6
+//#define Z_STOP_PIN       27   // B7
+//#define E_STOP_PIN       36   // E4
 
 
 //
 // Limit Switch definitions that match the SILKSCREEN
 //
-#define X_STOP_PIN              26   // B6
-#define Y_STOP_PIN              27   // B7
-#define Z_STOP_PIN              36   // E4
-//#define E_STOP_PIN              25   // B5
+#define X_STOP_PIN         26   // B6
+#define Y_STOP_PIN         27   // B7
+#define Z_STOP_PIN         36   // E4
+//#define E_STOP_PIN       25   // B5
 
 //
 // Steppers
 //
-#define X_STEP_PIN              28   // A0
-#define X_DIR_PIN               29   // A1
-#define X_ENABLE_PIN            19   // E7
+#define X_STEP_PIN         28   // A0
+#define X_DIR_PIN          29   // A1
+#define X_ENABLE_PIN       19   // E7
 
-#define Y_STEP_PIN              30   // A2
-#define Y_DIR_PIN               31   // A3
-#define Y_ENABLE_PIN            18   // E6
+#define Y_STEP_PIN         30   // A2
+#define Y_DIR_PIN          31   // A3
+#define Y_ENABLE_PIN       18   // E6
 
-#define Z_STEP_PIN              32   // A4
-#define Z_DIR_PIN               33   // A5
-#define Z_ENABLE_PIN            17   // C7
+#define Z_STEP_PIN         32   // A4
+#define Z_DIR_PIN          33   // A5
+#define Z_ENABLE_PIN       17   // C7
 
-#define E0_STEP_PIN             34   // A6
-#define E0_DIR_PIN              35   // A7
-#define E0_ENABLE_PIN           13   // C3
+#define E0_STEP_PIN        34   // A6
+#define E0_DIR_PIN         35   // A7
+#define E0_ENABLE_PIN      13   // C3
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN               7   // Analog Input (Extruder)
-#define TEMP_BED_PIN             6   // Analog Input (Bed)
+#define TEMP_0_PIN          7   // Analog Input (Extruder)
+#define TEMP_BED_PIN        6   // Analog Input (Bed)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN            15   // C5 PWM3B - Extruder
-#define HEATER_BED_PIN          14   // C4 PWM3C
+#define HEATER_0_PIN       15   // C5 PWM3B - Extruder
+#define HEATER_BED_PIN     14   // C4 PWM3C
 
 #ifndef FAN_PIN
-  #define FAN_PIN               16   // C6 PWM3A
+  #define FAN_PIN          16   // C6 PWM3A
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS                    20   // B0 JP31-6
-#define CASE_LIGHT_PIN           0   // D0 IO-14  PWM0B
+#define SDSS               20   // B0 JP31-6
+#define CASE_LIGHT_PIN      0   // D0 IO-14  PWM0B
 
 //
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
-  #define BEEPER_PIN            -1
+  #define BEEPER_PIN       -1
 
   #if ENABLED(LCD_I2C_PANELOLU2)
-    #define BTN_EN1              3   // D3 IO-8
-    #define BTN_EN2              2   // D2 IO-10
-    #define BTN_ENC             41   // F3 IO-7
-    #define SDSS                38   // F0 IO-13 use SD card on Panelolu2
+    #define BTN_EN1         3   // D3 IO-8
+    #define BTN_EN2         2   // D2 IO-10
+    #define BTN_ENC        41   // F3 IO-7
+    #define SDSS           38   // F0 IO-13 use SD card on Panelolu2
   #endif
 
-  #define SD_DETECT_PIN         -1
+  #define SD_DETECT_PIN    -1
 
 #endif // ULTRA_LCD && NEWPANEL
 

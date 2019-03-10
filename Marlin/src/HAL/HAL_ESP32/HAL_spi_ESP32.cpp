@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -61,9 +61,9 @@ void spiInit(uint8_t spiRate) {
   uint32_t clock;
 
   switch (spiRate) {
-    case SPI_FULL_SPEED:    clock = SPI_CLOCK_DIV2 ; break;
-    case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4 ; break;
-    case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8 ; break;
+    case SPI_FULL_SPEED:    clock = SPI_CLOCK_DIV2;  break;
+    case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4;  break;
+    case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8;  break;
     case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
     case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;

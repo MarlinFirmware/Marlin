@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -43,21 +43,22 @@
  */
 void GcodeSuite::M603() {
 
-  if (get_target_extruder_from_command()) return;
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
 
   // Unload length
   if (parser.seen('U')) {
-    filament_change_unload_length[target_extruder] = ABS(parser.value_axis_units(E_AXIS));
+    fc_settings[target_extruder].unload_length = ABS(parser.value_axis_units(E_AXIS));
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-      NOMORE(filament_change_unload_length[target_extruder], EXTRUDE_MAXLENGTH);
+      NOMORE(fc_settings[target_extruder].unload_length, EXTRUDE_MAXLENGTH);
     #endif
   }
 
   // Load length
   if (parser.seen('L')) {
-    filament_change_load_length[target_extruder] = ABS(parser.value_axis_units(E_AXIS));
+    fc_settings[target_extruder].load_length = ABS(parser.value_axis_units(E_AXIS));
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-      NOMORE(filament_change_load_length[target_extruder], EXTRUDE_MAXLENGTH);
+      NOMORE(fc_settings[target_extruder].load_length, EXTRUDE_MAXLENGTH);
     #endif
   }
 }

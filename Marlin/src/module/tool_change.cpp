@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,20 +20,34 @@
  *
  */
 
+#include "../inc/MarlinConfigPre.h"
+
 #include "tool_change.h"
 
 #include "probe.h"
 #include "motion.h"
 #include "planner.h"
+#include "temperature.h"
 
 #include "../Marlin.h"
 
-#if ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0
+#if EXTRUDERS > 1
+  toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
+#endif
+
+#if ENABLED(SINGLENOZZLE)
+  uint16_t singlenozzle_temp[EXTRUDERS];
+  #if FAN_COUNT > 0
+    uint8_t singlenozzle_fan_speed[EXTRUDERS];
+  #endif
+#endif
+
+#if ENABLED(MAGNETIC_PARKING_EXTRUDER) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
   #include "../gcode/gcode.h" // for dwell()
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(SWITCHING_NOZZLE) || ENABLED(SWITCHING_TOOLHEAD)
-  #include "../module/servo.h"
+  #include "servo.h"
 #endif
 
 #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
@@ -56,7 +70,11 @@
   #include "../feature/fanmux.h"
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if ENABLED(PRUSA_MMU2)
+  #include "../feature/prusa_MMU2/mmu2.h"
+#endif
+
+#if HAS_LCD_MENU
   #include "../lcd/ultralcd.h"
 #endif
 
@@ -83,26 +101,172 @@
 
 #if ENABLED(SWITCHING_NOZZLE)
 
-  void move_nozzle_servo(const uint8_t e) {
-    planner.synchronize();
-    MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_NOZZLE_SERVO_NR][e]);
-    safe_delay(500);
-  }
+  #if SWITCHING_NOZZLE_TWO_SERVOS
+
+    inline void _move_nozzle_servo(const uint8_t e, const uint8_t angle_index) {
+      constexpr int8_t  sns_index[2] = { SWITCHING_NOZZLE_SERVO_NR, SWITCHING_NOZZLE_E1_SERVO_NR };
+      constexpr int16_t sns_angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+      planner.synchronize();
+      MOVE_SERVO(sns_index[e], sns_angles[angle_index]);
+      safe_delay(500);
+    }
+
+    void lower_nozzle(const uint8_t e) { _move_nozzle_servo(e, 0); }
+    void raise_nozzle(const uint8_t e) { _move_nozzle_servo(e, 1); }
+
+  #else
+
+    void move_nozzle_servo(const uint8_t angle_index) {
+      planner.synchronize();
+      MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_NOZZLE_SERVO_NR][e]);
+      safe_delay(500);
+    }
+
+  #endif
 
 #endif // SWITCHING_NOZZLE
 
-#if ENABLED(PARKING_EXTRUDER)
+inline void fast_line_to_current(const AxisEnum fr_axis) {
+  planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[fr_axis], active_extruder);
+}
 
-  void pe_magnet_init() {
+#if ENABLED(MAGNETIC_PARKING_EXTRUDER)
+
+  float parkingposx[2] ,           // M951 R L
+        parkinggrabdistance ,      // M951 I
+        parkingslowspeed,          // M951 J
+        parkinghighspeed ,         // M951 H
+        parkingtraveldistance,     // M951 D
+        compensationmultiplier;
+
+  inline void magnetic_parking_extruder_tool_change(const uint8_t tmp_extruder) {
+
+    const float oldx = current_position[X_AXIS],
+                grabpos = mpe_settings.parking_xpos[tmp_extruder] + (tmp_extruder ? mpe_settings.grab_distance : -mpe_settings.grab_distance),
+                offsetcompensation =
+                  #if HAS_HOTEND_OFFSET
+                    hotend_offset[X_AXIS][active_extruder] * mpe_settings.compensation_factor
+                  #else
+                    0
+                  #endif
+              ;
+
+    if (axis_unhomed_error(true, false, false)) return;
+
+    /**
+     * Z Lift and Nozzle Offset shift ar defined in caller method to work equal with any Multi Hotend realization
+     *
+     * Steps:
+     *   1. Move high speed to park position of new extruder
+     *   2. Move to couple position of new extruder (this also discouple the old extruder)
+     *   3. Move to park position of new extruder
+     *   4. Move high speed to approach park position of old extruder
+     *   5. Move to park position of old extruder
+     *   6. Move to starting position
+     */
+
+    // STEP 1
+
+    current_position[X_AXIS] = mpe_settings.parking_xpos[tmp_extruder] + offsetcompensation;
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("(1) Move extruder ", int(tmp_extruder));
+        DEBUG_POS(" to new extruder ParkPos", current_position);
+      }
+    #endif
+
+    planner.buffer_line(current_position, mpe_settings.fast_feedrate, tmp_extruder);
+    planner.synchronize();
+
+    // STEP 2
+
+    current_position[X_AXIS] = grabpos + offsetcompensation;
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("(2) Couple extruder ", int(tmp_extruder));
+        DEBUG_POS(" to new extruder GrabPos", current_position);
+      }
+    #endif
+
+    planner.buffer_line(current_position, mpe_settings.slow_feedrate, tmp_extruder);
+    planner.synchronize();
+
+    // Delay before moving tool, to allow magnetic coupling
+    gcode.dwell(150);
+
+    // STEP 3
+
+    current_position[X_AXIS] = mpe_settings.parking_xpos[tmp_extruder] + offsetcompensation;
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("(3) Move extruder ", int(tmp_extruder));
+        DEBUG_POS(" back to new extruder ParkPos", current_position);
+      }
+    #endif
+
+    planner.buffer_line(current_position, mpe_settings.slow_feedrate, tmp_extruder);
+    planner.synchronize();
+
+    // STEP 4
+
+    current_position[X_AXIS] = mpe_settings.parking_xpos[active_extruder] + (active_extruder == 0 ? MPE_TRAVEL_DISTANCE : -MPE_TRAVEL_DISTANCE) + offsetcompensation;
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("(4) Move extruder ", int(tmp_extruder));
+        DEBUG_POS(" close to old extruder ParkPos", current_position);
+      }
+    #endif
+
+    planner.buffer_line(current_position, mpe_settings.fast_feedrate, tmp_extruder);
+    planner.synchronize();
+
+    // STEP 5
+
+    current_position[X_AXIS] = mpe_settings.parking_xpos[active_extruder] + offsetcompensation;
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("(5) Park extruder ", int(tmp_extruder));
+        DEBUG_POS(" at old extruder ParkPos", current_position);
+      }
+    #endif
+
+    planner.buffer_line(current_position, mpe_settings.slow_feedrate, tmp_extruder);
+    planner.synchronize();
+
+    // STEP 6
+
+    current_position[X_AXIS] = oldx;
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("(6) Move extruder ", int(tmp_extruder));
+        DEBUG_POS(" to starting position", current_position);
+      }
+    #endif
+
+    planner.buffer_line(current_position, mpe_settings.fast_feedrate, tmp_extruder);
+    planner.synchronize();
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Autopark done.");
+    #endif
+  }
+
+#elif ENABLED(PARKING_EXTRUDER)
+
+  void pe_solenoid_init() {
     for (uint8_t n = 0; n <= 1; ++n)
       #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-        pe_activate_magnet(n);
+        pe_activate_solenoid(n);
       #else
-        pe_deactivate_magnet(n);
+        pe_deactivate_solenoid(n);
       #endif
   }
 
-  void pe_set_magnet(const uint8_t extruder_num, const uint8_t state) {
+  void pe_set_solenoid(const uint8_t extruder_num, const uint8_t state) {
     switch (extruder_num) {
       case 1: OUT_WRITE(SOL1_PIN, state); break;
       default: OUT_WRITE(SOL0_PIN, state); break;
@@ -115,10 +279,17 @@
   inline void parking_extruder_tool_change(const uint8_t tmp_extruder, bool no_move) {
     if (!no_move) {
 
-      const float parkingposx[] = PARKING_EXTRUDER_PARKING_X,
-                  midpos = (parkingposx[0] + parkingposx[1]) * 0.5 + hotend_offset[X_AXIS][active_extruder],
-                  grabpos = parkingposx[tmp_extruder] + hotend_offset[X_AXIS][active_extruder]
-                            + (tmp_extruder == 0 ? -(PARKING_EXTRUDER_GRAB_DISTANCE) : PARKING_EXTRUDER_GRAB_DISTANCE);
+      constexpr float parkingposx[] = PARKING_EXTRUDER_PARKING_X;
+
+      #if HAS_HOTEND_OFFSET
+        const float x_offset = hotend_offset[X_AXIS][active_extruder];
+      #else
+        constexpr float x_offset = 0;
+      #endif
+
+      const float midpos = (parkingposx[0] + parkingposx[1]) * 0.5 + x_offset,
+                  grabpos = parkingposx[tmp_extruder] + (tmp_extruder ? PARKING_EXTRUDER_GRAB_DISTANCE : -(PARKING_EXTRUDER_GRAB_DISTANCE)) + x_offset;
+
       /**
        * 1. Raise Z-Axis to give enough clearance
        * 2. Move to park position of old extruder
@@ -130,43 +301,55 @@
        */
 
       // STEP 1
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Start Autopark", current_position);
       #endif
-      current_position[Z_AXIS] += PARKING_EXTRUDER_SECURITY_RAISE;
+
+      current_position[Z_AXIS] += toolchange_settings.z_raise;
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("(1) Raise Z-Axis", current_position);
       #endif
-      planner.buffer_line(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+
+      fast_line_to_current(Z_AXIS);
       planner.synchronize();
 
       // STEP 2
-      current_position[X_AXIS] = parkingposx[active_extruder] + hotend_offset[X_AXIS][active_extruder];
+
+      current_position[X_AXIS] = parkingposx[active_extruder] + x_offset;
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
           SERIAL_ECHOLNPAIR("(2) Park extruder ", int(active_extruder));
           DEBUG_POS("Moving ParkPos", current_position);
         }
       #endif
-      planner.buffer_line(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+
+      fast_line_to_current(X_AXIS);
       planner.synchronize();
 
       // STEP 3
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(3) Disengage magnet ");
       #endif
-      pe_deactivate_magnet(active_extruder);
+
+      pe_deactivate_solenoid(active_extruder);
 
       // STEP 4
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(4) Move to position near new extruder");
       #endif
+
       current_position[X_AXIS] += active_extruder ? -10 : 10; // move 10mm away from parked extruder
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Move away from parked extruder", current_position);
       #endif
-      planner.buffer_line(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+
+      fast_line_to_current(X_AXIS);
       planner.synchronize();
 
       // STEP 5
@@ -175,39 +358,52 @@
       #endif
 
       #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-        pe_activate_magnet(active_extruder); //just save power for inverted magnets
+        pe_activate_solenoid(active_extruder); //just save power for inverted magnets
       #endif
-      pe_activate_magnet(tmp_extruder);
+
+      pe_activate_solenoid(tmp_extruder);
 
       // STEP 6
+
       current_position[X_AXIS] = grabpos + (tmp_extruder ? -10 : 10);
-      planner.buffer_line(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+      fast_line_to_current(X_AXIS);
       current_position[X_AXIS] = grabpos;
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("(6) Unpark extruder", current_position);
       #endif
-      planner.buffer_line(current_position, planner.max_feedrate_mm_s[X_AXIS]/2, active_extruder);
+      planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS] * 0.5, active_extruder);
       planner.synchronize();
 
-      // Step 7
-      current_position[X_AXIS] = midpos - hotend_offset[X_AXIS][tmp_extruder];
+      // STEP 7
+
+      current_position[X_AXIS] = midpos
+        #if HAS_HOTEND_OFFSET
+          - hotend_offset[X_AXIS][tmp_extruder]
+        #endif
+      ;
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("(7) Move midway between hotends", current_position);
       #endif
-      planner.buffer_line(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+
+      fast_line_to_current(X_AXIS);
       planner.synchronize();
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         SERIAL_ECHOLNPGM("Autopark done.");
       #endif
     }
     else { // nomove == true
       // Only engage magnetic field for new extruder
-      pe_activate_magnet(tmp_extruder);
+      pe_activate_solenoid(tmp_extruder);
       #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-        pe_activate_magnet(active_extruder); // Just save power for inverted magnets
+        pe_activate_solenoid(active_extruder); // Just save power for inverted magnets
       #endif
     }
-    current_position[Z_AXIS] += hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+
+    #if HAS_HOTEND_OFFSET
+      current_position[Z_AXIS] += hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+    #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("Applying Z-offset", current_position);
@@ -236,82 +432,107 @@
      * 6. Apply the z-offset of the new toolhead
      */
 
-    // STEP 1
+    // 1. Raise Z to give enough clearance
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("Starting Toolhead change", current_position);
     #endif
-    current_position[Z_AXIS] += SWITCHING_TOOLHEAD_SECURITY_RAISE;
+
+    current_position[Z_AXIS] += toolchange_settings.z_raise;
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("(1) Raise Z-Axis", current_position);
     #endif
-    planner.buffer_line(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+
+    fast_line_to_current(Z_AXIS);
     planner.synchronize();
 
-    // STEP 2
+    // 2. Move to switch position of current toolhead
+
     current_position[X_AXIS] = placexpos;
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOLNPAIR("(2) Place old tool ", int(active_extruder));
         DEBUG_POS("Move X SwitchPos", current_position);
       }
     #endif
-    planner.buffer_line(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+
+    fast_line_to_current(X_AXIS);
     planner.synchronize();
 
     current_position[Y_AXIS] = SWITCHING_TOOLHEAD_Y_POS - SWITCHING_TOOLHEAD_Y_SECURITY;
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("Move Y SwitchPos + Security", current_position);
     #endif
-    planner.buffer_line(current_position, planner.max_feedrate_mm_s[Y_AXIS], active_extruder);
+
+    fast_line_to_current(Y_AXIS);
     planner.synchronize();
 
-    // STEP 3
+    // 3. Unlock tool and drop it in the dock
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(3) Unlock and Place Toolhead");
     #endif
+
     MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, angles[1]);
     safe_delay(500);
 
     current_position[Y_AXIS] = SWITCHING_TOOLHEAD_Y_POS;
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("Move Y SwitchPos", current_position);
     #endif
-    planner.buffer_line(current_position,(planner.max_feedrate_mm_s[Y_AXIS] * 0.5), active_extruder);
+
+    planner.buffer_line(current_position,(planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.5), active_extruder);
     planner.synchronize();
     safe_delay(200);
     current_position[Y_AXIS] -= SWITCHING_TOOLHEAD_Y_CLEAR;
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("Move back Y clear", current_position);
     #endif
-    planner.buffer_line(current_position, planner.max_feedrate_mm_s[Y_AXIS], active_extruder); // move away from docked toolhead
+
+    fast_line_to_current(Y_AXIS); // move away from docked toolhead
     planner.synchronize();
 
-    // STEP 4
+    // 4. Move to the new toolhead
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(4) Move to new toolhead position");
     #endif
+
     current_position[X_AXIS] = grabxpos;
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("Move to new toolhead X", current_position);
     #endif
-    planner.buffer_line(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+
+    fast_line_to_current(X_AXIS);
     planner.synchronize();
     current_position[Y_AXIS] = SWITCHING_TOOLHEAD_Y_POS - SWITCHING_TOOLHEAD_Y_SECURITY;
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("Move Y SwitchPos + Security", current_position);
     #endif
-    planner.buffer_line(current_position, planner.max_feedrate_mm_s[Y_AXIS], active_extruder);
+
+    fast_line_to_current(Y_AXIS);
     planner.synchronize();
 
-    // STEP 5
+    // 5. Grab and lock the new toolhead
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(5) Grab and lock new toolhead ");
     #endif
+
     current_position[Y_AXIS] = SWITCHING_TOOLHEAD_Y_POS;
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("Move Y SwitchPos", current_position);
     #endif
-    planner.buffer_line(current_position, planner.max_feedrate_mm_s[Y_AXIS] * 0.5, active_extruder);
+
+    planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.5, active_extruder);
     planner.synchronize();
 
     safe_delay(200);
@@ -319,14 +540,19 @@
     safe_delay(500);
 
     current_position[Y_AXIS] -= SWITCHING_TOOLHEAD_Y_CLEAR;
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("Move back Y clear", current_position);
     #endif
-    planner.buffer_line(current_position, planner.max_feedrate_mm_s[Y_AXIS], active_extruder); // move away from docked toolhead
+
+    fast_line_to_current(Y_AXIS); // move away from docked toolhead
     planner.synchronize();
 
-    // STEP 6
-    current_position[Z_AXIS] += hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+    // 6. Apply the z-offset of the new toolhead
+
+    #if HAS_HOTEND_OFFSET
+      current_position[Z_AXIS] += hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+    #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("(6) Apply Z offset", current_position);
@@ -341,24 +567,9 @@
 
 inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_ECHO_START();
-  SERIAL_CHAR('T');
-  SERIAL_ECHO_F(e, DEC);
-  SERIAL_CHAR(' ');
-  SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
+  SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
+  SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
 }
-
-#if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-
-  inline void mixing_tool_change(const uint8_t tmp_extruder) {
-    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
-      return invalid_extruder_error(tmp_extruder);
-
-    // T0-Tnnn: Switch virtual tool by changing the mix
-    for (uint8_t j = 0; j < MIXING_STEPPERS; j++)
-      mixing_factor[j] = mixing_virtual_tool_mix[tmp_extruder][j];
-  }
-
-#endif // MIXING_EXTRUDER && MIXING_VIRTUAL_TOOLS > 1
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -378,30 +589,14 @@ inline void invalid_extruder_error(const uint8_t e) {
     const float xhome = x_home_pos(active_extruder);
     if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE
         && IsRunning()
-        && (delayed_move_time || current_position[X_AXIS] != xhome)
+        && (delayed_move_time || current_position[X_AXIS] != xhome) && ! no_move
     ) {
-      float raised_z = current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT;
-      #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-        NOMORE(raised_z, soft_endstop_max[Z_AXIS]);
-      #endif
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOLNPAIR("Raise to ", raised_z);
-          SERIAL_ECHOLNPAIR("MoveX to ", xhome);
-          SERIAL_ECHOLNPAIR("Lower to ", current_position[Z_AXIS]);
-        }
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("MoveX to ", xhome);
       #endif
-      // Park old head: 1) raise 2) move to park position 3) lower
-
-      #define CUR_X current_position[X_AXIS]
-      #define CUR_Y current_position[Y_AXIS]
-      #define CUR_Z current_position[Z_AXIS]
-      #define CUR_E current_position[E_AXIS]
-
-      planner.buffer_line(CUR_X, CUR_Y, raised_z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
-      planner.buffer_line(xhome, CUR_Y, raised_z, CUR_E, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
-      planner.buffer_line(xhome, CUR_Y, CUR_Z,    CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
-
+      // Park old head
+      planner.buffer_line(xhome, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], planner.settings.max_feedrate_mm_s[X_AXIS], active_extruder);
       planner.synchronize();
     }
 
@@ -419,9 +614,6 @@ inline void invalid_extruder_error(const uint8_t e) {
       if (DEBUGGING(LEVELING)) DEBUG_POS("New Extruder", current_position);
     #endif
 
-    // Only when auto-parking are carriages safe to move
-    if (dual_x_carriage_mode != DXC_AUTO_PARK_MODE) no_move = true;
-
     switch (dual_x_carriage_mode) {
       case DXC_FULL_CONTROL_MODE:
         // New current position is the position of the activated extruder
@@ -430,14 +622,12 @@ inline void invalid_extruder_error(const uint8_t e) {
         inactive_extruder_x_pos = destination[X_AXIS];
         break;
       case DXC_AUTO_PARK_MODE:
-        // record raised toolhead position for use by unpark
+        // record current raised toolhead position for use by unpark
         COPY(raised_parked_position, current_position);
-        raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
-        #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-          NOMORE(raised_parked_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
-        #endif
         active_extruder_parked = true;
         delayed_move_time = 0;
+        break;
+      default:
         break;
     }
 
@@ -447,8 +637,6 @@ inline void invalid_extruder_error(const uint8_t e) {
         DEBUG_POS("New extruder (parked)", current_position);
       }
     #endif
-
-    // No extra case for HAS_ABL in DUAL_X_CARRIAGE. Does that mean they don't work together?
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -458,185 +646,263 @@ inline void invalid_extruder_error(const uint8_t e) {
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
-  planner.synchronize();
+  #if ENABLED(MIXING_EXTRUDER)
 
-  #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_SCALED_DUPLICATION_MODE
-    if (tmp_extruder != 0 && dxc_is_duplicating())
-       return invalid_extruder_error(tmp_extruder);
-  #endif
+    UNUSED(fr_mm_s); UNUSED(no_move);
 
-  #if HAS_LEVELING
-    // Set current position to the physical position
-    const bool leveling_was_active = planner.leveling_active;
-    set_bed_leveling_enabled(false);
-  #endif
+    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
+      return invalid_extruder_error(tmp_extruder);
 
-  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+    #if MIXING_VIRTUAL_TOOLS > 1
+      // T0-Tnnn: Switch virtual tool by changing the index to the mix
+      mixer.T(tmp_extruder);
+    #endif
 
-    mixing_tool_change(tmp_extruder);
+  #elif ENABLED(PRUSA_MMU2)
 
-  #else // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
+    UNUSED(fr_mm_s); UNUSED(no_move);
+
+    mmu2.toolChange(tmp_extruder);
+
+  #elif EXTRUDERS < 2
+
+    UNUSED(fr_mm_s); UNUSED(no_move);
+
+    if (tmp_extruder) invalid_extruder_error(tmp_extruder);
+    return;
+
+  #else // EXTRUDERS > 1
+
+    planner.synchronize();
+
+    #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_SCALED_DUPLICATION_MODE
+      if (tmp_extruder != 0 && dxc_is_duplicating())
+         return invalid_extruder_error(tmp_extruder);
+    #endif
+
+    #if HAS_LEVELING
+      // Set current position to the physical position
+      const bool leveling_was_active = planner.leveling_active;
+      set_bed_leveling_enabled(false);
+    #endif
 
     if (tmp_extruder >= EXTRUDERS)
       return invalid_extruder_error(tmp_extruder);
 
-    #if HOTENDS > 1
+    if (!no_move && !all_axes_homed()) {
+      no_move = true;
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("No move on toolchange");
+      #endif
+    }
+
+    #if HAS_LCD_MENU
+      ui.return_to_status();
+    #endif
+
+    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+      const bool should_swap = !no_move && toolchange_settings.swap_length;
+      #if ENABLED(PREVENT_COLD_EXTRUSION)
+        const bool too_cold = !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(active_extruder) || thermalManager.targetTooColdToExtrude(tmp_extruder));
+      #else
+        constexpr bool too_cold = false;
+      #endif
+      if (should_swap) {
+        if (too_cold) {
+          SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
+          #if ENABLED(SINGLENOZZLE)
+            active_extruder = tmp_extruder;
+            return;
+          #endif
+        }
+        else {
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            do_pause_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+          #else
+            current_position[E_AXIS] -= toolchange_settings.swap_length / planner.e_factor[active_extruder];
+            planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.retract_speed), active_extruder);
+          #endif
+        }
+      }
+    #endif // TOOLCHANGE_FILAMENT_SWAP
+
+    if (tmp_extruder != active_extruder) {
+
+      #if SWITCHING_NOZZLE_TWO_SERVOS
+        raise_nozzle(active_extruder);
+      #endif
 
       const float old_feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : feedrate_mm_s;
-
       feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
-      if (tmp_extruder != active_extruder) {
-        if (!no_move && axis_unhomed_error()) {
-          no_move = true;
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("No move on toolchange");
+      #if HAS_SOFTWARE_ENDSTOPS && ENABLED(DUAL_X_CARRIAGE)
+        update_software_endstops(X_AXIS, active_extruder, tmp_extruder);
+      #endif
+
+      set_destination_from_current();
+
+      if (!no_move) {
+        #if DISABLED(SWITCHING_NOZZLE)
+          // Do a small lift to avoid the workpiece in the move back (below)
+          #if ENABLED(TOOLCHANGE_PARK)
+            current_position[X_AXIS] = toolchange_settings.change_point.x;
+            current_position[Y_AXIS] = toolchange_settings.change_point.y;
           #endif
-        }
-
-        #if ENABLED(DUAL_X_CARRIAGE)
-
+          current_position[Z_AXIS] += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
-            // Update the X software endstops early
-            active_extruder = tmp_extruder;
-            update_software_endstops(X_AXIS);
-            active_extruder = !tmp_extruder;
-
-            // Don't move the new extruder out of bounds
-            if (!WITHIN(current_position[X_AXIS], soft_endstop_min[X_AXIS], soft_endstop_max[X_AXIS]))
-              no_move = true;
-
-          #else
-              // No software endstops? Use the configured limits
-              if (active_extruder == 0) {
-                if (!WITHIN(current_position[X_AXIS], X2_MIN_POS, X2_MAX_POS))
-                  no_move = true;
-              }
-              else if (!WITHIN(current_position[X_AXIS], X1_MIN_POS, X1_MAX_POS))
-                no_move = true;
+            NOMORE(current_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
           #endif
+          planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
+        #endif
+        planner.synchronize();
+      }
 
-          #if ENABLED(ULTIPANEL)
-            lcd_return_to_status();
-          #endif
-
-          if (!no_move) set_destination_from_current();
-          dualx_tool_change(tmp_extruder, no_move); // Can modify no_move
-
-        #else // !DUAL_X_CARRIAGE
-
-          set_destination_from_current();
-
-          const float xdiff = hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
-                      ydiff = hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder];
-
-          #if ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
-            constexpr float zdiff = 0;
-            parking_extruder_tool_change(tmp_extruder, no_move);
-          #elif ENABLED(SWITCHING_TOOLHEAD) // Switching Toolhead
-            constexpr float zdiff = 0;
-            switching_toolhead_tool_change(tmp_extruder, fr_mm_s, no_move);
-          #else
-            const float zdiff = hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
-            #if ENABLED(SWITCHING_NOZZLE)
-              // Always raise by at least 1 to avoid workpiece
-              current_position[Z_AXIS] += MAX(-zdiff, 0.0) + 1;
-              planner.buffer_line(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
-              move_nozzle_servo(tmp_extruder);
-            #endif
-          #endif
-
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR("Offset Tool XY by { ", xdiff);
-              SERIAL_ECHOPAIR(", ", ydiff);
-              SERIAL_ECHOPAIR(", ", zdiff);
-              SERIAL_ECHOLNPGM(" }");
-            }
-          #endif
-
-          // The newly-selected extruder XY is actually at...
-          current_position[X_AXIS] += xdiff;
-          current_position[Y_AXIS] += ydiff;
-          current_position[Z_AXIS] += zdiff;
-
-          // Set the new active extruder
-          active_extruder = tmp_extruder;
-
-        #endif // !DUAL_X_CARRIAGE
-
-        // Tell the planner the new "current position"
-        sync_plan_position();
-
-        #if ENABLED(DELTA)
-          //LOOP_XYZ(i) update_software_endstops(i); // or modify the constrain function
-          const bool safe_to_move = current_position[Z_AXIS] < delta_clip_start_height - 1;
+      #if HAS_HOTEND_OFFSET
+        #if ENABLED(DUAL_X_CARRIAGE)
+          constexpr float xdiff = 0;
         #else
-          constexpr bool safe_to_move = true;
+          const float xdiff = hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder];
+        #endif
+        const float ydiff = hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder],
+                    zdiff = hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
+      #else
+        constexpr float xdiff = 0, ydiff = 0, zdiff = 0;
+      #endif
+
+      #if ENABLED(DUAL_X_CARRIAGE)
+        dualx_tool_change(tmp_extruder, no_move);
+      #elif ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
+        parking_extruder_tool_change(tmp_extruder, no_move);
+      #elif ENABLED(MAGNETIC_PARKING_EXTRUDER) // Magnetic Parking extruder
+        magnetic_parking_extruder_tool_change(tmp_extruder);
+      #elif ENABLED(SWITCHING_TOOLHEAD) // Switching Toolhead
+        switching_toolhead_tool_change(tmp_extruder, fr_mm_s, no_move);
+      #elif ENABLED(SWITCHING_NOZZLE) && !SWITCHING_NOZZLE_TWO_SERVOS
+        // Raise by a configured distance to avoid workpiece, except with
+        // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
+        current_position[Z_AXIS] += MAX(-zdiff, 0.0) + toolchange_settings.z_raise;
+        #if HAS_SOFTWARE_ENDSTOPS
+          NOMORE(current_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
+        #endif
+        if (!no_move) fast_line_to_current(Z_AXIS);
+        move_nozzle_servo(tmp_extruder);
+      #endif
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING))
+          SERIAL_ECHOLNPAIR("Offset Tool XY by { ", xdiff, ", ", ydiff, ", ", zdiff, " }");
+      #endif
+
+      // The newly-selected extruder XY is actually at...
+      current_position[X_AXIS] += xdiff;
+      current_position[Y_AXIS] += ydiff;
+      current_position[Z_AXIS] += zdiff;
+
+      // Set the new active extruder if not already done in tool specific function above
+      active_extruder = tmp_extruder;
+
+      // Tell the planner the new "current position"
+      sync_plan_position();
+
+      #if ENABLED(DELTA)
+        //LOOP_XYZ(i) update_software_endstops(i); // or modify the constrain function
+        const bool safe_to_move = current_position[Z_AXIS] < delta_clip_start_height - 1;
+      #else
+        constexpr bool safe_to_move = true;
+      #endif
+
+      // Return to position and lower again
+      if (safe_to_move && !no_move && IsRunning()) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
         #endif
 
-        // Raise, move, and lower again
-        if (safe_to_move && !no_move && IsRunning()) {
-          #if DISABLED(SWITCHING_NOZZLE)
-            // Do a small lift to avoid the workpiece in the move back (below)
-            current_position[Z_AXIS] += 1.0;
-            planner.buffer_line(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+        #if ENABLED(SINGLENOZZLE)
+          #if FAN_COUNT > 0
+            singlenozzle_fan_speed[active_extruder] = thermalManager.fan_speed[0];
+            thermalManager.fan_speed[0] = singlenozzle_fan_speed[tmp_extruder];
           #endif
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
-          #endif
-          #if ENABLED(DUAL_X_CARRIAGE)
-            // Dual x carriage does not properly apply these to current position due to command ordering
-            // So we apply the offsets for y and z to the destination here. X cannot have an offset in this mode
-            // as it is utilized for X2 home position.
-            destination[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][tmp_extruder];
-            destination[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
-          #endif
-          // Move back to the original (or tweaked) position
-          do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
-          #if ENABLED(DUAL_X_CARRIAGE)
-            active_extruder_parked = false;
-          #endif
-        }
-        #if ENABLED(SWITCHING_NOZZLE)
-          else {
-            // Move back down. (Including when the new tool is higher.)
-            do_blocking_move_to_z(destination[Z_AXIS], planner.max_feedrate_mm_s[Z_AXIS]);
+
+          singlenozzle_temp[active_extruder] = thermalManager.temp_hotend[0].target;
+          if (singlenozzle_temp[tmp_extruder] && singlenozzle_temp[tmp_extruder] != singlenozzle_temp[active_extruder]) {
+            thermalManager.setTargetHotend(singlenozzle_temp[tmp_extruder], 0);
+            #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+              thermalManager.set_heating_message(0);
+            #endif
+            (void)thermalManager.wait_for_hotend(0, false);  // Wait for heating or cooling
+          }
+          active_extruder = tmp_extruder;
+        #endif
+
+        #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+          if (should_swap && !too_cold) {
+            #if ENABLED(ADVANCED_PAUSE_FEATURE)
+              do_pause_e_move(toolchange_settings.swap_length + TOOLCHANGE_FIL_EXTRA_PRIME, toolchange_settings.prime_speed);
+            #else
+              current_position[E_AXIS] += (toolchange_settings.swap_length + TOOLCHANGE_FIL_EXTRA_PRIME) / planner.e_factor[tmp_extruder];
+              planner.buffer_line(current_position, toolchange_settings.prime_speed, tmp_extruder);
+            #endif
+            planner.synchronize();
+
+            #if TOOLCHANGE_FIL_EXTRA_PRIME
+              planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = current_position[E_AXIS] - (TOOLCHANGE_FIL_EXTRA_PRIME)));
+            #endif
           }
         #endif
-      } // (tmp_extruder != active_extruder)
 
-      planner.synchronize();
+        // Prevent a move outside physical bounds
+        clamp_to_software_endstops(destination);
 
-      #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
-        disable_all_solenoids();
-        enable_solenoid_on_active_extruder();
+        // Move back to the original (or tweaked) position
+        do_blocking_move_to(destination);
+
+        #if ENABLED(DUAL_X_CARRIAGE)
+          active_extruder_parked = false;
+        #endif
+        feedrate_mm_s = old_feedrate_mm_s;
+      }
+      #if ENABLED(SWITCHING_NOZZLE)
+        else {
+          // Move back down. (Including when the new tool is higher.)
+          do_blocking_move_to_z(destination[Z_AXIS], planner.settings.max_feedrate_mm_s[Z_AXIS]);
+        }
       #endif
 
-      feedrate_mm_s = old_feedrate_mm_s;
-
-      #if HAS_SOFTWARE_ENDSTOPS && ENABLED(DUAL_X_CARRIAGE)
-        update_software_endstops(X_AXIS);
+      #if ENABLED(PRUSA_MMU2)
+        mmu2.toolChange(tmp_extruder);
       #endif
 
-    #else // HOTENDS <= 1
-
-      UNUSED(fr_mm_s);
-      UNUSED(no_move);
-
-      #if ENABLED(MK2_MULTIPLEXER)
-        if (tmp_extruder >= E_STEPPERS)
-          return invalid_extruder_error(tmp_extruder);
-
-        select_multiplexed_stepper(tmp_extruder);
+      #if SWITCHING_NOZZLE_TWO_SERVOS
+        lower_nozzle(active_extruder);
       #endif
 
-      #if EXTRUDERS > 1
-        // Set the new active extruder
-        active_extruder = tmp_extruder;
+      #if ENABLED(TOOLCHANGE_FILAMENT_SWAP) && ADVANCED_PAUSE_RESUME_PRIME != 0
+        if (should_swap && !too_cold) {
+          const float resume_eaxis = current_position[E_AXIS];
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            do_pause_e_move(toolchange_settings.swap_length, toolchange_settings.prime_speed);
+          #else
+            current_position[E_AXIS] += (ADVANCED_PAUSE_RESUME_PRIME) / planner.e_factor[active_extruder];
+            planner.buffer_line(current_position, ADVANCED_PAUSE_PURGE_FEEDRATE, active_extruder);
+          #endif
+          planner.synchronize();
+          planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = resume_eaxis));
+        }
       #endif
 
-    #endif // HOTENDS <= 1
+    } // (tmp_extruder != active_extruder)
+
+    planner.synchronize();
+
+    #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
+      disable_all_solenoids();
+      enable_solenoid_on_active_extruder();
+    #endif
+
+    #if ENABLED(MK2_MULTIPLEXER)
+      if (tmp_extruder >= E_STEPPERS) return invalid_extruder_error(tmp_extruder);
+      select_multiplexed_stepper(tmp_extruder);
+    #endif
 
     #if DO_SWITCH_EXTRUDER
       planner.synchronize();
@@ -655,5 +921,5 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(active_extruder));
 
-  #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
+  #endif // EXTRUDERS > 1
 }

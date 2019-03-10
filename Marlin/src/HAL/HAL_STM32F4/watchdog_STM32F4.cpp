@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,7 +20,7 @@
  *
  */
 
-#if defined(STM32F4) || defined(STM32F4xx)
+#if defined(STM32GENERIC) && defined(STM32F4)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -46,12 +46,12 @@
       //Error_Handler();
     }
     else {
-    #if PIN_EXISTS(LED)
-      TOGGLE(LED_PIN);  // heart beat indicator
-    #endif
+      #if PIN_EXISTS(LED)
+        TOGGLE(LED_PIN);  // heartbeat indicator
+      #endif
     }
   }
 
 #endif // USE_WATCHDOG
 
-#endif // STM32F4 || STM32F4xx
+#endif // STM32GENERIC && STM32F4

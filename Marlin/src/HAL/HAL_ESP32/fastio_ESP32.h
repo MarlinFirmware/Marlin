@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,42 +19,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#ifndef _FASTIO_ESP32_H
-#define _FASTIO_ESP32_H
+#include "i2s.h"
 
 /**
  * Utility functions
  */
 
-// set pin as input
-#define _SET_INPUT(IO)      pinMode(IO, INPUT)
+// Set pin as input
+#define _SET_INPUT(IO)        pinMode(IO, INPUT)
 
-// set pin as output
-#define _SET_OUTPUT(IO)     pinMode(IO, OUTPUT)
+// Set pin as output
+#define _SET_OUTPUT(IO)       pinMode(IO, OUTPUT)
 
-// set pin as input with pullup mode
-#define _PULLUP(IO, v)      pinMode(IO, v ? INPUT_PULLUP : INPUT)
+// Set pin as input with pullup mode
+#define _PULLUP(IO, v)        pinMode(IO, v ? INPUT_PULLUP : INPUT)
 
 // Read a pin wrapper
-#define READ(IO)            digitalRead(IO)
+#define READ(IO)              digitalRead(IO)
 
 // Write to a pin wrapper
-#define WRITE(IO, v)        digitalWrite(IO, v)
+#define WRITE(IO, v)          (TEST(IO, 7) ? i2s_write(IO & 0x7F, v) : digitalWrite(IO, v))
 
-// set pin as input wrapper
-#define SET_INPUT(IO)       _SET_INPUT(IO)
+// Set pin as input wrapper
+#define SET_INPUT(IO)         _SET_INPUT(IO)
 
-// set pin as input with pullup wrapper
-#define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
+// Set pin as input with pullup wrapper
+#define SET_INPUT_PULLUP(IO)  do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
 
-// set pin as output wrapper
-#define SET_OUTPUT(IO)  do{ _SET_OUTPUT(IO); WRITE(IO, LOW); }while(0)
+// Set pin as output wrapper
+#define SET_OUTPUT(IO)        do{ _SET_OUTPUT(IO); WRITE(IO, LOW); }while(0)
 
-#define OUT_WRITE(IO,V)         do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
+#define OUT_WRITE(IO,V)       do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
+
+// digitalRead/Write wrappers
+#define extDigitalRead(IO)    digitalRead(IO)
+#define extDigitalWrite(IO,V) digitalWrite(IO,V)
 
 //
-// ports and functions
+// Ports and functions
 //
 
 // UART
@@ -64,9 +68,3 @@
 // TWI (I2C)
 #define SCL        5
 #define SDA        4
-
-//
-// pins
-//
-
-#endif // _FASTIO_ESP32_H

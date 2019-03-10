@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,6 +32,8 @@
 #include <lpc17xx_i2c.h>
 #include <lpc17xx_pinsel.h>
 #include <lpc17xx_libcfg_default.h>
+
+#include "../../../core/millis_t.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -149,14 +151,14 @@ void u8g_i2c_init(uint8_t clock_option) {
   u8g_i2c_start(0); // send slave address and write bit
 }
 
-volatile extern uint32_t _millis;
+volatile extern millis_t _millis;
 uint8_t u8g_i2c_send_byte(uint8_t data) {
   #define I2C_TIMEOUT 3
   LPC_I2C1->I2DAT = data & I2C_I2DAT_BITMASK; // transmit data
   LPC_I2C1->I2CONSET = I2C_I2CONSET_AA;
   LPC_I2C1->I2CONCLR = I2C_I2CONCLR_SIC;
-  uint32_t timeout = _millis + I2C_TIMEOUT;
-  while ((I2C_status != I2C_I2STAT_M_TX_DAT_ACK) && (I2C_status != I2C_I2STAT_M_TX_DAT_NACK) && (timeout > _millis));  // wait for xmit to finish
+  const millis_t timeout = _millis + I2C_TIMEOUT;
+  while ((I2C_status != I2C_I2STAT_M_TX_DAT_ACK) && (I2C_status != I2C_I2STAT_M_TX_DAT_NACK) && PENDING(_millis, timeout));  // wait for xmit to finish
   // had hangs with SH1106 so added time out - have seen temporary screen corruption when this happens
   return 1;
 }

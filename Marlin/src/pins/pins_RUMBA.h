@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,20 +25,24 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
 #if HOTENDS > 3 || E_STEPPERS > 3
   #error "RUMBA supports up to 3 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define DEFAULT_MACHINE_NAME "Rumba"
-#define BOARD_NAME           "Rumba"
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "Rumba"
+#endif
+#ifndef BOARD_NAME
+  #define BOARD_NAME "Rumba"
+#endif
 
 //
 // Servos
 //
-#define SERVO0_PIN         5
+#define SERVO0_PIN          5
 
 //
 // Limit Switches
@@ -72,31 +76,41 @@
 #define Z_DIR_PIN          56
 #define Z_ENABLE_PIN       62
 
-#define E0_STEP_PIN        23
-#define E0_DIR_PIN         22
-#define E0_ENABLE_PIN      24
+#ifndef E0_STEP_PIN
+  #define E0_STEP_PIN      23
+  #define E0_DIR_PIN       22
+  #define E0_ENABLE_PIN    24
+#endif
 
-#define E1_STEP_PIN        26
-#define E1_DIR_PIN         25
-#define E1_ENABLE_PIN      27
+#ifndef E1_STEP_PIN
+  #define E1_STEP_PIN      26
+  #define E1_DIR_PIN       25
+  #define E1_ENABLE_PIN    27
+#endif
 
-#define E2_STEP_PIN        29
-#define E2_DIR_PIN         28
-#define E2_ENABLE_PIN      39
+#if E1_STEP_PIN != 29
+  #define E2_STEP_PIN      29
+  #define E2_DIR_PIN       28
+  #define E2_ENABLE_PIN    39
+#endif
 
 //
 // Temperature Sensors
 //
-#if TEMP_SENSOR_0 == -1
-  #define TEMP_0_PIN        6   // Analog Input (connector *K1* on RUMBA thermocouple ADD ON is used)
-#else
-  #define TEMP_0_PIN       15   // Analog Input (default connector for thermistor *T0* on rumba board is used)
+#ifndef TEMP_0_PIN
+  #if TEMP_SENSOR_0 == -1
+    #define TEMP_0_PIN      6   // Analog Input (connector *K1* on RUMBA thermocouple ADD ON is used)
+  #else
+    #define TEMP_0_PIN     15   // Analog Input (default connector for thermistor *T0* on rumba board is used)
+  #endif
 #endif
 
-#if TEMP_SENSOR_1 == -1
-  #define TEMP_1_PIN        5   // Analog Input (connector *K2* on RUMBA thermocouple ADD ON is used)
-#else
-  #define TEMP_1_PIN       14   // Analog Input (default connector for thermistor *T1* on rumba board is used)
+#ifndef TEMP_1_PIN
+  #if TEMP_SENSOR_1 == -1
+    #define TEMP_1_PIN      5   // Analog Input (connector *K2* on RUMBA thermocouple ADD ON is used)
+  #else
+    #define TEMP_1_PIN     14   // Analog Input (default connector for thermistor *T1* on rumba board is used)
+  #endif
 #endif
 
 #if TEMP_SENSOR_2 == -1
@@ -105,7 +119,7 @@
   #define TEMP_2_PIN       13   // Analog Input (default connector for thermistor *T2* on rumba board is used)
 #endif
 
-// optional for extruder 4 or chamber:
+// Optional for extruder 4 or chamber:
 //#define TEMP_X_PIN         12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
 //#define TEMP_CHAMBER_PIN   12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
 
@@ -132,7 +146,6 @@
 //
 // Misc. Functions
 //
-#define SDSS               53
 #define LED_PIN            13
 #define PS_ON_PIN          45
 #define KILL_PIN           46
@@ -142,28 +155,21 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #ifndef SPINDLE_LASER_PWM_PIN
-  #define SPINDLE_LASER_PWM_PIN     4   // MUST BE HARDWARE PWM. Pin 4 interrupts OC0* and OC1* always in use?
+  #define SPINDLE_LASER_PWM_PIN 4   // MUST BE HARDWARE PWM. Pin 4 interrupts OC0* and OC1* always in use?
 #endif
 #ifndef SPINDLE_LASER_ENABLE_PIN
   #define SPINDLE_LASER_ENABLE_PIN 14   // Pin should have a pullup!
 #endif
 #ifndef SPINDLE_DIR_PIN
-  #define SPINDLE_DIR_PIN          15
+  #define SPINDLE_DIR_PIN  15
 #endif
 
 //
 // LCD / Controller
 //
-#define SD_DETECT_PIN      49
-#define BEEPER_PIN         44
-#define LCD_PINS_D7        40
-#define BTN_EN1            11
-#define BTN_EN2            12
-#define BTN_ENC            43
-
 #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
-  #define LCD_PINS_DC      38 // Set as output on init
-  #define LCD_PINS_RS      41 // Pull low for 1s to init
+  #define LCD_PINS_DC      38   // Set as output on init
+  #define LCD_PINS_RS      41   // Pull low for 1s to init
   // DOGM SPI LCD Support
   #define DOGLCD_CS        19
   #define DOGLCD_MOSI      42
@@ -175,4 +181,23 @@
   #define LCD_PINS_D4      18
   #define LCD_PINS_D5      38
   #define LCD_PINS_D6      41
+#endif
+
+#define LCD_PINS_D7        40
+
+//
+// Beeper, SD Card, Encoder
+//
+#define BEEPER_PIN         44
+
+#if ENABLED(SDSUPPORT)
+  #define SDPOWER          -1
+  #define SDSS             53
+  #define SD_DETECT_PIN    49
+#endif
+
+#if ENABLED(NEWPANEL)
+  #define BTN_EN1          11
+  #define BTN_EN2          12
+  #define BTN_ENC          43
 #endif

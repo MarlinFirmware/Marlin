@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,3 +27,14 @@
 #define BOARD_NAME "Ender-4"
 
 #include "pins_RAMPS.h"
+
+// The board only has one PWM fan connector. The others are 12V always-on.
+// The default config uses this pin to control the brightness of the LED
+// band (case light). Thus the hotend and controller fans are always-on.
+
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #undef FAN_PIN
+  #ifndef CASE_LIGHT_PIN
+    #define CASE_LIGHT_PIN RAMPS_D9_PIN
+  #endif
+#endif

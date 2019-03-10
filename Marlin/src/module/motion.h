@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,15 +26,21 @@
  * High-level motion commands to feed the planner
  * Some of these methods may migrate to the planner class.
  */
-
-#ifndef MOTION_H
-#define MOTION_H
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
 #if IS_SCARA
-  #include "../module/scara.h"
+  #include "scara.h"
 #endif
+
+// Axis homed and known-position states
+extern uint8_t axis_homed, axis_known_position;
+constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
+FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits; }
+FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
+FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
+FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
 
 // Error margin to work around float imprecision
 constexpr float slop = 0.0001;
@@ -52,7 +58,7 @@ extern float cartes[XYZ];
   extern float delta[ABC];
 #endif
 
-#if OLDSCHOOL_ABL
+#if HAS_ABL_NOT_UBL
   extern float xy_probe_feedrate_mm_s;
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
 #elif defined(XY_PROBE_SPEED)
@@ -65,8 +71,9 @@ extern float cartes[XYZ];
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-extern const float homing_feedrate_mm_s[4];
+extern const float homing_feedrate_mm_s[XYZ];
 FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
+float get_homing_bump_feedrate(const AxisEnum axis);
 
 extern float feedrate_mm_s;
 
@@ -83,14 +90,8 @@ extern int16_t feedrate_percentage;
   constexpr uint8_t active_extruder = 0;
 #endif
 
-#if HAS_HOTEND_OFFSET
-  extern float hotend_offset[XYZ][HOTENDS];
-#endif
-
-extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
-
-FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float_near(p); }
-FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte_near(p); }
+FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
+FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
 #define XYZ_DEFS(type, array, CONFIG) \
   extern const type array##_P[XYZ]; \
@@ -104,13 +105,35 @@ XYZ_DEFS(float, max_length,     MAX_LENGTH);
 XYZ_DEFS(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_DEFS(signed char, home_dir, HOME_DIR);
 
+#if HAS_WORKSPACE_OFFSET
+  void update_workspace_offset(const AxisEnum axis);
+#else
+  #define update_workspace_offset(x) NOOP
+#endif
+
+#if HAS_HOTEND_OFFSET
+  extern float hotend_offset[XYZ][HOTENDS];
+  void reset_hotend_offsets();
+#else
+  constexpr float hotend_offset[XYZ][HOTENDS] = { { 0 }, { 0 }, { 0 } };
+#endif
+
 #if HAS_SOFTWARE_ENDSTOPS
   extern bool soft_endstops_enabled;
-  void clamp_to_software_endstops(float target[XYZ]);
+  extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
+  void update_software_endstops(const AxisEnum axis
+    #if HAS_HOTEND_OFFSET
+      , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
+    #endif
+  );
 #else
-  #define soft_endstops_enabled false
-  #define clamp_to_software_endstops(x) NOOP
+  constexpr bool soft_endstops_enabled = true;
+  constexpr float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
+                  soft_endstop_max[XYZ] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+  #define update_software_endstops(...) NOOP
 #endif
+
+void clamp_to_software_endstops(float target[XYZ]);
 
 void report_current_position();
 
@@ -133,7 +156,7 @@ void sync_plan_position_e();
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-void line_to_current_position();
+void line_to_current_position(const float &fr_mm_s=feedrate_mm_s);
 
 /**
  * Move the planner to the position stored in the destination array, which is
@@ -142,7 +165,7 @@ void line_to_current_position();
 void buffer_line_to_destination(const float fr_mm_s);
 
 #if IS_KINEMATIC
-  void prepare_uninterpolated_move_to_destination(const float fr_mm_s=0);
+  void prepare_uninterpolated_move_to_destination(const float &fr_mm_s=0);
 #endif
 
 void prepare_move_to_destination();
@@ -155,10 +178,14 @@ void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0);
 void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0);
 void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0);
 
-void setup_for_endstop_or_probe_move();
-void clean_up_after_endstop_or_probe_move();
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s=0) {
+  do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
+}
 
-void bracket_probe_move(const bool before);
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const float &fr_mm_s=0) {
+  do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
+}
+
 void setup_for_endstop_or_probe_move();
 void clean_up_after_endstop_or_probe_move();
 
@@ -189,20 +216,14 @@ void clean_up_after_endstop_or_probe_move();
 
 void set_axis_is_at_home(const AxisEnum axis);
 
+void set_axis_is_not_at_home(const AxisEnum axis);
+
 void homeaxis(const AxisEnum axis);
-
-#if ENABLED(SENSORLESS_HOMING)
-  void sensorless_homing_per_axis(const AxisEnum axis, const bool enable=true);
-#endif
-
-//
-// Macros
-//
 
 /**
  * Workspace offsets
  */
-#if HAS_WORKSPACE_OFFSET
+#if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
   #if HAS_HOME_OFFSET
     extern float home_offset[XYZ];
   #endif
@@ -214,7 +235,7 @@ void homeaxis(const AxisEnum axis);
     #define WORKSPACE_OFFSET(AXIS) workspace_offset[AXIS]
   #elif HAS_HOME_OFFSET
     #define WORKSPACE_OFFSET(AXIS) home_offset[AXIS]
-  #elif HAS_POSITION_SHIFT
+  #else
     #define WORKSPACE_OFFSET(AXIS) position_shift[AXIS]
   #endif
   #define NATIVE_TO_LOGICAL(POS, AXIS) ((POS) + WORKSPACE_OFFSET(AXIS))
@@ -238,6 +259,10 @@ void homeaxis(const AxisEnum axis);
 
   #if IS_SCARA
     extern const float L1, L2;
+  #endif
+
+  #if HAS_SCARA_OFFSET
+    extern float scara_home_offset[ABC]; // A and B angular offsets, Z mm offset
   #endif
 
   // Return true if the given point is within the printable area
@@ -342,12 +367,6 @@ void homeaxis(const AxisEnum axis);
 
 #endif
 
-#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
-  void update_software_endstops(const AxisEnum axis);
-#endif
-
 #if HAS_M206_COMMAND
   void set_home_offset(const AxisEnum axis, const float v);
 #endif
-
-#endif // MOTION_H

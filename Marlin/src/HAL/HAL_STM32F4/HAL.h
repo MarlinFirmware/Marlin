@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -20,12 +20,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _HAL_STM32F4_H
-#define _HAL_STM32F4_H
+#pragma once
 
 #define CPU_32_BIT
-#undef DEBUG_NONE
 
 #ifndef vsnprintf_P
   #define vsnprintf_P vsnprintf
@@ -198,7 +195,10 @@ static int freeMemory() {
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
+//
 // SPI: Extended functions which take a channel number (hardware SPI only)
+//
+
 /** Write single byte to specified SPI channel */
 void spiSend(uint32_t chan, byte b);
 /** Write buffer to specified SPI channel */
@@ -206,18 +206,22 @@ void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
 /** Read single byte from specified SPI channel */
 uint8_t spiRec(uint32_t chan);
 
+//
 // EEPROM
+//
 
 /**
- * TODO: Write all this eeprom stuff. Can emulate eeprom in flash as last resort.
- * Wire library should work for i2c eeproms.
+ * TODO: Write all this EEPROM stuff. Can emulate EEPROM in flash as last resort.
+ * Wire library should work for i2c EEPROMs.
  */
-void eeprom_write_byte(unsigned char *pos, unsigned char value);
-unsigned char eeprom_read_byte(unsigned char *pos);
+void eeprom_write_byte(uint8_t *pos, unsigned char value);
+uint8_t eeprom_read_byte(uint8_t *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
+//
 // ADC
+//
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 
@@ -251,5 +255,3 @@ void HAL_enable_AdcFreerun(void);
 
 #define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
 #define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
-
-#endif // _HAL_STM32F4_H

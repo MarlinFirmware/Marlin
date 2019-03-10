@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #include "minmax.h"
@@ -50,7 +49,7 @@
 
 // Clock speed factors
 #if !defined(CYCLES_PER_MICROSECOND) && !defined(__STM32F1__)
-  #define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20 on AVR
+  #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20 on AVR
 #endif
 
 // Nanoseconds per cycle
@@ -153,7 +152,10 @@
 #define DECIMAL_SIGNED(a) (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 #define ZERO(a) memset(a,0,sizeof(a))
-#define COPY(a,b) memcpy(a,b,MIN(sizeof(a),sizeof(b)))
+#define COPY(a,b) do{ \
+    static_assert(sizeof(a[0]) == sizeof(b[0]), "COPY: '" STRINGIFY(a) "' and '" STRINGIFY(b) "' types (sizes) don't match!"); \
+    memcpy(&a[0],&b[0],MIN(sizeof(a),sizeof(b))); \
+  }while(0)
 
 // Macros for initializing arrays
 #define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
@@ -194,13 +196,10 @@
 
 #define PIN_EXISTS(PN) (defined(PN ##_PIN) && PN ##_PIN >= 0)
 
-#define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
-#define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
-
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0f)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0f)
 
-#define NOOP do{} while(0)
+#define NOOP (void(0))
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
@@ -230,3 +229,9 @@
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
+
+#ifdef TARGET_LPC1768
+  #define I2C_ADDRESS(A) ((A) << 1)
+#else
+  #define I2C_ADDRESS(A) A
+#endif

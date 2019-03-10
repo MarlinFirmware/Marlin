@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,6 +26,10 @@
 
 #include "buzzer.h"
 #include "../module/temperature.h"
+
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extensible_ui/ui_api.h"
+#endif
 
 Buzzer::state_t Buzzer::state;
 CircularQueue<tone_t, TONE_QUEUE_LENGTH> Buzzer::buffer;
@@ -58,7 +62,11 @@ void Buzzer::tick() {
     state.endtime = now + state.tone.duration;
 
     if (state.tone.frequency > 0) {
-      #if ENABLED(SPEAKER)
+      #if ENABLED(EXTENSIBLE_UI)
+        CRITICAL_SECTION_START;
+        ExtUI::onPlayTone(state.tone.frequency, state.tone.duration);
+        CRITICAL_SECTION_END;
+      #elif ENABLED(SPEAKER)
         CRITICAL_SECTION_START;
         ::tone(BEEPER_PIN, state.tone.frequency, state.tone.duration);
         CRITICAL_SECTION_END;

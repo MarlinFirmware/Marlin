@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * endstops.h - manages endstops
  */
-
-#ifndef __ENDSTOPS_H__
-#define __ENDSTOPS_H__
 
 #include "../inc/MarlinConfig.h"
 #include <stdint.h>
@@ -52,7 +50,7 @@ class Endstops {
 
   public:
 
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+    #if HAS_EXTRA_ENDSTOPS
       typedef uint16_t esbits_t;
       #if ENABLED(X_DUAL_ENDSTOPS)
         static float x2_endstop_adj;
@@ -98,6 +96,8 @@ class Endstops {
         #endif
       );
     }
+
+    static inline bool global_enabled() { return enabled_globally; }
 
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
@@ -164,6 +164,8 @@ class Endstops {
       static void enable_z_probe(const bool onoff=true);
     #endif
 
+    static void resync();
+
     // Debugging of endstops
     #if ENABLED(PINS_DEBUGGING)
       static bool monitor_flag;
@@ -174,4 +176,16 @@ class Endstops {
 
 extern Endstops endstops;
 
-#endif // __ENDSTOPS_H__
+/**
+ * A class to save and change the endstop state,
+ * then restore it when it goes out of scope.
+ */
+class TemporaryGlobalEndstopsState {
+  bool saved;
+
+  public:
+    TemporaryGlobalEndstopsState(const bool enable) : saved(endstops.global_enabled()) {
+      endstops.enable_globally(enable);
+    }
+    ~TemporaryGlobalEndstopsState() { endstops.enable_globally(saved); }
+};

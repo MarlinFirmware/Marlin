@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * TEST
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_TEST_H
-#define LANGUAGE_TEST_H
 
 // Select ONE of the following Mappers.
 // They decide what to do with a symbol in the area of [0x80:0xFF]. They take a symbol of this language file and make them point
@@ -67,7 +66,7 @@
 #define STRG_ASCII_2 _UxGT(" !\"#$%&'()*+,-./")
 #define STRG_ASCII_3 _UxGT("0123456789:;<=>?")
 #define STRG_ASCII_4 _UxGT("@ABCDEFGHIJKLMNO")
-#define STRG_ASCII_5 _UxGT("PQRSTUVWXYZ[\]^_")
+#define STRG_ASCII_5 _UxGT("PQRSTUVWXYZ[\\]^_")
 #define STRG_ASCII_6 _UxGT("`abcdefghijklmno")
 #define STRG_ASCII_7 _UxGT("pqrstuvwxyz{|}~")
 
@@ -226,5 +225,3 @@
   #define MSG_PID_P                           STRG_OKTAL_e
   #define MSG_PID_I                           STRG_OKTAL_f
 #endif
-
-#endif // LANGUAGE_TEST_H

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,7 +21,7 @@
  */
 
 #if !defined(STM32F7)
-  #error "Oops!  Make sure you have an STM32F7 board selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select an STM32F7 board in 'Tools > Board.'"
 #endif
 
 #define DEFAULT_MACHINE_NAME "The-Borge"
@@ -32,7 +32,7 @@
 // Ignore temp readings during develpment.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
-#if E_STEPPERS > 3 || HOTENDS > 3
+#if HOTENDS > 3 || E_STEPPERS > 3
   #error "The-Borg supports up to 3 hotends / E-steppers."
 #endif
 
@@ -142,7 +142,7 @@
 //#define NEOPIXEL_PIN      PF13
 
 //
-// Prusa i3 MK2 Multi Material Multiplexer Support
+// Průša i3 MK2 Multi Material Multiplexer Support
 //
 
 #define E_MUX0_PIN         PG3

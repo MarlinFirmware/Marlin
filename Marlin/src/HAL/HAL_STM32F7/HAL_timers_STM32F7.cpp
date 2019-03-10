@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -85,8 +85,8 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       timerConfig[0].IRQ_Id = TIM5_IRQn;
       timerConfig[0].callback = (uint32_t)TC5_Handler;
       HAL_NVIC_SetPriority(timerConfig[0].IRQ_Id, 1, 0);
-      pinMode(STEPPER_ENABLE_PIN,OUTPUT);
-      digitalWrite(STEPPER_ENABLE_PIN,LOW);
+      SET_OUTPUT(STEPPER_ENABLE_PIN);
+      WRITE(STEPPER_ENABLE_PIN);
       break;
     case TEMP_TIMER_NUM:
       //TEMP TIMER TIM7 // any available 16bit Timer (1 already used for PWM)

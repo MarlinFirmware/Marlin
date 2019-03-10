@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,15 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O Routines for AVR
  * Use direct port manipulation to save scads of processor time.
  * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
  */
-
-#ifndef _FASTIO_ARDUINO_H_
-#define _FASTIO_ARDUINO_H_
 
 #include <avr/io.h>
 #include "../../core/macros.h"
@@ -87,6 +85,15 @@
 #define _GET_OUTPUT(IO)       TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 #define _GET_TIMER(IO)        DIO ## IO ## _PWM
 
+// digitalRead/Write wrappers
+#ifdef FASTIO_EXT_START
+  void extDigitalWrite(const int8_t pin, const uint8_t state);
+  uint8_t extDigitalRead(const int8_t pin);
+#else
+  #define extDigitalWrite(IO,V) digitalWrite(IO,V)
+  #define extDigitalRead(IO)    digitalRead(IO)
+#endif
+
 #define READ(IO)              _READ(IO)
 #define WRITE(IO,V)           _WRITE(IO,V)
 #define TOGGLE(IO)            _TOGGLE(IO)
@@ -123,6 +130,18 @@ enum WaveGenMode : char {
   WGM_reserved,        // 13
   WGM_FAST_PWM_ICRn,   // 14  COM OCnA
   WGM_FAST_PWM_OCRnA   // 15  COM OCnA
+};
+
+// Wavefore Generation Modes (Timer 2 only)
+enum WaveGenMode2 : char {
+  WGM2_NORMAL,          // 0
+  WGM2_PWM_PC,          // 1
+  WGM2_CTC_OCR2A,       // 2
+  WGM2_FAST_PWM,        // 3
+  WGM2_reserved_1,      // 4
+  WGM2_PWM_PC_OCR2A,    // 5
+  WGM2_reserved_2,      // 6
+  WGM2_FAST_PWM_OCR2A,  // 7
 };
 
 // Compare Modes
@@ -179,6 +198,11 @@ enum ClockSource2 : char {
     TCCR##T##B = (TCCR##T##B & ~(0x3 << WGM##T##2)) | (((int(V) >> 2) & 0x3) << WGM##T##2); \
   }while(0)
 #define SET_WGM(T,V) _SET_WGM(T,WGM_##V)
+// Runtime (see Temperature::set_pwm_frequency):
+#define _SET_WGMnQ(TCCRnQ, V) do{ \
+    *(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << 0)) | (( int(V)       & 0x3) << 0); \
+    *(TCCRnQ)[1] = (*(TCCRnQ)[1] & ~(0x3 << 3)) | (((int(V) >> 2) & 0x3) << 3); \
+  }while(0)
 
 // Set Clock Select bits
 // Ex: SET_CS3(PRESCALER_64);
@@ -204,6 +228,10 @@ enum ClockSource2 : char {
 #define SET_CS4(V) _SET_CS4(CS_##V)
 #define SET_CS5(V) _SET_CS5(CS_##V)
 #define SET_CS(T,V) SET_CS##T(V)
+// Runtime (see Temperature::set_pwm_frequency)
+#define _SET_CSn(TCCRnQ, V) do{ \
+    (*(TCCRnQ)[1] = (*(TCCRnQ[1]) & ~(0x7 << 0)) | ((int(V) & 0x7) << 0)); \
+  }while(0)
 
 // Set Compare Mode bits
 // Ex: SET_COMS(4,CLEAR_SET,CLEAR_SET,CLEAR_SET);
@@ -213,6 +241,22 @@ enum ClockSource2 : char {
 #define SET_COMB(T,V) SET_COM(T,B,V)
 #define SET_COMC(T,V) SET_COM(T,C,V)
 #define SET_COMS(T,V1,V2,V3) do{ SET_COMA(T,V1); SET_COMB(T,V2); SET_COMC(T,V3); }while(0)
+// Runtime (see Temperature::set_pwm_duty)
+#define _SET_COMnQ(TCCRnQ, Q, V) do{ \
+    (*(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << (6-2*(Q)))) | (int(V) << (6-2*(Q)))); \
+  }while(0)
+
+// Set OCRnQ register
+// Runtime (see Temperature::set_pwm_duty):
+#define _SET_OCRnQ(OCRnQ, Q, V) do{ \
+    (*(OCRnQ)[(Q)] = (0x0000) | (int(V) & 0xFFFF)); \
+  }while(0)
+
+// Set ICRn register (one per timer)
+// Runtime (see Temperature::set_pwm_frequency)
+#define _SET_ICRn(ICRn, V) do{ \
+    (*(ICRn) = (0x0000) | (int(V) & 0xFFFF)); \
+  }while(0)
 
 // Set Noise Canceler bit
 // Ex: SET_ICNC(2,1)
@@ -312,5 +356,3 @@ enum ClockSource2 : char {
 
 // finally - the macro that tells us if a pin is an available hardware PWM
 #define USEABLE_HARDWARE_PWM(p) (PWM_PINS(p) && !PWM_CHK(p))
-
-#endif // _FASTIO_ARDUINO_H_

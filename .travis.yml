@@ -1,5 +1,5 @@
 dist: trusty
-sudo: false
+sudo: require
 
 language: python
 python:
@@ -17,21 +17,30 @@ cache:
 
 env:
   - TEST_PLATFORM="megaatmega2560"
-  - TEST_PLATFORM="LPC1768"
   - TEST_PLATFORM="DUE"
-  - TEST_PLATFORM="STM32F1"
+  - TEST_PLATFORM="LPC1768"
+  - TEST_PLATFORM="LPC1769"
+  #- TEST_PLATFORM="STM32F1"
   - TEST_PLATFORM="teensy35"
+  - TEST_PLATFORM="linux_native"
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-7
 
 before_install:
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
   #
   # Fetch the tag information for the current branch
   - git fetch origin --tags
   #
   # Publish the buildroot script folder
   - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/bin/*
-  - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${PATH}
   - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/share/tests/*
-  - export PATH=${TRAVIS_BUILD_DIR}/buildroot/share/tests/:${PATH}
+  - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${TRAVIS_BUILD_DIR}/buildroot/share/tests/:${PATH}
 
 install:
   #- pip install -U platformio
@@ -49,4 +58,4 @@ before_script:
   - cat ${TRAVIS_BUILD_DIR}/Marlin/src/inc/_Version.h
   #
 script:
-  - start_tests ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  - run_tests ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * stepper.h - stepper motor driver: executes motion plans of planner.c using the stepper motors
@@ -40,9 +41,6 @@
  * along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STEPPER_H
-#define STEPPER_H
-
 #include "../inc/MarlinConfig.h"
 
 // Disable multiple steps per ISR
@@ -51,18 +49,6 @@
 //
 // Estimate the amount of time the Stepper ISR will take to execute
 //
-
-#ifndef MINIMUM_STEPPER_PULSE
-  #define MINIMUM_STEPPER_PULSE 0UL
-#endif
-
-#ifndef MAXIMUM_STEPPER_RATE
-  #if MINIMUM_STEPPER_PULSE
-    #define MAXIMUM_STEPPER_RATE (1000000UL / (2UL * (unsigned long)(MINIMUM_STEPPER_PULSE)))
-  #else
-    #define MAXIMUM_STEPPER_RATE 500000UL
-  #endif
-#endif
 
 #ifdef CPU_32_BIT
 
@@ -150,7 +136,12 @@
 #define ISR_E_STEPPER_CYCLES         ISR_STEPPER_CYCLES
 
 // If linear advance is disabled, then the loop also handles them
-#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
+#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER) // ToDo: ???
+  // HELP ME: What is what?
+  // Directions are set up for MIXING_STEPPERS - like before.
+  // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
+  //   These loops are a bit faster than advancing a bresenham counter.
+  // Always only one e-stepper is stepped.
   #define ISR_START_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_START_STEPPER_CYCLES))
   #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
 #else
@@ -188,7 +179,12 @@
 #if ENABLED(LIN_ADVANCE)
 
   // Estimate the minimum LA loop time
-  #if ENABLED(MIXING_EXTRUDER)
+  #if ENABLED(MIXING_EXTRUDER) // ToDo: ???
+    // HELP ME: What is what?
+    // Directions are set up for MIXING_STEPPERS - like before.
+    // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
+    //   These loops are a bit faster than advancing a bresenham counter.
+    // Always only one e-stepper is stepped.
     #define MIN_ISR_LA_LOOP_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
   #else
     #define MIN_ISR_LA_LOOP_CYCLES ISR_STEPPER_CYCLES
@@ -227,14 +223,14 @@
   #include "speed_lookuptable.h"
 #endif
 
-#include "../module/planner.h"
+#include "planner.h"
 #include "../core/language.h"
 
 class Stepper {
 
   public:
 
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+    #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
       static bool separate_multi_axis;
     #endif
 
@@ -243,6 +239,7 @@ class Stepper {
         #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
       #endif
       static uint32_t motor_current_setting[3];
+      static bool initialized;
     #endif
 
   private:
@@ -267,10 +264,10 @@ class Stepper {
     #if ENABLED(Y_DUAL_ENDSTOPS)
       static bool locked_Y_motor, locked_Y2_motor;
     #endif
-    #if Z_MULTI_ENDSTOPS
+    #if Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
       static bool locked_Z_motor, locked_Z2_motor;
     #endif
-    #if ENABLED(Z_TRIPLE_ENDSTOPS)
+    #if ENABLED(Z_TRIPLE_ENDSTOPS) || (ENABLED(Z_STEPPER_AUTO_ALIGN) && ENABLED(Z_TRIPLE_STEPPER_DRIVERS))
       static bool locked_Z3_motor;
     #endif
 
@@ -292,17 +289,10 @@ class Stepper {
                     decelerate_after,       // The point from where we need to start decelerating
                     step_event_count;       // The total event count for the current block
 
-    // Mixing extruder mix delta_errors for bresenham tracing
-    #if ENABLED(MIXING_EXTRUDER)
-      static int32_t delta_error_m[MIXING_STEPPERS];
-      static uint32_t advance_dividend_m[MIXING_STEPPERS],
-                      advance_divisor_m;
-      #define MIXING_STEPPERS_LOOP(VAR) \
-        for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
-    #elif EXTRUDERS > 1
-      static uint8_t active_extruder;
+    #if EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
+      static uint8_t stepper_extruder;
     #else
-      static constexpr uint8_t active_extruder = 0;
+      static constexpr uint8_t stepper_extruder = 0;
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
@@ -413,12 +403,12 @@ class Stepper {
     #endif
 
     #if HAS_MICROSTEPS
-      static void microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2);
+      static void microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2, const int8_t ms3);
       static void microstep_mode(const uint8_t driver, const uint8_t stepping);
       static void microstep_readings();
     #endif
 
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+    #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_separate_multi_axis(const bool state) { separate_multi_axis = state; }
     #endif
     #if ENABLED(X_DUAL_ENDSTOPS)
@@ -429,11 +419,11 @@ class Stepper {
       FORCE_INLINE static void set_y_lock(const bool state) { locked_Y_motor = state; }
       FORCE_INLINE static void set_y2_lock(const bool state) { locked_Y2_motor = state; }
     #endif
-    #if Z_MULTI_ENDSTOPS
+    #if Z_MULTI_ENDSTOPS || (ENABLED(Z_STEPPER_AUTO_ALIGN) && Z_MULTI_STEPPER_DRIVERS)
       FORCE_INLINE static void set_z_lock(const bool state) { locked_Z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
     #endif
-    #if ENABLED(Z_TRIPLE_ENDSTOPS)
+    #if ENABLED(Z_TRIPLE_ENDSTOPS) || (ENABLED(Z_STEPPER_AUTO_ALIGN) && ENABLED(Z_TRIPLE_STEPPER_DRIVERS))
       FORCE_INLINE static void set_z3_lock(const bool state) { locked_Z3_motor = state; }
     #endif
 
@@ -523,15 +513,15 @@ class Stepper {
         if (step_rate >= (8 * 256)) { // higher step rate
           const uint8_t tmp_step_rate = (step_rate & 0x00FF);
           const uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(step_rate >> 8)][0],
-                         gain = (uint16_t)pgm_read_word_near(table_address + 2);
+                         gain = (uint16_t)pgm_read_word(table_address + 2);
           timer = MultiU16X8toH16(tmp_step_rate, gain);
-          timer = (uint16_t)pgm_read_word_near(table_address) - timer;
+          timer = (uint16_t)pgm_read_word(table_address) - timer;
         }
         else { // lower step rates
           uint16_t table_address = (uint16_t)&speed_lookuptable_slow[0][0];
           table_address += ((step_rate) >> 1) & 0xFFFC;
-          timer = (uint16_t)pgm_read_word_near(table_address)
-                - (((uint16_t)pgm_read_word_near(table_address + 2) * (uint8_t)(step_rate & 0x0007)) >> 3);
+          timer = (uint16_t)pgm_read_word(table_address)
+                - (((uint16_t)pgm_read_word(table_address + 2) * (uint8_t)(step_rate & 0x0007)) >> 3);
         }
         // (there is no need to limit the timer value here. All limits have been
         // applied above, and AVR is able to keep up at 30khz Stepping ISR rate)
@@ -556,5 +546,3 @@ class Stepper {
 };
 
 extern Stepper stepper;
-
-#endif // STEPPER_H

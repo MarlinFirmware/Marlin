@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,12 +33,10 @@
  */
 
 #ifndef __SAM3X8E__
-  #error "Oops!  Make sure you have 'Arduino Due' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME       "RuRAMPS4Due v1.3"
-#endif
+#define BOARD_NAME "RuRAMPS4Due v1.3"
 
 //
 // Servos
@@ -112,7 +110,7 @@
   #define Z_MIN_PROBE_PIN  49
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #ifndef FIL_RUNOUT_PIN
     #define FIL_RUNOUT_PIN   Y_MIN_PIN
   #endif
@@ -146,11 +144,13 @@
 #endif
 
 // SPI for Max6675 or Max31855 Thermocouple
-//#if DISABLED(SDSUPPORT)
-//  #define MAX6675_SS        53
-//#else
-//  #define MAX6675_SS        49
-//#endif
+/*
+#if DISABLED(SDSUPPORT)
+  #define MAX6675_SS_PIN   53
+#else
+  #define MAX6675_SS_PIN   49
+#endif
+*/
 
 //
 // Misc. Functions
@@ -214,7 +214,7 @@
 
     #define SD_DETECT_PIN   51
 
-  #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
+  #elif HAS_SSD1306_OLED_I2C
 
     #define BEEPER_PIN      62
     #define LCD_SDSS        10

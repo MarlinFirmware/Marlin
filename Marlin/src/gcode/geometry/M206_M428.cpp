@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,7 +28,6 @@
 #include "../../module/motion.h"
 #include "../../lcd/ultralcd.h"
 #include "../../libs/buzzer.h"
-#include "../../Marlin.h" // for axis_homed
 
 /**
  * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
@@ -70,8 +69,7 @@ void GcodeSuite::M428() {
     if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)
       diff[i] = -current_position[i];
     if (!WITHIN(diff[i], -20, 20)) {
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
+      SERIAL_ERROR_MSG(MSG_ERR_M428_TOO_FAR);
       LCD_ALERTMESSAGEPGM("Err: Too far!");
       BUZZ(200, 40);
       return;

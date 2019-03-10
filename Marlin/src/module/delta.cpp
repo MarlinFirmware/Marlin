@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,8 +37,13 @@
 #include "../lcd/ultralcd.h"
 #include "../Marlin.h"
 
+#if HAS_BED_PROBE
+  #include "probe.h"
+#endif
+
 #if ENABLED(SENSORLESS_HOMING)
   #include "../feature/tmc_util.h"
+  #include "stepper_indirection.h"
 #endif
 
 // Initialized by settings.load()
@@ -73,7 +78,7 @@ void recalc_delta_settings() {
   delta_diagonal_rod_2_tower[B_AXIS] = sq(delta_diagonal_rod + drt[B_AXIS]);
   delta_diagonal_rod_2_tower[C_AXIS] = sq(delta_diagonal_rod + drt[C_AXIS]);
   update_software_endstops(Z_AXIS);
-  axis_homed = 0;
+  set_all_unhomed();
 }
 
 /**
@@ -206,14 +211,6 @@ void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3)
   cartes[Z_AXIS] =                          z1 + ex[2] * Xnew + ey[2] * Ynew - ez[2] * Znew;
 }
 
-#if ENABLED(SENSORLESS_HOMING)
-  inline void delta_sensorless_homing(const bool on=true) {
-    sensorless_homing_per_axis(A_AXIS, on);
-    sensorless_homing_per_axis(B_AXIS, on);
-    sensorless_homing_per_axis(C_AXIS, on);
-  }
-#endif
-
 /**
  * A delta can only safely home all axes at the same time
  * This is like quick_home_xy() but for 3 towers.
@@ -229,17 +226,26 @@ void home_delta() {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    delta_sensorless_homing();
+    sensorless_t stealth_states { false, false, false, false, false, false, false };
+    stealth_states.x = tmc_enable_stallguard(stepperX);
+    stealth_states.y = tmc_enable_stallguard(stepperY);
+    stealth_states.z = tmc_enable_stallguard(stepperZ);
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  destination[Z_AXIS] = (delta_height + 10);
+  destination[Z_AXIS] = (delta_height
+    #if HAS_BED_PROBE
+      - zprobe_zoffset
+    #endif
+    + 10);
   buffer_line_to_destination(homing_feedrate(X_AXIS));
   planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    delta_sensorless_homing(false);
+    tmc_disable_stallguard(stepperX, stealth_states.x);
+    tmc_disable_stallguard(stepperY, stealth_states.y);
+    tmc_disable_stallguard(stepperZ, stealth_states.z);
   #endif
 
   endstops.validate_homing_move();

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O Routines for SAM3X8E
@@ -36,9 +37,6 @@
  * leads to less efficient compiled code!!
  */
 
-#ifndef _FASTIO_DUE_H
-#define _FASTIO_DUE_H
-
 #include <pins_arduino.h>
 
 /**
@@ -47,7 +45,7 @@
 
 // Due has 12 PWMs assigned to logical pins 2-13.
 // 6, 7, 8 & 9 come from the PWM controller. The others come from the timers.
-#define USEABLE_HARDWARE_PWM(p) ((2 <= p) && (p <= 13))
+#define USEABLE_HARDWARE_PWM(p) WITHIN(p, 2, 13)
 
 #ifndef MASK
   #define MASK(PIN) (1 << PIN)
@@ -67,7 +65,7 @@
 // Write to a pin
 #define _WRITE_VAR(IO,V) do { \
   volatile Pio* port = digitalPinToPort(IO); \
-  uint32_t mask = digitalPinToBitMask(IO); \
+  const uint32_t mask = digitalPinToBitMask(IO); \
   if (V) port->PIO_SODR = mask; \
   else port->PIO_CODR = mask; \
 } while(0)
@@ -75,7 +73,7 @@
 // Write to a pin
 #define _WRITE(IO,V) do { \
   volatile Pio* port = (DIO ##  IO ## _WPORT); \
-  uint32_t mask = MASK(DIO ## IO ## _PIN); \
+  const uint32_t mask = MASK(DIO ## IO ## _PIN); \
   if (V) port->PIO_SODR = mask; \
   else port->PIO_CODR = mask; \
 } while(0)
@@ -83,18 +81,77 @@
 // Toggle a pin
 #define _TOGGLE(IO) _WRITE(IO, !READ(IO))
 
-// Set pin as input
-#define _SET_INPUT(IO) do{ \
-  pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
-  PIO_Configure(digitalPinToPort(IO), PIO_INPUT, digitalPinToBitMask(IO), 0); \
-}while(0)
+#if MB(PRINTRBOARD_G2)
 
-// Set pin as output
-#define _SET_OUTPUT(IO) do{ \
-  pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
-  PIO_Configure(digitalPinToPort(IO), _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, digitalPinToBitMask(IO), g_APinDescription[IO].ulPinConfiguration); \
-  g_pinStatus[IO] = (g_pinStatus[IO] & 0xF0) | PIN_STATUS_DIGITAL_OUTPUT;\
-}while(0)
+  #include "G2_pins.h"
+
+  // Set pin as input
+  #define _SET_INPUT(IO) do{ \
+    pmc_enable_periph_clk(G2_g_APinDescription[IO].ulPeripheralId); \
+    PIO_Configure((DIO ## IO ## _WPORT), PIO_INPUT, MASK(DIO ## IO ## _PIN), 0); \
+  }while(0)
+
+  // Set pin as output
+  #define _SET_OUTPUT(IO) do{ \
+    uint32_t mask = MASK(G2_g_APinDescription[IO].ulPeripheralId); \
+    if ((PMC->PMC_PCSR0 & mask) != (mask)) PMC->PMC_PCER0 = mask; \
+    volatile Pio* port = (DIO ## IO ## _WPORT); \
+    mask = MASK(DIO ## IO ## _PIN); \
+    if (_READ(IO)) port->PIO_SODR = mask; \
+    else port->PIO_CODR = mask; \
+    port->PIO_IDR = mask; \
+    const uint32_t pin_config = G2_g_APinDescription[IO].ulPinConfiguration; \
+    if (pin_config & PIO_PULLUP) port->PIO_PUER = mask; \
+    else port->PIO_PUDR = mask; \
+    if (pin_config & PIO_OPENDRAIN) port->PIO_MDER = mask; \
+    else port->PIO_MDDR = mask; \
+    port->PIO_PER = mask; \
+    port->PIO_OER = mask; \
+    g_pinStatus[IO] = (g_pinStatus[IO] & 0xF0) | PIN_STATUS_DIGITAL_OUTPUT; \
+  }while(0)
+
+ /**
+  *  Set pin as output with comments
+  *  #define _SET_OUTPUT(IO) do{ \
+  *    uint32_t mask = MASK(G2_g_APinDescription[IO].ulPeripheralId); \
+  *    if ((PMC->PMC_PCSR0 & mask ) != (mask))  PMC->PMC_PCER0 = mask; \  // enable PIO clock if not already enabled
+  *
+  *    volatile Pio* port = (DIO ##  IO ## _WPORT); \
+  *    const uint32_t mask = MASK(DIO ## IO ## _PIN); \
+  *    if (_READ(IO)) port->PIO_SODR = mask; \ // set output to match input BEFORE setting direction or will glitch the output
+  *    else port->PIO_CODR = mask; \
+  *
+  *    port->PIO_IDR = mask; \ // disable interrupt
+  *
+  *    uint32_t pin_config = G2_g_APinDescription[IO].ulPinConfiguration; \
+  *    if (pin_config & PIO_PULLUP) pPio->PIO_PUER = mask; \  // enable pullup if necessary
+  *    else  pPio->PIO_PUDR = mask; \
+  *
+  *    if (pin_config & PIO_OPENDRAIN) port->PIO_MDER = mask; \ // Enable multi-drive if necessary
+  *    else  port->PIO_MDDR = mask; \
+  *
+  *    port->PIO_PER = mask; \
+  *    port->PIO_OER = mask; \  // set to output
+  *
+  *    g_pinStatus[IO] = (g_pinStatus[IO] & 0xF0) | PIN_STATUS_DIGITAL_OUTPUT; \
+  *  }while(0)
+  */
+
+#else
+
+    // Set pin as input
+  #define _SET_INPUT(IO) do{ \
+    pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
+    PIO_Configure(digitalPinToPort(IO), PIO_INPUT, digitalPinToBitMask(IO), 0); \
+  }while(0)
+
+  // Set pin as output
+  #define _SET_OUTPUT(IO) do{ \
+    pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
+    PIO_Configure(digitalPinToPort(IO), _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, digitalPinToBitMask(IO), g_APinDescription[IO].ulPinConfiguration); \
+    g_pinStatus[IO] = (g_pinStatus[IO] & 0xF0) | PIN_STATUS_DIGITAL_OUTPUT; \
+  }while(0)
+#endif
 
 // Set pin as input with pullup mode
 #define _PULLUP(IO,V) pinMode(IO, (V) ? INPUT_PULLUP : INPUT)
@@ -125,6 +182,10 @@
 
 // Shorthand
 #define OUT_WRITE(IO,V) { SET_OUTPUT(IO); WRITE(IO,V); }
+
+// digitalRead/Write wrappers
+#define extDigitalRead(IO)    digitalRead(IO)
+#define extDigitalWrite(IO,V) digitalWrite(IO,V)
 
 /**
  * Ports and functions
@@ -245,29 +306,33 @@
 #define DIO33_PIN 1
 #define DIO33_WPORT PIOC
 
-#define DIO34_PIN 2
-#define DIO34_WPORT PIOC
+#if !MB(PRINTRBOARD_G2)    // normal DUE pin mapping
 
-#define DIO35_PIN 3
-#define DIO35_WPORT PIOC
+  #define DIO34_PIN 2
+  #define DIO34_WPORT PIOC
 
-#define DIO36_PIN 4
-#define DIO36_WPORT PIOC
+  #define DIO35_PIN 3
+  #define DIO35_WPORT PIOC
 
-#define DIO37_PIN 5
-#define DIO37_WPORT PIOC
+  #define DIO36_PIN 4
+  #define DIO36_WPORT PIOC
 
-#define DIO38_PIN 6
-#define DIO38_WPORT PIOC
+  #define DIO37_PIN 5
+  #define DIO37_WPORT PIOC
 
-#define DIO39_PIN 7
-#define DIO39_WPORT PIOC
+  #define DIO38_PIN 6
+  #define DIO38_WPORT PIOC
 
-#define DIO40_PIN 8
-#define DIO40_WPORT PIOC
+  #define DIO39_PIN 7
+  #define DIO39_WPORT PIOC
 
-#define DIO41_PIN 9
-#define DIO41_WPORT PIOC
+  #define DIO40_PIN 8
+  #define DIO40_WPORT PIOC
+
+  #define DIO41_PIN 9
+  #define DIO41_WPORT PIOC
+
+#endif // !PRINTRBOARD_G2
 
 #define DIO42_PIN 19
 #define DIO42_WPORT PIOA
@@ -420,6 +485,7 @@
 #define DIO91_WPORT PIOB
 
 #if ARDUINO_SAM_ARCHIM
+
   #define DIO92_PIN 11
   #define DIO92_WPORT PIOC
 
@@ -467,7 +533,12 @@
 
   #define DIO107_PIN 10
   #define DIO107_WPORT PIOB
-#else
+
+  #define DIO108_PIN 9
+  #define DIO108_WPORT PIOB
+
+#else // !ARDUINO_SAM_ARCHIM
+
   #define DIO92_PIN 5
   #define DIO92_WPORT PIOA
 
@@ -494,6 +565,5 @@
 
   #define DIO100_PIN 11
   #define DIO100_WPORT PIOC
-#endif
 
-#endif // _FASTIO_DUE_H
+#endif // !ARDUINO_SAM_ARCHIM

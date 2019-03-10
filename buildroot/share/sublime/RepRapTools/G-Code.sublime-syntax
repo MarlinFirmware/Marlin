@@ -10,10 +10,10 @@
 #
 name: G-Code (RepRap)
 file_extensions:
-  - [ gco, gcode ]
+  - [ g, gco, gcode ]
 scope: source.gcode
 variables:
-  decimal:  '[+-]?\d+(\.(\d+)?)?'
+  decimal: '[+-]?\d+(\.\d*)?'
 
 contexts:
   prototype:
@@ -25,11 +25,11 @@ contexts:
       pop: true
 
   main:
-    - meta_content_scope: ctx.line.gcode
+    - meta_scope: line.gcode
 
     - match: '([Nn]\s*(\d+))'
       captures:
-        1: ctx.gcode_line_num
+        1: entity.nword.gcode
         2: constant.numeric.line-number.gcode
 
     - match: ()
@@ -40,7 +40,7 @@ contexts:
     - meta_content_scope: ctx.command.gcode
 
     # M20 S2 P/path/to/file/name.gco
-    - match: ([Mm](20))(\s*(S)(2)\s*(P))
+    - match: ([Mm](20))\s*((S)(2)\s*(P))
       captures:
         1: entity.command.gcode markup.bold.gcode
         2: constant.numeric.command.gcode
@@ -50,15 +50,15 @@ contexts:
         6: keyword.param.gcode
       set: gcode_string_arg
 
-    # command followed by data
+    # M117 or M118 - Commands taking a string
     - match: ([Mm]\s*(11[78]))\b
       captures:
         1: entity.command.gcode markup.bold.gcode
         2: constant.numeric.command.gcode
       set: gcode_string_arg
 
-    # command followed by data
-    - match: '([GMTgmt]\s*(\d+)((\.)(\d+))?)'
+    # Other commands, followed by data
+    - match: ([GMTgmt]\s*(\d+)((\.)(\d+))?)
       captures:
         1: entity.command.gcode markup.bold.gcode
         2: constant.numeric.command.gcode
@@ -74,16 +74,30 @@ contexts:
     - meta_content_scope: ctx.params.gcode
 
     # M32 [S<pos>] [P<bool>] !/path/file.gco#
-    - match: '!'
-      scope: entity.string.filename.open
+    - match: \!
+      scope: punctuation.string.path.open.gcode
       push: gcode_path_arg
 
     # asterisk starts a checksum
     - match: \*
-      scope: entity.checksum.gcode
+      scope: punctuation.marker.checksum.gcode
       set: gcode_checksum
 
-    # parameter and value
+    # parameter and single-quoted value
+    - match: ([A-Za-z])\s*(')
+      captures:
+        1: keyword.param.gcode
+        2: punctuation.quote.single.open.gcode
+      push: gcode_string_arg_quoted_single
+
+    # parameter and double-quoted value
+    - match: ([A-Za-z])\s*(")
+      captures:
+        1: keyword.param.gcode
+        2: punctuation.quote.double.open.gcode
+      push: gcode_string_arg_quoted_double
+
+    # parameter and numeric value
     - match: ([A-Za-z])\s*({{decimal}})
       captures:
         1: keyword.param.gcode
@@ -97,27 +111,67 @@ contexts:
     - match: ()
       set: syntax_error
 
+  gcode_string_arg_quoted_single:
+    - meta_content_scope: string.quoted.single.gcode
+
+    - match: ([^'\\]+)
+
+    - match: (\\)
+      scope: punctuation.string.escape.gcode
+      push: escape_char
+
+    - match: (')
+      scope: punctuation.quote.single.close.gcode
+      pop: true
+
+    - match: ()
+      set: syntax_error
+
+  gcode_string_arg_quoted_double:
+    - meta_content_scope: string.quoted.double.gcode
+
+    - match: ([^"\\]+)
+
+    - match: (\\)
+      scope: punctuation.string.escape.gcode
+      push: escape_char
+
+    - match: (")
+      scope: punctuation.quote.double.close.gcode
+      pop: true
+
+    - match: ()
+      set: syntax_error
+
   gcode_string_arg:
     - meta_content_scope: ctx.string.gcode
 
     - match: ([^;]+)
       scope: string.unquoted.gcode
 
-  gcode_path_arg:
-    - meta_content_scope: ctx.path.gcode
+  escape_char:
+    - meta_scope: string.escape.gcode punctuation.string.escape.gcode
 
-    - match: ([^#]+)
-      scope: string.unquoted.path.gcode
+    - match: '.'
+      pop: true
+
+  gcode_path_arg:
+    - meta_content_scope: string.unquoted.path.gcode
 
     - match: (#)
-      scope: entity.string.path.close.gcode
+      scope: punctuation.string.path.close.gcode
       pop: true
 
   gcode_checksum:
-    - meta_content_scope: ctx.checksum.gcode
+    - meta_content_scope: constant.numeric.checksum.gcode
+    - meta_include_prototype: false
 
     - match: \d+
-      scope: constant.numeric.checksum.gcode
+
+    - match: ( *)$
+      pop: true
+
+    - include: mixin_comment
 
     - match: ()
       set: syntax_error
@@ -130,15 +184,15 @@ contexts:
   # Comments begin with a ';' and finish at the end of the line.
   mixin_comment:
     - match: ^\s*;
-      scope: punctuation.definition.comment.line.start
+      scope: punctuation.comment.line.start
       set: gcode_comment
     - match: \s*;
-      scope: punctuation.definition.comment.eol.start
+      scope: punctuation.comment.eol.start
       set: gcode_comment
 
   # Comment to end of line.
   gcode_comment:
-    - meta_scope: comment.gcode
+    - meta_content_scope: comment.gcode
     - match: \s*$
       pop: true
 

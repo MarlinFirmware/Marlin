@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * MarlinSerialUSB_Due.h - Hardware Serial over USB (CDC) library for Arduino DUE
  * Copyright (c) 2017 Eduardo José Tagle. All right reserved
  */
-
-#ifndef MARLINSERIALUSB_DUE_H
-#define MARLINSERIALUSB_DUE_H
 
 #include "../../inc/MarlinConfig.h"
 
@@ -48,15 +46,16 @@ public:
   static int peek(void);
   static int read(void);
   static void flush(void);
+  static void flushTX(void);
   static bool available(void);
   static void write(const uint8_t c);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
-  FORCE_INLINE static uint32_t dropped() { return 0; }
+    FORCE_INLINE static uint32_t dropped() { return 0; }
   #endif
 
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-  FORCE_INLINE static int rxMaxEnqueued() { return 0; }
+    FORCE_INLINE static int rxMaxEnqueued() { return 0; }
   #endif
 
   FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
@@ -89,7 +88,6 @@ private:
   static void printFloat(double, uint8_t);
 };
 
-extern MarlinSerialUSB customizedSerial;
+extern MarlinSerialUSB customizedSerial1;
 
 #endif // SERIAL_PORT == -1
-#endif // MARLINSERIAL_DUE_H

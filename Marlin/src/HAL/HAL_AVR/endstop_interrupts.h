@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Endstop Interrupts
@@ -34,9 +35,6 @@
  * Test whether pins issue interrupts on your board by flashing 'pin_interrupt_test.ino'.
  * (Located in Marlin/buildroot/share/pin_interrupt_test/pin_interrupt_test.ino)
  */
-
-#ifndef _ENDSTOP_INTERRUPTS_H_
-#define _ENDSTOP_INTERRUPTS_H_
 
 #include "../../core/macros.h"
 #include <stdint.h>
@@ -85,22 +83,21 @@ void pciSetup(const int8_t pin) {
   SBI(PCICR, digitalPinToPCICRbit(pin)); // enable interrupt for the group
 }
 
-
 // Handlers for pin change interrupts
 #ifdef PCINT0_vect
   ISR(PCINT0_vect) { endstop_ISR(); }
 #endif
 
 #ifdef PCINT1_vect
-  ISR(PCINT1_vect) { endstop_ISR(); }
+  ISR(PCINT1_vect, ISR_ALIASOF(PCINT0_vect));
 #endif
 
 #ifdef PCINT2_vect
-  ISR(PCINT2_vect) { endstop_ISR(); }
+  ISR(PCINT2_vect, ISR_ALIASOF(PCINT0_vect));
 #endif
 
 #ifdef PCINT3_vect
-  ISR(PCINT3_vect) { endstop_ISR(); }
+  ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
 #endif
 
 void setup_endstop_interrupts( void ) {
@@ -257,5 +254,3 @@ void setup_endstop_interrupts( void ) {
 
   // If we arrive here without raising an assertion, each pin has either an EXT-interrupt or a PCI.
 }
-
-#endif // _ENDSTOP_INTERRUPTS_H_

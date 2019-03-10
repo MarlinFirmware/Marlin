@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Pin mapping for the 644, 644p, 644pa, and 1284p
@@ -52,9 +53,6 @@
  *       PWM (D 14) PD6 20|        |21  PD7 (D 15) PWM
  *                        +--------+
  */
-
-#ifndef _FASTIO_644_H_
-#define _FASTIO_644_H_
 
 #include "fastio_AVR.h"
 
@@ -552,5 +550,3 @@
 #define PD7_WPORT   PORTD
 #define PD7_DDR     DDRD
 #define PD7_PWM     OCR2A
-
-#endif // _FASTIO_644_H_

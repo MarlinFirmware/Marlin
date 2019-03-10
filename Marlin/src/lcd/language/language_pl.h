@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Polish for DOGM display - includes accented characters
  */
-
-#ifndef LANGUAGE_PL_DOGM_H
-#define LANGUAGE_PL_DOGM_H
 
 #define DISPLAY_CHARSET_ISO10646_PL
 
@@ -42,7 +40,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Zeruj X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Zeruj Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Zeruj Z")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibruj Z")
 #define MSG_LEVEL_BED                       _UxGT("Poziom. stołu")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Pozycja zerowa")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknij by rozp.")
@@ -52,16 +49,16 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ust. poz. zer.")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Poz. zerowa ust.")
 #define MSG_SET_ORIGIN                      _UxGT("Ustaw punkt zero")
-#define MSG_PREHEAT_1                       _UxGT("Rozgrzej PLA")
+#define MSG_PREHEAT_1                       _UxGT("Rozgrzej " PREHEAT_1_LABEL)
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" wsz.")
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("Rozgrzej stół PLA")
-#define MSG_PREHEAT_1_SETTINGS              _UxGT("Ustaw. rozg. PLA")
-#define MSG_PREHEAT_2                       _UxGT("Rozgrzej ABS")
+#define MSG_PREHEAT_1_BEDONLY               _UxGT("Rozgrzej stół " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_1_SETTINGS              _UxGT("Ustaw. rozg. " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_2                       _UxGT("Rozgrzej " PREHEAT_2_LABEL)
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" wsz.")
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("Rozgrzej stół ABS")
-#define MSG_PREHEAT_2_SETTINGS              _UxGT("Ustaw. rozg. ABS")
+#define MSG_PREHEAT_2_BEDONLY               _UxGT("Rozgrzej stół " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_SETTINGS              _UxGT("Ustaw. rozg. " PREHEAT_2_LABEL)
 #define MSG_COOLDOWN                        _UxGT("Chłodzenie")
 #define MSG_SWITCH_PS_ON                    _UxGT("Włącz zasilacz")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Wyłącz zasilacz")
@@ -87,8 +84,8 @@
 #define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Mnożnik")
 #define MSG_AUTOTEMP                        _UxGT("Auto. temperatura")
-#define MSG_ON                              _UxGT("Wł. ")
-#define MSG_OFF                             _UxGT("Wył.")
+#define MSG_LCD_ON                          _UxGT("Wł.")
+#define MSG_LCD_OFF                         _UxGT("Wył.")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -157,14 +154,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Wycofaj mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Z Wycof. mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Wycofaj  V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Skok Z mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Skok Z mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Cof. wycof. mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Z Cof. wyc. mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Cof. wycof.  V")
 #define MSG_AUTORETRACT                     _UxGT("Auto. wycofanie")
 #define MSG_FILAMENTCHANGE                  _UxGT("Zmień filament")
 #define MSG_INIT_SDCARD                     _UxGT("Inicjal. karty SD")
-#define MSG_CNG_SDCARD                      _UxGT("Zmiana karty SD")
+#define MSG_CHANGE_SDCARD                   _UxGT("Zmiana karty SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z za stołem")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
@@ -253,5 +250,3 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ładowanie...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
-
-#endif  // LANGUAGE_PL_DOGM_H

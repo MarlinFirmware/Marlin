@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -89,12 +89,10 @@
  */
 
 #ifndef __AVR_ATmega1284P__
-  #error "Oops!  Make sure you have 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' selected in the 'Tools -> Boards' menu and ATmega1284P selected in 'Tools -> Processor' menu."
+  #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.' (For PlatformIO, use 'melzi' or 'melzi_optiboot.')"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Anet"
-#endif
+#define BOARD_NAME "Anet 1.0"
 
 //
 // Limit Switches
@@ -163,9 +161,6 @@
     #define LCD_PINS_D5      11
     #define LCD_PINS_D6      16
     #define LCD_PINS_D7      17
-    #define BTN_EN1          -1
-    #define BTN_EN2          -1
-    #define BTN_ENC          -1
     #define ADC_KEYPAD_PIN    1
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(ANET_FULL_GRAPHICS_LCD)
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics

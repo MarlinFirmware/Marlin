@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Incremental Least Squares Best Fit  By Roxy and Ed Williams
@@ -31,9 +32,6 @@
  * A point can be probed and its values fed into the algorithm and then discarded.
  *
  */
-
-#ifndef _LEAST_SQUARES_FIT_H_
-#define _LEAST_SQUARES_FIT_H_
 
 #include "../inc/MarlinConfig.h"
 #include <math.h>
@@ -83,5 +81,3 @@ void inline incremental_LSF(struct linear_fit_data *lsf, const float &x, const f
 }
 
 int finish_incremental_LSF(struct linear_fit_data *);
-
-#endif // _LEAST_SQUARES_FIT_H_

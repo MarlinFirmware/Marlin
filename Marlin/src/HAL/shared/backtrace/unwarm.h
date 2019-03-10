@@ -11,8 +11,7 @@
  * File Description: Internal interface between the ARM unwinding sub-modules.
  **************************************************************************/
 
-#ifndef UNWARM_H
-#define UNWARM_H
+#pragma once
 
 #include "unwinder.h"
 
@@ -104,10 +103,10 @@ typedef struct {
  *  Macros
  **************************************************************************/
 
-#define M_IsOriginValid(v) (((v) & 0x7F) ? true : false)
+#define M_IsOriginValid(v) !!((v) & 0x7F)
 #define M_Origin2Str(v)    ((v) ? "VALID" : "INVALID")
 
-#if defined(UNW_DEBUG)
+#ifdef UNW_DEBUG
 #define UnwPrintd1(a)               state->cb->printf(a)
 #define UnwPrintd2(a,b)             state->cb->printf(a,b)
 #define UnwPrintd3(a,b,c)           state->cb->printf(a,b,c)
@@ -139,5 +138,3 @@ bool UnwReportRetAddr(UnwState * const state, uint32_t addr);
 bool UnwMemWriteRegister(UnwState * const state, const uint32_t addr, const RegData * const reg);
 bool UnwMemReadRegister(UnwState * const state, const uint32_t addr, RegData * const reg);
 void UnwMemHashGC(UnwState * const state);
-
-#endif // UNWARM_H

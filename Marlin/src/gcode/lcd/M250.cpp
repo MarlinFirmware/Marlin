@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,10 +31,8 @@
  * M250: Read and optionally set the LCD contrast
  */
 void GcodeSuite::M250() {
-  if (parser.seen('C')) set_lcd_contrast(parser.value_int());
-  SERIAL_PROTOCOLPGM("lcd contrast value: ");
-  SERIAL_PROTOCOL(lcd_contrast);
-  SERIAL_EOL();
+  if (parser.seen('C')) ui.set_contrast(parser.value_int());
+  SERIAL_ECHOLNPAIR("LCD Contrast: ", ui.contrast);
 }
 
 #endif // HAS_LCD_CONTRAST

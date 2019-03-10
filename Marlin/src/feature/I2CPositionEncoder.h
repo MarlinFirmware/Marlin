@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef I2CPOSENC_H
-#define I2CPOSENC_H
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
@@ -146,6 +144,7 @@ class I2CPositionEncoder {
     void update();
 
     void set_homed();
+    void set_unhomed();
 
     int32_t get_raw_count();
 
@@ -155,7 +154,7 @@ class I2CPositionEncoder {
         case I2CPE_ENC_TYPE_LINEAR:
           return count / encoderTicksPerUnit;
         case I2CPE_ENC_TYPE_ROTARY:
-          return (count * stepperTicks) / (encoderTicksPerUnit * planner.axis_steps_per_mm[encoderAxis]);
+          return (count * stepperTicks) / (encoderTicksPerUnit * planner.settings.axis_steps_per_mm[encoderAxis]);
       }
     }
 
@@ -199,7 +198,7 @@ class I2CPositionEncoder {
         case I2CPE_ENC_TYPE_LINEAR:
           return encoderTicksPerUnit;
         case I2CPE_ENC_TYPE_ROTARY:
-          return (int)((encoderTicksPerUnit / stepperTicks) * planner.axis_steps_per_mm[encoderAxis]);
+          return (int)((encoderTicksPerUnit / stepperTicks) * planner.settings.axis_steps_per_mm[encoderAxis]);
       }
     }
 
@@ -230,12 +229,16 @@ class I2CPositionEncodersMgr {
         if (encoders[i].get_axis() == axis) encoders[i].set_homed();
     }
 
+    static void unhomed(const AxisEnum axis) {
+      LOOP_PE(i)
+        if (encoders[i].get_axis() == axis) encoders[i].set_unhomed();
+    }
+
     static void report_position(const int8_t idx, const bool units, const bool noOffset);
 
     static void report_status(const int8_t idx) {
       CHECK_IDX();
-      SERIAL_ECHOPAIR("Encoder ", idx);
-      SERIAL_ECHOPGM(": ");
+      SERIAL_ECHOLNPAIR("Encoder ", idx, ": ");
       encoders[idx].get_raw_count();
       encoders[idx].passes_test(true);
     }
@@ -260,22 +263,19 @@ class I2CPositionEncodersMgr {
 
     static void report_error_count(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
-      SERIAL_ECHOPAIR("Error count on ", axis_codes[axis]);
-      SERIAL_ECHOLNPAIR(" axis is ", encoders[idx].get_error_count());
+      SERIAL_ECHOLNPAIR("Error count on ", axis_codes[axis], " axis is ", encoders[idx].get_error_count());
     }
 
     static void reset_error_count(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_error_count(0);
-      SERIAL_ECHOPAIR("Error count on ", axis_codes[axis]);
-      SERIAL_ECHOLNPGM(" axis has been reset.");
+      SERIAL_ECHOLNPAIR("Error count on ", axis_codes[axis], " axis has been reset.");
     }
 
     static void enable_ec(const int8_t idx, const bool enabled, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_ec_enabled(enabled);
-      SERIAL_ECHOPAIR("Error correction on ", axis_codes[axis]);
-      SERIAL_ECHOPGM(" axis is ");
+      SERIAL_ECHOPAIR("Error correction on ", axis_codes[axis], " axis is ");
       serialprintPGM(encoders[idx].get_ec_enabled() ? PSTR("en") : PSTR("dis"));
       SERIAL_ECHOLNPGM("abled.");
     }
@@ -283,17 +283,13 @@ class I2CPositionEncodersMgr {
     static void set_ec_threshold(const int8_t idx, const float newThreshold, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_ec_threshold(newThreshold);
-      SERIAL_ECHOPAIR("Error correct threshold for ", axis_codes[axis]);
-      SERIAL_ECHOPAIR_F(" axis set to ", newThreshold);
-      SERIAL_ECHOLNPGM("mm.");
+      SERIAL_ECHOLNPAIR("Error correct threshold for ", axis_codes[axis], " axis set to ", FIXFLOAT(newThreshold), "mm.");
     }
 
     static void get_ec_threshold(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
       const float threshold = encoders[idx].get_ec_threshold();
-      SERIAL_ECHOPAIR("Error correct threshold for ", axis_codes[axis]);
-      SERIAL_ECHOPAIR_F(" axis is ", threshold);
-      SERIAL_ECHOLNPGM("mm.");
+      SERIAL_ECHOLNPAIR("Error correct threshold for ", axis_codes[axis], " axis is ", FIXFLOAT(threshold), "mm.");
     }
 
     static int8_t idx_from_axis(const AxisEnum axis) {
@@ -325,5 +321,3 @@ class I2CPositionEncodersMgr {
 };
 
 extern I2CPositionEncodersMgr I2CPEM;
-
-#endif //I2CPOSENC_H

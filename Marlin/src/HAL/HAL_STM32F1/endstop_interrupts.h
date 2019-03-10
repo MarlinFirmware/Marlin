@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,6 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Endstop interrupts for Libmaple STM32F1 based targets.
@@ -45,9 +46,6 @@
  * Test whether pins issue interrupts on your board by flashing 'pin_interrupt_test.ino'.
  * (Located in Marlin/buildroot/share/pin_interrupt_test/pin_interrupt_test.ino)
  */
-
-#ifndef _ENDSTOP_INTERRUPTS_H_
-#define _ENDSTOP_INTERRUPTS_H_
 
 #include "../../module/endstops.h"
 
@@ -89,5 +87,3 @@ void setup_endstop_interrupts(void) {
     attachInterrupt(Z_MIN_PROBE_PIN, endstop_ISR, CHANGE);
   #endif
 }
-
-#endif //_ENDSTOP_INTERRUPTS_H_

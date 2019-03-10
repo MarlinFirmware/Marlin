@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,15 +25,15 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops!  Make sure you have 'Arduino Mega 2560 or Rambo' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME         "Einsy Rambo"
+#define BOARD_NAME "Einsy Rambo"
 
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
 //
-#if !AXIS_DRIVER_TYPE(X, TMC2130) || !AXIS_DRIVER_TYPE(Y, TMC2130) || !AXIS_DRIVER_TYPE(Z, TMC2130) || !AXIS_DRIVER_TYPE(E0, TMC2130)
+#if !AXIS_DRIVER_TYPE_X(TMC2130) || !AXIS_DRIVER_TYPE_Y(TMC2130) || !AXIS_DRIVER_TYPE_Z(TMC2130) || !AXIS_DRIVER_TYPE_E0(TMC2130)
   #error "You must set ([XYZ]|E0)_DRIVER_TYPE to TMC2130 in Configuration.h for EinsyRambo."
 #endif
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,7 +23,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if ENABLED(EEPROM_SETTINGS) || ENABLED(SD_FIRMWARE_UPDATE)
 
 #include "../shared/persistent_store_api.h"
 
@@ -39,8 +39,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     if (v != eeprom_read_byte(p)) {
       eeprom_write_byte(p, v);
       if (eeprom_read_byte(p) != v) {
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+        SERIAL_ECHO_MSG(MSG_ERR_EEPROM_WRITE);
         return true;
       }
     }
@@ -53,7 +52,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
-    uint8_t c = eeprom_read_byte((unsigned char*)pos);
+    uint8_t c = eeprom_read_byte((uint8_t*)pos);
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;
@@ -64,5 +63,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 
 size_t PersistentStore::capacity() { return E2END + 1; }
 
-#endif // EEPROM_SETTINGS
+#endif // EEPROM_SETTINGS || SD_FIRMWARE_UPDATE
 #endif // __AVR__

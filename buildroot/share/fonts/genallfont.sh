@@ -29,63 +29,81 @@ DN_EXEC=$(dirname $(my_getpath "$0") )
 
 EXEC_WXGGEN="${DN_EXEC}/uxggenpages.sh"
 
+#
+# Locate the bdf2u8g command
+#
 EXEC_BDF2U8G=`which bdf2u8g`
 [ -x "${EXEC_BDF2U8G}" ] || EXEC_BDF2U8G="${DN_EXEC}/bdf2u8g"
 [ -x "${EXEC_BDF2U8G}" ] || EXEC_BDF2U8G="${PWD}/bdf2u8g"
 [ -x "${EXEC_BDF2U8G}" ] || { EOL=$'\n' ; echo "ERR: Can't find bdf2u8g!${EOL}See uxggenpages.md for bdf2u8g build instructions." >&2 ; exit 1; }
 
-#FN_FONT="${1:-}"
+#
+# Get language arguments
+#
+LANG_ARG="$@"
+
+#
+# Use 6x12 combined font data for Western languages
+#
 FN_FONT="${DN_EXEC}/marlin-6x12-3.bdf"
-[ "$1" = "" ] || FN_FONT="$1"
 
-DN_FONT0=`dirname ${FN_FONT}`
-DN_FONT="$(my_getpath  ${DN_FONT0})"
-FN_FONT="$(my_getpath "${DN_FONT}")/"`basename ${FN_FONT}`
-[ -z "${FN_FONT}" ] && FN_FONT=${DN_DATA}/../${FN_FONT_BASE}.bdf
-[ -f "${FN_FONT}" ] || FN_FONT=${DN_EXEC}/${FN_FONT_BASE}.bdf
-[ -f "${FN_FONT}" ] || FN_FONT="$FONTHOME/wenquanyi/${FN_FONT_BASE}.bdf"
-[ -f "${FN_FONT}" ] || FN_FONT="$FONTHOME/X11/misc/${FN_FONT_BASE}.bdf"
-[ -f "${FN_FONT}" ] || FN_FONT="$FONTHOME/misc/${FN_FONT_BASE}.bdf"
-#echo "genallfont.sh: FN_FONT=${FN_FONT}"
+#
+# Change to working directory 'Marlin'
+#
+OLDWD=`pwd`
+[[ $(basename "$OLDWD") != 'Marlin' && -d "Marlin" ]] && cd Marlin
+[[ -f "Configuration.h" ]] || { echo -n "cd to the 'Marlin' folder to run " ; basename $0 ; exit 1; }
 
-DN_WORK=./tmp1
-
+#
+# Compile the 'genpages' command in-place
+#
 (cd ${DN_EXEC}; gcc -o genpages genpages.c getline.c)
 
-LANGS_DEFAULT="an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test"
+#
+# By default loop through all languages
+#
+LANGS_DEFAULT="an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana ko_KR nl pl pt pt-br ru sk tr uk zh_CN zh_TW test"
 
-for LANG in ${MARLIN_LANGS:=$LANGS_DEFAULT} ; do
+#
+# Generate data for language list MARLIN_LANGS or all if not provided
+#
+for LANG in ${LANG_ARG:=$LANGS_DEFAULT} ; do
   echo "Generating Marlin language data for '${LANG}'" >&2
-  rm -rf ${DN_WORK}/
-  mkdir -p ${DN_WORK}
+  case "$LANG" in
+     zh_* ) FONTFILE="wenquanyi_12pt" ;;
+     ko_* ) FONTFILE="${DN_EXEC}/NanumGothic.bdf" ;;
+        * ) FONTFILE="${DN_EXEC}/marlin-6x12-3.bdf" ;;
+  esac
+  DN_WORK=`mktemp -d`
   cp Configuration.h ${DN_WORK}/
   cp src/lcd/language/language_${LANG}.h ${DN_WORK}/
-  cd ${DN_WORK}/
-  ${EXEC_WXGGEN} "${FN_FONT}"
+  cd "${DN_WORK}"
+  ${EXEC_WXGGEN} "${FONTFILE}"
   sed -i fontutf8-data.h -e 's|fonts//|fonts/|g' -e 's|fonts//|fonts/|g' -e 's|[/0-9a-zA-Z_\-]*buildroot/share/fonts|buildroot/share/fonts|' 2>/dev/null
-  cd ../
-  mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/language_data_${LANG}.h
-  rm -rf ${DN_WORK}/
+  cd - >/dev/null
+  mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/fontdata/langdata_${LANG}.h
+  rm -rf ${DN_WORK}
 done
 
 #
 # Generate default ASCII font (char range 0-255):
-#   Marlin/src/lcd/dogm/dogm_font_data_ISO10646_1.h
+#   Marlin/src/lcd/dogm/fontdata/fontdata_ISO10646_1.h
 #
 #if [ "${MARLIN_LANGS}" == "${LANGS_DEFAULT}" ]; then
 if [ 1 = 1 ]; then
-  rm -rf ${DN_WORK}/
-  mkdir -p ${DN_WORK}
-  cd ${DN_WORK}/
+  DN_WORK=`mktemp -d`
+  cd ${DN_WORK}
   ${EXEC_BDF2U8G} -b 1 -e 127 ${FN_FONT} ISO10646_1_5x7 tmp1.h >/dev/null
   ${EXEC_BDF2U8G} -b 1 -e 255 ${FN_FONT} ISO10646_1_5x7 tmp2.h >/dev/null
-  TMP1=$(cat tmp1.h) ; rm tmp1.h
-  TMP2=$(cat tmp2.h) ; rm tmp2.h
+  TMP1=$(cat tmp1.h)
+  TMP2=$(cat tmp2.h)
+  cd - >/dev/null
+  rm -rf ${DN_WORK}
 
-  cat <<EOF >../src/lcd/dogm/dogm_font_data_ISO10646_1.h
+  cat <<EOF >src/lcd/dogm/fontdata/fontdata_ISO10646_1.h
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -118,6 +136,8 @@ $TMP2
 #endif
 EOF
 
-  rmdir ../${DN_WORK}
-  cd - >/dev/null
 fi
+
+(cd ${DN_EXEC}; rm genpages)
+
+cd "$OLDWD"

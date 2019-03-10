@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * French
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_FR_UTF_H
-#define LANGUAGE_FR_UTF_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
@@ -47,7 +46,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Origine X Auto.")
 #define MSG_AUTO_HOME_Y                     _UxGT("Origine Y Auto.")
 #define MSG_AUTO_HOME_Z                     _UxGT("Origine Z Auto.")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrer Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Origine XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Clic pour commencer")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Point suivant")
@@ -56,18 +54,18 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Régl. décal. origine")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Décalages appliqués")
 #define MSG_SET_ORIGIN                      _UxGT("Régler origine")
-#define MSG_PREHEAT_1                       _UxGT("Préchauffage PLA")
-#define MSG_PREHEAT_1_N                     _UxGT("Préchauff. PLA ")
-#define MSG_PREHEAT_1_ALL                   _UxGT("Préch. PLA Tout")
+#define MSG_PREHEAT_1                       _UxGT("Préchauffage " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_1_N                     _UxGT("Préchauff. " PREHEAT_1_LABEL " ")
+#define MSG_PREHEAT_1_ALL                   _UxGT("Préch. " PREHEAT_1_LABEL " Tout")
 #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" buse")
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("Préch. PLA lit")
-#define MSG_PREHEAT_1_SETTINGS              _UxGT("Régl. prech. PLA")
-#define MSG_PREHEAT_2                       _UxGT("Préchauffage ABS")
-#define MSG_PREHEAT_2_N                     _UxGT("Préchauff. ABS ")
-#define MSG_PREHEAT_2_ALL                   _UxGT("Préch. ABS Tout")
+#define MSG_PREHEAT_1_BEDONLY               _UxGT("Préch. " PREHEAT_1_LABEL " lit")
+#define MSG_PREHEAT_1_SETTINGS              _UxGT("Régl. prech. " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_2                       _UxGT("Préchauffage " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_N                     _UxGT("Préchauff. " PREHEAT_2_LABEL " ")
+#define MSG_PREHEAT_2_ALL                   _UxGT("Préch. " PREHEAT_2_LABEL " Tout")
 #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" buse")
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("Préch. ABS lit")
-#define MSG_PREHEAT_2_SETTINGS              _UxGT("Régl. prech. ABS")
+#define MSG_PREHEAT_2_BEDONLY               _UxGT("Préch. " PREHEAT_2_LABEL " lit")
+#define MSG_PREHEAT_2_SETTINGS              _UxGT("Régl. prech. " PREHEAT_2_LABEL)
 #define MSG_COOLDOWN                        _UxGT("Refroidir")
 #define MSG_SWITCH_PS_ON                    _UxGT("Allumer alim.")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Eteindre alim.")
@@ -92,24 +90,24 @@
 #define MSG_UBL_MOVING_TO_NEXT              _UxGT("Aller au suivant")
 #define MSG_UBL_ACTIVATE_MESH               _UxGT("Activer l'UBL")
 #define MSG_UBL_DEACTIVATE_MESH             _UxGT("Désactiver l'UBL")
-#define MSG_UBL_SET_BED_TEMP                _UxGT("Température lit")
-#define MSG_UBL_CUSTOM_BED_TEMP             MSG_UBL_SET_BED_TEMP
-#define MSG_UBL_SET_HOTEND_TEMP             _UxGT("Température buse")
-#define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
+#define MSG_UBL_SET_TEMP_BED                _UxGT("Température lit")
+#define MSG_UBL_BED_TEMP_CUSTOM             MSG_UBL_SET_TEMP_BED
+#define MSG_UBL_SET_TEMP_HOTEND             _UxGT("Température buse")
+#define MSG_UBL_HOTEND_TEMP_CUSTOM          MSG_UBL_SET_TEMP_HOTEND
 #define MSG_UBL_MESH_EDIT                   _UxGT("Editer maille")
 #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Editer maille perso")
 #define MSG_UBL_FINE_TUNE_MESH              _UxGT("Réglage fin maille")
 #define MSG_UBL_DONE_EDITING_MESH           _UxGT("Terminer maille")
 #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("Créer maille perso")
 #define MSG_UBL_BUILD_MESH_MENU             _UxGT("Créer maille")
-#define MSG_UBL_BUILD_PLA_MESH              _UxGT("Créer maille PLA")
-#define MSG_UBL_BUILD_ABS_MESH              _UxGT("Créer maille ABS")
+#define MSG_UBL_BUILD_MESH_M1               _UxGT("Créer maille " PREHEAT_1_LABEL)
+#define MSG_UBL_BUILD_MESH_M2               _UxGT("Créer maille " PREHEAT_2_LABEL)
 #define MSG_UBL_BUILD_COLD_MESH             _UxGT("Créer maille froide")
 #define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("Ajuster haut. maille")
 #define MSG_UBL_MESH_HEIGHT_AMOUNT          _UxGT("Hauteur")
 #define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("Valider maille")
-#define MSG_UBL_VALIDATE_PLA_MESH           _UxGT("Valider maille PLA")
-#define MSG_UBL_VALIDATE_ABS_MESH           _UxGT("Valider maille ABS")
+#define MSG_UBL_VALIDATE_MESH_M1            _UxGT("Valider maille " PREHEAT_1_LABEL)
+#define MSG_UBL_VALIDATE_MESH_M2            _UxGT("Valider maille " PREHEAT_2_LABEL)
 #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Valider maille perso")
 #define MSG_UBL_CONTINUE_MESH               _UxGT("Continuer maille")
 #define MSG_UBL_MESH_LEVELING               _UxGT("Niveau par maille")
@@ -123,7 +121,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Voir pour CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Voir pour sauveg.")
 #define MSG_UBL_INFO_UBL                    _UxGT("Voir info UBL")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Modifier maille")
+#define MSG_EDIT_MESH                       _UxGT("Modifier maille")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Taux de remplissage")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Remplissage manuel")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Remplissage auto")
@@ -185,8 +183,8 @@
 #define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Facteur")
 #define MSG_AUTOTEMP                        _UxGT("Temp. Auto.")
-#define MSG_ON                              _UxGT("Marche ")
-#define MSG_OFF                             _UxGT("Arrêt")
+#define MSG_LCD_ON                          _UxGT("Marche")
+#define MSG_LCD_OFF                         _UxGT("Arrêt")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -261,7 +259,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retrait mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Ech. Retr. mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retrait V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Saut Z mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Saut Z mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Rappel mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Ech. Rappel mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Rappel V")
@@ -272,7 +270,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("Décharger fil.")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Décharger tout")
 #define MSG_INIT_SDCARD                     _UxGT("Init. la carte SD")
-#define MSG_CNG_SDCARD                      _UxGT("Changer de carte")
+#define MSG_CHANGE_SDCARD                   _UxGT("Changer de carte")
 #define MSG_ZPROBE_OUT                      _UxGT("Z sonde hors lit")
 #define MSG_SKEW_FACTOR                     _UxGT("Facteur écart")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
@@ -392,5 +390,3 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Chargement...")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Reprise...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_FR_UTF_H

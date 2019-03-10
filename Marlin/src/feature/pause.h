@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,20 +19,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * feature/pause.h - Pause feature support functions
  * This may be combined with related G-codes if features are consolidated.
  */
 
-#ifndef _PAUSE_H_
-#define _PAUSE_H_
-
-#include "../libs/nozzle.h"
+typedef struct {
+  float unload_length, load_length;
+} fil_change_settings_t;
 
 #include "../inc/MarlinConfigPre.h"
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+
+#include "../libs/nozzle.h"
+
 enum AdvancedPauseMode : char {
+  ADVANCED_PAUSE_MODE_SAME,
   ADVANCED_PAUSE_MODE_PAUSE_PRINT,
   ADVANCED_PAUSE_MODE_LOAD_FILAMENT,
   ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT
@@ -40,18 +45,16 @@ enum AdvancedPauseMode : char {
 
 enum AdvancedPauseMessage : char {
   ADVANCED_PAUSE_MESSAGE_INIT,
+  ADVANCED_PAUSE_MESSAGE_WAITING,
   ADVANCED_PAUSE_MESSAGE_UNLOAD,
   ADVANCED_PAUSE_MESSAGE_INSERT,
   ADVANCED_PAUSE_MESSAGE_LOAD,
   ADVANCED_PAUSE_MESSAGE_PURGE,
-  #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-    ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE,
-  #endif
   ADVANCED_PAUSE_MESSAGE_OPTION,
   ADVANCED_PAUSE_MESSAGE_RESUME,
   ADVANCED_PAUSE_MESSAGE_STATUS,
-  ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE,
-  ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT
+  ADVANCED_PAUSE_MESSAGE_HEAT,
+  ADVANCED_PAUSE_MESSAGE_HEATING
 };
 
 enum AdvancedPauseMenuResponse : char {
@@ -62,8 +65,7 @@ enum AdvancedPauseMenuResponse : char {
 
 extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 
-extern float filament_change_unload_length[EXTRUDERS],
-             filament_change_load_length[EXTRUDERS];
+extern fil_change_settings_t fc_settings[EXTRUDERS];
 
 extern uint8_t did_pause_print;
 
@@ -77,9 +79,11 @@ extern uint8_t did_pause_print;
   #define DXC_PASS
 #endif
 
+void do_pause_e_move(const float &length, const float &fr_mm_s);
+
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
 
-void wait_for_filament_reload(const int8_t max_beep_count=0 DXC_PARAMS);
+void wait_for_confirmation(const bool is_reload=false, const int8_t max_beep_count=0 DXC_PARAMS);
 
 void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=ADVANCED_PAUSE_PURGE_LENGTH, const int8_t max_beep_count=0 DXC_PARAMS);
 
@@ -88,4 +92,4 @@ bool load_filament(const float &slow_load_length=0, const float &fast_load_lengt
 
 bool unload_filament(const float &unload_length, const bool show_lcd=false, const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT);
 
-#endif // _PAUSE_H_
+#endif // ADVANCED_PAUSE_FEATURE

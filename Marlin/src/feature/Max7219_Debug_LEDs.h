@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -96,7 +96,7 @@ public:
   static void send(const uint8_t reg, const uint8_t data);
 
   // Refresh all units
-  inline static void refresh() { for (uint8_t i = 0; i < 8; i++) refresh_line(i); }
+  static inline void refresh() { for (uint8_t i = 0; i < 8; i++) refresh_line(i); }
 
   // Update a single native line on all units
   static void refresh_line(const uint8_t line);

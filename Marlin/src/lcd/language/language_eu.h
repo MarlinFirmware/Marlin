@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Basque-Euskera
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_EU_H
-#define LANGUAGE_EU_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
@@ -47,7 +46,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("X jatorrira")
 #define MSG_AUTO_HOME_Y                     _UxGT("Y jatorrira")
 #define MSG_AUTO_HOME_Z                     _UxGT("Z jatorrira")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibratu Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("XYZ hasieraratzen")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klik egin hasteko")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Hurrengo Puntua")
@@ -56,13 +54,13 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Etxe. offset eza.")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offsetak ezarrita")
 #define MSG_SET_ORIGIN                      _UxGT("Hasiera ipini")
-#define MSG_PREHEAT_1                       _UxGT("Berotu PLA")
+#define MSG_PREHEAT_1                       _UxGT("Berotu " PREHEAT_1_LABEL)
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" Guztia")
 #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" Amaia")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Ohea")
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" Ezarp.")
-#define MSG_PREHEAT_2                       _UxGT("Berotu ABS")
+#define MSG_PREHEAT_2                       _UxGT("Berotu " PREHEAT_2_LABEL)
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_1 _UxGT(" ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_1 _UxGT(" Guztia")
 #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" Amaia")
@@ -92,24 +90,24 @@
 //#define MSG_UBL_MOVING_TO_NEXT            _UxGT("Moving to next")
 #define MSG_UBL_ACTIVATE_MESH               _UxGT("UBL aktibatu")
 #define MSG_UBL_DEACTIVATE_MESH             _UxGT("UBL desaktibatu")
-#define MSG_UBL_SET_BED_TEMP                _UxGT("Ohearen tenperatura")
-#define MSG_UBL_CUSTOM_BED_TEMP             MSG_UBL_SET_BED_TEMP
-#define MSG_UBL_SET_HOTEND_TEMP             _UxGT("Mutur beroaren tenp.")
-#define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
+#define MSG_UBL_SET_TEMP_BED                _UxGT("Ohearen tenperatura")
+#define MSG_UBL_BED_TEMP_CUSTOM             MSG_UBL_SET_TEMP_BED
+#define MSG_UBL_SET_TEMP_HOTEND             _UxGT("Mutur beroaren tenp.")
+#define MSG_UBL_HOTEND_TEMP_CUSTOM          MSG_UBL_SET_TEMP_HOTEND
 #define MSG_UBL_MESH_EDIT                   _UxGT("Sarea editatu")
 //#define MSG_UBL_EDIT_CUSTOM_MESH          _UxGT("Edit Custom Mesh")
 //#define MSG_UBL_FINE_TUNE_MESH            _UxGT("Fine Tuning Mesh")
 #define MSG_UBL_DONE_EDITING_MESH           _UxGT("Sarea editatzea eginda")
 //#define MSG_UBL_BUILD_CUSTOM_MESH         _UxGT("Build Custom Mesh")
 #define MSG_UBL_BUILD_MESH_MENU             _UxGT("Sarea sortu")
-#define MSG_UBL_BUILD_PLA_MESH              _UxGT("PLA sarea sortu")
-#define MSG_UBL_BUILD_ABS_MESH              _UxGT("ABS sarea sortu")
+#define MSG_UBL_BUILD_MESH_M1               _UxGT(PREHEAT_1_LABEL " sarea sortu")
+#define MSG_UBL_BUILD_MESH_M2               _UxGT(PREHEAT_2_LABEL " sarea sortu")
 #define MSG_UBL_BUILD_COLD_MESH             _UxGT("Sare hotza sortu")
 #define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("Sarearen altuera doitu")
 //#define MSG_UBL_MESH_HEIGHT_AMOUNT        _UxGT("Height Amount")
 #define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("Sarea balioetsi")
-#define MSG_UBL_VALIDATE_PLA_MESH           _UxGT("PLA sarea balioetsi")
-#define MSG_UBL_VALIDATE_ABS_MESH           _UxGT("ABS sarea balioetsi")
+#define MSG_UBL_VALIDATE_MESH_M1            _UxGT(PREHEAT_1_LABEL " sarea balioetsi")
+#define MSG_UBL_VALIDATE_MESH_M2            _UxGT(PREHEAT_2_LABEL " sarea balioetsi")
 //#define MSG_UBL_VALIDATE_CUSTOM_MESH      _UxGT("Validate Custom Mesh")
 #define MSG_UBL_CONTINUE_MESH               _UxGT("Ohe sarea balioetsi")
 #define MSG_UBL_MESH_LEVELING               _UxGT("Sare berdinketa")
@@ -123,7 +121,7 @@
 //#define MSG_UBL_OUTPUT_MAP_CSV            _UxGT("Output for CSV")
 //#define MSG_UBL_OUTPUT_MAP_BACKUP         _UxGT("Off Printer Backup")
 //#define MSG_UBL_INFO_UBL                  _UxGT("Output UBL Info")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Sarea editatu")
+#define MSG_EDIT_MESH                       _UxGT("Sarea editatu")
 //#define MSG_UBL_FILLIN_AMOUNT             _UxGT("Fill-in Amount")
 //#define MSG_UBL_MANUAL_FILLIN             _UxGT("Manual Fill-in")
 //#define MSG_UBL_SMART_FILLIN              _UxGT("Smart Fill-in")
@@ -183,8 +181,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fakt")
 #define MSG_AUTOTEMP                        _UxGT("Auto tenperatura")
-#define MSG_ON                              _UxGT("On ")
-#define MSG_OFF                             _UxGT("Off")
+#define MSG_LCD_ON                          _UxGT("On")
+#define MSG_LCD_OFF                         _UxGT("Off")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -259,7 +257,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Atzera egin mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Swap Atzera mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Atzera egin V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Igo mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Igo mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Atzera egin mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Swap Atzera mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Atzera egin V")
@@ -270,7 +268,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("Harizpia deskargatu")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Erabat deskargatu")
 #define MSG_INIT_SDCARD                     _UxGT("Hasieratu SD-a")
-#define MSG_CNG_SDCARD                      _UxGT("Aldatu txartela")
+#define MSG_CHANGE_SDCARD                   _UxGT("Aldatu txartela")
 #define MSG_ZPROBE_OUT                      _UxGT("Z zunda kanpora")
 #define MSG_SKEW_FACTOR                     _UxGT("Okertze faktorea")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
@@ -360,32 +358,30 @@
 //                        ...or up to 2 lines on a 3-line display
 //
 #if LCD_HEIGHT >= 4
-//  #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Wait for start")
-//  #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("of the filament")
-//  #define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("change")
-//  #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wait for")
-//  #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("filament unload")
-//  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insert filament")
-//  #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("and press button")
-//  #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("to continue...")
-//  #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Press button to")
-//  #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("heat nozzle.")
-//  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Heating nozzle")
-//  #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Please wait...")
-//  #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wait for")
-//  #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filament load")
-//  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Wait for")
-//  #define MSG_FILAMENT_CHANGE_PURGE_2         _UxGT("filament purge")
-//  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wait for print")
-//  #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("to resume")
+  //#define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Wait for start")
+  //#define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("of the filament")
+  //#define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("change")
+  //#define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Wait for")
+  //#define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("filament unload")
+  //#define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Insert filament")
+  //#define MSG_FILAMENT_CHANGE_INSERT_2      _UxGT("and press button")
+  //#define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("to continue...")
+  //#define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("Press button to")
+  //#define MSG_FILAMENT_CHANGE_HEAT_2        _UxGT("heat nozzle.")
+  //#define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Heating nozzle")
+  //#define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("Please wait...")
+  //#define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Wait for")
+  //#define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("filament load")
+  //#define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Wait for")
+  //#define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("filament purge")
+  //#define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Wait for print")
+  //#define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("to resume")
 #else // LCD_HEIGHT < 4
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Mesedez, itxaron...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Deskargatzen...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Sartu eta click egin")
   #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Berotzen...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Kargatzen...")
-//  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Purging...")
-//  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Resuming...")
+  //#define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Purging...")
+  //#define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Resuming...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_EU_H
