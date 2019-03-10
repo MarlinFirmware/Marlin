@@ -141,6 +141,7 @@ uint16_t L6470_Marlin::get_stepper_status(L64XX &st) {
   shadow.STATUS_AXIS_RAW           = st.getStatus();
   shadow.STATUS_AXIS               = shadow.STATUS_AXIS_RAW;
   shadow.STATUS_AXIS_LAYOUT        = st.L6470_status_layout;
+shadow.BOB_TEMP          = st.bob_temp;
   shadow.AXIS_OCD_TH_MAX           = st.OCD_TH_MAX;
   shadow.AXIS_STALL_TH_MAX         = st.STALL_TH_MAX;
   shadow.AXIS_OCD_CURRENT_CONSTANT_INV   = st.OCD_CURRENT_CONSTANT_INV;
@@ -325,7 +326,7 @@ inline void err_out_of_bounds() {
   L6470_ECHOLNPGM("ERROR - motion out of bounds");
 }
 
-bool L6470_Marlin::get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3], char* axis_mon[3],
+bool L6470_Marlin::get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3],  char axis_mon[3][3],
                                  float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
                                  bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold
 ) {
