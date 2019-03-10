@@ -53,7 +53,6 @@
 
 /**
  * This routine is also useful for determining the approximate KVAL_HOLD
-
  * where the stepper stops losing steps. The sound will get noticeably quieter
  * as it stops losing steps.
  */
