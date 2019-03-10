@@ -207,10 +207,19 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   } }
 #endif
 
-
 void HAL_init(void) {
   NVIC_SetPriorityGrouping(0x3);
-  pinMode(FAN_PIN, PWM); 
+  #if DISABLED(FAN_SOFT_PWM)
+    #if HAS_FAN0
+      pinMode(FAN_PIN, PWM);
+    #endif
+    #if HAS_FAN1
+      pinMode(FAN1_PIN, PWM);
+    #endif
+    #if HAS_FAN2
+      pinMode(FAN2_PIN, PWM);
+    #endif
+  #endif
 }
 
 /* VGPV Done with defines
