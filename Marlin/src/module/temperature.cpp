@@ -219,6 +219,7 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
 #endif // HAS_HEATED_BED
 
 #if HAS_TEMP_CHAMBER
+  chamber_info_t Temperature::temp_chamber; // = { 0 }
   #if HAS_HEATED_CHAMBER
     #ifdef CHAMBER_MINTEMP
       int16_t Temperature::mintemp_raw_CHAMBER = HEATER_CHAMBER_RAW_LO_TEMP;
@@ -226,7 +227,6 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
     #ifdef CHAMBER_MAXTEMP
       int16_t Temperature::maxtemp_raw_CHAMBER = HEATER_CHAMBER_RAW_HI_TEMP;
     #endif
-    chamber_info_t temp_chamber; // = { 0 }
     #if WATCH_CHAMBER
       heater_watch_t Temperature::watch_chamber = { 0 };
       millis_t Temperature::next_chamber_check_ms;
@@ -1993,7 +1993,7 @@ void Temperature::disable_all_heaters() {
     #endif
   #endif
 
-  #if HAS_TEMP_CHAMBER
+  #if HAS_HEATED_CHAMBER
     temp_chamber.target = 0;
     temp_chamber.soft_pwm_amount = 0;
     #if HAS_HEATED_CHAMBER
@@ -2264,13 +2264,17 @@ void Temperature::readings_ready() {
     if (bed_on && BEDCMP(mintemp_raw_BED, temp_bed.raw)) min_temp_error(-1);
   #endif
 
-  #if HAS_TEMP_CHAMBER
-    #if TEMPDIR(BED) < 0
+  #if HAS_HEATED_CHAMBER
+    #if TEMPDIR(CHAMBER) < 0
       #define CHAMBERCMP(A,B) ((A)<=(B))
     #else
       #define CHAMBERCMP(A,B) ((A)>=(B))
     #endif
-    const bool chamber_on = (temp_chamber.target > 0) || (temp_chamber.soft_pwm_amount > 0);
+    const bool chamber_on = (temp_chamber.target > 0) 
+      #if ENABLED(PIDTEMPCHAMBER)
+        || (temp_chamber.soft_pwm_amount > 0)
+      #endif
+    ;
     if (CHAMBERCMP(temp_chamber.raw, maxtemp_raw_CHAMBER)) max_temp_error(-2);
     if (chamber_on && CHAMBERCMP(mintemp_raw_CHAMBER, temp_chamber.raw)) min_temp_error(-2);
   #endif
