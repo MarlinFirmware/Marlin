@@ -2270,7 +2270,7 @@ void Temperature::readings_ready() {
     #else
       #define CHAMBERCMP(A,B) ((A)>=(B))
     #endif
-    const bool chamber_on = (temp_chamber.target > 0) 
+    const bool chamber_on = (temp_chamber.target > 0)
       #if ENABLED(PIDTEMPCHAMBER)
         || (temp_chamber.soft_pwm_amount > 0)
       #endif
