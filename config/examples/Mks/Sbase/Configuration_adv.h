@@ -918,13 +918,6 @@
   // Swap the CW/CCW indicators in the graphics overlay
   //#define OVERLAY_GFX_REVERSE
 
-
-  // VIKI2 and miniVIKI require DOGLCD_SCK and DOGLCD_MOSI to be defined.
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-    #define DOGLCD_SCK SCK_PIN
-    #define DOGLCD_MOSI MOSI_PIN
-  #endif
-
   /**
    * ST7920-based LCDs can emulate a 16 x 4 character display using
    * the ST7920 character-generator for very fast screen updates.

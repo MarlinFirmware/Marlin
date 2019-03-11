@@ -66,9 +66,9 @@
 
 #elif ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) || ENABLED(AZSMZ_12864)
 
-  #define ULTRA_LCD  //general LCD support, also 16x2
-  #define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-  #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
+  #define ULTRA_LCD
+  #define DOGLCD
+  #define ULTIMAKERCONTROLLER
 
   #if ENABLED(miniVIKI)
     #define LCD_CONTRAST_MIN      75
