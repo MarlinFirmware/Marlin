@@ -2295,7 +2295,7 @@ void Temperature::readings_ready() {
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
  *  - Call planner.tick to count down its "ignore" time
  */
-HAL_TEMP_TIMER_ISR {
+HAL_TEMP_TIMER_ISR() {
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
 
   Temperature::isr();

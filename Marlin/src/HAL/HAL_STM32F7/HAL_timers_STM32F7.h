@@ -66,8 +66,8 @@
 
 extern void TC5_Handler();
 extern void TC7_Handler();
-#define HAL_STEP_TIMER_ISR  void TC5_Handler()
-#define HAL_TEMP_TIMER_ISR  void TC7_Handler()
+#define HAL_STEP_TIMER_ISR()  void TC5_Handler()
+#define HAL_TEMP_TIMER_ISR()  void TC7_Handler()
 
 // --------------------------------------------------------------------------
 // Types
