@@ -594,23 +594,133 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define   NORM_E_DIR(E)   do{ E0_DIR_WRITE(TEST(E, 0) ? !INVERT_E0_DIR:  INVERT_E0_DIR); }while(0)
   #define    REV_E_DIR(E)   do{ E0_DIR_WRITE(TEST(E, 0) ?  INVERT_E0_DIR: !INVERT_E0_DIR); }while(0)
 #elif E_STEPPERS > 5
-  #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); break; case 4: E4_STEP_WRITE(V); case 5: E5_STEP_WRITE(V); } }while(0)
-  #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); case 5: E5_DIR_WRITE(!INVERT_E5_DIR); } }while(0)
-  #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); break; case 4: E4_DIR_WRITE( INVERT_E4_DIR); case 5: E5_DIR_WRITE( INVERT_E5_DIR); } }while(0)
+  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
+    #define E_STEP_WRITE(E,V) do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[1]) E1_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[2]) E2_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[3]) E3_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[4]) E4_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[5]) E5_STEP_WRITE(V);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); break; case 4: E4_STEP_WRITE(V); case 5: E5_STEP_WRITE(V); } | }while(0)
+
+    #define NORM_E_DIR(E)     do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_DIR_WRITE(!INVERT_E0_DIR);\
+                                                                      if(extruder_duplicating[1]) E1_DIR_WRITE(!INVERT_E1_DIR);\
+                                                                      if(extruder_duplicating[2]) E2_DIR_WRITE(!INVERT_E2_DIR);\
+                                                                      if(extruder_duplicating[3]) E3_DIR_WRITE(!INVERT_E3_DIR);\
+                                                                      if(extruder_duplicating[4]) E4_DIR_WRITE(!INVERT_E4_DIR);\
+                                                                      if(extruder_duplicating[5]) E5_DIR_WRITE(!INVERT_E5_DIR);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); case 5: E5_DIR_WRITE(!INVERT_E5_DIR); } | }while(0)
+
+    #define REV_E_DIR(E)      do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_DIR_WRITE(INVERT_E0_DIR);\
+                                                                      if(extruder_duplicating[1]) E1_DIR_WRITE(INVERT_E1_DIR);\
+                                                                      if(extruder_duplicating[2]) E2_DIR_WRITE(INVERT_E2_DIR);\
+                                                                      if(extruder_duplicating[3]) E3_DIR_WRITE(INVERT_E3_DIR);\
+                                                                      if(extruder_duplicating[4]) E4_DIR_WRITE(INVERT_E4_DIR);\
+                                                                      if(extruder_duplicating[5]) E5_DIR_WRITE(INVERT_E5_DIR);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); break; case 4: E4_DIR_WRITE( INVERT_E4_DIR); case 5: E5_DIR_WRITE( INVERT_E5_DIR); } } }while(0)
+  #else
+    #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); break; case 4: E4_STEP_WRITE(V); case 5: E5_STEP_WRITE(V); } }while(0)
+    #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); case 5: E5_DIR_WRITE(!INVERT_E5_DIR); } }while(0)
+    #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); break; case 4: E4_DIR_WRITE( INVERT_E4_DIR); case 5: E5_DIR_WRITE( INVERT_E5_DIR); } }while(0)
+  #endif
 #elif E_STEPPERS > 4
-  #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); break; case 4: E4_STEP_WRITE(V); } }while(0)
-  #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); } }while(0)
-  #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); break; case 4: E4_DIR_WRITE( INVERT_E4_DIR); } }while(0)
+  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
+    #define E_STEP_WRITE(E,V) do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[1]) E1_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[2]) E2_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[3]) E3_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[4]) E4_STEP_WRITE(V);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); break; case 4: E4_STEP_WRITE(V); } } }while(0)
+
+    #define NORM_E_DIR(E)     do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_DIR_WRITE(!INVERT_E0_DIR);\
+                                                                      if(extruder_duplicating[1]) E1_DIR_WRITE(!INVERT_E1_DIR);\
+                                                                      if(extruder_duplicating[2]) E2_DIR_WRITE(!INVERT_E2_DIR);\
+                                                                      if(extruder_duplicating[3]) E3_DIR_WRITE(!INVERT_E3_DIR);\
+                                                                      if(extruder_duplicating[4]) E4_DIR_WRITE(!INVERT_E4_DIR);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); } } }while(0)
+
+    #define REV_E_DIR(E)      do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_DIR_WRITE(INVERT_E0_DIR);\
+                                                                      if(extruder_duplicating[1]) E1_DIR_WRITE(INVERT_E1_DIR);\
+                                                                      if(extruder_duplicating[2]) E2_DIR_WRITE(INVERT_E2_DIR);\
+                                                                      if(extruder_duplicating[3]) E3_DIR_WRITE(INVERT_E3_DIR);\
+                                                                      if(extruder_duplicating[4]) E4_DIR_WRITE(INVERT_E4_DIR);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); break; case 4: E4_DIR_WRITE( INVERT_E4_DIR); } } }while(0)
+  #else
+    #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); break; case 4: E4_STEP_WRITE(V); } }while(0)
+    #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); } }while(0)
+    #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); break; case 4: E4_DIR_WRITE( INVERT_E4_DIR); } }while(0)
+  #endif
 #elif E_STEPPERS > 3
-  #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); } }while(0)
-  #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); } }while(0)
-  #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); } }while(0)
+  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
+    #define E_STEP_WRITE(E,V) do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[1]) E1_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[2]) E2_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[3]) E3_STEP_WRITE(V);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); } } }while(0)
+
+    #define NORM_E_DIR(E)     do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_DIR_WRITE(!INVERT_E0_DIR);\
+                                                                      if(extruder_duplicating[1]) E1_DIR_WRITE(!INVERT_E1_DIR);\
+                                                                      if(extruder_duplicating[2]) E2_DIR_WRITE(!INVERT_E2_DIR);\
+                                                                      if(extruder_duplicating[3]) E3_DIR_WRITE(!INVERT_E3_DIR);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); } } }while(0)
+
+    #define REV_E_DIR(E)      do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_DIR_WRITE(INVERT_E0_DIR);\
+                                                                      if(extruder_duplicating[1]) E1_DIR_WRITE(INVERT_E1_DIR);\
+                                                                      if(extruder_duplicating[2]) E2_DIR_WRITE(INVERT_E2_DIR);\
+                                                                      if(extruder_duplicating[3]) E3_DIR_WRITE(INVERT_E3_DIR);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); } } }while(0)
+  #else
+    #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; case 3: E3_STEP_WRITE(V); } }while(0)
+    #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); } }while(0)
+    #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); break; case 3: E3_DIR_WRITE( INVERT_E3_DIR); } }while(0)
+  #endif
 #elif E_STEPPERS > 2
-  #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); } }while(0)
-  #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); } }while(0)
-  #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); } }while(0)
+  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
+  #define E_STEP_WRITE(E,V) do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[1]) E1_STEP_WRITE(V);\
+                                                                      if(extruder_duplicating[2]) E2_STEP_WRITE(V);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); } } }while(0)
+
+  #define NORM_E_DIR(E)     do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_DIR_WRITE(!INVERT_E0_DIR);\
+                                                                      if(extruder_duplicating[1]) E1_DIR_WRITE(!INVERT_E1_DIR);\
+                                                                      if(extruder_duplicating[2]) E2_DIR_WRITE(!INVERT_E2_DIR);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); } } }while(0)
+
+  #define REV_E_DIR(E)      do{ if (extruder_duplication_enabled) { if(extruder_duplicating[0]) E0_DIR_WRITE(INVERT_E0_DIR);\
+                                                                      if(extruder_duplicating[1]) E1_DIR_WRITE(INVERT_E1_DIR);\
+                                                                      if(extruder_duplicating[2]) E2_DIR_WRITE(INVERT_E2_DIR);\
+                                                                    }\
+                                                                    else {\
+                                                                      switch (E) { case 0: E0_DIR_WRITE(INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(INVERT_E2_DIR); } } }while(0)
+  #else
+    #define E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); } }while(0)
+    #define   NORM_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); } }while(0)
+    #define    REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE( INVERT_E0_DIR); break; case 1: E1_DIR_WRITE( INVERT_E1_DIR); break; case 2: E2_DIR_WRITE( INVERT_E2_DIR); } }while(0)
+  #endif
 #elif E_STEPPERS > 1
-  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
 
     #define E_STEP_WRITE(E,V) do{ if (extruder_duplication_enabled)  { E0_STEP_WRITE(V); E1_STEP_WRITE(V); } \
                                                   else if ((E) == 0) { E0_STEP_WRITE(V); } \

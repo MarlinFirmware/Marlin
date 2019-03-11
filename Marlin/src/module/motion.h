@@ -315,9 +315,13 @@ void homeaxis(const AxisEnum axis);
 /**
  * Dual X Carriage / Dual Nozzle
  */
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
   extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
               scaled_duplication_mode;            // Used in Dual X mode 3
+#endif
+
+#if ENABLED(MULTI_NOZZLE_DUPLICATION_MODE) && HOTENDS > 2
+  bool extruder_duplicating[HOTENDS];
 #endif
 
 /**
@@ -346,7 +350,7 @@ void homeaxis(const AxisEnum axis);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
-#elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+#elif ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
 
   enum DualXMode : char {
     DXC_DUPLICATION_MODE = 2

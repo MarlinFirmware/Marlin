@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
 
 //#define DEBUG_DXC_MODE
 
@@ -147,16 +147,20 @@
     #endif // DEBUG_DXC_MODE
   }
 
-#elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+#elif ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
 
   void GcodeSuite::M605() {
-    planner.synchronize();
-    extruder_duplication_enabled = parser.intval('S') == (int)DXC_DUPLICATION_MODE;
-    SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
-    serialprintln_onoff(extruder_duplication_enabled);
+    if(parser.intval('S')) {}
+      planner.synchronize();
+      extruder_duplication_enabled = (int)DXC_DUPLICATION_MODE;
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
+      serialprintln_onoff(extruder_duplication_enabled);
+      for(int i = 0; i < HOTENDS; i++)
+        extruder_duplicating[i] = extruder_duplication_enabled;
+    }
   }
 
-#endif // DUAL_NOZZLE_DUPLICATION_MODE
+#endif // MULTI_NOZZLE_DUPLICATION_MODE
 
-#endif // DUAL_X_CARRIAGE || DUAL_NOZZLE_DUPLICATION_MODE
+#endif // DUAL_X_CARRIAGE || MULTI_NOZZLE_DUPLICATION_MODE

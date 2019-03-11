@@ -238,7 +238,7 @@ class FilamentSensorBase {
             if (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE)
               return runout_states;                 // Any extruder
             else
-          #elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+          #elif ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
             if (extruder_duplication_enabled)
               return runout_states;                 // Any extruder
             else
