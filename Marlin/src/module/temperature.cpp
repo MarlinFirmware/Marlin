@@ -2914,18 +2914,12 @@ void Temperature::isr() {
           #if ENABLED(SHOW_TEMP_ADC_VALUES)
             , rawChamberTemp()
           #endif
-          #if NUM_SERIAL > 1
-            , port
-          #endif
         , -2 // CHAMBER
       );
       #else
         print_heater_state(degChamber(), 0
           #if ENABLED(SHOW_TEMP_ADC_VALUES)
             , rawChamberTemp()
-          #endif
-          #if NUM_SERIAL > 1
-            , port
           #endif
           , -2 // CHAMBER
         );
