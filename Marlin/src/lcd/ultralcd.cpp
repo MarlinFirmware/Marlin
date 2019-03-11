@@ -397,20 +397,6 @@ bool MarlinUI::get_blink() {
   #endif
 #endif
 
-#if HAS_PRINT_PROGRESS
-  uint8_t MarlinUI::get_progress() {
-    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-      uint8_t &progress = progress_bar_percent;
-    #else
-      uint8_t progress = 0;
-    #endif
-    #if ENABLED(SDSUPPORT)
-      if (IS_SD_PRINTING()) progress = card.percentDone();
-    #endif
-    return progress;
-  }
-#endif
-
 void MarlinUI::status_screen() {
 
   #if HAS_LCD_MENU
@@ -1320,5 +1306,19 @@ void MarlinUI::update() {
 
     set_status_P(msg, -1);
   }
+
+  #if HAS_PRINT_PROGRESS
+    uint8_t MarlinUI::get_progress() {
+      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        uint8_t &progress = progress_bar_percent;
+      #else
+        uint8_t progress = 0;
+      #endif
+      #if ENABLED(SDSUPPORT)
+        if (IS_SD_PRINTING()) progress = card.percentDone();
+      #endif
+      return progress;
+    }
+  #endif
 
 #endif // HAS_SPI_LCD || EXTENSIBLE_UI

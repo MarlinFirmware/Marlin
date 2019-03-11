@@ -117,6 +117,7 @@ namespace ExtUI {
   void setRetractAcceleration_mm_s2(const float);
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
+  void setUserConfirmed(void);
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t);
@@ -239,11 +240,12 @@ namespace ExtUI {
   void onMediaError();
   void onMediaRemoved();
   void onPlayTone(const uint16_t frequency, const uint16_t duration);
-  void onPrinterKilled(const char* msg);
+  void onPrinterKilled(PGM_P const msg);
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
   void onFilamentRunout(const extruder_t extruder);
+  void onUserConfirmRequired(const char * const msg);
   void onStatusChanged(const char * const msg);
   void onFactoryReset();
   void onStoreSettings();

@@ -46,7 +46,7 @@ namespace ExtUI {
      */
   }
   void onIdle() {}
-  void onPrinterKilled(const char* msg) {}
+  void onPrinterKilled(PGM_P const msg) {}
   void onMediaInserted() {};
   void onMediaError() {};
   void onMediaRemoved() {};
@@ -55,6 +55,7 @@ namespace ExtUI {
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
   void onFilamentRunout() {}
+  void onUserConfirmRequired(const char * const msg) {}
   void onStatusChanged(const char * const msg) {}
   void onFactoryReset() {}
   void onLoadSettings() {}

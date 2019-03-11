@@ -132,6 +132,18 @@ enum WaveGenMode : char {
   WGM_FAST_PWM_OCRnA   // 15  COM OCnA
 };
 
+// Wavefore Generation Modes (Timer 2 only)
+enum WaveGenMode2 : char {
+  WGM2_NORMAL,          // 0
+  WGM2_PWM_PC,          // 1
+  WGM2_CTC_OCR2A,       // 2
+  WGM2_FAST_PWM,        // 3
+  WGM2_reserved_1,      // 4
+  WGM2_PWM_PC_OCR2A,    // 5
+  WGM2_reserved_2,      // 6
+  WGM2_FAST_PWM_OCR2A,  // 7
+};
+
 // Compare Modes
 enum CompareMode : char {
   COM_NORMAL,          //  0
@@ -186,6 +198,11 @@ enum ClockSource2 : char {
     TCCR##T##B = (TCCR##T##B & ~(0x3 << WGM##T##2)) | (((int(V) >> 2) & 0x3) << WGM##T##2); \
   }while(0)
 #define SET_WGM(T,V) _SET_WGM(T,WGM_##V)
+// Runtime (see Temperature::set_pwm_frequency):
+#define _SET_WGMnQ(TCCRnQ, V) do{ \
+    *(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << 0)) | (( int(V)       & 0x3) << 0); \
+    *(TCCRnQ)[1] = (*(TCCRnQ)[1] & ~(0x3 << 3)) | (((int(V) >> 2) & 0x3) << 3); \
+  }while(0)
 
 // Set Clock Select bits
 // Ex: SET_CS3(PRESCALER_64);
@@ -211,6 +228,10 @@ enum ClockSource2 : char {
 #define SET_CS4(V) _SET_CS4(CS_##V)
 #define SET_CS5(V) _SET_CS5(CS_##V)
 #define SET_CS(T,V) SET_CS##T(V)
+// Runtime (see Temperature::set_pwm_frequency)
+#define _SET_CSn(TCCRnQ, V) do{ \
+    (*(TCCRnQ)[1] = (*(TCCRnQ[1]) & ~(0x7 << 0)) | ((int(V) & 0x7) << 0)); \
+  }while(0)
 
 // Set Compare Mode bits
 // Ex: SET_COMS(4,CLEAR_SET,CLEAR_SET,CLEAR_SET);
@@ -220,6 +241,22 @@ enum ClockSource2 : char {
 #define SET_COMB(T,V) SET_COM(T,B,V)
 #define SET_COMC(T,V) SET_COM(T,C,V)
 #define SET_COMS(T,V1,V2,V3) do{ SET_COMA(T,V1); SET_COMB(T,V2); SET_COMC(T,V3); }while(0)
+// Runtime (see Temperature::set_pwm_duty)
+#define _SET_COMnQ(TCCRnQ, Q, V) do{ \
+    (*(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << (6-2*(Q)))) | (int(V) << (6-2*(Q)))); \
+  }while(0)
+
+// Set OCRnQ register
+// Runtime (see Temperature::set_pwm_duty):
+#define _SET_OCRnQ(OCRnQ, Q, V) do{ \
+    (*(OCRnQ)[(Q)] = (0x0000) | (int(V) & 0xFFFF)); \
+  }while(0)
+
+// Set ICRn register (one per timer)
+// Runtime (see Temperature::set_pwm_frequency)
+#define _SET_ICRn(ICRn, V) do{ \
+    (*(ICRn) = (0x0000) | (int(V) & 0xFFFF)); \
+  }while(0)
 
 // Set Noise Canceler bit
 // Ex: SET_ICNC(2,1)

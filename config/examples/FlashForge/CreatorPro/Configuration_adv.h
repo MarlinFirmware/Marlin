@@ -241,6 +241,33 @@
 //#define FAN_MIN_PWM 50
 //#define FAN_MAX_PWM 128
 
+/**
+ * FAST PWM FAN Settings
+ *
+ * Use to change the FAST FAN PWM frequency (if enabled in Configuration.h)
+ * Combinations of PWM Modes, prescale values and TOP resolutions are used internally to produce a
+ * frequency as close as possible to the desired frequency.
+ *
+ * FAST_PWM_FAN_FREQUENCY [undefined by default]
+ *   Set this to your desired frequency.
+ *   If left undefined this defaults to F = F_CPU/(2*255*1)
+ *   ie F = 31.4 Khz on 16 MHz microcontrollers or F = 39.2 KHz on 20 MHz microcontrollers
+ *   These defaults are the same as with the old FAST_PWM_FAN implementation - no migration is required
+ *   NOTE: Setting very low frequencies (< 10 Hz) may result in unexpected timer behaviour.
+ *
+ * USE_OCR2A_AS_TOP [undefined by default]
+ *   Boards that use TIMER2 for PWM have limitations resulting in only a few possible frequencies on TIMER2:
+ *   16MHz MCUs: [62.5KHz, 31.4KHz (default), 7.8KHz, 3.92KHz, 1.95KHz, 977Hz, 488Hz, 244Hz, 60Hz, 122Hz, 30Hz]
+ *   20MHz MCUs: [78.1KHz, 39.2KHz (default), 9.77KHz, 4.9KHz, 2.44KHz, 1.22KHz, 610Hz, 305Hz, 153Hz, 76Hz, 38Hz]
+ *   A greater range can be achieved by enabling USE_OCR2A_AS_TOP. But note that this option blocks the use of
+ *   PWM on pin OC2A. Only use this option if you don't need PWM on 0C2A. (Check your schematic.)
+ *   USE_OCR2A_AS_TOP sacrifices duty cycle control resolution to achieve this broader range of frequencies.
+ */
+#if ENABLED(FAST_PWM_FAN)
+  //#define FAST_PWM_FAN_FREQUENCY 31400
+  //#define USE_OCR2A_AS_TOP
+#endif
+
 // @section extruder
 
 /**
@@ -1040,11 +1067,17 @@
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
 //#define BEZIER_CURVE_SUPPORT
 
-// G38.2 and G38.3 Probe Target
-// Set MULTIPLE_PROBING if you want G38 to double touch
+/**
+ * G38 Probe Target
+ *
+ * This option adds G38.2 and G38.3 (probe towards target)
+ * and optionally G38.4 and G38.5 (probe away from target).
+ * Set MULTIPLE_PROBING for G38 to probe more than once.
+ */
 //#define G38_PROBE_TARGET
 #if ENABLED(G38_PROBE_TARGET)
-  #define G38_MINIMUM_MOVE 0.0275 // minimum distance in mm that will produce a move (determined using the print statement in check_move)
+  //#define G38_PROBE_AWAY        // Include G38.4 and G38.5 to probe away from target
+  #define G38_MINIMUM_MOVE 0.0275 // (mm) Minimum distance that will produce a move.
 #endif
 
 // Moves (or segments) with fewer steps than this will be joined with the next move

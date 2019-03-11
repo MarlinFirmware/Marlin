@@ -735,23 +735,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       const float old_feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : feedrate_mm_s;
       feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
-      #if ENABLED(DUAL_X_CARRIAGE)
-
-        #if HAS_SOFTWARE_ENDSTOPS
-          // Update the X software endstops early
-          active_extruder = tmp_extruder;
-          update_software_endstops(X_AXIS);
-          active_extruder = !tmp_extruder;
-          const float minx = soft_endstop_min[X_AXIS], maxx = soft_endstop_max[X_AXIS];
-        #else
-          // No software endstops? Use the configured limits
-          const float minx = tmp_extruder ? X2_MIN_POS : X1_MIN_POS,
-                      maxx = tmp_extruder ? X2_MAX_POS : X1_MAX_POS;
-        #endif
-
-        // Don't move the new extruder out of bounds
-        if (!WITHIN(current_position[X_AXIS], minx, maxx)) no_move = true;
-
+      #if HAS_SOFTWARE_ENDSTOPS && ENABLED(DUAL_X_CARRIAGE)
+        update_software_endstops(X_AXIS, active_extruder, tmp_extruder);
       #endif
 
       set_destination_from_current();
@@ -772,7 +757,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         planner.synchronize();
       }
 
-      #if HOTENDS > 1
+      #if HAS_HOTEND_OFFSET
         #if ENABLED(DUAL_X_CARRIAGE)
           constexpr float xdiff = 0;
         #else
@@ -912,10 +897,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
       disable_all_solenoids();
       enable_solenoid_on_active_extruder();
-    #endif
-
-    #if HAS_SOFTWARE_ENDSTOPS && ENABLED(DUAL_X_CARRIAGE)
-      update_software_endstops(X_AXIS);
     #endif
 
     #if ENABLED(MK2_MULTIPLEXER)

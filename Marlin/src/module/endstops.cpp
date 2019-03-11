@@ -672,14 +672,17 @@ void Endstops::update() {
   }while(0)
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
+    #if ENABLED(G38_PROBE_AWAY)
+      #define _G38_OPEN_STATE (G38_move >= 4)
+    #else
+      #define _G38_OPEN_STATE LOW
+    #endif
     // If G38 command is active check Z_MIN_PROBE for ALL movement
-    if (G38_move) {
-      if (TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE))) {
-        if      (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(X_AXIS); }
-        else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(Y_AXIS); }
-        else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(Z_AXIS); }
-        G38_endstop_hit = true;
-      }
+    if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE)) != _G38_OPEN_STATE) {
+           if (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(X_AXIS); }
+      else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(Y_AXIS); }
+      else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(Z_AXIS); }
+      G38_did_trigger = true;
     }
   #endif
 
