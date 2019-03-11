@@ -93,18 +93,18 @@ namespace ExtUI {
   
   #if HAS_LEVELING
     bool getLevelingActive();
-    void setLevelingActive(bool);
+    void setLevelingActive(const bool);
     #if HAS_MESH
+      typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
       bool getMeshValid();
-      float[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y] getMeshArray();
-      void setMeshPont(unit8_t, unit8_t, float); // Cord X, Y, Value
-
-      void onMeshUpdate(unit8_t, unit8_t, float); // Cord X, Y, Value
+      bed_mesh_t getMeshArray();
+      void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
+      void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);
     #endif
   #endif
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    void setHostResponse(unit8_t);
+    void setHostResponse(const uint8_t);
   #endif
 
   #if ENABLED(PRINTCOUNTER)

@@ -536,7 +536,6 @@
                 #if ENABLED(EXTENSIBLE_UI)
                   ExtUI::onMeshUpdate(location.x_index, location.y_index, z_values[location.x_index][location.y_index]);
                 #endif
-                
               }
             }
           }
@@ -713,7 +712,7 @@
         if (!isnan(z_values[x][y])) {
           z_values[x][y] += g29_constant;
           #if ENABLED(EXTENSIBLE_UI)
-              ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+            ExtUI::onMeshUpdate(x, y, z_values[x][y]);
           #endif
         }
   }
