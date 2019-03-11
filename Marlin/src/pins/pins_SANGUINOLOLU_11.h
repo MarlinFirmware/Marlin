@@ -179,7 +179,6 @@
     #else // DOGM SPI LCD Support
 
       #define DOGLCD_A0         30
-      #define LCD_CONTRAST       1
 
       #if ENABLED(MAKRPANEL)
 
