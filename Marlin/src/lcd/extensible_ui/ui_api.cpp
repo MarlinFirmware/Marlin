@@ -582,16 +582,20 @@ namespace ExtUI {
     void setLevelingActive(bool state) {set_bed_leveling_enabled(state)};
     #if HAS_MESH
       bool getMeshValid() { return leveling_is_valid(); }
-      getMeshArray();
+      float[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y] getMeshArray() return Z_VALUES;
       void setMeshPont(unit8_t x_cord, unit8_t y_cord, float newValue) {
         if( WITHIN(x_cord, 0, GRID_MAX_POINTS_X) && WITHIN(y_cord, 0, GRID_MAX_POINTS_Y) ) {
-          z_values[x_cord][y_cord] = newValue;
+          Z_VALUES(x_cord,y_cord) = newValue;
           #if ENABLED(ABL_BILINEAR_SUBDIVISION)
             bed_level_virt_interpolate();
           #endif
         }
       };
     #endif
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    void setHostResponse(unit8_t response) { host_response_handler(response); }
   #endif
 
   #if ENABLED(PRINTCOUNTER)

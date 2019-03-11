@@ -96,11 +96,15 @@ namespace ExtUI {
     void setLevelingActive(bool);
     #if HAS_MESH
       bool getMeshValid();
-      getMeshArray();
+      float[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y] getMeshArray();
       void setMeshPont(unit8_t, unit8_t, float); // Cord X, Y, Value
 
       void onMeshUpdate(unit8_t, unit8_t, float); // Cord X, Y, Value
     #endif
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    void setHostResponse(unit8_t);
   #endif
 
   #if ENABLED(PRINTCOUNTER)
