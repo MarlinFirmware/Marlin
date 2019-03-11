@@ -90,6 +90,18 @@ namespace ExtUI {
   float getFeedrate_percent();
   uint8_t getProgress_percent();
   uint32_t getProgress_seconds_elapsed();
+  
+  #if HAS_LEVELING
+    bool getLevelingActive();
+    void setLevelingActive(bool);
+    #if HAS_MESH
+      bool getMeshValid();
+      getMeshArray();
+      void setMeshPont(unit8_t, unit8_t, float); // Cord X, Y, Value
+
+      void onMeshUpdate(unit8_t, unit8_t, float); // Cord X, Y, Value
+    #endif
+  #endif
 
   #if ENABLED(PRINTCOUNTER)
     char* getTotalPrints_str(char buffer[21]);

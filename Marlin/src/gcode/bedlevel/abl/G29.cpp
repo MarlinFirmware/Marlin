@@ -321,6 +321,9 @@ G29_TYPE GcodeSuite::G29() {
           #if ENABLED(ABL_BILINEAR_SUBDIVISION)
             bed_level_virt_interpolate();
           #endif
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(i, j, rz);
+          #endif
           set_bed_leveling_enabled(abl_should_enable);
           if (abl_should_enable) report_current_position();
         }
@@ -548,6 +551,9 @@ G29_TYPE GcodeSuite::G29() {
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
         z_values[xCount][yCount] = measured_z + zoffset;
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(xCount, yCount, z_values[xCount][yCount]);
+        #endif
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
@@ -723,6 +729,9 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
             z_values[xCount][yCount] = measured_z + zoffset;
+            #if ENABLED(EXTENSIBLE_UI)
+              ExtUI::onMeshUpdate(xCount, yCount, z_values[xCount][yCount]);
+            #endif
 
           #endif
 
