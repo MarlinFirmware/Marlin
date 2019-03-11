@@ -609,7 +609,7 @@ namespace ExtUI {
     const int16_t e = heater - H0;
     #if HAS_HEATED_BED
       if (heater == BED)
-        thermalManager.setTargetBed(clamp(value, 0, BED_MAXTEMP - 15));
+        thermalManager.setTargetBed(clamp(value, 0, BED_MAXTEMP - 10));
       else
     #endif
         thermalManager.setTargetHotend(clamp(value, 0, heater_maxtemp[e] - 15), e);

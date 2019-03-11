@@ -52,7 +52,7 @@ void GcodeSuite::M145() {
     #if TEMP_SENSOR_BED != 0
       if (parser.seenval('B')) {
         v = parser.value_int();
-        ui.preheat_bed_temp[material] = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
+        ui.preheat_bed_temp[material] = constrain(v, BED_MINTEMP, BED_MAXTEMP - 10);
       }
     #endif
   }

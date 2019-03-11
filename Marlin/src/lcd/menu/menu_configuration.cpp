@@ -238,7 +238,7 @@ static void lcd_factory_settings() {
       MENU_ITEM_EDIT(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
     #endif
     #if HAS_HEATED_BED
-      MENU_ITEM_EDIT(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 15);
+      MENU_ITEM_EDIT(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 10);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);

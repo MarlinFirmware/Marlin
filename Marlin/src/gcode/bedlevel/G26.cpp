@@ -571,8 +571,8 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('B')) {
     g26_bed_temp = parser.value_celsius();
-    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 15))) {
-      SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 15), "C).");
+    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 10))) {
+      SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 10), "C).");
       return;
     }
   }
