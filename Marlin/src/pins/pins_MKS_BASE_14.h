@@ -64,6 +64,16 @@
 #define E1_MS1_PIN               57   // PF3 ** Pin94 ** A3
 #define E1_MS2_PIN                4   // PG5 ** Pin1  ** PWM4
 
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_R_PIN          50
+#endif
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_G_PIN          51
+#endif
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_B_PIN          52
+#endif
+
 #include "pins_RAMPS.h"
 
 /*
