@@ -37,7 +37,7 @@
   #include "runout.h"
 #endif
 
-extern volatile bool wait_for_user;
+extern bool wait_for_user;
 
 void host_action(const char * const pstr, const bool eol) {
   SERIAL_ECHOPGM("//action:");
