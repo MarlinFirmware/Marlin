@@ -635,7 +635,7 @@ int Temperature::getHeaterPower(const int heater) {
 
     #define _UPDATE_AUTO_FAN(P,D,A) do{           \
       if (USEABLE_HARDWARE_PWM(P##_AUTO_FAN_PIN)) \
-        analogWrite(P##_AUTO_FAN_PIN, A);         \
+        ANALOG_WRITE(P##_AUTO_FAN_PIN, A);        \
       else                                        \
         WRITE(P##_AUTO_FAN_PIN, D);               \
     }while(0)
