@@ -115,13 +115,13 @@ void LEDLights::set_color(const LEDColor &incol
     WRITE(RGB_LED_R_PIN, incol.r ? HIGH : LOW);
     WRITE(RGB_LED_G_PIN, incol.g ? HIGH : LOW);
     WRITE(RGB_LED_B_PIN, incol.b ? HIGH : LOW);
-    analogWrite(RGB_LED_R_PIN, incol.r);
-    analogWrite(RGB_LED_G_PIN, incol.g);
-    analogWrite(RGB_LED_B_PIN, incol.b);
+    ANALOG_WRITE(RGB_LED_R_PIN, incol.r);
+    ANALOG_WRITE(RGB_LED_G_PIN, incol.g);
+    ANALOG_WRITE(RGB_LED_B_PIN, incol.b);
 
     #if ENABLED(RGBW_LED)
       WRITE(RGB_LED_W_PIN, incol.w ? HIGH : LOW);
-      analogWrite(RGB_LED_W_PIN, incol.w);
+      ANALOG_WRITE(RGB_LED_W_PIN, incol.w);
     #endif
 
   #endif

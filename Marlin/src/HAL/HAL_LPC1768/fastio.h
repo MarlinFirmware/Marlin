@@ -125,3 +125,5 @@
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)
 #define extDigitalWrite(IO,V) digitalWrite(IO,V)
+
+#define ANALOG_WRITE(IO,V)    analogWrite(IO,V)

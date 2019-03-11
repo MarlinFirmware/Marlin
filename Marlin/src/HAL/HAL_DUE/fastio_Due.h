@@ -187,6 +187,8 @@
 #define extDigitalRead(IO)    digitalRead(IO)
 #define extDigitalWrite(IO,V) digitalWrite(IO,V)
 
+#define ANALOG_WRITE(IO,V)    analogWrite(IO,V)
+
 /**
  * Ports and functions
  * Added as necessary or if I feel like it- not a comprehensive list!
