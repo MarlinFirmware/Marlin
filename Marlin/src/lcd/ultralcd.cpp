@@ -1073,15 +1073,15 @@ void MarlinUI::update() {
             | slow_buttons
           #endif
         ;
-
       #elif HAS_ADC_BUTTONS
-
         buttons = 0;
+      #endif
+
+      #if HAS_ADC_BUTTONS
         if (keypad_buttons == 0) {
           const uint8_t b = get_ADC_keyValue();
           if (WITHIN(b, 1, 8)) keypad_buttons = _BV(b - 1);
         }
-
       #endif
 
       #if HAS_SHIFT_ENCODER

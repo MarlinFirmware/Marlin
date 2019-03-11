@@ -194,7 +194,8 @@
 #define DECREMENT_(n) DEC_ ##n
 #define DECREMENT(n) DECREMENT_(n)
 
-#define PIN_EXISTS(PN) (defined(PN ##_PIN) && PN ##_PIN >= 0)
+#define PIN_EXISTS(PN)    (defined(PN ##_PIN) && PN ##_PIN >= 0)
+#define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
 
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0f)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0f)
