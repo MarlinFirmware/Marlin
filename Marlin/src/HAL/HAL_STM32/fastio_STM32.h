@@ -72,6 +72,7 @@ void FastIO_init(); // Must be called before using fast io macros
 #define SET_INPUT_PULLUP(IO)    _SET_MODE(IO, INPUT_PULLUP)                       /*!< Input with Pull-up activation         */
 #define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLDOWN)                     /*!< Input with Pull-down activation       */
 #define SET_OUTPUT(IO)          OUT_WRITE(IO, LOW)
+#define SET_PWM(IO)             _SET_MODE(IO, PWM)
 
 #define GET_INPUT(IO)
 #define GET_OUTPUT(IO)

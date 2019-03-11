@@ -1698,13 +1698,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255
   #define AF_ERR_SUFF "_AUTO_FAN_PIN is not a PWM pin. Set EXTRUDER_AUTO_FAN_SPEED to 255."
   #if HAS_AUTO_FAN_0
-    static_assert(GET_TIMER(E0_AUTO_FAN_PIN), "E0" AF_ERR_SUFF);
+    static_assert(USEABLE_HARDWARE_PWM(E0_AUTO_FAN_PIN), "E0" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_1
-    static_assert(GET_TIMER(E1_AUTO_FAN_PIN), "E1" AF_ERR_SUFF);
+    static_assert(USEABLE_HARDWARE_PWM(E1_AUTO_FAN_PIN), "E1" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_2
-    static_assert(GET_TIMER(E2_AUTO_FAN_PIN), "E2" AF_ERR_SUFF);
+    static_assert(USEABLE_HARDWARE_PWM(E2_AUTO_FAN_PIN), "E2" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_3
-    static_assert(GET_TIMER(E3_AUTO_FAN_PIN), "E3" AF_ERR_SUFF);
+    static_assert(USEABLE_HARDWARE_PWM(E3_AUTO_FAN_PIN), "E3" AF_ERR_SUFF);
   #endif
 #endif
 
@@ -2014,7 +2014,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 #if ENABLED(FAST_PWM_FAN) && !(defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM))
-  #error "FAST_PWM_FAN only supported by 8 bit CPUs."
+  #error "FAST_PWM_FAN is only supported for ARDUINO and ARDUINO_ARCH_SAM."
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
