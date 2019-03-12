@@ -313,11 +313,11 @@ void homeaxis(const AxisEnum axis);
 #endif
 
 /**
- * Dual X Carriage / Dual Nozzle
+ * Duplication mode
  */
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
-  extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
-              scaled_duplication_mode;            // Used in Dual X mode 3
+#if HAS_DUPLICATION_MODE
+  extern bool extruder_duplication_enabled;       // Used in Dual X mode 2
+              //scaled_duplication_mode;            // Used in Dual X mode 3
 #endif
 
 #if ENABLED(MULTI_NOZZLE_DUPLICATION_MODE) && HOTENDS > 2

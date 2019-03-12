@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
+#if HAS_DUPLICATION_MODE
 
 //#define DEBUG_DXC_MODE
 
@@ -59,6 +59,8 @@
       const DualXMode previous_mode = dual_x_carriage_mode;
 
       dual_x_carriage_mode = (DualXMode)parser.value_byte();
+
+      #if 0
       scaled_duplication_mode = false;
 
       if (dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE) {
@@ -77,6 +79,7 @@
         }
         return;
       }
+      #endif
 
       switch (dual_x_carriage_mode) {
         case DXC_FULL_CONTROL_MODE:
