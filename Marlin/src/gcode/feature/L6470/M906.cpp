@@ -80,8 +80,8 @@
  */
 
 void L6470_report_current(L64XX &motor, const L6470_axis_t axis) {
-  if (L64helper.spi_abort) return;  // don't do anything if set_directions() has occurred
-  const uint16_t status = L64helper.get_status(axis);
+  if (L64xx_MARLIN.spi_abort) return;  // don't do anything if set_directions() has occurred
+  const uint16_t status = L64xx_MARLIN.get_status(axis);
   const uint8_t OverCurrent_Threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
                 Stall_Threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
                 motor_status = (status  & (STATUS_MOT_STATUS)) >> 5,
@@ -90,8 +90,8 @@ void L6470_report_current(L64XX &motor, const L6470_axis_t axis) {
   const float comp_coef = 1600.0f / L6470_ADC_out_limited;
   const int MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
   char temp_buf[80];
-  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
-  L64helper.say_axis(axis);
+  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
+  L64xx_MARLIN.say_axis(axis);
   #if ENABLED(L6470_CHITCHAT)
     sprintf_P(temp_buf, PSTR("   status: %4x   "), sh.STATUS_AXIS_RAW);
     SERIAL_ECHO(temp_buf);
@@ -229,7 +229,7 @@ void GcodeSuite::M906() {
   if (report_current) {
     #define L6470_REPORT_CURRENT(Q) L6470_report_current(stepper##Q, Q)
 
-    L64helper.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
+    L64xx_MARLIN.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
 
     #if AXIS_IS_L64XX(X)
       L6470_REPORT_CURRENT(X);
@@ -271,8 +271,8 @@ void GcodeSuite::M906() {
       L6470_REPORT_CURRENT(E5);
     #endif
 
-    L64helper.spi_active = false;   // done with all SPI transfers - clear handshake flags
-    L64helper.spi_abort = false;
+    L64xx_MARLIN.spi_active = false;   // done with all SPI transfers - clear handshake flags
+    L64xx_MARLIN.spi_abort = false;
   }
 }
 
