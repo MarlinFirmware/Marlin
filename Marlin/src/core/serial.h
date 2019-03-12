@@ -67,7 +67,7 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_ECHOLN(x)        SERIAL_OUT(println, x)
 #define SERIAL_PRINT(x,b)       SERIAL_OUT(print, x, b)
 #define SERIAL_PRINTLN(x,b)     SERIAL_OUT(println, x, b)
-#define SERIAL_PRINTF(args...)  SERIAL_OUT(printf, args)
+#define SERIAL_PRINTF(...)      SERIAL_OUT(printf, __VA_ARGS__)
 #define SERIAL_FLUSH()          SERIAL_OUT(flush)
 
 #if TX_BUFFER_SIZE > 0
