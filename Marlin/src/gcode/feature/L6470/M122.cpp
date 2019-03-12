@@ -34,8 +34,8 @@ inline void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR(" YES") : PS
 
 void L6470_status_decode(const uint16_t status, const L6470_axis_t axis) {
   if (Marlin_L6470.spi_abort) return;  // don't do anything if set_directions() has occurred
-  if (L64helper.spi_abort) return;  // don't do anything if set_directions() has occurred
-  L64helper.say_axis(axis);
+  if (L64xx_MARLIN.spi_abort) return;  // don't do anything if set_directions() has occurred
+  L64xx_MARLIN.say_axis(axis);
   #if ENABLED(L6470_CHITCHAT)
     char temp_buf[20];
     sprintf_P(temp_buf, PSTR("   status: %4x   "), sh.STATUS_AXIS_RAW);
@@ -43,12 +43,12 @@ void L6470_status_decode(const uint16_t status, const L6470_axis_t axis) {
     print_bin(sh.STATUS_AXIS_RAW);
     serialprintPGM(sh.STATUS_AXIS_LAYOUT ? PSTR("   L6470") : PSTR("   L6480/powerSTEP01"));
   #endif
-  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
+  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
   SERIAL_ECHOPGM("\n...OUTPUT: ");
   serialprintPGM(sh.STATUS_AXIS & STATUS_HIZ ? PSTR("OFF") : PSTR("ON "));
   SERIAL_ECHOPGM("   BUSY: "); echo_yes_no(!(sh.STATUS_AXIS & STATUS_BUSY));
   SERIAL_ECHOPGM("   DIR: ");
-  serialprintPGM((((status & STATUS_DIR) >> 4) ^ L64helper.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
+  serialprintPGM((((status & STATUS_DIR) >> 4) ^ L64xx_MARLIN.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
   SERIAL_ECHOPGM("   Last Command: ");
   if (status & sh.STATUS_AXIS_WRONG_CMD) SERIAL_ECHOPGM("IN");
   SERIAL_ECHOPGM("VALID    ");
@@ -73,10 +73,10 @@ void L6470_status_decode(const uint16_t status, const L6470_axis_t axis) {
 #endif
 
 inline void L6470_say_status(const L6470_axis_t axis) {
-  if (L64helper.spi_abort) return;
-  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
-  L64helper.get_status(axis);
-  L64helper.say_axis(axis);
+  if (L64xx_MARLIN.spi_abort) return;
+  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
+  L64xx_MARLIN.get_status(axis);
+  L64xx_MARLIN.say_axis(axis);
   #if ENABLED(L6470_CHITCHAT)
     char temp_buf[20];
     sprintf_P(temp_buf, PSTR("   status: %4x   "), sh.STATUS_AXIS_RAW);
@@ -89,7 +89,7 @@ inline void L6470_say_status(const L6470_axis_t axis) {
   serialprintPGM(sh.STATUS_AXIS & STATUS_HIZ ? PSTR("OFF") : PSTR("ON "));
   SERIAL_ECHOPGM("   BUSY: "); echo_yes_no(!(sh.STATUS_AXIS & STATUS_BUSY));
   SERIAL_ECHOPGM("   DIR: ");
-  serialprintPGM((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64helper.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
+  serialprintPGM((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64xx_MARLIN.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
   SERIAL_ECHOPGM("   Last Command: ");
   if (sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD) SERIAL_ECHOPGM("IN");
   SERIAL_ECHOPGM("VALID    ");
@@ -117,7 +117,7 @@ inline void L6470_say_status(const L6470_axis_t axis) {
  */
 void GcodeSuite::M122() {
 
-  L64helper.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
+  L64xx_MARLIN.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
 
   //if (parser.seen('S'))
   // tmc_set_report_interval(parser.value_bool());
@@ -163,8 +163,8 @@ void GcodeSuite::M122() {
     L6470_say_status(E5);
   #endif
 
-  L64helper.spi_active = false;   // done with all SPI transfers - clear handshake flags
-  L64helper.spi_abort = false;
+  L64xx_MARLIN.spi_active = false;   // done with all SPI transfers - clear handshake flags
+  L64xx_MARLIN.spi_abort = false;
 }
 
 #endif // HAS_L64XX

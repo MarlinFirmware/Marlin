@@ -33,9 +33,11 @@
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
 #define HAS_L64XX_EXTRUDER (AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5))
 
+extern  uint8_t L6470_SpiTransfer_Mode_3(uint8_t b);
+
 typedef enum : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 } L6470_axis_t;
 
-class L6470_Marlin : public L64XXHelper {
+class L64XX_Marlin {
 public:
   static const char * const index_to_axis[MAX_L6470];
 
@@ -46,7 +48,7 @@ public:
   static volatile bool spi_abort;
   static bool spi_active;
 
-  L6470_Marlin() { L64XX::set_helper(this); }
+  L64XX_Marlin() {}
 
   static void init();
   static void init_to_defaults();
@@ -101,13 +103,11 @@ public:
 
   static L64XX_shadow_t shadow;
 
-  //static uint32_t UVLO_ADC;               // ADC undervoltage event
-
-protected:
-  // L64XXHelper methods
+//protected:
   static void spi_init();
-  static uint8_t transfer(uint8_t data, int16_t ss_pin);
-  static uint8_t transfer(uint8_t data, int16_t ss_pin, uint8_t chain_position);
+  static uint8_t transfer_single(uint8_t data, int16_t ss_pin);
+  static uint8_t transfer_chain(uint8_t data, int16_t ss_pin, uint8_t chain_position);
+
 };
 
-extern L6470_Marlin L64helper;
+extern L64XX_Marlin L64xx_MARLIN;
