@@ -483,7 +483,7 @@
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
-// Allow duplication mode with a basic multi-extruder hotend
+// Add a Duplicate option for well-separated multiple nozzles
 //#define MULTI_NOZZLE_DUPLICATION_MODE
 
 // By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
