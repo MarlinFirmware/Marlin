@@ -400,22 +400,22 @@ void Stepper::set_directions() {
 
   #if HAS_L64XX
     if (L64XX_OK_to_power_up) { // OK to send the direction commands (which powers up the L64XX steppers)
-      if (L64helper.spi_active) {
-        L64helper.spi_abort = true;                      // Interrupted a SPI transfer - need to shut it down gracefully
+      if (L64xx_MARLIN.spi_active) {
+        L64xx_MARLIN.spi_abort = true;                      // Interrupted a SPI transfer - need to shut it down gracefully
         for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
           L6470_buf[j] = dSPIN_NOP;                       // Fill buffer with NOOP commands
-        L64helper.transfer(L6470_buf, L64XX::chain[0]);  // Send enough NOOPs to complete any command
-        L64helper.transfer(L6470_buf, L64XX::chain[0]);
-        L64helper.transfer(L6470_buf, L64XX::chain[0]);
+        L64xx_MARLIN.transfer(L6470_buf, L64XX::chain[0]);  // Send enough NOOPs to complete any command
+        L64xx_MARLIN.transfer(L6470_buf, L64XX::chain[0]);
+        L64xx_MARLIN.transfer(L6470_buf, L64XX::chain[0]);
       }
 
-      // L64helper.dir_commands[] is an array that holds direction command for each stepper
+      // L64xx_MARLIN.dir_commands[] is an array that holds direction command for each stepper
 
-      // Scan command array, copy matches into L64helper.transfer
+      // Scan command array, copy matches into L64xx_MARLIN.transfer
       for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
-        L6470_buf[j] = L64helper.dir_commands[L64XX::chain[j]];
+        L6470_buf[j] = L64xx_MARLIN.dir_commands[L64XX::chain[j]];
 
-      L64helper.transfer(L6470_buf, L64XX::chain[0]);  // send the command stream to the drivers
+      L64xx_MARLIN.transfer(L6470_buf, L64XX::chain[0]);  // send the command stream to the drivers
     }
   #endif
 

@@ -915,7 +915,7 @@ void reset_stepper_drivers() {
   #endif
 
   #if HAS_L64XX
-    L64helper.init_to_defaults();
+    L64xx_MARLIN.init_to_defaults();
   #endif
 
   #if HAS_TRINAMIC
@@ -1068,6 +1068,7 @@ void reset_stepper_drivers() {
   // briefly sends power to the steppers
 
   inline void L6470_init_chip(L64XX &st, const int ms, const int oc, const int sc, const int mv, const int slew_rate) {
+    st.set_handlers(L64xx_MARLIN.spi_init, L64xx_MARLIN.transfer_single, L64xx_MARLIN.transfer_chain);  // specify which external SPI routines to use
     st.resetDev();
     st.softFree();
     st.SetParam(st.L64XX_CONFIG, CONFIG_PWM_DIV_1 | CONFIG_PWM_MUL_2 | CONFIG_OC_SD_DISABLE | CONFIG_VS_COMP_DISABLE | CONFIG_SW_HARD_STOP | CONFIG_INT_16MHZ);
@@ -1108,7 +1109,7 @@ void reset_stepper_drivers() {
 
   #define L6470_INIT_CHIP(Q) L6470_init_chip(stepper##Q, Q##_MICROSTEPS, Q##_OVERCURRENT, Q##_STALLCURRENT, Q##_MAX_VOLTAGE, Q##_SLEW_RATE)
 
-  void L6470_Marlin::init_to_defaults() {
+  void L64XX_Marlin::init_to_defaults() {
     #if AXIS_IS_L64XX(X)
       L6470_INIT_CHIP(X);
     #endif

@@ -64,7 +64,7 @@ void GcodeSuite::M916() {
 
   DEBUG_ECHOLNPGM("M916");
 
-  // Variables used by L64helper.get_user_input function - some may not be used
+  // Variables used by L64xx_MARLIN.get_user_input function - some may not be used
   char axis_mon[3][3] = { {"  "}, {"  "}, {"  "} };   // list of Axes to be monitored
   L6470_axis_t axis_index[3];
   uint16_t axis_status[3];
@@ -80,7 +80,7 @@ void GcodeSuite::M916() {
 
   uint8_t j;   // general purpose counter
 
-  if (L64helper.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
+  if (L64xx_MARLIN.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   DEBUG_ECHOLNPAIR("feedrate = ", final_feedrate);
@@ -88,13 +88,13 @@ void GcodeSuite::M916() {
   planner.synchronize();                             // wait for all current movement commands to complete
 
   for (j = 0; j < driver_count; j++)
-    L64helper.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    L64xx_MARLIN.get_status(axis_index[j]);  // clear out any pre-existing error flags
 
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
   char gcode_string[80];
   uint16_t status_composite = 0;
-  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
+  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
 
   DEBUG_ECHOLNPGM(".\n.");
 
@@ -103,7 +103,7 @@ void GcodeSuite::M916() {
     DEBUG_ECHOLNPAIR("kval_hold = ", kval_hold);   // set & report KVAL_HOLD for this run
 
     for (j = 0; j < driver_count; j++)
-      L64helper.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
+      L64xx_MARLIN.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
 
     // turn the motor(s) both directions
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
@@ -118,7 +118,7 @@ void GcodeSuite::M916() {
     status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L64helper.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
+      axis_status[j] = (~L64xx_MARLIN.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
       status_composite |= axis_status[j] ;
     }
 
@@ -197,14 +197,14 @@ void GcodeSuite::M917() {
 
   uint8_t j;   // general purpose counter
 
-  if (L64helper.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
+  if (L64xx_MARLIN.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   DEBUG_ECHOLNPAIR("feedrate = ", final_feedrate);
 
   planner.synchronize();                             // wait for all current movement commands to complete
   for (j = 0; j < driver_count; j++)
-    L64helper.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    L64xx_MARLIN.get_status(axis_index[j]);  // clear out any pre-existing error flags
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
   char gcode_string[80];
@@ -221,7 +221,7 @@ void GcodeSuite::M917() {
   DEBUG_ECHOPAIR("  (STALL_TH: ", stall_th_val);
   DEBUG_ECHOLNPGM(")");
 
-  const L6470_Marlin::L64XX_shadow_t &sh = L64helper.shadow;
+  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
 
   do {
 
@@ -239,7 +239,7 @@ void GcodeSuite::M917() {
     status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L64helper.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
+      axis_status[j] = (~L64xx_MARLIN.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
       status_composite |= axis_status[j];
     }
 
@@ -263,7 +263,7 @@ void GcodeSuite::M917() {
           L6470_EOL();
           DEBUG_ECHOLNPAIR("Lowering KVAL_HOLD by about 5% to ", kval_hold);
           for (j = 0; j < driver_count; j++)
-            L64helper.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
+            L64xx_MARLIN.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         DEBUG_ECHOLNPGM(".");
         gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
@@ -271,7 +271,7 @@ void GcodeSuite::M917() {
         safe_delay(5000);
         status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {
-          axis_status[j] = (~L64helper.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
+          axis_status[j] = (~L64xx_MARLIN.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
           status_composite_temp |= axis_status[j];
         }
       }
@@ -470,7 +470,7 @@ void GcodeSuite::M918() {
 
   uint8_t j;   // general purpose counter
 
-  if (L64helper.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
+  if (L64xx_MARLIN.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   uint8_t m_steps = parser.byteval('M');
@@ -496,7 +496,7 @@ void GcodeSuite::M918() {
   }
 
   for (j = 0; j < driver_count; j++)
-    L64helper.set_param(axis_index[j], L6470_STEP_MODE, m_bits);   // set microsteps
+    L64xx_MARLIN.set_param(axis_index[j], L6470_STEP_MODE, m_bits);   // set microsteps
 
   DEBUG_ECHOLNPAIR("target (maximum) feedrate = ",final_feedrate);
 
@@ -506,7 +506,7 @@ void GcodeSuite::M918() {
   planner.synchronize();                  // wait for all current movement commands to complete
 
   for (j = 0; j < driver_count; j++)
-    L64helper.get_status(axis_index[j]);      // clear all error flags
+    L64xx_MARLIN.get_status(axis_index[j]);      // clear all error flags
 
   char temp_axis_string[2] = " ";
   temp_axis_string[0] = axis_mon[0][0];   // need to have a string for use within sprintf format section
@@ -529,7 +529,7 @@ void GcodeSuite::M918() {
     planner.synchronize();
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L64helper.get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
+      axis_status[j] = (~L64xx_MARLIN.get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
       status_composite |= axis_status[j];
     }
     if (status_composite) break;       // quit if any errors flags are raised
