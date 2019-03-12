@@ -44,7 +44,7 @@
 #define SET_INPUT_PULLUP(IO)    _SET_MODE(IO, INPUT_PULLUP)                       /*!< Input with Pull-up activation         */
 #define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLDOWN)                     /*!< Input with Pull-down activation       */
 #define SET_OUTPUT(IO)          OUT_WRITE(IO, LOW)
-#define SET_PWM(IO)             _SET_MODE(IO, PWM)
+#define SET_PWM(IO)             pinMode(IO, PWM)
 
 #define TOGGLE(IO)              OUT_WRITE(IO, !READ(IO))
 
