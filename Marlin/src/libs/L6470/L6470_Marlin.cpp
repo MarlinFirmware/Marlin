@@ -41,7 +41,7 @@ const char * const L64XX_Marlin::index_to_axis[MAX_L6470] = { "X ", "Y ", "Z ", 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
 
-uint8_t L6470_Marlin::dir_commands[MAX_L6470];  // array to hold direction command for each driver
+uint8_t L64XX_Marlin::dir_commands[MAX_L6470];  // array to hold direction command for each driver
 
 bool L64XX_Marlin::index_to_dir[MAX_L6470] =  { INVERT_X_DIR                        ,  // 0 X
                                                 INVERT_Y_DIR                        ,  // 1 Y
