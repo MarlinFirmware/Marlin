@@ -156,27 +156,30 @@
    * M605: Set multi-nozzle duplication mode
    *
    *  S2       - Enable duplication mode
-   *  P[index] - Last nozzle index to include in the duplication set.
+   *  P[mask]  - Bit-mask of nozzles to include in the duplication set.
+   *             A value of 0 disables duplication.
+   *  E[index] - Last nozzle index to include in the duplication set.
    *             A value of 0 disables duplication.
    */
   void GcodeSuite::M605() {
-    if (parser.seen("PS")) {
-      if (parser.seenval('P')) extruder_duplicating = parser.value_int();
-      if (parser.seenval('S')) {
-        planner.synchronize();
-        const int s = parser.value_int();
-        const bool ena = extruder_duplication_enabled = (s == 2);
-      }
+    if (parser.seen("EPS")) {
+      planner.synchronize();
+      if (parser.seenval('P')) duplication_e_mask = parser.value_int();   // Set the mask directly
+      else if (parser.seenval('E')) duplication_e_mask = pow(2, e + 1) - 1;    // Set the mask by E index
+      const bool ena = (2 == parser.intval('S', extruder_duplication_enabled ? 2 : 0));
+      extruder_duplication_enabled = ena && (duplication_e_mask >= 3);
     }
-    else {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
-      serialprint_onoff(extruder_duplication_enabled);
-      if (ena) SERIAL_ECHOPAIR(" (", s + 1, " nozzles)");
-      SERIAL_EOL();
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
+    serialprint_onoff(extruder_duplication_enabled);
+    if (ena) {
+      SERIAL_ECHOPGM(" ( ");
+      HOTEND_LOOP() if (TEST(duplication_e_mask, e)) { SERIAL_ECHO(e); SERIAL_CHAR(' '); }
+      SERIAL_CHAR(')');
     }
+    SERIAL_EOL();
   }
 
 #endif // MULTI_NOZZLE_DUPLICATION
 
-#endif // DUAL_X_CARRIAGE || MULTI_NOZZLE_DUPLICATION
+#endif // HAS_DUPICATION_MODE
