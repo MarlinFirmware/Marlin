@@ -637,7 +637,7 @@ private:
     static void M217();
   #endif
 
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
     static void M218();
   #endif
 

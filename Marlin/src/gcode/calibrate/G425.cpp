@@ -418,7 +418,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     SERIAL_EOL();
   }
 
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
     //
     // This function requires normalize_hotend_offsets() to be called
     //
@@ -642,7 +642,7 @@ void GcodeSuite::G425() {
       report_measured_backlash(m);
       report_measured_nozzle_dimensions(m);
       report_measured_positional_error(m);
-      #if HOTENDS > 1
+      #if HAS_HOTEND_OFFSET
         normalize_hotend_offsets();
         report_hotend_offsets();
       #endif

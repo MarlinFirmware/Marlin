@@ -431,7 +431,7 @@
 /**
  * Default hotend offsets, if not defined
  */
-#if HOTENDS > 1
+#if HAS_HOTEND_OFFSET
   #ifndef HOTEND_OFFSET_X
     #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
   #endif

@@ -530,7 +530,7 @@ namespace ExtUI {
     }
   #endif // HAS_BED_PROBE
 
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
 
     float getNozzleOffset_mm(const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return 0;
@@ -552,7 +552,7 @@ namespace ExtUI {
       HOTEND_LOOP() hotend_offset[axis][e] -= offs;
     }
 
-  #endif // HOTENDS > 1
+  #endif // HAS_HOTEND_OFFSET
 
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t axis)       { return backlash_distance_mm[axis]; }

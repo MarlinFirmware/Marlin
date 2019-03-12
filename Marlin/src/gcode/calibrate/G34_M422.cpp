@@ -230,13 +230,13 @@ void GcodeSuite::G34() {
 
     // Restore the active tool after homing
     #if HOTENDS > 1
-      tool_change(old_tool_index, 0,
+      tool_change(old_tool_index, 0, (
         #if ENABLED(PARKING_EXTRUDER)
           false // Fetch the previous toolhead
         #else
           true
         #endif
-      );
+      ));
     #endif
 
     #if HAS_LEVELING
