@@ -193,20 +193,7 @@ void clean_up_after_endstop_or_probe_move();
 // Homing
 //
 
-#define HAS_AXIS_UNHOMED_ERR (                                                     \
-         ENABLED(Z_PROBE_ALLEN_KEY)                                                \
-      || ENABLED(Z_PROBE_SLED)                                                     \
-      || HAS_PROBING_PROCEDURE                                                     \
-      || HOTENDS > 1                                                               \
-      || ENABLED(NOZZLE_CLEAN_FEATURE)                                             \
-      || ENABLED(NOZZLE_PARK_FEATURE)                                              \
-      || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)) \
-      || HAS_M206_COMMAND                                                          \
-    ) || ENABLED(NO_MOTION_BEFORE_HOMING)
-
-#if HAS_AXIS_UNHOMED_ERR
-  bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
-#endif
+bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
   #define MOTION_CONDITIONS (IsRunning() && !axis_unhomed_error())

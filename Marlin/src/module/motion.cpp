@@ -47,7 +47,7 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if HAS_AXIS_UNHOMED_ERR && (ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI))
+#if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
   #include "../lcd/ultralcd.h"
 #endif
 
@@ -1036,35 +1036,31 @@ void prepare_move_to_destination() {
   set_current_from_destination();
 }
 
-#if HAS_AXIS_UNHOMED_ERR
+bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
+  #if ENABLED(HOME_AFTER_DEACTIVATE)
+    const bool xx = x && !TEST(axis_known_position, X_AXIS),
+               yy = y && !TEST(axis_known_position, Y_AXIS),
+               zz = z && !TEST(axis_known_position, Z_AXIS);
+  #else
+    const bool xx = x && !TEST(axis_homed, X_AXIS),
+               yy = y && !TEST(axis_homed, Y_AXIS),
+               zz = z && !TEST(axis_homed, Z_AXIS);
+  #endif
+  if (xx || yy || zz) {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPGM(MSG_HOME " ");
+    if (xx) SERIAL_CHAR('X');
+    if (yy) SERIAL_CHAR('Y');
+    if (zz) SERIAL_CHAR('Z');
+    SERIAL_ECHOLNPGM(" " MSG_FIRST);
 
-  bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
-    #if ENABLED(HOME_AFTER_DEACTIVATE)
-      const bool xx = x && !TEST(axis_known_position, X_AXIS),
-                 yy = y && !TEST(axis_known_position, Y_AXIS),
-                 zz = z && !TEST(axis_known_position, Z_AXIS);
-    #else
-      const bool xx = x && !TEST(axis_homed, X_AXIS),
-                 yy = y && !TEST(axis_homed, Y_AXIS),
-                 zz = z && !TEST(axis_homed, Z_AXIS);
+    #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+      ui.status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
     #endif
-    if (xx || yy || zz) {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM(MSG_HOME " ");
-      if (xx) SERIAL_ECHOPGM(MSG_X);
-      if (yy) SERIAL_ECHOPGM(MSG_Y);
-      if (zz) SERIAL_ECHOPGM(MSG_Z);
-      SERIAL_ECHOLNPGM(" " MSG_FIRST);
-
-      #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
-        ui.status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
-      #endif
-      return true;
-    }
-    return false;
+    return true;
   }
-
-#endif // HAS_AXIS_UNHOMED_ERR
+  return false;
+}
 
 /**
  * Homing bump feedrate (mm/s)
