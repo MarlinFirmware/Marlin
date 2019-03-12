@@ -51,6 +51,10 @@
 // Set pin as output wrapper
 #define SET_OUTPUT(IO)        do{ _SET_OUTPUT(IO); WRITE(IO, LOW); }while(0)
 
+// Set pin as PWM
+#define SET_PWM(IO)           SET_OUTPUT(IO)
+
+// Set pin as output and init
 #define OUT_WRITE(IO,V)       do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 
 // digitalRead/Write wrappers

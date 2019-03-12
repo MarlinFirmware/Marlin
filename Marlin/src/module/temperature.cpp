@@ -633,11 +633,11 @@ int Temperature::getHeaterPower(const int heater) {
         SBI(fanState, pgm_read_byte(&fanBit[6]));
     #endif
 
-    #define _UPDATE_AUTO_FAN(P,D,A) do{           \
-      if (USEABLE_HARDWARE_PWM(P##_AUTO_FAN_PIN)) \
-        ANALOG_WRITE(P##_AUTO_FAN_PIN, A);        \
-      else                                        \
-        WRITE(P##_AUTO_FAN_PIN, D);               \
+    #define _UPDATE_AUTO_FAN(P,D,A) do{                                             \
+      if (USEABLE_HARDWARE_PWM(P##_AUTO_FAN_PIN) && EXTRUDER_AUTO_FAN_SPEED < 255)  \
+        ANALOG_WRITE(P##_AUTO_FAN_PIN, A);                                          \
+      else                                                                          \
+        WRITE(P##_AUTO_FAN_PIN, D);                                                 \
     }while(0)
 
     uint8_t fanDone = 0;
@@ -1280,6 +1280,13 @@ void Temperature::updateTemperaturesFromRawValues() {
   SPIclass<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
 #endif
 
+#define _INIT_FAN_PIN(P) do{ if (EXTRUDER_AUTO_FAN_SPEED != 255 && USEABLE_HARDWARE_PWM(P)) SET_PWM(P); else OUT_WRITE(P, FAN_INVERTING ? LOW : HIGH); }while(0)
+#if ENABLED(FAST_PWM_FAN)
+  #define INIT_FAN_PIN(P) do{ _INIT_FAN_PIN(P); set_pwm_frequency(P, FAST_PWM_FAN_FREQUENCY); }while(0)
+#else
+  #define INIT_FAN_PIN(P) _INIT_FAN_PIN(P)
+#endif
+
 /**
  * Initialize the temperature manager
  * The manager is implemented by periodic calls to manage_heater()
@@ -1329,32 +1336,18 @@ void Temperature::init() {
   #if HAS_HEATED_CHAMBER
     OUT_WRITE(HEATER_CHAMBER_PIN, HEATER_CHAMBER_INVERTING);
   #endif
+
   #if HAS_FAN0
-    SET_OUTPUT(FAN_PIN);
-    #if ENABLED(FAST_PWM_FAN)
-      set_pwm_frequency(FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-    #endif
+    INIT_FAN_PIN(FAN_PIN);
   #endif
-
   #if HAS_FAN1
-    SET_OUTPUT(FAN1_PIN);
-    #if ENABLED(FAST_PWM_FAN)
-      set_pwm_frequency(FAN1_PIN, FAST_PWM_FAN_FREQUENCY);
-    #endif
+    INIT_FAN_PIN(FAN1_PIN);
   #endif
-
   #if HAS_FAN2
-    SET_OUTPUT(FAN2_PIN);
-    #if ENABLED(FAST_PWM_FAN)
-      set_pwm_frequency(FAN2_PIN, FAST_PWM_FAN_FREQUENCY);
-    #endif
+    INIT_FAN_PIN(FAN2_PIN);
   #endif
-
   #if ENABLED(USE_CONTROLLER_FAN)
-    SET_OUTPUT(CONTROLLER_FAN_PIN);
-    #if ENABLED(FAST_PWM_FAN)
-      set_pwm_frequency(CONTROLLER_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-    #endif
+    INIT_FAN_PIN(CONTROLLER_FAN_PIN);
   #endif
 
   #if MAX6675_SEPARATE_SPI
@@ -1408,74 +1401,25 @@ void Temperature::init() {
   ENABLE_TEMPERATURE_INTERRUPT();
 
   #if HAS_AUTO_FAN_0
-    #if E0_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E0_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E0_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E0_AUTO_FAN_PIN);
-    #endif
+    INIT_FAN_PIN(E0_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_1 && !AUTO_1_IS_0
-    #if E1_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E1_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E1_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E1_AUTO_FAN_PIN);
-    #endif
+    INIT_FAN_PIN(E1_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_2 && !(AUTO_2_IS_0 || AUTO_2_IS_1)
-    #if E2_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E2_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E2_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E2_AUTO_FAN_PIN);
-    #endif
+    INIT_FAN_PIN(E2_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_3 && !(AUTO_3_IS_0 || AUTO_3_IS_1 || AUTO_3_IS_2)
-    #if E3_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E3_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E3_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E3_AUTO_FAN_PIN);
-    #endif
+    INIT_FAN_PIN(E3_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_4 && !(AUTO_4_IS_0 || AUTO_4_IS_1 || AUTO_4_IS_2 || AUTO_4_IS_3)
-    #if E4_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E4_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E4_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E4_AUTO_FAN_PIN);
-    #endif
+    INIT_FAN_PIN(E4_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_5 && !(AUTO_5_IS_0 || AUTO_5_IS_1 || AUTO_5_IS_2 || AUTO_5_IS_3 || AUTO_5_IS_4)
-    #if E5_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E5_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E5_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E5_AUTO_FAN_PIN);
-    #endif
+    INIT_FAN_PIN(E5_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_CHAMBER_FAN && !(AUTO_CHAMBER_IS_0 || AUTO_CHAMBER_IS_1 || AUTO_CHAMBER_IS_2 || AUTO_CHAMBER_IS_3 || AUTO_CHAMBER_IS_4 || AUTO_CHAMBER_IS_5)
-    #if CHAMBER_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(CHAMBER_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(CHAMBER_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(CHAMBER_AUTO_FAN_PIN);
-    #endif
+    INIT_FAN_PIN(CHAMBER_AUTO_FAN_PIN);
   #endif
 
   // Wait for temperature measurement to settle

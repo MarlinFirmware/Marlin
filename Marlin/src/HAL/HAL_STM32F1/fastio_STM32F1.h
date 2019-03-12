@@ -43,6 +43,7 @@
 #define SET_INPUT(IO)         _SET_MODE(IO, GPIO_INPUT_FLOATING)
 #define SET_INPUT_PULLUP(IO)  _SET_MODE(IO, GPIO_INPUT_PU)
 #define SET_OUTPUT(IO)        OUT_WRITE(IO,LOW)
+#define SET_PWM(IO)           _SET_MODE(IO, PWM)
 
 #define GET_INPUT(IO)         (_GET_MODE(IO) == GPIO_INPUT_FLOATING || _GET_MODE(IO) == GPIO_INPUT_ANALOG || _GET_MODE(IO) == GPIO_INPUT_PU || _GET_MODE(IO) == GPIO_INPUT_PD)
 #define GET_OUTPUT(IO)        (_GET_MODE(IO) == GPIO_OUTPUT_PP)
@@ -55,4 +56,4 @@
 #define extDigitalRead(IO)    digitalRead(IO)
 #define extDigitalWrite(IO,V) digitalWrite(IO,V)
 
-#define ANALOG_WRITE(IO,V)    analogWrite(IO,V)
+#define ANALOG_WRITE(IO,V)    analogWrite(IO,(V)*65535/255)
