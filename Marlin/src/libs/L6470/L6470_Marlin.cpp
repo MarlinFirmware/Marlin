@@ -127,6 +127,13 @@ void L64XX_Marlin::init() {               // Set up SPI and then init chips
   #endif
   L6470_populate_chain_array();           // Set up array to control where in the SPI transfer sequence a particular stepper's data goes
 
+//  typedef void (*spi_init_handler_t)();
+//  typedef uint8_t (*transfer_handler_t)(uint8_t data, const int16_t ss_pin);
+//  typedef uint8_t (*chain_transfer_handler_t)(uint8_t data, const int16_t ss_pin, const uint8_t chain_position);
+//
+////  L64XX.set_handlers(spi_init_handler_t _spi_init, transfer_handler_t _transfer, chain_transfer_handler_t _chain_transfer)
+//  set_handlers((spi_init_handler_t) &L64xx_MARLIN.spi_init, (transfer_handler_t) &L64xx_MARLIN.transfer_single, (chain_transfer_handler_t) &L64xx_MARLIN.transfer_chain);
+
   spi_init();                             // Since L64XX SPI pins are unset we must init SPI here
 
   init_to_defaults();                     // init the chips
@@ -667,7 +674,7 @@ void L64XX_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t
   };
 
   inline void append_stepper_err(char * &p, const uint8_t stepper_index) {
-    const char * const str = L64helper.index_to_axis[stepper_index];
+    const char * const str = L64xx_MARLIN.index_to_axis[stepper_index];
     strcpy_P(p, PSTR("Stepper "));
     p[8] = str[0]; p[9] = str[1]; p[10] = ' '; p[11] = '\0';
     p += 11;

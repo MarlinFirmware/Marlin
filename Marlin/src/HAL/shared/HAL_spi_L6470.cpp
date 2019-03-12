@@ -91,13 +91,13 @@ void L64XX_Marlin::spi_init() {
 
 uint8_t L64XX_Marlin::transfer_single(uint8_t data, int16_t ss_pin) {
   // first device in chain has data sent last
-  extDigitalWrite(ss_pin, LOW);
+  digitalWrite(ss_pin, LOW);
 
   DISABLE_ISRS(); // disable interrupts during SPI transfer (can't allow partial command to chips)
   const uint8_t data_out = L6470_SpiTransfer_Mode_3(data);
   ENABLE_ISRS();  // enable interrupts
 
-  extDigitalWrite(ss_pin, HIGH);
+  digitalWrite(ss_pin, HIGH);
   return data_out;
 }
 
