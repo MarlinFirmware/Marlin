@@ -466,7 +466,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     };
     for (uint8_t j = 1; j <= L64XX::chain[0]; j++) {
       const uint8_t cv = L64XX::chain[j];
-      L64helper.set_param((L6470_axis_t)cv, L6470_ABS_POS, stepper.position(L6470_axis_xref[cv]));
+      L64xx_MARLIN.set_param((L6470_axis_t)cv, L6470_ABS_POS, stepper.position(L6470_axis_xref[cv]));
     }
   #endif
 }
