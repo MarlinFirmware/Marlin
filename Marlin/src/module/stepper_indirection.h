@@ -625,7 +625,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define E_STEP_WRITE(E,V) do{ if (extruder_duplication_enabled) { DUPE(STEP,V); } else _E_STEP_WRITE(E,V); }while(0)
 
     #if E_STEPPERS > 2
-      #define _DUPE(N,T,V)    do{ if (TEST(extruder_duplicating, N)) E##N##_##T##_WRITE(V); }while(0)
+      #define _DUPE(N,T,V)    do{ if (extruder_duplicating <= (N)) E##N##_##T##_WRITE(V); }while(0)
       #if E_STEPPERS > 5
         #define DUPE(T,V)     do{ _DUPE(0,T,V); _DUPE(1,T,V); _DUPE(2,T,V); _DUPE(3,T,V); _DUPE(4,T,V); _DUPE(5,T,V); }while(0)
         #define NORM_E_DIR(E) do{ if (extruder_duplication_enabled) { NDIR(0); NDIR(1); NDIR(2); NDIR(3); NDIR(4); NDIR(5); } else _NORM_E_DIR(E); }while(0)

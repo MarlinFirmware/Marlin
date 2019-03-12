@@ -152,12 +152,28 @@
 
 #elif ENABLED(MULTI_NOZZLE_DUPLICATION)
 
+  /**
+   * M605: Set multi-nozzle duplication mode
+   *
+   *  S2       - Enable duplication mode
+   *  P[index] - Last nozzle index to include in the duplication set.
+   *             A value of 0 disables duplication.
+   */
   void GcodeSuite::M605() {
-    if (parser.seen('S')) {
-      planner.synchronize();
-      extruder_duplication_enabled = parser.value_bool();
-      SERIAL_ECHO_START(); SERIAL_ECHOPGM(MSG_DUPLICATION_MODE); serialprintln_onoff(extruder_duplication_enabled);
-      HOTEND_LOOP() if (extruder_duplication_enabled) SBI(extruder_duplicating, e); else CBI(extruder_duplicating, e);
+    if (parser.seen("PS")) {
+      if (parser.seenval('P')) extruder_duplicating = parser.value_int();
+      if (parser.seenval('S')) {
+        planner.synchronize();
+        const int s = parser.value_int();
+        const bool ena = extruder_duplication_enabled = (s == 2);
+      }
+    }
+    else {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
+      serialprint_onoff(extruder_duplication_enabled);
+      if (ena) SERIAL_ECHOPAIR(" (", s + 1, " nozzles)");
+      SERIAL_EOL();
     }
   }
 
