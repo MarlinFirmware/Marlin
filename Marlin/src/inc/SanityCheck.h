@@ -345,6 +345,8 @@
   #error "TMC_Z_CALIBRATION has been deprecated in favor of Z_STEPPER_AUTO_ALIGN. Please update your configuration."
 #elif defined(Z_MIN_PROBE_ENDSTOP)
   #error "Z_MIN_PROBE_ENDSTOP is no longer required. Please remove it from Configuration.h."
+#elif defined(DUAL_NOZZLE_DUPLICATION_MODE)
+  #error "DUAL_NOZZLE_DUPLICATION_MODE is now MULTI_NOZZLE_DUPLICATION_MODE. Please update your configuration."
 #endif
 
 #define BOARD_MKS_13     -47

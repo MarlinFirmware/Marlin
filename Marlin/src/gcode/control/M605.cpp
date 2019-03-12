@@ -150,14 +150,13 @@
 #elif ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
 
   void GcodeSuite::M605() {
-    if(parser.intval('S')) {}
+    if (parser.intval('S')) {
       planner.synchronize();
       extruder_duplication_enabled = (int)DXC_DUPLICATION_MODE;
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
       serialprintln_onoff(extruder_duplication_enabled);
-      for(int i = 0; i < HOTENDS; i++)
-        extruder_duplicating[i] = extruder_duplication_enabled;
+      HOTEND_LOOP() if (extruder_duplication_enabled) SBI(extruder_duplicating, e); else CBI(extruder_duplicating, e);
     }
   }
 

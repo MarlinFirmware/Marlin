@@ -878,7 +878,7 @@ void clamp_to_software_endstops(float target[XYZ]) {
 #endif
 
 #if ENABLED(MULTI_NOZZLE_DUPLICATION_MODE) && HOTENDS > 2
-  bool extruder_duplicating[HOTENDS] = false;
+  uint8_t extruder_duplicating; // = 0
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)

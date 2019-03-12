@@ -321,7 +321,7 @@ void homeaxis(const AxisEnum axis);
 #endif
 
 #if ENABLED(MULTI_NOZZLE_DUPLICATION_MODE) && HOTENDS > 2
-  bool extruder_duplicating[HOTENDS];
+  uint8_t extruder_duplicating;
 #endif
 
 /**
