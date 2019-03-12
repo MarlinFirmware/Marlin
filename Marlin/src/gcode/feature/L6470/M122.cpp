@@ -130,7 +130,7 @@ inline void L6470_say_status(const L6470_axis_t axis) {
   serialprintPGM(sh.STATUS_AXIS & STATUS_HIZ ? PSTR("OFF") : PSTR("ON "));
   SERIAL_ECHOPGM("   BUSY: "); echo_yes_no(!(sh.STATUS_AXIS & STATUS_BUSY));
   SERIAL_ECHOPGM("   DIR: ");
-  serialprintPGM((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64helper.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
+  serialprintPGM((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64xx_MARLIN.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
   SERIAL_ECHOPGM("   Last Command: ");
   if (sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD) SERIAL_ECHOPGM("IN");
   SERIAL_ECHOPGM("VALID    ");
