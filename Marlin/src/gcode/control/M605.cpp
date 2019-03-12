@@ -38,8 +38,8 @@
    * M605: Set dual x-carriage movement mode
    *
    *    M605    : Restore user specified DEFAULT_DUAL_X_CARRIAGE_MODE
-   *    M605 S0: Full control mode. The slicer has full control over x-carriage movement
-   *    M605 S1: Auto-park mode. The inactive head will auto park/unpark without slicer involvement
+   *    M605 S0 : Full control mode. The slicer has full control over x-carriage movement
+   *    M605 S1 : Auto-park mode. The inactive head will auto park/unpark without slicer involvement
    *    M605 S2 [Xnnn] [Rmmm]: Duplication mode. The second extruder will duplicate the first with nnn
    *                         units x-offset and an optional differential hotend temperature of
    *                         mmm degrees. E.g., with "M605 S2 X100 R2" the second extruder will duplicate
@@ -153,12 +153,10 @@
 #elif ENABLED(MULTI_NOZZLE_DUPLICATION_MODE)
 
   void GcodeSuite::M605() {
-    if (parser.intval('S')) {
+    if (parser.seen('S')) {
       planner.synchronize();
-      extruder_duplication_enabled = (int)DXC_DUPLICATION_MODE;
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
-      serialprintln_onoff(extruder_duplication_enabled);
+      extruder_duplication_enabled = parser.value_bool();
+      SERIAL_ECHO_START(); SERIAL_ECHOPGM(MSG_DUPLICATION_MODE); serialprintln_onoff(extruder_duplication_enabled);
       HOTEND_LOOP() if (extruder_duplication_enabled) SBI(extruder_duplicating, e); else CBI(extruder_duplicating, e);
     }
   }
