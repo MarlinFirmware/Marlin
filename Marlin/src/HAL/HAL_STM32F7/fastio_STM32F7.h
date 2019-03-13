@@ -50,7 +50,7 @@
 #define GET_OUTPUT(IO)
 #define GET_TIMER(IO)
 
-#define PWM_PIN(p) true
+#define PWM_PIN(p)              true
 #define USEABLE_HARDWARE_PWM(p) PWM_PIN(p)
 
 // digitalRead/Write wrappers

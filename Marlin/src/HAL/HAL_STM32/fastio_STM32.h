@@ -77,7 +77,7 @@ void FastIO_init(); // Must be called before using fast io macros
 #define GET_OUTPUT(IO)
 #define GET_TIMER(IO)
 
-#define PWM_PIN(p) digitalPinHasPWM(p)
+#define PWM_PIN(p)              digitalPinHasPWM(p)
 #define USEABLE_HARDWARE_PWM(p) PWM_PIN(p)
 
 // digitalRead/Write wrappers
