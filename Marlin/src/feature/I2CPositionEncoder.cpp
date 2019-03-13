@@ -329,8 +329,8 @@ bool I2CPositionEncoder::test_axis() {
 
   float startCoord[NUM_AXIS] = { 0 }, endCoord[NUM_AXIS] = { 0 };
 
-  const float startPosition = soft_endstop_min[encoderAxis] + 10,
-              endPosition = soft_endstop_max[encoderAxis] - 10,
+  const float startPosition = axis_limits[encoderAxis].min + 10,
+              endPosition = axis_limits[encoderAxis].max - 10,
               feedrate = FLOOR(MMM_TO_MMS((encoderAxis == Z_AXIS) ? HOMING_FEEDRATE_Z : HOMING_FEEDRATE_XY));
 
   ec = false;
@@ -391,7 +391,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
   ec = false;
 
   startDistance = 20;
-  endDistance = soft_endstop_max[encoderAxis] - 20;
+  endDistance = axis_limits[encoderAxis].max - 20;
   travelDistance = endDistance - startDistance;
 
   LOOP_NA(i) {

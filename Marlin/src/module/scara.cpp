@@ -58,7 +58,7 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
 
     current_position[axis] = cartes[axis];
 
-    update_software_endstops(axis);
+    update_axis_limits(axis);
   }
 }
 

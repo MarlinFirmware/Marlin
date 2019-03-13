@@ -190,7 +190,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   #if !HAS_SOFTWARE_ENDSTOPS
-    soft_endstops_enabled = true; // Ensure that safety limits are enabled
+    axis_limits_enabled = true; // Ensure that safety limits are enabled
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)

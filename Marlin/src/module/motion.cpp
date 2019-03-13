@@ -149,13 +149,13 @@ float cartes[XYZ];
   #endif
 
   #if HAS_SOFTWARE_ENDSTOPS
-    float soft_endstop_radius, soft_endstop_radius_2;
+    float delta_limits_radius, delta_limits_radius_2;
   #elif IS_SCARA
-    constexpr float soft_endstop_radius = SCARA_PRINTABLE_RADIUS,
-                    soft_endstop_radius_2 = sq(SCARA_PRINTABLE_RADIUS);
+    constexpr float delta_limits_radius = SCARA_PRINTABLE_RADIUS,
+                    delta_limits_radius_2 = sq(SCARA_PRINTABLE_RADIUS);
   #else // DELTA
-    constexpr float soft_endstop_radius = DELTA_PRINTABLE_RADIUS,
-                    soft_endstop_radius_2 = sq(DELTA_PRINTABLE_RADIUS);
+    constexpr float delta_limits_radius = DELTA_PRINTABLE_RADIUS,
+                    delta_limits_radius_2 = sq(DELTA_PRINTABLE_RADIUS);
   #endif
 
 #endif
@@ -455,17 +455,16 @@ void clean_up_after_endstop_or_probe_move() {
   feedrate_percentage = saved_feedrate_percentage;
 }
 
-bool soft_endstops_enabled = true;
+bool axis_limits_enabled = true;
 
-#if HAS_SOFTWARE_ENDSTOPS
-  // Software Endstops are based on the bed limits
-  float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
-        soft_endstop_max[XYZ] = { X_MAX_BED, Y_MAX_BED, Z_MAX_POS };
-#else
-  // Software Endstops are based on the physical limits
-  float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-        soft_endstop_max[XYZ] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
-#endif
+axis_limits_t axis_limits[XYZ] = {
+  #if HAS_SOFTWARE_ENDSTOPS
+    { X_MIN_BED, X_MAX_BED }, { Y_MIN_BED, Y_MAX_BED }
+  #else
+    { X_MIN_POS, X_MAX_POS }, { Y_MIN_POS, Y_MAX_POS }
+  #endif
+  , { Z_MIN_POS, Z_MAX_POS }
+};
 
 /**
  * Software endstops can be used to monitor the open end of
@@ -476,7 +475,7 @@ bool soft_endstops_enabled = true;
  * the software endstop positions must be refreshed to remain
  * at the same positions relative to the machine.
  */
-void update_software_endstops(const AxisEnum axis
+void update_axis_limits(const AxisEnum axis
   #if HAS_HOTEND_OFFSET
     , const uint8_t old_tool_index/*=0*/, const uint8_t new_tool_index/*=0*/
   #endif
@@ -491,26 +490,26 @@ void update_software_endstops(const AxisEnum axis
 
       if (new_tool_index != 0) {
         // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
-        soft_endstop_min[X_AXIS] = X2_MIN_POS;
-        soft_endstop_max[X_AXIS] = dual_max_x;
+        axis_limits[X_AXIS].min = X2_MIN_POS;
+        axis_limits[X_AXIS].max = dual_max_x;
       }
       else if (dxc_is_duplicating()) {
         // In Duplication Mode, T0 can move as far left as X1_MIN_POS
         // but not so far to the right that T1 would move past the end
-        soft_endstop_min[X_AXIS] = X1_MIN_POS;
-        soft_endstop_max[X_AXIS] = MIN(X1_MAX_POS, dual_max_x - duplicate_extruder_x_offset);
+        axis_limits[X_AXIS].min = X1_MIN_POS;
+        axis_limits[X_AXIS].max = MIN(X1_MAX_POS, dual_max_x - duplicate_extruder_x_offset);
       }
       else {
         // In other modes, T0 can move from X1_MIN_POS to X1_MAX_POS
-        soft_endstop_min[X_AXIS] = X1_MIN_POS;
-        soft_endstop_max[X_AXIS] = X1_MAX_POS;
+        axis_limits[X_AXIS].min = X1_MIN_POS;
+        axis_limits[X_AXIS].max = X1_MAX_POS;
       }
     }
 
   #elif ENABLED(DELTA)
 
-    soft_endstop_min[axis] = base_min_pos(axis);
-    soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height
+    axis_limits[axis].min = base_min_pos(axis);
+    axis_limits[axis].max = (axis == Z_AXIS ? delta_height
     #if HAS_BED_PROBE
       - zprobe_zoffset
     #endif
@@ -520,11 +519,11 @@ void update_software_endstops(const AxisEnum axis
       case X_AXIS:
       case Y_AXIS:
         // Get a minimum radius for clamping
-        soft_endstop_radius = MIN(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
-        soft_endstop_radius_2 = sq(soft_endstop_radius);
+        delta_limits_radius = MIN(ABS(MAX(axis_limits[X_AXIS].min, axis_limits[Y_AXIS].min)), axis_limits[X_AXIS].max, axis_limits[Y_AXIS].max);
+        delta_limits_radius_2 = sq(delta_limits_radius);
         break;
       case Z_AXIS:
-        delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
+        delta_clip_start_height = axis_limits[axis].max - delta_safe_distance_from_top();
       default: break;
     }
 
@@ -535,28 +534,25 @@ void update_software_endstops(const AxisEnum axis
     // retain the same physical limit when other tools are selected.
     if (old_tool_index != new_tool_index) {
       const float offs = hotend_offset[axis][new_tool_index] - hotend_offset[axis][old_tool_index];
-      soft_endstop_min[axis] += offs;
-      soft_endstop_max[axis] += offs;
+      axis_limits[axis].min += offs;
+      axis_limits[axis].max += offs;
     }
     else {
       const float offs = hotend_offset[axis][active_extruder];
-      soft_endstop_min[axis] = base_min_pos(axis) + offs;
-      soft_endstop_max[axis] = base_max_pos(axis) + offs;
+      axis_limits[axis].min = base_min_pos(axis) + offs;
+      axis_limits[axis].max = base_max_pos(axis) + offs;
     }
 
   #else
 
-    soft_endstop_min[axis] = base_min_pos(axis);
-    soft_endstop_max[axis] = base_max_pos(axis);
+    axis_limits[axis].min = base_min_pos(axis);
+    axis_limits[axis].max = base_max_pos(axis);
 
   #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("For ", axis_codes[axis]);
-      SERIAL_ECHOPAIR(" axis:\n soft_endstop_min = ", soft_endstop_min[axis]);
-      SERIAL_ECHOLNPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
-    }
+    if (DEBUGGING(LEVELING))
+      SERIAL_ECHOLNPAIR("Axis ", axis_codes[axis], " min:", axis_limits[axis].min, " max:", axis_limits[axis].max);
   #endif
 }
 
@@ -566,9 +562,9 @@ void update_software_endstops(const AxisEnum axis
  * For DELTA/SCARA the XY constraint is based on the smallest
  * radius within the set software endstops.
  */
-void clamp_to_software_endstops(float target[XYZ]) {
+void apply_axis_limits(float target[XYZ]) {
 
-  if (!soft_endstops_enabled) return;
+  if (!axis_limits_enabled) return;
 
   #if IS_KINEMATIC
 
@@ -581,8 +577,8 @@ void clamp_to_software_endstops(float target[XYZ]) {
     #endif
 
     const float dist_2 = HYPOT2(target[X_AXIS] - offx, target[Y_AXIS] - offy);
-    if (dist_2 > soft_endstop_radius_2) {
-      const float ratio = (soft_endstop_radius) / SQRT(dist_2); // 200 / 300 = 0.66
+    if (dist_2 > delta_limits_radius_2) {
+      const float ratio = (delta_limits_radius) / SQRT(dist_2); // 200 / 300 = 0.66
       target[X_AXIS] *= ratio;
       target[Y_AXIS] *= ratio;
     }
@@ -590,25 +586,25 @@ void clamp_to_software_endstops(float target[XYZ]) {
   #else
 
     #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+      NOLESS(target[X_AXIS], axis_limits[X_AXIS].min);
     #endif
     #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+      NOMORE(target[X_AXIS], axis_limits[X_AXIS].max);
     #endif
     #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+      NOLESS(target[Y_AXIS], axis_limits[Y_AXIS].min);
     #endif
     #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+      NOMORE(target[Y_AXIS], axis_limits[Y_AXIS].max);
     #endif
 
   #endif
 
   #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-    NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
+    NOLESS(target[Z_AXIS], axis_limits[Z_AXIS].min);
   #endif
   #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-    NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
+    NOMORE(target[Z_AXIS], axis_limits[Z_AXIS].max);
   #endif
 }
 
@@ -997,7 +993,7 @@ void clamp_to_software_endstops(float target[XYZ]) {
  * before calling or cold/lengthy extrusion may get missed.
  */
 void prepare_move_to_destination() {
-  clamp_to_software_endstops(destination);
+  apply_axis_limits(destination);
 
   #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
 

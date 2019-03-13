@@ -35,16 +35,16 @@
 void GcodeSuite::M211() {
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
-  if (parser.seen('S')) soft_endstops_enabled = parser.value_bool();
-  serialprint_onoff(soft_endstops_enabled);
+  if (parser.seen('S')) axis_limits_enabled = parser.value_bool();
+  serialprint_onoff(axis_limits_enabled);
   SERIAL_ECHOPGM(MSG_SOFT_MIN);
-  SERIAL_ECHOPAIR(    MSG_X, LOGICAL_X_POSITION(soft_endstop_min[X_AXIS]));
-  SERIAL_ECHOPAIR(" " MSG_Y, LOGICAL_Y_POSITION(soft_endstop_min[Y_AXIS]));
-  SERIAL_ECHOPAIR(" " MSG_Z, LOGICAL_Z_POSITION(soft_endstop_min[Z_AXIS]));
+  SERIAL_ECHOPAIR(    MSG_X, LOGICAL_X_POSITION(axis_limits[X_AXIS].min));
+  SERIAL_ECHOPAIR(" " MSG_Y, LOGICAL_Y_POSITION(axis_limits[Y_AXIS].min));
+  SERIAL_ECHOPAIR(" " MSG_Z, LOGICAL_Z_POSITION(axis_limits[Z_AXIS].min));
   SERIAL_ECHOPGM(MSG_SOFT_MAX);
-  SERIAL_ECHOPAIR(    MSG_X, LOGICAL_X_POSITION(soft_endstop_max[X_AXIS]));
-  SERIAL_ECHOPAIR(" " MSG_Y, LOGICAL_Y_POSITION(soft_endstop_max[Y_AXIS]));
-  SERIAL_ECHOLNPAIR(" " MSG_Z, LOGICAL_Z_POSITION(soft_endstop_max[Z_AXIS]));
+  SERIAL_ECHOPAIR(    MSG_X, LOGICAL_X_POSITION(axis_limits[X_AXIS].max));
+  SERIAL_ECHOPAIR(" " MSG_Y, LOGICAL_Y_POSITION(axis_limits[Y_AXIS].max));
+  SERIAL_ECHOLNPAIR(" " MSG_Z, LOGICAL_Z_POSITION(axis_limits[Z_AXIS].max));
 }
 
 #endif

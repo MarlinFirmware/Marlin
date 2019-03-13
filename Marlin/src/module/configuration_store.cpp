@@ -321,7 +321,7 @@ void MarlinSettings::postprocess() {
   // Software endstops depend on home_offset
   LOOP_XYZ(i) {
     update_workspace_offset((AxisEnum)i);
-    update_software_endstops((AxisEnum)i);
+    update_axis_limits((AxisEnum)i);
   }
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)

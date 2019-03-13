@@ -736,7 +736,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
       #if HAS_SOFTWARE_ENDSTOPS && ENABLED(DUAL_X_CARRIAGE)
-        update_software_endstops(X_AXIS, active_extruder, tmp_extruder);
+        update_axis_limits(X_AXIS, active_extruder, tmp_extruder);
       #endif
 
       set_destination_from_current();
@@ -750,7 +750,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
           current_position[Z_AXIS] += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
-            NOMORE(current_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
+            NOMORE(current_position[Z_AXIS], axis_limits[Z_AXIS].max);
           #endif
           planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
         #endif
@@ -782,7 +782,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         current_position[Z_AXIS] += MAX(-zdiff, 0.0) + toolchange_settings.z_raise;
         #if HAS_SOFTWARE_ENDSTOPS
-          NOMORE(current_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
+          NOMORE(current_position[Z_AXIS], axis_limits[Z_AXIS].max);
         #endif
         if (!no_move) fast_line_to_current(Z_AXIS);
         move_nozzle_servo(tmp_extruder);
@@ -805,7 +805,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       sync_plan_position();
 
       #if ENABLED(DELTA)
-        //LOOP_XYZ(i) update_software_endstops(i); // or modify the constrain function
+        //LOOP_XYZ(i) update_axis_limits(i); // or modify the constrain function
         const bool safe_to_move = current_position[Z_AXIS] < delta_clip_start_height - 1;
       #else
         constexpr bool safe_to_move = true;

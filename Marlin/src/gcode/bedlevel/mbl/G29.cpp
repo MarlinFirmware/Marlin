@@ -59,7 +59,7 @@ void GcodeSuite::G29() {
 
   static int mbl_probe_index = -1;
   #if HAS_SOFTWARE_ENDSTOPS
-    static bool enable_soft_endstops;
+    static bool saved_axis_limits_state;
   #endif
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
@@ -98,20 +98,20 @@ void GcodeSuite::G29() {
       // For each G29 S2...
       if (mbl_probe_index == 0) {
         // For the initial G29 S2 save software endstop state
-        enable_soft_endstops = soft_endstops_enabled;
+        saved_axis_limits_state = axis_limits_enabled;
         // Move close to the bed before the first point
         do_blocking_move_to_z(0);
       }
       else {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
-        soft_endstops_enabled = enable_soft_endstops;
+        axis_limits_enabled = saved_axis_limits_state;
       }
       // If there's another point to sample, move there with optional lift.
       if (mbl_probe_index < GRID_MAX_POINTS) {
         mbl.zigzag(mbl_probe_index++, ix, iy);
         _manual_goto_xy(mbl.index_to_xpos[ix], mbl.index_to_ypos[iy]);
-        soft_endstops_enabled = false;
+        axis_limits_enabled = false;
       }
       else {
         // One last "return to the bed" (as originally coded) at completion

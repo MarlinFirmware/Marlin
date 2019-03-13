@@ -82,29 +82,29 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
           max = current_position[axis] + 1000;
 
     // Limit to software endstops, if enabled
-    if (soft_endstops_enabled) switch (axis) {
+    if (axis_limits_enabled) switch (axis) {
       case X_AXIS:
         #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-          min = soft_endstop_min[X_AXIS];
+          min = axis_limits[X_AXIS].min;
         #endif
         #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-          max = soft_endstop_max[X_AXIS];
+          max = axis_limits[X_AXIS].max;
         #endif
         break;
       case Y_AXIS:
         #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-          min = soft_endstop_min[Y_AXIS];
+          min = axis_limits[Y_AXIS].min;
         #endif
         #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-          max = soft_endstop_max[Y_AXIS];
+          max = axis_limits[Y_AXIS].max;
         #endif
         break;
       case Z_AXIS:
         #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-          min = soft_endstop_min[Z_AXIS];
+          min = axis_limits[Z_AXIS].min;
         #endif
         #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-          max = soft_endstop_max[Z_AXIS];
+          max = axis_limits[Z_AXIS].max;
         #endif
       default: break;
     }
@@ -303,7 +303,7 @@ void menu_move() {
   MENU_BACK(MSG_MOTION);
 
   #if HAS_SOFTWARE_ENDSTOPS && ENABLED(SOFT_ENDSTOPS_MENU_ITEM)
-    MENU_ITEM_EDIT(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstops_enabled);
+    MENU_ITEM_EDIT(bool, MSG_LCD_SOFT_ENDSTOPS, &axis_limits_enabled);
   #endif
 
   if (

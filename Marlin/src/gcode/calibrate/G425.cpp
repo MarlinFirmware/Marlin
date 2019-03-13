@@ -75,7 +75,7 @@ struct measurements_t {
 };
 
 #define TEMPORARY_BED_LEVELING_STATE(enable) TemporaryBedLevelingState tbls(enable)
-#define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
+#define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, axis_limits_enabled, enable);
 
 #if ENABLED(BACKLASH_GCODE)
   #define TEMPORARY_BACKLASH_CORRECTION(value) REMEMBER(tbst, backlash_correction, value)

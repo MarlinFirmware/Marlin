@@ -118,10 +118,12 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
   constexpr float hotend_offset[XYZ][HOTENDS] = { { 0 }, { 0 }, { 0 } };
 #endif
 
-extern bool soft_endstops_enabled;
-extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
-void clamp_to_software_endstops(float target[XYZ]);
-void update_software_endstops(const AxisEnum axis
+typedef struct { float min, max; } axis_limits_t;
+
+extern bool axis_limits_enabled;
+extern axis_limits_t axis_limits[XYZ];
+void apply_axis_limits(float target[XYZ]);
+void update_axis_limits(const AxisEnum axis
   #if HAS_HOTEND_OFFSET
     , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
   #endif

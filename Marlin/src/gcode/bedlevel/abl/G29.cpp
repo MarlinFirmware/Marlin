@@ -212,7 +212,7 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   #if HAS_SOFTWARE_ENDSTOPS && ENABLED(PROBE_MANUALLY)
-    ABL_VAR bool enable_soft_endstops = true;
+    ABL_VAR bool saved_axis_limits_state = true;
   #endif
 
   #if ABL_GRID
@@ -493,7 +493,7 @@ G29_TYPE GcodeSuite::G29() {
     // Abort current G29 procedure, go back to idle state
     if (seenA && g29_in_progress) {
       SERIAL_ECHOLNPGM("Manual G29 aborted");
-      soft_endstops_enabled = enable_soft_endstops;
+      axis_limits_enabled = saved_axis_limits_state;
       set_bed_leveling_enabled(abl_should_enable);
       g29_in_progress = false;
       #if ENABLED(LCD_BED_LEVELING)
@@ -516,7 +516,7 @@ G29_TYPE GcodeSuite::G29() {
 
     if (abl_probe_index == 0) {
       // For the initial G29 S2 save software endstop state
-      enable_soft_endstops = soft_endstops_enabled;
+      saved_axis_limits_state = axis_limits_enabled;
       // Move close to the bed before the first point
       do_blocking_move_to_z(0);
     }
@@ -598,7 +598,7 @@ G29_TYPE GcodeSuite::G29() {
       // Is there a next point to move to?
       if (abl_probe_index < abl_points) {
         _manual_goto_xy(xProbe, yProbe); // Can be used here too!
-        soft_endstops_enabled = false;
+        axis_limits_enabled = false;
         G29_RETURN(false);
       }
       else {
@@ -608,7 +608,7 @@ G29_TYPE GcodeSuite::G29() {
         SERIAL_ECHOLNPGM("Grid probing done.");
 
         // Re-enable software endstops, if needed
-        soft_endstops_enabled = enable_soft_endstops;
+        axis_limits_enabled = saved_axis_limits_state;
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
@@ -618,7 +618,7 @@ G29_TYPE GcodeSuite::G29() {
         xProbe = points[abl_probe_index].x;
         yProbe = points[abl_probe_index].y;
         _manual_goto_xy(xProbe, yProbe);
-        soft_endstops_enabled = false;
+        axis_limits_enabled = false;
         G29_RETURN(false);
       }
       else {
@@ -626,7 +626,7 @@ G29_TYPE GcodeSuite::G29() {
         SERIAL_ECHOLNPGM("3-point probing done.");
 
         // Re-enable software endstops, if needed
-        soft_endstops_enabled = enable_soft_endstops;
+        axis_limits_enabled = saved_axis_limits_state;
 
         if (!dryrun) {
           vector_3 planeNormal = vector_3::cross(points[0] - points[1], points[2] - points[1]).get_normal();
