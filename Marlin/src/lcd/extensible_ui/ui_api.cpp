@@ -577,7 +577,7 @@ namespace ExtUI {
     return elapsed.value;
   }
 
-   #if HAS_LEVELING
+  #if HAS_LEVELING
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state) }
     #if HAS_MESH
