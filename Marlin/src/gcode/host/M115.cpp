@@ -164,5 +164,13 @@ void GcodeSuite::M115() {
       #endif
     );
 
+    // CHAMBER_TEMPERATURE (M141, M191)
+    cap_line(PSTR("CHAMBER_TEMPERATURE")
+      #if HAS_HEATED_CHAMBER
+        , true
+      #endif
+    );
+
+
   #endif // EXTENDED_CAPABILITIES_REPORT
 }
