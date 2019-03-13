@@ -352,4 +352,4 @@ enum ClockSource2 : char {
   #error "unknown CPU"
 #endif
 
-#define USEABLE_HARDWARE_PWM(P) (PWM_PIN(P) && !PWM_CHK(p))
+#define USEABLE_HARDWARE_PWM(P) (PWM_PIN(P) && !PWM_CHK(P))
