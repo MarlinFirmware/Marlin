@@ -739,7 +739,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
           current_position[Z_AXIS] += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
-            NOMORE(current_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
+            NOMORE(current_position[Z_AXIS], soft_endstop[Z_AXIS].max);
           #endif
           planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
         #endif
@@ -771,7 +771,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         current_position[Z_AXIS] += MAX(-zdiff, 0.0) + toolchange_settings.z_raise;
         #if HAS_SOFTWARE_ENDSTOPS
-          NOMORE(current_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
+          NOMORE(current_position[Z_AXIS], soft_endstop[Z_AXIS].max);
         #endif
         if (!no_move) fast_line_to_current(Z_AXIS);
         move_nozzle_servo(tmp_extruder);
@@ -840,7 +840,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #endif
 
         // Prevent a move outside physical bounds
-        clamp_to_software_endstops(destination);
+        apply_motion_limits(destination);
 
         // Move back to the original (or tweaked) position
         do_blocking_move_to(destination);

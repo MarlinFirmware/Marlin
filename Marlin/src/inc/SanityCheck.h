@@ -2121,3 +2121,14 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "Both SERVICE_NAME_3 and SERVICE_INTERVAL_3 are required."
   #endif
 #endif
+
+/**
+ * Require soft endstops for certain setups
+ */
+#if DISABLED(MIN_SOFTWARE_ENDSTOPS) || DISABLED(MAX_SOFTWARE_ENDSTOPS)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #error "DUAL_X_CARRIAGE requires both MIN_ and MAX_SOFTWARE_ENDSTOPS."
+  #elif HAS_HOTEND_OFFSET
+    #error "MIN_ and MAX_SOFTWARE_ENDSTOPS are both required with offset hotends."
+  #endif
+#endif

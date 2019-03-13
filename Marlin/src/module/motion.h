@@ -118,22 +118,22 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
   constexpr float hotend_offset[XYZ][HOTENDS] = { { 0 }, { 0 }, { 0 } };
 #endif
 
+typedef struct { float min, max; } axis_limits_t;
 #if HAS_SOFTWARE_ENDSTOPS
   extern bool soft_endstops_enabled;
-  extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
+  extern axis_limits_t soft_endstop[XYZ];
+  void apply_motion_limits(float target[XYZ]);
   void update_software_endstops(const AxisEnum axis
     #if HAS_HOTEND_OFFSET
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
 #else
-  constexpr bool soft_endstops_enabled = true;
-  constexpr float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-                  soft_endstop_max[XYZ] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+  constexpr bool soft_endstops_enabled = false;
+  //constexpr axis_limits_t soft_endstop[XYZ] = { { X_MIN_POS, X_MAX_POS }, { Y_MIN_POS, Y_MAX_POS }, { Z_MIN_POS, Z_MAX_POS } };
+  #define apply_motion_limits(V)    NOOP
   #define update_software_endstops(...) NOOP
 #endif
-
-void clamp_to_software_endstops(float target[XYZ]);
 
 void report_current_position();
 
