@@ -188,7 +188,7 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
     // not linear in the distance.
     bez_target[Z_AXIS] = interp(position[Z_AXIS], target[Z_AXIS], t);
     bez_target[E_AXIS] = interp(position[E_AXIS], target[E_AXIS], t);
-    clamp_to_software_endstops(bez_target);
+    apply_motion_limits(bez_target);
 
     #if HAS_LEVELING && !PLANNER_LEVELING
       float pos[XYZE] = { bez_target[X_AXIS], bez_target[Y_AXIS], bez_target[Z_AXIS], bez_target[E_AXIS] };

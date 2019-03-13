@@ -149,13 +149,13 @@ float cartes[XYZ];
   #endif
 
   #if HAS_SOFTWARE_ENDSTOPS
-    float soft_endstop_radius, soft_endstop_radius_2;
+    float delta_max_radius, delta_max_radius_2;
   #elif IS_SCARA
-    constexpr float soft_endstop_radius = SCARA_PRINTABLE_RADIUS,
-                    soft_endstop_radius_2 = sq(SCARA_PRINTABLE_RADIUS);
+    constexpr float delta_max_radius = SCARA_PRINTABLE_RADIUS,
+                    delta_max_radius_2 = sq(SCARA_PRINTABLE_RADIUS);
   #else // DELTA
-    constexpr float soft_endstop_radius = DELTA_PRINTABLE_RADIUS,
-                    soft_endstop_radius_2 = sq(DELTA_PRINTABLE_RADIUS);
+    constexpr float delta_max_radius = DELTA_PRINTABLE_RADIUS,
+                    delta_max_radius_2 = sq(DELTA_PRINTABLE_RADIUS);
   #endif
 
 #endif
@@ -460,8 +460,7 @@ void clean_up_after_endstop_or_probe_move() {
   bool soft_endstops_enabled = true;
 
   // Software Endstops are based on the configured limits.
-  float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
-        soft_endstop_max[XYZ] = { X_MAX_BED, Y_MAX_BED, Z_MAX_POS };
+  axis_limits_t soft_endstop[XYZ] = { { X_MIN_BED, X_MAX_BED }, { Y_MIN_BED, Y_MAX_BED }, { Z_MIN_POS, Z_MAX_POS } };
 
   /**
    * Software endstops can be used to monitor the open end of
@@ -487,26 +486,27 @@ void clean_up_after_endstop_or_probe_move() {
 
         if (new_tool_index != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
-          soft_endstop_min[X_AXIS] = X2_MIN_POS;
-          soft_endstop_max[X_AXIS] = dual_max_x;
+          soft_endstop[X_AXIS].min = X2_MIN_POS;
+          soft_endstop[X_AXIS].max = dual_max_x;
         }
         else if (dxc_is_duplicating()) {
           // In Duplication Mode, T0 can move as far left as X1_MIN_POS
           // but not so far to the right that T1 would move past the end
-          soft_endstop_min[X_AXIS] = X1_MIN_POS;
-          soft_endstop_max[X_AXIS] = MIN(X1_MAX_POS, dual_max_x - duplicate_extruder_x_offset);
+          soft_endstop[X_AXIS].min = X1_MIN_POS;
+          soft_endstop[X_AXIS].max = MIN(X1_MAX_POS, dual_max_x - duplicate_extruder_x_offset);
         }
         else {
           // In other modes, T0 can move from X1_MIN_POS to X1_MAX_POS
-          soft_endstop_min[X_AXIS] = X1_MIN_POS;
-          soft_endstop_max[X_AXIS] = X1_MAX_POS;
+          soft_endstop[X_AXIS].min = X1_MIN_POS;
+          soft_endstop[X_AXIS].max = X1_MAX_POS;
         }
+
       }
 
     #elif ENABLED(DELTA)
 
-      soft_endstop_min[axis] = base_min_pos(axis);
-      soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height
+      soft_endstop[axis].min = base_min_pos(axis);
+      soft_endstop[axis].max = (axis == Z_AXIS ? delta_height
       #if HAS_BED_PROBE
         - zprobe_zoffset
       #endif
@@ -516,11 +516,11 @@ void clean_up_after_endstop_or_probe_move() {
         case X_AXIS:
         case Y_AXIS:
           // Get a minimum radius for clamping
-          soft_endstop_radius = MIN(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
-          soft_endstop_radius_2 = sq(soft_endstop_radius);
+          delta_max_radius = MIN(ABS(MAX(soft_endstop[X_AXIS].min, soft_endstop[Y_AXIS].min)), soft_endstop[X_AXIS].max, soft_endstop[Y_AXIS].max);
+          delta_max_radius_2 = sq(delta_max_radius);
           break;
         case Z_AXIS:
-          delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
+          delta_clip_start_height = soft_endstop[axis].max - delta_safe_distance_from_top();
         default: break;
       }
 
@@ -531,84 +531,81 @@ void clean_up_after_endstop_or_probe_move() {
       // retain the same physical limit when other tools are selected.
       if (old_tool_index != new_tool_index) {
         const float offs = hotend_offset[axis][new_tool_index] - hotend_offset[axis][old_tool_index];
-        soft_endstop_min[axis] += offs;
-        soft_endstop_max[axis] += offs;
+        soft_endstop[axis].min += offs;
+        soft_endstop[axis].max += offs;
       }
       else {
         const float offs = hotend_offset[axis][active_extruder];
-        soft_endstop_min[axis] = base_min_pos(axis) + offs;
-        soft_endstop_max[axis] = base_max_pos(axis) + offs;
+        soft_endstop[axis].min = base_min_pos(axis) + offs;
+        soft_endstop[axis].max = base_max_pos(axis) + offs;
       }
 
     #else
 
-      soft_endstop_min[axis] = base_min_pos(axis);
-      soft_endstop_max[axis] = base_max_pos(axis);
+      soft_endstop[axis].min = base_min_pos(axis);
+      soft_endstop[axis].max = base_max_pos(axis);
 
     #endif
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("For ", axis_codes[axis]);
-        SERIAL_ECHOPAIR(" axis:\n soft_endstop_min = ", soft_endstop_min[axis]);
-        SERIAL_ECHOLNPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING))
+      SERIAL_ECHOLNPAIR("Axis ", axis_codes[axis], " min:", soft_endstop[axis].min, " max:", soft_endstop[axis].max);
+  #endif
+}
+
+  /**
+   * Constrain the given coordinates to the software endstops.
+   *
+   * For DELTA/SCARA the XY constraint is based on the smallest
+   * radius within the set software endstops.
+   */
+  void apply_motion_limits(float target[XYZ]) {
+
+    if (!soft_endstops_enabled) return;
+
+    #if IS_KINEMATIC
+
+      #if HAS_HOTEND_OFFSET && ENABLED(DELTA)
+        // The effector center position will be the target minus the hotend offset.
+        const float offx = hotend_offset[X_AXIS][active_extruder], offy = hotend_offset[Y_AXIS][active_extruder];
+      #else
+        // SCARA needs to consider the angle of the arm through the entire move, so for now use no tool offset.
+        constexpr float offx = 0, offy = 0;
+      #endif
+
+      const float dist_2 = HYPOT2(target[X_AXIS] - offx, target[Y_AXIS] - offy);
+      if (dist_2 > delta_max_radius_2) {
+        const float ratio = (delta_max_radius) / SQRT(dist_2); // 200 / 300 = 0.66
+        target[X_AXIS] *= ratio;
+        target[Y_AXIS] *= ratio;
       }
+
+    #else
+
+      #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+        NOLESS(target[X_AXIS], soft_endstop[X_AXIS].min);
+      #endif
+      #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+        NOMORE(target[X_AXIS], soft_endstop[X_AXIS].max);
+      #endif
+      #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+        NOLESS(target[Y_AXIS], soft_endstop[Y_AXIS].min);
+      #endif
+      #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+        NOMORE(target[Y_AXIS], soft_endstop[Y_AXIS].max);
+      #endif
+
+    #endif
+
+    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
+      NOLESS(target[Z_AXIS], soft_endstop[Z_AXIS].min);
+    #endif
+    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
+      NOMORE(target[Z_AXIS], soft_endstop[Z_AXIS].max);
     #endif
   }
 
 #endif // HAS_SOFTWARE_ENDSTOPS
-
-/**
- * Constrain the given coordinates to the software endstops.
- *
- * For DELTA/SCARA the XY constraint is based on the smallest
- * radius within the set software endstops.
- */
-void clamp_to_software_endstops(float target[XYZ]) {
-
-  if (!soft_endstops_enabled) return;
-
-  #if IS_KINEMATIC
-
-    #if HAS_HOTEND_OFFSET && ENABLED(DELTA)
-      // The effector center position will be the target minus the hotend offset.
-      const float offx = hotend_offset[X_AXIS][active_extruder], offy = hotend_offset[Y_AXIS][active_extruder];
-    #else
-      // SCARA needs to consider the angle of the arm through the entire move, so for now use no tool offset.
-      constexpr float offx = 0, offy = 0;
-    #endif
-
-    const float dist_2 = HYPOT2(target[X_AXIS] - offx, target[Y_AXIS] - offy);
-    if (dist_2 > soft_endstop_radius_2) {
-      const float ratio = (soft_endstop_radius) / SQRT(dist_2); // 200 / 300 = 0.66
-      target[X_AXIS] *= ratio;
-      target[Y_AXIS] *= ratio;
-    }
-
-  #else
-
-    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
-    #endif
-    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
-    #endif
-    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
-    #endif
-    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
-    #endif
-
-  #endif
-
-  #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-    NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
-  #endif
-  #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-    NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
-  #endif
-}
 
 #if !UBL_SEGMENTED
 #if IS_KINEMATIC
@@ -995,7 +992,7 @@ void clamp_to_software_endstops(float target[XYZ]) {
  * before calling or cold/lengthy extrusion may get missed.
  */
 void prepare_move_to_destination() {
-  clamp_to_software_endstops(destination);
+  apply_motion_limits(destination);
 
   #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
 
