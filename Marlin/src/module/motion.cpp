@@ -872,9 +872,13 @@ void clamp_to_software_endstops(float target[XYZ]) {
 #endif // !IS_KINEMATIC
 #endif // !UBL_SEGMENTED
 
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  bool extruder_duplication_enabled = false,                              // Used in Dual X mode 2 & 3
-       scaled_duplication_mode      = false;                              // Used in Dual X mode 2 & 3
+#if HAS_DUPLICATION_MODE
+  bool extruder_duplication_enabled;
+       //scaled_duplication_mode;
+#endif
+
+#if ENABLED(MULTI_NOZZLE_DUPLICATION) && HOTENDS > 2
+  uint8_t duplication_e_mask; // = 0
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)

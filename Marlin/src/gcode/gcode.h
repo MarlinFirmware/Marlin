@@ -769,7 +769,7 @@ private:
     static void M603();
   #endif
 
-  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+  #if HAS_DUPLICATION_MODE
     static void M605();
   #endif
 
