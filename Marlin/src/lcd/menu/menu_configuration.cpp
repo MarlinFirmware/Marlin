@@ -299,7 +299,7 @@ void menu_configuration() {
   // Set Case light on/off/brightness
   //
   #if ENABLED(MENU_ITEM_CASE_LIGHT)
-    if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
+    if (PWM_PIN(CASE_LIGHT_PIN))
       MENU_ITEM(submenu, MSG_CASE_LIGHT, menu_case_light);
     else
       MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);

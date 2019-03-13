@@ -1290,13 +1290,13 @@ void Planner::check_axes_activity() {
     #else
 
       #if HAS_FAN0
-        analogWrite(FAN_PIN, CALC_FAN_SPEED(0));
+        ANALOG_WRITE(FAN_PIN, CALC_FAN_SPEED(0));
       #endif
       #if HAS_FAN1
-        analogWrite(FAN1_PIN, CALC_FAN_SPEED(1));
+        ANALOG_WRITE(FAN1_PIN, CALC_FAN_SPEED(1));
       #endif
       #if HAS_FAN2
-        analogWrite(FAN2_PIN, CALC_FAN_SPEED(2));
+        ANALOG_WRITE(FAN2_PIN, CALC_FAN_SPEED(2));
       #endif
     #endif
 
@@ -1308,10 +1308,10 @@ void Planner::check_axes_activity() {
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
-      analogWrite(HEATER_1_PIN, tail_valve_pressure);
+      ANALOG_WRITE(HEATER_1_PIN, tail_valve_pressure);
     #endif
     #if HAS_HEATER_2
-      analogWrite(HEATER_2_PIN, tail_e_to_p_pressure);
+      ANALOG_WRITE(HEATER_2_PIN, tail_e_to_p_pressure);
     #endif
   #endif
 }

@@ -28,8 +28,6 @@
 #include <Arduino.h>
 #include <pinmapping.h>
 
-#define USEABLE_HARDWARE_PWM(pin) false
-
 #define SET_DIR_INPUT(IO)     Gpio::setDir(IO, 1)
 #define SET_DIR_OUTPUT(IO)    Gpio::setDir(IO, 0)
 
@@ -110,6 +108,8 @@
 #define SET_INPUT_PULLDOWN(IO) do{ _SET_INPUT(IO); _PULLDOWN(IO, HIGH); }while(0)
 /// set pin as output wrapper  -  reads the pin and sets the output to that value
 #define SET_OUTPUT(IO)        do{ _WRITE(IO, _READ(IO)); _SET_OUTPUT(IO); }while(0)
+// set pin as PWM
+#define SET_PWM(IO)           SET_OUTPUT(IO)
 
 /// check if pin is an input wrapper
 #define GET_INPUT(IO)        _GET_INPUT(IO)
@@ -125,3 +125,7 @@
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)
 #define extDigitalWrite(IO,V) digitalWrite(IO,V)
+
+#define ANALOG_WRITE(IO,V)    analogWrite(IO,V)
+
+#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)

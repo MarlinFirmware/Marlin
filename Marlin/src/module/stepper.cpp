@@ -2510,7 +2510,7 @@ void Stepper::report_positions() {
         if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
           motor_current_setting[driver] = current; // update motor_current_setting
 
-        #define _WRITE_CURRENT_PWM(P) analogWrite(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+        #define _WRITE_CURRENT_PWM(P) ANALOG_WRITE(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
         switch (driver) {
           case 0:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
@@ -2560,25 +2560,25 @@ void Stepper::report_positions() {
       #elif HAS_MOTOR_CURRENT_PWM
 
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_X_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_X_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_Y_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_Y_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_XY_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_Z_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_Z_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_E_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_E0_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_E0_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_E1_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_E1_PIN);
         #endif
 
         refresh_motor_power();
