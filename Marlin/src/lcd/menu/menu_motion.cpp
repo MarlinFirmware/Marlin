@@ -82,34 +82,32 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
           max = current_position[axis] + 1000;
 
     // Limit to software endstops, if enabled
-    #if HAS_SOFTWARE_ENDSTOPS
-      if (soft_endstops_enabled) switch (axis) {
-        case X_AXIS:
-          #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-            min = soft_endstop_min[X_AXIS];
-          #endif
-          #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-            max = soft_endstop_max[X_AXIS];
-          #endif
-          break;
-        case Y_AXIS:
-          #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-            min = soft_endstop_min[Y_AXIS];
-          #endif
-          #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-            max = soft_endstop_max[Y_AXIS];
-          #endif
-          break;
-        case Z_AXIS:
-          #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-            min = soft_endstop_min[Z_AXIS];
-          #endif
-          #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-            max = soft_endstop_max[Z_AXIS];
-          #endif
-        default: break;
-      }
-    #endif // HAS_SOFTWARE_ENDSTOPS
+    if (soft_endstops_enabled) switch (axis) {
+      case X_AXIS:
+        #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+          min = soft_endstop_min[X_AXIS];
+        #endif
+        #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+          max = soft_endstop_max[X_AXIS];
+        #endif
+        break;
+      case Y_AXIS:
+        #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+          min = soft_endstop_min[Y_AXIS];
+        #endif
+        #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+          max = soft_endstop_max[Y_AXIS];
+        #endif
+        break;
+      case Z_AXIS:
+        #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
+          min = soft_endstop_min[Z_AXIS];
+        #endif
+        #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
+          max = soft_endstop_max[Z_AXIS];
+        #endif
+      default: break;
+    }
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0

@@ -493,9 +493,7 @@ G29_TYPE GcodeSuite::G29() {
     // Abort current G29 procedure, go back to idle state
     if (seenA && g29_in_progress) {
       SERIAL_ECHOLNPGM("Manual G29 aborted");
-      #if HAS_SOFTWARE_ENDSTOPS
-        soft_endstops_enabled = enable_soft_endstops;
-      #endif
+      soft_endstops_enabled = enable_soft_endstops;
       set_bed_leveling_enabled(abl_should_enable);
       g29_in_progress = false;
       #if ENABLED(LCD_BED_LEVELING)
@@ -518,9 +516,7 @@ G29_TYPE GcodeSuite::G29() {
 
     if (abl_probe_index == 0) {
       // For the initial G29 S2 save software endstop state
-      #if HAS_SOFTWARE_ENDSTOPS
-        enable_soft_endstops = soft_endstops_enabled;
-      #endif
+      enable_soft_endstops = soft_endstops_enabled;
       // Move close to the bed before the first point
       do_blocking_move_to_z(0);
     }
@@ -602,11 +598,7 @@ G29_TYPE GcodeSuite::G29() {
       // Is there a next point to move to?
       if (abl_probe_index < abl_points) {
         _manual_goto_xy(xProbe, yProbe); // Can be used here too!
-        #if HAS_SOFTWARE_ENDSTOPS
-          // Disable software endstops to allow manual adjustment
-          // If G29 is not completed, they will not be re-enabled
-          soft_endstops_enabled = false;
-        #endif
+        soft_endstops_enabled = false;
         G29_RETURN(false);
       }
       else {
@@ -616,9 +608,7 @@ G29_TYPE GcodeSuite::G29() {
         SERIAL_ECHOLNPGM("Grid probing done.");
 
         // Re-enable software endstops, if needed
-        #if HAS_SOFTWARE_ENDSTOPS
-          soft_endstops_enabled = enable_soft_endstops;
-        #endif
+        soft_endstops_enabled = enable_soft_endstops;
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
@@ -628,11 +618,7 @@ G29_TYPE GcodeSuite::G29() {
         xProbe = points[abl_probe_index].x;
         yProbe = points[abl_probe_index].y;
         _manual_goto_xy(xProbe, yProbe);
-        #if HAS_SOFTWARE_ENDSTOPS
-          // Disable software endstops to allow manual adjustment
-          // If G29 is not completed, they will not be re-enabled
-          soft_endstops_enabled = false;
-        #endif
+        soft_endstops_enabled = false;
         G29_RETURN(false);
       }
       else {
@@ -640,9 +626,7 @@ G29_TYPE GcodeSuite::G29() {
         SERIAL_ECHOLNPGM("3-point probing done.");
 
         // Re-enable software endstops, if needed
-        #if HAS_SOFTWARE_ENDSTOPS
-          soft_endstops_enabled = enable_soft_endstops;
-        #endif
+        soft_endstops_enabled = enable_soft_endstops;
 
         if (!dryrun) {
           vector_3 planeNormal = vector_3::cross(points[0] - points[1], points[2] - points[1]).get_normal();

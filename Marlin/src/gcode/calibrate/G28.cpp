@@ -189,6 +189,10 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
   #endif
 
+  #if !HAS_SOFTWARE_ENDSTOPS
+    soft_endstops_enabled = true; // Ensure that safety limits are enabled
+  #endif
+
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
     DualXMode IDEX_saved_mode = dual_x_carriage_mode;
