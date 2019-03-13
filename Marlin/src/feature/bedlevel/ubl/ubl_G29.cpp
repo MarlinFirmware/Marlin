@@ -335,6 +335,9 @@
             break;            // No more invalid Mesh Points to populate
           }
           z_values[location.x_index][location.y_index] = NAN;
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(location.x_index, location.y_index, 0);
+          #endif
           cnt++;
         }
       }
@@ -362,6 +365,9 @@
               const float p1 = 0.5f * (GRID_MAX_POINTS_X) - x,
                           p2 = 0.5f * (GRID_MAX_POINTS_Y) - y;
               z_values[x][y] += 2.0f * HYPOT(p1, p2);
+              #if ENABLED(EXTENSIBLE_UI)
+                ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+              #endif
             }
           }
           break;
@@ -370,6 +376,11 @@
           for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {  // Create a diagonal line several Mesh cells thick that is raised
             z_values[x][x] += 9.999f;
             z_values[x][x + (x < GRID_MAX_POINTS_Y - 1) ? 1 : -1] += 9.999f; // We want the altered line several mesh points thick
+            #if ENABLED(EXTENSIBLE_UI)
+              ExtUI::onMeshUpdate(x, x, z_values[x][x]);
+              ExtUI::onMeshUpdate(x, (x + (x < GRID_MAX_POINTS_Y - 1) ? 1 : -1), z_values[x][x + (x < GRID_MAX_POINTS_Y - 1) ? 1 : -1]);
+            #endif
+
           }
           break;
 
@@ -378,6 +389,9 @@
           for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)   // Create a rectangular raised area in
             for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) // the center of the bed
               z_values[x][y] += parser.seen('C') ? g29_constant : 9.99f;
+              #if ENABLED(EXTENSIBLE_UI)
+                ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+              #endif
           break;
       }
     }
@@ -519,6 +533,9 @@
                   break; // No more invalid Mesh Points to populate
                 }
                 z_values[location.x_index][location.y_index] = g29_constant;
+                #if ENABLED(EXTENSIBLE_UI)
+                  ExtUI::onMeshUpdate(location.x_index, location.y_index, z_values[location.x_index][location.y_index]);
+                #endif
               }
             }
           }
@@ -681,15 +698,23 @@
     if (cflag)
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
         for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-          if (!isnan(z_values[x][y]))
+          if (!isnan(z_values[x][y])) {
             z_values[x][y] -= mean + value;
+            #if ENABLED(EXTENSIBLE_UI)
+              ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+            #endif
+          }
   }
 
   void unified_bed_leveling::shift_mesh_height() {
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-        if (!isnan(z_values[x][y]))
+        if (!isnan(z_values[x][y])) {
           z_values[x][y] += g29_constant;
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+          #endif
+        }
   }
 
   #if HAS_BED_PROBE
@@ -736,6 +761,10 @@
 
           const float measured_z = probe_pt(rawx, rawy, stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
           z_values[location.x_index][location.y_index] = measured_z;
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(location.x_index, location.y_index, measured_z);
+          #endif
+          
         }
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
       } while (location.x_index >= 0 && --count);
@@ -894,6 +923,10 @@
         }
 
         z_values[location.x_index][location.y_index] = current_position[Z_AXIS] - thick;
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(location.x_index, location.y_index, z_values[location.x_index][location.y_index]);
+        #endif
+
         if (g29_verbose_level > 2)
           SERIAL_ECHOLNPAIR_F("Mesh Point Measured at: ", z_values[location.x_index][location.y_index], 6);
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
@@ -994,6 +1027,9 @@
         if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
 
         z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(location.x_index, location.y_index, new_z);
+        #endif
 
         serial_delay(20);                                           // No switch noise
         ui.refresh();
@@ -1298,6 +1334,11 @@
         z_values[x][y] = z_values[x1][y1];                      // Use nearest (maybe a little too high.)
       else
         z_values[x][y] = 2.0f * z_values[x1][y1] - z_values[x2][y2];   // Angled upward...
+
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+      #endif
+
       return true;
     }
     return false;
@@ -1510,6 +1551,9 @@
           #endif
 
           z_values[i][j] = z_tmp - lsf_results.D;
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(i, j, z_values[i][j]);
+          #endif
         }
       }
 
@@ -1619,6 +1663,9 @@
             }
             const float ez = -lsf_results.D - lsf_results.A * px - lsf_results.B * py;
             z_values[ix][iy] = ez;
+            #if ENABLED(EXTENSIBLE_UI)
+              ExtUI::onMeshUpdate(ix, iy, z_values[ix][iy]);
+            #endif
             idle();   // housekeeping
           }
         }
@@ -1757,8 +1804,12 @@
       SERIAL_ECHOLNPAIR("Subtracting mesh in slot ", g29_storage_slot, " from current mesh.");
 
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
           z_values[x][y] -= tmp_z_values[x][y];
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+          #endif
+        }
     }
 
   #endif // UBL_DEVEL_DEBUGGING

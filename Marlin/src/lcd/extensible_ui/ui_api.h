@@ -90,6 +90,22 @@ namespace ExtUI {
   float getFeedrate_percent();
   uint8_t getProgress_percent();
   uint32_t getProgress_seconds_elapsed();
+  
+  #if HAS_LEVELING
+    bool getLevelingActive();
+    void setLevelingActive(const bool);
+    #if HAS_MESH
+      typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+      bool getMeshValid();
+      bed_mesh_t getMeshArray();
+      void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
+      void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);
+    #endif
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    void setHostResponse(const uint8_t);
+  #endif
 
   #if ENABLED(PRINTCOUNTER)
     char* getTotalPrints_str(char buffer[21]);

@@ -173,8 +173,12 @@ void GcodeSuite::G29() {
       else
         return echo_not_entered('J');
 
-      if (parser.seenval('Z'))
+      if (parser.seenval('Z')) {
         mbl.z_values[ix][iy] = parser.value_linear_units();
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]);
+        #endif
+      }
       else
         return echo_not_entered('Z');
       break;

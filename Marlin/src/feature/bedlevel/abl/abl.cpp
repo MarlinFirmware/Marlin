@@ -76,6 +76,9 @@ static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t
 
   // Take the average instead of the median
   z_values[x][y] = (a + b + c) / 3.0;
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+  #endif
 
   // Median is robust (ignores outliers).
   // z_values[x][y] = (a < b) ? ((b < c) ? b : (c < a) ? a : c)
