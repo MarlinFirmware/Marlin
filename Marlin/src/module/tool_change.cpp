@@ -429,7 +429,6 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
      * 3. Unlock tool and drop it in the dock
      * 4. Move to the new toolhead
      * 5. Grab and lock the new toolhead
-     * 6. Apply the z-offset of the new toolhead
      */
 
     // 1. Raise Z to give enough clearance
@@ -547,16 +546,6 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
 
     fast_line_to_current(Y_AXIS); // move away from docked toolhead
     planner.synchronize();
-
-    // 6. Apply the z-offset of the new toolhead
-
-    #if HAS_HOTEND_OFFSET
-      current_position[Z_AXIS] += hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
-    #endif
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("(6) Apply Z offset", current_position);
-    #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Toolhead change done.");
