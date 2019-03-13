@@ -26,8 +26,10 @@
 #if ENABLED(WIFISUPPORT)
 
 #include "WebSocketSerial.h"
-#include "wifi.h"
 
+extern WebSocketSerial webSocketSerial;
+
+#include "wifi.h"
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 

@@ -55,9 +55,14 @@
 
 extern portMUX_TYPE spinlock;
 
-#define NUM_SERIAL 2
 #define MYSERIAL0 Serial
-#define MYSERIAL1 webSocketSerial
+
+#if ENABLED(WIFISUPPORT)
+  #define NUM_SERIAL 2
+  #define MYSERIAL1 webSocketSerial
+#else
+  #define NUM_SERIAL 1
+#endif
 
 #define CRITICAL_SECTION_START portENTER_CRITICAL(&spinlock)
 #define CRITICAL_SECTION_END   portEXIT_CRITICAL(&spinlock)
