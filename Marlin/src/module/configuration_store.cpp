@@ -379,27 +379,8 @@ void MarlinSettings::postprocess() {
 
 #endif // SD_FIRMWARE_UPDATE
 
-#if ENABLED(EEPROM_CHITCHAT)
-  #define CHITCHAT_ECHO(V)              SERIAL_ECHO(V)
-  #define CHITCHAT_ECHOLNPGM(STR)       SERIAL_ECHOLNPGM(STR)
-  #define CHITCHAT_ECHOPAIR(...)        SERIAL_ECHOPAIR(__VA_ARGS__)
-  #define CHITCHAT_ECHOLNPAIR(...)      SERIAL_ECHOLNPAIR(__VA_ARGS__)
-  #define CHITCHAT_ECHO_START()         SERIAL_ECHO_START()
-  #define CHITCHAT_ERROR_START()        SERIAL_ERROR_START()
-  #define CHITCHAT_ERROR_MSG(STR)       SERIAL_ERROR_MSG(STR)
-  #define CHITCHAT_ECHOPGM(STR)         SERIAL_ECHOPGM(STR)
-  #define CHITCHAT_EOL()                SERIAL_EOL()
-#else
-  #define CHITCHAT_ECHO(V)              NOOP
-  #define CHITCHAT_ECHOLNPGM(STR)       NOOP
-  #define CHITCHAT_ECHOPAIR(...)        NOOP
-  #define CHITCHAT_ECHOLNPAIR(...)      NOOP
-  #define CHITCHAT_ECHO_START()         NOOP
-  #define CHITCHAT_ERROR_START()        NOOP
-  #define CHITCHAT_ERROR_MSG(STR)       NOOP
-  #define CHITCHAT_ECHOPGM(STR)         NOOP
-  #define CHITCHAT_EOL()                NOOP
-#endif
+#define DEBUG_OUT ENABLED(EEPROM_CHITCHAT)
+#include "../core/debug_out.h"
 
 #if ENABLED(EEPROM_SETTINGS)
 
@@ -427,7 +408,7 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {
-      CHITCHAT_ERROR_MSG("EEPROM datasize error.");
+      DEBUG_ERROR_MSG("EEPROM datasize error.");
       return true;
     }
     return false;
@@ -1103,8 +1084,8 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(final_crc);
 
       // Report storage size
-      CHITCHAT_ECHO_START();
-      CHITCHAT_ECHOLNPAIR("Settings Stored (", eeprom_size, " bytes; crc ", (uint32_t)final_crc, ")");
+      DEBUG_ECHO_START();
+      DEBUG_ECHOLNPAIR("Settings Stored (", eeprom_size, " bytes; crc ", (uint32_t)final_crc, ")");
 
       eeprom_error |= size_error(eeprom_size);
     }
@@ -1141,8 +1122,8 @@ void MarlinSettings::postprocess() {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
-      CHITCHAT_ECHO_START();
-      CHITCHAT_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
+      DEBUG_ECHO_START();
+      DEBUG_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
       eeprom_error = true;
     }
     else {
@@ -1807,18 +1788,18 @@ void MarlinSettings::postprocess() {
 
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
-        CHITCHAT_ECHO_START();
-        CHITCHAT_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
+        DEBUG_ECHO_START();
+        DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
       }
       else if (working_crc != stored_crc) {
         eeprom_error = true;
-        CHITCHAT_ERROR_START();
-        CHITCHAT_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
+        DEBUG_ERROR_START();
+        DEBUG_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
       }
       else if (!validating) {
-        CHITCHAT_ECHO_START();
-        CHITCHAT_ECHO(version);
-        CHITCHAT_ECHOLNPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
+        DEBUG_ECHO_START();
+        DEBUG_ECHO(version);
+        DEBUG_ECHOLNPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
       }
 
       if (!validating && !eeprom_error) postprocess();
@@ -1831,26 +1812,26 @@ void MarlinSettings::postprocess() {
             SERIAL_EOL();
             #if ENABLED(EEPROM_CHITCHAT)
               ubl.echo_name();
-              CHITCHAT_ECHOLNPGM(" initialized.\n");
+              DEBUG_ECHOLNPGM(" initialized.\n");
             #endif
           }
           else {
             eeprom_error = true;
             #if ENABLED(EEPROM_CHITCHAT)
-              CHITCHAT_ECHOPGM("?Can't enable ");
+              DEBUG_ECHOPGM("?Can't enable ");
               ubl.echo_name();
-              CHITCHAT_ECHOLNPGM(".");
+              DEBUG_ECHOLNPGM(".");
             #endif
             ubl.reset();
           }
 
           if (ubl.storage_slot >= 0) {
             load_mesh(ubl.storage_slot);
-            CHITCHAT_ECHOLNPAIR("Mesh ", ubl.storage_slot, " loaded from storage.");
+            DEBUG_ECHOLNPAIR("Mesh ", ubl.storage_slot, " loaded from storage.");
           }
           else {
             ubl.reset();
-            CHITCHAT_ECHOLNPGM("UBL System reset()");
+            DEBUG_ECHOLNPGM("UBL System reset()");
           }
         }
       #endif
@@ -1881,9 +1862,9 @@ void MarlinSettings::postprocess() {
 
     inline void ubl_invalid_slot(const int s) {
       #if ENABLED(EEPROM_CHITCHAT)
-        CHITCHAT_ECHOLNPGM("?Invalid slot.");
-        CHITCHAT_ECHO(s);
-        CHITCHAT_ECHOLNPGM(" mesh slots available.");
+        DEBUG_ECHOLNPGM("?Invalid slot.");
+        DEBUG_ECHO(s);
+        DEBUG_ECHOLNPGM(" mesh slots available.");
       #else
         UNUSED(s);
       #endif
@@ -1912,8 +1893,8 @@ void MarlinSettings::postprocess() {
         const int16_t a = calc_num_meshes();
         if (!WITHIN(slot, 0, a - 1)) {
           ubl_invalid_slot(a);
-          CHITCHAT_ECHOLNPAIR("E2END=", persistentStore.capacity() - 1, " meshes_end=", meshes_end, " slot=", slot);
-          CHITCHAT_EOL();
+          DEBUG_ECHOLNPAIR("E2END=", persistentStore.capacity() - 1, " meshes_end=", meshes_end, " slot=", slot);
+          DEBUG_EOL();
           return;
         }
 
@@ -1926,7 +1907,7 @@ void MarlinSettings::postprocess() {
         persistentStore.access_finish();
 
         if (status) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
-        else        CHITCHAT_ECHOLNPAIR("Mesh saved in slot ", slot);
+        else        DEBUG_ECHOLNPAIR("Mesh saved in slot ", slot);
 
       #else
 
@@ -1955,7 +1936,7 @@ void MarlinSettings::postprocess() {
         persistentStore.access_finish();
 
         if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
-        else        CHITCHAT_ECHOLNPAIR("Mesh loaded from slot ", slot);
+        else        DEBUG_ECHOLNPAIR("Mesh loaded from slot ", slot);
 
         EEPROM_FINISH();
 
@@ -1974,7 +1955,7 @@ void MarlinSettings::postprocess() {
 #else // !EEPROM_SETTINGS
 
   bool MarlinSettings::save() {
-    CHITCHAT_ERROR_MSG("EEPROM disabled");
+    DEBUG_ERROR_MSG("EEPROM disabled");
     return false;
   }
 
@@ -2281,8 +2262,8 @@ void MarlinSettings::reset() {
 
   postprocess();
 
-  CHITCHAT_ECHO_START();
-  CHITCHAT_ECHOLNPGM("Hardcoded Default Settings Loaded");
+  DEBUG_ECHO_START();
+  DEBUG_ECHOLNPGM("Hardcoded Default Settings Loaded");
 }
 
 #if DISABLED(DISABLE_M503)

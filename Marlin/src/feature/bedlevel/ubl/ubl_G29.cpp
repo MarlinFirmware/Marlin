@@ -46,6 +46,9 @@
     #include "../../../module/tool_change.h"
   #endif
 
+  #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+  #include "../../../core/debug_out.h"
+
   #include <math.h>
 
   #define UBL_G29_P31
@@ -442,7 +445,7 @@
               SERIAL_ECHOLNPGM("Mesh invalidated. Probing mesh.");
             }
             if (g29_verbose_level > 1) {
-              SERIAL_ECHOPAIR("Probing Mesh Points Closest to (", g29_x_pos);
+              SERIAL_ECHOPAIR("Probing around (", g29_x_pos);
               SERIAL_CHAR(',');
               SERIAL_ECHO(g29_y_pos);
               SERIAL_ECHOLNPGM(").\n");
@@ -1463,27 +1466,24 @@
 
               abort_flag = isnan(measured_z);
 
-              #if ENABLED(DEBUG_LEVELING_FEATURE)
-                if (DEBUGGING(LEVELING)) {
-                  SERIAL_CHAR('(');
-                  SERIAL_ECHO_F(rx, 7);
-                  SERIAL_CHAR(',');
-                  SERIAL_ECHO_F(ry, 7);
-                  SERIAL_ECHOPGM(")   logical: ");
-                  SERIAL_CHAR('(');
-                  SERIAL_ECHO_F(LOGICAL_X_POSITION(rx), 7);
-                  SERIAL_CHAR(',');
-                  SERIAL_ECHO_F(LOGICAL_Y_POSITION(ry), 7);
-                  SERIAL_ECHOPAIR_F(")   measured: ", measured_z, 7);
-                  SERIAL_ECHOPAIR_F("   correction: ", get_z_correction(rx, ry), 7);
-                }
-              #endif
+              if (DEBUGGING(LEVELING)) {
+                DEBUG_CHAR('(');
+                DEBUG_ECHO_F(rx, 7);
+                DEBUG_CHAR(',');
+                DEBUG_ECHO_F(ry, 7);
+                DEBUG_ECHOPGM(")   logical: ");
+                DEBUG_CHAR('(');
+                DEBUG_ECHO_F(LOGICAL_X_POSITION(rx), 7);
+                DEBUG_CHAR(',');
+                DEBUG_ECHO_F(LOGICAL_Y_POSITION(ry), 7);
+                DEBUG_ECHOPAIR_F(")   measured: ", measured_z, 7);
+                DEBUG_ECHOPAIR_F("   correction: ", get_z_correction(rx, ry), 7);
+              }
 
               measured_z -= get_z_correction(rx, ry) /* + zprobe_zoffset */ ;
 
-              #if ENABLED(DEBUG_LEVELING_FEATURE)
-                if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR_F("   final >>>---> ", measured_z, 7);
-              #endif
+              if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_F("   final >>>---> ", measured_z, 7);
+
               if (g29_verbose_level > 3) {
                 serial_spaces(16);
                 SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
@@ -1524,31 +1524,27 @@
                 y_tmp = mesh_index_to_ypos(j),
                 z_tmp = z_values[i][j];
 
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR_F("before rotation = [", x_tmp, 7);
-              SERIAL_CHAR(',');
-              SERIAL_ECHO_F(y_tmp, 7);
-              SERIAL_CHAR(',');
-              SERIAL_ECHO_F(z_tmp, 7);
-              SERIAL_ECHOPGM("]   ---> ");
-              serial_delay(20);
-            }
-          #endif
+          if (DEBUGGING(LEVELING)) {
+            DEBUG_ECHOPAIR_F("before rotation = [", x_tmp, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(y_tmp, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(z_tmp, 7);
+            DEBUG_ECHOPGM("]   ---> ");
+            DEBUG_DELAY(20);
+          }
 
           apply_rotation_xyz(rotation, x_tmp, y_tmp, z_tmp);
 
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR_F("after rotation = [", x_tmp, 7);
-              SERIAL_CHAR(',');
-              SERIAL_ECHO_F(y_tmp, 7);
-              SERIAL_CHAR(',');
-              SERIAL_ECHO_F(z_tmp, 7);
-              SERIAL_ECHOLNPGM("]");
-              serial_delay(55);
-            }
-          #endif
+          if (DEBUGGING(LEVELING)) {
+            DEBUG_ECHOPAIR_F("after rotation = [", x_tmp, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(y_tmp, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(z_tmp, 7);
+            DEBUG_ECHOLNPGM("]");
+            DEBUG_DELAY(55);
+          }
 
           z_values[i][j] = z_tmp - lsf_results.D;
           #if ENABLED(EXTENSIBLE_UI)
@@ -1557,62 +1553,59 @@
         }
       }
 
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          rotation.debug(PSTR("rotation matrix:\n"));
-          SERIAL_ECHOPAIR_F("LSF Results A=", lsf_results.A, 7);
-          SERIAL_ECHOPAIR_F("  B=", lsf_results.B, 7);
-          SERIAL_ECHOLNPAIR_F("  D=", lsf_results.D, 7);
-          serial_delay(55);
+      if (DEBUGGING(LEVELING)) {
+        rotation.debug(PSTR("rotation matrix:\n"));
+        DEBUG_ECHOPAIR_F("LSF Results A=", lsf_results.A, 7);
+        DEBUG_ECHOPAIR_F("  B=", lsf_results.B, 7);
+        DEBUG_ECHOLNPAIR_F("  D=", lsf_results.D, 7);
+        DEBUG_DELAY(55);
 
-          SERIAL_ECHOPAIR_F("bed plane normal = [", normal.x, 7);
-          SERIAL_CHAR(',');
-          SERIAL_ECHO_F(normal.y, 7);
-          SERIAL_CHAR(',');
-          SERIAL_ECHO_F(normal.z, 7);
-          SERIAL_ECHOLNPGM("]");
-          SERIAL_EOL();
+        DEBUG_ECHOPAIR_F("bed plane normal = [", normal.x, 7);
+        DEBUG_CHAR(',');
+        DEBUG_ECHO_F(normal.y, 7);
+        DEBUG_CHAR(',');
+        DEBUG_ECHO_F(normal.z, 7);
+        DEBUG_ECHOLNPGM("]");
+        DEBUG_EOL();
 
-          /**
-           * The following code can be used to check the validity of the mesh tilting algorithm.
-           * When a 3-Point Mesh Tilt is done, the same algorithm is used as the grid based tilting.
-           * The only difference is just 3 points are used in the calculations.   That fact guarantees
-           * each probed point should have an exact match when a get_z_correction() for that location
-           * is calculated.  The Z error between the probed point locations and the get_z_correction()
-           * numbers for those locations should be 0.
-           */
-          #if 0
-          float t, t1, d;
-          t = normal.x * (PROBE_PT_1_X) + normal.y * (PROBE_PT_1_Y);
-          d = t + normal.z * z1;
-          SERIAL_ECHOPAIR_F("D from 1st point: ", d, 6);
-          SERIAL_ECHOLNPAIR_F("   Z error: ", normal.z*z1-get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y), 6);
+        /**
+         * The following code can be used to check the validity of the mesh tilting algorithm.
+         * When a 3-Point Mesh Tilt is done, the same algorithm is used as the grid based tilting.
+         * The only difference is just 3 points are used in the calculations.   That fact guarantees
+         * each probed point should have an exact match when a get_z_correction() for that location
+         * is calculated.  The Z error between the probed point locations and the get_z_correction()
+         * numbers for those locations should be 0.
+         */
+        #if 0
+        float t, t1, d;
+        t = normal.x * (PROBE_PT_1_X) + normal.y * (PROBE_PT_1_Y);
+        d = t + normal.z * z1;
+        DEBUG_ECHOPAIR_F("D from 1st point: ", d, 6);
+        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z1-get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y), 6);
 
-          t = normal.x * (PROBE_PT_2_X) + normal.y * (PROBE_PT_2_Y);
-          d = t + normal.z * z2;
-          SERIAL_EOL();
-          SERIAL_ECHOPAIR_F("D from 2nd point: ", d, 6);
-          SERIAL_ECHOLNPAIR_F("   Z error: ", normal.z*z2-get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y), 6);
+        t = normal.x * (PROBE_PT_2_X) + normal.y * (PROBE_PT_2_Y);
+        d = t + normal.z * z2;
+        DEBUG_EOL();
+        DEBUG_ECHOPAIR_F("D from 2nd point: ", d, 6);
+        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z2-get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y), 6);
 
-          t = normal.x * (PROBE_PT_3_X) + normal.y * (PROBE_PT_3_Y);
-          d = t + normal.z * z3;
-          SERIAL_ECHOPAIR_F("D from 3rd point: ", d, 6);
-          SERIAL_ECHOLNPAIR_F("   Z error: ", normal.z*z3-get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y), 6);
+        t = normal.x * (PROBE_PT_3_X) + normal.y * (PROBE_PT_3_Y);
+        d = t + normal.z * z3;
+        DEBUG_ECHOPAIR_F("D from 3rd point: ", d, 6);
+        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z3-get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y), 6);
 
-          t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
-          d = t + normal.z * 0;
-          SERIAL_ECHOLNPAIR_F("D from home location with Z=0 : ", d, 6);
+        t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
+        d = t + normal.z * 0;
+        DEBUG_ECHOLNPAIR_F("D from home location with Z=0 : ", d, 6);
 
-          t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
-          d = t + get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT); // normal.z * 0;
-          SERIAL_ECHOPAIR_F("D from home location using mesh value for Z: ", d, 6);
+        t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
+        d = t + get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT); // normal.z * 0;
+        DEBUG_ECHOPAIR_F("D from home location using mesh value for Z: ", d, 6);
 
-          SERIAL_ECHOPAIR("   Z error: (", Z_SAFE_HOMING_X_POINT);
-          SERIAL_ECHOPAIR(",", Z_SAFE_HOMING_Y_POINT);
-          SERIAL_ECHOLNPAIR_F(") = ", get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT), 6);
-          #endif
-        } // DEBUGGING(LEVELING)
-      #endif
+        DEBUG_ECHOPAIR("   Z error: (", Z_SAFE_HOMING_X_POINT, ",", Z_SAFE_HOMING_Y_POINT);
+        DEBUG_ECHOLNPAIR_F(") = ", get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT), 6);
+        #endif
+      } // DEBUGGING(LEVELING)
 
     }
 

@@ -39,6 +39,9 @@
   #include "../../lcd/ultralcd.h"
 #endif
 
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../core/debug_out.h"
+
 #if ENABLED(G26_MESH_VALIDATION)
   bool g26_debug_flag; // = false
 #endif
@@ -122,9 +125,7 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
  * Reset calibration results to zero.
  */
 void reset_bed_level() {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("reset_bed_level");
   set_bed_leveling_enabled(false);
   #if ENABLED(MESH_BED_LEVELING)
     mbl.reset();
