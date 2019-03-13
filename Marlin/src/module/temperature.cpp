@@ -657,7 +657,7 @@ int Temperature::getHeaterPower(const int heater) {
 
     #define _UPDATE_AUTO_FAN(P,D,A) do{                               \
       if (PWM_PIN(P##_AUTO_FAN_PIN) && EXTRUDER_AUTO_FAN_SPEED < 255) \
-        ANALOG_WRITE(P##_AUTO_FAN_PIN, A);                            \
+        analogWrite(P##_AUTO_FAN_PIN, A);                             \
       else                                                            \
         WRITE(P##_AUTO_FAN_PIN, D);                                   \
     }while(0)

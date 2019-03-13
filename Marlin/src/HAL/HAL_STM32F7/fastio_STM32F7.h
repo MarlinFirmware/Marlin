@@ -58,8 +58,6 @@
 #define extDigitalRead(IO)    digitalRead(IO)
 #define extDigitalWrite(IO,V) digitalWrite(IO,V)
 
-#define ANALOG_WRITE(IO,V)    analogWrite(IO,(V)*65535/255)
-
 //
 // Pins Definitions
 //

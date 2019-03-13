@@ -2510,7 +2510,7 @@ void Stepper::report_positions() {
         if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
           motor_current_setting[driver] = current; // update motor_current_setting
 
-        #define _WRITE_CURRENT_PWM(P) ANALOG_WRITE(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+        #define _WRITE_CURRENT_PWM(P) analogWrite(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
         switch (driver) {
           case 0:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)

@@ -126,6 +126,4 @@
 #define extDigitalRead(IO)    digitalRead(IO)
 #define extDigitalWrite(IO,V) digitalWrite(IO,V)
 
-#define ANALOG_WRITE(IO,V)    analogWrite(IO,V)
-
 #define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)

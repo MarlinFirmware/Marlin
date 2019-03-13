@@ -94,8 +94,6 @@
   #define extDigitalRead(IO)    digitalRead(IO)
 #endif
 
-#define ANALOG_WRITE(IO,V)    analogWrite(IO,V)
-
 #define READ(IO)              _READ(IO)
 #define WRITE(IO,V)           _WRITE(IO,V)
 #define TOGGLE(IO)            _TOGGLE(IO)
