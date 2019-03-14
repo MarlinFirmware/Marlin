@@ -1278,6 +1278,9 @@
     #define MSG_ADVANCED_PAUSE_WAITING_1      _UxGT("Press button")
     #define MSG_ADVANCED_PAUSE_WAITING_2      _UxGT("to resume print")
   #endif
+  #ifndef MSG_PAUSE_PRINT_INIT_1
+    #define MSG_PAUSE_PRINT_INIT_1            _UxGT("Parking...")
+  #endif
   #ifndef MSG_FILAMENT_CHANGE_INIT_1
     #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Wait for")
     #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("filament change")

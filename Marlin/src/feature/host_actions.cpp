@@ -110,7 +110,7 @@ void host_action(const char * const pstr, const bool eol) {
       case PROMPT_FILAMENT_RUNOUT:
         msg = PSTR("FILAMENT_RUNOUT");
         if (response == 0) {
-          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE;
+          pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
           host_action_prompt_end();   // Close current prompt
           host_action_prompt_begin(PSTR("Paused"));
           host_action_prompt_button(PSTR("Purge More"));
@@ -133,7 +133,7 @@ void host_action(const char * const pstr, const bool eol) {
               runout.reset();
             }
           #endif
-          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_RESUME_PRINT;
+          pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
         }
         break;
       case PROMPT_USER_CONTINUE:

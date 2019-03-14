@@ -76,7 +76,7 @@ void GcodeSuite::M600() {
 
   // Show initial "wait for start" message
   #if HAS_LCD_MENU && DISABLED(MMU2_MENUS)
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, target_extruder);
+    lcd_pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
   #endif
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)

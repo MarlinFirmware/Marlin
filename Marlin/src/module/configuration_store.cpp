@@ -2733,8 +2733,8 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("Recover: S<length> F<units/m>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
-          "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_length)
-        , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_length)
+          "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
+        , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
         , " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.settings.retract_recover_feedrate_mm_s))
       );
 
