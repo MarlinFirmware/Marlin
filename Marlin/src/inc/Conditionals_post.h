@@ -1603,6 +1603,8 @@
 #define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
 // The home offset also shifts the coordinate space
 #define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && IS_CARTESIAN)
+// The DELTA home offset works like home_offset[Z] on Cartesian
+#define HAS_DELTA_HOME_OFFSET (ENABLED(DELTA) && ENABLED(BABYSTEP_HOME_OFFSET))
 // The SCARA home offset applies only on G28
 #define HAS_SCARA_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && IS_SCARA)
 // Cumulative offset to workspace to save some calculation

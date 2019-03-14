@@ -133,6 +133,15 @@
 #ifndef MSG_HOME_OFFSETS_APPLIED
   #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offsets applied")
 #endif
+#ifndef MSG_X_HOME_OFFSET
+  #define MSG_X_HOME_OFFSET                   _UxGT("Home Offset X")
+#endif
+#ifndef MSG_Y_HOME_OFFSET
+  #define MSG_Y_HOME_OFFSET                   _UxGT("Home Offset Y")
+#endif
+#ifndef MSG_Z_HOME_OFFSET
+  #define MSG_Z_HOME_OFFSET                   _UxGT("Home Offset Z")
+#endif
 #ifndef MSG_SET_ORIGIN
   #define MSG_SET_ORIGIN                      _UxGT("Set origin")
 #endif
