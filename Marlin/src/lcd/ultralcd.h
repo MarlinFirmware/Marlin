@@ -89,8 +89,8 @@
     extern float move_menu_scale;
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
-                                           const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_SAME,
+      void lcd_pause_show_message(const PauseMessage message,
+                                           const PauseMode mode=PAUSE_MODE_SAME,
                                            const uint8_t extruder=active_extruder);
     #endif
 
