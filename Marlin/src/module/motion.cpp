@@ -59,6 +59,9 @@
   #include "../feature/fwretract.h"
 #endif
 
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../core/debug_out.h"
+
 #define XYZ_CONSTS(type, array, CONFIG) const PROGMEM type array##_P[XYZ] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG }
 
 XYZ_CONSTS(float, base_min_pos,   MIN_POS);
@@ -205,9 +208,7 @@ void report_current_position() {
  * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */
 void sync_plan_position() {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
   planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
@@ -294,9 +295,7 @@ void buffer_line_to_destination(const float fr_mm_s) {
    * Calculate delta, start a line, and set current_position to destination
    */
   void prepare_uninterpolated_move_to_destination(const float &fr_mm_s/*=0.0*/) {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
 
     #if UBL_SEGMENTED
       // ubl segmented line will do z-only moves in single segment
@@ -320,9 +319,7 @@ void buffer_line_to_destination(const float fr_mm_s) {
  * Plan a move to (X, Y, Z) and set the current_position
  */
 void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s/*=0.0*/) {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) print_xyz(PSTR(">>> do_blocking_move_to"), NULL, rx, ry, rz);
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_XYZ(">>> do_blocking_move_to", rx, ry, rz);
 
   const float z_feedrate  = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS),
               xy_feedrate = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
@@ -335,9 +332,7 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
 
     set_destination_from_current();          // sync destination at the start
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("set_destination_from_current", destination);
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_POS("set_destination_from_current", destination);
 
     // when in the danger zone
     if (current_position[Z_AXIS] > delta_clip_start_height) {
@@ -346,39 +341,29 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
         destination[Y_AXIS] = ry;
         destination[Z_AXIS] = rz;
         prepare_uninterpolated_move_to_destination(); // set_current_from_destination()
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
         return;
       }
       destination[Z_AXIS] = delta_clip_start_height;
       prepare_uninterpolated_move_to_destination(); // set_current_from_destination()
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("zone border move", current_position);
-      #endif
+      if (DEBUGGING(LEVELING)) DEBUG_POS("zone border move", current_position);
     }
 
     if (rz > current_position[Z_AXIS]) {    // raising?
       destination[Z_AXIS] = rz;
       prepare_uninterpolated_move_to_destination(z_feedrate);   // set_current_from_destination()
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
-      #endif
+      if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
     }
 
     destination[X_AXIS] = rx;
     destination[Y_AXIS] = ry;
     prepare_move_to_destination();         // set_current_from_destination()
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("xy move", current_position);
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_POS("xy move", current_position);
 
     if (rz < current_position[Z_AXIS]) {    // lowering?
       destination[Z_AXIS] = rz;
       prepare_uninterpolated_move_to_destination(z_feedrate);   // set_current_from_destination()
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
-      #endif
+      if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
     }
 
   #elif IS_SCARA
@@ -423,9 +408,7 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
 
   #endif
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< do_blocking_move_to");
 
   planner.synchronize();
 }
@@ -938,19 +921,12 @@ void clean_up_after_endstop_or_probe_move() {
                   planner.buffer_line(   CUR_X,    CUR_Y,    CUR_Z, CUR_E, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
           delayed_move_time = 0;
           active_extruder_parked = false;
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Clear active_extruder_parked");
-          #endif
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Clear active_extruder_parked");
           break;
         case DXC_SCALED_DUPLICATION_MODE:
         case DXC_DUPLICATION_MODE:
           if (active_extruder == 0) {
-            #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) {
-                SERIAL_ECHOPAIR("Set planner X", inactive_extruder_x_pos);
-                SERIAL_ECHOLNPAIR(" ... Line to X", current_position[X_AXIS] + duplicate_extruder_x_offset);
-              }
-            #endif
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Set planner X", inactive_extruder_x_pos, " ... Line to X", current_position[X_AXIS] + duplicate_extruder_x_offset);
             // move duplicate extruder into correct duplication position.
             planner.set_position_mm(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
@@ -964,15 +940,9 @@ void clean_up_after_endstop_or_probe_move() {
             sync_plan_position();
             extruder_duplication_enabled = true;
             active_extruder_parked = false;
-            #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Set extruder_duplication_enabled\nClear active_extruder_parked");
-            #endif
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Set extruder_duplication_enabled\nClear active_extruder_parked");
           }
-          else {
-            #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Active extruder not 0");
-            #endif
-          }
+          else if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Active extruder not 0");
           break;
       }
     }
@@ -1189,20 +1159,14 @@ float get_homing_bump_feedrate(const AxisEnum axis) {
  */
 void do_homing_move(const AxisEnum axis, const float distance, const float fr_mm_s=0.0) {
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> do_homing_move(", axis_codes[axis]);
-      SERIAL_ECHOPAIR(", ", distance);
-      SERIAL_ECHOPGM(", ");
-      if (fr_mm_s)
-        SERIAL_ECHO(fr_mm_s);
-      else {
-        SERIAL_ECHOPAIR("[", homing_feedrate(axis));
-        SERIAL_CHAR(']');
-      }
-      SERIAL_ECHOLNPGM(")");
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) {
+    DEBUG_ECHOPAIR(">>> do_homing_move(", axis_codes[axis], ", ", distance, ", ");
+    if (fr_mm_s)
+      DEBUG_ECHO(fr_mm_s);
+    else
+      DEBUG_ECHOPAIR("[", homing_feedrate(axis), "]");
+    DEBUG_ECHOLNPGM(")");
+  }
 
   #if HOMING_Z_WITH_PROBE && HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
     // Wait for bed to heat back up between probing points
@@ -1279,13 +1243,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const float fr_mm
     #endif
   }
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("<<< do_homing_move(", axis_codes[axis]);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< do_homing_move(", axis_codes[axis], ")");
 }
 
 /**
@@ -1307,13 +1265,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const float fr_mm
  * Callers must sync the planner position after calling this!
  */
 void set_axis_is_at_home(const AxisEnum axis) {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> set_axis_is_at_home(", axis_codes[axis]);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_is_at_home(", axis_codes[axis], ")");
 
   SBI(axis_known_position, axis);
   SBI(axis_homed, axis);
@@ -1351,33 +1303,23 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
         current_position[Z_AXIS] -= zprobe_zoffset;
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOLNPGM("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***");
-            SERIAL_ECHOLNPAIR("> zprobe_zoffset = ", zprobe_zoffset);
-          }
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> zprobe_zoffset = ", zprobe_zoffset);
 
-      #elif ENABLED(DEBUG_LEVELING_FEATURE)
+      #else
 
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("*** Z HOMED TO ENDSTOP ***");
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z HOMED TO ENDSTOP ***");
 
       #endif
     }
   #endif
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      #if HAS_HOME_OFFSET
-        SERIAL_ECHOPAIR("> home_offset[", axis_codes[axis]);
-        SERIAL_ECHOLNPAIR("] = ", home_offset[axis]);
-      #endif
-      DEBUG_POS("", current_position);
-      SERIAL_ECHOPAIR("<<< set_axis_is_at_home(", axis_codes[axis]);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) {
+    #if HAS_HOME_OFFSET
+      DEBUG_ECHOLNPAIR("> home_offset[", axis_codes[axis], "] = ", home_offset[axis]);
+    #endif
+    DEBUG_POS("", current_position);
+    DEBUG_ECHOLNPAIR("<<< set_axis_is_at_home(", axis_codes[axis], ")");
+  }
 
   #if ENABLED(I2C_POSITION_ENCODERS)
     I2CPEM.homed(axis);
@@ -1388,24 +1330,12 @@ void set_axis_is_at_home(const AxisEnum axis) {
  * Set an axis' to be unhomed.
  */
 void set_axis_is_not_at_home(const AxisEnum axis) {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> set_axis_is_not_at_home(", axis_codes[axis]);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_is_not_at_home(", axis_codes[axis], ")");
 
   CBI(axis_known_position, axis);
   CBI(axis_homed, axis);
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("<<< set_axis_is_not_at_home(", axis_codes[axis]);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_is_not_at_home(", axis_codes[axis], ")");
 
   #if ENABLED(I2C_POSITION_ENCODERS)
     I2CPEM.unhomed(axis);
@@ -1434,13 +1364,7 @@ void homeaxis(const AxisEnum axis) {
     if (!CAN_HOME(X) && !CAN_HOME(Y) && !CAN_HOME(Z)) return;
   #endif
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> homeaxis(", axis_codes[axis]);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> homeaxis(", axis_codes[axis], ")");
 
   const int axis_home_dir = (
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -1472,9 +1396,7 @@ void homeaxis(const AxisEnum axis) {
   #endif
 
   // Fast move towards endstop until triggered
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Home 1 Fast:");
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 1 Fast:");
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     // BLTOUCH needs to be deployed every time
@@ -1506,9 +1428,7 @@ void homeaxis(const AxisEnum axis) {
   // If a second homing move is configured...
   if (bump) {
     // Move away from the endstop by the axis HOME_BUMP_MM
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Move Away:");
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away:");
     do_homing_move(axis, -bump
       #if HOMING_Z_WITH_PROBE
         , axis == Z_AXIS ? MMM_TO_MMS(Z_PROBE_SPEED_FAST) : 0.0
@@ -1516,9 +1436,7 @@ void homeaxis(const AxisEnum axis) {
     );
 
     // Slow move towards endstop until triggered
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Home 2 Slow:");
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");
 
     #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
       // BLTOUCH needs to be deployed every time
@@ -1644,9 +1562,7 @@ void homeaxis(const AxisEnum axis) {
 
     // retrace by the amount specified in delta_endstop_adj + additional dist in order to have minimum steps
     if (delta_endstop_adj[axis] * Z_HOME_DIR <= 0) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("delta_endstop_adj:");
-      #endif
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("delta_endstop_adj:");
       do_homing_move(axis, delta_endstop_adj[axis] - (MIN_STEPS_PER_SEGMENT + 1) * planner.steps_to_mm[axis] * Z_HOME_DIR);
     }
 
@@ -1657,9 +1573,7 @@ void homeaxis(const AxisEnum axis) {
 
     destination[axis] = current_position[axis];
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
 
   #endif
 
@@ -1673,25 +1587,14 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS) fwretract.current_hop = 0.0;
   #endif
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("<<< homeaxis(", axis_codes[axis]);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< homeaxis(", axis_codes[axis], ")");
+
 } // homeaxis()
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis) {
     workspace_offset[axis] = home_offset[axis] + position_shift[axis];
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("For ", axis_codes[axis]);
-        SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
-        SERIAL_ECHOLNPAIR("\n position_shift = ", position_shift[axis]);
-      }
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Axis ", axis_codes[axis], " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis]);
   }
 #endif
 

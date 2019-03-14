@@ -48,6 +48,9 @@
   #include "../../../libs/vector_3.h"
 #endif
 
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../../core/debug_out.h"
+
 #if ABL_GRID
   #if ENABLED(PROBE_Y_FIRST)
     #define PR_OUTER_VAR xCount
@@ -187,12 +190,7 @@ G29_TYPE GcodeSuite::G29() {
   if (axis_unhomed_error()) G29_RETURN(false);
 
   if (!no_action && planner.leveling_active && parser.boolval('O')) { // Auto-level only if needed
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM("> Auto-level not needed, skip");
-        SERIAL_ECHOLNPGM("<<< G29");
-      }
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Auto-level not needed, skip\n<<< G29");
     G29_RETURN(false);
   }
 
@@ -470,9 +468,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_3POINT)
 
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> 3-point Leveling");
-      #endif
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
 
       // Probe at 3 arbitrary points
       points[0].z = points[1].z = points[2].z = 0;
@@ -555,13 +551,7 @@ G29_TYPE GcodeSuite::G29() {
           ExtUI::onMeshUpdate(xCount, yCount, z_values[xCount][yCount]);
         #endif
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("Save X", xCount);
-            SERIAL_ECHOPAIR(" Y", yCount);
-            SERIAL_ECHOLNPAIR(" Z", measured_z + zoffset);
-          }
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Save X", xCount, " Y", yCount, " Z", measured_z + zoffset);
 
       #endif
     }
@@ -790,9 +780,7 @@ G29_TYPE GcodeSuite::G29() {
   // return or loop before this point.
   //
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
 
   #if ENABLED(PROBE_MANUALLY)
     g29_in_progress = false;
@@ -929,9 +917,7 @@ G29_TYPE GcodeSuite::G29() {
         // Correct the current XYZ position based on the tilted plane.
         //
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
 
         float converted[XYZ];
         COPY(converted, current_position);
@@ -945,46 +931,32 @@ G29_TYPE GcodeSuite::G29() {
           && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
         ) {
           const float simple_z = current_position[Z_AXIS] - measured_z;
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR("Z from Probe:", simple_z);
-              SERIAL_ECHOPAIR("  Matrix:", converted[Z_AXIS]);
-              SERIAL_ECHOLNPAIR("  Discrepancy:", simple_z - converted[Z_AXIS]);
-            }
-          #endif
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probed Z", simple_z, "  Matrix Z", converted[Z_AXIS], "  Discrepancy ", simple_z - converted[Z_AXIS]);
           converted[Z_AXIS] = simple_z;
         }
 
         // The rotated XY and corrected Z are now current_position
         COPY(current_position, converted);
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!dryrun) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
 
         // Unapply the offset because it is going to be immediately applied
         // and cause compensation movement in Z
         current_position[Z_AXIS] -= bilinear_z_offset(current_position);
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
       }
 
     #endif // ABL_PLANAR
 
     #ifdef Z_PROBE_END_SCRIPT
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
-      #endif
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
       planner.synchronize();
       enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
     #endif
@@ -996,9 +968,7 @@ G29_TYPE GcodeSuite::G29() {
   // Restore state after probing
   if (!faux) clean_up_after_endstop_or_probe_move();
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G29");
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G29");
 
   KEEPALIVE_STATE(IN_HANDLER);
 
