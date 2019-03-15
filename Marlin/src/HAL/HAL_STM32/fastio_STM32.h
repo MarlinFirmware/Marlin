@@ -45,6 +45,10 @@ void FastIO_init(); // Must be called before using fast io macros
 
 #define _BV32(b) (1UL << (b))
 
+#if !defined(PWM)
+  #define PWM OUTPUT
+#endif
+
 #if defined(STM32F0xx) || defined(STM32F1xx) || defined(STM32F3xx) || defined(STM32L0xx) || defined(STM32L4xx)
   #define _WRITE(IO, V) do { \
     if (V) FastIOPortMap[STM_PORT(digitalPin[IO])]->BSRR = _BV32(STM_PIN(digitalPin[IO])) ; \
