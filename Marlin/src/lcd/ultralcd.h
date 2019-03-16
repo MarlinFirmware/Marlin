@@ -187,6 +187,7 @@
 
 #else
 
+  #undef BUTTON_EXISTS
   #define BUTTON_EXISTS(BN) false
 
   // Shift register bits correspond to buttons:
