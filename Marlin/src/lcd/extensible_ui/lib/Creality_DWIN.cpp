@@ -103,60 +103,60 @@ char commandbuf[30];
 	//if(VolumeSet < 0 || VolumeSet > 0xFF)
 		VolumeSet = 0x20;
 		
-	if(PrintMode)RTS_SndData(3, FanKeyIcon+1);	// saving mode
-	else RTS_SndData(2, FanKeyIcon+1);	// normal
+	if(PrintMode)rtscheck.RTS_SndData(3, FanKeyIcon+1);	// saving mode
+	else rtscheck.RTS_SndData(2, FanKeyIcon+1);	// normal
 	last_target_temperature_bed = getTargetTemp_celsius(BED); 
 	last_target_temperature[0] =  getTargetTemp_celsius(H0);
-	RTS_SndData(100,FeedrateDisplay);
+	rtscheck.RTS_SndData(100,FeedrateDisplay);
 	
 	/***************turn off motor*****************/
-	RTS_SndData(11, FilenameIcon); 
+	rtscheck.RTS_SndData(11, FilenameIcon); 
 	
 	/***************transmit temperature to screen*****************/
-	RTS_SndData(0, NozzlePreheat);
-	RTS_SndData(0, BedPreheat);
-	RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
-	RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
+	rtscheck.RTS_SndData(0, NozzlePreheat);
+	rtscheck.RTS_SndData(0, BedPreheat);
+	rtscheck.RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
+	rtscheck.RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
 	/***************transmit Fan speed to screen*****************/
-	RTS_SndData(2, FanKeyIcon);	//turn 0ff fan icon
+	rtscheck.RTS_SndData(2, FanKeyIcon);	//turn 0ff fan icon
 	FanStatus = true;
 	
 	/***************transmit Printer information to screen*****************/
 	for(int j = 0;j < 20;j++)	//clean filename
-		RTS_SndData(0,MacVersion+j);
+		rtscheck.RTS_SndData(0,MacVersion+j);
 	char sizebuf[20]={0};
 	sprintf(sizebuf,"%d X %d X %d",Y_BED_SIZE, X_BED_SIZE, Z_MAX_POS);
-	RTS_SndData(CUSTOM_MACHINE_NAME, MacVersion);
-	RTS_SndData(DETAILED_BUILD_VERSION, SoftVersion);
-	RTS_SndData(sizebuf, PrinterSize);
-	RTS_SndData(WEBSITE_URL, CorpWebsite);
+	rtscheck.RTS_SndData(CUSTOM_MACHINE_NAME, MacVersion);
+	rtscheck.RTS_SndData(DETAILED_BUILD_VERSION, SoftVersion);
+	rtscheck.RTS_SndData(sizebuf, PrinterSize);
+	rtscheck.RTS_SndData(WEBSITE_URL, CorpWebsite);
 
 	/**************************some info init*******************************/
-	RTS_SndData(0,PrintscheduleIcon);
-	RTS_SndData(0,PrintscheduleIcon+1);
+	rtscheck.RTS_SndData(0,PrintscheduleIcon);
+	rtscheck.RTS_SndData(0,PrintscheduleIcon+1);
 
 	/************************clean screen*******************************/
 	for(int i = 0;i < MaxFileNumber;i++)
 	{
 		for(int j = 0;j < 10;j++)
-			RTS_SndData(0,SDFILE_ADDR +i*10+j);
+			rtscheck.RTS_SndData(0,SDFILE_ADDR +i*10+j);
 	}
 	
 	for(int j = 0;j < 10;j++)	
 	{
-		RTS_SndData(0,Printfilename+j); //clean screen.
-		RTS_SndData(0,Choosefilename+j); //clean filename
+		rtscheck.RTS_SndData(0,Printfilename+j); //clean screen.
+		rtscheck.RTS_SndData(0,Choosefilename+j); //clean filename
 	}
 	for(int j = 0;j < 8;j++)
-		RTS_SndData(0,FilenameCount+j);
+		rtscheck.RTS_SndData(0,FilenameCount+j);
 	for(int j = 1;j <= MaxFileNumber;j++)
 	{
-		RTS_SndData(10,FilenameIcon+j);
-		RTS_SndData(10,FilenameIcon1+j);
+		rtscheck.RTS_SndData(10,FilenameIcon+j);
+		rtscheck.RTS_SndData(10,FilenameIcon1+j);
 	}
 	
 	SERIAL_ECHOLNPAIR("\n init zprobe_zoffset = ",getZOffset_mm());
-	RTS_SndData(getZOffset_mm()*100, 0x1026);  
+	rtscheck.RTS_SndData(getZOffset_mm()*100, 0x1026);  
 	/************************EEPROM*******************************/
 	//settings.load();
 	
@@ -375,14 +375,14 @@ char commandbuf[30];
 	}
   //SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
 	/*wait to receive massage and response*/
-	if(!waitway && RTS_RecData() > 0)
+	if(!waitway && rtscheck.RTS_RecData() > 0)
 		//SERIAL_PROTOCOLLN("  Handle Data ");
-	    RTS_HandleData();
+	    rtscheck.RTS_HandleData();
 
 }
 
 
-int RTS_RecData()
+int RTSSHOW::RTS_RecData()
 {
   while(Serial2.available() > 0 && (recnum < SizeofDatabuf))
   {
@@ -449,7 +449,7 @@ int RTS_RecData()
     return 2;
 }
 
-void RTS_SndData(void)
+void RTSSHOW::RTS_SndData(void)
 {
     if((snddat.head[0] == FHONE) && (snddat.head[1] == FHTWO) && snddat.len >= 3){
           databuf[0] = snddat.head[0];
@@ -497,14 +497,14 @@ void RTS_SndData(void)
 }
 
 
-void RTS_SndData(const String &s, unsigned long addr, unsigned char cmd /*= VarAddr_W*/)
+void RTSSHOW::RTS_SndData(const String &s, unsigned long addr, unsigned char cmd /*= VarAddr_W*/)
 {
 	if(s.length() < 1)
 		return;
 	RTS_SndData(s.c_str(), addr, cmd);
 }
 
-void RTS_SndData(const char *str, unsigned long addr, unsigned char cmd/*= VarAddr_W*/)
+void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd/*= VarAddr_W*/)
 {
 
 	int len = strlen(str);
@@ -529,7 +529,7 @@ void RTS_SndData(const char *str, unsigned long addr, unsigned char cmd/*= VarAd
 	}
 }
 
-void RTS_SndData(char c, unsigned long addr, unsigned char cmd/*= VarAddr_W*/)
+void RTSSHOW::RTS_SndData(char c, unsigned long addr, unsigned char cmd/*= VarAddr_W*/)
 {
 	snddat.command = cmd;
 	snddat.addr = addr;
@@ -539,9 +539,9 @@ void RTS_SndData(char c, unsigned long addr, unsigned char cmd/*= VarAddr_W*/)
 	RTS_SndData();
 }
 
-void RTS_SndData(unsigned char* str, unsigned long addr, unsigned char cmd){RTS_SndData((char *)str, addr, cmd);}
+void RTSSHOW::RTS_SndData(unsigned char* str, unsigned long addr, unsigned char cmd){RTS_SndData((char *)str, addr, cmd);}
 
-void RTS_SndData(int n, unsigned long addr, unsigned char cmd/*= VarAddr_W*/)
+void RTSSHOW::RTS_SndData(int n, unsigned long addr, unsigned char cmd/*= VarAddr_W*/)
 {
 	if(cmd == VarAddr_W )
 	{
@@ -572,13 +572,13 @@ void RTS_SndData(int n, unsigned long addr, unsigned char cmd/*= VarAddr_W*/)
 	RTS_SndData();
 }
 
-void RTS_SndData(unsigned int n, unsigned long addr, unsigned char cmd){ RTS_SndData((int)n, addr, cmd); }
+void RTSSHOW::RTS_SndData(unsigned int n, unsigned long addr, unsigned char cmd){ RTS_SndData((int)n, addr, cmd); }
 
-void RTS_SndData(float n, unsigned long addr, unsigned char cmd){ RTS_SndData((int)n, addr, cmd); }
+void RTSSHOW::RTS_SndData(float n, unsigned long addr, unsigned char cmd){ RTS_SndData((int)n, addr, cmd); }
 
-void RTS_SndData(long n, unsigned long addr, unsigned char cmd){ RTS_SndData((unsigned long)n, addr, cmd); }
+void RTSSHOW::RTS_SndData(long n, unsigned long addr, unsigned char cmd){ RTS_SndData((unsigned long)n, addr, cmd); }
 
-void RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd/*= VarAddr_W*/)
+void RTSSHOW::RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd/*= VarAddr_W*/)
 {
 	if(cmd == VarAddr_W )
 	{
@@ -605,7 +605,7 @@ void RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd/*= VarAd
 }
 
 
-void RTS_HandleData()
+void RTSSHOW::RTS_HandleData()
 {
 	int Checkkey = -1;
 	SERIAL_ECHOLN("  *******RTS_HandleData********\n ");

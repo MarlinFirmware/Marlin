@@ -5,6 +5,7 @@
 #include "../ui_api.h"
 #include "RTS_Show.h"
 
+namespace ExtUI {
 /*********************************/
 #define FHONE   (0x5A)
 #define FHTWO   (0xA5)
@@ -106,7 +107,9 @@ typedef struct CardRecord
     char Cardfilename[FileNum][FileNameLen];
 }CRec;
 
-
+class RTSSHOW {
+  public:
+    RTSSHOW();
     int RTS_RecData();
     void RTS_SDCardInit(void);
     void RTS_SDCardUpate(void);
@@ -127,8 +130,11 @@ typedef struct CardRecord
     
     DB recdat;
     DB snddat;
-
+  private:
     unsigned char databuf[SizeofDatabuf];
+  };
+
+extern RTSSHOW rtscheck;
 
 #ifdef MachineCRX
   #define	Addvalue	2
@@ -186,3 +192,4 @@ extern char PrintStatue[2];
 extern char PrinterStatusKey[2];
 extern const char *injected_commands_P;
 extern uint8_t progress_bar_percent;
+}
