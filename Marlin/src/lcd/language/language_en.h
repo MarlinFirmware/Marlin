@@ -867,14 +867,14 @@
 #ifndef MSG_BLTOUCH_DEPLOY
   #define MSG_BLTOUCH_DEPLOY                  _UxGT("Deploy BLTouch")
 #endif
-#ifndef MSG_BLTOUCH_SWMODE
-  #define MSG_BLTOUCH_SWMODE                  _UxGT("Deploy In Sw Mode")
+#ifndef MSG_BLTOUCH_SW_MODE
+  #define MSG_BLTOUCH_SW_MODE                 _UxGT("SW Deploy BLTouch")
 #endif
-#ifndef MSG_BLTOUCH_5VMODE
-  #define MSG_BLTOUCH_5VMODE                  _UxGT("Set 5V BLTouch")
+#ifndef MSG_BLTOUCH_5V_MODE
+  #define MSG_BLTOUCH_5V_MODE                 _UxGT("BLTouch 5V Mode")
 #endif
-#ifndef MSG_BLTOUCH_OPENMODE
-  #define MSG_BLTOUCH_OPENMODE                _UxGT("Set Open V BLTouch")
+#ifndef MSG_BLTOUCH_OD_MODE
+  #define MSG_BLTOUCH_OD_MODE                 _UxGT("BLTouch OD Mode")
 #endif
 #ifndef MSG_BLTOUCH_STOW
   #define MSG_BLTOUCH_STOW                    _UxGT("Stow BLTouch")
