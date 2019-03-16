@@ -43,6 +43,10 @@
   #include "../../module/probe.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../../feature/bltouch.h"
+#endif
+
 #include "../../lcd/ultralcd.h"
 
 #if HAS_DRIVER(L6470)                         // set L6470 absolute position registers to counts
@@ -235,7 +239,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch_init();
+    bltouch.init();
   #endif
 
   // Always home with tool 0 active

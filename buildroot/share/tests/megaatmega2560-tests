@@ -271,10 +271,10 @@ exec_test $1 $2 "Full-featured CR-10S config"
 #use_example_configs Hephestos_2
 #exec_test $1 $2 "Stuff"
 #
-# Delta Config (generic) + ABL bilinear + PROBE_MANUALLY
+# Delta Config (generic) + ABL bilinear + BLTOUCH
 use_example_configs delta/generic
-opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
-exec_test $1 $2 "Delta Config (generic) + ABL bilinear + PROBE_MANUALLY"
+opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR BLTOUCH BLTOUCH_V3_MENUS
+exec_test $1 $2 "Delta Config (generic) + ABL bilinear + BLTOUCH"
 #
 # Delta Config (generic) + UBL + ALLEN_KEY + OLED_PANEL_TINYBOY2 + EEPROM_SETTINGS
 #
