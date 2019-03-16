@@ -505,10 +505,10 @@ inline void invalid_extruder_error(const uint8_t e) {
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPGM("Dual X Carriage Mode ");
       switch (dual_x_carriage_mode) {
-        case DXC_FULL_CONTROL_MODE: DEBUG_ECHOLNPGM("DXC_FULL_CONTROL_MODE"); break;
-        case DXC_AUTO_PARK_MODE: DEBUG_ECHOLNPGM("DXC_AUTO_PARK_MODE"); break;
-        case DXC_DUPLICATION_MODE: DEBUG_ECHOLNPGM("DXC_DUPLICATION_MODE"); break;
-        case DXC_MIRRORED_MODE: DEBUG_ECHOLNPGM("DXC_MIRRORED_MODE"); break;
+        case DXC_FULL_CONTROL_MODE: DEBUG_ECHOLNPGM("FULL_CONTROL"); break;
+        case DXC_AUTO_PARK_MODE:    DEBUG_ECHOLNPGM("AUTO_PARK");    break;
+        case DXC_DUPLICATION_MODE:  DEBUG_ECHOLNPGM("DUPLICATION");  break;
+        case DXC_MIRRORED_MODE:     DEBUG_ECHOLNPGM("MIRRORED");     break;
       }
     }
 
