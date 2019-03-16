@@ -311,7 +311,14 @@ float zprobe_zoffset; // Initialized by settings.load()
       }
     }
 
+    #if ENABLED(BLTOUCH_5V_COLLECTOR)
+      bltouch_command(BLTOUCH_5VMODE); //assume 5vdc logic level if endstop pullup resistors are enabled
+    #else
+      bltouch_command(BLTOUCH_OPENMODE);
+    #endif
     bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
+    if(deploy)
+      bltouch_command(BLTOUCH_SWMODE); //ensure switch mode is activated for BLTouch V3
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("set_bltouch_deployed(", deploy, ")");
 

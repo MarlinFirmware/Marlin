@@ -846,6 +846,11 @@
 #define BLTOUCH
 #if ENABLED(BLTOUCH)
   //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+
+  //Options for BLTouch V3.0 and newer smart series
+  //#define BLTOUCH_FORCE_5VMODE
+  //#define BLTOUCH_FORCE_OPENMODE
+  //#define BLTOUCH_V3_MENUS
 #endif
 
 
