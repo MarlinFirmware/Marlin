@@ -40,20 +40,26 @@
   /**
    * M605: Set dual x-carriage movement mode
    *
-   *    M605    : Restore user specified DEFAULT_DUAL_X_CARRIAGE_MODE
-   *    M605 S0 : Full control mode. The slicer has full control over x-carriage movement
-   *    M605 S1 : Auto-park mode. The inactive head will auto park/unpark without slicer involvement
-   *    M605 S2 [Xnnn] [Rmmm]: Duplication mode. The second extruder will duplicate the first with nnn
-   *                         units x-offset and an optional differential hotend temperature of
-   *                         mmm degrees. E.g., with "M605 S2 X100 R2" the second extruder will duplicate
-   *                         the first with a spacing of 100mm in the x direction and 2 degrees hotter.
-   *    M605 S3 : Enable Mirrored mode. The second extruder will duplicate the first extruder's
-   *              movement similar to the M605 S2 mode.   However, the second extruder will be producing
-   *              a mirror image of the first extruder.  The initial x-offset and temperature differential are
-   *              set with M605 S2 [Xnnn] [Rmmm] and then followed with a M605 S3 to start the mirrored movement.
+   *   M605 S0 : (FULL_CONTROL) The slicer has full control over both X-carriages and can achieve optimal travel
+   *             results as long as it supports dual X-carriages.
+   * 
+   *   M605 S1 : (AUTO_PARK) The firmware automatically parks and unparks the X-carriages on tool-change so that
+   *             additional slicer support is not required.
+   * 
+   *   M605 S2 X R : (DUPLICATION) The firmware moves the second X-carriage and extruder in synchronization with
+   *             the first X-carriage and extruder, to print 2 copies of the same object at the same time.
+   *             Set the constant X-offset and temperature differential with M605 S2 X[offs] R[deg] and
+   *             follow with "M605 S2" to initiate duplicated movement. For example, use "M605 S2 X100 R2" to
+   *             make a copy 100mm to the right with E1 2° hotter than E0.
+   *
+   *   M605 S3 : (MIRRORED) Formbot/Vivedino-inspired mirrored mode in which the second extruder duplicates
+   *             the movement of the first except the second extruder is reversed in the X axis.
+   *             The temperature differential and initial X offset must be set with "M605 S2 X[offs] R[deg]",
+   *             then followed by "M605 S3" to initiate mirrored movement.
+   *
    *    M605 W  : IDEX What? command.
    *
-   *    Note: the X axis should be homed after changing dual x-carriage mode.
+   *    Note: the X axis should be homed after changing Dual X-carriage mode.
    */
   void GcodeSuite::M605() {
     planner.synchronize();
