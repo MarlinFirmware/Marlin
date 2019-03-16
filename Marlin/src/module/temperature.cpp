@@ -823,8 +823,8 @@ float Temperature::get_pid_output(const int8_t e) {
           MSG_PID_DEBUG_PTERM, work_pid[HOTEND_INDEX].Kp,
           MSG_PID_DEBUG_ITERM, work_pid[HOTEND_INDEX].Ki,
           MSG_PID_DEBUG_DTERM, work_pid[HOTEND_INDEX].Kd
-          #if ENABLED(PID_EXTRUSION_SCALING),
-            MSG_PID_DEBUG_CTERM, work_pid[HOTEND_INDEX].Kc
+          #if ENABLED(PID_EXTRUSION_SCALING)
+            , MSG_PID_DEBUG_CTERM, work_pid[HOTEND_INDEX].Kc
           #endif
         );
       #endif
