@@ -317,7 +317,7 @@ void homeaxis(const AxisEnum axis);
  */
 #if HAS_DUPLICATION_MODE
   extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
-              mirrored_duplication_mode;            // Used in Dual X mode 3
+              mirrored_duplication_mode;          // Used in Dual X mode 3
 #endif
 
 #if ENABLED(MULTI_NOZZLE_DUPLICATION) && HOTENDS > 2
@@ -337,12 +337,12 @@ void homeaxis(const AxisEnum axis);
   };
 
   extern DualXMode dual_x_carriage_mode;
-  extern float inactive_extruder_x_pos,           // used in mode 0 & 1
-               raised_parked_position[XYZE],      // used in mode 1
-               duplicate_extruder_x_offset;       // used in mode 2 & 3
-  extern bool active_extruder_parked;             // used in mode 1, 2 & 3
-  extern millis_t delayed_move_time;              // used in mode 1
-  extern int16_t duplicate_extruder_temp_offset;  // used in mode 2 & 3
+  extern float inactive_extruder_x_pos,           // Used in mode 0 & 1
+               raised_parked_position[XYZE],      // Used in mode 1
+               duplicate_extruder_x_offset;       // Used in mode 2 & 3
+  extern bool active_extruder_parked;             // Used in mode 1, 2 & 3
+  extern millis_t delayed_move_time;              // Used in mode 1
+  extern int16_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
 
   FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
