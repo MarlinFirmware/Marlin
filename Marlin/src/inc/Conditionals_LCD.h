@@ -66,9 +66,9 @@
 
 #elif ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) || ENABLED(AZSMZ_12864)
 
-  #define ULTRA_LCD  //general LCD support, also 16x2
-  #define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-  #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
+  #define ULTRA_LCD
+  #define DOGLCD
+  #define ULTIMAKERCONTROLLER
 
   #if ENABLED(miniVIKI)
     #define LCD_CONTRAST_MIN      75
@@ -320,12 +320,6 @@
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 
 #define HAS_ADC_BUTTONS     ENABLED(ADC_KEYPAD)
-#define HAS_DIGITAL_BUTTONS (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL))
-#define HAS_SHIFT_ENCODER   (!HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_SPI_LCD && DISABLED(NEWPANEL))))
-#define HAS_ENCODER_WHEEL   (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL))
-
-// I2C buttons must be read in the main thread
-#define HAS_SLOW_BUTTONS (ENABLED(LCD_I2C_VIKI) || ENABLED(LCD_I2C_PANELOLU2))
 
 #if HAS_GRAPHICAL_LCD
   /**
@@ -441,6 +435,7 @@
 #define SWITCHING_NOZZLE_TWO_SERVOS defined(SWITCHING_NOZZLE_E1_SERVO_NR)
 
 #define HAS_HOTEND_OFFSET (HOTENDS > 1)
+#define HAS_DUPLICATION_MODE (ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION))
 
 /**
  * DISTINCT_E_FACTORS affects how some E factors are accessed

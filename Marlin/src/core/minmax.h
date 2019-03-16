@@ -23,6 +23,10 @@
 #undef MIN
 #undef MAX
 
+// Pass NUM_ARGS(__VA_ARGS__) to use the number of arguments
+#define _NUM_ARGS(_0,_24_,_23,_22,_21,_20,_19,_18,_17,_16,_15,_14,_13,_12,_11,_10,_9,_8,_7,_6,_5,_4,_3,_2,_1,N,...) N
+#define NUM_ARGS(...) _NUM_ARGS(0, __VA_ARGS__ ,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+
 #ifdef __cplusplus
 
   #ifndef _MINMAX_H_
@@ -46,26 +50,30 @@
 
 #else
 
-  // NUM_ARGS(...) evaluates to the number of arguments
-  #define _NUM_ARGS(X,X6,X5,X4,X3,X2,X1,N,...) N
-  #define NUM_ARGS(...) _NUM_ARGS(0, __VA_ARGS__ ,6,5,4,3,2,1,0)
-
-  #define MIN_2(a,b)      ({__typeof__(a) _a = (a); __typeof__(b) _b = (b); _a < _b ? _a : _b;})
+  #define MIN_2(a,b)      ((a)<(b)?(a):(b))
   #define MIN_3(a,...)    MIN_2(a,MIN_2(__VA_ARGS__))
   #define MIN_4(a,...)    MIN_2(a,MIN_3(__VA_ARGS__))
   #define MIN_5(a,...)    MIN_2(a,MIN_4(__VA_ARGS__))
   #define MIN_6(a,...)    MIN_2(a,MIN_5(__VA_ARGS__))
-  #define __MIN_N(N, ...) MIN_ ## N(__VA_ARGS__)
-  #define _MIN_N(N, ...)  __MIN_N(N, __VA_ARGS__)
+  #define MIN_7(a,...)    MIN_2(a,MIN_6(__VA_ARGS__))
+  #define MIN_8(a,...)    MIN_2(a,MIN_7(__VA_ARGS__))
+  #define MIN_9(a,...)    MIN_2(a,MIN_8(__VA_ARGS__))
+  #define MIN_10(a,...)   MIN_2(a,MIN_9(__VA_ARGS__))
+  #define __MIN_N(N, ...) MIN_##N(__VA_ARGS__)
+  #define _MIN_N(N, ...)  __MIN_N(N,__VA_ARGS__)
   #define MIN(...)        _MIN_N(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
-  #define MAX_2(a,b)      ({__typeof__(a) _a = (a); __typeof__(b) _b = (b); _a > _b ? _a : _b;})
+  #define MAX_2(a,b)      ((a)>(b)?(a):(b))
   #define MAX_3(a,...)    MAX_2(a,MAX_2(__VA_ARGS__))
   #define MAX_4(a,...)    MAX_2(a,MAX_3(__VA_ARGS__))
   #define MAX_5(a,...)    MAX_2(a,MAX_4(__VA_ARGS__))
   #define MAX_6(a,...)    MAX_2(a,MAX_5(__VA_ARGS__))
-  #define __MAX_N(N, ...) MAX_ ## N(__VA_ARGS__)
-  #define _MAX_N(N, ...)  __MAX_N(N, __VA_ARGS__)
+  #define MAX_7(a,...)    MAX_2(a,MAX_6(__VA_ARGS__))
+  #define MAX_8(a,...)    MAX_2(a,MAX_7(__VA_ARGS__))
+  #define MAX_9(a,...)    MAX_2(a,MAX_8(__VA_ARGS__))
+  #define MAX_10(a,...)   MAX_2(a,MAX_9(__VA_ARGS__))
+  #define __MAX_N(N, ...) MAX_##N(__VA_ARGS__)
+  #define _MAX_N(N, ...)  __MAX_N(N,__VA_ARGS__)
   #define MAX(...)        _MAX_N(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 #endif

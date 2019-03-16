@@ -40,6 +40,11 @@ GcodeSuite gcode;
   #include "../feature/host_actions.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../sd/cardreader.h"
+  #include "../feature/power_loss_recovery.h"
+#endif
+
 #include "../Marlin.h" // for idle() and suspend_auto_report
 
 millis_t GcodeSuite::previous_move_ms;
@@ -86,8 +91,9 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
  *  - Set the feedrate, if included
  */
 void GcodeSuite::get_destination_from_command() {
+  bool seen[XYZE] = { false, false, false, false };
   LOOP_XYZE(i) {
-    if (parser.seen(axis_codes[i])) {
+    if ( (seen[i] = parser.seenval(axis_codes[i])) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
       destination[i] = (axis_relative_modes[i] || relative_mode)
         ? current_position[i] + v
@@ -96,6 +102,11 @@ void GcodeSuite::get_destination_from_command() {
     else
       destination[i] = current_position[i];
   }
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    // Only update power loss recovery on moves with E
+    if ((seen[E_AXIS] || seen[Z_AXIS]) && IS_SD_PRINTING()) recovery.save();
+  #endif
 
   if (parser.linearval('F') > 0)
     feedrate_mm_s = MMM_TO_MMS(parser.value_feedrate());
@@ -247,9 +258,14 @@ void GcodeSuite::process_parsed_command(
       #endif
 
       #if ENABLED(G38_PROBE_TARGET)
-        case 38:                                                  // G38.2 & G38.3: Probe towards target
-          if (parser.subcode == 2 || parser.subcode == 3)
-            G38(parser.subcode == 2);
+        case 38:                                                  // G38.2, G38.3: Probe towards target
+          if (WITHIN(parser.subcode, 2,
+            #if ENABLED(G38_PROBE_AWAY)
+              5
+            #else
+              3
+            #endif
+          )) G38(parser.subcode);                                 // G38.4, G38.5: Probe away from target
           break;
       #endif
 
@@ -381,6 +397,11 @@ void GcodeSuite::process_parsed_command(
         case 190: M190(); break;                                  // M190: Wait for bed temperature to reach target
       #endif
 
+      #if HAS_HEATED_CHAMBER
+        case 141: M141(); break;                                  // M141: Set chamber temperature
+        //case 191: M191(); break;                                // M191: Wait for chamber temperature to reach target
+      #endif
+
       case 105: M105(); KEEPALIVE_STATE(NOT_BUSY); return;        // M105: Report Temperatures (and say "ok")
 
       #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
@@ -495,7 +516,7 @@ void GcodeSuite::process_parsed_command(
         case 217: M217(); break;                                  // M217: Set filament swap parameters
       #endif
 
-      #if HOTENDS > 1
+      #if HAS_HOTEND_OFFSET
         case 218: M218(); break;                                  // M218: Set a tool offset
       #endif
 
@@ -629,7 +650,7 @@ void GcodeSuite::process_parsed_command(
         case 603: M603(); break;                                  // M603: Configure Filament Change
       #endif
 
-      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+      #if HAS_DUPLICATION_MODE
         case 605: M605(); break;                                  // M605: Set Dual X Carriage movement mode
       #endif
 
@@ -721,6 +742,10 @@ void GcodeSuite::process_parsed_command(
 
       #if ENABLED(Z_STEPPER_AUTO_ALIGN)
         case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
+      #endif
+
+      #if ENABLED(PLATFORM_M997_SUPPORT)
+        case 997: M997(); break;                                  // M997: Perform in-application firmware update
       #endif
 
       case 999: M999(); break;                                    // M999: Restart after being Stopped

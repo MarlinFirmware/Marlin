@@ -183,7 +183,7 @@ inline void action_mmu2_M600_loadCurrentFilamentToNozzle() { mmu2.loadFilamentTo
 inline void action_mmu2_M600_unloadFilament()              { mmu2.unload(); }
 inline void action_mmu2_M600_resume()                      { mmuMenuWait = false; }
 
-void menu_mmu2_advanced_pause() {
+void menu_mmu2_pause() {
   currentTool = mmu2.getCurrentTool();
   START_MENU();
   #if LCD_HEIGHT > 2
@@ -198,7 +198,7 @@ void menu_mmu2_advanced_pause() {
 
 void mmu2_M600() {
   ui.defer_status_screen(true);
-  ui.goto_screen(menu_mmu2_advanced_pause);
+  ui.goto_screen(menu_mmu2_pause);
   mmuMenuWait = true;
   while (mmuMenuWait) idle();
 }

@@ -180,6 +180,8 @@
     }
 
     do_blocking_move_to_xy(park.x, park.y, fr_xy);
+
+    report_current_position();
   }
 
 #endif // NOZZLE_PARK_FEATURE

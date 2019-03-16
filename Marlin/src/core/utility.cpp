@@ -321,8 +321,11 @@ void safe_delay(millis_t ms) {
     );
 
     #if HAS_BED_PROBE
-      SERIAL_ECHOPGM("Probe Offset X:" STRINGIFY(X_PROBE_OFFSET_FROM_EXTRUDER) " Y:" STRINGIFY(Y_PROBE_OFFSET_FROM_EXTRUDER));
-      SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
+      SERIAL_ECHOPAIR(
+        "Probe Offset X:" STRINGIFY(X_PROBE_OFFSET_FROM_EXTRUDER)
+                    " Y:" STRINGIFY(Y_PROBE_OFFSET_FROM_EXTRUDER)
+                    " Z:", zprobe_zoffset
+      );
       if ((X_PROBE_OFFSET_FROM_EXTRUDER) > 0)
         SERIAL_ECHOPGM(" (Right");
       else if ((X_PROBE_OFFSET_FROM_EXTRUDER) < 0)
@@ -441,10 +444,3 @@ void safe_delay(millis_t ms) {
   }
 
 #endif // DEBUG_LEVELING_FEATURE
-
-void print_bin(const uint16_t val) {
-  for (uint8_t i = 16; i--;) {
-    SERIAL_ECHO(TEST(val, i));
-    if (!(i & 0x3)) SERIAL_CHAR(' ');
-  }
-}

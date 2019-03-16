@@ -28,6 +28,10 @@
   #error "Oops! Select 'FYSETC F6' in 'Tools > Board.'"
 #endif
 
+#ifdef SD_DETECT_INVERTED
+  #error "SD_DETECT_INVERTED must be disabled for the FYSETC_F6_13 board."
+#endif
+
 #define BOARD_NAME "FYSETC F6 1.3"
 
 #define RESET_PIN          30

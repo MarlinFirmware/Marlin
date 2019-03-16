@@ -81,6 +81,10 @@
 
 Stepper stepper; // Singleton
 
+#if HAS_MOTOR_CURRENT_PWM
+  bool Stepper::initialized; // = false
+#endif
+
 #ifdef __AVR__
   #include "speed_lookuptable.h"
 #endif
@@ -280,22 +284,14 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     #define X_APPLY_STEP(v,Q) do{ X_STEP_WRITE(v); X2_STEP_WRITE(v); }while(0)
   #endif
 #elif ENABLED(DUAL_X_CARRIAGE)
-  #define X_APPLY_DIR(v,ALWAYS) \
-    if (extruder_duplication_enabled || ALWAYS) { \
-      X_DIR_WRITE(v); \
-      X2_DIR_WRITE(v); \
-    } \
-    else { \
-      if (movement_extruder()) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
-    }
-  #define X_APPLY_STEP(v,ALWAYS) \
-    if (extruder_duplication_enabled || ALWAYS) { \
-      X_STEP_WRITE(v); \
-      X2_STEP_WRITE(v); \
-    } \
-    else { \
-      if (movement_extruder()) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
-    }
+  #define X_APPLY_DIR(v,ALWAYS) do{ \
+    if (extruder_duplication_enabled || ALWAYS) { X_DIR_WRITE(v); X2_DIR_WRITE(mirrored_duplication_mode ? !(v) : v); } \
+    else if (movement_extruder()) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
+  }while(0)
+  #define X_APPLY_STEP(v,ALWAYS) do{ \
+    if (extruder_duplication_enabled || ALWAYS) { X_STEP_WRITE(v); X2_STEP_WRITE(v); } \
+    else if (movement_extruder()) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
+  }while(0)
 #else
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
   #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
@@ -1242,7 +1238,7 @@ void Stepper::set_directions() {
  * Directly pulses the stepper motors at high frequency.
  */
 
-HAL_STEP_TIMER_ISR {
+HAL_STEP_TIMER_ISR() {
   HAL_timer_isr_prologue(STEP_TIMER_NUM);
 
   Stepper::isr();
@@ -1975,11 +1971,6 @@ bool Stepper::is_block_busy(const block_t* const block) {
 
 void Stepper::init() {
 
-  // Init Digipot Motor Current
-  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
-    digipot_init();
-  #endif
-
   #if MB(ALLIGATOR)
     const float motor_current[] = MOTOR_CURRENT;
     unsigned int digipot_motor = 0;
@@ -2161,6 +2152,13 @@ void Stepper::init() {
     | (INVERT_Z_DIR ? _BV(Z_AXIS) : 0);
 
   set_directions();
+
+  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+    #if HAS_MOTOR_CURRENT_PWM
+      initialized = true;
+    #endif
+    digipot_init();
+  #endif
 }
 
 /**
@@ -2466,6 +2464,7 @@ void Stepper::report_positions() {
 #if HAS_MOTOR_CURRENT_PWM
 
   void Stepper::refresh_motor_power() {
+    if (!initialized) return;
     LOOP_L_N(i, COUNT(motor_current_setting)) {
       switch (i) {
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY) || PIN_EXISTS(MOTOR_CURRENT_PWM_X) || PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
@@ -2497,6 +2496,8 @@ void Stepper::report_positions() {
         digitalPotWrite(digipot_ch[driver], current);
 
       #elif HAS_MOTOR_CURRENT_PWM
+
+        if (!initialized) return;
 
         if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
           motor_current_setting[driver] = current; // update motor_current_setting
@@ -2551,25 +2552,25 @@ void Stepper::report_positions() {
       #elif HAS_MOTOR_CURRENT_PWM
 
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_X_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_X_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_Y_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_Y_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_XY_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_Z_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_Z_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_E_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_E0_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_E0_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_E1_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_E1_PIN);
         #endif
 
         refresh_motor_power();

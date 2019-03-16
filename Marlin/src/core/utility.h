@@ -118,9 +118,9 @@ inline void serial_delay(const millis_t ms) {
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void log_machine_info();
+#else
+  #define log_machine_info() NOOP
 #endif
-
-void print_bin(const uint16_t val);
 
 template<typename T>
 class restorer {

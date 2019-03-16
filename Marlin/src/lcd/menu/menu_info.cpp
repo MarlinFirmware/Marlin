@@ -143,6 +143,15 @@ void menu_info_thermistors() {
     STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_4_MAXTEMP), false);
   #endif
 
+  #if TEMP_SENSOR_5 != 0
+    #undef THERMISTOR_ID
+    #define THERMISTOR_ID TEMP_SENSOR_5
+    #include "../thermistornames.h"
+    STATIC_ITEM("T5: " THERMISTOR_NAME, false, true);
+    STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_5_MINTEMP), false);
+    STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_5_MAXTEMP), false);
+  #endif
+
   #if HAS_HEATED_BED
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_BED

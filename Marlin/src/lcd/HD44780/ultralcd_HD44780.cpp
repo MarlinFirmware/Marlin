@@ -544,9 +544,9 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   #else
     const bool is_idle = (
       #if HAS_HEATED_BED
-        isBed ? thermalManager.is_bed_idle() :
+        isBed ? thermalManager.bed_idle.timed_out :
       #endif
-      thermalManager.is_heater_idle(heater)
+      thermalManager.hotend_idle[heater].timed_out
     );
 
     if (!blink && is_idle) {

@@ -154,3 +154,6 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 
 #define HAL_IDLETASK 1
 void HAL_idletask(void);
+
+#define PLATFORM_M997_SUPPORT
+void flashFirmware(int16_t value);

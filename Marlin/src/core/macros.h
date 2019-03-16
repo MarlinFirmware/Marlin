@@ -56,7 +56,7 @@
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
-#define UNUSED(x) ((void)(x))
+#define UNUSED(X) (void)X
 
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
@@ -194,7 +194,8 @@
 #define DECREMENT_(n) DEC_ ##n
 #define DECREMENT(n) DECREMENT_(n)
 
-#define PIN_EXISTS(PN) (defined(PN ##_PIN) && PN ##_PIN >= 0)
+#define PIN_EXISTS(PN)    (defined(PN ##_PIN) && PN ##_PIN >= 0)
+#define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
 
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0f)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0f)

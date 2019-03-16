@@ -139,19 +139,11 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
     cmax = MAX(cmax, v);
     csum += v;
   }
-  //SERIAL_ECHOPAIR("Mixer::refresh_collector(", proportion);
-  //SERIAL_ECHOPAIR(", ", int(t));
-  //SERIAL_ECHOPAIR(") cmax=", cmax);
-  //SERIAL_ECHOPAIR("  csum=", csum);
-  //SERIAL_ECHOPGM("  color");
+  //SERIAL_ECHOPAIR("Mixer::refresh_collector(", proportion, ", ", int(t), ") cmax=", cmax, "  csum=", csum, "  color");
   const float inv_prop = proportion / csum;
   MIXER_STEPPER_LOOP(i) {
     collector[i] = color[t][i] * inv_prop;
-    //SERIAL_ECHOPAIR(" [", int(t));
-    //SERIAL_ECHOPAIR("][", int(i));
-    //SERIAL_ECHOPAIR("] = ", int(color[t][i]));
-    //SERIAL_ECHOPAIR(" (", collector[i]);
-    //SERIAL_ECHOPGM(")  ");
+    //SERIAL_ECHOPAIR(" [", int(t), "][", int(i), "] = ", int(color[t][i]), " (", collector[i], ")  ");
   }
   //SERIAL_EOL();
 }

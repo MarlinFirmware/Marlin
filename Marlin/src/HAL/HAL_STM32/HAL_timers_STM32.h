@@ -137,8 +137,8 @@
 
 extern void Step_Handler(stimer_t *htim);
 extern void Temp_Handler(stimer_t *htim);
-#define HAL_STEP_TIMER_ISR void Step_Handler(stimer_t *htim)
-#define HAL_TEMP_TIMER_ISR void Temp_Handler(stimer_t *htim)
+#define HAL_STEP_TIMER_ISR() void Step_Handler(stimer_t *htim)
+#define HAL_TEMP_TIMER_ISR() void Temp_Handler(stimer_t *htim)
 
 // --------------------------------------------------------------------------
 // Types

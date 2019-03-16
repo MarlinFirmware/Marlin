@@ -43,7 +43,7 @@
  * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
  */
 
-#define _READ(p) bool(CORE_PIN ## p ## _PINREG & CORE_PIN ## p ## _BITMASK)
+#define _READ(P) bool(CORE_PIN ## P ## _PINREG & CORE_PIN ## P ## _BITMASK)
 
 #define _WRITE(P,V) do{ \
   if (V) CORE_PIN ## P ## _PORTSET = CORE_PIN ## P ## _BITMASK; \
@@ -79,11 +79,19 @@
 #define SET_INPUT(IO)         _SET_INPUT(IO)
 #define SET_INPUT_PULLUP(IO)  _SET_INPUT_PULLUP(IO)
 #define SET_OUTPUT(IO)        _SET_OUTPUT(IO)
+#define SET_PWM(IO)            SET_OUTPUT(IO)
 
 #define GET_INPUT(IO)         _GET_INPUT(IO)
 #define GET_OUTPUT(IO)        _GET_OUTPUT(IO)
 
 #define OUT_WRITE(IO,V)       do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
+
+// digitalRead/Write wrappers
+#define extDigitalRead(IO)    digitalRead(IO)
+#define extDigitalWrite(IO,V) digitalWrite(IO,V)
+
+#define PWM_PIN(P)            digitalPinHasPWM(P)
+#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
 
 /**
  * Ports, functions, and pins

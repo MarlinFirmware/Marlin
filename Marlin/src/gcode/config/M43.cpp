@@ -77,9 +77,9 @@ inline void toggle_pins() {
       {
         pinMode(pin, OUTPUT);
         for (int16_t j = 0; j < repeat; j++) {
-          digitalWrite(pin, 0); safe_delay(wait);
-          digitalWrite(pin, 1); safe_delay(wait);
-          digitalWrite(pin, 0); safe_delay(wait);
+          extDigitalWrite(pin, 0); safe_delay(wait);
+          extDigitalWrite(pin, 1); safe_delay(wait);
+          extDigitalWrite(pin, 0); safe_delay(wait);
         }
       }
 
@@ -285,7 +285,7 @@ void GcodeSuite::M43() {
           pin_state[pin - first_pin] = analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)); // int16_t pin_state[...]
         else
       //*/
-          pin_state[i - first_pin] = digitalRead(pin);
+          pin_state[i - first_pin] = extDigitalRead(pin);
     }
 
     #if HAS_RESUME_CONTINUE
@@ -307,7 +307,7 @@ void GcodeSuite::M43() {
               ? analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)) : // int16_t val
               :
           //*/
-            digitalRead(pin);
+            extDigitalRead(pin);
         if (val != pin_state[i - first_pin]) {
           report_pin_state_extended(pin, ignore_protection, false);
           pin_state[i - first_pin] = val;

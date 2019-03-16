@@ -254,6 +254,7 @@
  *
  * ************ Custom codes - This can change to suit future G-code regulations
  * M928 - Start SD logging: "M928 filename.gco". Stop with M29. (Requires SDSUPPORT)
+ * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
  *
  * "T" Codes
@@ -414,7 +415,7 @@ private:
   #endif
 
   #if ENABLED(G38_PROBE_TARGET)
-    static void G38(const bool is_38_2);
+    static void G38(const int8_t subcode);
   #endif
 
   #if HAS_MESH
@@ -575,6 +576,11 @@ private:
     static void M190();
   #endif
 
+  #if HAS_HEATED_CHAMBER
+    static void M141();
+    //static void M191();
+  #endif
+
   #if HAS_LCD_MENU
     static void M145();
   #endif
@@ -631,7 +637,7 @@ private:
     static void M217();
   #endif
 
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
     static void M218();
   #endif
 
@@ -763,7 +769,7 @@ private:
     static void M603();
   #endif
 
-  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+  #if HAS_DUPLICATION_MODE
     static void M605();
   #endif
 
@@ -856,6 +862,10 @@ private:
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
     static void M951();
+  #endif
+
+  #if ENABLED(PLATFORM_M997_SUPPORT)
+    static void M997();
   #endif
 
   static void M999();

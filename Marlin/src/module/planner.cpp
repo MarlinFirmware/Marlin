@@ -1264,6 +1264,7 @@ void Planner::check_axes_activity() {
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
+
       #if HAS_FAN0
         thermalManager.soft_pwm_amount_fan[0] = CALC_FAN_SPEED(0);
       #endif
@@ -1273,7 +1274,21 @@ void Planner::check_axes_activity() {
       #if HAS_FAN2
         thermalManager.soft_pwm_amount_fan[2] = CALC_FAN_SPEED(2);
       #endif
+
+    #elif ENABLED(FAST_PWM_FAN)
+
+      #if HAS_FAN0
+        thermalManager.set_pwm_duty(FAN_PIN, CALC_FAN_SPEED(0));
+      #endif
+      #if HAS_FAN1
+        thermalManager.set_pwm_duty(FAN1_PIN, CALC_FAN_SPEED(1));
+      #endif
+      #if HAS_FAN2
+        thermalManager.set_pwm_duty(FAN2_PIN, CALC_FAN_SPEED(2));
+      #endif
+
     #else
+
       #if HAS_FAN0
         analogWrite(FAN_PIN, CALC_FAN_SPEED(0));
       #endif
@@ -1614,7 +1629,7 @@ void Planner::synchronize() {
             if (reversing == (error_correction < 0)) {
               if (segment_proportion == 0)
                 segment_proportion = MIN(1.0f, block->millimeters / backlash_smoothing_mm);
-              error_correction *= segment_proportion;
+              error_correction = ceil(segment_proportion * error_correction);
             }
             else
               error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
@@ -1981,7 +1996,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           #endif // EXTRUDERS > 1
           enable_E0();
           g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
-          #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+          #if HAS_DUPLICATION_MODE
             if (extruder_duplication_enabled) {
               enable_E1();
               g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;

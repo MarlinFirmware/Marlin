@@ -32,8 +32,8 @@
  * This has many limitations and is not fit for the purpose
  */
 
-HAL_STEP_TIMER_ISR;
-HAL_TEMP_TIMER_ISR;
+HAL_STEP_TIMER_ISR();
+HAL_TEMP_TIMER_ISR();
 
 Timer timers[2];
 

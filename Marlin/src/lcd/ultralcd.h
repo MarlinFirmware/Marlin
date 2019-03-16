@@ -27,7 +27,18 @@
   #include "../libs/buzzer.h"
 #endif
 
+#define HAS_DIGITAL_BUTTONS (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)        \
+                            || (BUTTON_EXISTS(EN1) && BUTTON_EXISTS(EN2)) \
+                            || BUTTON_EXISTS(ENC) || BUTTON_EXISTS(BACK)  \
+                            || BUTTON_EXISTS(UP)  || BUTTON_EXISTS(DWN)   \
+                            || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT))
+
+#define HAS_SHIFT_ENCODER   (!HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_SPI_LCD && DISABLED(NEWPANEL))))
+#define HAS_ENCODER_WHEEL  ((!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || (BUTTON_EXISTS(EN1) && BUTTON_EXISTS(EN2)) )
 #define HAS_ENCODER_ACTION (HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY))
+
+// I2C buttons must be read in the main thread
+#define HAS_SLOW_BUTTONS (ENABLED(LCD_I2C_VIKI) || ENABLED(LCD_I2C_PANELOLU2))
 
 #if HAS_SPI_LCD
 
@@ -78,8 +89,8 @@
     extern float move_menu_scale;
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
-                                           const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_SAME,
+      void lcd_pause_show_message(const PauseMessage message,
+                                           const PauseMode mode=PAUSE_MODE_SAME,
                                            const uint8_t extruder=active_extruder);
     #endif
 
@@ -133,7 +144,6 @@
   #define EN_A _BV(BLEN_A)
   #define EN_B _BV(BLEN_B)
 
-  #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
   #if BUTTON_EXISTS(ENC)

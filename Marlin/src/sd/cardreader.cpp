@@ -438,9 +438,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
       filespos[file_subcall_ctr] = sdpos;
 
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("SUBROUTINE CALL target:\"", path);
-      SERIAL_ECHOPAIR("\" parent:\"", proc_filenames[file_subcall_ctr]);
-      SERIAL_ECHOLNPAIR("\" pos", sdpos);
+      SERIAL_ECHOLNPAIR("SUBROUTINE CALL target:\"", path, "\" parent:\"", proc_filenames[file_subcall_ctr], "\" pos", sdpos);
       file_subcall_ctr++;
     }
     else
@@ -470,8 +468,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
     if (file.open(curDir, fname, O_READ)) {
       filesize = file.fileSize();
       sdpos = 0;
-      SERIAL_ECHOPAIR(MSG_SD_FILE_OPENED, fname);
-      SERIAL_ECHOLNPAIR(MSG_SD_SIZE, filesize);
+      SERIAL_ECHOLNPAIR(MSG_SD_FILE_OPENED, fname, MSG_SD_SIZE, filesize);
       SERIAL_ECHOLNPGM(MSG_SD_FILE_SELECTED);
 
       getfilename(0, fname);
@@ -480,18 +477,12 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
       //  SERIAL_ECHOPAIR(MSG_SD_FILE_LONG_NAME, longFilename);
       //}
     }
-    else {
-      SERIAL_ECHOPAIR(MSG_SD_OPEN_FILE_FAIL, fname);
-      SERIAL_CHAR('.');
-      SERIAL_EOL();
-    }
+    else
+      SERIAL_ECHOLNPAIR(MSG_SD_OPEN_FILE_FAIL, fname, ".");
   }
   else { //write
-    if (!file.open(curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
-      SERIAL_ECHOPAIR(MSG_SD_OPEN_FILE_FAIL, fname);
-      SERIAL_CHAR('.');
-      SERIAL_EOL();
-    }
+    if (!file.open(curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
+      SERIAL_ECHOLNPAIR(MSG_SD_OPEN_FILE_FAIL, fname, ".");
     else {
       flag.saving = true;
       getfilename(0, fname);
@@ -520,10 +511,8 @@ void CardReader::removeFile(const char * const name) {
       presort();
     #endif
   }
-  else {
-    SERIAL_ECHOPAIR("Deletion failed, File: ", fname);
-    SERIAL_CHAR('.');
-  }
+  else
+    SERIAL_ECHOLNPAIR("Deletion failed, File: ", fname, ".");
 }
 
 void CardReader::report_status() {
@@ -669,9 +658,7 @@ const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, con
     if (echo) SERIAL_ECHOLN(dosSubdirname);
 
     if (!myDir.open(curDir, dosSubdirname, O_READ)) {
-      SERIAL_ECHOPAIR(MSG_SD_OPEN_FILE_FAIL, dosSubdirname);
-      SERIAL_CHAR('.');
-      SERIAL_EOL();
+      SERIAL_ECHOLNPAIR(MSG_SD_OPEN_FILE_FAIL, dosSubdirname, ".");
       return NULL;
     }
     curDir = &myDir;
@@ -1030,11 +1017,8 @@ void CardReader::printingHasFinished() {
   void CardReader::openJobRecoveryFile(const bool read) {
     if (!isDetected()) return;
     if (recovery.file.isOpen()) return;
-    if (!recovery.file.open(&root, job_recovery_file_name, read ? O_READ : O_CREAT | O_WRITE | O_TRUNC | O_SYNC)) {
-      SERIAL_ECHOPAIR(MSG_SD_OPEN_FILE_FAIL, job_recovery_file_name);
-      SERIAL_CHAR('.');
-      SERIAL_EOL();
-    }
+    if (!recovery.file.open(&root, job_recovery_file_name, read ? O_READ : O_CREAT | O_WRITE | O_TRUNC | O_SYNC))
+      SERIAL_ECHOLNPAIR(MSG_SD_OPEN_FILE_FAIL, job_recovery_file_name, ".");
     else if (!read)
       SERIAL_ECHOLNPAIR(MSG_SD_WRITE_TO_FILE, job_recovery_file_name);
   }

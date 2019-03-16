@@ -300,24 +300,26 @@ void menu_tmc();
   #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N); //
 #endif
 
-DEFINE_PIDTEMP_FUNCS(0);
-#if ENABLED(PID_PARAMS_PER_HOTEND)
-  #if HOTENDS > 1
-    DEFINE_PIDTEMP_FUNCS(1);
-    #if HOTENDS > 2
-      DEFINE_PIDTEMP_FUNCS(2);
-      #if HOTENDS > 3
-        DEFINE_PIDTEMP_FUNCS(3);
-        #if HOTENDS > 4
-          DEFINE_PIDTEMP_FUNCS(4);
-          #if HOTENDS > 5
-            DEFINE_PIDTEMP_FUNCS(5);
-          #endif // HOTENDS > 5
-        #endif // HOTENDS > 4
-      #endif // HOTENDS > 3
-    #endif // HOTENDS > 2
-  #endif // HOTENDS > 1
-#endif // PID_PARAMS_PER_HOTEND
+#if HOTENDS
+  DEFINE_PIDTEMP_FUNCS(0);
+  #if ENABLED(PID_PARAMS_PER_HOTEND)
+    #if HOTENDS > 1
+      DEFINE_PIDTEMP_FUNCS(1);
+      #if HOTENDS > 2
+        DEFINE_PIDTEMP_FUNCS(2);
+        #if HOTENDS > 3
+          DEFINE_PIDTEMP_FUNCS(3);
+          #if HOTENDS > 4
+            DEFINE_PIDTEMP_FUNCS(4);
+            #if HOTENDS > 5
+              DEFINE_PIDTEMP_FUNCS(5);
+            #endif // HOTENDS > 5
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #endif // HOTENDS > 1
+  #endif // PID_PARAMS_PER_HOTEND
+#endif // HOTENDS
 
 #define SHOW_MENU_ADVANCED_TEMPERATURE ((ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(PID_EDIT_MENU))
 

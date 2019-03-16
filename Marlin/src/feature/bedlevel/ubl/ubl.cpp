@@ -45,8 +45,7 @@
       for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(z_values[x][y])) {
           SERIAL_ECHO_START();
-          SERIAL_ECHOPAIR("  M421 I", x);
-          SERIAL_ECHOPAIR(" J", y);
+          SERIAL_ECHOPAIR("  M421 I", x, " J", y);
           SERIAL_ECHOPAIR_F(" Z", z_values[x][y], 2);
           SERIAL_EOL();
           serial_delay(75); // Prevent Printrun from exploding
@@ -130,6 +129,11 @@
       planner.set_z_fade_height(10.0);
     #endif
     ZERO(z_values);
+    #if ENABLED(EXTENSIBLE_UI)
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) 
+            ExtUI::onMeshUpdate(x, y, 0);
+    #endif
     if (was_enabled) report_current_position();
   }
 
@@ -142,6 +146,9 @@
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
         z_values[x][y] = value;
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(x, y, value);
+        #endif
       }
     }
   }

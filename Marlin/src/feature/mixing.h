@@ -148,11 +148,7 @@ class Mixer {
       MIXER_STEPPER_LOOP(i) tcolor[i] = mix[i] * scale;
 
       #ifdef MIXER_NORMALIZER_DEBUG
-        SERIAL_ECHOPAIR("Mix [", int(mix[0]));
-        SERIAL_ECHOPAIR(", ", int(mix[1]));
-        SERIAL_ECHOPAIR("] to Color [", int(tcolor[0]));
-        SERIAL_ECHOPAIR(", ", int(tcolor[1]));
-        SERIAL_ECHOLNPGM("]");
+        SERIAL_ECHOLNPAIR("Mix [", int(mix[0]), ", ", int(mix[1]), "] to Color [", int(tcolor[0]), ", ", int(tcolor[1]), "]");
       #endif
     }
 
@@ -163,12 +159,7 @@ class Mixer {
       mix[0] = mixer_perc_t(100.0f * color[j][0] / ctot);
       mix[1] = 100 - mix[0];
       #ifdef MIXER_NORMALIZER_DEBUG
-        SERIAL_ECHOPAIR("V-tool ", int(j));
-        SERIAL_ECHOPAIR(" [", int(color[j][0]));
-        SERIAL_ECHOPAIR(", ", int(color[j][1]));
-        SERIAL_ECHOPAIR("] to Mix [", int(mix[0]));
-        SERIAL_ECHOPAIR(", ", int(mix[1]));
-        SERIAL_ECHOLNPGM("]");
+        SERIAL_ECHOLNPAIR("V-tool ", int(j), " [", int(color[j][0]), ", ", int(color[j][1]), "] to Mix [", int(mix[0]), ", ", int(mix[1]), "]");
       #endif
     }
 
@@ -211,11 +202,7 @@ class Mixer {
       mix[0] = (mixer_perc_t)CEIL(100.0f * gradient.color[0] / ctot);
       mix[1] = 100 - mix[0];
       #ifdef MIXER_NORMALIZER_DEBUG
-        SERIAL_ECHOPAIR("Gradient [", int(gradient.color[0]));
-        SERIAL_ECHOPAIR(", ", int(gradient.color[1]));
-        SERIAL_ECHOPAIR("] to Mix [", int(mix[0]));
-        SERIAL_ECHOPAIR(", ", int(mix[1]));
-        SERIAL_ECHOLNPGM("]");
+        SERIAL_ECHOLNPAIR("Gradient [", int(gradient.color[0]), ", ", int(gradient.color[1]), "] to Mix [", int(mix[0]), ", ", int(mix[1]), "]");
       #endif
     }
 

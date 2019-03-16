@@ -59,7 +59,7 @@ void GcodeSuite::G29() {
 
   static int mbl_probe_index = -1;
   #if HAS_SOFTWARE_ENDSTOPS
-    static bool enable_soft_endstops;
+    static bool saved_soft_endstops_state;
   #endif
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
@@ -99,7 +99,7 @@ void GcodeSuite::G29() {
       if (mbl_probe_index == 0) {
         #if HAS_SOFTWARE_ENDSTOPS
           // For the initial G29 S2 save software endstop state
-          enable_soft_endstops = soft_endstops_enabled;
+          saved_soft_endstops_state = soft_endstops_enabled;
         #endif
         // Move close to the bed before the first point
         do_blocking_move_to_z(0);
@@ -108,7 +108,7 @@ void GcodeSuite::G29() {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
         #if HAS_SOFTWARE_ENDSTOPS
-          soft_endstops_enabled = enable_soft_endstops;
+          soft_endstops_enabled = saved_soft_endstops_state;
         #endif
       }
       // If there's another point to sample, move there with optional lift.
@@ -173,8 +173,12 @@ void GcodeSuite::G29() {
       else
         return echo_not_entered('J');
 
-      if (parser.seenval('Z'))
+      if (parser.seenval('Z')) {
         mbl.z_values[ix][iy] = parser.value_linear_units();
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]);
+        #endif
+      }
       else
         return echo_not_entered('Z');
       break;

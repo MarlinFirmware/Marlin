@@ -99,7 +99,7 @@
 #define MSG_IDEX_MENU                       _UxGT("IDEX-Modus")
 #define MSG_IDEX_MODE_AUTOPARK              _UxGT("Autom. Parken")
 #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplizieren")
-#define MSG_IDEX_MODE_SCALED_COPY           _UxGT("Skalierung kopieren")
+#define MSG_IDEX_MODE_MIRRORED_COPY         _UxGT("Spiegelkopie")
 #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("vollstä. Kontrolle")
 #define MSG_IDEX_X_OFFSET                   _UxGT("2. Düse X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2. Düse Y")

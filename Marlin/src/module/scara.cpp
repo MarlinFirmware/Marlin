@@ -45,8 +45,7 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
     float homeposition[XYZ];
     LOOP_XYZ(i) homeposition[i] = base_home_pos((AxisEnum)i);
 
-    // SERIAL_ECHOPAIR("homeposition X:", homeposition[X_AXIS]);
-    // SERIAL_ECHOLNPAIR(" Y:", homeposition[Y_AXIS]);
+    // SERIAL_ECHOLNPAIR("homeposition X:", homeposition[X_AXIS], " Y:", homeposition[Y_AXIS]);
 
     /**
      * Get Home position SCARA arm angles using inverse kinematics,
@@ -55,8 +54,7 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
     inverse_kinematics(homeposition);
     forward_kinematics_SCARA(delta[A_AXIS], delta[B_AXIS]);
 
-    // SERIAL_ECHOPAIR("Cartesian X:", cartes[X_AXIS]);
-    // SERIAL_ECHOLNPAIR(" Y:", cartes[Y_AXIS]);
+    // SERIAL_ECHOLNPAIR("Cartesian X:", cartes[X_AXIS], " Y:", cartes[Y_AXIS]);
 
     current_position[axis] = cartes[axis];
 
@@ -80,14 +78,15 @@ void forward_kinematics_SCARA(const float &a, const float &b) {
   cartes[Y_AXIS] = a_sin + b_sin + SCARA_OFFSET_Y;  //theta+phi
 
   /*
-    SERIAL_ECHOPAIR("SCARA FK Angle a=", a);
-    SERIAL_ECHOPAIR(" b=", b);
-    SERIAL_ECHOPAIR(" a_sin=", a_sin);
-    SERIAL_ECHOPAIR(" a_cos=", a_cos);
-    SERIAL_ECHOPAIR(" b_sin=", b_sin);
-    SERIAL_ECHOLNPAIR(" b_cos=", b_cos);
-    SERIAL_ECHOPAIR(" cartes[X_AXIS]=", cartes[X_AXIS]);
-    SERIAL_ECHOLNPAIR(" cartes[Y_AXIS]=", cartes[Y_AXIS]);
+    SERIAL_ECHOLNPAIR(
+      "SCARA FK Angle a=", a,
+      " b=", b,
+      " a_sin=", a_sin,
+      " a_cos=", a_cos,
+      " b_sin=", b_sin,
+      " b_cos=", b_cos
+    );
+    SERIAL_ECHOLNPAIR(" cartes (X,Y) = "(cartes[X_AXIS], ", ", cartes[Y_AXIS], ")");
   //*/
 }
 
@@ -132,18 +131,12 @@ void inverse_kinematics(const float (&raw)[XYZ]) {
   /*
     DEBUG_POS("SCARA IK", raw);
     DEBUG_POS("SCARA IK", delta);
-    SERIAL_ECHOPAIR("  SCARA (x,y) ", sx);
-    SERIAL_ECHOPAIR(",", sy);
-    SERIAL_ECHOPAIR(" C2=", C2);
-    SERIAL_ECHOPAIR(" S2=", S2);
-    SERIAL_ECHOPAIR(" Theta=", THETA);
-    SERIAL_ECHOLNPAIR(" Phi=", PHI);
+    SERIAL_ECHOLNPAIR("  SCARA (x,y) ", sx, ",", sy, " C2=", C2, " S2=", S2, " Theta=", THETA, " Phi=", PHI);
   //*/
 }
 
 void scara_report_positions() {
-  SERIAL_ECHOPAIR("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS));
-  SERIAL_ECHOLNPAIR("   Psi+Theta:", planner.get_axis_position_degrees(B_AXIS));
+  SERIAL_ECHOLNPAIR("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS), "  Psi+Theta:", planner.get_axis_position_degrees(B_AXIS));
   SERIAL_EOL();
 }
 

@@ -155,10 +155,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       info.active_hotend = active_extruder;
     #endif
 
-    COPY(info.target_temperature, thermalManager.target_temperature);
+    HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
 
     #if HAS_HEATED_BED
-      info.target_temperature_bed = thermalManager.target_temperature_bed;
+      info.target_temperature_bed = thermalManager.temp_bed.target;
     #endif
 
     #if FAN_COUNT
@@ -357,8 +357,7 @@ void PrintJobRecovery::resume() {
 
   void PrintJobRecovery::debug(PGM_P const prefix) {
     serialprintPGM(prefix);
-    SERIAL_ECHOPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head));
-    SERIAL_ECHOLNPAIR(" valid_foot:", int(info.valid_foot));
+    SERIAL_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head), " valid_foot:", int(info.valid_foot));
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
         SERIAL_ECHOPGM("current_position: ");
@@ -386,7 +385,7 @@ void PrintJobRecovery::resume() {
 
         #if FAN_COUNT
           SERIAL_ECHOPGM("fan_speed: ");
-          for (int8_t i = 0; i < FAN_COUNT; i++) {
+          FANS_LOOP(i) {
             SERIAL_ECHO(int(info.fan_speed[i]));
             if (i < FAN_COUNT - 1) SERIAL_CHAR(',');
           }
@@ -394,8 +393,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_LEVELING
-          SERIAL_ECHOPAIR("leveling: ", int(info.leveling));
-          SERIAL_ECHOLNPAIR(" fade: ", int(info.fade));
+          SERIAL_ECHOLNPAIR("leveling: ", int(info.leveling), "\n fade: ", int(info.fade));
         #endif
         #if ENABLED(FWRETRACT)
           SERIAL_ECHOPGM("retract: ");

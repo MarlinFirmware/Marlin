@@ -191,9 +191,9 @@ void TMC26XStepper::start() {
   pinMode(dir_pin, OUTPUT);
   pinMode(cs_pin, OUTPUT);
   //SET_OUTPUT(STEPPER_ENABLE_PIN);
-  digitalWrite(step_pin, LOW);
-  digitalWrite(dir_pin, LOW);
-  digitalWrite(cs_pin, HIGH);
+  extDigitalWrite(step_pin, LOW);
+  extDigitalWrite(dir_pin, LOW);
+  extDigitalWrite(cs_pin, HIGH);
 
   STEPPER_SPI.begin();
   STEPPER_SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE3));
@@ -261,10 +261,10 @@ char TMC26XStepper::move(void) {
       // increment or decrement the step number,
       // depending on direction:
       if (this->direction == 1)
-        digitalWrite(step_pin, HIGH);
+        extDigitalWrite(step_pin, HIGH);
       else {
-        digitalWrite(dir_pin, HIGH);
-        digitalWrite(step_pin, HIGH);
+        extDigitalWrite(dir_pin, HIGH);
+        extDigitalWrite(step_pin, HIGH);
       }
       // get the timeStamp of when you stepped:
       this->last_step_time = time;
@@ -272,8 +272,8 @@ char TMC26XStepper::move(void) {
       // decrement the steps left:
       steps_left--;
       //disable the step & dir pins
-      digitalWrite(step_pin, LOW);
-      digitalWrite(dir_pin, LOW);
+      extDigitalWrite(step_pin, LOW);
+      extDigitalWrite(dir_pin, LOW);
     }
     return -1;
   }
@@ -864,7 +864,7 @@ inline void TMC26XStepper::send262(uint32_t datagram) {
   //}
 
   //select the TMC driver
-  digitalWrite(cs_pin, LOW);
+  extDigitalWrite(cs_pin, LOW);
 
   //ensure that only valid bist are set (0-19)
   //datagram &=REGISTER_BIT_PATTERN;
@@ -893,7 +893,7 @@ inline void TMC26XStepper::send262(uint32_t datagram) {
   #endif
 
   //deselect the TMC chip
-  digitalWrite(cs_pin, HIGH);
+  extDigitalWrite(cs_pin, HIGH);
 
   //restore the previous SPI mode if neccessary
   //if the mode is not correct set it to mode 3
