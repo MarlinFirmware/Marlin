@@ -106,7 +106,7 @@
 #define MSG_IDEX_MENU                       _UxGT("IDEX mód")
 #define MSG_IDEX_MODE_AUTOPARK              _UxGT("Auto-parkovanie")
 #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplikácia")
-#define MSG_IDEX_MODE_SCALED_COPY           _UxGT("Zmenšená kópia")
+#define MSG_IDEX_MODE_MIRRORED_COPY         _UxGT("Zrkadlená kópia")
 #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Plná kontrola")
 #define MSG_IDEX_X_OFFSET                   _UxGT("2. tryska X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2. tryska Y")
