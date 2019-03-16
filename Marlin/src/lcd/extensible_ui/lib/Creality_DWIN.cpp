@@ -89,7 +89,7 @@ char commandbuf[30];
 				}
 			}
 			RTS_SndData(2, AutoLevelIcon);/*On*/
-			enqueue_and_echo_commands_P((PSTR("M420 S1")));
+			enqueueCommands_P((PSTR("M420 S1")));
 			AutoLevelStatus = planner.leveling_active;
 		}
 		else 
@@ -265,7 +265,7 @@ char commandbuf[30];
 		}
 		else
 		{
-			if (TPShowStatus && previous_move_ms != 0)		//need to optimize
+			if (TPShowStatus && isPrinting())		//need to optimize
 			{
 				static unsigned int last_cardpercentValue = 101; 
 				RTS_SndData(getProgress_seconds_elapsed() / 3600,Timehour);		
@@ -306,7 +306,7 @@ char commandbuf[30];
 				RTS_SndData(getTargetTemp_celsius(H0),NozzlePreheat);
 				RTS_SndData(getTargetTemp_celsius(BED),BedPreheat);
 
-				if(card.sdprinting)
+				if(isPrinting())
 				{
 					//keep the icon
 				}
@@ -343,8 +343,8 @@ char commandbuf[30];
 					RTS_SndData(10*ChangeMaterialbuf[0], FilementUnit1);	
 					RTS_SndData(10*ChangeMaterialbuf[1], FilementUnit2);
 					RTS_SndData(ExchangePageBase + 65, ExchangepageAddr); 
-					RTS_line_to_current(E_AXIS);
-					setActiveTool(H0);
+					//RTS_line_to_current(E_AXIS); //NEEDS FIX
+					setActiveTool(E0, true);
 					//delay(current_position[E_AXIS] * 1000);
 				}
 				else if(getActualTemp_celsius(H0) >= getTargetTemp_celsius(H0) && NozzleTempStatus[2])
@@ -670,7 +670,7 @@ SERIAL_ECHO(Checkkey);
 			InforShowStatus = true;
 		      TPShowStatus = false;
 			stopPrint();
-			enqueue_and_echo_commands_P(PSTR("M84"));
+			enqueueCommands_P(PSTR("M84"));
 			RTS_SndData(11, FilenameIcon); 
 			RTS_SndData(0,PrintscheduleIcon);
 			RTS_SndData(0,PrintscheduleIcon+1);
@@ -725,13 +725,13 @@ SERIAL_ECHO(Checkkey);
 			if(FanStatus)	//turn on the fan
 			{
 				RTS_SndData(3, FanKeyIcon); 
-				fanSpeeds[0] = FanOn;
+				setTargetFan_percent(100, FAN0);
 				FanStatus = false;
 			}
 			else//turn off the fan
 			{
 				RTS_SndData(2, FanKeyIcon); 
-				fanSpeeds[0] = FanOff;
+				setTargetFan_percent(0, FAN0);
 				FanStatus = true;
 			}
 		}
@@ -752,7 +752,7 @@ SERIAL_ECHO(Checkkey);
 		break;
 		
 	case Feedrate :
-		feedrate_percentage = recdat.data[0];
+		setFeedrate_percent(recdat.data[0]);
 		break;
 
 	case PrintChoice:
@@ -791,41 +791,7 @@ SERIAL_ECHO(Checkkey);
 				break;
 
 			RTS_SndData(ExchangePageBase + 87, ExchangepageAddr); 
-			
-			//char pause_str_Z[16];
-			waitway = 1;		//reject to receive cmd
-			//current_position[Z_AXIS] += 5;
-			//pause_z = current_position[Z_AXIS];
- 			card.pauseSDPrint();
-			print_job_timer.pause();
-			#ifdef ACTION_ON_PAUSE
-			  SERIAL_ECHOLNPGM("From Pauseprint\n");
-    		  SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
-    		#endif
- 			temphot=thermalManager.degTargetHotend(0); //getTargetTemp_celsius(H0);
- 			//tempbed=thermalManager.degTargetBed();//getTargetTemp_celsius(BED);
-			//thermalManager.setTargetHotend(0, 0);
-			//thermalManager.setTargetBed(0);
-
- 			PrintStatue[1] = 1;	//for return the corresponding page
- 			PrinterStatusKey[1] = 4;
-
-			
-
-			Update_Time_Value = 0;
-			//memset(commandbuf,0,sizeof(commandbuf));
-			//dtostrf(pause_z, 3, 2, pause_str_Z);
-			//sprintf(commandbuf,"G0 X10 Y10  Z%s",pause_str_Z);
-   			//strncpy_P(commandbuf, PSTR("G28 X0 Y0"), sizeof(commandbuf) - 1);
-			//injected_commands_P =commandbuf;// PSTR("G28 X0 Y0");//commandbuf;
-			//enqueue_and_echo_commands_P(PSTR("G28 X0 Y0"));
-
-		      // Wait for planner moves to finish!
-		       planner.synchronize();
-			enqueue_and_echo_commands_P(PSTR("M25"));
-			//enqueue_and_echo_commands_P(PSTR("G1 Z +5"));
-			//enqueue_and_echo_commands_P(PSTR("G0 X10 Y10 F3000"));
-
+			pausePrint();
 		}
 		else if(recdat.addr == Resumeprint && recdat.data[0] == 1)
 		{				
@@ -842,31 +808,7 @@ SERIAL_ECHO(Checkkey);
 			}
 			#endif
 			
-			//char pause_str_Z[16];
-			//memset(pause_str_Z, 0, sizeof(pause_str_Z));
-			//dtostrf(pause_z-5, 3, 2, pause_str_Z);
-			//memset(commandbuf,0,sizeof(commandbuf));
-			enqueue_and_echo_commands_P(PSTR("M24"));
-			//sprintf_P(commandbuf, PSTR("M190 S%i"), tempbed);
-			//enqueue_and_echo_command(commandbuf);
-			memset(commandbuf,0,sizeof(commandbuf));
-			sprintf_P(commandbuf, PSTR("M109 S%i"), temphot);
-			enqueue_and_echo_command(commandbuf);
-			//enqueue_and_echo_commands_P(PSTR("G28 X0 Y0"));
-			planner.synchronize();
-			//memset(commandbuf,0,sizeof(commandbuf));
-			//sprintf_P(commandbuf, PSTR("G0 Z%s"), pause_str_Z);
-		   	//enqueue_and_echo_command(commandbuf);
-			
-			//card.startFileprint();
-			//print_job_timer.start();
-			#ifdef ACTION_ON_RESUME
-      			SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
-    		#endif
-
-			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-      			runout.reset();
-    		#endif
+			resumePrint();
 			FilementStatus[1] = 2;
 			
 			PrinterStatusKey[1] = 0;
@@ -886,7 +828,7 @@ SERIAL_ECHO(Checkkey);
 			PrinterStatusKey[1] = 0;
 			InforShowStatus = true;
 			Update_Time_Value = RTS_UPDATE_VALUE;
-			getTargetTemp_celsius(H0) = temphot;
+			setTargetTemp_celsius((float)temphot, H0);
 			startprogress  = 0;
 			FilementStatus[1] = 2;
 			RTS_SndData(ExchangePageBase + 82, ExchangepageAddr); 
@@ -896,26 +838,27 @@ SERIAL_ECHO(Checkkey);
 	case Zoffset:
 		//SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
 		//SERIAL_ECHOPAIR("\n rcv data = ",recdat.data[0]);
+		float tmp_zprobe_offset;
 		if(recdat.data[0]>= 32768) {
-			rts_probe_zoffset = ((float)recdat.data[0]-65536)/100;
+			tmp_zprobe_offset = ((float)recdat.data[0]-65536)/100;
 		}
 		else {
-			rts_probe_zoffset = ((float)recdat.data[0])/100;
+			tmp_zprobe_offset = ((float)recdat.data[0])/100;
 		}
 		
 		//SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
 		//SERIAL_ECHOPAIR("\n target = ",(zprobe_zoffset - rts_probe_zoffset));
 		//SERIAL_ECHOPAIR("\n target axis = ",Z_AXIS);
 		//SERIAL_ECHOPAIR("\n steps mm = ",planner.steps_to_mm[Z_AXIS]);
-        if (WITHIN((rts_probe_zoffset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        	thermalManager.babystep_axis(Z_AXIS, (400 * (zprobe_zoffset - rts_probe_zoffset) * -1));
-        	zprobe_zoffset = rts_probe_zoffset;
+        if (WITHIN((tmp_zprobe_offset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        	babystepAxis_steps((400 * (getZOffset_mm() - tmp_zprobe_offset) * -1), (axis_t)Z);
+        	setZOffset_mm(tmp_zprobe_offset);
 			//SERIAL_ECHOPAIR("\n StepsMoved = ",(400 * (zprobe_zoffset - rts_probe_zoffset) * -1));
 			//SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
-			RTS_SndData(zprobe_zoffset*100, 0x1026);  
+			RTS_SndData(getZOffset_mm()*100, 0x1026);  
 		}
 		//SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
-		settings.save();
+		enqueueCommands_P((PSTR("M500")));
 		//SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 		break;
 		
@@ -942,21 +885,21 @@ SERIAL_ECHO(Checkkey);
 		{
 			if(FanStatus)	//turn on the fan
 			{
-				fanSpeeds[0] = FanOn;
+				setTargetFan_percent(100, FAN0);
 				FanStatus = false;
 				RTS_SndData(ExchangePageBase + 57, ExchangepageAddr); //exchange to 57 page, the fans on
 			}
 			else//turn off the fan
 			{
-				fanSpeeds[0] = FanOff;
+				setTargetFan_percent(0, FAN0);
 				FanStatus = true;
 				RTS_SndData(ExchangePageBase + 58, ExchangepageAddr); //exchange to 58 page, the fans on
 			}
 		}
 		else if(recdat.data[0] == 5)	//PLA mode
 		{
-			thermalManager.setTargetHotend((PLA_ABSModeTemp = PREHEAT_1_TEMP_HOTEND), 0);
-			thermalManager.setTargetBed(PREHEAT_1_TEMP_BED);
+			setTargetTemp_celsius((PLA_ABSModeTemp = PREHEAT_1_TEMP_HOTEND), H0);
+			setTargetTemp_celsius(PREHEAT_1_TEMP_BED, BED);
 
 			RTS_SndData(PREHEAT_1_TEMP_HOTEND,NozzlePreheat);
 			RTS_SndData(PREHEAT_1_TEMP_BED,BedPreheat);
@@ -964,8 +907,8 @@ SERIAL_ECHO(Checkkey);
 		}
 		else if(recdat.data[0] == 6)	//ABS mode
 		{
-			thermalManager.setTargetHotend((PLA_ABSModeTemp = PREHEAT_2_TEMP_HOTEND), 0);
-			thermalManager.setTargetBed(PREHEAT_2_TEMP_BED);
+			setTargetTemp_celsius((PLA_ABSModeTemp = PREHEAT_2_TEMP_HOTEND), H0);
+			setTargetTemp_celsius(PREHEAT_2_TEMP_BED, BED);
 			
 			RTS_SndData(PREHEAT_2_TEMP_HOTEND,NozzlePreheat);
 			RTS_SndData(PREHEAT_2_TEMP_BED,BedPreheat);
@@ -974,10 +917,11 @@ SERIAL_ECHO(Checkkey);
 		{
 			//InforShowStatus = true;
 			#if FAN_COUNT > 0
-			for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = FanOn;
+			for (uint8_t i = 0; i < FAN_COUNT; i++) setTargetFan_percent(0, (fan_t)i);
 			#endif
 			FanStatus = false;
-			thermalManager.disable_all_heaters();
+			setTargetTemp_celsius(0.0, H0);
+			setTargetTemp_celsius(0.0, BED);
 
 			RTS_SndData(0,NozzlePreheat);
 			delay(1);
@@ -1002,22 +946,22 @@ SERIAL_ECHO(Checkkey);
 			}
 			else if(recdat.data[0] == 1)
 			{
-				getTargetTemp_celsius(H0) = 0;
+				setTargetTemp_celsius(0.0, H0);
 				RTS_SndData(0,NozzlePreheat);
 			}
 			else if(recdat.data[0] == 2)
 			{
-				getTargetTemp_celsius(BED) = 0;
+				setTargetTemp_celsius(0.0, BED);
 				RTS_SndData(0,BedPreheat);
 			}
 		}
 		else if(recdat.addr == NozzlePreheat)
 		{
-			getTargetTemp_celsius(H0) = recdat.data[0];
+			setTargetTemp_celsius((float)recdat.data[0], H0);
 		}
 		else if(recdat.addr == BedPreheat)
 		{
-			getTargetTemp_celsius(BED) = recdat.data[0];
+			setTargetTemp_celsius((float)recdat.data[0], BED);
 		}
 		break;
 
@@ -1033,11 +977,11 @@ SERIAL_ECHO(Checkkey);
 			RTS_SndData(10, FilenameIcon);	//Motor Icon
 			waitway = 2;		//only for prohibiting to receive massage
 
-			enqueue_and_echo_commands_P((PSTR("G28")));
+			enqueueCommands_P((PSTR("G28")));
 			waitway = 2;
-			 set_bed_leveling_enabled(false);
-			enqueue_and_echo_commands_P((PSTR("G1 F150 Z0.2")));
-			 set_bed_leveling_enabled(true);
+			setLevelingActive(false);
+			enqueueCommands_P((PSTR("G1 F150 Z0.0")));
+			setLevelingActive(true);
 			RTS_SndData(ExchangePageBase + 64, ExchangepageAddr); 
 			
 		}
@@ -1059,9 +1003,9 @@ SERIAL_ECHO(Checkkey);
 		{
 			//InforShowoStatus = false;
 			AxisPagenum = 0;
-			rtscheck.RTS_SndData(10*current_position[X_AXIS], DisplayXaxis);
-			rtscheck.RTS_SndData(10*current_position[Y_AXIS], DisplayYaxis);
-			rtscheck.RTS_SndData(10*current_position[Z_AXIS], DisplayZaxis);
+			RTS_SndData(10*getAxisPosition_mm((axis_t)X), DisplayXaxis);
+			RTS_SndData(10*getAxisPosition_mm((axis_t)Y), DisplayYaxis);
+			RTS_SndData(10*getAxisPosition_mm((axis_t)Z), DisplayZaxis);
 			delay(2);
 			RTS_SndData(ExchangePageBase + 71, ExchangepageAddr); 
 		}
@@ -1075,7 +1019,7 @@ SERIAL_ECHO(Checkkey);
 		}
 		else if(recdat.data[0] == 6)// Diabalestepper
 		{
-			 enqueue_and_echo_commands_P(PSTR("M84"));
+			 enqueueCommands_P(PSTR("M84"));
 			 RTS_SndData(11, FilenameIcon); 
 		}
 		break;
@@ -1098,90 +1042,87 @@ SERIAL_ECHO(Checkkey);
 			if(recdat.data[0] == 1) // Top Left
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-				enqueue_and_echo_commands_P((PSTR("G1 X30 Y30 F5000")));
+				enqueueCommands_P((PSTR("G1 F100 Z3;"))); 
+				enqueueCommands_P((PSTR("G1 X30 Y30 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueueCommands_P((PSTR("G1 F100 Z-3")));
 				
 			}
 			else if(recdat.data[0] == 2) // Top Right
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G1 F200 Z3"))); 
-				enqueue_and_echo_commands_P((PSTR("G1 X270 Y30 F5000")));
+				enqueueCommands_P((PSTR("G1 F200 Z3"))); 
+				enqueueCommands_P((PSTR("G1 X270 Y30 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F200 Z-3")));
+				enqueueCommands_P((PSTR("G1 F200 Z-3")));
 			}
 			else if(recdat.data[0] == 3) //  Centre
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G1 F200 Z3"))); 
-				enqueue_and_echo_commands_P((PSTR("G1 X150 Y150 F5000")));
+				enqueueCommands_P((PSTR("G1 F200 Z3"))); 
+				enqueueCommands_P((PSTR("G1 X150 Y150 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F200 Z-3")));
+				enqueueCommands_P((PSTR("G1 F200 Z-3")));
 			}
 			else if(recdat.data[0] == 4) // Bottom Left
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G1 F200 Z3")));
-				enqueue_and_echo_commands_P((PSTR("G1 X30 Y270 F5000")));
+				enqueueCommands_P((PSTR("G1 F200 Z3")));
+				enqueueCommands_P((PSTR("G1 X30 Y270 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F200 Z-3")));
+				enqueueCommands_P((PSTR("G1 F200 Z-3")));
 			}
 			else if(recdat.data[0] == 5) //  Bottom Right
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G1 F200 Z3")));
-				enqueue_and_echo_commands_P((PSTR("G1 X270 Y270 F5000")));
+				enqueueCommands_P((PSTR("G1 F200 Z3")));
+				enqueueCommands_P((PSTR("G1 X270 Y270 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F200 Z-3")));
+				enqueueCommands_P((PSTR("G1 F200 Z-3")));
 			}
 			break;
 		#else
 			if(recdat.data[0] == 1)// Z-axis to home
 			{
 				// Disallow Z homing if X or Y are unknown
-				if (!all_axes_known())
-					enqueue_and_echo_commands_P(PSTR("G28")); 
+				if (!isAxisPositionKnown((axis_t)Z))
+					enqueueCommands_P(PSTR("G28")); 
 				else
-					enqueue_and_echo_commands_P(PSTR("G28 Z0")); 
-				set_bed_leveling_enabled(false);
-				enqueue_and_echo_commands_P(PSTR("G1  F150 Z0.2")); 
-				set_bed_leveling_enabled(true);
-				rts_probe_zoffset = zprobe_zoffset;
-				RTS_SndData(zprobe_zoffset*100, 0x1026); 
+					enqueueCommands_P(PSTR("G28 Z0")); 
+				setLevelingActive(false);
+				enqueueCommands_P(PSTR("G1  F150 Z0.0")); 
+				setLevelingActive(true);
+				RTS_SndData(getZOffset_mm()*100, 0x1026); 
 			}
 			else if(recdat.data[0] == 2)// Z-axis to Up
 			{
 				//current_position[Z_AXIS] += 0.1; 
 				//RTS_line_to_current(Z_AXIS);
-				if (WITHIN((zprobe_zoffset +  0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        			thermalManager.babystep_axis(Z_AXIS, 40);
-        			zprobe_zoffset = (zprobe_zoffset + 0.1);
-					rts_probe_zoffset = zprobe_zoffset;
-					RTS_SndData(zprobe_zoffset*100, 0x1026);
-					settings.save();
+				if (WITHIN((getZOffset_mm() +  0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        	babystepAxis_steps(40, (axis_t)Z);
+        	setZOffset_mm(getZOffset_mm() + 0.1);
+					RTS_SndData(getZOffset_mm()*100, 0x1026);
+					enqueueCommands_P(PSTR("M500")); 
 				}
 			}
 			else if(recdat.data[0] == 3)// Z-axis to Down
 			{
-				if (WITHIN((zprobe_zoffset -  0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        			thermalManager.babystep_axis(Z_AXIS, -40);
-        			zprobe_zoffset = (zprobe_zoffset - 0.1);
-					rts_probe_zoffset = zprobe_zoffset;
-					RTS_SndData(zprobe_zoffset*100, 0x1026);
-					settings.save();
+				if (WITHIN((getZOffset_mm() -  0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        	babystepAxis_steps(-40, (axis_t)Z);
+        	setZOffset_mm(getZOffset_mm() - 0.1);
+					RTS_SndData(getZOffset_mm()*100, 0x1026);
+					enqueueCommands_P(PSTR("M500")); 
 				}
 			}
 			else if(recdat.data[0] == 4) 	// Assitant Level
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G28 X0 Y0 Z0")));
-				enqueue_and_echo_commands_P((PSTR("G90")));
+				enqueueCommands_P((PSTR("G28 X0 Y0 Z0")));
+				enqueueCommands_P((PSTR("G90")));
 				waitway = 2;
-				set_bed_leveling_enabled(false);
-				enqueue_and_echo_commands_P((PSTR("G1 F200 Z0.2")));
-				set_bed_leveling_enabled(true);
+				setLevelingActive(false);
+				enqueueCommands_P((PSTR("G1 F200 Z0.0")));
+				setLevelingActive(true);
 				RTS_SndData(ExchangePageBase + 84, ExchangepageAddr); 
 			}
 			else if(recdat.data[0] == 5) 	// AutoLevel
@@ -1189,53 +1130,53 @@ SERIAL_ECHO(Checkkey);
 				waitway = 3;		//only for prohibiting to receive massage
 				RTS_SndData(1, AutolevelIcon); 
 				RTS_SndData(ExchangePageBase + 85, ExchangepageAddr); 
-				enqueue_and_echo_commands_P(PSTR("G29")); 
+				enqueueCommands_P(PSTR("G29")); 
 				//stepper.synchronize();
-				set_bed_leveling_enabled(false);
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z10.2;"))); 
-				enqueue_and_echo_commands_P(PSTR("G1 X150 Y150 F5000")); 
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0.2")));
-				set_bed_leveling_enabled(true);
+				setLevelingActive(false);
+				enqueueCommands_P((PSTR("G1 F100 Z10.0;"))); 
+				enqueueCommands_P(PSTR("G1 X150 Y150 F5000")); 
+				enqueueCommands_P((PSTR("G1 F100 Z0.2")));
+				setLevelingActive(true);
 			}
 			else if(recdat.data[0] == 6) 	// Assitant Level ,  Centre 1
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-				enqueue_and_echo_commands_P((PSTR("G1 X150 Y150 F5000")));
+				enqueueCommands_P((PSTR("G1 F100 Z3;"))); 
+				enqueueCommands_P((PSTR("G1 X150 Y150 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueueCommands_P((PSTR("G1 F100 Z-3")));
 			}
 			else if(recdat.data[0] == 7) 	// Assitant Level , Front Left 2
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-				enqueue_and_echo_commands_P((PSTR("G1 X30 Y30 F5000")));
+				enqueueCommands_P((PSTR("G1 F100 Z3;"))); 
+				enqueueCommands_P((PSTR("G1 X30 Y30 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueueCommands_P((PSTR("G1 F100 Z-3")));
 			}
 			else if(recdat.data[0] == 8) 	// Assitant Level , Front Right 3
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-				enqueue_and_echo_commands_P((PSTR("G1 X270 Y30 F5000")));
+				enqueueCommands_P((PSTR("G1 F100 Z3;"))); 
+				enqueueCommands_P((PSTR("G1 X270 Y30 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueueCommands_P((PSTR("G1 F100 Z-3")));
 			}
 			else if(recdat.data[0] == 9) 	// Assitant Level , Back Right 4
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-				enqueue_and_echo_commands_P((PSTR("G1 X270 Y270 F5000")));
+				enqueueCommands_P((PSTR("G1 F100 Z3;"))); 
+				enqueueCommands_P((PSTR("G1 X270 Y270 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueueCommands_P((PSTR("G1 F100 Z-3")));
 			}
 			else if(recdat.data[0] == 10) 	// Assitant Level , Back Left 5
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-				enqueue_and_echo_commands_P((PSTR("G1 X30 Y270 F5000")));
+				enqueueCommands_P((PSTR("G1 F100 Z3;"))); 
+				enqueueCommands_P((PSTR("G1 X30 Y270 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueueCommands_P((PSTR("G1 F100 Z-3")));
 			}
 			else if(recdat.data[0] == 11) 	// Autolevel switch
 			{
@@ -1243,16 +1184,15 @@ SERIAL_ECHO(Checkkey);
 				{
 					RTS_SndData(3, AutoLevelIcon);	
 					AutoLevelStatus = false;
-					enqueue_and_echo_commands_P((PSTR("M420 S1")));
+					enqueueCommands_P((PSTR("M420 S1")));
 				}
 				else//turn off the Autolevel
 				{
 					RTS_SndData(2, AutoLevelIcon);
 					AutoLevelStatus = true;
-					enqueue_and_echo_commands_P((PSTR("M420 0")));
+					enqueueCommands_P((PSTR("M420 0")));
 				}
-				last_zoffset = rts_probe_zoffset;
-				RTS_SndData(zprobe_zoffset*100, 0x1026); 
+				RTS_SndData(getZOffset_mm()*100, 0x1026); 
 				//eeprom_write_byte((unsigned char*)FONT_EEPROM+2, AutoLevelStatus);
 			}
 			
@@ -1261,24 +1201,24 @@ SERIAL_ECHO(Checkkey);
 		break;
 
 	case XYZEaxis:
-		AxisEnum axis;
+		axis_t axis;
 		float min,max;
 		waitway = 4;
 		if(recdat.addr == DisplayXaxis)
 		{
-			axis = X_AXIS;
+			axis = X;
 			min = X_MIN_POS;
 			max = X_MAX_POS;
 		}
 		else if(recdat.addr == DisplayYaxis)
 		{
-			axis = Y_AXIS;
+			axis = Y;
 			min = Y_MIN_POS;
 			max = Y_MAX_POS;
 		}
 		else if(recdat.addr == DisplayZaxis)
 		{
-			axis = Z_AXIS;
+			axis = Z;
 			min = Z_MIN_POS;
 			max = Z_MAX_POS;
 		}
@@ -1287,8 +1227,8 @@ SERIAL_ECHO(Checkkey);
 			if(recdat.data[0] == 3)	//autohome
 			{
 				waitway = 4;
-				enqueue_and_echo_commands_P((PSTR("G28")));
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z10.2")));
+				enqueueCommands_P((PSTR("G28")));
+				enqueueCommands_P((PSTR("G1 F100 Z10.2")));
 				InforShowStatus = AutohomeKey = true;
 				AutoHomeIconNum = 0;
 				Update_Time_Value = 0;
@@ -1303,19 +1243,15 @@ SERIAL_ECHO(Checkkey);
 			break;
 		}
 		
-		current_position[axis] = ((float)recdat.data[0])/10;
-		if (current_position[axis] < min) current_position[axis] = min;
-		else if (current_position[axis] > max) current_position[axis] = max;
+		float targetPos = ((float)recdat.data[0])/10;
 		
-		if(axis==Z_AXIS) //roll polling
-		{
-			RTS_line_to_current(axis);
-			RTS_SndData(10*current_position[X_AXIS], DisplayXaxis);
-			RTS_SndData(10*current_position[Y_AXIS], DisplayYaxis);
-			RTS_SndData(10*current_position[Z_AXIS], DisplayZaxis);
-		}
-		else
-			RTS_line_to_current(axis);
+		if (targetPos < min) targetPos = min;
+		else if (targetPos > max) targetPos = max;
+		setAxisPosition_mm(targetPos, axis);
+		RTS_SndData(10*getAxisPosition_mm((axis_t)X), DisplayXaxis);
+		RTS_SndData(10*getAxisPosition_mm((axis_t)Y), DisplayYaxis);
+		RTS_SndData(10*getAxisPosition_mm((axis_t)Z), DisplayZaxis);
+		
 		delay(1);
 		RTS_SndData(10, FilenameIcon); 
 		waitway = 0;
@@ -1334,9 +1270,9 @@ SERIAL_ECHO(Checkkey);
 			if(recdat.data[0] == 1)	// Unload filement1
 			{
 				original_extruder = getActiveTool();
-				setActiveTool(H0);
+				setActiveTool(E0, true);
 				
-				current_position[E_AXIS] -= ChangeMaterialbuf[0];
+				setAxisPosition_mm((getAxisPosition_mm(getActiveTool()) - ChangeMaterialbuf[0]), getActiveTool());
 
 				if( NozzleTempStatus[1]== 0 && getActualTemp_celsius(H0) < (PLA_ABSModeTemp-5))
 				{
@@ -1350,8 +1286,8 @@ SERIAL_ECHO(Checkkey);
 			else if(recdat.data[0] == 2) // Load filement1
 			{
 				original_extruder = getActiveTool();
-				setActiveTool(H0);
-				current_position[E_AXIS] += ChangeMaterialbuf[0];
+				setActiveTool(E0, true);
+				setAxisPosition_mm((getAxisPosition_mm(getActiveTool()) + ChangeMaterialbuf[0]), getActiveTool());
 				
 				if( NozzleTempStatus[1]== 0 && getActualTemp_celsius(H0) < (PLA_ABSModeTemp-5))
 				{
@@ -1365,9 +1301,9 @@ SERIAL_ECHO(Checkkey);
 			else if(recdat.data[0] == 3) // Unload filement2
 			{
 				original_extruder = getActiveTool();
-				setActiveTool(H1);
+				setActiveTool(E1, true);
 				
-				current_position[E_AXIS] -= ChangeMaterialbuf[1];
+				setAxisPosition_mm((getAxisPosition_mm(getActiveTool()) - ChangeMaterialbuf[1]), getActiveTool());
 				
 				if( NozzleTempStatus[1]== 0 && getActualTemp_celsius(H0) < (PLA_ABSModeTemp-5))
 				{
@@ -1381,9 +1317,9 @@ SERIAL_ECHO(Checkkey);
 			else if(recdat.data[0] == 4) // Load filement2
 			{
 				original_extruder = getActiveTool();
-				setActiveTool(H1);
+				setActiveTool(E1, true);
 				
-				current_position[E_AXIS] += ChangeMaterialbuf[1];
+				setAxisPosition_mm((getAxisPosition_mm(getActiveTool()) - ChangeMaterialbuf[1]), getActiveTool());
 				
 				if( NozzleTempStatus[1]== 0 && getActualTemp_celsius(H0) < (PLA_ABSModeTemp-5))
 				{
@@ -1399,7 +1335,7 @@ SERIAL_ECHO(Checkkey);
 				NozzleTempStatus[0] = 1;
 				//InforShowoStatus = true;
 				
-				getTargetTemp_celsius(H0) = (getTargetTemp_celsius(H0) >= PLA_ABSModeTemp? getTargetTemp_celsius(H0):  PLA_ABSModeTemp);
+				setTargetTemp_celsius((getTargetTemp_celsius(H0) >= PLA_ABSModeTemp? getTargetTemp_celsius(H0):  PLA_ABSModeTemp), H0) ;
 				IconTemp = getActualTemp_celsius(H0) * 100/getTargetTemp_celsius(H0);
 				if(IconTemp >= 100)
 					IconTemp = 100;
@@ -1428,10 +1364,9 @@ SERIAL_ECHO(Checkkey);
 			else if(recdat.data[0] == 0xF0)	// not to cancel heating
 				break;
 
-			RTS_line_to_current(E_AXIS);
 			RTS_SndData(10*ChangeMaterialbuf[0], FilementUnit1);	//It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
 			RTS_SndData(10*ChangeMaterialbuf[1], FilementUnit2);
-			setActiveTool(original_extruder);
+			setActiveTool(original_extruder, true);
 		}
 		else if(recdat.addr == FilementUnit1)
 		{
@@ -1450,12 +1385,11 @@ SERIAL_ECHO(Checkkey);
 				settings.save();
 			}
 			else {
-				enqueue_and_echo_commands_P(PSTR("M300"));
+				enqueueCommands_P(PSTR("M300"));
 			}*/ // may at some point use language change screens to save eeprom explicitly
 		break;
 		
 	case No_Filement:
-		char comdbuf[30];
 		SERIAL_ECHO("\n No Filament");
 		if(recdat.data[0] == 1)
 		{
@@ -1466,8 +1400,7 @@ SERIAL_ECHO(Checkkey);
 			
 			if(FilementStatus[0] == 1)	// check filement before starting to print
 			{
-				enqueue_and_echo_command(cmdbuf);
-				enqueue_and_echo_commands_P(PSTR("M24"));
+				enqueueCommands_P(PSTR("M24"));
 				for(int j = 0;j < 10;j++)	//clean screen.
 					RTS_SndData(0,Printfilename+j);
 				
@@ -1498,20 +1431,7 @@ SERIAL_ECHO(Checkkey);
 			}
 			else if(FilementStatus[0] == 2)   // check filements status during printing
 			{
-				//char pause_str_Z[16];
-				//memset(pause_str_Z, 0, sizeof(pause_str_Z));
-				//dtostrf(pause_z, 3, 2, pause_str_Z);
-				//sprintf_P(comdbuf, PSTR("M190 S%i"), tempbed);
-				//enqueue_and_echo_command(comdbuf);
-				memset(comdbuf,0,sizeof(comdbuf));
-				sprintf_P(comdbuf, PSTR("M109 S%i"), temphot);
-				enqueue_and_echo_command(comdbuf);
-				//memset(comdbuf,0,sizeof(comdbuf));
-				//sprintf_P(comdbuf, PSTR("G0 Z%s"), pause_str_Z);
-			   	//enqueue_and_echo_command(comdbuf);
-				
-				card.startFileprint();
-				print_job_timer.start();
+				setHostResponse(1); //Send Resume host prompt command
 				
 				RTS_SndData(1+CEIconGrap,IconPrintstatus);
 				PrintStatue[1] = 0;
@@ -1560,7 +1480,7 @@ SERIAL_ECHO(Checkkey);
 				enqueue_and_echo_command(cmd1);
 				sprintf_P(cmd1, PSTR("M109 S%i"), power_off_info.target_temperature[0]);
 				enqueue_and_echo_command(cmd1);
-				enqueue_and_echo_commands_P(PSTR("M106 S255"));
+				enqueueCommands_P(PSTR("M106 S255"));
 				sprintf_P(cmd1, PSTR("T%i"), power_off_info.saved_extruder);
 				enqueue_and_echo_command(cmd1);
 				power_off_type_yes = 1;
@@ -1620,7 +1540,6 @@ SERIAL_ECHO(Checkkey);
 		if(recdat.data[0] < 0) VolumeSet = 0;
 		else if(recdat.data[0] > 255 ) VolumeSet = 0xFF;
 		else VolumeSet = recdat.data[0];
-
 
 		if(VolumeSet == 0)
 		{
@@ -1702,8 +1621,7 @@ SERIAL_ECHO(Checkkey);
 				#endif
 					
 				//InforShowoStatus = true;
-				enqueue_and_echo_command(cmd);
-				enqueue_and_echo_commands_P(PSTR("M24"));
+				enqueueCommands_P(PSTR("M24"));
 				for(int j = 0;j < 10;j++)	//clean screen.
 					RTS_SndData(0,Printfilename+j);
 				
@@ -1722,7 +1640,7 @@ SERIAL_ECHO(Checkkey);
 				delay(2);
 				
 				#if FAN_COUNT > 0
-				for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = FanOn;
+				for (uint8_t i = 0; i < FAN_COUNT; i++) setTargetFan_percent(100, (fan_t)i);
 				#endif
 				FanStatus = false;
 			

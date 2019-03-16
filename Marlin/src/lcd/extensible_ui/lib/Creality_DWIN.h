@@ -192,4 +192,5 @@ extern char PrintStatue[2];
 extern char PrinterStatusKey[2];
 extern const char *injected_commands_P;
 extern uint8_t progress_bar_percent;
+extruder_t original_extruder;
 }
