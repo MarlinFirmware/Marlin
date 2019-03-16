@@ -2474,10 +2474,12 @@ void MarlinSettings::reset() {
     #if HAS_M206_COMMAND
       CONFIG_ECHO_HEADING("Home offset:");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-          "  M206 X", LINEAR_UNIT(home_offset[X_AXIS])
-        , " Y", LINEAR_UNIT(home_offset[Y_AXIS])
-        , " Z", LINEAR_UNIT(home_offset[Z_AXIS])
+      SERIAL_ECHOLNPAIR("  M206"
+        #if IS_CARTESIAN
+          " X", LINEAR_UNIT(home_offset[X_AXIS]),
+          " Y", LINEAR_UNIT(home_offset[Y_AXIS]),
+        #endif
+        " Z", LINEAR_UNIT(home_offset[Z_AXIS])
       );
     #endif
 
