@@ -175,9 +175,9 @@
 #endif
 
 #ifndef FAN_PIN
-  #if ENABLED(IS_EFB) || ENABLED(IS_EFF)       // Hotend, Fan, Bed or Hotend, Fan, Fan
+  #if EITHER(IS_EFB, IS_EFF)                      // Hotend, Fan, Bed or Hotend, Fan, Fan
     #define FAN_PIN        EX2_HEAT_PIN
-  #elif ENABLED(IS_EEF) || ENABLED(IS_SF)      // Hotend, Hotend, Fan or Spindle, Fan
+  #elif EITHER(IS_EEF, IS_SF)                     // Hotend, Hotend, Fan or Spindle, Fan
     #define FAN_PIN        HBP_PIN
   #else
     #define FAN_PIN        EXTRA_FET_PIN

@@ -23,7 +23,7 @@
 #include "../inc/MarlinConfigPre.h"
 
 // These displays all share the MarlinUI class
-#if HAS_SPI_LCD || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
+#if HAS_SPI_LCD || EITHER(MALYAN_LCD, EXTENSIBLE_UI)
   #include "ultralcd.h"
   MarlinUI ui;
   #include "../sd/cardreader.h"
@@ -106,7 +106,7 @@
 
 uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
 
-#if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+#if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
   millis_t MarlinUI::next_filament_display; // = 0
 #endif
 
@@ -181,7 +181,7 @@ millis_t next_button_update_ms;
     return click;
   }
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+  #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
 
     bool MarlinUI::external_control; // = false
 
@@ -449,7 +449,7 @@ void MarlinUI::status_screen() {
   #if HAS_LCD_MENU
 
     if (use_click()) {
-      #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+      #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         next_filament_display = millis() + 5000UL;  // Show status message for 5s
       #endif
       goto_screen(menu_main);
@@ -638,7 +638,7 @@ LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 
 bool MarlinUI::detected() {
   return
-    #if (ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)) && defined(DETECT_DEVICE)
+    #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
       lcd.LcdDetected() == 1
     #else
       true
@@ -1008,7 +1008,7 @@ void MarlinUI::update() {
 
       #if HAS_DIGITAL_BUTTONS
 
-        #if BUTTON_EXISTS(EN1) || BUTTON_EXISTS(EN2) || BUTTON_EXISTS(ENC) || BUTTON_EXISTS(BACK)
+        #if ANY_BUTTON(EN1, EN2, ENC, BACK)
 
           uint8_t newbutton = 0;
 
@@ -1034,7 +1034,7 @@ void MarlinUI::update() {
         //
         // Directional buttons
         //
-        #if BUTTON_EXISTS(UP) || BUTTON_EXISTS(DWN) || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT)
+        #if ANY_BUTTON(UP, DWN, LFT, RT)
 
           const int8_t pulses = (ENCODER_PULSES_PER_STEP) * encoderDirection;
 
@@ -1175,7 +1175,7 @@ void MarlinUI::update() {
       #endif
     #endif
 
-    #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+    #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
       next_filament_display = millis() + 5000UL; // Show status message for 5s
     #endif
 

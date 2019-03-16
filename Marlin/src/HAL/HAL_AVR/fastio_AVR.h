@@ -286,7 +286,7 @@ enum ClockSource2 : char {
   #define PWM_CHK_FAN_B(P) (P == E0_AUTO_FAN_PIN || P == E1_AUTO_FAN_PIN || P == E2_AUTO_FAN_PIN || P == E3_AUTO_FAN_PIN || P == E4_AUTO_FAN_PIN || P == E5_AUTO_FAN_PIN || P == CHAMBER_AUTO_FAN_PIN)
 #endif
 
-#if PIN_EXISTS(FAN) || PIN_EXISTS(FAN1) || PIN_EXISTS(FAN2)
+#if ANY_PIN(FAN, FAN1, FAN2)
   #if PIN_EXISTS(FAN2)
     #define PWM_CHK_FAN_A(P) (P == FAN_PIN || P == FAN1_PIN || P == FAN2_PIN)
   #elif PIN_EXISTS(FAN1)

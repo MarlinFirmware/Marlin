@@ -618,7 +618,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define    _REV_E_DIR(E)   do{ if (E == 0) { E0_DIR_WRITE( INVERT_E0_DIR); } else { E1_DIR_WRITE( INVERT_E1_DIR); } }while(0)
   #endif
 
-  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(MULTI_NOZZLE_DUPLICATION)
+  #if EITHER(DUAL_X_CARRIAGE, MULTI_NOZZLE_DUPLICATION)
 
     #define NDIR(N) _DUPE(DIR,!INVERT_E##N##_DIR)
     #define RDIR(N) _DUPE(DIR, INVERT_E##N##_DIR)

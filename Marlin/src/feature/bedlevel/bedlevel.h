@@ -48,7 +48,7 @@ void reset_bed_level();
   void set_z_fade_height(const float zfh, const bool do_report=true);
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
+#if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
 
   #include <stdint.h>
 
@@ -61,7 +61,7 @@ void reset_bed_level();
 
 #endif
 
-#if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
+#if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
   void _manual_goto_xy(const float &x, const float &y);
 #endif
 

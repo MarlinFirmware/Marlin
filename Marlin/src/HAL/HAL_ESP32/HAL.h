@@ -36,7 +36,7 @@
 #include <Arduino.h>
 
 #undef DISABLED
-#define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
+#define DISABLED(V...) DO(DIS,&&,V)
 
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"

@@ -182,7 +182,7 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t freque
 #define TIMER_OCR_0             OCR0A
 #define TIMER_COUNTER_0         TCNT0
 
-#define _CAT(a, ...) a ## __VA_ARGS__
+#define _CAT(a,V...) a##V
 #define HAL_timer_set_compare(timer, compare) (_CAT(TIMER_OCR_, timer) = compare)
 #define HAL_timer_get_compare(timer) _CAT(TIMER_OCR_, timer)
 #define HAL_timer_get_count(timer) _CAT(TIMER_COUNTER_, timer)

@@ -55,7 +55,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     uint8_t v = *value;
 
     // Save to either external EEPROM, program flash or Backup SRAM
-    #if ENABLED(SPI_EEPROM) || ENABLED(I2C_EEPROM)
+    #if EITHER(SPI_EEPROM, I2C_EEPROM)
       // EEPROM has only ~100,000 write cycles,
       // so only write bytes that have changed!
       uint8_t * const p = (uint8_t * const)pos;
@@ -87,7 +87,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   do {
     // Read from either external EEPROM, program flash or Backup SRAM
     const uint8_t c = (
-      #if ENABLED(SPI_EEPROM) || ENABLED(I2C_EEPROM)
+      #if EITHER(SPI_EEPROM, I2C_EEPROM)
         eeprom_read_byte((uint8_t*)pos)
       #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
         eeprom_buffered_read_byte(pos)
@@ -105,7 +105,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 }
 
 size_t PersistentStore::capacity() {
-  #if ENABLED(SPI_EEPROM) || ENABLED(I2C_EEPROM)
+  #if EITHER(SPI_EEPROM, I2C_EEPROM)
     return E2END + 1;
   #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
     return E2END + 1;

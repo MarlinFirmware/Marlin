@@ -75,7 +75,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#if BOTH(ULTRA_LCD, NEWPANEL)
   #undef BEEPER_PIN
 
   #undef LCD_PINS_RS
@@ -154,7 +154,7 @@
     #define SPINDLE_LASER_PWM_PIN    46   // MUST BE HARDWARE PWM
     #define SPINDLE_LASER_ENABLE_PIN 62   // Pin should have a pullup!
     #define SPINDLE_DIR_PIN          48
-  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)) // use expansion header if no LCD in use
+  #elif !BOTH(ULTRA_LCD, NEWPANEL)     // use expansion header if no LCD in use
     #define SPINDLE_LASER_ENABLE_PIN 16   // Pin should have a pullup/pulldown!
     #define SPINDLE_DIR_PIN          17
   #endif
