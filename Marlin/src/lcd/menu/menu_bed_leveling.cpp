@@ -36,7 +36,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING)
+#if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
@@ -244,7 +244,7 @@ void menu_bed_leveling() {
   #endif
 
   // Level Bed
-  #if ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING)
+  #if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
     // Manual leveling uses a guided procedure
     MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
   #else

@@ -32,7 +32,7 @@
 #include "../../inc/MarlinConfig.h"
 
 // This is for EEPROM emulation in flash
-#if ENABLED(EEPROM_SETTINGS) && ENABLED(FLASH_EEPROM_EMULATION)
+#if BOTH(EEPROM_SETTINGS, FLASH_EEPROM_EMULATION)
 
 #include "../shared/persistent_store_api.h"
 

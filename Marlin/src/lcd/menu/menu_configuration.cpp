@@ -275,7 +275,7 @@ void menu_configuration() {
     //
     // Delta Calibration
     //
-    #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
+    #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
       MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 

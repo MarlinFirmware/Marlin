@@ -367,7 +367,7 @@
 // Chip Select and Digital Micro-stepping
 //
 
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)
+#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
   #if PIN_EXISTS(X2_CS)
     #define _X2_CS X2_CS_PIN,
   #else

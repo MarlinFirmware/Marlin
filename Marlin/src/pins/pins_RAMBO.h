@@ -175,7 +175,7 @@
     #define LCD_PINS_D6     74
     #define LCD_PINS_D7     75
 
-    #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #if ANY(VIKI2, miniVIKI)
       #define BEEPER_PIN   44
       // NB: Panucatt's Viki 2.0 wiring diagram (v1.2) indicates that the
       //     beeper/buzzer is connected to pin 33; however, the pin used in the

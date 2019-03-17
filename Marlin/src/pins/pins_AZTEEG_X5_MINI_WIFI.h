@@ -143,7 +143,7 @@
       //#define SHIFT_EN   P1_22   // (41)  J5-4 & AUX-4
     #endif
 
-    #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #if ANY(VIKI2, miniVIKI)
       //#define LCD_SCREEN_ROT_180
 
       #define BEEPER_PIN   P1_30   // (37) may change if cable changes

@@ -107,7 +107,7 @@ void menu_tune() {
   //
   // Manual bed leveling, Bed Z:
   //
-  #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
+  #if BOTH(MESH_BED_LEVELING, LCD_BED_LEVELING)
     MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
   #endif
 

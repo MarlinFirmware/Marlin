@@ -35,7 +35,7 @@ void safe_delay(millis_t ms) {
   thermalManager.manage_heater(); // This keeps us safe if too many small safe_delay() calls are made
 }
 
-#if ENABLED(EEPROM_SETTINGS) || ENABLED(SD_FIRMWARE_UPDATE)
+#if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
 
   void crc16(uint16_t *crc, const void * const data, uint16_t cnt) {
     uint8_t *ptr = (uint8_t *)data;
@@ -48,7 +48,7 @@ void safe_delay(millis_t ms) {
 
 #endif // EEPROM_SETTINGS || SD_FIRMWARE_UPDATE
 
-#if ENABLED(ULTRA_LCD) || ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(EXTENSIBLE_UI)
+#if ANY(ULTRA_LCD, DEBUG_LEVELING_FEATURE, EXTENSIBLE_UI)
 
   char conv[8] = { 0 };
 

@@ -38,7 +38,7 @@
 #include "../gcode/gcode.h"
 #include "../lcd/ultralcd.h"
 
-#if ENABLED(BLTOUCH) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST) || (QUIET_PROBING && ENABLED(PROBING_STEPPERS_OFF))
+#if ANY(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY, PROBE_TRIGGERED_WHEN_STOWED_TEST) || (QUIET_PROBING && ENABLED(PROBING_STEPPERS_OFF))
   #include "../Marlin.h" // for stop(), disable_e_steppers
 #endif
 
@@ -416,7 +416,7 @@ bool set_probe_deployed(const bool deploy) {
   if (deploy_stow_condition && unknown_condition)
     do_probe_raise(MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
-  #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+  #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
     #if ENABLED(Z_PROBE_SLED)
       #define _AUE_ARGS true, false, false
     #else
@@ -553,7 +553,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 
   // Check to see if the probe was triggered
   const bool probe_triggered =
-    #if ENABLED(DELTA) && ENABLED(SENSORLESS_PROBING)
+    #if BOTH(DELTA, SENSORLESS_PROBING)
       endstops.trigger_state() & (_BV(X_MIN) | _BV(Y_MIN) | _BV(Z_MIN))
     #else
       TEST(endstops.trigger_state(),

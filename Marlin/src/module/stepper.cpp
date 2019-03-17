@@ -153,7 +153,7 @@ bool Stepper::abort_current_block;
 #if Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
   bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false;
 #endif
-#if ENABLED(Z_TRIPLE_ENDSTOPS) || (ENABLED(Z_STEPPER_AUTO_ALIGN) && ENABLED(Z_TRIPLE_STEPPER_DRIVERS))
+#if ENABLED(Z_TRIPLE_ENDSTOPS) || BOTH(Z_STEPPER_AUTO_ALIGN, Z_TRIPLE_STEPPER_DRIVERS)
   bool Stepper::locked_Z3_motor = false;
 #endif
 
@@ -1450,7 +1450,7 @@ void Stepper::stepper_pulse_phase_isr() {
 
     // Pulse Extruders
     // Tick the E axis, correct error term and update position
-    #if ENABLED(LIN_ADVANCE) || ENABLED(MIXING_EXTRUDER)
+    #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
       delta_error[E_AXIS] += advance_dividend[E_AXIS];
       if (delta_error[E_AXIS] >= 0) {
         count_position[E_AXIS] += count_direction[E_AXIS];
@@ -1679,7 +1679,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
          * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z, handled below)
          * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X)
          */
-        #if ENABLED(COREXY) || ENABLED(COREXZ)
+        #if EITHER(COREXY, COREXZ)
           #define X_CMP ==
         #else
           #define X_CMP !=
@@ -1697,7 +1697,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
          * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y)
          * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z)
          */
-        #if ENABLED(COREYX) || ENABLED(COREYZ)
+        #if EITHER(COREYX, COREYZ)
           #define Y_CMP ==
         #else
           #define Y_CMP !=
@@ -1715,7 +1715,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
          * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y, already handled above)
          * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Z)
          */
-        #if ENABLED(COREZX) || ENABLED(COREZY)
+        #if EITHER(COREZX, COREZY)
           #define Z_CMP ==
         #else
           #define Z_CMP !=
@@ -2030,7 +2030,7 @@ void Stepper::init() {
   #if HAS_X_ENABLE
     X_ENABLE_INIT;
     if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
-    #if (ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)) && HAS_X2_ENABLE
+    #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) && HAS_X2_ENABLE
       X2_ENABLE_INIT;
       if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
     #endif
@@ -2093,7 +2093,7 @@ void Stepper::init() {
 
   // Init Step Pins
   #if HAS_X_STEP
-    #if ENABLED(X_DUAL_STEPPER_DRIVERS) || ENABLED(DUAL_X_CARRIAGE)
+    #if EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE)
       X2_STEP_INIT;
       X2_STEP_WRITE(INVERT_X_STEP_PIN);
     #endif
@@ -2467,13 +2467,13 @@ void Stepper::report_positions() {
     if (!initialized) return;
     LOOP_L_N(i, COUNT(motor_current_setting)) {
       switch (i) {
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY) || PIN_EXISTS(MOTOR_CURRENT_PWM_X) || PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
+        #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
           case 0:
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
           case 1:
         #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E) || PIN_EXISTS(MOTOR_CURRENT_PWM_E0) || PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
+        #if ANY_PIN(MOTOR_CURRENT_PWM_E, MOTOR_CURRENT_PWM_E0, MOTOR_CURRENT_PWM_E1)
           case 2:
         #endif
             digipot_current(i, motor_current_setting[i]);
