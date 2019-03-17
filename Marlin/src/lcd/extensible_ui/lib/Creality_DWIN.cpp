@@ -660,7 +660,7 @@ SERIAL_ECHO(Checkkey);
 			InforShowStatus = false;
 			CardUpdate = true;
 			CardRecbuf.recordcount = -1;
-			RTS_SDCardUpate();
+			//RTS_SDCardUpate(); //FIX ME
 			SERIAL_ECHO("\n Handle Data PrintFile 1 Setting Screen ");
 			RTS_SndData(ExchangePageBase + 46, ExchangepageAddr); 
 
@@ -783,7 +783,7 @@ SERIAL_ECHO(Checkkey);
 			RTS_SndData(0,Timemin);	
 			Update_Time_Value = 0;
 			CardCheckStatus[0] = 0;// close the key of  checking card in  printing
-			RTS_SDcard_Stop();
+			//RTS_SDcard_Stop(); //FIX ME
 		}
 		else if(recdat.addr == Pauseprint)
 		{				
@@ -797,6 +797,7 @@ SERIAL_ECHO(Checkkey);
 		{				
 			#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 			/**************checking filement status during printing************/
+			/* //FIX ME
 			if(RTS_CheckFilement(0)) 
 			{
 				for(startprogress=0;startprogress < 5;startprogress++)
@@ -805,7 +806,7 @@ SERIAL_ECHO(Checkkey);
 					delay(400);
 				}
 				break;
-			}
+			} */
 			#endif
 			
 			resumePrint();
@@ -1675,4 +1676,22 @@ SERIAL_ECHO(Checkkey);
 	recdat.head[0] = FHONE;
 	recdat.head[1] = FHTWO;
 }
+
+void onPrinterKilled(PGM_P const msg) {}
+  void onMediaInserted() {};
+  void onMediaError() {};
+  void onMediaRemoved() {};
+  void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
+  void onPrintTimerStarted() {}
+  void onPrintTimerPaused() {}
+  void onPrintTimerStopped() {}
+  void onFilamentRunout() {}
+	void onFilamentRunout(extruder_t extruder) {}
+  void onUserConfirmRequired(const char * const msg) {}
+  void onStatusChanged(const char * const msg) {}
+  void onFactoryReset() {}
+  void onLoadSettings() {}
+  void onStoreSettings() {}
+	void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval) {};
+
 } // NAMESPACE EXT_UI
