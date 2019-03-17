@@ -47,6 +47,10 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../feature/bltouch.h"
+#endif
+
 #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
   #include "../lcd/ultralcd.h"
 #endif
@@ -1400,7 +1404,7 @@ void homeaxis(const AxisEnum axis) {
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     // BLTOUCH needs to be deployed every time
-    if (axis == Z_AXIS && set_bltouch_deployed(true)) return;
+    if (axis == Z_AXIS && bltouch.deploy()) return;
   #endif
 
   do_homing_move(axis, 1.5f * max_length(
@@ -1414,7 +1418,7 @@ void homeaxis(const AxisEnum axis) {
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     // BLTOUCH needs to be stowed after trigger to rearm itself
-    if (axis == Z_AXIS) set_bltouch_deployed(false);
+    if (axis == Z_AXIS) bltouch.stow();
   #endif
 
   // When homing Z with probe respect probe clearance
@@ -1440,14 +1444,14 @@ void homeaxis(const AxisEnum axis) {
 
     #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
       // BLTOUCH needs to be deployed every time
-      if (axis == Z_AXIS && set_bltouch_deployed(true)) return;
+      if (axis == Z_AXIS && bltouch.deploy()) return;
     #endif
 
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
 
     #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
       // BLTOUCH needs to be stowed after trigger to rearm itself
-      if (axis == Z_AXIS) set_bltouch_deployed(false);
+      if (axis == Z_AXIS) bltouch.stow();
     #endif
   }
 

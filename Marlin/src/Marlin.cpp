@@ -84,6 +84,10 @@
   #include "feature/leds/leds.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "feature/bltouch.h"
+#endif
+
 #if HAS_SERVOS
   #include "module/servo.h"
 #endif
@@ -1049,7 +1053,7 @@ void setup() {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch_init();
+    bltouch.init();
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)

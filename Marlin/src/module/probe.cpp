@@ -56,6 +56,10 @@
 
 float zprobe_zoffset; // Initialized by settings.load()
 
+#if ENABLED(BLTOUCH)
+  #include "../feature/bltouch.h"
+#endif
+
 #if HAS_Z_SERVO_PROBE
   #include "servo.h"
 #endif
@@ -289,37 +293,6 @@ float zprobe_zoffset; // Initialized by settings.load()
   }
 #endif // QUIET_PROBING
 
-#if ENABLED(BLTOUCH)
-
-  void bltouch_command(const int angle) {
-    MOVE_SERVO(Z_PROBE_SERVO_NR, angle);  // Give the BL-Touch the command and wait
-    safe_delay(BLTOUCH_DELAY);
-  }
-
-  bool set_bltouch_deployed(const bool deploy) {
-    if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
-      bltouch_command(BLTOUCH_RESET);    //  try to reset it.
-      bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
-      bltouch_command(BLTOUCH_STOW);     //  clear the triggered condition.
-      safe_delay(1500);                  // Wait for internal self-test to complete.
-                                         //  (Measured completion time was 0.65 seconds
-                                         //   after reset, deploy, and stow sequence)
-      if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
-        SERIAL_ERROR_MSG(MSG_STOP_BLTOUCH);
-        stop();                          // punt!
-        return true;
-      }
-    }
-
-    bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
-
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("set_bltouch_deployed(", deploy, ")");
-
-    return false;
-  }
-
-#endif // BLTOUCH
-
 /**
  * Raise Z to a minimum height to make room for a probe to move
  */
@@ -530,7 +503,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 
   // Deploy BLTouch at the start of any probe
   #if ENABLED(BLTOUCH)
-    if (set_bltouch_deployed(true)) return true;
+    if (bltouch.deploy()) return true;
   #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -582,7 +555,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 
   // Retract BLTouch immediately after a probe if it was triggered
   #if ENABLED(BLTOUCH)
-    if (probe_triggered && set_bltouch_deployed(false)) return true;
+    if (probe_triggered && bltouch.stow()) return true;
   #endif
 
   // Clear endstop flags
