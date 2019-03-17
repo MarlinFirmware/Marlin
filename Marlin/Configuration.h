@@ -24,9 +24,9 @@
 //#define MachineCR20Pro
 //#define MachineCR10Std
 //#define MachineCRX
-//#define MachineCR10SPro
+#define MachineCR10SPro
 //#define MachineS4
-#define MachineS5
+//#define MachineS5
 
 //#define PLUS // Adds bltouch, allmetal, bilinear (standard), lerdge, 93 e steps/mm
 
@@ -94,7 +94,7 @@
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-#define ABL_BLTOUCH
+//#define ABL_BLTOUCH
 
 //#define CREALITY_ABL_MOUNT //Using creality ABL mount
 /*
@@ -114,9 +114,9 @@
    Standard is recommended in most other scenarios.
 */
 //#define MeshFast
-//#define MeshStd
+#define MeshStd
 //#define MeshFine
-#define MeshExtreme
+//#define MeshExtreme
 
 /*
    Disables SD Sort, Autotemp, Arc support, Linear Advance (Unless overridden with OrigLA above), Big edit fonts, and a few other little things
@@ -173,6 +173,21 @@
  * Advanced settings can be found in Configuration_adv.h
  *
  */
+
+#if(ENABLED(MachineCR10SPro))
+  #define MachineCR10Std
+  #if DISABLED(ABL_BLTOUCH)
+    #define ABL_NCSW
+  #endif
+  #if DISABLED(ABL_UBL)
+    #define ABL_BI
+  #endif
+  #define MeshStd
+  #define BoardRev2
+  #define SD_DETECT_PIN 49
+#endif
+
+
 #define CONFIGURATION_H_VERSION 020000
 
 //===========================================================================
@@ -229,12 +244,12 @@
  */
 
 // Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
-#if(DISABLED(MachineEnder4) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define SHOW_CUSTOM_BOOTSCREEN
+#if(DISABLED(MachineEnder4) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard) && ( DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD)))
+  #define SHOW_CUSTOM_BOOTSCREEN
 #endif
 // Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
-#if(DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4))
-#define CUSTOM_STATUS_SCREEN_IMAGE
+#if(DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4) && ( DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD)))
+  #define CUSTOM_STATUS_SCREEN_IMAGE
 #endif
 
 #if(ENABLED(MachineMini))
@@ -1587,7 +1602,7 @@
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
-#if(DISABLED(MachineCR10Orig) &&(DISABLED(MachineCR20)|| ENABLED(AddonFilSensor)) && (DISABLED(MachineEnder4) || ENABLED(AddonFilSensor)) && (DISABLED(MachineCRX)|| ENABLED(AddonFilSensor) || ENABLED(DualFilSensors)))
+#if (DISABLED(MachineCR10Orig) && DISABLED(MachineCR20) && DISABLED(MachineEnder4) && DISABLED(MachineCRX)) || ENABLED(AddonFilSensor) || ENABLED(DualFilSensors)
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -1783,7 +1798,9 @@
   //========================= Unified Bed Leveling ============================
   //===========================================================================
 
-  #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
+  #if DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD)
+    #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
+  #endif
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
 
@@ -1814,8 +1831,8 @@
  */
 #if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
 
-#if(DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4))
-#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
+#if DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4) && ( DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD))
+  #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 #endif
 #if ENABLED(MachineMini)
 #define PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
@@ -2425,16 +2442,16 @@
 //=====================   (I2C and Shift-Register LCDs)   =====================
 //=============================================================================
 #if(ENABLED(MachineEnder4) && DISABLED(GraphicLCD))
-#define REPRAP_DISCOUNT_SMART_CONTROLLER
+  #define REPRAP_DISCOUNT_SMART_CONTROLLER
 #elif(ENABLED(MachineEnder2) )
-#define MINIPANEL
+  #define MINIPANEL
 #elif ENABLED(MachineCR20)
   #define MKS_MINI_12864
-#elif(DISABLED(OrigLCD))
-#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#elif(DISABLED(OrigLCD) && DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD))
+  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #endif
 #if(ENABLED(OrigLCD))
-#define CR10_STOCKDISPLAY
+  #define CR10_STOCKDISPLAY
 #endif
 //
 // CONTROLLER TYPE: I2C

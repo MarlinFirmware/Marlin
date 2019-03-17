@@ -3,7 +3,6 @@
 #include "string.h"
 #include <arduino.h>
 #include "../ui_api.h"
-#include "RTS_Show.h"
 
 namespace ExtUI {
 /*********************************/

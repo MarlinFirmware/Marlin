@@ -30,6 +30,9 @@
 
 #include "../../gcode.h"
 #include "../../../feature/bedlevel/bedlevel.h"
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extensible_ui/ui_api.h"
+#endif
 
 /**
  * M421: Set a single Mesh Bed Leveling Z coordinate
