@@ -1,5 +1,4 @@
 #include "Creality_DWIN.h"
-#include "RTS_Show.h"
 #include <HardwareSerial.h>
 #include <arduino.h>
 #include <wstring.h>
@@ -69,32 +68,33 @@ char commandbuf[30];
 	AutoLevelStatus = 1; //Set auto leveling on
 	int showcount = 0;
 
-	recdat.head[0] = snddat.head[0] = FHONE;
-  recdat.head[1] = snddat.head[1] = FHTWO;
-  memset(databuf,0, sizeof(databuf));
+	rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
+  rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
+  memset(rtscheck.databuf,0, sizeof(rtscheck.databuf));
 
 	
 	#if HAS_MESH && (ENABLED(MachineCR10SPro) || ENABLED(Force10SProDisplay))
-		if (leveling_is_valid())
+		if (getMeshValid())
 		{
+			bed_mesh_t bedMesh = getMeshArray();
 			for(int xCount  = 0; xCount < GRID_MAX_POINTS_X; xCount++)
 			{
 				for(int yCount  = 0; yCount < GRID_MAX_POINTS_X; yCount++)
 				{
 					if((showcount++) < 16)
 					{
-						RTS_SndData(z_values[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
-						RTS_SndData(showcount,AutolevelIcon);
+						rtscheck.RTS_SndData(bedMesh[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
+						rtscheck.RTS_SndData(showcount,AutolevelIcon);
 					}
 				}
 			}
-			RTS_SndData(2, AutoLevelIcon);/*On*/
+			rtscheck.RTS_SndData(2, AutoLevelIcon);/*On*/
 			enqueueCommands_P((PSTR("M420 S1")));
-			AutoLevelStatus = planner.leveling_active;
+			AutoLevelStatus = getLevelingActive();
 		}
 		else 
 		{
-			RTS_SndData(3, AutoLevelIcon);/*Off*/
+			rtscheck.RTS_SndData(3, AutoLevelIcon);/*Off*/
 			//settings.load();
 		}
 	#endif
@@ -172,28 +172,28 @@ char commandbuf[30];
 			SERIAL_ECHOLN("  ***test1*** ");
 			if(startprogress == 0)
 			{
-				RTS_SndData(StartSoundSet, SoundAddr);
+				rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
 				
-				RTS_SndData(5, VolumeIcon);
-				RTS_SndData(8, SoundIcon);
-				RTS_SndData(0xC0, VolumeIcon-2);
+				rtscheck.RTS_SndData(5, VolumeIcon);
+				rtscheck.RTS_SndData(8, SoundIcon);
+				rtscheck.RTS_SndData(0xC0, VolumeIcon-2);
 				if(VolumeSet == 0)
 				{
-					RTS_SndData(0, VolumeIcon);
-					RTS_SndData(9, SoundIcon);
+					rtscheck.RTS_SndData(0, VolumeIcon);
+					rtscheck.RTS_SndData(9, SoundIcon);
 				}
 				else
 				{
-					RTS_SndData((VolumeSet+1)/32 - 1, VolumeIcon);
-					RTS_SndData(8, SoundIcon);
+					rtscheck.RTS_SndData((VolumeSet+1)/32 - 1, VolumeIcon);
+					rtscheck.RTS_SndData(8, SoundIcon);
 				}
-				RTS_SndData(VolumeSet, VolumeIcon-2);
-				RTS_SndData(VolumeSet<<8, SoundAddr+1);
+				rtscheck.RTS_SndData(VolumeSet, VolumeIcon-2);
+				rtscheck.RTS_SndData(VolumeSet<<8, SoundAddr+1);
 			}
 			if(startprogress <= 100)
-				RTS_SndData(startprogress,StartIcon);
+				rtscheck.RTS_SndData(startprogress,StartIcon);
 			else
-				RTS_SndData((startprogress-100),StartIcon+1);
+				rtscheck.RTS_SndData((startprogress-100),StartIcon+1);
 			delay(30);
 			if((startprogress +=1) > 200)
 			{
@@ -232,25 +232,25 @@ char commandbuf[30];
 			
 			if(startprogress == 0)
 			{
-				RTS_SndData(StartSoundSet, SoundAddr);
+				rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
 				
 				if(VolumeSet == 0)
 				{
-					RTS_SndData(0, VolumeIcon);
-					RTS_SndData(9, SoundIcon);
+					rtscheck.RTS_SndData(0, VolumeIcon);
+					rtscheck.RTS_SndData(9, SoundIcon);
 				}
 				else
 				{
-					RTS_SndData((VolumeSet+1)/32 - 1, VolumeIcon);
-					RTS_SndData(8, SoundIcon);
+					rtscheck.RTS_SndData((VolumeSet+1)/32 - 1, VolumeIcon);
+					rtscheck.RTS_SndData(8, SoundIcon);
 				}
-				RTS_SndData(VolumeSet, VolumeIcon-2);
-				RTS_SndData(VolumeSet<<8, SoundAddr+1);
+				rtscheck.RTS_SndData(VolumeSet, VolumeIcon-2);
+				rtscheck.RTS_SndData(VolumeSet<<8, SoundAddr+1);
 			}
 			if(startprogress <= 100)
-				RTS_SndData(startprogress,StartIcon);
+				rtscheck.RTS_SndData(startprogress,StartIcon);
 			else
-				RTS_SndData((startprogress-100),StartIcon+1);
+				rtscheck.RTS_SndData((startprogress-100),StartIcon+1);
 			delay(30);
 			if((startprogress +=1) > 200)
 			{
@@ -259,7 +259,7 @@ char commandbuf[30];
 				InforShowStatus = true;
 				TPShowStatus = false;
 				Update_Time_Value = RTS_UPDATE_VALUE;
-				RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); 
+				rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); 
 			}
 			return;
 		}
@@ -268,8 +268,8 @@ char commandbuf[30];
 			if (TPShowStatus && isPrinting())		//need to optimize
 			{
 				static unsigned int last_cardpercentValue = 101; 
-				RTS_SndData(getProgress_seconds_elapsed() / 3600,Timehour);		
-				RTS_SndData((getProgress_seconds_elapsed() /3600)/60,Timemin);	
+				rtscheck.RTS_SndData(getProgress_seconds_elapsed() / 3600,Timehour);		
+				rtscheck.RTS_SndData((getProgress_seconds_elapsed() /3600)/60,Timemin);	
 				
 				if(last_cardpercentValue != getProgress_percent())
 				{
@@ -278,33 +278,33 @@ char commandbuf[30];
 						Percentrecord = progress_bar_percent+1;
 						if(Percentrecord<= 50)
 						{
-							RTS_SndData((unsigned int)Percentrecord*2 ,PrintscheduleIcon);
-							RTS_SndData(0,PrintscheduleIcon+1);
+							rtscheck.RTS_SndData((unsigned int)Percentrecord*2 ,PrintscheduleIcon);
+							rtscheck.RTS_SndData(0,PrintscheduleIcon+1);
 						}
 						else
 						{
-							RTS_SndData(100 ,PrintscheduleIcon);
-							RTS_SndData((unsigned int)Percentrecord*2 -100,PrintscheduleIcon+1);
+							rtscheck.RTS_SndData(100 ,PrintscheduleIcon);
+							rtscheck.RTS_SndData((unsigned int)Percentrecord*2 -100,PrintscheduleIcon+1);
 						}
 					}	
 					else
 					{
-						RTS_SndData(0,PrintscheduleIcon);
-						RTS_SndData(0,PrintscheduleIcon+1);
+						rtscheck.RTS_SndData(0,PrintscheduleIcon);
+						rtscheck.RTS_SndData(0,PrintscheduleIcon+1);
 					}
-					RTS_SndData((unsigned int)getProgress_percent(),Percentage);
+					rtscheck.RTS_SndData((unsigned int)getProgress_percent(),Percentage);
 					last_cardpercentValue = getProgress_percent();
 				}
 			}
 			
-			RTS_SndData(getZOffset_mm()*100, 0x1026); 
+			rtscheck.RTS_SndData(getZOffset_mm()*100, 0x1026); 
 			//float temp_buf = getActualTemp_celsius(H0);
-			RTS_SndData(getActualTemp_celsius(H0),NozzleTemp);
-			RTS_SndData(getActualTemp_celsius(BED),Bedtemp);
+			rtscheck.RTS_SndData(getActualTemp_celsius(H0),NozzleTemp);
+			rtscheck.RTS_SndData(getActualTemp_celsius(BED),Bedtemp);
 			if(last_target_temperature_bed != getTargetTemp_celsius(BED) || (last_target_temperature[0] != getTargetTemp_celsius(H0)))
 			{
-				RTS_SndData(getTargetTemp_celsius(H0),NozzlePreheat);
-				RTS_SndData(getTargetTemp_celsius(BED),BedPreheat);
+				rtscheck.RTS_SndData(getTargetTemp_celsius(H0),NozzlePreheat);
+				rtscheck.RTS_SndData(getTargetTemp_celsius(BED),BedPreheat);
 
 				if(isPrinting())
 				{
@@ -312,13 +312,13 @@ char commandbuf[30];
 				}
 				else if(last_target_temperature_bed < getTargetTemp_celsius(BED) || (last_target_temperature[0] < getTargetTemp_celsius(H0)))
 				{
-					RTS_SndData(1+CEIconGrap,IconPrintstatus);
+					rtscheck.RTS_SndData(1+CEIconGrap,IconPrintstatus);
 					Update_Time_Value = 0;
 					PrinterStatusKey[1] =( PrinterStatusKey[1] == 0? 1 : PrinterStatusKey[1]);
 				}
 				else if(last_target_temperature_bed > getTargetTemp_celsius(BED) || (last_target_temperature[0] > getTargetTemp_celsius(H0)))
 				{
-					RTS_SndData(8+CEIconGrap,IconPrintstatus);
+					rtscheck.RTS_SndData(8+CEIconGrap,IconPrintstatus);
 					Update_Time_Value = 0;
 					PrinterStatusKey[1] =( PrinterStatusKey[1] == 0? 2 : PrinterStatusKey[1] );
 				}
@@ -335,14 +335,14 @@ char commandbuf[30];
 				IconTemp = getActualTemp_celsius(H0) * 100/getTargetTemp_celsius(H0);
 				if(IconTemp >= 100)
 					IconTemp = 100;
-				RTS_SndData(IconTemp, HeatPercentIcon);
+				rtscheck.RTS_SndData(IconTemp, HeatPercentIcon);
 				if(getActualTemp_celsius(H0) >= getTargetTemp_celsius(H0) && NozzleTempStatus[0])
 				{
 					NozzleTempStatus[1] = 0;
 					NozzleTempStatus[0] = 0;
-					RTS_SndData(10*ChangeMaterialbuf[0], FilementUnit1);	
-					RTS_SndData(10*ChangeMaterialbuf[1], FilementUnit2);
-					RTS_SndData(ExchangePageBase + 65, ExchangepageAddr); 
+					rtscheck.RTS_SndData(10*ChangeMaterialbuf[0], FilementUnit1);	
+					rtscheck.RTS_SndData(10*ChangeMaterialbuf[1], FilementUnit2);
+					rtscheck.RTS_SndData(ExchangePageBase + 65, ExchangepageAddr); 
 					//RTS_line_to_current(E_AXIS); //NEEDS FIX
 					setActiveTool(E0, true);
 					//delay(current_position[E_AXIS] * 1000);
@@ -352,25 +352,25 @@ char commandbuf[30];
 					SERIAL_ECHOPAIR("\n ***NozzleTempStatus[2] =",(int)NozzleTempStatus[2]);
 					startprogress = NozzleTempStatus[2] = 0;
 					TPShowStatus = true;
-					RTS_SndData(4, ExchFlmntIcon);
-					RTS_SndData(ExchangePageBase + 83, ExchangepageAddr); 
+					rtscheck.RTS_SndData(4, ExchFlmntIcon);
+					rtscheck.RTS_SndData(ExchangePageBase + 83, ExchangepageAddr); 
 				}
 				else if( NozzleTempStatus[2] )
 				{
-					RTS_SndData((startprogress++)%5, ExchFlmntIcon);
+					rtscheck.RTS_SndData((startprogress++)%5, ExchFlmntIcon);
 				}
 			}
 			if(AutohomeKey )
 			{
-				RTS_SndData(AutoHomeIconNum++,AutoZeroIcon);
+				rtscheck.RTS_SndData(AutoHomeIconNum++,AutoZeroIcon);
 				if(AutoHomeIconNum > 9)	AutoHomeIconNum = 0;
 			}
 		}
 
 		if(getLevelingActive()) 
-			RTS_SndData(2, AutoLevelIcon);/*Off*/
+			rtscheck.RTS_SndData(2, AutoLevelIcon);/*Off*/
 		else
-			RTS_SndData(3, AutoLevelIcon);/*On*/
+			rtscheck.RTS_SndData(3, AutoLevelIcon);/*On*/
 		next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + Update_Time_Value;
 	}
   //SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
@@ -1243,7 +1243,7 @@ SERIAL_ECHO(Checkkey);
 			break;
 		}
 		
-		float targetPos = ((float)recdat.data[0])/10;
+		targetPos = ((float)recdat.data[0])/10;
 		
 		if (targetPos < min) targetPos = min;
 		else if (targetPos > max) targetPos = max;

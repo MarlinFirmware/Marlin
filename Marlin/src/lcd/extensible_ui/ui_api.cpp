@@ -80,6 +80,16 @@
 
 #include "ui_api.h"
 
+#if HAS_LEVELING
+  #if ENABLED(MESH_BED_LEVELING)
+    #include "../../feature/bedlevelmbl/mesh_bed_leveling.h"
+  #elif ENABLED(AUTO_BED_LEVELING_UBL)
+    #include "../../feature/bedlevel/ubl/ubl.h"
+  #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #include "../../feature/bedlevel/abl/abl.h"
+  #endif
+#endif
+
 #if ENABLED(BACKLASH_GCODE)
   extern float backlash_distance_mm[XYZ], backlash_correction;
   #ifdef BACKLASH_SMOOTHING_MM
@@ -417,7 +427,9 @@ namespace ExtUI {
 
     void setJunctionDeviation_mm(const float value) {
       planner.junction_deviation_mm = clamp(value, 0.01, 0.3);
-      planner.recalculate_max_e_jerk();
+      #if ENABLED(LIN_ADVANCE)
+        planner.recalculate_max_e_jerk();
+      #endif
     }
 
   #else
@@ -579,7 +591,7 @@ namespace ExtUI {
 
   #if HAS_LEVELING
     bool getLevelingActive() { return planner.leveling_active; }
-    void setLevelingActive(const bool state) { set_bed_leveling_enabled(state) }
+    void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
     #if HAS_MESH
       bool getMeshValid() { return leveling_is_valid(); }
       bed_mesh_t getMeshArray() { return Z_VALUES; }

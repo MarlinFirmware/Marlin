@@ -129,7 +129,6 @@ class RTSSHOW {
     
     DB recdat;
     DB snddat;
-  private:
     unsigned char databuf[SizeofDatabuf];
   };
 
@@ -192,4 +191,5 @@ extern char PrinterStatusKey[2];
 extern const char *injected_commands_P;
 extern uint8_t progress_bar_percent;
 extruder_t original_extruder;
+float targetPos;
 }
