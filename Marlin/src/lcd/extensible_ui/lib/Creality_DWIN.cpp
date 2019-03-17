@@ -60,10 +60,10 @@ bool PoweroffContinue = false;
 extern const char *injected_commands_P;
 char commandbuf[30];
 
+//RTSSHOW rtscheck;
 
   void onStartup() {
     Serial2.begin(115200);
-
 	LanguageRecbuf = 0; //Force language to English, 1=Chinese but currently not implemented
 	AutoLevelStatus = 1; //Set auto leveling on
 	int showcount = 0;
@@ -381,6 +381,12 @@ char commandbuf[30];
 
 }
 
+
+RTSSHOW::RTSSHOW(){
+  recdat.head[0] = snddat.head[0] = FHONE;
+  recdat.head[1] = snddat.head[1] = FHTWO;
+  memset(databuf,0, sizeof(databuf));
+}
 
 int RTSSHOW::RTS_RecData()
 {
