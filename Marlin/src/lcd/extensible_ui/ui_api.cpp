@@ -588,7 +588,15 @@ namespace ExtUI {
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
     #if HAS_MESH
       bool getMeshValid() { return leveling_is_valid(); }
-      bed_mesh_t getMeshArray() { return Z_VALUES; }
+      bed_mesh_t getMeshArray() {
+        #if ENABLED(MESH_BED_LEVELING)
+          return mbl.z_values;
+        #elif ENABLED(AUTO_BED_LEVELING_UBL)
+          return ubl.z_values;
+        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+          return z_values;
+        #endif 
+      }
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zoff) {
         if (WITHIN(xpos, 0, GRID_MAX_POINTS_X) && WITHIN(ypos, 0, GRID_MAX_POINTS_Y)) {
           Z_VALUES(xpos, ypos) = zoff;
