@@ -69,12 +69,14 @@ bool BLTouch::set_deployed(const bool in_deploy) {
     }
   }
 
-  #if ENABLED(BLTOUCH_V3)
-    #if ENABLED(BLTOUCH_FORCE_5V_MODE)
-      set_5V_mode();                  // Assume 5V DC logic level if endstop pullup resistors are enabled
-    #else
-      set_OD_mode();
-    #endif
+  #if ENABLED(BLTOUCH_FORCE_5V_MODE)
+    set_5V_mode();
+  #elif ENABLED(BLTOUCH_FORCE_OPEN_DRAIN_MODE)
+    set_OD_mode();
+  #elif ENABLED(ENDSTOPPULLUPS) || (ALL(ENDSTOPPULLUP_ZMIN, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || (ENABLED(ENDSTOPPULLUP_ZMIN_PROBE) && DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
+    set_5V_mode();                  // Assume 5V DC logic level if endstop pullup resistors are enabled
+  #else
+    set_OD_mode();
   #endif
 
   if (in_deploy) {
