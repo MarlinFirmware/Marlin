@@ -1561,7 +1561,9 @@ SERIAL_ECHO(Checkkey);
 		SERIAL_ECHO(recdat.data[0]);
 		SERIAL_ECHO("\n   recdat.addr ==");
 		SERIAL_ECHO(recdat.addr); */
-		if(card.cardOK && recdat.addr == FilenameChs)
+		
+		//if(card.cardOK && recdat.addr == FilenameChs)  //FIX ME
+				if (false)
 	       {
 	       	if(recdat.data[0] > CardRecbuf.Filesum) break;
 			
@@ -1597,10 +1599,11 @@ SERIAL_ECHO(Checkkey);
 			RTS_SndData((unsigned long)0x87F0,FilenameNature + recdat.data[0]*16);	// Light green
 			RTS_SndData(6,FilenameIcon1 + recdat.data[0]);	// show frame
 			
-	       }
+	       } 
 		else if(recdat.addr == FilenamePlay)
 		{
-			if(recdat.data[0] == 1 && card.cardOK)	//for sure
+			//if(recdat.data[0] == 1 && card.cardOK)	//for sure //FIX ME
+			if(false)
 			{
 				if(CardRecbuf.recordcount < 0)
 					break;
@@ -1614,7 +1617,7 @@ SERIAL_ECHO(Checkkey);
 				FilenamesCount = CardRecbuf.recordcount;
 				memset(cmdbuf,0,sizeof(cmdbuf));
 				strcpy(cmdbuf,cmd);
-
+ 
 				#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 				/**************checking filement status during printing beginning ************/
 					if(RTS_CheckFilement(1)) break;

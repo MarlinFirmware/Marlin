@@ -1179,7 +1179,7 @@ void MarlinUI::update() {
       next_filament_display = millis() + 5000UL; // Show status message for 5s
     #endif
 
-    #if ENABLED(STATUS_MESSAGE_SCROLLING)
+    #if HAS_SPI_LCD && ENABLED(STATUS_MESSAGE_SCROLLING)
       status_scroll_offset = 0;
     #endif
 
