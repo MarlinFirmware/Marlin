@@ -87,6 +87,10 @@
   #endif
 #endif
 
+#if HAS_LEVELING
+  #include "../../feature/bedlevel.h"
+#endif
+
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
@@ -417,7 +421,9 @@ namespace ExtUI {
 
     void setJunctionDeviation_mm(const float value) {
       planner.junction_deviation_mm = clamp(value, 0.01, 0.3);
-      planner.recalculate_max_e_jerk();
+      #if ENABLED(LIN_ADVANCE)
+        planner.recalculate_max_e_jerk();
+      #endif
     }
 
   #else
@@ -579,7 +585,7 @@ namespace ExtUI {
 
   #if HAS_LEVELING
     bool getLevelingActive() { return planner.leveling_active; }
-    void setLevelingActive(const bool state) { set_bed_leveling_enabled(state) }
+    void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
     #if HAS_MESH
       bool getMeshValid() { return leveling_is_valid(); }
       bed_mesh_t getMeshArray() { return Z_VALUES; }
