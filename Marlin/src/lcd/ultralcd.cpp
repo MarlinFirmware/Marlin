@@ -1162,7 +1162,7 @@ void MarlinUI::update() {
   /////////////// Status Line ////////////////
   ////////////////////////////////////////////
 
-  void MarlinUI::finishstatus(const bool persist) {
+  void MarlinUI::finish_status(const bool persist) {
 
     #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
       UNUSED(persist);
@@ -1214,7 +1214,7 @@ void MarlinUI::update() {
     strncpy(status_message, message, maxLen);
     status_message[maxLen] = '\0';
 
-    finishstatus(persist);
+    finish_status(persist);
   }
 
   #include <stdarg.h>
@@ -1226,7 +1226,7 @@ void MarlinUI::update() {
     va_start(args, fmt);
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
     va_end(args);
-    finishstatus(level > 0);
+    finish_status(level > 0);
   }
 
   void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
@@ -1253,7 +1253,7 @@ void MarlinUI::update() {
     strncpy_P(status_message, message, maxLen);
     status_message[maxLen] = '\0';
 
-    finishstatus(level > 0);
+    finish_status(level > 0);
   }
 
   void MarlinUI::set_alert_status_P(PGM_P const message) {
