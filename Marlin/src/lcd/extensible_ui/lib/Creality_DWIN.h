@@ -132,7 +132,7 @@ class RTSSHOW {
     unsigned char databuf[SizeofDatabuf];
   };
 
-extern RTSSHOW rtscheck;
+static RTSSHOW rtscheck;
 
 #ifdef MachineCRX
   #define	Addvalue	2

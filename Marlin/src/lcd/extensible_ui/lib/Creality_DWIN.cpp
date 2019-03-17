@@ -1262,7 +1262,7 @@ SERIAL_ECHO(Checkkey);
 		
 		#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 		/**************checking filement status during changing filement************/
-		if(RTS_CheckFilement(3)) break;
+		//if(RTS_CheckFilement(3)) break; //FIX ME
 		#endif
 		
 		unsigned int IconTemp;
@@ -1396,7 +1396,7 @@ SERIAL_ECHO(Checkkey);
 		{
 			/**************checking filement status during changing filement************/
 			#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
-				if(RTS_CheckFilement(0)) break;
+				//if(RTS_CheckFilement(0)) break; //FIX ME
 			#endif
 			
 			if(FilementStatus[0] == 1)	// check filement before starting to print
@@ -1621,7 +1621,7 @@ SERIAL_ECHO(Checkkey);
  
 				#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 				/**************checking filement status during printing beginning ************/
-					if(RTS_CheckFilement(1)) break;
+					//if(RTS_CheckFilement(1)) break; //FIX ME
 				#endif
 					
 				//InforShowoStatus = true;
