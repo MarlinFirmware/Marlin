@@ -73,7 +73,7 @@ bool BLTouch::set_deployed(const bool in_deploy) {
     set_5V_mode();
   #elif ENABLED(BLTOUCH_FORCE_OPEN_DRAIN_MODE)
     set_OD_mode();
-  #elif ENABLED(ENDSTOPPULLUPS) || (ALL(ENDSTOPPULLUP_ZMIN, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || (ENABLED(ENDSTOPPULLUP_ZMIN_PROBE) && DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
+  #elif ENABLED(ENDSTOPPULLUPS) || ALL(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, ENDSTOPPULLUP_ZMIN) || (USES_Z_MIN_PROBE_ENDSTOP && ENABLED(ENDSTOPPULLUP_ZMIN_PROBE))
     set_5V_mode();                  // Assume 5V DC logic level if endstop pullup resistors are enabled
   #else
     set_OD_mode();
