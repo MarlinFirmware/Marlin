@@ -48,38 +48,35 @@ void reset_bed_level();
   void set_z_fade_height(const float zfh, const bool do_report=true);
 #endif
 
-#if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
-
-  #include <stdint.h>
-
-  typedef float (*element_2d_fn)(const uint8_t, const uint8_t);
-
-  /**
-   * Print calibration results for plotting or manual frame adjustment.
-   */
-  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, element_2d_fn fn);
-
-#endif
-
 #if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
   void _manual_goto_xy(const float &x, const float &y);
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #define _GET_MESH_X(I) (bilinear_start[X_AXIS] + (I) * bilinear_grid_spacing[X_AXIS])
-  #define _GET_MESH_Y(J) (bilinear_start[Y_AXIS] + (J) * bilinear_grid_spacing[Y_AXIS])
-#elif ENABLED(AUTO_BED_LEVELING_UBL)
-  #define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
-  #define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)
-#elif ENABLED(MESH_BED_LEVELING)
-  #define _GET_MESH_X(I) mbl.index_to_xpos[I]
-  #define _GET_MESH_Y(J) mbl.index_to_ypos[J]
-#endif
+#if HAS_MESH
 
-#if ENABLED(MESH_BED_LEVELING)
-  #include "mbl/mesh_bed_leveling.h"
-#elif ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "ubl/ubl.h"
-#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #include "abl/abl.h"
+  typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #include "abl/abl.h"
+  #elif ENABLED(AUTO_BED_LEVELING_UBL)
+    #include "ubl/ubl.h"
+  #elif ENABLED(MESH_BED_LEVELING)
+    #include "mbl/mesh_bed_leveling.h"
+  #endif
+
+  #define Z_VALUES(X,Y) Z_VALUES_ARR[X][Y]
+
+  #if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
+
+    #include <stdint.h>
+
+    typedef float (*element_2d_fn)(const uint8_t, const uint8_t);
+
+    /**
+     * Print calibration results for plotting or manual frame adjustment.
+     */
+    void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, element_2d_fn fn);
+
+  #endif
+
 #endif
