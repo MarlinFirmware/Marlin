@@ -106,7 +106,7 @@
   #define E2_CS_PIN        61
 #endif
 
-#if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+#if USES_Z_MIN_PROBE_ENDSTOP
   #define Z_MIN_PROBE_PIN  49
 #endif
 
