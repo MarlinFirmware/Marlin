@@ -88,7 +88,7 @@
 #define MSG_IDEX_MENU                       _UxGT("IDEX Mode")
 #define MSG_IDEX_MODE_AUTOPARK              _UxGT("Auto-Park")
 #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplication")
-#define MSG_IDEX_MODE_SCALED_COPY           _UxGT("Scaled copy")
+#define MSG_IDEX_MODE_MIRRORED_COPY         _UxGT("미러 사본")
 #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Full control")
 #define MSG_IDEX_X_OFFSET                   _UxGT("2nd nozzle X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2nd nozzle Y")

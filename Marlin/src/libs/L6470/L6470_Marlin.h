@@ -25,26 +25,6 @@
 
 #include <L6470.h>
 
-#if ENABLED(L6470_CHITCHAT)
-  #define L6470_EOL()           SERIAL_EOL()
-  #define L6470_CHAR(C)         SERIAL_CHAR(C)
-  #define L6470_ECHO(V)         SERIAL_ECHO(V)
-  #define L6470_ECHOLN(V)       SERIAL_ECHOLN(V)
-  #define L6470_ECHOPGM(S)      SERIAL_ECHOPGM(S)
-  #define L6470_ECHOLNPGM(S)    SERIAL_ECHOLNPGM(S)
-  #define L6470_ECHOPAIR(S,V)   SERIAL_ECHOPAIR(S,V)
-  #define L6470_ECHOLNPAIR(S,V) SERIAL_ECHOLNPAIR(S,V)
-#else
-  #define L6470_EOL()           NOOP
-  #define L6470_CHAR(C)         NOOP
-  #define L6470_ECHO(V)         NOOP
-  #define L6470_ECHOLN(V)       NOOP
-  #define L6470_ECHOPGM(S)      NOOP
-  #define L6470_ECHOLNPGM(S)    NOOP
-  #define L6470_ECHOPAIR(S,V)   NOOP
-  #define L6470_ECHOLNPAIR(S,V) NOOP
-#endif
-
 #define L6470_GETPARAM(P,Q) stepper##Q.GetParam(P)
 
 #define MAX_L6470  (7 + MAX_EXTRUDERS) // Maximum number of axes in Marlin

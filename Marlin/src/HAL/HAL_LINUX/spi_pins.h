@@ -23,7 +23,7 @@
 
 #include "src/core/macros.h"
 
-#if ENABLED(SDSUPPORT) && ENABLED(DOGLCD) && (LCD_PINS_D4 == SCK_PIN || LCD_PINS_ENABLE == MOSI_PIN || DOGLCD_SCK == SCK_PIN || DOGLCD_MOSI == MOSI_PIN)
+#if BOTH(SDSUPPORT, DOGLCD) && (LCD_PINS_D4 == SCK_PIN || LCD_PINS_ENABLE == MOSI_PIN || DOGLCD_SCK == SCK_PIN || DOGLCD_MOSI == MOSI_PIN)
   #define LPC_SOFTWARE_SPI  // If the SD card and LCD adapter share the same SPI pins, then software SPI is currently
                             // needed due to the speed and mode requred for communicating with each device being different.
                             // This requirement can be removed if the SPI access to these devices is updated to use

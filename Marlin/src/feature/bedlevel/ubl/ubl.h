@@ -29,6 +29,9 @@
 #include "../../../lcd/ultralcd.h"
 #include "../../../Marlin.h"
 
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../../core/debug_out.h"
+
 #define UBL_VERSION "1.01"
 #define UBL_OK false
 #define UBL_ERR true
@@ -199,12 +202,11 @@ class unified_bed_leveling {
      */
     static inline float z_correction_for_x_on_horizontal_mesh_line(const float &rx0, const int x1_i, const int yi) {
       if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            serialprintPGM( !WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) ? PSTR("x1_i") : PSTR("yi") );
-            SERIAL_ECHOLNPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0, ",x1_i=", x1_i, ",yi=", yi, ")");
-          }
-        #endif
+
+        if (DEBUGGING(LEVELING)) {
+          if (WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
+          DEBUG_ECHOLNPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0, ",x1_i=", x1_i, ",yi=", yi, ")");
+        }
 
         // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
         return (
@@ -229,12 +231,11 @@ class unified_bed_leveling {
     //
     static inline float z_correction_for_y_on_vertical_mesh_line(const float &ry0, const int xi, const int y1_i) {
       if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 1)) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            serialprintPGM(!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) ? PSTR("xi") : PSTR("y1_i"));
-            SERIAL_ECHOLNPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0, ", xi=", xi, ", y1_i=", y1_i, ")");
-          }
-        #endif
+
+        if (DEBUGGING(LEVELING)) {
+          if (WITHIN(xi, 0, GRID_MAX_POINTS_X - 1)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");
+          DEBUG_ECHOLNPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0, ", xi=", xi, ", y1_i=", y1_i, ")");
+        }
 
         // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
         return (
@@ -285,17 +286,12 @@ class unified_bed_leveling {
                          mesh_index_to_ypos(cy), z1,
                          mesh_index_to_ypos(cy + 1), z2);
 
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(MESH_ADJUST)) {
-          SERIAL_ECHOPAIR(" raw get_z_correction(", rx0);
-          SERIAL_CHAR(','); SERIAL_ECHO(ry0);
-          SERIAL_ECHOPAIR_F(") = ", z0, 6);
-        }
-      #endif
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(MESH_ADJUST)) SERIAL_ECHOLNPAIR_F(" >>>---> ", z0, 6);
-      #endif
+      if (DEBUGGING(MESH_ADJUST)) {
+        DEBUG_ECHOPAIR(" raw get_z_correction(", rx0);
+        DEBUG_CHAR(','); DEBUG_ECHO(ry0);
+        DEBUG_ECHOPAIR_F(") = ", z0, 6);
+        DEBUG_ECHOLNPAIR_F(" >>>---> ", z0, 6);
+      }
 
       if (isnan(z0)) { // if part of the Mesh is undefined, it will show up as NAN
         z0 = 0.0;      // in ubl.z_values[][] and propagate through the
@@ -303,15 +299,13 @@ class unified_bed_leveling {
                        // because part of the Mesh is undefined and we don't have the
                        // information we need to complete the height correction.
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(MESH_ADJUST)) {
-            SERIAL_ECHOPAIR("??? Yikes!  NAN in get_z_correction(", rx0);
-            SERIAL_CHAR(',');
-            SERIAL_ECHO(ry0);
-            SERIAL_CHAR(')');
-            SERIAL_EOL();
-          }
-        #endif
+        if (DEBUGGING(MESH_ADJUST)) {
+          DEBUG_ECHOPAIR("??? Yikes!  NAN in get_z_correction(", rx0);
+          DEBUG_CHAR(',');
+          DEBUG_ECHO(ry0);
+          DEBUG_CHAR(')');
+          DEBUG_EOL();
+        }
       }
       return z0;
     }
@@ -342,3 +336,6 @@ class unified_bed_leveling {
 extern unified_bed_leveling ubl;
 
 #define Z_VALUES(X,Y) ubl.z_values[X][Y]
+
+// Prevent debugging propagating to other files
+#include "../../../core/debug_out.h"

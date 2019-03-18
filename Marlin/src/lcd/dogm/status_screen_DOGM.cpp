@@ -243,7 +243,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     if (!TEST(axis_homed, axis))
       while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
     else {
-      #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+      #if DISABLED(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
         if (!TEST(axis_known_position, axis))
           lcd_put_u8str_P(axis == Z_AXIS ? PSTR("      ") : PSTR("    "));
         else
@@ -572,7 +572,7 @@ void MarlinUI::draw_status_screen() {
   if (PAGE_CONTAINS(STATUS_BASELINE - INFO_FONT_ASCENT, STATUS_BASELINE + INFO_FONT_DESCENT)) {
     lcd_moveto(0, STATUS_BASELINE);
 
-    #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+    #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
       // Alternate Status message and Filament display
       if (ELAPSED(millis(), next_filament_display)) {
         lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
@@ -612,31 +612,24 @@ void MarlinUI::draw_status_message(const bool blink) {
     if (slen <= LCD_WIDTH) {
       // The string fits within the line. Print with no scrolling
       lcd_put_u8str(status_message);
-      for (; slen < LCD_WIDTH; ++slen) lcd_put_wchar(' ');
+      while (slen < LCD_WIDTH) { lcd_put_wchar(' '); ++slen; }
     }
     else {
       // String is longer than the available space
 
       // Get a pointer to the next valid UTF8 character
-      const char *stat = status_message + status_scroll_offset;
+      // and the string remaining length
+      uint8_t rlen;
+      const char *stat = status_and_len(rlen);
+      lcd_put_u8str_max(stat, LCD_PIXEL_WIDTH);
 
-      // Get the string remaining length
-      const uint8_t rlen = utf8_strlen(stat);
-
-      if (rlen >= LCD_WIDTH) {
-        // The remaining string fills the screen - Print it
-        lcd_put_u8str_max(stat, LCD_PIXEL_WIDTH);
-      }
-      else {
-        // The remaining string does not completely fill the screen
-        lcd_put_u8str_max(stat, LCD_PIXEL_WIDTH);         // The string leaves space
-        uint8_t chars = LCD_WIDTH - rlen;                 // Amount of space left in characters
-
-        lcd_put_wchar('.');                               // Always at 1+ spaces left, draw a dot
-        if (--chars) {                                    // Draw a second dot if there's space
+      // If the remaining string doesn't completely fill the screen
+      if (rlen < LCD_WIDTH) {
+        lcd_put_wchar('.');                     // Always at 1+ spaces left, draw a dot
+        uint8_t chars = LCD_WIDTH - rlen;       // Amount of space left in characters
+        if (--chars) {                          // Draw a second dot if there's space
           lcd_put_wchar('.');
-          if (--chars) {
-            // Print a second copy of the message
+          if (--chars) {                        // Print a second copy of the message
             lcd_put_u8str_max(status_message, LCD_PIXEL_WIDTH - (rlen + 2) * (MENU_FONT_WIDTH));
             lcd_put_wchar(' ');
           }
@@ -644,15 +637,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
       if (last_blink != blink) {
         last_blink = blink;
-
-        // Adjust by complete UTF8 characters
-        if (status_scroll_offset < slen) {
-          status_scroll_offset++;
-          while (!START_OF_UTF8_CHAR(status_message[status_scroll_offset]))
-            status_scroll_offset++;
-        }
-        else
-          status_scroll_offset = 0;
+        advance_status_scroll();
       }
     }
 

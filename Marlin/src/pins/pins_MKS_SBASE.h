@@ -245,7 +245,7 @@
   #define LCD_SDSS         P0_28   // EXP2.4
   #define LCD_PINS_ENABLE  P0_18   // EXP1.3
   #define LCD_PINS_D4      P0_15   // EXP1.5
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
     #define DOGLCD_SCK     SCK_PIN
     #define DOGLCD_MOSI    MOSI_PIN
   #endif

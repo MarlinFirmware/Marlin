@@ -190,7 +190,7 @@ void plan_arc(
     #endif
     raw[E_AXIS] += extruder_per_segment;
 
-    clamp_to_software_endstops(raw);
+    apply_motion_limits(raw);
 
     #if HAS_LEVELING && !PLANNER_LEVELING
       planner.apply_leveling(raw);

@@ -131,7 +131,7 @@
 // Mixing stepper, Switching stepper, or regular stepper
 #define E_NEEDED(N) (ENABLED(MIXING_EXTRUDER) && MIXING_STEPPERS > N) \
                  || (ENABLED(SWITCHING_EXTRUDER) && E_STEPPERS > N) \
-                 || (DISABLED(SWITCHING_EXTRUDER) && DISABLED(MIXING_EXTRUDER) && EXTRUDERS > N)
+                 || (DISABLED(SWITCHING_EXTRUDER, MIXING_EXTRUDER) && EXTRUDERS > N)
 
 #define _E0_CS
 #define _E0_MS1
@@ -367,7 +367,7 @@
 // Chip Select and Digital Micro-stepping
 //
 
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)
+#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
   #if PIN_EXISTS(X2_CS)
     #define _X2_CS X2_CS_PIN,
   #else

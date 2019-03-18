@@ -739,7 +739,7 @@ class Temperature {
       #endif
     #endif
 
-    #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
       static void set_heating_message(const uint8_t e);
     #endif
 
@@ -778,9 +778,9 @@ class Temperature {
 
     static void updateTemperaturesFromRawValues();
 
-    #define HAS_MAX6675 (ENABLED(HEATER_0_USES_MAX6675) || ENABLED(HEATER_1_USES_MAX6675))
+    #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
     #if HAS_MAX6675
-      #if ENABLED(HEATER_0_USES_MAX6675) && ENABLED(HEATER_1_USES_MAX6675)
+      #if BOTH(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
         #define COUNT_6675 2
       #else
         #define COUNT_6675 1

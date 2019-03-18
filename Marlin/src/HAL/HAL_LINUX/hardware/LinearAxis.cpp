@@ -58,7 +58,7 @@ void LinearAxis::interrupt(GpioEvent ev) {
       position += -1 + 2 * Gpio::pin_map[dir_pin].value;
       Gpio::pin_map[min_pin].value = (position < min_position);
       //Gpio::pin_map[max_pin].value = (position > max_position);
-      //if(position < min_position) printf("axis(%d) endstop : pos: %d, mm: %f, min: %d\n", step_pin, position, position / 80.0, Gpio::pin_map[min_pin].value);
+      //if (position < min_position) printf("axis(%d) endstop : pos: %d, mm: %f, min: %d\n", step_pin, position, position / 80.0, Gpio::pin_map[min_pin].value);
     }
   }
 }

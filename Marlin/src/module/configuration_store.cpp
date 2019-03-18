@@ -56,7 +56,7 @@
 #include "../gcode/gcode.h"
 #include "../Marlin.h"
 
-#if ENABLED(EEPROM_SETTINGS) || ENABLED(SD_FIRMWARE_UPDATE)
+#if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
   #include "../HAL/shared/persistent_store_api.h"
 #endif
 
@@ -194,7 +194,7 @@ typedef struct SettingsDataStruct {
           delta_segments_per_second,                    // M665 S
           delta_calibration_radius,                     // M665 B
           delta_tower_angle_trim[ABC];                  // M665 XYZ
-  #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+  #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
     float x2_endstop_adj,                               // M666 X
           y2_endstop_adj,                               // M666 Y
           z2_endstop_adj,                               // M666 Z (S2)
@@ -340,7 +340,7 @@ void MarlinSettings::postprocess() {
     fwretract.refresh_autoretract();
   #endif
 
-  #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+  #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
     planner.recalculate_max_e_jerk();
   #endif
 
@@ -379,27 +379,8 @@ void MarlinSettings::postprocess() {
 
 #endif // SD_FIRMWARE_UPDATE
 
-#if ENABLED(EEPROM_CHITCHAT)
-  #define CHITCHAT_ECHO(V)              SERIAL_ECHO(V)
-  #define CHITCHAT_ECHOLNPGM(STR)       SERIAL_ECHOLNPGM(STR)
-  #define CHITCHAT_ECHOPAIR(...)        SERIAL_ECHOPAIR(__VA_ARGS__)
-  #define CHITCHAT_ECHOLNPAIR(...)      SERIAL_ECHOLNPAIR(__VA_ARGS__)
-  #define CHITCHAT_ECHO_START()         SERIAL_ECHO_START()
-  #define CHITCHAT_ERROR_START()        SERIAL_ERROR_START()
-  #define CHITCHAT_ERROR_MSG(STR)       SERIAL_ERROR_MSG(STR)
-  #define CHITCHAT_ECHOPGM(STR)         SERIAL_ECHOPGM(STR)
-  #define CHITCHAT_EOL()                SERIAL_EOL()
-#else
-  #define CHITCHAT_ECHO(V)              NOOP
-  #define CHITCHAT_ECHOLNPGM(STR)       NOOP
-  #define CHITCHAT_ECHOPAIR(...)        NOOP
-  #define CHITCHAT_ECHOLNPAIR(...)      NOOP
-  #define CHITCHAT_ECHO_START()         NOOP
-  #define CHITCHAT_ERROR_START()        NOOP
-  #define CHITCHAT_ERROR_MSG(STR)       NOOP
-  #define CHITCHAT_ECHOPGM(STR)         NOOP
-  #define CHITCHAT_EOL()                NOOP
-#endif
+#define DEBUG_OUT ENABLED(EEPROM_CHITCHAT)
+#include "../core/debug_out.h"
 
 #if ENABLED(EEPROM_SETTINGS)
 
@@ -427,7 +408,7 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {
-      CHITCHAT_ERROR_MSG("EEPROM datasize error.");
+      DEBUG_ERROR_MSG("EEPROM datasize error.");
       return true;
     }
     return false;
@@ -467,7 +448,7 @@ void MarlinSettings::postprocess() {
 
       #if HAS_CLASSIC_JERK
         EEPROM_WRITE(planner.max_jerk);
-        #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+        #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
           dummy = float(DEFAULT_EJERK);
           EEPROM_WRITE(dummy);
         #endif
@@ -643,7 +624,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(delta_calibration_radius);  // 1 float
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
 
-      #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+      #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
 
         _FIELD_TEST(x2_endstop_adj);
 
@@ -776,7 +757,7 @@ void MarlinSettings::postprocess() {
         const fwretract_settings_t autoretract_defaults = { 3, 45, 0, 0, 0, 13, 0, 8 };
         EEPROM_WRITE(autoretract_defaults);
       #endif
-      #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
+      #if BOTH(FWRETRACT, FWRETRACT_AUTORETRACT)
         EEPROM_WRITE(fwretract.autoretract_enabled);
       #else
         const bool autoretract_enabled = false;
@@ -1103,8 +1084,8 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(final_crc);
 
       // Report storage size
-      CHITCHAT_ECHO_START();
-      CHITCHAT_ECHOLNPAIR("Settings Stored (", eeprom_size, " bytes; crc ", (uint32_t)final_crc, ")");
+      DEBUG_ECHO_START();
+      DEBUG_ECHOLNPAIR("Settings Stored (", eeprom_size, " bytes; crc ", (uint32_t)final_crc, ")");
 
       eeprom_error |= size_error(eeprom_size);
     }
@@ -1141,8 +1122,8 @@ void MarlinSettings::postprocess() {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
-      CHITCHAT_ECHO_START();
-      CHITCHAT_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
+      DEBUG_ECHO_START();
+      DEBUG_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
       eeprom_error = true;
     }
     else {
@@ -1186,7 +1167,7 @@ void MarlinSettings::postprocess() {
 
         #if HAS_CLASSIC_JERK
           EEPROM_READ(planner.max_jerk);
-          #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+          #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
             EEPROM_READ(dummy);
           #endif
         #else
@@ -1359,7 +1340,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_calibration_radius);  // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
 
-        #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+        #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
 
           _FIELD_TEST(x2_endstop_adj);
 
@@ -1491,7 +1472,7 @@ void MarlinSettings::postprocess() {
           fwretract_settings_t fwretract_settings;
           EEPROM_READ(fwretract_settings);
         #endif
-        #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
+        #if BOTH(FWRETRACT, FWRETRACT_AUTORETRACT)
           EEPROM_READ(fwretract.autoretract_enabled);
         #else
           bool autoretract_enabled;
@@ -1807,18 +1788,18 @@ void MarlinSettings::postprocess() {
 
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
-        CHITCHAT_ECHO_START();
-        CHITCHAT_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
+        DEBUG_ECHO_START();
+        DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
       }
       else if (working_crc != stored_crc) {
         eeprom_error = true;
-        CHITCHAT_ERROR_START();
-        CHITCHAT_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
+        DEBUG_ERROR_START();
+        DEBUG_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
       }
       else if (!validating) {
-        CHITCHAT_ECHO_START();
-        CHITCHAT_ECHO(version);
-        CHITCHAT_ECHOLNPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
+        DEBUG_ECHO_START();
+        DEBUG_ECHO(version);
+        DEBUG_ECHOLNPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
       }
 
       if (!validating && !eeprom_error) postprocess();
@@ -1831,26 +1812,26 @@ void MarlinSettings::postprocess() {
             SERIAL_EOL();
             #if ENABLED(EEPROM_CHITCHAT)
               ubl.echo_name();
-              CHITCHAT_ECHOLNPGM(" initialized.\n");
+              DEBUG_ECHOLNPGM(" initialized.\n");
             #endif
           }
           else {
             eeprom_error = true;
             #if ENABLED(EEPROM_CHITCHAT)
-              CHITCHAT_ECHOPGM("?Can't enable ");
+              DEBUG_ECHOPGM("?Can't enable ");
               ubl.echo_name();
-              CHITCHAT_ECHOLNPGM(".");
+              DEBUG_ECHOLNPGM(".");
             #endif
             ubl.reset();
           }
 
           if (ubl.storage_slot >= 0) {
             load_mesh(ubl.storage_slot);
-            CHITCHAT_ECHOLNPAIR("Mesh ", ubl.storage_slot, " loaded from storage.");
+            DEBUG_ECHOLNPAIR("Mesh ", ubl.storage_slot, " loaded from storage.");
           }
           else {
             ubl.reset();
-            CHITCHAT_ECHOLNPGM("UBL System reset()");
+            DEBUG_ECHOLNPGM("UBL System reset()");
           }
         }
       #endif
@@ -1881,9 +1862,9 @@ void MarlinSettings::postprocess() {
 
     inline void ubl_invalid_slot(const int s) {
       #if ENABLED(EEPROM_CHITCHAT)
-        CHITCHAT_ECHOLNPGM("?Invalid slot.");
-        CHITCHAT_ECHO(s);
-        CHITCHAT_ECHOLNPGM(" mesh slots available.");
+        DEBUG_ECHOLNPGM("?Invalid slot.");
+        DEBUG_ECHO(s);
+        DEBUG_ECHOLNPGM(" mesh slots available.");
       #else
         UNUSED(s);
       #endif
@@ -1912,8 +1893,8 @@ void MarlinSettings::postprocess() {
         const int16_t a = calc_num_meshes();
         if (!WITHIN(slot, 0, a - 1)) {
           ubl_invalid_slot(a);
-          CHITCHAT_ECHOLNPAIR("E2END=", persistentStore.capacity() - 1, " meshes_end=", meshes_end, " slot=", slot);
-          CHITCHAT_EOL();
+          DEBUG_ECHOLNPAIR("E2END=", persistentStore.capacity() - 1, " meshes_end=", meshes_end, " slot=", slot);
+          DEBUG_EOL();
           return;
         }
 
@@ -1926,7 +1907,7 @@ void MarlinSettings::postprocess() {
         persistentStore.access_finish();
 
         if (status) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
-        else        CHITCHAT_ECHOLNPAIR("Mesh saved in slot ", slot);
+        else        DEBUG_ECHOLNPAIR("Mesh saved in slot ", slot);
 
       #else
 
@@ -1955,7 +1936,7 @@ void MarlinSettings::postprocess() {
         persistentStore.access_finish();
 
         if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
-        else        CHITCHAT_ECHOLNPAIR("Mesh loaded from slot ", slot);
+        else        DEBUG_ECHOLNPAIR("Mesh loaded from slot ", slot);
 
         EEPROM_FINISH();
 
@@ -1974,7 +1955,7 @@ void MarlinSettings::postprocess() {
 #else // !EEPROM_SETTINGS
 
   bool MarlinSettings::save() {
-    CHITCHAT_ERROR_MSG("EEPROM disabled");
+    DEBUG_ERROR_MSG("EEPROM disabled");
     return false;
   }
 
@@ -2085,7 +2066,7 @@ void MarlinSettings::reset() {
     delta_calibration_radius = DELTA_CALIBRATION_RADIUS;
     COPY(delta_tower_angle_trim, dta);
 
-  #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+  #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       endstops.x2_endstop_adj = (
@@ -2281,8 +2262,8 @@ void MarlinSettings::reset() {
 
   postprocess();
 
-  CHITCHAT_ECHO_START();
-  CHITCHAT_ECHOLNPGM("Hardcoded Default Settings Loaded");
+  DEBUG_ECHO_START();
+  DEBUG_ECHOLNPGM("Hardcoded Default Settings Loaded");
 }
 
 #if DISABLED(DISABLE_M503)
@@ -2493,10 +2474,12 @@ void MarlinSettings::reset() {
     #if HAS_M206_COMMAND
       CONFIG_ECHO_HEADING("Home offset:");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-          "  M206 X", LINEAR_UNIT(home_offset[X_AXIS])
-        , " Y", LINEAR_UNIT(home_offset[Y_AXIS])
-        , " Z", LINEAR_UNIT(home_offset[Z_AXIS])
+      SERIAL_ECHOLNPAIR("  M206"
+        #if IS_CARTESIAN
+          " X", LINEAR_UNIT(home_offset[X_AXIS]),
+          " Y", LINEAR_UNIT(home_offset[Y_AXIS]),
+        #endif
+        " Z", LINEAR_UNIT(home_offset[Z_AXIS])
       );
     #endif
 
@@ -2595,7 +2578,7 @@ void MarlinSettings::reset() {
             #endif
           #elif ENABLED(SWITCHING_NOZZLE)
             case SWITCHING_NOZZLE_SERVO_NR:
-          #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
+          #elif (ENABLED(BLTOUCH) && defined(BLTOUCH_ANGLES)) || (defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR))
             case Z_PROBE_SERVO_NR:
           #endif
             CONFIG_ECHO_START();
@@ -2640,7 +2623,7 @@ void MarlinSettings::reset() {
         , " Z", LINEAR_UNIT(delta_tower_angle_trim[C_AXIS])
       );
 
-    #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+    #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
 
       CONFIG_ECHO_HEADING("Endstop adjustment:");
       CONFIG_ECHO_START();
@@ -2752,8 +2735,8 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("Recover: S<length> F<units/m>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
-          "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_length)
-        , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_length)
+          "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
+        , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
         , " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.settings.retract_recover_feedrate_mm_s))
       );
 

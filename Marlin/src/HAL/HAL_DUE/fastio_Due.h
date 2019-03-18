@@ -45,7 +45,8 @@
 
 // Due has 12 PWMs assigned to logical pins 2-13.
 // 6, 7, 8 & 9 come from the PWM controller. The others come from the timers.
-#define USEABLE_HARDWARE_PWM(p) WITHIN(p, 2, 13)
+#define PWM_PIN(P)              WITHIN(P, 2, 13)
+#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
 
 #ifndef MASK
   #define MASK(PIN) (1 << PIN)
@@ -154,34 +155,36 @@
 #endif
 
 // Set pin as input with pullup mode
-#define _PULLUP(IO,V) pinMode(IO, (V) ? INPUT_PULLUP : INPUT)
+#define _PULLUP(IO,V)        pinMode(IO, (V) ? INPUT_PULLUP : INPUT)
 
 // Read a pin (wrapper)
-#define READ(IO) _READ(IO)
+#define READ(IO)             _READ(IO)
 
 // Write to a pin (wrapper)
-#define WRITE_VAR(IO,V) _WRITE_VAR(IO,V)
-#define WRITE(IO,V) _WRITE(IO,V)
+#define WRITE_VAR(IO,V)      _WRITE_VAR(IO,V)
+#define WRITE(IO,V)          _WRITE(IO,V)
 
 // Toggle a pin (wrapper)
-#define TOGGLE(IO) _TOGGLE(IO)
+#define TOGGLE(IO)           _TOGGLE(IO)
 
 // Set pin as input (wrapper)
-#define SET_INPUT(IO) _SET_INPUT(IO)
+#define SET_INPUT(IO)        _SET_INPUT(IO)
 // Set pin as input with pullup (wrapper)
 #define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
 // Set pin as output (wrapper) -  reads the pin and sets the output to that value
-#define SET_OUTPUT(IO) _SET_OUTPUT(IO)
+#define SET_OUTPUT(IO)       _SET_OUTPUT(IO)
+// Set pin as PWM
+#define SET_PWM(IO)           SET_OUTPUT(IO)
 
 // Check if pin is an input
-#define GET_INPUT(IO) !(digitalPinToPort(IO)->PIO_OSR & digitalPinToBitMask(IO))
+#define GET_INPUT(IO)        ((digitalPinToPort(IO)->PIO_OSR & digitalPinToBitMask(IO)) == 0)
 // Check if pin is an output
-#define GET_OUTPUT(IO) !!(digitalPinToPort(IO)->PIO_OSR & digitalPinToBitMask(IO))
+#define GET_OUTPUT(IO)       ((digitalPinToPort(IO)->PIO_OSR & digitalPinToBitMask(IO)) != 0)
 // Check if pin is a timer - Must be a constexpr
-#define GET_TIMER(IO) ((IO) >= 2 && (IO) <= 13)
+#define GET_TIMER(IO)         ((IO) >= 2 && (IO) <= 13)
 
 // Shorthand
-#define OUT_WRITE(IO,V) { SET_OUTPUT(IO); WRITE(IO,V); }
+#define OUT_WRITE(IO,V)       { SET_OUTPUT(IO); WRITE(IO,V); }
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)

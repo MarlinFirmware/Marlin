@@ -139,7 +139,7 @@
 #undef BEEPER_PIN
 #define BEEPER_PIN         33
 
-#if ENABLED(VIKI2) || ENABLED(miniVIKI)
+#if ANY(VIKI2, miniVIKI)
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN    49   // For easy adapter board
   #undef BEEPER_PIN
@@ -152,7 +152,7 @@
 //
 // Misc. Functions
 //
-#if ENABLED(CASE_LIGHT_ENABLE)  && PIN_EXISTS(CASE_LIGHT) && defined(DOGLCD_A0) && DOGLCD_A0 == CASE_LIGHT_PIN
+#if ENABLED(CASE_LIGHT_ENABLE) && PIN_EXISTS(CASE_LIGHT) && defined(DOGLCD_A0) && DOGLCD_A0 == CASE_LIGHT_PIN
   #undef DOGLCD_A0              // Steal pin 44 for the case light; if you have a Viki2 and have connected it
   #define DOGLCD_A0        57   // following the Panucatt wiring diagram, you may need to tweak these pin assignments
                                 // as the wiring diagram uses pin 44 for DOGLCD_A0
@@ -166,7 +166,7 @@
 #undef SPINDLE_DIR_PIN
 
 #if ENABLED(SPINDLE_LASER_ENABLE)   // EXP2 header
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
     #undef BTN_EN2
     #define BTN_EN2             31   // need 7 for the spindle speed PWM
   #endif
