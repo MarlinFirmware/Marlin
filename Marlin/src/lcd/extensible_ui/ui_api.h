@@ -95,7 +95,6 @@ namespace ExtUI {
     bool getLevelingActive();
     void setLevelingActive(const bool);
     #if HAS_MESH
-      typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
       bool getMeshValid();
       bed_mesh_t getMeshArray();
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);

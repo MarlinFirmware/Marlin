@@ -335,7 +335,9 @@ class unified_bed_leveling {
 
 extern unified_bed_leveling ubl;
 
-#define Z_VALUES(X,Y) ubl.z_values[X][Y]
+#define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
+#define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)
+#define Z_VALUES_ARR ubl.z_values
 
 // Prevent debugging propagating to other files
 #include "../../../core/debug_out.h"
