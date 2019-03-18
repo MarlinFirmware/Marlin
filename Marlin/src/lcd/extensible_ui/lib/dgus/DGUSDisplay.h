@@ -56,12 +56,12 @@ public:
     WriteVariable(adr, static_cast<const void*>(&value), sizeof(T));
   }
 
-  // Until now I did not have the need to actively read from the display. That's why there is no ReadVariable
+  // Until now I did not need to actively read from the display. That's why there is no ReadVariable
   // (I extensively use the auto upload of the display)
 
   // Force display into another screen.
   // (And trigger update of containing VPs)
-  // (to implement an pop up message, which may not be nested)
+  // (to implement a pop up message, which may not be nested)
   static void RequestScreen(DGUSLCD_Screens screen);
 
   // Periodic tasks, eg. Rx-Queue handling.
@@ -122,9 +122,9 @@ public:
   static void HandleManualExtrude(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
 
   #if ENABLED(SDSUPPORT)
-    // Callcack for VP "Display wants to change screen when there is a SD card"
+    // Callback for VP "Display wants to change screen when there is a SD card"
     static void ScreenChangeHookIfSD(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
-    /// Scroll buttons on the filelisting screen.
+    /// Scroll buttons on the file listing screen.
     static void DGUSLCD_SD_ScrollFilelist(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
     /// File touched.
     static void DGUSLCD_SD_FileSelected(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
@@ -138,9 +138,9 @@ public:
     static void DGUSLCD_SD_SendFilename(DGUS_VP_Variable &ref_to_this);
     /// Marlin informed us that a new SD has been inserted.
     static void SDCardInserted();
-    /// Marlin informed us that the SD Card has been removed();
+    /// Marlin informed us that the SD Card has been removed().
     static void SDCardRemoved();
-    /// Marlin informed us about an bad SD Card.
+    /// Marlin informed us about a bad SD Card.
     static void SDCardError();
   #endif
 
@@ -148,14 +148,14 @@ public:
   static void ScreenConfirmedOK(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
 
   // Update data after went to new screen (by display or by GotoScreen)
-  // remember: store the last displayed screen, so that one can get back
-  // to it. (e.g for pop up messages)
+  // remember: store the last-displayed screen, so it can get returned to.
+  // (e.g for pop up messages)
   static void UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup=false);
 
   // Recall the remembered screen.
   static void PopToOldScreen();
 
-  // Make the display display the screen and update all VPs in it.
+  // Make the display show the screen and update all VPs in it.
   static void GotoScreen(DGUSLCD_Screens screen, bool ispopup = false);
 
   static void UpdateScreenVPData();
@@ -221,7 +221,7 @@ private:
 
   #if ENABLED(SDSUPPORT)
     static int16_t top_file;    ///< file on top of file chooser
-    static int16_t file_to_print; ///< touched file to be confimed
+    static int16_t file_to_print; ///< touched file to be confirmed
   #endif
 
   static void (*confirm_action_cb)();
@@ -232,5 +232,5 @@ extern DGUSScreenVariableHandler ScreenHandler;
 /// Find the flash address of a DGUS_VP_Variable for the VP.
 extern const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp);
 
-/// Helper to populae a DGUS_VP_Variable for a given VP. returns false if not found.
+/// Helper to populate a DGUS_VP_Variable for a given VP. Return false if not found.
 extern bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy);
