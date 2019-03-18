@@ -145,9 +145,9 @@ uint16_t swap16(uint16_t value) {
 }
 
 bool populate_VPVar(uint16_t VP, DGUS_VP_Variable *ramcopy) {
-  // DGUS_ECHOPAIR("populate_VPVar ", VP);
+  // DEBUG_ECHOPAIR("populate_VPVar ", VP);
   const DGUS_VP_Variable *pvp = DGUSLCD_FindVPVar(VP);
-  // DGUS_ECHOLNPAIR(" pvp ", (uint16_t )pvp);
+  // DEBUG_ECHOLNPAIR(" pvp ", (uint16_t )pvp);
   if (!pvp) return false;
   memcpy_P(ramcopy, pvp, sizeof(DGUS_VP_Variable));
   return true;
@@ -203,8 +203,8 @@ void DGUSScreenVariableHandler::setstatusmessagePGM(PGM_P const msg) {
 // Send a 8 bit or 16 bit value to the display.
 void DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &ref_to_this) {
   if (ref_to_this.memadr) {
-    //DGUS_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", ref_to_this.VP);
-    //DGUS_ECHOLNPAIR(" data ", *(uint16_t *)ref_to_this.memadr);
+    //DEBUG_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", ref_to_this.VP);
+    //DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)ref_to_this.memadr);
     uint8_t *tmp = (uint8_t *) ref_to_this.memadr;
     uint16_t data_to_send = (tmp[0] << 8);
     if (ref_to_this.size >= 1) data_to_send |= tmp[1];
@@ -215,8 +215,8 @@ void DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable 
 // Send an uint8_t between 0 and 255 to the display, but scale to a percentage (0..100)
 void DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &ref_to_this) {
   if (ref_to_this.memadr) {
-    //DGUS_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", ref_to_this.VP);
-    //DGUS_ECHOLNPAIR(" data ", *(uint16_t *)ref_to_this.memadr);
+    //DEBUG_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", ref_to_this.VP);
+    //DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)ref_to_this.memadr);
     uint16_t tmp = *(uint8_t *) ref_to_this.memadr +1 ; // +1 -> avoid rounding issues for the display.
     tmp = map(tmp, 0, 255, 0, 100);
     uint16_t data_to_send = swap16(tmp);
@@ -312,17 +312,17 @@ void DGUSScreenVariableHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable 
     }
     else {
       top_file += scroll;
-      DGUS_ECHOPAIR("new topfile calculated:", top_file);
+      DEBUG_ECHOPAIR("new topfile calculated:", top_file);
       if (top_file < 0) {
         top_file = 0;
-        DGUS_ECHOLN("Top of filelist reached");
+        DEBUG_ECHOLN("Top of filelist reached");
       }
       else {
         int16_t max_top = filelist.count() -  DGUS_SD_FILESPERSCREEN;
         NOLESS(max_top, 0);
         NOMORE(top_file, max_top);
       }
-      DGUS_ECHOPAIR("new topfile adjusted:", top_file);
+      DEBUG_ECHOPAIR("new topfile adjusted:", top_file);
     }
 
     if (old_top != top_file) ForceCompleteUpdate();
@@ -429,7 +429,7 @@ const DGUS_VP_Variable* DGUSLCD_FindVPVar(uint16_t vp) {
     ++ret;
   } while (1);
 
-  DGUS_ECHOLNPAIR("FindVPVar NOT FOUND ", vp);
+  DEBUG_ECHOLNPAIR("FindVPVar NOT FOUND ", vp);
   return nullptr;
 }
 
@@ -458,7 +458,7 @@ void DGUSScreenVariableHandler::ScreenChangeHook(DGUS_VP_Variable &ref_to_this, 
   UpdateNewScreen(target);
 
   #ifdef DEBUG_DGUSLCD
-    if (!DGUSLCD_FindScreenVPMapList(target)) DGUS_ECHOLNPAIR("WARNING: No screen Mapping found for ", x);
+    if (!DGUSLCD_FindScreenVPMapList(target)) DEBUG_ECHOLNPAIR("WARNING: No screen Mapping found for ", x);
   #endif
 }
 
@@ -521,7 +521,7 @@ void DGUSScreenVariableHandler::HandleFlowRateChanged(DGUS_VP_Variable &ref_to_t
 }
 
 void DGUSScreenVariableHandler::HandleManualExtrude(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value) {
-  DGUS_ECHOLNPGM("HandleManualMove");
+  DEBUG_ECHOLNPGM("HandleManualMove");
 
   int16_t movevalue = swap16(*(uint16_t*) ptr_to_new_value);
   float target = movevalue * 0.01f;
@@ -547,7 +547,7 @@ void DGUSScreenVariableHandler::HandleManualExtrude(DGUS_VP_Variable &ref_to_thi
 }
 
 void DGUSScreenVariableHandler::HandleManualMove(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value) {
-  DGUS_ECHOLNPGM("HandleManualMove");
+  DEBUG_ECHOLNPGM("HandleManualMove");
 
   int16_t movevalue = swap16(*(uint16_t*) ptr_to_new_value);
   char axiscode;
@@ -580,23 +580,23 @@ void DGUSScreenVariableHandler::HandleManualMove(DGUS_VP_Variable &ref_to_this, 
 
   if (!movevalue) {
     // homing
-    DGUS_ECHOPAIR(" homing ", axiscode);
+    DEBUG_ECHOPAIR(" homing ", axiscode);
     char buf[6] = "G28 X";
     buf[4] = axiscode;
-    //DGUS_ECHOPAIR(" ", buf);
+    //DEBUG_ECHOPAIR(" ", buf);
     while (!enqueue_and_echo_command(buf)) idle();
-    //DGUS_ECHOLN(" ✓");
+    //DEBUG_ECHOLN(" ✓");
     ScreenHandler.ForceCompleteUpdate();
     return;
   }
   else {
     //movement
-    DGUS_ECHOPAIR(" move ", axiscode);
+    DEBUG_ECHOPAIR(" move ", axiscode);
     bool old_relative_mode = relative_mode;
     if (!relative_mode) {
-      //DGUS_ECHO(" G91");
+      //DEBUG_ECHO(" G91");
       while (!enqueue_and_echo_command("G91")) idle();
-      //DGUS_ECHOPGM(" ✓ ");
+      //DEBUG_ECHOPGM(" ✓ ");
     }
     char buf[32];  // G1 X9999.99 F12345
     unsigned int backup_speed = MMS_TO_MMM(feedrate_mm_s);
@@ -605,34 +605,34 @@ void DGUSScreenVariableHandler::HandleManualMove(DGUS_VP_Variable &ref_to_this, 
     if (movevalue < 0) { value = -value; sign[0] = '-'; }
     int16_t fraction = ABS(movevalue) % 100;
     snprintf_P(buf, 32, PSTR("G0 %c%s%d.%02d F%d"), axiscode, sign, value, fraction, speed);
-    //DGUS_ECHOPAIR(" ", buf);
+    //DEBUG_ECHOPAIR(" ", buf);
     while (!enqueue_and_echo_command(buf)) idle();
-    //DGUS_ECHOLN(" ✓ ");
+    //DEBUG_ECHOLN(" ✓ ");
     if (backup_speed != speed) {
       snprintf_P(buf, 32, PSTR("G0 F%d"), backup_speed);
       while (!enqueue_and_echo_command(buf)) idle();
-      //DGUS_ECHOPAIR(" ", buf);
+      //DEBUG_ECHOPAIR(" ", buf);
     }
     //while (!enqueue_and_echo_command(buf)) idle();
-    //DGUS_ECHOLN(" ✓ ");
+    //DEBUG_ECHOLN(" ✓ ");
     if (!old_relative_mode) {
-      //DGUS_ECHO("G90");
+      //DEBUG_ECHO("G90");
       while (!enqueue_and_echo_command("G90")) idle();
-      //DGUS_ECHO(" ✓ ");
+      //DEBUG_ECHO(" ✓ ");
     }
   }
 
   ScreenHandler.ForceCompleteUpdate();
-  DGUS_ECHOLNPGM("manmv done.");
+  DEBUG_ECHOLNPGM("manmv done.");
   return;
 
   cannotmove:
-  DGUS_ECHOLNPAIR(" cannot move ", axiscode);
+  DEBUG_ECHOLNPAIR(" cannot move ", axiscode);
   return;
 }
 
 void DGUSScreenVariableHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup) {
-  DGUS_ECHOLNPAIR("SetNewScreen: ", newscreen);
+  DEBUG_ECHOLNPAIR("SetNewScreen: ", newscreen);
 
   if (!popup) {
     memmove(&past_screens[1], &past_screens[0], sizeof(past_screens) - 1);
@@ -645,18 +645,18 @@ void DGUSScreenVariableHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool 
 }
 
 void DGUSScreenVariableHandler::PopToOldScreen() {
-  DGUS_ECHOLNPAIR("PopToOldScreen s=", past_screens[0]);
+  DEBUG_ECHOLNPAIR("PopToOldScreen s=", past_screens[0]);
   GotoScreen(past_screens[0], true);
   memmove(&past_screens[0], &past_screens[1], sizeof(past_screens) - 1);
   past_screens[sizeof(past_screens) - 1] = DGUSLCD_SCREEN_MAIN;
 }
 
 void DGUSScreenVariableHandler::UpdateScreenVPData() {
-  DGUS_ECHOPAIR(" UpdateScreenVPData Screen: ", current_screen);
+  DEBUG_ECHOPAIR(" UpdateScreenVPData Screen: ", current_screen);
 
   const uint16_t *VPList = DGUSLCD_FindScreenVPMapList(current_screen);
   if (!VPList) {
-    DGUS_ECHOLNPAIR(" NO SCREEN FOR: ", current_screen);
+    DEBUG_ECHOLNPAIR(" NO SCREEN FOR: ", current_screen);
     ScreenComplete = true;
     return;  // nothing to do, likely a bug or boring screen.
   }
@@ -667,10 +667,10 @@ void DGUSScreenVariableHandler::UpdateScreenVPData() {
   bool sent_one = false;
   do {
     uint16_t VP = pgm_read_word(VPList);
-    DGUS_ECHOPAIR(" VP: ", VP);
+    DEBUG_ECHOPAIR(" VP: ", VP);
     if (!VP) {
       update_ptr = 0;
-      DGUS_ECHOLNPGM(" UpdateScreenVPData done");
+      DEBUG_ECHOLNPGM(" UpdateScreenVPData done");
       ScreenComplete = true;
       return;  // Screen completed.
     }
@@ -686,14 +686,14 @@ void DGUSScreenVariableHandler::UpdateScreenVPData() {
       // Send the VP to the display, but try to avoid overruning the Tx Buffer.
       // But send at least one VP, to avoid getting stalled.
       if (rcpy.send_to_display_handler && (!sent_one || expected_tx <= dgusdisplay.GetFreeTxBuffer())) {
-        //DGUS_ECHOPAIR(" calling handler for ", rcpy.VP);
+        //DEBUG_ECHOPAIR(" calling handler for ", rcpy.VP);
         sent_one = true;
         rcpy.send_to_display_handler(rcpy);
       }
       else {
         //auto x=dgusdisplay.GetFreeTxBuffer();
-        //DGUS_ECHOLNPAIR(" tx almost full: ", x);
-        //DGUS_ECHOPAIR(" update_ptr ", update_ptr);
+        //DEBUG_ECHOLNPAIR(" tx almost full: ", x);
+        //DEBUG_ECHOPAIR(" update_ptr ", update_ptr);
         ScreenComplete = false;
         return;  // please call again!
       }
@@ -778,7 +778,7 @@ bool DGUSScreenVariableHandler::loop() {
 }
 
 void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
-  DGUS_ECHOLNPAIR("GotoScreen ", screen);
+  DEBUG_ECHOLNPAIR("GotoScreen ", screen);
   const unsigned char gotoscreen[] = { 0x5A, 0x01, (unsigned char) (screen >> 8U), (unsigned char) (screen & 0xFFU) };
   WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
 }
@@ -788,7 +788,7 @@ void DGUSDisplay::ProcessRx() {
   if (!dgusserial.available() && dgusserial.is_rx_overrun()) {
     // if we've got an overrun, but reset the flag only when we've emptied the buffer
     // We want to extract as many as valid datagrams possible...
-    DGUS_ECHOPGM("OVFL");
+    DEBUG_ECHOPGM("OVFL");
     rx_datagram_state = DGUS_IDLE;
     dgusserial.reset_rx_overun();
   }
@@ -799,20 +799,20 @@ void DGUSDisplay::ProcessRx() {
 
       case DGUS_IDLE:	// Waiting for the first header byte
         receivedbyte = dgusserial.read();
-        //DGUS_ECHOPAIR("< ",x);
+        //DEBUG_ECHOPAIR("< ",x);
         if (DGUS_HEADER1 == receivedbyte) rx_datagram_state = DGUS_HEADER1_SEEN;
         break;
 
       case DGUS_HEADER1_SEEN: // Waiting for the second header byte
         receivedbyte = dgusserial.read();
-        //DGUS_ECHOPAIR(" ",x);
+        //DEBUG_ECHOPAIR(" ",x);
         rx_datagram_state = (DGUS_HEADER2 == receivedbyte) ? DGUS_HEADER2_SEEN : DGUS_IDLE;
         break;
 
       case DGUS_HEADER2_SEEN: // Waiting for the length byte
         rx_datagram_len = dgusserial.read();
-        DGUS_ECHOPAIR(" (", rx_datagram_len);
-        DGUS_ECHOPGM(") ");
+        DEBUG_ECHOPAIR(" (", rx_datagram_len);
+        DEBUG_ECHOPGM(") ");
 
         // Telegram min len is 3 (command and one word of payload)
         rx_datagram_state = WITHIN(rx_datagram_len, 3, DGUS_RX_BUFFER_SIZE) ? DGUS_WAIT_TELEGRAM : DGUS_IDLE;
@@ -824,20 +824,20 @@ void DGUSDisplay::ProcessRx() {
         Initialized = true; // We've talked to it, so we defined it as initialized.
         uint8_t command = dgusserial.read();
 
-        DGUS_ECHOPAIR("# ", command);
+        DEBUG_ECHOPAIR("# ", command);
 
         uint8_t readlen = rx_datagram_len - 1;  // command is part of len.
         unsigned char tmp[rx_datagram_len - 1];
         unsigned char *ptmp = tmp;
         while (readlen--) {
           receivedbyte = dgusserial.read();
-          DGUS_ECHOPAIR(" ", receivedbyte);
+          DEBUG_ECHOPAIR(" ", receivedbyte);
           *ptmp++ = receivedbyte;
         }
-        DGUS_ECHOPGM(" # ");
+        DEBUG_ECHOPGM(" # ");
         // mostly we'll get this: 5A A5 03 82 4F 4B -- ACK on 0x82, so discard it.
         if (command == DGUS_CMD_WRITEVAR && 'O' == tmp[0] && 'K' == tmp[1]) {
-          DGUS_ECHOLNPGM(">");
+          DEBUG_ECHOLNPGM(">");
           rx_datagram_state = DGUS_IDLE;
           break;
         }
@@ -852,19 +852,19 @@ void DGUSDisplay::ProcessRx() {
         if (command == DGUS_CMD_READVAR) {
           const uint16_t vp = tmp[0] << 8 | tmp[1];
           const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
-          //DGUS_ECHOPAIR(" vp=", vp);	DGUS_ECHOPAIR(" dlen=", dlen);
+          //DEBUG_ECHOPAIR(" vp=", vp);	DEBUG_ECHOPAIR(" dlen=", dlen);
           DGUS_VP_Variable ramcopy;
           if (populate_VPVar(vp, &ramcopy)) {
             if (!(dlen == ramcopy.size || (dlen == 2 && ramcopy.size == 1)))
-              DGUS_ECHOLNPGM("SIZE MISMATCH");
+              DEBUG_ECHOLNPGM("SIZE MISMATCH");
             else if (ramcopy.set_by_display_handler) {
               ramcopy.set_by_display_handler(ramcopy, &tmp[3]);
             }
             else
-              DGUS_ECHOLNPGM(" VPVar found, no handler.");
+              DEBUG_ECHOLNPGM(" VPVar found, no handler.");
           }
           else
-            DGUS_ECHOLNPAIR(" VPVar not found:", vp);
+            DEBUG_ECHOLNPAIR(" VPVar not found:", vp);
 
           rx_datagram_state = DGUS_IDLE;
           break;

@@ -30,22 +30,8 @@
 
 enum DGUSLCD_Screens : uint8_t;
 
-#if ENABLED(DEBUG_DGUSLCD)
-  extern bool dguslcd_local_debug;
-  #define DGUS_DEBUG(V) REMEMBER(dgus,dguslcd_local_debug,V)
-#else
-  constexpr bool dguslcd_local_debug = false;
-  #define DGUS_DEBUG(V)
-#endif
-
-#define DGUS_CHAR(x)                 do{if (dguslcd_local_debug) SERIAL_CHAR(x);}while(0)
-#define DGUS_ECHO(x)                 do{if (dguslcd_local_debug) SERIAL_ECHO(x);}while(0)
-#define DGUS_ECHOPGM(x)              do{if (dguslcd_local_debug) SERIAL_ECHOPGM(x);}while(0)
-#define DGUS_ECHOLN(x)               do{if (dguslcd_local_debug) SERIAL_ECHOLN(x);}while(0)
-#define DGUS_ECHOLNPGM(x)            do{if (dguslcd_local_debug) SERIAL_ECHOLNPGM(x);}while(0)
-#define DGUS_ECHOPAIR(pre,value)     do{if (dguslcd_local_debug) SERIAL_ECHOPAIR(pre, value);}while(0)
-#define DGUS_ECHOLNPAIR(pre,value)   do{if (dguslcd_local_debug) SERIAL_ECHOLNPAIR(pre, value);}while(0)
-#define DGUS_ECHO_F(x,y)             do{if (dguslcd_local_debug) SERIAL_ECHO_F(x,y);}while(0)
+#define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
+#include "../../../../core/debug_out.h"
 
 typedef enum : uint8_t {
   DGUS_IDLE,           //< waiting for DGUS_HEADER1.
