@@ -139,12 +139,10 @@ private:
 
 static DGUSSerial dgusserial;
 
-// endianess swap
-uint16_t swap16(uint16_t value) {
-  return (value & 0xffU) << 8U | (value >> 8U);
-}
+// endianness swap
+uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }
 
-bool populate_VPVar(uint16_t VP, DGUS_VP_Variable *ramcopy) {
+bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy) {
   // DEBUG_ECHOPAIR("populate_VPVar ", VP);
   const DGUS_VP_Variable *pvp = DGUSLCD_FindVPVar(VP);
   // DEBUG_ECHOLNPAIR(" pvp ", (uint16_t )pvp);
@@ -420,7 +418,7 @@ const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
   return nullptr;
 }
 
-const DGUS_VP_Variable* DGUSLCD_FindVPVar(uint16_t vp) {
+const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp) {
   const DGUS_VP_Variable *ret = ListOfVP;
   do {
     const uint16_t vpcheck = pgm_read_word(&(ret->VP));
@@ -501,17 +499,13 @@ void DGUSScreenVariableHandler::HandleTemperatureChanged(DGUS_VP_Variable &ref_t
 void DGUSScreenVariableHandler::HandleFlowRateChanged(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value) {
   uint16_t newvalue = swap16(*(uint16_t*) ptr_to_new_value);
   uint8_t target_extruder;
-  switch(ref_to_this.VP) {
+  switch (ref_to_this.VP) {
     default: return;
     #if (HOTENDS >= 1)
-      case VP_Flowrate_E1:
-        target_extruder = 0;
-        break;
+      case VP_Flowrate_E1: target_extruder = 0; break;
     #endif
     #if (HOTENDS >= 2)
-      case VP_Flowrate_E2:
-        target_extruder = 1;
-        break;
+      case VP_Flowrate_E2: target_extruder = 1; break;
     #endif
   }
 
@@ -528,16 +522,12 @@ void DGUSScreenVariableHandler::HandleManualExtrude(DGUS_VP_Variable &ref_to_thi
   ExtUI::extruder_t target_extruder;
 
   switch (ref_to_this.VP) {
-#if HOTENDS >=1
-    case VP_MOVE_E1:
-      target_extruder = ExtUI::extruder_t::E0;
-      break;
-#endif
-#if HOTENDS >=2
-    case VP_MOVE_E2:
-      target_extruder = ExtUI::extruder_t::E1;
-      break
-#endif
+    #if HOTENDS >=1
+      case VP_MOVE_E1: target_extruder = ExtUI::extruder_t::E0; break;
+    #endif
+    #if HOTENDS >=2
+      case VP_MOVE_E2: target_extruder = ExtUI::extruder_t::E1; break
+    #endif
     default: return;
   }
 

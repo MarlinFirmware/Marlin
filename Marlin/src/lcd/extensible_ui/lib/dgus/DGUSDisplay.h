@@ -88,7 +88,7 @@ private:
 extern DGUSDisplay dgusdisplay;
 
 // compile-time x^y
-constexpr float cpow(const float x, const int y) { return y == 0 ? 1.0 : x * cpow(x, y-1); }
+constexpr float cpow(const float x, const int y) { return y == 0 ? 1.0 : x * cpow(x, y - 1); }
 
 class DGUSScreenVariableHandler {
 public:
@@ -173,15 +173,9 @@ public:
   template<typename T>
   static void DGUSLCD_SetValueDirectly(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value) {
     if (!ref_to_this.memadr) return;
-
-    union {
-      unsigned char tmp[sizeof(T)];
-      T t;
-    } x;
+    union { unsigned char tmp[sizeof(T)]; T t; } x;
     unsigned char *ptr = (unsigned char*)ptr_to_new_value;
-    for(uint8_t i=0; i < sizeof(T); i++) {
-       x.tmp[i] = ptr[sizeof(T) - i - 1 ];
-    }
+    for (uint8_t i = 0; i < sizeof(T); i++) x.tmp[i] = ptr[sizeof(T) - i - 1];
     *(T*)ref_to_this.memadr = x.t;
   }
 
@@ -192,11 +186,8 @@ public:
   static void DGUSLCD_SendFloatAsLongValueToDisplay(DGUS_VP_Variable &ref_to_this) {
     if (ref_to_this.memadr) {
       float f = *(float *)ref_to_this.memadr;
-      f *= cpow(10,decimals);
-      union {
-        long l;
-        char lb[4];
-      } endian;
+      f *= cpow(10, decimals);
+      union { long l; char lb[4]; } endian;
 
       char tmp[4];
       endian.l = f;
@@ -239,7 +230,7 @@ private:
 extern DGUSScreenVariableHandler ScreenHandler;
 
 /// Find the flash address of a DGUS_VP_Variable for the VP.
-extern const DGUS_VP_Variable* DGUSLCD_FindVPVar(uint16_t vp);
+extern const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp);
 
 /// Helper to populae a DGUS_VP_Variable for a given VP. returns false if not found.
-extern bool populate_VPVar(uint16_t VP,  DGUS_VP_Variable *ramcopy);
+extern bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy);
