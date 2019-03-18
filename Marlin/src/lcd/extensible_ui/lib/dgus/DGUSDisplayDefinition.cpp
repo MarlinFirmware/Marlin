@@ -40,7 +40,7 @@ const uint16_t VPList_Boot[] PROGMEM = {
 };
 
 const uint16_t VPList_Main[] PROGMEM = {
-  /* VP_M117, for completeness, but it cannot be auto-uploaded.*/
+  /* VP_M117, for completeness, but it cannot be auto-uploaded. */
   0x0000
 };
 
@@ -80,12 +80,12 @@ const uint16_t VPList_Status[] PROGMEM = {
 
 const uint16_t VPList_Status2[] PROGMEM = {
   /* VP_M117, for completeness, but it cannot be auto-uploaded */
-#if HOTENDS >= 1
+  #if HOTENDS >= 1
     VP_Flowrate_E1,
-#endif
-#if HOTENDS >= 2
+  #endif
+  #if HOTENDS >= 2
     VP_Flowrate_E2,
-#endif
+  #endif
   VP_PrintProgress_Percentage,
   VP_PrintTime,
   0x0000
@@ -107,18 +107,18 @@ const uint16_t VPList_FanAndFeedrate[] PROGMEM = {
 };
 
 const uint16_t VPList_SD_FlowRates[] PROGMEM = {
-    VP_Flowrate_E1, VP_Flowrate_E2,
-    0x0000
+  VP_Flowrate_E1, VP_Flowrate_E2,
+  0x0000
 };
 
 const uint16_t VPList_SDFileList[] PROGMEM = {
-    VP_SD_FileName0, VP_SD_FileName1, VP_SD_FileName2, VP_SD_FileName3, VP_SD_FileName4,
-    0x0000
+  VP_SD_FileName0, VP_SD_FileName1, VP_SD_FileName2, VP_SD_FileName3, VP_SD_FileName4,
+  0x0000
 };
 
 const uint16_t VPList_SD_PrintManipulation[] PROGMEM = {
-    VP_PrintProgress_Percentage, VP_PrintTime,
-    0x0000
+  VP_PrintProgress_Percentage, VP_PrintTime,
+  0x0000
 };
 
 const struct VPMapping VPMap[] PROGMEM = {
@@ -170,7 +170,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_Flowrate_E1, nullptr, DGUSScreenVariableHandler::HandleFlowRateChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_EPos, &destination[3], nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<2>),
     VPHELPER(VP_MOVE_E1, nullptr, &DGUSScreenVariableHandler::HandleManualExtrude, nullptr),
-    #endif
+  #endif
   #if HOTENDS >= 2
     VPHELPER(VP_T_E2_I, &thermalManager.temp_hotend[1].current, nullptr, DGUSLCD_SendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E2_S, &thermalManager.temp_hotend[1].target, DGUSScreenVariableHandler::HandleTemperatureChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),

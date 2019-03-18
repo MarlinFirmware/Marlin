@@ -229,9 +229,7 @@ public:
 
   static inline DGUSLCD_Screens getCurrentScreen() { return current_screen; }
 
-  static inline void SetupConfirmAction( void (*f)()) {
-    confirmaction_cb = f;
-  }
+  static inline void SetupConfirmAction( void (*f)()) { confirm_action_cb = f; }
 
 private:
   static DGUSLCD_Screens current_screen;  ///< currently on screen
@@ -249,7 +247,7 @@ private:
     static int16_t file_to_print; ///< touched file to be confimed
   #endif
 
-  static void (*confirmaction_cb)();
+  static void (*confirm_action_cb)();
 };
 
 extern DGUSScreenVariableHandler ScreenHandler;

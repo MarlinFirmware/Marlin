@@ -60,7 +60,7 @@ uint16_t DGUSScreenVariableHandler::ConfirmVP;
   static ExtUI::FileList filelist;
 #endif
 
-void (*DGUSScreenVariableHandler::confirmaction_cb)() = nullptr;
+void (*DGUSScreenVariableHandler::confirm_action_cb)() = nullptr;
 
 //DGUSScreenVariableHandler ScreenHandler;
 
@@ -173,8 +173,7 @@ void DGUSScreenVariableHandler::sendinfoscreen(const char* line1, const char* li
   }
 }
 
-void DGUSScreenVariableHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* line1, const char* line2, const char* line3, const char* line4,
-    bool l1, bool l2, bool l3, bool l4) {
+void DGUSScreenVariableHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* line1, const char* line2, const char* line3, const char* line4, bool l1, bool l2, bool l3, bool l4) {
   if (current_screen == DGUSLCD_SCREEN_CONFIRM) {
     // Already showing a pop up, so we need to cancel that first.
     PopToOldScreen();
@@ -208,9 +207,7 @@ void DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable 
     //DGUS_ECHOLNPAIR(" data ", *(uint16_t *)ref_to_this.memadr);
     uint8_t *tmp = (uint8_t *) ref_to_this.memadr;
     uint16_t data_to_send = (tmp[0] << 8);
-    if (ref_to_this.size >= 1) {
-      data_to_send |= tmp[1];
-    }
+    if (ref_to_this.size >= 1) data_to_send |= tmp[1];
     dgusdisplay.WriteVariable(ref_to_this.VP, data_to_send);
   }
 }
@@ -232,19 +229,18 @@ void DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable
 void DGUSScreenVariableHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &ref_to_this) {
   duration_t elapsed = print_job_timer.duration();
 
-  uint8_t days  = elapsed.day();
-  uint8_t hours = elapsed.hour() % 24;
-  uint8_t minutes = elapsed.minute() % 60;
-  uint8_t seconds = elapsed.second() % 60;
+  uint8_t days  = elapsed.day(),
+          hours = elapsed.hour() % 24,
+          minutes = elapsed.minute() % 60,
+          seconds = elapsed.second() % 60;
 
-  char buf[14]; // that two extra bytes saves us some flash...
-  char *p = buf;
+  char buf[14], *p = buf; // that two extra bytes saves us some flash...
 
-  if (days) { *p++ = days/10 + '0'; *p++ = days%10 + '0'; *p++ = 'd'; }
-  *p++ = hours/10 + '0'; *p++ = hours%10 + '0'; *p++ = 'h';
-  *p++ = minutes/10 + '0'; *p++ = minutes%10 + '0'; *p++ = 'm';
-  *p++ = seconds/10 + '0'; *p++ = seconds%10 + '0'; *p++ = 's';
-  *p=0;
+  if (days) { *p++ = days / 10 + '0'; *p++ = days % 10 + '0'; *p++ = 'd'; }
+  *p++ = hours / 10 + '0'; *p++ = hours % 10 + '0'; *p++ = 'h';
+  *p++ = minutes / 10 + '0'; *p++ = minutes % 10 + '0'; *p++ = 'm';
+  *p++ = seconds / 10 + '0'; *p++ = seconds % 10 + '0'; *p++ = 's';
+  *p = '\0';
 
   dgusdisplay.WriteVariable(VP_PrintTime, buf, ref_to_this.size, true);
 }
@@ -274,7 +270,6 @@ void DGUSScreenVariableHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable 
   char *tmp = (char*) ref_to_this.memadr;
   dgusdisplay.WriteVariablePGM(ref_to_this.VP, tmp, ref_to_this.size, true);
 }
-
 
 #if ENABLED(SDSUPPORT)
 
@@ -309,7 +304,7 @@ void DGUSScreenVariableHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable 
     auto old_top = top_file;
     int16_t scroll = (int16_t)swap16(*(uint16_t*)ptr_to_new_value);
     if (scroll == 0) {
-      if(!filelist.isAtRootDir()) {
+      if (!filelist.isAtRootDir()) {
         filelist.upDir();
         top_file = 0;
         ForceCompleteUpdate();
@@ -324,8 +319,8 @@ void DGUSScreenVariableHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable 
       }
       else {
         int16_t max_top = filelist.count() -  DGUS_SD_FILESPERSCREEN;
-        max_top = (max_top > 0) ? max_top :0 ;
-        if(top_file > max_top ) top_file = max_top;
+        NOLESS(max_top, 0);
+        NOMORE(top_file, max_top);
       }
       DGUS_ECHOPAIR("new topfile adjusted:", top_file);
     }
@@ -357,24 +352,17 @@ void DGUSScreenVariableHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable 
 
   void DGUSScreenVariableHandler::DGUSLCD_SD_ResumePauseAbort(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value) {
     if (!ExtUI::isPrintingFromMedia()) return; // avoid race condition when user stays in this menu and printer finishes.
-    uint16_t value = swap16(*(uint16_t*)ptr_to_new_value);
-    switch(value) {
-    case 0:  // Resume
-      if (ExtUI::isPrintingFromMediaPaused()) ExtUI::resumePrint();
-      break;
-
-    case 1:  // Pause
-      if (!ExtUI::isPrintingFromMediaPaused()) ExtUI::pausePrint();
-      break;
-
-    case 2:  // Abort
-      ScreenHandler.HandleUserConfirmationPopUp(VP_SD_AbortPrintConfirmed, nullptr, PSTR("Abort printing"), filelist.filename(), PSTR("?"), true, true, false, true);
-      break;
-
-    default:
-      return;
+    switch (swap16(*(uint16_t*)ptr_to_new_value)) {
+      case 0:  // Resume
+        if (ExtUI::isPrintingFromMediaPaused()) ExtUI::resumePrint();
+        break;
+      case 1:  // Pause
+        if (!ExtUI::isPrintingFromMediaPaused()) ExtUI::pausePrint();
+        break;
+      case 2:  // Abort
+        ScreenHandler.HandleUserConfirmationPopUp(VP_SD_AbortPrintConfirmed, nullptr, PSTR("Abort printing"), filelist.filename(), PSTR("?"), true, true, false, true);
+        break;
     }
-
   }
 
   void DGUSScreenVariableHandler::DGUSLCD_SD_ReallyAbort(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value) {
@@ -385,11 +373,10 @@ void DGUSScreenVariableHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable 
   void DGUSScreenVariableHandler::DGUSLCD_SD_SendFilename(DGUS_VP_Variable& ref_to_this) {
     uint16_t target_line = (ref_to_this.VP - VP_SD_FileName0) / VP_SD_FileName_LEN;
     if (target_line > DGUS_SD_FILESPERSCREEN) return;
-    char tmpfilename[VP_SD_FileName_LEN+1] = "";
+    char tmpfilename[VP_SD_FileName_LEN + 1] = "";
     ref_to_this.memadr = (void*)tmpfilename;
-    if (filelist.seek(top_file + target_line)) {
+    if (filelist.seek(top_file + target_line))
       snprintf_P(tmpfilename, VP_SD_FileName_LEN, PSTR("%s%c"), filelist.filename(), filelist.isDir() ? '/' : 0);
-    }
     DGUSLCD_SendStringToDisplay(ref_to_this);
   }
 
@@ -397,15 +384,15 @@ void DGUSScreenVariableHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable 
   void DGUSScreenVariableHandler::SDCardInserted() {
     top_file = 0;
     auto cs = ScreenHandler.getCurrentScreen();
-    if (cs == DGUSLCD_SCREEN_MAIN || cs == DGUSLCD_SCREEN_STATUS) {
+    if (cs == DGUSLCD_SCREEN_MAIN || cs == DGUSLCD_SCREEN_STATUS)
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDFILELIST);
-    }
   }
 
   void DGUSScreenVariableHandler::SDCardRemoved() {
-    if(current_screen == DGUSLCD_SCREEN_SDFILELIST ||
-       (current_screen == DGUSLCD_SCREEN_CONFIRM && (ConfirmVP == VP_SD_AbortPrintConfirmed || ConfirmVP == VP_SD_FileSelectConfirm)) ||
-       current_screen == DGUSLCD_SCREEN_SDPRINTMANIPULATION ) ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+    if (current_screen == DGUSLCD_SCREEN_SDFILELIST
+        || (current_screen == DGUSLCD_SCREEN_CONFIRM && (ConfirmVP == VP_SD_AbortPrintConfirmed || ConfirmVP == VP_SD_FileSelectConfirm))
+        || current_screen == DGUSLCD_SCREEN_SDPRINTMANIPULATION
+    ) ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
   }
 
   void DGUSScreenVariableHandler::SDCardError() {
@@ -424,8 +411,8 @@ void DGUSScreenVariableHandler::ScreenConfirmedOK(DGUS_VP_Variable &ref_to_this,
 }
 
 const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
-  const uint16_t* ret;
-  const struct VPMapping* map = VPMap;
+  const uint16_t *ret;
+  const struct VPMapping *map = VPMap;
   while (ret = (uint16_t*) pgm_read_word(&(map->VPList))) {
     if (pgm_read_byte(&(map->screen)) == screen) return ret;
     map++;
@@ -436,11 +423,9 @@ const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
 const DGUS_VP_Variable* DGUSLCD_FindVPVar(uint16_t vp) {
   const DGUS_VP_Variable *ret = ListOfVP;
   do {
-    uint16_t vpcheck = pgm_read_word(&(ret->VP));
+    const uint16_t vpcheck = pgm_read_word(&(ret->VP));
     if (vpcheck == 0) break;
-    if (vpcheck == vp) {
-      return ret;
-    }
+    if (vpcheck == vp) return ret;
     ++ret;
   } while (1);
 
@@ -461,11 +446,11 @@ void DGUSScreenVariableHandler::ScreenChangeHook(DGUS_VP_Variable &ref_to_this, 
   // The keycode in target is coded as <from-frame><to-frame>, so 0x0100A means
   // from screen 1 (main) to 10 (temperature). DGUSLCD_SCREEN_POPUP is special,
   // meaning "return to previous screen"
-  DGUSLCD_Screens target = (DGUSLCD_Screens) tmp[1];
+  DGUSLCD_Screens target = (DGUSLCD_Screens)tmp[1];
 
   if (target == DGUSLCD_SCREEN_POPUP) {
     // special handling for popup is to return to previous menu
-    if (current_screen == DGUSLCD_SCREEN_POPUP && confirmaction_cb) confirmaction_cb();
+    if (current_screen == DGUSLCD_SCREEN_POPUP && confirm_action_cb) confirm_action_cb();
     PopToOldScreen();
     return;
   }
@@ -473,8 +458,7 @@ void DGUSScreenVariableHandler::ScreenChangeHook(DGUS_VP_Variable &ref_to_this, 
   UpdateNewScreen(target);
 
   #ifdef DEBUG_DGUSLCD
-    auto x = DGUSLCD_FindScreenVPMapList(target);
-    if (!x) DGUS_ECHOLNPAIR("WARNING: No screen Mapping found for ", x);
+    if (!DGUSLCD_FindScreenVPMapList(target)) DGUS_ECHOLNPAIR("WARNING: No screen Mapping found for ", x);
   #endif
 }
 
@@ -488,26 +472,25 @@ void DGUSScreenVariableHandler::HandleTemperatureChanged(DGUS_VP_Variable &ref_t
   uint16_t acceptedvalue;
 
   switch (ref_to_this.VP) {
-#if HOTENDS >= 1
-  case VP_T_E1_Set:
-    thermalManager.setTargetHotend(newvalue, 0);
-    acceptedvalue = thermalManager.temp_hotend[0].target;
-    break;
-#endif
-#if HOTENDS >= 2
-  case VP_T_E2_Set:
-    thermalManager.setTargetHotend(newvalue, 1);
-    acceptedvalue = thermalManager.temp_hotend[1].target;
-  break;
-#endif
-#if HAS_HEATED_BED
-  case VP_T_Bed_Set:
-    thermalManager.setTargetBed(newvalue);
-    acceptedvalue = thermalManager.temp_bed.target;
-    break;
-#endif
-  default:
-    return;
+    default: return;
+    #if HOTENDS >= 1
+      case VP_T_E1_Set:
+        thermalManager.setTargetHotend(newvalue, 0);
+        acceptedvalue = thermalManager.temp_hotend[0].target;
+        break;
+    #endif
+    #if HOTENDS >= 2
+      case VP_T_E2_Set:
+        thermalManager.setTargetHotend(newvalue, 1);
+        acceptedvalue = thermalManager.temp_hotend[1].target;
+      break;
+    #endif
+    #if HAS_HEATED_BED
+      case VP_T_Bed_Set:
+        thermalManager.setTargetBed(newvalue);
+        acceptedvalue = thermalManager.temp_bed.target;
+        break;
+    #endif
   }
 
   // reply to display the new value to update the view if the new value was rejected by the Thermal Manager.
@@ -519,18 +502,17 @@ void DGUSScreenVariableHandler::HandleFlowRateChanged(DGUS_VP_Variable &ref_to_t
   uint16_t newvalue = swap16(*(uint16_t*) ptr_to_new_value);
   uint8_t target_extruder;
   switch(ref_to_this.VP) {
-  #if (HOTENDS >= 1)
-    case VP_Flowrate_E1:
-      target_extruder = 0;
-      break;
-  #endif
-  #if (HOTENDS >= 2)
-    case VP_Flowrate_E2:
-      target_extruder = 1;
-      break;
-  #endif
-  default:
-    return;
+    default: return;
+    #if (HOTENDS >= 1)
+      case VP_Flowrate_E1:
+        target_extruder = 0;
+        break;
+    #endif
+    #if (HOTENDS >= 2)
+      case VP_Flowrate_E2:
+        target_extruder = 1;
+        break;
+    #endif
   }
 
   planner.flow_percentage[target_extruder] = newvalue;
@@ -621,7 +603,7 @@ void DGUSScreenVariableHandler::HandleManualMove(DGUS_VP_Variable &ref_to_this, 
     char sign[]="\0";
     int16_t value = movevalue / 100;
     if (movevalue < 0) { value = -value; sign[0] = '-'; }
-    int16_t fraction = ((movevalue > 0) ? movevalue : -movevalue) % 100;
+    int16_t fraction = ABS(movevalue) % 100;
     snprintf_P(buf, 32, PSTR("G0 %c%s%d.%02d F%d"), axiscode, sign, value, fraction, speed);
     //DGUS_ECHOPAIR(" ", buf);
     while (!enqueue_and_echo_command(buf)) idle();
@@ -718,7 +700,6 @@ void DGUSScreenVariableHandler::UpdateScreenVPData() {
     }
 
   } while (++update_ptr, ++VPList, true);
-  return;
 }
 
 void DGUSDisplay::loop() {
@@ -742,7 +723,7 @@ void DGUSDisplay::InitDisplay() {
 
 void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
-  bool strend = (myvalues) ? false : true;
+  bool strend = myvalues ? false : true;
   WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
   while (valueslen--) {
     char x;
@@ -757,7 +738,7 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
 
 void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
-  bool strend = (myvalues) ? false : true;
+  bool strend = myvalues ? false : true;
   WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
   while (valueslen--) {
     char x;
@@ -895,10 +876,7 @@ void DGUSDisplay::ProcessRx() {
   }
 }
 
-size_t DGUSDisplay::GetFreeTxBuffer() {
-  return dgusserial.GetTxBufferFree();
-}
-
+size_t DGUSDisplay::GetFreeTxBuffer() { return dgusserial.GetTxBufferFree(); }
 
 void DGUSDisplay::WriteHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen) {
   dgusserial.write(DGUS_HEADER1);
@@ -910,8 +888,7 @@ void DGUSDisplay::WriteHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen) {
 }
 
 void DGUSDisplay::WritePGM(const char str[], uint8_t len) {
-  while (len--)
-    dgusserial.write(pgm_read_byte(str++));
+  while (len--) dgusserial.write(pgm_read_byte(str++));
 }
 
 // Serial implementation stolen from MarlinSerial.cpp -- but functinality reduced to our use case
@@ -950,9 +927,7 @@ DGUSSerial::DGUSSerial() {
   DGUS_UCSRxB = 1 << RXCIEx | 1 << TXENx | 1 << RXENx;  // Enable TX,RX and the RX interrupts.
 }
 
-DGUSSerial::~DGUSSerial() {
-  DGUS_UCSRxB = 0;
-}
+DGUSSerial::~DGUSSerial() { DGUS_UCSRxB = 0; }
 
 // "Atomically" read the RX head index value without disabling interrupts:
 // This MUST be called with RX interrupts enabled, and CAN'T be called
@@ -970,7 +945,7 @@ FORCE_INLINE r_ring_buffer_pos_t DGUSSerial::atomic_read_rx_head() {
       vold = vnew;
       vnew = rx_buffer.head;
       sw_barrier();
-    }while (vold != vnew);
+    } while (vold != vnew);
     return vnew;
   #else
     // With an 8bit index, reads are always atomic. No need for special handling
@@ -1036,9 +1011,8 @@ FORCE_INLINE void DGUSSerial::store_rxd_char() {
     rx_buffer.buffer[h] = c;
     h = i;
   }
-  else {
+  else
     dgus_rx_overrun = true;
-  }
 
   // Store the new head value - The main loop will retry until the value is stable
   rx_buffer.head = h;
@@ -1104,9 +1078,8 @@ void DGUSSerial::write(const uint8_t c) {
   }
 
   const uint8_t i = (tx_buffer.head + 1) & (DGUS_TX_BUFFER_SIZE - 1);
-  while (i == tx_buffer.tail) {
-    sw_barrier();
-  }
+  while (i == tx_buffer.tail) sw_barrier();
+
   // Store new char. head is always safe to move
   tx_buffer.buffer[tx_buffer.head] = c;
   tx_buffer.head = i;
@@ -1114,19 +1087,14 @@ void DGUSSerial::write(const uint8_t c) {
 }
 
 t_ring_buffer_pos_t DGUSSerial::GetTxBufferFree() {
-  const t_ring_buffer_pos_t t = tx_buffer.tail;  // next byte to send.
-  const t_ring_buffer_pos_t h = tx_buffer.head;  // next pos for queue.
+  const t_ring_buffer_pos_t t = tx_buffer.tail,  // next byte to send.
+                            h = tx_buffer.head;  // next pos for queue.
   int ret = t - h - 1;
   if (ret < 0) ret += DGUS_TX_BUFFER_SIZE + 1;
   return ret;
 }
 
-ISR(DGUS_SERIAL_UDRE_VECT) {
-  dgusserial.tx_udr_empty_irq();
-}
-
-ISR(DGUS_SERIAL_RX_VECT) {
-  dgusserial.store_rxd_char();
-}
+ISR(DGUS_SERIAL_UDRE_VECT) { dgusserial.tx_udr_empty_irq(); }
+ISR(DGUS_SERIAL_RX_VECT) { dgusserial.store_rxd_char(); }
 
 #endif // DGUS_LCD
