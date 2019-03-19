@@ -591,7 +591,10 @@ void L64XX_Marlin::say_axis(const L6470_axis_t axis, const bool label/*=true*/) 
   SERIAL_CHAR(' ');
 }
 
-void L64XX_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t axis) {  // assumes status bits have been inverted
+void L64XX_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t axis,
+      const uint16_t _status_axis_th_sd, const uint16_t _status_axis_th_wrn,
+      const uint16_t _status_axis_step_loss_a, const uint16_t _status_axis_step_loss_b,
+      const uint16_t _status_axis_ocd) {  // assumes status bits have been inverted
   #if ENABLED(L6470_CHITCHAT)
     char temp_buf[10];
     L64xx_MARLIN.say_axis(axis);

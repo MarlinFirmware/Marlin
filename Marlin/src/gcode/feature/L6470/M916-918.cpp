@@ -287,7 +287,7 @@ void GcodeSuite::M917() {
         }
       }
       while (status_composite_temp & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD));
-      L6470_EOL();
+      DEBUG_EOL();
     }
     if (status_composite & (sh.STATUS_AXIS_STEP_LOSS_A | sh.STATUS_AXIS_STEP_LOSS_B | sh.STATUS_AXIS_OCD)) {
       switch (test_phase) {
