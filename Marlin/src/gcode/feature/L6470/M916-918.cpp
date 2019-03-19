@@ -121,11 +121,14 @@ void GcodeSuite::M916() {
       axis_status[j] = (~L64xx_MARLIN.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
       status_composite |= axis_status[j] ;
     }
-    if (status_composite && (status_composite & STATUS_UVLO)) {
+    if (status_composite && (status_composite & sh.STATUS_AXIS_UVLO)) {
       DEBUG_ECHOLNPGM("Test aborted (Undervoltage lockout active)");
       for (j = 0; j < driver_count; j++) {
         DEBUG_ECHOPGM("...");
-        L6470.error_status_decode(axis_status[j], axis_index[j]);
+        L64xx_MARLIN.error_status_decode(axis_status[j], axis_index[j],
+          sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
+          sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
+          sh.STATUS_AXIS_OCD);
       }
       return;
     }
@@ -137,11 +140,14 @@ void GcodeSuite::M916() {
   } while (!(status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD)) && kval_hold);  // exit when kval_hold == 0 (rolls over)
 
   DEBUG_ECHOPGM(".\n.\nThermal warning/shutdown ");
-  if ((status_composite & (STATUS_TH_WRN | STATUS_TH_SD))) {
+  if ((status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD))) {
     DEBUG_ECHOLNPGM("has occurred");
     for (j = 0; j < driver_count; j++) {
       DEBUG_ECHOPGM("...");
-      L6470.error_status_decode(axis_status[j], axis_index[j]);
+      L64xx_MARLIN.error_status_decode(axis_status[j], axis_index[j],
+        sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
+        sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
+        sh.STATUS_AXIS_OCD);
     }
   }
   else
@@ -214,18 +220,18 @@ void GcodeSuite::M917() {
         // 2 - OCD finalized - decreasing STALL - exit when STALL warning happens
         // 3 - OCD finalized - increasing STALL - exit when STALL warning stop
         // 4 - all testing completed
-  DEBUG_ECHOPAIR(".\n.\n.\nover_current threshold : ", (ocd_th_val + 1) * 375);   // first status display
-  DEBUG_ECHOPAIR("  (OCD_TH:  : ", ocd_th_val);
-  DEBUG_ECHOPAIR(")   Stall threshold: ", (stall_th_val + 1) * 31.25);
-  DEBUG_ECHOPAIR("  (STALL_TH: ", stall_th_val);
+  DEBUG_ECHOPAIR(".\n.\n.\nover_current threshold : ", (OCD_TH_val + 1) * 375);   // first status display
+  DEBUG_ECHOPAIR("  (OCD_TH:  : ", OCD_TH_val);
+  DEBUG_ECHOPAIR(")   Stall threshold: ", (STALL_TH_val + 1) * 31.25);
+  DEBUG_ECHOPAIR("  (STALL_TH: ", STALL_TH_val);
   DEBUG_ECHOLNPGM(")");
 
   const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
 
   do {
 
-    DEBUG_ECHOPAIR("STALL threshold : ", (stall_th_val + 1) * 31.25);
-    DEBUG_ECHOLNPAIR("   OCD threshold : ", (ocd_th_val + 1) * 375);
+    DEBUG_ECHOPAIR("STALL threshold : ", (STALL_TH_val + 1) * 31.25);
+    DEBUG_ECHOLNPAIR("   OCD threshold : ", (OCD_TH_val + 1) * 375);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
     gcode.process_subcommands_now_P(gcode_string);
@@ -242,16 +248,19 @@ void GcodeSuite::M917() {
       status_composite |= axis_status[j];
     }
 
-    if (status_composite && (status_composite & STATUS_UVLO)) {
+    if (status_composite && (status_composite & sh.STATUS_AXIS_UVLO)) {
       DEBUG_ECHOLNPGM("Test aborted (Undervoltage lockout active)");
       for (j = 0; j < driver_count; j++) {
         DEBUG_ECHOPGM("...");
-        L6470.error_status_decode(axis_status[j], axis_index[j]);
+        L64xx_MARLIN.error_status_decode(axis_status[j], axis_index[j],
+          sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
+          sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
+          sh.STATUS_AXIS_OCD);
       }
       return;
     }
 
-    if (status_composite & (STATUS_TH_WRN | STATUS_TH_SD)) {
+    if (status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD)) {
       DEBUG_ECHOLNPGM("thermal problem - waiting for chip(s) to cool down ");
       uint16_t status_composite_temp = 0;
       uint8_t k = 0;
@@ -259,7 +268,7 @@ void GcodeSuite::M917() {
         k++;
         if (!(k % 4)) {
           kval_hold *= 0.95;
-          L6470_EOL();
+          DEBUG_EOL();
           DEBUG_ECHOLNPAIR("Lowering KVAL_HOLD by about 5% to ", kval_hold);
           for (j = 0; j < driver_count; j++)
             L64xx_MARLIN.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
@@ -275,7 +284,7 @@ void GcodeSuite::M917() {
         }
       }
       while (status_composite_temp & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD));
-      L6470_EOL();
+      DEBUG_EOL();
     }
     if (status_composite & (sh.STATUS_AXIS_STEP_LOSS_A | sh.STATUS_AXIS_STEP_LOSS_B | sh.STATUS_AXIS_OCD)) {
       switch (test_phase) {
@@ -295,8 +304,8 @@ void GcodeSuite::M917() {
             }
           }
           else {  // phase 0 without OCD warning - keep on decrementing if can
-            if (ocd_th_val) {
-              ocd_th_val--;              // try lower value
+            if (OCD_TH_val) {
+              OCD_TH_val--;              // try lower value
               DEBUG_ECHOLNPGM("LOGIC E0C - dec OCD");
             }
             else {
@@ -315,7 +324,7 @@ void GcodeSuite::M917() {
               DEBUG_ECHOLNPGM("LOGIC E1A - OCD at max - go to 2");
             }
             else {
-              ocd_th_val++;              // try a higher value
+              OCD_TH_val++;              // try a higher value
               DEBUG_ECHOLNPGM("LOGIC E1B - inc OCD");
             }
           }
@@ -328,21 +337,21 @@ void GcodeSuite::M917() {
         case 2: {
           if (status_composite & (sh.STATUS_AXIS_STEP_LOSS_A | sh.STATUS_AXIS_STEP_LOSS_B)) {
             // phase 2 with stall warning - time to go to next phase
-            if (stall_th_val >= 127) {
-              stall_th_val = 127;  // limit to max
+            if (STALL_TH_val >= 127) {
+              STALL_TH_val = 127;  // limit to max
               DEBUG_ECHOLNPGM("LOGIC E2A - STALL warning, STALL at max, quit");
               DEBUG_ECHOLNPGM("finished - STALL at maximum value but still have stall warning");
               test_phase = 4;
             }
             else {
               test_phase = 3;              // normal exit to next phase (found failing value of STALL)
-              stall_th_val++;              // setup for first pass of phase 3
+              STALL_TH_val++;              // setup for first pass of phase 3
               DEBUG_ECHOLNPGM("LOGIC E2B - INC - STALL warning, inc Stall, go to 3");
             }
           }
           else {  // phase 2 without stall warning - decrement if can
-            if (stall_th_val) {
-              stall_th_val--;              // try a lower value
+            if (STALL_TH_val) {
+              STALL_TH_val--;              // try a lower value
               DEBUG_ECHOLNPGM("LOGIC E2C - no STALL, dec STALL");
             }
             else {
@@ -356,14 +365,14 @@ void GcodeSuite::M917() {
         case 3: {
           if (status_composite & (sh.STATUS_AXIS_STEP_LOSS_A | sh.STATUS_AXIS_STEP_LOSS_B)) {
             // phase 3 with stall warning - increment if can
-            if (stall_th_val >= 127) {
-              stall_th_val = 127; // limit to max
+            if (STALL_TH_val >= 127) {
+              STALL_TH_val = 127; // limit to max
               DEBUG_ECHOLNPGM("finished - STALL at maximum value but still have stall warning");
               test_phase = 4;
               DEBUG_ECHOLNPGM("LOGIC E3A - STALL, at max so quit");
             }
             else {
-              stall_th_val++;              // still looking for passing value
+              STALL_TH_val++;              // still looking for passing value
               DEBUG_ECHOLNPGM("LOGIC E3B - STALL, inc stall");
             }
           }
@@ -380,8 +389,8 @@ void GcodeSuite::M917() {
     else {
       switch (test_phase) {
         case 0: { // phase 0 without OCD warning - keep on decrementing if can
-          if (ocd_th_val) {
-            ocd_th_val--;             // try lower value
+          if (OCD_TH_val) {
+            OCD_TH_val--;             // try lower value
             DEBUG_ECHOLNPGM("LOGIC N0A - DEC OCD");
           }
           else {
@@ -393,8 +402,8 @@ void GcodeSuite::M917() {
         case 1: DEBUG_ECHOLNPGM("LOGIC N1 (go directly to 2)"); // phase 1 without OCD warning - drop directly to phase 2
 
         case 2: { // phase 2 without stall warning - keep on decrementing if can
-          if (stall_th_val) {
-            stall_th_val--;              // try a lower value (stay in phase 2)
+          if (STALL_TH_val) {
+            STALL_TH_val--;              // try a lower value (stay in phase 2)
             DEBUG_ECHOLNPGM("LOGIC N2B - dec STALL");
           }
           else {
@@ -412,10 +421,10 @@ void GcodeSuite::M917() {
 
     if (test_phase != 4) {
       for (j = 0; j < driver_count; j++) {                       // update threshold(s)
-        L6470.set_param(axis_index[j], L6470_OCD_TH, ocd_th_val);
-        L6470.set_param(axis_index[j], L6470_STALL_TH, stall_th_val);
-        if (L6470.get_param(axis_index[j], L6470_OCD_TH) != ocd_th_val) DEBUG_ECHOLNPGM("OCD mismatch");
-        if (L6470.get_param(axis_index[j], L6470_STALL_TH) != stall_th_val) DEBUG_ECHOLNPGM("STALL mismatch");
+        L64xx_MARLIN.set_param(axis_index[j], L6470_OCD_TH, OCD_TH_val);
+        L64xx_MARLIN.set_param(axis_index[j], L6470_STALL_TH, STALL_TH_val);
+        if (L64xx_MARLIN.get_param(axis_index[j], L6470_OCD_TH) != OCD_TH_val) DEBUG_ECHOLNPGM("OCD mismatch");
+        if (L64xx_MARLIN.get_param(axis_index[j], L6470_STALL_TH) != STALL_TH_val) DEBUG_ECHOLNPGM("STALL mismatch");
       }
     }
 
@@ -425,7 +434,10 @@ void GcodeSuite::M917() {
     DEBUG_ECHOLNPGM("Completed with errors");
     for (j = 0; j < driver_count; j++) {
       DEBUG_ECHOPGM("...");
-      L6470.error_status_decode(axis_status[j], axis_index[j]);
+      L64xx_MARLIN.error_status_decode(axis_status[j], axis_index[j],
+        sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
+        sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
+        sh.STATUS_AXIS_OCD);
     }
   }
   else
@@ -466,6 +478,8 @@ void GcodeSuite::M918() {
   uint8_t STALL_TH_val = 0;
   uint16_t over_current_threshold;
   constexpr bool over_current_flag = true;
+
+  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
 
   uint8_t j;   // general purpose counter
 
@@ -534,13 +548,16 @@ void GcodeSuite::M918() {
     if (status_composite) break;       // quit if any errors flags are raised
   } while (current_feedrate < final_feedrate * 0.99);
 
-  DEBUG_ECHOPGM("Completed with errors");
+  DEBUG_ECHOPGM("Completed with ");
   if (status_composite) {
     DEBUG_ECHOLNPGM("errors");
     for (j = 0; j < driver_count; j++) {
 
       DEBUG_ECHOPGM("...");
-      L6470.error_status_decode(axis_status[j], axis_index[j]);
+      L64xx_MARLIN.error_status_decode(axis_status[j], axis_index[j],
+        sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
+        sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
+        sh.STATUS_AXIS_OCD);
     }
   }
   else

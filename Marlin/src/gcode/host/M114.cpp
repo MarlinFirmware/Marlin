@@ -28,10 +28,8 @@
 
 #if ENABLED(M114_DETAIL)
 
-  #if HAS_DRIVER(L6470)
-    //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\gcode\host\M114.cpp
-    //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\module\bob_L6470.cpp
-    #include "../../module/L6470/L6470_Marlin.h"
+  #if HAS_L64XX
+    #include "../../libs/L6470/L6470_Marlin.h"
     #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
     #include "../../core/debug_out.h"
   #endif
@@ -93,7 +91,7 @@
       //#define ABS_POS_SIGN_MASK 0b1111 1111 1110 0000 0000 0000 0000 0000
       #define ABS_POS_SIGN_MASK 0b11111111111000000000000000000000
       #define REPORT_ABSOLUTE_POS(Q) do{                            \
-          L6470.say_axis(Q, false);                                 \
+          L64xx_MARLIN.say_axis(Q, false);                                 \
           temp = L6470_GETPARAM(L6470_ABS_POS,Q);                   \
           if (temp & ABS_POS_SIGN_MASK) temp |= ABS_POS_SIGN_MASK;  \
           sprintf_P(temp_buf, PSTR(":%8ld   "), temp);              \
@@ -101,7 +99,7 @@
         }while(0)
 
       DEBUG_ECHOPGM("\nL6470:");
-      #if AXIS_DRIVER_TYPE_X(L6470)
+      #if AXIS_IS_L64XX(X)
         REPORT_ABSOLUTE_POS(X);
       #endif
       #if AXIS_IS_L64XX(X2)

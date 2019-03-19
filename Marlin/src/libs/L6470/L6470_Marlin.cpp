@@ -34,16 +34,16 @@ L64XX_Marlin L64xx_MARLIN;
 
 #include "../../module/stepper_indirection.h"
 #include "../../gcode/gcode.h"
-#include "../planner.h"
+#include "../../module/planner.h"
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
 
-uint8_t L6470_Marlin::dir_commands[MAX_L6470];  // array to hold direction command for each driver
+uint8_t L64XX_Marlin::dir_commands[MAX_L6470];  // array to hold direction command for each driver
 
-char L6470_Marlin::index_to_axis[MAX_L6470][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
+char L64XX_Marlin::index_to_axis[MAX_L6470][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
 
-bool L6470_Marlin::index_to_dir[MAX_L6470] =  {
+bool L64XX_Marlin::index_to_dir[MAX_L6470] =  {
   INVERT_X_DIR                        ,  // 0 X
   INVERT_Y_DIR                        ,  // 1 Y
   INVERT_Z_DIR                        ,  // 2 Z
@@ -67,7 +67,7 @@ bool L6470_Marlin::index_to_dir[MAX_L6470] =  {
   INVERT_E5_DIR                       ,  //12 E5
 };
 
-uint8_t L6470_Marlin::axis_xref[MAX_L6470] = {
+uint8_t L64XX_axis_xref[MAX_L6470] = {
   AxisEnum(X_AXIS), // X
   AxisEnum(Y_AXIS), // Y
   AxisEnum(Z_AXIS), // Z
@@ -83,10 +83,11 @@ uint8_t L6470_Marlin::axis_xref[MAX_L6470] = {
   AxisEnum(E_AXIS)  // E5
 };
 
-volatile bool L6470_Marlin::spi_abort = false;
-bool L6470_Marlin::spi_active = false;
+volatile bool L64XX_Marlin::spi_abort = false;
+bool L64XX_Marlin::spi_active = false;
 
-void L6470_Marlin::populate_chain_array() {
+L64XX_Marlin::L64XX_shadow_t L64XX_Marlin::shadow;
+void L6470_populate_chain_array() {
 
   #define _L6470_INIT_SPI(Q)  do{ stepper##Q.set_chain_info(Q, Q##_CHAIN_POS); }while(0)
 
@@ -480,7 +481,7 @@ bool L64XX_Marlin::get_user_input(uint8_t &driver_count, L6470_axis_t axis_index
 
   DEBUG_ECHOPGM("Monitoring:");
   for (j = 0; j < driver_count; j++) DEBUG_ECHOPAIR("  ", axis_mon[j]);
-  L6470_EOL();
+  DEBUG_EOL();
 
   // now have a list of driver(s) to monitor
 
@@ -604,7 +605,10 @@ void L64XX_Marlin::say_axis(const L6470_axis_t axis, const bool label/*=true*/) 
   SERIAL_CHAR(' ');
 }
 
-void L64XX_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t axis) {  // assumes status bits have been inverted
+void L64XX_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t axis,
+      const uint16_t _status_axis_th_sd, const uint16_t _status_axis_th_wrn,
+      const uint16_t _status_axis_step_loss_a, const uint16_t _status_axis_step_loss_b,
+      const uint16_t _status_axis_ocd) {  // assumes status bits have been inverted
   #if ENABLED(L6470_CHITCHAT)
     char temp_buf[10];
     L64xx_MARLIN.say_axis(axis);
@@ -612,12 +616,12 @@ void L64XX_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t
     DEBUG_ECHO(temp_buf);
     print_bin(status);
     DEBUG_ECHOPGM("  THERMAL: ");
-    serialprintPGM((status & STATUS_TH_SD) ? PSTR("SHUTDOWN") : (status & STATUS_TH_WRN) ? PSTR("WARNING ") : PSTR("OK      "));
+    serialprintPGM((status & _status_axis_th_sd) ? PSTR("SHUTDOWN") : (status & _status_axis_th_wrn) ? PSTR("WARNING ") : PSTR("OK      "));
     DEBUG_ECHOPGM("   OVERCURRENT: ");
-    echo_yes_no(status & STATUS_OCD);
+    echo_yes_no(status & _status_axis_ocd);
     DEBUG_ECHOPGM("   STALL: ");
-    echo_yes_no(status & (STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B));
-    L6470_EOL();
+    echo_yes_no(status & (_status_axis_step_loss_a | _status_axis_step_loss_b));
+    DEBUG_EOL();
   #else
     UNUSED(status); UNUSED(axis);
   #endif
@@ -847,7 +851,7 @@ void L64XX_Marlin::error_status_decode(const uint16_t status, const L6470_axis_t
       #endif
 
       #if ENABLED(L6470_DEBUG)
-        if (report_L6470_status) L6470_EOL();
+        if (report_L6470_status) DEBUG_EOL();
       #endif
 
       spi_active = false;   // done with all SPI transfers - clear handshake flags

@@ -39,7 +39,7 @@ typedef enum : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 } L6470
 
 class L64XX_Marlin {
 public:
-  static const char * const index_to_axis[MAX_L6470];
+  static char index_to_axis[MAX_L6470][3];
 
   static bool index_to_dir[MAX_L6470];
   static uint8_t dir_commands[MAX_L6470];
@@ -75,7 +75,10 @@ public:
 
   //static char* index_to_axis(const uint8_t index);
   static void say_axis(const L6470_axis_t axis, const bool label=true);
-  static void error_status_decode(const uint16_t status, const L6470_axis_t axis);
+  static void error_status_decode(const uint16_t status, const L6470_axis_t axis,
+      const uint16_t _status_axis_th_sd, const uint16_t _status_axis_th_wrn,
+      const uint16_t _status_axis_step_loss_a, const uint16_t _status_axis_step_loss_b,
+      const uint16_t _status_axis_ocd);
 
   // ~40 bytes SRAM to simplify status decode routines
   typedef struct {
