@@ -36,6 +36,10 @@
   #define LEVEL_CORNERS_Z_HOP 4.0
 #endif
 
+#ifndef LEVEL_CORNERS_HEIGHT
+  #define LEVEL_CORNERS_HEIGHT 0.0
+#endif
+
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
 
 /**
@@ -66,7 +70,7 @@ void _lcd_goto_next_corner() {
     #endif
   }
   planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
-  line_to_z(0.0);
+  line_to_z(LEVEL_CORNERS_HEIGHT);
   if (++bed_corner > 3
     #if ENABLED(LEVEL_CENTER_TOO)
       + 1
