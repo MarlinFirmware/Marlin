@@ -727,6 +727,7 @@
 //#define BLTOUCH
 #if ENABLED(BLTOUCH)
   //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+  //#define BLTOUCH_FORCE_5V_MODE // For BLTouch V3.0 force 5V only mode
 #endif
 
 /**

@@ -478,10 +478,13 @@
   #undef Z_SERVO_ANGLES
   #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
-  #define BLTOUCH_DEPLOY    10
-  #define BLTOUCH_STOW      90
-  #define BLTOUCH_SELFTEST 120
-  #define BLTOUCH_RESET    160
+    #define BLTOUCH_DEPLOY    10
+    #define BLTOUCH_SW_MODE   60
+    #define BLTOUCH_STOW      90
+    #define BLTOUCH_SELFTEST 120
+    #define BLTOUCH_5V_MODE  140
+    #define BLTOUCH_OD_MODE  150
+    #define BLTOUCH_RESET    160
   #define _TEST_BLTOUCH(P) (READ(P##_PIN) != P##_ENDSTOP_INVERTING)
 
   // Always disable probe pin inverting for BLTouch
