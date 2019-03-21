@@ -291,7 +291,7 @@ void RTSSHOW::RTS_Init()
 					}
 				}
 			}
-			RTS_SndData(2, AutoLevelIcon);/*On*/
+			RTS_SndData(2, AutoLevelIcon);//2=On, 3=Off
 			enqueue_and_echo_commands_P((PSTR("M420 S1")));
 			AutoLevelStatus = planner.leveling_active;
 		}
@@ -1148,7 +1148,7 @@ SERIAL_ECHO(Checkkey);
 			enqueue_and_echo_commands_P((PSTR("G28")));
 			waitway = 2;
 			 set_bed_leveling_enabled(false);
-			enqueue_and_echo_commands_P((PSTR("G1 F150 Z0.2")));
+			enqueue_and_echo_commands_P((PSTR("G1 F150 Z0.0")));
 			 set_bed_leveling_enabled(true);
 			if(LanguageRecbuf != 0)
 				RTS_SndData(ExchangePageBase + 22, ExchangepageAddr); // Autoleve
@@ -1276,8 +1276,9 @@ SERIAL_ECHO(Checkkey);
 				else
 					enqueue_and_echo_commands_P(PSTR("G28 Z0")); 
 				set_bed_leveling_enabled(false);
-				enqueue_and_echo_commands_P(PSTR("G1  F150 Z0.2")); 
-				set_bed_leveling_enabled(true);
+				enqueue_and_echo_commands_P(PSTR("G1 F150 Z0.0")); 
+				//set_bed_leveling_enabled(true);
+				RTS_SndData(3, AutoLevelIcon);//2=On, 3=Off
 				rts_probe_zoffset = zprobe_zoffset;
 				RTS_SndData(zprobe_zoffset*100, 0x1026); 
 			}
@@ -1310,8 +1311,9 @@ SERIAL_ECHO(Checkkey);
 				enqueue_and_echo_commands_P((PSTR("G90")));
 				waitway = 2;
 				set_bed_leveling_enabled(false);
-				enqueue_and_echo_commands_P((PSTR("G1 F200 Z0.2")));
-				set_bed_leveling_enabled(true);
+				enqueue_and_echo_commands_P((PSTR("G1 F200 Z0.0")));
+				//set_bed_leveling_enabled(true);
+				RTS_SndData(3, AutoLevelIcon);//2=On, 3=Off
 				if(LanguageRecbuf != 0)
 					RTS_SndData(ExchangePageBase + 28, ExchangepageAddr); 
 				else
@@ -1330,8 +1332,9 @@ SERIAL_ECHO(Checkkey);
 				set_bed_leveling_enabled(false);
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z10.2;"))); 
 				enqueue_and_echo_commands_P(PSTR("G1 X150 Y150 F5000")); 
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0.2")));
-				set_bed_leveling_enabled(true);
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0.0")));
+				//set_bed_leveling_enabled(true);
+				RTS_SndData(3, AutoLevelIcon);//2=On, 3=Off
 			}
 			else if(recdat.data[0] == 6) 	// Assitant Level ,  Centre 1
 			{
@@ -1339,7 +1342,7 @@ SERIAL_ECHO(Checkkey);
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
 				enqueue_and_echo_commands_P((PSTR("G1 X150 Y150 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0")));
 			}
 			else if(recdat.data[0] == 7) 	// Assitant Level , Front Left 2
 			{
@@ -1347,7 +1350,7 @@ SERIAL_ECHO(Checkkey);
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
 				enqueue_and_echo_commands_P((PSTR("G1 X30 Y30 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0")));
 			}
 			else if(recdat.data[0] == 8) 	// Assitant Level , Front Right 3
 			{
@@ -1355,7 +1358,7 @@ SERIAL_ECHO(Checkkey);
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
 				enqueue_and_echo_commands_P((PSTR("G1 X270 Y30 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0")));
 			}
 			else if(recdat.data[0] == 9) 	// Assitant Level , Back Right 4
 			{
@@ -1363,7 +1366,7 @@ SERIAL_ECHO(Checkkey);
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
 				enqueue_and_echo_commands_P((PSTR("G1 X270 Y270 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0")));
 			}
 			else if(recdat.data[0] == 10) 	// Assitant Level , Back Left 5
 			{
@@ -1371,7 +1374,7 @@ SERIAL_ECHO(Checkkey);
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
 				enqueue_and_echo_commands_P((PSTR("G1 X30 Y270 F5000")));
 				waitway = 2;
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0")));
 			}
 			else if(recdat.data[0] == 11) 	// Autolevel switch
 			{
@@ -2279,9 +2282,10 @@ void RTSUpdate()	//looping at the loop function
 
 	EachMomentUpdate();
 
-//SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
+SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
 	/*wait to receive massage and response*/
-	if(!waitway && rtscheck.RTS_RecData() > 0)
+	if(!waitway && rtscheck.RTS_RecData() > 0) {
 		//SERIAL_PROTOCOLLN("  Handle Data ");
 	    rtscheck.RTS_HandleData();
+	}
 }
