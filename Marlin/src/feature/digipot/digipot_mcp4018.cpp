@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DIGIPOT_I2C) && ENABLED(DIGIPOT_MCP4018)
+#if BOTH(DIGIPOT_I2C, DIGIPOT_MCP4018)
 
 #include "../../core/enum.h"
 #include "Stream.h"

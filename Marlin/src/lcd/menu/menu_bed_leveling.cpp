@@ -36,7 +36,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING)
+#if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
@@ -239,12 +239,12 @@ void menu_bed_leveling() {
   const bool is_homed = all_axes_known();
 
   // Auto Home if not using manual probing
-  #if DISABLED(PROBE_MANUALLY) && DISABLED(MESH_BED_LEVELING)
+  #if DISABLED(PROBE_MANUALLY, MESH_BED_LEVELING)
     if (!is_homed) MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
   #endif
 
   // Level Bed
-  #if ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING)
+  #if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
     // Manual leveling uses a guided procedure
     MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
   #else

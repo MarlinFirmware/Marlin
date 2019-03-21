@@ -32,6 +32,10 @@
   #include "../../../module/motion.h"
   #include "../../bedlevel/bedlevel.h"
 
+  #if ENABLED(EXTENSIBLE_UI)
+    #include "../../../lcd/extensible_ui/ui_api.h"
+  #endif
+  
   #include "math.h"
 
   void unified_bed_leveling::echo_name() {

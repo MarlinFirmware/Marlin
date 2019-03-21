@@ -36,7 +36,7 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if ENABLED(LCD_BED_LEVELING) && ENABLED(PROBE_MANUALLY)
+#if BOTH(LCD_BED_LEVELING, PROBE_MANUALLY)
   #include "../../../lcd/ultralcd.h"
 #endif
 
@@ -151,7 +151,7 @@
  */
 G29_TYPE GcodeSuite::G29() {
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(PROBE_MANUALLY)
+  #if EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY)
     const bool seenQ = parser.seen('Q');
   #else
     constexpr bool seenQ = false;
@@ -205,7 +205,7 @@ G29_TYPE GcodeSuite::G29() {
   ABL_VAR float xProbe, yProbe, measured_z;
   ABL_VAR bool dryrun, abl_should_enable;
 
-  #if ENABLED(PROBE_MANUALLY) || ENABLED(AUTO_BED_LEVELING_LINEAR)
+  #if EITHER(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
     ABL_VAR int abl_probe_index;
   #endif
 
@@ -280,7 +280,7 @@ G29_TYPE GcodeSuite::G29() {
       if (active_extruder != 0) tool_change(0);
     #endif
 
-    #if ENABLED(PROBE_MANUALLY) || ENABLED(AUTO_BED_LEVELING_LINEAR)
+    #if EITHER(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
       abl_probe_index = -1;
     #endif
 
@@ -522,7 +522,7 @@ G29_TYPE GcodeSuite::G29() {
     }
     else {
 
-      #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT)
+      #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
         const uint16_t index = abl_probe_index - 1;
       #endif
 

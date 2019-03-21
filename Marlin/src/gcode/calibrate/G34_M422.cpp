@@ -38,6 +38,10 @@
   #include "../../module/probe.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../../feature/bltouch.h"
+#endif
+
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -108,8 +112,8 @@ void GcodeSuite::G34() {
     #endif
 
     #if ENABLED(BLTOUCH)
-      bltouch_command(BLTOUCH_RESET);
-      set_bltouch_deployed(false);
+      bltouch.reset();
+      bltouch.stow();
     #endif
 
     // Always home with tool 0 active

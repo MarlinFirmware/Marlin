@@ -49,6 +49,10 @@
   #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
   #include "../../../core/debug_out.h"
 
+  #if ENABLED(EXTENSIBLE_UI)
+    #include "../../../lcd/extensible_ui/ui_api.h"
+  #endif
+
   #include <math.h>
 
   #define UBL_G29_P31
@@ -389,12 +393,13 @@
 
         case 2:
           // Allow the user to specify the height because 10mm is a little extreme in some cases.
-          for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)   // Create a rectangular raised area in
-            for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) // the center of the bed
+          for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)     // Create a rectangular raised area in
+            for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) { // the center of the bed
               z_values[x][y] += parser.seen('C') ? g29_constant : 9.99f;
               #if ENABLED(EXTENSIBLE_UI)
                 ExtUI::onMeshUpdate(x, y, z_values[x][y]);
               #endif
+            }
           break;
       }
     }

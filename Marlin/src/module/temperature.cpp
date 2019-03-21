@@ -33,13 +33,13 @@
 #include "../core/language.h"
 #include "../HAL/shared/Delay.h"
 
-#define MAX6675_SEPARATE_SPI (ENABLED(HEATER_0_USES_MAX6675) || ENABLED(HEATER_1_USES_MAX6675)) && PIN_EXISTS(MAX6675_SCK) && PIN_EXISTS(MAX6675_DO)
+#define MAX6675_SEPARATE_SPI EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO)
 
 #if MAX6675_SEPARATE_SPI
   #include "../libs/private_spi.h"
 #endif
 
-#if ENABLED(BABYSTEPPING) || ENABLED(PID_EXTRUSION_SCALING)
+#if EITHER(BABYSTEPPING, PID_EXTRUSION_SCALING)
   #include "stepper.h"
 #endif
 
@@ -360,8 +360,8 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
     #endif
 
     #if WATCH_BED || WATCH_HOTENDS
-      #define HAS_TP_BED (ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED))
-      #if HAS_TP_BED && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
+      #define HAS_TP_BED BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
+      #if HAS_TP_BED && BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
         #define GTV(B,H) (heater < 0 ? (B) : (H))
       #elif HAS_TP_BED
         #define GTV(B,H) (B)
@@ -823,8 +823,8 @@ float Temperature::get_pid_output(const int8_t e) {
           MSG_PID_DEBUG_PTERM, work_pid[HOTEND_INDEX].Kp,
           MSG_PID_DEBUG_ITERM, work_pid[HOTEND_INDEX].Ki,
           MSG_PID_DEBUG_DTERM, work_pid[HOTEND_INDEX].Kd
-          #if ENABLED(PID_EXTRUSION_SCALING),
-            MSG_PID_DEBUG_CTERM, work_pid[HOTEND_INDEX].Kc
+          #if ENABLED(PID_EXTRUSION_SCALING)
+            , MSG_PID_DEBUG_CTERM, work_pid[HOTEND_INDEX].Kc
           #endif
         );
       #endif
@@ -913,7 +913,7 @@ void Temperature::manage_heater() {
     }
   #endif
 
-  #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+  #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
     static bool last_pause_state;
   #endif
 
@@ -1004,12 +1004,12 @@ void Temperature::manage_heater() {
 
     #if DISABLED(PIDTEMPBED)
       if (PENDING(ms, next_bed_check_ms)
-        #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+        #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
           && paused == last_pause_state
         #endif
       ) return;
       next_bed_check_ms = ms + BED_CHECK_INTERVAL;
-      #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+      #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
         last_pause_state = paused;
       #endif
     #endif
@@ -1334,7 +1334,7 @@ void Temperature::init() {
   #endif
 
   #if MB(RUMBA)
-    #define _AD(N) (ENABLED(HEATER_##N##_USES_AD595) || ENABLED(HEATER_##N##_USES_AD8495))
+    #define _AD(N) (ANY(HEATER_##N##_USES_AD595, HEATER_##N##_USES_AD8495))
     #if _AD(0) || _AD(1) || _AD(2) || _AD(3) || _AD(4) || _AD(5) || _AD(BED) || _AD(CHAMBER)
       // Disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
       MCUCR = _BV(JTD);
@@ -1342,7 +1342,7 @@ void Temperature::init() {
     #endif
   #endif
 
-  #if ENABLED(PIDTEMP) && ENABLED(PID_EXTRUSION_SCALING)
+  #if BOTH(PIDTEMP, PID_EXTRUSION_SCALING)
     last_e_position = 0;
   #endif
 
@@ -2743,7 +2743,7 @@ void Temperature::isr() {
   //
 
   #if ENABLED(BABYSTEPPING)
-    #if ENABLED(BABYSTEP_XY) || ENABLED(I2C_POSITION_ENCODERS)
+    #if EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
       LOOP_XYZ(axis) {
         const int16_t curTodo = babystepsTodo[axis]; // get rid of volatile for performance
         if (curTodo) {
@@ -2942,7 +2942,7 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-  #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+  #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       #if HOTENDS > 1

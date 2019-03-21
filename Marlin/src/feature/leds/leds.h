@@ -33,7 +33,7 @@
   #include "neopixel.h"
 #endif
 
-#define HAS_WHITE_LED (ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED))
+#define HAS_WHITE_LED EITHER(RGBW_LED, NEOPIXEL_LED)
 
 /**
  * LEDcolor type for use with leds.set_color
@@ -183,7 +183,7 @@ public:
     static inline LEDColor get_color() { return lights_on ? color : LEDColorOff(); }
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
+  #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
     static LEDColor color; // last non-off color
     static bool lights_on; // the last set color was "on"
   #endif
