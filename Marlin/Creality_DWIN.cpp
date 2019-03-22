@@ -2282,7 +2282,8 @@ void RTSUpdate()	//looping at the loop function
 
 	EachMomentUpdate();
 
-SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
+if(waitway!=0)
+	SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
 	/*wait to receive massage and response*/
 	if(!waitway && rtscheck.RTS_RecData() > 0) {
 		//SERIAL_PROTOCOLLN("  Handle Data ");
