@@ -42,6 +42,9 @@
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
+  #if ENABLED(BLTOUCH)
+    #include "../../feature/bltouch.h"
+  #endif
 #endif
 
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
@@ -159,8 +162,8 @@ static void lcd_factory_settings() {
     MENU_BACK(MSG_MAIN);
     MENU_ITEM(function, MSG_BLTOUCH_RESET, bltouch.reset);
     MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, bltouch.selftest);
-    MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch.deploy);
-    MENU_ITEM(function, MSG_BLTOUCH_STOW, bltouch.stow);
+    MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch._deploy);
+    MENU_ITEM(function, MSG_BLTOUCH_STOW, bltouch._stow);
     #if ENABLED(BLTOUCH_V3)
       MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch.set_SW_mode);
       MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch.set_5V_mode);

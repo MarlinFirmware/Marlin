@@ -49,9 +49,10 @@ public:
   FORCE_INLINE static bool deploy() { return set_deployed(true); }
   FORCE_INLINE static bool stow()   { return set_deployed(false); }
 
-private:
   FORCE_INLINE static void _deploy()     { command(BLTOUCH_DEPLOY); }
   FORCE_INLINE static void _stow()       { command(BLTOUCH_STOW); }
+
+private:
   static bool set_deployed(const bool deploy);
 };
 
