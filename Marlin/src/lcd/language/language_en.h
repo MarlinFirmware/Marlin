@@ -1277,6 +1277,18 @@
 #ifndef MSG_END_Z
   #define MSG_END_Z                           _UxGT("  End Z")
 #endif
+#ifndef MSG_BRICKOUT
+  #define MSG_BRICKOUT                        _UxGT("Brickout")
+#endif
+#ifndef MSG_INVADERS
+  #define MSG_INVADERS                        _UxGT("Invaders")
+#endif
+#ifndef MSG_SNAKE
+  #define MSG_SNAKE                           _UxGT("Sn4k3")
+#endif
+#ifndef MSG_MAZE
+  #define MSG_MAZE                            _UxGT("Maze")
+#endif
 
 //
 // Filament Change screens show up to 3 lines on a 4-line display
