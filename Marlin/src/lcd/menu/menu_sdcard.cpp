@@ -64,7 +64,7 @@ void lcd_sd_updir() {
     goto_screen(menu_sdcard, last_sdfile_encoderPosition);
     last_sdfile_encoderPosition = 0xFFFF;
 
-    defer_status_screen(true);
+    defer_status_screen();
 
     //#if HAS_GRAPHICAL_LCD
     //  update();

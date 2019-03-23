@@ -101,7 +101,7 @@ void _lcd_level_bed_corners_homing() {
 }
 
 void _lcd_level_bed_corners() {
-  ui.defer_status_screen(true);
+  ui.defer_status_screen();
   if (!all_axes_known()) {
     set_all_unhomed();
     enqueue_and_echo_commands_P(PSTR("G28"));

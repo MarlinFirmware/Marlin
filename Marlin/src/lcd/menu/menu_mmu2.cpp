@@ -197,14 +197,14 @@ void menu_mmu2_pause() {
 }
 
 void mmu2_M600() {
-  ui.defer_status_screen(true);
+  ui.defer_status_screen();
   ui.goto_screen(menu_mmu2_pause);
   mmuMenuWait = true;
   while (mmuMenuWait) idle();
 }
 
 uint8_t mmu2_chooseFilament() {
-  ui.defer_status_screen(true);
+  ui.defer_status_screen();
   ui.goto_screen(menu_mmu2_chooseFilament);
   mmuMenuWait = true;
   while (mmuMenuWait) idle();

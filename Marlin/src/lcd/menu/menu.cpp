@@ -357,7 +357,7 @@ void MarlinUI::completion_feedback(const bool good/*=true*/) {
 
   void lcd_babystep_zoffset() {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
-    ui.defer_status_screen(true);
+    ui.defer_status_screen();
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
       const bool do_probe = (active_extruder == 0);
     #else
