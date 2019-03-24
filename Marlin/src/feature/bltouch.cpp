@@ -36,6 +36,7 @@ void stop();
 #include "../core/debug_out.h"
 
 void BLTouch::command(const BLTCommand cmd) {
+  //SERIAL_ECHOLNPAIR("BLTouch Command :", cmd);
   MOVE_SERVO(Z_PROBE_SERVO_NR, cmd);
   safe_delay(BLTOUCH_DELAY);
 }
