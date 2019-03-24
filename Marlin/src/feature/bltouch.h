@@ -41,13 +41,26 @@ public:
   static bool triggered();
 
   FORCE_INLINE static void reset()       { command(BLTOUCH_RESET); }
-  FORCE_INLINE static void set_5V_mode() { command(BLTOUCH_5V_MODE); }
-  FORCE_INLINE static void set_OD_mode() { command(BLTOUCH_OD_MODE); }
-  FORCE_INLINE static void set_SW_mode() { command(BLTOUCH_SW_MODE); }
   FORCE_INLINE static void selftest()    { command(BLTOUCH_SELFTEST); }
 
-  FORCE_INLINE static bool deploy() { return set_deployed(true); }
-  FORCE_INLINE static bool stow()   { return set_deployed(false); }
+  FORCE_INLINE static void set_5V_mode() { 
+    #if ENABLED(BLTOUCH_V3)
+      command(BLTOUCH_5V_MODE);
+    #endif
+  }
+  FORCE_INLINE static void set_OD_mode() {
+    #if ENABLED(BLTOUCH_V3)
+      command(BLTOUCH_OD_MODE);
+    #endif
+  }
+  FORCE_INLINE static void set_SW_mode() {
+    #if ENABLED(BLTOUCH_V3)
+      command(BLTOUCH_SW_MODE);
+    #endif
+  }
+
+  FORCE_INLINE static bool deploy()      { return set_deployed(true); }
+  FORCE_INLINE static bool stow()        { return set_deployed(false); }
 
   FORCE_INLINE static void _deploy()     { command(BLTOUCH_DEPLOY); }
   FORCE_INLINE static void _stow()       { command(BLTOUCH_STOW); }
