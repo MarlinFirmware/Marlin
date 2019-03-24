@@ -58,8 +58,8 @@ void GcodeSuite::M106() {
       const uint16_t t = parser.intval('T');
       if (t > 0) return thermalManager.set_temp_fan_speed(p, t);
     #endif
-
-    uint16_t s = parser.ushortval('S', 255);
+    uint16_t d = parser.seen('A') ? thermalManager.fan_speed[active_extruder] : 255;
+    uint16_t s = parser.ushortval('S', d);
     NOMORE(s, 255U);
 
     thermalManager.set_fan_speed(p, s);

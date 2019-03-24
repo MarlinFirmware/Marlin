@@ -430,7 +430,7 @@ public:
       static void lcd_in_status(const bool inStatus);
     #endif
 
-    static inline void defer_status_screen(const bool defer) {
+    static inline void defer_status_screen(const bool defer=true) {
       #if LCD_TIMEOUT_TO_STATUS
         defer_return_to_status = defer;
       #else

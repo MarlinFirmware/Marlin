@@ -45,7 +45,7 @@ static void lcd_power_loss_recovery_cancel() {
 }
 
 void menu_job_recovery() {
-  ui.defer_status_screen(true);
+  ui.defer_status_screen();
   START_MENU();
   STATIC_ITEM(MSG_OUTAGE_RECOVERY);
   MENU_ITEM(function, MSG_RESUME_PRINT, lcd_power_loss_recovery_resume);
