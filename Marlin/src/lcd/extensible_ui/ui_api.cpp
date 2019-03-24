@@ -350,13 +350,13 @@ namespace ExtUI {
     float getAxisCurrent_mA(const axis_t axis) {
       switch (axis) {
         #if AXIS_IS_TMC(X)
-        case X: return stepperX.getMilliamps();
+          case X: return stepperX.getMilliamps();
         #endif
         #if AXIS_IS_TMC(Y)
-        case Y: return stepperY.getMilliamps();
+          case Y: return stepperY.getMilliamps();
         #endif
         #if AXIS_IS_TMC(Z)
-        case Z: return stepperZ.getMilliamps();
+          case Z: return stepperZ.getMilliamps();
         #endif
         default: return NAN;
       };
@@ -365,22 +365,22 @@ namespace ExtUI {
     float getAxisCurrent_mA(const extruder_t extruder) {
       switch (extruder) {
         #if AXIS_IS_TMC(E0)
-        case E0: return stepperE0.getMilliamps();
+          case E0: return stepperE0.getMilliamps();
         #endif
         #if AXIS_IS_TMC(E1)
-        case E1: return stepperE1.getMilliamps();
+          case E1: return stepperE1.getMilliamps();
         #endif
         #if AXIS_IS_TMC(E2)
-        case E2: return stepperE2.getMilliamps();
+          case E2: return stepperE2.getMilliamps();
         #endif
         #if AXIS_IS_TMC(E3)
-        case E3: return stepperE3.getMilliamps();
+          case E3: return stepperE3.getMilliamps();
         #endif
         #if AXIS_IS_TMC(E4)
-        case E4: return stepperE4.getMilliamps();
+          case E4: return stepperE4.getMilliamps();
         #endif
         #if AXIS_IS_TMC(E5)
-        case E5: return stepperE5.getMilliamps();
+          case E5: return stepperE5.getMilliamps();
         #endif
         default: return NAN;
       };
@@ -389,13 +389,13 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float mA, const axis_t axis) {
       switch (axis) {
         #if AXIS_IS_TMC(X)
-        case X: stepperX.rms_current(clamp(mA, 500, 1500)); break;
+          case X: stepperX.rms_current(clamp(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(Y)
-        case Y: stepperY.rms_current(clamp(mA, 500, 1500)); break;
+          case Y: stepperY.rms_current(clamp(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(Z)
-        case Z: stepperZ.rms_current(clamp(mA, 500, 1500)); break;
+          case Z: stepperZ.rms_current(clamp(mA, 500, 1500)); break;
         #endif
       };
     }
@@ -403,71 +403,50 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float mA, const extruder_t extruder) {
       switch (extruder) {
         #if AXIS_IS_TMC(E0)
-        case E0: stepperE0.rms_current(clamp(mA, 500, 1500)); break;
+          case E0: stepperE0.rms_current(clamp(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E1)
-        case E1: stepperE1.rms_current(clamp(mA, 500, 1500)); break;
+          case E1: stepperE1.rms_current(clamp(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E2)
-        case E2: stepperE2.rms_current(clamp(mA, 500, 1500)); break;
+          case E2: stepperE2.rms_current(clamp(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E3)
-        case E3: stepperE3.rms_current(clamp(mA, 500, 1500)); break;
+          case E3: stepperE3.rms_current(clamp(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E4)
-        case E4: stepperE4.rms_current(clamp(mA, 500, 1500)); break;
+          case E4: stepperE4.rms_current(clamp(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E5)
-        case E5: stepperE5.rms_current(clamp(mA, 500, 1500)); break;
+          case E5: stepperE5.rms_current(clamp(mA, 500, 1500)); break;
         #endif
       };
     }
 
     int getTMCBumpSensitivity(const axis_t axis) {
       switch (axis) {
-        #if X_SENSORLESS
-          #if AXIS_HAS_STALLGUARD(X)
-            case X:
-              return stepperX.sgt();
-          #endif
+        #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
+          case X: return stepperX.sgt();
         #endif
-        #if Y_SENSORLESS
-          #if AXIS_HAS_STALLGUARD(Y)
-            case Y:
-              return stepperY.sgt();
-          #endif
+        #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
+          case Y: return stepperY.sgt();
         #endif
-        #if Z_SENSORLESS
-          #if AXIS_HAS_STALLGUARD(Z)
-            case Z:
-              return stepperZ.sgt();
-          #endif
+        #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
+          case Z: return stepperZ.sgt();
         #endif
       }
     }
 
     void setTMCBumpSensitivity(const float value, const axis_t axis) {
       switch (axis) {
-        #if X_SENSORLESS
-          #if AXIS_HAS_STALLGUARD(X)
-            case X:
-              stepperX.sgt(clamp(value, -64, 63));
-              break;
-          #endif
+        #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
+          case X: stepperX.sgt(clamp(value, -64, 63)); break;
         #endif
-        #if Y_SENSORLESS
-          #if AXIS_HAS_STALLGUARD(Y)
-            case Y:
-              stepperY.sgt(clamp(value, -64, 63));
-              break;
-          #endif
+        #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
+          case Y: stepperY.sgt(clamp(value, -64, 63)); break;
         #endif
-        #if Z_SENSORLESS
-          #if AXIS_HAS_STALLGUARD(Z)
-            case Z:
-              stepperZ.sgt(clamp(value, -64, 63));
-              break;
-          #endif
+        #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
+          case Z: stepperZ.sgt(clamp(value, -64, 63)); break;
         #endif
       }
     }
