@@ -2379,7 +2379,7 @@ void Temperature::isr() {
       #if ENABLED(FAN_SOFT_PWM)
         #define _FAN_PWM(N) do{ \
           soft_pwm_count_fan[N] = (soft_pwm_count_fan[N] & pwm_mask) + (soft_pwm_amount_fan[N] >> 1); \
-          WRITE_FAN(soft_pwm_count_fan[N] > pwm_mask ? HIGH : LOW); \
+          WRITE_FAN_N(N, soft_pwm_count_fan[N] > pwm_mask ? HIGH : LOW); \
         }while(0)
         #if HAS_FAN0
           _FAN_PWM(0);
