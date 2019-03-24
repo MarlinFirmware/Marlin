@@ -1006,7 +1006,127 @@ inline void draw_game_over() {
 
 #endif // MARLIN_SNAKE
 
-#if 1 < ENABLED(MARLIN_BRICKOUT) + ENABLED(MARLIN_INVADERS) + ENABLED(MARLIN_SNAKE)
+#if ENABLED(MARLIN_MAZE)
+
+  int8_t move_dir, last_move_dir, // NESW0
+         prizex, prizey, prize_cnt, old_encoder;
+  fixed_t playerx, playery;
+
+  // Up to 50 lines, then you win!
+  typedef struct { int8_t x, y; } pos_t;
+  uint8_t head_ind;
+  pos_t maze_walls[50] = {
+    { 0, 0 }
+  };
+
+  // Turn the player cw or ccw
+  inline void turn_player(const bool cw) {
+    if (move_dir == 4) move_dir = last_move_dir;
+    move_dir += cw ? 1 : -1;
+    move_dir &= 0x03;
+    last_move_dir = move_dir;
+  }
+
+  // Reset the player for a new game
+  void player_reset() {
+    // Init position
+    playerx = BTOF(1);
+    playery = BTOF(GAME_H / 2);
+
+    // Init motion with a ccw turn
+    move_dir = 0;
+    turn_player(false);
+
+    // Clear prize flag
+    prize_cnt = 255;
+
+    // Clear the controls
+    ui.encoderPosition = 0;
+    old_encoder = 0;
+  }
+
+  void game_screen_maze() {
+    static int8_t slew;
+    if (ui.first_page) slew = 2;
+    ui.refresh(LCDVIEW_CALL_NO_REDRAW); // Call as often as possible
+
+    // Run the sprite logic
+    if (game_state && slew-- > 0) do {     // Run logic twice for finer resolution
+
+      // Move the man one unit in the current direction
+      // Direction index 4 is for the stopped man
+      const int8_t oldx = FTOB(playerx), oldy = FTOB(playery);
+      pos_t dir_add[] = { { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, 0 } };
+      playerx += dir_add[move_dir].x;
+      playery += dir_add[move_dir].y;
+      const int8_t x = FTOB(playerx), y = FTOB(playery);
+
+    } while(0);
+
+    u8g.setColorIndex(1);
+
+    // Draw Score
+    if (PAGE_UNDER(HEADER_H)) {
+      lcd_moveto(0, HEADER_H - 1);
+      lcd_put_int(score);
+    }
+
+    // Draw the maze
+    // for (uint8_t n = 0; n < head_ind; ++n) {
+    //   const pos_t &p = maze_walls[n], &q = maze_walls[n + 1];
+    //   if (p.x == q.x) {
+    //     const int8_t y1 = GAMEY(MIN(p.y, q.y)), y2 = GAMEY(MAX(p.y, q.y));
+    //     if (PAGE_CONTAINS(y1, y2))
+    //       u8g.drawVLine(GAMEX(p.x), y1, y2 - y1 + 1);
+    //   }
+    //   else if (PAGE_CONTAINS(GAMEY(p.y), GAMEY(p.y))) {
+    //     const int8_t x1 = GAMEX(MIN(p.x, q.x)), x2 = GAMEX(MAX(p.x, q.x));
+    //     u8g.drawHLine(x1, GAMEY(p.y), x2 - x1 + 1);
+    //   }
+    // }
+
+    // Draw Man
+    // const int8_t fy = GAMEY(foody);
+    // if (PAGE_CONTAINS(fy, fy + FOOD_WH - 1)) {
+    //   const int8_t fx = GAMEX(foodx);
+    //   u8g.drawFrame(fx, fy, FOOD_WH, FOOD_WH);
+    //   if (FOOD_WH == 5) u8g.drawPixel(fx + 2, fy + 2);
+    // }
+
+    // Draw Ghosts
+    // const int8_t fy = GAMEY(foody);
+    // if (PAGE_CONTAINS(fy, fy + FOOD_WH - 1)) {
+    //   const int8_t fx = GAMEX(foodx);
+    //   u8g.drawFrame(fx, fy, FOOD_WH, FOOD_WH);
+    //   if (FOOD_WH == 5) u8g.drawPixel(fx + 2, fy + 2);
+    // }
+
+    // Draw Prize
+    // if (PAGE_CONTAINS(prizey, prizey + PRIZE_WH - 1)) {
+    //   u8g.drawFrame(prizex, prizey, PRIZE_WH, PRIZE_WH);
+    //   if (PRIZE_WH == 5) u8g.drawPixel(prizex + 2, prizey + 2);
+    // }
+
+    // Draw GAME OVER
+    if (!game_state) draw_game_over();
+
+    // A click always exits this game
+    if (ui.use_click()) ui.goto_previous_screen();
+  }
+
+  void lcd_goto_maze() {
+    game_state = 1; // Game running
+    score = 0;
+    reset_player();
+    reset_enemies();
+    ui.encoder_direction_normal();
+    ui.goto_screen(game_screen_maze);
+    ui.defer_status_screen();
+  }
+
+#endif // MARLIN_MAZE
+
+#if HAS_GAME_MENU
 
   void menu_game() {
     START_MENU();
