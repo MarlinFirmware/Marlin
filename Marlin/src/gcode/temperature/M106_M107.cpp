@@ -33,7 +33,7 @@
   #define _CNT_P EXTRUDERS
 #else
   #define _ALT_P MIN(active_extruder, FAN_COUNT - 1)
-  #define _CNT_P MIN(EXTRUDERS, FAN_COUNT)
+  #define _CNT_P FAN_COUNT
 #endif
 
 /**
