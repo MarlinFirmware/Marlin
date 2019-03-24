@@ -15,6 +15,7 @@ exec_test $1 $2 "Teensy3.5 with default config"
 # Test as many features together as possible
 #
 restore_configs
+opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_set EXTRUDERS 2
 opt_set TEMP_SENSOR_0 1
 opt_set TEMP_SENSOR_1 5
@@ -35,6 +36,7 @@ exec_test $1 $2 "Teensy3.5 with many features"
 # Test a Sled Z Probe with Linear leveling
 #
 restore_configs
+opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_enable EEPROM_SETTINGS Z_PROBE_SLED AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE GCODE_MACROS
 exec_test $1 $2 "Sled Z Probe with Linear leveling"
 
@@ -42,6 +44,7 @@ exec_test $1 $2 "Sled Z Probe with Linear leveling"
 # Test a Servo Probe
 #
 # restore_configs
+# opt_set MOTHERBOARD BOARD_TEENSY35_36
 # opt_enable Z_PROBE_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE \
 #            AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS
 # opt_set NUM_SERVOS 1
@@ -57,6 +60,7 @@ exec_test $1 $2 "Sled Z Probe with Linear leveling"
 # Test MAGNETIC_PARKING_EXTRUDER with LCD
 #
 restore_configs
+opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_set EXTRUDERS 2
 opt_set TEMP_SENSOR_1 1
 opt_enable MAGNETIC_PARKING_EXTRUDER ULTIMAKERCONTROLLER
@@ -66,6 +70,7 @@ exec_test $1 $2 "MAGNETIC_PARKING_EXTRUDER with LCD"
 # Mixing Extruder
 #
 restore_configs
+opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_enable MIXING_EXTRUDER DIRECT_MIXING_IN_G1 GRADIENT_MIX GRADIENT_VTOOL REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 opt_set MIXING_STEPPERS 2
 exec_test $1 $2 "Mixing Extruder"
@@ -74,6 +79,7 @@ exec_test $1 $2 "Mixing Extruder"
 # Test SWITCHING_EXTRUDER
 #
 # restore_configs
+# opt_set MOTHERBOARD BOARD_TEENSY35_36
 # opt_set EXTRUDERS 2
 # opt_set NUM_SERVOS 1
 # opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
@@ -82,6 +88,7 @@ exec_test $1 $2 "Mixing Extruder"
 # Enable COREXY
 #
 restore_configs
+opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_enable COREXY
 exec_test $1 $2 "COREXY"
 
@@ -89,6 +96,7 @@ exec_test $1 $2 "COREXY"
 # Enable COREXZ
 #
 restore_configs
+opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_enable COREXZ
 exec_test $1 $2 "COREXZ"
 
@@ -96,6 +104,7 @@ exec_test $1 $2 "COREXZ"
 # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
 #
 restore_configs
+opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_enable Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
 pins_set RAMPS X_MAX_PIN -1
 opt_add Z2_MAX_PIN 2
