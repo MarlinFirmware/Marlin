@@ -83,18 +83,28 @@ void plan_arc(
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
   float angular_travel = ATAN2(r_P * rt_Y - r_Q * rt_X, r_P * rt_X + r_Q * rt_Y);
   if (angular_travel < 0) angular_travel += RADIANS(360);
+  #ifdef MIN_ARC_SEGMENTS
+    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (angular_travel / RADIANS(360)));
+    NOLESS(min_segments, 1);
+  #else
+    constexpr uint16_t min_segments = 1;
+  #endif
   if (clockwise) angular_travel -= RADIANS(360);
 
   // Make a circle if the angular rotation is 0 and the target is current position
-  if (angular_travel == 0 && current_position[p_axis] == cart[p_axis] && current_position[q_axis] == cart[q_axis])
+  if (angular_travel == 0 && current_position[p_axis] == cart[p_axis] && current_position[q_axis] == cart[q_axis]) {
     angular_travel = RADIANS(360);
+    #ifdef MIN_ARC_SEGMENTS
+      min_segments = MIN_ARC_SEGMENTS;
+    #endif
+  }
 
   const float flat_mm = radius * angular_travel,
               mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : ABS(flat_mm);
   if (mm_of_travel < 0.001f) return;
 
   uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
-  if (segments == 0) segments = 1;
+  NOLESS(segments, min_segments);
 
   /**
    * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
