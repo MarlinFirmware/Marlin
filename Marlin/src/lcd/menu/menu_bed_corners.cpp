@@ -50,7 +50,7 @@ static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Pleas
   static bool leveling_was_active = false;
 #endif
 
-static inline void _goto_previous_screen_no_defer() {
+static inline void _lcd_level_bed_corners_back() {
   #if HAS_LEVELING
     set_bed_leveling_enabled(leveling_was_active);
   #endif
@@ -61,7 +61,7 @@ static inline void _goto_previous_screen_no_defer() {
  * Level corners, starting in the front-left corner.
  */
 static int8_t bed_corner;
-void _lcd_goto_next_corner() {
+static inline void _lcd_goto_next_corner() {
   line_to_z(LEVEL_CORNERS_Z_HOP);
   switch (bed_corner) {
     case 0:
@@ -93,7 +93,7 @@ void _lcd_goto_next_corner() {
   ) bed_corner = 0;
 }
 
-void menu_level_bed_corners() {
+static inline void menu_level_bed_corners() {
   START_MENU();
   MENU_ITEM(function,
     #if ENABLED(LEVEL_CENTER_TOO)
@@ -101,12 +101,13 @@ void menu_level_bed_corners() {
     #else
       MSG_NEXT_CORNER
     #endif
-    , _lcd_goto_next_corner);
-  MENU_ITEM(function, MSG_BACK, _goto_previous_screen_no_defer);
+    , _lcd_goto_next_corner
+  );
+  MENU_ITEM(function, MSG_BACK, _lcd_level_bed_corners_back);
   END_MENU();
 }
 
-void _lcd_level_bed_corners_homing() {
+static inline void _lcd_level_bed_corners_homing() {
   _lcd_draw_homing();
   if (all_axes_homed()) {
     bed_corner = 0;
