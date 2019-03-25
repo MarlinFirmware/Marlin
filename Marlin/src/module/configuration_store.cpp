@@ -86,6 +86,10 @@
 
 #include "../feature/pause.h"
 
+#if ENABLED(EXTRA_LIN_ADVANCE_K)
+extern float saved_extruder_advance_K[EXTRUDERS];
+#endif
+
 #if EXTRUDERS > 1
   #include "tool_change.h"
   void M217_report(const bool eeprom);
@@ -2233,7 +2237,12 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(LIN_ADVANCE)
-    LOOP_L_N(i, EXTRUDERS) planner.extruder_advance_K[i] = LIN_ADVANCE_K;
+    LOOP_L_N(i, EXTRUDERS) {
+      planner.extruder_advance_K[i] = LIN_ADVANCE_K;
+    #if ENABLED(EXTRA_LIN_ADVANCE_K)
+      saved_extruder_advance_K[i] = LIN_ADVANCE_K;
+    #endif
+    }
   #endif
 
   //
