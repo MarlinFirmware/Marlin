@@ -686,6 +686,12 @@ void GcodeSuite::G26() {
     set_current_from_destination();
   }
 
+  #if DISABLED(NO_VOLUMETRICS)
+    bool volumetric_was_enabled = parser.volumetric_enabled;
+    parser.volumetric_enabled = false;
+    planner.calculate_volumetric_multipliers();
+  #endif
+
   if (turn_on_heaters() != G26_OK) goto LEAVE;
 
   current_position[E_AXIS] = 0.0;
@@ -908,6 +914,11 @@ void GcodeSuite::G26() {
 
   move_to(destination, 0);                                    // Move back to the starting position
   //debug_current_and_destination(PSTR("done doing X/Y move."));
+
+  #if DISABLED(NO_VOLUMETRICS)
+    parser.volumetric_enabled = volumetric_was_enabled;
+    planner.calculate_volumetric_multipliers();
+  #endif
 
   #if HAS_LCD_MENU
     ui.release();                                             // Give back control of the LCD
