@@ -84,10 +84,10 @@ void plan_arc(
   float angular_travel = ATAN2(r_P * rt_Y - r_Q * rt_X, r_P * rt_X + r_Q * rt_Y);
   if (angular_travel < 0) angular_travel += RADIANS(360);
   #ifdef MIN_ARC_SEGMENTS
-    const uint16_t min_segments = CEIL(angular_travel / RADIANS(360) * MIN_ARC_SEGMENTS);
-    if (min_segments == 0) min_segments = 1; // is this necessary?
+    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (angular_travel / RADIANS(360)));
+    NOLESS(min_segments, 1);
   #else
-   const uint16_t min_segments = 1;
+    constexpr uint16_t min_segments = 1;
   #endif
   if (clockwise) angular_travel -= RADIANS(360);
 
@@ -104,7 +104,7 @@ void plan_arc(
   if (mm_of_travel < 0.001f) return;
 
   uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
-  if (segments < min_segments) segments = min_segments;
+  NOLESS(segments, min_segments);
 
   /**
    * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
