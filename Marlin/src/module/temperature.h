@@ -266,16 +266,6 @@ class Temperature {
                      soft_pwm_count_fan[FAN_COUNT];
     #endif
 
-    /**
-     * set_pwm_duty (8-bit AVRs only)
-     *  Sets the PWM duty cycle of the provided pin to the provided value
-     *  Optionally allows inverting the duty cycle [default = false]
-     *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
-     */
-    #if ENABLED(FAST_PWM_FAN)
-      static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
-    #endif
-
     #if ENABLED(BABYSTEPPING)
       static volatile int16_t babystepsTodo[3];
     #endif
@@ -744,38 +734,7 @@ class Temperature {
     #endif
 
   private:
-
-    /**
-     * (8-bit AVRs only)
-     *
-     * get_pwm_timer
-     *  Grabs timer information and registers of the provided pin
-     *  returns Timer struct containing this information
-     *  Used by set_pwm_frequency, set_pwm_duty
-     *
-     * set_pwm_frequency
-     *  Sets the frequency of the timer corresponding to the provided pin
-     *  as close as possible to the provided desired frequency. Internally
-     *  calculates the required waveform generation mode, prescaler and
-     *  resolution values required and sets the timer registers accordingly.
-     *  NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
-     *  NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST FAN PWM Settings)
-     */
-    #if ENABLED(FAST_PWM_FAN)
-      typedef struct Timer {
-          volatile uint8_t* TCCRnQ[3];  // max 3 TCCR registers per timer
-          volatile uint16_t* OCRnQ[3];  // max 3 OCR registers per timer
-          volatile uint16_t* ICRn;      // max 1 ICR register per timer
-          uint8_t n;                    // the timer number [0->5]
-          uint8_t q;                    // the timer output [0->2] (A->C)
-      } Timer;
-
-      static Timer get_pwm_timer(const pin_t pin);
-      static void set_pwm_frequency(const pin_t pin, int f_desired);
-    #endif
-
     static void set_current_temp_raw();
-
     static void updateTemperaturesFromRawValues();
 
     #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
