@@ -32,6 +32,10 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 
+#if HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
 #ifndef LEVEL_CORNERS_Z_HOP
   #define LEVEL_CORNERS_Z_HOP 4.0
 #endif
@@ -42,11 +46,22 @@
 
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
 
+#if HAS_LEVELING
+  static bool leveling_was_active = false;
+#endif
+
+static inline void _lcd_level_bed_corners_back() {
+  #if HAS_LEVELING
+    set_bed_leveling_enabled(leveling_was_active);
+  #endif
+  ui.goto_previous_screen_no_defer();
+}
+
 /**
  * Level corners, starting in the front-left corner.
  */
 static int8_t bed_corner;
-void _lcd_goto_next_corner() {
+static inline void _lcd_goto_next_corner() {
   line_to_z(LEVEL_CORNERS_Z_HOP);
   switch (bed_corner) {
     case 0:
@@ -78,7 +93,7 @@ void _lcd_goto_next_corner() {
   ) bed_corner = 0;
 }
 
-void menu_level_bed_corners() {
+static inline void menu_level_bed_corners() {
   START_MENU();
   MENU_ITEM(function,
     #if ENABLED(LEVEL_CENTER_TOO)
@@ -86,12 +101,13 @@ void menu_level_bed_corners() {
     #else
       MSG_NEXT_CORNER
     #endif
-    , _lcd_goto_next_corner);
-  MENU_ITEM(function, MSG_BACK, ui.goto_previous_screen_no_defer);
+    , _lcd_goto_next_corner
+  );
+  MENU_ITEM(function, MSG_BACK, _lcd_level_bed_corners_back);
   END_MENU();
 }
 
-void _lcd_level_bed_corners_homing() {
+static inline void _lcd_level_bed_corners_homing() {
   _lcd_draw_homing();
   if (all_axes_homed()) {
     bed_corner = 0;
@@ -106,6 +122,13 @@ void _lcd_level_bed_corners() {
     set_all_unhomed();
     enqueue_and_echo_commands_P(PSTR("G28"));
   }
+
+  // Disable leveling so the planner won't mess with us
+  #if HAS_LEVELING
+    leveling_was_active = planner.leveling_active;
+    set_bed_leveling_enabled(false);
+  #endif
+
   ui.goto_screen(_lcd_level_bed_corners_homing);
 }
 
