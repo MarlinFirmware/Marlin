@@ -384,18 +384,35 @@ void MarlinSettings::postprocess() {
 
 #if ENABLED(EEPROM_SETTINGS)
 
-  #define EEPROM_START() int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()
-  #define EEPROM_FINISH() persistentStore.access_finish()
-  #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
-  #define EEPROM_WRITE(VAR) persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
-  #define EEPROM_READ(VAR) persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating)
-  #define EEPROM_READ_ALWAYS(VAR) persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
-  #define EEPROM_ASSERT(TST,ERR) do{ if (!(TST)) { SERIAL_ERROR_MSG(ERR); eeprom_error = true; } }while(0)
+  #define WORD_PADDED_EEPROM ENABLED(__STM32F1__, FLASH_EEPROM_EMULATION)
+
+  #if WORD_PADDED_EEPROM && ENABLED(DEBUG_EEPROM_READWRITE)
+    #define UPDATE_TEST_INDEX(VAR) (text_index += sizeof(VAR))
+  #else
+    #define UPDATE_TEST_INDEX(VAR) NOOP
+  #endif
+  #if WORD_PADDED_EEPROM
+    #define EEPROM_SKIP(VAR) do{ eeprom_index += sizeof(VAR) + (sizeof(VAR) & 1); UPDATE_TEST_INDEX(sizeof(VAR)); }while(0)
+  #else
+    #define EEPROM_SKIP(VAR) (eeprom_index += sizeof(VAR))
+  #endif
+
+  #define EEPROM_START()          int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()
+  #define EEPROM_FINISH()         persistentStore.access_finish()
+  #define EEPROM_WRITE(VAR)       do{ persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);              UPDATE_TEST_INDEX(VAR); }while(0)
+  #define EEPROM_READ(VAR)        do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating);  UPDATE_TEST_INDEX(VAR); }while(0)
+  #define EEPROM_READ_ALWAYS(VAR) do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);               UPDATE_TEST_INDEX(VAR); }while(0)
+  #define EEPROM_ASSERT(TST,ERR)  do{ if (!(TST)) { SERIAL_ERROR_MSG(ERR); eeprom_error = true; } }while(0)
 
   #if ENABLED(DEBUG_EEPROM_READWRITE)
+    #if WORD_PADDED_EEPROM
+      int test_index;
+    #else
+      int &test_index = eeprom_index;
+    #endif
     #define _FIELD_TEST(FIELD) \
       EEPROM_ASSERT( \
-        eeprom_error || eeprom_index == offsetof(SettingsData, FIELD) + EEPROM_OFFSET, \
+        eeprom_error || test_index == offsetof(SettingsData, FIELD) + EEPROM_OFFSET, \
         "Field " STRINGIFY(FIELD) " mismatch." \
       )
   #else
