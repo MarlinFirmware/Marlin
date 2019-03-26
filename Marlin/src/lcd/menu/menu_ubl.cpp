@@ -431,9 +431,21 @@ void _lcd_ubl_map_lcd_edit_cmd() {
  * UBL LCD Map Movement
  */
 void ubl_map_move_to_xy() {
-  current_position[X_AXIS] = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]);
-  current_position[Y_AXIS] = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
-  planner.buffer_line(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
+  REMEMBER(fr, feedrate_mm_s, MMM_TO_MMS(XY_PROBE_SPEED));
+
+  set_destination_from_current();          // sync destination at the start
+
+  #if ENABLED(DELTA)
+    if (current_position[Z_AXIS] > delta_clip_start_height) {
+      destination[Z_AXIS] = delta_clip_start_height;
+      prepare_move_to_destination();
+    }
+  #endif
+
+  destination[X_AXIS] = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]);
+  destination[Y_AXIS] = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
+
+  prepare_move_to_destination();
 }
 
 /**
@@ -461,22 +473,33 @@ void _lcd_ubl_output_map_lcd() {
   if (ui.encoderPosition) {
     step_scaler += (int32_t)ui.encoderPosition;
     x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
-    if (ABS(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM) step_scaler = 0;
     ui.encoderPosition = 0;
     ui.refresh(LCDVIEW_REDRAW_NOW);
   }
 
-  // Encoder to the right (++)
-  if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
-  if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
+  #if IS_KINEMATIC
+    #define KEEP_LOOPING true   // Loop until a valid point is found
+  #else
+    #define KEEP_LOOPING false
+  #endif
 
-  // Encoder to the left (--)
-  if (x_plot <= GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1)) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
-  if (y_plot <= GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1)) y_plot = GRID_MAX_POINTS_Y - 1;
+  do {
+    // Encoder to the right (++)
+    if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
+    if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
 
-  // Prevent underrun/overrun of plot numbers
-  x_plot = constrain(x_plot, GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1), GRID_MAX_POINTS_X + 1);
-  y_plot = constrain(y_plot, GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1), GRID_MAX_POINTS_Y + 1);
+    // Encoder to the left (--)
+    if (x_plot < 0) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
+    if (y_plot < 0) y_plot = GRID_MAX_POINTS_Y - 1;
+
+    #if IS_KINEMATIC
+      const float x = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]),
+                  y = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
+      if (position_is_reachable(x, y)) break; // Found a valid point
+      x_plot += (step_scaler < 0) ? -1 : 1;
+    #endif
+
+  } while(KEEP_LOOPING);
 
   // Determine number of points to edit
   #if IS_KINEMATIC
@@ -486,6 +509,9 @@ void _lcd_ubl_output_map_lcd() {
                yc = WITHIN(y_plot, 1, GRID_MAX_POINTS_Y - 2);
     n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
   #endif
+
+  // Cleanup
+  if (ABS(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM) step_scaler = 0;
 
   if (ui.should_draw()) {
     ui.ubl_plot(x_plot, y_plot);
