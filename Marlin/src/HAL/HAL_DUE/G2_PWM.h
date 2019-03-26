@@ -27,8 +27,6 @@
 
 #include "../../inc/MarlinConfigPre.h"
 #include "../../module/stepper.h"
-//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\module\stepper.h
-//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\HAL\HAL_DUE\G2_PWM.h
 
 #define PWM_PERIOD_US  100  // base repetition rate in micro seconds
 
