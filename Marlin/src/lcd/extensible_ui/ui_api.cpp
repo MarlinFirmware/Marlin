@@ -89,7 +89,7 @@
 #endif
 
 #if HAS_LEVELING
-  #include "../../feature/bedlevel.h"
+  #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 #if HAS_FILAMENT_SENSOR
@@ -401,6 +401,7 @@ namespace ExtUI {
         #if AXIS_IS_TMC(Z)
           case Z: stepperZ.rms_current(clamp(mA, 500, 1500)); break;
         #endif
+        default: break;
       };
     }
 
@@ -424,6 +425,7 @@ namespace ExtUI {
         #if AXIS_IS_TMC(E5)
           case E5: stepperE5.rms_current(clamp(mA, 500, 1500)); break;
         #endif
+        default: break;
       };
     }
 
@@ -438,6 +440,7 @@ namespace ExtUI {
         #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
           case Z: return stepperZ.sgt();
         #endif
+        default: return 0;
       }
     }
 
@@ -452,6 +455,7 @@ namespace ExtUI {
         #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
           case Z: stepperZ.sgt(clamp(value, -64, 63)); break;
         #endif
+        default: break;
       }
     }
   #endif
