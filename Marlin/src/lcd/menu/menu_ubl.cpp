@@ -489,12 +489,12 @@ void _lcd_ubl_output_map_lcd() {
     if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
 
     // Encoder to the left (--)
-    if (x_plot <= GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1)) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
-    if (y_plot <= GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1)) y_plot = GRID_MAX_POINTS_Y - 1;
+    if (x_plot < 0) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
+    if (y_plot < 0) y_plot = GRID_MAX_POINTS_Y - 1;
 
     // Prevent underrun/overrun of plot numbers
-    x_plot = constrain(x_plot, GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1), GRID_MAX_POINTS_X + 1);
-    y_plot = constrain(y_plot, GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1), GRID_MAX_POINTS_Y + 1);
+    //if (x_plot > GRID_MAX_POINTS_X + 1) x_plot = GRID_MAX_POINTS_X + 1;
+    //if (y_plot > GRID_MAX_POINTS_Y + 1) y_plot = GRID_MAX_POINTS_Y + 1;
 
     #if IS_KINEMATIC
       const float x = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]),
