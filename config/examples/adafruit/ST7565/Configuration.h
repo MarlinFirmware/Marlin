@@ -818,7 +818,10 @@
 #if ENABLED(BLTOUCH)
   //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
 
-  // BLTouch V3.0 and newer smart series
+  /** BLTouch V3.0 and newer smart series
+   *  Functions with most genuine sensors, however clones have been reporting issues with the new code.
+   *  If the pin trigger is not detected, first try swapping black and white wires then toggle this.
+   */
   //#define BLTOUCH_V3
   #if ENABLED(BLTOUCH_V3)
     //#define BLTOUCH_FORCE_5V_MODE
