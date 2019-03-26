@@ -412,7 +412,7 @@ void MarlinSettings::postprocess() {
     #if WORD_PADDED_EEPROM
       int test_index;
     #else
-      int &test_index = eeprom_index;
+      #define test_index eeprom_index
     #endif
     #define _FIELD_TEST(FIELD) \
       EEPROM_ASSERT( \
