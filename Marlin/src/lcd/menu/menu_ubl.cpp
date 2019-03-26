@@ -478,31 +478,32 @@ void _lcd_ubl_output_map_lcd() {
   }
 
   #if IS_KINEMATIC
-    // Loop until we find a valid plot point
-    while (1) {
+    #define KEEP_LOOPING true   // Loop until a valid point is found
+  #else
+    #define KEEP_LOOPING false
   #endif
 
-      // Encoder to the right (++)
-      if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
-      if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
+  do {
+    // Encoder to the right (++)
+    if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
+    if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
 
-      // Encoder to the left (--)
-      if (x_plot <= GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1)) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
-      if (y_plot <= GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1)) y_plot = GRID_MAX_POINTS_Y - 1;
+    // Encoder to the left (--)
+    if (x_plot <= GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1)) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
+    if (y_plot <= GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1)) y_plot = GRID_MAX_POINTS_Y - 1;
 
-      // Prevent underrun/overrun of plot numbers
-      x_plot = constrain(x_plot, GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1), GRID_MAX_POINTS_X + 1);
-      y_plot = constrain(y_plot, GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1), GRID_MAX_POINTS_Y + 1);
+    // Prevent underrun/overrun of plot numbers
+    x_plot = constrain(x_plot, GRID_MAX_POINTS_X - (GRID_MAX_POINTS_X + 1), GRID_MAX_POINTS_X + 1);
+    y_plot = constrain(y_plot, GRID_MAX_POINTS_Y - (GRID_MAX_POINTS_Y + 1), GRID_MAX_POINTS_Y + 1);
 
-  #if IS_KINEMATIC
-      if (!position_is_reachable(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]),
-                                 pgm_read_float(&ubl._mesh_index_to_xpos[y_plot]))) {
-        x_plot += (step_scaler < 0) ? -1 : 1;
-      }
-      else
-        break;  // Point is valid
-    }
-  #endif
+    #if IS_KINEMATIC
+      const float x = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]),
+                  y = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
+      if (position_is_reachable(x, y)) break; // Found a valid point
+      x_plot += (step_scaler < 0) ? -1 : 1;
+    #endif
+
+  } while(KEEP_LOOPING);
 
   // Determine number of points to edit
   #if IS_KINEMATIC
