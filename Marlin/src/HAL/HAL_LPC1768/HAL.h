@@ -159,8 +159,8 @@ void HAL_idletask(void);
 void flashFirmware(int16_t value);
 
 /**
- *  set_pwm_frequency
- *  Sets the frequency of the timer corresponding to the provided pin
+ * set_pwm_frequency
+ *  Set the frequency of the timer corresponding to the provided pin
  *  All Hardware PWM pins run at the same frequency and all
  *  Software PWM pins run at the same frequency
  */
@@ -168,7 +168,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired);
 
 /**
  * set_pwm_duty
- *  Sets the PWM duty cycle of the provided pin to the provided value
+ *  Set the PWM duty cycle of the provided pin to the provided value
  *  Optionally allows inverting the duty cycle [default = false]
  *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
  */
