@@ -82,3 +82,7 @@
 #if 1 < (ENABLED(USB_SD_DISABLED) + ENABLED(USB_SD_ONBOARD))
   #error "Enable only one of USB_SD_DISABLED or USB_SD_ONBOARD."
 #endif
+
+#if ENABLED(FAST_PWM_FAN)
+  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#endif
