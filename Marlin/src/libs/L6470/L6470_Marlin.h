@@ -33,8 +33,6 @@
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
 #define HAS_L64XX_EXTRUDER (AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5))
 
-extern  uint8_t L6470_SpiTransfer_Mode_3(uint8_t b);
-
 typedef enum : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 } L6470_axis_t;
 
 class L64XX_Marlin : public L64XXHelper {
