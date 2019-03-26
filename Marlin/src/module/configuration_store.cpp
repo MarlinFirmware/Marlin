@@ -399,7 +399,7 @@ void MarlinSettings::postprocess() {
 
   int eeprom_index = EEPROM_OFFSET;
 
-  #define EEPROM_START()          persistentStore.access_start()
+  #define EEPROM_START()          int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()
   #define EEPROM_FINISH()         persistentStore.access_finish()
   #define EEPROM_WRITE(VAR)       do{ persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);              UPDATE_TEST_INDEX(VAR); }while(0)
   #define EEPROM_READ(VAR)        do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating);  UPDATE_TEST_INDEX(VAR); }while(0)
@@ -410,7 +410,7 @@ void MarlinSettings::postprocess() {
     #if WORD_PADDED_EEPROM
       int test_index;
     #else
-      int &test_index = eeprom_index;
+      #define test_index eeprom_index
     #endif
     #define _FIELD_TEST(FIELD) \
       EEPROM_ASSERT( \
