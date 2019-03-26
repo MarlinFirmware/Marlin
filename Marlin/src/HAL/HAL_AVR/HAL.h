@@ -372,3 +372,22 @@ inline void HAL_adc_init(void) {
 
 // AVR compatibility
 #define strtof strtod
+
+/**
+ *  set_pwm_frequency
+ *  Sets the frequency of the timer corresponding to the provided pin
+ *  as close as possible to the provided desired frequency. Internally
+ *  calculates the required waveform generation mode, prescaler and
+ *  resolution values required and sets the timer registers accordingly.
+ *  NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
+ *  NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST FAN PWM Settings)
+ */
+void set_pwm_frequency(const pin_t pin, int f_desired);
+
+/**
+ * set_pwm_duty
+ *  Sets the PWM duty cycle of the provided pin to the provided value
+ *  Optionally allows inverting the duty cycle [default = false]
+ *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+ */
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);

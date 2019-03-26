@@ -74,3 +74,7 @@
 #if ENABLED(SDIO_SUPPORT) && DISABLED(SDSUPPORT)
   #error "SDIO_SUPPORT requires SDSUPPORT. Enable SDSUPPORT to continue."
 #endif
+
+#if ENABLED(FAST_PWM_FAN)
+  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#endif
