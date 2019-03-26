@@ -122,7 +122,7 @@ void GcodeSuite::M916() {
       status_composite |= axis_status[j] ;
     }
 
-    if (status_composite && (status_composite & STATUS_UVLO)) {
+    if (status_composite && (status_composite & sh.STATUS_AXIS_UVLO)) {
       DEBUG_ECHOLNPGM("Test aborted (Undervoltage lockout active)");
       for (j = 0; j < driver_count; j++) {
         DEBUG_ECHOPGM("...");
@@ -226,8 +226,6 @@ void GcodeSuite::M917() {
   DEBUG_ECHOPAIR(")   Stall threshold: ", (STALL_TH_val + 1) * 31.25);
   DEBUG_ECHOPAIR("  (STALL_TH: ", STALL_TH_val);
   DEBUG_ECHOLNPGM(")");
-
-  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
 
   const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
 

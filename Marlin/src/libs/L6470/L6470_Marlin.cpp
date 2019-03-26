@@ -36,7 +36,7 @@ L64XX_Marlin L64xx_MARLIN;
 #include "../../gcode/gcode.h"
 #include "../../module/planner.h"
 
-const char * const L64XX_Marlin::index_to_axis[MAX_L6470] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
+char L64XX_Marlin::index_to_axis[MAX_L6470][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
