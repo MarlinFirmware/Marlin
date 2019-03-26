@@ -57,7 +57,7 @@
               return timer;
             }
           #else
-            case TIMER2B:   q += 1;
+            case TIMER2B:   ++q;
             case TIMER2A: {
               Timer timer = {
                 /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  NULL},
@@ -71,8 +71,8 @@
         #endif
       #endif
       #ifdef TCCR3A
-        case TIMER3C:   q += 1;
-        case TIMER3B:   q += 1;
+        case TIMER3C:   ++q;
+        case TIMER3B:   ++q;
         case TIMER3A: {
           Timer timer = {
             /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  &TCCR3C},
@@ -84,8 +84,8 @@
         }
       #endif
       #ifdef TCCR4A
-        case TIMER4C:   q += 1;
-        case TIMER4B:   q += 1;
+        case TIMER4C:   ++q;
+        case TIMER4B:   ++q;
         case TIMER4A: {
           Timer timer = {
             /*TCCRnQ*/  { &TCCR4A,  &TCCR4B,  &TCCR4C},
@@ -97,8 +97,8 @@
         }
       #endif
       #ifdef TCCR5A
-        case TIMER5C:   q += 1;
-        case TIMER5B:   q += 1;
+        case TIMER5C:   ++q;
+        case TIMER5B:   ++q;
         case TIMER5A: {
           Timer timer = {
             /*TCCRnQ*/  { &TCCR5A,  &TCCR5B,  &TCCR5C},
@@ -131,8 +131,8 @@
 
     // Calculating the prescaler and resolution to use to achieve closest frequency
     if (f_desired != 0) {
-      int f = F_CPU/(2*1024*size) + 1; // Initialize frequency as lowest (non-zero) achievable
-      uint16_t prescaler[] = {0, 1, 8, /*TIMER2 ONLY*/32, 64, /*TIMER2 ONLY*/128, 256, 1024};
+      int f = (F_CPU) / (2 * 1024 * size) + 1; // Initialize frequency as lowest (non-zero) achievable
+      uint16_t prescaler[] = { 0, 1, 8, /*TIMER2 ONLY*/32, 64, /*TIMER2 ONLY*/128, 256, 1024 };
 
       // loop over prescaler values
       for (uint8_t i = 1; i < 8; i++) {
@@ -140,54 +140,60 @@
         if (timer.n == 2) {
           // No resolution calculation for TIMER2 unless enabled USE_OCR2A_AS_TOP
           #if ENABLED(USE_OCR2A_AS_TOP)
-            res_temp_fast = (F_CPU / (prescaler[i] * f_desired)) - 1;
-            res_temp_phase_correct = F_CPU / (2 * prescaler[i] * f_desired);
+            const uint16_t rtf = (F_CPU) / (prescaler[i] * f_desired);
+            res_temp_fast = rtf - 1;
+            res_temp_phase_correct = rtf / 2;
           #endif
         }
         else {
           // Skip TIMER2 specific prescalers when not TIMER2
           if (i == 3 || i == 5) continue;
-          res_temp_fast = (F_CPU / (prescaler[i] * f_desired)) - 1;
-          res_temp_phase_correct = F_CPU / (2 * prescaler[i] * f_desired);
+          const uint16_t rtf = (F_CPU) / (prescaler[i] * f_desired);
+          res_temp_fast = rtf - 1;
+          res_temp_phase_correct = rtf / 2;
         }
 
         LIMIT(res_temp_fast, 1u, size);
         LIMIT(res_temp_phase_correct, 1u, size);
-        // Calculate frequncies of test prescaler and resolution values
-        int f_temp_fast = F_CPU / (prescaler[i] * (1 + res_temp_fast));
-        int f_temp_phase_correct = F_CPU / (2 * prescaler[i] * res_temp_phase_correct);
+        // Calculate frequencies of test prescaler and resolution values
+        const int f_temp_fast = (F_CPU) / (prescaler[i] * (1 + res_temp_fast)),
+                  f_temp_phase_correct = (F_CPU) / (2 * prescaler[i] * res_temp_phase_correct),
+                  f_diff = ABS(f - f_desired),
+                  f_fast_diff = ABS(f_temp_fast - f_desired),
+                  f_phase_diff = ABS(f_temp_phase_correct - f_desired);
 
         // If FAST values are closest to desired f
-        if (ABS(f_temp_fast - f_desired) < ABS(f - f_desired)
-            && ABS(f_temp_fast - f_desired) <= ABS(f_temp_phase_correct - f_desired)) {
+        if (f_fast_diff < f_diff && f_fast_diff <= f_phase_diff) {
           // Remember this combination
           f = f_temp_fast;
           res = res_temp_fast;
           j = i;
           // Set the Wave Generation Mode to FAST PWM
-          if(timer.n == 2){
-            wgm =
+          if (timer.n == 2) {
+            wgm = (
               #if ENABLED(USE_OCR2A_AS_TOP)
-                WGM2_FAST_PWM_OCR2A;
+                WGM2_FAST_PWM_OCR2A
               #else
-                WGM2_FAST_PWM;
+                WGM2_FAST_PWM
               #endif
+            );
           }
           else wgm = WGM_FAST_PWM_ICRn;
         }
         // If PHASE CORRECT values are closes to desired f
-        else if (ABS(f_temp_phase_correct - f_desired) < ABS(f - f_desired)) {
+        else if (f_phase_diff < f_diff) {
           f = f_temp_phase_correct;
           res = res_temp_phase_correct;
           j = i;
           // Set the Wave Generation Mode to PWM PHASE CORRECT
           if (timer.n == 2) {
-            wgm =
+            wgm = (
               #if ENABLED(USE_OCR2A_AS_TOP)
-                WGM2_PWM_PC_OCR2A;
+                WGM2_PWM_PC_OCR2A
               #else
-                WGM2_PWM_PC;
+                WGM2_PWM_PC
               #endif
+            );
           }
           else wgm = WGM_PWM_PC_ICRn;
         }
@@ -201,9 +207,8 @@
         _SET_OCRnQ(timer.OCRnQ, 0, res);  // Set OCR2A value (TOP) = res
       #endif
     }
-    else {
+    else
       _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
-    }
   }
 
   void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
@@ -217,22 +222,22 @@
       Timer timer = get_pwm_timer(pin);
       if (timer.n == 0) return; // Don't proceed if protected timer or not recognised
       // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
-      _SET_COMnQ(timer.TCCRnQ, timer.q
+      _SET_COMnQ(timer.TCCRnQ, (timer.q
           #ifdef TCCR2
             + (timer.q == 2) // COM20 is on bit 4 of TCCR2, thus requires q + 1 in the macro
           #endif
-        , COM_CLEAR_SET + invert
+        ), COM_CLEAR_SET + invert
       );
 
       uint16_t top;
       if (timer.n == 2) { // if TIMER2
-        top =
+        top = (
           #if ENABLED(USE_OCR2A_AS_TOP)
             *timer.OCRnQ[0] // top = OCR2A
           #else
             255 // top = 0xFF (max)
           #endif
-        ;
+        );
       }
       else
         top = *timer.ICRn; // top = ICRn
