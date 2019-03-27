@@ -569,13 +569,15 @@ void GcodeSuite::G26() {
   bool g26_continue_with_closest = parser.boolval('C'),
        g26_keep_heaters_on       = parser.boolval('K');
 
-  if (parser.seenval('B')) {
-    g26_bed_temp = parser.value_celsius();
-    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 10))) {
-      SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 10), "C).");
-      return;
+  #if HAS_HEATED_BED
+    if (parser.seenval('B')) {
+      g26_bed_temp = parser.value_celsius();
+      if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 10))) {
+        SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 10), "C).");
+        return;
+      }
     }
-  }
+  #endif
 
   if (parser.seenval('L')) {
     g26_layer_height = parser.value_linear_units();
