@@ -70,19 +70,21 @@ bool BLTouch::set_deployed(const bool in_deploy) {
     }
   }
 
-  #if ENABLED(BLTOUCH_FORCE_5V_MODE)
-    set_5V_mode();
-  #elif ENABLED(BLTOUCH_FORCE_OPEN_DRAIN_MODE)
-    set_OD_mode();
-  #elif ENABLED(ENDSTOPPULLUPS) || ALL(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, ENDSTOPPULLUP_ZMIN) || (USES_Z_MIN_PROBE_ENDSTOP && ENABLED(ENDSTOPPULLUP_ZMIN_PROBE))
-    set_5V_mode();                  // Assume 5V DC logic level if endstop pullup resistors are enabled
-  #else
-    set_OD_mode();
+  #if ENABLED(BLTOUCH_V3)
+    #if  EITHER(BLTOUCH_FORCE_5V_MODE, ENDSTOPPULLUPS) \
+      || ALL(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, ENDSTOPPULLUP_ZMIN) \
+      || (USES_Z_MIN_PROBE_ENDSTOP && ENABLED(ENDSTOPPULLUP_ZMIN_PROBE))
+      set_5V_mode();  // Assume 5V DC logic level if endstop pullup resistors are enabled
+    #elif true || ENABLED(BLTOUCH_FORCE_OPEN_DRAIN_MODE)
+      set_OD_mode();
+    #endif
   #endif
 
   if (in_deploy) {
     _deploy();
-    set_SW_mode();                  // Ensure Switch mode is activated for BLTouch V3. Ignored on V2.
+    #if ENABLED(BLTOUCH_V3)
+      set_SW_mode();
+    #endif
   }
   else _stow();
 
