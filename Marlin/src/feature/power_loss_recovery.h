@@ -76,6 +76,10 @@ typedef struct {
     #endif
   #endif
 
+  //relative mode
+  bool relative_mode;    // = false;
+  bool relative_modes_e; // = false;
+
   // Command queue
   uint8_t commands_in_queue, cmd_queue_index_r;
   char command_queue[BUFSIZE][MAX_CMD_SIZE];
