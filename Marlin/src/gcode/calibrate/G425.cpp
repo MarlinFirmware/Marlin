@@ -52,8 +52,8 @@
   #define CALIBRATION_MEASUREMENT_CERTAIN   0.5 // mm
 #endif
 
-#define HAS_X_CENTER (ENABLED(CALIBRATION_MEASURE_LEFT)  && ENABLED(CALIBRATION_MEASURE_RIGHT))
-#define HAS_Y_CENTER (ENABLED(CALIBRATION_MEASURE_FRONT) && ENABLED(CALIBRATION_MEASURE_BACK))
+#define HAS_X_CENTER BOTH(CALIBRATION_MEASURE_LEFT, CALIBRATION_MEASURE_RIGHT)
+#define HAS_Y_CENTER BOTH(CALIBRATION_MEASURE_FRONT, CALIBRATION_MEASURE_BACK)
 
 #if ENABLED(BACKLASH_GCODE)
   extern float backlash_distance_mm[], backlash_correction, backlash_smoothing_mm;
@@ -418,7 +418,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     SERIAL_EOL();
   }
 
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
     //
     // This function requires normalize_hotend_offsets() to be called
     //
@@ -642,7 +642,7 @@ void GcodeSuite::G425() {
       report_measured_backlash(m);
       report_measured_nozzle_dimensions(m);
       report_measured_positional_error(m);
-      #if HOTENDS > 1
+      #if HAS_HOTEND_OFFSET
         normalize_hotend_offsets();
         report_hotend_offsets();
       #endif

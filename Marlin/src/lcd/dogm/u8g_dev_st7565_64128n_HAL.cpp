@@ -21,7 +21,7 @@
  */
 
 /**
- * u8g_dev_st7565_64128n_HAL.c (Displaytech)
+ * Based on u8g_dev_st7565_64128n_HAL.c (Displaytech)
  *
  * Universal 8bit Graphics Library
  *

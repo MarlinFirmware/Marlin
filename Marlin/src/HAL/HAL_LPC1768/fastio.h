@@ -35,21 +35,22 @@
 
 #include <Arduino.h>
 
-#define USEABLE_HARDWARE_PWM(pin) TRUE // all pins are PWM capable
+#define PWM_PIN(P)              true // all pins are PWM capable
+#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
 
-#define LPC_PIN(pin)            gpio_pin(pin)
-#define LPC_GPIO(port)          gpio_port(port)
+#define LPC_PIN(pin)          gpio_pin(pin)
+#define LPC_GPIO(port)        gpio_port(port)
 
-#define SET_DIR_INPUT(IO)       gpio_set_input(IO)
-#define SET_DIR_OUTPUT(IO)      gpio_set_output(IO)
+#define SET_DIR_INPUT(IO)     gpio_set_input(IO)
+#define SET_DIR_OUTPUT(IO)    gpio_set_output(IO)
 
-#define SET_MODE(IO, mode)      pinMode(IO, mode)
+#define SET_MODE(IO, mode)    pinMode(IO, mode)
 
-#define WRITE_PIN_SET(IO)       gpio_set(IO)
-#define WRITE_PIN_CLR(IO)       gpio_clear(IO)
+#define WRITE_PIN_SET(IO)     gpio_set(IO)
+#define WRITE_PIN_CLR(IO)     gpio_clear(IO)
 
-#define READ_PIN(IO)            gpio_get(IO)
-#define WRITE_PIN(IO,V)         gpio_set(IO, V)
+#define READ_PIN(IO)          gpio_get(IO)
+#define WRITE_PIN(IO,V)       gpio_set(IO, V)
 
 /**
  * Magic I/O routines
@@ -60,67 +61,69 @@
  */
 
 /// Read a pin
-#define _READ(IO)         READ_PIN(IO)
+#define _READ(IO)             READ_PIN(IO)
 
 /// Write to a pin
-#define _WRITE_VAR(IO,V)  digitalWrite(IO,V)
+#define _WRITE_VAR(IO,V)      digitalWrite(IO,V)
 
-#define _WRITE(IO,V)      WRITE_PIN(IO,V)
+#define _WRITE(IO,V)          WRITE_PIN(IO,V)
 
 /// toggle a pin
-#define _TOGGLE(IO)       _WRITE(IO, !READ(IO))
+#define _TOGGLE(IO)           _WRITE(IO, !READ(IO))
 
 /// set pin as input
-#define _SET_INPUT(IO)    SET_DIR_INPUT(IO)
+#define _SET_INPUT(IO)        SET_DIR_INPUT(IO)
 
 /// set pin as output
-#define _SET_OUTPUT(IO)   SET_DIR_OUTPUT(IO)
+#define _SET_OUTPUT(IO)       SET_DIR_OUTPUT(IO)
 
 /// set pin as input with pullup mode
-#define _PULLUP(IO,V)     pinMode(IO, (V) ? INPUT_PULLUP : INPUT)
+#define _PULLUP(IO,V)         pinMode(IO, (V) ? INPUT_PULLUP : INPUT)
 
 /// set pin as input with pulldown mode
-#define _PULLDOWN(IO,V)   pinMode(IO, (V) ? INPUT_PULLDOWN : INPUT)
+#define _PULLDOWN(IO,V)       pinMode(IO, (V) ? INPUT_PULLDOWN : INPUT)
 
 /// check if pin is an input
-#define _GET_INPUT(IO)    (!gpio_get_dir(IO))
+#define _GET_INPUT(IO)        (!gpio_get_dir(IO))
 
 /// check if pin is an output
-#define _GET_OUTPUT(IO)   (gpio_get_dir(IO))
+#define _GET_OUTPUT(IO)       (gpio_get_dir(IO))
 
 /// check if pin is a timer
 /// all gpio pins are pwm capable, either interrupt or hardware pwm controlled
-#define _GET_TIMER(IO)    TRUE
+#define _GET_TIMER(IO)        true
 
 /// Read a pin wrapper
-#define READ(IO)          _READ(IO)
+#define READ(IO)              _READ(IO)
 
 /// Write to a pin wrapper
-#define WRITE_VAR(IO,V)   _WRITE_VAR(IO,V)
-#define WRITE(IO,V)       _WRITE(IO,V)
+#define WRITE_VAR(IO,V)       _WRITE_VAR(IO,V)
+#define WRITE(IO,V)           _WRITE(IO,V)
 
 /// toggle a pin wrapper
-#define TOGGLE(IO)        _TOGGLE(IO)
+#define TOGGLE(IO)            _TOGGLE(IO)
 
 /// set pin as input wrapper
-#define SET_INPUT(IO)     _SET_INPUT(IO)
+#define SET_INPUT(IO)         _SET_INPUT(IO)
 /// set pin as input with pullup wrapper
-#define SET_INPUT_PULLUP(IO)    do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
+#define SET_INPUT_PULLUP(IO)  do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
 /// set pin as input with pulldown wrapper
-#define SET_INPUT_PULLDOWN(IO)  do{ _SET_INPUT(IO); _PULLDOWN(IO, HIGH); }while(0)
+#define SET_INPUT_PULLDOWN(IO) do{ _SET_INPUT(IO); _PULLDOWN(IO, HIGH); }while(0)
 /// set pin as output wrapper  -  reads the pin and sets the output to that value
-#define SET_OUTPUT(IO)          do{ _WRITE(IO, _READ(IO)); _SET_OUTPUT(IO); }while(0)
+#define SET_OUTPUT(IO)        do{ _WRITE(IO, _READ(IO)); _SET_OUTPUT(IO); }while(0)
+// set pin as PWM
+#define SET_PWM(IO)           SET_OUTPUT(IO)
 
 /// check if pin is an input wrapper
-#define GET_INPUT(IO)     _GET_INPUT(IO)
+#define GET_INPUT(IO)         _GET_INPUT(IO)
 /// check if pin is an output wrapper
-#define GET_OUTPUT(IO)    _GET_OUTPUT(IO)
+#define GET_OUTPUT(IO)        _GET_OUTPUT(IO)
 
 /// check if pin is a timer (wrapper)
-#define GET_TIMER(IO)     _GET_TIMER(IO)
+#define GET_TIMER(IO)         _GET_TIMER(IO)
 
 // Shorthand
-#define OUT_WRITE(IO,V)   do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
+#define OUT_WRITE(IO,V)       do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)

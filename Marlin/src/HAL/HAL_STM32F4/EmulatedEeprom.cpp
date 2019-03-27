@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
+#if ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM, SPI_EEPROM)
 
 // --------------------------------------------------------------------------
 // Includes
@@ -138,5 +138,5 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n) {
 
 }
 
-#endif // ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
+#endif // EEPROM_SETTINGS && (!I2C_EEPROM && !SPI_EEPROM)
 #endif // STM32GENERIC && STM32F4

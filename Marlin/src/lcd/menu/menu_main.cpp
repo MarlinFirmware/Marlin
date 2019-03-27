@@ -46,8 +46,8 @@
   #include "../../feature/host_actions.h"
 #endif
 
-#define MACHINE_CAN_STOP (ENABLED(SDSUPPORT) || ENABLED(HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL))
-#define MACHINE_CAN_PAUSE (ENABLED(SDSUPPORT) || ENABLED(HOST_PROMPT_SUPPORT) || ENABLED(PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE))
+#define MACHINE_CAN_STOP (EITHER(SDSUPPORT, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL))
+#define MACHINE_CAN_PAUSE (ANY(SDSUPPORT, HOST_PROMPT_SUPPORT, PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE))
 
 #if MACHINE_CAN_PAUSE
 
@@ -61,7 +61,7 @@
     #endif
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
-      lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
+      lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
       enqueue_and_echo_commands_P(PSTR("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)
       enqueue_and_echo_commands_P(PSTR("M25"));

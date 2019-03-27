@@ -76,7 +76,7 @@
 //
 #if ENABLED(ULTRA_LCD)
 
-  #if ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
+  #if BOTH(NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D4
     #define LCD_PINS_D4  68
 

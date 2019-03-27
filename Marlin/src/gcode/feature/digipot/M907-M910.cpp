@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || ENABLED(DIGIPOT_I2C) || ENABLED(DAC_STEPPER_CURRENT)
+#if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || EITHER(DIGIPOT_I2C, DAC_STEPPER_CURRENT)
 
 #include "../../gcode.h"
 
@@ -50,7 +50,7 @@ void GcodeSuite::M907() {
 
   #elif HAS_MOTOR_CURRENT_PWM
 
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_X) || PIN_EXISTS(MOTOR_CURRENT_PWM_Y) || PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+    #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY)
       if (parser.seenval('X') || parser.seenval('Y')) stepper.digipot_current(0, parser.value_int());
     #endif
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)

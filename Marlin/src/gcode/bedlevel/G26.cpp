@@ -571,8 +571,8 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('B')) {
     g26_bed_temp = parser.value_celsius();
-    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 15))) {
-      SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 15), "C).");
+    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 10))) {
+      SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 10), "C).");
       return;
     }
   }
@@ -685,6 +685,12 @@ void GcodeSuite::G26() {
     do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     set_current_from_destination();
   }
+
+  #if DISABLED(NO_VOLUMETRICS)
+    bool volumetric_was_enabled = parser.volumetric_enabled;
+    parser.volumetric_enabled = false;
+    planner.calculate_volumetric_multipliers();
+  #endif
 
   if (turn_on_heaters() != G26_OK) goto LEAVE;
 
@@ -908,6 +914,11 @@ void GcodeSuite::G26() {
 
   move_to(destination, 0);                                    // Move back to the starting position
   //debug_current_and_destination(PSTR("done doing X/Y move."));
+
+  #if DISABLED(NO_VOLUMETRICS)
+    parser.volumetric_enabled = volumetric_was_enabled;
+    planner.calculate_volumetric_multipliers();
+  #endif
 
   #if HAS_LCD_MENU
     ui.release();                                             // Give back control of the LCD

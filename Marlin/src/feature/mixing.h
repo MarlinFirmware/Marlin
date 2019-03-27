@@ -209,7 +209,7 @@ class Mixer {
     // Refresh the gradient after a change
     static void refresh_gradient() {
       #if ENABLED(GRADIENT_VTOOL)
-        const bool is_grd = (selected_vtool == gradient.vtool_index || gradient.vtool_index == -1);
+        const bool is_grd = (gradient.vtool_index == -1 || selected_vtool == (uint8_t)gradient.vtool_index);
       #else
         constexpr bool is_grd = true;
       #endif

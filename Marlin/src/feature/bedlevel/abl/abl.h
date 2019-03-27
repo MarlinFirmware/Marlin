@@ -40,4 +40,6 @@ void refresh_bed_level();
   void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
 #endif
 
-#define Z_VALUES(X,Y) z_values[X][Y]
+#define _GET_MESH_X(I) (bilinear_start[X_AXIS] + (I) * bilinear_grid_spacing[X_AXIS])
+#define _GET_MESH_Y(J) (bilinear_start[Y_AXIS] + (J) * bilinear_grid_spacing[Y_AXIS])
+#define Z_VALUES_ARR  z_values

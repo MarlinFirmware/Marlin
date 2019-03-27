@@ -900,12 +900,10 @@ void CardReader::setroot() {
       }
       else {
         sort_order[0] = 0;
-        #if ENABLED(SDSORT_USES_RAM) && ENABLED(SDSORT_CACHE_NAMES)
+        #if BOTH(SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char*[1];
-            #if ENABLED(SDSORT_CACHE_NAMES)
-              sortshort = new char*[1];
-            #endif
+            sortshort = new char*[1];
             isDir = new uint8_t[1];
           #endif
           getfilename(0);
@@ -975,7 +973,7 @@ void CardReader::printingHasFinished() {
       presort();
     #endif
 
-    #if (ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
       ui.progress_bar_percent = 0;
     #endif
 

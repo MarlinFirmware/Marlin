@@ -33,13 +33,13 @@
 #include "../core/language.h"
 #include "../HAL/shared/Delay.h"
 
-#define MAX6675_SEPARATE_SPI (ENABLED(HEATER_0_USES_MAX6675) || ENABLED(HEATER_1_USES_MAX6675)) && PIN_EXISTS(MAX6675_SCK) && PIN_EXISTS(MAX6675_DO)
+#define MAX6675_SEPARATE_SPI EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO)
 
 #if MAX6675_SEPARATE_SPI
   #include "../libs/private_spi.h"
 #endif
 
-#if ENABLED(BABYSTEPPING) || ENABLED(PID_EXTRUSION_SCALING)
+#if EITHER(BABYSTEPPING, PID_EXTRUSION_SCALING)
   #include "stepper.h"
 #endif
 
@@ -360,8 +360,8 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
     #endif
 
     #if WATCH_BED || WATCH_HOTENDS
-      #define HAS_TP_BED (ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED))
-      #if HAS_TP_BED && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
+      #define HAS_TP_BED BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
+      #if HAS_TP_BED && BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
         #define GTV(B,H) (heater < 0 ? (B) : (H))
       #elif HAS_TP_BED
         #define GTV(B,H) (B)
@@ -610,6 +610,28 @@ int Temperature::getHeaterPower(const int heater) {
 
 #if HAS_AUTO_FAN
 
+  #define AUTO_1_IS_0 (E1_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
+  #define AUTO_2_IS_0 (E2_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
+  #define AUTO_2_IS_1 (E2_AUTO_FAN_PIN == E1_AUTO_FAN_PIN)
+  #define AUTO_3_IS_0 (E3_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
+  #define AUTO_3_IS_1 (E3_AUTO_FAN_PIN == E1_AUTO_FAN_PIN)
+  #define AUTO_3_IS_2 (E3_AUTO_FAN_PIN == E2_AUTO_FAN_PIN)
+  #define AUTO_4_IS_0 (E4_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
+  #define AUTO_4_IS_1 (E4_AUTO_FAN_PIN == E1_AUTO_FAN_PIN)
+  #define AUTO_4_IS_2 (E4_AUTO_FAN_PIN == E2_AUTO_FAN_PIN)
+  #define AUTO_4_IS_3 (E4_AUTO_FAN_PIN == E3_AUTO_FAN_PIN)
+  #define AUTO_5_IS_0 (E5_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
+  #define AUTO_5_IS_1 (E5_AUTO_FAN_PIN == E1_AUTO_FAN_PIN)
+  #define AUTO_5_IS_2 (E5_AUTO_FAN_PIN == E2_AUTO_FAN_PIN)
+  #define AUTO_5_IS_3 (E5_AUTO_FAN_PIN == E3_AUTO_FAN_PIN)
+  #define AUTO_5_IS_4 (E5_AUTO_FAN_PIN == E4_AUTO_FAN_PIN)
+  #define AUTO_CHAMBER_IS_0 (CHAMBER_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
+  #define AUTO_CHAMBER_IS_1 (CHAMBER_AUTO_FAN_PIN == E1_AUTO_FAN_PIN)
+  #define AUTO_CHAMBER_IS_2 (CHAMBER_AUTO_FAN_PIN == E2_AUTO_FAN_PIN)
+  #define AUTO_CHAMBER_IS_3 (CHAMBER_AUTO_FAN_PIN == E3_AUTO_FAN_PIN)
+  #define AUTO_CHAMBER_IS_4 (CHAMBER_AUTO_FAN_PIN == E4_AUTO_FAN_PIN)
+  #define AUTO_CHAMBER_IS_5 (CHAMBER_AUTO_FAN_PIN == E5_AUTO_FAN_PIN)
+
   void Temperature::checkExtruderAutoFans() {
     static const uint8_t fanBit[] PROGMEM = {
                     0,
@@ -633,11 +655,11 @@ int Temperature::getHeaterPower(const int heater) {
         SBI(fanState, pgm_read_byte(&fanBit[6]));
     #endif
 
-    #define _UPDATE_AUTO_FAN(P,D,A) do{           \
-      if (USEABLE_HARDWARE_PWM(P##_AUTO_FAN_PIN)) \
-        analogWrite(P##_AUTO_FAN_PIN, A);         \
-      else                                        \
-        WRITE(P##_AUTO_FAN_PIN, D);               \
+    #define _UPDATE_AUTO_FAN(P,D,A) do{                               \
+      if (PWM_PIN(P##_AUTO_FAN_PIN) && EXTRUDER_AUTO_FAN_SPEED < 255) \
+        analogWrite(P##_AUTO_FAN_PIN, A);                             \
+      else                                                            \
+        WRITE(P##_AUTO_FAN_PIN, D);                                   \
     }while(0)
 
     uint8_t fanDone = 0;
@@ -801,8 +823,8 @@ float Temperature::get_pid_output(const int8_t e) {
           MSG_PID_DEBUG_PTERM, work_pid[HOTEND_INDEX].Kp,
           MSG_PID_DEBUG_ITERM, work_pid[HOTEND_INDEX].Ki,
           MSG_PID_DEBUG_DTERM, work_pid[HOTEND_INDEX].Kd
-          #if ENABLED(PID_EXTRUSION_SCALING),
-            MSG_PID_DEBUG_CTERM, work_pid[HOTEND_INDEX].Kc
+          #if ENABLED(PID_EXTRUSION_SCALING)
+            , MSG_PID_DEBUG_CTERM, work_pid[HOTEND_INDEX].Kc
           #endif
         );
       #endif
@@ -891,7 +913,7 @@ void Temperature::manage_heater() {
     }
   #endif
 
-  #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+  #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
     static bool last_pause_state;
   #endif
 
@@ -982,12 +1004,12 @@ void Temperature::manage_heater() {
 
     #if DISABLED(PIDTEMPBED)
       if (PENDING(ms, next_bed_check_ms)
-        #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+        #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
           && paused == last_pause_state
         #endif
       ) return;
       next_bed_check_ms = ms + BED_CHECK_INTERVAL;
-      #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+      #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
         last_pause_state = paused;
       #endif
     #endif
@@ -1280,6 +1302,25 @@ void Temperature::updateTemperaturesFromRawValues() {
   SPIclass<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
 #endif
 
+// Init fans according to whether they're native PWM or Software PWM
+#define _INIT_SOFT_FAN(P) OUT_WRITE(P, FAN_INVERTING ? LOW : HIGH)
+#if ENABLED(FAN_SOFT_PWM)
+  #define _INIT_FAN_PIN(P) _INIT_SOFT_FAN(P)
+#else
+  #define _INIT_FAN_PIN(P) do{ if (PWM_PIN(P)) SET_PWM(P); else _INIT_SOFT_FAN(P); }while(0)
+#endif
+#if ENABLED(FAST_PWM_FAN)
+  #define SET_FAST_PWM_FREQ(P) set_pwm_frequency(P, FAST_PWM_FAN_FREQUENCY)
+#else
+  #define SET_FAST_PWM_FREQ(P) NOOP
+#endif
+#define INIT_FAN_PIN(P) do{ _INIT_FAN_PIN(P); SET_FAST_PWM_FREQ(P); }while(0)
+#if EXTRUDER_AUTO_FAN_SPEED != 255
+  #define INIT_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+#else
+  #define INIT_AUTO_FAN_PIN(P) SET_OUTPUT(P)
+#endif
+
 /**
  * Initialize the temperature manager
  * The manager is implemented by periodic calls to manage_heater()
@@ -1293,7 +1334,7 @@ void Temperature::init() {
   #endif
 
   #if MB(RUMBA)
-    #define _AD(N) (ENABLED(HEATER_##N##_USES_AD595) || ENABLED(HEATER_##N##_USES_AD8495))
+    #define _AD(N) (ANY(HEATER_##N##_USES_AD595, HEATER_##N##_USES_AD8495))
     #if _AD(0) || _AD(1) || _AD(2) || _AD(3) || _AD(4) || _AD(5) || _AD(BED) || _AD(CHAMBER)
       // Disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
       MCUCR = _BV(JTD);
@@ -1301,7 +1342,7 @@ void Temperature::init() {
     #endif
   #endif
 
-  #if ENABLED(PIDTEMP) && ENABLED(PID_EXTRUSION_SCALING)
+  #if BOTH(PIDTEMP, PID_EXTRUSION_SCALING)
     last_e_position = 0;
   #endif
 
@@ -1329,32 +1370,18 @@ void Temperature::init() {
   #if HAS_HEATED_CHAMBER
     OUT_WRITE(HEATER_CHAMBER_PIN, HEATER_CHAMBER_INVERTING);
   #endif
+
   #if HAS_FAN0
-    SET_OUTPUT(FAN_PIN);
-    #if ENABLED(FAST_PWM_FAN)
-      set_pwm_frequency(FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-    #endif
+    INIT_FAN_PIN(FAN_PIN);
   #endif
-
   #if HAS_FAN1
-    SET_OUTPUT(FAN1_PIN);
-    #if ENABLED(FAST_PWM_FAN)
-      set_pwm_frequency(FAN1_PIN, FAST_PWM_FAN_FREQUENCY);
-    #endif
+    INIT_FAN_PIN(FAN1_PIN);
   #endif
-
   #if HAS_FAN2
-    SET_OUTPUT(FAN2_PIN);
-    #if ENABLED(FAST_PWM_FAN)
-      set_pwm_frequency(FAN2_PIN, FAST_PWM_FAN_FREQUENCY);
-    #endif
+    INIT_FAN_PIN(FAN2_PIN);
   #endif
-
   #if ENABLED(USE_CONTROLLER_FAN)
-    SET_OUTPUT(CONTROLLER_FAN_PIN);
-    #if ENABLED(FAST_PWM_FAN)
-      set_pwm_frequency(CONTROLLER_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-    #endif
+    INIT_FAN_PIN(CONTROLLER_FAN_PIN);
   #endif
 
   #if MAX6675_SEPARATE_SPI
@@ -1408,74 +1435,25 @@ void Temperature::init() {
   ENABLE_TEMPERATURE_INTERRUPT();
 
   #if HAS_AUTO_FAN_0
-    #if E0_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E0_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E0_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E0_AUTO_FAN_PIN);
-    #endif
+    INIT_AUTO_FAN_PIN(E0_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_1 && !AUTO_1_IS_0
-    #if E1_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E1_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E1_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E1_AUTO_FAN_PIN);
-    #endif
+    INIT_AUTO_FAN_PIN(E1_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_2 && !(AUTO_2_IS_0 || AUTO_2_IS_1)
-    #if E2_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E2_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E2_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E2_AUTO_FAN_PIN);
-    #endif
+    INIT_AUTO_FAN_PIN(E2_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_3 && !(AUTO_3_IS_0 || AUTO_3_IS_1 || AUTO_3_IS_2)
-    #if E3_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E3_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E3_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E3_AUTO_FAN_PIN);
-    #endif
+    INIT_AUTO_FAN_PIN(E3_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_4 && !(AUTO_4_IS_0 || AUTO_4_IS_1 || AUTO_4_IS_2 || AUTO_4_IS_3)
-    #if E4_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E4_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E4_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E4_AUTO_FAN_PIN);
-    #endif
+    INIT_AUTO_FAN_PIN(E4_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_5 && !(AUTO_5_IS_0 || AUTO_5_IS_1 || AUTO_5_IS_2 || AUTO_5_IS_3 || AUTO_5_IS_4)
-    #if E5_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(E5_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(E5_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(E5_AUTO_FAN_PIN);
-    #endif
+    INIT_AUTO_FAN_PIN(E5_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_CHAMBER_FAN && !(AUTO_CHAMBER_IS_0 || AUTO_CHAMBER_IS_1 || AUTO_CHAMBER_IS_2 || AUTO_CHAMBER_IS_3 || AUTO_CHAMBER_IS_4 || AUTO_CHAMBER_IS_5)
-    #if CHAMBER_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(CHAMBER_AUTO_FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        set_pwm_frequency(CHAMBER_AUTO_FAN_PIN, FAST_PWM_FAN_FREQUENCY);
-      #endif
-    #else
-      SET_OUTPUT(CHAMBER_AUTO_FAN_PIN);
-    #endif
+    INIT_AUTO_FAN_PIN(CHAMBER_AUTO_FAN_PIN);
   #endif
 
   // Wait for temperature measurement to settle
@@ -1565,237 +1543,6 @@ void Temperature::init() {
     paused = false;
   #endif
 }
-
-
-#if ENABLED(FAST_PWM_FAN)
-  Temperature::Timer Temperature::get_pwm_timer(pin_t pin) {
-    #if defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM)
-      uint8_t q = 0;
-      switch (digitalPinToTimer(pin)) {
-        // Protect reserved timers (TIMER0 & TIMER1)
-        #ifdef TCCR0A
-          #if !AVR_AT90USB1286_FAMILY
-            case TIMER0A:
-          #endif
-          case TIMER0B:
-        #endif
-        #ifdef TCCR1A
-          case TIMER1A: case TIMER1B:
-        #endif
-                                            break;
-        #if defined(TCCR2) || defined(TCCR2A)
-          #ifdef TCCR2
-            case TIMER2: {
-              Temperature::Timer timer = {
-                /*TCCRnQ*/  { &TCCR2, NULL, NULL},
-                /*OCRnQ*/   { (uint16_t*)&OCR2, NULL, NULL},
-                /*ICRn*/      NULL,
-                /*n, q*/      2, 0
-              };
-            }
-          #elif defined TCCR2A
-            #if ENABLED(USE_OCR2A_AS_TOP)
-              case TIMER2A:   break; // protect TIMER2A
-              case TIMER2B: {
-                Temperature::Timer timer = {
-                  /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  NULL},
-                  /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, NULL},
-                  /*ICRn*/      NULL,
-                  /*n, q*/      2, 1
-                };
-                return timer;
-              }
-            #else
-              case TIMER2B:   q += 1;
-              case TIMER2A: {
-                Temperature::Timer timer = {
-                  /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  NULL},
-                  /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, NULL},
-                  /*ICRn*/      NULL,
-                                2, q
-                };
-                return timer;
-              }
-            #endif
-          #endif
-        #endif
-        #ifdef TCCR3A
-          case TIMER3C:   q += 1;
-          case TIMER3B:   q += 1;
-          case TIMER3A: {
-            Temperature::Timer timer = {
-              /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  &TCCR3C},
-              /*OCRnQ*/   { &OCR3A,   &OCR3B,   &OCR3C},
-              /*ICRn*/      &ICR3,
-              /*n, q*/      3, q
-            };
-            return timer;
-          }
-        #endif
-        #ifdef TCCR4A
-          case TIMER4C:   q += 1;
-          case TIMER4B:   q += 1;
-          case TIMER4A: {
-            Temperature::Timer timer = {
-              /*TCCRnQ*/  { &TCCR4A,  &TCCR4B,  &TCCR4C},
-              /*OCRnQ*/   { &OCR4A,   &OCR4B,   &OCR4C},
-              /*ICRn*/      &ICR4,
-              /*n, q*/      4, q
-            };
-            return timer;
-          }
-        #endif
-        #ifdef TCCR5A
-          case TIMER5C:   q += 1;
-          case TIMER5B:   q += 1;
-          case TIMER5A: {
-            Temperature::Timer timer = {
-              /*TCCRnQ*/  { &TCCR5A,  &TCCR5B,  &TCCR5C},
-              /*OCRnQ*/   { &OCR5A,   &OCR5B,   &OCR5C },
-              /*ICRn*/      &ICR5,
-              /*n, q*/      5, q
-            };
-            return timer;
-          }
-        #endif
-      }
-      Temperature::Timer timer = {
-          /*TCCRnQ*/  { NULL, NULL, NULL},
-          /*OCRnQ*/   { NULL, NULL, NULL},
-          /*ICRn*/      NULL,
-                        0, 0
-      };
-      return timer;
-    #endif // ARDUINO && !ARDUINO_ARCH_SAM
-  }
-
-  void Temperature::set_pwm_frequency(const pin_t pin, int f_desired) {
-    #if defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM)
-      Temperature::Timer timer = get_pwm_timer(pin);
-      if (timer.n == 0) return; // Don't proceed if protected timer or not recognised
-      uint16_t size;
-      if (timer.n == 2) size = 255; else size = 65535;
-
-      uint16_t res = 255;   // resolution (TOP value)
-      uint8_t j = 0;        // prescaler index
-      uint8_t wgm = 1;      // waveform generation mode
-
-      // Calculating the prescaler and resolution to use to achieve closest frequency
-      if (f_desired != 0) {
-        int f = F_CPU/(2*1024*size) + 1; // Initialize frequency as lowest (non-zero) achievable
-        uint16_t prescaler[] = {0, 1, 8, /*TIMER2 ONLY*/32, 64, /*TIMER2 ONLY*/128, 256, 1024};
-
-        // loop over prescaler values
-        for (uint8_t i = 1; i < 8; i++) {
-          uint16_t res_temp_fast = 255, res_temp_phase_correct = 255;
-          if (timer.n == 2) {
-            // No resolution calculation for TIMER2 unless enabled USE_OCR2A_AS_TOP
-            #if ENABLED(USE_OCR2A_AS_TOP)
-              res_temp_fast = (F_CPU / (prescaler[i] * f_desired)) - 1;
-              res_temp_phase_correct = F_CPU / (2 * prescaler[i] * f_desired);
-            #endif
-          }
-          else {
-            // Skip TIMER2 specific prescalers when not TIMER2
-            if (i == 3 || i == 5) continue;
-            res_temp_fast = (F_CPU / (prescaler[i] * f_desired)) - 1;
-            res_temp_phase_correct = F_CPU / (2 * prescaler[i] * f_desired);
-          }
-
-          LIMIT(res_temp_fast, 1u, size);
-          LIMIT(res_temp_phase_correct, 1u, size);
-          // Calculate frequncies of test prescaler and resolution values
-          int f_temp_fast = F_CPU / (prescaler[i] * (1 + res_temp_fast));
-          int f_temp_phase_correct = F_CPU / (2 * prescaler[i] * res_temp_phase_correct);
-
-          // If FAST values are closest to desired f
-          if (ABS(f_temp_fast - f_desired) < ABS(f - f_desired)
-              && ABS(f_temp_fast - f_desired) <= ABS(f_temp_phase_correct - f_desired)) {
-            // Remember this combination
-            f = f_temp_fast;
-            res = res_temp_fast;
-            j = i;
-            // Set the Wave Generation Mode to FAST PWM
-            if(timer.n == 2){
-              wgm =
-                #if ENABLED(USE_OCR2A_AS_TOP)
-                  WGM2_FAST_PWM_OCR2A;
-                #else
-                  WGM2_FAST_PWM;
-                #endif
-            }
-            else wgm = WGM_FAST_PWM_ICRn;
-          }
-          // If PHASE CORRECT values are closes to desired f
-          else if (ABS(f_temp_phase_correct - f_desired) < ABS(f - f_desired)) {
-            f = f_temp_phase_correct;
-            res = res_temp_phase_correct;
-            j = i;
-            // Set the Wave Generation Mode to PWM PHASE CORRECT
-            if (timer.n == 2) {
-              wgm =
-                #if ENABLED(USE_OCR2A_AS_TOP)
-                  WGM2_PWM_PC_OCR2A;
-                #else
-                  WGM2_PWM_PC;
-                #endif
-            }
-            else wgm = WGM_PWM_PC_ICRn;
-          }
-        }
-      }
-      _SET_WGMnQ(timer.TCCRnQ, wgm);
-      _SET_CSn(timer.TCCRnQ, j);
-
-      if (timer.n == 2) {
-        #if ENABLED(USE_OCR2A_AS_TOP)
-          _SET_OCRnQ(timer.OCRnQ, 0, res);  // Set OCR2A value (TOP) = res
-        #endif
-      }
-      else {
-        _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
-      }
-    #endif // ARDUINO && !ARDUINO_ARCH_SAM
-  }
-
-  void Temperature::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-    #if defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM)
-      // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
-      // Note that digitalWrite also disables pwm output for us (sets COM bit to 0)
-      if (v == 0)
-        digitalWrite(pin, invert);
-      else if (v == v_size)
-        digitalWrite(pin, !invert);
-      else {
-        Temperature::Timer timer = get_pwm_timer(pin);
-        if (timer.n == 0) return; // Don't proceed if protected timer or not recognised
-        // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
-        _SET_COMnQ(timer.TCCRnQ, timer.q
-            #ifdef TCCR2
-              + (timer.q == 2) // COM20 is on bit 4 of TCCR2, thus requires q + 1 in the macro
-            #endif
-          , COM_CLEAR_SET + invert
-        );
-
-        uint16_t top;
-        if (timer.n == 2) { // if TIMER2
-          top =
-            #if ENABLED(USE_OCR2A_AS_TOP)
-              *timer.OCRnQ[0] // top = OCR2A
-            #else
-              255 // top = 0xFF (max)
-            #endif
-          ;
-        }
-        else
-          top = *timer.ICRn; // top = ICRn
-
-        _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top / v_size)); // Scale 8/16-bit v to top value
-      }
-    #endif // ARDUINO && !ARDUINO_ARCH_SAM
-  }
-
-#endif // FAST_PWM_FAN
 
 #if WATCH_HOTENDS
   /**
@@ -2270,7 +2017,7 @@ void Temperature::readings_ready() {
     #else
       #define CHAMBERCMP(A,B) ((A)>=(B))
     #endif
-    const bool chamber_on = (temp_chamber.target > 0) 
+    const bool chamber_on = (temp_chamber.target > 0)
       #if ENABLED(PIDTEMPCHAMBER)
         || (temp_chamber.soft_pwm_amount > 0)
       #endif
@@ -2295,7 +2042,7 @@ void Temperature::readings_ready() {
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
  *  - Call planner.tick to count down its "ignore" time
  */
-HAL_TEMP_TIMER_ISR {
+HAL_TEMP_TIMER_ISR() {
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
 
   Temperature::isr();
@@ -2401,7 +2148,7 @@ void Temperature::isr() {
       #if ENABLED(FAN_SOFT_PWM)
         #define _FAN_PWM(N) do{ \
           soft_pwm_count_fan[N] = (soft_pwm_count_fan[N] & pwm_mask) + (soft_pwm_amount_fan[N] >> 1); \
-          WRITE_FAN(soft_pwm_count_fan[N] > pwm_mask ? HIGH : LOW); \
+          WRITE_FAN_N(N, soft_pwm_count_fan[N] > pwm_mask ? HIGH : LOW); \
         }while(0)
         #if HAS_FAN0
           _FAN_PWM(0);
@@ -2765,7 +2512,7 @@ void Temperature::isr() {
   //
 
   #if ENABLED(BABYSTEPPING)
-    #if ENABLED(BABYSTEP_XY) || ENABLED(I2C_POSITION_ENCODERS)
+    #if EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
       LOOP_XYZ(axis) {
         const int16_t curTodo = babystepsTodo[axis]; // get rid of volatile for performance
         if (curTodo) {
@@ -2914,18 +2661,12 @@ void Temperature::isr() {
           #if ENABLED(SHOW_TEMP_ADC_VALUES)
             , rawChamberTemp()
           #endif
-          #if NUM_SERIAL > 1
-            , port
-          #endif
         , -2 // CHAMBER
       );
       #else
         print_heater_state(degChamber(), 0
           #if ENABLED(SHOW_TEMP_ADC_VALUES)
             , rawChamberTemp()
-          #endif
-          #if NUM_SERIAL > 1
-            , port
           #endif
           , -2 // CHAMBER
         );
@@ -2970,7 +2711,7 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-  #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+  #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       #if HOTENDS > 1

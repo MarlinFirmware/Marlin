@@ -21,7 +21,7 @@
  *
  */
 
-#ifdef __STM32F1__
+#if defined(__STM32F1__) && (defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY))
 
 #include "HAL_sdio_STM32F1.h"
 
@@ -264,4 +264,4 @@ bool SDIO_GetCmdResp7(void) {
   return true;
 }
 
-#endif // __STM32F1__
+#endif // __STM32F1__ && (STM32_HIGH_DENSITY || STM32_XL_DENSITY)

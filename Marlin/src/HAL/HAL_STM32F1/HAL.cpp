@@ -207,7 +207,6 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   } }
 #endif
 
-
 void HAL_init(void) {
   NVIC_SetPriorityGrouping(0x3);
 }

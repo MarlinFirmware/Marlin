@@ -29,6 +29,9 @@
 
 #include "../../../module/motion.h"
 
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../../core/debug_out.h"
+
 int bilinear_grid_spacing[2], bilinear_start[2];
 float bilinear_grid_factor[2],
       z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
@@ -37,26 +40,21 @@ float bilinear_grid_factor[2],
  * Extrapolate a single point from its neighbors
  */
 static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir) {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPGM("Extrapolate [");
-      if (x < 10) SERIAL_CHAR(' ');
-      SERIAL_ECHO((int)x);
-      SERIAL_CHAR(xdir ? (xdir > 0 ? '+' : '-') : ' ');
-      SERIAL_CHAR(' ');
-      if (y < 10) SERIAL_CHAR(' ');
-      SERIAL_ECHO((int)y);
-      SERIAL_CHAR(ydir ? (ydir > 0 ? '+' : '-') : ' ');
-      SERIAL_CHAR(']');
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) {
+    DEBUG_ECHOPGM("Extrapolate [");
+    if (x < 10) DEBUG_CHAR(' ');
+    DEBUG_ECHO((int)x);
+    DEBUG_CHAR(xdir ? (xdir > 0 ? '+' : '-') : ' ');
+    DEBUG_CHAR(' ');
+    if (y < 10) DEBUG_CHAR(' ');
+    DEBUG_ECHO((int)y);
+    DEBUG_CHAR(ydir ? (ydir > 0 ? '+' : '-') : ' ');
+    DEBUG_ECHOLNPGM("]");
+  }
   if (!isnan(z_values[x][y])) {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" (done)");
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" (done)");
     return;  // Don't overwrite good values.
   }
-  SERIAL_EOL();
 
   // Get X neighbors, Y neighbors, and XY neighbors
   const uint8_t x1 = x + xdir, y1 = y + ydir, x2 = x1 + xdir, y2 = y1 + ydir;
@@ -76,6 +74,9 @@ static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t
 
   // Take the average instead of the median
   z_values[x][y] = (a + b + c) / 3.0;
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+  #endif
 
   // Median is robust (ignores outliers).
   // z_values[x][y] = (a < b) ? ((b < c) ? b : (c < a) ? a : c)

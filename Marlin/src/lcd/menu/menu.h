@@ -82,7 +82,7 @@ FORCE_INLINE void draw_menu_item_edit_P(const bool sel, const uint8_t row, PGM_P
   FORCE_INLINE void draw_menu_item_sdfolder(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) { draw_sd_menu_item(sel, row, pstr, theCard, true); }
 #endif
 
-#if HAS_GRAPHICAL_LCD && (ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY))
+#if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
   void _lcd_zoffset_overlay_gfx(const float zvalue);
 #endif
 
@@ -296,11 +296,11 @@ class MenuItem_bool {
   ++_thisItemNr; \
 } while(0)
 
-#define MENU_ITEM_ADDON_START(X) \
+#define MENU_ITEM_ADDON_START(X) do{ \
   if (ui.should_draw() && _menuLineNr == _thisItemNr - 1) { \
     SETCURSOR(X, _lcdLineNr)
 
-#define MENU_ITEM_ADDON_END() } (0)
+#define MENU_ITEM_ADDON_END() } }while(0)
 
 #define STATIC_ITEM(LABEL, ...) STATIC_ITEM_P(PSTR(LABEL), ## __VA_ARGS__)
 
@@ -340,13 +340,13 @@ void menu_move();
 void lcd_move_z();
 void _lcd_draw_homing();
 
-#define HAS_LINE_TO_Z (ENABLED(DELTA) || ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING) || ENABLED(LEVEL_BED_CORNERS))
+#define HAS_LINE_TO_Z ANY(DELTA, PROBE_MANUALLY, MESH_BED_LEVELING, LEVEL_BED_CORNERS)
 
 #if HAS_LINE_TO_Z
   void line_to_z(const float &z);
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE)
+#if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
   void lcd_enqueue_command(const char * const cmd);
   void lcd_enqueue_commands_P(PGM_P const cmd);
 #endif

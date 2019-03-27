@@ -128,7 +128,7 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
   #endif
 #endif
 #if HAS_CLASSIC_JERK
-  #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+  #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
     float Planner::max_jerk[XYZ];             // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
   #else
     float Planner::max_jerk[XYZE];            // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
@@ -1264,6 +1264,7 @@ void Planner::check_axes_activity() {
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
+
       #if HAS_FAN0
         thermalManager.soft_pwm_amount_fan[0] = CALC_FAN_SPEED(0);
       #endif
@@ -1275,17 +1276,19 @@ void Planner::check_axes_activity() {
       #endif
 
     #elif ENABLED(FAST_PWM_FAN)
+
       #if HAS_FAN0
-        thermalManager.set_pwm_duty(FAN_PIN, CALC_FAN_SPEED(0));
+        set_pwm_duty(FAN_PIN, CALC_FAN_SPEED(0));
       #endif
       #if HAS_FAN1
-        thermalManager.set_pwm_duty(FAN1_PIN, CALC_FAN_SPEED(1));
+        set_pwm_duty(FAN1_PIN, CALC_FAN_SPEED(1));
       #endif
       #if HAS_FAN2
-        thermalManager.set_pwm_duty(FAN2_PIN, CALC_FAN_SPEED(2));
+        set_pwm_duty(FAN2_PIN, CALC_FAN_SPEED(2));
       #endif
 
     #else
+
       #if HAS_FAN0
         analogWrite(FAN_PIN, CALC_FAN_SPEED(0));
       #endif
@@ -1748,7 +1751,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     SERIAL_ECHOLNPGM(" steps)");
   //*/
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
+  #if EITHER(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
     if (de) {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (thermalManager.tooColdToExtrude(extruder)) {
@@ -1993,7 +1996,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           #endif // EXTRUDERS > 1
           enable_E0();
           g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
-          #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+          #if HAS_DUPLICATION_MODE
             if (extruder_duplication_enabled) {
               enable_E1();
               g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
@@ -2101,7 +2104,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   const uint8_t moves_queued = nonbusy_movesplanned();
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
-  #if ENABLED(SLOWDOWN) || ENABLED(ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
+  #if EITHER(SLOWDOWN, ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
     uint32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
@@ -2169,7 +2172,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[NUM_AXIS], speed_factor = 1.0f; // factor <1 decreases speed
   LOOP_XYZE(i) {
-    #if ENABLED(MIXING_EXTRUDER) && ENABLED(RETRACT_SYNC_MIXING)
+    #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
       // In worst case, only one extruder running, no change is needed.
       // In best case, all extruders run the same amount, we can divide by MIXING_STEPPERS
       float delta_mm_i = 0;
@@ -2482,7 +2485,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     float safe_speed = nominal_speed;
 
     uint8_t limited = 0;
-    #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+    #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
       LOOP_XYZ(i)
     #else
       LOOP_XYZE(i)
@@ -2519,7 +2522,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       // Now limit the jerk in all axes.
       const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
-      #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+      #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
         LOOP_XYZ(axis)
       #else
         LOOP_XYZE(axis)
@@ -2890,7 +2893,7 @@ void Planner::reset_acceleration_rates() {
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
   cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
-  #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+  #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
     recalculate_max_e_jerk();
   #endif
 }

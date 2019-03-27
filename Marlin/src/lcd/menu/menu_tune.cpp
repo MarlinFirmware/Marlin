@@ -84,13 +84,13 @@
   #if ENABLED(BABYSTEP_XY)
     void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEP_X)); }
     void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEP_Y)); }
-    void lcd_babystep_x() { ui.goto_screen(_lcd_babystep_x); babysteps_done = 0; ui.defer_status_screen(true); }
-    void lcd_babystep_y() { ui.goto_screen(_lcd_babystep_y); babysteps_done = 0; ui.defer_status_screen(true); }
+    void lcd_babystep_x() { ui.goto_screen(_lcd_babystep_x); babysteps_done = 0; ui.defer_status_screen(); }
+    void lcd_babystep_y() { ui.goto_screen(_lcd_babystep_y); babysteps_done = 0; ui.defer_status_screen(); }
   #endif
 
   #if DISABLED(BABYSTEP_ZPROBE_OFFSET)
     void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEP_Z)); }
-    void lcd_babystep_z() { ui.goto_screen(_lcd_babystep_z); babysteps_done = 0; ui.defer_status_screen(true); }
+    void lcd_babystep_z() { ui.goto_screen(_lcd_babystep_z); babysteps_done = 0; ui.defer_status_screen(); }
   #endif
 
 #endif // BABYSTEPPING
@@ -107,7 +107,7 @@ void menu_tune() {
   //
   // Manual bed leveling, Bed Z:
   //
-  #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
+  #if BOTH(MESH_BED_LEVELING, LCD_BED_LEVELING)
     MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
   #endif
 
@@ -143,7 +143,7 @@ void menu_tune() {
   // Bed:
   //
   #if HAS_HEATED_BED
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAXTEMP - 15, thermalManager.start_watching_bed);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAXTEMP - 10, thermalManager.start_watching_bed);
   #endif
 
   //

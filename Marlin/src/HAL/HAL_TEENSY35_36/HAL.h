@@ -58,9 +58,6 @@
 // Defines
 // --------------------------------------------------------------------------
 
-#undef MOTHERBOARD
-#define MOTHERBOARD BOARD_TEENSY35_36
-
 #define IS_32BIT_TEENSY (defined(__MK64FX512__) || defined(__MK66FX1M0__))
 #define IS_TEENSY35 defined(__MK64FX512__)
 #define IS_TEENSY36 defined(__MK66FX1M0__)

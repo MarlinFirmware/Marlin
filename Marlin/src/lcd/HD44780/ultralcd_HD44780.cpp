@@ -40,7 +40,7 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 
-#if DISABLED(LCD_PROGRESS_BAR) && ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
   #include "../../feature/filwidth.h"
   #include "../../gcode/parser.h"
 #endif
@@ -57,7 +57,7 @@
 
   LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_I2C_PIN_EN, LCD_I2C_PIN_RW, LCD_I2C_PIN_RS, LCD_I2C_PIN_D4, LCD_I2C_PIN_D5, LCD_I2C_PIN_D6, LCD_I2C_PIN_D7);
 
-#elif ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)
+#elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
 
   LCD_CLASS lcd(LCD_I2C_ADDRESS
     #ifdef DETECT_DEVICE
@@ -111,7 +111,7 @@ static void createChar_P(const char c, const byte * const ptr) {
 #endif
 
 void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARSET_INFO*/) {
-  #if DISABLED(LCD_PROGRESS_BAR) && DISABLED(SHOW_BOOTSCREEN)
+  #if DISABLED(LCD_PROGRESS_BAR, SHOW_BOOTSCREEN)
     UNUSED(screen_charset);
   #endif
 
@@ -515,7 +515,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     if (!TEST(axis_homed, axis))
       while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
     else {
-      #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+      #if DISABLED(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
         if (!TEST(axis_known_position, axis))
           lcd_put_u8str_P(axis == Z_AXIS ? PSTR("      ") : PSTR("    "));
         else
@@ -628,7 +628,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       if (progress > 2) return draw_progress_bar(progress);
     }
 
-  #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+  #elif BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
 
     // Alternate Status message and Filament display
     if (ELAPSED(millis(), next_filament_display)) {
@@ -660,33 +660,22 @@ void MarlinUI::draw_status_message(const bool blink) {
       lcd_put_u8str(status_message);
 
       // Fill the rest with spaces
-      while (slen < LCD_WIDTH) {
-        lcd_put_wchar(' ');
-        ++slen;
-      }
+      while (slen < LCD_WIDTH) { lcd_put_wchar(' '); ++slen; }
     }
     else {
       // String is larger than the available space in screen.
 
       // Get a pointer to the next valid UTF8 character
-      const char *stat = status_message + status_scroll_offset;
+      // and the string remaining length
+      uint8_t rlen;
+      const char *stat = status_and_len(rlen);
+      lcd_put_u8str_max(stat, LCD_WIDTH);     // The string leaves space
 
-      // Get the string remaining length
-      const uint8_t rlen = utf8_strlen(stat);
-
-      // If we have enough characters to display
-      if (rlen >= LCD_WIDTH) {
-        // The remaining string fills the screen - Print it
-        lcd_put_u8str_max(stat, LCD_WIDTH);
-      }
-      else {
-
-        // The remaining string does not completely fill the screen
-        lcd_put_u8str_max(stat, LCD_WIDTH);               // The string leaves space
-        uint8_t chars = LCD_WIDTH - rlen;                 // Amount of space left in characters
-
-        lcd_put_wchar('.');                               // Always at 1+ spaces left, draw a dot
-        if (--chars) {                                    // Draw a second dot if there's space
+      // If the remaining string doesn't completely fill the screen
+      if (rlen < LCD_WIDTH) {
+        lcd_put_wchar('.');                   // Always at 1+ spaces left, draw a dot
+        uint8_t chars = LCD_WIDTH - rlen;     // Amount of space left in characters
+        if (--chars) {                        // Draw a second dot if there's space
           lcd_put_wchar('.');
           if (--chars)
             lcd_put_u8str_max(status_message, chars); // Print a second copy of the message
@@ -694,15 +683,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
       if (last_blink != blink) {
         last_blink = blink;
-
-        // Adjust by complete UTF8 characters
-        if (status_scroll_offset < slen) {
-          status_scroll_offset++;
-          while (!START_OF_UTF8_CHAR(status_message[status_scroll_offset]))
-            status_scroll_offset++;
-        }
-        else
-          status_scroll_offset = 0;
+        advance_status_scroll();
       }
     }
   #else

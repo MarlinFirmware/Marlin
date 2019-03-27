@@ -29,6 +29,9 @@
 #include "../../../module/stepper_indirection.h"
 #include "../../../module/planner.h"
 
+#define DEBUG_OUT ENABLED(L6470_CHITCHAT)
+#include "../../../core/debug_out.h"
+
 /**
  *
  * M906: report or set KVAL_HOLD which sets the maximum effective voltage provided by the
@@ -93,7 +96,7 @@ void L6470_report_current(L6470 &motor, const uint8_t axis) {
   L6470.say_axis(axis);
   #if ENABLED(L6470_CHITCHAT)
     sprintf_P(temp_buf, PSTR("   status: %4x   "), status);
-    SERIAL_ECHO(temp_buf);
+    DEBUG_ECHO(temp_buf);
     print_bin(status);
   #endif
   sprintf_P(temp_buf, PSTR("\n...OverCurrent Threshold: %2d (%4d mA)"), overcurrent_threshold, (overcurrent_threshold + 1) * 375);
@@ -134,7 +137,7 @@ void L6470_report_current(L6470 &motor, const uint8_t axis) {
 void GcodeSuite::M906() {
   #define L6470_SET_KVAL_HOLD(Q) stepper##Q.SetParam(L6470_KVAL_HOLD, value)
 
-  L6470_ECHOLNPGM("M906");
+  DEBUG_ECHOLNPGM("M906");
 
   bool report_current = true;
 

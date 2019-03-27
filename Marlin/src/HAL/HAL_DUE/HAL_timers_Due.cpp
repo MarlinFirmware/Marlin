@@ -63,8 +63,8 @@
 const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
   { TC0, 0, TC0_IRQn,  3}, // 0 - [servo timer5]
   { TC0, 1, TC1_IRQn,  0}, // 1
-  { TC0, 2, TC2_IRQn,  0}, // 2
-  { TC1, 0, TC3_IRQn,  2}, // 3 - stepper
+  { TC0, 2, TC2_IRQn,  2}, // 2 - stepper
+  { TC1, 0, TC3_IRQn,  0}, // 3
   { TC1, 1, TC4_IRQn, 15}, // 4 - temperature
   { TC1, 2, TC5_IRQn,  3}, // 5 - [servo timer3]
   { TC2, 0, TC6_IRQn, 14}, // 6 - tone
