@@ -84,14 +84,14 @@
 #define _PULLDOWN(IO,V)       pinMode(IO, (V) ? INPUT_PULLDOWN : INPUT)
 
 /// check if pin is an input
-#define _GET_INPUT(IO)        (!gpio_get_dir(IO))
+#define _IS_INPUT(IO)         (!gpio_get_dir(IO))
 
 /// check if pin is an output
-#define _GET_OUTPUT(IO)       (gpio_get_dir(IO))
+#define _IS_OUTPUT(IO)        (gpio_get_dir(IO))
 
 /// check if pin is a timer
 /// all gpio pins are pwm capable, either interrupt or hardware pwm controlled
-#define _GET_TIMER(IO)        true
+#define _HAS_TIMER(IO)        true
 
 /// Read a pin wrapper
 #define READ(IO)              _READ(IO)
@@ -115,12 +115,12 @@
 #define SET_PWM(IO)           SET_OUTPUT(IO)
 
 /// check if pin is an input wrapper
-#define GET_INPUT(IO)         _GET_INPUT(IO)
+#define IS_INPUT(IO)          _IS_INPUT(IO)
 /// check if pin is an output wrapper
-#define GET_OUTPUT(IO)        _GET_OUTPUT(IO)
+#define IS_OUTPUT(IO)         _IS_OUTPUT(IO)
 
 /// check if pin is a timer (wrapper)
-#define GET_TIMER(IO)         _GET_TIMER(IO)
+#define HAS_TIMER(IO)         _HAS_TIMER(IO)
 
 // Shorthand
 #define OUT_WRITE(IO,V)       do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
