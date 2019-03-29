@@ -49,7 +49,7 @@ void menu_backlash() {
   EDIT_BACKLASH_DISTANCE(C);
 
   #ifdef BACKLASH_SMOOTHING_MM
-    MENU_MULTIPLIER_ITEM_EDIT(float43, MSG_BACKLASH_SMOOTHING,  &backlash_smoothing_mm, 0.0f, 9.9f);
+    MENU_MULTIPLIER_ITEM_EDIT(float43, MSG_BACKLASH_SMOOTHING, &backlash_smoothing_mm, 0.0f, 9.9f);
   #endif
 
   END_MENU();
