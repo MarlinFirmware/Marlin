@@ -1390,11 +1390,9 @@
 #ifndef MSG_BACKLASH
   #define MSG_BACKLASH                        _UxGT("Backlash")
 #endif
-
 #ifndef MSG_BACKLASH_CORRECTION
   #define MSG_BACKLASH_CORRECTION             _UxGT("Correction")
 #endif
-
 #ifndef MSG_BACKLASH_SMOOTHING
   #define MSG_BACKLASH_SMOOTHING              _UxGT("Smoothing")
 #endif
