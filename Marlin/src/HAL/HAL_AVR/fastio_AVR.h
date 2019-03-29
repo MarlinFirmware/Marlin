@@ -81,9 +81,9 @@
 #define _SET_INPUT(IO)        CBI(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 #define _SET_OUTPUT(IO)       SBI(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 
-#define _GET_INPUT(IO)       !TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
-#define _GET_OUTPUT(IO)       TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
-#define _GET_TIMER(IO)        DIO ## IO ## _PWM
+#define _IS_INPUT(IO)        !TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
+#define _IS_OUTPUT(IO)        TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
+#define _HAS_TIMER(IO)        DIO ## IO ## _PWM
 
 // digitalRead/Write wrappers
 #ifdef FASTIO_EXT_START
@@ -104,9 +104,9 @@
 
 #define SET_PWM(IO)           SET_OUTPUT(IO)
 
-#define GET_INPUT(IO)         _GET_INPUT(IO)
-#define GET_OUTPUT(IO)        _GET_OUTPUT(IO)
-#define GET_TIMER(IO)         _GET_TIMER(IO)
+#define IS_INPUT(IO)          _IS_INPUT(IO)
+#define IS_OUTPUT(IO)         _IS_OUTPUT(IO)
+#define HAS_TIMER(IO)         _HAS_TIMER(IO)
 
 #define OUT_WRITE(IO,V)       do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 
