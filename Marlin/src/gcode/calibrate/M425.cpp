@@ -90,8 +90,7 @@ void GcodeSuite::M425() {
     SERIAL_ECHOPGM("Backlash correction is ");
     if (!backlash_correction) SERIAL_ECHOPGM("in");
     SERIAL_ECHOLNPGM("active:");
-    SERIAL_ECHOPAIR("  Correction Amount/Fade-out:     F", float(ui8_to_percent(backlash_correction))/100);
-    SERIAL_ECHOLNPGM("     (F1.0 = full, F0.0 = none)");
+    SERIAL_ECHOLNPAIR("  Correction Amount/Fade-out:     F", float(ui8_to_percent(backlash_correction)) / 100, "     (F1.0 = full, F0.0 = none)");
     SERIAL_ECHOPGM("  Backlash Distance (mm):        ");
     LOOP_XYZ(a) {
       SERIAL_CHAR(' ');
