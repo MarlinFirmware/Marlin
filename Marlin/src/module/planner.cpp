@@ -1613,7 +1613,7 @@ void Planner::synchronize() {
       if (!changed_dir) return;
     #endif
 
-    const float f_corr = float(backlash_correction)/255.0f;
+    const float f_corr = float(backlash_correction) / 255.0f;
 
     LOOP_XYZ(axis) {
       if (backlash_distance_mm[axis]) {
