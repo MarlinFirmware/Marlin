@@ -49,6 +49,7 @@
 #endif
 
 void menu_tmc();
+void menu_backlash();
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
@@ -646,6 +647,10 @@ void menu_advanced_settings() {
       MENU_ITEM(submenu, MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
     }
   #endif // !SLIM_LCD_MENUS
+
+  #if ENABLED(BACKLASH_GCODE)
+    MENU_ITEM(submenu, MSG_BACKLASH, menu_backlash);
+  #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)
     MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_dac);
