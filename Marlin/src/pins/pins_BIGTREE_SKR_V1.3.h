@@ -177,7 +177,6 @@
 |               EXP2                                              EXP1
 */
 #if ENABLED(ULTRA_LCD)
-
   #define BEEPER_PIN        P1_30   // (37) not 5V tolerant
   #define BTN_ENC           P0_28   // (58) open-drain
 
