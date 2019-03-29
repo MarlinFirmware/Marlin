@@ -420,7 +420,7 @@ class Temperature {
         static uint8_t paused_fan_speed[FAN_COUNT];
       #endif
 
-      static constexpr inline uint8_t fanPercent(const uint8_t speed) { return (int(speed) * 100 + 127) / 255; }
+      static constexpr inline uint8_t fanPercent(const uint8_t speed) { return ui8_to_percent(speed); }
 
       #if ENABLED(ADAPTIVE_FAN_SLOWING)
         static uint8_t fan_speed_scaler[FAN_COUNT];
