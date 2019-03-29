@@ -76,9 +76,8 @@ typedef struct {
     #endif
   #endif
 
-  //relative mode
-  bool relative_mode;    // = false;
-  bool relative_modes_e; // = false;
+  // Relative mode
+  bool relative_mode, relative_modes_e;
 
   // Command queue
   uint8_t commands_in_queue, cmd_queue_index_r;
