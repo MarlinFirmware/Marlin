@@ -141,6 +141,5 @@ public:
 
 // Converts from an uint8_t in the range of 0-255 to an uint8_t
 // in the range 0-100 while avoiding rounding artifacts
-constexpr uint8_t ui8_to_percent(const uint8_t i) {return (int(i) * 100 + 127) / 255;}
-constexpr uint8_t all_on  = 255;
-constexpr uint8_t all_off = 0;
+constexpr uint8_t ui8_to_percent(const uint8_t i) { return (int(i) * 100 + 127) / 255; }
+constexpr uint8_t all_on = 0xFF, all_off = 0x00;
