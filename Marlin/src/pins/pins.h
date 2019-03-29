@@ -417,7 +417,7 @@
 #elif MB(MORPHEUS)
   #include "pins_MORPHEUS.h"          // STM32F1                                    env:STM32F1
 #elif MB(MKS_ROBIN)
-  #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:STM32F1
+  #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:mks_robin
 
 //
 // STM32 ARM Cortex-M4F
@@ -435,8 +435,12 @@
   #include "pins_ARMED.h"             // STM32F4                                    env:ARMED
 #elif MB(RUMBA32)
   #include "pins_RUMBA32.h"           // STM32F4                                    env:RUMBA32
+#elif MB(BLACK_STM32F407VE)
+  #include "pins_BLACK_STM32F407VE.h" // STM32F4                                    env:black_stm32f407ve
 #elif MB(STEVAL)
   #include "pins_STEVAL.h"            // STM32F4                                    env:STM32F4
+
+
 
 //
 // ARM Cortex M7
