@@ -57,6 +57,16 @@ void safe_delay(millis_t ms) {
   #define RJDIGIT(n, f) ((n) >= (f) ? DIGIMOD(n, f) : ' ')
   #define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
 
+  // Convert a full-range unsigned 8bit int to a percentage
+  char* ui8tostr_percent(const uint8_t i) {
+    const uint16_t percent = 100 * i / 255;
+    conv[3] = RJDIGIT(percent, 100);
+    conv[4] = RJDIGIT(percent, 10);
+    conv[5] = DIGIMOD(percent, 1);
+    conv[6] = '%';
+    return &conv[3];
+  }
+
   // Convert unsigned 8bit int to string 123 format
   char* ui8tostr3(const uint8_t i) {
     conv[4] = RJDIGIT(i, 100);
