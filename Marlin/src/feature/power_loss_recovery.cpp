@@ -344,10 +344,8 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   //relative mode
-  if(info.relative_mode)
-    gcode.process_subcommands_now(PSTR("G91"));
-  if(info.relative_modes_e)
-    gcode.process_subcommands_now(PSTR("M83"));
+  if (info.relative_mode) relative_mode = true;
+  if (info.relative_modes_e) axis_relative_modes[E_AXIS] = true;
 
   // Process commands from the old pending queue
   uint8_t c = info.commands_in_queue, r = info.cmd_queue_index_r;
