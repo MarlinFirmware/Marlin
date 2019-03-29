@@ -185,6 +185,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       info.retract_hop = fwretract.current_hop;
     #endif
 
+    //relative mode
+    info.relative_mode = relative_mode;
+    info.relative_modes_e = gcode.axis_relative_modes[E_AXIS];
+
     // Commands in the queue
     info.commands_in_queue = save_queue ? commands_in_queue : 0;
     info.cmd_queue_index_r = cmd_queue_index_r;
@@ -338,6 +342,10 @@ void PrintJobRecovery::resume() {
   // Restore the feedrate
   sprintf_P(cmd, PSTR("G1 F%d"), info.feedrate);
   gcode.process_subcommands_now(cmd);
+
+  //relative mode
+  if (info.relative_mode) relative_mode = true;
+  if (info.relative_modes_e) gcode.axis_relative_modes[E_AXIS] = true;
 
   // Process commands from the old pending queue
   uint8_t c = info.commands_in_queue, r = info.cmd_queue_index_r;
