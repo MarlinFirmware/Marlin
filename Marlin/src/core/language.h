@@ -285,6 +285,8 @@
 #define MSG_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
 
 #define MSG_HEATER_BED                      "bed"
+#define MSG_HEATER_CHAMBER                  "chamber"
+
 #define MSG_STOPPED_HEATER                  ", system stopped! Heater_ID: "
 #define MSG_REDUNDANCY                      "Heater switched off. Temperature difference between temp sensors is too high !"
 #define MSG_T_HEATING_FAILED                "Heating failed"

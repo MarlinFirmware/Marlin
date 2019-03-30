@@ -36,6 +36,13 @@
 #endif
 
 /**
+ * Checks for FAST PWM
+ */
+#if ENABLED(FAST_PWM_FAN) && (ENABLED(USE_OCR2A_AS_TOP) && defined(TCCR2))
+    #error "USE_OCR2A_AS_TOP does not apply to devices with a single output TIMER2"
+#endif
+
+/**
  * Sanity checks for Spindle / Laser
  */
 #if ENABLED(SPINDLE_LASER_ENABLE)

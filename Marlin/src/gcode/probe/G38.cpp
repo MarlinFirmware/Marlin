@@ -31,7 +31,18 @@
 #include "../../module/stepper.h"
 #include "../../module/probe.h"
 
-static bool G38_run_probe() {
+inline void G38_single_probe(const uint8_t move_value) {
+  endstops.enable(true);
+  G38_move = move_value;
+  prepare_move_to_destination();
+  planner.synchronize();
+  G38_move = 0;
+  endstops.hit_on_purpose();
+  set_current_from_steppers_for_axis(ALL_AXES);
+  sync_plan_position();
+}
+
+inline bool G38_run_probe() {
 
   bool G38_pass_fail = false;
 
@@ -46,19 +57,19 @@ static bool G38_run_probe() {
 
   planner.synchronize();  // wait until the machine is idle
 
+  // Move flag value
+  #if ENABLED(G38_PROBE_AWAY)
+    const uint8_t move_value = parser.subcode;
+  #else
+    constexpr uint8_t move_value = 1;
+  #endif
+
+  G38_did_trigger = false;
+
   // Move until destination reached or target hit
-  endstops.enable(true);
-  G38_move = true;
-  G38_endstop_hit = false;
-  prepare_move_to_destination();
-  planner.synchronize();
-  G38_move = false;
+  G38_single_probe(move_value);
 
-  endstops.hit_on_purpose();
-  set_current_from_steppers_for_axis(ALL_AXES);
-  sync_plan_position();
-
-  if (G38_endstop_hit) {
+  if (G38_did_trigger) {
 
     G38_pass_fail = true;
 
@@ -70,45 +81,50 @@ static bool G38_run_probe() {
       prepare_move_to_destination();
       planner.synchronize();
 
-      feedrate_mm_s /= 4;
+      REMEMBER(fr, feedrate_mm_s, feedrate_mm_s * 0.25);
 
       // Bump the target more slowly
       LOOP_XYZ(i) destination[i] -= retract_mm[i] * 2;
 
-      endstops.enable(true);
-      G38_move = true;
-      prepare_move_to_destination();
-      planner.synchronize();
-      G38_move = false;
-
-      set_current_from_steppers_for_axis(ALL_AXES);
-      sync_plan_position();
+      G38_single_probe(move_value);
     #endif
   }
 
-  endstops.hit_on_purpose();
   endstops.not_homing();
   return G38_pass_fail;
 }
 
 /**
- * G38.2 - probe toward workpiece, stop on contact, signal error if failure
- * G38.3 - probe toward workpiece, stop on contact
+ * G38 Probe Target
  *
- * Like G28 except uses Z min probe for all axes
+ *  G38.2 - Probe toward workpiece, stop on contact, signal error if failure
+ *  G38.3 - Probe toward workpiece, stop on contact
+ *
+ * With G38_PROBE_AWAY:
+ *
+ *  G38.4 - Probe away from workpiece, stop on contact break, signal error if failure
+ *  G38.5 - Probe away from workpiece, stop on contact break
  */
-void GcodeSuite::G38(const bool is_38_2) {
+void GcodeSuite::G38(const int8_t subcode) {
   // Get X Y Z E F
   get_destination_from_command();
 
   setup_for_endstop_or_probe_move();
+
+  const bool error_on_fail =
+    #if ENABLED(G38_PROBE_AWAY)
+      !TEST(subcode, 0)
+    #else
+      (subcode == 2)
+    #endif
+  ;
 
   // If any axis has enough movement, do the move
   LOOP_XYZ(i)
     if (ABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
       if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
       // If G38.2 fails throw an error
-      if (!G38_run_probe() && is_38_2) SERIAL_ERROR_MSG("Failed to reach target");
+      if (!G38_run_probe() && error_on_fail) SERIAL_ERROR_MSG("Failed to reach target");
       break;
     }
 

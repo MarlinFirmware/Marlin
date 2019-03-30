@@ -46,6 +46,7 @@ public:
   static int peek(void);
   static int read(void);
   static void flush(void);
+  static void flushTX(void);
   static bool available(void);
   static void write(const uint8_t c);
 

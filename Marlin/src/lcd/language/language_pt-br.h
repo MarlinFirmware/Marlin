@@ -99,7 +99,7 @@
 #define MSG_IDEX_MENU                       _UxGT("Modo IDEX")
 #define MSG_IDEX_MODE_AUTOPARK              _UxGT("Auto-Estacionar")
 #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplicação")
-#define MSG_IDEX_MODE_SCALED_COPY           _UxGT("Cópia em Escala")
+#define MSG_IDEX_MODE_MIRRORED_COPY         _UxGT("Cópia espelhada")
 #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Controle Total")
 #define MSG_IDEX_X_OFFSET                   _UxGT("2o bico X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2o bico Y")

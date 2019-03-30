@@ -127,7 +127,7 @@ void GcodeSuite::M240() {
        parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : photo_position[Y_AXIS],
       (parser.seenval('Z') ? parser.value_linear_units() : photo_position[Z_AXIS]) + current_position[Z_AXIS]
     };
-    clamp_to_software_endstops(raw);
+    apply_motion_limits(raw);
     do_blocking_move_to(raw, fr_mm_s);
 
     #ifdef PHOTO_SWITCH_POSITION

@@ -32,48 +32,35 @@
   #include "../../../module/motion.h"
   #include "../../bedlevel/bedlevel.h"
 
+  #if ENABLED(EXTENSIBLE_UI)
+    #include "../../../lcd/extensible_ui/ui_api.h"
+  #endif
+  
   #include "math.h"
 
-  void unified_bed_leveling::echo_name(
-    #if NUM_SERIAL > 1
-      const int8_t port/*= -1*/
-    #endif
-  ) {
-    SERIAL_ECHOPGM_P(port, "Unified Bed Leveling");
+  void unified_bed_leveling::echo_name() {
+    SERIAL_ECHOPGM("Unified Bed Leveling");
   }
 
-  void unified_bed_leveling::report_current_mesh(
-    #if NUM_SERIAL > 1
-      const int8_t port/*= -1*/
-    #endif
-  ) {
+  void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
-    SERIAL_ECHO_MSG_P(port, "  G29 I99");
+    SERIAL_ECHO_MSG("  G29 I99");
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(z_values[x][y])) {
-          SERIAL_ECHO_START_P(port);
-          SERIAL_ECHOPAIR_P(port, "  M421 I", x);
-          SERIAL_ECHOPAIR_P(port, " J", y);
-          SERIAL_ECHOPAIR_F_P(port, " Z", z_values[x][y], 2);
-          SERIAL_EOL_P(port);
+          SERIAL_ECHO_START();
+          SERIAL_ECHOPAIR("  M421 I", x, " J", y);
+          SERIAL_ECHOPAIR_F(" Z", z_values[x][y], 2);
+          SERIAL_EOL();
           serial_delay(75); // Prevent Printrun from exploding
         }
   }
 
-  void unified_bed_leveling::report_state(
-    #if NUM_SERIAL > 1
-      const int8_t port/*= -1*/
-    #endif
-  ) {
-    echo_name(
-      #if NUM_SERIAL > 1
-        port
-      #endif
-    );
-    SERIAL_ECHOPGM_P(port, " System v" UBL_VERSION " ");
-    if (!planner.leveling_active) SERIAL_ECHOPGM_P(port, "in");
-    SERIAL_ECHOLNPGM_P(port, "active.");
+  void unified_bed_leveling::report_state() {
+    echo_name();
+    SERIAL_ECHOPGM(" System v" UBL_VERSION " ");
+    if (!planner.leveling_active) SERIAL_ECHOPGM("in");
+    SERIAL_ECHOLNPGM("active.");
     serial_delay(50);
   }
 
@@ -146,6 +133,11 @@
       planner.set_z_fade_height(10.0);
     #endif
     ZERO(z_values);
+    #if ENABLED(EXTENSIBLE_UI)
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) 
+            ExtUI::onMeshUpdate(x, y, 0);
+    #endif
     if (was_enabled) report_current_position();
   }
 
@@ -158,6 +150,9 @@
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
         z_values[x][y] = value;
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(x, y, value);
+        #endif
       }
     }
   }
@@ -214,8 +209,11 @@
       serialprintPGM(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
     }
 
-    const float current_xi = get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
-                current_yi = get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
+    // Add XY_PROBE_OFFSET_FROM_EXTRUDER because probe_pt() subtracts these when
+    // moving to the xy position to be measured. This ensures better agreement between
+    // the current Z position after G28 and the mesh values.
+    const float current_xi = find_closest_x_index(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
+                current_yi = find_closest_y_index(current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
     if (!lcd) SERIAL_EOL();
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {

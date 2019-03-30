@@ -26,7 +26,7 @@
 #define OVERSAMPLENR 16
 #define OV(N) int16_t((N) * (OVERSAMPLENR))
 
-#define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORHEATER_4 == n || THERMISTORBED == n || THERMISTORCHAMBER == n)
+#define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORHEATER_4 == n || THERMISTORHEATER_5 == n || THERMISTORBED == n || THERMISTORCHAMBER == n)
 
 // Pt1000 and Pt100 handling
 //
@@ -103,6 +103,9 @@
 #endif
 #if ANY_THERMISTOR_IS(66) // beta25 = 4500 K, R25 = 2.5 MOhm, Pull-up = 4.7 kOhm, "DyzeDesign 500 °C Thermistor"
   #include "thermistor_66.h"
+#endif
+#if ANY_THERMISTOR_IS(67) // R25 = 500 KOhm, beta25 = 3800 K, 4.7 kOhm pull-up, SliceEngineering 450 °C Thermistor
+  #include "thermistor_67.h"
 #endif
 #if ANY_THERMISTOR_IS(12) // beta25 = 4700 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Personal calibration for Makibox hot bed"
   #include "thermistor_12.h"
@@ -188,6 +191,16 @@
   #define HEATER_4_TEMPTABLE_LEN 0
 #endif
 
+#if THERMISTORHEATER_5
+  #define HEATER_5_TEMPTABLE TT_NAME(THERMISTORHEATER_5)
+  #define HEATER_5_TEMPTABLE_LEN COUNT(HEATER_5_TEMPTABLE)
+#elif defined(HEATER_5_USES_THERMISTOR)
+  #error "No heater 5 thermistor table specified"
+#else
+  #define HEATER_5_TEMPTABLE NULL
+  #define HEATER_5_TEMPTABLE_LEN 0
+#endif
+
 #ifdef THERMISTORBED
   #define BEDTEMPTABLE TT_NAME(THERMISTORBED)
   #define BEDTEMPTABLE_LEN COUNT(BEDTEMPTABLE)
@@ -257,6 +270,15 @@ static_assert(HEATER_0_TEMPTABLE_LEN < 256 && HEATER_1_TEMPTABLE_LEN < 256 && HE
   #else
     #define HEATER_4_RAW_HI_TEMP 16383
     #define HEATER_4_RAW_LO_TEMP 0
+  #endif
+#endif
+#ifndef HEATER_5_RAW_HI_TEMP
+  #ifdef HEATER_5_USES_THERMISTOR
+    #define HEATER_5_RAW_HI_TEMP 0
+    #define HEATER_5_RAW_LO_TEMP 16383
+  #else
+    #define HEATER_5_RAW_HI_TEMP 16383
+    #define HEATER_5_RAW_LO_TEMP 0
   #endif
 #endif
 #ifndef HEATER_BED_RAW_HI_TEMP

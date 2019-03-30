@@ -50,6 +50,10 @@
 #define INTERSECTION_CIRCLE_RADIUS 5
 #define CROSSHAIRS_SIZE 3
 
+#ifndef G26_XY_FEEDRATE
+  #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
+#endif
+
 #if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
   #error "CROSSHAIRS_SIZE must be less than INTERSECTION_CIRCLE_RADIUS."
 #endif
@@ -240,7 +244,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
 
   // Check if X or Y is involved in the movement.
   // Yes: a 'normal' movement. No: a retract() or recover()
-  feed_value = has_xy_component ? PLANNER_XY_FEEDRATE() / 3.0 : planner.settings.max_feedrate_mm_s[E_AXIS] / 1.5;
+  feed_value = has_xy_component ? G26_XY_FEEDRATE : planner.settings.max_feedrate_mm_s[E_AXIS] / 1.5;
 
   if (g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to() feed_value for XY:", feed_value);
 
@@ -346,12 +350,7 @@ inline bool look_for_lines_to_connect() {
             if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey)) {
 
               if (g26_debug_flag) {
-                SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=", sx);
-                SERIAL_ECHOPAIR(", sy=", sy);
-                SERIAL_ECHOPAIR(") -> (ex=", ex);
-                SERIAL_ECHOPAIR(", ey=", ey);
-                SERIAL_CHAR(')');
-                SERIAL_EOL();
+                SERIAL_ECHOLNPAIR(" Connecting with horizontal line (sx=", sx, ", sy=", sy, ") -> (ex=", ex, ", ey=", ey, ")");
                 //debug_current_and_destination(PSTR("Connecting horizontal line."));
               }
               print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
@@ -570,13 +569,15 @@ void GcodeSuite::G26() {
   bool g26_continue_with_closest = parser.boolval('C'),
        g26_keep_heaters_on       = parser.boolval('K');
 
-  if (parser.seenval('B')) {
-    g26_bed_temp = parser.value_celsius();
-    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, 140)) {
-      SERIAL_ECHOLNPGM("?Specified bed temperature not plausible (40-140C).");
-      return;
+  #if HAS_HEATED_BED
+    if (parser.seenval('B')) {
+      g26_bed_temp = parser.value_celsius();
+      if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 10))) {
+        SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 10), "C).");
+        return;
+      }
     }
-  }
+  #endif
 
   if (parser.seenval('L')) {
     g26_layer_height = parser.value_linear_units();
@@ -602,7 +603,7 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('S')) {
     g26_nozzle = parser.value_float();
-    if (!WITHIN(g26_nozzle, 0.1, 1.0)) {
+    if (!WITHIN(g26_nozzle, 0.1, 2.0)) {
       SERIAL_ECHOLNPGM("?Specified nozzle size not plausible.");
       return;
     }
@@ -642,7 +643,7 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('H')) {
     g26_hotend_temp = parser.value_celsius();
-    if (!WITHIN(g26_hotend_temp, 165, 280)) {
+    if (!WITHIN(g26_hotend_temp, 165, (HEATER_0_MAXTEMP - 15))) {
       SERIAL_ECHOLNPGM("?Specified nozzle temperature not plausible.");
       return;
     }
@@ -686,6 +687,12 @@ void GcodeSuite::G26() {
     do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     set_current_from_destination();
   }
+
+  #if DISABLED(NO_VOLUMETRICS)
+    bool volumetric_was_enabled = parser.volumetric_enabled;
+    parser.volumetric_enabled = false;
+    planner.calculate_volumetric_multipliers();
+  #endif
 
   if (turn_on_heaters() != G26_OK) goto LEAVE;
 
@@ -909,6 +916,11 @@ void GcodeSuite::G26() {
 
   move_to(destination, 0);                                    // Move back to the starting position
   //debug_current_and_destination(PSTR("done doing X/Y move."));
+
+  #if DISABLED(NO_VOLUMETRICS)
+    parser.volumetric_enabled = volumetric_was_enabled;
+    planner.calculate_volumetric_multipliers();
+  #endif
 
   #if HAS_LCD_MENU
     ui.release();                                             // Give back control of the LCD

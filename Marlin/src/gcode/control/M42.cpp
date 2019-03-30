@@ -50,7 +50,7 @@ void GcodeSuite::M42() {
   if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
 
   pinMode(pin, OUTPUT);
-  digitalWrite(pin, pin_status);
+  extDigitalWrite(pin, pin_status);
   analogWrite(pin, pin_status);
 
   #if FAN_COUNT > 0

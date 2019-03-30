@@ -31,6 +31,10 @@
 #include "../../gcode.h"
 #include "../../../feature/bedlevel/bedlevel.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extensible_ui/ui_api.h"
+#endif
+
 /**
  * M421: Set a single Mesh Bed Leveling Z coordinate
  *
@@ -60,8 +64,12 @@ void GcodeSuite::M421() {
     SERIAL_ERROR_MSG(MSG_ERR_M421_PARAMETERS);
   else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))
     SERIAL_ERROR_MSG(MSG_ERR_MESH_XY);
-  else
+  else {
     ubl.z_values[ix][iy] = hasN ? NAN : parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onMeshUpdate(ix, iy, ubl.z_values[ix][iy]);
+    #endif
+  }
 }
 
 #endif // AUTO_BED_LEVELING_UBL

@@ -44,15 +44,20 @@
 #define SET_INPUT_PULLUP(IO)    _SET_MODE(IO, INPUT_PULLUP)                       /*!< Input with Pull-up activation         */
 #define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLDOWN)                     /*!< Input with Pull-down activation       */
 #define SET_OUTPUT(IO)          OUT_WRITE(IO, LOW)
+#define SET_PWM(IO)             pinMode(IO, PWM)
 
 #define TOGGLE(IO)              OUT_WRITE(IO, !READ(IO))
 
-#define GET_INPUT(IO)
-#define GET_OUTPUT(IO)
-#define GET_TIMER(IO)
+#define IS_INPUT(IO)
+#define IS_OUTPUT(IO)
+#define HAS_TIMER(IO)
 
-#define PWM_PIN(p) true
-#define USEABLE_HARDWARE_PWM(p) PWM_PIN(p)
+#define PWM_PIN(P)              true
+#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
+
+// digitalRead/Write wrappers
+#define extDigitalRead(IO)    digitalRead(IO)
+#define extDigitalWrite(IO,V) digitalWrite(IO,V)
 
 //
 // Pins Definitions

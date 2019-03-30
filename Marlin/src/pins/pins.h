@@ -163,9 +163,11 @@
 #elif MB(FYSETC_F6_13)
   #include "pins_FYSETC_F6_13.h"      // ATmega2560                                 env:megaatmega2560
 #elif MB(DUPLICATOR_I3_PLUS)
-  #include "pins_DUPLICATOR_I3_PLUS.h" // ATmega2560                                 env:megaatmega2560
+  #include "pins_DUPLICATOR_I3_PLUS.h" // ATmega2560                                env:megaatmega2560
 #elif MB(VORON)
   #include "pins_VORON.h"             // ATmega2560                                 env:megaatmega2560
+#elif MB(TRONXY_V3_1_0)
+  #include "pins_TRONXY_V3_1_0.h"     // ATmega2560                                 env:megaatmega2560
 
 //
 // Other ATmega1280, ATmega2560
@@ -334,6 +336,8 @@
   #include "pins_BIQU_SKR_V1.1.h"     // LPC1768                                    env:LPC1768
 #elif MB(BIQU_B300_V1_0)
   #include "pins_BIQU_B300_V1.0.h"    // LPC1768                                    env:LPC1768
+#elif MB(BIGTREE_SKR_V1_3)
+  #include "pins_BIGTREE_SKR_V1.3.h"  // LPC1768                                    env:LPC1768
 
 //
 // Other 32-bit Boards
@@ -393,6 +397,8 @@
   #include "pins_ALLIGATOR_R2.h"      // SAM3X8E                                    env:DUE env:DUE_debug
 #elif MB(ADSK)
   #include "pins_ADSK.h"              // SAM3X8E                                    env:DUE env:DUE_debug
+#elif MB(PRINTRBOARD_G2)
+  #include "pins_PRINTRBOARD_G2.h"    // SAM3X8C                                    env:DUE_USB
 
 //
 // STM32 ARM Cortex-M3
@@ -447,6 +453,13 @@
 
 #elif MB(ESP32)
   #include "pins_ESP32.h"
+
+//
+// Linux Native Debug board
+//
+
+#elif MB(LINUX_RAMPS)
+  #include "pins_RAMPS_LINUX.h"       // Linux                                      env:linux_native
 
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
@@ -801,7 +814,7 @@
 //
 // Disable unused endstop / probe pins
 //
-#if !HAS_BED_PROBE || DISABLED(Z_MIN_PROBE_ENDSTOP)
+#if !USES_Z_MIN_PROBE_ENDSTOP
   #undef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN    -1
 #endif
@@ -861,7 +874,7 @@
 #define _EPIN(p,q) __EPIN(p,q)
 
 // The X2 axis, if any, should be the next open extruder port
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)
+#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
   #ifndef X2_STEP_PIN
     #define X2_STEP_PIN   _EPIN(E_STEPPERS, STEP)
     #define X2_DIR_PIN    _EPIN(E_STEPPERS, DIR)

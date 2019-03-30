@@ -89,6 +89,7 @@
 #define BOARD_FYSETC_F6_13      541   // Fysetc F6
 #define BOARD_DUPLICATOR_I3_PLUS 31   // Wanhao Duplicator i3 Plus
 #define BOARD_VORON             441   // VORON Design
+#define BOARD_TRONXY_V3_1_0     442   // Tronxy TRONXY-V3-1.0
 
 //
 // Other ATmega1280, ATmega2560
@@ -191,6 +192,7 @@
 #define BOARD_AZTEEG_X5_MINI_WIFI 1758  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
 #define BOARD_BIQU_SKR_V1_1       1759  // BIQU SKR_V1.1 (Power outputs: Hotend0,Hotend1, Fan, Bed)
 #define BOARD_BIQU_B300_V1_0      1760  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
+#define BOARD_BIGTREE_SKR_V1_3    1761  // BIGTREE SKR_V1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 
 //
 // SAM3X8E ARM Cortex M3
@@ -222,6 +224,12 @@
 #define BOARD_ARCHIM1          1591   // UltiMachine Archim1 (with DRV8825 drivers)
 #define BOARD_ARCHIM2          1592   // UltiMachine Archim2 (with TMC2130 drivers)
 #define BOARD_ALLIGATOR        1602   // Alligator Board R2
+
+//
+// SAM3X8C ARM Cortex M3
+//
+
+#define BOARD_PRINTRBOARD_G2   1620   // PRINTRBOARD G2
 #define BOARD_ADSK             1610   // Arduino DUE Shield Kit (ADSK)
 
 //
@@ -258,5 +266,11 @@
 // Espressif ESP32 WiFi
 //
 #define BOARD_ESP32            1900
+
+//
+// Simulations
+//
+
+#define BOARD_LINUX_RAMPS      2000
 
 #define MB(board) (defined(BOARD_##board) && MOTHERBOARD==BOARD_##board)

@@ -125,7 +125,7 @@ void GcodeSuite::M109() {
         print_job_timer.start();
     #endif
 
-    #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
       if (thermalManager.isHeatingHotend(target_extruder) || !no_wait_for_cooling)
         thermalManager.set_heating_message(target_extruder);
     #endif

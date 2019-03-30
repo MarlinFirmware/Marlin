@@ -114,8 +114,8 @@ bool MarlinSerialUSB::available(void) {
       (usb_task_cdc_isenabled() && udi_cdc_is_rx_ready());
 }
 
-void MarlinSerialUSB::flush(void) {
-}
+void MarlinSerialUSB::flush(void) { }
+void MarlinSerialUSB::flushTX(void) { }
 
 void MarlinSerialUSB::write(const uint8_t c) {
 

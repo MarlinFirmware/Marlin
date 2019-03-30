@@ -35,9 +35,7 @@
   #define FIL_RUNOUT_PIN   22
 #endif
 
-#define GREEDY_PANEL (   ENABLED(PANEL_ONE) || ENABLED(VIKI2)     \
-                      || ENABLED(miniVIKI)  || ENABLED(MINIPANEL) \
-                      || ENABLED(REPRAPWORLD_KEYPAD) )
+#define GREEDY_PANEL ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD)
 
 //
 // M3/M4/M5 - Spindle/Laser Control

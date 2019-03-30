@@ -29,30 +29,12 @@ static const char errormagic[] PROGMEM = "Error:";
 static const char echomagic[]  PROGMEM = "echo:";
 
 #if NUM_SERIAL > 1
-  void serialprintPGM_P(const int8_t p, const char * str) {
-    while (char ch = pgm_read_byte(str++)) SERIAL_CHAR_P(p, ch);
-  }
-
-  void serial_echopair_PGM_P(const int8_t p, PGM_P const s_P, const char *v)   { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P const s_P, char v)          { serialprintPGM_P(p, s_P); SERIAL_CHAR_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P const s_P, int v)           { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P const s_P, long v)          { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P const s_P, float v)         { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P const s_P, double v)        { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P const s_P, unsigned int v)  { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P const s_P, unsigned long v) { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-
-  void serial_spaces_P(const int8_t p, uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR_P(p, ' '); }
-
-  void serial_echo_start_P(const int8_t p)  { serialprintPGM_P(p, echomagic); }
-  void serial_error_start_P(const int8_t p) { serialprintPGM_P(p, errormagic); }
-
+  int8_t serial_port_index = SERIAL_PORT;
 #endif
 
 void serialprintPGM(PGM_P str) {
-  while (char ch = pgm_read_byte(str++)) SERIAL_CHAR(ch);
+  while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
 }
-
 void serial_echo_start()  { serialprintPGM(echomagic); }
 void serial_error_start() { serialprintPGM(errormagic); }
 
@@ -70,6 +52,15 @@ void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (c
 void serialprint_onoff(const bool onoff) { serialprintPGM(onoff ? PSTR(MSG_ON) : PSTR(MSG_OFF)); }
 void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
 
+void print_bin(const uint16_t val) {
+  uint16_t mask = 0x8000;
+  for (uint8_t i = 16; i--;) {
+    if (i && !(i % 4)) SERIAL_CHAR(' ');
+    SERIAL_CHAR((val & mask) ? '1' : '0');
+    mask >>= 1;
+  }
+}
+
 #if ENABLED(DEBUG_LEVELING_FEATURE)
 
   #include "enum.h"
@@ -78,8 +69,7 @@ void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EO
     serialprintPGM(prefix);
     SERIAL_CHAR('(');
     SERIAL_ECHO(x);
-    SERIAL_ECHOPAIR(", ", y);
-    SERIAL_ECHOPAIR(", ", z);
+    SERIAL_ECHOPAIR(", ", y, ", ", z);
     SERIAL_CHAR(')');
     if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
   }

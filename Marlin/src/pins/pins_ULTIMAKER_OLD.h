@@ -144,14 +144,15 @@
 //
 // LCD / Controller
 //
-#if ENABLED(board_rev_1_0) || ENABLED(board_rev_1_1_TO_1_3)
+#if ANY(board_rev_1_0, board_rev_1_1_TO_1_3)
   #define LCD_PINS_RS        24
   #define LCD_PINS_ENABLE    22
   #define LCD_PINS_D4        36
   #define LCD_PINS_D5        34
   #define LCD_PINS_D6        32
   #define LCD_PINS_D7        30
-#elif ENABLED(board_rev_1_5) && ENABLED(ULTRA_LCD)
+
+#elif ENABLED(board_rev_1_5, ULTRA_LCD)
 
   #define BEEPER_PIN 18
 

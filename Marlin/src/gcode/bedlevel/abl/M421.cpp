@@ -54,6 +54,9 @@ void GcodeSuite::M421() {
     #if ENABLED(ABL_BILINEAR_SUBDIVISION)
       bed_level_virt_interpolate();
     #endif
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onMeshUpdate(ix, iy, z_values[ix][iy]);
+    #endif
   }
 }
 

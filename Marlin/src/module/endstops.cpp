@@ -36,7 +36,7 @@
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
 
-#if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
+#if BOTH(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED, SDSUPPORT)
   #include "printcounter.h" // for print_job_timer
 #endif
 
@@ -228,7 +228,7 @@ void Endstops::init() {
     #endif
   #endif
 
-  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #if USES_Z_MIN_PROBE_ENDSTOP
     #if ENABLED(ENDSTOPPULLUP_ZMIN_PROBE)
       SET_INPUT_PULLUP(Z_MIN_PROBE_PIN);
     #elif ENABLED(ENDSTOPPULLDOWN_ZMIN_PROBE)
@@ -351,7 +351,7 @@ void Endstops::event_handler() {
     ENDSTOP_HIT_TEST_Y();
     ENDSTOP_HIT_TEST_Z();
 
-    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+    #if USES_Z_MIN_PROBE_ENDSTOP
       #define P_AXIS Z_AXIS
       if (TEST(hit_state, Z_MIN_PROBE)) _ENDSTOP_HIT_ECHO(P, 'P');
     #endif
@@ -361,7 +361,7 @@ void Endstops::event_handler() {
       ui.status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 
-    #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
+    #if BOTH(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
         card.stopSDPrint();
         quickstop_stepper();
@@ -425,7 +425,7 @@ void _O2 Endstops::M119() {
   #if HAS_Z3_MAX
     ES_REPORT(Z3_MAX);
   #endif
-  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #if USES_Z_MIN_PROBE_ENDSTOP
     print_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_Z_PROBE));
   #endif
   #if HAS_FILAMENT_SENSOR
@@ -453,7 +453,7 @@ void _O2 Endstops::M119() {
         }
         SERIAL_ECHOPGM(MSG_FILAMENT_RUNOUT_SENSOR);
         if (i > 1) { SERIAL_CHAR(' '); SERIAL_CHAR('0' + i); }
-        print_es_state(digitalRead(pin) != FIL_RUNOUT_INVERTING);
+        print_es_state(extDigitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
     #endif
   #endif
@@ -586,7 +586,7 @@ void Endstops::update() {
   #endif
 
   // When closing the gap check the enabled probe
-  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #if USES_Z_MIN_PROBE_ENDSTOP
     UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
   #endif
 
@@ -606,7 +606,7 @@ void Endstops::update() {
           COPY_LIVE_STATE(Z_MAX, Z3_MAX);
         #endif
       #endif
-    #elif DISABLED(Z_MIN_PROBE_ENDSTOP) || Z_MAX_PIN != Z_MIN_PROBE_PIN
+    #elif !USES_Z_MIN_PROBE_ENDSTOP || Z_MAX_PIN != Z_MIN_PROBE_PIN
       // If this pin isn't the bed probe it's the Z endstop
       UPDATE_ENDSTOP_BIT(Z, MAX);
     #endif
@@ -672,14 +672,17 @@ void Endstops::update() {
   }while(0)
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
+    #if ENABLED(G38_PROBE_AWAY)
+      #define _G38_OPEN_STATE (G38_move >= 4)
+    #else
+      #define _G38_OPEN_STATE LOW
+    #endif
     // If G38 command is active check Z_MIN_PROBE for ALL movement
-    if (G38_move) {
-      if (TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE))) {
-        if      (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(X_AXIS); }
-        else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(Y_AXIS); }
-        else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(Z_AXIS); }
-        G38_endstop_hit = true;
-      }
+    if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE)) != _G38_OPEN_STATE) {
+           if (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(X_AXIS); }
+      else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(Y_AXIS); }
+      else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(Z_AXIS); }
+      G38_did_trigger = true;
     }
   #endif
 
@@ -736,7 +739,7 @@ void Endstops::update() {
         #else
           #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
             if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN);
-          #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
+          #elif USES_Z_MIN_PROBE_ENDSTOP
             if (!z_probe_enabled) PROCESS_ENDSTOP(Z, MIN);
           #else
             PROCESS_ENDSTOP(Z, MIN);
@@ -745,7 +748,7 @@ void Endstops::update() {
       #endif
 
       // When closing the gap check the enabled probe
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+      #if USES_Z_MIN_PROBE_ENDSTOP
         if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN_PROBE);
       #endif
     }
@@ -755,7 +758,7 @@ void Endstops::update() {
           PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MAX);
         #elif ENABLED(Z_DUAL_ENDSTOPS)
           PROCESS_DUAL_ENDSTOP(Z, Z2, MAX);
-        #elif DISABLED(Z_MIN_PROBE_ENDSTOP) || Z_MAX_PIN != Z_MIN_PROBE_PIN
+        #elif !USES_Z_MIN_PROBE_ENDSTOP || Z_MAX_PIN != Z_MIN_PROBE_PIN
           // If this pin is not hijacked for the bed probe
           // then it belongs to the Z endstop
           PROCESS_ENDSTOP(Z, MAX);

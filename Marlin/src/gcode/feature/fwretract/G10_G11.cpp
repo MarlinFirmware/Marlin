@@ -30,6 +30,7 @@
 
 /**
  * G10 - Retract filament according to settings of M207
+ *       TODO: Handle 'G10 P' for tool settings and 'G10 L' for workspace settings
  */
 void GcodeSuite::G10() {
   #if EXTRUDERS > 1

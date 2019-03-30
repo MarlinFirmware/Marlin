@@ -50,7 +50,7 @@
   #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
 #endif
 
-#if DISABLED(IS_RAMPS_SMART) && DISABLED(IS_RAMPS_DUO) && DISABLED(IS_RAMPS4DUE) && DISABLED(TARGET_LPC1768)
+#if DISABLED(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768)
   #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
     #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
   #endif
@@ -63,10 +63,12 @@
 //
 // Servos
 //
-#ifdef IS_RAMPS_13
-  #define SERVO0_PIN        7   // RAMPS_13 // Will conflict with BTN_EN2 on LCD_I2C_VIKI
-#else
-  #define SERVO0_PIN       11
+#ifndef SERVO0_PIN
+  #ifdef IS_RAMPS_13
+    #define SERVO0_PIN      7   // RAMPS_13 // Will conflict with BTN_EN2 on LCD_I2C_VIKI
+  #else
+    #define SERVO0_PIN     11
+  #endif
 #endif
 #define SERVO1_PIN          6
 #define SERVO2_PIN          5
@@ -148,7 +150,7 @@
 //
 // Augmentation for auto-assigning RAMPS plugs
 //
-#if DISABLED(IS_RAMPS_EEB) && DISABLED(IS_RAMPS_EEF) && DISABLED(IS_RAMPS_EFB) && DISABLED(IS_RAMPS_EFF) && DISABLED(IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
+#if DISABLED(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
   #if HOTENDS > 1
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB
@@ -199,13 +201,13 @@
 #endif
 
 #ifndef FAN_PIN
-  #if ENABLED(IS_RAMPS_EFB) || ENABLED(IS_RAMPS_EFF)  // Hotend, Fan, Bed or Hotend, Fan, Fan
+  #if EITHER(IS_RAMPS_EFB, IS_RAMPS_EFF)          // Hotend, Fan, Bed or Hotend, Fan, Fan
     #define FAN_PIN        RAMPS_D9_PIN
-  #elif ENABLED(IS_RAMPS_EEF) || ENABLED(IS_RAMPS_SF) // Hotend, Hotend, Fan or Spindle, Fan
+  #elif EITHER(IS_RAMPS_EEF, IS_RAMPS_SF)         // Hotend, Hotend, Fan or Spindle, Fan
     #define FAN_PIN        RAMPS_D8_PIN
-  #elif ENABLED(IS_RAMPS_EEB)                         // Hotend, Hotend, Bed
-    #define FAN_PIN         4   // IO pin. Buffer needed
-  #else                                               // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
+  #elif ENABLED(IS_RAMPS_EEB)                  // Hotend, Hotend, Bed
+    #define FAN_PIN         4                  // IO pin. Buffer needed
+  #else                                        // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
     #define FAN_PIN        RAMPS_D9_PIN
   #endif
 #endif
@@ -232,8 +234,7 @@
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN) && !defined(SPINDLE_LASER_ENABLE_PIN)
   #if NUM_SERVOS <= 1 // try to use servo connector first
     #define CASE_LIGHT_PIN    6   // MUST BE HARDWARE PWM
-  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \
-      && (ENABLED(PANEL_ONE) || ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(MINIPANEL) || ENABLED(REPRAPWORLD_KEYPAD)))  // try to use AUX 2
+  #elif !(BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))  // try to use AUX 2
     #define CASE_LIGHT_PIN   44   // MUST BE HARDWARE PWM
   #endif
 #endif
@@ -246,8 +247,7 @@
     #define SPINDLE_LASER_ENABLE_PIN  4   // Pin should have a pullup/pulldown!
     #define SPINDLE_LASER_PWM_PIN     6   // MUST BE HARDWARE PWM
     #define SPINDLE_DIR_PIN           5
-  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \
-      && (ENABLED(PANEL_ONE) || ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(MINIPANEL) || ENABLED(REPRAPWORLD_KEYPAD)))  // try to use AUX 2
+  #elif !(BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))  // try to use AUX 2
     #define SPINDLE_LASER_ENABLE_PIN 40   // Pin should have a pullup/pulldown!
     #define SPINDLE_LASER_PWM_PIN    44   // MUST BE HARDWARE PWM
     #define SPINDLE_DIR_PIN          65
@@ -347,7 +347,7 @@
     #define LCD_PINS_ENABLE     51   // SID (MOSI)
     #define LCD_PINS_D4         52   // SCK (CLK) clock
 
-  #elif ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
+  #elif BOTH(NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS         40
     #define LCD_PINS_ENABLE     42
@@ -379,7 +379,7 @@
 
     #else
 
-      #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
+      #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
         #define LCD_PINS_DC     25   // Set as output on init
         #define LCD_PINS_RS     27   // Pull low for 1s to init
         // DOGM SPI LCD Support
@@ -463,7 +463,7 @@
       #define LCD_SDSS          SDSS
       #define SD_DETECT_PIN     49
 
-    #elif ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #elif ANY(VIKI2, miniVIKI)
 
       #define DOGLCD_CS         45
       #define DOGLCD_A0         44
@@ -502,7 +502,6 @@
       #define DOGLCD_CS         25
 
       // GLCD features
-      //#define LCD_CONTRAST   190
       // Uncomment screen orientation
       //#define LCD_SCREEN_ROT_90
       //#define LCD_SCREEN_ROT_180
@@ -517,7 +516,7 @@
       #define BTN_ENC           35
 
       #define SD_DETECT_PIN     49
-      #define KILL_PIN          64
+      #define KILL_PIN          41
 
     #elif ENABLED(MINIPANEL)
 
@@ -529,7 +528,6 @@
       #define DOGLCD_CS         66
 
       // GLCD features
-      //#define LCD_CONTRAST   190
       // Uncomment screen orientation
       //#define LCD_SCREEN_ROT_90
       //#define LCD_SCREEN_ROT_180
