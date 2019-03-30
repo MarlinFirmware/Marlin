@@ -59,7 +59,7 @@ void safe_delay(millis_t ms) {
 
   // Convert a full-range unsigned 8bit int to a percentage
   char* ui8tostr_percent(const uint8_t i) {
-    const uint16_t percent = 100 * i / 255;
+    const uint8_t percent = ui8_to_percent(i);
     conv[3] = RJDIGIT(percent, 100);
     conv[4] = RJDIGIT(percent, 10);
     conv[5] = DIGIMOD(percent, 1);
