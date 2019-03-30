@@ -1025,9 +1025,7 @@ void CardReader::printingHasFinished() {
   // the file being printed, so during SD printing the file should
   // be zeroed and written instead of deleted.
   void CardReader::removeJobRecoveryFile() {
-    recovery.file.close();
     if (jobRecoverFileExists()) {
-      //closefile();
       removeFile(job_recovery_file_name);
       #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
         SERIAL_ECHOPGM("Power-loss file delete");
