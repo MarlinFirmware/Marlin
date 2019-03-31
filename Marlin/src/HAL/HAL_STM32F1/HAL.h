@@ -130,6 +130,10 @@ void HAL_init();
   #define analogInputToDigitalPin(p) (p)
 #endif
 
+#ifndef digitalPinHasPWM
+  #define digitalPinHasPWM(P) (PIN_MAP[P].timer_device != NULL)
+#endif
+
 #define CRITICAL_SECTION_START  uint32_t primask = __get_primask(); (void)__iCliRetVal()
 #define CRITICAL_SECTION_END    if (!primask) (void)__iSeiRetVal()
 #define ISRS_ENABLED() (!__get_primask())

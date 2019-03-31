@@ -84,13 +84,13 @@
   #if ENABLED(BABYSTEP_XY)
     void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEP_X)); }
     void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEP_Y)); }
-    void lcd_babystep_x() { ui.goto_screen(_lcd_babystep_x); babysteps_done = 0; ui.defer_status_screen(true); }
-    void lcd_babystep_y() { ui.goto_screen(_lcd_babystep_y); babysteps_done = 0; ui.defer_status_screen(true); }
+    void lcd_babystep_x() { ui.goto_screen(_lcd_babystep_x); babysteps_done = 0; ui.defer_status_screen(); }
+    void lcd_babystep_y() { ui.goto_screen(_lcd_babystep_y); babysteps_done = 0; ui.defer_status_screen(); }
   #endif
 
   #if DISABLED(BABYSTEP_ZPROBE_OFFSET)
     void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEP_Z)); }
-    void lcd_babystep_z() { ui.goto_screen(_lcd_babystep_z); babysteps_done = 0; ui.defer_status_screen(true); }
+    void lcd_babystep_z() { ui.goto_screen(_lcd_babystep_z); babysteps_done = 0; ui.defer_status_screen(); }
   #endif
 
 #endif // BABYSTEPPING

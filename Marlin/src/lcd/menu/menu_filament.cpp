@@ -528,7 +528,7 @@ void lcd_pause_show_message(
   hotend_status_extruder = extruder;
   const screenFunc_t next_screen = ap_message_screen(message);
   if (next_screen) {
-    ui.defer_status_screen(true);
+    ui.defer_status_screen();
     ui.goto_screen(next_screen);
   }
   else

@@ -66,8 +66,8 @@
   GPIO_BITBAND(CORE_PIN ## P ## _DDRREG , CORE_PIN ## P ## _BIT) = 0; \
 }while(0)
 
-#define _GET_INPUT(P)   ((CORE_PIN ## P ## _DDRREG & CORE_PIN ## P ## _BITMASK) == 0)
-#define _GET_OUTPUT(P)  ((CORE_PIN ## P ## _DDRREG & CORE_PIN ## P ## _BITMASK) == 0)
+#define _IS_INPUT(P)    ((CORE_PIN ## P ## _DDRREG & CORE_PIN ## P ## _BITMASK) == 0)
+#define _IS_OUTPUT(P)   ((CORE_PIN ## P ## _DDRREG & CORE_PIN ## P ## _BITMASK) == 0)
 
 #define READ(IO)              _READ(IO)
 
@@ -80,8 +80,8 @@
 #define SET_OUTPUT(IO)        _SET_OUTPUT(IO)
 #define SET_PWM(IO)            SET_OUTPUT(IO)
 
-#define GET_INPUT(IO)         _GET_INPUT(IO)
-#define GET_OUTPUT(IO)        _GET_OUTPUT(IO)
+#define IS_INPUT(IO)          _IS_INPUT(IO)
+#define IS_OUTPUT(IO)         _IS_OUTPUT(IO)
 
 #define OUT_WRITE(IO,V)       do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 

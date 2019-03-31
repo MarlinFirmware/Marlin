@@ -20,14 +20,39 @@
  *
  */
 
-/**
- * Test TEENSY35_36 specific configuration values for errors at compile-time.
- */
+//
+// Backlash Menu
+//
 
-#if ENABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is not yet implemented for Teensy 3.5/3.6. Disable EMERGENCY_PARSER to continue."
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_LCD_MENU && ENABLED(BACKLASH_GCODE)
+
+#include "menu.h"
+
+extern float backlash_distance_mm[XYZ];
+extern uint8_t backlash_correction;
+
+#ifdef BACKLASH_SMOOTHING_MM
+  extern float backlash_smoothing_mm;
 #endif
 
-#if ENABLED(FAST_PWM_FAN)
-  #error "FAST_PWM_FAN is not yet implemented for this platform."
-#endif
+void menu_backlash() {
+  START_MENU();
+  MENU_BACK(MSG_MAIN);
+
+  MENU_MULTIPLIER_ITEM_EDIT(percent, MSG_BACKLASH_CORRECTION, &backlash_correction, all_off, all_on);
+
+  #define EDIT_BACKLASH_DISTANCE(N) MENU_MULTIPLIER_ITEM_EDIT(float43, MSG_##N, &backlash_distance_mm[_AXIS(N)], 0.0f, 9.9f);
+  EDIT_BACKLASH_DISTANCE(A);
+  EDIT_BACKLASH_DISTANCE(B);
+  EDIT_BACKLASH_DISTANCE(C);
+
+  #ifdef BACKLASH_SMOOTHING_MM
+    MENU_MULTIPLIER_ITEM_EDIT(float43, MSG_BACKLASH_SMOOTHING, &backlash_smoothing_mm, 0.0f, 9.9f);
+  #endif
+
+  END_MENU();
+}
+
+#endif // HAS_LCD_MENU && BACKLASH_COMPENSATION

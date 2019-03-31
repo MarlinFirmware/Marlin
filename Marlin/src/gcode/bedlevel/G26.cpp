@@ -569,13 +569,15 @@ void GcodeSuite::G26() {
   bool g26_continue_with_closest = parser.boolval('C'),
        g26_keep_heaters_on       = parser.boolval('K');
 
-  if (parser.seenval('B')) {
-    g26_bed_temp = parser.value_celsius();
-    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 10))) {
-      SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 10), "C).");
-      return;
+  #if HAS_HEATED_BED
+    if (parser.seenval('B')) {
+      g26_bed_temp = parser.value_celsius();
+      if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 10))) {
+        SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 10), "C).");
+        return;
+      }
     }
-  }
+  #endif
 
   if (parser.seenval('L')) {
     g26_layer_height = parser.value_linear_units();
@@ -686,6 +688,12 @@ void GcodeSuite::G26() {
     set_current_from_destination();
   }
 
+  #if DISABLED(NO_VOLUMETRICS)
+    bool volumetric_was_enabled = parser.volumetric_enabled;
+    parser.volumetric_enabled = false;
+    planner.calculate_volumetric_multipliers();
+  #endif
+
   if (turn_on_heaters() != G26_OK) goto LEAVE;
 
   current_position[E_AXIS] = 0.0;
@@ -767,10 +775,14 @@ void GcodeSuite::G26() {
 
         // Figure out where to start and end the arc - we always print counterclockwise
         if (xi == 0) {                             // left edge
-          sx = f ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
-          ex = b ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
-          sy = f ? circle_y : circle_y - (INTERSECTION_CIRCLE_RADIUS);
-          ey = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
+          if (!f) {
+            sx = circle_x;
+            sy -= (INTERSECTION_CIRCLE_RADIUS);
+          }
+          if (!b) {
+            ex = circle_x;
+            ey += INTERSECTION_CIRCLE_RADIUS;
+          }
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (r) {                             // right edge
@@ -781,15 +793,11 @@ void GcodeSuite::G26() {
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (f) {
-          sx = circle_x + INTERSECTION_CIRCLE_RADIUS;
           ex = circle_x - (INTERSECTION_CIRCLE_RADIUS);
-          sy = ey = circle_y;
           arc_length = ARC_LENGTH(2);
         }
         else if (b) {
           sx = circle_x - (INTERSECTION_CIRCLE_RADIUS);
-          ex = circle_x + INTERSECTION_CIRCLE_RADIUS;
-          sy = ey = circle_y;
           arc_length = ARC_LENGTH(2);
         }
         const float arc_offset[2] = {
@@ -908,6 +916,11 @@ void GcodeSuite::G26() {
 
   move_to(destination, 0);                                    // Move back to the starting position
   //debug_current_and_destination(PSTR("done doing X/Y move."));
+
+  #if DISABLED(NO_VOLUMETRICS)
+    parser.volumetric_enabled = volumetric_was_enabled;
+    planner.calculate_volumetric_multipliers();
+  #endif
 
   #if HAS_LCD_MENU
     ui.release();                                             // Give back control of the LCD

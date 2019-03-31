@@ -65,3 +65,7 @@
     #endif
   #endif
 #endif // SPINDLE_LASER_ENABLE
+
+#if ENABLED(FAST_PWM_FAN)
+  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#endif

@@ -20,14 +20,21 @@
  *
  */
 
-/**
- * Test TEENSY35_36 specific configuration values for errors at compile-time.
- */
+#ifdef TARGET_LPC1768
 
-#if ENABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is not yet implemented for Teensy 3.5/3.6. Disable EMERGENCY_PARSER to continue."
-#endif
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(FAST_PWM_FAN)
-  #error "FAST_PWM_FAN is not yet implemented for this platform."
-#endif
+
+#include <pwm.h>
+
+void set_pwm_frequency(const pin_t pin, int f_desired) {
+  pwm_set_frequency(pin, f_desired);
+}
+
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+  pwm_write_ratio(pin, invert ? 1.0f - (float)v / v_size : (float)v / v_size);
+}
+
+#endif // FAST_PWM_FAN
+#endif // TARGET_LPC1768

@@ -79,14 +79,15 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t si
   }
 
   // Now, write any remaining single byte
-  if (size & 1) {
+  const uint16_t odd = size & 1;
+  if (odd) {
     uint16_t temp = value[size - 1];
     status = FLASH_ProgramHalfWord(pageBase + pos + i, temp);
     if (status != FLASH_COMPLETE) return true;
   }
 
   crc16(crc, value, size);
-  pos += ((size + 1) & ~1);
+  pos += size + odd;
   return false;
 }
 
@@ -97,7 +98,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
     if (writing) value[i] = c;
     crc16(crc, &c, 1);
   }
-  pos += ((size + 1) & ~1);
+  pos += ((size + 1) & ~1); // i.e., size+(size&1), round up odd values
   return false;
 }
 

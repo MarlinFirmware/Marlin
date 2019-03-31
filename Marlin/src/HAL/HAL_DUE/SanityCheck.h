@@ -50,3 +50,7 @@
     #error "DUE software SPI is required but is incompatible with TMC2130 hardware SPI. Enable TMC_USE_SW_SPI to fix."
   #endif
 #endif
+
+#if ENABLED(FAST_PWM_FAN)
+  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#endif

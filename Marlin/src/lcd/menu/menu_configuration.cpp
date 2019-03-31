@@ -42,6 +42,9 @@
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
+  #if ENABLED(BLTOUCH)
+    #include "../../feature/bltouch.h"
+  #endif
 #endif
 
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
@@ -157,14 +160,14 @@ static void lcd_factory_settings() {
   void menu_bltouch() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_DEPLOY, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_DEPLOY)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_STOW, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_STOW)));
+    MENU_ITEM(function, MSG_BLTOUCH_RESET, bltouch.reset);
+    MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, bltouch.selftest);
+    MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch._deploy);
+    MENU_ITEM(function, MSG_BLTOUCH_STOW, bltouch._stow);
     #if ENABLED(BLTOUCH_V3)
-      MENU_ITEM(gcode, MSG_BLTOUCH_SW_MODE, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SW_MODE)));
-      MENU_ITEM(gcode, MSG_BLTOUCH_5V_MODE, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_5V_MODE)));
-      MENU_ITEM(gcode, MSG_BLTOUCH_OD_MODE, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_OD_MODE)));
+      MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch.set_SW_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch.set_5V_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch.set_OD_mode);
     #endif
     END_MENU();
   }

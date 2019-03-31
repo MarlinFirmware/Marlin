@@ -2015,10 +2015,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #error "POWER_LOSS_RECOVERY currently requires an LCD Controller."
 #endif
 
-#if ENABLED(FAST_PWM_FAN) && !(defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM))
-  #error "FAST_PWM_FAN is only supported for ARDUINO and ARDUINO_ARCH_SAM."
-#endif
-
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   #if !Z_MULTI_STEPPER_DRIVERS
     #error "Z_STEPPER_AUTO_ALIGN requires Z_DUAL_STEPPER_DRIVERS or Z_TRIPLE_STEPPER_DRIVERS."

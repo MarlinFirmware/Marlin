@@ -74,21 +74,23 @@
   #define IFSD(A,B) (B)
 #endif
 
-#if HAS_TRINAMIC && HAS_LCD_MENU
+#if HAS_TRINAMIC
   #include "../../feature/tmc_util.h"
+  #include "../../module/stepper_indirection.h"
 #endif
 
 #include "ui_api.h"
 
 #if ENABLED(BACKLASH_GCODE)
-  extern float backlash_distance_mm[XYZ], backlash_correction;
+  extern float backlash_distance_mm[XYZ];
+  extern uint8_t backlash_correction;
   #ifdef BACKLASH_SMOOTHING_MM
     extern float backlash_smoothing_mm;
   #endif
 #endif
 
 #if HAS_LEVELING
-  #include "../../feature/bedlevel.h"
+  #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 #if HAS_FILAMENT_SENSOR
@@ -339,6 +341,126 @@ namespace ExtUI {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
 
+  #if HAS_SOFTWARE_ENDSTOPS
+    bool getSoftEndstopState() {
+      return soft_endstops_enabled;
+    }
+
+    void setSoftEndstopState(const bool value) {
+      soft_endstops_enabled = value;
+    }
+  #endif
+
+  #if HAS_TRINAMIC
+    float getAxisCurrent_mA(const axis_t axis) {
+      switch (axis) {
+        #if AXIS_IS_TMC(X)
+          case X: return stepperX.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Y)
+          case Y: return stepperY.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z)
+          case Z: return stepperZ.getMilliamps();
+        #endif
+        default: return NAN;
+      };
+    }
+
+    float getAxisCurrent_mA(const extruder_t extruder) {
+      switch (extruder) {
+        #if AXIS_IS_TMC(E0)
+          case E0: return stepperE0.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E1)
+          case E1: return stepperE1.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E2)
+          case E2: return stepperE2.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E3)
+          case E3: return stepperE3.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E4)
+          case E4: return stepperE4.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E5)
+          case E5: return stepperE5.getMilliamps();
+        #endif
+        default: return NAN;
+      };
+    }
+
+    void  setAxisCurrent_mA(const float mA, const axis_t axis) {
+      switch (axis) {
+        #if AXIS_IS_TMC(X)
+          case X: stepperX.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Y)
+          case Y: stepperY.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Z)
+          case Z: stepperZ.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        default: break;
+      };
+    }
+
+    void  setAxisCurrent_mA(const float mA, const extruder_t extruder) {
+      switch (extruder) {
+        #if AXIS_IS_TMC(E0)
+          case E0: stepperE0.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E1)
+          case E1: stepperE1.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E2)
+          case E2: stepperE2.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E3)
+          case E3: stepperE3.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E4)
+          case E4: stepperE4.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E5)
+          case E5: stepperE5.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        default: break;
+      };
+    }
+
+    int getTMCBumpSensitivity(const axis_t axis) {
+      switch (axis) {
+        #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
+          case X: return stepperX.sgt();
+        #endif
+        #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
+          case Y: return stepperY.sgt();
+        #endif
+        #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
+          case Z: return stepperZ.sgt();
+        #endif
+        default: return 0;
+      }
+    }
+
+    void setTMCBumpSensitivity(const float value, const axis_t axis) {
+      switch (axis) {
+        #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
+          case X: stepperX.sgt(clamp(value, -64, 63)); break;
+        #endif
+        #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
+          case Y: stepperY.sgt(clamp(value, -64, 63)); break;
+        #endif
+        #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
+          case Z: stepperZ.sgt(clamp(value, -64, 63)); break;
+        #endif
+        default: break;
+      }
+    }
+  #endif
+
   float getAxisSteps_per_mm(const axis_t axis) {
     return planner.settings.axis_steps_per_mm[axis];
   }
@@ -565,8 +687,8 @@ namespace ExtUI {
     void setAxisBacklash_mm(const float value, const axis_t axis)
                                                       { backlash_distance_mm[axis] = clamp(value,0,5); }
 
-    float getBacklashCorrection_percent()             { return backlash_correction * 100; }
-    void setBacklashCorrection_percent(const float value) { backlash_correction = clamp(value, 0, 100) / 100.0f; }
+    float getBacklashCorrection_percent()             { return ui8_to_percent(backlash_correction); }
+    void setBacklashCorrection_percent(const float value) { backlash_correction = map(clamp(value, 0, 100), 0, 100, 0, 255); }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash_smoothing_mm; }
@@ -785,10 +907,6 @@ namespace ExtUI {
 void MarlinUI::init() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
-  #endif
-
-  #if HAS_TRINAMIC && HAS_LCD_MENU
-    init_tmc_section();
   #endif
 
   ExtUI::onStartup();

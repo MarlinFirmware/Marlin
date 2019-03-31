@@ -40,7 +40,7 @@
 #if ENABLED(GRADIENT_MIX)
 
   void lcd_mixer_gradient_z_start_edit() {
-    ui.defer_status_screen(true);
+    ui.defer_status_screen();
     ui.encoder_direction_normal();
     ENCODER_RATE_MULTIPLY(true);
     if (ui.encoderPosition != 0) {
@@ -65,7 +65,7 @@
   }
 
   void lcd_mixer_gradient_z_end_edit() {
-    ui.defer_status_screen(true);
+    ui.defer_status_screen();
     ui.encoder_direction_normal();
     ENCODER_RATE_MULTIPLY(true);
     if (ui.encoderPosition != 0) {

@@ -55,7 +55,7 @@ bool PersistentStore::access_start() {
 
 bool PersistentStore::access_finish() {
   if (!card.isDetected()) return false;
-  card.openFile(eeprom_filename, true);
+  card.openFile(eeprom_filename, false);
   int16_t bytes_written = card.write(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
   card.closefile();
   return (bytes_written == HAL_STM32F1_EEPROM_SIZE);
