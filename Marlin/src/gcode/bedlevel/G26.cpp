@@ -775,7 +775,7 @@ void GcodeSuite::G26() {
 
         // Figure out where to start and end the arc - we always print counterclockwise
         if (xi == 0) {                             // left edge
-          sx = f ? sx : circle_x;
+          if (!f) sx = circle_x;
           ex = b ? sx : circle_x;
           sy = f ? circle_y : circle_y - (INTERSECTION_CIRCLE_RADIUS);
           ey = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
