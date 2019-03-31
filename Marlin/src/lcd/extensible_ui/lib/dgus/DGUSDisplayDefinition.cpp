@@ -142,6 +142,7 @@ const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
 #define VPHELPER(VPADR, VPADRVAR, RXFPTR, TXFPTR ) { .VP=VPADR, .memadr=VPADRVAR, .size=sizeof(VPADRVAR), \
   .set_by_display_handler = RXFPTR, .send_to_display_handler = TXFPTR }
 
+// Helper to define a DGUS_VP_Variable when the sizeo of the var cannot be determined automaticalyl (eg. a string)
 #define VPHELPER_STR(VPADR, VPADRVAR, STRLEN, RXFPTR, TXFPTR ) { .VP=VPADR, .memadr=VPADRVAR, .size=STRLEN, \
   .set_by_display_handler = RXFPTR, .send_to_display_handler = TXFPTR }
 
@@ -199,7 +200,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_ZPos, &current_position[2], nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<2>),
 
   // Print Progress.
-  VPHELPER(VP_PrintProgress_Percentage, &MarlinUI::progress_bar_percent, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay ),
+  VPHELPER(VP_PrintProgress_Percentage, &MarlinUI::progress_bar_percent, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay ),
 
   // Print Time
   VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendPrintTimeToDisplay ),
