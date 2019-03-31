@@ -1816,19 +1816,23 @@ void Temperature::disable_all_heaters() {
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
     //
-    #if MAX6675_SEPARATE_SPI
+    #if !MAX6675_SEPARATE_SPI
       spiBegin();
       spiInit(MAX6675_SPEED_BITS);
     #endif
 
     #if COUNT_6675 > 1
       #define WRITE_MAX6675(V) do{ switch (hindex) { case 1: WRITE(MAX6675_SS2_PIN, V); break; default: WRITE(MAX6675_SS_PIN, V); } }while(0)
+      #define SET_OUTPUT_MAX6675() do{ switch (hindex) { case 1: SET_OUTPUT(MAX6675_SS2_PIN); break; default: SET_OUTPUT(MAX6675_SS_PIN); } }while(0)
     #elif ENABLED(HEATER_1_USES_MAX6675)
       #define WRITE_MAX6675(V) WRITE(MAX6675_SS2_PIN, V)
+      #define SET_OUTPUT_MAX6675() SET_OUTPUT(MAX6675_SS2_PIN)
     #else
       #define WRITE_MAX6675(V) WRITE(MAX6675_SS_PIN, V)
+      #define SET_OUTPUT_MAX6675() SET_OUTPUT(MAX6675_SS_PIN)
     #endif
 
+    SET_OUTPUT_MAX6675();
     WRITE_MAX6675(LOW);  // enable TT_MAX6675
 
     DELAY_NS(100);       // Ensure 100ns delay
