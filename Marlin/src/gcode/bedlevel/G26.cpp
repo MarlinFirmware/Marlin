@@ -775,10 +775,14 @@ void GcodeSuite::G26() {
 
         // Figure out where to start and end the arc - we always print counterclockwise
         if (xi == 0) {                             // left edge
-          sx = f ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
-          ex = b ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
-          sy = f ? circle_y : circle_y - (INTERSECTION_CIRCLE_RADIUS);
-          ey = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
+          if (!f) {
+            sx = circle_x;
+            sy -= (INTERSECTION_CIRCLE_RADIUS);
+          }
+          if (!b) {
+            ex = circle_x;
+            ey += INTERSECTION_CIRCLE_RADIUS;
+          }
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (r) {                             // right edge
@@ -789,15 +793,11 @@ void GcodeSuite::G26() {
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (f) {
-          sx = circle_x + INTERSECTION_CIRCLE_RADIUS;
           ex = circle_x - (INTERSECTION_CIRCLE_RADIUS);
-          sy = ey = circle_y;
           arc_length = ARC_LENGTH(2);
         }
         else if (b) {
           sx = circle_x - (INTERSECTION_CIRCLE_RADIUS);
-          ex = circle_x + INTERSECTION_CIRCLE_RADIUS;
-          sy = ey = circle_y;
           arc_length = ARC_LENGTH(2);
         }
         const float arc_offset[2] = {
