@@ -572,7 +572,7 @@ class Temperature {
         #if HAS_HEATED_CHAMBER
           temp_chamber.target =
             #ifdef CHAMBER_MAXTEMP
-              min(celsius, CHAMBER_MAXTEMP)
+              MIN(celsius, CHAMBER_MAXTEMP)
             #else
               celsius
             #endif
