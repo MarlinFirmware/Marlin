@@ -964,7 +964,6 @@
   //#define MARLIN_BRICKOUT
   //#define MARLIN_INVADERS
   //#define MARLIN_SNAKE
-  //#define MARLIN_MAZE
 
 #endif // HAS_GRAPHICAL_LCD
 

@@ -286,7 +286,7 @@ void menu_main() {
     #endif
   #endif
 
-  #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
+  #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE)
     MENU_ITEM(submenu, "Game", (
       #if HAS_GAME_MENU
         menu_game
@@ -296,9 +296,6 @@ void menu_main() {
         lcd_goto_invaders
       #elif ENABLED(MARLIN_SNAKE)
         lcd_goto_snake
-      #elif ENABLED(MARLIN_MAZE)
-        lcd_goto_maze
-      #endif
     ));
   #endif
 
