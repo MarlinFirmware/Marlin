@@ -138,6 +138,16 @@ void menu_led();
   #endif
 #endif
 
+#if HAS_GAME_MENU
+  void menu_game();
+#elif ENABLED(MARLIN_BRICKOUT)
+  void lcd_goto_brickout();
+#elif ENABLED(MARLIN_INVADERS)
+  void lcd_goto_invaders();
+#elif ENABLED(MARLIN_SNAKE)
+  void lcd_goto_snake();
+#endif
+
 void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
@@ -274,6 +284,20 @@ void menu_main() {
     #if SERVICE_INTERVAL_3 > 0
       MENU_ITEM(submenu, SERVICE_NAME_3, menu_service3);
     #endif
+  #endif
+
+  #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE)
+    MENU_ITEM(submenu, "Game", (
+      #if HAS_GAME_MENU
+        menu_game
+      #elif ENABLED(MARLIN_BRICKOUT)
+        lcd_goto_brickout
+      #elif ENABLED(MARLIN_INVADERS)
+        lcd_goto_invaders
+      #elif ENABLED(MARLIN_SNAKE)
+        lcd_goto_snake
+      #endif
+    ));
   #endif
 
   END_MENU();
