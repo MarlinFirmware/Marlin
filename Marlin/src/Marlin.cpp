@@ -1143,6 +1143,9 @@ void loop() {
         #if ENABLED(POWER_LOSS_RECOVERY)
           card.removeJobRecoveryFile();
         #endif
+        #ifdef EVENT_GCODE_SD_STOP
+          gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_SD_STOP));
+        #endif  
       }
     #endif // SDSUPPORT
 
