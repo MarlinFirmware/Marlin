@@ -125,6 +125,9 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     millis_t ms = millis();
   #endif
 
+  // Did Z change since the last call?
+  const float zmoved = current_position[Z_AXIS] - info.current_position[Z_AXIS];
+
   if (force
     #if DISABLED(SAVE_EACH_CMD_MODE)      // Always save state when enabled
       #if PIN_EXISTS(POWER_LOSS)          // Save if power loss pin is triggered
@@ -133,8 +136,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       #if SAVE_INFO_INTERVAL_MS > 0       // Save if interval is elapsed
         || ELAPSED(ms, next_save_ms)
       #endif
-      // Save every time Z is higher than the last call
-      || current_position[Z_AXIS] > info.current_position[Z_AXIS]
+      || zmoved > 0                       // Z moved up (including Z-hop)
+      || zmoved < -5                      // Z moved down a lot (for some reason)
     #endif
   ) {
 
