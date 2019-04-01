@@ -118,22 +118,22 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
   constexpr float hotend_offset[XYZ][HOTENDS] = { { 0 }, { 0 }, { 0 } };
 #endif
 
+typedef struct { float min, max; } axis_limits_t;
 #if HAS_SOFTWARE_ENDSTOPS
   extern bool soft_endstops_enabled;
-  extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
+  extern axis_limits_t soft_endstop[XYZ];
+  void apply_motion_limits(float target[XYZ]);
   void update_software_endstops(const AxisEnum axis
     #if HAS_HOTEND_OFFSET
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
 #else
-  constexpr bool soft_endstops_enabled = true;
-  constexpr float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-                  soft_endstop_max[XYZ] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+  constexpr bool soft_endstops_enabled = false;
+  //constexpr axis_limits_t soft_endstop[XYZ] = { { X_MIN_POS, X_MAX_POS }, { Y_MIN_POS, Y_MAX_POS }, { Z_MIN_POS, Z_MAX_POS } };
+  #define apply_motion_limits(V)    NOOP
   #define update_software_endstops(...) NOOP
 #endif
-
-void clamp_to_software_endstops(float target[XYZ]);
 
 void report_current_position();
 
@@ -193,20 +193,7 @@ void clean_up_after_endstop_or_probe_move();
 // Homing
 //
 
-#define HAS_AXIS_UNHOMED_ERR (                                                     \
-         ENABLED(Z_PROBE_ALLEN_KEY)                                                \
-      || ENABLED(Z_PROBE_SLED)                                                     \
-      || HAS_PROBING_PROCEDURE                                                     \
-      || HOTENDS > 1                                                               \
-      || ENABLED(NOZZLE_CLEAN_FEATURE)                                             \
-      || ENABLED(NOZZLE_PARK_FEATURE)                                              \
-      || (ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(HOME_BEFORE_FILAMENT_CHANGE)) \
-      || HAS_M206_COMMAND                                                          \
-    ) || ENABLED(NO_MOTION_BEFORE_HOMING)
-
-#if HAS_AXIS_UNHOMED_ERR
-  bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
-#endif
+bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
   #define MOTION_CONDITIONS (IsRunning() && !axis_unhomed_error())
@@ -326,11 +313,15 @@ void homeaxis(const AxisEnum axis);
 #endif
 
 /**
- * Dual X Carriage / Dual Nozzle
+ * Duplication mode
  */
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+#if HAS_DUPLICATION_MODE
   extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
-              scaled_duplication_mode;            // Used in Dual X mode 3
+              mirrored_duplication_mode;          // Used in Dual X mode 3
+#endif
+
+#if ENABLED(MULTI_NOZZLE_DUPLICATION) && HOTENDS > 2
+  uint8_t duplication_e_mask;
 #endif
 
 /**
@@ -342,16 +333,16 @@ void homeaxis(const AxisEnum axis);
     DXC_FULL_CONTROL_MODE,
     DXC_AUTO_PARK_MODE,
     DXC_DUPLICATION_MODE,
-    DXC_SCALED_DUPLICATION_MODE
+    DXC_MIRRORED_MODE
   };
 
   extern DualXMode dual_x_carriage_mode;
-  extern float inactive_extruder_x_pos,           // used in mode 0 & 1
-               raised_parked_position[XYZE],      // used in mode 1
-               duplicate_extruder_x_offset;       // used in mode 2 & 3
-  extern bool active_extruder_parked;             // used in mode 1, 2 & 3
-  extern millis_t delayed_move_time;              // used in mode 1
-  extern int16_t duplicate_extruder_temp_offset;  // used in mode 2 & 3
+  extern float inactive_extruder_x_pos,           // Used in mode 0 & 1
+               raised_parked_position[XYZE],      // Used in mode 1
+               duplicate_extruder_x_offset;       // Used in mode 2 & 3
+  extern bool active_extruder_parked;             // Used in mode 1, 2 & 3
+  extern millis_t delayed_move_time;              // Used in mode 1
+  extern int16_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
 
   FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
@@ -359,7 +350,7 @@ void homeaxis(const AxisEnum axis);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
-#elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+#elif ENABLED(MULTI_NOZZLE_DUPLICATION)
 
   enum DualXMode : char {
     DXC_DUPLICATION_MODE = 2

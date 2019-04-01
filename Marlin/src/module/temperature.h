@@ -266,16 +266,6 @@ class Temperature {
                      soft_pwm_count_fan[FAN_COUNT];
     #endif
 
-    /**
-     * set_pwm_duty (8-bit AVRs only)
-     *  Sets the PWM duty cycle of the provided pin to the provided value
-     *  Optionally allows inverting the duty cycle [default = false]
-     *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
-     */
-    #if ENABLED(FAST_PWM_FAN)
-      static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
-    #endif
-
     #if ENABLED(BABYSTEPPING)
       static volatile int16_t babystepsTodo[3];
     #endif
@@ -430,7 +420,7 @@ class Temperature {
         static uint8_t paused_fan_speed[FAN_COUNT];
       #endif
 
-      static constexpr inline uint8_t fanPercent(const uint8_t speed) { return (int(speed) * 100 + 127) / 255; }
+      static constexpr inline uint8_t fanPercent(const uint8_t speed) { return ui8_to_percent(speed); }
 
       #if ENABLED(ADAPTIVE_FAN_SLOWING)
         static uint8_t fan_speed_scaler[FAN_COUNT];
@@ -632,7 +622,7 @@ class Temperature {
         #endif
         temp_bed.target =
           #ifdef BED_MAXTEMP
-            MIN(celsius, BED_MAXTEMP - 15)
+            MIN(celsius, BED_MAXTEMP - 10)
           #else
             celsius
           #endif
@@ -739,48 +729,17 @@ class Temperature {
       #endif
     #endif
 
-    #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
       static void set_heating_message(const uint8_t e);
     #endif
 
   private:
-
-    /**
-     * (8-bit AVRs only)
-     *
-     * get_pwm_timer
-     *  Grabs timer information and registers of the provided pin
-     *  returns Timer struct containing this information
-     *  Used by set_pwm_frequency, set_pwm_duty
-     *
-     * set_pwm_frequency
-     *  Sets the frequency of the timer corresponding to the provided pin
-     *  as close as possible to the provided desired frequency. Internally
-     *  calculates the required waveform generation mode, prescaler and
-     *  resolution values required and sets the timer registers accordingly.
-     *  NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
-     *  NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST FAN PWM Settings)
-     */
-    #if ENABLED(FAST_PWM_FAN)
-      typedef struct Timer {
-          volatile uint8_t* TCCRnQ[3];  // max 3 TCCR registers per timer
-          volatile uint16_t* OCRnQ[3];  // max 3 OCR registers per timer
-          volatile uint16_t* ICRn;      // max 1 ICR register per timer
-          uint8_t n;                    // the timer number [0->5]
-          uint8_t q;                    // the timer output [0->2] (A->C)
-      } Timer;
-
-      static Timer get_pwm_timer(const pin_t pin);
-      static void set_pwm_frequency(const pin_t pin, int f_desired);
-    #endif
-
     static void set_current_temp_raw();
-
     static void updateTemperaturesFromRawValues();
 
-    #define HAS_MAX6675 (ENABLED(HEATER_0_USES_MAX6675) || ENABLED(HEATER_1_USES_MAX6675))
+    #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
     #if HAS_MAX6675
-      #if ENABLED(HEATER_0_USES_MAX6675) && ENABLED(HEATER_1_USES_MAX6675)
+      #if BOTH(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
         #define COUNT_6675 2
       #else
         #define COUNT_6675 1

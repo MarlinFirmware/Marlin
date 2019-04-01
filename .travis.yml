@@ -23,6 +23,7 @@ env:
   #- TEST_PLATFORM="STM32F1"
   - TEST_PLATFORM="teensy35"
   - TEST_PLATFORM="linux_native"
+  - TEST_PLATFORM="esp32"
 
 addons:
   apt:

@@ -32,6 +32,8 @@
     //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\gcode\host\M114.cpp
     //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\module\bob_L6470.cpp
     #include "../../module/L6470/L6470_Marlin.h"
+    #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
+    #include "../../core/debug_out.h"
   #endif
 
   void report_xyze(const float pos[], const uint8_t n = 4, const uint8_t precision = 3) {
@@ -95,10 +97,10 @@
           temp = L6470_GETPARAM(L6470_ABS_POS,Q);                   \
           if (temp & ABS_POS_SIGN_MASK) temp |= ABS_POS_SIGN_MASK;  \
           sprintf_P(temp_buf, PSTR(":%8ld   "), temp);              \
-          L6470_ECHO(temp_buf);                                     \
+          DEBUG_ECHO(temp_buf);                                     \
         }while(0)
 
-      L6470_ECHOPGM("\nL6470:");
+      DEBUG_ECHOPGM("\nL6470:");
       #if AXIS_DRIVER_TYPE_X(L6470)
         REPORT_ABSOLUTE_POS(X);
       #endif

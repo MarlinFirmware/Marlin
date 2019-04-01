@@ -230,20 +230,23 @@ class FilamentSensorBase {
     private:
       static inline bool poll_runout_state(const uint8_t extruder) {
         const uint8_t runout_states = poll_runout_states();
+
         #if NUM_RUNOUT_SENSORS == 1
           UNUSED(extruder);
-          return runout_states;                     // A single sensor applying to all extruders
-        #else
-          #if ENABLED(DUAL_X_CARRIAGE)
-            if (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE)
-              return runout_states;                 // Any extruder
-            else
-          #elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-            if (extruder_duplication_enabled)
-              return runout_states;                 // Any extruder
-            else
+        #endif
+
+        if (true
+          #if NUM_RUNOUT_SENSORS > 1
+            #if ENABLED(DUAL_X_CARRIAGE)
+              && (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_MIRRORED_MODE)
+            #elif ENABLED(MULTI_NOZZLE_DUPLICATION)
+              && extruder_duplication_enabled
+            #endif
           #endif
-              return TEST(runout_states, extruder); // Specific extruder
+        ) return runout_states;               // Any extruder
+
+        #if NUM_RUNOUT_SENSORS > 1
+          return TEST(runout_states, extruder); // Specific extruder
         #endif
       }
 

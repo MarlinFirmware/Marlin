@@ -153,7 +153,7 @@ bool Stepper::abort_current_block;
 #if Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
   bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false;
 #endif
-#if ENABLED(Z_TRIPLE_ENDSTOPS) || (ENABLED(Z_STEPPER_AUTO_ALIGN) && ENABLED(Z_TRIPLE_STEPPER_DRIVERS))
+#if ENABLED(Z_TRIPLE_ENDSTOPS) || BOTH(Z_STEPPER_AUTO_ALIGN, Z_TRIPLE_STEPPER_DRIVERS)
   bool Stepper::locked_Z3_motor = false;
 #endif
 
@@ -284,22 +284,14 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     #define X_APPLY_STEP(v,Q) do{ X_STEP_WRITE(v); X2_STEP_WRITE(v); }while(0)
   #endif
 #elif ENABLED(DUAL_X_CARRIAGE)
-  #define X_APPLY_DIR(v,ALWAYS) \
-    if (extruder_duplication_enabled || ALWAYS) { \
-      X_DIR_WRITE(v); \
-      X2_DIR_WRITE(v); \
-    } \
-    else { \
-      if (movement_extruder()) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
-    }
-  #define X_APPLY_STEP(v,ALWAYS) \
-    if (extruder_duplication_enabled || ALWAYS) { \
-      X_STEP_WRITE(v); \
-      X2_STEP_WRITE(v); \
-    } \
-    else { \
-      if (movement_extruder()) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
-    }
+  #define X_APPLY_DIR(v,ALWAYS) do{ \
+    if (extruder_duplication_enabled || ALWAYS) { X_DIR_WRITE(v); X2_DIR_WRITE(mirrored_duplication_mode ? !(v) : v); } \
+    else if (movement_extruder()) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
+  }while(0)
+  #define X_APPLY_STEP(v,ALWAYS) do{ \
+    if (extruder_duplication_enabled || ALWAYS) { X_STEP_WRITE(v); X2_STEP_WRITE(v); } \
+    else if (movement_extruder()) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
+  }while(0)
 #else
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
   #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
@@ -1246,7 +1238,7 @@ void Stepper::set_directions() {
  * Directly pulses the stepper motors at high frequency.
  */
 
-HAL_STEP_TIMER_ISR {
+HAL_STEP_TIMER_ISR() {
   HAL_timer_isr_prologue(STEP_TIMER_NUM);
 
   Stepper::isr();
@@ -1458,7 +1450,7 @@ void Stepper::stepper_pulse_phase_isr() {
 
     // Pulse Extruders
     // Tick the E axis, correct error term and update position
-    #if ENABLED(LIN_ADVANCE) || ENABLED(MIXING_EXTRUDER)
+    #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
       delta_error[E_AXIS] += advance_dividend[E_AXIS];
       if (delta_error[E_AXIS] >= 0) {
         count_position[E_AXIS] += count_direction[E_AXIS];
@@ -1687,7 +1679,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
          * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z, handled below)
          * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X)
          */
-        #if ENABLED(COREXY) || ENABLED(COREXZ)
+        #if EITHER(COREXY, COREXZ)
           #define X_CMP ==
         #else
           #define X_CMP !=
@@ -1705,7 +1697,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
          * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y)
          * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z)
          */
-        #if ENABLED(COREYX) || ENABLED(COREYZ)
+        #if EITHER(COREYX, COREYZ)
           #define Y_CMP ==
         #else
           #define Y_CMP !=
@@ -1723,7 +1715,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
          * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y, already handled above)
          * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Z)
          */
-        #if ENABLED(COREZX) || ENABLED(COREZY)
+        #if EITHER(COREZX, COREZY)
           #define Z_CMP ==
         #else
           #define Z_CMP !=
@@ -2038,7 +2030,7 @@ void Stepper::init() {
   #if HAS_X_ENABLE
     X_ENABLE_INIT;
     if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
-    #if (ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)) && HAS_X2_ENABLE
+    #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) && HAS_X2_ENABLE
       X2_ENABLE_INIT;
       if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
     #endif
@@ -2101,7 +2093,7 @@ void Stepper::init() {
 
   // Init Step Pins
   #if HAS_X_STEP
-    #if ENABLED(X_DUAL_STEPPER_DRIVERS) || ENABLED(DUAL_X_CARRIAGE)
+    #if EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE)
       X2_STEP_INIT;
       X2_STEP_WRITE(INVERT_X_STEP_PIN);
     #endif
@@ -2475,13 +2467,13 @@ void Stepper::report_positions() {
     if (!initialized) return;
     LOOP_L_N(i, COUNT(motor_current_setting)) {
       switch (i) {
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY) || PIN_EXISTS(MOTOR_CURRENT_PWM_X) || PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
+        #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
           case 0:
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
           case 1:
         #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E) || PIN_EXISTS(MOTOR_CURRENT_PWM_E0) || PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
+        #if ANY_PIN(MOTOR_CURRENT_PWM_E, MOTOR_CURRENT_PWM_E0, MOTOR_CURRENT_PWM_E1)
           case 2:
         #endif
             digipot_current(i, motor_current_setting[i]);
@@ -2560,25 +2552,25 @@ void Stepper::report_positions() {
       #elif HAS_MOTOR_CURRENT_PWM
 
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_X_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_X_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_Y_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_Y_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_XY_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_Z_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_Z_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_E_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_E0_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_E0_PIN);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
-          SET_OUTPUT(MOTOR_CURRENT_PWM_E1_PIN);
+          SET_PWM(MOTOR_CURRENT_PWM_E1_PIN);
         #endif
 
         refresh_motor_power();

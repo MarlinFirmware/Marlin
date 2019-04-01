@@ -56,7 +56,7 @@
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
-#define UNUSED(x) ((void)(x))
+#define UNUSED(X) (void)X
 
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
@@ -133,8 +133,25 @@
 
 #endif
 
+// Macros to chain up to 12 conditions
+#define _DO_1(W,C,A)       (_##W##_1(A))
+#define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))
+#define _DO_3(W,C,A,V...)  (_##W##_1(A) C _DO_2(W,C,V))
+#define _DO_4(W,C,A,V...)  (_##W##_1(A) C _DO_3(W,C,V))
+#define _DO_5(W,C,A,V...)  (_##W##_1(A) C _DO_4(W,C,V))
+#define _DO_6(W,C,A,V...)  (_##W##_1(A) C _DO_5(W,C,V))
+#define _DO_7(W,C,A,V...)  (_##W##_1(A) C _DO_6(W,C,V))
+#define _DO_8(W,C,A,V...)  (_##W##_1(A) C _DO_7(W,C,V))
+#define _DO_9(W,C,A,V...)  (_##W##_1(A) C _DO_8(W,C,V))
+#define _DO_10(W,C,A,V...) (_##W##_1(A) C _DO_9(W,C,V))
+#define _DO_11(W,C,A,V...) (_##W##_1(A) C _DO_10(W,C,V))
+#define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
+#define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
+#define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
+#define DO(W,C,V...)       _DO_N(W,C,NUM_ARGS(V),V)
+
 // Macros to support option testing
-#define _CAT(a, ...) a ## __VA_ARGS__
+#define _CAT(a,V...) a##V
 #define SWITCH_ENABLED_false 0
 #define SWITCH_ENABLED_true  1
 #define SWITCH_ENABLED_0     0
@@ -142,16 +159,33 @@
 #define SWITCH_ENABLED_0x0   0
 #define SWITCH_ENABLED_0x1   1
 #define SWITCH_ENABLED_      1
-#define ENABLED(b) _CAT(SWITCH_ENABLED_, b)
-#define DISABLED(b) !ENABLED(b)
+#define _ENA_1(O)           _CAT(SWITCH_ENABLED_, O)
+#define _DIS_1(O)           !_ENA_1(O)
+#define ENABLED(V...)       DO(ENA,&&,V)
+#define DISABLED(V...)      DO(DIS,&&,V)
 
-#define WITHIN(V,L,H) ((V) >= (L) && (V) <= (H))
-#define NUMERIC(a) WITHIN(a, '0', '9')
-#define DECIMAL(a) (NUMERIC(a) || a == '.')
-#define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-' || (a) == '+')
-#define DECIMAL_SIGNED(a) (DECIMAL(a) || (a) == '-' || (a) == '+')
-#define COUNT(a) (sizeof(a)/sizeof(*a))
-#define ZERO(a) memset(a,0,sizeof(a))
+#define ANY(V...)          !DISABLED(V)
+#define NONE(V...)          DISABLED(V)
+#define ALL(V...)           ENABLED(V)
+#define BOTH(V1,V2)         ALL(V1,V2)
+#define EITHER(V1,V2)       ANY(V1,V2)
+
+// Macros to support pins/buttons exist testing
+#define _PINEX_1(PN)        (defined(PN##_PIN) && PN##_PIN >= 0)
+#define PIN_EXISTS(V...)    DO(PINEX,&&,V)
+#define ANY_PIN(V...)       DO(PINEX,||,V)
+
+#define _BTNEX_1(BN)        (defined(BTN_##BN) && BTN_##BN >= 0)
+#define BUTTON_EXISTS(V...) DO(BTNEX,&&,V)
+#define ANY_BUTTON(V...)    DO(BTNEX,||,V)
+
+#define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
+#define NUMERIC(a)          WITHIN(a, '0', '9')
+#define DECIMAL(a)          (NUMERIC(a) || a == '.')
+#define NUMERIC_SIGNED(a)   (NUMERIC(a) || (a) == '-' || (a) == '+')
+#define DECIMAL_SIGNED(a)   (DECIMAL(a) || (a) == '-' || (a) == '+')
+#define COUNT(a)            (sizeof(a)/sizeof(*a))
+#define ZERO(a)             memset(a,0,sizeof(a))
 #define COPY(a,b) do{ \
     static_assert(sizeof(a[0]) == sizeof(b[0]), "COPY: '" STRINGIFY(a) "' and '" STRINGIFY(b) "' types (sizes) don't match!"); \
     memcpy(&a[0],&b[0],MIN(sizeof(a),sizeof(b))); \
@@ -165,8 +199,8 @@
 #define ARRAY_2(v1, v2, ...)                 { v1, v2 }
 #define ARRAY_1(v1, ...)                     { v1 }
 
-#define _ARRAY_N(N, ...) ARRAY_ ##N(__VA_ARGS__)
-#define ARRAY_N(N, ...) _ARRAY_N(N, __VA_ARGS__)
+#define _ARRAY_N(N,V...) ARRAY_##N(V)
+#define ARRAY_N(N,V...) _ARRAY_N(N,V)
 
 // Macros for adding
 #define INC_0 1
@@ -178,7 +212,7 @@
 #define INC_6 7
 #define INC_7 8
 #define INC_8 9
-#define INCREMENT_(n) INC_ ##n
+#define INCREMENT_(n) INC_##n
 #define INCREMENT(n) INCREMENT_(n)
 
 // Macros for subtracting
@@ -191,10 +225,8 @@
 #define DEC_7 6
 #define DEC_8 7
 #define DEC_9 8
-#define DECREMENT_(n) DEC_ ##n
+#define DECREMENT_(n) DEC_##n
 #define DECREMENT(n) DECREMENT_(n)
-
-#define PIN_EXISTS(PN) (defined(PN ##_PIN) && PN ##_PIN >= 0)
 
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0f)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0f)

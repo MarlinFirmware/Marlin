@@ -45,7 +45,7 @@ void noTone(const pin_t _pin) {
   extDigitalWrite(_pin, LOW);
 }
 
-HAL_TONE_TIMER_ISR {
+HAL_TONE_TIMER_ISR() {
   static uint8_t pin_state = 0;
   HAL_timer_isr_prologue(TONE_TIMER_NUM);
 

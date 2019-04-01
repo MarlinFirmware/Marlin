@@ -900,12 +900,10 @@ void CardReader::setroot() {
       }
       else {
         sort_order[0] = 0;
-        #if ENABLED(SDSORT_USES_RAM) && ENABLED(SDSORT_CACHE_NAMES)
+        #if BOTH(SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char*[1];
-            #if ENABLED(SDSORT_CACHE_NAMES)
-              sortshort = new char*[1];
-            #endif
+            sortshort = new char*[1];
             isDir = new uint8_t[1];
           #endif
           getfilename(0);
@@ -975,7 +973,7 @@ void CardReader::printingHasFinished() {
       presort();
     #endif
 
-    #if (ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
       ui.progress_bar_percent = 0;
     #endif
 
@@ -1006,7 +1004,7 @@ void CardReader::printingHasFinished() {
 
 #if ENABLED(POWER_LOSS_RECOVERY)
 
-  constexpr char job_recovery_file_name[4] = "BIN";
+  constexpr char job_recovery_file_name[4] = "PLR";
 
   bool CardReader::jobRecoverFileExists() {
     const bool exists = recovery.file.open(&root, job_recovery_file_name, O_READ);
@@ -1028,7 +1026,6 @@ void CardReader::printingHasFinished() {
   // be zeroed and written instead of deleted.
   void CardReader::removeJobRecoveryFile() {
     if (jobRecoverFileExists()) {
-      //closefile();
       removeFile(job_recovery_file_name);
       #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
         SERIAL_ECHOPGM("Power-loss file delete");

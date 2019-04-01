@@ -27,8 +27,6 @@
  * http://marlinfw.org/tools/u8glib/converter.html
  */
 
-#include <binary.h>
-
 #include "../../inc/MarlinConfig.h"
 
 #define BW(N) ((N + 7) / 8)

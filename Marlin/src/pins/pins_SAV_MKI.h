@@ -161,7 +161,7 @@
   #define SR_CLK_PIN       EXT_AUX_SCL_D0
 #endif
 
-#if ENABLED(SAV_3DLCD) || ENABLED(SAV_3DGLCD)
+#if EITHER(SAV_3DLCD, SAV_3DGLCD)
 
   #define BTN_EN1          EXT_AUX_A1_IO
   #define BTN_EN2          EXT_AUX_A0_IO

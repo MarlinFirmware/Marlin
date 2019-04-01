@@ -30,6 +30,7 @@
 
 #include "Marlin.h"
 
+#include "core/utility.h"
 #include "lcd/ultralcd.h"
 #include "module/motion.h"
 #include "module/planner.h"
@@ -84,6 +85,10 @@
   #include "feature/leds/leds.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "feature/bltouch.h"
+#endif
+
 #if HAS_SERVOS
   #include "module/servo.h"
 #endif
@@ -114,8 +119,8 @@
 #endif
 
 #if ENABLED(G38_PROBE_TARGET)
-  bool G38_move = false,
-       G38_endstop_hit = false;
+  uint8_t G38_move; // = 0
+  bool G38_did_trigger; // = false
 #endif
 
 #if ENABLED(DELTA)
@@ -128,7 +133,7 @@
   #include "feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
+#if BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT)
   #include "feature/pause.h"
 #endif
 
@@ -152,7 +157,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER) || ENABLED(MAGNETIC_PARKING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
   #include "module/tool_change.h"
 #endif
 
@@ -328,7 +333,7 @@ void disable_all_steppers() {
       ExtUI::onFilamentRunout(ExtUI::getActiveTool());
     #endif
 
-    #if ENABLED(HOST_PROMPT_SUPPORT) || ENABLED(HOST_ACTION_COMMANDS)
+    #if EITHER(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS)
       const char tool = '0'
         #if NUM_RUNOUT_SENSORS > 1
           + active_extruder
@@ -443,7 +448,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   }
 
   // Prevent steppers timing-out in the middle of M600
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
+  #if BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT)
     #define MOVE_AWAY_TEST !did_pause_print
   #else
     #define MOVE_AWAY_TEST true
@@ -764,11 +769,34 @@ void minkill() {
     suicide();
   #endif
 
-  while (1) {
-    #if ENABLED(USE_WATCHDOG)
-      watchdog_reset();
-    #endif
-  } // Wait for reset
+  #if HAS_KILL
+
+    // Wait for kill to be released
+    while (!READ(KILL_PIN)) {
+      #if ENABLED(USE_WATCHDOG)
+        watchdog_reset();
+      #endif
+    }
+
+    // Wait for kill to be pressed
+    while (READ(KILL_PIN)) {
+      #if ENABLED(USE_WATCHDOG)
+        watchdog_reset();
+      #endif
+    }
+
+    void(*resetFunc)(void) = 0; // Declare resetFunc() at address 0
+    resetFunc();                // Jump to address 0
+
+  #else // !HAS_KILL
+
+    for (;;) {
+      #if ENABLED(USE_WATCHDOG)
+        watchdog_reset();
+      #endif
+    } // Wait for reset
+
+  #endif // !HAS_KILL
 }
 
 /**
@@ -952,7 +980,7 @@ void setup() {
       OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);  // init rotation to clockwise (M3)
     #endif
     #if ENABLED(SPINDLE_LASER_PWM) && defined(SPINDLE_LASER_PWM_PIN) && SPINDLE_LASER_PWM_PIN >= 0
-      SET_OUTPUT(SPINDLE_LASER_PWM_PIN);
+      SET_PWM(SPINDLE_LASER_PWM_PIN);
       analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
     #endif
   #endif
@@ -977,7 +1005,7 @@ void setup() {
     dac_init();
   #endif
 
-  #if (ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE)) && HAS_SOLENOID_1
+  #if EITHER(Z_PROBE_SLED, SOLENOID_PROBE) && HAS_SOLENOID_1
     OUT_WRITE(SOL1_PIN, LOW); // OFF
   #endif
 
@@ -999,7 +1027,7 @@ void setup() {
 
   #if HAS_CASE_LIGHT
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
-      SET_OUTPUT(CASE_LIGHT_PIN);
+      if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
     #endif
     update_case_light();
   #endif
@@ -1026,7 +1054,7 @@ void setup() {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch_init();
+    bltouch.init();
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)

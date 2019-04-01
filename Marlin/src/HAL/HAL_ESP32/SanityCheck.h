@@ -23,3 +23,7 @@
 #if ENABLED(EMERGENCY_PARSER)
   #error "EMERGENCY_PARSER is not yet implemented for ESP32. Disable EMERGENCY_PARSER to continue."
 #endif
+
+#if ENABLED(FAST_PWM_FAN)
+  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#endif

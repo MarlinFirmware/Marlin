@@ -580,12 +580,7 @@ void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const int16_t temp, const i
 #if HAS_HEATED_BED
   void ST7920_Lite_Status_Screen::draw_bed_temp(const int16_t temp, const int16_t target, bool forceUpdate) {
     const bool show_target = target && FAR(temp, target);
-    draw_temps(1
-      #if HOTENDS > 1
-        + 1
-      #endif
-      , temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate
-    );
+    draw_temps(HOTENDS > 1 ? 2 : 1, temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate);
     display_state.bed_show_target = show_target;
   }
 #endif
@@ -632,43 +627,27 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
     if (slen <= LCD_WIDTH) {
       // String fits the LCD, so just print it
       write_str(str);
-      for (; slen < LCD_WIDTH; ++slen) write_byte(' ');
+      while (slen < LCD_WIDTH) { write_byte(' '); ++slen; }
     }
     else {
       // String is larger than the available space in screen.
 
       // Get a pointer to the next valid UTF8 character
-      const char *stat = str + ui.status_scroll_offset;
+      // and the string remaining length
+      uint8_t rlen;
+      const char *stat = ui.status_and_len(rlen);
+      write_str(stat, LCD_WIDTH);
 
-      // Get the string remaining length
-      const uint8_t rlen = utf8_strlen(stat);
-
-      // If we have enough characters to display
-      if (rlen >= LCD_WIDTH) {
-        // The remaining string fills the screen - Print it
-        write_str(stat, LCD_WIDTH);
-      }
-      else {
-        // The remaining string does not completely fill the screen
-        write_str(stat);                        // The string leaves space
-        uint8_t chars = LCD_WIDTH - rlen;         // Amount of space left in characters
-
+      // If the remaining string doesn't completely fill the screen
+      if (rlen < LCD_WIDTH) {
         write_byte('.');                        // Always at 1+ spaces left, draw a dot
+        uint8_t chars = LCD_WIDTH - rlen;       // Amount of space left in characters
         if (--chars) {                          // Draw a second dot if there's space
           write_byte('.');
-          if (--chars)
-            write_str(str, chars);              // Print a second copy of the message
+          if (--chars) write_str(str, chars);   // Print a second copy of the message
         }
       }
-
-      // Adjust by complete UTF8 characters
-      if (ui.status_scroll_offset < slen) {
-        ui.status_scroll_offset++;
-        while (!START_OF_UTF8_CHAR(str[ui.status_scroll_offset]))
-          ui.status_scroll_offset++;
-      }
-      else
-        ui.status_scroll_offset = 0;
+      ui.advance_status_scroll();
     }
 
   #else
@@ -867,7 +846,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
 }
 
 void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) || ENABLED(SDSUPPORT)
+  #if EITHER(LCD_SET_PROGRESS_MANUALLY, SDSUPPORT)
 
     // Since the progress bar involves writing
     // quite a few bytes to GDRAM, only do this

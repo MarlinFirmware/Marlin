@@ -26,8 +26,8 @@
 
 #include "../../module/planner.h"
 
-float backlash_distance_mm[XYZ] = BACKLASH_DISTANCE_MM,
-      backlash_correction = BACKLASH_CORRECTION;
+float   backlash_distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
+uint8_t backlash_correction = BACKLASH_CORRECTION * all_on;
 
 #ifdef BACKLASH_SMOOTHING_MM
   float backlash_smoothing_mm = BACKLASH_SMOOTHING_MM;
@@ -74,7 +74,7 @@ void GcodeSuite::M425() {
 
   if (parser.seen('F')) {
     planner.synchronize();
-    backlash_correction = MAX(0, MIN(1.0, parser.value_linear_units()));
+    backlash_correction = MAX(0, MIN(1.0, parser.value_float())) * all_on;
     noArgs = false;
   }
 
@@ -90,8 +90,7 @@ void GcodeSuite::M425() {
     SERIAL_ECHOPGM("Backlash correction is ");
     if (!backlash_correction) SERIAL_ECHOPGM("in");
     SERIAL_ECHOLNPGM("active:");
-    SERIAL_ECHOPAIR("  Correction Amount/Fade-out:     F", backlash_correction);
-    SERIAL_ECHOLNPGM("     (F1.0 = full, F0.0 = none)");
+    SERIAL_ECHOLNPAIR("  Correction Amount/Fade-out:     F", float(ui8_to_percent(backlash_correction)) / 100, "     (F1.0 = full, F0.0 = none)");
     SERIAL_ECHOPGM("  Backlash Distance (mm):        ");
     LOOP_XYZ(a) {
       SERIAL_CHAR(' ');

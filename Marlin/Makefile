@@ -674,7 +674,7 @@ ASFLAGS :=          $(CDEFS)
 ifeq ($(HARDWARE_VARIANT), archim)
   LD_PREFIX = -Wl,--gc-sections,-Map,Marlin.ino.map,--cref,--check-sections,--entry=Reset_Handler,--unresolved-symbols=report-all,--warn-common,--warn-section-align
   LD_SUFFIX = $(LDLIBS)
-  LDFLAGS   = -lm -gcc -T$(LDSCRIPT) -u _sbrk -u link -u _close -u _fstat -u _isatty -u _lseek -u _read -u _write -u _exit -u kill -u _getpid
+  LDFLAGS   = -lm -T$(LDSCRIPT) -u _sbrk -u link -u _close -u _fstat -u _isatty -u _lseek -u _read -u _write -u _exit -u kill -u _getpid
 else
   LD_PREFIX = -Wl,--gc-sections,--relax
   LDFLAGS   = -lm

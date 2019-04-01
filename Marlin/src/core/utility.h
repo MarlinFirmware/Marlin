@@ -37,11 +37,11 @@ inline void serial_delay(const millis_t ms) {
   #endif
 }
 
-#if ENABLED(EEPROM_SETTINGS) || ENABLED(SD_FIRMWARE_UPDATE)
+#if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
   void crc16(uint16_t *crc, const void * const data, uint16_t cnt);
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+#if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
   /**
    * These support functions allow the use of large bit arrays of flags that take very
    * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
@@ -53,7 +53,10 @@ inline void serial_delay(const millis_t ms) {
   FORCE_INLINE bool is_bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
 #endif
 
-#if ENABLED(ULTRA_LCD) || ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(EXTENSIBLE_UI)
+#if ANY(ULTRA_LCD, DEBUG_LEVELING_FEATURE, EXTENSIBLE_UI)
+
+  // Convert a full-range unsigned 8bit int to a percentage
+  char* ui8tostr_percent(const uint8_t i);
 
   // Convert uint8_t to string with 123 format
   char* ui8tostr3(const uint8_t x);
@@ -118,6 +121,8 @@ inline void serial_delay(const millis_t ms) {
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void log_machine_info();
+#else
+  #define log_machine_info() NOOP
 #endif
 
 template<typename T>
@@ -133,3 +138,8 @@ public:
 
 #define REMEMBER(N,X, ...) restorer<typeof(X)> restorer_##N(X, ##__VA_ARGS__)
 #define RESTORE(N) restorer_##N.restore()
+
+// Converts from an uint8_t in the range of 0-255 to an uint8_t
+// in the range 0-100 while avoiding rounding artifacts
+constexpr uint8_t ui8_to_percent(const uint8_t i) { return (int(i) * 100 + 127) / 255; }
+constexpr uint8_t all_on = 0xFF, all_off = 0x00;

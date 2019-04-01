@@ -34,7 +34,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_LINEAR)
+#if EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR)
 
 #include "least_squares_fit.h"
 

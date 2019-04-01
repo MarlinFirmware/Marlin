@@ -49,7 +49,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#if BOTH(ULTRA_LCD, NEWPANEL)
 
   #define SD_DETECT_PIN     6
 

@@ -74,7 +74,8 @@ bool PersistentStore::access_start() {
     // sector is blank so nothing stored yet
     for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = EEPROM_ERASE;
     current_slot = EEPROM_SLOTS;
-  } else {
+  }
+  else {
     // current slot is the first non blank one
     current_slot = first_nblank_loc / EEPROM_SIZE;
     uint8_t *eeprom_data = SLOT_ADDRESS(EEPROM_SECTOR, current_slot);

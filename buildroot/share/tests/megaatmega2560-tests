@@ -42,7 +42,7 @@ opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING \
            MAX7219_DEBUG LED_CONTROL_MENU CASE_LIGHT_ENABLE CASE_LIGHT_USE_NEOPIXEL CODEPENDENT_XY_HOMING BACKLASH_COMPENSATION BACKLASH_GCODE
 opt_enable SLOW_PWM_HEATERS THERMAL_PROTECTION_CHAMBER
 opt_set TEMP_SENSOR_CHAMBER 3
-opt_add CHAMBER_HEATER_PIN 45
+opt_set CHAMBER_HEATER_PIN 45
 exec_test $1 $2 "RAMPS with 2 extruders, RRDFGSC, Linear ABL, LEDs, and many options"
 
 #
@@ -264,7 +264,6 @@ exec_test $1 $2 "Many less common options"
 # Test a full-featured CR-10S config
 #
 use_example_configs Creality/CR-10S
-opt_enable SHOW_CUSTOM_BOOTSCREEN
 exec_test $1 $2 "Full-featured CR-10S config"
 #
 # BQ Hephestos 2
@@ -272,10 +271,10 @@ exec_test $1 $2 "Full-featured CR-10S config"
 #use_example_configs Hephestos_2
 #exec_test $1 $2 "Stuff"
 #
-# Delta Config (generic) + ABL bilinear + PROBE_MANUALLY
+# Delta Config (generic) + ABL bilinear + BLTOUCH
 use_example_configs delta/generic
-opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
-exec_test $1 $2 "Delta Config (generic) + ABL bilinear + PROBE_MANUALLY"
+opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR BLTOUCH BLTOUCH_V3
+exec_test $1 $2 "Delta Config (generic) + ABL bilinear + BLTOUCH"
 #
 # Delta Config (generic) + UBL + ALLEN_KEY + OLED_PANEL_TINYBOY2 + EEPROM_SETTINGS
 #

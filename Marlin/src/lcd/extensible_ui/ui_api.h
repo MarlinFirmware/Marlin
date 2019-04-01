@@ -68,6 +68,21 @@ namespace ExtUI {
    */
   PGM_P getFirmwareName_str();
 
+  #if HAS_SOFTWARE_ENDSTOPS
+    bool getSoftEndstopState();
+    void setSoftEndstopState(const bool);
+  #endif
+
+  #if HAS_TRINAMIC
+    float getAxisCurrent_mA(const axis_t);
+    float getAxisCurrent_mA(const extruder_t);
+    void  setAxisCurrent_mA(const float, const axis_t);
+    void  setAxisCurrent_mA(const float, const extruder_t);
+
+    int getTMCBumpSensitivity(const axis_t);
+    void setTMCBumpSensitivity(const float, const axis_t);
+  #endif
+
   float getActualTemp_celsius(const heater_t);
   float getActualTemp_celsius(const extruder_t);
   float getTargetTemp_celsius(const heater_t);
@@ -90,6 +105,21 @@ namespace ExtUI {
   float getFeedrate_percent();
   uint8_t getProgress_percent();
   uint32_t getProgress_seconds_elapsed();
+  
+  #if HAS_LEVELING
+    bool getLevelingActive();
+    void setLevelingActive(const bool);
+    #if HAS_MESH
+      bool getMeshValid();
+      bed_mesh_t getMeshArray();
+      void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
+      void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);
+    #endif
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    void setHostResponse(const uint8_t);
+  #endif
 
   #if ENABLED(PRINTCOUNTER)
     char* getTotalPrints_str(char buffer[21]);
@@ -144,7 +174,7 @@ namespace ExtUI {
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles);
   #endif
 
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
     float getNozzleOffset_mm(const axis_t, const extruder_t);
     void setNozzleOffset_mm(const float, const axis_t, const extruder_t);
     void normalizeNozzleOffset(const axis_t axis);
