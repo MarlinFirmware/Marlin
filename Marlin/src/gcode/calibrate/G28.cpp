@@ -182,7 +182,6 @@
  *
  */
 void GcodeSuite::G28(const bool always_home_all) {
-
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPGM(">>> G28");
     log_machine_info();
@@ -401,6 +400,22 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
 
   #endif // DUAL_X_CARRIAGE
+
+  #if ANY(ENDSTOP_BACKOFF_X, ENDSTOP_BACKOFF_Y, ENDSTOP_BACKOFF_Z)
+    const int backoff_x = (home_all || homeX) ? ENDSTOP_BACKOFF_X : 0;
+    const int backoff_y = (home_all || homeY) ? ENDSTOP_BACKOFF_Y : 0;
+    const int backoff_z = (home_all || homeZ) ? ENDSTOP_BACKOFF_Z : 0;
+    const bool saved_endstop_state = Endstops::global_enabled();
+    Endstops::enable_globally(false);
+    if(backoff_z)
+      do_blocking_move_to_z(
+        current_position[Z_AXIS] - backoff_z * Z_HOME_DIR, ENDSTOP_BACKOFF_FEEDRATE);
+    if(backoff_x || backoff_y)
+      do_blocking_move_to_xy(
+        current_position[X_AXIS] - backoff_x * X_HOME_DIR,
+        current_position[Y_AXIS] - backoff_y * Y_HOME_DIR, ENDSTOP_BACKOFF_FEEDRATE);
+    Endstops::enable_globally(saved_endstop_state);
+  #endif
 
   endstops.not_homing();
 
