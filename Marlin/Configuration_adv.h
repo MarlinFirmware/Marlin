@@ -379,7 +379,7 @@
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
   //#define Z_DUAL_ENDSTOPS
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    #define Z2_USE_ENDSTOP _XMAX_
+    #define Z2_USE_ENDSTOP _ZMAX_
     #define Z_DUAL_ENDSTOPS_ADJUSTMENT  0
   #endif
 #endif
