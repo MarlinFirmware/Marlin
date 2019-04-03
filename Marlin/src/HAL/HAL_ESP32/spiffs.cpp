@@ -21,21 +21,21 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(WEBSUPPORT)
+#if EITHER(WEBSUPPORT, EEPROM_SETTINGS)
 
+#include "../../core/serial.h"
+
+#include "FS.h"
 #include "SPIFFS.h"
-#include "wifi.h"
 
-AsyncEventSource events("/events"); // event source (Server-Sent events)
+bool spiffs_initialized;
 
-void onNotFound(AsyncWebServerRequest *request){
-  request->send(404);
-}
-
-void web_init() {
-  server.addHandler(&events);       // attach AsyncEventSource
-  server.serveStatic("/", SPIFFS, "/www").setDefaultFile("index.html");
-  server.onNotFound(onNotFound);
+void spiffs_init() {
+  if (SPIFFS.begin()) {
+    spiffs_initialized = true;
+  } else {
+    SERIAL_ECHO_MSG("SPIFFS Mount Failed");
+  }
 }
 
 #endif // WEBSUPPORT

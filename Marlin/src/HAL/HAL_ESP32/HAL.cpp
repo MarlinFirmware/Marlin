@@ -41,6 +41,11 @@
   #endif
   #if ENABLED(WEBSUPPORT)
     #include "web.h"
+    #include "spiffs.h"
+  #endif
+#else
+  #if ENABLED(EEPROM_SETTINGS)
+    #include "spiffs.h"
   #endif
 #endif
 
@@ -95,9 +100,14 @@ void HAL_init(void) {
       OTA_init();
     #endif
     #if ENABLED(WEBSUPPORT)
+      spiffs_init();
       web_init();
     #endif
     server.begin();
+  #else
+    #if ENABLED(EEPROM_SETTINGS)
+      spiffs_init();
+    #endif
   #endif
 
   i2s_init();

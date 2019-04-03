@@ -16,27 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 
-#ifdef ARDUINO_ARCH_ESP32
+extern bool spiffs_initialized;
 
-#include "../../inc/MarlinConfigPre.h"
-
-#if ENABLED(WEBSUPPORT)
-
-#include "SPIFFS.h"
-#include "wifi.h"
-
-AsyncEventSource events("/events"); // event source (Server-Sent events)
-
-void onNotFound(AsyncWebServerRequest *request){
-  request->send(404);
-}
-
-void web_init() {
-  server.addHandler(&events);       // attach AsyncEventSource
-  server.serveStatic("/", SPIFFS, "/www").setDefaultFile("index.html");
-  server.onNotFound(onNotFound);
-}
-
-#endif // WEBSUPPORT
-#endif // ARDUINO_ARCH_ESP32
+void spiffs_init();
