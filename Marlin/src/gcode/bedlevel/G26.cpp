@@ -768,6 +768,7 @@ void GcodeSuite::G26() {
       #if ENABLED(ARC_SUPPORT)
 
         #define ARC_LENGTH(quarters)  (INTERSECTION_CIRCLE_RADIUS * M_PI * (quarters) / 2)
+        #define INTERSECTION_CIRCLE_DIAM  ((INTERSECTION_CIRCLE_RADIUS) * 2)
         float sx = circle_x + INTERSECTION_CIRCLE_RADIUS,   // default to full circle
               ex = circle_x + INTERSECTION_CIRCLE_RADIUS,
               sy = circle_y, ey = circle_y,
@@ -775,14 +776,8 @@ void GcodeSuite::G26() {
 
         // Figure out where to start and end the arc - we always print counterclockwise
         if (xi == 0) {                             // left edge
-          if (!f) {
-            sx = circle_x;
-            sy -= (INTERSECTION_CIRCLE_RADIUS);
-          }
-          if (!b) {
-            ex = circle_x;
-            ey += INTERSECTION_CIRCLE_RADIUS;
-          }
+          if (!f) { sx = circle_x; sy -= INTERSECTION_CIRCLE_RADIUS; }
+          if (!b) { ex = circle_x; ey += INTERSECTION_CIRCLE_RADIUS; }
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (r) {                             // right edge
@@ -793,26 +788,23 @@ void GcodeSuite::G26() {
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (f) {
-          ex = circle_x - (INTERSECTION_CIRCLE_RADIUS);
+          ex -= INTERSECTION_CIRCLE_DIAM;
           arc_length = ARC_LENGTH(2);
         }
         else if (b) {
-          sx = circle_x - (INTERSECTION_CIRCLE_RADIUS);
+          sx -= INTERSECTION_CIRCLE_DIAM;
           arc_length = ARC_LENGTH(2);
         }
-        const float arc_offset[2] = {
-          circle_x - sx,
-          circle_y - sy
-        };
 
-        const float dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual circle
+        const float arc_offset[2] = { circle_x - sx, circle_y - sy },
+                    dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual circle
                     dy_s = current_position[Y_AXIS] - sy,
-                    dist_start = HYPOT2(dx_s, dy_s);
-        const float endpoint[XYZE] = {
-          ex, ey,
-          g26_layer_height,
-          current_position[E_AXIS] + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
-        };
+                    dist_start = HYPOT2(dx_s, dy_s),
+                    endpoint[XYZE] = {
+                      ex, ey,
+                      g26_layer_height,
+                      current_position[E_AXIS] + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
+                    };
 
         if (dist_start > 2.0) {
           retract_filament(destination);
