@@ -1,7 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,27 +17,27 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #ifdef ARDUINO_ARCH_ESP32
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(WEBSUPPORT)
+#if EITHER(WEBSUPPORT, EEPROM_SETTINGS)
 
+#include "../../core/serial.h"
+
+#include "FS.h"
 #include "SPIFFS.h"
-#include "wifi.h"
 
-AsyncEventSource events("/events"); // event source (Server-Sent events)
+bool spiffs_initialized;
 
-void onNotFound(AsyncWebServerRequest *request){
-  request->send(404);
-}
-
-void web_init() {
-  server.addHandler(&events);       // attach AsyncEventSource
-  server.serveStatic("/", SPIFFS, "/www").setDefaultFile("index.html");
-  server.onNotFound(onNotFound);
+void spiffs_init() {
+  if (SPIFFS.begin())
+    spiffs_initialized = true;
+  else
+    SERIAL_ECHO_MSG("SPIFFS mount failed");
 }
 
 #endif // WEBSUPPORT
