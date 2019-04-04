@@ -39,6 +39,11 @@
 #endif
 
 inline void toggle_pins() {
+
+  #ifndef PARSED_PIN_INDEX
+    #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+  #endif
+
   const bool ignore_protection = parser.boolval('I');
   const int repeat = parser.intval('R', 1),
             start = PARSED_PIN_INDEX('S', 0),
@@ -47,7 +52,6 @@ inline void toggle_pins() {
 
   for (uint8_t i = start; i <= end; i++) {
     pin_t pin = GET_PIN_MAP_PIN(i);
-    //report_pin_state_extended(pin, ignore_protection, false);
     if (!VALID_PIN(pin)) continue;
     if (!ignore_protection && pin_is_protected(pin)) {
       report_pin_state_extended(pin, ignore_protection, true, "Untouched ");

@@ -28,6 +28,9 @@
  * Translation of routines & variables used by pinsDebug.h
  */
 
+#ifndef NUM_DIGITAL_PINS
+  #define NUM_DIGITAL_PINS 160
+#endif
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 #define pwm_details(pin) pin = pin    // do nothing  // print PWM details
 #define pwm_status(pin) false //Print a pin's PWM status. Return true if it's currently a PWM pin.
