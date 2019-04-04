@@ -58,19 +58,20 @@
 
   void unified_bed_leveling::report_state() {
     echo_name();
-    SERIAL_ECHOPGM(" System v" UBL_VERSION " ");
-    if (!planner.leveling_active) SERIAL_ECHOPGM("in");
-    SERIAL_ECHOLNPGM("active.");
+    serial_ternary(planner.leveling_active, PSTR(" System v" UBL_VERSION " "), PSTR(""), PSTR("in"), PSTR("active\n"));
     serial_delay(50);
   }
 
   #if ENABLED(UBL_DEVEL_DEBUGGING)
 
+    #define DEBUG_OUT true
+    #include "../../../core/debug_out.h"
+
     static void debug_echo_axis(const AxisEnum axis) {
       if (current_position[axis] == destination[axis])
-        SERIAL_ECHOPGM("-------------");
+        DEBUG_ECHOPGM("-------------");
       else
-        SERIAL_ECHO_F(destination[X_AXIS], 6);
+        DEBUG_ECHO_F(destination[X_AXIS], 6);
     }
 
     void debug_current_and_destination(PGM_P title) {
@@ -90,18 +91,18 @@
       if (xy_dist == 0.0) return;
 
       const float fpmm = de / xy_dist;
-      SERIAL_ECHOPAIR_F("   fpmm=", fpmm, 6);
-      SERIAL_ECHOPAIR_F("    current=( ", current_position[X_AXIS], 6);
-      SERIAL_ECHOPAIR_F(", ", current_position[Y_AXIS], 6);
-      SERIAL_ECHOPAIR_F(", ", current_position[Z_AXIS], 6);
-      SERIAL_ECHOPAIR_F(", ", current_position[E_AXIS], 6);
-      SERIAL_ECHOPGM(" )   destination=( "); debug_echo_axis(X_AXIS);
-      SERIAL_ECHOPGM(", "); debug_echo_axis(Y_AXIS);
-      SERIAL_ECHOPGM(", "); debug_echo_axis(Z_AXIS);
-      SERIAL_ECHOPGM(", "); debug_echo_axis(E_AXIS);
-      SERIAL_ECHOPGM(" )   ");
-      serialprintPGM(title);
-      SERIAL_EOL();
+      DEBUG_ECHOPAIR_F("   fpmm=", fpmm, 6);
+      DEBUG_ECHOPAIR_F("    current=( ", current_position[X_AXIS], 6);
+      DEBUG_ECHOPAIR_F(", ", current_position[Y_AXIS], 6);
+      DEBUG_ECHOPAIR_F(", ", current_position[Z_AXIS], 6);
+      DEBUG_ECHOPAIR_F(", ", current_position[E_AXIS], 6);
+      DEBUG_ECHOPGM(" )   destination=( "); debug_echo_axis(X_AXIS);
+      DEBUG_ECHOPGM(", "); debug_echo_axis(Y_AXIS);
+      DEBUG_ECHOPGM(", "); debug_echo_axis(Z_AXIS);
+      DEBUG_ECHOPGM(", "); debug_echo_axis(E_AXIS);
+      DEBUG_ECHOPGM(" )   ");
+      DEBUG_PRINT_P(title);
+      DEBUG_EOL();
     }
 
   #endif // UBL_DEVEL_DEBUGGING

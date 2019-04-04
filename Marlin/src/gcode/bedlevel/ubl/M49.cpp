@@ -32,9 +32,10 @@
 #include "../../../feature/bedlevel/bedlevel.h"
 
 void GcodeSuite::M49() {
-  g26_debug_flag ^= true;
+
   SERIAL_ECHOPGM("G26 Debug: ");
-  serialprintPGM(g26_debug_flag ? PSTR("On\n") : PSTR("Off\n"));
+  serialprintln_onoff((g26_debug_flag ^= true));
+
 }
 
 #endif // G26_MESH_VALIDATION

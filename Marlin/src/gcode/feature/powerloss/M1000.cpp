@@ -29,17 +29,20 @@
 #include "../../../module/motion.h"
 #include "../../../lcd/ultralcd.h"
 
+#define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+#include "../../../core/debug_out.h"
+
 void menu_job_recovery();
 
-#if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-
-  inline void plr_error(PGM_P const prefix) {
-    SERIAL_ECHO_START();
+inline void plr_error(PGM_P const prefix) {
+  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+    DEBUG_ECHO_START();
     serialprintPGM(prefix);
-    SERIAL_ECHOLNPGM(" Power-Loss Recovery Data");
-  }
-
-#endif
+    DEBUG_ECHOLNPGM(" Power-Loss Recovery Data");
+  #else
+    UNUSED(prefix);
+  #endif
+}
 
 /**
  * M1000: Resume from power-loss (undocumented)
@@ -54,11 +57,8 @@ void GcodeSuite::M1000() {
     else
       recovery.resume();
   }
-  else {
-    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      plr_error(recovery.info.valid_head ? PSTR("No") : PSTR("Invalid"));
-    #endif
-  }
+  else
+    plr_error(recovery.info.valid_head ? PSTR("No") : PSTR("Invalid"));
 
 }
 
