@@ -71,12 +71,13 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
-  if(!eeprom_file.seek(pos)) return true; // return true for any error
+  if (!eeprom_file.seek(pos)) return true; // return true for any error
 
   if (writing) {
     if (eeprom_file.read(value, size) != size) return true;
     crc16(crc, value, size);
-  } else {
+  }
+  else {
     uint8_t tmp[size];
     if (eeprom_file.read(tmp, size) != size) return true;
     crc16(crc, tmp, size);
@@ -87,9 +88,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-size_t PersistentStore::capacity() {
-  return HAL_ESP32_EEPROM_SIZE;
-}
+size_t PersistentStore::capacity() { return HAL_ESP32_EEPROM_SIZE; }
 
 #endif // EEPROM_SETTINGS
 #endif // ARDUINO_ARCH_ESP32

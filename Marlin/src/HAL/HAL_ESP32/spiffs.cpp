@@ -31,11 +31,10 @@
 bool spiffs_initialized;
 
 void spiffs_init() {
-  if (SPIFFS.begin()) {
+  if (SPIFFS.begin())
     spiffs_initialized = true;
-  } else {
-    SERIAL_ECHO_MSG("SPIFFS Mount Failed");
-  }
+  else
+    SERIAL_ECHO_MSG("SPIFFS mount failed");
 }
 
 #endif // WEBSUPPORT
