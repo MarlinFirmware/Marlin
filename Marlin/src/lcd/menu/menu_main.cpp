@@ -46,6 +46,10 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if HAS_GAMES
+  #include "game/game.h"
+#endif
+
 #define MACHINE_CAN_STOP (EITHER(SDSUPPORT, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL))
 #define MACHINE_CAN_PAUSE (ANY(SDSUPPORT, HOST_PROMPT_SUPPORT, PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE))
 
@@ -274,6 +278,22 @@ void menu_main() {
     #if SERVICE_INTERVAL_3 > 0
       MENU_ITEM(submenu, SERVICE_NAME_3, menu_service3);
     #endif
+  #endif
+
+  #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
+    MENU_ITEM(submenu, "Game", (
+      #if HAS_GAME_MENU
+        menu_game
+      #elif ENABLED(MARLIN_BRICKOUT)
+        brickout.enter_game
+      #elif ENABLED(MARLIN_INVADERS)
+        invaders.enter_game
+      #elif ENABLED(MARLIN_SNAKE)
+        snake.enter_game
+      #elif ENABLED(MARLIN_MAZE)
+        maze.enter_game
+      #endif
+    ));
   #endif
 
   END_MENU();

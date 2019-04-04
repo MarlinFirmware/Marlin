@@ -23,9 +23,6 @@
 
 #if ENABLED(WEBSUPPORT)
 
-#include "../../core/serial.h"
-
-#include "FS.h"
 #include "SPIFFS.h"
 #include "wifi.h"
 
@@ -37,12 +34,8 @@ void onNotFound(AsyncWebServerRequest *request){
 
 void web_init() {
   server.addHandler(&events);       // attach AsyncEventSource
-  if (SPIFFS.begin()) {
-    server.serveStatic("/", SPIFFS, "/www").setDefaultFile("index.html");
-    server.onNotFound(onNotFound);
-  }
-  else
-    SERIAL_ECHO_MSG("SPIFFS Mount Failed");
+  server.serveStatic("/", SPIFFS, "/www").setDefaultFile("index.html");
+  server.onNotFound(onNotFound);
 }
 
 #endif // WEBSUPPORT
