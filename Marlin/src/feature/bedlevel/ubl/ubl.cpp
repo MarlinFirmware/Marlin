@@ -35,7 +35,7 @@
   #if ENABLED(EXTENSIBLE_UI)
     #include "../../../lcd/extensible_ui/ui_api.h"
   #endif
-  
+
   #include "math.h"
 
   void unified_bed_leveling::echo_name() {
@@ -135,8 +135,8 @@
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) 
-            ExtUI::onMeshUpdate(x, y, 0);
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+          ExtUI::onMeshUpdate(x, y, 0);
     #endif
     if (was_enabled) report_current_position();
   }
