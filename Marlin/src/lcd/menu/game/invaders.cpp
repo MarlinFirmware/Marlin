@@ -182,7 +182,7 @@ typedef struct { int8_t x, y, v; } laser_t;
 
 uint8_t cannons_left;
 int8_t cannon_x;
-laser_t laser, expl, bullet[10];
+laser_t explod, laser, bullet[10];
 constexpr uint8_t inv_off[] = { 2, 1, 0 }, inv_wide[] = { 8, 11, 12 };
 int8_t invaders_x, invaders_y, invaders_dir, leftmost, rightmost, botmost;
 uint8_t invader_count, quit_count, bugs[INVADER_ROWS], shooters[(INVADER_ROWS) * (INVADER_COLS)];
@@ -236,7 +236,9 @@ inline void fire_cannon() {
 }
 
 inline void explode(const int8_t x, const int8_t y, const int8_t v=4) {
-  expl.x = x - (EXPL_W) / 2; expl.y = y; expl.v = v;
+  explod.x = x - (EXPL_W) / 2;
+  explod.y = y;
+  explod.v = v;
 }
 
 inline void kill_cannon(uint8_t &game_state, const uint8_t st) {
@@ -431,9 +433,9 @@ void InvadersGame::game_screen() {
   }
 
   // Draw explosion
-  if (expl.v && PAGE_CONTAINS(expl.y, expl.y + 7 - 1)) {
-    u8g.drawBitmapP(expl.x, expl.y, 2, 7, explosion);
-    --expl.v;
+  if (explod.v && PAGE_CONTAINS(explod.y, explod.y + 7 - 1)) {
+    u8g.drawBitmapP(explod.x, explod.y, 2, 7, explosion);
+    --explod.v;
   }
 
   // Blink GAME OVER when game is over
