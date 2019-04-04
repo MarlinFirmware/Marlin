@@ -673,7 +673,7 @@ class Temperature {
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;
       #elif ENABLED(ADAPTIVE_FAN_SLOWING)
-        constexpr static bool adaptive_fan_slowing = true;
+        static constexpr bool adaptive_fan_slowing = true;
       #endif
 
       /**

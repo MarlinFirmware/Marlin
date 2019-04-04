@@ -49,7 +49,7 @@ class FilamentMonitorBase {
     #if ENABLED(HOST_ACTION_COMMANDS)
       static bool host_handling;
     #else
-      constexpr static bool host_handling = false;
+      static constexpr bool host_handling = false;
     #endif
 };
 
