@@ -320,8 +320,8 @@ void homeaxis(const AxisEnum axis);
               mirrored_duplication_mode;          // Used in Dual X mode 3
 #endif
 
-#if ENABLED(MULTI_NOZZLE_DUPLICATION) && HOTENDS > 2
-  uint8_t duplication_e_mask;
+#if EITHER(DUAL_X_CARRIAGE, MULTI_NOZZLE_DUPLICATION)
+  extern uint8_t duplication_e_mask;
 #endif
 
 /**

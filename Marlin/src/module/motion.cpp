@@ -861,7 +861,7 @@ void clean_up_after_endstop_or_probe_move() {
        mirrored_duplication_mode;
 #endif
 
-#if ENABLED(MULTI_NOZZLE_DUPLICATION) && HOTENDS > 2
+#if EITHER(DUAL_X_CARRIAGE, MULTI_NOZZLE_DUPLICATION)
   uint8_t duplication_e_mask; // = 0
 #endif
 
