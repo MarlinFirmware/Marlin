@@ -619,12 +619,19 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 
   #if HAS_DUPLICATION_MODE
-    #define NDIR(N) _DUPE(N, DIR,!INVERT_E##N##_DIR)
-    #define RDIR(N) _DUPE(N, DIR, INVERT_E##N##_DIR)
+
+    #if ENABLED(MULTI_NOZZLE_DUPLICATION)
+      #define _DUPE(N,T,V)  do{ if (TEST(duplication_e_mask, N)) E##N##_##T##_WRITE(V); }while(0)
+    #else
+      #define _DUPE(N,T,V)  E##N##_##T##_WRITE(V)
+    #endif
+
+    #define NDIR(N) _DUPE(N,DIR,!INVERT_E##N##_DIR)
+    #define RDIR(N) _DUPE(N,DIR, INVERT_E##N##_DIR)
+
     #define E_STEP_WRITE(E,V) do{ if (extruder_duplication_enabled) { DUPE(STEP,V); } else _E_STEP_WRITE(E,V); }while(0)
 
     #if E_STEPPERS > 2
-      #define _DUPE(N,T,V)    do{ if (TEST(duplication_e_mask, N)) E##N##_##T##_WRITE(V); }while(0)
       #if E_STEPPERS > 5
         #define DUPE(T,V)     do{ _DUPE(0,T,V); _DUPE(1,T,V); _DUPE(2,T,V); _DUPE(3,T,V); _DUPE(4,T,V); _DUPE(5,T,V); }while(0)
         #define NORM_E_DIR(E) do{ if (extruder_duplication_enabled) { NDIR(0); NDIR(1); NDIR(2); NDIR(3); NDIR(4); NDIR(5); } else _NORM_E_DIR(E); }while(0)
@@ -643,7 +650,6 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
         #define REV_E_DIR(E)  do{ if (extruder_duplication_enabled) { RDIR(0); RDIR(1); RDIR(2); } else  _REV_E_DIR(E); }while(0)
       #endif
     #else
-      #define _DUPE(N,T,V)  E##N##_##T##_WRITE(V)
       #define DUPE(T,V)     do{ _DUPE(0,T,V); _DUPE(1,T,V); } while(0)
       #define NORM_E_DIR(E) do{ if (extruder_duplication_enabled) { NDIR(0); NDIR(1); } else _NORM_E_DIR(E); }while(0)
       #define REV_E_DIR(E)  do{ if (extruder_duplication_enabled) { RDIR(0); RDIR(1); } else  _REV_E_DIR(E); }while(0)

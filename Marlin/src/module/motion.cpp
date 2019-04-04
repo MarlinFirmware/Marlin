@@ -859,7 +859,7 @@ void clean_up_after_endstop_or_probe_move() {
 #if HAS_DUPLICATION_MODE
   bool extruder_duplication_enabled,
        mirrored_duplication_mode;
-  #if E_STEPPERS > 2
+  #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     uint8_t duplication_e_mask; // = 0
   #endif
 #endif

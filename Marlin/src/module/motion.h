@@ -318,7 +318,7 @@ void homeaxis(const AxisEnum axis);
 #if HAS_DUPLICATION_MODE
   extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
               mirrored_duplication_mode;          // Used in Dual X mode 3
-  #if E_STEPPERS > 2
+  #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     extern uint8_t duplication_e_mask;
   #endif
 #endif
