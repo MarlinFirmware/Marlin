@@ -44,6 +44,15 @@ static SPISettings spiConfig;
 // Public functions
 // --------------------------------------------------------------------------
 
+#if ENABLED(SOFTWARE_SPI)
+
+  // --------------------------------------------------------------------------
+  // Software SPI
+  // --------------------------------------------------------------------------
+  #error "Software SPI not supported for ESP32. Use Hardware SPI."
+
+#else
+
 // --------------------------------------------------------------------------
 // Hardware SPI
 // --------------------------------------------------------------------------
@@ -61,13 +70,14 @@ void spiInit(uint8_t spiRate) {
   uint32_t clock;
 
   switch (spiRate) {
-    case SPI_FULL_SPEED:    clock = SPI_CLOCK_DIV2;  break;
-    case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4;  break;
-    case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8;  break;
-    case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
-    case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
-    case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
-    default:                clock = SPI_CLOCK_DIV2; // Default from the SPI library
+    case SPI_FULL_SPEED:      clock = 16000000; break;
+    case SPI_HALF_SPEED:      clock = 8000000;  break;
+    case SPI_QUARTER_SPEED:   clock = 4000000;  break;
+    case SPI_EIGHTH_SPEED:    clock = 2000000;  break;
+    case SPI_SIXTEENTH_SPEED: clock = 1000000;  break;
+    case SPI_SPEED_5:         clock = 500000;   break;
+    case SPI_SPEED_6:         clock = 250000;   break;
+    default:                  clock = 1000000; // Default from the SPI library
   }
 
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
@@ -105,5 +115,7 @@ void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) 
 
   SPI.beginTransaction(spiConfig);
 }
+
+#endif // !SOFTWARE_SPI
 
 #endif // ARDUINO_ARCH_ESP32
