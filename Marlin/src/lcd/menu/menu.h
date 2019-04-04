@@ -309,8 +309,8 @@ class MenuItem_bool {
 
 #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL)
 #define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
-#define MENU_ITEM_P(TYPE, PLABEL, ...)                       _MENU_ITEM_VARIANT_P(TYPE,              , false, PLABEL,                   ## __VA_ARGS__)
-#define MENU_ITEM(TYPE, LABEL, ...)                          _MENU_ITEM_VARIANT_P(TYPE,              , false, PSTR(LABEL),              ## __VA_ARGS__)
+#define MENU_ITEM_P(TYPE, PLABEL, ...)                       _MENU_ITEM_VARIANT_P(TYPE,      , false, PLABEL,                   ## __VA_ARGS__)
+#define MENU_ITEM(TYPE, LABEL, ...)                          _MENU_ITEM_VARIANT_P(TYPE,      , false, PSTR(LABEL),              ## __VA_ARGS__)
 #define MENU_ITEM_EDIT(TYPE, LABEL, ...)                     _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
 #define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...)            _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
 #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...)          _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
