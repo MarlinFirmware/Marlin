@@ -55,8 +55,8 @@ protected:
 
   static bool game_frame();
   static void draw_game_over();
+  static void exit_game();
 public:
-  MarlinGame() {}
   static void init_game(const uint8_t init_state, const screenFunc_t screen);
 };
 

@@ -185,7 +185,7 @@ int8_t cannon_x;
 laser_t laser, expl, bullet[10];
 constexpr uint8_t inv_off[] = { 2, 1, 0 }, inv_wide[] = { 8, 11, 12 };
 int8_t invaders_x, invaders_y, invaders_dir, leftmost, rightmost, botmost;
-uint8_t invader_count, bugs[INVADER_ROWS], shooters[(INVADER_ROWS) * (INVADER_COLS)];
+uint8_t invader_count, quit_count, bugs[INVADER_ROWS], shooters[(INVADER_ROWS) * (INVADER_COLS)];
 
 inline void update_invader_data() {
   uint8_t inv_mask = 0;
@@ -380,13 +380,18 @@ void InvadersGame::game_screen() {
 
   }
 
+  // Click-and-hold to abort
+  if (ui.button_pressed()) --quit_count; else quit_count = 10;
+
   // Click to fire or exit
   if (ui.use_click()) {
     if (!game_state)
-      ui.goto_previous_screen();
+      quit_count = 0;
     else if (game_state == 1 && !laser.v)
       fire_cannon();
   }
+
+  if (!quit_count) exit_game();
 
   u8g.setColorIndex(1);
 
@@ -452,6 +457,7 @@ void InvadersGame::game_screen() {
 void InvadersGame::enter_game() {
   init_game(20, game_screen); // countdown to reset invaders
   cannons_left = 3;
+  quit_count = 10;
   laser.v = 0;
   reset_invaders();
   reset_player();

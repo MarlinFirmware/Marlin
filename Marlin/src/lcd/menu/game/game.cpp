@@ -61,6 +61,9 @@ void MarlinGame::init_game(const uint8_t init_state, const screenFunc_t screen) 
   ui.defer_status_screen();
 }
 
-//void MarlinGame::exit_game() { ui.goto_previous_screen(); }
+void MarlinGame::exit_game() {
+  ui.goto_previous_screen();
+  ui.defer_status_screen(false);
+}
 
 #endif // HAS_GAMES
