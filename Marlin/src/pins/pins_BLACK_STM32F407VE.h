@@ -44,6 +44,12 @@
 #endif
 
 //
+// Servos
+//
+#define SERVO0_PIN         PC6
+#define SERVO1_PIN         PC7
+
+//
 // Limit Switches
 //
 #define X_MIN_PIN          PC13
@@ -96,25 +102,20 @@
 #define FAN2_PIN           PE13 // Fan2
 #define FAN3_PIN           PE14 // Fan3
 
-
 //
-// Servos
+// Misc. Functions
 //
-#define SERVO0_PIN         PC6
-#define SERVO1_PIN         PC7
-
-
-#define LED_PIN            PA6
-//#define LED_PIN            PA7
-
 #define SDSS               PB12
+#define LED_PIN            PA6
+//#define LED_PIN          PA7
 #define KILL_PIN           PB1
-
 
 //
 // LCD / Controller
 //
 #define SD_DETECT_PIN      PC5
+//#define SD_DETECT_PIN      PA8  // SDIO SD_DETECT_PIN, external SDIO card reader only
+
 #define BEEPER_PIN         PD10
 #define LCD_PINS_RS        PE15
 #define LCD_PINS_ENABLE    PD8
@@ -126,7 +127,5 @@
 #define BTN_EN1            PD4
 #define BTN_EN2            PD13
 
-#define DOGLCD_CS        LCD_PINS_D5
-#define DOGLCD_A0        LCD_PINS_D6
-
-//#define SD_DETECT_PIN      PA8  // SDIO SD_DETECT_PIN, external SDIO card reader only
+#define DOGLCD_CS          LCD_PINS_D5
+#define DOGLCD_A0          LCD_PINS_D6
