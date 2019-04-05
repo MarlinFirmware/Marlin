@@ -148,16 +148,6 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     //if (!IS_SD_PRINTING()) info.valid_head = 0;
     info.valid_foot = info.valid_head;
 
-    // Machine state
-    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      SERIAL_ECHOPGM("previous_position: ");
-      LOOP_XYZE(i) {
-        SERIAL_ECHO(info.current_position[i]);
-        if (i < E_AXIS) SERIAL_CHAR(',');
-      }
-      SERIAL_EOL();
-    #endif
-
     COPY(info.current_position, current_position);
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
 
@@ -382,8 +372,8 @@ void PrintJobRecovery::resume() {
       if (info.valid_head == info.valid_foot) {
         SERIAL_ECHOPGM("current_position: ");
         LOOP_XYZE(i) {
+          if (i) SERIAL_CHAR(',');
           SERIAL_ECHO(info.current_position[i]);
-          if (i < E_AXIS) SERIAL_CHAR(',');
         }
         SERIAL_EOL();
         SERIAL_ECHOLNPAIR("feedrate: ", info.feedrate);
