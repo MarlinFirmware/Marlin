@@ -75,7 +75,7 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_PRINTF(...)      SERIAL_OUT(printf, __VA_ARGS__)
 #define SERIAL_FLUSH()          SERIAL_OUT(flush)
 
-#if TX_BUFFER_SIZE > 0
+#if TX_BUFFER_SIZE > 0 && !defined(ARDUINO_ARCH_ESP32)
   #define SERIAL_FLUSHTX()      SERIAL_OUT(flushTX)
 #else
   #define SERIAL_FLUSHTX()
