@@ -903,6 +903,9 @@
 #ifndef MSG_BABYSTEP_Z
   #define MSG_BABYSTEP_Z                      _UxGT("Babystep Z")
 #endif
+#ifndef MSG_BABYSTEP_TOTAL
+  #define MSG_BABYSTEP_TOTAL                  _UxGT("Total")
+#endif
 #ifndef MSG_ENDSTOP_ABORT
   #define MSG_ENDSTOP_ABORT                   _UxGT("Endstop abort")
 #endif

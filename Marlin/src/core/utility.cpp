@@ -214,6 +214,19 @@ void safe_delay(millis_t ms) {
     return &conv[1];
   }
 
+  // Convert signed float to string (5 digit) with -1.2345 / _0.0000 / +1.2345 format
+  char* ftostr54sign(const float &f, char plus/*=' '*/) {
+    long i = (f * 100000 + (f < 0 ? -5: 5)) / 10;
+    conv[0] = i ? MINUSOR(i, plus) : ' ';
+    conv[1] = DIGIMOD(i, 10000);
+    conv[2] = '.';
+    conv[3] = DIGIMOD(i, 1000);
+    conv[4] = DIGIMOD(i, 100);
+    conv[5] = DIGIMOD(i, 10);
+    conv[6] = DIGIMOD(i, 1);
+    return &conv[0];
+  }
+
   // Convert unsigned float to rj string with 12345 format
   char* ftostr5rj(const float &f) {
     const long i = ((f < 0 ? -f : f) * 10 + 5) / 10;
