@@ -148,6 +148,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     //if (!IS_SD_PRINTING()) info.valid_head = 0;
     info.valid_foot = info.valid_head;
 
+    // Machine state
     COPY(info.current_position, current_position);
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
 
