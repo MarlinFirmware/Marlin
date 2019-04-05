@@ -28,12 +28,6 @@ typedef struct {
   float distance; // When populated, the distance from the search location
 } mesh_index_pair;
 
-#if ENABLED(G26_MESH_VALIDATION)
-  extern bool g26_debug_flag;
-#else
-  constexpr bool g26_debug_flag = false;
-#endif
-
 #if ENABLED(PROBE_MANUALLY)
   extern bool g29_in_progress;
 #else

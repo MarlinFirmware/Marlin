@@ -24,8 +24,6 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  //#define UBL_DEVEL_DEBUGGING
-
   #include "ubl.h"
 
   #include "../../../Marlin.h"

@@ -495,10 +495,6 @@ private:
     static void M48();
   #endif
 
-  #if ENABLED(G26_MESH_VALIDATION)
-    static void M49();
-  #endif
-
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
     static void M73();
   #endif
