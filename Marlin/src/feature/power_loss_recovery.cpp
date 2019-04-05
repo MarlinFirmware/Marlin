@@ -135,7 +135,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
         || ELAPSED(ms, next_save_ms)
       #endif
         // Save every time Z is higher than the last call
-        || current_position[Z_AXIS] > info.current_position[Z_AXIS] 
+        || current_position[Z_AXIS] > info.current_position[Z_AXIS]
     #endif
   ) {
 
