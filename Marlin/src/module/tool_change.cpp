@@ -369,12 +369,6 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
         pe_activate_solenoid(active_extruder); // Just save power for inverted magnets
       #endif
     }
-
-    #if HAS_HOTEND_OFFSET
-      current_position[Z_AXIS] += hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
-    #endif
-
-    if (DEBUGGING(LEVELING)) DEBUG_POS("Applying Z-offset", current_position);
   }
 
 #endif // PARKING_EXTRUDER
