@@ -65,7 +65,7 @@
 #define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
 
 // Toggle pin value
-#define TOGGLE(IO)            WRITE(IO, !READ(IO))
+#define TOGGLE(IO)              WRITE(IO, !READ(IO))
 
 //
 // Ports and functions
