@@ -1145,7 +1145,7 @@ void loop() {
         #endif
         #ifdef EVENT_GCODE_SD_STOP
           enqueue_and_echo_commands_P(PSTR(EVENT_GCODE_SD_STOP));
-        #endif  
+        #endif
       }
     #endif // SDSUPPORT
 

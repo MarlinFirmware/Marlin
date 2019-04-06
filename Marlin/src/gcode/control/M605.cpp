@@ -42,10 +42,10 @@
    *
    *   M605 S0 : (FULL_CONTROL) The slicer has full control over both X-carriages and can achieve optimal travel
    *             results as long as it supports dual X-carriages.
-   * 
+   *
    *   M605 S1 : (AUTO_PARK) The firmware automatically parks and unparks the X-carriages on tool-change so that
    *             additional slicer support is not required.
-   * 
+   *
    *   M605 S2 X R : (DUPLICATION) The firmware moves the second X-carriage and extruder in synchronization with
    *             the first X-carriage and extruder, to print 2 copies of the same object at the same time.
    *             Set the constant X-offset and temperature differential with M605 S2 X[offs] R[deg] and

@@ -348,10 +348,6 @@ void GcodeSuite::process_parsed_command(
         case 48: M48(); break;                                    // M48: Z probe repeatability test
       #endif
 
-      #if ENABLED(G26_MESH_VALIDATION)
-        case 49: M49(); break;                                    // M49: Turn on or off G26 debug flag for verbose output
-      #endif
-
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
         case 73: M73(); break;                                    // M73: Set progress percentage (for display on LCD)
       #endif

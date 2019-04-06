@@ -65,7 +65,7 @@ void reset_ball() {
 }
 
 void BrickoutGame::game_screen() {
-  if (game_frame()) do {     // Run logic twice for finer resolution
+  if (game_frame()) {     // Run logic twice for finer resolution
     // Update Paddle Position
     paddle_x = (int8_t)ui.encoderPosition;
     paddle_x = constrain(paddle_x, 0, (LCD_PIXEL_WIDTH - (PADDLE_W)) / (PADDLE_VEL));
@@ -75,7 +75,7 @@ void BrickoutGame::game_screen() {
     // Run the ball logic
     if (game_state) do {
 
-      // Provisionally update the position
+      // Provisionally update the ball position
       const fixed_t newx = ballx + ballh, newy = bally + ballv;  // current next position
       if (!WITHIN(newx, 0, BTOF(LCD_PIXEL_WIDTH - 1))) {    // out in x?
         ballh = -ballh; _BUZZ(5, 220);                      // bounce x
@@ -197,7 +197,7 @@ void BrickoutGame::game_screen() {
   }
 
   // A click always exits this game
-  if (ui.use_click()) ui.goto_previous_screen();
+  if (ui.use_click()) exit_game();
 }
 
 void BrickoutGame::enter_game() {

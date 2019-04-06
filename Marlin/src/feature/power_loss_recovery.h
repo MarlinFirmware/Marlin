@@ -125,9 +125,11 @@ class PrintJobRecovery {
 
   static inline bool valid() { return info.valid_head && info.valid_head == info.valid_foot; }
 
-    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      static void debug(PGM_P const prefix);
-    #endif
+  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+    static void debug(PGM_P const prefix);
+  #else
+    static inline void debug(PGM_P const prefix) { UNUSED(prefix); }
+  #endif
 
   private:
     static void write();

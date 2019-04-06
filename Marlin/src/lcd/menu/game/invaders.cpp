@@ -63,7 +63,7 @@ const unsigned char invader[3][2][16] PROGMEM = {
       B01111111,B11110000,
       B00011111,B11000000,
       B00010000,B01000000,
-      B00100000,B00100000 
+      B00100000,B00100000
     }
   }, {
     { B00001111,B00000000,
@@ -182,10 +182,10 @@ typedef struct { int8_t x, y, v; } laser_t;
 
 uint8_t cannons_left;
 int8_t cannon_x;
-laser_t laser, expl, bullet[10];
+laser_t explod, laser, bullet[10];
 constexpr uint8_t inv_off[] = { 2, 1, 0 }, inv_wide[] = { 8, 11, 12 };
 int8_t invaders_x, invaders_y, invaders_dir, leftmost, rightmost, botmost;
-uint8_t invader_count, bugs[INVADER_ROWS], shooters[(INVADER_ROWS) * (INVADER_COLS)];
+uint8_t invader_count, quit_count, bugs[INVADER_ROWS], shooters[(INVADER_ROWS) * (INVADER_COLS)];
 
 inline void update_invader_data() {
   uint8_t inv_mask = 0;
@@ -236,7 +236,9 @@ inline void fire_cannon() {
 }
 
 inline void explode(const int8_t x, const int8_t y, const int8_t v=4) {
-  expl.x = x - (EXPL_W) / 2; expl.y = y; expl.v = v;
+  explod.x = x - (EXPL_W) / 2;
+  explod.y = y;
+  explod.v = v;
 }
 
 inline void kill_cannon(uint8_t &game_state, const uint8_t st) {
@@ -380,13 +382,18 @@ void InvadersGame::game_screen() {
 
   }
 
+  // Click-and-hold to abort
+  if (ui.button_pressed()) --quit_count; else quit_count = 10;
+
   // Click to fire or exit
   if (ui.use_click()) {
     if (!game_state)
-      ui.goto_previous_screen();
+      quit_count = 0;
     else if (game_state == 1 && !laser.v)
       fire_cannon();
   }
+
+  if (!quit_count) exit_game();
 
   u8g.setColorIndex(1);
 
@@ -426,9 +433,9 @@ void InvadersGame::game_screen() {
   }
 
   // Draw explosion
-  if (expl.v && PAGE_CONTAINS(expl.y, expl.y + 7 - 1)) {
-    u8g.drawBitmapP(expl.x, expl.y, 2, 7, explosion);
-    --expl.v;
+  if (explod.v && PAGE_CONTAINS(explod.y, explod.y + 7 - 1)) {
+    u8g.drawBitmapP(explod.x, explod.y, 2, 7, explosion);
+    --explod.v;
   }
 
   // Blink GAME OVER when game is over
@@ -452,6 +459,7 @@ void InvadersGame::game_screen() {
 void InvadersGame::enter_game() {
   init_game(20, game_screen); // countdown to reset invaders
   cannons_left = 3;
+  quit_count = 10;
   laser.v = 0;
   reset_invaders();
   reset_player();

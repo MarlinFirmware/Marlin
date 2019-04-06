@@ -322,7 +322,7 @@ void SnakeGame::game_screen() {
   if (!game_state) draw_game_over();
 
   // A click always exits this game
-  if (ui.use_click()) ui.goto_previous_screen();
+  if (ui.use_click()) exit_game();
 }
 
 void SnakeGame::enter_game() {
