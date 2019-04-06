@@ -389,7 +389,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (value != NULL) {
       lcd_put_wchar(':');
       if (extra_row) {
-        // Assume the value is numeric (with no descender)
+        // Assume that value is numeric (with no descender)
         baseline += EDIT_FONT_ASCENT + 2;
         onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }

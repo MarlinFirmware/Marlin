@@ -91,6 +91,9 @@ inline void serial_delay(const millis_t ms) {
   // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
   char* ftostr43sign(const float &x, char plus=' ');
 
+  // Convert signed float to string (5 digit) with -1.2345 / _0.0000 / +1.2345 format
+  char* ftostr54sign(const float &x, char plus=' ');
+
   // Convert unsigned float to rj string with 12345 format
   char* ftostr5rj(const float &x);
 
