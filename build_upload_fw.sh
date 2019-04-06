@@ -1,0 +1,1 @@
+pio run --target upload
