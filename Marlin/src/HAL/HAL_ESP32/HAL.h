@@ -48,6 +48,7 @@
 #include "HAL_timers_ESP32.h"
 
 #include "WebSocketSerial.h"
+#include "FlushableHardwareSerial.h"
 
 // --------------------------------------------------------------------------
 // Defines
@@ -55,7 +56,7 @@
 
 extern portMUX_TYPE spinlock;
 
-#define MYSERIAL0 Serial
+#define MYSERIAL0 flushableSerial
 
 #if ENABLED(WIFISUPPORT)
   #define NUM_SERIAL 2
