@@ -48,12 +48,12 @@ inline void toggle_pins() {
   for (uint8_t i = start; i <= end; i++) {
     pin_t pin = GET_PIN_MAP_PIN(i);
     if (!VALID_PIN(pin)) continue;
-    if ( (!ignore_protection && pin_is_protected(pin)) || M43_NEVER_TOUCH(i) ) {
+    if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
       report_pin_state_extended(pin, ignore_protection, true, "Untouched ");
       SERIAL_EOL();
     }
     else {
-      watchdog_reset();  //  beat the dog
+      watchdog_reset();
       report_pin_state_extended(pin, ignore_protection, true, "Pulsing   ");
       #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
         if (pin == TEENSY_E2) {
@@ -77,16 +77,12 @@ inline void toggle_pins() {
       {
         pinMode(pin, OUTPUT);
         for (int16_t j = 0; j < repeat; j++) {
-          watchdog_reset();  //  beat the dog
-          extDigitalWrite(pin, 0); safe_delay(wait);
-          watchdog_reset();  //  beat the dog
-          extDigitalWrite(pin, 1); safe_delay(wait);
-          watchdog_reset();  //  beat the dog
-          extDigitalWrite(pin, 0); safe_delay(wait);
-          watchdog_reset();  //  beat the dog
+          watchdog_reset(); extDigitalWrite(pin, 0); safe_delay(wait);
+          watchdog_reset(); extDigitalWrite(pin, 1); safe_delay(wait);
+          watchdog_reset(); extDigitalWrite(pin, 0); safe_delay(wait);
+          watchdog_reset();
         }
       }
-
     }
     SERIAL_EOL();
   }
@@ -281,7 +277,7 @@ void GcodeSuite::M43() {
     for (uint8_t i = first_pin; i <= last_pin; i++) {
       pin_t pin = GET_PIN_MAP_PIN(i);
       if (!VALID_PIN(pin)) continue;
-      if ((!ignore_protection && pin_is_protected(pin)) || M43_NEVER_TOUCH(i)) continue;
+      if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
       pinMode(pin, INPUT_PULLUP);
       delay(1);
       /*
@@ -304,7 +300,7 @@ void GcodeSuite::M43() {
       for (uint8_t i = first_pin; i <= last_pin; i++) {
         pin_t pin = GET_PIN_MAP_PIN(i);
         if (!VALID_PIN(pin)) continue;
-        if ( (!ignore_protection && pin_is_protected(pin) ) ||  M43_NEVER_TOUCH(i) ) continue;
+        if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
         const byte val =
           /*
             IS_ANALOG(pin)

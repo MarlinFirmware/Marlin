@@ -43,7 +43,7 @@
 // pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
 //  uses pin index
 #ifndef M43_NEVER_TOUCH
-  #define M43_NEVER_TOUCH(Q)  (Q == 29 || Q == 30 ||  Q == 73)  // USB pins
+  #define M43_NEVER_TOUCH(Q) ((Q) == 29 || (Q) == 30 || (Q) == 73)  // USB pins
 #endif
 
 // active ADC function/mode/code values for PINSEL registers
