@@ -176,7 +176,7 @@ TMC26XStepper::TMC26XStepper(const int16_t in_steps, int16_t cs_pin, int16_t dir
 void TMC26XStepper::start() {
 
   #ifdef TMC_DEBUG1
-    SERIAL_ECHOPGM("\n  TMC26X stepper library  \n");
+    SERIAL_ECHOLNPGM("\n  TMC26X stepper library");
     SERIAL_ECHOPAIR("\n  CS pin: ", cs_pin);
     SERIAL_ECHOPAIR("\n  DIR pin: ", dir_pin);
     SERIAL_ECHOPAIR("\n  STEP pin: ", step_pin);
@@ -191,9 +191,9 @@ void TMC26XStepper::start() {
   pinMode(dir_pin, OUTPUT);
   pinMode(cs_pin, OUTPUT);
   //SET_OUTPUT(STEPPER_ENABLE_PIN);
-  digitalWrite(step_pin, LOW);
-  digitalWrite(dir_pin, LOW);
-  digitalWrite(cs_pin, HIGH);
+  extDigitalWrite(step_pin, LOW);
+  extDigitalWrite(dir_pin, LOW);
+  extDigitalWrite(cs_pin, HIGH);
 
   STEPPER_SPI.begin();
   STEPPER_SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE3));
@@ -261,10 +261,10 @@ char TMC26XStepper::move(void) {
       // increment or decrement the step number,
       // depending on direction:
       if (this->direction == 1)
-        digitalWrite(step_pin, HIGH);
+        extDigitalWrite(step_pin, HIGH);
       else {
-        digitalWrite(dir_pin, HIGH);
-        digitalWrite(step_pin, HIGH);
+        extDigitalWrite(dir_pin, HIGH);
+        extDigitalWrite(step_pin, HIGH);
       }
       // get the timeStamp of when you stepped:
       this->last_step_time = time;
@@ -272,8 +272,8 @@ char TMC26XStepper::move(void) {
       // decrement the steps left:
       steps_left--;
       //disable the step & dir pins
-      digitalWrite(step_pin, LOW);
-      digitalWrite(dir_pin, LOW);
+      extDigitalWrite(step_pin, LOW);
+      extDigitalWrite(dir_pin, LOW);
     }
     return -1;
   }
@@ -830,8 +830,8 @@ void TMC26XStepper::debugLastStatus() {
       uint32_t readout_config = driver_configuration_register_value & READ_SELECTION_PATTERN;
       const int16_t value = getReadoutValue();
       if (readout_config == READ_MICROSTEP_POSTION) {
-        //SERIAL_PRINTF("Microstep postion phase A: ");
-        SERIAL_ECHOPAIR("\n  Microstep postion phase A: ", value);
+        //SERIAL_PRINTF("Microstep position phase A: ");
+        SERIAL_ECHOPAIR("\n  Microstep position phase A: ", value);
       }
       else if (readout_config == READ_STALL_GUARD_READING) {
         //SERIAL_PRINTF("Stall Guard value:");
@@ -864,7 +864,7 @@ inline void TMC26XStepper::send262(uint32_t datagram) {
   //}
 
   //select the TMC driver
-  digitalWrite(cs_pin, LOW);
+  extDigitalWrite(cs_pin, LOW);
 
   //ensure that only valid bist are set (0-19)
   //datagram &=REGISTER_BIT_PATTERN;
@@ -893,7 +893,7 @@ inline void TMC26XStepper::send262(uint32_t datagram) {
   #endif
 
   //deselect the TMC chip
-  digitalWrite(cs_pin, HIGH);
+  extDigitalWrite(cs_pin, HIGH);
 
   //restore the previous SPI mode if neccessary
   //if the mode is not correct set it to mode 3

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -49,6 +49,9 @@ job_recovery_info_t PrintJobRecovery::info;
 #if ENABLED(FWRETRACT)
   #include "fwretract.h"
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+#include "../core/debug_out.h"
 
 PrintJobRecovery recovery;
 
@@ -110,9 +113,7 @@ void PrintJobRecovery::load() {
     (void)file.read(&info, sizeof(info));
     close();
   }
-  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-    debug(PSTR("Load"));
-  #endif
+  debug(PSTR("Load"));
 }
 
 /**
@@ -125,6 +126,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     millis_t ms = millis();
   #endif
 
+  // Did Z change since the last call?
   if (force
     #if DISABLED(SAVE_EACH_CMD_MODE)      // Always save state when enabled
       #if PIN_EXISTS(POWER_LOSS)          // Save if power loss pin is triggered
@@ -133,8 +135,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       #if SAVE_INFO_INTERVAL_MS > 0       // Save if interval is elapsed
         || ELAPSED(ms, next_save_ms)
       #endif
-      // Save every time Z is higher than the last call
-      || current_position[Z_AXIS] > info.current_position[Z_AXIS]
+        // Save every time Z is higher than the last call
+        || current_position[Z_AXIS] > info.current_position[Z_AXIS]
     #endif
   ) {
 
@@ -155,10 +157,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       info.active_hotend = active_extruder;
     #endif
 
-    COPY(info.target_temperature, thermalManager.target_temperature);
+    HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
 
     #if HAS_HEATED_BED
-      info.target_temperature_bed = thermalManager.target_temperature_bed;
+      info.target_temperature_bed = thermalManager.temp_bed.target;
     #endif
 
     #if FAN_COUNT
@@ -176,10 +178,18 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       );
     #endif
 
+    #if ENABLED(GRADIENT_MIX)
+      memcpy(&info.gradient, &mixer.gradient, sizeof(info.gradient));
+    #endif
+
     #if ENABLED(FWRETRACT)
       COPY(info.retract, fwretract.current_retract);
       info.retract_hop = fwretract.current_hop;
     #endif
+
+    //relative mode
+    info.relative_mode = relative_mode;
+    info.relative_modes_e = gcode.axis_relative_modes[E_AXIS];
 
     // Commands in the queue
     info.commands_in_queue = save_queue ? commands_in_queue : 0;
@@ -207,18 +217,14 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
  */
 void PrintJobRecovery::write() {
 
-  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-    debug(PSTR("Write"));
-  #endif
+  debug(PSTR("Write"));
 
   open(false);
   file.seekSet(0);
   const int16_t ret = file.write(&info, sizeof(info));
-  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-    if (ret == -1) SERIAL_ECHOLNPGM("Power-loss file write failed.");
-  #else
-    UNUSED(ret);
-  #endif
+  close();
+
+  if (ret == -1) DEBUG_ECHOLNPGM("Power-loss file write failed.");
 }
 
 /**
@@ -235,7 +241,7 @@ void PrintJobRecovery::resume() {
 
   // Set Z to 0, raise Z by 2mm, and Home (XY only for Cartesian) with no raise
   // (Only do simulated homing in Marlin Dev Mode.)
-  gcode.process_subcommands_now_P(PSTR("G92.0 Z0|G1 Z" STRINGIFY(RECOVERY_ZRAISE) "|G28 R0"
+  gcode.process_subcommands_now_P(PSTR("G92.0 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
     #if ENABLED(MARLIN_DEV_MODE)
       " S"
     #elif !IS_KINEMATIC
@@ -305,6 +311,10 @@ void PrintJobRecovery::resume() {
     }
   #endif
 
+  #if ENABLED(GRADIENT_MIX)
+    memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
+  #endif
+
   // Restore Z (plus raise) and E positions with G92.0
   dtostrf(info.current_position[Z_AXIS] + RECOVERY_ZRAISE, 1, 3, str_1);
   dtostrf(info.current_position[E_AXIS]
@@ -331,6 +341,10 @@ void PrintJobRecovery::resume() {
   sprintf_P(cmd, PSTR("G1 F%d"), info.feedrate);
   gcode.process_subcommands_now(cmd);
 
+  //relative mode
+  if (info.relative_mode) relative_mode = true;
+  if (info.relative_modes_e) gcode.axis_relative_modes[E_AXIS] = true;
+
   // Process commands from the old pending queue
   uint8_t c = info.commands_in_queue, r = info.cmd_queue_index_r;
   for (; c--; r = (r + 1) % BUFSIZE)
@@ -348,67 +362,65 @@ void PrintJobRecovery::resume() {
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 
   void PrintJobRecovery::debug(PGM_P const prefix) {
-    serialprintPGM(prefix);
-    SERIAL_ECHOPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head));
-    SERIAL_ECHOLNPAIR(" valid_foot:", int(info.valid_foot));
+    DEBUG_PRINT_P(prefix);
+    DEBUG_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head), " valid_foot:", int(info.valid_foot));
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
-        SERIAL_ECHOPGM("current_position: ");
+        DEBUG_ECHOPGM("current_position: ");
         LOOP_XYZE(i) {
-          SERIAL_ECHO(info.current_position[i]);
-          if (i < E_AXIS) SERIAL_CHAR(',');
+          if (i) DEBUG_CHAR(',');
+          DEBUG_ECHO(info.current_position[i]);
         }
-        SERIAL_EOL();
-        SERIAL_ECHOLNPAIR("feedrate: ", info.feedrate);
+        DEBUG_EOL();
+        DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
 
         #if HOTENDS > 1
-          SERIAL_ECHOLNPAIR("active_hotend: ", int(info.active_hotend));
+          DEBUG_ECHOLNPAIR("active_hotend: ", int(info.active_hotend));
         #endif
 
-        SERIAL_ECHOPGM("target_temperature: ");
+        DEBUG_ECHOPGM("target_temperature: ");
         HOTEND_LOOP() {
-          SERIAL_ECHO(info.target_temperature[e]);
-          if (e < HOTENDS - 1) SERIAL_CHAR(',');
+          DEBUG_ECHO(info.target_temperature[e]);
+          if (e < HOTENDS - 1) DEBUG_CHAR(',');
         }
-        SERIAL_EOL();
+        DEBUG_EOL();
 
         #if HAS_HEATED_BED
-          SERIAL_ECHOLNPAIR("target_temperature_bed: ", info.target_temperature_bed);
+          DEBUG_ECHOLNPAIR("target_temperature_bed: ", info.target_temperature_bed);
         #endif
 
         #if FAN_COUNT
-          SERIAL_ECHOPGM("fan_speed: ");
-          for (int8_t i = 0; i < FAN_COUNT; i++) {
-            SERIAL_ECHO(int(info.fan_speed[i]));
-            if (i < FAN_COUNT - 1) SERIAL_CHAR(',');
+          DEBUG_ECHOPGM("fan_speed: ");
+          FANS_LOOP(i) {
+            DEBUG_ECHO(int(info.fan_speed[i]));
+            if (i < FAN_COUNT - 1) DEBUG_CHAR(',');
           }
-          SERIAL_EOL();
+          DEBUG_EOL();
         #endif
 
         #if HAS_LEVELING
-          SERIAL_ECHOPAIR("leveling: ", int(info.leveling));
-          SERIAL_ECHOLNPAIR(" fade: ", int(info.fade));
+          DEBUG_ECHOLNPAIR("leveling: ", int(info.leveling), "\n fade: ", int(info.fade));
         #endif
         #if ENABLED(FWRETRACT)
-          SERIAL_ECHOPGM("retract: ");
+          DEBUG_ECHOPGM("retract: ");
           for (int8_t e = 0; e < EXTRUDERS; e++) {
-            SERIAL_ECHO(info.retract[e]);
-            if (e < EXTRUDERS - 1) SERIAL_CHAR(',');
+            DEBUG_ECHO(info.retract[e]);
+            if (e < EXTRUDERS - 1) DEBUG_CHAR(',');
           }
-          SERIAL_EOL();
-          SERIAL_ECHOLNPAIR("retract_hop: ", info.retract_hop);
+          DEBUG_EOL();
+          DEBUG_ECHOLNPAIR("retract_hop: ", info.retract_hop);
         #endif
-        SERIAL_ECHOLNPAIR("cmd_queue_index_r: ", int(info.cmd_queue_index_r));
-        SERIAL_ECHOLNPAIR("commands_in_queue: ", int(info.commands_in_queue));
-        for (uint8_t i = 0; i < info.commands_in_queue; i++) SERIAL_ECHOLNPAIR("> ", info.command_queue[i]);
-        SERIAL_ECHOLNPAIR("sd_filename: ", info.sd_filename);
-        SERIAL_ECHOLNPAIR("sdpos: ", info.sdpos);
-        SERIAL_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
+        DEBUG_ECHOLNPAIR("cmd_queue_index_r: ", int(info.cmd_queue_index_r));
+        DEBUG_ECHOLNPAIR("commands_in_queue: ", int(info.commands_in_queue));
+        for (uint8_t i = 0; i < info.commands_in_queue; i++) DEBUG_ECHOLNPAIR("> ", info.command_queue[i]);
+        DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
+        DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
+        DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
       }
       else
-        SERIAL_ECHOLNPGM("INVALID DATA");
+        DEBUG_ECHOLNPGM("INVALID DATA");
     }
-    SERIAL_ECHOLNPGM("---");
+    DEBUG_ECHOLNPGM("---");
   }
 
 #endif // DEBUG_POWER_LOSS_RECOVERY

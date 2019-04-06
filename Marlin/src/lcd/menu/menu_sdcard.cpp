@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -64,7 +64,7 @@ void lcd_sd_updir() {
     goto_screen(menu_sdcard, last_sdfile_encoderPosition);
     last_sdfile_encoderPosition = 0xFFFF;
 
-    defer_status_screen(true);
+    defer_status_screen();
 
     //#if HAS_GRAPHICAL_LCD
     //  update();

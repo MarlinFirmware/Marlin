@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -68,6 +68,21 @@ namespace ExtUI {
    */
   PGM_P getFirmwareName_str();
 
+  #if HAS_SOFTWARE_ENDSTOPS
+    bool getSoftEndstopState();
+    void setSoftEndstopState(const bool);
+  #endif
+
+  #if HAS_TRINAMIC
+    float getAxisCurrent_mA(const axis_t);
+    float getAxisCurrent_mA(const extruder_t);
+    void  setAxisCurrent_mA(const float, const axis_t);
+    void  setAxisCurrent_mA(const float, const extruder_t);
+
+    int getTMCBumpSensitivity(const axis_t);
+    void setTMCBumpSensitivity(const float, const axis_t);
+  #endif
+
   float getActualTemp_celsius(const heater_t);
   float getActualTemp_celsius(const extruder_t);
   float getTargetTemp_celsius(const heater_t);
@@ -90,6 +105,21 @@ namespace ExtUI {
   float getFeedrate_percent();
   uint8_t getProgress_percent();
   uint32_t getProgress_seconds_elapsed();
+
+  #if HAS_LEVELING
+    bool getLevelingActive();
+    void setLevelingActive(const bool);
+    #if HAS_MESH
+      bool getMeshValid();
+      bed_mesh_t getMeshArray();
+      void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
+      void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);
+    #endif
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    void setHostResponse(const uint8_t);
+  #endif
 
   #if ENABLED(PRINTCOUNTER)
     char* getTotalPrints_str(char buffer[21]);
@@ -117,6 +147,7 @@ namespace ExtUI {
   void setRetractAcceleration_mm_s2(const float);
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
+  void setUserConfirmed(void);
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t);
@@ -136,16 +167,22 @@ namespace ExtUI {
   extruder_t getActiveTool();
   void setActiveTool(const extruder_t, bool no_move);
 
+  #if ENABLED(BABYSTEPPING)
+    int16_t mmToWholeSteps(const float mm, const axis_t axis);
 
-  #if HOTENDS > 1
-    float getNozzleOffset_mm(const axis_t, const extruder_t);
-    void setNozzleOffset_mm(const float, const axis_t, const extruder_t);
+    bool babystepAxis_steps(const int16_t steps, const axis_t axis);
+    void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles);
   #endif
 
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #if HAS_HOTEND_OFFSET
+    float getNozzleOffset_mm(const axis_t, const extruder_t);
+    void setNozzleOffset_mm(const float, const axis_t, const extruder_t);
+    void normalizeNozzleOffset(const axis_t axis);
+  #endif
+
+  #if HAS_BED_PROBE
     float getZOffset_mm();
     void setZOffset_mm(const float);
-    void addZOffset_steps(const int16_t);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
@@ -161,7 +198,7 @@ namespace ExtUI {
     #endif
   #endif
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     bool getFilamentRunoutEnabled();
     void setFilamentRunoutEnabled(const bool);
 
@@ -233,11 +270,12 @@ namespace ExtUI {
   void onMediaError();
   void onMediaRemoved();
   void onPlayTone(const uint16_t frequency, const uint16_t duration);
-  void onPrinterKilled(const char* msg);
+  void onPrinterKilled(PGM_P const msg);
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
-  void onFilamentRunout();
+  void onFilamentRunout(const extruder_t extruder);
+  void onUserConfirmRequired(const char * const msg);
   void onStatusChanged(const char * const msg);
   void onFactoryReset();
   void onStoreSettings();

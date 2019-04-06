@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -41,7 +41,10 @@
 
 #include "ultralcd_DOGM.h"
 #include "u8g_fontutf8.h"
-#include "dogm_Bootscreen.h"
+
+#if ENABLED(SHOW_BOOTSCREEN)
+  #include "dogm_Bootscreen.h"
+#endif
 
 #include "../lcdprint.h"
 #include "../fontutils.h"
@@ -138,6 +141,9 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
       #else
         draw_custom_bootscreen(custom_start_bmp);
       #endif
+      #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+        #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+      #endif
       safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
     }
 
@@ -162,7 +168,7 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
     u8g.firstPage();
     do {
       u8g.drawBitmapP(offx, offy, (START_BMPWIDTH + 7) / 8, START_BMPHEIGHT, start_bmp);
-      ui.set_font(FONT_MENU);
+      set_font(FONT_MENU);
       #ifndef STRING_SPLASH_LINE2
         const uint8_t txt1X = width - (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH);
         u8g.drawStr(txt1X, (height + MENU_FONT_HEIGHT) / 2, STRING_SPLASH_LINE1);
@@ -173,6 +179,9 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
         u8g.drawStr(txt2X, height - (MENU_FONT_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
       #endif
     } while (u8g.nextPage());
+    #ifndef BOOTSCREEN_TIMEOUT
+      #define BOOTSCREEN_TIMEOUT 2500
+    #endif
     safe_delay(BOOTSCREEN_TIMEOUT);
   }
 
@@ -189,7 +198,7 @@ void MarlinUI::init_lcd() {
     OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
   #endif
 
-  #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
+  #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
     SET_OUTPUT(LCD_PINS_DC);
     #if !defined(LCD_RESET_PIN)
       #define LCD_RESET_PIN LCD_PINS_RS
@@ -261,7 +270,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_u8str(i16tostr3(thermalManager.degHotend(extruder)));
       lcd_put_wchar('/');
 
-      if (get_blink() || !thermalManager.is_heater_idle(extruder))
+      if (get_blink() || !thermalManager.hotend_idle[extruder].timed_out)
         lcd_put_u8str(i16tostr3(thermalManager.degTargetHotend(extruder)));
     }
 
@@ -497,7 +506,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY)
+  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
     const unsigned char cw_bmp[] PROGMEM = {
       B00000011,B11111000,B00000000,

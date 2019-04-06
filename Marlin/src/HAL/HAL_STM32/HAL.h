@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -41,8 +41,6 @@
 #include "../shared/HAL_SPI.h"
 #include "fastio_STM32.h"
 #include "watchdog_STM32.h"
-
-#include "HAL_timers_STM32.h"
 
 // --------------------------------------------------------------------------
 // Defines
@@ -100,6 +98,8 @@
 #else
   #define NUM_SERIAL 1
 #endif
+
+#include "HAL_timers_STM32.h"
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -176,7 +176,10 @@ static inline int freeMemory() {
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
+//
 // SPI: Extended functions which take a channel number (hardware SPI only)
+//
+
 /** Write single byte to specified SPI channel */
 void spiSend(uint32_t chan, byte b);
 /** Write buffer to specified SPI channel */
@@ -184,18 +187,19 @@ void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
 /** Read single byte from specified SPI channel */
 uint8_t spiRec(uint32_t chan);
 
-
+//
 // EEPROM
+//
 
-/**
- * Wire library should work for i2c eeproms.
- */
+// Wire library should work for i2c EEPROMs
 void eeprom_write_byte(uint8_t *pos, unsigned char value);
 uint8_t eeprom_read_byte(uint8_t *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
+//
 // ADC
+//
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -99,7 +99,7 @@
 #define MSG_IDEX_MENU                       _UxGT("Modo IDEX")
 #define MSG_IDEX_MODE_AUTOPARK              _UxGT("Auto-Estacionar")
 #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplicação")
-#define MSG_IDEX_MODE_SCALED_COPY           _UxGT("Cópia em Escala")
+#define MSG_IDEX_MODE_MIRRORED_COPY         _UxGT("Cópia espelhada")
 #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Controle Total")
 #define MSG_IDEX_X_OFFSET                   _UxGT("2o bico X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2o bico Y")
@@ -396,7 +396,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Purgar mais")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Continuar Impressão")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Bocal: ")
-#define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Sensor filamento")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Sensor filamento")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Falha ao ir à origem")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Falha ao sondar")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: Muito frio")

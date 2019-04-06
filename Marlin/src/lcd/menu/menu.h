@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -43,19 +43,21 @@ bool printer_busy();
     static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
   };
 
-DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        i16tostr3,       1     );
-DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        i16tostr4sign,   1     );
-DECLARE_MENU_EDIT_TYPE(int8_t,   int8,        i8tostr3,        1     );
-DECLARE_MENU_EDIT_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );
-DECLARE_MENU_EDIT_TYPE(uint16_t, uint16,      ui16tostr3,      1     );
-DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );
-DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );
-DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );
-DECLARE_MENU_EDIT_TYPE(float,    float5,      ftostr5rj,       0.01f );
-DECLARE_MENU_EDIT_TYPE(float,    float51,     ftostr51sign,   10     );
-DECLARE_MENU_EDIT_TYPE(float,    float52sign, ftostr52sign,  100     );
-DECLARE_MENU_EDIT_TYPE(float,    float62,     ftostr62rj,    100     );
-DECLARE_MENU_EDIT_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );
+DECLARE_MENU_EDIT_TYPE(uint8_t,  percent,     ui8tostr_percent,1     );   // 100%       right-justified
+DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        i16tostr3,       1     );   // 123, -12   right-justified
+DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        i16tostr4sign,   1     );   // 1234, -123 right-justified
+DECLARE_MENU_EDIT_TYPE(int8_t,   int8,        i8tostr3,        1     );   // 123, -12   right-justified
+DECLARE_MENU_EDIT_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );   // 123        right-justified
+DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_3,    ui16tostr3,      1     );   // 123, -12   right-justified
+DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_4,    ui16tostr4,      0.1   );   // 1234, -123 right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );   // 123        right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );   // 123.45
+DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );   // 1.234
+DECLARE_MENU_EDIT_TYPE(float,    float5,      ftostr5rj,       0.01f );   // 12345      right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float51,     ftostr51sign,   10     );   // +1234.5
+DECLARE_MENU_EDIT_TYPE(float,    float52sign, ftostr52sign,  100     );   // +123.45
+DECLARE_MENU_EDIT_TYPE(float,    float62,     ftostr62rj,    100     );   // 1234.56    right-justified
+DECLARE_MENU_EDIT_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );   // 12345      right-justified
 
 ////////////////////////////////////////////
 ///////// Menu Item Draw Functions /////////
@@ -81,7 +83,7 @@ FORCE_INLINE void draw_menu_item_edit_P(const bool sel, const uint8_t row, PGM_P
   FORCE_INLINE void draw_menu_item_sdfolder(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) { draw_sd_menu_item(sel, row, pstr, theCard, true); }
 #endif
 
-#if HAS_GRAPHICAL_LCD && (ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY))
+#if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
   void _lcd_zoffset_overlay_gfx(const float zvalue);
 #endif
 
@@ -101,19 +103,21 @@ FORCE_INLINE void draw_menu_item_edit_P(const bool sel, const uint8_t row, PGM_P
   typedef void NAME##_void
 #define DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(NAME) _DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(MenuItemInfo_##NAME::type_t, NAME, MenuItemInfo_##NAME::strfunc)
 
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int3);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int4);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int8);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint8);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52sign);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float62);
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5);
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(percent);          // 100%       right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int3);             // 123, -12   right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int4);             // 1234, -123 right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int8);             // 123, -12   right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint8);            // 123        right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16_3);         // 123, -12   right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16_4);         // 1234, -123 right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);           // 123        right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);          // 123.45
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);          // 1.234
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5);           // 12345      right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51);          // +1234.5
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52sign);      // +123.45
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float62);          // 1234.56    right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5);            // 12345      right-justified
 
 #define draw_menu_item_edit_bool(sel, row, pstr, pstr2, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
 #define draw_menu_item_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
@@ -172,11 +176,13 @@ class TMenuItem : MenuItemBase {
 
 #define DECLARE_MENU_EDIT_ITEM(NAME) typedef TMenuItem<MenuItemInfo_##NAME> MenuItem_##NAME;
 
+DECLARE_MENU_EDIT_ITEM(percent);
 DECLARE_MENU_EDIT_ITEM(int3);
 DECLARE_MENU_EDIT_ITEM(int4);
 DECLARE_MENU_EDIT_ITEM(int8);
 DECLARE_MENU_EDIT_ITEM(uint8);
-DECLARE_MENU_EDIT_ITEM(uint16);
+DECLARE_MENU_EDIT_ITEM(uint16_3);
+DECLARE_MENU_EDIT_ITEM(uint16_4);
 DECLARE_MENU_EDIT_ITEM(float3);
 DECLARE_MENU_EDIT_ITEM(float52);
 DECLARE_MENU_EDIT_ITEM(float43);
@@ -293,18 +299,18 @@ class MenuItem_bool {
   ++_thisItemNr; \
 } while(0)
 
-#define MENU_ITEM_ADDON_START(X) \
+#define MENU_ITEM_ADDON_START(X) do{ \
   if (ui.should_draw() && _menuLineNr == _thisItemNr - 1) { \
     SETCURSOR(X, _lcdLineNr)
 
-#define MENU_ITEM_ADDON_END() } (0)
+#define MENU_ITEM_ADDON_END() } }while(0)
 
 #define STATIC_ITEM(LABEL, ...) STATIC_ITEM_P(PSTR(LABEL), ## __VA_ARGS__)
 
 #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL)
 #define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
-#define MENU_ITEM_P(TYPE, PLABEL, ...)                       _MENU_ITEM_VARIANT_P(TYPE,              , false, PLABEL,                   ## __VA_ARGS__)
-#define MENU_ITEM(TYPE, LABEL, ...)                          _MENU_ITEM_VARIANT_P(TYPE,              , false, PSTR(LABEL),              ## __VA_ARGS__)
+#define MENU_ITEM_P(TYPE, PLABEL, ...)                       _MENU_ITEM_VARIANT_P(TYPE,      , false, PLABEL,                   ## __VA_ARGS__)
+#define MENU_ITEM(TYPE, LABEL, ...)                          _MENU_ITEM_VARIANT_P(TYPE,      , false, PSTR(LABEL),              ## __VA_ARGS__)
 #define MENU_ITEM_EDIT(TYPE, LABEL, ...)                     _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
 #define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...)            _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
 #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...)          _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
@@ -337,21 +343,13 @@ void menu_move();
 void lcd_move_z();
 void _lcd_draw_homing();
 
-void watch_temp_callback_E0();
-void watch_temp_callback_E1();
-void watch_temp_callback_E2();
-void watch_temp_callback_E3();
-void watch_temp_callback_E4();
-void watch_temp_callback_E5();
-void watch_temp_callback_bed();
-
-#define HAS_LINE_TO_Z (ENABLED(DELTA) || ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING) || ENABLED(LEVEL_BED_CORNERS))
+#define HAS_LINE_TO_Z ANY(DELTA, PROBE_MANUALLY, MESH_BED_LEVELING, LEVEL_BED_CORNERS)
 
 #if HAS_LINE_TO_Z
   void line_to_z(const float &z);
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE)
+#if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
   void lcd_enqueue_command(const char * const cmd);
   void lcd_enqueue_commands_P(PGM_P const cmd);
 #endif

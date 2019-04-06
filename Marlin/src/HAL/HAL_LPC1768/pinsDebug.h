@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,7 +32,7 @@
 #define pwm_details(pin) pin = pin    // do nothing  // print PWM details
 #define pwm_status(pin) false //Print a pin's PWM status. Return true if it's currently a PWM pin.
 #define IS_ANALOG(P) (DIGITAL_PIN_TO_ANALOG_PIN(P) >= 0 ? 1 : 0)
-#define digitalRead_mod(p)  digitalRead(p)
+#define digitalRead_mod(p) extDigitalRead(p)
 #define PRINT_PORT(p)
 #define GET_ARRAY_PIN(p) pin_array[p].pin
 #define NAME_FORMAT(p) PSTR("%-##p##s")

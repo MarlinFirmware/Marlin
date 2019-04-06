@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -89,9 +89,9 @@
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
-#ifdef DEFAULT_WEBSITE_URL
+#ifdef BOARD_WEBSITE_URL
   #undef  WEBSITE_URL
-  #define WEBSITE_URL DEFAULT_WEBSITE_URL
+  #define WEBSITE_URL BOARD_WEBSITE_URL
 #endif
 
 #if HAS_GRAPHICAL_LCD
@@ -285,6 +285,8 @@
 #define MSG_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
 
 #define MSG_HEATER_BED                      "bed"
+#define MSG_HEATER_CHAMBER                  "chamber"
+
 #define MSG_STOPPED_HEATER                  ", system stopped! Heater_ID: "
 #define MSG_REDUNDANCY                      "Heater switched off. Temperature difference between temp sensors is too high !"
 #define MSG_T_HEATING_FAILED                "Heating failed"

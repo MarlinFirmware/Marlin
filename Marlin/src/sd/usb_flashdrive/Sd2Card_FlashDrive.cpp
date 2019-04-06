@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,7 +31,7 @@
 
 #include "Sd2Card_FlashDrive.h"
 
-#if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+#if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
   #include "../../lcd/ultralcd.h"
 #endif
 
@@ -63,7 +63,7 @@ void Sd2Card::idle() {
       SERIAL_ECHOPGM("Starting USB host...");
       if (!usb.start()) {
         SERIAL_ECHOPGM(" Failed. Retrying in 2s.");
-        #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+        #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
           LCD_MESSAGEPGM("USB start failed");
         #endif
         state = USB_HOST_DELAY_INIT;
@@ -110,7 +110,7 @@ bool Sd2Card::init(const uint8_t sckRateID/*=0*/, const pin_t chipSelectPin/*=SD
 
   const uint32_t sectorSize = bulk.GetSectorSize(0);
   if (sectorSize != 512) {
-    SERIAL_ECHOLNPAIR("Expecting sector size of 512, got:", sectorSize);
+    SERIAL_ECHOLNPAIR("Expecting sector size of 512. Got: ", sectorSize);
     return false;
   }
 

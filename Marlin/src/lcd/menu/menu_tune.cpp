@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,24 +38,30 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+#if ENABLED(SINGLENOZZLE)
+  #include "../../module/tool_change.h"
+#endif
+
 // Refresh the E factor after changing flow
-void _lcd_refresh_e_factor_0() { planner.refresh_e_factor(0); }
-#if EXTRUDERS > 1
-  void _lcd_refresh_e_factor() { planner.refresh_e_factor(active_extruder); }
-  void _lcd_refresh_e_factor_1() { planner.refresh_e_factor(1); }
-  #if EXTRUDERS > 2
-    void _lcd_refresh_e_factor_2() { planner.refresh_e_factor(2); }
-    #if EXTRUDERS > 3
-      void _lcd_refresh_e_factor_3() { planner.refresh_e_factor(3); }
-      #if EXTRUDERS > 4
-        void _lcd_refresh_e_factor_4() { planner.refresh_e_factor(4); }
-        #if EXTRUDERS > 5
-          void _lcd_refresh_e_factor_5() { planner.refresh_e_factor(5); }
-        #endif // EXTRUDERS > 5
-      #endif // EXTRUDERS > 4
-    #endif // EXTRUDERS > 3
-  #endif // EXTRUDERS > 2
-#endif // EXTRUDERS > 1
+#if EXTRUDERS
+  void _lcd_refresh_e_factor_0() { planner.refresh_e_factor(0); }
+  #if EXTRUDERS > 1
+    void _lcd_refresh_e_factor() { planner.refresh_e_factor(active_extruder); }
+    void _lcd_refresh_e_factor_1() { planner.refresh_e_factor(1); }
+    #if EXTRUDERS > 2
+      void _lcd_refresh_e_factor_2() { planner.refresh_e_factor(2); }
+      #if EXTRUDERS > 3
+        void _lcd_refresh_e_factor_3() { planner.refresh_e_factor(3); }
+        #if EXTRUDERS > 4
+          void _lcd_refresh_e_factor_4() { planner.refresh_e_factor(4); }
+          #if EXTRUDERS > 5
+            void _lcd_refresh_e_factor_5() { planner.refresh_e_factor(5); }
+          #endif // EXTRUDERS > 5
+        #endif // EXTRUDERS > 4
+      #endif // EXTRUDERS > 3
+    #endif // EXTRUDERS > 2
+  #endif // EXTRUDERS > 1
+#endif // EXTRUDERS
 
 #if ENABLED(BABYSTEPPING)
 
@@ -78,13 +84,13 @@ void _lcd_refresh_e_factor_0() { planner.refresh_e_factor(0); }
   #if ENABLED(BABYSTEP_XY)
     void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEP_X)); }
     void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEP_Y)); }
-    void lcd_babystep_x() { ui.goto_screen(_lcd_babystep_x); babysteps_done = 0; ui.defer_status_screen(true); }
-    void lcd_babystep_y() { ui.goto_screen(_lcd_babystep_y); babysteps_done = 0; ui.defer_status_screen(true); }
+    void lcd_babystep_x() { ui.goto_screen(_lcd_babystep_x); babysteps_done = 0; ui.defer_status_screen(); }
+    void lcd_babystep_y() { ui.goto_screen(_lcd_babystep_y); babysteps_done = 0; ui.defer_status_screen(); }
   #endif
 
   #if DISABLED(BABYSTEP_ZPROBE_OFFSET)
     void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEP_Z)); }
-    void lcd_babystep_z() { ui.goto_screen(_lcd_babystep_z); babysteps_done = 0; ui.defer_status_screen(true); }
+    void lcd_babystep_z() { ui.goto_screen(_lcd_babystep_z); babysteps_done = 0; ui.defer_status_screen(); }
   #endif
 
 #endif // BABYSTEPPING
@@ -101,7 +107,7 @@ void menu_tune() {
   //
   // Manual bed leveling, Bed Z:
   //
-  #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
+  #if BOTH(MESH_BED_LEVELING, LCD_BED_LEVELING)
     MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
   #endif
 
@@ -110,9 +116,9 @@ void menu_tune() {
   // Nozzle [1-4]:
   //
   #if HOTENDS == 1
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, thermalManager.start_watching_E0);
   #else // HOTENDS > 1
-    #define EDIT_NOZZLE(N) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_LCD_N##N, &thermalManager.target_temperature[N], 0, HEATER_##N##_MAXTEMP - 15, watch_temp_callback_E##N)
+    #define EDIT_NOZZLE(N) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_LCD_N##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, thermalManager.start_watching_E##N)
     EDIT_NOZZLE(0);
     EDIT_NOZZLE(1);
     #if HOTENDS > 2
@@ -129,11 +135,15 @@ void menu_tune() {
     #endif // HOTENDS > 2
   #endif // HOTENDS > 1
 
+  #if ENABLED(SINGLENOZZLE)
+    MENU_MULTIPLIER_ITEM_EDIT(uint16_3, MSG_NOZZLE_STANDBY, &singlenozzle_temp[active_extruder ? 0 : 1], 0, HEATER_0_MAXTEMP - 15);
+  #endif
+
   //
   // Bed:
   //
   #if HAS_HEATED_BED
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAXTEMP - 10, thermalManager.start_watching_bed);
   #endif
 
   //
@@ -166,7 +176,7 @@ void menu_tune() {
   //
   #if EXTRUDERS == 1
     MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
-  #else // EXTRUDERS > 1
+  #elif EXTRUDERS
     MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, _lcd_refresh_e_factor);
     #define EDIT_FLOW(N) MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_LCD_N##N, &planner.flow_percentage[N], 10, 999, _lcd_refresh_e_factor_##N)
     EDIT_FLOW(0);
@@ -183,7 +193,7 @@ void menu_tune() {
         #endif // EXTRUDERS > 4
       #endif // EXTRUDERS > 3
     #endif // EXTRUDERS > 2
-  #endif // EXTRUDERS > 1
+  #endif // EXTRUDERS
 
   //
   // Babystep X:

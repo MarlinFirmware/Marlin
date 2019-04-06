@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -86,26 +86,26 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
       if (soft_endstops_enabled) switch (axis) {
         case X_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-            min = soft_endstop_min[X_AXIS];
+            min = soft_endstop[X_AXIS].min;
           #endif
           #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-            max = soft_endstop_max[X_AXIS];
+            max = soft_endstop[X_AXIS].max;
           #endif
           break;
         case Y_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-            min = soft_endstop_min[Y_AXIS];
+            min = soft_endstop[Y_AXIS].min;
           #endif
           #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-            max = soft_endstop_max[Y_AXIS];
+            max = soft_endstop[Y_AXIS].max;
           #endif
           break;
         case Z_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-            min = soft_endstop_min[Z_AXIS];
+            min = soft_endstop[Z_AXIS].min;
           #endif
           #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-            max = soft_endstop_max[Z_AXIS];
+            max = soft_endstop[Z_AXIS].max;
           #endif
         default: break;
       }
@@ -235,7 +235,7 @@ inline void lcd_move_e() { _lcd_move_e(); }
 screenFunc_t _manual_move_func_ptr;
 
 void _goto_manual_move(const float scale) {
-  ui.defer_status_screen(true);
+  ui.defer_status_screen();
   move_menu_scale = scale;
   ui.goto_screen(_manual_move_func_ptr);
 }
@@ -248,12 +248,9 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   START_MENU();
   if (LCD_HEIGHT >= 4) {
     switch (axis) {
-      case X_AXIS:
-        STATIC_ITEM(MSG_MOVE_X, true, true); break;
-      case Y_AXIS:
-        STATIC_ITEM(MSG_MOVE_Y, true, true); break;
-      case Z_AXIS:
-        STATIC_ITEM(MSG_MOVE_Z, true, true); break;
+      case X_AXIS: STATIC_ITEM(MSG_MOVE_X, true, true); break;
+      case Y_AXIS: STATIC_ITEM(MSG_MOVE_Y, true, true); break;
+      case Z_AXIS: STATIC_ITEM(MSG_MOVE_Z, true, true); break;
       default:
         #if ENABLED(MANUAL_E_MOVES_RELATIVE)
           manual_move_e_origin = current_position[E_AXIS];
@@ -338,7 +335,7 @@ void menu_move() {
   else
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 
-  #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(SWITCHING_NOZZLE)
+  #if EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
 
     #if EXTRUDERS == 6
       switch (active_extruder) {
@@ -379,7 +376,7 @@ void menu_move() {
 
   #endif
 
-  #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(SWITCHING_NOZZLE)
+  #if EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
 
     // Only the current...
     MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_get_e_amount);

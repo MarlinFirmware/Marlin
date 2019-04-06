@@ -1,7 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (C) 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -123,7 +122,7 @@
 //
 // Augmentation for auto-assigning RAMPS plugs
 //
-#if DISABLED(IS_RAMPS_EEB) && DISABLED(IS_RAMPS_EEF) && DISABLED(IS_RAMPS_EFB) && DISABLED(IS_RAMPS_EFF) && DISABLED(IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
+#if DISABLED(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
   #if HOTENDS > 1
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB
@@ -174,13 +173,13 @@
 #endif
 
 #ifndef FAN_PIN
-  #if ENABLED(IS_RAMPS_EFB) || ENABLED(IS_RAMPS_EFF)   // Hotend, Fan, Bed or Hotend, Fan, Fan
+  #if EITHER(IS_RAMPS_EFB, IS_RAMPS_EFF)          // Hotend, Fan, Bed or Hotend, Fan, Fan
     #define FAN_PIN        RAMPS_D9_PIN
-  #elif ENABLED(IS_RAMPS_EEF) || ENABLED(IS_RAMPS_SF)  // Hotend, Hotend, Fan or Spindle, Fan
+  #elif EITHER(IS_RAMPS_EEF, IS_RAMPS_SF)         // Hotend, Hotend, Fan or Spindle, Fan
     #define FAN_PIN        RAMPS_D8_PIN
-  #elif ENABLED(IS_RAMPS_EEB)                          // Hotend, Hotend, Bed
-    #define FAN_PIN        P1_18   // (4) IO pin. Buffer needed
-  #else                                                // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
+  #elif ENABLED(IS_RAMPS_EEB)                  // Hotend, Hotend, Bed
+    #define FAN_PIN        P1_18               // (4) IO pin. Buffer needed
+  #else                                        // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
     #define FAN_PIN        RAMPS_D9_PIN
   #endif
 #endif
@@ -196,6 +195,10 @@
 #endif
 
 #define PS_ON_PIN          P2_12   // (12)
+
+#if !defined(MAX6675_SS_PIN) && DISABLED(USE_ZMAX_PLUG)
+  #define MAX6675_SS_PIN   P1_28
+#endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENABLE_PIN)
   #if !defined(NUM_SERVOS) || NUM_SERVOS < 4   // Try to use servo connector
@@ -290,7 +293,7 @@
     //#define SHIFT_EN     P1_22   // (41)  J5-4 & AUX-4
   #endif
 
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
     // #define LCD_SCREEN_ROT_180
 
     #define BTN_EN1        P3_26   // (31) J3-2 & AUX-4
@@ -327,7 +330,6 @@
 
   #if ENABLED(MINIPANEL)
     // GLCD features
-    //#define LCD_CONTRAST   190
     // Uncomment screen orientation
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180

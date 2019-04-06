@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && (ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION))
+#if HAS_LCD_MENU && EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
 
 #include "menu.h"
 #include "../../module/delta.h"
@@ -50,8 +50,11 @@ void _man_probe_pt(const float &rx, const float &ry) {
   float lcd_probe_pt(const float &rx, const float &ry) {
     _man_probe_pt(rx, ry);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
-    ui.defer_status_screen(true);
+    ui.defer_status_screen();
     wait_for_user = true;
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Delta Calibration in progress"), PSTR("Continue"));
+    #endif
     while (wait_for_user) idle();
     KEEPALIVE_STATE(IN_HANDLER);
     ui.goto_previous_screen_no_defer();

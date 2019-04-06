@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,12 +32,19 @@
 
 #include "../../module/configuration_store.h"
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/power_loss_recovery.h"
+#endif
+
+#if HAS_BED_PROBE
+  #include "../../module/probe.h"
+  #if ENABLED(BLTOUCH)
+    #include "../../feature/bltouch.h"
+  #endif
 #endif
 
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
@@ -101,7 +108,7 @@ static void lcd_factory_settings() {
   void menu_tool_change() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    #if ENABLED(TOOLCHANGE_PARK)
+    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, 200);
       MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
       MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);
@@ -134,10 +141,10 @@ static void lcd_factory_settings() {
       ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
       : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
     );
-    //MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, need_g28
-    //  ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
-    //  : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
-    //);
+    MENU_ITEM(gcode, MSG_IDEX_MODE_MIRRORED_COPY, need_g28
+      ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
+      : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
+    );
     MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
     MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);
     MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
@@ -153,10 +160,15 @@ static void lcd_factory_settings() {
   void menu_bltouch() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_DEPLOY, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_DEPLOY)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_STOW, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_STOW)));
+    MENU_ITEM(function, MSG_BLTOUCH_RESET, bltouch.reset);
+    MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, bltouch.selftest);
+    MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch._deploy);
+    MENU_ITEM(function, MSG_BLTOUCH_STOW, bltouch._stow);
+    #if ENABLED(BLTOUCH_V3)
+      MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch.set_SW_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch.set_5V_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch.set_OD_mode);
+    #endif
     END_MENU();
   }
 
@@ -192,58 +204,13 @@ static void lcd_factory_settings() {
     #endif
     MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &fwretract.settings.retract_feedrate_mm_s, 1, 999);
     MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_ZHOP, &fwretract.settings.retract_zraise, 0, 999);
-    MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_RECOVER, &fwretract.settings.retract_recover_length, -100, 100);
+    MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_RECOVER, &fwretract.settings.retract_recover_extra, -100, 100);
     #if EXTRUDERS > 1
-      MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_RECOVER_SWAP, &fwretract.settings.swap_retract_recover_length, -100, 100);
+      MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_RECOVER_SWAP, &fwretract.settings.swap_retract_recover_extra, -100, 100);
     #endif
     MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &fwretract.settings.retract_recover_feedrate_mm_s, 1, 999);
     #if EXTRUDERS > 1
       MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVER_SWAPF, &fwretract.settings.swap_retract_recover_feedrate_mm_s, 1, 999);
-    #endif
-    END_MENU();
-  }
-
-#endif
-
-#if ENABLED(DAC_STEPPER_CURRENT)
-
-  #include "../../feature/dac/stepper_dac.h"
-
-  uint8_t driverPercent[XYZE];
-  inline void dac_driver_getValues() { LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i); }
-  static void dac_driver_commit() { dac_current_set_percents(driverPercent); }
-
-  void menu_dac() {
-    dac_driver_getValues();
-    START_MENU();
-    MENU_BACK(MSG_CONTROL);
-    #define EDIT_DAC_PERCENT(N) MENU_ITEM_EDIT_CALLBACK(uint8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
-    EDIT_DAC_PERCENT(X);
-    EDIT_DAC_PERCENT(Y);
-    EDIT_DAC_PERCENT(Z);
-    EDIT_DAC_PERCENT(E);
-    MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_commit_eeprom);
-    END_MENU();
-  }
-
-#endif
-
-#if HAS_MOTOR_CURRENT_PWM
-
-  #include "../../module/stepper.h"
-
-  void menu_pwm() {
-    START_MENU();
-    MENU_BACK(MSG_CONTROL);
-    #define EDIT_CURRENT_PWM(LABEL,I) MENU_ITEM_EDIT_CALLBACK(long5, LABEL, &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-      EDIT_CURRENT_PWM(MSG_X MSG_Y, 0);
-    #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-      EDIT_CURRENT_PWM(MSG_Z, 1);
-    #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-      EDIT_CURRENT_PWM(MSG_E, 2);
     #endif
     END_MENU();
   }
@@ -279,7 +246,7 @@ static void lcd_factory_settings() {
       MENU_ITEM_EDIT(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
     #endif
     #if HAS_HEATED_BED
-      MENU_ITEM_EDIT(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 15);
+      MENU_ITEM_EDIT(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 10);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
@@ -305,12 +272,18 @@ void menu_configuration() {
 
   MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, menu_advanced_settings);
 
+  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+    MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+  #elif HAS_BED_PROBE
+    MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+  #endif
+
   const bool busy = printer_busy();
   if (!busy) {
     //
     // Delta Calibration
     //
-    #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
+    #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
       MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 
@@ -334,7 +307,7 @@ void menu_configuration() {
   // Set Case light on/off/brightness
   //
   #if ENABLED(MENU_ITEM_CASE_LIGHT)
-    if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
+    if (PWM_PIN(CASE_LIGHT_PIN))
       MENU_ITEM(submenu, MSG_CASE_LIGHT, menu_case_light);
     else
       MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
@@ -346,15 +319,9 @@ void menu_configuration() {
   #if ENABLED(FWRETRACT)
     MENU_ITEM(submenu, MSG_RETRACT, menu_config_retract);
   #endif
-  #if ENABLED(DAC_STEPPER_CURRENT)
-    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_dac);
-  #endif
-  #if HAS_MOTOR_CURRENT_PWM
-    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_pwm);
-  #endif
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR_ENABLE, &runout.enabled, runout.reset);
+  #if HAS_FILAMENT_SENSOR
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -66,8 +66,12 @@ void GcodeSuite::M420() {
         bilinear_grid_spacing[Y_AXIS] = (MAX_PROBE_Y - (MIN_PROBE_Y)) / (GRID_MAX_POINTS_Y - 1);
       #endif
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
           Z_VALUES(x, y) = 0.001 * random(-200, 200);
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
+          #endif
+        }
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_X) " mesh ");
       SERIAL_ECHOPAIR(" (", MIN_PROBE_X);
       SERIAL_CHAR(','); SERIAL_ECHO(MIN_PROBE_Y);
@@ -176,6 +180,9 @@ void GcodeSuite::M420() {
             #if ENABLED(ABL_BILINEAR_SUBDIVISION)
               bed_level_virt_interpolate();
             #endif
+            #if ENABLED(EXTENSIBLE_UI)
+              ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
+            #endif
           }
 
         #endif
@@ -183,7 +190,7 @@ void GcodeSuite::M420() {
 
     }
     else if (to_enable || seenV) {
-      SERIAL_ERROR_MSG("Invalid mesh.");
+      SERIAL_ECHO_MSG("Invalid mesh.");
       goto EXIT_M420;
     }
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -45,12 +45,11 @@
 #define OUTPUT 1
 #define INPUT_PULLUP 2
 
-
 uint8_t LPC1768_PIN_PORT(const uint8_t pin);
 uint8_t LPC1768_PIN_PIN(const uint8_t pin);
 
 #ifdef __cplusplus
-    extern "C" {
+  extern "C" {
 #endif
 
 // I/O functions
@@ -63,22 +62,21 @@ void pinMode_LCD(uint8_t pin, uint8_t mode) {
                              PINSEL_FUNC_0,
                              PINSEL_PINMODE_TRISTATE,
                              PINSEL_PINMODE_NORMAL };
-  switch(mode) {
-  case INPUT:
-    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
-    PINSEL_ConfigPin(&config);
-    break;
-  case OUTPUT:
-    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR |=  LPC_PIN(LPC1768_PIN_PIN(pin));
-    PINSEL_ConfigPin(&config);
-    break;
-  case INPUT_PULLUP:
-    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
-    config.Pinmode = PINSEL_PINMODE_PULLUP;
-    PINSEL_ConfigPin(&config);
-    break;
-  default:
-    break;
+  switch (mode) {
+    case INPUT:
+      LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
+      PINSEL_ConfigPin(&config);
+      break;
+    case OUTPUT:
+      LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR |=  LPC_PIN(LPC1768_PIN_PIN(pin));
+      PINSEL_ConfigPin(&config);
+      break;
+    case INPUT_PULLUP:
+      LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
+      config.Pinmode = PINSEL_PINMODE_PULLUP;
+      PINSEL_ConfigPin(&config);
+      break;
+    default: break;
   }
 }
 
@@ -104,7 +102,6 @@ uint8_t u8g_GetPinLevel(uint8_t pin) {
   #define LPC1768_PIN_PIN(pin) ((uint8_t)(pin & 0b11111))
   return (uint32_t)LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOPIN & LPC_PIN(LPC1768_PIN_PIN(pin)) ? 1 : 0;
 }
-
 
 #ifdef __cplusplus
   }

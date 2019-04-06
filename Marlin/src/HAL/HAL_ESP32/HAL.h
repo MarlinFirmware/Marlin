@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,20 +31,24 @@
 #include <stdint.h>
 
 #undef DISABLED
-#undef _BV
+#undef M_PI
 
 #include <Arduino.h>
 
 #undef DISABLED
-#define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
+#define DISABLED(V...) DO(DIS,&&,V)
 
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
 #include "fastio_ESP32.h"
 #include "watchdog_ESP32.h"
+#include "i2s.h"
 
 #include "HAL_timers_ESP32.h"
+
+#include "WebSocketSerial.h"
+#include "FlushableHardwareSerial.h"
 
 // --------------------------------------------------------------------------
 // Defines
@@ -52,8 +56,14 @@
 
 extern portMUX_TYPE spinlock;
 
-#define NUM_SERIAL 1
-#define MYSERIAL0 Serial
+#define MYSERIAL0 flushableSerial
+
+#if ENABLED(WIFISUPPORT)
+  #define NUM_SERIAL 2
+  #define MYSERIAL1 webSocketSerial
+#else
+  #define NUM_SERIAL 1
+#endif
 
 #define CRITICAL_SECTION_START portENTER_CRITICAL(&spinlock)
 #define CRITICAL_SECTION_END   portEXIT_CRITICAL(&spinlock)

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -142,7 +142,7 @@
 //#define NEOPIXEL_PIN      PF13
 
 //
-// Prusa i3 MK2 Multi Material Multiplexer Support
+// Průša i3 MK2 Multi Material Multiplexer Support
 //
 
 #define E_MUX0_PIN         PG3

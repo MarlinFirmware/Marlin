@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -161,7 +161,7 @@
     #define DOGLCD_A0      27
   #endif
 
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
     #define DOGLCD_A0           16
     #define KILL_PIN            51
     #define STAT_LED_BLUE_PIN   29

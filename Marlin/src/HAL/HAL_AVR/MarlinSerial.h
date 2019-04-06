@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -274,6 +274,24 @@
   #endif
 
 #endif // !USBCON
+
+
+#if defined(INTERNAL_SERIAL_PORT)
+  template <uint8_t serial>
+  struct MarlinInternalSerialCfg {
+    static constexpr int PORT               = serial;
+    static constexpr unsigned int RX_SIZE   = 32;
+    static constexpr unsigned int TX_SIZE   = 32;
+    static constexpr bool XONOFF            = false;
+    static constexpr bool EMERGENCYPARSER   = false;
+    static constexpr bool DROPPED_RX        = false;
+    static constexpr bool RX_OVERRUNS       = false;
+    static constexpr bool RX_FRAMING_ERRORS = false;
+    static constexpr bool MAX_RX_QUEUED     = false;
+  };
+
+  extern MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>> internalSerial;
+#endif
 
 // Use the UART for Bluetooth in AT90USB configurations
 #if defined(USBCON) && ENABLED(BLUETOOTH)

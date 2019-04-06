@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,7 +34,17 @@
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(WIFISUPPORT)
-  #include "ota.h"
+  #include <ESPAsyncWebServer.h>
+  #include "wifi.h"
+  #if ENABLED(OTASUPPORT)
+    #include "ota.h"
+  #endif
+  #if ENABLED(WEBSUPPORT)
+    #include "web.h"
+    #include "spiffs.h"
+  #endif
+#elif ENABLED(EEPROM_SETTINGS)
+  #include "spiffs.h"
 #endif
 
 // --------------------------------------------------------------------------
@@ -83,12 +93,24 @@ esp_adc_cal_characteristics_t characteristics;
 
 void HAL_init(void) {
   #if ENABLED(WIFISUPPORT)
-    OTA_init();
+    wifi_init();
+    #if ENABLED(OTASUPPORT)
+      OTA_init();
+    #endif
+    #if ENABLED(WEBSUPPORT)
+      spiffs_init();
+      web_init();
+    #endif
+    server.begin();
+  #elif ENABLED(EEPROM_SETTINGS)
+    spiffs_init();
   #endif
+
+  i2s_init();
 }
 
 void HAL_idletask(void) {
-  #if ENABLED(WIFISUPPORT)
+  #if ENABLED(OTASUPPORT)
     OTA_handle();
   #endif
 }

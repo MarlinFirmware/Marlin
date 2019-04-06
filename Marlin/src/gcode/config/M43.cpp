@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,6 +32,10 @@
 #if HAS_Z_SERVO_PROBE
   #include "../../module/probe.h"
   #include "../../module/servo.h"
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../../feature/host_actions.h"
 #endif
 
 inline void toggle_pins() {
@@ -73,9 +77,9 @@ inline void toggle_pins() {
       {
         pinMode(pin, OUTPUT);
         for (int16_t j = 0; j < repeat; j++) {
-          digitalWrite(pin, 0); safe_delay(wait);
-          digitalWrite(pin, 1); safe_delay(wait);
-          digitalWrite(pin, 0); safe_delay(wait);
+          extDigitalWrite(pin, 0); safe_delay(wait);
+          extDigitalWrite(pin, 1); safe_delay(wait);
+          extDigitalWrite(pin, 0); safe_delay(wait);
         }
       }
 
@@ -122,7 +126,7 @@ inline void servo_probe_test() {
 
       probe_inverting = Z_MIN_ENDSTOP_INVERTING;
 
-    #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
+    #elif USES_Z_MIN_PROBE_ENDSTOP
 
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       SERIAL_ECHOLNPAIR(". probe uses Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
@@ -281,11 +285,14 @@ void GcodeSuite::M43() {
           pin_state[pin - first_pin] = analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)); // int16_t pin_state[...]
         else
       //*/
-          pin_state[i - first_pin] = digitalRead(pin);
+          pin_state[i - first_pin] = extDigitalRead(pin);
     }
 
     #if HAS_RESUME_CONTINUE
       wait_for_user = true;
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), PSTR("Continue"));
+      #endif
       KEEPALIVE_STATE(PAUSED_FOR_USER);
     #endif
 
@@ -300,7 +307,7 @@ void GcodeSuite::M43() {
               ? analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)) : // int16_t val
               :
           //*/
-            digitalRead(pin);
+            extDigitalRead(pin);
         if (val != pin_state[i - first_pin]) {
           report_pin_state_extended(pin, ignore_protection, false);
           pin_state[i - first_pin] = val;
