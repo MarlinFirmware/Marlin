@@ -227,13 +227,11 @@ bool I2CPositionEncoder::passes_test(const bool report) {
   if (report) {
     if (H != I2CPE_MAG_SIG_GOOD) SERIAL_ECHOPGM("Warning. ");
     SERIAL_ECHO(axis_codes[encoderAxis]);
-    SERIAL_ECHOPGM(" axis ");
-    serialprintPGM(H == I2CPE_MAG_SIG_BAD ? PSTR("magnetic strip ") : PSTR("encoder "));
+    serial_ternary(H == I2CPE_MAG_SIG_BAD, PSTR(" axis "), PSTR("magnetic strip "), PSTR("encoder "));
     switch (H) {
       case I2CPE_MAG_SIG_GOOD:
       case I2CPE_MAG_SIG_MID:
-        SERIAL_ECHOLNPGM("passes test; field strength ");
-        serialprintPGM(H == I2CPE_MAG_SIG_GOOD ? PSTR("good.\n") : PSTR("fair.\n"));
+        serial_ternary(H == I2CPE_MAG_SIG_GOOD, PSTR("passes test; field strength "), PSTR("good"), PSTR("fair"), PSTR(".\n"));
         break;
       default:
         SERIAL_ECHOLNPGM("not detected!");

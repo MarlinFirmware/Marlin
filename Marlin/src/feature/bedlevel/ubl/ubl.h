@@ -39,14 +39,6 @@
 #define USE_NOZZLE_AS_REFERENCE 0
 #define USE_PROBE_AS_REFERENCE 1
 
-// ubl_motion.cpp
-
-#if ENABLED(UBL_DEVEL_DEBUGGING)
-  void debug_current_and_destination(PGM_P const title);
-#else
-  FORCE_INLINE void debug_current_and_destination(PGM_P const title) { UNUSED(title); }
-#endif
-
 // ubl_G29.cpp
 
 enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };

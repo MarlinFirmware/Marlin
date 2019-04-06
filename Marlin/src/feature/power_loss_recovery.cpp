@@ -50,6 +50,9 @@ job_recovery_info_t PrintJobRecovery::info;
   #include "fwretract.h"
 #endif
 
+#define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+#include "../core/debug_out.h"
+
 PrintJobRecovery recovery;
 
 /**
@@ -110,9 +113,7 @@ void PrintJobRecovery::load() {
     (void)file.read(&info, sizeof(info));
     close();
   }
-  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-    debug(PSTR("Load"));
-  #endif
+  debug(PSTR("Load"));
 }
 
 /**
@@ -216,20 +217,14 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
  */
 void PrintJobRecovery::write() {
 
-  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-    debug(PSTR("Write"));
-  #endif
+  debug(PSTR("Write"));
 
   open(false);
   file.seekSet(0);
   const int16_t ret = file.write(&info, sizeof(info));
   close();
 
-  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-    if (ret == -1) SERIAL_ECHOLNPGM("Power-loss file write failed.");
-  #else
-    UNUSED(ret);
-  #endif
+  if (ret == -1) DEBUG_ECHOLNPGM("Power-loss file write failed.");
 }
 
 /**
@@ -367,65 +362,65 @@ void PrintJobRecovery::resume() {
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 
   void PrintJobRecovery::debug(PGM_P const prefix) {
-    serialprintPGM(prefix);
-    SERIAL_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head), " valid_foot:", int(info.valid_foot));
+    DEBUG_PRINT_P(prefix);
+    DEBUG_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head), " valid_foot:", int(info.valid_foot));
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
-        SERIAL_ECHOPGM("current_position: ");
+        DEBUG_ECHOPGM("current_position: ");
         LOOP_XYZE(i) {
-          if (i) SERIAL_CHAR(',');
-          SERIAL_ECHO(info.current_position[i]);
+          if (i) DEBUG_CHAR(',');
+          DEBUG_ECHO(info.current_position[i]);
         }
-        SERIAL_EOL();
-        SERIAL_ECHOLNPAIR("feedrate: ", info.feedrate);
+        DEBUG_EOL();
+        DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
 
         #if HOTENDS > 1
-          SERIAL_ECHOLNPAIR("active_hotend: ", int(info.active_hotend));
+          DEBUG_ECHOLNPAIR("active_hotend: ", int(info.active_hotend));
         #endif
 
-        SERIAL_ECHOPGM("target_temperature: ");
+        DEBUG_ECHOPGM("target_temperature: ");
         HOTEND_LOOP() {
-          SERIAL_ECHO(info.target_temperature[e]);
-          if (e < HOTENDS - 1) SERIAL_CHAR(',');
+          DEBUG_ECHO(info.target_temperature[e]);
+          if (e < HOTENDS - 1) DEBUG_CHAR(',');
         }
-        SERIAL_EOL();
+        DEBUG_EOL();
 
         #if HAS_HEATED_BED
-          SERIAL_ECHOLNPAIR("target_temperature_bed: ", info.target_temperature_bed);
+          DEBUG_ECHOLNPAIR("target_temperature_bed: ", info.target_temperature_bed);
         #endif
 
         #if FAN_COUNT
-          SERIAL_ECHOPGM("fan_speed: ");
+          DEBUG_ECHOPGM("fan_speed: ");
           FANS_LOOP(i) {
-            SERIAL_ECHO(int(info.fan_speed[i]));
-            if (i < FAN_COUNT - 1) SERIAL_CHAR(',');
+            DEBUG_ECHO(int(info.fan_speed[i]));
+            if (i < FAN_COUNT - 1) DEBUG_CHAR(',');
           }
-          SERIAL_EOL();
+          DEBUG_EOL();
         #endif
 
         #if HAS_LEVELING
-          SERIAL_ECHOLNPAIR("leveling: ", int(info.leveling), "\n fade: ", int(info.fade));
+          DEBUG_ECHOLNPAIR("leveling: ", int(info.leveling), "\n fade: ", int(info.fade));
         #endif
         #if ENABLED(FWRETRACT)
-          SERIAL_ECHOPGM("retract: ");
+          DEBUG_ECHOPGM("retract: ");
           for (int8_t e = 0; e < EXTRUDERS; e++) {
-            SERIAL_ECHO(info.retract[e]);
-            if (e < EXTRUDERS - 1) SERIAL_CHAR(',');
+            DEBUG_ECHO(info.retract[e]);
+            if (e < EXTRUDERS - 1) DEBUG_CHAR(',');
           }
-          SERIAL_EOL();
-          SERIAL_ECHOLNPAIR("retract_hop: ", info.retract_hop);
+          DEBUG_EOL();
+          DEBUG_ECHOLNPAIR("retract_hop: ", info.retract_hop);
         #endif
-        SERIAL_ECHOLNPAIR("cmd_queue_index_r: ", int(info.cmd_queue_index_r));
-        SERIAL_ECHOLNPAIR("commands_in_queue: ", int(info.commands_in_queue));
-        for (uint8_t i = 0; i < info.commands_in_queue; i++) SERIAL_ECHOLNPAIR("> ", info.command_queue[i]);
-        SERIAL_ECHOLNPAIR("sd_filename: ", info.sd_filename);
-        SERIAL_ECHOLNPAIR("sdpos: ", info.sdpos);
-        SERIAL_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
+        DEBUG_ECHOLNPAIR("cmd_queue_index_r: ", int(info.cmd_queue_index_r));
+        DEBUG_ECHOLNPAIR("commands_in_queue: ", int(info.commands_in_queue));
+        for (uint8_t i = 0; i < info.commands_in_queue; i++) DEBUG_ECHOLNPAIR("> ", info.command_queue[i]);
+        DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
+        DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
+        DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
       }
       else
-        SERIAL_ECHOLNPGM("INVALID DATA");
+        DEBUG_ECHOLNPGM("INVALID DATA");
     }
-    SERIAL_ECHOLNPGM("---");
+    DEBUG_ECHOLNPGM("---");
   }
 
 #endif // DEBUG_POWER_LOSS_RECOVERY

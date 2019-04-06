@@ -174,8 +174,10 @@ inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PG
 void serialprintPGM(PGM_P str);
 void serial_echo_start();
 void serial_error_start();
+void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P const off, PGM_P const post=NULL);
 void serialprint_onoff(const bool onoff);
 void serialprintln_onoff(const bool onoff);
+void serialprint_truefalse(const bool tf);
 void serial_spaces(uint8_t count);
 
 void print_bin(const uint16_t val);

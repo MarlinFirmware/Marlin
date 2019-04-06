@@ -246,8 +246,6 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   // Yes: a 'normal' movement. No: a retract() or recover()
   feed_value = has_xy_component ? G26_XY_FEEDRATE : planner.settings.max_feedrate_mm_s[E_AXIS] / 1.5;
 
-  if (g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to() feed_value for XY:", feed_value);
-
   destination[X_AXIS] = rx;
   destination[Y_AXIS] = ry;
   destination[E_AXIS] += e_delta;
@@ -327,19 +325,15 @@ inline bool look_for_lines_to_connect() {
     for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
       #if HAS_LCD_MENU
-        if (user_canceled()) return true;     // Check if the user wants to stop the Mesh Validation
+        if (user_canceled()) return true;
       #endif
 
-      if (i < GRID_MAX_POINTS_X) { // We can't connect to anything to the right than GRID_MAX_POINTS_X.
-                                   // This is already a half circle because we are at the edge of the bed.
+      if (i < GRID_MAX_POINTS_X) { // Can't connect to anything to the right than GRID_MAX_POINTS_X.
+                                   // Already a half circle at the edge of the bed.
 
         if (is_bitmap_set(circle_flags, i, j) && is_bitmap_set(circle_flags, i + 1, j)) { // check if we can do a line to the left
           if (!is_bitmap_set(horizontal_mesh_line_flags, i, j)) {
-
-            //
-            // We found two circles that need a horizontal line to connect them
-            // Print it!
-            //
+            // Two circles need a horizontal line to connect them
             sx = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
             ex = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
 
@@ -347,27 +341,19 @@ inline bool look_for_lines_to_connect() {
             sy = ey = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
             ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
 
-            if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey)) {
-
-              if (g26_debug_flag) {
-                SERIAL_ECHOLNPAIR(" Connecting with horizontal line (sx=", sx, ", sy=", sy, ") -> (ex=", ex, ", ey=", ey, ")");
-                //debug_current_and_destination(PSTR("Connecting horizontal line."));
-              }
+            if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey))
               print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
-            }
-            bitmap_set(horizontal_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if we skipped it
+
+            bitmap_set(horizontal_mesh_line_flags, i, j); // Mark done, even if skipped
           }
         }
 
-        if (j < GRID_MAX_POINTS_Y) { // We can't connect to anything further back than GRID_MAX_POINTS_Y.
-                                         // This is already a half circle because we are at the edge  of the bed.
+        if (j < GRID_MAX_POINTS_Y) {  // Can't connect to anything further back than GRID_MAX_POINTS_Y.
+                                      // Already a half circle at the edge of the bed.
 
           if (is_bitmap_set(circle_flags, i, j) && is_bitmap_set(circle_flags, i, j + 1)) { // check if we can do a line straight down
             if (!is_bitmap_set( vertical_mesh_line_flags, i, j)) {
-              //
-              // We found two circles that need a vertical line to connect them
-              // Print it!
-              //
+              // Two circles that need a vertical line to connect them
               sy = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
               ey = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
 
@@ -375,23 +361,10 @@ inline bool look_for_lines_to_connect() {
               sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
               ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
-              if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey)) {
-
-                if (g26_debug_flag) {
-                  SERIAL_ECHOPAIR(" Connecting with vertical line (sx=", sx);
-                  SERIAL_ECHOPAIR(", sy=", sy);
-                  SERIAL_ECHOPAIR(") -> (ex=", ex);
-                  SERIAL_ECHOPAIR(", ey=", ey);
-                  SERIAL_CHAR(')');
-                  SERIAL_EOL();
-
-                  #if ENABLED(AUTO_BED_LEVELING_UBL)
-                    debug_current_and_destination(PSTR("Connecting vertical line."));
-                  #endif
-                }
+              if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey))
                 print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
-              }
-              bitmap_set(vertical_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if skipped
+
+              bitmap_set(vertical_mesh_line_flags, i, j); // Mark done, even if skipped
             }
           }
         }
@@ -725,8 +698,6 @@ void GcodeSuite::G26() {
     ui.capture();
   #endif
 
-  //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
-
   #if DISABLED(ARC_SUPPORT)
 
     /**
@@ -819,18 +790,6 @@ void GcodeSuite::G26() {
         const float save_feedrate = feedrate_mm_s;
         feedrate_mm_s = PLANNER_XY_FEEDRATE() / 10.0;
 
-        if (g26_debug_flag) {
-          SERIAL_ECHOPAIR(" plan_arc(ex=", endpoint[X_AXIS]);
-          SERIAL_ECHOPAIR(", ey=", endpoint[Y_AXIS]);
-          SERIAL_ECHOPAIR(", ez=", endpoint[Z_AXIS]);
-          SERIAL_ECHOPAIR(", len=", arc_length);
-          SERIAL_ECHOPAIR(") -> (ex=", current_position[X_AXIS]);
-          SERIAL_ECHOPAIR(", ey=", current_position[Y_AXIS]);
-          SERIAL_ECHOPAIR(", ez=", current_position[Z_AXIS]);
-          SERIAL_CHAR(')');
-          SERIAL_EOL();
-        }
-
         plan_arc(endpoint, arc_offset, false);  // Draw a counter-clockwise arc
         feedrate_mm_s = save_feedrate;
         set_destination_from_current();
@@ -898,16 +857,13 @@ void GcodeSuite::G26() {
   retract_filament(destination);
   destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
 
-  //debug_current_and_destination(PSTR("ready to do Z-Raise."));
   move_to(destination, 0); // Raise the nozzle
-  //debug_current_and_destination(PSTR("done doing Z-Raise."));
 
   destination[X_AXIS] = g26_x_pos;                            // Move back to the starting position
   destination[Y_AXIS] = g26_y_pos;
   //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;         // Keep the nozzle where it is
 
   move_to(destination, 0);                                    // Move back to the starting position
-  //debug_current_and_destination(PSTR("done doing X/Y move."));
 
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = volumetric_was_enabled;
