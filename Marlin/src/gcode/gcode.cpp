@@ -84,6 +84,29 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
 }
 
 /**
+ * Get the target e stepper from the T parameter
+ * Return -1 if the T parameter is out of range or unspecified
+ */
+int8_t GcodeSuite::get_target_e_stepper_from_command() {
+  if (parser.seenval('T')) {
+    const int8_t e = parser.value_byte();
+    if (e >= E_STEPPERS) {
+      SERIAL_ECHO_START();
+      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+      SERIAL_ECHOLNPAIR(" " MSG_INVALID_E_STEPPER " ", int(e));
+      return -1;
+    }
+    return e;
+  }
+  else {
+    SERIAL_ECHO_START();
+    SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+    SERIAL_ECHOLN(" " MSG_E_STEPPER_NOT_SPECIFIED);
+    return -1;
+  }
+}
+
+/**
  * Set XYZE destination and feedrate from the current GCode command
  *
  *  - Set destination from included axis codes

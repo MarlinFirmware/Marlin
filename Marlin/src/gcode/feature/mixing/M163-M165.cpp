@@ -66,7 +66,7 @@ void GcodeSuite::M164() {
   /**
    * M165: Set multiple mix factors for a mixing extruder.
    *       Omitted factors will be set to 0.
-   *       The mix is normalized and stored in the current virtual tool.
+   *       The mix is normalized and stored in a special virtual tool.
    *
    *   A[factor] Mix factor for extruder stepper 1
    *   B[factor] Mix factor for extruder stepper 2
@@ -105,6 +105,7 @@ void GcodeSuite::M164() {
     if (mix_bits) {
       MIXER_STEPPER_LOOP(i)
         if (!TEST(mix_bits, i)) mixer.set_collector(i, 0.0f);
+      mixer.T(MIXER_DIRECT_SET_TOOL);
       mixer.normalize();
     }
   }
