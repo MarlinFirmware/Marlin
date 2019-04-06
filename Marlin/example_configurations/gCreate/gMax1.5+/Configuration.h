@@ -736,6 +736,7 @@
 #define BLTOUCH
 #if ENABLED(BLTOUCH)
   #define BLTOUCH_DELAY 500   // (ms) Enable and increase if needed
+  //#define BLTOUCH_V3
 #endif
 
 /**
