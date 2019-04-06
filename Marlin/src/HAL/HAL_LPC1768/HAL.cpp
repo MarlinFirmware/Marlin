@@ -52,11 +52,13 @@ int freeMemory() {
   return result;
 }
 
+// scan command line for code
+//   return index into pin map array if found and the pin is valid.
+//   return dval if not found or not a valid pin.
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval) {
-  const uint16_t val = (uint16_t)parser.intval(code), port = val / 100, pin = val % 100;
-  const  int16_t ind = (port < (NUM_DIGITAL_PINS >> 5) && (pin < 32))
-                      ? GET_PIN_MAP_INDEX(port << 5 | pin) : -2;
-  return ind > -2 ? ind : dval;
+  const uint16_t val = (uint16_t)parser.intval(code, -1), port = val / 100, pin = val % 100;
+  const  int16_t ind = (port < ((NUM_DIGITAL_PINS) >> 5) && pin < 32) ? GET_PIN_MAP_INDEX((port << 5) | pin) : -2;
+  return ind > -1 ? ind : dval;
 }
 
 void flashFirmware(int16_t value) {
