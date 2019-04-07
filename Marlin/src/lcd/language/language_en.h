@@ -247,6 +247,9 @@
 #ifndef MSG_IDEX_MENU
   #define MSG_IDEX_MENU                       _UxGT("IDEX Mode")
 #endif
+#ifndef MSG_OFFSETS_MENU
+  #define MSG_OFFSETS_MENU                    _UxGT("Tool Offsets")
+#endif
 #ifndef MSG_IDEX_MODE_AUTOPARK
   #define MSG_IDEX_MODE_AUTOPARK              _UxGT("Auto-Park")
 #endif
@@ -267,9 +270,6 @@
 #endif
 #ifndef MSG_IDEX_Z_OFFSET
   #define MSG_IDEX_Z_OFFSET                   _UxGT("2nd nozzle Z")
-#endif
-#ifndef MSG_IDEX_SAVE_OFFSETS
-  #define MSG_IDEX_SAVE_OFFSETS               _UxGT("Save Offsets")
 #endif
 #ifndef MSG_UBL_MANUAL_MESH
   #define MSG_UBL_MANUAL_MESH                 _UxGT("Manually Build Mesh")

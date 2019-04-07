@@ -103,7 +103,6 @@
 #define MSG_IDEX_X_OFFSET                   _UxGT("2. nozul X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2. nozul Y")
 #define MSG_IDEX_Z_OFFSET                   _UxGT("2. nozul Z")
-#define MSG_IDEX_SAVE_OFFSETS               _UxGT("Ofsetleri Kaydet")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Elle Mesh Oluştur")
 #define MSG_UBL_BC_INSERT                   _UxGT("Altlık & Ölçü Ver")
 #define MSG_UBL_BC_INSERT2                  _UxGT("Ölçü")

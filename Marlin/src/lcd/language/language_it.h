@@ -102,7 +102,6 @@
 #define MSG_IDEX_X_OFFSET                   _UxGT("2° ugello X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2° ugello Y")
 #define MSG_IDEX_Z_OFFSET                   _UxGT("2° ugello Z")
-#define MSG_IDEX_SAVE_OFFSETS               _UxGT("Memorizza Offsets")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Mesh Manuale")
 #define MSG_UBL_BC_INSERT                   _UxGT("Metti spes. e misura")
 #define MSG_UBL_BC_INSERT2                  _UxGT("Misura")

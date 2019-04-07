@@ -104,7 +104,6 @@
 #define MSG_IDEX_X_OFFSET                   _UxGT("2o bico X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2o bico Y")
 #define MSG_IDEX_Z_OFFSET                   _UxGT("2o bico Z")
-#define MSG_IDEX_SAVE_OFFSETS               _UxGT("Salvar Compensação")
 
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Fazer malha manual")
 #define MSG_UBL_BC_INSERT                   _UxGT("Calçar e calibrar")

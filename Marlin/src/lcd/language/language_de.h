@@ -104,7 +104,6 @@
 #define MSG_IDEX_X_OFFSET                   _UxGT("2. Düse X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2. Düse Y")
 #define MSG_IDEX_Z_OFFSET                   _UxGT("2. Düse Z")
-#define MSG_IDEX_SAVE_OFFSETS               _UxGT("Versätze speichern")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Netz manuell erst.")
 #define MSG_UBL_BC_INSERT                   _UxGT("Unterlegen & messen")
 #define MSG_UBL_BC_INSERT2                  _UxGT("Messen")

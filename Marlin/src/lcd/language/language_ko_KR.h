@@ -93,7 +93,6 @@
 #define MSG_IDEX_X_OFFSET                   _UxGT("2nd nozzle X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2nd nozzle Y")
 #define MSG_IDEX_Z_OFFSET                   _UxGT("2nd nozzle Z")
-#define MSG_IDEX_SAVE_OFFSETS               _UxGT("Save Offsets")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Manually Build Mesh")
 #define MSG_UBL_BC_INSERT                   _UxGT("Place shim & measure")
 #define MSG_UBL_BC_INSERT2                  _UxGT("Measure")

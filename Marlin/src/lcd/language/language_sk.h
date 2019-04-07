@@ -111,7 +111,6 @@
 #define MSG_IDEX_X_OFFSET                   _UxGT("2. tryska X")
 #define MSG_IDEX_Y_OFFSET                   _UxGT("2. tryska Y")
 #define MSG_IDEX_Z_OFFSET                   _UxGT("2. tryska Z")
-#define MSG_IDEX_SAVE_OFFSETS               _UxGT("Uložiť offsety")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Manuálna sieť bodov")
 #define MSG_UBL_BC_INSERT                   _UxGT("Položte a zmerajte")
 #define MSG_UBL_BC_INSERT2                  _UxGT("Zmerajte")
