@@ -325,6 +325,7 @@ void menu_move();
 
 #if ENABLED(SDSUPPORT)
   void menu_sdcard();
+  void menu_confirm_sdfile();
 #endif
 
 // First Fan Speed title in "Tune" and "Control>Temperature" menus
