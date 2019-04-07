@@ -59,7 +59,7 @@ int8_t encoderTopLine, encoderLine, screen_items;
 typedef struct {
   screenFunc_t menu_function;
   uint32_t encoder_position;
-  uint8_t top_line, items;
+  int8_t top_line, items;
 } menuPosition;
 menuPosition screen_history[6];
 uint8_t screen_history_depth = 0;
