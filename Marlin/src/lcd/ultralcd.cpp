@@ -811,8 +811,7 @@ void MarlinUI::update() {
       // cause a refresh to occur until all the text has scrolled into view.
       if (currentScreen == menu_sdcard && !lcd_status_update_delay--) {
         lcd_status_update_delay = 4;
-        filename_scroll_pos++;
-        if (filename_scroll_pos > filename_scroll_max ) {
+        if (++filename_scroll_pos > filename_scroll_max) {
           filename_scroll_pos = 0;
           lcd_status_update_delay = 12;
         }
