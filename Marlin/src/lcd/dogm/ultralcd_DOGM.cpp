@@ -401,6 +401,27 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     }
   }
 
+  inline void draw_boxed_string(const uint8_t x, const uint8_t y, PGM_P const pstr, const bool inv) {
+    const uint8_t len = utf8_strlen_P(pstr), bw = len * (MENU_FONT_WIDTH),
+                  bx = x * (MENU_FONT_WIDTH), by = (y + 1) * (MENU_FONT_HEIGHT);
+    if (inv) {
+      u8g.setColorIndex(1);
+      u8g.drawBox(bx - 1, by - (MENU_FONT_ASCENT) + 1, bw + 2, MENU_FONT_HEIGHT - 1);
+      u8g.setColorIndex(0);
+    }
+    lcd_moveto(bx, by);
+    lcd_put_u8str_P(pstr);
+    if (inv) u8g.setColorIndex(1);
+  }
+
+  void draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
+    SETCURSOR(0, 0); lcd_put_u8str_P(pref);
+    if (string) wrap_string(1, string);
+    if (suff) lcd_put_u8str_P(suff);
+    draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
+    draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno);
+  }
+
   #if ENABLED(SDSUPPORT)
 
     void draw_sd_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {

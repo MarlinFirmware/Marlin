@@ -52,6 +52,12 @@
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Ready.")
 #endif
+#ifndef MSG_YES
+  #define MSG_YES                             _UxGT("YES")
+#endif
+#ifndef MSG_NO
+  #define MSG_NO                              _UxGT("NO")
+#endif
 #ifndef MSG_BACK
   #define MSG_BACK                            _UxGT("Back")
 #endif
@@ -743,6 +749,15 @@
 #endif
 #ifndef MSG_TUNE
   #define MSG_TUNE                            _UxGT("Tune")
+#endif
+#ifndef MSG_START_PRINT
+  #define MSG_START_PRINT                     _UxGT("Start print")
+#endif
+#ifndef MSG_BUTTON_PRINT
+  #define MSG_BUTTON_PRINT                    _UxGT("Print")
+#endif
+#ifndef MSG_BUTTON_CANCEL
+  #define MSG_BUTTON_CANCEL                   _UxGT("Cancel")
 #endif
 #ifndef MSG_PAUSE_PRINT
   #define MSG_PAUSE_PRINT                     _UxGT("Pause print")

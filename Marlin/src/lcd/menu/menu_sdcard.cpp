@@ -72,15 +72,41 @@ void lcd_sd_updir() {
   }
 #endif
 
+inline void sdcard_start_selected_file() {
+  card.openAndPrintFile(card.filename);
+  ui.return_to_status();
+  ui.reset_status();
+}
+
+#if ENABLED(SD_MENU_CONFIRM_START)
+
+  bool do_print_file;
+  void menu_sd_confirm() {
+    if (ui.should_draw())
+      do_select_screen(PSTR(MSG_BUTTON_PRINT), PSTR(MSG_BUTTON_CANCEL), do_print_file, PSTR(MSG_START_PRINT " "), card.longest_filename(), PSTR("?"));
+
+    if (ui.use_click()) {
+      if (do_print_file)
+        sdcard_start_selected_file();
+      else
+        ui.goto_previous_screen();
+    }
+  }
+
+#endif
+
 class MenuItem_sdfile {
   public:
     static void action(CardReader &theCard) {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
         last_sdfile_encoderPosition = ui.encoderPosition;  // Save which file was selected for later use
       #endif
-      card.openAndPrintFile(theCard.filename);
-      ui.return_to_status();
-      ui.reset_status();
+      #if ENABLED(SD_MENU_CONFIRM_START)
+        do_print_file = false;
+        MenuItem_submenu::action(menu_sd_confirm);
+      #else
+        sdcard_start_selected_file();
+      #endif
     }
 };
 
