@@ -479,6 +479,7 @@
   #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
   #define BLTOUCH_DEPLOY    10
+  #define BLTOUCH_ALARM     60
   #define BLTOUCH_STOW      90
   #define BLTOUCH_SELFTEST 120
   #define BLTOUCH_RESET    160

@@ -2093,6 +2093,11 @@ void clean_up_after_endstop_or_probe_move() {
       }
 
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
+      #if ENABLED(BLTOUCH_V3)
+        // The version 3 of BlTouch needs to switch to Alarm & Test mode after deploy
+        // or it keeps on pushing the probes out and ends up in error mode (collision).
+        if (deploy) bltouch_command(BLTOUCH_ALARM);
+      #endif
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
