@@ -723,7 +723,7 @@ void idle(
   #endif
 
   #if ENABLED(PRUSA_MMU2)
-    mmu2.mmuLoop();
+    mmu2.mmu_loop();
   #endif
 }
 

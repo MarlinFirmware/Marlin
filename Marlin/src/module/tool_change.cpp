@@ -577,7 +577,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
     UNUSED(fr_mm_s); UNUSED(no_move);
 
-    mmu2.toolChange(tmp_extruder);
+    mmu2.tool_change(tmp_extruder);
 
   #elif EXTRUDERS < 2
 
@@ -777,7 +777,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #endif
 
       #if ENABLED(PRUSA_MMU2)
-        mmu2.toolChange(tmp_extruder);
+        mmu2.tool_change(tmp_extruder);
       #endif
 
       #if SWITCHING_NOZZLE_TWO_SERVOS
