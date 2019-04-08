@@ -1481,6 +1481,10 @@
   #define NOZZLE_CLEAN_GOBACK
 #endif
 
+// If you want a more granular control over the babystepping uncomment the below line.
+// This will make the adjustment finer than the standard setting.
+//#define FINE_BABYSTEPPING
+
 /**
  * Print Job Timer
  *
