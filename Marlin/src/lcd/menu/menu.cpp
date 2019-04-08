@@ -436,4 +436,12 @@ void _lcd_draw_homing() {
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
 
+void do_select_screen(PGM_P const yes, PGM_P const no, bool &yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
+  if (ui.encoderPosition) {
+    yesno = int32_t(ui.encoderPosition) > 0;
+    ui.encoderPosition = 0;
+  }
+  draw_select_screen(yes, no, yesno, pref, string, suff);
+}
+
 #endif // HAS_LCD_MENU

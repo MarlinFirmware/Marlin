@@ -192,7 +192,25 @@ millis_t next_button_update_ms;
 
   #endif
 
-#endif
+  void wrap_string(uint8_t y, const char * const string) {
+    uint8_t x = LCD_WIDTH;
+    if (string) {
+      uint8_t *p = (uint8_t*)string;
+      for (;;) {
+        if (x >= LCD_WIDTH) {
+          x = 0;
+          SETCURSOR(0, y++);
+        }
+        wchar_t ch;
+        p = get_utf8_value_cb(p, read_byte_ram, &ch);
+        if (!ch) break;
+        lcd_put_wchar(ch);
+        x++;
+      }
+    }
+  }
+
+#endif // HAS_LCD_MENU
 
 void MarlinUI::init() {
 

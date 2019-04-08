@@ -64,6 +64,11 @@ DECLARE_MENU_EDIT_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );   // 123
 ////////////////////////////////////////////
 
 void draw_edit_screen(PGM_P const pstr, const char* const value=NULL);
+void draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff);
+void do_select_screen(PGM_P const yes, PGM_P const no, bool &yesno, PGM_P const pref, const char * const string=NULL, PGM_P const suff=NULL);
+inline void do_select_screen_yn(bool &yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
+  do_select_screen(PSTR(MSG_YES), PSTR(MSG_NO), yesno, pref, string, suff);
+}
 void draw_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
 void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const bool center=true, const bool invert=false, const char *valstr=NULL);
 void _draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm);
