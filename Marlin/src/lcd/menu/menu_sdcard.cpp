@@ -48,6 +48,7 @@ void lcd_sd_updir() {
 #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
 
   uint16_t sd_encoder_position = 0xFFFF;
+  int8_t sd_top_line, sd_items;
 
   void MarlinUI::reselect_last_file() {
     if (sd_encoder_position == 0xFFFF) return;
@@ -61,7 +62,7 @@ void lcd_sd_updir() {
     //  ui.drawing_screen = screen_changed = true;
     //#endif
 
-    goto_screen(menu_sdcard, sd_encoder_position);
+    goto_screen(menu_sdcard, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
 
     defer_status_screen();
@@ -101,6 +102,8 @@ class MenuItem_sdfile {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
         // Save menu state for the selected file
         sd_encoder_position = ui.encoderPosition;
+        sd_top_line = ui.encoderTopLine;
+        sd_items = ui.screen_items;
       #endif
       #if ENABLED(SD_MENU_CONFIRM_START)
         do_print_file = false;
