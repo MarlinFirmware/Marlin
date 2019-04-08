@@ -162,7 +162,7 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #undef SPINDLE_LASER_PWM_PIN    // Definitions in pins_RAMPS.h are no good with the AzteegX3pro board
-#undef SPINDLE_LASER_ENABLE_PIN
+#undef SPINDLE_LASER_ENA_PIN
 #undef SPINDLE_DIR_PIN
 
 #if ENABLED(SPINDLE_LASER_ENABLE)   // EXP2 header
@@ -171,6 +171,6 @@
     #define BTN_EN2             31   // need 7 for the spindle speed PWM
   #endif
   #define SPINDLE_LASER_PWM_PIN     7   // must have a hardware PWM
-  #define SPINDLE_LASER_ENABLE_PIN 20   // Pin should have a pullup!
+  #define SPINDLE_LASER_ENA_PIN    20   // Pin should have a pullup!
   #define SPINDLE_DIR_PIN          21
 #endif

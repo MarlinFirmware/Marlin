@@ -200,7 +200,7 @@
   #define MAX6675_SS_PIN   P1_28
 #endif
 
-#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENABLE_PIN)
+#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENA_PIN)
   #if !defined(NUM_SERVOS) || NUM_SERVOS < 4   // Try to use servo connector
     #define CASE_LIGHT_PIN P1_18   // (4) MUST BE HARDWARE PWM
   #endif
@@ -210,11 +210,11 @@
 // M3/M4/M5 - Spindle/Laser Control
 //            Use servo pins, if available
 //
-#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENABLE)
+#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if NUM_SERVOS > 1
     #error "SPINDLE_LASER_ENABLE requires 3 free servo pins."
   #endif
-  #define SPINDLE_LASER_ENABLE_PIN SERVO1_PIN   // (6) Pin should have a pullup/pulldown!
+  #define SPINDLE_LASER_ENA_PIN    SERVO1_PIN   // (6) Pin should have a pullup/pulldown!
   #define SPINDLE_LASER_PWM_PIN    SERVO3_PIN   // (4) MUST BE HARDWARE PWM
   #define SPINDLE_DIR_PIN          SERVO2_PIN   // (5)
 #endif
