@@ -771,6 +771,8 @@
   // Since the FAT gets out of order with usage, SDCARD_SORT_ALPHA is recommended.
   #define SDCARD_RATHERRECENTFIRST
 
+  #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
+
   //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
   //#define EVENT_GCODE_SD_STOP "G28XY"     // G-code to run on Stop Print (e.g., "G28XY" or "G27")
