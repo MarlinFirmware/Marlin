@@ -118,7 +118,7 @@ millis_t next_button_update_ms;
 
 // Encoder Handling
 #if HAS_ENCODER_ACTION
-  uint32_t MarlinUI::encoderPosition;
+  uint16_t MarlinUI::encoderPosition;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
 #endif
 
@@ -480,13 +480,13 @@ void MarlinUI::status_screen() {
   #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
 
     const int16_t old_frm = feedrate_percentage;
-          int16_t new_frm = old_frm + (int32_t)encoderPosition;
+          int16_t new_frm = old_frm + int16_t(encoderPosition);
 
     // Dead zone at 100% feedrate
     if (old_frm == 100) {
-      if ((int32_t)encoderPosition > ENCODER_FEEDRATE_DEADZONE)
+      if (int16_t(encoderPosition) > ENCODER_FEEDRATE_DEADZONE)
         new_frm -= ENCODER_FEEDRATE_DEADZONE;
-      else if ((int32_t)encoderPosition < -(ENCODER_FEEDRATE_DEADZONE))
+      else if (int16_t(encoderPosition) < -(ENCODER_FEEDRATE_DEADZONE))
         new_frm += ENCODER_FEEDRATE_DEADZONE;
       else
         new_frm = old_frm;

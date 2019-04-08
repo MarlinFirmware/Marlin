@@ -471,7 +471,7 @@ void _lcd_ubl_output_map_lcd() {
   ui.encoder_direction_normal();
 
   if (ui.encoderPosition) {
-    step_scaler += (int32_t)ui.encoderPosition;
+    step_scaler += int16_t(ui.encoderPosition);
     x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
     ui.encoderPosition = 0;
     ui.refresh(LCDVIEW_REDRAW_NOW);
