@@ -29,11 +29,11 @@
 
 #define FAN_PIN             6
 
-#include "pins_FORMBOT_RAPTOR.h"
-
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN   22
 #endif
+
+#include "pins_FORMBOT_RAPTOR.h"
 
 #define GREEDY_PANEL ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD)
 
