@@ -75,7 +75,7 @@
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     ui.encoder_direction_normal();
     if (ui.encoderPosition) {
-      const int16_t steps = (int32_t)ui.encoderPosition * (BABYSTEP_MULTIPLICATOR);
+      const int16_t steps = int16_t(ui.encoderPosition) * (BABYSTEP_MULTIPLICATOR);
       ui.encoderPosition = 0;
       ui.refresh(LCDVIEW_REDRAW_NOW);
       babystep.add_steps(axis, steps);

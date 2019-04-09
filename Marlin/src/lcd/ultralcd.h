@@ -421,7 +421,7 @@ public:
     static void synchronize(PGM_P const msg=NULL);
 
     static screenFunc_t currentScreen;
-    static void goto_screen(const screenFunc_t screen, const uint32_t encoder=0, const uint8_t top=0, const uint8_t items=0);
+    static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
     static void save_previous_screen();
     static void goto_previous_screen();
     static void return_to_status();
@@ -496,7 +496,7 @@ public:
       static void wait_for_release();
     #endif
 
-    static uint32_t encoderPosition;
+    static uint16_t encoderPosition;
 
     #if ENABLED(REVERSE_ENCODER_DIRECTION)
       #define ENCODERBASE -1
