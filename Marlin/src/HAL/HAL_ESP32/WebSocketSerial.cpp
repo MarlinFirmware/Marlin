@@ -29,32 +29,35 @@
 #include <ESPAsyncWebServer.h>
 
 WebSocketSerial webSocketSerial;
+AsyncWebSocket ws("/ws"); // TODO Move inside the class.
 
-// Helpers
-void addToBuffer(ring_buffer_t &buffer, const size_t buffer_size, uint8_t * const data, const size_t len) {
+// DataBuffer impl
+DataBuffer::DataBuffer(data_buffer_size_t size)
+    : data(new uint8_t[size]),
+      head(0),
+      tail(0),
+      size(size)
+{}
+
+void DataBuffer::add(uint8_t * const data, data_buffer_size_t len) {
   for (size_t i = 0; i < len; i++) {
-    ring_buffer_pos_t h = buffer.head;
-        const ring_buffer_pos_t n = (h + 1) & (ring_buffer_pos_t)(buffer_size - 1);
+    const data_buffer_size_t n = (head + 1) & (data_buffer_size_t)(size - 1);
 
-    if (n != buffer.tail) {
-      buffer.data[h] = data[i];
-      h = n;
+    if (n != tail) {
+      this->data[head] = data[i];
+      head = n;
     }
 
     // TODO: buffer is full, handle?
-
-    buffer.head = h;
   }
 }
 
-// Public Methods
-AsyncWebSocket ws("/ws"); // TODO Move inside the class.
 
-WebSocketSerial::WebSocketSerial() {
-  rx_buffer.data = new unsigned char[RX_BUFFER_SIZE];
-  tx_buffer.data = new unsigned char[TX_BUFFER_SIZE];
-  rx_buffer.head = rx_buffer.tail = tx_buffer.head = tx_buffer.tail = 0;
-}
+// Public Methods
+WebSocketSerial::WebSocketSerial()
+    : rx_buffer(DataBuffer(RX_BUFFER_SIZE)),
+      tx_buffer(DataBuffer(TX_BUFFER_SIZE))
+{}
 
 WebSocketSerial::~WebSocketSerial() {
   delete[] rx_buffer.data;
@@ -71,7 +74,7 @@ void WebSocketSerial::begin(const long baud_setting) {
         case WS_EVT_DATA: {                         // data packet
           AwsFrameInfo * info = (AwsFrameInfo*)arg;
           if (info->opcode == WS_TEXT || info->message_opcode == WS_TEXT)
-            addToBuffer(this->rx_buffer, RX_BUFFER_SIZE, data, len);
+            this->rx_buffer.add(data, len);
         }
       }
     });
@@ -86,19 +89,19 @@ int WebSocketSerial::peek(void) {
 }
 
 int WebSocketSerial::read(void) {
-  const ring_buffer_pos_t h = rx_buffer.head, t = rx_buffer.tail;
+  const data_buffer_size_t h = rx_buffer.head, t = rx_buffer.tail;
   if (h == t) return -1;  // Nothing to read? Return now
 
   const int v = rx_buffer.data[t];
 
-  rx_buffer.tail = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1); // Advance tail
+  rx_buffer.tail = (data_buffer_size_t)(t + 1) & (RX_BUFFER_SIZE - 1); // Advance tail
 
   return v;
 }
 
 bool WebSocketSerial::available(void) {
-  const ring_buffer_pos_t h = rx_buffer.head, t = rx_buffer.tail;
-  return (ring_buffer_pos_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
+  const data_buffer_size_t h = rx_buffer.head, t = rx_buffer.tail;
+  return (data_buffer_size_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
 }
 
 void WebSocketSerial::flush(void) {

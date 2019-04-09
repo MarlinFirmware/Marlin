@@ -40,16 +40,20 @@
   #error "TX_BUFFER_SIZE is required for the WebSocket."
 #endif
 
-typedef uint16_t ring_buffer_pos_t;
+typedef uint16_t data_buffer_size_t;
 
-struct ring_buffer_t {
-  unsigned char *data;
-  volatile uint8_t head, tail;
+struct DataBuffer {
+  uint8_t *data;
+  data_buffer_size_t size;
+  volatile data_buffer_size_t head, tail;
+
+  DataBuffer(data_buffer_size_t size);
+  void add(uint8_t * const data, data_buffer_size_t len);
 };
 
 class WebSocketSerial {
-  ring_buffer_t rx_buffer;
-  ring_buffer_t tx_buffer;
+  DataBuffer rx_buffer;
+  DataBuffer tx_buffer;
 
   void printNumber(unsigned long, const uint8_t);
   void printFloat(double, uint8_t);
