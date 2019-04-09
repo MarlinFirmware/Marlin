@@ -50,7 +50,7 @@
       else {
         hotend_offset[Z_AXIS][active_extruder] -= offs;
         SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR(MSG_IDEX_Z_OFFSET ": ", hotend_offset[Z_AXIS][active_extruder]);
+        SERIAL_ECHOLNPAIR(MSG_Z_OFFSET ": ", hotend_offset[Z_AXIS][active_extruder]);
       }
     #endif
   }
