@@ -116,7 +116,6 @@
 // the jumper next to the limit switch socket when using sensorless homing.
 //
 
-
 #if HAS_DRIVER(TMC2208)
   // Software serial
   #define X_SERIAL_RX_PIN  71
@@ -168,18 +167,16 @@
   #define PS_ON_PIN        SERVO1_PIN
 #endif
 
-#ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN     3
-#endif
-#ifndef RGB_LED_G_PIN
-  #define RGB_LED_G_PIN    SERVO3_PIN
-#endif
-#ifndef RGB_LED_B_PIN
-  #define RGB_LED_B_PIN     9
-#endif
-#ifndef RGB_LED_W_PIN
-  #define RGB_LED_W_PIN    -1
-#endif
+/**
+ *               -----                                             -----
+ *       5V/D41 | · · | GND                                    5V | · · | GND
+ *        RESET | · · | D49 (SD_DETECT)             (LCD_D7)  D29 | · · | D27  (LCD_D6)
+ *   (MOSI) D51 | · · | D33 (BTN_EN2)               (LCD_D5)  D25 | · · | D23  (LCD_D4)
+ *  (SD_SS) D53 | · · | D31 (BTN_EN1)               (LCD_RS)  D16 | · · | D17  (LCD_EN)
+ *    (SCK) D52 | · · | D50 (MISO)                 (BTN_ENC)  D35 | · · | D37  (BEEPER)
+ *               -----                                             -----
+ *               EXP2                                              EXP1
+ */
 
 //
 // LCDs and Controllers
@@ -187,20 +184,67 @@
 #define BEEPER_PIN         37
 #define SD_DETECT_PIN      49
 
-#define LCD_PINS_RS        16
-#define LCD_PINS_ENABLE    17
-#define LCD_PINS_D4        23
-#define LCD_PINS_D5        25
-#define LCD_PINS_D6        27
-#define LCD_PINS_D7        29
+#if ENABLED(MKS_MINI_12864)
+  #define DOGLCD_A0        27
+  #define DOGLCD_CS        25
+#endif
+
+#if ENABLED(FYSETC_MINI_12864)
+  //
+  // See https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+  //
+  #define DOGLCD_A0        16
+  #define DOGLCD_CS        17
+  #ifndef RGB_LED_R_PIN
+    #define RGB_LED_R_PIN  25
+  #endif
+  #ifndef RGB_LED_G_PIN
+    #define RGB_LED_G_PIN  27
+  #endif
+  #ifndef RGB_LED_B_PIN
+    #define RGB_LED_B_PIN  29
+  #endif
+
+#elif HAS_GRAPHICAL_LCD
+
+  #define LCD_PINS_RS      16
+  #define LCD_PINS_ENABLE  17
+  #define LCD_PINS_D4      23
+  #define LCD_PINS_D5      25
+  #define LCD_PINS_D6      27
+  #define LCD_PINS_D7      29
+
+#endif
 
 #if ENABLED(NEWPANEL)
   #define BTN_EN1          31
   #define BTN_EN2          33
   #define BTN_ENC          35
+#endif
 
-  #if ENABLED(MKS_MINI_12864)
-    #define DOGLCD_A0      27
-    #define DOGLCD_CS      25
+#if ENABLED(FYSETC_MINI_12864)
+  #define LCD_BACKLIGHT_PIN -1
+  #define LCD_RESET_PIN    23
+  #define KILL_PIN         41
+  #ifndef RGB_LED_R_PIN
+    #define RGB_LED_R_PIN  25
   #endif
+  #ifndef RGB_LED_G_PIN
+    #define RGB_LED_G_PIN  27
+  #endif
+  #ifndef RGB_LED_B_PIN
+    #define RGB_LED_B_PIN  29
+  #endif
+#endif
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_R_PIN     3
+#endif
+#ifndef RGB_LED_G_PIN
+  #define RGB_LED_G_PIN     4
+#endif
+#ifndef RGB_LED_B_PIN
+  #define RGB_LED_B_PIN     9
+#endif
+#ifndef RGB_LED_W_PIN
+  #define RGB_LED_W_PIN    -1
 #endif
