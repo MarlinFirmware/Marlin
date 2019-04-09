@@ -335,7 +335,7 @@ void menu_move() {
   else
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 
-  #if EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+  #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, MAGNETIC_SWITCHING_TOOLHEAD)
 
     #if EXTRUDERS == 6
       switch (active_extruder) {
