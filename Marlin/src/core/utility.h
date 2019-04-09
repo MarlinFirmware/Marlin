@@ -56,7 +56,7 @@ inline void serial_delay(const millis_t ms) {
 #if ANY(ULTRA_LCD, DEBUG_LEVELING_FEATURE, EXTENSIBLE_UI)
 
   // Convert a full-range unsigned 8bit int to a percentage
-  char* ui8tostr_percent(const uint8_t i);
+  char* ui8tostr4pct(const uint8_t i);
 
   // Convert uint8_t to string with 123 format
   char* ui8tostr3(const uint8_t x);

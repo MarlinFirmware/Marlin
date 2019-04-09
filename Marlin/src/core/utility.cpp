@@ -58,11 +58,11 @@ void safe_delay(millis_t ms) {
   #define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
 
   // Convert a full-range unsigned 8bit int to a percentage
-  char* ui8tostr_percent(const uint8_t i) {
-    const uint8_t percent = ui8_to_percent(i);
-    conv[3] = RJDIGIT(percent, 100);
-    conv[4] = RJDIGIT(percent, 10);
-    conv[5] = DIGIMOD(percent, 1);
+  char* ui8tostr4pct(const uint8_t i) {
+    const uint8_t n = ui8_to_percent(i);
+    conv[3] = RJDIGIT(n, 100);
+    conv[4] = RJDIGIT(n, 10);
+    conv[5] = DIGIMOD(n, 1);
     conv[6] = '%';
     return &conv[3];
   }
