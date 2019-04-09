@@ -40,60 +40,65 @@
   #error "TX_BUFFER_SIZE is required for the WebSocket."
 #endif
 
-#if RX_BUFFER_SIZE > 256
-  typedef uint16_t ring_buffer_pos_t;
-#else
-  typedef uint8_t ring_buffer_pos_t;
-#endif
+typedef uint16_t ring_buffer_pos_t;
+
+struct ring_buffer_t {
+  unsigned char *data;
+  volatile uint8_t head, tail;
+};
 
 class WebSocketSerial {
+  ring_buffer_t rx_buffer;
+  ring_buffer_t tx_buffer;
+
+  void printNumber(unsigned long, const uint8_t);
+  void printFloat(double, uint8_t);
+
 public:
-  WebSocketSerial() {};
-  static void begin(const long);
-  static void end();
-  static int peek(void);
-  static int read(void);
-  static void flush(void);
-  static void flushTX(void);
-  static bool available(void);
-  static void write(const uint8_t c);
+  WebSocketSerial();
+  ~WebSocketSerial();
+
+  void begin(const long);
+  void end();
+  int peek(void);
+  int read(void);
+  void flush(void);
+  void flushTX(void);
+  bool available(void);
+  void write(const uint8_t c);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
-    FORCE_INLINE static uint32_t dropped() { return 0; }
+    FORCE_INLINE uint32_t dropped() { return 0; }
   #endif
 
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-    FORCE_INLINE static int rxMaxEnqueued() { return 0; }
+    FORCE_INLINE int rxMaxEnqueued() { return 0; }
   #endif
 
-  FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
-  FORCE_INLINE static void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-  FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-  FORCE_INLINE static void print(const char* str) { write(str); }
+  FORCE_INLINE void write(const char* str) { while (*str) write(*str++); }
+  FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
+  FORCE_INLINE void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
+  FORCE_INLINE void print(const char* str) { write(str); }
 
-  static void print(char, int = 0);
-  static void print(unsigned char, int = 0);
-  static void print(int, int = DEC);
-  static void print(unsigned int, int = DEC);
-  static void print(long, int = DEC);
-  static void print(unsigned long, int = DEC);
-  static void print(double, int = 2);
+  void print(char, int = 0);
+  void print(unsigned char, int = 0);
+  void print(int, int = DEC);
+  void print(unsigned int, int = DEC);
+  void print(long, int = DEC);
+  void print(unsigned long, int = DEC);
+  void print(double, int = 2);
 
-  static void println(const String& s);
-  static void println(const char[]);
-  static void println(char, int = 0);
-  static void println(unsigned char, int = 0);
-  static void println(int, int = DEC);
-  static void println(unsigned int, int = DEC);
-  static void println(long, int = DEC);
-  static void println(unsigned long, int = DEC);
-  static void println(double, int = 2);
-  static void println(void);
+  void println(const String& s);
+  void println(const char[]);
+  void println(char, int = 0);
+  void println(unsigned char, int = 0);
+  void println(int, int = DEC);
+  void println(unsigned int, int = DEC);
+  void println(long, int = DEC);
+  void println(unsigned long, int = DEC);
+  void println(double, int = 2);
+  void println(void);
   operator bool() { return true; }
-
-private:
-  static void printNumber(unsigned long, const uint8_t);
-  static void printFloat(double, uint8_t);
 };
 
 extern WebSocketSerial webSocketSerial;

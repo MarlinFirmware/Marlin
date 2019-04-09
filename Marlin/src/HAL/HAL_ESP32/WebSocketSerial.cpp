@@ -21,78 +21,67 @@
  */
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "../../inc/MarlinConfig.h"
+#include "WebSocketSerial.h"
 
 #if ENABLED(WIFISUPPORT)
 
-#include "WebSocketSerial.h"
-
-extern WebSocketSerial webSocketSerial;
-
 #include "wifi.h"
-#include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
-struct ring_buffer_r {
-  unsigned char buffer[RX_BUFFER_SIZE];
-  volatile ring_buffer_pos_t head, tail;
-};
+WebSocketSerial webSocketSerial;
 
-struct ring_buffer_t {
-  unsigned char buffer[256];
-  volatile uint8_t head, tail;
-};
-
-ring_buffer_r rx_buffer = { { 0 }, 0, 0 };
-ring_buffer_t tx_buffer = { { 0 }, 0, 0 };
-
-#if ENABLED(EMERGENCY_PARSER)
-  static EmergencyParser::State emergency_state; // = EP_RESET
-#endif
-
-AsyncWebSocket ws("/ws"); // access at ws://[esp ip]/ws
-
-FORCE_INLINE int next_rx_index(const int i) { return (ring_buffer_pos_t)(i + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1); }
-FORCE_INLINE int next_tx_index(const int i) { return (ring_buffer_pos_t)(i + 1) & (ring_buffer_pos_t)(TX_BUFFER_SIZE - 1); }
-
-static void addToBuffer(uint8_t * const data, const size_t len) {
+// Helpers
+void addToBuffer(ring_buffer_t &buffer, const size_t buffer_size, uint8_t * const data, const size_t len) {
   for (size_t i = 0; i < len; i++) {
-    ring_buffer_pos_t h = rx_buffer.head;
-    const ring_buffer_pos_t t = rx_buffer.tail, n = next_rx_index(h);
+    ring_buffer_pos_t h = buffer.head;
+        const ring_buffer_pos_t n = (h + 1) & (ring_buffer_pos_t)(buffer_size - 1);
 
-    if (n != t) { rx_buffer.buffer[h] = data[i]; h = n; }
+    if (n != buffer.tail) {
+      buffer.data[h] = data[i];
+      h = n;
+    }
 
     // TODO: buffer is full, handle?
 
-    rx_buffer.head = h;
-  }
-}
-
-// Handle WebSocket event
-static void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
-  switch (type) {
-    case WS_EVT_CONNECT: client->ping(); break; // client connected
-    case WS_EVT_DISCONNECT:                     // client disconnected
-    case WS_EVT_ERROR:                          // error was received from the other end
-    case WS_EVT_PONG: break;                    // pong message was received (in response to a ping request maybe)
-    case WS_EVT_DATA: {                         // data packet
-      AwsFrameInfo * info = (AwsFrameInfo*)arg;
-      if (info->opcode == WS_TEXT || info->message_opcode == WS_TEXT)
-        addToBuffer(data, len);
-    }
+    buffer.head = h;
   }
 }
 
 // Public Methods
+AsyncWebSocket ws("/ws"); // TODO Move inside the class.
+
+WebSocketSerial::WebSocketSerial() {
+  rx_buffer.data = new unsigned char[RX_BUFFER_SIZE];
+  tx_buffer.data = new unsigned char[TX_BUFFER_SIZE];
+  rx_buffer.head = rx_buffer.tail = tx_buffer.head = tx_buffer.tail = 0;
+}
+
+WebSocketSerial::~WebSocketSerial() {
+  delete[] rx_buffer.data;
+  delete[] tx_buffer.data;
+}
+
 void WebSocketSerial::begin(const long baud_setting) {
-  ws.onEvent(onEvent);
+  ws.onEvent([this](AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
+      switch (type) {
+        case WS_EVT_CONNECT: client->ping(); break; // client connected
+        case WS_EVT_DISCONNECT:                     // client disconnected
+        case WS_EVT_ERROR:                          // error was received from the other end
+        case WS_EVT_PONG: break;                    // pong message was received (in response to a ping request maybe)
+        case WS_EVT_DATA: {                         // data packet
+          AwsFrameInfo * info = (AwsFrameInfo*)arg;
+          if (info->opcode == WS_TEXT || info->message_opcode == WS_TEXT)
+            addToBuffer(this->rx_buffer, RX_BUFFER_SIZE, data, len);
+        }
+      }
+    });
   server.addHandler(&ws); // attach AsyncWebSocket
 }
 
 void WebSocketSerial::end() { }
 
 int WebSocketSerial::peek(void) {
-  const int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.buffer[rx_buffer.tail];
+  const int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.data[rx_buffer.tail];
   return v;
 }
 
@@ -100,7 +89,7 @@ int WebSocketSerial::read(void) {
   const ring_buffer_pos_t h = rx_buffer.head, t = rx_buffer.tail;
   if (h == t) return -1;  // Nothing to read? Return now
 
-  const int v = rx_buffer.buffer[t];
+  const int v = rx_buffer.data[t];
 
   rx_buffer.tail = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1); // Advance tail
 
@@ -120,17 +109,17 @@ void WebSocketSerial::write(const uint8_t c) {
   const uint8_t i = (tx_buffer.head + 1) & (TX_BUFFER_SIZE - 1);
 
   // Store new char. head is always safe to move
-  tx_buffer.buffer[tx_buffer.head] = c;
+  tx_buffer.data[tx_buffer.head] = c;
   tx_buffer.head = i;
 
   if (c == '\n') {
-    ws.textAll(tx_buffer.buffer, tx_buffer.head);
+    ws.textAll(tx_buffer.data, tx_buffer.head);
     tx_buffer.head = 0;
   }
 }
 
 void WebSocketSerial::flushTX(void) {
-  ws.textAll(tx_buffer.buffer, tx_buffer.head);
+  ws.textAll(tx_buffer.data, tx_buffer.head);
   tx_buffer.head = 0;
 }
 
@@ -171,7 +160,6 @@ void WebSocketSerial::println(unsigned long n, int base)  { print(n, base); prin
 void WebSocketSerial::println(double n, int digits)       { print(n, digits); println(); }
 
 // Private Methods
-
 void WebSocketSerial::printNumber(unsigned long n, uint8_t base) {
   if (n) {
     unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
