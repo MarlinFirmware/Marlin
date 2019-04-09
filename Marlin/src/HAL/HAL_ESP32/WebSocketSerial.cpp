@@ -46,8 +46,6 @@ struct ring_buffer_t {
 ring_buffer_r rx_buffer = { { 0 }, 0, 0 };
 ring_buffer_t tx_buffer = { { 0 }, 0, 0 };
 
-static bool _written;
-
 #if ENABLED(EMERGENCY_PARSER)
   static EmergencyParser::State emergency_state; // = EP_RESET
 #endif
@@ -115,38 +113,26 @@ bool WebSocketSerial::available(void) {
 }
 
 void WebSocketSerial::flush(void) {
-  ws.textAll("flush");
   rx_buffer.tail = rx_buffer.head;
 }
 
-#if TX_BUFFER_SIZE
+void WebSocketSerial::write(const uint8_t c) {
+  const uint8_t i = (tx_buffer.head + 1) & (TX_BUFFER_SIZE - 1);
 
-  void WebSocketSerial::write(const uint8_t c) {
-    _written = true;
+  // Store new char. head is always safe to move
+  tx_buffer.buffer[tx_buffer.head] = c;
+  tx_buffer.head = i;
 
-    const uint8_t i = (tx_buffer.head + 1) & (TX_BUFFER_SIZE - 1);
-
-    // Store new char. head is always safe to move
-    tx_buffer.buffer[tx_buffer.head] = c;
-    tx_buffer.head = i;
-
-    if (c == '\n') {
-      ws.textAll(tx_buffer.buffer, tx_buffer.head);
-      tx_buffer.head = 0;
-    }
+  if (c == '\n') {
+    ws.textAll(tx_buffer.buffer, tx_buffer.head);
+    tx_buffer.head = 0;
   }
+}
 
-  void WebSocketSerial::flushTx(void) {
-    ws.textAll("flushTx");
-    if (!_written) return;
-  }
-
-#else
-
- //void WebSocketSerial::write(const uint8_t c) { _written = true; }
- //void WebSocketSerial::flushTx(void) { if (!_written) return; }
-
-#endif
+void WebSocketSerial::flushTX(void) {
+  ws.textAll(tx_buffer.buffer, tx_buffer.head);
+  tx_buffer.head = 0;
+}
 
 /**
  * Imports from print.h
