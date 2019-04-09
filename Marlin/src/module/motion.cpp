@@ -499,7 +499,7 @@ void clean_up_after_endstop_or_probe_move() {
       soft_endstop[axis].min = base_min_pos(axis);
       soft_endstop[axis].max = (axis == Z_AXIS ? delta_height
       #if HAS_BED_PROBE
-        - zprobe_zoffset
+        - zprobe_zoffset + Z_PROBE_OFFSET_FROM_EXTRUDER
       #endif
       : base_max_pos(axis));
 
@@ -1294,7 +1294,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS ? delta_height
     #if HAS_BED_PROBE
-      - zprobe_zoffset
+      - zprobe_zoffset + Z_PROBE_OFFSET_FROM_EXTRUDER
     #endif
     : base_home_pos(axis));
   #else
