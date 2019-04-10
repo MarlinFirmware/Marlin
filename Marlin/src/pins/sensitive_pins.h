@@ -35,7 +35,7 @@
 #else
   #define _X_MAX
 #endif
-#if PIN_EXISTS(X_CS)
+#if PIN_EXISTS(X_CS) && AXIS_HAS_SPI(X)
   #define _X_CS X_CS_PIN,
 #else
   #define _X_CS
@@ -68,7 +68,7 @@
 #else
   #define _Y_MAX
 #endif
-#if PIN_EXISTS(Y_CS)
+#if PIN_EXISTS(Y_CS) && AXIS_HAS_SPI(Y)
   #define _Y_CS Y_CS_PIN,
 #else
   #define _Y_CS
@@ -101,7 +101,7 @@
 #else
   #define _Z_MAX
 #endif
-#if PIN_EXISTS(Z_CS)
+#if PIN_EXISTS(Z_CS) && AXIS_HAS_SPI(Z)
   #define _Z_CS Z_CS_PIN,
 #else
   #define _Z_CS
@@ -139,7 +139,7 @@
 #define _E0_MS3
 
 #if E_NEEDED(0)
-  #if PIN_EXISTS(E0_CS)
+  #if PIN_EXISTS(E0_CS) && AXIS_HAS_SPI(E0)
     #undef _E0_CS
     #define _E0_CS E0_CS_PIN,
   #endif
@@ -163,7 +163,7 @@
 #define _E1_MS3
 
 #if E_NEEDED(1)
-  #if PIN_EXISTS(E1_CS)
+  #if PIN_EXISTS(E1_CS) && AXIS_HAS_SPI(E1)
     #undef _E1_CS
     #define _E1_CS E1_CS_PIN,
   #endif
@@ -187,7 +187,7 @@
 #define _E2_MS3
 
 #if E_NEEDED(2)
-  #if PIN_EXISTS(E2_CS)
+  #if PIN_EXISTS(E2_CS) && AXIS_HAS_SPI(E2)
     #undef _E2_CS
     #define _E2_CS E2_CS_PIN,
   #endif
@@ -211,7 +211,7 @@
 #define _E3_MS3
 
 #if E_NEEDED(3)
-  #if PIN_EXISTS(E3_CS)
+  #if PIN_EXISTS(E3_CS) && AXIS_HAS_SPI(E3)
     #undef _E3_CS
     #define _E3_CS E3_CS_PIN,
   #endif
@@ -235,7 +235,7 @@
 #define _E4_MS3
 
 #if E_NEEDED(4)
-  #if PIN_EXISTS(E4_CS)
+  #if PIN_EXISTS(E4_CS) && AXIS_HAS_SPI(E4)
     #undef _E4_CS
     #define _E4_CS E4_CS_PIN,
   #endif
@@ -259,7 +259,7 @@
 #define _E5_MS3
 
 #if E_NEEDED(5)
-  #if PIN_EXISTS(E5_CS)
+  #if PIN_EXISTS(E5_CS) && AXIS_HAS_SPI(E5)
     #undef _E5_CS
     #define _E5_CS E5_CS_PIN,
   #endif
@@ -368,7 +368,7 @@
 //
 
 #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
-  #if PIN_EXISTS(X2_CS)
+  #if PIN_EXISTS(X2_CS) && AXIS_HAS_SPI(X2)
     #define _X2_CS X2_CS_PIN,
   #else
     #define _X2_CS
@@ -394,7 +394,7 @@
 #endif
 
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  #if PIN_EXISTS(Y2_CS)
+  #if PIN_EXISTS(Y2_CS) && AXIS_HAS_SPI(Y2)
     #define _Y2_CS Y2_CS_PIN,
   #else
     #define _Y2_CS
@@ -420,7 +420,7 @@
 #endif
 
 #if Z_MULTI_STEPPER_DRIVERS
-  #if PIN_EXISTS(Z2_CS)
+  #if PIN_EXISTS(Z2_CS) && AXIS_HAS_SPI(Z2)
     #define _Z2_CS Z2_CS_PIN,
   #else
     #define _Z2_CS
@@ -446,7 +446,7 @@
 #endif
 
 #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-  #if PIN_EXISTS(Z3_CS)
+  #if PIN_EXISTS(Z3_CS) && AXIS_HAS_SPI(Z3)
     #define _Z3_CS Z3_CS_PIN,
   #else
     #define _Z3_CS
