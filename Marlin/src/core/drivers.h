@@ -75,7 +75,9 @@
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations
 #define HAS_TRINAMIC ( HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2660) || HAS_DRIVER(TMC5130) || HAS_DRIVER(TMC5160) )
-
+// Test for a driver that uses SPI - this allows checking whether we need to define a _CS_ pin
+#define AXIS_HAS_SPI(ST)         (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) || AXIS_DRIVER_TYPE(ST, TMC2660))
+  
 #define AXIS_IS_TMC(A) ( AXIS_DRIVER_TYPE_##A(TMC2130) || \
                          AXIS_DRIVER_TYPE_##A(TMC2160) || \
                          AXIS_DRIVER_TYPE_##A(TMC2208) || \

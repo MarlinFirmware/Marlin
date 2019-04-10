@@ -65,28 +65,28 @@
 #define X_STEP_PIN         P2_01   // (54)
 #define X_DIR_PIN          P0_11   // (55)
 #define X_ENABLE_PIN       P0_10   // (38)
-#ifndef X_CS_PIN
+#if AXIS_HAS_SPI(X) && !defined(X_CS_PIN)
   #define X_CS_PIN         P1_01   // ETH
 #endif
 
 #define Y_STEP_PIN         P2_02   // (60)
 #define Y_DIR_PIN          P0_20   // (61)
 #define Y_ENABLE_PIN       P0_19   // (56)
-#ifndef Y_CS_PIN
+#if AXIS_HAS_SPI(Y) && !defined(Y_CS_PIN)
   #define Y_CS_PIN         P1_04   // ETH
 #endif
 
 #define Z_STEP_PIN         P2_03   // (46)
 #define Z_DIR_PIN          P0_22   // (48)
 #define Z_ENABLE_PIN       P0_21   // (62)
-#ifndef Z_CS_PIN
+#if AXIS_HAS_SPI(Z) && !defined(Z_CS_PIN)
   #define Z_CS_PIN         P1_10   // ETH
 #endif
 
 #define E0_STEP_PIN        P2_00   // (26)
 #define E0_DIR_PIN         P0_05   // (28)
 #define E0_ENABLE_PIN      P0_04   // (24)
-#ifndef E0_CS_PIN
+#if AXIS_HAS_SPI(E0) && !defined(E0_CS_PIN)
   #define E0_CS_PIN        P1_14   // ETH
 #endif
 
