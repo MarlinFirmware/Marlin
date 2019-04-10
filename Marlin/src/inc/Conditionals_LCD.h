@@ -556,3 +556,7 @@
     #endif
   #endif
 #endif
+
+#if ENABLED(SLIM_LCD_MENUS)
+  #define BOOT_MARLIN_LOGO_SMALL
+#endif
