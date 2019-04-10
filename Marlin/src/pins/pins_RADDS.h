@@ -61,42 +61,42 @@
 #define X_STEP_PIN         24
 #define X_DIR_PIN          23
 #define X_ENABLE_PIN       26
-#ifndef X_CS_PIN
+#if AXIS_HAS_SPI(X) && !defined(X_CS_PIN)
   #define X_CS_PIN         25
 #endif
 
 #define Y_STEP_PIN         17
 #define Y_DIR_PIN          16
 #define Y_ENABLE_PIN       22
-#ifndef Y_CS_PIN
+#if AXIS_HAS_SPI(Y) && !defined(Y_CS_PIN)
   #define Y_CS_PIN         27
 #endif
 
 #define Z_STEP_PIN          2
 #define Z_DIR_PIN           3
 #define Z_ENABLE_PIN       15
-#ifndef Z_CS_PIN
+#if AXIS_HAS_SPI(Z) && !defined(Z_CS_PIN)
   #define Z_CS_PIN         29
 #endif
 
 #define E0_STEP_PIN        61
 #define E0_DIR_PIN         60
 #define E0_ENABLE_PIN      62
-#ifndef E0_CS_PIN
+#if AXIS_HAS_SPI(E0) && !defined(E0_CS_PIN)
   #define E0_CS_PIN        31
 #endif
 
 #define E1_STEP_PIN        64
 #define E1_DIR_PIN         63
 #define E1_ENABLE_PIN      65
-#ifndef E1_CS_PIN
+#if AXIS_HAS_SPI(E1) && !defined(E1_CS_PIN)
   #define E1_CS_PIN        33
 #endif
 
 #define E2_STEP_PIN        51
 #define E2_DIR_PIN         53
 #define E2_ENABLE_PIN      49
-#ifndef E2_CS_PIN
+#if AXIS_HAS_SPI(E2) && !defined(E2_CS_PIN)
   #define E2_CS_PIN        35
 #endif
 

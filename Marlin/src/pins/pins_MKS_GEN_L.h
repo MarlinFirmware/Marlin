@@ -41,11 +41,11 @@
 // See https://www.thingiverse.com/asset:66604
 //
 
-#ifndef X_CS_PIN
+#if AXIS_HAS_SPI(X) && !defined(X_CS_PIN)
   #define X_CS_PIN 59
 #endif
 
-#ifndef Y_CS_PIN
+#if AXIS_HAS_SPI(Y) && !defined(Y_CS_PIN)
   #define Y_CS_PIN 63
 #endif
 
