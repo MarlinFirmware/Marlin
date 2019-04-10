@@ -38,6 +38,8 @@
 #include "../module/stepper.h"
 #include "../gcode/parser.h"
 
+#include "../feature/babystep.h"
+
 #include <Wire.h>
 
 void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
@@ -169,7 +171,7 @@ void I2CPositionEncoder::update() {
             const int32_t errorP = int32_t(sumP * (1.0f / (I2CPE_ERR_PRST_ARRAY_SIZE)));
             SERIAL_ECHO(axis_codes[encoderAxis]);
             SERIAL_ECHOLNPAIR(" - err detected: ", errorP * planner.steps_to_mm[encoderAxis], "mm; correcting!");
-            thermalManager.babystepsTodo[encoderAxis] = -LROUND(errorP);
+            babystep.add_steps(encoderAxis, -LROUND(errorP));
             errPrstIdx = 0;
           }
         }
@@ -180,7 +182,7 @@ void I2CPositionEncoder::update() {
       if (ABS(error) > threshold * planner.settings.axis_steps_per_mm[encoderAxis]) {
         //SERIAL_ECHOLN(error);
         //SERIAL_ECHOLN(position);
-        thermalManager.babystepsTodo[encoderAxis] = -LROUND(error / 2);
+        babystep.add_steps(encoderAxis, -LROUND(error / 2));
       }
     #endif
 

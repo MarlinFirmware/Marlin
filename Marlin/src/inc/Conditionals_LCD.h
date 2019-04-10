@@ -87,8 +87,8 @@
     #define U8GLIB_LM6059_AF
     #define SD_DETECT_INVERTED
   #elif ENABLED(AZSMZ_12864)
-    #define LCD_CONTRAST_MIN  120
-    #define LCD_CONTRAST_MAX 255
+    #define LCD_CONTRAST_MIN     120
+    #define LCD_CONTRAST_MAX     255
     #define DEFAULT_LCD_CONTRAST 190
     #define U8GLIB_ST7565_64128N
   #endif
@@ -138,6 +138,13 @@
 #elif ENABLED(MKS_MINI_12864)
 
   #define MINIPANEL
+
+#elif ENABLED(FYSETC_MINI_12864)
+
+  #define DOGLCD
+  #define ULTIPANEL
+  #define DEFAULT_LCD_CONTRAST 255
+  #define LED_COLORS_REDUCE_GREEN
 
 #endif
 
@@ -313,28 +320,19 @@
 
 #define HAS_ADC_BUTTONS     ENABLED(ADC_KEYPAD)
 
-#if HAS_GRAPHICAL_LCD
-  /**
-   * Default LCD contrast for Graphical LCD displays
-   */
-  #define HAS_LCD_CONTRAST (                \
-       ENABLED(MAKRPANEL)                   \
-    || ENABLED(CARTESIO_UI)                 \
-    || ENABLED(VIKI2)                       \
-    || ENABLED(AZSMZ_12864)                 \
-    || ENABLED(miniVIKI)                    \
-    || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
-  )
-  #if HAS_LCD_CONTRAST
-    #ifndef LCD_CONTRAST_MIN
-      #define LCD_CONTRAST_MIN 0
-    #endif
-    #ifndef LCD_CONTRAST_MAX
-      #define LCD_CONTRAST_MAX 63
-    #endif
-    #ifndef DEFAULT_LCD_CONTRAST
-      #define DEFAULT_LCD_CONTRAST 32
-    #endif
+/**
+ * Default LCD contrast for Graphical LCD displays
+ */
+#define HAS_LCD_CONTRAST HAS_GRAPHICAL_LCD && defined(DEFAULT_LCD_CONTRAST)
+#if HAS_LCD_CONTRAST
+  #ifndef LCD_CONTRAST_MIN
+    #define LCD_CONTRAST_MIN 0
+  #endif
+  #ifndef LCD_CONTRAST_MAX
+    #define LCD_CONTRAST_MAX 63
+  #endif
+  #ifndef DEFAULT_LCD_CONTRAST
+    #define DEFAULT_LCD_CONTRAST 32
   #endif
 #endif
 

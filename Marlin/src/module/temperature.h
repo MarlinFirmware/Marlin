@@ -266,10 +266,6 @@ class Temperature {
                      soft_pwm_count_fan[FAN_COUNT];
     #endif
 
-    #if ENABLED(BABYSTEPPING)
-      static volatile int16_t babystepsTodo[3];
-    #endif
-
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       static bool allow_cold_extrude;
       static int16_t extrude_min_temp;
@@ -687,10 +683,6 @@ class Temperature {
         }
       #endif
 
-    #endif
-
-    #if ENABLED(BABYSTEPPING)
-      static void babystep_axis(const AxisEnum axis, const int16_t distance);
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)

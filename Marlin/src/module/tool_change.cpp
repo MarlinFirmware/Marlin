@@ -121,7 +121,7 @@
 
     void move_nozzle_servo(const uint8_t angle_index) {
       planner.synchronize();
-      MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_NOZZLE_SERVO_NR][e]);
+      MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_NOZZLE_SERVO_NR][angle_index]);
       safe_delay(500);
     }
 
@@ -519,10 +519,6 @@ inline void invalid_extruder_error(const uint8_t e) {
       planner.synchronize();
     }
 
-    // Apply Y & Z extruder offset (X offset is used as home pos with Dual X)
-    current_position[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][tmp_extruder];
-    current_position[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
-
     // Activate the new extruder ahead of calling set_axis_is_at_home!
     active_extruder = tmp_extruder;
 
@@ -577,7 +573,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
     UNUSED(fr_mm_s); UNUSED(no_move);
 
-    mmu2.toolChange(tmp_extruder);
+    mmu2.tool_change(tmp_extruder);
 
   #elif EXTRUDERS < 2
 
@@ -777,25 +773,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #endif
 
       #if ENABLED(PRUSA_MMU2)
-        mmu2.toolChange(tmp_extruder);
+        mmu2.tool_change(tmp_extruder);
       #endif
 
       #if SWITCHING_NOZZLE_TWO_SERVOS
         lower_nozzle(active_extruder);
-      #endif
-
-      #if ENABLED(TOOLCHANGE_FILAMENT_SWAP) && ADVANCED_PAUSE_RESUME_PRIME != 0
-        if (should_swap && !too_cold) {
-          const float resume_eaxis = current_position[E_AXIS];
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            do_pause_e_move(toolchange_settings.swap_length, toolchange_settings.prime_speed);
-          #else
-            current_position[E_AXIS] += (ADVANCED_PAUSE_RESUME_PRIME) / planner.e_factor[active_extruder];
-            planner.buffer_line(current_position, ADVANCED_PAUSE_PURGE_FEEDRATE, active_extruder);
-          #endif
-          planner.synchronize();
-          planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = resume_eaxis));
-        }
       #endif
 
     } // (tmp_extruder != active_extruder)

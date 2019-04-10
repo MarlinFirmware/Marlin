@@ -40,6 +40,12 @@
 #define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%d.%02d"), LPC1768_PIN_PORT(p), LPC1768_PIN_PIN(p)); SERIAL_ECHO(buffer);} while (0)
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
+// pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
+//  uses pin index
+#ifndef M43_NEVER_TOUCH
+  #define M43_NEVER_TOUCH(Q) ((Q) == 29 || (Q) == 30 || (Q) == 73)  // USB pins
+#endif
+
 // active ADC function/mode/code values for PINSEL registers
 constexpr int8_t ADC_pin_mode(pin_t pin) {
   return (LPC1768_PIN_PORT(pin) == 0 && LPC1768_PIN_PIN(pin) == 2  ? 2 :

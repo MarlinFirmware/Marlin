@@ -41,7 +41,7 @@ void GcodeSuite::M403() {
          type = parser.intval('F', -1);
 
   if (WITHIN(index, 0, 4) && WITHIN(type, 0, 2))
-    mmu2.setFilamentType(index, type);
+    mmu2.set_filament_type(index, type);
   else
     SERIAL_ECHO_MSG("M403 - bad arguments.");
 }

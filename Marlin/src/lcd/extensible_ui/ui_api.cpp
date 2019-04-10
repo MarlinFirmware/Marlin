@@ -97,6 +97,10 @@
   #include "../../feature/runout.h"
 #endif
 
+#if ENABLED(BABYSTEPPING)
+  #include "../../feature/babystep.h"
+#endif
+
 inline float clamp(const float value, const float minimum, const float maximum) {
   return MAX(MIN(value, maximum), minimum);
 }
@@ -584,10 +588,10 @@ namespace ExtUI {
     bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
       switch (axis) {
         #if ENABLED(BABYSTEP_XY)
-          case X: thermalManager.babystep_axis(X_AXIS, steps); break;
-          case Y: thermalManager.babystep_axis(Y_AXIS, steps); break;
+          case X: babystep.add_steps(X_AXIS, steps); break;
+          case Y: babystep.add_steps(Y_AXIS, steps); break;
         #endif
-        case Z: thermalManager.babystep_axis(Z_AXIS, steps); break;
+        case Z: babystep.add_steps(Z_AXIS, steps); break;
         default: return false;
       };
       return true;
