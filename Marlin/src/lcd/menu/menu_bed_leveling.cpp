@@ -194,7 +194,7 @@
     ui.defer_status_screen();
     set_all_unhomed();
     ui.goto_screen(_lcd_level_bed_homing);
-    enqueue_and_echo_commands_P(PSTR("G28"));
+    enqueue_and_echo_commands_P(PSTR("G28\nG29"));
   }
 
 #endif // PROBE_MANUALLY || MESH_BED_LEVELING
