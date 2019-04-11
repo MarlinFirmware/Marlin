@@ -90,13 +90,13 @@ class TFilamentMonitor : public FilamentMonitorBase {
     // Give the response a chance to update its counter.
     static inline void run() {
       if (enabled && !filament_ran_out && (IS_SD_PRINTING() || print_job_timer.isRunning() || did_pause_print)) {
-        #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+        #ifdef FILAMENT_RUNOUT_DISTANCE_MM
           cli(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         #endif
         response.run();
         sensor.run();
         const bool ran_out = response.has_run_out();
-        #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+        #ifdef FILAMENT_RUNOUT_DISTANCE_MM
           sei();
         #endif
         if (ran_out) {
@@ -272,7 +272,7 @@ class FilamentSensorBase {
 
 /********************************* RESPONSE TYPE *********************************/
 
-#if FILAMENT_RUNOUT_DISTANCE_MM > 0
+#ifdef FILAMENT_RUNOUT_DISTANCE_MM
 
   // RunoutResponseDelayed triggers a runout event only if the length
   // of filament specified by FILAMENT_RUNOUT_DISTANCE_MM has been fed
@@ -347,7 +347,7 @@ class FilamentSensorBase {
 /********************************* TEMPLATE SPECIALIZATION *********************************/
 
 typedef TFilamentMonitor<
-  #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     #if ENABLED(FILAMENT_MOTION_SENSOR)
       RunoutResponseDelayed, FilamentSensorEncoder
     #else

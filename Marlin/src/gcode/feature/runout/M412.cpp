@@ -31,7 +31,7 @@
  * M412: Enable / Disable filament runout detection
  */
 void GcodeSuite::M412() {
-  if (parser.seen("HS"
+  if (parser.seen("HSD"
     #if ENABLED(HOST_ACTION_COMMANDS)
       "R"
     #endif
@@ -42,11 +42,17 @@ void GcodeSuite::M412() {
     const bool seenR = parser.seen('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
     if (seenS) runout.enabled = parser.value_bool();
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      if (parser.seen('D')) RunoutResponseDelayed::runout_distance_mm = parser.value_linear_units();
+    #endif
   }
   else {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Filament runout ");
     serialprintln_onoff(runout.enabled);
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      SERIAL_ECHOLNPAIR("Filament runout distance (mm): ", RunoutResponseDelayed::runout_distance_mm);
+    #endif
   }
 }
 

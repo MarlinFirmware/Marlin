@@ -82,11 +82,7 @@
 #include "ui_api.h"
 
 #if ENABLED(BACKLASH_GCODE)
-  extern float backlash_distance_mm[XYZ];
-  extern uint8_t backlash_correction;
-  #ifdef BACKLASH_SMOOTHING_MM
-    extern float backlash_smoothing_mm;
-  #endif
+  #include "../../feature/backlash.h"
 #endif
 
 #if HAS_LEVELING
@@ -111,6 +107,10 @@ static struct {
 } flags;
 
 namespace ExtUI {
+  // The ExtUI implementation can write UI specific settings
+  // to this buffer and Marlin will save it to the EEPROM
+
+  uint8_t eeprom_data[eeprom_data_size] = { 0 };
 
   #ifdef __SAM3X8E__
     /**
@@ -517,7 +517,7 @@ namespace ExtUI {
     bool getFilamentRunoutEnabled()                 { return runout.enabled; }
     void setFilamentRunoutEnabled(const bool value) { runout.enabled = value; }
 
-    #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
       float getFilamentRunoutDistance_mm() {
         return RunoutResponseDelayed::runout_distance_mm;
       }
@@ -687,16 +687,16 @@ namespace ExtUI {
   #endif // HAS_HOTEND_OFFSET
 
   #if ENABLED(BACKLASH_GCODE)
-    float getAxisBacklash_mm(const axis_t axis)       { return backlash_distance_mm[axis]; }
+    float getAxisBacklash_mm(const axis_t axis)       { return backlash.backlash_distance_mm[axis]; }
     void setAxisBacklash_mm(const float value, const axis_t axis)
-                                                      { backlash_distance_mm[axis] = clamp(value,0,5); }
+                                                      { backlash.backlash_distance_mm[axis] = clamp(value,0,5); }
 
-    float getBacklashCorrection_percent()             { return ui8_to_percent(backlash_correction); }
-    void setBacklashCorrection_percent(const float value) { backlash_correction = map(clamp(value, 0, 100), 0, 100, 0, 255); }
+    float getBacklashCorrection_percent()             { return ui8_to_percent(backlash.backlash_correction); }
+    void setBacklashCorrection_percent(const float value) { backlash.backlash_correction = map(clamp(value, 0, 100), 0, 100, 0, 255); }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      float getBacklashSmoothing_mm()                 { return backlash_smoothing_mm; }
-      void setBacklashSmoothing_mm(const float value) { backlash_smoothing_mm = clamp(value, 0, 999); }
+      float getBacklashSmoothing_mm()                 { return backlash.backlash_smoothing_mm; }
+      void setBacklashSmoothing_mm(const float value) { backlash.backlash_smoothing_mm = clamp(value, 0, 999); }
     #endif
   #endif
 
