@@ -33,13 +33,10 @@
 #include "../../gcode/queue.h"
 #include "../../module/printcounter.h"
 #include "../../module/stepper.h"
+#include "../../sd/cardreader.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/power_loss_recovery.h"
-#endif
-
-#if ENABLED(SDSUPPORT)
-  #include "../../sd/cardreader.h"
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
