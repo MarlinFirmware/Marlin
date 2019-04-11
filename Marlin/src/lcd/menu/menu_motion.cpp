@@ -452,6 +452,10 @@ void menu_motion() {
   //
   // Level Bed
   //
+  #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
+    MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+  #endif
+
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     MENU_ITEM(submenu, MSG_UBL_LEVEL_BED, _lcd_ubl_level_bed);
@@ -473,10 +477,6 @@ void menu_motion() {
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &lcd_z_fade_height, 0, 100, _lcd_set_z_fade_height);
     #endif
 
-  #endif
-
-  #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
-    MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
   #endif
 
   //
