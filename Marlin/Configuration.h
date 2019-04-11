@@ -1113,6 +1113,13 @@
 //#define RESTORE_LEVELING_AFTER_G28
 
 /**
+ * This save ABL and UBL Leveling State On or Off to EPROM.
+ * Enable this option makes printer back to previous state after reboot.
+ * Disable this option makes Leveling State Off after reboot.
+ */
+#define REMEMBER_LEVELING_STATE_AFTER_REBOOT
+
+/**
  * Enable detailed logging of G28, G29, M48, etc.
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
