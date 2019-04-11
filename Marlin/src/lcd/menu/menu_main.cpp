@@ -146,7 +146,7 @@ void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
 
-  const bool busy = printer_busy()
+  const bool busy = IS_SD_PRINTING() || print_job_timer.isRunning()
     #if ENABLED(SDSUPPORT)
       , card_detected = card.isDetected()
       , card_open = card_detected && card.isFileOpen()
