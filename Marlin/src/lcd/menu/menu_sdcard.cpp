@@ -102,8 +102,8 @@ class MenuItem_sdfile {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
         // Save menu state for the selected file
         sd_encoder_position = ui.encoderPosition;
-        sd_top_line = ui.encoderTopLine;
-        sd_items = ui.screen_items;
+        sd_top_line = encoderTopLine;
+        sd_items = screen_items;
       #endif
       #if ENABLED(SD_MENU_CONFIRM_START)
         do_print_file = false;
@@ -119,7 +119,7 @@ class MenuItem_sdfolder {
     static void action(CardReader &theCard) {
       card.chdir(theCard.filename);
       encoderTopLine = 0;
-      ui.encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
+      ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
       screen_changed = true;
       #if HAS_GRAPHICAL_LCD
         ui.drawing_screen = false;

@@ -425,7 +425,7 @@
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define XYZE_N (XYZ + E_STEPPERS)
-  #define E_AXIS_N(E) (E_AXIS + E)
+  #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
 #else
   #undef DISTINCT_E_FACTORS
   #define XYZE_N XYZE
@@ -555,4 +555,8 @@
       #define ACTION_ON_G29_FAILURE "probe_failed"
     #endif
   #endif
+#endif
+
+#if ENABLED(SLIM_LCD_MENUS)
+  #define BOOT_MARLIN_LOGO_SMALL
 #endif
