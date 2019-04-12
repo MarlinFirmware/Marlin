@@ -276,7 +276,7 @@
 #endif // !USBCON
 
 
-#if defined(INTERNAL_SERIAL_PORT)
+#ifdef INTERNAL_SERIAL_PORT
   template <uint8_t serial>
   struct MarlinInternalSerialCfg {
     static constexpr int PORT               = serial;
