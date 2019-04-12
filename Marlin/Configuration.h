@@ -880,7 +880,7 @@
   //#define ENDSTOPPULLUP_ZMAX
   #define ENDSTOPPULLUP_XMIN
   #define ENDSTOPPULLUP_YMIN
-  #if ANY(BLTOUCH, BLTOUCH_V3, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE)
+  #if ANY(BLTOUCH, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE)
     //#define ENDSTOPPULLUP_ZMIN
     #define ENDSTOPPULLUP_ZMIN_PROBE
   #else
@@ -905,7 +905,7 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
-#if ANY(BLTOUCH, BLTOUCH_V3)
+#if ENABLED(BLTOUCH)
   // #define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #elif ENABLED(INDUCTIVE_NC)
   #define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -915,7 +915,7 @@
 //#define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 //#define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 //#define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#if ANY(BLTOUCH, BLTOUCH_V3, INDUCTIVE_NC)
+#if ANY(BLTOUCH, INDUCTIVE_NC)
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #elif ANY(SN04, INDUCTIVE_NO, SERVO_PROBE, NOZZLE_PROBE)
   #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
@@ -1086,7 +1086,7 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
-#if ANY(BLTOUCH, BLTOUCH_V3, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE)
+#if ANY(BLTOUCH, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 
@@ -1242,7 +1242,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
-#if ANY(BLTOUCH, BLTOUCH_V3, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE) && DISABLED(MANUAL)
+#if ANY(BLTOUCH, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE) && DISABLED(MANUAL)
   #define Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
@@ -1504,7 +1504,7 @@
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-#if ANY(BLTOUCH, BLTOUCH_V3, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE, MANUAL)
+#if ANY(BLTOUCH, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE, MANUAL)
   #define RESTORE_LEVELING_AFTER_G28
 #endif
 
@@ -1623,7 +1623,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(BLTOUCH, BLTOUCH_V3, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE) && ENABLED(MANUAL)
+#if NONE(BLTOUCH, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE) && ENABLED(MANUAL)
   #define LCD_BED_LEVELING
 #endif
 
@@ -1670,7 +1670,7 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-#if ANY(BLTOUCH, BLTOUCH_V3, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE)
+#if ANY(BLTOUCH, SN04, INDUCTIVE_NO, INDUCTIVE_NC, SERVO_PROBE, NOZZLE_PROBE)
   #define Z_SAFE_HOMING
   #if ENABLED(NOZZLE_PROBE)
     #define Z_SAFE_X_POINT PROBE_X_LEFT
