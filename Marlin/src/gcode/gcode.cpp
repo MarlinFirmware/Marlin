@@ -278,7 +278,7 @@ void GcodeSuite::process_parsed_command(
         case 58: G58(); break;
         case 59: G59(); break;
       #endif
-      
+
       #if ENABLED(GCODE_MOTION_MODES)
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
