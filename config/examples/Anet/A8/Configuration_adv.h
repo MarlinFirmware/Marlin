@@ -50,6 +50,19 @@
   #define HEATER_BED_INVERTING true
 #endif
 
+/**
+ * Heated Chamber settings
+ */
+#if TEMP_SENSOR_CHAMBER
+  #define CHAMBER_MINTEMP             5
+  #define CHAMBER_MAXTEMP            60
+  #define TEMP_CHAMBER_HYSTERESIS     1   // (°C) Temperature proximity considered "close enough" to the target
+  #define THERMAL_PROTECTION_CHAMBER      // Enable thermal protection for the heated chamber
+  //#define CHAMBER_LIMIT_SWITCHING
+  //#define HEATER_CHAMBER_PIN       44   // Chamber heater on/off pin
+  //#define HEATER_CHAMBER_INVERTING false
+#endif
+
 #if DISABLED(PIDTEMPBED)
   #define BED_CHECK_INTERVAL 5000 // ms between checks in bang-bang control
   #if ENABLED(BED_LIMIT_SWITCHING)
@@ -127,8 +140,8 @@
 #endif
 
 #if ENABLED(PIDTEMP)
-  // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
-  // if Kc is chosen well, the additional required power due to increased melting should be compensated.
+  // Add an experimental additional term to the heater power, proportional to the extrusion speed.
+  // A well-chosen Kc value should add just enough power to melt the increased material volume.
   //#define PID_EXTRUSION_SCALING
   #if ENABLED(PID_EXTRUSION_SCALING)
     #define DEFAULT_Kc (100) //heating power=Kc*(e_speed)

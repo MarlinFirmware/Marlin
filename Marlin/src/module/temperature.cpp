@@ -595,10 +595,23 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
 
 Temperature::Temperature() { }
 
-int Temperature::getHeaterPower(const int heater) {
+int16_t Temperature::getHeaterPower(const int8_t heater) {
   return (
+    #if HAS_HEATED_CHAMBER
+      #if HAS_HEATED_BED
+        heater == -2
+      #else
+        heater < 0
+      #endif
+      ? temp_chamber.soft_pwm_amount :
+    #endif
     #if HAS_HEATED_BED
-      heater < 0 ? temp_bed.soft_pwm_amount :
+      #if HAS_HEATED_CHAMBER
+        heater == -1
+      #else
+        heater < 0
+      #endif
+      ? temp_bed.soft_pwm_amount :
     #endif
     temp_hotend[heater].soft_pwm_amount
   );
@@ -1073,11 +1086,11 @@ void Temperature::manage_heater() {
 
       if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
         #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-          if (temp_chamber.current >= temp_chamber.target + CHAMBER_HYSTERESIS)
+          if (temp_chamber.current >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
             temp_chamber.soft_pwm_amount = 0;
-          else if (temp_chamber.current <= temp_chamber.target - (CHAMBER_HYSTERESIS))
+          else if (temp_chamber.current <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
             temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
-        #else // !PIDTEMPCHAMBER && !CHAMBER_LIMIT_SWITCHING
+        #else
           temp_chamber.soft_pwm_amount = temp_chamber.current < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
         #endif
       }
@@ -2017,11 +2030,7 @@ void Temperature::readings_ready() {
     #else
       #define CHAMBERCMP(A,B) ((A)>=(B))
     #endif
-    const bool chamber_on = (temp_chamber.target > 0)
-      #if ENABLED(PIDTEMPCHAMBER)
-        || (temp_chamber.soft_pwm_amount > 0)
-      #endif
-    ;
+    const bool chamber_on = (temp_chamber.target > 0);
     if (CHAMBERCMP(temp_chamber.raw, maxtemp_raw_CHAMBER)) max_temp_error(-2);
     if (chamber_on && CHAMBERCMP(mintemp_raw_CHAMBER, temp_chamber.raw)) min_temp_error(-2);
   #endif
@@ -2602,11 +2611,12 @@ void Temperature::isr() {
         , e
       );
     #endif
-    SERIAL_ECHOPGM(" @:");
-    SERIAL_ECHO(getHeaterPower(target_extruder));
+    SERIAL_ECHOPAIR(" @:", getHeaterPower(target_extruder));
     #if HAS_HEATED_BED
-      SERIAL_ECHOPGM(" B@:");
-      SERIAL_ECHO(getHeaterPower(-1));
+      SERIAL_ECHOPAIR(" B@:", getHeaterPower(-1));
+    #endif
+    #if HAS_HEATED_CHAMBER
+      SERIAL_ECHOPAIR(" C@:", getHeaterPower(-2));
     #endif
     #if HOTENDS > 1
       HOTEND_LOOP() {
