@@ -62,7 +62,7 @@ OLDWD=`pwd`
 #
 # By default loop through all languages
 #
-LANGS_DEFAULT="an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana ko_KR nl pl pt pt-br ru sk tr uk zh_CN zh_TW test"
+LANGS_DEFAULT="an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana ko_KR nl pl pt pt-br ru sk tr uk vi zh_CN zh_TW test"
 
 #
 # Generate data for language list MARLIN_LANGS or all if not provided
