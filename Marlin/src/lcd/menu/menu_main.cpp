@@ -33,13 +33,10 @@
 #include "../../gcode/queue.h"
 #include "../../module/printcounter.h"
 #include "../../module/stepper.h"
+#include "../../sd/cardreader.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/power_loss_recovery.h"
-#endif
-
-#if ENABLED(SDSUPPORT)
-  #include "../../sd/cardreader.h"
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
@@ -146,7 +143,7 @@ void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
 
-  const bool busy = printer_busy()
+  const bool busy = IS_SD_PRINTING() || print_job_timer.isRunning()
     #if ENABLED(SDSUPPORT)
       , card_detected = card.isDetected()
       , card_open = card_detected && card.isFileOpen()

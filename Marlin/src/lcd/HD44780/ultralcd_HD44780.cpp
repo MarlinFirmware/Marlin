@@ -1025,7 +1025,7 @@ void MarlinUI::draw_status_screen() {
   }
 
   void draw_edit_screen(PGM_P const pstr, const char* const value/*=NULL*/) {
-    lcd_moveto(1, 1);
+    lcd_moveto(0, 1);
     lcd_put_u8str_P(pstr);
     if (value != NULL) {
       lcd_put_wchar(':');
@@ -1035,6 +1035,16 @@ void MarlinUI::draw_status_screen() {
       lcd_put_wchar(' ');                                                                     // Overwrite char if value gets shorter
       lcd_put_u8str(value);
     }
+  }
+
+  void draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
+    SETCURSOR(0, 0); lcd_put_u8str_P(pref);
+    if (string) wrap_string(1, string);
+    if (suff) lcd_put_u8str_P(suff);
+    SETCURSOR(0, LCD_HEIGHT - 1);
+    lcd_put_wchar(yesno ? ' ' : '['); lcd_put_u8str_P(no); lcd_put_wchar(yesno ? ' ' : ']');
+    SETCURSOR_RJ(utf8_strlen_P(yes) + 2, LCD_HEIGHT - 1);
+    lcd_put_wchar(yesno ? '[' : ' '); lcd_put_u8str_P(yes); lcd_put_wchar(yesno ? ']' : ' ');
   }
 
   #if ENABLED(SDSUPPORT)

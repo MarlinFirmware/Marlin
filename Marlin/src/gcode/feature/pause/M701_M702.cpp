@@ -84,7 +84,7 @@ void GcodeSuite::M701() {
 
   // Load filament
   #if ENABLED(PRUSA_MMU2)
-    mmu2.loadFilamentToNozzle(target_extruder);
+    mmu2.load_filament_to_nozzle(target_extruder);
   #else
     constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
     const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)

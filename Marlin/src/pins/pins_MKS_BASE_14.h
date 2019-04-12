@@ -47,7 +47,7 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #define SPINDLE_LASER_PWM_PIN     2   // X+ // PE4 ** Pin6  ** PWM2       **MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN 15   // Y+ // PJ0 ** Pin63 ** USART3_RX  **Pin should have a pullup!
+#define SPINDLE_LASER_ENA_PIN    15   // Y+ // PJ0 ** Pin63 ** USART3_RX  **Pin should have a pullup!
 #define SPINDLE_DIR_PIN          19   // Z+ // PD2 ** Pin45 ** USART1_RX
 
 //
@@ -63,6 +63,16 @@
 #define E0_MS2_PIN               63   // PK1 ** Pin88 ** A9
 #define E1_MS1_PIN               57   // PF3 ** Pin94 ** A3
 #define E1_MS2_PIN                4   // PG5 ** Pin1  ** PWM4
+
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_R_PIN          50
+#endif
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_G_PIN          51
+#endif
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_B_PIN          52
+#endif
 
 #include "pins_RAMPS.h"
 

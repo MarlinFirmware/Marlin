@@ -154,29 +154,53 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
       lcd_custom_bootscreen();
     #endif
 
-    constexpr uint8_t offy =
-      #if ENABLED(START_BMPHIGH)
-        (LCD_PIXEL_HEIGHT - (START_BMPHEIGHT)) / 2
-      #else
-        MENU_FONT_HEIGHT
-      #endif
-    ;
+    // Screen dimensions.
+    //const uint8_t width = u8g.getWidth(), height = u8g.getHeight();
+    constexpr uint8_t width = LCD_PIXEL_WIDTH, height = LCD_PIXEL_HEIGHT;
 
-    const uint8_t width = u8g.getWidth(), height = u8g.getHeight(),
-                  offx = (width - (START_BMPWIDTH)) / 2;
+    // Determine text space needed
+    #ifndef STRING_SPLASH_LINE2
+      constexpr uint8_t text_total_height = MENU_FONT_HEIGHT,
+                        text_width_1 = (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH),
+                        text_width_2 = 0;
+    #else
+      constexpr uint8_t text_total_height = (MENU_FONT_HEIGHT) * 2,
+                        text_width_1 = (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH),
+                        text_width_2 = (sizeof(STRING_SPLASH_LINE2) - 1) * (MENU_FONT_WIDTH);
+    #endif
+    constexpr uint8_t text_max_width = MAX(text_width_1, text_width_2),
+                      rspace = width - (START_BMPWIDTH);
+
+    int8_t offx, offy, txt_base, txt_offx_1, txt_offx_2;
+
+    // Can the text fit to the right of the bitmap?
+    if (text_max_width < rspace) {
+      constexpr uint8_t inter = (width - text_max_width - (START_BMPWIDTH)) / 3; // Evenly distribute horizontal space
+      offx = inter;                             // First the boot logo...
+      offy = (height - (START_BMPHEIGHT)) / 2;  // ...V-aligned in the full height
+      txt_offx_1 = txt_offx_2 = inter + (START_BMPWIDTH) + inter; // Text right of the bitmap
+      txt_base = (height + MENU_FONT_ASCENT + text_total_height - (MENU_FONT_HEIGHT)) / 2; // Text vertical center
+    }
+    else {
+      constexpr uint8_t inter = (height - text_total_height - (START_BMPHEIGHT)) / 3; // Evenly distribute vertical space
+      offy = inter;                             // V-align boot logo proportionally
+      offx = rspace / 2;                        // Center the boot logo in the whole space
+      txt_offx_1 = (width - text_width_1) / 2;  // Text 1 centered
+      txt_offx_2 = (width - text_width_2) / 2;  // Text 2 centered
+      txt_base = offy + START_BMPHEIGHT + offy + text_total_height - (MENU_FONT_DESCENT);   // Even spacing looks best
+    }
+    NOLESS(offx, 0);
+    NOLESS(offy, 0);
 
     u8g.firstPage();
     do {
       u8g.drawBitmapP(offx, offy, (START_BMPWIDTH + 7) / 8, START_BMPHEIGHT, start_bmp);
       set_font(FONT_MENU);
       #ifndef STRING_SPLASH_LINE2
-        const uint8_t txt1X = width - (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH);
-        u8g.drawStr(txt1X, (height + MENU_FONT_HEIGHT) / 2, STRING_SPLASH_LINE1);
+        u8g.drawStr(txt_offx_1, txt_base, STRING_SPLASH_LINE1);
       #else
-        const uint8_t txt1X = (width - (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH)) / 2,
-                      txt2X = (width - (sizeof(STRING_SPLASH_LINE2) - 1) * (MENU_FONT_WIDTH)) / 2;
-        u8g.drawStr(txt1X, height - (MENU_FONT_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
-        u8g.drawStr(txt2X, height - (MENU_FONT_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
+        u8g.drawStr(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), STRING_SPLASH_LINE1);
+        u8g.drawStr(txt_offx_2, txt_base, STRING_SPLASH_LINE2);
       #endif
     } while (u8g.nextPage());
     #ifndef BOOTSCREEN_TIMEOUT
@@ -389,7 +413,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (value != NULL) {
       lcd_put_wchar(':');
       if (extra_row) {
-        // Assume the value is numeric (with no descender)
+        // Assume that value is numeric (with no descender)
         baseline += EDIT_FONT_ASCENT + 2;
         onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }
@@ -399,6 +423,27 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         lcd_put_u8str(value);
       }
     }
+  }
+
+  inline void draw_boxed_string(const uint8_t x, const uint8_t y, PGM_P const pstr, const bool inv) {
+    const uint8_t len = utf8_strlen_P(pstr), bw = len * (MENU_FONT_WIDTH),
+                  bx = x * (MENU_FONT_WIDTH), by = (y + 1) * (MENU_FONT_HEIGHT);
+    if (inv) {
+      u8g.setColorIndex(1);
+      u8g.drawBox(bx - 1, by - (MENU_FONT_ASCENT) + 1, bw + 2, MENU_FONT_HEIGHT - 1);
+      u8g.setColorIndex(0);
+    }
+    lcd_moveto(bx, by);
+    lcd_put_u8str_P(pstr);
+    if (inv) u8g.setColorIndex(1);
+  }
+
+  void draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
+    SETCURSOR(0, 0); lcd_put_u8str_P(pref);
+    if (string) wrap_string(1, string);
+    if (suff) lcd_put_u8str_P(suff);
+    draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
+    draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
   #if ENABLED(SDSUPPORT)

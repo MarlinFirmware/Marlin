@@ -108,7 +108,7 @@
 // Laser control
 #if ENABLED(SPINDLE_LASER_ENABLE)
   #define SPINDLE_LASER_PWM_PIN     PB8
-  #define SPINDLE_LASER_ENABLE_PIN  PD5
+  #define SPINDLE_LASER_ENA_PIN     PD5
 #endif
 
 //
