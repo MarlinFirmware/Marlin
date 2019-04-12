@@ -44,7 +44,7 @@ typedef struct {
 
   uint16_t feedrate;
 
-  #if HOTENDS > 0
+  #if HOTENDS > 1
     uint8_t active_hotend;
   #endif
 
