@@ -63,6 +63,10 @@
   #include "../feature/fwretract.h"
 #endif
 
+#if ENABLED(BABYSTEP_DISPLAY_TOTAL)
+  #include "../feature/babystep.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -859,10 +863,9 @@ void clean_up_after_endstop_or_probe_move() {
 #if HAS_DUPLICATION_MODE
   bool extruder_duplication_enabled,
        mirrored_duplication_mode;
-#endif
-
-#if ENABLED(MULTI_NOZZLE_DUPLICATION) && HOTENDS > 2
-  uint8_t duplication_e_mask; // = 0
+  #if ENABLED(MULTI_NOZZLE_DUPLICATION)
+    uint8_t duplication_e_mask; // = 0
+  #endif
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
@@ -1317,6 +1320,14 @@ void set_axis_is_at_home(const AxisEnum axis) {
     }
   #endif
 
+  #if ENABLED(I2C_POSITION_ENCODERS)
+    I2CPEM.homed(axis);
+  #endif
+
+  #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
+    babystep.reset_total(axis);
+  #endif
+
   if (DEBUGGING(LEVELING)) {
     #if HAS_HOME_OFFSET
       DEBUG_ECHOLNPAIR("> home_offset[", axis_codes[axis], "] = ", home_offset[axis]);
@@ -1324,10 +1335,6 @@ void set_axis_is_at_home(const AxisEnum axis) {
     DEBUG_POS("", current_position);
     DEBUG_ECHOLNPAIR("<<< set_axis_is_at_home(", axis_codes[axis], ")");
   }
-
-  #if ENABLED(I2C_POSITION_ENCODERS)
-    I2CPEM.homed(axis);
-  #endif
 }
 
 /**

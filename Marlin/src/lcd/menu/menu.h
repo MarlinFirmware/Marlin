@@ -43,7 +43,7 @@ bool printer_busy();
     static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
   };
 
-DECLARE_MENU_EDIT_TYPE(uint8_t,  percent,     ui8tostr_percent,1     );   // 100%       right-justified
+DECLARE_MENU_EDIT_TYPE(uint8_t,  percent,     ui8tostr4pct,    1     );   // 100%       right-justified
 DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        i16tostr3,       1     );   // 123, -12   right-justified
 DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        i16tostr4sign,   1     );   // 1234, -123 right-justified
 DECLARE_MENU_EDIT_TYPE(int8_t,   int8,        i8tostr3,        1     );   // 123, -12   right-justified
@@ -64,6 +64,11 @@ DECLARE_MENU_EDIT_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );   // 123
 ////////////////////////////////////////////
 
 void draw_edit_screen(PGM_P const pstr, const char* const value=NULL);
+void draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff);
+void do_select_screen(PGM_P const yes, PGM_P const no, bool &yesno, PGM_P const pref, const char * const string=NULL, PGM_P const suff=NULL);
+inline void do_select_screen_yn(bool &yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
+  do_select_screen(PSTR(MSG_YES), PSTR(MSG_NO), yesno, pref, string, suff);
+}
 void draw_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
 void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const bool center=true, const bool invert=false, const char *valstr=NULL);
 void _draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm);
@@ -151,10 +156,16 @@ class MenuItem_function {
 ////////////////////////////////////////////
 
 class MenuItemBase {
+  private:
+    static PGM_P editLabel;
+    static void *editValue;
+    static int16_t minEditValue, maxEditValue;
+    static screenFunc_t callbackFunc;
+    static bool liveEdit;
   protected:
-    typedef char* (*strfunc_t)(const int32_t);
-    typedef void (*loadfunc_t)(void *, const int32_t);
-    static void init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint32_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le);
+    typedef char* (*strfunc_t)(const int16_t);
+    typedef void (*loadfunc_t)(void *, const int16_t);
+    static void init(PGM_P const el, void * const ev, const int16_t minv, const int16_t maxv, const uint16_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le);
     static void edit(strfunc_t, loadfunc_t);
 };
 
@@ -164,12 +175,12 @@ class TMenuItem : MenuItemBase {
     typedef typename NAME::type_t type_t;
     static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
     static inline float scale(const float value)      { return value * NAME::scale;           }
-    static void  load(void *ptr, const int32_t value) { *((type_t*)ptr) = unscale(value);     }
-    static char* to_string(const int32_t value)       { return NAME::strfunc(unscale(value)); }
+    static void load(void *ptr, const int16_t value)  { *((type_t*)ptr) = unscale(value);     }
+    static char* to_string(const int16_t value)       { return NAME::strfunc(unscale(value)); }
   public:
     static void action_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=NULL, const bool live=false) {
-      const int32_t minv = scale(minValue);
-      init(pstr, ptr, minv, int32_t(scale(maxValue)) - minv, int32_t(scale(*ptr)) - minv, edit, callback, live);
+      const int16_t minv = scale(minValue);
+      init(pstr, ptr, minv, int16_t(scale(maxValue)) - minv, int16_t(scale(*ptr)) - minv, edit, callback, live);
     }
     static void edit() { MenuItemBase::edit(to_string, load); }
 };
@@ -309,8 +320,8 @@ class MenuItem_bool {
 
 #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL)
 #define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
-#define MENU_ITEM_P(TYPE, PLABEL, ...)                       _MENU_ITEM_VARIANT_P(TYPE,              , false, PLABEL,                   ## __VA_ARGS__)
-#define MENU_ITEM(TYPE, LABEL, ...)                          _MENU_ITEM_VARIANT_P(TYPE,              , false, PSTR(LABEL),              ## __VA_ARGS__)
+#define MENU_ITEM_P(TYPE, PLABEL, ...)                       _MENU_ITEM_VARIANT_P(TYPE,      , false, PLABEL,                   ## __VA_ARGS__)
+#define MENU_ITEM(TYPE, LABEL, ...)                          _MENU_ITEM_VARIANT_P(TYPE,      , false, PSTR(LABEL),              ## __VA_ARGS__)
 #define MENU_ITEM_EDIT(TYPE, LABEL, ...)                     _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
 #define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...)            _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
 #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...)          _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)

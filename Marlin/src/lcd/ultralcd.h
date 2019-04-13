@@ -56,21 +56,23 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if HAS_GRAPHICAL_LCD
-    #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - len * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-    #define LCDPRINT(p) u8g.print(p)
-    #define LCDWRITE(c) u8g.print(c)
-  #else
-    #define SETCURSOR(col, row) lcd_moveto(col, row)
-    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - len, row)
-    #define LCDPRINT(p) lcd_put_u8str(p)
-    #define LCDWRITE(c) lcd_put_wchar(c)
-  #endif
-
   #define LCD_UPDATE_INTERVAL 100
 
   #if HAS_LCD_MENU
+
+    #if HAS_GRAPHICAL_LCD
+      #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
+      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
+      #define LCDPRINT(p) u8g.print(p)
+      #define LCDWRITE(c) u8g.print(c)
+    #else
+      #define SETCURSOR(col, row) lcd_moveto(col, row)
+      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - (len), row)
+      #define LCDPRINT(p) lcd_put_u8str(p)
+      #define LCDWRITE(c) lcd_put_wchar(c)
+    #endif
+
+    void wrap_string(uint8_t y, const char * const string);
 
     #if ENABLED(SDSUPPORT)
       #include "../sd/cardreader.h"
@@ -419,7 +421,7 @@ public:
     static void synchronize(PGM_P const msg=NULL);
 
     static screenFunc_t currentScreen;
-    static void goto_screen(const screenFunc_t screen, const uint32_t encoder=0);
+    static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
     static void save_previous_screen();
     static void goto_previous_screen();
     static void return_to_status();
@@ -494,7 +496,7 @@ public:
       static void wait_for_release();
     #endif
 
-    static uint32_t encoderPosition;
+    static uint16_t encoderPosition;
 
     #if ENABLED(REVERSE_ENCODER_DIRECTION)
       #define ENCODERBASE -1

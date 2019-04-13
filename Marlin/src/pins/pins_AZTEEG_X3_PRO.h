@@ -48,8 +48,12 @@
 #include "pins_RAMPS.h"
 
 // DIGIPOT slave addresses
-#define DIGIPOT_I2C_ADDRESS_A 0x2C   // unshifted slave address for first DIGIPOT 0x2C (0x58 <- 0x2C << 1)
-#define DIGIPOT_I2C_ADDRESS_B 0x2E   // unshifted slave address for second DIGIPOT 0x2E (0x5C <- 0x2E << 1)
+#ifndef DIGIPOT_I2C_ADDRESS_A
+  #define DIGIPOT_I2C_ADDRESS_A 0x2C   // unshifted slave address for first DIGIPOT 0x2C (0x58 <- 0x2C << 1)
+#endif
+#ifndef DIGIPOT_I2C_ADDRESS_B
+  #define DIGIPOT_I2C_ADDRESS_B 0x2E   // unshifted slave address for second DIGIPOT 0x2E (0x5C <- 0x2E << 1)
+#endif
 
 //
 // Servos
@@ -162,7 +166,7 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #undef SPINDLE_LASER_PWM_PIN    // Definitions in pins_RAMPS.h are no good with the AzteegX3pro board
-#undef SPINDLE_LASER_ENABLE_PIN
+#undef SPINDLE_LASER_ENA_PIN
 #undef SPINDLE_DIR_PIN
 
 #if ENABLED(SPINDLE_LASER_ENABLE)   // EXP2 header
@@ -171,6 +175,6 @@
     #define BTN_EN2             31   // need 7 for the spindle speed PWM
   #endif
   #define SPINDLE_LASER_PWM_PIN     7   // must have a hardware PWM
-  #define SPINDLE_LASER_ENABLE_PIN 20   // Pin should have a pullup!
+  #define SPINDLE_LASER_ENA_PIN    20   // Pin should have a pullup!
   #define SPINDLE_DIR_PIN          21
 #endif

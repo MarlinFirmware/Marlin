@@ -41,7 +41,10 @@
   #endif
   #if ENABLED(WEBSUPPORT)
     #include "web.h"
+    #include "spiffs.h"
   #endif
+#elif ENABLED(EEPROM_SETTINGS)
+  #include "spiffs.h"
 #endif
 
 // --------------------------------------------------------------------------
@@ -95,9 +98,12 @@ void HAL_init(void) {
       OTA_init();
     #endif
     #if ENABLED(WEBSUPPORT)
+      spiffs_init();
       web_init();
     #endif
     server.begin();
+  #elif ENABLED(EEPROM_SETTINGS)
+    spiffs_init();
   #endif
 
   i2s_init();
@@ -111,7 +117,7 @@ void HAL_idletask(void) {
 
 void HAL_clear_reset_source(void) { }
 
-uint8_t HAL_get_reset_source (void) {
+uint8_t HAL_get_reset_source(void) {
   return rtc_get_reset_reason(1);
 }
 
@@ -148,7 +154,7 @@ void HAL_adc_init() {
   esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_DB_11, ADC_WIDTH_BIT_12, V_REF, &characteristics);
 }
 
-void HAL_adc_start_conversion (uint8_t adc_pin) {
+void HAL_adc_start_conversion(uint8_t adc_pin) {
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)get_channel(adc_pin), &characteristics, &mv);
 
