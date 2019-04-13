@@ -351,6 +351,8 @@
   #error "Z_MIN_PROBE_ENDSTOP is no longer required. Please remove it from Configuration.h."
 #elif defined(DUAL_NOZZLE_DUPLICATION_MODE)
   #error "DUAL_NOZZLE_DUPLICATION_MODE is now MULTI_NOZZLE_DUPLICATION. Please update your configuration."
+#elif defined(FILAMENT_RUNOUT_SENSOR) && (FILAMENT_RUNOUT_SENSOR + 0) <= 0
+  #error "FILAMENT_RUNOUT_SENSOR is now FILAMENT_RUNOUT_SENSOR (FRS_SWITCH). Please update your configuration."
 #endif
 
 #define BOARD_MKS_13     -47

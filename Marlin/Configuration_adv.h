@@ -2335,6 +2335,14 @@
   //#define SERVICE_INTERVAL_3    1 // print hours
 #endif
 
+// @section runout
+#if FRS(ENCODER) || FRS(FRS_PAT9125)
+  /**
+   * Used to override default motion sensors resolution
+   */
+  //#define SENSOR_RESOLUTION           // Sensor resolution override (mm)
+#endif
+
 // @section develop
 
 /**

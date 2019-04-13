@@ -22,6 +22,9 @@
 
 #include "../gcode.h"
 #include "../../module/planner.h"
+#if HAS_FILAMENT_MOTION_SENSOR
+  #include "../../feature/runout.h"
+#endif
 
 void report_M92(const bool echo=true, const int8_t e=-1) {
   if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
@@ -81,6 +84,9 @@ void GcodeSuite::M92() {
           planner.max_acceleration_steps_per_s2[E_AXIS_N(target_extruder)] *= factor;
         }
         planner.settings.axis_steps_per_mm[E_AXIS_N(target_extruder)] = value;
+        #if HAS_FILAMENT_MOTION_SENSOR
+          runout.updateSensorResolutionSteps();
+        #endif
       }
       else {
         planner.settings.axis_steps_per_mm[i] = parser.value_per_axis_units((AxisEnum)i);

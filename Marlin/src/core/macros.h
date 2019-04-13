@@ -262,8 +262,10 @@
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
 
-#ifdef TARGET_LPC1768
-  #define I2C_ADDRESS(A) ((A) << 1)
-#else
-  #define I2C_ADDRESS(A) A
-#endif
+//
+// Filament Sensor Types
+//
+#define FRS_SWITCH  1
+#define FRS_ENCODER 2
+#define FRS_PAT9125 3
+#define FRS(N) (FRS_##N == (FILAMENT_RUNOUT_SENSOR + 0))

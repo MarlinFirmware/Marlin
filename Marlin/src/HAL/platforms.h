@@ -50,3 +50,9 @@
 #define XSTR_(M) #M
 #define XSTR(M) XSTR_(M)
 #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL_PLATFORM/NAME)
+
+#ifdef TARGET_LPC1768
+  #define I2C_ADDRESS(A) ((A) << 1)
+#else
+  #define I2C_ADDRESS(A) A
+#endif
