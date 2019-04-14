@@ -316,6 +316,8 @@
   #include "pins_RAMPS_RE_ARM.h"        // LPC1768                                    env:LPC1768
 #elif MB(MKS_SBASE)
   #include "pins_MKS_SBASE.h"           // LPC1768                                    env:LPC1768
+#elif MB(MKS_SGEN)
+  #include "pins_MKS_SGEN.h"            // LPC1769                                    env:LPC1769
 #elif MB(AZSMZ_MINI)
   #include "pins_AZSMZ_MINI.h"          // LPC1768                                    env:LPC1768
 #elif MB(AZTEEG_X5_GT)
@@ -341,7 +343,6 @@
 #elif MB(BIGTREE_SKR_V1_3)
   #include "pins_BIGTREE_SKR_V1.3.h"    // LPC1768                                    env:LPC1768
 
-//
 // Other 32-bit Boards
 //
 
