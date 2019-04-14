@@ -147,7 +147,9 @@ size_t WebSocketSerial::write(const uint8_t c) {
   size_t ret = tx_buffer.write(c);
 
   if (ret && c == '\n') {
-    flushTX();
+    uint8_t tmp[TX_BUFFER_SIZE];
+    ring_buffer_pos_t size = tx_buffer.read(tmp);
+    ws.textAll(tmp, size);
   }
 
   return ret;
@@ -162,10 +164,7 @@ size_t WebSocketSerial::write(const uint8_t* buffer, size_t size) {
 }
 
 void WebSocketSerial::flushTX(void) {
-  uint8_t tmp[TX_BUFFER_SIZE];
-  ring_buffer_pos_t size = tx_buffer.read(tmp);
-  ws.textAll(tmp, size);
-  // No need to flush as draining the buffer will have the same effect.
+  // No need to do anything as there's no benefit to sending partial lines over the websocket connection.
 }
 
 #endif // WIFISUPPORT
