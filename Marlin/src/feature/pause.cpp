@@ -422,8 +422,14 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
     do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
   // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+  // or an absolute z position is requested (#define NOZZLE_PARK_POINT_Z_ABS
+  // in configuration.h)
   if (!axis_unhomed_error())
-    Nozzle::park(2, park_point);
+    #if ENABLED(NOZZLE_PARK_POINT_Z_ABS)
+      Nozzle::park(1, park_point);
+    #else
+      Nozzle::park(2, park_point);
+    #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
