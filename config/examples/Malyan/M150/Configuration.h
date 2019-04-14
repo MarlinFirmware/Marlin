@@ -966,6 +966,9 @@
 #endif
 //#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
+#if ENABLED(PROBING_STEPPERS_OFF)
+  //#define PROBING_STEPPERS_OFF_E_ONLY // Only turn off E steppers
+#endif
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1

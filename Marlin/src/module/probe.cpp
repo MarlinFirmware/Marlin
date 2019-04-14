@@ -279,7 +279,7 @@ float zprobe_zoffset; // Initialized by settings.load()
     #endif
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
-      #if DISABLED(DELTA)
+      #if DISABLED(DELTA) && DISABLED(PROBING_STEPPERS_OFF_E_ONLY)
         disable_X(); disable_Y();
       #endif
     #endif
