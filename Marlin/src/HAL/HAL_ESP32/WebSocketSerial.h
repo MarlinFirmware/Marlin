@@ -39,19 +39,19 @@ typedef uint16_t ring_buffer_pos_t;
 
 class RingBuffer {
   uint8_t *data;
-  ring_buffer_pos_t size;
-  ring_buffer_pos_t head, tail;
+  ring_buffer_pos_t size, read_index, write_index;
 
 public:
   RingBuffer(ring_buffer_pos_t size);
   ~RingBuffer();
-  void write(const uint8_t *buffer, ring_buffer_pos_t size);
-  void write(uint8_t c);
+
   int available(void);
   int peek(void);
   int read(void);
-  int read(uint8_t *buffer, ring_buffer_pos_t *size);
+  ring_buffer_pos_t read(uint8_t *buffer);
   void flush(void);
+  ring_buffer_pos_t write(const uint8_t c);
+  ring_buffer_pos_t write(const uint8_t* buffer, ring_buffer_pos_t size);
 };
 
 class WebSocketSerial: public Stream {
@@ -68,15 +68,9 @@ public:
   void flush(void);
   void flushTX(void);
   size_t write(const uint8_t c);
+  size_t write(const uint8_t* buffer, size_t size);
 
   operator bool() { return true; }
-
-  FORCE_INLINE size_t write(const uint8_t* buffer, size_t size) {
-    for(size_t i = 0; i < size; i++) {
-      write(buffer[i]);
-    }
-    return size;
-  }
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     FORCE_INLINE uint32_t dropped() { return 0; }

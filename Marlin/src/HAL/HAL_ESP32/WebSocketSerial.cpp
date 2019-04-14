@@ -37,8 +37,8 @@ AsyncWebSocket ws("/ws"); // TODO Move inside the class.
 
 RingBuffer::RingBuffer(ring_buffer_pos_t size)
     : data(new uint8_t[size]),
-      head(0),
-      tail(0),
+      read_index(0),
+      write_index(0),
       size(size)
 {}
 
@@ -46,53 +46,63 @@ RingBuffer::~RingBuffer() {
   delete[] data;
 }
 
-void RingBuffer::write(uint8_t c) {
-  const ring_buffer_pos_t n = NEXT_INDEX(head, size);
-  if (n != tail) {
-    this->data[head] = c;
-    head = n;
+ring_buffer_pos_t RingBuffer::write(const uint8_t c) {
+  const ring_buffer_pos_t n = NEXT_INDEX(write_index, size);
+
+  if (n != read_index) {
+    this->data[write_index] = c;
+    write_index = n;
+    return 1;
   }
 
   // TODO: buffer is full, handle?
+  return 0;
 }
 
-void RingBuffer::write(const uint8_t *buffer, ring_buffer_pos_t size) {
-  for (size_t i = 0; i < size; i++) {
-    write(buffer[i]);
+ring_buffer_pos_t RingBuffer::write(const uint8_t *buffer, ring_buffer_pos_t size) {
+  ring_buffer_pos_t written = 0;
+  for (ring_buffer_pos_t i = 0; i < size; i++) {
+    written += write(buffer[i]);
   }
+  return written;
 }
 
 int RingBuffer::available(void) {
-  return (size + head - tail) & (size - 1);
+  return (size - read_index + write_index) & (size - 1);
 }
 
 int RingBuffer::peek(void) {
   if (available()) {
-    return data[tail];
+    return data[read_index];
   }
   return -1;
 }
 
 int RingBuffer::read(void) {
   if (available()) {
-    const int ret = data[tail];
-    tail = NEXT_INDEX(tail, size);
+    const int ret = data[read_index];
+    read_index = NEXT_INDEX(read_index, size);
     return ret;
   }
   return -1;
 }
 
-int RingBuffer::read(uint8_t *buffer, ring_buffer_pos_t *size) {
-  for(ring_buffer_pos_t i = 0; i < head; i++)
-    buffer[i] = data[i];
-  *size = head;
+ring_buffer_pos_t RingBuffer::read(uint8_t *buffer) {
+   ring_buffer_pos_t len = available();
+
+  for(ring_buffer_pos_t i = 0; read_index != write_index; i++) {
+    buffer[i] = data[read_index];
+    read_index = NEXT_INDEX(read_index, size);
+  }
+
+  return len;
 }
 
 void RingBuffer::flush(void) {
-  head = tail;
+  read_index = write_index;
 }
 
-// Public Methods
+// WebSocketSerial impl
 WebSocketSerial::WebSocketSerial()
     : rx_buffer(RingBuffer(RX_BUFFER_SIZE)),
       tx_buffer(RingBuffer(TX_BUFFER_SIZE))
@@ -112,7 +122,7 @@ void WebSocketSerial::begin(const long baud_setting) {
         }
       }
     });
-  server.addHandler(&ws); // attach AsyncWebSocket
+  server.addHandler(&ws);
 }
 
 void WebSocketSerial::end() { }
@@ -134,21 +144,28 @@ void WebSocketSerial::flush(void) {
 }
 
 size_t WebSocketSerial::write(const uint8_t c) {
-  tx_buffer.write(c);
+  size_t ret = tx_buffer.write(c);
 
-  if (c == '\n') {
+  if (ret && c == '\n') {
     flushTX();
   }
 
-  return 1;
+  return ret;
+}
+
+size_t WebSocketSerial::write(const uint8_t* buffer, size_t size) {
+  size_t written = 0;
+  for(size_t i = 0; i < size; i++) {
+    written += write(buffer[i]);
+  }
+  return written;
 }
 
 void WebSocketSerial::flushTX(void) {
   uint8_t tmp[TX_BUFFER_SIZE];
-  ring_buffer_pos_t size;
-  tx_buffer.read(tmp, &size);
+  ring_buffer_pos_t size = tx_buffer.read(tmp);
   ws.textAll(tmp, size);
-  tx_buffer.flush();
+  // No need to flush as draining the buffer will have the same effect.
 }
 
 #endif // WIFISUPPORT
