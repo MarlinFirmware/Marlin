@@ -36,14 +36,16 @@ void stop();
 #include "../core/debug_out.h"
 
 void BLTouch::command(const BLTCommand cmd) {
-  //SERIAL_ECHOLNPAIR("BLTouch Command :", cmd);
+  #if ENABLED(BLTOUCH_DEBUG_MSGS)
+    SERIAL_ECHOLNPAIR("BLTouch Command :", cmd);
+  #endif
   MOVE_SERVO(Z_PROBE_SERVO_NR, cmd);
   safe_delay(BLTOUCH_DELAY);
 }
 
 void BLTouch::init() {
   reset();                            // Clear all BLTouch error conditions
-  stow();
+  _stow();
 }
 
 bool BLTouch::triggered() {
@@ -57,36 +59,61 @@ bool BLTouch::triggered() {
 }
 
 bool BLTouch::set_deployed(const bool in_deploy) {
-  if (in_deploy && triggered()) {     // If BLTouch says it's triggered
-    reset();                          //  try to reset it.
-    _deploy(); _stow();               // Deploy and stow to clear the "triggered" condition.
-    safe_delay(1500);                 // Wait for internal self-test to complete.
-                                      //  (Measured completion time was 0.65 seconds
-                                      //   after reset, deploy, and stow sequence)
-    if (triggered()) {                // If it still claims to be triggered...
-      SERIAL_ERROR_MSG(MSG_STOP_BLTOUCH);
-      stop();                         // punt!
-      return true;
-    }
-  }
-
-  #if ENABLED(BLTOUCH_V3)
-    #if  EITHER(BLTOUCH_FORCE_5V_MODE, ENDSTOPPULLUPS) \
-      || ALL(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, ENDSTOPPULLUP_ZMIN) \
-      || (USES_Z_MIN_PROBE_ENDSTOP && ENABLED(ENDSTOPPULLUP_ZMIN_PROBE))
-      set_5V_mode();  // Assume 5V DC logic level if endstop pullup resistors are enabled
-    #elif true || ENABLED(BLTOUCH_FORCE_OPEN_DRAIN_MODE)
-      set_OD_mode();
-    #endif
-  #endif
-
+  // Do a DEPLOY
   if (in_deploy) {
-    _deploy();
+
+    // The BLTouch probe may be in ALARM condition (blinking RED) or currently triggered 
+    // (either a 10ms pulse or "very very long" pulse in SW mode)
+    // RESET to clear the ALARM (An unneeded RESET won't hurt and a STOW will 
+    // clear the triggered condition
+    if (triggered()) {                      
+      #if ENABLED(BLTOUCH_DEBUG_MSGS)
+        SERIAL_ECHOLN("BLTouch ALARM or TRIGGER, will RESET, STOW");
+      #endif
+      reset();                              // Reset, but now we do not know, is it deployed or stowed?
+      _stow();                              // Force a stow
+      safe_delay(1000);                     // Give it some time to be safe
+      if (triggered()) {                    // If the ALARM condition persists. This is really bad.
+        SERIAL_ERROR_MSG(MSG_STOP_BLTOUCH);
+        stop();                             // punt!
+      return true;
+      }
+    }
+
     #if ENABLED(BLTOUCH_V3)
+      #if ENABLED(BLTOUCH_FORCE_OPEN_DRAIN_MODE)  // Set OPEN DRAIN mode if explicitely demanded
+        set_OD_mode();
+      #elif ENABLED(BLTOUCH_FORCE_5V_MODE)        // Set 5V mode if explicitely demanded
+        set_5V_mode();
+      #else
+        set_5V_mode();                            // If no explicit setting requested, choose 5V mode 
+                                                  // to be compatible with pre-V3 probes
+      #endif
+    #endif
+
+    _deploy();
+
+    // BLTouch pre V3 and clones will "drop" down again after being triggered and having
+    // issued a 10ms pulse. The trigger STOW (see motion.cpp for example) will pull up 
+    // the probe as soon as the pulse is registered.
+
+    // The BLTouch V3 (and V2) can be set to "SWITCH" mode. When triggered, instead of a 10ms
+    // pulse, there is an indefinetly long trigger condition, until reset by the STOW as
+    // soon as this "very very long" pulse is registered.Also, the probe stays pulled up. 
+    // It doesn't "drop" down again after being triggered. The STOW is still needed to reset
+    // the triggered condition.
+    #if ENABLED(BLTOUCH_V3) \
+        || ENABLED(BLTOUCH_FORCE_SW_MODE)         // V3 should always use SW mode
+                                                  // or, if explicitely requested (maybe a V2 probe?)
       set_SW_mode();
     #endif
   }
-  else _stow();
+
+  // Do a STOW
+  else 
+    // The STOW will clear a triggered condition in the probe (10ms pulse or "very
+    // very long" pulse in SW mode)
+      _stow();
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("bltouch.set_deployed(", in_deploy, ")");
 
