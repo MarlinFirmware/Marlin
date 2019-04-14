@@ -23,12 +23,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <WString.h>
-
-#define DEC 10
-#define HEX 16
-#define OCT 8
-#define BIN 2
+#include "Stream.h"
 
 #ifndef RX_BUFFER_SIZE
   #define RX_BUFFER_SIZE 128
@@ -42,39 +37,46 @@
 
 typedef uint16_t ring_buffer_pos_t;
 
-struct RingBuffer {
+class RingBuffer {
   uint8_t *data;
   ring_buffer_pos_t size;
-  volatile ring_buffer_pos_t head, tail;
+  ring_buffer_pos_t head, tail;
 
+public:
   RingBuffer(ring_buffer_pos_t size);
   ~RingBuffer();
-  void write(uint8_t * const data, ring_buffer_pos_t len);
+  void write(const uint8_t *buffer, ring_buffer_pos_t size);
   void write(uint8_t c);
+  int available(void);
   int peek(void);
   int read(void);
-  bool available(void);
+  int read(uint8_t *buffer, ring_buffer_pos_t *size);
   void flush(void);
 };
 
-class WebSocketSerial {
+class WebSocketSerial: public Stream {
   RingBuffer rx_buffer;
   RingBuffer tx_buffer;
 
-  void printNumber(unsigned long, const uint8_t);
-  void printFloat(double, uint8_t);
-
 public:
   WebSocketSerial();
-
   void begin(const long);
   void end();
+  int available(void);
   int peek(void);
   int read(void);
   void flush(void);
   void flushTX(void);
-  bool available(void);
-  void write(const uint8_t c);
+  size_t write(const uint8_t c);
+
+  operator bool() { return true; }
+
+  FORCE_INLINE size_t write(const uint8_t* buffer, size_t size) {
+    for(size_t i = 0; i < size; i++) {
+      write(buffer[i]);
+    }
+    return size;
+  }
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     FORCE_INLINE uint32_t dropped() { return 0; }
@@ -83,31 +85,6 @@ public:
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
     FORCE_INLINE int rxMaxEnqueued() { return 0; }
   #endif
-
-  FORCE_INLINE void write(const char* str) { while (*str) write(*str++); }
-  FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-  FORCE_INLINE void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-  FORCE_INLINE void print(const char* str) { write(str); }
-
-  void print(char, int = 0);
-  void print(unsigned char, int = 0);
-  void print(int, int = DEC);
-  void print(unsigned int, int = DEC);
-  void print(long, int = DEC);
-  void print(unsigned long, int = DEC);
-  void print(double, int = 2);
-
-  void println(const String& s);
-  void println(const char[]);
-  void println(char, int = 0);
-  void println(unsigned char, int = 0);
-  void println(int, int = DEC);
-  void println(unsigned int, int = DEC);
-  void println(long, int = DEC);
-  void println(unsigned long, int = DEC);
-  void println(double, int = 2);
-  void println(void);
-  operator bool() { return true; }
 };
 
 extern WebSocketSerial webSocketSerial;

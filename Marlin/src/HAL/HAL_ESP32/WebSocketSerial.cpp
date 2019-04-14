@@ -56,14 +56,14 @@ void RingBuffer::write(uint8_t c) {
   // TODO: buffer is full, handle?
 }
 
-void RingBuffer::write(uint8_t * const data, ring_buffer_pos_t len) {
-  for (size_t i = 0; i < len; i++) {
-    write(data[i]);
+void RingBuffer::write(const uint8_t *buffer, ring_buffer_pos_t size) {
+  for (size_t i = 0; i < size; i++) {
+    write(buffer[i]);
   }
 }
 
-bool RingBuffer::available(void) {
-  return head != tail;
+int RingBuffer::available(void) {
+  return (size + head - tail) & (size - 1);
 }
 
 int RingBuffer::peek(void) {
@@ -82,6 +82,12 @@ int RingBuffer::read(void) {
   return -1;
 }
 
+int RingBuffer::read(uint8_t *buffer, ring_buffer_pos_t *size) {
+  for(ring_buffer_pos_t i = 0; i < head; i++)
+    buffer[i] = data[i];
+  *size = head;
+}
+
 void RingBuffer::flush(void) {
   head = tail;
 }
@@ -93,7 +99,7 @@ WebSocketSerial::WebSocketSerial()
 {}
 
 void WebSocketSerial::begin(const long baud_setting) {
-  ws.onEvent([this](AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
+  ws.onEvent([this](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
       switch (type) {
         case WS_EVT_CONNECT: client->ping(); break; // client connected
         case WS_EVT_DISCONNECT:                     // client disconnected
@@ -119,7 +125,7 @@ int WebSocketSerial::read(void) {
   return rx_buffer.read();
 }
 
-bool WebSocketSerial::available(void) {
+int WebSocketSerial::available(void) {
   return rx_buffer.available();
 }
 
@@ -127,98 +133,22 @@ void WebSocketSerial::flush(void) {
   rx_buffer.flush();
 }
 
-void WebSocketSerial::write(const uint8_t c) {
+size_t WebSocketSerial::write(const uint8_t c) {
   tx_buffer.write(c);
 
   if (c == '\n') {
     flushTX();
   }
+
+  return 1;
 }
 
 void WebSocketSerial::flushTX(void) {
-  ws.textAll(tx_buffer.data, tx_buffer.head);
+  uint8_t tmp[TX_BUFFER_SIZE];
+  ring_buffer_pos_t size;
+  tx_buffer.read(tmp, &size);
+  ws.textAll(tmp, size);
   tx_buffer.flush();
-}
-
-/**
- * Imports from print.h
- */
-
-void WebSocketSerial::print(char c, int base) { print((long)c, base); }
-void WebSocketSerial::print(unsigned char b, int base) { print((unsigned long)b, base); }
-void WebSocketSerial::print(int n, int base) { print((long)n, base); }
-void WebSocketSerial::print(unsigned int n, int base) { print((unsigned long)n, base); }
-void WebSocketSerial::print(long n, int base) {
-  if (base == 0)
-    write(n);
-  else if (base == 10) {
-    if (n < 0) { print('-'); n = -n; }
-    printNumber(n, 10);
-  }
-  else
-    printNumber(n, base);
-}
-
-void WebSocketSerial::print(unsigned long n, int base) {
-  if (base == 0) write(n); else printNumber(n, base);
-}
-
-void WebSocketSerial::print(double n, int digits)         { printFloat(n, digits); }
-
-void WebSocketSerial::println(void)                       { print('\r'); print('\n'); }
-void WebSocketSerial::println(const String& s)            { print(s); println(); }
-void WebSocketSerial::println(const char c[])             { print(c); println(); }
-void WebSocketSerial::println(char c, int base)           { print(c, base); println(); }
-void WebSocketSerial::println(unsigned char b, int base)  { print(b, base); println(); }
-void WebSocketSerial::println(int n, int base)            { print(n, base); println(); }
-void WebSocketSerial::println(unsigned int n, int base)   { print(n, base); println(); }
-void WebSocketSerial::println(long n, int base)           { print(n, base); println(); }
-void WebSocketSerial::println(unsigned long n, int base)  { print(n, base); println(); }
-void WebSocketSerial::println(double n, int digits)       { print(n, digits); println(); }
-
-// Private Methods
-void WebSocketSerial::printNumber(unsigned long n, uint8_t base) {
-  if (n) {
-    unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
-    int8_t i = 0;
-    while (n) {
-      buf[i++] = n % base;
-      n /= base;
-    }
-    while (i--)
-      print((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
-  }
-  else
-    print('0');
-}
-
-void WebSocketSerial::printFloat(double number, uint8_t digits) {
-  // Handle negative numbers
-  if (number < 0.0) { print('-'); number = -number; }
-
-  // Round correctly so that print(1.999, 2) prints as "2.00"
-  // Use a lookup table for performance
-  constexpr double rounds[] = { 0.5, 0.05, 0.005, 0.0005, 0.00005, 0.000005, 0.0000005, 0.00000005 };
-  number += rounds[digits];
-
-  //number += pow(10, -(digits + 1)); // slower single-line equivalent
-
-  // Extract the integer part of the number and print it
-  unsigned long int_part = (unsigned long)number;
-  print(int_part);
-
-  // Print the decimal point, but only if there are digits beyond
-  double remainder = number - (double)int_part;
-  if (digits) {
-    print('.');
-    // Extract digits from the remainder one at a time
-    while (digits--) {
-      remainder *= 10.0;
-      const int toPrint = int(remainder);
-      print(toPrint);
-      remainder -= toPrint;
-    }
-  }
 }
 
 #endif // WIFISUPPORT
