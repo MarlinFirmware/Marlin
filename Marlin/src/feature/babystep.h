@@ -53,7 +53,7 @@ public:
       }
     #endif
   #endif
-  static void add_steps(const AxisEnum axis, const int32_t distance);
+  static void add_steps(const AxisEnum axis, const int16_t distance);
   static void add_mm(const AxisEnum axis, const float &mm);
   static void task();
 private:
