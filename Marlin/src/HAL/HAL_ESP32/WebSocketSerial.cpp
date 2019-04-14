@@ -31,38 +31,66 @@
 WebSocketSerial webSocketSerial;
 AsyncWebSocket ws("/ws"); // TODO Move inside the class.
 
-// DataBuffer impl
-DataBuffer::DataBuffer(data_buffer_size_t size)
+// RingBuffer impl
+
+#define NEXT_INDEX(I, SIZE) ((I + 1) & (ring_buffer_pos_t)(SIZE - 1))
+
+RingBuffer::RingBuffer(ring_buffer_pos_t size)
     : data(new uint8_t[size]),
       head(0),
       tail(0),
       size(size)
 {}
 
-void DataBuffer::add(uint8_t * const data, data_buffer_size_t len) {
+RingBuffer::~RingBuffer() {
+  delete[] data;
+}
+
+void RingBuffer::write(uint8_t c) {
+  const ring_buffer_pos_t n = NEXT_INDEX(head, size);
+  if (n != tail) {
+    this->data[head] = c;
+    head = n;
+  }
+
+  // TODO: buffer is full, handle?
+}
+
+void RingBuffer::write(uint8_t * const data, ring_buffer_pos_t len) {
   for (size_t i = 0; i < len; i++) {
-    const data_buffer_size_t n = (head + 1) & (data_buffer_size_t)(size - 1);
-
-    if (n != tail) {
-      this->data[head] = data[i];
-      head = n;
-    }
-
-    // TODO: buffer is full, handle?
+    write(data[i]);
   }
 }
 
+bool RingBuffer::available(void) {
+  return head != tail;
+}
+
+int RingBuffer::peek(void) {
+  if (available()) {
+    return data[tail];
+  }
+  return -1;
+}
+
+int RingBuffer::read(void) {
+  if (available()) {
+    const int ret = data[tail];
+    tail = NEXT_INDEX(tail, size);
+    return ret;
+  }
+  return -1;
+}
+
+void RingBuffer::flush(void) {
+  head = tail;
+}
 
 // Public Methods
 WebSocketSerial::WebSocketSerial()
-    : rx_buffer(DataBuffer(RX_BUFFER_SIZE)),
-      tx_buffer(DataBuffer(TX_BUFFER_SIZE))
+    : rx_buffer(RingBuffer(RX_BUFFER_SIZE)),
+      tx_buffer(RingBuffer(TX_BUFFER_SIZE))
 {}
-
-WebSocketSerial::~WebSocketSerial() {
-  delete[] rx_buffer.data;
-  delete[] tx_buffer.data;
-}
 
 void WebSocketSerial::begin(const long baud_setting) {
   ws.onEvent([this](AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
@@ -74,7 +102,7 @@ void WebSocketSerial::begin(const long baud_setting) {
         case WS_EVT_DATA: {                         // data packet
           AwsFrameInfo * info = (AwsFrameInfo*)arg;
           if (info->opcode == WS_TEXT || info->message_opcode == WS_TEXT)
-            this->rx_buffer.add(data, len);
+            this->rx_buffer.write(data, len);
         }
       }
     });
@@ -84,46 +112,32 @@ void WebSocketSerial::begin(const long baud_setting) {
 void WebSocketSerial::end() { }
 
 int WebSocketSerial::peek(void) {
-  const int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.data[rx_buffer.tail];
-  return v;
+  return rx_buffer.peek();
 }
 
 int WebSocketSerial::read(void) {
-  const data_buffer_size_t h = rx_buffer.head, t = rx_buffer.tail;
-  if (h == t) return -1;  // Nothing to read? Return now
-
-  const int v = rx_buffer.data[t];
-
-  rx_buffer.tail = (data_buffer_size_t)(t + 1) & (RX_BUFFER_SIZE - 1); // Advance tail
-
-  return v;
+  return rx_buffer.read();
 }
 
 bool WebSocketSerial::available(void) {
-  const data_buffer_size_t h = rx_buffer.head, t = rx_buffer.tail;
-  return (data_buffer_size_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
+  return rx_buffer.available();
 }
 
 void WebSocketSerial::flush(void) {
-  rx_buffer.tail = rx_buffer.head;
+  rx_buffer.flush();
 }
 
 void WebSocketSerial::write(const uint8_t c) {
-  const uint8_t i = (tx_buffer.head + 1) & (TX_BUFFER_SIZE - 1);
-
-  // Store new char. head is always safe to move
-  tx_buffer.data[tx_buffer.head] = c;
-  tx_buffer.head = i;
+  tx_buffer.write(c);
 
   if (c == '\n') {
-    ws.textAll(tx_buffer.data, tx_buffer.head);
-    tx_buffer.head = 0;
+    flushTX();
   }
 }
 
 void WebSocketSerial::flushTX(void) {
   ws.textAll(tx_buffer.data, tx_buffer.head);
-  tx_buffer.head = 0;
+  tx_buffer.flush();
 }
 
 /**
