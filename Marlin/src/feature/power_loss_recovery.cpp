@@ -322,9 +322,9 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Extrude and retract for clean nozzle
-  sprintf_P(cmd, PSTR("G1 E%d F200"), POWER_LOSS_EXTRUDE_LEN);
+  sprintf_P(cmd, PSTR("G1 E%d F200"), POWER_LOSS_PURGE_LEN);
   gcode.process_subcommands_now(cmd);
-  sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_EXTRUDE_LEN - POWER_LOSS_RETRACT_LEN);
+  sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN - POWER_LOSS_RETRACT_LEN);
   gcode.process_subcommands_now(cmd);
 
   // Move back to the saved XY
@@ -339,7 +339,7 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Un-retract
-  sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_EXTRUDE_LEN);
+  sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN);
   gcode.process_subcommands_now(cmd);
 
   // Restore the feedrate
