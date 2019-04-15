@@ -21,10 +21,11 @@
  */
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "WebSocketSerial.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(WIFISUPPORT)
 
+#include "WebSocketSerial.h"
 #include "wifi.h"
 #include <ESPAsyncWebServer.h>
 
@@ -36,15 +37,13 @@ AsyncWebSocket ws("/ws"); // TODO Move inside the class.
 #define NEXT_INDEX(I, SIZE) ((I + 1) & (ring_buffer_pos_t)(SIZE - 1))
 
 RingBuffer::RingBuffer(ring_buffer_pos_t size)
-    : data(new uint8_t[size]),
-      read_index(0),
-      write_index(0),
-      size(size)
+  : data(new uint8_t[size]),
+    read_index(0),
+    write_index(0),
+    size(size)
 {}
 
-RingBuffer::~RingBuffer() {
-  delete[] data;
-}
+RingBuffer::~RingBuffer() { delete[] data; }
 
 ring_buffer_pos_t RingBuffer::write(const uint8_t c) {
   const ring_buffer_pos_t n = NEXT_INDEX(write_index, size);
@@ -72,10 +71,7 @@ int RingBuffer::available(void) {
 }
 
 int RingBuffer::peek(void) {
-  if (available()) {
-    return data[read_index];
-  }
-  return -1;
+  return available() ? data[read_index] : -1;
 }
 
 int RingBuffer::read(void) {
@@ -98,9 +94,7 @@ ring_buffer_pos_t RingBuffer::read(uint8_t *buffer) {
   return len;
 }
 
-void RingBuffer::flush(void) {
-  read_index = write_index;
-}
+void RingBuffer::flush(void) { read_index = write_index; }
 
 // WebSocketSerial impl
 WebSocketSerial::WebSocketSerial()
@@ -110,38 +104,26 @@ WebSocketSerial::WebSocketSerial()
 
 void WebSocketSerial::begin(const long baud_setting) {
   ws.onEvent([this](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
-      switch (type) {
-        case WS_EVT_CONNECT: client->ping(); break; // client connected
-        case WS_EVT_DISCONNECT:                     // client disconnected
-        case WS_EVT_ERROR:                          // error was received from the other end
-        case WS_EVT_PONG: break;                    // pong message was received (in response to a ping request maybe)
-        case WS_EVT_DATA: {                         // data packet
-          AwsFrameInfo * info = (AwsFrameInfo*)arg;
-          if (info->opcode == WS_TEXT || info->message_opcode == WS_TEXT)
-            this->rx_buffer.write(data, len);
-        }
+    switch (type) {
+      case WS_EVT_CONNECT: client->ping(); break; // client connected
+      case WS_EVT_DISCONNECT:                     // client disconnected
+      case WS_EVT_ERROR:                          // error was received from the other end
+      case WS_EVT_PONG: break;                    // pong message was received (in response to a ping request maybe)
+      case WS_EVT_DATA: {                         // data packet
+        AwsFrameInfo * info = (AwsFrameInfo*)arg;
+        if (info->opcode == WS_TEXT || info->message_opcode == WS_TEXT)
+          this->rx_buffer.write(data, len);
       }
-    });
+    }
+  });
   server.addHandler(&ws);
 }
 
 void WebSocketSerial::end() { }
-
-int WebSocketSerial::peek(void) {
-  return rx_buffer.peek();
-}
-
-int WebSocketSerial::read(void) {
-  return rx_buffer.read();
-}
-
-int WebSocketSerial::available(void) {
-  return rx_buffer.available();
-}
-
-void WebSocketSerial::flush(void) {
-  rx_buffer.flush();
-}
+int WebSocketSerial::peek(void) { return rx_buffer.peek(); }
+int WebSocketSerial::read(void) { return rx_buffer.read(); }
+int WebSocketSerial::available(void) { return rx_buffer.available(); }
+void WebSocketSerial::flush(void) { rx_buffer.flush(); }
 
 size_t WebSocketSerial::write(const uint8_t c) {
   size_t ret = tx_buffer.write(c);
