@@ -177,24 +177,39 @@
 |               EXP2                                              EXP1
 */
 #if ENABLED(ULTRA_LCD)
-  #define BEEPER_PIN       P1_30   // (37) not 5V tolerant
-  #define BTN_ENC          P0_28   // (58) open-drain
-  #define LCD_PINS_RS      P1_19
+  #define BEEPER_PIN        P1_30   // (37) not 5V tolerant
+  #define BTN_ENC           P0_28   // (58) open-drain
 
-  #define BTN_EN1          P3_26   // (31) J3-2 & AUX-4
-  #define BTN_EN2          P3_25   // (33) J3-4 & AUX-4
-  #define SD_DETECT_PIN    P1_31   // (49) (NOT 5V tolerant)
+  #if ENABLED(CR10_STOCKDISPLAY)
+    #define LCD_PINS_RS     P1_22
 
-  #define LCD_SDSS         P0_16   // (16) J3-7 & AUX-4
+    #define BTN_EN1         P1_18
+    #define BTN_EN2         P1_20
 
-  #define LCD_PINS_ENABLE  P1_18
-  #define LCD_PINS_D4      P1_20
+    #define LCD_PINS_ENABLE P1_23
+    #define LCD_PINS_D4     P1_21
 
-  #if ENABLED(ULTIPANEL)
-    #define LCD_PINS_D5    P1_21
-    #define LCD_PINS_D6    P1_22
-    #define LCD_PINS_D7    P1_23
+  #else
+
+    #define LCD_PINS_RS     P1_19
+
+    #define BTN_EN1         P3_26   // (31) J3-2 & AUX-4
+    #define BTN_EN2         P3_25   // (33) J3-4 & AUX-4
+    #define SD_DETECT_PIN   P1_31   // (49) (NOT 5V tolerant)
+
+    #define LCD_SDSS        P0_16   // (16) J3-7 & AUX-4
+
+    #define LCD_PINS_ENABLE P1_18
+    #define LCD_PINS_D4     P1_20
+
+    #if ENABLED(ULTIPANEL)
+      #define LCD_PINS_D5   P1_21
+      #define LCD_PINS_D6   P1_22
+      #define LCD_PINS_D7   P1_23
+    #endif
+
   #endif
+
 #endif // ULTRA_LCD
 
 //#define USB_SD_DISABLED

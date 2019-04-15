@@ -48,6 +48,7 @@
 #include "HAL_timers_ESP32.h"
 
 #include "WebSocketSerial.h"
+#include "FlushableHardwareSerial.h"
 
 // --------------------------------------------------------------------------
 // Defines
@@ -55,7 +56,7 @@
 
 extern portMUX_TYPE spinlock;
 
-#define MYSERIAL0 Serial
+#define MYSERIAL0 flushableSerial
 
 #if ENABLED(WIFISUPPORT)
   #define NUM_SERIAL 2
@@ -96,7 +97,7 @@ extern uint16_t HAL_adc_result;
 void HAL_clear_reset_source (void);
 
 // reset reason
-uint8_t HAL_get_reset_source (void);
+uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(int delay);
 
@@ -119,7 +120,7 @@ void HAL_adc_init(void);
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
-void HAL_adc_start_conversion (uint8_t adc_pin);
+void HAL_adc_start_conversion(uint8_t adc_pin);
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin

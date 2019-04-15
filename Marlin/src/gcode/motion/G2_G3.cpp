@@ -85,7 +85,7 @@ void plan_arc(
   if (angular_travel < 0) angular_travel += RADIANS(360);
   #ifdef MIN_ARC_SEGMENTS
     uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (angular_travel / RADIANS(360)));
-    NOLESS(min_segments, 1);
+    NOLESS(min_segments, 1U);
   #else
     constexpr uint16_t min_segments = 1;
   #endif

@@ -105,7 +105,7 @@ namespace ExtUI {
   float getFeedrate_percent();
   uint8_t getProgress_percent();
   uint32_t getProgress_seconds_elapsed();
-  
+
   #if HAS_LEVELING
     bool getLevelingActive();
     void setLevelingActive(const bool);

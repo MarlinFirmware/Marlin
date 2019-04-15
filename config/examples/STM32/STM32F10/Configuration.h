@@ -150,7 +150,7 @@
 #define EXTRUDERS 1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -249,13 +249,27 @@
  * the E3D Tool Changer. Toolheads are locked with a servo.
  */
 //#define SWITCHING_TOOLHEAD
-#if ENABLED(SWITCHING_TOOLHEAD)
-  #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
-  #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
-  #define SWITCHING_TOOLHEAD_Y_POS        235         // (mm) Y position of the toolhead dock
-  #define SWITCHING_TOOLHEAD_Y_SECURITY    10         // (mm) Security distance Y axis
-  #define SWITCHING_TOOLHEAD_Y_CLEAR       60         // (mm) Minimum distance from dock for unobstructed X axis
-  #define SWITCHING_TOOLHEAD_X_POS        { 215, 0 }  // (mm) X positions for parking the extruders
+
+/**
+ * Magnetic Switching Toolhead
+ *
+ * Support swappable and dockable toolheads with a magnetic
+ * docking mechanism using movement and no servo.
+ */
+//#define MAGNETIC_SWITCHING_TOOLHEAD
+
+#if EITHER(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_Y_POS          235         // (mm) Y position of the toolhead dock
+  #define SWITCHING_TOOLHEAD_Y_SECURITY      10         // (mm) Security distance Y axis
+  #define SWITCHING_TOOLHEAD_Y_CLEAR         60         // (mm) Minimum distance from dock for unobstructed X axis
+  #define SWITCHING_TOOLHEAD_X_POS          { 215, 0 }  // (mm) X positions for parking the extruders
+  #if ENABLED(SWITCHING_TOOLHEAD)
+    #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
+    #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
+  #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
+    #define SWITCHING_TOOLHEAD_Y_RELEASE      5         // (mm) Security distance Y axis
+    #define SWITCHING_TOOLHEAD_X_SECURITY   -35         // (mm) Security distance X axis
+  #endif
 #endif
 
 /**
@@ -268,7 +282,7 @@
  */
 //#define MIXING_EXTRUDER
 #if ENABLED(MIXING_EXTRUDER)
-  #define MIXING_STEPPERS 3        // Number of steppers in your mixing extruder
+  #define MIXING_STEPPERS 2        // Number of steppers in your mixing extruder
   #define MIXING_VIRTUAL_TOOLS 16  // Use the Virtual Tool method with M163 and M164
   //#define DIRECT_MIXING_IN_G1    // Allow ABCDHI mix factors in G1 movement commands
   //#define GRADIENT_MIX           // Support for gradient mixing with M166 and LCD
@@ -378,7 +392,6 @@
 #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_BED 998
 #define TEMP_SENSOR_CHAMBER 0
-#define CHAMBER_HEATER_PIN -1  // On/off pin for enclosure heating system
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 60
@@ -397,8 +410,6 @@
 #define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
 #define TEMP_BED_HYSTERESIS      3  // (°C) Temperature proximity considered "close enough" to the target
 
-#define TEMP_CHAMBER_HYSTERESIS  3  // (°C) Temperature proximity considered "close enough" to the target
-
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
 #define HEATER_0_MINTEMP   5
@@ -408,7 +419,6 @@
 #define HEATER_4_MINTEMP   5
 #define HEATER_5_MINTEMP   5
 #define BED_MINTEMP        5
-#define CHAMBER_MINTEMP    5
 
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
@@ -420,7 +430,6 @@
 #define HEATER_4_MAXTEMP 275
 #define HEATER_5_MAXTEMP 275
 #define BED_MAXTEMP      150
-#define CHAMBER_MAXTEMP  100
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -463,7 +472,7 @@
 #endif // PIDTEMP
 
 //===========================================================================
-//============================= PID > Bed Temperature Control ===============
+//====================== PID > Bed Temperature Control ======================
 //===========================================================================
 
 /**
@@ -1359,7 +1368,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //
-//#define EEPROM_SETTINGS // Enable for M500 and M501 commands
+#define EEPROM_SETTINGS // Enable for M500 and M501 commands
 //#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
 //#define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
 
@@ -1415,7 +1424,7 @@
 //#define NOZZLE_PARK_FEATURE
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
-  // Specify a park position as { X, Y, Z }
+  // Specify a park position as { X, Y, Z_raise }
   #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
   #define NOZZLE_PARK_XY_FEEDRATE 100   // (mm/s) X and Y axes feedrate (also used for delta Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE 5      // (mm/s) Z axis feedrate (not used for delta printers)
@@ -1896,6 +1905,12 @@
 //#define MKS_MINI_12864
 
 //
+// FYSETC variant of the MINI12864 graphic controller with SD support
+// https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+//
+//#define FYSETC_MINI_12864
+
+//
 // Factory display for Creality CR-10
 // https://www.aliexpress.com/item/Universal-LCD-12864-3D-Printer-Display-Screen-With-Encoder-For-CR-10-CR-7-Model/32833148327.html
 //
@@ -2052,10 +2067,10 @@
 //#define RGBW_LED
 
 #if EITHER(RGB_LED, RGBW_LED)
-  #define RGB_LED_R_PIN 34
-  #define RGB_LED_G_PIN 43
-  #define RGB_LED_B_PIN 35
-  #define RGB_LED_W_PIN -1
+  //#define RGB_LED_R_PIN 34
+  //#define RGB_LED_G_PIN 43
+  //#define RGB_LED_B_PIN 35
+  //#define RGB_LED_W_PIN -1
 #endif
 
 // Support for Adafruit Neopixel LED driver

@@ -1572,13 +1572,14 @@ void Planner::synchronize() {
  */
 #if ENABLED(BACKLASH_COMPENSATION)
   #if ENABLED(BACKLASH_GCODE)
-    extern float backlash_distance_mm[], backlash_correction;
+    extern float backlash_distance_mm[];
+    extern uint8_t backlash_correction;
     #ifdef BACKLASH_SMOOTHING_MM
       extern float backlash_smoothing_mm;
     #endif
   #else
     constexpr float backlash_distance_mm[XYZ] = BACKLASH_DISTANCE_MM,
-                    backlash_correction = BACKLASH_CORRECTION;
+    constexpr uint8_t backlash_correction = BACKLASH_CORRECTION * 255;
     #ifdef BACKLASH_SMOOTHING_MM
       constexpr float backlash_smoothing_mm = BACKLASH_SMOOTHING_MM;
     #endif
@@ -1612,13 +1613,15 @@ void Planner::synchronize() {
       if (!changed_dir) return;
     #endif
 
+    const float f_corr = float(backlash_correction) / 255.0f;
+
     LOOP_XYZ(axis) {
       if (backlash_distance_mm[axis]) {
         const bool reversing = TEST(dm,axis);
 
         // When an axis changes direction, add axis backlash to the residual error
         if (TEST(changed_dir, axis))
-          residual_error[axis] += backlash_correction * (reversing ? -1.0f : 1.0f) * backlash_distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+          residual_error[axis] += (reversing ? -f_corr : f_corr) * backlash_distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
 
         // Decide how much of the residual error to correct in this segment
         int32_t error_correction = residual_error[axis];

@@ -55,6 +55,9 @@ inline void serial_delay(const millis_t ms) {
 
 #if ANY(ULTRA_LCD, DEBUG_LEVELING_FEATURE, EXTENSIBLE_UI)
 
+  // Convert a full-range unsigned 8bit int to a percentage
+  char* ui8tostr4pct(const uint8_t i);
+
   // Convert uint8_t to string with 123 format
   char* ui8tostr3(const uint8_t x);
 
@@ -87,6 +90,9 @@ inline void serial_delay(const millis_t ms) {
 
   // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
   char* ftostr43sign(const float &x, char plus=' ');
+
+  // Convert signed float to string (5 digit) with -1.2345 / _0.0000 / +1.2345 format
+  char* ftostr54sign(const float &x, char plus=' ');
 
   // Convert unsigned float to rj string with 12345 format
   char* ftostr5rj(const float &x);
@@ -135,3 +141,8 @@ public:
 
 #define REMEMBER(N,X, ...) restorer<typeof(X)> restorer_##N(X, ##__VA_ARGS__)
 #define RESTORE(N) restorer_##N.restore()
+
+// Converts from an uint8_t in the range of 0-255 to an uint8_t
+// in the range 0-100 while avoiding rounding artifacts
+constexpr uint8_t ui8_to_percent(const uint8_t i) { return (int(i) * 100 + 127) / 255; }
+constexpr uint8_t all_on = 0xFF, all_off = 0x00;

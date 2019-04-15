@@ -82,7 +82,8 @@
 #include "ui_api.h"
 
 #if ENABLED(BACKLASH_GCODE)
-  extern float backlash_distance_mm[XYZ], backlash_correction;
+  extern float backlash_distance_mm[XYZ];
+  extern uint8_t backlash_correction;
   #ifdef BACKLASH_SMOOTHING_MM
     extern float backlash_smoothing_mm;
   #endif
@@ -94,6 +95,10 @@
 
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
+#endif
+
+#if ENABLED(BABYSTEPPING)
+  #include "../../feature/babystep.h"
 #endif
 
 inline float clamp(const float value, const float minimum, const float maximum) {
@@ -583,10 +588,10 @@ namespace ExtUI {
     bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
       switch (axis) {
         #if ENABLED(BABYSTEP_XY)
-          case X: thermalManager.babystep_axis(X_AXIS, steps); break;
-          case Y: thermalManager.babystep_axis(Y_AXIS, steps); break;
+          case X: babystep.add_steps(X_AXIS, steps); break;
+          case Y: babystep.add_steps(Y_AXIS, steps); break;
         #endif
-        case Z: thermalManager.babystep_axis(Z_AXIS, steps); break;
+        case Z: babystep.add_steps(Z_AXIS, steps); break;
         default: return false;
       };
       return true;
@@ -686,8 +691,8 @@ namespace ExtUI {
     void setAxisBacklash_mm(const float value, const axis_t axis)
                                                       { backlash_distance_mm[axis] = clamp(value,0,5); }
 
-    float getBacklashCorrection_percent()             { return backlash_correction * 100; }
-    void setBacklashCorrection_percent(const float value) { backlash_correction = clamp(value, 0, 100) / 100.0f; }
+    float getBacklashCorrection_percent()             { return ui8_to_percent(backlash_correction); }
+    void setBacklashCorrection_percent(const float value) { backlash_correction = map(clamp(value, 0, 100), 0, 100, 0, 255); }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash_smoothing_mm; }

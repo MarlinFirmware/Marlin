@@ -22,6 +22,7 @@
 
 #include "serial.h"
 #include "language.h"
+#include "enum.h"
 
 uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
@@ -49,8 +50,14 @@ void serial_echopair_PGM(PGM_P const s_P, unsigned long v) { serialprintPGM(s_P)
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
+void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P const off, PGM_P const post/*=NULL*/) {
+  if (pre) serialprintPGM(pre);
+  serialprintPGM(onoff ? on : off);
+  if (post) serialprintPGM(post);
+}
 void serialprint_onoff(const bool onoff) { serialprintPGM(onoff ? PSTR(MSG_ON) : PSTR(MSG_OFF)); }
 void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
+void serialprint_truefalse(const bool tf) { serialprintPGM(tf ? PSTR("true") : PSTR("false")); }
 
 void print_bin(const uint16_t val) {
   uint16_t mask = 0x8000;
@@ -61,21 +68,15 @@ void print_bin(const uint16_t val) {
   }
 }
 
-#if ENABLED(DEBUG_LEVELING_FEATURE)
+void print_xyz(PGM_P const prefix, PGM_P const suffix, const float x, const float y, const float z) {
+  serialprintPGM(prefix);
+  SERIAL_CHAR('(');
+  SERIAL_ECHO(x);
+  SERIAL_ECHOPAIR(", ", y, ", ", z);
+  SERIAL_CHAR(')');
+  if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
+}
 
-  #include "enum.h"
-
-  void print_xyz(PGM_P const prefix, PGM_P const suffix, const float x, const float y, const float z) {
-    serialprintPGM(prefix);
-    SERIAL_CHAR('(');
-    SERIAL_ECHO(x);
-    SERIAL_ECHOPAIR(", ", y, ", ", z);
-    SERIAL_CHAR(')');
-    if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
-  }
-
-  void print_xyz(PGM_P const prefix, PGM_P const suffix, const float xyz[]) {
-    print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
-  }
-
-#endif
+void print_xyz(PGM_P const prefix, PGM_P const suffix, const float xyz[]) {
+  print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
+}

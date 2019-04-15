@@ -120,7 +120,7 @@
     // Encoder knob or keypad buttons adjust the Z position
     //
     if (ui.encoderPosition) {
-      const float z = current_position[Z_AXIS] + float((int32_t)ui.encoderPosition) * (MESH_EDIT_Z_STEP);
+      const float z = current_position[Z_AXIS] + float(int16_t(ui.encoderPosition)) * (MESH_EDIT_Z_STEP);
       line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f));
       ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       ui.encoderPosition = 0;

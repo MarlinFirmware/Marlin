@@ -44,7 +44,7 @@
 #endif
 
 #if ENABLED(BABYSTEPPING)
-  #include "../module/motion.h"
+  #include "../feature/babystep.h"
   #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
     #include "../gcode/gcode.h"
   #endif
@@ -237,10 +237,6 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
 // Initialized by settings.load()
 #if ENABLED(PIDTEMP)
   //hotend_pid_t Temperature::pid[HOTENDS];
-#endif
-
-#if ENABLED(BABYSTEPPING)
-  volatile int16_t Temperature::babystepsTodo[XYZ] = { 0 };
 #endif
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -599,10 +595,23 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
 
 Temperature::Temperature() { }
 
-int Temperature::getHeaterPower(const int heater) {
+int16_t Temperature::getHeaterPower(const int8_t heater) {
   return (
+    #if HAS_HEATED_CHAMBER
+      #if HAS_HEATED_BED
+        heater == -2
+      #else
+        heater < 0
+      #endif
+      ? temp_chamber.soft_pwm_amount :
+    #endif
     #if HAS_HEATED_BED
-      heater < 0 ? temp_bed.soft_pwm_amount :
+      #if HAS_HEATED_CHAMBER
+        heater == -1
+      #else
+        heater < 0
+      #endif
+      ? temp_bed.soft_pwm_amount :
     #endif
     temp_hotend[heater].soft_pwm_amount
   );
@@ -1077,11 +1086,11 @@ void Temperature::manage_heater() {
 
       if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
         #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-          if (temp_chamber.current >= temp_chamber.target + CHAMBER_HYSTERESIS)
+          if (temp_chamber.current >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
             temp_chamber.soft_pwm_amount = 0;
-          else if (temp_chamber.current <= temp_chamber.target - (CHAMBER_HYSTERESIS))
+          else if (temp_chamber.current <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
             temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
-        #else // !PIDTEMPCHAMBER && !CHAMBER_LIMIT_SWITCHING
+        #else
           temp_chamber.soft_pwm_amount = temp_chamber.current < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
         #endif
       }
@@ -1816,19 +1825,23 @@ void Temperature::disable_all_heaters() {
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
     //
-    #if MAX6675_SEPARATE_SPI
+    #if !MAX6675_SEPARATE_SPI
       spiBegin();
       spiInit(MAX6675_SPEED_BITS);
     #endif
 
     #if COUNT_6675 > 1
       #define WRITE_MAX6675(V) do{ switch (hindex) { case 1: WRITE(MAX6675_SS2_PIN, V); break; default: WRITE(MAX6675_SS_PIN, V); } }while(0)
+      #define SET_OUTPUT_MAX6675() do{ switch (hindex) { case 1: SET_OUTPUT(MAX6675_SS2_PIN); break; default: SET_OUTPUT(MAX6675_SS_PIN); } }while(0)
     #elif ENABLED(HEATER_1_USES_MAX6675)
       #define WRITE_MAX6675(V) WRITE(MAX6675_SS2_PIN, V)
+      #define SET_OUTPUT_MAX6675() SET_OUTPUT(MAX6675_SS2_PIN)
     #else
       #define WRITE_MAX6675(V) WRITE(MAX6675_SS_PIN, V)
+      #define SET_OUTPUT_MAX6675() SET_OUTPUT(MAX6675_SS_PIN)
     #endif
 
+    SET_OUTPUT_MAX6675();
     WRITE_MAX6675(LOW);  // enable TT_MAX6675
 
     DELAY_NS(100);       // Ensure 100ns delay
@@ -2017,11 +2030,7 @@ void Temperature::readings_ready() {
     #else
       #define CHAMBERCMP(A,B) ((A)>=(B))
     #endif
-    const bool chamber_on = (temp_chamber.target > 0)
-      #if ENABLED(PIDTEMPCHAMBER)
-        || (temp_chamber.soft_pwm_amount > 0)
-      #endif
-    ;
+    const bool chamber_on = (temp_chamber.target > 0);
     if (CHAMBERCMP(temp_chamber.raw, maxtemp_raw_CHAMBER)) max_temp_error(-2);
     if (chamber_on && CHAMBERCMP(mintemp_raw_CHAMBER, temp_chamber.raw)) min_temp_error(-2);
   #endif
@@ -2512,21 +2521,7 @@ void Temperature::isr() {
   //
 
   #if ENABLED(BABYSTEPPING)
-    #if EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
-      LOOP_XYZ(axis) {
-        const int16_t curTodo = babystepsTodo[axis]; // get rid of volatile for performance
-        if (curTodo) {
-          stepper.babystep((AxisEnum)axis, curTodo > 0);
-          if (curTodo > 0) babystepsTodo[axis]--; else babystepsTodo[axis]++;
-        }
-      }
-    #else
-      const int16_t curTodo = babystepsTodo[Z_AXIS];
-      if (curTodo) {
-        stepper.babystep(Z_AXIS, curTodo > 0);
-        if (curTodo > 0) babystepsTodo[Z_AXIS]--; else babystepsTodo[Z_AXIS]++;
-      }
-    #endif
+    babystep.task();
   #endif
 
   // Poll endstops state, if required
@@ -2535,70 +2530,6 @@ void Temperature::isr() {
   // Periodically call the planner timer
   planner.tick();
 }
-
-#if ENABLED(BABYSTEPPING)
-
-  #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
-    #define BSA_ENABLE(AXIS) do{ switch (AXIS) { case X_AXIS: enable_X(); break; case Y_AXIS: enable_Y(); break; case Z_AXIS: enable_Z(); } }while(0)
-  #else
-    #define BSA_ENABLE(AXIS) NOOP
-  #endif
-
-  #if ENABLED(BABYSTEP_WITHOUT_HOMING)
-    #define CAN_BABYSTEP(AXIS) true
-  #else
-    #define CAN_BABYSTEP(AXIS) TEST(axis_known_position, AXIS)
-  #endif
-
-  extern uint8_t axis_known_position;
-
-  void Temperature::babystep_axis(const AxisEnum axis, const int16_t distance) {
-    if (!CAN_BABYSTEP(axis)) return;
-    #if IS_CORE
-      #if ENABLED(BABYSTEP_XY)
-        switch (axis) {
-          case CORE_AXIS_1: // X on CoreXY and CoreXZ, Y on CoreYZ
-            BSA_ENABLE(CORE_AXIS_1);
-            BSA_ENABLE(CORE_AXIS_2);
-            babystepsTodo[CORE_AXIS_1] += distance * 2;
-            babystepsTodo[CORE_AXIS_2] += distance * 2;
-            break;
-          case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ and CoreYZ
-            BSA_ENABLE(CORE_AXIS_1);
-            BSA_ENABLE(CORE_AXIS_2);
-            babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
-            babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
-            break;
-          case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
-          default:
-            BSA_ENABLE(NORMAL_AXIS);
-            babystepsTodo[NORMAL_AXIS] += distance;
-            break;
-        }
-      #elif CORE_IS_XZ || CORE_IS_YZ
-        // Only Z stepping needs to be handled here
-        BSA_ENABLE(CORE_AXIS_1);
-        BSA_ENABLE(CORE_AXIS_2);
-        babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
-        babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
-      #else
-        BSA_ENABLE(Z_AXIS);
-        babystepsTodo[Z_AXIS] += distance;
-      #endif
-    #else
-      #if ENABLED(BABYSTEP_XY)
-        BSA_ENABLE(axis);
-      #else
-        BSA_ENABLE(Z_AXIS);
-      #endif
-      babystepsTodo[axis] += distance;
-    #endif
-    #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
-      gcode.reset_stepper_timeout();
-    #endif
-  }
-
-#endif // BABYSTEPPING
 
 #if HAS_TEMP_SENSOR
 
@@ -2680,11 +2611,12 @@ void Temperature::isr() {
         , e
       );
     #endif
-    SERIAL_ECHOPGM(" @:");
-    SERIAL_ECHO(getHeaterPower(target_extruder));
+    SERIAL_ECHOPAIR(" @:", getHeaterPower(target_extruder));
     #if HAS_HEATED_BED
-      SERIAL_ECHOPGM(" B@:");
-      SERIAL_ECHO(getHeaterPower(-1));
+      SERIAL_ECHOPAIR(" B@:", getHeaterPower(-1));
+    #endif
+    #if HAS_HEATED_CHAMBER
+      SERIAL_ECHOPAIR(" C@:", getHeaterPower(-2));
     #endif
     #if HOTENDS > 1
       HOTEND_LOOP() {
