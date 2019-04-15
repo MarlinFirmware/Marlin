@@ -143,7 +143,7 @@
   #define LED_PIN          13
 #endif
 
-#define SPINDLE_LASER_PWM_PIN     7   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_PWM_PIN    -1   // MUST BE HARDWARE PWM
 #define SPINDLE_LASER_ENA_PIN     4   // Pin should have a pullup!
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
