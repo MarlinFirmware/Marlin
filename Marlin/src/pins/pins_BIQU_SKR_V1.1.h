@@ -145,7 +145,7 @@
 // MKS_MINI_12864 requires jumpers on the SKR V1.1 board as documented in this web page:
 //  https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
 
-#if enabled MKS_MINI_12864       //assign pins for MKS_MINI_12864
+#if ENABLED(MKS_MINI_12864)       //assign pins for MKS_MINI_12864
     #define DOGLCD_CS	P2_06 
     #define DOGLCD_A0	P0_16 
 	#undef	LPC_SD_ONBOARD

@@ -212,7 +212,7 @@
 
 #endif // ULTRA_LCD
 
-#if enabled MKS_MINI_12864       //assign pins for MKS_MINI_12864
+#if ENABLED(MKS_MINI_12864)       //assign pins for MKS_MINI_12864
 	#define DOGLCD_CS P1_21
 	#define DOGLCD_A0 P1_22
 	#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
