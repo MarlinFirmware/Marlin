@@ -45,8 +45,8 @@
 
 #if HAS_DRIVER(TMC2208)
   // The shortage of pins becomes apparent.
-  // Worst case you may have to give up the LCD
-  // RX pins need to be interrupt capable
+  // In the worst case you may have to give up the LCD.
+  // RX pins must be interrupt-capable.
   #define X_SERIAL_TX_PIN  P4_29   // J8-2
   #define X_SERIAL_RX_PIN  P4_29   // J8-2
 
