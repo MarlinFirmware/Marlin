@@ -756,6 +756,15 @@
 #ifndef MSG_BLTOUCH
   #define MSG_BLTOUCH                         _UxGT("BLTouch")
 #endif
+#ifndef MSG_BLTOUCH_SW_MODE
+  #define MSG_BLTOUCH_SW_MODE                 _UxGT("SW Deploy BLTouch")
+#endif
+#ifndef MSG_BLTOUCH_5V_MODE
+  #define MSG_BLTOUCH_5V_MODE                 _UxGT("BLTouch 5V Mode")
+#endif
+#ifndef MSG_BLTOUCH_OD_MODE
+  #define MSG_BLTOUCH_OD_MODE                 _UxGT("BLTouch OD Mode")
+#endif
 #ifndef MSG_BLTOUCH_SELFTEST
   #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")
 #endif
