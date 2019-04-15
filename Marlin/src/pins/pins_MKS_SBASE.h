@@ -28,8 +28,12 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME        "MKS SBASE"
-#define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SBASE"
+#ifndef BOARD_NAME
+  #define BOARD_NAME        "MKS SBASE"
+#endif
+#ifndef BOARD_WEBSITE_URL
+  #define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SBASE"
+#endif
 
 #define LED_PIN            P1_18   // Used as a status indicator
 #define LED2_PIN           P1_19
@@ -281,7 +285,7 @@
  #endif
 #endif
 
-#if HAS_DRIVER(TMC2208)
+#if MB(MKS_SBASE) && HAS_DRIVER(TMC2208)
   // The shortage of pins becomes apparent.
   // Worst case you may have to give up the LCD
   // RX pins need to be interrupt capable
