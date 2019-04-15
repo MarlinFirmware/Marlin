@@ -247,7 +247,7 @@ void PrintJobRecovery::resume() {
 
   // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
   // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-  gcode.process_subcommands_now_P(PSTR("G92.9 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
+  gcode.process_subcommands_now_P(PSTR("G92.9 E0 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
     #if ENABLED(MARLIN_DEV_MODE)
       " S"
     #elif !IS_KINEMATIC
@@ -321,11 +321,16 @@ void PrintJobRecovery::resume() {
     memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
   #endif
 
-  // Extrude and retract for clean nozzle
-  sprintf_P(cmd, PSTR("G1 E%d F200"), POWER_LOSS_PURGE_LEN);
-  gcode.process_subcommands_now(cmd);
-  sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN - POWER_LOSS_RETRACT_LEN);
-  gcode.process_subcommands_now(cmd);
+  // Extrude and retract to clean the nozzle
+  #if POWER_LOSS_PURGE_LEN
+    //sprintf_P(cmd, PSTR("G1 E%d F200"), POWER_LOSS_PURGE_LEN);
+    //gcode.process_subcommands_now(cmd);
+    gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_PURGE_LEN) " F200"));
+  #endif
+  #if POWER_LOSS_RETRACT_LEN
+    sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN - POWER_LOSS_RETRACT_LEN);
+    gcode.process_subcommands_now(cmd);
+  #endif
 
   // Move back to the saved XY
   dtostrf(info.current_position[X_AXIS], 1, 3, str_1);
@@ -339,8 +344,11 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Un-retract
-  sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN);
-  gcode.process_subcommands_now(cmd);
+  #if POWER_LOSS_PURGE_LEN
+    //sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN);
+    //gcode.process_subcommands_now(cmd);
+    gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_PURGE_LEN) " F3000"));
+  #endif
 
   // Restore the feedrate
   sprintf_P(cmd, PSTR("G1 F%d"), info.feedrate);
