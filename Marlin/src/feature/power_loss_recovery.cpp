@@ -193,7 +193,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       info.retract_hop = fwretract.current_hop;
     #endif
 
-    // relative mode
+    // Relative mode
     info.relative_mode = relative_mode;
     info.relative_modes_e = gcode.axis_relative_modes[E_AXIS];
 
@@ -321,18 +321,10 @@ void PrintJobRecovery::resume() {
     memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
   #endif
 
-  // home
-  gcode.process_subcommands_now_P(PSTR("G28"));
-
-  // exrude and retract for clean nozzle
+  // Extrude and retract for clean nozzle
   sprintf_P(cmd, PSTR("G1 E%d F200"), POWER_LOSS_EXTRUDE_LEN);
   gcode.process_subcommands_now(cmd);
   sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_EXTRUDE_LEN - POWER_LOSS_RETRACT_LEN);
-  gcode.process_subcommands_now(cmd);
-
-  // move z to the saved position + RECOVERY_ZRAISE
-  dtostrf(info.current_position[Z_AXIS] + RECOVERY_ZRAISE, 1, 3, str_1);
-  sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
   gcode.process_subcommands_now(cmd);
 
   // Move back to the saved XY
@@ -346,7 +338,7 @@ void PrintJobRecovery::resume() {
   sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
   gcode.process_subcommands_now(cmd);
 
-  // extrude
+  // Un-retract
   sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_EXTRUDE_LEN);
   gcode.process_subcommands_now(cmd);
 
@@ -364,7 +356,7 @@ void PrintJobRecovery::resume() {
   sprintf_P(cmd, PSTR("G92.9 E%s"), str_1);
   gcode.process_subcommands_now(cmd);
 
-  // relative mode
+  // Relative mode
   relative_mode = info.relative_mode;
   gcode.axis_relative_modes[E_AXIS] = info.relative_modes_e;
 
