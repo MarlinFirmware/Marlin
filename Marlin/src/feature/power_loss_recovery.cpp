@@ -187,7 +187,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       info.retract_hop = fwretract.current_hop;
     #endif
 
-    //relative mode
+    // relative mode
     info.relative_mode = relative_mode;
     info.relative_modes_e = gcode.axis_relative_modes[E_AXIS];
 
