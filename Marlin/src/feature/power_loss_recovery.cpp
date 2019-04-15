@@ -151,6 +151,12 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
 
     // Machine state
     COPY(info.current_position, current_position);
+    #if HAS_HOME_OFFSET
+      COPY(info.home_offset, home_offset);
+    #endif
+    #if HAS_POSITION_SHIFT
+      COPY(info.position_shift, position_shift);
+    #endif
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
 
     #if HOTENDS > 1
@@ -362,6 +368,18 @@ void PrintJobRecovery::resume() {
   relative_mode = info.relative_mode;
   gcode.axis_relative_modes[E_AXIS] = info.relative_modes_e;
 
+  #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
+    LOOP_XYZ(i) {
+      #if HAS_HOME_OFFSET
+        home_offset[i] = info.home_offset[i];
+      #endif
+      #if HAS_POSITION_SHIFT
+        position_shift[i] = info.position_shift[i];
+      #endif
+      update_workspace_offset((AxisEnum)i);
+    }
+  #endif
+
   // Process commands from the old pending queue
   uint8_t c = info.commands_in_queue, r = info.cmd_queue_index_r;
   for (; c--; r = (r + 1) % BUFSIZE)
@@ -389,6 +407,25 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHO(info.current_position[i]);
         }
         DEBUG_EOL();
+
+        #if HAS_HOME_OFFSET
+          DEBUG_ECHOPGM("home_offset: ");
+          LOOP_XYZ(i) {
+            if (i) DEBUG_CHAR(',');
+            DEBUG_ECHO(info.home_offset[i]);
+          }
+          DEBUG_EOL();
+        #endif
+
+        #if HAS_POSITION_SHIFT
+          DEBUG_ECHOPGM("position_shift: ");
+          LOOP_XYZ(i) {
+            if (i) DEBUG_CHAR(',');
+            DEBUG_ECHO(info.position_shift[i]);
+          }
+          DEBUG_EOL();
+        #endif
+
         DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
 
         #if HOTENDS > 1

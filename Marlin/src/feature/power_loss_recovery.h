@@ -44,6 +44,13 @@ typedef struct {
   // Machine state
   float current_position[NUM_AXIS];
 
+  #if HAS_HOME_OFFSET
+    float home_offset[XYZ];
+  #endif
+  #if HAS_POSITION_SHIFT
+    float position_shift[XYZ];
+  #endif
+
   uint16_t feedrate;
 
   #if HOTENDS > 1
