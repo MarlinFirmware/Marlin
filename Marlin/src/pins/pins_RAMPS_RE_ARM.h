@@ -328,7 +328,18 @@
   //#define SCK_PIN          P0_15   // (52)  system defined J3-9 & AUX-3
   //#define SS_PIN           P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
 
-  #if ENABLED(MINIPANEL)
+  #if ENABLED(FYSETC_MINI_12864)
+    #undef  DOGLCD_CS
+    #undef  DOGLCD_A0
+    #undef  BEEPER_PIN
+    #undef  BTN_ENC
+    #define DOGLCD_CS      P1_09  // use Ethernet connector for EXP1 cable signals
+    #define DOGLCD_A0      P1_14
+    #define BEEPER_PIN     P1_01
+    #define BTN_ENC        P1_04
+    #define DOGLCD_SCK     P0_15
+    #define DOGLCD_MOSI    P0_18
+  #elif ENABLED(MINIPANEL)
     // GLCD features
     // Uncomment screen orientation
     //#define LCD_SCREEN_ROT_90
