@@ -29,3 +29,9 @@ int i2s_init();
 void i2s_write(uint8_t pin, uint8_t val);
 
 void i2s_push_sample();
+
+// pin definitions
+
+#define I2S_WS 25
+#define I2S_BCK 26
+#define I2S_DATA 27
