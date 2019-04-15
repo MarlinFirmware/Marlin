@@ -208,20 +208,29 @@
       #define LCD_PINS_D7   P1_23
     #endif
 
+    #if ENABLED(MKS_MINI_12864)
+      #define DOGLCD_CS     P1_21
+      #define DOGLCD_A0     P1_22
+    #endif
+
   #endif
 
 #endif // ULTRA_LCD
 
-#if ENABLED(MKS_MINI_12864)       //assign pins for MKS_MINI_12864
-	#define DOGLCD_CS P1_21
-	#define DOGLCD_A0 P1_22
-	#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
-	#define LPC_SD_LCD            // MKS_MINI_12864 uses SD card on the display
-#else
+//
+// SD Support
+//
 //#define USB_SD_DISABLED
-	#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
-//#define LPC_SD_LCD            // Marlin uses the SD drive attached to the LCD
-	#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board
+#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
+#define LPC_SD_LCD            // Marlin uses the SD drive attached to the LCD
+//#define LPC_SD_ONBOARD      // Marlin uses the SD drive on the control board
+
+// MKS_MINI_12864 strongly prefers the SD card on the display
+#if ENABLED(MKS_MINI_12864) && !EITHER(USB_SD_ONBOARD, USB_SD_DISABLED)
+  #undef USB_SD_DISABLED
+  #define USB_SD_ONBOARD
+  #define LPC_SD_LCD
+  #undef LPC_SD_ONBOARD
 #endif
 
 #if ENABLED(LPC_SD_LCD)
