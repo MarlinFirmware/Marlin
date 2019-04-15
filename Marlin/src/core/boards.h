@@ -194,6 +194,7 @@
 #define BOARD_BIQU_B300_V1_0      1760  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
 #define BOARD_BIGTREE_SKR_V1_3    1761  // BIGTREE SKR_V1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 #define BOARD_AZTEEG_X5_MINI      1762  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_MKS_SGEN            1763  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
 
 //
 // SAM3X8E ARM Cortex M3
