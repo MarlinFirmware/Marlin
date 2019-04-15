@@ -239,9 +239,9 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
   #endif
 
-  // Set Z to 0, raise Z by 2mm, and Home (XY only for Cartesian) with no raise
-  // (Only do simulated homing in Marlin Dev Mode.)
-  gcode.process_subcommands_now_P(PSTR("G92.0 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
+  // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
+  // with no raise. (Only do simulated homing in Marlin Dev Mode.)
+  gcode.process_subcommands_now_P(PSTR("G92.9 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
     #if ENABLED(MARLIN_DEV_MODE)
       " S"
     #elif !IS_KINEMATIC
@@ -315,7 +315,7 @@ void PrintJobRecovery::resume() {
     memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
   #endif
 
-  // home  
+  // home
   gcode.process_subcommands_now_P(PSTR("G28"));
 
   // exrude and retract for clean nozzle
@@ -323,7 +323,7 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
   sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_EXTRUDE_LEN - POWER_LOSS_RETRACT_LEN);
   gcode.process_subcommands_now(cmd);
-  
+
   // move z to the saved position + RECOVERY_ZRAISE
   dtostrf(info.current_position[Z_AXIS] + RECOVERY_ZRAISE, 1, 3, str_1);
   sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
@@ -348,14 +348,14 @@ void PrintJobRecovery::resume() {
   sprintf_P(cmd, PSTR("G1 F%d"), info.feedrate);
   gcode.process_subcommands_now(cmd);
 
-  // Restore E positions with G92.0
+  // Restore E position with G92.9
   dtostrf(info.current_position[E_AXIS]
     #if ENABLED(SAVE_EACH_CMD_MODE)
       - 5 // Extra extrusion on restart
     #endif
     , 1, 3, str_1
   );
-  sprintf_P(cmd, PSTR("G92.0 E%s"), str_1);
+  sprintf_P(cmd, PSTR("G92.9 E%s"), str_1);
   gcode.process_subcommands_now(cmd);
 
   // relative mode
