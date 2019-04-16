@@ -228,7 +228,7 @@
         #define DOGLCD_A0     P1_22
       #endif
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_CHARACTER_LCD
         #define LCD_PINS_D5   P1_21
         #define LCD_PINS_D6   P1_22
         #define LCD_PINS_D7   P1_23
