@@ -112,7 +112,7 @@
   //#define U8G_CLASS U8GLIB_MINI12864
   //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 8 stripes
   #define U8G_CLASS U8GLIB_MINI12864_2X
-  #if EITHER(FYSETC_MINI_12864, TARGET_LPC1768)
+  #if ENABLED(FYSETC_MINI_12864) && DOGLCD_SCK > 0
     #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // 4 stripes SW-SPI
   #else
     #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 4 stripes HW-SPI
