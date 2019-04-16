@@ -49,7 +49,7 @@ void GcodeSuite::M425() {
   LOOP_XYZ(i) {
     if (parser.seen(axis_codes[i])) {
       planner.synchronize();
-      backlash.backlash_distance_mm[i] = parser.has_value() ? parser.value_linear_units() : backlash.get_measurement(i);
+      backlash.distance_mm[i] = parser.has_value() ? parser.value_linear_units() : backlash.get_measurement(i);
       noArgs = false;
     }
   }
@@ -63,37 +63,35 @@ void GcodeSuite::M425() {
   #ifdef BACKLASH_SMOOTHING_MM
     if (parser.seen('S')) {
       planner.synchronize();
-      backlash.backlash_smoothing_mm = parser.value_linear_units();
+      backlash.smoothing_mm = parser.value_linear_units();
       noArgs = false;
     }
   #endif
 
   if (noArgs) {
-    SERIAL_ECHOPGM("Backlash correction is ");
-    if (!backlash.backlash_correction) SERIAL_ECHOPGM("in");
+    SERIAL_ECHOPGM("Backlash Correction ");
+    if (!backlash.correction) SERIAL_ECHOPGM("in");
     SERIAL_ECHOLNPGM("active:");
     SERIAL_ECHOLNPAIR("  Correction Amount/Fade-out:     F", backlash.get_correction(), " (F1.0 = full, F0.0 = none)");
     SERIAL_ECHOPGM("  Backlash Distance (mm):        ");
     LOOP_XYZ(a) {
       SERIAL_CHAR(' ');
       SERIAL_CHAR(axis_codes[a]);
-      SERIAL_ECHO(backlash.backlash_distance_mm[a]);
+      SERIAL_ECHO(backlash.distance_mm[a]);
       SERIAL_EOL();
     }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      SERIAL_ECHOLNPAIR("  Smoothing (mm):                 S", backlash_smoothing_mm);
+      SERIAL_ECHOLNPAIR("  Smoothing (mm):                 S", backlash.smoothing_mm);
     #endif
 
     #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
       SERIAL_ECHOPGM("  Average measured backlash (mm):");
-      if (backlash.has_measurement(X_AXIS) || backlash.has_measurement(Y_AXIS) || backlash.has_measurement(Z_AXIS)) {
-        LOOP_XYZ(a) {
-          if (backlash.has_measurement(a)) {
-            SERIAL_CHAR(' ');
-            SERIAL_CHAR(axis_codes[a]);
-            SERIAL_ECHO(backlash.get_measurement(a));
-          }
+      if (backlash.has_any_measurement()) {
+        LOOP_XYZ(a) if (backlash.has_measurement(a)) {
+          SERIAL_CHAR(' ');
+          SERIAL_CHAR(axis_codes[a]);
+          SERIAL_ECHO(backlash.get_measurement(a));
         }
       }
       else

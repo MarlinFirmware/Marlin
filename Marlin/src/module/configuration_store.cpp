@@ -85,7 +85,10 @@
 #endif
 
 #include "../feature/pause.h"
-#include "../feature/backlash.h"
+
+#if ENABLED(BACKLASH_COMPENSATION)
+  #include "../feature/backlash.h"
+#endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #include "../feature/runout.h"
@@ -295,15 +298,15 @@ typedef struct SettingsDataStruct {
   //
   // BACKLASH_COMPENSATION
   //
-  float backlash_distance_mm[XYZ];                    // M425 X Y Z
-  uint8_t backlash_correction;                        // M425 F
-  float backlash_smoothing_mm;                        // M425 S
+  float backlash_distance_mm[XYZ];                      // M425 X Y Z
+  uint8_t backlash_correction;                          // M425 F
+  float backlash_smoothing_mm;                          // M425 S
 
   //
   // FILAMENT_RUNOUT_SENSOR
   //
-  bool runout_sensor_enabled;                         // M412 S
-  float runout_distance_mm;                           // M412 D
+  bool runout_sensor_enabled;                           // M412 S
+  float runout_distance_mm;                             // M412 D
 
   //
   // EXTENSIBLE_UI
@@ -1124,18 +1127,18 @@ void MarlinSettings::postprocess() {
     //
     {
       #if ENABLED(BACKLASH_COMPENSATION)
-        const float   *backlash_distance_mm      = backlash.backlash_distance_mm;
-        const uint8_t &backlash_correction       = backlash.backlash_correction;
+        const float   (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
+        const uint8_t &backlash_correction         = backlash.correction;
       #else
-        const float    backlash_distance_mm[XYZ] = { 0 };
-        const uint8_t  backlash_correction       = 0;
+        const float    backlash_distance_mm[XYZ]   = { 0 };
+        const uint8_t  backlash_correction         = 0;
       #endif
       #ifdef BACKLASH_SMOOTHING_MM
-        const float   &backlash_smoothing_mm     = backlash.backlash_smoothing_mm;
+        const float   &backlash_smoothing_mm       = backlash.smoothing_mm;
       #else
-        const float    backlash_smoothing_mm     = 3;
+        const float    backlash_smoothing_mm       = 3;
       #endif
-      _FIELD_TEST(backlash_distance_mm[X_AXIS]);
+      _FIELD_TEST(backlash_distance_mm);
       EEPROM_WRITE(backlash_distance_mm[X_AXIS]);
       EEPROM_WRITE(backlash_distance_mm[Y_AXIS]);
       EEPROM_WRITE(backlash_distance_mm[Z_AXIS]);
@@ -1895,18 +1898,18 @@ void MarlinSettings::postprocess() {
       //
       {
         #if ENABLED(BACKLASH_COMPENSATION)
-          float   *backlash_distance_mm      = backlash.backlash_distance_mm;
-          uint8_t &backlash_correction       = backlash.backlash_correction;
+          float   (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
+          uint8_t &backlash_correction         = backlash.correction;
         #else
-          float    backlash_distance_mm[XYZ];
-          uint8_t  backlash_correction;
+          float   backlash_distance_mm[XYZ];
+          uint8_t backlash_correction;
         #endif
         #ifdef BACKLASH_SMOOTHING_MM
-          float   &backlash_smoothing_mm     = backlash.backlash_smoothing_mm;
+          float &backlash_smoothing_mm = backlash.smoothing_mm;
         #else
-          float    backlash_smoothing_mm;
+          float  backlash_smoothing_mm;
         #endif
-        _FIELD_TEST(backlash_distance_mm[X_AXIS]);
+        _FIELD_TEST(backlash_distance_mm);
         EEPROM_READ(backlash_distance_mm[X_AXIS]);
         EEPROM_READ(backlash_distance_mm[Y_AXIS]);
         EEPROM_READ(backlash_distance_mm[Z_AXIS]);
@@ -2185,15 +2188,15 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    backlash.backlash_correction = BACKLASH_CORRECTION * 255;
+    backlash.correction = (BACKLASH_CORRECTION) * 255;
     #ifdef BACKLASH_DISTANCE_MM
       constexpr float tmp[XYZ] = BACKLASH_DISTANCE_MM;
-      backlash.backlash_distance_mm[X_AXIS] = tmp[X_AXIS];
-      backlash.backlash_distance_mm[Y_AXIS] = tmp[Y_AXIS];
-      backlash.backlash_distance_mm[Z_AXIS] = tmp[Z_AXIS];
+      backlash.distance_mm[X_AXIS] = tmp[X_AXIS];
+      backlash.distance_mm[Y_AXIS] = tmp[Y_AXIS];
+      backlash.distance_mm[Z_AXIS] = tmp[Z_AXIS];
     #endif
     #ifdef BACKLASH_SMOOTHING_MM
-      backlash.backlash_smoothing_mm = BACKLASH_SMOOTHING_MM;
+      backlash.smoothing_mm = BACKLASH_SMOOTHING_MM;
     #endif
   #endif
 
@@ -3292,11 +3295,11 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
         "  M425 F", backlash.get_correction(),
-        " X", LINEAR_UNIT(backlash.backlash_distance_mm[X_AXIS]),
-        " Y", LINEAR_UNIT(backlash.backlash_distance_mm[Y_AXIS]),
-        " Z", LINEAR_UNIT(backlash.backlash_distance_mm[Z_AXIS])
+        " X", LINEAR_UNIT(backlash.distance_mm[X_AXIS]),
+        " Y", LINEAR_UNIT(backlash.distance_mm[Y_AXIS]),
+        " Z", LINEAR_UNIT(backlash.distance_mm[Z_AXIS])
         #ifdef BACKLASH_SMOOTHING_MM
-          ," S", LINEAR_UNIT(backlash.backlash_smoothing_mm)
+          ," S", LINEAR_UNIT(backlash.smoothing_mm)
         #endif
       );
     #endif

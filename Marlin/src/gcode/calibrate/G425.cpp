@@ -75,13 +75,13 @@ struct measurements_t {
 #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
 
 #if ENABLED(BACKLASH_GCODE)
-  #define TEMPORARY_BACKLASH_CORRECTION(value) REMEMBER(tbst, backlash.backlash_correction, value)
+  #define TEMPORARY_BACKLASH_CORRECTION(value) REMEMBER(tbst, backlash.correction, value)
 #else
   #define TEMPORARY_BACKLASH_CORRECTION(value)
 #endif
 
 #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-  #define TEMPORARY_BACKLASH_SMOOTHING(value) REMEMBER(tbsm, backlash.backlash_smoothing_mm, value)
+  #define TEMPORARY_BACKLASH_SMOOTHING(value) REMEMBER(tbsm, backlash.smoothing_mm, value)
 #else
   #define TEMPORARY_BACKLASH_SMOOTHING(value)
 #endif
@@ -450,22 +450,22 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
 
     #if ENABLED(BACKLASH_GCODE)
       #if HAS_X_CENTER
-        backlash.backlash_distance_mm[X_AXIS] = (m.backlash[LEFT] + m.backlash[RIGHT]) / 2;
+        backlash.distance_mm[X_AXIS] = (m.backlash[LEFT] + m.backlash[RIGHT]) / 2;
       #elif ENABLED(CALIBRATION_MEASURE_LEFT)
-        backlash.backlash_distance_mm[X_AXIS] = m.backlash[LEFT];
+        backlash.distance_mm[X_AXIS] = m.backlash[LEFT];
       #elif ENABLED(CALIBRATION_MEASURE_RIGHT)
-        backlash.backlash_distance_mm[X_AXIS] = m.backlash[RIGHT];
+        backlash.distance_mm[X_AXIS] = m.backlash[RIGHT];
       #endif
 
       #if HAS_Y_CENTER
-        backlash.backlash_distance_mm[Y_AXIS] = (m.backlash[FRONT] + m.backlash[BACK]) / 2;
+        backlash.distance_mm[Y_AXIS] = (m.backlash[FRONT] + m.backlash[BACK]) / 2;
       #elif ENABLED(CALIBRATION_MEASURE_FRONT)
-        backlash.backlash_distance_mm[Y_AXIS] = m.backlash[FRONT];
+        backlash.distance_mm[Y_AXIS] = m.backlash[FRONT];
       #elif ENABLED(CALIBRATION_MEASURE_BACK)
-        backlash.backlash_distance_mm[Y_AXIS] = m.backlash[BACK];
+        backlash.distance_mm[Y_AXIS] = m.backlash[BACK];
       #endif
 
-      backlash.backlash_distance_mm[Z_AXIS] = m.backlash[TOP];
+      backlash.distance_mm[Z_AXIS] = m.backlash[TOP];
     #endif
   }
 

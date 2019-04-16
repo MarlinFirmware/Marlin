@@ -25,20 +25,21 @@
 #if ENABLED(BACKLASH_COMPENSATION)
 
 #include "backlash.h"
+#include "../module/planner.h"
 
 #if ENABLED(BACKLASH_GCODE)
-  uint8_t Backlash::backlash_correction = (BACKLASH_CORRECTION) * 0xFF;
+  uint8_t Backlash::correction = (BACKLASH_CORRECTION) * 0xFF;
   #ifdef BACKLASH_DISTANCE_MM
-    float Backlash::backlash_distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
+    float Backlash::distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
   #endif
   #ifdef BACKLASH_SMOOTHING_MM
-    float Backlash::backlash_smoothing_mm = BACKLASH_SMOOTHING_MM;
+    float Backlash::smoothing_mm = BACKLASH_SMOOTHING_MM;
   #endif
 #endif
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-  float Backlash::backlash_measured_mm[XYZ] = { 0 };
-  uint8_t Backlash::backlash_measured_num[XYZ] = { 0 };
+  float Backlash::measured_mm[XYZ] = { 0 };
+  uint8_t Backlash::measured_count[XYZ] = { 0 };
 #endif
 
 Backlash backlash;
@@ -61,7 +62,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
   if (dc == 0) CBI(changed_dir, Z_AXIS);
   last_direction_bits ^= changed_dir;
 
-  if (backlash_correction == 0) return;
+  if (correction == 0) return;
 
   #ifdef BACKLASH_SMOOTHING_MM
     // The segment proportion is a value greater than 0.0 indicating how much residual_error
@@ -80,25 +81,25 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
     if (!changed_dir) return;
   #endif
 
-  const float f_corr = float(backlash_correction) / 255.0f;
+  const float f_corr = float(correction) / 255.0f;
 
   LOOP_XYZ(axis) {
-    if (backlash_distance_mm[axis]) {
+    if (distance_mm[axis]) {
       const bool reversing = TEST(dm,axis);
 
       // When an axis changes direction, add axis backlash to the residual error
       if (TEST(changed_dir, axis))
-        residual_error[axis] += (reversing ? -f_corr : f_corr) * backlash_distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+        residual_error[axis] += (reversing ? -f_corr : f_corr) * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
 
       // Decide how much of the residual error to correct in this segment
       int32_t error_correction = residual_error[axis];
       #ifdef BACKLASH_SMOOTHING_MM
-        if (error_correction && backlash_smoothing_mm != 0) {
+        if (error_correction && smoothing_mm != 0) {
           // Take up a portion of the residual_error in this segment, but only when
           // the current segment travels in the same direction as the correction
           if (reversing == (error_correction < 0)) {
             if (segment_proportion == 0)
-              segment_proportion = MIN(1.0f, block->millimeters / backlash_smoothing_mm);
+              segment_proportion = MIN(1.0f, block->millimeters / smoothing_mm);
             error_correction = ceil(segment_proportion * error_correction);
           }
           else
@@ -123,15 +124,15 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 
   // Measure Z backlash by raising nozzle in increments until probe deactivates
   void Backlash::measure_with_probe() {
-    if (backlash_measured_num[Z_AXIS] == 255) return;
+    if (measured_count[Z_AXIS] == 255) return;
 
     float start_height = current_position[Z_AXIS];
     while (current_position[Z_AXIS] < (start_height + BACKLASH_MEASUREMENT_LIMIT) && TEST_PROBE_PIN)
       do_blocking_move_to_z(current_position[Z_AXIS] + BACKLASH_MEASUREMENT_RESOLUTION, MMM_TO_MMS(BACKLASH_MEASUREMENT_FEEDRATE));
 
     // The backlash from all probe points is averaged, so count the number of measurements
-    backlash_measured_mm[Z_AXIS] += current_position[Z_AXIS] - start_height;
-    backlash_measured_num[Z_AXIS]++;
+    measured_mm[Z_AXIS] += current_position[Z_AXIS] - start_height;
+    measured_count[Z_AXIS]++;
   }
 #endif
 

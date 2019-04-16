@@ -23,65 +23,61 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(BACKLASH_COMPENSATION)
-  #include "../module/planner.h"
+class Backlash {
+public:
+  #if ENABLED(BACKLASH_GCODE)
+    static uint8_t correction;
+    #ifdef BACKLASH_DISTANCE_MM
+      static float distance_mm[XYZ];
+    #endif
+    #ifdef BACKLASH_SMOOTHING_MM
+      static float smoothing_mm;
+    #endif
+    static inline void set_correction(const float &v) { correction = MAX(0, MIN(1.0, v)) * all_on; }
+  #else
+    static constexpr uint8_t correction = (BACKLASH_CORRECTION) * 0xFF;
+    #ifdef BACKLASH_DISTANCE_MM
+      static constexpr float distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
+    #endif
+    #ifdef BACKLASH_SMOOTHING_MM
+      static constexpr float smoothing_mm = BACKLASH_SMOOTHING_MM;
+    #endif
+    static inline void set_correction(float) { }
+  #endif
 
-  class Backlash {
+  float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
+
+  #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
+    private:
+      static float measured_mm[XYZ];
+      static uint8_t measured_count[XYZ];
     public:
-      #if ENABLED(BACKLASH_GCODE)
-        static uint8_t backlash_correction;
-        #ifdef BACKLASH_DISTANCE_MM
-          static float backlash_distance_mm[XYZ];
-        #endif
-        #ifdef BACKLASH_SMOOTHING_MM
-          static float backlash_smoothing_mm;
-        #endif
+      static void measure_with_probe();
+  #endif
 
-        void set_correction(float v) {backlash_correction = MAX(0, MIN(1.0, v)) * all_on;}
-      #else
-        static constexpr uint8_t backlash_correction = (BACKLASH_CORRECTION) * 0xFF;
-        #ifdef BACKLASH_DISTANCE_MM
-          static constexpr float backlash_distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
-        #endif
-        #ifdef BACKLASH_SMOOTHING_MM
-          static constexpr float backlash_smoothing_mm = BACKLASH_SMOOTHING_MM;
-        #endif
-
-        void set_correction(float) {}
-      #endif
-
-      float get_correction() {return float(ui8_to_percent(backlash_correction)) / 100;}
-
-
+  static inline float get_measurement(const uint8_t e) {
+    // Return the measurement averaged over all readings
+    return (
       #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-        private:
-          static float backlash_measured_mm[];
-          static uint8_t backlash_measured_num[];
-
-        public:
-          static void measure_with_probe();
+        measured_count[e] > 0 ? measured_mm[e] / measured_count[e] :
       #endif
+      0
+    );
+  }
 
-      static float get_measurement(const uint8_t e) {
-        // Returns the measurement averaged over all readings
-       return
-         #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-           backlash_measured_num[e] > 0 ? backlash_measured_mm[e] / backlash_measured_num[e] :
-         #endif
-         0;
-      }
+  static inline bool has_measurement(const uint8_t e) {
+    return (false
+      #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
+        || (measured_count[e] > 0)
+      #endif
+    );
+  }
 
-      static bool has_measurement(const uint8_t e) {
-        return
-          #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-            backlash_measured_num[e] > 0;
-          #else
-            false;
-          #endif
-      }
+  static inline bool has_any_measurement() {
+    return has_measurement(X_AXIS) || has_measurement(Y_AXIS) || has_measurement(Z_AXIS);
+  }
 
-      void add_correction_steps(const int32_t &da, const int32_t &db, const int32_t &dc, const uint8_t dm, block_t * const block);
-  };
+  void add_correction_steps(const int32_t &da, const int32_t &db, const int32_t &dc, const uint8_t dm, block_t * const block);
+};
 
-  extern Backlash backlash;
-#endif // ENABLED(BACKLASH_COMPENSATION)
+extern Backlash backlash;
