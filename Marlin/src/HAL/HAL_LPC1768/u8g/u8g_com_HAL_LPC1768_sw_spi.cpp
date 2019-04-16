@@ -109,8 +109,6 @@ uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck
       gpio_set(mosi_pin, state);
       gpio_set(mosi_pin, state);  // need some setup time
       gpio_set(sck_pin, HIGH);
-      b <<= 1;
-      if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
     }
     else {
       for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
@@ -121,10 +119,9 @@ uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck
 
       for (uint8_t j = 0; j < spi_speed; j++)
         gpio_set(sck_pin, HIGH);
-
-      b <<= 1;
-      if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
     }
+    b <<= 1;
+    if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
   }
 
   return b;
