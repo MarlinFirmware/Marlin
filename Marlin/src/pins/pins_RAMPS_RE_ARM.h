@@ -354,12 +354,9 @@
 #define ENET_TXD0          P1_00   // (78)  J12-11
 #define ENET_TXD1          P1_01   // (79)  J12-12
 
-//#define USB_SD_DISABLED
-#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
-
-//#define LPC_SD_LCD          // Marlin uses the SD drive attached to the LCD
-#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board
-
+//
+// SD Support
+//
 #if ENABLED(LPC_SD_LCD)
 
   #define SCK_PIN          P0_15
