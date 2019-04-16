@@ -217,6 +217,25 @@
 
 #endif // ULTRA_LCD
 
+#if ENABLED(FYSETC_MINI_12864)
+  #define BTN_EN1          P3_26
+  #define BTN_EN2          P3_25
+  #define BTN_ENC          P0_28
+  #define BEEPER_PIN P1_30
+  #define SD_DETECT_PIN P1_31
+  #define DOGLCD_CS P1_18 
+  #define DOGLCD_A0 P1_19
+  #define LCD_BACKLIGHT_PIN -1
+  #define LCD_RESET_PIN	P1_20
+  #ifndef RGB_LED
+    #define RGB_LED
+    #define RGB_LED_R_PIN P1_21
+    #define RGB_LED_G_PIN P1_22
+    #define RGB_LED_B_PIN P1_23
+    #define RGB_LED_W_PIN -1
+  #endif // RGB_LED
+#endif // FYSETC_MINI_12864
+
 //
 // SD Support
 //

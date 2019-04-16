@@ -1703,6 +1703,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+  * Fysetc Mini 12864 requirements
+  */
+#if ENABLED(FYSETC_MINI_12864)
+  #if !(ENABLED(LED_USER_PRESET_STARTUP))
+    #error "Fysetc Mini 12864 requires LED_USER_PRESET_STARTUP to be defined to have backlight enabled on startup."
+  #endif
+#endif
+
+/**
  * Auto Fan check for PWM pins
  */
 #if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255
