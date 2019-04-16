@@ -156,7 +156,10 @@
     #define LCD_PINS_D7    29
   #endif
 
-  #if ENABLED(MINIPANEL)
+  #if ENABLED(FYSETC_MINI_12864)
+    #define DOGLCD_CS      LCD_PINS_ENABLE
+    #define DOGLCD_A0      LCD_PINS_RS
+  #elif ENABLED(MINIPANEL)
     #define DOGLCD_CS      25
     #define DOGLCD_A0      27
   #endif

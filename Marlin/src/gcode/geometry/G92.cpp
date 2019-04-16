@@ -33,9 +33,23 @@
  */
 void GcodeSuite::G92() {
 
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    switch (parser.subcode) {
-      case 1:
+  bool didE = false;
+  #if IS_SCARA || !HAS_POSITION_SHIFT
+    bool didXYZ = false;
+  #else
+    constexpr bool didXYZ = false;
+  #endif
+
+  #if USE_GCODE_SUBCODES
+    const uint8_t subcode_G92 = parser.subcode;
+  #else
+    constexpr uint8_t subcode_G92 = 0;
+  #endif
+
+  switch (subcode_G92) {
+    default: break;
+    #if ENABLED(CNC_COORDINATE_SYSTEMS)
+      case 1: {
         // Zero the G92 values and restore current position
         #if !IS_SCARA
           LOOP_XYZ(i) {
@@ -46,44 +60,46 @@ void GcodeSuite::G92() {
             }
           }
         #endif // Not SCARA
-        return;
-    }
-  #endif
-
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    #define IS_G92_0 (parser.subcode == 0)
-  #else
-    #define IS_G92_0 true
-  #endif
-
-  bool didE = false;
-  #if IS_SCARA || !HAS_POSITION_SHIFT
-    bool didXYZ = false;
-  #else
-    constexpr bool didXYZ = false;
-  #endif
-
-  if (IS_G92_0) LOOP_XYZE(i) {
-    if (parser.seenval(axis_codes[i])) {
-      const float l = parser.value_axis_units((AxisEnum)i),
-                  v = i == E_AXIS ? l : LOGICAL_TO_NATIVE(l, i),
-                  d = v - current_position[i];
-      if (!NEAR_ZERO(d)) {
-        #if IS_SCARA || !HAS_POSITION_SHIFT
-          if (i == E_AXIS) didE = true; else didXYZ = true;
-          current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
-        #elif HAS_POSITION_SHIFT
-          if (i == E_AXIS) {
-            didE = true;
-            current_position[E_AXIS] = v; // When using coordinate spaces, only E is set directly
+      } return;
+    #endif
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      case 9: {
+        LOOP_XYZE(i) {
+          if (parser.seenval(axis_codes[i])) {
+            current_position[i] = parser.value_axis_units((AxisEnum)i);
+            #if IS_SCARA || !HAS_POSITION_SHIFT
+              if (i == E_AXIS) didE = true; else didXYZ = true;
+            #elif HAS_POSITION_SHIFT
+              if (i == E_AXIS) didE = true;
+            #endif
           }
-          else {
-            position_shift[i] += d;       // Other axes simply offset the coordinate space
-            update_workspace_offset((AxisEnum)i);
+        }
+      } break;
+    #endif
+    case 0: {
+      LOOP_XYZE(i) {
+        if (parser.seenval(axis_codes[i])) {
+          const float l = parser.value_axis_units((AxisEnum)i),
+                      v = i == E_AXIS ? l : LOGICAL_TO_NATIVE(l, i),
+                      d = v - current_position[i];
+          if (!NEAR_ZERO(d)) {
+            #if IS_SCARA || !HAS_POSITION_SHIFT
+              if (i == E_AXIS) didE = true; else didXYZ = true;
+              current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
+            #elif HAS_POSITION_SHIFT
+              if (i == E_AXIS) {
+                didE = true;
+                current_position[E_AXIS] = v; // When using coordinate spaces, only E is set directly
+              }
+              else {
+                position_shift[i] += d;       // Other axes simply offset the coordinate space
+                update_workspace_offset((AxisEnum)i);
+              }
+            #endif
           }
-        #endif
+        }
       }
-    }
+    } break;
   }
 
   #if ENABLED(CNC_COORDINATE_SYSTEMS)

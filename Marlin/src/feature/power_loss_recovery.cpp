@@ -151,6 +151,12 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
 
     // Machine state
     COPY(info.current_position, current_position);
+    #if HAS_HOME_OFFSET
+      COPY(info.home_offset, home_offset);
+    #endif
+    #if HAS_POSITION_SHIFT
+      COPY(info.position_shift, position_shift);
+    #endif
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
 
     #if HOTENDS > 1
@@ -187,7 +193,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       info.retract_hop = fwretract.current_hop;
     #endif
 
-    //relative mode
+    // Relative mode
     info.relative_mode = relative_mode;
     info.relative_modes_e = gcode.axis_relative_modes[E_AXIS];
 
@@ -239,20 +245,30 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
   #endif
 
-  // Set Z to 0, raise Z by 2mm, and Home (XY only for Cartesian) with no raise
-  // (Only do simulated homing in Marlin Dev Mode.)
-  gcode.process_subcommands_now_P(PSTR("G92.0 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
-    #if ENABLED(MARLIN_DEV_MODE)
-      " S"
-    #elif !IS_KINEMATIC
-      " X Y"
+  // Reset E, raise Z, home XY...
+  gcode.process_subcommands_now_P(PSTR("G92.9 E0"
+    #if Z_HOME_DIR > 0
+      // If Z homing goes to max, reset E and home all
+      "\nG28R0"
+      #if ENABLED(MARLIN_DEV_MODE)
+        "S"
+      #endif
+    #else
+      // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
+      // with no raise. (Only do simulated homing in Marlin Dev Mode.)
+      "Z0\nG1Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28R0"
+      #if ENABLED(MARLIN_DEV_MODE)
+        "S"
+      #elif !IS_KINEMATIC
+        "XY"
+      #endif
     #endif
   ));
 
   // Pretend that all axes are homed
   axis_homed = axis_known_position = xyz_bits;
 
-  char cmd[40], str_1[16], str_2[16];
+  char cmd[50], str_1[16], str_2[16];
 
   // Select the previously active tool (with no_move)
   #if EXTRUDERS > 1
@@ -315,16 +331,16 @@ void PrintJobRecovery::resume() {
     memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
   #endif
 
-  // Restore Z (plus raise) and E positions with G92.0
-  dtostrf(info.current_position[Z_AXIS] + RECOVERY_ZRAISE, 1, 3, str_1);
-  dtostrf(info.current_position[E_AXIS]
-    #if ENABLED(SAVE_EACH_CMD_MODE)
-      - 5 // Extra extrusion on restart
-    #endif
-    , 1, 3, str_2
-  );
-  sprintf_P(cmd, PSTR("G92.0 Z%s E%s"), str_1, str_2);
-  gcode.process_subcommands_now(cmd);
+  // Extrude and retract to clean the nozzle
+  #if POWER_LOSS_PURGE_LEN
+    //sprintf_P(cmd, PSTR("G1 E%d F200"), POWER_LOSS_PURGE_LEN);
+    //gcode.process_subcommands_now(cmd);
+    gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_PURGE_LEN) " F200"));
+  #endif
+  #if POWER_LOSS_RETRACT_LEN
+    sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN - POWER_LOSS_RETRACT_LEN);
+    gcode.process_subcommands_now(cmd);
+  #endif
 
   // Move back to the saved XY
   dtostrf(info.current_position[X_AXIS], 1, 3, str_1);
@@ -337,13 +353,37 @@ void PrintJobRecovery::resume() {
   sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
   gcode.process_subcommands_now(cmd);
 
+  // Un-retract
+  #if POWER_LOSS_PURGE_LEN
+    //sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN);
+    //gcode.process_subcommands_now(cmd);
+    gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_PURGE_LEN) " F3000"));
+  #endif
+
   // Restore the feedrate
   sprintf_P(cmd, PSTR("G1 F%d"), info.feedrate);
   gcode.process_subcommands_now(cmd);
 
-  //relative mode
-  if (info.relative_mode) relative_mode = true;
-  if (info.relative_modes_e) gcode.axis_relative_modes[E_AXIS] = true;
+  // Restore E position with G92.9
+  dtostrf(info.current_position[E_AXIS], 1, 3, str_1);
+  sprintf_P(cmd, PSTR("G92.9 E%s"), str_1);
+  gcode.process_subcommands_now(cmd);
+
+  // Relative mode
+  relative_mode = info.relative_mode;
+  gcode.axis_relative_modes[E_AXIS] = info.relative_modes_e;
+
+  #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
+    LOOP_XYZ(i) {
+      #if HAS_HOME_OFFSET
+        home_offset[i] = info.home_offset[i];
+      #endif
+      #if HAS_POSITION_SHIFT
+        position_shift[i] = info.position_shift[i];
+      #endif
+      update_workspace_offset((AxisEnum)i);
+    }
+  #endif
 
   // Process commands from the old pending queue
   uint8_t c = info.commands_in_queue, r = info.cmd_queue_index_r;
@@ -372,6 +412,25 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHO(info.current_position[i]);
         }
         DEBUG_EOL();
+
+        #if HAS_HOME_OFFSET
+          DEBUG_ECHOPGM("home_offset: ");
+          LOOP_XYZ(i) {
+            if (i) DEBUG_CHAR(',');
+            DEBUG_ECHO(info.home_offset[i]);
+          }
+          DEBUG_EOL();
+        #endif
+
+        #if HAS_POSITION_SHIFT
+          DEBUG_ECHOPGM("position_shift: ");
+          LOOP_XYZ(i) {
+            if (i) DEBUG_CHAR(',');
+            DEBUG_ECHO(info.position_shift[i]);
+          }
+          DEBUG_EOL();
+        #endif
+
         DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
 
         #if HOTENDS > 1
