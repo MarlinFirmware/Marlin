@@ -221,11 +221,10 @@
 // SD Support
 //
 
-// MKS_MINI_12864 strongly prefers the SD card on the display
-#if ENABLED(MKS_MINI_12864) && !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
-  #define LPC_SD_LCD
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
   #undef USB_SD_DISABLED
   #define USB_SD_ONBOARD
+  #define LPC_SD_LCD
 #endif
 
 #if ENABLED(LPC_SD_LCD)

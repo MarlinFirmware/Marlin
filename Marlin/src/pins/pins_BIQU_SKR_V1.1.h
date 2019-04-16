@@ -115,14 +115,18 @@
 //
 // SD Support
 //
-
 // MKS_MINI_12864 strongly prefers the SD card on the display and
 // requires jumpers on the SKR V1.1 board as documented here:
 // https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
-#if ENABLED(MKS_MINI_12864) && !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
-  #define LPC_SD_LCD
-  #undef USB_SD_DISABLED
-  #define USB_SD_ONBOARD
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+  #if ENABLED(MKS_MINI_12864)
+    #define LPC_SD_LCD
+    #undef USB_SD_DISABLED
+    #define USB_SD_ONBOARD
+  #else
+    #define USB_SD_ONBOARD
+    #define LPC_SD_ONBOARD
+  #endif
 #endif
 
 #if ENABLED(LPC_SD_LCD)

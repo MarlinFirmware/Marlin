@@ -158,12 +158,12 @@
 #define ENET_TXD0          P1_00   // J12-11
 #define ENET_TXD1          P1_01   // J12-12
 
-/**
- * There are a number of configurations available for the SBase SD card reader.
- * - A custom cable can be used to allow access to the LCD based SD card.
- * - A standard cable can be used for access to the LCD SD card (but no SD detect).
- * - The onboard SD card can be used and optionally shared with a PC via USB.
- */
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+  #undef USB_SD_DISABLED
+  #define USB_SD_ONBOARD
+  #define LPC_SD_ONBOARD
+#endif
+
 #if ENABLED(LPC_SD_CUSTOM_CABLE)
 
   /**

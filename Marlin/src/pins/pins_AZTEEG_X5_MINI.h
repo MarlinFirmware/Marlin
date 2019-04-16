@@ -185,6 +185,10 @@
 //
 // SD Support
 //
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+  #define LPC_SD_ONBOARD
+#endif
+
 #if ENABLED(LPC_SD_LCD)
 
   #define SCK_PIN            P0_15
