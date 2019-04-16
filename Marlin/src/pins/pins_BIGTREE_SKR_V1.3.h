@@ -204,7 +204,7 @@
     #if ENABLED(FYSETC_MINI_12864)
       #define DOGLCD_CS     P1_18 
       #define DOGLCD_A0     P1_19
-      #define LCD_RESET_PIN	P1_20
+      #define LCD_RESET_PIN P1_20
       #define LCD_BACKLIGHT_PIN -1
 
       #define RGB_LED
