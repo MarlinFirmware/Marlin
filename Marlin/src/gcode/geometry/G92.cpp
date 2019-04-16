@@ -67,7 +67,11 @@ void GcodeSuite::G92() {
         LOOP_XYZE(i) {
           if (parser.seenval(axis_codes[i])) {
             current_position[i] = parser.value_axis_units((AxisEnum)i);
-            if (i == E_AXIS) didE = true; else didXYZ = true;
+            #if IS_SCARA || !HAS_POSITION_SHIFT
+              if (i == E_AXIS) didE = true; else didXYZ = true;
+            #elif HAS_POSITION_SHIFT
+              if (i == E_AXIS) didE = true;
+            #endif
           }
         }
       } break;
