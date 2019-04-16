@@ -28,7 +28,6 @@
 
 #if ENABLED(USE_WATCHDOG)
 
-
   /* Test if Iwatchdog works */
 
   void watchdog_init() { IWatchdog.begin(4000000,1); } // 4 sec timeout
@@ -43,8 +42,6 @@
   #include "watchdog_STM32H7.h"
 
   IWDG_HandleTypeDef hiwdg;
-
-
 
   void watchdog_init() {
     hiwdg.Instance = IWDG;
