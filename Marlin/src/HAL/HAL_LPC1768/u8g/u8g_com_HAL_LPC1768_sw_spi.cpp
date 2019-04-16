@@ -65,8 +65,6 @@
 #undef SPI_SPEED
 #define SPI_SPEED 2  // About 2 MHz
 
-
-
 #include <algorithm>
 #include <LPC17xx.h>
 #include <gpio.h>
@@ -102,7 +100,6 @@ uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck
   return b;
 }
 
-
 uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
 
   for (uint8_t i = 0; i < 8; i++) {
@@ -114,7 +111,6 @@ uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck
       gpio_set(sck_pin, HIGH);
       b <<= 1;
       if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
-
     }
     else {
       for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
@@ -134,13 +130,7 @@ uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck
   return b;
 }
 
-
-
-
-
-
 static uint8_t SPI_speed = 0;
-
 
 static void u8g_sw_spi_HAL_LPC1768_shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t val) {
   #if ENABLED(FYSETC_MINI_12864)
