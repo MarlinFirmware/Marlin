@@ -256,7 +256,7 @@ void PrintJobRecovery::resume() {
         " X Y Z"
       #endif
     ));
-  #elsif
+  #elsif (Z_HOME_DIR == -1)
     gcode.process_subcommands_now_P(PSTR("G92.9 E0 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
       #if ENABLED(MARLIN_DEV_MODE)
         " S"
