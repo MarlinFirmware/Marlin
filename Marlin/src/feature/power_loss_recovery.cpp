@@ -245,28 +245,28 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
   #endif
 
-  // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
-  // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-  // For printers with Z Home Direction to ZMAX, Z Homing is better.
-  #if (Z_HOME_DIR == 1)
-    gcode.process_subcommands_now_P(PSTR("G28 R0"
+  // Reset E, raise Z, home XY...
+  gcode.process_subcommands_now_P(PSTR("G92.9 E0"
+    #if Z_HOME_DIR > 0
+      // If Z homing goes to max, reset E and home all
+      "\nG28R0"
       #if ENABLED(MARLIN_DEV_MODE)
-        " S"
-      #elif !IS_KINEMATIC
-        " X Y Z"
+        "S"
       #endif
-    ));
-  #elsif (Z_HOME_DIR == -1)
-    gcode.process_subcommands_now_P(PSTR("G92.9 E0 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
+    #else
+      // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
+      // with no raise. (Only do simulated homing in Marlin Dev Mode.)
+      "Z0\nG1Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28R0"
       #if ENABLED(MARLIN_DEV_MODE)
-        " S"
+        "S"
       #elif !IS_KINEMATIC
-        " X Y"
+        "XY"
       #endif
-    ));
-    // Pretend that all axes are homed
-    axis_homed = axis_known_position = xyz_bits;
-  #endif
+    #endif
+  ));
+
+  // Pretend that all axes are homed
+  axis_homed = axis_known_position = xyz_bits;
 
   char cmd[50], str_1[16], str_2[16];
 
