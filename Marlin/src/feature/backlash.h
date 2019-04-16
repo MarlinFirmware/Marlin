@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
+#include "../module/planner.h"
 
 class Backlash {
 public:
