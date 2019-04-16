@@ -56,8 +56,8 @@ DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );   // 123
 DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );   // 123.45
 DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );   // 1.234
 DECLARE_MENU_EDIT_TYPE(float,    float5,      ftostr5rj,       0.01f );   // 12345      right-justified
-DECLARE_MENU_EDIT_TYPE(float,    float51,     ftostr51sign,   10     );   // +1234.5
-DECLARE_MENU_EDIT_TYPE(float,    float61,     ftostr61rj,     10     );   //  1234.5    right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float51,     ftostr51rj,     10     );   // 1234.5     right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float51sign, ftostr51sign,   10     );   // +1234.5
 DECLARE_MENU_EDIT_TYPE(float,    float52sign, ftostr52sign,  100     );   // +123.45
 DECLARE_MENU_EDIT_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );   // 12345      right-justified
 
@@ -121,9 +121,9 @@ DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);           // 123        right-justif
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);          // 123.45
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);          // 1.234
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5);           // 12345      right-justified
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51);          // +1234.5
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51);          // 1234.5     right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51sign);      // +1234.5
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52sign);      // +123.45
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float61);          // 1234.5     right-justified
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5);            // 12345      right-justified
 
 #define draw_menu_item_edit_bool(sel, row, pstr, pstr2, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
@@ -203,8 +203,8 @@ DECLARE_MENU_EDIT_ITEM(float52);
 DECLARE_MENU_EDIT_ITEM(float43);
 DECLARE_MENU_EDIT_ITEM(float5);
 DECLARE_MENU_EDIT_ITEM(float51);
+DECLARE_MENU_EDIT_ITEM(float51sign);
 DECLARE_MENU_EDIT_ITEM(float52sign);
-DECLARE_MENU_EDIT_ITEM(float61);
 DECLARE_MENU_EDIT_ITEM(long5);
 
 class MenuItem_bool {

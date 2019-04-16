@@ -265,7 +265,7 @@ void safe_delay(millis_t ms) {
   }
 
   // Convert unsigned float to string with 1234.5 format omitting trailing zeros
-  char* ftostr61rj(const float &f) {
+  char* ftostr51rj(const float &f) {
     const long i = ((f < 0 ? -f : f) * 100 + 5) / 10;
     conv[0] = ' ';
     conv[1] = RJDIGIT(i, 10000);
