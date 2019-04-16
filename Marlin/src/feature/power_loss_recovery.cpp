@@ -245,13 +245,23 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
   #endif
 
-  // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
-  // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-  gcode.process_subcommands_now_P(PSTR("G92.9 E0 Z0\nG1 Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28 R0"
-    #if ENABLED(MARLIN_DEV_MODE)
-      " S"
-    #elif !IS_KINEMATIC
-      " X Y"
+  // Reset E, raise Z, home XY...
+  gcode.process_subcommands_now_P(PSTR("G92.9 E0"
+    #if Z_HOME_DIR > 0
+      // If Z homing goes to max, reset E and home all
+      "\nG28R0"
+      #if ENABLED(MARLIN_DEV_MODE)
+        "S"
+      #endif
+    #else
+      // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
+      // with no raise. (Only do simulated homing in Marlin Dev Mode.)
+      "Z0\nG1Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28R0"
+      #if ENABLED(MARLIN_DEV_MODE)
+        "S"
+      #elif !IS_KINEMATIC
+        "XY"
+      #endif
     #endif
   ));
 
