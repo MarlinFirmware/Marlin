@@ -83,25 +83,23 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   MENU_BACK(MSG_BACK);
   MENU_ITEM(function, MSG_PREHEAT_1, _lcd_change_filament_temp_1_func);
   MENU_ITEM(function, MSG_PREHEAT_2, _lcd_change_filament_temp_2_func);
-  uint16_t max_temp;
-  switch (extruder) {
-    default: max_temp = HEATER_0_MAXTEMP;
+  const int16_t max_temp =
     #if HOTENDS > 1
-      case 1: max_temp = HEATER_1_MAXTEMP; break;
+      extruder == 1 ? HEATER_1_MAXTEMP :
       #if HOTENDS > 2
-        case 2: max_temp = HEATER_2_MAXTEMP; break;
+        extruder == 2 ? HEATER_2_MAXTEMP :
         #if HOTENDS > 3
-          case 3: max_temp = HEATER_3_MAXTEMP; break;
+          extruder == 3 ? HEATER_3_MAXTEMP :
           #if HOTENDS > 4
-            case 4: max_temp = HEATER_4_MAXTEMP; break;
+          extruder == 4 ? HEATER_4_MAXTEMP :
             #if HOTENDS > 5
-              case 5: max_temp = HEATER_5_MAXTEMP; break;
+              extruder == 5 ? HEATER_5_MAXTEMP :
             #endif
           #endif
         #endif
       #endif
     #endif
-  }
+    HEATER_0_MAXTEMP;
   MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_temp_extruder].target, EXTRUDE_MINTEMP, max_temp - 15, _lcd_change_filament_temp_custom_cb);
   END_MENU();
 }

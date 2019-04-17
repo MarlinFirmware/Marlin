@@ -175,11 +175,11 @@ template<typename NAME>
 class TMenuItem : MenuItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
-    static inline float scale(const float value)      { return value * NAME::scale;           }
     static void load(void *ptr, const int16_t value)  { *((type_t*)ptr) = unscale(value);     }
     static char* to_string(const int16_t value)       { return NAME::strfunc(unscale(value)); }
   public:
+    static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
+    static constexpr float scale(const float value)      { return value * NAME::scale;           }
     static void action_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=NULL, const bool live=false) {
       // Make sure minv and maxv fit within int16_t
       const int16_t minv = MAX(scale(minValue), INT_MIN),
@@ -286,11 +286,18 @@ class MenuItem_bool {
  *     MenuItem_int3::action_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  */
+#define CHECK_ARGS(...)
+#define CHECK_ARGS_edit(TYPE, pstr, ptr, minv, maxv, ...) \
+  static_assert( \
+    MenuItem_##TYPE::scale(maxv) - MenuItem_##TYPE::scale(minv) < 65535, \
+    "Range or the granularity for menu item must be reduced to be useful." )
+
 #define _MENU_ITEM_VARIANT_P(TYPE, VARIANT, USE_MULTIPLIER, PLABEL, ...) do { \
     _skipStatic = false; \
     if (_menuLineNr == _thisItemNr) { \
       if (encoderLine == _thisItemNr && ui.use_click()) { \
         _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER); \
+        CHECK_ARGS ## VARIANT(TYPE, __VA_ARGS__); \
         MenuItem_##TYPE ::action ## VARIANT(__VA_ARGS__); \
         if (screen_changed) return; \
       } \
