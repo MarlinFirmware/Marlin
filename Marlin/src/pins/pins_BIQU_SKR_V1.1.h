@@ -105,18 +105,29 @@
   #define LCD_PINS_RS      P0_16
   #define LCD_PINS_ENABLE  P0_18
   #define LCD_PINS_D4      P0_15
+
+  #if ENABLED(MKS_MINI_12864)
+    #define DOGLCD_CS      P2_06
+    #define DOGLCD_A0      P0_16
+  #endif
 #endif
 
 //
 // SD Support
 //
-//#define USB_SD_DISABLED     // Disable host access to SD card as mass storage device through USB
-#define USB_SD_ONBOARD        // Enable host access to SD card as mass storage device through USB
-
-//#define LPC_SD_LCD          // Marlin uses the SD drive attached to the LCD
-#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board.  There is no SD detect pin
-                              // for the onboard card.  Init card from LCD menu or send M21 whenever printer
-                              // is powered on to enable SD access.
+// MKS_MINI_12864 strongly prefers the SD card on the display and
+// requires jumpers on the SKR V1.1 board as documented here:
+// https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+  #if ENABLED(MKS_MINI_12864)
+    #define LPC_SD_LCD
+    #undef USB_SD_DISABLED
+    #define USB_SD_ONBOARD
+  #else
+    #define USB_SD_ONBOARD
+    #define LPC_SD_ONBOARD
+  #endif
+#endif
 
 #if ENABLED(LPC_SD_LCD)
 

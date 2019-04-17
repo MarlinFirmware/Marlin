@@ -269,11 +269,21 @@
 
 #elif ENABLED(ULTRA_LCD)
 
-  #define BEEPER_PIN       P1_30   // (37) not 5V tolerant
+  //#define SCK_PIN        P0_15   // (52)  system defined J3-9 & AUX-3
+  //#define MISO_PIN       P0_17   // (50)  system defined J3-10 & AUX-3
+  //#define MOSI_PIN       P0_18   // (51)  system defined J3-10 & AUX-3
+  //#define SS_PIN         P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
+
+  #if ENABLED(FYSETC_MINI_12864)
+    #define BEEPER_PIN     P1_01
+    #define BTN_ENC        P1_04
+  #else
+    #define BEEPER_PIN     P1_30   // (37) not 5V tolerant
+    #define BTN_ENC        P2_11   // (35) J3-3 & AUX-4
+  #endif
 
   #define BTN_EN1          P3_26   // (31) J3-2 & AUX-4
   #define BTN_EN2          P3_25   // (33) J3-4 & AUX-4
-  #define BTN_ENC          P2_11   // (35) J3-3 & AUX-4
 
   #define SD_DETECT_PIN    P1_31   // (49) J3-1 & AUX-3 (NOT 5V tolerant)
   #define KILL_PIN         P1_22   // (41) J5-4 & AUX-4
@@ -296,13 +306,6 @@
   #if ANY(VIKI2, miniVIKI)
     // #define LCD_SCREEN_ROT_180
 
-    #define BTN_EN1        P3_26   // (31) J3-2 & AUX-4
-    #define BTN_EN2        P3_25   // (33) J3-4 & AUX-4
-    #define BTN_ENC        P2_11   // (35) J3-3 & AUX-4
-
-    #define SD_DETECT_PIN  P1_31   // (49) J3-1 & AUX-3 (NOT 5V tolerant)
-    #define KILL_PIN       P1_22   // (41) J5-4 & AUX-4
-
     #define DOGLCD_CS      P0_16   // (16)
     #define DOGLCD_A0      P2_06   // (59) J3-8 & AUX-2
     #define DOGLCD_SCK     SCK_PIN
@@ -311,8 +314,17 @@
     #define STAT_LED_BLUE_PIN P0_26 //(63)  may change if cable changes
     #define STAT_LED_RED_PIN P1_21 // ( 6)  may change if cable changes
   #else
-    #define DOGLCD_CS      P0_26   // (63) J5-3 & AUX-2
-    #define DOGLCD_A0      P2_06   // (59) J3-8 & AUX-2
+
+    #if ENABLED(FYSETC_MINI_12864)
+      #define DOGLCD_SCK   P0_15
+      #define DOGLCD_MOSI  P0_18
+      #define DOGLCD_CS    P1_09  // use Ethernet connector for EXP1 cable signals
+      #define DOGLCD_A0    P1_14
+    #else
+      #define DOGLCD_CS    P0_26   // (63) J5-3 & AUX-2
+      #define DOGLCD_A0    P2_06   // (59) J3-8 & AUX-2
+    #endif
+
     #define LCD_BACKLIGHT_PIN P0_16 //(16) J3-7 & AUX-4 - only used on DOGLCD controllers
     #define LCD_PINS_ENABLE P0_18  // (51) (MOSI) J3-10 & AUX-3
     #define LCD_PINS_D4    P0_15   // (52) (SCK)  J3-9 & AUX-3
@@ -322,11 +334,6 @@
       #define LCD_PINS_D7  P1_10   // (75) ENET_RXD1
     #endif
   #endif
-
-  //#define MISO_PIN         P0_17   // (50)  system defined J3-10 & AUX-3
-  //#define MOSI_PIN         P0_18   // (51)  system defined J3-10 & AUX-3
-  //#define SCK_PIN          P0_15   // (52)  system defined J3-9 & AUX-3
-  //#define SS_PIN           P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
 
   #if ENABLED(MINIPANEL)
     // GLCD features
@@ -354,18 +361,21 @@
 #define ENET_TXD0          P1_00   // (78)  J12-11
 #define ENET_TXD1          P1_01   // (79)  J12-12
 
-//#define USB_SD_DISABLED
-#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
-
-//#define LPC_SD_LCD          // Marlin uses the SD drive attached to the LCD
-#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board
+//
+// SD Support
+//
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+  #undef USB_SD_DISABLED
+  #define USB_SD_ONBOARD
+  #define LPC_SD_ONBOARD
+#endif
 
 #if ENABLED(LPC_SD_LCD)
 
-  #define SCK_PIN          P0_15
-  #define MISO_PIN         P0_17
-  #define MOSI_PIN         P0_18
-  #define SS_PIN           P1_23   // Chip select for SD card used by Marlin
+  #define SCK_PIN          P0_15   // (52)  system defined J3-9 & AUX-3
+  #define MISO_PIN         P0_17   // (50)  system defined J3-10 & AUX-3
+  #define MOSI_PIN         P0_18   // (51)  system defined J3-10 & AUX-3
+  #define SS_PIN           P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
   #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
 
 #elif ENABLED(LPC_SD_ONBOARD)
