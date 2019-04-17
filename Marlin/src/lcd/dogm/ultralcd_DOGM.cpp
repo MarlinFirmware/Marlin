@@ -175,14 +175,14 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
 
     // Can the text fit to the right of the bitmap?
     if (text_max_width < rspace) {
-      constexpr uint8_t inter = (width - text_max_width - (START_BMPWIDTH)) / 3; // Evenly distribute horizontal space
+      constexpr int8_t inter = (width - text_max_width - (START_BMPWIDTH)) / 3; // Evenly distribute horizontal space
       offx = inter;                             // First the boot logo...
       offy = (height - (START_BMPHEIGHT)) / 2;  // ...V-aligned in the full height
       txt_offx_1 = txt_offx_2 = inter + (START_BMPWIDTH) + inter; // Text right of the bitmap
       txt_base = (height + MENU_FONT_ASCENT + text_total_height - (MENU_FONT_HEIGHT)) / 2; // Text vertical center
     }
     else {
-      constexpr uint8_t inter = (height - text_total_height - (START_BMPHEIGHT)) / 3; // Evenly distribute vertical space
+      constexpr int8_t inter = (height - text_total_height - (START_BMPHEIGHT)) / 3; // Evenly distribute vertical space
       offy = inter;                             // V-align boot logo proportionally
       offx = rspace / 2;                        // Center the boot logo in the whole space
       txt_offx_1 = (width - text_width_1) / 2;  // Text 1 centered
