@@ -31,9 +31,6 @@
  * M23: Open a file
  */
 void GcodeSuite::M23() {
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    card.removeJobRecoveryFile();
-  #endif
   // Simplify3D includes the size, so zero out all spaces (#7227)
   for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
   card.openFile(parser.string_arg, true);

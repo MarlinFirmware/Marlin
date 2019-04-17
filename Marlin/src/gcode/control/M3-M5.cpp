@@ -74,7 +74,9 @@ inline void delay_for_power_down() { safe_delay(SPINDLE_LASER_POWERDOWN_DELAY); 
 
 inline void set_spindle_laser_ocr(const uint8_t ocr) {
   WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ENABLE_INVERT); // turn spindle on (active low)
-  analogWrite(SPINDLE_LASER_PWM_PIN, (SPINDLE_LASER_PWM_INVERT) ? 255 - ocr : ocr);
+  #if ENABLED(SPINDLE_LASER_PWM)
+    analogWrite(SPINDLE_LASER_PWM_PIN, (SPINDLE_LASER_PWM_INVERT) ? 255 - ocr : ocr);
+  #endif
 }
 
 #if ENABLED(SPINDLE_LASER_PWM)

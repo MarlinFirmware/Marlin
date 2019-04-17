@@ -310,24 +310,35 @@ inline void do_probe_raise(const float z_raise) {
 
 FORCE_INLINE void probe_specific_action(const bool deploy) {
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
+    do {
+      #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
+        if (deploy == (READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_INVERTING)) break;
+      #endif
 
-    BUZZ(100, 659);
-    BUZZ(100, 698);
+      BUZZ(100, 659);
+      BUZZ(100, 698);
 
-    PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
-    ui.return_to_status();       // To display the new status message
-    ui.set_status_P(ds_str, 99);
-    serialprintPGM(ds_str);
-    SERIAL_EOL();
+      PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
+      ui.return_to_status();       // To display the new status message
+      ui.set_status_P(ds_str, 99);
+      serialprintPGM(ds_str);
+      SERIAL_EOL();
 
-    KEEPALIVE_STATE(PAUSED_FOR_USER);
-    wait_for_user = true;
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), PSTR("Continue"));
-    #endif
-    while (wait_for_user) idle();
-    ui.reset_status();
-    KEEPALIVE_STATE(IN_HANDLER);
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
+      wait_for_user = true;
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), PSTR("Continue"));
+      #endif
+      while (wait_for_user) idle();
+      ui.reset_status();
+      KEEPALIVE_STATE(IN_HANDLER);
+    } while(
+      #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
+        true
+      #else
+        false
+      #endif
+    );
 
   #endif // PAUSE_BEFORE_DEPLOY_STOW
 
