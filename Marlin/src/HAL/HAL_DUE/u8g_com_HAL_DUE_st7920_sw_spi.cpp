@@ -181,12 +181,12 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   #endif
 
   void ST7920_cs() {
-    WRITE(ST7920_CS_PIN,1);
+    WRITE(ST7920_CS_PIN, HIGH);
     U8G_DELAY();
   }
 
   void ST7920_ncs() {
-    WRITE(ST7920_CS_PIN,0);
+    WRITE(ST7920_CS_PIN, LOW);
   }
 
   void ST7920_set_cmd() {
@@ -203,8 +203,7 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
     spiSend_sw_DUE(val & 0x0F0);
     spiSend_sw_DUE(val << 4);
   }
-#endif // ENABLED(LIGHTWEIGHT_UI)
+#endif // LIGHTWEIGHT_UI
 
 #endif // HAS_GRAPHICAL_LCD
-
 #endif // ARDUINO_ARCH_SAM
