@@ -949,6 +949,11 @@ void Temperature::manage_heater() {
   #endif
 
   HOTEND_LOOP() {
+    #ifdef HEATER_KILL_TEMP
+      if (degHotend(e) > HEATER_KILL_TEMP)
+        max_temp_error(e);
+    #endif
+
     #if HEATER_IDLE_HANDLER
       hotend_idle[e].update(ms);
     #endif
@@ -999,6 +1004,11 @@ void Temperature::manage_heater() {
   #endif // FILAMENT_WIDTH_SENSOR
 
   #if HAS_HEATED_BED
+
+    #ifdef BED_KILL_TEMP
+      if (degBed() > BED_KILL_TEMP)
+        max_temp_error(-1);
+    #endif
 
     #if WATCH_BED
       // Make sure temperature is increasing
