@@ -99,7 +99,7 @@ static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
     spiSend_sw_DUE(rs ? 0x0FA : 0x0F8); // Command or Data
     DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
   }
-  spiSend_sw_DUE(val & 0x0F0);
+  spiSend_sw_DUE(val & 0xF0);
   spiSend_sw_DUE(val << 4);
 }
 
@@ -190,17 +190,17 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   }
 
   void ST7920_set_cmd() {
-    spiSend_sw_DUE(0x0F8);
+    spiSend_sw_DUE(0xF8);
     DELAY_US(40);
   }
 
   void ST7920_set_dat() {
-    spiSend_sw_DUE(0x0FA);
+    spiSend_sw_DUE(0xFA);
     DELAY_US(40);
   }
 
   void ST7920_write_byte(const uint8_t val) {
-    spiSend_sw_DUE(val & 0x0F0);
+    spiSend_sw_DUE(val & 0xF0);
     spiSend_sw_DUE(val << 4);
   }
 #endif // LIGHTWEIGHT_UI
