@@ -134,4 +134,13 @@ u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = {u8g_dev_rrd_st7920_128x64_fn, &u8g
 
 #pragma GCC reset_options
 
+#if ENABLED(LIGHTWEIGHT_UI)
+  #include "../../HAL/shared/HAL_ST7920.h"
+  void ST7920_cs()                          { ST7920_CS(); }
+  void ST7920_ncs()                         { ST7920_NCS(); }
+  void ST7920_set_cmd()                     { ST7920_SET_CMD(); }
+  void ST7920_set_dat()                     { ST7920_SET_DAT(); }
+  void ST7920_write_byte(const uint8_t val) { ST7920_WRITE_BYTE(val); }
+#endif
+
 #endif // U8GLIB_ST7920 && !U8G_HAL_LINKS && !__SAM3X8E__
