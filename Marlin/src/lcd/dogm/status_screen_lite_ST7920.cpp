@@ -907,34 +907,6 @@ void ST7920_Lite_Status_Screen::clear_text_buffer() {
   ncs();
 }
 
-#if ENABLED(U8GLIB_ST7920) && !defined(U8G_HAL_LINKS) && !defined(__SAM3X8E__)
-
-  #include "ultralcd_st7920_u8glib_rrd_AVR.h"
-
-  void ST7920_Lite_Status_Screen::cs() {
-    ST7920_CS();
-    current_bits.synced = false;
-  }
-
-  void ST7920_Lite_Status_Screen::ncs() {
-    ST7920_NCS();
-    current_bits.synced = false;
-  }
-
-  void ST7920_Lite_Status_Screen::sync_cmd() {
-    ST7920_SET_CMD();
-  }
-
-  void ST7920_Lite_Status_Screen::sync_dat() {
-    ST7920_SET_DAT();
-  }
-
-  void ST7920_Lite_Status_Screen::write_byte(const uint8_t data) {
-    ST7920_WRITE_BYTE(data);
-  }
-
-#endif
-
 void MarlinUI::draw_status_screen() {
   ST7920_Lite_Status_Screen::update(false);
 }

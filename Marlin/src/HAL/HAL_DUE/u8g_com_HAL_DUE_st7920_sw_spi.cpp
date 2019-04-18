@@ -168,6 +168,43 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   return 1;
 }
 
+#if ENABLED(LIGHTWEIGHT_UI)
+  #include "../../lcd/ultralcd.h"
+  #include "../shared/HAL_ST7920.h"
+
+  #define ST7920_CS_PIN LCD_PINS_RS
+
+  #if DOGM_SPI_DELAY_US > 0
+    #define U8G_DELAY() DELAY_US(DOGM_SPI_DELAY_US)
+  #else
+    #define U8G_DELAY() DELAY_US(10)
+  #endif
+
+  void ST7920_cs() {
+    WRITE(ST7920_CS_PIN,1);
+    U8G_DELAY();
+  }
+
+  void ST7920_ncs() {
+    WRITE(ST7920_CS_PIN,0);
+  }
+
+  void ST7920_set_cmd() {
+    spiSend_sw_DUE(0x0F8);
+    DELAY_US(40);
+  }
+
+  void ST7920_set_dat() {
+    spiSend_sw_DUE(0x0FA);
+    DELAY_US(40);
+  }
+
+  void ST7920_write_byte(const uint8_t val) {
+    spiSend_sw_DUE(val & 0x0F0);
+    spiSend_sw_DUE(val << 4);
+  }
+#endif // ENABLED(LIGHTWEIGHT_UI)
+
 #endif // HAS_GRAPHICAL_LCD
 
 #endif // ARDUINO_ARCH_SAM
