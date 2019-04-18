@@ -158,9 +158,7 @@ void ST7920_Lite_Status_Screen::entry_mode_select(const bool ac_increase, const 
 // function for scroll_or_addr_select()
 void ST7920_Lite_Status_Screen::_scroll_or_addr_select(const bool sa) {
   extended_function_set(true);
-  cmd(0b00000010 |
-    (sa   ? 0b000001 : 0)
-  );
+  cmd(0b00000010 | (sa ? 0b00000001 : 0));
   current_bits.sa = sa;
 }
 
