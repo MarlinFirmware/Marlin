@@ -37,7 +37,7 @@
 #define _PULLUP(IO, v)          pinMode(IO, v ? INPUT_PULLUP : INPUT)
 
 // Read a pin wrapper
-#define READ(IO)                digitalRead(IO)
+#define READ(IO)                (TEST(IO, 7) ? i2s_state(IO & 0x7F) : digitalRead(IO))
 
 // Write to a pin wrapper
 #define WRITE(IO, v)            (TEST(IO, 7) ? i2s_write(IO & 0x7F, v) : digitalWrite(IO, v))

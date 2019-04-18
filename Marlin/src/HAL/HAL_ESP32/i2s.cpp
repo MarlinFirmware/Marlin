@@ -315,6 +315,10 @@ void i2s_write(uint8_t pin, uint8_t val) {
   SET_BIT_TO(i2s_port_data, pin, val);
 }
 
+uint8_t i2s_state(uint8_t pin) {
+  return TEST(i2s_port_data, pin);
+}
+
 void i2s_push_sample() {
   dma.current[dma.rw_pos++] = i2s_port_data;
 }
