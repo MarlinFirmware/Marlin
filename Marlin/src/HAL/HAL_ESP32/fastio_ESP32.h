@@ -61,8 +61,8 @@
 #define extDigitalRead(IO)      digitalRead(IO)
 #define extDigitalWrite(IO,V)   digitalWrite(IO,V)
 
-#define PWM_PIN(P)              true
-#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
+#define PWM_PIN(P)              (P < 34)
+#define USEABLE_HARDWARE_PWM(P) (TEST(P, 7) ? false : PWM_PIN(P))
 
 // Toggle pin value
 #define TOGGLE(IO)              WRITE(IO, !READ(IO))
