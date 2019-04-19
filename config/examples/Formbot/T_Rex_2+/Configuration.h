@@ -2159,3 +2159,9 @@
 
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
+
+#ifdef ROXYs_TRex
+  #define LED_PIN     -1
+  #define BEEPER_PIN  -1
+  #define KILL_PIN    -1
+#endif
