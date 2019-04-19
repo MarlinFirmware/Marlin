@@ -133,12 +133,16 @@ int freeMemory() {
 // --------------------------------------------------------------------------
 // ADC
 // --------------------------------------------------------------------------
-#define ADC1_CHANNEL(pin) ADC1_GPIO##pin_CHANNEL
+#define ADC1_CHANNEL(pin) ADC1_GPIO ## pin ## _CHANNEL
 
 adc1_channel_t get_channel(int pin) {
   switch (pin) {
-    case 36: return ADC1_GPIO36_CHANNEL;
-    case 39: return ADC1_GPIO39_CHANNEL;
+    case 39: return ADC1_CHANNEL(39);
+    case 36: return ADC1_CHANNEL(36);
+    case 35: return ADC1_CHANNEL(35);
+    case 34: return ADC1_CHANNEL(34);
+    case 33: return ADC1_CHANNEL(33);
+    case 32: return ADC1_CHANNEL(32);
   }
 
   return ADC1_CHANNEL_MAX;
@@ -147,8 +151,15 @@ adc1_channel_t get_channel(int pin) {
 void HAL_adc_init() {
   // Configure ADC
   adc1_config_width(ADC_WIDTH_12Bit);
-  adc1_config_channel_atten(get_channel(36), ADC_ATTEN_11db);
   adc1_config_channel_atten(get_channel(39), ADC_ATTEN_11db);
+  adc1_config_channel_atten(get_channel(36), ADC_ATTEN_11db);
+  adc1_config_channel_atten(get_channel(35), ADC_ATTEN_11db);
+  adc1_config_channel_atten(get_channel(34), ADC_ATTEN_11db);
+  adc1_config_channel_atten(get_channel(33), ADC_ATTEN_11db);
+  adc1_config_channel_atten(get_channel(32), ADC_ATTEN_11db);
+
+  // Note that adc2 is shared with the WiFi module, which has higher priority, so the conversion may fail.
+  // That's why we're not setting it up here.
 
   // Calculate ADC characteristics i.e. gain and offset factors
   esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_DB_11, ADC_WIDTH_BIT_12, V_REF, &characteristics);
