@@ -950,8 +950,7 @@ void Temperature::manage_heater() {
 
   HOTEND_LOOP() {
     #ifdef HEATER_KILL_TEMP
-      if (degHotend(e) > HEATER_KILL_TEMP)
-        max_temp_error(e);
+      if (degHotend(e) >= HEATER_KILL_TEMP) max_temp_error(e);
     #endif
 
     #if HEATER_IDLE_HANDLER
@@ -1006,8 +1005,7 @@ void Temperature::manage_heater() {
   #if HAS_HEATED_BED
 
     #ifdef BED_KILL_TEMP
-      if (degBed() > BED_KILL_TEMP)
-        max_temp_error(-1);
+      if (degBed() >= BED_KILL_TEMP) max_temp_error(-1);
     #endif
 
     #if WATCH_BED
