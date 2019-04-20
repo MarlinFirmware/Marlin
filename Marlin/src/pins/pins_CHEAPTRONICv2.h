@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -109,7 +109,7 @@
 #endif
 
 //
-// LCD
+// LCD / Controller
 //
 #define LCD_PINS_RS        19
 #define LCD_PINS_ENABLE    42
@@ -119,12 +119,18 @@
 #define LCD_PINS_D7        40
 
 //
-// SD CARD, ROTARY ENCODER, BEEPER
+// Beeper, SD Card, Encoder
 //
-#define SDPOWER            -1
-#define SDSS               53
-#define SD_DETECT_PIN      49
 #define BEEPER_PIN         44
-#define BTN_EN1            11
-#define BTN_EN2            12
-#define BTN_ENC            43
+
+#if ENABLED(SDSUPPORT)
+  #define SDPOWER          -1
+  #define SDSS             53
+  #define SD_DETECT_PIN    49
+#endif
+
+#if ENABLED(NEWPANEL)
+  #define BTN_EN1          11
+  #define BTN_EN2          12
+  #define BTN_ENC          43
+#endif

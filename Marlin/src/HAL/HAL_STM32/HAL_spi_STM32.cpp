@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,7 +20,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifdef ARDUINO_ARCH_STM32
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+
 
 // --------------------------------------------------------------------------
 // Includes
@@ -115,10 +116,9 @@ uint8_t spiRec(void) {
  */
 void spiRead(uint8_t* buf, uint16_t nbyte) {
   if (nbyte == 0) return;
+  memset(buf, 0xFF, nbyte);
   SPI.beginTransaction(spiConfig);
-  for (int i = 0; i < nbyte; i++) {
-    buf[i] = SPI.transfer(0xFF);
-  }
+  SPI.transfer(buf, nbyte);
   SPI.endTransaction();
 }
 
@@ -144,9 +144,10 @@ void spiSend(uint8_t b) {
  * @details Use DMA
  */
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  uint8_t rxBuf[512];
   SPI.beginTransaction(spiConfig);
   SPI.transfer(token);
-  SPI.transfer((uint8_t*)buf, (uint8_t*)0, 512);
+  SPI.transfer((uint8_t*)buf, &rxBuf, 512);
   SPI.endTransaction();
 }
 

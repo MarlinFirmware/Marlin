@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -21,7 +21,7 @@
  *
  */
 
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
+#if defined(STM32GENERIC) && defined(STM32F4)
 
 // --------------------------------------------------------------------------
 // Includes
@@ -79,7 +79,7 @@ void sei(void) { interrupts(); }
 
 void HAL_clear_reset_source(void) { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
-uint8_t HAL_get_reset_source (void) {
+uint8_t HAL_get_reset_source(void) {
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET) return RST_WATCHDOG;
 
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != RESET)  return RST_SOFTWARE;
@@ -130,4 +130,4 @@ uint16_t HAL_adc_get_result(void) {
   return HAL_adc_result;
 }
 
-#endif // STM32F4 || STM32F4xx
+#endif // // STM32GENERIC && STM32F4

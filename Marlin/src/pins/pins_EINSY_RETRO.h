@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,7 +33,7 @@
 //
 // TMC2130 Configuration_adv defaults for EinsyRetro
 //
-#if !AXIS_DRIVER_TYPE(X, TMC2130) || !AXIS_DRIVER_TYPE(Y, TMC2130) || !AXIS_DRIVER_TYPE(Z, TMC2130) || !AXIS_DRIVER_TYPE(E0, TMC2130)
+#if !AXIS_DRIVER_TYPE_X(TMC2130) || !AXIS_DRIVER_TYPE_Y(TMC2130) || !AXIS_DRIVER_TYPE_Z(TMC2130) || !AXIS_DRIVER_TYPE_E0(TMC2130)
   #error "You must set ([XYZ]|E0)_DRIVER_TYPE to TMC2130 in Configuration.h for EinsyRetro."
 #endif
 
@@ -149,7 +149,7 @@
 //
 // use P1 connector for spindle pins
 #define SPINDLE_LASER_PWM_PIN     9   // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN 18   // Pin should have a pullup!
+#define SPINDLE_LASER_ENA_PIN    18   // Pin should have a pullup!
 #define SPINDLE_DIR_PIN          19
 
 //
@@ -176,8 +176,8 @@
       #define BTN_EN2         19
     #else
       #define LCD_PINS_RS     82
-      #define LCD_PINS_ENABLE 18
-      #define LCD_PINS_D4     19
+      #define LCD_PINS_ENABLE 18   // On 0.6b, use 61
+      #define LCD_PINS_D4     19   // On 0.6b, use 59
       #define LCD_PINS_D5     70
       #define LCD_PINS_D6     85
       #define LCD_PINS_D7     71

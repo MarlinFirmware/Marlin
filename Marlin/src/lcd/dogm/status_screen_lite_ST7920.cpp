@@ -158,9 +158,7 @@ void ST7920_Lite_Status_Screen::entry_mode_select(const bool ac_increase, const 
 // function for scroll_or_addr_select()
 void ST7920_Lite_Status_Screen::_scroll_or_addr_select(const bool sa) {
   extended_function_set(true);
-  cmd(0b00100010 |
-    (sa   ? 0b000001 : 0)
-  );
+  cmd(0b00000010 | (sa ? 0b00000001 : 0));
   current_bits.sa = sa;
 }
 
@@ -402,7 +400,7 @@ void ST7920_Lite_Status_Screen::draw_degree_symbol(uint8_t x, uint8_t y, const b
     const bool    oddChar = x & 1;
     const uint8_t x_word  = x >> 1,
                   y_top   = degree_symbol_y_top,
-                  y_bot   = y_top + sizeof(degree_symbol)/sizeof(degree_symbol[0]);
+                  y_bot   = y_top + COUNT(degree_symbol);
     for (uint8_t i = y_top; i < y_bot; i++) {
       uint8_t byte = pgm_read_byte(p_bytes++);
       set_gdram_address(x_word, i + y * 16);
@@ -580,12 +578,7 @@ void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const int16_t temp, const i
 #if HAS_HEATED_BED
   void ST7920_Lite_Status_Screen::draw_bed_temp(const int16_t temp, const int16_t target, bool forceUpdate) {
     const bool show_target = target && FAR(temp, target);
-    draw_temps(1
-      #if HOTENDS > 1
-        + 1
-      #endif
-      , temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate
-    );
+    draw_temps(HOTENDS > 1 ? 2 : 1, temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate);
     display_state.bed_show_target = show_target;
   }
 #endif
@@ -632,43 +625,27 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
     if (slen <= LCD_WIDTH) {
       // String fits the LCD, so just print it
       write_str(str);
-      for (; slen < LCD_WIDTH; ++slen) write_byte(' ');
+      while (slen < LCD_WIDTH) { write_byte(' '); ++slen; }
     }
     else {
       // String is larger than the available space in screen.
 
       // Get a pointer to the next valid UTF8 character
-      const char *stat = str + ui.status_scroll_offset;
+      // and the string remaining length
+      uint8_t rlen;
+      const char *stat = ui.status_and_len(rlen);
+      write_str(stat, LCD_WIDTH);
 
-      // Get the string remaining length
-      const uint8_t rlen = utf8_strlen(stat);
-
-      // If we have enough characters to display
-      if (rlen >= LCD_WIDTH) {
-        // The remaining string fills the screen - Print it
-        write_str(stat, LCD_WIDTH);
-      }
-      else {
-        // The remaining string does not completely fill the screen
-        write_str(stat);                        // The string leaves space
-        uint8_t chars = LCD_WIDTH - rlen;         // Amount of space left in characters
-
+      // If the remaining string doesn't completely fill the screen
+      if (rlen < LCD_WIDTH) {
         write_byte('.');                        // Always at 1+ spaces left, draw a dot
+        uint8_t chars = LCD_WIDTH - rlen;       // Amount of space left in characters
         if (--chars) {                          // Draw a second dot if there's space
           write_byte('.');
-          if (--chars)
-            write_str(str, chars);              // Print a second copy of the message
+          if (--chars) write_str(str, chars);   // Print a second copy of the message
         }
       }
-
-      // Adjust by complete UTF8 characters
-      if (ui.status_scroll_offset < slen) {
-        ui.status_scroll_offset++;
-        while (!START_OF_UTF8_CHAR(str[ui.status_scroll_offset]))
-          ui.status_scroll_offset++;
-      }
-      else
-        ui.status_scroll_offset = 0;
+      ui.advance_status_scroll();
     }
 
   #else
@@ -707,7 +684,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   // them only during blinks we gain a bit of stability.
   const bool       blink             = ui.get_blink();
   const uint16_t   feedrate_perc     = feedrate_percentage;
-  const uint8_t    fs                = (((uint16_t)fan_speed[0] + 1) * 100) / 256;
+  const uint16_t   fs                = (thermalManager.fan_speed[0] * uint16_t(thermalManager.fan_speed_scaler[0])) >> 7;
   const int16_t    extruder_1_target = thermalManager.degTargetHotend(0);
   #if HOTENDS > 1
     const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
@@ -734,7 +711,6 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     const bool       blink             = ui.get_blink();
     const duration_t elapsed           = print_job_timer.duration();
     const uint16_t   feedrate_perc     = feedrate_percentage;
-    const uint8_t    fs                = (((uint16_t)fan_speed[0] + 1) * 100) / 256;
     const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
                      extruder_1_target = thermalManager.degTargetHotend(0);
     #if HOTENDS > 1
@@ -753,12 +729,20 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #if HAS_HEATED_BED
       draw_bed_temp(bed_temp, bed_target, forceUpdate);
     #endif
-    draw_fan_speed(fs);
+
+    uint16_t spd = thermalManager.fan_speed[0];
+
+    #if ENABLED(ADAPTIVE_FAN_SLOWING)
+      if (!blink && thermalManager.fan_speed_scaler[0] < 128)
+        spd = (spd * thermalManager.fan_speed_scaler[0]) >> 7;
+    #endif
+
+    draw_fan_speed(thermalManager.fanPercent(spd));
     draw_print_time(elapsed);
     draw_feedrate_percentage(feedrate_perc);
 
     // Update the fan and bed animations
-    if (fs) draw_fan_icon(blink);
+    if (spd) draw_fan_icon(blink);
     #if HAS_HEATED_BED
       draw_heat_icon(bed_target > 0 && blink, bed_target > 0);
     #endif
@@ -860,7 +844,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
 }
 
 void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) || ENABLED(SDSUPPORT)
+  #if EITHER(LCD_SET_PROGRESS_MANUALLY, SDSUPPORT)
 
     // Since the progress bar involves writing
     // quite a few bytes to GDRAM, only do this
@@ -920,34 +904,6 @@ void ST7920_Lite_Status_Screen::clear_text_buffer() {
   _extended_function_set(true, true); // Restore state to what u8g expects.
   ncs();
 }
-
-#if ENABLED(U8GLIB_ST7920) && !defined(U8G_HAL_LINKS) && !defined(__SAM3X8E__)
-
-  #include "ultralcd_st7920_u8glib_rrd_AVR.h"
-
-  void ST7920_Lite_Status_Screen::cs() {
-    ST7920_CS();
-    current_bits.synced = false;
-  }
-
-  void ST7920_Lite_Status_Screen::ncs() {
-    ST7920_NCS();
-    current_bits.synced = false;
-  }
-
-  void ST7920_Lite_Status_Screen::sync_cmd() {
-    ST7920_SET_CMD();
-  }
-
-  void ST7920_Lite_Status_Screen::sync_dat() {
-    ST7920_SET_DAT();
-  }
-
-  void ST7920_Lite_Status_Screen::write_byte(const uint8_t data) {
-    ST7920_WRITE_BYTE(data);
-  }
-
-#endif
 
 void MarlinUI::draw_status_screen() {
   ST7920_Lite_Status_Screen::update(false);

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,6 +24,10 @@
  * Espressif ESP32 (Tensilica Xtensa LX6) pin assignments
  */
 
+#ifndef ARDUINO_ARCH_ESP32
+  "Oops! Select an ESP32 board in 'Tools > Board.'"
+#endif
+
 #define BOARD_NAME "Espressif ESP32"
 
 //
@@ -36,35 +40,35 @@
 //
 // Steppers
 //
-#define X_STEP_PIN         27
-#define X_DIR_PIN          26
-#define X_ENABLE_PIN       25
-//#define X_CS_PIN            0
+#define X_STEP_PIN         128
+#define X_DIR_PIN          129
+#define X_ENABLE_PIN       130
+//#define X_CS_PIN           0
 
-#define Y_STEP_PIN         33
-#define Y_DIR_PIN          32
-#define Y_ENABLE_PIN       X_ENABLE_PIN
-//#define Y_CS_PIN           13
+#define Y_STEP_PIN         131
+#define Y_DIR_PIN          132
+#define Y_ENABLE_PIN       133
+//#define Y_CS_PIN          13
 
-#define Z_STEP_PIN         14
-#define Z_DIR_PIN          12
-#define Z_ENABLE_PIN       X_ENABLE_PIN
-//#define Z_CS_PIN            5 // SS_PIN
+#define Z_STEP_PIN         134
+#define Z_DIR_PIN          135
+#define Z_ENABLE_PIN       136
+//#define Z_CS_PIN           5 // SS_PIN
 
-#define E0_STEP_PIN        16
-#define E0_DIR_PIN         17
-#define E0_ENABLE_PIN      X_ENABLE_PIN
-//#define E0_CS_PIN          21
+#define E0_STEP_PIN        137
+#define E0_DIR_PIN         138
+#define E0_ENABLE_PIN      139
+//#define E0_CS_PIN         21
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         36   // Analog Input
-#define TEMP_BED_PIN       39   // Analog Input
+#define TEMP_0_PIN          36   // Analog Input
+#define TEMP_BED_PIN        39   // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        2
-#define FAN_PIN            13
-#define HEATER_BED_PIN      4
+#define HEATER_0_PIN         2
+#define FAN_PIN             13
+#define HEATER_BED_PIN       4

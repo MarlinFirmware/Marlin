@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
@@ -21,7 +21,7 @@
  *
  */
 
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
+#if defined(STM32GENERIC) && defined(STM32F4)
 
 #include "../shared/persistent_store_api.h"
 
@@ -66,4 +66,4 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // EEPROM_SETTINGS
-#endif // STM32F4 || STM32F4xx
+#endif // STM32GENERIC && STM32F4

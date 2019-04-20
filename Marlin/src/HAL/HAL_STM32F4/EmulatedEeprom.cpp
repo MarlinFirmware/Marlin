@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  *
  */
 
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
+#if defined(STM32GENERIC) && (defined(STM32F4))
 
 /**
  * Description: functions for I2C connected external EEPROM.
@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
+#if ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM, SPI_EEPROM)
 
 // --------------------------------------------------------------------------
 // Includes
@@ -138,5 +138,5 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n) {
 
 }
 
-#endif // ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
-#endif // STM32F4 || STM32F4xx
+#endif // EEPROM_SETTINGS && (!I2C_EEPROM && !SPI_EEPROM)
+#endif // STM32GENERIC && STM32F4

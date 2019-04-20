@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -66,8 +66,12 @@ void GcodeSuite::M420() {
         bilinear_grid_spacing[Y_AXIS] = (MAX_PROBE_Y - (MIN_PROBE_Y)) / (GRID_MAX_POINTS_Y - 1);
       #endif
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
           Z_VALUES(x, y) = 0.001 * random(-200, 200);
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
+          #endif
+        }
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_X) " mesh ");
       SERIAL_ECHOPAIR(" (", MIN_PROBE_X);
       SERIAL_CHAR(','); SERIAL_ECHO(MIN_PROBE_Y);
@@ -126,61 +130,74 @@ void GcodeSuite::M420() {
 
   #endif // AUTO_BED_LEVELING_UBL
 
+  const bool seenV = parser.seen('V');
+
   #if HAS_MESH
 
-    // Subtract the given value or the mean from all mesh values
-    if (leveling_is_valid() && parser.seen('C')) {
-      const float cval = parser.value_float();
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
+    if (leveling_is_valid()) {
 
-        set_bed_leveling_enabled(false);
-        ubl.adjust_mesh_to_mean(true, cval);
+      // Subtract the given value or the mean from all mesh values
+      if (parser.seen('C')) {
+        const float cval = parser.value_float();
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-      #else
-
-        #if ENABLED(M420_C_USE_MEAN)
-
-          // Get the sum and average of all mesh values
-          float mesh_sum = 0;
-          for (uint8_t x = GRID_MAX_POINTS_X; x--;)
-            for (uint8_t y = GRID_MAX_POINTS_Y; y--;)
-              mesh_sum += Z_VALUES(x, y);
-          const float zmean = mesh_sum / float(GRID_MAX_POINTS);
+          set_bed_leveling_enabled(false);
+          ubl.adjust_mesh_to_mean(true, cval);
 
         #else
 
-          // Find the low and high mesh values
-          float lo_val = 100, hi_val = -100;
-          for (uint8_t x = GRID_MAX_POINTS_X; x--;)
-            for (uint8_t y = GRID_MAX_POINTS_Y; y--;) {
-              const float z = Z_VALUES(x, y);
-              NOMORE(lo_val, z);
-              NOLESS(hi_val, z);
-            }
-          // Take the mean of the lowest and highest
-          const float zmean = (lo_val + hi_val) / 2.0 + cval;
+          #if ENABLED(M420_C_USE_MEAN)
+
+            // Get the sum and average of all mesh values
+            float mesh_sum = 0;
+            for (uint8_t x = GRID_MAX_POINTS_X; x--;)
+              for (uint8_t y = GRID_MAX_POINTS_Y; y--;)
+                mesh_sum += Z_VALUES(x, y);
+            const float zmean = mesh_sum / float(GRID_MAX_POINTS);
+
+          #else
+
+            // Find the low and high mesh values
+            float lo_val = 100, hi_val = -100;
+            for (uint8_t x = GRID_MAX_POINTS_X; x--;)
+              for (uint8_t y = GRID_MAX_POINTS_Y; y--;) {
+                const float z = Z_VALUES(x, y);
+                NOMORE(lo_val, z);
+                NOLESS(hi_val, z);
+              }
+            // Take the mean of the lowest and highest
+            const float zmean = (lo_val + hi_val) / 2.0 + cval;
+
+          #endif
+
+          // If not very close to 0, adjust the mesh
+          if (!NEAR_ZERO(zmean)) {
+            set_bed_leveling_enabled(false);
+            // Subtract the mean from all values
+            for (uint8_t x = GRID_MAX_POINTS_X; x--;)
+              for (uint8_t y = GRID_MAX_POINTS_Y; y--;)
+                Z_VALUES(x, y) -= zmean;
+            #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+              bed_level_virt_interpolate();
+            #endif
+            #if ENABLED(EXTENSIBLE_UI)
+              ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
+            #endif
+          }
 
         #endif
+      }
 
-        // If not very close to 0, adjust the mesh
-        if (!NEAR_ZERO(zmean)) {
-          set_bed_leveling_enabled(false);
-          // Subtract the mean from all values
-          for (uint8_t x = GRID_MAX_POINTS_X; x--;)
-            for (uint8_t y = GRID_MAX_POINTS_Y; y--;)
-              Z_VALUES(x, y) -= zmean;
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_interpolate();
-          #endif
-        }
-
-      #endif
+    }
+    else if (to_enable || seenV) {
+      SERIAL_ECHO_MSG("Invalid mesh.");
+      goto EXIT_M420;
     }
 
   #endif // HAS_MESH
 
   // V to print the matrix or mesh
-  if (parser.seen('V')) {
+  if (seenV) {
     #if ABL_PLANAR
       planner.bed_level_matrix.debug(PSTR("Bed Level Correction Matrix:"));
     #else
@@ -204,6 +221,10 @@ void GcodeSuite::M420() {
 
   // Enable leveling if specified, or if previously active
   set_bed_leveling_enabled(to_enable);
+
+  #if HAS_MESH
+    EXIT_M420:
+  #endif
 
   // Error if leveling failed to enable or reenable
   if (to_enable && !planner.leveling_active)

@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -20,7 +20,7 @@
  *
  */
 
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
+#if defined(STM32GENERIC) && defined(STM32F4)
 
 // --------------------------------------------------------------------------
 // Includes
@@ -156,4 +156,4 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   return false;
 }
 
-#endif // STM32F4 || STM32F4xx
+#endif // STM32GENERIC && STM32F4

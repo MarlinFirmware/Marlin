@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -51,37 +51,54 @@
 #include "../../module/planner.h"
 #include "../../module/probe.h"
 #include "../../module/temperature.h"
+#include "../../module/printcounter.h"
 #include "../../libs/duration_t.h"
 #include "../../HAL/shared/Delay.h"
 
-#if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
+#if ENABLED(PRINTCOUNTER)
+  #include "../../core/utility.h"
+#endif
+
+#if DO_SWITCH_EXTRUDER || EITHER(SWITCHING_NOZZLE, PARKING_EXTRUDER)
   #include "../../module/tool_change.h"
+#endif
+
+#if ENABLED(EMERGENCY_PARSER)
+  #include "../../feature/emergency_parser.h"
 #endif
 
 #if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
-  #include "../../feature/emergency_parser.h"
   #define IFSD(A,B) (A)
 #else
   #define IFSD(A,B) (B)
 #endif
 
-#if ENABLED(PRINTCOUNTER)
-  #include "../../core/utility.h"
-  #include "../../module/printcounter.h"
+#if HAS_TRINAMIC
+  #include "../../feature/tmc_util.h"
+  #include "../../module/stepper_indirection.h"
 #endif
 
 #include "ui_api.h"
 
 #if ENABLED(BACKLASH_GCODE)
-  extern float backlash_distance_mm[XYZ], backlash_correction;
+  extern float backlash_distance_mm[XYZ];
+  extern uint8_t backlash_correction;
   #ifdef BACKLASH_SMOOTHING_MM
     extern float backlash_smoothing_mm;
   #endif
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
+#if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
+#endif
+
+#if ENABLED(BABYSTEPPING)
+  #include "../../feature/babystep.h"
 #endif
 
 inline float clamp(const float value, const float minimum, const float maximum) {
@@ -180,7 +197,13 @@ namespace ExtUI {
     return thermalManager.degTargetHotend(extruder - E0);
   }
 
-  float getFan_percent(const fan_t fan) { return ((float(fan_speed[fan - FAN0]) + 1) * 100) / 256; }
+  float getTargetFan_percent(const fan_t fan) {
+    return thermalManager.fanPercent(thermalManager.fan_speed[fan - FAN0]);
+  }
+
+  float getActualFan_percent(const fan_t fan) {
+    return thermalManager.fanPercent((thermalManager.fan_speed[fan - FAN0] * uint16_t(thermalManager.fan_speed_scaler[fan - FAN0])) >> 7);
+  }
 
   float getAxisPosition_mm(const axis_t axis) {
     return flags.manual_motion ? destination[axis] : current_position[axis];
@@ -200,26 +223,26 @@ namespace ExtUI {
       if (soft_endstops_enabled) switch (axis) {
         case X_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-            min = soft_endstop_min[X_AXIS];
+            min = soft_endstop[X_AXIS].min;
           #endif
           #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-            max = soft_endstop_max[X_AXIS];
+            max = soft_endstop[X_AXIS].max;
           #endif
           break;
         case Y_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-            min = soft_endstop_min[Y_AXIS];
+            min = soft_endstop[Y_AXIS].min;
           #endif
           #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-            max = soft_endstop_max[Y_AXIS];
+            max = soft_endstop[Y_AXIS].max;
           #endif
           break;
         case Z_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-            min = soft_endstop_min[Z_AXIS];
+            min = soft_endstop[Z_AXIS].min;
           #endif
           #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-            max = soft_endstop_max[Z_AXIS];
+            max = soft_endstop[Z_AXIS].max;
           #endif
         default: break;
       }
@@ -284,7 +307,7 @@ namespace ExtUI {
   void setActiveTool(const extruder_t extruder, bool no_move) {
     #if EXTRUDERS > 1
       const uint8_t e = extruder - E0;
-      #if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
+      #if DO_SWITCH_EXTRUDER || EITHER(SWITCHING_NOZZLE, PARKING_EXTRUDER)
         if (e != active_extruder)
           tool_change(e, 0, no_move);
       #endif
@@ -321,6 +344,126 @@ namespace ExtUI {
   bool canMove(const extruder_t extruder) {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
+
+  #if HAS_SOFTWARE_ENDSTOPS
+    bool getSoftEndstopState() {
+      return soft_endstops_enabled;
+    }
+
+    void setSoftEndstopState(const bool value) {
+      soft_endstops_enabled = value;
+    }
+  #endif
+
+  #if HAS_TRINAMIC
+    float getAxisCurrent_mA(const axis_t axis) {
+      switch (axis) {
+        #if AXIS_IS_TMC(X)
+          case X: return stepperX.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Y)
+          case Y: return stepperY.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z)
+          case Z: return stepperZ.getMilliamps();
+        #endif
+        default: return NAN;
+      };
+    }
+
+    float getAxisCurrent_mA(const extruder_t extruder) {
+      switch (extruder) {
+        #if AXIS_IS_TMC(E0)
+          case E0: return stepperE0.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E1)
+          case E1: return stepperE1.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E2)
+          case E2: return stepperE2.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E3)
+          case E3: return stepperE3.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E4)
+          case E4: return stepperE4.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E5)
+          case E5: return stepperE5.getMilliamps();
+        #endif
+        default: return NAN;
+      };
+    }
+
+    void  setAxisCurrent_mA(const float mA, const axis_t axis) {
+      switch (axis) {
+        #if AXIS_IS_TMC(X)
+          case X: stepperX.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Y)
+          case Y: stepperY.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Z)
+          case Z: stepperZ.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        default: break;
+      };
+    }
+
+    void  setAxisCurrent_mA(const float mA, const extruder_t extruder) {
+      switch (extruder) {
+        #if AXIS_IS_TMC(E0)
+          case E0: stepperE0.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E1)
+          case E1: stepperE1.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E2)
+          case E2: stepperE2.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E3)
+          case E3: stepperE3.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E4)
+          case E4: stepperE4.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E5)
+          case E5: stepperE5.rms_current(clamp(mA, 500, 1500)); break;
+        #endif
+        default: break;
+      };
+    }
+
+    int getTMCBumpSensitivity(const axis_t axis) {
+      switch (axis) {
+        #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
+          case X: return stepperX.sgt();
+        #endif
+        #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
+          case Y: return stepperY.sgt();
+        #endif
+        #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
+          case Z: return stepperZ.sgt();
+        #endif
+        default: return 0;
+      }
+    }
+
+    void setTMCBumpSensitivity(const float value, const axis_t axis) {
+      switch (axis) {
+        #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
+          case X: stepperX.sgt(clamp(value, -64, 63)); break;
+        #endif
+        #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
+          case Y: stepperY.sgt(clamp(value, -64, 63)); break;
+        #endif
+        #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
+          case Z: stepperZ.sgt(clamp(value, -64, 63)); break;
+        #endif
+        default: break;
+      }
+    }
+  #endif
 
   float getAxisSteps_per_mm(const axis_t axis) {
     return planner.settings.axis_steps_per_mm[axis];
@@ -370,7 +513,7 @@ namespace ExtUI {
     planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)] = value;
   }
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     bool getFilamentRunoutEnabled()                 { return runout.enabled; }
     void setFilamentRunoutEnabled(const bool value) { runout.enabled = value; }
 
@@ -404,7 +547,9 @@ namespace ExtUI {
 
     void setJunctionDeviation_mm(const float value) {
       planner.junction_deviation_mm = clamp(value, 0.01, 0.3);
-      planner.recalculate_max_e_jerk();
+      #if ENABLED(LIN_ADVANCE)
+        planner.recalculate_max_e_jerk();
+      #endif
     }
 
   #else
@@ -439,49 +584,86 @@ namespace ExtUI {
   void setRetractAcceleration_mm_s2(const float acc)  { planner.settings.retract_acceleration = acc; }
   void setTravelAcceleration_mm_s2(const float acc)   { planner.settings.travel_acceleration = acc; }
 
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    float getZOffset_mm() {
-      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        if (active_extruder != 0)
-          return hotend_offset[Z_AXIS][active_extruder];
-        else
+  #if ENABLED(BABYSTEPPING)
+    bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
+      switch (axis) {
+        #if ENABLED(BABYSTEP_XY)
+          case X: babystep.add_steps(X_AXIS, steps); break;
+          case Y: babystep.add_steps(Y_AXIS, steps); break;
+        #endif
+        case Z: babystep.add_steps(Z_AXIS, steps); break;
+        default: return false;
+      };
+      return true;
+    }
+
+    /**
+     * This function adjusts an axis during a print.
+     *
+     * When linked_nozzles is false, each nozzle in a multi-nozzle
+     * printer can be babystepped independently of the others. This
+     * lets the user to fine tune the Z-offset and Nozzle Offsets
+     * while observing the first layer of a print, regardless of
+     * what nozzle is printing.
+     */
+    void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles) {
+      const float mm = steps * planner.steps_to_mm[axis];
+
+      if (!babystepAxis_steps(steps, axis)) return;
+
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        // Make it so babystepping in Z adjusts the Z probe offset.
+        if (axis == Z
+          #if EXTRUDERS > 1
+            && (linked_nozzles || active_extruder == 0)
+          #endif
+        ) zprobe_zoffset += mm;
       #endif
-          return zprobe_zoffset;
+
+      #if EXTRUDERS > 1
+        /**
+         * When linked_nozzles is false, as an axis is babystepped
+         * adjust the hotend offsets so that the other nozzles are
+         * unaffected by the babystepping of the active nozzle.
+         */
+        if (!linked_nozzles) {
+          HOTEND_LOOP()
+            if (e != active_extruder)
+              hotend_offset[axis][e] += mm;
+
+          normalizeNozzleOffset(X);
+          normalizeNozzleOffset(Y);
+          normalizeNozzleOffset(Z);
+        }
+      #else
+        UNUSED(linked_nozzles);
+      #endif
+    }
+
+    /**
+     * Converts a mm displacement to a number of whole number of
+     * steps that is at least mm long.
+     */
+    int16_t mmToWholeSteps(const float mm, const axis_t axis) {
+      const float steps = mm / planner.steps_to_mm[axis];
+      return steps > 0 ? ceil(steps) : floor(steps);
+    }
+  #endif
+
+  #if HAS_BED_PROBE
+    float getZOffset_mm() {
+      return zprobe_zoffset;
     }
 
     void setZOffset_mm(const float value) {
-      const float diff = (value - getZOffset_mm()) / planner.steps_to_mm[Z_AXIS];
-      addZOffset_steps(diff > 0 ? ceil(diff) : floor(diff));
-    }
-
-    void addZOffset_steps(int16_t babystep_increment) {
-      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        const bool do_probe = (active_extruder == 0);
-      #else
-        constexpr bool do_probe = true;
-      #endif
-      const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
-                  new_probe_offset = zprobe_zoffset + diff,
-                  new_offs =
-                    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-                      do_probe ? new_probe_offset : hotend_offset[Z_AXIS][active_extruder] - diff
-                    #else
-                      new_probe_offset
-                    #endif
-                  ;
-      if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-
-        thermalManager.babystep_axis(Z_AXIS, babystep_increment);
-
-        if (do_probe) zprobe_zoffset = new_offs;
-        #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          else hotend_offset[Z_AXIS][active_extruder] = new_offs;
-        #endif
+      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        zprobe_zoffset = value;
       }
     }
-  #endif // ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #endif // HAS_BED_PROBE
 
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
+
     float getNozzleOffset_mm(const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return 0;
       return hotend_offset[axis][extruder - E0];
@@ -491,15 +673,26 @@ namespace ExtUI {
       if (extruder - E0 >= HOTENDS) return;
       hotend_offset[axis][extruder - E0] = value;
     }
-  #endif
+
+    /**
+     * The UI should call this if needs to guarantee the first
+     * nozzle offset is zero (such as when it doesn't allow the
+     * user to edit the offset the first nozzle).
+     */
+    void normalizeNozzleOffset(const axis_t axis) {
+      const float offs = hotend_offset[axis][0];
+      HOTEND_LOOP() hotend_offset[axis][e] -= offs;
+    }
+
+  #endif // HAS_HOTEND_OFFSET
 
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t axis)       { return backlash_distance_mm[axis]; }
     void setAxisBacklash_mm(const float value, const axis_t axis)
                                                       { backlash_distance_mm[axis] = clamp(value,0,5); }
 
-    float getBacklashCorrection_percent()             { return backlash_correction * 100; }
-    void setBacklashCorrection_percent(const float value) { backlash_correction = clamp(value, 0, 100) / 100.0f; }
+    float getBacklashCorrection_percent()             { return ui8_to_percent(backlash_correction); }
+    void setBacklashCorrection_percent(const float value) { backlash_correction = map(clamp(value, 0, 100), 0, 100, 0, 255); }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash_smoothing_mm; }
@@ -508,7 +701,7 @@ namespace ExtUI {
   #endif
 
   uint8_t getProgress_percent() {
-    return IFSD(card.percentDone(), 0);
+    return ui.get_progress();
   }
 
   uint32_t getProgress_seconds_elapsed() {
@@ -516,11 +709,32 @@ namespace ExtUI {
     return elapsed.value;
   }
 
+  #if HAS_LEVELING
+    bool getLevelingActive() { return planner.leveling_active; }
+    void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
+    #if HAS_MESH
+      bool getMeshValid() { return leveling_is_valid(); }
+      bed_mesh_t getMeshArray() { return Z_VALUES_ARR; }
+      void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zoff) {
+        if (WITHIN(xpos, 0, GRID_MAX_POINTS_X) && WITHIN(ypos, 0, GRID_MAX_POINTS_Y)) {
+          Z_VALUES(xpos, ypos) = zoff;
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_interpolate();
+          #endif
+        }
+      }
+    #endif
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    void setHostResponse(const uint8_t response) { host_response_handler(response); }
+  #endif
+
   #if ENABLED(PRINTCOUNTER)
-    char* getTotalPrints_str(char buffer[21])    { strcpy(buffer,itostr3left(print_job_timer.getStats().totalPrints));    return buffer; }
-    char* getFinishedPrints_str(char buffer[21]) { strcpy(buffer,itostr3left(print_job_timer.getStats().finishedPrints)); return buffer; }
-    char* getTotalPrintTime_str(char buffer[21]) { duration_t(print_job_timer.getStats().printTime).toString(buffer);     return buffer; }
-    char* getLongestPrint_str(char buffer[21])   { duration_t(print_job_timer.getStats().printTime).toString(buffer);     return buffer; }
+    char* getTotalPrints_str(char buffer[21])    { strcpy(buffer,i16tostr3left(print_job_timer.getStats().totalPrints));    return buffer; }
+    char* getFinishedPrints_str(char buffer[21]) { strcpy(buffer,i16tostr3left(print_job_timer.getStats().finishedPrints)); return buffer; }
+    char* getTotalPrintTime_str(char buffer[21]) { duration_t(print_job_timer.getStats().printTime).toString(buffer);       return buffer; }
+    char* getLongestPrint_str(char buffer[21])   { duration_t(print_job_timer.getStats().printTime).toString(buffer);       return buffer; }
     char* getFilamentUsed_str(char buffer[21])   {
       printStatistics stats = print_job_timer.getStats();
       sprintf_P(buffer, PSTR("%ld.%im"), long(stats.filamentUsed / 1000), int16_t(stats.filamentUsed / 100) % 10);
@@ -544,25 +758,35 @@ namespace ExtUI {
   }
 
   void setTargetTemp_celsius(float value, const heater_t heater) {
+    constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
+    const int16_t e = heater - H0;
     #if HAS_HEATED_BED
       if (heater == BED)
-        thermalManager.setTargetBed(clamp(value,0,200));
+        thermalManager.setTargetBed(clamp(value, 0, BED_MAXTEMP - 10));
       else
     #endif
-        thermalManager.setTargetHotend(clamp(value,0,500), heater - H0);
+        thermalManager.setTargetHotend(clamp(value, 0, heater_maxtemp[e] - 15), e);
   }
 
   void setTargetTemp_celsius(float value, const extruder_t extruder) {
-    thermalManager.setTargetHotend(clamp(value,0,500), extruder - E0);
+    constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
+    const int16_t e = extruder - E0;
+    thermalManager.setTargetHotend(clamp(value, 0, heater_maxtemp[e] - 15), e);
   }
 
-  void setFan_percent(float value, const fan_t fan) {
+  void setTargetFan_percent(const float value, const fan_t fan) {
     if (fan < FAN_COUNT)
-      fan_speed[fan - FAN0] = clamp(round(value * 255 / 100), 0, 255);
+      thermalManager.set_fan_speed(fan - FAN0, map(clamp(value, 0, 100), 0, 100, 0, 255));
   }
 
   void setFeedrate_percent(const float value) {
     feedrate_percentage = clamp(value, 10, 500);
+  }
+
+  void setUserConfirmed(void) {
+    #if HAS_RESUME_CONTINUE
+      wait_for_user = false;
+    #endif
   }
 
   void printFile(const char *filename) {
@@ -574,7 +798,7 @@ namespace ExtUI {
   }
 
   bool isPrintingFromMedia() {
-    return IFSD(card.flag.cardOK && card.isFileOpen(), false);
+    return IFSD(card.isFileOpen(), false);
   }
 
   bool isPrinting() {
@@ -582,7 +806,7 @@ namespace ExtUI {
   }
 
   bool isMediaInserted() {
-    return IFSD(IS_SD_INSERTED() && card.flag.cardOK, false);
+    return IFSD(IS_SD_INSERTED() && card.isDetected(), false);
   }
 
   void pausePrint() {
@@ -623,7 +847,7 @@ namespace ExtUI {
 
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
     #if ENABLED(SDSUPPORT)
-      if (!skip_range_check && pos > (count() - 1)) return false;
+      if (!skip_range_check && (pos + 1) > count()) return false;
       const uint16_t nr =
         #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
           count() - 1 -
@@ -631,14 +855,14 @@ namespace ExtUI {
       pos;
 
       card.getfilename_sorted(nr);
-      return card.filename && card.filename[0] != '\0';
+      return card.filename[0] != '\0';
     #else
       return false;
     #endif
   }
 
   const char* FileList::filename() {
-    return IFSD(card.longFilename && card.longFilename[0] ? card.longFilename : card.filename, "");
+    return IFSD(card.longFilename[0] ? card.longFilename : card.filename, "");
   }
 
   const char* FileList::shortFilename() {
@@ -688,6 +912,7 @@ void MarlinUI::init() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
+
   ExtUI::onStartup();
 }
 
@@ -699,13 +924,13 @@ void MarlinUI::update() {
       last_sd_status = sd_status;
       if (sd_status) {
         card.initsd();
-        if (card.flag.cardOK)
+        if (card.isDetected())
           ExtUI::onMediaInserted();
         else
           ExtUI::onMediaError();
       }
       else {
-        const bool ok = card.flag.cardOK;
+        const bool ok = card.isDetected();
         card.release();
         if (ok) ExtUI::onMediaRemoved();
       }

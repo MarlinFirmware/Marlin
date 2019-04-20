@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -36,11 +36,18 @@
 #endif
 
 /**
+ * Checks for FAST PWM
+ */
+#if ENABLED(FAST_PWM_FAN) && (ENABLED(USE_OCR2A_AS_TOP) && defined(TCCR2))
+    #error "USE_OCR2A_AS_TOP does not apply to devices with a single output TIMER2"
+#endif
+
+/**
  * Sanity checks for Spindle / Laser
  */
 #if ENABLED(SPINDLE_LASER_ENABLE)
-  #if !PIN_EXISTS(SPINDLE_LASER_ENABLE)
-    #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENABLE_PIN."
+  #if !PIN_EXISTS(SPINDLE_LASER_ENA)
+    #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENA_PIN."
   #elif SPINDLE_DIR_CHANGE && !PIN_EXISTS(SPINDLE_DIR)
     #error "SPINDLE_DIR_PIN not defined."
   #elif ENABLED(SPINDLE_LASER_PWM) && PIN_EXISTS(SPINDLE_LASER_PWM)
@@ -97,20 +104,8 @@
 #endif // SPINDLE_LASER_ENABLE
 
 /**
- * TMC2208 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
+ * The Trinamic library includes SoftwareSerial.h, leading to a compile error.
  */
-#if HAS_DRIVER(TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
-       defined(X_HARDWARE_SERIAL ) \
-    || defined(X2_HARDWARE_SERIAL) \
-    || defined(Y_HARDWARE_SERIAL ) \
-    || defined(Y2_HARDWARE_SERIAL) \
-    || defined(Z_HARDWARE_SERIAL ) \
-    || defined(Z2_HARDWARE_SERIAL) \
-    || defined(Z3_HARDWARE_SERIAL) \
-    || defined(E0_HARDWARE_SERIAL) \
-    || defined(E1_HARDWARE_SERIAL) \
-    || defined(E2_HARDWARE_SERIAL) \
-    || defined(E3_HARDWARE_SERIAL) \
-    || defined(E4_HARDWARE_SERIAL) )
-  #error "Select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+#if HAS_TRINAMIC && ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+  #error "TMCStepper includes SoftwareSerial.h which is incompatible with ENDSTOP_INTERRUPTS_FEATURE. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
 #endif

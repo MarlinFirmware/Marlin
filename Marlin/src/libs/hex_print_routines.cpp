@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,7 +23,7 @@
 #include "../inc/MarlinConfig.h"
 #include "../gcode/parser.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER) || ENABLED(DEBUG_GCODE_PARSER)
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG)
 
   #include "hex_print_routines.h"
 
@@ -77,5 +77,14 @@
   void print_hex_byte(const uint8_t b)         { SERIAL_ECHO(hex_byte(b));    }
   void print_hex_word(const uint16_t w)        { SERIAL_ECHO(hex_word(w));    }
   void print_hex_address(const void * const w) { SERIAL_ECHO(hex_address(w)); }
+
+  void print_hex_long(const uint32_t w, const char delimiter) {
+    SERIAL_ECHOPGM("0x");
+    for (int B = 24; B >= 8; B -= 8){
+      print_hex_byte(w >> B);
+      SERIAL_CHAR(delimiter);
+    }
+    print_hex_byte(w);
+  }
 
 #endif // AUTO_BED_LEVELING_UBL || M100_FREE_MEMORY_WATCHER || DEBUG_GCODE_PARSER

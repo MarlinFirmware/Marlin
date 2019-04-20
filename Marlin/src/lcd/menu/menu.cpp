@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,6 +28,7 @@
 #include "../ultralcd.h"
 #include "../../module/planner.h"
 #include "../../module/motion.h"
+#include "../../module/printcounter.h"
 #include "../../gcode/queue.h"
 #include "../../sd/cardreader.h"
 #include "../../libs/buzzer.h"
@@ -36,7 +37,7 @@
   #include "../../module/configuration_store.h"
 #endif
 
-#if WATCH_HOTENDS || WATCH_THE_BED || ENABLED(BABYSTEP_ZPROBE_OFFSET)
+#if WATCH_HOTENDS || WATCH_BED
   #include "../../module/temperature.h"
 #endif
 
@@ -44,7 +45,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) || ENABLED(AUTO_BED_LEVELING_UBL)
+#if EITHER(ENABLE_LEVELING_FADE_HEIGHT, AUTO_BED_LEVELING_UBL)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
@@ -53,21 +54,23 @@
 ////////////////////////////////////////////
 
 // Menu Navigation
-int8_t encoderTopLine;
+int8_t encoderTopLine, encoderLine, screen_items;
+
 typedef struct {
   screenFunc_t menu_function;
   uint32_t encoder_position;
+  int8_t top_line, items;
 } menuPosition;
 menuPosition screen_history[6];
 uint8_t screen_history_depth = 0;
 bool screen_changed;
 
 // Value Editing
-PGM_P editLabel;
-void *editValue;
-int32_t minEditValue, maxEditValue;
-screenFunc_t callbackFunc;
-bool liveEdit;
+PGM_P MenuItemBase::editLabel;
+void* MenuItemBase::editValue;
+int16_t MenuItemBase::minEditValue, MenuItemBase::maxEditValue;
+screenFunc_t MenuItemBase::callbackFunc;
+bool MenuItemBase::liveEdit;
 
 // Prevent recursion into screen handlers
 bool no_reentry = false;
@@ -79,20 +82,14 @@ bool no_reentry = false;
 void MarlinUI::return_to_status() { goto_screen(status_screen); }
 
 void MarlinUI::save_previous_screen() {
-  if (screen_history_depth < COUNT(screen_history)) {
-    screen_history[screen_history_depth].menu_function = currentScreen;
-    screen_history[screen_history_depth].encoder_position = encoderPosition;
-    ++screen_history_depth;
-  }
+  if (screen_history_depth < COUNT(screen_history))
+    screen_history[screen_history_depth++] = { currentScreen, encoderPosition, encoderTopLine, screen_items };
 }
 
 void MarlinUI::goto_previous_screen() {
   if (screen_history_depth > 0) {
-    --screen_history_depth;
-    goto_screen(
-      screen_history[screen_history_depth].menu_function,
-      screen_history[screen_history_depth].encoder_position
-    );
+    menuPosition &sh = screen_history[--screen_history_depth];
+    goto_screen(sh.menu_function, sh.encoder_position, sh.top_line, sh.items);
   }
   else
     return_to_status();
@@ -115,7 +112,7 @@ void MenuItem_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode);
  *
  * The prerequisite is that in the header the type was already declared:
  *
- *   DECLARE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1)
+ *   DECLARE_MENU_EDIT_TYPE(int16_t, int3, i16tostr3, 1)
  *
  * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into these functions:
  *
@@ -134,8 +131,8 @@ void MenuItem_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode);
  */
 void MenuItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   ui.encoder_direction_normal();
-  if ((int32_t)ui.encoderPosition < 0) ui.encoderPosition = 0;
-  if ((int32_t)ui.encoderPosition > maxEditValue) ui.encoderPosition = maxEditValue;
+  if (int16_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
+  if (int16_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
   if (ui.should_draw())
     draw_edit_screen(editLabel, strfunc(ui.encoderPosition + minEditValue));
   if (ui.lcd_clicked || (liveEdit && ui.should_draw())) {
@@ -145,7 +142,7 @@ void MenuItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   }
 }
 
-void MenuItemBase::init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint32_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
+void MenuItemBase::init(PGM_P const el, void * const ev, const int16_t minv, const int16_t maxv, const uint16_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
   ui.save_previous_screen();
   ui.refresh();
   editLabel = el;
@@ -158,19 +155,22 @@ void MenuItemBase::init(PGM_P const el, void * const ev, const int32_t minv, con
   liveEdit = le;
 }
 
-#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuItem<MenuItemInfo_##NAME>;
+#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuItem<MenuItemInfo_##NAME>
 
-DEFINE_MENU_EDIT_ITEM(int3);
-DEFINE_MENU_EDIT_ITEM(int4);
-DEFINE_MENU_EDIT_ITEM(int8);
-DEFINE_MENU_EDIT_ITEM(float3);
-DEFINE_MENU_EDIT_ITEM(float52);
-DEFINE_MENU_EDIT_ITEM(float43);
-DEFINE_MENU_EDIT_ITEM(float5);
-DEFINE_MENU_EDIT_ITEM(float51);
-DEFINE_MENU_EDIT_ITEM(float52sign);
-DEFINE_MENU_EDIT_ITEM(float62);
-DEFINE_MENU_EDIT_ITEM(long5);
+DEFINE_MENU_EDIT_ITEM(int3);        // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM(int4);        // 1234, -123 right-justified
+DEFINE_MENU_EDIT_ITEM(int8);        // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM(uint8);       // 123        right-justified
+DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234, -123 right-justified
+DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
+DEFINE_MENU_EDIT_ITEM(float52);     // 123.45
+DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
+DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM(float51);     // 1234.5     right-justified
+DEFINE_MENU_EDIT_ITEM(float51sign); // +1234.5
+DEFINE_MENU_EDIT_ITEM(float52sign); // +123.45
+DEFINE_MENU_EDIT_ITEM(long5);       // 12345      right-justified
 
 void MenuItem_bool::action_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
   UNUSED(pstr); *ptr ^= true; ui.refresh();
@@ -186,12 +186,14 @@ void MenuItem_bool::action_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
   void _lcd_set_z_fade_height() { set_z_fade_height(lcd_z_fade_height); }
 #endif
 
-bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING(); }
+bool printer_busy() {
+  return planner.movesplanned() || IS_SD_PRINTING() || print_job_timer.isRunning();
+}
 
 /**
  * General function to go directly to a screen
  */
-void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
+void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -199,7 +201,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
       lcd_z_fade_height = planner.z_fade_height;
     #endif
 
-    #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING) && ENABLED(BABYSTEPPING)
+    #if BOTH(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
       static millis_t doubleclick_expire_ms = 0;
       // Going to menu_main from status screen? Remember first click time.
       // Going back to status screen within a very short time? Go to Z babystepping.
@@ -208,7 +210,19 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
           doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
       }
       else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
-        if (printer_busy()) {
+
+        #if ENABLED(BABYSTEP_WITHOUT_HOMING)
+          constexpr bool can_babystep = true;
+        #else
+          const bool can_babystep = all_axes_known();
+        #endif
+        #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
+          constexpr bool should_babystep = true;
+        #else
+          const bool should_babystep = printer_busy();
+        #endif
+
+        if (should_babystep && can_babystep) {
           screen =
             #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
               lcd_babystep_zoffset
@@ -228,8 +242,10 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
 
     currentScreen = screen;
     encoderPosition = encoder;
+    encoderTopLine = top;
+    screen_items = items;
     if (screen == status_screen) {
-      ui.defer_status_screen(false);
+      defer_status_screen(false);
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         ubl.lcd_map_control = false;
       #endif
@@ -240,10 +256,11 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
 
     // Re-initialize custom characters that may be re-used
     #if HAS_CHARACTER_LCD
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
-        if (!ubl.lcd_map_control)
-      #endif
-          set_custom_characters(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
+      if (true
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          && !ubl.lcd_map_control
+        #endif
+      ) set_custom_characters(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
     #endif
 
     refresh(LCDVIEW_CALL_REDRAW_NEXT);
@@ -295,7 +312,6 @@ void MarlinUI::synchronize(PGM_P const msg/*=NULL*/) {
  *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
  *   screen_items is the total number of items in the menu (after one call)
  */
-int8_t encoderLine, screen_items;
 void scroll_screen(const uint8_t limit, const bool is_menu) {
   ui.encoder_direction_menus();
   ENCODER_RATE_MULTIPLY(false);
@@ -336,9 +352,11 @@ void MarlinUI::completion_feedback(const bool good/*=true*/) {
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
+  #include "../../feature/babystep.h"
+
   void lcd_babystep_zoffset() {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
-    ui.defer_status_screen(true);
+    ui.defer_status_screen();
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
       const bool do_probe = (active_extruder == 0);
     #else
@@ -346,7 +364,7 @@ void MarlinUI::completion_feedback(const bool good/*=true*/) {
     #endif
     ui.encoder_direction_normal();
     if (ui.encoderPosition) {
-      const int16_t babystep_increment = (int32_t)ui.encoderPosition * (BABYSTEP_MULTIPLICATOR);
+      const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_MULTIPLICATOR);
       ui.encoderPosition = 0;
 
       const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
@@ -360,7 +378,7 @@ void MarlinUI::completion_feedback(const bool good/*=true*/) {
                   ;
       if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
 
-        thermalManager.babystep_axis(Z_AXIS, babystep_increment);
+        babystep.add_steps(Z_AXIS, babystep_increment);
 
         if (do_probe) zprobe_zoffset = new_offs;
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
@@ -373,7 +391,7 @@ void MarlinUI::completion_feedback(const bool good/*=true*/) {
     if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          draw_edit_screen(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
+          draw_edit_screen(PSTR(MSG_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
         else
       #endif
           draw_edit_screen(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
@@ -386,40 +404,7 @@ void MarlinUI::completion_feedback(const bool good/*=true*/) {
 
 #endif // BABYSTEP_ZPROBE_OFFSET
 
-/**
- * Watch temperature callbacks
- */
-#if HAS_TEMP_HOTEND
-  #if WATCH_HOTENDS
-    #define _WATCH_FUNC(N) thermalManager.start_watching_heater(N)
-  #else
-    #define _WATCH_FUNC(N) NOOP
-  #endif
-  void watch_temp_callback_E0() { _WATCH_FUNC(0); }
-  #if HOTENDS > 1
-    void watch_temp_callback_E1() { _WATCH_FUNC(1); }
-    #if HOTENDS > 2
-      void watch_temp_callback_E2() { _WATCH_FUNC(2); }
-      #if HOTENDS > 3
-        void watch_temp_callback_E3() { _WATCH_FUNC(3); }
-        #if HOTENDS > 4
-          void watch_temp_callback_E4() { _WATCH_FUNC(4); }
-          #if HOTENDS > 5
-            void watch_temp_callback_E5() { _WATCH_FUNC(5); }
-          #endif // HOTENDS > 5
-        #endif // HOTENDS > 4
-      #endif // HOTENDS > 3
-    #endif // HOTENDS > 2
-  #endif // HOTENDS > 1
-#endif // HAS_TEMP_HOTEND
-
-void watch_temp_callback_bed() {
-  #if WATCH_THE_BED
-    thermalManager.start_watching_bed();
-  #endif
-}
-
-#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE)
+#if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
 
   void lcd_enqueue_command(const char * const cmd) {
     no_reentry = true;
@@ -450,5 +435,13 @@ void _lcd_draw_homing() {
   #include "../../feature/bedlevel/bedlevel.h"
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
+
+void do_select_screen(PGM_P const yes, PGM_P const no, bool &yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
+  if (ui.encoderPosition) {
+    yesno = int16_t(ui.encoderPosition) > 0;
+    ui.encoderPosition = 0;
+  }
+  draw_select_screen(yes, no, yesno, pref, string, suff);
+}
 
 #endif // HAS_LCD_MENU
