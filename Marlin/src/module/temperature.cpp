@@ -86,17 +86,17 @@ Temperature thermalManager;
  */
 
 #if HAS_HEATED_BED
-  #define _BED_PSTR(M,E) (E) == -1 ? PSTR(M ## _BED) :
+  #define _BED_PSTR(M,E) (E) == -1 ? PSTR(M) :
 #else
   #define _BED_PSTR(M,E)
 #endif
 #if HAS_HEATED_CHAMBER
-  #define _CHAMBER_PSTR(M,E) (E) == -2 ? PSTR(M ## _CHAMBER) :
+  #define _CHAMBER_PSTR(M,E) (E) == -2 ? PSTR(M) :
 #else
   #define _CHAMBER_PSTR(M,E)
 #endif
 #define _E_PSTR(M,E,N) ((HOTENDS) >= (N) && (E) == (N)-1) ? PSTR(MSG_E##N " " M) :
-#define TEMP_ERR_PSTR(M,E) _BED_PSTR(M,E) _CHAMBER_PSTR(M,E) _E_PSTR(M,E,2) _E_PSTR(M,E,3) _E_PSTR(M,E,4) _E_PSTR(M,E,5) _E_PSTR(M,E,6) PSTR(MSG_E1 " " M)
+#define TEMP_ERR_PSTR(M,E) _BED_PSTR(M##_BED,E) _CHAMBER_PSTR(M##_CHAMBER,E) _E_PSTR(M,E,2) _E_PSTR(M,E,3) _E_PSTR(M,E,4) _E_PSTR(M,E,5) _E_PSTR(M,E,6) PSTR(MSG_E1 " " M)
 
 // public:
 
@@ -1004,7 +1004,7 @@ void Temperature::manage_heater() {
   #if HAS_HEATED_BED
 
     if (degBed() > BED_MAXTEMP)
-      temp_error(-1, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -1));
+      _temp_error(-1, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -1));
 
     #if WATCH_BED
       // Make sure temperature is increasing
@@ -1077,7 +1077,7 @@ void Temperature::manage_heater() {
     #if HAS_HEATED_CHAMBER
 
       if (degChamber() > CHAMBER_MAXTEMP)
-        temp_error(-2, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -2));
+        _temp_error(-2, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -2));
 
       #if WATCH_CHAMBER
         // Make sure temperature is increasing
