@@ -430,11 +430,6 @@
 #define HEATER_5_MAXTEMP 275
 #define BED_MAXTEMP      150
 
-// Set a temperature above which the printer will be halted
-// immediately
-//#define HEATER_KILL_TEMP 310
-//#define BED_KILL_TEMP    160
-
 //===========================================================================
 //============================= PID Settings ================================
 //===========================================================================
