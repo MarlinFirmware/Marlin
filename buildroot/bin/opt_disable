@@ -9,3 +9,7 @@ done
 for opt in "$@" ; do
   eval "${SED} -i 's/\([[:blank:]]*\)\(#define \b${opt}\b\)/\1\/\/\2/g' Marlin/Configuration_adv.h"
 done
+
+for opt in "$@" ; do
+  eval "${SED} -i 's/\([[:blank:]]*\)\(#define \b${opt}\b\)/\1\/\/\2/g' Marlin/config/*.h"
+done
