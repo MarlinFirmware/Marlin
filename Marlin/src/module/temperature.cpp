@@ -1076,6 +1076,9 @@ void Temperature::manage_heater() {
 
     #if HAS_HEATED_CHAMBER
 
+      if (degChamber() > CHAMBER_MAXTEMP)
+        temp_error(-2, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -2));
+
       #if WATCH_CHAMBER
         // Make sure temperature is increasing
         if (watch_chamber.elapsed(ms)) {                  // Time to check the chamber?
