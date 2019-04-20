@@ -86,12 +86,12 @@ Temperature thermalManager;
  */
 
 #if HAS_HEATED_BED
-  #define _BED_PSTR(M,E) (E) == -1 ? PSTR(MSG_BED ": " M) :
+  #define _BED_PSTR(M,E) (E) == -1 ? PSTR(M ## _BED) :
 #else
   #define _BED_PSTR(M,E)
 #endif
 #if HAS_HEATED_CHAMBER
-  #define _CHAMBER_PSTR(M,E) (E) == -2 ? PSTR(MSG_CHAMBER ": " M) :
+  #define _CHAMBER_PSTR(M,E) (E) == -2 ? PSTR(M ## _CHAMBER) :
 #else
   #define _CHAMBER_PSTR(M,E)
 #endif
