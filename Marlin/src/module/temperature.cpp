@@ -949,9 +949,8 @@ void Temperature::manage_heater() {
   #endif
 
   HOTEND_LOOP() {
-    #ifdef HEATER_KILL_TEMP
-      if (degHotend(e) >= HEATER_KILL_TEMP) max_temp_error(e);
-    #endif
+    if (degHotend(e) > temp_range[e].maxtemp)
+      temp_error(e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_PSTR(MSG_THERMAL_RUNAWAY, e));
 
     #if HEATER_IDLE_HANDLER
       hotend_idle[e].update(ms);
@@ -1004,9 +1003,8 @@ void Temperature::manage_heater() {
 
   #if HAS_HEATED_BED
 
-    #ifdef BED_KILL_TEMP
-      if (degBed() >= BED_KILL_TEMP) max_temp_error(-1);
-    #endif
+    if (degBed() > BED_MAXTEMP)
+      temp_error(-1, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_PSTR(MSG_THERMAL_RUNAWAY, -1));
 
     #if WATCH_BED
       // Make sure temperature is increasing
