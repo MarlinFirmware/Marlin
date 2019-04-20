@@ -19,33 +19,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#define __MARLIN_FIRMWARE__
-
-//
-// Prefix header to acquire configurations
-//
-
-#include "../HAL/platforms.h"
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "../core/millis_t.h"
-#include "Version.h"
-
-#if __has_include("../../Configuration.h")
-  #include "../../Configuration.h"
-#else
-  #include "ConfigScheme1.h"
+/**
+ * Nozzle Park
+ *
+ * Park the nozzle at the given XYZ position on idle or G27.
+ *
+ * The "P" parameter controls the action applied to the Z axis:
+ *
+ *    P0  (Default) If Z is below park Z raise the nozzle.
+ *    P1  Raise the nozzle always to Z-park height.
+ *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
+ */
+//#define NOZZLE_PARK_FEATURE
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  // Specify a park position as { X, Y, Z_raise }
+  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
+  #define NOZZLE_PARK_XY_FEEDRATE 100   // (mm/s) X and Y axes feedrate (also used for delta Z axis)
+  #define NOZZLE_PARK_Z_FEEDRATE 5      // (mm/s) Z axis feedrate (not used for delta printers)
 #endif
 
-#include "Conditionals_LCD.h"
-#include "../core/drivers.h"
-
-#if __has_include("../../Configuration_adv.h")
-  #include "../../Configuration_adv.h"
-#else
-  #include "ConfigScheme2.h"
-#endif
-
-#include "Conditionals_adv.h"

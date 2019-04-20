@@ -19,33 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
-
-#define __MARLIN_FIRMWARE__
 
 //
-// Prefix header to acquire configurations
+// G2/G3 Arc Support
 //
-
-#include "../HAL/platforms.h"
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "../core/millis_t.h"
-#include "Version.h"
-
-#if __has_include("../../Configuration.h")
-  #include "../../Configuration.h"
-#else
-  #include "ConfigScheme1.h"
+#define ARC_SUPPORT               // Disable this feature to save ~3226 bytes
+#if ENABLED(ARC_SUPPORT)
+  #define MM_PER_ARC_SEGMENT  1   // Length of each arc segment
+  #define MIN_ARC_SEGMENTS   24   // Minimum number of segments in a complete circle
+  #define N_ARC_CORRECTION   25   // Number of interpolated segments between corrections
+  //#define ARC_P_CIRCLES         // Enable the 'P' parameter to specify complete circles
+  //#define CNC_WORKSPACE_PLANES  // Allow G2/G3 to operate in XY, ZX, or YZ planes
 #endif
 
-#include "Conditionals_LCD.h"
-#include "../core/drivers.h"
+// Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
+//#define BEZIER_CURVE_SUPPORT
 
-#if __has_include("../../Configuration_adv.h")
-  #include "../../Configuration_adv.h"
-#else
-  #include "ConfigScheme2.h"
-#endif
-
-#include "Conditionals_adv.h"
+// SkeinForge sends the wrong arc G-codes when using Arc Point as fillet procedure
+//#define SF_ARC_FIX

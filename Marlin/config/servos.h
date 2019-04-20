@@ -19,33 +19,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#define __MARLIN_FIRMWARE__
+/**
+ * R/C SERVO support
+ * Sponsored by TrinityLabs, Reworked by codexmas
+ */
 
-//
-// Prefix header to acquire configurations
-//
+/**
+ * Number of servos
+ *
+ * For some servo-related options NUM_SERVOS will be set automatically.
+ * Set this manually if there are extra servos needing manual control.
+ * Leave undefined or set to 0 to entirely disable the servo subsystem.
+ */
+//#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
 
-#include "../HAL/platforms.h"
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "../core/millis_t.h"
-#include "Version.h"
+// Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
+// 300ms is a good value but you can try less delay.
+// If the servo can't reach the requested position, increase it.
+#define SERVO_DELAY { 300 }
 
-#if __has_include("../../Configuration.h")
-  #include "../../Configuration.h"
-#else
-  #include "ConfigScheme1.h"
-#endif
+// Only power servos during movement, otherwise leave off to prevent jitter
+//#define DEACTIVATE_SERVOS_AFTER_MOVE
 
-#include "Conditionals_LCD.h"
-#include "../core/drivers.h"
-
-#if __has_include("../../Configuration_adv.h")
-  #include "../../Configuration_adv.h"
-#else
-  #include "ConfigScheme2.h"
-#endif
-
-#include "Conditionals_adv.h"
+// Allow servo angle to be edited and saved to EEPROM
+//#define EDITABLE_SERVO_ANGLES

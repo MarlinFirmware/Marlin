@@ -19,33 +19,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#define __MARLIN_FIRMWARE__
-
-//
-// Prefix header to acquire configurations
-//
-
-#include "../HAL/platforms.h"
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "../core/millis_t.h"
-#include "Version.h"
-
-#if __has_include("../../Configuration.h")
-  #include "../../Configuration.h"
-#else
-  #include "ConfigScheme1.h"
+/**
+ * M355 Case Light on-off / brightness
+ */
+//#define CASE_LIGHT_ENABLE
+#if ENABLED(CASE_LIGHT_ENABLE)
+  //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
+  #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
+  #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
+  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
+  //#define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
+  //#define CASE_LIGHT_USE_NEOPIXEL           // Use Neopixel LED as case light, requires NEOPIXEL_LED.
+  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+    #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
+  #endif
 #endif
-
-#include "Conditionals_LCD.h"
-#include "../core/drivers.h"
-
-#if __has_include("../../Configuration_adv.h")
-  #include "../../Configuration_adv.h"
-#else
-  #include "ConfigScheme2.h"
-#endif
-
-#include "Conditionals_adv.h"

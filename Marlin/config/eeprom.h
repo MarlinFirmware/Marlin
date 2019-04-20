@@ -19,33 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#define __MARLIN_FIRMWARE__
-
-//
-// Prefix header to acquire configurations
-//
-
-#include "../HAL/platforms.h"
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "../core/millis_t.h"
-#include "Version.h"
-
-#if __has_include("../../Configuration.h")
-  #include "../../Configuration.h"
-#else
-  #include "ConfigScheme1.h"
-#endif
-
-#include "Conditionals_LCD.h"
-#include "../core/drivers.h"
-
-#if __has_include("../../Configuration_adv.h")
-  #include "../../Configuration_adv.h"
-#else
-  #include "ConfigScheme2.h"
-#endif
-
-#include "Conditionals_adv.h"
+/**
+ * EEPROM
+ *
+ * The microcontroller can store settings in the EEPROM, e.g. max velocity...
+ *  M500 stores parameters in EEPROM
+ *  M501 reads parameters from EEPROM (i.e., resets all to last-saved).
+ *  M502 reverts current settings to the defaults. (Use M500 after M502 to also reset the EEPROM.)
+ */
+//#define EEPROM_SETTINGS // Enable for M500 and M501 commands
+//#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
+#define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.

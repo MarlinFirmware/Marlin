@@ -2124,8 +2124,3 @@
 
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
-
-// Structured configuration, see #13752
-#if __has_include("User_Configuration.h")
-   #include "User_Configuration.h"
-#endif
