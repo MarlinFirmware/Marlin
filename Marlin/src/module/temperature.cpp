@@ -950,7 +950,7 @@ void Temperature::manage_heater() {
 
   HOTEND_LOOP() {
     if (degHotend(e) > temp_range[e].maxtemp)
-      temp_error(e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, e));
+      _temp_error(e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, e));
 
     #if HEATER_IDLE_HANDLER
       hotend_idle[e].update(ms);
@@ -1075,6 +1075,9 @@ void Temperature::manage_heater() {
     #endif
 
     #if HAS_HEATED_CHAMBER
+
+      if (degChamber() > CHAMBER_MAXTEMP)
+        temp_error(-2, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -2));
 
       #if WATCH_CHAMBER
         // Make sure temperature is increasing
