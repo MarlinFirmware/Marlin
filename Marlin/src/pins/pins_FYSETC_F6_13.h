@@ -184,11 +184,6 @@
 #define BEEPER_PIN         37
 #define SD_DETECT_PIN      49
 
-#if ENABLED(MKS_MINI_12864)
-  #define DOGLCD_A0        27
-  #define DOGLCD_CS        25
-#endif
-
 #if ENABLED(FYSETC_MINI_12864)
   //
   // See https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
@@ -205,6 +200,10 @@
     #define RGB_LED_B_PIN  29
   #endif
 
+  #define LCD_BACKLIGHT_PIN -1
+  #define LCD_RESET_PIN    23
+  #define KILL_PIN         41
+
 #elif HAS_GRAPHICAL_LCD
 
   #define LCD_PINS_RS      16
@@ -214,6 +213,11 @@
   #define LCD_PINS_D6      27
   #define LCD_PINS_D7      29
 
+  #if ENABLED(MKS_MINI_12864)
+    #define DOGLCD_CS      25
+    #define DOGLCD_A0      27
+  #endif
+
 #endif
 
 #if ENABLED(NEWPANEL)
@@ -222,20 +226,6 @@
   #define BTN_ENC          35
 #endif
 
-#if ENABLED(FYSETC_MINI_12864)
-  #define LCD_BACKLIGHT_PIN -1
-  #define LCD_RESET_PIN    23
-  #define KILL_PIN         41
-  #ifndef RGB_LED_R_PIN
-    #define RGB_LED_R_PIN  25
-  #endif
-  #ifndef RGB_LED_G_PIN
-    #define RGB_LED_G_PIN  27
-  #endif
-  #ifndef RGB_LED_B_PIN
-    #define RGB_LED_B_PIN  29
-  #endif
-#endif
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN     3
 #endif

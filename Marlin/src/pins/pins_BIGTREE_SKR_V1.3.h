@@ -190,28 +190,51 @@
     #define LCD_PINS_D4     P1_21
 
   #else
-
     #define LCD_PINS_RS     P1_19
 
     #define BTN_EN1         P3_26   // (31) J3-2 & AUX-4
     #define BTN_EN2         P3_25   // (33) J3-4 & AUX-4
-    #define SD_DETECT_PIN   P1_31   // (49) (NOT 5V tolerant)
-
-    #define LCD_SDSS        P0_16   // (16) J3-7 & AUX-4
 
     #define LCD_PINS_ENABLE P1_18
     #define LCD_PINS_D4     P1_20
 
-    #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5   P1_21
-      #define LCD_PINS_D6   P1_22
-      #define LCD_PINS_D7   P1_23
-    #endif
+    #define LCD_SDSS        P0_16   // (16) J3-7 & AUX-4
+    #define SD_DETECT_PIN   P1_31   // (49) (NOT 5V tolerant)
 
-    #if ENABLED(MKS_MINI_12864)
-      #define DOGLCD_CS     P1_21
-      #define DOGLCD_A0     P1_22
-    #endif
+    #if ENABLED(FYSETC_MINI_12864)
+      #define DOGLCD_CS     P1_18 
+      #define DOGLCD_A0     P1_19
+      #define LCD_RESET_PIN P1_20
+      #define LCD_BACKLIGHT_PIN -1
+
+      #define RGB_LED
+      #ifndef RGB_LED_R_PIN
+        #define RGB_LED_R_PIN P1_21
+      #endif
+      #ifndef RGB_LED_G_PIN
+        #define RGB_LED_G_PIN P1_22
+      #endif
+      #ifndef RGB_LED_B_PIN
+        #define RGB_LED_B_PIN P1_23
+      #endif
+      #ifndef RGB_LED_W_PIN
+        #define RGB_LED_W_PIN -1
+      #endif
+
+    #else
+
+      #if ENABLED(MKS_MINI_12864)
+        #define DOGLCD_CS     P1_21
+        #define DOGLCD_A0     P1_22
+      #endif
+
+      #if ENABLED(ULTIPANEL)
+        #define LCD_PINS_D5   P1_21
+        #define LCD_PINS_D6   P1_22
+        #define LCD_PINS_D7   P1_23
+      #endif
+
+    #endif // FYSETC_MINI_12864
 
   #endif
 
