@@ -497,30 +497,20 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
                 grabxpos = toolheadposx[tmp_extruder];
 
     /**
-     * 1. Raise Z to give enough clearance
-     * 2. Move to switch position of current toolhead
-     * 3. Release and place toolhead in the dock
-     * 4. Move to the new toolhead
-     * 5. Grab the new toolhead and move to security position
+     * 1. Move to switch position of current toolhead
+     * 2. Release and place toolhead in the dock
+     * 3. Move to the new toolhead
+     * 4. Grab the new toolhead and move to security position
      */
 
     if (DEBUGGING(LEVELING)) DEBUG_POS("Starting Toolhead change", current_position);
 
-    // 1. Raise Z to give enough clearance
-
-    current_position[Z_AXIS] += toolchange_settings.z_raise;
-
-    if (DEBUGGING(LEVELING)) DEBUG_POS("(1) Raise Z-Axis", current_position);
-
-    planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
-    planner.synchronize();
-
-    // 2. Move to switch position current toolhead
+    // 1. Move to switch position current toolhead
 
     current_position[Y_AXIS] = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR;
 
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOLNPAIR("(2) Place old tool ", int(active_extruder));
+      SERIAL_ECHOLNPAIR("(1) Place old tool ", int(active_extruder));
       DEBUG_POS("Move Y SwitchPos + Security", current_position);
     }
 
@@ -548,9 +538,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
     planner.buffer_line(current_position, (planner.settings.max_feedrate_mm_s[X_AXIS] * 0.25), active_extruder);
     planner.synchronize();
 
-    // 3. Release and place toolhead in the dock
+    // 2. Release and place toolhead in the dock
 
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(3) Release and Place Toolhead");
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(2) Release and Place Toolhead");
 
     current_position[Y_AXIS] = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
 
@@ -566,9 +556,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
     planner.buffer_line(current_position, (planner.settings.max_feedrate_mm_s[Y_AXIS]), active_extruder);
     planner.synchronize();
 
-    // 4. Move to new toolhead position
+    // 3. Move to new toolhead position
 
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(4) Move to new toolhead position");
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(3) Move to new toolhead position");
 
     current_position[X_AXIS] = grabxpos;
 
@@ -577,9 +567,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
     planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS], active_extruder);
     planner.synchronize();
 
-    // 5. Grab the new toolhead and move to security position
+    // 4. Grab the new toolhead and move to security position
 
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(5) Grab new toolhead and move to security position");
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(4) Grab new toolhead and move to security position");
 
     current_position[Y_AXIS] = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
 
@@ -875,10 +865,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
             #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              do_pause_e_move(toolchange_settings.swap_length + TOOLCHANGE_FIL_EXTRA_PRIME, toolchange_settings.prime_speed);
+              do_pause_e_move(toolchange_settings.swap_length + TOOLCHANGE_FIL_EXTRA_PRIME, MMM_TO_MMS(toolchange_settings.prime_speed));
             #else
               current_position[E_AXIS] += (toolchange_settings.swap_length + TOOLCHANGE_FIL_EXTRA_PRIME) / planner.e_factor[tmp_extruder];
-              planner.buffer_line(current_position, toolchange_settings.prime_speed, tmp_extruder);
+              planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed), tmp_extruder);
             #endif
             planner.synchronize();
 
