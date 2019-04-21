@@ -21,7 +21,12 @@
  */
 #ifdef ARDUINO_ARCH_ESP32
 
-#include <Arduino.h> // replace that with the proper imports
+// replace that with the proper imports, then cleanup workarounds in Marlin\src\HAL\HAL_ESP32\HAL.h
+#include <Arduino.h>
+// revert back to the correct definition
+#undef DISABLED
+#define DISABLED(V...) DO(DIS,&&,V)
+
 #include "i2s.h"
 #include "../../core/macros.h"
 #include "driver/periph_ctrl.h"
