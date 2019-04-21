@@ -957,7 +957,7 @@ void Temperature::manage_heater() {
 
   HOTEND_LOOP() {
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-      if (ms > grace_period && degHotend(e) > temp_range[e].maxtemp)
+      if (ELAPSED(ms, grace_period) && degHotend(e) > temp_range[e].maxtemp)
         _temp_error(e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, e));
     #endif
 
@@ -1013,7 +1013,7 @@ void Temperature::manage_heater() {
   #if HAS_HEATED_BED
 
     #if ENABLED(THERMAL_PROTECTION_BED)
-      if (ms > grace_period && degBed() > BED_MAXTEMP)
+      if (ELAPSED(ms, grace_period) && degBed() > BED_MAXTEMP)
         _temp_error(-1, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -1));
     #endif
 
