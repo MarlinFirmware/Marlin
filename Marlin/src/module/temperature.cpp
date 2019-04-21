@@ -951,15 +951,20 @@ void Temperature::manage_heater() {
   #endif
 
   #if HAS_THERMAL_PROTECTION
-    #if !defined(THERMAL_PROTECTION_GRACE_PERIOD)
-      #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period is needed for well-behaved boards.
+    #ifndef THERMAL_PROTECTION_GRACE_PERIOD
+      #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
     #endif
-    static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
+    #if THERMAL_PROTECTION_GRACE_PERIOD > 0
+      static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
+      if (ELAPSED(ms, grace_period)) grace_period = 0UL;
+    #else
+      static constexpr millis_t grace_period = 0UL;
+    #endif
   #endif
 
   HOTEND_LOOP() {
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-      if (ELAPSED(ms, grace_period) && degHotend(e) > temp_range[e].maxtemp)
+      if (!grace_period && degHotend(e) > temp_range[e].maxtemp)
         _temp_error(e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, e));
     #endif
 
@@ -1015,7 +1020,7 @@ void Temperature::manage_heater() {
   #if HAS_HEATED_BED
 
     #if ENABLED(THERMAL_PROTECTION_BED)
-      if (ELAPSED(ms, grace_period) && degBed() > BED_MAXTEMP)
+      if (!grace_period && degBed() > BED_MAXTEMP)
         _temp_error(-1, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -1));
     #endif
 
@@ -1090,7 +1095,7 @@ void Temperature::manage_heater() {
     #if HAS_HEATED_CHAMBER
 
       #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-        if (ms > grace_period && degChamber() > CHAMBER_MAXTEMP)
+        if (!grace_period && degChamber() > CHAMBER_MAXTEMP)
           _temp_error(-2, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -2));
       #endif
 
