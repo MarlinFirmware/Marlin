@@ -944,13 +944,22 @@ void Temperature::manage_heater() {
     if (temp_hotend[1].current < MAX(HEATER_1_MINTEMP, HEATER_1_MAX6675_TMIN + .01)) min_temp_error(1);
   #endif
 
-  #if WATCH_HOTENDS || WATCH_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || HEATER_IDLE_HANDLER || WATCH_CHAMBER || ENABLED(THERMAL_PROTECTION_BED) || ENABLED(THERMAL_PROTECTION_CHAMBER)
+  #if WATCH_HOTENDS || WATCH_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || HEATER_IDLE_HANDLER || WATCH_CHAMBER || ENABLED(THERMAL_PROTECTION_BED) || ENABLED(THERMAL_PROTECTION_CHAMBER) || ENABLED(THERMAL_PROTECTION_HOTENDS)
     millis_t ms = millis();
   #endif
 
+  #if ENABLED(THERMAL_PROTECTION_BED) || ENABLED(THERMAL_PROTECTION_CHAMBER) || ENABLED(THERMAL_PROTECTION_HOTENDS)
+    #if !defined(THERMAL_PROTECTION_GRACE_PERIOD)
+      #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period is needed for well-behaved boards.
+    #endif
+    static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
+  #endif
+
   HOTEND_LOOP() {
-    if (degHotend(e) > temp_range[e].maxtemp)
-      _temp_error(e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, e));
+    #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+      if (ms > grace_period && degHotend(e) > temp_range[e].maxtemp)
+        _temp_error(e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, e));
+    #endif
 
     #if HEATER_IDLE_HANDLER
       hotend_idle[e].update(ms);
@@ -1000,13 +1009,6 @@ void Temperature::manage_heater() {
       planner.calculate_volumetric_for_width_sensor(measurement_delay[meas_shift_index]);
     }
   #endif // FILAMENT_WIDTH_SENSOR
-
-  #if ENABLED(THERMAL_PROTECTION_BED) || ENABLED(THERMAL_PROTECTION_CHAMBER)
-    #if !defined(THERMAL_PROTECTION_GRACE_PERIOD)
-      #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period is needed for well-behaved boards.
-    #endif
-    static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
-  #endif
 
   #if HAS_HEATED_BED
 
