@@ -134,7 +134,7 @@ uint8_t spiRec(uint32_t chan);
                                     // Memory usage per ADC channel (bytes): (6 * ADC_MEDIAN_FILTER_SIZE) + 16
                                     // 8 * ((6 * 23) + 16 ) = 1232 Bytes for 8 channels
 
-#define ADC_LOWPASS_K_VALUE    (4)  // Higher values increase rise time
+#define ADC_LOWPASS_K_VALUE    (6)  // Higher values increase rise time
                                     // Rise time sample delays for 100% signal convergence on full range step
                                     // (1 : 13, 2 : 32, 3 : 67, 4 : 139, 5 : 281, 6 : 565, 7 : 1135, 8 : 2273)
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
@@ -146,6 +146,9 @@ using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 #define HAL_START_ADC(pin)     FilteredADC::start_conversion(pin)
 #define HAL_READ_ADC()         FilteredADC::get_result()
 #define HAL_ADC_READY()        FilteredADC::finished_conversion()
+
+// A grace period for the ADC readings to stabilize before they start causing thermal protection errors.
+#define THERMAL_PROTECTION_GRACE_PERIOD 500
 
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
