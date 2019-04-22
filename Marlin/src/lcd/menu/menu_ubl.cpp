@@ -471,7 +471,7 @@ void _lcd_ubl_output_map_lcd() {
   ui.encoder_direction_normal();
 
   if (ui.encoderPosition) {
-    step_scaler += (int32_t)ui.encoderPosition;
+    step_scaler += int16_t(ui.encoderPosition);
     x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
     ui.encoderPosition = 0;
     ui.refresh(LCDVIEW_REDRAW_NOW);
@@ -615,8 +615,10 @@ void _lcd_ubl_step_by_step() {
 void _lcd_ubl_level_bed() {
   START_MENU();
   MENU_BACK(MSG_MOTION);
-  MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
-  MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
+  if (planner.leveling_active)
+    MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
+  else
+    MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
   MENU_ITEM(submenu, MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
   MENU_ITEM(function, MSG_UBL_MESH_EDIT, _lcd_ubl_output_map_lcd_cmd);
   MENU_ITEM(submenu, MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);

@@ -149,6 +149,10 @@
   #define FAN_PIN           9
 #endif
 
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   57
+#endif
+
 #if !HAS_FILAMENT_SENSOR
   #define FAN1_PIN          4
 #endif
@@ -169,22 +173,24 @@
   #define PS_ON_PIN        12
 #endif
 
+#define CASE_LIGHT_PIN      5
+
 //
 // LCD / Controller
 //
 // Formbot only supports REPRAP_DISCOUNT_SMART_CONTROLLER
 //
 #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
-  #define LCD_PINS_RS      16
-  #define LCD_PINS_ENABLE  17
-  #define LCD_PINS_D4      23
-  #define LCD_PINS_D5      25
-  #define LCD_PINS_D6      27
-  #define LCD_PINS_D7      29
   #define BEEPER_PIN       37
   #define BTN_EN1          31
   #define BTN_EN2          33
   #define BTN_ENC          35
   #define SD_DETECT_PIN    49
   #define KILL_PIN         41
+  #define LCD_PINS_RS      16
+  #define LCD_PINS_ENABLE  17
+  #define LCD_PINS_D4      23
+  #define LCD_PINS_D5      25
+  #define LCD_PINS_D6      27
+  #define LCD_PINS_D7      29
 #endif

@@ -118,7 +118,7 @@
 //
 #if ENABLED(SPINDLE_LASER_ENABLE)
   #undef HEATER_0_PIN
-  #define SPINDLE_LASER_ENABLE_PIN  P2_07   // FET 1
+  #define SPINDLE_LASER_ENA_PIN     P2_07   // FET 1
   #undef HEATER_BED_PIN
   #define SPINDLE_LASER_PWM_PIN     P2_05   // Bed FET
   #undef FAN_PIN

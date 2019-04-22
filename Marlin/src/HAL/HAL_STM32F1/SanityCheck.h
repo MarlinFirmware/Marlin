@@ -28,8 +28,8 @@
  * Test Re-ARM specific configuration values for errors at compile-time.
  */
 #if ENABLED(SPINDLE_LASER_ENABLE)
-  #if !PIN_EXISTS(SPINDLE_LASER_ENABLE)
-    #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENABLE_PIN."
+  #if !PIN_EXISTS(SPINDLE_LASER_ENA)
+    #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENA_PIN."
   #elif SPINDLE_DIR_CHANGE && !PIN_EXISTS(SPINDLE_DIR)
     #error "SPINDLE_DIR_PIN not defined."
   #elif ENABLED(SPINDLE_LASER_PWM) && PIN_EXISTS(SPINDLE_LASER_PWM)

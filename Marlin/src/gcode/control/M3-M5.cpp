@@ -53,7 +53,7 @@ uint8_t spindle_laser_power; // = 0
  * NOTE: A minimum PWM frequency of 50 Hz is needed. All prescaler
  *       factors for timers 2, 3, 4, and 5 are acceptable.
  *
- *  SPINDLE_LASER_ENABLE_PIN needs an external pullup or it may power on
+ *  SPINDLE_LASER_ENA_PIN needs an external pullup or it may power on
  *  the spindle/laser during power-up or when connecting to the host
  *  (usually goes through a reset which sets all I/O pins to tri-state)
  *
@@ -73,15 +73,17 @@ inline void delay_for_power_down() { safe_delay(SPINDLE_LASER_POWERDOWN_DELAY); 
  */
 
 inline void set_spindle_laser_ocr(const uint8_t ocr) {
-  WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT); // turn spindle on (active low)
-  analogWrite(SPINDLE_LASER_PWM_PIN, (SPINDLE_LASER_PWM_INVERT) ? 255 - ocr : ocr);
+  WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ENABLE_INVERT); // turn spindle on (active low)
+  #if ENABLED(SPINDLE_LASER_PWM)
+    analogWrite(SPINDLE_LASER_PWM_PIN, (SPINDLE_LASER_PWM_INVERT) ? 255 - ocr : ocr);
+  #endif
 }
 
 #if ENABLED(SPINDLE_LASER_PWM)
 
   void update_spindle_laser_power() {
     if (spindle_laser_power == 0) {
-      WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);                      // turn spindle off (active low)
+      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ENABLE_INVERT);                      // turn spindle off (active low)
       analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);             // only write low byte
       delay_for_power_down();
     }
@@ -101,7 +103,7 @@ inline void set_spindle_laser_ocr(const uint8_t ocr) {
 #endif // SPINDLE_LASER_PWM
 
 bool spindle_laser_enabled() {
-  return !!spindle_laser_power; // READ(SPINDLE_LASER_ENABLE_PIN) == SPINDLE_LASER_ENABLE_INVERT;
+  return !!spindle_laser_power; // READ(SPINDLE_LASER_ENA_PIN) == SPINDLE_LASER_ENABLE_INVERT;
 }
 
 void set_spindle_laser_enabled(const bool enable) {
@@ -111,11 +113,11 @@ void set_spindle_laser_enabled(const bool enable) {
     update_spindle_laser_power();
   #else
     if (enable) {
-      WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT);
+      WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ENABLE_INVERT);
       delay_for_power_up();
     }
     else {
-      WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);
+      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ENABLE_INVERT);
       delay_for_power_down();
     }
   #endif

@@ -24,7 +24,7 @@
  * Gen7 v1.3 pin assignments
  */
 
- /**
+/**
  * Rev B    26 DEC 2016
  *
  * added pointer to a current Arduino IDE extension

@@ -32,6 +32,8 @@
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")
+#define MSG_YES                             _UxGT("SI")
+#define MSG_NO                              _UxGT("NO")
 #define MSG_BACK                            _UxGT("Indietro")
 #define MSG_SD_INSERTED                     _UxGT("SD Card inserita")
 #define MSG_SD_REMOVED                      _UxGT("SD Card rimossa")
@@ -95,14 +97,14 @@
 #define MSG_UBL_TOOLS                       _UxGT("Strumenti UBL")
 #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
 #define MSG_IDEX_MENU                       _UxGT("Modo IDEX")
+#define MSG_OFFSETS_MENU                    _UxGT("Strumenti Offsets")
 #define MSG_IDEX_MODE_AUTOPARK              _UxGT("Auto-Park")
 #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplicazione")
 #define MSG_IDEX_MODE_MIRRORED_COPY         _UxGT("Copia speculare")
 #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Pieno controllo")
-#define MSG_IDEX_X_OFFSET                   _UxGT("2° ugello X")
-#define MSG_IDEX_Y_OFFSET                   _UxGT("2° ugello Y")
-#define MSG_IDEX_Z_OFFSET                   _UxGT("2° ugello Z")
-#define MSG_IDEX_SAVE_OFFSETS               _UxGT("Memorizza Offsets")
+#define MSG_X_OFFSET                        _UxGT("2° ugello X")
+#define MSG_Y_OFFSET                        _UxGT("2° ugello Y")
+#define MSG_Z_OFFSET                        _UxGT("2° ugello Z")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Mesh Manuale")
 #define MSG_UBL_BC_INSERT                   _UxGT("Metti spes. e misura")
 #define MSG_UBL_BC_INSERT2                  _UxGT("Misura")
@@ -268,6 +270,9 @@
 #define MSG_WATCH                           _UxGT("Schermata info")
 #define MSG_PREPARE                         _UxGT("Prepara")
 #define MSG_TUNE                            _UxGT("Regola")
+#define MSG_START_PRINT                     _UxGT("Avvia stampa")
+#define MSG_BUTTON_PRINT                    _UxGT("Stampa")
+#define MSG_BUTTON_CANCEL                   _UxGT("Annulla")
 #define MSG_PAUSE_PRINT                     _UxGT("Pausa stampa")
 #define MSG_RESUME_PRINT                    _UxGT("Riprendi stampa")
 #define MSG_STOP_PRINT                      _UxGT("Arresta stampa")
@@ -321,6 +326,7 @@
 #define MSG_BABYSTEP_X                      _UxGT("Babystep X")
 #define MSG_BABYSTEP_Y                      _UxGT("Babystep Y")
 #define MSG_BABYSTEP_Z                      _UxGT("Babystep Z")
+#define MSG_BABYSTEP_TOTAL                  _UxGT("Totali")
 #define MSG_ENDSTOP_ABORT                   _UxGT("Finecorsa annullati")
 #define MSG_HEATING_FAILED_LCD              _UxGT("Riscald. Fallito")
 #define MSG_HEATING_FAILED_LCD_BED          _UxGT("Risc. piatto fallito")
@@ -449,6 +455,10 @@
 #define MSG_VTOOLS_RESET                    _UxGT("V-tools ripristin.")
 #define MSG_START_Z                         _UxGT("Z inizio")
 #define MSG_END_Z                           _UxGT("Z fine")
+#define MSG_BRICKOUT                        _UxGT("Brickout")
+#define MSG_INVADERS                        _UxGT("Invaders")
+#define MSG_SNAKE                           _UxGT("Sn4k3")
+#define MSG_MAZE                            _UxGT("Maze")
 
 //
 // Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe
@@ -505,3 +515,7 @@
 
 #define MSG_SERVICE_RESET                   _UxGT("Resetta")
 #define MSG_SERVICE_IN                      _UxGT(" tra:")
+
+#define MSG_BACKLASH                        _UxGT("Gioco")
+#define MSG_BACKLASH_CORRECTION             _UxGT("Correzione")
+#define MSG_BACKLASH_SMOOTHING              _UxGT("Smoothing")

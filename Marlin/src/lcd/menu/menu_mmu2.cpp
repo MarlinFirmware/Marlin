@@ -35,60 +35,60 @@ bool mmuMenuWait;
 // Load Filament
 //
 
-void _mmu2_loadFilamentToNozzle(uint8_t index) {
+void _mmu2_load_filamentToNozzle(uint8_t index) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf_P(0,  PSTR(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
-  if (mmu2.loadFilamentToNozzle(index)) ui.reset_status();
+  if (mmu2.load_filament_to_nozzle(index)) ui.reset_status();
 }
 
-inline void action_mmu2_loadFilamentToNozzle(const uint8_t tool) {
-  _mmu2_loadFilamentToNozzle(tool);
+inline void action_mmu2_load_filament_to_nozzl_e(const uint8_t tool) {
+  _mmu2_load_filamentToNozzle(tool);
   ui.return_to_status();
 }
-inline void action_mmu2_loadFilamentToNozzle0() { action_mmu2_loadFilamentToNozzle(0); }
-inline void action_mmu2_loadFilamentToNozzle1() { action_mmu2_loadFilamentToNozzle(1); }
-inline void action_mmu2_loadFilamentToNozzle2() { action_mmu2_loadFilamentToNozzle(2); }
-inline void action_mmu2_loadFilamentToNozzle3() { action_mmu2_loadFilamentToNozzle(3); }
-inline void action_mmu2_loadFilamentToNozzle4() { action_mmu2_loadFilamentToNozzle(4); }
+inline void action_mmu2_load_filament_to_nozzle_0() { action_mmu2_load_filament_to_nozzl_e(0); }
+inline void action_mmu2_load_filament_to_nozzle_1() { action_mmu2_load_filament_to_nozzl_e(1); }
+inline void action_mmu2_load_filament_to_nozzle_2() { action_mmu2_load_filament_to_nozzl_e(2); }
+inline void action_mmu2_load_filament_to_nozzle_3() { action_mmu2_load_filament_to_nozzl_e(3); }
+inline void action_mmu2_load_filament_to_nozzle_4() { action_mmu2_load_filament_to_nozzl_e(4); }
 
-void _mmu2_loadFilament(uint8_t index) {
+void _mmu2_load_filament(uint8_t index) {
   ui.return_to_status();
   ui.status_printf_P(0, PSTR(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
-  mmu2.loadFilament(index);
+  mmu2.load_filament(index);
   ui.reset_status();
 }
-void action_mmu2_loadAll() {
+void action_mmu2_load_all() {
   for (uint8_t i = 0; i < EXTRUDERS; i++)
-    _mmu2_loadFilament(i);
+    _mmu2_load_filament(i);
   ui.return_to_status();
 }
-inline void action_mmu2_loadFilament0() { _mmu2_loadFilament(0); }
-inline void action_mmu2_loadFilament1() { _mmu2_loadFilament(1); }
-inline void action_mmu2_loadFilament2() { _mmu2_loadFilament(2); }
-inline void action_mmu2_loadFilament3() { _mmu2_loadFilament(3); }
-inline void action_mmu2_loadFilament4() { _mmu2_loadFilament(4); }
+inline void action_mmu2_load_filament_0() { _mmu2_load_filament(0); }
+inline void action_mmu2_load_filament_1() { _mmu2_load_filament(1); }
+inline void action_mmu2_load_filament_2() { _mmu2_load_filament(2); }
+inline void action_mmu2_load_filament_3() { _mmu2_load_filament(3); }
+inline void action_mmu2_load_filament_4() { _mmu2_load_filament(4); }
 
-void menu_mmu2_loadFilament() {
+void menu_mmu2_load_filament() {
   START_MENU();
   MENU_BACK(MSG_MMU2_MENU);
-  MENU_ITEM(function, MSG_MMU2_ALL, action_mmu2_loadAll);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT0, action_mmu2_loadFilament0);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT1, action_mmu2_loadFilament1);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT2, action_mmu2_loadFilament2);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT3, action_mmu2_loadFilament3);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT4, action_mmu2_loadFilament4);
+  MENU_ITEM(function, MSG_MMU2_ALL, action_mmu2_load_all);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT0, action_mmu2_load_filament_0);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT1, action_mmu2_load_filament_1);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT2, action_mmu2_load_filament_2);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT3, action_mmu2_load_filament_3);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT4, action_mmu2_load_filament_4);
   END_MENU();
 }
 
-void menu_mmu2_loadToNozzle() {
+void menu_mmu2_load_to_nozzle() {
   START_MENU();
   MENU_BACK(MSG_MMU2_MENU);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT0, action_mmu2_loadFilamentToNozzle0);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT1, action_mmu2_loadFilamentToNozzle1);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT2, action_mmu2_loadFilamentToNozzle2);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT3, action_mmu2_loadFilamentToNozzle3);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT4, action_mmu2_loadFilamentToNozzle4);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT0, action_mmu2_load_filament_to_nozzle_0);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT1, action_mmu2_load_filament_to_nozzle_1);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT2, action_mmu2_load_filament_to_nozzle_2);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT3, action_mmu2_load_filament_to_nozzle_3);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT4, action_mmu2_load_filament_to_nozzle_4);
   END_MENU();
 }
 
@@ -96,19 +96,19 @@ void menu_mmu2_loadToNozzle() {
 // Eject Filament
 //
 
-void _mmu2_ejectFilament(uint8_t index) {
+void _mmu2_eject_filament(uint8_t index) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf_P(0, PSTR(MSG_MMU2_EJECTING_FILAMENT), int(index + 1));
-  if (mmu2.ejectFilament(index, true)) ui.reset_status();
+  if (mmu2.eject_filament(index, true)) ui.reset_status();
 }
-inline void action_mmu2_ejectFilament0() { _mmu2_ejectFilament(0); }
-inline void action_mmu2_ejectFilament1() { _mmu2_ejectFilament(1); }
-inline void action_mmu2_ejectFilament2() { _mmu2_ejectFilament(2); }
-inline void action_mmu2_ejectFilament3() { _mmu2_ejectFilament(3); }
-inline void action_mmu2_ejectFilament4() { _mmu2_ejectFilament(4); }
+inline void action_mmu2_eject_filament_0() { _mmu2_eject_filament(0); }
+inline void action_mmu2_eject_filament_1() { _mmu2_eject_filament(1); }
+inline void action_mmu2_eject_filament_2() { _mmu2_eject_filament(2); }
+inline void action_mmu2_eject_filament_3() { _mmu2_eject_filament(3); }
+inline void action_mmu2_eject_filament_4() { _mmu2_eject_filament(4); }
 
-void action_mmu2_unloadFilament() {
+void action_mmu2_unload_filament() {
   ui.reset_status();
   ui.return_to_status();
   LCD_MESSAGEPGM(MSG_MMU2_UNLOADING_FILAMENT);
@@ -116,14 +116,14 @@ void action_mmu2_unloadFilament() {
   if (mmu2.unload()) ui.reset_status();
 }
 
-void menu_mmu2_ejectFilament() {
+void menu_mmu2_eject_filament() {
   START_MENU();
   MENU_BACK(MSG_MMU2_MENU);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT0, action_mmu2_ejectFilament0);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT1, action_mmu2_ejectFilament1);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT2, action_mmu2_ejectFilament2);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT3, action_mmu2_ejectFilament3);
-  MENU_ITEM(function, MSG_MMU2_FILAMENT4, action_mmu2_ejectFilament4);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT0, action_mmu2_eject_filament_0);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT1, action_mmu2_eject_filament_1);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT2, action_mmu2_eject_filament_2);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT3, action_mmu2_eject_filament_3);
+  MENU_ITEM(function, MSG_MMU2_FILAMENT4, action_mmu2_eject_filament_4);
   END_MENU();
 }
 
@@ -139,10 +139,10 @@ void action_mmu2_reset() {
 void menu_mmu2() {
   START_MENU();
   MENU_BACK(MSG_MAIN);
-  MENU_ITEM(submenu, MSG_MMU2_LOAD_FILAMENT, menu_mmu2_loadFilament);
-  MENU_ITEM(submenu, MSG_MMU2_LOAD_TO_NOZZLE, menu_mmu2_loadToNozzle);
-  MENU_ITEM(submenu, MSG_MMU2_EJECT_FILAMENT, menu_mmu2_ejectFilament);
-  MENU_ITEM(function, MSG_MMU2_UNLOAD_FILAMENT, action_mmu2_unloadFilament);
+  MENU_ITEM(submenu, MSG_MMU2_LOAD_FILAMENT, menu_mmu2_load_filament);
+  MENU_ITEM(submenu, MSG_MMU2_LOAD_TO_NOZZLE, menu_mmu2_load_to_nozzle);
+  MENU_ITEM(submenu, MSG_MMU2_EJECT_FILAMENT, menu_mmu2_eject_filament);
+  MENU_ITEM(function, MSG_MMU2_UNLOAD_FILAMENT, action_mmu2_unload_filament);
   MENU_ITEM(function, MSG_MMU2_RESET, action_mmu2_reset);
   END_MENU();
 }
@@ -161,7 +161,7 @@ inline void action_mmu2_choose2() { action_mmu2_choose(2); }
 inline void action_mmu2_choose3() { action_mmu2_choose(3); }
 inline void action_mmu2_choose4() { action_mmu2_choose(4); }
 
-void menu_mmu2_chooseFilament() {
+void menu_mmu2_choose_filament() {
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_MMU2_CHOOSE_FILAMENT_HEADER, true, true);
@@ -178,21 +178,21 @@ void menu_mmu2_chooseFilament() {
 // MMU2 Filament Runout
 //
 
-inline void action_mmu2_M600_loadCurrentFilament()         { mmu2.loadFilament(currentTool); }
-inline void action_mmu2_M600_loadCurrentFilamentToNozzle() { mmu2.loadFilamentToNozzle(currentTool); }
-inline void action_mmu2_M600_unloadFilament()              { mmu2.unload(); }
+inline void action_mmu2_M600_load_current_filament()         { mmu2.load_filament(currentTool); }
+inline void action_mmu2_M600_load_current_filament_to_nozzle() { mmu2.load_filament_to_nozzle(currentTool); }
+inline void action_mmu2_M600_unload_filament()              { mmu2.unload(); }
 inline void action_mmu2_M600_resume()                      { mmuMenuWait = false; }
 
 void menu_mmu2_pause() {
-  currentTool = mmu2.getCurrentTool();
+  currentTool = mmu2.get_current_tool();
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_MMU2_FILAMENT_CHANGE_HEADER, true, true);
   #endif
   MENU_ITEM(function, MSG_MMU2_RESUME, action_mmu2_M600_resume);
-  MENU_ITEM(function, MSG_MMU2_UNLOAD_FILAMENT, action_mmu2_M600_unloadFilament);
-  MENU_ITEM(function, MSG_MMU2_LOAD_FILAMENT, action_mmu2_M600_loadCurrentFilament);
-  MENU_ITEM(function, MSG_MMU2_LOAD_TO_NOZZLE, action_mmu2_M600_loadCurrentFilamentToNozzle);
+  MENU_ITEM(function, MSG_MMU2_UNLOAD_FILAMENT, action_mmu2_M600_unload_filament);
+  MENU_ITEM(function, MSG_MMU2_LOAD_FILAMENT, action_mmu2_M600_load_current_filament);
+  MENU_ITEM(function, MSG_MMU2_LOAD_TO_NOZZLE, action_mmu2_M600_load_current_filament_to_nozzle);
   END_MENU();
 }
 
@@ -203,9 +203,9 @@ void mmu2_M600() {
   while (mmuMenuWait) idle();
 }
 
-uint8_t mmu2_chooseFilament() {
+uint8_t mmu2_choose_filament() {
   ui.defer_status_screen();
-  ui.goto_screen(menu_mmu2_chooseFilament);
+  ui.goto_screen(menu_mmu2_choose_filament);
   mmuMenuWait = true;
   while (mmuMenuWait) idle();
   ui.return_to_status();
