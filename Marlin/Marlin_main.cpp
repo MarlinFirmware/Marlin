@@ -2164,9 +2164,12 @@ void clean_up_after_endstop_or_probe_move() {
       #else
         bltouch_command(BLTOUCH_OD_MODE);
       #endif
-      bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
+
       if(deploy)
         bltouch_command(BLTOUCH_SW_MODE);
+        
+      bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
+      
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
