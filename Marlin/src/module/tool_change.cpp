@@ -755,13 +755,14 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       if (!no_move) {
         #if DISABLED(SWITCHING_NOZZLE)
           // Do a small lift to avoid the workpiece in the move back (below)
-          #if ENABLED(TOOLCHANGE_PARK)
-            current_position[X_AXIS] = toolchange_settings.change_point.x;
-            current_position[Y_AXIS] = toolchange_settings.change_point.y;
-          #endif
           current_position[Z_AXIS] += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
             NOMORE(current_position[Z_AXIS], soft_endstop[Z_AXIS].max);
+          #endif
+          fast_line_to_current(Z_AXIS);
+          #if ENABLED(TOOLCHANGE_PARK)
+            current_position[X_AXIS] = toolchange_settings.change_point.x;
+            current_position[Y_AXIS] = toolchange_settings.change_point.y;
           #endif
           planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
         #endif
