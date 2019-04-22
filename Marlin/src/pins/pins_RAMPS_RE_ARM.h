@@ -320,6 +320,7 @@
       #define DOGLCD_MOSI  P0_18
       #define DOGLCD_CS    P1_09  // use Ethernet connector for EXP1 cable signals
       #define DOGLCD_A0    P1_14
+      #define FORCE_SOFT_SPI      // required on a Re-ARM system
     #else
       #define DOGLCD_CS    P0_26   // (63) J5-3 & AUX-2
       #define DOGLCD_A0    P2_06   // (59) J3-8 & AUX-2

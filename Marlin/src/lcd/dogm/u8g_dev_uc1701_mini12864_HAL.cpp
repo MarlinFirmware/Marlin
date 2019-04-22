@@ -66,42 +66,47 @@
 #define PAGE_HEIGHT 8
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_init_seq[] PROGMEM = {
-  U8G_ESC_CS(0),             /* disable chip */
-  U8G_ESC_ADR(0),           /* instruction mode */
-  U8G_ESC_RST(1),           /* do reset low pulse with (1*16)+2 milliseconds */
-  U8G_ESC_CS(1),             /* enable chip */
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_ADR(0),             /* instruction mode */
+  U8G_ESC_RST(1),             /* do reset low pulse with (1*16)+2 milliseconds */
+  U8G_ESC_CS(1),              /* enable chip */
 
-  0x0E2,            /* soft reset */
-  0x040,    /* set display start line to 0 */
-  0x0A0,    /* ADC set to reverse */
-  0x0C8,    /* common output mode */
-  0x0A6,    /* display normal, bit val 0: LCD pixel off. */
-  0x0A2,    /* LCD bias 1/9 */
-  0x02F,    /* all power  control circuits on */
-  0x0F8,    /* set booster ratio to */
-  0x000,    /* 4x */
-  0x023,    /* set V0 voltage resistor ratio to large */
-  0x081,    /* set contrast */
-  0x027,    /* contrast value */
-  0x0AC,    /* indicator */
-  0x000,    /* disable */
-  0x0AF,    /* display on */
+  0x0E2,                      /* soft reset */
+  0x040,                      /* set display start line to 0 */
+  0x0A0,                      /* ADC set to reverse */
+  0x0C8,                      /* common output mode */
+  0x0A6,                      /* display normal, bit val 0: LCD pixel off. */
+  0x0A2,                      /* LCD bias 1/9 */
+  0x02F,                      /* all power control circuits on */
+  0x0F8,                      /* set booster ratio to */
+  0x000,                      /* 4x */
+  0x023,                      /* set V0 voltage resistor ratio to large */
+  0x081,                      /* set contrast */
+  0x027,                      /* contrast value */
+  0x0AC,                      /* indicator */
+  0x000,                      /* disable */
+  0x0AF,                      /* display on */
 
-  U8G_ESC_DLY(100),       /* delay 100 ms */
-  0x0A5,                    /* display all points, ST7565 */
-  U8G_ESC_DLY(100),       /* delay 100 ms */
-  U8G_ESC_DLY(100),       /* delay 100 ms */
-  0x0A4,                    /* normal display */
-  U8G_ESC_CS(0),             /* disable chip */
-  U8G_ESC_END                /* end of sequence */
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_DLY(100),           /* delay 100 ms */
+  U8G_ESC_CS(1),              /* enable chip */
+
+  0x0A5,                      /* display all points, ST7565 */
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_DLY(100),           /* delay 100 ms */
+  U8G_ESC_DLY(100),           /* delay 100 ms */
+  U8G_ESC_CS(1),              /* enable chip */
+  0x0A4,                      /* normal display */
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_END                 /* end of sequence */
 };
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_data_start[] PROGMEM = {
-  U8G_ESC_ADR(0),           /* instruction mode */
-  U8G_ESC_CS(1),             /* enable chip */
-  0x010,    /* set upper 4 bit of the col adr to 0 */
-  0x000,    /* set lower 4 bit of the col adr to 4  */
-  U8G_ESC_END                /* end of sequence */
+  U8G_ESC_ADR(0),             /* instruction mode */
+  U8G_ESC_CS(1),              /* enable chip */
+  0x010,                      /* set upper 4 bit of the col adr to 0 */
+  0x000,                      /* set lower 4 bit of the col adr to 4 */
+  U8G_ESC_END                 /* end of sequence */
 };
 
 uint8_t u8g_dev_uc1701_mini12864_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
