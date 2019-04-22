@@ -280,47 +280,37 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
                   grabpos = parkingposx[tmp_extruder] + (tmp_extruder ? PARKING_EXTRUDER_GRAB_DISTANCE : -(PARKING_EXTRUDER_GRAB_DISTANCE)) + x_offset;
 
       /**
-       * 1. Raise Z-Axis to give enough clearance
-       * 2. Move to park position of old extruder
-       * 3. Disengage magnetic field, wait for delay
-       * 4. Move near new extruder
-       * 5. Engage magnetic field for new extruder
-       * 6. Move to parking incl. offset of new extruder
-       * 7. Lower Z-Axis
+       * 1. Move to park position of old extruder
+       * 2. Disengage magnetic field, wait for delay
+       * 3. Move near new extruder
+       * 4. Engage magnetic field for new extruder
+       * 5. Move to parking incl. offset of new extruder
+       * 6. Lower Z-Axis
        */
 
       // STEP 1
 
       if (DEBUGGING(LEVELING)) DEBUG_POS("Start Autopark", current_position);
 
-      current_position[Z_AXIS] += toolchange_settings.z_raise;
-
-      if (DEBUGGING(LEVELING)) DEBUG_POS("(1) Raise Z-Axis", current_position);
-
-      fast_line_to_current(Z_AXIS);
-      planner.synchronize();
-
-      // STEP 2
-
       current_position[X_AXIS] = parkingposx[active_extruder] + x_offset;
 
       if (DEBUGGING(LEVELING)) {
-        DEBUG_ECHOLNPAIR("(2) Park extruder ", int(active_extruder));
+        DEBUG_ECHOLNPAIR("(1) Park extruder ", int(active_extruder));
         DEBUG_POS("Moving ParkPos", current_position);
       }
 
       fast_line_to_current(X_AXIS);
       planner.synchronize();
 
-      // STEP 3
+      // STEP 2
 
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(3) Disengage magnet ");
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(2) Disengage magnet ");
 
       pe_deactivate_solenoid(active_extruder);
 
-      // STEP 4
+      // STEP 3
 
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(4) Move to position near new extruder");
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(3) Move to position near new extruder");
 
       current_position[X_AXIS] += active_extruder ? -10 : 10; // move 10mm away from parked extruder
 
@@ -329,8 +319,8 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
       fast_line_to_current(X_AXIS);
       planner.synchronize();
 
-      // STEP 5
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(5) Engage magnetic field");
+      // STEP 4
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(4) Engage magnetic field");
 
       #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
         pe_activate_solenoid(active_extruder); //just save power for inverted magnets
@@ -338,16 +328,16 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
 
       pe_activate_solenoid(tmp_extruder);
 
-      // STEP 6
+      // STEP 5
 
       current_position[X_AXIS] = grabpos + (tmp_extruder ? -10 : 10);
       fast_line_to_current(X_AXIS);
       current_position[X_AXIS] = grabpos;
-      if (DEBUGGING(LEVELING)) DEBUG_POS("(6) Unpark extruder", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("(5) Unpark extruder", current_position);
       planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS] * 0.5, active_extruder);
       planner.synchronize();
 
-      // STEP 7
+      // STEP 6
 
       current_position[X_AXIS] = midpos
         #if HAS_HOTEND_OFFSET
@@ -355,7 +345,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
         #endif
       ;
 
-      if (DEBUGGING(LEVELING)) DEBUG_POS("(7) Move midway between hotends", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("(6) Move midway between hotends", current_position);
 
       fast_line_to_current(X_AXIS);
       planner.synchronize();
@@ -385,30 +375,20 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
                 grabxpos = toolheadposx[tmp_extruder];
 
     /**
-     * 1. Raise Z to give enough clearance
-     * 2. Move to switch position of current toolhead
-     * 3. Unlock tool and drop it in the dock
-     * 4. Move to the new toolhead
-     * 5. Grab and lock the new toolhead
+     * 1. Move to switch position of current toolhead
+     * 2. Unlock tool and drop it in the dock
+     * 3. Move to the new toolhead
+     * 4. Grab and lock the new toolhead
      */
 
-    // 1. Raise Z to give enough clearance
+    // 1. Move to switch position of current toolhead
 
     if (DEBUGGING(LEVELING)) DEBUG_POS("Starting Toolhead change", current_position);
-
-    current_position[Z_AXIS] += toolchange_settings.z_raise;
-
-    if (DEBUGGING(LEVELING)) DEBUG_POS("(1) Raise Z-Axis", current_position);
-
-    fast_line_to_current(Z_AXIS);
-    planner.synchronize();
-
-    // 2. Move to switch position of current toolhead
 
     current_position[X_AXIS] = placexpos;
 
     if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOLNPAIR("(2) Place old tool ", int(active_extruder));
+      DEBUG_ECHOLNPAIR("(1) Place old tool ", int(active_extruder));
       DEBUG_POS("Move X SwitchPos", current_position);
     }
 
@@ -422,9 +402,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
     fast_line_to_current(Y_AXIS);
     planner.synchronize();
 
-    // 3. Unlock tool and drop it in the dock
+    // 2. Unlock tool and drop it in the dock
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(3) Unlock and Place Toolhead");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(2) Unlock and Place Toolhead");
 
     MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, angles[1]);
     safe_delay(500);
@@ -443,9 +423,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
     fast_line_to_current(Y_AXIS); // move away from docked toolhead
     planner.synchronize();
 
-    // 4. Move to the new toolhead
+    // 3. Move to the new toolhead
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(4) Move to new toolhead position");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(3) Move to new toolhead position");
 
     current_position[X_AXIS] = grabxpos;
 
@@ -460,9 +440,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
     fast_line_to_current(Y_AXIS);
     planner.synchronize();
 
-    // 5. Grab and lock the new toolhead
+    // 4. Grab and lock the new toolhead
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(5) Grab and lock new toolhead ");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(4) Grab and lock new toolhead ");
 
     current_position[Y_AXIS] = SWITCHING_TOOLHEAD_Y_POS;
 
