@@ -2019,6 +2019,7 @@
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
+// :[0,1,2,3,4,5,6,7]
 #define SOFT_PWM_SCALE 0
 
 // If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
