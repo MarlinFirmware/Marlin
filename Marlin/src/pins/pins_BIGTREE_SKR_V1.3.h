@@ -215,8 +215,8 @@
 //#define USB_SD_DISABLED
 #define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
 
-#define LPC_SD_LCD            // Marlin uses the SD drive attached to the LCD
-//#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board
+//#define LPC_SD_LCD            // Marlin uses the SD drive attached to the LCD
+#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board
 
 #if ENABLED(LPC_SD_LCD)
 
