@@ -753,11 +753,26 @@
 #ifndef MSG_START_PRINT
   #define MSG_START_PRINT                     _UxGT("Start print")
 #endif
+#ifndef MSG_BUTTON_NEXT
+  #define MSG_BUTTON_NEXT                     _UxGT("Next")
+#endif
+#ifndef MSG_BUTTON_INIT
+  #define MSG_BUTTON_INIT                     _UxGT("Init")
+#endif
+#ifndef MSG_BUTTON_STOP
+  #define MSG_BUTTON_STOP                     _UxGT("Stop")
+#endif
 #ifndef MSG_BUTTON_PRINT
   #define MSG_BUTTON_PRINT                    _UxGT("Print")
 #endif
+#ifndef MSG_BUTTON_RESET
+  #define MSG_BUTTON_RESET                    _UxGT("Reset")
+#endif
 #ifndef MSG_BUTTON_CANCEL
   #define MSG_BUTTON_CANCEL                   _UxGT("Cancel")
+#endif
+#ifndef MSG_BUTTON_DONE
+  #define MSG_BUTTON_DONE                     _UxGT("Done")
 #endif
 #ifndef MSG_PAUSE_PRINT
   #define MSG_PAUSE_PRINT                     _UxGT("Pause print")

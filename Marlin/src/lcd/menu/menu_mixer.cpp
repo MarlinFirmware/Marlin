@@ -250,17 +250,17 @@ void lcd_mixer_mix_edit() {
 //
 // Reset All V-Tools
 //
-inline void _lcd_reset_vtools() {
-  LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
-  ui.return_to_status();
-  mixer.reset_vtools();
-}
-
 void menu_mixer_vtools_reset_confirm() {
-  START_MENU();
-  MENU_BACK(MSG_BACK);
-  MENU_ITEM(function, MSG_RESET_VTOOLS, _lcd_reset_vtools);
-  END_MENU();
+  do_select_screen(
+    PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
+    []{
+      mixer.reset_vtools();
+      LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
+      ui.return_to_status();
+    },
+    ui.goto_previous_screen,
+    PSTR(MSG_RESET_VTOOLS), NULL, PSTR("?")
+  );
 }
 
 void menu_mixer() {
