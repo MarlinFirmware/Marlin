@@ -14,8 +14,6 @@ namespace ExtUI {
 #define	CEIconGrap	12
 #define	FileNum	MaxFileNumber
 #define	FileNameLen	TEXTBYTELEN
-#define	RTS_UPDATE_INTERVAL	2000
-#define	RTS_UPDATE_VALUE		(2*RTS_UPDATE_INTERVAL)
 
 #define SizeofDatabuf		26
 

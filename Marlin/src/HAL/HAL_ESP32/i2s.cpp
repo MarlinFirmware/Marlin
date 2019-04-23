@@ -21,7 +21,12 @@
  */
 #ifdef ARDUINO_ARCH_ESP32
 
-#include <Arduino.h> // replace that with the proper imports
+// replace that with the proper imports, then cleanup workarounds in Marlin\src\HAL\HAL_ESP32\HAL.h
+#include <Arduino.h>
+// revert back to the correct definition
+#undef DISABLED
+#define DISABLED(V...) DO(DIS,&&,V)
+
 #include "i2s.h"
 #include "../../core/macros.h"
 #include "driver/periph_ctrl.h"
@@ -303,9 +308,9 @@ int i2s_init() {
   xTaskCreate(stepperTask, "StepperTask", 10000, NULL, 1, NULL);
 
   // Route the i2s pins to the appropriate GPIO
-  gpio_matrix_out_check(22, I2S0O_DATA_OUT23_IDX, 0, 0);
-  gpio_matrix_out_check(25, I2S0O_WS_OUT_IDX, 0, 0);
-  gpio_matrix_out_check(26, I2S0O_BCK_OUT_IDX, 0, 0);
+  gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);
+  gpio_matrix_out_check(I2S_BCK, I2S0O_BCK_OUT_IDX, 0, 0);
+  gpio_matrix_out_check(I2S_WS, I2S0O_WS_OUT_IDX, 0, 0);
 
   // Start the I2S peripheral
   return i2s_start(I2S_NUM_0);
@@ -313,6 +318,10 @@ int i2s_init() {
 
 void i2s_write(uint8_t pin, uint8_t val) {
   SET_BIT_TO(i2s_port_data, pin, val);
+}
+
+uint8_t i2s_state(uint8_t pin) {
+  return TEST(i2s_port_data, pin);
 }
 
 void i2s_push_sample() {

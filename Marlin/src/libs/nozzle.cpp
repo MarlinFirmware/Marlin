@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
+#if EITHER(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
 
 #include "nozzle.h"
 

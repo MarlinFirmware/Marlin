@@ -27,7 +27,7 @@
 #include "bedlevel.h"
 #include "../../module/planner.h"
 
-#if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
+#if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
   #include "../../module/motion.h"
 #endif
 
@@ -41,10 +41,6 @@
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
-
-#if ENABLED(G26_MESH_VALIDATION)
-  bool g26_debug_flag; // = false
-#endif
 
 bool leveling_is_valid() {
   return
@@ -146,7 +142,7 @@ void reset_bed_level() {
   #endif
 }
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
+#if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
 
   /**
    * Enable to produce output in JSON format suitable
@@ -215,7 +211,7 @@ void reset_bed_level() {
 
 #endif // AUTO_BED_LEVELING_BILINEAR || MESH_BED_LEVELING
 
-#if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
+#if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
 
   void _manual_goto_xy(const float &rx, const float &ry) {
 

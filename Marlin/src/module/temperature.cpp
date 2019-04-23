@@ -33,18 +33,18 @@
 #include "../core/language.h"
 #include "../HAL/shared/Delay.h"
 
-#define MAX6675_SEPARATE_SPI (ENABLED(HEATER_0_USES_MAX6675) || ENABLED(HEATER_1_USES_MAX6675)) && PIN_EXISTS(MAX6675_SCK) && PIN_EXISTS(MAX6675_DO)
+#define MAX6675_SEPARATE_SPI EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO)
 
 #if MAX6675_SEPARATE_SPI
   #include "../libs/private_spi.h"
 #endif
 
-#if ENABLED(BABYSTEPPING) || ENABLED(PID_EXTRUSION_SCALING)
+#if EITHER(BABYSTEPPING, PID_EXTRUSION_SCALING)
   #include "stepper.h"
 #endif
 
 #if ENABLED(BABYSTEPPING)
-  #include "../module/motion.h"
+  #include "../feature/babystep.h"
   #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
     #include "../gcode/gcode.h"
   #endif
@@ -86,17 +86,17 @@ Temperature thermalManager;
  */
 
 #if HAS_HEATED_BED
-  #define _BED_PSTR(E) (E) == -1 ? PSTR(MSG ## _BED) :
+  #define _BED_PSTR(M,E) (E) == -1 ? PSTR(M) :
 #else
-  #define _BED_PSTR(E)
+  #define _BED_PSTR(M,E)
 #endif
 #if HAS_HEATED_CHAMBER
-  #define _CHAMBER_PSTR(E) (E) == -2 ? PSTR(MSG ## _CHAMBER) :
+  #define _CHAMBER_PSTR(M,E) (E) == -2 ? PSTR(M) :
 #else
-  #define _CHAMBER_PSTR(E)
+  #define _CHAMBER_PSTR(M,E)
 #endif
-#define _E_PSTR(M,E,N) (HOTENDS >= (N) && (E) == (N)-1) ? PSTR(MSG_E##N " " M) :
-#define TEMP_ERR_PSTR(M,E) _BED_PSTR(E) _CHAMBER_PSTR(E) _E_PSTR(M,E,2) _E_PSTR(M,E,3) _E_PSTR(M,E,4) _E_PSTR(M,E,5) _E_PSTR(M,E,6) PSTR(MSG_E1 " " M)
+#define _E_PSTR(M,E,N) ((HOTENDS) >= (N) && (E) == (N)-1) ? PSTR(MSG_E##N " " M) :
+#define TEMP_ERR_PSTR(M,E) _BED_PSTR(M##_BED,E) _CHAMBER_PSTR(M##_CHAMBER,E) _E_PSTR(M,E,2) _E_PSTR(M,E,3) _E_PSTR(M,E,4) _E_PSTR(M,E,5) _E_PSTR(M,E,6) PSTR(MSG_E1 " " M)
 
 // public:
 
@@ -239,10 +239,6 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
   //hotend_pid_t Temperature::pid[HOTENDS];
 #endif
 
-#if ENABLED(BABYSTEPPING)
-  volatile int16_t Temperature::babystepsTodo[XYZ] = { 0 };
-#endif
-
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   bool Temperature::allow_cold_extrude = false;
   int16_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
@@ -360,8 +356,8 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
     #endif
 
     #if WATCH_BED || WATCH_HOTENDS
-      #define HAS_TP_BED (ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED))
-      #if HAS_TP_BED && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
+      #define HAS_TP_BED BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
+      #if HAS_TP_BED && BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
         #define GTV(B,H) (heater < 0 ? (B) : (H))
       #elif HAS_TP_BED
         #define GTV(B,H) (B)
@@ -599,10 +595,23 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
 
 Temperature::Temperature() { }
 
-int Temperature::getHeaterPower(const int heater) {
+int16_t Temperature::getHeaterPower(const int8_t heater) {
   return (
+    #if HAS_HEATED_CHAMBER
+      #if HAS_HEATED_BED
+        heater == -2
+      #else
+        heater < 0
+      #endif
+      ? temp_chamber.soft_pwm_amount :
+    #endif
     #if HAS_HEATED_BED
-      heater < 0 ? temp_bed.soft_pwm_amount :
+      #if HAS_HEATED_CHAMBER
+        heater == -1
+      #else
+        heater < 0
+      #endif
+      ? temp_bed.soft_pwm_amount :
     #endif
     temp_hotend[heater].soft_pwm_amount
   );
@@ -913,7 +922,7 @@ void Temperature::manage_heater() {
     }
   #endif
 
-  #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+  #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
     static bool last_pause_state;
   #endif
 
@@ -935,11 +944,29 @@ void Temperature::manage_heater() {
     if (temp_hotend[1].current < MAX(HEATER_1_MINTEMP, HEATER_1_MAX6675_TMIN + .01)) min_temp_error(1);
   #endif
 
-  #if WATCH_HOTENDS || WATCH_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || HEATER_IDLE_HANDLER || WATCH_CHAMBER
+  #define HAS_THERMAL_PROTECTION (ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER))
+
+  #if HAS_THERMAL_PROTECTION || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || HEATER_IDLE_HANDLER
     millis_t ms = millis();
   #endif
 
+  #if HAS_THERMAL_PROTECTION
+    #ifndef THERMAL_PROTECTION_GRACE_PERIOD
+      #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
+    #endif
+    #if THERMAL_PROTECTION_GRACE_PERIOD > 0
+      static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
+      if (ELAPSED(ms, grace_period)) grace_period = 0UL;
+    #else
+      static constexpr millis_t grace_period = 0UL;
+    #endif
+  #endif
+
   HOTEND_LOOP() {
+    #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+      if (!grace_period && degHotend(e) > temp_range[e].maxtemp)
+        _temp_error(e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, e));
+    #endif
 
     #if HEATER_IDLE_HANDLER
       hotend_idle[e].update(ms);
@@ -992,6 +1019,11 @@ void Temperature::manage_heater() {
 
   #if HAS_HEATED_BED
 
+    #if ENABLED(THERMAL_PROTECTION_BED)
+      if (!grace_period && degBed() > BED_MAXTEMP)
+        _temp_error(-1, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -1));
+    #endif
+
     #if WATCH_BED
       // Make sure temperature is increasing
       if (watch_bed.elapsed(ms)) {        // Time to check the bed?
@@ -1004,12 +1036,12 @@ void Temperature::manage_heater() {
 
     #if DISABLED(PIDTEMPBED)
       if (PENDING(ms, next_bed_check_ms)
-        #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+        #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
           && paused == last_pause_state
         #endif
       ) return;
       next_bed_check_ms = ms + BED_CHECK_INTERVAL;
-      #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+      #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
         last_pause_state = paused;
       #endif
     #endif
@@ -1062,6 +1094,11 @@ void Temperature::manage_heater() {
 
     #if HAS_HEATED_CHAMBER
 
+      #if ENABLED(THERMAL_PROTECTION_CHAMBER)
+        if (!grace_period && degChamber() > CHAMBER_MAXTEMP)
+          _temp_error(-2, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -2));
+      #endif
+
       #if WATCH_CHAMBER
         // Make sure temperature is increasing
         if (watch_chamber.elapsed(ms)) {                  // Time to check the chamber?
@@ -1077,11 +1114,11 @@ void Temperature::manage_heater() {
 
       if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
         #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-          if (temp_chamber.current >= temp_chamber.target + CHAMBER_HYSTERESIS)
+          if (temp_chamber.current >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
             temp_chamber.soft_pwm_amount = 0;
-          else if (temp_chamber.current <= temp_chamber.target - (CHAMBER_HYSTERESIS))
+          else if (temp_chamber.current <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
             temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
-        #else // !PIDTEMPCHAMBER && !CHAMBER_LIMIT_SWITCHING
+        #else
           temp_chamber.soft_pwm_amount = temp_chamber.current < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
         #endif
       }
@@ -1334,7 +1371,7 @@ void Temperature::init() {
   #endif
 
   #if MB(RUMBA)
-    #define _AD(N) (ENABLED(HEATER_##N##_USES_AD595) || ENABLED(HEATER_##N##_USES_AD8495))
+    #define _AD(N) (ANY(HEATER_##N##_USES_AD595, HEATER_##N##_USES_AD8495))
     #if _AD(0) || _AD(1) || _AD(2) || _AD(3) || _AD(4) || _AD(5) || _AD(BED) || _AD(CHAMBER)
       // Disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
       MCUCR = _BV(JTD);
@@ -1342,7 +1379,7 @@ void Temperature::init() {
     #endif
   #endif
 
-  #if ENABLED(PIDTEMP) && ENABLED(PID_EXTRUSION_SCALING)
+  #if BOTH(PIDTEMP, PID_EXTRUSION_SCALING)
     last_e_position = 0;
   #endif
 
@@ -1544,237 +1581,6 @@ void Temperature::init() {
   #endif
 }
 
-
-#if ENABLED(FAST_PWM_FAN)
-  Temperature::Timer Temperature::get_pwm_timer(pin_t pin) {
-    #if defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM)
-      uint8_t q = 0;
-      switch (digitalPinToTimer(pin)) {
-        // Protect reserved timers (TIMER0 & TIMER1)
-        #ifdef TCCR0A
-          #if !AVR_AT90USB1286_FAMILY
-            case TIMER0A:
-          #endif
-          case TIMER0B:
-        #endif
-        #ifdef TCCR1A
-          case TIMER1A: case TIMER1B:
-        #endif
-                                            break;
-        #if defined(TCCR2) || defined(TCCR2A)
-          #ifdef TCCR2
-            case TIMER2: {
-              Temperature::Timer timer = {
-                /*TCCRnQ*/  { &TCCR2, NULL, NULL},
-                /*OCRnQ*/   { (uint16_t*)&OCR2, NULL, NULL},
-                /*ICRn*/      NULL,
-                /*n, q*/      2, 0
-              };
-            }
-          #elif defined TCCR2A
-            #if ENABLED(USE_OCR2A_AS_TOP)
-              case TIMER2A:   break; // protect TIMER2A
-              case TIMER2B: {
-                Temperature::Timer timer = {
-                  /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  NULL},
-                  /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, NULL},
-                  /*ICRn*/      NULL,
-                  /*n, q*/      2, 1
-                };
-                return timer;
-              }
-            #else
-              case TIMER2B:   q += 1;
-              case TIMER2A: {
-                Temperature::Timer timer = {
-                  /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  NULL},
-                  /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, NULL},
-                  /*ICRn*/      NULL,
-                                2, q
-                };
-                return timer;
-              }
-            #endif
-          #endif
-        #endif
-        #ifdef TCCR3A
-          case TIMER3C:   q += 1;
-          case TIMER3B:   q += 1;
-          case TIMER3A: {
-            Temperature::Timer timer = {
-              /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  &TCCR3C},
-              /*OCRnQ*/   { &OCR3A,   &OCR3B,   &OCR3C},
-              /*ICRn*/      &ICR3,
-              /*n, q*/      3, q
-            };
-            return timer;
-          }
-        #endif
-        #ifdef TCCR4A
-          case TIMER4C:   q += 1;
-          case TIMER4B:   q += 1;
-          case TIMER4A: {
-            Temperature::Timer timer = {
-              /*TCCRnQ*/  { &TCCR4A,  &TCCR4B,  &TCCR4C},
-              /*OCRnQ*/   { &OCR4A,   &OCR4B,   &OCR4C},
-              /*ICRn*/      &ICR4,
-              /*n, q*/      4, q
-            };
-            return timer;
-          }
-        #endif
-        #ifdef TCCR5A
-          case TIMER5C:   q += 1;
-          case TIMER5B:   q += 1;
-          case TIMER5A: {
-            Temperature::Timer timer = {
-              /*TCCRnQ*/  { &TCCR5A,  &TCCR5B,  &TCCR5C},
-              /*OCRnQ*/   { &OCR5A,   &OCR5B,   &OCR5C },
-              /*ICRn*/      &ICR5,
-              /*n, q*/      5, q
-            };
-            return timer;
-          }
-        #endif
-      }
-      Temperature::Timer timer = {
-          /*TCCRnQ*/  { NULL, NULL, NULL},
-          /*OCRnQ*/   { NULL, NULL, NULL},
-          /*ICRn*/      NULL,
-                        0, 0
-      };
-      return timer;
-    #endif // ARDUINO && !ARDUINO_ARCH_SAM
-  }
-
-  void Temperature::set_pwm_frequency(const pin_t pin, int f_desired) {
-    #if defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM)
-      Temperature::Timer timer = get_pwm_timer(pin);
-      if (timer.n == 0) return; // Don't proceed if protected timer or not recognised
-      uint16_t size;
-      if (timer.n == 2) size = 255; else size = 65535;
-
-      uint16_t res = 255;   // resolution (TOP value)
-      uint8_t j = 0;        // prescaler index
-      uint8_t wgm = 1;      // waveform generation mode
-
-      // Calculating the prescaler and resolution to use to achieve closest frequency
-      if (f_desired != 0) {
-        int f = F_CPU/(2*1024*size) + 1; // Initialize frequency as lowest (non-zero) achievable
-        uint16_t prescaler[] = {0, 1, 8, /*TIMER2 ONLY*/32, 64, /*TIMER2 ONLY*/128, 256, 1024};
-
-        // loop over prescaler values
-        for (uint8_t i = 1; i < 8; i++) {
-          uint16_t res_temp_fast = 255, res_temp_phase_correct = 255;
-          if (timer.n == 2) {
-            // No resolution calculation for TIMER2 unless enabled USE_OCR2A_AS_TOP
-            #if ENABLED(USE_OCR2A_AS_TOP)
-              res_temp_fast = (F_CPU / (prescaler[i] * f_desired)) - 1;
-              res_temp_phase_correct = F_CPU / (2 * prescaler[i] * f_desired);
-            #endif
-          }
-          else {
-            // Skip TIMER2 specific prescalers when not TIMER2
-            if (i == 3 || i == 5) continue;
-            res_temp_fast = (F_CPU / (prescaler[i] * f_desired)) - 1;
-            res_temp_phase_correct = F_CPU / (2 * prescaler[i] * f_desired);
-          }
-
-          LIMIT(res_temp_fast, 1u, size);
-          LIMIT(res_temp_phase_correct, 1u, size);
-          // Calculate frequncies of test prescaler and resolution values
-          int f_temp_fast = F_CPU / (prescaler[i] * (1 + res_temp_fast));
-          int f_temp_phase_correct = F_CPU / (2 * prescaler[i] * res_temp_phase_correct);
-
-          // If FAST values are closest to desired f
-          if (ABS(f_temp_fast - f_desired) < ABS(f - f_desired)
-              && ABS(f_temp_fast - f_desired) <= ABS(f_temp_phase_correct - f_desired)) {
-            // Remember this combination
-            f = f_temp_fast;
-            res = res_temp_fast;
-            j = i;
-            // Set the Wave Generation Mode to FAST PWM
-            if(timer.n == 2){
-              wgm =
-                #if ENABLED(USE_OCR2A_AS_TOP)
-                  WGM2_FAST_PWM_OCR2A;
-                #else
-                  WGM2_FAST_PWM;
-                #endif
-            }
-            else wgm = WGM_FAST_PWM_ICRn;
-          }
-          // If PHASE CORRECT values are closes to desired f
-          else if (ABS(f_temp_phase_correct - f_desired) < ABS(f - f_desired)) {
-            f = f_temp_phase_correct;
-            res = res_temp_phase_correct;
-            j = i;
-            // Set the Wave Generation Mode to PWM PHASE CORRECT
-            if (timer.n == 2) {
-              wgm =
-                #if ENABLED(USE_OCR2A_AS_TOP)
-                  WGM2_PWM_PC_OCR2A;
-                #else
-                  WGM2_PWM_PC;
-                #endif
-            }
-            else wgm = WGM_PWM_PC_ICRn;
-          }
-        }
-      }
-      _SET_WGMnQ(timer.TCCRnQ, wgm);
-      _SET_CSn(timer.TCCRnQ, j);
-
-      if (timer.n == 2) {
-        #if ENABLED(USE_OCR2A_AS_TOP)
-          _SET_OCRnQ(timer.OCRnQ, 0, res);  // Set OCR2A value (TOP) = res
-        #endif
-      }
-      else {
-        _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
-      }
-    #endif // ARDUINO && !ARDUINO_ARCH_SAM
-  }
-
-  void Temperature::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-    #if defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM)
-      // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
-      // Note that digitalWrite also disables pwm output for us (sets COM bit to 0)
-      if (v == 0)
-        digitalWrite(pin, invert);
-      else if (v == v_size)
-        digitalWrite(pin, !invert);
-      else {
-        Temperature::Timer timer = get_pwm_timer(pin);
-        if (timer.n == 0) return; // Don't proceed if protected timer or not recognised
-        // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
-        _SET_COMnQ(timer.TCCRnQ, timer.q
-            #ifdef TCCR2
-              + (timer.q == 2) // COM20 is on bit 4 of TCCR2, thus requires q + 1 in the macro
-            #endif
-          , COM_CLEAR_SET + invert
-        );
-
-        uint16_t top;
-        if (timer.n == 2) { // if TIMER2
-          top =
-            #if ENABLED(USE_OCR2A_AS_TOP)
-              *timer.OCRnQ[0] // top = OCR2A
-            #else
-              255 // top = 0xFF (max)
-            #endif
-          ;
-        }
-        else
-          top = *timer.ICRn; // top = ICRn
-
-        _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top / v_size)); // Scale 8/16-bit v to top value
-      }
-    #endif // ARDUINO && !ARDUINO_ARCH_SAM
-  }
-
-#endif // FAST_PWM_FAN
-
 #if WATCH_HOTENDS
   /**
    * Start Heating Sanity Check for hotends that are below
@@ -1824,7 +1630,7 @@ void Temperature::init() {
   }
 #endif
 
-#if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER)
+#if HAS_THERMAL_PROTECTION
 
   #if ENABLED(THERMAL_PROTECTION_HOTENDS)
     Temperature::tr_state_machine_t Temperature::tr_state_machine[HOTENDS]; // = { { TRInactive, 0 } };
@@ -1841,17 +1647,17 @@ void Temperature::init() {
     static float tr_target_temperature[HOTENDS + 1] = { 0.0 };
 
     /**
-        SERIAL_ECHO_START();
-        SERIAL_ECHOPGM("Thermal Thermal Runaway Running. Heater ID: ");
-        if (heater_id == -2) SERIAL_ECHOPGM("chamber");
-        if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHO(heater_id);
-        SERIAL_ECHOPAIR(" ;  State:", sm.state, " ;  Timer:", sm.timer, " ;  Temperature:", current, " ;  Target Temp:", target);
-        if (heater_id >= 0)
-          SERIAL_ECHOPAIR(" ;  Idle Timeout:", hotend_idle[heater_id].timed_out);
-        else
-          SERIAL_ECHOPAIR(" ;  Idle Timeout:", bed_idle.timed_out);
-        SERIAL_EOL();
-    */
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM("Thermal Thermal Runaway Running. Heater ID: ");
+      if (heater_id == -2) SERIAL_ECHOPGM("chamber");
+      if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHO(heater_id);
+      SERIAL_ECHOPAIR(" ;  State:", sm.state, " ;  Timer:", sm.timer, " ;  Temperature:", current, " ;  Target Temp:", target);
+      if (heater_id >= 0)
+        SERIAL_ECHOPAIR(" ;  Idle Timeout:", hotend_idle[heater_id].timed_out);
+      else
+        SERIAL_ECHOPAIR(" ;  Idle Timeout:", bed_idle.timed_out);
+      SERIAL_EOL();
+    //*/
 
     const int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
 
@@ -2047,19 +1853,23 @@ void Temperature::disable_all_heaters() {
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
     //
-    #if MAX6675_SEPARATE_SPI
+    #if !MAX6675_SEPARATE_SPI
       spiBegin();
       spiInit(MAX6675_SPEED_BITS);
     #endif
 
     #if COUNT_6675 > 1
       #define WRITE_MAX6675(V) do{ switch (hindex) { case 1: WRITE(MAX6675_SS2_PIN, V); break; default: WRITE(MAX6675_SS_PIN, V); } }while(0)
+      #define SET_OUTPUT_MAX6675() do{ switch (hindex) { case 1: SET_OUTPUT(MAX6675_SS2_PIN); break; default: SET_OUTPUT(MAX6675_SS_PIN); } }while(0)
     #elif ENABLED(HEATER_1_USES_MAX6675)
       #define WRITE_MAX6675(V) WRITE(MAX6675_SS2_PIN, V)
+      #define SET_OUTPUT_MAX6675() SET_OUTPUT(MAX6675_SS2_PIN)
     #else
       #define WRITE_MAX6675(V) WRITE(MAX6675_SS_PIN, V)
+      #define SET_OUTPUT_MAX6675() SET_OUTPUT(MAX6675_SS_PIN)
     #endif
 
+    SET_OUTPUT_MAX6675();
     WRITE_MAX6675(LOW);  // enable TT_MAX6675
 
     DELAY_NS(100);       // Ensure 100ns delay
@@ -2248,11 +2058,7 @@ void Temperature::readings_ready() {
     #else
       #define CHAMBERCMP(A,B) ((A)>=(B))
     #endif
-    const bool chamber_on = (temp_chamber.target > 0)
-      #if ENABLED(PIDTEMPCHAMBER)
-        || (temp_chamber.soft_pwm_amount > 0)
-      #endif
-    ;
+    const bool chamber_on = (temp_chamber.target > 0);
     if (CHAMBERCMP(temp_chamber.raw, maxtemp_raw_CHAMBER)) max_temp_error(-2);
     if (chamber_on && CHAMBERCMP(mintemp_raw_CHAMBER, temp_chamber.raw)) min_temp_error(-2);
   #endif
@@ -2379,7 +2185,7 @@ void Temperature::isr() {
       #if ENABLED(FAN_SOFT_PWM)
         #define _FAN_PWM(N) do{ \
           soft_pwm_count_fan[N] = (soft_pwm_count_fan[N] & pwm_mask) + (soft_pwm_amount_fan[N] >> 1); \
-          WRITE_FAN(soft_pwm_count_fan[N] > pwm_mask ? HIGH : LOW); \
+          WRITE_FAN_N(N, soft_pwm_count_fan[N] > pwm_mask ? HIGH : LOW); \
         }while(0)
         #if HAS_FAN0
           _FAN_PWM(0);
@@ -2743,21 +2549,7 @@ void Temperature::isr() {
   //
 
   #if ENABLED(BABYSTEPPING)
-    #if ENABLED(BABYSTEP_XY) || ENABLED(I2C_POSITION_ENCODERS)
-      LOOP_XYZ(axis) {
-        const int16_t curTodo = babystepsTodo[axis]; // get rid of volatile for performance
-        if (curTodo) {
-          stepper.babystep((AxisEnum)axis, curTodo > 0);
-          if (curTodo > 0) babystepsTodo[axis]--; else babystepsTodo[axis]++;
-        }
-      }
-    #else
-      const int16_t curTodo = babystepsTodo[Z_AXIS];
-      if (curTodo) {
-        stepper.babystep(Z_AXIS, curTodo > 0);
-        if (curTodo > 0) babystepsTodo[Z_AXIS]--; else babystepsTodo[Z_AXIS]++;
-      }
-    #endif
+    babystep.task();
   #endif
 
   // Poll endstops state, if required
@@ -2766,70 +2558,6 @@ void Temperature::isr() {
   // Periodically call the planner timer
   planner.tick();
 }
-
-#if ENABLED(BABYSTEPPING)
-
-  #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
-    #define BSA_ENABLE(AXIS) do{ switch (AXIS) { case X_AXIS: enable_X(); break; case Y_AXIS: enable_Y(); break; case Z_AXIS: enable_Z(); } }while(0)
-  #else
-    #define BSA_ENABLE(AXIS) NOOP
-  #endif
-
-  #if ENABLED(BABYSTEP_WITHOUT_HOMING)
-    #define CAN_BABYSTEP(AXIS) true
-  #else
-    #define CAN_BABYSTEP(AXIS) TEST(axis_known_position, AXIS)
-  #endif
-
-  extern uint8_t axis_known_position;
-
-  void Temperature::babystep_axis(const AxisEnum axis, const int16_t distance) {
-    if (!CAN_BABYSTEP(axis)) return;
-    #if IS_CORE
-      #if ENABLED(BABYSTEP_XY)
-        switch (axis) {
-          case CORE_AXIS_1: // X on CoreXY and CoreXZ, Y on CoreYZ
-            BSA_ENABLE(CORE_AXIS_1);
-            BSA_ENABLE(CORE_AXIS_2);
-            babystepsTodo[CORE_AXIS_1] += distance * 2;
-            babystepsTodo[CORE_AXIS_2] += distance * 2;
-            break;
-          case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ and CoreYZ
-            BSA_ENABLE(CORE_AXIS_1);
-            BSA_ENABLE(CORE_AXIS_2);
-            babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
-            babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
-            break;
-          case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
-          default:
-            BSA_ENABLE(NORMAL_AXIS);
-            babystepsTodo[NORMAL_AXIS] += distance;
-            break;
-        }
-      #elif CORE_IS_XZ || CORE_IS_YZ
-        // Only Z stepping needs to be handled here
-        BSA_ENABLE(CORE_AXIS_1);
-        BSA_ENABLE(CORE_AXIS_2);
-        babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
-        babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
-      #else
-        BSA_ENABLE(Z_AXIS);
-        babystepsTodo[Z_AXIS] += distance;
-      #endif
-    #else
-      #if ENABLED(BABYSTEP_XY)
-        BSA_ENABLE(axis);
-      #else
-        BSA_ENABLE(Z_AXIS);
-      #endif
-      babystepsTodo[axis] += distance;
-    #endif
-    #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
-      gcode.reset_stepper_timeout();
-    #endif
-  }
-
-#endif // BABYSTEPPING
 
 #if HAS_TEMP_SENSOR
 
@@ -2911,11 +2639,12 @@ void Temperature::isr() {
         , e
       );
     #endif
-    SERIAL_ECHOPGM(" @:");
-    SERIAL_ECHO(getHeaterPower(target_extruder));
+    SERIAL_ECHOPAIR(" @:", getHeaterPower(target_extruder));
     #if HAS_HEATED_BED
-      SERIAL_ECHOPGM(" B@:");
-      SERIAL_ECHO(getHeaterPower(-1));
+      SERIAL_ECHOPAIR(" B@:", getHeaterPower(-1));
+    #endif
+    #if HAS_HEATED_CHAMBER
+      SERIAL_ECHOPAIR(" C@:", getHeaterPower(-2));
     #endif
     #if HOTENDS > 1
       HOTEND_LOOP() {
@@ -2942,11 +2671,11 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-  #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+  #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       #if HOTENDS > 1
-        ui.status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), int(e + 1));
+        ui.status_printf_P(0, heating ? PSTR("E%c " MSG_HEATING) : PSTR("E%c " MSG_COOLING), '1' + e);
       #else
         ui.set_status_P(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
       #endif

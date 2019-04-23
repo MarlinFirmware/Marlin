@@ -37,10 +37,6 @@
   #include "../feature/leds/printer_event_leds.h"
 #endif
 
-#if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
-#endif
-
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
  * sending commands to Marlin, and lines will be checked for sequentiality.
@@ -530,8 +526,9 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
 
 #endif // BINARY_FILE_TRANSFER
 
-FORCE_INLINE bool is_M29(const char * const cmd) {
-  return cmd[0] == 'M' && cmd[1] == '2' && cmd[2] == '9' && !WITHIN(cmd[3], '0', '9');
+FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", but not "M290", etc
+  const char * const m29 = strstr_P(cmd, PSTR("M29"));
+  return m29 && !NUMERIC(m29[3]);
 }
 
 /**

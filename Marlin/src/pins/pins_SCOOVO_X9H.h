@@ -144,7 +144,7 @@
 
 #define HOME_PIN           BTN_HOME
 
-#if ENABLED(VIKI2) || ENABLED(miniVIKI)
+#if ANY(VIKI2, miniVIKI)
   #define BEEPER_PIN       44
   // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0        70

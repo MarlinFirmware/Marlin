@@ -57,13 +57,3 @@
 #if QUIET_PROBING
   void probing_pause(const bool p);
 #endif
-
-#if ENABLED(BLTOUCH)
-  void bltouch_command(int angle);
-  bool set_bltouch_deployed(const bool deploy);
-  FORCE_INLINE void bltouch_init() {
-    // Make sure any BLTouch error condition is cleared
-    bltouch_command(BLTOUCH_RESET);
-    set_bltouch_deployed(false);
-  }
-#endif

@@ -65,10 +65,76 @@
 #undef SPI_SPEED
 #define SPI_SPEED 2  // About 2 MHz
 
+#include <algorithm>
+#include <LPC17xx.h>
+#include <gpio.h>
+
+#include <Arduino.h>
+
+uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
+
+  for (uint8_t i = 0; i < 8; i++) {
+    if (spi_speed == 0) {
+      gpio_set(mosi_pin, !!(b & 0x80));
+      gpio_set(sck_pin, HIGH);
+      b <<= 1;
+      if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
+      gpio_set(sck_pin, LOW);
+    }
+    else {
+      const uint8_t state = (b & 0x80) ? HIGH : LOW;
+      for (uint8_t j = 0; j < spi_speed; j++)
+        gpio_set(mosi_pin, state);
+
+      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
+        gpio_set(sck_pin, HIGH);
+
+      b <<= 1;
+      if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
+
+      for (uint8_t j = 0; j < spi_speed; j++)
+        gpio_set(sck_pin, LOW);
+    }
+  }
+
+  return b;
+}
+
+uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
+
+  for (uint8_t i = 0; i < 8; i++) {
+    const uint8_t state = (b & 0x80) ? HIGH : LOW;
+    if (spi_speed == 0) {
+      gpio_set(sck_pin, LOW);
+      gpio_set(mosi_pin, state);
+      gpio_set(mosi_pin, state);  // need some setup time
+      gpio_set(sck_pin, HIGH);
+    }
+    else {
+      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
+        gpio_set(sck_pin, LOW);
+
+      for (uint8_t j = 0; j < spi_speed; j++)
+        gpio_set(mosi_pin, state);
+
+      for (uint8_t j = 0; j < spi_speed; j++)
+        gpio_set(sck_pin, HIGH);
+    }
+    b <<= 1;
+    if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
+  }
+
+  return b;
+}
+
 static uint8_t SPI_speed = 0;
 
 static void u8g_sw_spi_HAL_LPC1768_shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t val) {
-  swSpiTransfer(val, SPI_speed, clockPin, -1, dataPin);
+  #if ENABLED(FYSETC_MINI_12864)
+    swSpiTransfer_mode_3(val, SPI_speed, clockPin, -1, dataPin);
+  #else
+    swSpiTransfer_mode_0(val, SPI_speed, clockPin, -1, dataPin);
+  #endif
 }
 
 uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {

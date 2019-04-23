@@ -161,7 +161,7 @@
   #define SR_CLK_PIN       EXT_AUX_SCL_D0
 #endif
 
-#if ENABLED(SAV_3DLCD) || ENABLED(SAV_3DGLCD)
+#if EITHER(SAV_3DLCD, SAV_3DGLCD)
 
   #define BTN_EN1          EXT_AUX_A1_IO
   #define BTN_EN2          EXT_AUX_A0_IO
@@ -176,7 +176,7 @@
   // M3/M4/M5 - Spindle/Laser Control
   //
   #define SPINDLE_LASER_PWM_PIN    24   // B4  PWM2A
-  #define SPINDLE_LASER_ENABLE_PIN 39   // F1  Pin should have a pullup!
+  #define SPINDLE_LASER_ENA_PIN    39   // F1  Pin should have a pullup!
   #define SPINDLE_DIR_PIN          40   // F2
 
   #define CASE_LIGHT_PIN            0   // D0  PWM0B

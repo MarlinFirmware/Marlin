@@ -23,8 +23,9 @@
 #include "../inc/MarlinConfigPre.h"
 
 // These displays all share the MarlinUI class
-#if HAS_SPI_LCD || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
+#if HAS_SPI_LCD || EITHER(MALYAN_LCD, EXTENSIBLE_UI)
   #include "ultralcd.h"
+  #include "fontutils.h"
   MarlinUI ui;
   #include "../sd/cardreader.h"
   #if ENABLED(EXTENSIBLE_UI)
@@ -106,7 +107,7 @@
 
 uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
 
-#if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+#if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
   millis_t MarlinUI::next_filament_display; // = 0
 #endif
 
@@ -118,7 +119,7 @@ millis_t next_button_update_ms;
 
 // Encoder Handling
 #if HAS_ENCODER_ACTION
-  uint32_t MarlinUI::encoderPosition;
+  uint16_t MarlinUI::encoderPosition;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
 #endif
 
@@ -181,7 +182,7 @@ millis_t next_button_update_ms;
     return click;
   }
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+  #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
 
     bool MarlinUI::external_control; // = false
 
@@ -192,7 +193,25 @@ millis_t next_button_update_ms;
 
   #endif
 
-#endif
+  void wrap_string(uint8_t y, const char * const string) {
+    uint8_t x = LCD_WIDTH;
+    if (string) {
+      uint8_t *p = (uint8_t*)string;
+      for (;;) {
+        if (x >= LCD_WIDTH) {
+          x = 0;
+          SETCURSOR(0, y++);
+        }
+        wchar_t ch;
+        p = get_utf8_value_cb(p, read_byte_ram, &ch);
+        if (!ch) break;
+        lcd_put_wchar(ch);
+        x++;
+      }
+    }
+  }
+
+#endif // HAS_LCD_MENU
 
 void MarlinUI::init() {
 
@@ -449,7 +468,7 @@ void MarlinUI::status_screen() {
   #if HAS_LCD_MENU
 
     if (use_click()) {
-      #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+      #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         next_filament_display = millis() + 5000UL;  // Show status message for 5s
       #endif
       goto_screen(menu_main);
@@ -462,13 +481,13 @@ void MarlinUI::status_screen() {
   #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
 
     const int16_t old_frm = feedrate_percentage;
-          int16_t new_frm = old_frm + (int32_t)encoderPosition;
+          int16_t new_frm = old_frm + int16_t(encoderPosition);
 
     // Dead zone at 100% feedrate
     if (old_frm == 100) {
-      if ((int32_t)encoderPosition > ENCODER_FEEDRATE_DEADZONE)
+      if (int16_t(encoderPosition) > ENCODER_FEEDRATE_DEADZONE)
         new_frm -= ENCODER_FEEDRATE_DEADZONE;
-      else if ((int32_t)encoderPosition < -(ENCODER_FEEDRATE_DEADZONE))
+      else if (int16_t(encoderPosition) < -(ENCODER_FEEDRATE_DEADZONE))
         new_frm += ENCODER_FEEDRATE_DEADZONE;
       else
         new_frm = old_frm;
@@ -638,7 +657,7 @@ LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 
 bool MarlinUI::detected() {
   return
-    #if (ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)) && defined(DETECT_DEVICE)
+    #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
       lcd.LcdDetected() == 1
     #else
       true
@@ -650,6 +669,7 @@ void MarlinUI::update() {
 
   static uint16_t max_display_update_time = 0;
   static millis_t next_lcd_update_ms;
+  millis_t ms = millis();
 
   #if HAS_LCD_MENU
 
@@ -711,11 +731,12 @@ void MarlinUI::update() {
 
       refresh();
       init_lcd(); // May revive the LCD if static electricity killed it
+      ms = millis();
+      next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // delay LCD update until after SD activity completes
     }
 
   #endif // SDSUPPORT && SD_DETECT_PIN
 
-  const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
     #if HAS_GRAPHICAL_LCD
       || drawing_screen
@@ -809,10 +830,13 @@ void MarlinUI::update() {
     #if HAS_LCD_MENU && ENABLED(SCROLL_LONG_FILENAMES)
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
-      if (currentScreen == menu_sdcard && filename_scroll_pos < filename_scroll_max && !lcd_status_update_delay--) {
-        lcd_status_update_delay = 6;
+      if (currentScreen == menu_sdcard && !lcd_status_update_delay--) {
+        lcd_status_update_delay = 4;
+        if (++filename_scroll_pos > filename_scroll_max) {
+          filename_scroll_pos = 0;
+          lcd_status_update_delay = 12;
+        }
         refresh(LCDVIEW_REDRAW_NOW);
-        filename_scroll_pos++;
         #if LCD_TIMEOUT_TO_STATUS
           return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
         #endif
@@ -1008,7 +1032,7 @@ void MarlinUI::update() {
 
       #if HAS_DIGITAL_BUTTONS
 
-        #if BUTTON_EXISTS(EN1) || BUTTON_EXISTS(EN2) || BUTTON_EXISTS(ENC) || BUTTON_EXISTS(BACK)
+        #if ANY_BUTTON(EN1, EN2, ENC, BACK)
 
           uint8_t newbutton = 0;
 
@@ -1034,7 +1058,7 @@ void MarlinUI::update() {
         //
         // Directional buttons
         //
-        #if BUTTON_EXISTS(UP) || BUTTON_EXISTS(DWN) || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT)
+        #if ANY_BUTTON(UP, DWN, LFT, RT)
 
           const int8_t pulses = (ENCODER_PULSES_PER_STEP) * encoderDirection;
 
@@ -1162,7 +1186,22 @@ void MarlinUI::update() {
   /////////////// Status Line ////////////////
   ////////////////////////////////////////////
 
-  void MarlinUI::finishstatus(const bool persist) {
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)
+    void MarlinUI::advance_status_scroll() {
+      // Advance by one UTF8 code-word
+      if (status_scroll_offset < utf8_strlen(status_message))
+        while (!START_OF_UTF8_CHAR(status_message[++status_scroll_offset]));
+      else
+        status_scroll_offset = 0;
+    }
+    char* MarlinUI::status_and_len(uint8_t &len) {
+      char *out = status_message + status_scroll_offset;
+      len = utf8_strlen(out);
+      return out;
+    }
+  #endif
+
+  void MarlinUI::finish_status(const bool persist) {
 
     #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
       UNUSED(persist);
@@ -1175,7 +1214,7 @@ void MarlinUI::update() {
       #endif
     #endif
 
-    #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+    #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
       next_filament_display = millis() + 5000UL; // Show status message for 5s
     #endif
 
@@ -1214,7 +1253,7 @@ void MarlinUI::update() {
     strncpy(status_message, message, maxLen);
     status_message[maxLen] = '\0';
 
-    finishstatus(persist);
+    finish_status(persist);
   }
 
   #include <stdarg.h>
@@ -1226,7 +1265,7 @@ void MarlinUI::update() {
     va_start(args, fmt);
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
     va_end(args);
-    finishstatus(level > 0);
+    finish_status(level > 0);
   }
 
   void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
@@ -1253,7 +1292,7 @@ void MarlinUI::update() {
     strncpy_P(status_message, message, maxLen);
     status_message[maxLen] = '\0';
 
-    finishstatus(level > 0);
+    finish_status(level > 0);
   }
 
   void MarlinUI::set_alert_status_P(PGM_P const message) {

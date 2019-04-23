@@ -68,6 +68,21 @@ namespace ExtUI {
    */
   PGM_P getFirmwareName_str();
 
+  #if HAS_SOFTWARE_ENDSTOPS
+    bool getSoftEndstopState();
+    void setSoftEndstopState(const bool);
+  #endif
+
+  #if HAS_TRINAMIC
+    float getAxisCurrent_mA(const axis_t);
+    float getAxisCurrent_mA(const extruder_t);
+    void  setAxisCurrent_mA(const float, const axis_t);
+    void  setAxisCurrent_mA(const float, const extruder_t);
+
+    int getTMCBumpSensitivity(const axis_t);
+    void setTMCBumpSensitivity(const float, const axis_t);
+  #endif
+
   float getActualTemp_celsius(const heater_t);
   float getActualTemp_celsius(const extruder_t);
   float getTargetTemp_celsius(const heater_t);
@@ -90,12 +105,12 @@ namespace ExtUI {
   float getFeedrate_percent();
   uint8_t getProgress_percent();
   uint32_t getProgress_seconds_elapsed();
-  
+
   #if HAS_LEVELING
     bool getLevelingActive();
     void setLevelingActive(const bool);
     #if HAS_MESH
-      typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+      #include "../../feature/bedlevel/bedlevel.h"
       bool getMeshValid();
       bed_mesh_t getMeshArray();
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);

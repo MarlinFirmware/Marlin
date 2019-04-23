@@ -81,9 +81,9 @@
 #define _SET_INPUT(IO)        CBI(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 #define _SET_OUTPUT(IO)       SBI(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 
-#define _GET_INPUT(IO)       !TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
-#define _GET_OUTPUT(IO)       TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
-#define _GET_TIMER(IO)        DIO ## IO ## _PWM
+#define _IS_INPUT(IO)        !TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
+#define _IS_OUTPUT(IO)        TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
+#define _HAS_TIMER(IO)        DIO ## IO ## _PWM
 
 // digitalRead/Write wrappers
 #ifdef FASTIO_EXT_START
@@ -104,9 +104,9 @@
 
 #define SET_PWM(IO)           SET_OUTPUT(IO)
 
-#define GET_INPUT(IO)         _GET_INPUT(IO)
-#define GET_OUTPUT(IO)        _GET_OUTPUT(IO)
-#define GET_TIMER(IO)         _GET_TIMER(IO)
+#define IS_INPUT(IO)          _IS_INPUT(IO)
+#define IS_OUTPUT(IO)         _IS_OUTPUT(IO)
+#define HAS_TIMER(IO)         _HAS_TIMER(IO)
 
 #define OUT_WRITE(IO,V)       do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 
@@ -200,7 +200,7 @@ enum ClockSource2 : char {
     TCCR##T##B = (TCCR##T##B & ~(0x3 << WGM##T##2)) | (((int(V) >> 2) & 0x3) << WGM##T##2); \
   }while(0)
 #define SET_WGM(T,V) _SET_WGM(T,WGM_##V)
-// Runtime (see Temperature::set_pwm_frequency):
+// Runtime (see set_pwm_frequency):
 #define _SET_WGMnQ(TCCRnQ, V) do{ \
     *(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << 0)) | (( int(V)       & 0x3) << 0); \
     *(TCCRnQ)[1] = (*(TCCRnQ)[1] & ~(0x3 << 3)) | (((int(V) >> 2) & 0x3) << 3); \
@@ -230,7 +230,7 @@ enum ClockSource2 : char {
 #define SET_CS4(V) _SET_CS4(CS_##V)
 #define SET_CS5(V) _SET_CS5(CS_##V)
 #define SET_CS(T,V) SET_CS##T(V)
-// Runtime (see Temperature::set_pwm_frequency)
+// Runtime (see set_pwm_frequency)
 #define _SET_CSn(TCCRnQ, V) do{ \
     (*(TCCRnQ)[1] = (*(TCCRnQ[1]) & ~(0x7 << 0)) | ((int(V) & 0x7) << 0)); \
   }while(0)
@@ -243,19 +243,19 @@ enum ClockSource2 : char {
 #define SET_COMB(T,V) SET_COM(T,B,V)
 #define SET_COMC(T,V) SET_COM(T,C,V)
 #define SET_COMS(T,V1,V2,V3) do{ SET_COMA(T,V1); SET_COMB(T,V2); SET_COMC(T,V3); }while(0)
-// Runtime (see Temperature::set_pwm_duty)
+// Runtime (see set_pwm_duty)
 #define _SET_COMnQ(TCCRnQ, Q, V) do{ \
     (*(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << (6-2*(Q)))) | (int(V) << (6-2*(Q)))); \
   }while(0)
 
 // Set OCRnQ register
-// Runtime (see Temperature::set_pwm_duty):
+// Runtime (see set_pwm_duty):
 #define _SET_OCRnQ(OCRnQ, Q, V) do{ \
     (*(OCRnQ)[(Q)] = (0x0000) | (int(V) & 0xFFFF)); \
   }while(0)
 
 // Set ICRn register (one per timer)
-// Runtime (see Temperature::set_pwm_frequency)
+// Runtime (see set_pwm_frequency)
 #define _SET_ICRn(ICRn, V) do{ \
     (*(ICRn) = (0x0000) | (int(V) & 0xFFFF)); \
   }while(0)
@@ -286,7 +286,7 @@ enum ClockSource2 : char {
   #define PWM_CHK_FAN_B(P) (P == E0_AUTO_FAN_PIN || P == E1_AUTO_FAN_PIN || P == E2_AUTO_FAN_PIN || P == E3_AUTO_FAN_PIN || P == E4_AUTO_FAN_PIN || P == E5_AUTO_FAN_PIN || P == CHAMBER_AUTO_FAN_PIN)
 #endif
 
-#if PIN_EXISTS(FAN) || PIN_EXISTS(FAN1) || PIN_EXISTS(FAN2)
+#if ANY_PIN(FAN, FAN1, FAN2)
   #if PIN_EXISTS(FAN2)
     #define PWM_CHK_FAN_A(P) (P == FAN_PIN || P == FAN1_PIN || P == FAN2_PIN)
   #elif PIN_EXISTS(FAN1)

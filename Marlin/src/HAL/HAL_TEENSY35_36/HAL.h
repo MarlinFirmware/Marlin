@@ -49,6 +49,7 @@
 #include "HAL_timers_Teensy.h"
 
 #include <stdint.h>
+#include <util/atomic.h>
 
 #define ST7920_DELAY_1 DELAY_NS(600)
 #define ST7920_DELAY_2 DELAY_NS(750)
@@ -57,9 +58,6 @@
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
-
-#undef MOTHERBOARD
-#define MOTHERBOARD BOARD_TEENSY35_36
 
 #define IS_32BIT_TEENSY (defined(__MK64FX512__) || defined(__MK66FX1M0__))
 #define IS_TEENSY35 defined(__MK64FX512__)
@@ -87,9 +85,9 @@ typedef int8_t pin_t;
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
 #endif
 
-#define CRITICAL_SECTION_START  uint32_t primask = __get_PRIMASK(); __disable_irq()
+#define CRITICAL_SECTION_START  uint32_t primask = __get_primask(); __disable_irq()
 #define CRITICAL_SECTION_END    if (!primask) __enable_irq()
-#define ISRS_ENABLED() (!__get_PRIMASK())
+#define ISRS_ENABLED() (!__get_primask())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
 

@@ -37,11 +37,11 @@ inline void serial_delay(const millis_t ms) {
   #endif
 }
 
-#if ENABLED(EEPROM_SETTINGS) || ENABLED(SD_FIRMWARE_UPDATE)
+#if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
   void crc16(uint16_t *crc, const void * const data, uint16_t cnt);
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+#if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
   /**
    * These support functions allow the use of large bit arrays of flags that take very
    * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
@@ -53,7 +53,10 @@ inline void serial_delay(const millis_t ms) {
   FORCE_INLINE bool is_bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
 #endif
 
-#if ENABLED(ULTRA_LCD) || ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(EXTENSIBLE_UI)
+#if ANY(ULTRA_LCD, DEBUG_LEVELING_FEATURE, EXTENSIBLE_UI)
+
+  // Convert a full-range unsigned 8bit int to a percentage
+  char* ui8tostr4pct(const uint8_t i);
 
   // Convert uint8_t to string with 123 format
   char* ui8tostr3(const uint8_t x);
@@ -88,6 +91,9 @@ inline void serial_delay(const millis_t ms) {
   // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
   char* ftostr43sign(const float &x, char plus=' ');
 
+  // Convert signed float to string (5 digit) with -1.2345 / _0.0000 / +1.2345 format
+  char* ftostr54sign(const float &x, char plus=' ');
+
   // Convert unsigned float to rj string with 12345 format
   char* ftostr5rj(const float &x);
 
@@ -100,8 +106,8 @@ inline void serial_delay(const millis_t ms) {
   // Convert signed float to string with +123.45 format
   char* ftostr52sign(const float &x);
 
-  // Convert unsigned float to string with 1234.56 format omitting trailing zeros
-  char* ftostr62rj(const float &x);
+  // Convert unsigned float to string with 1234.5 format omitting trailing zeros
+  char* ftostr51rj(const float &x);
 
   // Convert float to rj string with 123 or -12 format
   FORCE_INLINE char* ftostr3(const float &x) { return i16tostr3(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
@@ -135,3 +141,8 @@ public:
 
 #define REMEMBER(N,X, ...) restorer<typeof(X)> restorer_##N(X, ##__VA_ARGS__)
 #define RESTORE(N) restorer_##N.restore()
+
+// Converts from an uint8_t in the range of 0-255 to an uint8_t
+// in the range 0-100 while avoiding rounding artifacts
+constexpr uint8_t ui8_to_percent(const uint8_t i) { return (int(i) * 100 + 127) / 255; }
+constexpr uint8_t all_on = 0xFF, all_off = 0x00;

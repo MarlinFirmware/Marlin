@@ -227,7 +227,7 @@ void tmc_set_current(TMC &st, const int mA) {
   void tmc_report_otpw(TMC &st) {
     st.printLabel();
     SERIAL_ECHOPGM(" temperature prewarn triggered: ");
-    serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false"));
+    serialprint_truefalse(st.getOTPW());
     SERIAL_EOL();
   }
   template<typename TMC>

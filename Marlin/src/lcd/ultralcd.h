@@ -27,18 +27,13 @@
   #include "../libs/buzzer.h"
 #endif
 
-#define HAS_DIGITAL_BUTTONS (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)        \
-                            || (BUTTON_EXISTS(EN1) && BUTTON_EXISTS(EN2)) \
-                            || BUTTON_EXISTS(ENC) || BUTTON_EXISTS(BACK)  \
-                            || BUTTON_EXISTS(UP)  || BUTTON_EXISTS(DWN)   \
-                            || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT))
-
+#define HAS_DIGITAL_BUTTONS (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL) || BUTTON_EXISTS(EN1, EN2) || ANY_BUTTON(ENC, BACK, UP, DWN, LFT, RT))
 #define HAS_SHIFT_ENCODER   (!HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_SPI_LCD && DISABLED(NEWPANEL))))
-#define HAS_ENCODER_WHEEL  ((!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || (BUTTON_EXISTS(EN1) && BUTTON_EXISTS(EN2)) )
+#define HAS_ENCODER_WHEEL  ((!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || BUTTON_EXISTS(EN1, EN2))
 #define HAS_ENCODER_ACTION (HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY))
 
 // I2C buttons must be read in the main thread
-#define HAS_SLOW_BUTTONS (ENABLED(LCD_I2C_VIKI) || ENABLED(LCD_I2C_PANELOLU2))
+#define HAS_SLOW_BUTTONS EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
 
 #if HAS_SPI_LCD
 
@@ -61,21 +56,23 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if HAS_GRAPHICAL_LCD
-    #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - len * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-    #define LCDPRINT(p) u8g.print(p)
-    #define LCDWRITE(c) u8g.print(c)
-  #else
-    #define SETCURSOR(col, row) lcd_moveto(col, row)
-    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - len, row)
-    #define LCDPRINT(p) lcd_put_u8str(p)
-    #define LCDWRITE(c) lcd_put_wchar(c)
-  #endif
-
   #define LCD_UPDATE_INTERVAL 100
 
   #if HAS_LCD_MENU
+
+    #if HAS_GRAPHICAL_LCD
+      #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
+      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
+      #define LCDPRINT(p) u8g.print(p)
+      #define LCDWRITE(c) u8g.print(c)
+    #else
+      #define SETCURSOR(col, row) lcd_moveto(col, row)
+      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - (len), row)
+      #define LCDPRINT(p) lcd_put_u8str(p)
+      #define LCDWRITE(c) lcd_put_wchar(c)
+    #endif
+
+    void wrap_string(uint8_t y, const char * const string);
 
     #if ENABLED(SDSUPPORT)
       #include "../sd/cardreader.h"
@@ -188,7 +185,7 @@
 #else
 
   #undef BUTTON_EXISTS
-  #define BUTTON_EXISTS(BN) false
+  #define BUTTON_EXISTS(...) false
 
   // Shift register bits correspond to buttons:
   #define BL_LE 7   // Left
@@ -267,7 +264,7 @@ public:
   static void clear_lcd();
   static void init_lcd();
 
-  #if HAS_SPI_LCD || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
+  #if HAS_SPI_LCD || EITHER(MALYAN_LCD, EXTENSIBLE_UI)
     static void init();
     static void update();
     static void set_alert_status_P(PGM_P message);
@@ -282,9 +279,14 @@ public:
     static char status_message[];
     static bool has_status();
 
-
     static uint8_t status_message_level;      // Higher levels block lower levels
     static inline void reset_alert_level() { status_message_level = 0; }
+
+    #if ENABLED(STATUS_MESSAGE_SCROLLING)
+      static uint8_t status_scroll_offset;
+      static void advance_status_scroll();
+      static char* status_and_len(uint8_t &len);
+    #endif
 
     #if HAS_PRINT_PROGRESS
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -332,9 +334,6 @@ public:
 
       #endif
 
-      #if ENABLED(STATUS_MESSAGE_SCROLLING)
-        static uint8_t status_scroll_offset;
-      #endif
       static uint8_t lcd_status_update_delay;
 
       #if HAS_LCD_CONTRAST
@@ -343,7 +342,7 @@ public:
         static inline void refresh_contrast() { set_contrast(contrast); }
       #endif
 
-      #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+      #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         static millis_t next_filament_display;
       #endif
 
@@ -422,7 +421,7 @@ public:
     static void synchronize(PGM_P const msg=NULL);
 
     static screenFunc_t currentScreen;
-    static void goto_screen(const screenFunc_t screen, const uint32_t encoder=0);
+    static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
     static void save_previous_screen();
     static void goto_previous_screen();
     static void return_to_status();
@@ -433,7 +432,7 @@ public:
       static void lcd_in_status(const bool inStatus);
     #endif
 
-    static inline void defer_status_screen(const bool defer) {
+    static inline void defer_status_screen(const bool defer=true) {
       #if LCD_TIMEOUT_TO_STATUS
         defer_return_to_status = defer;
       #else
@@ -466,13 +465,13 @@ public:
 
   #endif
 
-  #if ENABLED(LCD_BED_LEVELING) && (ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING))
+  #if ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
     static bool wait_for_bl_move;
   #else
     static constexpr bool wait_for_bl_move = false;
   #endif
 
-  #if HAS_LCD_MENU && (ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION))
+  #if HAS_LCD_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
     FORCE_INLINE static void release() { external_control = false; }
@@ -493,11 +492,11 @@ public:
     #endif
     static void update_buttons();
     static inline bool button_pressed() { return BUTTON_CLICK(); }
-    #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
       static void wait_for_release();
     #endif
 
-    static uint32_t encoderPosition;
+    static uint16_t encoderPosition;
 
     #if ENABLED(REVERSE_ENCODER_DIRECTION)
       #define ENCODERBASE -1
@@ -525,7 +524,7 @@ private:
   static void _synchronize();
 
   #if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
-    static void finishstatus(const bool persist);
+    static void finish_status(const bool persist);
   #endif
 
   #if HAS_SPI_LCD

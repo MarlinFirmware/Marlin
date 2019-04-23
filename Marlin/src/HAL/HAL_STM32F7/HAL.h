@@ -157,7 +157,7 @@ extern uint16_t HAL_adc_result;
 void HAL_clear_reset_source (void);
 
 /** reset reason */
-uint8_t HAL_get_reset_source (void);
+uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(const int delay);
 

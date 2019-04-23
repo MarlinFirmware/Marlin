@@ -105,7 +105,7 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     // Only update power loss recovery on moves with E
-    if ((seen[E_AXIS] || seen[Z_AXIS]) && IS_SD_PRINTING()) recovery.save();
+    if (seen[E_AXIS] && (seen[X_AXIS] || seen[Y_AXIS]) && IS_SD_PRINTING()) recovery.save();
   #endif
 
   if (parser.linearval('F') > 0)
@@ -117,7 +117,7 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   // Get ABCDHI mixing factors
-  #if ENABLED(MIXING_EXTRUDER) && ENABLED(DIRECT_MIXING_IN_G1)
+  #if BOTH(MIXING_EXTRUDER, DIRECT_MIXING_IN_G1)
     M165();
   #endif
 }
@@ -269,6 +269,16 @@ void GcodeSuite::process_parsed_command(
           break;
       #endif
 
+      #if ENABLED(CNC_COORDINATE_SYSTEMS)
+        case 53: G53(); break;
+        case 54: G54(); break;
+        case 55: G55(); break;
+        case 56: G56(); break;
+        case 57: G57(); break;
+        case 58: G58(); break;
+        case 59: G59(); break;
+      #endif
+      
       #if ENABLED(GCODE_MOTION_MODES)
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
@@ -330,7 +340,7 @@ void GcodeSuite::process_parsed_command(
           case 33: M33(); break;                                  // M33: Get the long full path to a file or folder
         #endif
 
-        #if ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_GCODE)
+        #if BOTH(SDCARD_SORT_ALPHA, SDSORT_GCODE)
           case 34: M34(); break;                                  // M34: Set SD card sorting options
         #endif
 
@@ -346,10 +356,6 @@ void GcodeSuite::process_parsed_command(
 
       #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
         case 48: M48(); break;                                    // M48: Z probe repeatability test
-      #endif
-
-      #if ENABLED(G26_MESH_VALIDATION)
-        case 49: M49(); break;                                    // M49: Turn on or off G26 debug flag for verbose output
       #endif
 
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -494,7 +500,7 @@ void GcodeSuite::process_parsed_command(
         case 665: M665(); break;                                  // M665: Set delta configurations
       #endif
 
-      #if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+      #if ANY(DELTA, X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS, Z_DUAL_ENDSTOPS)
         case 666: M666(); break;                                  // M666: Set delta or dual endstop adjustment
       #endif
 
@@ -576,7 +582,7 @@ void GcodeSuite::process_parsed_command(
         case 364: if (M364()) return; break;                      // M364: SCARA Psi pos3 (90 deg to Theta)
       #endif
 
-      #if ENABLED(EXT_SOLENOID) || ENABLED(MANUAL_SOLENOID_CONTROL)
+      #if EITHER(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL)
         case 380: M380(); break;                                  // M380: Activate solenoid on active (or specified) extruder
         case 381: M381(); break;                                  // M381: Disable all solenoids or, if MANUAL_SOLENOID_CONTROL, active (or specified) solenoid
       #endif
@@ -673,7 +679,7 @@ void GcodeSuite::process_parsed_command(
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
 
-      #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || ENABLED(DIGIPOT_I2C) || ENABLED(DAC_STEPPER_CURRENT)
+      #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || EITHER(DIGIPOT_I2C, DAC_STEPPER_CURRENT)
         case 907: M907(); break;                                  // M907: Set digital trimpot motor current using axis codes.
         #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
           case 908: M908(); break;                                // M908: Control digital trimpot directly.

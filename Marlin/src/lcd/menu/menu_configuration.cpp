@@ -42,6 +42,9 @@
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
+  #if ENABLED(BLTOUCH)
+    #include "../../feature/bltouch.h"
+  #endif
 #endif
 
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
@@ -116,19 +119,37 @@ static void lcd_factory_settings() {
 
 #endif
 
-#if ENABLED(DUAL_X_CARRIAGE)
-
+#if HAS_HOTEND_OFFSET
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
 
-  void _recalc_IDEX_settings() {
-    if (active_extruder) {                      // For the 2nd extruder re-home so the next tool-change gets the new offsets.
+  void _recalc_offsets() {
+    if (active_extruder && all_axes_known()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
       enqueue_and_echo_commands_P(PSTR("G28")); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
       active_extruder = 0;
     }
   }
 
-  void menu_IDEX() {
+  void menu_tool_offsets() {
+    START_MENU();
+    MENU_BACK(MSG_MAIN);
+    #if ENABLED(DUAL_X_CARRIAGE)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_X_OFFSET, &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_offsets);
+    #else
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_X_OFFSET, &hotend_offset[X_AXIS][1], -10.0, 10.0, _recalc_offsets);
+    #endif
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_Y_OFFSET, &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_offsets);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_Z_OFFSET, &hotend_offset[Z_AXIS][1], Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
+    #if ENABLED(EEPROM_SETTINGS)
+      MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
+    #endif
+    END_MENU();
+  }
+#endif
+
+#if ENABLED(DUAL_X_CARRIAGE)
+
+  void menu_idex() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
 
@@ -143,10 +164,6 @@ static void lcd_factory_settings() {
       : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
     );
     MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Z_OFFSET , &hotend_offset[Z_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
-    MENU_ITEM(gcode, MSG_IDEX_SAVE_OFFSETS, PSTR("M500"));
     END_MENU();
   }
 
@@ -157,10 +174,15 @@ static void lcd_factory_settings() {
   void menu_bltouch() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_DEPLOY, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_DEPLOY)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_STOW, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_STOW)));
+    MENU_ITEM(function, MSG_BLTOUCH_RESET, bltouch.reset);
+    MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, bltouch.selftest);
+    MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch._deploy);
+    MENU_ITEM(function, MSG_BLTOUCH_STOW, bltouch._stow);
+    #if ENABLED(BLTOUCH_V3)
+      MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch.set_SW_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch.set_5V_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch.set_OD_mode);
+    #endif
     END_MENU();
   }
 
@@ -275,12 +297,16 @@ void menu_configuration() {
     //
     // Delta Calibration
     //
-    #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
+    #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
       MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 
+    #if HAS_HOTEND_OFFSET
+      MENU_ITEM(submenu, MSG_OFFSETS_MENU, menu_tool_offsets);
+    #endif
+
     #if ENABLED(DUAL_X_CARRIAGE)
-      MENU_ITEM(submenu, MSG_IDEX_MENU, menu_IDEX);
+      MENU_ITEM(submenu, MSG_IDEX_MENU, menu_idex);
     #endif
 
     #if ENABLED(BLTOUCH)

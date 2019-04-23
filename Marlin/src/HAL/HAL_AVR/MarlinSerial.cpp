@@ -739,24 +739,24 @@
 
 #endif // !USBCON && (UBRRH || UBRR0H || UBRR1H || UBRR2H || UBRR3H)
 
+#ifdef INTERNAL_SERIAL_PORT
 
-#if defined(INTERNAL_SERIAL_PORT)
+  ISR(SERIAL_REGNAME(USART,INTERNAL_SERIAL_PORT,_RX_vect)) {
+    MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>::store_rxd_char();
+  }
 
-    ISR(SERIAL_REGNAME(USART,INTERNAL_SERIAL_PORT,_RX_vect)) {
-      MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>::store_rxd_char();
-    }
+  ISR(SERIAL_REGNAME(USART,INTERNAL_SERIAL_PORT,_UDRE_vect)) {
+    MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>::_tx_udr_empty_irq();
+  }
 
-    ISR(SERIAL_REGNAME(USART,INTERNAL_SERIAL_PORT,_UDRE_vect)) {
-      MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>::_tx_udr_empty_irq();
-    }
+  // Preinstantiate
+  template class MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>;
 
-    // Preinstantiate
-    template class MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>;
-
-    // Instantiate
-    MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>> internalSerial;
+  // Instantiate
+  MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>> internalSerial;
 
 #endif
+
 // For AT90USB targets use the UART for BT interfacing
 #if defined(USBCON) && ENABLED(BLUETOOTH)
   HardwareSerial bluetoothSerial;

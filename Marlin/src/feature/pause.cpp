@@ -656,7 +656,9 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   // Resume the print job timer if it was running
   if (print_job_timer.isPaused()) print_job_timer.start();
 
-  ui.reset_status();
+  #if HAS_LCD_MENU
+    ui.return_to_status();
+  #endif
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

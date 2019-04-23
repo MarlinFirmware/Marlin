@@ -44,7 +44,7 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #define SPINDLE_LASER_PWM_PIN     2   // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN 15   // Pin should have a pullup!
+#define SPINDLE_LASER_ENA_PIN    15   // Pin should have a pullup!
 #define SPINDLE_DIR_PIN          19
 
 #include "pins_RAMPS.h"

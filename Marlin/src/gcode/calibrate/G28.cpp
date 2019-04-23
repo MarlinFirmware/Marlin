@@ -43,6 +43,10 @@
   #include "../../module/probe.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../../feature/bltouch.h"
+#endif
+
 #include "../../lcd/ultralcd.h"
 
 #if HAS_DRIVER(L6470)                         // set L6470 absolute position registers to counts
@@ -178,7 +182,6 @@
  *
  */
 void GcodeSuite::G28(const bool always_home_all) {
-
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPGM(">>> G28");
     log_machine_info();
@@ -235,7 +238,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch_init();
+    bltouch.init();
   #endif
 
   // Always home with tool 0 active
@@ -264,13 +267,16 @@ void GcodeSuite::G28(const bool always_home_all) {
     const bool homeX = always_home_all || parser.seen('X'),
                homeY = always_home_all || parser.seen('Y'),
                homeZ = always_home_all || parser.seen('Z'),
-               home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
+               home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ),
+               doX = home_all || homeX,
+               doY = home_all || homeY,
+               doZ = home_all || homeZ;
 
     set_destination_from_current();
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
-      if (home_all || homeZ) homeaxis(Z_AXIS);
+      if (doZ) homeaxis(Z_AXIS);
 
     #endif
 
@@ -281,7 +287,7 @@ void GcodeSuite::G28(const bool always_home_all) {
           (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
     );
 
-    if (z_homing_height && (home_all || homeX || homeY)) {
+    if (z_homing_height && (doX || doY)) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       destination[Z_AXIS] = z_homing_height;
       if (destination[Z_AXIS] > current_position[Z_AXIS]) {
@@ -292,25 +298,25 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     #if ENABLED(QUICK_HOME)
 
-      if (home_all || (homeX && homeY)) quick_home_xy();
+      if (doX && doY) quick_home_xy();
 
     #endif
 
     // Home Y (before X)
     #if ENABLED(HOME_Y_BEFORE_X)
 
-      if (home_all || homeY
+      if (doY
         #if ENABLED(CODEPENDENT_XY_HOMING)
-          || homeX
+          || doX
         #endif
       ) homeaxis(Y_AXIS);
 
     #endif
 
     // Home X
-    if (home_all || homeX
+    if (doX
       #if ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X)
-        || homeY
+        || doY
       #endif
     ) {
 
@@ -341,12 +347,12 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     // Home Y (after X)
     #if DISABLED(HOME_Y_BEFORE_X)
-      if (home_all || homeY) homeaxis(Y_AXIS);
+      if (doY) homeaxis(Y_AXIS);
     #endif
 
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
-      if (home_all || homeZ) {
+      if (doZ) {
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
         #else
@@ -357,7 +363,7 @@ void GcodeSuite::G28(const bool always_home_all) {
           move_z_after_probing();
         #endif
 
-      } // home_all || homeZ
+      } // doZ
     #endif // Z_HOME_DIR < 0
 
     sync_plan_position();
@@ -398,9 +404,18 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #endif // DUAL_X_CARRIAGE
 
+  #ifdef HOMING_BACKOFF_MM
+    endstops.enable(false);
+    constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM;
+    const float backoff_x = doX ? ABS(endstop_backoff[X_AXIS]) * (X_HOME_DIR) : 0,
+                backoff_y = doY ? ABS(endstop_backoff[Y_AXIS]) * (Y_HOME_DIR) : 0,
+                backoff_z = doZ ? ABS(endstop_backoff[Z_AXIS]) * (Z_HOME_DIR) : 0;
+    if (backoff_z) do_blocking_move_to_z(current_position[Z_AXIS] - backoff_z);
+    if (backoff_x || backoff_y) do_blocking_move_to_xy(current_position[X_AXIS] - backoff_x, current_position[Y_AXIS] - backoff_y);
+  #endif
   endstops.not_homing();
 
-  #if ENABLED(DELTA) && ENABLED(DELTA_HOME_TO_SAFE_ZONE)
+  #if BOTH(DELTA, DELTA_HOME_TO_SAFE_ZONE)
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
@@ -413,7 +428,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   // Restore the active tool after homing
   #if HOTENDS > 1 && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
-    #if ENABLED(PARKING_EXTRUDER)
+    #if EITHER(PARKING_EXTRUDER, DUAL_X_CARRIAGE)
       #define NO_FETCH false // fetch the previous toolhead
     #else
       #define NO_FETCH true
@@ -426,9 +441,9 @@ void GcodeSuite::G28(const bool always_home_all) {
   report_current_position();
   #if ENABLED(NANODLP_Z_SYNC)
     #if ENABLED(NANODLP_ALL_AXIS)
-      #define _HOME_SYNC true                 // For any axis, output sync text.
+      #define _HOME_SYNC true       // For any axis, output sync text.
     #else
-      #define _HOME_SYNC (home_all || homeZ)  // Only for Z-axis
+      #define _HOME_SYNC doZ        // Only for Z-axis
     #endif
     if (_HOME_SYNC)
       SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);

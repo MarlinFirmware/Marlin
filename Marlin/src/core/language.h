@@ -344,7 +344,6 @@
 #define MSG_LCD_N3 " 4"
 #define MSG_LCD_N4 " 5"
 #define MSG_LCD_N5 " 6"
-#define MSG_E0 "E0"
 #define MSG_E1 "E1"
 #define MSG_E2 "E2"
 #define MSG_E3 "E3"

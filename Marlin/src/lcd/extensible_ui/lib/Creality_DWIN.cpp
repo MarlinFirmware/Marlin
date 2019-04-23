@@ -53,7 +53,6 @@ bool FanStatus = true;
 bool AutoLevelStatus = true;
 bool AutohomeKey = false;
 unsigned char AutoHomeIconNum;
-int Update_Time_Value = 0;
 unsigned long VolumeSet = 0x80;
 extern char power_off_commands[9][96];
 bool PoweroffContinue = false;
@@ -63,109 +62,108 @@ char commandbuf[30];
 //RTSSHOW rtscheck;
 
   void onStartup() {
-    Serial2.begin(115200);
-	LanguageRecbuf = 0; //Force language to English, 1=Chinese but currently not implemented
-	AutoLevelStatus = 1; //Set auto leveling on
-	int showcount = 0;
+		Serial2.begin(115200);
+		LanguageRecbuf = 0; //Force language to English, 1=Chinese but currently not implemented
+		AutoLevelStatus = 1; //Set auto leveling on
+		int showcount = 0;
 
-	rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
-  rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
-  memset(rtscheck.databuf,0, sizeof(rtscheck.databuf));
+		rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
+		rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
+		memset(rtscheck.databuf,0, sizeof(rtscheck.databuf));
 
 	
-	#if HAS_MESH && (ENABLED(MachineCR10SPro) || ENABLED(Force10SProDisplay))
-		if (getMeshValid())
-		{
-			bed_mesh_t bedMesh = getMeshArray();
-			for(int xCount  = 0; xCount < GRID_MAX_POINTS_X; xCount++)
+		#if HAS_MESH && (ENABLED(MachineCR10SPro) || ENABLED(Force10SProDisplay))
+			if (getMeshValid())
 			{
-				for(int yCount  = 0; yCount < GRID_MAX_POINTS_X; yCount++)
+				bed_mesh_t bedMesh = getMeshArray();
+				for(int xCount  = 0; xCount < GRID_MAX_POINTS_X; xCount++)
 				{
-					if((showcount++) < 16)
+					for(int yCount  = 0; yCount < GRID_MAX_POINTS_X; yCount++)
 					{
-						rtscheck.RTS_SndData(bedMesh[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
-						rtscheck.RTS_SndData(showcount,AutolevelIcon);
+						if((showcount++) < 16)
+						{
+							rtscheck.RTS_SndData(bedMesh[xCount][yCount] *10000, AutolevelVal + (15-showcount-1)*2);
+							rtscheck.RTS_SndData(showcount,AutolevelIcon);
+						}
 					}
 				}
+				rtscheck.RTS_SndData(2, AutoLevelIcon);/*On*/
+				enqueueCommands_P((PSTR("M420 S1"))); // Enable Bed leveling if mesh found and valid
+				AutoLevelStatus = getLevelingActive(); //set ExtUI status for consistency
 			}
-			rtscheck.RTS_SndData(2, AutoLevelIcon);/*On*/
-			enqueueCommands_P((PSTR("M420 S1")));
-			AutoLevelStatus = getLevelingActive();
-		}
+			else 
+			{
+				rtscheck.RTS_SndData(3, AutoLevelIcon);/*Off*/
+			}
+		#endif
+	
+		//VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
+		//if(VolumeSet < 0 || VolumeSet > 0xFF)
+			VolumeSet = 0x20;
+			
+		if(PrintMode)
+			rtscheck.RTS_SndData(3, FanKeyIcon+1);	// saving mode
 		else 
-		{
-			rtscheck.RTS_SndData(3, AutoLevelIcon);/*Off*/
-			//settings.load();
-		}
-	#endif
-	
-	//VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
-	//if(VolumeSet < 0 || VolumeSet > 0xFF)
-		VolumeSet = 0x20;
+			rtscheck.RTS_SndData(2, FanKeyIcon+1);	// normal
+		last_target_temperature_bed = getTargetTemp_celsius(BED); 
+		last_target_temperature[0] =  getTargetTemp_celsius(H0);
+		rtscheck.RTS_SndData(100,FeedrateDisplay);
 		
-	if(PrintMode)rtscheck.RTS_SndData(3, FanKeyIcon+1);	// saving mode
-	else rtscheck.RTS_SndData(2, FanKeyIcon+1);	// normal
-	last_target_temperature_bed = getTargetTemp_celsius(BED); 
-	last_target_temperature[0] =  getTargetTemp_celsius(H0);
-	rtscheck.RTS_SndData(100,FeedrateDisplay);
-	
-	/***************turn off motor*****************/
-	rtscheck.RTS_SndData(11, FilenameIcon); 
-	
-	/***************transmit temperature to screen*****************/
-	rtscheck.RTS_SndData(0, NozzlePreheat);
-	rtscheck.RTS_SndData(0, BedPreheat);
-	rtscheck.RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
-	rtscheck.RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
-	/***************transmit Fan speed to screen*****************/
-	rtscheck.RTS_SndData(2, FanKeyIcon);	//turn 0ff fan icon
-	FanStatus = true;
-	
-	/***************transmit Printer information to screen*****************/
-	for(int j = 0;j < 20;j++)	//clean filename
-		rtscheck.RTS_SndData(0,MacVersion+j);
-	char sizebuf[20]={0};
-	sprintf(sizebuf,"%d X %d X %d",Y_BED_SIZE, X_BED_SIZE, Z_MAX_POS);
-	rtscheck.RTS_SndData(CUSTOM_MACHINE_NAME, MacVersion);
-	rtscheck.RTS_SndData(DETAILED_BUILD_VERSION, SoftVersion);
-	rtscheck.RTS_SndData(sizebuf, PrinterSize);
-	rtscheck.RTS_SndData(WEBSITE_URL, CorpWebsite);
+		/***************turn off motor*****************/
+		rtscheck.RTS_SndData(11, FilenameIcon); 
+		
+		/***************transmit temperature to screen*****************/
+		rtscheck.RTS_SndData(0, NozzlePreheat);
+		rtscheck.RTS_SndData(0, BedPreheat);
+		rtscheck.RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
+		rtscheck.RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
+		/***************transmit Fan speed to screen*****************/
+		rtscheck.RTS_SndData(2, FanKeyIcon);	//turn 0ff fan icon
+		FanStatus = true;
+		
+		/***************transmit Printer information to screen*****************/
+		for(int j = 0;j < 20;j++)	//clean filename
+			rtscheck.RTS_SndData(0,MacVersion+j);
+		char sizebuf[20]={0};
+		sprintf(sizebuf,"%d X %d X %d",Y_BED_SIZE, X_BED_SIZE, Z_MAX_POS);
+		rtscheck.RTS_SndData(CUSTOM_MACHINE_NAME, MacVersion);
+		rtscheck.RTS_SndData(DETAILED_BUILD_VERSION, SoftVersion);
+		rtscheck.RTS_SndData(sizebuf, PrinterSize);
+		rtscheck.RTS_SndData(WEBSITE_URL, CorpWebsite);
 
-	/**************************some info init*******************************/
-	rtscheck.RTS_SndData(0,PrintscheduleIcon);
-	rtscheck.RTS_SndData(0,PrintscheduleIcon+1);
+		/**************************some info init*******************************/
+		rtscheck.RTS_SndData(0,PrintscheduleIcon);
+		rtscheck.RTS_SndData(0,PrintscheduleIcon+1);
 
-	/************************clean screen*******************************/
-	for(int i = 0;i < MaxFileNumber;i++)
-	{
-		for(int j = 0;j < 10;j++)
-			rtscheck.RTS_SndData(0,SDFILE_ADDR +i*10+j);
-	}
-	
-	for(int j = 0;j < 10;j++)	
-	{
-		rtscheck.RTS_SndData(0,Printfilename+j); //clean screen.
-		rtscheck.RTS_SndData(0,Choosefilename+j); //clean filename
-	}
-	for(int j = 0;j < 8;j++)
-		rtscheck.RTS_SndData(0,FilenameCount+j);
-	for(int j = 1;j <= MaxFileNumber;j++)
-	{
-		rtscheck.RTS_SndData(10,FilenameIcon+j);
-		rtscheck.RTS_SndData(10,FilenameIcon1+j);
-	}
-	
-	SERIAL_ECHOLNPAIR("\n init zprobe_zoffset = ",getZOffset_mm());
-	rtscheck.RTS_SndData(getZOffset_mm()*100, 0x1026);  
-	/************************EEPROM*******************************/
-	//settings.load();
-	
-	SERIAL_ECHOLN("===Initing RTS has finished===");
+		/************************clean screen*******************************/
+		for(int i = 0;i < MaxFileNumber;i++)
+		{
+			for(int j = 0;j < 10;j++)
+				rtscheck.RTS_SndData(0,SDFILE_ADDR +i*10+j);
+		}
+		
+		for(int j = 0;j < 10;j++)	
+		{
+			rtscheck.RTS_SndData(0,Printfilename+j); //clean screen.
+			rtscheck.RTS_SndData(0,Choosefilename+j); //clean filename
+		}
+		for(int j = 0;j < 8;j++)
+			rtscheck.RTS_SndData(0,FilenameCount+j);
+		for(int j = 1;j <= MaxFileNumber;j++)
+		{
+			rtscheck.RTS_SndData(10,FilenameIcon+j);
+			rtscheck.RTS_SndData(10,FilenameIcon1+j);
+		}
+		
+		SERIAL_ECHOLNPAIR("\n init zprobe_zoffset = ",getZOffset_mm());
+		rtscheck.RTS_SndData(getZOffset_mm()*100, 0x1026);
+		
+		SERIAL_ECHOLN("==Dwin Init Complete==");
   }
 
   void onIdle() {
-    millis_t ms = millis();
-	if(ms > next_rts_update_ms && InforShowStatus)
+    
+	if(InforShowStatus)
 	{
 		if ((power_off_type_yes == 0)  && lcd_sd_status && (power_off_commands_count > 0)) // print the file before the power is off.
 		{
@@ -258,7 +256,6 @@ char commandbuf[30];
 			   	power_off_type_yes = 1;
 				InforShowStatus = true;
 				TPShowStatus = false;
-				Update_Time_Value = RTS_UPDATE_VALUE;
 				rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); 
 			}
 			return;
@@ -313,13 +310,11 @@ char commandbuf[30];
 				else if(last_target_temperature_bed < getTargetTemp_celsius(BED) || (last_target_temperature[0] < getTargetTemp_celsius(H0)))
 				{
 					rtscheck.RTS_SndData(1+CEIconGrap,IconPrintstatus);
-					Update_Time_Value = 0;
 					PrinterStatusKey[1] =( PrinterStatusKey[1] == 0? 1 : PrinterStatusKey[1]);
 				}
 				else if(last_target_temperature_bed > getTargetTemp_celsius(BED) || (last_target_temperature[0] > getTargetTemp_celsius(H0)))
 				{
 					rtscheck.RTS_SndData(8+CEIconGrap,IconPrintstatus);
-					Update_Time_Value = 0;
 					PrinterStatusKey[1] =( PrinterStatusKey[1] == 0? 2 : PrinterStatusKey[1] );
 				}
 					
@@ -371,7 +366,6 @@ char commandbuf[30];
 			rtscheck.RTS_SndData(2, AutoLevelIcon);/*Off*/
 		else
 			rtscheck.RTS_SndData(3, AutoLevelIcon);/*On*/
-		next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + Update_Time_Value;
 	}
   //SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
 	/*wait to receive massage and response*/
@@ -787,7 +781,6 @@ SERIAL_ECHO(Checkkey);
 			RTS_SndData(ExchangePageBase + 87, ExchangepageAddr); 
 			RTS_SndData(0,Timehour);		
 			RTS_SndData(0,Timemin);	
-			Update_Time_Value = 0;
 			CardCheckStatus[0] = 0;// close the key of  checking card in  printing
 			//RTS_SDcard_Stop(); //FIX ME
 		}
@@ -820,11 +813,9 @@ SERIAL_ECHO(Checkkey);
 			
 			PrinterStatusKey[1] = 0;
 			InforShowStatus = true;
-			Update_Time_Value = RTS_UPDATE_VALUE;
 
 			RTS_SndData(0+CEIconGrap,IconPrintstatus);
 			PrintStatue[1] = 0;
-			Update_Time_Value = 0;
 			//PrinterStatusKey[1] = 3;
 			CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
 			RTS_SndData(ExchangePageBase + 52, ExchangepageAddr); 
@@ -834,7 +825,6 @@ SERIAL_ECHO(Checkkey);
 			NozzleTempStatus[2] = 1;
 			PrinterStatusKey[1] = 0;
 			InforShowStatus = true;
-			Update_Time_Value = RTS_UPDATE_VALUE;
 			setTargetTemp_celsius((float)temphot, H0);
 			startprogress  = 0;
 			FilementStatus[1] = 2;
@@ -1034,7 +1024,6 @@ SERIAL_ECHO(Checkkey);
 	case ReturnBack:
 		 if(recdat.data[0] == 1)	 // return to the tool page
 		 {
-		 	Update_Time_Value = RTS_UPDATE_VALUE;
 		 	InforShowStatus = false;
 			RTS_SndData(ExchangePageBase + 63, ExchangepageAddr); 
 		 }
@@ -1238,7 +1227,6 @@ SERIAL_ECHO(Checkkey);
 				enqueueCommands_P((PSTR("G1 F100 Z10.2")));
 				InforShowStatus = AutohomeKey = true;
 				AutoHomeIconNum = 0;
-				Update_Time_Value = 0;
 				RTS_SndData(ExchangePageBase + 74, ExchangepageAddr); 
 				RTS_SndData(10,FilenameIcon);
 			}
@@ -1503,7 +1491,6 @@ SERIAL_ECHO(Checkkey);
 				PoweroffContinue = true;
 				TPShowStatus = InforShowStatus = true;
 				CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
-				Update_Time_Value = 0;
 				
 					RTS_SndData(1+CEIconGrap,IconPrintstatus);
 					RTS_SndData(ExchangePageBase + 52, ExchangepageAddr); 
@@ -1516,7 +1503,6 @@ SERIAL_ECHO(Checkkey);
 		{
 			InforShowStatus = true;
 			TPShowStatus = false;
-			Update_Time_Value = RTS_UPDATE_VALUE;
 			RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); //exchange to 45 page
 
 			card.stopSDPrint();
@@ -1664,7 +1650,6 @@ SERIAL_ECHO(Checkkey);
 				PrinterStatusKey[0] = 1;
 				PrinterStatusKey[1] = 3;
 				CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
-				Update_Time_Value = 0;
 			}
 			else if(recdat.data[0] == 0) //	return to main page
 			{
@@ -1688,16 +1673,51 @@ void onPrinterKilled(PGM_P const msg) {}
   void onMediaError() {};
   void onMediaRemoved() {};
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
-  void onPrintTimerStarted() {}
-  void onPrintTimerPaused() {}
+  void onPrintTimerStarted() {
+    #if ENABLED(POWER_LOSS_RECOVERY)
+			if(PoweroffContinue)
+			{
+					//sprintf_P(power_off_commands[0], PSTR("G92 Z%s E%s"), str_Z, str_E);
+					enqueue_and_echo_command(power_off_commands[0]);
+					//sprintf_P(power_off_commands[1], PSTR("G0 Z%s"), str_Z_up);
+					enqueue_and_echo_command(power_off_commands[1]);
+					enqueue_and_echo_commands_P((PSTR("G28 X0 Y0")));
+			}
+		#endif
+		if(PrinterStatusKey[1] == 3)
+		{
+			PrinterStatusKey[1] = 0;
+			InforShowStatus = true;	
+			rtscheck.RTS_SndData(2+CEIconGrap,IconPrintstatus);	
+			delay(1);
+			rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
+			CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
+			FilementStatus[1] = 1; 	//begin to check filement status.
+			//SERIAL_ECHOPAIR("\n ***M109 Status[1] =",FilementStatus[1]);
+		}
+		//SERIAL_ECHOPAIR("\n ***PrinterStatusKey[1] =",PrinterStatusKey[1]);
+	}
+	
+  void onPrintTimerPaused() {
+		rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr); //Display Pause Screen
+	}
   void onPrintTimerStopped() {}
-  void onFilamentRunout() {}
+  void onFilamentRunout() {
+		waitway = 5;		//reject to receive cmd and jump to the corresponding page
+		PrintStatue[1] = 1;	// for returning the corresponding page
+		Checkfilenum=0;
+		FilementStatus[1] = 0;
+		PrinterStatusKey[1] = 4;		
+		TPShowStatus = false;
+	}
 	void onFilamentRunout(extruder_t extruder) {}
   void onUserConfirmRequired(const char * const msg) {}
   void onStatusChanged(const char * const msg) {}
   void onFactoryReset() {}
   void onLoadSettings() {}
   void onStoreSettings() {}
-	void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval) {};
+	void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval) {
+		rtscheck.RTS_SndData(zval *10000, AutolevelVal + (15-(xpos*ypos)-1)*2);
+	};
 
 } // NAMESPACE EXT_UI

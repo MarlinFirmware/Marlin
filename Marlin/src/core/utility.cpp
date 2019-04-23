@@ -35,7 +35,7 @@ void safe_delay(millis_t ms) {
   thermalManager.manage_heater(); // This keeps us safe if too many small safe_delay() calls are made
 }
 
-#if ENABLED(EEPROM_SETTINGS) || ENABLED(SD_FIRMWARE_UPDATE)
+#if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
 
   void crc16(uint16_t *crc, const void * const data, uint16_t cnt) {
     uint8_t *ptr = (uint8_t *)data;
@@ -48,7 +48,7 @@ void safe_delay(millis_t ms) {
 
 #endif // EEPROM_SETTINGS || SD_FIRMWARE_UPDATE
 
-#if ENABLED(ULTRA_LCD) || ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(EXTENSIBLE_UI)
+#if ANY(ULTRA_LCD, DEBUG_LEVELING_FEATURE, EXTENSIBLE_UI)
 
   char conv[8] = { 0 };
 
@@ -56,6 +56,16 @@ void safe_delay(millis_t ms) {
   #define DIGIMOD(n, f) DIGIT((n)/(f) % 10)
   #define RJDIGIT(n, f) ((n) >= (f) ? DIGIMOD(n, f) : ' ')
   #define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
+
+  // Convert a full-range unsigned 8bit int to a percentage
+  char* ui8tostr4pct(const uint8_t i) {
+    const uint8_t n = ui8_to_percent(i);
+    conv[3] = RJDIGIT(n, 100);
+    conv[4] = RJDIGIT(n, 10);
+    conv[5] = DIGIMOD(n, 1);
+    conv[6] = '%';
+    return &conv[3];
+  }
 
   // Convert unsigned 8bit int to string 123 format
   char* ui8tostr3(const uint8_t i) {
@@ -204,6 +214,19 @@ void safe_delay(millis_t ms) {
     return &conv[1];
   }
 
+  // Convert signed float to string (5 digit) with -1.2345 / _0.0000 / +1.2345 format
+  char* ftostr54sign(const float &f, char plus/*=' '*/) {
+    long i = (f * 100000 + (f < 0 ? -5: 5)) / 10;
+    conv[0] = i ? MINUSOR(i, plus) : ' ';
+    conv[1] = DIGIMOD(i, 10000);
+    conv[2] = '.';
+    conv[3] = DIGIMOD(i, 1000);
+    conv[4] = DIGIMOD(i, 100);
+    conv[5] = DIGIMOD(i, 10);
+    conv[6] = DIGIMOD(i, 1);
+    return &conv[0];
+  }
+
   // Convert unsigned float to rj string with 12345 format
   char* ftostr5rj(const float &f) {
     const long i = ((f < 0 ? -f : f) * 10 + 5) / 10;
@@ -241,15 +264,15 @@ void safe_delay(millis_t ms) {
     return conv;
   }
 
-  // Convert unsigned float to string with 1234.56 format omitting trailing zeros
-  char* ftostr62rj(const float &f) {
-    const long i = ((f < 0 ? -f : f) * 1000 + 5) / 10;
-    conv[0] = RJDIGIT(i, 100000);
+  // Convert unsigned float to string with 1234.5 format omitting trailing zeros
+  char* ftostr51rj(const float &f) {
+    const long i = ((f < 0 ? -f : f) * 100 + 5) / 10;
+    conv[0] = ' ';
     conv[1] = RJDIGIT(i, 10000);
     conv[2] = RJDIGIT(i, 1000);
-    conv[3] = DIGIMOD(i, 100);
-    conv[4] = '.';
-    conv[5] = DIGIMOD(i, 10);
+    conv[3] = RJDIGIT(i, 100);
+    conv[4] = DIGIMOD(i, 10);
+    conv[5] = '.';
     conv[6] = DIGIMOD(i, 1);
     return conv;
   }

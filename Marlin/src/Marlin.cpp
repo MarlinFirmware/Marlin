@@ -30,6 +30,7 @@
 
 #include "Marlin.h"
 
+#include "core/utility.h"
 #include "lcd/ultralcd.h"
 #include "module/motion.h"
 #include "module/planner.h"
@@ -84,6 +85,10 @@
   #include "feature/leds/leds.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "feature/bltouch.h"
+#endif
+
 #if HAS_SERVOS
   #include "module/servo.h"
 #endif
@@ -128,7 +133,7 @@
   #include "feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
+#if BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT)
   #include "feature/pause.h"
 #endif
 
@@ -152,7 +157,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER) || ENABLED(MAGNETIC_PARKING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
   #include "module/tool_change.h"
 #endif
 
@@ -328,7 +333,7 @@ void disable_all_steppers() {
       ExtUI::onFilamentRunout(ExtUI::getActiveTool());
     #endif
 
-    #if ENABLED(HOST_PROMPT_SUPPORT) || ENABLED(HOST_ACTION_COMMANDS)
+    #if EITHER(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS)
       const char tool = '0'
         #if NUM_RUNOUT_SENSORS > 1
           + active_extruder
@@ -443,7 +448,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   }
 
   // Prevent steppers timing-out in the middle of M600
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
+  #if BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT)
     #define MOVE_AWAY_TEST !did_pause_print
   #else
     #define MOVE_AWAY_TEST true
@@ -452,7 +457,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   if (stepper_inactive_time) {
     static bool already_shutdown_steppers; // = false
     if (planner.has_blocks_queued())
-      gcode.previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
+      gcode.reset_stepper_timeout();
     else if (MOVE_AWAY_TEST && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
       if (!already_shutdown_steppers) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
@@ -468,14 +473,11 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
         #if ENABLED(DISABLE_INACTIVE_E)
           disable_e_steppers();
         #endif
-        #if HAS_LCD_MENU
-          ui.status_screen();
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
-            if (ubl.lcd_map_control) {
-              ubl.lcd_map_control = false;
-              ui.defer_status_screen(false);
-            }
-          #endif
+        #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
+          if (ubl.lcd_map_control) {
+            ubl.lcd_map_control = false;
+            ui.defer_status_screen(false);
+          }
         #endif
       }
     }
@@ -612,7 +614,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
         }
       #endif // !SWITCHING_EXTRUDER
 
-      gcode.previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
+      gcode.reset_stepper_timeout();
     }
   #endif // EXTRUDER_RUNOUT_PREVENT
 
@@ -718,7 +720,7 @@ void idle(
   #endif
 
   #if ENABLED(PRUSA_MMU2)
-    mmu2.mmuLoop();
+    mmu2.mmu_loop();
   #endif
 }
 
@@ -970,7 +972,7 @@ void setup() {
   #endif
 
   #if ENABLED(SPINDLE_LASER_ENABLE)
-    OUT_WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // init spindle to off
+    OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // init spindle to off
     #if SPINDLE_DIR_CHANGE
       OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);  // init rotation to clockwise (M3)
     #endif
@@ -1000,7 +1002,7 @@ void setup() {
     dac_init();
   #endif
 
-  #if (ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE)) && HAS_SOLENOID_1
+  #if EITHER(Z_PROBE_SLED, SOLENOID_PROBE) && HAS_SOLENOID_1
     OUT_WRITE(SOL1_PIN, LOW); // OFF
   #endif
 
@@ -1040,7 +1042,7 @@ void setup() {
   ui.init();
   ui.reset_status();
 
-  #if ENABLED(SHOW_BOOTSCREEN)
+  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
     ui.show_bootscreen();
   #endif
 
@@ -1049,7 +1051,7 @@ void setup() {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch_init();
+    bltouch.init();
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -1137,6 +1139,9 @@ void loop() {
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)
           card.removeJobRecoveryFile();
+        #endif
+        #ifdef EVENT_GCODE_SD_STOP
+          enqueue_and_echo_commands_P(PSTR(EVENT_GCODE_SD_STOP));
         #endif
       }
     #endif // SDSUPPORT

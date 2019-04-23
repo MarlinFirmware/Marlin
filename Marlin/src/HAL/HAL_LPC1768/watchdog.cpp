@@ -74,8 +74,10 @@ void watchdog_reset() {
 
 #else
 
-  void HAL_clear_reset_source(void) {}
-  uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
+void watchdog_init(void) {}
+void watchdog_reset(void) {}
+void HAL_clear_reset_source(void) {}
+uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
 
 #endif // USE_WATCHDOG
 

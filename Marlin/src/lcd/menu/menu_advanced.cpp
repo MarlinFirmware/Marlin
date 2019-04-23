@@ -37,9 +37,11 @@
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
-  #if ENABLED(BLTOUCH)
-    #include "../../module/endstops.h"
-  #endif
+#endif
+
+#if ENABLED(BLTOUCH)
+  #include "../../module/endstops.h"
+  #include "../../feature/bltouch.h"
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -47,6 +49,7 @@
 #endif
 
 void menu_tmc();
+void menu_backlash();
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
@@ -321,7 +324,7 @@ void menu_tmc();
   #endif // PID_PARAMS_PER_HOTEND
 #endif // HOTENDS
 
-#define SHOW_MENU_ADVANCED_TEMPERATURE ((ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(PID_EDIT_MENU))
+#define SHOW_MENU_ADVANCED_TEMPERATURE ((ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND) || EITHER(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
 
 //
 // Advanced Settings > Temperature
@@ -568,14 +571,14 @@ void menu_tmc();
     START_MENU();
     MENU_BACK(MSG_ADVANCED_SETTINGS);
 
-    #define EDIT_QSTEPS(Q) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_##Q##STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, _planner_refresh_positioning)
+    #define EDIT_QSTEPS(Q) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_##Q##STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, _planner_refresh_positioning)
     EDIT_QSTEPS(A);
     EDIT_QSTEPS(B);
     EDIT_QSTEPS(C);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_ESTEPS(N,E) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E##N##STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(E)], 5, 9999, _planner_refresh_e##E##_positioning)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, _planner_refresh_positioning);
+      #define EDIT_ESTEPS(N,E) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_E##N##STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(E)], 5, 9999, _planner_refresh_e##E##_positioning)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, _planner_refresh_positioning);
       EDIT_ESTEPS(1,0);
       EDIT_ESTEPS(2,1);
       #if E_STEPPERS > 2
@@ -591,7 +594,7 @@ void menu_tmc();
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
     #elif E_STEPPERS
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
     #endif
 
     END_MENU();
@@ -645,6 +648,10 @@ void menu_advanced_settings() {
     }
   #endif // !SLIM_LCD_MENUS
 
+  #if ENABLED(BACKLASH_GCODE)
+    MENU_ITEM(submenu, MSG_BACKLASH, menu_backlash);
+  #endif
+
   #if ENABLED(DAC_STEPPER_CURRENT)
     MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_dac);
   #endif
@@ -694,7 +701,7 @@ void menu_advanced_settings() {
   //
   #if ENABLED(BLTOUCH)
     MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-    if (!endstops.z_probe_enabled && TEST_BLTOUCH())
+    if (!endstops.z_probe_enabled && bltouch.triggered())
       MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
   #endif
 
