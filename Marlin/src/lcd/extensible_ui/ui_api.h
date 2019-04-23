@@ -110,6 +110,7 @@ namespace ExtUI {
     bool getLevelingActive();
     void setLevelingActive(const bool);
     #if HAS_MESH
+      #include "../../feature/bedlevel/bedlevel.h"
       bool getMeshValid();
       bed_mesh_t getMeshArray();
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
