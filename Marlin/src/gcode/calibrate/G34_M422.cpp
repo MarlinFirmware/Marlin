@@ -126,8 +126,8 @@ void GcodeSuite::G34() {
       extruder_duplication_enabled = false;
     #endif
 
-    // Raise Z before moving any other axes and z is not already high enough (never lower z)
-    if (Z_CLEARANCE_BETWEEN_PROBES > current_position[Z_AXIS]) {
+    // Before moving other axes raise Z, if needed. Never lower Z.
+    if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before moving to probe pos) to ", Z_CLEARANCE_BETWEEN_PROBES);
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     }
