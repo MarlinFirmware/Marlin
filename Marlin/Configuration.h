@@ -1910,6 +1910,12 @@
 // https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
 //
 //#define FYSETC_MINI_12864
+#ifdef FYSETC_MINI_12864
+  #define FYSETC_MINI_12864_REV_1_2              //  types C, D, E & F  back light is monochrome (always on) - discrete RGB signals
+  //#define FYSETC_MINI_12864_REV_2_0            //  types A & B  back light is RGB - requires LED_USER_PRESET_STARTUP - discrete RGB signals
+  //#define FYSETC_MINI_12864_REV_2_1            //  types A & B  back light is RGB - requires LED_USER_PRESET_STARTUP -  RGB
+  //#define FYSETC_MINI_12864_REV_2_1            //  types A & B  back light is RGB - requires LED_USER_PRESET_STARTUP - Neopixel
+#endif
 
 //
 // Factory display for Creality CR-10
@@ -2013,6 +2019,7 @@
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
+// :[0,1,2,3,4,5,6,7]
 #define SOFT_PWM_SCALE 0
 
 // If SOFT_PWM_SCALE is set to a value higher than 0, dithering can

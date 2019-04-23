@@ -1787,13 +1787,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Fysetc Mini 12864 requirements
- */
-#if ENABLED(FYSETC_MINI_12864) && DISABLED(LED_USER_PRESET_STARTUP)
-  #error "FYSETC_MINI_12864 requires LED_USER_PRESET_STARTUP to enable the backlight on startup."
-#endif
-
-/**
  * Check existing CS pins against enabled TMC SPI drivers.
  */
 #define INVALID_TMC2130(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) && !PIN_EXISTS(ST##_CS))

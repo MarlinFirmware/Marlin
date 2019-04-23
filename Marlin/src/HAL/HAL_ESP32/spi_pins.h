@@ -18,7 +18,7 @@
  */
 #pragma once
 
-#define SS_PIN    5
+#define SS_PIN   SDSS
 #define SCK_PIN  18
 #define MISO_PIN 19
 #define MOSI_PIN 23

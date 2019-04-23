@@ -94,3 +94,16 @@ public:
   : U8GLIB(&u8g_dev_tft_320x240_upscale_from_128x64, cs, rs, reset)
   { }
 };
+
+
+extern u8g_dev_t u8g_dev_uc1701_mini12864_HAL_2x_sw_spi, u8g_dev_uc1701_mini12864_HAL_2x_hw_spi;
+
+class U8GLIB_MINI12864_2X_HAL : public U8GLIB {
+public:
+  U8GLIB_MINI12864_2X_HAL(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE)
+    : U8GLIB(&u8g_dev_uc1701_mini12864_HAL_2x_sw_spi, sck, mosi, cs, a0, reset)
+    { }
+  U8GLIB_MINI12864_2X_HAL(uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE)
+    : U8GLIB(&u8g_dev_uc1701_mini12864_HAL_2x_hw_spi, cs, a0, reset)
+    { }
+};
