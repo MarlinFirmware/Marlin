@@ -20,7 +20,6 @@ int temphot=0;
 #endif
 
 float PLA_ABSModeTemp = 195;
-millis_t next_rts_update_ms = 0;
 int	last_target_temperature_bed;
 int	last_target_temperature[4] = {0};
 char waitway = 0;
@@ -71,9 +70,8 @@ char commandbuf[30];
 		rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
 		memset(rtscheck.databuf,0, sizeof(rtscheck.databuf));
 
-	
 		#if HAS_MESH && (ENABLED(MachineCR10SPro) || ENABLED(Force10SProDisplay))
-			if (getMeshValid())
+			/*if (getMeshValid())
 			{
 				bed_mesh_t bedMesh = getMeshArray();
 				for(int xCount  = 0; xCount < GRID_MAX_POINTS_X; xCount++)
@@ -87,14 +85,14 @@ char commandbuf[30];
 						}
 					}
 				}
-				rtscheck.RTS_SndData(2, AutoLevelIcon);/*On*/
+				rtscheck.RTS_SndData(2, AutoLevelIcon); //On
 				enqueueCommands_P((PSTR("M420 S1"))); // Enable Bed leveling if mesh found and valid
 				AutoLevelStatus = getLevelingActive(); //set ExtUI status for consistency
 			}
 			else 
 			{
-				rtscheck.RTS_SndData(3, AutoLevelIcon);/*Off*/
-			}
+				rtscheck.RTS_SndData(3, AutoLevelIcon); //Off
+			}*/
 		#endif
 	
 		//VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
@@ -976,11 +974,8 @@ SERIAL_ECHO(Checkkey);
 
 			enqueueCommands_P((PSTR("G28")));
 			waitway = 2;
-			setLevelingActive(false);
 			enqueueCommands_P((PSTR("G1 F150 Z0.0")));
-			setLevelingActive(true);
 			RTS_SndData(ExchangePageBase + 64, ExchangepageAddr); 
-			
 		}
 		else if(recdat.data[0] == 2)	// Exchange filement
 		{
@@ -1085,9 +1080,7 @@ SERIAL_ECHO(Checkkey);
 					enqueueCommands_P(PSTR("G28")); 
 				else
 					enqueueCommands_P(PSTR("G28 Z0")); 
-				setLevelingActive(false);
-				enqueueCommands_P(PSTR("G1  F150 Z0.0")); 
-				setLevelingActive(true);
+				enqueueCommands_P(PSTR("G1 F150 Z0.0")); 
 				RTS_SndData(getZOffset_mm()*100, 0x1026); 
 			}
 			else if(recdat.data[0] == 2)// Z-axis to Up
@@ -1112,13 +1105,12 @@ SERIAL_ECHO(Checkkey);
 			}
 			else if(recdat.data[0] == 4) 	// Assitant Level
 			{
+				//setLevelingActive(false); // FIX ME
 				waitway = 4;		//only for prohibiting to receive massage
 				enqueueCommands_P((PSTR("G28 X0 Y0 Z0")));
 				enqueueCommands_P((PSTR("G90")));
 				waitway = 2;
-				setLevelingActive(false);
 				enqueueCommands_P((PSTR("G1 F200 Z0.0")));
-				setLevelingActive(true);
 				RTS_SndData(ExchangePageBase + 84, ExchangepageAddr); 
 			}
 			else if(recdat.data[0] == 5) 	// AutoLevel
@@ -1127,12 +1119,9 @@ SERIAL_ECHO(Checkkey);
 				RTS_SndData(1, AutolevelIcon); 
 				RTS_SndData(ExchangePageBase + 85, ExchangepageAddr); 
 				enqueueCommands_P(PSTR("G29")); 
-				//stepper.synchronize();
-				setLevelingActive(false);
 				enqueueCommands_P((PSTR("G1 F100 Z10.0;"))); 
 				enqueueCommands_P(PSTR("G1 X150 Y150 F5000")); 
-				enqueueCommands_P((PSTR("G1 F100 Z0.2")));
-				setLevelingActive(true);
+				enqueueCommands_P((PSTR("G1 F100 Z0.0")));
 			}
 			else if(recdat.data[0] == 6) 	// Assitant Level ,  Centre 1
 			{
