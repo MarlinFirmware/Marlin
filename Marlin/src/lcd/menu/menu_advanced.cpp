@@ -604,16 +604,13 @@ void menu_backlash();
 
     #include "../../module/configuration_store.h"
 
-    static void lcd_init_eeprom() {
-      ui.completion_feedback(settings.init_eeprom());
-      ui.goto_previous_screen();
-    }
-
     static void lcd_init_eeprom_confirm() {
-      START_MENU();
-      MENU_BACK(MSG_ADVANCED_SETTINGS);
-      MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
-      END_MENU();
+      do_select_screen(
+        PSTR(MSG_BUTTON_INIT), PSTR(MSG_BUTTON_CANCEL),
+        []{ ui.completion_feedback(settings.init_eeprom()); },
+        ui.goto_previous_screen,
+        PSTR(MSG_INIT_EEPROM), NULL, PSTR("?")
+      );
     }
 
   #endif
