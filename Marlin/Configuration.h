@@ -1013,6 +1013,15 @@
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 200
 
+/** 
+ *  Inverse home AWAY commands
+ */
+#define STRINGIZE_NX(A) #A
+#define STRINGIZE(A) STRINGIZE_NX(A)
+#define AWAY_10_MM "G28\nG0 X10\nG0 Y10\nG0 Z10"
+#define AWAY_50_MM "G28\nG0 X50\nG0 Y50\nG0 Z50"
+#define AWAY_MAX_MM "G28\nG0 X"STRINGIZE(X_MAX_POS)"\nG0 Y"STRINGIZE(Y_MAX_POS)"\nG0 Z"STRINGIZE(Z_MAX_POS)
+
 /**
  * Software Endstops
  *
