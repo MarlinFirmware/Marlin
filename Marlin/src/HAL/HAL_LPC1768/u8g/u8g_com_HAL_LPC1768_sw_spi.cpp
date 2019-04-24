@@ -67,7 +67,6 @@
 
 #include <algorithm>
 #include <LPC17xx.h>
-#include <gpio.h>
 
 #include <Arduino.h>
 
