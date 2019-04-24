@@ -106,6 +106,18 @@
 #ifndef MSG_AUTO_HOME_Z
   #define MSG_AUTO_HOME_Z                     _UxGT("Home Z")
 #endif
+#ifndef MSG_INVERSE_HOME
+  #define MSG_INVERSE_HOME                    _UxGT("Inverse home")
+#endif
+#ifndef MSG_10MM_AWAY
+  #define MSG_10MM_AWAY                       _UxGT("Away 10mm")
+#endif
+#ifndef MSG_50MM_AWAY
+  #define MSG_50MM_AWAY                       _UxGT("Away 50mm")
+#endif
+#ifndef MSG_MAX_AWAY
+  #define MSG_MAX_AWAY                       _UxGT("Away Max")
+#endif
 #ifndef MSG_AUTO_Z_ALIGN
   #define MSG_AUTO_Z_ALIGN                    _UxGT("Auto Z-Align")
 #endif
