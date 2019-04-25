@@ -748,9 +748,14 @@ namespace ExtUI {
     enqueue_and_echo_commands_P(gcode);
   }
 
+  bool commandsInQueue() { return (planner.movesplanned() || commands_in_queue); }
+  
   bool isAxisPositionKnown(const axis_t axis) {
     return TEST(axis_known_position, axis);
   }
+
+  bool isPositionKnown() { return all_axes_known(); }
+  bool isMachineHomed() { return all_axes_homed(); }
 
   PGM_P getFirmwareName_str() {
     static const char firmware_name[] PROGMEM = "Marlin " SHORT_BUILD_VERSION;
