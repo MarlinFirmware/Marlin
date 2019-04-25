@@ -160,7 +160,53 @@ char commandbuf[30];
   }
 
   void onIdle() {
-    
+
+		// After homing, reset back to motion screen
+	 if(isAxisPositionKnown((axis_t)X) && !isAxisPositionKnown((axis_t)Y) && !isAxisPositionKnown((axis_t)Z)) {
+
+		 switch(waitway)
+		 {
+			 case 1 : 
+				InforShowStatus = true;
+				rtscheck.RTS_SndData(4+CEIconGrap,IconPrintstatus);	// 4 for Pause
+				rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr); 
+				waitway = 0;
+			 break;
+
+			 case 2: 
+				waitway = 0;
+			 break;
+
+			 case 3:
+				waitway = 0;
+				rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
+			 break;
+
+			case 4:
+				if(AutohomeKey) { //Manual Move Home Done
+					rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
+					AutohomeKey = false;
+					waitway = 0;
+				}
+			break;
+			 case 5:
+				InforShowStatus = true;
+				waitway = 0;
+				rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); //exchange to 78 page
+				break;
+		 }
+
+		#if ENABLED(POWER_LOSS_RECOVERY)
+			if(PoweroffContinue)
+			{
+				PoweroffContinue = false;
+				enqueue_and_echo_command(power_off_commands[3]);
+				card.startFileprint();
+				print_job_timer.power_off_start();
+			}
+		#endif
+	}
+
 	if(InforShowStatus)
 	{
 		if ((power_off_type_yes == 0)  && lcd_sd_status && (power_off_commands_count > 0)) // print the file before the power is off.
@@ -358,6 +404,10 @@ char commandbuf[30];
 				rtscheck.RTS_SndData(AutoHomeIconNum++,AutoZeroIcon);
 				if(AutoHomeIconNum > 9)	AutoHomeIconNum = 0;
 			}
+
+			rtscheck.RTS_SndData(10*getAxisPosition_mm((axis_t)X), DisplayXaxis);
+			rtscheck.RTS_SndData(10*getAxisPosition_mm((axis_t)Y), DisplayYaxis);
+			rtscheck.RTS_SndData(10*getAxisPosition_mm((axis_t)Z), DisplayZaxis);
 		}
 
 		if(getLevelingActive()) 
@@ -365,9 +415,7 @@ char commandbuf[30];
 		else
 			rtscheck.RTS_SndData(3, AutoLevelIcon);/*On*/
 	}
-  //SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
-	/*wait to receive massage and response*/
-	if(!waitway && rtscheck.RTS_RecData() > 0)
+	if(rtscheck.RTS_RecData() > 0)
 		//SERIAL_PROTOCOLLN("  Handle Data ");
 	    rtscheck.RTS_HandleData();
 
@@ -606,20 +654,17 @@ void RTSSHOW::RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd
 void RTSSHOW::RTS_HandleData()
 {
 	int Checkkey = -1;
-	SERIAL_ECHOLN("  *******RTS_HandleData********\n ");
+	SERIAL_ECHOLN("  *******RTS_HandleData******** ");
 	if(waitway > 0)	//for waiting
 	{
-		SERIAL_ECHO("\n   waitway ==");
-		SERIAL_ECHO((int)waitway);
+		SERIAL_ECHOPAIR("waitway ==", (int)waitway);
 		memset(&recdat,0 , sizeof(recdat));
 		recdat.head[0] = FHONE;
 		recdat.head[1] = FHTWO;
 		return;
 	}
-	SERIAL_ECHO("\n   recdat.data[0] ==");
-	SERIAL_ECHO(recdat.data[0]);
-	SERIAL_ECHO("\n   recdat.addr ==");
-	SERIAL_ECHO(recdat.addr);
+	SERIAL_ECHOPAIR("recdat.data[0] ==", recdat.data[0]);
+	SERIAL_ECHOPAIR("recdat.addr ==", recdat.addr);
     for(int i = 0;Addrbuf[i] != 0;i++)
     {
 	  if(recdat.addr == Addrbuf[i])
@@ -1076,7 +1121,7 @@ SERIAL_ECHO(Checkkey);
 			if(recdat.data[0] == 1)// Z-axis to home
 			{
 				// Disallow Z homing if X or Y are unknown
-				if (!isAxisPositionKnown((axis_t)Z))
+				if (!isAxisPositionKnown((axis_t)X) || !isAxisPositionKnown((axis_t)Y))
 					enqueueCommands_P(PSTR("G28")); 
 				else
 					enqueueCommands_P(PSTR("G28 Z0")); 
@@ -1118,7 +1163,7 @@ SERIAL_ECHO(Checkkey);
 				waitway = 3;		//only for prohibiting to receive massage
 				RTS_SndData(1, AutolevelIcon); 
 				RTS_SndData(ExchangePageBase + 85, ExchangepageAddr); 
-				enqueueCommands_P(PSTR("G29")); 
+				enqueueCommands_P(PSTR("G29 P1")); 
 				enqueueCommands_P((PSTR("G1 F100 Z10.0;"))); 
 				enqueueCommands_P(PSTR("G1 X150 Y150 F5000")); 
 				enqueueCommands_P((PSTR("G1 F100 Z0.0")));
@@ -1707,6 +1752,7 @@ void onPrinterKilled(PGM_P const msg) {}
   void onStoreSettings() {}
 	void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval) {
 		rtscheck.RTS_SndData(zval *10000, AutolevelVal + (15-(xpos*ypos)-1)*2);
+		rtscheck.RTS_SndData(15-(xpos*ypos),AutolevelIcon);
 	};
 
 } // NAMESPACE EXT_UI
