@@ -415,9 +415,11 @@ void menu_move() {
 void inverse_home_menu(){
   START_MENU();
   MENU_BACK(MSG_MOTION);
-  MENU_ITEM(gcode, MSG_10MM_AWAY, PSTR(AWAY_10_MM));
-  MENU_ITEM(gcode, MSG_50MM_AWAY, PSTR(AWAY_50_MM));
-  MENU_ITEM(gcode, MSG_MAX_AWAY, PSTR(AWAY_MAX_MM));
+  #ifdef INVERSE_HOME
+    MENU_ITEM(gcode, MSG_10MM_AWAY, PSTR(AWAY_10_MM));
+    MENU_ITEM(gcode, MSG_50MM_AWAY, PSTR(AWAY_50_MM));
+    MENU_ITEM(gcode, MSG_MAX_AWAY, PSTR(AWAY_MAX_MM));
+  #endif
   END_MENU();
 }
 
