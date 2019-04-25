@@ -23,7 +23,6 @@
 //
 // Motion Menu
 //
-
 #include "../../inc/MarlinConfigPre.h"
 
 #if HAS_LCD_MENU
@@ -454,8 +453,9 @@ void menu_motion() {
   //
   // Inverse Home
   //
-  MENU_ITEM(submenu, MSG_INVERSE_HOME, inverse_home_menu);
-  
+  #ifdef INVERSE_HOME
+    MENU_ITEM(submenu, MSG_INVERSE_HOME, inverse_home_menu);
+  #endif
   //
   // Auto Z-Align
   //
