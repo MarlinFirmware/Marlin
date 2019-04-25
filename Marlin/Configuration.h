@@ -1015,8 +1015,9 @@
 
 /** 
  *  Inverse home AWAY commands
+ *  Uncomment the below line of code for the inverse home feature
  */
-#define INVERSE_HOME
+//#define INVERSE_HOME
 #ifdef INVERSE_HOME
   #define STRINGIZE_NX(A) #A
   #define STRINGIZE(A) STRINGIZE_NX(A)
