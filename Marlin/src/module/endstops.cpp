@@ -40,6 +40,10 @@
   #include "printcounter.h" // for print_job_timer
 #endif
 
+#if ENABLED(BLTOUCH)
+    #include "../feature/bltouch.h"
+  #endif
+
 Endstops endstops;
 
 // private:
