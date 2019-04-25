@@ -332,9 +332,11 @@
 #define MSG_ENDSTOP_ABORT                   _UxGT("Endstopp Abbr.")
 #define MSG_HEATING_FAILED_LCD              _UxGT("HEIZEN ERFOLGLOS")
 #define MSG_HEATING_FAILED_LCD_BED          _UxGT("Bett heizen fehlge.")
+#define MSG_HEATING_FAILED_LCD_CHAMBER      _UxGT("Geh. heizen fehlge.")
 #define MSG_ERR_REDUNDANT_TEMP              _UxGT("REDUND. TEMP-ABWEI.")
 #define MSG_THERMAL_RUNAWAY                 LCD_STR_THERMOMETER _UxGT(" NICHT ERREICHT")
 #define MSG_THERMAL_RUNAWAY_BED             _UxGT("BETT") MSG_THERMAL_RUNAWAY
+#define MSG_THERMAL_RUNAWAY_CHAMBER         _UxGT("GEH.") MSG_THERMAL_RUNAWAY
 #define MSG_ERR_MAXTEMP                     LCD_STR_THERMOMETER _UxGT(" ÜBERSCHRITTEN")
 #define MSG_ERR_MINTEMP                     LCD_STR_THERMOMETER _UxGT(" UNTERSCHRITTEN")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("BETT ") LCD_STR_THERMOMETER _UxGT(" ÜBERSCHRITTEN")

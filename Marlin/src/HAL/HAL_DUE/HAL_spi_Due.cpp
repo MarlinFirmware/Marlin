@@ -53,7 +53,7 @@
 // Public functions
 // --------------------------------------------------------------------------
 
-#if ENABLED(DUE_SOFTWARE_SPI)
+#if EITHER(DUE_SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // --------------------------------------------------------------------------
   // software SPI
@@ -739,7 +739,42 @@
     #define SPI_MODE_2_DUE_HW 0
     #define SPI_MODE_3_DUE_HW 1
 
+    /**
+     *  The DUE SPI controller is set up so the upper word of the longword
+     *  written to the transmit data register selects which SPI Chip Select
+     *  Register is used. This allows different streams to have different SPI
+     *  settings.
+     *
+     *  In practice it's spooky. Some combinations hang the system, while others
+     *  upset the peripheral device.
+     *
+     *  SPI mode should be the same for all streams. The FYSETC_MINI_12864 gets
+     *  upset if the clock phase changes after chip select goes active.
+     *
+     *  SPI_CSR_CSAAT should be set for all streams. If not the WHILE_TX(0)
+     *  macro returns immediately which can result in the SPI chip select going
+     *  inactive before all the data has been sent.
+     *
+     *  The TMC2130 library uses SPI0->SPI_CSR[3].
+     *
+     *  The U8G hardware SPI uses SPI0->SPI_CSR[0]. The system hangs and/or the
+     *  FYSETC_MINI_12864 gets upset if lower baud rates are used and the SD card
+     *  is inserted or removed.
+     *
+     *  The SD card uses SPI0->SPI_CSR[3]. Efforts were made to use [1] and [2]
+     *  but they all resulted in hangs or garbage on the LCD.
+     *
+     *  The SPI controlled chip selects are NOT enabled in the GPIO controller.
+     *  The application must control the chip select.
+     *
+     *  All of the above can be avoided by defining FORCE_SOFT_SPI to force the
+     *  display to use software SPI.
+     *
+     */
+
     void spiInit(uint8_t spiRate=6) {  // Default to slowest rate if not specified)
+                                       // Also sets U8G SPI rate to 4MHz and the SPI mode to 3
+
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
       constexpr int spiDivider[] = { 10, 21, 42, 84, 168, 255, 255 };
       if (spiRate > 6) spiRate = 1;
@@ -760,15 +795,16 @@
       // TMC2103 compatible setup
       // Master mode, no fault detection, PCS bits in data written to TDR select CSR register
       SPI0->SPI_MR = SPI_MR_MSTR | SPI_MR_PS | SPI_MR_MODFDIS;
-      // SPI mode 0, 8 Bit data transfer, baud rate
-      SPI0->SPI_CSR[3] = SPI_CSR_SCBR(spiDivider[spiRate]) | SPI_CSR_CSAAT | SPI_MODE_0_DUE_HW;  // use same CSR as TMC2130
+      // SPI mode 3, 8 Bit data transfer, baud rate
+      SPI0->SPI_CSR[3] = SPI_CSR_SCBR(spiDivider[spiRate]) | SPI_CSR_CSAAT | SPI_MODE_3_DUE_HW;  // use same CSR as TMC2130
+      SPI0->SPI_CSR[0] = SPI_CSR_SCBR(spiDivider[1]) | SPI_CSR_CSAAT | SPI_MODE_3_DUE_HW;  // U8G default to 4MHz
     }
 
     void spiBegin() { spiInit(); }
 
     static uint8_t spiTransfer(uint8_t data) {
       WHILE_TX(0);
-      SPI0->SPI_TDR = (uint32_t)data | 0x00070000UL;  // Add TMC2130 PCS bits to every byte
+      SPI0->SPI_TDR = (uint32_t)data | 0x00070000UL;  // Add TMC2130 PCS bits to every byte (use SPI0->SPI_CSR[3])
       WHILE_TX(0);
       WHILE_RX(0);
       return SPI0->SPI_RDR;

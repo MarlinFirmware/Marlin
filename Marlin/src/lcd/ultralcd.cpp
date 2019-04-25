@@ -192,22 +192,37 @@ millis_t next_button_update_ms;
 
   #endif
 
-  void wrap_string(uint8_t y, const char * const string) {
-    uint8_t x = LCD_WIDTH;
+  void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte) {
+    SETCURSOR(x, y);
     if (string) {
       uint8_t *p = (uint8_t*)string;
       for (;;) {
-        if (x >= LCD_WIDTH) {
-          x = 0;
-          SETCURSOR(0, y++);
-        }
         wchar_t ch;
-        p = get_utf8_value_cb(p, read_byte_ram, &ch);
+        p = get_utf8_value_cb(p, cb_read_byte, &ch);
         if (!ch) break;
         lcd_put_wchar(ch);
         x++;
+        if (x >= LCD_WIDTH) {
+          x = 0; y++;
+          SETCURSOR(0, y);
+        }
       }
     }
+  }
+
+  void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=NULL*/, PGM_P const suff/*=NULL*/) {
+    const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
+    uint8_t x = 0, y = 0;
+    if (!string && plen + slen <= LCD_WIDTH) {
+      x = (LCD_WIDTH - plen - slen) / 2;
+      y = LCD_HEIGHT > 3 ? 1 : 0;
+    }
+    wrap_string_P(x, y, pref);
+    if (string) {
+      if (x) { x = 0; y++; } // Move to the start of the next line
+      wrap_string(x, y, string);
+    }
+    if (suff) wrap_string_P(x, y, suff);
   }
 
 #endif // HAS_LCD_MENU
@@ -668,6 +683,7 @@ void MarlinUI::update() {
 
   static uint16_t max_display_update_time = 0;
   static millis_t next_lcd_update_ms;
+  millis_t ms = millis();
 
   #if HAS_LCD_MENU
 
@@ -729,11 +745,12 @@ void MarlinUI::update() {
 
       refresh();
       init_lcd(); // May revive the LCD if static electricity killed it
+      ms = millis();
+      next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // delay LCD update until after SD activity completes
     }
 
   #endif // SDSUPPORT && SD_DETECT_PIN
 
-  const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
     #if HAS_GRAPHICAL_LCD
       || drawing_screen

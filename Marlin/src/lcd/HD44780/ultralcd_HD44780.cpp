@@ -1038,9 +1038,7 @@ void MarlinUI::draw_status_screen() {
   }
 
   void draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
-    SETCURSOR(0, 0); lcd_put_u8str_P(pref);
-    if (string) wrap_string(1, string);
-    if (suff) lcd_put_u8str_P(suff);
+    ui.draw_select_screen_prompt(pref, string, suff);
     SETCURSOR(0, LCD_HEIGHT - 1);
     lcd_put_wchar(yesno ? ' ' : '['); lcd_put_u8str_P(no); lcd_put_wchar(yesno ? ' ' : ']');
     SETCURSOR_RJ(utf8_strlen_P(yes) + 2, LCD_HEIGHT - 1);
