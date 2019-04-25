@@ -56,6 +56,10 @@
 
 // private:
 
+#if FAN_COUNT > 0
+  static uint8_t stored_fan_speed[FAN_COUNT];
+#endif
+
 static float resume_position[XYZE];
 
 PauseMode pause_mode = PAUSE_MODE_PAUSE_PRINT;
@@ -424,6 +428,13 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   // Wait for buffered blocks to complete
   planner.synchronize();
 
+  #if FAN_COUNT > 0
+    for(int cnt = 0; cnt < FAN_COUNT; cnt++){
+      stored_fan_speed[cnt] = thermalManager.fan_speed[cnt];
+      thermalManager.fan_speed[cnt] = 0;
+    }
+  #endif
+
   // Initial retract before move to filament change position
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
     do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
@@ -657,6 +668,13 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     if (did_pause_print) {
       card.startFileprint();
       --did_pause_print;
+    }
+  #endif
+
+  #if FAN_COUNT > 0
+    for(int cnt = 0; cnt < FAN_COUNT; cnt++){
+      thermalManager.fan_speed[cnt] = stored_fan_speed[cnt];
+      stored_fan_speed[cnt] = 0;
     }
   #endif
 
