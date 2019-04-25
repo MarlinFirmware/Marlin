@@ -982,20 +982,22 @@ void prepare_move_to_destination() {
           }
         #endif // PREVENT_COLD_EXTRUSION
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          #if ENABLED(MIXING_EXTRUDER)
-            mixer.refresh_collector();
-            for (uint_fast8_t e = 0; e < MIXING_STEPPERS && current_position[E_AXIS] != destination[E_AXIS]; e++) {
-              const float e_delta = (destination[E_AXIS] - current_position[E_AXIS]) * mixer.collector[e];
-          #else
-            const float e_delta = destination[E_AXIS] - current_position[E_AXIS];
-          #endif
-          if (ABS(e_delta) * planner.e_factor[active_extruder] > (EXTRUDE_MAXLENGTH)) {
-            current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-            SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
-          }
-          #if ENABLED(MIXING_EXTRUDER)
+          const float e_delta = ABS(destination[E_AXIS] - current_position[E_AXIS]) * planner.e_factor[active_extruder];
+          if (e_delta > (EXTRUDE_MAXLENGTH)) {
+            #if ENABLED(MIXING_EXTRUDER)
+              bool ignore_e = false;
+              float collector[MIXING_STEPPERS];
+              mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
+              MIXER_STEPPER_LOOP(e)
+                if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) { ignore_e = true; break; }
+            #else
+              const bool ignore_e = true;
+            #endif
+            if (ignore_e) {
+              current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
+              SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
             }
-          #endif
+          }
         #endif // PREVENT_LENGTHY_EXTRUDE
       }
     }

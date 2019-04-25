@@ -101,7 +101,7 @@ class Mixer {
   static void init(); // Populate colors at boot time
 
   static void reset_vtools();
-  static void refresh_collector(const float proportion=1.0, const uint8_t t=selected_vtool);
+  static void refresh_collector(const float proportion=1.0, const uint8_t t=selected_vtool, float (&c)[MIXING_STEPPERS]=collector);
 
   // Used up to Planner level
   FORCE_INLINE static void set_collector(const uint8_t c, const float f) { collector[c] = MAX(f, 0.0f); }
