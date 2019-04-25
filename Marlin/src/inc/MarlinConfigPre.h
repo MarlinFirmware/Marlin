@@ -33,7 +33,25 @@
 #include "../core/millis_t.h"
 #include "Version.h"
 #include "../../Configuration.h"
+
+// WARNING
+// experimental feature
+// can be removed without notice
+// see #13752 #13755 for usage patterns
+#if __has_include("../../user/Configuration.h")
+  #include "../../user/Configuration.h"
+#endif
+
 #include "Conditionals_LCD.h"
 #include "../core/drivers.h"
 #include "../../Configuration_adv.h"
+
+// WARNING
+// experimental feature
+// can be removed without notice
+// see #13752 #13755 for usage patterns
+#if __has_include("../../user/Configuration_adv.h")
+  #include "../../user/Configuration_adv.h"
+#endif
+
 #include "Conditionals_adv.h"

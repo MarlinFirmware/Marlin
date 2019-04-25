@@ -1,0 +1,165 @@
+//
+// structured configuration; see #13752
+//
+
+#pragma once
+
+#undef  SERIAL_PORT
+#define SERIAL_PORT -1 // USB to OctoPrint
+
+#undef  SERIAL_PORT_2
+#define SERIAL_PORT_2 0 // AUX-1 to TFT
+
+#undef  MOTHERBOARD
+#define MOTHERBOARD BOARD_MKS_SBASE
+
+#define CUSTOM_MACHINE_NAME "Vendor/Printer"
+
+#define MACHINE_UUID __DATE__ " " __TIME__
+
+#undef  EXTRUDERS
+#define EXTRUDERS 2
+
+#undef  DEFAULT_NOMINAL_FILAMENT_DIA
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
+
+#undef  TEMP_SENSOR_0
+#undef  TEMP_SENSOR_1
+#undef  TEMP_SENSOR_BED
+#undef  TEMP_SENSOR_CHAMBER
+#define TEMP_SENSOR_0 20      // PT100 aplifier
+#define TEMP_SENSOR_1 20      // PT100 aplifier
+#define TEMP_SENSOR_BED 1     // 100k thermistor
+#define TEMP_SENSOR_CHAMBER 1 // 100k thermistor
+
+#undef  HEATER_0_MAXTEMP
+#undef  HEATER_1_MAXTEMP
+#define HEATER_0_MAXTEMP 350
+#define HEATER_1_MAXTEMP 350
+
+// Wanhao-D6 24v 12ohm 50W
+// auto-tune command: "M303 E0 C8 S300"
+// auto-tune command: "M303 E1 C8 S300"
+#undef  DEFAULT_Kp
+#undef  DEFAULT_Ki
+#undef  DEFAULT_Kd
+#define DEFAULT_Kp 14.40
+#define DEFAULT_Ki 0.54
+#define DEFAULT_Kd 96.88
+
+// Wanhao-D6 24v 2ohm 300W pcb
+// auto-tune command: "M303 E-1 C8 S100"
+#define DEFAULT_bedKp 97.1
+#define DEFAULT_bedKi 1.41
+#define DEFAULT_bedKd 1675.16
+
+#undef  EXTRUDE_MINTEMP
+#define EXTRUDE_MINTEMP 200
+
+#undef  EXTRUDE_MAXLENGTH
+#define EXTRUDE_MAXLENGTH 600
+
+#define USE_XMAX_PLUG
+#define USE_YMAX_PLUG
+#define USE_ZMAX_PLUG
+
+#undef  X_MIN_ENDSTOP_INVERTING
+#undef  Y_MIN_ENDSTOP_INVERTING
+#undef  Z_MIN_ENDSTOP_INVERTING
+#undef  X_MAX_ENDSTOP_INVERTING
+#undef  Y_MAX_ENDSTOP_INVERTING
+#undef  Z_MAX_ENDSTOP_INVERTING
+#undef  Z_MIN_PROBE_ENDSTOP_INVERTING
+#define X_MIN_ENDSTOP_INVERTING true
+#define Y_MIN_ENDSTOP_INVERTING true
+#define Z_MIN_ENDSTOP_INVERTING true
+#define X_MAX_ENDSTOP_INVERTING true
+#define Y_MAX_ENDSTOP_INVERTING true
+#define Z_MAX_ENDSTOP_INVERTING true
+#define Z_MIN_PROBE_ENDSTOP_INVERTING true
+
+#define X_DRIVER_TYPE  DRV8825
+#define Y_DRIVER_TYPE  DRV8825
+#define Z_DRIVER_TYPE  DRV8825
+#define E0_DRIVER_TYPE DRV8825
+#define E1_DRIVER_TYPE DRV8825
+
+#define DISTINCT_E_FACTORS
+
+#undef  DEFAULT_AXIS_STEPS_PER_UNIT
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 1600, 830, 830 }
+
+#undef  DEFAULT_MAX_FEEDRATE
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 25, 50, 50 }
+
+#undef  DEFAULT_MAX_ACCELERATION
+#define DEFAULT_MAX_ACCELERATION      { 9000, 9000, 100, 10000, 10000 }
+
+#define JUNCTION_DEVIATION
+
+#undef  JUNCTION_DEVIATION_MM
+#define JUNCTION_DEVIATION_MM 0.05
+
+#define S_CURVE_ACCELERATION
+
+// using BLTouch
+#undef  Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+
+#define Z_MIN_PROBE_PIN BLTOUCH_PIN
+
+#define BLTOUCH
+#define BLTOUCH_DELAY 100
+
+#undef  X_PROBE_OFFSET_FROM_EXTRUDER
+#undef  Y_PROBE_OFFSET_FROM_EXTRUDER
+#undef  Z_PROBE_OFFSET_FROM_EXTRUDER
+#define X_PROBE_OFFSET_FROM_EXTRUDER 0   // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER +46 // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+
+#undef  MIN_PROBE_EDGE
+#define MIN_PROBE_EDGE 0
+
+#define PROBING_HEATERS_OFF
+
+#undef  INVERT_E0_DIR
+#undef  INVERT_E1_DIR
+#define INVERT_E0_DIR true
+#define INVERT_E1_DIR true
+
+#define NO_MOTION_BEFORE_HOMING
+
+// Enable negative probe offset
+#undef  MIN_SOFTWARE_ENDSTOP_Z
+
+#define AUTO_BED_LEVELING_UBL
+#define ENABLE_LEVELING_FADE_HEIGHT
+#define SEGMENT_LEVELED_MOVES
+#define LEVELED_SEGMENT_LENGTH 5.0
+
+#define RESTORE_LEVELING_AFTER_G28 false
+
+#define MESH_INSET 0
+#define GRID_MAX_POINTS_X 4
+#define GRID_MAX_POINTS_Y 4
+
+#define UBL_MESH_EDIT_MOVES_Z
+
+#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)
+#define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)
+
+#undef  HOMING_FEEDRATE_XY
+#undef  HOMING_FEEDRATE_Z
+#define HOMING_FEEDRATE_XY (80*60)
+#define HOMING_FEEDRATE_Z  (40*60)
+
+#define EEPROM_SETTINGS
+
+#define SDSUPPORT
+
+#define NUM_SERVOS 4
+
+#undef  SERVO_DELAY
+#define SERVO_DELAY { 300, 300, 300, 300 }
+
