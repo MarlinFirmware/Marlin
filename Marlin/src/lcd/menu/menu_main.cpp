@@ -136,6 +136,16 @@ void menu_led();
   #endif
 #endif
 
+#if HAS_GAME_MENU
+  void menu_game();
+#elif ENABLED(MARLIN_BRICKOUT)
+  void lcd_goto_brickout();
+#elif ENABLED(MARLIN_INVADERS)
+  void lcd_goto_invaders();
+#elif ENABLED(MARLIN_SNAKE)
+  void lcd_goto_snake();
+#endif
+
 void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
