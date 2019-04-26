@@ -86,17 +86,17 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
  * Return -1 if the T parameter is out of range or unspecified
  */
 int8_t GcodeSuite::get_target_e_stepper_from_command() {
-  const bool seenT = parser.seenval('T');
-  if (seenT) {
-    const int8_t e = parser.value_byte();
+  int8_t e = -1;
+  if (parser.seenval('T')) {
+    e = parser.value_byte();
     if (e < E_STEPPERS) return e;
   }
   SERIAL_ECHO_START();
   SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-  if (seenT)
-    SERIAL_ECHOLNPAIR(" " MSG_INVALID_E_STEPPER " ", int(e));
-  else
+  if (e == -1)
     SERIAL_ECHOLNPGM(" " MSG_E_STEPPER_NOT_SPECIFIED);
+  else
+    SERIAL_ECHOLNPAIR(" " MSG_INVALID_E_STEPPER " ", int(e));
   return -1;
 }
 
