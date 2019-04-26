@@ -115,7 +115,8 @@ namespace ExtUI {
     #if HAS_MESH
       #include "../../feature/bedlevel/bedlevel.h"
       bool getMeshValid();
-      float *getMeshArray[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y] = &Z_VALUES_ARR;
+      //float *getMeshArray[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y] = &Z_VALUES_ARR;
+      float getMeshPoint(const uint8_t xpos, const uint8_t ypos);
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
       void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);
     #endif

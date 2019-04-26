@@ -70,13 +70,13 @@ char commandbuf[30];
 			if (ExtUI::getMeshValid())
 			{
 				//bed_mesh_t bedMesh = ExtUI::getMeshArray();
-				for(int xCount  = 0; xCount < GRID_MAX_POINTS_X; xCount++)
+				for(int xCount = 0; xCount < GRID_MAX_POINTS_X; xCount++)
 				{
-					for(int yCount  = 0; yCount < GRID_MAX_POINTS_X; yCount++)
+					for(int yCount = 0; yCount < GRID_MAX_POINTS_X; yCount++)
 					{
 						if((showcount++) < 16)
 						{
-							rtscheck.RTS_SndData(getMeshArray[xCount][yCount] *10000, AutolevelVal + (15-showcount-1)*2);
+							rtscheck.RTS_SndData(getMeshPoint(xCount, yCount) *10000, AutolevelVal + (15-showcount-1)*2);
 							rtscheck.RTS_SndData(showcount,AutolevelIcon);
 						}
 					}
