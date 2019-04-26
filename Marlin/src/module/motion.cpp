@@ -991,7 +991,7 @@ void prepare_move_to_destination() {
               MIXER_STEPPER_LOOP(e)
                 if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) { ignore_e = true; break; }
             #else
-              const bool ignore_e = true;
+              constexpr bool ignore_e = true;
             #endif
             if (ignore_e) {
               current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part

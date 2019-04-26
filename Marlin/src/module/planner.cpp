@@ -1777,7 +1777,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
             MIXER_STEPPER_LOOP(e)
               if (e_steps * collector[e] > max_e_steps) { ignore_e = true; break; }
           #else
-            const bool ignore_e = true;
+            constexpr bool ignore_e = true;
           #endif
           if (ignore_e) {
             position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part

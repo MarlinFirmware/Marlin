@@ -72,13 +72,11 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int8_t GcodeSuite::get_target_extruder_from_command() {
   if (parser.seenval('T')) {
     const int8_t e = parser.value_byte();
-    if (e >= EXTRUDERS) {
-      SERIAL_ECHO_START();
-      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
-      return -1;
-    }
-    return e;
+    if (e < EXTRUDERS) return e;
+    SERIAL_ECHO_START();
+    SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+    SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
+    return -1;
   }
   return active_extruder;
 }
@@ -88,22 +86,18 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
  * Return -1 if the T parameter is out of range or unspecified
  */
 int8_t GcodeSuite::get_target_e_stepper_from_command() {
-  if (parser.seenval('T')) {
+  const bool seenT = parser.seenval('T');
+  if (seenT) {
     const int8_t e = parser.value_byte();
-    if (e >= E_STEPPERS) {
-      SERIAL_ECHO_START();
-      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPAIR(" " MSG_INVALID_E_STEPPER " ", int(e));
-      return -1;
-    }
-    return e;
+    if (e < E_STEPPERS) return e;
   }
-  else {
-    SERIAL_ECHO_START();
-    SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLN(" " MSG_E_STEPPER_NOT_SPECIFIED);
-    return -1;
-  }
+  SERIAL_ECHO_START();
+  SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+  if (seenT)
+    SERIAL_ECHOLNPAIR(" " MSG_INVALID_E_STEPPER " ", int(e));
+  else
+    SERIAL_ECHOLNPGM(" " MSG_E_STEPPER_NOT_SPECIFIED);
+  return -1;
 }
 
 /**
@@ -301,7 +295,7 @@ void GcodeSuite::process_parsed_command(
         case 58: G58(); break;
         case 59: G59(); break;
       #endif
-      
+
       #if ENABLED(GCODE_MOTION_MODES)
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif

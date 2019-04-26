@@ -69,7 +69,7 @@ void GcodeSuite::M600() {
     const uint8_t old_mixing_tool = mixer.get_current_vtool();
     mixer.T(MIXER_DIRECT_SET_TOOL);
 
-    MIXER_STEPPER_LOOP(i) mixer.set_collector(i, (i == (uint8_t)target_e_stepper) ? 1.0 : 0.0);
+    MIXER_STEPPER_LOOP(i) mixer.set_collector(i, i == uint8_t(target_e_stepper) ? 1.0 : 0.0);
     mixer.normalize();
 
     const int8_t target_extruder = active_extruder;

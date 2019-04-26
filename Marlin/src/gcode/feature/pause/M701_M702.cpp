@@ -157,11 +157,10 @@ void GcodeSuite::M702() {
     const uint8_t old_mixing_tool = mixer.get_current_vtool();
 
     #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
-      float mixing_multiplier = 1.0;
-
+      float mix_multiplier = 1.0;
       if (!parser.seenval('T')) {
         mixer.T(MIXER_AUTORETRACT_TOOL);
-        mixing_multiplier = MIXING_STEPPERS;
+        mix_multiplier = MIXING_STEPPERS;
       }
       else
     #endif
@@ -220,7 +219,7 @@ void GcodeSuite::M702() {
 
       unload_filament(unload_length, true, PAUSE_MODE_UNLOAD_FILAMENT
         #if ALL(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
-          , mixing_multiplier
+          , mix_multiplier
         #endif
       );
     }
