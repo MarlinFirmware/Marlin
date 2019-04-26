@@ -250,6 +250,10 @@ void menu_main() {
   #endif
 
   #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
+    #if ENABLED(GAMES_EASTER_EGG)
+      MENU_ITEM_DUMMY();
+      MENU_ITEM_DUMMY();
+    #endif
     MENU_ITEM(submenu, "Game", (
       #if HAS_GAME_MENU
         menu_game

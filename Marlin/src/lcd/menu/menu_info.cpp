@@ -28,11 +28,11 @@
 
 #if HAS_LCD_MENU && ENABLED(LCD_INFO_MENU)
 
+#include "menu.h"
+
 #if HAS_GAMES
   #include "game/game.h"
 #endif
-
-#include "menu.h"
 
 #if ENABLED(PRINTCOUNTER)
 
@@ -212,8 +212,6 @@ void menu_info_board() {
   #endif
 #endif // LCD_INFO_PRINTER_SHOWS_BOOTSCREEN
 
-void menu_game();
-
 //
 // "About Printer" submenu
 //
@@ -239,6 +237,10 @@ void menu_info() {
   #endif
 
   #if HAS_GAMES
+    #if ENABLED(GAMES_EASTER_EGG)
+      MENU_ITEM_DUMMY();
+      MENU_ITEM_DUMMY();
+    #endif
     MENU_ITEM(submenu, "Game", (
       #if HAS_GAME_MENU
         menu_game
