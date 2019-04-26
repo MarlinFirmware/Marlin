@@ -851,6 +851,11 @@
 
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
+#if ENABLED(LCD_INFO_MENU)
+  // Add menu item to re-display Marlin bootscreen and custom bootscreen
+  // instead of submenu with details for printer, board and thermistors.
+  //#define LCD_INFO_PRINTER_SHOWS_BOOTSCREEN
+#endif
 
 // Scroll a longer status message into view
 //#define STATUS_MESSAGE_SCROLLING
