@@ -79,7 +79,7 @@
 
   #define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
   #if ENABLED(ADAPTIVE_FAN_SLOWING) && ENABLED(PIDTEMP)
-    //#define NO_FAN_SLOWING_IN_PID_TUNING    // Don't slow fan speed during M303
+    #define NO_FAN_SLOWING_IN_PID_TUNING    // Don't slow fan speed during M303
   #endif
 
   /**
@@ -1025,7 +1025,7 @@
                                               // Note: Extra time may be added to mitigate controller latency.
       #define BABYSTEP_ALWAYS_AVAILABLE     // Allow babystepping at all times (not just during movement).
       #define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
-      #if  DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD)
+      #if DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD)
         #define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
       #endif
     #endif
@@ -1128,7 +1128,9 @@
 //
 // G2/G3 Arc Support
 //
-#define ARC_SUPPORT               // Disable this feature to save ~3226 bytes
+#if DISABLED(MachineCR10Orig)
+  #define ARC_SUPPORT               // Disable this feature to save ~3226 bytes
+#endif
 #if ENABLED(ARC_SUPPORT)
   #define MM_PER_ARC_SEGMENT  1   // Length of each arc segment
   #define N_ARC_CORRECTION   25   // Number of intertpolated segments between corrections
@@ -1403,7 +1405,7 @@
 
   #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
   #define HOME_BEFORE_FILAMENT_CHANGE             // Ensure homing has been completed prior to parking for filament change
-  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard)) && DISABLED(MachineCR10SPro)
     //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
     //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
   #endif
@@ -2150,28 +2152,24 @@
 #else
   #define CommBedTmp "75"
 #endif
-
-#if (ENABLED(ABL_UBL))
-  #define USER_DESC_1 "UBL Commission 1"
-  #define USER_GCODE_1 "M502 \n M500 \n M501 \n M190 S" CommBedTmp"  \n M104 S225 \n G28 \n G29 P1 \n G29 S1 \n M117 Run Step 2"
-
-  #define USER_DESC_2 "UBL Commission 2"
-  #define USER_GCODE_2 "G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n M109 S225 \n G1 X100 Y 100 \n G1 Z0 \n M117 Set Z Offset"
+  #define USER_DESC_1 "Mesh Commission"
+  #if (ENABLED(ABL_UBL))
+    #define USER_GCODE_1 "M502 \n M500 \n M501 \n M190 S" CommBedTmp" \n G28 \n G29 P1 \n G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n M109 S225 \n G1 X150 Y 150 \n G1 Z0 \n M77 \n M117 Set Z Offset"
+  #elif ENABLED(ABL_BI)
+    #define USER_GCODE_1 "M117 \n M502 \n M500 \n M501 \n M190 S" CommBedTmp" \n M117 Probing.... \n M104 S225 \n G28 \n G29 \n M500 \n G28 \n M420 S \n M109 S225 \n G1 X100 Y 100 \n G1 Z0 \n M77 \n M117 Set Z Offset"
+  #endif
+  
+  #define USER_DESC_2 "PID Tune"
+  #define USER_GCODE_2 "M106 S128 \n M303 C8 S225 E1 U \n M500 \n M117 PID Tune Done"
 
   #define USER_DESC_3 "Prep for Z Adjust"
-  #define USER_GCODE_3 "M190 " CommBedTmp" \n M104 235 \n G28 \n G29 L1 \n G1 X100 Y 100 \n G1 Z0"
+  #define USER_GCODE_3 "M190 S" CommBedTmp" \n M104 235 \n G28 \n G29 L1 \n G1 X100 Y 100 \n G1 Z0"
 
-  #define USER_DESC_4 "Fill Mesh Points"
-  #define USER_GCODE_4 "G29 P3 \n G29 P3 \n G29 P3 \n G29 T"
-#elif ENABLED(ABL_BI)
-  #define USER_DESC_1 "BIL Commission"
-  #define USER_GCODE_1 "M502 \n M500 \n M501 \n M190 " CommBedTmp"  \n M104 S225 \n G28 \n G29 \n M500 \n G28 \n  M420 S \n M109 S225 \n G1 X100 Y 100 \n G1 Z0 \n M117 Set Z Offset"
+  #define USER_DESC_4 "Store Settings"
+  #define USER_GCODE_4 "M500"
 
-  #define USER_DESC_2 "Prep for Z Adjust"
-  #define USER_GCODE_2 "M190 " CommBedTmp" \n M104 235 \n G28 \n  M420 S \n G1 X100 Y 100 \n G1 Z0"
-#endif
-   #define USER_DESC_5 "Run Mesh Validation"
-  #define USER_GCODE_5 "G26"
+  //#define USER_DESC_5 "Run Mesh Validation"
+  //#define USER_GCODE_5 "G26"
 #endif
 
 /**
@@ -2405,7 +2403,8 @@
 /**
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
-#define PINS_DEBUGGING
-
+#if DISABLED(MachineCR10Orig)
+  #define PINS_DEBUGGING
+#endif
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE

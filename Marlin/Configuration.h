@@ -1,39 +1,39 @@
-#define ADAPTIVE_FAN_SLOWING
 /*
    Base machine
    Choose one option below to define machine size, board, and parameters
 
-
-   Choose this for CR10 Original Melzi Board
-   You still need to select a machine size below!
+   Select machine size
 */
-//#define MachineCR10Orig
+
+//#define MachineEnder2
+//#define MachineEnder3
+//#define MachineEnder4
+//#define MachineMini
+//#define MachineCR20 //Buzzer doesnt work
+//#define MachineCR20Pro
+//#define MachineCR10
+//#define MachineCR10S
+#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+//#define MachineCRX //Currently only supports GraphicLCD
+//#define MachineS4
+//#define MachineS5
+
+//#define MachineCR10Orig // Forces Melzi board
 
 /*
    Enabled this for linear advance instead of mesh leveling on a melzi board
 */
 //#define OrigLA
-/*
-   Select machine size
-*/
-//#define MachineEnder2 // Must Select MachineCR10Orig above!
-//#define MachineEnder3 // Must Select MachineCR10Orig above!
-//#define MachineEnder4
-//#define MachineMini
-//#define MachineCR20 //Buzzer doesnt work, need to map pin
-//#define MachineCR20Pro
-//#define MachineCR10Std
-//#define MachineCRX
-#define MachineCR10SPro
-//#define MachineS4
-//#define MachineS5
 
 //#define PLUS // Adds bltouch, allmetal, bilinear (standard), lerdge, 93 e steps/mm
 
-//#define Big_UI
+//#define Big_UI // Lightweight status screen
 
 #define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
-//#define GraphicLCD //Full graphics LCD for Ender 4
+//#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
+//#define ForceCRXDisplay
+//#define Force10SProDisplay
+#define TM3DTouchscreenUpdates // Enables TM3D Error screens and eeprom screen not found in Creality screen firmware
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
 //#define DualFilSensors //Using dual filament sensors on XMax and YMAX
@@ -49,11 +49,11 @@
 #define HotendStock
 //#define HotendE3D
 
-/*
-   Enable this if you have an all metal hotend capable of 300c
-
-*/
+//Enable this if you have an all metal hotend capable of 300c
 #define HotendAllMetal
+
+// Enable this if you used a plug and play creality e3d kit with the Creality thermistor
+//#define CrealityThermistor
 
 /*
  * Select these if you have changed to a high performance extruder
@@ -97,13 +97,16 @@
 #define ABL_BLTOUCH
 
 //#define CREALITY_ABL_MOUNT //Using creality ABL mount
+//#define E3D_DUALFAN_MOUNT // Using HD Modular mount as above with 2 5015 blowers and sensor on the right
+//#define E3D_PROBEMOUNT_LEFT // Default is probe mounted to the right for E3D. Set this to invert.
+
 /*
    Choose bed leveling type here
    Requires a sensor from above
    Melzi board users may only select ABL_BI for bilinear leveling
 */
 //#define ABL_BI
-#define ABL_UBL
+//#define ABL_UBL
 
 //#define POWER_LOSS_RECOVERY //Large and does not fit with any other features on Melzi, or UBL on Atmega
 /*
@@ -173,21 +176,6 @@
  * Advanced settings can be found in Configuration_adv.h
  *
  */
-
-#if(ENABLED(MachineCR10SPro))
-  #define MachineCR10Std
-  #if DISABLED(ABL_BLTOUCH)
-    #define ABL_NCSW
-  #endif
-  #if DISABLED(ABL_UBL)
-    #define ABL_BI
-  #endif
-  #define MeshStd
-  #define BoardRev2
-  #define SD_DETECT_PIN 49
-#endif
-
-
 #define CONFIGURATION_H_VERSION 020000
 
 //===========================================================================
@@ -244,7 +232,57 @@
  */
 
 // Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
-#if(DISABLED(MachineEnder4) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard) && ( DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD)))
+#if(ENABLED(MachineCR10SPro))
+  #define MachineCR10Std
+  #if DISABLED(ABL_BLTOUCH)
+    #define ABL_NCSW
+  #endif
+  #if DISABLED(ABL_UBL)
+    #define ABL_BI
+  #endif
+  #define MeshStd
+  #define BoardRev2
+  #define SD_DETECT_PIN 49
+#endif
+
+#if ENABLED(MachineEnder2) || ENABLED(MachineEnder3) || ENABLED(MachineCR10)
+  #define MachineCR10Orig
+#endif
+
+#if ENABLED(MachineCR10) || ENABLED(MachineCR10S)
+  #define MachineCR10Std
+#endif
+
+#if ENABLED(PLUS)
+  #define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock)
+  #define HotendAllMetal
+  #define EZRstruder
+  #if DISABLED(ABL_UBL)
+    #define ABL_BI
+  #endif
+  #define ABL_BLTOUCH
+  #define HotendAllMetal
+#endif
+
+#if(ENABLED(MachineCRX))
+  #define MachineCR10Std
+  #define Dual_BowdenSplitterY
+#endif
+
+#if ENABLED(MachineCR20Pro)
+  #define MachineCR20
+  #if DISABLED(ABL_EZABL) && DISABLED(ABL_NCSW)
+    #define ABL_BLTOUCH
+  #endif
+  #define HotendAllMetal
+  #if DISABLED(ABL_UBL)
+    #define ABL_BI
+    #define POWER_LOSS_RECOVERY
+  #endif
+  #define SolidBedMounts
+#endif
+
+#if(DISABLED(MachineEnder4) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard)) && DISABLED(MachineCR10SPro)
   #define SHOW_CUSTOM_BOOTSCREEN
 #endif
 // Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
@@ -266,6 +304,8 @@
 #define CUSTOM_MACHINE_NAME "SuPeR CR-10"
 #elif(ENABLED(MachineCRX))
 #define CUSTOM_MACHINE_NAME "TM3D CR-X"
+#elif(ENABLED(MachineCR10SPro))
+#define CUSTOM_MACHINE_NAME "TM3D 10S Pro"
 #elif(ENABLED(MachineCR10Std))
 #define CUSTOM_MACHINE_NAME "300 SuPeR"
 #elif(ENABLED(MachineS4))
@@ -335,32 +375,6 @@
 
 #define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " TM3D " VerChar1 VerChar2 VerChar3 VerChar4 VerChar5 VerChar6
 
-#if ENABLED(PLUS)
-  #define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock)
-  #define HotendAllMetal
-  #define EZRstruder
-  #if DISABLED(ABL_UBL)
-    #define ABL_BI
-  #endif
-  #define ABL_BLTOUCH
-  #define HotendAllMetal
-#endif
-
-#if(ENABLED(MachineCRX))
-  #define MachineCR10Std
-  #define Dual_BowdenSplitterY
-#endif
-
-#if ENABLED(MachineCR20Pro)
-  #define MachineCR20
-  #define ABL_BLTOUCH
-  #define HotendAllMetal
-  #if DISABLED(ABL_UBL)
-    #define ABL_BI
-    #define POWER_LOSS_RECOVERY
-  #endif
-  #define SolidBedMounts
-#endif
 /**
  * Select the serial port on the board to use for communication with the host.
  * This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -644,14 +658,13 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '501':"100K Zonestar (Tronxy X3A)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '61':"100k Formbot / Vivedino 3950 350C thermistor 4.7k pullup", '66':"Dyze Design 4.7M High Temperature thermistor", '67':"Slice Engineering 450C High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-4':"Thermocouple + AD8495", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#if ENABLED(HotendStock)
-#define TEMP_SENSOR_0 1
+#if ENABLED(HotendStock) || ENABLED(CrealityThermistor)
+  #define TEMP_SENSOR_0 1
   #if(ENABLED(Dual_ChimeraDualNozzle))
     #define TEMP_SENSOR_1 1
   #endif
-#endif
-#if ENABLED(HotendE3D)
-#define TEMP_SENSOR_0 5
+#else
+  #define TEMP_SENSOR_0 5
   #if(ENABLED(Dual_ChimeraDualNozzle))
     #define TEMP_SENSOR_1 5
   #endif
@@ -711,9 +724,9 @@
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
 #if (ENABLED(HotendAllMetal))
-	#define HEATER_0_MAXTEMP 310
+	#define HEATER_0_MAXTEMP 315
 #else
-	#define HEATER_0_MAXTEMP 250
+	#define HEATER_0_MAXTEMP 255
 #endif
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
@@ -749,17 +762,16 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
 #if ENABLED(HotendStock)
-
-    #if(ENABLED(MachineCRX))
-      #define  DEFAULT_Kp 17.5
-      #define  DEFAULT_Ki 1.37
-      #define  DEFAULT_Kd 55.47
-    #else
-      // Stock CR-10 Hotend fan 100%
-      #define  DEFAULT_Kp 17.42
-      #define  DEFAULT_Ki 1.27
-      #define  DEFAULT_Kd 59.93
-    #endif
+  #if(ENABLED(MachineCRX) || ENABLED(MachineCR10SPro))
+    #define  DEFAULT_Kp 17.5
+    #define  DEFAULT_Ki 1.37
+    #define  DEFAULT_Kd 55.47
+  #else
+    // Stock CR-10 Hotend fan 100%
+    #define  DEFAULT_Kp 17.42
+    #define  DEFAULT_Ki 1.27
+    #define  DEFAULT_Kd 59.93
+  #endif
 #endif
 
 #if ENABLED(HotendE3D)
@@ -1043,7 +1055,7 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #if ENABLED(MachineCR20Pro)
-  #define DEFAULT_MAX_FEEDRATE          { 7500, 7500, 10, 25 }
+  #define DEFAULT_MAX_FEEDRATE          { 7500, 7500, 10, 50 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 25 }
   #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
@@ -1053,7 +1065,7 @@
   #define DEFAULT_ZJERK                  0.4
   #define DEFAULT_EJERK                  5.0
 #elif (ENABLED(MachineMini) || ENABLED(MachineCR20) || ENABLED(MachineEnder2) || ENABLED(MachineEnder3) || ENABLED(MachineEnder4))
-  #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 25 }
+  #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 50 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 25 }
   #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
@@ -1063,8 +1075,8 @@
   #define DEFAULT_ZJERK                  0.4
   #define DEFAULT_EJERK                  5.0
 #elif (ENABLED(MachineCR10SPro))
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 25 }
-  #define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 25 }
+  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 70 }
+  #define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 60 }
   #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
@@ -1073,7 +1085,7 @@
   #define DEFAULT_ZJERK                 0.4
   #define DEFAULT_EJERK                 5.0
 #elif (ENABLED(MachineCR10Std))
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 25 }
+  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 50 }
   #define DEFAULT_MAX_ACCELERATION      { 1500, 1500, 100, 25 }
   #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
@@ -1083,7 +1095,7 @@
   #define DEFAULT_ZJERK                  0.4
   #define DEFAULT_EJERK                  5.0
 #elif ENABLED( MachineS4)
-  #define DEFAULT_MAX_FEEDRATE          { 500, 400, 10, 25 }
+  #define DEFAULT_MAX_FEEDRATE          { 500, 400, 10, 50 }
   #define DEFAULT_MAX_ACCELERATION      { 1000, 750, 100, 25 }
   #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
@@ -1093,7 +1105,7 @@
   #define DEFAULT_ZJERK                  0.4
   #define DEFAULT_EJERK                  5.0
 #elif ENABLED(MachineS5)
-  #define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 25 }
+  #define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 50 }
   #define DEFAULT_MAX_ACCELERATION      { 1000, 500, 100, 25 }
   #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
@@ -1125,7 +1137,7 @@
 //
 #define JUNCTION_DEVIATION
 #if ENABLED(JUNCTION_DEVIATION)
-  #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
+  #define JUNCTION_DEVIATION_MM 0.08  // (mm) Distance from real junction edge
 #endif
 
 /**
@@ -1219,7 +1231,18 @@
 #define BLTOUCH
 #endif
 #if ENABLED(BLTOUCH)
-#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+  //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+
+  /**
+   * BLTouch V3.0 and newer smart series
+   * For genuine BLTouch 3.0 sensors. Clones may be confused by 3.0 command angles. YMMV.
+   * If the pin trigger is not detected, first try swapping the black and white wires then toggle this.
+   */
+  #define BLTOUCH_V3
+  #if ENABLED(BLTOUCH_V3)
+    #define BLTOUCH_FORCE_5V_MODE
+    //#define BLTOUCH_FORCE_OPEN_DRAIN_MODE
+  #endif
 #endif
 
 /**
@@ -1305,33 +1328,58 @@
      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
    #endif
 
-   #if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(HotendStock)) && DISABLED(CREALITY_ABL_MOUNT)
-     #define X_PROBE_OFFSET_FROM_EXTRUDER -44  // X offset: -left  +right  [of the nozzle]
-     #define Y_PROBE_OFFSET_FROM_EXTRUDER -10  // Y offset: -front +behind [the nozzle]
-     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
-   #endif
+  #if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(HotendStock))
+    #if ENABLED(CREALITY_ABL_MOUNT)
+      #define X_PROBE_OFFSET_FROM_EXTRUDER -55  // X offset: -left  +right  [of the nozzle]
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER -15  // Y offset: -front +behind [the nozzle]
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+    #else
+      #define X_PROBE_OFFSET_FROM_EXTRUDER -44  // X offset: -left  +right  [of the nozzle]
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER -10  // Y offset: -front +behind [the nozzle]
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+    #endif
+  #endif
 
-  #if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(HotendStock)) && ENABLED(CREALITY_ABL_MOUNT)
-     #define X_PROBE_OFFSET_FROM_EXTRUDER -55  // X offset: -left  +right  [of the nozzle]
-     #define Y_PROBE_OFFSET_FROM_EXTRUDER -15  // Y offset: -front +behind [the nozzle]
-     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
-   #endif
 
    #if (ENABLED(ABL_BLTOUCH) && ENABLED(HotendE3D))
-     #define X_PROBE_OFFSET_FROM_EXTRUDER 33  // X offset: -left  +right  [of the nozzle]
-     #define Y_PROBE_OFFSET_FROM_EXTRUDER 5  // Y offset: -front +behind [the nozzle]
-     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+    #if ENABLED(E3D_DUALFAN_MOUNT)
+      #if ENABLED(E3D_PROBEMOUNT_LEFT)
+        #define X_PROBE_OFFSET_FROM_EXTRUDER -63  // X offset: -left  +right  [of the nozzle]
+      #else
+        #define X_PROBE_OFFSET_FROM_EXTRUDER 63  // X offset: -left  +right  [of the nozzle]
+      #endif
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER 5  // Y offset: -front +behind [the nozzle]
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+    #else
+      #define X_PROBE_OFFSET_FROM_EXTRUDER 33  // X offset: -left  +right  [of the nozzle]
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER 5  // Y offset: -front +behind [the nozzle]
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+    #endif
    #endif
 
    #if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(HotendE3D))
-     #define X_PROBE_OFFSET_FROM_EXTRUDER 33  // X offset: -left  +right  [of the nozzle]
-     #define Y_PROBE_OFFSET_FROM_EXTRUDER 5  // Y offset: -front +behind [the nozzle]
-     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+    #if ENABLED(E3D_DUALFAN_MOUNT)
+      #if ENABLED(E3D_PROBEMOUNT_LEFT)
+        #define X_PROBE_OFFSET_FROM_EXTRUDER -63  // X offset: -left  +right  [of the nozzle]
+      #else
+        #define X_PROBE_OFFSET_FROM_EXTRUDER 63  // X offset: -left  +right  [of the nozzle]
+      #endif
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER 5  // Y offset: -front +behind [the nozzle]
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+    #else
+      #define X_PROBE_OFFSET_FROM_EXTRUDER 33  // X offset: -left  +right  [of the nozzle]
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER 5  // Y offset: -front +behind [the nozzle]
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+    #endif
    #endif
  #endif
 
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 10
+#if ENABLED(ABL_BLTOUCH)
+  #define MIN_PROBE_EDGE 3
+#else
+  #define MIN_PROBE_EDGE 5
+#endif
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 6000
@@ -1374,9 +1422,9 @@
 
 // Enable the M48 repeatability test to test probe accuracy
 #if (ENABLED(ABL_EZABL)|| ENABLED(ABL_BLTOUCH) || ENABLED(ABL_NCSW))
-#if(DISABLED(MachineCR10Orig))
-#define Z_MIN_PROBE_REPEATABILITY_TEST
-#endif
+  #if(DISABLED(MachineCR10Orig))
+    #define Z_MIN_PROBE_REPEATABILITY_TEST
+  #endif
 #endif
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -1602,7 +1650,7 @@
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
-#if (DISABLED(MachineCR10Orig) && DISABLED(MachineCR20) && DISABLED(MachineEnder4) && DISABLED(MachineCRX)) || ENABLED(AddonFilSensor) || ENABLED(DualFilSensors)
+#if(DISABLED(MachineCR10Orig) &&(DISABLED(MachineCR20)|| ENABLED(AddonFilSensor)) && (DISABLED(MachineEnder4) || ENABLED(AddonFilSensor)) && (DISABLED(MachineCRX)|| ENABLED(AddonFilSensor) || ENABLED(DualFilSensors)))
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -1716,13 +1764,13 @@
    */
 #if(DISABLED(MachineCR10Orig))
 #define G26_MESH_VALIDATION   // Enable G26 mesh validation
+#define G26_XYFEEDRATE 20
 #endif
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for the G26 Mesh Validation Tool.
-    #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
-    #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for the G26 Mesh Validation Tool.
-    #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for XY Moves for the G26 Mesh Validation Tool.
+    #define MESH_TEST_HOTEND_TEMP  205.0  // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
+    #define MESH_TEST_BED_TEMP      60.0  // (°C) Default bed temperature for the G26 Mesh Validation Tool.
   #endif
 
 #endif
@@ -1736,7 +1784,7 @@
 #elif ENABLED(MeshExtreme)
   #define GRID_MAX_POINTS_X 15
 #else
-  GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 3
 #endif
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
@@ -1744,33 +1792,40 @@
 
   // Set the number of grid points per dimension.
 
-
-
 // Set the boundaries for probing (where the probe can reach).
-#if( (X_PROBE_OFFSET_FROM_EXTRUDER + 15) > 0 )
-#define LEFT_PROBE_BED_POSITION (X_PROBE_OFFSET_FROM_EXTRUDER + 5)
+/*
+
+#define MESH_INSET MIN_PROBE_EDGE
+
+#if( (X_PROBE_OFFSET_FROM_EXTRUDER ) > MESH_INSET )
+  #define LEFT_PROBE_BED_POSITION (X_PROBE_OFFSET_FROM_EXTRUDER + MESH_INSET + 1)
 #else
-#define LEFT_PROBE_BED_POSITION 10
+  #define LEFT_PROBE_BED_POSITION MESH_INSET + 1
 #endif
 
-#if( (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER - 5) < X_BED_SIZE)
-#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER - 5)
+#if( (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER) < X_BED_SIZE - MESH_INSET)
+  #define RIGHT_PROBE_BED_POSITION (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER - MESH_INSET - 1)
 #else
-#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - X_PROBE_OFFSET_FROM_EXTRUDER - 5)
+  #define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - X_PROBE_OFFSET_FROM_EXTRUDER - MESH_INSET -1)
 #endif
 
-#if ( (Y_PROBE_OFFSET_FROM_EXTRUDER + 25) > 10 )
-#define FRONT_PROBE_BED_POSITION (Y_PROBE_OFFSET_FROM_EXTRUDER + 25)
+#if ( (Y_PROBE_OFFSET_FROM_EXTRUDER + MESH_INSET) > MESH_INSET )
+  #define FRONT_PROBE_BED_POSITION (Y_PROBE_OFFSET_FROM_EXTRUDER + MESH_INSET + 1)
 #else
-#define FRONT_PROBE_BED_POSITION 25
+  #define FRONT_PROBE_BED_POSITION MESH_INSET + 1
 #endif
 
-#if( (Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER - 25) < Y_BED_SIZE)
-#define BACK_PROBE_BED_POSITION (Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER - 25)
+#if( (Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER ) < Y_BED_SIZE - MESH_INSET)
+#define BACK_PROBE_BED_POSITION (Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER - MESH_INSET - 1)
 #else
-#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - 25)
+    #define BACK_PROBE_BED_POSITION (Y_BED_SIZE - Y_PROBE_OFFSET_FROM_EXTRUDER - MESH_INSET - 1 )
 #endif
 
+*/
+  //#define LEFT_PROBE_BED_POSITION MIN_PROBE_EDGE
+  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - (MIN_PROBE_EDGE))
+  //#define FRONT_PROBE_BED_POSITION MIN_PROBE_EDGE
+  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - (MIN_PROBE_EDGE))
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
 
@@ -1937,8 +1992,11 @@
  * Commands to execute at the end of G29 probing.
  * Useful to retract or move the Z probe out of the way.
  */
-#define Z_PROBE_END_SCRIPT "M280 P0 S90"
-
+#if ENABLED(ABL_BLTOUCH)
+  #define Z_PROBE_END_SCRIPT "M280 P0 S90 \n G1 X0 Y0"
+#else
+  #define Z_PROBE_END_SCRIPT "G1 X0 Y0"
+#endif
 
 // @section homing
 
@@ -1962,19 +2020,24 @@
 //
 #define Z_SAFE_HOMING
 
+#if ENABLED(E3D_DUALFAN_MOUNT)
+  #define HOMING_ADD 15
+#else
+  #define HOMING_ADD 0
+#endif
 #if ENABLED(Z_SAFE_HOMING)
   #if ENABLED(MachineS4)
-    #define Z_SAFE_HOMING_X_POINT 60    // X point for Z homing when homing all axis (G28).
-    #define Z_SAFE_HOMING_Y_POINT 60    // Y point for Z homing when homing all axis (G28).
+    #define Z_SAFE_HOMING_X_POINT 60 + HOMING_ADD   // X point for Z homing when homing all axis (G28).
+    #define Z_SAFE_HOMING_Y_POINT 60 + HOMING_ADD    // Y point for Z homing when homing all axis (G28).
   #elif ENABLED(MachineS5)
-    #define Z_SAFE_HOMING_X_POINT 80    // X point for Z homing when homing all axis (G28).
-    #define Z_SAFE_HOMING_Y_POINT 80    // Y point for Z homing when homing all axis (G28).
+    #define Z_SAFE_HOMING_X_POINT 80 + HOMING_ADD    // X point for Z homing when homing all axis (G28).
+    #define Z_SAFE_HOMING_Y_POINT 80 + HOMING_ADD    // Y point for Z homing when homing all axis (G28).
   #elif ENABLED(MachineCRX) 
-    #define Z_SAFE_HOMING_X_POINT 50    // X point for Z homing when homing all axis (G28).
-    #define Z_SAFE_HOMING_Y_POINT 70    // Y point for Z homing when homing all axis (G28).
+    #define Z_SAFE_HOMING_X_POINT 50 + HOMING_ADD    // X point for Z homing when homing all axis (G28).
+    #define Z_SAFE_HOMING_Y_POINT 70 + HOMING_ADD    // Y point for Z homing when homing all axis (G28).
   #else
-    #define Z_SAFE_HOMING_X_POINT 50    // X point for Z homing when homing all axis (G28).
-    #define Z_SAFE_HOMING_Y_POINT 50    // Y point for Z homing when homing all axis (G28).
+    #define Z_SAFE_HOMING_X_POINT 50 + HOMING_ADD    // X point for Z homing when homing all axis (G28).
+    #define Z_SAFE_HOMING_Y_POINT 50 + HOMING_ADD    // Y point for Z homing when homing all axis (G28).
   #endif
 #endif
 
@@ -2200,7 +2263,7 @@
  *   M76 - Pause the print job timer
  *   M77 - Stop the print job timer
  */
- #if(DISABLED(MachineCR10Orig))
+#if DISABLED(MachineCR10Orig)
  #define PRINTJOB_TIMER_AUTOSTART
 #endif
 /**
@@ -2215,7 +2278,7 @@
  *
  * View the current statistics with M78.
  */
- #if(DISABLED(MachineCR10Orig))
+#if DISABLED(MachineCR10Orig)
  #define PRINTCOUNTER
 #endif
 //=============================================================================
@@ -2308,8 +2371,9 @@
 // This option overrides the default number of encoder pulses needed to
 // produce one step. Should be increased for high-resolution encoders.
 //
-//#define ENCODER_PULSES_PER_STEP 4
-
+#if ENABLED(MachineCR20)
+  #define ENCODER_PULSES_PER_STEP 2
+#endif
 //
 // Use this option to override the number of step signals required to
 // move between next/prev menu items.
