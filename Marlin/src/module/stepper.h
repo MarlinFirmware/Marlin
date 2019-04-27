@@ -159,13 +159,10 @@
 #define _MIN_STEPPER_PULSE_CYCLES(N) MAX((unsigned long)((F_CPU) / (MAXIMUM_STEPPER_RATE)), ((F_CPU) / 500000UL) * (N))
 #if MINIMUM_STEPPER_PULSE
   #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES((unsigned long)(MINIMUM_STEPPER_PULSE))
+#elif HAS_DRIVER(LV8729)
+  #define MIN_STEPPER_PULSE_CYCLES (unsigned long)((((F_CPU) - 1) / 2000000) + 1) // 0.5µs, aka 500ns
 #else
-  #if HAS_DRIVER(LV8729)
-    // set 500ns for LV8729
-    #define MIN_STEPPER_PULSE_CYCLES (unsigned long)((((F_CPU) - 1) / 2000000) + 1)
-  #else
-    #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1UL)
-  #endif
+  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1UL)
 #endif
 
 // Calculate the minimum ticks of the PULSE timer that must elapse with the step pulse enabled
