@@ -26,6 +26,14 @@ extern uint32_t i2s_port_data;
 
 int i2s_init();
 
+uint8_t i2s_state(uint8_t pin);
+
 void i2s_write(uint8_t pin, uint8_t val);
 
 void i2s_push_sample();
+
+// pin definitions
+
+#define I2S_WS 25
+#define I2S_BCK 26
+#define I2S_DATA 27

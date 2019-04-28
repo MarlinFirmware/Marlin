@@ -111,8 +111,12 @@
   // The MINIPanel display
   //#define U8G_CLASS U8GLIB_MINI12864
   //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 8 stripes
-  #define U8G_CLASS U8GLIB_MINI12864_2X
-  #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 4 stripes
+  #define U8G_CLASS U8GLIB_MINI12864_2X_HAL
+  #if BOTH(FYSETC_MINI_12864, FORCE_SOFT_SPI)
+    #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // 4 stripes SW-SPI
+  #else
+    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 4 stripes HW-SPI
+  #endif
 #elif ENABLED(U8GLIB_SH1106_EINSTART)
   // Connected via motherboard header
   #define U8G_CLASS U8GLIB_SH1106_128X64

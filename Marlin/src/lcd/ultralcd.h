@@ -72,7 +72,11 @@
       #define LCDWRITE(c) lcd_put_wchar(c)
     #endif
 
-    void wrap_string(uint8_t y, const char * const string);
+    #include "fontutils.h"
+
+    void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte);
+    inline void wrap_string_P(uint8_t &x, uint8_t &y, PGM_P const pstr) { _wrap_string(x, y, pstr, read_byte_rom); }
+    inline void wrap_string(uint8_t &x, uint8_t &y, const char * const string) { _wrap_string(x, y, string, read_byte_ram); }
 
     #if ENABLED(SDSUPPORT)
       #include "../sd/cardreader.h"
@@ -456,6 +460,8 @@ public:
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       static void ubl_plot(const uint8_t x, const uint8_t inverted_y);
     #endif
+
+    static void draw_select_screen_prompt(PGM_P const pref, const char * const string=NULL, PGM_P const suff=NULL);
 
   #elif HAS_SPI_LCD
 

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 //
 // Serial aliases for debugging.
@@ -27,6 +26,7 @@
 //  (or not) in a given .cpp file
 //
 
+#undef DEBUG_PRINT_P
 #undef DEBUG_ECHO_START
 #undef DEBUG_ERROR_START
 #undef DEBUG_CHAR

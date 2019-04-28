@@ -50,6 +50,19 @@
   #define HEATER_BED_INVERTING true
 #endif
 
+/**
+ * Heated Chamber settings
+ */
+#if TEMP_SENSOR_CHAMBER
+  #define CHAMBER_MINTEMP             5
+  #define CHAMBER_MAXTEMP            60
+  #define TEMP_CHAMBER_HYSTERESIS     1   // (°C) Temperature proximity considered "close enough" to the target
+  #define THERMAL_PROTECTION_CHAMBER      // Enable thermal protection for the heated chamber
+  //#define CHAMBER_LIMIT_SWITCHING
+  //#define HEATER_CHAMBER_PIN       44   // Chamber heater on/off pin
+  //#define HEATER_CHAMBER_INVERTING false
+#endif
+
 #if DISABLED(PIDTEMPBED)
   #define BED_CHECK_INTERVAL 3000 // ms between checks in bang-bang control
   #if ENABLED(BED_LIMIT_SWITCHING)
@@ -127,8 +140,8 @@
 #endif
 
 #if ENABLED(PIDTEMP)
-  // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
-  // if Kc is chosen well, the additional required power due to increased melting should be compensated.
+  // Add an experimental additional term to the heater power, proportional to the extrusion speed.
+  // A well-chosen Kc value should add just enough power to melt the increased material volume.
   //#define PID_EXTRUSION_SCALING
   #if ENABLED(PID_EXTRUSION_SCALING)
     #define DEFAULT_Kc (100) //heating power=Kc*(e_speed)
@@ -891,6 +904,17 @@
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
 
+  // LPC-based boards have on-board SD Card options. Override here or defaults apply.
+  #ifdef TARGET_LPC1768
+    //#define LPC_SD_LCD          // Use the SD drive in the external LCD controller.
+    //#define LPC_SD_ONBOARD      // Use the SD drive on the control board. (No SD_DETECT_PIN. M21 to init.)
+    //#define LPC_SD_CUSTOM_CABLE // Use a custom cable to access the SD (as defined in a pins file).
+    //#define USB_SD_DISABLED     // Disable SD Card access over USB (for security).
+    #if ENABLED(LPC_SD_ONBOARD)
+      //#define USB_SD_ONBOARD    // Provide the onboard SD card to the host as a USB mass storage device.
+    #endif
+  #endif
+
 #endif // SDSUPPORT
 
 /**
@@ -970,18 +994,26 @@
   //#define MARLIN_INVADERS
   //#define MARLIN_SNAKE
 
+  // Frivolous Game Options
+  //#define MARLIN_BRICKOUT
+  //#define MARLIN_INVADERS
+  //#define MARLIN_SNAKE
+
 #endif // HAS_GRAPHICAL_LCD
 
 // @section safety
 
-// The hardware watchdog should reset the microcontroller disabling all outputs,
-// in case the firmware gets stuck and doesn't do temperature regulation.
+/**
+ * The watchdog hardware timer will do a reset and disable all outputs
+ * if the firmware gets too overloaded to read the temperature sensors.
+ *
+ * If you find that watchdog reboot causes your AVR board to hang forever,
+ * enable WATCHDOG_RESET_MANUAL to use a custom timer instead of WDTO.
+ * NOTE: This method is less reliable as it can only catch hangups while
+ * interrupts are enabled.
+ */
 #define USE_WATCHDOG
-
 #if ENABLED(USE_WATCHDOG)
-  // If you have a watchdog reboot in an ArduinoMega2560 then the device will hang forever, as a watchdog reset will leave the watchdog on.
-  // The "WATCHDOG_RESET_MANUAL" goes around this by not using the hardware reset.
-  //  However, THIS FEATURE IS UNSAFE!, as it will only work if interrupts are disabled. And the code could hang in an interrupt routine with interrupts disabled.
   //#define WATCHDOG_RESET_MANUAL
 #endif
 

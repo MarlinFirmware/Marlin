@@ -81,17 +81,12 @@ inline void sdcard_start_selected_file() {
 
 #if ENABLED(SD_MENU_CONFIRM_START)
 
-  bool do_print_file;
   void menu_sd_confirm() {
-    if (ui.should_draw())
-      do_select_screen(PSTR(MSG_BUTTON_PRINT), PSTR(MSG_BUTTON_CANCEL), do_print_file, PSTR(MSG_START_PRINT " "), card.longest_filename(), PSTR("?"));
-
-    if (ui.use_click()) {
-      if (do_print_file)
-        sdcard_start_selected_file();
-      else
-        ui.goto_previous_screen();
-    }
+    do_select_screen(
+      PSTR(MSG_BUTTON_PRINT), PSTR(MSG_BUTTON_CANCEL),
+      sdcard_start_selected_file, ui.goto_previous_screen,
+      PSTR(MSG_START_PRINT " "), card.longest_filename(), PSTR("?")
+    );
   }
 
 #endif
@@ -106,7 +101,6 @@ class MenuItem_sdfile {
         sd_items = screen_items;
       #endif
       #if ENABLED(SD_MENU_CONFIRM_START)
-        do_print_file = false;
         MenuItem_submenu::action(menu_sd_confirm);
       #else
         sdcard_start_selected_file();

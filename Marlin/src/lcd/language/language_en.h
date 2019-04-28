@@ -753,11 +753,26 @@
 #ifndef MSG_START_PRINT
   #define MSG_START_PRINT                     _UxGT("Start print")
 #endif
+#ifndef MSG_BUTTON_NEXT
+  #define MSG_BUTTON_NEXT                     _UxGT("Next")
+#endif
+#ifndef MSG_BUTTON_INIT
+  #define MSG_BUTTON_INIT                     _UxGT("Init")
+#endif
+#ifndef MSG_BUTTON_STOP
+  #define MSG_BUTTON_STOP                     _UxGT("Stop")
+#endif
 #ifndef MSG_BUTTON_PRINT
   #define MSG_BUTTON_PRINT                    _UxGT("Print")
 #endif
+#ifndef MSG_BUTTON_RESET
+  #define MSG_BUTTON_RESET                    _UxGT("Reset")
+#endif
 #ifndef MSG_BUTTON_CANCEL
   #define MSG_BUTTON_CANCEL                   _UxGT("Cancel")
+#endif
+#ifndef MSG_BUTTON_DONE
+  #define MSG_BUTTON_DONE                     _UxGT("Done")
 #endif
 #ifndef MSG_PAUSE_PRINT
   #define MSG_PAUSE_PRINT                     _UxGT("Pause print")
@@ -930,6 +945,9 @@
 #ifndef MSG_HEATING_FAILED_LCD_BED
   #define MSG_HEATING_FAILED_LCD_BED          _UxGT("Bed heating failed")
 #endif
+#ifndef MSG_HEATING_FAILED_LCD_CHAMBER
+  #define MSG_HEATING_FAILED_LCD_CHAMBER      _UxGT("Chamber heating fail")
+#endif
 #ifndef MSG_ERR_REDUNDANT_TEMP
   #define MSG_ERR_REDUNDANT_TEMP              _UxGT("Err: REDUNDANT TEMP")
 #endif
@@ -938,6 +956,9 @@
 #endif
 #ifndef MSG_THERMAL_RUNAWAY_BED
   #define MSG_THERMAL_RUNAWAY_BED             _UxGT("BED THERMAL RUNAWAY")
+#endif
+#ifndef MSG_THERMAL_RUNAWAY_CHAMBER
+  #define MSG_THERMAL_RUNAWAY_CHAMBER         _UxGT("CHAMBER T. RUNAWAY")
 #endif
 #ifndef MSG_ERR_MAXTEMP
   #define MSG_ERR_MAXTEMP                     _UxGT("Err: MAXTEMP")
@@ -1361,6 +1382,9 @@
 #else // LCD_HEIGHT < 4
   #ifndef MSG_ADVANCED_PAUSE_WAITING_1
     #define MSG_ADVANCED_PAUSE_WAITING_1      _UxGT("Click to continue")
+  #endif
+  #ifndef MSG_PAUSE_PRINT_INIT_1
+    #define MSG_PAUSE_PRINT_INIT_1            _UxGT("Parking...")
   #endif
   #ifndef MSG_FILAMENT_CHANGE_INIT_1
     #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Please wait...")
