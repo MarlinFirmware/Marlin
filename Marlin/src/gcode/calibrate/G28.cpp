@@ -238,7 +238,8 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch.init();
+    // It is safer to home with a stowed probe
+    bltouch.stow();
   #endif
 
   // Always home with tool 0 active

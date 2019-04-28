@@ -174,14 +174,15 @@ static void lcd_factory_settings() {
   void menu_bltouch() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM(function, MSG_BLTOUCH_RESET, bltouch.reset);
-    MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, bltouch.selftest);
-    MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch._deploy);
+    // We offer the NATIVE, unwrapped BLTouch commands to the user
+    MENU_ITEM(function, MSG_BLTOUCH_RESET, bltouch._reset);
+    MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, bltouch._selftest);
     MENU_ITEM(function, MSG_BLTOUCH_STOW, bltouch._stow);
+    MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch._deploy);
+    MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
     #if ENABLED(BLTOUCH_V3)
-      MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch.set_SW_mode);
-      MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch.set_5V_mode);
-      MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch.set_OD_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch._set_5V_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch._set_OD_mode);
     #endif
     END_MENU();
   }

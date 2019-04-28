@@ -828,17 +828,47 @@
  */
 //#define BLTOUCH
 #if ENABLED(BLTOUCH)
-  //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
-
   /**
-   * BLTouch V3.0 and newer smart series
-   * For genuine BLTouch 3.0 sensors. Clones may be confused by 3.0 command angles. YMMV.
-   * If the pin trigger is not detected, first try swapping the black and white wires then toggle this.
+   * For all BLTouch probes and clones:
+   */
+  //#define BLTOUCH_DEBUG_MSGS  // Produce some debugging messages when commands are issued to the probe
+  //#define BLTOUCH_DELAY 375   // (ms) Allow the servo signal to settle for this long before the next command
+                                // Note: This is the sane default. Some setups will tolerate lower values.
+  
+  /**
+   * For BLTouch V2.0 and newer probes which support SW mode. Some clones do too.
+   * Set the probe into SW mode, producing a longer pulse when triggered, useful when there
+   * is noise or high capacitance on the signal pin.
+   * If your probe works fine without this, don't turn it on, as it slows down probing
+   * Note: Performing a STOW and then setting this mode in the LCD BLTouch configuration menu
+   *       manually will alloy you to check the wiring with a M119 command. You don't need to enable
+   *       this in order to be able to do that.
+   */
+  //#define BLTOUCH_FORCE_SW_MODE
+  
+  /**
+   * For BLTouch V3.0 and newer probes:
+   * If you want the new functions of the BLTouch V3 or you need 5V mode (see below), enable this.
+   * This adds the special V3 commands (5V and OD modes) to the LCD configuration menu for BLTouch
    */
   //#define BLTOUCH_V3
-  #if ENABLED(BLTOUCH_V3)
+  #if ENABLED(BLTOUCH_V3)  
+    /**
+     * These probes default to OPEN DRAIN mode. All other probes are in 5V mode per default.
+     * If you have a BLTouch V3.0 or newer and explicitely want 5V mode, use this define -  this
+     * makes it more compatible with previous probe versions.
+     * Warning: Make sure your controller boards input pin is 5V tolerant.
+     */
     //#define BLTOUCH_FORCE_5V_MODE
-    //#define BLTOUCH_FORCE_OPEN_DRAIN_MODE
+    /**
+     * Advanced users who fervently believe in the reliability of their BLTouch probes can
+     * activate the HIGH SPEED mode for their unit. This will reduce the timing so far that
+     * DEPLOY and STOW failures are only captured on the NEXT such command to be issued.
+     * The result is faster probing but much less surety of catching and identifying errors.
+     * NOT RECOMMENDED for novice users and in unstable environments. As homing and probing are
+     * not done so often, the speed gain is nice but not really life changing.
+     */
+    //#define BLTOUCH_HS_MODE
   #endif
 #endif
 
