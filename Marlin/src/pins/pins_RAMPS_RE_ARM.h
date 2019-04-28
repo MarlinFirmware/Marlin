@@ -121,17 +121,17 @@
    // P2_08 E1-Step
    // P2_13 E1-Dir
 
-  #define X_SERIAL_TX_PIN    P2_06
-  #define X_SERIAL_RX_PIN    P2_06
+  #define X_SERIAL_TX_PIN    P2_13
+  #define X_SERIAL_RX_PIN    P2_13
 
-  #define Y_SERIAL_TX_PIN    P2_11
-  #define Y_SERIAL_RX_PIN    P2_11
+  #define Y_SERIAL_TX_PIN    P0_00
+  #define Y_SERIAL_RX_PIN    P0_00
 
-  #define Z_SERIAL_TX_PIN    P2_08
-  #define Z_SERIAL_RX_PIN    P2_08
+  #define Z_SERIAL_TX_PIN    P0_01
+  #define Z_SERIAL_RX_PIN    P0_01
 
-  #define E0_SERIAL_TX_PIN   P2_13
-  #define E0_SERIAL_RX_PIN   P2_13
+  #define E0_SERIAL_TX_PIN   P2_08
+  #define E0_SERIAL_RX_PIN   P2_08
 
 #endif
 
