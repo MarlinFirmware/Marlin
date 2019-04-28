@@ -165,7 +165,7 @@ bool BLTouch::deploy_stow_wrapper(const bool deploy) {
       _stow();                               // But one more STOW will catch that
       #if BLTOUCH_DELAY < BLTOUCH_STOW_DELAY
         safe_delay(BLTOUCH_STOW_DELAY - BLTOUCH_DELAY); // Might need to add some waiting time 
-       #endif
+      #endif
                                              // so if there is now STILL an ALARM condition:
       if (triggered()) {
         #if ENABLED(BLTOUCH_DEBUG_MSGS)
