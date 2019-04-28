@@ -112,7 +112,6 @@ void GcodeSuite::G34() {
     #endif
 
     #if ENABLED(BLTOUCH)
-      bltouch.reset();
       bltouch.stow();
     #endif
 
