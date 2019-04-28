@@ -852,7 +852,7 @@
   #if ENABLED(BLTOUCH_V3)  
     /**
      * These probes default to OPEN DRAIN mode. All other probes are in 5V mode per default.
-     * If you have a BLTouch V3.0 or newer and explicitely want 5V mode, use this define -  this
+     * If you have a BLTouch V3.0 or newer and explicitely want 5V mode, use this define - this
      * makes it more compatible with previous probe versions.
      * Warning: Make sure your controller boards input pin is 5V tolerant.
      */
