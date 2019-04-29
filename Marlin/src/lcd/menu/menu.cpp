@@ -167,10 +167,12 @@ DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(float52);     // 123.45
 DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
 DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM(float5_25);   // 12345      right-justified (25 increment)
 DEFINE_MENU_EDIT_ITEM(float51);     // 1234.5     right-justified
 DEFINE_MENU_EDIT_ITEM(float51sign); // +1234.5
 DEFINE_MENU_EDIT_ITEM(float52sign); // +123.45
 DEFINE_MENU_EDIT_ITEM(long5);       // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM(long5_25);    // 12345      right-justified (25 increment)
 
 void MenuItem_bool::action_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
   UNUSED(pstr); *ptr ^= true; ui.refresh();
