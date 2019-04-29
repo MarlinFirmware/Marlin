@@ -715,6 +715,7 @@ namespace ExtUI {
     #if HAS_MESH
       bool getMeshValid() { return leveling_is_valid(); }
       bed_mesh_t getMeshArray() { return Z_VALUES_ARR; }
+      float getMeshPoint(const uint8_t xpos, const uint8_t ypos) { return Z_VALUES(xpos,ypos); }
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zoff) {
         if (WITHIN(xpos, 0, GRID_MAX_POINTS_X) && WITHIN(ypos, 0, GRID_MAX_POINTS_Y)) {
           Z_VALUES(xpos, ypos) = zoff;
@@ -748,9 +749,14 @@ namespace ExtUI {
     enqueue_and_echo_commands_P(gcode);
   }
 
+  bool commandsInQueue() { return (planner.movesplanned() || commands_in_queue); }
+  
   bool isAxisPositionKnown(const axis_t axis) {
     return TEST(axis_known_position, axis);
   }
+
+  bool isPositionKnown() { return all_axes_known(); }
+  bool isMachineHomed() { return all_axes_homed(); }
 
   PGM_P getFirmwareName_str() {
     static const char firmware_name[] PROGMEM = "Marlin " SHORT_BUILD_VERSION;

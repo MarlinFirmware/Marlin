@@ -312,7 +312,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
     do {
       #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
-        if (READ(Z_MIN_PROBE_PIN) == (deploy == bool(Z_MIN_PROBE_ENDSTOP_INVERTING))) break;
+        if (deploy == (READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_INVERTING)) break;
       #endif
 
       BUZZ(100, 659);

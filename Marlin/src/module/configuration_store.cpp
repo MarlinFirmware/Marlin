@@ -64,6 +64,10 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extensible_ui/ui_api.h"
+#endif
+
 #if HAS_SERVOS
   #include "servo.h"
 #endif
@@ -1120,6 +1124,10 @@ void MarlinSettings::postprocess() {
         store_mesh(ubl.storage_slot);
     #endif
 
+    #if ENABLED(EXTENSIBLE_UI)
+      if (!eeprom_error) ExtUI::onStoreSettings();
+    #endif
+
     return !eeprom_error;
   }
 
@@ -1874,7 +1882,13 @@ void MarlinSettings::postprocess() {
   }
 
   bool MarlinSettings::load() {
-    if (validate()) return _load();
+    if (validate()) {
+      const bool success = _load();
+      #if ENABLED(EXTENSIBLE_UI)
+        if (success) ExtUI::onLoadSettings();
+      #endif
+      return success;
+    }
     reset();
     return true;
   }
@@ -2290,6 +2304,10 @@ void MarlinSettings::reset() {
 
   DEBUG_ECHO_START();
   DEBUG_ECHOLNPGM("Hardcoded Default Settings Loaded");
+
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onFactoryReset();
+  #endif
 }
 
 #if DISABLED(DISABLE_M503)

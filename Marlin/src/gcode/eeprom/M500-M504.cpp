@@ -25,18 +25,11 @@
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extensible_ui/ui_api.h"
-#endif
-
 /**
  * M500: Store settings in EEPROM
  */
 void GcodeSuite::M500() {
   (void)settings.save();
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onStoreSettings();
-  #endif
 }
 
 /**
@@ -44,9 +37,6 @@ void GcodeSuite::M500() {
  */
 void GcodeSuite::M501() {
   (void)settings.load();
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onLoadSettings();
-  #endif
 }
 
 /**
@@ -54,9 +44,6 @@ void GcodeSuite::M501() {
  */
 void GcodeSuite::M502() {
   (void)settings.reset();
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onFactoryReset();
-  #endif
 }
 
 #if DISABLED(DISABLE_M503)
