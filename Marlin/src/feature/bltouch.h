@@ -38,8 +38,8 @@ typedef unsigned char BLTCommand;
 #define BLTOUCH_RESET_DELAY    500
 #define BLTOUCH_SET5V_DELAY   2000 // This is according to ANTClabs. Seems a bit high???
 // Set the following to zero for highspeed probing mode. Works fine, but does not catch deploy or stow
-// errors after the command - instead the error catching is deffered to the subsequent command. Printer
-// won't stop, instead it will skip the failed probes. If you consider your probe to reliable beyond
+// errors after the command - instead the error catching is deferred to the subsequent command. Printer
+// won't stop, instead it will skip the failed probes. If you consider your probe to be reliable beyond
 // a doubt, you can run this way. Not recommended but YMMV
 #if ENABLED(BLTOUCH_HS_MODE)
   #define BLTOUCH_DEPLOY_DELAY   0 // So we won't recognize DEPLOY fails right away
