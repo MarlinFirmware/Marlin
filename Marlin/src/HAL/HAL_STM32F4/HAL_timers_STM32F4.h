@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2017 Victor Perez
  *
@@ -65,13 +65,13 @@
 #ifdef STM32GENERIC
   extern void TC5_Handler();
   extern void TC7_Handler();
-  #define HAL_STEP_TIMER_ISR void TC5_Handler()
-  #define HAL_TEMP_TIMER_ISR void TC7_Handler()
+  #define HAL_STEP_TIMER_ISR() void TC5_Handler()
+  #define HAL_TEMP_TIMER_ISR() void TC7_Handler()
 #else
   extern void TC5_Handler(stimer_t *htim);
   extern void TC7_Handler(stimer_t *htim);
-  #define HAL_STEP_TIMER_ISR void TC5_Handler(stimer_t *htim)
-  #define HAL_TEMP_TIMER_ISR void TC7_Handler(stimer_t *htim)
+  #define HAL_STEP_TIMER_ISR() void TC5_Handler(stimer_t *htim)
+  #define HAL_TEMP_TIMER_ISR() void TC7_Handler(stimer_t *htim)
 #endif
 
 

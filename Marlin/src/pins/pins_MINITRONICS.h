@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -138,7 +138,7 @@
   #define HEATER_BED_PIN      4   // won't compile
   #define TEMP_BED_PIN       50
   #define TEMP_0_PIN         51
-  #define SPINDLE_LASER_ENABLE_PIN      52   // using A6 because it already has a pullup
+  #define SPINDLE_LASER_ENA_PIN         52   // using A6 because it already has a pullup
   #define SPINDLE_LASER_PWM_PIN          3   // WARNING - LED & resistor pull up to +12/+24V stepper voltage
   #define SPINDLE_DIR_PIN               53
 #endif

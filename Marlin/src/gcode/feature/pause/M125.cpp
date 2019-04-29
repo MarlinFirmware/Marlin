@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -36,7 +36,7 @@
 #endif
 
 /**
- * M125: Store current position and move to filament change position.
+ * M125: Store current position and move to parking position.
  *       Called on pause (by M25) to prevent material leaking onto the
  *       object. On resume (M24) the head will be moved back and the
  *       print will resume.
@@ -61,15 +61,15 @@ void GcodeSuite::M125() {
   point_t park_point = NOZZLE_PARK_POINT;
 
   // Move XY axes to filament change position or given position
-  if (parser.seenval('X')) park_point.x = parser.linearval('X');
-  if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
+  if (parser.seenval('X')) park_point.x = RAW_X_POSITION(parser.linearval('X'));
+  if (parser.seenval('Y')) park_point.y = RAW_X_POSITION(parser.linearval('Y'));
 
   // Lift Z axis
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
-  #if HAS_HOTEND_OFFSET && DISABLED(DUAL_X_CARRIAGE) && DISABLED(DELTA)
-    park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
-    park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
+  #if HAS_HOTEND_OFFSET && DISABLED(DUAL_X_CARRIAGE, DELTA)
+    park_point.x += hotend_offset[X_AXIS][active_extruder];
+    park_point.y += hotend_offset[Y_AXIS][active_extruder];
   #endif
 
   #if ENABLED(SDSUPPORT)
@@ -79,14 +79,14 @@ void GcodeSuite::M125() {
   #endif
 
   #if HAS_LCD_MENU
+    lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);
     const bool show_lcd = parser.seenval('P');
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, active_extruder);
   #else
     constexpr bool show_lcd = false;
   #endif
 
   if (pause_print(retract, park_point, 0, show_lcd)) {
-    if (!sd_printing || show_lcd ) {
+    if (!sd_printing || show_lcd) {
       wait_for_confirmation(false, 0);
       resume_print(0, 0, PAUSE_PARK_RETRACT_LENGTH, 0);
     }

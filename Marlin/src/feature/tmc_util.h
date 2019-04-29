@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -52,6 +52,10 @@
 #define CHOPPER_DEFAULT_36V  { 5,  2, 4 }
 #define CHOPPER_PRUSAMK3_24V { 4,  1, 4 }
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
+
+#if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
+  #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500u
+#endif
 
 constexpr uint16_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
   return 12650000UL * msteps / (256 * thrs * spmm);
@@ -223,7 +227,7 @@ void tmc_set_current(TMC &st, const int mA) {
   void tmc_report_otpw(TMC &st) {
     st.printLabel();
     SERIAL_ECHOPGM(" temperature prewarn triggered: ");
-    serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false"));
+    serialprint_truefalse(st.getOTPW());
     SERIAL_EOL();
   }
   template<typename TMC>
@@ -258,7 +262,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
-    void tmc_set_report_status(const bool status);
+    void tmc_set_report_interval(const uint16_t update_interval);
   #endif
   void tmc_report_all(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
   void tmc_get_registers(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
@@ -278,7 +282,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 #if USE_SENSORLESS
   // Track enabled status of stealthChop and only re-enable where applicable
   struct sensorless_t {
-    bool x, y, z;
+    bool x, y, z, x2, y2, z2, z3;
   };
 
   bool tmc_enable_stallguard(TMC2130Stepper &st);

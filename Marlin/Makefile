@@ -235,6 +235,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),541)
 else ifeq ($(HARDWARE_MOTHERBOARD),31)
 # VORON
 else ifeq ($(HARDWARE_MOTHERBOARD),441)
+# TRONXY V3 1.0
+else ifeq ($(HARDWARE_MOTHERBOARD),442)
 
 #
 # Other ATmega1280, ATmega2560
@@ -276,10 +278,16 @@ else ifeq ($(HARDWARE_MOTHERBOARD),999)
 else ifeq ($(HARDWARE_MOTHERBOARD),310)
 # abee Scoovo X9H
 else ifeq ($(HARDWARE_MOTHERBOARD),321)
+# Geeetech GT2560 Rev B for Mecreator2
+else ifeq ($(HARDWARE_MOTHERBOARD),73)
 # Geeetech GT2560 Rev. A
 else ifeq ($(HARDWARE_MOTHERBOARD),74)
 # Geeetech GT2560 Rev. A+ (with auto level probe)
 else ifeq ($(HARDWARE_MOTHERBOARD),75)
+# Geeetech GT2560 Rev B for A10(M/D)
+else ifeq ($(HARDWARE_MOTHERBOARD),76)
+# Geeetech GT2560 Rev B for A20(M/D)
+else ifeq ($(HARDWARE_MOTHERBOARD),86)
 
 #
 # ATmega1281, ATmega2561
@@ -666,7 +674,7 @@ ASFLAGS :=          $(CDEFS)
 ifeq ($(HARDWARE_VARIANT), archim)
   LD_PREFIX = -Wl,--gc-sections,-Map,Marlin.ino.map,--cref,--check-sections,--entry=Reset_Handler,--unresolved-symbols=report-all,--warn-common,--warn-section-align
   LD_SUFFIX = $(LDLIBS)
-  LDFLAGS   = -lm -gcc -T$(LDSCRIPT) -u _sbrk -u link -u _close -u _fstat -u _isatty -u _lseek -u _read -u _write -u _exit -u kill -u _getpid
+  LDFLAGS   = -lm -T$(LDSCRIPT) -u _sbrk -u link -u _close -u _fstat -u _isatty -u _lseek -u _read -u _write -u _exit -u kill -u _getpid
 else
   LD_PREFIX = -Wl,--gc-sections,--relax
   LDFLAGS   = -lm

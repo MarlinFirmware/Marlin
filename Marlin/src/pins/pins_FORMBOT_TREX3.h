@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -131,7 +131,7 @@
 #define FAN1_PIN           12
 
 #define NUM_RUNOUT_SENSORS  2
-#define FIL_RUNOUT_PIN     23
+#define FIL_RUNOUT_PIN     22
 #define FIL_RUNOUT2_PIN    21
 
 //
@@ -139,12 +139,12 @@
 //
 #define CASE_LIGHT_PIN      5
 #define SDSS               53
-#ifndef ROXYs_TRex
+#ifndef LED_PIN
   #define LED_PIN          13
 #endif
 
-#define SPINDLE_LASER_PWM_PIN     7   // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN  4   // Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN    -1   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENA_PIN     4   // Pin should have a pullup!
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN        5   // Analog Input
@@ -165,8 +165,10 @@
   #define BTN_EN2          33
   #define BTN_ENC          35
   #define SD_DETECT_PIN    49
-  #ifndef ROXYs_TRex
+  #ifndef KILL_PIN
     #define KILL_PIN       41
+  #endif
+  #ifndef BEEPER_PIN
     #define BEEPER_PIN     37
   #endif
 #endif

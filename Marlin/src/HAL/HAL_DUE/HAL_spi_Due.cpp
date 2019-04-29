@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -53,7 +53,7 @@
 // Public functions
 // --------------------------------------------------------------------------
 
-#if ENABLED(DUE_SOFTWARE_SPI)
+#if EITHER(DUE_SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // --------------------------------------------------------------------------
   // software SPI
@@ -250,7 +250,7 @@
   }
 
   // all the others
-  static uint32_t spiDelayCyclesX4 = (F_CPU/1000000); // 4uS => 125khz
+  static uint32_t spiDelayCyclesX4 = (F_CPU) / 1000000; // 4uS => 125khz
 
   static uint8_t spiTransferX(uint8_t b) { // using Mode 0
     int bits = 8;
@@ -451,77 +451,48 @@
   static pfnSpiTxBlock spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
   static pfnSpiRxBlock spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
 
-  #if MB(ALLIGATOR)  // control SDSS pin
-    void spiBegin() {
-      SET_OUTPUT(SS_PIN);
-      WRITE(SS_PIN, HIGH);
-      SET_OUTPUT(SCK_PIN);
-      SET_INPUT(MISO_PIN);
-      SET_OUTPUT(MOSI_PIN);
+  #if MB(ALLIGATOR)
+    #define _SS_WRITE(S) WRITE(SS_PIN, S)
+  #else
+    #define _SS_WRITE(S) NOOP
+  #endif
+
+  void spiBegin() {
+    SET_OUTPUT(SS_PIN);
+    _SS_WRITE(HIGH);
+    SET_OUTPUT(SCK_PIN);
+    SET_INPUT(MISO_PIN);
+    SET_OUTPUT(MOSI_PIN);
+  }
+
+  uint8_t spiRec() {
+    _SS_WRITE(LOW);
+    WRITE(MOSI_PIN, HIGH); // Output 1s 1
+    uint8_t b = spiTransferRx(0xFF);
+    _SS_WRITE(HIGH);
+    return b;
+  }
+
+  void spiRead(uint8_t* buf, uint16_t nbyte) {
+    if (nbyte) {
+      _SS_WRITE(LOW);
+      WRITE(MOSI_PIN, HIGH); // Output 1s 1
+      spiRxBlock(buf, nbyte);
+      _SS_WRITE(HIGH);
     }
+  }
 
-    uint8_t spiRec() {
-      WRITE(SS_PIN, LOW);
-      WRITE(MOSI_PIN, 1); /* Output 1s 1*/
-      uint8_t b = spiTransferRx(0xFF);
-      WRITE(SS_PIN, HIGH);
-      return b;
-    }
+  void spiSend(uint8_t b) {
+    _SS_WRITE(LOW);
+    (void)spiTransferTx(b);
+    _SS_WRITE(HIGH);
+  }
 
-    void spiRead(uint8_t* buf, uint16_t nbyte) {
-      uint32_t todo = nbyte;
-      if (todo == 0) return;
-
-      WRITE(SS_PIN, LOW);
-      WRITE(MOSI_PIN, 1); /* Output 1s 1*/
-      spiRxBlock(buf,nbyte);
-      WRITE(SS_PIN, HIGH);
-    }
-
-    void spiSend(uint8_t b) {
-      WRITE(SS_PIN, LOW);
-      (void) spiTransferTx(b);
-      WRITE(SS_PIN, HIGH);
-    }
-
-    void spiSendBlock(uint8_t token, const uint8_t* buf) {
-      WRITE(SS_PIN, LOW);
-      (void) spiTransferTx(token);
-      spiTxBlock(buf,512);
-      WRITE(SS_PIN, HIGH);
-
-  #else   // let calling routine control SDSS
-    void spiBegin() {
-      SET_OUTPUT(SS_PIN);
-      SET_OUTPUT(SCK_PIN);
-      SET_INPUT(MISO_PIN);
-      SET_OUTPUT(MOSI_PIN);
-    }
-
-    uint8_t spiRec() {
-      WRITE(MOSI_PIN, 1); /* Output 1s 1*/
-      uint8_t b = spiTransferRx(0xFF);
-      return b;
-    }
-
-    void spiRead(uint8_t* buf, uint16_t nbyte) {
-      uint32_t todo = nbyte;
-      if (todo == 0) return;
-
-      WRITE(MOSI_PIN, 1); /* Output 1s 1*/
-      spiRxBlock(buf,nbyte);
-    }
-
-    void spiSend(uint8_t b) {
-      (void) spiTransferTx(b);
-    }
-
-    void spiSendBlock(uint8_t token, const uint8_t* buf) {
-      (void) spiTransferTx(token);
-      spiTxBlock(buf,512);
-
-    #endif
-
+  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+    _SS_WRITE(LOW);
+    (void)spiTransferTx(token);
+    spiTxBlock(buf, 512);
+    _SS_WRITE(HIGH);
   }
 
   /**
@@ -549,7 +520,7 @@
         spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
         break;
       default:
-        spiDelayCyclesX4 = (F_CPU/1000000) >> (6 - spiRate);
+        spiDelayCyclesX4 = ((F_CPU) / 1000000) >> (6 - spiRate);
         spiTransferTx = (pfnSpiTransfer)spiTransferX;
         spiTransferRx = (pfnSpiTransfer)spiTransferX;
         spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
@@ -557,9 +528,7 @@
         break;
     }
 
-    #if MB(ALLIGATOR)
-      WRITE(SS_PIN, HIGH);
-    #endif
+    _SS_WRITE(HIGH);
     WRITE(MOSI_PIN, HIGH);
     WRITE(SCK_PIN, LOW);
   }
@@ -572,6 +541,10 @@
   #pragma GCC reset_options
 
 #else // !SOFTWARE_SPI
+
+  #define WHILE_TX(N) while ((SPI0->SPI_SR & SPI_SR_TDRE) == (N))
+  #define WHILE_RX(N) while ((SPI0->SPI_SR & SPI_SR_RDRF) == (N))
+  #define FLUSH_TX() do{ WHILE_RX(1) SPI0->SPI_RDR; }while(0)
 
   #if MB(ALLIGATOR)
 
@@ -645,13 +618,14 @@
       WRITE(SPI_FLASH_CS, HIGH);
       WRITE(SS_PIN, HIGH);
 
-      OUT_WRITE(SDSS,0);
+      OUT_WRITE(SDSS, LOW);
 
       PIO_Configure(
         g_APinDescription[SPI_PIN].pPort,
         g_APinDescription[SPI_PIN].ulPinType,
         g_APinDescription[SPI_PIN].ulPin,
-        g_APinDescription[SPI_PIN].ulPinConfiguration);
+        g_APinDescription[SPI_PIN].ulPinConfiguration
+      );
 
       spiInit(1);
     }
@@ -660,41 +634,34 @@
     uint8_t spiRec() {
       // write dummy byte with address and end transmission flag
       SPI0->SPI_TDR = 0x000000FF | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
-      // wait for transmit register empty
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
 
-      // wait for receive register
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-      // get byte from receive register
+      WHILE_TX(0);
+      WHILE_RX(0);
+
       //DELAY_US(1U);
       return SPI0->SPI_RDR;
     }
 
     uint8_t spiRec(uint32_t chan) {
-      uint8_t spirec_tmp;
-      // wait for transmit register empty
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 1)
-        spirec_tmp =  SPI0->SPI_RDR;
-        UNUSED(spirec_tmp);
+
+      WHILE_TX(0);
+      FLUSH_RX();
 
       // write dummy byte with address and end transmission flag
       SPI0->SPI_TDR = 0x000000FF | SPI_PCS(chan) | SPI_TDR_LASTXFER;
+      WHILE_RX(0);
 
-      // wait for receive register
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-      // get byte from receive register
       return SPI0->SPI_RDR;
     }
 
     // Read from SPI into buffer
     void spiRead(uint8_t* buf, uint16_t nbyte) {
-      if (nbyte-- == 0) return;
-
+      if (!nbyte) return;
+      --nbyte;
       for (int i = 0; i < nbyte; i++) {
-        //while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
+        //WHILE_TX(0);
         SPI0->SPI_TDR = 0x000000FF | SPI_PCS(SPI_CHAN);
-        while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
+        WHILE_RX(0);
         buf[i] = SPI0->SPI_RDR;
         //DELAY_US(1U);
       }
@@ -702,68 +669,58 @@
     }
 
     // Write single byte to SPI
-    void spiSend(byte b) {
+    void spiSend(const byte b) {
       // write byte with address and end transmission flag
       SPI0->SPI_TDR = (uint32_t)b | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
-      // wait for transmit register empty
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-      // wait for receive register
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-      // clear status
+      WHILE_TX(0);
+      WHILE_RX(0);
       SPI0->SPI_RDR;
       //DELAY_US(1U);
     }
 
-    void spiSend(const uint8_t* buf, size_t n) {
-      if (n == 0) return;
-      for (size_t i = 0; i < n - 1; i++) {
+    void spiSend(const uint8_t* buf, size_t nbyte) {
+      if (!nbyte) return;
+      --nbyte;
+      for (size_t i = 0; i < nbyte; i++) {
         SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(SPI_CHAN);
-        while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-        while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
+        WHILE_TX(0);
+        WHILE_RX(0);
         SPI0->SPI_RDR;
         //DELAY_US(1U);
       }
-      spiSend(buf[n - 1]);
+      spiSend(buf[nbyte]);
     }
 
     void spiSend(uint32_t chan, byte b) {
-      uint8_t dummy_read = 0;
-      // wait for transmit register empty
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
+      WHILE_TX(0);
       // write byte with address and end transmission flag
       SPI0->SPI_TDR = (uint32_t)b | SPI_PCS(chan) | SPI_TDR_LASTXFER;
-      // wait for receive register
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-      // clear status
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 1)
-        dummy_read = SPI0->SPI_RDR;
-      UNUSED(dummy_read);
+      WHILE_RX(0);
+      FLUSH_RX();
     }
 
-    void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
-      uint8_t dummy_read = 0;
-      if (n == 0) return;
-      for (int i = 0; i < (int)n - 1; i++) {
-        while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
+    void spiSend(uint32_t chan, const uint8_t* buf, size_t nbyte) {
+      if (!nbyte) return;
+      --nbyte;
+      for (size_t i = 0; i < nbyte; i++) {
+        WHILE_TX(0);
         SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(chan);
-        while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-        while ((SPI0->SPI_SR & SPI_SR_RDRF) == 1)
-          dummy_read = SPI0->SPI_RDR;
-        UNUSED(dummy_read);
+        WHILE_RX(0);
+        FLUSH_RX();
       }
-      spiSend(chan, buf[n - 1]);
+      spiSend(chan, buf[nbyte]);
     }
 
     // Write from buffer to SPI
     void spiSendBlock(uint8_t token, const uint8_t* buf) {
       SPI0->SPI_TDR = (uint32_t)token | SPI_PCS(SPI_CHAN);
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-      //while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
+      WHILE_TX(0);
+      //WHILE_RX(0);
       //SPI0->SPI_RDR;
       for (int i = 0; i < 511; i++) {
         SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(SPI_CHAN);
-        while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-        while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
+        WHILE_TX(0);
+        WHILE_RX(0);
         SPI0->SPI_RDR;
         //DELAY_US(1U);
       }
@@ -782,7 +739,42 @@
     #define SPI_MODE_2_DUE_HW 0
     #define SPI_MODE_3_DUE_HW 1
 
+    /**
+     *  The DUE SPI controller is set up so the upper word of the longword
+     *  written to the transmit data register selects which SPI Chip Select
+     *  Register is used. This allows different streams to have different SPI
+     *  settings.
+     *
+     *  In practice it's spooky. Some combinations hang the system, while others
+     *  upset the peripheral device.
+     *
+     *  SPI mode should be the same for all streams. The FYSETC_MINI_12864 gets
+     *  upset if the clock phase changes after chip select goes active.
+     *
+     *  SPI_CSR_CSAAT should be set for all streams. If not the WHILE_TX(0)
+     *  macro returns immediately which can result in the SPI chip select going
+     *  inactive before all the data has been sent.
+     *
+     *  The TMC2130 library uses SPI0->SPI_CSR[3].
+     *
+     *  The U8G hardware SPI uses SPI0->SPI_CSR[0]. The system hangs and/or the
+     *  FYSETC_MINI_12864 gets upset if lower baud rates are used and the SD card
+     *  is inserted or removed.
+     *
+     *  The SD card uses SPI0->SPI_CSR[3]. Efforts were made to use [1] and [2]
+     *  but they all resulted in hangs or garbage on the LCD.
+     *
+     *  The SPI controlled chip selects are NOT enabled in the GPIO controller.
+     *  The application must control the chip select.
+     *
+     *  All of the above can be avoided by defining FORCE_SOFT_SPI to force the
+     *  display to use software SPI.
+     *
+     */
+
     void spiInit(uint8_t spiRate=6) {  // Default to slowest rate if not specified)
+                                       // Also sets U8G SPI rate to 4MHz and the SPI mode to 3
+
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
       constexpr int spiDivider[] = { 10, 21, 42, 84, 168, 255, 255 };
       if (spiRate > 6) spiRate = 1;
@@ -792,7 +784,7 @@
 
       // Disable PIO on A26 and A27
       REG_PIOA_PDR = 0x0C000000;
-      OUT_WRITE(SDSS, 1);
+      OUT_WRITE(SDSS, HIGH);
 
       // Reset SPI0 (from sam lib)
       SPI0->SPI_CR = SPI_CR_SPIDIS;
@@ -803,48 +795,32 @@
       // TMC2103 compatible setup
       // Master mode, no fault detection, PCS bits in data written to TDR select CSR register
       SPI0->SPI_MR = SPI_MR_MSTR | SPI_MR_PS | SPI_MR_MODFDIS;
-      // SPI mode 0, 8 Bit data transfer, baud rate
-      SPI0->SPI_CSR[3] = SPI_CSR_SCBR(spiDivider[spiRate]) | SPI_CSR_CSAAT | SPI_MODE_0_DUE_HW;  // use same CSR as TMC2130
+      // SPI mode 3, 8 Bit data transfer, baud rate
+      SPI0->SPI_CSR[3] = SPI_CSR_SCBR(spiDivider[spiRate]) | SPI_CSR_CSAAT | SPI_MODE_3_DUE_HW;  // use same CSR as TMC2130
+      SPI0->SPI_CSR[0] = SPI_CSR_SCBR(spiDivider[1]) | SPI_CSR_CSAAT | SPI_MODE_3_DUE_HW;  // U8G default to 4MHz
     }
 
-    void spiBegin() {
-      spiInit();
-    }
+    void spiBegin() { spiInit(); }
 
     static uint8_t spiTransfer(uint8_t data) {
-
-      // Wait until tx register is empty
-      while( (SPI0->SPI_SR & SPI_SR_TDRE) == 0 );
-      // Send data
-      SPI0->SPI_TDR = (uint32_t)data | 0x00070000UL;  // Add TMC2130 PCS bits to every byte
-
-      // wait for transmit register empty
-      while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-
-      // wait for receive register
-      while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-      // get byte from receive register
+      WHILE_TX(0);
+      SPI0->SPI_TDR = (uint32_t)data | 0x00070000UL;  // Add TMC2130 PCS bits to every byte (use SPI0->SPI_CSR[3])
+      WHILE_TX(0);
+      WHILE_RX(0);
       return SPI0->SPI_RDR;
     }
 
-    uint8_t spiRec() {
-      uint8_t data = spiTransfer(0xFF);
-      return data;
-    }
+    uint8_t spiRec() { return (uint8_t)spiTransfer(0xFF); }
 
     void spiRead(uint8_t* buf, uint16_t nbyte) {
-      if (nbyte == 0) return;
       for (int i = 0; i < nbyte; i++)
         buf[i] = spiTransfer(0xFF);
     }
 
-    void spiSend(uint8_t data) {
-      spiTransfer(data);
-    }
+    void spiSend(uint8_t data) { spiTransfer(data); }
 
-    void spiSend(const uint8_t* buf, size_t n) {
-      if (n == 0) return;
-      for (uint16_t i = 0; i < n; i++)
+    void spiSend(const uint8_t* buf, size_t nbyte) {
+      for (uint16_t i = 0; i < nbyte; i++)
         spiTransfer(buf[i]);
     }
 

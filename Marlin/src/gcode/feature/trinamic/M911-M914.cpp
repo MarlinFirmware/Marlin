@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,7 +32,7 @@
 
 #if ENABLED(MONITOR_DRIVER_STATUS)
 
-  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2660))
+  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2660) || AXIS_DRIVER_TYPE(ST, TMC5130) || AXIS_DRIVER_TYPE(ST, TMC5160))
   #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
 
   #define M91x_SOME_X (M91x_USE(X) || M91x_USE(X2))
@@ -232,28 +232,30 @@
           #endif
           break;
         case E_AXIS: {
-          const int8_t target_extruder = get_target_extruder_from_command();
-          if (target_extruder < 0) return;
-          switch (target_extruder) {
-            #if AXIS_HAS_STEALTHCHOP(E0)
-              case 0: TMC_SET_PWMTHRS_E(0); break;
-            #endif
-            #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
-              case 1: TMC_SET_PWMTHRS_E(1); break;
-            #endif
-            #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
-              case 2: TMC_SET_PWMTHRS_E(2); break;
-            #endif
-            #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
-              case 3: TMC_SET_PWMTHRS_E(3); break;
-            #endif
-            #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
-              case 4: TMC_SET_PWMTHRS_E(4); break;
-            #endif
-            #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
-              case 5: TMC_SET_PWMTHRS_E(5); break;
-            #endif
-          }
+          #if E_STEPPERS
+            const int8_t target_extruder = get_target_extruder_from_command();
+            if (target_extruder < 0) return;
+            switch (target_extruder) {
+              #if AXIS_HAS_STEALTHCHOP(E0)
+                case 0: TMC_SET_PWMTHRS_E(0); break;
+              #endif
+              #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
+                case 1: TMC_SET_PWMTHRS_E(1); break;
+              #endif
+              #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
+                case 2: TMC_SET_PWMTHRS_E(2); break;
+              #endif
+              #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
+                case 3: TMC_SET_PWMTHRS_E(3); break;
+              #endif
+              #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
+                case 4: TMC_SET_PWMTHRS_E(4); break;
+              #endif
+              #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
+                case 5: TMC_SET_PWMTHRS_E(5); break;
+              #endif
+            }
+          #endif // E_STEPPERS
         } break;
       }
     }
@@ -280,7 +282,7 @@
       #if AXIS_HAS_STEALTHCHOP(Z3)
         TMC_SAY_PWMTHRS(Z,Z3);
       #endif
-      #if AXIS_HAS_STEALTHCHOP(E0)
+      #if E_STEPPERS && AXIS_HAS_STEALTHCHOP(E0)
         TMC_SAY_PWMTHRS_E(0);
       #endif
       #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -157,8 +157,8 @@
 #ifndef SPINDLE_LASER_PWM_PIN
   #define SPINDLE_LASER_PWM_PIN 4   // MUST BE HARDWARE PWM. Pin 4 interrupts OC0* and OC1* always in use?
 #endif
-#ifndef SPINDLE_LASER_ENABLE_PIN
-  #define SPINDLE_LASER_ENABLE_PIN 14   // Pin should have a pullup!
+#ifndef SPINDLE_LASER_ENA_PIN
+  #define SPINDLE_LASER_ENA_PIN    14   // Pin should have a pullup!
 #endif
 #ifndef SPINDLE_DIR_PIN
   #define SPINDLE_DIR_PIN  15
@@ -167,7 +167,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
+#if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
   #define LCD_PINS_DC      38   // Set as output on init
   #define LCD_PINS_RS      41   // Pull low for 1s to init
   // DOGM SPI LCD Support

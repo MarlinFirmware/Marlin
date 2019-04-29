@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,28 +28,25 @@
 #define BOARD_NAME           "Formbot Raptor2"
 
 #define FAN_PIN             6
-#define SDSS                5
-
-#include "pins_FORMBOT_RAPTOR.h"
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN   22
 #endif
 
-#define GREEDY_PANEL (   ENABLED(PANEL_ONE) || ENABLED(VIKI2)     \
-                      || ENABLED(miniVIKI)  || ENABLED(MINIPANEL) \
-                      || ENABLED(REPRAPWORLD_KEYPAD) )
+#include "pins_FORMBOT_RAPTOR.h"
+
+#define GREEDY_PANEL ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD)
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENABLE)
+#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !NUM_SERVOS                       // Try to use servo connector first
-    #define SPINDLE_LASER_ENABLE_PIN  6 // Pin should have a pullup/pulldown!
+    #define SPINDLE_LASER_ENA_PIN     6 // Pin should have a pullup/pulldown!
     #define SPINDLE_LASER_PWM_PIN     4 // MUST BE HARDWARE PWM
     #define SPINDLE_DIR_PIN           5
   #elif !GREEDY_PANEL                   // Try to use AUX2
-    #define SPINDLE_LASER_ENABLE_PIN 40 // Pin should have a pullup/pulldown!
+    #define SPINDLE_LASER_ENA_PIN    40 // Pin should have a pullup/pulldown!
     #define SPINDLE_LASER_PWM_PIN    44 // MUST BE HARDWARE PWM
     #define SPINDLE_DIR_PIN          65
   #endif
@@ -65,6 +62,6 @@
 
 #undef GREEDY_PANEL
 
-#if ENABLED(CASE_LIGHT_ENABLE) && PIN_EXISTS(CASE_LIGHT) && (CASE_LIGHT_PIN == SPINDLE_LASER_ENABLE_PIN || CASE_LIGHT_PIN == SPINDLE_LASER_PWM_PIN)
+#if ENABLED(CASE_LIGHT_ENABLE) && PIN_EXISTS(CASE_LIGHT) && (CASE_LIGHT_PIN == SPINDLE_LASER_ENA_PIN || CASE_LIGHT_PIN == SPINDLE_LASER_PWM_PIN)
   #error "CASE_LIGHT_PIN conflicts with a Spindle / Laser pin."
 #endif

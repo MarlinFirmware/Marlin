@@ -1,7 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (C) 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,8 +24,8 @@
  * Cohesion3D Mini pin assignments
  */
 
-#ifndef TARGET_LPC1768
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
+#ifndef LPC1769
+  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
 #define BOARD_NAME "Cohesion3D Mini"
@@ -97,7 +96,7 @@
 #define HEATER_BED_PIN     P2_05
 #define HEATER_0_PIN       P2_07   // FET 1
 #ifndef FAN_PIN
-  #define FAN_PIN          P2_06   // ReMix FET 4, Mini FET 3
+  #define FAN_PIN          P2_06   // FET 3
 #endif
 
 //
@@ -119,11 +118,11 @@
 //
 #if ENABLED(SPINDLE_LASER_ENABLE)
   #undef HEATER_0_PIN
-  #define SPINDLE_LASER_ENABLE_PIN  P2_07   // FET 1
+  #define SPINDLE_LASER_ENA_PIN     P2_07   // FET 1
   #undef HEATER_BED_PIN
   #define SPINDLE_LASER_PWM_PIN     P2_05   // Bed FET
   #undef FAN_PIN
-  #define SPINDLE_DIR_PIN           P2_06   // ReMix FET 4, Mini FET 3
+  #define SPINDLE_DIR_PIN           P2_06   // FET 3
 #endif
 
 //

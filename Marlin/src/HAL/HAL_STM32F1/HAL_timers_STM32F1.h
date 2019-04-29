@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2017 Victor Perez
  *
@@ -85,9 +85,8 @@ timer_dev* get_timer_dev(int number);
 
 // TODO change this
 
-
-#define HAL_TEMP_TIMER_ISR extern "C" void tempTC_Handler(void)
-#define HAL_STEP_TIMER_ISR extern "C" void stepTC_Handler(void)
+#define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler(void)
+#define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler(void)
 
 extern "C" void tempTC_Handler(void);
 extern "C" void stepTC_Handler(void);

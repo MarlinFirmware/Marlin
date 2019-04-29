@@ -97,7 +97,7 @@ static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, 
  * @param utf8_msg : the UTF-8 string
  * @param cb_read_byte : how to read the utf8_msg, from RAM or ROM (call read_byte_ram or pgm_read_byte)
  * @param userdata : User's data
- * @param cb_draw_ram : the callback function of userdata to draw a !RAM! string (actural it is to draw a one byte string in RAM)
+ * @param cb_draw_ram : the callback function of userdata to draw a !RAM! string (actually it is to draw a one byte string in RAM)
  *
  * @return N/A
  *

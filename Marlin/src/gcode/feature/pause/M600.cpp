@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,6 +37,10 @@
   #include "../../../lcd/ultralcd.h"
 #endif
 
+#if ENABLED(MMU2_MENUS)
+  #include "../../../lcd/menu/menu_mmu2.h"
+#endif
+
 /**
  * M600: Pause for filament change
  *
@@ -61,7 +65,7 @@ void GcodeSuite::M600() {
     int8_t DXC_ext = target_extruder;
     if (!parser.seen('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
                               // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
-      #if ENABLED(FILAMENT_RUNOUT_SENSOR) && NUM_RUNOUT_SENSORS > 1
+      #if HAS_FILAMENT_SENSOR && NUM_RUNOUT_SENSORS > 1
         if (dxc_is_duplicating())
           DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING) ? 1 : 0;
       #else
@@ -71,8 +75,8 @@ void GcodeSuite::M600() {
   #endif
 
   // Show initial "wait for start" message
-  #if HAS_LCD_MENU
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, target_extruder);
+  #if HAS_LCD_MENU && DISABLED(MMU2_MENUS)
+    lcd_pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
   #endif
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
@@ -86,7 +90,7 @@ void GcodeSuite::M600() {
     if (
       active_extruder != target_extruder
       #if ENABLED(DUAL_X_CARRIAGE)
-        && dual_x_carriage_mode != DXC_DUPLICATION_MODE && dual_x_carriage_mode != DXC_SCALED_DUPLICATION_MODE
+        && dual_x_carriage_mode != DXC_DUPLICATION_MODE && dual_x_carriage_mode != DXC_MIRRORED_MODE
       #endif
     ) tool_change(target_extruder, 0, false);
   #endif
@@ -105,21 +109,28 @@ void GcodeSuite::M600() {
   if (parser.seenval('X')) park_point.x = parser.linearval('X');
   if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
 
-  #if HAS_HOTEND_OFFSET && DISABLED(DUAL_X_CARRIAGE) && DISABLED(DELTA)
-    park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
-    park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
+  #if HAS_HOTEND_OFFSET && DISABLED(DUAL_X_CARRIAGE, DELTA)
+    park_point.x += hotend_offset[X_AXIS][active_extruder];
+    park_point.y += hotend_offset[Y_AXIS][active_extruder];
   #endif
 
-  // Unload filament
-  const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
-                                                     : fc_settings[active_extruder].unload_length);
+  #if ENABLED(MMU2_MENUS)
+    // For MMU2 reset retract and load/unload values so they don't mess with MMU filament handling
+    constexpr float unload_length = 0.5f,
+                    slow_load_length = 0.0f,
+                    fast_load_length = 0.0f;
+  #else
+    // Unload filament
+    const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
+                                                      : fc_settings[active_extruder].unload_length);
 
-  // Slow load filament
-  constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
+    // Slow load filament
+    constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
 
-  // Fast load filament
-  const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
-                                                       : fc_settings[active_extruder].load_length);
+    // Fast load filament
+    const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
+                                                        : fc_settings[active_extruder].load_length);
+  #endif
 
   const int beep_count = parser.intval('B',
     #ifdef FILAMENT_CHANGE_ALERT_BEEPS
@@ -130,8 +141,13 @@ void GcodeSuite::M600() {
   );
 
   if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
-    wait_for_confirmation(true, beep_count DXC_PASS);
-    resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
+    #if ENABLED(MMU2_MENUS)
+      mmu2_M600();
+      resume_print(slow_load_length, fast_load_length, 0, beep_count DXC_PASS);
+    #else
+      wait_for_confirmation(true, beep_count DXC_PASS);
+      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
+    #endif
   }
 
   #if EXTRUDERS > 1

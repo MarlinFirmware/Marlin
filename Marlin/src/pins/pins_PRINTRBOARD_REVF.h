@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -208,7 +208,7 @@
   #define LCD_PINS_D6       5   // D5       JP11-6
   #define LCD_PINS_D7       4   // D4       JP11-5
 
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
 
     #define BEEPER_PIN      8   // E0       JP11-10
     #define DOGLCD_A0      40   // F2       JP2-2

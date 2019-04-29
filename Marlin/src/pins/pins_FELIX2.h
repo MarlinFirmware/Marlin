@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -49,7 +49,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#if BOTH(ULTRA_LCD, NEWPANEL)
 
   #define SD_DETECT_PIN     6
 
@@ -59,5 +59,5 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #undef SPINDLE_LASER_PWM_PIN     // Definitions in pins_RAMPS.h are not valid with this board
-#undef SPINDLE_LASER_ENABLE_PIN
+#undef SPINDLE_LASER_ENA_PIN
 #undef SPINDLE_DIR_PIN

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -42,13 +42,7 @@
   #endif
 
   // Could be moved to a feature, but this is all the data
-  bool powersupply_on = (
-    #if ENABLED(PS_DEFAULT_OFF)
-      false
-    #else
-      true
-    #endif
-  );
+  bool powersupply_on;
 
   #if HAS_TRINAMIC
     #include "../../feature/tmc_util.h"

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
+#if EITHER(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
 
 #include "nozzle.h"
 
@@ -180,6 +180,8 @@
     }
 
     do_blocking_move_to_xy(park.x, park.y, fr_xy);
+
+    report_current_position();
   }
 
 #endif // NOZZLE_PARK_FEATURE

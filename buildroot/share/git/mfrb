@@ -5,15 +5,26 @@
 # Do "git rebase -i" against the "target" branch (bugfix-1.1.x, bugfix-2.0.x, or master)
 #
 
-[[ $# < 2 && $1 != "-h" && $1 != "--help" ]] || { echo "Usage: `basename $0` [1|2]" 1>&2 ; exit 1; }
-
 MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
 TARG=${INFO[3]}
 CURR=${INFO[5]}
 
+IND=6
+while [ $IND -lt ${#INFO[@]} ]; do
+  ARG=${INFO[$IND]}
+  case "$ARG" in
+    -q|--quick ) QUICK=1 ;;
+     -h|--help ) USAGE=1 ;;
+             * ) USAGE=1 ; echo "unknown option: $ARG" ;;
+  esac
+  let IND+=1
+done
+
+[[ $USAGE ]] && { echo "usage: `basename $0` [1|2]" 1>&2 ; exit 1 ; }
+
 # If the branch isn't currently the PR target
 if [[ $TARG != $CURR ]]; then
-  git fetch upstream
+  [[ $QUICK ]] || git fetch upstream
   git rebase upstream/$TARG && git rebase -i upstream/$TARG
 fi

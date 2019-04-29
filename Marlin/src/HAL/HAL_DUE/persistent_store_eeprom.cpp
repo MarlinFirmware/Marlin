@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
@@ -29,7 +29,7 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/persistent_store_api.h"
 
-#if DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
+#if DISABLED(I2C_EEPROM, SPI_EEPROM)
   #define E2END 0xFFF // Default to Flash emulated EEPROM size (EepromEmulation_Due.cpp)
 #endif
 
@@ -38,7 +38,7 @@ extern void eeprom_flush(void);
 bool PersistentStore::access_start() { return true; }
 
 bool PersistentStore::access_finish() {
-  #if DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
+  #if DISABLED(I2C_EEPROM, SPI_EEPROM)
     eeprom_flush();
   #endif
   return true;
@@ -52,6 +52,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     // so only write bytes that have changed!
     if (v != eeprom_read_byte(p)) {
       eeprom_write_byte(p, v);
+      delay(2);
       if (eeprom_read_byte(p) != v) {
         SERIAL_ECHO_MSG(MSG_ERR_EEPROM_WRITE);
         return true;

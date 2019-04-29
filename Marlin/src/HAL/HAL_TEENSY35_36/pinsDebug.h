@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -76,7 +76,7 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
  */
 bool HAL_pwm_status(int8_t pin) {
   char buffer[20];   // for the sprintf statements
-  switch(pin) {
+  switch (pin) {
     FTM_CASE(0,0);
     FTM_CASE(0,1);
     FTM_CASE(0,2);

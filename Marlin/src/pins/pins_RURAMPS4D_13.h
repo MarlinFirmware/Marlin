@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -106,11 +106,11 @@
   #define E2_CS_PIN        61
 #endif
 
-#if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+#if USES_Z_MIN_PROBE_ENDSTOP
   #define Z_MIN_PROBE_PIN  49
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #ifndef FIL_RUNOUT_PIN
     #define FIL_RUNOUT_PIN   Y_MIN_PIN
   #endif
@@ -161,11 +161,11 @@
 
 // MKS TFT / Nextion Use internal USART-1
 #define TFT_LCD_MODULE_COM        1
-#define TFT_LCD_MODULE_BAUDRATE   115600
+#define TFT_LCD_MODULE_BAUDRATE   115200
 
 // ESP WiFi Use internal USART-2
 #define ESP_WIFI_MODULE_COM       2
-#define ESP_WIFI_MODULE_BAUDRATE  115600
+#define ESP_WIFI_MODULE_BAUDRATE  115200
 #define ESP_WIFI_MODULE_RESET_PIN -1
 #define PIGGY_GPIO_PIN            -1
 
@@ -188,37 +188,71 @@
 //
 #if ENABLED(ULTRA_LCD)
 
-  #if ENABLED(RADDS_DISPLAY) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
-
+  #if ANY(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER, REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
     #define BEEPER_PIN      62
+    #define LCD_PINS_D4     48
+    #define LCD_PINS_D5     50
+    #define LCD_PINS_D6     52
+    #define LCD_PINS_D7     53
+    #define SD_DETECT_PIN   51
+  #endif
+
+  #if EITHER(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER)
 
     #define LCD_PINS_RS     63
     #define LCD_PINS_ENABLE 64
-    #define LCD_PINS_D4     48
-    #define LCD_PINS_D5     50
-    #define LCD_PINS_D6     52
-    #define LCD_PINS_D7     53
-
-    #define SD_DETECT_PIN   51
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
-    #define BEEPER_PIN      62
-
     #define LCD_PINS_RS     52
     #define LCD_PINS_ENABLE 53
-    #define LCD_PINS_D4     48
-    #define LCD_PINS_D5     50
-    #define LCD_PINS_D6     52
-    #define LCD_PINS_D7     53
 
-    #define SD_DETECT_PIN   51
-
-  #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
+  #elif HAS_SSD1306_OLED_I2C
 
     #define BEEPER_PIN      62
     #define LCD_SDSS        10
     #define SD_DETECT_PIN   51
+
+  #elif ENABLED(FYSETC_MINI_12864)
+
+    #define BEEPER_PIN      62
+    #define DOGLCD_CS       64
+    #define DOGLCD_A0       63
+
+    //#define FORCE_SOFT_SPI     // Use this if default of hardware SPI causes problems
+
+    #define LCD_RESET_PIN   48   // Must be high or open for LCD to operate normally.
+                                 // Seems to work best if left open.
+
+    #define FYSETC_MINI_12864_REV_1_2
+    //#define FYSETC_MINI_12864_REV_2_0
+    //#define FYSETC_MINI_12864_REV_2_1
+    #if EITHER(FYSETC_MINI_12864_REV_1_2, FYSETC_MINI_12864_REV_2_0)
+      #define RGB_LED
+      #ifndef RGB_LED_R_PIN
+        #define RGB_LED_R_PIN 50   // D5
+      #endif
+      #ifndef RGB_LED_G_PIN
+        #define RGB_LED_G_PIN 52   // D6
+      #endif
+      #ifndef RGB_LED_B_PIN
+        #define RGB_LED_B_PIN 53   // D7
+      #endif
+    #elif defined(FYSETC_MINI_12864_REV_2_1)
+      #define NEOPIXEL_LED
+      #define NEOPIXEL_TYPE   NEO_GRB  // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+      #define NEOPIXEL_PIN  50         // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
+      #define NEOPIXEL_PIXELS  3       // Number of LEDs in the strip
+      #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+      #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+      #define NEOPIXEL_STARTUP_TEST    // Cycle through colors at startup
+    #else
+      #error "Either FYSETC_MINI_12864_REV_1_2, FYSETC_MINI_12864_REV_2_0 or FYSETC_MINI_12864_REV_2_1 must be defined"
+    #endif
+
+    #if !defined(LED_USER_PRESET_STARTUP) && EITHER(FYSETC_MINI_12864_REV_2_0, FYSETC_MINI_12864_REV_2_1)
+      #error "LED_USER_PRESET_STARTUP must be enabled when using FYSETC_MINI_12864 REV 2.0 and later"
+    #endif
 
   #elif ENABLED(MKS_MINI_12864)
 

@@ -76,81 +76,79 @@
  * \class TMC26XStepper
  * \brief Class representing a TMC26X stepper driver
  *
- * In order to use one fo those drivers in your Arduino code you have to create an object of that class:
+ * To use one of these drivers in your code create an object of its class:
  * \code
- * TMC26XStepper stepper = TMC26XStepper(200,1,2,3,500);
+ * TMC26XStepper tmc_stepper = TMC26XStepper(200,1,2,3,500);
  * \endcode
  * see TMC26XStepper(int16_t number_of_steps, int16_t cs_pin, int16_t dir_pin, int16_t step_pin, uint16_t rms_current)
  *
- * Keep in mind that you need to start the driver with start() in order to get the TMC26X configured.
+ * Keep in mind that you need to start the driver with start() in order to configure the TMC26X.
  *
- * The most important function is the move(). It checks if the motor has to do a step or not.
- * It is important that you call move() as often as possible in your Arduino loop() routine. I suggest
- * to use a very fast loop routine and always call it at the beginning or the end.
+ * The most important function is move(). It checks if the motor requires a step. It's important to call move() as
+ * often as possible in loop(). I suggest using a very fast loop routine and always call move() at the beginning or end.
  *
- * In order to move you have to provide a movement speed with setSpeed(). The speed is a positive value setting
- * the rotations per minute.
+ * To move you must set a movement speed with setSpeed(). The speed is a positive value, setting the RPM.
  *
  * To really move the motor you have to call step() to tell the driver to move the motor the given number
- * of steps in the given direction. Positive values move the motor in one direction, negative values in the other direction.
+ * of steps in the given direction. Positive values move the motor in one direction, negative values in the other.
  *
- * You can check with isMoving() if the mototr is still moving or stop it  apruptely with stop().
+ * You can check with isMoving() if the motor is still moving or stop it abruptly with stop().
  */
 class TMC26XStepper {
   public:
     /*!
-     * \brief creates a new represenatation of a stepper motor connected to a TMC26X stepper driver
+     * \brief Create a new representation of a stepper motor connected to a TMC26X stepper driver
      *
-     * This is the main constructor. If in doubt use this. You must provide all parameters as described below.
+     * Main constructor. If in doubt use this. All parameters must be provided as described below.
      *
-     * \param number_of_steps the number of steps the motor has per rotation.
-     * \param cs_pin The Arduino pin you have connected the Cient Select Pin (!CS) of the TMC26X for SPI
-     * \param dir_pin the number of the Arduino pin the Direction input of the TMC26X is connected
-     * \param step_pin the number of the Arduino pin the step pin of the TMC26X driver is connected.
-     * \param rms_current the maximum current to privide to the motor in mA (!). A value of 200 would send up to 200mA to the motor
-     * \param resistor the current sense resistor in milli Ohm, defaults to ,15 Ohm ( or 150 milli Ohm) as in the TMC260 Arduino Shield
+     * \param number_of_steps Number of steps the motor has per rotation.
+     * \param cs_pin          Arduino pin connected to the Client Select Pin (!CS) of the TMC26X for SPI.
+     * \param dir_pin         Arduino pin connected to the DIR input of the TMC26X.
+     * \param step_pin        Arduino pin connected to the STEP pin of the TMC26X.
+     * \param rms_current     Maximum current to provide to the motor in mA (!). A value of 200 will send up to 200mA to the motor.
+     * \param resistor        Current sense resistor in milli-Ohm, defaults to 0.15 Ohm (or 150 milli-Ohm) as in the TMC260 Arduino Shield.
      *
-     * Keep in mind that you must also call TMC26XStepper.start() in order to configure the stepper driver for use.
+     * You must also call TMC26XStepper.start() to configure the stepper driver for use.
      *
-     * By default the Constant Off Time chopper is used, see TMC26XStepper.setConstantOffTimeChopper() for details.
-     * This should work on most motors (YMMV). You may want to configure and use the Spread Cycle Chopper, see  setSpreadCycleChopper().
+     * By default the Constant Off Time chopper is used. See TMC26XStepper.setConstantOffTimeChopper() for details.
+     * This should work on most motors (YMMV). You may want to configure and use the Spread Cycle Chopper. See setSpreadCycleChopper().
      *
-     * By default a microstepping of 1/32th is used to provide a smooth motor run, while still giving a good progression per step.
-     * You can select a different stepping with setMicrosteps() to aa different value.
+     * By default a microstepping of 1/32 is used to provide a smooth motor run while still giving a good progression per step.
+     * Change stepping by sending setMicrosteps() a different value.
      * \sa start(), setMicrosteps()
      */
     TMC26XStepper(const int16_t in_steps, int16_t cs_pin, int16_t dir_pin, int16_t step_pin, uint16_t current, uint16_t resistor=100); //resistor=150
 
     /*!
-     * \brief configures and starts the TMC26X stepper driver. Before you called this function the stepper driver is in nonfunctional mode.
+     * \brief Configure and start the TMC26X stepper driver. Before this is called the stepper driver is nonfunctional.
      *
-     * This routine configures the TMC26X stepper driver for the given values via SPI.
-     * Most member functions are non functional if the driver has not been started.
-     * Therefore it is best to call this in your Arduino setup() function.
+     * Configure the TMC26X stepper driver for the given values via SPI.
+     * Most member functions are non-functional if the driver has not been started,
+     * therefore it is best to call this in setup().
      */
     void start();
 
     /*!
-     * \brief resets the stepper in unconfigured mode.
+     * \brief Reset the stepper in unconfigured mode.
      *
-     * This routine enables you to call start again. It does not change anything
-     * in the internal stepper configuration or the desired configuration.
-     * It just marks the stepper as not yet startet. You do not have to reconfigure
-     * the stepper to start it again, but it is not reset to any factory settings
-     * this has to be configured back by yourself.
+     * Allows start to be called again. It doesn't change the internal stepper
+     * configuration or the desired configuration. It just marks the stepper as
+     * not-yet-started. The stepper doesn't need to be reconfigured before
+     * starting again, and is not reset to any factory settings.
+     * It must be reset intentionally.
      * (Hint: Normally you do not need this function)
      */
     void un_start();
 
 
     /*!
-     * \brief Sets the rotation speed in revolutions per minute.
-     * \param whatSpeed the desired speed in rotations per minute.
+     * \brief Set the rotation speed in RPM.
+     * \param whatSpeed the desired speed in RPM.
      */
     void setSpeed(uint16_t whatSpeed);
 
     /*!
-     * \brief reads out the currently selected speed in revolutions per minute.
+     * \brief Report the currently selected speed in RPM.
      * \sa setSpeed()
      */
     uint16_t getSpeed(void);
@@ -158,89 +156,86 @@ class TMC26XStepper {
     /*!
      * \brief Set the number of microsteps in 2^i values (rounded) up to 256
      *
-     * This method set's the number of microsteps per step in 2^i interval.
-     * This means you can select 1, 2, 4, 16, 32, 64, 128 or 256 as valid microsteps.
-     * If you give any other value it will be rounded to the next smaller number (3 would give a microstepping of 2).
+     * This method sets the number of microsteps per step in 2^i interval.
+     * It accepts 1, 2, 4, 16, 32, 64, 128 or 256 as valid microsteps.
+     * Other values will be rounded down to the next smaller value (e.g., 3 gives a microstepping of 2).
      * You can always check the current microstepping with getMicrosteps().
      */
     void setMicrosteps(const int16_t in_steps);
 
     /*!
-     * \brief returns the effective current number of microsteps selected.
+     * \brief Return the effective current number of microsteps selected.
      *
-     * This function always returns the effective number of microsteps.
-     * This can be a bit different than the micro steps set in setMicrosteps() since it is rounded to 2^i.
+     * Always returns the effective number of microsteps.
+     * This may be different from the micro-steps set in setMicrosteps() since it is rounded to 2^i.
      *
      * \sa setMicrosteps()
      */
     int16_t getMicrosteps(void);
 
     /*!
-     * \brief Initiate a movement for the given number of steps. Positive numbers move in one, negative numbers in the other direction.
+     * \brief Initiate a movement with the given number of steps. Positive values move in one direction, negative in the other.
      *
      * \param number_of_steps The number of steps to move the motor.
      * \return 0 if the motor was not moving and moves now. -1 if the motor is moving and the new steps could not be set.
      *
-     * If the previous movement is not finished yet the function will return -1 and not change the steps to move the motor.
-     * If the motor does not move it return 0
+     * If the previous movement is incomplete the function returns -1 and doesn't change the steps to move the motor.
+     * If the motor does not move it returns 0.
      *
-     * The direction of the movement is indicated by the sign of the steps parameter. It is not determinable if positive values are right
-     * or left This depends on the internal construction of the motor and how you connected it to the stepper driver.
+     * The movement direction is determined by the sign of the steps parameter. The motor direction in machine space
+     * cannot be determined, as it depends on the construction of the motor and how it functions in the drive system.
      *
-     * You can always verify with isMoving() or even use stop() to stop the motor before giving it new step directions.
+     * For safety, verify with isMoving() or even use stop() to stop the motor before giving it new step directions.
      * \sa isMoving(), getStepsLeft(), stop()
      */
     char step(int16_t number_of_steps);
 
     /*!
-     * \brief Central movement method, must be called as often as possible in the lopp function and is very fast.
+     * \brief Central movement method. Must be called as often as possible in the loop function and is very fast.
      *
-     * This routine checks if the motor still has to move, if the waiting delay has passed to send a new step command to the motor
-     * and manages the number of steps yet to move to fulfill the current move command.
+     * Check if the motor still has to move and whether the wait-to-step interval has expired, and manages the
+     * number of steps remaining to fulfill the current move command.
      *
-     * This function is implemented to be as fast as possible to call it as often as possible in your loop routine.
-     * The more regurlarly you call this function the better. In both senses of 'regularly': Calling it as often as
-     * possible is not a bad idea and if you even manage that the intervals you call this function are not too irregular helps too.
+     * This function is implemented to be as fast as possible, so call it as often as possible in your loop.
+     * It should be invoked with as frequently and with as much regularity as possible.
      *
-     * You can call this routine even if you know that the motor is not moving. It introduces just a very small penalty in your code.
-     * You must not call isMoving() to determine if you need to call this function, since taht is done internally already and only
-     * slows down you code.
+     * This can be called even when the motor is known not to be moving. It will simply return.
      *
-     * How often you call this function directly influences your top moving speed for the motor. It may be a good idea to call this
-     * from a timer overflow interrupt to ensure proper calling.
+     * The frequency with which this function is called determines the top stepping speed of the motor.
+     * It is recommended to call this using a hardware timer to ensure regular invocation.
      * \sa step()
      */
     char move(void);
 
     /*!
-     * \brief checks if the motor still has to move to fulfill the last movement command.
+     * \brief Check whether the last movement command is done.
      * \return 0 if the motor stops, -1 if the motor is moving.
      *
-     * This method can be used to determine if the motor is ready for new movements.
+     * Used to determine if the motor is ready for new movements.
      *\sa step(), move()
      */
     char isMoving(void);
 
     /*!
      * \brief Get the number of steps left in the current movement.
-     * \return The number of steps left in the movement. This number is always positive.
+     * \return The number of steps left in the movement. Always positive.
      */
     uint16_t getStepsLeft(void);
 
     /*!
-     * \brief Stops the motor regardless if it moves or not.
+     * \brief Stop the motor immediately.
      * \return -1 if the motor was moving and is really stoped or 0 if it was not moving at all.
      *
-     * This method directly and apruptely stops the motor and may be used as an emergency stop.
+     * This method directly and abruptly stops the motor and may be used as an emergency stop.
      */
     char stop(void);
 
     /*!
-     * \brief Sets and configure the classical Constant Off Timer Chopper
-     * \param constant_off_time The off time setting controls the minimum chopper frequency. For most applications an off time within the range of 5μs to 20μs will fit. Setting this parameter to zero completely disables all driver transistors and the motor can free-wheel. 0: chopper off, 1:15: off time setting (1 will work with minimum blank time of 24 clocks)
-     * \param blank_time Selects the comparator blank time. This time needs to safely cover the switching event and the duration of the ringing on the sense resistor. For most low current drivers, a setting of 1 or 2 is good. For high current applications with large MOSFETs, a setting of 2 or 3 will be required. 0 (min setting) … (3) amx setting
+     * \brief Set and configure the classical Constant Off Timer Chopper
+     * \param constant_off_time       The off time setting controls the minimum chopper frequency. For most applications an off time within the range of 5μs to 20μs will fit. Setting this parameter to zero completely disables all driver transistors and the motor can free-wheel. 0: chopper off, 1:15: off time setting (1 will work with minimum blank time of 24 clocks)
+     * \param blank_time              Comparator blank time. This duration needs to safely cover the duration of the switching event and the ringing on the sense resistor. For most low current drivers, a setting of 1 or 2 is good. For high current applications with large MOSFETs, a setting of 2 or 3 will be required. 0 (min setting) … (3) amx setting
      * \param fast_decay_time_setting Fast decay time setting. Controls the portion of fast decay for each chopper cycle. 0: slow decay only, 1…15: duration of fast decay phase
-     * \param sine_wave_offset Sine wave offset. Controls the sine wave offset. A positive offset corrects for zero crossing error. -3…-1: negative offset, 0: no offset,1…12: positive offset
+     * \param sine_wave_offset        Sine wave offset. Controls the sine wave offset. A positive offset corrects for zero crossing error. -3…-1: negative offset, 0: no offset,1…12: positive offset
      * \param use_curreent_comparator Selects usage of the current comparator for termination of the fast decay cycle. If current comparator is enabled, it terminates the fast decay cycle in case the current reaches a higher negative value than the actual positive value. (0 disable, -1 enable).
      *
      * The classic constant off time chopper uses a fixed portion of fast decay following each on phase.

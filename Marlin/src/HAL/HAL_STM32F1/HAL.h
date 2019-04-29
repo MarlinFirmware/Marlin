@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -51,46 +51,69 @@
 #include "watchdog_STM32F1.h"
 
 #include "HAL_timers_STM32F1.h"
-
+#include "../../inc/MarlinConfigPre.h"
 
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
 
-#if !WITHIN(SERIAL_PORT, -1, 3)
-  #error "SERIAL_PORT must be from -1 to 3"
+#ifdef SERIAL_USB
+  #define UsbSerial Serial
+  #define MSerial1  Serial1
+  #define MSerial2  Serial2
+  #define MSerial3  Serial3
+  #define MSerial4  Serial4
+  #define MSerial5  Serial5
+#else
+  extern USBSerial SerialUSB;
+  #define UsbSerial SerialUSB
+  #define MSerial1  Serial
+  #define MSerial2  Serial1
+  #define MSerial3  Serial2
+  #define MSerial4  Serial3
+  #define MSerial5  Serial4
+#endif
+
+#if !WITHIN(SERIAL_PORT, -1, 5)
+  #error "SERIAL_PORT must be from -1 to 5"
 #endif
 #if SERIAL_PORT == -1
-  extern USBSerial SerialUSB;
-  #define MYSERIAL0 SerialUSB
+  #define MYSERIAL0 UsbSerial
 #elif SERIAL_PORT == 0
-  #define MYSERIAL0 Serial
+  #error "Serial port 0 does not exist"
 #elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
+  #define MYSERIAL0 MSerial1
 #elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
+  #define MYSERIAL0 MSerial2
 #elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
+  #define MYSERIAL0 MSerial3
+#elif SERIAL_PORT == 4
+  #define MYSERIAL0 MSerial4
+#elif SERIAL_PORT == 5
+  #define MYSERIAL0 MSerial5
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if !WITHIN(SERIAL_PORT_2, -1, 3)
-    #error "SERIAL_PORT_2 must be from -1 to 3"
+  #if !WITHIN(SERIAL_PORT_2, -1, 5)
+    #error "SERIAL_PORT_2 must be from -1 to 5"
   #elif SERIAL_PORT_2 == SERIAL_PORT
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-    extern USBSerial SerialUSB;
-    #define MYSERIAL1 SerialUSB
+    #define MYSERIAL1 UsbSerial
   #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 Serial
+  #error "Serial port 0 does not exist"
   #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 Serial1
+    #define MYSERIAL1 MSerial1
   #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 Serial2
+    #define MYSERIAL1 MSerial2
   #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 Serial3
+    #define MYSERIAL1 MSerial3
+  #elif SERIAL_PORT_2 == 4
+    #define MYSERIAL1 MSerial4
+  #elif SERIAL_PORT_2 == 5
+    #define MYSERIAL1 MSerial5
   #endif
 #else
   #define NUM_SERIAL 1
@@ -105,6 +128,10 @@ void HAL_init();
  */
 #ifndef analogInputToDigitalPin
   #define analogInputToDigitalPin(p) (p)
+#endif
+
+#ifndef digitalPinHasPWM
+  #define digitalPinHasPWM(P) (PIN_MAP[P].timer_device != NULL)
 #endif
 
 #define CRITICAL_SECTION_START  uint32_t primask = __get_primask(); (void)__iCliRetVal()
@@ -159,10 +186,10 @@ extern uint16_t HAL_adc_result;
 #define __bss_end __bss_end__
 
 /** clear reset reason */
-void HAL_clear_reset_source (void);
+void HAL_clear_reset_source(void);
 
 /** reset reason */
-uint8_t HAL_get_reset_source (void);
+uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(const int delay);
 
@@ -180,12 +207,21 @@ static int freeMemory() {
   return top;
 }
 */
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 static int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
+#pragma GCC diagnostic pop
+
+//
 // SPI: Extended functions which take a channel number (hardware SPI only)
+//
+
 /** Write single byte to specified SPI channel */
 void spiSend(uint32_t chan, byte b);
 /** Write buffer to specified SPI channel */
@@ -193,19 +229,22 @@ void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
 /** Read single byte from specified SPI channel */
 uint8_t spiRec(uint32_t chan);
 
-
+//
 // EEPROM
+//
 
 /**
- * TODO: Write all this eeprom stuff. Can emulate eeprom in flash as last resort.
- * Wire library should work for i2c eeproms.
+ * TODO: Write all this EEPROM stuff. Can emulate EEPROM in flash as last resort.
+ * Wire library should work for i2c EEPROMs.
  */
 void eeprom_write_byte(uint8_t *pos, unsigned char value);
 uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block (void *__dst, const void *__src, size_t __n);
-void eeprom_update_block (const void *__src, void *__dst, size_t __n);
+void eeprom_read_block(void *__dst, const void *__src, size_t __n);
+void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
+//
 // ADC
+//
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT_ANALOG);
 

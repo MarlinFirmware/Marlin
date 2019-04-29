@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
 
 #if ENABLED(SDSUPPORT)
 
-#define SD_RESORT ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_DYNAMIC_RAM)
+#define SD_RESORT BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
 
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
 #define MAXDIRNAMELENGTH   8       // DOS folder name size
@@ -42,7 +42,7 @@ typedef struct {
        detected:1,
        filenameIsDir:1,
        abort_sd_printing:1
-       #if ENABLED(FAST_FILE_TRANSFER)
+       #if ENABLED(BINARY_FILE_TRANSFER)
          , binary_mode:1
        #endif
     ;
@@ -70,24 +70,12 @@ public:
       const bool re_sort=false
     #endif
   );
-  static void report_status(
-    #if NUM_SERIAL > 1
-      const int8_t port = -1
-    #endif
-  );
+  static void report_status();
   static void printingHasFinished();
-  static void printFilename(
-    #if NUM_SERIAL > 1
-      const int8_t port = -1
-    #endif
-  );
+  static void printFilename();
 
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-    static void printLongPath(char *path
-      #if NUM_SERIAL > 1
-        , const int8_t port = -1
-      #endif
-    );
+    static void printLongPath(char *path);
   #endif
 
   static void getfilename(uint16_t nr, const char* const match=NULL);
@@ -95,11 +83,7 @@ public:
 
   static void getAbsFilename(char *t);
 
-  static void ls(
-    #if NUM_SERIAL > 1
-      const int8_t port = -1
-    #endif
-  );
+  static void ls();
   static void chdir(const char *relpath);
   static int8_t updir();
   static void setroot();
@@ -144,13 +128,9 @@ public:
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     static void auto_report_sd_status(void);
-    static inline void set_auto_report_interval(uint8_t v
+    static inline void set_auto_report_interval(uint8_t v) {
       #if NUM_SERIAL > 1
-        , int8_t port
-      #endif
-    ) {
-      #if NUM_SERIAL > 1
-        serialport = port;
+        auto_report_port = serial_port_index;
       #endif
       NOMORE(v, 60);
       auto_report_sd_interval = v;
@@ -165,11 +145,11 @@ public:
   static char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   static int8_t autostart_index;
 
-  #if ENABLED(FAST_FILE_TRANSFER)
+  #if ENABLED(BINARY_FILE_TRANSFER)
     #if NUM_SERIAL > 1
-      static uint8_t transfer_port;
+      static int8_t transfer_port_index;
     #else
-      static constexpr uint8_t transfer_port = 0;
+      static constexpr int8_t transfer_port_index = 0;
     #endif
   #endif
 
@@ -193,7 +173,7 @@ private:
       static uint8_t sort_order[SDSORT_LIMIT];
     #endif
 
-    #if ENABLED(SDSORT_USES_RAM) && ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+    #if BOTH(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
       #define SORTED_LONGNAME_MAXLEN ((SDSORT_CACHE_VFATS) * (FILENAME_LENGTH) + 1)
     #else
       #define SORTED_LONGNAME_MAXLEN LONG_FILENAME_LENGTH
@@ -244,11 +224,7 @@ private:
   static LsAction lsAction; //stored for recursion.
   static uint16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
   static char *diveDirName;
-  static void lsDive(const char *prepend, SdFile parent, const char * const match=NULL
-    #if NUM_SERIAL > 1
-      , const int8_t port = -1
-    #endif
-  );
+  static void lsDive(const char *prepend, SdFile parent, const char * const match=NULL);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void flush_presort();
@@ -258,7 +234,7 @@ private:
     static uint8_t auto_report_sd_interval;
     static millis_t next_sd_report_ms;
     #if NUM_SERIAL > 1
-      static int8_t serialport;
+      static int8_t auto_report_port;
     #endif
   #endif
 };

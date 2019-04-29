@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,10 +26,11 @@
  * Communication interface for FSMC
  */
 
+#if defined(ARDUINO_ARCH_STM32F1) && (defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY))
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_GRAPHICAL_LCD
-#if defined(STM32F1) || defined(STM32F1xx)
 
 #include "U8glib.h"
 #include "libmaple/fsmc.h"
@@ -57,7 +58,7 @@ uint8_t u8g_com_stm32duino_fsmc_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, voi
 
   static uint8_t isCommand;
 
-  switch(msg) {
+  switch (msg) {
     case U8G_COM_MSG_STOP:
       break;
     case U8G_COM_MSG_INIT:
@@ -107,36 +108,43 @@ __attribute__((always_inline)) __STATIC_INLINE void __DSB(void) {
 }
 
 #define FSMC_CS_NE1  PD7
-#define FSMC_CS_NE2  PG9
-#define FSMC_CS_NE3  PG10
-#define FSMC_CS_NE4  PG12
 
-#define FSMC_RS_A0   PF0
-#define FSMC_RS_A1   PF1
-#define FSMC_RS_A2   PF2
-#define FSMC_RS_A3   PF3
-#define FSMC_RS_A4   PF4
-#define FSMC_RS_A5   PF5
-#define FSMC_RS_A6   PF12
-#define FSMC_RS_A7   PF13
-#define FSMC_RS_A8   PF14
-#define FSMC_RS_A9   PF15
-#define FSMC_RS_A10  PG0
-#define FSMC_RS_A11  PG1
-#define FSMC_RS_A12  PG2
-#define FSMC_RS_A13  PG3
-#define FSMC_RS_A14  PG4
-#define FSMC_RS_A15  PG5
-#define FSMC_RS_A16  PD11
-#define FSMC_RS_A17  PD12
-#define FSMC_RS_A18  PD13
-#define FSMC_RS_A19  PE3
-#define FSMC_RS_A20  PE4
-#define FSMC_RS_A21  PE5
-#define FSMC_RS_A22  PE6
-#define FSMC_RS_A23  PE2
-#define FSMC_RS_A24  PG13
-#define FSMC_RS_A25  PG14
+#ifdef STM32_XL_DENSITY
+  #define FSMC_CS_NE2 PG9
+  #define FSMC_CS_NE3 PG10
+  #define FSMC_CS_NE4 PG12
+
+  #define FSMC_RS_A0  PF0
+  #define FSMC_RS_A1  PF1
+  #define FSMC_RS_A2  PF2
+  #define FSMC_RS_A3  PF3
+  #define FSMC_RS_A4  PF4
+  #define FSMC_RS_A5  PF5
+  #define FSMC_RS_A6  PF12
+  #define FSMC_RS_A7  PF13
+  #define FSMC_RS_A8  PF14
+  #define FSMC_RS_A9  PF15
+  #define FSMC_RS_A10 PG0
+  #define FSMC_RS_A11 PG1
+  #define FSMC_RS_A12 PG2
+  #define FSMC_RS_A13 PG3
+  #define FSMC_RS_A14 PG4
+  #define FSMC_RS_A15 PG5
+#endif
+
+#define FSMC_RS_A16   PD11
+#define FSMC_RS_A17   PD12
+#define FSMC_RS_A18   PD13
+#define FSMC_RS_A19   PE3
+#define FSMC_RS_A20   PE4
+#define FSMC_RS_A21   PE5
+#define FSMC_RS_A22   PE6
+#define FSMC_RS_A23   PE2
+
+#ifdef STM32_XL_DENSITY
+  #define FSMC_RS_A24 PG13
+  #define FSMC_RS_A25 PG14
+#endif
 
 static uint8_t fsmcInit = 0;
 
@@ -153,33 +161,37 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
   if (fsmcInit) return;
   fsmcInit = 1;
 
-  switch(cs) {
+  switch (cs) {
     case FSMC_CS_NE1: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION1; break;
-    case FSMC_CS_NE2: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION2; break;
-    case FSMC_CS_NE3: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION3; break;
-    case FSMC_CS_NE4: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION4; break;
+    #ifdef STM32_XL_DENSITY
+      case FSMC_CS_NE2: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION2; break;
+      case FSMC_CS_NE3: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION3; break;
+      case FSMC_CS_NE4: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION4; break;
+    #endif
     default: return;
   }
 
   #define _ORADDR(N) controllerAddress |= (_BV32(N) - 2)
 
-  switch(rs) {
-    case FSMC_RS_A0:  _ORADDR( 1); break;
-    case FSMC_RS_A1:  _ORADDR( 2); break;
-    case FSMC_RS_A2:  _ORADDR( 3); break;
-    case FSMC_RS_A3:  _ORADDR( 4); break;
-    case FSMC_RS_A4:  _ORADDR( 5); break;
-    case FSMC_RS_A5:  _ORADDR( 6); break;
-    case FSMC_RS_A6:  _ORADDR( 7); break;
-    case FSMC_RS_A7:  _ORADDR( 8); break;
-    case FSMC_RS_A8:  _ORADDR( 9); break;
-    case FSMC_RS_A9:  _ORADDR(10); break;
-    case FSMC_RS_A10: _ORADDR(11); break;
-    case FSMC_RS_A11: _ORADDR(12); break;
-    case FSMC_RS_A12: _ORADDR(13); break;
-    case FSMC_RS_A13: _ORADDR(14); break;
-    case FSMC_RS_A14: _ORADDR(15); break;
-    case FSMC_RS_A15: _ORADDR(16); break;
+  switch (rs) {
+    #ifdef STM32_XL_DENSITY
+      case FSMC_RS_A0:  _ORADDR( 1); break;
+      case FSMC_RS_A1:  _ORADDR( 2); break;
+      case FSMC_RS_A2:  _ORADDR( 3); break;
+      case FSMC_RS_A3:  _ORADDR( 4); break;
+      case FSMC_RS_A4:  _ORADDR( 5); break;
+      case FSMC_RS_A5:  _ORADDR( 6); break;
+      case FSMC_RS_A6:  _ORADDR( 7); break;
+      case FSMC_RS_A7:  _ORADDR( 8); break;
+      case FSMC_RS_A8:  _ORADDR( 9); break;
+      case FSMC_RS_A9:  _ORADDR(10); break;
+      case FSMC_RS_A10: _ORADDR(11); break;
+      case FSMC_RS_A11: _ORADDR(12); break;
+      case FSMC_RS_A12: _ORADDR(13); break;
+      case FSMC_RS_A13: _ORADDR(14); break;
+      case FSMC_RS_A14: _ORADDR(15); break;
+      case FSMC_RS_A15: _ORADDR(16); break;
+    #endif
     case FSMC_RS_A16: _ORADDR(17); break;
     case FSMC_RS_A17: _ORADDR(18); break;
     case FSMC_RS_A18: _ORADDR(19); break;
@@ -188,8 +200,10 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
     case FSMC_RS_A21: _ORADDR(22); break;
     case FSMC_RS_A22: _ORADDR(23); break;
     case FSMC_RS_A23: _ORADDR(24); break;
-    case FSMC_RS_A24: _ORADDR(25); break;
-    case FSMC_RS_A25: _ORADDR(26); break;
+    #ifdef STM32_XL_DENSITY
+      case FSMC_RS_A24: _ORADDR(25); break;
+      case FSMC_RS_A25: _ORADDR(26); break;
+    #endif
     default: return;
   }
 
@@ -227,29 +241,30 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
 }
 
 void LCD_IO_WriteData(uint16_t RegValue) {
-	LCD->RAM = RegValue;
-	__DSB();
+  LCD->RAM = RegValue;
+  __DSB();
 }
 
 void LCD_IO_WriteReg(uint8_t Reg) {
-	LCD->REG = (uint16_t)Reg;
-	__DSB();
+  LCD->REG = (uint16_t)Reg;
+  __DSB();
 }
 
 uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize) {
-	volatile uint32_t data;
-	LCD->REG = (uint16_t)RegValue;
-	__DSB();
+  volatile uint32_t data;
+  LCD->REG = (uint16_t)RegValue;
+  __DSB();
 
-	data = LCD->RAM; // dummy read
-	data = LCD->RAM & 0x00FF;
+  data = LCD->RAM; // dummy read
+  data = LCD->RAM & 0x00FF;
 
-	while (--ReadSize) {
-		data <<= 8;
-		data |= (LCD->RAM & 0x00FF);
-	}
-	return (uint32_t)data;
+  while (--ReadSize) {
+    data <<= 8;
+    data |= (LCD->RAM & 0x00FF);
+  }
+  return (uint32_t)data;
 }
 
-#endif // STM32F1 || STM32F1xx
 #endif // HAS_GRAPHICAL_LCD
+
+#endif // ARDUINO_ARCH_STM32F1 && (STM32_HIGH_DENSITY || STM32_XL_DENSITY)

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -89,6 +89,7 @@
 #define BOARD_FYSETC_F6_13      541   // Fysetc F6
 #define BOARD_DUPLICATOR_I3_PLUS 31   // Wanhao Duplicator i3 Plus
 #define BOARD_VORON             441   // VORON Design
+#define BOARD_TRONXY_V3_1_0     442   // Tronxy TRONXY-V3-1.0
 
 //
 // Other ATmega1280, ATmega2560
@@ -117,6 +118,7 @@
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
 #define BOARD_GT2560_V3         76    // Geeetech GT2560 Rev B for A10(M/D)
 #define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2
+#define BOARD_GT2560_V3_A20     86    // Geeetech GT2560 Rev B for A20(M/D)
 #define BOARD_EINSTART_S        666   // Einstart retrofit
 
 //
@@ -187,9 +189,12 @@
 #define BOARD_COHESION3D_REMIX    1755  // Cohesion3D ReMix
 #define BOARD_COHESION3D_MINI     1756  // Cohesion3D Mini
 #define BOARD_SMOOTHIEBOARD       1757  // Smoothieboard
-#define BOARD_AZTEEG_X5_MINI_WIFI 1758  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_AZTEEG_X5_MINI_WIFI 1758  // Azteeg X5 Mini Wifi (Power outputs: Hotend0, Bed, Fan)
 #define BOARD_BIQU_SKR_V1_1       1759  // BIQU SKR_V1.1 (Power outputs: Hotend0,Hotend1, Fan, Bed)
 #define BOARD_BIQU_B300_V1_0      1760  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
+#define BOARD_BIGTREE_SKR_V1_3    1761  // BIGTREE SKR_V1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_AZTEEG_X5_MINI      1762  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_MKS_SGEN            1763  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
 
 //
 // SAM3X8E ARM Cortex M3
@@ -221,6 +226,12 @@
 #define BOARD_ARCHIM1          1591   // UltiMachine Archim1 (with DRV8825 drivers)
 #define BOARD_ARCHIM2          1592   // UltiMachine Archim2 (with TMC2130 drivers)
 #define BOARD_ALLIGATOR        1602   // Alligator Board R2
+
+//
+// SAM3X8C ARM Cortex M3
+//
+
+#define BOARD_PRINTRBOARD_G2   1620   // PRINTRBOARD G2
 #define BOARD_ADSK             1610   // Arduino DUE Shield Kit (ADSK)
 
 //
@@ -244,6 +255,8 @@
 #define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
 #define BOARD_ARMED            1807   // Arm'ed STM32F4 based controller
 #define BOARD_RUMBA32          1809   // RUMBA32 STM32F4 based controller
+#define BOARD_BLACK_STM32F407VE 1810  // BLACK_STM32F407VE
+#define BOARD_BLACK_STM32F407ZE 1811  // BLACK_STM32F407ZE
 #define BOARD_STEVAL           1866   // STEVAL-3DP001V1 3D PRINTER BOARD
 
 //
@@ -257,5 +270,11 @@
 // Espressif ESP32 WiFi
 //
 #define BOARD_ESP32            1900
+
+//
+// Simulations
+//
+
+#define BOARD_LINUX_RAMPS      2000
 
 #define MB(board) (defined(BOARD_##board) && MOTHERBOARD==BOARD_##board)

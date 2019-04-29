@@ -1,7 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (C) 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,12 +24,12 @@
  * Smoothieboard pin assignments
  */
 
-#ifndef TARGET_LPC1768
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
+#ifndef LPC1769
+  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME          "Smoothieboard"
-#define DEFAULT_WEBSITE_URL "http://smoothieware.org/smoothieboard"
+#define BOARD_NAME        "Smoothieboard"
+#define BOARD_WEBSITE_URL "http://smoothieware.org/smoothieboard"
 
 #undef F_CPU
 #define F_CPU 120000000
@@ -94,20 +93,26 @@
 #define FAN1_PIN           P2_04
 
 //
-// Display
+// LCD / Controller
 //
-#if ENABLED(VIKI2) || ENABLED(miniVIKI)
+#if ANY(VIKI2, miniVIKI)
+
   #define BEEPER_PIN       P1_31
-  //#define DOGLCD_A0      P2_06
+  #define DOGLCD_A0        P2_11
   #define DOGLCD_CS        P0_16
 
   #define BTN_EN1          P3_25
   #define BTN_EN2          P3_26
-  #define BTN_ENC          P2_11
+  #define BTN_ENC          P1_30
 
   #define SD_DETECT_PIN    P1_18
   #define SDSS             P1_21
 
   #define STAT_LED_RED_PIN  P1_19
   #define STAT_LED_BLUE_PIN P1_20
+
+#elif HAS_SPI_LCD
+
+  #error "Marlin's Smoothieboard support cannot drive your LCD."
+
 #endif
