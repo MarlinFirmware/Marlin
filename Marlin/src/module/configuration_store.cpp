@@ -64,6 +64,10 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extensible_ui/ui_api.h"
+#endif
+
 #if HAS_SERVOS
   #include "servo.h"
 #endif
@@ -1170,8 +1174,8 @@ void MarlinSettings::postprocess() {
     //
     #if ENABLED(EXTENSIBLE_UI)
       {
-        uint8_t extui_data[ExtUI::eeprom_data_size] = { 0 };
-        memcpy(extui_data, ExtUI::eeprom_data, ExtUI::eeprom_data_size);
+        char extui_data[ExtUI::eeprom_data_size] = { 0 };
+        ExtUI::onStoreSettings(extui_data);
         _FIELD_TEST(extui_data);
         EEPROM_WRITE(extui_data);
       }
@@ -1204,6 +1208,10 @@ void MarlinSettings::postprocess() {
     #if ENABLED(UBL_SAVE_ACTIVE_ON_M500)
       if (ubl.storage_slot >= 0)
         store_mesh(ubl.storage_slot);
+    #endif
+
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onConfigurationStoreWritten(!eeprom_error);
     #endif
 
     return !eeprom_error;
@@ -1942,10 +1950,11 @@ void MarlinSettings::postprocess() {
       #if ENABLED(EXTENSIBLE_UI)
         // This is a significant hardware change; don't reserve EEPROM space when not present
         {
-          const uint8_t extui_data[ExtUI::eeprom_data_size] = { 0 };
+          const char extui_data[ExtUI::eeprom_data_size] = { 0 };
           _FIELD_TEST(extui_data);
           EEPROM_READ(extui_data);
-          memcpy(ExtUI::eeprom_data, extui_data, ExtUI::eeprom_data_size);
+          if(!validating)
+            ExtUI::onLoadSettings(extui_data);
         }
       #endif
 
@@ -2016,7 +2025,13 @@ void MarlinSettings::postprocess() {
   }
 
   bool MarlinSettings::load() {
-    if (validate()) return _load();
+    if (validate()) {
+      const bool success = _load();
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onConfigurationStoreRead(success);
+      #endif
+      return success;
+    }
     reset();
     return true;
   }

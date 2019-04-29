@@ -107,11 +107,6 @@ static struct {
 } flags;
 
 namespace ExtUI {
-  // The ExtUI implementation can write UI specific settings
-  // to this buffer and Marlin will save it to the EEPROM
-
-  uint8_t eeprom_data[eeprom_data_size] = { 0 };
-
   #ifdef __SAM3X8E__
     /**
      * Implement a special millis() to allow time measurement
