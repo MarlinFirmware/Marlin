@@ -35,45 +35,6 @@ void stop();
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-void BLTouch::command(const BLTCommand cmd) {
-  #if ENABLED(BLTOUCH_DEBUG_MSGS)
-    SERIAL_ECHOLNPAIR("BLTouch Command :", cmd);
-  #endif
-  MOVE_SERVO(Z_PROBE_SERVO_NR, cmd);
-  safe_delay(BLTOUCH_DELAY);
-}
-
-void BLTouch::reset() {
-  _reset();                                          // RESET into normal mode
-  #if BLTOUCH_DELAY < BLTOUCH_RESET_DELAY
-    safe_delay(BLTOUCH_RESET_DELAY - BLTOUCH_DELAY); // Might need to add some waiting time 
-  #endif
-}
-
-void BLTouch::clear() {
-  reset();     // RESET or RESET_SW will clear an alarm condition but...
-               // ...it will not clear a triggered condition in SW mode when the pin is currently up
-               // ANTClabs <-- CODE ERROR
-  _stow();     // STOW will pull up the pin and clear any triggered condition unless it fails
-  _deploy();   // DEPLOY to test the probe. Could fail
-  _stow();     // STOW to be ready for meaningful work. Could fail
-}
-
-void BLTouch::init() {
-  // This is called by marlin.cpp on initialization
-  // SET_5V_MODE (if enabled). OD_MODE is the default on power on.
-  // This mode will stay active until manual SET_OD_MODE or power cycle
-  #if ENABLED(BLTOUCH_FORCE_5V_MODE)         
-    _set_5V_mode();                          // Set 5V mode if explicitely demanded (V3 upwards)
-    #if BLTOUCH_DELAY < BLTOUCH_SET5V_DELAY
-      safe_delay(BLTOUCH_SET5V_DELAY - BLTOUCH_DELAY); // Might need to add some waiting time 
-    #endif
-  #endif
-  clear();
-  // There really should be no alarm outstanding now, and no triggered condition. But if there is,
-  // there is no need to worry people here on init right at the start of the printer.
-}
-
 bool BLTouch::triggered() {
   // Used in the main loop to check the pin state when probing and internally here
   return (
@@ -85,6 +46,52 @@ bool BLTouch::triggered() {
   );
 }
 
+void BLTouch::init() {
+  // This is called by marlin.cpp on initialization
+  // SET_5V_MODE (if enabled). OD_MODE is the default on power on.
+  // This mode will stay active until manual SET_OD_MODE or power cycle
+  #if ENABLED(BLTOUCH_FORCE_5V_MODE)         
+    _set_5V_mode();                          // Set 5V mode if explicitely demanded (V3 upwards)
+  #endif
+  clear();
+  // There really should be no alarm outstanding now, and no triggered condition. But if there is,
+  // there is no need to worry people here on init right at the start of the printer.
+}
+
+void BLTouch::clear() {
+  _reset();    // RESET or RESET_SW will clear an alarm condition but...
+               // ...it will not clear a triggered condition in SW mode when the pin is currently up
+               // ANTClabs <-- CODE ERROR
+  _stow();     // STOW will pull up the pin and clear any triggered condition unless it fails, don't care
+  _deploy();   // DEPLOY to test the probe. Could fail, don't care
+  _stow();     // STOW to be ready for meaningful work. Could fail, don't care
+}
+
+bool BLTouch::command(const BLTCommand cmd, millis_t ms) {
+  #if ENABLED(BLTOUCH_DEBUG_MSGS)
+    SERIAL_ECHOLNPAIR("BLTouch Command :", cmd);
+  #endif
+  MOVE_SERVO(Z_PROBE_SERVO_NR, cmd);
+  // If BLTOUCH_DELAY is higher than the desired ms delay, it will override
+  if (BLTOUCH_DELAY > ms) {
+    ms = BLTOUCH_DELAY;
+  }
+  // Don't wait longer than necessary if an ALARM pops up. Check trigger
+  // in increments of 100ms to catch the ALARM right away.
+  // Instead of using safe_delay in the following loop, we could use delay
+  // and do the calling of the temperature-manager ourself. See safe_delay() for
+  // details. TODO
+  while (ms > 100) {
+    ms -= 100;
+    safe_delay(100);
+    if (triggered()) {
+      return true;
+    }
+  }
+  safe_delay(ms);
+  return triggered();
+}
+
 bool BLTouch::deploy_stow_wrapper(const bool deploy) {
   // Do a DEPLOY
   if (deploy) {
@@ -92,31 +99,25 @@ bool BLTouch::deploy_stow_wrapper(const bool deploy) {
       SERIAL_ECHOLN("BLTouch DEPLOY requested");
     #endif
 
-    _deploy();                               // Attempt to deploy the probe
-    #if BLTOUCH_DELAY < BLTOUCH_DEPLOY_DELAY
-      safe_delay(BLTOUCH_DEPLOY_DELAY - BLTOUCH_DELAY); // Might need to add some waiting time 
-    #endif
-
-    // The deploy might have failed or the probe is actually triggered (nozzle too low?)
-    if (triggered()) {                      
+    // Attempt to DEPLOY, wait for DEPLOY_DELAY or ALARM
+    if (_deploy_query_alarm()) {                      
+      // The deploy might have failed or the probe is already triggered (nozzle too low?)
       #if ENABLED(BLTOUCH_DEBUG_MSGS)
         SERIAL_ECHOLN("BLTouch ALARM or TRIGGER after DEPLOY, recovering");
       #endif
 
       clear();                               // Get the probe into start condition
 
-      _deploy();                             // Last attempt
-      #if BLTOUCH_DELAY < BLTOUCH_DEPLOY_DELAY
-        safe_delay(BLTOUCH_DEPLOY_DELAY - BLTOUCH_DELAY); // Might need to add some waiting time 
-      #endif
-      
-      // The deploy might have failed or the probe is actually triggered (nozzle too low?) again
-      if (triggered()) {                     // but somehow, it didn't work, still triggered
+      // Last attempt to DEPLOY      
+      if (_deploy_query_alarm()) {                
+        // The deploy might have failed or the probe is actually triggered (nozzle too low?) again
         #if ENABLED(BLTOUCH_DEBUG_MSGS)
           SERIAL_ECHOLN("BLTouch ALARM or TRIGGER after DEPLOY, recovery failed");
         #endif
+
         SERIAL_ERROR_MSG(MSG_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
         stop();                              // but i'ts not too bad, no need to kill, allow restart
+
         return true;                         // Tell our caller we goofed in case he cares to know
       }                    
     }
@@ -148,37 +149,34 @@ bool BLTouch::deploy_stow_wrapper(const bool deploy) {
     // Note: If the probe is deployed AND in an ALARM condition, this STOW will not pull up the pin 
     // and the ALARM condition will still be there. --> ANTClabs should change this behaviour maybe
 
-    _stow();
-    #if BLTOUCH_DELAY < BLTOUCH_STOW_DELAY
-      safe_delay(BLTOUCH_STOW_DELAY - BLTOUCH_DELAY); // Might need to add some waiting time 
-    #endif
-
-    if (triggered()) {                       // "triggered" means "ALARM" in this szenario - STOW failed
+    // Attempt to STOW, wait for STOW_DELAY or ALARM
+    if (_stow_query_alarm()) {               
+      // The stow might have failed
       #if ENABLED(BLTOUCH_DEBUG_MSGS)
         SERIAL_ECHOLN("BLTouch ALARM or TRIGGER after STOW, recovering");
       #endif
 
-      reset();                               // This RESET will then also pull up the pin. If it doesn't
+      _reset();                              // This RESET will then also pull up the pin. If it doesn't
                                              // work and the pin is still down, there will no longer be
                                              // an ALARM condition though.
-
-      _stow();                               // But one more STOW will catch that
-      #if BLTOUCH_DELAY < BLTOUCH_STOW_DELAY
-        safe_delay(BLTOUCH_STOW_DELAY - BLTOUCH_DELAY); // Might need to add some waiting time 
-      #endif
-                                             // so if there is now STILL an ALARM condition:
-      if (triggered()) {
+                                             // But one more STOW will catch that
+      // Last attempt to STOW
+      if (_stow_query_alarm()) {             // so if there is now STILL an ALARM condition:
         #if ENABLED(BLTOUCH_DEBUG_MSGS)
           SERIAL_ECHOLN("BLTouch ALARM or TRIGGER after STOW, recovery failed");
         #endif
+
         SERIAL_ERROR_MSG(MSG_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
         stop();                              // but it's not too bad, no need to kill, allow restart
+
         return true;                         // Tell our caller we goofed in case he cares to know
       }
     }
   }
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("bltouch.set_deployed(", in_deploy, ")");
+  if (DEBUGGING(LEVELING)) {
+    DEBUG_ECHOLNPAIR("bltouch.deploy_stow_wrapper(", deploy, ")");
+  }
 
   return false; // report success to caller
 }
