@@ -21,7 +21,8 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfig.h"
+#include <stddef.h>
+#include "../inc/MarlinConfigPre.h"
 
 void host_action(const char * const pstr, const bool eol=true);
 
