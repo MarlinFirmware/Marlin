@@ -881,7 +881,7 @@
 #define MIN_PROBE_EDGE 30 // all insets = min probe edge
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 8000 // Originale Vert: HOMING_FEEDRATE_XY
+#define XY_PROBE_SPEED 9000 // Originale Vert: HOMING_FEEDRATE_XY
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z // Originale Vert: Z_PROBE_SPEED_SLOW
@@ -1290,7 +1290,7 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (50*60) // Originale Vert: 2000
+#define HOMING_FEEDRATE_XY (60*60) // Originale Vert: 2000
 #define HOMING_FEEDRATE_Z  (20*60) // Originale Vert: 800
 
 // Validate that endstops are triggered on homing moves
