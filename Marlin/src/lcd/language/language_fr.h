@@ -195,6 +195,7 @@
 #define MSG_MOVE_Z                          _UxGT("Déplacer Z")
 #define MSG_MOVE_E                          _UxGT("Extrudeur")
 #define MSG_HOTEND_TOO_COLD                 _UxGT("Buse trop froide")
+#define MSG_MOVE_0025MM                     _UxGT("Déplacer 0.025mm")
 #define MSG_MOVE_01MM                       _UxGT("Déplacer 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Déplacer 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Déplacer 10mm")
