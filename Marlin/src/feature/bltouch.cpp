@@ -84,9 +84,8 @@ bool BLTouch::command(const BLTCommand cmd, millis_t ms) {
   while (ms > 100) {
     ms -= 100;
     safe_delay(100);
-    if (triggered()) {
-      return true;
-    }
+    if (cmd == BLTOUCH_RESET) continue;
+    if (triggered()) return true;
   }
   safe_delay(ms);
   return triggered();
