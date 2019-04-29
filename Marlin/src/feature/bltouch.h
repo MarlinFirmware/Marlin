@@ -63,8 +63,8 @@ public:
   static void init();              // used by main.cpp
 
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
-  FORCE_INLINE static bool deploy()              { return deploy_stow_wrapper(true); }
-  FORCE_INLINE static bool stow()                { return deploy_stow_wrapper(false); }
+  FORCE_INLINE static bool deploy()              { return deploy_wrapper(); }
+  FORCE_INLINE static bool stow()                { return stow_wrapper(); }
 
   // Native BLTouch commands ("Underscore"...), used in lcd menus and internally
   FORCE_INLINE static void _reset()              { command(BLTOUCH_RESET, BLTOUCH_RESET_DELAY); }
@@ -84,7 +84,8 @@ private:
 
   static void clear();
   static bool command(const BLTCommand cmd, millis_t ms);
-  static bool deploy_stow_wrapper(const bool deploy);
+  static bool deploy_wrapper();
+  static bool stow_wrapper();
 };
 
 // This transfers the two needed angle values to the servo.cpp/servo.h routine
