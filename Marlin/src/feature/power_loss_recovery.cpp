@@ -54,11 +54,15 @@ job_recovery_info_t PrintJobRecovery::info;
 #include "../core/debug_out.h"
 
 PrintJobRecovery recovery;
+float PrintJobRecovery::last_known_z_pos;
 
 /**
  * Clear the recovery info
  */
-void PrintJobRecovery::init() { memset(&info, 0, sizeof(info)); }
+void PrintJobRecovery::init() { 
+  memset(&info, 0, sizeof(info)); 
+  last_known_z_pos = 0.0;
+}
 
 /**
  * Enable or disable then call changed()
@@ -136,7 +140,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
         || ELAPSED(ms, next_save_ms)
       #endif
         // Save every time Z is higher than the last call
-        || current_position[Z_AXIS] > info.current_position[Z_AXIS]
+        || (current_position[Z_AXIS] > (info.current_position[Z_AXIS] + POWER_LOSS_SAVE_WHEN_Z_RAISE_ABOVE))
+        || ((current_position[Z_AXIS] > info.current_position[Z_AXIS]) && (current_position[Z_AXIS] >  PrintJobRecovery::last_known_z_pos + POWER_LOSS_IGNORE_WHEN_Z_RAISE_BELOW))
     #endif
   ) {
 
@@ -216,6 +221,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       if (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) kill(PSTR(MSG_OUTAGE_RECOVERY));
     #endif
   }
+  PrintJobRecovery::last_known_z_pos = current_position[Z_AXIS];
 }
 
 /**
@@ -227,10 +233,10 @@ void PrintJobRecovery::write() {
 
   open(false);
   file.seekSet(0);
-  const int16_t ret = file.write(&info, sizeof(info));
-  close();
-
+  int16_t ret = file.write(&info, sizeof(info));
   if (ret == -1) DEBUG_ECHOLNPGM("Power-loss file write failed.");
+  ret = file.close();
+  if (ret == false) DEBUG_ECHOLNPGM("Power-loss file close failed.");
 }
 
 /**
