@@ -41,6 +41,8 @@ typedef unsigned char BLTCommand;
 // The following delays are needed for some of the commands, instead of the CMDMIN_DELAY
 #define BLTOUCH_RESET_DELAY    500
 #define BLTOUCH_SET5V_DELAY   2000 // This is according to ANTClabs. Seems a bit high???
+#define BLTOUCH_SETOD_DELAY   2000 // Probably also according to ANTClabs. Seems a bit high???
+
 // Set the following to zero for highspeed probing mode. Works fine, but does not catch deploy or stow
 // errors after the command - instead the error catching is deferred to the subsequent command. Printer
 // won't stop, instead it will skip the failed probes. If you consider your probe to be reliable beyond
@@ -54,7 +56,7 @@ typedef unsigned char BLTCommand;
 #else
   // So that we can recognize DEPLOY fails
   #define BLTOUCH_DEPLOY_DELAY 750 
-  #define BLTOUCH_STOW_DELAY   750 
+  #define BLTOUCH_STOW_DELAY   750
 #endif
 
 class BLTouch {
@@ -72,8 +74,8 @@ public:
   FORCE_INLINE static void _selftest()           { command(BLTOUCH_SELFTEST, BLTOUCH_CMDMIN_DELAY); }
 
   FORCE_INLINE static void _set_SW_mode()        { command(BLTOUCH_SW_MODE, BLTOUCH_CMDMIN_DELAY); }
-  FORCE_INLINE static void _set_5V_mode()        { command(BLTOUCH_5V_MODE, BLTOUCH_CMDMIN_DELAY); }
-  FORCE_INLINE static void _set_OD_mode()        { command(BLTOUCH_OD_MODE, BLTOUCH_CMDMIN_DELAY); }
+  FORCE_INLINE static void _set_5V_mode()        { command(BLTOUCH_5V_MODE, BLTOUCH_SET5V_DELAY); }
+  FORCE_INLINE static void _set_OD_mode()        { command(BLTOUCH_OD_MODE, BLTOUCH_SETOD_DELAY); }
 
   FORCE_INLINE static void _deploy()             { command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
   FORCE_INLINE static void _stow()               { command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }

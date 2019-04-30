@@ -77,13 +77,13 @@ bool BLTouch::command(const BLTCommand cmd, millis_t ms) {
     ms = BLTOUCH_DELAY;
   }
   // Don't wait longer than necessary if an ALARM pops up. Check trigger
-  // in increments of 100ms to catch the ALARM right away.
+  // in increments of 50ms to catch the ALARM right away.
   // Instead of using safe_delay in the following loop, we could use delay
   // and do the calling of the temperature-manager ourself. See safe_delay() for
   // details. TODO
-  while (ms > 100) {
-    ms -= 100;
-    safe_delay(100);
+  while (ms > 50) {
+    ms -= 50;
+    safe_delay(50);
     if (cmd == BLTOUCH_RESET) continue;
     if (triggered()) return true;
   }
