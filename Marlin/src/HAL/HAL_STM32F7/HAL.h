@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -157,7 +157,7 @@ extern uint16_t HAL_adc_result;
 void HAL_clear_reset_source (void);
 
 /** reset reason */
-uint8_t HAL_get_reset_source (void);
+uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(const int delay);
 

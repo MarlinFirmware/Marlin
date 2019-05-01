@@ -1,25 +1,26 @@
-/* Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-Contact information
--------------------
-
-Circuits At Home, LTD
-Web      :  http://www.circuitsathome.com
-e-mail   :  support@circuitsathome.com
+/**
+ * Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Contact information
+ * -------------------
+ *
+ * Circuits At Home, LTD
+ * Web      :  http://www.circuitsathome.com
+ * e-mail   :  support@circuitsathome.com
  */
 
 #pragma once
@@ -34,7 +35,7 @@ e-mail   :  support@circuitsathome.com
    * flash drives and simple USB hard drives.
    * Disable this by defining DELAY(x) to be delay(x).
    */
-  #define delay(x)  if((x) < 200) safe_delay(x)
+  #define delay(x)  if ((x) < 200) safe_delay(x)
   /* Almost all USB flash drives and simple USB hard drives fail the write
    * protect test and add 20 - 30 seconds to USB init.  Set SKIP_WRITE_PROTECT
    * to nonzero to skip the test and assume the drive is writable.
@@ -43,9 +44,11 @@ e-mail   :  support@circuitsathome.com
   /* Since Marlin only cares about USB flash drives, we only need one LUN. */
   #define MASS_MAX_SUPPORTED_LUN 1
 #endif
+
 ////////////////////////////////////////////////////////////////////////////////
 // SPI Configuration
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef USB_SPI
   #define USB_SPI SPI
   //#define USB_SPI SPI1

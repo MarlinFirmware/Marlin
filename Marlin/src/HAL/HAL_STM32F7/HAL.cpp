@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -79,7 +79,7 @@ void sei(void) { interrupts(); }
 
 void HAL_clear_reset_source(void) { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
-uint8_t HAL_get_reset_source (void) {
+uint8_t HAL_get_reset_source(void) {
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET)
     return RST_WATCHDOG;
 

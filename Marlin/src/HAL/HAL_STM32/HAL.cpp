@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -36,8 +36,10 @@
 #if ENABLED(EEPROM_EMULATED_WITH_SRAM)
   #if STM32F7xx
     #include "stm32f7xx_ll_pwr.h"
+  #elif STM32F4xx
+    #include "stm32f4xx_ll_pwr.h"
   #else
-    #error "EEPROM_EMULATED_WITH_SRAM is currently only supported for STM32F7xx"
+    #error "EEPROM_EMULATED_WITH_SRAM is currently only supported for STM32F4xx and STM32F7xx"
   #endif
 #endif // EEPROM_EMULATED_WITH_SRAM
 
@@ -118,7 +120,7 @@ void HAL_init(void) {
 
 void HAL_clear_reset_source(void) { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
-uint8_t HAL_get_reset_source (void) {
+uint8_t HAL_get_reset_source(void) {
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET) return RST_WATCHDOG;
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != RESET)  return RST_SOFTWARE;
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST) != RESET)  return RST_EXTERNAL;

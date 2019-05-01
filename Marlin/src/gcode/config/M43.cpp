@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,6 +34,10 @@
   #include "../../module/servo.h"
 #endif
 
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../../feature/host_actions.h"
+#endif
+
 inline void toggle_pins() {
   const bool ignore_protection = parser.boolval('I');
   const int repeat = parser.intval('R', 1),
@@ -43,13 +47,13 @@ inline void toggle_pins() {
 
   for (uint8_t i = start; i <= end; i++) {
     pin_t pin = GET_PIN_MAP_PIN(i);
-    //report_pin_state_extended(pin, ignore_protection, false);
     if (!VALID_PIN(pin)) continue;
-    if (!ignore_protection && pin_is_protected(pin)) {
+    if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
       report_pin_state_extended(pin, ignore_protection, true, "Untouched ");
       SERIAL_EOL();
     }
     else {
+      watchdog_reset();
       report_pin_state_extended(pin, ignore_protection, true, "Pulsing   ");
       #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
         if (pin == TEENSY_E2) {
@@ -73,12 +77,12 @@ inline void toggle_pins() {
       {
         pinMode(pin, OUTPUT);
         for (int16_t j = 0; j < repeat; j++) {
-          digitalWrite(pin, 0); safe_delay(wait);
-          digitalWrite(pin, 1); safe_delay(wait);
-          digitalWrite(pin, 0); safe_delay(wait);
+          watchdog_reset(); extDigitalWrite(pin, 0); safe_delay(wait);
+          watchdog_reset(); extDigitalWrite(pin, 1); safe_delay(wait);
+          watchdog_reset(); extDigitalWrite(pin, 0); safe_delay(wait);
+          watchdog_reset();
         }
       }
-
     }
     SERIAL_EOL();
   }
@@ -122,7 +126,7 @@ inline void servo_probe_test() {
 
       probe_inverting = Z_MIN_ENDSTOP_INVERTING;
 
-    #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
+    #elif USES_Z_MIN_PROBE_ENDSTOP
 
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       SERIAL_ECHOLNPAIR(". probe uses Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
@@ -273,7 +277,7 @@ void GcodeSuite::M43() {
     for (uint8_t i = first_pin; i <= last_pin; i++) {
       pin_t pin = GET_PIN_MAP_PIN(i);
       if (!VALID_PIN(pin)) continue;
-      if (!ignore_protection && pin_is_protected(pin)) continue;
+      if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
       pinMode(pin, INPUT_PULLUP);
       delay(1);
       /*
@@ -281,11 +285,14 @@ void GcodeSuite::M43() {
           pin_state[pin - first_pin] = analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)); // int16_t pin_state[...]
         else
       //*/
-          pin_state[i - first_pin] = digitalRead(pin);
+          pin_state[i - first_pin] = extDigitalRead(pin);
     }
 
     #if HAS_RESUME_CONTINUE
       wait_for_user = true;
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), PSTR("Continue"));
+      #endif
       KEEPALIVE_STATE(PAUSED_FOR_USER);
     #endif
 
@@ -293,14 +300,14 @@ void GcodeSuite::M43() {
       for (uint8_t i = first_pin; i <= last_pin; i++) {
         pin_t pin = GET_PIN_MAP_PIN(i);
         if (!VALID_PIN(pin)) continue;
-        if (!ignore_protection && pin_is_protected(pin)) continue;
+        if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
         const byte val =
           /*
             IS_ANALOG(pin)
               ? analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)) : // int16_t val
               :
           //*/
-            digitalRead(pin);
+            extDigitalRead(pin);
         if (val != pin_state[i - first_pin]) {
           report_pin_state_extended(pin, ignore_protection, false);
           pin_state[i - first_pin] = val;

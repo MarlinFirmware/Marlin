@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,6 +22,7 @@
 
 #include "../gcode.h"
 #include "../../module/printcounter.h"
+#include "../../lcd/ultralcd.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extensible_ui/ui_api.h"
@@ -63,10 +64,21 @@ void GcodeSuite::M77() {
  * M78: Show print statistics
  */
 void GcodeSuite::M78() {
-  if (parser.intval('S') == 78)   // "M78 S78" will reset the statistics
+  if (parser.intval('S') == 78) {  // "M78 S78" will reset the statistics
     print_job_timer.initStats();
-  else
-    print_job_timer.showStats();
+    ui.reset_status();
+    return;
+  }
+
+  #if HAS_SERVICE_INTERVALS
+    if (parser.seenval('R')) {
+      print_job_timer.resetServiceInterval(parser.value_int());
+      ui.reset_status();
+      return;
+    }
+  #endif
+
+  print_job_timer.showStats();
 }
 
 #endif // PRINTCOUNTER

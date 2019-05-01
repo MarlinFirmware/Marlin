@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -52,7 +52,7 @@ void GcodeSuite::M145() {
     #if TEMP_SENSOR_BED != 0
       if (parser.seenval('B')) {
         v = parser.value_int();
-        ui.preheat_bed_temp[material] = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
+        ui.preheat_bed_temp[material] = constrain(v, BED_MINTEMP, BED_MAXTEMP - 10);
       }
     #endif
   }

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -35,10 +35,6 @@
 
 #if ENABLED(PRINTER_EVENT_LEDS)
   #include "../feature/leds/printer_event_leds.h"
-#endif
-
-#if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
 #endif
 
 /**
@@ -144,15 +140,13 @@ bool enqueue_and_echo_command(const char* cmd) {
   //SERIAL_ECHOPGM("\") \n");
 
   if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') {
-    //SERIAL_ECHOPGM("Null command found...   Did not queue!\n");
+    //SERIAL_ECHOLNPGM("Null command found...   Did not queue!");
     return true;
   }
 
   if (_enqueuecommand(cmd)) {
     SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
-    SERIAL_CHAR('"');
-    SERIAL_EOL();
+    SERIAL_ECHOLNPAIR(MSG_ENQUEUEING, cmd, "\"");
     return true;
   }
   return false;
@@ -219,21 +213,22 @@ void ok_to_send() {
   #if NUM_SERIAL > 1
     const int16_t port = command_queue_port[cmd_queue_index_r];
     if (port < 0) return;
+    PORT_REDIRECT(port);
   #endif
   if (!send_ok[cmd_queue_index_r]) return;
-  SERIAL_ECHOPGM_P(port, MSG_OK);
+  SERIAL_ECHOPGM(MSG_OK);
   #if ENABLED(ADVANCED_OK)
     char* p = command_queue[cmd_queue_index_r];
     if (*p == 'N') {
-      SERIAL_ECHO_P(port, ' ');
-      SERIAL_ECHO_P(port, *p++);
+      SERIAL_ECHO(' ');
+      SERIAL_ECHO(*p++);
       while (NUMERIC_SIGNED(*p))
-        SERIAL_ECHO_P(port, *p++);
+        SERIAL_ECHO(*p++);
     }
-    SERIAL_ECHOPGM_P(port, " P"); SERIAL_ECHO_P(port, int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
-    SERIAL_ECHOPGM_P(port, " B"); SERIAL_ECHO_P(port, BUFSIZE - commands_in_queue);
+    SERIAL_ECHOPGM(" P"); SERIAL_ECHO(int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
+    SERIAL_ECHOPGM(" B"); SERIAL_ECHO(BUFSIZE - commands_in_queue);
   #endif
-  SERIAL_EOL_P(port);
+  SERIAL_EOL();
 }
 
 /**
@@ -244,22 +239,15 @@ void flush_and_request_resend() {
   #if NUM_SERIAL > 1
     const int16_t port = command_queue_port[cmd_queue_index_r];
     if (port < 0) return;
+    PORT_REDIRECT(port);
   #endif
-  SERIAL_FLUSH_P(port);
-  SERIAL_ECHOPGM_P(port, MSG_RESEND);
-  SERIAL_ECHOLN_P(port, gcode_LastN + 1);
+  SERIAL_FLUSH();
+  SERIAL_ECHOPGM(MSG_RESEND);
+  SERIAL_ECHOLN(gcode_LastN + 1);
   ok_to_send();
 }
 
-void gcode_line_error(PGM_P err, uint8_t port) {
-  SERIAL_ERROR_START_P(port);
-  serialprintPGM_P(port, err);
-  SERIAL_ECHOLN_P(port, gcode_LastN);
-  flush_and_request_resend();
-  serial_count[port] = 0;
-}
-
-static bool serial_data_available() {
+inline bool serial_data_available() {
   return false
     || MYSERIAL0.available()
     #if NUM_SERIAL > 1
@@ -268,7 +256,7 @@ static bool serial_data_available() {
   ;
 }
 
-static int read_serial(const uint8_t index) {
+inline int read_serial(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
     #if NUM_SERIAL > 1
@@ -278,15 +266,19 @@ static int read_serial(const uint8_t index) {
   }
 }
 
-#if ENABLED(FAST_FILE_TRANSFER)
+void gcode_line_error(PGM_P const err, const int8_t port) {
+  PORT_REDIRECT(port);
+  SERIAL_ERROR_START();
+  serialprintPGM(err);
+  SERIAL_ECHOLN(gcode_LastN);
+  while (read_serial(port) != -1);           // clear out the RX buffer
+  flush_and_request_resend();
+  serial_count[port] = 0;
+}
 
-  #if ENABLED(SDSUPPORT)
-    #define CARD_CHAR_P(C)   SERIAL_CHAR_P(card.transfer_port, C)
-    #define CARD_ECHO_P(V)   SERIAL_ECHO_P(card.transfer_port, V)
-    #define CARD_ECHOLN_P(V) SERIAL_ECHOLN_P(card.transfer_port, V)
-  #endif
+#if ENABLED(BINARY_FILE_TRANSFER)
 
-  static bool serial_data_available(const uint8_t index) {
+  inline bool serial_data_available(const uint8_t index) {
     switch (index) {
       case 0: return MYSERIAL0.available();
       #if NUM_SERIAL > 1
@@ -369,8 +361,8 @@ static int read_serial(const uint8_t index) {
         stream_state = StreamState::PACKET_TIMEOUT;
         return false;
       }
-      if (!serial_data_available(card.transfer_port)) return false;
-      data = read_serial(card.transfer_port);
+      if (!serial_data_available(card.transfer_port_index)) return false;
+      data = read_serial(card.transfer_port_index);
       packet.timeout = millis() + STREAM_MAX_WAIT;
       return true;
     }
@@ -379,6 +371,11 @@ static int read_serial(const uint8_t index) {
     void receive(char (&buffer)[buffer_size]) {
       uint8_t data = 0;
       millis_t transfer_timeout = millis() + RX_TIMESLICE;
+
+      #if ENABLED(SDSUPPORT)
+        PORT_REDIRECT(card.transfer_port_index);
+      #endif
+
       while (PENDING(millis(), transfer_timeout)) {
         switch (stream_state) {
           case StreamState::STREAM_RESET:
@@ -387,24 +384,21 @@ static int read_serial(const uint8_t index) {
             packet_reset();
             stream_state = StreamState::PACKET_HEADER;
             break;
-          case StreamState::STREAM_HEADER: // we could also transfer the filename in this packet, rather than handling it in the gcode
-            for (size_t i = 0; i < sizeof(stream_header); ++i) {
+          case StreamState::STREAM_HEADER: // The filename could also be in this packet, rather than handling it in the gcode
+            for (size_t i = 0; i < sizeof(stream_header); ++i)
               stream_header_bytes[i] = buffer[i];
-            }
+
             if (stream_header.token == 0x1234) {
               stream_state = StreamState::PACKET_RESET;
               bytes_received = 0;
               time_stream_start = millis();
-              CARD_ECHO_P("echo: Datastream initialized (");
-              CARD_ECHO_P(stream_header.filesize);
-              CARD_ECHOLN_P("Bytes expected)");
-              CARD_ECHO_P("so"); // confirm active stream and the maximum block size supported
-              CARD_CHAR_P(static_cast<uint8_t>(buffer_size & 0xFF));
-              CARD_CHAR_P(static_cast<uint8_t>((buffer_size >> 8) & 0xFF));
-              CARD_CHAR_P('\n');
+              // confirm active stream and the maximum block size supported
+              SERIAL_ECHO_START();
+              SERIAL_ECHOLNPAIR("Datastream initialized (", stream_header.filesize, " bytes expected)");
+              SERIAL_ECHOLNPAIR("so", buffer_size);
             }
             else {
-              CARD_ECHOLN_P("echo: Datastream initialization error (invalid token)");
+              SERIAL_ECHO_MSG("Datastream init error (invalid token)");
               stream_state = StreamState::STREAM_FAILED;
             }
             buffer_next_index = 0;
@@ -420,7 +414,7 @@ static int read_serial(const uint8_t index) {
                 stream_state = StreamState::PACKET_DATA;
               }
               else {
-                CARD_ECHO_P("echo: Datastream packet out of order");
+                SERIAL_ECHO_MSG("Datastream packet out of order");
                 stream_state = StreamState::PACKET_FLUSHRX;
               }
             }
@@ -428,61 +422,58 @@ static int read_serial(const uint8_t index) {
           case StreamState::PACKET_DATA:
             if (!stream_read(data)) break;
 
-            if (buffer_next_index < buffer_size) {
+            if (buffer_next_index < buffer_size)
               buffer[buffer_next_index] = data;
-            }
             else {
-              CARD_ECHO_P("echo: Datastream packet data buffer overrun");
+              SERIAL_ECHO_MSG("Datastream packet data buffer overrun");
               stream_state = StreamState::STREAM_FAILED;
               break;
             }
 
             packet.checksum = checksum(packet.checksum, data);
-            packet.bytes_received ++;
-            buffer_next_index ++;
+            packet.bytes_received++;
+            buffer_next_index++;
 
-            if (packet.bytes_received == packet.header.size) {
+            if (packet.bytes_received == packet.header.size)
               stream_state = StreamState::PACKET_VALIDATE;
-            }
+
             break;
           case StreamState::PACKET_VALIDATE:
             if (packet.header.checksum == packet.checksum) {
               packet_retries = 0;
-              packets_received ++;
+              packets_received++;
               bytes_received += packet.header.size;
 
-              if (packet.header.id == 0) {                 // id 0 is always the stream descriptor
+              if (packet.header.id == 0)                   // id 0 is always the stream descriptor
                 stream_state = StreamState::STREAM_HEADER; // defer packet confirmation to STREAM_HEADER state
-              }
               else {
                 if (bytes_received < stream_header.filesize) {
-                  stream_state = StreamState::PACKET_RESET;    // reset and receive next packet
-                  CARD_ECHOLN_P("ok");   // transmit confirm packet received and valid token
+                  stream_state = StreamState::PACKET_RESET;  // reset and receive next packet
+                  SERIAL_ECHOLNPAIR("ok", packet.header.id); // transmit confirm packet received and valid token
                 }
-                else  {
+                else
                   stream_state = StreamState::STREAM_COMPLETE; // no more data required
-                }
+
                 if (card.write(buffer, buffer_next_index) < 0) {
                   stream_state = StreamState::STREAM_FAILED;
-                  CARD_ECHO_P("echo: IO ERROR");
+                  SERIAL_ECHO_MSG("SDCard IO Error");
                   break;
                 };
               }
             }
             else {
-              CARD_ECHO_P("echo: Block(");
-              CARD_ECHO_P(packet.header.id);
-              CARD_ECHOLN_P(") Corrupt");
+              SERIAL_ECHO_START();
+              SERIAL_ECHOLNPAIR("Block(", packet.header.id, ") Corrupt");
               stream_state = StreamState::PACKET_FLUSHRX;
             }
             break;
           case StreamState::PACKET_RESEND:
             if (packet_retries < MAX_RETRIES) {
-              packet_retries ++;
+              packet_retries++;
               stream_state = StreamState::PACKET_RESET;
-              CARD_ECHO_P("echo: Resend request ");
-              CARD_ECHOLN_P(packet_retries);
-              CARD_ECHOLN_P("rs"); // transmit resend packet token
+              SERIAL_ECHO_START();
+              SERIAL_ECHOLNPAIR("Resend request ", int(packet_retries));
+              SERIAL_ECHOLNPAIR("rs", packet.header.id); // transmit resend packet token
             }
             else {
               stream_state = StreamState::STREAM_FAILED;
@@ -493,32 +484,32 @@ static int read_serial(const uint8_t index) {
               stream_state = StreamState::PACKET_RESEND;
               break;
             }
-            if (!serial_data_available(card.transfer_port)) break;
-            read_serial(card.transfer_port); // throw away data
+            if (!serial_data_available(card.transfer_port_index)) break;
+            read_serial(card.transfer_port_index); // throw away data
             packet.timeout = millis() + STREAM_MAX_WAIT;
             break;
           case StreamState::PACKET_TIMEOUT:
-            CARD_ECHOLN_P("echo: Datastream timeout");
+            SERIAL_ECHO_START();
+            SERIAL_ECHOLNPGM("Datastream timeout");
             stream_state = StreamState::PACKET_RESEND;
             break;
           case StreamState::STREAM_COMPLETE:
             stream_state = StreamState::STREAM_RESET;
             card.flag.binary_mode = false;
+            SERIAL_ECHO_START();
+            SERIAL_ECHO(card.filename);
+            SERIAL_ECHOLNPAIR(" transfer completed @ ", ((bytes_received / (millis() - time_stream_start) * 1000) / 1024), "KiB/s");
+            SERIAL_ECHOLNPGM("sc"); // transmit stream complete token
             card.closefile();
-            CARD_ECHO_P("echo: ");
-            CARD_ECHO_P(card.filename);
-            CARD_ECHO_P(" transfer completed @ ");
-            CARD_ECHO_P(((bytes_received / (millis() - time_stream_start) * 1000) / 1024 ));
-            CARD_ECHOLN_P("KiB/s");
-            CARD_ECHOLN_P("sc"); // transmit stream complete token
             return;
           case StreamState::STREAM_FAILED:
             stream_state = StreamState::STREAM_RESET;
             card.flag.binary_mode = false;
             card.closefile();
             card.removeFile(card.filename);
-            CARD_ECHOLN_P("echo: File transfer failed");
-            CARD_ECHOLN_P("sf"); // transmit stream failed token
+            SERIAL_ECHO_START();
+            SERIAL_ECHOLNPGM("File transfer failed");
+            SERIAL_ECHOLNPGM("sf"); // transmit stream failed token
             return;
         }
       }
@@ -533,7 +524,12 @@ static int read_serial(const uint8_t index) {
 
   } binaryStream{};
 
-#endif // FAST_FILE_TRANSFER
+#endif // BINARY_FILE_TRANSFER
+
+FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", but not "M290", etc
+  const char * const m29 = strstr_P(cmd, PSTR("M29"));
+  return m29 && !NUMERIC(m29[3]);
+}
 
 /**
  * Get all commands waiting on the serial port and queue them.
@@ -548,14 +544,14 @@ inline void get_serial_commands() {
               #endif
             ;
 
-  #if ENABLED(FAST_FILE_TRANSFER)
+  #if ENABLED(BINARY_FILE_TRANSFER)
     if (card.flag.saving && card.flag.binary_mode) {
       /**
        * For binary stream file transfer, use serial_line_buffer as the working
        * receive buffer (which limits the packet size to MAX_CMD_SIZE).
        * The receive buffer also limits the packet size for reliable transmission.
        */
-      binaryStream.receive(serial_line_buffer[card.transfer_port]);
+      binaryStream.receive(serial_line_buffer[card.transfer_port_index]);
       return;
     }
   #endif
@@ -630,7 +626,8 @@ inline void get_serial_commands() {
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          else if (card.flag.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
+          // Pronterface "M29" and "M29 " has no line number
+          else if (card.flag.saving && !is_M29(command))
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
@@ -839,7 +836,7 @@ void advance_command_queue() {
 
     if (card.flag.saving) {
       char* command = command_queue[cmd_queue_index_r];
-      if (strstr_P(command, PSTR("M29"))) {
+      if (is_M29(command)) {
         // M29 closes the file
         card.closefile();
         SERIAL_ECHOLNPGM(MSG_FILE_SAVED);
@@ -865,12 +862,8 @@ void advance_command_queue() {
           ok_to_send();
       }
     }
-    else {
+    else
       gcode.process_next_command();
-      #if ENABLED(POWER_LOSS_RECOVERY)
-        if (IS_SD_PRINTING()) recovery.save();
-      #endif
-    }
 
   #else
 

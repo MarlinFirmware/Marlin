@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -142,4 +142,6 @@
 #define SDSS               20   // B0
 
 //DIGIPOTS slave addresses
-#define DIGIPOT_I2C_ADDRESS_A 0x2C   // unshifted slave address for DIGIPOT 0x2C (0x58 <- 0x2C << 1)
+#ifndef DIGIPOT_I2C_ADDRESS_A
+  #define DIGIPOT_I2C_ADDRESS_A 0x2C   // unshifted slave address for DIGIPOT 0x2C (0x58 <- 0x2C << 1)
+#endif

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,6 +30,7 @@
 
 /**
  * G10 - Retract filament according to settings of M207
+ *       TODO: Handle 'G10 P' for tool settings and 'G10 L' for workspace settings
  */
 void GcodeSuite::G10() {
   #if EXTRUDERS > 1

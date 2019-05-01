@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,14 +21,16 @@
  */
 
 /**
- * MegaTronics v3.0 / v3.1 pin assignments
+ * MegaTronics v3.0 / v3.1 / v3.2 pin assignments
  */
 
 #ifndef __AVR_ATmega2560__
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#if MB(MEGATRONICS_31)
+#if MB(MEGATRONICS_32)
+  #define BOARD_NAME "Megatronics v3.2"
+#elif MB(MEGATRONICS_31)
   #define BOARD_NAME "Megatronics v3.1"
 #else
   #define BOARD_NAME "Megatronics v3.0"
@@ -161,7 +163,7 @@
   #define SHIFT_OUT        34
   #define SHIFT_EN         44
 
-  #if MB(MEGATRONICS_31)
+  #if MB(MEGATRONICS_31) || MB(MEGATRONICS_32)
     #define SD_DETECT_PIN  56
   #endif
 
@@ -172,7 +174,7 @@
 //
 #if DISABLED(REPRAPWORLD_KEYPAD)        // try to use the keypad connector first
   #define SPINDLE_LASER_PWM_PIN    44   // MUST BE HARDWARE PWM
-  #define SPINDLE_LASER_ENABLE_PIN 43   // Pin should have a pullup!
+  #define SPINDLE_LASER_ENA_PIN    43   // Pin should have a pullup!
   #define SPINDLE_DIR_PIN          42
 #elif EXTRUDERS <= 2
   // Hijack the last extruder so that we can get the PWM signal off the Y breakout
@@ -187,6 +189,6 @@
   #define Y_STEP_PIN               22
   #define Y_DIR_PIN                60
   #define SPINDLE_LASER_PWM_PIN     4   // MUST BE HARDWARE PWM
-  #define SPINDLE_LASER_ENABLE_PIN 17   // Pin should have a pullup!
+  #define SPINDLE_LASER_ENA_PIN    17   // Pin should have a pullup!
   #define SPINDLE_DIR_PIN           5
 #endif

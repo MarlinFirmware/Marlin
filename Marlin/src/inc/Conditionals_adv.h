@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -41,4 +41,41 @@
 #else
   // SERIAL_XON_XOFF not supported on USB-native devices
   #undef SERIAL_XON_XOFF
+#endif
+
+#if ENABLED(HOST_ACTION_COMMANDS)
+  #ifndef ACTION_ON_PAUSE
+    #define ACTION_ON_PAUSE   "pause"
+  #endif
+  #ifndef ACTION_ON_PAUSED
+    #define ACTION_ON_PAUSED  "paused"
+  #endif
+  #ifndef ACTION_ON_RESUME
+    #define ACTION_ON_RESUME  "resume"
+  #endif
+  #ifndef ACTION_ON_RESUMED
+    #define ACTION_ON_RESUMED "resumed"
+  #endif
+  #ifndef ACTION_ON_CANCEL
+    #define ACTION_ON_CANCEL  "cancel"
+  #endif
+  #ifndef ACTION_ON_KILL
+    #define ACTION_ON_KILL    "poweroff"
+  #endif
+  #if HAS_FILAMENT_SENSOR
+    #ifndef ACTION_ON_FILAMENT_RUNOUT
+      #define ACTION_ON_FILAMENT_RUNOUT "filament_runout"
+    #endif
+    #ifndef ACTION_REASON_ON_FILAMENT_RUNOUT
+      #define ACTION_REASON_ON_FILAMENT_RUNOUT "filament_runout"
+    #endif
+  #endif
+  #if ENABLED(G29_RETRY_AND_RECOVER)
+    #ifndef ACTION_ON_G29_RECOVER
+      #define ACTION_ON_G29_RECOVER "probe_rewipe"
+    #endif
+    #ifndef ACTION_ON_G29_FAILURE
+      #define ACTION_ON_G29_FAILURE "probe_failed"
+    #endif
+  #endif
 #endif

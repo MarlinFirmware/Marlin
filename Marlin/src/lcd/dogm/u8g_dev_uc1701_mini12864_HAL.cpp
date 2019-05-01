@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017, 2018 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,42 +20,38 @@
  *
  */
 
-
-/*
-
-  based on u8g_dev_uc1701_mini12864_HAL.c (dealextreme)
-
-  Universal 8bit Graphics Library
-
-  Copyright (c) 2011, olikraus@gmail.com
-  All rights reserved.
-
-  Redistribution and use in source and binary forms, with or without modification,
-  are permitted provided that the following conditions are met:
-
-  * Redistributions of source code must retain the above copyright notice, this list
-    of conditions and the following disclaimer.
-
-  * Redistributions in binary form must reproduce the above copyright notice, this
-    list of conditions and the following disclaimer in the documentation and/or other
-    materials provided with the distribution.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-*/
+/**
+ * Based on u8g_dev_uc1701_mini12864.c (dealextreme)
+ *
+ * Universal 8bit Graphics Library
+ *
+ * Copyright (c) 2011, olikraus@gmail.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice, this list
+ *    of conditions and the following disclaimer.
+ *
+ *  * Redistributions in binary form must reproduce the above copyright notice, this
+ *    list of conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -70,46 +66,51 @@
 #define PAGE_HEIGHT 8
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_init_seq[] PROGMEM = {
-  U8G_ESC_CS(0),             /* disable chip */
-  U8G_ESC_ADR(0),           /* instruction mode */
-  U8G_ESC_RST(1),           /* do reset low pulse with (1*16)+2 milliseconds */
-  U8G_ESC_CS(1),             /* enable chip */
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_ADR(0),             /* instruction mode */
+  U8G_ESC_RST(1),             /* do reset low pulse with (1*16)+2 milliseconds */
+  U8G_ESC_CS(1),              /* enable chip */
 
-  0x0E2,            /* soft reset */
-  0x040,    /* set display start line to 0 */
-  0x0A0,    /* ADC set to reverse */
-  0x0C8,    /* common output mode */
-  0x0A6,    /* display normal, bit val 0: LCD pixel off. */
-  0x0A2,    /* LCD bias 1/9 */
-  0x02F,    /* all power  control circuits on */
-  0x0F8,    /* set booster ratio to */
-  0x000,    /* 4x */
-  0x023,    /* set V0 voltage resistor ratio to large */
-  0x081,    /* set contrast */
-  0x027,    /* contrast value */
-  0x0AC,    /* indicator */
-  0x000,    /* disable */
-  0x0AF,    /* display on */
+  0x0E2,                      /* soft reset */
+  0x040,                      /* set display start line to 0 */
+  0x0A0,                      /* ADC set to reverse */
+  0x0C8,                      /* common output mode */
+  0x0A6,                      /* display normal, bit val 0: LCD pixel off. */
+  0x0A2,                      /* LCD bias 1/9 */
+  0x02F,                      /* all power control circuits on */
+  0x0F8,                      /* set booster ratio to */
+  0x000,                      /* 4x */
+  0x023,                      /* set V0 voltage resistor ratio to large */
+  0x081,                      /* set contrast */
+  0x027,                      /* contrast value */
+  0x0AC,                      /* indicator */
+  0x000,                      /* disable */
+  0x0AF,                      /* display on */
 
-  U8G_ESC_DLY(100),       /* delay 100 ms */
-  0x0A5,                    /* display all points, ST7565 */
-  U8G_ESC_DLY(100),       /* delay 100 ms */
-  U8G_ESC_DLY(100),       /* delay 100 ms */
-  0x0A4,                    /* normal display */
-  U8G_ESC_CS(0),             /* disable chip */
-  U8G_ESC_END                /* end of sequence */
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_DLY(100),           /* delay 100 ms */
+  U8G_ESC_CS(1),              /* enable chip */
+
+  0x0A5,                      /* display all points, ST7565 */
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_DLY(100),           /* delay 100 ms */
+  U8G_ESC_DLY(100),           /* delay 100 ms */
+  U8G_ESC_CS(1),              /* enable chip */
+  0x0A4,                      /* normal display */
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_END                 /* end of sequence */
 };
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_data_start[] PROGMEM = {
-  U8G_ESC_ADR(0),           /* instruction mode */
-  U8G_ESC_CS(1),             /* enable chip */
-  0x010,    /* set upper 4 bit of the col adr to 0 */
-  0x000,    /* set lower 4 bit of the col adr to 4  */
-  U8G_ESC_END                /* end of sequence */
+  U8G_ESC_ADR(0),             /* instruction mode */
+  U8G_ESC_CS(1),              /* enable chip */
+  0x010,                      /* set upper 4 bit of the col adr to 0 */
+  0x000,                      /* set lower 4 bit of the col adr to 4 */
+  U8G_ESC_END                 /* end of sequence */
 };
 
 uint8_t u8g_dev_uc1701_mini12864_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
-  switch(msg) {
+  switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_init_seq);
@@ -138,7 +139,7 @@ uint8_t u8g_dev_uc1701_mini12864_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
 }
 
 uint8_t u8g_dev_uc1701_mini12864_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
-  switch(msg) {
+  switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_init_seq);
