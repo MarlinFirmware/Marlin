@@ -10,6 +10,20 @@ __Hictop CR-20 (Creality CR-10)__
   + Buildtak FlexPlate System w/ PEI sheet
 
 ----------------------------------------------------------
+#### 12.14.18
+  - LCD Menu Tree revisions
+    - menu_basic.cpp
+    - menu_control.cpp
+    - menu_filament.cpp
+    - menu_main.cpp
+    - menu_sdcard.cpp
+    - language_en.h
+  - Configuration.h
+    - Advanced Pause length to 600
+    - Preheat PLA/PETG to 205/240
+  - Flashed to CR10B
+    - 97.8% (used 127126 bytes from 130048 bytes)
+----------------------------------------------------------
 #### 12.04.18
   - Updated custom configs from 1.1.9 to 2.0.x
     - _Bootscreen.h
@@ -24,4 +38,4 @@ __Caltech Library TechLab__
 Web | [library.caltech.edu/techlab](https://www.library.caltech.edu/resources/techlab)  
 Instagram | [@caltechlibrarytechlab](http://instagram.com/caltechlibrarytechlab/)
 
-Last updated 12.04.18 by Aucoeur Ngo [[@aucoeurngo](https://github.com/aucoeurngo)]
+Last updated 12.14.18 by Aucoeur Ngo [[@aucoeurngo](https://github.com/aucoeurngo)]

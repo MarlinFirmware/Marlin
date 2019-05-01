@@ -50,7 +50,7 @@
 #endif
 
 #ifndef WELCOME_MSG
-  #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Ready.")
+  #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Ready")
 #endif
 #ifndef MSG_BACK
   #define MSG_BACK                            _UxGT("Back")
@@ -71,10 +71,10 @@
   #define MSG_MAIN                            _UxGT("Main")
 #endif
 #ifndef MSG_ADVANCED_SETTINGS
-  #define MSG_ADVANCED_SETTINGS               _UxGT("Advanced Settings")
+  #define MSG_ADVANCED_SETTINGS               _UxGT("Advanced Config")
 #endif
 #ifndef MSG_CONFIGURATION
-  #define MSG_CONFIGURATION                   _UxGT("Configuration")
+  #define MSG_CONFIGURATION                   _UxGT("Edit Presets")
 #endif
 #ifndef MSG_AUTOSTART
   #define MSG_AUTOSTART                       _UxGT("Autostart")
@@ -140,13 +140,13 @@
   #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" All")
 #endif
 #ifndef MSG_PREHEAT_1_END
-  #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" End")
+  #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" HotEnd")
 #endif
 #ifndef MSG_PREHEAT_1_BEDONLY
   #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Bed")
 #endif
 #ifndef MSG_PREHEAT_1_SETTINGS
-  #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" conf")
+  #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" config")
 #endif
 #ifndef MSG_PREHEAT_2
   #define MSG_PREHEAT_2                       _UxGT("Preheat " PREHEAT_2_LABEL)
@@ -158,13 +158,13 @@
   #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" All")
 #endif
 #ifndef MSG_PREHEAT_2_END
-  #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" End")
+  #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" HotEnd")
 #endif
 #ifndef MSG_PREHEAT_2_BEDONLY
   #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Bed")
 #endif
 #ifndef MSG_PREHEAT_2_SETTINGS
-  #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" conf")
+  #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" config")
 #endif
 #ifndef MSG_PREHEAT_CUSTOM
   #define MSG_PREHEAT_CUSTOM                  _UxGT("Preheat Custom")
@@ -191,7 +191,7 @@
   #define MSG_BED_LEVELING                    _UxGT("Bed Leveling")
 #endif
 #ifndef MSG_LEVEL_BED
-  #define MSG_LEVEL_BED                       _UxGT("Level bed")
+  #define MSG_LEVEL_BED                       _UxGT("Level Bed")
 #endif
 #ifndef MSG_LEVEL_CORNERS
   #define MSG_LEVEL_CORNERS                   _UxGT("Level corners")
@@ -537,6 +537,9 @@
 #ifndef MSG_CONTROL
   #define MSG_CONTROL                         _UxGT("Control")
 #endif
+#ifndef MSG_MANUAL_CONTROL
+  #define MSG_MANUAL_CONTROL                  _UxGT("Manual Control")
+#endif
 #ifndef MSG_MIN
   #define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
 #endif
@@ -721,10 +724,10 @@
   #define MSG_REFRESH                         _UxGT("Refresh")
 #endif
 #ifndef MSG_WATCH
-  #define MSG_WATCH                           _UxGT("Info screen")
+  #define MSG_WATCH                           _UxGT("Status Screen")
 #endif
 #ifndef MSG_PREPARE
-  #define MSG_PREPARE                         _UxGT("Prepare")
+  #define MSG_PREPARE                         _UxGT("Basic Setup")
 #endif
 #ifndef MSG_TUNE
   #define MSG_TUNE                            _UxGT("Live Adjust")
@@ -742,7 +745,7 @@
   #define MSG_OUTAGE_RECOVERY                 _UxGT("Outage Recovery")
 #endif
 #ifndef MSG_CARD_MENU
-  #define MSG_CARD_MENU                       _UxGT("Print from SD")
+  #define MSG_CARD_MENU                       _UxGT("SD Card Menu")
 #endif
 #ifndef MSG_NO_CARD
   #define MSG_NO_CARD                         _UxGT("No SD card")

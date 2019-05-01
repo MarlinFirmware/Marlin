@@ -29,11 +29,13 @@
 #if HAS_LCD_MENU
 
 #include "menu.h"
+
 #include "../../module/temperature.h"
 #include "../../gcode/queue.h"
 #include "../../module/printcounter.h"
 #include "../../module/stepper.h"
 #include "../../sd/cardreader.h"
+
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/power_loss_recovery.h"
@@ -111,14 +113,9 @@
 #endif
 
 void menu_tune();
-void menu_motion();
-void menu_temperature();
-void menu_configuration();
-void menu_user();
-void menu_temp_e0_filament_change();
-void menu_change_filament();
+void menu_basic();
+void menu_control();
 void menu_info();
-void menu_led();
 
 #if ENABLED(MIXING_EXTRUDER)
   void menu_mixer();
@@ -150,6 +147,13 @@ void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
 
+  /* const bool busy = printer_busy();
+  if (busy)
+    MENU_ITEM(submenu, MSG_TUNE, menu_tune);
+  else {
+
+  MENU_ITEM(submenu, MSG_PREPARE, menu_basic); */
+  
   const bool busy = IS_SD_PRINTING() || print_job_timer.isRunning()
     #if ENABLED(SDSUPPORT)
       , card_detected = card.isDetected()
@@ -221,22 +225,23 @@ void menu_main() {
 
   MENU_ITEM(submenu, MSG_CONFIGURATION, menu_configuration);
 
-  #if ENABLED(CUSTOM_USER_MENUS)
-    MENU_ITEM(submenu, MSG_USER_MENU, menu_user);
-  #endif
-
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-        MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
+ #if ENABLED(SDSUPPORT)
+    if (card.isFileOpen()) {
+      if (IS_SD_PRINTING())
+        MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
       else
-        MENU_ITEM(submenu, MSG_FILAMENTCHANGE, menu_temp_e0_filament_change);
-    #else
-      MENU_ITEM(submenu, MSG_FILAMENTCHANGE, menu_change_filament);
-    #endif
-  #endif
+        MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
+      MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
+    }
+    else {
+      MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
+    }
+ #endif // SDSUPPORT
 
+  MENU_ITEM(submenu, MSG_MANUAL_CONTROL, menu_control);
+  
   #if ENABLED(LCD_INFO_MENU)
+
     MENU_ITEM(submenu, MSG_INFO_MENU, menu_info);
   #endif
 
@@ -310,8 +315,9 @@ void menu_main() {
         maze.enter_game
       #endif
     ));
-  #endif
 
+  #endif
+  }
   END_MENU();
 }
 

@@ -1,0 +1,19 @@
+REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+LCD SIZE: 128 x 64 px
+          5 lines
+
+Main Menu
+  - [Tune Menu]
+  - Basic Setup
+    - Preheat PLA
+    - Level Bed
+    - Change Filament
+  - SD card menu
+    - Refresh SD card
+  - Manual Control
+    - Motion
+    - Temperature
+    - Advanced Configuration
+      - EE PROM
+  - Printer Info
+
