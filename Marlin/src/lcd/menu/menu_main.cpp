@@ -277,7 +277,7 @@ void menu_main() {
     else {
       #if PIN_EXISTS(SD_DETECT)
         MENU_ITEM(function, MSG_NO_CARD, NULL);
-      #elif
+      #else
         MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));
         MENU_ITEM(function, MSG_SD_RELEASED, NULL);
       #endif
