@@ -644,7 +644,7 @@ uint16_t CardReader::getnrfilenames() {
 const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, const bool echo) {
   // need 2 static SdFile, for parent and sub.
   static SdFile newDir1, newDir2;
-  SdFile *sub = &newDir1;
+  SdFile *sub = &newDir1, *startDir;
 
   const char *dirname_start = path;
   char echo_fn[105];
@@ -657,6 +657,8 @@ const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, con
   } else {
     curDir = &workDir; 
   }
+  startDir = curDir;
+
   if (echo) {
     SERIAL_ECHOLNPAIR("==== Dive ====\nPath: ", path);
     curDir->getFilename(echo_fn);
@@ -684,7 +686,7 @@ const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, con
     }
 
     // close curDir if not root
-    if (curDir != &root) curDir->close();
+    if (curDir != startDir) curDir->close();
 
     // subDir now curDir   
     curDir = sub;
