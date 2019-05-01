@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
 
 #include "../../Marlin.h"
 
-#if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
+#if BOTH(FWRETRACT, FWRETRACT_AUTORETRACT)
   #include "../../feature/fwretract.h"
 #endif
 
@@ -79,7 +79,7 @@ void GcodeSuite::G0_G1(
       }
     #endif
 
-    #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
+    #if BOTH(FWRETRACT, FWRETRACT_AUTORETRACT)
 
       if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
         // When M209 Autoretract is enabled, convert E-only moves to firmware retract/recover moves

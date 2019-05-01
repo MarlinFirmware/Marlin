@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -33,6 +33,7 @@
 
 #include "HAL.h"
 #include <STM32ADC.h>
+#include "../../inc/MarlinConfig.h"
 
 // --------------------------------------------------------------------------
 // Externals
@@ -43,7 +44,7 @@
 // --------------------------------------------------------------------------
 
 #define __I
-#define __IO
+#define __IO volatile
  typedef struct
  {
    __I  uint32_t CPUID;                   /*!< Offset: 0x000 (R/ )  CPUID Base Register                                   */
@@ -91,7 +92,9 @@
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
-USBSerial SerialUSB;
+#ifdef SERIAL_USB
+  USBSerial SerialUSB;
+#endif
 
 uint16_t HAL_adc_result;
 
@@ -100,12 +103,18 @@ uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 STM32ADC adc(ADC1);
 
-uint8 adc_pins[] = {
+uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_0
     TEMP_0_PIN,
   #endif
+  #if HAS_HEATED_BED
+    TEMP_BED_PIN,
+  #endif
+  #if HAS_HEATED_CHAMBER
+    TEMP_CHAMBER_PIN,
+  #endif
   #if HAS_TEMP_ADC_1
-    TEMP_1_PIN
+    TEMP_1_PIN,
   #endif
   #if HAS_TEMP_ADC_2
     TEMP_2_PIN,
@@ -116,8 +125,8 @@ uint8 adc_pins[] = {
   #if HAS_TEMP_ADC_4
     TEMP_4_PIN,
   #endif
-  #if HAS_HEATED_BED
-    TEMP_BED_PIN,
+  #if HAS_TEMP_ADC_5
+    TEMP_5_PIN,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
@@ -127,6 +136,12 @@ uint8 adc_pins[] = {
 enum TEMP_PINS : char {
   #if HAS_TEMP_ADC_0
     TEMP_0,
+  #endif
+  #if HAS_HEATED_BED
+    TEMP_BED,
+  #endif
+  #if HAS_HEATED_CHAMBER
+    TEMP_CHAMBER,
   #endif
   #if HAS_TEMP_ADC_1
     TEMP_1,
@@ -140,8 +155,8 @@ enum TEMP_PINS : char {
   #if HAS_TEMP_ADC_4
     TEMP_4,
   #endif
-  #if HAS_HEATED_BED
-    TEMP_BED,
+  #if HAS_TEMP_ADC_5
+    TEMP_5,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
@@ -174,6 +189,23 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
 // --------------------------------------------------------------------------
 // Public functions
 // --------------------------------------------------------------------------
+
+//
+// Leave PA11/PA12 intact if USBSerial is not used
+//
+#if SERIAL_USB
+  namespace wirish { namespace priv {
+    #if SERIAL_PORT > 0
+      #if SERIAL_PORT2
+        #if SERIAL_PORT2 > 0
+          void board_setup_usb(void) {}
+        #endif
+      #else
+        void board_setup_usb(void) {}
+      #endif
+    #endif
+  } }
+#endif
 
 void HAL_init(void) {
   NVIC_SetPriorityGrouping(0x3);
@@ -250,6 +282,12 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_TEMP_ADC_0
       case TEMP_0_PIN: pin_index = TEMP_0; break;
     #endif
+    #if HAS_HEATED_BED
+      case TEMP_BED_PIN: pin_index = TEMP_BED; break;
+    #endif
+    #if HAS_HEATED_CHAMBER
+      case TEMP_CHAMBER_PIN: pin_index = TEMP_CHAMBER; break;
+    #endif
     #if HAS_TEMP_ADC_1
       case TEMP_1_PIN: pin_index = TEMP_1; break;
     #endif
@@ -262,8 +300,8 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_TEMP_ADC_4
       case TEMP_4_PIN: pin_index = TEMP_4; break;
     #endif
-    #if HAS_HEATED_BED
-      case TEMP_BED_PIN: pin_index = TEMP_BED; break;
+    #if HAS_TEMP_ADC_5
+      case TEMP_5_PIN: pin_index = TEMP_5; break;
     #endif
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;

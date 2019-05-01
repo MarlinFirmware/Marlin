@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -81,7 +81,7 @@ void TWIBus::send() {
     debug(PSTR("send"), this->addr);
   #endif
 
-  Wire.beginTransmission(this->addr);
+  Wire.beginTransmission(I2C_ADDRESS(this->addr));
   Wire.write(this->buffer, this->buffer_s);
   Wire.endTransmission();
 
@@ -92,9 +92,7 @@ void TWIBus::send() {
 void TWIBus::echoprefix(uint8_t bytes, const char prefix[], uint8_t adr) {
   SERIAL_ECHO_START();
   serialprintPGM(prefix);
-  SERIAL_ECHOPAIR(": from:", adr);
-  SERIAL_ECHOPAIR(" bytes:", bytes);
-  SERIAL_ECHOPGM(" data:");
+  SERIAL_ECHOPAIR(": from:", adr, " bytes:", bytes, " data:");
 }
 
 // static

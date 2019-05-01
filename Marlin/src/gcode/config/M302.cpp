@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -54,7 +54,8 @@ void GcodeSuite::M302() {
   else if (!seen_S) {
     // Report current state
     SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR("Cold extrudes are ", (thermalManager.allow_cold_extrude ? "en" : "dis"));
+    SERIAL_ECHOPGM("Cold extrudes are ");
+    serialprintPGM(thermalManager.allow_cold_extrude ? PSTR("en") : PSTR("dis"));
     SERIAL_ECHOPAIR("abled (min temp ", thermalManager.extrude_min_temp);
     SERIAL_ECHOLNPGM("C)");
   }

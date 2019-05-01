@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,8 +26,6 @@
  * Use the Marlin Bitmap Converter to make your own:
  * http://marlinfw.org/tools/u8glib/converter.html
  */
-
-#include <binary.h>
 
 #include "../../inc/MarlinConfig.h"
 
@@ -668,8 +666,8 @@
   #undef STATUS_FAN_FRAMES
 #elif !defined(STATUS_FAN_FRAMES)
   #define STATUS_FAN_FRAMES 2
-#elif STATUS_FAN_FRAMES > 3
-  #error "Only 3 fan animation frames currently supported."
+#elif STATUS_FAN_FRAMES > 4
+  #error "A maximum of 4 fan animation frames is currently supported."
 #endif
 
 //

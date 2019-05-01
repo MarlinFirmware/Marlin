@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -43,7 +43,18 @@
   #include "../../module/probe.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../../feature/bltouch.h"
+#endif
+
 #include "../../lcd/ultralcd.h"
+
+#if HAS_DRIVER(L6470)                         // set L6470 absolute position registers to counts
+  #include "../../libs/L6470/L6470_Marlin.h"
+#endif
+
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../core/debug_out.h"
 
 #if ENABLED(QUICK_HOME)
 
@@ -67,9 +78,15 @@
                 fr_mm_s = MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
 
     #if ENABLED(SENSORLESS_HOMING)
-      sensorless_t stealth_states { false, false, false };
+      sensorless_t stealth_states { false, false, false, false, false, false, false };
       stealth_states.x = tmc_enable_stallguard(stepperX);
       stealth_states.y = tmc_enable_stallguard(stepperY);
+      #if AXIS_HAS_STALLGUARD(X2)
+        stealth_states.x2 = tmc_enable_stallguard(stepperX2);
+      #endif
+      #if AXIS_HAS_STALLGUARD(Y2)
+        stealth_states.y2 = tmc_enable_stallguard(stepperY2);
+      #endif
     #endif
 
     do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_s);
@@ -81,6 +98,12 @@
     #if ENABLED(SENSORLESS_HOMING)
       tmc_disable_stallguard(stepperX, stealth_states.x);
       tmc_disable_stallguard(stepperY, stealth_states.y);
+      #if AXIS_HAS_STALLGUARD(X2)
+        tmc_disable_stallguard(stepperX2, stealth_states.x2);
+      #endif
+      #if AXIS_HAS_STALLGUARD(Y2)
+        tmc_disable_stallguard(stepperY2, stealth_states.y2);
+      #endif
     #endif
   }
 
@@ -97,9 +120,7 @@
       return;
     }
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Z_SAFE_HOMING >>>");
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z_SAFE_HOMING >>>");
 
     sync_plan_position();
 
@@ -117,9 +138,7 @@
 
     if (position_is_reachable(destination[X_AXIS], destination[Y_AXIS])) {
 
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
-      #endif
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
 
       // This causes the carriage on Dual X to unpark
       #if ENABLED(DUAL_X_CARRIAGE)
@@ -138,9 +157,7 @@
       SERIAL_ECHO_MSG(MSG_ZPROBE_OUT);
     }
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< Z_SAFE_HOMING");
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< Z_SAFE_HOMING");
   }
 
 #endif // Z_SAFE_HOMING
@@ -165,13 +182,10 @@
  *
  */
 void GcodeSuite::G28(const bool always_home_all) {
-
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOLNPGM(">>> G28");
-      log_machine_info();
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) {
+    DEBUG_ECHOLNPGM(">>> G28");
+    log_machine_info();
+  }
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
@@ -184,9 +198,7 @@ void GcodeSuite::G28(const bool always_home_all) {
       sync_plan_position();
       SERIAL_ECHOLNPGM("Simulated Homing");
       report_current_position();
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G28");
-      #endif
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G28");
       return;
     }
   #endif
@@ -199,12 +211,7 @@ void GcodeSuite::G28(const bool always_home_all) {
         all_axes_homed()  // homing needed only if never homed
       #endif
     ) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOLNPGM("> homing not needed, skip");
-          SERIAL_ECHOLNPGM("<<< G28");
-        }
-      #endif
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
       return;
     }
   }
@@ -231,7 +238,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch_init();
+    bltouch.init();
   #endif
 
   // Always home with tool 0 active
@@ -242,14 +249,12 @@ void GcodeSuite::G28(const bool always_home_all) {
     tool_change(0, 0, true);
   #endif
 
-  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+  #if HAS_DUPLICATION_MODE
     extruder_duplication_enabled = false;
   #endif
 
   setup_for_endstop_or_probe_move();
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
-  #endif
+
   endstops.enable(true); // Enable endstops for next homing move
 
   #if ENABLED(DELTA)
@@ -262,13 +267,16 @@ void GcodeSuite::G28(const bool always_home_all) {
     const bool homeX = always_home_all || parser.seen('X'),
                homeY = always_home_all || parser.seen('Y'),
                homeZ = always_home_all || parser.seen('Z'),
-               home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
+               home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ),
+               doX = home_all || homeX,
+               doY = home_all || homeY,
+               doZ = home_all || homeZ;
 
     set_destination_from_current();
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
-      if (home_all || homeZ) homeaxis(Z_AXIS);
+      if (doZ) homeaxis(Z_AXIS);
 
     #endif
 
@@ -279,41 +287,36 @@ void GcodeSuite::G28(const bool always_home_all) {
           (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
     );
 
-    if (z_homing_height && (home_all || homeX || homeY)) {
+    if (z_homing_height && (doX || doY)) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       destination[Z_AXIS] = z_homing_height;
       if (destination[Z_AXIS] > current_position[Z_AXIS]) {
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING))
-            SERIAL_ECHOLNPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
-        #endif
-
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
         do_blocking_move_to_z(destination[Z_AXIS]);
       }
     }
 
     #if ENABLED(QUICK_HOME)
 
-      if (home_all || (homeX && homeY)) quick_home_xy();
+      if (doX && doY) quick_home_xy();
 
     #endif
 
     // Home Y (before X)
     #if ENABLED(HOME_Y_BEFORE_X)
 
-      if (home_all || homeY
+      if (doY
         #if ENABLED(CODEPENDENT_XY_HOMING)
-          || homeX
+          || doX
         #endif
       ) homeaxis(Y_AXIS);
 
     #endif
 
     // Home X
-    if (home_all || homeX
+    if (doX
       #if ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X)
-        || homeY
+        || doY
       #endif
     ) {
 
@@ -344,12 +347,12 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     // Home Y (after X)
     #if DISABLED(HOME_Y_BEFORE_X)
-      if (home_all || homeY) homeaxis(Y_AXIS);
+      if (doY) homeaxis(Y_AXIS);
     #endif
 
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
-      if (home_all || homeZ) {
+      if (doZ) {
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
         #else
@@ -360,7 +363,7 @@ void GcodeSuite::G28(const bool always_home_all) {
           move_z_after_probing();
         #endif
 
-      } // home_all || homeZ
+      } // doZ
     #endif // Z_HOME_DIR < 0
 
     sync_plan_position();
@@ -401,9 +404,18 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #endif // DUAL_X_CARRIAGE
 
+  #ifdef HOMING_BACKOFF_MM
+    endstops.enable(false);
+    constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM;
+    const float backoff_x = doX ? ABS(endstop_backoff[X_AXIS]) * (X_HOME_DIR) : 0,
+                backoff_y = doY ? ABS(endstop_backoff[Y_AXIS]) * (Y_HOME_DIR) : 0,
+                backoff_z = doZ ? ABS(endstop_backoff[Z_AXIS]) * (Z_HOME_DIR) : 0;
+    if (backoff_z) do_blocking_move_to_z(current_position[Z_AXIS] - backoff_z);
+    if (backoff_x || backoff_y) do_blocking_move_to_xy(current_position[X_AXIS] - backoff_x, current_position[Y_AXIS] - backoff_y);
+  #endif
   endstops.not_homing();
 
-  #if ENABLED(DELTA) && ENABLED(DELTA_HOME_TO_SAFE_ZONE)
+  #if BOTH(DELTA, DELTA_HOME_TO_SAFE_ZONE)
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
@@ -416,7 +428,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   // Restore the active tool after homing
   #if HOTENDS > 1 && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
-    #if ENABLED(PARKING_EXTRUDER)
+    #if EITHER(PARKING_EXTRUDER, DUAL_X_CARRIAGE)
       #define NO_FETCH false // fetch the previous toolhead
     #else
       #define NO_FETCH true
@@ -429,15 +441,21 @@ void GcodeSuite::G28(const bool always_home_all) {
   report_current_position();
   #if ENABLED(NANODLP_Z_SYNC)
     #if ENABLED(NANODLP_ALL_AXIS)
-      #define _HOME_SYNC true                 // For any axis, output sync text.
+      #define _HOME_SYNC true       // For any axis, output sync text.
     #else
-      #define _HOME_SYNC (home_all || homeZ)  // Only for Z-axis
+      #define _HOME_SYNC doZ        // Only for Z-axis
     #endif
     if (_HOME_SYNC)
       SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
   #endif
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G28");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G28");
+
+  #if HAS_DRIVER(L6470)
+    // Set L6470 absolute position registers to counts
+    for (uint8_t j = 1; j <= L6470::chain[0]; j++) {
+      const uint8_t cv = L6470::chain[j];
+      L6470.set_param(cv, L6470_ABS_POS, stepper.position((AxisEnum)L6470.axis_xref[cv]));
+    }
   #endif
 }

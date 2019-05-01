@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -59,7 +59,7 @@ bool GcodeSuite::select_coordinate_system(const int8_t _new) {
  *
  * Marlin also uses G53 on a line by itself to go back to native space.
  */
-inline void GcodeSuite::G53() {
+void GcodeSuite::G53() {
   const int8_t _system = active_coordinate_system;
   active_coordinate_system = -1;
   if (parser.chain()) { // If this command has more following...

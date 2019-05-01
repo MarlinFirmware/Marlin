@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -35,6 +35,9 @@
 #if MB(5DPRINT)
   #define DIGIPOT_I2C_FACTOR 117.96
   #define DIGIPOT_I2C_MAX_CURRENT 1.736
+#elif MB(AZTEEG_X5_MINI) || MB(AZTEEG_X5_MINI_WIFI)
+  #define DIGIPOT_I2C_FACTOR 113.5
+  #define DIGIPOT_I2C_MAX_CURRENT 2.0
 #else
   #define DIGIPOT_I2C_FACTOR 106.7
   #define DIGIPOT_I2C_MAX_CURRENT 2.5
@@ -50,7 +53,7 @@ static void i2c_send(const byte addr, const byte a, const byte b) {
     digipot_mcp4451_send_byte(a);
     digipot_mcp4451_send_byte(b);
   #else
-    Wire.beginTransmission(addr);
+    Wire.beginTransmission(I2C_ADDRESS(addr));
     Wire.write(a);
     Wire.write(b);
     Wire.endTransmission();

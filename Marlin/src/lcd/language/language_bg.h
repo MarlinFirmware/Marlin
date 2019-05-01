@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,7 +38,6 @@
 #define MSG_AUTOSTART                       _UxGT("Автостарт")
 #define MSG_DISABLE_STEPPERS                _UxGT("Изкл. двигатели")
 #define MSG_AUTO_HOME                       _UxGT("Паркиране")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Калибровка Z")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Задай Начало")
 #define MSG_SET_ORIGIN                      _UxGT("Изходна точка")
 #define MSG_PREHEAT_1                       _UxGT("Подгряване " PREHEAT_1_LABEL)

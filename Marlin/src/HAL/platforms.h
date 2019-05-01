@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -41,6 +41,8 @@
   #define HAL_PLATFORM HAL_STM32
 #elif defined(ARDUINO_ARCH_ESP32)
   #define HAL_PLATFORM HAL_ESP32
+#elif defined(__PLAT_LINUX__)
+  #define HAL_PLATFORM HAL_LINUX
 #else
   #error "Unsupported Platform!"
 #endif

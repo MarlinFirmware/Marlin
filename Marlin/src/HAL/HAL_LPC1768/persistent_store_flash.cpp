@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -43,7 +43,7 @@
 #include "persistent_store_api.h"
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(FLASH_EEPROM)
+#if ENABLED(FLASH_EEPROM_EMULATION)
 
 extern "C" {
   #include "lpc17xx_iap.h"
@@ -54,7 +54,7 @@ extern "C" {
 #define EEPROM_SIZE (4096)
 #define SECTOR_SIZE (32768)
 #define EEPROM_SLOTS (SECTOR_SIZE/EEPROM_SIZE)
-#define EEPROM_ERASE (0xff)
+#define EEPROM_ERASE (0xFF)
 #define SLOT_ADDRESS(sector, slot) (((uint8_t *)SECTOR_START(sector)) + slot * EEPROM_SIZE)
 
 static uint8_t ram_eeprom[EEPROM_SIZE] __attribute__((aligned(4))) = {0};
@@ -74,7 +74,8 @@ bool PersistentStore::access_start() {
     // sector is blank so nothing stored yet
     for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = EEPROM_ERASE;
     current_slot = EEPROM_SLOTS;
-  } else {
+  }
+  else {
     // current slot is the first non blank one
     current_slot = first_nblank_loc / EEPROM_SIZE;
     uint8_t *eeprom_data = SLOT_ADDRESS(EEPROM_SECTOR, current_slot);
@@ -126,6 +127,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 
 size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
-#endif // FLASH_EEPROM
+#endif // FLASH_EEPROM_EMULATION
 #endif // EEPROM_SETTINGS
 #endif // TARGET_LPC1768
