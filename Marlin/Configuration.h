@@ -826,6 +826,18 @@
 //#define BLTOUCH
 #if ENABLED(BLTOUCH)
   /**
+   * Cabling: from controller --> 3 Wires:  GND     5V      Servo_Signal  --> to probe
+   *                                       Brown  Orange       Yellow
+   *                    
+   *          to controller   <-- 2 Wires:  GND    Trigger_Signal         <-- from probe
+   *                                       Black       White
+   * 
+   * Cabling warning: IMPORTANT: The BLACK and WHITE wires CANNOT be swapped, they MUST 
+   * be connected in only THIS FASHION: BLACK <==> GND, WHITE <==> SIGNAL PIN.
+   * When in doubt: DO NOT CONNECT the BLACK wire to anything until you know what you are doing.
+   * It is GROUND level and therefore actually connected to the BROWN wire. You can short circuit
+   * your equipment if you don't realise this.
+   * 
    * For all BLTouch probes and clones:
    */
   //#define BLTOUCH_DEBUG_MSGS  // Produce some debugging messages when commands are issued to the probe
