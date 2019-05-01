@@ -997,11 +997,6 @@
   //#define MARLIN_INVADERS
   //#define MARLIN_SNAKE
 
-  // Frivolous Game Options
-  //#define MARLIN_BRICKOUT
-  //#define MARLIN_INVADERS
-  //#define MARLIN_SNAKE
-
 #endif // HAS_GRAPHICAL_LCD
 
 // @section safety
