@@ -90,6 +90,10 @@
 
 #include "../feature/pause.h"
 
+#if HAS_FILAMENT_SENSOR
+  #include "../feature/runout.h"
+#endif
+
 #if ENABLED(EXTRA_LIN_ADVANCE_K)
 extern float saved_extruder_advance_K[EXTRUDERS];
 #endif
@@ -283,10 +287,15 @@ typedef struct SettingsDataStruct {
   fil_change_settings_t fc_settings[EXTRUDERS];         // M603 T U L
 
   //
+  // FILAMENT_RUNOUT_SENSOR
+  //
+  bool runout_sensor_enabled;                           // M412 S
+
+  //
   // Tool-change settings
   //
   #if EXTRUDERS > 1
-    toolchange_settings_t toolchange_settings;          // M217 S P R
+  toolchange_settings_t toolchange_settings;            // M217 S P R
   #endif
 
 } SettingsData;
@@ -1080,10 +1089,20 @@ void MarlinSettings::postprocess() {
     //
     {
       #if DISABLED(ADVANCED_PAUSE_FEATURE)
-        const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
+      const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
       #endif
       _FIELD_TEST(fc_settings);
       EEPROM_WRITE(fc_settings);
+    }
+
+    // Runout sensor (on/off)
+    {
+      bool runout_sensor_enabled = false;
+      #if HAS_FILAMENT_SENSOR
+      runout_sensor_enabled = runout.enabled;
+      #endif
+      _FIELD_TEST(runout_sensor_enabled);
+      EEPROM_WRITE(runout_sensor_enabled);
     }
 
     //
@@ -1805,6 +1824,16 @@ void MarlinSettings::postprocess() {
         #endif
         _FIELD_TEST(fc_settings);
         EEPROM_READ(fc_settings);
+      }
+
+      // Runout sensor (on/off)
+      {
+        bool runout_sensor_enabled = false;
+        _FIELD_TEST(runout_sensor_enabled);
+        EEPROM_READ(runout_sensor_enabled);
+        #if HAS_FILAMENT_SENSOR
+        runout.enabled = runout_sensor_enabled;
+        #endif
       }
 
       //
