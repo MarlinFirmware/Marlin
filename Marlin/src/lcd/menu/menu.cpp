@@ -167,9 +167,9 @@ DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(float52);     // 123.45
 DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
 DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM(float51);     // +1234.5
+DEFINE_MENU_EDIT_ITEM(float51);     // 1234.5     right-justified
+DEFINE_MENU_EDIT_ITEM(float51sign); // +1234.5
 DEFINE_MENU_EDIT_ITEM(float52sign); // +123.45
-DEFINE_MENU_EDIT_ITEM(float62);     // 1234.56    right-justified
 DEFINE_MENU_EDIT_ITEM(long5);       // 12345      right-justified
 
 void MenuItem_bool::action_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
@@ -268,6 +268,8 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     #if HAS_GRAPHICAL_LCD
       drawing_screen = false;
     #endif
+
+    set_ui_selection(false);
   }
 }
 
@@ -436,12 +438,21 @@ void _lcd_draw_homing() {
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
 
-void do_select_screen(PGM_P const yes, PGM_P const no, bool &yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
+//
+// Selection screen presents a prompt and two options
+//
+bool ui_selection; // = false
+void set_ui_selection(const bool sel) { ui_selection = sel; }
+void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string/*=NULL*/, PGM_P const suff/*=NULL*/) {
   if (ui.encoderPosition) {
-    yesno = int16_t(ui.encoderPosition) > 0;
+    ui_selection = int16_t(ui.encoderPosition) > 0;
     ui.encoderPosition = 0;
   }
-  draw_select_screen(yes, no, yesno, pref, string, suff);
+  const bool got_click = ui.use_click();
+  if (got_click || ui.should_draw()) {
+    draw_select_screen(yes, no, ui_selection, pref, string, suff);
+    if (got_click) { ui_selection ? yesFunc() : noFunc(); }
+  }
 }
 
 #endif // HAS_LCD_MENU
