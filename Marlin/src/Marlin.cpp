@@ -939,6 +939,17 @@ void setup() {
 
   queue_setup();
 
+  // Initialize UI prior to reading EEPROM, as
+  // the loading EEPROM calls upon the UI to
+  // load UI related settings
+
+  ui.init();
+  ui.reset_status();
+
+  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+    ui.show_bootscreen();
+  #endif
+
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
   (void)settings.load();
@@ -1037,13 +1048,6 @@ void setup() {
 
   #if HAS_FANMUX
     fanmux_init();
-  #endif
-
-  ui.init();
-  ui.reset_status();
-
-  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
-    ui.show_bootscreen();
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
