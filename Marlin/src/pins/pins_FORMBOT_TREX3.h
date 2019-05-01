@@ -139,7 +139,7 @@
 //
 #define CASE_LIGHT_PIN      5
 #define SDSS               53
-#ifndef ROXYs_TRex
+#ifndef LED_PIN
   #define LED_PIN          13
 #endif
 
@@ -165,8 +165,10 @@
   #define BTN_EN2          33
   #define BTN_ENC          35
   #define SD_DETECT_PIN    49
-  #ifndef ROXYs_TRex
+  #ifndef KILL_PIN
     #define KILL_PIN       41
+  #endif
+  #ifndef BEEPER_PIN
     #define BEEPER_PIN     37
   #endif
 #endif

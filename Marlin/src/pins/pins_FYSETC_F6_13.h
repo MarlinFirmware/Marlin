@@ -28,8 +28,8 @@
   #error "Oops! Select 'FYSETC F6' in 'Tools > Board.'"
 #endif
 
-#ifdef SD_DETECT_INVERTED
-  #error "SD_DETECT_INVERTED must be disabled for the FYSETC_F6_13 board."
+#if ENABLED(SD_DETECT_INVERTED)
+  //#error "SD_DETECT_INVERTED must be disabled for the FYSETC_F6_13 board."
 #endif
 
 #define BOARD_NAME "FYSETC F6 1.3"
@@ -184,25 +184,46 @@
 #define BEEPER_PIN         37
 #define SD_DETECT_PIN      49
 
-#if ENABLED(MKS_MINI_12864)
-  #define DOGLCD_A0        27
-  #define DOGLCD_CS        25
-#endif
-
 #if ENABLED(FYSETC_MINI_12864)
   //
   // See https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
   //
   #define DOGLCD_A0        16
   #define DOGLCD_CS        17
-  #ifndef RGB_LED_R_PIN
-    #define RGB_LED_R_PIN  25
+
+  #define LCD_BACKLIGHT_PIN -1
+  #define KILL_PIN         41
+
+  #define LCD_RESET_PIN    23   // Must be high or open for LCD to operate normally.
+                                // Seems to work best if left open.
+
+  #define FYSETC_MINI_12864_REV_1_2
+  //#define FYSETC_MINI_12864_REV_2_0
+  //#define FYSETC_MINI_12864_REV_2_1
+  #if EITHER(FYSETC_MINI_12864_REV_1_2, FYSETC_MINI_12864_REV_2_0)
+    #ifndef RGB_LED_R_PIN
+      #define RGB_LED_R_PIN 25
+    #endif
+    #ifndef RGB_LED_G_PIN
+      #define RGB_LED_G_PIN 27
+    #endif
+    #ifndef RGB_LED_B_PIN
+      #define RGB_LED_B_PIN 29
+    #endif
+  #elif defined(FYSETC_MINI_12864_REV_2_1)
+    #define NEOPIXEL_LED
+    #define NEOPIXEL_TYPE   NEO_GRB  // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+    #define NEOPIXEL_PIN    25       // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
+    #define NEOPIXEL_PIXELS  3       // Number of LEDs in the strip
+    #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+    #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+    #define NEOPIXEL_STARTUP_TEST    // Cycle through colors at startup
+  #else
+    #error "Either FYSETC_MINI_12864_REV_1_2, FYSETC_MINI_12864_REV_2_0 or FYSETC_MINI_12864_REV_2_1 must be defined"
   #endif
-  #ifndef RGB_LED_G_PIN
-    #define RGB_LED_G_PIN  27
-  #endif
-  #ifndef RGB_LED_B_PIN
-    #define RGB_LED_B_PIN  29
+
+  #if !defined(LED_USER_PRESET_STARTUP) && EITHER(FYSETC_MINI_12864_REV_2_0, FYSETC_MINI_12864_REV_2_1)
+    #error "LED_USER_PRESET_STARTUP must be enabled when using FYSETC_MINI_12864 REV 2.0 and later"
   #endif
 
 #elif HAS_GRAPHICAL_LCD
@@ -214,6 +235,11 @@
   #define LCD_PINS_D6      27
   #define LCD_PINS_D7      29
 
+  #if ENABLED(MKS_MINI_12864)
+    #define DOGLCD_CS      25
+    #define DOGLCD_A0      27
+  #endif
+
 #endif
 
 #if ENABLED(NEWPANEL)
@@ -222,20 +248,6 @@
   #define BTN_ENC          35
 #endif
 
-#if ENABLED(FYSETC_MINI_12864)
-  #define LCD_BACKLIGHT_PIN -1
-  #define LCD_RESET_PIN    23
-  #define KILL_PIN         41
-  #ifndef RGB_LED_R_PIN
-    #define RGB_LED_R_PIN  25
-  #endif
-  #ifndef RGB_LED_G_PIN
-    #define RGB_LED_G_PIN  27
-  #endif
-  #ifndef RGB_LED_B_PIN
-    #define RGB_LED_B_PIN  29
-  #endif
-#endif
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN     3
 #endif
