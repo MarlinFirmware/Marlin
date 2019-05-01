@@ -64,8 +64,9 @@ namespace ExtUI {
     // permanent data to be stored, it can write up to eeprom_data_size bytes
     // into buff.
 
-    static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
-    memcpy(buff, &myDataStruct, sizeof(myDataStruct));
+    // Example:
+    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
   }
 
   void onLoadSettings(const char *buff) {
@@ -73,8 +74,9 @@ namespace ExtUI {
     // needs to retrieve data, it should copy up to eeprom_data_size bytes
     // from buff
 
-    static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
-    memcpy(&myDataStruct, buff, sizeof(myDataStruct));
+    // Example:
+    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
   }
 
   void onConfigurationStoreWritten(bool success) {
