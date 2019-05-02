@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V65"
+#define EEPROM_VERSION "V66"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -155,6 +155,7 @@ typedef struct SettingsDataStruct {
   // FILAMENT_RUNOUT_SENSOR
   //
   bool runout_sensor_enabled;                           // M412 S
+  float runout_distance_mm;                             // M412 D
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -310,12 +311,6 @@ typedef struct SettingsDataStruct {
   float backlash_distance_mm[XYZ];                      // M425 X Y Z
   uint8_t backlash_correction;                          // M425 F
   float backlash_smoothing_mm;                          // M425 S
-
-  //
-  // FILAMENT_RUNOUT_SENSOR
-  //
-  bool runout_sensor_enabled;                           // M412 S
-  float runout_distance_mm;                             // M412 D
 
   //
   // EXTENSIBLE_UI
@@ -565,11 +560,18 @@ void MarlinSettings::postprocess() {
     //
     {
       #if HAS_FILAMENT_SENSOR
-        EEPROM_WRITE(runout.enabled);
+        const bool &runout_sensor_enabled = runout.enabled;
       #else
-        const bool runout_sensor_enabled = true;
-        EEPROM_WRITE(runout_sensor_enabled);
+        const bool runout_sensor_enabled = false;
       #endif
+      #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
+        const float &runout_distance_mm = RunoutResponseDelayed::runout_distance_mm;
+      #else
+        const float runout_distance_mm = 25;
+      #endif
+      _FIELD_TEST(runout_sensor_enabled);
+      EEPROM_WRITE(runout_sensor_enabled);
+      EEPROM_WRITE(runout_distance_mm);
     }
 
     //
@@ -1180,25 +1182,6 @@ void MarlinSettings::postprocess() {
     }
 
     //
-    // Filament Runout
-    //
-    {
-      #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-        const bool &runout_sensor_enabled = runout.enabled;
-      #else
-        const bool runout_sensor_enabled = false;
-      #endif
-      #if ENABLED(FILAMENT_RUNOUT_SENSOR) && defined(FILAMENT_RUNOUT_DISTANCE_MM)
-        const float &runout_distance_mm = RunoutResponseDelayed::runout_distance_mm;
-      #else
-        const float runout_distance_mm = 25;
-      #endif
-      _FIELD_TEST(runout_sensor_enabled);
-      EEPROM_WRITE(runout_sensor_enabled);
-      EEPROM_WRITE(runout_distance_mm);
-    }
-
-    //
     // Extensible UI User Data
     //
     #if ENABLED(EXTENSIBLE_UI)
@@ -1356,13 +1339,19 @@ void MarlinSettings::postprocess() {
       // Filament Runout Sensor
       //
       {
-        _FIELD_TEST(runout_sensor_enabled);
         #if HAS_FILAMENT_SENSOR
-          EEPROM_READ(runout.enabled);
+          bool &runout_sensor_enabled = runout.enabled;
         #else
           bool runout_sensor_enabled;
-          EEPROM_READ(runout_sensor_enabled);
         #endif
+        #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
+          float &runout_distance_mm = RunoutResponseDelayed::runout_distance_mm;
+        #else
+          float runout_distance_mm;
+        #endif
+        _FIELD_TEST(runout_sensor_enabled);
+        EEPROM_READ(runout_sensor_enabled);
+        EEPROM_READ(runout_distance_mm);
       }
 
       //
@@ -1968,25 +1957,6 @@ void MarlinSettings::postprocess() {
       }
 
       //
-      // Filament Runout
-      //
-      {
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-          bool &runout_sensor_enabled = runout.enabled;
-        #else
-          bool runout_sensor_enabled;
-        #endif
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR) && defined(FILAMENT_RUNOUT_DISTANCE_MM)
-          float &runout_distance_mm = RunoutResponseDelayed::runout_distance_mm;
-        #else
-          float runout_distance_mm;
-        #endif
-        _FIELD_TEST(runout_sensor_enabled);
-        EEPROM_READ(runout_sensor_enabled);
-        EEPROM_READ(runout_distance_mm);
-      }
-
-      //
       // Extensible UI User Data
       //
       #if ENABLED(EXTENSIBLE_UI)
@@ -2239,6 +2209,9 @@ void MarlinSettings::reset() {
   #if HAS_FILAMENT_SENSOR
     runout.enabled = true;
     runout.reset();
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
+    #endif
   #endif
 
   //
@@ -2267,13 +2240,6 @@ void MarlinSettings::reset() {
     #endif
     #ifdef BACKLASH_SMOOTHING_MM
       backlash.smoothing_mm = BACKLASH_SMOOTHING_MM;
-    #endif
-  #endif
-
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    runout.enabled = true;
-    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-      RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
     #endif
   #endif
 
@@ -3389,7 +3355,7 @@ void MarlinSettings::reset() {
       );
     #endif
 
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #if HAS_FILAMENT_SENSOR
       CONFIG_ECHO_HEADING("Filament runout sensor:");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
