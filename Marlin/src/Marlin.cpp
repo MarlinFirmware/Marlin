@@ -939,10 +939,8 @@ void setup() {
 
   queue_setup();
 
-  // Initialize UI prior to reading EEPROM, as
-  // the loading EEPROM calls upon the UI to
-  // load UI related settings
-
+  // UI must be initialized before EEPROM
+  // (because EEPROM code calls the UI).
   ui.init();
   ui.reset_status();
 
