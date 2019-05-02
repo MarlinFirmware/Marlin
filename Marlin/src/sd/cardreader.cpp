@@ -461,7 +461,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
   stopSDPrint();
 
   SdFile *curDir;
-  const char * const fname = diveToFile(curDir, path, false);
+  const char * const fname = diveToFile(curDir, path);
   if (!fname) return;
 
   if (read) {
@@ -501,7 +501,7 @@ void CardReader::removeFile(const char * const name) {
   //stopSDPrint();
 
   SdFile *curDir;
-  const char * const fname = diveToFile(curDir, name, false);
+  const char * const fname = diveToFile(curDir, name);
   if (!fname) return;
 
   if (file.remove(curDir, fname)) {
@@ -641,7 +641,7 @@ uint16_t CardReader::getnrfilenames() {
  *
  * A NULL result indicates an unrecoverable error.
  */
-const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, const bool echo) {
+const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, const bool echo/*=false*/) {
   // need 2 static SdFile, for parent and sub.
   static SdFile newDir1, newDir2;
   SdFile *sub = &newDir1, *startDir;
