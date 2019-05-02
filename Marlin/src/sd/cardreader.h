@@ -88,7 +88,7 @@ public:
   static int8_t updir();
   static void setroot();
 
-  static const char* diveToFile(SdFile*& curDir, const char * const path, const bool echo);
+  static const char* diveToFile(SdFile*& curDir, const char * const path, const bool echo=false);
 
   static uint16_t get_num_Files();
 
