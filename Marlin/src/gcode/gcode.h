@@ -298,6 +298,7 @@ public:
   FORCE_INLINE static void reset_stepper_timeout() { previous_move_ms = millis(); }
 
   static int8_t get_target_extruder_from_command();
+  static int8_t get_target_e_stepper_from_command();
   static void get_destination_from_command();
 
   static void process_parsed_command(

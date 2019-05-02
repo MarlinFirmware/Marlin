@@ -271,7 +271,7 @@
 
 
 // Check if all pins are defined in mega/pins_arduino.h
-#include <Arduino.h>
+//#include <Arduino.h>
 static_assert(NUM_DIGITAL_PINS > MAX_PIN, "add missing pins to [arduino dir]/hardware/arduino/avr/variants/mega/pins_arduino.h based on fastio.h"
                                           "to digital_pin_to_port_PGM, digital_pin_to_bit_mask_PGM, digital_pin_to_timer_PGM, NUM_DIGITAL_PINS, see below");
 

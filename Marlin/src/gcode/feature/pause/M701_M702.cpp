@@ -42,10 +42,15 @@
   #include "../../../feature/prusa_MMU2/mmu2.h"
 #endif
 
+#if ENABLED(MIXING_EXTRUDER)
+  #include "../../../feature/mixing.h"
+#endif
+
 /**
  * M701: Load filament
  *
- *  T<extruder> - Optional extruder number. Current extruder if omitted.
+ *  T<extruder> - Extruder number. Required for mixing extruder.
+ *                For non-mixing, current extruder if omitted.
  *  Z<distance> - Move the Z axis by this distance
  *  L<distance> - Extrude distance for insertion (positive value) (manual reload)
  *
@@ -59,9 +64,21 @@ void GcodeSuite::M701() {
     if (axis_unhomed_error()) park_point.z = 0;
   #endif
 
-  const int8_t target_extruder = get_target_extruder_from_command();
-  if (target_extruder < 0) return;
+  #if ENABLED(MIXING_EXTRUDER)
+    const int8_t target_e_stepper = get_target_e_stepper_from_command();
+    if (target_e_stepper < 0) return;
 
+    const uint8_t old_mixing_tool = mixer.get_current_vtool();
+    mixer.T(MIXER_DIRECT_SET_TOOL);
+
+    MIXER_STEPPER_LOOP(i) mixer.set_collector(i, (i == (uint8_t)target_e_stepper) ? 1.0 : 0.0);
+    mixer.normalize();
+
+    const int8_t target_extruder = active_extruder;
+  #else
+    const int8_t target_extruder = get_target_extruder_from_command();
+    if (target_extruder < 0) return;
+  #endif
 
   // Z axis lift
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
@@ -107,6 +124,10 @@ void GcodeSuite::M701() {
       tool_change(active_extruder_before_filament_change, 0, false);
   #endif
 
+  #if ENABLED(MIXING_EXTRUDER)
+    mixer.T(old_mixing_tool); // Restore original mixing tool
+  #endif
+
   // Show status screen
   #if HAS_LCD_MENU
     lcd_pause_show_message(PAUSE_MESSAGE_STATUS);
@@ -116,7 +137,8 @@ void GcodeSuite::M701() {
 /**
  * M702: Unload filament
  *
- *  T<extruder> - Optional extruder number. If omitted, current extruder
+ *  T<extruder> - Extruder number. Required for mixing extruder.
+ *                For non-mixing, if omitted, current extruder
  *                (or ALL extruders with FILAMENT_UNLOAD_ALL_EXTRUDERS).
  *  Z<distance> - Move the Z axis by this distance
  *  U<distance> - Retract distance for removal (manual reload)
@@ -131,8 +153,32 @@ void GcodeSuite::M702() {
     if (axis_unhomed_error()) park_point.z = 0;
   #endif
 
-  const int8_t target_extruder = get_target_extruder_from_command();
-  if (target_extruder < 0) return;
+  #if ENABLED(MIXING_EXTRUDER)
+    const uint8_t old_mixing_tool = mixer.get_current_vtool();
+
+    #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
+      float mix_multiplier = 1.0;
+      if (!parser.seenval('T')) {
+        mixer.T(MIXER_AUTORETRACT_TOOL);
+        mix_multiplier = MIXING_STEPPERS;
+      }
+      else
+    #endif
+    {
+      const int8_t target_e_stepper = get_target_e_stepper_from_command();
+      if (target_e_stepper < 0) return;
+
+      mixer.T(MIXER_DIRECT_SET_TOOL);
+      MIXER_STEPPER_LOOP(i) mixer.set_collector(i, (i == (uint8_t)target_e_stepper) ? 1.0 : 0.0);
+      mixer.normalize();
+    }
+
+    const int8_t target_extruder = active_extruder;
+  #else
+    const float unload_length_multiplier = 1.0;
+    const int8_t target_extruder = get_target_extruder_from_command();
+    if (target_extruder < 0) return;
+  #endif
 
   // Z axis lift
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
@@ -171,7 +217,11 @@ void GcodeSuite::M702() {
       const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
                                                         : fc_settings[target_extruder].unload_length);
 
-      unload_filament(unload_length, true, PAUSE_MODE_UNLOAD_FILAMENT);
+      unload_filament(unload_length, true, PAUSE_MODE_UNLOAD_FILAMENT
+        #if ALL(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
+          , mix_multiplier
+        #endif
+      );
     }
   #endif
 
@@ -183,6 +233,10 @@ void GcodeSuite::M702() {
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, 0, false);
+  #endif
+
+  #if ENABLED(MIXING_EXTRUDER)
+    mixer.T(old_mixing_tool); // Restore original mixing tool
   #endif
 
   // Show status screen

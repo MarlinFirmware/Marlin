@@ -51,19 +51,19 @@ enum MixTool {
   FIRST_USER_VIRTUAL_TOOL = 0,
   LAST_USER_VIRTUAL_TOOL = MIXING_VIRTUAL_TOOLS - 1,
   NR_USER_VIRTUAL_TOOLS,
-  #ifdef RETRACT_SYNC_MIXING
-    MIXER_AUTORETRACT_TOOL = NR_USER_VIRTUAL_TOOLS,
-    NR_MIXING_VIRTUAL_TOOLS
-  #else
-    NR_MIXING_VIRTUAL_TOOLS = NR_USER_VIRTUAL_TOOLS
+  MIXER_DIRECT_SET_TOOL = NR_USER_VIRTUAL_TOOLS,
+  #if ENABLED(RETRACT_SYNC_MIXING)
+    MIXER_AUTORETRACT_TOOL,
   #endif
+  NR_MIXING_VIRTUAL_TOOLS
 };
 
-#ifdef RETRACT_SYNC_MIXING
-  static_assert(NR_MIXING_VIRTUAL_TOOLS <= 254, "MIXING_VIRTUAL_TOOLS must be <= 254!");
+#if ENABLED(RETRACT_SYNC_MIXING)
+  #define MAX_VTOOLS 254
 #else
-  static_assert(NR_MIXING_VIRTUAL_TOOLS <= 255, "MIXING_VIRTUAL_TOOLS must be <= 255!");
+  #define MAX_VTOOLS 255
 #endif
+static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must be <= " STRINGIFY(MAX_VTOOLS) "!");
 
 #define MIXER_STEPPER_LOOP(VAR) \
   for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
@@ -100,7 +100,7 @@ class Mixer {
   static void init(); // Populate colors at boot time
 
   static void reset_vtools();
-  static void refresh_collector(const float proportion=1.0, const uint8_t t=selected_vtool);
+  static void refresh_collector(const float proportion=1.0, const uint8_t t=selected_vtool, float (&c)[MIXING_STEPPERS]=collector);
 
   // Used up to Planner level
   FORCE_INLINE static void set_collector(const uint8_t c, const float f) { collector[c] = MAX(f, 0.0f); }

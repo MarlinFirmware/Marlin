@@ -59,17 +59,17 @@
 
 #if HAS_GRAPHICAL_LCD
 
-#include <U8glib.h>
 #include "SoftwareSPI.h"
 
 #undef SPI_SPEED
 #define SPI_SPEED 2  // About 2 MHz
 
+#include <Arduino.h>
 #include <algorithm>
 #include <LPC17xx.h>
 #include <gpio.h>
 
-#include <Arduino.h>
+#include <U8glib.h>
 
 uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
 

@@ -34,8 +34,7 @@
 
 #include <stdint.h>
 
-#include "Arduino.h"
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
@@ -44,6 +43,7 @@
 
 #include "HAL_timers_STM32F7.h"
 
+#include "../../inc/MarlinConfigPre.h"
 
 // --------------------------------------------------------------------------
 // Defines

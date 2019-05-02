@@ -259,13 +259,18 @@
     #define DOGLCD_SCK     P2_11           // J8-5  (SCK on Fysetc schematic)
     #define DOGLCD_MOSI    P4_28           // J8-6  (MOSI on Fysetc schematic)
 
-    #define RGB_LED
-    //#define RGBW_LED
-    #if EITHER(RGB_LED, RGBW_LED)
-      #define RGB_LED_R_PIN P2_12          // J8-4  (LCD_D6 on Fysetc schematic)
-      #define RGB_LED_G_PIN P1_23          // J8-3  (LCD_D5 on Fysetc schematic)
-      #define RGB_LED_B_PIN P1_22          // J8-2  (LCD_D7 on Fysetc schematic)
-      //#define RGB_LED_W_PIN -1
+    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #ifndef RGB_LED_R_PIN
+        #define RGB_LED_R_PIN P2_12        // J8-4  (LCD_D6 on Fysetc schematic)
+      #endif
+      #ifndef RGB_LED_G_PIN
+        #define RGB_LED_G_PIN P1_23        // J8-3  (LCD_D5 on Fysetc schematic)
+      #endif
+      #ifndef RGB_LED_B_PIN
+        #define RGB_LED_B_PIN P1_22        // J8-2  (LCD_D7 on Fysetc schematic)
+      #endif
+    #elif ENABLED(FYSETC_MINI_12864_2_1)
+      #define NEOPIXEL_PIN    P2_12
     #endif
 
   #elif ENABLED(MINIPANEL)

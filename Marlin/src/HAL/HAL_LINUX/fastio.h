@@ -25,7 +25,7 @@
  * Fast I/O Routines for X86_64
  */
 
-#include <Arduino.h>
+#include "../shared/Marduino.h"
 #include <pinmapping.h>
 
 #define SET_DIR_INPUT(IO)     Gpio::setDir(IO, 1)
