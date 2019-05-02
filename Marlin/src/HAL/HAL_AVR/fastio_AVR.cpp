@@ -30,7 +30,7 @@
 
 #ifdef FASTIO_EXT_START
 
-#include <Arduino.h>
+#include "../shared/Marduino.h"
 
 #define _IS_EXT(P) WITHIN(P, FASTIO_EXT_START, FASTIO_EXT_END)
 

@@ -37,17 +37,17 @@ void HAL_init();
 
 extern "C" volatile millis_t _millis;
 
-#include <Arduino.h>
-#include <pinmapping.h>
-#include <CDCSerial.h>
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
-#include <adc.h>
 #include "watchdog.h"
 #include "HAL_timers.h"
 #include "MarlinSerial.h"
+
+#include <adc.h>
+#include <pinmapping.h>
+#include <CDCSerial.h>
 
 //
 // Default graphical display delays

@@ -21,21 +21,30 @@
  */
 #pragma once
 
-#include <stdint.h>
+/**
+ * HAL/shared/Marduino.h
+ */
 
-// current value of the outputs provided over i2s
-extern uint32_t i2s_port_data;
+#undef DISABLED       // Redefined by ESP32
+#undef M_PI           // Redefined by all
+#undef _BV            // Redefined by some
+#undef sq             // Redefined by teensy3/wiring.h
 
-int i2s_init();
+#include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
 
-uint8_t i2s_state(uint8_t pin);
+#undef DISABLED
+#define DISABLED(V...) DO(DIS,&&,V)
 
-void i2s_write(uint8_t pin, uint8_t val);
+#undef _BV
+#define _BV(b) (1UL << (b))
 
-void i2s_push_sample();
+#undef sq
+#define sq(x) ((x)*(x))
 
-// pin definitions
+#ifndef SBI
+  #define SBI(A,B) (A |= (1 << (B)))
+#endif
 
-#define I2S_WS 25
-#define I2S_BCK 26
-#define I2S_DATA 27
+#ifndef CBI
+  #define CBI(A,B) (A &= ~(1 << (B)))
+#endif

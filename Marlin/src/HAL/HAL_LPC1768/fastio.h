@@ -33,7 +33,7 @@
  * For TARGET LPC1768
  */
 
-#include <Arduino.h>
+#include "../shared/Marduino.h"
 
 #define PWM_PIN(P)              true // all pins are PWM capable
 #define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)

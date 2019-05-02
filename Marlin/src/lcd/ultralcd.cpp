@@ -746,6 +746,7 @@ void MarlinUI::update() {
 
       refresh();
       init_lcd(); // May revive the LCD if static electricity killed it
+
       ms = millis();
       next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // delay LCD update until after SD activity completes
     }
