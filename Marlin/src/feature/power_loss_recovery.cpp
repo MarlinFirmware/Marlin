@@ -127,7 +127,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
   #endif
 
   #ifndef POWER_LOSS_MIN_Z_CHANGE
-    #define POWER_LOSS_MIN_Z_CHANGE 0
+    #define POWER_LOSS_MIN_Z_CHANGE 0.05  // Vase-mode-friendly out of the box
   #endif
 
   // Did Z change since the last call?
