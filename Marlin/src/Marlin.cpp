@@ -939,8 +939,8 @@ void setup() {
 
   queue_setup();
 
-  #if defined(SDIO_SUPPORT) && SD_DETECT_PIN == -1
-    // auto mount the SD for EEPROM.dat emulation
+  #if ENABLED(SDIO_SUPPORT) && SD_DETECT_PIN == -1
+    // Auto-mount the SD for EEPROM.dat emulation
     if (!card.isDetected()) card.initsd();
   #endif
 
