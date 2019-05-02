@@ -455,7 +455,7 @@ bool set_probe_deployed(const bool deploy) {
           SERIAL_ERROR_MSG("Z-Probe failed");
           LCD_ALERTMESSAGEPGM("Err: ZPROBE");
         //}
-      stop();
+      //stop();
       return true;
       }
     }
