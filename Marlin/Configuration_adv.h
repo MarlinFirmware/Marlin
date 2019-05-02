@@ -804,10 +804,9 @@
     //#define POWER_LOSS_PIN   44     // Pin to detect power loss
     //#define POWER_LOSS_STATE HIGH   // State of pin indicating power loss
 
-    // Use these options for less wear on the SD card.
-    // Helpful for vase mode printing, but if too high vases cannot be continued.
-    #define POWER_LOSS_IGNORE_WHEN_Z_RAISE_BELOW 0.05 // (mm) Minimum Z change required before saving power-loss data
-    #define POWER_LOSS_SAVE_WHEN_Z_RAISE_ABOVE   0.1  // (mm) Maximum Z change allowed before saving power-loss data
+    // Without a POWER_LOSS_PIN the following option helps reduce wear on the SD card,
+    // especially with "vase mode" printing. Set too high and vases cannot be continued.
+    #define POWER_LOSS_MIN_Z_CHANGE 0.05 // (mm) Minimum Z change before saving power-loss data
   #endif
 
   /**

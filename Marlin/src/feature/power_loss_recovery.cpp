@@ -54,15 +54,11 @@ job_recovery_info_t PrintJobRecovery::info;
 #include "../core/debug_out.h"
 
 PrintJobRecovery recovery;
-float PrintJobRecovery::last_known_z_pos;
 
 /**
  * Clear the recovery info
  */
-void PrintJobRecovery::init() { 
-  memset(&info, 0, sizeof(info)); 
-  last_known_z_pos = 0.0;
-}
+void PrintJobRecovery::init() { memset(&info, 0, sizeof(info)); }
 
 /**
  * Enable or disable then call changed()
@@ -130,6 +126,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     millis_t ms = millis();
   #endif
 
+  #ifndef POWER_LOSS_MIN_Z_CHANGE
+    #define POWER_LOSS_MIN_Z_CHANGE 0
+  #endif
+
   // Did Z change since the last call?
   if (force
     #if DISABLED(SAVE_EACH_CMD_MODE)      // Always save state when enabled
@@ -139,9 +139,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       #if SAVE_INFO_INTERVAL_MS > 0       // Save if interval is elapsed
         || ELAPSED(ms, next_save_ms)
       #endif
-        // Save every time Z is higher than the last call
-        || (current_position[Z_AXIS] > (info.current_position[Z_AXIS] + POWER_LOSS_SAVE_WHEN_Z_RAISE_ABOVE))
-        || ((current_position[Z_AXIS] > info.current_position[Z_AXIS]) && (current_position[Z_AXIS] >  PrintJobRecovery::last_known_z_pos + POWER_LOSS_IGNORE_WHEN_Z_RAISE_BELOW))
+      // Save if Z is above the last-saved position by some minimum height
+      || current_position[Z_AXIS] > info.current_position[Z_AXIS] + POWER_LOSS_MIN_Z_CHANGE
     #endif
   ) {
 
@@ -221,7 +220,6 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       if (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) kill(PSTR(MSG_OUTAGE_RECOVERY));
     #endif
   }
-  PrintJobRecovery::last_known_z_pos = current_position[Z_AXIS];
 }
 
 /**

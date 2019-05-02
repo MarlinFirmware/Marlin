@@ -139,7 +139,6 @@ class PrintJobRecovery {
   #else
     static inline void debug(PGM_P const prefix) { UNUSED(prefix); }
   #endif
-  static float last_known_z_pos;
 
   private:
     static void write();

@@ -79,13 +79,3 @@
     #endif
   #endif
 #endif
-
-#ifndef POWER_LOSS_IGNORE_WHEN_Z_RAISE_BELOW 
-  #define POWER_LOSS_IGNORE_WHEN_Z_RAISE_BELOW 0 
-#endif
-
-#ifndef POWER_LOSS_SAVE_WHEN_Z_RAISE_ABOVE 
-  #define POWER_LOSS_SAVE_WHEN_Z_RAISE_ABOVE 0 
-#endif
-
-
