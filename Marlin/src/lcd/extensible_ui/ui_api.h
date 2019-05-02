@@ -50,7 +50,7 @@ namespace ExtUI {
   // in the EEPROM when the methods onStoreSettings and
   // onLoadSettings are called.
 
-  static constexpr size_t eeprom_data_size = 32;
+  static constexpr size_t eeprom_data_size = 48;
 
   enum axis_t     : uint8_t { X, Y, Z };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5 };
