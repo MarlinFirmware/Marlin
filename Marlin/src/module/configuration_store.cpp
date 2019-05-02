@@ -94,7 +94,7 @@
   #include "../feature/backlash.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "../feature/runout.h"
 #endif
 
@@ -150,6 +150,11 @@ typedef struct SettingsDataStruct {
   #if HAS_HOTEND_OFFSET
     float hotend_offset[XYZ][HOTENDS - 1];              // M218 XYZ
   #endif
+
+  //
+  // FILAMENT_RUNOUT_SENSOR
+  //
+  bool runout_sensor_enabled;                           // M412 S
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -321,6 +326,8 @@ typedef struct SettingsDataStruct {
   #endif
 
 } SettingsData;
+
+//static_assert(sizeof(SettingsData) <= E2END + 1, "EEPROM too small to contain SettingsData!");
 
 MarlinSettings settings;
 
@@ -550,6 +557,18 @@ void MarlinSettings::postprocess() {
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; e++)
           LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
+      #endif
+    }
+
+    //
+    // Filament Runout Sensor
+    //
+    {
+      #if HAS_FILAMENT_SENSOR
+        EEPROM_WRITE(runout.enabled);
+      #else
+        const bool runout_sensor_enabled = true;
+        EEPROM_WRITE(runout_sensor_enabled);
       #endif
     }
 
@@ -1330,6 +1349,19 @@ void MarlinSettings::postprocess() {
           // Skip hotend 0 which must be 0
           for (uint8_t e = 1; e < HOTENDS; e++)
             LOOP_XYZ(i) EEPROM_READ(hotend_offset[i][e]);
+        #endif
+      }
+
+      //
+      // Filament Runout Sensor
+      //
+      {
+        _FIELD_TEST(runout_sensor_enabled);
+        #if HAS_FILAMENT_SENSOR
+          EEPROM_READ(runout.enabled);
+        #else
+          bool runout_sensor_enabled;
+          EEPROM_READ(runout_sensor_enabled);
         #endif
       }
 
@@ -2200,6 +2232,19 @@ void MarlinSettings::reset() {
     reset_hotend_offsets();
   #endif
 
+  //
+  // Filament Runout Sensor
+  //
+
+  #if HAS_FILAMENT_SENSOR
+    runout.enabled = true;
+    runout.reset();
+  #endif
+
+  //
+  // Tool-change Settings
+  //
+
   #if EXTRUDERS > 1
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
@@ -2235,6 +2280,11 @@ void MarlinSettings::reset() {
   #if ENABLED(EXTENSIBLE_UI)
     ExtUI::onFactoryReset();
   #endif
+
+  //
+  // Magnetic Parking Extruder
+  //
+
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
     mpe_settings_init();
@@ -2715,6 +2765,12 @@ void MarlinSettings::reset() {
         );
         SERIAL_ECHOLNPAIR_F(" Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]), 3);
       }
+    #endif
+
+    #if HAS_FILAMENT_SENSOR
+      CONFIG_ECHO_HEADING("Filament Runout Sensor:");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR("  M412 S", int(runout.enabled));
     #endif
 
     /**

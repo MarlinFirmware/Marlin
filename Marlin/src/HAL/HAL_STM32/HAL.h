@@ -28,19 +28,19 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include <stdint.h>
-
-#include "Arduino.h"
-
-#ifdef USBCON
-  #include <USBSerial.h>
-#endif
-
-#include "../../inc/MarlinConfigPre.h"
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio_STM32.h"
 #include "watchdog_STM32.h"
+
+#include "../../inc/MarlinConfigPre.h"
+
+#include <stdint.h>
+
+#ifdef USBCON
+  #include <USBSerial.h>
+#endif
 
 // --------------------------------------------------------------------------
 // Defines

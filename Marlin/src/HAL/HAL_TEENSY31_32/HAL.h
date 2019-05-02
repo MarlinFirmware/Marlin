@@ -28,14 +28,7 @@
 
 #define CPU_32_BIT
 
-// _BV is re-defined in Arduino.h
-#undef _BV
-
-#include <Arduino.h>
-
-// Redefine sq macro defined by teensy3/wiring.h
-#undef sq
-#define sq(x) ((x)*(x))
+#include "../shared/Marduino.h"
 
 #include "../math_32bit.h"
 #include "../HAL_SPI.h"
