@@ -86,11 +86,9 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
  * Return -1 if the T parameter is out of range or unspecified
  */
 int8_t GcodeSuite::get_target_e_stepper_from_command() {
-  int8_t e = -1;
-  if (parser.seenval('T')) {
-    e = parser.value_byte();
-    if (e < E_STEPPERS) return e;
-  }
+  const int8_t e = parser.intval('T', -1);
+  if (WITHIN(e, 0, E_STEPPERS - 1)) return e;
+
   SERIAL_ECHO_START();
   SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
   if (e == -1)
