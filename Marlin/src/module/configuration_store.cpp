@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V64"
+#define EEPROM_VERSION "V65"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -144,6 +144,11 @@ typedef struct SettingsDataStruct {
   #if HAS_HOTEND_OFFSET
     float hotend_offset[XYZ][HOTENDS - 1];              // M218 XYZ
   #endif
+
+  //
+  // FILAMENT_RUNOUT_SENSOR
+  //
+  bool runout_sensor_enabled;                           // M412 S
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -287,18 +292,15 @@ typedef struct SettingsDataStruct {
   fil_change_settings_t fc_settings[EXTRUDERS];         // M603 T U L
 
   //
-  // FILAMENT_RUNOUT_SENSOR
-  //
-  bool runout_sensor_enabled;                           // M412 S
-
-  //
   // Tool-change settings
   //
   #if EXTRUDERS > 1
-  toolchange_settings_t toolchange_settings;            // M217 S P R
+    toolchange_settings_t toolchange_settings;          // M217 S P R
   #endif
 
 } SettingsData;
+
+//static_assert(sizeof(SettingsData) <= E2END + 1, "EEPROM too small to contain SettingsData!");
 
 MarlinSettings settings;
 
@@ -518,6 +520,18 @@ void MarlinSettings::postprocess() {
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; e++)
           LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
+      #endif
+    }
+
+    //
+    // Filament Runout Sensor
+    //
+    {
+      #if HAS_FILAMENT_SENSOR
+        EEPROM_WRITE(runout.enabled);
+      #else
+        const bool runout_sensor_enabled = true;
+        EEPROM_WRITE(runout_sensor_enabled);
       #endif
     }
 
@@ -1089,20 +1103,10 @@ void MarlinSettings::postprocess() {
     //
     {
       #if DISABLED(ADVANCED_PAUSE_FEATURE)
-      const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
+        const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
       #endif
       _FIELD_TEST(fc_settings);
       EEPROM_WRITE(fc_settings);
-    }
-
-    // Runout sensor (on/off)
-    {
-      bool runout_sensor_enabled = false;
-      #if HAS_FILAMENT_SENSOR
-      runout_sensor_enabled = runout.enabled;
-      #endif
-      _FIELD_TEST(runout_sensor_enabled);
-      EEPROM_WRITE(runout_sensor_enabled);
     }
 
     //
@@ -1253,6 +1257,19 @@ void MarlinSettings::postprocess() {
           // Skip hotend 0 which must be 0
           for (uint8_t e = 1; e < HOTENDS; e++)
             LOOP_XYZ(i) EEPROM_READ(hotend_offset[i][e]);
+        #endif
+      }
+
+      //
+      // Filament Runout Sensor
+      //
+      {
+        _FIELD_TEST(runout_sensor_enabled);
+        #if HAS_FILAMENT_SENSOR
+          EEPROM_READ(runout.enabled);
+        #else
+          bool runout_sensor_enabled;
+          EEPROM_READ(runout_sensor_enabled);
         #endif
       }
 
@@ -1826,16 +1843,6 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(fc_settings);
       }
 
-      // Runout sensor (on/off)
-      {
-        bool runout_sensor_enabled = false;
-        _FIELD_TEST(runout_sensor_enabled);
-        EEPROM_READ(runout_sensor_enabled);
-        #if HAS_FILAMENT_SENSOR
-        runout.enabled = runout_sensor_enabled;
-        #endif
-      }
-
       //
       // Tool-change settings
       //
@@ -2076,6 +2083,19 @@ void MarlinSettings::reset() {
     reset_hotend_offsets();
   #endif
 
+  //
+  // Filament Runout Sensor
+  //
+
+  #if HAS_FILAMENT_SENSOR
+    runout.enabled = true;
+    runout.reset();
+  #endif
+
+  //
+  // Tool-change Settings
+  //
+
   #if EXTRUDERS > 1
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
@@ -2087,6 +2107,10 @@ void MarlinSettings::reset() {
     #endif
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
   #endif
+
+  //
+  // Magnetic Parking Extruder
+  //
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
     mpe_settings_init();
@@ -2567,6 +2591,12 @@ void MarlinSettings::reset() {
         );
         SERIAL_ECHOLNPAIR_F(" Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]), 3);
       }
+    #endif
+
+    #if HAS_FILAMENT_SENSOR
+      CONFIG_ECHO_HEADING("Filament Runout Sensor:");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR("  M412 S", int(runout.enabled));
     #endif
 
     /**
