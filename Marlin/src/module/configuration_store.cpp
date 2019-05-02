@@ -392,6 +392,16 @@ void MarlinSettings::postprocess() {
     report_current_position();
 }
 
+#if ENABLED(PRINTCOUNTER)
+  #if ENABLED(EEPROM_SETTINGS)
+    static_assert(
+      !WITHIN(STATS_EEPROM_ADDRESS, EEPROM_OFFSET, EEPROM_OFFSET + sizeof(SettingsData)) &&
+      !WITHIN(STATS_EEPROM_ADDRESS + sizeof(printStatistics), EEPROM_OFFSET, EEPROM_OFFSET + sizeof(SettingsData)),
+      "STATS_EEPROM_ADDRESS collides with EEPROM settings storage."
+    );
+  #endif
+#endif
+
 #if ENABLED(SD_FIRMWARE_UPDATE)
 
   #if ENABLED(EEPROM_SETTINGS)
