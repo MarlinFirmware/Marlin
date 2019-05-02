@@ -141,14 +141,25 @@
   #define DEFAULT_LCD_CONTRAST 150
   #define LCD_CONTRAST_MAX 255
 
-#elif ENABLED(FYSETC_MINI_12864)
+#elif ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
 
+  #define FYSETC_MINI_12864
   #define DOGLCD
   #define ULTIPANEL
   #define LCD_CONTRAST_MIN 0
   #define LCD_CONTRAST_MAX 255
   #define DEFAULT_LCD_CONTRAST 255
   #define LED_COLORS_REDUCE_GREEN
+
+  // Require LED backlighting enabled
+  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #define RGB_LED
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+    #define NEOPIXEL_LED
+    #define NEOPIXEL_TYPE       NEO_GRB
+    #define NEOPIXEL_PIXELS     3
+    #define NEOPIXEL_BRIGHTNESS 127
+  #endif
 
 #endif
 

@@ -1766,7 +1766,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(G3D_PANEL) \
   + (ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864)) \
   + ENABLED(MKS_MINI_12864) \
-  + ENABLED(FYSETC_MINI_12864) \
+  + ENABLED(FYSETC_MINI_12864_1_2) \
+  + ENABLED(FYSETC_MINI_12864_2_0) \
+  + ENABLED(FYSETC_MINI_12864_2_1) \
   + (ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(CARTESIO_UI, ZONESTAR_LCD)) \
   + ENABLED(RIGIDBOT_PANEL) \
   + ENABLED(RA_CONTROL_PANEL) \
@@ -1784,6 +1786,35 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(ULTI_CONTROLLER) \
   + ENABLED(EXTENSIBLE_UI)
   #error "Please select no more than one LCD controller option."
+#endif
+
+/**
+ * FYSETC Mini 12864 RGB backlighting required
+ */
+#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
+  #error "RGB_LED is required for FYSETC_MINI_12864 1.2 and 2.0."
+#elif EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
+  #error "LED_USER_PRESET_STARTUP is required for FYSETC_MINI_12864 2.x displays."
+#elif ENABLED(FYSETC_MINI_12864_2_1)
+  #if DISABLED(NEOPIXEL_LED)
+    #error "NEOPIXEL_LED is required for FYSETC_MINI_12864 Rev. 2.1."
+  #elif NEOPIXEL_PIXELS != 3
+    #error "NEOPIXEL_PIXELS should be 3 for FYSETC_MINI_12864 Rev. 2.1."
+  #elif NEOPIXEL_BRIGHTNESS != 127
+    #error "NEOPIXEL_BRIGHTNESS should be 127 for FYSETC_MINI_12864 Rev. 2.1."
+  #else
+    #ifndef NEO_GRB
+      #define NEO_GRB 0xFAD
+      #define _UNDO_NEO_GRB
+    #endif
+    #if NEOPIXEL_TYPE != NEO_GRB
+      #error "NEOPIXEL_TYPE should be NEO_GRB for FYSETC_MINI_12864 Rev. 2.1."
+    #endif
+    #ifdef _UNDO_NEO_GRB
+      #undef NEO_GRB
+      #undef _UNDO_NEO_GRB
+    #endif
+  #endif
 #endif
 
 /**

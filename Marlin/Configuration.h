@@ -1909,13 +1909,9 @@
 // FYSETC variant of the MINI12864 graphic controller with SD support
 // https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
 //
-//#define FYSETC_MINI_12864
-#ifdef FYSETC_MINI_12864
-  #define FYSETC_MINI_12864_REV_1_2              //  types C, D, E & F  back light is monochrome (always on) - discrete RGB signals
-  //#define FYSETC_MINI_12864_REV_2_0            //  types A & B  back light is RGB - requires LED_USER_PRESET_STARTUP - discrete RGB signals
-  //#define FYSETC_MINI_12864_REV_2_1            //  types A & B  back light is RGB - requires LED_USER_PRESET_STARTUP -  RGB
-  //#define FYSETC_MINI_12864_REV_2_1            //  types A & B  back light is RGB - requires LED_USER_PRESET_STARTUP - Neopixel
-#endif
+//#define FYSETC_MINI_12864_1_2  // Type C/D/E/F. Simple RGB Backlight (always on)
+//#define FYSETC_MINI_12864_2_0  // Type A/B. Discreet RGB Backlight
+//#define FYSETC_MINI_12864_2_1  // Type A/B. Neopixel RGB Backlight
 
 //
 // Factory display for Creality CR-10
