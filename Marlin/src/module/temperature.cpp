@@ -2825,6 +2825,7 @@ void Temperature::isr() {
     ) {
       #if TEMP_BED_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
+        bool first_loop = true;
         // Loop until the temperature has stabilized
         #define TEMP_BED_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_BED_RESIDENCY_TIME) * 1000UL))
       #else
@@ -2833,7 +2834,7 @@ void Temperature::isr() {
       #endif
 
       float target_temp = -1, old_temp = 9999;
-      bool wants_to_cool = false, first_loop = true;
+      bool wants_to_cool = false;
       wait_for_heatup = true;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
@@ -2917,7 +2918,9 @@ void Temperature::isr() {
           }
         #endif
 
-        first_loop = false;
+        #if TEMP_BED_RESIDENCY_TIME > 0
+          first_loop = false;
+        #endif
 
       } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 

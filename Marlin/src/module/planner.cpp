@@ -1767,13 +1767,26 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         }
       #endif // PREVENT_COLD_EXTRUSION
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        if (ABS(de * e_factor[extruder]) > (int32_t)settings.axis_steps_per_mm[E_AXIS_N(extruder)] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
-          position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          #if HAS_POSITION_FLOAT
-            position_float[E_AXIS] = target_float[E_AXIS];
+        const float e_steps = ABS(de * e_factor[extruder]);
+        const float max_e_steps = settings.axis_steps_per_mm[E_AXIS_N(extruder)] * (EXTRUDE_MAXLENGTH);
+        if (e_steps > max_e_steps) {
+          #if ENABLED(MIXING_EXTRUDER)
+            bool ignore_e = false;
+            float collector[MIXING_STEPPERS];
+            mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
+            MIXER_STEPPER_LOOP(e)
+              if (e_steps * collector[e] > max_e_steps) { ignore_e = true; break; }
+          #else
+            constexpr bool ignore_e = true;
           #endif
-          de = 0; // no difference
-          SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+          if (ignore_e) {
+            position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
+            #if HAS_POSITION_FLOAT
+              position_float[E_AXIS] = target_float[E_AXIS];
+            #endif
+            de = 0; // no difference
+            SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+          }
         }
       #endif // PREVENT_LENGTHY_EXTRUDE
     }
