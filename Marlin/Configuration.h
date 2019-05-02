@@ -845,33 +845,42 @@
                                 // Note: This is the sane default. Some setups will tolerate lower values.
   
   /**
-   * For BLTouch V2.0 and newer probes which support SW mode. Some clones do too.
-   * Set the probe into SW mode, producing a longer pulse when triggered, useful when there
-   * is noise or high capacitance on the signal pin.
+   * For BLTouch CLASSIC V1.2, V1.3, SMART 1.0, 2.0, 2.2, 3.0 and newer probes which support SW mode. 
+   * Some clones support this too.
+   * These support the full integration into the Marlin probing architecture.
+   */
+  /**
+   * Do not allow SW mode to be used for status querying, because the probe does not support it.
+   * Either because it is a strange clone or because it is a very old BLTouch CLASSIC 1.0 or whatever.
+   * This takes the probe out of the full Marlin probing architecture.
+   * Also use this if your Z-AXIS is set to such slow movement, that you need separate STOW-DEPLOY
+   * sequences on probing.
+   */
+  //#defined BLTOUCH_SW_MODE_UNUSABLE
+  /**
+   * Set the probe into SW mode after deploy, producing a longer pulse when triggered, useful when 
+   * there is noise or high capacitance on the signal pin.
    * If your probe works fine without this, don't turn it on, as it slows down probing
-   * Note: Performing a STOW and then setting this mode in the LCD BLTouch configuration menu
-   *       manually will alloy you to check the wiring with a M119 command. You don't need to enable
-   *       this in order to be able to do that.
    */
   //#define BLTOUCH_FORCE_SW_MODE
   
   /**
    * For BLTouch V3.0 and newer probes:
-   * If you want the new functions of the BLTouch V3 or you need 5V mode (see below), enable this.
-   * This adds the special V3 commands (5V and OD modes) to the LCD configuration menu for BLTouch
+   * If you want the new functions of the BLTouch V3 or need 5V mode (see below), enable this.
+   * This adds the special V3 commands (5V, OD, SW modes) to the LCD configuration menu for BLTouch
    */
   //#define BLTOUCH_V3
   #if ENABLED(BLTOUCH_V3)  
     /**
      * These probes default to OPEN DRAIN mode. All other probes are in 5V mode per default.
-     * If you have a BLTouch V3.0 or newer and explicitely want 5V mode, use this define - this
-     * makes it more compatible with previous probe versions.
+     * If you have a BLTouch V3.0 or newer and explicitely want 5V mode, use this define -  this 
+     * makes it more compatible with previous probe versions. 
      * Warning: Make sure your controller boards input pin is 5V tolerant.
      */
     //#define BLTOUCH_FORCE_5V_MODE
     /**
-     * Advanced users who fervently believe in the reliability of their BLTouch probes can
-     * activate the HIGH SPEED mode for their unit. This will reduce the timing so far that
+     * Advanced users who fervently believe in the reliability of their BLTouch probes can 
+     * activate the HIGH SPEED mode for their unit. This will reduce the timing so far that 
      * DEPLOY and STOW failures are only captured on the NEXT such command to be issued.
      * The result is faster probing but much less surety of catching and identifying errors.
      * NOT RECOMMENDED for novice users and in unstable environments. As homing and probing are
@@ -986,6 +995,9 @@
 #endif
 //#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
+#if ENABLED(PROBING_STEPPERS_OFF)
+  //#define PROBING_STEPPERS_OFF_E_ONLY // Only turn off E steppers
+#endif
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
