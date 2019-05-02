@@ -939,6 +939,11 @@ void setup() {
 
   queue_setup();
 
+  #if ENABLED(SDIO_SUPPORT) && SD_DETECT_PIN == -1
+    // Auto-mount the SD for EEPROM.dat emulation
+    if (!card.isDetected()) card.initsd();
+  #endif
+
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
   (void)settings.load();
