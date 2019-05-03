@@ -461,7 +461,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
   stopSDPrint();
 
   SdFile *curDir;
-  const char * const fname = diveToFile(curDir, path, false);
+  const char * const fname = diveToFile(curDir, path);
   if (!fname) return;
 
   if (read) {
@@ -501,7 +501,7 @@ void CardReader::removeFile(const char * const name) {
   //stopSDPrint();
 
   SdFile *curDir;
-  const char * const fname = diveToFile(curDir, name, false);
+  const char * const fname = diveToFile(curDir, name);
   if (!fname) return;
 
   if (file.remove(curDir, fname)) {
@@ -641,15 +641,31 @@ uint16_t CardReader::getnrfilenames() {
  *
  * A NULL result indicates an unrecoverable error.
  */
-const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, const bool echo) {
-  SdFile myDir;
-  if (path[0] != '/') { curDir = &workDir; return path; }
+const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, const bool echo/*=false*/) {
+  // Track both parent and subfolder
+  static SdFile newDir1, newDir2;
+  SdFile *sub = &newDir1, *startDir;
 
-  curDir = &root;
-  const char *dirname_start = &path[1];
+  const char *dirname_start = path;
+  char echo_fn[105];
+  
+  if (path[0] == '/') { 
+    curDir = &root;
+    workDirDepth = 0;
+    dirname_start++;
+  }
+  else
+    curDir = &workDir; 
+
+  startDir = curDir;
+
+  // Start dive
   while (dirname_start) {
+    // Find next sub
     char * const dirname_end = strchr(dirname_start, '/');
     if (dirname_end <= dirname_start) break;
+
+    // Set subDirName
     const uint8_t len = dirname_end - dirname_start;
     char dosSubdirname[len + 1];
     strncpy(dosSubdirname, dirname_start, len);
@@ -657,11 +673,25 @@ const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, con
 
     if (echo) SERIAL_ECHOLN(dosSubdirname);
 
-    if (!myDir.open(curDir, dosSubdirname, O_READ)) {
+    // Open curDir
+    if (!sub->open(curDir, dosSubdirname, O_READ)) {
       SERIAL_ECHOLNPAIR(MSG_SD_OPEN_FILE_FAIL, dosSubdirname, ".");
       return NULL;
     }
-    curDir = &myDir;
+
+    // Close curDir if not at starting-point
+    if (curDir != startDir) curDir->close();
+
+    // curDir now subDir
+    curDir = sub;
+
+    // Update workDirParents and workDirDepth
+    if (workDirDepth < MAX_DIR_DEPTH) workDirParents[workDirDepth++] = *curDir;
+
+    // Point sub pointer to unused newDir
+    sub = (curDir != &newDir1) ? &newDir1 : &newDir2;
+
+    // dirname_start point to next sub
     dirname_start = dirname_end + 1;
   }
   return dirname_start;
