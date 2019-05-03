@@ -451,10 +451,10 @@ bool set_probe_deployed(const bool deploy) {
     if (bltouch.status() != deploy) {
       probe_specific_action(deploy);
       if (bltouch.status() != deploy) {
-        //if (IsRunning()) {
+        if (IsRunning()) {
           SERIAL_ERROR_MSG("Z-Probe failed");
           LCD_ALERTMESSAGEPGM("Err: ZPROBE");
-        //}
+        }
       stop();
       return true;
       }
