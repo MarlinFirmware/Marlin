@@ -1,6 +1,6 @@
-/*************
- * dummy.cpp *
- *************/
+/***************
+ * example.cpp *
+ ***************/
 
 /****************************************************************************
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
@@ -21,7 +21,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(EXTENSIBLE_UI)
+#if BOTH(EXTUI_EXAMPLE, EXTENSIBLE_UI)
 
 #include "../ui_api.h"
 
@@ -90,4 +90,4 @@ namespace ExtUI {
   }
 }
 
-#endif // EXTENSIBLE_UI
+#endif // EXTUI_EXAMPLE && EXTENSIBLE_UI
