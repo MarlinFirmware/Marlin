@@ -35,6 +35,7 @@ public:
       static float smoothing_mm;
     #endif
     static inline void set_correction(const float &v) { correction = MAX(0, MIN(1.0, v)) * all_on; }
+    static float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
   #elif ENABLED(BACKLASH_COMPENSATION)
     static constexpr uint8_t correction = (BACKLASH_CORRECTION) * 0xFF;
     #ifdef BACKLASH_DISTANCE_MM
@@ -44,11 +45,13 @@ public:
       static constexpr float smoothing_mm = BACKLASH_SMOOTHING_MM;
     #endif
     static inline void set_correction(float) { }
+    static float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
   #else
     static inline void set_correction(float) { }
+    static float get_correction() { return 0; }
   #endif
 
-  float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
+
 
   #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
     private:
