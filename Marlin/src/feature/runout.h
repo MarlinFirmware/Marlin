@@ -78,6 +78,11 @@ class TFilamentMonitor : public FilamentMonitorBase {
       response.filament_present(extruder);
     }
 
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      static inline float& runout_distance() { return response.runout_distance_mm; }
+      static inline void set_runout_distance(const float &mm) { response.runout_distance_mm = mm; }
+    #endif
+
     // Handle a block completion. RunoutResponseDelayed uses this to
     // add up the length of filament moved while the filament is out.
     static inline void block_completed(const block_t* const b) {

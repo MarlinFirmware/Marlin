@@ -565,7 +565,7 @@ void MarlinSettings::postprocess() {
         const bool runout_sensor_enabled = false;
       #endif
       #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
-        const float &runout_distance_mm = RunoutResponseDelayed::runout_distance_mm;
+        const float &runout_distance_mm = runout.runout_distance();
       #else
         const float runout_distance_mm = 0;
       #endif
@@ -1344,14 +1344,14 @@ void MarlinSettings::postprocess() {
         #else
           bool runout_sensor_enabled;
         #endif
-        #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
-          float &runout_distance_mm = RunoutResponseDelayed::runout_distance_mm;
-        #else
-          float runout_distance_mm;
-        #endif
         _FIELD_TEST(runout_sensor_enabled);
         EEPROM_READ(runout_sensor_enabled);
+
+        float runout_distance_mm;
         EEPROM_READ(runout_distance_mm);
+        #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
+          runout.set_runout_distance(runout_distance_mm);
+        #endif
       }
 
       //
@@ -2210,7 +2210,7 @@ void MarlinSettings::reset() {
     runout.enabled = true;
     runout.reset();
     #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-      RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
+      runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM);
     #endif
   #endif
 
@@ -3360,7 +3360,7 @@ void MarlinSettings::reset() {
       SERIAL_ECHOLNPAIR(
         "  M412 S", int(runout.enabled)
         #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-          , " D", LINEAR_UNIT(RunoutResponseDelayed::runout_distance_mm)
+          , " D", LINEAR_UNIT(runout.runout_distance())
         #endif
       );
     #endif

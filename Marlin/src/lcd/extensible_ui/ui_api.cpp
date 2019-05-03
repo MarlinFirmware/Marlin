@@ -514,11 +514,11 @@ namespace ExtUI {
 
     #ifdef FILAMENT_RUNOUT_DISTANCE_MM
       float getFilamentRunoutDistance_mm() {
-        return RunoutResponseDelayed::runout_distance_mm;
+        return runout.runout_distance();
       }
 
       void setFilamentRunoutDistance_mm(const float value) {
-        RunoutResponseDelayed::runout_distance_mm = clamp(value, 0, 999);
+        runout.set_runout_distance(clamp(value, 0, 999));
       }
     #endif
   #endif

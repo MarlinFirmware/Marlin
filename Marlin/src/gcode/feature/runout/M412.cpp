@@ -46,7 +46,7 @@ void GcodeSuite::M412() {
     if (seenR || seenS) runout.reset();
     if (seenS) runout.enabled = parser.value_bool();
     #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-      if (parser.seen('D')) RunoutResponseDelayed::runout_distance_mm = parser.value_linear_units();
+      if (parser.seen('D')) runout.set_runout_distance(parser.value_linear_units());
     #endif
   }
   else {
@@ -54,7 +54,7 @@ void GcodeSuite::M412() {
     SERIAL_ECHOPGM("Filament runout ");
     serialprintln_onoff(runout.enabled);
     #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-      SERIAL_ECHOLNPAIR("Filament runout distance (mm): ", RunoutResponseDelayed::runout_distance_mm);
+      SERIAL_ECHOLNPAIR("Filament runout distance (mm): ", runout.runout_distance());
     #endif
   }
 }
