@@ -567,7 +567,7 @@ void MarlinSettings::postprocess() {
       #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
         const float &runout_distance_mm = RunoutResponseDelayed::runout_distance_mm;
       #else
-        const float runout_distance_mm = 25;
+        const float runout_distance_mm = 0;
       #endif
       _FIELD_TEST(runout_sensor_enabled);
       EEPROM_WRITE(runout_sensor_enabled);
