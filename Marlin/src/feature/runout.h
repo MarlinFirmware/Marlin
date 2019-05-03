@@ -348,10 +348,11 @@ class FilamentSensorBase {
 
 typedef TFilamentMonitor<
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    RunoutResponseDelayed,
     #if ENABLED(FILAMENT_MOTION_SENSOR)
-      RunoutResponseDelayed, FilamentSensorEncoder
+      FilamentSensorEncoder
     #else
-      RunoutResponseDelayed, FilamentSensorSwitch
+      FilamentSensorSwitch
     #endif
   #else
     RunoutResponseDebounced, FilamentSensorSwitch

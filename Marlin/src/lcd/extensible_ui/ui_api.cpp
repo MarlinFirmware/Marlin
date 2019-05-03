@@ -745,7 +745,7 @@ namespace ExtUI {
   }
 
   bool commandsInQueue() { return (planner.movesplanned() || commands_in_queue); }
-  
+
   bool isAxisPositionKnown(const axis_t axis) {
     return TEST(axis_known_position, axis);
   }
