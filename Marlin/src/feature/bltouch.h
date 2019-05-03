@@ -48,7 +48,7 @@ typedef unsigned char BLTCommand;
 // won't stop, instead it will skip the failed probes. If you consider your probe to be reliable beyond
 // a doubt, you can run this way. Not recommended but YMMV
 #if ENABLED(BLTOUCH_HS_MODE)
-  // So we probably won't recognize DEPLOY fails right away
+  // So we probably won't recognize DEPLOY and STOW fails right away
   #define BLTOUCH_DEPLOY_DELAY BLTOUCH_CMDMIN_DELAY 
   #define BLTOUCH_STOW_DELAY   BLTOUCH_CMDMIN_DELAY
   #undef BLTOUCH_DELAY
