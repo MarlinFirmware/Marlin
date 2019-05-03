@@ -2251,7 +2251,6 @@ void MarlinSettings::reset() {
   // Magnetic Parking Extruder
   //
 
-
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
     mpe_settings_init();
   #endif
@@ -3350,7 +3349,7 @@ void MarlinSettings::reset() {
         " Y", LINEAR_UNIT(backlash.distance_mm[Y_AXIS]),
         " Z", LINEAR_UNIT(backlash.distance_mm[Z_AXIS])
         #ifdef BACKLASH_SMOOTHING_MM
-          ," S", LINEAR_UNIT(backlash.smoothing_mm)
+          , " S", LINEAR_UNIT(backlash.smoothing_mm)
         #endif
       );
     #endif
@@ -3361,7 +3360,7 @@ void MarlinSettings::reset() {
       SERIAL_ECHOLNPAIR(
         "  M412 S", int(runout.enabled)
         #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-          ," D", LINEAR_UNIT(RunoutResponseDelayed::runout_distance_mm)
+          , " D", LINEAR_UNIT(RunoutResponseDelayed::runout_distance_mm)
         #endif
       );
     #endif
