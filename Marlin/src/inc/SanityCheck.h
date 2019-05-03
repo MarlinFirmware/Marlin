@@ -2168,15 +2168,3 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "MIN_ and MAX_SOFTWARE_ENDSTOPS are both required with offset hotends."
   #endif
 #endif
-
-/**
- * Some BLTouch sanity checks
- * 
- */
-#if ENABLED(BLTOUCH)
-  #if BLTOUCH_DELAY < 200
-    #error "BLTOUCH_DELAY less than 200 is not safe and not supported"
-  #elif BOTH(BLTOUCH_SW_MODE_UNUSABLE,BLTOUCH_FORCE_SW_MODE)
-    #error "BLTOUCH SW MODE UNUSABLE, so you cannot FORCE SW MODE after DEPLOY"
-  #endif
-#endif

@@ -37,11 +37,11 @@ typedef unsigned char BLTCommand;
 // Note: BLTOUCH_DELAY from configuration.h will override these values IF it is larger.
 // See command() in bltouch.cpp for more details
 // Delay for all commands other then the exceptions below
-#define BLTOUCH_CMDMIN_DELAY   200
+#define BLTOUCH_CMDMIN_DELAY   150
 // The following delays are needed for some of the commands, instead of the CMDMIN_DELAY
 #define BLTOUCH_RESET_DELAY    500
 #define BLTOUCH_SET5V_DELAY   2000 // This is according to ANTClabs. Seems a bit high???
-#define BLTOUCH_SETOD_DELAY   2000 // So probably this needs some time as well? Seems a bit high???
+#define BLTOUCH_SETOD_DELAY   2000 // Probably also according to ANTClabs. Seems a bit high???
 
 // Set the following to zero for highspeed probing mode. Works fine, but does not catch deploy or stow
 // errors after the command - instead the error catching is deferred to the subsequent command. Printer
@@ -54,9 +54,9 @@ typedef unsigned char BLTCommand;
   #undef BLTOUCH_DELAY
   #define BLTOUCH_DELAY        BLTOUCH_CMDMIN_DELAY
 #else
-  // So that we can recognize DEPLOY and STOW fails
+  // So that we can recognize DEPLOY fails
   #define BLTOUCH_DEPLOY_DELAY 750 
-  #define BLTOUCH_STOW_DELAY   750 
+  #define BLTOUCH_STOW_DELAY   750
 #endif
 
 class BLTouch {
@@ -67,7 +67,6 @@ public:
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
   FORCE_INLINE static bool deploy()              { return deploy_wrapper(); }
   FORCE_INLINE static bool stow()                { return stow_wrapper(); }
-  FORCE_INLINE static bool status()              { return status_wrapper(); }
 
   // Native BLTouch commands ("Underscore"...), used in lcd menus and internally
   FORCE_INLINE static void _reset()              { command(BLTOUCH_RESET, BLTOUCH_RESET_DELAY); }
@@ -89,7 +88,6 @@ private:
   static bool command(const BLTCommand cmd, millis_t ms);
   static bool deploy_wrapper();
   static bool stow_wrapper();
-  static bool status_wrapper();
 };
 
 // This transfers the two needed angle values to the servo.cpp/servo.h routine

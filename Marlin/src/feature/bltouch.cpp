@@ -73,7 +73,9 @@ bool BLTouch::command(const BLTCommand cmd, millis_t ms) {
   #endif
   MOVE_SERVO(Z_PROBE_SERVO_NR, cmd);
   // If BLTOUCH_DELAY is higher than the desired ms delay, it will override
-  if (BLTOUCH_DELAY > ms) ms = BLTOUCH_DELAY;
+  if (BLTOUCH_DELAY > ms) {
+    ms = BLTOUCH_DELAY;
+  }
   safe_delay(ms);
   return triggered();
 }
@@ -165,22 +167,6 @@ bool BLTouch::stow_wrapper() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("bltouch.stow_wrapper()");
 
   return false; // report success to caller
-}
-
-bool BLTouch::status_wrapper() {
-  // return a TRUE for "YES, it is DEPLOYED"
-  bool tr;
-  #if ENABLED(BLTOUCH_DEBUG_MSGS)
-    SERIAL_ECHOLN("BLTouch STATUS requested");
-  #endif
-  _set_SW_mode();
-  tr = triggered();                 // If triggered in SW mode, the pin is up, it is STOWED
-  #if ENABLED(BLTOUCH_DEBUG_MSGS)
-    if (tr) SERIAL_ECHOLN("BLTouch is STOWED"); else SERIAL_ECHOLN("BLTouch is DEPLOYED");
-  #endif
-  _reset();                         // turn off the SW Mode
-  if (tr) _stow(); else _deploy();  // and reset any triggered signal, restore state
-  return !tr;
 }
 
 #endif // BLTOUCH

@@ -279,7 +279,7 @@ float zprobe_zoffset; // Initialized by settings.load()
     #endif
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
-      #if DISABLED(DELTA) && DISABLED(PROBING_STEPPERS_OFF_E_ONLY)
+      #if DISABLED(DELTA)
         disable_X(); disable_Y();
       #endif
     #endif
@@ -355,10 +355,6 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
 
     MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
-
-  #elif HAS_Z_SERVO_PROBE && ENABLED(BLTOUCH)
-
-    if (deploy) bltouch.deploy(); else bltouch.stow();
 
   #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
@@ -446,20 +442,6 @@ bool set_probe_deployed(const bool deploy) {
       return true;
     }
 
-  #elif ENABLED(BLTOUCH) && DISABLED(BLTOUCH_SW_MODE_UNUSABLE)
-
-    if (bltouch.status() != deploy) {
-      probe_specific_action(deploy);
-      if (bltouch.status() != deploy) {
-        if (IsRunning()) {
-          SERIAL_ERROR_MSG("Z-Probe failed");
-          LCD_ALERTMESSAGEPGM("Err: ZPROBE");
-        }
-      stop();
-      return true;
-      }
-    }
-
   #else
 
     probe_specific_action(deploy);
@@ -530,6 +512,11 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     }
   #endif
 
+  // Deploy BLTouch at the start of any probe
+  #if ENABLED(BLTOUCH)
+    if (bltouch.deploy()) return true;
+  #endif
+
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
     sensorless_t stealth_states { false, false, false, false, false, false, false };
@@ -575,6 +562,11 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
       tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
     tmc_disable_stallguard(stepperZ, stealth_states.z);
+  #endif
+
+  // Retract BLTouch immediately after a probe if it was triggered
+  #if ENABLED(BLTOUCH)
+    if (probe_triggered && bltouch.stow()) return true;
   #endif
 
   // Clear endstop flags
