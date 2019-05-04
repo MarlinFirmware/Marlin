@@ -2650,7 +2650,7 @@ void Temperature::isr() {
         #endif
         , -2 // CHAMBER
       );
-    #endif // HAS_HEATED_CHAMBER
+    #endif // HAS_TEMP_CHAMBER
     #if HOTENDS > 1
       HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
