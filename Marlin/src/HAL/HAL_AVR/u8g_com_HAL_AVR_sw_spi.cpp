@@ -21,11 +21,11 @@
  */
 
 /**
- * Based on u8g_com_std_sw_spi.c
+ * Based on u8g_com_st7920_hw_spi.c
  *
  * Universal 8bit Graphics Library
  *
- * Copyright (c) 2015, olikraus@gmail.com
+ * Copyright (c) 2011, olikraus@gmail.com
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -53,134 +53,122 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef TARGET_LPC1768
+#if defined(ARDUINO) && !defined(ARDUINO_ARCH_STM32) && !defined(ARDUINO_ARCH_SAM)
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_LCD
 
-#include "SoftwareSPI.h"
-
-#undef SPI_SPEED
-#define SPI_SPEED 2  // About 2 MHz
-
-#include <Arduino.h>
-#include <algorithm>
-#include <LPC17xx.h>
-#include <gpio.h>
+#include "../shared/Marduino.h"
+#include "../shared/Delay.h"
 
 #include <U8glib.h>
 
-uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
+uint8_t u8g_bitData, u8g_bitNotData;
+uint8_t u8g_bitClock, u8g_bitNotClock;
+volatile uint8_t *u8g_outData;
+volatile uint8_t *u8g_outClock;
 
+static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin) {
+  u8g_outData = portOutputRegister(digitalPinToPort(dataPin));
+  u8g_outClock = portOutputRegister(digitalPinToPort(clockPin));
+  u8g_bitData = digitalPinToBitMask(dataPin);
+  u8g_bitClock = digitalPinToBitMask(clockPin);
+
+  u8g_bitNotClock = u8g_bitClock;
+  u8g_bitNotClock ^= 0xFF;
+
+  u8g_bitNotData = u8g_bitData;
+  u8g_bitNotData ^= 0xFF;
+}
+
+void U8G_spiSend_sw_AVR_mode_0(uint8_t val) {
+  uint8_t bitData = u8g_bitData;
+  uint8_t bitNotData = u8g_bitNotData;
+  uint8_t bitClock = u8g_bitClock;
+  uint8_t bitNotClock = u8g_bitNotClock;
+  volatile uint8_t *outData = u8g_outData;
+  volatile uint8_t *outClock = u8g_outClock;
+  U8G_ATOMIC_START();
   for (uint8_t i = 0; i < 8; i++) {
-    if (spi_speed == 0) {
-      gpio_set(mosi_pin, !!(b & 0x80));
-      gpio_set(sck_pin, HIGH);
-      b <<= 1;
-      if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
-      gpio_set(sck_pin, LOW);
-    }
-    else {
-      const uint8_t state = (b & 0x80) ? HIGH : LOW;
-      for (uint8_t j = 0; j < spi_speed; j++)
-        gpio_set(mosi_pin, state);
-
-      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
-        gpio_set(sck_pin, HIGH);
-
-      b <<= 1;
-      if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
-
-      for (uint8_t j = 0; j < spi_speed; j++)
-        gpio_set(sck_pin, LOW);
-    }
+    if (val & 0x80)
+      *outData |= bitData;
+    else
+      *outData &= bitNotData;
+    *outClock |= bitClock;
+    val <<= 1;
+    *outClock &= bitNotClock;
   }
-
-  return b;
+  U8G_ATOMIC_END();
 }
 
-uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
-
+void U8G_spiSend_sw_AVR_mode_3(uint8_t val) {
+  uint8_t bitData = u8g_bitData;
+  uint8_t bitNotData = u8g_bitNotData;
+  uint8_t bitClock = u8g_bitClock;
+  uint8_t bitNotClock = u8g_bitNotClock;
+  volatile uint8_t *outData = u8g_outData;
+  volatile uint8_t *outClock = u8g_outClock;
+  U8G_ATOMIC_START();
   for (uint8_t i = 0; i < 8; i++) {
-    const uint8_t state = (b & 0x80) ? HIGH : LOW;
-    if (spi_speed == 0) {
-      gpio_set(sck_pin, LOW);
-      gpio_set(mosi_pin, state);
-      gpio_set(mosi_pin, state);  // need some setup time
-      gpio_set(sck_pin, HIGH);
-    }
-    else {
-      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
-        gpio_set(sck_pin, LOW);
-
-      for (uint8_t j = 0; j < spi_speed; j++)
-        gpio_set(mosi_pin, state);
-
-      for (uint8_t j = 0; j < spi_speed; j++)
-        gpio_set(sck_pin, HIGH);
-    }
-    b <<= 1;
-    if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
+    *outClock &= bitNotClock;
+    if (val & 0x80)
+      *outData |= bitData;
+    else
+      *outData &= bitNotData;
+    *outClock |= bitClock;
+    val <<= 1;
   }
-
-  return b;
+  U8G_ATOMIC_END();
 }
 
-static uint8_t SPI_speed = 0;
 
-static void u8g_sw_spi_HAL_LPC1768_shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t val) {
-  #if ENABLED(FYSETC_MINI_12864)
-    swSpiTransfer_mode_3(val, SPI_speed, clockPin, -1, dataPin);
-  #else
-    swSpiTransfer_mode_0(val, SPI_speed, clockPin, -1, dataPin);
-  #endif
-}
+#if ENABLED(FYSETC_MINI_12864)
+  #define U8G_spiSend_sw_AVR U8G_spiSend_sw_AVR_mode_3
+#else
+  #define U8G_spiSend_sw_AVR U8G_spiSend_sw_AVR_mode_0
+#endif
 
-uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
+uint8_t u8g_com_HAL_AVR_sw_sp_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
   switch (msg) {
     case U8G_COM_MSG_INIT:
-      u8g_SetPIOutput(u8g, U8G_PI_SCK);
-      u8g_SetPIOutput(u8g, U8G_PI_MOSI);
-      u8g_SetPIOutput(u8g, U8G_PI_CS);
-      u8g_SetPIOutput(u8g, U8G_PI_A0);
-      if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_RESET]) u8g_SetPIOutput(u8g, U8G_PI_RESET);
-      SPI_speed = swSpiInit(SPI_SPEED, u8g->pin_list[U8G_PI_SCK], u8g->pin_list[U8G_PI_MOSI]);
-      u8g_SetPILevel(u8g, U8G_PI_SCK, 0);
-      u8g_SetPILevel(u8g, U8G_PI_MOSI, 0);
+      u8g_com_arduino_init_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK]);
+      u8g_com_arduino_assign_pin_output_high(u8g);
+      u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, 0);
+      u8g_com_arduino_digital_write(u8g, U8G_PI_MOSI, 0);
       break;
 
     case U8G_COM_MSG_STOP:
       break;
 
     case U8G_COM_MSG_RESET:
-      if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_RESET]) u8g_SetPILevel(u8g, U8G_PI_RESET, arg_val);
+      if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_RESET]) u8g_com_arduino_digital_write(u8g, U8G_PI_RESET, arg_val);
       break;
 
     case U8G_COM_MSG_CHIP_SELECT:
       #if ENABLED(FYSETC_MINI_12864)           // LCD SPI is running mode 3 while SD card is running mode 0
         if (arg_val) {                         //   SCK idle state needs to be set to the proper idle state before
                                                //   the next chip select goes active
-          u8g_SetPILevel(u8g, U8G_PI_SCK, 1);  // Set SCK to mode 3 idle state before CS goes active
-          u8g_SetPILevel(u8g, U8G_PI_CS, LOW);
+          u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, 1);  // Set SCK to mode 3 idle state before CS goes active
+          u8g_com_arduino_digital_write(u8g, U8G_PI_CS, LOW);
         }
         else {
-          u8g_SetPILevel(u8g, U8G_PI_CS, HIGH);
-          u8g_SetPILevel(u8g, U8G_PI_SCK, 0);  // Set SCK to mode 0 idle state after CS goes inactive
+          u8g_com_arduino_digital_write(u8g, U8G_PI_CS, HIGH);
+          u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, 0);  // Set SCK to mode 0 idle state after CS goes inactive
         }
       #else
-        u8g_SetPILevel(u8g, U8G_PI_CS, !arg_val);
+        u8g_com_arduino_digital_write(u8g, U8G_PI_CS, !arg_val);
       #endif
       break;
 
     case U8G_COM_MSG_WRITE_BYTE:
-      u8g_sw_spi_HAL_LPC1768_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], arg_val);
+      U8G_spiSend_sw_AVR(arg_val);
       break;
 
     case U8G_COM_MSG_WRITE_SEQ: {
         uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
-          u8g_sw_spi_HAL_LPC1768_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], *ptr++);
+          U8G_spiSend_sw_AVR(*ptr++);
           arg_val--;
         }
       }
@@ -189,7 +177,7 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       case U8G_COM_MSG_WRITE_SEQ_P: {
         uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
-          u8g_sw_spi_HAL_LPC1768_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], u8g_pgm_read(ptr));
+          U8G_spiSend_sw_AVR(u8g_pgm_read(ptr));
           ptr++;
           arg_val--;
         }
@@ -197,11 +185,11 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       break;
 
     case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
-      u8g_SetPILevel(u8g, U8G_PI_A0, arg_val);
+      u8g_com_arduino_digital_write(u8g, U8G_PI_A0, arg_val);
       break;
   }
   return 1;
 }
 
 #endif // HAS_GRAPHICAL_LCD
-#endif // TARGET_LPC1768
+#endif // ARDUINO_ARCH_SAM
