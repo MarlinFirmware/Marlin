@@ -41,8 +41,8 @@
 #endif
 
 #if ENABLED(BLTOUCH)
-    #include "../feature/bltouch.h"
-  #endif
+  #include "../feature/bltouch.h"
+#endif
 
 Endstops endstops;
 
