@@ -424,7 +424,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   // Wait for buffered blocks to complete
   planner.synchronize();
 
-  #if FAN_COUNT > 0
+  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && FAN_COUNT > 0
     thermalManager.set_fans_paused(true);
   #endif
 
@@ -664,7 +664,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     }
   #endif
 
-  #if FAN_COUNT > 0
+  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && FAN_COUNT > 0
     thermalManager.set_fans_paused(false);
   #endif
 
