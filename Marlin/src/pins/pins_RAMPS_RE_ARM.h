@@ -322,7 +322,11 @@
       // EXP1 on LCD adapter is not usable - using Ethernet connector instead
       #define DOGLCD_CS    P1_09
       #define DOGLCD_A0    P1_14
-      #define FORCE_SOFT_SPI      // required on a Re-ARM system
+      //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
+                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+      #define LCD_RESET_PIN  P0_16   // Must be high or open for LCD to operate normally.
+
       #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN P1_00
