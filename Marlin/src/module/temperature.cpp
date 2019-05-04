@@ -174,7 +174,7 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
     #endif
   }
 
-  #if ENABLED(PROBING_FANS_OFF)
+  #if ENABLED(PROBING_FANS_OFF) || ENABLED(ADVANCED_PAUSE_FEATURE)
 
     void Temperature::set_fans_paused(const bool p) {
       static uint8_t saved_fan_speed[FAN_COUNT]; // = { 0 }

@@ -56,10 +56,6 @@
 
 // private:
 
-#if FAN_COUNT > 0
-  static uint8_t saved_fan_speed[FAN_COUNT];
-#endif
-
 static float resume_position[XYZE];
 
 PauseMode pause_mode = PAUSE_MODE_PAUSE_PRINT;
@@ -429,8 +425,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   planner.synchronize();
 
   #if FAN_COUNT > 0
-    COPY(saved_fan_speed, thermalManager.fan_speed);
-    ZERO(thermalManager.fan_speed);
+    thermalManager.set_fans_paused(true);
   #endif
 
   // Initial retract before move to filament change position
@@ -670,7 +665,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   #endif
 
   #if FAN_COUNT > 0
-    COPY(thermalManager.fan_speed, saved_fan_speed);
+    thermalManager.set_fans_paused(false);
   #endif
 
   // Resume the print job timer if it was running

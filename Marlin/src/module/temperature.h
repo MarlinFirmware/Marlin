@@ -448,7 +448,7 @@ class Temperature {
 
       #endif // HAS_LCD_MENU
 
-      #if ENABLED(PROBING_FANS_OFF)
+      #if ENABLED(PROBING_FANS_OFF) || ENABLED(ADVANCED_PAUSE_FEATURE)
         void set_fans_paused(const bool p);
       #endif
 
