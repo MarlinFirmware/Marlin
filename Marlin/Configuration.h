@@ -2111,6 +2111,7 @@
 //#define RGBW_LED
 
 #if EITHER(RGB_LED, RGBW_LED)
+  //#define SERVO_60HZ               // (DUE, AVR, STM32F1) *EXPERIMENTAL* Reduces flicker but may adversely affect servos
   //#define RGB_LED_R_PIN 34
   //#define RGB_LED_G_PIN 43
   //#define RGB_LED_B_PIN 35

@@ -1003,8 +1003,16 @@
 #define HAS_SERVO_3 (PIN_EXISTS(SERVO3))
 #define HAS_SERVOS (defined(NUM_SERVOS) && NUM_SERVOS > 0)
 
-#if HAS_SERVOS && !defined(Z_PROBE_SERVO_NR)
-  #define Z_PROBE_SERVO_NR -1
+#if HAS_SERVOS
+  #ifndef Z_PROBE_SERVO_NR
+    #define Z_PROBE_SERVO_NR -1
+  #endif
+  // 60Hz reduces RGB LED flicker but may adversely affect servos
+  #if ENABLED(SERVO_60HZ)
+    #define SERVOS_HZ 60
+  #else
+    #define SERVOS_HZ 50
+  #endif
 #endif
 
 #define HAS_SERVO_ANGLES (EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE) || (HAS_Z_SERVO_PROBE && defined(Z_PROBE_SERVO_NR)))
