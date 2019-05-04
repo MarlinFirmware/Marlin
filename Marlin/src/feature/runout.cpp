@@ -51,7 +51,7 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
   uint8_t FilamentSensorEncoder::motion_detected;
 #endif
 
-#if FILAMENT_RUNOUT_DISTANCE_MM > 0
+#ifdef FILAMENT_RUNOUT_DISTANCE_MM
   float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
   volatile float RunoutResponseDelayed::runout_mm_countdown[EXTRUDERS];
 #else

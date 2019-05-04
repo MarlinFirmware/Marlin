@@ -113,7 +113,7 @@ Stepper stepper; // Singleton
   #include "../feature/mixing.h"
 #endif
 
-#if FILAMENT_RUNOUT_DISTANCE_MM > 0
+#ifdef FILAMENT_RUNOUT_DISTANCE_MM
   #include "../feature/runout.h"
 #endif
 
@@ -1537,7 +1537,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
     // If current block is finished, reset pointer
     if (step_events_completed >= step_event_count) {
-      #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+      #ifdef FILAMENT_RUNOUT_DISTANCE_MM
         runout.block_completed(current_block);
       #endif
       axis_did_move = 0;

@@ -338,10 +338,6 @@ class Planner {
       volatile static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
     #endif
 
-    #if ENABLED(BACKLASH_COMPENSATION)
-      static void add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block);
-    #endif
-
   public:
 
     /**
