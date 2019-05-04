@@ -70,16 +70,13 @@ bool BLTouch::set_deployed(const bool in_deploy) {
     }
   }
 
-  #if  ENABLED(BLTOUCH_FORCE_5V_MODE)
+  #if ENABLED(BLTOUCH_FORCE_5V_MODE)
     set_5V_mode();
   #else
     set_OD_mode();
   #endif
 
-  if (in_deploy) {
-    _deploy();
-  }
-  else _stow();
+  if (in_deploy) _deploy(); else _stow();
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("bltouch.set_deployed(", in_deploy, ")");
 
