@@ -210,6 +210,10 @@
   #error "UBL_MESH_EDITING is now G26_MESH_VALIDATION. Please update your configuration."
 #elif defined(BLTOUCH_HEATERS_OFF)
   #error "BLTOUCH_HEATERS_OFF is now PROBING_HEATERS_OFF. Please update your configuration."
+#elif defined(BLTOUCH_V3)
+  #error "BLTOUCH_V3 is obsolete. Please update your configuration."
+#elif defined(BLTOUCH_FORCE_OPEN_DRAIN_MODE)
+  #error "BLTOUCH_FORCE_OPEN_DRAIN_MODE is obsolete. Please update your configuration."
 #elif defined(BEEPER)
   #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECT)
