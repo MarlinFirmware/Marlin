@@ -424,6 +424,10 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   // Wait for buffered blocks to complete
   planner.synchronize();
 
+  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && FAN_COUNT > 0
+    thermalManager.set_fans_paused(true);
+  #endif
+
   // Initial retract before move to filament change position
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
     do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
@@ -658,6 +662,10 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
       card.startFileprint();
       --did_pause_print;
     }
+  #endif
+
+  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && FAN_COUNT > 0
+    thermalManager.set_fans_paused(false);
   #endif
 
   // Resume the print job timer if it was running
