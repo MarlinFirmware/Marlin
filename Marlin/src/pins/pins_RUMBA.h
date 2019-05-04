@@ -181,7 +181,6 @@
   #define DOGLCD_MOSI      51
   #define DOGLCD_SCK       52
 
-
   //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
                               //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
@@ -198,7 +197,7 @@
       #define RGB_LED_B_PIN 40
     #endif
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define NEOPIXEL_PIN    25
+    #define NEOPIXEL_PIN   25
   #endif
 
 #else
