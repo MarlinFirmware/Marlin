@@ -57,13 +57,10 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-
-
 #if HAS_GRAPHICAL_LCD
 
 #include "../shared/Marduino.h"
 #include "../shared/Delay.h"
-
 
 #include <U8glib.h>
 
@@ -72,18 +69,17 @@ uint8_t u8g_bitClock, u8g_bitNotClock;
 volatile uint8_t *u8g_outData;
 volatile uint8_t *u8g_outClock;
 
-static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin)
-{
+static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin) {
   u8g_outData = portOutputRegister(digitalPinToPort(dataPin));
   u8g_outClock = portOutputRegister(digitalPinToPort(clockPin));
   u8g_bitData = digitalPinToBitMask(dataPin);
   u8g_bitClock = digitalPinToBitMask(clockPin);
 
   u8g_bitNotClock = u8g_bitClock;
-  u8g_bitNotClock ^= 0x0ff;
+  u8g_bitNotClock ^= 0xFF;
 
   u8g_bitNotData = u8g_bitData;
-  u8g_bitNotData ^= 0x0ff;
+  u8g_bitNotData ^= 0xFF;
 }
 
 void U8G_spiSend_sw_AVR_mode_0(uint8_t val) {
@@ -95,9 +91,8 @@ void U8G_spiSend_sw_AVR_mode_0(uint8_t val) {
   volatile uint8_t *outClock = u8g_outClock;
   U8G_ATOMIC_START();
   for (uint8_t i = 0; i < 8; i++) {
-
     if (val & 0x80)
-     *outData |= bitData;
+      *outData |= bitData;
     else
       *outData &= bitNotData;
     *outClock |= bitClock;
@@ -118,7 +113,7 @@ void U8G_spiSend_sw_AVR_mode_3(uint8_t val) {
   for (uint8_t i = 0; i < 8; i++) {
     *outClock &= bitNotClock;
     if (val & 0x80)
-     *outData |= bitData;
+      *outData |= bitData;
     else
       *outData &= bitNotData;
     *outClock |= bitClock;
@@ -138,7 +133,6 @@ uint8_t u8g_com_HAL_AVR_sw_sp_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void 
   switch (msg) {
     case U8G_COM_MSG_INIT:
       u8g_com_arduino_init_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK]);
-
       u8g_com_arduino_assign_pin_output_high(u8g);
       u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, 0);
       u8g_com_arduino_digital_write(u8g, U8G_PI_MOSI, 0);
@@ -153,14 +147,14 @@ uint8_t u8g_com_HAL_AVR_sw_sp_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void 
 
     case U8G_COM_MSG_CHIP_SELECT:
       #if ENABLED(FYSETC_MINI_12864)           // LCD SPI is running mode 3 while SD card is running mode 0
-        if (arg_val) {                        //   SCK idle state needs to be set to the proper idle state before
+        if (arg_val) {                         //   SCK idle state needs to be set to the proper idle state before
                                                //   the next chip select goes active
-          u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, 1);  //set SCK to mode 3 idle state before CS goes active
+          u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, 1);  // Set SCK to mode 3 idle state before CS goes active
           u8g_com_arduino_digital_write(u8g, U8G_PI_CS, LOW);
         }
         else {
           u8g_com_arduino_digital_write(u8g, U8G_PI_CS, HIGH);
-          u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, 0); //set SCK to mode 0 idle state after CS goes inactive
+          u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, 0);  // Set SCK to mode 0 idle state after CS goes inactive
         }
       #else
         u8g_com_arduino_digital_write(u8g, U8G_PI_CS, !arg_val);
