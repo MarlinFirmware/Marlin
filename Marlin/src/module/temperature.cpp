@@ -2952,4 +2952,106 @@ void Temperature::isr() {
 
   #endif // HAS_HEATED_BED
 
+  #if HAS_HEATED_CHAMBER && False
+
+    #ifndef MIN_COOLING_SLOPE_DEG_CHAMBER
+      #define MIN_COOLING_SLOPE_DEG_CHAMBER 1.50
+    #endif
+    #ifndef MIN_COOLING_SLOPE_TIME_CHAMBER
+      #define MIN_COOLING_SLOPE_TIME_CHAMBER 60
+    #endif
+
+    bool Temperature::wait_for_chamber(const bool no_wait_for_cooling/*=true*/) {
+      #if TEMP_CHAMBER_RESIDENCY_TIME > 0
+        millis_t residency_start_ms = 0;
+        // Loop until the temperature has stabilized
+        #define TEMP_CHAMBER_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL))
+      #else
+        // Loop until the temperature is very close target
+        #define TEMP_CHAMBER_CONDITIONS (wants_to_cool ? isCoolingChamber() : isHeatingChamber())
+      #endif
+
+      float target_temp = -1, old_temp = 9999;
+      bool wants_to_cool = false, first_loop = true;
+      wait_for_heatup = true;
+      millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        const GcodeSuite::MarlinBusyState old_busy_state = gcode.busy_state;
+        KEEPALIVE_STATE(NOT_BUSY);
+      #endif
+
+      do {
+        // Target temperature might be changed during the loop
+        if (target_temp != degTargetChamber()) {
+          wants_to_cool = isCoolingChamber();
+          target_temp = degTargetChamber();
+
+          // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
+          if (no_wait_for_cooling && wants_to_cool) break;
+        }
+
+        now = millis();
+        if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
+          next_temp_ms = now + 1000UL;
+          print_heater_states(active_extruder);
+          #if TEMP_CHAMBER_RESIDENCY_TIME > 0
+            SERIAL_ECHOPGM(" W:");
+            if (residency_start_ms)
+              SERIAL_ECHO(long((((TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL));
+            else
+              SERIAL_CHAR('?');
+          #endif
+          SERIAL_EOL();
+        }
+
+        idle();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
+
+        const float temp = degChamber();
+
+        #if TEMP_CHAMBER_RESIDENCY_TIME > 0
+
+          const float temp_diff = ABS(target_temp - temp);
+
+          if (!residency_start_ms) {
+            // Start the TEMP_CHAMBER_RESIDENCY_TIME timer when we reach target temp for the first time.
+            if (temp_diff < TEMP_CHAMBER_WINDOW) {
+              residency_start_ms = now;
+              if (first_loop) residency_start_ms += (TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL;
+            }
+          }
+          else if (temp_diff > TEMP_CHAMBER_HYSTERESIS) {
+            // Restart the timer whenever the temperature falls outside the hysteresis.
+            residency_start_ms = now;
+          }
+
+        #endif // TEMP_CHAMBER_RESIDENCY_TIME > 0
+
+        // Prevent a wait-forever situation if R is misused i.e. M191 R0
+        if (wants_to_cool) {
+          // Break after MIN_COOLING_SLOPE_TIME_CHAMBER seconds
+          // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_CHAMBER
+          if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
+            if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG_CHAMBER)) break;
+            next_cool_check_ms = now + 1000UL * MIN_COOLING_SLOPE_TIME_CHAMBER;
+            old_temp = temp;
+          }
+        }
+
+        first_loop = false;
+
+      } while (wait_for_heatup && TEMP_CHAMBER_CONDITIONS);
+
+      if (wait_for_heatup) ui.reset_status();
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        gcode.busy_state = old_busy_state;
+      #endif
+
+      return wait_for_heatup;
+    }
+
+  #endif // HAS_HEATED_CHAMBER
+
 #endif // HAS_TEMP_SENSOR

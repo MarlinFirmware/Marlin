@@ -405,7 +405,7 @@ void GcodeSuite::process_parsed_command(
 
       #if HAS_HEATED_CHAMBER
         case 141: M141(); break;                                  // M141: Set chamber temperature
-        //case 191: M191(); break;                                // M191: Wait for chamber temperature to reach target
+        //case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
       #endif
 
       case 105: M105(); KEEPALIVE_STATE(NOT_BUSY); return;        // M105: Report Temperatures (and say "ok")
