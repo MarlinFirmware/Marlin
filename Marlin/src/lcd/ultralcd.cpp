@@ -23,7 +23,7 @@
 #include "../inc/MarlinConfigPre.h"
 
 // These displays all share the MarlinUI class
-#if HAS_SPI_LCD || EITHER(MALYAN_LCD, EXTENSIBLE_UI)
+#if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
   #include "ultralcd.h"
   #include "fontutils.h"
   MarlinUI ui;
