@@ -106,6 +106,35 @@
   #define TMC_SW_SCK       P1_09   // ETH
 #endif
 
+#if HAS_DRIVER(TMC2208)
+  /**
+   * TMC2208 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+
+  /**
+   * Software serial
+   */
+
+   // P2_08 E1-Step
+   // P2_13 E1-Dir
+
+  #define X_SERIAL_TX_PIN    P2_13
+  #define X_SERIAL_RX_PIN    P2_13
+
+  #define Y_SERIAL_TX_PIN    P0_00
+  #define Y_SERIAL_RX_PIN    P0_00
+
+  #define Z_SERIAL_TX_PIN    P0_01
+  #define Z_SERIAL_RX_PIN    P0_01
+
+  #define E0_SERIAL_TX_PIN   P2_08
+  #define E0_SERIAL_RX_PIN   P2_08
+
+#endif
+
 //
 // Temperature Sensors
 //  3.3V max when defined as an analog input
