@@ -277,7 +277,7 @@ void HAL_adc_init(void) {
 }
 
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
-  TEMP_PINS pin_index;
+  TEMP_PINS pin_index = ADC_PIN_COUNT;
   switch (adc_pin) {
     #if HAS_TEMP_ADC_0
       case TEMP_0_PIN: pin_index = TEMP_0; break;
@@ -307,7 +307,9 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;
     #endif
   }
-  HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
+  if (pin_index != ADC_PIN_COUNT) {
+    HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
+  }
 }
 
 uint16_t HAL_adc_get_result(void) {
