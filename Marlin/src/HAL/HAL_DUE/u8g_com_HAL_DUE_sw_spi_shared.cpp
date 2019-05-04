@@ -65,9 +65,7 @@
 #include "../shared/Marduino.h"
 #include "../shared/Delay.h"
 
-
 #include <U8glib.h>
-
 
 void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
   PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
