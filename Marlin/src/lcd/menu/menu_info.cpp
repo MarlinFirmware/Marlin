@@ -200,13 +200,13 @@ void menu_info_board() {
   }
 #else
   void menu_show_marlin_bootscreen() {
-    if (ui.lcd_clicked) { ui.goto_previous_screen_no_defer(); }
+    if (ui.use_click()) { ui.goto_previous_screen_no_defer(); }
     ui.draw_marlin_bootscreen();
   }
 
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
     void menu_show_custom_bootscreen() {
-      if (ui.lcd_clicked) { ui.goto_screen(menu_show_marlin_bootscreen); }
+      if (ui.use_click()) { ui.goto_screen(menu_show_marlin_bootscreen); }
       ui.draw_custom_bootscreen();
     }
   #endif
