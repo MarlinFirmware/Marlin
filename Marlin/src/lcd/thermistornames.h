@@ -96,6 +96,8 @@
   #define THERMISTOR_NAME "PT100 1K"
 #elif THERMISTOR_ID == 666
   #define THERMISTOR_NAME "Einstart S"
+#elif THERMISTOR_ID == 501
+  #define THERMISTOR_NAME "Zonestar (Tronxy X3A)"
 
 // High Temperature thermistors
 #elif THERMISTOR_ID == 61
