@@ -175,7 +175,6 @@ void GcodeSuite::M702() {
 
     const int8_t target_extruder = active_extruder;
   #else
-    const float unload_length_multiplier = 1.0;
     const int8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
   #endif

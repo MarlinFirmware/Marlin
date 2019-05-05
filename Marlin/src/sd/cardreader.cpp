@@ -647,8 +647,6 @@ const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, con
   SdFile *sub = &newDir1, *startDir;
 
   const char *dirname_start = path;
-  char echo_fn[105];
-  
   if (path[0] == '/') { 
     curDir = &root;
     workDirDepth = 0;
