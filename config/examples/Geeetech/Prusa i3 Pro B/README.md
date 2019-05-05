@@ -37,3 +37,18 @@ The skew factor must be adjusted for each printer:
 - Unlike suggested in [geeetech.com/wiki/index.php/3DTouch_Auto_Leveling_Sensor](https://www.geeetech.com/wiki/index.php/3DTouch_Auto_Leveling_Sensor), the existing end stop switch is expected to be kept connected to Z_MIN. So, the sensor is to be connected to Z_MAX, according to Marlin's default settings. Furthermore, GT2560-A+ provides a connector for the servo next to thermistor connectors (see [GT2560](https://www.geeetech.com/wiki/images/thumb/4/45/GT2560_wiring.jpg/700px-GT2560_wiring.jpg) and [GT2560-A+](http://i.imgur.com/E0t34VU.png)).
 - Be careful to respect the polarity of the sensor when connecting it to the GT2560-A+. Unlike end stops, reversing the connection will prevent the sensor from working properly.
 - [Test](http://www.geeetech.com/wiki/index.php/3DTouch_Auto_Leveling_Sensor#Testing) and [calibrate](https://www.geeetech.com/wiki/index.php/3DTouch_Auto_Leveling_Sensor#Calibration) the sensor.
+- If using the GT2560-A+ and with the sensor connected to Z_MAX and an endstop connected to Z_MIN use the following calibration routine instead.
+
+## 3DTouch Calibration with Z_MAX
+
+- Home the printer with `G28` command.
+- Disable the Z axis software endstop with `M211 S0 Z0`
+- Reset the probe Z_OFFSET with `M851 Z0`
+- Move to the center of the bed with `G1 X100 Y100`
+- Move Z incrementally until the nozzle is the correct height from the bed using a shim or piece of paper, record this Z movement, for example -0.2.
+- Do a single probe at the current point in the middle of the bed using `G30` and not the returned value, for example 1.9. Invert this value, i.e. -1.9, and add it to the Z offset above, i.e. -0.2 in this example giving -2.1.
+- Update the probe Z_OFFSET to this value using `M851` i.e. `M851 Z-2.1`.
+- Re-enable software end-stops with `M211 S1 Z0`
+- Save this value to the EEPROM with `M500`.
+- Update the start G-Code in your slicer software to insert a `G29` after the last `G28`.
+- Carefully test that the offset is correct in the first print.

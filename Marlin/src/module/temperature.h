@@ -147,34 +147,6 @@ enum ADCSensorState : char {
 
 #define G26_CLICK_CAN_CANCEL (HAS_LCD_MENU && ENABLED(G26_MESH_VALIDATION))
 
-enum TempIndex : uint8_t {
-  #if HOTENDS > 0
-    TEMP_E0,
-    #if HOTENDS > 1
-      TEMP_E1,
-      #if HOTENDS > 2
-        TEMP_E2,
-        #if HOTENDS > 3
-          TEMP_E3,
-          #if HOTENDS > 4
-            TEMP_E4,
-            #if HOTENDS > 5
-              TEMP_E5,
-            #endif
-          #endif
-        #endif
-      #endif
-    #endif
-  #endif
-  #if HAS_HEATED_BED
-    TEMP_BED,
-  #endif
-  #if HAS_HEATED_CHAMBER
-    TEMP_CHAMBER,
-  #endif
-  tempCOUNT
-};
-
 // A temperature sensor
 typedef struct TempInfo {
   uint16_t acc;
@@ -253,6 +225,10 @@ class Temperature {
 
     #if ENABLED(AUTO_POWER_E_FANS)
       static uint8_t autofan_speed[HOTENDS];
+    #endif
+
+    #if ENABLED(AUTO_POWER_CHAMBER_FAN)
+      static uint8_t chamberfan_speed;
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
@@ -405,7 +381,6 @@ class Temperature {
 
       #if ENABLED(PROBING_FANS_OFF)
         static bool fans_paused;
-        static uint8_t paused_fan_speed[FAN_COUNT];
       #endif
 
       static constexpr inline uint8_t fanPercent(const uint8_t speed) { return ui8_to_percent(speed); }
@@ -449,7 +424,7 @@ class Temperature {
 
       #endif // HAS_LCD_MENU
 
-      #if ENABLED(PROBING_FANS_OFF)
+      #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         void set_fans_paused(const bool p);
       #endif
 
@@ -555,20 +530,18 @@ class Temperature {
       static inline void start_watching_chamber() {}
     #endif
 
-    #if HAS_TEMP_CHAMBER
+    #if HAS_HEATED_CHAMBER
       static void setTargetChamber(const int16_t celsius) {
-        #if HAS_HEATED_CHAMBER
-          temp_chamber.target =
-            #ifdef CHAMBER_MAXTEMP
-              MIN(celsius, CHAMBER_MAXTEMP)
-            #else
-              celsius
-            #endif
-          ;
-          start_watching_chamber();
-        #endif // HAS_HEATED_CHAMBER
+        temp_chamber.target =
+          #ifdef CHAMBER_MAXTEMP
+            MIN(celsius, CHAMBER_MAXTEMP)
+          #else
+            celsius
+          #endif
+        ;
+        start_watching_chamber();
       }
-    #endif // HAS_TEMP_CHAMBER
+    #endif // HAS_HEATED_CHAMBER
 
     FORCE_INLINE static bool isHeatingHotend(const uint8_t e) {
       E_UNUSED();
@@ -628,13 +601,15 @@ class Temperature {
 
     #if HAS_TEMP_CHAMBER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        FORCE_INLINE static int16_t rawChamberTemp() { return temp_chamber.raw; }
+        FORCE_INLINE static int16_t rawChamberTemp()    { return temp_chamber.raw; }
       #endif
-      FORCE_INLINE static float degChamber() { return temp_chamber.current; }
+      FORCE_INLINE static float degChamber()            { return temp_chamber.current; }
       #if HAS_HEATED_CHAMBER
+        FORCE_INLINE static int16_t degTargetChamber()  { return temp_chamber.target; }
         FORCE_INLINE static bool isHeatingChamber()     { return temp_chamber.target > temp_chamber.current; }
         FORCE_INLINE static bool isCoolingChamber()     { return temp_chamber.target < temp_chamber.current; }
-        FORCE_INLINE static int16_t degTargetChamber() {return temp_chamber.target; }
+
+        static bool wait_for_chamber(const bool no_wait_for_cooling=true);
       #endif
     #endif // HAS_TEMP_CHAMBER
 
@@ -755,9 +730,6 @@ class Temperature {
     static void _temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
     static void min_temp_error(const int8_t e);
     static void max_temp_error(const int8_t e);
-    #if HAS_TEMP_CHAMBER
-      static void chamber_temp_error(const bool max);
-    #endif
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER)
 

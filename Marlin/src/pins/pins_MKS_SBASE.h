@@ -259,6 +259,9 @@
     #define DOGLCD_SCK     P2_11           // J8-5  (SCK on Fysetc schematic)
     #define DOGLCD_MOSI    P4_28           // J8-6  (MOSI on Fysetc schematic)
 
+    //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
+                                //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
     #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN P2_12        // J8-4  (LCD_D6 on Fysetc schematic)

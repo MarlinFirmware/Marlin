@@ -1038,7 +1038,7 @@ void CardReader::printingHasFinished() {
 
 #if ENABLED(POWER_LOSS_RECOVERY)
 
-  constexpr char job_recovery_file_name[4] = "PLR";
+  constexpr char job_recovery_file_name[5] = "/PLR";
 
   bool CardReader::jobRecoverFileExists() {
     const bool exists = recovery.file.open(&root, job_recovery_file_name, O_READ);

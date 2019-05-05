@@ -356,6 +356,8 @@
 #define MSG_COOLING                         _UxGT("Raffreddamento..")
 #define MSG_BED_HEATING                     _UxGT("Risc. piatto...")
 #define MSG_BED_COOLING                     _UxGT("Raffr. piatto...")
+#define MSG_CHAMBER_HEATING                 _UxGT("Risc. camera...")
+#define MSG_CHAMBER_COOLING                 _UxGT("Raffr. camera...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibraz. Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibra X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibra Y")

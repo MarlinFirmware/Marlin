@@ -110,6 +110,10 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
   uint8_t Temperature::autofan_speed[HOTENDS]; // = { 0 }
 #endif
 
+#if ENABLED(AUTO_POWER_CHAMBER_FAN)
+  uint8_t Temperature::chamberfan_speed; // = 0
+#endif
+
 #if FAN_COUNT > 0
 
   uint8_t Temperature::fan_speed[FAN_COUNT]; // = { 0 }
@@ -136,7 +140,6 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
 
   #if ENABLED(PROBING_FANS_OFF)
     bool Temperature::fans_paused; // = false;
-    uint8_t Temperature::paused_fan_speed[FAN_COUNT]; // = { 0 }
   #endif
 
   #if ENABLED(ADAPTIVE_FAN_SLOWING)
@@ -175,19 +178,20 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
     #endif
   }
 
-  #if ENABLED(PROBING_FANS_OFF)
+  #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
 
     void Temperature::set_fans_paused(const bool p) {
+      static uint8_t saved_fan_speed[FAN_COUNT]; // = { 0 }
       if (p != fans_paused) {
         fans_paused = p;
         if (p)
-          FANS_LOOP(x) { paused_fan_speed[x] = fan_speed[x]; fan_speed[x] = 0; }
+          FANS_LOOP(i) { saved_fan_speed[i] = fan_speed[i]; fan_speed[i] = 0; }
         else
-          FANS_LOOP(x) fan_speed[x] = paused_fan_speed[x];
+          FANS_LOOP(i) fan_speed[i] = saved_fan_speed[i];
       }
     }
 
-  #endif // PROBING_FANS_OFF
+  #endif
 
 #endif // FAN_COUNT > 0
 
@@ -640,16 +644,28 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
   #define AUTO_CHAMBER_IS_3 (CHAMBER_AUTO_FAN_PIN == E3_AUTO_FAN_PIN)
   #define AUTO_CHAMBER_IS_4 (CHAMBER_AUTO_FAN_PIN == E4_AUTO_FAN_PIN)
   #define AUTO_CHAMBER_IS_5 (CHAMBER_AUTO_FAN_PIN == E5_AUTO_FAN_PIN)
+  #define AUTO_CHAMBER_IS_E (AUTO_CHAMBER_IS_0 || AUTO_CHAMBER_IS_1 || AUTO_CHAMBER_IS_2 || AUTO_CHAMBER_IS_3 || AUTO_CHAMBER_IS_4 || AUTO_CHAMBER_IS_5)
+  #define CHAMBER_FAN_INDEX HOTENDS
 
   void Temperature::checkExtruderAutoFans() {
     static const uint8_t fanBit[] PROGMEM = {
-                    0,
-      AUTO_1_IS_0 ? 0 :               1,
-      AUTO_2_IS_0 ? 0 : AUTO_2_IS_1 ? 1 :               2,
-      AUTO_3_IS_0 ? 0 : AUTO_3_IS_1 ? 1 : AUTO_3_IS_2 ? 2 :               3,
-      AUTO_4_IS_0 ? 0 : AUTO_4_IS_1 ? 1 : AUTO_4_IS_2 ? 2 : AUTO_4_IS_3 ? 3 :               4,
-      AUTO_5_IS_0 ? 0 : AUTO_5_IS_1 ? 1 : AUTO_5_IS_2 ? 2 : AUTO_5_IS_3 ? 3 : AUTO_5_IS_4 ? 4 : 5
-      #if HAS_TEMP_CHAMBER
+      0
+      #if HOTENDS > 1
+        , AUTO_1_IS_0 ? 0 : 1
+      #endif
+      #if HOTENDS > 2
+        , AUTO_2_IS_0 ? 0 : AUTO_2_IS_1 ? 1 : 2
+      #endif
+      #if HOTENDS > 3
+        , AUTO_3_IS_0 ? 0 : AUTO_3_IS_1 ? 1 : AUTO_3_IS_2 ? 2 : 3,
+      #endif
+      #if HOTENDS > 4
+        , AUTO_4_IS_0 ? 0 : AUTO_4_IS_1 ? 1 : AUTO_4_IS_2 ? 2 : AUTO_4_IS_3 ? 3 : 4,
+      #endif
+      #if HOTENDS > 5
+        , AUTO_5_IS_0 ? 0 : AUTO_5_IS_1 ? 1 : AUTO_5_IS_2 ? 2 : AUTO_5_IS_3 ? 3 : AUTO_5_IS_4 ? 4 : 5
+      #endif
+      #if HAS_AUTO_CHAMBER_FAN
         , AUTO_CHAMBER_IS_0 ? 0 : AUTO_CHAMBER_IS_1 ? 1 : AUTO_CHAMBER_IS_2 ? 2 : AUTO_CHAMBER_IS_3 ? 3 : AUTO_CHAMBER_IS_4 ? 4 : AUTO_CHAMBER_IS_5 ? 5 : 6
       #endif
     };
@@ -659,52 +675,60 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
       if (temp_hotend[e].current > EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[e]));
 
-    #if HAS_TEMP_CHAMBER
-      if (temp_chamber.current > EXTRUDER_AUTO_FAN_TEMPERATURE)
-        SBI(fanState, pgm_read_byte(&fanBit[6]));
+    #if HAS_AUTO_CHAMBER_FAN
+      if (temp_chamber.current > CHAMBER_AUTO_FAN_TEMPERATURE)
+        SBI(fanState, pgm_read_byte(&fanBit[CHAMBER_FAN_INDEX]));
     #endif
 
-    #define _UPDATE_AUTO_FAN(P,D,A) do{                               \
-      if (PWM_PIN(P##_AUTO_FAN_PIN) && EXTRUDER_AUTO_FAN_SPEED < 255) \
-        analogWrite(P##_AUTO_FAN_PIN, A);                             \
-      else                                                            \
-        WRITE(P##_AUTO_FAN_PIN, D);                                   \
+    #define _UPDATE_AUTO_FAN(P,D,A) do{             \
+      if (PWM_PIN(P##_AUTO_FAN_PIN) && A < 255)     \
+        analogWrite(P##_AUTO_FAN_PIN, D ? A : 0);   \
+      else                                          \
+        WRITE(P##_AUTO_FAN_PIN, D);                 \
     }while(0)
 
     uint8_t fanDone = 0;
     for (uint8_t f = 0; f < COUNT(fanBit); f++) {
-      const uint8_t bit = pgm_read_byte(&fanBit[f]);
-      if (TEST(fanDone, bit)) continue;
-      const bool fan_on = TEST(fanState, bit);
-      const uint8_t speed = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
-      #if ENABLED(AUTO_POWER_E_FANS)
-        autofan_speed[f] = speed;
-      #endif
+      const uint8_t realFan = pgm_read_byte(&fanBit[f]);
+      if (TEST(fanDone, realFan)) continue;
+      const bool fan_on = TEST(fanState, realFan);
+      switch (f) {
+        #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
+          case CHAMBER_FAN_INDEX:
+            chamberfan_speed = fan_on ? CHAMBER_AUTO_FAN_SPEED : 0;
+            break;
+        #endif
+        default:
+          #if ENABLED(AUTO_POWER_E_FANS)
+            autofan_speed[realFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
+          #endif
+          break;
+      }
+
       switch (f) {
         #if HAS_AUTO_FAN_0
-          case 0: _UPDATE_AUTO_FAN(E0, fan_on, speed); break;
+          case 0: _UPDATE_AUTO_FAN(E0, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_1
-          case 1: _UPDATE_AUTO_FAN(E1, fan_on, speed); break;
+          case 1: _UPDATE_AUTO_FAN(E1, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_2
-          case 2: _UPDATE_AUTO_FAN(E2, fan_on, speed); break;
+          case 2: _UPDATE_AUTO_FAN(E2, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_3
-          case 3: _UPDATE_AUTO_FAN(E3, fan_on, speed); break;
+          case 3: _UPDATE_AUTO_FAN(E3, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_4
-          case 4: _UPDATE_AUTO_FAN(E4, fan_on, speed); break;
+          case 4: _UPDATE_AUTO_FAN(E4, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_5
-          case 5: _UPDATE_AUTO_FAN(E5, fan_on, speed); break;
+          case 5: _UPDATE_AUTO_FAN(E5, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
-        #if HAS_AUTO_CHAMBER_FAN
-          case 6: _UPDATE_AUTO_FAN(CHAMBER, fan_on, speed); break;
+        #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
+          case CHAMBER_FAN_INDEX: _UPDATE_AUTO_FAN(CHAMBER, fan_on, CHAMBER_AUTO_FAN_SPEED); break;
         #endif
       }
-      SBI(fanDone, bit);
-      UNUSED(fan_on); UNUSED(speed);
+      SBI(fanDone, realFan);
     }
   }
 
@@ -1086,57 +1110,53 @@ void Temperature::manage_heater() {
     }
   #endif // HAS_HEATED_BED
 
-  #if HAS_TEMP_CHAMBER
+  #if HAS_HEATED_CHAMBER
 
     #ifndef CHAMBER_CHECK_INTERVAL
       #define CHAMBER_CHECK_INTERVAL 1000UL
     #endif
 
-    #if HAS_HEATED_CHAMBER
+    #if ENABLED(THERMAL_PROTECTION_CHAMBER)
+      if (!grace_period && degChamber() > CHAMBER_MAXTEMP)
+        _temp_error(-2, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -2));
+    #endif
 
-      #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-        if (!grace_period && degChamber() > CHAMBER_MAXTEMP)
-          _temp_error(-2, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, -2));
-      #endif
-
-      #if WATCH_CHAMBER
-        // Make sure temperature is increasing
-        if (watch_chamber.elapsed(ms)) {                  // Time to check the chamber?
-          if (degChamber() < watch_chamber.target)   // Failed to increase enough?
-            _temp_error(-2, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, -2));
-          else
-            start_watching_chamber();                     // Start again if the target is still far off
-        }
-      #endif // WATCH_CHAMBER
-
-      if (PENDING(ms, next_chamber_check_ms)) return;
-      next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
-
-      if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
-        #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-          if (temp_chamber.current >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
-            temp_chamber.soft_pwm_amount = 0;
-          else if (temp_chamber.current <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
-            temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
-        #else
-          temp_chamber.soft_pwm_amount = temp_chamber.current < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
-        #endif
+    #if WATCH_CHAMBER
+      // Make sure temperature is increasing
+      if (watch_chamber.elapsed(ms)) {                  // Time to check the chamber?
+        if (degChamber() < watch_chamber.target)   // Failed to increase enough?
+          _temp_error(-2, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, -2));
+        else
+          start_watching_chamber();                     // Start again if the target is still far off
       }
-      else {
-        temp_chamber.soft_pwm_amount = 0;
-        WRITE_HEATER_CHAMBER(LOW);
-      }
+    #endif // WATCH_CHAMBER
 
-      #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-        thermal_runaway_protection(tr_state_machine_chamber, temp_chamber.current, temp_chamber.target, -2, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS);
+    if (PENDING(ms, next_chamber_check_ms)) return;
+    next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
+
+    if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
+      #if ENABLED(CHAMBER_LIMIT_SWITCHING)
+        if (temp_chamber.current >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
+          temp_chamber.soft_pwm_amount = 0;
+        else if (temp_chamber.current <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
+          temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
+      #else
+        temp_chamber.soft_pwm_amount = temp_chamber.current < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
       #endif
+    }
+    else {
+      temp_chamber.soft_pwm_amount = 0;
+      WRITE_HEATER_CHAMBER(LOW);
+    }
 
-      // TODO: Implement true PID pwm
-      //temp_bed.soft_pwm_amount = WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? (int)get_pid_output_chamber() >> 1 : 0;
+    #if ENABLED(THERMAL_PROTECTION_CHAMBER)
+      thermal_runaway_protection(tr_state_machine_chamber, temp_chamber.current, temp_chamber.target, -2, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS);
+    #endif
 
-    #endif // HAS_HEATED_CHAMBER
+    // TODO: Implement true PID pwm
+    //temp_bed.soft_pwm_amount = WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? (int)get_pid_output_chamber() >> 1 : 0;
 
-  #endif // HAS_TEMP_CHAMBER
+  #endif // HAS_HEATED_CHAMBER
 }
 
 #define TEMP_AD595(RAW)  ((RAW) * 5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET)
@@ -1353,10 +1373,16 @@ void Temperature::updateTemperaturesFromRawValues() {
 #endif
 #define INIT_FAN_PIN(P) do{ _INIT_FAN_PIN(P); SET_FAST_PWM_FREQ(P); }while(0)
 #if EXTRUDER_AUTO_FAN_SPEED != 255
-  #define INIT_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+  #define INIT_E_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
 #else
-  #define INIT_AUTO_FAN_PIN(P) SET_OUTPUT(P)
+  #define INIT_E_AUTO_FAN_PIN(P) SET_OUTPUT(P)
 #endif
+#if CHAMBER_AUTO_FAN_SPEED != 255
+  #define INIT_CHAMBER_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+#else
+  #define INIT_CHAMBER_AUTO_FAN_PIN(P) SET_OUTPUT(P)
+#endif
+
 
 /**
  * Initialize the temperature manager
@@ -1472,25 +1498,25 @@ void Temperature::init() {
   ENABLE_TEMPERATURE_INTERRUPT();
 
   #if HAS_AUTO_FAN_0
-    INIT_AUTO_FAN_PIN(E0_AUTO_FAN_PIN);
+    INIT_E_AUTO_FAN_PIN(E0_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_1 && !AUTO_1_IS_0
-    INIT_AUTO_FAN_PIN(E1_AUTO_FAN_PIN);
+    INIT_E_AUTO_FAN_PIN(E1_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_2 && !(AUTO_2_IS_0 || AUTO_2_IS_1)
-    INIT_AUTO_FAN_PIN(E2_AUTO_FAN_PIN);
+    INIT_E_AUTO_FAN_PIN(E2_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_3 && !(AUTO_3_IS_0 || AUTO_3_IS_1 || AUTO_3_IS_2)
-    INIT_AUTO_FAN_PIN(E3_AUTO_FAN_PIN);
+    INIT_E_AUTO_FAN_PIN(E3_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_4 && !(AUTO_4_IS_0 || AUTO_4_IS_1 || AUTO_4_IS_2 || AUTO_4_IS_3)
-    INIT_AUTO_FAN_PIN(E4_AUTO_FAN_PIN);
+    INIT_E_AUTO_FAN_PIN(E4_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_FAN_5 && !(AUTO_5_IS_0 || AUTO_5_IS_1 || AUTO_5_IS_2 || AUTO_5_IS_3 || AUTO_5_IS_4)
-    INIT_AUTO_FAN_PIN(E5_AUTO_FAN_PIN);
+    INIT_E_AUTO_FAN_PIN(E5_AUTO_FAN_PIN);
   #endif
-  #if HAS_AUTO_CHAMBER_FAN && !(AUTO_CHAMBER_IS_0 || AUTO_CHAMBER_IS_1 || AUTO_CHAMBER_IS_2 || AUTO_CHAMBER_IS_3 || AUTO_CHAMBER_IS_4 || AUTO_CHAMBER_IS_5)
-    INIT_AUTO_FAN_PIN(CHAMBER_AUTO_FAN_PIN);
+  #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
+    INIT_CHAMBER_AUTO_FAN_PIN(CHAMBER_AUTO_FAN_PIN);
   #endif
 
   // Wait for temperature measurement to settle
@@ -2615,22 +2641,18 @@ void Temperature::isr() {
       );
     #endif
     #if HAS_TEMP_CHAMBER
-      #if HAS_HEATED_CHAMBER
-        print_heater_state(degChamber(), degTargetChamber()
-          #if ENABLED(SHOW_TEMP_ADC_VALUES)
-            , rawChamberTemp()
-          #endif
+      print_heater_state(degChamber()
+        #if HAS_HEATED_CHAMBER
+          , degTargetChamber()
+        #else
+          , 0
+        #endif
+        #if ENABLED(SHOW_TEMP_ADC_VALUES)
+          , rawChamberTemp()
+        #endif
         , -2 // CHAMBER
       );
-      #else
-        print_heater_state(degChamber(), 0
-          #if ENABLED(SHOW_TEMP_ADC_VALUES)
-            , rawChamberTemp()
-          #endif
-          , -2 // CHAMBER
-        );
-      #endif // HAS_HEATED_CHAMBER
-    #endif
+    #endif // HAS_TEMP_CHAMBER
     #if HOTENDS > 1
       HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -2934,5 +2956,107 @@ void Temperature::isr() {
     }
 
   #endif // HAS_HEATED_BED
+
+  #if 0 && HAS_HEATED_CHAMBER
+
+    #ifndef MIN_COOLING_SLOPE_DEG_CHAMBER
+      #define MIN_COOLING_SLOPE_DEG_CHAMBER 1.50
+    #endif
+    #ifndef MIN_COOLING_SLOPE_TIME_CHAMBER
+      #define MIN_COOLING_SLOPE_TIME_CHAMBER 60
+    #endif
+
+    bool Temperature::wait_for_chamber(const bool no_wait_for_cooling/*=true*/) {
+      #if TEMP_CHAMBER_RESIDENCY_TIME > 0
+        millis_t residency_start_ms = 0;
+        // Loop until the temperature has stabilized
+        #define TEMP_CHAMBER_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL))
+      #else
+        // Loop until the temperature is very close target
+        #define TEMP_CHAMBER_CONDITIONS (wants_to_cool ? isCoolingChamber() : isHeatingChamber())
+      #endif
+
+      float target_temp = -1, old_temp = 9999;
+      bool wants_to_cool = false, first_loop = true;
+      wait_for_heatup = true;
+      millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        const GcodeSuite::MarlinBusyState old_busy_state = gcode.busy_state;
+        KEEPALIVE_STATE(NOT_BUSY);
+      #endif
+
+      do {
+        // Target temperature might be changed during the loop
+        if (target_temp != degTargetChamber()) {
+          wants_to_cool = isCoolingChamber();
+          target_temp = degTargetChamber();
+
+          // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
+          if (no_wait_for_cooling && wants_to_cool) break;
+        }
+
+        now = millis();
+        if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
+          next_temp_ms = now + 1000UL;
+          print_heater_states(active_extruder);
+          #if TEMP_CHAMBER_RESIDENCY_TIME > 0
+            SERIAL_ECHOPGM(" W:");
+            if (residency_start_ms)
+              SERIAL_ECHO(long((((TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL));
+            else
+              SERIAL_CHAR('?');
+          #endif
+          SERIAL_EOL();
+        }
+
+        idle();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
+
+        const float temp = degChamber();
+
+        #if TEMP_CHAMBER_RESIDENCY_TIME > 0
+
+          const float temp_diff = ABS(target_temp - temp);
+
+          if (!residency_start_ms) {
+            // Start the TEMP_CHAMBER_RESIDENCY_TIME timer when we reach target temp for the first time.
+            if (temp_diff < TEMP_CHAMBER_WINDOW) {
+              residency_start_ms = now;
+              if (first_loop) residency_start_ms += (TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL;
+            }
+          }
+          else if (temp_diff > TEMP_CHAMBER_HYSTERESIS) {
+            // Restart the timer whenever the temperature falls outside the hysteresis.
+            residency_start_ms = now;
+          }
+
+        #endif // TEMP_CHAMBER_RESIDENCY_TIME > 0
+
+        // Prevent a wait-forever situation if R is misused i.e. M191 R0
+        if (wants_to_cool) {
+          // Break after MIN_COOLING_SLOPE_TIME_CHAMBER seconds
+          // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_CHAMBER
+          if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
+            if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG_CHAMBER)) break;
+            next_cool_check_ms = now + 1000UL * MIN_COOLING_SLOPE_TIME_CHAMBER;
+            old_temp = temp;
+          }
+        }
+
+        first_loop = false;
+
+      } while (wait_for_heatup && TEMP_CHAMBER_CONDITIONS);
+
+      if (wait_for_heatup) ui.reset_status();
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        gcode.busy_state = old_busy_state;
+      #endif
+
+      return wait_for_heatup;
+    }
+
+  #endif // HAS_HEATED_CHAMBER
 
 #endif // HAS_TEMP_SENSOR

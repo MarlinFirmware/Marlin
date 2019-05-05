@@ -321,6 +321,7 @@
     #define AUTO_POWER_FANS           // Turn on PSU if fans need power
     #define AUTO_POWER_E_FANS
     #define AUTO_POWER_CONTROLLERFAN
+    #define AUTO_POWER_CHAMBER_FAN
     #define POWER_TIMEOUT 30
   #endif
 
@@ -711,7 +712,12 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 78.74, 78.74, 2560, 105 }
+#define PRO_B_WITH_LEADSCREW
+#if ENABLED(PRO_B_WITH_LEADSCREW)       // M8 leadscrew version
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 78.74, 78.74, 400, 105 }
+#else                                   // M8 threaded rod version
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 78.74, 78.74, 2560, 105 }
+#endif
 
 /**
  * Default Max Feed Rate (mm/s)

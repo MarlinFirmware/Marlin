@@ -1014,6 +1014,12 @@
 #ifndef MSG_BED_COOLING
   #define MSG_BED_COOLING                     _UxGT("Bed cooling...")
 #endif
+#ifndef MSG_CHAMBER_HEATING
+  #define MSG_CHAMBER_HEATING                 _UxGT("Chamber heating...")
+#endif
+#ifndef MSG_CHAMBER_COOLING
+  #define MSG_CHAMBER_COOLING                 _UxGT("Chamber cooling...")
+#endif
 #ifndef MSG_DELTA_CALIBRATE
   #define MSG_DELTA_CALIBRATE                 _UxGT("Delta Calibration")
 #endif
