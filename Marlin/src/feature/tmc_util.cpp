@@ -87,15 +87,19 @@
     static TMC_driver_data get_driver_data(TMC2130Stepper &st) {
       constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
       constexpr uint32_t S2G_bm = 0x18000000;
+      #if ENABLED(TMC_DEBUG)
+        constexpr uint16_t SG_RESULT_bm = 0x3FF; // 0:9
+        constexpr uint8_t STEALTH_bp = 14;
+        constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
+        constexpr uint8_t STALL_GUARD_bp = 24;
+        constexpr uint8_t STST_bp = 31;
+      #endif
       TMC_driver_data data;
       data.drv_status = st.DRV_STATUS();
       #ifdef __AVR__
         // 8-bit optimization saves up to 70 bytes of PROGMEM per axis
         uint8_t spart;
         #if ENABLED(TMC_DEBUG)
-          constexpr uint16_t SG_RESULT_bm = 0x3FF; // 0:9
-          constexpr uint8_t STEALTH_bp = 14;
-          constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
           data.sg_result = data.drv_status & SG_RESULT_bm;
           spart = data.drv_status >> 8;
           data.is_stealth = !!(spart & _BV(STEALTH_bp - 8));
@@ -107,8 +111,6 @@
         data.is_otpw = !!(spart & _BV(OTPW_bp - 24));
         data.is_s2g = !!(spart & (S2G_bm >> 24));
         #if ENABLED(TMC_DEBUG)
-          constexpr uint8_t STALL_GUARD_bp = 24;
-          constexpr uint8_t STST_bp = 31;
           data.is_stall = !!(spart & _BV(STALL_GUARD_bp - 24));
           data.is_standstill = !!(spart & _BV(STST_bp - 24));
           data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
