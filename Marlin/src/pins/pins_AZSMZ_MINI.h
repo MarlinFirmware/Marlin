@@ -85,8 +85,8 @@
 #endif
 #define FAN1_PIN           P0_26
 
-#define LCD_SDSS         P0_16  // LCD SD chip select
-#define ONBOARD_SD_CS    P0_06  // On board SD chip select
+#define LCD_SDSS           P0_16   // LCD SD chip select
+#define ONBOARD_SD_CS      P0_06   // On board SD chip select
 
 #if ENABLED(AZSMZ_12864)
   #define BEEPER_PIN       P1_30
@@ -95,8 +95,8 @@
   #define BTN_EN1          P4_28
   #define BTN_EN2          P1_27
   #define BTN_ENC          P3_26
-  #if !ENABLED(LPC_SD_ONBOARD)
-  #define LPC_SD_LCD
+  #if DISABLED(LPC_SD_ONBOARD)
+    #define LPC_SD_LCD
   #endif
 #endif
 
