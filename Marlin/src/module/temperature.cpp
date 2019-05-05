@@ -689,9 +689,9 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
 
     uint8_t fanDone = 0;
     for (uint8_t f = 0; f < COUNT(fanBit); f++) {
-      const uint8_t physicFan = pgm_read_byte(&fanBit[f]);
-      if (TEST(fanDone, physicFan)) continue;
-      const bool fan_on = TEST(fanState, physicFan);
+      const uint8_t realFan = pgm_read_byte(&fanBit[f]);
+      if (TEST(fanDone, realFan)) continue;
+      const bool fan_on = TEST(fanState, realFan);
       switch (f) {
         #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
           case CHAMBER_FAN_INDEX:
@@ -700,7 +700,7 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
         #endif
         default:
           #if ENABLED(AUTO_POWER_E_FANS)
-            autofan_speed[physicFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
+            autofan_speed[realFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
           #endif
           break;
       }
@@ -728,7 +728,7 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
           case CHAMBER_FAN_INDEX: _UPDATE_AUTO_FAN(CHAMBER, fan_on, CHAMBER_AUTO_FAN_SPEED); break;
         #endif
       }
-      SBI(fanDone, physicFan);
+      SBI(fanDone, realFan);
     }
   }
 
