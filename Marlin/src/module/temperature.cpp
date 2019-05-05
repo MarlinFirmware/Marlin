@@ -692,16 +692,18 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
       const uint8_t physicFan = pgm_read_byte(&fanBit[f]);
       if (TEST(fanDone, physicFan)) continue;
       const bool fan_on = TEST(fanState, physicFan);
-      #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
-        if (f == CHAMBER_FAN_INDEX)
-          chamberfan_speed = fan_on ? CHAMBER_AUTO_FAN_SPEED : 0;
-        #if ENABLED(AUTO_POWER_E_FANS)
-        else
-          autofan_speed[physicFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
+      switch (f) {
+        #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
+          case CHAMBER_FAN_INDEX:
+            chamberfan_speed = fan_on ? CHAMBER_AUTO_FAN_SPEED : 0;
+            break;
         #endif
-      #elif ENABLED(AUTO_POWER_E_FANS)
-        autofan_speed[physicFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
-      #endif
+        default:
+          #if ENABLED(AUTO_POWER_E_FANS)
+            autofan_speed[physicFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
+          #endif
+          break;
+      }
 
       switch (f) {
         #if HAS_AUTO_FAN_0
