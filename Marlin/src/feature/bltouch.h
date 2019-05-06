@@ -34,18 +34,28 @@ typedef unsigned char BLTCommand;
 #define BLTOUCH_OD_MODE        150
 #define BLTOUCH_RESET          160
 
-
 // Default and minimum delay for all commands unless overridden below
 #ifndef BLTOUCH_DELAY
   #define BLTOUCH_DELAY   500
 #endif
 
-// The following delays are recommended by ANTClabs and exceed the BLTOUCH_DELAY
+/**
+ * The following commands may require different delays.
+ * 
+ * ANTClabs recommends 2000ms for 5V/OD commands however
+ * It is not common for other commands to immediatly follow
+ * these and independent testing shows these complete in 500ms
+ * reliably.
+ * 
+ * AntClabs recommends 750ms for Deploy/Stow otherwise you will
+ * not catch an alarm state until the following move command.
+ */
+
 #ifndef BLTOUCH_SET5V_DELAY
-  #define BLTOUCH_SET5V_DELAY   2000
+  #define BLTOUCH_SET5V_DELAY   BLTOUCH_DELAY
 #endif
 #ifndef BLTOUCH_SETOD_DELAY
-  #define BLTOUCH_SETOD_DELAY   2000
+  #define BLTOUCH_SETOD_DELAY   BLTOUCH_DELAY
 #endif
 #ifndef BLTOUCH_DEPLOY_DELAY
   #define BLTOUCH_DEPLOY_DELAY   750
@@ -54,7 +64,7 @@ typedef unsigned char BLTCommand;
   #define BLTOUCH_STOW_DELAY     750
 #endif
 #ifndef BLTOUCH_RESET_DELAY
-  #define BLTOUCH_RESET_DELAY    500
+  #define BLTOUCH_RESET_DELAY    BLTOUCH_DELAY
 #endif
 
 class BLTouch {
