@@ -36,6 +36,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
+#include "../../core/macros.h"
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
