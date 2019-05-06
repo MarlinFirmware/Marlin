@@ -1183,6 +1183,136 @@ void Temperature::manage_heater() {
   }                                                                    \
 }while(0)
 
+#if HAS_USER_THERMISTORS
+
+  user_thermistor_t Temperature::user_thermistor[USER_THERMISTORS]; // Initialized by settings.load()
+
+  void Temperature::reset_user_thermistors() {
+    user_thermistor_t user_thermistor[USER_THERMISTORS] = {
+      #if ENABLED(HEATER_0_USER_THERMISTOR)
+        { true, 0, 0, HOTEND0_PULLUP_RESISTOR_OHMS, HOTEND0_RESISTANCE_25C_OHMS, 0, 0, HOTEND0_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_1_USER_THERMISTOR)
+        { true, 0, 0, HOTEND1_PULLUP_RESISTOR_OHMS, HOTEND1_RESISTANCE_25C_OHMS, 0, 0, HOTEND1_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_2_USER_THERMISTOR)
+        { true, 0, 0, HOTEND2_PULLUP_RESISTOR_OHMS, HOTEND2_RESISTANCE_25C_OHMS, 0, 0, HOTEND2_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_3_USER_THERMISTOR)
+        { true, 0, 0, HOTEND3_PULLUP_RESISTOR_OHMS, HOTEND3_RESISTANCE_25C_OHMS, 0, 0, HOTEND3_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_4_USER_THERMISTOR)
+        { true, 0, 0, HOTEND4_PULLUP_RESISTOR_OHMS, HOTEND4_RESISTANCE_25C_OHMS, 0, 0, HOTEND4_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_5_USER_THERMISTOR)
+        { true, 0, 0, HOTEND5_PULLUP_RESISTOR_OHMS, HOTEND5_RESISTANCE_25C_OHMS, 0, 0, HOTEND5_BETA, 0 },
+      #endif
+      #if ENABLED(BED_USER_THERMISTOR)
+        { true, 0, 0, BED_PULLUP_RESISTOR_OHMS, BED_RESISTANCE_25C_OHMS, 0, 0, BED_BETA, 0 },
+      #endif
+      #if ENABLED(CHAMBER_USER_THERMISTOR)
+        { true, 0, 0, CHAMBER_PULLUP_RESISTOR_OHMS, CHAMBER_RESISTANCE_25C_OHMS, 0, 0, CHAMBER_BETA, 0 }
+      #endif
+    };
+    COPY(thermalManager.user_thermistor, user_thermistor);
+  }
+
+  void Temperature::log_user_thermistor(const uint8_t t_index, const bool eprom/*=false*/) {
+
+    if (eprom)
+      SERIAL_ECHOPGM("  M305 ");
+    else
+      SERIAL_ECHO_START();
+    SERIAL_CHAR('P');
+    SERIAL_CHAR('0' + t_index);
+
+    const user_thermistor_t &t = user_thermistor[t_index];
+
+    SERIAL_ECHOPAIR_F(" R", t.series_res, 1);
+    SERIAL_ECHOPAIR_F(" T", t.res_25, 1);
+    SERIAL_ECHOPAIR_F(" B", t.beta, 1);
+    SERIAL_ECHOPAIR_F(" C", t.sh_c_coeff, 9);
+    SERIAL_ECHOPGM(" ; ");
+    serialprintPGM(
+      #if ENABLED(HEATER_0_USER_THERMISTOR)
+        t_index == CTI_HOTEND_0 ? PSTR("HOTEND 0") :
+      #endif
+      #if ENABLED(HEATER_1_USER_THERMISTOR)
+        t_index == CTI_HOTEND_1 ? PSTR("HOTEND 1") :
+      #endif
+      #if ENABLED(HEATER_2_USER_THERMISTOR)
+        t_index == CTI_HOTEND_2 ? PSTR("HOTEND 2") :
+      #endif
+      #if ENABLED(HEATER_3_USER_THERMISTOR)
+        t_index == CTI_HOTEND_3 ? PSTR("HOTEND 3") :
+      #endif
+      #if ENABLED(HEATER_4_USER_THERMISTOR)
+        t_index == CTI_HOTEND_4 ? PSTR("HOTEND 4") :
+      #endif
+      #if ENABLED(HEATER_5_USER_THERMISTOR)
+        t_index == CTI_HOTEND_5 ? PSTR("HOTEND 5") :
+      #endif
+      #if ENABLED(BED_USER_THERMISTOR)
+        t_index == CTI_BED ? PSTR("BED") :
+      #endif
+      #if ENABLED(CHAMBER_USER_THERMISTOR)
+        t_index == CTI_CHAMBER ? PSTR("CHAMBER") :
+      #endif
+      NULL
+    );
+    SERIAL_EOL();
+  }
+
+  float Temperature::user_thermistor_to_deg_c(const uint8_t t_index, const int raw) {
+    //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
+    //  static uint32_t clocks_total = 0;
+    //  static uint32_t calls = 0;
+    //  uint32_t tcnt5 = TCNT5;
+    //#endif
+
+    if (!WITHIN(t_index, 0, COUNT(user_thermistor) - 1)) return 25;
+
+    if (user_thermistor[t_index].pre_calc) {
+      // pre-calculate some variables
+      user_thermistor[t_index].pre_calc = false;
+      user_thermistor[t_index].res_25_recip = 1.0f / user_thermistor[t_index].res_25;
+      user_thermistor[t_index].res_25_log = logf(user_thermistor[t_index].res_25);
+      user_thermistor[t_index].beta_recip = 1.0f / user_thermistor[t_index].beta;
+      user_thermistor[t_index].sh_alpha = (1.0f / (THERMISTOR_RESISTANCE_NOMINAL_C - THERMISTOR_ABS_ZERO_C)) - (user_thermistor[t_index].beta_recip * user_thermistor[t_index].res_25_log) - (user_thermistor[t_index].sh_c_coeff * user_thermistor[t_index].res_25_log * user_thermistor[t_index].res_25_log * user_thermistor[t_index].res_25_log);
+    }
+
+    // maximum adc value .. take into account the over sampling
+    const int adc_max = (THERMISTOR_ADC_RESOLUTION * OVERSAMPLENR) - 1,
+              adc_raw = constrain(raw, 1, adc_max - 1); // constrain to prevent divide-by-zero
+
+    const float adc_inverse = (adc_max - adc_raw) - 0.5f,
+                resistance = user_thermistor[t_index].series_res * (adc_raw + 0.5f) / adc_inverse,
+                log_resistance = logf(resistance);
+
+    float value = user_thermistor[t_index].sh_alpha;
+    value += log_resistance * user_thermistor[t_index].beta_recip;
+    if (user_thermistor[t_index].sh_c_coeff != 0)
+      value += user_thermistor[t_index].sh_c_coeff * log_resistance * log_resistance * log_resistance;
+    value = 1.0f / value;
+
+    // Convert to degrees C
+    float deg_c = value + THERMISTOR_ABS_ZERO_C;
+
+    // Test only
+    //deg_c = constrain(deg_c, 6, 100);
+
+    //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
+    //  int32_t clocks = TCNT5 - tcnt5;
+    //  if (clocks >= 0) {
+    //    clocks_total += clocks;
+    //    calls++;
+    //  }
+    //#endif
+
+    return deg_c;
+  }
+#endif
+
 // Derived from RepRap FiveD extruder::getTemperature()
 // For hot end temperature measurement.
 float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
@@ -1201,7 +1331,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
 
   switch (e) {
     case 0:
-      #if ENABLED(HEATER_0_USES_MAX6675)
+      #if ENABLED(HEATER_0_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_0, raw);
+      #elif ENABLED(HEATER_0_USES_MAX6675)
         return raw * 0.25;
       #elif ENABLED(HEATER_0_USES_AD595)
         return TEMP_AD595(raw);
@@ -1211,7 +1343,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 1:
-      #if ENABLED(HEATER_1_USES_MAX6675)
+      #if ENABLED(HEATER_1_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_1, raw);
+      #elif ENABLED(HEATER_1_USES_MAX6675)
         return raw * 0.25;
       #elif ENABLED(HEATER_1_USES_AD595)
         return TEMP_AD595(raw);
@@ -1221,7 +1355,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 2:
-      #if ENABLED(HEATER_2_USES_AD595)
+      #if ENABLED(HEATER_2_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_2, raw);
+      #elif ENABLED(HEATER_2_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_2_USES_AD8495)
         return TEMP_AD8495(raw);
@@ -1229,7 +1365,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 3:
-      #if ENABLED(HEATER_3_USES_AD595)
+      #if ENABLED(HEATER_3_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_3, raw);
+      #elif ENABLED(HEATER_3_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_3_USES_AD8495)
         return TEMP_AD8495(raw);
@@ -1237,7 +1375,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 4:
-      #if ENABLED(HEATER_4_USES_AD595)
+      #if ENABLED(HEATER_4_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_4, raw);
+      #elif ENABLED(HEATER_4_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_4_USES_AD8495)
         return TEMP_AD8495(raw);
@@ -1245,7 +1385,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 5:
-      #if ENABLED(HEATER_5_USES_AD595)
+      #if ENABLED(HEATER_5_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_5, raw);
+      #elif ENABLED(HEATER_5_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_5_USES_AD8495)
         return TEMP_AD8495(raw);
@@ -1268,7 +1410,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For bed temperature measurement.
   float Temperature::analog_to_celsius_bed(const int raw) {
-    #if ENABLED(HEATER_BED_USES_THERMISTOR)
+    #if ENABLED(BED_USER_THERMISTOR)
+      return user_thermistor_to_deg_c(CTI_BED, raw);
+    #elif ENABLED(HEATER_BED_USES_THERMISTOR)
       SCAN_THERMISTOR_TABLE(BEDTEMPTABLE, BEDTEMPTABLE_LEN);
     #elif ENABLED(HEATER_BED_USES_AD595)
       return TEMP_AD595(raw);
@@ -1284,7 +1428,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For chamber temperature measurement.
   float Temperature::analog_to_celsius_chamber(const int raw) {
-    #if ENABLED(HEATER_CHAMBER_USES_THERMISTOR)
+    #if ENABLED(CHAMBER_USER_THERMISTOR)
+      return user_thermistor_to_deg_c(CTI_CHAMBER, raw);
+    #elif ENABLED(HEATER_CHAMBER_USES_THERMISTOR)
       SCAN_THERMISTOR_TABLE(CHAMBERTEMPTABLE, CHAMBERTEMPTABLE_LEN);
     #elif ENABLED(HEATER_CHAMBER_USES_AD595)
       return TEMP_AD595(raw);
