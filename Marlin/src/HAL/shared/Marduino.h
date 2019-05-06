@@ -30,8 +30,6 @@
 #undef _BV            // Redefined by some
 #undef sq             // Redefined by teensy3/wiring.h
 
-#include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
-
 #undef DISABLED
 #define DISABLED(V...) DO(DIS,&&,V)
 
@@ -48,3 +46,5 @@
 #ifndef CBI
   #define CBI(A,B) (A &= ~(1 << (B)))
 #endif
+
+#include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
