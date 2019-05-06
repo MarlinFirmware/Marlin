@@ -589,6 +589,10 @@ void GcodeSuite::process_parsed_command(
         case 303: M303(); break;                                  // M303: PID autotune
       #endif
 
+      #if HAS_USER_THERMISTORS
+        case 305: M305(); break;                                  // M305: Set user thermistor parameters
+      #endif
+
       #if ENABLED(MORGAN_SCARA)
         case 360: if (M360()) return; break;                      // M360: SCARA Theta pos1
         case 361: if (M361()) return; break;                      // M361: SCARA Theta pos2

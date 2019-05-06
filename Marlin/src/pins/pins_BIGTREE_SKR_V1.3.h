@@ -28,6 +28,9 @@
   #define BOARD_NAME "BIGTREE SKR V1.3"
 #endif
 
+// Ignore temp readings during develpment.
+//#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+
 //
 // Servos
 //
