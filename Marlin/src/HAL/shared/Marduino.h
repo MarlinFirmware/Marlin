@@ -30,9 +30,6 @@
 #undef _BV            // Redefined by some
 #undef sq             // Redefined by teensy3/wiring.h
 
-#undef DISABLED
-#define DISABLED(V...) DO(DIS,&&,V)
-
 #undef _BV
 #define _BV(b) (1UL << (b))
 
@@ -48,3 +45,6 @@
 #endif
 
 #include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
+
+#undef DISABLED
+#define DISABLED(V...) DO(DIS,&&,V)
