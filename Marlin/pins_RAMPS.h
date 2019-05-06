@@ -570,3 +570,6 @@
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
+
+#undef FAN_PIN
+#define E0_AUTO_FAN_PIN 9
