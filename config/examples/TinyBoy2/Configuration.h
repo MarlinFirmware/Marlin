@@ -876,7 +876,7 @@
  */
 //#define BLTOUCH
 #if ENABLED(BLTOUCH)
-  //#define BLTOUCH_DELAY 500   // (ms) Enable and increase if needed
+  //#define BLTOUCH_DELAY 500   // Minimum Command delay (ms). Enable and increase if needed
 
   /**
    * BLTouch V3.0 and newer smart series
