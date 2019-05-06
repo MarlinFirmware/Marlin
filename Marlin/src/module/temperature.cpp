@@ -1531,7 +1531,7 @@ void Temperature::init() {
     }while(0)
     #define _TEMP_MAX_E(NR) do{ \
       temp_range[NR].maxtemp = HEATER_ ##NR## _MAXTEMP; \
-      while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) > HEATER_ ##NR## _MAXTEMP) \
+      while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > HEATER_ ##NR## _MAXTEMP) \
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
 
@@ -1589,7 +1589,7 @@ void Temperature::init() {
       while (analog_to_celsius_bed(mintemp_raw_BED) < BED_MINTEMP) mintemp_raw_BED += TEMPDIR(BED) * (OVERSAMPLENR);
     #endif
     #ifdef BED_MAXTEMP
-      while (analog_to_celsius_bed(maxtemp_raw_BED) > BED_MAXTEMP) mintemp_raw_BED -= TEMPDIR(BED) * (OVERSAMPLENR);
+      while (analog_to_celsius_bed(maxtemp_raw_BED) > BED_MAXTEMP) maxtemp_raw_BED -= TEMPDIR(BED) * (OVERSAMPLENR);
     #endif
   #endif // HAS_HEATED_BED
 
@@ -1598,7 +1598,7 @@ void Temperature::init() {
       while (analog_to_celsius_chamber(mintemp_raw_CHAMBER) < CHAMBER_MINTEMP) mintemp_raw_CHAMBER += TEMPDIR(CHAMBER) * (OVERSAMPLENR);
     #endif
     #ifdef CHAMBER_MAXTEMP
-      while (analog_to_celsius_chamber(maxtemp_raw_CHAMBER) > CHAMBER_MAXTEMP) mintemp_raw_CHAMBER -= TEMPDIR(CHAMBER) * (OVERSAMPLENR);
+      while (analog_to_celsius_chamber(maxtemp_raw_CHAMBER) > CHAMBER_MAXTEMP) maxtemp_raw_CHAMBER -= TEMPDIR(CHAMBER) * (OVERSAMPLENR);
     #endif
   #endif
 
