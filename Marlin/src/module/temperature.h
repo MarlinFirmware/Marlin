@@ -418,8 +418,7 @@ class Temperature {
       static void reset_user_thermistors();
       static float user_thermistor_to_deg_c(const uint8_t t_index, const int raw);
       static bool set_pull_up_res(int8_t t_index, float res) {
-//        if (!WITHIN(t_index, 0, USER_THERMISTORS - 1))
-//          return false;
+        //if (!WITHIN(t_index, 0, USER_THERMISTORS - 1)) return false;
         if (res <= 0 || res >= 1000000)
           return false;
         user_thermistor[t_index].series_res = res;
