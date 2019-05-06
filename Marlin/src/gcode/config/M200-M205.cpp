@@ -59,10 +59,11 @@ void GcodeSuite::M201() {
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
 
+  static const uint32_t max_accel[] PROGMEM = DEFAULT_MAX_ACCELERATION;
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
       const uint8_t a = (i == E_AXIS ? E_AXIS_N(target_extruder) : i);
-      planner.settings.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
+      planner.settings.max_acceleration_mm_per_s2[a] = constrain(parser.value_axis_units((AxisEnum)a), 1, (max_accel[a] * 1.25f));
     }
   }
   // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
