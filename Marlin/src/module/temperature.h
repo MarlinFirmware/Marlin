@@ -417,31 +417,27 @@ class Temperature {
       static void log_user_thermistor(const uint8_t t_index, const bool eprom=false);
       static void reset_user_thermistors();
       static float user_thermistor_to_deg_c(const uint8_t t_index, const int raw);
-      static bool set_pull_up_res(int8_t t_index, float res) {
+      static bool set_pull_up_res(int8_t t_index, float value) {
         //if (!WITHIN(t_index, 0, USER_THERMISTORS - 1)) return false;
-        if (res <= 0 || res >= 1000000)
-          return false;
-        user_thermistor[t_index].series_res = res;
+        if (!WITHIN(value, 1, 1000000)) return false;
+        user_thermistor[t_index].series_res = value;
         return true;
       }
-      static bool set_res25(int8_t t_index, float res) {
-        if (res <= 0 || res >= 10000000)
-          return false;
-        user_thermistor[t_index].res_25 = res;
+      static bool set_res25(int8_t t_index, float value) {
+        if (!WITHIN(value, 1, 10000000)) return false;
+        user_thermistor[t_index].res_25 = value;
         user_thermistor[t_index].pre_calc = true;
         return true;
       }
-      static bool set_beta(int8_t t_index, float beta) {
-        if (beta <= 0 || beta >= 1000000)
-          return false;
-        user_thermistor[t_index].beta = beta;
+      static bool set_beta(int8_t t_index, float value) {
+        if (!WITHIN(value, 1, 1000000)) return false;
+        user_thermistor[t_index].beta = value;
         user_thermistor[t_index].pre_calc = true;
         return true;
       }
-      static bool set_sh_coeff(int8_t t_index, float coeff) {
-        if (coeff <= -0.01f || coeff >= 0.01f)
-          return false;
-        user_thermistor[t_index].sh_c_coeff = coeff;
+      static bool set_sh_coeff(int8_t t_index, float value) {
+        if (!WITHIN(value, -0.01f, 0.01f)) return false;
+        user_thermistor[t_index].sh_c_coeff = value;
         user_thermistor[t_index].pre_calc = true;
         return true;
       }
