@@ -386,7 +386,7 @@ static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
 
 void _O2 Endstops::M119() {
   #if ENABLED(BLTOUCH)
-    bltouch.set_SW_mode();
+    bltouch._set_SW_mode();
   #endif
   SERIAL_ECHOLNPGM(MSG_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(MSG_##S))
@@ -465,7 +465,7 @@ void _O2 Endstops::M119() {
     #endif
   #endif
   #if ENABLED(BLTOUCH)
-    bltouch.reset();
+    bltouch._reset();
     if(enabled_globally)
       bltouch._stow();
   #endif
