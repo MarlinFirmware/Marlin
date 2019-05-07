@@ -233,8 +233,8 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
     #endif
     #if WATCH_CHAMBER
       heater_watch_t Temperature::watch_chamber = { 0 };
-      millis_t Temperature::next_chamber_check_ms;
     #endif
+    millis_t Temperature::next_chamber_check_ms;
   #endif // HAS_HEATED_CHAMBER
 #endif // HAS_TEMP_CHAMBER
 
@@ -1058,56 +1058,61 @@ void Temperature::manage_heater() {
       }
     #endif // WATCH_BED
 
-    #if DISABLED(PIDTEMPBED)
-      if (PENDING(ms, next_bed_check_ms)
+    do {
+
+      #if DISABLED(PIDTEMPBED)
+        if (PENDING(ms, next_bed_check_ms)
+          #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
+            && paused == last_pause_state
+          #endif
+        ) break;
+        next_bed_check_ms = ms + BED_CHECK_INTERVAL;
         #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
-          && paused == last_pause_state
+          last_pause_state = paused;
         #endif
-      ) return;
-      next_bed_check_ms = ms + BED_CHECK_INTERVAL;
-      #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
-        last_pause_state = paused;
       #endif
-    #endif
 
-    #if HEATER_IDLE_HANDLER
-      bed_idle.update(ms);
-    #endif
+      #if HEATER_IDLE_HANDLER
+        bed_idle.update(ms);
+      #endif
 
-    #if HAS_THERMALLY_PROTECTED_BED
-      thermal_runaway_protection(tr_state_machine_bed, temp_bed.current, temp_bed.target, -1, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
-    #endif
+      #if HAS_THERMALLY_PROTECTED_BED
+        thermal_runaway_protection(tr_state_machine_bed, temp_bed.current, temp_bed.target, -1, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
+      #endif
 
-    #if HEATER_IDLE_HANDLER
-      if (bed_idle.timed_out) {
-        temp_bed.soft_pwm_amount = 0;
-        #if DISABLED(PIDTEMPBED)
-          WRITE_HEATER_BED(LOW);
-        #endif
-      }
-      else
-    #endif
-    {
-      #if ENABLED(PIDTEMPBED)
-        temp_bed.soft_pwm_amount = WITHIN(temp_bed.current, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
-      #else
-        // Check if temperature is within the correct band
-        if (WITHIN(temp_bed.current, BED_MINTEMP, BED_MAXTEMP)) {
-          #if ENABLED(BED_LIMIT_SWITCHING)
-            if (temp_bed.current >= temp_bed.target + BED_HYSTERESIS)
-              temp_bed.soft_pwm_amount = 0;
-            else if (temp_bed.current <= temp_bed.target - (BED_HYSTERESIS))
-              temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
-          #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
-            temp_bed.soft_pwm_amount = temp_bed.current < temp_bed.target ? MAX_BED_POWER >> 1 : 0;
+      #if HEATER_IDLE_HANDLER
+        if (bed_idle.timed_out) {
+          temp_bed.soft_pwm_amount = 0;
+          #if DISABLED(PIDTEMPBED)
+            WRITE_HEATER_BED(LOW);
           #endif
         }
-        else {
-          temp_bed.soft_pwm_amount = 0;
-          WRITE_HEATER_BED(LOW);
-        }
+        else
       #endif
-    }
+      {
+        #if ENABLED(PIDTEMPBED)
+          temp_bed.soft_pwm_amount = WITHIN(temp_bed.current, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
+        #else
+          // Check if temperature is within the correct band
+          if (WITHIN(temp_bed.current, BED_MINTEMP, BED_MAXTEMP)) {
+            #if ENABLED(BED_LIMIT_SWITCHING)
+              if (temp_bed.current >= temp_bed.target + BED_HYSTERESIS)
+                temp_bed.soft_pwm_amount = 0;
+              else if (temp_bed.current <= temp_bed.target - (BED_HYSTERESIS))
+                temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
+            #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
+              temp_bed.soft_pwm_amount = temp_bed.current < temp_bed.target ? MAX_BED_POWER >> 1 : 0;
+            #endif
+          }
+          else {
+            temp_bed.soft_pwm_amount = 0;
+            WRITE_HEATER_BED(LOW);
+          }
+        #endif
+      }
+
+    } while (false);
+
   #endif // HAS_HEATED_BED
 
   #if HAS_HEATED_CHAMBER
@@ -1123,35 +1128,36 @@ void Temperature::manage_heater() {
 
     #if WATCH_CHAMBER
       // Make sure temperature is increasing
-      if (watch_chamber.elapsed(ms)) {                  // Time to check the chamber?
-        if (degChamber() < watch_chamber.target)   // Failed to increase enough?
+      if (watch_chamber.elapsed(ms)) {              // Time to check the chamber?
+        if (degChamber() < watch_chamber.target)    // Failed to increase enough?
           _temp_error(-2, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, -2));
         else
-          start_watching_chamber();                     // Start again if the target is still far off
+          start_watching_chamber();                 // Start again if the target is still far off
       }
-    #endif // WATCH_CHAMBER
+    #endif
 
-    if (PENDING(ms, next_chamber_check_ms)) return;
-    next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
+    if (ELAPSED(ms, next_chamber_check_ms)) {
+      next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
 
-    if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
-      #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-        if (temp_chamber.current >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
-          temp_chamber.soft_pwm_amount = 0;
-        else if (temp_chamber.current <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
-          temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
-      #else
-        temp_chamber.soft_pwm_amount = temp_chamber.current < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
+      if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
+        #if ENABLED(CHAMBER_LIMIT_SWITCHING)
+          if (temp_chamber.current >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
+            temp_chamber.soft_pwm_amount = 0;
+          else if (temp_chamber.current <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
+            temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
+        #else
+          temp_chamber.soft_pwm_amount = temp_chamber.current < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
+        #endif
+      }
+      else {
+        temp_chamber.soft_pwm_amount = 0;
+        WRITE_HEATER_CHAMBER(LOW);
+      }
+
+      #if ENABLED(THERMAL_PROTECTION_CHAMBER)
+        thermal_runaway_protection(tr_state_machine_chamber, temp_chamber.current, temp_chamber.target, -2, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS);
       #endif
     }
-    else {
-      temp_chamber.soft_pwm_amount = 0;
-      WRITE_HEATER_CHAMBER(LOW);
-    }
-
-    #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-      thermal_runaway_protection(tr_state_machine_chamber, temp_chamber.current, temp_chamber.target, -2, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS);
-    #endif
 
     // TODO: Implement true PID pwm
     //temp_bed.soft_pwm_amount = WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? (int)get_pid_output_chamber() >> 1 : 0;
@@ -1788,8 +1794,8 @@ void Temperature::init() {
 
 #if WATCH_CHAMBER
   /**
-   * Start Heating Sanity Check for hotends that are below
-   * their target temperature by a configurable margin.
+   * Start Heating Sanity Check for chamber that is below
+   * its target temperature by a configurable margin.
    * This is called when the temperature is set. (M141, M191)
    */
   void Temperature::start_watching_chamber() {
