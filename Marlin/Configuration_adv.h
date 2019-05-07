@@ -851,12 +851,17 @@
    */
   //#define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
-    //#define POWER_LOSS_PIN   44     // Pin to detect power loss
-    //#define POWER_LOSS_STATE HIGH   // State of pin indicating power loss
+    //#define POWER_LOSS_PIN   44        // Pin to detect power loss (optional)
+    //#define POWER_LOSS_STATE HIGH      // State of pin indicating power loss
+    //#define POWER_LOSS_PURGE_LEN   20  // (mm) Length of filament to purge on resume
+    //#define POWER_LOSS_RETRACT_LEN 10  // (mm) Length of filament to retract on fail. Requires backup power.
 
     // Without a POWER_LOSS_PIN the following option helps reduce wear on the SD card,
     // especially with "vase mode" printing. Set too high and vases cannot be continued.
     #define POWER_LOSS_MIN_Z_CHANGE 0.05 // (mm) Minimum Z change before saving power-loss data
+
+    //#define DEBUG_POWER_LOSS_RECOVERY // Debug informations on serial output
+    //#define SAVE_INFO_INTERVAL_MS 0   // Force SD recov. write interval, on each layer start if 0
   #endif
 
   /**

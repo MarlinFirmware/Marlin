@@ -55,6 +55,13 @@ job_recovery_info_t PrintJobRecovery::info;
 
 PrintJobRecovery recovery;
 
+#ifndef POWER_LOSS_PURGE_LEN
+  #define POWER_LOSS_PURGE_LEN 20
+#endif
+#ifndef POWER_LOSS_RETRACT_LEN
+  #define POWER_LOSS_RETRACT_LEN 10
+#endif
+
 /**
  * Clear the recovery info
  */
