@@ -207,8 +207,6 @@ void MMU2::mmu_loop() {
       if (rx_ok()) {
         DEBUG_ECHOLNPGM("MMU => ok");
 
-        check_version();
-
         DEBUG_ECHOLNPGM("MMU <= 'P0'");
 
         tx_str_P(PSTR("P0\n")); // read finda
@@ -302,7 +300,7 @@ void MMU2::mmu_loop() {
 
         if (!finda && finda_runout_valid) filament_runout();
       }
-      else if (ELAPSED(millis(), last_request + MMU_P0_TIMEOUT)) // Resend request after timeout (30s)
+      else if (ELAPSED(millis(), last_request + MMU_P0_TIMEOUT)) // Resend request after timeout (3s)
         state = 1;
 
       break;
