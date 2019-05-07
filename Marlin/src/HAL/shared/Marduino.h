@@ -48,3 +48,10 @@
 #ifndef CBI
   #define CBI(A,B) (A &= ~(1 << (B)))
 #endif
+
+#ifndef __AVR__
+  inline char* strchr_P(const char *s, int c) { return strchr(s,c); }
+  //#ifndef strchr_P // Apparently required on STM32
+  //  #define strchr_P(s,c) strchr(s,c)
+  //#endif
+#endif
