@@ -34,11 +34,6 @@ typedef unsigned char BLTCommand;
 #define BLTOUCH_OD_MODE        150
 #define BLTOUCH_RESET          160
 
-// Default and minimum delay for all commands unless overridden below
-#ifndef BLTOUCH_DELAY
-  #define BLTOUCH_DELAY   500
-#endif
-
 /**
  * The following commands may require different delays.
  * 
