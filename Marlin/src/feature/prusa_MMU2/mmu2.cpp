@@ -202,6 +202,7 @@ void MMU2::mmu_loop() {
       }
       break;
 
+    #if ENABLED(MMU2_MODE_12V)
     case -5:
       // response to M1
       if (rx_ok()) {
@@ -213,6 +214,7 @@ void MMU2::mmu_loop() {
         state = -4;
       }
       break;
+    #endif
 
     case -4:
       if (rx_ok()) {
