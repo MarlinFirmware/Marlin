@@ -505,7 +505,7 @@ void menu_backlash();
     #ifdef MAX_ACCELERATION_LIMIT
       static constexpr uint32_t max_accel[] = MAX_ACCELERATION_LIMIT;
     #else
-      static constexpr uint32_t max_accel[] = { 99000, 99000, 99000, 99000 }
+      static constexpr uint32_t max_accel[] = { 99000, 99000, 99000, 99000 };
     #endif
 
     // M201 settings
