@@ -56,10 +56,10 @@ job_recovery_info_t PrintJobRecovery::info;
 PrintJobRecovery recovery;
 
 #ifndef POWER_LOSS_PURGE_LEN
-  #define POWER_LOSS_PURGE_LEN 20
+  #define POWER_LOSS_PURGE_LEN 0
 #endif
 #ifndef POWER_LOSS_RETRACT_LEN
-  #define POWER_LOSS_RETRACT_LEN 10
+  #define POWER_LOSS_RETRACT_LEN 0
 #endif
 
 /**
@@ -347,8 +347,9 @@ void PrintJobRecovery::resume() {
     //gcode.process_subcommands_now(cmd);
     gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_PURGE_LEN) " F200"));
   #endif
+
   #if POWER_LOSS_RETRACT_LEN
-    sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN - POWER_LOSS_RETRACT_LEN);
+    sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN - (POWER_LOSS_RETRACT_LEN));
     gcode.process_subcommands_now(cmd);
   #endif
 
