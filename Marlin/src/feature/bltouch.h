@@ -36,9 +36,13 @@ typedef unsigned char BLTCommand;
 
 class BLTouch {
 public:
-  static void init();
-  static void command(const BLTCommand cmd);
-  static bool triggered();
+  static void init(const bool set_voltage=false);
+  static bool last_written_mode; // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
+
+  // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
+  FORCE_INLINE static bool deploy()              { return deploy_proc(); }
+  FORCE_INLINE static bool stow()                { return stow_proc(); }
+  FORCE_INLINE static bool status()              { return status_proc(); }
 
   FORCE_INLINE static void reset()       { command(BLTOUCH_RESET); }
   FORCE_INLINE static void selftest()    { command(BLTOUCH_SELFTEST); }
@@ -47,8 +51,15 @@ public:
   FORCE_INLINE static void set_OD_mode() { command(BLTOUCH_OD_MODE); }
   FORCE_INLINE static void set_SW_mode() { command(BLTOUCH_SW_MODE); }
 
-  FORCE_INLINE static bool deploy()      { return set_deployed(true); }
-  FORCE_INLINE static bool stow()        { return set_deployed(false); }
+  FORCE_INLINE static void reset()       { command(BLTOUCH_RESET); }
+  FORCE_INLINE static void selftest()    { command(BLTOUCH_SELFTEST); }
+
+  FORCE_INLINE static void set_5V_mode() { command(BLTOUCH_5V_MODE); }
+  FORCE_INLINE static void set_OD_mode() { command(BLTOUCH_OD_MODE); }
+  FORCE_INLINE static void set_SW_mode() { command(BLTOUCH_SW_MODE); }
+
+  FORCE_INLINE static void _deploy()     { command(BLTOUCH_DEPLOY); }
+  FORCE_INLINE static void _stow()       { command(BLTOUCH_STOW); }
 
   FORCE_INLINE static void _deploy()     { command(BLTOUCH_DEPLOY); }
   FORCE_INLINE static void _stow()       { command(BLTOUCH_STOW); }
