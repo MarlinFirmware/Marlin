@@ -1481,6 +1481,14 @@
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //
 #define EEPROM_SETTINGS // Enable for M500 and M501 commands
+#if ENABLED(EEPROM_SETTINGS)
+  /**
+   * For machines with touchscreens and no easy way to initialize eeprom
+   * automatically initialize eeprom on errors such as version mismatch
+   * or crc checksum error.
+   */
+  //#define EEPROM_AUTO_INIT
+#endif
 //#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
 
