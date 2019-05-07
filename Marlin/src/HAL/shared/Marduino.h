@@ -50,8 +50,8 @@
 #endif
 
 #ifndef __AVR__
-  inline char* strchr_P(const char *s, int c) { return strchr(s,c); }
-  //#ifndef strchr_P // Apparently required on STM32
-  //  #define strchr_P(s,c) strchr(s,c)
-  //#endif
+  #ifndef strchr_P // Some platforms define a macro (DUE, teensy35)
+    inline const char* strchr_P(const char *s, int c) { return strchr(s,c); }
+    //#define strchr_P(s,c) strchr(s,c)
+  #endif
 #endif
