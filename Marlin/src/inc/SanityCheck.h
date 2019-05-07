@@ -2135,6 +2135,16 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
               && _ARR_TEST(3,6) && _ARR_TEST(3,7) && _ARR_TEST(3,8),
               "DEFAULT_MAX_ACCELERATION values must be positive.");
 
+#if ENABLED(MAX_ACCELERATION_LIMIT)
+  constexpr float sanity_arr_4[] = MAX_ACCELERATION_LIMIT;
+  static_assert(COUNT(sanity_arr_4) >= XYZE, "MAX_ACCELERATION_LIMIT requires X, Y, Z and E elements.");
+  static_assert(COUNT(sanity_arr_4) <= XYZE_N, "MAX_ACCELERATION_LIMIT has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+  static_assert(   _ARR_TEST(4,0) && _ARR_TEST(4,1) && _ARR_TEST(4,2)
+                && _ARR_TEST(4,3) && _ARR_TEST(4,4) && _ARR_TEST(4,5)
+                && _ARR_TEST(4,6) && _ARR_TEST(4,7) && _ARR_TEST(4,8),
+                "MAX_ACCELERATION_LIMIT values must be positive.");
+#endif
+
 #undef _ARR_TEST
 
 #if BOTH(CNC_COORDINATE_SYSTEMS, NO_WORKSPACE_OFFSETS)

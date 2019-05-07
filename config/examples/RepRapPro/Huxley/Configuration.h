@@ -758,6 +758,12 @@ Black rubber belt(MXL), 18 - tooth aluminium pulley : 87.489 step per mm (Huxley
 #define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 50, 1000 }
 
 /**
+ * Max Acceleration Limit
+ * Prevents M201 or LCD from setting values above this is enabled
+ */
+//#define MAX_ACCELERATION_LIMIT        { 5000, 5000, 200, 15000 }
+
+/**
  * Default Acceleration (change/s) change = mm/s
  * Override with M204
  *

@@ -717,7 +717,13 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 1400, 1400, 100, 80000 }
+#define DEFAULT_MAX_ACCELERATION      { 1400, 1400, 100, 8000 }
+
+/**
+ * Max Acceleration Limit
+ * Prevents M201 or LCD from setting values above this is enabled
+ */
+//#define MAX_ACCELERATION_LIMIT        { 5000, 5000, 200, 15000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s

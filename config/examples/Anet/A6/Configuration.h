@@ -751,7 +751,12 @@
 // ANET A6 Firmware V2.0 defaults (Amax):
 // Amx x: 9000, Amax Y: 5000, Amax z: 50, Amax e: 10000
 #define DEFAULT_MAX_ACCELERATION      { 9000, 5000, 50,  10000 }
-//#define DEFAULT_MAX_ACCELERATION      { 10000, 10000, 200, 10000 }
+
+/**
+ * Max Acceleration Limit
+ * Prevents M201 or LCD from setting values above this is enabled
+ */
+//#define MAX_ACCELERATION_LIMIT        { 10000, 10000, 200, 15000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
