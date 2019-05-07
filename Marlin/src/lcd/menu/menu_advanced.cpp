@@ -492,7 +492,7 @@ void menu_backlash();
   void menu_advanced_acceleration() {
     START_MENU();
     MENU_BACK(MSG_ADVANCED_SETTINGS);
-
+    
     // M204 P Acceleration
     MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_ACC, &planner.settings.acceleration, 25, 99000);
 
@@ -502,8 +502,14 @@ void menu_backlash();
     // M204 T Travel Acceleration
     MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, 99000);
 
+    #ifdef MAX_ACCELERATION_LIMIT
+      static constexpr uint32_t max_accel[] = MAX_ACCELERATION_LIMIT;
+    #else
+      static constexpr uint32_t max_accel[] = { 99000, 99000, 99000, 99000 }
+    #endif
+
     // M201 settings
-    #define EDIT_AMAX(Q,L) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, 99000, _reset_acceleration_rates)
+    #define EDIT_AMAX(Q,L) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, max_accel[_AXIS(Q)], _reset_acceleration_rates)
 
     EDIT_AMAX(A,100);
     EDIT_AMAX(B,100);
