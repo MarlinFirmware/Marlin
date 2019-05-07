@@ -956,10 +956,10 @@ void setup() {
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
   #if ENABLED(EEPROM_AUTO_INIT)
-    if(!settings.load()){
+    if (!settings.load()) {
       (void)settings.reset();
       (void)settings.save();
-      SERIAL_ECHO_MSG("EEPROM AUTO INIT COMPLETE");
+      SERIAL_ECHO_MSG("EEPROM Initialized");
     }
   #else
     (void)settings.load();
