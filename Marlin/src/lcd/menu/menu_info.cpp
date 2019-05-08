@@ -241,7 +241,7 @@ void menu_info() {
       MENU_ITEM_DUMMY();
       MENU_ITEM_DUMMY();
     #endif
-    MENU_ITEM(submenu, "Game", (
+    MENU_ITEM(submenu, MSG_GAMES, (
       #if HAS_GAME_MENU
         menu_game
       #elif ENABLED(MARLIN_BRICKOUT)
