@@ -33,17 +33,18 @@
 #include "../../gcode/queue.h"
 #include "../../module/printcounter.h"
 #include "../../module/stepper.h"
+#include "../../sd/cardreader.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/power_loss_recovery.h"
 #endif
 
-#if ENABLED(SDSUPPORT)
-  #include "../../sd/cardreader.h"
-#endif
-
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "../../feature/host_actions.h"
+#endif
+
+#if HAS_GAMES
+  #include "game/game.h"
 #endif
 
 #define MACHINE_CAN_STOP (EITHER(SDSUPPORT, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL))
@@ -100,10 +101,7 @@
   }
 
   void menu_abort_confirm() {
-    START_MENU();
-    MENU_BACK(MSG_MAIN);
-    MENU_ITEM(function, MSG_STOP_PRINT, lcd_abort_job);
-    END_MENU();
+    do_select_screen(PSTR(MSG_BUTTON_STOP), PSTR(MSG_BACK), lcd_abort_job, ui.goto_previous_screen, PSTR(MSG_STOP_PRINT), NULL, PSTR("?"));
   }
 
 #endif // MACHINE_CAN_STOP
@@ -138,11 +136,21 @@ void menu_led();
   #endif
 #endif
 
+#if HAS_GAME_MENU
+  void menu_game();
+#elif ENABLED(MARLIN_BRICKOUT)
+  void lcd_goto_brickout();
+#elif ENABLED(MARLIN_INVADERS)
+  void lcd_goto_invaders();
+#elif ENABLED(MARLIN_SNAKE)
+  void lcd_goto_snake();
+#endif
+
 void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
 
-  const bool busy = printer_busy()
+  const bool busy = IS_SD_PRINTING() || print_job_timer.isRunning()
     #if ENABLED(SDSUPPORT)
       , card_detected = card.isDetected()
       , card_open = card_detected && card.isFileOpen()
@@ -170,16 +178,22 @@ void menu_main() {
       if (card_detected) {
         if (!card_open) {
           MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
-          #if !PIN_EXISTS(SD_DETECT)
-            MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
-          #endif
+          MENU_ITEM(gcode,
+            #if PIN_EXISTS(SD_DETECT)
+              MSG_CHANGE_SDCARD, PSTR("M21")
+            #else
+              MSG_RELEASE_SDCARD, PSTR("M22")
+            #endif
+          );
         }
       }
       else {
-        #if !PIN_EXISTS(SD_DETECT)
-          MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually init SD-card
+        #if PIN_EXISTS(SD_DETECT)
+          MENU_ITEM(function, MSG_NO_CARD, NULL);
+        #else
+          MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));
+          MENU_ITEM(function, MSG_SD_RELEASED, NULL);
         #endif
-        MENU_ITEM(function, MSG_NO_CARD, NULL);
       }
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
@@ -251,16 +265,22 @@ void menu_main() {
     if (card_detected) {
       if (!card_open) {
         MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
-        #if !PIN_EXISTS(SD_DETECT)
-          MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
-        #endif
+        MENU_ITEM(gcode,
+          #if PIN_EXISTS(SD_DETECT)
+            MSG_CHANGE_SDCARD, PSTR("M21")
+          #else
+            MSG_RELEASE_SDCARD, PSTR("M22")
+          #endif
+        );
       }
     }
     else {
-      #if !PIN_EXISTS(SD_DETECT)
-        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually init SD-card
+      #if PIN_EXISTS(SD_DETECT)
+        MENU_ITEM(function, MSG_NO_CARD, NULL);
+      #else
+        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));
+        MENU_ITEM(function, MSG_SD_RELEASED, NULL);
       #endif
-      MENU_ITEM(function, MSG_NO_CARD, NULL);
     }
   #endif // HAS_ENCODER_WHEEL && SDSUPPORT
 
@@ -274,6 +294,22 @@ void menu_main() {
     #if SERVICE_INTERVAL_3 > 0
       MENU_ITEM(submenu, SERVICE_NAME_3, menu_service3);
     #endif
+  #endif
+
+  #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
+    MENU_ITEM(submenu, "Game", (
+      #if HAS_GAME_MENU
+        menu_game
+      #elif ENABLED(MARLIN_BRICKOUT)
+        brickout.enter_game
+      #elif ENABLED(MARLIN_INVADERS)
+        invaders.enter_game
+      #elif ENABLED(MARLIN_SNAKE)
+        snake.enter_game
+      #elif ENABLED(MARLIN_MAZE)
+        maze.enter_game
+      #endif
+    ));
   #endif
 
   END_MENU();

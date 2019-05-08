@@ -102,6 +102,9 @@ const PinInfo pin_array[] PROGMEM = {
 
 #include HAL_PATH(../HAL, pinsDebug.h)  // get the correct support file for this CPU
 
+#ifndef M43_NEVER_TOUCH
+  #define M43_NEVER_TOUCH(Q) false
+#endif
 
 static void print_input_or_output(const bool isout) {
   serialprintPGM(isout ? PSTR("Output = ") : PSTR("Input  = "));

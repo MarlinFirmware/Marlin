@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,52 +31,32 @@
 #include "menu.h"
 #include "../../module/printcounter.h"
 
-inline void _lcd_reset_service(const int index) {
-  print_job_timer.resetServiceInterval(index);
-  BUZZ(200, 404);
-  ui.reset_status();
-  ui.return_to_status();
+inline void _menu_service(const int index, PGM_P const name) {
+  char sram[30];
+  strncpy_P(sram, name, 29);
+  do_select_screen(
+    PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
+    []{
+      print_job_timer.resetServiceInterval(index);
+      ui.completion_feedback(true);
+      ui.reset_status();
+      ui.return_to_status();
+    },
+    ui.goto_previous_screen,
+    PSTR(MSG_SERVICE_RESET), sram, PSTR("?")
+  );
 }
 
 #if SERVICE_INTERVAL_1 > 0
-  void menu_action_reset_service1() { _lcd_reset_service(1); }
+  void menu_service1() { _menu_service(1, PSTR(SERVICE_NAME_1)); }
 #endif
 
 #if SERVICE_INTERVAL_2 > 0
-  void menu_action_reset_service2() { _lcd_reset_service(2); }
+  void menu_service2() { _menu_service(2, PSTR(SERVICE_NAME_2)); }
 #endif
 
 #if SERVICE_INTERVAL_3 > 0
-  void menu_action_reset_service3() { _lcd_reset_service(3); }
-#endif
-
-inline void _menu_service(const int index) {
-  START_MENU();
-  MENU_BACK(MSG_MAIN);
-  switch (index) {
-    #if SERVICE_INTERVAL_1 > 0
-      case 1: MENU_ITEM(function, MSG_SERVICE_RESET, menu_action_reset_service1); break;
-    #endif
-    #if SERVICE_INTERVAL_2 > 0
-      case 2: MENU_ITEM(function, MSG_SERVICE_RESET, menu_action_reset_service2); break;
-    #endif
-    #if SERVICE_INTERVAL_3 > 0
-      case 3: MENU_ITEM(function, MSG_SERVICE_RESET, menu_action_reset_service3); break;
-    #endif
-  }
-  END_MENU();
-}
-
-#if SERVICE_INTERVAL_1 > 0
-  void menu_service1() { _menu_service(1); }
-#endif
-
-#if SERVICE_INTERVAL_2 > 0
-  void menu_service2() { _menu_service(2); }
-#endif
-
-#if SERVICE_INTERVAL_3 > 0
-  void menu_service3() { _menu_service(3); }
+  void menu_service3() { _menu_service(3, PSTR(SERVICE_NAME_3)); }
 #endif
 
 #endif // HAS_LCD_MENU && HAS_SERVICE_INTERVALS && PRINTCOUNTER

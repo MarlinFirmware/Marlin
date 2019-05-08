@@ -28,6 +28,9 @@
   #define BOARD_NAME "BIGTREE SKR V1.3"
 #endif
 
+// Ignore temp readings during develpment.
+//#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+
 //
 // Servos
 //
@@ -177,46 +180,83 @@
 |               EXP2                                              EXP1
 */
 #if ENABLED(ULTRA_LCD)
-  #define BEEPER_PIN        P1_30   // (37) not 5V tolerant
-  #define BTN_ENC           P0_28   // (58) open-drain
+  #define BEEPER_PIN       P1_30   // (37) not 5V tolerant
+  #define BTN_ENC          P0_28   // (58) open-drain
 
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS     P1_22
+    #define LCD_PINS_RS    P1_22
 
-    #define BTN_EN1         P1_18
-    #define BTN_EN2         P1_20
+    #define BTN_EN1        P1_18
+    #define BTN_EN2        P1_20
 
     #define LCD_PINS_ENABLE P1_23
-    #define LCD_PINS_D4     P1_21
+    #define LCD_PINS_D4    P1_21
 
   #else
+    #define LCD_PINS_RS    P1_19
 
-    #define LCD_PINS_RS     P1_19
-
-    #define BTN_EN1         P3_26   // (31) J3-2 & AUX-4
-    #define BTN_EN2         P3_25   // (33) J3-4 & AUX-4
-    #define SD_DETECT_PIN   P1_31   // (49) (NOT 5V tolerant)
-
-    #define LCD_SDSS        P0_16   // (16) J3-7 & AUX-4
+    #define BTN_EN1        P3_26   // (31) J3-2 & AUX-4
+    #define BTN_EN2        P3_25   // (33) J3-4 & AUX-4
 
     #define LCD_PINS_ENABLE P1_18
-    #define LCD_PINS_D4     P1_20
+    #define LCD_PINS_D4    P1_20
 
-    #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5   P1_21
-      #define LCD_PINS_D6   P1_22
-      #define LCD_PINS_D7   P1_23
-    #endif
+    #define LCD_SDSS       P0_16   // (16) J3-7 & AUX-4
+    #define SD_DETECT_PIN  P1_31   // (49) (NOT 5V tolerant)
+
+    #if ENABLED(FYSETC_MINI_12864)
+      #define DOGLCD_CS    P1_18
+      #define DOGLCD_A0    P1_19
+
+      #define LCD_BACKLIGHT_PIN -1
+
+      //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
+                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+      #define LCD_RESET_PIN P1_20   // Must be high or open for LCD to operate normally.
+
+      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #ifndef RGB_LED_R_PIN
+          #define RGB_LED_R_PIN P1_21
+        #endif
+        #ifndef RGB_LED_G_PIN
+          #define RGB_LED_G_PIN P1_22
+        #endif
+        #ifndef RGB_LED_B_PIN
+          #define RGB_LED_B_PIN P1_23
+        #endif
+      #elif ENABLED(FYSETC_MINI_12864_2_1)
+        #define NEOPIXEL_PIN    P1_21
+      #endif
+
+    #else // !FYSETC_MINI_12864
+
+      #if ENABLED(MKS_MINI_12864)
+        #define DOGLCD_CS  P1_21
+        #define DOGLCD_A0  P1_22
+      #endif
+
+      #if ENABLED(ULTIPANEL)
+        #define LCD_PINS_D5 P1_21
+        #define LCD_PINS_D6 P1_22
+        #define LCD_PINS_D7 P1_23
+      #endif
+
+    #endif // !FYSETC_MINI_12864
 
   #endif
 
 #endif // ULTRA_LCD
 
-//#define USB_SD_DISABLED
-#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
+//
+// SD Support
+//
 
-#define LPC_SD_LCD            // Marlin uses the SD drive attached to the LCD
-//#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+  #undef USB_SD_DISABLED
+  #define USB_SD_ONBOARD
+  #define LPC_SD_LCD
+#endif
 
 #if ENABLED(LPC_SD_LCD)
 

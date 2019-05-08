@@ -42,8 +42,8 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
-#if ENABLED(G26_MESH_VALIDATION)
-  bool g26_debug_flag; // = false
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extensible_ui/ui_api.h"
 #endif
 
 bool leveling_is_valid() {

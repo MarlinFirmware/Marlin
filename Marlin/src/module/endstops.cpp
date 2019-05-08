@@ -40,6 +40,10 @@
   #include "printcounter.h" // for print_job_timer
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../feature/bltouch.h"
+#endif
+
 Endstops endstops;
 
 // private:
@@ -381,6 +385,9 @@ static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
 }
 
 void _O2 Endstops::M119() {
+  #if ENABLED(BLTOUCH)
+    bltouch._set_SW_mode();
+  #endif
   SERIAL_ECHOLNPGM(MSG_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(MSG_##S))
   #if HAS_X_MIN
@@ -456,6 +463,10 @@ void _O2 Endstops::M119() {
         print_es_state(extDigitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
     #endif
+  #endif
+  #if ENABLED(BLTOUCH)
+    bltouch._reset();
+    if (enabled_globally) bltouch._stow();
   #endif
 } // Endstops::M119
 

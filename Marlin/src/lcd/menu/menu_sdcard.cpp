@@ -47,10 +47,11 @@ void lcd_sd_updir() {
 
 #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
 
-  uint32_t last_sdfile_encoderPosition = 0xFFFF;
+  uint16_t sd_encoder_position = 0xFFFF;
+  int8_t sd_top_line, sd_items;
 
   void MarlinUI::reselect_last_file() {
-    if (last_sdfile_encoderPosition == 0xFFFF) return;
+    if (sd_encoder_position == 0xFFFF) return;
     //#if HAS_GRAPHICAL_LCD
     //  // This is a hack to force a screen update.
     //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
@@ -61,8 +62,8 @@ void lcd_sd_updir() {
     //  ui.drawing_screen = screen_changed = true;
     //#endif
 
-    goto_screen(menu_sdcard, last_sdfile_encoderPosition);
-    last_sdfile_encoderPosition = 0xFFFF;
+    goto_screen(menu_sdcard, sd_encoder_position, sd_top_line, sd_items);
+    sd_encoder_position = 0xFFFF;
 
     defer_status_screen();
 
@@ -72,15 +73,38 @@ void lcd_sd_updir() {
   }
 #endif
 
+inline void sdcard_start_selected_file() {
+  card.openAndPrintFile(card.filename);
+  ui.return_to_status();
+  ui.reset_status();
+}
+
+#if ENABLED(SD_MENU_CONFIRM_START)
+
+  void menu_sd_confirm() {
+    do_select_screen(
+      PSTR(MSG_BUTTON_PRINT), PSTR(MSG_BUTTON_CANCEL),
+      sdcard_start_selected_file, ui.goto_previous_screen,
+      PSTR(MSG_START_PRINT " "), card.longest_filename(), PSTR("?")
+    );
+  }
+
+#endif
+
 class MenuItem_sdfile {
   public:
     static void action(CardReader &theCard) {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-        last_sdfile_encoderPosition = ui.encoderPosition;  // Save which file was selected for later use
+        // Save menu state for the selected file
+        sd_encoder_position = ui.encoderPosition;
+        sd_top_line = encoderTopLine;
+        sd_items = screen_items;
       #endif
-      card.openAndPrintFile(theCard.filename);
-      ui.return_to_status();
-      ui.reset_status();
+      #if ENABLED(SD_MENU_CONFIRM_START)
+        MenuItem_submenu::action(menu_sd_confirm);
+      #else
+        sdcard_start_selected_file();
+      #endif
     }
 };
 
@@ -89,7 +113,7 @@ class MenuItem_sdfolder {
     static void action(CardReader &theCard) {
       card.chdir(theCard.filename);
       encoderTopLine = 0;
-      ui.encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
+      ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
       screen_changed = true;
       #if HAS_GRAPHICAL_LCD
         ui.drawing_screen = false;

@@ -59,9 +59,10 @@
 
 #if HAS_GRAPHICAL_LCD
 
-#include <U8glib.h>
-#include <Arduino.h>
+#include "../shared/Marduino.h"
 #include "../shared/Delay.h"
+
+#include <U8glib.h>
 
 void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
   PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
@@ -99,7 +100,7 @@ static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
     spiSend_sw_DUE(rs ? 0x0FA : 0x0F8); // Command or Data
     DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
   }
-  spiSend_sw_DUE(val & 0x0F0);
+  spiSend_sw_DUE(val & 0xF0);
   spiSend_sw_DUE(val << 4);
 }
 
@@ -168,6 +169,42 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   return 1;
 }
 
-#endif // HAS_GRAPHICAL_LCD
+#if ENABLED(LIGHTWEIGHT_UI)
+  #include "../../lcd/ultralcd.h"
+  #include "../shared/HAL_ST7920.h"
 
+  #define ST7920_CS_PIN LCD_PINS_RS
+
+  #if DOGM_SPI_DELAY_US > 0
+    #define U8G_DELAY() DELAY_US(DOGM_SPI_DELAY_US)
+  #else
+    #define U8G_DELAY() DELAY_US(10)
+  #endif
+
+  void ST7920_cs() {
+    WRITE(ST7920_CS_PIN, HIGH);
+    U8G_DELAY();
+  }
+
+  void ST7920_ncs() {
+    WRITE(ST7920_CS_PIN, LOW);
+  }
+
+  void ST7920_set_cmd() {
+    spiSend_sw_DUE(0xF8);
+    DELAY_US(40);
+  }
+
+  void ST7920_set_dat() {
+    spiSend_sw_DUE(0xFA);
+    DELAY_US(40);
+  }
+
+  void ST7920_write_byte(const uint8_t val) {
+    spiSend_sw_DUE(val & 0xF0);
+    spiSend_sw_DUE(val << 4);
+  }
+#endif // LIGHTWEIGHT_UI
+
+#endif // HAS_GRAPHICAL_LCD
 #endif // ARDUINO_ARCH_SAM

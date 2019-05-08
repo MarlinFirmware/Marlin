@@ -23,8 +23,9 @@
 #include "../inc/MarlinConfigPre.h"
 
 // These displays all share the MarlinUI class
-#if HAS_SPI_LCD || EITHER(MALYAN_LCD, EXTENSIBLE_UI)
+#if HAS_DISPLAY
   #include "ultralcd.h"
+  #include "fontutils.h"
   MarlinUI ui;
   #include "../sd/cardreader.h"
   #if ENABLED(EXTENSIBLE_UI)
@@ -118,7 +119,7 @@ millis_t next_button_update_ms;
 
 // Encoder Handling
 #if HAS_ENCODER_ACTION
-  uint32_t MarlinUI::encoderPosition;
+  uint16_t MarlinUI::encoderPosition;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
 #endif
 
@@ -192,7 +193,40 @@ millis_t next_button_update_ms;
 
   #endif
 
-#endif
+  void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte) {
+    SETCURSOR(x, y);
+    if (string) {
+      uint8_t *p = (uint8_t*)string;
+      for (;;) {
+        wchar_t ch;
+        p = get_utf8_value_cb(p, cb_read_byte, &ch);
+        if (!ch) break;
+        lcd_put_wchar(ch);
+        x++;
+        if (x >= LCD_WIDTH) {
+          x = 0; y++;
+          SETCURSOR(0, y);
+        }
+      }
+    }
+  }
+
+  void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=NULL*/, PGM_P const suff/*=NULL*/) {
+    const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
+    uint8_t x = 0, y = 0;
+    if (!string && plen + slen <= LCD_WIDTH) {
+      x = (LCD_WIDTH - plen - slen) / 2;
+      y = LCD_HEIGHT > 3 ? 1 : 0;
+    }
+    wrap_string_P(x, y, pref);
+    if (string) {
+      if (x) { x = 0; y++; } // Move to the start of the next line
+      wrap_string(x, y, string);
+    }
+    if (suff) wrap_string_P(x, y, suff);
+  }
+
+#endif // HAS_LCD_MENU
 
 void MarlinUI::init() {
 
@@ -462,13 +496,13 @@ void MarlinUI::status_screen() {
   #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
 
     const int16_t old_frm = feedrate_percentage;
-          int16_t new_frm = old_frm + (int32_t)encoderPosition;
+          int16_t new_frm = old_frm + int16_t(encoderPosition);
 
     // Dead zone at 100% feedrate
     if (old_frm == 100) {
-      if ((int32_t)encoderPosition > ENCODER_FEEDRATE_DEADZONE)
+      if (int16_t(encoderPosition) > ENCODER_FEEDRATE_DEADZONE)
         new_frm -= ENCODER_FEEDRATE_DEADZONE;
-      else if ((int32_t)encoderPosition < -(ENCODER_FEEDRATE_DEADZONE))
+      else if (int16_t(encoderPosition) < -(ENCODER_FEEDRATE_DEADZONE))
         new_frm += ENCODER_FEEDRATE_DEADZONE;
       else
         new_frm = old_frm;
@@ -650,6 +684,7 @@ void MarlinUI::update() {
 
   static uint16_t max_display_update_time = 0;
   static millis_t next_lcd_update_ms;
+  millis_t ms = millis();
 
   #if HAS_LCD_MENU
 
@@ -711,11 +746,13 @@ void MarlinUI::update() {
 
       refresh();
       init_lcd(); // May revive the LCD if static electricity killed it
+
+      ms = millis();
+      next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // delay LCD update until after SD activity completes
     }
 
   #endif // SDSUPPORT && SD_DETECT_PIN
 
-  const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
     #if HAS_GRAPHICAL_LCD
       || drawing_screen
@@ -809,10 +846,13 @@ void MarlinUI::update() {
     #if HAS_LCD_MENU && ENABLED(SCROLL_LONG_FILENAMES)
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
-      if (currentScreen == menu_sdcard && filename_scroll_pos < filename_scroll_max && !lcd_status_update_delay--) {
-        lcd_status_update_delay = 6;
+      if (currentScreen == menu_sdcard && !lcd_status_update_delay--) {
+        lcd_status_update_delay = 4;
+        if (++filename_scroll_pos > filename_scroll_max) {
+          filename_scroll_pos = 0;
+          lcd_status_update_delay = 12;
+        }
         refresh(LCDVIEW_REDRAW_NOW);
-        filename_scroll_pos++;
         #if LCD_TIMEOUT_TO_STATUS
           return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
         #endif
@@ -1152,7 +1192,7 @@ void MarlinUI::update() {
 
 #endif // HAS_SPI_LCD
 
-#if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
+#if HAS_DISPLAY
 
   #if ENABLED(EXTENSIBLE_UI)
     #include "extensible_ui/ui_api.h"
@@ -1336,4 +1376,4 @@ void MarlinUI::update() {
     }
   #endif
 
-#endif // HAS_SPI_LCD || EXTENSIBLE_UI
+#endif // HAS_DISPLAY

@@ -305,39 +305,43 @@
 //
 
 #elif MB(RAMPS_14_RE_ARM_EFB)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
+  #include "pins_RAMPS_RE_ARM.h"        // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_EEB)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
+  #include "pins_RAMPS_RE_ARM.h"        // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_EFF)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
+  #include "pins_RAMPS_RE_ARM.h"        // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_EEF)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
+  #include "pins_RAMPS_RE_ARM.h"        // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_SF)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
+  #include "pins_RAMPS_RE_ARM.h"        // LPC1768                                    env:LPC1768
 #elif MB(MKS_SBASE)
-  #include "pins_MKS_SBASE.h"         // LPC1768                                    env:LPC1768
+  #include "pins_MKS_SBASE.h"           // LPC1768                                    env:LPC1768
+#elif MB(MKS_SGEN)
+  #include "pins_MKS_SGEN.h"            // LPC1769                                    env:LPC1769
 #elif MB(AZSMZ_MINI)
-  #include "pins_AZSMZ_MINI.h"        // LPC1768                                    env:LPC1768
+  #include "pins_AZSMZ_MINI.h"          // LPC1768                                    env:LPC1768
 #elif MB(AZTEEG_X5_GT)
-  #include "pins_AZTEEG_X5_GT.h"      // LPC1769                                    env:LPC1769
+  #include "pins_AZTEEG_X5_GT.h"        // LPC1769                                    env:LPC1769
+#elif MB(AZTEEG_X5_MINI)
+  #include "pins_AZTEEG_X5_MINI.h"      // LPC1769                                    env:LPC1769
 #elif MB(AZTEEG_X5_MINI_WIFI)
-  #include "pins_AZTEEG_X5_MINI_WIFI.h" // LPC1769                                  env:LPC1769
+  #include "pins_AZTEEG_X5_MINI_WIFI.h" // LPC1769                                    env:LPC1769
 #elif MB(BIQU_BQ111_A4)
-  #include "pins_BIQU_BQ111_A4.h"     // LPC1768                                    env:LPC1768
+  #include "pins_BIQU_BQ111_A4.h"       // LPC1768                                    env:LPC1768
 #elif MB(SELENA_COMPACT)
-  #include "pins_SELENA_COMPACT.h"    // LPC1768                                    env:LPC1768
+  #include "pins_SELENA_COMPACT.h"      // LPC1768                                    env:LPC1768
 #elif MB(COHESION3D_REMIX)
-  #include "pins_COHESION3D_REMIX.h"  // LPC1769                                    env:LPC1769
+  #include "pins_COHESION3D_REMIX.h"    // LPC1769                                    env:LPC1769
 #elif MB(COHESION3D_MINI)
-  #include "pins_COHESION3D_MINI.h"   // LPC1769                                    env:LPC1769
+  #include "pins_COHESION3D_MINI.h"     // LPC1769                                    env:LPC1769
 #elif MB(SMOOTHIEBOARD)
-  #include "pins_SMOOTHIEBOARD.h"     // LPC1769                                    env:LPC1769
+  #include "pins_SMOOTHIEBOARD.h"       // LPC1769                                    env:LPC1769
 #elif MB(BIQU_SKR_V1_1)
-  #include "pins_BIQU_SKR_V1.1.h"     // LPC1768                                    env:LPC1768
+  #include "pins_BIQU_SKR_V1.1.h"       // LPC1768                                    env:LPC1768
 #elif MB(BIQU_B300_V1_0)
-  #include "pins_BIQU_B300_V1.0.h"    // LPC1768                                    env:LPC1768
+  #include "pins_BIQU_B300_V1.0.h"      // LPC1768                                    env:LPC1768
 #elif MB(BIGTREE_SKR_V1_3)
-  #include "pins_BIGTREE_SKR_V1.3.h"  // LPC1768                                    env:LPC1768
+  #include "pins_BIGTREE_SKR_V1.3.h"    // LPC1768                                    env:LPC1768
 
 //
 // Other 32-bit Boards
@@ -417,7 +421,7 @@
 #elif MB(MORPHEUS)
   #include "pins_MORPHEUS.h"          // STM32F1                                    env:STM32F1
 #elif MB(MKS_ROBIN)
-  #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:STM32F1
+  #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:mks_robin
 
 //
 // STM32 ARM Cortex-M4F
@@ -435,8 +439,12 @@
   #include "pins_ARMED.h"             // STM32F4                                    env:ARMED
 #elif MB(RUMBA32)
   #include "pins_RUMBA32.h"           // STM32F4                                    env:RUMBA32
+#elif MB(BLACK_STM32F407VE)
+  #include "pins_BLACK_STM32F407VE.h" // STM32F4                                    env:black_stm32f407ve
 #elif MB(STEVAL)
   #include "pins_STEVAL.h"            // STM32F4                                    env:STM32F4
+
+
 
 //
 // ARM Cortex M7

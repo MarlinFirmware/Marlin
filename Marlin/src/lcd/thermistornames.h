@@ -31,8 +31,12 @@
 
 #undef THERMISTOR_NAME
 
+// User-specified thermistor parameters
+#if THERMISTOR_ID == 1000
+  #define THERMISTOR_NAME "User Parameters"
+
 // Thermcouples
-#if THERMISTOR_ID == -4
+#elif THERMISTOR_ID == -4
   #define THERMISTOR_NAME "AD8495"
 #elif THERMISTOR_ID == -3
   #define THERMISTOR_NAME "MAX31855"
@@ -96,6 +100,8 @@
   #define THERMISTOR_NAME "PT100 1K"
 #elif THERMISTOR_ID == 666
   #define THERMISTOR_NAME "Einstart S"
+#elif THERMISTOR_ID == 501
+  #define THERMISTOR_NAME "Zonestar (Tronxy X3A)"
 
 // High Temperature thermistors
 #elif THERMISTOR_ID == 61

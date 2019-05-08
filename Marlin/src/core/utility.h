@@ -56,7 +56,7 @@ inline void serial_delay(const millis_t ms) {
 #if ANY(ULTRA_LCD, DEBUG_LEVELING_FEATURE, EXTENSIBLE_UI)
 
   // Convert a full-range unsigned 8bit int to a percentage
-  char* ui8tostr_percent(const uint8_t i);
+  char* ui8tostr4pct(const uint8_t i);
 
   // Convert uint8_t to string with 123 format
   char* ui8tostr3(const uint8_t x);
@@ -91,6 +91,9 @@ inline void serial_delay(const millis_t ms) {
   // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
   char* ftostr43sign(const float &x, char plus=' ');
 
+  // Convert signed float to string (5 digit) with -1.2345 / _0.0000 / +1.2345 format
+  char* ftostr54sign(const float &x, char plus=' ');
+
   // Convert unsigned float to rj string with 12345 format
   char* ftostr5rj(const float &x);
 
@@ -103,8 +106,8 @@ inline void serial_delay(const millis_t ms) {
   // Convert signed float to string with +123.45 format
   char* ftostr52sign(const float &x);
 
-  // Convert unsigned float to string with 1234.56 format omitting trailing zeros
-  char* ftostr62rj(const float &x);
+  // Convert unsigned float to string with 1234.5 format omitting trailing zeros
+  char* ftostr51rj(const float &x);
 
   // Convert float to rj string with 123 or -12 format
   FORCE_INLINE char* ftostr3(const float &x) { return i16tostr3(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }

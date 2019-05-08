@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """Thermistor Value Lookup Table Generator
 
 Generates lookup to temperature values for use in a microcontroller in C format based on:
@@ -17,6 +17,9 @@ Options:
   --t3=ttt:rrr      high temperature temperature:resistance point (around 250 degC)
   --num-temps=...   the number of temperature points to calculate (default: 36)
 """
+
+from __future__ import print_function
+from __future__ import division
 
 from math import *
 import sys
@@ -47,9 +50,9 @@ class Thermistor:
         a = y1 - (b + l1**2 *c)*l1
 
         if c < 0:
-            print "//////////////////////////////////////////////////////////////////////////////////////"
-            print "// WARNING: negative coefficient 'c'! Something may be wrong with the measurements! //"
-            print "//////////////////////////////////////////////////////////////////////////////////////"
+            print("//////////////////////////////////////////////////////////////////////////////////////")
+            print("// WARNING: negative coefficient 'c'! Something may be wrong with the measurements! //")
+            print("//////////////////////////////////////////////////////////////////////////////////////")
             c = -c
         self.c1 = a                         # Steinhart-Hart coefficients
         self.c2 = b
@@ -97,7 +100,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "h", ["help", "rp=", "t1=", "t2=", "t3=", "num-temps="])
     except getopt.GetoptError as err:
-        print  str(err)
+        print(str(err))
         usage()
         sys.exit(2)
 
@@ -129,27 +132,27 @@ def main(argv):
     up_bound = t.temp(1);
     min_temp = int(TMIN if TMIN > low_bound else low_bound)
     max_temp = int(TMAX if TMAX < up_bound else up_bound)
-    temps = range(max_temp, TMIN+step, step);
+    temps = list(range(max_temp, TMIN+step, step));
 
-    print "// Thermistor lookup table for Marlin"
-    print "// ./createTemperatureLookupMarlin.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps)
-    print "// Steinhart-Hart Coefficients: a=%.15g, b=%.15g, c=%.15g " % (t.c1, t.c2, t.c3)
-    print "// Theoretical limits of thermistor: %.2f to %.2f degC" % (low_bound, up_bound)
-    print
-    print "const short temptable[][2] PROGMEM = {"
+    print("// Thermistor lookup table for Marlin")
+    print("// ./createTemperatureLookupMarlin.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps))
+    print("// Steinhart-Hart Coefficients: a=%.15g, b=%.15g, c=%.15g " % (t.c1, t.c2, t.c3))
+    print("// Theoretical limits of thermistor: %.2f to %.2f degC" % (low_bound, up_bound))
+    print()
+    print("const short temptable[][2] PROGMEM = {")
 
     for temp in temps:
         adc = t.adc(temp)
-        print "    { OV(%7.2f), %4s }%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" % (adc , temp, \
+        print("    { OV(%7.2f), %4s }%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" % (adc , temp, \
                         ',' if temp != temps[-1] else ' ', \
                         t.voltage(adc), \
                         t.resist( adc), \
                         t.resol(  adc) \
-                    )
-    print "};"
+                    ))
+    print("};")
 
 def usage():
-    print __doc__
+    print(__doc__)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

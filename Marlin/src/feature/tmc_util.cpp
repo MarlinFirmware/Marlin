@@ -85,12 +85,15 @@
     #endif
 
     static TMC_driver_data get_driver_data(TMC2130Stepper &st) {
-      constexpr uint16_t SG_RESULT_bm = 0x3FF; // 0:9
-      constexpr uint8_t STEALTH_bp = 14, CS_ACTUAL_sb = 16;
-      constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
-      constexpr uint8_t STALL_GUARD_bp = 24, OT_bp = 25, OTPW_bp = 26;
+      constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
       constexpr uint32_t S2G_bm = 0x18000000;
-      constexpr uint8_t STST_bp = 31;
+      #if ENABLED(TMC_DEBUG)
+        constexpr uint16_t SG_RESULT_bm = 0x3FF; // 0:9
+        constexpr uint8_t STEALTH_bp = 14;
+        constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
+        constexpr uint8_t STALL_GUARD_bp = 24;
+        constexpr uint8_t STST_bp = 31;
+      #endif
       TMC_driver_data data;
       data.drv_status = st.DRV_STATUS();
       #ifdef __AVR__
@@ -112,13 +115,13 @@
           data.is_standstill = !!(spart & _BV(STST_bp - 24));
           data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
         #endif
-        UNUSED(CS_ACTUAL_sb);
       #else // !__AVR__
 
         data.is_ot = !!(data.drv_status & _BV(OT_bp));
         data.is_otpw = !!(data.drv_status & _BV(OTPW_bp));
         data.is_s2g = !!(data.drv_status & S2G_bm);
         #if ENABLED(TMC_DEBUG)
+          constexpr uint8_t CS_ACTUAL_sb = 16;
           data.sg_result = data.drv_status & SG_RESULT_bm;
           data.is_stealth = !!(data.drv_status & _BV(STEALTH_bp));
           data.cs_actual = (data.drv_status & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
@@ -143,15 +146,14 @@
     static TMC_driver_data get_driver_data(TMC2208Stepper &st) {
       constexpr uint8_t OTPW_bp = 0, OT_bp = 1;
       constexpr uint8_t S2G_bm = 0b11110; // 2..5
-      constexpr uint8_t CS_ACTUAL_sb = 16;
-      constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
-      constexpr uint8_t STEALTH_bp = 30, STST_bp = 31;
       TMC_driver_data data;
       data.drv_status = st.DRV_STATUS();
       data.is_otpw = !!(data.drv_status & _BV(OTPW_bp));
       data.is_ot = !!(data.drv_status & _BV(OT_bp));
       data.is_s2g = !!(data.drv_status & S2G_bm);
       #if ENABLED(TMC_DEBUG)
+        constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
+        constexpr uint8_t STEALTH_bp = 30, STST_bp = 31;
         #ifdef __AVR__
           // 8-bit optimization saves up to 12 bytes of PROGMEM per axis
           uint8_t spart = data.drv_status >> 16;
@@ -159,8 +161,8 @@
           spart = data.drv_status >> 24;
           data.is_stealth = !!(spart & _BV(STEALTH_bp - 24));
           data.is_standstill = !!(spart & _BV(STST_bp - 24));
-          UNUSED(CS_ACTUAL_sb);
         #else
+          constexpr uint8_t CS_ACTUAL_sb = 16;
           data.cs_actual = (data.drv_status & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
           data.is_stealth = !!(data.drv_status & _BV(STEALTH_bp));
           data.is_standstill = !!(data.drv_status & _BV(STST_bp));
@@ -181,11 +183,8 @@
     #endif
 
     static TMC_driver_data get_driver_data(TMC2660Stepper &st) {
-      constexpr uint8_t STALL_GUARD_bp = 0;
       constexpr uint8_t OT_bp = 1, OTPW_bp = 2;
       constexpr uint8_t S2G_bm = 0b11000;
-      constexpr uint8_t STST_bp = 7, SG_RESULT_sp = 10;
-      constexpr uint32_t SG_RESULT_bm = 0xFFC00; // 10:19
       TMC_driver_data data;
       data.drv_status = st.DRVSTATUS();
       uint8_t spart = data.drv_status & 0xFF;
@@ -193,6 +192,9 @@
       data.is_ot = !!(spart & _BV(OT_bp));
       data.is_s2g = !!(data.drv_status & S2G_bm);
       #if ENABLED(TMC_DEBUG)
+        constexpr uint8_t STALL_GUARD_bp = 0;
+        constexpr uint8_t STST_bp = 7, SG_RESULT_sp = 10;
+        constexpr uint32_t SG_RESULT_bm = 0xFFC00; // 10:19
         data.is_stall = !!(spart & _BV(STALL_GUARD_bp));
         data.is_standstill = !!(spart & _BV(STST_bp));
         data.sg_result = (data.drv_status & SG_RESULT_bm) >> SG_RESULT_sp;
@@ -474,7 +476,7 @@
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
         case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
-        case TMC_STEALTHCHOP: serialprintPGM(st.en_pwm_mode() ? PSTR("true") : PSTR("false")); break;
+        case TMC_STEALTHCHOP: serialprint_truefalse(st.en_pwm_mode()); break;
         default: break;
       }
     }
@@ -497,7 +499,7 @@
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
         case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
-        case TMC_STEALTHCHOP: serialprintPGM(st.en_pwm_mode() ? PSTR("true") : PSTR("false")); break;
+        case TMC_STEALTHCHOP: serialprint_truefalse(st.en_pwm_mode()); break;
         case TMC_GLOBAL_SCALER:
           {
             uint16_t value = st.GLOBAL_SCALER();
@@ -514,7 +516,7 @@
     static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
-        case TMC_STEALTHCHOP: serialprintPGM(st.stealth() ? PSTR("true") : PSTR("false")); break;
+        case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
         case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('X'); break;
         case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('X'); break;
         default: break;
@@ -541,7 +543,7 @@
     SERIAL_CHAR('\t');
     switch (i) {
       case TMC_CODES: st.printLabel(); break;
-      case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
+      case TMC_ENABLED: serialprint_truefalse(st.isEnabled()); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
       case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
       case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
@@ -578,9 +580,9 @@
             SERIAL_CHAR('-');
         }
         break;
-      case TMC_OTPW: serialprintPGM(st.otpw() ? PSTR("true") : PSTR("false")); break;
+      case TMC_OTPW: serialprint_truefalse(st.otpw()); break;
       #if ENABLED(MONITOR_DRIVER_STATUS)
-        case TMC_OTPW_TRIGGERED: serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false")); break;
+        case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
       #endif
       case TMC_TOFF: SERIAL_PRINT(st.toff(), DEC); break;
       case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
@@ -596,7 +598,7 @@
       SERIAL_CHAR('\t');
       switch (i) {
         case TMC_CODES: st.printLabel(); break;
-        case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
+        case TMC_ENABLED: serialprint_truefalse(st.isEnabled()); break;
         case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
         case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
         case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
@@ -606,8 +608,8 @@
           break;
         case TMC_VSENSE: serialprintPGM(st.vsense() ? PSTR("1=.165") : PSTR("0=.310")); break;
         case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
-        //case TMC_OTPW: serialprintPGM(st.otpw() ? PSTR("true") : PSTR("false")); break;
-        //case TMC_OTPW_TRIGGERED: serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false")); break;
+        //case TMC_OTPW: serialprint_truefalse(st.otpw()); break;
+        //case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
         case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
         case TMC_TOFF: SERIAL_PRINT(st.toff(), DEC); break;
         case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
@@ -793,7 +795,9 @@
     #endif
     TMC_REPORT("CS actual\t",        TMC_CS_ACTUAL);
     TMC_REPORT("PWM scale",          TMC_PWM_SCALE);
-    TMC_REPORT("vsense\t",           TMC_VSENSE);
+    #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2224) || HAS_DRIVER(TMC2660) || HAS_DRIVER(TMC2208)
+      TMC_REPORT("vsense\t",         TMC_VSENSE);
+    #endif
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
     TMC_REPORT("msteps\t",           TMC_MICROSTEPS);
     TMC_REPORT("tstep\t",            TMC_TSTEP);

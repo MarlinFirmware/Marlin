@@ -41,6 +41,10 @@
   #include "../../../lcd/menu/menu_mmu2.h"
 #endif
 
+#if ENABLED(MIXING_EXTRUDER)
+  #include "../../../feature/mixing.h"
+#endif
+
 /**
  * M600: Pause for filament change
  *
@@ -58,8 +62,21 @@
 void GcodeSuite::M600() {
   point_t park_point = NOZZLE_PARK_POINT;
 
-  const int8_t target_extruder = get_target_extruder_from_command();
-  if (target_extruder < 0) return;
+  #if ENABLED(MIXING_EXTRUDER)
+    const int8_t target_e_stepper = get_target_e_stepper_from_command();
+    if (target_e_stepper < 0) return;
+
+    const uint8_t old_mixing_tool = mixer.get_current_vtool();
+    mixer.T(MIXER_DIRECT_SET_TOOL);
+
+    MIXER_STEPPER_LOOP(i) mixer.set_collector(i, i == uint8_t(target_e_stepper) ? 1.0 : 0.0);
+    mixer.normalize();
+
+    const int8_t target_extruder = active_extruder;
+  #else
+    const int8_t target_extruder = get_target_extruder_from_command();
+    if (target_extruder < 0) return;
+  #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
     int8_t DXC_ext = target_extruder;
@@ -154,6 +171,10 @@ void GcodeSuite::M600() {
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, 0, false);
+  #endif
+
+  #if ENABLED(MIXING_EXTRUDER)
+    mixer.T(old_mixing_tool); // Restore original mixing tool
   #endif
 }
 

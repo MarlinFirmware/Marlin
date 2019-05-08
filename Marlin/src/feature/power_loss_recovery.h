@@ -32,15 +32,22 @@
   #include "../feature/mixing.h"
 #endif
 
-#define SAVE_INFO_INTERVAL_MS 0
-//#define SAVE_EACH_CMD_MODE
 //#define DEBUG_POWER_LOSS_RECOVERY
+//#define SAVE_EACH_CMD_MODE
+//#define SAVE_INFO_INTERVAL_MS 0
 
 typedef struct {
   uint8_t valid_head;
 
   // Machine state
   float current_position[NUM_AXIS];
+
+  #if HAS_HOME_OFFSET
+    float home_offset[XYZ];
+  #endif
+  #if HAS_POSITION_SHIFT
+    float position_shift[XYZ];
+  #endif
 
   uint16_t feedrate;
 
@@ -125,9 +132,11 @@ class PrintJobRecovery {
 
   static inline bool valid() { return info.valid_head && info.valid_head == info.valid_foot; }
 
-    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      static void debug(PGM_P const prefix);
-    #endif
+  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+    static void debug(PGM_P const prefix);
+  #else
+    static inline void debug(PGM_P const prefix) { UNUSED(prefix); }
+  #endif
 
   private:
     static void write();

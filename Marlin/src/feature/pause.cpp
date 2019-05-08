@@ -302,16 +302,22 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
  */
 bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
                      const PauseMode mode/*=PAUSE_MODE_PAUSE_PRINT*/
+                     #if BOTH(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
+                       , const float &mix_multiplier/*=1.0*/
+                     #endif
 ) {
   #if !HAS_LCD_MENU
     UNUSED(show_lcd);
+  #endif
+
+  #if !BOTH(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
+    constexpr float mix_multiplier = 1.0;
   #endif
 
   if (!ensure_safe_temperature(mode)) {
     #if HAS_LCD_MENU
       if (show_lcd) lcd_pause_show_message(PAUSE_MESSAGE_STATUS);
     #endif
-
     return false;
   }
 
@@ -320,13 +326,14 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
   #endif
 
   // Retract filament
-  do_pause_e_move(-FILAMENT_UNLOAD_RETRACT_LENGTH, PAUSE_PARK_RETRACT_FEEDRATE);
+  do_pause_e_move(-(FILAMENT_UNLOAD_RETRACT_LENGTH) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
 
   // Wait for filament to cool
   safe_delay(FILAMENT_UNLOAD_DELAY);
 
   // Quickly purge
-  do_pause_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.settings.max_feedrate_mm_s[E_AXIS]);
+  do_pause_e_move((FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH) * mix_multiplier,
+                  planner.settings.max_feedrate_mm_s[E_AXIS] * mix_multiplier);
 
   // Unload filament
   #if FILAMENT_CHANGE_UNLOAD_ACCEL > 0
@@ -334,7 +341,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
     planner.settings.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
   #endif
 
-  do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
+  do_pause_e_move(unload_length * mix_multiplier, (FILAMENT_CHANGE_UNLOAD_FEEDRATE) * mix_multiplier);
 
   #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
     planner.settings.retract_acceleration = saved_acceleration;
@@ -416,6 +423,10 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
 
   // Wait for buffered blocks to complete
   planner.synchronize();
+
+  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && FAN_COUNT > 0
+    thermalManager.set_fans_paused(true);
+  #endif
 
   // Initial retract before move to filament change position
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
@@ -653,10 +664,16 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     }
   #endif
 
+  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && FAN_COUNT > 0
+    thermalManager.set_fans_paused(false);
+  #endif
+
   // Resume the print job timer if it was running
   if (print_job_timer.isPaused()) print_job_timer.start();
 
-  ui.reset_status();
+  #if HAS_LCD_MENU
+    ui.return_to_status();
+  #endif
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

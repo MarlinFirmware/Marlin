@@ -87,8 +87,8 @@
     #define U8GLIB_LM6059_AF
     #define SD_DETECT_INVERTED
   #elif ENABLED(AZSMZ_12864)
-    #define LCD_CONTRAST_MIN  120
-    #define LCD_CONTRAST_MAX 255
+    #define LCD_CONTRAST_MIN     120
+    #define LCD_CONTRAST_MAX     255
     #define DEFAULT_LCD_CONTRAST 190
     #define U8GLIB_ST7565_64128N
   #endif
@@ -138,13 +138,37 @@
 #elif ENABLED(MKS_MINI_12864)
 
   #define MINIPANEL
+  #define DEFAULT_LCD_CONTRAST 150
+  #define LCD_CONTRAST_MAX 255
+
+#elif ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
+
+  #define FYSETC_MINI_12864
+  #define DOGLCD
+  #define ULTIPANEL
+  #define LCD_CONTRAST_MIN 0
+  #define LCD_CONTRAST_MAX 255
+  #define DEFAULT_LCD_CONTRAST 255
+  #define LED_COLORS_REDUCE_GREEN
+
+  // Require LED backlighting enabled
+  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #define RGB_LED
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+    #define NEOPIXEL_LED
+    #define NEOPIXEL_TYPE       NEO_GRB
+    #define NEOPIXEL_PIXELS     3
+    #define NEOPIXEL_BRIGHTNESS 127
+  #endif
 
 #endif
 
 #if EITHER(MAKRPANEL, MINIPANEL)
   #define DOGLCD
   #define ULTIPANEL
-  #define DEFAULT_LCD_CONTRAST 17
+  #ifndef DEFAULT_LCD_CONTRAST
+    #define DEFAULT_LCD_CONTRAST 17
+  #endif
 #endif
 
 #if ENABLED(ULTI_CONTROLLER)
@@ -305,44 +329,34 @@
   #define ULTRA_LCD
 #endif
 
+// Extensible UI serial touch screens. (See src/lcd/extensible_ui)
+#if ENABLED(MALYAN_LCD)
+  #define EXTENSIBLE_UI
+#endif
+
 // Aliases for LCD features
 #define HAS_SPI_LCD          ENABLED(ULTRA_LCD)
+#define HAS_DISPLAY         (HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI))
 #define HAS_GRAPHICAL_LCD    ENABLED(DOGLCD)
 #define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 
 #define HAS_ADC_BUTTONS     ENABLED(ADC_KEYPAD)
 
-#if HAS_GRAPHICAL_LCD
-  /**
-   * Default LCD contrast for Graphical LCD displays
-   */
-  #define HAS_LCD_CONTRAST (                \
-       ENABLED(MAKRPANEL)                   \
-    || ENABLED(CARTESIO_UI)                 \
-    || ENABLED(VIKI2)                       \
-    || ENABLED(AZSMZ_12864)                 \
-    || ENABLED(miniVIKI)                    \
-    || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
-  )
-  #if HAS_LCD_CONTRAST
-    #ifndef LCD_CONTRAST_MIN
-      #define LCD_CONTRAST_MIN 0
-    #endif
-    #ifndef LCD_CONTRAST_MAX
-      #define LCD_CONTRAST_MAX 63
-    #endif
-    #ifndef DEFAULT_LCD_CONTRAST
-      #define DEFAULT_LCD_CONTRAST 32
-    #endif
+/**
+ * Default LCD contrast for Graphical LCD displays
+ */
+#define HAS_LCD_CONTRAST (HAS_GRAPHICAL_LCD && defined(DEFAULT_LCD_CONTRAST))
+#if HAS_LCD_CONTRAST
+  #ifndef LCD_CONTRAST_MIN
+    #define LCD_CONTRAST_MIN 0
   #endif
-#endif
-
-// Boot screens
-#if !HAS_SPI_LCD
-  #undef SHOW_BOOTSCREEN
-#elif !defined(BOOTSCREEN_TIMEOUT)
-  #define BOOTSCREEN_TIMEOUT 2500
+  #ifndef LCD_CONTRAST_MAX
+    #define LCD_CONTRAST_MAX 63
+  #endif
+  #ifndef DEFAULT_LCD_CONTRAST
+    #define DEFAULT_LCD_CONTRAST 32
+  #endif
 #endif
 
 /**
@@ -434,7 +448,7 @@
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define XYZE_N (XYZ + E_STEPPERS)
-  #define E_AXIS_N(E) (E_AXIS + E)
+  #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
 #else
   #undef DISTINCT_E_FACTORS
   #define XYZE_N XYZE
@@ -456,9 +470,6 @@
   #if NUM_SERVOS == 1
     #undef SERVO_DELAY
     #define SERVO_DELAY { 50 }
-  #endif
-  #ifndef BLTOUCH_DELAY
-    #define BLTOUCH_DELAY 375
   #endif
 
   // Always disable probe pin inverting for BLTouch
@@ -517,8 +528,11 @@
 #define HAS_FILAMENT_SENSOR   ENABLED(FILAMENT_RUNOUT_SENSOR)
 
 #define Z_MULTI_STEPPER_DRIVERS EITHER(Z_DUAL_STEPPER_DRIVERS, Z_TRIPLE_STEPPER_DRIVERS)
-#define Z_MULTI_ENDSTOPS EITHER(Z_DUAL_ENDSTOPS, Z_TRIPLE_ENDSTOPS)
-#define HAS_EXTRA_ENDSTOPS (EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS)
+#define Z_MULTI_ENDSTOPS        EITHER(Z_DUAL_ENDSTOPS, Z_TRIPLE_ENDSTOPS)
+#define HAS_EXTRA_ENDSTOPS     (EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS)
+
+#define HAS_GAMES     ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
+#define HAS_GAME_MENU (1 < ENABLED(MARLIN_BRICKOUT) + ENABLED(MARLIN_INVADERS) + ENABLED(MARLIN_SNAKE) + ENABLED(MARLIN_MAZE))
 
 #define IS_SCARA     EITHER(MORGAN_SCARA, MAKERARM_SCARA)
 #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
@@ -562,3 +576,9 @@
     #endif
   #endif
 #endif
+
+#if ENABLED(SLIM_LCD_MENUS)
+  #define BOOT_MARLIN_LOGO_SMALL
+#endif
+
+#define IS_RE_ARM_BOARD (MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_14_RE_ARM_EEB) || MB(RAMPS_14_RE_ARM_EFF) || MB(RAMPS_14_RE_ARM_EEF) || MB(RAMPS_14_RE_ARM_SF))

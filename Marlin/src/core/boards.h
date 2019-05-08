@@ -189,10 +189,12 @@
 #define BOARD_COHESION3D_REMIX    1755  // Cohesion3D ReMix
 #define BOARD_COHESION3D_MINI     1756  // Cohesion3D Mini
 #define BOARD_SMOOTHIEBOARD       1757  // Smoothieboard
-#define BOARD_AZTEEG_X5_MINI_WIFI 1758  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_AZTEEG_X5_MINI_WIFI 1758  // Azteeg X5 Mini Wifi (Power outputs: Hotend0, Bed, Fan)
 #define BOARD_BIQU_SKR_V1_1       1759  // BIQU SKR_V1.1 (Power outputs: Hotend0,Hotend1, Fan, Bed)
 #define BOARD_BIQU_B300_V1_0      1760  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
 #define BOARD_BIGTREE_SKR_V1_3    1761  // BIGTREE SKR_V1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_AZTEEG_X5_MINI      1762  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_MKS_SGEN            1763  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
 
 //
 // SAM3X8E ARM Cortex M3
@@ -253,6 +255,8 @@
 #define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
 #define BOARD_ARMED            1807   // Arm'ed STM32F4 based controller
 #define BOARD_RUMBA32          1809   // RUMBA32 STM32F4 based controller
+#define BOARD_BLACK_STM32F407VE 1810  // BLACK_STM32F407VE
+#define BOARD_BLACK_STM32F407ZE 1811  // BLACK_STM32F407ZE
 #define BOARD_STEVAL           1866   // STEVAL-3DP001V1 3D PRINTER BOARD
 
 //

@@ -72,15 +72,30 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int8_t GcodeSuite::get_target_extruder_from_command() {
   if (parser.seenval('T')) {
     const int8_t e = parser.value_byte();
-    if (e >= EXTRUDERS) {
-      SERIAL_ECHO_START();
-      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
-      return -1;
-    }
-    return e;
+    if (e < EXTRUDERS) return e;
+    SERIAL_ECHO_START();
+    SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+    SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
+    return -1;
   }
   return active_extruder;
+}
+
+/**
+ * Get the target e stepper from the T parameter
+ * Return -1 if the T parameter is out of range or unspecified
+ */
+int8_t GcodeSuite::get_target_e_stepper_from_command() {
+  const int8_t e = parser.intval('T', -1);
+  if (WITHIN(e, 0, E_STEPPERS - 1)) return e;
+
+  SERIAL_ECHO_START();
+  SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+  if (e == -1)
+    SERIAL_ECHOLNPGM(" " MSG_E_STEPPER_NOT_SPECIFIED);
+  else
+    SERIAL_ECHOLNPAIR(" " MSG_INVALID_E_STEPPER " ", int(e));
+  return -1;
 }
 
 /**
@@ -105,7 +120,7 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     // Only update power loss recovery on moves with E
-    if ((seen[E_AXIS] || seen[Z_AXIS]) && IS_SD_PRINTING()) recovery.save();
+    if (seen[E_AXIS] && (seen[X_AXIS] || seen[Y_AXIS]) && IS_SD_PRINTING()) recovery.save();
   #endif
 
   if (parser.linearval('F') > 0)
@@ -269,6 +284,16 @@ void GcodeSuite::process_parsed_command(
           break;
       #endif
 
+      #if ENABLED(CNC_COORDINATE_SYSTEMS)
+        case 53: G53(); break;
+        case 54: G54(); break;
+        case 55: G55(); break;
+        case 56: G56(); break;
+        case 57: G57(); break;
+        case 58: G58(); break;
+        case 59: G59(); break;
+      #endif
+
       #if ENABLED(GCODE_MOTION_MODES)
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
@@ -346,10 +371,6 @@ void GcodeSuite::process_parsed_command(
 
       #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
         case 48: M48(); break;                                    // M48: Z probe repeatability test
-      #endif
-
-      #if ENABLED(G26_MESH_VALIDATION)
-        case 49: M49(); break;                                    // M49: Turn on or off G26 debug flag for verbose output
       #endif
 
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -566,6 +587,10 @@ void GcodeSuite::process_parsed_command(
 
       #if HAS_PID_HEATING
         case 303: M303(); break;                                  // M303: PID autotune
+      #endif
+
+      #if HAS_USER_THERMISTORS
+        case 305: M305(); break;                                  // M305: Set user thermistor parameters
       #endif
 
       #if ENABLED(MORGAN_SCARA)

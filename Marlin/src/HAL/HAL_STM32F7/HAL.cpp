@@ -79,7 +79,7 @@ void sei(void) { interrupts(); }
 
 void HAL_clear_reset_source(void) { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
-uint8_t HAL_get_reset_source (void) {
+uint8_t HAL_get_reset_source(void) {
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET)
     return RST_WATCHDOG;
 
