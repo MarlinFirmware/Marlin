@@ -88,7 +88,7 @@ private:
   FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
 
   static void clear();
-  static bool command(const BLTCommand cmd, millis_t ms);
+  static bool command(const BLTCommand cmd, const millis_t &ms);
   static bool deploy_wrapper();
   static bool stow_wrapper();
   static bool status_wrapper();
