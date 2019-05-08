@@ -465,9 +465,6 @@
     #undef SERVO_DELAY
     #define SERVO_DELAY { 50 }
   #endif
-  #ifndef BLTOUCH_DELAY
-    #define BLTOUCH_DELAY 375
-  #endif
 
   // Always disable probe pin inverting for BLTouch
   #undef Z_MIN_PROBE_ENDSTOP_INVERTING

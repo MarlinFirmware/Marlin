@@ -1578,6 +1578,9 @@
   #ifndef Z_CLEARANCE_MULTI_PROBE
     #define Z_CLEARANCE_MULTI_PROBE Z_CLEARANCE_BETWEEN_PROBES
   #endif
+  #if ENABLED(BLTOUCH) && !defined(BLTOUCH_DELAY)
+    #define BLTOUCH_DELAY 500
+  #endif
 #endif
 
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation

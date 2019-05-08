@@ -210,6 +210,10 @@
   #error "UBL_MESH_EDITING is now G26_MESH_VALIDATION. Please update your configuration."
 #elif defined(BLTOUCH_HEATERS_OFF)
   #error "BLTOUCH_HEATERS_OFF is now PROBING_HEATERS_OFF. Please update your configuration."
+#elif defined(BLTOUCH_V3)
+  #error "BLTOUCH_V3 is obsolete. Please update your configuration."
+#elif defined(BLTOUCH_FORCE_OPEN_DRAIN_MODE)
+  #error "BLTOUCH_FORCE_OPEN_DRAIN_MODE is obsolete. Please update your configuration."
 #elif defined(BEEPER)
   #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECT)
@@ -1015,6 +1019,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "SERVO3_PIN must be defined for your servo or BLTOUCH probe."
     #elif Z_PROBE_SERVO_NR >= NUM_SERVOS
       #error "Z_PROBE_SERVO_NR must be smaller than NUM_SERVOS."
+    #endif
+  #endif
+
+  #if ENABLED(BLTOUCH)
+    #if BLTOUCH_DELAY < 200
+      #error "BLTOUCH_DELAY less than 200 is unsafe and is not supported."
+    #elif DISABLED(BLTOUCH_FORCE_5V_MODE) && NONE(ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+      #error "BLTOUCH without BLTOUCH_FORCE_5V_MODE requires ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN or ENDSTOPPULLUP_ZMIN_PROBE."
     #endif
   #endif
 

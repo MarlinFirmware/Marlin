@@ -828,7 +828,7 @@
  */
 //#define BLTOUCH
 #if ENABLED(BLTOUCH)
-  #define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+  //#define BLTOUCH_DELAY 500   // Minimum Command delay (ms). Enable and increase if needed
 #endif
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
