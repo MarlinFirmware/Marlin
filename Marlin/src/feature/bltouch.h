@@ -37,12 +37,11 @@ typedef unsigned char BLTCommand;
 /**
  * The following commands may require different delays.
  * 
- * ANTClabs recommends 2000ms for 5V/OD commands however
- * It is not common for other commands to immediatly follow
- * these and independent testing shows these complete in 500ms
- * reliably.
+ * ANTClabs recommends 2000ms for 5V/OD commands. However it is
+ * not common for other commands to immediately follow these,
+ * and testing has shown that these complete in 500ms reliably.
  * 
- * AntClabs recommends 750ms for Deploy/Stow otherwise you will
+ * AntClabs recommends 750ms for Deploy/Stow, otherwise you will
  * not catch an alarm state until the following move command.
  */
 
@@ -95,7 +94,7 @@ private:
   static bool status_wrapper();
 };
 
-// This transfers the two needed angle values to the servo.cpp/servo.h routine
+// Deploy/stow angles for use by servo.cpp / servo.h
 #define BLTOUCH_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
 extern BLTouch bltouch;
