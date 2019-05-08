@@ -268,17 +268,11 @@ public:
   static void clear_lcd();
   static void init_lcd();
 
-  #if HAS_SPI_LCD || EITHER(MALYAN_LCD, EXTENSIBLE_UI)
+  #if HAS_DISPLAY
+
     static void init();
     static void update();
     static void set_alert_status_P(PGM_P message);
-  #else // NO LCD
-    static inline void init() {}
-    static inline void update() {}
-    static inline void set_alert_status_P(PGM_P message) { UNUSED(message); }
-  #endif
-
-  #if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
 
     static char status_message[];
     static bool has_status();
@@ -375,9 +369,12 @@ public:
     static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
     static void reset_status();
 
-  #else // MALYAN_LCD or NO LCD
+  #else // No LCD
 
+    static inline void init() {}
+    static inline void update() {}
     static inline void refresh() {}
+    static inline void set_alert_status_P(PGM_P message) { UNUSED(message); }
     static inline void set_status(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
     static inline void set_status_P(PGM_P const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
     static inline void status_printf_P(const uint8_t level, PGM_P const fmt, ...) { UNUSED(level); UNUSED(fmt); }
@@ -529,7 +526,7 @@ private:
 
   static void _synchronize();
 
-  #if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
+  #if HAS_DISPLAY
     static void finish_status(const bool persist);
   #endif
 
