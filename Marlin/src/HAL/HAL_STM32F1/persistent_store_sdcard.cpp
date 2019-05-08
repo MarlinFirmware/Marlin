@@ -33,10 +33,18 @@
 
 #include "../shared/persistent_store_api.h"
 
-#include "../../sd/cardreader.h"
+#ifndef E2END
+  #define HAL_STM32F1_EEPROM_SIZE 4096
+#else
+  #define HAL_STM32F1_EEPROM_SIZE (E2END + 1)
+#endif
+static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
 
-#define HAL_STM32F1_EEPROM_SIZE 4096
-char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
+#if DISABLED(SDSUPPORT)
+#error Please define SPI_EEPROM or fully disable EEPROM_SETTINGS
+#else
+
+#include "../../sd/cardreader.h"
 
 char eeprom_filename[] = "eeprom.dat";
 
@@ -60,6 +68,8 @@ bool PersistentStore::access_finish() {
   card.closefile();
   return (bytes_written == HAL_STM32F1_EEPROM_SIZE);
 }
+
+#endif // SDSUPPORT
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
   for (size_t i = 0; i < size; i++)
