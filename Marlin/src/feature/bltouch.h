@@ -36,11 +36,11 @@ typedef unsigned char BLTCommand;
 
 /**
  * The following commands may require different delays.
- * 
+ *
  * ANTClabs recommends 2000ms for 5V/OD commands. However it is
  * not common for other commands to immediately follow these,
  * and testing has shown that these complete in 500ms reliably.
- * 
+ *
  * AntClabs recommends 750ms for Deploy/Stow, otherwise you will
  * not catch an alarm state until the following move command.
  */
@@ -67,9 +67,9 @@ public:
   static void init();              // used by main.cpp
 
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
-  FORCE_INLINE static bool deploy()              { return deploy_wrapper(); }
-  FORCE_INLINE static bool stow()                { return stow_wrapper(); }
-  FORCE_INLINE static bool status()              { return status_wrapper(); }
+  FORCE_INLINE static bool deploy()              { return deploy_proc(); }
+  FORCE_INLINE static bool stow()                { return stow_proc(); }
+  FORCE_INLINE static bool status()              { return status_proc(); }
 
   // Native BLTouch commands ("Underscore"...), used in lcd menus and internally
   FORCE_INLINE static void _reset()              { command(BLTOUCH_RESET, BLTOUCH_RESET_DELAY); }
@@ -89,9 +89,9 @@ private:
 
   static void clear();
   static bool command(const BLTCommand cmd, const millis_t &ms);
-  static bool deploy_wrapper();
-  static bool stow_wrapper();
-  static bool status_wrapper();
+  static bool deploy_proc();
+  static bool stow_proc();
+  static bool status_proc();
 };
 
 // Deploy/stow angles for use by servo.cpp / servo.h
