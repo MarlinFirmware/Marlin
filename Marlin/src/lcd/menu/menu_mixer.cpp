@@ -259,7 +259,7 @@ void menu_mixer_vtools_reset_confirm() {
       ui.return_to_status();
     },
     ui.goto_previous_screen,
-    PSTR(MSG_RESET_VTOOLS), NULL, PSTR("?")
+    PSTR(MSG_RESET_VTOOLS), nullptr, PSTR("?")
   );
 }
 

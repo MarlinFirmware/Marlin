@@ -377,7 +377,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
 }
 
-static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
+static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
   if (label) serialprintPGM(label);
   SERIAL_ECHOPGM(": ");
   serialprintPGM(is_hit ? PSTR(MSG_ENDSTOP_HIT) : PSTR(MSG_ENDSTOP_OPEN));

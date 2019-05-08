@@ -205,7 +205,7 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
  *   axis               in     - Axis along which the measurement will take place
  *   dir                in     - Direction along that axis (-1 or 1)
  *   stop_state         in     - Move until probe pin becomes this value
- *   backlash_ptr       in/out - When not NULL, measure and record axis backlash
+ *   backlash_ptr       in/out - When not nullptr, measure and record axis backlash
  *   uncertainty        in     - If uncertainty is CALIBRATION_MEASUREMENT_UNKNOWN, do a fast probe.
  */
 inline float measure(const AxisEnum axis, const int dir, const bool stop_state, float * const backlash_ptr, const float uncertainty) {

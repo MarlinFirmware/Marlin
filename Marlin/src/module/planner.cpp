@@ -900,7 +900,7 @@ void Planner::reverse_pass() {
   // Reverse Pass: Coarsely maximize all possible deceleration curves back-planning from the last
   // block in buffer. Cease planning when the last optimal planned or tail pointer is reached.
   // NOTE: Forward pass will later refine and correct the reverse pass to create an optimal plan.
-  const block_t *next = NULL;
+  const block_t *next = nullptr;
   while (block_index != planned_block_index) {
 
     // Perform the reverse pass
@@ -995,7 +995,7 @@ void Planner::forward_pass() {
   uint8_t block_index = block_buffer_planned;
 
   block_t *current;
-  const block_t * previous = NULL;
+  const block_t * previous = nullptr;
   while (block_index != block_buffer_head) {
 
     // Perform the forward pass
@@ -1045,7 +1045,7 @@ void Planner::recalculate_trapezoids() {
   }
 
   // Go from the tail (currently executed block) to the first block, without including it)
-  block_t *current = NULL, *next = NULL;
+  block_t *current = nullptr, *next = nullptr;
   float current_entry_speed = 0.0, next_entry_speed = 0.0;
   while (block_index != head_block_index) {
 

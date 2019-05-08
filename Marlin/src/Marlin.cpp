@@ -728,7 +728,7 @@ void idle(
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(PGM_P const lcd_msg/*=NULL*/) {
+void kill(PGM_P const lcd_msg/*=nullptr*/) {
   thermalManager.disable_all_heaters();
 
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);

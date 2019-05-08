@@ -194,7 +194,7 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
   }
   SERIAL_ECHOPAIR("  block_found=", block_cnt);
 
-  if (block_cnt != 1 || __brkval != NULL)
+  if (block_cnt != 1 || __brkval != nullptr)
     SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
 
   if (block_cnt == 0)       // Make sure the special case of no free blocks shows up as an
@@ -217,7 +217,7 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
  */
 inline void free_memory_pool_report(char * const ptr, const int32_t size) {
   int32_t max_cnt = -1, block_cnt = 0;
-  char *max_addr = NULL;
+  char *max_addr = nullptr;
   // Find the longest block of test bytes in the buffer
   for (int32_t i = 0; i < size; i++) {
     char *addr = ptr + i;

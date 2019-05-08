@@ -330,7 +330,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void draw_menu_item_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char* valstr/*=NULL*/) {
+  void draw_menu_item_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char* valstr/*=nullptr*/) {
 
     if (mark_as_selected(row, invert)) {
 
@@ -373,7 +373,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     }
   }
 
-  void draw_edit_screen(PGM_P const pstr, const char* const value/*=NULL*/) {
+  void draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     const uint8_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
 
     bool extra_row = labellen > LCD_WIDTH - 2 - vallen;
@@ -410,7 +410,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     }
 
     // If a value is included, print a colon, then print the value right-justified
-    if (value != NULL) {
+    if (value != nullptr) {
       lcd_put_wchar(':');
       if (extra_row) {
         // Assume that value is numeric (with no descender)

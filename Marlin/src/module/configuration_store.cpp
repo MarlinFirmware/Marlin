@@ -2132,7 +2132,7 @@ void MarlinSettings::postprocess() {
       #endif
     }
 
-    void MarlinSettings::load_mesh(const int8_t slot, void * const into/*=NULL*/) {
+    void MarlinSettings::load_mesh(const int8_t slot, void * const into/*=nullptr*/) {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -2545,7 +2545,7 @@ void MarlinSettings::reset() {
   #if HAS_TRINAMIC
     inline void say_M906(const bool forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOPGM("  M906"); }
     #if HAS_STEALTHCHOP
-      void say_M569(const char * const etc=NULL) {
+      void say_M569(const char * const etc=nullptr) {
         SERIAL_ECHOPGM("  M569 S1");
         if (etc) {
           SERIAL_CHAR(' ');
