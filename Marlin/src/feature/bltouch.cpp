@@ -35,12 +35,10 @@ void stop();
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-bool BLTouch::command(const BLTCommand cmd, millis_t ms) {
+bool BLTouch::command(const BLTCommand cmd, const millis_t &ms) {
   if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch Command :", cmd);
   MOVE_SERVO(Z_PROBE_SERVO_NR, cmd);
-  // If BLTOUCH_DELAY is higher than the desired ms delay, it will override
-  if (BLTOUCH_DELAY > ms) ms = BLTOUCH_DELAY;
-  safe_delay(ms);
+  safe_delay(MAX(ms, BLTOUCH_DELAY)); // BLTOUCH_DELAY is also the *minimum* delay
   return triggered();
 }
 
