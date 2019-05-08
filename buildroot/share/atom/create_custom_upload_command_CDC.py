@@ -84,8 +84,8 @@ else:
       if com_CDC == 'COM_PORT_NOT_FOUND':
           print(com_CDC, '\n')
       else:
-          print('FOUND: ' ,com_CDC)
-          print('DESCRIPTION: ',  description_CDC , '\n')
+          print('FOUND: ', com_CDC)
+          print('DESCRIPTION: ', description_CDC, '\n')
 
   if current_OS == 'Windows':
 
