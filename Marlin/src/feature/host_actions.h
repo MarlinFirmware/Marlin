@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#include <stdint.h>
+#include <stddef.h>
 
 void host_action(const char * const pstr, const bool eol=true);
 
