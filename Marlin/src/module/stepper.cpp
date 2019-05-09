@@ -133,7 +133,7 @@ Stepper stepper; // Singleton
 
 // private:
 
-block_t* Stepper::current_block; // (= NULL) A pointer to the block currently being traced
+block_t* Stepper::current_block; // (= nullptr) A pointer to the block currently being traced
 
 uint8_t Stepper::last_direction_bits, // = 0
         Stepper::axis_did_move; // = 0
@@ -1394,7 +1394,7 @@ void Stepper::stepper_pulse_phase_isr() {
     abort_current_block = false;
     if (current_block) {
       axis_did_move = 0;
-      current_block = NULL;
+      current_block = nullptr;
       planner.discard_current_block();
     }
   }
@@ -1541,7 +1541,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         runout.block_completed(current_block);
       #endif
       axis_did_move = 0;
-      current_block = NULL;
+      current_block = nullptr;
       planner.discard_current_block();
     }
     else {

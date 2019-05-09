@@ -102,7 +102,7 @@ static inline void menu_level_bed_corners() {
       #else
         MSG_NEXT_CORNER
       #endif
-    ), NULL, PSTR("?")
+    ), nullptr, PSTR("?")
   );
 }
 

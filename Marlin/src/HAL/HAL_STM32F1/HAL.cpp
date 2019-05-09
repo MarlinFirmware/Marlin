@@ -270,7 +270,7 @@ void HAL_adc_init(void) {
   adc.calibrate();
   adc.setSampleRate(ADC_SMPR_41_5); // ?
   adc.setPins(adc_pins, ADC_PIN_COUNT);
-  adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), (void (*)())NULL);
+  adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), nullptr);
   adc.setScanMode();
   adc.setContinuous();
   adc.startConversion();

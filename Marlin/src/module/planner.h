@@ -746,7 +746,7 @@ class Planner {
     FORCE_INLINE static bool has_blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
     /**
-     * The current block. NULL if the buffer is empty.
+     * The current block. nullptr if the buffer is empty.
      * This also marks the block as busy.
      * WARNING: Called from Stepper ISR context!
      */
@@ -763,7 +763,7 @@ class Planner {
           --delay_before_delivering;
           // If the number of movements queued is less than 3, and there is still time
           //  to wait, do not deliver anything
-          if (nr_moves < 3 && delay_before_delivering) return NULL;
+          if (nr_moves < 3 && delay_before_delivering) return nullptr;
           delay_before_delivering = 0;
         }
 
@@ -771,7 +771,7 @@ class Planner {
         block_t * const block = &block_buffer[block_buffer_tail];
 
         // No trapezoid calculated? Don't execute yet.
-        if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return NULL;
+        if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return nullptr;
 
         #if ENABLED(ULTRA_LCD)
           block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
@@ -793,7 +793,7 @@ class Planner {
         clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
       #endif
 
-      return NULL;
+      return nullptr;
     }
 
     /**

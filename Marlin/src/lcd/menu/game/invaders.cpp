@@ -302,7 +302,7 @@ void InvadersGame::game_screen() {
         if (invader_count && !random(0, 20)) {
 
           // Find a free bullet
-          laser_t *b = NULL;
+          laser_t *b = nullptr;
           LOOP_L_N(i, COUNT(bullet)) if (!bullet[i].v) { b = &bullet[i]; break; }
           if (b) {
             // Pick a random shooter and update the bullet

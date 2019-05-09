@@ -83,7 +83,7 @@
 
 #define _IS_INPUT(IO)        !TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 #define _IS_OUTPUT(IO)        TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
-#define _HAS_TIMER(IO)        DIO ## IO ## _PWM
+#define _HAS_TIMER(IO)        bool(DIO ## IO ## _PWM)
 
 // digitalRead/Write wrappers
 #ifdef FASTIO_EXT_START
