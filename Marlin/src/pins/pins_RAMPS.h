@@ -532,12 +532,12 @@
       #define DOGLCD_A0         16
       #define DOGLCD_CS         17
 
-      #define BTN_EN1           31
-      #define BTN_EN2           33
+      #define BTN_EN1           33
+      #define BTN_EN2           31
       #define BTN_ENC           35
 
       #define SD_DETECT_PIN     49
-
+      #define KILL_PIN          41
 
 
       //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
