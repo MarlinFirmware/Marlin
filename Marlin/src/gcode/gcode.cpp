@@ -811,7 +811,7 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHOLN(current_command);
     #if ENABLED(M100_FREE_MEMORY_WATCHER)
       SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
+      M100_dump_routine(PSTR("   Command Queue:"), (const char*)command_queue, (const char*)(command_queue) + sizeof(command_queue));
     #endif
   }
 
