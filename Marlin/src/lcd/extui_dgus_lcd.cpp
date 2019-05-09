@@ -20,16 +20,19 @@
  *
  */
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+/**
+ * extui_dgus_lcd.cpp
+ *
+ * DGUS implementation for Marlin by coldtobi, Feb-May 2019
+ */
 
-#include "../../../../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD)
 
-#include "../../ui_api.h"
-
-#include "DGUSDisplay.h"
-#include "DGUSDisplayDefinition.h"
+#include "extensible_ui/ui_api.h"
+#include "extensible_ui/lib/dgus/DGUSDisplay.h"
+#include "extensible_ui/lib/dgus/DGUSDisplayDefinition.h"
 
 namespace ExtUI {
 
