@@ -107,35 +107,35 @@ public:
   /// The same for messages from Flash
   static void setstatusmessagePGM(PGM_P const msg);
   // Callback for VP "Display wants to change screen on idle printer"
-  static void ScreenChangeHookIfIdle(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+  static void ScreenChangeHookIfIdle(DGUS_VP_Variable &var, void *val_ptr);
   // Callback for VP "Screen has been changed"
-  static void ScreenChangeHook(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+  static void ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr);
   // Callback for VP "All Heaters Off"
-  static void HandleAllHeatersOff(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+  static void HandleAllHeatersOff(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for "Change this temperature"
-  static void HandleTemperatureChanged(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+  static void HandleTemperatureChanged(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for "Change Flowrate"
-  static void HandleFlowRateChanged(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+  static void HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for manual move.
-  static void HandleManualMove(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+  static void HandleManualMove(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for manual extrude.
-  static void HandleManualExtrude(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+  static void HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr);
 
   #if ENABLED(SDSUPPORT)
     // Callback for VP "Display wants to change screen when there is a SD card"
-    static void ScreenChangeHookIfSD(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+    static void ScreenChangeHookIfSD(DGUS_VP_Variable &var, void *val_ptr);
     /// Scroll buttons on the file listing screen.
-    static void DGUSLCD_SD_ScrollFilelist(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+    static void DGUSLCD_SD_ScrollFilelist(DGUS_VP_Variable &var, void *val_ptr);
     /// File touched.
-    static void DGUSLCD_SD_FileSelected(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+    static void DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr);
     /// start print after confirmation received.
-    static void DGUSLCD_SD_StartPrint(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+    static void DGUSLCD_SD_StartPrint(DGUS_VP_Variable &var, void *val_ptr);
     /// User hit the pause, resume or abort button.
-    static void DGUSLCD_SD_ResumePauseAbort(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+    static void DGUSLCD_SD_ResumePauseAbort(DGUS_VP_Variable &var, void *val_ptr);
     /// User confirmed the abort action
-    static void DGUSLCD_SD_ReallyAbort(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+    static void DGUSLCD_SD_ReallyAbort(DGUS_VP_Variable &var, void *val_ptr);
     /// Send a single filename to the display.
-    static void DGUSLCD_SD_SendFilename(DGUS_VP_Variable &ref_to_this);
+    static void DGUSLCD_SD_SendFilename(DGUS_VP_Variable &var);
     /// Marlin informed us that a new SD has been inserted.
     static void SDCardInserted();
     /// Marlin informed us that the SD Card has been removed().
@@ -145,7 +145,7 @@ public:
   #endif
 
   // OK Button the Confirm screen.
-  static void ScreenConfirmedOK(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+  static void ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr);
 
   // Update data after went to new screen (by display or by GotoScreen)
   // remember: store the last-displayed screen, so it can get returned to.
@@ -161,31 +161,31 @@ public:
   static void UpdateScreenVPData();
 
   // Helpers to convert and transfer data to the display.
-  static void DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &ref_to_this);
-  static void DGUSLCD_SendStringToDisplay(DGUS_VP_Variable &ref_to_this);
-  static void DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &ref_to_this);
-  static void DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &ref_to_this);
-  static void DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &ref_to_this);
+  static void DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendStringToDisplay(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var);
 
   /// Send a value from 0..100 to a variable with a range from 0..255
-  static void DGUSLCD_PercentageToUint8(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value);
+  static void DGUSLCD_PercentageToUint8(DGUS_VP_Variable &var, void *val_ptr);
 
   template<typename T>
-  static void DGUSLCD_SetValueDirectly(DGUS_VP_Variable &ref_to_this, void *ptr_to_new_value) {
-    if (!ref_to_this.memadr) return;
+  static void DGUSLCD_SetValueDirectly(DGUS_VP_Variable &var, void *val_ptr) {
+    if (!var.memadr) return;
     union { unsigned char tmp[sizeof(T)]; T t; } x;
-    unsigned char *ptr = (unsigned char*)ptr_to_new_value;
+    unsigned char *ptr = (unsigned char*)val_ptr;
     for (uint8_t i = 0; i < sizeof(T); i++) x.tmp[i] = ptr[sizeof(T) - i - 1];
-    *(T*)ref_to_this.memadr = x.t;
+    *(T*)var.memadr = x.t;
   }
 
   /// Send a float value to the display.
   /// Display will get a 4-byte integer scaled to the number of digits:
   /// Tell the display the number of digits and it cheats by displaying a dot between...
   template<unsigned int decimals>
-  static void DGUSLCD_SendFloatAsLongValueToDisplay(DGUS_VP_Variable &ref_to_this) {
-    if (ref_to_this.memadr) {
-      float f = *(float *)ref_to_this.memadr;
+  static void DGUSLCD_SendFloatAsLongValueToDisplay(DGUS_VP_Variable &var) {
+    if (var.memadr) {
+      float f = *(float *)var.memadr;
       f *= cpow(10, decimals);
       union { long l; char lb[4]; } endian;
 
@@ -195,7 +195,7 @@ public:
       tmp[1] = endian.lb[2];
       tmp[2] = endian.lb[1];
       tmp[3] = endian.lb[0];
-      dgusdisplay.WriteVariable(ref_to_this.VP, tmp, 4);
+      dgusdisplay.WriteVariable(var.VP, tmp, 4);
     }
   }
 
