@@ -70,6 +70,11 @@ namespace ExtUI {
   void enqueueCommands_P(PGM_P const);
   bool commandsInQueue();
 
+  bool isHeaterIdle(const heater_t);
+  bool isHeaterIdle(const extruder_t);
+  void enableHeater(const heater_t);
+  void enableHeater(const extruder_t);
+
   /**
    * Getters and setters
    * Should be used by the EXTENSIBLE_UI to query or change Marlin's state.
