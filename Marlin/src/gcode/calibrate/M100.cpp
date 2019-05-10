@@ -60,15 +60,17 @@
 
 #define TEST_BYTE ((char) 0xE5)
 
-
-
-#ifdef __AVR__
+#if defined(__AVR__) || IS_32BIT_TEENSY
 
   extern char __bss_end;
-  char* end_bss =  (int)&__bss_end;
+  char* end_bss = (
+    #ifdef __AVR__
+      int
+    #else
+      char*
+    #endif
+  )&__bss_end;
   char* free_memory_start = end_bss;
-
-
   char* free_memory_end = 0;
   char* stacklimit = 0;
   char* heaplimit = 0;
@@ -112,8 +114,6 @@
 //
 // Utility functions
 //
-
-
 
 // Location of a variable on its stack frame. Returns a value above
 // the stack (once the function returns to the caller).
@@ -350,8 +350,6 @@ void GcodeSuite::M100() {
   SERIAL_ECHOPAIR("\nfree_memory_end       : ", hex_address(free_memory_end  ));
   if (MEMORY_END_CORRECTION)  SERIAL_ECHOPAIR("\nMEMORY_END_CORRECTION: ", MEMORY_END_CORRECTION );
   SERIAL_ECHOLNPAIR("\nStack Pointer         : ", hex_address(sp));
-
-
 
   // Always init on the first invocation of M100
   static bool m100_not_initialized = true;
