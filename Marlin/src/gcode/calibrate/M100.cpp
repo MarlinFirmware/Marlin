@@ -63,14 +63,10 @@
 #if defined(__AVR__) || IS_32BIT_TEENSY
 
   extern char __bss_end;
-  char* end_bss = (
-    #ifdef __AVR__
-      int
-    #else
-      char*
-    #endif
-  )&__bss_end;
+  char* end_bss =  &__bss_end;
   char* free_memory_start = end_bss;
+
+
   char* free_memory_end = 0;
   char* stacklimit = 0;
   char* heaplimit = 0;
