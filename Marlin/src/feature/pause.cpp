@@ -49,6 +49,10 @@
   #include "host_actions.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extensible_ui/ui_api.h"
+#endif
+
 #include "../lcd/ultralcd.h"
 #include "../libs/buzzer.h"
 #include "../libs/nozzle.h"
@@ -538,6 +542,9 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheating"));
       #endif
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onStatusChanged(PSTR("Reheating..."));
+      #endif
 
       // Re-enable the heaters if they timed out
       HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
@@ -554,6 +561,9 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.hotend_idle[e].start(nozzle_timeout);
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheat Done"), PSTR("Continue"));
+      #endif
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onUserConfirmRequired("Reheat finished.");
       #endif
       wait_for_user = true;
       nozzle_timed_out = false;
