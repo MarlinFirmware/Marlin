@@ -173,11 +173,11 @@ namespace ExtUI {
   void enableHeater(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       #if HAS_HEATED_BED
-        if(heater == BED)
+        if (heater == BED)
           thermalManager.reset_bed_idle_timer();
         else
       #endif
-      thermalManager.reset_heater_idle_timer(heater - H0);
+          thermalManager.reset_heater_idle_timer(heater - H0);
     #endif
   }
 
