@@ -183,22 +183,22 @@ int i2s_init() {
 
   // Allocate the array of pointers to the buffers
   dma.buffers = (uint32_t **)malloc(sizeof(uint32_t*) * DMA_BUF_COUNT);
-  if (dma.buffers == NULL) return -1;
+  if (dma.buffers == nullptr) return -1;
 
   // Allocate each buffer that can be used by the DMA controller
   for (int buf_idx = 0; buf_idx < DMA_BUF_COUNT; buf_idx++) {
     dma.buffers[buf_idx] = (uint32_t*) heap_caps_calloc(1, DMA_BUF_LEN, MALLOC_CAP_DMA);
-    if (dma.buffers[buf_idx] == NULL) return -1;
+    if (dma.buffers[buf_idx] == nullptr) return -1;
   }
 
   // Allocate the array of DMA descriptors
   dma.desc = (lldesc_t**) malloc(sizeof(lldesc_t*) * DMA_BUF_COUNT);
-  if (dma.desc == NULL) return -1;
+  if (dma.desc == nullptr) return -1;
 
   // Allocate each DMA descriptor that will be used by the DMA controller
   for (int buf_idx = 0; buf_idx < DMA_BUF_COUNT; buf_idx++) {
     dma.desc[buf_idx] = (lldesc_t*) heap_caps_malloc(sizeof(lldesc_t), MALLOC_CAP_DMA);
-    if (dma.desc[buf_idx] == NULL) return -1;
+    if (dma.desc[buf_idx] == nullptr) return -1;
   }
 
   // Initialize
@@ -297,11 +297,11 @@ int i2s_init() {
 
   // Allocate and Enable the I2S interrupt
   intr_handle_t i2s_isr_handle;
-  esp_intr_alloc(ETS_I2S0_INTR_SOURCE, 0, i2s_intr_handler_default, NULL, &i2s_isr_handle);
+  esp_intr_alloc(ETS_I2S0_INTR_SOURCE, 0, i2s_intr_handler_default, nullptr, &i2s_isr_handle);
   esp_intr_enable(i2s_isr_handle);
 
   // Create the task that will feed the buffer
-  xTaskCreate(stepperTask, "StepperTask", 10000, NULL, 1, NULL);
+  xTaskCreate(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr);
 
   // Route the i2s pins to the appropriate GPIO
   gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);

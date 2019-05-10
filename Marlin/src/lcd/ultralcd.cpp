@@ -211,7 +211,7 @@ millis_t next_button_update_ms;
     }
   }
 
-  void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=NULL*/, PGM_P const suff/*=NULL*/) {
+  void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
     uint8_t x = 0, y = 0;
     if (!string && plen + slen <= LCD_WIDTH) {

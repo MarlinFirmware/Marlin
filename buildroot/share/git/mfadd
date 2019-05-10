@@ -4,7 +4,7 @@
 #
 # Add a remote and fetch it. Optionally copy a branch.
 #
-# Example: mfadd thinkyhead:patch-1 copy_of_patch-1
+# Example: mfadd myfork:patch-1 copy_of_patch-1
 #
 
 [[ $# > 0 && $# < 3 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` (user | ref copyname)" 1>&2 ; exit 1; }

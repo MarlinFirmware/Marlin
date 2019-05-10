@@ -624,7 +624,7 @@ void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis
     #endif
   };
 
-  inline void append_stepper_err(char * &p, const uint8_t stepper_index, const char * const err=NULL) {
+  inline void append_stepper_err(char * &p, const uint8_t stepper_index, const char * const err=nullptr) {
     p += sprintf_P(p, PSTR("Stepper %c%c "), char(index_to_axis[stepper_index][0]), char(index_to_axis[stepper_index][1]));
     if (err) p += sprintf_P(p, err);
   }

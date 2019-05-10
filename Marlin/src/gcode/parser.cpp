@@ -80,7 +80,7 @@ GCodeParser parser;
  * this may be optimized by commenting out ZERO(param)
  */
 void GCodeParser::reset() {
-  string_arg = NULL;                    // No whole line argument
+  string_arg = nullptr;                 // No whole line argument
   command_letter = '?';                 // No command letter
   codenum = 0;                          // No command code
   #if USE_GCODE_SUBCODES
@@ -245,7 +245,7 @@ void GCodeParser::parse(char *p) {
    * This allows M0/M1 with expire time to work: "M0 S5 You Win!"
    * For 'M118' you must use 'E1' and 'A1' rather than just 'E' or 'A'
    */
-  string_arg = NULL;
+  string_arg = nullptr;
   while (const char code = *p++) {                    // Get the next parameter. A NUL ends the loop
 
     // Special handling for M32 [P] !/path/to/file.g#
@@ -289,7 +289,7 @@ void GCodeParser::parse(char *p) {
       #endif
 
       #if ENABLED(FASTER_GCODE_PARSER)
-        set(code, has_num ? p : NULL);          // Set parameter exists and pointer (NULL for no number)
+        set(code, has_num ? p : nullptr);       // Set parameter exists and pointer (nullptr for no number)
       #endif
     }
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg
@@ -315,7 +315,7 @@ void GCodeParser::parse(char *p) {
       if (next_command) {
         while (*next_command && *next_command != ' ') ++next_command;
         while (*next_command == ' ') ++next_command;
-        if (!*next_command) next_command = NULL;
+        if (!*next_command) next_command = nullptr;
       }
     #else
       const char *next_command = command_args;

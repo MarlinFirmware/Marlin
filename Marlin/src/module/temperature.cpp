@@ -1264,7 +1264,7 @@ void Temperature::manage_heater() {
       #if ENABLED(CHAMBER_USER_THERMISTOR)
         t_index == CTI_CHAMBER ? PSTR("CHAMBER") :
       #endif
-      NULL
+      nullptr
     );
     SERIAL_EOL();
   }

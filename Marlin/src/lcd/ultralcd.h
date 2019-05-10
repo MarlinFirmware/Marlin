@@ -419,7 +419,7 @@ public:
     static bool lcd_clicked;
     static bool use_click();
 
-    static void synchronize(PGM_P const msg=NULL);
+    static void synchronize(PGM_P const msg=nullptr);
 
     static screenFunc_t currentScreen;
     static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
@@ -458,7 +458,7 @@ public:
       static void ubl_plot(const uint8_t x, const uint8_t inverted_y);
     #endif
 
-    static void draw_select_screen_prompt(PGM_P const pref, const char * const string=NULL, PGM_P const suff=NULL);
+    static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
 
   #elif HAS_SPI_LCD
 
