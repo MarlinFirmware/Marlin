@@ -96,7 +96,7 @@ void GCodeParser::reset() {
 // 58 bytes of SRAM are used to speed up seen/value
 void GCodeParser::parse(char *p) {
 
-  reset(); // No codes to report
+  reset();  // No codes to report
 
   // Skip spaces
   while (*p == ' ') ++p;
