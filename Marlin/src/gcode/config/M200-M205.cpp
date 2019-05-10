@@ -62,9 +62,8 @@ void GcodeSuite::M201() {
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
       const uint8_t a = (i == E_AXIS ? E_AXIS_N(target_extruder) : i);
-      #ifdef MAX_ACCELERATION_LIMIT
-        static constexpr uint32_t max_accel[] = MAX_ACCELERATION_LIMIT;
-        planner.settings.max_acceleration_mm_per_s2[a] = constrain(parser.value_axis_units((AxisEnum)a), 10, max_accel[a]);
+      #if ENABLED(LIMIT_MAX_ACCELERATION)
+        planner.settings.max_acceleration_mm_per_s2[a] = constrain(parser.value_axis_units((AxisEnum)a), 10, planner.max_acceleration_limits[(int)a]);
       #else
         planner.settings.max_acceleration_mm_per_s2[a] = MAX(parser.value_axis_units((AxisEnum)a), 10);
       #endif

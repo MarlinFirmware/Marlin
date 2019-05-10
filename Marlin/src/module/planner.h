@@ -240,6 +240,15 @@ class Planner {
     static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
     static float steps_to_mm[XYZE_N];           // Millimeters per step
 
+    #if ENABLED(LIMIT_MAX_ACCELERATION)
+      #ifdef MAX_ACCELERATION_LIMITS
+        static uint32_t max_acceleration_limits[XYZE_N];
+      #else
+        static constexpr uint32_t max_acceleration_defaults[] = DEFAULT_MAX_ACCELERATION;
+        static uint32_t max_acceleration_limits[COUNT(max_acceleration_defaults)];
+      #endif
+    #endif
+
     #if ENABLED(JUNCTION_DEVIATION)
       static float junction_deviation_mm;       // (mm) M205 J
       #if ENABLED(LIN_ADVANCE)

@@ -119,6 +119,14 @@ planner_settings_t Planner::settings;           // Initialized by settings.load(
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
 
+#if ENABLED(LIMIT_MAX_ACCELERATION)
+  #ifndef MAX_ACCELERATION_LIMITS
+    static uint32_t max_acceleration_limits[COUNT(max_acceleration_defaults)] = 0;
+  #else
+    static uint32_t max_acceleration_limits[XYZE_N] = MAX_ACCELERATION_LIMITS;
+  #endif
+#endif
+
 float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
 
 #if ENABLED(JUNCTION_DEVIATION)
@@ -223,6 +231,12 @@ float Planner::previous_speed[NUM_AXIS],
 Planner::Planner() { init(); }
 
 void Planner::init() {
+  #if ENABLED(LIMIT_MAX_ACCELERATION)
+    #ifndef MAX_ACCELERATION_LIMITS
+      for (uint8_t i=0; i < COUNT(max_acceleration_defaults); i++)
+        max_acceleration_limits[i] = (max_acceleration_defaults[i] * 2);
+    #endif
+  #endif
   ZERO(position);
   #if HAS_POSITION_FLOAT
     ZERO(position_float);

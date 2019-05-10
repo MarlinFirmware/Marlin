@@ -723,6 +723,16 @@
 #define DEFAULT_MAX_ACCELERATION      { 1200, 1200, 100, 10000 }
 
 /**
+ * Prevents M201 from writing values over these limits
+ * Defaults to 2x DEFAULT_MAX_ACCELERATION
+ * Override default with explicit values below
+ */
+//#define LIMIT_MAX_ACCELERATION
+#if ENABLED(LIMIT_MAX_ACCELERATION)
+  //#define MAX_ACCELERATION_LIMITS { 6000, 6000, 200, 20000 }
+#endif
+
+/**
  * Default Acceleration (change/s) change = mm/s
  * Override with M204
  *

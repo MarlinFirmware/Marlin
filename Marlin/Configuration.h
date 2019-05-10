@@ -718,15 +718,16 @@
 #define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
 
 /**
-<<<<<<< HEAD
- * Max Acceleration Limit
- * Prevents M201 or LCD from setting values above this is enabled
+ * Prevents M201 from writing values over these limits
+ * Defaults to 2x DEFAULT_MAX_ACCELERATION
+ * Override default with explicit values below
  */
-#define MAX_ACCELERATION_LIMIT        { 5000, 5000, 200, 15000 }
+#define LIMIT_MAX_ACCELERATION
+#if ENABLED(LIMIT_MAX_ACCELERATION)
+  #define MAX_ACCELERATION_LIMITS { 6000, 6000, 200, 20000 }
+#endif
 
 /**
-=======
->>>>>>> parent of 6acbb7250... init
  * Default Acceleration (change/s) change = mm/s
  * Override with M204
  *

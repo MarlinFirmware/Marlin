@@ -713,6 +713,16 @@
 /* MICHEL: This has an impact on the "ripples" in print walls */
 
 /**
+ * Prevents M201 from writing values over these limits
+ * Defaults to 2x DEFAULT_MAX_ACCELERATION
+ * Override default with explicit values below
+ */
+//#define LIMIT_MAX_ACCELERATION
+#if ENABLED(LIMIT_MAX_ACCELERATION)
+  //#define MAX_ACCELERATION_LIMITS { 6000, 6000, 200, 20000 }
+#endif
+
+/**
  * Default Acceleration (change/s) change = mm/s
  * Override with M204
  *
