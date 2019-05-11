@@ -79,7 +79,7 @@ void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
 Pio *SCK_pPio, *MOSI_pPio;
 uint32_t SCK_dwMask, MOSI_dwMask;
 
-void U8G_spiSend_sw_DUE_mode_0(uint8_t val) { // 3MHz
+void u8g_spiSend_sw_DUE_mode_0(uint8_t val) { // 3MHz
   for (uint8_t i = 0; i < 8; i++) {
     if (val & 0x80)
       MOSI_pPio->PIO_SODR = MOSI_dwMask;
@@ -93,7 +93,7 @@ void U8G_spiSend_sw_DUE_mode_0(uint8_t val) { // 3MHz
   }
 }
 
-void U8G_spiSend_sw_DUE_mode_3(uint8_t val) { // 3.5MHz
+void u8g_spiSend_sw_DUE_mode_3(uint8_t val) { // 3.5MHz
   for (uint8_t i = 0; i < 8; i++) {
     SCK_pPio->PIO_CODR = SCK_dwMask;
     DELAY_NS(50);

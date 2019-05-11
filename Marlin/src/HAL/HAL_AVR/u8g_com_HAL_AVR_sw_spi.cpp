@@ -124,9 +124,9 @@ void U8G_spiSend_sw_AVR_mode_3(uint8_t val) {
 
 
 #if ENABLED(FYSETC_MINI_12864)
-  #define U8G_spiSend_sw_AVR U8G_spiSend_sw_AVR_mode_3
+  #define SPISEND_SW_AVR u8g_spiSend_sw_AVR_mode_3
 #else
-  #define U8G_spiSend_sw_AVR U8G_spiSend_sw_AVR_mode_0
+  #define SPISEND_SW_AVR u8g_spiSend_sw_AVR_mode_0
 #endif
 
 uint8_t u8g_com_HAL_AVR_sw_sp_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
@@ -162,13 +162,13 @@ uint8_t u8g_com_HAL_AVR_sw_sp_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void 
       break;
 
     case U8G_COM_MSG_WRITE_BYTE:
-      U8G_spiSend_sw_AVR(arg_val);
+      SPISEND_SW_AVR(arg_val);
       break;
 
     case U8G_COM_MSG_WRITE_SEQ: {
         uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
-          U8G_spiSend_sw_AVR(*ptr++);
+          SPISEND_SW_AVR(*ptr++);
           arg_val--;
         }
       }
@@ -177,7 +177,7 @@ uint8_t u8g_com_HAL_AVR_sw_sp_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void 
       case U8G_COM_MSG_WRITE_SEQ_P: {
         uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
-          U8G_spiSend_sw_AVR(u8g_pgm_read(ptr));
+          SPISEND_SW_AVR(u8g_pgm_read(ptr));
           ptr++;
           arg_val--;
         }

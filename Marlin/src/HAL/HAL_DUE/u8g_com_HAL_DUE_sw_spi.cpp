@@ -70,9 +70,9 @@
 #include <U8glib.h>
 
 #if ENABLED(FYSETC_MINI_12864)
-  #define SPISEND_SW_DUE U8G_spiSend_sw_DUE_mode_3
+  #define SPISEND_SW_DUE u8g_spiSend_sw_DUE_mode_3
 #else
-  #define SPISEND_SW_DUE U8G_spiSend_sw_DUE_mode_0
+  #define SPISEND_SW_DUE u8g_spiSend_sw_DUE_mode_0
 #endif
 
 uint8_t u8g_com_HAL_DUE_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {

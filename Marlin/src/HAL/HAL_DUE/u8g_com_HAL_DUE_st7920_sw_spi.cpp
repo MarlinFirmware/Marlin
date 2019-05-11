@@ -65,7 +65,7 @@
 
 #include <U8glib.h>
 
-#define SPISEND_SW_DUE U8G_spiSend_sw_DUE_mode_0
+#define SPISEND_SW_DUE u8g_spiSend_sw_DUE_mode_0
 
 static uint8_t rs_last_state = 255;
 
