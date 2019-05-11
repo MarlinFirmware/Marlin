@@ -168,7 +168,7 @@ class MenuItemBase {
   private:
     static PGM_P editLabel;
     static void *editValue;
-    static int16_t minEditValue, maxEditValue;
+    static int32_t minEditValue, maxEditValue;
     static screenFunc_t callbackFunc;
     static bool liveEdit;
   protected:
