@@ -64,16 +64,7 @@
 
 #include <U8glib.h>
 
-void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
-  PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
-    g_APinDescription[u8g->pin_list[pin_index]].ulPin, g_APinDescription[u8g->pin_list[pin_index]].ulPinConfiguration);  // OUTPUT
-}
-
-void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
-  volatile Pio* port = g_APinDescription[u8g->pin_list[pin_index]].pPort;
-  uint32_t mask = g_APinDescription[u8g->pin_list[pin_index]].ulPin;
-  if (level) port->PIO_SODR = mask; else port->PIO_CODR = mask;
-}
+#include "u8g_com_HAL_DUE_sw_spi_shared.h"
 
 Pio *SCK_pPio, *MOSI_pPio;
 uint32_t SCK_dwMask, MOSI_dwMask;
