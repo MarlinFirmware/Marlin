@@ -172,9 +172,9 @@ class MenuItemBase {
     static screenFunc_t callbackFunc;
     static bool liveEdit;
   protected:
-    typedef char* (*strfunc_t)(const int16_t);
-    typedef void (*loadfunc_t)(void *, const int16_t);
-    static void init(PGM_P const el, void * const ev, const int16_t minv, const int16_t maxv, const uint16_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le);
+    typedef char* (*strfunc_t)(const int32_t);
+    typedef void (*loadfunc_t)(void *, const int32_t);
+    static void init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint16_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le);
     static void edit(strfunc_t, loadfunc_t);
 };
 
@@ -184,13 +184,13 @@ class TMenuItem : MenuItemBase {
     typedef typename NAME::type_t type_t;
     static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
     static inline float scale(const float value)      { return value * NAME::scale;           }
-    static void load(void *ptr, const int16_t value)  { *((type_t*)ptr) = unscale(value);     }
-    static char* to_string(const int16_t value)       { return NAME::strfunc(unscale(value)); }
+    static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
+    static char* to_string(const int32_t value)       { return NAME::strfunc(unscale(value)); }
   public:
     static void action_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=nullptr, const bool live=false) {
       // Make sure minv and maxv fit within int16_t
-      const int16_t minv = MAX(scale(minValue), INT16_MIN),
-                    maxv = MIN(scale(maxValue), INT16_MAX);
+      const int32_t minv = MAX(scale(minValue), INT_MIN),
+                    maxv = MIN(scale(maxValue), INT_MAX);
       init(pstr, ptr, minv, maxv - minv, scale(*ptr) - minv, edit, callback, live);
     }
     static void edit() { MenuItemBase::edit(to_string, load); }
