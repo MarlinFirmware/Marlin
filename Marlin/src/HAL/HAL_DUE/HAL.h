@@ -29,15 +29,14 @@
 
 #define CPU_32_BIT
 
-#include <stdint.h>
-
-#include <Arduino.h>
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio_Due.h"
 #include "watchdog_Due.h"
 #include "HAL_timers_Due.h"
+
+#include <stdint.h>
 
 // Serial ports
 #if !WITHIN(SERIAL_PORT, -1, 3)

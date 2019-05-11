@@ -270,7 +270,7 @@ void HAL_adc_init(void) {
   adc.calibrate();
   adc.setSampleRate(ADC_SMPR_41_5); // ?
   adc.setPins(adc_pins, ADC_PIN_COUNT);
-  adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), (void (*)())NULL);
+  adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), nullptr);
   adc.setScanMode();
   adc.setContinuous();
   adc.startConversion();
@@ -279,6 +279,7 @@ void HAL_adc_init(void) {
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
   TEMP_PINS pin_index;
   switch (adc_pin) {
+    default: return;
     #if HAS_TEMP_ADC_0
       case TEMP_0_PIN: pin_index = TEMP_0; break;
     #endif
@@ -310,8 +311,6 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
 }
 
-uint16_t HAL_adc_get_result(void) {
-  return HAL_adc_result;
-}
+uint16_t HAL_adc_get_result(void) { return HAL_adc_result; }
 
 #endif // __STM32F1__

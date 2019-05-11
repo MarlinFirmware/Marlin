@@ -103,7 +103,7 @@ void FWRetract::retract(const bool retracting
 
   // Prevent two swap-retract or recovers in a row
   #if EXTRUDERS > 1
-    // Allow G10 S1 only after G10
+    // Allow G10 S1 only after G11
     if (swapping && retracted_swap[active_extruder] == retracting) return;
     // G11 priority to recover the long retract if activated
     if (!retracting) swapping = retracted_swap[active_extruder];
@@ -114,8 +114,8 @@ void FWRetract::retract(const bool retracting
   /* // debugging
     SERIAL_ECHOLNPAIR(
       "retracting ", retracting,
-      "swapping ", swapping
-      "active extruder ", active_extruder
+      " swapping ", swapping,
+      " active extruder ", active_extruder
     );
     for (uint8_t i = 0; i < EXTRUDERS; ++i) {
       SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);

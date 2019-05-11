@@ -28,8 +28,8 @@
   #error "Oops! Select 'FYSETC F6' in 'Tools > Board.'"
 #endif
 
-#ifdef SD_DETECT_INVERTED
-  #error "SD_DETECT_INVERTED must be disabled for the FYSETC_F6_13 board."
+#if ENABLED(SD_DETECT_INVERTED)
+  //#error "SD_DETECT_INVERTED must be disabled for the FYSETC_F6_13 board."
 #endif
 
 #define BOARD_NAME "FYSETC F6 1.3"
@@ -190,19 +190,26 @@
   //
   #define DOGLCD_A0        16
   #define DOGLCD_CS        17
-  #ifndef RGB_LED_R_PIN
-    #define RGB_LED_R_PIN  25
-  #endif
-  #ifndef RGB_LED_G_PIN
-    #define RGB_LED_G_PIN  27
-  #endif
-  #ifndef RGB_LED_B_PIN
-    #define RGB_LED_B_PIN  29
-  #endif
 
   #define LCD_BACKLIGHT_PIN -1
-  #define LCD_RESET_PIN    23
   #define KILL_PIN         41
+
+  #define LCD_RESET_PIN    23   // Must be high or open for LCD to operate normally.
+                                // Seems to work best if left open.
+
+  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #ifndef RGB_LED_R_PIN
+      #define RGB_LED_R_PIN 25
+    #endif
+    #ifndef RGB_LED_G_PIN
+      #define RGB_LED_G_PIN 27
+    #endif
+    #ifndef RGB_LED_B_PIN
+      #define RGB_LED_B_PIN 29
+    #endif
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+    #define NEOPIXEL_PIN    25
+  #endif
 
 #elif HAS_GRAPHICAL_LCD
 

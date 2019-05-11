@@ -112,8 +112,7 @@ void GcodeSuite::G34() {
     #endif
 
     #if ENABLED(BLTOUCH)
-      bltouch.reset();
-      bltouch.stow();
+      bltouch.init();
     #endif
 
     // Always home with tool 0 active
@@ -125,6 +124,12 @@ void GcodeSuite::G34() {
     #if HAS_DUPLICATION_MODE
       extruder_duplication_enabled = false;
     #endif
+
+    // Before moving other axes raise Z, if needed. Never lower Z.
+    if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before moving to probe pos) to ", Z_CLEARANCE_BETWEEN_PROBES);
+      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+    }
 
     // Remember corrections to determine errors on each iteration
     float last_z_align_move[Z_STEPPER_COUNT] = ARRAY_N(Z_STEPPER_COUNT, 10000.0f, 10000.0f, 10000.0f),

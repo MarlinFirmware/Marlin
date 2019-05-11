@@ -25,7 +25,8 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include "Arduino.h"
+#include "../shared/Marduino.h"
+
 #include "libmaple/sdio.h"
 #include "libmaple/dma.h"
 

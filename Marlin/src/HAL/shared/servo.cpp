@@ -55,7 +55,6 @@
 
 #if HAS_SERVOS && !(IS_32BIT_TEENSY || defined(TARGET_LPC1768) || defined(STM32F1) || defined(STM32F1xx) || defined(STM32F4) || defined(STM32F4xx) || defined(STM32F7xx))
 
-//#include <Arduino.h>
 #include "servo.h"
 #include "servo_private.h"
 

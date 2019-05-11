@@ -134,12 +134,12 @@ static void lcd_factory_settings() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
     #if ENABLED(DUAL_X_CARRIAGE)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_X_OFFSET, &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_offsets);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_X_OFFSET, &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_offsets);
     #else
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_X_OFFSET, &hotend_offset[X_AXIS][1], -10.0, 10.0, _recalc_offsets);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_X_OFFSET, &hotend_offset[X_AXIS][1], -10.0, 10.0, _recalc_offsets);
     #endif
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_Y_OFFSET, &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_offsets);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_Z_OFFSET, &hotend_offset[Z_AXIS][1], Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_Y_OFFSET, &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_offsets);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_Z_OFFSET, &hotend_offset[Z_AXIS][1], Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
     #endif
@@ -174,15 +174,13 @@ static void lcd_factory_settings() {
   void menu_bltouch() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM(function, MSG_BLTOUCH_RESET, bltouch.reset);
-    MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, bltouch.selftest);
+    MENU_ITEM(function, MSG_BLTOUCH_RESET, bltouch._reset);
+    MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, bltouch._selftest);
     MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch._deploy);
     MENU_ITEM(function, MSG_BLTOUCH_STOW, bltouch._stow);
-    #if ENABLED(BLTOUCH_V3)
-      MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch.set_SW_mode);
-      MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch.set_5V_mode);
-      MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch.set_OD_mode);
-    #endif
+    MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
+    MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch._set_5V_mode);
+    MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch._set_OD_mode);
     END_MENU();
   }
 
@@ -289,7 +287,7 @@ void menu_configuration() {
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
-    MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    MENU_ITEM_EDIT(float52sign, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   const bool busy = printer_busy();

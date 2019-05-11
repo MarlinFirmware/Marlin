@@ -101,10 +101,7 @@
   }
 
   void menu_abort_confirm() {
-    START_MENU();
-    MENU_BACK(MSG_MAIN);
-    MENU_ITEM(function, MSG_STOP_PRINT, lcd_abort_job);
-    END_MENU();
+    do_select_screen(PSTR(MSG_BUTTON_STOP), PSTR(MSG_BACK), lcd_abort_job, ui.goto_previous_screen, PSTR(MSG_STOP_PRINT), nullptr, PSTR("?"));
   }
 
 #endif // MACHINE_CAN_STOP
@@ -139,6 +136,16 @@ void menu_led();
   #endif
 #endif
 
+#if HAS_GAME_MENU
+  void menu_game();
+#elif ENABLED(MARLIN_BRICKOUT)
+  void lcd_goto_brickout();
+#elif ENABLED(MARLIN_INVADERS)
+  void lcd_goto_invaders();
+#elif ENABLED(MARLIN_SNAKE)
+  void lcd_goto_snake();
+#endif
+
 void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
@@ -171,16 +178,22 @@ void menu_main() {
       if (card_detected) {
         if (!card_open) {
           MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
-          #if !PIN_EXISTS(SD_DETECT)
-            MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
-          #endif
+          MENU_ITEM(gcode,
+            #if PIN_EXISTS(SD_DETECT)
+              MSG_CHANGE_SDCARD, PSTR("M21")
+            #else
+              MSG_RELEASE_SDCARD, PSTR("M22")
+            #endif
+          );
         }
       }
       else {
-        #if !PIN_EXISTS(SD_DETECT)
-          MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually init SD-card
+        #if PIN_EXISTS(SD_DETECT)
+          MENU_ITEM(function, MSG_NO_CARD, nullptr);
+        #else
+          MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));
+          MENU_ITEM(function, MSG_SD_RELEASED, nullptr);
         #endif
-        MENU_ITEM(function, MSG_NO_CARD, NULL);
       }
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
@@ -252,16 +265,22 @@ void menu_main() {
     if (card_detected) {
       if (!card_open) {
         MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
-        #if !PIN_EXISTS(SD_DETECT)
-          MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
-        #endif
+        MENU_ITEM(gcode,
+          #if PIN_EXISTS(SD_DETECT)
+            MSG_CHANGE_SDCARD, PSTR("M21")
+          #else
+            MSG_RELEASE_SDCARD, PSTR("M22")
+          #endif
+        );
       }
     }
     else {
-      #if !PIN_EXISTS(SD_DETECT)
-        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually init SD-card
+      #if PIN_EXISTS(SD_DETECT)
+        MENU_ITEM(function, MSG_NO_CARD, nullptr);
+      #else
+        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));
+        MENU_ITEM(function, MSG_SD_RELEASED, nullptr);
       #endif
-      MENU_ITEM(function, MSG_NO_CARD, NULL);
     }
   #endif // HAS_ENCODER_WHEEL && SDSUPPORT
 

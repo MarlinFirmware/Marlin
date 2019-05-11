@@ -202,31 +202,24 @@
 //
 #if ENABLED(ULTRA_LCD)
 
-  #if EITHER(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER)
-
+  #if ANY(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER, REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
     #define BEEPER_PIN      62
+    #define LCD_PINS_D4     48
+    #define LCD_PINS_D5     50
+    #define LCD_PINS_D6     52
+    #define LCD_PINS_D7     53
+    #define SD_DETECT_PIN   51
+  #endif
+
+  #if EITHER(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER)
 
     #define LCD_PINS_RS     63
     #define LCD_PINS_ENABLE 64
-    #define LCD_PINS_D4     48
-    #define LCD_PINS_D5     50
-    #define LCD_PINS_D6     52
-    #define LCD_PINS_D7     53
-
-    #define SD_DETECT_PIN   51
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
-    #define BEEPER_PIN      62
-
     #define LCD_PINS_RS     52
     #define LCD_PINS_ENABLE 53
-    #define LCD_PINS_D4     48
-    #define LCD_PINS_D5     50
-    #define LCD_PINS_D6     52
-    #define LCD_PINS_D7     53
-
-    #define SD_DETECT_PIN   51
 
   #elif HAS_SSD1306_OLED_I2C
 
@@ -234,16 +227,41 @@
     #define LCD_SDSS        10
     #define SD_DETECT_PIN   51
 
+  #elif ENABLED(FYSETC_MINI_12864)
+
+    #define BEEPER_PIN      62
+    #define DOGLCD_CS       64
+    #define DOGLCD_A0       63
+
+    //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
+                                //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+    #define LCD_RESET_PIN   48   // Must be high or open for LCD to operate normally.
+
+    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #ifndef RGB_LED_R_PIN
+        #define RGB_LED_R_PIN 50   // D5
+      #endif
+      #ifndef RGB_LED_G_PIN
+        #define RGB_LED_G_PIN 52   // D6
+      #endif
+      #ifndef RGB_LED_B_PIN
+        #define RGB_LED_B_PIN 53   // D7
+      #endif
+    #elif ENABLED(FYSETC_MINI_12864_2_1)
+      #define NEOPIXEL_PIN    50   // D5
+    #endif
+
   #elif ENABLED(SPARK_FULL_GRAPHICS)
 
     //http://doku.radds.org/dokumentation/other-electronics/sparklcd/
     #error "Oops! SPARK_FULL_GRAPHICS not supported with RURAMPS4D."
-    //#define LCD_PINS_D4     29//?
-    //#define LCD_PINS_ENABLE 27//?
-    //#define LCD_PINS_RS     25//?
-    //#define BTN_EN1         35//?
-    //#define BTN_EN2         33//?
-    //#define BTN_ENC         37//?
+    //#define LCD_PINS_D4     29   //?
+    //#define LCD_PINS_ENABLE 27   //?
+    //#define LCD_PINS_RS     25   //?
+    //#define BTN_EN1         35   //?
+    //#define BTN_EN2         33   //?
+    //#define BTN_ENC         37   //?
 
   #endif // SPARK_FULL_GRAPHICS
 

@@ -136,7 +136,7 @@ void MenuItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   if (ui.should_draw())
     draw_edit_screen(editLabel, strfunc(ui.encoderPosition + minEditValue));
   if (ui.lcd_clicked || (liveEdit && ui.should_draw())) {
-    if (editValue != NULL) loadfunc(editValue, ui.encoderPosition + minEditValue);
+    if (editValue != nullptr) loadfunc(editValue, ui.encoderPosition + minEditValue);
     if (callbackFunc && (liveEdit || ui.lcd_clicked)) (*callbackFunc)();
     if (ui.use_click()) ui.goto_previous_screen();
   }
@@ -167,10 +167,12 @@ DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(float52);     // 123.45
 DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
 DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM(float5_25);   // 12345      right-justified (25 increment)
 DEFINE_MENU_EDIT_ITEM(float51);     // 1234.5     right-justified
 DEFINE_MENU_EDIT_ITEM(float51sign); // +1234.5
 DEFINE_MENU_EDIT_ITEM(float52sign); // +123.45
 DEFINE_MENU_EDIT_ITEM(long5);       // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM(long5_25);    // 12345      right-justified (25 increment)
 
 void MenuItem_bool::action_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
   UNUSED(pstr); *ptr ^= true; ui.refresh();
@@ -268,6 +270,8 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     #if HAS_GRAPHICAL_LCD
       drawing_screen = false;
     #endif
+
+    set_ui_selection(false);
   }
 }
 
@@ -296,7 +300,7 @@ void MarlinUI::_synchronize() {
 
 // Display the synchronize screen with a custom message
 // ** This blocks the command queue! **
-void MarlinUI::synchronize(PGM_P const msg/*=NULL*/) {
+void MarlinUI::synchronize(PGM_P const msg/*=nullptr*/) {
   static const char moving[] PROGMEM = MSG_MOVING;
   sync_message = msg ? msg : moving;
   _synchronize();
@@ -436,12 +440,21 @@ void _lcd_draw_homing() {
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
 
-void do_select_screen(PGM_P const yes, PGM_P const no, bool &yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
+//
+// Selection screen presents a prompt and two options
+//
+bool ui_selection; // = false
+void set_ui_selection(const bool sel) { ui_selection = sel; }
+void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
   if (ui.encoderPosition) {
-    yesno = int16_t(ui.encoderPosition) > 0;
+    ui_selection = int16_t(ui.encoderPosition) > 0;
     ui.encoderPosition = 0;
   }
-  draw_select_screen(yes, no, yesno, pref, string, suff);
+  const bool got_click = ui.use_click();
+  if (got_click || ui.should_draw()) {
+    draw_select_screen(yes, no, ui_selection, pref, string, suff);
+    if (got_click) { ui_selection ? yesFunc() : noFunc(); }
+  }
 }
 
 #endif // HAS_LCD_MENU

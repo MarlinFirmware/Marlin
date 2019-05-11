@@ -32,7 +32,7 @@
 #include "../../module/stepper_indirection.h"
 #include "../../feature/tmc_util.h"
 
-#define TMC_EDIT_STORED_I_RMS(ST) MENU_ITEM_EDIT_CALLBACK(uint16_4, MSG_##ST, &stepper##ST.val_mA, 100, 3000, refresh_stepper_current_##ST)
+#define TMC_EDIT_STORED_I_RMS(ST,MSG) MENU_ITEM_EDIT_CALLBACK(uint16_4, MSG, &stepper##ST.val_mA, 100, 3000, refresh_stepper_current_##ST)
 
 #if AXIS_IS_TMC(X)
   void refresh_stepper_current_X()  { stepperX.refresh_stepper_current();  }
@@ -78,50 +78,50 @@ void menu_tmc_current() {
   START_MENU();
   MENU_BACK(MSG_TMC_DRIVERS);
   #if AXIS_IS_TMC(X)
-    TMC_EDIT_STORED_I_RMS(X);
+    TMC_EDIT_STORED_I_RMS(X, MSG_X);
   #endif
   #if AXIS_IS_TMC(Y)
-    TMC_EDIT_STORED_I_RMS(Y);
+    TMC_EDIT_STORED_I_RMS(Y, MSG_Y);
   #endif
   #if AXIS_IS_TMC(Z)
-    TMC_EDIT_STORED_I_RMS(Z);
+    TMC_EDIT_STORED_I_RMS(Z, MSG_Z);
   #endif
   #if AXIS_IS_TMC(X2)
-    TMC_EDIT_STORED_I_RMS(X2);
+    TMC_EDIT_STORED_I_RMS(X2, MSG_X2);
   #endif
   #if AXIS_IS_TMC(Y2)
-    TMC_EDIT_STORED_I_RMS(Y2);
+    TMC_EDIT_STORED_I_RMS(Y2, MSG_Y2);
   #endif
   #if AXIS_IS_TMC(Z2)
-    TMC_EDIT_STORED_I_RMS(Z2);
+    TMC_EDIT_STORED_I_RMS(Z2, MSG_Z2);
   #endif
   #if AXIS_IS_TMC(Z3)
-    TMC_EDIT_STORED_I_RMS(Z3);
+    TMC_EDIT_STORED_I_RMS(Z3, MSG_Z3);
   #endif
   #if AXIS_IS_TMC(E0)
-    TMC_EDIT_STORED_I_RMS(E0);
+    TMC_EDIT_STORED_I_RMS(E0, MSG_E1);
   #endif
   #if AXIS_IS_TMC(E1)
-    TMC_EDIT_STORED_I_RMS(E1);
+    TMC_EDIT_STORED_I_RMS(E1, MSG_E2);
   #endif
   #if AXIS_IS_TMC(E2)
-    TMC_EDIT_STORED_I_RMS(E2);
+    TMC_EDIT_STORED_I_RMS(E2, MSG_E3);
   #endif
   #if AXIS_IS_TMC(E3)
-    TMC_EDIT_STORED_I_RMS(E3);
+    TMC_EDIT_STORED_I_RMS(E3, MSG_E4);
   #endif
   #if AXIS_IS_TMC(E4)
-    TMC_EDIT_STORED_I_RMS(E4);
+    TMC_EDIT_STORED_I_RMS(E4, MSG_E5);
   #endif
   #if AXIS_IS_TMC(E5)
-    TMC_EDIT_STORED_I_RMS(E5);
+    TMC_EDIT_STORED_I_RMS(E5, MSG_E6);
   #endif
   END_MENU();
 }
 
 #if ENABLED(HYBRID_THRESHOLD)
 
-  #define TMC_EDIT_STORED_HYBRID_THRS(ST) MENU_ITEM_EDIT_CALLBACK(uint8, MSG_##ST, &stepper##ST.stored.hybrid_thrs, 0, 255, refresh_hybrid_thrs_##ST);
+  #define TMC_EDIT_STORED_HYBRID_THRS(ST, MSG) MENU_ITEM_EDIT_CALLBACK(uint8, MSG, &stepper##ST.stored.hybrid_thrs, 0, 255, refresh_hybrid_thrs_##ST);
 
   #if AXIS_HAS_STEALTHCHOP(X)
     void refresh_hybrid_thrs_X()  {  stepperX.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[X_AXIS]); }
@@ -167,43 +167,43 @@ void menu_tmc_current() {
     START_MENU();
     MENU_BACK(MSG_TMC_DRIVERS);
     #if AXIS_HAS_STEALTHCHOP(X)
-      TMC_EDIT_STORED_HYBRID_THRS(X);
+      TMC_EDIT_STORED_HYBRID_THRS(X, MSG_X);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y)
-      TMC_EDIT_STORED_HYBRID_THRS(Y);
+      TMC_EDIT_STORED_HYBRID_THRS(Y, MSG_Y);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z)
-      TMC_EDIT_STORED_HYBRID_THRS(Z);
+      TMC_EDIT_STORED_HYBRID_THRS(Z, MSG_Z);
     #endif
     #if AXIS_HAS_STEALTHCHOP(X2)
-      TMC_EDIT_STORED_HYBRID_THRS(X2);
+      TMC_EDIT_STORED_HYBRID_THRS(X2, MSG_X2);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y2)
-      TMC_EDIT_STORED_HYBRID_THRS(Y2);
+      TMC_EDIT_STORED_HYBRID_THRS(Y2, MSG_Y2);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z2)
-      TMC_EDIT_STORED_HYBRID_THRS(Z2);
+      TMC_EDIT_STORED_HYBRID_THRS(Z2, MSG_Z2);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z3)
-      TMC_EDIT_STORED_HYBRID_THRS(Z3);
+      TMC_EDIT_STORED_HYBRID_THRS(Z3, MSG_Z3);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E0)
-      TMC_EDIT_STORED_HYBRID_THRS(E0);
+      TMC_EDIT_STORED_HYBRID_THRS(E0, MSG_E1);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E1)
-      TMC_EDIT_STORED_HYBRID_THRS(E1);
+      TMC_EDIT_STORED_HYBRID_THRS(E1, MSG_E2);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E2)
-      TMC_EDIT_STORED_HYBRID_THRS(E2);
+      TMC_EDIT_STORED_HYBRID_THRS(E2, MSG_E3);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E3)
-      TMC_EDIT_STORED_HYBRID_THRS(E3);
+      TMC_EDIT_STORED_HYBRID_THRS(E3, MSG_E4);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E4)
-      TMC_EDIT_STORED_HYBRID_THRS(E4);
+      TMC_EDIT_STORED_HYBRID_THRS(E4, MSG_E5);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E5)
-      TMC_EDIT_STORED_HYBRID_THRS(E5);
+      TMC_EDIT_STORED_HYBRID_THRS(E5, MSG_E6);
     #endif
     END_MENU();
   }
@@ -243,7 +243,7 @@ void menu_tmc_current() {
 
 #if HAS_STEALTHCHOP
 
-  #define TMC_EDIT_STEP_MODE(ST) MENU_ITEM_EDIT_CALLBACK(bool, MSG_##ST, &stepper##ST.stored.stealthChop_enabled, refresh_stepping_mode_##ST)
+  #define TMC_EDIT_STEP_MODE(ST, MSG) MENU_ITEM_EDIT_CALLBACK(bool, MSG, &stepper##ST.stored.stealthChop_enabled, refresh_stepping_mode_##ST)
 
   #if AXIS_HAS_STEALTHCHOP(X)
     void refresh_stepping_mode_X()  { stepperX.refresh_stepping_mode();  }
@@ -290,43 +290,43 @@ void menu_tmc_current() {
     STATIC_ITEM(MSG_TMC_STEALTH_ENABLED);
     MENU_BACK(MSG_TMC_DRIVERS);
     #if AXIS_HAS_STEALTHCHOP(X)
-      TMC_EDIT_STEP_MODE(X);
+      TMC_EDIT_STEP_MODE(X, MSG_X);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y)
-      TMC_EDIT_STEP_MODE(Y);
+      TMC_EDIT_STEP_MODE(Y, MSG_Y);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z)
-      TMC_EDIT_STEP_MODE(Z);
+      TMC_EDIT_STEP_MODE(Z, MSG_Z);
     #endif
     #if AXIS_HAS_STEALTHCHOP(X2)
-      TMC_EDIT_STEP_MODE(X2);
+      TMC_EDIT_STEP_MODE(X2, MSG_X2);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y2)
-      TMC_EDIT_STEP_MODE(Y2);
+      TMC_EDIT_STEP_MODE(Y2, MSG_Y2);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z2)
-      TMC_EDIT_STEP_MODE(Z2);
+      TMC_EDIT_STEP_MODE(Z2, MSG_Z2);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z3)
-      TMC_EDIT_STEP_MODE(Z3);
+      TMC_EDIT_STEP_MODE(Z3, MSG_Z3);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E0)
-      TMC_EDIT_STEP_MODE(E0);
+      TMC_EDIT_STEP_MODE(E0, MSG_E1);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E1)
-      TMC_EDIT_STEP_MODE(E1);
+      TMC_EDIT_STEP_MODE(E1, MSG_E2);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E2)
-      TMC_EDIT_STEP_MODE(E2);
+      TMC_EDIT_STEP_MODE(E2, MSG_E3);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E3)
-      TMC_EDIT_STEP_MODE(E3);
+      TMC_EDIT_STEP_MODE(E3, MSG_E4);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E4)
-      TMC_EDIT_STEP_MODE(E4);
+      TMC_EDIT_STEP_MODE(E4, MSG_E5);
     #endif
     #if AXIS_HAS_STEALTHCHOP(E5)
-      TMC_EDIT_STEP_MODE(E5);
+      TMC_EDIT_STEP_MODE(E5, MSG_E6);
     #endif
     END_MENU();
   }

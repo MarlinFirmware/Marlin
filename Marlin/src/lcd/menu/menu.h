@@ -56,23 +56,28 @@ DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );   // 123
 DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );   // 123.45
 DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );   // 1.234
 DECLARE_MENU_EDIT_TYPE(float,    float5,      ftostr5rj,       0.01f );   // 12345      right-justified
+DECLARE_MENU_EDIT_TYPE(float,    float5_25,   ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
 DECLARE_MENU_EDIT_TYPE(float,    float51,     ftostr51rj,     10     );   // 1234.5     right-justified
 DECLARE_MENU_EDIT_TYPE(float,    float51sign, ftostr51sign,   10     );   // +1234.5
 DECLARE_MENU_EDIT_TYPE(float,    float52sign, ftostr52sign,  100     );   // +123.45
 DECLARE_MENU_EDIT_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );   // 12345      right-justified
+DECLARE_MENU_EDIT_TYPE(uint32_t, long5_25,    ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
 
 ////////////////////////////////////////////
 ///////// Menu Item Draw Functions /////////
 ////////////////////////////////////////////
 
-void draw_edit_screen(PGM_P const pstr, const char* const value=NULL);
+typedef void (*selectFunc_t)();
 void draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff);
-void do_select_screen(PGM_P const yes, PGM_P const no, bool &yesno, PGM_P const pref, const char * const string=NULL, PGM_P const suff=NULL);
-inline void do_select_screen_yn(bool &yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
-  do_select_screen(PSTR(MSG_YES), PSTR(MSG_NO), yesno, pref, string, suff);
+void set_ui_selection(const bool sel);
+void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
+inline void do_select_screen_yn(selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr) {
+  do_select_screen(PSTR(MSG_YES), PSTR(MSG_NO), yesFunc, noFunc, pref, string, suff);
 }
+
+void draw_edit_screen(PGM_P const pstr, const char* const value=nullptr);
 void draw_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
-void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const bool center=true, const bool invert=false, const char *valstr=NULL);
+void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const bool center=true, const bool invert=false, const char *valstr=nullptr);
 void _draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm);
 FORCE_INLINE void draw_menu_item_back(const bool sel, const uint8_t row, PGM_P const pstr) { draw_menu_item(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]); }
 FORCE_INLINE void draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data) { _draw_menu_item_edit(sel, row, pstr, data, false); }
@@ -121,10 +126,12 @@ DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);           // 123        right-justif
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);          // 123.45
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);          // 1.234
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5);           // 12345      right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5_25);        // 12345      right-justified (25 increment)
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51);          // 1234.5     right-justified
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float51sign);      // +1234.5
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52sign);      // +123.45
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5);            // 12345      right-justified
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5_25);         // 12345      right-justified (25 increment)
 
 #define draw_menu_item_edit_bool(sel, row, pstr, pstr2, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
 #define draw_menu_item_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
@@ -180,7 +187,7 @@ class TMenuItem : MenuItemBase {
     static void load(void *ptr, const int16_t value)  { *((type_t*)ptr) = unscale(value);     }
     static char* to_string(const int16_t value)       { return NAME::strfunc(unscale(value)); }
   public:
-    static void action_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=NULL, const bool live=false) {
+    static void action_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=nullptr, const bool live=false) {
       // Make sure minv and maxv fit within int16_t
       const int16_t minv = MAX(scale(minValue), INT16_MIN),
                     maxv = MIN(scale(maxValue), INT16_MAX);
@@ -202,14 +209,16 @@ DECLARE_MENU_EDIT_ITEM(float3);
 DECLARE_MENU_EDIT_ITEM(float52);
 DECLARE_MENU_EDIT_ITEM(float43);
 DECLARE_MENU_EDIT_ITEM(float5);
+DECLARE_MENU_EDIT_ITEM(float5_25);
 DECLARE_MENU_EDIT_ITEM(float51);
 DECLARE_MENU_EDIT_ITEM(float51sign);
 DECLARE_MENU_EDIT_ITEM(float52sign);
 DECLARE_MENU_EDIT_ITEM(long5);
+DECLARE_MENU_EDIT_ITEM(long5_25);
 
 class MenuItem_bool {
   public:
-    static void action_edit(PGM_P const pstr, bool* ptr, const screenFunc_t callbackFunc=NULL);
+    static void action_edit(PGM_P const pstr, bool* ptr, const screenFunc_t callbackFunc=nullptr);
 };
 
 ////////////////////////////////////////////

@@ -82,11 +82,7 @@
 #include "ui_api.h"
 
 #if ENABLED(BACKLASH_GCODE)
-  extern float backlash_distance_mm[XYZ];
-  extern uint8_t backlash_correction;
-  #ifdef BACKLASH_SMOOTHING_MM
-    extern float backlash_smoothing_mm;
-  #endif
+  #include "../../feature/backlash.h"
 #endif
 
 #if HAS_LEVELING
@@ -111,7 +107,6 @@ static struct {
 } flags;
 
 namespace ExtUI {
-
   #ifdef __SAM3X8E__
     /**
      * Implement a special millis() to allow time measurement
@@ -153,9 +148,7 @@ namespace ExtUI {
     }
   #endif // __SAM3X8E__
 
-  void delay_us(unsigned long us) {
-    DELAY_US(us);
-  }
+  void delay_us(unsigned long us) { DELAY_US(us); }
 
   void delay_ms(unsigned long ms) {
     if (flags.printer_killed)
@@ -169,14 +162,49 @@ namespace ExtUI {
       thermalManager.manage_heater();
   }
 
-  float getActualTemp_celsius(const heater_t heater) {
-    return heater == BED ?
+  void enableHeater(const extruder_t extruder) {
+    #if HEATER_IDLE_HANDLER
+      thermalManager.reset_heater_idle_timer(extruder - E0);
+    #endif
+  }
+
+  void enableHeater(const heater_t heater) {
+    #if HEATER_IDLE_HANDLER
       #if HAS_HEATED_BED
-        thermalManager.degBed()
-      #else
-        0
+        if (heater == BED)
+          thermalManager.reset_bed_idle_timer();
+        else
       #endif
-      : thermalManager.degHotend(heater - H0);
+          thermalManager.reset_heater_idle_timer(heater - H0);
+    #endif
+  }
+
+  bool isHeaterIdle(const extruder_t extruder) {
+    return false
+      #if HEATER_IDLE_HANDLER
+        || thermalManager.hotend_idle[extruder - E0].timed_out
+      #endif
+    ;
+  }
+
+  bool isHeaterIdle(const heater_t heater) {
+    return (false
+      #if HEATER_IDLE_HANDLER
+        || (heater == BED ? (false
+          #if HAS_HEATED_BED
+            || thermalManager.bed_idle.timed_out
+          #endif
+        ) : thermalManager.hotend_idle[heater - H0].timed_out)
+      #endif
+    );
+  }
+
+  float getActualTemp_celsius(const heater_t heater) {
+    return heater == BED ? (0
+      #if HAS_HEATED_BED
+        + thermalManager.degBed()
+      #endif
+    ) : thermalManager.degHotend(heater - H0);
   }
 
   float getActualTemp_celsius(const extruder_t extruder) {
@@ -184,13 +212,11 @@ namespace ExtUI {
   }
 
   float getTargetTemp_celsius(const heater_t heater) {
-    return heater == BED ?
+    return heater == BED ? (0
       #if HAS_HEATED_BED
-        thermalManager.degTargetBed()
-      #else
-        0
+        + thermalManager.degTargetBed()
       #endif
-      : thermalManager.degTargetHotend(heater - H0);
+    ) : thermalManager.degTargetHotend(heater - H0);
   }
 
   float getTargetTemp_celsius(const extruder_t extruder) {
@@ -257,8 +283,7 @@ namespace ExtUI {
       }
     #endif
 
-    if (!flags.manual_motion)
-      set_destination_from_current();
+    if (!flags.manual_motion) set_destination_from_current();
     destination[axis] = clamp(position, min, max);
     flags.manual_motion = true;
   }
@@ -266,8 +291,7 @@ namespace ExtUI {
   void setAxisPosition_mm(const float position, const extruder_t extruder) {
     setActiveTool(extruder, true);
 
-    if (!flags.manual_motion)
-      set_destination_from_current();
+    if (!flags.manual_motion) set_destination_from_current();
     destination[E_AXIS] = position;
     flags.manual_motion = true;
   }
@@ -308,8 +332,7 @@ namespace ExtUI {
     #if EXTRUDERS > 1
       const uint8_t e = extruder - E0;
       #if DO_SWITCH_EXTRUDER || EITHER(SWITCHING_NOZZLE, PARKING_EXTRUDER)
-        if (e != active_extruder)
-          tool_change(e, 0, no_move);
+        if (e != active_extruder) tool_change(e, 0, no_move);
       #endif
       active_extruder = e;
     #endif
@@ -346,13 +369,8 @@ namespace ExtUI {
   }
 
   #if HAS_SOFTWARE_ENDSTOPS
-    bool getSoftEndstopState() {
-      return soft_endstops_enabled;
-    }
-
-    void setSoftEndstopState(const bool value) {
-      soft_endstops_enabled = value;
-    }
+    bool getSoftEndstopState() { return soft_endstops_enabled; }
+    void setSoftEndstopState(const bool value) { soft_endstops_enabled = value; }
   #endif
 
   #if HAS_TRINAMIC
@@ -517,14 +535,9 @@ namespace ExtUI {
     bool getFilamentRunoutEnabled()                 { return runout.enabled; }
     void setFilamentRunoutEnabled(const bool value) { runout.enabled = value; }
 
-    #if FILAMENT_RUNOUT_DISTANCE_MM > 0
-      float getFilamentRunoutDistance_mm() {
-        return RunoutResponseDelayed::runout_distance_mm;
-      }
-
-      void setFilamentRunoutDistance_mm(const float value) {
-        RunoutResponseDelayed::runout_distance_mm = clamp(value, 0, 999);
-      }
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      float getFilamentRunoutDistance_mm()                 { return runout.runout_distance(); }
+      void setFilamentRunoutDistance_mm(const float value) { runout.set_runout_distance(clamp(value, 0, 999)); }
     #endif
   #endif
 
@@ -687,16 +700,16 @@ namespace ExtUI {
   #endif // HAS_HOTEND_OFFSET
 
   #if ENABLED(BACKLASH_GCODE)
-    float getAxisBacklash_mm(const axis_t axis)       { return backlash_distance_mm[axis]; }
+    float getAxisBacklash_mm(const axis_t axis)       { return backlash.distance_mm[axis]; }
     void setAxisBacklash_mm(const float value, const axis_t axis)
-                                                      { backlash_distance_mm[axis] = clamp(value,0,5); }
+                                                      { backlash.distance_mm[axis] = clamp(value,0,5); }
 
-    float getBacklashCorrection_percent()             { return ui8_to_percent(backlash_correction); }
-    void setBacklashCorrection_percent(const float value) { backlash_correction = map(clamp(value, 0, 100), 0, 100, 0, 255); }
+    float getBacklashCorrection_percent()             { return ui8_to_percent(backlash.correction); }
+    void setBacklashCorrection_percent(const float value) { backlash.correction = map(clamp(value, 0, 100), 0, 100, 0, 255); }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      float getBacklashSmoothing_mm()                 { return backlash_smoothing_mm; }
-      void setBacklashSmoothing_mm(const float value) { backlash_smoothing_mm = clamp(value, 0, 999); }
+      float getBacklashSmoothing_mm()                 { return backlash.smoothing_mm; }
+      void setBacklashSmoothing_mm(const float value) { backlash.smoothing_mm = clamp(value, 0, 999); }
     #endif
   #endif
 
@@ -715,6 +728,7 @@ namespace ExtUI {
     #if HAS_MESH
       bool getMeshValid() { return leveling_is_valid(); }
       bed_mesh_t getMeshArray() { return Z_VALUES_ARR; }
+      float getMeshPoint(const uint8_t xpos, const uint8_t ypos) { return Z_VALUES(xpos,ypos); }
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zoff) {
         if (WITHIN(xpos, 0, GRID_MAX_POINTS_X) && WITHIN(ypos, 0, GRID_MAX_POINTS_Y)) {
           Z_VALUES(xpos, ypos) = zoff;
@@ -748,9 +762,14 @@ namespace ExtUI {
     enqueue_and_echo_commands_P(gcode);
   }
 
+  bool commandsInQueue() { return (planner.movesplanned() || commands_in_queue); }
+
   bool isAxisPositionKnown(const axis_t axis) {
     return TEST(axis_known_position, axis);
   }
+
+  bool isPositionKnown() { return all_axes_known(); }
+  bool isMachineHomed() { return all_axes_homed(); }
 
   PGM_P getFirmwareName_str() {
     static const char firmware_name[] PROGMEM = "Marlin " SHORT_BUILD_VERSION;
@@ -760,6 +779,7 @@ namespace ExtUI {
   void setTargetTemp_celsius(float value, const heater_t heater) {
     constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
     const int16_t e = heater - H0;
+    enableHeater(heater);
     #if HAS_HEATED_BED
       if (heater == BED)
         thermalManager.setTargetBed(clamp(value, 0, BED_MAXTEMP - 10));
@@ -771,6 +791,7 @@ namespace ExtUI {
   void setTargetTemp_celsius(float value, const extruder_t extruder) {
     constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
     const int16_t e = extruder - E0;
+    enableHeater(extruder);
     thermalManager.setTargetHotend(clamp(value, 0, heater_maxtemp[e] - 15), e);
   }
 
