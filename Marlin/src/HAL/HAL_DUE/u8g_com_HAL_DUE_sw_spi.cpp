@@ -62,23 +62,17 @@
 #undef SPI_SPEED
 #define SPI_SPEED 2  // About 2 MHz
 
+#include "u8g_com_HAL_DUE_sw_spi_shared.h"
+
 #include "../shared/Marduino.h"
 #include "../shared/Delay.h"
 
 #include <U8glib.h>
 
-void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index);
-void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level);
-void U8G_spiSend_sw_DUE_mode_0(uint8_t val);
-void U8G_spiSend_sw_DUE_mode_3(uint8_t val);
-
-Pio *SCK_pPio, *MOSI_pPio;
-uint32_t SCK_dwMask, MOSI_dwMask;
-
 #if ENABLED(FYSETC_MINI_12864)
-  #define U8G_spiSend_sw_DUE U8G_spiSend_sw_DUE_mode_3
+  #define SPISEND_SW_DUE u8g_spiSend_sw_DUE_mode_3
 #else
-  #define U8G_spiSend_sw_DUE U8G_spiSend_sw_DUE_mode_0
+  #define SPISEND_SW_DUE u8g_spiSend_sw_DUE_mode_0
 #endif
 
 uint8_t u8g_com_HAL_DUE_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
@@ -121,13 +115,13 @@ uint8_t u8g_com_HAL_DUE_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
       break;
 
     case U8G_COM_MSG_WRITE_BYTE:
-      U8G_spiSend_sw_DUE(arg_val);
+      SPISEND_SW_DUE(arg_val);
       break;
 
     case U8G_COM_MSG_WRITE_SEQ: {
         uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
-          U8G_spiSend_sw_DUE(*ptr++);
+          SPISEND_SW_DUE(*ptr++);
           arg_val--;
         }
       }
@@ -136,7 +130,7 @@ uint8_t u8g_com_HAL_DUE_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
       case U8G_COM_MSG_WRITE_SEQ_P: {
         uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
-          U8G_spiSend_sw_DUE(u8g_pgm_read(ptr));
+          SPISEND_SW_DUE(u8g_pgm_read(ptr));
           ptr++;
           arg_val--;
         }

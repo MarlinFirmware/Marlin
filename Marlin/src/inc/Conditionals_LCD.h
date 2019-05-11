@@ -156,9 +156,14 @@
     #define RGB_LED
   #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define NEOPIXEL_LED
-    #define NEOPIXEL_TYPE       NEO_GRB
+    #undef NEOPIXEL_TYPE
+    #define NEOPIXEL_TYPE       NEO_RGB
+    #undef NEOPIXEL_PIXELS
     #define NEOPIXEL_PIXELS     3
-    #define NEOPIXEL_BRIGHTNESS 127
+    #ifndef NEOPIXEL_BRIGHTNESS
+      #define NEOPIXEL_BRIGHTNESS 127
+    #endif
+    #define NEOPIXEL_STARTUP_TEST
   #endif
 
 #endif
