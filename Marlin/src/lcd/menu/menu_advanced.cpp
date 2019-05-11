@@ -131,9 +131,9 @@ void menu_backlash();
 
     #if ENABLED(LIN_ADVANCE)
       #if EXTRUDERS == 1
-        MENU_ITEM_EDIT(float51, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
       #elif EXTRUDERS > 1
-        #define EDIT_ADVANCE_K(N) MENU_ITEM_EDIT(float51, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N-1], 0, 999)
+        #define EDIT_ADVANCE_K(N) MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N-1], 0, 999)
         EDIT_ADVANCE_K(1);
         EDIT_ADVANCE_K(2);
         #if EXTRUDERS > 2
@@ -669,9 +669,9 @@ void menu_advanced_settings() {
     MENU_ITEM(submenu, MSG_FILAMENT, menu_advanced_filament);
   #elif ENABLED(LIN_ADVANCE)
     #if EXTRUDERS == 1
-      MENU_ITEM_EDIT(float51, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+      MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
     #elif EXTRUDERS > 1
-      #define EDIT_ADVANCE_K(N) MENU_ITEM_EDIT(float51, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N-1], 0, 999)
+      #define EDIT_ADVANCE_K(N) MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N-1], 0, 999)
       EDIT_ADVANCE_K(1);
       EDIT_ADVANCE_K(2);
       #if EXTRUDERS > 2
