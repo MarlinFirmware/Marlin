@@ -64,10 +64,8 @@
 
 #include <U8glib.h>
 
-uint8_t u8g_bitData, u8g_bitNotData;
-uint8_t u8g_bitClock, u8g_bitNotClock;
-volatile uint8_t *u8g_outData;
-volatile uint8_t *u8g_outClock;
+uint8_t u8g_bitData, u8g_bitNotData, u8g_bitClock, u8g_bitNotClock;
+volatile uint8_t *u8g_outData, *u8g_outClock;
 
 static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin) {
   u8g_outData = portOutputRegister(digitalPinToPort(dataPin));
@@ -82,13 +80,13 @@ static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin) {
   u8g_bitNotData ^= 0xFF;
 }
 
-void U8G_spiSend_sw_AVR_mode_0(uint8_t val) {
-  uint8_t bitData = u8g_bitData;
-  uint8_t bitNotData = u8g_bitNotData;
-  uint8_t bitClock = u8g_bitClock;
-  uint8_t bitNotClock = u8g_bitNotClock;
-  volatile uint8_t *outData = u8g_outData;
-  volatile uint8_t *outClock = u8g_outClock;
+void u8g_spiSend_sw_AVR_mode_0(uint8_t val) {
+  uint8_t bitData = u8g_bitData,
+          bitNotData = u8g_bitNotData,
+          bitClock = u8g_bitClock,
+          bitNotClock = u8g_bitNotClock;
+  volatile uint8_t *outData = u8g_outData,
+                   *outClock = u8g_outClock;
   U8G_ATOMIC_START();
   for (uint8_t i = 0; i < 8; i++) {
     if (val & 0x80)
@@ -102,13 +100,13 @@ void U8G_spiSend_sw_AVR_mode_0(uint8_t val) {
   U8G_ATOMIC_END();
 }
 
-void U8G_spiSend_sw_AVR_mode_3(uint8_t val) {
-  uint8_t bitData = u8g_bitData;
-  uint8_t bitNotData = u8g_bitNotData;
-  uint8_t bitClock = u8g_bitClock;
-  uint8_t bitNotClock = u8g_bitNotClock;
-  volatile uint8_t *outData = u8g_outData;
-  volatile uint8_t *outClock = u8g_outClock;
+void u8g_spiSend_sw_AVR_mode_3(uint8_t val) {
+  uint8_t bitData = u8g_bitData,
+          bitNotData = u8g_bitNotData,
+          bitClock = u8g_bitClock,
+          bitNotClock = u8g_bitNotClock;
+  volatile uint8_t *outData = u8g_outData,
+                   *outClock = u8g_outClock;
   U8G_ATOMIC_START();
   for (uint8_t i = 0; i < 8; i++) {
     *outClock &= bitNotClock;
