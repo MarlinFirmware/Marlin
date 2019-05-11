@@ -98,7 +98,7 @@ uint8_t u8g_com_HAL_LPC1768_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t ar
       u8g_SetPILevel(u8g, U8G_PI_SCK, 0);
       u8g_SetPILevel(u8g, U8G_PI_MOSI, 0);
 
-      u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: command mode */
+      u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* initial RS state: command mode */
       break;
 
     case U8G_COM_MSG_STOP:

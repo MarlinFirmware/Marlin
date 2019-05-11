@@ -115,7 +115,7 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
 
       u8g_Delay(5);
 
-      u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: command mode */
+      u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* initial RS state: command mode */
       break;
 
     case U8G_COM_MSG_STOP:
