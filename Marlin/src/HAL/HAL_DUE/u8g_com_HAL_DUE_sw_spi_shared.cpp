@@ -59,12 +59,11 @@
 
 #if HAS_GRAPHICAL_LCD
 
-#include "../shared/Marduino.h"
+#include "u8g_com_HAL_DUE_sw_spi_shared.h"
+
 #include "../shared/Delay.h"
 
 #include <U8glib.h>
-
-#include "u8g_com_HAL_DUE_sw_spi_shared.h"
 
 void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
   PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
@@ -77,8 +76,8 @@ void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
   if (level) port->PIO_SODR = mask; else port->PIO_CODR = mask;
 }
 
-extern Pio *SCK_pPio, *MOSI_pPio;
-extern uint32_t SCK_dwMask, MOSI_dwMask;
+Pio *SCK_pPio, *MOSI_pPio;
+uint32_t SCK_dwMask, MOSI_dwMask;
 
 void U8G_spiSend_sw_DUE_mode_0(uint8_t val) { // 3MHz
   for (uint8_t i = 0; i < 8; i++) {
