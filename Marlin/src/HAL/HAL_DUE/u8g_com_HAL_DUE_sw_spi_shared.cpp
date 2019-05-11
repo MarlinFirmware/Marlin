@@ -57,15 +57,14 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\inc\MarlinConfigPre.h
-//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\HAL\HAL_DUE\u8g_com_HAL_DUE_sw_spi_shared.cpp
-
 #if HAS_GRAPHICAL_LCD
 
 #include "../shared/Marduino.h"
 #include "../shared/Delay.h"
 
 #include <U8glib.h>
+
+#include "u8g_com_HAL_DUE_sw_spi_shared.h"
 
 void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
   PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
@@ -94,7 +93,6 @@ void U8G_spiSend_sw_DUE_mode_0(uint8_t val) { // 800KHz
     SCK_pPio->PIO_CODR = SCK_dwMask;
   }
 }
-
 
 void U8G_spiSend_sw_DUE_mode_3(uint8_t val) { // 800KHz
   for (uint8_t i = 0; i < 8; i++) {

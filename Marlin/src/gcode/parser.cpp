@@ -142,27 +142,23 @@ void GCodeParser::parse(char *p) {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
-      // Bail if there's no command code number
-      // Prusa MMU2 has T?/Tx/Tc commands
-      #if DISABLED(PRUSA_MMU2)
-        if (!NUMERIC(*p)) return;
-      #endif
-
-      // Save the command letter at this point
-      // A '?' signifies an unknown command
-      command_letter = letter;
-
-
       #if ENABLED(PRUSA_MMU2)
         if (letter == 'T') {
           // check for special MMU2 T?/Tx/Tc commands
           if (*p == '?' || *p == 'x' || *p == 'c') {
+            command_letter = letter;
             string_arg = p;
             return;
           }
         }
       #endif
 
+      // Bail if there's no command code number
+      if (!NUMERIC(*p)) return;
+
+      // Save the command letter at this point
+      // A '?' signifies an unknown command
+      command_letter = letter;
 
       // Get the code number - integer digits only
       codenum = 0;

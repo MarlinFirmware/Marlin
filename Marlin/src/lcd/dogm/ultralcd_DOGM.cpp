@@ -233,7 +233,7 @@ void MarlinUI::init_lcd() {
     OUT_WRITE(LCD_RESET_PIN, LOW); // perform a clean hardware reset
     _delay_ms(5);
     OUT_WRITE(LCD_RESET_PIN, HIGH);
-    _delay_ms(5); // delay to allow the display to initalize
+    _delay_ms(5); // delay to allow the display to initialize
   #endif
 
   #if PIN_EXISTS(LCD_RESET)
