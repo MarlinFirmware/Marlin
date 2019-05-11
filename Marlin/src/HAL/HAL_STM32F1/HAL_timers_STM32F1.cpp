@@ -213,7 +213,7 @@ timer_dev* get_timer_dev(int number) {
     #if STM32_HAVE_TIMER(14)
       case 14: return &timer14;
     #endif
-      default: // need to return something...
+      default: return nullptr;
   }
 }
 
