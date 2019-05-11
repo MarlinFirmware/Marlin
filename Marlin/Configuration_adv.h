@@ -282,8 +282,8 @@
   #define CONTROLLER_FAN_PIN          7    // Set a custom pin for the controller fan
   #define CONTROLLERFAN_SECS         60    // Duration in seconds for the fan to run after all motors are disabled
   #define CONTROLLERFAN_SPEED       170    // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
-  //#define CONTROLLERFAN_IDLE_SPEED   60    // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
-  //#define CONTROLLER_FAN_MENU              // Enables Controller FAN  in Settings menu
+  #define CONTROLLERFAN_IDLE_SPEED   60    // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
+  #define CONTROLLER_FAN_MENU              // Enables Controller FAN  in Settings menu
 #endif
 
 // When first starting the main fan, run it at full speed for the
