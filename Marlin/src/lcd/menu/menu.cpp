@@ -68,7 +68,7 @@ bool screen_changed;
 // Value Editing
 PGM_P MenuItemBase::editLabel;
 void* MenuItemBase::editValue;
-int16_t MenuItemBase::minEditValue, MenuItemBase::maxEditValue;
+int32_t MenuItemBase::minEditValue, MenuItemBase::maxEditValue;
 screenFunc_t MenuItemBase::callbackFunc;
 bool MenuItemBase::liveEdit;
 
@@ -142,7 +142,7 @@ void MenuItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   }
 }
 
-void MenuItemBase::init(PGM_P const el, void * const ev, const int16_t minv, const int16_t maxv, const uint16_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
+void MenuItemBase::init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint16_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
   ui.save_previous_screen();
   ui.refresh();
   editLabel = el;
