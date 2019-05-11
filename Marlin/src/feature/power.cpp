@@ -47,7 +47,7 @@ bool Power::is_power_needed() {
   #endif
 
   #if ENABLED(AUTO_POWER_CONTROLLERFAN, USE_CONTROLLER_FAN) && HAS_CONTROLLER_FAN
-    if (controllerfan_speed) return true;
+    if (fanController.state()) return true;
   #endif
 
   #if ENABLED(AUTO_POWER_CHAMBER_FAN)

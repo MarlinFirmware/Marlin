@@ -531,7 +531,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(USE_CONTROLLER_FAN)
-    controllerfan_update(); // Check if fan should be turned on to cool stepper drivers down
+    fanController.update(); // Check if fan should be turned on to cool stepper drivers down
   #endif
 
   #if ENABLED(AUTO_POWER_CONTROL)
@@ -1010,6 +1010,7 @@ void setup() {
 
   #if ENABLED(USE_CONTROLLER_FAN)
     SET_OUTPUT(CONTROLLER_FAN_PIN);
+    fanController.init();
   #endif
 
   #if HAS_STEPPER_RESET

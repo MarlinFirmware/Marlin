@@ -343,10 +343,6 @@ extern bool wait_for_heatup;
 // Inactivity shutdown timer
 extern millis_t max_inactive_time, stepper_inactive_time;
 
-#if ENABLED(USE_CONTROLLER_FAN)
-  extern uint8_t controllerfan_speed;
-#endif
-
 #if HAS_POWER_SWITCH
   extern bool powersupply_on;
   #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); powersupply_on = true; }while(0)

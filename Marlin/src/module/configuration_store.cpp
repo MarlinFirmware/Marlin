@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V66"
+#define EEPROM_VERSION "V67"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -113,6 +113,10 @@ extern float saved_extruder_advance_K[EXTRUDERS];
   #include "stepper_indirection.h"
   #include "../feature/tmc_util.h"
   #define TMC_GET_PWMTHRS(A,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.settings.axis_steps_per_mm[_AXIS(A)])
+#endif
+
+#if ENABLED(USE_CONTROLLER_FAN)
+  #include "../feature/controllerfan.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -254,6 +258,14 @@ typedef struct SettingsDataStruct {
   // HAS_LCD_CONTRAST
   //
   int16_t lcd_contrast;                                 // M250 C
+
+  //
+  // controller fan
+  //
+  #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+    ControllerFan fanController;
+  #endif
+
 
   //
   // POWER_LOSS_RECOVERY
@@ -831,6 +843,21 @@ void MarlinSettings::postprocess() {
       ;
       EEPROM_WRITE(lcd_contrast);
     }
+
+    //
+    // controller fan
+    //
+    {
+      _FIELD_TEST(fanController);
+
+      #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+        EEPROM_WRITE(fanController.settings_fan);
+      #else
+        dummy = 0;
+        for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
+      #endif
+    }
+
 
     //
     // Power-Loss Recovery
@@ -1615,6 +1642,19 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(lcd_contrast);
         #if HAS_LCD_CONTRAST
           ui.set_contrast(lcd_contrast);
+        #endif
+      }
+
+      //
+      // Controller Fan
+      //
+      {
+        _FIELD_TEST(fanController);
+
+        #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+          EEPROM_READ(fanController.settings_fan);
+        #else
+          for (uint8_t q=3; q--;) EEPROM_READ(dummy);
         #endif
       }
 
@@ -2427,6 +2467,15 @@ void MarlinSettings::reset() {
   #if HAS_LCD_CONTRAST
     ui.set_contrast(DEFAULT_LCD_CONTRAST);
   #endif
+
+  //
+  // Controller Fan
+  //
+  {
+    #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+      fanController.reset();
+    #endif
+  }
 
   //
   // Power-Loss Recovery
