@@ -2072,7 +2072,7 @@ void MarlinSettings::postprocess() {
     }
     reset();
     #if ENABLED(EEPROM_AUTO_INIT)
-      (void)settings.save();
+      (void)save();
       SERIAL_ECHO_MSG("EEPROM Initialized");
     #endif
     return true;
