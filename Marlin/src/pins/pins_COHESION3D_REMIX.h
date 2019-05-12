@@ -153,13 +153,51 @@
 // defined to use the REPRAP_DISCOUNT_SMART_CONTROLLER.
 //
 // A remote SD card is currently not supported because the pins routed to the EXP2
-// connector are shared with the onboard SD card, and Marlin does not support reading
-// G-code files from the onboard SD card.
+// connector are shared with the onboard SD card, and Marlin does not support that
+// hardware configuration.
 //
-#if ENABLED(ULTRA_LCD)
+
+#if ENABLED(FYSETC_MINI_12864)
+
+  #define FORCE_SOFT_SPI    // REQUIRED - results in LCD soft SPI mode 3
+
+  #define BEEPER_PIN   P1_31    // EXP1 cable pin 1
+  #define BTN_ENC      P1_30    // EXP1 cable pin 2
+  #define DOGLCD_CS    P0_18    // EXP1 cable pin 3
+  #define DOGLCD_A0    P0_16    // EXP1 cable pin 4
+  #define LCD_RESET_PIN  P0_15  // EXP1 cable pin 5
+
+
+// A custom cable is REQUIRED for EXP2 cable because the SCK & MOSI on the card's EXP2 are dedicated
+// to the onboard SD card.  All needed EXP2 signals come from the Ethernet connector.  Pin 1 of this
+// connector is trhe one nearest the motor power connector.
+  #define DOGLCD_SCK   P1_17    // EXP2 cable pin 2  //ethernet pin 5 (bottom, 3 from left)
+  #define BTN_EN2      P1_09    // EXP2 cable pin 3  //ethernet pin 9 (bottom, 5 from left)
+  #define BTN_EN1      P1_04    // EXP2 cable pin 5  //ethernet pin 11 (bottom, 6 from left)
+  #define DOGLCD_MOSI  P1_01    // EXP2 cable pin 6  //ethernet pin 13 (bottom, 7 from left)
+
+
+// If you want colored LEDs then a custom EXP1 cable is required.  Pins 1-5, 9, 10 of the cable go to
+// pins 1-5, 9, 10 on the card's EXP1 connector.  Pins 6, 7, & 8 of the EXP1 cable go to the Ethernet
+// connector. Rev 1.2 displays do NOT require the RGB LEDs.  2.0 and 2.1 displays do require RGB.
+  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #ifndef RGB_LED_R_PIN
+      #define RGB_LED_R_PIN P1_16    // EXP1 cable pin 6  //ethernet pin 6 (top row, 3 from left)
+    #endif
+    #ifndef RGB_LED_G_PIN
+      #define RGB_LED_G_PIN P1_10    // EXP1 cable pin 7  //ethernet pin 10 (top row, 5 from left)
+    #endif
+    #ifndef RGB_LED_B_PIN
+      #define RGB_LED_B_PIN P1_00    // EXP1 cable pin 8  //ethernet pin 12 (top row, 6 from left)
+    #endif
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+    #define NEOPIXEL_PIN    P1_10    // EXP1 cable pin 7  //ethernet pin 10 (top row, 5 from left)
+  #endif
+
+#elif ENABLED(ULTRA_LCD)
 
   #define BEEPER_PIN       P1_31   // EXP1-1
-  #define SD_DETECT_PIN    P0_27   // EXP2-7
+  //#define SD_DETECT_PIN    P0_27   // EXP2-7
 
   #define BTN_EN1          P3_26   // EXP2-5
   #define BTN_EN2          P3_25   // EXP2-3
@@ -172,22 +210,84 @@
 
   #define KILL_PIN         P2_11   // EXP2-10
 
-  #if ENABLED(SDSUPPORT)
-    #error "SDSUPPORT is not currently supported by the Cohesion3D boards"
-  #endif
 
 #endif // ULTRA_LCD
 
 //
+// SD Support
+//
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+  #undef USB_SD_DISABLED
+  #define USB_SD_ONBOARD
+  #define LPC_SD_ONBOARD
+#endif
+
+
+#if ENABLED(LPC_SD_LCD)
+
+  #define SCK_PIN          P0_07   // (52)  system defined J3-9 & AUX-3
+  #define MISO_PIN         P0_08   // (50)  system defined J3-10 & AUX-3
+  #define MOSI_PIN         P0_09   // (51)  system defined J3-10 & AUX-3
+  #define SS_PIN           P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
+  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
+
+#elif ENABLED(LPC_SD_ONBOARD)
+
+  #if ENABLED(USB_SD_ONBOARD)
+    // When sharing the SD card with a PC we want the menu options to
+    // mount/unmount the card and refresh it. So we disable card detect.
+    #define SHARED_SD_CARD
+    #undef SD_DETECT_PIN // there is also no detect pin for the onboard card
+  #endif
+
+  #define SCK_PIN          P0_07
+  #define MISO_PIN         P0_08
+  #define MOSI_PIN         P0_09
+  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
+
+#endif
+
+
+
+
+//
 // Ethernet pins
 //
-#define ENET_MDIO          P1_17
-#define ENET_RX_ER         P1_14
-#define ENET_RXD1          P1_10
-#define ENET_MOC           P1_16
-#define REF_CLK            P1_15
-#define ENET_RXD0          P1_09
-#define ENET_CRS           P1_08
-#define ENET_TX_EN         P1_04
-#define ENET_TXD0          P1_00
-#define ENET_TXD1          P1_01
+//#define ENET_MDIO          P1_17  //ethernet pin 5 (bottom, 3 from left)
+//#define ENET_RX_ER         P1_14
+//#define ENET_RXD1          P1_10  //ethernet pin 10 (top row, 5 from left)
+//#define ENET_MOC           P1_16  //ethernet pin 6 (top row, 3 from left)
+//#define REF_CLK            P1_15
+//#define ENET_RXD0          P1_09  //ethernet pin 9 (bottom, 5 from left)
+//#define ENET_CRS           P1_08  //ethernet pin 8 (top row, 4 from left) - INPUT ONLY
+//#define ENET_TX_EN         P1_04  //ethernet pin 11 (bottom, 6 from left)
+//#define ENET_TXD0          P1_00  //ethernet pin 12 (top row, 6 from left)
+//#define ENET_TXD1          P1_01  //ethernet pin 13 (bottom, 7 from left)
+
+/**
+ *  EXP1 pins
+ *    1 - P1_31
+ *    2 - P1_30
+ *    3 - P0_18
+ *    4 - P0_16
+ *    5 - P0_15
+ *    6 - N/C
+ *    7 - N/C
+ *    8 - P0_27 (also on EXP2-7)
+ *    9 - GND
+ *   10 - +5V
+ *
+ *
+ *  EXP2 pins
+ *    1 - P0_08
+ *    2 - P0_07
+ *    3 - P3_26
+ *    4 - P0_28
+ *    5 - P3_25
+ *    6 - P0_09
+ *    7 - P0_27 (also on EXP1_8)
+ *    8 - P2_11
+ *    9 - GND
+ *   10 - N/C
+ */
