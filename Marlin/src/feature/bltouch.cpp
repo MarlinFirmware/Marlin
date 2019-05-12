@@ -49,7 +49,8 @@ void BLTouch::init() {
   #if ENABLED(BLTOUCH_FORCE_5V_MODE)
     _set_5V_mode();                          // Set 5V mode if explicitely demanded (V3 upwards)
   #endif
-  clear();
+  _reset();
+  _stow();
   // There really should be no alarm outstanding now, and no triggered condition. But if there is,
   // there is no need to worry people here on init right at the start of the printer.
 }
