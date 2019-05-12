@@ -46,6 +46,11 @@
 #include "../../inc/MarlinConfig.h"
 
 namespace ExtUI {
+  // The ExtUI implementation can store up to this many bytes
+  // in the EEPROM when the methods onStoreSettings and
+  // onLoadSettings are called.
+
+  static constexpr size_t eeprom_data_size = 48;
 
   enum axis_t     : uint8_t { X, Y, Z };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5 };
@@ -64,6 +69,11 @@ namespace ExtUI {
   bool canMove(const extruder_t);
   void enqueueCommands_P(PGM_P const);
   bool commandsInQueue();
+
+  bool isHeaterIdle(const heater_t);
+  bool isHeaterIdle(const extruder_t);
+  void enableHeater(const heater_t);
+  void enableHeater(const extruder_t);
 
   /**
    * Getters and setters
@@ -207,7 +217,7 @@ namespace ExtUI {
     bool getFilamentRunoutEnabled();
     void setFilamentRunoutEnabled(const bool);
 
-    #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
       float getFilamentRunoutDistance_mm();
       void setFilamentRunoutDistance_mm(const float);
     #endif
@@ -283,8 +293,10 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * const msg);
   void onStatusChanged(const char * const msg);
   void onFactoryReset();
-  void onStoreSettings();
-  void onLoadSettings();
+  void onStoreSettings(char *);
+  void onLoadSettings(const char *);
+  void onConfigurationStoreWritten(bool success);
+  void onConfigurationStoreRead(bool success);
 };
 
 /**

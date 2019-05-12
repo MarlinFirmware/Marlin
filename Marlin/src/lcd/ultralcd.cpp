@@ -23,7 +23,7 @@
 #include "../inc/MarlinConfigPre.h"
 
 // These displays all share the MarlinUI class
-#if HAS_SPI_LCD || EITHER(MALYAN_LCD, EXTENSIBLE_UI)
+#if HAS_DISPLAY
   #include "ultralcd.h"
   #include "fontutils.h"
   MarlinUI ui;
@@ -211,7 +211,7 @@ millis_t next_button_update_ms;
     }
   }
 
-  void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=NULL*/, PGM_P const suff/*=NULL*/) {
+  void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
     uint8_t x = 0, y = 0;
     if (!string && plen + slen <= LCD_WIDTH) {
@@ -746,6 +746,7 @@ void MarlinUI::update() {
 
       refresh();
       init_lcd(); // May revive the LCD if static electricity killed it
+
       ms = millis();
       next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // delay LCD update until after SD activity completes
     }
@@ -1191,7 +1192,7 @@ void MarlinUI::update() {
 
 #endif // HAS_SPI_LCD
 
-#if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
+#if HAS_DISPLAY
 
   #if ENABLED(EXTENSIBLE_UI)
     #include "extensible_ui/ui_api.h"
@@ -1375,4 +1376,4 @@ void MarlinUI::update() {
     }
   #endif
 
-#endif // HAS_SPI_LCD || EXTENSIBLE_UI
+#endif // HAS_DISPLAY

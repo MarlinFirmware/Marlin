@@ -162,7 +162,7 @@ void TWIBus::flush() {
     echodata(bytes, PSTR("i2c-receive"), 0);
   }
 
-  void TWIBus::reply(char str[]/*=NULL*/) {
+  void TWIBus::reply(char str[]/*=nullptr*/) {
     #if ENABLED(DEBUG_TWIBUS)
       debug(PSTR("reply"), str);
     #endif

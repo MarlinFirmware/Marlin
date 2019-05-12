@@ -36,7 +36,7 @@
 
 #if ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM, SPI_EEPROM)
 
-#include <Arduino.h>
+#include "../shared/Marduino.h"
 
 #define EEPROMSize     4096
 #define PagesPerGroup   128

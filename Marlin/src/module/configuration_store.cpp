@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V64"
+#define EEPROM_VERSION "V66"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -90,6 +90,16 @@
 
 #include "../feature/pause.h"
 
+#if ENABLED(BACKLASH_COMPENSATION)
+  #include "../feature/backlash.h"
+#endif
+
+#if HAS_FILAMENT_SENSOR
+  #include "../feature/runout.h"
+#endif
+
+#include "../lcd/extensible_ui/ui_api.h"
+
 #if ENABLED(EXTRA_LIN_ADVANCE_K)
 extern float saved_extruder_advance_K[EXTRUDERS];
 #endif
@@ -140,6 +150,12 @@ typedef struct SettingsDataStruct {
   #if HAS_HOTEND_OFFSET
     float hotend_offset[XYZ][HOTENDS - 1];              // M218 XYZ
   #endif
+
+  //
+  // FILAMENT_RUNOUT_SENSOR
+  //
+  bool runout_sensor_enabled;                           // M412 S
+  float runout_distance_mm;                             // M412 D
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -228,6 +244,13 @@ typedef struct SettingsDataStruct {
   PID_t bedPID;                                         // M304 PID / M303 E-1 U
 
   //
+  // User-defined Thermistors
+  //
+  #if HAS_USER_THERMISTORS
+    user_thermistor_t user_thermistor[USER_THERMISTORS]; // M305 P0 R4700 T100000 B3950
+  #endif
+
+  //
   // HAS_LCD_CONTRAST
   //
   int16_t lcd_contrast;                                 // M250 C
@@ -289,7 +312,24 @@ typedef struct SettingsDataStruct {
     toolchange_settings_t toolchange_settings;          // M217 S P R
   #endif
 
+  //
+  // BACKLASH_COMPENSATION
+  //
+  float backlash_distance_mm[XYZ];                      // M425 X Y Z
+  uint8_t backlash_correction;                          // M425 F
+  float backlash_smoothing_mm;                          // M425 S
+
+  //
+  // EXTENSIBLE_UI
+  //
+  #if ENABLED(EXTENSIBLE_UI)
+    // This is a significant hardware change; don't reserve space when not present
+    uint8_t extui_data[ExtUI::eeprom_data_size];
+  #endif
+
 } SettingsData;
+
+//static_assert(sizeof(SettingsData) <= E2END + 1, "EEPROM too small to contain SettingsData!");
 
 MarlinSettings settings;
 
@@ -360,6 +400,15 @@ void MarlinSettings::postprocess() {
   if (memcmp(oldpos, current_position, sizeof(oldpos)))
     report_current_position();
 }
+
+#if BOTH(PRINTCOUNTER, EEPROM_SETTINGS)
+  #include "printcounter.h"
+  static_assert(
+    !WITHIN(STATS_EEPROM_ADDRESS, EEPROM_OFFSET, EEPROM_OFFSET + sizeof(SettingsData)) &&
+    !WITHIN(STATS_EEPROM_ADDRESS + sizeof(printStatistics), EEPROM_OFFSET, EEPROM_OFFSET + sizeof(SettingsData)),
+    "STATS_EEPROM_ADDRESS collides with EEPROM settings storage."
+  );
+#endif
 
 #if ENABLED(SD_FIRMWARE_UPDATE)
 
@@ -510,6 +559,25 @@ void MarlinSettings::postprocess() {
         for (uint8_t e = 1; e < HOTENDS; e++)
           LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
       #endif
+    }
+
+    //
+    // Filament Runout Sensor
+    //
+    {
+      #if HAS_FILAMENT_SENSOR
+        const bool &runout_sensor_enabled = runout.enabled;
+      #else
+        const bool runout_sensor_enabled = false;
+      #endif
+      #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
+        const float &runout_distance_mm = runout.runout_distance();
+      #else
+        const float runout_distance_mm = 0;
+      #endif
+      _FIELD_TEST(runout_sensor_enabled);
+      EEPROM_WRITE(runout_sensor_enabled);
+      EEPROM_WRITE(runout_distance_mm);
     }
 
     //
@@ -737,6 +805,16 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(thermalManager.temp_bed.pid);
       #endif
     }
+
+    //
+    // User-defined Thermistors
+    //
+    #if HAS_USER_THERMISTORS
+    {
+      _FIELD_TEST(user_thermistor);
+      EEPROM_WRITE(thermalManager.user_thermistor);
+    }
+    #endif
 
     //
     // LCD Contrast
@@ -1096,6 +1174,42 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Backlash Compensation
+    //
+    {
+      #if ENABLED(BACKLASH_COMPENSATION)
+        const float   (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
+        const uint8_t &backlash_correction         = backlash.correction;
+      #else
+        const float    backlash_distance_mm[XYZ]   = { 0 };
+        const uint8_t  backlash_correction         = 0;
+      #endif
+      #ifdef BACKLASH_SMOOTHING_MM
+        const float   &backlash_smoothing_mm       = backlash.smoothing_mm;
+      #else
+        const float    backlash_smoothing_mm       = 3;
+      #endif
+      _FIELD_TEST(backlash_distance_mm);
+      EEPROM_WRITE(backlash_distance_mm[X_AXIS]);
+      EEPROM_WRITE(backlash_distance_mm[Y_AXIS]);
+      EEPROM_WRITE(backlash_distance_mm[Z_AXIS]);
+      EEPROM_WRITE(backlash_correction);
+      EEPROM_WRITE(backlash_smoothing_mm);
+    }
+
+    //
+    // Extensible UI User Data
+    //
+    #if ENABLED(EXTENSIBLE_UI)
+      {
+        char extui_data[ExtUI::eeprom_data_size] = { 0 };
+        ExtUI::onStoreSettings(extui_data);
+        _FIELD_TEST(extui_data);
+        EEPROM_WRITE(extui_data);
+      }
+    #endif
+
+    //
     // Validate CRC and Data Size
     //
     if (!eeprom_error) {
@@ -1125,7 +1239,7 @@ void MarlinSettings::postprocess() {
     #endif
 
     #if ENABLED(EXTENSIBLE_UI)
-      if (!eeprom_error) ExtUI::onStoreSettings();
+      ExtUI::onConfigurationStoreWritten(!eeprom_error);
     #endif
 
     return !eeprom_error;
@@ -1234,6 +1348,25 @@ void MarlinSettings::postprocess() {
           // Skip hotend 0 which must be 0
           for (uint8_t e = 1; e < HOTENDS; e++)
             LOOP_XYZ(i) EEPROM_READ(hotend_offset[i][e]);
+        #endif
+      }
+
+      //
+      // Filament Runout Sensor
+      //
+      {
+        #if HAS_FILAMENT_SENSOR
+          bool &runout_sensor_enabled = runout.enabled;
+        #else
+          bool runout_sensor_enabled;
+        #endif
+        _FIELD_TEST(runout_sensor_enabled);
+        EEPROM_READ(runout_sensor_enabled);
+
+        float runout_distance_mm;
+        EEPROM_READ(runout_distance_mm);
+        #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
+          runout.set_runout_distance(runout_distance_mm);
         #endif
       }
 
@@ -1461,6 +1594,16 @@ void MarlinSettings::postprocess() {
             memcpy(&thermalManager.temp_bed.pid, &pid, sizeof(pid));
         #endif
       }
+
+      //
+      // User-defined Thermistors
+      //
+      #if HAS_USER_THERMISTORS
+      {
+        _FIELD_TEST(user_thermistor);
+        EEPROM_READ(thermalManager.user_thermistor);
+      }
+      #endif
 
       //
       // LCD Contrast
@@ -1815,6 +1958,44 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(toolchange_settings);
       #endif
 
+      //
+      // Backlash Compensation
+      //
+      {
+        #if ENABLED(BACKLASH_COMPENSATION)
+          float   (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
+          uint8_t &backlash_correction         = backlash.correction;
+        #else
+          float   backlash_distance_mm[XYZ];
+          uint8_t backlash_correction;
+        #endif
+        #ifdef BACKLASH_SMOOTHING_MM
+          float &backlash_smoothing_mm = backlash.smoothing_mm;
+        #else
+          float  backlash_smoothing_mm;
+        #endif
+        _FIELD_TEST(backlash_distance_mm);
+        EEPROM_READ(backlash_distance_mm[X_AXIS]);
+        EEPROM_READ(backlash_distance_mm[Y_AXIS]);
+        EEPROM_READ(backlash_distance_mm[Z_AXIS]);
+        EEPROM_READ(backlash_correction);
+        EEPROM_READ(backlash_smoothing_mm);
+      }
+
+      //
+      // Extensible UI User Data
+      //
+      #if ENABLED(EXTENSIBLE_UI)
+        // This is a significant hardware change; don't reserve EEPROM space when not present
+        {
+          const char extui_data[ExtUI::eeprom_data_size] = { 0 };
+          _FIELD_TEST(extui_data);
+          EEPROM_READ(extui_data);
+          if(!validating)
+            ExtUI::onLoadSettings(extui_data);
+        }
+      #endif
+
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         DEBUG_ECHO_START();
@@ -1885,11 +2066,15 @@ void MarlinSettings::postprocess() {
     if (validate()) {
       const bool success = _load();
       #if ENABLED(EXTENSIBLE_UI)
-        if (success) ExtUI::onLoadSettings();
+        ExtUI::onConfigurationStoreRead(success);
       #endif
       return success;
     }
     reset();
+    #if ENABLED(EEPROM_AUTO_INIT)
+      (void)save();
+      SERIAL_ECHO_MSG("EEPROM Initialized");
+    #endif
     return true;
   }
 
@@ -1951,7 +2136,7 @@ void MarlinSettings::postprocess() {
       #endif
     }
 
-    void MarlinSettings::load_mesh(const int8_t slot, void * const into/*=NULL*/) {
+    void MarlinSettings::load_mesh(const int8_t slot, void * const into/*=nullptr*/) {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -2047,6 +2232,22 @@ void MarlinSettings::reset() {
     reset_hotend_offsets();
   #endif
 
+  //
+  // Filament Runout Sensor
+  //
+
+  #if HAS_FILAMENT_SENSOR
+    runout.enabled = true;
+    runout.reset();
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM);
+    #endif
+  #endif
+
+  //
+  // Tool-change Settings
+  //
+
   #if EXTRUDERS > 1
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
@@ -2058,6 +2259,27 @@ void MarlinSettings::reset() {
     #endif
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
   #endif
+
+  #if ENABLED(BACKLASH_GCODE)
+    backlash.correction = (BACKLASH_CORRECTION) * 255;
+    #ifdef BACKLASH_DISTANCE_MM
+      constexpr float tmp[XYZ] = BACKLASH_DISTANCE_MM;
+      backlash.distance_mm[X_AXIS] = tmp[X_AXIS];
+      backlash.distance_mm[Y_AXIS] = tmp[Y_AXIS];
+      backlash.distance_mm[Z_AXIS] = tmp[Z_AXIS];
+    #endif
+    #ifdef BACKLASH_SMOOTHING_MM
+      backlash.smoothing_mm = BACKLASH_SMOOTHING_MM;
+    #endif
+  #endif
+
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onFactoryReset();
+  #endif
+
+  //
+  // Magnetic Parking Extruder
+  //
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
     mpe_settings_init();
@@ -2195,6 +2417,14 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // User-Defined Thermistors
+  //
+
+  #if HAS_USER_THERMISTORS
+    thermalManager.reset_user_thermistors();
+  #endif
+
+  //
   // LCD Contrast
   //
 
@@ -2319,7 +2549,7 @@ void MarlinSettings::reset() {
   #if HAS_TRINAMIC
     inline void say_M906(const bool forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOPGM("  M906"); }
     #if HAS_STEALTHCHOP
-      void say_M569(const char * const etc=NULL) {
+      void say_M569(const char * const etc=nullptr) {
         SERIAL_ECHOPGM("  M569 S1");
         if (etc) {
           SERIAL_CHAR(' ');
@@ -2540,6 +2770,12 @@ void MarlinSettings::reset() {
       }
     #endif
 
+    #if HAS_FILAMENT_SENSOR
+      CONFIG_ECHO_HEADING("Filament Runout Sensor:");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR("  M412 S", int(runout.enabled));
+    #endif
+
     /**
      * Bed Leveling
      */
@@ -2752,6 +2988,12 @@ void MarlinSettings::reset() {
       #endif
 
     #endif // PIDTEMP || PIDTEMPBED
+
+    #if HAS_USER_THERMISTORS
+      CONFIG_ECHO_HEADING("User thermistors:");
+      for (uint8_t i = 0; i < USER_THERMISTORS; i++)
+        thermalManager.log_user_thermistor(i, true);
+    #endif
 
     #if HAS_LCD_CONTRAST
       CONFIG_ECHO_HEADING("LCD Contrast:");
@@ -3140,6 +3382,31 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("Tool-changing:");
       CONFIG_ECHO_START();
       M217_report(true);
+    #endif
+
+    #if ENABLED(BACKLASH_GCODE)
+      CONFIG_ECHO_HEADING("Backlash compensation:");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR(
+        "  M425 F", backlash.get_correction(),
+        " X", LINEAR_UNIT(backlash.distance_mm[X_AXIS]),
+        " Y", LINEAR_UNIT(backlash.distance_mm[Y_AXIS]),
+        " Z", LINEAR_UNIT(backlash.distance_mm[Z_AXIS])
+        #ifdef BACKLASH_SMOOTHING_MM
+          , " S", LINEAR_UNIT(backlash.smoothing_mm)
+        #endif
+      );
+    #endif
+
+    #if HAS_FILAMENT_SENSOR
+      CONFIG_ECHO_HEADING("Filament runout sensor:");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR(
+        "  M412 S", int(runout.enabled)
+        #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+          , " D", LINEAR_UNIT(runout.runout_distance())
+        #endif
+      );
     #endif
   }
 

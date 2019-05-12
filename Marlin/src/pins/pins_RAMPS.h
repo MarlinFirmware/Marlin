@@ -502,73 +502,60 @@
       #define SD_DETECT_PIN     49
       #define KILL_PIN          41
 
-    #elif ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
-
-      #define DOGLCD_A0         27
-      #define DOGLCD_CS         25
-
-      // GLCD features
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
+    #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
 
       #define BEEPER_PIN        37
-      // not connected to a pin
-      #define LCD_BACKLIGHT_PIN 65   // backlight LED on A11/D65
-
-      #define BTN_EN1           31
-      #define BTN_EN2           33
       #define BTN_ENC           35
-
       #define SD_DETECT_PIN     49
       #define KILL_PIN          41
 
-    #elif ENABLED(FYSETC_MINI_12864)   // Added in Marlin 1.1.9+
+      #if ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
 
-      // From https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
-      #define BEEPER_PIN        37
+        #define DOGLCD_A0       27
+        #define DOGLCD_CS       25
 
-      #define DOGLCD_A0         16
-      #define DOGLCD_CS         17
+        // GLCD features
+        // Uncomment screen orientation
+        //#define LCD_SCREEN_ROT_90
+        //#define LCD_SCREEN_ROT_180
+        //#define LCD_SCREEN_ROT_270
 
-      #define BTN_EN1           31
-      #define BTN_EN2           33
-      #define BTN_ENC           35
+        // not connected to a pin
+        #define LCD_BACKLIGHT_PIN 65   // backlight LED on A11/D65
 
-      #define SD_DETECT_PIN     49
+        #define BTN_EN1         31
+        #define BTN_EN2         33
 
-      #define LCD_RESET_PIN     23   // Must be high or open for LCD to operate normally.
-                                     // Seems to work best if left open.
+      #elif ENABLED(FYSETC_MINI_12864)
 
-      #define FYSETC_MINI_12864_REV_1_2
-      //#define FYSETC_MINI_12864_REV_2_0
-      //#define FYSETC_MINI_12864_REV_2_1
-      #if EITHER(FYSETC_MINI_12864_REV_1_2, FYSETC_MINI_12864_REV_2_0)
-        #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN 25
+        // From https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+
+        #define DOGLCD_A0       16
+        #define DOGLCD_CS       17
+
+        #define BTN_EN1         33
+        #define BTN_EN2         31
+
+        //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
+                                    //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+        #define LCD_RESET_PIN   23   // Must be high or open for LCD to operate normally.
+
+        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+          #ifndef RGB_LED_R_PIN
+            #define RGB_LED_R_PIN 25
+          #endif
+          #ifndef RGB_LED_G_PIN
+            #define RGB_LED_G_PIN 27
+          #endif
+          #ifndef RGB_LED_B_PIN
+            #define RGB_LED_B_PIN 29
+          #endif
+        #elif ENABLED(FYSETC_MINI_12864_2_1)
+          #define NEOPIXEL_PIN    25
         #endif
-        #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN 27
-        #endif
-        #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN 29
-        #endif
-      #elif defined(FYSETC_MINI_12864_REV_2_1)
-        #define NEOPIXEL_LED
-        #define NEOPIXEL_TYPE   NEO_GRB  // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-        #define NEOPIXEL_PIN    25       // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
-        #define NEOPIXEL_PIXELS  3       // Number of LEDs in the strip
-        #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-        #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
-        #define NEOPIXEL_STARTUP_TEST    // Cycle through colors at startup
-      #else
-        #error "Either FYSETC_MINI_12864_REV_1_2, FYSETC_MINI_12864_REV_2_0 or FYSETC_MINI_12864_REV_2_1 must be defined"
-      #endif
 
-      #if !defined(LED_USER_PRESET_STARTUP) && EITHER(FYSETC_MINI_12864_REV_2_0, FYSETC_MINI_12864_REV_2_1)
-        #error "LED_USER_PRESET_STARTUP must be enabled when using FYSETC_MINI_12864 REV 2.0 and later"
-      #endif
+    #endif
 
     #elif ENABLED(MINIPANEL)
 

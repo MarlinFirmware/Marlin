@@ -26,37 +26,75 @@
 // BLTouch commands are sent as servo angles
 typedef unsigned char BLTCommand;
 
-#define BLTOUCH_DEPLOY    10
-#define BLTOUCH_SW_MODE   60
-#define BLTOUCH_STOW      90
-#define BLTOUCH_SELFTEST 120
-#define BLTOUCH_5V_MODE  140
-#define BLTOUCH_OD_MODE  150
-#define BLTOUCH_RESET    160
+#define BLTOUCH_DEPLOY          10
+#define BLTOUCH_SW_MODE         60
+#define BLTOUCH_STOW            90
+#define BLTOUCH_SELFTEST       120
+#define BLTOUCH_5V_MODE        140
+#define BLTOUCH_OD_MODE        150
+#define BLTOUCH_RESET          160
+
+/**
+ * The following commands may require different delays.
+ *
+ * ANTClabs recommends 2000ms for 5V/OD commands. However it is
+ * not common for other commands to immediately follow these,
+ * and testing has shown that these complete in 500ms reliably.
+ *
+ * AntClabs recommends 750ms for Deploy/Stow, otherwise you will
+ * not catch an alarm state until the following move command.
+ */
+
+#ifndef BLTOUCH_SET5V_DELAY
+  #define BLTOUCH_SET5V_DELAY   BLTOUCH_DELAY
+#endif
+#ifndef BLTOUCH_SETOD_DELAY
+  #define BLTOUCH_SETOD_DELAY   BLTOUCH_DELAY
+#endif
+#ifndef BLTOUCH_DEPLOY_DELAY
+  #define BLTOUCH_DEPLOY_DELAY   750
+#endif
+#ifndef BLTOUCH_STOW_DELAY
+  #define BLTOUCH_STOW_DELAY     750
+#endif
+#ifndef BLTOUCH_RESET_DELAY
+  #define BLTOUCH_RESET_DELAY    BLTOUCH_DELAY
+#endif
 
 class BLTouch {
 public:
-  static void init();
-  static void command(const BLTCommand cmd);
-  static bool triggered();
+  static bool triggered();         // used by menu_advanced.cpp
+  static void init();              // used by main.cpp
 
-  FORCE_INLINE static void reset()       { command(BLTOUCH_RESET); }
-  FORCE_INLINE static void selftest()    { command(BLTOUCH_SELFTEST); }
+  // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
+  FORCE_INLINE static bool deploy()              { return deploy_proc(); }
+  FORCE_INLINE static bool stow()                { return stow_proc(); }
+  FORCE_INLINE static bool status()              { return status_proc(); }
 
-  FORCE_INLINE static void set_5V_mode() { command(BLTOUCH_5V_MODE); }
-  FORCE_INLINE static void set_OD_mode() { command(BLTOUCH_OD_MODE); }
-  FORCE_INLINE static void set_SW_mode() { command(BLTOUCH_SW_MODE); }
+  // Native BLTouch commands ("Underscore"...), used in lcd menus and internally
+  FORCE_INLINE static void _reset()              { command(BLTOUCH_RESET, BLTOUCH_RESET_DELAY); }
 
-  FORCE_INLINE static bool deploy()      { return set_deployed(true); }
-  FORCE_INLINE static bool stow()        { return set_deployed(false); }
+  FORCE_INLINE static void _selftest()           { command(BLTOUCH_SELFTEST, BLTOUCH_DELAY); }
 
-  FORCE_INLINE static void _deploy()     { command(BLTOUCH_DEPLOY); }
-  FORCE_INLINE static void _stow()       { command(BLTOUCH_STOW); }
+  FORCE_INLINE static void _set_SW_mode()        { command(BLTOUCH_SW_MODE, BLTOUCH_DELAY); }
+  FORCE_INLINE static void _set_5V_mode()        { command(BLTOUCH_5V_MODE, BLTOUCH_SET5V_DELAY); }
+  FORCE_INLINE static void _set_OD_mode()        { command(BLTOUCH_OD_MODE, BLTOUCH_SETOD_DELAY); }
+
+  FORCE_INLINE static void _deploy()             { command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
+  FORCE_INLINE static void _stow()               { command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
 
 private:
-  static bool set_deployed(const bool deploy);
+  FORCE_INLINE static bool _deploy_query_alarm() { return command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
+  FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
+
+  static void clear();
+  static bool command(const BLTCommand cmd, const millis_t &ms);
+  static bool deploy_proc();
+  static bool stow_proc();
+  static bool status_proc();
 };
 
+// Deploy/stow angles for use by servo.cpp / servo.h
 #define BLTOUCH_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
 extern BLTouch bltouch;
