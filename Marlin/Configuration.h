@@ -870,18 +870,22 @@
  *    (0,0)
  */
 
-/* Petsfang BLTOUCH
-#define X_PROBE_OFFSET_FROM_EXTRUDER 48    // X offset: -left  +right  [of the nozzle]  -37 = 3dtouch -40 = bltouch
+/* Petsfang BLTOUCH */
+#define X_PROBE_OFFSET_FROM_EXTRUDER 47    // X offset: -left  +right  [of the nozzle]  -37 = 3dtouch -40 = bltouch
 #define Y_PROBE_OFFSET_FROM_EXTRUDER  2    // Y offset: -front +behind [the nozzle]
 #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.7   // Z offset: -below +above  [the nozzle]
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 48 // all insets = min probe edge
 
-*/
-/* 3DTouch Supporto custom */
+
+/* 3DTouch Supporto custom
 #define X_PROBE_OFFSET_FROM_EXTRUDER -19    // X offset: -left  +right  [of the nozzle]  -37 = 3dtouch -40 = bltouch
 #define Y_PROBE_OFFSET_FROM_EXTRUDER   1    // Y offset: -front +behind [the nozzle]
 #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.40 // Z offset: -below +above  [the nozzle]
+*/
+
+
+
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 30 // all insets = min probe edge
 
@@ -976,10 +980,8 @@
 
 // @section extruder
 
-// For direct drive extruder v9 set to true, for geared extruder set to false.
-//invert for tmc a10m a20m multi color = false - no multi color = true 
-#define INVERT_E0_DIR true
-#define INVERT_E1_DIR true
+#define INVERT_E0_DIR true // Per il Bondtech o Titan, mettere a true, per MK mettere false
+#define INVERT_E1_DIR true // Per il Bondtech o Titan, mettere a true, per MK mettere false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
