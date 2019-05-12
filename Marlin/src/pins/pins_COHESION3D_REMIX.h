@@ -191,7 +191,7 @@
       #define RGB_LED_B_PIN P1_00    // EXP1 cable pin 8  //ethernet pin 12 (top row, 6 from left)
     #endif
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define NEOPIXEL_PIN    P1_10    // EXP1 cable pin 7  //ethernet pin 10 (top row, 5 from left)
+    #define NEOPIXEL_PIN    P1_16    // EXP1 cable pin 6  //ethernet pin 6 (top row, 3 from left)
   #endif
 
 #elif ENABLED(ULTRA_LCD)
