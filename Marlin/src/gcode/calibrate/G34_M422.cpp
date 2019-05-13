@@ -112,8 +112,7 @@ void GcodeSuite::G34() {
     #endif
 
     #if ENABLED(BLTOUCH)
-      bltouch._reset();
-      bltouch._stow();
+      bltouch.init();
     #endif
 
     // Always home with tool 0 active
