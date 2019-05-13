@@ -144,6 +144,7 @@ public:
   static card_flags_t flag;
   static char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   static int8_t autostart_index;
+  static SdFile getroot() { return root; }
 
   #if ENABLED(BINARY_FILE_TRANSFER)
     #if NUM_SERIAL > 1
