@@ -2111,6 +2111,10 @@ void MarlinSettings::postprocess() {
       return success;
     }
     reset();
+    #if ENABLED(EEPROM_AUTO_INIT)
+      (void)save();
+      SERIAL_ECHO_MSG("EEPROM Initialized");
+    #endif
     return true;
   }
 

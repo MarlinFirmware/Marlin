@@ -57,42 +57,26 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_LCD
+#if ENABLED(U8GLIB_ST7920)
 
-#include "../shared/Marduino.h"
+#include "u8g_com_HAL_DUE_sw_spi_shared.h"
+
 #include "../shared/Delay.h"
 
 #include <U8glib.h>
 
-#include "u8g_com_HAL_DUE_sw_spi_shared.h"
-
-Pio *SCK_pPio, *MOSI_pPio;
-uint32_t SCK_dwMask, MOSI_dwMask;
-
-static void spiSend_sw_DUE(uint8_t val) { // 800KHz
-  for (uint8_t i = 0; i < 8; i++) {
-    if (val & 0x80)
-      MOSI_pPio->PIO_SODR = MOSI_dwMask;
-    else
-      MOSI_pPio->PIO_CODR = MOSI_dwMask;
-    DELAY_NS(48);
-    SCK_pPio->PIO_SODR = SCK_dwMask;
-    DELAY_NS(905); // 762 dead, 810 garbage, 858/0 900kHz, 905/1 825k, 953/1 800k, 1000/2 725KHz
-    val <<= 1;
-    SCK_pPio->PIO_CODR = SCK_dwMask;
-  }
-}
+#define SPISEND_SW_DUE u8g_spiSend_sw_DUE_mode_0
 
 static uint8_t rs_last_state = 255;
 
 static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
   if (rs != rs_last_state) {  // time to send a command/data byte
     rs_last_state = rs;
-    spiSend_sw_DUE(rs ? 0x0FA : 0x0F8); // Command or Data
+    SPISEND_SW_DUE(rs ? 0x0FA : 0x0F8); // Command or Data
     DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
   }
-  spiSend_sw_DUE(val & 0xF0);
-  spiSend_sw_DUE(val << 4);
+  SPISEND_SW_DUE(val & 0xF0);
+  SPISEND_SW_DUE(val << 4);
 }
 
 uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
@@ -182,20 +166,20 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   }
 
   void ST7920_set_cmd() {
-    spiSend_sw_DUE(0xF8);
+    SPISEND_SW_DUE(0xF8);
     DELAY_US(40);
   }
 
   void ST7920_set_dat() {
-    spiSend_sw_DUE(0xFA);
+    SPISEND_SW_DUE(0xFA);
     DELAY_US(40);
   }
 
   void ST7920_write_byte(const uint8_t val) {
-    spiSend_sw_DUE(val & 0xF0);
-    spiSend_sw_DUE(val << 4);
+    SPISEND_SW_DUE(val & 0xF0);
+    SPISEND_SW_DUE(val << 4);
   }
 #endif // LIGHTWEIGHT_UI
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // U8GLIB_ST7920
 #endif // ARDUINO_ARCH_SAM
