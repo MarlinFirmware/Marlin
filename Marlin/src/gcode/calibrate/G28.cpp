@@ -350,8 +350,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     #if Z_HOME_DIR < 0
       if (doZ) {
         #if ENABLED(BLTOUCH)
-          bltouch._reset();
-          bltouch._stow();
+          bltouch.init();
         #endif
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
