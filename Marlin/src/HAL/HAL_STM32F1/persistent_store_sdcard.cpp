@@ -64,7 +64,7 @@ static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
     if (!card.isDetected()) return false;
 
     SdFile file, root = card.getroot();
-    if (!file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC | O_APPEND))
+    if (!file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC))
       return false;
 
     int16_t bytes_written = file.write(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
