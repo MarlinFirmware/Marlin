@@ -992,7 +992,7 @@ void MarlinUI::draw_status_screen() {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
-  void draw_menu_item_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char *valstr/*=NULL*/) {
+  void draw_menu_item_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char *valstr/*=nullptr*/) {
     UNUSED(invert);
     int8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
@@ -1024,10 +1024,10 @@ void MarlinUI::draw_status_screen() {
     if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str(data);
   }
 
-  void draw_edit_screen(PGM_P const pstr, const char* const value/*=NULL*/) {
+  void draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     lcd_moveto(0, 1);
     lcd_put_u8str_P(pstr);
-    if (value != NULL) {
+    if (value != nullptr) {
       lcd_put_wchar(':');
       int len = utf8_strlen(value);
       const uint8_t valrow = (utf8_strlen_P(pstr) + 1 + len + 1) > (LCD_WIDTH - 2) ? 2 : 1;   // Value on the next row if it won't fit

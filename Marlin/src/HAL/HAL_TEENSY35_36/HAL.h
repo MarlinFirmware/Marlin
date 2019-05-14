@@ -31,15 +31,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
-// _BV is re-defined in Arduino.h
-#undef _BV
-
-#include <Arduino.h>
-
-// Redefine sq macro defined by teensy3/wiring.h
-#undef sq
-#define sq(x) ((x)*(x))
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 

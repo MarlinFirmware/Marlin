@@ -39,6 +39,7 @@
 #define MSG_BACK                            _UxGT("Zurück")
 #define MSG_SD_INSERTED                     _UxGT("SD-Karte erkannt")
 #define MSG_SD_REMOVED                      _UxGT("SD-Karte entfernt")
+#define MSG_SD_RELEASED                     _UxGT("SD-Karte freigeg.")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstopp") // Max length 8 characters
 #define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Soft-Endstopp")
 #define MSG_MAIN                            _UxGT("Hauptmenü")
@@ -273,8 +274,13 @@
 #define MSG_PREPARE                         _UxGT("Vorbereitung")
 #define MSG_TUNE                            _UxGT("Justierung")
 #define MSG_START_PRINT                     _UxGT("Starte Druck")
-#define MSG_BUTTON_PRINT                    _UxGT("Drucke")
+#define MSG_BUTTON_NEXT                     _UxGT("Weiter")
+#define MSG_BUTTON_INIT                     _UxGT("Init")
+#define MSG_BUTTON_STOP                     _UxGT("Stop")
+#define MSG_BUTTON_PRINT                    _UxGT("Drucken")
+#define MSG_BUTTON_RESET                    _UxGT("Zurücksetzen")
 #define MSG_BUTTON_CANCEL                   _UxGT("Abbrechen")
+#define MSG_BUTTON_DONE                     _UxGT("Fertig")
 #define MSG_PAUSE_PRINT                     _UxGT("SD-Druck pausieren")
 #define MSG_RESUME_PRINT                    _UxGT("SD-Druck fortsetzen")
 #define MSG_STOP_PRINT                      _UxGT("SD-Druck abbrechen")
@@ -308,8 +314,9 @@
 #define MSG_FILAMENTLOAD                    _UxGT("Filament laden")
 #define MSG_FILAMENTUNLOAD                  _UxGT("Filament entladen")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Alles entladen")
-#define MSG_INIT_SDCARD                     _UxGT("SD-Karte initialisi.") // Manually initialize the SD-card via user interface
+#define MSG_INIT_SDCARD                     _UxGT("SD-Karte initial.")  // Manually initialize the SD-card via user interface
 #define MSG_CHANGE_SDCARD                   _UxGT("SD-Karte getauscht") // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
+#define MSG_RELEASE_SDCARD                  _UxGT("SD-Karte freigeben") // if Marlin gets confused - M22
 #define MSG_ZPROBE_OUT                      _UxGT("Z-Sonde außerhalb")
 #define MSG_SKEW_FACTOR                     _UxGT("Korrekturfaktor")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
@@ -318,7 +325,7 @@
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("BLTouch ausfahren")
 #define MSG_BLTOUCH_SW_MODE                 _UxGT("BLTouch SW-Modus")
 #define MSG_BLTOUCH_5V_MODE                 _UxGT("BLTouch 5V-Modus")
-#define MSG_BLTOUCH_STOW                    _UxGT("BLTouch einfahren")
+#define MSG_BLTOUCH_OD_MODE                 _UxGT("BLTouch OD Mode")
 #define MSG_BLTOUCH_STOW                    _UxGT("BLTouch einfahren")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Z-Sonde ausfahren")
 #define MSG_MANUAL_STOW                     _UxGT("Z-Sonde einfahren")
@@ -353,6 +360,8 @@
 #define MSG_COOLING                         _UxGT("Extr. kühlt...")
 #define MSG_BED_HEATING                     _UxGT("Bett heizt...")
 #define MSG_BED_COOLING                     _UxGT("Bett kühlt...")
+#define MSG_CHAMBER_HEATING                 _UxGT("Gehäuse heizt...")
+#define MSG_CHAMBER_COOLING                 _UxGT("Gehäuse kühlt...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Delta kalibrieren")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibriere X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibriere Y")
@@ -439,7 +448,7 @@
 #define MSG_MMU2_FILAMENT2                  _UxGT("Filament 3")
 #define MSG_MMU2_FILAMENT3                  _UxGT("Filament 4")
 #define MSG_MMU2_FILAMENT4                  _UxGT("Filament 5")
-#define MSG_MMU2_RESET                      _UxGT("setz MMU zurück")
+#define MSG_MMU2_RESET                      _UxGT("setze MMU zurück")
 #define MSG_MMU2_RESETTING                  _UxGT("MMU zurücksetzen...")
 #define MSG_MMU2_EJECT_RECOVER              _UxGT("Entfernen, klicken")
 
@@ -460,7 +469,7 @@
 #define MSG_COMMIT_VTOOL                    _UxGT("V-Tool Mix sichern")
 #define MSG_VTOOLS_RESET                    _UxGT("V-Tools ist resetet")
 #define MSG_START_Z                         _UxGT("Z Start")
-#define MSG_END_Z                           _UxGT("Z End")
+#define MSG_END_Z                           _UxGT("Z Ende")
 #define MSG_BRICKOUT                        _UxGT("Brickout")
 #define MSG_INVADERS                        _UxGT("Invaders")
 #define MSG_SNAKE                           _UxGT("Sn4k3")
@@ -472,7 +481,8 @@
 #if LCD_HEIGHT >= 4
   #define MSG_ADVANCED_PAUSE_WAITING_1      _UxGT("Knopf drücken um")
   #define MSG_ADVANCED_PAUSE_WAITING_2      _UxGT("Druck fortzusetzen")
-  #define MSG_PAUSE_PRINT_INIT_1            _UxGT("Parken...")
+  #define MSG_PAUSE_PRINT_INIT_1            _UxGT("Druck ist")
+  #define MSG_PAUSE_PRINT_INIT_2            _UxGT("pausiert...")
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Warte auf den")
   #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("Start des")
   #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("Filamentwechsels...")
@@ -500,6 +510,7 @@
   #define MSG_FILAMENT_CHANGE_RESUME_3      _UxGT("Drucks...")
 #else // LCD_HEIGHT < 4
   #define MSG_ADVANCED_PAUSE_WAITING_1      MSG_USERWAIT
+  #define MSG_PAUSE_PRINT_INIT_1            _UxGT("Pausiert...")
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Bitte warten...")
   #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Laden und Klick")
   #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("Klick zum Heizen")

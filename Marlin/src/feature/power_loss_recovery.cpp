@@ -55,6 +55,13 @@ job_recovery_info_t PrintJobRecovery::info;
 
 PrintJobRecovery recovery;
 
+#ifndef POWER_LOSS_PURGE_LEN
+  #define POWER_LOSS_PURGE_LEN 0
+#endif
+#ifndef POWER_LOSS_RETRACT_LEN
+  #define POWER_LOSS_RETRACT_LEN 0
+#endif
+
 /**
  * Clear the recovery info
  */
@@ -126,6 +133,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     millis_t ms = millis();
   #endif
 
+  #ifndef POWER_LOSS_MIN_Z_CHANGE
+    #define POWER_LOSS_MIN_Z_CHANGE 0.05  // Vase-mode-friendly out of the box
+  #endif
+
   // Did Z change since the last call?
   if (force
     #if DISABLED(SAVE_EACH_CMD_MODE)      // Always save state when enabled
@@ -135,8 +146,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       #if SAVE_INFO_INTERVAL_MS > 0       // Save if interval is elapsed
         || ELAPSED(ms, next_save_ms)
       #endif
-        // Save every time Z is higher than the last call
-        || current_position[Z_AXIS] > info.current_position[Z_AXIS]
+      // Save if Z is above the last-saved position by some minimum height
+      || current_position[Z_AXIS] > info.current_position[Z_AXIS] + POWER_LOSS_MIN_Z_CHANGE
     #endif
   ) {
 
@@ -228,9 +239,8 @@ void PrintJobRecovery::write() {
   open(false);
   file.seekSet(0);
   const int16_t ret = file.write(&info, sizeof(info));
-  close();
-
   if (ret == -1) DEBUG_ECHOLNPGM("Power-loss file write failed.");
+  if (!file.close()) DEBUG_ECHOLNPGM("Power-loss file close failed.");
 }
 
 /**
@@ -337,8 +347,9 @@ void PrintJobRecovery::resume() {
     //gcode.process_subcommands_now(cmd);
     gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_PURGE_LEN) " F200"));
   #endif
+
   #if POWER_LOSS_RETRACT_LEN
-    sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN - POWER_LOSS_RETRACT_LEN);
+    sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN - (POWER_LOSS_RETRACT_LEN));
     gcode.process_subcommands_now(cmd);
   #endif
 
@@ -392,7 +403,6 @@ void PrintJobRecovery::resume() {
 
   // Resume the SD file from the last position
   char *fn = info.sd_filename;
-  while (*fn == '/') fn++;
   sprintf_P(cmd, PSTR("M23 %s"), fn);
   gcode.process_subcommands_now(cmd);
   sprintf_P(cmd, PSTR("M24 S%ld T%ld"), info.sdpos, info.print_job_elapsed);

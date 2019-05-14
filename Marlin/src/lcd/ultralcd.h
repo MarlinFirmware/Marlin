@@ -268,17 +268,11 @@ public:
   static void clear_lcd();
   static void init_lcd();
 
-  #if HAS_SPI_LCD || EITHER(MALYAN_LCD, EXTENSIBLE_UI)
+  #if HAS_DISPLAY
+
     static void init();
     static void update();
     static void set_alert_status_P(PGM_P message);
-  #else // NO LCD
-    static inline void init() {}
-    static inline void update() {}
-    static inline void set_alert_status_P(PGM_P message) { UNUSED(message); }
-  #endif
-
-  #if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
 
     static char status_message[];
     static bool has_status();
@@ -375,9 +369,12 @@ public:
     static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
     static void reset_status();
 
-  #else // MALYAN_LCD or NO LCD
+  #else // No LCD
 
+    static inline void init() {}
+    static inline void update() {}
     static inline void refresh() {}
+    static inline void set_alert_status_P(PGM_P message) { UNUSED(message); }
     static inline void set_status(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
     static inline void set_status_P(PGM_P const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
     static inline void status_printf_P(const uint8_t level, PGM_P const fmt, ...) { UNUSED(level); UNUSED(fmt); }
@@ -422,7 +419,7 @@ public:
     static bool lcd_clicked;
     static bool use_click();
 
-    static void synchronize(PGM_P const msg=NULL);
+    static void synchronize(PGM_P const msg=nullptr);
 
     static screenFunc_t currentScreen;
     static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
@@ -461,7 +458,7 @@ public:
       static void ubl_plot(const uint8_t x, const uint8_t inverted_y);
     #endif
 
-    static void draw_select_screen_prompt(PGM_P const pref, const char * const string=NULL, PGM_P const suff=NULL);
+    static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
 
   #elif HAS_SPI_LCD
 
@@ -529,7 +526,7 @@ private:
 
   static void _synchronize();
 
-  #if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
+  #if HAS_DISPLAY
     static void finish_status(const bool persist);
   #endif
 

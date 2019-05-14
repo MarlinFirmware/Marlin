@@ -30,26 +30,21 @@
 
 #include "menu.h"
 
-extern float backlash_distance_mm[XYZ];
-extern uint8_t backlash_correction;
-
-#ifdef BACKLASH_SMOOTHING_MM
-  extern float backlash_smoothing_mm;
-#endif
+#include "../../feature/backlash.h"
 
 void menu_backlash() {
   START_MENU();
   MENU_BACK(MSG_MAIN);
 
-  MENU_MULTIPLIER_ITEM_EDIT(percent, MSG_BACKLASH_CORRECTION, &backlash_correction, all_off, all_on);
+  MENU_MULTIPLIER_ITEM_EDIT(percent, MSG_BACKLASH_CORRECTION, &backlash.correction, all_off, all_on);
 
-  #define EDIT_BACKLASH_DISTANCE(N) MENU_MULTIPLIER_ITEM_EDIT(float43, MSG_##N, &backlash_distance_mm[_AXIS(N)], 0.0f, 9.9f);
+  #define EDIT_BACKLASH_DISTANCE(N) MENU_MULTIPLIER_ITEM_EDIT(float43, MSG_##N, &backlash.distance_mm[_AXIS(N)], 0.0f, 9.9f);
   EDIT_BACKLASH_DISTANCE(A);
   EDIT_BACKLASH_DISTANCE(B);
   EDIT_BACKLASH_DISTANCE(C);
 
   #ifdef BACKLASH_SMOOTHING_MM
-    MENU_MULTIPLIER_ITEM_EDIT(float43, MSG_BACKLASH_SMOOTHING, &backlash_smoothing_mm, 0.0f, 9.9f);
+    MENU_MULTIPLIER_ITEM_EDIT(float43, MSG_BACKLASH_SMOOTHING, &backlash.smoothing_mm, 0.0f, 9.9f);
   #endif
 
   END_MENU();

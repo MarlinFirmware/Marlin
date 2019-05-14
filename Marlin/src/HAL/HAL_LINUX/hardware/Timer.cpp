@@ -51,7 +51,7 @@ void Timer::init(uint32_t sig_id, uint32_t sim_freq, callback_fn* fn) {
   sa.sa_flags = SA_SIGINFO;
   sa.sa_sigaction = Timer::handler;
   sigemptyset(&sa.sa_mask);
-  if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
+  if (sigaction(SIGRTMIN, &sa, nullptr) == -1) {
     return; // todo: handle error
   }
 
@@ -74,7 +74,7 @@ void Timer::start(uint32_t frequency) {
 }
 
 void Timer::enable() {
-  if (sigprocmask(SIG_UNBLOCK, &mask, NULL) == -1) {
+  if (sigprocmask(SIG_UNBLOCK, &mask, nullptr) == -1) {
     return; // todo: handle error
   }
   active = true;
@@ -82,7 +82,7 @@ void Timer::enable() {
 }
 
 void Timer::disable() {
-  if (sigprocmask(SIG_SETMASK, &mask, NULL) == -1) {
+  if (sigprocmask(SIG_SETMASK, &mask, nullptr) == -1) {
     return; // todo: handle error
   }
   active = false;
@@ -102,7 +102,7 @@ void Timer::setCompare(uint32_t compare) {
   its.it_interval.tv_sec = its.it_value.tv_sec;
   its.it_interval.tv_nsec = its.it_value.tv_nsec;
 
-  if (timer_settime(timerid, 0, &its, NULL) == -1) {
+  if (timer_settime(timerid, 0, &its, nullptr) == -1) {
     printf("timer(%ld) failed, compare: %d(%ld)\n", getID(), compare, its.it_value.tv_nsec);
     return; // todo: handle error
   }
