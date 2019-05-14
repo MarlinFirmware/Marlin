@@ -43,7 +43,7 @@ static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
 
   #include "../../sd/cardreader.h"
 
-  static const char eeprom_filename[] = "eeprom.dat";
+  static char eeprom_filename[] = "eeprom.dat";
 
   bool PersistentStore::access_start() {
     if (!card.isDetected()) return false;
