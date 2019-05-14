@@ -67,6 +67,34 @@
 
 #include "pins_RAMPS.h"
 
+#if ENABLED(ANYCUBIC_4MAX)
+#ifdef FILWIDTH_PIN
+ #undef FILWIDTH_PIN
+ #define FILWIDTH_PIN      42  // Trigorilla have 2 Analog Pins on AUX (D42 & D43!)
+#endif
+
+#ifdef FIL_RUNOUT_PIN
+ #undef FIL_RUNOUT_PIN
+ #define FIL_RUNOUT_PIN    2  // Trigorilla Limit Switches are: D19(Z_MAX_PIN), D18(Z_MIN_PIN), D15(Y_MAX_PIN), D14(Y_MIN_PIN), D2(X_MAX_PIN), D3(X_MIN_PIN)
+#endif
+
+#ifdef BTN_EN1
+  #undef BTN_EN1
+  #define BTN_EN1          33  // Anycubic 4MAX specific
+#endif
+
+#ifdef BTN_EN2
+  #undef BTN_EN2
+  #define BTN_EN2          31  // Anycubic 4MAX specific
+#endif
+
+#ifdef KILL_PIN
+  #undef KILL_PIN
+  #define KILL_PIN         -1  // Anycubic 4MAX specific
+#endif
+
+#endif // IF ENABLED(ANYCUBIC_4MAX)
+
 //
 // AnyCubic made the following changes to 1.1.0-RC8
 // If these are appropriate for your LCD let us know.
