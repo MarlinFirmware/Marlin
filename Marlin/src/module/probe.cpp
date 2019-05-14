@@ -356,16 +356,15 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     dock_sled(!deploy);
 
-  #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
+  #elif HAS_Z_SERVO_PROBE
 
-    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
-
-
-  #elif HAS_Z_SERVO_PROBE && ENABLED(BLTOUCH) && ENABLED(BLTOUCH_HS_MODE)
-
-    // In HIGH SPEED MODE, use the normal retractable probe logic in this code
-	// i.e. no intermediate STOWs and DEPLOYs in between individual probe actions
-    if (deploy) bltouch.deploy(); else bltouch.stow();
+    #if DISABLED(BLTOUCH)
+      MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+    #elif ENABLED(BLTOUCH_HS_MODE)
+      // In HIGH SPEED MODE, use the normal retractable probe logic in this code
+      // i.e. no intermediate STOWs and DEPLOYs in between individual probe actions
+      if (deploy) bltouch.deploy(); else bltouch.stow();
+    #endif
 
   #elif ENABLED(Z_PROBE_ALLEN_KEY)
 

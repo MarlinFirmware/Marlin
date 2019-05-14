@@ -155,7 +155,7 @@ bool BLTouch::status_proc() {
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch is ", (int)tr);
 
-  if (tr) _stow(); else _deploy();  // Turn off SW mode, reset any trigger, honour pin state
+  if (tr) _stow(); else _deploy();  // Turn off SW mode, reset any trigger, honor pin state
   return !tr;
 }
 
