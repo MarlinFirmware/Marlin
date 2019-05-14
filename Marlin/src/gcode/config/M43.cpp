@@ -34,6 +34,10 @@
   #include "../../module/servo.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../feature/bltouch.h"
+#endif
+
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "../../feature/host_actions.h"
 #endif
@@ -143,68 +147,103 @@ inline void servo_probe_test() {
 
     #endif
 
-    SERIAL_ECHOLNPGM(". deploy & stow 4 times");
     SET_INPUT_PULLUP(PROBE_TEST_PIN);
-    uint8_t i = 0;
-    bool deploy_state, stow_state;
-    do {
-      MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
-      safe_delay(500);
-      deploy_state = READ(PROBE_TEST_PIN);
-      MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
-      safe_delay(500);
-      stow_state = READ(PROBE_TEST_PIN);
-    } while (++i < 4);
-    if (probe_inverting != deploy_state) SERIAL_ECHOLNPGM("WARNING - INVERTING setting probably backwards");
 
-    if (deploy_state != stow_state) {
-      SERIAL_ECHOLNPGM("BLTouch clone detected");
-      if (deploy_state) {
-        SERIAL_ECHOLNPGM(".  DEPLOYED state: HIGH (logic 1)");
-        SERIAL_ECHOLNPGM(".  STOWED (triggered) state: LOW (logic 0)");
+    // First, we check for a probe that recognizes an advanced BLTouch sequence
+    // In addition to STOW and DEPLOY, it uses SW MODE (and RESET in the beginning)
+    // to see if this is a BLTOUCH Classic 1.2, 1.3, Smart 1.0, 2.0, 2.2, 3.0, 3.1
+    //
+    bool blt = false;
+    SERIAL_ECHOLNPGM(". check for BLTOUCH");
+    bltouch.reset();
+    bltouch._stow();
+    if (probe_inverting == READ(PROBE_TEST_PIN)) {
+      bltouch._set_5V_mode();
+      bltouch._set_SW_mode();
+      if (probe_inverting != READ(PROBE_TEST_PIN)) {
+        bltouch._deploy();
+        if (probe_inverting == READ(PROBE_TEST_PIN)) {
+          bltouch._stow();
+          SERIAL_ECHOLNPGM("= BLTouch Classic 1.2, 1.3, Smart 1.0, 2.0, 2.2, 3.0, 3.1 detected");
+          // we will check for a 3.1 by letting the user trigger it, later
+          blt = true;
+        }
+      }  
+    }   
+
+    // If it is a BLTouch, no need for this test
+    if (!blt) {
+      // DEPLOY and STOW 4 times and see if the signal follows
+      // Then it is a mechanical switch
+      bool deploy_state, stow_state;
+      uint8_t i = 0;
+      SERIAL_ECHOLNPGM(". deploy & stow 4 times");
+      do {
+
+        MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
+        safe_delay(500);
+        deploy_state = READ(PROBE_TEST_PIN);
+        MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
+        safe_delay(500);
+        stow_state = READ(PROBE_TEST_PIN);
+      } while (++i < 4);
+
+      if (probe_inverting != deploy_state) SERIAL_ECHOLNPGM("WARNING - INVERTING setting probably backwards");
+
+      if (deploy_state != stow_state) {
+        SERIAL_ECHOLNPGM("= Mechanical Switch detected");
+        if (deploy_state) {
+          SERIAL_ECHOLNPGM("  DEPLOYED state: HIGH (logic 1)");
+          SERIAL_ECHOLNPGM("  STOWED (triggered) state: LOW (logic 0)");
+        }
+        else {
+          SERIAL_ECHOLNPGM("  DEPLOYED state: LOW (logic 0)");
+          SERIAL_ECHOLNPGM("  STOWED (triggered) state: HIGH (logic 1)");
+        }
+        #if ENABLED(BLTOUCH)
+          SERIAL_ECHOLNPGM("ERROR: BLTOUCH enabled - set this device up as a Z Servo Probe with inverting as true.");
+        #endif
       }
-      else {
-        SERIAL_ECHOLNPGM(".  DEPLOYED state: LOW (logic 0)");
-        SERIAL_ECHOLNPGM(".  STOWED (triggered) state: HIGH (logic 1)");
-      }
-      #if ENABLED(BLTOUCH)
-        SERIAL_ECHOLNPGM("ERROR: BLTOUCH enabled - set this device up as a Z Servo Probe with inverting as true.");
-      #endif
+
+      return;
     }
-    else {                                           // measure active signal length
-      MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
-      safe_delay(500);
-      SERIAL_ECHOLNPGM("please trigger probe");
-      uint16_t probe_counter = 0;
+    
+    // Ask the user for a trigger event and measure the pulse width
+    // Since it could be a real servo or a BLTouch (any kind) or clone
+    // use only "common" functions - i.e. SERVO_MOVE. No bltouch.xxxx stuff.
+    MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
+    safe_delay(500);
+    SERIAL_ECHOLNPGM("** Please trigger probe within 30 sec **");
+    uint16_t probe_counter = 0;
 
-      // Allow 30 seconds max for operator to trigger probe
-      for (uint16_t j = 0; j < 500 * 30 && probe_counter == 0 ; j++) {
+    // Allow 30 seconds max for operator to trigger probe
+    for (uint16_t j = 0; j < 500 * 30 && probe_counter == 0 ; j++) {
+      safe_delay(2);
+      
+      if (0 == j % (500 * 1)) gcode.reset_stepper_timeout();    // Keep steppers powered
+      
+      if (deploy_state != READ(PROBE_TEST_PIN)) {               // probe triggered
+        
+        for (probe_counter = 1; probe_counter < 15 && deploy_state != READ(PROBE_TEST_PIN); ++probe_counter) safe_delay(2);
+        
+        SERIAL_ECHOLNPAIR(". Pulse width (+/- 4mS): ", probe_counter * 2);
 
-        safe_delay(2);
+        if (blt && probe_counter == 15) SERIAL_ECHOLNPGM("= BLTouch V3.1 detected");
+        else if (probe_counter == 15)   SERIAL_ECHOLNPGM("= Z Servo Probe detected");
+        else if (probe_counter >= 4)    SERIAL_ECHOLNPGM("= BLTouch pre V3.1 or compatible probe detected");
+        else                            SERIAL_ECHOLNPGM("ERROR: noise detected - please re-run test");
 
-        if (0 == j % (500 * 1)) gcode.reset_stepper_timeout(); // Keep steppers powered
+        MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
 
-        if (deploy_state != READ(PROBE_TEST_PIN)) { // probe triggered
+        return;
 
-          for (probe_counter = 1; probe_counter < 50 && deploy_state != READ(PROBE_TEST_PIN); ++probe_counter)
-            safe_delay(2);
+      }  // pulse detected
 
-          if (probe_counter == 50)
-            SERIAL_ECHOLNPGM("Z Servo Probe detected"); // >= 100mS active time
-          else if (probe_counter >= 2)
-            SERIAL_ECHOLNPAIR("BLTouch compatible probe detected - pulse width (+/- 4mS): ", probe_counter * 2); // allow 4 - 100mS pulse
-          else
-            SERIAL_ECHOLNPGM("noise detected - please re-run test"); // less than 2mS pulse
+    } // for loop waiting for trigger
 
-          MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
+    if (probe_counter == 0) SERIAL_ECHOLNPGM("ERROR: Trigger not detected");
 
-        }  // pulse detected
-
-      } // for loop waiting for trigger
-
-      if (probe_counter == 0) SERIAL_ECHOLNPGM("trigger not detected");
-
-    } // measure active signal length
+  } // measure active signal length
 
   #endif
 
