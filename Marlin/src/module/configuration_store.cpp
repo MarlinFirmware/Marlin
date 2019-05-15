@@ -126,6 +126,10 @@ typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc
 typedef struct {  int16_t X, Y, Z;                                         } tmc_sgt_t;
 typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_stealth_enabled_t;
 
+typedef struct { uint8_t controllerFan_Speed, controllerFan_Idle_Speed;
+                 uint16_t controllerFan_Duration;
+                 bool controllerFan_AutoMode; } controllerFan_settings_t;
+
 // Limit an index to an array size
 #define ALIM(I,ARR) MIN(I, COUNT(ARR) - 1)
 
@@ -262,9 +266,8 @@ typedef struct SettingsDataStruct {
   //
   // controller fan
   //
-  #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
-    ControllerFan fanController;
-  #endif
+  controllerFan_settings_t fanController_settings;     // M ? 
+
 
 
   //
@@ -848,7 +851,7 @@ void MarlinSettings::postprocess() {
     // controller fan
     //
     {
-      _FIELD_TEST(fanController);
+      _FIELD_TEST(fanController_settings);
 
       #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
         EEPROM_WRITE(fanController.settings_fan);
@@ -1649,7 +1652,7 @@ void MarlinSettings::postprocess() {
       // Controller Fan
       //
       {
-        _FIELD_TEST(fanController);
+        _FIELD_TEST(fanController_settings);
 
         #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
           EEPROM_READ(fanController.settings_fan);
