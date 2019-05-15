@@ -58,6 +58,7 @@ int8_t CardReader::autostart_index;
 // private:
 
 SdFile CardReader::root, CardReader::workDir, CardReader::workDirParents[MAX_DIR_DEPTH];
+SdFile CardReader::diveDir1, CardReader::diveDir2;
 uint8_t CardReader::workDirDepth;
 
 #if ENABLED(SDCARD_SORT_ALPHA)
@@ -643,8 +644,7 @@ uint16_t CardReader::getnrfilenames() {
  */
 const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, const bool echo/*=false*/) {
   // Track both parent and subfolder
-  static SdFile newDir1, newDir2;
-  SdFile *sub = &newDir1, *startDir;
+  SdFile *sub = &diveDir1, *startDir;
 
   const char *dirname_start = path;
   if (path[0] == '/') {
@@ -687,7 +687,7 @@ const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, con
     if (workDirDepth < MAX_DIR_DEPTH) workDirParents[workDirDepth++] = *curDir;
 
     // Point sub pointer to unused newDir
-    sub = (curDir != &newDir1) ? &newDir1 : &newDir2;
+    sub = (curDir != &diveDir1) ? &diveDir1 : &diveDir2;
 
     // dirname_start point to next sub
     dirname_start = dirname_end + 1;

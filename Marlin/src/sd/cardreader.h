@@ -156,6 +156,7 @@ public:
 
 private:
   static SdFile root, workDir, workDirParents[MAX_DIR_DEPTH];
+  static SdFile diveDir1, diveDir2;  // use at diveToFile to process subfolder
   static uint8_t workDirDepth;
 
   // Sort files and folders alphabetically.
