@@ -35,7 +35,7 @@
 #endif
 
 #if ENABLED(BLTOUCH)
-  #include "../feature/bltouch.h"
+  #include "../../feature/bltouch.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -109,9 +109,9 @@ inline void servo_probe_test() {
     const uint8_t probe_index = parser.byteval('P', Z_PROBE_SERVO_NR);
 
     SERIAL_ECHOLNPAIR("Servo probe test\n"
-                      ".  using index:  ", int(probe_index),
-                      ".  deploy angle: ", servo_angles[probe_index][0],
-                      ".  stow angle:   ", servo_angles[probe_index][1]
+                      ". using index:  ", int(probe_index),
+                      ", deploy angle: ", servo_angles[probe_index][0],
+                      ", stow angle:   ", servo_angles[probe_index][1]
     );
 
     bool deploy_state, stow_state;
@@ -121,7 +121,7 @@ inline void servo_probe_test() {
       #define PROBE_TEST_PIN Z_MIN_PIN
       constexpr bool probe_inverting = Z_MIN_ENDSTOP_INVERTING;
 
-      SERIAL_ECHOLNPAIR(".         Probe Z_MIN_PIN: ", int(PROBE_TEST_PIN));
+      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PIN: ", int(PROBE_TEST_PIN));
       SERIAL_ECHOPGM(". Z_MIN_ENDSTOP_INVERTING: ");
 
     #else
@@ -129,7 +129,7 @@ inline void servo_probe_test() {
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       constexpr bool probe_inverting = Z_MIN_PROBE_ENDSTOP_INVERTING;
 
-      SERIAL_ECHOLNPAIR(".         Probe Z_MIN_PROBE_PIN: ", int(PROBE_TEST_PIN));
+      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PROBE_PIN: ", int(PROBE_TEST_PIN));
       SERIAL_ECHOPGM(   ". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
 
     #endif
@@ -154,7 +154,7 @@ inline void servo_probe_test() {
         if (probe_inverting == READ(PROBE_TEST_PIN)) {
           bltouch._stow();
           SERIAL_ECHOLNPGM("= BLTouch Classic 1.2, 1.3, Smart 1.0, 2.0, 2.2, 3.0, 3.1 detected.");
-          // we will check for a 3.1 by letting the user trigger it, later
+          // Check for a 3.1 by letting the user trigger it, later
           blt = true;
         }
       }
@@ -180,12 +180,12 @@ inline void servo_probe_test() {
       if (deploy_state != stow_state) {
         SERIAL_ECHOLNPGM("= Mechanical Switch detected");
         if (deploy_state) {
-          SERIAL_ECHOLNPGM("  DEPLOYED state: HIGH (logic 1)",
-                           "  STOWED (triggered) state: LOW (logic 0)");
+          SERIAL_ECHOLNPAIR("  DEPLOYED state: HIGH (logic 1)",
+                            "  STOWED (triggered) state: LOW (logic 0)");
         }
         else {
-          SERIAL_ECHOLNPGM("  DEPLOYED state: LOW (logic 0)",
-                           "  STOWED (triggered) state: HIGH (logic 1)");
+          SERIAL_ECHOLNPAIR("  DEPLOYED state: LOW (logic 0)",
+                            "  STOWED (triggered) state: HIGH (logic 1)");
         }
         #if ENABLED(BLTOUCH)
           SERIAL_ECHOLNPGM("FAIL: BLTOUCH enabled - Set up this device as a Servo Probe with INVERTING set to 'true'.");
