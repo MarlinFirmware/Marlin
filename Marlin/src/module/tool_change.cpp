@@ -584,6 +584,136 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
 
 #endif // MAGNETIC_SWITCHING_TOOLHEAD
 
+
+#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+
+  void est_init(void) {
+    est_activate_solenoid();
+  }
+
+  void est_activate_solenoid(void) {
+    OUT_WRITE(SOL0_PIN, HIGH);
+  }
+
+  void est_deactivate_solenoid(void) {
+    OUT_WRITE(SOL0_PIN, LOW);
+  }
+
+  inline void electromagnetic_switching_toolhead(const uint8_t tmp_extruder, bool no_move) {
+    if (no_move) return;
+
+    constexpr float z_raise = SWITCHING_TOOLHEAD_Z_HOP;
+    const float parking_positions[] = SWITCHING_TOOLHEAD_X_POS;
+
+    /**
+     *  Steps:
+     *    1. Raise Z-Axis to give enough clearance
+     *    2. Move to position near active extruder parking
+     *    3. Move gently to park position of active extruder
+     *    4. Disengage magnetic field, wait for delay
+     *    5. Leave extruder and move to position near new extruder parking
+     *    6. Move gently to park position of new extruder
+     *    7. Engage magnetic field for new extruder parking
+     *    8. Unpark extruder
+     *    9. Lower Z-Axis
+     */
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      SERIAL_ECHOLNPGM("Starting Autopark");
+      if (DEBUGGING(LEVELING)) DEBUG_POS("current position:", current_position);
+    #endif
+
+    // STEP 1
+    current_position[Z_AXIS] += z_raise;
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      SERIAL_ECHOLNPGM("(1) Raise Z-Axis ");
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Moving to Raised Z-Position", current_position);
+    #endif
+    planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
+    planner.synchronize();
+
+    // STEP 2
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      SERIAL_ECHOLNPAIR("(2) Move to position near active extruder parking", active_extruder);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Moving ParkPos", current_position);
+    #endif
+    current_position[X_AXIS] = parking_positions[active_extruder] + hotend_offset[X_AXIS][active_extruder];
+    current_position[Y_AXIS] = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR  + hotend_offset[Y_AXIS][active_extruder];
+
+    planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS], active_extruder);
+    planner.synchronize();
+
+    // STEP 3
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      SERIAL_ECHOLNPAIR("(3) Move gently to park position of active extruder", active_extruder);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Moving ParkPos", current_position);
+    #endif
+
+    current_position[Y_AXIS] -= SWITCHING_TOOLHEAD_Y_CLEAR;
+
+    planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.5, active_extruder);
+    planner.synchronize();
+
+    // STEP 4
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      SERIAL_ECHOLNPGM("(4) Disengage magnet ");
+    #endif
+    est_deactivate_solenoid();
+
+    // STEP 5
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      SERIAL_ECHOLNPGM("(5) Move to position near new extruder parking");
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Moving ParkPos", current_position);
+    #endif
+
+    current_position[Y_AXIS] += SWITCHING_TOOLHEAD_Y_CLEAR;
+
+    planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.5, active_extruder);
+    planner.synchronize();
+
+    current_position[X_AXIS] = parking_positions[tmp_extruder] + hotend_offset[X_AXIS][active_extruder];
+    current_position[Y_AXIS] = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR  + hotend_offset[Y_AXIS][active_extruder];
+
+    planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS], active_extruder);
+    planner.synchronize();
+
+    // STEP 6
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      SERIAL_ECHOLNPGM("(6) Move to position near new extruder");
+    #endif
+
+    current_position[Y_AXIS] -= SWITCHING_TOOLHEAD_Y_CLEAR;
+
+    planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.5, active_extruder);
+    planner.synchronize();
+
+    // STEP 7
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      SERIAL_ECHOLNPGM("(7) Engage magnetic field");
+    #endif
+
+    est_activate_solenoid();
+
+    // STEP 8
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+        SERIAL_ECHOLNPGM("(8) Unpark extruder");
+    #endif
+
+    current_position[Y_AXIS] += SWITCHING_TOOLHEAD_Y_CLEAR;
+
+    planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS] * 0.5, active_extruder);
+    planner.synchronize();
+
+    current_position[Z_AXIS] += hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("(9) Applying Z-offset", current_position);
+    #endif
+  }
+
+#endif // ELECTROMAGNETIC_SWITCHING_TOOLHEAD
+
+
 inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_ECHO_START();
   SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
@@ -800,15 +930,17 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
 
       #if ENABLED(DUAL_X_CARRIAGE)
         dualx_tool_change(tmp_extruder, no_move);
-      #elif ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
+      #elif ENABLED(PARKING_EXTRUDER)                                   // Dual Parking extruder
         parking_extruder_tool_change(tmp_extruder, no_move);
-      #elif ENABLED(MAGNETIC_PARKING_EXTRUDER) // Magnetic Parking extruder
+      #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)                          // Magnetic Parking extruder
         magnetic_parking_extruder_tool_change(tmp_extruder);
-      #elif ENABLED(SWITCHING_TOOLHEAD) // Switching Toolhead
+      #elif ENABLED(SWITCHING_TOOLHEAD)                                 // Switching Toolhead
         switching_toolhead_tool_change(tmp_extruder, no_move);
-      #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD) // Magnetic Switching Toolhead
+      #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)                        // Magnetic Switching Toolhead
         magnetic_switching_toolhead_tool_change(tmp_extruder, no_move);
-      #elif ENABLED(SWITCHING_NOZZLE) && !SWITCHING_NOZZLE_TWO_SERVOS
+      #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)                 // Magnetic Switching ToolChanger
+        electromagnetic_switching_toolhead(tmp_extruder, no_move);
+      #elif ENABLED(SWITCHING_NOZZLE) && !SWITCHING_NOZZLE_TWO_SERVOS   // Switching Nozzle (single servo)
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         current_position[Z_AXIS] += MAX(-zdiff, 0.0) + toolchange_settings.z_raise;
