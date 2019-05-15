@@ -470,7 +470,6 @@
   //#define DEFAULT_Ki 0.72
   //#define DEFAULT_Kd 65.85
 
-
   // Default 4MAX
   #define DEFAULT_Kp 22.2
   #define DEFAULT_Ki 1.08
@@ -733,7 +732,7 @@
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 104.25 }
 
 // my 4MAX Printer: vg3r - Steps - Filament
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 100.96 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 99.46 }
 
 
 
@@ -916,7 +915,7 @@
 // my 4MAX Printer: 7of9 - Offset
 //#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.26  // Z offset: -below +above  [the nozzle]
 // my 4MAX Printer: vg3r - Offset
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.64  // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -2.50  // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 10
@@ -1040,7 +1039,8 @@
 // @section machine
 
 // The size of the print bed
-#define BLTOUCH_X_MAX_OFFSET 6
+#define BLTOUCH_X_MAX_OFFSET 8  // vg3r
+//#define BLTOUCH_X_MAX_OFFSET 6  // 7of9
 #define X_BED_SIZE 215 - BLTOUCH_X_MAX_OFFSET
 #define Y_BED_SIZE 215
 
@@ -1190,8 +1190,8 @@
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for the G26 Mesh Validation Tool.
-    #define MESH_TEST_HOTEND_TEMP  235    // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
-    #define MESH_TEST_BED_TEMP      80    // (°C) Default bed temperature for the G26 Mesh Validation Tool.
+    #define MESH_TEST_HOTEND_TEMP  245    // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
+    #define MESH_TEST_BED_TEMP      85    // (°C) Default bed temperature for the G26 Mesh Validation Tool.
     #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for XY Moves for the G26 Mesh Validation Tool.
   #endif
 
@@ -1450,10 +1450,10 @@
 #define PREHEAT_1_TEMP_BED     75
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_LABEL       "ABS"
-#define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    95
-#define PREHEAT_2_FAN_SPEED   255 // Value from 0 to 255
+#define PREHEAT_2_LABEL       "PETG"
+#define PREHEAT_2_TEMP_HOTEND 245
+#define PREHEAT_2_TEMP_BED    85
+#define PREHEAT_2_FAN_SPEED   0 // Value from 0 to 255
 
 /**
  * Nozzle Park
@@ -1513,7 +1513,7 @@
  * Attention: EXPERIMENTAL. G-code arguments may change.
  *
  */
-//#define NOZZLE_CLEAN_FEATURE
+#define NOZZLE_CLEAN_FEATURE
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
   // Default number of pattern repetitions
