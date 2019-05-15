@@ -114,7 +114,7 @@ bool BLTouch::stow_proc() {
   // At the moment that we come in here, we might (pulse) or will (SW mode) see the trigger on the pin.
   // So even though we know a STOW will be ignored if an ALARM condition is active, we will STOW.
   // Note: If the probe is deployed AND in an ALARM condition, this STOW will not pull up the pin
-  // and the ALARM condition will still be there. --> ANTClabs should change this behaviour maybe
+  // and the ALARM condition will still be there. --> ANTClabs should change this behavior maybe
 
   // Attempt to STOW, wait for STOW_DELAY or ALARM
   if (_stow_query_alarm()) {

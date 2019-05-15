@@ -42,7 +42,7 @@
 void GcodeSuite::M301() {
 
   // multi-extruder PID patch: M301 updates or prints a single extruder's PID values
-  // default behaviour (omitting E parameter) is to update for extruder 0 only
+  // default behavior (omitting E parameter) is to update for extruder 0 only
   const uint8_t e = parser.byteval('E'); // extruder being updated
 
   if (e < HOTENDS) { // catch bad input value
