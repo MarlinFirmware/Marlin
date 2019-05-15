@@ -180,16 +180,16 @@
   // Rev 1.2 displays do NOT require the RGB LEDs. 2.0 and 2.1 displays do require RGB.
   #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
     #ifndef RGB_LED_R_PIN
-      #define RGB_LED_R_PIN P1_16   // EXP1 cable pin 6  //ethernet pin 6 (top row, 3 from left)
+      #define RGB_LED_R_PIN P1_16 // EXP1-6  =>  Ethernet pin  6 (top row, 3 from left)
     #endif
     #ifndef RGB_LED_G_PIN
-      #define RGB_LED_G_PIN P1_10   // EXP1 cable pin 7  //ethernet pin 10 (top row, 5 from left)
+      #define RGB_LED_G_PIN P1_10 // EXP1-7  =>  Ethernet pin 10 (top row, 5 from left)
     #endif
     #ifndef RGB_LED_B_PIN
-      #define RGB_LED_B_PIN P1_00   // EXP1 cable pin 8  //ethernet pin 12 (top row, 6 from left)
+      #define RGB_LED_B_PIN P1_00 // EXP1-8  =>  Ethernet pin 12 (top row, 6 from left)
     #endif
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define NEOPIXEL_PIN  P1_16   // EXP1 cable pin 6  //ethernet pin 6 (top row, 3 from left)
+    #define NEOPIXEL_PIN  P1_16   // EXP1-6  =>  Ethernet pin  6 (top row, 3 from left)
   #endif
 
 #elif ENABLED(ULTRA_LCD)
