@@ -89,6 +89,12 @@ void LEDLights::set_color(const LEDColor &incol
                             : pixels.Color(incol.r, incol.g, incol.b, incol.w);
     static uint16_t nextLed = 0;
 
+    #ifdef BACKGROUND_NEOPIXEL_LED
+      if (BACKGROUND_NEOPIXEL_LED == nextLed) {
+        nextLed++;
+        return;
+      }
+    #endif
     pixels.setBrightness(incol.i);
     if (!isSequence)
       set_neopixel_color(neocolor);
