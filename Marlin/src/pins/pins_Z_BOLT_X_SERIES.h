@@ -51,8 +51,6 @@
 #ifndef SERVO0_PIN
     #define SERVO0_PIN     11
 #endif
-// #define SERVO1_PIN          6
-// #define SERVO2_PIN          5
 #ifndef SERVO3_PIN
   #define SERVO3_PIN        4
 #endif
@@ -140,76 +138,12 @@
 
 #define TEMP_BED_PIN       14   // Analog Input
 
-// // SPI for Max6675 or Max31855 Thermocouple
-// #if DISABLED(SDSUPPORT)
-//   #define MAX6675_SS_PIN   66   // Do not use pin 53 if there is even the remote possibility of using Display/SD card
-// #else
-//   #define MAX6675_SS_PIN   66   // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
-// #endif
-
-//
-// Augmentation for auto-assigning RAMPS plugs
-//
-// #if DISABLED(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-//   #if HOTENDS > 1
-//     #if TEMP_SENSOR_BED
-//       #define IS_RAMPS_EEB
-//     #else
-//       #define IS_RAMPS_EEF
-//     #endif
-//   #elif TEMP_SENSOR_BED
-//     #define IS_RAMPS_EFB
-//   #else
-//     #define IS_RAMPS_EFF
-//   #endif
-// #endif
-
-//
-// Heaters / Fans
-//
-// #ifndef MOSFET_D_PIN
-//   #define MOSFET_D_PIN     -1
-// #endif
-
 #define HEATER_0_PIN     10
 #define HEATER_1_PIN      7
 #define HEATER_2_PIN      6
 #define HEATER_3_PIN      5
 
 #define HEATER_BED_PIN   8
-
-// #if ENABLED(IS_RAMPS_EFB)                      // Hotend, Fan, Bed
-//   #define HEATER_BED_PIN   RAMPS_D8_PIN
-// #elif ENABLED(IS_RAMPS_EEF)                    // Hotend, Hotend, Fan
-//   #define HEATER_1_PIN     RAMPS_D9_PIN
-// #elif ENABLED(IS_RAMPS_EEB)                    // Hotend, Hotend, Bed
-//   #define HEATER_1_PIN     RAMPS_D9_PIN
-//   #define HEATER_BED_PIN   RAMPS_D8_PIN
-// #elif ENABLED(IS_RAMPS_EFF)                    // Hotend, Fan, Fan
-//   #define FAN1_PIN         RAMPS_D8_PIN
-// #elif DISABLED(IS_RAMPS_SF)                    // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
-//   #define HEATER_BED_PIN   RAMPS_D8_PIN
-//   #if HOTENDS == 1
-//     #define FAN1_PIN       MOSFET_D_PIN
-//   #else
-//     #define HEATER_1_PIN   MOSFET_D_PIN
-//     #define HEATER_2_PIN   MOSFET_D_PIN
-//   #endif
-// #endif
-
-
-
-// #ifndef FAN_PIN
-//   #if EITHER(IS_RAMPS_EFB, IS_RAMPS_EFF)          // Hotend, Fan, Bed or Hotend, Fan, Fan
-//     #define FAN_PIN        RAMPS_D9_PIN
-//   #elif EITHER(IS_RAMPS_EEF, IS_RAMPS_SF)         // Hotend, Hotend, Fan or Spindle, Fan
-//     #define FAN_PIN        RAMPS_D8_PIN
-//   #elif ENABLED(IS_RAMPS_EEB)                  // Hotend, Hotend, Bed
-//     #define FAN_PIN         4                  // IO pin. Buffer needed
-//   #else                                        // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
-
-//   #endif
-// #endif
 
 #define FAN_PIN             9
 //
@@ -222,7 +156,7 @@
   #define FILWIDTH_PIN      5   // Analog Input on AUX2
 #endif
 
-// RAMPS 1.4 DIO 4 on the servos connector
+// Оn the servos connector
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN    4
 #endif
@@ -322,9 +256,3 @@
   #define E4_SERIAL_TX_PIN   -1
   #define E4_SERIAL_RX_PIN   -1
 #endif
-
-
-
-
-
-
