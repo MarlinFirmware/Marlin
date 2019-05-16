@@ -759,9 +759,8 @@
             ui.release();
             restore_ubl_active_state_and_leave();
             return;
-          }          
+        }
         #endif
-
 
         if (do_furthest)
           location = find_furthest_invalid_mesh_point();
