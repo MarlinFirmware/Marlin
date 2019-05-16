@@ -2078,7 +2078,7 @@
   #define NEOPIXEL_PIN    4        // LED driving pin
   #define NEOPIXEL_PIXELS 30       // Number of LEDs in the strip
   #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-    #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+  #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
   //#define BACKGROUND_NEOPIXEL_LED 0  // number of LED in chain that never changes color
   //#define BACKGROUND_NEOPIXEL_LED_COLOR  {255, 255, 255, 0} // { Red, Green, Blue, White }
   //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
