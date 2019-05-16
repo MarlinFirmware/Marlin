@@ -1410,7 +1410,10 @@
 
       if (do_3_pt_leveling) {
         SERIAL_ECHOLNPAIR("\Tilting mesh point 1/3.\n");
-        ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 1/3"));
+        #if HAS_LCD_MENU
+          ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 1/3"));
+        #endif
+
         measured_z = probe_pt(PROBE_PT_1_X, PROBE_PT_1_Y, PROBE_PT_RAISE, g29_verbose_level);
         if (isnan(measured_z))
           abort_flag = true;
@@ -1426,7 +1429,10 @@
 
         if (!abort_flag) {
           SERIAL_ECHOLNPAIR("\Tilting mesh point 2/3.\n");
-          ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 2/3"));
+          #if HAS_LCD_MENU
+            ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 2/3"));
+          #endif
+
           measured_z = probe_pt(PROBE_PT_2_X, PROBE_PT_2_Y, PROBE_PT_RAISE, g29_verbose_level);
           //z2 = measured_z;
           if (isnan(measured_z))
@@ -1443,7 +1449,10 @@
 
         if (!abort_flag) {
           SERIAL_ECHOLNPAIR("\Tilting mesh point 3/3.\n");
-          ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 3/3"));
+          #if HAS_LCD_MENU
+            ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 3/3"));
+          #endif
+          
           measured_z = probe_pt(PROBE_PT_3_X, PROBE_PT_3_Y, PROBE_PT_STOW, g29_verbose_level);
           //z3 = measured_z;
           if (isnan(measured_z))
@@ -1482,7 +1491,10 @@
 
             if (!abort_flag) {
               SERIAL_ECHOLNPAIR("\Tilting mesh point ", current, "/", total_points, "\n");
-              ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " %u/%u"), (unsigned int)current, (unsigned int)total_points);
+              #if HAS_LCD_MENU
+                ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " %u/%u"), (unsigned int)current, (unsigned int)total_points);
+              #endif
+
               measured_z = probe_pt(rx, ry, parser.seen('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
 
               abort_flag = isnan(measured_z);
