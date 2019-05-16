@@ -126,15 +126,15 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
 
 FORCE_INLINE static void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: NVIC_EnableIRQ(TIMER0_IRQn); // Enable interrupt handler
-    case 1: NVIC_EnableIRQ(TIMER1_IRQn); // Enable interrupt handler
+    case 0: NVIC_EnableIRQ(TIMER0_IRQn); break; // Enable interrupt handler
+    case 1: NVIC_EnableIRQ(TIMER1_IRQn); break; // Enable interrupt handler
   }
 }
 
 FORCE_INLINE static void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: NVIC_DisableIRQ(TIMER0_IRQn); // Disable interrupt handler
-    case 1: NVIC_DisableIRQ(TIMER1_IRQn); // Disable interrupt handler
+    case 0: NVIC_DisableIRQ(TIMER0_IRQn); break; // Disable interrupt handler
+    case 1: NVIC_DisableIRQ(TIMER1_IRQn); break; // Disable interrupt handler
   }
 
   // We NEED memory barriers to ensure Interrupts are actually disabled!
