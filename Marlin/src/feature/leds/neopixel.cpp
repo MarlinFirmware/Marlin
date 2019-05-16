@@ -29,7 +29,6 @@
 #if ENABLED(NEOPIXEL_LED)
 
 #include "neopixel.h"
-#include "leds.h"
 
 #if ENABLED(NEOPIXEL_STARTUP_TEST)
   #include "../../core/utility.h"
@@ -47,9 +46,16 @@ void set_neopixel_color(const uint32_t color) {
   pixels.show();
 }
 
+void set_neopixel_color_startup(const uint32_t color) {
+  for (uint16_t i = 0; i < pixels.numPixels(); ++i)
+    pixels.setPixelColor(i, color);
+  pixels.show();
+}
+
 #ifdef BACKGROUND_NEOPIXEL_LED
-  void set_neopixel_color_background(const uint32_t color) {
-    pixels.setPixelColor(BACKGROUND_NEOPIXEL_LED, color);
+  void set_neopixel_color_background() {
+    uint8_t background_color[4] = BACKGROUND_NEOPIXEL_LED_COLOR;
+    pixels.setPixelColor(BACKGROUND_NEOPIXEL_LED, pixels.Color(background_color[0], background_color[1], background_color[2], background_color[3]));
     pixels.show();
   }
 #endif
@@ -62,12 +68,16 @@ void setup_neopixel() {
 
   #if ENABLED(NEOPIXEL_STARTUP_TEST)
     safe_delay(1000);
-    set_neopixel_color(pixels.Color(255, 0, 0, 0));  // red
+    set_neopixel_color_startup(pixels.Color(255, 0, 0, 0));  // red
     safe_delay(1000);
-    set_neopixel_color(pixels.Color(0, 255, 0, 0));  // green
+    set_neopixel_color_startup(pixels.Color(0, 255, 0, 0));  // green
     safe_delay(1000);
-    set_neopixel_color(pixels.Color(0, 0, 255, 0));  // blue
+    set_neopixel_color_startup(pixels.Color(0, 0, 255, 0));  // blue
     safe_delay(1000);
+  #endif
+
+  #ifdef BACKGROUND_NEOPIXEL_LED
+    set_neopixel_color_background();
   #endif
 
   #if ENABLED(LED_USER_PRESET_STARTUP)
@@ -76,11 +86,6 @@ void setup_neopixel() {
     set_neopixel_color(pixels.Color(0, 0, 0, 0));
   #endif
 
-  #ifdef BACKGROUND_NEOPIXEL_LED
-//    set_neopixel_color_background(MakeLEDColor(255,255,255,255,255));
-    uint8_t background_color[4] = BACKGROUND_NEOPIXEL_LED_COLOR;
-    set_neopixel_color_background(pixels.Color(background_color[0], background_color[1], background_color[2], background_color[3]));
-  #endif
 }
 
 
