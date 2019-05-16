@@ -51,8 +51,8 @@ typedef struct {
 
   uint16_t feedrate;
 
-  #if HOTENDS > 1
-    uint8_t active_hotend;
+  #if EXTRUDERS > 1
+    uint8_t active_extruder;
   #endif
 
   int16_t target_temperature[HOTENDS];
