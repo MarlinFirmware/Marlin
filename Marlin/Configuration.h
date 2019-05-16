@@ -93,7 +93,7 @@
 //#define SHOW_CUSTOM_BOOTSCREEN
 
 // Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
-//#define CUSTOM_STATUS_SCREEN_IMAGE
+#define CUSTOM_STATUS_SCREEN_IMAGE
 
 // @section machine
 
@@ -136,6 +136,21 @@
   #define MOTHERBOARD BOARD_TRIGORILLA_14
   // Only define ANYCUBIC_4MAX in combination with BOARD_TRIGORILLA_14
   #define ANYCUBIC_4MAX
+
+  // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
+  //#define ANYCUBIC_4MAX_VG3R
+  #define ANYCUBIC_4MAX_7OF9
+
+#endif
+
+#if DISABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #error "Default 4MAX settings are set! - ### Define your custom 4MAX setting! ###"
+#elif ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #error "All 4MAX settings are set! - ### Define JUST ONE custom 4MAX setting! ###"
+#elif ENABLED(ANYCUBIC_4MAX_VG3R)
+  //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_VG3R\"" )
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_7OF9\"" )
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -459,21 +474,25 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  // 4MAX with PID Autotune
+  // my 4MAX Printer: vg3r - PID - Hotend
+  #define DEFAULT_Kp 22.2 // Autotune 13.74
+  #define DEFAULT_Ki 1.08 // Autotune 0.72
+  #define DEFAULT_Kd 114  // Autotune 65.85
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // 4MAX with PID Autotune
   // my 4MAX Printer: 7of9 - PID - Hotend
-  //#define DEFAULT_Kp 12.97
-  //#define DEFAULT_Ki 0.72
-  //#define DEFAULT_Kd 58.44
-
-  // my 4MAX Printer: vg3r - PID - Hotend
-  //#define DEFAULT_Kp 13.74
-  //#define DEFAULT_Ki 0.72
-  //#define DEFAULT_Kd 65.85
-
+  #define DEFAULT_Kp 22.2 // Autotune 12.97
+  #define DEFAULT_Ki 1.08 // Autotune 0.72
+  #define DEFAULT_Kd 114  // Autotune 58.44
+#else
   // Default 4MAX
   #define DEFAULT_Kp 22.2
   #define DEFAULT_Ki 1.08
   #define DEFAULT_Kd 114
+#endif
+
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -520,24 +539,26 @@
 
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
-  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 22.20
-  #define DEFAULT_bedKi 1.08
-  #define DEFAULT_bedKd 114.00
-
-  // 4MAX with PID Autotune
-  // my 4MAX Printer: 7of9 - PID - BED
-  //#define DEFAULT_bedKp 266.39
-  //#define DEFAULT_bedKi 51.57
-  //#define DEFAULT_bedKd 344.01
-
-  // 4MAX with PID Autotune
-  // my 4MAX Printer: vg3r - PID - BED
-  //#define DEFAULT_bedKp 213.67
-  //#define DEFAULT_bedKi 42.07
-  //#define DEFAULT_bedKd 271.31
-
+  #if ENABLED(ANYCUBIC_4MAX_VG3R)
+    // 4MAX with PID Autotune
+    // my 4MAX Printer: vg3r - PID - BED
+    #define DEFAULT_bedKp 22.20  // Autotune 213.67
+    #define DEFAULT_bedKi 1.08   // Autotune 42.07
+    #define DEFAULT_bedKd 114.00 // Autotune 271.31
+  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
+    // 4MAX with PID Autotune
+    // my 4MAX Printer: 7of9 - PID - BED
+    #define DEFAULT_bedKp 22.20  // Autotube 266.39
+    #define DEFAULT_bedKi 1.08   // Autotube 51.57
+    #define DEFAULT_bedKd 114.00 // Autotube 344.01
+  #else
+    //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+    //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
+    // Default ANYCUBIC 4MAX
+    #define DEFAULT_bedKp 22.20
+    #define DEFAULT_bedKi 1.08
+    #define DEFAULT_bedKd 114.00
+  #endif
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -726,13 +747,16 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 92.60 }
-
-// my 4MAX Printer: 7of9 - Steps - Filament
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 104.25 }
-
-// my 4MAX Printer: vg3r - Steps - Filament
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 99.46 }
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  // my 4MAX Printer: 7of9 - Steps - Filament
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 104.25 }
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  // my 4MAX Printer: vg3r - Steps - Filament
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 99.46 }
+#else
+  // Default 4MAX
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 92.60 }
+#endif
 
 
 
@@ -912,10 +936,16 @@
 #define X_PROBE_OFFSET_FROM_EXTRUDER 37     // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 0      // Y offset: -front +behind [the nozzle]
 
-// my 4MAX Printer: 7of9 - Offset
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.26  // Z offset: -below +above  [the nozzle]
-// my 4MAX Printer: vg3r - Offset
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -2.50  // Z offset: -below +above  [the nozzle]
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  // my 4MAX Printer: 7of9 - Offset
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -0.24  // Z offset: -below +above  [the nozzle]
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  // my 4MAX Printer: vg3r - Offset
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.50  // Z offset: -below +above  [the nozzle]
+#else
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0      // Z offset: -below +above  [the nozzle]
+#endif
+
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 10
@@ -1038,9 +1068,18 @@
 
 // @section machine
 
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  // vg3r offset from extruder |<--?->|BLTOUCH|
+  #define BLTOUCH_X_MAX_OFFSET 8
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  // 7of9 offset from extruder |<--?->|BLTOUCH|
+  #define BLTOUCH_X_MAX_OFFSET 6
+#else
+  // Default offset from extruder |<--?->|BLTOUCH|
+  #define BLTOUCH_X_MAX_OFFSET 8
+#endif
+
 // The size of the print bed
-#define BLTOUCH_X_MAX_OFFSET 8  // vg3r
-//#define BLTOUCH_X_MAX_OFFSET 6  // 7of9
 #define X_BED_SIZE 215 - BLTOUCH_X_MAX_OFFSET
 #define Y_BED_SIZE 215
 
