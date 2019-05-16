@@ -849,7 +849,7 @@
    * an option on the LCD screen to continue the print from the last-known
    * point in the file.
    */
-  //#define POWER_LOSS_RECOVERY // tested working Mar/25 still results in messed up print but does function
+  #define POWER_LOSS_RECOVERY // tested working Mar/25 still results in messed up print but does function
   #if ENABLED(POWER_LOSS_RECOVERY)
     //#define POWER_LOSS_PIN       69 // Pin to detect power loss (optional)
     //#define POWER_LOSS_STATE     LOW // State of pin indicating power loss
