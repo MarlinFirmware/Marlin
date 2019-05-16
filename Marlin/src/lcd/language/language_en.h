@@ -1462,3 +1462,10 @@
 #ifndef MSG_BACKLASH_SMOOTHING
   #define MSG_BACKLASH_SMOOTHING              _UxGT("Smoothing")
 #endif
+
+#ifndef MSG_LCD_PROBING_MESH
+  #define MSG_LCD_PROBING_MESH              _UxGT("Probing point")
+#endif
+#ifndef MSG_LCD_TILTING_MESH
+  #define MSG_LCD_TILTING_MESH              _UxGT("Tilting point")
+#endif
