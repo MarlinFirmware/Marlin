@@ -185,7 +185,6 @@ void GcodeSuite::M420() {
                   ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
                 #endif
               }
-                
             #if ENABLED(ABL_BILINEAR_SUBDIVISION)
               bed_level_virt_interpolate();
             #endif

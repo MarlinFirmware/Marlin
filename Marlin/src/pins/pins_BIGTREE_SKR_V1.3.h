@@ -28,6 +28,9 @@
   #define BOARD_NAME "BIGTREE SKR V1.3"
 #endif
 
+// Ignore temp readings during develpment.
+//#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+
 //
 // Servos
 //
@@ -177,44 +180,45 @@
 |               EXP2                                              EXP1
 */
 #if ENABLED(ULTRA_LCD)
-  #define BEEPER_PIN        P1_30   // (37) not 5V tolerant
-  #define BTN_ENC           P0_28   // (58) open-drain
+  #define BEEPER_PIN       P1_30   // (37) not 5V tolerant
+  #define BTN_ENC          P0_28   // (58) open-drain
 
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS     P1_22
+    #define LCD_PINS_RS    P1_22
 
-    #define BTN_EN1         P1_18
-    #define BTN_EN2         P1_20
+    #define BTN_EN1        P1_18
+    #define BTN_EN2        P1_20
 
     #define LCD_PINS_ENABLE P1_23
-    #define LCD_PINS_D4     P1_21
+    #define LCD_PINS_D4    P1_21
 
   #else
-    #define LCD_PINS_RS     P1_19
+    #define LCD_PINS_RS    P1_19
 
-    #define BTN_EN1         P3_26   // (31) J3-2 & AUX-4
-    #define BTN_EN2         P3_25   // (33) J3-4 & AUX-4
+    #define BTN_EN1        P3_26   // (31) J3-2 & AUX-4
+    #define BTN_EN2        P3_25   // (33) J3-4 & AUX-4
 
     #define LCD_PINS_ENABLE P1_18
-    #define LCD_PINS_D4     P1_20
+    #define LCD_PINS_D4    P1_20
 
-    #define LCD_SDSS        P0_16   // (16) J3-7 & AUX-4
-    #define SD_DETECT_PIN   P1_31   // (49) (NOT 5V tolerant)
+    #define LCD_SDSS       P0_16   // (16) J3-7 & AUX-4
+    #define SD_DETECT_PIN  P1_31   // (49) (NOT 5V tolerant)
 
     #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_CS     P1_18
-      #define DOGLCD_A0     P1_19
+      #define DOGLCD_CS    P1_18
+      #define DOGLCD_A0    P1_19
+      #define DOGLCD_SCK   P0_15
+      #define DOGLCD_MOSI  P0_18
+      #define FORCE_SOFT_SPI
 
       #define LCD_BACKLIGHT_PIN -1
 
-      #define LCD_RESET_PIN P1_20   // Must be high or open for LCD to operate normally.
-                                    // Seems to work best if left open.
+      #define FORCE_SOFT_SPI      // Use this if default of hardware SPI causes display problems
+                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-      #define FYSETC_MINI_12864_REV_1_2
-      //#define FYSETC_MINI_12864_REV_2_0
-      //#define FYSETC_MINI_12864_REV_2_1
-      #if EITHER(FYSETC_MINI_12864_REV_1_2, FYSETC_MINI_12864_REV_2_0)
-        #define RGB_LED
+      #define LCD_RESET_PIN P1_20   // Must be high or open for LCD to operate normally.
+
+      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN P1_21
         #endif
@@ -224,33 +228,21 @@
         #ifndef RGB_LED_B_PIN
           #define RGB_LED_B_PIN P1_23
         #endif
-      #elif defined(FYSETC_MINI_12864_REV_2_1)
-        #define NEOPIXEL_LED
-        #define NEOPIXEL_TYPE   NEO_GRB  // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-        #define NEOPIXEL_PIN    P1_21    // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
-        #define NEOPIXEL_PIXELS  3       // Number of LEDs in the strip
-        #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-        #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
-        #define NEOPIXEL_STARTUP_TEST    // Cycle through colors at startup
-      #else
-        #error "Either FYSETC_MINI_12864_REV_1_2, FYSETC_MINI_12864_REV_2_0 or FYSETC_MINI_12864_REV_2_1 must be defined"
-      #endif
-
-      #if !defined(LED_USER_PRESET_STARTUP) && EITHER(FYSETC_MINI_12864_REV_2_0, FYSETC_MINI_12864_REV_2_1)
-        #error "LED_USER_PRESET_STARTUP must be enabled when using FYSETC_MINI_12864 REV 2.0 and later"
+      #elif ENABLED(FYSETC_MINI_12864_2_1)
+        #define NEOPIXEL_PIN    P1_21
       #endif
 
     #else // !FYSETC_MINI_12864
 
       #if ENABLED(MKS_MINI_12864)
-        #define DOGLCD_CS     P1_21
-        #define DOGLCD_A0     P1_22
+        #define DOGLCD_CS  P1_21
+        #define DOGLCD_A0  P1_22
       #endif
 
       #if ENABLED(ULTIPANEL)
-        #define LCD_PINS_D5   P1_21
-        #define LCD_PINS_D6   P1_22
-        #define LCD_PINS_D7   P1_23
+        #define LCD_PINS_D5 P1_21
+        #define LCD_PINS_D6 P1_22
+        #define LCD_PINS_D7 P1_23
       #endif
 
     #endif // !FYSETC_MINI_12864

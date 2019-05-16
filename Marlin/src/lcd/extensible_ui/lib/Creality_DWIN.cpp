@@ -1746,4 +1746,34 @@ void onPrinterKilled(PGM_P const msg) {}
 		rtscheck.RTS_SndData(15-(xpos*ypos),AutolevelIcon);
 	};
 
+	void onStoreSettings(char *buff) {
+    // This is called when saving to EEPROM (i.e. M500). If the ExtUI needs
+    // permanent data to be stored, it can write up to eeprom_data_size bytes
+    // into buff.
+
+    // Example:
+    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
+  }
+
+  void onLoadSettings(const char *buff) {
+    // This is called while loading settings from EEPROM. If the ExtUI
+    // needs to retrieve data, it should copy up to eeprom_data_size bytes
+    // from buff
+
+    // Example:
+    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
+  }
+
+  void onConfigurationStoreWritten(bool success) {
+    // This is called after the entire EEPROM has been written,
+    // whether successful or not.
+  }
+
+  void onConfigurationStoreRead(bool success) {
+    // This is called after the entire EEPROM has been read,
+    // whether successful or not.
+}
+
 } // NAMESPACE EXT_UI

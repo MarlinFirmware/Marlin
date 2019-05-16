@@ -46,7 +46,6 @@
   #include "../../lcd/extensible_ui/ui_api.h"
 #endif
 
-
 bool leveling_is_valid() {
   return
     #if ENABLED(MESH_BED_LEVELING)

@@ -49,7 +49,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
- #define Z_MIN_PROBE_PIN   22
+  #define Z_MIN_PROBE_PIN  22
 #endif
 
 #ifndef FIL_RUNOUT_PIN
@@ -59,18 +59,14 @@
   //#define FIL_RUNOUT2_PIN 21  // PB13
 #endif
 
-
 //
 // LED defines
 //
-//#define NEOPIXEL_TYPE   NEO_GRBW  // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-//#define NEOPIXEL_PIN    20        // LED driving pin on motherboard
-//#define NEOPIXEL_PIXELS 3         // Number of LEDs in the strip
-
-
-
-//#define SDA0 20 // PB12 NeoPixel pin I2C data
-//#define SCL0 21 // PB13              I2C clock
+//#define NEOPIXEL_TYPE    NEO_GRBW   // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+//#define NEOPIXEL_PIN     20   // LED driving pin on motherboard
+//#define NEOPIXEL_PIXELS   3   // Number of LEDs in the strip
+//#define SDA0             20   // PB12 NeoPixel pin I2C data
+//#define SCL0             21   // PB13              I2C clock
 
 // D0_12 #REF! (INDICATOR_LED)
 // B28 JTAG-CLK

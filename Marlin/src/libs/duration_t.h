@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include <Arduino.h>
+#include "../HAL/shared/Marduino.h"
 
 struct duration_t {
   /**
