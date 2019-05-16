@@ -85,10 +85,7 @@ void setup_neopixel() {
   #else
     set_neopixel_color(pixels.Color(0, 0, 0, 0));
   #endif
-
 }
-
-
 
 #if 0
 bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p) {
