@@ -74,7 +74,7 @@ void GcodeSuite::G34() {
   do { // break out on error
 
     if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> XY homing required.");
+      SERIAL_ECHOLNPGM("Home XY first");
       break;
     }
 
