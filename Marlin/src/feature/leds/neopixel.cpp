@@ -29,6 +29,7 @@
 #if ENABLED(NEOPIXEL_LED)
 
 #include "neopixel.h"
+#include "leds.h"
 
 #if ENABLED(NEOPIXEL_STARTUP_TEST)
   #include "../../core/utility.h"
