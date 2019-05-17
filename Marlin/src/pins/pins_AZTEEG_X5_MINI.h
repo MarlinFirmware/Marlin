@@ -50,8 +50,12 @@
 #define Y_STOP_PIN         P1_26
 #define Z_STOP_PIN         P1_28
 
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   P2_04
+#endif
+
 #ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN     P2_04
+  #define FILWIDTH_PIN         2   // Analog Input (P0_25)
 #endif
 
 //
