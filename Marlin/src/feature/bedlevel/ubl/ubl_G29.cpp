@@ -737,11 +737,10 @@
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       DEPLOY_PROBE();
 
-      uint16_t count = GRID_MAX_POINTS;
-      uint16_t current = 1;
+      uint16_t count = GRID_MAX_POINTS, current = 1;
 
       do {
-        current = (GRID_MAX_POINTS - count + 1);
+        current = (GRID_MAX_POINTS) - count + 1;
 
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
@@ -758,7 +757,7 @@
             ui.release();
             restore_ubl_active_state_and_leave();
             return;
-        }
+          }
         #endif
 
         if (do_furthest)
