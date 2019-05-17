@@ -138,8 +138,8 @@
   #define ANYCUBIC_4MAX
 
   // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
-  //#define ANYCUBIC_4MAX_VG3R
-  #define ANYCUBIC_4MAX_7OF9
+  #define ANYCUBIC_4MAX_VG3R
+  //#define ANYCUBIC_4MAX_7OF9
 
 #endif
 
@@ -748,11 +748,11 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
-  // my 4MAX Printer: 7of9 - Steps - Filament
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 104.25 }
-#elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: vg3r - Steps - Filament
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 99.46 }
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  // my 4MAX Printer: 7of9 - Steps - Filament
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 104.25 }
 #else
   // Default 4MAX
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 92.60 }
@@ -937,11 +937,11 @@
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 0      // Y offset: -front +behind [the nozzle]
 
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
-  // my 4MAX Printer: 7of9 - Offset
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -0.24  // Z offset: -below +above  [the nozzle]
-#elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: vg3r - Offset
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.50  // Z offset: -below +above  [the nozzle]
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  // my 4MAX Printer: 7of9 - Offset
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -0.24  // Z offset: -below +above  [the nozzle]
 #else
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0      // Z offset: -below +above  [the nozzle]
 #endif
