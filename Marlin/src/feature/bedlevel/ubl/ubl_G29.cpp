@@ -411,7 +411,6 @@
           restore_ubl_active_state_and_leave();
         }
         else { // grid_size == 0 : A 3-Point leveling has been requested
-
           save_ubl_active_state_and_disable();
           tilt_mesh_based_on_probed_grid(true /* true says to do 3-Point leveling */ );
           restore_ubl_active_state_and_leave();
@@ -1408,7 +1407,7 @@
       incremental_LSF_reset(&lsf_results);
 
       if (do_3_pt_leveling) {
-        SERIAL_ECHOLNPAIR("\Tilting mesh point 1/3.\n");
+        SERIAL_ECHOLNPGM("Tilting mesh (1/3)");
         #if HAS_LCD_MENU
           ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 1/3"));
         #endif
@@ -1427,7 +1426,7 @@
         }
 
         if (!abort_flag) {
-          SERIAL_ECHOLNPAIR("\Tilting mesh point 2/3.\n");
+          SERIAL_ECHOLNPGM("Tilting mesh (2/3)");
           #if HAS_LCD_MENU
             ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 2/3"));
           #endif
@@ -1447,7 +1446,7 @@
         }
 
         if (!abort_flag) {
-          SERIAL_ECHOLNPAIR("\Tilting mesh point 3/3.\n");
+          SERIAL_ECHOLNPGM("Tilting mesh (3/3)");
           #if HAS_LCD_MENU
             ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 3/3"));
           #endif
@@ -1472,7 +1471,7 @@
         #endif
 
         if (abort_flag) {
-          SERIAL_ECHOLNPGM("?Error probing point.  Aborting operation.");
+          SERIAL_ECHOLNPGM("?Error probing point. Aborting operation.");
           return;
         }
       }
