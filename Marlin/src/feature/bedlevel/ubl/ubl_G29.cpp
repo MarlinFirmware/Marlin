@@ -1478,8 +1478,7 @@
 
         bool zig_zag = false;
         
-        uint16_t total_points = g29_grid_size * g29_grid_size;
-        uint16_t current = 1;
+        uint16_t total_points = g29_grid_size * g29_grid_size, current = 1;
 
         for (uint8_t ix = 0; ix < g29_grid_size; ix++) {
           const float rx = float(x_min) + ix * dx;
