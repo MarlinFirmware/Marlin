@@ -1488,7 +1488,7 @@
             const float ry = float(y_min) + dy * (zig_zag ? g29_grid_size - 1 - iy : iy);
 
             if (!abort_flag) {
-              SERIAL_ECHOLNPAIR("\Tilting mesh point ", current, "/", total_points, "\n");
+              SERIAL_ECHOLNPAIR("Tilting mesh point ", current, "/", total_points, "\n");
               #if HAS_LCD_MENU
                 ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " %u/%u"), (unsigned int)current, (unsigned int)total_points);
               #endif
