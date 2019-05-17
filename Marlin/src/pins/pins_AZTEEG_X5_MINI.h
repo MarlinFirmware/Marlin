@@ -55,7 +55,7 @@
 #endif
 
 #ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN         2 //P0_25 in Analog Mode
+  #define FILWIDTH_PIN         2   // Analog Input (P0_25)
 #endif
 
 //
