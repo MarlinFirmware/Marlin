@@ -1851,6 +1851,11 @@
    * Too low values can lead to false positives, while too high values will collide the axis without triggering.
    * It is advised to set X/Y/Z_HOME_BUMP_MM to 0.
    * M914 X/Y/Z to live tune the setting
+   *
+   * SPI_ENDSTOPS
+   * Beta feature! TMC2130 only
+   * Poll the driver through SPI to determine load when homing.
+   * Negates the need for a wire from DIAG1 to an endstop pin.
    */
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
 
@@ -1867,6 +1872,8 @@
     #define X_STALL_SENSITIVITY  8
     #define Y_STALL_SENSITIVITY  8
     //#define Z_STALL_SENSITIVITY  8
+
+    //#define SPI_ENDSTOPS
   #endif
 
   /**

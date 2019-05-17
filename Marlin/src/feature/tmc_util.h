@@ -140,6 +140,9 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
           this->stored.homing_thrs = sgt_val;
         #endif
       }
+      #if ENABLED(SPI_ENDSTOPS)
+        bool test_stall_status();
+      #endif
     #endif
 
     #if HAS_LCD_MENU
@@ -366,6 +369,42 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
   bool tmc_enable_stallguard(TMC2660Stepper);
   void tmc_disable_stallguard(TMC2660Stepper, const bool);
+
+  #if ENABLED(SPI_ENDSTOPS)
+
+    template<class TMC, char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    bool TMCMarlin<TMC, AXIS_LETTER, DRIVER_ID, AXIS_ID>::test_stall_status() {
+      uint16_t sg_result = 0;
+
+      this->switchCSpin(LOW);
+
+      if (this->TMC_SW_SPI != NULL) {
+        this->TMC_SW_SPI->transfer(TMC2130_n::DRV_STATUS_t::address);
+        this->TMC_SW_SPI->transfer16(0);
+        // We only care about the last 10 bits
+        sg_result = this->TMC_SW_SPI->transfer(0);
+        sg_result <<= 8;
+        sg_result |= this->TMC_SW_SPI->transfer(0);
+        sg_result &= 0x3FF;
+
+      } else {
+        SPI.beginTransaction(SPISettings(16000000/8, MSBFIRST, SPI_MODE3));
+        // Read DRV_STATUS
+        SPI.transfer(TMC2130_n::DRV_STATUS_t::address);
+        SPI.transfer16(0);
+        // We only care about the last 10 bits
+        sg_result = SPI.transfer(0);
+        sg_result <<= 8;
+        sg_result |= SPI.transfer(0);
+        sg_result &= 0x3FF;
+        SPI.endTransaction();
+      }
+      this->switchCSpin(HIGH);
+
+      if (sg_result == 0) return true;
+      else return false;
+    }
+  #endif
 #endif
 
 #if TMC_HAS_SPI
