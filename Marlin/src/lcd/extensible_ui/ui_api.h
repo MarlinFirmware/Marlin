@@ -61,6 +61,10 @@ namespace ExtUI {
   constexpr uint8_t hotendCount   = HOTENDS;
   constexpr uint8_t fanCount      = FAN_COUNT;
 
+  #if HAS_MESH
+    typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  #endif
+
   bool isMoving();
   bool isAxisPositionKnown(const axis_t);
   bool isPositionKnown(); // Axis position guaranteed, steppers active since homing
@@ -122,9 +126,8 @@ namespace ExtUI {
   #if HAS_LEVELING
     bool getLevelingActive();
     void setLevelingActive(const bool);
+    bool getMeshValid();
     #if HAS_MESH
-      #include "../../feature/bedlevel/bedlevel.h"
-      bool getMeshValid();
       bed_mesh_t getMeshArray();
       float getMeshPoint(const uint8_t xpos, const uint8_t ypos);
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
