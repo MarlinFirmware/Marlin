@@ -60,35 +60,10 @@ char commandbuf[30];
   void onStartup() {
 		Serial2.begin(115200);
 		LanguageRecbuf = 0; //Force language to English, 1=Chinese but currently not implemented
-		int showcount = 0;
 
 		rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
 		rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
 		memset(rtscheck.databuf,0, sizeof(rtscheck.databuf));
-
-		#if HAS_MESH && (ENABLED(MachineCR10SPro) || ENABLED(Force10SProDisplay))
-			if (ExtUI::getMeshValid())
-			{
-				//bed_mesh_t bedMesh = ExtUI::getMeshArray();
-				for(int xCount = 0; xCount < GRID_MAX_POINTS_X; xCount++)
-				{
-					for(int yCount = 0; yCount < GRID_MAX_POINTS_X; yCount++)
-					{
-						if((showcount++) < 16)
-						{
-							rtscheck.RTS_SndData(getMeshPoint(xCount, yCount) *10000, AutolevelVal + (15-showcount-1)*2);
-							rtscheck.RTS_SndData(showcount,AutolevelIcon);
-						}
-					}
-				}
-				rtscheck.RTS_SndData(2, AutoLevelIcon); //On
-				enqueueCommands_P((PSTR("M420 S1"))); // Enable Bed leveling if mesh found and valid
-			}
-			else 
-			{
-				rtscheck.RTS_SndData(3, AutoLevelIcon); //Off
-			}
-		#endif
 	
 		//VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
 		//if(VolumeSet < 0 || VolumeSet > 0xFF)
@@ -147,9 +122,6 @@ char commandbuf[30];
 			rtscheck.RTS_SndData(10,FilenameIcon+j);
 			rtscheck.RTS_SndData(10,FilenameIcon1+j);
 		}
-		
-		SERIAL_ECHOLNPAIR("\n init zprobe_zoffset = ",getZOffset_mm());
-		rtscheck.RTS_SndData(getZOffset_mm()*100, 0x1026);
 		
 		SERIAL_ECHOLN("==Dwin Init Complete==");
   }
@@ -847,7 +819,6 @@ SERIAL_ECHO(Checkkey);
 			#endif
 			
 			resumePrint();
-			FilementStatus[1] = 2;
 			
 			PrinterStatusKey[1] = 0;
 			InforShowStatus = true;
@@ -865,7 +836,6 @@ SERIAL_ECHO(Checkkey);
 			InforShowStatus = true;
 			setTargetTemp_celsius((float)temphot, H0);
 			startprogress  = 0;
-			FilementStatus[1] = 2;
 			RTS_SndData(ExchangePageBase + 82, ExchangepageAddr); 
 		}
 		break;
@@ -1701,6 +1671,7 @@ void onPrinterKilled(PGM_P const msg) {}
   void onMediaRemoved() {};
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() {
+		SERIAL_ECHOLN("==onPrintTimerStarted==");
     #if ENABLED(POWER_LOSS_RECOVERY)
 			if(PoweroffContinue)
 			{
@@ -1709,44 +1680,49 @@ void onPrinterKilled(PGM_P const msg) {}
 					enqueue_and_echo_commands_P((PSTR("G28 X0 Y0")));
 			}
 		#endif
-		if(PrinterStatusKey[1] == 3)
-		{
-			PrinterStatusKey[1] = 0;
-			InforShowStatus = true;	
-			rtscheck.RTS_SndData(2+CEIconGrap,IconPrintstatus);	
-			delay(1);
-			rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-			CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
-			FilementStatus[1] = 1; 	//begin to check filement status.
-			//SERIAL_ECHOPAIR("\n ***M109 Status[1] =",FilementStatus[1]);
-		}
-		//SERIAL_ECHOPAIR("\n ***PrinterStatusKey[1] =",PrinterStatusKey[1]);
+		PrinterStatusKey[1] = 3;
+		InforShowStatus = true;	
+		rtscheck.RTS_SndData(4+CEIconGrap,IconPrintstatus);	
+		delay(10);
+		rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
+		CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
 	}
 	
   void onPrintTimerPaused() {
+		SERIAL_ECHOLN("==onPrintTimerPaused==");
 		rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr); //Display Pause Screen
 	}
-  void onPrintTimerStopped() {}
+  void onPrintTimerStopped() {
+		SERIAL_ECHOLN("==onPrintTimerStopped==");
+	}
   void onFilamentRunout() {
+		SERIAL_ECHOLN("==onFilamentRunout==");
 		waitway = 5;		//reject to receive cmd and jump to the corresponding page
 		PrintStatue[1] = 1;	// for returning the corresponding page
 		Checkfilenum=0;
-		FilementStatus[1] = 0;
 		PrinterStatusKey[1] = 4;		
 		TPShowStatus = false;
 	}
-	void onFilamentRunout(extruder_t extruder) {}
-  void onUserConfirmRequired(const char * const msg) {}
+	void onFilamentRunout(extruder_t extruder) {
+		SERIAL_ECHOLN("==onFilamentRunout==");
+		}
+  void onUserConfirmRequired(const char * const msg) {
+		SERIAL_ECHOLN("==onUserConfirmRequired==");
+		}
   void onStatusChanged(const char * const msg) {}
-  void onFactoryReset() {}
-  void onLoadSettings() {}
-  void onStoreSettings() {}
+  void onFactoryReset() {
+		SERIAL_ECHOLN("==onFactoryReset==");
+	}
 	void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval) {
+		SERIAL_ECHOLNPAIR("==onMeshUpdate X ==", xpos);
+		SERIAL_ECHOLNPAIR("==onMeshUpdate Y ==", ypos);
+		SERIAL_ECHOLNPAIR("==onMeshUpdate Z ==", zval);
 		rtscheck.RTS_SndData(zval *10000, AutolevelVal + (15-(xpos*ypos)-1)*2);
 		rtscheck.RTS_SndData(15-(xpos*ypos),AutolevelIcon);
 	};
 
 	void onStoreSettings(char *buff) {
+		SERIAL_ECHOLN("==onStoreSettings==");
     // This is called when saving to EEPROM (i.e. M500). If the ExtUI needs
     // permanent data to be stored, it can write up to eeprom_data_size bytes
     // into buff.
@@ -1757,6 +1733,7 @@ void onPrinterKilled(PGM_P const msg) {}
   }
 
   void onLoadSettings(const char *buff) {
+		SERIAL_ECHOLN("==onLoadSettings==");
     // This is called while loading settings from EEPROM. If the ExtUI
     // needs to retrieve data, it should copy up to eeprom_data_size bytes
     // from buff
@@ -1767,11 +1744,43 @@ void onPrinterKilled(PGM_P const msg) {}
   }
 
   void onConfigurationStoreWritten(bool success) {
+		SERIAL_ECHOLN("==onConfigurationStoreWritten==");
     // This is called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
   void onConfigurationStoreRead(bool success) {
+		SERIAL_ECHOLN("==onConfigurationStoreRead==");
+		#if HAS_MESH && (ENABLED(MachineCR10SPro) || ENABLED(Force10SProDisplay))
+			if (ExtUI::getMeshValid())
+			{
+				int showcount = 0;
+				//bed_mesh_t bedMesh = ExtUI::getMeshArray();
+				for(int xCount = 0; xCount < GRID_MAX_POINTS_X; xCount++)
+				{
+					for(int yCount = 0; yCount < GRID_MAX_POINTS_X; yCount++)
+					{
+						if((showcount++) < 16)
+						{
+							rtscheck.RTS_SndData(getMeshPoint(xCount, yCount) *10000, AutolevelVal + (15-showcount-1)*2);
+							rtscheck.RTS_SndData(showcount,AutolevelIcon);
+						}
+					}
+				}
+				rtscheck.RTS_SndData(2, AutoLevelIcon); //On
+				enqueueCommands_P((PSTR("M420 S1"))); // Enable Bed leveling if mesh found and valid
+			}
+			else 
+			{
+				rtscheck.RTS_SndData(3, AutoLevelIcon); //OffM75
+				
+			}
+		#endif
+
+		
+		SERIAL_ECHOLNPAIR("\n init zprobe_zoffset = ",getZOffset_mm());
+		rtscheck.RTS_SndData(getZOffset_mm()*100, 0x1026);
+
     // This is called after the entire EEPROM has been read,
     // whether successful or not.
 }

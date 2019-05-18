@@ -56,7 +56,7 @@ namespace ExtUI {
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5 };
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5 };
-  
+
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
   constexpr uint8_t fanCount      = FAN_COUNT;
@@ -64,7 +64,7 @@ namespace ExtUI {
   #if HAS_MESH
     typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   #endif
-  
+
   bool isMoving();
   bool isAxisPositionKnown(const axis_t);
   bool isPositionKnown(); // Axis position guaranteed, steppers active since homing

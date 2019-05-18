@@ -1053,6 +1053,10 @@ void setup() {
     fanmux_init();
   #endif
 
+  #if HAS_TRINAMIC && HAS_LCD_MENU
+    init_tmc_section();
+  #endif
+
   #if ENABLED(MIXING_EXTRUDER)
     mixer.init();
   #endif
