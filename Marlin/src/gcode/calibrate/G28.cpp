@@ -229,13 +229,14 @@ void GcodeSuite::G28(const bool always_home_all) {
     slow_homing_t slow_homing { 0 };
     slow_homing.acceleration.x = planner.settings.max_acceleration_mm_per_s2[X_AXIS];
     slow_homing.acceleration.y = planner.settings.max_acceleration_mm_per_s2[Y_AXIS];
-    slow_homing.jerk.x = planner.max_jerk[X_AXIS];
-    slow_homing.jerk.y = planner.max_jerk[Y_AXIS];
-
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
-    planner.max_jerk[X_AXIS] = 0;
-    planner.max_jerk[Y_AXIS] = 0;
+    #if HAS_CLASSIC_JERK
+      slow_homing.jerk.x = planner.max_jerk[X_AXIS];
+      slow_homing.jerk.y = planner.max_jerk[Y_AXIS];
+      planner.max_jerk[X_AXIS] = 0;
+      planner.max_jerk[Y_AXIS] = 0;
+    #endif
 
     planner.reset_acceleration_rates();
   #endif
@@ -442,8 +443,10 @@ void GcodeSuite::G28(const bool always_home_all) {
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
-    planner.max_jerk[X_AXIS] = slow_homing.jerk.x;
-    planner.max_jerk[Y_AXIS] = slow_homing.jerk.y;
+    #if HAS_CLASSIC_JERK
+      planner.max_jerk[X_AXIS] = slow_homing.jerk.x;
+      planner.max_jerk[Y_AXIS] = slow_homing.jerk.y;
+    #endif
 
     planner.reset_acceleration_rates();
   #endif

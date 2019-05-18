@@ -368,7 +368,9 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
     struct slow_homing_t {
       struct { uint32_t x, y; } acceleration;
-      struct { float x, y; } jerk;
+      #if HAS_CLASSIC_JERK
+        struct { float x, y; } jerk;
+      #endif
     };
   #endif
 
