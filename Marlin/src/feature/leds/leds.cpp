@@ -89,11 +89,8 @@ void LEDLights::set_color(const LEDColor &incol
                             : pixels.Color(incol.r, incol.g, incol.b, incol.w);
     static uint16_t nextLed = 0;
 
-    #ifdef BACKGROUND_NEOPIXEL_LED_INDEX
-      if (BACKGROUND_NEOPIXEL_LED_INDEX == nextLed) {
-        nextLed++;
-        return;
-      }
+    #ifdef NEOPIXEL_BKGD_LED_INDEX
+      if (NEOPIXEL_BKGD_LED_INDEX == nextLed) { nextLed++; return; }
     #endif
     pixels.setBrightness(incol.i);
     if (!isSequence)

@@ -38,8 +38,8 @@ Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ8
 
 void set_neopixel_color(const uint32_t color) {
   for (uint16_t i = 0; i < pixels.numPixels(); ++i) {
-    #ifdef BACKGROUND_NEOPIXEL_LED_INDEX
-      if (BACKGROUND_NEOPIXEL_LED_INDEX == i) i++;
+    #ifdef NEOPIXEL_BKGD_LED_INDEX
+      if (NEOPIXEL_BKGD_LED_INDEX == i) i++;
     #endif
     pixels.setPixelColor(i, color);
   }
@@ -52,10 +52,10 @@ void set_neopixel_color_startup(const uint32_t color) {
   pixels.show();
 }
 
-#ifdef BACKGROUND_NEOPIXEL_LED_INDEX
+#ifdef NEOPIXEL_BKGD_LED_INDEX
   void set_neopixel_color_background() {
-    uint8_t background_color[4] = BACKGROUND_NEOPIXEL_LED_INDEX_COLOR;
-    pixels.setPixelColor(BACKGROUND_NEOPIXEL_LED_INDEX, pixels.Color(background_color[0], background_color[1], background_color[2], background_color[3]));
+    uint8_t background_color[4] = NEOPIXEL_BKGD_COLOR;
+    pixels.setPixelColor(NEOPIXEL_BKGD_LED_INDEX, pixels.Color(background_color[0], background_color[1], background_color[2], background_color[3]));
     pixels.show();
   }
 #endif
@@ -76,7 +76,7 @@ void setup_neopixel() {
     safe_delay(1000);
   #endif
 
-  #ifdef BACKGROUND_NEOPIXEL_LED_INDEX
+  #ifdef NEOPIXEL_BKGD_LED_INDEX
     set_neopixel_color_background();
   #endif
 
