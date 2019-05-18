@@ -1488,7 +1488,7 @@
             if (!abort_flag) {
               SERIAL_ECHOLNPAIR("Tilting mesh point ", current, "/", total_points, "\n");
               #if HAS_LCD_MENU
-                ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " %u/%u"), (unsigned int)current, (unsigned int)total_points);
+                ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " %i/%i"), current, total_points);
               #endif
 
               measured_z = probe_pt(rx, ry, parser.seen('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
