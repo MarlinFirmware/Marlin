@@ -247,6 +247,12 @@
 #ifndef MSG_UBL_LEVEL_BED
   #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
 #endif
+#ifndef MSG_LCD_PROBING_MESH
+  #define MSG_LCD_PROBING_MESH                _UxGT("Probing point")
+#endif
+#ifndef MSG_LCD_TILTING_MESH
+  #define MSG_LCD_TILTING_MESH                _UxGT("Tilting point")
+#endif
 #ifndef MSG_IDEX_MENU
   #define MSG_IDEX_MENU                       _UxGT("IDEX Mode")
 #endif
@@ -911,6 +917,9 @@
 #endif
 #ifndef MSG_BLTOUCH_OD_MODE
   #define MSG_BLTOUCH_OD_MODE                 _UxGT("BLTouch OD Mode")
+#endif
+#ifndef MSG_BLTOUCH_MODE_STORE
+  #define MSG_BLTOUCH_MODE_STORE              _UxGT("BLTouch Mode Store")
 #endif
 #ifndef MSG_BLTOUCH_STOW
   #define MSG_BLTOUCH_STOW                    _UxGT("Stow BLTouch")

@@ -116,5 +116,7 @@
   #define THERMISTOR_NAME "Dummy 1"
 #elif THERMISTOR_ID == 999
   #define THERMISTOR_NAME "Dummy 2"
+#elif THERMISTOR_ID == 1000
+  #define THERMISTOR_NAME "Custom"
 
 #endif // THERMISTOR_ID
