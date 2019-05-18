@@ -2716,7 +2716,7 @@ void Temperature::isr() {
           }
         }
         if (ADCKey_count == 16) is_ADCKey_held_down = true;
-      break;
+        break;
     #endif // ADC_KEYPAD
 
     case StartupDelay: break;
