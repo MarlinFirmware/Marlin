@@ -293,10 +293,6 @@ void MarlinUI::init() {
   #if HAS_ENCODER_ACTION
     encoderDiff = 0;
   #endif
-
-  #if HAS_TRINAMIC && HAS_LCD_MENU
-    init_tmc_section();
-  #endif
 }
 
 bool MarlinUI::get_blink() {

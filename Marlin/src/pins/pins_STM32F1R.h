@@ -92,9 +92,9 @@
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN       PA0   // ANALOG NUMBERING
-#define TEMP_0_PIN         PA1   // ANALOG NUMBERING
-#define TEMP_1_PIN         PA2   // ANALOG NUMBERING
+#define TEMP_BED_PIN       PA0   // Analog Input
+#define TEMP_0_PIN         PA1   // Analog Input
+#define TEMP_1_PIN         PA2   // Analog Input
 
 //
 // LCD Pins

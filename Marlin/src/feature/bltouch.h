@@ -30,6 +30,7 @@ typedef unsigned char BLTCommand;
 #define BLTOUCH_SW_MODE         60
 #define BLTOUCH_STOW            90
 #define BLTOUCH_SELFTEST       120
+#define BLTOUCH_MODE_STORE     130
 #define BLTOUCH_5V_MODE        140
 #define BLTOUCH_OD_MODE        150
 #define BLTOUCH_RESET          160
@@ -50,6 +51,9 @@ typedef unsigned char BLTCommand;
 #endif
 #ifndef BLTOUCH_SETOD_DELAY
   #define BLTOUCH_SETOD_DELAY   BLTOUCH_DELAY
+#endif
+#ifndef BLTOUCH_MODE_STORE_DELAY
+  #define BLTOUCH_MODE_STORE_DELAY   BLTOUCH_DELAY
 #endif
 #ifndef BLTOUCH_DEPLOY_DELAY
   #define BLTOUCH_DEPLOY_DELAY   750
@@ -77,8 +81,11 @@ public:
   FORCE_INLINE static void _selftest()           { command(BLTOUCH_SELFTEST, BLTOUCH_DELAY); }
 
   FORCE_INLINE static void _set_SW_mode()        { command(BLTOUCH_SW_MODE, BLTOUCH_DELAY); }
+  FORCE_INLINE static void _reset_SW_mode()      { if (triggered()) _stow(); else _deploy(); }
+
   FORCE_INLINE static void _set_5V_mode()        { command(BLTOUCH_5V_MODE, BLTOUCH_SET5V_DELAY); }
   FORCE_INLINE static void _set_OD_mode()        { command(BLTOUCH_OD_MODE, BLTOUCH_SETOD_DELAY); }
+  FORCE_INLINE static void _mode_store()         { command(BLTOUCH_MODE_STORE, BLTOUCH_MODE_STORE_DELAY); }
 
   FORCE_INLINE static void _deploy()             { command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
   FORCE_INLINE static void _stow()               { command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }

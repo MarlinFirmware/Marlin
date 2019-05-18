@@ -725,8 +725,8 @@ namespace ExtUI {
   #if HAS_LEVELING
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
+    bool getMeshValid() { return leveling_is_valid(); }
     #if HAS_MESH
-      bool getMeshValid() { return leveling_is_valid(); }
       bed_mesh_t getMeshArray() { return Z_VALUES_ARR; }
       float getMeshPoint(const uint8_t xpos, const uint8_t ypos) { return Z_VALUES(xpos,ypos); }
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zoff) {

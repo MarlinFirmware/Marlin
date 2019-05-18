@@ -2327,10 +2327,10 @@ void Stepper::report_positions() {
     #define _SAVE_START NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0
       #define _PULSE_WAIT DELAY_NS(EXTRA_CYCLES_BABYSTEP * NANOSECONDS_PER_CYCLE)
-    #elif STEP_PULSE_CYCLES > 0
-      #define _PULSE_WAIT NOOP
     #elif ENABLED(DELTA)
       #define _PULSE_WAIT DELAY_US(2);
+    #elif STEP_PULSE_CYCLES > 0
+      #define _PULSE_WAIT NOOP
     #else
       #define _PULSE_WAIT DELAY_US(4);
     #endif
