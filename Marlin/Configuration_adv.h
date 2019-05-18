@@ -428,7 +428,7 @@
   #endif
 #endif
 
-#define Y_DUAL_STEPPER_DRIVERS
+//#define Y_DUAL_STEPPER_DRIVERS
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
   #define INVERT_Y2_VS_Y_DIR true   // Set 'true' if Y motors should rotate in opposite directions
   //#define Y_DUAL_ENDSTOPS
@@ -438,7 +438,7 @@
   #endif
 #endif
 
-#define Z_DUAL_STEPPER_DRIVERS
+//#define Z_DUAL_STEPPER_DRIVERS
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
   //#define Z_DUAL_ENDSTOPS
   #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -1798,14 +1798,14 @@
  */
 #if HAS_L64XX
 
-  #define L6470_CHITCHAT        // Display additional status info
+  //#define L6470_CHITCHAT        // Display additional status info
 
   #if AXIS_IS_L64XX(X)
     #define X_MICROSTEPS     128  // Number of microsteps (VALID: 1, 2, 4, 8, 16, 32, 128)
     #define X_OVERCURRENT   2000  // (mA) Current where the driver detects an over current (VALID: 375 x (1 - 16) - 6A max - rounds down)
     #define X_STALLCURRENT  1500  // (mA) Current where the driver detects a stall (VALID: 31.25 * (1-128) -  4A max - rounds down)
     #define X_MAX_VOLTAGE    127  // 0-255, Maximum effective voltage seen by stepper
-    #define X_CHAIN_POS        1  // Position in SPI chain, 0=Not in chain, 1=Nearest MOSI
+    #define X_CHAIN_POS        0  // Position in SPI chain, 0=Not in chain, 1=Nearest MOSI
     #define X_SLEW_RATE        1  // 0-3, Slew 0 is slowest, 3 is fastest
   #endif
 
@@ -1823,7 +1823,7 @@
     #define Y_OVERCURRENT   2000
     #define Y_STALLCURRENT  1500
     #define Y_MAX_VOLTAGE    127
-    #define Y_CHAIN_POS        2
+    #define Y_CHAIN_POS        0
     #define Y_SLEW_RATE        1
   #endif
 
@@ -1832,7 +1832,7 @@
     #define Y2_OVERCURRENT  2000
     #define Y2_STALLCURRENT 1500
     #define Y2_MAX_VOLTAGE   127
-    #define Y2_CHAIN_POS       3
+    #define Y2_CHAIN_POS       0
     #define Y2_SLEW_RATE       1
   #endif
 
@@ -1841,7 +1841,7 @@
     #define Z_OVERCURRENT   2000
     #define Z_STALLCURRENT  1500
     #define Z_MAX_VOLTAGE    127
-    #define Z_CHAIN_POS        4
+    #define Z_CHAIN_POS        0
     #define Z_SLEW_RATE        1
   #endif
 
@@ -1850,7 +1850,7 @@
     #define Z2_OVERCURRENT  2000
     #define Z2_STALLCURRENT 1500
     #define Z2_MAX_VOLTAGE   127
-    #define Z2_CHAIN_POS       5
+    #define Z2_CHAIN_POS       0
     #define Z2_SLEW_RATE       1
   #endif
 
@@ -1868,7 +1868,7 @@
     #define E0_OVERCURRENT  2000
     #define E0_STALLCURRENT 1500
     #define E0_MAX_VOLTAGE   127
-    #define E0_CHAIN_POS       6
+    #define E0_CHAIN_POS       0
     #define E0_SLEW_RATE       1
   #endif
 
