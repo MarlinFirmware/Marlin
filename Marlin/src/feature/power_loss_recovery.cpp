@@ -170,8 +170,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     #endif
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
 
-    #if HOTENDS > 1
-      info.active_hotend = active_extruder;
+    #if EXTRUDERS > 1
+      info.active_extruder = active_extruder;
     #endif
 
     HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
@@ -282,7 +282,7 @@ void PrintJobRecovery::resume() {
 
   // Select the previously active tool (with no_move)
   #if EXTRUDERS > 1
-    sprintf_P(cmd, PSTR("T%i S"), info.active_hotend);
+    sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
     gcode.process_subcommands_now(cmd);
   #endif
 
@@ -443,8 +443,8 @@ void PrintJobRecovery::resume() {
 
         DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
 
-        #if HOTENDS > 1
-          DEBUG_ECHOLNPAIR("active_hotend: ", int(info.active_hotend));
+        #if EXTRUDERS > 1
+          DEBUG_ECHOLNPAIR("active_extruder: ", int(info.active_extruder));
         #endif
 
         DEBUG_ECHOPGM("target_temperature: ");

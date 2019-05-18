@@ -146,19 +146,16 @@ bool BLTouch::status_proc() {
   /**
    * Return a TRUE for "YES, it is DEPLOYED"
    * This function will ensure switch state is reset after execution
-   * This may change pin position in some scenarios, specifically
-   * if the pin has been triggered but not yet stowed.
    */
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("BLTouch STATUS requested");
 
-  _set_SW_mode();
+  _set_SW_mode();              // Incidentally, _set_SW_mode() will also RESET any active alarm
   const bool tr = triggered(); // If triggered in SW mode, the pin is up, it is STOWED
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch is ", (int)tr);
 
-  _reset();                         // turn off the SW Mode
-  if (tr) _stow(); else _deploy();  // and reset any triggered signal, restore state
+  if (tr) _stow(); else _deploy();  // Turn off SW mode, reset any trigger, honor pin state
   return !tr;
 }
 

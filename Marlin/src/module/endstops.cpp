@@ -465,8 +465,7 @@ void _O2 Endstops::M119() {
     #endif
   #endif
   #if ENABLED(BLTOUCH)
-    bltouch._reset();
-    if (enabled_globally) bltouch._stow();
+    bltouch._reset_SW_mode();
   #endif
 } // Endstops::M119
 

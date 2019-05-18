@@ -181,6 +181,7 @@ static void lcd_factory_settings() {
     MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
     MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch._set_5V_mode);
     MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch._set_OD_mode);
+    MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
     END_MENU();
   }
 
