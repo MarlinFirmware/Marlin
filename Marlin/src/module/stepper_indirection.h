@@ -85,6 +85,7 @@
 #if HAS_L64XX
   #include "../libs/L6470/L6470_Marlin.h"
   #define L6470_WRITE_DIR_COMMAND(STATE,Q) do{ L64xx_MARLIN.dir_commands[Q] = (STATE ?  dSPIN_STEP_CLOCK_REV : dSPIN_STEP_CLOCK_FWD); }while(0)
+  #define L64XX_CLASS(ST) ST##_DRIVER_TYPE
 #endif
 
 void restore_stepper_drivers();  // Called by PSU_ON
@@ -92,14 +93,12 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 class no_class { };
 
-extern AXIS_CLASS_X stepperX;
-extern AXIS_CLASS_Y stepperY;
-extern AXIS_CLASS_Z stepperZ;
 
 // X Stepper
 #if AXIS_IS_L64XX(X)
+  extern L64XX_CLASS(X) stepperX;
   #define X_ENABLE_INIT NOOP
-  #define X_ENABLE_WRITE(STATE) NOOP
+  #define X_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperX.free())
   #define X_ENABLE_READ (stepperX.getStatus() & STATUS_HIZ)
   #define X_DIR_INIT NOOP
   #define X_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,X)
@@ -128,8 +127,9 @@ extern AXIS_CLASS_Z stepperZ;
 
 // Y Stepper
 #if AXIS_IS_L64XX(Y)
+  extern L64XX_CLASS(Y) stepperY;
   #define Y_ENABLE_INIT NOOP
-  #define Y_ENABLE_WRITE(STATE) NOOP
+  #define Y_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperY.free())
   #define Y_ENABLE_READ (stepperY.getStatus() & STATUS_HIZ)
   #define Y_DIR_INIT NOOP
   #define Y_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Y)
@@ -158,8 +158,9 @@ extern AXIS_CLASS_Z stepperZ;
 
 // Z Stepper
 #if AXIS_IS_L64XX(Z)
+  extern L64XX_CLASS(Z) stepperZ;
   #define Z_ENABLE_INIT NOOP
-  #define Z_ENABLE_WRITE(STATE) NOOP
+  #define Z_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperZ.free())
   #define Z_ENABLE_READ (stepperZ.getStatus() & STATUS_HIZ)
   #define Z_DIR_INIT NOOP
   #define Z_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Z)
@@ -188,10 +189,10 @@ extern AXIS_CLASS_Z stepperZ;
 
 // X2 Stepper
 #if HAS_X2_ENABLE
-  extern AXIS_CLASS_X2 stepperX2;
   #if AXIS_IS_L64XX(X2)
+    extern L64XX_CLASS(X2) stepperX2;
     #define X2_ENABLE_INIT NOOP
-    #define X2_ENABLE_WRITE(STATE) NOOP
+    #define X2_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperX2.free())
     #define X2_ENABLE_READ (stepperX2.getStatus() & STATUS_HIZ)
     #define X2_DIR_INIT NOOP
     #define X2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,X2)
@@ -221,10 +222,10 @@ extern AXIS_CLASS_Z stepperZ;
 
 // Y2 Stepper
 #if HAS_Y2_ENABLE
-  extern AXIS_CLASS_Y2 stepperY2;
   #if AXIS_IS_L64XX(Y2)
+    extern L64XX_CLASS(Y2) stepperY2;
     #define Y2_ENABLE_INIT NOOP
-    #define Y2_ENABLE_WRITE(STATE) NOOP
+    #define Y2_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperY2.free())
     #define Y2_ENABLE_READ (stepperY2.getStatus() & STATUS_HIZ)
     #define Y2_DIR_INIT NOOP
     #define Y2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Y2)
@@ -256,10 +257,10 @@ extern AXIS_CLASS_Z stepperZ;
 
 // Z2 Stepper
 #if HAS_Z2_ENABLE
-  extern AXIS_CLASS_Z2 stepperZ2;
   #if AXIS_IS_L64XX(Z2)
+    extern L64XX_CLASS(Z2) stepperZ2;
     #define Z2_ENABLE_INIT NOOP
-    #define Z2_ENABLE_WRITE(STATE) NOOP
+    #define Z2_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperZ2.free())
     #define Z2_ENABLE_READ (stepperZ2.getStatus() & STATUS_HIZ)
     #define Z2_DIR_INIT NOOP
     #define Z2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Z2)
@@ -291,10 +292,10 @@ extern AXIS_CLASS_Z stepperZ;
 
 // Z3 Stepper
 #if HAS_Z3_ENABLE
-  extern AXIS_CLASS_Z3 stepperZ3;
   #if AXIS_IS_L64XX(Z3)
+    extern L64XX_CLASS(Z3) stepperZ3;
     #define Z3_ENABLE_INIT NOOP
-    #define Z3_ENABLE_WRITE(STATE) NOOP
+    #define Z3_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperZ3.free())
     #define Z3_ENABLE_READ (stepperZ3.getStatus() & STATUS_HIZ)
     #define Z3_DIR_INIT NOOP
     #define Z3_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,Z3)
@@ -326,10 +327,10 @@ extern AXIS_CLASS_Z stepperZ;
 
 // E0 Stepper
 #if HAS_E0_ENABLE
-  extern AXIS_CLASS_E0 stepperE0;
   #if AXIS_IS_L64XX(E0)
+    extern L64XX_CLASS(E0) stepperE0;
     #define E0_ENABLE_INIT NOOP
-    #define E0_ENABLE_WRITE(STATE) NOOP
+    #define E0_ENABLE_WRITE(STATE)  (STATE ? NOOP : stepperE0.free())
     #define E0_ENABLE_READ (stepperE0.getStatus() & STATUS_HIZ)
     #define E0_DIR_INIT NOOP
     #define E0_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E0)
@@ -359,10 +360,10 @@ extern AXIS_CLASS_Z stepperZ;
 
 // E1 Stepper
 #if HAS_E1_ENABLE
-  extern AXIS_CLASS_E1 stepperE1;
   #if AXIS_IS_L64XX(E1)
+    extern L64XX_CLASS(E1) stepperE1;
     #define E1_ENABLE_INIT NOOP
-    #define E1_ENABLE_WRITE(STATE) NOOP
+    #define E1_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperE1.free())
     #define E1_ENABLE_READ (stepperE1.getStatus() & STATUS_HIZ)
     #define E1_DIR_INIT NOOP
     #define E1_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E1)
@@ -392,10 +393,10 @@ extern AXIS_CLASS_Z stepperZ;
 
 // E2 Stepper
 #if HAS_E2_ENABLE
-  extern AXIS_CLASS_E2 stepperE2;
   #if AXIS_IS_L64XX(E2)
+    extern L64XX_CLASS(E2) stepperE2;
     #define E2_ENABLE_INIT NOOP
-    #define E2_ENABLE_WRITE(STATE) NOOP
+    #define E2_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperE2.free())
     #define E2_ENABLE_READ (stepperE2.getStatus() & STATUS_HIZ)
     #define E2_DIR_INIT NOOP
     #define E2_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E2)
@@ -425,10 +426,10 @@ extern AXIS_CLASS_Z stepperZ;
 
 // E3 Stepper
 #if HAS_E3_ENABLE
-  extern AXIS_CLASS_E3 stepperE3;
   #if AXIS_IS_L64XX(E3)
+    extern L64XX_CLASS(E3) stepperE3;
     #define E3_ENABLE_INIT NOOP
-    #define E3_ENABLE_WRITE(STATE) NOOP
+    #define E3_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperE3.free())
     #define E3_ENABLE_READ (stepperE3.getStatus() & STATUS_HIZ)
     #define E3_DIR_INIT NOOP
     #define E3_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E3)
@@ -458,10 +459,10 @@ extern AXIS_CLASS_Z stepperZ;
 
 // E4 Stepper
 #if HAS_E4_ENABLE
-  extern AXIS_CLASS_E4 stepperE4;
   #if AXIS_IS_L64XX(E4)
+    extern L64XX_CLASS(E4) stepperE4;
     #define E4_ENABLE_INIT NOOP
-    #define E4_ENABLE_WRITE(STATE) NOOP
+    #define E4_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperE4.free())
     #define E4_ENABLE_READ (stepperE4.getStatus() & STATUS_HIZ)
     #define E4_DIR_INIT NOOP
     #define E4_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E4)
@@ -491,10 +492,10 @@ extern AXIS_CLASS_Z stepperZ;
 
 // E5 Stepper
 #if HAS_E5_ENABLE
-  extern AXIS_CLASS_E5 stepperE5;
   #if AXIS_IS_L64XX(E5)
+    extern L64XX_CLASS(E5) stepperE5;
     #define E5_ENABLE_INIT NOOP
-    #define E5_ENABLE_WRITE(STATE) NOOP
+    #define E5_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperE5.free())
     #define E5_ENABLE_READ (stepperE5.getStatus() & STATUS_HIZ)
     #define E5_DIR_INIT NOOP
     #define E5_DIR_WRITE(STATE) L6470_WRITE_DIR_COMMAND(STATE,E5)

@@ -161,7 +161,7 @@
     #define _TMC2130_DEFINE(ST, L) TMCMarlin<TMC2130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
     #define TMC2130_DEFINE(ST) _TMC2130_DEFINE(ST, TMC_##ST##_LABEL)
   #else
-    #define _TMC2130_DEFINE(ST, L) TMCMarlin<TMC2130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+  #define _TMC2130_DEFINE(ST, L) TMCMarlin<TMC2130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
     #define TMC2130_DEFINE(ST) _TMC2130_DEFINE(ST, TMC_##ST##_LABEL)
   #endif
   // Stepper objects of TMC2130 steppers used
@@ -1025,43 +1025,43 @@ void reset_stepper_drivers() {
 #if HAS_L64XX
 
   #if AXIS_IS_L64XX(X)
-    AXIS_CLASS_X stepperX(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(X) stepperX(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(X2)
-    AXIS_CLASS_X2 stepperX2(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(X2) stepperX2(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(Y)
-    AXIS_CLASS_Y stepperY(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(Y) stepperY(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(Y2)
-    AXIS_CLASS_Y2 stepperY2(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(Y2) stepperY2(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(Z)
-    AXIS_CLASS_Z stepperZ(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(Z) stepperZ(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(Z2)
-    AXIS_CLASS_Z2 stepperZ2(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(Z2) stepperZ2(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(Z3)
-    AXIS_CLASS_Z3 stepperZ3(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(Z3) stepperZ3(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(E0)
-    AXIS_CLASS_E0 stepperE0(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(E0) stepperE0(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(E1)
-    AXIS_CLASS_E1 stepperE1(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(E1) stepperE1(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(E2)
-    AXIS_CLASS_E2 stepperE2(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(E2) stepperE2(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(E3)
-    AXIS_CLASS_E3 stepperE3(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(E3) stepperE3(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(E4)
-    AXIS_CLASS_E4 stepperE4(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(E4) stepperE4(L6470_CHAIN_SS_PIN);
   #endif
   #if AXIS_IS_L64XX(E5)
-    AXIS_CLASS_E5 stepperE5(L6470_CHAIN_SS_PIN);
+    L64XX_CLASS(E5) stepperE5(L6470_CHAIN_SS_PIN);
   #endif
 
   // Not using L64XX class init method because it
