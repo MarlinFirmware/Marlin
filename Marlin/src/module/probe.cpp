@@ -356,9 +356,15 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     dock_sled(!deploy);
 
-  #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
+  #elif HAS_Z_SERVO_PROBE
 
-    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+    #if DISABLED(BLTOUCH)
+      MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+    #elif ENABLED(BLTOUCH_HS_MODE)
+      // In HIGH SPEED MODE, use the normal retractable probe logic in this code
+      // i.e. no intermediate STOWs and DEPLOYs in between individual probe actions
+      if (deploy) bltouch.deploy(); else bltouch.stow();
+    #endif
 
   #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
@@ -492,9 +498,8 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     }
   #endif
 
-  // Deploy BLTouch at the start of any probe
-  #if ENABLED(BLTOUCH)
-    if (bltouch.deploy()) return true;
+  #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
+    if (bltouch.deploy()) return true; // DEPLOY in LOW SPEED MODE on every probe action
   #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -544,9 +549,8 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     tmc_disable_stallguard(stepperZ, stealth_states.z);
   #endif
 
-  // Retract BLTouch immediately after a probe if it was triggered
-  #if ENABLED(BLTOUCH)
-    if (probe_triggered && bltouch.stow()) return true;
+  #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
+    if (probe_triggered && bltouch.stow()) return true; // STOW in LOW SPEED MODE on trigger on every probe action
   #endif
 
   // Clear endstop flags

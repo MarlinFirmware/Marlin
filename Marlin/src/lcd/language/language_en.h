@@ -918,6 +918,9 @@
 #ifndef MSG_BLTOUCH_OD_MODE
   #define MSG_BLTOUCH_OD_MODE                 _UxGT("BLTouch OD Mode")
 #endif
+#ifndef MSG_BLTOUCH_MODE_STORE
+  #define MSG_BLTOUCH_MODE_STORE              _UxGT("BLTouch Mode Store")
+#endif
 #ifndef MSG_BLTOUCH_STOW
   #define MSG_BLTOUCH_STOW                    _UxGT("Stow BLTouch")
 #endif
