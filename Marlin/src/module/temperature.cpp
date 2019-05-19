@@ -2704,7 +2704,7 @@ void Temperature::isr() {
         else if (ADCKey_count < 16) {
           raw_ADCKey_value = HAL_READ_ADC();
           if (raw_ADCKey_value <= 900) {
-            current_ADCKey_raw = min(current_ADCKey_raw, raw_ADCKey_value);
+            current_ADCKey_raw = MIN(current_ADCKey_raw, raw_ADCKey_value);
             ADCKey_count++;
           }
           else { //ADC Key release
