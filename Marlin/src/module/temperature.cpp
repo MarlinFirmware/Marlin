@@ -2300,7 +2300,7 @@ void Temperature::isr() {
 
   #if HAS_ADC_BUTTONS
     static unsigned int raw_ADCKey_value = 0;
-    static bool is_ADCKey_held_down = false;
+    static bool ADCKey_pressed = false;
   #endif
 
   #if ENABLED(SLOW_PWM_HEATERS)
@@ -2704,18 +2704,18 @@ void Temperature::isr() {
         else if (ADCKey_count < 16) {
           raw_ADCKey_value = HAL_READ_ADC();
           if (raw_ADCKey_value <= 900) {
-            current_ADCKey_raw = MIN(current_ADCKey_raw, raw_ADCKey_value);
+            NOMORE(current_ADCKey_raw, raw_ADCKey_value);
             ADCKey_count++;
           }
           else { //ADC Key release
-            if (ADCKey_count > 0) ADCKey_count++; else is_ADCKey_held_down = false;
-            if (is_ADCKey_held_down) {
+            if (ADCKey_count > 0) ADCKey_count++; else ADCKey_pressed = false;
+            if (ADCKey_pressed) {
               ADCKey_count = 0;
               current_ADCKey_raw = 1024;
             }
           }
         }
-        if (ADCKey_count == 16) is_ADCKey_held_down = true;
+        if (ADCKey_count == 16) ADCKey_pressed = true;
         break;
     #endif // ADC_KEYPAD
 
