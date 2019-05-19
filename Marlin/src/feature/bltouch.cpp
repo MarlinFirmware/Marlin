@@ -42,8 +42,8 @@ bool BLTouch::command(const BLTCommand cmd, const millis_t &ms) {
   return triggered();
 }
 
+// Init the class and device. Call from setup().
 void BLTouch::init() {
-  // This is called by marlin.cpp on initialization.
   #if ENABLED(BLTOUCH_FORCE_5V_MODE)
     // BLTOUCH < V3.0 and clones: This will be ignored
     // BLTOUCH V3.0: SET_5V_MODE (if enabled). OD_MODE is the default on power on, but setting it does not hurt 
