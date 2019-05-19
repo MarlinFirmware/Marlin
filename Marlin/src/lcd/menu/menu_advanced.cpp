@@ -48,8 +48,14 @@
   #include "../../module/temperature.h"
 #endif
 
+#ifdef FILAMENT_RUNOUT_DISTANCE_MM
+  #include "../../feature/runout.h"
+#endif
+
 void menu_tmc();
 void menu_backlash();
+
+float lcd_runout_distance_mm;
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
@@ -230,7 +236,12 @@ void menu_backlash();
       #endif // EXTRUDERS > 1
     #endif
 
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      MENU_MULTIPLIER_ITEM_EDIT(float3, "Runout Distance mm", &lcd_runout_distance_mm, 1,  30);
+    #endif
+
     END_MENU();
+    runout.set_runout_distance(lcd_runout_distance_mm);
   }
 
 #endif // !NO_VOLUMETRICS || ADVANCED_PAUSE_FEATURE
@@ -619,6 +630,7 @@ void menu_backlash();
 #endif // !SLIM_LCD_MENUS
 
 void menu_advanced_settings() {
+  lcd_runout_distance_mm = runout.runout_distance();
   START_MENU();
   MENU_BACK(MSG_CONFIGURATION);
 
