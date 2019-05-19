@@ -99,6 +99,7 @@ private:
   static bool deploy_proc();
   static bool stow_proc();
   static bool status_proc();
+  static void mode_conv_proc(const bool M5V);
 };
 
 // Deploy/stow angles for use by servo.cpp / servo.h

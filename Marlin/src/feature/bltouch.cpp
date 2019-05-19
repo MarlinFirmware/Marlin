@@ -47,7 +47,7 @@ void BLTouch::init() {
   // SET_5V_MODE (if enabled). OD_MODE is the default on power on.
   // This mode will stay active until manual SET_OD_MODE or power cycle
   #if ENABLED(BLTOUCH_FORCE_5V_MODE)
-    _set_5V_mode();                          // Set 5V mode if explicitely demanded (V3 upwards)
+    mode_conv_proc(true);                    // Set 5V mode if explicitely demanded (V3 upwards)
   #endif
   _reset();
   _stow();
@@ -157,6 +157,19 @@ bool BLTouch::status_proc() {
 
   if (tr) _stow(); else _deploy();  // Turn off SW mode, reset any trigger, honor pin state
   return !tr;
+}
+
+void BLTouch::mode_conv_proc(const bool M5V) {
+  /**
+   * BLTOUCH pre V3.0 and clones: No reaction at all to this sequence apart from a DEPLOY -> STOW
+   * BLTOUCH V3.0: This will set the mode (twice) and sadly, a STOW is needed at the end, because of the deploy
+   * BLTOUCH V3.1: This will set the mode and store it in the eeprom. The STOW is not needed but does not hurt
+   */
+  _deploy();
+  if (M5V) _set_5V_mode(); else _set_OD_mode();
+  _mode_store();
+  if (M5V) _set_5V_mode(); else _set_OD_mode();
+  _stow();
 }
 
 #endif // BLTOUCH
