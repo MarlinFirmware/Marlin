@@ -21,7 +21,7 @@
  *
  */
 
-#if defined(ARDUINO_ARCH_STM32F1)
+#ifdef ARDUINO_ARCH_STM32F1
 
 #include <libmaple/stm32.h>
 
