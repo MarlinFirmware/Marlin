@@ -470,7 +470,7 @@
   static void print_vsense(TMC &st) { serialprintPGM(st.vsense() ? PSTR("1=.18") : PSTR("0=.325")); }
 
   #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC5130)
-    static void tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
+    static void _tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
         case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
@@ -498,7 +498,7 @@
     template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
     void print_vsense(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
 
-    static void tmc_status(TMC2160Stepper &st, const TMC_debug_enum i) {
+    static void _tmc_status(TMC2160Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
         case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
@@ -516,7 +516,7 @@
   #endif
 
   #if HAS_DRIVER(TMC2208)
-    static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
+    static void _tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
         case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
@@ -542,7 +542,7 @@
   #endif
 
   template <typename TMC>
-  static void tmc_status(TMC &st, const TMC_debug_enum i, const float spmm) {
+  static void tmc_status(TMC &st, const TMC_debug_enum i) {
     SERIAL_CHAR('\t');
     switch (i) {
       case TMC_CODES: st.printLabel(); break;
@@ -576,9 +576,9 @@
         }
         break;
       case TMC_TPWMTHRS_MMS: {
-          uint32_t tpwmthrs_val = st.TPWMTHRS();
+          uint32_t tpwmthrs_val = st.get_pwm_thrs();
           if (tpwmthrs_val)
-            SERIAL_ECHO(12650000UL * st.microsteps() / (256 * tpwmthrs_val * spmm));
+            SERIAL_ECHO(tpwmthrs_val);
           else
             SERIAL_CHAR('-');
         }
@@ -591,13 +591,13 @@
       case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
       case TMC_HEND: SERIAL_PRINT(st.hysteresis_end(), DEC); break;
       case TMC_HSTRT: SERIAL_PRINT(st.hysteresis_start(), DEC); break;
-      default: tmc_status(st, i); break;
+      default: _tmc_status(st, i); break;
     }
   }
 
   #if HAS_DRIVER(TMC2660)
     template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-    void tmc_status(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const TMC_debug_enum i, const float) {
+    void tmc_status(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const TMC_debug_enum i) {
       SERIAL_CHAR('\t');
       switch (i) {
         case TMC_CODES: st.printLabel(); break;
@@ -652,72 +652,52 @@
   static void tmc_debug_loop(const TMC_debug_enum i, const bool print_x, const bool print_y, const bool print_z, const bool print_e) {
     if (print_x) {
       #if AXIS_IS_TMC(X)
-        tmc_status(stepperX, i, planner.settings.axis_steps_per_mm[X_AXIS]);
+        tmc_status(stepperX, i);
       #endif
       #if AXIS_IS_TMC(X2)
-        tmc_status(stepperX2, i, planner.settings.axis_steps_per_mm[X_AXIS]);
+        tmc_status(stepperX2, i);
       #endif
     }
 
     if (print_y) {
       #if AXIS_IS_TMC(Y)
-        tmc_status(stepperY, i, planner.settings.axis_steps_per_mm[Y_AXIS]);
+        tmc_status(stepperY, i);
       #endif
       #if AXIS_IS_TMC(Y2)
-        tmc_status(stepperY2, i, planner.settings.axis_steps_per_mm[Y_AXIS]);
+        tmc_status(stepperY2, i);
       #endif
     }
 
     if (print_z) {
       #if AXIS_IS_TMC(Z)
-        tmc_status(stepperZ, i, planner.settings.axis_steps_per_mm[Z_AXIS]);
+        tmc_status(stepperZ, i);
       #endif
       #if AXIS_IS_TMC(Z2)
-        tmc_status(stepperZ2, i, planner.settings.axis_steps_per_mm[Z_AXIS]);
+        tmc_status(stepperZ2, i);
       #endif
       #if AXIS_IS_TMC(Z3)
-        tmc_status(stepperZ3, i, planner.settings.axis_steps_per_mm[Z_AXIS]);
+        tmc_status(stepperZ3, i);
       #endif
     }
 
     if (print_e) {
       #if AXIS_IS_TMC(E0)
-        tmc_status(stepperE0, i, planner.settings.axis_steps_per_mm[E_AXIS]);
+        tmc_status(stepperE0, i);
       #endif
       #if AXIS_IS_TMC(E1)
-        tmc_status(stepperE1, i, planner.settings.axis_steps_per_mm[E_AXIS
-          #if ENABLED(DISTINCT_E_FACTORS)
-            + 1
-          #endif
-        ]);
+        tmc_status(stepperE1, i);
       #endif
       #if AXIS_IS_TMC(E2)
-        tmc_status(stepperE2, i, planner.settings.axis_steps_per_mm[E_AXIS
-          #if ENABLED(DISTINCT_E_FACTORS)
-            + 2
-          #endif
-        ]);
+        tmc_status(stepperE2, i);
       #endif
       #if AXIS_IS_TMC(E3)
-        tmc_status(stepperE3, i, planner.settings.axis_steps_per_mm[E_AXIS
-          #if ENABLED(DISTINCT_E_FACTORS)
-            + 3
-          #endif
-        ]);
+        tmc_status(stepperE3, i);
       #endif
       #if AXIS_IS_TMC(E4)
-        tmc_status(stepperE4, i, planner.settings.axis_steps_per_mm[E_AXIS
-          #if ENABLED(DISTINCT_E_FACTORS)
-            + 4
-          #endif
-        ]);
+        tmc_status(stepperE4, i);
       #endif
       #if AXIS_IS_TMC(E5)
-        tmc_status(stepperE5, i, planner.settings.axis_steps_per_mm[E_AXIS
-          #if ENABLED(DISTINCT_E_FACTORS)
-            + 5
-          #endif
-        ]);
+        tmc_status(stepperE5, i);
       #endif
     }
 
@@ -1120,50 +1100,5 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
   if (axis_connection) ui.set_status_P(PSTR("TMC CONNECTION ERROR"));
 }
-
-#if HAS_LCD_MENU
-
-  void init_tmc_section() {
-    #if AXIS_IS_TMC(X)
-      stepperX.init_lcd_variables(X_AXIS);
-    #endif
-    #if AXIS_IS_TMC(Y)
-      stepperY.init_lcd_variables(Y_AXIS);
-    #endif
-    #if AXIS_IS_TMC(Z)
-      stepperZ.init_lcd_variables(Z_AXIS);
-    #endif
-    #if AXIS_IS_TMC(X2)
-      stepperX2.init_lcd_variables(X_AXIS);
-    #endif
-    #if AXIS_IS_TMC(Y2)
-      stepperY2.init_lcd_variables(Y_AXIS);
-    #endif
-    #if AXIS_IS_TMC(Z2)
-      stepperZ2.init_lcd_variables(Z_AXIS);
-    #endif
-    #if AXIS_IS_TMC(Z3)
-      stepperZ3.init_lcd_variables(Z_AXIS);
-    #endif
-    #if AXIS_IS_TMC(E0)
-      stepperE0.init_lcd_variables(E_AXIS);
-    #endif
-    #if AXIS_IS_TMC(E1)
-      stepperE1.init_lcd_variables(E_AXIS_N(1));
-    #endif
-    #if AXIS_IS_TMC(E2)
-      stepperE2.init_lcd_variables(E_AXIS_N(2));
-    #endif
-    #if AXIS_IS_TMC(E3)
-      stepperE3.init_lcd_variables(E_AXIS_N(3));
-    #endif
-    #if AXIS_IS_TMC(E4)
-      stepperE4.init_lcd_variables(E_AXIS_N(4));
-    #endif
-    #if AXIS_IS_TMC(E5)
-      stepperE5.init_lcd_variables(E_AXIS_N(5));
-    #endif
-  }
-#endif
 
 #endif // HAS_TRINAMIC

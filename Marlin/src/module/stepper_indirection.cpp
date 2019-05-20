@@ -145,7 +145,7 @@
 
 #if HAS_TRINAMIC
   enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
-  #define _TMC_INIT(ST, SPMM_INDEX, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, planner.settings.axis_steps_per_mm[SPMM_INDEX], stealthchop_by_axis[STEALTH_INDEX])
+  #define _TMC_INIT(ST, SPMM_INDEX, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX])
 #endif
 
 //
@@ -233,10 +233,9 @@
     st.PWMCONF(pwmconf.sr);
 
     #if ENABLED(HYBRID_THRESHOLD)
-      st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
+      st.set_pwm_thrs(thrs);
     #else
       UNUSED(thrs);
-      UNUSED(spmm);
     #endif
 
     st.GSTAT(); // Clear GSTAT
@@ -337,10 +336,9 @@
     st.PWMCONF(pwmconf.sr);
 
     #if ENABLED(HYBRID_THRESHOLD)
-      st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
+      st.set_pwm_thrs(thrs);
     #else
       UNUSED(thrs);
-      UNUSED(spmm);
     #endif
 
     st.GSTAT(); // Clear GSTAT
@@ -581,10 +579,9 @@
     st.PWMCONF(pwmconf.sr);
 
     #if ENABLED(HYBRID_THRESHOLD)
-      st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
+      st.set_pwm_thrs(thrs);
     #else
       UNUSED(thrs);
-      UNUSED(spmm);
     #endif
 
     st.GSTAT(0b111); // Clear
@@ -754,10 +751,9 @@
     st.PWMCONF(pwmconf.sr);
 
     #if ENABLED(HYBRID_THRESHOLD)
-      st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
+      st.set_pwm_thrs(thrs);
     #else
       UNUSED(thrs);
-      UNUSED(spmm);
     #endif
 
     st.GSTAT(); // Clear GSTAT
@@ -857,10 +853,9 @@
     st.PWMCONF(pwmconf.sr);
 
     #if ENABLED(HYBRID_THRESHOLD)
-      st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
+      st.set_pwm_thrs(thrs);
     #else
       UNUSED(thrs);
-      UNUSED(spmm);
     #endif
     st.GSTAT(); // Clear GSTAT
   }
