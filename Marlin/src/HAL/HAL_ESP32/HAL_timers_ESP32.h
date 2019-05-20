@@ -28,6 +28,12 @@
 #include <stdint.h>
 #include "driver/timer.h"
 
+// need this to pull I2S_STEPPER_STREAM definition from pins_*.h based on configured board
+#include "../../inc/MarlinConfig.h"
+// need to also include pins.h explicitly here as the above statement will be ignored if HAL_timers_ESP32.h 
+// is being included from inside MarlinConfig.h / HAL.h (but before pins.h)
+#include "../../pins/pins.h"
+
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
