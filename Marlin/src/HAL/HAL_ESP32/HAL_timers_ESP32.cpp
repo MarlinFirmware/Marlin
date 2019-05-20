@@ -132,7 +132,7 @@ void HAL_timer_start(const uint8_t timer_num, uint32_t frequency) {
   timer_enable_intr(timer.group, timer.idx);
 
   // TODO need to deal with timer_group1_isr
-  timer_isr_register(timer.group, timer.idx, timer_group0_isr, (void*)timer.idx, ESP_INTR_FLAG_INTRDISABLED, nullptr);
+  timer_isr_register(timer.group, timer.idx, timer_group0_isr, (void*)timer.idx, 0, nullptr);
 
   timer_start(timer.group, timer.idx);
 }
