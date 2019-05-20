@@ -313,8 +313,6 @@
     #endif
   }
 
-  #define HAS_HW_COMMS(ST) AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) || AXIS_DRIVER_TYPE(ST, TMC2660) || AXIS_DRIVER_TYPE(ST, TMC5130) || AXIS_DRIVER_TYPE(ST, TMC5160) || (AXIS_DRIVER_TYPE(ST, TMC2208) && defined(ST##_HARDWARE_SERIAL))
-
   void monitor_tmc_driver() {
     static millis_t next_poll = 0;
     const millis_t ms = millis();
@@ -330,43 +328,43 @@
       }
     #endif
     if (need_update_error_counters || need_debug_reporting) {
-      #if HAS_HW_COMMS(X)
+      #if AXIS_IS_TMC(X)
         monitor_tmc_driver(stepperX, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(Y)
+      #if AXIS_IS_TMC(Y)
         monitor_tmc_driver(stepperY, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(Z)
+      #if AXIS_IS_TMC(Z)
         monitor_tmc_driver(stepperZ, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(X2)
+      #if AXIS_IS_TMC(X2)
         monitor_tmc_driver(stepperX2, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(Y2)
+      #if AXIS_IS_TMC(Y2)
         monitor_tmc_driver(stepperY2, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(Z2)
+      #if AXIS_IS_TMC(Z2)
         monitor_tmc_driver(stepperZ2, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(Z3)
+      #if AXIS_IS_TMC(Z3)
         monitor_tmc_driver(stepperZ3, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(E0)
+      #if AXIS_IS_TMC(E0)
         monitor_tmc_driver(stepperE0, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(E1)
+      #if AXIS_IS_TMC(E1)
         monitor_tmc_driver(stepperE1, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(E2)
+      #if AXIS_IS_TMC(E2)
         monitor_tmc_driver(stepperE2, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(E3)
+      #if AXIS_IS_TMC(E3)
         monitor_tmc_driver(stepperE3, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(E4)
+      #if AXIS_IS_TMC(E4)
         monitor_tmc_driver(stepperE4, need_update_error_counters, need_debug_reporting);
       #endif
-      #if HAS_HW_COMMS(E5)
+      #if AXIS_IS_TMC(E5)
         monitor_tmc_driver(stepperE5, need_update_error_counters, need_debug_reporting);
       #endif
 
