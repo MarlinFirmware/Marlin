@@ -310,7 +310,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
 // public:
 
 #if HAS_ADC_BUTTONS
-  uint32_t Temperature::current_ADCKey_raw = 0;
+  uint32_t Temperature::current_ADCKey_raw = 1024;
   uint8_t Temperature::ADCKey_count = 0;
 #endif
 
@@ -2300,6 +2300,7 @@ void Temperature::isr() {
 
   #if HAS_ADC_BUTTONS
     static unsigned int raw_ADCKey_value = 0;
+    static bool ADCKey_pressed = false;
   #endif
 
   #if ENABLED(SLOW_PWM_HEATERS)
@@ -2702,16 +2703,19 @@ void Temperature::isr() {
           next_sensor_state = adc_sensor_state; // redo this state
         else if (ADCKey_count < 16) {
           raw_ADCKey_value = HAL_READ_ADC();
-          if (raw_ADCKey_value > 900) {
-            //ADC Key release
-            ADCKey_count = 0;
-            current_ADCKey_raw = 0;
-          }
-          else {
-            current_ADCKey_raw += raw_ADCKey_value;
+          if (raw_ADCKey_value <= 900) {
+            NOMORE(current_ADCKey_raw, raw_ADCKey_value);
             ADCKey_count++;
           }
+          else { //ADC Key release
+            if (ADCKey_count > 0) ADCKey_count++; else ADCKey_pressed = false;
+            if (ADCKey_pressed) {
+              ADCKey_count = 0;
+              current_ADCKey_raw = 1024;
+            }
+          }
         }
+        if (ADCKey_count == 16) ADCKey_pressed = true;
         break;
     #endif // ADC_KEYPAD
 

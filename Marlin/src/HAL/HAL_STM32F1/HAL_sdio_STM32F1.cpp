@@ -21,7 +21,11 @@
  *
  */
 
-#if defined(ARDUINO_ARCH_STM32F1) && (defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY))
+#ifdef ARDUINO_ARCH_STM32F1
+
+#include <libmaple/stm32.h>
+
+#if defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
 
 #include "HAL_sdio_STM32F1.h"
 
@@ -276,4 +280,5 @@ bool SDIO_GetCmdResp7(void) {
   return true;
 }
 
-#endif // ARDUINO_ARCH_STM32F1 && (STM32_HIGH_DENSITY || STM32_XL_DENSITY)
+#endif // STM32_HIGH_DENSITY || STM32_XL_DENSITY
+#endif // ARDUINO_ARCH_STM32F1
