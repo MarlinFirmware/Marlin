@@ -151,12 +151,35 @@ adc1_channel_t get_channel(int pin) {
 void HAL_adc_init() {
   // Configure ADC
   adc1_config_width(ADC_WIDTH_12Bit);
-  adc1_config_channel_atten(get_channel(39), ADC_ATTEN_11db);
-  adc1_config_channel_atten(get_channel(36), ADC_ATTEN_11db);
-  adc1_config_channel_atten(get_channel(35), ADC_ATTEN_11db);
-  adc1_config_channel_atten(get_channel(34), ADC_ATTEN_11db);
-  adc1_config_channel_atten(get_channel(33), ADC_ATTEN_11db);
-  adc1_config_channel_atten(get_channel(32), ADC_ATTEN_11db);
+  
+  // Configure channels only if used as (re-)configuring a pin for ADC that is used elsewhere might have adverse effects
+  #if HAS_TEMP_ADC_0
+    adc1_config_channel_atten(get_channel(TEMP_0_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_1
+    adc1_config_channel_atten(get_channel(TEMP_1_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_2
+    adc1_config_channel_atten(get_channel(TEMP_2_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_3
+    adc1_config_channel_atten(get_channel(TEMP_3_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_4
+    adc1_config_channel_atten(get_channel(TEMP_4_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_5
+    adc1_config_channel_atten(get_channel(TEMP_5_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_HEATED_BED
+    adc1_config_channel_atten(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_CHAMBER
+    adc1_config_channel_atten(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db);
+  #endif
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    adc1_config_channel_atten(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db);
+  #endif
 
   // Note that adc2 is shared with the WiFi module, which has higher priority, so the conversion may fail.
   // That's why we're not setting it up here.
