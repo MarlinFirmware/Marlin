@@ -53,6 +53,8 @@
 #if MACHINE_CAN_PAUSE
 
   void lcd_pause_job() {
+    ui.synchronize(PSTR(MSG_PAUSE_PRINT));
+
     #if ENABLED(POWER_LOSS_RECOVERY)
       if (recovery.enabled) recovery.save(true, false);
     #endif
@@ -69,7 +71,6 @@
     #elif defined(ACTION_ON_PAUSE)
       host_action_pause();
     #endif
-    planner.synchronize();
   }
 
   void lcd_resume() {
