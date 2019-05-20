@@ -98,7 +98,7 @@ class TMCStorage {
     } stored;
 };
 
-template<class TMC, char AXIS_LETTER, char DRIVER_ID>
+template<class TMC, char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
     TMCMarlin(uint16_t cs_pin, float RS) :
@@ -143,8 +143,8 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       #endif
     #endif
 };
-template<char AXIS_LETTER, char DRIVER_ID>
-class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
+template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
     TMCMarlin(Stream * SerialPort, float RS, bool has_rx=true) :
       TMC2208Stepper(SerialPort, RS, has_rx=true)
@@ -182,8 +182,8 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper,
       #endif
     #endif
 };
-template<char AXIS_LETTER, char DRIVER_ID>
-class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2660Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
+template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2660Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
     TMCMarlin(uint16_t cs_pin, float RS) :
       TMC2660Stepper(cs_pin, RS)

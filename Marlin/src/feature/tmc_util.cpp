@@ -492,8 +492,11 @@
   #endif
 
   #if HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5160)
-    template<char AXIS_LETTER, char DRIVER_ID> void print_vsense(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID> &st) { UNUSED(st); }
-    template<char AXIS_LETTER, char DRIVER_ID> void print_vsense(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID> &st) { UNUSED(st); }
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void print_vsense(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
+
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void print_vsense(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
 
     static void tmc_status(TMC2160Stepper &st, const TMC_debug_enum i) {
       switch (i) {
@@ -593,8 +596,8 @@
   }
 
   #if HAS_DRIVER(TMC2660)
-    template<char AXIS_LETTER, char DRIVER_ID>
-    void tmc_status(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const TMC_debug_enum i, const float) {
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void tmc_status(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const TMC_debug_enum i, const float) {
       SERIAL_CHAR('\t');
       switch (i) {
         case TMC_CODES: st.printLabel(); break;
@@ -877,8 +880,8 @@
     }
   #endif
   #if HAS_DRIVER(TMC2660)
-    template <char AXIS_LETTER, char DRIVER_ID>
-    static void tmc_get_registers(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const TMC_get_registers_enum i) {
+    template <char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    static void tmc_get_registers(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const TMC_get_registers_enum i) {
       switch (i) {
         case TMC_AXIS_CODES: SERIAL_CHAR('\t'); st.printLabel(); break;
         PRINT_TMC_REGISTER(DRVCONF);

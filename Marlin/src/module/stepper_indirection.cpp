@@ -158,11 +158,11 @@
   #include "../core/enum.h"
 
   #if ENABLED(TMC_USE_SW_SPI)
-    #define _TMC2130_DEFINE(ST, L) TMCMarlin<TMC2130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
-    #define TMC2130_DEFINE(ST) _TMC2130_DEFINE(ST, TMC_##ST##_LABEL)
+    #define _TMC2130_DEFINE(ST, L, E) TMCMarlin<TMC2130Stepper, L, E> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define TMC2130_DEFINE(ST) _TMC2130_DEFINE(ST, TMC_##ST##_LABEL, ST##_AXIS)
   #else
-    #define _TMC2130_DEFINE(ST, L) TMCMarlin<TMC2130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
-    #define TMC2130_DEFINE(ST) _TMC2130_DEFINE(ST, TMC_##ST##_LABEL)
+    #define _TMC2130_DEFINE(ST, L, E) TMCMarlin<TMC2130Stepper, L, E> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+    #define TMC2130_DEFINE(ST) _TMC2130_DEFINE(ST, TMC_##ST##_LABEL, ST##_AXIS)
   #endif
   // Stepper objects of TMC2130 steppers used
   #if AXIS_DRIVER_TYPE_X(TMC2130)
@@ -205,8 +205,8 @@
     TMC2130_DEFINE(E5);
   #endif
 
-  template<char AXIS_LETTER, char DRIVER_ID>
-  void tmc_init(TMCMarlin<TMC2130Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
+  template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+  void tmc_init(TMCMarlin<TMC2130Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const bool stealth) {
     st.begin();
 
     CHOPCONF_t chopconf{0};
@@ -253,11 +253,11 @@
   #include "../core/enum.h"
 
   #if ENABLED(TMC_USE_SW_SPI)
-    #define _TMC2160_DEFINE(ST, L) TMCMarlin<TMC2160Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
-    #define TMC2160_DEFINE(ST) _TMC2160_DEFINE(ST, TMC_##ST##_LABEL)
+    #define _TMC2160_DEFINE(ST, L, E) TMCMarlin<TMC2160Stepper, L, E> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define TMC2160_DEFINE(ST) _TMC2160_DEFINE(ST, TMC_##ST##_LABEL, ST##_AXIS)
   #else
-    #define _TMC2160_DEFINE(ST, L) TMCMarlin<TMC2160Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
-    #define TMC2160_DEFINE(ST) _TMC2160_DEFINE(ST, TMC_##ST##_LABEL)
+    #define _TMC2160_DEFINE(ST, L, E) TMCMarlin<TMC2160Stepper, L, E> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+    #define TMC2160_DEFINE(ST) _TMC2160_DEFINE(ST, TMC_##ST##_LABEL, ST##_AXIS)
   #endif
   // Stepper objects of TMC2160 steppers used
   #if AXIS_DRIVER_TYPE(X, TMC2160)
@@ -300,8 +300,8 @@
     TMC2160_DEFINE(E5);
   #endif
 
-  template<char AXIS_LETTER, char DRIVER_ID>
-  void tmc_init(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
+  template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+  void tmc_init(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const bool stealth) {
     st.begin();
 
     static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
@@ -354,11 +354,11 @@
   #include <HardwareSerial.h>
   #include "planner.h"
 
-  #define _TMC2208_DEFINE_HARDWARE(ST, L) TMCMarlin<TMC2208Stepper, L> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE)
-  #define TMC2208_DEFINE_HARDWARE(ST) _TMC2208_DEFINE_HARDWARE(ST, TMC_##ST##_LABEL)
+  #define _TMC2208_DEFINE_HARDWARE(ST, L, E) TMCMarlin<TMC2208Stepper, L, E> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE)
+  #define TMC2208_DEFINE_HARDWARE(ST) _TMC2208_DEFINE_HARDWARE(ST, TMC_##ST##_LABEL, ST##_AXIS)
 
-  #define _TMC2208_DEFINE_SOFTWARE(ST, L) TMCMarlin<TMC2208Stepper, L> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_RSENSE, ST##_SERIAL_RX_PIN > -1)
-  #define TMC2208_DEFINE_SOFTWARE(ST) _TMC2208_DEFINE_SOFTWARE(ST, TMC_##ST##_LABEL)
+  #define _TMC2208_DEFINE_SOFTWARE(ST, L, E) TMCMarlin<TMC2208Stepper, L, E> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_RSENSE, ST##_SERIAL_RX_PIN > -1)
+  #define TMC2208_DEFINE_SOFTWARE(ST) _TMC2208_DEFINE_SOFTWARE(ST, TMC_##ST##_LABEL, ST##_AXIS)
 
   // Stepper objects of TMC2208 steppers used
   #if AXIS_DRIVER_TYPE_X(TMC2208)
@@ -547,8 +547,8 @@
     #endif
   }
 
-  template<char AXIS_LETTER, char DRIVER_ID>
-  void tmc_init(TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
+  template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+  void tmc_init(TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const bool stealth) {
     TMC2208_n::GCONF_t gconf{0};
     gconf.pdn_disable = true; // Use UART
     gconf.mstep_reg_select = true; // Select microsteps with UART
@@ -602,11 +602,11 @@
   #include "../core/enum.h"
 
   #if ENABLED(TMC_USE_SW_SPI)
-    #define _TMC2660_DEFINE(ST, L) TMCMarlin<TMC2660Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
-    #define TMC2660_DEFINE(ST) _TMC2660_DEFINE(ST, TMC_##ST##_LABEL)
+    #define _TMC2660_DEFINE(ST, L, E) TMCMarlin<TMC2660Stepper, L, E> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define TMC2660_DEFINE(ST) _TMC2660_DEFINE(ST, TMC_##ST##_LABEL, ST##_AXIS)
   #else
-    #define _TMC2660_DEFINE(ST, L) TMCMarlin<TMC2660Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
-    #define TMC2660_DEFINE(ST) _TMC2660_DEFINE(ST, TMC_##ST##_LABEL)
+    #define _TMC2660_DEFINE(ST, L, E) TMCMarlin<TMC2660Stepper, L, E> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+    #define TMC2660_DEFINE(ST) _TMC2660_DEFINE(ST, TMC_##ST##_LABEL, ST##_AXIS)
   #endif
 
   // Stepper objects of TMC2660 steppers used
@@ -647,8 +647,8 @@
     TMC2660_DEFINE(E5);
   #endif
 
-  template<char AXIS_LETTER, char DRIVER_ID>
-  void tmc_init(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const float, const bool) {
+  template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+  void tmc_init(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const bool) {
     st.begin();
 
     TMC2660_n::CHOPCONF_t chopconf{0};
@@ -679,11 +679,11 @@
   #include "../core/enum.h"
 
   #if ENABLED(TMC_USE_SW_SPI)
-    #define _TMC5130_DEFINE(ST, L) TMCMarlin<TMC5130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
-    #define TMC5130_DEFINE(ST) _TMC5130_DEFINE(ST, TMC_##ST##_LABEL)
+    #define _TMC5130_DEFINE(ST, L, E) TMCMarlin<TMC5130Stepper, L, E> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define TMC5130_DEFINE(ST) _TMC5130_DEFINE(ST, TMC_##ST##_LABEL, ST##_AXIS)
   #else
-    #define _TMC5130_DEFINE(ST, L) TMCMarlin<TMC5130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
-    #define TMC5130_DEFINE(ST) _TMC5130_DEFINE(ST, TMC_##ST##_LABEL)
+    #define _TMC5130_DEFINE(ST, L, E) TMCMarlin<TMC5130Stepper, L, E> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+    #define TMC5130_DEFINE(ST) _TMC5130_DEFINE(ST, TMC_##ST##_LABEL, ST##_AXIS)
   #endif
   // Stepper objects of TMC5130 steppers used
   #if AXIS_DRIVER_TYPE_X(TMC5130)
@@ -726,8 +726,8 @@
     TMC5130_DEFINE(E5);
   #endif
 
-  template<char AXIS_LETTER, char DRIVER_ID>
-  void tmc_init(TMCMarlin<TMC5130Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
+  template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+  void tmc_init(TMCMarlin<TMC5130Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const bool stealth) {
     st.begin();
 
     CHOPCONF_t chopconf{0};
@@ -774,11 +774,11 @@
   #include "../core/enum.h"
 
   #if ENABLED(TMC_USE_SW_SPI)
-    #define _TMC5160_DEFINE(ST, L) TMCMarlin<TMC5160Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
-    #define TMC5160_DEFINE(ST) _TMC5160_DEFINE(ST, TMC_##ST##_LABEL)
+    #define _TMC5160_DEFINE(ST, L, E) TMCMarlin<TMC5160Stepper, L, E> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define TMC5160_DEFINE(ST) _TMC5160_DEFINE(ST, TMC_##ST##_LABEL, ST##_AXIS)
   #else
-    #define _TMC5160_DEFINE(ST, L) TMCMarlin<TMC5160Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
-    #define TMC5160_DEFINE(ST) _TMC5160_DEFINE(ST, TMC_##ST##_LABEL)
+    #define _TMC5160_DEFINE(ST, L, E) TMCMarlin<TMC5160Stepper, L, E> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+    #define TMC5160_DEFINE(ST) _TMC5160_DEFINE(ST, TMC_##ST##_LABEL, ST##_AXIS)
   #endif
   // Stepper objects of TMC5160 steppers used
   #if AXIS_DRIVER_TYPE(X, TMC5160)
@@ -821,8 +821,8 @@
     TMC5160_DEFINE(E5);
   #endif
 
-  template<char AXIS_LETTER, char DRIVER_ID>
-  void tmc_init(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
+  template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+  void tmc_init(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const bool stealth) {
     st.begin();
 
     int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
