@@ -57,10 +57,10 @@
 #endif
 
 // Restart causes
-#define RST_POWER_ON   1
-#define RST_EXTERNAL   2
-#define RST_BROWN_OUT  4
-#define RST_WATCHDOG   8
+#define RST_POWER_ON    1
+#define RST_EXTERNAL    2
+#define RST_BROWN_OUT   4
+#define RST_WATCHDOG    8
 #define RST_JTAG       16
 #define RST_SOFTWARE   32
 #define RST_BACKUP     64
