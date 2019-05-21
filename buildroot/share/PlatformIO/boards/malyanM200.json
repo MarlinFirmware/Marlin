@@ -15,54 +15,12 @@
     "vec_tab_addr": "0x8002000"
   },
   "debug": {
-    "tools": {
-      "stlink": {
-        "server": {
-          "arguments": [
-            "-f", "scripts/interface/stlink.cfg",
-            "-c", "transport select hla_swd",
-            "-f", "scripts/target/stm32f1x.cfg",
-            "-c", "reset_config none"
-          ],
-          "executable": "bin/openocd",
-          "package": "tool-openocd"
-        }
-      },
-      "stlink-v2": {
-        "server": {
-          "package": "tool-openocd",
-          "executable": "bin/openocd",
-          "arguments": [
-            "-f", "scripts/interface/stlink-v2.cfg",
-            "-c", "transport select hla_swd",
-            "-f", "scripts/target/stm32f1x.cfg"
-          ]
-        },
-        "default": true
-      },
-      "stlink-v2-1": {
-        "server": {
-          "package": "tool-openocd",
-          "executable": "bin/openocd",
-          "arguments": [
-            "-f", "scripts/interface/stlink-v2-1.cfg",
-            "-c", "transport select hla_swd",
-            "-f", "scripts/target/stm32f1x.cfg"
-          ]
-        }
-      },
-      "blackmagic": {
-        "hwids": [
-          [
-            "0x1d50",
-            "0x6018"
-          ]
-        ],
-        "require_debug_port": true
-      }
-    }
+    "jlink_device": "STM32F103CB",
+    "openocd_target": "stm32f1x",
+    "svd_path": "STM32F103xx.svd"
   },
-  "frameworks": ["arduino", "arduinoSTM32GENERIC"],
+  "platform": "ststm32",
+  "frameworks": ["arduino"],
   "name": "Malyan STM32F103CB (20k RAM. 128k Flash)",
   "upload": {
     "disable_flushing": false,
