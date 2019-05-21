@@ -469,7 +469,7 @@
   template<class TMC>
   static void print_vsense(TMC &st) { serialprintPGM(st.vsense() ? PSTR("1=.18") : PSTR("0=.325")); }
 
-  #if HAS_TMCX1X0
+  #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC5130)
     static void tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
@@ -478,6 +478,8 @@
         default: break;
       }
     }
+  #endif
+  #if HAS_TMCX1X0
     static void _tmc_parse_drv_status(TMC2130Stepper &st, const TMC_drv_status_enum i) {
       switch (i) {
         case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('X'); break;
