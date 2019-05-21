@@ -68,6 +68,10 @@
   #include "tool_change.h"
 #endif
 
+#if HAS_BUZZER
+  #include "../libs/buzzer.h"
+#endif
+
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
@@ -752,6 +756,12 @@ void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P
   }
   #if DISABLED(BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE)
     if (!killed) {
+      #if HAS_BUZZER
+        for (uint8_t i = 10; i > 0; i--) {
+          BUZZ(100, 880);
+          delay(500);
+        }
+      #endif
       Running = false;
       killed = true;
       kill(lcd_msg);
