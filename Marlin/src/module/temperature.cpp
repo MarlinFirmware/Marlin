@@ -754,19 +754,20 @@ void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P
     else SERIAL_ECHOPGM(MSG_HEATER_BED);
     SERIAL_EOL();
   }
+
   #if DISABLED(BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE)
     if (!killed) {
       Running = false;
       killed = true;
 
-  	  disable_all_heaters();
+      disable_all_heaters();
 
-      #if HAS_BUZZER && defined(BEEPER_PIN)
-        for (uint8_t i = 20; i > 0; i--) {
+      #if HAS_BUZZER && PIN_EXISTS(BEEPER)
+        for (uint8_t i = 20; i--;) {
           WRITE(BEEPER_PIN, HIGH);
-          delay(25);
+          safe_delay(25);
           WRITE(BEEPER_PIN, LOW);
-          delay(80);
+          safe_delay(80);
         }
         WRITE(BEEPER_PIN, HIGH);
       #endif
