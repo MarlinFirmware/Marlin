@@ -60,10 +60,6 @@ inline void set_all_z_lock(const bool lock) {
   #endif
 }
 
-inline float calc_length(const float &x1, const float &y1, const float &x2, const float &y2) {
-  return HYPOT(x2 - x1, y2 - y1);
-}
-
 /**
  * G34: Z-Stepper automatic alignment
  *
@@ -134,11 +130,11 @@ void GcodeSuite::G34() {
     #define MAX_ANGLE 0.05f
     float z_probe = Z_BASIC_CLEARANCE + MAX_ANGLE * (
       #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-         MAX(calc_length(z_auto_align_xpos[0], z_auto_align_ypos[0], z_auto_align_xpos[1], z_auto_align_ypos[1]),
-             calc_length(z_auto_align_xpos[1], z_auto_align_ypos[1], z_auto_align_xpos[2], z_auto_align_ypos[2]),
-             calc_length(z_auto_align_xpos[2], z_auto_align_ypos[2], z_auto_align_xpos[0], z_auto_align_ypos[0]))
+         SQRT(MAX(HYPOT2(z_auto_align_xpos[0] - z_auto_align_ypos[0], z_auto_align_xpos[1] - z_auto_align_ypos[1]),
+                  HYPOT2(z_auto_align_xpos[1] - z_auto_align_ypos[1], z_auto_align_xpos[2] - z_auto_align_ypos[2]),
+                  HYPOT2(z_auto_align_xpos[2] - z_auto_align_ypos[2], z_auto_align_xpos[0] - z_auto_align_ypos[0])))
       #else
-         calc_length(z_auto_align_xpos[0], z_auto_align_ypos[0], z_auto_align_xpos[1], z_auto_align_ypos[1])
+         HYPOT(z_auto_align_xpos[0] - z_auto_align_ypos[0], z_auto_align_xpos[1] - z_auto_align_ypos[1])
       #endif
     );
 
