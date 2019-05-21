@@ -35,8 +35,7 @@
 
 #include "../shared/Marduino.h"
 
-#define PWM_PIN(P)              true // all pins are PWM capable
-#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
+#define PWM_PIN(P)            true // all pins are PWM capable
 
 #define LPC_PIN(pin)          gpio_pin(pin)
 #define LPC_GPIO(port)        gpio_port(port)
@@ -89,10 +88,6 @@
 /// check if pin is an output
 #define _IS_OUTPUT(IO)        (gpio_get_dir(IO))
 
-/// check if pin is a timer
-/// all gpio pins are pwm capable, either interrupt or hardware pwm controlled
-#define _HAS_TIMER(IO)        true
-
 /// Read a pin wrapper
 #define READ(IO)              _READ(IO)
 
@@ -118,9 +113,6 @@
 #define IS_INPUT(IO)          _IS_INPUT(IO)
 /// check if pin is an output wrapper
 #define IS_OUTPUT(IO)         _IS_OUTPUT(IO)
-
-/// check if pin is a timer (wrapper)
-#define HAS_TIMER(IO)         _HAS_TIMER(IO)
 
 // Shorthand
 #define OUT_WRITE(IO,V)       do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
