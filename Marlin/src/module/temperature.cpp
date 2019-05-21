@@ -756,14 +756,19 @@ void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P
   }
   #if DISABLED(BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE)
     if (!killed) {
-      #if HAS_BUZZER
-        for (uint8_t i = 10; i > 0; i--) {
-          BUZZ(100, 880);
-          delay(500);
-        }
-      #endif
       Running = false;
       killed = true;
+
+      #if HAS_BUZZER && defined(BEEPER_PIN)
+        for (uint8_t i = 20; i > 0; i--) {
+          WRITE(BEEPER_PIN, HIGH);
+          delay(25);
+          WRITE(BEEPER_PIN, LOW);
+          delay(80);
+        }
+        WRITE(BEEPER_PIN, HIGH);
+      #endif
+
       kill(lcd_msg);
     }
     else
