@@ -759,6 +759,8 @@ void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P
       Running = false;
       killed = true;
 
+  	  disable_all_heaters();
+
       #if HAS_BUZZER && defined(BEEPER_PIN)
         for (uint8_t i = 20; i > 0; i--) {
           WRITE(BEEPER_PIN, HIGH);
