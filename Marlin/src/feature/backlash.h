@@ -26,11 +26,16 @@
 
 class Backlash {
 public:
+  #ifdef BACKLASH_DISTANCE_MM
+    #if ENABLED(BACKLASH_GCODE)
+      static float distance_mm[XYZ];
+    #else
+      static const float distance_mm[XYZ];
+      //static constexpr float distance_mm[XYZ] = BACKLASH_DISTANCE_MM; // compiler barks at this
+    #endif
+  #endif
   #if ENABLED(BACKLASH_GCODE)
     static uint8_t correction;
-    #ifdef BACKLASH_DISTANCE_MM
-      static float distance_mm[XYZ];
-    #endif
     #ifdef BACKLASH_SMOOTHING_MM
       static float smoothing_mm;
     #endif
@@ -38,9 +43,6 @@ public:
     static inline float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
   #else
     static constexpr uint8_t correction = (BACKLASH_CORRECTION) * 0xFF;
-    #ifdef BACKLASH_DISTANCE_MM
-      static constexpr float distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
-    #endif
     #ifdef BACKLASH_SMOOTHING_MM
       static constexpr float smoothing_mm = BACKLASH_SMOOTHING_MM;
     #endif

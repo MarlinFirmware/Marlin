@@ -29,11 +29,16 @@
 #include "../module/motion.h"
 #include "../module/planner.h"
 
+#ifdef BACKLASH_DISTANCE_MM
+  #if ENABLED(BACKLASH_GCODE)
+    float Backlash::distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
+  #else
+    const float Backlash::distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
+  #endif
+#endif
+
 #if ENABLED(BACKLASH_GCODE)
   uint8_t Backlash::correction = (BACKLASH_CORRECTION) * 0xFF;
-  #ifdef BACKLASH_DISTANCE_MM
-    float Backlash::distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
-  #endif
   #ifdef BACKLASH_SMOOTHING_MM
     float Backlash::smoothing_mm = BACKLASH_SMOOTHING_MM;
   #endif
