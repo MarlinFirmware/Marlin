@@ -143,13 +143,6 @@ inline void HAL_adc_init(void) {}//todo
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 uint16_t HAL_adc_get_result(void);
-uint16_t HAL_getAdcReading(uint8_t chan);
-void HAL_startAdcConversion(uint8_t chan);
-uint8_t HAL_pinToAdcChannel(int pin);
-uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
-//uint16_t HAL_getAdcSuperSample(uint8_t chan);
-void HAL_enable_AdcFreerun(void);
-//void HAL_disable_AdcFreerun(uint8_t chan);
 
 //
 // Pin Map
