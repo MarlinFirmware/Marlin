@@ -1193,8 +1193,9 @@ void Temperature::manage_heater() {
 #define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                             \
   uint8_t l = 0, r = LEN, m;                                           \
   for (;;) {                                                           \
-    m = (l + r) >> 1;                                                  \
-    if (m <= 0) return (short)pgm_read_word(&TBL[0][1]);               \
+    m = l + r;                                                         \
+    if (!m) return (short)pgm_read_word(&TBL[0][1]);                   \
+    m >>= 1;                                                           \
     if (m == l || m == r) return (short)pgm_read_word(&TBL[LEN-1][1]); \
     short v00 = pgm_read_word(&TBL[m-1][0]),                           \
           v10 = pgm_read_word(&TBL[m-0][0]);                           \
@@ -1320,13 +1321,6 @@ void Temperature::manage_heater() {
       value += user_thermistor[t_index].sh_c_coeff * log_resistance * log_resistance * log_resistance;
     value = 1.0f / value;
 
-    // Convert to degrees C
-    float deg_c = value + THERMISTOR_ABS_ZERO_C;
-
-    // the LCD display only ever displays the last 3 digits
-    if (deg_c > 999)
-      deg_c = 999;
-
     //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
     //  int32_t clocks = TCNT5 - tcnt5;
     //  if (clocks >= 0) {
@@ -1335,7 +1329,8 @@ void Temperature::manage_heater() {
     //  }
     //#endif
 
-    return deg_c;
+    // Return degrees C (up to 999, as the LCD only displays 3 digits)
+    return MIN(value + THERMISTOR_ABS_ZERO_C, 999);
   }
 #endif
 
