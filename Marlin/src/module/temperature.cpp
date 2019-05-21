@@ -764,10 +764,8 @@ void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P
 
       #if HAS_BUZZER && PIN_EXISTS(BEEPER)
         for (uint8_t i = 20; i--;) {
-          WRITE(BEEPER_PIN, HIGH);
-          delay(25);
-          WRITE(BEEPER_PIN, LOW);
-          delay(80);
+          WRITE(BEEPER_PIN, HIGH); delay(25);
+          WRITE(BEEPER_PIN, LOW); delay(80);
         }
         WRITE(BEEPER_PIN, HIGH);
       #endif
