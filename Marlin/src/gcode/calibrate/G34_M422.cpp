@@ -60,8 +60,8 @@ inline void set_all_z_lock(const bool lock) {
   #endif
 }
 
-float calc_length(const float x1, const float y1, const float x2, const float y2) {
-  return sqrtf(pow(x2-x1,2) + pow(y2-y1,2));
+inline float calc_length(const float &x1, const float &y1, const float &x2, const float &y2) {
+  return HYPOT(x2 - x1, y2 - y1);
 }
 
 /**
