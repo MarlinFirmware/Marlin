@@ -1177,17 +1177,20 @@ void MarlinSettings::postprocess() {
     // Backlash Compensation
     //
     {
-      #if ENABLED(BACKLASH_COMPENSATION)
-        const float   (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
-        const uint8_t &backlash_correction         = backlash.correction;
+      #ifdef BACKLASH_DISTANCE_MM
+        const float (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
       #else
-        const float    backlash_distance_mm[XYZ]   = { 0 };
-        const uint8_t  backlash_correction         = 0;
+        const float backlash_distance_mm[XYZ] = { 0 };
+      #endif
+      #if ENABLED(BACKLASH_COMPENSATION)
+        const uint8_t &backlash_correction = backlash.correction;
+      #else
+        const uint8_t backlash_correction = 0;
       #endif
       #ifdef BACKLASH_SMOOTHING_MM
-        const float   &backlash_smoothing_mm       = backlash.smoothing_mm;
+        const float &backlash_smoothing_mm = backlash.smoothing_mm;
       #else
-        const float    backlash_smoothing_mm       = 3;
+        const float backlash_smoothing_mm = 3;
       #endif
       _FIELD_TEST(backlash_distance_mm);
       EEPROM_WRITE(backlash_distance_mm[X_AXIS]);
@@ -1962,17 +1965,20 @@ void MarlinSettings::postprocess() {
       // Backlash Compensation
       //
       {
-        #if ENABLED(BACKLASH_COMPENSATION)
-          float   (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
-          uint8_t &backlash_correction         = backlash.correction;
+        #ifdef BACKLASH_DISTANCE_MM
+          float (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
         #else
-          float   backlash_distance_mm[XYZ];
+          float backlash_distance_mm[XYZ];
+        #endif
+        #if ENABLED(BACKLASH_COMPENSATION)
+          uint8_t &backlash_correction = backlash.correction;
+        #else
           uint8_t backlash_correction;
         #endif
         #ifdef BACKLASH_SMOOTHING_MM
           float &backlash_smoothing_mm = backlash.smoothing_mm;
         #else
-          float  backlash_smoothing_mm;
+          float backlash_smoothing_mm;
         #endif
         _FIELD_TEST(backlash_distance_mm);
         EEPROM_READ(backlash_distance_mm[X_AXIS]);
