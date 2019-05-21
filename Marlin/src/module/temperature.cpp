@@ -68,6 +68,10 @@
   #include "tool_change.h"
 #endif
 
+#if HAS_BUZZER
+  #include "../libs/buzzer.h"
+#endif
+
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
@@ -754,6 +758,19 @@ void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P
     if (!killed) {
       Running = false;
       killed = true;
+
+  	  disable_all_heaters();
+
+      #if HAS_BUZZER && defined(BEEPER_PIN)
+        for (uint8_t i = 20; i > 0; i--) {
+          WRITE(BEEPER_PIN, HIGH);
+          delay(25);
+          WRITE(BEEPER_PIN, LOW);
+          delay(80);
+        }
+        WRITE(BEEPER_PIN, HIGH);
+      #endif
+
       kill(lcd_msg);
     }
     else
