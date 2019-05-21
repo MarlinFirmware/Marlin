@@ -1176,6 +1176,7 @@ void Temperature::manage_heater() {
   uint8_t l = 0, r = LEN, m;                                           \
   for (;;) {                                                           \
     m = (l + r) >> 1;                                                  \
+    if (m <= 0) return (short)pgm_read_word(&TBL[0][1]);               \
     if (m == l || m == r) return (short)pgm_read_word(&TBL[LEN-1][1]); \
     short v00 = pgm_read_word(&TBL[m-1][0]),                           \
           v10 = pgm_read_word(&TBL[m-0][0]);                           \
