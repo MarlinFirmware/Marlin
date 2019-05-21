@@ -1304,8 +1304,9 @@ void Temperature::manage_heater() {
     // Convert to degrees C
     float deg_c = value + THERMISTOR_ABS_ZERO_C;
 
-    // Test only
-    //deg_c = constrain(deg_c, 6, 100);
+    // the LCD display only ever displays the last 3 digits
+    if (deg_c > 999)
+      deg_c = 999;
 
     //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
     //  int32_t clocks = TCNT5 - tcnt5;
