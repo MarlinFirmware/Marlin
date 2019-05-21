@@ -129,20 +129,20 @@ void GcodeSuite::G34() {
       #define Z_BASIC_CLEARANCE Z_CLEARANCE_BETWEEN_PROBES
     #endif
 
-    // 0.05 is a 5% incline. On a 300mm bed that would be a misalignement of about 1.5cm.
-    // This angle is the maximum misalignement catered for
+    // 0.05 is a 5% incline. On a 300mm bed that would be a misalignment of about 1.5cm.
+    // This angle is the maximum misalignment catered for
     #define MAX_ANGLE 0.05f
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-      float z_probe = Z_BASIC_CLEARANCE + 
-                 MAX_ANGLE * MAX(calc_length(z_auto_align_xpos[0], z_auto_align_ypos[0], z_auto_align_xpos[1], z_auto_align_ypos[1]),
-                                 calc_length(z_auto_align_xpos[1], z_auto_align_ypos[1], z_auto_align_xpos[2], z_auto_align_ypos[2]),
-                                 calc_length(z_auto_align_xpos[2], z_auto_align_ypos[2], z_auto_align_xpos[0], z_auto_align_ypos[0]));
-    #else
-      float z_probe = Z_BASIC_CLEARANCE +
-                 MAX_ANGLE *     calc_length(z_auto_align_xpos[0], z_auto_align_ypos[0], z_auto_align_xpos[1], z_auto_align_ypos[1]);
-    #endif
+    float z_probe = Z_BASIC_CLEARANCE + MAX_ANGLE * (
+      #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+         MAX(calc_length(z_auto_align_xpos[0], z_auto_align_ypos[0], z_auto_align_xpos[1], z_auto_align_ypos[1]),
+             calc_length(z_auto_align_xpos[1], z_auto_align_ypos[1], z_auto_align_xpos[2], z_auto_align_ypos[2]),
+             calc_length(z_auto_align_xpos[2], z_auto_align_ypos[2], z_auto_align_xpos[0], z_auto_align_ypos[0]))
+      #else
+         calc_length(z_auto_align_xpos[0], z_auto_align_ypos[0], z_auto_align_xpos[1], z_auto_align_ypos[1])
+      #endif
+    );
 
-    // Home before the alignement procedure
+    // Home before the alignment procedure
     gcode.G28(false);
 
     // Move the Z coordinate realm towards the positive - dirty trick
@@ -177,13 +177,14 @@ void GcodeSuite::G34() {
         // This is not the trigger Z value. It is the position of the probe after raising it.
         // It is higher than the trigger value by a constant value (not known here). This value 
         // is more useful for determining the desired next iteration Z position for probing. It is 
-        // equally well suited for determining the misalignement, just like the trigger position would be.
+        // equally well suited for determining the misalignment, just like the trigger position would be.
         z_measured[zstepper] = current_position[Z_AXIS];
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " measured position is ", z_measured[zstepper]);
 
         // Remember the minimum measurement to calculate the correction later on
         z_measured_min = MIN(z_measured_min, z_measured[zstepper]);
-      } // loop for zstepper
+      } // for (zstepper)
+
       if (err_break) break;
 
       // Adapt the next probe clearance height based on the new measurements.
@@ -225,7 +226,7 @@ void GcodeSuite::G34() {
           break;
         }
         
-        // Remember the alignement for the next iteration
+        // Remember the alignment for the next iteration
         last_z_align_move[zstepper] = z_align_abs;
 
         // Stop early if all measured points achieve accuracy target
@@ -243,9 +244,9 @@ void GcodeSuite::G34() {
           #endif
         }
 
-        // Do a move to correct part of the misalignement for the current stepper
+        // Do a move to correct part of the misalignment for the current stepper
         do_blocking_move_to_z(amplification * z_align_move + current_position[Z_AXIS]);
-      } // loop for zstepper
+      } // for (zstepper)
 
       // Back to normal stepper operations
       set_all_z_lock(false); 
@@ -287,7 +288,7 @@ void GcodeSuite::G34() {
       bltouch._stow();
     #endif
 
-    // Home after the alignement procedure
+    // Home after the alignment procedure
     gcode.G28(false);
 
   } while(0);
