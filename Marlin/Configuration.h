@@ -864,18 +864,18 @@
   */
 
   // Danger: Do not activate 5V mode when attached to a controller that is not 5V tolerant.
-  //   V3.0: Force a probe into 5V mode at Marlin startup
+  //   V3.0: Force a probe into 5V mode at Marlin startup, because OD mode is the hard coded default
   //   V3.1: Force a probe with unknown mode into 5V mode at Marlin startup ( = Probe EEPROM write )
   //         It is a good idea to only use this once and then turn it off again
   //#define BLTOUCH_FORCE_5V_MODE
   
   // Safety: Activate this if you are connecting a probe with an unknown voltage mode to your printer
-  //   V3.0: Force a probe into OD mode at Marlin startup
+  //   V3.0: Force a probe into OD mode at Marlin startup (not really needed, OD mode is the default).
   //   V3.1: Force a probe with unknown mode into OD mode at Marlin startup ( = Probe EEPROM write )
   //         It is a good idea to only use this once and then turn it off again
   //#define BLTOUCH_FORCE_OD_MODE
   
-  // Danger: Advanced probing mode for stable and well-tested systems
+  // Danger: Advanced probing mode for stable and well-tested systems, do not use if your probe somtimes fails
   //         Use "HIGH SPEED" mode for probing
   //#define BLTOUCH_HS_MODE
 
