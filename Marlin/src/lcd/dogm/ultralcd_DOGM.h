@@ -110,8 +110,15 @@
 #elif ENABLED(MINIPANEL)
   // MINIPanel display
   //#define U8G_CLASS U8GLIB_MINI12864
-  //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 8 stripes
-  #define U8G_CLASS U8GLIB_MINI12864_2X
+  //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0
+  //DrDitto
+  //Use the HAL interface instead of the library one
+  #if ENABLED(MKS_MINI_12864)                           // 8 stripes
+    #define FORCE_SOFT_SPI
+    #define U8G_CLASS U8GLIB_MINI12864_2X_HAL
+  #else
+    #define U8G_CLASS U8GLIB_MINI12864_2X
+  #endif
   #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 8 stripes
 #elif ENABLED(FYSETC_MINI_12864)
   // The FYSETC_MINI_12864 display
