@@ -35,10 +35,11 @@ void GcodeSuite::M280() {
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
     if (parser.seen('S')) {
-      if (parser.value_int() == -1)
+      const int a = parser.value_int();
+      if (a == -1)
         servo[servo_index].detach();
       else
-        MOVE_SERVO(servo_index, parser.value_int());
+        MOVE_SERVO(servo_index, a);
     }
     else {
       SERIAL_ECHO_START();
