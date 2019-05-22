@@ -180,9 +180,13 @@ static void lcd_factory_settings() {
     MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch._deploy);
     MENU_ITEM(function, MSG_BLTOUCH_STOW, bltouch._stow);
     MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
-    MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch._set_5V_mode);
-    MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch._set_OD_mode);
-    MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
+    #if DISABLED(BLTOUCH_NO_LCD_VOLTAGE_MODIFY)
+      MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch._set_5V_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch._set_OD_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
+      MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE_5V, bltouch.mode_conv_5V);
+      MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE_OD, bltouch.mode_conv_OD);
+    #endif
     END_MENU();
   }
 

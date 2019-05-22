@@ -69,8 +69,6 @@ class BLTouch {
 public:
   static void init(const bool With_Voltage_Setting = false);
 
-  static bool triggered(); // used by menu_advanced.cpp
-  
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
   FORCE_INLINE static bool deploy()              { return deploy_proc(); }
   FORCE_INLINE static bool stow()                { return stow_proc(); }
@@ -91,12 +89,16 @@ public:
   FORCE_INLINE static void _deploy()             { command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
   FORCE_INLINE static void _stow()               { command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
 
+  FORCE_INLINE static void mode_conv_5V()        { mode_conv_proc(true); }
+  FORCE_INLINE static void mode_conv_OD()        { mode_conv_proc(false); }
+
 private:
   FORCE_INLINE static bool _deploy_query_alarm() { return command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
   FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
 
   static void clear();
   static bool command(const BLTCommand cmd, const millis_t &ms);
+  static bool triggered();
   static bool deploy_proc();
   static bool stow_proc();
   static bool status_proc();

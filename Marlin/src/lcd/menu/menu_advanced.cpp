@@ -39,11 +39,6 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(BLTOUCH)
-  #include "../../module/endstops.h"
-  #include "../../feature/bltouch.h"
-#endif
-
 #if ENABLED(PIDTEMP)
   #include "../../module/temperature.h"
 #endif
@@ -681,15 +676,6 @@ void menu_advanced_settings() {
   // M540 S - Abort on endstop hit when SD printing
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
-  #endif
-
-  //
-  // BLTouch Self-Test and Reset
-  //
-  #if ENABLED(BLTOUCH)
-    MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-    if (!endstops.z_probe_enabled && bltouch.triggered())
-      MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
   #endif
 
   #if ENABLED(SD_FIRMWARE_UPDATE)
