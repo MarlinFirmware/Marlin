@@ -43,18 +43,21 @@ bool BLTouch::command(const BLTCommand cmd, const millis_t &ms) {
 }
 
 // Init the class and device. Call from setup().
-void BLTouch::init() {
-  #if ENABLED(BLTOUCH_FORCE_5V_MODE)
-    // BLTOUCH < V3.0 and clones: This will be ignored
-    // BLTOUCH V3.0: SET_5V_MODE (if enabled). OD_MODE is the default on power on, but setting it does not hurt 
+void BLTouch::init(const bool With_Voltage_Setting/*= false*/) {
+    // Voltage Setting (if enabled). This happens at every Marlin initialization:
+    // BLTOUCH < V3.0 and clones: This will be ignored by the probe
+    // BLTOUCH V3.0: SET_5V_MODE or SET_OD_MODE (if enabled).
+    //               OD_MODE is the default on power on, but setting it does not hurt
     //               This mode will stay active until manual SET_OD_MODE or power cycle
-    // BLTOUCH V3.1: SET_5V_MODE (if enabled). If not the probe will default to the eeprom settings configured by the user 
-    mode_conv_proc(true);                    // Set 5V mode if explicitely demanded (V3 upwards)
-  #endif
+    // BLTOUCH V3.1: SET_5V_MODE or SET_OD_MODE (if enabled).
+    //               At power on, the probe will default to the eeprom settings configured by the user
+    #if ENABLED(BLTOUCH_FORCE_5V_MODE)
+      if (With_Voltage_Setting) mode_conv_proc(true);
+    #elif ENABLED(BLTOUCH_FORCE_OD_MODE)
+      if (With_Voltage_Setting) mode_conv_proc(false);
+    #endif
   _reset();
   _stow();
-  // There really should be no alarm outstanding now, and no triggered condition. But if there is,
-  // there is no need to worry people here on init right at the start of the printer.
 }
 
 void BLTouch::clear() {
@@ -98,6 +101,11 @@ bool BLTouch::deploy_proc() {
       return true;                         // Tell our caller we goofed in case he cares to know
     }
   }
+
+  // One of the recommended ANTClabs ways to probe, using SW MODE
+  #if ENABLED(BLTOUCH_FORCE_SW_MODE)
+   _set_SW_mode();
+  #endif
 
   // Now the probe is ready to issue a 10ms pulse when the pin goes up.
   // The trigger STOW (see motion.cpp for example) will pull up the probes pin as soon as the pulse
