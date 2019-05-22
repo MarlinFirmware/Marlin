@@ -863,23 +863,23 @@
    *   - Disable LCD voltage options
    */
 
-  // Danger: Do not activate 5V mode when attached to a controller that is not 5V tolerant.
-  //   V3.0: Force a probe into 5V mode at Marlin startup, because OD mode is the hard coded default
+  // Danger: Don't activate 5V mode unless attached to a 5V-tolerant controller!
+  //   V3.0: Force a probe into 5V mode at Marlin startup, because OD mode is the hard-coded default.
   //   V3.1: Force a probe with unknown mode into 5V mode at Marlin startup ( = Probe EEPROM write )
-  //         It is a good idea to only use this once and then turn it off again
+  //         To preserve the life of the probe, use this once then turn it off and re-flash.
   //#define BLTOUCH_FORCE_5V_MODE
   
-  // Safety: Activate this if you are connecting a probe with an unknown voltage mode to your printer.
+  // Safety: Activate if connecting a probe with an unknown voltage mode.
   //   V3.0: Force a probe into OD mode at Marlin startup (not really needed, OD mode is the default).
   //   V3.1: Force a probe with unknown mode into OD mode at Marlin startup ( = Probe EEPROM write )
-  //         It is a good idea to only use this once and then turn it off again
+  //         To preserve the life of the probe, use this once then turn it off and re-flash.
   //#define BLTOUCH_FORCE_OD_MODE
   
-  // Danger: Do not use if your probe sometimes fails, this is only suitable for stable well-adjusted systems.
-  //         Use "HIGH SPEED" mode for probing
+  // Use "HIGH SPEED" mode for probing.
+  // Danger: Disable if your probe sometimes fails. Only suitable for stable well-adjusted systems.
   //#define BLTOUCH_HS_MODE
 
-  // Safety: Disable the voltage mode settings in the LCD configuration menus (OEMs)
+  // Safety: Disable voltage mode settings in the LCD menu (OEMs).
   //#define BLTOUCH_NO_LCD_VOLTAGE_MODIFY
 
 #endif // BLTOUCH
