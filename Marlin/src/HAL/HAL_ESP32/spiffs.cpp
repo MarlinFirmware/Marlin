@@ -28,8 +28,8 @@
 
 #include "../../core/serial.h"
 
-#include "FS.h"
-#include "SPIFFS.h"
+#include <FS.h>
+#include <SPIFFS.h>
 
 bool spiffs_initialized;
 

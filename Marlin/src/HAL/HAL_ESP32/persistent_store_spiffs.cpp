@@ -28,8 +28,8 @@
 
 #include "../shared/persistent_store_api.h"
 
-#include "SPIFFS.h"
-#include "FS.h"
+#include <SPIFFS.h>
+#include <FS.h>
 #include "spiffs.h"
 
 #define HAL_ESP32_EEPROM_SIZE 4096
