@@ -101,6 +101,9 @@
 #if ANY_THERMISTOR_IS(60) // Maker's Tool Works Kapton Bed Thermistor
   #include "thermistortable_60.h"
 #endif
+#if ANY_THERMISTOR_IS(61) // beta25 = 3950 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Formbot 350°C Thermistor"
+  #include "thermistortable_61.h"
+#endif
 #if ANY_THERMISTOR_IS(66) // DyzeDesign 500°C Thermistor
   #include "thermistortable_66.h"
 #endif

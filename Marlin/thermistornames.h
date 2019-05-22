@@ -87,6 +87,8 @@
   #define THERMISTOR_NAME "PT100 1K"
 
 // High Temperature thermistors
+#elif THERMISTOR_ID == 61
+  #define THERMISTOR_NAME "Formbot 350°C"
 #elif THERMISTOR_ID == 66
   #define THERMISTOR_NAME "Dyze 4.7M"
 
