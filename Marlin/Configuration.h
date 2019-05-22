@@ -875,7 +875,7 @@
   //         It is a good idea to only use this once and then turn it off again
   //#define BLTOUCH_FORCE_OD_MODE
   
-  // Danger: Advanced probing mode for stable and well-tested systems, do not use if your probe somtimes fails
+  // Danger: Do not use if your probe sometimes fails, this is only suitable for stable well adjusted systems
   //         Use "HIGH SPEED" mode for probing
   //#define BLTOUCH_HS_MODE
 
