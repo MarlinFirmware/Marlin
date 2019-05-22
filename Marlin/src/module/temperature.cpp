@@ -762,7 +762,7 @@ void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P
       Running = false;
       killed = true;
 
-      #if HAS_BUZZER && PIN_EXISTS(BEEPER) && ENABLED(THERMAL_PROTECTION_BEEPER)
+      #if HAS_BUZZER && PIN_EXISTS(BEEPER) && DISABLED(THERMAL_PROTECTION_BEEPER_DISABLE)
         for (uint8_t i = 20; i--;) {
           WRITE(BEEPER_PIN, HIGH); delay(25);
           WRITE(BEEPER_PIN, LOW); delay(80);

@@ -190,8 +190,8 @@
 #endif
 
 #if ENABLED(THERMAL_PROTECTION_HOTENDS) || ENABLED(THERMAL_PROTECTION_BED) || ENABLED(THERMAL_PROTECTION_CHAMBER)
-  // sound an audible beeper if thermal protection is triggered
-  #define THERMAL_PROTECTION_BEEPER
+  // disable sounding an audible beeper if thermal protection is triggered
+  //#define THERMAL_PROTECTION_BEEPER_DISABLE
 #endif
 
 #if ENABLED(PIDTEMP)
