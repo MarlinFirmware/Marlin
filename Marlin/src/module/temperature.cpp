@@ -2206,27 +2206,29 @@ void Temperature::readings_ready() {
     #endif // HOTENDS > 1
   };
 
-  for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
-    const int16_t tdir = temp_dir[e], rawtemp = temp_hotend[e].raw * tdir;
-    const bool heater_on = (temp_hotend[e].target > 0)
-      #if ENABLED(PIDTEMP)
-        || (temp_hotend[e].soft_pwm_amount > 0)
-      #endif
-    ;
-    if (rawtemp > temp_range[e].raw_max * tdir) max_temp_error(e);
-    if (heater_on && rawtemp < temp_range[e].raw_min * tdir && !is_preheating(e)) {
+  #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+    for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
+      const int16_t tdir = temp_dir[e], rawtemp = temp_hotend[e].raw * tdir;
+      const bool heater_on = (temp_hotend[e].target > 0)
+        #if ENABLED(PIDTEMP)
+          || (temp_hotend[e].soft_pwm_amount > 0)
+        #endif
+      ;
+      if (rawtemp > temp_range[e].raw_max * tdir) max_temp_error(e);
+      if (heater_on && rawtemp < temp_range[e].raw_min * tdir && !is_preheating(e)) {
+        #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+          if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+        #endif
+            min_temp_error(e);
+      }
       #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-        if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+        else
+          consecutive_low_temperature_error[e] = 0;
       #endif
-          min_temp_error(e);
     }
-    #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-      else
-        consecutive_low_temperature_error[e] = 0;
-    #endif
-  }
+  #endif
 
-  #if HAS_HEATED_BED
+  #if HAS_HEATED_BED && ENABLED(THERMAL_PROTECTION_BED)
     #if TEMPDIR(BED) < 0
       #define BEDCMP(A,B) ((A)<=(B))
     #else
@@ -2241,7 +2243,7 @@ void Temperature::readings_ready() {
     if (bed_on && BEDCMP(mintemp_raw_BED, temp_bed.raw)) min_temp_error(-1);
   #endif
 
-  #if HAS_HEATED_CHAMBER
+  #if HAS_HEATED_CHAMBER && ENABLED(THERMAL_PROTECTION_CHAMBER)
     #if TEMPDIR(CHAMBER) < 0
       #define CHAMBERCMP(A,B) ((A)<=(B))
     #else
