@@ -828,40 +828,40 @@
  */
 //#define BLTOUCH
 #if ENABLED(BLTOUCH)
-  /*
-  * Either: Use the defaults (recommended) or: For special purposes, use the following DEFINES
-  * Do not activate settings that the probe might not understand. Clones might misunderstand
-  * advanced commands.
-  * 
-  * Note: If the probe is not deploying, check a "Cmd: Reset" and "Cmd: Self-Test" and then
-  *       check the wiring of the BROWN, RED and ORANGE wires.
-  * 
-  * Note: If the trigger signal of your probe is not being recognized, it has been very often
-  *       because the BLACK and WHITE wires needed to be swapped. They are not "interchangeable"
-  *       like they would be with a real switch. So please check the wiring first.
-  * 
-  * Settings for all probe types
-  */
+  /**
+   * Either: Use the defaults (recommended) or: For special purposes, use the following DEFINES
+   * Do not activate settings that the probe might not understand. Clones might misunderstand
+   * advanced commands.
+   * 
+   * Note: If the probe is not deploying, check a "Cmd: Reset" and "Cmd: Self-Test" and then
+   *       check the wiring of the BROWN, RED and ORANGE wires.
+   * 
+   * Note: If the trigger signal of your probe is not being recognized, it has been very often
+   *       because the BLACK and WHITE wires needed to be swapped. They are not "interchangeable"
+   *       like they would be with a real switch. So please check the wiring first.
+   * 
+   * Settings for all BLTouch and clone probes:
+   */
 
-  // Safety: The probe needs time to recognize the command
-  //         Minimum command delay (ms). Enable and increase if needed
+  // Safety: The probe needs time to recognize the command.
+  //         Minimum command delay (ms). Enable and increase if needed.
   //#define BLTOUCH_DELAY 500
 
-  /*
-  * Settings for BLTOUCH Classic 1.2, 1.3 or BLTouch Smart 1.0, 2.0, 2.2, 3.0, 3.1, later and most clones
-  */
+  /**
+   * Settings for BLTOUCH Classic 1.2, 1.3 or BLTouch Smart 1.0, 2.0, 2.2, 3.0, 3.1, and most clones:
+   */
 
   // Feature: Switch into SW mode after a deploy. It makes the output pulse longer. Can be useful
   //          in special cases, like noisy or filtered input configurations.
   //#define BLTOUCH_FORCE_SW_MODE
 
-  /*
-  * Settings for BLTouch Smart 3.0, 3.1, later
-  * Summary:
-  *          - Voltage modes: 5V and OD (open drain - "logic voltage free") output modes
-  *          - High-Speed mode
-  *          - Disable LCD voltage options
-  */
+  /**
+   * Settings for BLTouch Smart 3.0 and 3.1
+   * Summary:
+   *   - Voltage modes: 5V and OD (open drain - "logic voltage free") output modes
+   *   - High-Speed mode
+   *   - Disable LCD voltage options
+   */
 
   // Danger: Do not activate 5V mode when attached to a controller that is not 5V tolerant.
   //   V3.0: Force a probe into 5V mode at Marlin startup, because OD mode is the hard coded default
@@ -869,20 +869,20 @@
   //         It is a good idea to only use this once and then turn it off again
   //#define BLTOUCH_FORCE_5V_MODE
   
-  // Safety: Activate this if you are connecting a probe with an unknown voltage mode to your printer
+  // Safety: Activate this if you are connecting a probe with an unknown voltage mode to your printer.
   //   V3.0: Force a probe into OD mode at Marlin startup (not really needed, OD mode is the default).
   //   V3.1: Force a probe with unknown mode into OD mode at Marlin startup ( = Probe EEPROM write )
   //         It is a good idea to only use this once and then turn it off again
   //#define BLTOUCH_FORCE_OD_MODE
   
-  // Danger: Do not use if your probe sometimes fails, this is only suitable for stable well adjusted systems
+  // Danger: Do not use if your probe sometimes fails, this is only suitable for stable well-adjusted systems.
   //         Use "HIGH SPEED" mode for probing
   //#define BLTOUCH_HS_MODE
 
   // Safety: Disable the voltage mode settings in the LCD configuration menus (OEMs)
   //#define BLTOUCH_NO_LCD_VOLTAGE_MODIFY
 
-#endif
+#endif // BLTOUCH
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
