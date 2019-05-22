@@ -79,3 +79,21 @@
     #endif
   #endif
 #endif
+
+#if ENABLED(FYSETC_MINI_12864_2_1)
+  #define LED_CONTROL_MENU
+  #define LED_USER_PRESET_STARTUP
+  #define LED_COLOR_PRESETS
+  #ifndef LED_USER_PRESET_RED
+    #define LED_USER_PRESET_RED        255
+  #endif
+  #ifndef LED_USER_PRESET_GREEN
+    #define LED_USER_PRESET_GREEN      128
+  #endif
+  #ifndef LED_USER_PRESET_BLUE
+    #define LED_USER_PRESET_BLUE         0
+  #endif
+  #ifndef LED_USER_PRESET_BRIGHTNESS
+    #define LED_USER_PRESET_BRIGHTNESS 255
+  #endif
+#endif

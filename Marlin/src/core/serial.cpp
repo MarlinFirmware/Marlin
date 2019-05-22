@@ -50,7 +50,7 @@ void serial_echopair_PGM(PGM_P const s_P, unsigned long v) { serialprintPGM(s_P)
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
-void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P const off, PGM_P const post/*=NULL*/) {
+void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P const off, PGM_P const post/*=nullptr*/) {
   if (pre) serialprintPGM(pre);
   serialprintPGM(onoff ? on : off);
   if (post) serialprintPGM(post);

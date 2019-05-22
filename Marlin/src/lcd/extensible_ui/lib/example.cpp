@@ -1,6 +1,6 @@
-/*************
- * dummy.cpp *
- *************/
+/***************
+ * example.cpp *
+ ***************/
 
 /****************************************************************************
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
@@ -21,7 +21,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(EXTENSIBLE_UI)
+#if BOTH(EXTUI_EXAMPLE, EXTENSIBLE_UI)
 
 #include "../ui_api.h"
 
@@ -58,8 +58,36 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * const msg) {}
   void onStatusChanged(const char * const msg) {}
   void onFactoryReset() {}
-  void onLoadSettings() {}
-  void onStoreSettings() {}
+
+  void onStoreSettings(char *buff) {
+    // This is called when saving to EEPROM (i.e. M500). If the ExtUI needs
+    // permanent data to be stored, it can write up to eeprom_data_size bytes
+    // into buff.
+
+    // Example:
+    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
+  }
+
+  void onLoadSettings(const char *buff) {
+    // This is called while loading settings from EEPROM. If the ExtUI
+    // needs to retrieve data, it should copy up to eeprom_data_size bytes
+    // from buff
+
+    // Example:
+    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
+  }
+
+  void onConfigurationStoreWritten(bool success) {
+    // This is called after the entire EEPROM has been written,
+    // whether successful or not.
+  }
+
+  void onConfigurationStoreRead(bool success) {
+    // This is called after the entire EEPROM has been read,
+    // whether successful or not.
+  }
 }
 
-#endif // EXTENSIBLE_UI
+#endif // EXTUI_EXAMPLE && EXTENSIBLE_UI

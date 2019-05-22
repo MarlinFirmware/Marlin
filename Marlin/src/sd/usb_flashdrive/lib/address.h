@@ -183,7 +183,7 @@ public:
   virtual UsbDevice* GetUsbDevicePtr(uint8_t addr) {
     if (!addr) return thePool;
     uint8_t index = FindAddressIndex(addr);
-    return index ? thePool + index : NULL;
+    return index ? thePool + index : nullptr;
   }
 
   // Perform an operation specified by pfunc for each addressed device

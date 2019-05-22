@@ -141,14 +141,30 @@
   #define DEFAULT_LCD_CONTRAST 150
   #define LCD_CONTRAST_MAX 255
 
-#elif ENABLED(FYSETC_MINI_12864)
+#elif ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
 
+  #define FYSETC_MINI_12864
   #define DOGLCD
   #define ULTIPANEL
   #define LCD_CONTRAST_MIN 0
   #define LCD_CONTRAST_MAX 255
   #define DEFAULT_LCD_CONTRAST 255
   #define LED_COLORS_REDUCE_GREEN
+
+  // Require LED backlighting enabled
+  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #define RGB_LED
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+    #define NEOPIXEL_LED
+    #undef NEOPIXEL_TYPE
+    #define NEOPIXEL_TYPE       NEO_RGB
+    #undef NEOPIXEL_PIXELS
+    #define NEOPIXEL_PIXELS     3
+    #ifndef NEOPIXEL_BRIGHTNESS
+      #define NEOPIXEL_BRIGHTNESS 127
+    #endif
+    #define NEOPIXEL_STARTUP_TEST
+  #endif
 
 #endif
 
@@ -318,8 +334,14 @@
   #define ULTRA_LCD
 #endif
 
+// Extensible UI serial touch screens. (See src/lcd/extensible_ui)
+#if ENABLED(MALYAN_LCD)
+  #define EXTENSIBLE_UI
+#endif
+
 // Aliases for LCD features
 #define HAS_SPI_LCD          ENABLED(ULTRA_LCD)
+#define HAS_DISPLAY         (HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI))
 #define HAS_GRAPHICAL_LCD    ENABLED(DOGLCD)
 #define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
@@ -453,9 +475,6 @@
   #if NUM_SERVOS == 1
     #undef SERVO_DELAY
     #define SERVO_DELAY { 50 }
-  #endif
-  #ifndef BLTOUCH_DELAY
-    #define BLTOUCH_DELAY 375
   #endif
 
   // Always disable probe pin inverting for BLTouch

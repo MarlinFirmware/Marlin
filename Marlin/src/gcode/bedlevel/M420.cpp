@@ -32,6 +32,10 @@
   #include "../../module/configuration_store.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extensible_ui/ui_api.h"
+#endif
+
 //#define M420_C_USE_MEAN
 
 /**
@@ -175,13 +179,14 @@ void GcodeSuite::M420() {
             set_bed_leveling_enabled(false);
             // Subtract the mean from all values
             for (uint8_t x = GRID_MAX_POINTS_X; x--;)
-              for (uint8_t y = GRID_MAX_POINTS_Y; y--;)
+              for (uint8_t y = GRID_MAX_POINTS_Y; y--;) {
                 Z_VALUES(x, y) -= zmean;
+                #if ENABLED(EXTENSIBLE_UI)
+                  ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
+                #endif
+              }
             #if ENABLED(ABL_BILINEAR_SUBDIVISION)
               bed_level_virt_interpolate();
-            #endif
-            #if ENABLED(EXTENSIBLE_UI)
-              ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
             #endif
           }
 

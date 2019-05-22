@@ -67,7 +67,6 @@
 
 // PWM outputs
 #define PWM_PIN(P)              (P < 34) // NOTE Pins >= 34 are input only on ESP32, so they can't be used for output.
-#define USEABLE_HARDWARE_PWM(P) (!IS_I2S_EXPANDER_PIN(P) && PWM_PIN(P))
 
 // Toggle pin value
 #define TOGGLE(IO)              WRITE(IO, !READ(IO))
