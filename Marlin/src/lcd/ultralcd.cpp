@@ -229,7 +229,12 @@ millis_t next_button_update_ms;
 #endif // HAS_LCD_MENU
 
 void MarlinUI::init() {
-
+  //DrDitto
+  //BootScreen and Custom Boot screen moved
+  //Prior the LCD INIT
+  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+    ui.show_bootscreen();
+  #endif
   init_lcd();
 
   #if HAS_DIGITAL_BUTTONS
