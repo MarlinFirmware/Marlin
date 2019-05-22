@@ -92,6 +92,11 @@ esp_adc_cal_characteristics_t characteristics;
 // --------------------------------------------------------------------------
 
 void HAL_init(void) {
+  i2s_init();
+}
+
+void HAL_init_board(void) {
+
   #if ENABLED(WIFISUPPORT)
     wifi_init();
     #if ENABLED(OTASUPPORT)
@@ -106,7 +111,6 @@ void HAL_init(void) {
     spiffs_init();
   #endif
 
-  i2s_init();
 }
 
 void HAL_idletask(void) {
