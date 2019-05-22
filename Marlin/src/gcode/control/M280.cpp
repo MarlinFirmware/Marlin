@@ -34,9 +34,12 @@ void GcodeSuite::M280() {
   if (!parser.seen('P')) return;
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
-    if (parser.seen('S'))
-      MOVE_SERVO(servo_index, parser.value_int());
-    else {
+    if (parser.seen('S')) {
+      if (parser.value_int() == -1)
+        servo[servo_index].detach();
+      else
+        MOVE_SERVO(servo_index, parser.value_int());
+    } else {
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR(" Servo ", servo_index);
       SERIAL_ECHOLNPAIR(": ", servo[servo_index].read());
