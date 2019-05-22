@@ -143,18 +143,12 @@ uint16_t HAL_adc_get_result(void);
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-//
-// Tone
-//
-void toneInit();
-void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
-void noTone(const pin_t _pin);
-
 // Enable hooks into idle and setup for HAL
-#define HAL_IDLETASK 1
 #define HAL_INIT 1
-void HAL_idletask(void);
 void HAL_init(void);
+
+#define HAL_IDLETASK 1
+void HAL_idletask(void);
 
 //
 // Utility functions
