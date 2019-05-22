@@ -43,19 +43,23 @@ bool BLTouch::command(const BLTCommand cmd, const millis_t &ms) {
 }
 
 // Init the class and device. Call from setup().
-void BLTouch::init(const bool With_Voltage_Setting/*= false*/) {
-    // Voltage Setting (if enabled). This happens at every Marlin initialization:
-    // BLTOUCH < V3.0 and clones: This will be ignored by the probe
-    // BLTOUCH V3.0: SET_5V_MODE or SET_OD_MODE (if enabled).
-    //               OD_MODE is the default on power on, but setting it does not hurt
-    //               This mode will stay active until manual SET_OD_MODE or power cycle
-    // BLTOUCH V3.1: SET_5V_MODE or SET_OD_MODE (if enabled).
-    //               At power on, the probe will default to the eeprom settings configured by the user
-    #if ENABLED(BLTOUCH_FORCE_5V_MODE)
-      if (With_Voltage_Setting) mode_conv_proc(true);
-    #elif ENABLED(BLTOUCH_FORCE_OD_MODE)
-      if (With_Voltage_Setting) mode_conv_proc(false);
-    #endif
+void BLTouch::init(const bool set_voltage/*=false*/) {
+  // Voltage Setting (if enabled). At every Marlin initialization:
+  // BLTOUCH < V3.0 and clones: This will be ignored by the probe
+  // BLTOUCH V3.0: SET_5V_MODE or SET_OD_MODE (if enabled).
+  //               OD_MODE is the default on power on, but setting it does not hurt
+  //               This mode will stay active until manual SET_OD_MODE or power cycle
+  // BLTOUCH V3.1: SET_5V_MODE or SET_OD_MODE (if enabled).
+  //               At power on, the probe will default to the eeprom settings configured by the user
+  #if EITHER(BLTOUCH_FORCE_5V_MODE, BLTOUCH_FORCE_OD_MODE)
+    if (set_voltage) mode_conv_proc(false
+      #if ENABLED(BLTOUCH_FORCE_5V_MODE)
+        || true
+      #endif
+    );
+  #else
+    UNUSED(set_voltage);
+  #endif
   _reset();
   _stow();
 }
