@@ -372,7 +372,7 @@ void _lcd_pause_message(PGM_P const msg1, PGM_P const msg2=nullptr, PGM_P const 
   STATIC_ITEM_P(pause_header(), true, true);
   STATIC_ITEM_P(msg1);
   if (msg2) STATIC_ITEM_P(msg2);
-  if (msg3) STATIC_ITEM_P(msg3);
+  if ((!!msg3) & (LCD_HEIGHT > 4)) STATIC_ITEM_P(msg3);
   if ((!!msg2) + (!!msg3) + 2 < LCD_HEIGHT - 1) STATIC_ITEM(" ");
   HOTEND_STATUS_ITEM();
   END_SCREEN();
