@@ -39,7 +39,8 @@ void GcodeSuite::M280() {
         servo[servo_index].detach();
       else
         MOVE_SERVO(servo_index, parser.value_int());
-    } else {
+    }
+    else {
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR(" Servo ", servo_index);
       SERIAL_ECHOLNPAIR(": ", servo[servo_index].read());
