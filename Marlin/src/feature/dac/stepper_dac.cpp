@@ -25,7 +25,7 @@
  *
  * Part of Marlin
  *
- * Copyright (c) 2016 MarlinFirmware
+ * Copyright (c) 2019 MarlinFirmware
  *
  * Marlin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
