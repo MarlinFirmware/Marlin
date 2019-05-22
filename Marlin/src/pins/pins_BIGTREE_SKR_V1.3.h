@@ -302,3 +302,6 @@
   *   P0_27  (57) (Open collector)
   *   P0_28  (58) (Open collector)
   */
+
+#define BOARD_WEBSITE_URL __DATE__ " " __TIME__
+#define BUILD_DATE __DATE__ " " __TIME__
