@@ -1192,16 +1192,16 @@ void Temperature::manage_heater() {
   uint8_t l = 0, r = LEN, m;                                           \
   for (;;) {                                                           \
     m = l + r;                                                         \
-    if (!m) return (short)pgm_read_word(&TBL[0][1]);                   \
+    if (!m) return short(pgm_read_word(&TBL[0][1]));                   \
     m >>= 1;                                                           \
-    if (m == l || m == r) return (short)pgm_read_word(&TBL[LEN-1][1]); \
+    if (m == l || m == r) return short(pgm_read_word(&TBL[LEN-1][1])); \
     short v00 = pgm_read_word(&TBL[m-1][0]),                           \
           v10 = pgm_read_word(&TBL[m-0][0]);                           \
          if (raw < v00) r = m;                                         \
     else if (raw > v10) l = m;                                         \
     else {                                                             \
-      const short v01 = (short)pgm_read_word(&TBL[m-1][1]),            \
-                  v11 = (short)pgm_read_word(&TBL[m-0][1]);            \
+      const short v01 = short(pgm_read_word(&TBL[m-1][1])),            \
+                  v11 = short(pgm_read_word(&TBL[m-0][1]));            \
       return v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00);  \
     }                                                                  \
   }                                                                    \
