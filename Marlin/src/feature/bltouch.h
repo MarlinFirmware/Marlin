@@ -67,7 +67,7 @@ typedef unsigned char BLTCommand;
 
 class BLTouch {
 public:
-  static void init(const bool With_Voltage_Setting = false);
+  static void init(const bool set_voltage=false);
 
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
   FORCE_INLINE static bool deploy()              { return deploy_proc(); }
