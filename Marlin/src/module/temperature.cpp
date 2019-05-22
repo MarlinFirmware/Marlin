@@ -102,6 +102,10 @@ Temperature thermalManager;
 #define _E_PSTR(M,E,N) ((HOTENDS) >= (N) && (E) == (N)-1) ? PSTR(MSG_E##N " " M) :
 #define TEMP_ERR_PSTR(M,E) _BED_PSTR(M##_BED,E) _CHAMBER_PSTR(M##_CHAMBER,E) _E_PSTR(M,E,2) _E_PSTR(M,E,3) _E_PSTR(M,E,4) _E_PSTR(M,E,5) _E_PSTR(M,E,6) PSTR(MSG_E1 " " M)
 
+#ifndef THERMAL_PROTECTION_GRACE_PERIOD
+  #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
+#endif
+
 // public:
 
 #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
@@ -989,9 +993,6 @@ void Temperature::manage_heater() {
   #endif
 
   #if HAS_THERMAL_PROTECTION
-    #ifndef THERMAL_PROTECTION_GRACE_PERIOD
-      #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
-    #endif
     #if THERMAL_PROTECTION_GRACE_PERIOD > 0
       static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
       if (ELAPSED(ms, grace_period)) grace_period = 0UL;
@@ -1689,12 +1690,12 @@ void Temperature::init() {
 
     #define _TEMP_MIN_E(NR) do{ \
       temp_range[NR].mintemp = HEATER_ ##NR## _MINTEMP; \
-      while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) < HEATER_ ##NR## _MINTEMP) \
+      while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) > HEATER_ ##NR## _MINTEMP) \
         temp_range[NR].raw_min += TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
     #define _TEMP_MAX_E(NR) do{ \
       temp_range[NR].maxtemp = HEATER_ ##NR## _MAXTEMP; \
-      while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > HEATER_ ##NR## _MAXTEMP) \
+      while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) < HEATER_ ##NR## _MAXTEMP) \
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
 
@@ -1749,19 +1750,19 @@ void Temperature::init() {
 
   #if HAS_HEATED_BED
     #ifdef BED_MINTEMP
-      while (analog_to_celsius_bed(mintemp_raw_BED) < BED_MINTEMP) mintemp_raw_BED += TEMPDIR(BED) * (OVERSAMPLENR);
+      while (analog_to_celsius_bed(mintemp_raw_BED) > BED_MINTEMP) mintemp_raw_BED += TEMPDIR(BED) * (OVERSAMPLENR);
     #endif
     #ifdef BED_MAXTEMP
-      while (analog_to_celsius_bed(maxtemp_raw_BED) > BED_MAXTEMP) maxtemp_raw_BED -= TEMPDIR(BED) * (OVERSAMPLENR);
+      while (analog_to_celsius_bed(maxtemp_raw_BED) < BED_MAXTEMP) maxtemp_raw_BED -= TEMPDIR(BED) * (OVERSAMPLENR);
     #endif
   #endif // HAS_HEATED_BED
 
   #if HAS_HEATED_CHAMBER
     #ifdef CHAMBER_MINTEMP
-      while (analog_to_celsius_chamber(mintemp_raw_CHAMBER) < CHAMBER_MINTEMP) mintemp_raw_CHAMBER += TEMPDIR(CHAMBER) * (OVERSAMPLENR);
+      while (analog_to_celsius_chamber(mintemp_raw_CHAMBER) > CHAMBER_MINTEMP) mintemp_raw_CHAMBER += TEMPDIR(CHAMBER) * (OVERSAMPLENR);
     #endif
     #ifdef CHAMBER_MAXTEMP
-      while (analog_to_celsius_chamber(maxtemp_raw_CHAMBER) > CHAMBER_MAXTEMP) maxtemp_raw_CHAMBER -= TEMPDIR(CHAMBER) * (OVERSAMPLENR);
+      while (analog_to_celsius_chamber(maxtemp_raw_CHAMBER) < CHAMBER_MAXTEMP) maxtemp_raw_CHAMBER -= TEMPDIR(CHAMBER) * (OVERSAMPLENR);
     #endif
   #endif
 
@@ -2165,6 +2166,17 @@ void Temperature::set_current_temp_raw() {
 #endif
 
 void Temperature::readings_ready() {
+
+  #if HAS_THERMAL_PROTECTION
+    millis_t ms = millis();
+    #if THERMAL_PROTECTION_GRACE_PERIOD > 0
+      static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
+      if (ELAPSED(ms, grace_period)) grace_period = 0UL;
+    #else
+      static constexpr millis_t grace_period = 0UL;
+    #endif
+  #endif
+
   // Update the raw values if they've been read. Else we could be updating them during reading.
   if (!temp_meas_ready) set_current_temp_raw();
 
@@ -2206,53 +2218,72 @@ void Temperature::readings_ready() {
     #endif // HOTENDS > 1
   };
 
-  #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-    for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
-      const int16_t tdir = temp_dir[e], rawtemp = temp_hotend[e].raw * tdir;
-      const bool heater_on = (temp_hotend[e].target > 0)
-        #if ENABLED(PIDTEMP)
-          || (temp_hotend[e].soft_pwm_amount > 0)
-        #endif
-      ;
-      if (rawtemp > temp_range[e].raw_max * tdir) max_temp_error(e);
-      if (heater_on && rawtemp < temp_range[e].raw_min * tdir && !is_preheating(e)) {
-        #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-          if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
-        #endif
-            min_temp_error(e);
-      }
-      #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-        else
-          consecutive_low_temperature_error[e] = 0;
-      #endif
-    }
-  #endif
+  if (!grace_period)
+  {
+    #if HOTENDS && ENABLED(THERMAL_PROTECTION_HOTENDS)
+      for (uint8_t e = 0; e < HOTENDS; e++) {
+        #if ENABLED(HEATER_0_USES_MAX6675)
+          if (e == 0)
+            continue;
+          #endif
 
-  #if HAS_HEATED_BED && ENABLED(THERMAL_PROTECTION_BED)
-    #if TEMPDIR(BED) < 0
-      #define BEDCMP(A,B) ((A)<=(B))
-    #else
-      #define BEDCMP(A,B) ((A)>=(B))
+          const int16_t raw_max = temp_dir[e] > 0 ? temp_range[e].raw_max : temp_range[e].raw_min;
+          const int16_t raw_min = temp_dir[e] > 0 ? temp_range[e].raw_min : temp_range[e].raw_max;
+
+          const bool heater_on = (temp_hotend[e].target > 0)
+          #if ENABLED(PIDTEMP)
+            || (temp_hotend[e].soft_pwm_amount > 0)
+          #endif
+          ;
+
+          if (raw_max >= temp_hotend[e].raw)
+            max_temp_error(e);
+          else
+          if (heater_on && temp_hotend[e].raw >= raw_min && !is_preheating(e)) {
+            #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+              if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+            #endif
+                min_temp_error(e);
+          }
+          #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+            else
+              consecutive_low_temperature_error[e] = 0;
+          #endif
+      }
     #endif
-    const bool bed_on = (temp_bed.target > 0)
+
+    #if HAS_HEATED_BED && ENABLED(THERMAL_PROTECTION_BED)
+      #if TEMPDIR(BED) < 0
+        #define BEDCMP(A,B) ((A)<=(B))
+      #else
+        #define BEDCMP(A,B) ((A)>=(B))
+      #endif
+      const bool bed_on = (temp_bed.target > 0)
       #if ENABLED(PIDTEMPBED)
         || (temp_bed.soft_pwm_amount > 0)
       #endif
-    ;
-    if (BEDCMP(temp_bed.raw, maxtemp_raw_BED)) max_temp_error(-1);
-    if (bed_on && BEDCMP(mintemp_raw_BED, temp_bed.raw)) min_temp_error(-1);
-  #endif
-
-  #if HAS_HEATED_CHAMBER && ENABLED(THERMAL_PROTECTION_CHAMBER)
-    #if TEMPDIR(CHAMBER) < 0
-      #define CHAMBERCMP(A,B) ((A)<=(B))
-    #else
-      #define CHAMBERCMP(A,B) ((A)>=(B))
+      ;
+      if (BEDCMP(maxtemp_raw_BED, temp_bed.raw))
+        max_temp_error(-1);
+      else
+      if (bed_on && BEDCMP(temp_bed.raw, mintemp_raw_BED))
+        min_temp_error(-1);
     #endif
-    const bool chamber_on = (temp_chamber.target > 0);
-    if (CHAMBERCMP(temp_chamber.raw, maxtemp_raw_CHAMBER)) max_temp_error(-2);
-    if (chamber_on && CHAMBERCMP(mintemp_raw_CHAMBER, temp_chamber.raw)) min_temp_error(-2);
-  #endif
+
+    #if HAS_HEATED_CHAMBER && ENABLED(THERMAL_PROTECTION_CHAMBER)
+      #if TEMPDIR(CHAMBER) < 0
+        #define CHAMBERCMP(A,B) ((A)<=(B))
+      #else
+        #define CHAMBERCMP(A,B) ((A)>=(B))
+      #endif
+      const bool chamber_on = (temp_chamber.target > 0);
+      if (CHAMBERCMP(maxtemp_raw_CHAMBER, temp_chamber.raw))
+        max_temp_error(-2);
+      else
+      if (chamber_on && CHAMBERCMP(temp_chamber.raw, mintemp_raw_CHAMBER))
+       min_temp_error(-2);
+    #endif
+  }
 }
 
 /**
