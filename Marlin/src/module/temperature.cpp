@@ -68,6 +68,10 @@
   #include "tool_change.h"
 #endif
 
+#if HAS_BUZZER
+  #include "../libs/buzzer.h"
+#endif
+
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
@@ -750,10 +754,22 @@ void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P
     else SERIAL_ECHOPGM(MSG_HEATER_BED);
     SERIAL_EOL();
   }
+
   #if DISABLED(BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE)
     if (!killed) {
       Running = false;
       killed = true;
+
+      disable_all_heaters();
+
+      #if HAS_BUZZER && PIN_EXISTS(BEEPER)
+        for (uint8_t i = 20; i--;) {
+          WRITE(BEEPER_PIN, HIGH); delay(25);
+          WRITE(BEEPER_PIN, LOW); delay(80);
+        }
+        WRITE(BEEPER_PIN, HIGH);
+      #endif
+
       kill(lcd_msg);
     }
     else
@@ -1175,15 +1191,17 @@ void Temperature::manage_heater() {
 #define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                             \
   uint8_t l = 0, r = LEN, m;                                           \
   for (;;) {                                                           \
-    m = (l + r) >> 1;                                                  \
-    if (m == l || m == r) return (short)pgm_read_word(&TBL[LEN-1][1]); \
+    m = l + r;                                                         \
+    if (!m) return short(pgm_read_word(&TBL[0][1]));                   \
+    m >>= 1;                                                           \
+    if (m == l || m == r) return short(pgm_read_word(&TBL[LEN-1][1])); \
     short v00 = pgm_read_word(&TBL[m-1][0]),                           \
           v10 = pgm_read_word(&TBL[m-0][0]);                           \
          if (raw < v00) r = m;                                         \
     else if (raw > v10) l = m;                                         \
     else {                                                             \
-      const short v01 = (short)pgm_read_word(&TBL[m-1][1]),            \
-                  v11 = (short)pgm_read_word(&TBL[m-0][1]);            \
+      const short v01 = short(pgm_read_word(&TBL[m-1][1])),            \
+                  v11 = short(pgm_read_word(&TBL[m-0][1]));            \
       return v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00);  \
     }                                                                  \
   }                                                                    \
@@ -1301,12 +1319,6 @@ void Temperature::manage_heater() {
       value += user_thermistor[t_index].sh_c_coeff * log_resistance * log_resistance * log_resistance;
     value = 1.0f / value;
 
-    // Convert to degrees C
-    float deg_c = value + THERMISTOR_ABS_ZERO_C;
-
-    // Test only
-    //deg_c = constrain(deg_c, 6, 100);
-
     //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
     //  int32_t clocks = TCNT5 - tcnt5;
     //  if (clocks >= 0) {
@@ -1315,7 +1327,8 @@ void Temperature::manage_heater() {
     //  }
     //#endif
 
-    return deg_c;
+    // Return degrees C (up to 999, as the LCD only displays 3 digits)
+    return MIN(value + THERMISTOR_ABS_ZERO_C, 999);
   }
 #endif
 

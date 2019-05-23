@@ -107,18 +107,7 @@ void menu_backlash();
 #endif
 
 #if ENABLED(SD_FIRMWARE_UPDATE)
-
   #include "../../module/configuration_store.h"
-
-  //
-  // Toggle the SD Firmware Update state in EEPROM
-  //
-  static void _lcd_toggle_sd_update() {
-    const bool new_state = !settings.sd_update_status();
-    ui.completion_feedback(settings.set_sd_update_status(new_state));
-    ui.return_to_status();
-    if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
-  }
 #endif
 
 #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -705,7 +694,15 @@ void menu_advanced_settings() {
 
   #if ENABLED(SD_FIRMWARE_UPDATE)
     bool sd_update_state = settings.sd_update_status();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_SD_UPDATE, &sd_update_state, _lcd_toggle_sd_update);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_SD_UPDATE, &sd_update_state, []{
+      //
+      // Toggle the SD Firmware Update state in EEPROM
+      //
+      const bool new_state = !settings.sd_update_status();
+      ui.completion_feedback(settings.set_sd_update_status(new_state));
+      ui.return_to_status();
+      if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
+    });
   #endif
 
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)

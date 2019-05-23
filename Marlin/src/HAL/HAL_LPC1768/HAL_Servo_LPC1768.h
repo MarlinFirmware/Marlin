@@ -50,7 +50,7 @@
 
 #include <Servo.h>
 
-class MarlinServo: public Servo {
+class libServo: public Servo {
   public:
   void move(const int value) {
     constexpr uint16_t servo_delay[] = SERVO_DELAY;
@@ -67,4 +67,4 @@ class MarlinServo: public Servo {
   }
 };
 
-#define HAL_SERVO_LIB MarlinServo
+#define HAL_SERVO_LIB libServo

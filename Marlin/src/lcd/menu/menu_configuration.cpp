@@ -123,14 +123,15 @@ static void lcd_factory_settings() {
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
 
-  void _recalc_offsets() {
-    if (active_extruder && all_axes_known()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
-      enqueue_and_echo_commands_P(PSTR("G28")); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
-      active_extruder = 0;
-    }
-  }
-
   void menu_tool_offsets() {
+
+    auto _recalc_offsets = []{
+      if (active_extruder && all_axes_known()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
+        enqueue_and_echo_commands_P(PSTR("G28")); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
+        active_extruder = 0;
+      }
+    };
+
     START_MENU();
     MENU_BACK(MSG_MAIN);
     #if ENABLED(DUAL_X_CARRIAGE)
