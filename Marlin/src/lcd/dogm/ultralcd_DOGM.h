@@ -109,15 +109,20 @@
   #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)
 #elif ENABLED(MINIPANEL)
   // MINIPanel display
-  //#define U8G_CLASS U8GLIB_MINI12864
-  //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0
-  //DrDitto
-  //Use the HAL interface instead of the library one
-  #if ENABLED(MKS_MINI_12864)                           // 8 stripes
-    #define FORCE_SOFT_SPI
-    #define U8G_CLASS U8GLIB_MINI12864_2X_HAL
+  //Please take care of the fact that MKS_MINI_12864 are not electrical identical of minipanel ans
+  //latest versions of V1.x abd V2.x uses UC1701 but init screen differs from the minipanel
+  //this is realy imprtant when the MCU has super fast refresh update frequence over SPI.
+  //In order to insolare this change to LPC1768 boards I add the following IF
+  //This change also could be used on other fastest MCU but was designed to LPC1768
+  //Feel free to test on other MCU's
+  #ifdef TARGET_LPC1768
+     #if ENABLED(MKS_MINI_12864)                           // 8 stripes
+         #define U8G_CLASS U8GLIB_MINI12864_2X_HAL
+      #else
+         #define U8G_CLASS U8GLIB_MINI12864_2X
+      #endif
   #else
-    #define U8G_CLASS U8GLIB_MINI12864_2X
+      #define U8G_CLASS U8GLIB_MINI12864_2X
   #endif
   #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 8 stripes
 #elif ENABLED(FYSETC_MINI_12864)
