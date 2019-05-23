@@ -1058,7 +1058,7 @@ void setup() {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch.init();
+    bltouch.init(/*set_voltage=*/true);
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)

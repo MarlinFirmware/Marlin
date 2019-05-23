@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V66"
+#define EEPROM_VERSION "V67"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -107,6 +107,10 @@ extern float saved_extruder_advance_K[EXTRUDERS];
 #if EXTRUDERS > 1
   #include "tool_change.h"
   void M217_report(const bool eeprom);
+#endif
+
+#if ENABLED(BLTOUCH)
+  #include "../feature/bltouch.h"
 #endif
 
 #if HAS_TRINAMIC
@@ -205,6 +209,11 @@ typedef struct SettingsDataStruct {
   // SERVO_ANGLES
   //
   uint16_t servo_angles[EEPROM_NUM_SERVOS][2];          // M281 P L U
+
+  //
+  // BLTOUCH
+  //
+  bool bltouch_last_written_mode;
 
   //
   // DELTA / [XYZ]_DUAL_ENDSTOPS
@@ -698,6 +707,20 @@ void MarlinSettings::postprocess() {
         uint16_t servo_angles[EEPROM_NUM_SERVOS][2] = { { 0, 0 } };
       #endif
       EEPROM_WRITE(servo_angles);
+    }
+
+    //
+    // BLTOUCH
+    //
+    {
+      bool bltouch_last_written_mode = false;
+      _FIELD_TEST(bltouch_last_written_mode);
+      #if ENABLED(BLTOUCH)
+        const bool &bltouch_last_written_mode = bltouch.last_written_mode;
+      #else
+        constexpr bool bltouch_last_written_mode = false;
+      #endif
+      EEPROM_WRITE(bltouch_last_written_mode);
     }
 
     //
@@ -1486,6 +1509,19 @@ void MarlinSettings::postprocess() {
           uint16_t servo_angles_arr[EEPROM_NUM_SERVOS][2];
         #endif
         EEPROM_READ(servo_angles_arr);
+      }
+
+      //
+      // BLTOUCH
+      //
+      {
+        _FIELD_TEST(bltouch_last_written_mode);
+        #if ENABLED(BLTOUCH)
+          bool &bltouch_last_written_mode = bltouch.last_written_mode;
+        #else
+          bool bltouch_last_written_mode;
+        #endif
+        EEPROM_READ(bltouch_last_written_mode);
       }
 
       //
@@ -2311,6 +2347,13 @@ void MarlinSettings::reset() {
 
   #if ENABLED(EDITABLE_SERVO_ANGLES)
     COPY(servo_angles, base_servo_angles);
+  #endif
+
+  //
+  // BLTOUCH
+  //
+  #if ENABLED(BLTOUCH)
+    bltouch.last_written_mode;
   #endif
 
   //
