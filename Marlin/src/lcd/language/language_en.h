@@ -1185,6 +1185,9 @@
 #ifndef MSG_RUNOUT_SENSOR
   #define MSG_RUNOUT_SENSOR                   _UxGT("Runout Sensor")
 #endif
+#ifndef MSG_RUNOUT_DISTANCE_MM
+  #define MSG_RUNOUT_DISTANCE_MM              _UxGT("Runout Dist mm")
+#endif
 #ifndef MSG_ERR_HOMING_FAILED
   #define MSG_ERR_HOMING_FAILED               _UxGT("Homing failed")
 #endif
