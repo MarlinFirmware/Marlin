@@ -117,7 +117,7 @@ static const uint8_t u8g_dev_uc1701_mini12864_HAL_init_seq[] PROGMEM = {
 };
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_data_start[] PROGMEM = {
-  #if TARGET(LPC1768) 
+    #ifdef TARGET_LPC1768
       #if ENABLED(MKS_MINI_12864)
           U8G_ESC_ADR(0),             /* instruction mode */
           U8G_ESC_CS(1),              /* enable chip */
