@@ -66,6 +66,8 @@ void safe_delay(millis_t ms) {
         "BLTOUCH"
       #elif HAS_Z_SERVO_PROBE
         "SERVO PROBE"
+      #elif ENABLED(TOUCH_MI_PROBE)
+        "TOUCH_MI_PROBE"
       #elif ENABLED(Z_PROBE_SLED)
         "Z_PROBE_SLED"
       #elif ENABLED(Z_PROBE_ALLEN_KEY)
