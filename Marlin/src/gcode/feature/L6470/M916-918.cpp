@@ -34,7 +34,7 @@
 
 /**
  *
- * M916: increase KVAL_HOLD until get thermal warning
+ * M916: Increase KVAL_HOLD until thermal warning
  *
  *
  * J - select which driver(s) to monitor on multi-driver axis
