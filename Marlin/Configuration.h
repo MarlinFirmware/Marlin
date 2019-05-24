@@ -112,7 +112,7 @@
  *
  * :[0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT 2 // 2 for bluetooth, 0 for USB
+#define SERIAL_PORT 0 // 2 for bluetooth, 0 for USB
 
 /**
  * This setting determines the communication speed of the printer.
