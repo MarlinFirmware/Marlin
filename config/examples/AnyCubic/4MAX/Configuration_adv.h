@@ -282,8 +282,8 @@
   #define CONTROLLER_FAN_PIN          7    // Set a custom pin for the controller fan
   #define CONTROLLERFAN_SECS         60    // Duration in seconds for the fan to run after all motors are disabled
   #define CONTROLLERFAN_SPEED       170    // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
-  //#define CONTROLLERFAN_IDLE_SPEED   60    // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
-  //#define CONTROLLER_FAN_MENU              // Enables Controller FAN  in Settings menu
+  #define CONTROLLERFAN_IDLE_SPEED   60    // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
+  #define CONTROLLER_FAN_MENU              // Enables Controller FAN  in Settings menu
 #endif
 
 // When first starting the main fan, run it at full speed for the
@@ -383,10 +383,6 @@
     #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
   #endif
 #endif
-
-//===========================================================================
-//============================ Mechanical Settings ==========================
-//===========================================================================
 
 // @section homing
 
@@ -565,7 +561,7 @@
 // Default stepper release if idle. Set to 0 to deactivate.
 // Steppers will shut down DEFAULT_STEPPER_DEACTIVE_TIME seconds after the last move when DISABLE_INACTIVE_? is true.
 // Time can be set by M18 and M84.
-#define DEFAULT_STEPPER_DEACTIVE_TIME 120
+#define DEFAULT_STEPPER_DEACTIVE_TIME 300 // Wait 5 Minutes
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
 #define DISABLE_INACTIVE_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
@@ -826,7 +822,7 @@
   // as SD_DETECT_PIN in your board's pins definitions.
   // This setting should be disabled unless you are using a push button, pulling the pin to ground.
   // Note: This is always disabled for ULTIPANEL (except ELB_FULL_GRAPHIC_CONTROLLER).
-  #define SD_DETECT_INVERTED
+  //#define SD_DETECT_INVERTED
 
   #define SD_FINISHED_STEPPERRELEASE true          // Disable steppers when SD Print is finished
   #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the Z enabled so your bed stays in place.
@@ -849,7 +845,7 @@
    * an option on the LCD screen to continue the print from the last-known
    * point in the file.
    */
-  //#define POWER_LOSS_RECOVERY
+  #define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
     //#define POWER_LOSS_PIN         44 // Pin to detect power loss (optional)
     //#define POWER_LOSS_STATE     HIGH // State of pin indicating power loss
@@ -900,7 +896,7 @@
   #endif
 
   // This allows hosts to request long names for files and folders with M33
-  //#define LONG_FILENAME_HOST_SUPPORT
+  #define LONG_FILENAME_HOST_SUPPORT
 
   // Enable this option to scroll long filenames in the SD card menu
   #define SCROLL_LONG_FILENAMES
@@ -1042,14 +1038,14 @@
   #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
   //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
-  //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
-  //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
+  #define STATUS_FAN_FRAMES 4       // :[0,1,2,3,4] Number of fan animation frames
+  #define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
 
   // Frivolous Game Options
-  //#define MARLIN_BRICKOUT
-  //#define MARLIN_INVADERS
-  //#define MARLIN_SNAKE
+  #define MARLIN_BRICKOUT
+  #define MARLIN_INVADERS
+  #define MARLIN_SNAKE
 
 #endif // HAS_GRAPHICAL_LCD
 
