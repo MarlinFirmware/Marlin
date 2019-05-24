@@ -80,6 +80,8 @@
   #include "../HAL_STM32F4/HAL_Servo_STM32F4.h"
 #elif defined(ARDUINO_ARCH_STM32)
   #include "../HAL_STM32/HAL_Servo_STM32.h"
+#elif defined(ARDUINO_ARCH_ESP32)
+  #include "../HAL_ESP32/HAL_Servo_ESP32.h"
 #else
   #include <stdint.h>
 
