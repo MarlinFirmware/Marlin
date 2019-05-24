@@ -91,7 +91,7 @@ class TMCStorage {
       #if ENABLED(HYBRID_THRESHOLD)
         uint8_t hybrid_thrs = 0;
       #endif
-      #if ENABLED(SENSORLESS_HOMING)
+      #if USE_SENSORLESS
         int8_t homing_thrs = 0;
       #endif
     } stored;
@@ -131,7 +131,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
         #endif
       }
     #endif
-    #if ENABLED(SENSORLESS_HOMING)
+    #if USE_SENSORLESS
       inline int8_t sgt() { return TMC::sgt(); }
       void sgt(const int8_t sgt_val) {
         TMC::sgt(sgt_val);
@@ -147,7 +147,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       #if ENABLED(HYBRID_THRESHOLD)
         inline void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
       #endif
-      #if ENABLED(SENSORLESS_HOMING)
+      #if USE_SENSORLESS
         inline void refresh_homing_thrs() { sgt(this->stored.homing_thrs); }
       #endif
     #endif
@@ -210,7 +210,7 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
       TMC2660Stepper::rms_current(mA);
     }
 
-    #if ENABLED(SENSORLESS_HOMING)
+    #if USE_SENSORLESS
       inline int8_t sgt() { return TMC2660Stepper::sgt(); }
       void sgt(const int8_t sgt_val) {
         TMC2660Stepper::sgt(sgt_val);
@@ -223,7 +223,7 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
     #if HAS_LCD_MENU
       inline void refresh_stepper_current() { rms_current(this->val_mA); }
 
-      #if ENABLED(SENSORLESS_HOMING)
+      #if USE_SENSORLESS
         inline void refresh_homing_thrs() { sgt(this->stored.homing_thrs); }
       #endif
     #endif
@@ -257,7 +257,7 @@ void tmc_print_current(TMC &st) {
     SERIAL_ECHOLNPAIR(" stealthChop max speed: ", st.get_pwm_thrs());
   }
 #endif
-#if ENABLED(SENSORLESS_HOMING)
+#if USE_SENSORLESS
   template<typename TMC>
   void tmc_print_sgt(TMC &st) {
     st.printLabel();
