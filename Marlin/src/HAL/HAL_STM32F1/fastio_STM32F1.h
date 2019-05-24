@@ -50,10 +50,8 @@
 
 #define IS_INPUT(IO)          (_GET_MODE(IO) == GPIO_INPUT_FLOATING || _GET_MODE(IO) == GPIO_INPUT_ANALOG || _GET_MODE(IO) == GPIO_INPUT_PU || _GET_MODE(IO) == GPIO_INPUT_PD)
 #define IS_OUTPUT(IO)         (_GET_MODE(IO) == GPIO_OUTPUT_PP)
-#define HAS_TIMER(IO)         (PIN_MAP[IO].timer_device != nullptr)
 
-#define PWM_PIN(P)              HAS_TIMER(P)
-#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
+#define PWM_PIN(IO)           (PIN_MAP[IO].timer_device != nullptr)
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)
