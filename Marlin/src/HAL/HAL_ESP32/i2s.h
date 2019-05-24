@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include <stdint.h>
+
 // current value of the outputs provided over i2s
 extern uint32_t i2s_port_data;
 

@@ -37,20 +37,21 @@
 #define _GET_MODE(IO)         gpio_get_mode(PIN_MAP[IO].gpio_device, PIN_MAP[IO].gpio_bit)
 #define _SET_MODE(IO,M)       gpio_set_mode(PIN_MAP[IO].gpio_device, PIN_MAP[IO].gpio_bit, M)
 #define _SET_OUTPUT(IO)       _SET_MODE(IO, GPIO_OUTPUT_PP)
+#define _SET_OUTPUT_OD(IO)    _SET_MODE(IO, GPIO_OUTPUT_OD)
 
-#define OUT_WRITE(IO,V)       do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
+#define OUT_WRITE(IO,V)       do{ _SET_OUTPUT(IO); WRITE(IO,V); } while(0)
+#define OUT_WRITE_OD(IO,V)    do{ _SET_OUTPUT_OD(IO); WRITE(IO,V); } while(0)
 
 #define SET_INPUT(IO)         _SET_MODE(IO, GPIO_INPUT_FLOATING)
 #define SET_INPUT_PULLUP(IO)  _SET_MODE(IO, GPIO_INPUT_PU)
 #define SET_OUTPUT(IO)        OUT_WRITE(IO, LOW)
 #define SET_PWM(IO)           pinMode(IO, PWM)    // do{ gpio_set_mode(PIN_MAP[pin].gpio_device, PIN_MAP[pin].gpio_bit, GPIO_AF_OUTPUT_PP); timer_set_mode(PIN_MAP[pin].timer_device, PIN_MAP[pin].timer_channel, TIMER_PWM); }while(0)
+#define SET_PWM_OD(IO)        pinMode(IO, PWM_OPEN_DRAIN)
 
 #define IS_INPUT(IO)          (_GET_MODE(IO) == GPIO_INPUT_FLOATING || _GET_MODE(IO) == GPIO_INPUT_ANALOG || _GET_MODE(IO) == GPIO_INPUT_PU || _GET_MODE(IO) == GPIO_INPUT_PD)
 #define IS_OUTPUT(IO)         (_GET_MODE(IO) == GPIO_OUTPUT_PP)
-#define HAS_TIMER(IO)         (PIN_MAP[IO].timer_device != NULL)
 
-#define PWM_PIN(P)              HAS_TIMER(P)
-#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
+#define PWM_PIN(IO)           (PIN_MAP[IO].timer_device != nullptr)
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)

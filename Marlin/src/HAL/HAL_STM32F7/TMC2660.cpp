@@ -222,7 +222,6 @@ void TMC26XStepper::setSpeed(uint16_t whatSpeed) {
   this->speed = whatSpeed;
   this->step_delay = 60UL * sq(1000UL) / ((uint32_t)this->number_of_steps * (uint32_t)whatSpeed * (uint32_t)this->microsteps);
   #ifdef TMC_DEBUG0 // crashes
-    //SERIAL_PRINTF("Step delay in micros: ");
     SERIAL_ECHOPAIR("\nStep delay in micros: ", this->step_delay);
   #endif
   // Update the next step time
@@ -315,10 +314,8 @@ void TMC26XStepper::setCurrent(uint16_t current) {
     // and recalculate the current setting
     current_scaling = (byte)((resistor_value * mASetting * 32.0 / (0.165 * sq(1000.0))) - 0.5); //theoretically - 1.0 for better rounding it is 0.5
     #ifdef TMC_DEBUG0 // crashes
-        //SERIAL_PRINTF("CS (Vsense=1): ");
         SERIAL_ECHOPAIR("\nCS (Vsense=1): ",current_scaling);
       } else {
-        //SERIAL_PRINTF("CS: ");
         SERIAL_ECHOPAIR("\nCS: ", current_scaling);
     #endif
   }
@@ -405,7 +402,6 @@ void TMC26XStepper::setMicrosteps(const int16_t in_steps) {
   microsteps = _BV(8 - setting_pattern);
 
   #ifdef TMC_DEBUG0 // crashes
-    //SERIAL_PRINTF("Microstepping: ");
     SERIAL_ECHOPAIR("\n Microstepping: ", microsteps);
   #endif
 
@@ -612,7 +608,6 @@ void TMC26XStepper::setCoolStepConfiguration(
                           | (((uint32_t)lower_current_limit) << 15)
                           | COOL_STEP_REGISTER; // Register signature
 
-  //SERIAL_PRINTFln(cool_step_register_value,HEX);
   if (started) send262(cool_step_register_value);
 }
 
@@ -830,18 +825,14 @@ void TMC26XStepper::debugLastStatus() {
       uint32_t readout_config = driver_configuration_register_value & READ_SELECTION_PATTERN;
       const int16_t value = getReadoutValue();
       if (readout_config == READ_MICROSTEP_POSTION) {
-        //SERIAL_PRINTF("Microstep position phase A: ");
         SERIAL_ECHOPAIR("\n  Microstep position phase A: ", value);
       }
       else if (readout_config == READ_STALL_GUARD_READING) {
-        //SERIAL_PRINTF("Stall Guard value:");
         SERIAL_ECHOPAIR("\n  Stall Guard value:", value);
       }
       else if (readout_config == READ_STALL_GUARD_AND_COOL_STEP) {
         int16_t stallGuard = value & 0xF, current = value & 0x1F0;
-        //SERIAL_PRINTF("Approx Stall Guard: ");
         SERIAL_ECHOPAIR("\n  Approx Stall Guard: ", stallGuard);
-        //SERIAL_PRINTF("Current level");
         SERIAL_ECHOPAIR("\n  Current level", current);
       }
     }

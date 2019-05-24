@@ -1,7 +1,9 @@
 # Marlin 3D Printer Firmware
 
-[![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
+[![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=bugfix-2.0.x)](https://travis-ci.org/MarlinFirmware/Marlin)
+![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
+![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
+![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
 
 <img align="top" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
 
@@ -65,7 +67,7 @@ The current Marlin dev team consists of:
  - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - USA
  - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - USA
  - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
- - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Brazil
+ - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Portugal
  - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [![Flattr Erik](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
 
 ## License

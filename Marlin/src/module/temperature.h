@@ -26,6 +26,7 @@
  */
 
 #include "thermistor/thermistors.h"
+
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_POWER_CONTROL)
@@ -147,34 +148,6 @@ enum ADCSensorState : char {
 
 #define G26_CLICK_CAN_CANCEL (HAS_LCD_MENU && ENABLED(G26_MESH_VALIDATION))
 
-enum TempIndex : uint8_t {
-  #if HOTENDS > 0
-    TEMP_E0,
-    #if HOTENDS > 1
-      TEMP_E1,
-      #if HOTENDS > 2
-        TEMP_E2,
-        #if HOTENDS > 3
-          TEMP_E3,
-          #if HOTENDS > 4
-            TEMP_E4,
-            #if HOTENDS > 5
-              TEMP_E5,
-            #endif
-          #endif
-        #endif
-      #endif
-    #endif
-  #endif
-  #if HAS_HEATED_BED
-    TEMP_BED,
-  #endif
-  #if HAS_HEATED_CHAMBER
-    TEMP_CHAMBER,
-  #endif
-  tempCOUNT
-};
-
 // A temperature sensor
 typedef struct TempInfo {
   uint16_t acc;
@@ -235,6 +208,53 @@ typedef struct { int16_t raw_min, raw_max; } raw_range_t;
 typedef struct { int16_t mintemp, maxtemp; } celsius_range_t;
 typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
 
+#define THERMISTOR_ADC_RESOLUTION       1024           // 10-bit ADC .. shame to waste 12-bits of resolution on 32-bit
+#define THERMISTOR_ABS_ZERO_C           -273.15f       // bbbbrrrrr cold !
+#define THERMISTOR_RESISTANCE_NOMINAL_C 25.0f          // mmmmm comfortable
+
+#if HAS_USER_THERMISTORS
+
+  enum CustomThermistorIndex : uint8_t {
+    #if ENABLED(HEATER_0_USER_THERMISTOR)
+      CTI_HOTEND_0,
+    #endif
+    #if ENABLED(HEATER_1_USER_THERMISTOR)
+      CTI_HOTEND_1,
+    #endif
+    #if ENABLED(HEATER_2_USER_THERMISTOR)
+      CTI_HOTEND_2,
+    #endif
+    #if ENABLED(HEATER_3_USER_THERMISTOR)
+      CTI_HOTEND_3,
+    #endif
+    #if ENABLED(HEATER_4_USER_THERMISTOR)
+      CTI_HOTEND_4,
+    #endif
+    #if ENABLED(HEATER_5_USER_THERMISTOR)
+      CTI_HOTEND_5,
+    #endif
+    #if ENABLED(BED_USER_THERMISTOR)
+      CTI_BED,
+    #endif
+    #if ENABLED(CHAMBER_USER_THERMISTOR)
+      CTI_CHAMBER,
+    #endif
+    USER_THERMISTORS
+  };
+
+  // User-defined thermistor
+  typedef struct {
+    bool pre_calc;     // true if pre-calculations update needed
+    float sh_c_coeff,  // Steinhart-Hart C coefficient .. defaults to '0.0'
+          sh_alpha,
+          series_res,
+          res_25, res_25_recip,
+          res_25_log,
+          beta, beta_recip;
+  } user_thermistor_t;
+
+#endif
+
 class Temperature {
 
   public:
@@ -253,6 +273,10 @@ class Temperature {
 
     #if ENABLED(AUTO_POWER_E_FANS)
       static uint8_t autofan_speed[HOTENDS];
+    #endif
+
+    #if ENABLED(AUTO_POWER_CHAMBER_FAN)
+      static uint8_t chamberfan_speed;
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
@@ -387,6 +411,38 @@ class Temperature {
     /**
      * Static (class) methods
      */
+
+    #if HAS_USER_THERMISTORS
+      static user_thermistor_t user_thermistor[USER_THERMISTORS];
+      static void log_user_thermistor(const uint8_t t_index, const bool eprom=false);
+      static void reset_user_thermistors();
+      static float user_thermistor_to_deg_c(const uint8_t t_index, const int raw);
+      static bool set_pull_up_res(int8_t t_index, float value) {
+        //if (!WITHIN(t_index, 0, USER_THERMISTORS - 1)) return false;
+        if (!WITHIN(value, 1, 1000000)) return false;
+        user_thermistor[t_index].series_res = value;
+        return true;
+      }
+      static bool set_res25(int8_t t_index, float value) {
+        if (!WITHIN(value, 1, 10000000)) return false;
+        user_thermistor[t_index].res_25 = value;
+        user_thermistor[t_index].pre_calc = true;
+        return true;
+      }
+      static bool set_beta(int8_t t_index, float value) {
+        if (!WITHIN(value, 1, 1000000)) return false;
+        user_thermistor[t_index].beta = value;
+        user_thermistor[t_index].pre_calc = true;
+        return true;
+      }
+      static bool set_sh_coeff(int8_t t_index, float value) {
+        if (!WITHIN(value, -0.01f, 0.01f)) return false;
+        user_thermistor[t_index].sh_c_coeff = value;
+        user_thermistor[t_index].pre_calc = true;
+        return true;
+      }
+    #endif
+
     static float analog_to_celsius_hotend(const int raw, const uint8_t e);
 
     #if HAS_HEATED_BED
@@ -403,9 +459,9 @@ class Temperature {
 
       static void set_fan_speed(const uint8_t target, const uint16_t speed);
 
-      #if ENABLED(PROBING_FANS_OFF)
+      #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         static bool fans_paused;
-        static uint8_t paused_fan_speed[FAN_COUNT];
+        static uint8_t saved_fan_speed[FAN_COUNT];
       #endif
 
       static constexpr inline uint8_t fanPercent(const uint8_t speed) { return ui8_to_percent(speed); }
@@ -449,7 +505,7 @@ class Temperature {
 
       #endif // HAS_LCD_MENU
 
-      #if ENABLED(PROBING_FANS_OFF)
+      #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         void set_fans_paused(const bool p);
       #endif
 
@@ -555,20 +611,18 @@ class Temperature {
       static inline void start_watching_chamber() {}
     #endif
 
-    #if HAS_TEMP_CHAMBER
+    #if HAS_HEATED_CHAMBER
       static void setTargetChamber(const int16_t celsius) {
-        #if HAS_HEATED_CHAMBER
-          temp_chamber.target =
-            #ifdef CHAMBER_MAXTEMP
-              MIN(celsius, CHAMBER_MAXTEMP)
-            #else
-              celsius
-            #endif
-          ;
-          start_watching_chamber();
-        #endif // HAS_HEATED_CHAMBER
+        temp_chamber.target =
+          #ifdef CHAMBER_MAXTEMP
+            MIN(celsius, CHAMBER_MAXTEMP)
+          #else
+            celsius
+          #endif
+        ;
+        start_watching_chamber();
       }
-    #endif // HAS_TEMP_CHAMBER
+    #endif // HAS_HEATED_CHAMBER
 
     FORCE_INLINE static bool isHeatingHotend(const uint8_t e) {
       E_UNUSED();
@@ -628,13 +682,15 @@ class Temperature {
 
     #if HAS_TEMP_CHAMBER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        FORCE_INLINE static int16_t rawChamberTemp() { return temp_chamber.raw; }
+        FORCE_INLINE static int16_t rawChamberTemp()    { return temp_chamber.raw; }
       #endif
-      FORCE_INLINE static float degChamber() { return temp_chamber.current; }
+      FORCE_INLINE static float degChamber()            { return temp_chamber.current; }
       #if HAS_HEATED_CHAMBER
+        FORCE_INLINE static int16_t degTargetChamber()  { return temp_chamber.target; }
         FORCE_INLINE static bool isHeatingChamber()     { return temp_chamber.target > temp_chamber.current; }
         FORCE_INLINE static bool isCoolingChamber()     { return temp_chamber.target < temp_chamber.current; }
-        FORCE_INLINE static int16_t degTargetChamber() {return temp_chamber.target; }
+
+        static bool wait_for_chamber(const bool no_wait_for_cooling=true);
       #endif
     #endif // HAS_TEMP_CHAMBER
 
@@ -755,9 +811,6 @@ class Temperature {
     static void _temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
     static void min_temp_error(const int8_t e);
     static void max_temp_error(const int8_t e);
-    #if HAS_TEMP_CHAMBER
-      static void chamber_temp_error(const bool max);
-    #endif
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER)
 

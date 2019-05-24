@@ -30,14 +30,7 @@
 
 #include <stdint.h>
 
-#undef DISABLED
-#undef M_PI
-
-#include <Arduino.h>
-
-#undef DISABLED
-#define DISABLED(V...) DO(DIS,&&,V)
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 

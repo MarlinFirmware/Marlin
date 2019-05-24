@@ -72,15 +72,30 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int8_t GcodeSuite::get_target_extruder_from_command() {
   if (parser.seenval('T')) {
     const int8_t e = parser.value_byte();
-    if (e >= EXTRUDERS) {
-      SERIAL_ECHO_START();
-      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
-      return -1;
-    }
-    return e;
+    if (e < EXTRUDERS) return e;
+    SERIAL_ECHO_START();
+    SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+    SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
+    return -1;
   }
   return active_extruder;
+}
+
+/**
+ * Get the target e stepper from the T parameter
+ * Return -1 if the T parameter is out of range or unspecified
+ */
+int8_t GcodeSuite::get_target_e_stepper_from_command() {
+  const int8_t e = parser.intval('T', -1);
+  if (WITHIN(e, 0, E_STEPPERS - 1)) return e;
+
+  SERIAL_ECHO_START();
+  SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+  if (e == -1)
+    SERIAL_ECHOLNPGM(" " MSG_E_STEPPER_NOT_SPECIFIED);
+  else
+    SERIAL_ECHOLNPAIR(" " MSG_INVALID_E_STEPPER " ", int(e));
+  return -1;
 }
 
 /**
@@ -278,7 +293,7 @@ void GcodeSuite::process_parsed_command(
         case 58: G58(); break;
         case 59: G59(); break;
       #endif
-      
+
       #if ENABLED(GCODE_MOTION_MODES)
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
@@ -574,6 +589,10 @@ void GcodeSuite::process_parsed_command(
         case 303: M303(); break;                                  // M303: PID autotune
       #endif
 
+      #if HAS_USER_THERMISTORS
+        case 305: M305(); break;                                  // M305: Set user thermistor parameters
+      #endif
+
       #if ENABLED(MORGAN_SCARA)
         case 360: if (M360()) return; break;                      // M360: SCARA Theta pos1
         case 361: if (M361()) return; break;                      // M361: SCARA Theta pos2
@@ -790,9 +809,9 @@ void GcodeSuite::process_next_command() {
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLN(current_command);
-    #if ENABLED(M100_FREE_MEMORY_WATCHER)
+    #if ENABLED(M100_FREE_MEMORY_DUMPER)
       SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
+      M100_dump_routine(PSTR("   Command Queue:"), (const char*)command_queue, (const char*)(command_queue) + sizeof(command_queue));
     #endif
   }
 
