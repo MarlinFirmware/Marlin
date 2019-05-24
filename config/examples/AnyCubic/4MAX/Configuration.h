@@ -75,8 +75,8 @@
 // build by the user have been successfully uploaded into firmware.
 #define STRING_CONFIG_H_AUTHOR "(Erkan, Anycubic 4MAX)" // Who made the changes.
 //#define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
+#define STRING_SPLASH_LINE1 "Marlin 2.0.x"                    // will be shown during bootup in line 1
+#define STRING_SPLASH_LINE2 "http://github.com/geminiserver"  // will be shown during bootup in line 2
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -90,10 +90,10 @@
  */
 
 // Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
-//#define SHOW_CUSTOM_BOOTSCREEN
+#define SHOW_CUSTOM_BOOTSCREEN
 
 // Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
-//#define CUSTOM_STATUS_SCREEN_IMAGE
+#define CUSTOM_STATUS_SCREEN_IMAGE
 
 // @section machine
 
@@ -136,6 +136,21 @@
   #define MOTHERBOARD BOARD_TRIGORILLA_14
   // Only define ANYCUBIC_4MAX in combination with BOARD_TRIGORILLA_14
   #define ANYCUBIC_4MAX
+
+  // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
+  #define ANYCUBIC_4MAX_VG3R
+  //#define ANYCUBIC_4MAX_7OF9
+
+#endif
+
+#if DISABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #error "Default 4MAX settings are set! - ### Define your custom 4MAX setting! ###"
+#elif ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #error "All 4MAX settings are set! - ### Define JUST ONE custom 4MAX setting! ###"
+#elif ENABLED(ANYCUBIC_4MAX_VG3R)
+  //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_VG3R\"" )
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_7OF9\"" )
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -459,22 +474,25 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  // 4MAX with PID Autotune
+  // my 4MAX Printer: vg3r - PID - Hotend
+  #define DEFAULT_Kp 22.2 // Autotune 13.74
+  #define DEFAULT_Ki 1.08 // Autotune 0.72
+  #define DEFAULT_Kd 114  // Autotune 65.85
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // 4MAX with PID Autotune
   // my 4MAX Printer: 7of9 - PID - Hotend
-  //#define DEFAULT_Kp 12.97
-  //#define DEFAULT_Ki 0.72
-  //#define DEFAULT_Kd 58.44
-
-  // my 4MAX Printer: vg3r - PID - Hotend
-  //#define DEFAULT_Kp 13.74
-  //#define DEFAULT_Ki 0.72
-  //#define DEFAULT_Kd 65.85
-
-
+  #define DEFAULT_Kp 22.2 // Autotune 12.97
+  #define DEFAULT_Ki 1.08 // Autotune 0.72
+  #define DEFAULT_Kd 114  // Autotune 58.44
+#else
   // Default 4MAX
   #define DEFAULT_Kp 22.2
   #define DEFAULT_Ki 1.08
   #define DEFAULT_Kd 114
+#endif
+
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -521,24 +539,26 @@
 
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
-  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 22.20
-  #define DEFAULT_bedKi 1.08
-  #define DEFAULT_bedKd 114.00
-
-  // 4MAX with PID Autotune
-  // my 4MAX Printer: 7of9 - PID - BED
-  //#define DEFAULT_bedKp 266.39
-  //#define DEFAULT_bedKi 51.57
-  //#define DEFAULT_bedKd 344.01
-
-  // 4MAX with PID Autotune
-  // my 4MAX Printer: vg3r - PID - BED
-  //#define DEFAULT_bedKp 213.67
-  //#define DEFAULT_bedKi 42.07
-  //#define DEFAULT_bedKd 271.31
-
+  #if ENABLED(ANYCUBIC_4MAX_VG3R)
+    // 4MAX with PID Autotune
+    // my 4MAX Printer: vg3r - PID - BED
+    #define DEFAULT_bedKp 22.20  // Autotune 213.67
+    #define DEFAULT_bedKi 1.08   // Autotune 42.07
+    #define DEFAULT_bedKd 114.00 // Autotune 271.31
+  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
+    // 4MAX with PID Autotune
+    // my 4MAX Printer: 7of9 - PID - BED
+    #define DEFAULT_bedKp 22.20  // Autotube 266.39
+    #define DEFAULT_bedKi 1.08   // Autotube 51.57
+    #define DEFAULT_bedKd 114.00 // Autotube 344.01
+  #else
+    //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+    //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
+    // Default ANYCUBIC 4MAX
+    #define DEFAULT_bedKp 22.20
+    #define DEFAULT_bedKi 1.08
+    #define DEFAULT_bedKd 114.00
+  #endif
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -727,13 +747,16 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 92.60 }
-
-// my 4MAX Printer: 7of9 - Steps - Filament
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 104.25 }
-
-// my 4MAX Printer: vg3r - Steps - Filament
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 100.96 }
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  // my 4MAX Printer: vg3r - Steps - Filament
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 99.46 }
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  // my 4MAX Printer: 7of9 - Steps - Filament
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 104.25 }
+#else
+  // Default 4MAX
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 92.60 }
+#endif
 
 
 
@@ -913,10 +936,16 @@
 #define X_PROBE_OFFSET_FROM_EXTRUDER 37     // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 0      // Y offset: -front +behind [the nozzle]
 
-// my 4MAX Printer: 7of9 - Offset
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.26  // Z offset: -below +above  [the nozzle]
-// my 4MAX Printer: vg3r - Offset
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.64  // Z offset: -below +above  [the nozzle]
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  // my 4MAX Printer: vg3r - Offset
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.50  // Z offset: -below +above  [the nozzle]
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  // my 4MAX Printer: 7of9 - Offset
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -0.24  // Z offset: -below +above  [the nozzle]
+#else
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0      // Z offset: -below +above  [the nozzle]
+#endif
+
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 10
@@ -1039,8 +1068,18 @@
 
 // @section machine
 
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  // vg3r offset from extruder |<--?->|BLTOUCH|
+  #define BLTOUCH_X_MAX_OFFSET 8
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  // 7of9 offset from extruder |<--?->|BLTOUCH|
+  #define BLTOUCH_X_MAX_OFFSET 6
+#else
+  // Default offset from extruder |<--?->|BLTOUCH|
+  #define BLTOUCH_X_MAX_OFFSET 8
+#endif
+
 // The size of the print bed
-#define BLTOUCH_X_MAX_OFFSET 6
 #define X_BED_SIZE 215 - BLTOUCH_X_MAX_OFFSET
 #define Y_BED_SIZE 215
 
@@ -1190,8 +1229,8 @@
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for the G26 Mesh Validation Tool.
-    #define MESH_TEST_HOTEND_TEMP  235    // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
-    #define MESH_TEST_BED_TEMP      80    // (°C) Default bed temperature for the G26 Mesh Validation Tool.
+    #define MESH_TEST_HOTEND_TEMP  245    // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
+    #define MESH_TEST_BED_TEMP      85    // (°C) Default bed temperature for the G26 Mesh Validation Tool.
     #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for XY Moves for the G26 Mesh Validation Tool.
   #endif
 
@@ -1450,10 +1489,10 @@
 #define PREHEAT_1_TEMP_BED     75
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_LABEL       "ABS"
-#define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    95
-#define PREHEAT_2_FAN_SPEED   255 // Value from 0 to 255
+#define PREHEAT_2_LABEL       "PETG"
+#define PREHEAT_2_TEMP_HOTEND 245
+#define PREHEAT_2_TEMP_BED    85
+#define PREHEAT_2_FAN_SPEED   0 // Value from 0 to 255
 
 /**
  * Nozzle Park
@@ -1513,7 +1552,7 @@
  * Attention: EXPERIMENTAL. G-code arguments may change.
  *
  */
-//#define NOZZLE_CLEAN_FEATURE
+#define NOZZLE_CLEAN_FEATURE
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
   // Default number of pattern repetitions
@@ -2048,7 +2087,7 @@
 // @section extras
 
 // Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
-//#define FAST_PWM_FAN
+#define FAST_PWM_FAN
 
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
@@ -2130,6 +2169,10 @@
   #define NEOPIXEL_IS_SEQUENTIAL     // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
   #define NEOPIXEL_BRIGHTNESS 200    // Initial brightness (0-255)
   //#define NEOPIXEL_STARTUP_TEST      // Cycle through colors at startup
+
+  // Use a single Neopixel LED for static (background) lighting
+  //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
+  //#define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
 #endif
 
 /**
