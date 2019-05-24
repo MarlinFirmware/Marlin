@@ -111,12 +111,6 @@ void menu_backlash();
   }
 #endif
 
-#ifdef FILAMENT_RUNOUT_DISTANCE_MM
-  void _lcd_set_runout_distance_mm() {
-    runout.set_runout_distance(lcd_runout_distance_mm);
-  }
-#endif
-
 #if ENABLED(SD_FIRMWARE_UPDATE)
 
   #include "../../module/configuration_store.h"
@@ -242,7 +236,9 @@ void menu_backlash();
     #endif
 
     #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-      MENU_ITEM_EDIT_CALLBACK(float3, MSG_RUNOUT_DISTANCE_MM, &lcd_runout_distance_mm, 1, 30, _lcd_set_runout_distance_mm);
+      MENU_ITEM_EDIT_CALLBACK(float3, MSG_RUNOUT_DISTANCE_MM, &lcd_runout_distance_mm, 1, 30, []{
+        runout.set_runout_distance(lcd_runout_distance_mm);
+      });
     #endif
 
     END_MENU();
