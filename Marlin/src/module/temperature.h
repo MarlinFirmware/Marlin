@@ -408,6 +408,10 @@ class Temperature {
 
     void init();
 
+    #if HOTENDS
+      void calc_raw_min_max(uint8_t index, const int16_t min, const int16_t max);
+    #endif
+
     /**
      * Static (class) methods
      */

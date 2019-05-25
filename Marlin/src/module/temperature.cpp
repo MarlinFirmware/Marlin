@@ -270,8 +270,6 @@ volatile bool Temperature::temp_meas_ready = false;
   lpq_ptr_t Temperature::lpq_ptr = 0;
 #endif
 
-#define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) < (HEATER_##N##_RAW_HI_TEMP) ? 1 : -1)
-
 // Init mintemp and maxtemp with extreme values to prevent false errors during startup
 constexpr temp_range_t sensor_heater_0 { HEATER_0_RAW_LO_TEMP, HEATER_0_RAW_HI_TEMP, 0, 16383 },
                        sensor_heater_1 { HEATER_1_RAW_LO_TEMP, HEATER_1_RAW_HI_TEMP, 0, 16383 },
@@ -1684,93 +1682,59 @@ void Temperature::init() {
     INIT_CHAMBER_AUTO_FAN_PIN(CHAMBER_AUTO_FAN_PIN);
   #endif
 
-  // Wait for temperature measurement to settle
-  delay(250);
-
-  #if HOTENDS
-
-    #define _TEMP_MIN_E(NR) do{ \
-      temp_range[NR].mintemp = HEATER_ ##NR## _MINTEMP; \
-      while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) < HEATER_ ##NR## _MINTEMP) \
-        temp_range[NR].raw_min += TEMPDIR(NR) * (OVERSAMPLENR); \
-    }while(0)
-    #define _TEMP_MAX_E(NR) do{ \
-      temp_range[NR].maxtemp = HEATER_ ##NR## _MAXTEMP; \
-      while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > HEATER_ ##NR## _MAXTEMP) \
-        temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
-    }while(0)
-
-    #ifdef HEATER_0_MINTEMP
-      _TEMP_MIN_E(0);
-    #endif
-    #ifdef HEATER_0_MAXTEMP
-      _TEMP_MAX_E(0);
-    #endif
-    #if HOTENDS > 1
-      #ifdef HEATER_1_MINTEMP
-        _TEMP_MIN_E(1);
-      #endif
-      #ifdef HEATER_1_MAXTEMP
-        _TEMP_MAX_E(1);
-      #endif
-      #if HOTENDS > 2
-        #ifdef HEATER_2_MINTEMP
-          _TEMP_MIN_E(2);
-        #endif
-        #ifdef HEATER_2_MAXTEMP
-          _TEMP_MAX_E(2);
-        #endif
-        #if HOTENDS > 3
-          #ifdef HEATER_3_MINTEMP
-            _TEMP_MIN_E(3);
-          #endif
-          #ifdef HEATER_3_MAXTEMP
-            _TEMP_MAX_E(3);
-          #endif
-          #if HOTENDS > 4
-            #ifdef HEATER_4_MINTEMP
-              _TEMP_MIN_E(4);
-            #endif
-            #ifdef HEATER_4_MAXTEMP
-              _TEMP_MAX_E(4);
-            #endif
-            #if HOTENDS > 5
-              #ifdef HEATER_5_MINTEMP
-                _TEMP_MIN_E(5);
-              #endif
-              #ifdef HEATER_5_MAXTEMP
-                _TEMP_MAX_E(5);
-              #endif
-            #endif // HOTENDS > 5
-          #endif // HOTENDS > 4
-        #endif // HOTENDS > 3
-      #endif // HOTENDS > 2
-    #endif // HOTENDS > 1
-
-  #endif // HOTENDS > 1
+  #if HOTENDS >= 1
+    calc_raw_min_max(0, HEATER_0_MINTEMP, HEATER_0_MAXTEMP);
+  #endif
+  #if HOTENDS >= 2
+    calc_raw_min_max(1, HEATER_1_MINTEMP, HEATER_1_MAXTEMP);
+  #endif
+  #if HOTENDS >= 3
+    calc_raw_min_max(2, HEATER_2_MINTEMP, HEATER_2_MAXTEMP);
+  #endif
+  #if HOTENDS >= 4
+    calc_raw_min_max(3, HEATER_3_MINTEMP, HEATER_3_MAXTEMP);
+  #endif
+  #if HOTENDS >= 5
+    calc_raw_min_max(4, HEATER_4_MINTEMP, HEATER_4_MAXTEMP);
+  #endif
 
   #if HAS_HEATED_BED
     #ifdef BED_MINTEMP
-      while (analog_to_celsius_bed(mintemp_raw_BED) < BED_MINTEMP) mintemp_raw_BED += TEMPDIR(BED) * (OVERSAMPLENR);
+      while (analog_to_celsius_bed(mintemp_raw_BED) < BED_MINTEMP) mintemp_raw_BED += (OVERSAMPLENR);
     #endif
     #ifdef BED_MAXTEMP
-      while (analog_to_celsius_bed(maxtemp_raw_BED) > BED_MAXTEMP) maxtemp_raw_BED -= TEMPDIR(BED) * (OVERSAMPLENR);
+      while (analog_to_celsius_bed(maxtemp_raw_BED) > BED_MAXTEMP) maxtemp_raw_BED -= (OVERSAMPLENR);
     #endif
   #endif // HAS_HEATED_BED
 
   #if HAS_HEATED_CHAMBER
     #ifdef CHAMBER_MINTEMP
-      while (analog_to_celsius_chamber(mintemp_raw_CHAMBER) < CHAMBER_MINTEMP) mintemp_raw_CHAMBER += TEMPDIR(CHAMBER) * (OVERSAMPLENR);
+      while (analog_to_celsius_chamber(mintemp_raw_CHAMBER) < CHAMBER_MINTEMP) mintemp_raw_CHAMBER += (OVERSAMPLENR);
     #endif
     #ifdef CHAMBER_MAXTEMP
-      while (analog_to_celsius_chamber(maxtemp_raw_CHAMBER) > CHAMBER_MAXTEMP) maxtemp_raw_CHAMBER -= TEMPDIR(CHAMBER) * (OVERSAMPLENR);
+      while (analog_to_celsius_chamber(maxtemp_raw_CHAMBER) > CHAMBER_MAXTEMP) maxtemp_raw_CHAMBER -= (OVERSAMPLENR);
     #endif
   #endif
 
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
   #endif
+
+  // Wait for temperature measurement to settle ???
+  delay(250);
 }
+
+#if HOTENDS
+  void Temperature::calc_raw_min_max(uint8_t index, const int16_t min, const int16_t max) {
+    temp_range[index].mintemp = min;
+    while (analog_to_celsius_hotend(temp_range[index].raw_min, index) < min)
+      temp_range[index].raw_min += (OVERSAMPLENR);
+
+    temp_range[index].maxtemp = max;
+    while (analog_to_celsius_hotend(temp_range[index].raw_max, index) > max)
+      temp_range[index].raw_max -= (OVERSAMPLENR);
+  }
+#endif
 
 #if WATCH_HOTENDS
   /**
@@ -2167,6 +2131,17 @@ void Temperature::set_current_temp_raw() {
 #endif
 
 void Temperature::readings_ready() {
+
+  #if HAS_THERMAL_PROTECTION
+    millis_t ms = millis();
+    #if THERMAL_PROTECTION_GRACE_PERIOD > 0
+      static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
+      if (ELAPSED(ms, grace_period)) grace_period = 0UL;
+    #else
+      static constexpr millis_t grace_period = 0UL;
+    #endif
+  #endif
+
   // Update the raw values if they've been read. Else we could be updating them during reading.
   if (!temp_meas_ready) set_current_temp_raw();
 
@@ -2185,74 +2160,61 @@ void Temperature::readings_ready() {
     temp_chamber.acc = 0;
   #endif
 
-  int constexpr temp_dir[] = {
-    #if ENABLED(HEATER_0_USES_MAX6675)
-       0
-    #else
-      TEMPDIR(0)
-    #endif
-    #if HOTENDS > 1
-      , TEMPDIR(1)
-      #if HOTENDS > 2
-        , TEMPDIR(2)
-        #if HOTENDS > 3
-          , TEMPDIR(3)
-          #if HOTENDS > 4
-            , TEMPDIR(4)
-            #if HOTENDS > 5
-              , TEMPDIR(5)
-            #endif // HOTENDS > 5
-          #endif // HOTENDS > 4
-        #endif // HOTENDS > 3
-      #endif // HOTENDS > 2
-    #endif // HOTENDS > 1
-  };
+  if (!grace_period)
+  {
+    #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+      for (uint8_t e = 0; e < HOTENDS; e++) {
+        #if ENABLED(HEATER_0_USES_MAX6675)
+          if (e == 0)
+            continue;
+        #endif
 
-  for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
-    const int16_t tdir = temp_dir[e], rawtemp = temp_hotend[e].raw * tdir;
-    const bool heater_on = (temp_hotend[e].target > 0)
-      #if ENABLED(PIDTEMP)
-        || (temp_hotend[e].soft_pwm_amount > 0)
-      #endif
-    ;
-    if (rawtemp > temp_range[e].raw_max * tdir) max_temp_error(e);
-    if (heater_on && rawtemp < temp_range[e].raw_min * tdir && !is_preheating(e)) {
-      #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-        if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
-      #endif
-          min_temp_error(e);
-    }
-    #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-      else
-        consecutive_low_temperature_error[e] = 0;
-    #endif
-  }
+        const bool heater_on = (temp_hotend[e].target > 0)
+        #if ENABLED(PIDTEMP)
+          || (temp_hotend[e].soft_pwm_amount > 0)
+        #endif
+        ;
 
-  #if HAS_HEATED_BED
-    #if TEMPDIR(BED) < 0
-      #define BEDCMP(A,B) ((A)<=(B))
-    #else
-      #define BEDCMP(A,B) ((A)>=(B))
+        if (temp_hotend[e].raw <= temp_range[e].raw_max)
+          max_temp_error(e);
+        else
+        if (heater_on && temp_hotend[e].raw >= temp_range[e].raw_min && !is_preheating(e)) {
+          #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+            if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+          #endif
+              min_temp_error(e);
+        }
+        #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+          else
+            consecutive_low_temperature_error[e] = 0;
+        #endif
+      }
     #endif
-    const bool bed_on = (temp_bed.target > 0)
+
+    #if HAS_HEATED_BED && ENABLED(THERMAL_PROTECTION_BED)
+      const bool bed_on = (temp_bed.target > 0)
       #if ENABLED(PIDTEMPBED)
         || (temp_bed.soft_pwm_amount > 0)
       #endif
-    ;
-    if (BEDCMP(temp_bed.raw, maxtemp_raw_BED)) max_temp_error(-1);
-    if (bed_on && BEDCMP(mintemp_raw_BED, temp_bed.raw)) min_temp_error(-1);
-  #endif
-
-  #if HAS_HEATED_CHAMBER
-    #if TEMPDIR(CHAMBER) < 0
-      #define CHAMBERCMP(A,B) ((A)<=(B))
-    #else
-      #define CHAMBERCMP(A,B) ((A)>=(B))
+      ;
+      #ifdef BED_MAXTEMP
+        if (temp_bed.raw <= maxtemp_raw_BED) max_temp_error(-1);
+      #endif
+      #ifdef BED_MINTEMP
+        if (bed_on && temp_bed.raw >= mintemp_raw_BED) min_temp_error(-1);
+      #endif
     #endif
-    const bool chamber_on = (temp_chamber.target > 0);
-    if (CHAMBERCMP(temp_chamber.raw, maxtemp_raw_CHAMBER)) max_temp_error(-2);
-    if (chamber_on && CHAMBERCMP(mintemp_raw_CHAMBER, temp_chamber.raw)) min_temp_error(-2);
-  #endif
+
+    #if HAS_HEATED_CHAMBER && ENABLED(THERMAL_PROTECTION_CHAMBER)
+      const bool chamber_on = (temp_chamber.target > 0);
+      #ifdef CHAMBER_MAXTEMP
+        if (temp_chamber.raw <= maxtemp_raw_CHAMBER) max_temp_error(-2);
+      #endif
+      #ifdef CHAMBER_MINTEMP
+        if (chamber_on && temp_chamber.raw >= mintemp_raw_CHAMBER) min_temp_error(-2);
+      #endif
+    #endif
+  }
 }
 
 /**
