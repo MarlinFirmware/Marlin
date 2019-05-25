@@ -169,10 +169,8 @@ hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
  */
 hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   const tTimerConfig timer = TimerConfig[timer_num];
-
   uint64_t counter_value;
   timer_get_counter_value(timer.group, timer.idx, &counter_value);
-
   return counter_value;
 }
 
@@ -181,8 +179,8 @@ hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
  * @param timer_num timer number to enable interrupts on
  */
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
-  // const tTimerConfig timer = TimerConfig[timer_num];
-  // timer_enable_intr(timer.group, timer.idx);
+  //const tTimerConfig timer = TimerConfig[timer_num];
+  //timer_enable_intr(timer.group, timer.idx);
 }
 
 /**
@@ -190,8 +188,8 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num) {
  * @param timer_num timer number to disable interrupts on
  */
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
-  // const tTimerConfig timer = TimerConfig[timer_num];
-  // timer_disable_intr(timer.group, timer.idx);
+  //const tTimerConfig timer = TimerConfig[timer_num];
+  //timer_disable_intr(timer.group, timer.idx);
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
