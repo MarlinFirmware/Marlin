@@ -21,7 +21,7 @@
  */
 
  // If you have a trex 3, stock is this option plus 2208 on all axis. None in spreadcycle.
-//#define TREX3
+#define TREX3
 
 // If you have a trex 3 that was upgraded from a 2+ with the kit, modifies home position and offsets.
 //#define TREX3_UPGRADE
@@ -50,7 +50,7 @@
 
 #define BedAC
 
-#define tallVersion
+//#define tallVersion
 
 /*
  * Enables a filament sensor plugged into the laser pin. Disables the laser
