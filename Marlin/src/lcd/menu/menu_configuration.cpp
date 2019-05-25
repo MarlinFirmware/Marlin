@@ -337,9 +337,6 @@ void menu_configuration() {
       MENU_ITEM(submenu, MSG_BLTOUCH, menu_bltouch);
     #endif
 
-    #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
-      MENU_ITEM(submenu, MSG_CONTROLLER_FAN, menu_fancontroller);
-    #endif
   }
 
   //
@@ -347,6 +344,13 @@ void menu_configuration() {
   //
   #if EXTRUDERS > 1
     MENU_ITEM(submenu, MSG_TOOL_CHANGE, menu_tool_change);
+  #endif
+
+  //
+  // Set Fan Controller speed
+  //
+  #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+    MENU_ITEM(submenu, MSG_CONTROLLER_FAN, menu_fancontroller);
   #endif
 
   //
