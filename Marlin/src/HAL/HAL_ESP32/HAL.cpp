@@ -33,7 +33,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ANY(EEPROM_SETTINGS, WEBSUPPORT)
+#if EITHER(EEPROM_SETTINGS, WEBSUPPORT)
   #include "spiffs.h"
 #endif
 
@@ -97,8 +97,7 @@ void HAL_init(void) {
 }
 
 void HAL_init_board(void) {
-
-  #if ANY(EEPROM_SETTINGS,WEBSUPPORT)
+  #if EITHER(EEPROM_SETTINGS, WEBSUPPORT)
     spiffs_init();
   #endif
 
@@ -112,7 +111,6 @@ void HAL_init_board(void) {
     #endif
     server.begin();
   #endif
-
 }
 
 void HAL_idletask(void) {
@@ -123,18 +121,12 @@ void HAL_idletask(void) {
 
 void HAL_clear_reset_source(void) { }
 
-uint8_t HAL_get_reset_source(void) {
-  return rtc_get_reset_reason(1);
-}
+uint8_t HAL_get_reset_source(void) { return rtc_get_reset_reason(1); }
 
-void _delay_ms(int delay_ms) {
-  delay(delay_ms);
-}
+void _delay_ms(int delay_ms) { delay(delay_ms); }
 
 // return free memory between end of heap (or end bss) and whatever is current
-int freeMemory() {
-  return ESP.getFreeHeap();
-}
+int freeMemory() { return ESP.getFreeHeap(); }
 
 // --------------------------------------------------------------------------
 // ADC
@@ -150,7 +142,6 @@ adc1_channel_t get_channel(int pin) {
     case 33: return ADC1_CHANNEL(33);
     case 32: return ADC1_CHANNEL(32);
   }
-
   return ADC1_CHANNEL_MAX;
 }
 
@@ -201,9 +192,9 @@ void HAL_adc_start_conversion(uint8_t adc_pin) {
   HAL_adc_result = mv*1023.0/3300.0;
 }
 
-int pin_to_channel[40] = {};
-int cnt_channel = 1;
 void analogWrite(int pin, int value) {
+  static int cnt_channel = 1,
+             pin_to_channel[40] = {};
   if (pin_to_channel[pin] == 0) {
     ledcAttachPin(pin, cnt_channel);
     ledcSetup(cnt_channel, 490, 8);
@@ -214,4 +205,5 @@ void analogWrite(int pin, int value) {
 
   ledcWrite(pin_to_channel[pin], value);
 }
+
 #endif // ARDUINO_ARCH_ESP32
