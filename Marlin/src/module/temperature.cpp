@@ -1725,7 +1725,7 @@ void Temperature::init() {
 }
 
 #if HOTENDS
-  void Temperature::calc_raw_min_max(uint8_t index, const int16_t min, const int16_t max) {
+  void Temperature::calc_raw_min_max(const uint8_t index, const int16_t min, const int16_t max) {
     temp_range[index].mintemp = min;
     while (analog_to_celsius_hotend(temp_range[index].raw_min, index) < min)
       temp_range[index].raw_min += (OVERSAMPLENR);
