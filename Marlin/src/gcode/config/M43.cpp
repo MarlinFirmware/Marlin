@@ -218,7 +218,7 @@ inline void servo_probe_test() {
       if (deploy_state != READ(PROBE_TEST_PIN)) {               // probe triggered
         for (probe_counter = 0; probe_counter < 15 && deploy_state != READ(PROBE_TEST_PIN); ++probe_counter) safe_delay(2);
 
-        if (probe_counter = 15)
+        if (probe_counter == 15)
           SERIAL_ECHOLNPGM(". Pulse width: 30ms or more");
         else 
           SERIAL_ECHOLNPAIR(". Pulse width (+/- 4ms): ", probe_counter * 2);
