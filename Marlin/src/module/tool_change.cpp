@@ -750,8 +750,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       const float old_feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : feedrate_mm_s;
       feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
-      #if HAS_SOFTWARE_ENDSTOPS && ENABLED(DUAL_X_CARRIAGE)
+      #if HAS_SOFTWARE_ENDSTOPS
         update_software_endstops(X_AXIS, active_extruder, tmp_extruder);
+        update_software_endstops(Y_AXIS, active_extruder, tmp_extruder);
+        update_software_endstops(Z_AXIS, active_extruder, tmp_extruder);
       #endif
 
       set_destination_from_current();
