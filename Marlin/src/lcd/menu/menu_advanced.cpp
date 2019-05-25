@@ -687,9 +687,9 @@ void menu_advanced_settings() {
   // BLTouch Self-Test and Reset
   //
   #if ENABLED(BLTOUCH)
-    MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
+    MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, []{ bltouch._selftest(); ui.refresh(); });
     if (!endstops.z_probe_enabled && bltouch.triggered())
-      MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
+      MENU_ITEM(function, MSG_BLTOUCH_RESET, []{ bltouch._reset(); ui.refresh(); });
   #endif
 
   #if ENABLED(SD_FIRMWARE_UPDATE)
