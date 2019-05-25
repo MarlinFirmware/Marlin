@@ -71,11 +71,11 @@ void LEDLights::setup() {
   #if ENABLED(NEOPIXEL_LED)
     setup_neopixel();
   #endif
-  #if ENABLED(LED_USER_PRESET_STARTUP)
-    set_default();
-  #endif
   #if ENABLED(PCA9533)
     RGBinit();
+  #endif
+  #if ENABLED(LED_USER_PRESET_STARTUP)
+    set_default();
   #endif
 }
 
