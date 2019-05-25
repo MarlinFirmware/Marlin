@@ -4,7 +4,6 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (C) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,18 +21,17 @@
  */
 #pragma once
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 class Servo {
-  static const int MIN_ANGLE = 0;
-  static const int MAX_ANGLE = 180;
-  static const int MIN_PULSE_WIDTH = 544;         // the shortest pulse sent to a servo
-  static const int MAX_PULSE_WIDTH = 2400;        // the longest pulse sent to a servo
-  static const int TAU_MSEC = 20;
-  static const int TAU_USEC = (TAU_MSEC * 1000);
-  static const int MAX_COMPARE = ((1 << 16) - 1); // 65535
-
-  static const int CHANNEL_MAX_NUM = 16;
+  static const int MIN_ANGLE =   0,
+                   MAX_ANGLE = 180,
+                   MIN_PULSE_WIDTH =  544,  // Shortest pulse sent to a servo
+                   MAX_PULSE_WIDTH = 2400,  // Longest pulse sent to a servo
+                   TAU_MSEC = 20,
+                   TAU_USEC = (TAU_MSEC * 1000),
+                   MAX_COMPARE = ((1 << 16) - 1), // 65535
+                   CHANNEL_MAX_NUM = 16;
 
 public:
   Servo();
