@@ -138,19 +138,24 @@
   #define ANYCUBIC_4MAX
 
   // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
-  #define ANYCUBIC_4MAX_VG3R
+  //#define ANYCUBIC_4MAX_VG3R
   //#define ANYCUBIC_4MAX_7OF9
+  #define ANYCUBIC_4MAX_DEFAULT
 
 #endif
 
-#if DISABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
-  #error "Default 4MAX settings are set! - ### Define your custom 4MAX setting! ###"
-#elif ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+#if DISABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
+  #error "No default 4MAX settings are set! - ### Define your custom 4MAX setting! ###"
+#elif ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9 ) || \
+      ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_DEFAULT) || \
+      ENABLED(ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
   #error "All 4MAX settings are set! - ### Define JUST ONE custom 4MAX setting! ###"
 #elif ENABLED(ANYCUBIC_4MAX_VG3R)
   //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_VG3R\"" )
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_7OF9\"" )
+#elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
+    //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_DEFAULT\"" )
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -486,7 +491,7 @@
   #define DEFAULT_Kp 22.2 // Autotune 12.97
   #define DEFAULT_Ki 1.08 // Autotune 0.72
   #define DEFAULT_Kd 114  // Autotune 58.44
-#else
+#elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   // Default 4MAX
   #define DEFAULT_Kp 22.2
   #define DEFAULT_Ki 1.08
@@ -551,7 +556,7 @@
     #define DEFAULT_bedKp 22.20  // Autotube 266.39
     #define DEFAULT_bedKi 1.08   // Autotube 51.57
     #define DEFAULT_bedKd 114.00 // Autotube 344.01
-  #else
+  #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
     //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
     //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
     // Default ANYCUBIC 4MAX
@@ -753,7 +758,7 @@
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Steps - Filament
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 104.25 }
-#else
+#elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   // Default 4MAX
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 92.60 }
 #endif
@@ -941,8 +946,8 @@
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.50  // Z offset: -below +above  [the nozzle]
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Offset
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -0.24  // Z offset: -below +above  [the nozzle]
-#else
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.53  // Z offset: -below +above  [the nozzle]
+#elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0      // Z offset: -below +above  [the nozzle]
 #endif
 
@@ -1068,15 +1073,17 @@
 
 // @section machine
 
-#if ENABLED(ANYCUBIC_4MAX_VG3R)
-  // vg3r offset from extruder |<--?->|BLTOUCH|
-  #define BLTOUCH_X_MAX_OFFSET 8
-#elif ENABLED(ANYCUBIC_4MAX_7OF9)
-  // 7of9 offset from extruder |<--?->|BLTOUCH|
-  #define BLTOUCH_X_MAX_OFFSET 6
-#else
-  // Default offset from extruder |<--?->|BLTOUCH|
-  #define BLTOUCH_X_MAX_OFFSET 8
+#if ENABLED(BLTOUCH)
+  #if ENABLED(ANYCUBIC_4MAX_VG3R)
+    // vg3r offset from extruder |<--?->|BLTOUCH|
+    #define BLTOUCH_X_MAX_OFFSET 8
+  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
+    // 7of9 offset from extruder |<--?->|BLTOUCH|
+    #define BLTOUCH_X_MAX_OFFSET 6
+  #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
+    // Default offset from extruder |<--?->|BLTOUCH|
+    #define BLTOUCH_X_MAX_OFFSET 8
+  #endif
 #endif
 
 // The size of the print bed
