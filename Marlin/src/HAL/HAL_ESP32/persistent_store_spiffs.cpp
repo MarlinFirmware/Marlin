@@ -51,15 +51,13 @@ bool PersistentStore::access_start() {
 
       eeprom_file = SPIFFS.open(HAL_ESP32_EEPROM_FILE_PATH, "a");
       for (size_t i = eeprom_file.size(); i < HAL_ESP32_EEPROM_SIZE; i++)
-      {
         eeprom_file.write(0xFF);
-      }
       eeprom_file.close();
 
       eeprom_file = SPIFFS.open(HAL_ESP32_EEPROM_FILE_PATH, "r+");
       file_size = eeprom_file.size();
       if (file_size < HAL_ESP32_EEPROM_SIZE) {
-        SERIAL_ERROR_MSG("Failed to expand " HAL_ESP32_EEPROM_FILE_PATH " to required size, maybe SPIFFS partition is full?");
+        SERIAL_ERROR_MSG("Failed to expand " HAL_ESP32_EEPROM_FILE_PATH " to required size. SPIFFS partition full?");
         SERIAL_ERROR_START(); SERIAL_ECHOLNPAIR(" file size: ", file_size, ", required size: ", HAL_ESP32_EEPROM_SIZE);
         SERIAL_ERROR_START(); SERIAL_ECHOLNPAIR(" SPIFFS used bytes: ", SPIFFS.usedBytes(), ", total bytes: ", SPIFFS.totalBytes());
       }
