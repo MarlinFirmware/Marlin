@@ -4,7 +4,6 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (C) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_ESP32)
-
+#ifdef ARDUINO_ARCH_ESP32
 
 #include "../../inc/MarlinConfig.h"
 
@@ -44,19 +42,15 @@ int8_t Servo::attach(const int pin) {
   return true;
 }
 
-void Servo::detach() {
-  ledcDetachPin(this->pin);
-}
+void Servo::detach() { ledcDetachPin(this->pin) }
 
-int Servo::read() {
-  return this->degrees;
-}
+int Servo::read() { return this->degrees; }
 
 void Servo::write(int degrees) {
-    this->degrees = constrain(degrees, MIN_ANGLE, MAX_ANGLE);
-    int us = map(this->degrees, MIN_ANGLE, MAX_ANGLE, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
-    int duty = map(us, 0, TAU_USEC, 0, MAX_COMPARE);
-    ledcWrite(channel, duty);
+  this->degrees = constrain(degrees, MIN_ANGLE, MAX_ANGLE);
+  int us = map(this->degrees, MIN_ANGLE, MAX_ANGLE, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+  int duty = map(us, 0, TAU_USEC, 0, MAX_COMPARE);
+  ledcWrite(channel, duty);
 }
 
 void Servo::move(const int value) {
