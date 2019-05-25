@@ -33,9 +33,10 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ANY(EEPROM_SETTINGS,WEBSUPPORT)
+#if ANY(EEPROM_SETTINGS, WEBSUPPORT)
   #include "spiffs.h"
 #endif
+
 #if ENABLED(WIFISUPPORT)
   #include <ESPAsyncWebServer.h>
   #include "wifi.h"
