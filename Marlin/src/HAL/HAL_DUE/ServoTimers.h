@@ -37,7 +37,6 @@
 #define _useTimer5
 
 #define TRIM_DURATION       2    // compensation ticks to trim adjust for digitalWrite delays
-#define PRESCALER           32   // timer prescaler
 
 /*
   TC0, chan 0 => TC0_Handler
@@ -87,5 +86,20 @@
   #define HANDLER_FOR_TIMER5  TC0_Handler
 #endif
 
-//typedef enum { _timer1, _timer2, _timer3, _timer4, _timer5, _Nbr_16timers } timer16_Sequence_t;
-typedef enum { _timer3, _timer5, _Nbr_16timers } timer16_Sequence_t;
+typedef enum { 
+  #ifdef _useTimer1
+    _timer1,
+  #endif
+  #ifdef _useTimer2
+    _timer2,
+  #endif
+  #ifdef _useTimer3
+    _timer3,
+  #endif
+  #ifdef _useTimer4
+    _timer4,
+  #endif
+  #ifdef _useTimer5
+    _timer5,
+  #endif
+  _Nbr_16timers } timer16_Sequence_t;
