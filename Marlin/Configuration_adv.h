@@ -189,6 +189,11 @@
   #define WATCH_CHAMBER_TEMP_INCREASE 2           // Degrees Celsius
 #endif
 
+#if ENABLED(THERMAL_PROTECTION_HOTENDS) || ENABLED(THERMAL_PROTECTION_BED) || ENABLED(THERMAL_PROTECTION_CHAMBER)
+  // disable sounding an audible beeper if thermal protection is triggered
+  //#define THERMAL_PROTECTION_BEEPER_DISABLE
+#endif
+
 #if ENABLED(PIDTEMP)
   // Add an experimental additional term to the heater power, proportional to the extrusion speed.
   // A well-chosen Kc value should add just enough power to melt the increased material volume.
