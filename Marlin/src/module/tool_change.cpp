@@ -702,11 +702,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     if (tmp_extruder >= EXTRUDERS)
       return invalid_extruder_error(tmp_extruder);
 
-    if (!no_move && (!all_axes_homed()
-      #if ENABLED(DUAL_X_CARRIAGE)
-        || dual_x_carriage_mode == DXC_FULL_CONTROL_MODE
-      #endif
-    )) {
+    if (!no_move && (!all_axes_homed())) {
       no_move = true;
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No move on toolchange");
     }
@@ -716,7 +712,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     #endif
 
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      const bool should_swap = !no_move && toolchange_settings.swap_length;
+      const bool should_swap = !no_move && toolchange_settings.swap_length
+       #if ENABLED(DUAL_X_CARRIAGE)
+        && dual_x_carriage_mode != DXC_FULL_CONTROL_MODE
+      #endif
+      ;
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         const bool too_cold = !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(active_extruder) || thermalManager.targetTooColdToExtrude(tmp_extruder));
       #else
@@ -765,7 +765,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       set_destination_from_current();
 
-      if (!no_move) {
+      if (!no_move
+      #if ENABLED(DUAL_X_CARRIAGE)
+        && dual_x_carriage_mode != DXC_FULL_CONTROL_MODE
+      #endif
+      ) {
         #if DISABLED(SWITCHING_NOZZLE)
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position[Z_AXIS] += toolchange_settings.z_raise;
@@ -885,7 +889,24 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #endif
 
         // Move back to the original (or tweaked) position
-        do_blocking_move_to(destination);
+        if(
+        #if ENABLED(TOOLCHANGE_NO_RETURN)
+          true ||
+        #endif
+        #if ENABLED(DUAL_X_CARRIAGE)
+         dual_x_carriage_mode == DXC_FULL_CONTROL_MODE ||
+        #endif
+        false ) {
+          SERIAL_ECHOLN("TLCHNG_OFFSETS");
+          //current_position[Z_AXIS] -= toolchange_settings.z_raise; //return z-raise
+          destination[X_AXIS] = current_position[X_AXIS];
+          destination[Y_AXIS] = current_position[Y_AXIS];
+          //planner.buffer_line(current_position, feedrate_mm_s, active_extruder); //apply offsets
+        }
+        else{
+          SERIAL_ECHOLN("TLCHNG_RETURNPOS");
+        }
+        do_blocking_move_to(destination); //return to stored position
 
         #if ENABLED(DUAL_X_CARRIAGE)
           active_extruder_parked = false;
