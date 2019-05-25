@@ -74,6 +74,9 @@ void LEDLights::setup() {
   #if ENABLED(LED_USER_PRESET_STARTUP)
     set_default();
   #endif
+  #if ENABLED(PCA9533)
+    RGBinit();
+  #endif
 }
 
 void LEDLights::set_color(const LEDColor &incol
