@@ -1428,7 +1428,7 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For bed temperature measurement.
   float Temperature::analog_to_celsius_bed(const int raw) {
-    #if ENABLED(BED_USER_THERMISTOR)
+    #if ENABLED(HEATER_BED_USER_THERMISTOR)
       return user_thermistor_to_deg_c(CTI_BED, raw);
     #elif ENABLED(HEATER_BED_USES_THERMISTOR)
       SCAN_THERMISTOR_TABLE(BED_TEMPTABLE, BED_TEMPTABLE_LEN);
@@ -1446,7 +1446,7 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For chamber temperature measurement.
   float Temperature::analog_to_celsius_chamber(const int raw) {
-    #if ENABLED(CHAMBER_USER_THERMISTOR)
+    #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
       return user_thermistor_to_deg_c(CTI_CHAMBER, raw);
     #elif ENABLED(HEATER_CHAMBER_USES_THERMISTOR)
       SCAN_THERMISTOR_TABLE(CHAMBER_TEMPTABLE, CHAMBER_TEMPTABLE_LEN);
