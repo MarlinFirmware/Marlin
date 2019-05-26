@@ -141,7 +141,7 @@ inline void servo_probe_test() {
 
     // First, check for a probe that recognizes an advanced BLTouch sequence.
     // In addition to STOW and DEPLOY, it uses SW MODE (and RESET in the beginning)
-    // to see if this is one of the following: BLTOUCH Classic 1.2, 1.3,  or 
+    // to see if this is one of the following: BLTOUCH Classic 1.2, 1.3,  or
     // BLTouch Smart 1.0, 2.0, 2.2, 3.0, 3.1. But only if the user has actually
     // configured a BLTouch as being present. If the user has not configured this,
     // the BLTouch will be detected in the last phase of these tests (see further on).
@@ -220,9 +220,9 @@ inline void servo_probe_test() {
 
         if (probe_counter == 15)
           SERIAL_ECHOLNPGM(". Pulse width: 30ms or more");
-        else 
+        else
           SERIAL_ECHOLNPAIR(". Pulse width (+/- 4ms): ", probe_counter * 2);
-          
+
         if (probe_counter >= 4) {
           if (probe_counter == 15) {
             if (blt) SERIAL_ECHOPGM("= BLTouch V3.1");

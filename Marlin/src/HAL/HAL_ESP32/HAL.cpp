@@ -148,7 +148,7 @@ adc1_channel_t get_channel(int pin) {
 void HAL_adc_init() {
   // Configure ADC
   adc1_config_width(ADC_WIDTH_12Bit);
-  
+
   // Configure channels only if used as (re-)configuring a pin for ADC that is used elsewhere might have adverse effects
   #if HAS_TEMP_ADC_0
     adc1_config_channel_atten(get_channel(TEMP_0_PIN), ADC_ATTEN_11db);

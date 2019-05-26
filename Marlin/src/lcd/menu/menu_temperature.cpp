@@ -417,7 +417,7 @@ void menu_temperature() {
   #if ENABLED(SPINDLE_LASER_ENABLE)
     MENU_ITEM(submenu, MSG_LASER_MENU, menu_spindle_laser);
   #endif
-  
+
   #if HAS_TEMP_HOTEND
 
     //
