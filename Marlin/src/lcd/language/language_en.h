@@ -933,6 +933,9 @@
 #ifndef MSG_BLTOUCH_MODE_ECHO
   #define MSG_BLTOUCH_MODE_ECHO               _UxGT("Report Drain")
 #endif
+#ifndef MSG_BLTOUCH_MODE_CHANGE
+  #define MSG_BLTOUCH_MODE_CHANGE             _UxGT("    ***WARNING***     Wrong Setting May    Cause Damage!       Change Mode")
+#endif
 #ifndef MSG_MANUAL_DEPLOY
   #define MSG_MANUAL_DEPLOY                   _UxGT("Deploy Z-Probe")
 #endif
