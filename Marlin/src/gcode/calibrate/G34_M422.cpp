@@ -121,7 +121,7 @@ void GcodeSuite::G34() {
         // Users of G34 might have a badly misaligned bed, so raise Z by the
         // length of the deployed pin (BLTOUCH stroke < 7mm)
       #define Z_BASIC_CLEARANCE Z_CLEARANCE_BETWEEN_PROBES + 7.0f
-    #else 
+    #else
       #define Z_BASIC_CLEARANCE Z_CLEARANCE_BETWEEN_PROBES
     #endif
 
@@ -171,8 +171,8 @@ void GcodeSuite::G34() {
         }
 
         // This is not the trigger Z value. It is the position of the probe after raising it.
-        // It is higher than the trigger value by a constant value (not known here). This value 
-        // is more useful for determining the desired next iteration Z position for probing. It is 
+        // It is higher than the trigger value by a constant value (not known here). This value
+        // is more useful for determining the desired next iteration Z position for probing. It is
         // equally well suited for determining the misalignment, just like the trigger position would be.
         z_measured[zstepper] = current_position[Z_AXIS];
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " measured position is ", z_measured[zstepper]);
@@ -187,7 +187,7 @@ void GcodeSuite::G34() {
       // Safe_height = lowest distance to bed (= highest measurement) plus highest measured misalignment.
       SERIAL_EOL();
       #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-        z_maxdiff = MAX(ABS(z_measured[0] - z_measured[1]), ABS(z_measured[1] - z_measured[2]), ABS(z_measured[2] - z_measured[0])); 
+        z_maxdiff = MAX(ABS(z_measured[0] - z_measured[1]), ABS(z_measured[1] - z_measured[2]), ABS(z_measured[2] - z_measured[0]));
         z_probe = Z_BASIC_CLEARANCE + MAX(z_measured[0], z_measured[1], z_measured[2]) + z_maxdiff;
         SERIAL_ECHOLNPAIR("DIFFERENCE Z1-Z2: ", ABS(z_measured[0] - z_measured[1]),
                           "DIFFERENCE Z2-Z3: ", ABS(z_measured[1] - z_measured[2]),
@@ -221,7 +221,7 @@ void GcodeSuite::G34() {
           err_break = true;
           break;
         }
-        
+
         // Remember the alignment for the next iteration
         last_z_align_move[zstepper] = z_align_abs;
 
@@ -231,7 +231,7 @@ void GcodeSuite::G34() {
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " corrected by ", z_align_move);
 
         // Lock all steppers except one
-        set_all_z_lock(true); 
+        set_all_z_lock(true);
         switch (zstepper) {
           case 0: stepper.set_z_lock(false); break;
           case 1: stepper.set_z2_lock(false); break;
@@ -245,7 +245,7 @@ void GcodeSuite::G34() {
       } // for (zstepper)
 
       // Back to normal stepper operations
-      set_all_z_lock(false); 
+      set_all_z_lock(false);
       stepper.set_separate_multi_axis(false);
 
       if (err_break) break;
