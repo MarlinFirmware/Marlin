@@ -1275,10 +1275,10 @@ void Temperature::manage_heater() {
       #if ENABLED(HEATER_5_USER_THERMISTOR)
         t_index == CTI_HOTEND_5 ? PSTR("HOTEND 5") :
       #endif
-      #if ENABLED(BED_USER_THERMISTOR)
+      #if ENABLED(HEATER_BED_USER_THERMISTOR)
         t_index == CTI_BED ? PSTR("BED") :
       #endif
-      #if ENABLED(CHAMBER_USER_THERMISTOR)
+      #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
         t_index == CTI_CHAMBER ? PSTR("CHAMBER") :
       #endif
       nullptr
