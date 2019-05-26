@@ -2352,9 +2352,9 @@ void MarlinSettings::reset() {
   //
   // BLTOUCH
   //
-  #if ENABLED(BLTOUCH)
-    bltouch.last_written_mode;
-  #endif
+  //#if ENABLED(BLTOUCH)
+  //  bltouch.last_written_mode;
+  //#endif
 
   //
   // Endstop Adjustments
