@@ -32,7 +32,9 @@
 #include "../core/macros.h"
 #include "../core/millis_t.h"
 #include "../../Configuration.h"
-#include "../../Version.h"
+#if __has_include("../../Version.h")
+    #include "../../Version.h"
+#endif
 #include "Version.h"
 #include "Conditionals_LCD.h"
 #include "../core/drivers.h"

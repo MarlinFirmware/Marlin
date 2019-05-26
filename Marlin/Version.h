@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../core/macros.h" // for ENABLED
+#include "./src/core/macros.h" // for ENABLED
 
 /**
   * Marlin release version identifier
