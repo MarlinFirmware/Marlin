@@ -254,10 +254,10 @@ void GcodeSuite::G34() {
 
     } // for (iteration)
 
-    if (err_break) { SERIAL_ECHOLNPGM("Aborted due to error."); break; }
+    if (err_break) { SERIAL_ECHOLNPGM("G34 aborted."); break; }
 
-    SERIAL_ECHOLNPAIR("Performed iterations: ", int(iteration + (iteration != z_auto_align_iterations)), " of ", int(z_auto_align_iterations));
-    SERIAL_ECHOLNPAIR_F("Achieved accuracy: ", z_maxdiff);
+    SERIAL_ECHOLNPAIR("Iteration ", int(iteration + (iteration != z_auto_align_iterations)), " of ", int(z_auto_align_iterations));
+    SERIAL_ECHOLNPAIR_F("Accuracy: ", z_maxdiff);
     SERIAL_EOL();
 
     // Restore the active tool after homing
