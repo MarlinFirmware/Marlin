@@ -62,16 +62,20 @@
 #define Z_MAX_PIN          42   // L7
 
 //
-//Filament Runout Pins
-//
-#define FIL_RUNOUT_PIN     49
-#define FIL_RUNOUT2_PIN    47
-
-//
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  42
+#endif
+
+//
+// Filament Runout Pins
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   49
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN  47
 #endif
 
 //
