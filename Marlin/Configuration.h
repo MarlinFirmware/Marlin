@@ -37,6 +37,10 @@
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
 //#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 
+// Use Adaptive step smoothing, Junction Deviation and S Curve Acceleration
+// Slower but smoother more accurate moves
+//#define SmoothMotion
+
 /*
    Hotend Type
    Choose one option below.
@@ -958,6 +962,32 @@
 #define DEFAULT_EJERK                  5.0
 #endif
 
+/**
+ * S-Curve Acceleration
+ *
+ * This option eliminates vibration during printing by fitting a Bézier
+ * curve to move acceleration, producing much smoother direction changes.
+ *
+ * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
+ */
+#if ENABLED(SmoothMotion)
+  #define S_CURVE_ACCELERATION
+  //
+// Use Junction Deviation instead of traditional Jerk Limiting
+//
+#define JUNCTION_DEVIATION
+#if ENABLED(JUNCTION_DEVIATION)
+  #define JUNCTION_DEVIATION_MM 0.08  // (mm) Distance from real junction edge
+#endif
+
+/**
+ * Adaptive Step Smoothing increases the resolution of multi-axis moves, particularly at step frequencies
+ * below 1kHz (for AVR) or 10kHz (for ARM), where aliasing between axes in multi-axis moves causes audible
+ * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
+ * lowest stepping frequencies.
+ */
+#define ADAPTIVE_STEP_SMOOTHING
+#endif
 
 /**
    Default Max Acceleration (change/s) change = mm/s
