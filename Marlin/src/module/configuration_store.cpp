@@ -713,7 +713,6 @@ void MarlinSettings::postprocess() {
     // BLTOUCH
     //
     {
-      bool bltouch_last_written_mode = false;
       _FIELD_TEST(bltouch_last_written_mode);
       #if ENABLED(BLTOUCH)
         const bool &bltouch_last_written_mode = bltouch.last_written_mode;
