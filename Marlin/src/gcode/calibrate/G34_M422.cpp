@@ -185,18 +185,22 @@ void GcodeSuite::G34() {
 
       // Adapt the next probe clearance height based on the new measurements.
       // Safe_height = lowest distance to bed (= highest measurement) plus highest measured misalignment.
-      SERIAL_EOL();
       #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
         z_maxdiff = MAX(ABS(z_measured[0] - z_measured[1]), ABS(z_measured[1] - z_measured[2]), ABS(z_measured[2] - z_measured[0]));
         z_probe = Z_BASIC_CLEARANCE + MAX(z_measured[0], z_measured[1], z_measured[2]) + z_maxdiff;
-        SERIAL_ECHOLNPAIR("DIFFERENCE Z1-Z2: ", ABS(z_measured[0] - z_measured[1]),
-                          "DIFFERENCE Z2-Z3: ", ABS(z_measured[1] - z_measured[2]),
-                          "DIFFERENCE Z3-Z1: ", ABS(z_measured[2] - z_measured[0]));
       #else
         z_maxdiff = ABS(z_measured[0] - z_measured[1]);
         z_probe = Z_BASIC_CLEARANCE + MAX(z_measured[0], z_measured[1]) + z_maxdiff;
-        SERIAL_ECHOLNPAIR("DIFFERENCE Z1-Z2: ", ABS(z_measured[0] - z_measured[1]));
       #endif
+
+      SERIAL_ECHOPAIR("\n"
+        "DIFFERENCE Z1-Z2=", ABS(z_measured[0] - z_measured[1])
+        #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+          , " Z2-Z3=", ABS(z_measured[1] - z_measured[2])
+          , " Z3-Z1=", ABS(z_measured[2] - z_measured[0])
+        #endif
+      );
+      SERIAL_EOL();
       SERIAL_EOL();
 
       // Raise to the new next probing height right away
@@ -256,7 +260,7 @@ void GcodeSuite::G34() {
 
     if (err_break) { SERIAL_ECHOLNPGM("G34 aborted."); break; }
 
-    SERIAL_ECHOLNPAIR("Iteration ", int(iteration + (iteration != z_auto_align_iterations)), " of ", int(z_auto_align_iterations));
+    SERIAL_ECHOLNPAIR("Did ", int(iteration + (iteration != z_auto_align_iterations)), " iterations of ", int(z_auto_align_iterations));
     SERIAL_ECHOLNPAIR_F("Accuracy: ", z_maxdiff);
     SERIAL_EOL();
 
