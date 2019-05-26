@@ -1053,16 +1053,12 @@ void setup() {
     fanmux_init();
   #endif
 
-  #if HAS_TRINAMIC && HAS_LCD_MENU
-    init_tmc_section();
-  #endif
-
   #if ENABLED(MIXING_EXTRUDER)
     mixer.init();
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch.init();
+    bltouch.init(/*set_voltage=*/true);
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)

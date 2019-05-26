@@ -40,6 +40,8 @@
 //
 // Steppers
 //
+#define I2S_STEPPER_STREAM
+
 #define X_STEP_PIN         128
 #define X_DIR_PIN          129
 #define X_ENABLE_PIN       130
