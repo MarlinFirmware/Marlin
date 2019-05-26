@@ -798,7 +798,7 @@ void CardReader::setroot() {
 
       // Never sort more than the max allowed
       // If you use folders to organize, 20 may be enough
-      if (fileCnt > SDSORT_LIMIT) fileCnt = SDSORT_LIMIT;
+      NOMORE(fileCnt, SDSORT_LIMIT);
 
       // Sort order is always needed. May be static or dynamic.
       #if ENABLED(SDSORT_DYNAMIC_RAM)
