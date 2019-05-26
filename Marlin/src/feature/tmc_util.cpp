@@ -570,19 +570,21 @@
           else SERIAL_ECHO(tstep_value);
         }
         break;
-      case TMC_TPWMTHRS: {
-          uint32_t tpwmthrs_val = st.TPWMTHRS();
-          SERIAL_ECHO(tpwmthrs_val);
-        }
-        break;
-      case TMC_TPWMTHRS_MMS: {
-          uint32_t tpwmthrs_val = st.get_pwm_thrs();
-          if (tpwmthrs_val)
+      #if ENABLED(HYBRID_THRESHOLD)
+        case TMC_TPWMTHRS: {
+            uint32_t tpwmthrs_val = st.TPWMTHRS();
             SERIAL_ECHO(tpwmthrs_val);
-          else
-            SERIAL_CHAR('-');
-        }
-        break;
+          }
+          break;
+        case TMC_TPWMTHRS_MMS: {
+            uint32_t tpwmthrs_val = st.get_pwm_thrs();
+            if (tpwmthrs_val)
+              SERIAL_ECHO(tpwmthrs_val);
+            else
+              SERIAL_CHAR('-');
+          }
+          break;
+      #endif
       case TMC_OTPW: serialprint_truefalse(st.otpw()); break;
       #if ENABLED(MONITOR_DRIVER_STATUS)
         case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
