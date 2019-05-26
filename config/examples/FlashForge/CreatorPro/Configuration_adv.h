@@ -2385,7 +2385,7 @@
 
   //#define MMU2_DEBUG  // Write debug info to serial output
 
-#endif // PRUSA_MMU2a
+#endif // PRUSA_MMU2
 
 /**
  * Advanced Print Counter settings
