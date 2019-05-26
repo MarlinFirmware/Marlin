@@ -239,7 +239,7 @@
     #define BEDTEMPTABLE TT_NAME(THERMISTORBED)
     #define BEDTEMPTABLE_LEN COUNT(BEDTEMPTABLE)
   #else
-    #define BEDTEMPTABLE_LEN 0
+    #define BED_TEMPTABLE_LEN 0
   #endif
 #elif defined(HEATER_BED_USES_THERMISTOR)
   #error "No bed thermistor table specified"
@@ -252,7 +252,7 @@
     #define CHAMBERTEMPTABLE TT_NAME(THERMISTORCHAMBER)
     #define CHAMBERTEMPTABLE_LEN COUNT(CHAMBERTEMPTABLE)
   #else
-    #define CHAMBERTEMPTABLE_LEN 0
+    #define CHAMBER_TEMPTABLE_LEN 0
   #endif
 #elif defined(HEATER_CHAMBER_USES_THERMISTOR)
   #error "No chamber thermistor table specified"
