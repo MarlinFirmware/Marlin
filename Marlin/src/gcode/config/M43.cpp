@@ -218,17 +218,18 @@ inline void servo_probe_test() {
       if (deploy_state != READ(PROBE_TEST_PIN)) {               // probe triggered
         for (probe_counter = 0; probe_counter < 15 && deploy_state != READ(PROBE_TEST_PIN); ++probe_counter) safe_delay(2);
 
+        SERIAL_ECHOPGM(". Pulse width");
         if (probe_counter == 15)
-          SERIAL_ECHOLNPGM(". Pulse width: 30ms or more");
+          SERIAL_ECHOLNPGM(": 30ms or more");
         else
-          SERIAL_ECHOLNPAIR(". Pulse width (+/- 4ms): ", probe_counter * 2);
+          SERIAL_ECHOLNPAIR(" (+/- 4ms): ", probe_counter * 2);
 
         if (probe_counter >= 4) {
           if (probe_counter == 15) {
             if (blt) SERIAL_ECHOPGM("= BLTouch V3.1");
             else     SERIAL_ECHOPGM("= Z Servo Probe");
           }
-          else SERIAL_ECHOPGM("= BLTouch pre V3.1 or compatible probe");
+          else SERIAL_ECHOPGM("= BLTouch pre V3.1 (or compatible)");
           SERIAL_ECHOLNPGM(" detected.");
         }
         else SERIAL_ECHOLNPGM("FAIL: Noise detected - please re-run test");
@@ -238,7 +239,7 @@ inline void servo_probe_test() {
       }
     }
 
-    if (!probe_counter) SERIAL_ECHOLNPGM("FAIL: Trigger not detected");
+    if (!probe_counter) SERIAL_ECHOLNPGM("FAIL: No trigger detected");
 
   #endif // HAS_Z_SERVO_PROBE
 
