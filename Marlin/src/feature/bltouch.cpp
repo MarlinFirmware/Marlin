@@ -55,11 +55,7 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
   //               At power on, the probe will default to the eeprom settings configured by the user
   #if ENABLED(BLTOUCH_FORCE_MODE_SET)
 
-    if (set_voltage) mode_conv_proc((false
-      #if ENABLED(BLTOUCH_SET_5V_MODE)
-        || true
-      #endif
-    ));
+    constexpr bool should_set = true;
 
   #else
 
@@ -74,17 +70,20 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
       );
     }
 
-    if (set_voltage && last_written_mode != (0
+    const bool should_set = last_written_mode != (false
       #if ENABLED(BLTOUCH_SET_5V_MODE)
-        + 1
+        || true
       #endif
-    )) mode_conv_proc((false
+    );
+
+  #endif
+
+  if (should_set && set_voltage)
+    mode_conv_proc((false
       #if ENABLED(BLTOUCH_SET_5V_MODE)
         || true
       #endif
     ));
-
-  #endif
 
   _reset();
   _stow();
