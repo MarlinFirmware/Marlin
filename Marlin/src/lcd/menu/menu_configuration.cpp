@@ -172,6 +172,24 @@ static void lcd_factory_settings() {
 
 #if ENABLED(BLTOUCH)
 
+  #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
+    void bltouch_report() {
+      SERIAL_ECHOLNPAIR("EEPROM Last BLTouch Mode - ", (int)bltouch.last_written_mode);
+      SERIAL_ECHOLNPGM("Configuration BLTouch Mode - "
+        #if ENABLED(BLTOUCH_SET_5V_MODE)
+          "5V"
+        #else
+          "OD"
+        #endif
+      );
+      char mess[21];
+      strcpy_P(mess, PSTR("BLTouch Mode - "));
+      sprintf_P(&mess[15], bltouch.last_written_mode ? PSTR("5V") : PSTR("OD"));
+      ui.set_status(mess);
+      ui.return_to_status();
+    }
+  #endif
+
   void menu_bltouch() {
     START_MENU();
     MENU_BACK(MSG_CONFIGURATION);
@@ -180,9 +198,14 @@ static void lcd_factory_settings() {
     MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch._deploy);
     MENU_ITEM(function, MSG_BLTOUCH_STOW, bltouch._stow);
     MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
-    MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch._set_5V_mode);
-    MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch._set_OD_mode);
-    MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
+    #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
+      MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, bltouch._set_5V_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, bltouch._set_OD_mode);
+      MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
+      MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE_5V, bltouch.mode_conv_5V);
+      MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE_OD, bltouch.mode_conv_OD);
+      MENU_ITEM(function, MSG_BLTOUCH_MODE_ECHO, bltouch_report);
+    #endif
     END_MENU();
   }
 
