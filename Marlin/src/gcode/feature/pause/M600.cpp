@@ -98,7 +98,7 @@ void GcodeSuite::M600() {
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // Don't allow filament change without homing first
-    if (axis_unhomed_error()) gcode.home_all_axes();
+    if (axis_unhomed_error()) home_all_axes();
   #endif
 
   #if EXTRUDERS > 1

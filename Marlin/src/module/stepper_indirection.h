@@ -62,11 +62,11 @@
     #error "Update TMCStepper library to 0.2.2 or newer."
   #endif
 
-  #define ____TMC_CLASS(MODEL, A, I) TMCMarlin<TMC##MODEL##Stepper, A, I>
-  #define ___TMC_CLASS(MODEL, A, I) ____TMC_CLASS(MODEL, A, I)
-  #define __TMC_CLASS(MODEL, A, I) ___TMC_CLASS(_##MODEL, A, I)
-  #define _TMC_CLASS(MODEL, L) __TMC_CLASS(MODEL, L)
-  #define TMC_CLASS(ST) _TMC_CLASS(ST##_DRIVER_TYPE, TMC_##ST##_LABEL)
+  #define ____TMC_CLASS(MODEL, A, I, E) TMCMarlin<TMC##MODEL##Stepper, A, I, E>
+  #define ___TMC_CLASS(MODEL, A, I, E) ____TMC_CLASS(MODEL, A, I, E)
+  #define __TMC_CLASS(MODEL, A, I, E) ___TMC_CLASS(_##MODEL, A, I, E)
+  #define _TMC_CLASS(MODEL, L, E) __TMC_CLASS(MODEL, L, E)
+  #define TMC_CLASS(ST) _TMC_CLASS(ST##_DRIVER_TYPE, TMC_##ST##_LABEL, ST##_AXIS)
 
   typedef struct {
     uint8_t toff;

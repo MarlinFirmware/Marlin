@@ -63,9 +63,9 @@
 
 #define INVALID_SERVO         255     // flag indicating an invalid servo index
 
-//
-#define usToTicks(_us)    (( clockCyclesPerMicrosecond()* _us) / PRESCALER)     // converts microseconds to tick (PRESCALER depends on architecture)
-#define ticksToUs(_ticks) (( (unsigned)_ticks * PRESCALER)/ clockCyclesPerMicrosecond() ) // converts from ticks back to microseconds
+// Convert microseconds to ticks and back (PRESCALER depends on architecture)
+#define usToTicks(_us)    (clockCyclesPerMicrosecond() * (_us) / (PRESCALER))
+#define ticksToUs(_ticks) (unsigned(_ticks) * (PRESCALER) / clockCyclesPerMicrosecond())
 
 //#define NBR_TIMERS        ((MAX_SERVOS) / (SERVOS_PER_TIMER))
 
