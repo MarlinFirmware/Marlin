@@ -67,6 +67,11 @@
   #define __TMC_CLASS(MODEL, A, I, E) ___TMC_CLASS(_##MODEL, A, I, E)
   #define _TMC_CLASS(MODEL, L, E) __TMC_CLASS(MODEL, L, E)
   #define TMC_CLASS(ST, E) _TMC_CLASS(ST##_DRIVER_TYPE, TMC_##ST##_LABEL, E##_AXIS)
+  #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+    #define TMC_CLASS_E(AI) TMC_CLASS(E##AI, E##AI)
+  #else
+    #define TMC_CLASS_E(AI) TMC_CLASS(E##AI, E)
+  #endif
 
   typedef struct {
     uint8_t toff;
@@ -360,7 +365,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E0_DIR_READ (stepperE0.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E0)
-    extern TMC_CLASS(E0, E0) stepperE0;
+    extern TMC_CLASS_E(0) stepperE0;
   #endif
   #if AXIS_DRIVER_TYPE_E0(TMC26X)
     extern TMC26XStepper stepperE0;
@@ -395,7 +400,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E1_DIR_READ (stepperE1.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E1)
-    extern TMC_CLASS(E1, E1) stepperE1;
+    extern TMC_CLASS_E(1) stepperE1;
   #endif
   #if AXIS_DRIVER_TYPE_E1(TMC26X)
     extern TMC26XStepper stepperE1;
@@ -430,7 +435,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E2_DIR_READ (stepperE2.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E2)
-    extern TMC_CLASS(E2, E2) stepperE2;
+    extern TMC_CLASS_E(2) stepperE2;
   #endif
   #if AXIS_DRIVER_TYPE_E2(TMC26X)
     extern TMC26XStepper stepperE2;
@@ -465,7 +470,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E3_DIR_READ (stepperE3.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E3)
-    extern TMC_CLASS(E3, E3) stepperE3;
+    extern TMC_CLASS_E(3) stepperE3;
   #endif
   #if AXIS_DRIVER_TYPE_E3(TMC26X)
     extern TMC26XStepper stepperE3;
@@ -500,7 +505,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E4_DIR_READ (stepperE4.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E4)
-    extern TMC_CLASS(E4, E4) stepperE4;
+    extern TMC_CLASS_E(4) stepperE4;
   #endif
   #if AXIS_DRIVER_TYPE_E4(TMC26X)
     extern TMC26XStepper stepperE4;
@@ -535,7 +540,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E5_DIR_READ (stepperE5.getStatus() & STATUS_DIR)
 #else
   #if AXIS_IS_TMC(E5)
-    extern TMC_CLASS(E5, E5) stepperE5;
+    extern TMC_CLASS_E(5) stepperE5;
   #endif
   #if AXIS_DRIVER_TYPE_E5(TMC26X)
     extern TMC26XStepper stepperE5;
