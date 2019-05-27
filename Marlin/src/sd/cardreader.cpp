@@ -762,7 +762,7 @@ void CardReader::setroot() {
       // Copy filenames into the static array
       #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
         #define SET_SORTNAME(I) do{ strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN); \
-                                    sortnames[I][SORTED_LONGNAME_MAXLEN] = '\0'; }while(0)
+                                    sortnames[I][SORTED_LONGNAME_MAXLEN-1] = '\0'; }while(0)
       #else
         #define SET_SORTNAME(I) strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN)
       #endif
