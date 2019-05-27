@@ -81,10 +81,10 @@ uint8_t CardReader::workDirDepth;
         char **CardReader::sortshort, **CardReader::sortnames;
       #else
         char CardReader::sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
-        char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
+        char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN + 1];
       #endif
     #elif DISABLED(SDSORT_USES_STACK)
-      char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
+      char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN + 1];
     #endif
 
     #if HAS_FOLDER_SORTING
@@ -760,11 +760,11 @@ void CardReader::setroot() {
       #endif
     #else
       // Copy filenames into the static array
-      #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
-        #define SET_SORTNAME(I) do{ strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN); \
-                                    sortnames[I][SORTED_LONGNAME_MAXLEN-1] = '\0'; }while(0)
+      #if SORTED_LONGNAME_MAXLEN == (LONG_FILENAME_LENGTH - 1)
+        #define SET_SORTNAME(I) strncpy(sortnames[I], longest_filename(), LONG_FILENAME_LENGTH)
       #else
-        #define SET_SORTNAME(I) strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN)
+        #define SET_SORTNAME(I) do{ strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN); \
+                                    sortnames[I][SORTED_LONGNAME_MAXLEN] = '\0'; }while(0)
       #endif
       #if ENABLED(SDSORT_CACHE_NAMES)
         #define SET_SORTSHORT(I) strcpy(sortshort[I], filename)
@@ -816,7 +816,7 @@ void CardReader::setroot() {
             sortnames = new char*[fileCnt];
           #endif
         #elif ENABLED(SDSORT_USES_STACK)
-          char sortnames[fileCnt][SORTED_LONGNAME_MAXLEN];
+          char sortnames[fileCnt][SORTED_LONGNAME_MAXLEN + 1];
         #endif
 
         // Folder sorting needs 1 bit per entry for flags.
