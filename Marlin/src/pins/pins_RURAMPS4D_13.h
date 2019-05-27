@@ -134,8 +134,8 @@
 #define TEMP_0_PIN          0   // ANALOG A0
 #define TEMP_1_PIN          1   // ANALOG A1
 #define TEMP_2_PIN          2   // ANALOG A2
-#define TEMP_3_PIN          3   // ANALOG A2
-#define TEMP_BED_PIN        4   // ANALOG A3
+#define TEMP_3_PIN          3   // ANALOG A3
+#define TEMP_BED_PIN        4   // ANALOG A4
 
 // The thermocouple uses Analog pins
 #if ENABLED(VER_WITH_THERMOCOUPLE) // Defined in Configuration.h

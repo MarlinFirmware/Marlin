@@ -132,7 +132,7 @@ void HAL_timer_start(const uint8_t timer_num, uint32_t frequency) {
   timer_enable_intr(timer.group, timer.idx);
 
   // TODO need to deal with timer_group1_isr
-  timer_isr_register(timer.group, timer.idx, timer_group0_isr, (void*)timer.idx, ESP_INTR_FLAG_INTRDISABLED, nullptr);
+  timer_isr_register(timer.group, timer.idx, timer_group0_isr, (void*)timer.idx, 0, nullptr);
 
   timer_start(timer.group, timer.idx);
 }
@@ -169,10 +169,8 @@ hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
  */
 hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   const tTimerConfig timer = TimerConfig[timer_num];
-
   uint64_t counter_value;
   timer_get_counter_value(timer.group, timer.idx, &counter_value);
-
   return counter_value;
 }
 
@@ -181,7 +179,7 @@ hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
  * @param timer_num timer number to enable interrupts on
  */
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
-  const tTimerConfig timer = TimerConfig[timer_num];
+  //const tTimerConfig timer = TimerConfig[timer_num];
   //timer_enable_intr(timer.group, timer.idx);
 }
 
@@ -190,8 +188,8 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num) {
  * @param timer_num timer number to disable interrupts on
  */
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
-  const tTimerConfig timer = TimerConfig[timer_num];
-  // timer_disable_intr(timer.group, timer.idx);
+  //const tTimerConfig timer = TimerConfig[timer_num];
+  //timer_disable_intr(timer.group, timer.idx);
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {

@@ -40,8 +40,6 @@
   #error "Oops! Select 'Mega 1280' or 'Mega 2560' in 'Tools > Board.'"
 #endif
 
-#include "src\HAL\HAL_AVR\pinsDebug_plus_70.h"
-
 #define DEFAULT_MACHINE_NAME    "MB Replicator"
 #define BOARD_NAME              "Mightyboard"
 
@@ -64,16 +62,20 @@
 #define Z_MAX_PIN          42   // L7
 
 //
-//Filament Runout Pins
-//
-#define FIL_RUNOUT_PIN     49
-#define FIL_RUNOUT2_PIN    47
-
-//
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  42
+#endif
+
+//
+// Filament Runout Pins
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   49
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN  47
 #endif
 
 //
@@ -204,60 +206,55 @@
 //
 // LCD / Controller
 //
-#ifdef REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#if ENABLED(ULTRA_LCD)
 
-  #define LCD_PINS_RS      33   // C4: LCD-STROBE
-  #define LCD_PINS_ENABLE  72   // J2: LEFT
-  #define LCD_PINS_D4      35   // C2: LCD-CLK
-  #define LCD_PINS_D5      32   // C5: RLED
-  #define LCD_PINS_D6      34   // C3: LCD-DATA
-  #define LCD_PINS_D7      31   // C6: GLED
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
-  #define BTN_EN2          75   // J4, UP
-  #define BTN_EN1          73   // J3, DOWN
-  //STOP button connected as KILL_PIN
-  #define KILL_PIN         14   // J1, RIGHT
-  //KILL - not connected
+    #define LCD_PINS_RS    33   // C4: LCD-STROBE
+    #define LCD_PINS_ENABLE 72  // J2: LEFT
+    #define LCD_PINS_D4    35   // C2: LCD-CLK
+    #define LCD_PINS_D5    32   // C5: RLED
+    #define LCD_PINS_D6    34   // C3: LCD-DATA
+    #define LCD_PINS_D7    31   // C6: GLED
 
-  #define BEEPER_PIN        8   // H5, SD_WP
+    #define BTN_EN2        75   // J4, UP
+    #define BTN_EN1        73   // J3, DOWN
+    //STOP button connected as KILL_PIN
+    #define KILL_PIN       14   // J1, RIGHT
+    //KILL - not connected
+
+    #define BEEPER_PIN      8   // H5, SD_WP
+
+    //on board leds
+    #define STAT_LED_RED_LED  SERVO0_PIN   // C1 (1280-EX1, DEBUG2)
+    #define STAT_LED_BLUE_PIN SERVO1_PIN   // C0 (1280-EX2, DEBUG3)
+
+  #else
+    // Replicator uses a 3-wire SR controller with HD44780
+    #define SR_DATA_PIN    34   // C3
+    #define SR_CLK_PIN     35   // C2
+    #define SR_STROBE_PIN  33   // C4
+
+    #define BTN_UP         75   // J4
+    #define BTN_DWN        73   // J3
+    #define BTN_LFT        72   // J2
+    #define BTN_RT         14   // J1
+
+    // Disable encoder
+    #undef BTN_EN1
+    #undef BTN_EN2
+
+    #define BEEPER_PIN      4   // G5
+
+    #define STAT_LED_RED_PIN  32   // C5
+    #define STAT_LED_BLUE_PIN 31   // C6 (Actually green)
+
+  #endif
 
   #define BTN_CENTER       15   // J0
   #define BTN_ENC          BTN_CENTER
 
-  //on board leds
-  #define STAT_LED_RED_LED  SERVO0_PIN   // C1 (1280-EX1, DEBUG2)
-  #define STAT_LED_BLUE_PIN SERVO1_PIN   // C0 (1280-EX2, DEBUG3)
-
-#else
-  // Replicator uses a 3-wire SR controller with HD44780
-  #define SR_DATA_PIN      34   // C3
-  #define SR_CLK_PIN       35   // C2
-  #define SR_STROBE_PIN    33   // C4
-
-  #define BTN_UP           75   // J4
-  #define BTN_DWN          73   // J3
-  #define BTN_LFT          72   // J2
-  #define BTN_RT           14   // J1
-  #define BTN_CENTER       15   // J0
-  #define BTN_ENC          BTN_CENTER
-
-  // Disable encoder
-#ifdef BTN_EN1
-  #undef BTN_EN1
-#endif
-#ifdef BTN_EN2
-  #undef BTN_EN2
-#endif
-
-  #define BTN_EN1 -1
-  #define BTN_EN2 -1
-
-  #define BEEPER_PIN         4   // G5
-
-  #define STAT_LED_RED_PIN  32   // C5
-  #define STAT_LED_BLUE_PIN 31   // C6 (Actually green)
-
-#endif
+#endif // ULTRA_LCD
 
 //
 // SD Card
@@ -275,26 +272,26 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  #define X_HARDWARE_SERIAL  Serial2
-  #define Y_HARDWARE_SERIAL  Serial1
+  #define X_HARDWARE_SERIAL Serial2
+  #define Y_HARDWARE_SERIAL Serial1
 
   /**
    * Software serial
    */
 
-  #define X_SERIAL_TX_PIN    16
-  #define X_SERIAL_RX_PIN    17
+  #define X_SERIAL_TX_PIN  16
+  #define X_SERIAL_RX_PIN  17
 
-  #define Y_SERIAL_TX_PIN    18
-  #define Y_SERIAL_RX_PIN    19
+  #define Y_SERIAL_TX_PIN  18
+  #define Y_SERIAL_RX_PIN  19
 
-  #define Z_SERIAL_TX_PIN    41
-  #define Z_SERIAL_RX_PIN    66
+  #define Z_SERIAL_TX_PIN  41
+  #define Z_SERIAL_RX_PIN  66
 
-  #define E0_SERIAL_TX_PIN   40
-  #define E0_SERIAL_RX_PIN   67
+  #define E0_SERIAL_TX_PIN 40
+  #define E0_SERIAL_RX_PIN 67
 
-	#define E1_SERIAL_TX_PIN   37
-  #define E1_SERIAL_RX_PIN   68
+  #define E1_SERIAL_TX_PIN 37
+  #define E1_SERIAL_RX_PIN 68
 
 #endif

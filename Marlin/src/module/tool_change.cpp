@@ -752,8 +752,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       #if HAS_SOFTWARE_ENDSTOPS
         update_software_endstops(X_AXIS, active_extruder, tmp_extruder);
-        update_software_endstops(Y_AXIS, active_extruder, tmp_extruder);
-        update_software_endstops(Z_AXIS, active_extruder, tmp_extruder);
+        #if DISABLED(DUAL_X_CARRIAGE)
+          update_software_endstops(Y_AXIS, active_extruder, tmp_extruder);
+          update_software_endstops(Z_AXIS, active_extruder, tmp_extruder);
+        #endif
       #endif
 
       set_destination_from_current();

@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V66"
+#define EEPROM_VERSION "V67"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -109,10 +109,13 @@ extern float saved_extruder_advance_K[EXTRUDERS];
   void M217_report(const bool eeprom);
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../feature/bltouch.h"
+#endif
+
 #if HAS_TRINAMIC
   #include "stepper_indirection.h"
   #include "../feature/tmc_util.h"
-  #define TMC_GET_PWMTHRS(A,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.settings.axis_steps_per_mm[_AXIS(A)])
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -206,6 +209,11 @@ typedef struct SettingsDataStruct {
   // SERVO_ANGLES
   //
   uint16_t servo_angles[EEPROM_NUM_SERVOS][2];          // M281 P L U
+
+  //
+  // BLTOUCH
+  //
+  bool bltouch_last_written_mode;
 
   //
   // DELTA / [XYZ]_DUAL_ENDSTOPS
@@ -702,6 +710,19 @@ void MarlinSettings::postprocess() {
     }
 
     //
+    // BLTOUCH
+    //
+    {
+      _FIELD_TEST(bltouch_last_written_mode);
+      #if ENABLED(BLTOUCH)
+        const bool &bltouch_last_written_mode = bltouch.last_written_mode;
+      #else
+        constexpr bool bltouch_last_written_mode = false;
+      #endif
+      EEPROM_WRITE(bltouch_last_written_mode);
+    }
+
+    //
     // DELTA Geometry or Dual Endstops offsets
     //
     {
@@ -962,49 +983,49 @@ void MarlinSettings::postprocess() {
       #if ENABLED(HYBRID_THRESHOLD)
        tmc_hybrid_threshold_t tmc_hybrid_threshold = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         #if AXIS_HAS_STEALTHCHOP(X)
-          tmc_hybrid_threshold.X = TMC_GET_PWMTHRS(X, X);
+          tmc_hybrid_threshold.X = stepperX.get_pwm_thrs();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          tmc_hybrid_threshold.Y = TMC_GET_PWMTHRS(Y, Y);
+          tmc_hybrid_threshold.Y = stepperY.get_pwm_thrs();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          tmc_hybrid_threshold.Z = TMC_GET_PWMTHRS(Z, Z);
+          tmc_hybrid_threshold.Z = stepperZ.get_pwm_thrs();
         #endif
         #if AXIS_HAS_STEALTHCHOP(X2)
-          tmc_hybrid_threshold.X2 = TMC_GET_PWMTHRS(X, X2);
+          tmc_hybrid_threshold.X2 = stepperX2.get_pwm_thrs();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y2)
-          tmc_hybrid_threshold.Y2 = TMC_GET_PWMTHRS(Y, Y2);
+          tmc_hybrid_threshold.Y2 = stepperY2.get_pwm_thrs();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z2)
-          tmc_hybrid_threshold.Z2 = TMC_GET_PWMTHRS(Z, Z2);
+          tmc_hybrid_threshold.Z2 = stepperZ2.get_pwm_thrs();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z3)
-          tmc_hybrid_threshold.Z3 = TMC_GET_PWMTHRS(Z, Z3);
+          tmc_hybrid_threshold.Z3 = stepperZ3.get_pwm_thrs();
         #endif
         #if MAX_EXTRUDERS
           #if AXIS_HAS_STEALTHCHOP(E0)
-            tmc_hybrid_threshold.E0 = TMC_GET_PWMTHRS(E, E0);
+            tmc_hybrid_threshold.E0 = stepperE0.get_pwm_thrs();
           #endif
           #if MAX_EXTRUDERS > 1
             #if AXIS_HAS_STEALTHCHOP(E1)
-              tmc_hybrid_threshold.E1 = TMC_GET_PWMTHRS(E, E1);
+              tmc_hybrid_threshold.E1 = stepperE1.get_pwm_thrs();
             #endif
             #if MAX_EXTRUDERS > 2
               #if AXIS_HAS_STEALTHCHOP(E2)
-                tmc_hybrid_threshold.E2 = TMC_GET_PWMTHRS(E, E2);
+                tmc_hybrid_threshold.E2 = stepperE2.get_pwm_thrs();
               #endif
               #if MAX_EXTRUDERS > 3
                 #if AXIS_HAS_STEALTHCHOP(E3)
-                  tmc_hybrid_threshold.E3 = TMC_GET_PWMTHRS(E, E3);
+                  tmc_hybrid_threshold.E3 = stepperE3.get_pwm_thrs();
                 #endif
                 #if MAX_EXTRUDERS > 4
                   #if AXIS_HAS_STEALTHCHOP(E4)
-                    tmc_hybrid_threshold.E4 = TMC_GET_PWMTHRS(E, E4);
+                    tmc_hybrid_threshold.E4 = stepperE4.get_pwm_thrs();
                   #endif
                   #if MAX_EXTRUDERS > 5
                     #if AXIS_HAS_STEALTHCHOP(E5)
-                      tmc_hybrid_threshold.E5 = TMC_GET_PWMTHRS(E, E5);
+                      tmc_hybrid_threshold.E5 = stepperE5.get_pwm_thrs();
                     #endif
                   #endif // MAX_EXTRUDERS > 5
                 #endif // MAX_EXTRUDERS > 4
@@ -1490,6 +1511,19 @@ void MarlinSettings::postprocess() {
       }
 
       //
+      // BLTOUCH
+      //
+      {
+        _FIELD_TEST(bltouch_last_written_mode);
+        #if ENABLED(BLTOUCH)
+          bool &bltouch_last_written_mode = bltouch.last_written_mode;
+        #else
+          bool bltouch_last_written_mode;
+        #endif
+        EEPROM_READ(bltouch_last_written_mode);
+      }
+
+      //
       // DELTA Geometry or Dual Endstops offsets
       //
       {
@@ -1742,46 +1776,45 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(tmc_hybrid_threshold);
 
         #if ENABLED(HYBRID_THRESHOLD)
-          #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, tmc_hybrid_threshold.Q, planner.settings.axis_steps_per_mm[_AXIS(A)])
           if (!validating) {
             #if AXIS_HAS_STEALTHCHOP(X)
-              TMC_SET_PWMTHRS(X, X);
+              stepperX.set_pwm_thrs(tmc_hybrid_threshold.X);
             #endif
             #if AXIS_HAS_STEALTHCHOP(Y)
-              TMC_SET_PWMTHRS(Y, Y);
+              stepperY.set_pwm_thrs(tmc_hybrid_threshold.Y);
             #endif
             #if AXIS_HAS_STEALTHCHOP(Z)
-              TMC_SET_PWMTHRS(Z, Z);
+              stepperZ.set_pwm_thrs(tmc_hybrid_threshold.Z);
             #endif
             #if AXIS_HAS_STEALTHCHOP(X2)
-              TMC_SET_PWMTHRS(X, X2);
+              stepperX2.set_pwm_thrs(tmc_hybrid_threshold.X2);
             #endif
             #if AXIS_HAS_STEALTHCHOP(Y2)
-              TMC_SET_PWMTHRS(Y, Y2);
+              stepperY2.set_pwm_thrs(tmc_hybrid_threshold.Y2);
             #endif
             #if AXIS_HAS_STEALTHCHOP(Z2)
-              TMC_SET_PWMTHRS(Z, Z2);
+              stepperZ2.set_pwm_thrs(tmc_hybrid_threshold.Z2);
             #endif
             #if AXIS_HAS_STEALTHCHOP(Z3)
-              TMC_SET_PWMTHRS(Z, Z3);
+              stepperZ3.set_pwm_thrs(tmc_hybrid_threshold.Z3);
             #endif
             #if AXIS_HAS_STEALTHCHOP(E0)
-              TMC_SET_PWMTHRS(E, E0);
+              stepperE0.set_pwm_thrs(tmc_hybrid_threshold.E0);
             #endif
             #if AXIS_HAS_STEALTHCHOP(E1)
-              TMC_SET_PWMTHRS(E, E1);
+              stepperE1.set_pwm_thrs(tmc_hybrid_threshold.E1);
             #endif
             #if AXIS_HAS_STEALTHCHOP(E2)
-              TMC_SET_PWMTHRS(E, E2);
+              stepperE2.set_pwm_thrs(tmc_hybrid_threshold.E2);
             #endif
             #if AXIS_HAS_STEALTHCHOP(E3)
-              TMC_SET_PWMTHRS(E, E3);
+              stepperE3.set_pwm_thrs(tmc_hybrid_threshold.E3);
             #endif
             #if AXIS_HAS_STEALTHCHOP(E4)
-              TMC_SET_PWMTHRS(E, E4);
+              stepperE4.set_pwm_thrs(tmc_hybrid_threshold.E4);
             #endif
             #if AXIS_HAS_STEALTHCHOP(E5)
-              TMC_SET_PWMTHRS(E, E5);
+              stepperE5.set_pwm_thrs(tmc_hybrid_threshold.E5);
             #endif
           }
         #endif
@@ -2314,6 +2347,13 @@ void MarlinSettings::reset() {
   #if ENABLED(EDITABLE_SERVO_ANGLES)
     COPY(servo_angles, base_servo_angles);
   #endif
+
+  //
+  // BLTOUCH
+  //
+  //#if ENABLED(BLTOUCH)
+  //  bltouch.last_written_mode;
+  //#endif
 
   //
   // Endstop Adjustments
@@ -3149,13 +3189,13 @@ void MarlinSettings::reset() {
           say_M913();
         #endif
         #if AXIS_HAS_STEALTHCHOP(X)
-          SERIAL_ECHOPAIR(" X", TMC_GET_PWMTHRS(X, X));
+          SERIAL_ECHOPAIR(" X", stepperX.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          SERIAL_ECHOPAIR(" Y", TMC_GET_PWMTHRS(Y, Y));
+          SERIAL_ECHOPAIR(" Y", stepperY.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          SERIAL_ECHOPAIR(" Z", TMC_GET_PWMTHRS(Z, Z));
+          SERIAL_ECHOPAIR(" Z", stepperZ.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Z)
           SERIAL_EOL();
@@ -3166,13 +3206,13 @@ void MarlinSettings::reset() {
           SERIAL_ECHOPGM(" I1");
         #endif
         #if AXIS_HAS_STEALTHCHOP(X2)
-          SERIAL_ECHOPAIR(" X", TMC_GET_PWMTHRS(X, X2));
+          SERIAL_ECHOPAIR(" X", stepperX2.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y2)
-          SERIAL_ECHOPAIR(" Y", TMC_GET_PWMTHRS(Y, Y2));
+          SERIAL_ECHOPAIR(" Y", stepperY2.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z2)
-          SERIAL_ECHOPAIR(" Z", TMC_GET_PWMTHRS(Z, Z2));
+          SERIAL_ECHOPAIR(" Z", stepperZ2.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(X2) || AXIS_HAS_STEALTHCHOP(Y2) || AXIS_HAS_STEALTHCHOP(Z2)
           SERIAL_EOL();
@@ -3180,32 +3220,32 @@ void MarlinSettings::reset() {
 
         #if AXIS_HAS_STEALTHCHOP(Z3)
           say_M913();
-          SERIAL_ECHOLNPAIR(" I2 Z", TMC_GET_PWMTHRS(Z, Z3));
+          SERIAL_ECHOLNPAIR(" I2 Z", stepperZ3.get_pwm_thrs());
         #endif
 
         #if AXIS_HAS_STEALTHCHOP(E0)
           say_M913();
-          SERIAL_ECHOLNPAIR(" T0 E", TMC_GET_PWMTHRS(E, E0));
+          SERIAL_ECHOLNPAIR(" T0 E", stepperE0.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(E1)
           say_M913();
-          SERIAL_ECHOLNPAIR(" T1 E", TMC_GET_PWMTHRS(E, E1));
+          SERIAL_ECHOLNPAIR(" T1 E", stepperE1.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(E2)
           say_M913();
-          SERIAL_ECHOLNPAIR(" T2 E", TMC_GET_PWMTHRS(E, E2));
+          SERIAL_ECHOLNPAIR(" T2 E", stepperE2.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(E3)
           say_M913();
-          SERIAL_ECHOLNPAIR(" T3 E", TMC_GET_PWMTHRS(E, E3));
+          SERIAL_ECHOLNPAIR(" T3 E", stepperE3.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(E4)
           say_M913();
-          SERIAL_ECHOLNPAIR(" T4 E", TMC_GET_PWMTHRS(E, E4));
+          SERIAL_ECHOLNPAIR(" T4 E", stepperE4.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(E5)
           say_M913();
-          SERIAL_ECHOLNPAIR(" T5 E", TMC_GET_PWMTHRS(E, E5));
+          SERIAL_ECHOLNPAIR(" T5 E", stepperE5.get_pwm_thrs());
         #endif
         SERIAL_EOL();
       #endif // HYBRID_THRESHOLD
