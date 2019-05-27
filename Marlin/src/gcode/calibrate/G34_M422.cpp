@@ -154,7 +154,7 @@ void GcodeSuite::G34() {
     for (iteration = 0; iteration < z_auto_align_iterations; ++iteration) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> probing all positions.");
 
-      SERIAL_ECHOLNPAIR(" \nITERATION: ", int(iteration + 1));
+      SERIAL_ECHOLNPAIR("\nITERATION: ", int(iteration + 1));
 
       // Initialize minimum value
       float z_measured_min = 100000.0f;
