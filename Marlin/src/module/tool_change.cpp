@@ -751,10 +751,22 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
       #if HAS_SOFTWARE_ENDSTOPS
-        update_software_endstops(X_AXIS, active_extruder, tmp_extruder);
+        update_software_endstops(X_AXIS
+        #if HAS_HOTEND_OFFSET
+        , active_extruder, tmp_extruder
+        #endif
+        );
         #if DISABLED(DUAL_X_CARRIAGE)
-          update_software_endstops(Y_AXIS, active_extruder, tmp_extruder);
-          update_software_endstops(Z_AXIS, active_extruder, tmp_extruder);
+          update_software_endstops(X_AXIS
+          #if HAS_HOTEND_OFFSET
+          , active_extruder, tmp_extruder
+          #endif
+          );
+          update_software_endstops(X_AXIS
+          #if HAS_HOTEND_OFFSET
+          , active_extruder, tmp_extruder
+          #endif
+          );
         #endif
       #endif
 
