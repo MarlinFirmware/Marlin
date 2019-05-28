@@ -66,11 +66,11 @@
   #define ___TMC_CLASS(MODEL, A, I, E) ____TMC_CLASS(MODEL, A, I, E)
   #define __TMC_CLASS(MODEL, A, I, E) ___TMC_CLASS(_##MODEL, A, I, E)
   #define _TMC_CLASS(MODEL, L, E) __TMC_CLASS(MODEL, L, E)
-  #define TMC_CLASS(ST, E) _TMC_CLASS(ST##_DRIVER_TYPE, TMC_##ST##_LABEL, E##_AXIS)
+  #define TMC_CLASS(ST, A) _TMC_CLASS(ST##_DRIVER_TYPE, TMC_##ST##_LABEL, A##_AXIS)
   #if ENABLED(DISTINCT_E_FACTORS)
-    #define TMC_CLASS_E(AI) TMC_CLASS(E##AI, E##AI)
+    #define TMC_CLASS_E(I) TMC_CLASS(E##I, E##I)
   #else
-    #define TMC_CLASS_E(AI) TMC_CLASS(E##AI, E)
+    #define TMC_CLASS_E(I) TMC_CLASS(E##I, E)
   #endif
 
   typedef struct {
