@@ -2168,10 +2168,9 @@ void Temperature::set_current_temp_raw() {
 
 void Temperature::readings_ready() {
 
-  millis_t ms = millis();
-
   #if THERMAL_PROTECTION_GRACE_PERIOD > 0
-    static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
+    const millis_t ms = millis();
+    static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD; // NOTE: millis() == 0 on reset
     if (ELAPSED(ms, grace_period)) grace_period = 0;
   #else
     static constexpr millis_t grace_period = 0;
@@ -2218,9 +2217,8 @@ void Temperature::readings_ready() {
     #endif // HOTENDS > 1
   };
 
-  // give ADC temperature reading time to settle at boot-up before we start testing it
-  if (grace_period)
-    return;
+  // Give ADC temperature readings time to settle at boot-up before testing
+  if (grace_period) return;
 
   for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
     const int16_t tdir = temp_dir[e], rawtemp = temp_hotend[e].raw * tdir;
