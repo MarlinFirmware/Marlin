@@ -35,7 +35,7 @@
  *
  * Help to document Marlin's G-codes online:
  *  - http://reprap.org/wiki/G-code
- *  - http://marlinfw.org/
+ *  - http://marlinfw.org/meta/gcode
  *
  * -----------------
  *
