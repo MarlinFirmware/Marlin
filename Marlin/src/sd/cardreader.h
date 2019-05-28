@@ -191,9 +191,10 @@ private:
           static char **sortshort, **sortnames;
         #else
           static char sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
-          static char sortnames[SDSORT_LIMIT][SORTED_LONGNAME_STORAGE];
         #endif
-      #elif DISABLED(SDSORT_USES_STACK)
+      #endif
+
+      #if (ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)) || NONE(SDSORT_CACHE_NAMES, SDSORT_USES_STACK)
         static char sortnames[SDSORT_LIMIT][SORTED_LONGNAME_STORAGE];
       #endif
 
