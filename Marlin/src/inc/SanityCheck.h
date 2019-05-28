@@ -73,9 +73,9 @@
 #elif defined(CUSTOM_MENDEL_NAME)
   #error "CUSTOM_MENDEL_NAME is now CUSTOM_MACHINE_NAME. Please update your configuration."
 #elif defined(HAS_AUTOMATIC_VERSIONING)
-  #error "HAS_AUTOMATIC_VERSIONING is now deprecated. Please update your configuration."
+  #error "HAS_AUTOMATIC_VERSIONING is now deprecated. Remove it from your configuration."
 #elif defined(USE_AUTOMATIC_VERSIONING)
-  #error "USE_AUTOMATIC_VERSIONING is now deprecated. Please update your configuration."
+  #error "USE_AUTOMATIC_VERSIONING is now deprecated. Remove it from your configuration."
 #elif defined(SDSLOW)
   #error "SDSLOW deprecated. Set SPI_SPEED to SPI_HALF_SPEED instead."
 #elif defined(SDEXTRASLOW)
