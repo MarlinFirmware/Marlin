@@ -82,6 +82,10 @@
   #endif
 #endif
 
+#ifndef THERMAL_PROTECTION_GRACE_PERIOD
+  #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
+#endif
+
 Temperature thermalManager;
 
 /**
@@ -991,9 +995,6 @@ void Temperature::manage_heater() {
   #endif
 
   #if HAS_THERMAL_PROTECTION
-    #ifndef THERMAL_PROTECTION_GRACE_PERIOD
-      #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
-    #endif
     #if THERMAL_PROTECTION_GRACE_PERIOD > 0
       static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
       if (ELAPSED(ms, grace_period)) grace_period = 0UL;
@@ -2166,6 +2167,15 @@ void Temperature::set_current_temp_raw() {
 #endif
 
 void Temperature::readings_ready() {
+
+  #if THERMAL_PROTECTION_GRACE_PERIOD > 0
+    const millis_t ms = millis();
+    static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD; // NOTE: millis() == 0 on reset
+    if (ELAPSED(ms, grace_period)) grace_period = 0;
+  #else
+    static constexpr millis_t grace_period = 0;
+  #endif
+
   // Update the raw values if they've been read. Else we could be updating them during reading.
   if (!temp_meas_ready) set_current_temp_raw();
 
@@ -2206,6 +2216,9 @@ void Temperature::readings_ready() {
       #endif // HOTENDS > 2
     #endif // HOTENDS > 1
   };
+
+  // Give ADC temperature readings time to settle at boot-up before testing
+  if (grace_period) return;
 
   for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
     const int16_t tdir = temp_dir[e], rawtemp = temp_hotend[e].raw * tdir;
