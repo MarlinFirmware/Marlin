@@ -565,9 +565,8 @@
       case TMC_VSENSE: print_vsense(st); break;
       case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
       case TMC_TSTEP: {
-        uint32_t tstep_value = st.TSTEP();
-        if (tstep_value == 0xFFFFF) SERIAL_ECHOPGM("max");
-        else SERIAL_ECHO(tstep_value);
+        const uint32_t tstep_value = st.TSTEP();
+        if (tstep_value != 0xFFFFF) SERIAL_ECHO(tstep_value); else SERIAL_ECHOPGM("max");
       } break;
       #if ENABLED(HYBRID_THRESHOLD)
         case TMC_TPWMTHRS: SERIAL_ECHO(uint32_t(st.TPWMTHRS())); break;
