@@ -167,7 +167,7 @@ char commandbuf[30];
 			if(PoweroffContinue)
 			{
 				PoweroffContinue = false;
-				enqueue_and_echo_command(power_off_commands[3]);
+				enqueueCommands_P(power_off_commands[3]);
 				card.startFileprint();
 				print_job_timer.power_off_start();
 			}
@@ -206,8 +206,8 @@ char commandbuf[30];
 			delay(30);
 			if((startprogress +=1) > 200)
 			{
-						#if ENABLED(POWER_LOSS_RECOVERY)
-				      		power_off_type_yes = 1;
+				#if ENABLED(POWER_LOSS_RECOVERY)
+					power_off_type_yes = 1;
 						
 					for (uint16_t i = 0; i < CardRecbuf.Filesum ; i++) 
 					{
@@ -230,7 +230,7 @@ char commandbuf[30];
 							break;
 						}
 					}
-					#endif
+				#endif
 			}
 			
 			return;
@@ -618,6 +618,81 @@ void RTSSHOW::RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd
 }
 
 
+void RTSSHOW::RTS_SDCardUpate(void)
+{	
+	SERIAL_ECHOLN("SDUpdate");
+    	if (isMediaInserted() != lcd_sd_status)
+		{
+		SERIAL_ECHOLN("LCD Status Differs ");
+		if (isMediaInserted())	//sd_status = true
+		{
+			SERIAL_ECHOLN("MediaInserted");
+    		#if ENABLED(POWER_LOSS_RECOVERY)
+					init_power_off_info();
+				#endif
+		}
+		else
+		{
+			if( CardCheckStatus[0] == 1)// heating or printing
+			{
+				stopPrint();
+				CardCheckStatus[0] = 0;	//cancel to check card during printing the gcode file 
+			}
+
+			if(LanguageRecbuf != 0)
+				RTS_SndData(6,IconPrintstatus);	// 6 for Card Removed
+			else
+				RTS_SndData(6+CEIconGrap,IconPrintstatus);
+			for(int i = 0;i < CardRecbuf.Filesum;i++)
+			{
+				for(int j = 0;j < 10;j++)
+					RTS_SndData(0,CardRecbuf.addr[i]+j);
+				//RTS_SndData(4,FilenameIcon+1+i);
+				RTS_SndData((unsigned long)0xFFFF,FilenameNature + (i+1)*16);		// white
+			}
+			
+			for(int j = 0;j < 10;j++)	
+			{
+				RTS_SndData(0,Printfilename+j); //clean screen.
+				RTS_SndData(0,Choosefilename+j); //clean filename
+			}
+			for(int j = 0;j < 8;j++)
+				RTS_SndData(0,FilenameCount+j);
+			for(int j = 1;j <= 20;j++)	//clean filename Icon
+			{
+				RTS_SndData(10,FilenameIcon+j);
+				RTS_SndData(10,FilenameIcon1+j);
+			}
+			memset(&CardRecbuf,0,sizeof(CardRecbuf));
+		}
+
+		lcd_sd_status = isMediaInserted();
+
+	}
+			
+	//SERIAL_ECHOPAIR("\n ***CardUpdate = ",CardUpdate);
+	//SERIAL_ECHOPAIR("\n ***lcd_sd_status = ",lcd_sd_status);
+	//SERIAL_ECHOPAIR("\n ***card.cardOK = ",card.cardOK);
+	if (CardUpdate && lcd_sd_status &&  isMediaInserted()) // represents to update file list
+	{
+		//SERIAL_PROTOCOLLN("  ***test7*** ");
+		for(int j = 0;j < 10;j++)	//clean filename
+			RTS_SndData(0,Choosefilename+j);
+		for(int j = 0;j < 8;j++)
+			RTS_SndData(0,FilenameCount+j);
+		for (uint16_t i = 0; i < CardRecbuf.Filesum ; i++) 
+		{
+			delay(3);
+			RTS_SndData(CardRecbuf.Cardshowfilename[i],CardRecbuf.addr[i]);
+			RTS_SndData(1,FilenameIcon+1+i);
+			RTS_SndData((unsigned long)0xFFFF,FilenameNature + (i+1)*16);		// white
+			RTS_SndData(10,FilenameIcon1+1+i);
+		}
+		CardUpdate = false;
+		SERIAL_ECHO("====end====");
+	}
+}
+
 void RTSSHOW::RTS_HandleData()
 {
 	int Checkkey = -1;
@@ -670,10 +745,9 @@ SERIAL_ECHO(Checkkey);
 			InforShowStatus = false;
 			CardUpdate = true;
 			CardRecbuf.recordcount = -1;
-			//RTS_SDCardUpate(); //FIX ME
+			RTS_SDCardUpate();
 			SERIAL_ECHO("\n Handle Data PrintFile 1 Setting Screen ");
 			RTS_SndData(ExchangePageBase + 46, ExchangepageAddr); 
-
 		}
 		else if(recdat.data[0] == 2)	// return after printing result.
 		{
@@ -792,7 +866,7 @@ SERIAL_ECHO(Checkkey);
 			RTS_SndData(0,Timehour);		
 			RTS_SndData(0,Timemin);	
 			CardCheckStatus[0] = 0;// close the key of  checking card in  printing
-			//RTS_SDcard_Stop(); //FIX ME
+			stopPrint();
 		}
 		else if(recdat.addr == Pauseprint)
 		{				
@@ -1469,12 +1543,12 @@ SERIAL_ECHO(Checkkey);
 		{
 			if (power_off_commands_count > 0) {
 				sprintf_P(cmd1, PSTR("M190 S%i"), power_off_info.target_temperature_bed);
-				enqueue_and_echo_command(cmd1);
+				enqueueCommands_P(cmd1);
 				sprintf_P(cmd1, PSTR("M109 S%i"), power_off_info.target_temperature[0]);
-				enqueue_and_echo_command(cmd1);
+				enqueueCommands_P(cmd1);
 				enqueueCommands_P(PSTR("M106 S255"));
 				sprintf_P(cmd1, PSTR("T%i"), power_off_info.saved_extruder);
-				enqueue_and_echo_command(cmd1);
+				enqueueCommands_P(cmd1);
 				power_off_type_yes = 1;
 
 				#if FAN_COUNT > 0
@@ -1502,10 +1576,7 @@ SERIAL_ECHO(Checkkey);
 			TPShowStatus = false;
 			RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); //exchange to 45 page
 
-			card.stopSDPrint();
-			clear_command_queue();
-			quickstop_stepper();
-			thermalManager.disable_all_heaters();
+			stopPrint();
 			
 			#if ENABLED(SDSUPPORT) && ENABLED(POWEROFF_SAVE_SD_FILE)
 				card.openPowerOffFile(power_off_info.power_off_filename, O_CREAT | O_WRITE | O_TRUNC | O_SYNC);
@@ -1545,79 +1616,21 @@ SERIAL_ECHO(Checkkey);
 		RTS_SndData(VolumeSet<<8, SoundAddr+1);
 		break;
 		
-	case Filename :
-	       //if(card.cardOK && recdat.data[0] > 0 && recdat.data[0] <= CardRecbuf.Filesum && recdat.addr != 0x20D2)
-		/*SERIAL_ECHO("\n   recdat.data[0] ==");
-		SERIAL_ECHO(recdat.data[0]);
-		SERIAL_ECHO("\n   recdat.addr ==");
-		SERIAL_ECHO(recdat.addr); */
-		
-		//if(card.cardOK && recdat.addr == FilenameChs)  //FIX ME
-				if (false)
-	       {
-	       	if(recdat.data[0] > CardRecbuf.Filesum) break;
-			
-			CardRecbuf.recordcount = recdat.data[0] - 1;
-			for(int j = 0;j < 10;j++)
-				RTS_SndData(0,Choosefilename+j);
-			int filelen = strlen(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
-			filelen = (TEXTBYTELEN - filelen)/2;
-			if(filelen > 0)
-			{
-				char buf[20];
-				memset(buf,0,sizeof(buf));
-				strncpy(buf,"         ",filelen);
-				strcpy(&buf[filelen],CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
-				RTS_SndData(buf, Choosefilename);
-			}
-			else
-				RTS_SndData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], Choosefilename);
-			
-			for(int j = 0;j < 8;j++)
-				RTS_SndData(0,FilenameCount+j);
-			char buf[20];
-			memset(buf,0,sizeof(buf));
-			sprintf(buf,"%d/%d",(int)recdat.data[0], CardRecbuf.Filesum);
-			RTS_SndData(buf, FilenameCount);
-			delay(2);
-			for(int j = 1;j <= CardRecbuf.Filesum;j++)
-			{
-				RTS_SndData((unsigned long)0xFFFF,FilenameNature + j*16);		// white
-				RTS_SndData(10,FilenameIcon1+j);	//clean
-			}
+		case Filename :
+			//if(card.cardOK && recdat.data[0] > 0 && recdat.data[0] <= CardRecbuf.Filesum && recdat.addr != 0x20D2)
+			/*SERIAL_ECHO("\n   recdat.data[0] ==");
+			SERIAL_ECHO(recdat.data[0]);
+			SERIAL_ECHO("\n   recdat.addr ==");
+			SERIAL_ECHO(recdat.addr); */
+			SERIAL_ECHOLN("Filename");
+			if(isMediaInserted()  && recdat.addr == FilenameChs)	{
+				SERIAL_ECHOLN("Filename-Media");
+				if(recdat.data[0] > CardRecbuf.Filesum) break;
 				
-			RTS_SndData((unsigned long)0x87F0,FilenameNature + recdat.data[0]*16);	// Light green
-			RTS_SndData(6,FilenameIcon1 + recdat.data[0]);	// show frame
-			
-	       } 
-		else if(recdat.addr == FilenamePlay)
-		{
-			//if(recdat.data[0] == 1 && card.cardOK)	//for sure //FIX ME
-			if(false)
-			{
-				if(CardRecbuf.recordcount < 0)
-					break;
-
-				//SERIAL_ECHO("*************suceed1**********");
-				char cmd[30];
-				char* c;
-				sprintf_P(cmd, PSTR("M23 %s"), CardRecbuf.Cardfilename[CardRecbuf.recordcount]);
-				for (c = &cmd[4]; *c; c++) *c = tolower(*c);
-
-				FilenamesCount = CardRecbuf.recordcount;
-				memset(cmdbuf,0,sizeof(cmdbuf));
-				strcpy(cmdbuf,cmd);
- 
-				#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
-				/**************checking filement status during printing beginning ************/
-					//if(RTS_CheckFilement(1)) break; //FIX ME
-				#endif
-					
-				//InforShowoStatus = true;
-				enqueueCommands_P(PSTR("M24"));
-				for(int j = 0;j < 10;j++)	//clean screen.
-					RTS_SndData(0,Printfilename+j);
-				
+				SERIAL_ECHOLN("Recdata");
+				CardRecbuf.recordcount = recdat.data[0] - 1;
+				for(int j = 0;j < 10;j++)
+					RTS_SndData(0,Choosefilename+j);
 				int filelen = strlen(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
 				filelen = (TEXTBYTELEN - filelen)/2;
 				if(filelen > 0)
@@ -1626,35 +1639,98 @@ SERIAL_ECHO(Checkkey);
 					memset(buf,0,sizeof(buf));
 					strncpy(buf,"         ",filelen);
 					strcpy(&buf[filelen],CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
-					RTS_SndData(buf, Printfilename);
+					RTS_SndData(buf, Choosefilename);
 				}
 				else
-					RTS_SndData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], Printfilename);
+					RTS_SndData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], Choosefilename);
+				
+				for(int j = 0;j < 8;j++)
+					RTS_SndData(0,FilenameCount+j);
+				char buf[20];
+				memset(buf,0,sizeof(buf));
+				sprintf(buf,"%d/%d",(int)recdat.data[0], CardRecbuf.Filesum);
+				RTS_SndData(buf, FilenameCount);
 				delay(2);
+				for(int j = 1;j <= CardRecbuf.Filesum;j++)
+				{
+					RTS_SndData((unsigned long)0xFFFF,FilenameNature + j*16);		// white
+					RTS_SndData(10,FilenameIcon1+j);	//clean
+				}
+					
+				RTS_SndData((unsigned long)0x87F0,FilenameNature + recdat.data[0]*16);	// Light green
+				RTS_SndData(6,FilenameIcon1 + recdat.data[0]);	// show frame
 				
-				#if FAN_COUNT > 0
-				for (uint8_t i = 0; i < FAN_COUNT; i++) setTargetFan_percent(100, (fan_t)i);
-				#endif
-				FanStatus = false;
-			
-				
-					RTS_SndData(1+CEIconGrap,IconPrintstatus);	// 1 for Heating 
-					delay(2);
-					RTS_SndData(ExchangePageBase + 52, ExchangepageAddr); 
-				
-				TPShowStatus = InforShowStatus = true;
-				PrintStatue[1] = 0;
-				PrinterStatusKey[0] = 1;
-				PrinterStatusKey[1] = 3;
-				CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
-			}
-			else if(recdat.data[0] == 0) //	return to main page
+					}
+			else if(recdat.addr == FilenamePlay)
 			{
-				InforShowStatus = true;
-				TPShowStatus = false;
+				if(recdat.data[0] == 1 && isMediaInserted())	//for sure
+				{
+					if(CardRecbuf.recordcount < 0)
+						break;
+
+					//SERIAL_ECHO("*************suceed1**********");
+					//char cmd[30];
+					//char* c;
+					//sprintf_P(cmd, PSTR("M23 %s"), CardRecbuf.Cardfilename[CardRecbuf.recordcount]);
+					//for (c = &cmd[4]; *c; c++) *c = tolower(*c);
+
+					//FilenamesCount = CardRecbuf.recordcount;
+					//memset(cmdbuf,0,sizeof(cmdbuf));
+					//strcpy(cmdbuf,cmd);
+
+					#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
+					/**************checking filement status during printing beginning ************/
+						//if(RTS_CheckFilement(1)) break;
+					#endif
+						
+					//InforShowoStatus = true;
+					FileList files;
+					files.seek(CardRecbuf.recordcount);
+					printFile(files.shortFilename());
+
+					//enqueue_and_echo_command(cmd);
+					//enqueueCommands_P(PSTR("M24"));
+					for(int j = 0;j < 10;j++)	//clean screen.
+						RTS_SndData(0,Printfilename+j);
+					
+					int filelen = strlen(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
+					filelen = (TEXTBYTELEN - filelen)/2;
+					if(filelen > 0)
+					{
+						char buf[20];
+						memset(buf,0,sizeof(buf));
+						strncpy(buf,"         ",filelen);
+						strcpy(&buf[filelen],CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
+						RTS_SndData(buf, Printfilename);
+					}
+					else
+						RTS_SndData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], Printfilename);
+					delay(2);
+					
+					#if FAN_COUNT > 0
+					for (uint8_t i = 0; i < FAN_COUNT; i++) setTargetFan_percent(FanOn, i);
+					#endif
+					FanStatus = false;
+				
+					
+						RTS_SndData(1+CEIconGrap,IconPrintstatus);	// 1 for Heating 
+						delay(2);
+						RTS_SndData(ExchangePageBase + 52, ExchangepageAddr); 
+					
+					TPShowStatus = InforShowStatus = true;
+					PrintStatue[1] = 0;
+					PrinterStatusKey[0] = 1;
+					PrinterStatusKey[1] = 3;
+					CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
+					//Update_Time_Value = 0;
+				}
+				else if(recdat.data[0] == 0) //	return to main page
+				{
+					InforShowStatus = true;
+					TPShowStatus = false;
+				}
 			}
-		}
-		break;
+	break;
 		
 	default:
 	       break;
@@ -1666,18 +1742,76 @@ SERIAL_ECHO(Checkkey);
 }
 
 void onPrinterKilled(PGM_P const msg) {}
-  void onMediaInserted() {};
-  void onMediaError() {};
-  void onMediaRemoved() {};
+
+  void onMediaInserted() {
+		SERIAL_ECHOLN("***Initing card is OK***");
+		ExtUI::FileList files;
+		files.count();
+
+		int addrnum =0;
+		int num = 0;
+		for (uint16_t i = 0; i < files.count() && i < (uint16_t)MaxFileNumber + addrnum; i++) 
+		{
+			files.seek(i);
+			files.filename();
+			const char *pointFilename = files.longFilename();
+			int filenamelen = strlen(files.longFilename());
+			int j = 1;
+			while((strncmp(&pointFilename[j],".gcode",6) && strncmp(&pointFilename[j],".GCODE",6)) && (j++) < filenamelen);
+			if(j >= filenamelen)
+			{
+				addrnum++;
+				continue;
+			}
+			
+			if(j >= TEXTBYTELEN)	
+			{
+				//strncpy(&files.longFilename[TEXTBYTELEN -3],"~~",2);
+				//files.longFilename()[TEXTBYTELEN-1] = '\0';
+				j = TEXTBYTELEN-1;
+			}
+			
+			delay(3);
+			strncpy(CardRecbuf.Cardshowfilename[num], files.longFilename(),j);
+
+			strcpy(CardRecbuf.Cardfilename[num],files.filename());
+			CardRecbuf.addr[num] = SDFILE_ADDR +num*10;
+			rtscheck.RTS_SndData(CardRecbuf.Cardshowfilename[num],CardRecbuf.addr[num]);
+			CardRecbuf.Filesum = (++num);
+			//SERIAL_ECHO("  CardRecbuf.Filesum ==");
+			//SERIAL_ECHO(CardRecbuf.Filesum);
+			rtscheck.RTS_SndData(1,FilenameIcon+CardRecbuf.Filesum);
+		}
+		if(LanguageRecbuf != 0)
+			rtscheck.RTS_SndData(0,IconPrintstatus);	// 0 for Ready
+		else
+			rtscheck.RTS_SndData(0+CEIconGrap,IconPrintstatus);
+
+		lcd_sd_status = isMediaInserted(); 
+	};
+  void onMediaError() {
+		SERIAL_ECHOLN("***Initing card fails***");
+		if(LanguageRecbuf != 0)
+			rtscheck.RTS_SndData(6,IconPrintstatus);	// 6 for Card Removed
+		else
+			rtscheck.RTS_SndData(6+CEIconGrap,IconPrintstatus);
+	};
+  void onMediaRemoved() {
+		SERIAL_ECHOLN("***Card Removed***");
+		if(LanguageRecbuf != 0)
+			rtscheck.RTS_SndData(6,IconPrintstatus);	// 6 for Card Removed
+		else
+			rtscheck.RTS_SndData(6+CEIconGrap,IconPrintstatus);
+	};
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() {
 		SERIAL_ECHOLN("==onPrintTimerStarted==");
     #if ENABLED(POWER_LOSS_RECOVERY)
 			if(PoweroffContinue)
 			{
-					enqueue_and_echo_command(power_off_commands[0]);
-					enqueue_and_echo_command(power_off_commands[1]);
-					enqueue_and_echo_commands_P((PSTR("G28 X0 Y0")));
+					enqueueCommands_P(power_off_commands[0]);
+					enqueueCommands_P(power_off_commands[1]);
+					enqueueCommands_P((PSTR("G28 X0 Y0")));
 			}
 		#endif
 		PrinterStatusKey[1] = 3;
@@ -1694,7 +1828,37 @@ void onPrinterKilled(PGM_P const msg) {}
 	}
   void onPrintTimerStopped() {
 		SERIAL_ECHOLN("==onPrintTimerStopped==");
+		stopPrint();
+		SERIAL_ECHOLN("stopping ==");
+		SERIAL_ECHOLN("//action:cancel");
+		//setTargetTemp_celsius(0, E0);
+		//setTargetTemp_celsius(0, E1);
+		//setTargetTemp_celsius(0, BED);
+
+		#if ENABLED(SDSUPPORT) && ENABLED(POWEROFF_SAVE_SD_FILE)
+			card.openPowerOffFile(power_off_info.power_off_filename, O_CREAT | O_WRITE | O_TRUNC | O_SYNC);
+			power_off_info.valid_head = 0;
+			power_off_info.valid_foot = 0;
+			if (card.savePowerOffInfo(&power_off_info, sizeof(power_off_info)) == -1)
+			{
+				SERIAL_PROTOCOLLN("Stop to Write power off file failed.");
+			}
+			card.closePowerOffFile();
+			power_off_commands_count = 0;
+		#endif
+
+		#if FAN_COUNT > 0
+			for (uint8_t i = 0; i < FAN_COUNT; i++) setTargetFan_percent(FanOff, i);
+		#endif
+		FanStatus = true;
+		
+		PrinterStatusKey[0] = 0;
+		power_off_type_yes = 1;
+		InforShowStatus = true;
+		TPShowStatus = false;
+		rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); 
 	}
+
   void onFilamentRunout() {
 		SERIAL_ECHOLN("==onFilamentRunout==");
 		waitway = 5;		//reject to receive cmd and jump to the corresponding page
@@ -1709,7 +1873,9 @@ void onPrinterKilled(PGM_P const msg) {}
   void onUserConfirmRequired(const char * const msg) {
 		SERIAL_ECHOLN("==onUserConfirmRequired==");
 		}
-  void onStatusChanged(const char * const msg) {}
+  void onStatusChanged(const char * const msg) {
+
+	}
   void onFactoryReset() {
 		SERIAL_ECHOLN("==onFactoryReset==");
 	}
