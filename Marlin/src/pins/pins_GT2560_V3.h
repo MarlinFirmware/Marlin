@@ -35,24 +35,24 @@
 //
 // Servos
 //
-#define SERVO0_PIN         11   //13 untested  3Dtouch
+#define SERVO0_PIN         32   //13 untested  3Dtouch
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN          24
-#define X_MAX_PIN          22
-#define Y_MIN_PIN          28
-#define Y_MAX_PIN          26
+#define X_MIN_PIN          22
+#define X_MAX_PIN          24
+#define Y_MIN_PIN          26
+#define Y_MAX_PIN          28
 #define Z_MIN_PIN          30
 #define Z_MAX_PIN          32
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  32
-#endif
+//#ifndef Z_MIN_PROBE_PIN
+  //#define Z_MIN_PROBE_PIN  30
+//#endif
 
 //
 // Runout Sensor
