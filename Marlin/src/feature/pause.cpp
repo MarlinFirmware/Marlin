@@ -681,7 +681,8 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   // Resume the print job timer if it was running
   if (print_job_timer.isPaused()) print_job_timer.start();
 
-  #if HAS_LCD_MENU
+  #if HAS_DISPLAY
+    ui.set_status(MSG_FILAMENT_CHANGE_RESUME_1);
     ui.return_to_status();
   #endif
 }
