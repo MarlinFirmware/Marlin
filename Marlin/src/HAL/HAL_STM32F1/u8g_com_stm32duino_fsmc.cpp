@@ -28,7 +28,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if defined(ARDUINO_ARCH_STM32F1) && (defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY))
+#if defined(ARDUINO_ARCH_STM32F1) && PIN_EXISTS(FSMC_CS) // FSMC on 100/144 pins SoCs
 
 #if HAS_GRAPHICAL_LCD
 
