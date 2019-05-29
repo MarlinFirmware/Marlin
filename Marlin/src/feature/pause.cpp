@@ -682,7 +682,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   if (print_job_timer.isPaused()) print_job_timer.start();
 
   #if HAS_DISPLAY
-    ui.set_status(MSG_FILAMENT_CHANGE_RESUME_1);
+    ui.reset_status();
     ui.return_to_status();
   #endif
 }
