@@ -812,6 +812,7 @@ namespace ExtUI {
 
   void printFile(const char *filename) {
     IFSD(card.openAndPrintFile(filename), NOOP);
+    print_job_timer.start();
   }
 
   bool isPrintingFromMediaPaused() {
@@ -831,27 +832,39 @@ namespace ExtUI {
   }
 
   void pausePrint() {
-    #if ENABLED(SDSUPPORT)
-      card.pauseSDPrint();
-      print_job_timer.pause();
-      #if ENABLED(PARK_HEAD_ON_PAUSE)
-        enqueue_and_echo_commands_P(PSTR("M125"));
-      #endif
+    ui.synchronize(PSTR(MSG_PAUSE_PRINT));
+
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (recovery.enabled) recovery.save(true, false);
+    #endif
+
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume"));
+    #endif
+
+    #if ENABLED(PARK_HEAD_ON_PAUSE)
       ui.set_status_P(PSTR(MSG_PRINT_PAUSED));
+      enqueue_and_echo_commands_P(PSTR("M25 P\nM24"));
+    #elif ENABLED(SDSUPPORT)
+      enqueue_and_echo_commands_P(PSTR("M25"));
+    #elif defined(ACTION_ON_PAUSE)
+      host_action_pause();
     #endif
   }
 
   void resumePrint() {
-    #if ENABLED(SDSUPPORT)
-      ui.set_status_P(PSTR(MSG_FILAMENT_CHANGE_RESUME_1));
-      #if ENABLED(PARK_HEAD_ON_PAUSE)
+    ui.set_status_P(PSTR(MSG_FILAMENT_CHANGE_RESUME_1));
+     #if ENABLED(PARK_HEAD_ON_PAUSE)
         wait_for_heatup = wait_for_user = false;
-        enqueue_and_echo_commands_P(PSTR("M24"));
-      #else
-        card.startFileprint();
-        print_job_timer.start();
-      #endif
     #endif
+    #if ENABLED(SDSUPPORT)
+      if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
+    #endif
+    #ifdef ACTION_ON_RESUME
+      host_action_resume();
+    #endif
+    
+    print_job_timer.start();
   }
 
   void stopPrint() {
