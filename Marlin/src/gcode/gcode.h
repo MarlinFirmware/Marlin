@@ -30,12 +30,12 @@
  * -----------------
  *
  * Helpful G-code references:
+ *  - http://marlinfw.org/meta/gcode
+ *  - https://reprap.org/wiki/G-code
  *  - http://linuxcnc.org/docs/html/gcode.html
- *  - https://reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
  *
  * Help to document Marlin's G-codes online:
- *  - http://reprap.org/wiki/G-code
- *  - http://marlinfw.org/meta/gcode
+ *  - https://github.com/MarlinFirmware/MarlinDocumentation
  *
  * -----------------
  *
