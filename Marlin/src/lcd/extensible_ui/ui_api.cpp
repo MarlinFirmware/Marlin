@@ -858,8 +858,16 @@ namespace ExtUI {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
       card.flag.abort_sd_printing = true;
-      ui.set_status_P(PSTR(MSG_PRINT_ABORTED));
     #endif
+    #ifdef ACTION_ON_CANCEL
+      host_action_cancel();
+    #endif
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_open(PROMPT_INFO, PSTR("UI Abort"));
+    #endif
+    print_job_timer.stop()
+    ui.set_status_P(PSTR(MSG_PRINT_ABORTED));
+    ui.return_to_status();
   }
 
   FileList::FileList() { refresh(); }
