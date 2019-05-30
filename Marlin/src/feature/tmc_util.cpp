@@ -580,6 +580,7 @@
         case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
         case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('X'); break;
         case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('X'); break;
+        case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
         default: break;
       }
     }
