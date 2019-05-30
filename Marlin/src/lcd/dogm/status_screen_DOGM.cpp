@@ -133,9 +133,9 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
   #endif
 
   #if HAS_HEATED_CHAMBER
-    FORCE_INLINE void _draw_chamber_status(const bool blink){
+    FORCE_INLINE void _draw_chamber_status(const bool blink) {
       const float temp = thermalManager.degChamber(),
-                  target = thermalManager.degTargetChamber();	
+                  target = thermalManager.degTargetChamber();
       #if !HEATER_IDLE_HANDLER
         UNUSED(blink);
       #endif
@@ -363,7 +363,7 @@ void MarlinUI::draw_status_screen() {
       #define CHAMBER_BITMAP(S) status_chamber_bmp
     #endif
     if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_Y + STATUS_CHAMBER_HEIGHT - 1))
-  		u8g.drawBitmapP(STATUS_CHAMBER_X, STATUS_HEATERS_Y, STATUS_CHAMBER_WIDTH, STATUS_CHAMBER_HEIGHT, CHAMBER_BITMAP(CHAMBER_ALT()));
+      u8g.drawBitmapP(STATUS_CHAMBER_X, STATUS_HEATERS_Y, STATUS_CHAMBER_WIDTH, STATUS_CHAMBER_HEIGHT, CHAMBER_BITMAP(CHAMBER_ALT()));
   #endif
 
   #if DO_DRAW_FAN
@@ -407,8 +407,8 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     #if HAS_HEATED_CHAMBER
-	    _draw_chamber_status(blink);
-	  #endif
+      _draw_chamber_status(blink);
+    #endif
 
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN

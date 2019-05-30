@@ -661,11 +661,11 @@
 
 #ifdef HAS_HEATED_CHAMBER
 
-	#define STATUS_CHAMBER_WIDTH 2
-	#define STATUS_CHAMBER_HEIGHT 12
-	
-	#define STATUS_CHAMBER_X 60
-	#define STATUS_CHAMBER_TEXT_X (STATUS_CHAMBER_X + 7)
+  #define STATUS_CHAMBER_WIDTH 2
+  #define STATUS_CHAMBER_HEIGHT 12
+
+  #define STATUS_CHAMBER_X 60
+  #define STATUS_CHAMBER_TEXT_X (STATUS_CHAMBER_X + 7)
 
   #ifdef STATUS_CHAMBER_ANIM
     const unsigned char status_chamber_bmp[] PROGMEM = {
