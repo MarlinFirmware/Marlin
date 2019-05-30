@@ -138,9 +138,9 @@
   #define ANYCUBIC_4MAX
 
   // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
-  //#define ANYCUBIC_4MAX_VG3R
+  #define ANYCUBIC_4MAX_VG3R
   //#define ANYCUBIC_4MAX_7OF9
-  #define ANYCUBIC_4MAX_DEFAULT
+  //#define ANYCUBIC_4MAX_DEFAULT
 
 #endif
 
@@ -754,10 +754,10 @@
  */
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
   // my 4MAX Printer: vg3r - Steps - Filament
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 99.46 }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.16032, 80.16835, 398.24771, 99.46 }
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Steps - Filament
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 104.25 }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.12018, 80.10413, 397.14058, 100.56 }
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   // Default 4MAX
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 92.60 }
