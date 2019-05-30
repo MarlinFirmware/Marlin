@@ -141,8 +141,8 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
       #endif
       if (PAGE_UNDER(7)) {
         #if HEATER_IDLE_HANDLER
-          const bool is_idle = false,//thermalManager.chamber_idle.timed_out,
-                    dodraw = (blink || !is_idle);
+          const bool is_idle = false, // thermalManager.chamber_idle.timed_out,
+                     dodraw = (blink || !is_idle);
         #else
           constexpr bool dodraw = true;
         #endif
