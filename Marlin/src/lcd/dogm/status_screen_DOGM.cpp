@@ -356,6 +356,16 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBitmapP(STATUS_BED_X, bedy, STATUS_BED_BYTEWIDTH, bedh, BED_BITMAP(BED_ALT()));
   #endif
 
+  #if DO_DRAW_CHAMBER
+    #if ANIM_HAMBER
+      #define CHAMBER_BITMAP(S) ((S) ? status_chamber_on_bmp : status_chamber_bmp)
+    #else
+      #define CHAMBER_BITMAP(S) status_chamber_bmp
+    #endif
+    if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_Y + STATUS_CHAMBER_HEIGHT - 1))
+  		u8g.drawBitmapP(STATUS_CHAMBER_X, STATUS_HEATERS_Y, STATUS_CHAMBER_WIDTH, STATUS_CHAMBER_HEIGHT, CHAMBER_BITMAP(CHAMBER_ALT()));
+  #endif
+
   #if DO_DRAW_FAN
     #if STATUS_FAN_FRAMES > 2
       static bool old_blink;
@@ -395,6 +405,10 @@ void MarlinUI::draw_status_screen() {
     #if HAS_HEATED_BED && HOTENDS < 4
       _draw_heater_status(-1, blink);
     #endif
+
+    #if HAS_HEATED_CHAMBER
+	    _draw_chamber_status(blink);
+	  #endif
 
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
