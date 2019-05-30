@@ -32,7 +32,7 @@
     #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
   #endif
   #if ENABLED(HOST_ACTION_COMMANDS)
-    #include "../../feature/host_actions.h"
+    #include "../feature/host_actions.h"
   #endif
 #endif
 
