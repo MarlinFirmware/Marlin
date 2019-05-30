@@ -149,7 +149,7 @@ void libServo::move(const int32_t value) {
 
 #ifdef SERVO0_TIMER_NUM
   extern "C" void Servo_IRQHandler(void) {
-    timer_dev *tdev = get_timer_dev(SERVO0_TIMER_NUM);
+    static timer_dev *tdev = get_timer_dev(SERVO0_TIMER_NUM);
     uint16_t SR = timer_get_status(tdev);
     if (SR & TIMER_SR_CC1IF) { // channel 1 off
       #ifdef SERVO0_PWM_OD
