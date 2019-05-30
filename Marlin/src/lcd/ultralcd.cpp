@@ -1369,7 +1369,7 @@ void MarlinUI::update() {
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_prompt_open(PROMPT_INFO, PSTR("UI Abort"));
     #endif
-    print_job_timer.stop()
+    print_job_timer.stop();
     ui.set_status_P(PSTR(MSG_PRINT_ABORTED));
     #if HAS_SPI_LCD
       ui.return_to_status();
