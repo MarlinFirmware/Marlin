@@ -135,13 +135,8 @@
 #define ISR_START_E_STEPPER_CYCLES   ISR_START_STEPPER_CYCLES
 #define ISR_E_STEPPER_CYCLES         ISR_STEPPER_CYCLES
 
-// If linear advance is disabled, then the loop also handles them
-#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER) // ToDo: ???
-  // HELP ME: What is what?
-  // Directions are set up for MIXING_STEPPERS - like before.
-  // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
-  //   These loops are a bit faster than advancing a bresenham counter.
-  // Always only one e-stepper is stepped.
+// If linear advance is disabled, the loop also handles them
+#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
   #define ISR_START_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_START_STEPPER_CYCLES))
   #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
 #else
