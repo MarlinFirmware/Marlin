@@ -1358,7 +1358,7 @@ void MarlinUI::update() {
     set_status_P(msg, -1);
   }
 
-  void abort_print() {
+  void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
       card.flag.abort_sd_printing = true;
@@ -1376,7 +1376,7 @@ void MarlinUI::update() {
     #endif
   }
 
-  void pause_print() {
+  void MarlinUI::pause_print() {
     ui.synchronize(PSTR(MSG_PAUSE_PRINT));
 
     #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1401,7 +1401,7 @@ void MarlinUI::update() {
     #endif
   }
 
-  void resume_print() {
+  void MarlinUI::resume_print() {
     ui.set_status_P(PSTR(MSG_FILAMENT_CHANGE_RESUME_1));
      #if ENABLED(PARK_HEAD_ON_PAUSE)
         wait_for_heatup = wait_for_user = false;
