@@ -25,7 +25,7 @@
  *
  */
 
-//#include "Arduino.h"
+//#include <Arduino.h>
 
 #ifdef STM32F7
 
@@ -33,7 +33,7 @@
 #include <SPI.h>
 #include "TMC2660.h"
 
-#include "../../HAL/HAL_STM32F7/HAL.h"
+#include "HAL.h"
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 #include "../../Marlin.h"
@@ -41,7 +41,6 @@
 #include "../../module/printcounter.h"
 #include "../../libs/duration_t.h"
 #include "../../libs/hex_print_routines.h"
-
 
 //some default values used in initialization
 #define DEFAULT_MICROSTEPPING_VALUE 32

@@ -1449,7 +1449,7 @@
           #if HAS_LCD_MENU
             ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 3/3"));
           #endif
-          
+
           measured_z = probe_pt(PROBE_PT_3_X, PROBE_PT_3_Y, PROBE_PT_STOW, g29_verbose_level);
           //z3 = measured_z;
           if (isnan(measured_z))
@@ -1477,7 +1477,7 @@
       else { // !do_3_pt_leveling
 
         bool zig_zag = false;
-        
+
         uint16_t total_points = g29_grid_size * g29_grid_size, current = 1;
 
         for (uint8_t ix = 0; ix < g29_grid_size; ix++) {

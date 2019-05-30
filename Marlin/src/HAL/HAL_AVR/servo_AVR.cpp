@@ -95,29 +95,29 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 #ifndef WIRING // Wiring pre-defines signal handlers so don't define any if compiling for the Wiring platform
 
   // Interrupt handlers for Arduino
-  #if ENABLED(_useTimer1)
+  #ifdef _useTimer1
     SIGNAL(TIMER1_COMPA_vect) { handle_interrupts(_timer1, &TCNT1, &OCR1A); }
   #endif
 
-  #if ENABLED(_useTimer3)
+  #ifdef _useTimer3
     SIGNAL(TIMER3_COMPA_vect) { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
   #endif
 
-  #if ENABLED(_useTimer4)
+  #ifdef _useTimer4
     SIGNAL(TIMER4_COMPA_vect) { handle_interrupts(_timer4, &TCNT4, &OCR4A); }
   #endif
 
-  #if ENABLED(_useTimer5)
+  #ifdef _useTimer5
     SIGNAL(TIMER5_COMPA_vect) { handle_interrupts(_timer5, &TCNT5, &OCR5A); }
   #endif
 
 #else // WIRING
 
   // Interrupt handlers for Wiring
-  #if ENABLED(_useTimer1)
+  #ifdef _useTimer1
     void Timer1Service() { handle_interrupts(_timer1, &TCNT1, &OCR1A); }
   #endif
-  #if ENABLED(_useTimer3)
+  #ifdef _useTimer3
     void Timer3Service() { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
   #endif
 
@@ -126,7 +126,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 /****************** end of static functions ******************************/
 
 void initISR(timer16_Sequence_t timer) {
-  #if ENABLED(_useTimer1)
+  #ifdef _useTimer1
     if (timer == _timer1) {
       TCCR1A = 0;             // normal counting mode
       TCCR1B = _BV(CS11);     // set prescaler of 8
@@ -145,7 +145,7 @@ void initISR(timer16_Sequence_t timer) {
     }
   #endif
 
-  #if ENABLED(_useTimer3)
+  #ifdef _useTimer3
     if (timer == _timer3) {
       TCCR3A = 0;             // normal counting mode
       TCCR3B = _BV(CS31);     // set prescaler of 8
@@ -163,7 +163,7 @@ void initISR(timer16_Sequence_t timer) {
     }
   #endif
 
-  #if ENABLED(_useTimer4)
+  #ifdef _useTimer4
     if (timer == _timer4) {
       TCCR4A = 0;             // normal counting mode
       TCCR4B = _BV(CS41);     // set prescaler of 8
@@ -173,7 +173,7 @@ void initISR(timer16_Sequence_t timer) {
     }
   #endif
 
-  #if ENABLED(_useTimer5)
+  #ifdef _useTimer5
     if (timer == _timer5) {
       TCCR5A = 0;             // normal counting mode
       TCCR5B = _BV(CS51);     // set prescaler of 8

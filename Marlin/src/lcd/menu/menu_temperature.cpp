@@ -414,17 +414,11 @@ void menu_temperature() {
     #endif
   #endif // FAN_COUNT > 0
 
-  #if HAS_TEMP_HOTEND
+  #if ENABLED(SPINDLE_LASER_ENABLE)
+    MENU_ITEM(submenu, MSG_LASER_MENU, menu_spindle_laser);
+  #endif
 
-    //
-    // Cooldown
-    //
-    bool has_heat = false;
-    HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
-    #if HAS_TEMP_BED
-      if (thermalManager.temp_bed.target) has_heat = true;
-    #endif
-    if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+  #if HAS_TEMP_HOTEND
 
     //
     // Preheat for Material 1 and 2
@@ -437,11 +431,17 @@ void menu_temperature() {
       MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
     #endif
 
-  #endif // HAS_TEMP_HOTEND
+    //
+    // Cooldown
+    //
+    bool has_heat = false;
+    HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
+    #if HAS_TEMP_BED
+      if (thermalManager.temp_bed.target) has_heat = true;
+    #endif
+    if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 
-  #if ENABLED(SPINDLE_LASER_ENABLE)
-    MENU_ITEM(submenu, MSG_LASER_MENU, menu_spindle_laser);
-  #endif
+  #endif // HAS_TEMP_HOTEND
 
   END_MENU();
 }
