@@ -82,6 +82,10 @@
   #endif
 #endif
 
+#ifndef THERMAL_PROTECTION_GRACE_PERIOD
+  #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
+#endif
+
 Temperature thermalManager;
 
 /**
@@ -991,9 +995,6 @@ void Temperature::manage_heater() {
   #endif
 
   #if HAS_THERMAL_PROTECTION
-    #ifndef THERMAL_PROTECTION_GRACE_PERIOD
-      #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
-    #endif
     #if THERMAL_PROTECTION_GRACE_PERIOD > 0
       static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
       if (ELAPSED(ms, grace_period)) grace_period = 0UL;
@@ -1191,9 +1192,8 @@ void Temperature::manage_heater() {
 #define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                             \
   uint8_t l = 0, r = LEN, m;                                           \
   for (;;) {                                                           \
-    m = l + r;                                                         \
+    m = (l + r) >> 1;                                                  \
     if (!m) return short(pgm_read_word(&TBL[0][1]));                   \
-    m >>= 1;                                                           \
     if (m == l || m == r) return short(pgm_read_word(&TBL[LEN-1][1])); \
     short v00 = pgm_read_word(&TBL[m-1][0]),                           \
           v10 = pgm_read_word(&TBL[m-0][0]);                           \
@@ -1231,10 +1231,10 @@ void Temperature::manage_heater() {
       #if ENABLED(HEATER_5_USER_THERMISTOR)
         { true, 0, 0, HOTEND5_PULLUP_RESISTOR_OHMS, HOTEND5_RESISTANCE_25C_OHMS, 0, 0, HOTEND5_BETA, 0 },
       #endif
-      #if ENABLED(BED_USER_THERMISTOR)
+      #if ENABLED(HEATER_BED_USER_THERMISTOR)
         { true, 0, 0, BED_PULLUP_RESISTOR_OHMS, BED_RESISTANCE_25C_OHMS, 0, 0, BED_BETA, 0 },
       #endif
-      #if ENABLED(CHAMBER_USER_THERMISTOR)
+      #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
         { true, 0, 0, CHAMBER_PULLUP_RESISTOR_OHMS, CHAMBER_RESISTANCE_25C_OHMS, 0, 0, CHAMBER_BETA, 0 }
       #endif
     };
@@ -1276,10 +1276,10 @@ void Temperature::manage_heater() {
       #if ENABLED(HEATER_5_USER_THERMISTOR)
         t_index == CTI_HOTEND_5 ? PSTR("HOTEND 5") :
       #endif
-      #if ENABLED(BED_USER_THERMISTOR)
+      #if ENABLED(HEATER_BED_USER_THERMISTOR)
         t_index == CTI_BED ? PSTR("BED") :
       #endif
-      #if ENABLED(CHAMBER_USER_THERMISTOR)
+      #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
         t_index == CTI_CHAMBER ? PSTR("CHAMBER") :
       #endif
       nullptr
@@ -1429,10 +1429,10 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For bed temperature measurement.
   float Temperature::analog_to_celsius_bed(const int raw) {
-    #if ENABLED(BED_USER_THERMISTOR)
+    #if ENABLED(HEATER_BED_USER_THERMISTOR)
       return user_thermistor_to_deg_c(CTI_BED, raw);
     #elif ENABLED(HEATER_BED_USES_THERMISTOR)
-      SCAN_THERMISTOR_TABLE(BEDTEMPTABLE, BEDTEMPTABLE_LEN);
+      SCAN_THERMISTOR_TABLE(BED_TEMPTABLE, BED_TEMPTABLE_LEN);
     #elif ENABLED(HEATER_BED_USES_AD595)
       return TEMP_AD595(raw);
     #elif ENABLED(HEATER_BED_USES_AD8495)
@@ -1447,10 +1447,10 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For chamber temperature measurement.
   float Temperature::analog_to_celsius_chamber(const int raw) {
-    #if ENABLED(CHAMBER_USER_THERMISTOR)
+    #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
       return user_thermistor_to_deg_c(CTI_CHAMBER, raw);
     #elif ENABLED(HEATER_CHAMBER_USES_THERMISTOR)
-      SCAN_THERMISTOR_TABLE(CHAMBERTEMPTABLE, CHAMBERTEMPTABLE_LEN);
+      SCAN_THERMISTOR_TABLE(CHAMBER_TEMPTABLE, CHAMBER_TEMPTABLE_LEN);
     #elif ENABLED(HEATER_CHAMBER_USES_AD595)
       return TEMP_AD595(raw);
     #elif ENABLED(HEATER_CHAMBER_USES_AD8495)
@@ -2167,6 +2167,15 @@ void Temperature::set_current_temp_raw() {
 #endif
 
 void Temperature::readings_ready() {
+
+  #if THERMAL_PROTECTION_GRACE_PERIOD > 0
+    const millis_t ms = millis();
+    static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD; // NOTE: millis() == 0 on reset
+    if (ELAPSED(ms, grace_period)) grace_period = 0;
+  #else
+    static constexpr millis_t grace_period = 0;
+  #endif
+
   // Update the raw values if they've been read. Else we could be updating them during reading.
   if (!temp_meas_ready) set_current_temp_raw();
 
@@ -2207,6 +2216,9 @@ void Temperature::readings_ready() {
       #endif // HOTENDS > 2
     #endif // HOTENDS > 1
   };
+
+  // Give ADC temperature readings time to settle at boot-up before testing
+  if (grace_period) return;
 
   for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
     const int16_t tdir = temp_dir[e], rawtemp = temp_hotend[e].raw * tdir;

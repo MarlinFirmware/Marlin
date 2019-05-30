@@ -161,7 +161,7 @@
 #elif MB(RAMPS_CREALITY)
   #include "pins_RAMPS_CREALITY.h"    // ATmega2560                                 env:megaatmega2560
 #elif MB(FYSETC_F6_13)
-  #include "pins_FYSETC_F6_13.h"      // ATmega2560                                 env:megaatmega2560
+  #include "pins_FYSETC_F6_13.h"      // ATmega2560                                 env:fysetc_f6_13
 #elif MB(DUPLICATOR_I3_PLUS)
   #include "pins_DUPLICATOR_I3_PLUS.h" // ATmega2560                                env:megaatmega2560
 #elif MB(VORON)
@@ -460,7 +460,7 @@
 //
 
 #elif MB(ESP32)
-  #include "pins_ESP32.h"
+  #include "pins_ESP32.h"             // ESP32                                      env:esp32
 
 //
 // Linux Native Debug board
