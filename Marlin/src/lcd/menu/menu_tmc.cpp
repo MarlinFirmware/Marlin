@@ -239,7 +239,7 @@ void menu_tmc_current() {
       #define Z_SGT_MAX DEFAULT_SGT_MAX
   #endif
 
-  #define TMC_EDIT_STORED_SGT(ST, SGT_MIN, SGT_MAX) MENU_ITEM_EDIT_CALLBACK(int8, MSG_##ST, &stepper##ST.stored.homing_thrs, SGT_MIN, SGT_MAX, refresh_homing_thrs_##ST);
+  #define TMC_EDIT_STORED_SGT(ST, SGT_MIN, SGT_MAX) MENU_ITEM_EDIT_CALLBACK(int4, MSG_##ST, &stepper##ST.stored.homing_thrs, SGT_MIN, SGT_MAX, refresh_homing_thrs_##ST);
 
   #if X_SENSORLESS
     void refresh_homing_thrs_X()  { stepperX.refresh_homing_thrs();  }

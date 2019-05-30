@@ -93,7 +93,7 @@ class TMCStorage {
         uint8_t hybrid_thrs = 0;
       #endif
       #if ENABLED(SENSORLESS_HOMING)
-        int8_t homing_thrs = 0;
+        int16_t homing_thrs = 0;
       #endif
     } stored;
 };
