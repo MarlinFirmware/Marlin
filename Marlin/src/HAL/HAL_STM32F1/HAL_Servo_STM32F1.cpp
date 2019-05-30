@@ -173,9 +173,9 @@ void libServo::move(const int32_t value) {
     timer_dev *tdev = get_timer_dev(SERVO0_TIMER_NUM);
     if (!tdev) return false;
     #ifdef SERVO0_PWM_OD
-      OUT_WRITE_OD(this->pin, 1);
+      OUT_WRITE_OD(pin, 1);
     #else
-      OUT_WRITE(this->pin, 0);
+      OUT_WRITE(pin, 0);
     #endif
 
     timer_pause(tdev);
