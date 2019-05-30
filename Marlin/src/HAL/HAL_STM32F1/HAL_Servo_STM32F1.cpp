@@ -64,14 +64,16 @@ uint8_t ServoCount = 0;
                                        this->minAngle, this->maxAngle)))
 
 void libServo::servoWrite(uint8_t pin, uint16_t duty_cycle) {
-  if (pin >= BOARD_NR_GPIO_PINS) return;
   #ifdef SERVO0_TIMER_NUM
-    this->pwmSetDuty(duty_cycle);
-  #else
-    timer_dev *tdev = PIN_MAP[pin].timer_device;
-    uint8_t tchan = PIN_MAP[pin].timer_channel;
-    if (tdev) timer_set_compare(tdev, tchan, duty_cycle);
+    if (this->servoIndex == 0) {
+      this->pwmSetDuty(duty_cycle);
+      return;
+    }
   #endif
+
+  timer_dev *tdev = PIN_MAP[pin].timer_device;
+  uint8_t tchan = PIN_MAP[pin].timer_channel;
+  if (tdev) timer_set_compare(tdev, tchan, duty_cycle);
 }
 
 libServo::libServo() {
@@ -80,6 +82,7 @@ libServo::libServo() {
 
 bool libServo::attach(const int32_t pin, const int32_t minAngle, const int32_t maxAngle) {
   if (this->servoIndex >= MAX_SERVOS) return false;
+  if (pin >= BOARD_NR_GPIO_PINS) return false;
 
   this->minAngle = minAngle;
   this->maxAngle = maxAngle;
@@ -121,7 +124,7 @@ bool libServo::detach() {
 int32_t libServo::read() const {
   if (this->attached()) {
     #ifdef SERVO0_TIMER_NUM
-      return this->angle;
+      if (this->servoIndex == 0) return this->angle;
     #endif
     timer_dev *tdev = PIN_MAP[this->pin].timer_device;
     uint8_t tchan = PIN_MAP[this->pin].timer_channel;
