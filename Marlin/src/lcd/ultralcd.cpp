@@ -1373,14 +1373,14 @@ void MarlinUI::update() {
       host_prompt_open(PROMPT_INFO, PSTR("UI Abort"));
     #endif
     print_job_timer.stop();
-    ui.set_status_P(PSTR(MSG_PRINT_ABORTED));
+    set_status_P(PSTR(MSG_PRINT_ABORTED));
     #if HAS_SPI_LCD
-      ui.return_to_status();
+      return_to_status();
     #endif
   }
 
   void MarlinUI::pause_print() {
-    ui.synchronize(PSTR(MSG_PAUSE_PRINT));
+    synchronize(PSTR(MSG_PAUSE_PRINT));
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       if (recovery.enabled) recovery.save(true, false);
@@ -1390,7 +1390,7 @@ void MarlinUI::update() {
       host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume"));
     #endif
 
-    ui.set_status_P(PSTR(MSG_PRINT_PAUSED));
+    set_status_P(PSTR(MSG_PRINT_PAUSED));
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       #if HAS_SPI_LCD
@@ -1405,7 +1405,7 @@ void MarlinUI::update() {
   }
 
   void MarlinUI::resume_print() {
-    ui.reset_status();
+    reset_status();
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       wait_for_heatup = wait_for_user = false;
     #endif
