@@ -661,11 +661,7 @@
 
 #if HAS_HEATED_CHAMBER
 
-  #define STATUS_CHAMBER_WIDTH 2
-  #define STATUS_CHAMBER_HEIGHT 12
-
-  #define STATUS_CHAMBER_X 60
-  #define STATUS_CHAMBER_TEXT_X (STATUS_CHAMBER_X + 7)
+  #define STATUS_CHAMBER_WIDTH 16
 
   #ifdef STATUS_CHAMBER_ANIM
     const unsigned char status_chamber_bmp[] PROGMEM = {
@@ -1359,6 +1355,50 @@
 #endif
 
 //
+// Chamber Bitmap Properties
+//
+#ifndef STATUS_CHAMBER_WIDTH
+  #define STATUS_CHAMBER_WIDTH 0
+#endif
+#ifndef STATUS_CHAMBER_BYTEWIDTH
+  #define STATUS_CHAMBER_BYTEWIDTH BW(STATUS_CHAMBER_WIDTH)
+#endif
+#if STATUS_CHAMBER_WIDTH && !STATUS_HEATERS_WIDTH
+
+  #ifndef STATUS_CHAMBER_X
+    #define STATUS_CHAMBER_X (128 - (STATUS_FAN_BYTEWIDTH + STATUS_CHAMBER_BYTEWIDTH) * 8)
+  #endif
+
+  #ifndef STATUS_CHAMBER_HEIGHT
+    #ifdef STATUS_CHAMBER_ANIM
+      #define STATUS_CHAMBER_HEIGHT(S) ((S) ? sizeof(status_chamber_on_bmp) / (STATUS_CHAMBER_BYTEWIDTH) : sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
+    #else
+      #define STATUS_CHAMBER_HEIGHT(S) (sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
+    #endif
+  #endif
+
+  #ifndef STATUS_CHAMBER_Y
+    #define STATUS_CHAMBER_Y(S) (20 - STATUS_CHAMBER_HEIGHT(S))
+  #endif
+
+  #ifndef STATUS_CHAMBER_TEXT_X
+    #define STATUS_CHAMBER_TEXT_X (STATUS_CHAMBER_X + 7)
+  #endif
+
+  static_assert(
+    sizeof(status_chamber_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT(0)),
+    "Status chamber bitmap (status_chamber_bmp) dimensions don't match data."
+  );
+  #ifdef STATUS_CHAMBER_ANIM
+    static_assert(
+      sizeof(status_chamber_on_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT(1)),
+      "Status chamber bitmap (status_chamber_on_bmp) dimensions don't match data."
+    );
+  #endif
+
+#endif
+
+//
 // Bed Bitmap Properties
 //
 #ifndef STATUS_BED_WIDTH
@@ -1370,7 +1410,7 @@
 #if STATUS_BED_WIDTH && !STATUS_HEATERS_WIDTH
 
   #ifndef STATUS_BED_X
-    #define STATUS_BED_X (128 - (STATUS_FAN_BYTEWIDTH + STATUS_BED_BYTEWIDTH) * 8)
+    #define STATUS_BED_X (128 - (STATUS_CHAMBER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_BED_BYTEWIDTH) * 8)
   #endif
 
   #ifndef STATUS_BED_HEIGHT
