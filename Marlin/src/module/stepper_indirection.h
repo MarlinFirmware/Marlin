@@ -79,6 +79,10 @@
   #if HAS_DRIVER(TMC2208)
     void tmc2208_serial_begin();
   #endif
+
+  #if HAS_DRIVER(TMC2209)
+    void tmc2209_serial_begin();
+  #endif
 #endif
 
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI

@@ -183,6 +183,49 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper,
     #endif
 };
 template<char AXIS_LETTER, char DRIVER_ID>
+class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2209Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
+  public:
+    TMCMarlin(Stream * SerialPort, float RS, bool has_rx=true) :
+      TMC2209Stepper(SerialPort, RS, has_rx=true)
+      {}
+    TMCMarlin(uint16_t RX, uint16_t TX, float RS, bool has_rx=true) :
+      TMC2209Stepper(RX, TX, RS, has_rx=true)
+      {}
+    uint16_t rms_current() { return TMC2209Stepper::rms_current(); }
+    inline void rms_current(uint16_t mA) {
+      this->val_mA = mA;
+      TMC2209Stepper::rms_current(mA);
+    }
+    inline void rms_current(uint16_t mA, float mult) {
+      this->val_mA = mA;
+      TMC2209Stepper::rms_current(mA, mult);
+    }
+
+    #if HAS_STEALTHCHOP
+      inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
+      inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
+    #endif
+
+    #if HAS_LCD_MENU
+
+      inline void init_lcd_variables(const AxisEnum spmm_id) {
+        #if ENABLED(HYBRID_THRESHOLD)
+          this->stored.hybrid_thrs = _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[spmm_id]);
+        #endif
+      }
+
+      inline void refresh_stepper_current() { rms_current(this->val_mA); }
+
+      #if ENABLED(HYBRID_THRESHOLD)
+        inline void refresh_hybrid_thrs(float spmm) { this->TPWMTHRS(_tmc_thrs(this->microsteps(), this->stored.hybrid_thrs, spmm)); }
+      #endif
+      
+      #if ENABLED(SENSORLESS_HOMING)
+        inline void refresh_homing_thrs() { this->sgt(this->stored.homing_thrs); }
+      #endif
+    #endif
+};
+template<char AXIS_LETTER, char DRIVER_ID>
 class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2660Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
     TMCMarlin(uint16_t cs_pin, float RS) :
@@ -290,6 +333,9 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
   bool tmc_enable_stallguard(TMC2660Stepper);
   void tmc_disable_stallguard(TMC2660Stepper, const bool);
+
+  bool tmc_enable_stallguard(TMC2209Stepper &st);
+  void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth);
 #endif
 
 #if TMC_HAS_SPI

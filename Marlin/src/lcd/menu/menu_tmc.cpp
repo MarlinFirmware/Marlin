@@ -212,7 +212,34 @@ void menu_tmc_current() {
 
 #if ENABLED(SENSORLESS_HOMING)
 
-  #define TMC_EDIT_STORED_SGT(ST) MENU_ITEM_EDIT_CALLBACK(int8, MSG_##ST, &stepper##ST.stored.homing_thrs, -64, 63, refresh_homing_thrs_##ST);
+  #define TMC2209_SGT_MIN 0
+  #define TMC2209_SGT_MAX 255
+  #define DEFAULT_SGT_MIN -64
+  #define DEFAULT_SGT_MAX 63
+
+  #if AXIS_DRIVER_TYPE(X,TMC2209)
+      #define X_SGT_MIN TMC2209_SGT_MIN
+      #define X_SGT_MAX TMC2209_SGT_MAX
+  #else
+      #define X_SGT_MIN DEFAULT_SGT_MIN
+      #define X_SGT_MAX DEFAULT_SGT_MAX
+  #endif
+  #if AXIS_DRIVER_TYPE(X,TMC2209)
+      #define Y_SGT_MIN TMC2209_SGT_MIN
+      #define Y_SGT_MAX TMC2209_SGT_MAX
+  #else
+      #define Y_SGT_MIN DEFAULT_SGT_MIN
+      #define Y_SGT_MAX DEFAULT_SGT_MAX
+  #endif
+  #if AXIS_DRIVER_TYPE(X,TMC2209)
+      #define Z_SGT_MIN TMC2209_SGT_MIN
+      #define Z_SGT_MAX TMC2209_SGT_MAX
+  #else
+      #define Z_SGT_MIN DEFAULT_SGT_MIN
+      #define Z_SGT_MAX DEFAULT_SGT_MAX
+  #endif
+
+  #define TMC_EDIT_STORED_SGT(ST, SGT_MIN, SGT_MAX) MENU_ITEM_EDIT_CALLBACK(int8, MSG_##ST, &stepper##ST.stored.homing_thrs, SGT_MIN, SGT_MAX, refresh_homing_thrs_##ST);
 
   #if X_SENSORLESS
     void refresh_homing_thrs_X()  { stepperX.refresh_homing_thrs();  }
@@ -228,13 +255,13 @@ void menu_tmc_current() {
     START_MENU();
     MENU_BACK(MSG_TMC_DRIVERS);
     #if X_SENSORLESS
-      TMC_EDIT_STORED_SGT(X);
+      TMC_EDIT_STORED_SGT(X, X_SGT_MIN, X_SGT_MAX);
     #endif
     #if Y_SENSORLESS
-      TMC_EDIT_STORED_SGT(Y);
+      TMC_EDIT_STORED_SGT(Y, Y_SGT_MIN, Y_SGT_MAX);
     #endif
     #if Z_SENSORLESS
-      TMC_EDIT_STORED_SGT(Z);
+      TMC_EDIT_STORED_SGT(Z, Z_SGT_MIN, Z_SGT_MAX);
     #endif
     END_MENU();
   }

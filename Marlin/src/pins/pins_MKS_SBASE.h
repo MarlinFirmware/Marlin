@@ -316,7 +316,7 @@
  #endif
 #endif
 
-#if MB(MKS_SBASE) && HAS_DRIVER(TMC2208)
+#if MB(MKS_SBASE) && (HAS_DRIVER(TMC2208) ||  HAS_DRIVER(TMC2209))
   // The shortage of pins becomes apparent.
   // Worst case you may have to give up the LCD
   // RX pins need to be interrupt capable

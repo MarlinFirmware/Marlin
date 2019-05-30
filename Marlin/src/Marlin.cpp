@@ -907,6 +907,9 @@ void setup() {
   #if HAS_DRIVER(TMC2208)
     tmc2208_serial_begin();
   #endif
+  #if HAS_DRIVER(TMC2209)
+    tmc2209_serial_begin();
+  #endif
 
   #ifdef BOARD_INIT
     BOARD_INIT();
