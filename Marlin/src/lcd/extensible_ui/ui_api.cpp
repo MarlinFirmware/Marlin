@@ -812,7 +812,6 @@ namespace ExtUI {
 
   void printFile(const char *filename) {
     IFSD(card.openAndPrintFile(filename), NOOP);
-    print_job_timer.start();
   }
 
   bool isPrintingFromMediaPaused() {
