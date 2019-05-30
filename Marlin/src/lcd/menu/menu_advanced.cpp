@@ -39,11 +39,6 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(BLTOUCH)
-  #include "../../module/endstops.h"
-  #include "../../feature/bltouch.h"
-#endif
-
 #if ENABLED(PIDTEMP)
   #include "../../module/temperature.h"
 #endif
@@ -62,7 +57,7 @@ void menu_backlash();
   void menu_dac() {
     dac_driver_getValues();
     START_MENU();
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_ADVANCED_SETTINGS);
     #define EDIT_DAC_PERCENT(N) MENU_ITEM_EDIT_CALLBACK(uint8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
@@ -80,7 +75,7 @@ void menu_backlash();
 
   void menu_pwm() {
     START_MENU();
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_ADVANCED_SETTINGS);
     #define EDIT_CURRENT_PWM(LABEL,I) MENU_ITEM_EDIT_CALLBACK(long5, LABEL, &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
       EDIT_CURRENT_PWM(MSG_X MSG_Y, 0);
@@ -107,18 +102,7 @@ void menu_backlash();
 #endif
 
 #if ENABLED(SD_FIRMWARE_UPDATE)
-
   #include "../../module/configuration_store.h"
-
-  //
-  // Toggle the SD Firmware Update state in EEPROM
-  //
-  static void _lcd_toggle_sd_update() {
-    const bool new_state = !settings.sd_update_status();
-    ui.completion_feedback(settings.set_sd_update_status(new_state));
-    ui.return_to_status();
-    if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
-  }
 #endif
 
 #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -499,16 +483,17 @@ void menu_backlash();
     MENU_BACK(MSG_ADVANCED_SETTINGS);
 
     // M204 P Acceleration
-    MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_ACC, &planner.settings.acceleration, 10, 99000);
+    MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_ACC, &planner.settings.acceleration, 25, 99000);
 
     // M204 R Retract Acceleration
     MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_A_RETRACT, &planner.settings.retract_acceleration, 100, 99000);
 
     // M204 T Travel Acceleration
-    MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 100, 99000);
+    MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, 99000);
 
     // M201 settings
-    #define EDIT_AMAX(Q,L) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, 99000, _reset_acceleration_rates)
+    #define EDIT_AMAX(Q,L) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, 99000, _reset_acceleration_rates)
+
     EDIT_AMAX(A,100);
     EDIT_AMAX(B,100);
     EDIT_AMAX(C, 10);
@@ -604,16 +589,13 @@ void menu_backlash();
 
     #include "../../module/configuration_store.h"
 
-    static void lcd_init_eeprom() {
-      ui.completion_feedback(settings.init_eeprom());
-      ui.goto_previous_screen();
-    }
-
     static void lcd_init_eeprom_confirm() {
-      START_MENU();
-      MENU_BACK(MSG_ADVANCED_SETTINGS);
-      MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
-      END_MENU();
+      do_select_screen(
+        PSTR(MSG_BUTTON_INIT), PSTR(MSG_BUTTON_CANCEL),
+        []{ ui.completion_feedback(settings.init_eeprom()); },
+        ui.goto_previous_screen,
+        PSTR(MSG_INIT_EEPROM), nullptr, PSTR("?")
+      );
     }
 
   #endif
@@ -696,18 +678,17 @@ void menu_advanced_settings() {
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
   #endif
 
-  //
-  // BLTouch Self-Test and Reset
-  //
-  #if ENABLED(BLTOUCH)
-    MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-    if (!endstops.z_probe_enabled && bltouch.triggered())
-      MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
-  #endif
-
   #if ENABLED(SD_FIRMWARE_UPDATE)
     bool sd_update_state = settings.sd_update_status();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_SD_UPDATE, &sd_update_state, _lcd_toggle_sd_update);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_SD_UPDATE, &sd_update_state, []{
+      //
+      // Toggle the SD Firmware Update state in EEPROM
+      //
+      const bool new_state = !settings.sd_update_status();
+      ui.completion_feedback(settings.set_sd_update_status(new_state));
+      ui.return_to_status();
+      if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
+    });
   #endif
 
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)

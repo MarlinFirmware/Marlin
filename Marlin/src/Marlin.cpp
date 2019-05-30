@@ -728,12 +728,12 @@ void idle(
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(PGM_P const lcd_msg/*=NULL*/) {
+void kill(PGM_P const lcd_msg/*=nullptr*/) {
   thermalManager.disable_all_heaters();
 
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
-  #if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
+  #if HAS_DISPLAY
     ui.kill_screen(lcd_msg ? lcd_msg : PSTR(MSG_KILLED));
   #else
     UNUSED(lcd_msg);
@@ -939,6 +939,20 @@ void setup() {
 
   queue_setup();
 
+  // UI must be initialized before EEPROM
+  // (because EEPROM code calls the UI).
+  ui.init();
+  ui.reset_status();
+
+  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+    ui.show_bootscreen();
+  #endif
+
+  #if ENABLED(SDIO_SUPPORT) && SD_DETECT_PIN == -1
+    // Auto-mount the SD for EEPROM.dat emulation
+    if (!card.isDetected()) card.initsd();
+  #endif
+
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
   (void)settings.load();
@@ -1039,19 +1053,12 @@ void setup() {
     fanmux_init();
   #endif
 
-  ui.init();
-  ui.reset_status();
-
-  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
-    ui.show_bootscreen();
-  #endif
-
   #if ENABLED(MIXING_EXTRUDER)
     mixer.init();
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch.init();
+    bltouch.init(/*set_voltage=*/true);
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)

@@ -27,7 +27,7 @@
 
 #if HAS_SERVOS
 
-uint8_t ServoCount; //=0
+uint8_t ServoCount = 0;
 
 #include "HAL_Servo_STM32F1.h"
 
@@ -68,22 +68,24 @@ libServo::libServo() {
 
 bool libServo::attach(const int32_t pin, const int32_t minAngle, const int32_t maxAngle) {
   if (this->servoIndex >= MAX_SERVOS) return false;
+  if (!PWM_PIN(pin)) return false;
 
-  this->pin = pin;
   this->minAngle = minAngle;
   this->maxAngle = maxAngle;
 
-  timer_dev *tdev = PIN_MAP[this->pin].timer_device;
-  uint8_t tchan = PIN_MAP[this->pin].timer_channel;
+  timer_dev *tdev = PIN_MAP[pin].timer_device;
+  uint8_t tchan = PIN_MAP[pin].timer_channel;
 
-  pinMode(this->pin, PWM);
-  pwmWrite(this->pin, 0);
+  pinMode(pin, PWM);
+  pwmWrite(pin, 0);
 
   timer_pause(tdev);
   timer_set_prescaler(tdev, SERVO_PRESCALER - 1); // prescaler is 1-based
   timer_set_reload(tdev, SERVO_OVERFLOW);
   timer_generate_update(tdev);
   timer_resume(tdev);
+
+  this->pin = pin; // set attached()
 
   return true;
 }

@@ -982,9 +982,21 @@ void prepare_move_to_destination() {
           }
         #endif // PREVENT_COLD_EXTRUSION
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          if (ABS(destination[E_AXIS] - current_position[E_AXIS]) * planner.e_factor[active_extruder] > (EXTRUDE_MAXLENGTH)) {
-            current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-            SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+          const float e_delta = ABS(destination[E_AXIS] - current_position[E_AXIS]) * planner.e_factor[active_extruder];
+          if (e_delta > (EXTRUDE_MAXLENGTH)) {
+            #if ENABLED(MIXING_EXTRUDER)
+              bool ignore_e = false;
+              float collector[MIXING_STEPPERS];
+              mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
+              MIXER_STEPPER_LOOP(e)
+                if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) { ignore_e = true; break; }
+            #else
+              constexpr bool ignore_e = true;
+            #endif
+            if (ignore_e) {
+              current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
+              SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+            }
           }
         #endif // PREVENT_LENGTHY_EXTRUDE
       }
@@ -1410,8 +1422,7 @@ void homeaxis(const AxisEnum axis) {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 1 Fast:");
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    // BLTOUCH needs to be deployed every time
-    if (axis == Z_AXIS && bltouch.deploy()) return;
+    if (axis == Z_AXIS && bltouch.deploy()) return; // The initial DEPLOY
   #endif
 
   do_homing_move(axis, 1.5f * max_length(
@@ -1423,9 +1434,8 @@ void homeaxis(const AxisEnum axis) {
     ) * axis_home_dir
   );
 
-  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    // BLTOUCH needs to be stowed after trigger to rearm itself
-    if (axis == Z_AXIS) bltouch.stow();
+  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
+    if (axis == Z_AXIS) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
   #endif
 
   // When homing Z with probe respect probe clearance
@@ -1449,16 +1459,14 @@ void homeaxis(const AxisEnum axis) {
     // Slow move towards endstop until triggered
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");
 
-    #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-      // BLTOUCH needs to be deployed every time
-      if (axis == Z_AXIS && bltouch.deploy()) return;
+    #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
+      if (axis == Z_AXIS && bltouch.deploy()) return; // Intermediate DEPLOY (in LOW SPEED MODE)
     #endif
 
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
 
     #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-      // BLTOUCH needs to be stowed after trigger to rearm itself
-      if (axis == Z_AXIS) bltouch.stow();
+      if (axis == Z_AXIS) bltouch.stow(); // The final STOW
     #endif
   }
 

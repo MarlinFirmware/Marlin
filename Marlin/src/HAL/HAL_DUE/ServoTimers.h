@@ -87,5 +87,20 @@
   #define HANDLER_FOR_TIMER5  TC0_Handler
 #endif
 
-//typedef enum { _timer1, _timer2, _timer3, _timer4, _timer5, _Nbr_16timers } timer16_Sequence_t;
-typedef enum { _timer3, _timer5, _Nbr_16timers } timer16_Sequence_t;
+typedef enum { 
+  #ifdef _useTimer1
+    _timer1,
+  #endif
+  #ifdef _useTimer2
+    _timer2,
+  #endif
+  #ifdef _useTimer3
+    _timer3,
+  #endif
+  #ifdef _useTimer4
+    _timer4,
+  #endif
+  #ifdef _useTimer5
+    _timer5,
+  #endif
+  _Nbr_16timers } timer16_Sequence_t;

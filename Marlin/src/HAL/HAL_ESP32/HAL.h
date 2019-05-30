@@ -30,19 +30,7 @@
 
 #include <stdint.h>
 
-// these are going to be re-defined in Arduino.h
-#undef DISABLED
-#undef M_PI
-#undef _BV
-
-#include <Arduino.h>
-
-// revert back to the correct (old) definition
-#undef DISABLED
-#define DISABLED(V...) DO(DIS,&&,V)
-// re-define in case Arduino.h has been skipped due to earlier inclusion (i.e. in Marlin\src\HAL\HAL_ESP32\i2s.cpp)
-#define _BV(b) (1UL << (b))
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
@@ -86,6 +74,8 @@ extern portMUX_TYPE spinlock;
 // --------------------------------------------------------------------------
 
 typedef int16_t pin_t;
+
+#define HAL_SERVO_LIB Servo
 
 // --------------------------------------------------------------------------
 // Public Variables
@@ -134,5 +124,7 @@ void HAL_adc_start_conversion(uint8_t adc_pin);
 // Enable hooks into idle and setup for HAL
 #define HAL_IDLETASK 1
 #define HAL_INIT 1
+#define BOARD_INIT() HAL_init_board();
 void HAL_idletask(void);
 void HAL_init(void);
+void HAL_init_board(void);

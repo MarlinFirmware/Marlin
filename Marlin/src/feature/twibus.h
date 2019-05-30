@@ -217,7 +217,7 @@ class TWIBus {
        * @details Send the buffer and clear it.
        *          If a string is passed, write it into the buffer first.
        */
-      void reply(char str[]=NULL);
+      void reply(char str[]=nullptr);
       inline void reply(const char str[]) { this->reply((char*)str); }
 
     #endif
