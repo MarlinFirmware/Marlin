@@ -272,4 +272,4 @@ uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize) {
 
 #endif // HAS_GRAPHICAL_LCD
 
-#endif // ARDUINO_ARCH_STM32F1 && PIN_EXISTS(FSMC_CS)
+#endif // ARDUINO_ARCH_STM32F1 && FSMC_CS_PIN
