@@ -1405,9 +1405,9 @@ void MarlinUI::update() {
   }
 
   void MarlinUI::resume_print() {
-    ui.set_status_P(PSTR(MSG_FILAMENT_CHANGE_RESUME_1));
-     #if ENABLED(PARK_HEAD_ON_PAUSE)
-        wait_for_heatup = wait_for_user = false;
+    ui.reset_status();
+    #if ENABLED(PARK_HEAD_ON_PAUSE)
+      wait_for_heatup = wait_for_user = false;
     #endif
     #if ENABLED(SDSUPPORT)
       if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
@@ -1415,8 +1415,7 @@ void MarlinUI::update() {
     #ifdef ACTION_ON_RESUME
       host_action_resume();
     #endif
-    
-    print_job_timer.start();
+    print_job_timer.start(); // Also called by M24
   }
 
   #if HAS_PRINT_PROGRESS
