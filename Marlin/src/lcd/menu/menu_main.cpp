@@ -39,10 +39,6 @@
   #include "../../feature/power_loss_recovery.h"
 #endif
 
-#if ENABLED(HOST_ACTION_COMMANDS)
-  #include "../../feature/host_actions.h"
-#endif
-
 #if HAS_GAMES
   #include "game/game.h"
 #endif
