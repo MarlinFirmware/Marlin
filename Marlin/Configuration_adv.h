@@ -1728,7 +1728,7 @@
   #define E5_HYBRID_THRESHOLD     30
 
   /**
-   * TMC2130, TMC2160, TMC2660, TMC5130, and TMC5160 only
+   * TMC2130, TMC2160, TMC2660, TMC5130, TMC2209, and TMC5160 only
    * Use StallGuard2 to sense an obstacle and trigger an endstop.
    * Connect the stepper driver's DIAG1 pin to the X/Y endstop pin.
    * X, Y, and Z homing will always be done in spreadCycle mode.
@@ -1749,7 +1749,7 @@
    *          to move the Z axis. Take extreme care when attempting to enable this feature.
    */
   #define SENSORLESS_PROBING // TMC2130 only
-
+  //TMC2209 set in 0-225 else set in -64 to 63
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     #define X_STALL_SENSITIVITY  128
     #define Y_STALL_SENSITIVITY  128
