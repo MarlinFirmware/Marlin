@@ -2072,25 +2072,25 @@
 #endif
 
 /**
- * Power monitor
+ * Power Monitor
+ * Monitor the PSU voltaqe and/or total system current being drawn
  *
- * Monitors the PSU voltaqe and/or the total system current being drawn
- *
- * The current sensor feeds a DC voltage (relative to the current being drawn) into one of the analogue CPU inputs
- * The voltage sensor feeds a DC voltage (relative to the PSU voltage supply ) into one of the analogue CPU inputs
-*/
+ * The current sensor feeds a DC voltage (relative to the current being drawn) into one of the analog CPU inputs
+ * The voltage sensor feeds a DC voltage (relative to the PSU voltage supply ) into one of the analog CPU inputs
+ */
 //#define POWER_MONITOR
 #if ENABLED(POWER_MONITOR)
-  #define POWER_MONITOR_CURRENT_ENABLED             // un-comment to monitor the system current
-//#define POWER_MONITOR_VOLTAGE_ENABLED             // un-comment to monitor the system voltage
+  #define POWER_MONITOR_CURRENT_ENABLED           // Monitor the system current
+  //#define POWER_MONITOR_VOLTAGE_ENABLED         // Monitor the system voltage
 
-  #define POWER_MONITOR_VOLTS_PER_AMP      0.05000  // voltage fed to the CPU analogue input pin per amp  - ensure you DO NOT go above the ADC reference voltage!
-  #define POWER_MONITOR_VOLTS_PER_VOLT     0.11786  // voltage fed to the CPU analogue input pin per volt - ensure you DO NOT go above the ADC reference voltage!
+  #define POWER_MONITOR_VOLTS_PER_AMP   0.05000   // Input voltage to the MCU analog pin per amp  - DO NOT exceed the ADC reference voltage!
+  #define POWER_MONITOR_VOLTS_PER_VOLT  0.11786   // Input voltage to the MCU analog pin per volt - DO NOT exceed the ADC reference voltage!
 
-  // need to know what the CPU ADC reference voltage is on your board
-//#define POWER_MONITOR_ADC_VREF     5.0            // typical ADC reference voltage on 8-bit cpu's
-  #define POWER_MONITOR_ADC_VREF     3.3            // typical ADC reference voltage on 32-bit cpu's
-//#define POWER_MONITOR_ADC_VREF     3.0            // possible ADC reference voltage on 32-bit cpu's
+  // ADC reference voltage appropriate to the board. Suggested values:
+  //   3.0 : Possible ADC reference voltage on 32-bit MCUs
+  //   3.3 : Typical ADC reference voltage on 32-bit MCUs
+  //   5.0 : Typical ADC reference voltage on 8-bit MCUs
+  #define POWER_MONITOR_ADC_VREF 5.0
 #endif
 
 /**
