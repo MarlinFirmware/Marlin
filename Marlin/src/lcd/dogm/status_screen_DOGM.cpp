@@ -300,11 +300,8 @@ void MarlinUI::draw_status_screen() {
     static char wstring[5], mstring[4];
   #endif
 
-  #if HAS_POWER_MONITOR_CURRENT_SENSOR
-    static char amp_string[8];
-  #endif
-  #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-    static char volt_string[8];
+  #if HAS_POWER_MONITOR_CURRENT_SENSOR || HAS_POWER_MONITOR_VOLTAGE_SENSOR
+    char power_monitor_string[8];
   #endif
 
   // At the first page, generate new display values
@@ -334,15 +331,6 @@ void MarlinUI::draw_status_screen() {
             : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
         )
       ));
-    #endif
-
-    #if HAS_POWER_MONITOR_CURRENT_SENSOR
-      if (power_monitor.current_display_enabled)
-        strcpy(amp_string, ftostr42_52(power_monitor.getAmps()));
-    #endif
-    #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-      if (power_monitor.voltage_display_enabled)
-        strcpy(volt_string, ftostr42_52(power_monitor.getVolts()));
     #endif
   }
 
@@ -638,26 +626,28 @@ void MarlinUI::draw_status_screen() {
     //
     #if ENABLED(POWER_MONITOR) && DISABLED(SDSUPPORT)
       {
-        int pos = 56;
+         int pos = 56;
         #if HAS_POWER_MONITOR_CURRENT_SENSOR
           if (power_monitor.current_display_enabled) {
+            // display the current reading
+            strcpy(power_monitor_string, ftostr42_52(power_monitor.getAmps()));
             lcd_moveto(pos, EXTRAS_2_BASELINE);
-            lcd_put_u8str(amp_string);
+            lcd_put_u8str(power_monitor_string);
             lcd_put_wchar('A');
-            lcd_put_wchar(' ');
             pos += 6 + 1 + 1; // reading + Unit + space
           }
         #endif
         #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
           if (power_monitor.voltage_display_enabled) {
+            // display the voltage reading
+            strcpy(power_monitor_string, ftostr42_52(power_monitor.getVolts()));
             lcd_moveto(pos, EXTRAS_2_BASELINE);
-            lcd_put_u8str(volt_string);
+            lcd_put_u8str(power_monitor_string);
             lcd_put_wchar('V');
-            lcd_put_wchar(' ');
-            pos += 6 + 1 + 1; // reading + Unit + space
+//            pos += 6 + 1 + 1; // reading + Unit + space
           }
         #endif
-      }
+     }
     #endif
   }
 
@@ -688,16 +678,36 @@ void MarlinUI::draw_status_screen() {
       if (ELAPSED(millis(), next_power_monitor_display) && (power_monitor.current_display_enabled || power_monitor.voltage_display_enabled)) {
         #if HAS_POWER_MONITOR_CURRENT_SENSOR
           if (power_monitor.current_display_enabled) {
-            lcd_put_u8str(amp_string);
+            // display the current reading
+            strcpy(power_monitor_string, ftostr42_52(power_monitor.getAmps()));
+            lcd_put_u8str(power_monitor_string);
             lcd_put_wchar('A');
             lcd_put_wchar(' ');
           }
         #endif
         #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
           if (power_monitor.voltage_display_enabled) {
-            lcd_put_u8str(volt_string);
+            // display the voltage reading
+            strcpy(power_monitor_string, ftostr42_52(power_monitor.getVolts()));
+            lcd_put_u8str(power_monitor_string);
             lcd_put_wchar('V');
             lcd_put_wchar(' ');
+          }
+        #endif
+        #if HAS_POWER_MONITOR_CURRENT_SENSOR && HAS_POWER_MONITOR_VOLTAGE_SENSOR && ENABLED(POWER_MONITOR_POWER_ENABLED)
+          if (power_monitor.current_display_enabled && power_monitor.voltage_display_enabled) {
+            // display the calculated power reading
+            const float power = power_monitor.getAmps() * power_monitor.getVolts();
+            if (power < 1000) {
+              strcpy(power_monitor_string, i16tostr3left((int16_t)power));
+              lcd_put_u8str(power_monitor_string);
+              lcd_put_wchar('W');
+            }
+            else {
+              strcpy(power_monitor_string, ftostr12ns(power * 0.001f));
+              lcd_put_u8str(power_monitor_string);
+              lcd_put_u8str(PSTR("kW"));
+            }
           }
         #endif
         next_power_monitor_display = millis() + 4000UL;  // display the power monitor once every 4 seconds

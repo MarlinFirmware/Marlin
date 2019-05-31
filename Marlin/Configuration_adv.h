@@ -2082,6 +2082,7 @@
 #if ENABLED(POWER_MONITOR)
   #define POWER_MONITOR_CURRENT_ENABLED           // Monitor the system current
   //#define POWER_MONITOR_VOLTAGE_ENABLED         // Monitor the system voltage
+  //#define POWER_MONITOR_POWER_ENABLED           // display calculated W=I*V .. only used if BOTH sensor inputs enabled and set to I & V
 
   #define POWER_MONITOR_VOLTS_PER_AMP   0.05000   // Input voltage to the MCU analog pin per amp  - DO NOT exceed the ADC reference voltage!
   #define POWER_MONITOR_VOLTS_PER_VOLT  0.11786   // Input voltage to the MCU analog pin per volt - DO NOT exceed the ADC reference voltage!
