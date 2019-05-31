@@ -21,36 +21,36 @@
  */
 
 //
-// Tune Menu
+// Power Monitor Menu
 //
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(POWER_MONITOR)
-  #include "menu.h"
-  #include "../../module/temperature.h"
-  #include "../../Marlin.h"
+#if HAS_LCD_MENU && HAS_POWER_MONITOR
 
-  #include "../../feature/power_monitor.h"
-  #include "../lcdprint.h"
-  #if HAS_GRAPHICAL_LCD
-    #include "../dogm/ultralcd_DOGM.h"
+#include "menu.h"
+
+#include "../../feature/power_monitor.h"
+
+void menu_power_monitor() {
+  START_MENU();
+  MENU_BACK(MSG_MAIN);
+
+  #if ENABLED(POWER_MONITOR_CURRENT)
+  {
+    bool ena = power_monitor.current_display_enabled();
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_CURRENT, &ena, []{ power_monitor.set_current_display_enabled(ena); });
+  }
   #endif
 
-  void menu_power_monitor() {
-    START_MENU();
-    MENU_BACK(MSG_MAIN);
-
-    #if HAS_POWER_MONITOR_CURRENT_SENSOR
-      // current LCD display: On/Off
-      MENU_ITEM_EDIT(bool, MSG_CURRENT, &power_monitor.current_display_enabled);
-    #endif
-
-    #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-    // voltage LCD display: On/Off
-      MENU_ITEM_EDIT(bool, MSG_VOLTAGE, &power_monitor.voltage_display_enabled);
-    #endif
-
-    END_MENU();
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+  {
+    bool ena = power_monitor.voltage_display_enabled();
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLTAGE, &ena, []{ power_monitor.set_voltage_display_enabled(ena); });
   }
-#endif
+  #endif
+
+  END_MENU();
+}
+
+#endif // HAS_LCD_MENU && HAS_POWER_MONITOR
