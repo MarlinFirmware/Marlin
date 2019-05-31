@@ -490,7 +490,7 @@ void MarlinUI::status_screen() {
         next_filament_display = millis() + 5000UL;  // Show status message for 5s
       #endif
       #if BOTH(POWER_MONITOR, SDSUPPORT)
-        next_power_monitor_display = millis() + 2000UL;  // Show status message for 2s
+        next_power_monitor_display = millis() + 4000UL;
       #endif
       goto_screen(menu_main);
       init_lcd(); // May revive the LCD if static electricity killed it
@@ -1241,7 +1241,7 @@ void MarlinUI::update() {
     #endif
 
     #if BOTH(POWER_MONITOR, SDSUPPORT)
-      next_power_monitor_display = millis() + 2000UL; // Show status message for 2s
+      next_power_monitor_display = millis() + 4000UL;
     #endif
 
     #if HAS_SPI_LCD && ENABLED(STATUS_MESSAGE_SCROLLING)

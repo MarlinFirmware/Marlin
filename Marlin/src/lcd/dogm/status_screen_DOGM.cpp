@@ -337,10 +337,12 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     #if HAS_POWER_MONITOR_CURRENT_SENSOR
-      strcpy(amp_string, ftostr42_52(power_monitor.getAmps()));
+      if (power_monitor.current_display_enabled)
+        strcpy(amp_string, ftostr42_52(power_monitor.getAmps()));
     #endif
     #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-      strcpy(volt_string, ftostr42_52(power_monitor.getVolts()));
+      if (power_monitor.voltage_display_enabled)
+        strcpy(volt_string, ftostr42_52(power_monitor.getVolts()));
     #endif
   }
 
@@ -698,6 +700,7 @@ void MarlinUI::draw_status_screen() {
             lcd_put_wchar(' ');
           }
         #endif
+        next_power_monitor_display = millis() + 4000UL;  // display the power monitor once every 4 seconds
       }
       else
     #endif
