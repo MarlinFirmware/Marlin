@@ -171,9 +171,15 @@ namespace ExtUI {
   void enableHeater(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       #if HAS_HEATED_BED
-        if (heater == BED)
+        if (heater == BED) {
           thermalManager.reset_bed_idle_timer();
-        else
+          return;
+        }
+      #endif
+      #if HAS_HEATED_CHAMBER
+        if (heater == CHAMBER) {
+          return; //Chamber has no idle timer
+        }
       #endif
           thermalManager.reset_heater_idle_timer(heater - H0);
     #endif
@@ -188,23 +194,28 @@ namespace ExtUI {
   }
 
   bool isHeaterIdle(const heater_t heater) {
-    return (false
-      #if HEATER_IDLE_HANDLER
-        || (heater == BED ? (false
-          #if HAS_HEATED_BED
-            || thermalManager.bed_idle.timed_out
-          #endif
-        ) : thermalManager.hotend_idle[heater - H0].timed_out)
+    #if HEATER_IDLE_HANDLER
+      #if HAS_HEATED_CHAMBER
+        if (heater == CHAMBER) return false; //Chamber has no idle timer
       #endif
-    );
+      #if HAS_HEATED_BED
+        if (heater == BED) return thermalManager.bed_idle.timed_out;
+      #endif
+      return thermalManager.hotend_idle[heater - H0].timed_out;
+    #else
+      return false;
+    #endif
   }
 
   float getActualTemp_celsius(const heater_t heater) {
-    return heater == BED ? (0
-      #if HAS_HEATED_BED
-        + thermalManager.degBed()
-      #endif
-    ) : thermalManager.degHotend(heater - H0);
+    #if HAS_HEATED_BED
+      if (heater == BED) return thermalManager.degBed();
+    #endif
+
+    #if HAS_HEATED_CHAMBER
+      if (heater == CHAMBER) return thermalManager.degChamber();
+    #endif
+    return thermalManager.degHotend(heater - H0);;
   }
 
   float getActualTemp_celsius(const extruder_t extruder) {
@@ -212,11 +223,14 @@ namespace ExtUI {
   }
 
   float getTargetTemp_celsius(const heater_t heater) {
-    return heater == BED ? (0
-      #if HAS_HEATED_BED
-        + thermalManager.degTargetBed()
-      #endif
-    ) : thermalManager.degTargetHotend(heater - H0);
+    #if HAS_HEATED_BED
+      if (heater == BED) return thermalManager.degTargetBed();
+    #endif
+
+    #if HAS_HEATED_CHAMBER
+      if (heater == CHAMBER) return thermalManager.degTargetChamber();
+    #endif
+    return thermalManager.degTargetHotend(heater - H0);;
   }
 
   float getTargetTemp_celsius(const extruder_t extruder) {
@@ -839,7 +853,7 @@ namespace ExtUI {
   }
 
   void stopPrint() {
-    ui.stop_print();
+    ui.abort_print();
   }
 
   FileList::FileList() { refresh(); }
