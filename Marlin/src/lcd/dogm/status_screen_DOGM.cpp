@@ -43,7 +43,7 @@
   #include "../../gcode/parser.h"
 #endif
 
-#if ENABLED(POWER_MONITOR)
+#if HAS_POWER_MONITOR
   #include "../../feature/power_monitor.h"
 #endif
 
@@ -284,6 +284,37 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
+#if ENABLED(POWER_MONITOR_CURRENT)
+  inline void draw_power_monitor_current() {
+    lcd_put_u8str(ftostr42_52(power_monitor.getAmps()));
+    lcd_put_wchar('A');
+    lcd_put_wchar(' ');
+  }
+#endif
+
+#if ENABLED(POWER_MONITOR_VOLTAGE)
+  inline void draw_power_monitor_voltage() {
+    lcd_put_u8str(ftostr42_52(power_monitor.getVolts()));
+    lcd_put_wchar('V');
+    lcd_put_wchar(' ');
+  }
+#endif
+
+#if ENABLED(POWER_MONITOR_POWER)
+  inline void draw_power_monitor_power() {
+    const float power = power_monitor.getAmps() * power_monitor.getVolts();
+    if (power < 1000) {
+      lcd_put_u8str(i16tostr3left((int16_t)power));
+      lcd_put_wchar('W');
+    }
+    else {
+      lcd_put_u8str(ftostr12ns(power * 0.001f));
+      lcd_put_u8str_P(PSTR("kW"));
+    }
+    lcd_put_wchar(' ');
+  }
+#endif
+
 #if ENABLED(MARLIN_DEV_MODE)
   uint16_t count_renders = 0;
   uint32_t total_cycles = 0;
@@ -298,10 +329,6 @@ void MarlinUI::draw_status_screen() {
   static char xstring[5], ystring[5], zstring[8];
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
-  #endif
-
-  #if HAS_POWER_MONITOR_CURRENT_SENSOR || HAS_POWER_MONITOR_VOLTAGE_SENSOR
-    char power_monitor_string[8];
   #endif
 
   // At the first page, generate new display values
@@ -606,48 +633,48 @@ void MarlinUI::draw_status_screen() {
     lcd_put_wchar('%');
 
     //
-    // Filament sensor display if SD is disabled
+    // System current/voltage sensor display if SD is disabled
     //
-    #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
-      lcd_moveto(56, EXTRAS_2_BASELINE);
-      lcd_put_u8str(wstring);
-      lcd_moveto(102, EXTRAS_2_BASELINE);
-      lcd_put_u8str(mstring);
-      lcd_put_wchar('%');
-      set_font(FONT_MENU);
-      lcd_moveto(47, EXTRAS_2_BASELINE);
-      lcd_put_wchar(LCD_STR_FILAM_DIA[0]); // lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
-      lcd_moveto(93, EXTRAS_2_BASELINE);
-      lcd_put_wchar(LCD_STR_FILAM_MUL[0]);
+    #if HAS_POWER_MONITOR && DISABLED(SDSUPPORT)
+      const bool show_power = power_monitor.display_enabled();
+      if (show_power) {
+        lcd_moveto(56, EXTRAS_2_BASELINE);
+        #if ENABLED(POWER_MONITOR_CURRENT)
+          if (power_monitor.current_display_enabled())
+            draw_power_monitor_current();
+        #endif
+        #if ENABLED(POWER_MONITOR_VOLTAGE)
+          if (power_monitor.voltage_display_enabled())
+            draw_power_monitor_voltage();
+        #endif
+        //#if ENABLED(POWER_MONITOR_VOLTAGE)
+        //  if (power_monitor.power_display_enabled())
+        //    draw_power_monitor_power();
+        //#endif
+      }
     #endif
 
     //
-    // system current/voltage sensor display if SD is disabled
+    // Filament sensor display if SD is disabled
     //
-    #if ENABLED(POWER_MONITOR) && DISABLED(SDSUPPORT)
-      {
-         int pos = 56;
-        #if HAS_POWER_MONITOR_CURRENT_SENSOR
-          if (power_monitor.current_display_enabled) {
-            // display the current reading
-            strcpy(power_monitor_string, ftostr42_52(power_monitor.getAmps()));
-            lcd_moveto(pos, EXTRAS_2_BASELINE);
-            lcd_put_u8str(power_monitor_string);
-            lcd_put_wchar('A');
-            pos += 6 + 1 + 1; // reading + Unit + space
-          }
-        #endif
-        #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-          if (power_monitor.voltage_display_enabled) {
-            // display the voltage reading
-            strcpy(power_monitor_string, ftostr42_52(power_monitor.getVolts()));
-            lcd_moveto(pos, EXTRAS_2_BASELINE);
-            lcd_put_u8str(power_monitor_string);
-            lcd_put_wchar('V');
-//            pos += 6 + 1 + 1; // reading + Unit + space
-          }
-        #endif
-     }
+    #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
+      #if HAS_POWER_MONITOR
+        #define FIL_COND !show_power
+      #else
+        #define FIL_COND true
+      #endif
+      if (FIL_COND) {
+        lcd_moveto(56, EXTRAS_2_BASELINE);
+        lcd_put_u8str(wstring);
+        lcd_moveto(102, EXTRAS_2_BASELINE);
+        lcd_put_u8str(mstring);
+        lcd_put_wchar('%');
+        set_font(FONT_MENU);
+        lcd_moveto(47, EXTRAS_2_BASELINE);
+        lcd_put_wchar(LCD_STR_FILAM_DIA[0]); // lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
+        lcd_moveto(93, EXTRAS_2_BASELINE);
+        lcd_put_wchar(LCD_STR_FILAM_MUL[0]);
+      }
     #endif
   }
 
@@ -669,53 +696,37 @@ void MarlinUI::draw_status_screen() {
         lcd_put_u8str(mstring);
         lcd_put_wchar('%');
         lcd_put_wchar(' ');
+        return;
       }
-      else
     #endif
 
-    #if BOTH(POWER_MONITOR, SDSUPPORT)
+    #if HAS_POWER_MONITOR_TIMEOUT
+
       // Alternate Status message and power monitor display
-      if (ELAPSED(millis(), next_power_monitor_display) && (power_monitor.current_display_enabled || power_monitor.voltage_display_enabled)) {
-        #if HAS_POWER_MONITOR_CURRENT_SENSOR
-          if (power_monitor.current_display_enabled) {
-            // display the current reading
-            strcpy(power_monitor_string, ftostr42_52(power_monitor.getAmps()));
-            lcd_put_u8str(power_monitor_string);
-            lcd_put_wchar('A');
-            lcd_put_wchar(' ');
-          }
-        #endif
-        #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-          if (power_monitor.voltage_display_enabled) {
-            // display the voltage reading
-            strcpy(power_monitor_string, ftostr42_52(power_monitor.getVolts()));
-            lcd_put_u8str(power_monitor_string);
-            lcd_put_wchar('V');
-            lcd_put_wchar(' ');
-          }
-        #endif
-        #if HAS_POWER_MONITOR_CURRENT_SENSOR && HAS_POWER_MONITOR_VOLTAGE_SENSOR && ENABLED(POWER_MONITOR_POWER_ENABLED)
-          if (power_monitor.current_display_enabled && power_monitor.voltage_display_enabled) {
-            // display the calculated power reading
-            const float power = power_monitor.getAmps() * power_monitor.getVolts();
-            if (power < 1000) {
-              strcpy(power_monitor_string, i16tostr3left((int16_t)power));
-              lcd_put_u8str(power_monitor_string);
-              lcd_put_wchar('W');
-            }
-            else {
-              strcpy(power_monitor_string, ftostr12ns(power * 0.001f));
-              lcd_put_u8str(power_monitor_string);
-              lcd_put_u8str(PSTR("kW"));
-            }
-          }
-        #endif
-        next_power_monitor_display = millis() + 4000UL;  // display the power monitor once every 4 seconds
-      }
-      else
-    #endif
+      if (power_monitor.display_enabled() && ELAPSED(millis(), power_monitor.next_display_ms)) {
 
-        draw_status_message(blink);
+        #if ENABLED(POWER_MONITOR_CURRENT)
+          if (power_monitor.current_display_enabled())
+            draw_power_monitor_current();
+        #endif
+
+        #if ENABLED(POWER_MONITOR_VOLTAGE)
+          if (power_monitor.voltage_display_enabled())
+            draw_power_monitor_voltage();
+        #endif
+
+        #if ENABLED(POWER_MONITOR_POWER)
+          if (power_monitor.power_display_enabled())
+            draw_power_monitor_power();
+        #endif
+
+        power_monitor.next_display_ms = millis() + 4000UL;  // display the power monitor once every 4 seconds
+        return;
+      }
+
+    #endif // HAS_POWER_MONITOR_TIMEOUT
+
+    draw_status_message(blink);
   }
 }
 

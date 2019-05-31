@@ -22,86 +22,82 @@
 
 #pragma once
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(POWER_MONITOR)
+template <int VOLTS>
+typedef struct {
+  static constexpr int volts = VOLTS;
+  float value;
+  uint32_t raw_value;
+  uint16_t raw_value_filtered;
+  void reset() { value = 0; raw_value = 0; raw_value_filtered = 0; }
+  void add_sample(const uint16_t value) {
+    raw_value -= raw_value >> 7;            // Subtract 1/128th of the raw value
+    raw_value += uint32_t(value) << 7;      // Add new ADC reading, scaled by 128
+    raw_value_filtered = raw_value >> 10;   // Divide to get to 0-16383 range since we used 1/128 IIR filter approach
+  }
+  void capture() { value = raw_value_filtered * (POWER_MONITOR_ADC_VREF / (volts * 16383)); }
+} lpf_reading_t;
 
-  class PowerMonitor {
-  private:
-    #if HAS_POWER_MONITOR_CURRENT_SENSOR
-      // LPF buffer
-      uint32_t raw_current_value;
-      uint16_t raw_current_value_filtered;
+class PowerMonitor {
+private:
+  static uint8_t flags;  // M430, M431 set and clear flags to read/display system current
+
+  #if ENABLED(POWER_MONITOR_CURRENT)
+    static lpf_reading_t<POWER_MONITOR_VOLTS_PER_AMP> amps;
+  #endif
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+    static lpf_reading_t<POWER_MONITOR_VOLTS_PER_VOLT> volts;
+  #endif
+
+  #if HAS_POWER_MONITOR_TIMEOUT
+    static millis_t next_display_ms;
+  #endif
+
+public:
+  PowerMonitor() { reset(); }
+
+  FORCE_INLINE static bool display_enabled() { return flags != 0x00; }
+
+  #if ENABLED(POWER_MONITOR_CURRENT)
+    FORCE_INLINE static float getAmps() { return amps.value; }
+    FORCE_INLINE static bool current_display_enabled() { return TEST(flags, 0); }
+    FORCE_INLINE static void set_current_display_enabled(const bool b) { SET_BIT_TO(flags, 0, b); }
+    static void add_current_sample(const uint16_t value) { amps.add_sample(value); }
+  #endif
+
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+    FORCE_INLINE static float getVolts() { return volts.value; }
+    FORCE_INLINE static bool voltage_display_enabled() { return TEST(flags, 1); }
+    FORCE_INLINE static void set_voltage_display_enabled(const bool b) { SET_BIT_TO(flags, 1, b); }
+    static void add_voltage_sample(const uint16_t value) { volts.add_sample(value); }
+  #endif
+
+  #if BOTH(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
+    FORCE_INLINE static bool power_display_enabled() { return flags == 0x03; }
+  #endif
+
+  static void reset() {
+
+    flags = 0x00;
+
+    #if ENABLED(POWER_MONITOR_CURRENT)
+      amps.reset();
     #endif
-    #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-      // LPF buffer
-      uint32_t raw_voltage_value;
-      uint16_t raw_voltage_value_filtered;
+
+    #if ENABLED(POWER_MONITOR_VOLTAGE)
+      volts.reset();
     #endif
+  }
 
-    float amps;   // Measured system current (in amps)
-    float volts;  // Measured system voltage (in volts)
-
-  public:
-    bool current_display_enabled;  // M430 reads and enables/disables the real-time system current LCD display
-    bool voltage_display_enabled;  // M431 reads and enables/disables the real-time system voltage LCD display
-
-    PowerMonitor() {
-      reset();
-    }
-
-    void reset() {
-      #if HAS_POWER_MONITOR_CURRENT_SENSOR
-        raw_current_value = 0;
-        raw_current_value_filtered = 0;
-      #endif
-      #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-        raw_voltage_value = 0;
-        raw_voltage_value_filtered = 0;
-      #endif
-
-      current_display_enabled = false;
-      voltage_display_enabled = false;
-
-      amps = 0;
-      volts = 0;
-    }
-
-    #if HAS_POWER_MONITOR_CURRENT_SENSOR
-      void add_current_sample(uint16_t value) {
-        // add the new sample into the LPF
-         raw_current_value -= raw_current_value >> 7;            // Subtract 1/128th of the raw value
-         raw_current_value += uint32_t(value) << 7;              // Add new ADC reading, scaled by 128
-         raw_current_value_filtered = raw_current_value >> 10;   // Divide to get to 0-16383 range since we used 1/128 IIR filter approach
-      }
+  static void capture_values() {
+    #if ENABLED(POWER_MONITOR_CURRENT)
+      amps.capture();
     #endif
-    #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-      void add_voltage_sample(uint16_t value) {
-        // add the new sample into the LPF
-         raw_voltage_value -= raw_voltage_value >> 7;            // Subtract 1/128th of the raw value
-         raw_voltage_value += uint32_t(value) << 7;              // Add new ADC reading, scaled by 128
-         raw_voltage_value_filtered = raw_voltage_value >> 10;   // Divide to get to 0-16383 range since we used 1/128 IIR filter approach
-      }
+    #if ENABLED(POWER_MONITOR_VOLTAGE)
+      volts.capture();
     #endif
+  }
+};
 
-    void capture_values() {
-      #if HAS_POWER_MONITOR_CURRENT_SENSOR
-        amps = raw_current_value_filtered * (POWER_MONITOR_ADC_VREF / (POWER_MONITOR_VOLTS_PER_AMP * 16383));
-      #endif
-      #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-        volts = raw_voltage_value_filtered * (POWER_MONITOR_ADC_VREF / (POWER_MONITOR_VOLTS_PER_VOLT * 16383));
-      #endif
-    }
-
-    float getAmps() {
-      return amps;
-    }
-
-    float getVolts() {
-      return volts;
-    }
-  };
-
-  extern PowerMonitor power_monitor;
-
-#endif
+extern PowerMonitor power_monitor;

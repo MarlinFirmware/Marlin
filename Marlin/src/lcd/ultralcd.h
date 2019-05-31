@@ -348,10 +348,6 @@ public:
         static millis_t next_filament_display;
       #endif
 
-      #if BOTH(POWER_MONITOR, SDSUPPORT)
-        static millis_t next_power_monitor_display;
-      #endif
-
       static void quick_feedback(const bool clear_buttons=true);
       static void completion_feedback(const bool good=true);
 

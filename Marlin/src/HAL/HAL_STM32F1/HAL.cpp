@@ -131,10 +131,10 @@ uint8_t adc_pins[] = {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
   #endif
-  #if HAS_POWER_MONITOR_CURRENT_SENSOR
+  #if ENABLED(POWER_MONITOR_CURRENT)
     POWER_MONITOR_CURRENT_PIN,
   #endif
-  #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
     POWER_MONITOR_VOLTAGE_PIN,
   #endif
 };
@@ -167,13 +167,13 @@ enum TEMP_PINS : char {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
   #endif
-  #if HAS_POWER_MONITOR_CURRENT_SENSOR
-    POWER_MONITOR_CURRENT,
+  #if ENABLED(POWER_MONITOR_CURRENT)
+    POWERMON_CURRENT,
   #endif
-  #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-    POWER_MONITOR_VOLTAGE,
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+    POWERMON_VOLTS,
   #endif
-  ADC_PIN_COUNT
+    ADC_PIN_COUNT
 };
 
 uint16_t HAL_adc_results[ADC_PIN_COUNT];
@@ -318,6 +318,12 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #endif
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;
+    #endif
+    #if ENABLED(POWER_MONITOR_CURRENT)
+      case POWER_MONITOR_CURRENT_PIN: pin_index = POWERMON_CURRENT; break;
+    #endif
+    #if ENABLED(POWER_MONITOR_VOLTAGE)
+      case POWER_MONITOR_VOLTAGE_PIN: pin_index = POWERMON_VOLTS; break;
     #endif
   }
   HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.

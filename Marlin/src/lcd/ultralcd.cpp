@@ -114,10 +114,6 @@ uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
   millis_t MarlinUI::next_filament_display; // = 0
 #endif
 
-#if BOTH(POWER_MONITOR, SDSUPPORT)
-  millis_t MarlinUI::next_power_monitor_display;
-#endif
-
 millis_t next_button_update_ms;
 
 #if HAS_GRAPHICAL_LCD
@@ -486,11 +482,11 @@ void MarlinUI::status_screen() {
   #if HAS_LCD_MENU
 
     if (use_click()) {
+      #if HAS_POWER_MONITOR_TIMEOUT
+        power_monitor.next_display_ms = millis() + 4000UL;
+      #endif
       #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         next_filament_display = millis() + 5000UL;  // Show status message for 5s
-      #endif
-      #if BOTH(POWER_MONITOR, SDSUPPORT)
-        next_power_monitor_display = millis() + 4000UL;
       #endif
       goto_screen(menu_main);
       init_lcd(); // May revive the LCD if static electricity killed it
@@ -1236,12 +1232,12 @@ void MarlinUI::update() {
       #endif
     #endif
 
-    #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
-      next_filament_display = millis() + 5000UL; // Show status message for 5s
+    #if HAS_POWER_MONITOR_TIMEOUT
+      power_monitor.next_display_ms = millis() + 4000UL;
     #endif
 
-    #if BOTH(POWER_MONITOR, SDSUPPORT)
-      next_power_monitor_display = millis() + 4000UL;
+    #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+      next_filament_display = millis() + 5000UL; // Show status message for 5s
     #endif
 
     #if HAS_SPI_LCD && ENABLED(STATUS_MESSAGE_SCROLLING)

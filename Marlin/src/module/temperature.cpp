@@ -56,7 +56,7 @@
   #include "../feature/filwidth.h"
 #endif
 
-#if ENABLED(POWER_MONITOR)
+#if HAS_POWER_MONITOR
   #include "../feature/power_monitor.h"
 #endif
 
@@ -1491,7 +1491,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     filament_width_meas = analog_to_mm_fil_width();
   #endif
-  #if ENABLED(POWER_MONITOR)
+  #if HAS_POWER_MONITOR
     power_monitor.capture_values();
   #endif
 
@@ -1665,10 +1665,10 @@ void Temperature::init() {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     HAL_ANALOG_SELECT(FILWIDTH_PIN);
   #endif
-  #if HAS_POWER_MONITOR_CURRENT_SENSOR
+  #if ENABLED(POWER_MONITOR_CURRENT)
     HAL_ANALOG_SELECT(POWER_MONITOR_CURRENT_PIN);
   #endif
-  #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
     HAL_ANALOG_SELECT(POWER_MONITOR_VOLTAGE_PIN);
   #endif
 
@@ -2732,7 +2732,7 @@ void Temperature::isr() {
         break;
     #endif
 
-    #if HAS_POWER_MONITOR_CURRENT_SENSOR
+    #if ENABLED(POWER_MONITOR_CURRENT)
       case Prepare_POWER_MONITOR_CURRENT:
         HAL_START_ADC(POWER_MONITOR_CURRENT_PIN);
         break;
@@ -2743,7 +2743,8 @@ void Temperature::isr() {
           power_monitor.add_current_sample(HAL_READ_ADC());
         break;
     #endif
-    #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+
+    #if ENABLED(POWER_MONITOR_VOLTAGE)
       case Prepare_POWER_MONITOR_VOLTAGE:
         HAL_START_ADC(POWER_MONITOR_VOLTAGE_PIN);
         break;

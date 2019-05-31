@@ -22,58 +22,44 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_POWER_MONITOR_CURRENT_SENSOR || HAS_POWER_MONITOR_VOLTAGE_SENSOR
+#if HAS_POWER_MONITOR
 
-  #include "../../../feature/power_monitor.h"
-  #include "../../../Marlin.h"
-  #include "../../gcode.h"
+#include "../../../feature/power_monitor.h"
+#include "../../../Marlin.h"
+#include "../../gcode.h"
 
-  // M430: Display the current being drawn by the whole system (in amps), or enable/disable it
-  //
-  // M430     .. reads the current being drawn
-  // M430 D0  .. disables the current LCD display
-  // M430 D1  .. enables the current LCD display
+#if ENABLED(POWER_MONITOR_CURRENT)
 
-  // M431: Display the system voltage, or enable/disable it
-  //
-  // M431     .. reads the PSU voltage
-  // M431 D0  .. disables the voltage LCD display
-  // M431 D1  .. enables the voltage LCD display
-
-#if HAS_POWER_MONITOR_CURRENT_SENSOR
+  /**
+   * M430: Enable/disable current monitoring
+   *       With no parameters report the system current draw (in Amps)
+   *
+   *  D[bool] - Set Display of current on the LCD
+   */
   void GcodeSuite::M430() {
     if (parser.seen('D'))
-    {
-      switch (parser.value_byte())
-      {
-        case 0:
-          power_monitor.current_display_enabled = false;  // disable the LCD display
-          break;
-        case 1:
-          power_monitor.current_display_enabled = true;   // enable the LCD display
-          break;
-      }
-    }
-    SERIAL_ECHOLNPAIR("current (amps): ", power_monitor.getAmps());
+      power_monitor.set_current_display_enabled(parser.value_bool());
+    else
+      SERIAL_ECHOLNPAIR("Current: ", power_monitor.getAmps(), "A");
   }
+
 #endif
 
-#if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+#if ENABLED(POWER_MONITOR_VOLTAGE)
+
+  /**
+   * M431: Enable/disable voltage monitoring
+   *       With no parameters report the PSU voltage
+   *
+   *  D[bool] - Set Display of voltage on the LCD
+   */
   void GcodeSuite::M431() {
     if (parser.seen('D'))
-    {
-      switch (parser.value_byte())
-      {
-        case 0:
-          power_monitor.voltage_display_enabled = false;  // disable the LCD display
-          break;
-        case 1:
-          power_monitor.voltage_display_enabled = true;   // enable the LCD display
-          break;
-      }
-    }
-    SERIAL_ECHOLNPAIR("voltage (volts): ", power_monitor.getVolts());
+      power_monitor.set_voltage_display_enabled(parser.value_bool());
+    else
+      SERIAL_ECHOLNPAIR("Voltage: ", power_monitor.getVolts(), "V");
   }
-#endif
 
 #endif
+
+#endif // HAS_POWER_MONITOR

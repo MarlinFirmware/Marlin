@@ -41,7 +41,7 @@
     #define SPI_CHAN         0
   #else
     #define SPI_PIN         87
-    #define SPI_CHAN         1  
+    #define SPI_CHAN         1
   #endif
   #define SCK_PIN           76
   #define MISO_PIN          74

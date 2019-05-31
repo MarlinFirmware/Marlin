@@ -208,8 +208,8 @@
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
- * M430 - Read the system current (amps)
- * M431 - Read the system voltage (volts)
+ * M430 - Read the system amperage (Requires POWER_MONITOR_CURRENT)
+ * M431 - Read the system voltage (Requires POWER_MONITOR_VOLTAGE)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -757,10 +757,10 @@ private:
     static void M428();
   #endif
 
-  #if HAS_POWER_MONITOR_CURRENT_SENSOR
+  #if ENABLED(POWER_MONITOR_CURRENT)
     static void M430();
   #endif
-  #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
     static void M431();
   #endif
 

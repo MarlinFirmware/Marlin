@@ -2073,16 +2073,15 @@
 
 /**
  * Power Monitor
- * Monitor the PSU voltaqe and/or total system current being drawn
+ * Monitor the PSU voltaqe and/or total system current drawn
  *
- * The current sensor feeds a DC voltage (relative to the current being drawn) into one of the analog CPU inputs
- * The voltage sensor feeds a DC voltage (relative to the PSU voltage supply ) into one of the analog CPU inputs
+ * The current sensor feeds DC voltage (relative to the current drawn) to an analog pin
+ * The voltage sensor feeds DC voltage (relative to the PSU voltage) to an analog pin
  */
-//#define POWER_MONITOR
-#if ENABLED(POWER_MONITOR)
-  #define POWER_MONITOR_CURRENT_ENABLED           // Monitor the system current
-  //#define POWER_MONITOR_VOLTAGE_ENABLED         // Monitor the system voltage
-  //#define POWER_MONITOR_POWER_ENABLED           // display calculated W=I*V .. only used if BOTH sensor inputs enabled and set to I & V
+//#define POWER_MONITOR_CURRENT   // Monitor the system current
+//#define POWER_MONITOR_VOLTAGE   // Monitor the system voltage
+#if EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
+  //#define POWER_MONITOR_POWER                   // Display calculated W=I*V with both sensor inputs activated
 
   #define POWER_MONITOR_VOLTS_PER_AMP   0.05000   // Input voltage to the MCU analog pin per amp  - DO NOT exceed the ADC reference voltage!
   #define POWER_MONITOR_VOLTS_PER_VOLT  0.11786   // Input voltage to the MCU analog pin per volt - DO NOT exceed the ADC reference voltage!

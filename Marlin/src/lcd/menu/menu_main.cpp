@@ -66,7 +66,7 @@ void menu_change_filament();
 void menu_info();
 void menu_led();
 
-#if ENABLED(POWER_MONITOR)
+#if HAS_POWER_MONITOR
   void menu_power_monitor();
 #endif
 
@@ -161,7 +161,7 @@ void menu_main() {
 
   MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
 
-  #if ENABLED(POWER_MONITOR)
+  #if HAS_POWER_MONITOR
     MENU_ITEM(submenu, MSG_POWER_MONITOR, menu_power_monitor);
   #endif
 
