@@ -47,6 +47,10 @@
   #endif
 #endif
 
+#if ENABLED(TOUCH_CALIBRATION)
+  #include "touch/calibration.h"
+#endif
+
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
@@ -184,7 +188,7 @@ static void lcd_factory_settings() {
       );
       char mess[21];
       strcpy_P(mess, PSTR("BLTouch Mode - "));
-      sprintf_P(&mess[15], bltouch.last_written_mode ? PSTR("5V") : PSTR("OD"));
+      sprintf_P(&mess[15], "%s", bltouch.last_written_mode ? PSTR("5V") : PSTR("OD"));
       ui.set_status(mess);
       ui.return_to_status();
     }
@@ -379,6 +383,10 @@ void menu_configuration() {
     MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
     if (!busy)
       MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+  #endif
+
+  #if ENABLED(TOUCH_CALIBRATION)
+    MENU_ITEM(submenu, MSG_TOUCHSCREEN, menu_touchscreen);
   #endif
 
   if (!busy)
