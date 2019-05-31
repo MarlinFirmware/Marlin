@@ -56,6 +56,10 @@
   #include "../feature/filwidth.h"
 #endif
 
+#if ENABLED(POWER_MONITOR)
+  #include "../feature/power_monitor.h"
+#endif
+
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/emergency_parser.h"
 #endif
@@ -1487,6 +1491,9 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     filament_width_meas = analog_to_mm_fil_width();
   #endif
+  #if ENABLED(POWER_MONITOR)
+    power_monitor.capture_values();
+  #endif
 
   #if ENABLED(USE_WATCHDOG)
     // Reset the watchdog after we know we have a temperature measurement.
@@ -1657,6 +1664,12 @@ void Temperature::init() {
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     HAL_ANALOG_SELECT(FILWIDTH_PIN);
+  #endif
+  #if HAS_POWER_MONITOR_CURRENT_SENSOR
+    HAL_ANALOG_SELECT(POWER_MONITOR_CURRENT_PIN);
+  #endif
+  #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+    HAL_ANALOG_SELECT(POWER_MONITOR_VOLTAGE_PIN);
   #endif
 
   HAL_timer_start(TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
@@ -2708,7 +2721,7 @@ void Temperature::isr() {
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case Prepare_FILWIDTH:
         HAL_START_ADC(FILWIDTH_PIN);
-      break;
+        break;
       case Measure_FILWIDTH:
         if (!HAL_ADC_READY())
           next_sensor_state = adc_sensor_state; // redo this state
@@ -2716,7 +2729,30 @@ void Temperature::isr() {
           raw_filwidth_value -= raw_filwidth_value >> 7; // Subtract 1/128th of the raw_filwidth_value
           raw_filwidth_value += uint32_t(HAL_READ_ADC()) << 7; // Add new ADC reading, scaled by 128
         }
-      break;
+        break;
+    #endif
+
+    #if HAS_POWER_MONITOR_CURRENT_SENSOR
+      case Prepare_POWER_MONITOR_CURRENT:
+        HAL_START_ADC(POWER_MONITOR_CURRENT_PIN);
+        break;
+      case Measure_POWER_MONITOR_CURRENT:
+        if (!HAL_ADC_READY())
+          next_sensor_state = adc_sensor_state; // redo this state
+        else
+          power_monitor.add_current_sample(HAL_READ_ADC());
+        break;
+    #endif
+    #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+      case Prepare_POWER_MONITOR_VOLTAGE:
+        HAL_START_ADC(POWER_MONITOR_VOLTAGE_PIN);
+        break;
+      case Measure_POWER_MONITOR_VOLTAGE:
+        if (!HAL_ADC_READY())
+          next_sensor_state = adc_sensor_state; // redo this state
+        else
+          power_monitor.add_voltage_sample(HAL_READ_ADC());
+        break;
     #endif
 
     #if HAS_ADC_BUTTONS

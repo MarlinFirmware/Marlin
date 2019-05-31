@@ -31,6 +31,10 @@
 // Ignore temp readings during develpment.
 //#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
+// unused CPU pins the user can solder too
+#define LED_PIN            P0_26
+#define PS_ON_PIN          P1_00
+
 //
 // Servos
 //
@@ -156,6 +160,13 @@
 #define TEMP_BED_PIN       0   // A0 (T0) - (67) - TEMP_BED_PIN
 #define TEMP_0_PIN         1   // A1 (T1) - (68) - TEMP_0_PIN
 #define TEMP_1_PIN         2   // A2 (T2) - (69) - TEMP_1_PIN
+
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN     2   // Analog Input
+#endif
+
+#define POWER_MONITOR_CURRENT_PIN 2   // Analog Input
+#define POWER_MONITOR_VOLTAGE_PIN 2   // Analog Input
 
 //
 // Heaters / Fans

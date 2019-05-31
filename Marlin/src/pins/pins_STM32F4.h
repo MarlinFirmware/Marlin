@@ -107,6 +107,9 @@
 #define TEMP_1_PIN         PC1   // Analog Input
 #define TEMP_BED_PIN       PC2   // Analog Input
 
+#define POWER_MONITOR_CURRENT_PIN PC1   // Analog Input
+#define POWER_MONITOR_VOLTAGE_PIN PC1   // Analog Input
+
 //
 // Heaters / Fans
 //

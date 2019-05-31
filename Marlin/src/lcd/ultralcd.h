@@ -289,7 +289,7 @@ public:
     static void abort_print();
     static void pause_print();
     static void resume_print();
-    
+
     #if HAS_PRINT_PROGRESS
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
         static uint8_t progress_bar_percent;
@@ -346,6 +346,10 @@ public:
 
       #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         static millis_t next_filament_display;
+      #endif
+
+      #if BOTH(POWER_MONITOR, SDSUPPORT)
+        static millis_t next_power_monitor_display;
       #endif
 
       static void quick_feedback(const bool clear_buttons=true);

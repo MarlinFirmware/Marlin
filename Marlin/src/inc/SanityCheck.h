@@ -1264,6 +1264,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * System Power Sensor
+ */
+#if ENABLED(POWER_MONITOR)
+  #if !HAS_POWER_MONITOR_CURRENT_SENSOR && !HAS_POWER_MONITOR_VOLTAGE_SENSOR
+    #error "POWER_MONITOR requires a POWER_MONITOR_CURRENT_PIN and/or a POWER_MONITOR_VOLTAGE_PIN to be defined in your pins file."
+  #endif
+#endif
+
+/**
  * ULTIPANEL encoder
  */
 #if ENABLED(ULTIPANEL) && DISABLED(NEWPANEL, SR_LCD_2W_NL) && !defined(SHIFT_CLK)

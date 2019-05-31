@@ -759,6 +759,15 @@
 #ifndef MSG_TUNE
   #define MSG_TUNE                            _UxGT("Tune")
 #endif
+#ifndef MSG_POWER_MONITOR
+  #define MSG_POWER_MONITOR                   _UxGT("Power monitor")
+#endif
+#ifndef MSG_CURRENT
+  #define MSG_CURRENT                         _UxGT("Current")
+#endif
+#ifndef MSG_VOLTAGE
+  #define MSG_VOLTAGE                         _UxGT("Voltage")
+#endif
 #ifndef MSG_START_PRINT
   #define MSG_START_PRINT                     _UxGT("Start print")
 #endif

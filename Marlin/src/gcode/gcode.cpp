@@ -644,6 +644,13 @@ void GcodeSuite::process_parsed_command(
         case 428: M428(); break;                                  // M428: Apply current_position to home_offset
       #endif
 
+      #if HAS_POWER_MONITOR_CURRENT_SENSOR
+        case 430: M430(); break;                                  // M430: read the system current (amps)
+      #endif
+      #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+        case 431: M431(); break;                                  // M431: read the system voltage (volts)
+      #endif
+
       case 500: M500(); break;                                    // M500: Store settings in EEPROM
       case 501: M501(); break;                                    // M501: Read settings from EEPROM
       case 502: M502(); break;                                    // M502: Revert to default settings

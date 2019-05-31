@@ -118,6 +118,10 @@ extern float saved_extruder_advance_K[EXTRUDERS];
   #include "../feature/tmc_util.h"
 #endif
 
+#if ENABLED(POWER_MONITOR)
+  #include "../feature/power_monitor.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_stepper_current_t;
@@ -256,6 +260,15 @@ typedef struct SettingsDataStruct {
   //
   #if HAS_USER_THERMISTORS
     user_thermistor_t user_thermistor[USER_THERMISTORS]; // M305 P0 R4700 T100000 B3950
+  #endif
+  //
+  // Power monitor
+  //
+  #if HAS_POWER_MONITOR_CURRENT_SENSOR
+    bool power_monitor_current_display_enabled;         // M430, M430 D0, M430 D1
+  #endif
+  #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+    bool power_monitor_voltage_display_enabled;         // M431, M431 D0, M431 D1
   #endif
 
   //
@@ -838,6 +851,22 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Power monnitor
+    //
+    #if HAS_POWER_MONITOR_CURRENT_SENSOR
+    {
+      _FIELD_TEST(power_monitor_current_display_enabled);
+      EEPROM_WRITE(power_monitor.current_display_enabled);
+    }
+    #endif
+    #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+    {
+      _FIELD_TEST(power_monitor_voltage_display_enabled);
+      EEPROM_WRITE(power_monitor.voltage_display_enabled);
+    }
+    #endif
+
+	//  
     // LCD Contrast
     //
     {
@@ -1639,6 +1668,22 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(user_thermistor);
         EEPROM_READ(thermalManager.user_thermistor);
+      }
+      #endif
+
+      //
+      // Power monitor
+      //
+      #if HAS_POWER_MONITOR_CURRENT_SENSOR
+      {
+        _FIELD_TEST(power_monitor_current_display_enabled);
+        EEPROM_READ(power_monitor.current_display_enabled);
+      }
+      #endif
+      #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+      {
+        _FIELD_TEST(power_monitor_voltage_display_enabled);
+        EEPROM_READ(power_monitor.voltage_display_enabled);
       }
       #endif
 
@@ -2468,6 +2513,13 @@ void MarlinSettings::reset() {
 
   #if HAS_USER_THERMISTORS
     thermalManager.reset_user_thermistors();
+  #endif
+
+  //
+  // Power Monitor
+  //
+  #if ENABLED(POWER_MONITOR)
+    power_monitor.reset();
   #endif
 
   //

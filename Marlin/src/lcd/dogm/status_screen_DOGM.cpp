@@ -43,6 +43,10 @@
   #include "../../gcode/parser.h"
 #endif
 
+#if ENABLED(POWER_MONITOR)
+  #include "../../feature/power_monitor.h"
+#endif
+
 #if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
 #endif
@@ -296,6 +300,13 @@ void MarlinUI::draw_status_screen() {
     static char wstring[5], mstring[4];
   #endif
 
+  #if HAS_POWER_MONITOR_CURRENT_SENSOR
+    static char amp_string[8];
+  #endif
+  #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+    static char volt_string[8];
+  #endif
+
   // At the first page, generate new display values
   if (first_page) {
     #if ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER
@@ -314,6 +325,7 @@ void MarlinUI::draw_status_screen() {
     strcpy(xstring, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
     strcpy(ystring, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
     strcpy(zstring, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])));
+
     #if ENABLED(FILAMENT_LCD_DISPLAY)
       strcpy(wstring, ftostr12ns(filament_width_meas));
       strcpy(mstring, i16tostr3(100.0 * (
@@ -322,6 +334,13 @@ void MarlinUI::draw_status_screen() {
             : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
         )
       ));
+    #endif
+
+    #if HAS_POWER_MONITOR_CURRENT_SENSOR
+      strcpy(amp_string, ftostr42_52(power_monitor.getAmps()));
+    #endif
+    #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+      strcpy(volt_string, ftostr42_52(power_monitor.getVolts()));
     #endif
   }
 
@@ -611,6 +630,33 @@ void MarlinUI::draw_status_screen() {
       lcd_moveto(93, EXTRAS_2_BASELINE);
       lcd_put_wchar(LCD_STR_FILAM_MUL[0]);
     #endif
+
+    //
+    // system current/voltage sensor display if SD is disabled
+    //
+    #if ENABLED(POWER_MONITOR) && DISABLED(SDSUPPORT)
+      {
+        int pos = 56;
+        #if HAS_POWER_MONITOR_CURRENT_SENSOR
+          if (power_monitor.current_display_enabled) {
+            lcd_moveto(pos, EXTRAS_2_BASELINE);
+            lcd_put_u8str(amp_string);
+            lcd_put_wchar('A');
+            lcd_put_wchar(' ');
+            pos += 6 + 1 + 1; // reading + Unit + space
+          }
+        #endif
+        #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+          if (power_monitor.voltage_display_enabled) {
+            lcd_moveto(pos, EXTRAS_2_BASELINE);
+            lcd_put_u8str(volt_string);
+            lcd_put_wchar('V');
+            lcd_put_wchar(' ');
+            pos += 6 + 1 + 1; // reading + Unit + space
+          }
+        #endif
+      }
+    #endif
   }
 
   //
@@ -630,9 +676,32 @@ void MarlinUI::draw_status_screen() {
         lcd_put_wchar(':');
         lcd_put_u8str(mstring);
         lcd_put_wchar('%');
+        lcd_put_wchar(' ');
       }
       else
     #endif
+
+    #if BOTH(POWER_MONITOR, SDSUPPORT)
+      // Alternate Status message and power monitor display
+      if (ELAPSED(millis(), next_power_monitor_display) && (power_monitor.current_display_enabled || power_monitor.voltage_display_enabled)) {
+        #if HAS_POWER_MONITOR_CURRENT_SENSOR
+          if (power_monitor.current_display_enabled) {
+            lcd_put_u8str(amp_string);
+            lcd_put_wchar('A');
+            lcd_put_wchar(' ');
+          }
+        #endif
+        #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+          if (power_monitor.voltage_display_enabled) {
+            lcd_put_u8str(volt_string);
+            lcd_put_wchar('V');
+            lcd_put_wchar(' ');
+          }
+        #endif
+      }
+      else
+    #endif
+
         draw_status_message(blink);
   }
 }
