@@ -287,16 +287,14 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 #if ENABLED(POWER_MONITOR_CURRENT)
   inline void draw_power_monitor_current() {
     lcd_put_u8str(ftostr42_52(power_monitor.getAmps()));
-    lcd_put_wchar('A');
-    lcd_put_wchar(' ');
+    lcd_put_u8str_P(PSTR("A "));
   }
 #endif
 
 #if ENABLED(POWER_MONITOR_VOLTAGE)
   inline void draw_power_monitor_voltage() {
     lcd_put_u8str(ftostr42_52(power_monitor.getVolts()));
-    lcd_put_wchar('V');
-    lcd_put_wchar(' ');
+    lcd_put_u8str_P(PSTR("V "));
   }
 #endif
 
@@ -305,13 +303,12 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     const float power = power_monitor.getAmps() * power_monitor.getVolts();
     if (power < 1000) {
       lcd_put_u8str(i16tostr3left((int16_t)power));
-      lcd_put_wchar('W');
+      lcd_put_u8str_P(PSTR("W "));
     }
     else {
       lcd_put_u8str(ftostr12ns(power * 0.001f));
-      lcd_put_u8str_P(PSTR("kW"));
+      lcd_put_u8str_P(PSTR("kW "));
     }
-    lcd_put_wchar(' ');
   }
 #endif
 
@@ -636,7 +633,7 @@ void MarlinUI::draw_status_screen() {
     // System current/voltage sensor display if SD is disabled
     //
     #if HAS_POWER_MONITOR && DISABLED(SDSUPPORT)
-      const bool show_power = power_monitor.display_enabled();
+      const bool show_power = power_monitor.power_display_enabled();
       if (show_power) {
         lcd_moveto(56, EXTRAS_2_BASELINE);
         #if ENABLED(POWER_MONITOR_CURRENT)
@@ -704,7 +701,6 @@ void MarlinUI::draw_status_screen() {
 
       // Alternate Status message and power monitor display
       if (power_monitor.display_enabled() && ELAPSED(millis(), power_monitor.next_display_ms)) {
-
         #if ENABLED(POWER_MONITOR_CURRENT)
           if (power_monitor.current_display_enabled())
             draw_power_monitor_current();
