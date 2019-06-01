@@ -24,29 +24,32 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-template <float ADC_SCALE>
-typedef struct {
+template <const float *ADC_SCALE>
+struct lpf_reading_t {
+  static constexpr float adc_scale = *ADC_SCALE;
   float value;
   uint32_t raw_value;
   uint16_t raw_value_filtered;
   void reset() { value = 0; raw_value = 0; raw_value_filtered = 0; }
-  void add_sample(const uint16_t value) {
+  void add_sample(const uint16_t sample) {
     raw_value -= raw_value >> 7;            // Subtract 1/128th of the raw value
-    raw_value += uint32_t(value) << 7;      // Add new ADC reading, scaled by 128
+    raw_value += uint32_t(sample) << 7;     // Add new ADC reading, scaled by 128
     raw_value_filtered = raw_value >> 10;   // Divide to get to 0-16383 range since we used 1/128 IIR filter approach
   }
-  void capture() { value = raw_value_filtered * (float)(POWER_MONITOR_ADC_VREF / (ADC_SCALE * 16384)); }
-} lpf_reading_t;
+  void capture() { value = raw_value_filtered * adc_scale; }
+};
 
 class PowerMonitor {
 private:
   static uint8_t flags;  // M430, M431 set and clear flags to read/display system current
 
   #if ENABLED(POWER_MONITOR_CURRENT)
-    static lpf_reading_t<POWER_MONITOR_VOLTS_PER_AMP> amps;
+    static constexpr float amps_adc_scale = (float)(POWER_MONITOR_ADC_VREF / (POWER_MONITOR_VOLTS_PER_AMP * 16384));;
+    static lpf_reading_t<&amps_adc_scale> amps;
   #endif
   #if ENABLED(POWER_MONITOR_VOLTAGE)
-    static lpf_reading_t<POWER_MONITOR_VOLTS_PER_VOLT> volts;
+    static constexpr float volts_adc_scale = (float)(POWER_MONITOR_ADC_VREF / (POWER_MONITOR_VOLTS_PER_VOLT * 16384));;
+    static lpf_reading_t<&volts_adc_scale> volts;
   #endif
 
   #if HAS_POWER_MONITOR_TIMEOUT
@@ -56,7 +59,7 @@ private:
 public:
   PowerMonitor() { reset(); }
 
-  FORCE_INLINE static bool display_enabled() { return flags != 0x00; }
+  FORCE_INLINE static bool display_enabled() { return (flags & 0x03) != 0x00; }
 
   #if ENABLED(POWER_MONITOR_CURRENT)
     FORCE_INLINE static float getAmps() { return amps.value; }
@@ -73,7 +76,7 @@ public:
   #endif
 
   #if BOTH(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
-    FORCE_INLINE static bool power_display_enabled() { return flags == 0x03; }
+    FORCE_INLINE static bool power_display_enabled() { return (flags & 0x03) == 0x03; }
   #endif
 
   static void reset() {
@@ -99,4 +102,6 @@ public:
   }
 };
 
-extern PowerMonitor power_monitor;
+#if HAS_POWER_MONITOR
+  extern PowerMonitor power_monitor;
+#endif

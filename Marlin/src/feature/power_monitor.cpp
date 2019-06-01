@@ -26,20 +26,6 @@
 
 #include "power_monitor.h"
 
-bool PowerMonitor::flags; // = 0
-
-#if ENABLED(POWER_MONITOR_CURRENT)
-  static lpf_reading_t<POWER_MONITOR_VOLTS_PER_AMP> PowerMonitor::amps;
-#endif
-
-#if ENABLED(POWER_MONITOR_VOLTAGE)
-  static lpf_reading_t<POWER_MONITOR_VOLTS_PER_VOLT> PowerMonitor::volts;
-#endif
-
-#if HAS_POWER_MONITOR_TIMEOUT
-  millis_t PowerMonitor::next_display_ms;
-#endif
-
 PowerMonitor power_monitor; // Single instance - this calls the constructor
 
 #endif
