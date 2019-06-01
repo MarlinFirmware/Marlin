@@ -77,7 +77,11 @@ public:
   #endif
 
   #if BOTH(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
-    FORCE_INLINE static bool power_display_enabled() { return (flags & 0x03) == 0x03; }
+    #if DISABLED(POWER_MONITOR_POWER)
+      FORCE_INLINE static bool power_display_enabled() { return false; }
+    #else
+      FORCE_INLINE static bool power_display_enabled() { return (flags & 0x03) == 0x03; }
+    #endif
   #endif
 
   static void reset() {
