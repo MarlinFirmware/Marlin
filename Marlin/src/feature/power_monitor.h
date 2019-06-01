@@ -65,6 +65,7 @@ public:
     FORCE_INLINE static float getAmps() { return amps.value; }
     FORCE_INLINE static bool current_display_enabled() { return TEST(flags, 0); }
     FORCE_INLINE static void set_current_display_enabled(const bool b) { SET_BIT_TO(flags, 0, b); }
+    FORCE_INLINE static void toggle_current_display_enabled() { flags ^= 0x01; }
     static void add_current_sample(const uint16_t value) { amps.add_sample(value); }
   #endif
 
@@ -72,6 +73,7 @@ public:
     FORCE_INLINE static float getVolts() { return volts.value; }
     FORCE_INLINE static bool voltage_display_enabled() { return TEST(flags, 1); }
     FORCE_INLINE static void set_voltage_display_enabled(const bool b) { SET_BIT_TO(flags, 1, b); }
+    FORCE_INLINE static void toggle_voltage_display_enabled() { flags ^= 0x02; }
     static void add_voltage_sample(const uint16_t value) { volts.add_sample(value); }
   #endif
 

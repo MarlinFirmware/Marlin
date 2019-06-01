@@ -26,10 +26,9 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && HAS_POWER_MONITOR
+#if HAS_LCD_MENU && EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
 
 #include "menu.h"
-
 #include "../../feature/power_monitor.h"
 
 void menu_power_monitor() {
@@ -39,18 +38,18 @@ void menu_power_monitor() {
   #if ENABLED(POWER_MONITOR_CURRENT)
   {
     bool ena = power_monitor.current_display_enabled();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_CURRENT, &ena, []{ power_monitor.set_current_display_enabled(ena); });
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_CURRENT, &ena, power_monitor.toggle_current_display_enabled);
   }
   #endif
 
   #if ENABLED(POWER_MONITOR_VOLTAGE)
   {
     bool ena = power_monitor.voltage_display_enabled();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLTAGE, &ena, []{ power_monitor.set_voltage_display_enabled(ena); });
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLTAGE, &ena, power_monitor.toggle_voltage_display_enabled);
   }
   #endif
 
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && HAS_POWER_MONITOR
+#endif // HAS_LCD_MENU && EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
