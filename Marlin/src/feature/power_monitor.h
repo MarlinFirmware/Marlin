@@ -24,9 +24,8 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-template <int VOLTS>
+template <float VOLTS_SCALE>
 typedef struct {
-  static constexpr int volts = VOLTS;
   float value;
   uint32_t raw_value;
   uint16_t raw_value_filtered;
@@ -36,7 +35,7 @@ typedef struct {
     raw_value += uint32_t(value) << 7;      // Add new ADC reading, scaled by 128
     raw_value_filtered = raw_value >> 10;   // Divide to get to 0-16383 range since we used 1/128 IIR filter approach
   }
-  void capture() { value = raw_value_filtered * (POWER_MONITOR_ADC_VREF / (volts * 16383)); }
+  void capture() { value = raw_value_filtered * (float)(POWER_MONITOR_ADC_VREF / (VOLTS_SCALE * 16383)); }
 } lpf_reading_t;
 
 class PowerMonitor {
