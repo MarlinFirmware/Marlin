@@ -93,6 +93,10 @@
   #include "../feature/tmc_util.h"
 #endif
 
+#if HAS_POWER_MONITOR
+  #include "../feature/power_monitor.h"
+#endif
+
 #if HAS_ENCODER_ACTION
   volatile uint8_t MarlinUI::buttons;
   #if HAS_SLOW_BUTTONS
