@@ -52,11 +52,11 @@ private:
     static lpf_reading_t<&volts_adc_scale> volts;
   #endif
 
+public:
   #if HAS_POWER_MONITOR_TIMEOUT
     static millis_t next_display_ms;
   #endif
 
-public:
   PowerMonitor() { reset(); }
 
   FORCE_INLINE static bool display_enabled() { return (flags & 0x03) != 0x00; }
