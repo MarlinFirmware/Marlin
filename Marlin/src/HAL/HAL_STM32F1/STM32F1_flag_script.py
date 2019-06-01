@@ -9,7 +9,7 @@ if __name__ == "__main__":
                     "-mcpu=cortex-m3",
                     "-mthumb",
 
-                    "-ffreestanding",
+                    #"-ffreestanding",
                     "-fsigned-char",
                     "-fno-move-loop-invariants",
                     "-fno-strict-aliasing",

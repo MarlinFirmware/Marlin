@@ -409,19 +409,21 @@
 //
 
 #elif MB(STM32F1R)
-  #include "pins_STM32F1R.h"          // STM32F1                                    env:STM32F1
+  #include "pins_STM32F1R.h"              // STM32F1                                    env:STM32F1
 #elif MB(STM3R_MINI)
-  #include "pins_STM3R_MINI.h"        // STM32F1                                    env:STM32F1
+  #include "pins_STM3R_MINI.h"            // STM32F1                                    env:STM32F1
 #elif MB(MALYAN_M200)
-  #include "pins_MALYAN_M200.h"       // STM32F1                                    env:malyanm200
+  #include "pins_MALYAN_M200.h"           // STM32F1                                    env:malyanm200
 #elif MB(CHITU3D)
-  #include "pins_CHITU3D.h"           // STM32F1                                    env:STM32F1
+  #include "pins_CHITU3D.h"               // STM32F1                                    env:STM32F1
 #elif MB(GTM32_PRO_VB)
-  #include "pins_GTM32_PRO_VB.h"      // STM32F1                                    env:STM32F1
+  #include "pins_GTM32_PRO_VB.h"          // STM32F1                                    env:STM32F1
 #elif MB(MORPHEUS)
-  #include "pins_MORPHEUS.h"          // STM32F1                                    env:STM32F1
+  #include "pins_MORPHEUS.h"              // STM32F1                                    env:STM32F1
 #elif MB(MKS_ROBIN)
-  #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:mks_robin
+  #include "pins_MKS_ROBIN.h"             // STM32F1                                    env:mks_robin
+#elif MB(BIGTREE_SKR_MINI_V1_1)
+  #include "pins_BIGTREE_SKR_MINI_V1.1.h" // STM32F1                                    env:BIGTREE_SKR_MINI
 
 //
 // STM32 ARM Cortex-M4F
