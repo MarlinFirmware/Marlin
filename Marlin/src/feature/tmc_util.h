@@ -185,11 +185,11 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper,
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2209Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
-    TMCMarlin(Stream * SerialPort, float RS, bool has_rx=true) :
-      TMC2209Stepper(SerialPort, RS, has_rx=true)
+    TMCMarlin(Stream * SerialPort, float RS, uint8_t slave=0x00, bool has_rx=true) :
+      TMC2209Stepper(SerialPort, RS, slave, has_rx=true)
       {}
-    TMCMarlin(uint16_t RX, uint16_t TX, float RS, bool has_rx=true) :
-      TMC2209Stepper(RX, TX, RS, has_rx=true)
+    TMCMarlin(uint16_t RX, uint16_t TX, float RS, uint8_t slave=0x00, bool has_rx=true) :
+      TMC2209Stepper(RX, TX, RS, slave, has_rx=true)
       {}
     uint16_t rms_current() { return TMC2209Stepper::rms_current(); }
     inline void rms_current(uint16_t mA) {

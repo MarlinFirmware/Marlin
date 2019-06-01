@@ -1756,6 +1756,14 @@
     #define Z_STALL_SENSITIVITY  64
   #endif
 
+ //TMC2209 salve address can be set in 0x00~0x03 by MS1 and MS2
+  #if HAS_DRIVER(TMC2209)
+    #define X_SLAVE_ADDRESS  0x00
+    #define Y_SLAVE_ADDRESS  0x01
+    #define Z_SLAVE_ADDRESS  0x02
+    #define E0_SLAVE_ADDRESS 0x03
+  #endif
+  
   /**
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
