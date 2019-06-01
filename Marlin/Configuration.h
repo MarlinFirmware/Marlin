@@ -941,13 +941,13 @@
  */
 #define X_PROBE_OFFSET_FROM_EXTRUDER 55  // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 0  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.0   // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -2.68   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 5
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED (50*60)
+#define XY_PROBE_SPEED (80*60)
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
@@ -1069,7 +1069,7 @@
 #define Y_BED_SIZE 210
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS (0-40-X_PROBE_OFFSET_FROM_EXTRUDER)
+#define X_MIN_POS (0-30-X_PROBE_OFFSET_FROM_EXTRUDER)
 #define Y_MIN_POS (0-30-Y_PROBE_OFFSET_FROM_EXTRUDER)
 #define Z_MIN_POS 0
 #define X_MAX_POS (X_BED_SIZE+10)
