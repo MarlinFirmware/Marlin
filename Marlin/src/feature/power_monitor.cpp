@@ -26,6 +26,21 @@
 
 #include "power_monitor.h"
 
+uint8_t PowerMonitor::flags; // = 0
+
+#if ENABLED(POWER_MONITOR_CURRENT)
+  constexpr float PowerMonitor::amps_adc_scale;
+  lpf_reading_t<&PowerMonitor::amps_adc_scale> PowerMonitor::amps;
+#endif
+#if ENABLED(POWER_MONITOR_VOLTAGE)
+  constexpr float PowerMonitor::volts_adc_scale;
+  lpf_reading_t<&PowerMonitor::volts_adc_scale> PowerMonitor::volts;
+#endif
+
+#if HAS_POWER_MONITOR_TIMEOUT
+  millis_t PowerMonitor::next_display_ms;
+#endif
+
 PowerMonitor power_monitor; // Single instance - this calls the constructor
 
 #endif
