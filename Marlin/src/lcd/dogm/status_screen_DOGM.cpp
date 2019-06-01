@@ -633,8 +633,7 @@ void MarlinUI::draw_status_screen() {
     // System current/voltage sensor display if SD is disabled
     //
     #if HAS_POWER_MONITOR && DISABLED(SDSUPPORT)
-      const bool show_power = power_monitor.power_display_enabled();
-      if (show_power) {
+      if (power_monitor.display_enabled()) {
         lcd_moveto(56, EXTRAS_2_BASELINE);
         #if ENABLED(POWER_MONITOR_CURRENT)
           if (power_monitor.current_display_enabled())
