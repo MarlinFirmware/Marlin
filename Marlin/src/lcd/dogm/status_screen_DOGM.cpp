@@ -736,26 +736,36 @@ void MarlinUI::draw_status_screen() {
     #if HAS_POWER_MONITOR_TIMEOUT && ENABLED(SDSUPPORT)
       // Alternate Status message and power monitor display
       if (power_monitor.display_enabled() && ELAPSED(millis(), power_monitor.next_display_ms)) {
+        bool status_line_updated = false;
+
         #if ENABLED(POWER_MONITOR_CURRENT)
           // display current
-          if (power_monitor.current_display_enabled())
+          if (power_monitor.current_display_enabled() && (power_monitor.voltage_display_enabled() || power_monitor.power_display_enabled())) {
             draw_power_monitor_current();
+            status_line_updated = true;
+          }
         #endif
 
         #if ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0))
           // display voltage
-          if (power_monitor.voltage_display_enabled())
+          if (power_monitor.voltage_display_enabled() && (power_monitor.current_display_enabled() || power_monitor.power_display_enabled())) {
             draw_power_monitor_voltage();
+            status_line_updated = true;
+          }
         #endif
 
         #if ENABLED(POWER_MONITOR_CURRENT)
           // display power
-          if (power_monitor.current_display_enabled() && power_monitor.power_display_enabled())
+          if (power_monitor.power_display_enabled() && (power_monitor.current_display_enabled() || power_monitor.voltage_display_enabled())) {
             draw_power_monitor_power();
+            status_line_updated = true;
+          }
         #endif
 
-        power_monitor.next_display_ms = millis() + 4000UL;  // display the power monitor once every 4 seconds
-        return;
+        if (status_line_updated) {
+          power_monitor.next_display_ms = millis() + 4000UL;  // display the power monitor once every 4 seconds
+          return;
+        }
       }
 
     #endif // HAS_POWER_MONITOR_TIMEOUT
