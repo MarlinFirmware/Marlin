@@ -29,11 +29,9 @@
 uint8_t PowerMonitor::flags; // = 0
 
 #if ENABLED(POWER_MONITOR_CURRENT)
-  constexpr float PowerMonitor::amps_adc_scale;
   lpf_reading_t<&PowerMonitor::amps_adc_scale> PowerMonitor::amps;
 #endif
 #if ENABLED(POWER_MONITOR_VOLTAGE)
-  constexpr float PowerMonitor::volts_adc_scale;
   lpf_reading_t<&PowerMonitor::volts_adc_scale> PowerMonitor::volts;
 #endif
 
