@@ -73,7 +73,7 @@ public:
     void add_current_sample(const uint16_t value) { amps.add_sample(value); }
   #endif
 
-  #if ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0))
+  #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
     #if ENABLED(POWER_MONITOR_VOLTAGE)
       FORCE_INLINE static float getVolts() { return volts.value; }
     #else
@@ -89,7 +89,7 @@ public:
     FORCE_INLINE static float getVolts() { return 0; }
   #endif
 
-  #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0)))
+  #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
     FORCE_INLINE static float getPower() { return getAmps() * getVolts(); }
     FORCE_INLINE static bool power_display_enabled() { return TEST(flags, PM_P_DISP_BIT); }
     FORCE_INLINE static void set_power_display_enabled(const bool b) { SET_BIT_TO(flags, PM_P_DISP_BIT, b); }

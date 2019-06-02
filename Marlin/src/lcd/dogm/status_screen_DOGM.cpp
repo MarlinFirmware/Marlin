@@ -295,7 +295,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 #endif
 
-#if ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0))
+#if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
   inline void draw_power_monitor_voltage() {
     const float volts = power_monitor.getVolts();
     if (volts < 100)
@@ -652,7 +652,7 @@ void MarlinUI::draw_status_screen() {
             draw_power_monitor_current();
           }
         #endif
-        #if ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0))
+        #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
           if (power_monitor.voltage_display_enabled())
           {
             items_displayed++;
@@ -746,7 +746,7 @@ void MarlinUI::draw_status_screen() {
           }
         #endif
 
-        #if ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0))
+        #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
           // display voltage
           if (power_monitor.voltage_display_enabled() && (power_monitor.current_display_enabled() || power_monitor.power_display_enabled())) {
             draw_power_monitor_voltage();
