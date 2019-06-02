@@ -286,14 +286,22 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 #if ENABLED(POWER_MONITOR_CURRENT)
   inline void draw_power_monitor_current() {
-    lcd_put_u8str(ftostr42_52(power_monitor.getAmps()));
+    const float amps = power_monitor.getAmps();
+    if (amps < 100)
+      lcd_put_u8str(ftostr42_52(amps));
+    else
+      lcd_put_u8str(ftostr31ns(amps));
     lcd_put_u8str_P(PSTR("A "));
   }
 #endif
 
-#if ENABLED(POWER_MONITOR_VOLTAGE)
+#if ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0))
   inline void draw_power_monitor_voltage() {
-    lcd_put_u8str(ftostr42_52(power_monitor.getVolts()));
+    const float volts = power_monitor.getVolts();
+    if (volts < 100)
+      lcd_put_u8str(ftostr42_52(volts));
+    else
+      lcd_put_u8str(ftostr31ns(volts));
     lcd_put_u8str_P(PSTR("V "));
   }
 #endif
@@ -635,24 +643,44 @@ void MarlinUI::draw_status_screen() {
     #if HAS_POWER_MONITOR && DISABLED(SDSUPPORT)
       const bool show_power_monitor = power_monitor.display_enabled();
       if (show_power_monitor) {
+        int items_displayed = 0;
         lcd_moveto(48, EXTRAS_2_BASELINE);
         #if ENABLED(POWER_MONITOR_CURRENT)
           if (power_monitor.current_display_enabled())
+          {
+            items_displayed++;
             draw_power_monitor_current();
+          }
         #endif
-        #if ENABLED(POWER_MONITOR_VOLTAGE)
+        #if ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0))
           if (power_monitor.voltage_display_enabled())
+          {
+            items_displayed++;
             draw_power_monitor_voltage();
-        #elif ENABLED(POWER_MONITOR_CURRENT)
-          if (power_monitor.power_display_enabled())
+          }
+          if (power_monitor.power_display_enabled() && items_displayed < 2)
+          {
+//            items_displayed++;
             draw_power_monitor_power();
+          }
         #endif
       }
     #elif HAS_POWER_MONITOR && ENABLED(SDSUPPORT)
       #if ENABLED(POWER_MONITOR_CURRENT)
-        // display power
+        if (power_monitor.current_display_enabled() && !power_monitor.voltage_display_enabled() && !power_monitor.power_display_enabled())
+        { // display current
+          lcd_moveto(PROGRESS_BAR_X, EXTRAS_BASELINE);
+          draw_power_monitor_current();
+        }
+        else
+        if (!power_monitor.current_display_enabled() && power_monitor.voltage_display_enabled() && !power_monitor.power_display_enabled())
+        { // display voltage
+          lcd_moveto(PROGRESS_BAR_X, EXTRAS_BASELINE);
+          draw_power_monitor_voltage();
+        }
+        else
         if (!power_monitor.current_display_enabled() && !power_monitor.voltage_display_enabled() && power_monitor.power_display_enabled())
-        {
+        { // display power
           lcd_moveto(PROGRESS_BAR_X, EXTRAS_BASELINE);
           draw_power_monitor_power();
         }
@@ -714,8 +742,8 @@ void MarlinUI::draw_status_screen() {
             draw_power_monitor_current();
         #endif
 
-        #if ENABLED(POWER_MONITOR_VOLTAGE)
-          // display current
+        #if ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0))
+          // display voltage
           if (power_monitor.voltage_display_enabled())
             draw_power_monitor_voltage();
         #endif

@@ -63,7 +63,7 @@ public:
 
   PowerMonitor() { reset(); }
 
-  FORCE_INLINE static bool display_enabled() { return TEST(flags, PM_I_DISP_BIT) | TEST(flags, PM_V_DISP_BIT); }
+  FORCE_INLINE static bool display_enabled() { return TEST(flags, PM_I_DISP_BIT) | TEST(flags, PM_V_DISP_BIT) | TEST(flags, PM_P_DISP_BIT); }
 
   #if ENABLED(POWER_MONITOR_CURRENT)
     FORCE_INLINE static float getAmps() { return amps.value; }
