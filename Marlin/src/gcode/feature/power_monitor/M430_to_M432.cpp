@@ -45,7 +45,7 @@
 
 #endif
 
-#if ENABLED(POWER_MONITOR_VOLTAGE)
+#if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
 
   /**
    * M431: Enable/disable voltage LCD display
