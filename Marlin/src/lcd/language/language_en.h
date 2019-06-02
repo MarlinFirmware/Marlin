@@ -768,6 +768,9 @@
 #ifndef MSG_VOLTAGE
   #define MSG_VOLTAGE                         _UxGT("Voltage")
 #endif
+#ifndef MSG_POWER
+  #define MSG_POWER                           _UxGT("Power")
+#endif
 #ifndef MSG_START_PRINT
   #define MSG_START_PRINT                     _UxGT("Start print")
 #endif

@@ -298,9 +298,9 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 #endif
 
-#if ENABLED(POWER_MONITOR_POWER)
+#if ENABLED(POWER_MONITOR_CURRENT)
   inline void draw_power_monitor_power() {
-    const float power = power_monitor.getAmps() * power_monitor.getVolts();
+    const float power = power_monitor.getPower();
     if (power < 1000) {
       lcd_put_u8str(i16tostr3left((int16_t)power));
       lcd_put_u8str_P(PSTR("W "));
@@ -637,20 +637,26 @@ void MarlinUI::draw_status_screen() {
       if (show_power_monitor) {
         lcd_moveto(48, EXTRAS_2_BASELINE);
         #if ENABLED(POWER_MONITOR_CURRENT)
-          // display current
           if (power_monitor.current_display_enabled())
             draw_power_monitor_current();
         #endif
         #if ENABLED(POWER_MONITOR_VOLTAGE)
-          // display voltage
           if (power_monitor.voltage_display_enabled())
             draw_power_monitor_voltage();
-        #elif ENABLED(POWER_MONITOR_POWER)
-          // display power
+        #elif ENABLED(POWER_MONITOR_CURRENT)
           if (power_monitor.power_display_enabled())
             draw_power_monitor_power();
         #endif
       }
+    #elif HAS_POWER_MONITOR && ENABLED(SDSUPPORT)
+      #if ENABLED(POWER_MONITOR_CURRENT)
+        // display power
+        if (!power_monitor.current_display_enabled() && !power_monitor.voltage_display_enabled() && power_monitor.power_display_enabled())
+        {
+          lcd_moveto(PROGRESS_BAR_X, EXTRAS_BASELINE);
+          draw_power_monitor_power();
+        }
+      #endif
     #endif
 
     //
@@ -707,14 +713,16 @@ void MarlinUI::draw_status_screen() {
           if (power_monitor.current_display_enabled())
             draw_power_monitor_current();
         #endif
+
         #if ENABLED(POWER_MONITOR_VOLTAGE)
-          // display voltage
+          // display current
           if (power_monitor.voltage_display_enabled())
             draw_power_monitor_voltage();
         #endif
-        #if ENABLED(POWER_MONITOR_POWER)
+
+        #if ENABLED(POWER_MONITOR_CURRENT)
           // display power
-          if (power_monitor.power_display_enabled())
+          if (power_monitor.current_display_enabled() && power_monitor.power_display_enabled())
             draw_power_monitor_power();
         #endif
 

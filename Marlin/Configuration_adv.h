@@ -2086,8 +2086,6 @@
 
   #define POWER_MONITOR_FIXED_VOLTAGE   240       // Used as the voltage measurement if you use a current sensor and not voltage sessnor and want power display
 
-  #define POWER_MONITOR_POWER                     // Display calculated W=I*V with both sensor inputs activated
-
   // ADC reference voltage appropriate to the board. Suggested values:
   //   3.0 : Possible ADC reference voltage on 32-bit MCUs
   //   3.3 : Typical ADC reference voltage on 32-bit MCUs

@@ -49,7 +49,14 @@ void menu_power_monitor() {
   }
   #endif
 
+  #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0)))
+  {
+    bool ena = power_monitor.power_display_enabled();
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_POWER, &ena, power_monitor.toggle_power_display_enabled);
+  }
+  #endif
+
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
+#endif // HAS_LCD_MENU && HAS_POWER_MONITOR

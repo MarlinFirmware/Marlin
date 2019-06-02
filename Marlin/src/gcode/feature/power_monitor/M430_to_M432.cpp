@@ -31,7 +31,7 @@
 #if ENABLED(POWER_MONITOR_CURRENT)
 
   /**
-   * M430: Enable/disable current monitoring
+   * M430: Enable/disable current LCD display
    *       With no parameters report the system current draw (in Amps)
    *
    *  D[bool] - Set Display of current on the LCD
@@ -48,7 +48,7 @@
 #if ENABLED(POWER_MONITOR_VOLTAGE)
 
   /**
-   * M431: Enable/disable voltage monitoring
+   * M431: Enable/disable voltage LCD display
    *       With no parameters report the PSU voltage
    *
    *  D[bool] - Set Display of voltage on the LCD
@@ -58,6 +58,23 @@
       power_monitor.set_voltage_display_enabled(parser.value_bool());
     else
       SERIAL_ECHOLNPAIR("Voltage: ", power_monitor.getVolts(), "V");
+  }
+
+#endif
+
+#if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || (defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0)))
+
+  /**
+   * M432: Enable/disable power LCD display
+   *       With no parameters report the power
+   *
+   *  D[bool] - Set Display of power on the LCD
+   */
+  void GcodeSuite::M432() {
+    if (parser.seen('D'))
+      power_monitor.set_power_display_enabled(parser.value_bool());
+    else
+      SERIAL_ECHOLNPAIR("power: ", power_monitor.getPower(), "W");
   }
 
 #endif
