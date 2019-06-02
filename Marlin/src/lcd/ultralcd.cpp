@@ -484,11 +484,7 @@ void MarlinUI::status_screen() {
   #endif // LCD_PROGRESS_BAR
 
   #if HAS_LCD_MENU
-
     if (use_click()) {
-      #if HAS_POWER_MONITOR_TIMEOUT
-        power_monitor.next_display_ms = millis() + 4000UL;
-      #endif
       #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         next_filament_display = millis() + 5000UL;  // Show status message for 5s
       #endif
@@ -496,7 +492,6 @@ void MarlinUI::status_screen() {
       init_lcd(); // May revive the LCD if static electricity killed it
       return;
     }
-
   #endif // HAS_LCD_MENU
 
   #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
@@ -1234,10 +1229,6 @@ void MarlinUI::update() {
       #if PROGRESS_MSG_EXPIRE > 0
         expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
       #endif
-    #endif
-
-    #if HAS_POWER_MONITOR_TIMEOUT
-      power_monitor.next_display_ms = millis() + 4000UL;
     #endif
 
     #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)

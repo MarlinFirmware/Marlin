@@ -57,9 +57,8 @@ private:
   #endif
 
 public:
-  #if HAS_POWER_MONITOR_TIMEOUT
-    static millis_t next_display_ms;
-  #endif
+  static millis_t display_item_ms;
+  static uint8_t display_item;
 
   PowerMonitor() { reset(); }
 
@@ -71,6 +70,9 @@ public:
     FORCE_INLINE static void set_current_display_enabled(const bool b) { SET_BIT_TO(flags, PM_I_DISP_BIT, b); }
     FORCE_INLINE static void toggle_current_display_enabled() { TOGGLE_BIT(flags, PM_I_DISP_BIT); }
     void add_current_sample(const uint16_t value) { amps.add_sample(value); }
+  #else
+    FORCE_INLINE static float getAmps() { return 0; }
+    FORCE_INLINE static bool current_display_enabled() { return false; }
   #endif
 
   #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
@@ -87,6 +89,7 @@ public:
     #endif
   #else
     FORCE_INLINE static float getVolts() { return 0; }
+    FORCE_INLINE static bool voltage_display_enabled() { return false; }
   #endif
 
   #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
@@ -95,6 +98,7 @@ public:
     FORCE_INLINE static void set_power_display_enabled(const bool b) { SET_BIT_TO(flags, PM_P_DISP_BIT, b); }
     FORCE_INLINE static void toggle_power_display_enabled() { TOGGLE_BIT(flags, PM_P_DISP_BIT); }
   #else
+    FORCE_INLINE static float getPower() { return 0; }
     FORCE_INLINE static bool power_display_enabled() { return false; }
   #endif
 
@@ -108,6 +112,9 @@ public:
     #if ENABLED(POWER_MONITOR_VOLTAGE)
       volts.reset();
     #endif
+
+    display_item_ms = millis();
+    display_item = 0;
   }
 
   static void capture_values() {

@@ -637,53 +637,84 @@ void MarlinUI::draw_status_screen() {
     lcd_put_u8str(i16tostr3(feedrate_percentage));
     lcd_put_wchar('%');
 
-    //
-    // System current/voltage sensor display if SD is disabled
-    //
-    #if HAS_POWER_MONITOR && DISABLED(SDSUPPORT)
-      const bool show_power_monitor = power_monitor.display_enabled();
-      if (show_power_monitor) {
-        int items_displayed = 0;
-        lcd_moveto(48, EXTRAS_2_BASELINE);
-        #if ENABLED(POWER_MONITOR_CURRENT)
-          if (power_monitor.current_display_enabled())
-          {
-            items_displayed++;
-            draw_power_monitor_current();
-          }
-        #endif
+    #if HAS_POWER_MONITOR
+      //
+      // display power monitors current, voltage and/or power
+      //
+      #if DISABLED(SDSUPPORT)
+        const bool show_power_monitor = power_monitor.display_enabled();
+        if (show_power_monitor) {
+          int items_displayed = 0;
+          lcd_moveto(48, EXTRAS_2_BASELINE);
+          #if ENABLED(POWER_MONITOR_CURRENT)
+            if (power_monitor.current_display_enabled())
+            {
+              items_displayed++;
+              draw_power_monitor_current();
+            }
+          #endif
+          #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
+            if (power_monitor.voltage_display_enabled())
+            {
+              items_displayed++;
+              draw_power_monitor_voltage();
+            }
+            if (power_monitor.power_display_enabled() && items_displayed < 2)
+            {
+//              items_displayed++;
+              draw_power_monitor_power();
+            }
+          #endif
+        }
+      #else
+        lcd_moveto(PROGRESS_BAR_X, EXTRAS_BASELINE);
+
         #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
-          if (power_monitor.voltage_display_enabled())
-          {
-            items_displayed++;
-            draw_power_monitor_voltage();
+          uint8_t max_item = 0;
+          if (power_monitor.current_display_enabled()) max_item = 1;
+          if (power_monitor.voltage_display_enabled()) max_item = 2;
+          if (power_monitor.power_display_enabled()) max_item = 3;
+
+          if (power_monitor.display_item >= max_item)
+            power_monitor.display_item = 0;
+
+          // toggle between current, voltage and power
+          if (ELAPSED(millis(), power_monitor.display_item_ms)) {
+            power_monitor.display_item_ms = millis() + 1000UL;
+            if (++power_monitor.display_item >= max_item)
+              power_monitor.display_item = 0;
           }
-          if (power_monitor.power_display_enabled() && items_displayed < 2)
-          {
-//            items_displayed++;
-            draw_power_monitor_power();
+        #else
+          power_monitor.display_item = 0;
+        #endif
+
+        // display current
+        if (power_monitor.display_item == 0) {
+          if (power_monitor.current_display_enabled())
+            draw_power_monitor_current();
+          #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
+            else
+              power_monitor.display_item++;
+          #endif
+        }
+
+        #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
+          // display voltage
+          if (power_monitor.display_item == 1) {
+            if (power_monitor.voltage_display_enabled())
+              draw_power_monitor_voltage();
+            else
+              power_monitor.display_item++;
+          }
+
+          // display power
+          if (power_monitor.display_item == 2) {
+            if (power_monitor.power_display_enabled())
+              draw_power_monitor_power();
+            else
+              power_monitor.display_item++;
           }
         #endif
-      }
-    #elif HAS_POWER_MONITOR && ENABLED(SDSUPPORT)
-      #if ENABLED(POWER_MONITOR_CURRENT)
-        if (power_monitor.current_display_enabled() && !power_monitor.voltage_display_enabled() && !power_monitor.power_display_enabled())
-        { // display current
-          lcd_moveto(PROGRESS_BAR_X, EXTRAS_BASELINE);
-          draw_power_monitor_current();
-        }
-        else
-        if (!power_monitor.current_display_enabled() && power_monitor.voltage_display_enabled() && !power_monitor.power_display_enabled())
-        { // display voltage
-          lcd_moveto(PROGRESS_BAR_X, EXTRAS_BASELINE);
-          draw_power_monitor_voltage();
-        }
-        else
-        if (!power_monitor.current_display_enabled() && !power_monitor.voltage_display_enabled() && power_monitor.power_display_enabled())
-        { // display power
-          lcd_moveto(PROGRESS_BAR_X, EXTRAS_BASELINE);
-          draw_power_monitor_power();
-        }
       #endif
     #endif
 
@@ -732,43 +763,6 @@ void MarlinUI::draw_status_screen() {
         return;
       }
     #endif
-
-    #if HAS_POWER_MONITOR_TIMEOUT && ENABLED(SDSUPPORT)
-      // Alternate Status message and power monitor display
-      if (power_monitor.display_enabled() && ELAPSED(millis(), power_monitor.next_display_ms)) {
-        bool status_line_updated = false;
-
-        #if ENABLED(POWER_MONITOR_CURRENT)
-          // display current
-          if (power_monitor.current_display_enabled() && (power_monitor.voltage_display_enabled() || power_monitor.power_display_enabled())) {
-            draw_power_monitor_current();
-            status_line_updated = true;
-          }
-        #endif
-
-        #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
-          // display voltage
-          if (power_monitor.voltage_display_enabled() && (power_monitor.current_display_enabled() || power_monitor.power_display_enabled())) {
-            draw_power_monitor_voltage();
-            status_line_updated = true;
-          }
-        #endif
-
-        #if ENABLED(POWER_MONITOR_CURRENT)
-          // display power
-          if (power_monitor.power_display_enabled() && (power_monitor.current_display_enabled() || power_monitor.voltage_display_enabled())) {
-            draw_power_monitor_power();
-            status_line_updated = true;
-          }
-        #endif
-
-        if (status_line_updated) {
-          power_monitor.next_display_ms = millis() + 4000UL;  // display the power monitor once every 4 seconds
-          return;
-        }
-      }
-
-    #endif // HAS_POWER_MONITOR_TIMEOUT
 
     draw_status_message(blink);
   }

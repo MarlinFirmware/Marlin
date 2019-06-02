@@ -35,9 +35,8 @@ uint8_t PowerMonitor::flags; // = 0
   lpf_reading_t<&PowerMonitor::volts_adc_scale> PowerMonitor::volts;
 #endif
 
-#if HAS_POWER_MONITOR_TIMEOUT
-  millis_t PowerMonitor::next_display_ms;
-#endif
+millis_t PowerMonitor::display_item_ms;
+uint8_t PowerMonitor::display_item;
 
 PowerMonitor power_monitor; // Single instance - this calls the constructor
 
