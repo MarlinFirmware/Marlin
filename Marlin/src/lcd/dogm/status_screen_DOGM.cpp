@@ -637,17 +637,19 @@ void MarlinUI::draw_status_screen() {
       if (show_power_monitor) {
         lcd_moveto(48, EXTRAS_2_BASELINE);
         #if ENABLED(POWER_MONITOR_CURRENT)
+          // display current
           if (power_monitor.current_display_enabled())
             draw_power_monitor_current();
         #endif
         #if ENABLED(POWER_MONITOR_VOLTAGE)
+          // display voltage
           if (power_monitor.voltage_display_enabled())
             draw_power_monitor_voltage();
+        #elif ENABLED(POWER_MONITOR_POWER)
+          // display power
+          if (power_monitor.power_display_enabled())
+            draw_power_monitor_power();
         #endif
-        //#if ENABLED(POWER_MONITOR_VOLTAGE)
-        //  if (power_monitor.power_display_enabled())
-        //    draw_power_monitor_power();
-        //#endif
       }
     #endif
 
@@ -701,16 +703,17 @@ void MarlinUI::draw_status_screen() {
       // Alternate Status message and power monitor display
       if (power_monitor.display_enabled() && ELAPSED(millis(), power_monitor.next_display_ms)) {
         #if ENABLED(POWER_MONITOR_CURRENT)
+          // display current
           if (power_monitor.current_display_enabled())
             draw_power_monitor_current();
         #endif
-
         #if ENABLED(POWER_MONITOR_VOLTAGE)
+          // display voltage
           if (power_monitor.voltage_display_enabled())
             draw_power_monitor_voltage();
         #endif
-
         #if ENABLED(POWER_MONITOR_POWER)
+          // display power
           if (power_monitor.power_display_enabled())
             draw_power_monitor_power();
         #endif

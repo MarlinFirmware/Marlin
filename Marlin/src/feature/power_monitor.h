@@ -24,6 +24,13 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+// flag bits
+#define CURRENT_DISPLAY_BIT  0
+#define VOLTAGE_DISPLAY_BIT  1
+
+#define CURRENT_DISPLAY_BIT_MASK  (1ul << CURRENT_DISPLAY_BIT)
+#define VOLTAGE_DISPLAY_BIT_MASK  (1ul << VOLTAGE_DISPLAY_BIT)
+
 template <const float *ADC_SCALE>
 struct lpf_reading_t {
   float value;
@@ -58,30 +65,36 @@ public:
 
   PowerMonitor() { reset(); }
 
-  FORCE_INLINE static bool display_enabled() { return (flags & 0x03); }
+  FORCE_INLINE static bool display_enabled() { return (flags & (CURRENT_DISPLAY_BIT_MASK | VOLTAGE_DISPLAY_BIT_MASK)); }
 
   #if ENABLED(POWER_MONITOR_CURRENT)
     FORCE_INLINE static float getAmps() { return amps.value; }
-    FORCE_INLINE static bool current_display_enabled() { return TEST(flags, 0); }
-    FORCE_INLINE static void set_current_display_enabled(const bool b) { SET_BIT_TO(flags, 0, b); }
-    FORCE_INLINE static void toggle_current_display_enabled() { flags ^= 0x01; }
+    FORCE_INLINE static bool current_display_enabled() { return TEST(flags, CURRENT_DISPLAY_BIT); }
+    FORCE_INLINE static void set_current_display_enabled(const bool b) { SET_BIT_TO(flags, CURRENT_DISPLAY_BIT, b); }
+    FORCE_INLINE static void toggle_current_display_enabled() { flags ^= CURRENT_DISPLAY_BIT_MASK; }
     void add_current_sample(const uint16_t value) { amps.add_sample(value); }
   #endif
 
   #if ENABLED(POWER_MONITOR_VOLTAGE)
     FORCE_INLINE static float getVolts() { return volts.value; }
-    FORCE_INLINE static bool voltage_display_enabled() { return TEST(flags, 1); }
-    FORCE_INLINE static void set_voltage_display_enabled(const bool b) { SET_BIT_TO(flags, 1, b); }
-    FORCE_INLINE static void toggle_voltage_display_enabled() { flags ^= 0x02; }
+    FORCE_INLINE static bool voltage_display_enabled() { return TEST(flags, VOLTAGE_DISPLAY_BIT); }
+    FORCE_INLINE static void set_voltage_display_enabled(const bool b) { SET_BIT_TO(flags, VOLTAGE_DISPLAY_BIT, b); }
+    FORCE_INLINE static void toggle_voltage_display_enabled() { flags ^= VOLTAGE_DISPLAY_BIT_MASK; }
     void add_voltage_sample(const uint16_t value) { volts.add_sample(value); }
+  #elif defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0)
+    FORCE_INLINE static float getVolts() { return POWER_MONITOR_FIXED_VOLTAGE; }  // using a specified fixed valtage as the voltage measurement
+  #else
+    FORCE_INLINE static float getVolts() { return 0; }
   #endif
 
-  #if BOTH(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
-    #if DISABLED(POWER_MONITOR_POWER)
+  #if DISABLED(POWER_MONITOR_POWER)
       FORCE_INLINE static bool power_display_enabled() { return false; }
-    #else
-      FORCE_INLINE static bool power_display_enabled() { return (flags & 0x03) == 0x03; }
-    #endif
+  #elif ENABLED(POWER_MONITOR_CURRENT) && ENABLED(POWER_MONITOR_VOLTAGE)
+      FORCE_INLINE static bool power_display_enabled() { return (flags & (CURRENT_DISPLAY_BIT_MASK | VOLTAGE_DISPLAY_BIT_MASK)) == (CURRENT_DISPLAY_BIT_MASK | VOLTAGE_DISPLAY_BIT_MASK); }
+  #elif defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0)
+      FORCE_INLINE static bool power_display_enabled() { return (flags & CURRENT_DISPLAY_BIT_MASK); }  // using a specified fixed valtage as the voltage measurement
+  #else
+      FORCE_INLINE static bool power_display_enabled() { return false; }
   #endif
 
   static void reset() {
