@@ -71,7 +71,7 @@ public:
     FORCE_INLINE static float getAmps() { return amps.value; }
     FORCE_INLINE static bool current_display_enabled() { return TEST(flags, CURRENT_DISPLAY_BIT); }
     FORCE_INLINE static void set_current_display_enabled(const bool b) { SET_BIT_TO(flags, CURRENT_DISPLAY_BIT, b); }
-    FORCE_INLINE static void toggle_current_display_enabled() { flags ^= CURRENT_DISPLAY_BIT_MASK; }
+    FORCE_INLINE static void toggle_current_display_enabled() { TOGGLE_BIT(flags, CURRENT_DISPLAY_BIT); }
     void add_current_sample(const uint16_t value) { amps.add_sample(value); }
   #endif
 
@@ -79,7 +79,7 @@ public:
     FORCE_INLINE static float getVolts() { return volts.value; }
     FORCE_INLINE static bool voltage_display_enabled() { return TEST(flags, VOLTAGE_DISPLAY_BIT); }
     FORCE_INLINE static void set_voltage_display_enabled(const bool b) { SET_BIT_TO(flags, VOLTAGE_DISPLAY_BIT, b); }
-    FORCE_INLINE static void toggle_voltage_display_enabled() { flags ^= VOLTAGE_DISPLAY_BIT_MASK; }
+    FORCE_INLINE static void toggle_voltage_display_enabled() { TOGGLE_BIT(flags, VOLTAGE_DISPLAY_BIT); }
     void add_voltage_sample(const uint16_t value) { volts.add_sample(value); }
   #elif defined(POWER_MONITOR_FIXED_VOLTAGE) && (POWER_MONITOR_FIXED_VOLTAGE > 0)
     FORCE_INLINE static float getVolts() { return POWER_MONITOR_FIXED_VOLTAGE; }  // using a specified fixed valtage as the voltage measurement

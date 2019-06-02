@@ -72,6 +72,7 @@
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))
 #define SET_BIT_TO(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
+#define TOGGLE_BIT(N,B) do{ if (TEST(N,B)) CBI(N,B); else SBI(N,B); }while(0)
 
 #define _BV32(b) (1UL << (b))
 #define TEST32(n,b) !!((n)&_BV32(b))
