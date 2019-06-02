@@ -2073,10 +2073,12 @@
 
 /**
  * Power Monitor
- * Monitor the PSU voltaqe and/or total system current drawn
+ * Monitor the voltaqe and/or current drawn and/or power used
  *
- * The current sensor feeds DC voltage (relative to the current drawn) to an analog pin
- * The voltage sensor feeds DC voltage (relative to the PSU voltage) to an analog pin
+ * If enabled then configurable and readable using GCodes M430, M431 and M432 (current, voltage and power resp)
+ *
+ * The current sensor feeds DC voltage (relative to the measured current) to an analog pin
+ * The voltage sensor feeds DC voltage (relative to the measured voltage) to an analog pin
  */
 //#define POWER_MONITOR_CURRENT   // Monitor the system current
 //#define POWER_MONITOR_VOLTAGE   // Monitor the system voltage
