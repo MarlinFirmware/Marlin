@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V68"
+#define EEPROM_VERSION "V67"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -118,7 +118,7 @@ extern float saved_extruder_advance_K[EXTRUDERS];
   #include "../feature/tmc_util.h"
 #endif
 
-#if HAS_POWER_MONITOR
+#if ENABLED(POWER_MONITOR)
   #include "../feature/power_monitor.h"
 #endif
 
@@ -261,10 +261,19 @@ typedef struct SettingsDataStruct {
   #if HAS_USER_THERMISTORS
     user_thermistor_t user_thermistor[USER_THERMISTORS]; // M305 P0 R4700 T100000 B3950
   #endif
+
   //
   // Power monitor
   //
-  uint8_t power_monitor_flags;                          // M430 D, M431 D
+  #if HAS_POWER_MONITOR_CURRENT_SENSOR
+    bool power_monitor_current_display_enabled;         // M430, M430 D0, M430 D1
+  #endif
+  #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+    bool power_monitor_voltage_display_enabled;         // M431, M431 D0, M431 D1
+  #endif
+  #if HAS_POWER_MONITOR_CURRENTE_SENSOR
+    bool power_monitor_power_display_enabled;           // M432, M432 D0, M432 D1
+  #endif
 
   //
   // HAS_LCD_CONTRAST
@@ -848,17 +857,26 @@ void MarlinSettings::postprocess() {
     //
     // Power monnitor
     //
+    #if HAS_POWER_MONITOR_CURRENT_SENSOR
     {
-      _FIELD_TEST(power_monitor_flags);
-      #if HAS_POWER_MONITOR
-        const uint8_t &power_monitor_flags = power_monitor.flags;
-      #else
-        const uint8_t power_monitor_flags = 0x00;
-      #endif
-      EEPROM_WRITE(power_monitor_flags);
+      _FIELD_TEST(power_monitor_current_display_enabled);
+      EEPROM_WRITE(power_monitor.current_display_enabled);
     }
+    #endif
+    #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+    {
+      _FIELD_TEST(power_monitor_voltage_display_enabled);
+      EEPROM_WRITE(power_monitor.voltage_display_enabled);
+    }
+    #endif
+    #if HAS_POWER_MONITOR_CURRENT_SENSOR
+    {
+      _FIELD_TEST(power_monitor_power_display_enabled);
+      EEPROM_WRITE(power_monitor.power_display_enabled);
+    }
+    #endif
 
-  	//
+    //
     // LCD Contrast
     //
     {
@@ -1666,15 +1684,24 @@ void MarlinSettings::postprocess() {
       //
       // Power monitor
       //
+      #if HAS_POWER_MONITOR_CURRENT_SENSOR
       {
-        _FIELD_TEST(power_monitor_flags);
-        #if HAS_POWER_MONITOR
-          uint8_t &power_monitor_flags = power_monitor.flags;
-        #else
-          uint8_t power_monitor_flags;
-        #endif
-        EEPROM_READ(power_monitor_flags);
+        _FIELD_TEST(power_monitor_current_display_enabled);
+        EEPROM_READ(power_monitor.current_display_enabled);
       }
+      #endif
+      #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
+      {
+        _FIELD_TEST(power_monitor_voltage_display_enabled);
+        EEPROM_READ(power_monitor.voltage_display_enabled);
+      }
+      #endif
+      #if HAS_POWER_MONITOR_CURRENT_SENSOR
+      {
+        _FIELD_TEST(power_monitor_power_display_enabled);
+        EEPROM_READ(power_monitor.power_display_enabled);
+      }
+      #endif
 
       //
       // LCD Contrast
@@ -2499,7 +2526,6 @@ void MarlinSettings::reset() {
   //
   // User-Defined Thermistors
   //
-
   #if HAS_USER_THERMISTORS
     thermalManager.reset_user_thermistors();
   #endif
@@ -2507,7 +2533,7 @@ void MarlinSettings::reset() {
   //
   // Power Monitor
   //
-  #if HAS_POWER_MONITOR
+  #if ENABLED(POWER_MONITOR)
     power_monitor.reset();
   #endif
 
