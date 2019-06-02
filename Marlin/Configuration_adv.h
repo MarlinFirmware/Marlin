@@ -2407,6 +2407,11 @@
   //#define SERVICE_INTERVAL_3    1 // print hours
 #endif
 
+/**
+ * A grace period to allow the ADC readings to stabilize, preventing false alarms
+ */
+#define THERMAL_PROTECTION_GRACE_PERIOD 1000
+
 // @section develop
 
 /**
