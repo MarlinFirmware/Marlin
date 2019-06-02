@@ -310,7 +310,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   inline void draw_power_monitor_power() {
     const float power = power_monitor.getPower();
     if (power < 1000) {
-      lcd_put_u8str(i16tostr3left((int16_t)power));
+      lcd_put_u8str(ftostr31ns(power));
       lcd_put_u8str_P(PSTR("W "));
     }
     else {
