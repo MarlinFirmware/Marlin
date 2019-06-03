@@ -193,6 +193,11 @@
   #define WATCH_CHAMBER_TEMP_INCREASE 2           // Degrees Celsius
 #endif
 
+/**
+ * A grace period to allow the ADC readings to stabilize, preventing false alarms
+ */
+//#define THERMAL_PROTECTION_GRACE_PERIOD 3000
+
 #if ENABLED(PIDTEMP)
   // Add an experimental additional term to the heater power, proportional to the extrusion speed.
   // A well-chosen Kc value should add just enough power to melt the increased material volume.
