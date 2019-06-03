@@ -701,15 +701,18 @@ void MarlinUI::draw_status_screen() {
               ++power_monitor.display_item;
         }
 
+        if (power_monitor.display_item >= 3)
+          power_monitor.display_item = 0;
+
         switch (power_monitor.display_item) {
           #if ENABLED(POWER_MONITOR_CURRENT)                // Current
-            case 0: power_monitor.draw_current(); break;
+            case 0: if (iflag) power_monitor.draw_current(); break;
           #endif
           #if HAS_POWER_MONITOR_VREF                        // Voltage
-            case 1: power_monitor.draw_voltage(); break;
+            case 1: if (vflag) power_monitor.draw_voltage(); break;
           #endif
           #if HAS_POWER_MONITOR_WATTS                       // Power
-            case 2: power_monitor.draw_power(); break;
+            case 2: if (wflag) power_monitor.draw_power(); break;
           #endif
           default: break;
         }

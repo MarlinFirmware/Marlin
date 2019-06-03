@@ -49,14 +49,16 @@ PowerMonitor power_monitor; // Single instance - this calls the constructor
 
   #if ENABLED(POWER_MONITOR_CURRENT)
     void PowerMonitor::draw_current() {
-      lcd_put_u8str(amps.value < 100 ? ftostr42_52(amps.value) : ftostr41ns(amps.value));
+      const float amps = getAmps();
+      lcd_put_u8str(amps < 100 ? ftostr42_52(amps) : ftostr41ns(amps));
       lcd_put_u8str_P(PSTR("A "));
     }
   #endif
 
   #if HAS_POWER_MONITOR_VREF
     void PowerMonitor::draw_voltage() {
-      lcd_put_u8str(volts.value < 100 ? ftostr42_52(volts.value) : ftostr41ns(volts.value));
+      const float volts = getVolts();
+      lcd_put_u8str(volts < 100 ? ftostr42_52(volts) : ftostr41ns(volts));
       lcd_put_u8str_P(PSTR("V "));
     }
   #endif
