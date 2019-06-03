@@ -284,35 +284,6 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
-#if ENABLED(POWER_MONITOR_CURRENT)
-  inline void draw_power_monitor_current() {
-    const float amps = power_monitor.getAmps();
-    lcd_put_u8str(amps < 100 ? ftostr42_52(amps) : ftostr41ns(amps));
-    lcd_put_u8str_P(PSTR("A "));
-  }
-#endif
-
-#if HAS_POWER_MONITOR_VREF
-  inline void draw_power_monitor_voltage() {
-    const float volts = power_monitor.getVolts();
-    lcd_put_u8str(volts < 100 ? ftostr42_52(volts) : ftostr41ns(volts));
-    lcd_put_u8str_P(PSTR("V "));
-  }
-#endif
-
-#if HAS_POWER_MONITOR_WATTS
-  inline void draw_power_monitor_power() {
-    float power = power_monitor.getPower();
-    const char *pstr = PSTR("W ");
-    if (power >= 1000) {
-      power *= 0.001f;
-      pstr = PSTR("kW ");
-    }
-    lcd_put_u8str(ftostr41ns(power));
-    lcd_put_u8str_P(pstr);
-  }
-#endif
-
 #if ENABLED(MARLIN_DEV_MODE)
   uint16_t count_renders = 0;
   uint32_t total_cycles = 0;
@@ -493,11 +464,14 @@ void MarlinUI::draw_status_screen() {
     // Progress bar frame
     //
 //    #define PROGRESS_BAR_X 54
-    #define PROGRESS_BAR_X 46
+    #define PROGRESS_BAR_X 38
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
-    if (PAGE_CONTAINS(49, 52))
-      u8g.drawFrame(PROGRESS_BAR_X, 49, PROGRESS_BAR_WIDTH, 4);
+    if (PAGE_CONTAINS(49, 52)) {
+//      u8g.drawFrame(PROGRESS_BAR_X, 49, PROGRESS_BAR_WIDTH, 4);
+      for (uint8_t i = 0; i < PROGRESS_BAR_WIDTH - 1; i += 2)
+        u8g.drawPixel(PROGRESS_BAR_X + 1 + i, 51);  // draw a dotted line
+    }
 
     const uint8_t progress = get_progress();
 
@@ -506,21 +480,21 @@ void MarlinUI::draw_status_screen() {
       //
       // Progress bar solid part
       //
-
-      if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
-        u8g.drawBox(
-          PROGRESS_BAR_X + 1, 50,
-          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress * 0.01), 2
-        );
+//      if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
+//        u8g.drawBox(PROGRESS_BAR_X + 1, 50, (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress * 0.01), 2);
+      if (PAGE_CONTAINS(49, 53)) {
+        for (uint8_t y = 0; y < 4; y++)
+          u8g.drawHLine(PROGRESS_BAR_X, 49 + y, (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01f));
+      }
 
       //
       // SD Percent Complete
       //
-
       #if ENABLED(DOGM_SD_PERCENT)
         if (PAGE_CONTAINS(41, 48)) {
           // Percent complete
-          lcd_moveto(55, 48);
+//          lcd_moveto(55, 48);
+          lcd_moveto(70, 48);
           lcd_put_u8str(ui8tostr3(progress));
           lcd_put_wchar('%');
         }

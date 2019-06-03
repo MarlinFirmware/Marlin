@@ -161,6 +161,16 @@ void safe_delay(millis_t ms) {
     return &conv[3];
   }
 
+  // Convert unsigned float to string with 12.4 format
+  char* ftostr21ns(const float &f) {
+    const long i = ((f < 0 ? -f : f) * 100 + 5) / 10;
+    conv[3] = DIGIMOD(i, 100);
+    conv[4] = DIGIMOD(i, 10);
+    conv[5] = '.';
+    conv[6] = DIGIMOD(i, 1);
+    return &conv[3];
+  }
+
   // Convert unsigned float to string with 123.4 format
   char* ftostr41ns(const float &f) {
     const long i = ((f < 0 ? -f : f) * 100 + 5) / 10;

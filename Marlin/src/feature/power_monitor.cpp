@@ -50,32 +50,38 @@ PowerMonitor power_monitor; // Single instance - this calls the constructor
   #if ENABLED(POWER_MONITOR_CURRENT)
     void PowerMonitor::draw_current() {
       const float amps = getAmps();
-      lcd_put_u8str(amps < 100 ? ftostr42_52(amps) : ftostr41ns(amps));
-      lcd_put_u8str_P(PSTR("A "));
+      lcd_put_u8str(amps < 100 ? ftostr21ns(amps) : ui16tostr3((uint16_t)amps));
+      lcd_put_wchar('A');
     }
   #endif
 
   #if HAS_POWER_MONITOR_VREF
     void PowerMonitor::draw_voltage() {
       const float volts = getVolts();
-      lcd_put_u8str(volts < 100 ? ftostr42_52(volts) : ftostr41ns(volts));
-      lcd_put_u8str_P(PSTR("V "));
+      lcd_put_u8str(volts < 100 ? ftostr21ns(volts) : ui16tostr3((uint16_t)volts));
+      lcd_put_wchar('V');
     }
   #endif
 
   #if HAS_POWER_MONITOR_WATTS
     void PowerMonitor::draw_power() {
-      const char *pstr = PSTR("W ");
       float power = getPower();
-      if (power >= 1000) {
-        power *= 0.001f;
-        pstr = PSTR("kW ");
+      if (power < 100) {  // 0.0 to 99.9
+        lcd_put_u8str(ftostr21ns(power));
+        lcd_put_wchar('W');
       }
-      lcd_put_u8str(ftostr41ns(power));
-      lcd_put_u8str_P(pstr);
+      else
+      if (power < 1000) { // 100 to 999
+        lcd_put_u8str(ui16tostr3((uint16_t)power));
+        lcd_put_wchar('W');
+      }
+      else { // >= 1000
+        lcd_put_u8str(ftostr21ns(power * 0.001f));
+        lcd_put_u8str_P(PSTR("kW"));
+      }
     }
   #endif
 
 #endif
 
-#endif // HAS_POWER_MONITOR
+#endif
