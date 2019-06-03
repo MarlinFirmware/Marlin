@@ -166,18 +166,26 @@
   #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE)
   #define TMC_UART_SW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_RSENSE, ST##_SERIAL_RX_PIN > -1)
 
+  #define TMC_UART_HW_DEFINE_ADDRESS(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE, ST##_SLAVE_ADDRESS)
+  #define TMC_UART_SW_DEFINE_ADDRESS(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_RSENSE, ST##_SLAVE_ADDRESS, ST##_SERIAL_RX_PIN > -1)
+
   #define _TMC_SPI_DEFINE(IC, ST, AI) __TMC_SPI_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
   #define TMC_SPI_DEFINE(ST, AI) _TMC_SPI_DEFINE(ST##_DRIVER_TYPE, ST, AI##_AXIS)
 
   #define _TMC_UART_DEFINE(SWHW, IC, ST, AI) TMC_UART_##SWHW##_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
   #define TMC_UART_DEFINE(SWHW, ST, AI) _TMC_UART_DEFINE(SWHW, ST##_DRIVER_TYPE, ST, AI##_AXIS)
 
+  #define _TMC_UART_DEFINE_ADDRESS(SWHW, IC, ST, AI) TMC_UART_##SWHW##_DEFINE_ADDRESS(IC, ST, TMC_##ST##_LABEL, AI)
+  #define TMC_UART_DEFINE_ADDRESS(SWHW, ST, AI) _TMC_UART_DEFINE_ADDRESS(SWHW, ST##_DRIVER_TYPE, ST, AI##_AXIS)
+
   #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
     #define TMC_SPI_DEFINE_E(AI) TMC_SPI_DEFINE(E##AI, E##AI)
     #define TMC_UART_DEFINE_E(SWHW, AI) TMC_UART_DEFINE(SWHW, E##AI, E##AI)
+    #define TMC_UART_DEFINE_E_ADDRESS(SWHW, AI) TMC_UART_DEFINE_ADDRESS(SWHW, E##AI, E##AI)
   #else
     #define TMC_SPI_DEFINE_E(AI) TMC_SPI_DEFINE(E##AI, E)
     #define TMC_UART_DEFINE_E(SWHW, AI) TMC_UART_DEFINE(SWHW, E##AI, E)
+    #define TMC_UART_DEFINE_E_ADDRESS(SWHW, AI) TMC_UART_DEFINE_ADDRESS(SWHW, E##AI, E)
   #endif
 
   // Stepper objects of TMC2130/TMC2160/TMC2660/TMC5130/TMC5160 steppers used
@@ -312,96 +320,188 @@
 // TMC2208/TMC2209 Driver objects and inits
 //
 #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
-  // Stepper objects of TMC2208/TMC2209 steppers used
-  #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2209)
+  // Stepper objects of TMC2208 steppers used
+  #if AXIS_DRIVER_TYPE_X(TMC2208)
     #ifdef X_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X, X);
     #else
       TMC_UART_DEFINE(SW, X, X);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_X2(TMC2208) || AXIS_DRIVER_TYPE_X2(TMC2209)
+  #if AXIS_DRIVER_TYPE_X2(TMC2208)
     #ifdef X2_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X2, X);
     #else
       TMC_UART_DEFINE(SW, X2, X);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2209)
+  #if AXIS_DRIVER_TYPE_Y(TMC2208)
     #ifdef Y_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Y, Y);
     #else
       TMC_UART_DEFINE(SW, Y, Y);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_Y2(TMC2208) || AXIS_DRIVER_TYPE_Y2(TMC2209)
+  #if AXIS_DRIVER_TYPE_Y2(TMC2208)
     #ifdef Y2_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Y2, Y);
     #else
       TMC_UART_DEFINE(SW, Y2, Y);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2209)
+  #if AXIS_DRIVER_TYPE_Z(TMC2208)
     #ifdef Z_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Z, Z);
     #else
       TMC_UART_DEFINE(SW, Z, Z);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_Z2(TMC2208) || AXIS_DRIVER_TYPE_Z2(TMC2209)
+  #if AXIS_DRIVER_TYPE_Z2(TMC2208)
     #ifdef Z2_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Z2, Z);
     #else
       TMC_UART_DEFINE(SW, Z2, Z);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_Z3(TMC2208) || AXIS_DRIVER_TYPE_Z3(TMC2209)
+  #if AXIS_DRIVER_TYPE_Z3(TMC2208)
     #ifdef Z3_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Z3, Z);
     #else
       TMC_UART_DEFINE(SW, Z3, Z);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E0(TMC2208) || AXIS_DRIVER_TYPE_E0(TMC2209)
+  #if AXIS_DRIVER_TYPE_E0(TMC2208)
     #ifdef E0_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 0);
     #else
       TMC_UART_DEFINE_E(SW, 0);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E1(TMC2208) || AXIS_DRIVER_TYPE_E1(TMC2209)
+  #if AXIS_DRIVER_TYPE_E1(TMC2208)
     #ifdef E1_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 1);
     #else
       TMC_UART_DEFINE_E(SW, 1);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E2(TMC2208) || AXIS_DRIVER_TYPE_E2(TMC2209)
+  #if AXIS_DRIVER_TYPE_E2(TMC2208)
     #ifdef E2_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 2);
     #else
       TMC_UART_DEFINE_E(SW, 2);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E3(TMC2208) || AXIS_DRIVER_TYPE_E3(TMC2209)
+  #if AXIS_DRIVER_TYPE_E3(TMC2208)
     #ifdef E3_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 3);
     #else
       TMC_UART_DEFINE_E(SW, 3);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E4(TMC2208) || AXIS_DRIVER_TYPE_E4(TMC2209)
+  #if AXIS_DRIVER_TYPE_E4(TMC2208)
     #ifdef E4_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 4);
     #else
       TMC_UART_DEFINE_E(SW, 4);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E5(TMC2208) || AXIS_DRIVER_TYPE_E5(TMC2209)
+  #if AXIS_DRIVER_TYPE_E5(TMC2208)
     #ifdef E5_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 5);
     #else
       TMC_UART_DEFINE_E(SW, 5);
+    #endif
+  #endif
+  // Stepper objects of TMC2209 steppers used
+  #if AXIS_DRIVER_TYPE_X(TMC2209)
+    #ifdef X_HARDWARE_SERIAL
+      TMC_UART_DEFINE_ADDRESS(HW, X, X);
+    #else
+      TMC_UART_DEFINE_ADDRESS(SW, X, X);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_X2(TMC2209)
+    #ifdef X2_HARDWARE_SERIAL
+      TMC_UART_DEFINE_ADDRESS(HW, X2, X);
+    #else
+      TMC_UART_DEFINE_ADDRESS(SW, X2, X);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_Y(TMC2209)
+    #ifdef Y_HARDWARE_SERIAL
+      TMC_UART_DEFINE_ADDRESS(HW, Y, Y);
+    #else
+      TMC_UART_DEFINE_ADDRESS(SW, Y, Y);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_Y2(TMC2209)
+    #ifdef Y2_HARDWARE_SERIAL
+      TMC_UART_DEFINE_ADDRESS(HW, Y2, Y);
+    #else
+      TMC_UART_DEFINE_ADDRESS(SW, Y2, Y);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_Z(TMC2209)
+    #ifdef Z_HARDWARE_SERIAL
+      TMC_UART_DEFINE_ADDRESS(HW, Z, Z);
+    #else
+      TMC_UART_DEFINE_ADDRESS(SW, Z, Z);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_Z2(TMC2209)
+    #ifdef Z2_HARDWARE_SERIAL
+      TMC_UART_DEFINE_ADDRESS(HW, Z2, Z);
+    #else
+      TMC_UART_DEFINE_ADDRESS(SW, Z2, Z);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_Z3(TMC2209)
+    #ifdef Z3_HARDWARE_SERIAL
+      TMC_UART_DEFINE_ADDRESS(HW, Z3, Z);
+    #else
+      TMC_UART_DEFINE_ADDRESS(SW, Z3, Z);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_E0(TMC2209)
+    #ifdef E0_HARDWARE_SERIAL
+      TMC_UART_DEFINE_E_ADDRESS(HW, 0);
+    #else
+      TMC_UART_DEFINE_E_ADDRESS(SW, 0);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_E1(TMC2209)
+    #ifdef E1_HARDWARE_SERIAL
+      TMC_UART_DEFINE_E_ADDRESS(HW, 1);
+    #else
+      TMC_UART_DEFINE_E_ADDRESS(SW, 1);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_E2(TMC2209)
+    #ifdef E2_HARDWARE_SERIAL
+      TMC_UART_DEFINE_E_ADDRESS(HW, 2);
+    #else
+      TMC_UART_DEFINE_E_ADDRESS(SW, 2);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_E3(TMC2209)
+    #ifdef E3_HARDWARE_SERIAL
+      TMC_UART_DEFINE_E_ADDRESS(HW, 3);
+    #else
+      TMC_UART_DEFINE_E_ADDRESS(SW, 3);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_E4(TMC2209)
+    #ifdef E4_HARDWARE_SERIAL
+      TMC_UART_DEFINE_E_ADDRESS(HW, 4);
+    #else
+      TMC_UART_DEFINE_E_ADDRESS(SW, 4);
+    #endif
+  #endif
+  #if AXIS_DRIVER_TYPE_E5(TMC2209)
+    #ifdef E5_HARDWARE_SERIAL
+      TMC_UART_DEFINE_E_ADDRESS(HW, 5);
+    #else
+      TMC_UART_DEFINE_E_ADDRESS(SW, 5);
     #endif
   #endif
 
