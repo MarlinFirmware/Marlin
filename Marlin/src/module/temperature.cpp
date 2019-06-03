@@ -82,10 +82,6 @@
   #endif
 #endif
 
-#ifndef THERMAL_PROTECTION_GRACE_PERIOD
-  #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
-#endif
-
 Temperature thermalManager;
 
 /**
@@ -997,9 +993,9 @@ void Temperature::manage_heater() {
   #if HAS_THERMAL_PROTECTION
     #if THERMAL_PROTECTION_GRACE_PERIOD > 0
       static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
-      if (ELAPSED(ms, grace_period)) grace_period = 0UL;
+      if (ELAPSED(ms, grace_period)) grace_period = 0;
     #else
-      static constexpr millis_t grace_period = 0UL;
+      static constexpr millis_t grace_period = 0;
     #endif
   #endif
 
