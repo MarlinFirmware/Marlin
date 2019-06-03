@@ -35,6 +35,10 @@
   #define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SBASE"
 #endif
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 #define LED_PIN            P1_18   // Used as a status indicator
 #define LED2_PIN           P1_19
 #define LED3_PIN           P1_20

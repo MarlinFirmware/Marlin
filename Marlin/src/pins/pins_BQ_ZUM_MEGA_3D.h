@@ -30,6 +30,10 @@
 
 #define BOARD_NAME "ZUM Mega 3D"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Heaters / Fans
 //

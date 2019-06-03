@@ -39,6 +39,10 @@
 
 #define BOARD_NAME "Einstart-S"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

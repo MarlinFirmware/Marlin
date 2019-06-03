@@ -31,6 +31,10 @@
 #undef  TEMP_TIMER
 #define TEMP_TIMER 9 // the Marlin default of timer 7 doesn't exist on the STM32MF401 series
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

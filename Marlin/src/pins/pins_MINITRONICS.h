@@ -40,6 +40,11 @@
 #endif
 
 #define BOARD_NAME "Minitronics v1.0/1.1"
+
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

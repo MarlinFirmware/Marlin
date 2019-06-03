@@ -40,6 +40,10 @@
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
 #define BOARD_NAME              "Ultimaker"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Servos
 //

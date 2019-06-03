@@ -56,6 +56,10 @@
 
 #define BOARD_NAME "Gen3+"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

@@ -74,6 +74,10 @@
 #define DEFAULT_MACHINE_NAME "Makibox"
 #define BOARD_NAME           "5DPrint D8"
 
+#ifndef ADC_VREF
+  #define ADC_VREF        5.0
+#endif
+
 //
 // Servos
 //

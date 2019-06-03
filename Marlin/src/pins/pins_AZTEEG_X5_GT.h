@@ -37,6 +37,10 @@
 #undef F_CPU
 #define F_CPU 120000000
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

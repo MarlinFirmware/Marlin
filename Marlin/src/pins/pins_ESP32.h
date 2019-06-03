@@ -30,6 +30,10 @@
 
 #define BOARD_NAME "Espressif ESP32"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

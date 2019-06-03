@@ -82,6 +82,10 @@
 
 #define BOARD_NAME "Final OMCA"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

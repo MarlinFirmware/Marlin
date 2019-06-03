@@ -35,6 +35,10 @@
 #endif
 #define DEFAULT_MACHINE_NAME "Prusa i3 Pro B"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

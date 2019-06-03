@@ -40,11 +40,11 @@ struct lpf_reading_t {
 class PowerMonitor {
 private:
   #if ENABLED(POWER_MONITOR_CURRENT)
-    static constexpr float amps_adc_scale = float(POWER_MONITOR_ADC_VREF) / (POWER_MONITOR_VOLTS_PER_AMP * 16384);
+    static constexpr float amps_adc_scale = float(ADC_VREF) / (POWER_MONITOR_VOLTS_PER_AMP * 16384);
     static lpf_reading_t<amps_adc_scale> amps;
   #endif
   #if ENABLED(POWER_MONITOR_VOLTAGE)
-    static constexpr float volts_adc_scale = float(POWER_MONITOR_ADC_VREF) / (POWER_MONITOR_VOLTS_PER_VOLT * 16384);
+    static constexpr float volts_adc_scale = float(ADC_VREF) / (POWER_MONITOR_VOLTS_PER_VOLT * 16384);
     static lpf_reading_t<volts_adc_scale> volts;
   #endif
 

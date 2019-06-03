@@ -70,6 +70,10 @@
 // Disable JTAG pins so they can be used for the Extrudrboard
 #define DISABLE_JTAG
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

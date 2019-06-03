@@ -29,6 +29,11 @@
 #endif
 
 #define BOARD_NAME "Megatronics"
+
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

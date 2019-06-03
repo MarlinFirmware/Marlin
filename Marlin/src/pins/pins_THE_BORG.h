@@ -36,6 +36,10 @@
   #error "The-Borg supports up to 3 hotends / E-steppers."
 #endif
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

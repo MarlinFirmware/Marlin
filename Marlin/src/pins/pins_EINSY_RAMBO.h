@@ -30,6 +30,10 @@
 
 #define BOARD_NAME "Einsy Rambo"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
 //

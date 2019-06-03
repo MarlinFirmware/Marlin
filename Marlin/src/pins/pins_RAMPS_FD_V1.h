@@ -39,6 +39,10 @@
 #define INVERTED_BED_PINS
 #define INVERTED_FAN_PINS
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Servos
 //

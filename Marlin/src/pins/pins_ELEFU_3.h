@@ -30,6 +30,10 @@
 
 #define BOARD_NAME "Elefu Ra v3"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

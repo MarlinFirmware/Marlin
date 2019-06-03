@@ -31,6 +31,10 @@
 #define BOARD_NAME        "Selena Compact"
 #define BOARD_WEBSITE_URL "https://github.com/Ales2-k/Selena"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

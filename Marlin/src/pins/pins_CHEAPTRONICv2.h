@@ -32,6 +32,10 @@
 
 #define BOARD_NAME "Cheaptronic v2.0"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

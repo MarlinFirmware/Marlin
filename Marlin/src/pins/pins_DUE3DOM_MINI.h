@@ -30,6 +30,10 @@
 
 #define BOARD_NAME "DUE3DOM MINI"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Servos
 //

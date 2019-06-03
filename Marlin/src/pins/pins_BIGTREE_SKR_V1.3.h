@@ -31,6 +31,10 @@
 // Ignore temp readings during develpment.
 //#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 // unused CPU pins the user can solder too
 #define LED_PIN            P0_26
 #define PS_ON_PIN          P1_00

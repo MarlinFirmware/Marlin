@@ -35,6 +35,10 @@
 
 #define BOARD_NAME "BIQU BQ111-A4"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

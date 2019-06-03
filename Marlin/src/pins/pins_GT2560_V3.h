@@ -32,6 +32,10 @@
   #define BOARD_NAME "GT2560 V3.0"
 #endif
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Servos
 //

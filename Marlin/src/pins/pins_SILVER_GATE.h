@@ -26,6 +26,10 @@
 
 #define BOARD_NAME "Silver Gate"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 #define X_STEP_PIN         43
 #define X_DIR_PIN          44
 #define X_ENABLE_PIN       42

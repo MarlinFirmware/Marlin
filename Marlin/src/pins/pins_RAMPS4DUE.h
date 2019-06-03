@@ -45,6 +45,11 @@
 #define BOARD_NAME "RAMPS4DUE"
 
 #define IS_RAMPS4DUE
+
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 #include "pins_RAMPS.h"
 
 //

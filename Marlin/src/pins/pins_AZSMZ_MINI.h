@@ -30,6 +30,10 @@
 
 #define BOARD_NAME "AZSMZ MINI"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Servos
 //

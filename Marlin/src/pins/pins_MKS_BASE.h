@@ -32,6 +32,10 @@
 
 #define BOARD_NAME "MKS BASE 1.0"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Heaters / Fans
 //

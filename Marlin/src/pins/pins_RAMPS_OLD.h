@@ -33,6 +33,10 @@
 // Uncomment the following line for RAMPS v1.0
 //#define RAMPS_V_1_0
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

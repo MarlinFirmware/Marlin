@@ -59,6 +59,10 @@
 
 #define GEN7_VERSION 14   // v1.4
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit switches
 //

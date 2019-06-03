@@ -33,6 +33,10 @@
 
 //#define LCD_SCREEN_ROT_180
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

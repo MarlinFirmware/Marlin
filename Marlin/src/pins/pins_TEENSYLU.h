@@ -79,6 +79,10 @@
 
 #define BOARD_NAME "Teensylu"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switch definitions that match the SCHEMATIC
 //

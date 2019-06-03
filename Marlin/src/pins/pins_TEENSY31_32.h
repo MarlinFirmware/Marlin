@@ -37,6 +37,10 @@
 #define AT90USB 1286   // Disable MarlinSerial etc.
 #define USBCON //1286  // Disable MarlinSerial etc.
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

@@ -42,6 +42,10 @@
   #error "Arm'ed supports up to 2 hotends / E-steppers."
 #endif
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

@@ -66,6 +66,11 @@
 #define BOARD_NAME "RAMPS-SMART"
 
 #define IS_RAMPS_SMART
+
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 #include "pins_RAMPS.h"
 
 // I2C EEPROM with 4K of space

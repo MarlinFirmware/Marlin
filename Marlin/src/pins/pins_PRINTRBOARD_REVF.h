@@ -95,6 +95,10 @@
 //#define NO_EXTRUDRBOARD
 //#define NO_EXTRUDRBOARD_OUTPUT_SWAP
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

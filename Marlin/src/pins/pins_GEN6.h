@@ -59,6 +59,10 @@
   #define BOARD_NAME "Gen6"
 #endif
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

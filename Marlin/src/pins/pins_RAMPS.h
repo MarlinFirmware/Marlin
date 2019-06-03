@@ -60,6 +60,10 @@
   #define BOARD_NAME "RAMPS 1.4"
 #endif
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Servos
 //

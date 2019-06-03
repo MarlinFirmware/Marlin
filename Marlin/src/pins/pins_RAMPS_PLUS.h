@@ -43,6 +43,10 @@
 
 #define BOARD_NAME "RAMPS 1.4 Plus"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 #define RAMPS_D8_PIN  10
 #define RAMPS_D10_PIN  8
 

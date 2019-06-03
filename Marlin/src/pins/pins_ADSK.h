@@ -77,6 +77,10 @@ A stepper for E0 extruder
 "SpinDir":  Digital pin 13 -> will be connected to A.DIR with jumper
 */
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Servos
 //

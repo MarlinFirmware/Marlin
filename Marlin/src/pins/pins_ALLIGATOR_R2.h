@@ -31,6 +31,10 @@
 
 #define BOARD_NAME         "Alligator Board R2"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Servos
 //

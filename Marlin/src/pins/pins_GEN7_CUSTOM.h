@@ -60,6 +60,10 @@
 
 #define BOARD_NAME "Gen7 Custom"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

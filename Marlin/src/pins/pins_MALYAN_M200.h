@@ -44,6 +44,10 @@
 #define STEP_TIMER 1
 #define TEMP_TIMER 3
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

@@ -56,6 +56,10 @@
 #define BOARD_NAME "Gen3 Monolithic"
 #define DEBUG_PIN 0
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

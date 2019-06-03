@@ -36,6 +36,8 @@
   #define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
 #endif
 
+#define ADC_VREF           5.0
+
 //
 // Heaters / Fans
 //

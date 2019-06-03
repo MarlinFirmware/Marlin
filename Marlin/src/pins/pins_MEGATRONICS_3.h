@@ -36,6 +36,10 @@
   #define BOARD_NAME "Megatronics v3.0"
 #endif
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Servos
 //

@@ -34,6 +34,10 @@
   #define BOARD_NAME "Mini RAMBo"
 #endif
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

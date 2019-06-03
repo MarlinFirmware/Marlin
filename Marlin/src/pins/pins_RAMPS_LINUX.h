@@ -50,6 +50,10 @@
 
 #define IS_RAMPS_EFB
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Servos
 //

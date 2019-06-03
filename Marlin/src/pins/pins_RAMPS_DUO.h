@@ -49,6 +49,11 @@
 #define BOARD_NAME "RAMPS Duo"
 
 #define IS_RAMPS_DUO
+
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 #include "pins_RAMPS.h"
 
 //

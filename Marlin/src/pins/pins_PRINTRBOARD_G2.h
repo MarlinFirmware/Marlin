@@ -38,6 +38,10 @@
 //#define SERVO0_PIN       -1
 //#define SERVO1_PIN       -1
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

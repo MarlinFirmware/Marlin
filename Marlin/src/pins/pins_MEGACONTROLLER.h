@@ -34,6 +34,10 @@
 
 #define BOARD_NAME "Mega Controller"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Servos
 //

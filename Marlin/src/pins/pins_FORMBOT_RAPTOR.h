@@ -39,6 +39,10 @@
   #define BOARD_NAME           "Formbot Raptor"
 #endif
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Servos
 //

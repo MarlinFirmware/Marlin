@@ -30,6 +30,10 @@
 
 #define BOARD_NAME         "Duplicator i3 Plus"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

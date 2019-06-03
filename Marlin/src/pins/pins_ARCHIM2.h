@@ -48,6 +48,10 @@
 // Items marked * have been altered from Archim v1.0
 //
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Servos
 //

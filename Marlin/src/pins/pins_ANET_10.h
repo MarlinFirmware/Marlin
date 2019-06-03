@@ -94,6 +94,10 @@
 
 #define BOARD_NAME "Anet 1.0"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Limit Switches
 //

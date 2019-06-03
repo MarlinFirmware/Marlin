@@ -43,6 +43,10 @@
 #define DEFAULT_MACHINE_NAME    "MB Replicator"
 #define BOARD_NAME              "Mightyboard"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Servos
 //

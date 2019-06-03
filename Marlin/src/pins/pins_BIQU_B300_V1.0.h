@@ -37,6 +37,10 @@
   #define BOARD_NAME "BIQU Thunder B300 V1.0"
 #endif
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Limit Switches
 //

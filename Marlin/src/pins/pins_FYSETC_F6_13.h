@@ -37,6 +37,10 @@
 #define RESET_PIN          30
 #define SPI_FLASH_CS       83
 
+#ifndef ADC_VREF
+  #define ADC_VREF         5.0
+#endif
+
 //
 // Servos
 //

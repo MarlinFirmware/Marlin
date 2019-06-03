@@ -41,6 +41,10 @@
 
 #define BOARD_NAME "Re-ARM RAMPS 1.4"
 
+#ifndef ADC_VREF
+  #define ADC_VREF         3.3
+#endif
+
 //
 // Servos
 //
