@@ -904,11 +904,8 @@ void setup() {
     #endif
     tmc_init_cs_pins();
   #endif
-  #if HAS_DRIVER(TMC2208)
-    tmc2208_serial_begin();
-  #endif
-  #if HAS_DRIVER(TMC2209)
-    tmc2209_serial_begin();
+  #if HAS_DRIVER(TMC2208) | HAS_DRIVER(TMC2209)
+    tmc220x_serial_begin();
   #endif
 
   #ifdef BOARD_INIT
