@@ -2092,7 +2092,7 @@
   //   3.0 : Possible ADC reference voltage on 32-bit MCUs
   //   3.3 : Typical ADC reference voltage on 32-bit MCUs
   //   5.0 : Typical ADC reference voltage on 8-bit MCUs
-  #define POWER_MONITOR_ADC_VREF 3.3
+  #define POWER_MONITOR_ADC_VREF 5.0
 #endif
 
 /**
