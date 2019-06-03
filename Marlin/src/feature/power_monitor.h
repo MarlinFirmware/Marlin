@@ -19,17 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
 
-// flag bits
-#define PM_I_DISP_BIT  0    // current display enable bit
-#define PM_V_DISP_BIT  1    // voltage display enable bit
-#define PM_P_DISP_BIT  2    // power display enable bit
-
-template <const float *ADC_SCALE>
+template <const float& ADC_SCALE>
 struct lpf_reading_t {
   float value;
   uint32_t raw_value;
@@ -40,66 +34,76 @@ struct lpf_reading_t {
     raw_value += uint32_t(sample) << 7;     // Add new ADC reading, scaled by 128
     raw_value_filtered = raw_value >> 10;   // Divide to get to 0-16383 range since we used 1/128 IIR filter approach
   }
-  void capture() { value = raw_value_filtered * *ADC_SCALE; }
+  void capture() { value = raw_value_filtered * ADC_SCALE; }
 };
 
 class PowerMonitor {
 private:
-  static uint8_t flags;  // M430, M431, M432 set and clear flags to read/display current, voltage and/or power
-
   #if ENABLED(POWER_MONITOR_CURRENT)
-    static constexpr float amps_adc_scale = (float)POWER_MONITOR_ADC_VREF / (POWER_MONITOR_VOLTS_PER_AMP * 16384);
-    static lpf_reading_t<&amps_adc_scale> amps;
+    static constexpr float amps_adc_scale = float(POWER_MONITOR_ADC_VREF) / (POWER_MONITOR_VOLTS_PER_AMP * 16384);
+    static lpf_reading_t<amps_adc_scale> amps;
   #endif
   #if ENABLED(POWER_MONITOR_VOLTAGE)
-    static constexpr float volts_adc_scale = (float)POWER_MONITOR_ADC_VREF / (POWER_MONITOR_VOLTS_PER_VOLT * 16384);
-    static lpf_reading_t<&volts_adc_scale> volts;
+    static constexpr float volts_adc_scale = float(POWER_MONITOR_ADC_VREF) / (POWER_MONITOR_VOLTS_PER_VOLT * 16384);
+    static lpf_reading_t<volts_adc_scale> volts;
   #endif
 
 public:
-  static millis_t display_item_ms;
-  static uint8_t display_item;
+  static uint8_t flags;  // M430-M432 set and clear flags to read/display system current
+
+  #if ENABLED(SDSUPPORT)
+    static millis_t display_item_ms;
+    static uint8_t display_item;
+  #endif
 
   PowerMonitor() { reset(); }
 
-  FORCE_INLINE static bool display_enabled() { return TEST(flags, PM_I_DISP_BIT) | TEST(flags, PM_V_DISP_BIT) | TEST(flags, PM_P_DISP_BIT); }
+  enum PM_Display_Bit : uint8_t {
+    PM_DISP_BIT_I, // Current display enable bit
+    PM_DISP_BIT_V, // Voltage display enable bit
+    PM_DISP_BIT_P  // Power display enable bit
+  };
 
   #if ENABLED(POWER_MONITOR_CURRENT)
     FORCE_INLINE static float getAmps() { return amps.value; }
-    FORCE_INLINE static bool current_display_enabled() { return TEST(flags, PM_I_DISP_BIT); }
-    FORCE_INLINE static void set_current_display_enabled(const bool b) { SET_BIT_TO(flags, PM_I_DISP_BIT, b); }
-    FORCE_INLINE static void toggle_current_display_enabled() { TOGGLE_BIT(flags, PM_I_DISP_BIT); }
     void add_current_sample(const uint16_t value) { amps.add_sample(value); }
-  #else
-    FORCE_INLINE static float getAmps() { return 0; }
-    FORCE_INLINE static bool current_display_enabled() { return false; }
   #endif
 
-  #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
+  #if HAS_POWER_MONITOR_VREF
     #if ENABLED(POWER_MONITOR_VOLTAGE)
       FORCE_INLINE static float getVolts() { return volts.value; }
     #else
       FORCE_INLINE static float getVolts() { return POWER_MONITOR_FIXED_VOLTAGE; }  // using a specified fixed valtage as the voltage measurement
     #endif
-    FORCE_INLINE static bool voltage_display_enabled() { return TEST(flags, PM_V_DISP_BIT); }
-    FORCE_INLINE static void set_voltage_display_enabled(const bool b) { SET_BIT_TO(flags, PM_V_DISP_BIT, b); }
-    FORCE_INLINE static void toggle_voltage_display_enabled() { TOGGLE_BIT(flags, PM_V_DISP_BIT); }
     #if ENABLED(POWER_MONITOR_VOLTAGE)
       void add_voltage_sample(const uint16_t value) { volts.add_sample(value); }
     #endif
-  #else
-    FORCE_INLINE static float getVolts() { return 0; }
-    FORCE_INLINE static bool voltage_display_enabled() { return false; }
   #endif
 
-  #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
+  #if HAS_POWER_MONITOR_WATTS
     FORCE_INLINE static float getPower() { return getAmps() * getVolts(); }
-    FORCE_INLINE static bool power_display_enabled() { return TEST(flags, PM_P_DISP_BIT); }
-    FORCE_INLINE static void set_power_display_enabled(const bool b) { SET_BIT_TO(flags, PM_P_DISP_BIT, b); }
-    FORCE_INLINE static void toggle_power_display_enabled() { TOGGLE_BIT(flags, PM_P_DISP_BIT); }
-  #else
-    FORCE_INLINE static float getPower() { return 0; }
-    FORCE_INLINE static bool power_display_enabled() { return false; }
+  #endif
+
+  #if HAS_SPI_LCD
+    FORCE_INLINE static bool display_enabled() { return flags != 0x00; }
+    #if ENABLED(POWER_MONITOR_CURRENT)
+      static void draw_current();
+      FORCE_INLINE static bool current_display_enabled() { return TEST(flags, PM_DISP_BIT_I); }
+      FORCE_INLINE static void set_current_display_enabled(const bool b) { SET_BIT_TO(flags, PM_DISP_BIT_I, b); }
+      FORCE_INLINE static void toggle_current_display() { TBI(flags, PM_DISP_BIT_I); }
+    #endif
+    #if HAS_POWER_MONITOR_VREF
+      static void draw_voltage();
+      FORCE_INLINE static bool voltage_display_enabled() { return TEST(flags, PM_DISP_BIT_V); }
+      FORCE_INLINE static void set_voltage_display_enabled(const bool b) { SET_BIT_TO(flags, PM_DISP_BIT_V, b); }
+      FORCE_INLINE static void toggle_voltage_display() { TBI(flags, PM_DISP_BIT_I); }
+    #endif
+    #if HAS_POWER_MONITOR_WATTS
+      static void draw_power();
+      FORCE_INLINE static bool power_display_enabled() { return TEST(flags, PM_DISP_BIT_P); }
+      FORCE_INLINE static void set_power_display_enabled(const bool b) { SET_BIT_TO(flags, PM_DISP_BIT_P, b); }
+      FORCE_INLINE static void toggle_power_display() { TBI(flags, PM_DISP_BIT_I); }
+    #endif
   #endif
 
   static void reset() {
@@ -113,8 +117,10 @@ public:
       volts.reset();
     #endif
 
-    display_item_ms = millis();
-    display_item = 0;
+    #if ENABLED(SDSUPPORT)
+      display_item_ms = 0;
+      display_item = 0;
+    #endif
   }
 
   static void capture_values() {
@@ -127,6 +133,4 @@ public:
   }
 };
 
-#if HAS_POWER_MONITOR
-  extern PowerMonitor power_monitor;
-#endif
+extern PowerMonitor power_monitor;

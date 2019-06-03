@@ -139,7 +139,7 @@ uint8_t adc_pins[] = {
   #endif
 };
 
-enum TEMP_PINS : char {
+enum TempPinIndex : char {
   #if HAS_TEMP_ADC_0
     TEMP_0,
   #endif

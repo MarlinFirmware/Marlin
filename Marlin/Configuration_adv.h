@@ -2073,9 +2073,9 @@
 
 /**
  * Power Monitor
- * Monitor the voltaqe and/or current drawn and/or power used
+ * Monitor voltage (V) and/or current (A), and -when possible- power (W)
  *
- * If enabled then configurable and readable using GCodes M430, M431 and M432 (current, voltage and power resp)
+ * Read and configure with M430, M431, M432
  *
  * The current sensor feeds DC voltage (relative to the measured current) to an analog pin
  * The voltage sensor feeds DC voltage (relative to the measured voltage) to an analog pin
@@ -2086,7 +2086,7 @@
   #define POWER_MONITOR_VOLTS_PER_AMP   0.05000   // Input voltage to the MCU analog pin per amp  - DO NOT exceed the ADC reference voltage!
   #define POWER_MONITOR_VOLTS_PER_VOLT  0.11786   // Input voltage to the MCU analog pin per volt - DO NOT exceed the ADC reference voltage!
 
-  #define POWER_MONITOR_FIXED_VOLTAGE   13.6      // used as the voltage if you use a current sensor with no voltage sensor and want power display
+  #define POWER_MONITOR_FIXED_VOLTAGE   13.6      // Voltage for a current sensor with no voltage sensor (for power display)
 
   // ADC reference voltage appropriate to the board. Suggested values:
   //   3.0 : Possible ADC reference voltage on 32-bit MCUs

@@ -287,36 +287,29 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 #if ENABLED(POWER_MONITOR_CURRENT)
   inline void draw_power_monitor_current() {
     const float amps = power_monitor.getAmps();
-    if (amps < 100)
-      lcd_put_u8str(ftostr42_52(amps));
-    else
-      lcd_put_u8str(ftostr31ns(amps));
+    lcd_put_u8str(amps < 100 ? ftostr42_52(amps) : ftostr41ns(amps));
     lcd_put_u8str_P(PSTR("A "));
   }
 #endif
 
-#if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
+#if HAS_POWER_MONITOR_VREF
   inline void draw_power_monitor_voltage() {
     const float volts = power_monitor.getVolts();
-    if (volts < 100)
-      lcd_put_u8str(ftostr42_52(volts));
-    else
-      lcd_put_u8str(ftostr31ns(volts));
+    lcd_put_u8str(volts < 100 ? ftostr42_52(volts) : ftostr41ns(volts));
     lcd_put_u8str_P(PSTR("V "));
   }
 #endif
 
-#if ENABLED(POWER_MONITOR_CURRENT)
+#if HAS_POWER_MONITOR_WATTS
   inline void draw_power_monitor_power() {
-    const float power = power_monitor.getPower();
-    if (power < 1000) {
-      lcd_put_u8str(ftostr31ns(power));
-      lcd_put_u8str_P(PSTR("W "));
+    float power = power_monitor.getPower();
+    const char *pstr = PSTR("W ");
+    if (power >= 1000) {
+      power *= 0.001f;
+      pstr = PSTR("kW ");
     }
-    else {
-      lcd_put_u8str(ftostr12ns(power * 0.001f));
-      lcd_put_u8str_P(PSTR("kW "));
-    }
+    lcd_put_u8str(ftostr41ns(power));
+    lcd_put_u8str_P(pstr);
   }
 #endif
 
@@ -637,80 +630,93 @@ void MarlinUI::draw_status_screen() {
     lcd_put_u8str(i16tostr3(feedrate_percentage));
     lcd_put_wchar('%');
 
-    //
-    // display power monitors current, voltage and/or power
-    //
     #if HAS_POWER_MONITOR
+
+      #if ENABLED(POWER_MONITOR_CURRENT)
+        const bool iflag = power_monitor.current_display_enabled();
+      #endif
+      #if HAS_POWER_MONITOR_VREF
+        const bool vflag = power_monitor.voltage_display_enabled();
+      #endif
+      #if HAS_POWER_MONITOR_WATTS
+        const bool wflag = power_monitor.power_display_enabled();
+      #endif
+
+      //
+      // Display Power Monitor current (A), voltage (V) and/or power (W)
+      //
       #if DISABLED(SDSUPPORT)
+
         const bool show_power_monitor = power_monitor.display_enabled();
         if (show_power_monitor) {
-          int items_displayed = 0;
+          uint8_t items_displayed = 0;
           lcd_moveto(48, EXTRAS_2_BASELINE);
           #if ENABLED(POWER_MONITOR_CURRENT)
-            if (power_monitor.current_display_enabled()) {
+            if (iflag) {
               items_displayed++;
-              draw_power_monitor_current();
+              power_monitor.draw_current();
             }
           #endif
-          #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
-            if (power_monitor.voltage_display_enabled()) {
+          #if HAS_POWER_MONITOR_VREF
+            if (vflag) {
               items_displayed++;
-              draw_power_monitor_voltage();
+              power_monitor.draw_voltage();
             }
-            if (power_monitor.power_display_enabled() && items_displayed < 2) {
-//              items_displayed++;
-              draw_power_monitor_power();
+          #endif
+          #if HAS_POWER_MONITOR_WATTS
+            if (wflag && items_displayed < 2) {
+              //items_displayed++;
+              power_monitor.draw_power();
             }
           #endif
         }
-      #else
+
+      #else // SDSUPPORT
+
         lcd_moveto(PROGRESS_BAR_X, EXTRAS_BASELINE);
 
-        #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
-          uint8_t max_item = 0;
-          if (power_monitor.current_display_enabled()) max_item = 1;
-          if (power_monitor.voltage_display_enabled()) max_item = 2;
-          if (power_monitor.power_display_enabled()) max_item = 3;
+        #if ENABLED(POWER_MONITOR_CURRENT) || HAS_POWER_MONITOR_VREF
 
-          // toggle between current, voltage and power
+          // Cycle current, voltage, and power
           if (ELAPSED(millis(), power_monitor.display_item_ms)) {
             power_monitor.display_item_ms = millis() + 1000UL;
-            power_monitor.display_item++;
+            ++power_monitor.display_item;
           }
 
-          if (power_monitor.display_item >= max_item)
-            power_monitor.display_item = 0;
         #endif
 
-        // display current
-        if (power_monitor.display_item == 0) {
-          if (power_monitor.current_display_enabled())
-            draw_power_monitor_current();
-          #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
-            else
-              power_monitor.display_item++;
+        switch (power_monitor.display_item) {
+          default: power_monitor.display_item = 0;
+          #if ENABLED(POWER_MONITOR_CURRENT)
+            case 0: if (iflag) break;
           #endif
+              ++power_monitor.display_item;
+          #if HAS_POWER_MONITOR_VREF
+            case 1: if (vflag) break;
+          #endif
+              ++power_monitor.display_item;
+          #if ENABLED(POWER_MONITOR_CURRENT)
+            case 2: if (wflag) break;
+          #endif
+              ++power_monitor.display_item;
         }
 
-        #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
-          // display voltage
-          if (power_monitor.display_item == 1) {
-            if (power_monitor.voltage_display_enabled())
-              draw_power_monitor_voltage();
-            else
-              power_monitor.display_item++;
-          }
+        switch (power_monitor.display_item) {
+          #if ENABLED(POWER_MONITOR_CURRENT)                // Current
+            case 0: power_monitor.draw_current(); break;
+          #endif
+          #if HAS_POWER_MONITOR_VREF                        // Voltage
+            case 1: power_monitor.draw_voltage(); break;
+          #endif
+          #if HAS_POWER_MONITOR_WATTS                       // Power
+            case 2: power_monitor.draw_power(); break;
+          #endif
+          default: break;
+        }
 
-          // display power
-          if (power_monitor.display_item == 2) {
-            if (power_monitor.power_display_enabled())
-              draw_power_monitor_power();
-            else
-              power_monitor.display_item++;
-          }
-        #endif
-      #endif
-    #endif
+      #endif // SDSUPPORT
+
+    #endif // HAS_POWER_MONITOR
 
     //
     // Filament sensor display if SD is disabled

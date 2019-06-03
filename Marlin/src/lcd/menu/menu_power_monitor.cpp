@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
+#if HAS_LCD_MENU && HAS_POWER_MONITOR
 
 #include "menu.h"
 #include "../../feature/power_monitor.h"
@@ -38,21 +38,21 @@ void menu_power_monitor() {
   #if ENABLED(POWER_MONITOR_CURRENT)
   {
     bool ena = power_monitor.current_display_enabled();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_CURRENT, &ena, power_monitor.toggle_current_display_enabled);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_CURRENT, &ena, power_monitor.toggle_current_display);
   }
   #endif
 
-  #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
+  #if HAS_POWER_MONITOR_VREF
   {
     bool ena = power_monitor.voltage_display_enabled();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLTAGE, &ena, power_monitor.toggle_voltage_display_enabled);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLTAGE, &ena, power_monitor.toggle_voltage_display);
   }
   #endif
 
-  #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
+  #if HAS_POWER_MONITOR_WATTS
   {
     bool ena = power_monitor.power_display_enabled();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_POWER, &ena, power_monitor.toggle_power_display_enabled);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_POWER, &ena, power_monitor.toggle_power_display);
   }
   #endif
 

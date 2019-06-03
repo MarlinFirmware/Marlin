@@ -37,15 +37,17 @@
    *  D[bool] - Set Display of current on the LCD
    */
   void GcodeSuite::M430() {
-    if (parser.seen('D'))
-      power_monitor.set_current_display_enabled(parser.value_bool());
-    else
-      SERIAL_ECHOLNPAIR("Current: ", power_monitor.getAmps(), "A");
+    #if HAS_SPI_LCD
+      if (parser.seen('D'))
+        power_monitor.set_current_display_enabled(parser.value_bool());
+      else
+    #endif
+        SERIAL_ECHOLNPAIR("Current: ", power_monitor.getAmps(), "A");
   }
 
 #endif
 
-#if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
+#if HAS_POWER_MONITOR_VREF
 
   /**
    * M431: Enable/disable voltage LCD display
@@ -54,15 +56,17 @@
    *  D[bool] - Set Display of voltage on the LCD
    */
   void GcodeSuite::M431() {
-    if (parser.seen('D'))
-      power_monitor.set_voltage_display_enabled(parser.value_bool());
-    else
-      SERIAL_ECHOLNPAIR("Voltage: ", power_monitor.getVolts(), "V");
+    #if HAS_SPI_LCD
+      if (parser.seen('D'))
+        power_monitor.set_voltage_display_enabled(parser.value_bool());
+      else
+    #endif
+        SERIAL_ECHOLNPAIR("Voltage: ", power_monitor.getVolts(), "V");
   }
 
 #endif
 
-#if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
+#if HAS_POWER_MONITOR_WATTS
 
   /**
    * M432: Enable/disable power LCD display
@@ -71,10 +75,12 @@
    *  D[bool] - Set Display of power on the LCD
    */
   void GcodeSuite::M432() {
-    if (parser.seen('D'))
-      power_monitor.set_power_display_enabled(parser.value_bool());
-    else
-      SERIAL_ECHOLNPAIR("power: ", power_monitor.getPower(), "W");
+    #if HAS_SPI_LCD
+      if (parser.seen('D'))
+        power_monitor.set_power_display_enabled(parser.value_bool());
+      else
+    #endif
+        SERIAL_ECHOLNPAIR("Power: ", power_monitor.getPower(), "W");
   }
 
 #endif

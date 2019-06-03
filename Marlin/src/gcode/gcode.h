@@ -209,8 +209,8 @@
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M430 - Read the system amperage (Requires POWER_MONITOR_CURRENT)
- * M431 - Read the system voltage (Requires POWER_MONITOR_VOLTAGE)
- * M432 - Read the system power (Requires POWER_MONITOR_CURENT and either POWER_MONITOR_VOLTAGE or POWER_MONITOR_FIXED_VOLTAGE)
+ * M431 - Read the system voltage (Requires POWER_MONITOR_VOLTAGE || POWER_MONITOR_FIXED_VOLTAGE)
+ * M432 - Read the system power (Requires POWER_MONITOR_CURRENT && (POWER_MONITOR_VOLTAGE || POWER_MONITOR_FIXED_VOLTAGE))
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -761,10 +761,10 @@ private:
   #if ENABLED(POWER_MONITOR_CURRENT)
     static void M430();
   #endif
-  #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
+  #if HAS_POWER_MONITOR_VREF
     static void M431();
   #endif
-  #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
+  #if HAS_POWER_MONITOR_WATTS
     static void M432();
   #endif
 

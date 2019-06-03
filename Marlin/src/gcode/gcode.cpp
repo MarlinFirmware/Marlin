@@ -647,10 +647,10 @@ void GcodeSuite::process_parsed_command(
       #if ENABLED(POWER_MONITOR_CURRENT)
         case 430: M430(); break;                                  // M430: Read the system current (amps)
       #endif
-      #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
-        case 431: M431(); break;                                  // M431: Read the system voltage (volts)
+      #if HAS_POWER_MONITOR_VREF
+        case 431: M431(); break;                                  // M431: Read the system (or reference) voltage (volts)
       #endif
-      #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
+      #if HAS_POWER_MONITOR_WATTS
         case 432: M432(); break;                                  // M432: Read the system power (watts)
       #endif
 

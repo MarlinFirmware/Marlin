@@ -83,7 +83,7 @@ inline void serial_delay(const millis_t ms) {
   char* ftostr12ns(const float &x);
 
   // Convert unsigned float to string with 123.4 format
-  char* ftostr31ns(const float &x);
+  char* ftostr41ns(const float &x);
 
   // Convert signed float to fixed-length string with 12.34 / -2.34 or 023.45 / -23.45 format
   char* ftostr42_52(const float &x);

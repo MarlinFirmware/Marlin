@@ -20,24 +20,60 @@
  *
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
 
 #if HAS_POWER_MONITOR
 
 #include "power_monitor.h"
 
+#include "../lcd/ultralcd.h"
+#include "../lcd/lcdprint.h"
+
 uint8_t PowerMonitor::flags; // = 0
 
 #if ENABLED(POWER_MONITOR_CURRENT)
-  lpf_reading_t<&PowerMonitor::amps_adc_scale> PowerMonitor::amps;
+  lpf_reading_t<PowerMonitor::amps_adc_scale> PowerMonitor::amps;
 #endif
 #if ENABLED(POWER_MONITOR_VOLTAGE)
-  lpf_reading_t<&PowerMonitor::volts_adc_scale> PowerMonitor::volts;
+  lpf_reading_t<PowerMonitor::volts_adc_scale> PowerMonitor::volts;
 #endif
 
-millis_t PowerMonitor::display_item_ms;
-uint8_t PowerMonitor::display_item;
+#if ENABLED(SDSUPPORT)
+  millis_t PowerMonitor::display_item_ms;
+  uint8_t PowerMonitor::display_item;
+#endif
 
 PowerMonitor power_monitor; // Single instance - this calls the constructor
 
+#if HAS_GRAPHICAL_LCD
+
+  #if ENABLED(POWER_MONITOR_CURRENT)
+    void PowerMonitor::draw_current() {
+      lcd_put_u8str(amps.value < 100 ? ftostr42_52(amps.value) : ftostr41ns(amps.value));
+      lcd_put_u8str_P(PSTR("A "));
+    }
+  #endif
+
+  #if HAS_POWER_MONITOR_VREF
+    void PowerMonitor::draw_voltage() {
+      lcd_put_u8str(volts.value < 100 ? ftostr42_52(volts.value) : ftostr41ns(volts.value));
+      lcd_put_u8str_P(PSTR("V "));
+    }
+  #endif
+
+  #if HAS_POWER_MONITOR_WATTS
+    void PowerMonitor::draw_power() {
+      const char *pstr = PSTR("W ");
+      float power = getPower();
+      if (power >= 1000) {
+        power *= 0.001f;
+        pstr = PSTR("kW ");
+      }
+      lcd_put_u8str(ftostr41ns(power));
+      lcd_put_u8str_P(pstr);
+    }
+  #endif
+
 #endif
+
+#endif // HAS_POWER_MONITOR

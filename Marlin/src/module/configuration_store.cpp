@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V67"
+#define EEPROM_VERSION "V68"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -265,15 +265,7 @@ typedef struct SettingsDataStruct {
   //
   // Power monitor
   //
-  #if HAS_POWER_MONITOR_CURRENT_SENSOR
-    bool power_monitor_current_display_enabled;         // M430, M430 D0, M430 D1
-  #endif
-  #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-    bool power_monitor_voltage_display_enabled;         // M431, M431 D0, M431 D1
-  #endif
-  #if HAS_POWER_MONITOR_CURRENTE_SENSOR
-    bool power_monitor_power_display_enabled;           // M432, M432 D0, M432 D1
-  #endif
+  uint8_t power_monitor_flags;                             // M430, M431, M432
 
   //
   // HAS_LCD_CONTRAST
@@ -855,26 +847,17 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // Power monnitor
+    // Power monitor
     //
-    #if HAS_POWER_MONITOR_CURRENT_SENSOR
     {
-      _FIELD_TEST(power_monitor_current_display_enabled);
-      EEPROM_WRITE(power_monitor.current_display_enabled);
+      #if HAS_POWER_MONITOR
+        const uint8_t &power_monitor_flags = power_monitor.flags;
+      #else
+        constexpr uint8_t power_monitor_flags = 0x00;
+      #endif
+      _FIELD_TEST(power_monitor_flags);
+      EEPROM_WRITE(power_monitor_flags);
     }
-    #endif
-    #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-    {
-      _FIELD_TEST(power_monitor_voltage_display_enabled);
-      EEPROM_WRITE(power_monitor.voltage_display_enabled);
-    }
-    #endif
-    #if HAS_POWER_MONITOR_CURRENT_SENSOR
-    {
-      _FIELD_TEST(power_monitor_power_display_enabled);
-      EEPROM_WRITE(power_monitor.power_display_enabled);
-    }
-    #endif
 
     //
     // LCD Contrast
@@ -1684,24 +1667,15 @@ void MarlinSettings::postprocess() {
       //
       // Power monitor
       //
-      #if HAS_POWER_MONITOR_CURRENT_SENSOR
       {
-        _FIELD_TEST(power_monitor_current_display_enabled);
-        EEPROM_READ(power_monitor.current_display_enabled);
+        #if HAS_POWER_MONITOR
+          uint8_t &power_monitor_flags = power_monitor.flags;
+        #else
+          uint8_t power_monitor_flags;
+        #endif
+        _FIELD_TEST(power_monitor_flags);
+        EEPROM_READ(power_monitor_flags);
       }
-      #endif
-      #if HAS_POWER_MONITOR_VOLTAGE_SENSOR
-      {
-        _FIELD_TEST(power_monitor_voltage_display_enabled);
-        EEPROM_READ(power_monitor.voltage_display_enabled);
-      }
-      #endif
-      #if HAS_POWER_MONITOR_CURRENT_SENSOR
-      {
-        _FIELD_TEST(power_monitor_power_display_enabled);
-        EEPROM_READ(power_monitor.power_display_enabled);
-      }
-      #endif
 
       //
       // LCD Contrast
