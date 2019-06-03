@@ -991,7 +991,7 @@ void Temperature::manage_heater() {
   #define HAS_THERMAL_PROTECTION (ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER))
 
   #if HAS_THERMAL_PROTECTION || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || HEATER_IDLE_HANDLER
-    millis_t ms = millis();
+    const millis_t ms = millis();
   #endif
 
   #if HAS_THERMAL_PROTECTION
@@ -2029,7 +2029,7 @@ void Temperature::disable_all_heaters() {
 
     // Return last-read value between readings
     static millis_t next_max6675_ms[COUNT_6675] = { 0 };
-    millis_t ms = millis();
+    const millis_t ms = millis();
     if (PENDING(ms, next_max6675_ms[hindex]))
       return int(
         #if COUNT_6675 == 1

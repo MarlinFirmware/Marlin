@@ -301,7 +301,7 @@ void MarlinUI::init() {
 bool MarlinUI::get_blink() {
   static uint8_t blink = 0;
   static millis_t next_blink_ms = 0;
-  millis_t ms = millis();
+  const millis_t ms = millis();
   if (ELAPSED(ms, next_blink_ms)) {
     blink ^= 0xFF;
     next_blink_ms = ms + 1000 - (LCD_UPDATE_INTERVAL) / 2;

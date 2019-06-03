@@ -1241,7 +1241,7 @@ void Planner::check_axes_activity() {
 
       #define KICKSTART_FAN(f) \
         if (tail_fan_speed[f]) { \
-          millis_t ms = millis(); \
+          const millis_t ms = millis(); \
           if (fan_kick_end[f] == 0) { \
             fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
             tail_fan_speed[f] = 255; \

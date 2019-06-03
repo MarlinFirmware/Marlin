@@ -370,7 +370,7 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
     template<const size_t buffer_size>
     void receive(char (&buffer)[buffer_size]) {
       uint8_t data = 0;
-      millis_t transfer_timeout = millis() + RX_TIMESLICE;
+      const millis_t transfer_timeout = millis() + RX_TIMESLICE;
 
       #if ENABLED(SDSUPPORT)
         PORT_REDIRECT(card.transfer_port_index);

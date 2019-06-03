@@ -235,7 +235,7 @@ void PrintCounter::showStats() {
 void PrintCounter::tick() {
   if (!isRunning()) return;
 
-  millis_t now = millis();
+  const millis_t now = millis();
 
   static uint32_t update_next; // = 0
   if (ELAPSED(now, update_next)) {

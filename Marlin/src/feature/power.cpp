@@ -99,7 +99,7 @@ bool Power::is_power_needed() {
 
 void Power::check() {
   static millis_t nextPowerCheck = 0;
-  millis_t ms = millis();
+  const millis_t ms = millis();
   if (ELAPSED(ms, nextPowerCheck)) {
     nextPowerCheck = ms + 2500UL;
     if (is_power_needed())
