@@ -492,7 +492,8 @@ void MarlinUI::draw_status_screen() {
     //
     // Progress bar frame
     //
-    #define PROGRESS_BAR_X 54
+//    #define PROGRESS_BAR_X 54
+    #define PROGRESS_BAR_X 46
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
     if (PAGE_CONTAINS(49, 52))
@@ -555,7 +556,7 @@ void MarlinUI::draw_status_screen() {
   #define X_VALUE_POS 11
   #define XYZ_SPACING 37
 
-  #if ENABLED(XYZ_HOLLOW_FRAME)
+  #if ENABLED(XYZ_NO_FRAME) || ENABLED(XYZ_HOLLOW_FRAME)
     #define XYZ_FRAME_TOP 29
     #define XYZ_FRAME_HEIGHT INFO_FONT_ASCENT + 3
   #else
@@ -565,15 +566,17 @@ void MarlinUI::draw_status_screen() {
 
   if (PAGE_CONTAINS(XYZ_FRAME_TOP, XYZ_FRAME_TOP + XYZ_FRAME_HEIGHT - 1)) {
 
-    #if ENABLED(XYZ_HOLLOW_FRAME)
-      u8g.drawFrame(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT); // 8: 29-40  7: 29-39
-    #else
-      u8g.drawBox(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT);   // 8: 30-39  7: 30-37
+    #if DISABLED(XYZ_NO_FRAME)
+      #if ENABLED(XYZ_HOLLOW_FRAME)
+        u8g.drawFrame(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT); // 8: 29-40  7: 29-39
+      #else
+        u8g.drawBox(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT);   // 8: 30-39  7: 30-37
+      #endif
     #endif
 
     if (PAGE_CONTAINS(XYZ_BASELINE - (INFO_FONT_ASCENT - 1), XYZ_BASELINE)) {
 
-      #if DISABLED(XYZ_HOLLOW_FRAME)
+      #if DISABLED(XYZ_NO_FRAME) && DISABLED(XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(0); // white on black
       #endif
 
@@ -608,7 +611,7 @@ void MarlinUI::draw_status_screen() {
 
       _draw_axis_value(Z_AXIS, zstring, blink);
 
-      #if DISABLED(XYZ_HOLLOW_FRAME)
+      #if DISABLED(XYZ_NO_FRAME) && DISABLED(XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white
       #endif
     }
