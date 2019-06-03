@@ -38,9 +38,9 @@ AsyncWebSocket ws("/ws"); // TODO Move inside the class.
 
 RingBuffer::RingBuffer(ring_buffer_pos_t size)
   : data(new uint8_t[size]),
+    size(size),
     read_index(0),
-    write_index(0),
-    size(size)
+    write_index(0)
 {}
 
 RingBuffer::~RingBuffer() { delete[] data; }

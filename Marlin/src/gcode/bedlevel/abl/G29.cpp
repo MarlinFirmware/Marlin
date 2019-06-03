@@ -55,6 +55,10 @@
   #include "../../../lcd/extensible_ui/ui_api.h"
 #endif
 
+#if HOTENDS > 1
+  #include "../../../module/tool_change.h"
+#endif
+
 #if ABL_GRID
   #if ENABLED(PROBE_Y_FIRST)
     #define PR_OUTER_VAR xCount
@@ -280,7 +284,7 @@ G29_TYPE GcodeSuite::G29() {
    */
   if (!g29_in_progress) {
 
-    #if ENABLED(DUAL_X_CARRIAGE)
+    #if HOTENDS > 1
       if (active_extruder != 0) tool_change(0);
     #endif
 

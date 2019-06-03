@@ -49,7 +49,7 @@ void Heater::update() {
     last = now;
     heat += (heater_state - heat) * (delta / 1000000000.0);
 
-    if (heat < room_temp_raw) heat = room_temp_raw;
+    NOLESS(heat, room_temp_raw);
     Gpio::pin_map[analogInputToDigitalPin(adc_pin)].value = 0xFFFF - (uint16_t)heat;
   }
 }

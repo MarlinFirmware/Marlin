@@ -192,10 +192,10 @@
  */
 #if ENABLED(HYBRID_THRESHOLD)
   void GcodeSuite::M913() {
-    #define TMC_SAY_PWMTHRS(A,Q) tmc_get_pwmthrs(stepper##Q, planner.settings.axis_steps_per_mm[_AXIS(A)])
-    #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, value, planner.settings.axis_steps_per_mm[_AXIS(A)])
-    #define TMC_SAY_PWMTHRS_E(E) tmc_get_pwmthrs(stepperE##E, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
-    #define TMC_SET_PWMTHRS_E(E) tmc_set_pwmthrs(stepperE##E, value, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
+    #define TMC_SAY_PWMTHRS(A,Q) tmc_print_pwmthrs(stepper##Q)
+    #define TMC_SET_PWMTHRS(A,Q) stepper##Q.set_pwm_thrs(value)
+    #define TMC_SAY_PWMTHRS_E(E) tmc_print_pwmthrs(stepperE##E)
+    #define TMC_SET_PWMTHRS_E(E) stepperE##E.set_pwm_thrs(value)
 
     bool report = true;
     #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3)
@@ -309,8 +309,6 @@
  */
 #if USE_SENSORLESS
   void GcodeSuite::M914() {
-    #define TMC_SAY_SGT(Q) tmc_get_sgt(stepper##Q)
-    #define TMC_SET_SGT(Q) tmc_set_sgt(stepper##Q, value)
 
     bool report = true;
     const uint8_t index = parser.byteval('I');
@@ -321,33 +319,33 @@
         #if X_SENSORLESS
           case X_AXIS:
             #if AXIS_HAS_STALLGUARD(X)
-              if (index < 2) TMC_SET_SGT(X);
+              if (index < 2) stepperX.sgt(value);
             #endif
             #if AXIS_HAS_STALLGUARD(X2)
-              if (!(index & 1)) TMC_SET_SGT(X2);
+              if (!(index & 1)) stepperX2.sgt(value);
             #endif
             break;
         #endif
         #if Y_SENSORLESS
           case Y_AXIS:
             #if AXIS_HAS_STALLGUARD(Y)
-              if (index < 2) TMC_SET_SGT(Y);
+              if (index < 2) stepperY.sgt(value);
             #endif
             #if AXIS_HAS_STALLGUARD(Y2)
-              if (!(index & 1)) TMC_SET_SGT(Y2);
+              if (!(index & 1)) stepperY2.sgt(value);
             #endif
             break;
         #endif
         #if Z_SENSORLESS
           case Z_AXIS:
             #if AXIS_HAS_STALLGUARD(Z)
-              if (index < 2) TMC_SET_SGT(Z);
+              if (index < 2) stepperZ.sgt(value);
             #endif
             #if AXIS_HAS_STALLGUARD(Z2)
-              if (index == 0 || index == 2) TMC_SET_SGT(Z2);
+              if (index == 0 || index == 2) stepperZ2.sgt(value);
             #endif
             #if AXIS_HAS_STALLGUARD(Z3)
-              if (index == 0 || index == 3) TMC_SET_SGT(Z3);
+              if (index == 0 || index == 3) stepperZ3.sgt(value);
             #endif
             break;
         #endif
@@ -357,29 +355,29 @@
     if (report) {
       #if X_SENSORLESS
         #if AXIS_HAS_STALLGUARD(X)
-          TMC_SAY_SGT(X);
+          tmc_print_sgt(stepperX);
         #endif
         #if AXIS_HAS_STALLGUARD(X2)
-          TMC_SAY_SGT(X2);
+          tmc_print_sgt(stepperX2);
         #endif
       #endif
       #if Y_SENSORLESS
         #if AXIS_HAS_STALLGUARD(Y)
-          TMC_SAY_SGT(Y);
+          tmc_print_sgt(stepperY);
         #endif
         #if AXIS_HAS_STALLGUARD(Y2)
-          TMC_SAY_SGT(Y2);
+          tmc_print_sgt(stepperY2);
         #endif
       #endif
       #if Z_SENSORLESS
         #if AXIS_HAS_STALLGUARD(Z)
-          TMC_SAY_SGT(Z);
+          tmc_print_sgt(stepperZ);
         #endif
         #if AXIS_HAS_STALLGUARD(Z2)
-          TMC_SAY_SGT(Z2);
+          tmc_print_sgt(stepperZ2);
         #endif
         #if AXIS_HAS_STALLGUARD(Z3)
-          TMC_SAY_SGT(Z3);
+          tmc_print_sgt(stepperZ3);
         #endif
       #endif
     }

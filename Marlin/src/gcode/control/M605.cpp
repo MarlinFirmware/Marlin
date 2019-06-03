@@ -132,7 +132,7 @@
         DEBUG_ECHOPAIR("\nX2 Home X: ", x_home_pos(1), "\nX2_MIN_POS=", int(X2_MIN_POS), "\nX2_MAX_POS=", int(X2_MAX_POS));
         DEBUG_ECHOPAIR("\nX2_HOME_DIR=", int(X2_HOME_DIR), "\nX2_HOME_POS=", int(X2_HOME_POS));
         DEBUG_ECHOPAIR("\nDEFAULT_DUAL_X_CARRIAGE_MODE=", STRINGIFY(DEFAULT_DUAL_X_CARRIAGE_MODE));
-        DEBUG_ECHOPAIR("\nTOOLCHANGE_ZRAISE=", float(TOOLCHANGE_ZRAISE));
+        DEBUG_ECHOPAIR("\toolchange_settings.z_raise=", toolchange_settings.z_raise);
         DEBUG_ECHOPAIR("\nDEFAULT_DUPLICATION_X_OFFSET=", int(DEFAULT_DUPLICATION_X_OFFSET));
         DEBUG_EOL();
 

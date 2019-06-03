@@ -233,10 +233,10 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
     #if ENABLED(HEATER_5_USER_THERMISTOR)
       CTI_HOTEND_5,
     #endif
-    #if ENABLED(BED_USER_THERMISTOR)
+    #if ENABLED(HEATER_BED_USER_THERMISTOR)
       CTI_BED,
     #endif
-    #if ENABLED(CHAMBER_USER_THERMISTOR)
+    #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
       CTI_CHAMBER,
     #endif
     USER_THERMISTORS

@@ -286,6 +286,10 @@ public:
       static char* status_and_len(uint8_t &len);
     #endif
 
+    static void abort_print();
+    static void pause_print();
+    static void resume_print();
+    
     #if HAS_PRINT_PROGRESS
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
         static uint8_t progress_bar_percent;

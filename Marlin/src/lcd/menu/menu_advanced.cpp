@@ -39,11 +39,6 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(BLTOUCH)
-  #include "../../module/endstops.h"
-  #include "../../feature/bltouch.h"
-#endif
-
 #if ENABLED(PIDTEMP)
   #include "../../module/temperature.h"
 #endif
@@ -62,7 +57,7 @@ void menu_backlash();
   void menu_dac() {
     dac_driver_getValues();
     START_MENU();
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_ADVANCED_SETTINGS);
     #define EDIT_DAC_PERCENT(N) MENU_ITEM_EDIT_CALLBACK(uint8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
@@ -80,7 +75,7 @@ void menu_backlash();
 
   void menu_pwm() {
     START_MENU();
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_ADVANCED_SETTINGS);
     #define EDIT_CURRENT_PWM(LABEL,I) MENU_ITEM_EDIT_CALLBACK(long5, LABEL, &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
       EDIT_CURRENT_PWM(MSG_X MSG_Y, 0);
@@ -681,15 +676,6 @@ void menu_advanced_settings() {
   // M540 S - Abort on endstop hit when SD printing
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
-  #endif
-
-  //
-  // BLTouch Self-Test and Reset
-  //
-  #if ENABLED(BLTOUCH)
-    MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-    if (!endstops.z_probe_enabled && bltouch.triggered())
-      MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
   #endif
 
   #if ENABLED(SD_FIRMWARE_UPDATE)

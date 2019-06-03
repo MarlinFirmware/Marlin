@@ -418,7 +418,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }
       if (onpage) {
-        lcd_moveto(((lcd_chr_fit - 1) - (vallen + 1)) * one_chr_width, baseline); // Right-justified, leaving padded by spaces
+        lcd_moveto((lcd_chr_fit - (vallen + 1)) * one_chr_width, baseline); // Right-justified, leaving padded by spaces
         lcd_put_wchar(' '); // overwrite char if value gets shorter
         lcd_put_u8str(value);
       }
