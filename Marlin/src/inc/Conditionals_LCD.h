@@ -405,9 +405,6 @@
   #define E_MANUAL        EXTRUDERS
 #elif ENABLED(PRUSA_MMU2)
   #define E_STEPPERS 1
-  #ifndef TOOLCHANGE_ZRAISE
-    #define TOOLCHANGE_ZRAISE 0
-  #endif
 #endif
 
 // No inactive extruders with MK2_MULTIPLEXER or SWITCHING_NOZZLE

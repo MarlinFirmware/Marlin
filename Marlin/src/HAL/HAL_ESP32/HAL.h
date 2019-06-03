@@ -75,6 +75,8 @@ extern portMUX_TYPE spinlock;
 
 typedef int16_t pin_t;
 
+#define HAL_SERVO_LIB Servo
+
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
@@ -122,5 +124,7 @@ void HAL_adc_start_conversion(uint8_t adc_pin);
 // Enable hooks into idle and setup for HAL
 #define HAL_IDLETASK 1
 #define HAL_INIT 1
+#define BOARD_INIT() HAL_init_board();
 void HAL_idletask(void);
 void HAL_init(void);
+void HAL_init_board(void);

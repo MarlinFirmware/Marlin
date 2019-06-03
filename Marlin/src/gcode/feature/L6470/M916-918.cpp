@@ -34,7 +34,7 @@
 
 /**
  *
- * M916: increase KVAL_HOLD until get thermal warning
+ * M916: Increase KVAL_HOLD until thermal warning
  *
  *
  * J - select which driver(s) to monitor on multi-driver axis
@@ -106,10 +106,10 @@ void GcodeSuite::M916() {
 
     // turn the motor(s) both directions
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
+    process_subcommands_now_P(gcode_string);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_max, final_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
+    process_subcommands_now_P(gcode_string);
 
     // get the status after the motors have stopped
     planner.synchronize();
@@ -226,10 +226,10 @@ void GcodeSuite::M917() {
     DEBUG_ECHOLNPAIR("   OCD threshold : ", (ocd_th_val + 1) * 375);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
+    process_subcommands_now_P(gcode_string);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_max, final_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
+    process_subcommands_now_P(gcode_string);
 
     planner.synchronize();
 
@@ -263,7 +263,7 @@ void GcodeSuite::M917() {
             L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         DEBUG_ECHOLNPGM(".");
-        gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
+        reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
         watchdog_reset();   // beat the dog
         safe_delay(5000);
         status_composite_temp = 0;
@@ -518,10 +518,10 @@ void GcodeSuite::M918() {
     DEBUG_ECHOLNPAIR("...feedrate = ", current_feedrate);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f F%4.3f"), temp_axis_string, position_min, current_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
+    process_subcommands_now_P(gcode_string);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f F%4.3f"), temp_axis_string, position_max, current_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
+    process_subcommands_now_P(gcode_string);
 
     planner.synchronize();
 

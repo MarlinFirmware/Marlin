@@ -31,6 +31,9 @@
   #if ENABLED(EXTENSIBLE_UI)
     #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
   #endif
+  #if ENABLED(HOST_ACTION_COMMANDS)
+    #include "../feature/host_actions.h"
+  #endif
 #endif
 
 #if HAS_SPI_LCD
@@ -1356,6 +1359,63 @@ void MarlinUI::update() {
       msg = welcome;
 
     set_status_P(msg, -1);
+  }
+
+  void MarlinUI::abort_print() {
+    #if ENABLED(SDSUPPORT)
+      wait_for_heatup = wait_for_user = false;
+      card.flag.abort_sd_printing = true;
+    #endif
+    #ifdef ACTION_ON_CANCEL
+      host_action_cancel();
+    #endif
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_open(PROMPT_INFO, PSTR("UI Abort"));
+    #endif
+    print_job_timer.stop();
+    set_status_P(PSTR(MSG_PRINT_ABORTED));
+    #if HAS_SPI_LCD
+      return_to_status();
+    #endif
+  }
+
+  void MarlinUI::pause_print() {
+    synchronize(PSTR(MSG_PAUSE_PRINT));
+
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (recovery.enabled) recovery.save(true, false);
+    #endif
+
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume"));
+    #endif
+
+    set_status_P(PSTR(MSG_PRINT_PAUSED));
+
+    #if ENABLED(PARK_HEAD_ON_PAUSE)
+      #if HAS_SPI_LCD
+        lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
+      #endif
+      enqueue_and_echo_commands_P(PSTR("M25 P\nM24"));
+    #elif ENABLED(SDSUPPORT)
+      enqueue_and_echo_commands_P(PSTR("M25"));
+    #elif defined(ACTION_ON_PAUSE)
+      host_action_pause();
+    #endif
+  }
+
+  void MarlinUI::resume_print() {
+    reset_status();
+    #if ENABLED(PARK_HEAD_ON_PAUSE)
+      wait_for_heatup = wait_for_user = false;
+    #endif
+    #if ENABLED(SDSUPPORT)
+      if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
+    #endif
+    #ifdef ACTION_ON_RESUME
+      host_action_resume();
+    #endif
+    print_job_timer.start(); // Also called by M24
   }
 
   #if HAS_PRINT_PROGRESS

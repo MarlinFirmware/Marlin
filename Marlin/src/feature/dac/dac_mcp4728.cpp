@@ -58,7 +58,7 @@ void mcp4728_init() {
  * Write input resister value to specified channel using fastwrite method.
  * Channel : 0-3, Values : 0-4095
  */
-uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value) {
+uint8_t mcp4728_analogWrite(const uint8_t channel, const uint16_t value) {
   mcp4728_values[channel] = value;
   return mcp4728_fastWrite();
 }
@@ -81,7 +81,7 @@ uint8_t mcp4728_eepromWrite() {
 /**
  * Write Voltage reference setting to all input regiters
  */
-uint8_t mcp4728_setVref_all(uint8_t value) {
+uint8_t mcp4728_setVref_all(const uint8_t value) {
   Wire.beginTransmission(I2C_ADDRESS(DAC_DEV_ADDRESS));
   Wire.write(VREFWRITE | (value ? 0x0F : 0x00));
   return Wire.endTransmission();
@@ -89,7 +89,7 @@ uint8_t mcp4728_setVref_all(uint8_t value) {
 /**
  * Write Gain setting to all input regiters
  */
-uint8_t mcp4728_setGain_all(uint8_t value) {
+uint8_t mcp4728_setGain_all(const uint8_t value) {
   Wire.beginTransmission(I2C_ADDRESS(DAC_DEV_ADDRESS));
   Wire.write(GAINWRITE | (value ? 0x0F : 0x00));
   return Wire.endTransmission();
@@ -98,25 +98,24 @@ uint8_t mcp4728_setGain_all(uint8_t value) {
 /**
  * Return Input Register value
  */
-uint16_t mcp4728_getValue(uint8_t channel) { return mcp4728_values[channel]; }
+uint16_t mcp4728_getValue(const uint8_t channel) { return mcp4728_values[channel]; }
 
 #if 0
 /**
  * Steph: Might be useful in the future
  * Return Vout
  */
-uint16_t mcp4728_getVout(uint8_t channel) {
-  uint32_t vref = 2048,
-           vOut = (vref * mcp4728_values[channel] * (_DAC_STEPPER_GAIN + 1)) / 4096;
-  if (vOut > defaultVDD) vOut = defaultVDD;
-  return vOut;
+uint16_t mcp4728_getVout(const uint8_t channel) {
+  const uint32_t vref = 2048,
+                 vOut = (vref * mcp4728_values[channel] * (_DAC_STEPPER_GAIN + 1)) / 4096;
+  return MIN(vOut, defaultVDD);
 }
 #endif
 
 /**
  * Returns DAC values as a 0-100 percentage of drive strength
  */
-uint8_t mcp4728_getDrvPct(uint8_t channel) { return uint8_t(100.0 * mcp4728_values[channel] / (DAC_STEPPER_MAX) + 0.5); }
+uint8_t mcp4728_getDrvPct(const uint8_t channel) { return uint8_t(100.0 * mcp4728_values[channel] / (DAC_STEPPER_MAX) + 0.5); }
 
 /**
  * Receives all Drive strengths as 0-100 percent values, updates
@@ -144,7 +143,7 @@ uint8_t mcp4728_fastWrite() {
 /**
  * Common function for simple general commands
  */
-uint8_t mcp4728_simpleCommand(byte simpleCommand) {
+uint8_t mcp4728_simpleCommand(const byte simpleCommand) {
   Wire.beginTransmission(I2C_ADDRESS(GENERALCALL));
   Wire.write(simpleCommand);
   return Wire.endTransmission();

@@ -53,7 +53,7 @@ DECLARE_MENU_EDIT_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );   // 123
 DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_3,    ui16tostr3,      1     );   // 123, -12   right-justified
 DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_4,    ui16tostr4,      0.1   );   // 1234, -123 right-justified
 DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );   // 123        right-justified
-DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );   // 123.45, -23.45
+DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr42_52,   100     );   // _2.34, 12.34, -2.34 or 123.45, -23.45
 DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );   // 1.234
 DECLARE_MENU_EDIT_TYPE(float,    float5,      ftostr5rj,       0.01f );   // 12345      right-justified
 DECLARE_MENU_EDIT_TYPE(float,    float5_25,   ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
@@ -123,7 +123,7 @@ DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint8);            // 123        right-justif
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16_3);         // 123, -12   right-justified
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16_4);         // 1234, -123 right-justified
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);           // 123        right-justified
-DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);          // 123.45, -23.45
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);          // _2.34, 12.34, -2.34 or 123.45, -23.45
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);          // 1.234
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5);           // 12345      right-justified
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float5_25);        // 12345      right-justified (25 increment)

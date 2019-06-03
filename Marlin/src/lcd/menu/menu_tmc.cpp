@@ -124,43 +124,43 @@ void menu_tmc_current() {
   #define TMC_EDIT_STORED_HYBRID_THRS(ST, MSG) MENU_ITEM_EDIT_CALLBACK(uint8, MSG, &stepper##ST.stored.hybrid_thrs, 0, 255, refresh_hybrid_thrs_##ST);
 
   #if AXIS_HAS_STEALTHCHOP(X)
-    void refresh_hybrid_thrs_X()  {  stepperX.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[X_AXIS]); }
+    void refresh_hybrid_thrs_X()  {  stepperX.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(Y)
-    void refresh_hybrid_thrs_Y()  {  stepperY.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[Y_AXIS]); }
+    void refresh_hybrid_thrs_Y()  {  stepperY.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(Z)
-    void refresh_hybrid_thrs_Z()  {  stepperZ.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[Z_AXIS]); }
+    void refresh_hybrid_thrs_Z()  {  stepperZ.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(X2)
-    void refresh_hybrid_thrs_X2() { stepperX2.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[X_AXIS]); }
+    void refresh_hybrid_thrs_X2() { stepperX2.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(Y2)
-    void refresh_hybrid_thrs_Y2() { stepperY2.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[Y_AXIS]); }
+    void refresh_hybrid_thrs_Y2() { stepperY2.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(Z2)
-    void refresh_hybrid_thrs_Z2() { stepperZ2.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[Z_AXIS]); }
+    void refresh_hybrid_thrs_Z2() { stepperZ2.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(Z3)
-    void refresh_hybrid_thrs_Z3() { stepperZ3.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[Z_AXIS]); }
+    void refresh_hybrid_thrs_Z3() { stepperZ3.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(E0)
-    void refresh_hybrid_thrs_E0() { stepperE0.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[E_AXIS]); }
+    void refresh_hybrid_thrs_E0() { stepperE0.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(E1)
-    void refresh_hybrid_thrs_E1() { stepperE1.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[E_AXIS_N(1)]); }
+    void refresh_hybrid_thrs_E1() { stepperE1.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(E2)
-    void refresh_hybrid_thrs_E2() { stepperE2.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[E_AXIS_N(2)]); }
+    void refresh_hybrid_thrs_E2() { stepperE2.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(E3)
-    void refresh_hybrid_thrs_E3() { stepperE3.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[E_AXIS_N(3)]); }
+    void refresh_hybrid_thrs_E3() { stepperE3.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(E4)
-    void refresh_hybrid_thrs_E4() { stepperE4.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[E_AXIS_N(4)]); }
+    void refresh_hybrid_thrs_E4() { stepperE4.refresh_hybrid_thrs(); }
   #endif
   #if AXIS_HAS_STEALTHCHOP(E5)
-    void refresh_hybrid_thrs_E5() { stepperE5.refresh_hybrid_thrs(planner.settings.axis_steps_per_mm[E_AXIS_N(5)]); }
+    void refresh_hybrid_thrs_E5() { stepperE5.refresh_hybrid_thrs(); }
   #endif
 
   void menu_tmc_hybrid_thrs() {
