@@ -289,7 +289,8 @@ void HAL_adc_init(void) {
 }
 
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
-  TEMP_PINS pin_index;
+//  TEMP_PINS pin_index;
+  TempPinIndex pin_index;
   switch (adc_pin) {
     default: return;
     #if HAS_TEMP_ADC_0
