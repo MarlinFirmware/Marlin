@@ -45,7 +45,7 @@ struct lpf_reading_t {
 
 class PowerMonitor {
 private:
-  static uint8_t flags;  // M430, M431 set and clear flags to read/display system current
+  static uint8_t flags;  // M430, M431, M432 set and clear flags to read/display current, voltage and/or power
 
   #if ENABLED(POWER_MONITOR_CURRENT)
     static constexpr float amps_adc_scale = (float)POWER_MONITOR_ADC_VREF / (POWER_MONITOR_VOLTS_PER_AMP * 16384);

@@ -637,30 +637,27 @@ void MarlinUI::draw_status_screen() {
     lcd_put_u8str(i16tostr3(feedrate_percentage));
     lcd_put_wchar('%');
 
+    //
+    // display power monitors current, voltage and/or power
+    //
     #if HAS_POWER_MONITOR
-      //
-      // display power monitors current, voltage and/or power
-      //
       #if DISABLED(SDSUPPORT)
         const bool show_power_monitor = power_monitor.display_enabled();
         if (show_power_monitor) {
           int items_displayed = 0;
           lcd_moveto(48, EXTRAS_2_BASELINE);
           #if ENABLED(POWER_MONITOR_CURRENT)
-            if (power_monitor.current_display_enabled())
-            {
+            if (power_monitor.current_display_enabled()) {
               items_displayed++;
               draw_power_monitor_current();
             }
           #endif
           #if ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE)
-            if (power_monitor.voltage_display_enabled())
-            {
+            if (power_monitor.voltage_display_enabled()) {
               items_displayed++;
               draw_power_monitor_voltage();
             }
-            if (power_monitor.power_display_enabled() && items_displayed < 2)
-            {
+            if (power_monitor.power_display_enabled() && items_displayed < 2) {
 //              items_displayed++;
               draw_power_monitor_power();
             }
@@ -675,17 +672,14 @@ void MarlinUI::draw_status_screen() {
           if (power_monitor.voltage_display_enabled()) max_item = 2;
           if (power_monitor.power_display_enabled()) max_item = 3;
 
-          if (power_monitor.display_item >= max_item)
-            power_monitor.display_item = 0;
-
           // toggle between current, voltage and power
           if (ELAPSED(millis(), power_monitor.display_item_ms)) {
             power_monitor.display_item_ms = millis() + 1000UL;
-            if (++power_monitor.display_item >= max_item)
-              power_monitor.display_item = 0;
+            power_monitor.display_item++;
           }
-        #else
-          power_monitor.display_item = 0;
+
+          if (power_monitor.display_item >= max_item)
+            power_monitor.display_item = 0;
         #endif
 
         // display current
