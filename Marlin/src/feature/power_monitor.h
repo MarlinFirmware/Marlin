@@ -21,7 +21,8 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfigPre.h"
+//#include "../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
 
 template <const float& ADC_SCALE>
 struct lpf_reading_t {
