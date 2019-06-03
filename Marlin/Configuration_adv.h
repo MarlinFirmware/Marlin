@@ -2075,7 +2075,7 @@
  * Power Monitor
  * Monitor voltage (V) and/or current (A), and -when possible- power (W)
  *
- * Read and configure with M430, M431, M432
+ * Read and configure with M430
  *
  * The current sensor feeds DC voltage (relative to the measured current) to an analog pin
  * The voltage sensor feeds DC voltage (relative to the measured voltage) to an analog pin

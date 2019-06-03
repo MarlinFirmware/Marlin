@@ -644,14 +644,8 @@ void GcodeSuite::process_parsed_command(
         case 428: M428(); break;                                  // M428: Apply current_position to home_offset
       #endif
 
-      #if ENABLED(POWER_MONITOR_CURRENT)
-        case 430: M430(); break;                                  // M430: Read the system current (amps)
-      #endif
-      #if HAS_POWER_MONITOR_VREF
-        case 431: M431(); break;                                  // M431: Read the system (or reference) voltage (volts)
-      #endif
-      #if HAS_POWER_MONITOR_WATTS
-        case 432: M432(); break;                                  // M432: Read the system power (watts)
+      #if HAS_POWER_MONITOR
+        case 430: M430(); break;                                  // M430: Read the system current (A), voltage (V), and power (W)
       #endif
 
       case 500: M500(); break;                                    // M500: Store settings in EEPROM

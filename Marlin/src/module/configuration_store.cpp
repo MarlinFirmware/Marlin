@@ -265,7 +265,7 @@ typedef struct SettingsDataStruct {
   //
   // Power monitor
   //
-  uint8_t power_monitor_flags;                             // M430, M431, M432
+  uint8_t power_monitor_flags;                          // M430 I V W
 
   //
   // HAS_LCD_CONTRAST
