@@ -485,9 +485,10 @@ void MarlinUI::draw_status_screen() {
         for (uint8_t y = 0; y < 3; y++) {
 //          u8g.drawHLine(PROGRESS_BAR_X, 50 + y, (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01f));
 
-        uint16_t w = (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01f);
-        u8g.drawHLine(PROGRESS_BAR_X, 50 + 0, w);
-        u8g.drawHLine(PROGRESS_BAR_X, 50 + 2, w);
+          uint16_t w = (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01f);
+          u8g.drawHLine(PROGRESS_BAR_X, 50 + 0, w);
+          u8g.drawHLine(PROGRESS_BAR_X, 50 + 2, w);
+        }
       }
 
       //
