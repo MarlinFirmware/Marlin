@@ -943,10 +943,15 @@ void setup() {
   // (because EEPROM code calls the UI).
   ui.init();
   ui.reset_status();
-
-  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
-    ui.show_bootscreen();
+  //In order to recover brokem custom _Bootscreen
+  //if the installes lcd is a MKS_MINI_12864
+  //The Boot Logos show process has being moved to the ui.init();
+  #if !ENABLED(MKS_MINI_12864)
+    #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+      ui.show_bootscreen();
+    #endif
   #endif
+
 
   #if ENABLED(SDIO_SUPPORT) && SD_DETECT_PIN == -1
     // Auto-mount the SD for EEPROM.dat emulation
