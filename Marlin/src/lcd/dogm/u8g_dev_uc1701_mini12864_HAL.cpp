@@ -117,10 +117,29 @@ static const uint8_t u8g_dev_uc1701_mini12864_HAL_init_seq[] PROGMEM = {
 };
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_data_start[] PROGMEM = {
-  U8G_ESC_ADR(0),             /* instruction mode */
-  U8G_ESC_CS(1),              /* enable chip */
-  UC1701_COLUMN_ADR(0),       /* address 0 */
-  U8G_ESC_END                 /* end of sequence */
+      #if ENABLED(MKS_MINI_12864)
+          U8G_ESC_ADR(0),             /* instruction mode */
+          U8G_ESC_CS(1),              /* enable chip */
+          0x040, /* set display start line to 0 */
+          0x0a0, /* ADC set to reverse */
+          0x0c8, /* common output mode */
+          0x0a6, /* display normal, bit val 0: LCD pixel off. */
+          0x0a2, /* LCD bias 1/9 */
+          0x02f, /* all power control circuits on */
+          0x0f8, /* set booster ratio to */
+          0x000, /* 4x */
+          0x023, /* set V0 voltage resistor ratio to large */
+          0x0ac, /* indicator */
+          0x000, /* disable */
+          0x0af, /* display on */
+          0x010, /* set upper 4 bit of the col adr to 0 */
+          U8G_ESC_END                 /* end of sequence */
+      #else
+          U8G_ESC_ADR(0),             /* instruction mode */
+          U8G_ESC_CS(1),              /* enable chip */
+          UC1701_COLUMN_ADR(0),       /* address 0 */
+          U8G_ESC_END                 /* end of sequence */
+      #endif
 };
 
 uint8_t u8g_dev_uc1701_mini12864_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
