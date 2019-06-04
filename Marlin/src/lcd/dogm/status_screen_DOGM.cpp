@@ -465,12 +465,13 @@ void MarlinUI::draw_status_screen() {
     //
 //    #define PROGRESS_BAR_X 54
     #define PROGRESS_BAR_X 38
+    #define PROGRESS_BAR_Y 49
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
     if (PAGE_CONTAINS(49, 52)) {
-//      u8g.drawFrame(PROGRESS_BAR_X, 49, PROGRESS_BAR_WIDTH, 4);
+//      u8g.drawFrame(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_WIDTH, 4);
       for (uint8_t x = 0; x < PROGRESS_BAR_WIDTH; x += 2)
-        u8g.drawPixel(PROGRESS_BAR_X + x, 51);  // draw a dotted line
+        u8g.drawPixel(PROGRESS_BAR_X + x, PROGRESS_BAR_Y + 1);  // draw a dotted line
     }
 
     const uint8_t progress = get_progress();
@@ -480,8 +481,8 @@ void MarlinUI::draw_status_screen() {
       // Progress bar solid part
       //
       if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
-//        u8g.drawBox(PROGRESS_BAR_X + 1, 50, (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress * 0.01), 2);
-        u8g.drawBox(PROGRESS_BAR_X, 50, (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01), 3);
+//        u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress * 0.01), 2);
+        u8g.drawBox(PROGRESS_BAR_X, PROGRESS_BAR_Y, (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01), 3);
 
       //
       // SD Percent Complete
@@ -500,11 +501,11 @@ void MarlinUI::draw_status_screen() {
       #endif
     }
     // progress bar start marker
-    u8g.drawPixel(PROGRESS_BAR_X, 50 + 0);
-    u8g.drawPixel(PROGRESS_BAR_X, 50 + 2);
+    u8g.drawPixel(PROGRESS_BAR_X, PROGRESS_BAR_Y + 0);
+    u8g.drawPixel(PROGRESS_BAR_X, PROGRESS_BAR_Y + 2);
     // progress bar end marker
-    u8g.drawPixel(PROGRESS_BAR_X + PROGRESS_BAR_WIDTH - 1, 50 + 0);
-    u8g.drawPixel(PROGRESS_BAR_X + PROGRESS_BAR_WIDTH - 1, 50 + 2);
+    u8g.drawPixel(PROGRESS_BAR_X + PROGRESS_BAR_WIDTH - 1, PROGRESS_BAR_Y + 0);
+    u8g.drawPixel(PROGRESS_BAR_X + PROGRESS_BAR_WIDTH - 1, PROGRESS_BAR_Y + 2);
 
     //
     // Elapsed Time
