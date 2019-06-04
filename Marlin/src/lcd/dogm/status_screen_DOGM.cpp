@@ -131,24 +131,26 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
       }
     #endif
 
-    switch (power_monitor.display_item) {
-      default: power_monitor.display_item = 0;
+    // ensure we have the right one selected
+    for (uint8_t i = 0; i < 3; i++) {
       #if ENABLED(POWER_MONITOR_CURRENT)
-        case 0: if (iflag) break;
+        if (power_monitor.display_item == 0)
+          if (!iflag) ++power_monitor.display_item;
       #endif
-          ++power_monitor.display_item;
-      #if HAS_POWER_MONITOR_VREF
-        case 1: if (vflag) break;
-      #endif
-          ++power_monitor.display_item;
-      #if ENABLED(POWER_MONITOR_CURRENT)
-        case 2: if (wflag) break;
-     #endif
-      ++power_monitor.display_item;
-    }
 
-    if (power_monitor.display_item >= 3)
-      power_monitor.display_item = 0;
+      #if HAS_POWER_MONITOR_VREF
+        if (power_monitor.display_item == 1)
+          if (!vflag) ++power_monitor.display_item;
+      #endif
+
+      #if ENABLED(POWER_MONITOR_CURRENT)
+        if (power_monitor.display_item == 2)
+          if (!wflag) ++power_monitor.display_item;
+      #endif
+
+      if (power_monitor.display_item >= 3)
+        power_monitor.display_item = 0;
+    }
 
     switch (power_monitor.display_item) {
       #if ENABLED(POWER_MONITOR_CURRENT)                // Current
@@ -734,13 +736,12 @@ void MarlinUI::draw_status_message(const bool blink) {
   uint8_t pixel_width = LCD_PIXEL_WIDTH;
 
   #if HAS_POWER_MONITOR
-    if (power_monitor.display_enabled())
+    if (power_monitor.display_enabled()) {
       // make room at the end of the status line for the power monitor reading
       lcd_width -= 6;
-      pixel_width -= MENU_FONT_WIDTH * 6;
+      pixel_width -= (MENU_FONT_WIDTH) * 6;
+    }
   #endif
-
-//  const uint8_t pixel_width = MENU_FONT_WIDTH * lcd_width;
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
 
