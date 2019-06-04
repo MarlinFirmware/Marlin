@@ -479,17 +479,9 @@ void MarlinUI::draw_status_screen() {
       //
       // Progress bar solid part
       //
-//      if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
+      if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
 //        u8g.drawBox(PROGRESS_BAR_X + 1, 50, (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress * 0.01), 2);
-      if (PAGE_CONTAINS(50, 52)) {
-        for (uint8_t y = 0; y < 3; y++) {
-//          u8g.drawHLine(PROGRESS_BAR_X, 50 + y, (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01f));
-
-          uint16_t w = (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01f);
-          u8g.drawHLine(PROGRESS_BAR_X, 50 + 0, w);
-          u8g.drawHLine(PROGRESS_BAR_X, 50 + 2, w);
-        }
-      }
+        u8g.drawBox(PROGRESS_BAR_X, 50, (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01), 3);
 
       //
       // SD Percent Complete
@@ -497,8 +489,11 @@ void MarlinUI::draw_status_screen() {
       #if ENABLED(DOGM_SD_PERCENT)
         if (PAGE_CONTAINS(41, 48)) {
           // Percent complete
-//          lcd_moveto(55, 48);
-          lcd_moveto(70, 48);
+          #if HAS_POWER_MONITOR
+            lcd_moveto(power_monitor.display_enabled() ? 70 : 55, 48);
+          #else
+            lcd_moveto(55, 48);
+          #endif
           lcd_put_u8str(ui8tostr3(progress));
           lcd_put_wchar('%');
         }
@@ -624,7 +619,9 @@ void MarlinUI::draw_status_screen() {
     lcd_put_wchar('%');
 
     #if HAS_POWER_MONITOR
-
+      //
+      // Display Power Monitor current (A), voltage (V) and/or power (W)
+      //
       #if ENABLED(POWER_MONITOR_CURRENT)
         const bool iflag = power_monitor.current_display_enabled();
       #endif
@@ -635,9 +632,6 @@ void MarlinUI::draw_status_screen() {
         const bool wflag = power_monitor.power_display_enabled();
       #endif
 
-      //
-      // Display Power Monitor current (A), voltage (V) and/or power (W)
-      //
       #if DISABLED(SDSUPPORT)
 
         const bool show_power_monitor = power_monitor.display_enabled();
@@ -711,7 +705,6 @@ void MarlinUI::draw_status_screen() {
         }
 
       #endif // SDSUPPORT
-
     #endif // HAS_POWER_MONITOR
 
     //
