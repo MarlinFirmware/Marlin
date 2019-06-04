@@ -6469,6 +6469,74 @@ void home_all_axes() { gcode_G28(true); }
   }
 
 #endif // HAS_MESH
+/*
+ * G81: Drilling cycle
+ */
+
+inline void gcode_G81() {
+
+  if (IsRunning()) {
+
+    // rapid move XY plane only at current Z height
+    const bool hasX = parser.seenval('X');
+    const float x = hasX ? parser.value_long() : current_position[X_AXIS];
+    const bool hasY = parser.seenval('Y');
+    const float y = hasY ? parser.value_long() : current_position[Y_AXIS];
+
+    const bool hasR = parser.seenval('R');
+    const float r = hasR ? parser.value_long() : current_position[Z_AXIS];
+
+    const bool hasF = parser.seenval('F');
+    const float r = hasR ? parser.value_long() : some_feedrate;
+    // do something with feed rate lol
+    
+    destination[X_AXIS] = x;
+    destination[Y_AXIS] = y;
+    destination[Z_AXIS] = current_position[Z_AXIS];
+    const long initial_z = current_position[Z_AXIS];
+    prepare_move_to_destination();
+    planner.synchronize();
+
+    // rapid move to Z retract height
+
+    destination[X_AXIS] = current_position[X_AXIS];
+    destination[Y_AXIS] = current_position[Y_AXIS];
+    destination[Z_AXIS] = r;
+    prepare_move_to_destination();
+    planner.synchronize();
+    
+    if(parser.seenval('Z'))
+    {
+      // move Z only to target depth
+      destination[X_AXIS] = current_position[X_AXIS];
+      destination[Y_AXIS] = current_position[Y_AXIS];
+      destination[Z_AXIS] = parser.value_long();
+      prepare_move_to_destination();
+      planner.synchronize();
+
+      // retract to previous height, or retract height specified
+      destination[X_AXIS] = current_position[X_AXIS];
+      destination[Y_AXIS] = current_position[Y_AXIS];
+      destination[Z_AXIS] = initial_z;
+      prepare_move_to_destination();
+      planner.synchronize();
+    }
+  }
+}
+
+/* 
+inline void gcode_G98() {
+  if (parser.seenval('R'))
+  {
+    const long repeat = parser.value_long();
+    for(long i= 0; i<repeat;i++)
+    {
+      gcode_G0_G1();
+      gcode_G97();
+    }
+  }
+}
+ */
 
 /**
  * G92: Set current position to given X Y Z E
@@ -12727,6 +12795,8 @@ void process_parsed_command() {
         case 42: gcode_G42(); break;                              // G42: Move to mesh point
       #endif
 
+      case 81: gcode_G81(); break;                                // G81: Drilling cycle
+      
       case 90: relative_mode = false; break;                      // G90: Absolute coordinates
       case 91: relative_mode = true; break;                       // G91: Relative coordinates
 
