@@ -52,10 +52,8 @@ private:
 public:
   static uint8_t flags;  // M430 flags to display current
 
-  #if ENABLED(SDSUPPORT)
-    static millis_t display_item_ms;
-    static uint8_t display_item;
-  #endif
+  static millis_t display_item_ms;
+  static uint8_t display_item;
 
   PowerMonitor() { reset(); }
 

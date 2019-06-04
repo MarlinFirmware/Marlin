@@ -38,10 +38,8 @@ uint8_t PowerMonitor::flags; // = 0
   lpf_reading_t<PowerMonitor::volts_adc_scale> PowerMonitor::volts;
 #endif
 
-#if ENABLED(SDSUPPORT)
-  millis_t PowerMonitor::display_item_ms;
-  uint8_t PowerMonitor::display_item;
-#endif
+millis_t PowerMonitor::display_item_ms;
+uint8_t PowerMonitor::display_item;
 
 PowerMonitor power_monitor; // Single instance - this calls the constructor
 
@@ -65,7 +63,7 @@ PowerMonitor power_monitor; // Single instance - this calls the constructor
 
   #if HAS_POWER_MONITOR_WATTS
     void PowerMonitor::draw_power() {
-      float power = getPower();
+      const float power = getPower();
       lcd_put_u8str(power < 100 ? ftostr21ns(power) : ui16tostr4((uint16_t)power));
       lcd_put_wchar('W');
     }

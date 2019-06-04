@@ -108,6 +108,63 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
   #define SHOW_ON_STATE false
 #endif
 
+#if HAS_POWER_MONITOR
+  void display_power_monitor(const uint8_t x, const uint8_t y) {
+
+    lcd_moveto(x, y);
+
+    #if ENABLED(POWER_MONITOR_CURRENT)
+      const bool iflag = power_monitor.current_display_enabled();
+    #endif
+    #if HAS_POWER_MONITOR_VREF
+      const bool vflag = power_monitor.voltage_display_enabled();
+    #endif
+    #if HAS_POWER_MONITOR_WATTS
+      const bool wflag = power_monitor.power_display_enabled();
+    #endif
+
+    #if ENABLED(POWER_MONITOR_CURRENT) || HAS_POWER_MONITOR_VREF
+      // Cycle current, voltage, and power
+      if (ELAPSED(millis(), power_monitor.display_item_ms)) {
+        power_monitor.display_item_ms = millis() + 1000UL;
+        ++power_monitor.display_item;
+      }
+    #endif
+
+    switch (power_monitor.display_item) {
+      default: power_monitor.display_item = 0;
+      #if ENABLED(POWER_MONITOR_CURRENT)
+        case 0: if (iflag) break;
+      #endif
+          ++power_monitor.display_item;
+      #if HAS_POWER_MONITOR_VREF
+        case 1: if (vflag) break;
+      #endif
+          ++power_monitor.display_item;
+      #if ENABLED(POWER_MONITOR_CURRENT)
+        case 2: if (wflag) break;
+     #endif
+      ++power_monitor.display_item;
+    }
+
+    if (power_monitor.display_item >= 3)
+      power_monitor.display_item = 0;
+
+    switch (power_monitor.display_item) {
+      #if ENABLED(POWER_MONITOR_CURRENT)                // Current
+        case 0: if (iflag) power_monitor.draw_current(); break;
+      #endif
+      #if HAS_POWER_MONITOR_VREF                        // Voltage
+        case 1: if (vflag) power_monitor.draw_voltage(); break;
+      #endif
+      #if HAS_POWER_MONITOR_WATTS                       // Power
+        case 2: if (wflag) power_monitor.draw_power(); break;
+      #endif
+      default: break;
+    }
+  }
+#endif
+
 FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
@@ -463,8 +520,8 @@ void MarlinUI::draw_status_screen() {
     //
     // Progress bar frame
     //
-//    #define PROGRESS_BAR_X 54
-    #define PROGRESS_BAR_X 38
+    #define PROGRESS_BAR_X 54
+//    #define PROGRESS_BAR_X 38  // leave room for power monitor display
     #define PROGRESS_BAR_Y 49
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
@@ -490,11 +547,7 @@ void MarlinUI::draw_status_screen() {
       #if ENABLED(DOGM_SD_PERCENT)
         if (PAGE_CONTAINS(41, 48)) {
           // Percent complete
-          #if HAS_POWER_MONITOR
-            lcd_moveto(power_monitor.display_enabled() ? 70 : 55, 48);
-          #else
-            lcd_moveto(55, 48);
-          #endif
+          lcd_moveto(55, 48);
           lcd_put_u8str(ui8tostr3(progress));
           lcd_put_wchar('%');
         }
@@ -619,116 +672,20 @@ void MarlinUI::draw_status_screen() {
     lcd_put_u8str(i16tostr3(feedrate_percentage));
     lcd_put_wchar('%');
 
-    #if HAS_POWER_MONITOR
-      //
-      // Display Power Monitor current (A), voltage (V) and/or power (W)
-      //
-      #if ENABLED(POWER_MONITOR_CURRENT)
-        const bool iflag = power_monitor.current_display_enabled();
-      #endif
-      #if HAS_POWER_MONITOR_VREF
-        const bool vflag = power_monitor.voltage_display_enabled();
-      #endif
-      #if HAS_POWER_MONITOR_WATTS
-        const bool wflag = power_monitor.power_display_enabled();
-      #endif
-
-      #if DISABLED(SDSUPPORT)
-
-        const bool show_power_monitor = power_monitor.display_enabled();
-        if (show_power_monitor) {
-          uint8_t items_displayed = 0;
-          lcd_moveto(48, EXTRAS_2_BASELINE);
-          #if ENABLED(POWER_MONITOR_CURRENT)
-            if (iflag) {
-              items_displayed++;
-              power_monitor.draw_current();
-            }
-          #endif
-          #if HAS_POWER_MONITOR_VREF
-            if (vflag) {
-              items_displayed++;
-              power_monitor.draw_voltage();
-            }
-          #endif
-          #if HAS_POWER_MONITOR_WATTS
-            if (wflag && items_displayed < 2) {
-              //items_displayed++;
-              power_monitor.draw_power();
-            }
-          #endif
-        }
-
-      #else // SDSUPPORT
-
-        lcd_moveto(PROGRESS_BAR_X, EXTRAS_BASELINE);
-
-        #if ENABLED(POWER_MONITOR_CURRENT) || HAS_POWER_MONITOR_VREF
-
-          // Cycle current, voltage, and power
-          if (ELAPSED(millis(), power_monitor.display_item_ms)) {
-            power_monitor.display_item_ms = millis() + 1000UL;
-            ++power_monitor.display_item;
-          }
-
-        #endif
-
-        switch (power_monitor.display_item) {
-          default: power_monitor.display_item = 0;
-          #if ENABLED(POWER_MONITOR_CURRENT)
-            case 0: if (iflag) break;
-          #endif
-              ++power_monitor.display_item;
-          #if HAS_POWER_MONITOR_VREF
-            case 1: if (vflag) break;
-          #endif
-              ++power_monitor.display_item;
-          #if ENABLED(POWER_MONITOR_CURRENT)
-            case 2: if (wflag) break;
-          #endif
-              ++power_monitor.display_item;
-        }
-
-        if (power_monitor.display_item >= 3)
-          power_monitor.display_item = 0;
-
-        switch (power_monitor.display_item) {
-          #if ENABLED(POWER_MONITOR_CURRENT)                // Current
-            case 0: if (iflag) power_monitor.draw_current(); break;
-          #endif
-          #if HAS_POWER_MONITOR_VREF                        // Voltage
-            case 1: if (vflag) power_monitor.draw_voltage(); break;
-          #endif
-          #if HAS_POWER_MONITOR_WATTS                       // Power
-            case 2: if (wflag) power_monitor.draw_power(); break;
-          #endif
-          default: break;
-        }
-
-      #endif // SDSUPPORT
-    #endif // HAS_POWER_MONITOR
-
     //
     // Filament sensor display if SD is disabled
     //
     #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
-      #if HAS_POWER_MONITOR
-        #define FIL_COND !show_power_monitor
-      #else
-        #define FIL_COND true
-      #endif
-      if (FIL_COND) {
-        lcd_moveto(56, EXTRAS_2_BASELINE);
-        lcd_put_u8str(wstring);
-        lcd_moveto(102, EXTRAS_2_BASELINE);
-        lcd_put_u8str(mstring);
-        lcd_put_wchar('%');
-        set_font(FONT_MENU);
-        lcd_moveto(47, EXTRAS_2_BASELINE);
-        lcd_put_wchar(LCD_STR_FILAM_DIA[0]); // lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
-        lcd_moveto(93, EXTRAS_2_BASELINE);
-        lcd_put_wchar(LCD_STR_FILAM_MUL[0]);
-      }
+      lcd_moveto(56, EXTRAS_2_BASELINE);
+      lcd_put_u8str(wstring);
+      lcd_moveto(102, EXTRAS_2_BASELINE);
+      lcd_put_u8str(mstring);
+      lcd_put_wchar('%');
+      set_font(FONT_MENU);
+      lcd_moveto(47, EXTRAS_2_BASELINE);
+      lcd_put_wchar(LCD_STR_FILAM_DIA[0]); // lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
+      lcd_moveto(93, EXTRAS_2_BASELINE);
+      lcd_put_wchar(LCD_STR_FILAM_MUL[0]);
     #endif
   }
 
@@ -773,15 +730,26 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   // Get the UTF8 character count of the string
   uint8_t slen = utf8_strlen(status_message);
+  uint8_t lcd_width = LCD_WIDTH;
+  uint8_t pixel_width = LCD_PIXEL_WIDTH;
+
+  #if HAS_POWER_MONITOR
+    if (power_monitor.display_enabled())
+      // make room at the end of the status line for the power monitor reading
+      lcd_width -= 6;
+      pixel_width -= MENU_FONT_WIDTH * 6;
+  #endif
+
+//  const uint8_t pixel_width = MENU_FONT_WIDTH * lcd_width;
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
 
     static bool last_blink = false;
 
-    if (slen <= LCD_WIDTH) {
+    if (slen <= lcd_width) {
       // The string fits within the line. Print with no scrolling
       lcd_put_u8str(status_message);
-      while (slen < LCD_WIDTH) { lcd_put_wchar(' '); ++slen; }
+      while (slen < lcd_width) { lcd_put_wchar(' '); ++slen; }
     }
     else {
       // String is longer than the available space
@@ -790,16 +758,16 @@ void MarlinUI::draw_status_message(const bool blink) {
       // and the string remaining length
       uint8_t rlen;
       const char *stat = status_and_len(rlen);
-      lcd_put_u8str_max(stat, LCD_PIXEL_WIDTH);
+      lcd_put_u8str_max(stat, pixel_width);
 
       // If the remaining string doesn't completely fill the screen
-      if (rlen < LCD_WIDTH) {
+      if (rlen < lcd_width) {
         lcd_put_wchar('.');                     // Always at 1+ spaces left, draw a dot
-        uint8_t chars = LCD_WIDTH - rlen;       // Amount of space left in characters
+        uint8_t chars = lcd_width - rlen;       // Amount of space left in characters
         if (--chars) {                          // Draw a second dot if there's space
           lcd_put_wchar('.');
           if (--chars) {                        // Print a second copy of the message
-            lcd_put_u8str_max(status_message, LCD_PIXEL_WIDTH - (rlen + 2) * (MENU_FONT_WIDTH));
+            lcd_put_u8str_max(status_message, pixel_width - (rlen + 2) * (MENU_FONT_WIDTH));
             lcd_put_wchar(' ');
           }
         }
@@ -815,12 +783,16 @@ void MarlinUI::draw_status_message(const bool blink) {
     UNUSED(blink);
 
     // Just print the string to the LCD
-    lcd_put_u8str_max(status_message, LCD_PIXEL_WIDTH);
+    lcd_put_u8str_max(status_message, pixel_width);
 
     // Fill the rest with spaces
-    for (; slen < LCD_WIDTH; ++slen) lcd_put_wchar(' ');
+    for (; slen < lcd_width; ++slen) lcd_put_wchar(' ');
 
   #endif // !STATUS_MESSAGE_SCROLLING
+
+  #if HAS_POWER_MONITOR
+    display_power_monitor(pixel_width + MENU_FONT_WIDTH, STATUS_BASELINE);
+  #endif
 }
 
 #endif // HAS_GRAPHICAL_LCD && !LIGHTWEIGHT_UI
