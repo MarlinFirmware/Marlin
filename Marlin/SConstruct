@@ -8,56 +8,52 @@ else:
   debug_flags = '-O2'
 
 source_files = ['module/planner.cpp', 'module/calc.cpp', 'feature/fwretract.cpp']
-def add_program(env, target):
-  env.Program(os.path.join(target, 'marlin-calc.' + target),
-              [os.path.join(target, x) for x in source_files])
+out_dir = 'out'
 
+def add_program(env, target):
+  env.VariantDir(os.path.join(out_dir, target), 'src', duplicate=0)
+  p = env.Program(os.path.join(out_dir, target, 'marlin-calc.' + target),
+                  [os.path.join(out_dir, target, x) for x in source_files])
+  Clean(p, os.path.join(out_dir, target))
 
 env = Environment(
     CXX='clang',
-    CPPFLAGS= '-Wall -std=gnu++14 -MMD ' + debug_flags,
+    CPPFLAGS= '-Wall -std=gnu++14 ' + debug_flags,
     LINKFLAGS='-Wall -std=gnu++14 -lstdc++ ' + debug_flags)
-env.VariantDir('darwin-x86_64', 'src', duplicate=0)
 add_program(env, 'darwin-x86_64')
 
 env = Environment(
     CXX='clang',
-    CPPFLAGS= '-Wall -std=gnu++14 -m32 -MMD ' + debug_flags,
+    CPPFLAGS= '-Wall -std=gnu++14 -m32 ' + debug_flags,
     LINKFLAGS='-Wall -std=gnu++14 -m32 -lstdc++ ' + debug_flags)
-env.VariantDir('darwin-i686', 'src', duplicate=0)
 add_program(env, 'darwin-i686')
 
 env = Environment(
     CXX='g++',
-    CPPFLAGS= '-Wall -static -std=gnu++11 -MMD ' + debug_flags,
+    CPPFLAGS= '-Wall -static -std=gnu++11 ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 ' + debug_flags)
-env.VariantDir('x86_64', 'src', duplicate=0)
 add_program(env, 'x86_64')
 
 env = Environment(
     CXX='g++',
-    CPPFLAGS= '-Wall -static -std=gnu++11 -m32 -I/usr/include/x86_64-linux-gnu -MMD ' + debug_flags,
+    CPPFLAGS= '-Wall -static -std=gnu++11 -m32 -I/usr/include/x86_64-linux-gnu ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 -m32 -I/usr/include/x86_64-linux-gnu ' + debug_flags)
-env.VariantDir('i686', 'src', duplicate=0)
 add_program(env, 'i686')
 
 env = Environment(
     CXX='mipsel-linux-gnu-g++',
-    CPPFLAGS= '-Wall -static -std=gnu++14 -MMD ' + debug_flags,
+    CPPFLAGS= '-Wall -static -std=gnu++14 ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++14 ' + debug_flags)
-env.VariantDir('mips', 'src', duplicate=0)
 add_program(env, 'mips')
 
 env = Environment(
     CXX='arm-linux-gnueabi-g++',
-    CPPFLAGS= '-Wall -static -std=gnu++11 -march=armv7 -mlittle-endian -MMD ' + debug_flags,
+    CPPFLAGS= '-Wall -static -std=gnu++11 -march=armv7 -mlittle-endian ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 -march=armv7 -mlittle-endian ' + debug_flags)
-env.VariantDir('armv7l', 'src', duplicate=0)
 add_program(env, 'armv7l')
 
 env = Environment(
     CXX='arm-linux-gnueabi-g++',
-    CPPFLAGS= '-Wall -static -std=gnu++11 -march=armv6 -mlittle-endian -MMD ' + debug_flags,
+    CPPFLAGS= '-Wall -static -std=gnu++11 -march=armv6 -mlittle-endian ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 -march=armv6 -mlittle-endian ' + debug_flags)
-env.VariantDir('armv6l', 'src', duplicate=0)
 add_program(env, 'armv6l')
