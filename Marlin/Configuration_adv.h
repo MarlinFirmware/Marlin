@@ -1753,11 +1753,29 @@
    *          to move the Z axis. Take extreme care when attempting to enable this feature.
    */
   //#define SENSORLESS_PROBING // TMC2130 only
-
+  //tmc2209 SENSITIVITY can be set in 0~255
+  //else tmc SENSITIVITY can be set in -64~63
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     #define X_STALL_SENSITIVITY  8
     #define Y_STALL_SENSITIVITY  8
     //#define Z_STALL_SENSITIVITY  8
+  #endif
+
+  //tmc2209 slave address can be set in 0x00~0x03
+  #if HAS_DRIVER(TMC2209)
+    #define X_SLAVE_ADDRESS 0x00
+    #define Y_SLAVE_ADDRESS 0x00
+    #define Z_SLAVE_ADDRESS 0x00
+    //#define X2_SLAVE_ADDRESS 0x00
+    //#define Y2_SLAVE_ADDRESS 0x00
+    //#define Z2_SLAVE_ADDRESS 0x00
+    //#define Z3_SLAVE_ADDRESS 0x00
+    #define E0_SLAVE_ADDRESS 0x00
+    //#define E1_SLAVE_ADDRESS 0x00
+    //#define E2_SLAVE_ADDRESS 0x00
+    //#define E3_SLAVE_ADDRESS 0x00
+    //#define E4_SLAVE_ADDRESS 0x00
+    //#define E5_SLAVE_ADDRESS 0x00
   #endif
 
   /**
