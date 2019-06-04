@@ -469,22 +469,25 @@ void MarlinUI::draw_status_screen() {
 
     if (PAGE_CONTAINS(49, 52)) {
 //      u8g.drawFrame(PROGRESS_BAR_X, 49, PROGRESS_BAR_WIDTH, 4);
-      for (uint8_t i = 0; i < PROGRESS_BAR_WIDTH - 1; i += 2)
-        u8g.drawPixel(PROGRESS_BAR_X + 1 + i, 51);  // draw a dotted line
+      for (uint8_t x = 0; x < PROGRESS_BAR_WIDTH; x += 2)
+        u8g.drawPixel(PROGRESS_BAR_X + x, 51);  // draw a dotted line
     }
 
     const uint8_t progress = get_progress();
 
-    if (progress > 1) {
-
+    if (progress > 0) {
       //
       // Progress bar solid part
       //
 //      if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
 //        u8g.drawBox(PROGRESS_BAR_X + 1, 50, (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress * 0.01), 2);
-      if (PAGE_CONTAINS(49, 53)) {
-        for (uint8_t y = 0; y < 4; y++)
-          u8g.drawHLine(PROGRESS_BAR_X, 49 + y, (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01f));
+      if (PAGE_CONTAINS(50, 52)) {
+        for (uint8_t y = 0; y < 3; y++) {
+//          u8g.drawHLine(PROGRESS_BAR_X, 50 + y, (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01f));
+
+        uint16_t w = (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01f);
+        u8g.drawHLine(PROGRESS_BAR_X, 50 + 0, w);
+        u8g.drawHLine(PROGRESS_BAR_X, 50 + 2, w);
       }
 
       //
@@ -500,6 +503,12 @@ void MarlinUI::draw_status_screen() {
         }
       #endif
     }
+    // progress bar start marker
+    u8g.drawPixel(PROGRESS_BAR_X, 50 + 0);
+    u8g.drawPixel(PROGRESS_BAR_X, 50 + 2);
+    // progress bar end marker
+    u8g.drawPixel(PROGRESS_BAR_X + PROGRESS_BAR_WIDTH - 1, 50 + 0);
+    u8g.drawPixel(PROGRESS_BAR_X + PROGRESS_BAR_WIDTH - 1, 50 + 2);
 
     //
     // Elapsed Time
@@ -543,6 +552,12 @@ void MarlinUI::draw_status_screen() {
     #if DISABLED(XYZ_NO_FRAME)
       #if ENABLED(XYZ_HOLLOW_FRAME)
         u8g.drawFrame(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT); // 8: 29-40  7: 29-39
+
+        // draw two dotted lines
+//        for (uint8_t x = 0; x < LCD_PIXEL_WIDTH; x += 3) {
+//          u8g.drawPixel(x, XYZ_FRAME_TOP);
+//          u8g.drawPixel(x, XYZ_FRAME_TOP + XYZ_FRAME_HEIGHT - 1);
+//        }
       #else
         u8g.drawBox(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT);   // 8: 30-39  7: 30-37
       #endif
