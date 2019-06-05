@@ -232,24 +232,25 @@ millis_t next_button_update_ms;
 #endif // HAS_LCD_MENU
 
 void MarlinUI::init() {
-  //Recovering custom _Bootscreen showing for the MKS_MINI_12864
+
+  // MKS_MINI_12864 needs to do this early
   #if ENABLED(MKS_MINI_12864)
-      #if !defined(LCD_RESET_PIN)
-        #define LCD_RESET_PIN LCD_PINS_RS
-      #endif
-      //Reset the MKS_MINI_12864
-      #if PIN_EXISTS(LCD_RESET)
-        OUT_WRITE(LCD_RESET_PIN, LOW); // perform a clean hardware reset
-        _delay_ms(5);
-        OUT_WRITE(LCD_RESET_PIN, HIGH);
-        _delay_ms(5); // delay to allow the display to initialize
-      #endif
-      #if ENABLED(DEFAULT_LCD_CONTRAST)
-        u8g.setContrast(DEFAULT_LCD_CONTRAST);
-      #endif
-      #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
-        ui.show_bootscreen();
-      #endif
+    #ifndef LCD_RESET_PIN
+      #define LCD_RESET_PIN LCD_PINS_RS
+    #endif
+    // Reset the MKS LCD
+    #if PIN_EXISTS(LCD_RESET)
+      OUT_WRITE(LCD_RESET_PIN, LOW);
+      _delay_ms(5);
+      OUT_WRITE(LCD_RESET_PIN, HIGH);
+      _delay_ms(5);
+    #endif
+    #if ENABLED(DEFAULT_LCD_CONTRAST)
+      u8g.setContrast(DEFAULT_LCD_CONTRAST);
+    #endif
+    #if ENABLED(SHOW_BOOTSCREEN)
+      ui.show_bootscreen();
+    #endif
   #endif
 
   init_lcd();

@@ -75,7 +75,8 @@
 #define UC1701_V5_RATIO(N)       (0x20 | ((N) & 0x7))
 #define UC1701_CONTRAST(N)       (0x81), (N)
 
-#define UC1701_COLUMN_ADR(N)     (0x10 | (((N) >> 4) & 0xF)), ((N) & 0xF)
+#define UC1701_COLUMN_HI(N)      (0x10 | (((N) >> 4) & 0xF))
+#define UC1701_COLUMN_ADR(N)     UC1701_COLUMN_HI(N), ((N) & 0xF)
 #define UC1701_PAGE_ADR(N)       (0xB0 | (N))
 #define UC1701_START_LINE(N)     (0x40 | (N))
 #define UC1701_INDICATOR(N)      (0xAC), (N)
@@ -99,7 +100,7 @@ static const uint8_t u8g_dev_uc1701_mini12864_HAL_init_seq[] PROGMEM = {
   UC1701_BOOST_RATIO(0x0),    /* set booster ratio to 4x */
   UC1701_V5_RATIO(3),         /* set V0 voltage resistor ratio to large */
   UC1701_CONTRAST(0x27),      /* set contrast */
-  UC1701_INDICATOR(0),        /* indicator */
+  UC1701_INDICATOR(0),        /* indicator disable */
   UC1701_ON(1),               /* display on */
 
   U8G_ESC_CS(0),              /* disable chip */
@@ -117,29 +118,24 @@ static const uint8_t u8g_dev_uc1701_mini12864_HAL_init_seq[] PROGMEM = {
 };
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_data_start[] PROGMEM = {
-      #if ENABLED(MKS_MINI_12864)
-          U8G_ESC_ADR(0),             /* instruction mode */
-          U8G_ESC_CS(1),              /* enable chip */
-          0x040, /* set display start line to 0 */
-          0x0a0, /* ADC set to reverse */
-          0x0c8, /* common output mode */
-          0x0a6, /* display normal, bit val 0: LCD pixel off. */
-          0x0a2, /* LCD bias 1/9 */
-          0x02f, /* all power control circuits on */
-          0x0f8, /* set booster ratio to */
-          0x000, /* 4x */
-          0x023, /* set V0 voltage resistor ratio to large */
-          0x0ac, /* indicator */
-          0x000, /* disable */
-          0x0af, /* display on */
-          0x010, /* set upper 4 bit of the col adr to 0 */
-          U8G_ESC_END                 /* end of sequence */
-      #else
-          U8G_ESC_ADR(0),             /* instruction mode */
-          U8G_ESC_CS(1),              /* enable chip */
-          UC1701_COLUMN_ADR(0),       /* address 0 */
-          U8G_ESC_END                 /* end of sequence */
-      #endif
+  U8G_ESC_ADR(0),             /* instruction mode */
+  U8G_ESC_CS(1),              /* enable chip */
+  #if ENABLED(MKS_MINI_12864)
+    UC1701_START_LINE(0),     /* set display start line to 0 */
+    UC1701_ADC_REVERSE(0),    /* ADC set to reverse */
+    UC1701_OUT_MODE(1),       /* common output mode */
+    UC1701_INVERTED(0),       /* display normal, bit val 0: LCD pixel off. */
+    UC1701_BIAS_MODE(0),      /* LCD bias 1/9 */
+    UC1701_POWER_CONTROL(0x7), /* all power control circuits on */
+    UC1701_BOOST_RATIO(0x0),  /* set booster ratio to 4x */
+    UC1701_V5_RATIO(3),       /* set V0 voltage resistor ratio to large */
+    UC1701_INDICATOR(0),      /* indicator disable */
+    UC1701_ON(1),             /* display on */
+    UC1701_COLUMN_HI(0),      /* set upper 4 bits of the col adr to 0 */
+  #else
+    UC1701_COLUMN_ADR(0),     /* address 0 */
+  #endif
+  U8G_ESC_END                 /* end of sequence */
 };
 
 uint8_t u8g_dev_uc1701_mini12864_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
