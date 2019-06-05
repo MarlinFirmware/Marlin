@@ -30,8 +30,6 @@
 
 #define BOARD_NAME "Z-Bolt X Series"
 
-
-
 #if ENABLED(TARGET_LPC1768)
   #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
 #elif defined(__STM32F1__)
@@ -44,12 +42,11 @@
   #endif
 #endif
 
-
 //
 // Servos
 //
 #ifndef SERVO0_PIN
-    #define SERVO0_PIN     11
+  #define SERVO0_PIN       11
 #endif
 #ifndef SERVO3_PIN
   #define SERVO3_PIN        4
@@ -135,17 +132,19 @@
 #define TEMP_1_PIN         15   // Analog Input
 #define TEMP_2_PIN          5   // Analog Input (BLACK)
 #define TEMP_3_PIN          9   // Analog Input (RED)
-
 #define TEMP_BED_PIN       14   // Analog Input
 
-#define HEATER_0_PIN     10
-#define HEATER_1_PIN      7
-#define HEATER_2_PIN      6
-#define HEATER_3_PIN      5
-
-#define HEATER_BED_PIN   8
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       10
+#define HEATER_1_PIN        7
+#define HEATER_2_PIN        6
+#define HEATER_3_PIN        5
+#define HEATER_BED_PIN      8
 
 #define FAN_PIN             9
+
 //
 // Misc. Functions
 //
