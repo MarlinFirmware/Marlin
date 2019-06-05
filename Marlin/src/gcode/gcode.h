@@ -443,7 +443,11 @@ private:
     static void G80();
   #endif
 
-  static void G81_G83();
+  static void G81_G83(
+    #if IS_SCARA || defined(G0_FEEDRATE)
+      bool fast_move=false
+    #endif
+  );
 
   static void G92();
 

@@ -69,25 +69,23 @@ void GcodeSuite::G81_G83(
     #endif
 
     // rapid move XY plane only at current Z height
-    const bool hasX = parser.seenval('X');
-    const float x = hasX ? parser.value_long() : current_position[X_AXIS];
-    const bool hasY = parser.seenval('Y');
-    const float y = hasY ? parser.value_long() : current_position[Y_AXIS];
-
-    const bool hasR = parser.seenval('R');
-    const float r = hasR ? parser.value_long() : current_position[Z_AXIS];
-
+    /*
     const bool hasF = parser.seenval('F');
     const float f = hasF ? parser.value_long() : 0; // fix feed rate
-    
-    destination[X_AXIS] = x;
-    destination[Y_AXIS] = y;
-    destination[Z_AXIS] = current_position[Z_AXIS];
-    const long initial_z = current_position[Z_AXIS];
-    prepare_move_to_destination();
+    */
+    get_destination_from_command();
+    // cache the commanded Z, this is the final depth we will drill to once in position
+    const float final_z = destination[Z_AXIS];
+
+    const float initial_z = current_position[Z_AXIS];
+    // set the Z axis destination as the current position, not the commanded Z depth
+    destination[Z_AXIS] = initial_z;
+    prepare_move_to_destination(); // positions X and Y axes
     planner.synchronize();
 
-    // rapid move to Z retract height
+    // rapid move to Z retract height, if provided
+    const bool hasR = parser.seenval('R');
+    const float r = hasR ? LOGICAL_TO_NATIVE(parser.value_float(),Z_AXIS) : current_position[Z_AXIS];
 
     destination[X_AXIS] = current_position[X_AXIS];
     destination[Y_AXIS] = current_position[Y_AXIS];
@@ -95,22 +93,19 @@ void GcodeSuite::G81_G83(
     prepare_move_to_destination();
     planner.synchronize();
     
-    if(parser.seenval('Z'))
-    {
-      // move Z only to target depth
-      destination[X_AXIS] = current_position[X_AXIS];
-      destination[Y_AXIS] = current_position[Y_AXIS];
-      destination[Z_AXIS] = parser.value_long();
-      prepare_move_to_destination();
-      planner.synchronize();
+    // move Z only to target depth at defined feedrate
+    destination[X_AXIS] = current_position[X_AXIS];
+    destination[Y_AXIS] = current_position[Y_AXIS];
+    destination[Z_AXIS] = final_z;
+    prepare_move_to_destination();
+    planner.synchronize();
 
-      // retract to previous height, or retract height specified
-      destination[X_AXIS] = current_position[X_AXIS];
-      destination[Y_AXIS] = current_position[Y_AXIS];
-      destination[Z_AXIS] = initial_z;
-      prepare_move_to_destination();
-      planner.synchronize();
-    }
+    // retract to previous height, or retract height specified
+    destination[X_AXIS] = current_position[X_AXIS];
+    destination[Y_AXIS] = current_position[Y_AXIS];
+    destination[Z_AXIS] = hasR ? r: initial_z;
+    prepare_move_to_destination();
+    planner.synchronize();
 
   }
 }
