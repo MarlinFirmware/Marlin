@@ -443,6 +443,8 @@ private:
     static void G80();
   #endif
 
+  static void G81_G83();
+
   static void G92();
 
   #if ENABLED(CALIBRATION_GCODE)
