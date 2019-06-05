@@ -72,6 +72,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
 #define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 3 && DISABLED(STATUS_COMBINE_HEATERS))
 #define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && STATUS_FAN_FRAMES)
+//#define DO_DRAW_CHAMBER (HAS_TEMP_CHAMBER && ((HOTENDS <= 2 && DO_DRAW_BED) || (!DO_DRAW_BED && HOTENDS <= 3)))
 #define ANIM_HOTEND (HOTENDS && ENABLED(STATUS_HOTEND_ANIM))
 #define ANIM_BED (DO_DRAW_BED && ENABLED(STATUS_BED_ANIM))
 #define ANIM_CHAMBER (HAS_HEATED_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM))
@@ -130,27 +131,6 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
   #else
     const float temp = IFBED(thermalManager.degBed(), thermalManager.degHotend(heater)),
                 target = IFBED(thermalManager.degTargetBed(), thermalManager.degTargetHotend(heater));
-  #endif
-
-  #if HAS_HEATED_CHAMBER
-    FORCE_INLINE void _draw_chamber_status(const bool blink) {
-      const float temp = thermalManager.degChamber(),
-                  target = thermalManager.degTargetChamber();
-      #if !HEATER_IDLE_HANDLER
-        UNUSED(blink);
-      #endif
-      if (PAGE_UNDER(7)) {
-        #if HEATER_IDLE_HANDLER
-          const bool is_idle = false, // thermalManager.chamber_idle.timed_out,
-                     dodraw = (blink || !is_idle);
-        #else
-          constexpr bool dodraw = true;
-        #endif
-        if (dodraw) _draw_centered_temp(target + 0.5, STATUS_CHAMBER_TEXT_X, 7);
-      }
-      if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-        _draw_centered_temp(temp + 0.5f, STATUS_CHAMBER_TEXT_X, 28);
-    }
   #endif
 
   #if DISABLED(STATUS_HOTEND_ANIM)
@@ -253,6 +233,31 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
   }
 
 }
+
+#if DO_DRAW_CHAMBER
+  FORCE_INLINE void _draw_chamber_status(const bool blink) {
+    const float temp = thermalManager.degChamber();
+
+    #if !HEATER_IDLE_HANDLER
+      UNUSED(blink);
+    #endif
+    #if HAS_HEATED_CHAMBER
+      const float target = thermalManager.degTargetChamber();
+
+      if (PAGE_UNDER(7)) {
+        #if HEATER_IDLE_HANDLER
+          const bool is_idle = false, // thermalManager.chamber_idle.timed_out,
+          dodraw = (blink || !is_idle);
+        #else
+          constexpr bool dodraw = true;
+        #endif
+        if (dodraw) _draw_centered_temp(target + 0.5, STATUS_CHAMBER_TEXT_X, 7);
+      }
+    #endif
+    if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
+      _draw_centered_temp(temp + 0.5f, STATUS_CHAMBER_TEXT_X, 28);
+  }
+#endif
 
 //
 // Before homing, blink '123' <-> '???'.
@@ -357,7 +362,7 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if DO_DRAW_CHAMBER
-    #if ANIM_HAMBER
+    #if HAS_HEATED_CHAMBER && defined(STATUS_CHAMBER_ANIM)
       #define CHAMBER_BITMAP(S) ((S) ? status_chamber_on_bmp : status_chamber_bmp)
     #else
       #define CHAMBER_BITMAP(S) status_chamber_bmp
@@ -406,11 +411,11 @@ void MarlinUI::draw_status_screen() {
       _draw_heater_status(e, blink);
 
     // Heated bed
-    #if HAS_HEATED_BED && HOTENDS < 4
+    #if DO_DRAW_BED
       _draw_heater_status(-1, blink);
     #endif
 
-    #if HAS_HEATED_CHAMBER
+    #if DO_DRAW_CHAMBER
       _draw_chamber_status(blink);
     #endif
 

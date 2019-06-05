@@ -659,11 +659,11 @@
 
 #endif // !STATUS_BED_WIDTH && !STATUS_COMBINE_HEATERS && HAS_HEATED_BED && HOTENDS < 4
 
-#if HAS_HEATED_CHAMBER
+#if HAS_TEMP_CHAMBER
 
   #define STATUS_CHAMBER_WIDTH 16
 
-  #ifdef STATUS_CHAMBER_ANIM
+  #if defined(STATUS_CHAMBER_ANIM) || !HAS_HEATED_CHAMBER
 
     const unsigned char status_chamber_bmp[] PROGMEM = {
       B11111111,B11111111,
@@ -680,20 +680,22 @@
       B11111111,B11111111
     };
 
-    const unsigned char status_chamber_on_bmp[] PROGMEM = {
-      B11111111,B11111111,
-      B10000000,B00000001,
-      B10000100,B00100001,
-      B10000010,B00010001,
-      B10000010,B00010001,
-      B10000100,B00100001,
-      B10001000,B01000001,
-      B10001000,B01000001,
-      B10000100,B00100001,
-      B10000000,B00000001,
-      B11111111,B11111111,
-      B11111111,B11111111
-    };
+    #if HAS_HEATED_CHAMBER
+      const unsigned char status_chamber_on_bmp[] PROGMEM = {
+        B11111111,B11111111,
+        B10000000,B00000001,
+        B10000100,B00100001,
+        B10000010,B00010001,
+        B10000010,B00010001,
+        B10000100,B00100001,
+        B10001000,B01000001,
+        B10001000,B01000001,
+        B10000100,B00100001,
+        B10000000,B00000001,
+        B11111111,B11111111,
+        B11111111,B11111111
+      };
+    #endif
 
   #else
 
@@ -1375,15 +1377,11 @@
   #endif
 
   #ifndef STATUS_CHAMBER_HEIGHT
-    #ifdef STATUS_CHAMBER_ANIM
-      #define STATUS_CHAMBER_HEIGHT(S) ((S) ? sizeof(status_chamber_on_bmp) / (STATUS_CHAMBER_BYTEWIDTH) : sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
-    #else
-      #define STATUS_CHAMBER_HEIGHT(S) (sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
-    #endif
+    #define STATUS_CHAMBER_HEIGHT (sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
   #endif
 
   #ifndef STATUS_CHAMBER_Y
-    #define STATUS_CHAMBER_Y(S) (20 - STATUS_CHAMBER_HEIGHT(S))
+    #define STATUS_CHAMBER_Y (20 - STATUS_CHAMBER_HEIGHT)
   #endif
 
   #ifndef STATUS_CHAMBER_TEXT_X
@@ -1391,12 +1389,12 @@
   #endif
 
   static_assert(
-    sizeof(status_chamber_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT(0)),
+    sizeof(status_chamber_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT),
     "Status chamber bitmap (status_chamber_bmp) dimensions don't match data."
   );
-  #ifdef STATUS_CHAMBER_ANIM
+  #if HAS_HEATED_CHAMBER && defined(STATUS_CHAMBER_ANIM)
     static_assert(
-      sizeof(status_chamber_on_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT(1)),
+      sizeof(status_chamber_on_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT),
       "Status chamber bitmap (status_chamber_on_bmp) dimensions don't match data."
     );
   #endif
