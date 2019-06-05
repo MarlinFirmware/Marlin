@@ -872,11 +872,11 @@ void setup() {
   #endif
 
   setup_killpin();
-  
+
   #if HAS_DRIVER(TMC2208)
     tmc2208_serial_begin();
   #endif
-  
+
   setup_powerhold();
 
   #if HAS_STEPPER_RESET
