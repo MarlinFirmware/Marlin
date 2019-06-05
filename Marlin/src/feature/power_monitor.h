@@ -21,28 +21,27 @@
  */
 #pragma once
 
-//#include "../inc/MarlinConfigPre.h"
 #include "../inc/MarlinConfig.h"
 
-#define PM_MAX_SAMPLE  1024
-#define PM_K_VALUE     7
-#define PM_K_SCALE     7
+#define PM_SAMPLE_RANGE 1024
+#define PM_K_VALUE      7
+#define PM_K_SCALE      7
 
-template <const float& ADC_SCALE, int K_VALUE, int K_SCALE>
+template <const float & SCALE, int K_VALUE, int K_SCALE>
 struct lpf_reading_t {
-  uint32_t filter;
+  uint32_t filter_buf;
   float value;
 
   void add_sample(const uint16_t sample) {
-    filter = filter - (filter >> K_VALUE) + (uint32_t(sample) << K_SCALE);
+    filter_buf = filter_buf - (filter_buf >> K_VALUE) + (uint32_t(sample) << K_SCALE);
   }
 
   void capture() {
-    value = filter * ADC_SCALE;
+    value = filter_buf * (SCALE * (1.0f / (1UL << (PM_K_VALUE + PM_K_SCALE))));
   }
 
   void reset(uint16_t reset_value = 0) {
-    filter = uint32_t(reset_value) << (K_VALUE + K_SCALE);
+    filter_buf = uint32_t(reset_value) << (K_VALUE + K_SCALE);
     capture();
   }
 };
@@ -50,11 +49,11 @@ struct lpf_reading_t {
 class PowerMonitor {
 private:
   #if ENABLED(POWER_MONITOR_CURRENT)
-    static constexpr float amps_adc_scale = float(ADC_VREF) / (POWER_MONITOR_VOLTS_PER_AMP * PM_MAX_SAMPLE * (1UL << (PM_K_VALUE + PM_K_SCALE)) );
+    static constexpr float amps_adc_scale = float(ADC_VREF) / (POWER_MONITOR_VOLTS_PER_AMP * PM_SAMPLE_RANGE);
     static lpf_reading_t<amps_adc_scale, PM_K_VALUE, PM_K_SCALE> amps;
   #endif
   #if ENABLED(POWER_MONITOR_VOLTAGE)
-    static constexpr float volts_adc_scale = float(ADC_VREF) / (POWER_MONITOR_VOLTS_PER_VOLT * PM_MAX_SAMPLE * (1UL << (PM_ADC_BITS + PM_K_VALUE + PM_K_SCALE)) );
+    static constexpr float volts_adc_scale = float(ADC_VREF) / (POWER_MONITOR_VOLTS_PER_VOLT * PM_SAMPLE_RANGE);
     static lpf_reading_t<volts_adc_scale, PM_K_VALUE, PM_K_SCALE> volts;
   #endif
 
