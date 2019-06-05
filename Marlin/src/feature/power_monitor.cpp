@@ -32,10 +32,10 @@
 uint8_t PowerMonitor::flags; // = 0
 
 #if ENABLED(POWER_MONITOR_CURRENT)
-  lpf_reading_t<PowerMonitor::amps_adc_scale, PM_K_VALUE, PM_K_SCALE> PowerMonitor::amps;
+  pm_lpf_t<PowerMonitor::amps_adc_scale, PM_K_VALUE, PM_K_SCALE> PowerMonitor::amps;
 #endif
 #if ENABLED(POWER_MONITOR_VOLTAGE)
-  lpf_reading_t<PowerMonitor::volts_adc_scale, PM_K_VALUE, PM_K_SCALE> PowerMonitor::volts;
+  pm_lpf_t<PowerMonitor::volts_adc_scale, PM_K_VALUE, PM_K_SCALE> PowerMonitor::volts;
 #endif
 
 millis_t PowerMonitor::display_item_ms;

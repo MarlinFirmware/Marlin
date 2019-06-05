@@ -28,7 +28,7 @@
 #define PM_K_SCALE      7
 
 template <const float & SCALE, int K_VALUE, int K_SCALE>
-struct lpf_reading_t {
+struct pm_lpf_t {
   uint32_t filter_buf;
   float value;
 
@@ -50,11 +50,11 @@ class PowerMonitor {
 private:
   #if ENABLED(POWER_MONITOR_CURRENT)
     static constexpr float amps_adc_scale = float(ADC_VREF) / (POWER_MONITOR_VOLTS_PER_AMP * PM_SAMPLE_RANGE);
-    static lpf_reading_t<amps_adc_scale, PM_K_VALUE, PM_K_SCALE> amps;
+    static pm_lpf_t<amps_adc_scale, PM_K_VALUE, PM_K_SCALE> amps;
   #endif
   #if ENABLED(POWER_MONITOR_VOLTAGE)
     static constexpr float volts_adc_scale = float(ADC_VREF) / (POWER_MONITOR_VOLTS_PER_VOLT * PM_SAMPLE_RANGE);
-    static lpf_reading_t<volts_adc_scale, PM_K_VALUE, PM_K_SCALE> volts;
+    static pm_lpf_t<volts_adc_scale, PM_K_VALUE, PM_K_SCALE> volts;
   #endif
 
 public:
