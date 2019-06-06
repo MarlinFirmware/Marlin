@@ -86,6 +86,7 @@
 #define BOARD_TRIGORILLA_14     443   // TriGorilla Anycubic version 1.4 based on RAMPS EFB
 #define BOARD_RAMPS_ENDER_4     243   // Creality: Ender-4, CR-8
 #define BOARD_RAMPS_CREALITY    244   // Creality: CR10S, CR20, CR-X
+#define BOARD_RAMPS_DAGOMA      245   // Dagoma F5
 #define BOARD_FYSETC_F6_13      541   // Fysetc F6
 #define BOARD_DUPLICATOR_I3_PLUS 31   // Wanhao Duplicator i3 Plus
 #define BOARD_VORON             441   // VORON Design

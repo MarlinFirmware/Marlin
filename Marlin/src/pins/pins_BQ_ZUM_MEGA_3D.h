@@ -53,13 +53,15 @@
 #define SPINDLE_LASER_PWM_PIN    44   // MUST BE HARDWARE PWM
 #define SPINDLE_DIR_PIN          42
 
-#include "pins_RAMPS_13.h"
-
 //
 // Limit Switches
 //
-#undef X_MAX_PIN
 #define X_MAX_PIN          79   // 2
+
+//
+// Import RAMPS 1.3 pins
+//
+#include "pins_RAMPS_13.h"
 
 //
 // Z Probe (when not Z_MIN_PIN)

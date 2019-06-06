@@ -37,15 +37,13 @@
 #endif
 #define BOARD_NAME "Azteeg X3"
 
-#include "pins_RAMPS_13.h"
-
 //
 // Servos
 //
-#undef SERVO0_PIN
-#undef SERVO1_PIN
 #define SERVO0_PIN         44   // SERVO1 port
 #define SERVO1_PIN         55   // SERVO2 port
+
+#include "pins_RAMPS_13.h"
 
 //
 // LCD / Controller
