@@ -82,6 +82,15 @@ bool send_ok[BUFSIZE];
  */
 static PGM_P injected_commands_P = nullptr;
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  /**
+   * Higher Priority (than Injected) Command pointer. nullptr if no commands are being injected.
+   * Used by Marlin internally. The priority command is inserted infront of the queue.  
+   * Needed to run Pause command immediately before processing any command already in the queue.
+   */
+  static PGM_P priority_commands_P = nullptr;
+#endif
+
 void queue_setup() {
   // Send "ok" after commands by default
   for (uint8_t i = 0; i < COUNT(send_ok); i++) send_ok[i] = true;
@@ -93,6 +102,48 @@ void queue_setup() {
 void clear_command_queue() {
   cmd_queue_index_r = cmd_queue_index_w = commands_in_queue = 0;
 }
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  /**
+   * Insert a high Priority command from RAM into the main command buffer.
+   * Return true if the command was successfully added.
+   * Return false for a full buffer, or if the 'command' is a comment.
+   */
+  inline bool _insertprioritycommand(const char* cmd, bool say_ok=false
+    #if NUM_SERIAL > 1
+      , int16_t port = -1
+    #endif
+  ) {
+    if (*cmd == ';' || commands_in_queue >= BUFSIZE) return false;
+    if (cmd_queue_index_r == 0) cmd_queue_index_r = BUFSIZE;
+    --cmd_queue_index_r;
+    strcpy(command_queue[cmd_queue_index_r], cmd);
+    send_ok[cmd_queue_index_r] = say_ok;
+    #if NUM_SERIAL > 1
+      command_queue_port[cmd_queue_index_r] = port;
+    #endif
+    commands_in_queue++;
+    return true;
+  }
+
+  /**
+   * Insert a High Priority command with Serial Echo
+   */
+  bool insert_and_echo_priority_command(const char* cmd) {
+
+    if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') {
+      //SERIAL_ECHOLNPGM("Null command found...   Did not insert!");
+      return true;
+    }
+
+    if (_insertprioritycommand(cmd)) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR(MSG_INSERTING, cmd, "\"");
+      return true;
+    }
+    return false;
+  }
+#endif
 
 /**
  * Once a new command is in the ring buffer, call this to commit it
@@ -132,6 +183,7 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false
 
 /**
  * Enqueue with Serial Echo
+ * Return true on success
  */
 bool enqueue_and_echo_command(const char* cmd) {
 
@@ -155,9 +207,26 @@ bool enqueue_and_echo_command(const char* cmd) {
 /**
  * Inject the next "immediate" command, when possible, onto the front of the queue.
  * Return true if any immediate commands remain to inject.
+ * Do not inject a comment or use leading space!.
  */
 static bool drain_injected_commands_P() {
-  if (injected_commands_P != nullptr) {
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+
+    while (priority_commands_P != nullptr) {
+      size_t i = 0;
+      char c, cmd[60];
+      strncpy_P(cmd, priority_commands_P, sizeof(cmd) - 1);
+      cmd[sizeof(cmd) - 1] = '\0';
+      while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
+      cmd[i] = '\0';
+      if (insert_and_echo_priority_command(cmd))     // success?
+        priority_commands_P = c ? priority_commands_P + i + 1 : nullptr; // next command or done
+      else 
+        return true; // buffer is full (or command is comment);
+    }
+  #endif
+
+  while (injected_commands_P != nullptr) {
     size_t i = 0;
     char c, cmd[60];
     strncpy_P(cmd, injected_commands_P, sizeof(cmd) - 1);
@@ -166,12 +235,26 @@ static bool drain_injected_commands_P() {
     cmd[i] = '\0';
     if (enqueue_and_echo_command(cmd))     // success?
       injected_commands_P = c ? injected_commands_P + i + 1 : nullptr; // next command or done
+    else
+      return true; // buffer is full (or command is comment);   
   }
-  return (injected_commands_P != nullptr);    // return whether any more remain
+  return false;   // return whether any more remain
 }
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  /**
+   * Insert in the front of queue, one or many commands to run from program memory.
+   * Aborts the current queue, if any.
+   * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
+   */
+  void insert_and_echo_priority_commands_P(PGM_P const pgcode) {
+    priority_commands_P = pgcode;
+    (void)drain_injected_commands_P(); // first command executed asap (when possible)
+  }
+#endif
+
 /**
- * Record one or many commands to run from program memory.
+ * Enqueue one or many commands to run from program memory.
  * Aborts the current queue, if any.
  * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
  */

@@ -83,8 +83,17 @@ void flush_and_request_resend();
  */
 void ok_to_send();
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  /**
+   * Insert in the front of queue, one or many commands to run from program memory.
+   * Aborts the current queue, if any.
+   * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
+   */
+  void insert_and_echo_priority_commands_P(PGM_P const pgcode);
+#endif
+
 /**
- * Record one or many commands to run from program memory.
+ * Enqueue one or many commands to run from program memory.
  * Aborts the current queue, if any.
  * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
  */
@@ -92,6 +101,7 @@ void enqueue_and_echo_commands_P(PGM_P const pgcode);
 
 /**
  * Enqueue with Serial Echo
+ * Return true on success
  */
 bool enqueue_and_echo_command(const char* cmd);
 
