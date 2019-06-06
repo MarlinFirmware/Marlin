@@ -70,8 +70,66 @@
 #if ENABLED(ANYCUBIC_4MAX)
 #ifdef FILWIDTH_PIN
  #undef FILWIDTH_PIN
- #define FILWIDTH_PIN      42  // Trigorilla have 2 Analog Pins on AUX (D42 & D43!)
-#endif
+ #define FILWIDTH_PIN      -1  // Trigorilla have 2 Analog Pins on AUX (D42 & D43!)
+#endif                         // ATTENTION: Onboard Description D42 is D43 and describtion D43 ist D42! ).
+                               // Set this if you need FILWIDTH. Else -1!
+
+#if HAS_DRIVER(TMC2208)
+/**
+ * TMC2208 stepper drivers
+ *
+ * Software serial settings
+ *
+ * Info: Following Pins can be set for TX: D6, D11, D20, D21, D42, D43
+ *                                         ATTENTION: The Onboard PIN Descriptions D42, D43 are wrong (reversed)!
+ *                                         Onboard Pin Description D42 is D43 and Pin describtion D43 is D42!
+ * Info: Following Pins can be set for RX: D12 ( Additional and alternatively (instead of using the SD-Card): 50, 51, 52, 53.  )
+ *                                         You do not need RX Pins. But useful for testing purpose.
+ *
+ * Info: Recommendation is to use UART RX Pin only for the Extruder E0!
+ */
+
+ // Software serial  E0
+  #ifdef E0_SERIAL_TX_PIN
+   #undef E0_SERIAL_TX_PIN
+   #define E0_SERIAL_TX_PIN    11 // D43:OK | D42:OK | D21:OK | D20:OK | D11:OK | D6:OK
+  #endif
+  #ifdef E0_SERIAL_RX_PIN
+   #undef E0_SERIAL_RX_PIN
+   #define E0_SERIAL_RX_PIN    12 // D12:OK, D50:OK, D51:OK, D52:OK D53:OK
+  #endif
+
+ // Software serial  X
+  #ifdef X_SERIAL_TX_PIN
+   #undef X_SERIAL_TX_PIN
+   #define X_SERIAL_TX_PIN    -1
+  #endif
+  #ifdef X_SERIAL_RX_PIN
+   #undef X_SERIAL_RX_PIN
+   #define X_SERIAL_RX_PIN    -1
+  #endif
+
+  // Software serial  Y
+  #ifdef Y_SERIAL_TX_PIN
+   #undef Y_SERIAL_TX_PIN
+   #define Y_SERIAL_TX_PIN    -1
+  #endif
+  #ifdef Y_SERIAL_RX_PIN
+   #undef Y_SERIAL_RX_PIN
+   #define Y_SERIAL_RX_PIN    -1
+  #endif
+
+  // Software serial  Z
+  #ifdef Z_SERIAL_TX_PIN
+   #undef Z_SERIAL_TX_PIN
+   #define Z_SERIAL_TX_PIN    -1
+  #endif
+  #ifdef Z_SERIAL_RX_PIN
+   #undef Z_SERIAL_RX_PIN
+   #define Z_SERIAL_RX_PIN    -1
+  #endif
+
+#endif //TMC2208
 
 #ifdef FIL_RUNOUT_PIN
  #undef FIL_RUNOUT_PIN
