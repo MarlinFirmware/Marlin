@@ -207,7 +207,7 @@
 #define MSG_CONTROLLER_FAN_IDLE_SPEED       _UxGT("Lüfter Leerlauf")
 #define MSG_CONTROLLER_FAN_AUTO_ON          _UxGT("Motorlast Modus")
 #define MSG_CONTROLLER_FAN_SPEED            _UxGT("Lüfter Motorlast")
-#define MSG_CONTROLLER_FAN_DURATION         _UxGT("Auschalt Delay")
+#define MSG_CONTROLLER_FAN_DURATION         _UxGT("Ausschalt Delay")
 #define MSG_FLOW                            _UxGT("Flussrate")
 #define MSG_CONTROL                         _UxGT("Einstellungen")
 #define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" min")
