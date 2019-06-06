@@ -262,7 +262,7 @@
           B00000011,B00000000
         };
 
-        #ifdef STATUS_HOTEND_ANIM
+        #if ENABLED(STATUS_HOTEND_ANIM)
 
           const unsigned char status_hotend_b_bmp[] PROGMEM = {
             B00011111,B11100000,
@@ -296,7 +296,7 @@
             #define STATUS_HOTEND_BITMAPS HOTENDS
           #endif
 
-          #ifdef STATUS_HOTEND_ANIM
+          #if ENABLED(STATUS_HOTEND_ANIM)
 
             const unsigned char status_hotend1_a_bmp[] PROGMEM = {
               B00011111,B11100000,
@@ -396,7 +396,7 @@
 
         #if STATUS_HOTEND_BITMAPS >= 3
 
-          #ifdef STATUS_HOTEND_ANIM
+          #if ENABLED(STATUS_HOTEND_ANIM)
 
             const unsigned char status_hotend3_a_bmp[] PROGMEM = {
               B00011111,B11100000,
@@ -451,7 +451,7 @@
 
         #if STATUS_HOTEND_BITMAPS >= 4 && !HAS_HEATED_BED
 
-          #ifdef STATUS_HOTEND_ANIM
+          #if ENABLED(STATUS_HOTEND_ANIM)
 
             const unsigned char status_hotend4_a_bmp[] PROGMEM = {
               B00011111,B11100000,
@@ -506,7 +506,7 @@
 
         #if STATUS_HOTEND_BITMAPS >= 5 && !HAS_HEATED_BED
 
-          #ifdef STATUS_HOTEND_ANIM
+          #if ENABLED(STATUS_HOTEND_ANIM)
 
             const unsigned char status_hotend5_a_bmp[] PROGMEM = {
               B00011111,B11100000,
@@ -614,44 +614,31 @@
       #define STATUS_BED_X    80
     #endif
 
-    #ifdef STATUS_BED_ANIM
+    const unsigned char status_bed_on_bmp[] PROGMEM = {
+      B00000100,B00010000,B01000000,
+      B00000010,B00001000,B00100000,
+      B00000010,B00001000,B00100000,
+      B00000100,B00010000,B01000000,
+      B00001000,B00100000,B10000000,
+      B00010000,B01000001,B00000000,
+      B00010000,B01000001,B00000000,
+      B00001000,B00100000,B10000000,
+      B00000100,B00010000,B01000000,
+      B00000000,B00000000,B00000000,
+      B00011111,B11111111,B11111000,
+      B00011111,B11111111,B11111000
+    };
+
+    #if ENABLED(STATUS_BED_ANIM)
 
       const unsigned char status_bed_bmp[] PROGMEM = {
-        B00011111,B11111111,B11111000,
-        B00011111,B11111111,B11111000
-      };
-
-      const unsigned char status_bed_on_bmp[] PROGMEM = {
-        B00000100,B00010000,B01000000,
-        B00000010,B00001000,B00100000,
-        B00000010,B00001000,B00100000,
-        B00000100,B00010000,B01000000,
-        B00001000,B00100000,B10000000,
-        B00010000,B01000001,B00000000,
-        B00010000,B01000001,B00000000,
-        B00001000,B00100000,B10000000,
-        B00000100,B00010000,B01000000,
-        B00000000,B00000000,B00000000,
         B00011111,B11111111,B11111000,
         B00011111,B11111111,B11111000
       };
 
     #else
 
-      const unsigned char status_bed_bmp[] PROGMEM = {
-        B00000100,B00010000,B01000000,
-        B00000010,B00001000,B00100000,
-        B00000010,B00001000,B00100000,
-        B00000100,B00010000,B01000000,
-        B00001000,B00100000,B10000000,
-        B00010000,B01000001,B00000000,
-        B00010000,B01000001,B00000000,
-        B00001000,B00100000,B10000000,
-        B00000100,B00010000,B01000000,
-        B00000000,B00000000,B00000000,
-        B00011111,B11111111,B11111000,
-        B00011111,B11111111,B11111000
-      };
+      const unsigned char (&status_bed_bmp)[39] = status_bed_on_bmp;
 
     #endif
 
@@ -663,7 +650,26 @@
 
   #define STATUS_CHAMBER_WIDTH 16
 
-  #if defined(STATUS_CHAMBER_ANIM) || !HAS_HEATED_CHAMBER
+  const unsigned char status_chamber_on_bmp[] PROGMEM = {
+    B11111111,B11111111,
+    B10000000,B00000001,
+    B10000100,B00100001,
+    B10000010,B00010001,
+    B10000010,B00010001,
+    B10000100,B00100001,
+    B10001000,B01000001,
+    B10001000,B01000001,
+    B10000100,B00100001,
+    B10000000,B00000001,
+    B11111111,B11111111,
+    B11111111,B11111111
+  };
+
+  #if !HAS_HEATED_CHAMBER
+    #undef STATUS_CHAMBER_ANIM
+  #endif
+
+  #if ENABLED(STATUS_CHAMBER_ANIM)
 
     const unsigned char status_chamber_bmp[] PROGMEM = {
       B11111111,B11111111,
@@ -679,44 +685,14 @@
       B11111111,B11111111,
       B11111111,B11111111
     };
-
-    #if HAS_HEATED_CHAMBER
-      const unsigned char status_chamber_on_bmp[] PROGMEM = {
-        B11111111,B11111111,
-        B10000000,B00000001,
-        B10000100,B00100001,
-        B10000010,B00010001,
-        B10000010,B00010001,
-        B10000100,B00100001,
-        B10001000,B01000001,
-        B10001000,B01000001,
-        B10000100,B00100001,
-        B10000000,B00000001,
-        B11111111,B11111111,
-        B11111111,B11111111
-      };
-    #endif
 
   #else
 
-    const unsigned char status_chamber_bmp[] PROGMEM = {
-      B11111111,B11111111,
-      B10000000,B00000001,
-      B10000100,B00100001,
-      B10000010,B00010001,
-      B10000010,B00010001,
-      B10000100,B00100001,
-      B10001000,B01000001,
-      B10001000,B01000001,
-      B10000100,B00100001,
-      B10000000,B00000001,
-      B11111111,B11111111,
-      B11111111,B11111111
-    };
+    const unsigned char (&status_chamber_bmp)[24] = status_chamber_on_bmp;
 
   #endif
 
-#endif // HAS_HEATED_CHAMBER
+#endif // HAS_TEMP_CHAMBER
 
 // Can also be overridden in Configuration.h
 // If you can afford it, try the 3-frame fan animation!
@@ -1323,7 +1299,7 @@
     sizeof(TEST_BITMAP_OFF) == HOTEND0_BITMAP_SIZE,
     "Status hotend bitmap (" STRINGIFY(TEST_BITMAP_OFF) ") dimensions don't match data."
   );
-  #ifdef STATUS_HOTEND_ANIM
+  #if ENABLED(STATUS_HOTEND_ANIM)
     static_assert(
       sizeof(TEST_BITMAP_ON) == HOTEND0_BITMAP_SIZE,
       "Status hotend bitmaps (" STRINGIFY(TEST_BITMAP_OFF) " and " STRINGIFY(TEST_BITMAP_ON) ") dimensions don't match."
@@ -1392,10 +1368,10 @@
     sizeof(status_chamber_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT),
     "Status chamber bitmap (status_chamber_bmp) dimensions don't match data."
   );
-  #if HAS_HEATED_CHAMBER && defined(STATUS_CHAMBER_ANIM)
+  #if ENABLED(STATUS_CHAMBER_ANIM)
     static_assert(
-      sizeof(status_chamber_on_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT),
-      "Status chamber bitmap (status_chamber_on_bmp) dimensions don't match data."
+      sizeof(status_chamber_bmp) == sizeof(status_chamber_on_bmp),
+      "Status chamber bitmaps (status_chamber_bmp / _on_bmp) dimensions don't match."
     );
   #endif
 
@@ -1417,7 +1393,7 @@
   #endif
 
   #ifndef STATUS_BED_HEIGHT
-    #ifdef STATUS_BED_ANIM
+    #if ENABLED(STATUS_BED_ANIM)
       #define STATUS_BED_HEIGHT(S) ((S) ? sizeof(status_bed_on_bmp) / (STATUS_BED_BYTEWIDTH) : sizeof(status_bed_bmp) / (STATUS_BED_BYTEWIDTH))
     #else
       #define STATUS_BED_HEIGHT(S) (sizeof(status_bed_bmp) / (STATUS_BED_BYTEWIDTH))
@@ -1436,7 +1412,7 @@
     sizeof(status_bed_bmp) == (STATUS_BED_BYTEWIDTH) * (STATUS_BED_HEIGHT(0)),
     "Status bed bitmap (status_bed_bmp) dimensions don't match data."
   );
-  #ifdef STATUS_BED_ANIM
+  #if ENABLED(STATUS_BED_ANIM)
     static_assert(
       sizeof(status_bed_on_bmp) == (STATUS_BED_BYTEWIDTH) * (STATUS_BED_HEIGHT(1)),
       "Status bed bitmap (status_bed_on_bmp) dimensions don't match data."

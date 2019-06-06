@@ -72,7 +72,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
 #define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 3 && DISABLED(STATUS_COMBINE_HEATERS))
 #define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && STATUS_FAN_FRAMES)
-//#define DO_DRAW_CHAMBER (HAS_TEMP_CHAMBER && ((HOTENDS <= 2 && DO_DRAW_BED) || (!DO_DRAW_BED && HOTENDS <= 3)))
+#define DO_DRAW_CHAMBER (HAS_TEMP_CHAMBER && ((HOTENDS <= 2 && DO_DRAW_BED) || (!DO_DRAW_BED && HOTENDS <= 3)))
 #define ANIM_HOTEND (HOTENDS && ENABLED(STATUS_HOTEND_ANIM))
 #define ANIM_BED (DO_DRAW_BED && ENABLED(STATUS_BED_ANIM))
 #define ANIM_CHAMBER (HAS_HEATED_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM))
@@ -362,7 +362,7 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if DO_DRAW_CHAMBER
-    #if HAS_HEATED_CHAMBER && defined(STATUS_CHAMBER_ANIM)
+    #if HAS_HEATED_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM)
       #define CHAMBER_BITMAP(S) ((S) ? status_chamber_on_bmp : status_chamber_bmp)
     #else
       #define CHAMBER_BITMAP(S) status_chamber_bmp
