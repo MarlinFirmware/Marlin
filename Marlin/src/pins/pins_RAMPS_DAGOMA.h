@@ -26,20 +26,14 @@
 
 #define BOARD_NAME "Dagoma3D F5 RAMPS"
 
-#ifdef E0_AUTO_FAN_PIN
-  #undef E0_AUTO_FAN_PIN
-#endif
+#define X_STOP_PIN          2
+#define Y_STOP_PIN          3
+#define Z_STOP_PIN         15
+#define FIL_RUNOUT_PIN     39
 
-#define E0_AUTO_FAN_PIN 7
+#define ORIG_E0_AUTO_FAN_PIN 7
 
-#define X_MAX_PIN -1
-#define X_MIN_PIN 2
-#define Y_MAX_PIN 3
-#define Y_MIN_MIN -1
-#define Z_MAX_PIN -1
-#define Z_MIN_PIN 15
-#define FILRUNOUT_PIN 39
-#define MOSFET_D_PIN -1
-
+//
+// Import RAMPS 1.4 pins
+//
 #include "pins_RAMPS.h"
-
