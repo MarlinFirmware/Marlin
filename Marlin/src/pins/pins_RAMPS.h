@@ -70,8 +70,12 @@
     #define SERVO0_PIN     11
   #endif
 #endif
-#define SERVO1_PIN          6
-#define SERVO2_PIN          5
+#ifndef SERVO1_PIN
+  #define SERVO1_PIN        6
+#endif
+#ifndef SERVO2_PIN
+  #define SERVO2_PIN        5
+#endif
 #ifndef SERVO3_PIN
   #define SERVO3_PIN        4
 #endif
@@ -79,14 +83,30 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN           3
-#ifndef X_MAX_PIN
-  #define X_MAX_PIN         2
+#ifndef X_STOP_PIN
+  #ifndef X_MIN_PIN
+    #define X_MIN_PIN       3
+  #endif
+  #ifndef X_MAX_PIN
+    #define X_MAX_PIN       2
+  #endif
 #endif
-#define Y_MIN_PIN          14
-#define Y_MAX_PIN          15
-#define Z_MIN_PIN          18
-#define Z_MAX_PIN          19
+#ifndef Y_STOP_PIN
+  #ifndef Y_MIN_PIN
+    #define Y_MIN_PIN      14
+  #endif
+  #ifndef Y_MAX_PIN
+    #define Y_MAX_PIN      15
+  #endif
+#endif
+#ifndef Z_STOP_PIN
+  #ifndef Z_MIN_PIN
+    #define Z_MIN_PIN      18
+  #endif
+  #ifndef Z_MAX_PIN
+    #define Z_MAX_PIN      19
+  #endif
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)

@@ -20,15 +20,20 @@
  *
  */
 
-/*****************************************************************
- * GT2560 V3.0 pin assignment (for Mecreator 2)
- *****************************************************************/
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Dagoma3D F5 RAMPS supports only 2 hotends / E-steppers. Comment out this line to continue."
+#endif
 
-#define BOARD_NAME "GT2560 V3.0 (MC2)"
+#define BOARD_NAME "Dagoma3D F5 RAMPS"
 
-#define X_MIN_PIN          22
-#define X_MAX_PIN          24
-#define Y_MIN_PIN          26
-#define Y_MAX_PIN          28
+#define X_STOP_PIN          2
+#define Y_STOP_PIN          3
+#define Z_STOP_PIN         15
+#define FIL_RUNOUT_PIN     39
 
-#include "pins_GT2560_V3.h"
+#define ORIG_E0_AUTO_FAN_PIN 7
+
+//
+// Import RAMPS 1.4 pins
+//
+#include "pins_RAMPS.h"
