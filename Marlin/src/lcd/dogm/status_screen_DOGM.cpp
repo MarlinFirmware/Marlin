@@ -124,30 +124,27 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
     #endif
 
     #if ENABLED(POWER_MONITOR_CURRENT) || HAS_POWER_MONITOR_VREF
-      // Cycle current, voltage, and power
+      // cycle between current, voltage, and power
       if (ELAPSED(millis(), power_monitor.display_item_ms)) {
         power_monitor.display_item_ms = millis() + 1000UL;
         ++power_monitor.display_item;
       }
     #endif
 
-    // ensure we have the right one selected
+    // ensure we have the right one selected for display
     for (uint8_t i = 0; i < 3; i++) {
       #if ENABLED(POWER_MONITOR_CURRENT)
-        if (power_monitor.display_item == 0)
-          if (!iflag) ++power_monitor.display_item;
+        if (power_monitor.display_item == 0 && !iflag)
+ 			++power_monitor.display_item;
       #endif
-
       #if HAS_POWER_MONITOR_VREF
-        if (power_monitor.display_item == 1)
-          if (!vflag) ++power_monitor.display_item;
+        if (power_monitor.display_item == 1 && !vflag)
+ 			++power_monitor.display_item;
       #endif
-
       #if ENABLED(POWER_MONITOR_CURRENT)
-        if (power_monitor.display_item == 2)
-          if (!wflag) ++power_monitor.display_item;
+        if (power_monitor.display_item == 2 && !wflag)
+ 			++power_monitor.display_item;
       #endif
-
       if (power_monitor.display_item >= 3)
         power_monitor.display_item = 0;
     }
@@ -162,7 +159,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
       #if HAS_POWER_MONITOR_WATTS                       // Power
         case 2: if (wflag) power_monitor.draw_power(); break;
       #endif
-      default: break;
+        default: break;
     }
   }
 #endif
@@ -523,8 +520,7 @@ void MarlinUI::draw_status_screen() {
     // Progress bar frame
     //
     #define PROGRESS_BAR_X 54
-//    #define PROGRESS_BAR_X 38  // leave room for power monitor display
-    #define PROGRESS_BAR_Y 49
+    #define PROGRESS_BAR_Y (EXTRAS_BASELINE + 2)
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
     if (PAGE_CONTAINS(49, 52)) {
@@ -540,27 +536,21 @@ void MarlinUI::draw_status_screen() {
       // Progress bar solid part
       //
       if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
-//        u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress * 0.01), 2);
-        u8g.drawBox(PROGRESS_BAR_X, PROGRESS_BAR_Y, (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01), 3);
+//        u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress * 0.01f), 2);
+        u8g.drawBox(PROGRESS_BAR_X, PROGRESS_BAR_Y, (uint16_t)(PROGRESS_BAR_WIDTH * progress * 0.01f), 3);
 
       //
       // SD Percent Complete
       //
       #if ENABLED(DOGM_SD_PERCENT)
-        if (PAGE_CONTAINS(41, 48)) {
+        if (PAGE_CONTAINS(41, EXTRAS_BASELINE)) {
           // Percent complete
-          lcd_moveto(55, 48);
+          lcd_moveto(55, EXTRAS_BASELINE);
           lcd_put_u8str(ui8tostr3(progress));
           lcd_put_wchar('%');
         }
       #endif
     }
-    // progress bar start marker
-    u8g.drawPixel(PROGRESS_BAR_X, PROGRESS_BAR_Y + 0);
-    u8g.drawPixel(PROGRESS_BAR_X, PROGRESS_BAR_Y + 2);
-    // progress bar end marker
-    u8g.drawPixel(PROGRESS_BAR_X + PROGRESS_BAR_WIDTH - 1, PROGRESS_BAR_Y + 0);
-    u8g.drawPixel(PROGRESS_BAR_X + PROGRESS_BAR_WIDTH - 1, PROGRESS_BAR_Y + 2);
 
     //
     // Elapsed Time
@@ -773,6 +763,7 @@ void MarlinUI::draw_status_message(const bool blink) {
           }
         }
       }
+
       if (last_blink != blink) {
         last_blink = blink;
         advance_status_scroll();

@@ -24,22 +24,19 @@
 #include "../inc/MarlinConfig.h"
 
 #define PM_SAMPLE_RANGE 1024
-#define PM_K_VALUE      7
-#define PM_K_SCALE      7
+#define PM_K_VALUE      6
+#define PM_K_SCALE      6
 
 template <const float & SCALE, int K_VALUE, int K_SCALE>
 struct pm_lpf_t {
   uint32_t filter_buf;
   float value;
-
   void add_sample(const uint16_t sample) {
     filter_buf = filter_buf - (filter_buf >> K_VALUE) + (uint32_t(sample) << K_SCALE);
   }
-
   void capture() {
     value = filter_buf * (SCALE * (1.0f / (1UL << (PM_K_VALUE + PM_K_SCALE))));
   }
-
   void reset(uint16_t reset_value = 0) {
     filter_buf = uint32_t(reset_value) << (K_VALUE + K_SCALE);
     capture();
