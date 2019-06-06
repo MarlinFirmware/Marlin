@@ -702,7 +702,11 @@
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
-#define E0_DRIVER_TYPE TMC2208_STANDALONE
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  #define E0_DRIVER_TYPE TMC2208
+#else
+  #define E0_DRIVER_TYPE TMC2208_STANDALONE
+#endif
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
@@ -1002,7 +1006,7 @@
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.50  // Z offset: -below +above  [the nozzle]
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Offset
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.53  // Z offset: -below +above  [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.92  // Z offset: -below +above  [the nozzle]
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0      // Z offset: -below +above  [the nozzle]
 #endif

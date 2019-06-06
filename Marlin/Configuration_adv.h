@@ -1700,8 +1700,12 @@
    * M912 - Clear stepper driver overtemperature pre-warn condition flag.
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
-  //#define MONITOR_DRIVER_STATUS
 
+  #if ENABLED(ANYCUBIC_4MAX_VG3R)
+    #define MONITOR_DRIVER_STATUS
+  #else
+    //#define MONITOR_DRIVER_STATUS
+  #endif
   #if ENABLED(MONITOR_DRIVER_STATUS)
     #define CURRENT_STEP_DOWN     50  // [mA]
     #define REPORT_CURRENT_CHANGE
@@ -1764,8 +1768,12 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  //#define TMC_DEBUG
-
+  #if ENABLED(ANYCUBIC_4MAX_VG3R)
+    #define TMC_DEBUG
+    //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_VG3R\"" )
+  #else
+    //#define TMC_DEBUG
+  #endif
   /**
    * You can set your own advanced settings by filling in predefined functions.
    * A list of available functions can be found on the library github page
