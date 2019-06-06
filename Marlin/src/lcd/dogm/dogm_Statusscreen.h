@@ -30,7 +30,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #define BW(N) ((N + 7) / 8)
-#define ICON_SPACING(w) ((w) == 0 ? 0 : (((w) & ~8) + 8))
+#define ICON_SPACING(w) ((w) == 0 ? 0 : (((w) & ~7) + 8))
 
 #if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE)
 
