@@ -72,12 +72,12 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
 #define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 3 && DISABLED(STATUS_COMBINE_HEATERS))
 #define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && STATUS_FAN_FRAMES)
-#define DO_DRAW_CHAMBER (HAS_TEMP_CHAMBER && ((HOTENDS <= 2 && DO_DRAW_BED) || (!DO_DRAW_BED && HOTENDS <= 3)))
+#define DO_DRAW_CHAMBER (HAS_TEMP_CHAMBER && (!defined(MAX_HOTEND_BITMAPS) || HOTENDS <= MAX_HOTEND_BITMAPS) && DISABLED(STATUS_COMBINE_HEATERS))
 #define ANIM_HOTEND (HOTENDS && ENABLED(STATUS_HOTEND_ANIM))
 #define ANIM_BED (DO_DRAW_BED && ENABLED(STATUS_BED_ANIM))
 #define ANIM_CHAMBER (HAS_HEATED_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM))
 
-#if ANIM_HOTEND || ANIM_BED
+#if ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER
   uint8_t heat_bits;
 #endif
 #if ANIM_HOTEND
@@ -362,17 +362,14 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if DO_DRAW_CHAMBER
-    #if HAS_HEATED_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM)
+    #if ANIM_CHAMBER
       #define CHAMBER_BITMAP(S) ((S) ? status_chamber_on_bmp : status_chamber_bmp)
     #else
       #define CHAMBER_BITMAP(S) status_chamber_bmp
     #endif
-    if (PAGE_CONTAINS(STATUS_CHAMBER_Y, STATUS_CHAMBER_Y + STATUS_CHAMBER_HEIGHT - 1))
-      u8g.drawBitmapP(
-        STATUS_CHAMBER_X, STATUS_CHAMBER_Y,
-        STATUS_CHAMBER_BYTEWIDTH, STATUS_CHAMBER_HEIGHT,
-        CHAMBER_BITMAP(CHAMBER_ALT())
-      );
+    const uint8_t chambery = STATUS_CHAMBER_Y(CHAMBER_ALT()), chamberh = STATUS_CHAMBER_HEIGHT(CHAMBER_ALT());
+    if (PAGE_CONTAINS(chambery, chambery + chamberh - 1))
+      u8g.drawBitmapP(STATUS_CHAMBER_X, chambery, STATUS_CHAMBER_BYTEWIDTH, chamberh, CHAMBER_BITMAP(CHAMBER_ALT()));
   #endif
 
   #if DO_DRAW_FAN

@@ -30,6 +30,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #define BW(N) ((N + 7) / 8)
+#define ICON_SPACING(w) ((w) == 0 ? 0 : (((w) & ~8) + 8))
 
 #if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE)
 
@@ -577,10 +578,6 @@
 
     #define STATUS_BED_ANIM
     #define STATUS_BED_WIDTH  24
-    #ifndef STATUS_BED_X
-      #define STATUS_BED_X    72
-    #endif
-    #define STATUS_BED_TEXT_X (STATUS_BED_X + 13)
 
     const unsigned char status_bed_bmp[] PROGMEM = {
       B11111111,B11111111,B11000000,
@@ -610,9 +607,6 @@
   #else
 
     #define STATUS_BED_WIDTH  21
-    #ifndef STATUS_BED_X
-      #define STATUS_BED_X    80
-    #endif
 
     const unsigned char status_bed_on_bmp[] PROGMEM = {
       B00000100,B00010000,B01000000,
@@ -1338,6 +1332,46 @@
 #endif
 
 //
+// Fan Bitmap Properties
+//
+#ifndef STATUS_FAN_WIDTH
+  #define STATUS_FAN_WIDTH 0
+#endif
+#ifndef STATUS_FAN_BYTEWIDTH
+  #define STATUS_FAN_BYTEWIDTH BW(STATUS_FAN_WIDTH)
+#endif
+#if STATUS_FAN_FRAMES
+
+  #ifndef STATUS_FAN_X
+    #define STATUS_FAN_X (128 - ICON_SPACING(STATUS_FAN_WIDTH))
+  #endif
+  #ifndef STATUS_FAN_Y
+    #define STATUS_FAN_Y 1
+  #endif
+  #ifndef STATUS_FAN_TEXT_X
+    #define STATUS_FAN_TEXT_X 103
+  #endif
+  #ifndef STATUS_FAN_TEXT_Y
+    #define STATUS_FAN_TEXT_Y 28
+  #endif
+  #ifndef STATUS_FAN_HEIGHT
+    #define STATUS_FAN_HEIGHT (sizeof(status_fan0_bmp) / (STATUS_FAN_BYTEWIDTH))
+  #endif
+  #define FAN_BMP_SIZE (STATUS_FAN_BYTEWIDTH) * (STATUS_FAN_HEIGHT)
+  static_assert(sizeof(status_fan0_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan0_bmp) dimensions don't match data.");
+  #if STATUS_FAN_FRAMES > 1
+    static_assert(sizeof(status_fan1_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan1_bmp) dimensions don't match data.");
+    #if STATUS_FAN_FRAMES > 2
+      static_assert(sizeof(status_fan2_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan2_bmp) dimensions don't match data.");
+      #if STATUS_FAN_FRAMES > 3
+        static_assert(sizeof(status_fan3_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan3_bmp) dimensions don't match data.");
+      #endif
+    #endif
+  #endif
+
+#endif
+
+//
 // Chamber Bitmap Properties
 //
 #ifndef STATUS_CHAMBER_WIDTH
@@ -1349,15 +1383,19 @@
 #if STATUS_CHAMBER_WIDTH && !STATUS_HEATERS_WIDTH
 
   #ifndef STATUS_CHAMBER_X
-    #define STATUS_CHAMBER_X (128 - (STATUS_FAN_BYTEWIDTH + STATUS_CHAMBER_BYTEWIDTH) * 8)
+    #define STATUS_CHAMBER_X (128 - ICON_SPACING(STATUS_CHAMBER_WIDTH) - ICON_SPACING(STATUS_FAN_WIDTH))
   #endif
 
   #ifndef STATUS_CHAMBER_HEIGHT
-    #define STATUS_CHAMBER_HEIGHT (sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
+    #if ENABLED(STATUS_CHAMBER_ANIM)
+      #define STATUS_CHAMBER_HEIGHT(S) ((S) ? sizeof(status_chamber_on_bmp) / (STATUS_BED_BYTEWIDTH) : sizeof(status_chamber_bmp) / (STATUS_BED_BYTEWIDTH))
+    #else
+      #define STATUS_CHAMBER_HEIGHT(S) (sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
+    #endif
   #endif
 
   #ifndef STATUS_CHAMBER_Y
-    #define STATUS_CHAMBER_Y (20 - STATUS_CHAMBER_HEIGHT)
+    #define STATUS_CHAMBER_Y(S) (20 - STATUS_CHAMBER_HEIGHT(S))
   #endif
 
   #ifndef STATUS_CHAMBER_TEXT_X
@@ -1365,12 +1403,12 @@
   #endif
 
   static_assert(
-    sizeof(status_chamber_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT),
+    sizeof(status_chamber_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT(0)),
     "Status chamber bitmap (status_chamber_bmp) dimensions don't match data."
   );
   #if ENABLED(STATUS_CHAMBER_ANIM)
     static_assert(
-      sizeof(status_chamber_bmp) == sizeof(status_chamber_on_bmp),
+      sizeof(status_chamber_on_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT(1)),
       "Status chamber bitmaps (status_chamber_bmp / _on_bmp) dimensions don't match."
     );
   #endif
@@ -1389,7 +1427,7 @@
 #if STATUS_BED_WIDTH && !STATUS_HEATERS_WIDTH
 
   #ifndef STATUS_BED_X
-    #define STATUS_BED_X (128 - (STATUS_CHAMBER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_BED_BYTEWIDTH) * 8)
+    #define STATUS_BED_X (128 - ICON_SPACING(STATUS_BED_WIDTH) - ICON_SPACING(STATUS_CHAMBER_WIDTH) - ICON_SPACING(STATUS_FAN_WIDTH))
   #endif
 
   #ifndef STATUS_BED_HEIGHT
@@ -1419,42 +1457,4 @@
     );
   #endif
 
-#endif
-
-//
-// Fan Bitmap Properties
-//
-#ifndef STATUS_FAN_WIDTH
-  #define STATUS_FAN_WIDTH 0
-#endif
-#ifndef STATUS_FAN_BYTEWIDTH
-  #define STATUS_FAN_BYTEWIDTH BW(STATUS_FAN_WIDTH)
-#endif
-#if STATUS_FAN_FRAMES
-  #ifndef STATUS_FAN_X
-    #define STATUS_FAN_X (128 - (STATUS_FAN_BYTEWIDTH) * 8)
-  #endif
-  #ifndef STATUS_FAN_Y
-    #define STATUS_FAN_Y 1
-  #endif
-  #ifndef STATUS_FAN_TEXT_X
-    #define STATUS_FAN_TEXT_X 103
-  #endif
-  #ifndef STATUS_FAN_TEXT_Y
-    #define STATUS_FAN_TEXT_Y 28
-  #endif
-  #ifndef STATUS_FAN_HEIGHT
-    #define STATUS_FAN_HEIGHT (sizeof(status_fan0_bmp) / (STATUS_FAN_BYTEWIDTH))
-  #endif
-  #define FAN_BMP_SIZE (STATUS_FAN_BYTEWIDTH) * (STATUS_FAN_HEIGHT)
-  static_assert(sizeof(status_fan0_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan0_bmp) dimensions don't match data.");
-  #if STATUS_FAN_FRAMES > 1
-    static_assert(sizeof(status_fan1_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan1_bmp) dimensions don't match data.");
-    #if STATUS_FAN_FRAMES > 2
-      static_assert(sizeof(status_fan2_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan2_bmp) dimensions don't match data.");
-      #if STATUS_FAN_FRAMES > 3
-        static_assert(sizeof(status_fan3_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan3_bmp) dimensions don't match data.");
-      #endif
-    #endif
-  #endif
 #endif
