@@ -360,9 +360,16 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Move back to the saved Z
-  dtostrf(info.current_position[Z_AXIS], 1, 3, str_1);
-  sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
-  gcode.process_subcommands_now(cmd);
+  #if Z_HOME_DIR > 0
+    dtostrf(info.current_position[Z_AXIS], 1, 3, str_1);
+    sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+    gcode.process_subcommands_now(cmd);
+  #else
+    gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
+    dtostrf(info.current_position[Z_AXIS], 1, 3, str_1);
+    sprintf_P(cmd, PSTR("G92.9 Z%s"), str_1);
+    gcode.process_subcommands_now(cmd);
+  #endif
 
   // Un-retract
   #if POWER_LOSS_PURGE_LEN
