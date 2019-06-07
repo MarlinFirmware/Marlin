@@ -367,9 +367,12 @@ void MarlinUI::draw_status_screen() {
     #else
       #define CHAMBER_BITMAP(S) status_chamber_bmp
     #endif
-    const uint8_t chambery = STATUS_CHAMBER_Y(CHAMBER_ALT()), chamberh = STATUS_CHAMBER_HEIGHT(CHAMBER_ALT());
-    if (PAGE_CONTAINS(chambery, chambery + chamberh - 1))
-      u8g.drawBitmapP(STATUS_CHAMBER_X, chambery, STATUS_CHAMBER_BYTEWIDTH, chamberh, CHAMBER_BITMAP(CHAMBER_ALT()));
+    if (PAGE_CONTAINS(STATUS_CHAMBER_Y, STATUS_CHAMBER_Y + STATUS_CHAMBER_HEIGHT - 1))
+      u8g.drawBitmapP(
+        STATUS_CHAMBER_X, STATUS_CHAMBER_Y,
+        STATUS_CHAMBER_BYTEWIDTH, STATUS_CHAMBER_HEIGHT,
+        CHAMBER_BITMAP(CHAMBER_ALT())
+      );
   #endif
 
   #if DO_DRAW_FAN

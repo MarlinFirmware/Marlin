@@ -30,7 +30,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #define BW(N) ((N + 7) / 8)
-#define ICON_SPACING(w) ((w) == 0 ? 0 : (((w) & ~7) + 8))
+#define ICON_SPACING(W) (((W)?(W)+8:0) & ~7)
 
 #if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE)
 
@@ -1343,7 +1343,7 @@
 #if STATUS_FAN_FRAMES
 
   #ifndef STATUS_FAN_X
-    #define STATUS_FAN_X (128 - ICON_SPACING(STATUS_FAN_WIDTH))
+    #define STATUS_FAN_X (LCD_PIXEL_WIDTH - ICON_SPACING(STATUS_FAN_WIDTH))
   #endif
   #ifndef STATUS_FAN_Y
     #define STATUS_FAN_Y 1
@@ -1383,19 +1383,15 @@
 #if STATUS_CHAMBER_WIDTH && !STATUS_HEATERS_WIDTH
 
   #ifndef STATUS_CHAMBER_X
-    #define STATUS_CHAMBER_X (128 - ICON_SPACING(STATUS_CHAMBER_WIDTH) - ICON_SPACING(STATUS_FAN_WIDTH))
+    #define STATUS_CHAMBER_X (LCD_PIXEL_WIDTH - ICON_SPACING(STATUS_CHAMBER_WIDTH) - ICON_SPACING(STATUS_FAN_WIDTH))
   #endif
 
   #ifndef STATUS_CHAMBER_HEIGHT
-    #if ENABLED(STATUS_CHAMBER_ANIM)
-      #define STATUS_CHAMBER_HEIGHT(S) ((S) ? sizeof(status_chamber_on_bmp) / (STATUS_BED_BYTEWIDTH) : sizeof(status_chamber_bmp) / (STATUS_BED_BYTEWIDTH))
-    #else
-      #define STATUS_CHAMBER_HEIGHT(S) (sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
-    #endif
+    #define STATUS_CHAMBER_HEIGHT (sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
   #endif
 
   #ifndef STATUS_CHAMBER_Y
-    #define STATUS_CHAMBER_Y(S) (20 - STATUS_CHAMBER_HEIGHT(S))
+    #define STATUS_CHAMBER_Y (20 - STATUS_CHAMBER_HEIGHT)
   #endif
 
   #ifndef STATUS_CHAMBER_TEXT_X
@@ -1403,12 +1399,12 @@
   #endif
 
   static_assert(
-    sizeof(status_chamber_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT(0)),
+    sizeof(status_chamber_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT),
     "Status chamber bitmap (status_chamber_bmp) dimensions don't match data."
   );
   #if ENABLED(STATUS_CHAMBER_ANIM)
     static_assert(
-      sizeof(status_chamber_on_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT(1)),
+      sizeof(status_chamber_bmp) == sizeof(status_chamber_on_bmp),
       "Status chamber bitmaps (status_chamber_bmp / _on_bmp) dimensions don't match."
     );
   #endif
@@ -1427,7 +1423,7 @@
 #if STATUS_BED_WIDTH && !STATUS_HEATERS_WIDTH
 
   #ifndef STATUS_BED_X
-    #define STATUS_BED_X (128 - ICON_SPACING(STATUS_BED_WIDTH) - ICON_SPACING(STATUS_CHAMBER_WIDTH) - ICON_SPACING(STATUS_FAN_WIDTH))
+    #define STATUS_BED_X (LCD_PIXEL_WIDTH - ICON_SPACING(STATUS_BED_WIDTH) - ICON_SPACING(STATUS_CHAMBER_WIDTH) - ICON_SPACING(STATUS_FAN_WIDTH))
   #endif
 
   #ifndef STATUS_BED_HEIGHT
