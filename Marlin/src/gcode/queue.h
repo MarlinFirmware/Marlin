@@ -89,7 +89,7 @@ void ok_to_send();
    * Aborts the current queue, if any.
    * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
    */
-  void insert_and_echo_priority_commands_P(PGM_P const pgcode);
+  void enqueue_and_echo_commands_front_P(PGM_P const pgcode);
 #endif
 
 /**
@@ -107,6 +107,7 @@ bool enqueue_and_echo_command(const char* cmd);
 
 #define HAS_LCD_QUEUE_NOW (ENABLED(MALYAN_LCD) || (HAS_LCD_MENU && ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)))
 #define HAS_QUEUE_NOW (ENABLED(SDSUPPORT) || HAS_LCD_QUEUE_NOW)
+#define HAS_QUEUE_FRONT ENABLED(ADVANCED_PAUSE_FEATURE)
 
 #if HAS_QUEUE_NOW
   /**
