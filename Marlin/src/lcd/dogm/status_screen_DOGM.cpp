@@ -70,30 +70,33 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 #define EXTRAS_BASELINE (40 + INFO_FONT_ASCENT)
 #define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
 
-#define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 3 && DISABLED(STATUS_COMBINE_HEATERS))
-#define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && STATUS_FAN_FRAMES)
-#define DO_DRAW_CHAMBER (HAS_TEMP_CHAMBER && (!defined(MAX_HOTEND_BITMAPS) || HOTENDS <= MAX_HOTEND_BITMAPS) && DISABLED(STATUS_COMBINE_HEATERS))
 #define ANIM_HOTEND (HOTENDS && ENABLED(STATUS_HOTEND_ANIM))
-#define ANIM_BED (DO_DRAW_BED && ENABLED(STATUS_BED_ANIM))
-#define ANIM_CHAMBER (HAS_HEATED_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM))
-
-#if ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER
-  uint8_t heat_bits;
-#endif
 #if ANIM_HOTEND
   #define HOTEND_ALT(N) TEST(heat_bits, N)
 #else
   #define HOTEND_ALT(N) false
 #endif
+
+#define DO_DRAW_BED (DISABLED(STATUS_COMBINE_HEATERS) && HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 3)
+#define ANIM_BED (DO_DRAW_BED && ENABLED(STATUS_BED_ANIM))
 #if ANIM_BED
   #define BED_ALT() TEST(heat_bits, 7)
 #else
   #define BED_ALT() false
 #endif
+
+#define DO_DRAW_CHAMBER (DISABLED(STATUS_COMBINE_HEATERS) && HAS_TEMP_CHAMBER && (!defined(MAX_HOTEND_BITMAPS) || HOTENDS <= MAX_HOTEND_BITMAPS))
+#define ANIM_CHAMBER (DO_DRAW_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM))
 #if ANIM_CHAMBER
   #define CHAMBER_ALT() TEST(heat_bits, 6)
 #else
   #define CHAMBER_ALT() false
+#endif
+
+#define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && STATUS_FAN_FRAMES)
+
+#if ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER
+  uint8_t heat_bits;
 #endif
 
 #define MAX_HOTEND_DRAW MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
@@ -235,6 +238,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
 }
 
 #if DO_DRAW_CHAMBER
+
   FORCE_INLINE void _draw_chamber_status(const bool blink) {
     const float temp = thermalManager.degChamber();
 
@@ -257,6 +261,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
       _draw_centered_temp(temp + 0.5f, STATUS_CHAMBER_TEXT_X, 28);
   }
+
 #endif
 
 //

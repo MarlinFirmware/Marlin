@@ -55,6 +55,10 @@
   #undef STATUS_BED_ANIM
 #endif
 
+#if ENABLED(STATUS_COMBINE_HEATERS) || !HAS_HEATED_CHAMBER
+  #undef STATUS_CHAMBER_ANIM
+#endif
+
 //
 // Default Status Screen Heater or Hotends bitmaps
 //
@@ -658,10 +662,6 @@
     B11111111,B11111111,
     B11111111,B11111111
   };
-
-  #if !HAS_HEATED_CHAMBER
-    #undef STATUS_CHAMBER_ANIM
-  #endif
 
   #if ENABLED(STATUS_CHAMBER_ANIM)
 
