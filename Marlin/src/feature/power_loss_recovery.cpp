@@ -98,7 +98,7 @@ void PrintJobRecovery::check() {
     if (card.isDetected()) {
       load();
       if (!valid()) return purge();
-      enqueue_and_echo_commands_P(PSTR("M1000 S"));
+      queue.inject_P(PSTR("M1000 S"));
     }
   }
 }
@@ -209,9 +209,9 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     info.relative_modes_e = gcode.axis_relative_modes[E_AXIS];
 
     // Commands in the queue
-    info.commands_in_queue = save_queue ? commands_in_queue : 0;
-    info.cmd_queue_index_r = cmd_queue_index_r;
-    COPY(info.command_queue, command_queue);
+    info.queue_length = save_queue ? queue.length : 0;
+    info.queue_index_r = queue.index_r;
+    COPY(info.queue_buffer, queue.buffer);
 
     // Elapsed print job time
     info.print_job_elapsed = print_job_timer.duration();
@@ -402,9 +402,9 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Process commands from the old pending queue
-  uint8_t c = info.commands_in_queue, r = info.cmd_queue_index_r;
+  uint8_t c = info.queue_length, r = info.queue_index_r;
   for (; c--; r = (r + 1) % BUFSIZE)
-    gcode.process_subcommands_now(info.command_queue[r]);
+    gcode.process_subcommands_now(info.queue_buffer[r]);
 
   // Resume the SD file from the last position
   char *fn = info.sd_filename;
@@ -484,9 +484,9 @@ void PrintJobRecovery::resume() {
           DEBUG_EOL();
           DEBUG_ECHOLNPAIR("retract_hop: ", info.retract_hop);
         #endif
-        DEBUG_ECHOLNPAIR("cmd_queue_index_r: ", int(info.cmd_queue_index_r));
-        DEBUG_ECHOLNPAIR("commands_in_queue: ", int(info.commands_in_queue));
-        for (uint8_t i = 0; i < info.commands_in_queue; i++) DEBUG_ECHOLNPAIR("> ", info.command_queue[i]);
+        DEBUG_ECHOLNPAIR("queue_index_r: ", int(info.queue_index_r));
+        DEBUG_ECHOLNPAIR("queue_length: ", int(info.queue_length));
+        for (uint8_t i = 0; i < info.queue_length; i++) DEBUG_ECHOLNPAIR("> ", info.queue_buffer[i]);
         DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
         DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
         DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);

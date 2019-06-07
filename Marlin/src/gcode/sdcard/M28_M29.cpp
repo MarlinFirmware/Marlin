@@ -53,7 +53,7 @@ void GcodeSuite::M28() {
       SERIAL_ECHOLN(p);
       card.openFile(p, false);
       #if NUM_SERIAL > 1
-        card.transfer_port_index = command_queue_port[cmd_queue_index_r];
+        card.transfer_port_index = queue.port[queue.index_r];
       #endif
     }
     else

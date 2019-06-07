@@ -42,6 +42,5 @@ void GcodeSuite::M999() {
 
   if (parser.boolval('S')) return;
 
-  // gcode_LastN = Stopped_gcode_LastN;
-  flush_and_request_resend();
+  queue.flush_and_request_resend();
 }

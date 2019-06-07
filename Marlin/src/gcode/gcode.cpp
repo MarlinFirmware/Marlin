@@ -187,7 +187,7 @@ void GcodeSuite::dwell(millis_t time) {
 /**
  * Process the parsed command and dispatch it to its handler
  */
-void GcodeSuite::process_parsed_command(const bool no_ok) {
+void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   KEEPALIVE_STATE(IN_HANDLER);
 
   // Handle a known G, M, or T
@@ -798,7 +798,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok) {
 
   KEEPALIVE_STATE(NOT_BUSY);
 
-  if (!no_ok) ok_to_send();
+  if (!no_ok) queue.ok_to_send();
 }
 
 /**
@@ -806,16 +806,16 @@ void GcodeSuite::process_parsed_command(const bool no_ok) {
  * This is called from the main loop()
  */
 void GcodeSuite::process_next_command() {
-  char * const current_command = command_queue[cmd_queue_index_r];
+  char * const current_command = queue.buffer[queue.index_r];
 
-  PORT_REDIRECT(command_queue_port[cmd_queue_index_r]);
+  PORT_REDIRECT(queue.port[queue.index_r]);
 
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLN(current_command);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), (const char*)command_queue, (const char*)(command_queue) + sizeof(command_queue));
+      SERIAL_ECHOPAIR("slot:", queue.index_r);
+      M100_dump_routine(PSTR("   Command Queue:"), queue.buffer, queue.buffer + sizeof(queue.buffer));
     #endif
   }
 
