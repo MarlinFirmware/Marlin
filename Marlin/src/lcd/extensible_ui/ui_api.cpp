@@ -177,11 +177,9 @@ namespace ExtUI {
         }
       #endif
       #if HAS_HEATED_CHAMBER
-        if (heater == CHAMBER) {
-          return; //Chamber has no idle timer
-        }
+        if (heater == CHAMBER) return; // Chamber has no idle timer
       #endif
-          thermalManager.reset_heater_idle_timer(heater - H0);
+      thermalManager.reset_heater_idle_timer(heater - H0);
     #endif
   }
 
