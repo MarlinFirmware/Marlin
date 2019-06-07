@@ -211,17 +211,21 @@ static void lcd_factory_settings() {
 
 #endif
 
-#if ENABLED(MENU_ITEM_CASE_LIGHT)
+#if ENABLED(CASE_LIGHT_MENU)
 
   #include "../../feature/caselight.h"
 
-  void menu_case_light() {
-    START_MENU();
-    MENU_BACK(MSG_CONFIGURATION);
-    MENU_ITEM_EDIT_CALLBACK(uint8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
-    END_MENU();
-  }
+  #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+
+    void menu_case_light() {
+      START_MENU();
+      MENU_BACK(MSG_CONFIGURATION);
+      MENU_ITEM_EDIT_CALLBACK(uint8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
+      END_MENU();
+    }
+
+  #endif
 
 #endif
 
@@ -347,11 +351,13 @@ void menu_configuration() {
   //
   // Set Case light on/off/brightness
   //
-  #if ENABLED(MENU_ITEM_CASE_LIGHT)
-    if (PWM_PIN(CASE_LIGHT_PIN))
-      MENU_ITEM(submenu, MSG_CASE_LIGHT, menu_case_light);
-    else
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
+  #if ENABLED(CASE_LIGHT_MENU)
+    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+      if (PWM_PIN(CASE_LIGHT_PIN))
+        MENU_ITEM(submenu, MSG_CASE_LIGHT, menu_case_light);
+      else
+    #endif
+        MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
   #endif
 
   #if HAS_LCD_CONTRAST
