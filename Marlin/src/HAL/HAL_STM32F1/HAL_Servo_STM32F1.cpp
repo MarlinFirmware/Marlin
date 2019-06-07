@@ -201,7 +201,8 @@ void libServo::move(const int32_t value) {
     if (duty_cycle) {
       timer_enable_irq(tdev, 1);
       timer_enable_irq(tdev, 2);
-    } else {
+    }
+    else {
       timer_disable_irq(tdev, 1);
       timer_disable_irq(tdev, 2);
       #ifdef SERVO0_PWM_OD
@@ -219,9 +220,11 @@ void libServo::move(const int32_t value) {
   }
 
 #else
+
   bool libServo::setupSoftPWM(const int32_t pin) {}
   void libServo::pwmSetDuty(const uint16_t duty_cycle) {}
   void libServo::pauseSoftPWM() {}
+
 #endif
 
 #endif // HAS_SERVOS
