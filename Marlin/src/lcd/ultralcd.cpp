@@ -1380,7 +1380,9 @@ void MarlinUI::update() {
   }
 
   void MarlinUI::pause_print() {
-    synchronize(PSTR(MSG_PAUSE_PRINT));
+    #if HAS_LCD_MENU
+      synchronize(PSTR(MSG_PAUSE_PRINT));
+    #endif
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       if (recovery.enabled) recovery.save(true, false);

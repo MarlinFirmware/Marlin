@@ -54,7 +54,7 @@ namespace ExtUI {
 
   enum axis_t     : uint8_t { X, Y, Z };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5 };
-  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED };
+  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5 };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
