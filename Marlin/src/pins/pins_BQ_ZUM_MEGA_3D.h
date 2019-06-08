@@ -49,17 +49,19 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENABLE_PIN 40   // Pin should have a pullup/pulldown!
+#define SPINDLE_LASER_ENA_PIN    40   // Pin should have a pullup/pulldown!
 #define SPINDLE_LASER_PWM_PIN    44   // MUST BE HARDWARE PWM
 #define SPINDLE_DIR_PIN          42
-
-#include "pins_RAMPS_13.h"
 
 //
 // Limit Switches
 //
-#undef X_MAX_PIN
 #define X_MAX_PIN          79   // 2
+
+//
+// Import RAMPS 1.3 pins
+//
+#include "pins_RAMPS_13.h"
 
 //
 // Z Probe (when not Z_MIN_PIN)

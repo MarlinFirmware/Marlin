@@ -38,9 +38,16 @@
   #include "../../module/probe.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../../feature/bltouch.h"
+#endif
+
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../core/debug_out.h"
 
 float z_auto_align_xpos[Z_STEPPER_COUNT] = Z_STEPPER_ALIGN_X,
       z_auto_align_ypos[Z_STEPPER_COUNT] = Z_STEPPER_ALIGN_Y;
@@ -59,19 +66,15 @@ inline void set_all_z_lock(const bool lock) {
  * Parameters: I<iterations> T<accuracy> A<amplification>
  */
 void GcodeSuite::G34() {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOLNPGM(">>> G34");
-      log_machine_info();
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) {
+    DEBUG_ECHOLNPGM(">>> G34");
+    log_machine_info();
+  }
 
   do { // break out on error
 
     if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> XY homing required.");
-      #endif
+      SERIAL_ECHOLNPGM("Home XY first");
       break;
     }
 
@@ -109,8 +112,7 @@ void GcodeSuite::G34() {
     #endif
 
     #if ENABLED(BLTOUCH)
-      bltouch_command(BLTOUCH_RESET);
-      set_bltouch_deployed(false);
+      bltouch.init();
     #endif
 
     // Always home with tool 0 active
@@ -119,41 +121,46 @@ void GcodeSuite::G34() {
       tool_change(0, 0, true);
     #endif
 
-    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+    #if HAS_DUPLICATION_MODE
       extruder_duplication_enabled = false;
     #endif
+
+    // Before moving other axes raise Z, if needed. Never lower Z.
+    if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before moving to probe pos) to ", Z_CLEARANCE_BETWEEN_PROBES);
+      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+    }
 
     // Remember corrections to determine errors on each iteration
     float last_z_align_move[Z_STEPPER_COUNT] = ARRAY_N(Z_STEPPER_COUNT, 10000.0f, 10000.0f, 10000.0f),
           z_measured[Z_STEPPER_COUNT] = { 0 };
     bool err_break = false;
     for (uint8_t iteration = 0; iteration < z_auto_align_iterations; ++iteration) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> probing all positions.");
-      #endif
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> probing all positions.");
 
       // Reset minimum value
       float z_measured_min = 100000.0f;
       // For each iteration go through all probe positions (one per Z-Stepper)
       for (uint8_t zstepper = 0; zstepper < Z_STEPPER_COUNT; ++zstepper) {
+
+        #if BOTH(BLTOUCH, BLTOUCH_HS_MODE)
+          // In BLTOUCH HS mode, the probe travels in a deployed state.
+          // Users of G34 might have a badly misaligned bed, so raise Z by the
+          // length of the deployed pin (BLTOUCH stroke < 7mm)
+          do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES + 7);
+        #endif
+
         // Probe a Z height for each stepper
         z_measured[zstepper] = probe_pt(z_auto_align_xpos[zstepper], z_auto_align_ypos[zstepper], PROBE_PT_RAISE, false);
 
         // Stop on error
         if (isnan(z_measured[zstepper])) {
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> PROBING FAILED!");
-          #endif
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> PROBING FAILED!");
           err_break = true;
           break;
         }
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> Z", int(zstepper + 1));
-            SERIAL_ECHOLNPAIR(" measured position is ", z_measured[zstepper]);
-          }
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " measured position is ", z_measured[zstepper]);
 
         // Remember the maximum position to calculate the correction
         z_measured_min = MIN(z_measured_min, z_measured[zstepper]);
@@ -178,9 +185,7 @@ void GcodeSuite::G34() {
         // Check for lost accuracy compared to last move
         if (last_z_align_move[zstepper] < z_align_abs - 1.0) {
           // Stop here
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> detected decreasing accuracy.");
-          #endif
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> detected decreasing accuracy.");
           err_break = true;
           break;
         }
@@ -190,12 +195,7 @@ void GcodeSuite::G34() {
         // Only stop early if all measured points achieve accuracy target
         if (z_align_abs > z_auto_align_accuracy) success_break = false;
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> Z", int(zstepper + 1));
-            SERIAL_ECHOLNPAIR(" corrected by ", z_align_move);
-          }
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " corrected by ", z_align_move);
 
         switch (zstepper) {
           case 0: stepper.set_z_lock(false); break;
@@ -219,9 +219,7 @@ void GcodeSuite::G34() {
       stepper.set_separate_multi_axis(false);
 
       if (success_break) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> achieved target accuracy.");
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> achieved target accuracy.");
         break;
       }
     }
@@ -230,31 +228,33 @@ void GcodeSuite::G34() {
 
     // Restore the active tool after homing
     #if HOTENDS > 1
-      tool_change(old_tool_index, 0,
+      tool_change(old_tool_index, 0, (
         #if ENABLED(PARKING_EXTRUDER)
           false // Fetch the previous toolhead
         #else
           true
         #endif
-      );
+      ));
     #endif
 
-    #if HAS_LEVELING
-      #if ENABLED(RESTORE_LEVELING_AFTER_G34)
-        set_bed_leveling_enabled(leveling_was_active);
-      #endif
+    #if HAS_LEVELING && ENABLED(RESTORE_LEVELING_AFTER_G34)
+      set_bed_leveling_enabled(leveling_was_active);
     #endif
 
     // After this operation the z position needs correction
     set_axis_is_not_at_home(Z_AXIS);
 
+    #if BOTH(BLTOUCH, BLTOUCH_HS_MODE)
+      // In BLTOUCH HS mode, the pin is still deployed at this point.
+      // The upcoming G28 means travel, so it is better to stow the pin.
+      bltouch._stow();
+    #endif
+
     gcode.G28(false);
 
   } while(0);
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G34");
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G34");
 }
 
 /**

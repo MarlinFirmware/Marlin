@@ -149,7 +149,7 @@
 //
 // use P1 connector for spindle pins
 #define SPINDLE_LASER_PWM_PIN     9   // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN 18   // Pin should have a pullup!
+#define SPINDLE_LASER_ENA_PIN    18   // Pin should have a pullup!
 #define SPINDLE_DIR_PIN          19
 
 //
@@ -176,8 +176,8 @@
       #define BTN_EN2         19
     #else
       #define LCD_PINS_RS     82
-      #define LCD_PINS_ENABLE 18
-      #define LCD_PINS_D4     19
+      #define LCD_PINS_ENABLE 18   // On 0.6b, use 61
+      #define LCD_PINS_D4     19   // On 0.6b, use 59
       #define LCD_PINS_D5     70
       #define LCD_PINS_D6     85
       #define LCD_PINS_D7     71

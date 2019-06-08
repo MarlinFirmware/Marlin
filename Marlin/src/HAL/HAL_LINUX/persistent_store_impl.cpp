@@ -35,7 +35,7 @@ char filename[] = "eeprom.dat";
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;
   FILE * eeprom_file = fopen(filename, "rb");
-  if (eeprom_file == NULL) return false;
+  if (eeprom_file == nullptr) return false;
 
   fseek(eeprom_file, 0L, SEEK_END);
   std::size_t file_size = ftell(eeprom_file);
@@ -54,7 +54,7 @@ bool PersistentStore::access_start() {
 
 bool PersistentStore::access_finish() {
   FILE * eeprom_file = fopen(filename, "wb");
-  if (eeprom_file == NULL) return false;
+  if (eeprom_file == nullptr) return false;
   fwrite(buffer, sizeof(uint8_t), sizeof(buffer), eeprom_file);
   fclose(eeprom_file);
   return true;

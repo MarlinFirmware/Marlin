@@ -192,10 +192,10 @@
  */
 #if ENABLED(HYBRID_THRESHOLD)
   void GcodeSuite::M913() {
-    #define TMC_SAY_PWMTHRS(A,Q) tmc_get_pwmthrs(stepper##Q, planner.settings.axis_steps_per_mm[_AXIS(A)])
-    #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, value, planner.settings.axis_steps_per_mm[_AXIS(A)])
-    #define TMC_SAY_PWMTHRS_E(E) tmc_get_pwmthrs(stepperE##E, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
-    #define TMC_SET_PWMTHRS_E(E) tmc_set_pwmthrs(stepperE##E, value, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
+    #define TMC_SAY_PWMTHRS(A,Q) tmc_print_pwmthrs(stepper##Q)
+    #define TMC_SET_PWMTHRS(A,Q) stepper##Q.set_pwm_thrs(value)
+    #define TMC_SAY_PWMTHRS_E(E) tmc_print_pwmthrs(stepperE##E)
+    #define TMC_SET_PWMTHRS_E(E) stepperE##E.set_pwm_thrs(value)
 
     bool report = true;
     #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3)
@@ -232,28 +232,30 @@
           #endif
           break;
         case E_AXIS: {
-          const int8_t target_extruder = get_target_extruder_from_command();
-          if (target_extruder < 0) return;
-          switch (target_extruder) {
-            #if AXIS_HAS_STEALTHCHOP(E0)
-              case 0: TMC_SET_PWMTHRS_E(0); break;
-            #endif
-            #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
-              case 1: TMC_SET_PWMTHRS_E(1); break;
-            #endif
-            #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
-              case 2: TMC_SET_PWMTHRS_E(2); break;
-            #endif
-            #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
-              case 3: TMC_SET_PWMTHRS_E(3); break;
-            #endif
-            #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
-              case 4: TMC_SET_PWMTHRS_E(4); break;
-            #endif
-            #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
-              case 5: TMC_SET_PWMTHRS_E(5); break;
-            #endif
-          }
+          #if E_STEPPERS
+            const int8_t target_extruder = get_target_extruder_from_command();
+            if (target_extruder < 0) return;
+            switch (target_extruder) {
+              #if AXIS_HAS_STEALTHCHOP(E0)
+                case 0: TMC_SET_PWMTHRS_E(0); break;
+              #endif
+              #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
+                case 1: TMC_SET_PWMTHRS_E(1); break;
+              #endif
+              #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
+                case 2: TMC_SET_PWMTHRS_E(2); break;
+              #endif
+              #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
+                case 3: TMC_SET_PWMTHRS_E(3); break;
+              #endif
+              #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
+                case 4: TMC_SET_PWMTHRS_E(4); break;
+              #endif
+              #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
+                case 5: TMC_SET_PWMTHRS_E(5); break;
+              #endif
+            }
+          #endif // E_STEPPERS
         } break;
       }
     }
@@ -280,7 +282,7 @@
       #if AXIS_HAS_STEALTHCHOP(Z3)
         TMC_SAY_PWMTHRS(Z,Z3);
       #endif
-      #if AXIS_HAS_STEALTHCHOP(E0)
+      #if E_STEPPERS && AXIS_HAS_STEALTHCHOP(E0)
         TMC_SAY_PWMTHRS_E(0);
       #endif
       #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
@@ -307,8 +309,6 @@
  */
 #if USE_SENSORLESS
   void GcodeSuite::M914() {
-    #define TMC_SAY_SGT(Q) tmc_get_sgt(stepper##Q)
-    #define TMC_SET_SGT(Q) tmc_set_sgt(stepper##Q, value)
 
     bool report = true;
     const uint8_t index = parser.byteval('I');
@@ -319,33 +319,33 @@
         #if X_SENSORLESS
           case X_AXIS:
             #if AXIS_HAS_STALLGUARD(X)
-              if (index < 2) TMC_SET_SGT(X);
+              if (index < 2) stepperX.sgt(value);
             #endif
             #if AXIS_HAS_STALLGUARD(X2)
-              if (!(index & 1)) TMC_SET_SGT(X2);
+              if (!(index & 1)) stepperX2.sgt(value);
             #endif
             break;
         #endif
         #if Y_SENSORLESS
           case Y_AXIS:
             #if AXIS_HAS_STALLGUARD(Y)
-              if (index < 2) TMC_SET_SGT(Y);
+              if (index < 2) stepperY.sgt(value);
             #endif
             #if AXIS_HAS_STALLGUARD(Y2)
-              if (!(index & 1)) TMC_SET_SGT(Y2);
+              if (!(index & 1)) stepperY2.sgt(value);
             #endif
             break;
         #endif
         #if Z_SENSORLESS
           case Z_AXIS:
             #if AXIS_HAS_STALLGUARD(Z)
-              if (index < 2) TMC_SET_SGT(Z);
+              if (index < 2) stepperZ.sgt(value);
             #endif
             #if AXIS_HAS_STALLGUARD(Z2)
-              if (index == 0 || index == 2) TMC_SET_SGT(Z2);
+              if (index == 0 || index == 2) stepperZ2.sgt(value);
             #endif
             #if AXIS_HAS_STALLGUARD(Z3)
-              if (index == 0 || index == 3) TMC_SET_SGT(Z3);
+              if (index == 0 || index == 3) stepperZ3.sgt(value);
             #endif
             break;
         #endif
@@ -355,29 +355,29 @@
     if (report) {
       #if X_SENSORLESS
         #if AXIS_HAS_STALLGUARD(X)
-          TMC_SAY_SGT(X);
+          tmc_print_sgt(stepperX);
         #endif
         #if AXIS_HAS_STALLGUARD(X2)
-          TMC_SAY_SGT(X2);
+          tmc_print_sgt(stepperX2);
         #endif
       #endif
       #if Y_SENSORLESS
         #if AXIS_HAS_STALLGUARD(Y)
-          TMC_SAY_SGT(Y);
+          tmc_print_sgt(stepperY);
         #endif
         #if AXIS_HAS_STALLGUARD(Y2)
-          TMC_SAY_SGT(Y2);
+          tmc_print_sgt(stepperY2);
         #endif
       #endif
       #if Z_SENSORLESS
         #if AXIS_HAS_STALLGUARD(Z)
-          TMC_SAY_SGT(Z);
+          tmc_print_sgt(stepperZ);
         #endif
         #if AXIS_HAS_STALLGUARD(Z2)
-          TMC_SAY_SGT(Z2);
+          tmc_print_sgt(stepperZ2);
         #endif
         #if AXIS_HAS_STALLGUARD(Z3)
-          TMC_SAY_SGT(Z3);
+          tmc_print_sgt(stepperZ3);
         #endif
       #endif
     }

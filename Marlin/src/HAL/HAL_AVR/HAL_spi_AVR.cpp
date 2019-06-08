@@ -66,7 +66,7 @@ void spiBegin (void) {
 }
 
 
-#if DISABLED(SOFTWARE_SPI)
+#if DISABLED(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   //------------------------------------------------------------------------------
   // Hardware SPI
@@ -264,6 +264,6 @@ void spiBegin (void) {
       spiSend(buf[i]);
   }
 
-#endif // SOFTWARE_SPI
+#endif // SOFTWARE_SPI, FORCE_SOFT_SPI
 
 #endif // __AVR__

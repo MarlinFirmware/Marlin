@@ -24,8 +24,6 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  //#define UBL_DEVEL_DEBUGGING
-
   #include "ubl.h"
 
   #include "../../../Marlin.h"
@@ -44,6 +42,13 @@
 
   #if ENABLED(DUAL_X_CARRIAGE)
     #include "../../../module/tool_change.h"
+  #endif
+
+  #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+  #include "../../../core/debug_out.h"
+
+  #if ENABLED(EXTENSIBLE_UI)
+    #include "../../../lcd/extensible_ui/ui_api.h"
   #endif
 
   #include <math.h>
@@ -325,7 +330,7 @@
       else {
         while (g29_repetition_cnt--) {
           if (cnt > 20) { cnt = 0; idle(); }
-          const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL);
+          const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, nullptr);
           if (location.x_index < 0) {
             // No more REACHABLE mesh points to invalidate, so we ASSUME the user
             // meant to invalidate the ENTIRE mesh, which cannot be done with
@@ -335,6 +340,9 @@
             break;            // No more invalid Mesh Points to populate
           }
           z_values[location.x_index][location.y_index] = NAN;
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(location.x_index, location.y_index, 0);
+          #endif
           cnt++;
         }
       }
@@ -362,6 +370,9 @@
               const float p1 = 0.5f * (GRID_MAX_POINTS_X) - x,
                           p2 = 0.5f * (GRID_MAX_POINTS_Y) - y;
               z_values[x][y] += 2.0f * HYPOT(p1, p2);
+              #if ENABLED(EXTENSIBLE_UI)
+                ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+              #endif
             }
           }
           break;
@@ -370,14 +381,23 @@
           for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {  // Create a diagonal line several Mesh cells thick that is raised
             z_values[x][x] += 9.999f;
             z_values[x][x + (x < GRID_MAX_POINTS_Y - 1) ? 1 : -1] += 9.999f; // We want the altered line several mesh points thick
+            #if ENABLED(EXTENSIBLE_UI)
+              ExtUI::onMeshUpdate(x, x, z_values[x][x]);
+              ExtUI::onMeshUpdate(x, (x + (x < GRID_MAX_POINTS_Y - 1) ? 1 : -1), z_values[x][x + (x < GRID_MAX_POINTS_Y - 1) ? 1 : -1]);
+            #endif
+
           }
           break;
 
         case 2:
           // Allow the user to specify the height because 10mm is a little extreme in some cases.
-          for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)   // Create a rectangular raised area in
-            for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) // the center of the bed
+          for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)     // Create a rectangular raised area in
+            for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) { // the center of the bed
               z_values[x][y] += parser.seen('C') ? g29_constant : 9.99f;
+              #if ENABLED(EXTENSIBLE_UI)
+                ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+              #endif
+            }
           break;
       }
     }
@@ -391,7 +411,6 @@
           restore_ubl_active_state_and_leave();
         }
         else { // grid_size == 0 : A 3-Point leveling has been requested
-
           save_ubl_active_state_and_disable();
           tilt_mesh_based_on_probed_grid(true /* true says to do 3-Point leveling */ );
           restore_ubl_active_state_and_leave();
@@ -428,7 +447,7 @@
               SERIAL_ECHOLNPGM("Mesh invalidated. Probing mesh.");
             }
             if (g29_verbose_level > 1) {
-              SERIAL_ECHOPAIR("Probing Mesh Points Closest to (", g29_x_pos);
+              SERIAL_ECHOPAIR("Probing around (", g29_x_pos);
               SERIAL_CHAR(',');
               SERIAL_ECHO(g29_y_pos);
               SERIAL_ECHOLNPGM(").\n");
@@ -508,7 +527,7 @@
             }
             else {
               while (g29_repetition_cnt--) {  // this only populates reachable mesh points near
-                const mesh_index_pair location = find_closest_mesh_point_of_type(INVALID, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, NULL);
+                const mesh_index_pair location = find_closest_mesh_point_of_type(INVALID, g29_x_pos, g29_y_pos, USE_NOZZLE_AS_REFERENCE, nullptr);
                 if (location.x_index < 0) {
                   // No more REACHABLE INVALID mesh points to populate, so we ASSUME
                   // user meant to populate ALL INVALID mesh points to value
@@ -519,6 +538,9 @@
                   break; // No more invalid Mesh Points to populate
                 }
                 z_values[location.x_index][location.y_index] = g29_constant;
+                #if ENABLED(EXTENSIBLE_UI)
+                  ExtUI::onMeshUpdate(location.x_index, location.y_index, z_values[location.x_index][location.y_index]);
+                #endif
               }
             }
           }
@@ -598,8 +620,7 @@
       }
 
       if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-        SERIAL_ECHOLNPGM("?Invalid storage slot.");
-        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
+        SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
         return;
       }
 
@@ -627,8 +648,7 @@
       }
 
       if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-        SERIAL_ECHOLNPGM("?Invalid storage slot.");
-        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
+        SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
         goto LEAVE;
       }
 
@@ -683,15 +703,23 @@
     if (cflag)
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
         for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-          if (!isnan(z_values[x][y]))
+          if (!isnan(z_values[x][y])) {
             z_values[x][y] -= mean + value;
+            #if ENABLED(EXTENSIBLE_UI)
+              ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+            #endif
+          }
   }
 
   void unified_bed_leveling::shift_mesh_height() {
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-        if (!isnan(z_values[x][y]))
+        if (!isnan(z_values[x][y])) {
           z_values[x][y] += g29_constant;
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+          #endif
+        }
   }
 
   #if HAS_BED_PROBE
@@ -709,12 +737,17 @@
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       DEPLOY_PROBE();
 
-      uint16_t count = GRID_MAX_POINTS;
+      uint16_t count = GRID_MAX_POINTS, current = 1;
 
       do {
+        current = (GRID_MAX_POINTS) - count + 1;
+
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
+        SERIAL_ECHOLNPAIR("\nProbing mesh point ", current, "/", GRID_MAX_POINTS, ".\n");
         #if HAS_LCD_MENU
+          ui.status_printf_P(0, PSTR(MSG_LCD_PROBING_MESH " %i/%i"), current, int(GRID_MAX_POINTS));
+
           if (ui.button_pressed()) {
             ui.quick_feedback(false); // Preserve button state for click-and-hold
             SERIAL_ECHOLNPGM("\nMesh only partially populated.\n");
@@ -730,16 +763,19 @@
         if (do_furthest)
           location = find_furthest_invalid_mesh_point();
         else
-          location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_PROBE_AS_REFERENCE, NULL);
+          location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_PROBE_AS_REFERENCE, nullptr);
 
         if (location.x_index >= 0) {    // mesh point found and is reachable by probe
           const float rawx = mesh_index_to_xpos(location.x_index),
-                      rawy = mesh_index_to_ypos(location.y_index);
-
-          const float measured_z = probe_pt(rawx, rawy, stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
+                      rawy = mesh_index_to_ypos(location.y_index),
+                      measured_z = probe_pt(rawx, rawy, stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
           z_values[location.x_index][location.y_index] = measured_z;
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(location.x_index, location.y_index, measured_z);
+          #endif
         }
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
+
       } while (location.x_index >= 0 && --count);
 
       STOW_PROBE();
@@ -762,7 +798,7 @@
 
     typedef void (*clickFunc_t)();
 
-    bool click_and_hold(const clickFunc_t func=NULL) {
+    bool click_and_hold(const clickFunc_t func=nullptr) {
       if (ui.button_pressed()) {
         ui.quick_feedback(false);                // Preserve button state for click-and-hold
         const millis_t nxt = millis() + 1500UL;
@@ -860,7 +896,7 @@
 
       mesh_index_pair location;
       do {
-        location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_NOZZLE_AS_REFERENCE, NULL);
+        location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_NOZZLE_AS_REFERENCE, nullptr);
         // It doesn't matter if the probe can't reach the NAN location. This is a manual probe.
         if (location.x_index < 0 && location.y_index < 0) continue;
 
@@ -896,6 +932,10 @@
         }
 
         z_values[location.x_index][location.y_index] = current_position[Z_AXIS] - thick;
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(location.x_index, location.y_index, z_values[location.x_index][location.y_index]);
+        #endif
+
         if (g29_verbose_level > 2)
           SERIAL_ECHOLNPAIR_F("Mesh Point Measured at: ", z_values[location.x_index][location.y_index], 6);
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
@@ -996,6 +1036,9 @@
         if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
 
         z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(location.x_index, location.y_index, new_z);
+        #endif
 
         serial_delay(20);                                           // No switch noise
         ui.refresh();
@@ -1300,6 +1343,11 @@
         z_values[x][y] = z_values[x1][y1];                      // Use nearest (maybe a little too high.)
       else
         z_values[x][y] = 2.0f * z_values[x1][y1] - z_values[x2][y2];   // Angled upward...
+
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+      #endif
+
       return true;
     }
     return false;
@@ -1358,6 +1406,11 @@
       incremental_LSF_reset(&lsf_results);
 
       if (do_3_pt_leveling) {
+        SERIAL_ECHOLNPGM("Tilting mesh (1/3)");
+        #if HAS_LCD_MENU
+          ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 1/3"));
+        #endif
+
         measured_z = probe_pt(PROBE_PT_1_X, PROBE_PT_1_Y, PROBE_PT_RAISE, g29_verbose_level);
         if (isnan(measured_z))
           abort_flag = true;
@@ -1372,6 +1425,11 @@
         }
 
         if (!abort_flag) {
+          SERIAL_ECHOLNPGM("Tilting mesh (2/3)");
+          #if HAS_LCD_MENU
+            ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 2/3"));
+          #endif
+
           measured_z = probe_pt(PROBE_PT_2_X, PROBE_PT_2_Y, PROBE_PT_RAISE, g29_verbose_level);
           //z2 = measured_z;
           if (isnan(measured_z))
@@ -1387,6 +1445,11 @@
         }
 
         if (!abort_flag) {
+          SERIAL_ECHOLNPGM("Tilting mesh (3/3)");
+          #if HAS_LCD_MENU
+            ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 3/3"));
+          #endif
+
           measured_z = probe_pt(PROBE_PT_3_X, PROBE_PT_3_Y, PROBE_PT_STOW, g29_verbose_level);
           //z3 = measured_z;
           if (isnan(measured_z))
@@ -1407,50 +1470,57 @@
         #endif
 
         if (abort_flag) {
-          SERIAL_ECHOLNPGM("?Error probing point.  Aborting operation.");
+          SERIAL_ECHOLNPGM("?Error probing point. Aborting operation.");
           return;
         }
       }
       else { // !do_3_pt_leveling
 
         bool zig_zag = false;
+
+        uint16_t total_points = g29_grid_size * g29_grid_size, current = 1;
+
         for (uint8_t ix = 0; ix < g29_grid_size; ix++) {
           const float rx = float(x_min) + ix * dx;
           for (int8_t iy = 0; iy < g29_grid_size; iy++) {
             const float ry = float(y_min) + dy * (zig_zag ? g29_grid_size - 1 - iy : iy);
 
             if (!abort_flag) {
+              SERIAL_ECHOLNPAIR("Tilting mesh point ", current, "/", total_points, "\n");
+              #if HAS_LCD_MENU
+                ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " %i/%i"), current, total_points);
+              #endif
+
               measured_z = probe_pt(rx, ry, parser.seen('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
 
               abort_flag = isnan(measured_z);
 
-              #if ENABLED(DEBUG_LEVELING_FEATURE)
-                if (DEBUGGING(LEVELING)) {
-                  SERIAL_CHAR('(');
-                  SERIAL_ECHO_F(rx, 7);
-                  SERIAL_CHAR(',');
-                  SERIAL_ECHO_F(ry, 7);
-                  SERIAL_ECHOPGM(")   logical: ");
-                  SERIAL_CHAR('(');
-                  SERIAL_ECHO_F(LOGICAL_X_POSITION(rx), 7);
-                  SERIAL_CHAR(',');
-                  SERIAL_ECHO_F(LOGICAL_Y_POSITION(ry), 7);
-                  SERIAL_ECHOPAIR_F(")   measured: ", measured_z, 7);
-                  SERIAL_ECHOPAIR_F("   correction: ", get_z_correction(rx, ry), 7);
-                }
-              #endif
+              if (DEBUGGING(LEVELING)) {
+                DEBUG_CHAR('(');
+                DEBUG_ECHO_F(rx, 7);
+                DEBUG_CHAR(',');
+                DEBUG_ECHO_F(ry, 7);
+                DEBUG_ECHOPGM(")   logical: ");
+                DEBUG_CHAR('(');
+                DEBUG_ECHO_F(LOGICAL_X_POSITION(rx), 7);
+                DEBUG_CHAR(',');
+                DEBUG_ECHO_F(LOGICAL_Y_POSITION(ry), 7);
+                DEBUG_ECHOPAIR_F(")   measured: ", measured_z, 7);
+                DEBUG_ECHOPAIR_F("   correction: ", get_z_correction(rx, ry), 7);
+              }
 
               measured_z -= get_z_correction(rx, ry) /* + zprobe_zoffset */ ;
 
-              #if ENABLED(DEBUG_LEVELING_FEATURE)
-                if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR_F("   final >>>---> ", measured_z, 7);
-              #endif
+              if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_F("   final >>>---> ", measured_z, 7);
+
               if (g29_verbose_level > 3) {
                 serial_spaces(16);
                 SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
               }
               incremental_LSF(&lsf_results, rx, ry, measured_z);
             }
+
+            current++;
           }
 
           zig_zag ^= true;
@@ -1485,92 +1555,88 @@
                 y_tmp = mesh_index_to_ypos(j),
                 z_tmp = z_values[i][j];
 
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR_F("before rotation = [", x_tmp, 7);
-              SERIAL_CHAR(',');
-              SERIAL_ECHO_F(y_tmp, 7);
-              SERIAL_CHAR(',');
-              SERIAL_ECHO_F(z_tmp, 7);
-              SERIAL_ECHOPGM("]   ---> ");
-              serial_delay(20);
-            }
-          #endif
+          if (DEBUGGING(LEVELING)) {
+            DEBUG_ECHOPAIR_F("before rotation = [", x_tmp, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(y_tmp, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(z_tmp, 7);
+            DEBUG_ECHOPGM("]   ---> ");
+            DEBUG_DELAY(20);
+          }
 
           apply_rotation_xyz(rotation, x_tmp, y_tmp, z_tmp);
 
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR_F("after rotation = [", x_tmp, 7);
-              SERIAL_CHAR(',');
-              SERIAL_ECHO_F(y_tmp, 7);
-              SERIAL_CHAR(',');
-              SERIAL_ECHO_F(z_tmp, 7);
-              SERIAL_ECHOLNPGM("]");
-              serial_delay(55);
-            }
-          #endif
+          if (DEBUGGING(LEVELING)) {
+            DEBUG_ECHOPAIR_F("after rotation = [", x_tmp, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(y_tmp, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(z_tmp, 7);
+            DEBUG_ECHOLNPGM("]");
+            DEBUG_DELAY(55);
+          }
 
           z_values[i][j] = z_tmp - lsf_results.D;
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(i, j, z_values[i][j]);
+          #endif
         }
       }
 
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          rotation.debug(PSTR("rotation matrix:\n"));
-          SERIAL_ECHOPAIR_F("LSF Results A=", lsf_results.A, 7);
-          SERIAL_ECHOPAIR_F("  B=", lsf_results.B, 7);
-          SERIAL_ECHOLNPAIR_F("  D=", lsf_results.D, 7);
-          serial_delay(55);
+      if (DEBUGGING(LEVELING)) {
+        rotation.debug(PSTR("rotation matrix:\n"));
+        DEBUG_ECHOPAIR_F("LSF Results A=", lsf_results.A, 7);
+        DEBUG_ECHOPAIR_F("  B=", lsf_results.B, 7);
+        DEBUG_ECHOLNPAIR_F("  D=", lsf_results.D, 7);
+        DEBUG_DELAY(55);
 
-          SERIAL_ECHOPAIR_F("bed plane normal = [", normal.x, 7);
-          SERIAL_CHAR(',');
-          SERIAL_ECHO_F(normal.y, 7);
-          SERIAL_CHAR(',');
-          SERIAL_ECHO_F(normal.z, 7);
-          SERIAL_ECHOLNPGM("]");
-          SERIAL_EOL();
+        DEBUG_ECHOPAIR_F("bed plane normal = [", normal.x, 7);
+        DEBUG_CHAR(',');
+        DEBUG_ECHO_F(normal.y, 7);
+        DEBUG_CHAR(',');
+        DEBUG_ECHO_F(normal.z, 7);
+        DEBUG_ECHOLNPGM("]");
+        DEBUG_EOL();
 
-          /**
-           * The following code can be used to check the validity of the mesh tilting algorithm.
-           * When a 3-Point Mesh Tilt is done, the same algorithm is used as the grid based tilting.
-           * The only difference is just 3 points are used in the calculations.   That fact guarantees
-           * each probed point should have an exact match when a get_z_correction() for that location
-           * is calculated.  The Z error between the probed point locations and the get_z_correction()
-           * numbers for those locations should be 0.
-           */
-          #if 0
-          float t, t1, d;
-          t = normal.x * (PROBE_PT_1_X) + normal.y * (PROBE_PT_1_Y);
-          d = t + normal.z * z1;
-          SERIAL_ECHOPAIR_F("D from 1st point: ", d, 6);
-          SERIAL_ECHOLNPAIR_F("   Z error: ", normal.z*z1-get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y), 6);
+        /**
+         * The following code can be used to check the validity of the mesh tilting algorithm.
+         * When a 3-Point Mesh Tilt is done, the same algorithm is used as the grid based tilting.
+         * The only difference is just 3 points are used in the calculations.   That fact guarantees
+         * each probed point should have an exact match when a get_z_correction() for that location
+         * is calculated.  The Z error between the probed point locations and the get_z_correction()
+         * numbers for those locations should be 0.
+         */
+        #if 0
+        float t, t1, d;
+        t = normal.x * (PROBE_PT_1_X) + normal.y * (PROBE_PT_1_Y);
+        d = t + normal.z * z1;
+        DEBUG_ECHOPAIR_F("D from 1st point: ", d, 6);
+        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z1-get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y), 6);
 
-          t = normal.x * (PROBE_PT_2_X) + normal.y * (PROBE_PT_2_Y);
-          d = t + normal.z * z2;
-          SERIAL_EOL();
-          SERIAL_ECHOPAIR_F("D from 2nd point: ", d, 6);
-          SERIAL_ECHOLNPAIR_F("   Z error: ", normal.z*z2-get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y), 6);
+        t = normal.x * (PROBE_PT_2_X) + normal.y * (PROBE_PT_2_Y);
+        d = t + normal.z * z2;
+        DEBUG_EOL();
+        DEBUG_ECHOPAIR_F("D from 2nd point: ", d, 6);
+        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z2-get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y), 6);
 
-          t = normal.x * (PROBE_PT_3_X) + normal.y * (PROBE_PT_3_Y);
-          d = t + normal.z * z3;
-          SERIAL_ECHOPAIR_F("D from 3rd point: ", d, 6);
-          SERIAL_ECHOLNPAIR_F("   Z error: ", normal.z*z3-get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y), 6);
+        t = normal.x * (PROBE_PT_3_X) + normal.y * (PROBE_PT_3_Y);
+        d = t + normal.z * z3;
+        DEBUG_ECHOPAIR_F("D from 3rd point: ", d, 6);
+        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z3-get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y), 6);
 
-          t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
-          d = t + normal.z * 0;
-          SERIAL_ECHOLNPAIR_F("D from home location with Z=0 : ", d, 6);
+        t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
+        d = t + normal.z * 0;
+        DEBUG_ECHOLNPAIR_F("D from home location with Z=0 : ", d, 6);
 
-          t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
-          d = t + get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT); // normal.z * 0;
-          SERIAL_ECHOPAIR_F("D from home location using mesh value for Z: ", d, 6);
+        t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
+        d = t + get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT); // normal.z * 0;
+        DEBUG_ECHOPAIR_F("D from home location using mesh value for Z: ", d, 6);
 
-          SERIAL_ECHOPAIR("   Z error: (", Z_SAFE_HOMING_X_POINT);
-          SERIAL_ECHOPAIR(",", Z_SAFE_HOMING_Y_POINT);
-          SERIAL_ECHOLNPAIR_F(") = ", get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT), 6);
-          #endif
-        } // DEBUGGING(LEVELING)
-      #endif
+        DEBUG_ECHOPAIR("   Z error: (", Z_SAFE_HOMING_X_POINT, ",", Z_SAFE_HOMING_Y_POINT);
+        DEBUG_ECHOLNPAIR_F(") = ", get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT), 6);
+        #endif
+      } // DEBUGGING(LEVELING)
 
     }
 
@@ -1621,6 +1687,9 @@
             }
             const float ez = -lsf_results.D - lsf_results.A * px - lsf_results.B * py;
             z_values[ix][iy] = ez;
+            #if ENABLED(EXTENSIBLE_UI)
+              ExtUI::onMeshUpdate(ix, iy, z_values[ix][iy]);
+            #endif
             idle();   // housekeeping
           }
         }
@@ -1640,10 +1709,8 @@
 
       if (storage_slot == -1)
         SERIAL_ECHOPGM("No Mesh Loaded.");
-      else {
-        SERIAL_ECHOPAIR("Mesh ", storage_slot);
-        SERIAL_ECHOPGM(" Loaded.");
-      }
+      else
+        SERIAL_ECHOPAIR("Mesh ", storage_slot, " Loaded.");
       SERIAL_EOL();
       serial_delay(50);
 
@@ -1683,19 +1750,16 @@
       SERIAL_EOL();
 
       #if HAS_KILL
-        SERIAL_ECHOPAIR("Kill pin on :", KILL_PIN);
-        SERIAL_ECHOLNPAIR("  state:", READ(KILL_PIN));
+        SERIAL_ECHOLNPAIR("Kill pin on :", int(KILL_PIN), "  state:", READ(KILL_PIN));
       #endif
       SERIAL_EOL();
       serial_delay(50);
 
       #if ENABLED(UBL_DEVEL_DEBUGGING)
-        SERIAL_ECHOLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation); SERIAL_EOL();
-        SERIAL_ECHOLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk); SERIAL_EOL();
+        SERIAL_ECHOLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation, "\nubl_state_recursion_chk :", ubl_state_recursion_chk);
         serial_delay(50);
 
-        SERIAL_ECHOPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()));
-        SERIAL_ECHOLNPAIR(" to ", hex_address((void*)settings.meshes_end_index()));
+        SERIAL_ECHOLNPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()), " to ", hex_address((void*)settings.meshes_end_index()));
         serial_delay(50);
 
         SERIAL_ECHOLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));         SERIAL_EOL();
@@ -1705,8 +1769,7 @@
         SERIAL_ECHOLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
         serial_delay(50);
 
-        SERIAL_ECHOPAIR("EEPROM can hold ", settings.calc_num_meshes());
-        SERIAL_ECHOLNPGM(" meshes.\n");
+        SERIAL_ECHOLNPAIR("EEPROM can hold ", settings.calc_num_meshes(), " meshes.\n");
         serial_delay(25);
       #endif // UBL_DEVEL_DEBUGGING
 
@@ -1745,36 +1808,32 @@
      * use cases for the users. So we can wait and see what to do with it.
      */
     void unified_bed_leveling::g29_compare_current_mesh_to_stored_mesh() {
-      int16_t a = settings.calc_num_meshes();
+      const int16_t a = settings.calc_num_meshes();
 
       if (!a) {
         SERIAL_ECHOLNPGM("?EEPROM storage not available.");
         return;
       }
 
-      if (!parser.has_value()) {
-        SERIAL_ECHOLNPGM("?Storage slot # required.");
-        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
+      if (!parser.has_value() || !WITHIN(g29_storage_slot, 0, a - 1)) {
+        SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
         return;
       }
 
       g29_storage_slot = parser.value_int();
 
-      if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-        SERIAL_ECHOLNPGM("?Invalid storage slot.");
-        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
-        return;
-      }
-
       float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
       settings.load_mesh(g29_storage_slot, &tmp_z_values);
 
-      SERIAL_ECHOPAIR("Subtracting mesh in slot ", g29_storage_slot);
-      SERIAL_ECHOLNPGM(" from current mesh.");
+      SERIAL_ECHOLNPAIR("Subtracting mesh in slot ", g29_storage_slot, " from current mesh.");
 
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
           z_values[x][y] -= tmp_z_values[x][y];
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+          #endif
+        }
     }
 
   #endif // UBL_DEVEL_DEBUGGING

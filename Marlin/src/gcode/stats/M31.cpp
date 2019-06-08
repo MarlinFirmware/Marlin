@@ -26,10 +26,6 @@
 #include "../../libs/duration_t.h"
 #include "../../lcd/ultralcd.h"
 
-#if NUM_SERIAL > 1
-  #include "../../gcode/queue.h"
-#endif
-
 /**
  * M31: Get the time since the start of SD Print (or last M109)
  */

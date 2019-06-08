@@ -46,27 +46,59 @@
 #include "../../inc/MarlinConfig.h"
 
 namespace ExtUI {
+  // The ExtUI implementation can store up to this many bytes
+  // in the EEPROM when the methods onStoreSettings and
+  // onLoadSettings are called.
+
+  static constexpr size_t eeprom_data_size = 48;
 
   enum axis_t     : uint8_t { X, Y, Z };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5 };
-  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED };
+  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5 };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
   constexpr uint8_t fanCount      = FAN_COUNT;
 
+  #if HAS_MESH
+    typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  #endif
+
   bool isMoving();
   bool isAxisPositionKnown(const axis_t);
+  bool isPositionKnown(); // Axis position guaranteed, steppers active since homing
+  bool isMachineHomed(); // Axis position most likely correct, steppers may have deactivated
   bool canMove(const axis_t);
   bool canMove(const extruder_t);
   void enqueueCommands_P(PGM_P const);
+  bool commandsInQueue();
+
+  bool isHeaterIdle(const heater_t);
+  bool isHeaterIdle(const extruder_t);
+  void enableHeater(const heater_t);
+  void enableHeater(const extruder_t);
 
   /**
    * Getters and setters
    * Should be used by the EXTENSIBLE_UI to query or change Marlin's state.
    */
   PGM_P getFirmwareName_str();
+
+  #if HAS_SOFTWARE_ENDSTOPS
+    bool getSoftEndstopState();
+    void setSoftEndstopState(const bool);
+  #endif
+
+  #if HAS_TRINAMIC
+    float getAxisCurrent_mA(const axis_t);
+    float getAxisCurrent_mA(const extruder_t);
+    void  setAxisCurrent_mA(const float, const axis_t);
+    void  setAxisCurrent_mA(const float, const extruder_t);
+
+    int getTMCBumpSensitivity(const axis_t);
+    void setTMCBumpSensitivity(const float, const axis_t);
+  #endif
 
   float getActualTemp_celsius(const heater_t);
   float getActualTemp_celsius(const extruder_t);
@@ -90,6 +122,22 @@ namespace ExtUI {
   float getFeedrate_percent();
   uint8_t getProgress_percent();
   uint32_t getProgress_seconds_elapsed();
+
+  #if HAS_LEVELING
+    bool getLevelingActive();
+    void setLevelingActive(const bool);
+    bool getMeshValid();
+    #if HAS_MESH
+      bed_mesh_t getMeshArray();
+      float getMeshPoint(const uint8_t xpos, const uint8_t ypos);
+      void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
+      void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);
+    #endif
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    void setHostResponse(const uint8_t);
+  #endif
 
   #if ENABLED(PRINTCOUNTER)
     char* getTotalPrints_str(char buffer[21]);
@@ -117,6 +165,7 @@ namespace ExtUI {
   void setRetractAcceleration_mm_s2(const float);
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
+  void setUserConfirmed(void);
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t);
@@ -143,7 +192,7 @@ namespace ExtUI {
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles);
   #endif
 
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
     float getNozzleOffset_mm(const axis_t, const extruder_t);
     void setNozzleOffset_mm(const float, const axis_t, const extruder_t);
     void normalizeNozzleOffset(const axis_t axis);
@@ -171,7 +220,7 @@ namespace ExtUI {
     bool getFilamentRunoutEnabled();
     void setFilamentRunoutEnabled(const bool);
 
-    #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
       float getFilamentRunoutDistance_mm();
       void setFilamentRunoutDistance_mm(const float);
     #endif
@@ -239,15 +288,18 @@ namespace ExtUI {
   void onMediaError();
   void onMediaRemoved();
   void onPlayTone(const uint16_t frequency, const uint16_t duration);
-  void onPrinterKilled(const char* msg);
+  void onPrinterKilled(PGM_P const msg);
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
   void onFilamentRunout(const extruder_t extruder);
+  void onUserConfirmRequired(const char * const msg);
   void onStatusChanged(const char * const msg);
   void onFactoryReset();
-  void onStoreSettings();
-  void onLoadSettings();
+  void onStoreSettings(char *);
+  void onLoadSettings(const char *);
+  void onConfigurationStoreWritten(bool success);
+  void onConfigurationStoreRead(bool success);
 };
 
 /**

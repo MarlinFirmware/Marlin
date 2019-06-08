@@ -42,16 +42,16 @@ void tone(const pin_t _pin, const unsigned int frequency, const unsigned long du
 
 void noTone(const pin_t _pin) {
   HAL_timer_disable_interrupt(TONE_TIMER_NUM);
-  digitalWrite(_pin, LOW);
+  extDigitalWrite(_pin, LOW);
 }
 
-HAL_TONE_TIMER_ISR {
+HAL_TONE_TIMER_ISR() {
   static uint8_t pin_state = 0;
   HAL_timer_isr_prologue(TONE_TIMER_NUM);
 
   if (toggles) {
     toggles--;
-    digitalWrite(tone_pin, (pin_state ^= 1));
+    extDigitalWrite(tone_pin, (pin_state ^= 1));
   }
   else noTone(tone_pin);                         // turn off interrupt
 }

@@ -28,6 +28,11 @@
 #include <stdint.h>
 #include "driver/timer.h"
 
+// Includes needed to get I2S_STEPPER_STREAM. Note that pins.h
+// is included in case this header is being included early.
+#include "../../inc/MarlinConfig.h"
+#include "../../pins/pins.h"
+
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
@@ -69,8 +74,8 @@ typedef uint64_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define HAL_TEMP_TIMER_ISR extern "C" void tempTC_Handler(void)
-#define HAL_STEP_TIMER_ISR extern "C" void stepTC_Handler(void)
+#define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler(void)
+#define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler(void)
 
 extern "C" void tempTC_Handler(void);
 extern "C" void stepTC_Handler(void);

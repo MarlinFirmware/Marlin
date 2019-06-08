@@ -31,8 +31,12 @@
 
 #undef THERMISTOR_NAME
 
+// User-specified thermistor parameters
+#if THERMISTOR_ID == 1000
+  #define THERMISTOR_NAME "User Parameters"
+
 // Thermcouples
-#if THERMISTOR_ID == -4
+#elif THERMISTOR_ID == -4
   #define THERMISTOR_NAME "AD8495"
 #elif THERMISTOR_ID == -3
   #define THERMISTOR_NAME "MAX31855"
@@ -70,6 +74,8 @@
   #define THERMISTOR_NAME "E3104FXT (alt)"
 #elif THERMISTOR_ID == 13
   #define THERMISTOR_NAME "Hisens 3950"
+#elif THERMISTOR_ID == 18
+  #define THERMISTOR_NAME "ATC Semitec 204GT-2"
 #elif THERMISTOR_ID == 20
   #define THERMISTOR_NAME "PT100 UltiMB"
 #elif THERMISTOR_ID == 60
@@ -96,17 +102,23 @@
   #define THERMISTOR_NAME "PT100 1K"
 #elif THERMISTOR_ID == 666
   #define THERMISTOR_NAME "Einstart S"
+#elif THERMISTOR_ID == 501
+  #define THERMISTOR_NAME "Zonestar (Tronxy X3A)"
 
 // High Temperature thermistors
 #elif THERMISTOR_ID == 61
   #define THERMISTOR_NAME "Formbot 350°C"
 #elif THERMISTOR_ID == 66
   #define THERMISTOR_NAME "Dyze 4.7M"
+#elif THERMISTOR_ID == 67
+  #define THERMISTOR_NAME "SliceEng 450°C"
 
 // Dummies for dev testing
 #elif THERMISTOR_ID == 998
   #define THERMISTOR_NAME "Dummy 1"
 #elif THERMISTOR_ID == 999
   #define THERMISTOR_NAME "Dummy 2"
+#elif THERMISTOR_ID == 1000
+  #define THERMISTOR_NAME "Custom"
 
 #endif // THERMISTOR_ID

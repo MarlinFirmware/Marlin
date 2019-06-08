@@ -28,19 +28,19 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include <stdint.h>
-
-#include "Arduino.h"
-
-#ifdef USBCON
-  #include <USBSerial.h>
-#endif
-
-#include "../../inc/MarlinConfigPre.h"
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio_STM32.h"
 #include "watchdog_STM32.h"
+
+#include "../../inc/MarlinConfigPre.h"
+
+#include <stdint.h>
+
+#ifdef USBCON
+  #include <USBSerial.h>
+#endif
 
 // --------------------------------------------------------------------------
 // Defines
@@ -127,14 +127,6 @@
 #undef pgm_read_ptr
 #define pgm_read_ptr(addr) (*(addr))
 
-#define RST_POWER_ON   1
-#define RST_EXTERNAL   2
-#define RST_BROWN_OUT  4
-#define RST_WATCHDOG   8
-#define RST_JTAG       16
-#define RST_SOFTWARE   32
-#define RST_BACKUP     64
-
 // --------------------------------------------------------------------------
 // Types
 // --------------------------------------------------------------------------
@@ -165,7 +157,7 @@ void HAL_init(void);
 void HAL_clear_reset_source (void);
 
 /** reset reason */
-uint8_t HAL_get_reset_source (void);
+uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(const int delay);
 

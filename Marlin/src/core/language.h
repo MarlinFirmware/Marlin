@@ -162,6 +162,8 @@
 #define MSG_BEGIN_FILE_LIST                 "Begin file list"
 #define MSG_END_FILE_LIST                   "End file list"
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
+#define MSG_INVALID_E_STEPPER               "Invalid E stepper"
+#define MSG_E_STEPPER_NOT_SPECIFIED         "E stepper not specified"
 #define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
 #define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
@@ -285,6 +287,8 @@
 #define MSG_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
 
 #define MSG_HEATER_BED                      "bed"
+#define MSG_HEATER_CHAMBER                  "chamber"
+
 #define MSG_STOPPED_HEATER                  ", system stopped! Heater_ID: "
 #define MSG_REDUNDANCY                      "Heater switched off. Temperature difference between temp sensors is too high !"
 #define MSG_T_HEATING_FAILED                "Heating failed"
@@ -342,7 +346,6 @@
 #define MSG_LCD_N3 " 4"
 #define MSG_LCD_N4 " 5"
 #define MSG_LCD_N5 " 6"
-#define MSG_E0 "E0"
 #define MSG_E1 "E1"
 #define MSG_E2 "E2"
 #define MSG_E3 "E3"

@@ -23,10 +23,6 @@
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
 
-#if NUM_SERIAL > 1
-  #include "../../gcode/queue.h"
-#endif
-
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_ECHOPGM("Cap:");
@@ -48,6 +44,13 @@ void GcodeSuite::M115() {
     // SERIAL_XON_XOFF
     cap_line(PSTR("SERIAL_XON_XOFF")
       #if ENABLED(SERIAL_XON_XOFF)
+        , true
+      #endif
+    );
+
+    // BINARY_FILE_TRANSFER (M28 B1)
+    cap_line(PSTR("BINARY_FILE_TRANSFER")
+      #if ENABLED(BINARY_FILE_TRANSFER)
         , true
       #endif
     );
@@ -122,7 +125,7 @@ void GcodeSuite::M115() {
     );
     cap_line(PSTR("CASE_LIGHT_BRIGHTNESS")
       #if HAS_CASE_LIGHT
-        , USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)
+        , PWM_PIN(CASE_LIGHT_PIN)
       #endif
     );
 
@@ -149,7 +152,7 @@ void GcodeSuite::M115() {
 
     // THERMAL_PROTECTION
     cap_line(PSTR("THERMAL_PROTECTION")
-      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(THERMAL_PROTECTION_BED)
+      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && (ENABLED(THERMAL_PROTECTION_BED) || !HAS_HEATED_BED) && (ENABLED(THERMAL_PROTECTION_CHAMBER) || !HAS_HEATED_CHAMBER)
         , true
       #endif
     );
@@ -160,6 +163,14 @@ void GcodeSuite::M115() {
         , true
       #endif
     );
+
+    // CHAMBER_TEMPERATURE (M141, M191)
+    cap_line(PSTR("CHAMBER_TEMPERATURE")
+      #if HAS_HEATED_CHAMBER
+        , true
+      #endif
+    );
+
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }

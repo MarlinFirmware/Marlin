@@ -33,6 +33,7 @@
 
 #include "HAL.h"
 #include <STM32ADC.h>
+#include "../../inc/MarlinConfig.h"
 
 // --------------------------------------------------------------------------
 // Externals
@@ -91,7 +92,9 @@
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
-USBSerial SerialUSB;
+#ifdef SERIAL_USB
+  USBSerial SerialUSB;
+#endif
 
 uint16_t HAL_adc_result;
 
@@ -103,6 +106,12 @@ STM32ADC adc(ADC1);
 uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_0
     TEMP_0_PIN,
+  #endif
+  #if HAS_HEATED_BED
+    TEMP_BED_PIN,
+  #endif
+  #if HAS_HEATED_CHAMBER
+    TEMP_CHAMBER_PIN,
   #endif
   #if HAS_TEMP_ADC_1
     TEMP_1_PIN,
@@ -116,8 +125,8 @@ uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_4
     TEMP_4_PIN,
   #endif
-  #if HAS_HEATED_BED
-    TEMP_BED_PIN,
+  #if HAS_TEMP_ADC_5
+    TEMP_5_PIN,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
@@ -127,6 +136,12 @@ uint8_t adc_pins[] = {
 enum TEMP_PINS : char {
   #if HAS_TEMP_ADC_0
     TEMP_0,
+  #endif
+  #if HAS_HEATED_BED
+    TEMP_BED,
+  #endif
+  #if HAS_HEATED_CHAMBER
+    TEMP_CHAMBER,
   #endif
   #if HAS_TEMP_ADC_1
     TEMP_1,
@@ -140,8 +155,8 @@ enum TEMP_PINS : char {
   #if HAS_TEMP_ADC_4
     TEMP_4,
   #endif
-  #if HAS_HEATED_BED
-    TEMP_BED,
+  #if HAS_TEMP_ADC_5
+    TEMP_5,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
@@ -191,7 +206,6 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
     #endif
   } }
 #endif
-
 
 void HAL_init(void) {
   NVIC_SetPriorityGrouping(0x3);
@@ -256,7 +270,7 @@ void HAL_adc_init(void) {
   adc.calibrate();
   adc.setSampleRate(ADC_SMPR_41_5); // ?
   adc.setPins(adc_pins, ADC_PIN_COUNT);
-  adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), (void (*)())NULL);
+  adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), nullptr);
   adc.setScanMode();
   adc.setContinuous();
   adc.startConversion();
@@ -265,8 +279,15 @@ void HAL_adc_init(void) {
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
   TEMP_PINS pin_index;
   switch (adc_pin) {
+    default: return;
     #if HAS_TEMP_ADC_0
       case TEMP_0_PIN: pin_index = TEMP_0; break;
+    #endif
+    #if HAS_HEATED_BED
+      case TEMP_BED_PIN: pin_index = TEMP_BED; break;
+    #endif
+    #if HAS_HEATED_CHAMBER
+      case TEMP_CHAMBER_PIN: pin_index = TEMP_CHAMBER; break;
     #endif
     #if HAS_TEMP_ADC_1
       case TEMP_1_PIN: pin_index = TEMP_1; break;
@@ -280,8 +301,8 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_TEMP_ADC_4
       case TEMP_4_PIN: pin_index = TEMP_4; break;
     #endif
-    #if HAS_HEATED_BED
-      case TEMP_BED_PIN: pin_index = TEMP_BED; break;
+    #if HAS_TEMP_ADC_5
+      case TEMP_5_PIN: pin_index = TEMP_5; break;
     #endif
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;
@@ -290,8 +311,6 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
 }
 
-uint16_t HAL_adc_get_result(void) {
-  return HAL_adc_result;
-}
+uint16_t HAL_adc_get_result(void) { return HAL_adc_result; }
 
 #endif // __STM32F1__

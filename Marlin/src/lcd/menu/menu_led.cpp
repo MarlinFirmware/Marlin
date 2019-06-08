@@ -58,7 +58,7 @@ void menu_led_custom() {
   MENU_ITEM_EDIT_CALLBACK(uint8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
   MENU_ITEM_EDIT_CALLBACK(uint8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
   MENU_ITEM_EDIT_CALLBACK(uint8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
-  #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+  #if EITHER(RGBW_LED, NEOPIXEL_LED)
     MENU_ITEM_EDIT_CALLBACK(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
     #if ENABLED(NEOPIXEL_LED)
       MENU_ITEM_EDIT_CALLBACK(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);

@@ -28,6 +28,9 @@
   #define BOARD_NAME "BIGTREE SKR V1.3"
 #endif
 
+// Ignore temp readings during develpment.
+//#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+
 //
 // Servos
 //
@@ -48,6 +51,13 @@
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  P1_24
+#endif
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   P1_28
 #endif
 
 //
@@ -127,13 +137,16 @@
 
   #define Z_SERIAL_TX_PIN  P1_14
   #define Z_SERIAL_RX_PIN  P1_10
-  
 
   #define E0_SERIAL_TX_PIN P1_09
   #define E0_SERIAL_RX_PIN P1_08
 
   #define E1_SERIAL_TX_PIN P1_04
-  #define E1_SERIAL_RX_PIN P1_01  
+  #define E1_SERIAL_RX_PIN P1_01
+
+  #define Z2_SERIAL_TX_PIN P1_04
+  #define Z2_SERIAL_RX_PIN P1_01
+
 #endif
 
 //
@@ -156,11 +169,6 @@
 #define FAN_PIN            P2_03
 #define HEATER_BED_PIN     P2_05
 
-//
-// Misc. Functions
-//
-#define SDSS               P0_06   
-
 /*
 |               _____                                             _____
 |           NC | · · | GND                                    5V | · · | GND
@@ -168,39 +176,90 @@
 |   (MOSI)0.18 | · · | 3.25(BTN_EN2)               (LCD_D5) 1.21 | · · | 1.20 (LCD_D4)
 |  (SD_SS)0.16 | · · | 3.26(BTN_EN1)               (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
 |    (SCK)0.15 | · · | 0.17(MISO)                 (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
-|               ￣￣                                               ￣￣  
-|               EXP2                                              EXP1  
+|               ￣￣                                               ￣￣
+|               EXP2                                              EXP1
 */
 #if ENABLED(ULTRA_LCD)
-
   #define BEEPER_PIN       P1_30   // (37) not 5V tolerant
   #define BTN_ENC          P0_28   // (58) open-drain
-  #define LCD_PINS_RS      P1_19
 
-  #define BTN_EN1          P3_26   // (31) J3-2 & AUX-4
-  #define BTN_EN2          P3_25   // (33) J3-4 & AUX-4
-  #define SD_DETECT_PIN    P1_31   // (49) (NOT 5V tolerant)
-  
-  #define LCD_SDSS         P0_16   // (16) J3-7 & AUX-4
+  #if ENABLED(CR10_STOCKDISPLAY)
+    #define LCD_PINS_RS    P1_22
 
-  #define LCD_PINS_ENABLE  P1_18  
-  #define LCD_PINS_D4      P1_20  
+    #define BTN_EN1        P1_18
+    #define BTN_EN2        P1_20
 
-  #if ENABLED(ULTIPANEL)
+    #define LCD_PINS_ENABLE P1_23
+    #define LCD_PINS_D4    P1_21
 
-    #define LCD_PINS_D5    P1_21
-    #define LCD_PINS_D6    P1_22
-    #define LCD_PINS_D7    P1_23
+  #else
+    #define LCD_PINS_RS    P1_19
+
+    #define BTN_EN1        P3_26   // (31) J3-2 & AUX-4
+    #define BTN_EN2        P3_25   // (33) J3-4 & AUX-4
+
+    #define LCD_PINS_ENABLE P1_18
+    #define LCD_PINS_D4    P1_20
+
+    #define LCD_SDSS       P0_16   // (16) J3-7 & AUX-4
+    #define SD_DETECT_PIN  P1_31   // (49) (NOT 5V tolerant)
+
+    #if ENABLED(FYSETC_MINI_12864)
+      #define DOGLCD_CS    P1_18
+      #define DOGLCD_A0    P1_19
+      #define DOGLCD_SCK   P0_15
+      #define DOGLCD_MOSI  P0_18
+      #define FORCE_SOFT_SPI
+
+      #define LCD_BACKLIGHT_PIN -1
+
+      #define FORCE_SOFT_SPI      // Use this if default of hardware SPI causes display problems
+                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+      #define LCD_RESET_PIN P1_20   // Must be high or open for LCD to operate normally.
+
+      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #ifndef RGB_LED_R_PIN
+          #define RGB_LED_R_PIN P1_21
+        #endif
+        #ifndef RGB_LED_G_PIN
+          #define RGB_LED_G_PIN P1_22
+        #endif
+        #ifndef RGB_LED_B_PIN
+          #define RGB_LED_B_PIN P1_23
+        #endif
+      #elif ENABLED(FYSETC_MINI_12864_2_1)
+        #define NEOPIXEL_PIN    P1_21
+      #endif
+
+    #else // !FYSETC_MINI_12864
+
+      #if ENABLED(MKS_MINI_12864)
+        #define DOGLCD_CS  P1_21
+        #define DOGLCD_A0  P1_22
+      #endif
+
+      #if ENABLED(ULTIPANEL)
+        #define LCD_PINS_D5 P1_21
+        #define LCD_PINS_D6 P1_22
+        #define LCD_PINS_D7 P1_23
+      #endif
+
+    #endif // !FYSETC_MINI_12864
 
   #endif
 
 #endif // ULTRA_LCD
 
-//#define USB_SD_DISABLED
-#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
+//
+// SD Support
+//
 
-#define LPC_SD_LCD            // Marlin uses the SD drive attached to the LCD
-//#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+  #undef USB_SD_DISABLED
+  #define USB_SD_ONBOARD
+  #define LPC_SD_LCD
+#endif
 
 #if ENABLED(LPC_SD_LCD)
 
@@ -216,14 +275,14 @@
     // When sharing the SD card with a PC we want the menu options to
     // mount/unmount the card and refresh it. So we disable card detect.
     #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN           // redefine detect pin onboard tf card
-    #define SD_DETECT_PIN  P0_27   // (57) open-drain
+    #undef SD_DETECT_PIN
+    //#define SD_DETECT_PIN  P0_27   // (57) open-drain
   #endif
 
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_16   // Chip select for SD card used by Marlin
+  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
   #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
 
 #endif

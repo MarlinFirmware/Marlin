@@ -301,12 +301,12 @@ inline uint8_t USB::getStrDescr(uint8_t addr, uint8_t ep, uint16_t nuint8_ts, ui
 //set address
 
 inline uint8_t USB::setAddr(uint8_t oldaddr, uint8_t ep, uint8_t newaddr) {
-  return ( ctrlReq(oldaddr, ep, bmREQ_SET, USB_REQUEST_SET_ADDRESS, newaddr, 0x00, 0x0000, 0x0000, NULL));
+  return ( ctrlReq(oldaddr, ep, bmREQ_SET, USB_REQUEST_SET_ADDRESS, newaddr, 0x00, 0x0000, 0x0000, nullptr));
 }
 //set configuration
 
 inline uint8_t USB::setConf(uint8_t addr, uint8_t ep, uint8_t conf_value) {
-  return ( ctrlReq(addr, ep, bmREQ_SET, USB_REQUEST_SET_CONFIGURATION, conf_value, 0x00, 0x0000, 0x0000, NULL));
+  return ( ctrlReq(addr, ep, bmREQ_SET, USB_REQUEST_SET_CONFIGURATION, conf_value, 0x00, 0x0000, 0x0000, nullptr));
 }
 
 #endif // defined(USB_METHODS_INLINE)

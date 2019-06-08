@@ -104,7 +104,9 @@
 #define DIGIPOTS_I2C_SDA_E0 27   // A5
 #define DIGIPOTS_I2C_SDA_E1 77   // J6
 
-#define DIGIPOT_I2C_ADDRESS_A 0x2F   // unshifted slave address (5E <- 2F << 1)
+#ifndef DIGIPOT_I2C_ADDRESS_A
+  #define DIGIPOT_I2C_ADDRESS_A 0x2F   // unshifted slave address (5E <- 2F << 1)
+#endif
 
 //
 // Temperature Sensors
@@ -175,9 +177,9 @@
 #endif
 
 #ifndef FAN_PIN
-  #if ENABLED(IS_EFB) || ENABLED(IS_EFF)       // Hotend, Fan, Bed or Hotend, Fan, Fan
+  #if EITHER(IS_EFB, IS_EFF)                      // Hotend, Fan, Bed or Hotend, Fan, Fan
     #define FAN_PIN        EX2_HEAT_PIN
-  #elif ENABLED(IS_EEF) || ENABLED(IS_SF)      // Hotend, Hotend, Fan or Spindle, Fan
+  #elif EITHER(IS_EEF, IS_SF)                     // Hotend, Hotend, Fan or Spindle, Fan
     #define FAN_PIN        HBP_PIN
   #else
     #define FAN_PIN        EXTRA_FET_PIN
@@ -263,13 +265,13 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENABLE_PIN 66   // K4   Pin should have a pullup!
+#define SPINDLE_LASER_ENA_PIN    66   // K4   Pin should have a pullup!
 #define SPINDLE_LASER_PWM_PIN     8   // H5   MUST BE HARDWARE PWM
 #define SPINDLE_DIR_PIN          67   // K5
 
 
 // Check if all pins are defined in mega/pins_arduino.h
-#include <Arduino.h>
+//#include <Arduino.h>
 static_assert(NUM_DIGITAL_PINS > MAX_PIN, "add missing pins to [arduino dir]/hardware/arduino/avr/variants/mega/pins_arduino.h based on fastio.h"
                                           "to digital_pin_to_port_PGM, digital_pin_to_bit_mask_PGM, digital_pin_to_timer_PGM, NUM_DIGITAL_PINS, see below");
 

@@ -140,7 +140,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#if BOTH(ULTRA_LCD, NEWPANEL)
 
   #define BEEPER_PIN       -1
 
@@ -159,5 +159,5 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #define SPINDLE_LASER_PWM_PIN    24   // B4 IO-3 PWM2A - MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN 39   // F1 IO-11 - Pin should have a pullup!
+#define SPINDLE_LASER_ENA_PIN    39   // F1 IO-11 - Pin should have a pullup!
 #define SPINDLE_DIR_PIN          40   // F2 IO-9

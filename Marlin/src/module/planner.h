@@ -159,7 +159,7 @@ typedef struct block_t {
 
 } block_t;
 
-#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || ENABLED(SCARA_FEEDRATE_SCALING) || ENABLED(GRADIENT_MIX))
+#define HAS_POSITION_FLOAT ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX)
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
@@ -253,7 +253,7 @@ class Planner {
 
     #if HAS_CLASSIC_JERK
       static float max_jerk[
-        #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+        #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
           XYZ                                    // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
         #else
           XYZE                                   // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
@@ -336,10 +336,6 @@ class Planner {
 
     #if ENABLED(ULTRA_LCD)
       volatile static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
-    #endif
-
-    #if ENABLED(BACKLASH_COMPENSATION)
-      static void add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block);
     #endif
 
   public:
@@ -750,7 +746,7 @@ class Planner {
     FORCE_INLINE static bool has_blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
     /**
-     * The current block. NULL if the buffer is empty.
+     * The current block. nullptr if the buffer is empty.
      * This also marks the block as busy.
      * WARNING: Called from Stepper ISR context!
      */
@@ -767,7 +763,7 @@ class Planner {
           --delay_before_delivering;
           // If the number of movements queued is less than 3, and there is still time
           //  to wait, do not deliver anything
-          if (nr_moves < 3 && delay_before_delivering) return NULL;
+          if (nr_moves < 3 && delay_before_delivering) return nullptr;
           delay_before_delivering = 0;
         }
 
@@ -775,7 +771,7 @@ class Planner {
         block_t * const block = &block_buffer[block_buffer_tail];
 
         // No trapezoid calculated? Don't execute yet.
-        if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return NULL;
+        if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return nullptr;
 
         #if ENABLED(ULTRA_LCD)
           block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
@@ -797,7 +793,7 @@ class Planner {
         clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
       #endif
 
-      return NULL;
+      return nullptr;
     }
 
     /**
@@ -861,7 +857,7 @@ class Planner {
       static void autotemp_M104_M109();
     #endif
 
-    #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+    #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
       FORCE_INLINE static void recalculate_max_e_jerk() {
         #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)

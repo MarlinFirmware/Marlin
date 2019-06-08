@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,7 +37,7 @@
   #include "runout.h"
 #endif
 
-extern volatile bool wait_for_user;
+extern bool wait_for_user;
 
 void host_action(const char * const pstr, const bool eol) {
   SERIAL_ECHOPGM("//action:");
@@ -84,7 +84,7 @@ void host_action(const char * const pstr, const bool eol) {
   void host_action_prompt_button(const char * const pstr) { host_action_prompt_plus(PSTR("button"), pstr); }
   void host_action_prompt_end() { host_action_prompt(PSTR("end")); }
   void host_action_prompt_show() { host_action_prompt(PSTR("show")); }
-  void host_prompt_do(const PromptReason reason, const char * const pstr, const char * const pbtn/*=NULL*/) {
+  void host_prompt_do(const PromptReason reason, const char * const pstr, const char * const pbtn/*=nullptr*/) {
     host_prompt_reason = reason;
     host_action_prompt_end();
     host_action_prompt_begin(pstr);
@@ -110,7 +110,7 @@ void host_action(const char * const pstr, const bool eol) {
       case PROMPT_FILAMENT_RUNOUT:
         msg = PSTR("FILAMENT_RUNOUT");
         if (response == 0) {
-          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE;
+          pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
           host_action_prompt_end();   // Close current prompt
           host_action_prompt_begin(PSTR("Paused"));
           host_action_prompt_button(PSTR("Purge More"));
@@ -133,7 +133,7 @@ void host_action(const char * const pstr, const bool eol) {
               runout.reset();
             }
           #endif
-          advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_RESUME_PRINT;
+          pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
         }
         break;
       case PROMPT_USER_CONTINUE:

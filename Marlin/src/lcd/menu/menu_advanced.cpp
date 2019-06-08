@@ -37,9 +37,6 @@
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
-  #if ENABLED(BLTOUCH)
-    #include "../../module/endstops.h"
-  #endif
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -47,6 +44,7 @@
 #endif
 
 void menu_tmc();
+void menu_backlash();
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
@@ -59,7 +57,7 @@ void menu_tmc();
   void menu_dac() {
     dac_driver_getValues();
     START_MENU();
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_ADVANCED_SETTINGS);
     #define EDIT_DAC_PERCENT(N) MENU_ITEM_EDIT_CALLBACK(uint8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
@@ -77,7 +75,7 @@ void menu_tmc();
 
   void menu_pwm() {
     START_MENU();
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_ADVANCED_SETTINGS);
     #define EDIT_CURRENT_PWM(LABEL,I) MENU_ITEM_EDIT_CALLBACK(long5, LABEL, &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
       EDIT_CURRENT_PWM(MSG_X MSG_Y, 0);
@@ -104,18 +102,7 @@ void menu_tmc();
 #endif
 
 #if ENABLED(SD_FIRMWARE_UPDATE)
-
   #include "../../module/configuration_store.h"
-
-  //
-  // Toggle the SD Firmware Update state in EEPROM
-  //
-  static void _lcd_toggle_sd_update() {
-    const bool new_state = !settings.sd_update_status();
-    ui.completion_feedback(settings.set_sd_update_status(new_state));
-    ui.return_to_status();
-    if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
-  }
 #endif
 
 #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -300,26 +287,28 @@ void menu_tmc();
   #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N); //
 #endif
 
-DEFINE_PIDTEMP_FUNCS(0);
-#if ENABLED(PID_PARAMS_PER_HOTEND)
-  #if HOTENDS > 1
-    DEFINE_PIDTEMP_FUNCS(1);
-    #if HOTENDS > 2
-      DEFINE_PIDTEMP_FUNCS(2);
-      #if HOTENDS > 3
-        DEFINE_PIDTEMP_FUNCS(3);
-        #if HOTENDS > 4
-          DEFINE_PIDTEMP_FUNCS(4);
-          #if HOTENDS > 5
-            DEFINE_PIDTEMP_FUNCS(5);
-          #endif // HOTENDS > 5
-        #endif // HOTENDS > 4
-      #endif // HOTENDS > 3
-    #endif // HOTENDS > 2
-  #endif // HOTENDS > 1
-#endif // PID_PARAMS_PER_HOTEND
+#if HOTENDS
+  DEFINE_PIDTEMP_FUNCS(0);
+  #if ENABLED(PID_PARAMS_PER_HOTEND)
+    #if HOTENDS > 1
+      DEFINE_PIDTEMP_FUNCS(1);
+      #if HOTENDS > 2
+        DEFINE_PIDTEMP_FUNCS(2);
+        #if HOTENDS > 3
+          DEFINE_PIDTEMP_FUNCS(3);
+          #if HOTENDS > 4
+            DEFINE_PIDTEMP_FUNCS(4);
+            #if HOTENDS > 5
+              DEFINE_PIDTEMP_FUNCS(5);
+            #endif // HOTENDS > 5
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #endif // HOTENDS > 1
+  #endif // PID_PARAMS_PER_HOTEND
+#endif // HOTENDS
 
-#define SHOW_MENU_ADVANCED_TEMPERATURE ((ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(PID_EDIT_MENU))
+#define SHOW_MENU_ADVANCED_TEMPERATURE ((ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND) || EITHER(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
 
 //
 // Advanced Settings > Temperature
@@ -475,7 +464,7 @@ DEFINE_PIDTEMP_FUNCS(0);
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
-    #else
+    #elif E_STEPPERS
       MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS], 1, 999);
     #endif
 
@@ -494,16 +483,17 @@ DEFINE_PIDTEMP_FUNCS(0);
     MENU_BACK(MSG_ADVANCED_SETTINGS);
 
     // M204 P Acceleration
-    MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_ACC, &planner.settings.acceleration, 10, 99000);
+    MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_ACC, &planner.settings.acceleration, 25, 99000);
 
     // M204 R Retract Acceleration
     MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_A_RETRACT, &planner.settings.retract_acceleration, 100, 99000);
 
     // M204 T Travel Acceleration
-    MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 100, 99000);
+    MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, 99000);
 
     // M201 settings
-    #define EDIT_AMAX(Q,L) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, 99000, _reset_acceleration_rates)
+    #define EDIT_AMAX(Q,L) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, 99000, _reset_acceleration_rates)
+
     EDIT_AMAX(A,100);
     EDIT_AMAX(B,100);
     EDIT_AMAX(C, 10);
@@ -525,7 +515,7 @@ DEFINE_PIDTEMP_FUNCS(0);
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
-    #else
+    #elif E_STEPPERS
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_acceleration_rates);
     #endif
 
@@ -566,14 +556,14 @@ DEFINE_PIDTEMP_FUNCS(0);
     START_MENU();
     MENU_BACK(MSG_ADVANCED_SETTINGS);
 
-    #define EDIT_QSTEPS(Q) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_##Q##STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, _planner_refresh_positioning)
+    #define EDIT_QSTEPS(Q) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_##Q##STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, _planner_refresh_positioning)
     EDIT_QSTEPS(A);
     EDIT_QSTEPS(B);
     EDIT_QSTEPS(C);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_ESTEPS(N,E) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E##N##STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(E)], 5, 9999, _planner_refresh_e##E##_positioning)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, _planner_refresh_positioning);
+      #define EDIT_ESTEPS(N,E) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_E##N##STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(E)], 5, 9999, _planner_refresh_e##E##_positioning)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, _planner_refresh_positioning);
       EDIT_ESTEPS(1,0);
       EDIT_ESTEPS(2,1);
       #if E_STEPPERS > 2
@@ -588,8 +578,8 @@ DEFINE_PIDTEMP_FUNCS(0);
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
-    #else
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
+    #elif E_STEPPERS
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
     #endif
 
     END_MENU();
@@ -599,16 +589,13 @@ DEFINE_PIDTEMP_FUNCS(0);
 
     #include "../../module/configuration_store.h"
 
-    static void lcd_init_eeprom() {
-      ui.completion_feedback(settings.init_eeprom());
-      ui.goto_previous_screen();
-    }
-
     static void lcd_init_eeprom_confirm() {
-      START_MENU();
-      MENU_BACK(MSG_ADVANCED_SETTINGS);
-      MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
-      END_MENU();
+      do_select_screen(
+        PSTR(MSG_BUTTON_INIT), PSTR(MSG_BUTTON_CANCEL),
+        []{ ui.completion_feedback(settings.init_eeprom()); },
+        ui.goto_previous_screen,
+        PSTR(MSG_INIT_EEPROM), nullptr, PSTR("?")
+      );
     }
 
   #endif
@@ -642,6 +629,10 @@ void menu_advanced_settings() {
       MENU_ITEM(submenu, MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
     }
   #endif // !SLIM_LCD_MENUS
+
+  #if ENABLED(BACKLASH_GCODE)
+    MENU_ITEM(submenu, MSG_BACKLASH, menu_backlash);
+  #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)
     MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_dac);
@@ -687,18 +678,17 @@ void menu_advanced_settings() {
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
   #endif
 
-  //
-  // BLTouch Self-Test and Reset
-  //
-  #if ENABLED(BLTOUCH)
-    MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-    if (!endstops.z_probe_enabled && TEST_BLTOUCH())
-      MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
-  #endif
-
   #if ENABLED(SD_FIRMWARE_UPDATE)
     bool sd_update_state = settings.sd_update_status();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_SD_UPDATE, &sd_update_state, _lcd_toggle_sd_update);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_SD_UPDATE, &sd_update_state, []{
+      //
+      // Toggle the SD Firmware Update state in EEPROM
+      //
+      const bool new_state = !settings.sd_update_status();
+      ui.completion_feedback(settings.set_sd_update_status(new_state));
+      ui.return_to_status();
+      if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
+    });
   #endif
 
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)

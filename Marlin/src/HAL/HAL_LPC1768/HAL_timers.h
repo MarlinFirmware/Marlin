@@ -88,8 +88,8 @@ typedef uint32_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define HAL_STEP_TIMER_ISR _HAL_TIMER_ISR(STEP_TIMER_NUM)
-#define HAL_TEMP_TIMER_ISR _HAL_TIMER_ISR(TEMP_TIMER_NUM)
+#define HAL_STEP_TIMER_ISR() _HAL_TIMER_ISR(STEP_TIMER_NUM)
+#define HAL_TEMP_TIMER_ISR() _HAL_TIMER_ISR(TEMP_TIMER_NUM)
 
 // Timer references by index
 #define STEP_TIMER _HAL_TIMER(STEP_TIMER_NUM)
@@ -126,15 +126,15 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
 
 FORCE_INLINE static void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: NVIC_EnableIRQ(TIMER0_IRQn); // Enable interrupt handler
-    case 1: NVIC_EnableIRQ(TIMER1_IRQn); // Enable interrupt handler
+    case 0: NVIC_EnableIRQ(TIMER0_IRQn); break; // Enable interrupt handler
+    case 1: NVIC_EnableIRQ(TIMER1_IRQn); break; // Enable interrupt handler
   }
 }
 
 FORCE_INLINE static void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: NVIC_DisableIRQ(TIMER0_IRQn); // Disable interrupt handler
-    case 1: NVIC_DisableIRQ(TIMER1_IRQn); // Disable interrupt handler
+    case 0: NVIC_DisableIRQ(TIMER0_IRQn); break; // Disable interrupt handler
+    case 1: NVIC_DisableIRQ(TIMER1_IRQn); break; // Disable interrupt handler
   }
 
   // We NEED memory barriers to ensure Interrupts are actually disabled!

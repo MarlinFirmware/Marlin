@@ -26,16 +26,9 @@
 
 #define BOARD_NAME "GT2560 V3.0 (MC2)"
 
-#include "pins_GT2560_V3.h"
-
-#undef X_MIN_PIN
 #define X_MIN_PIN          22
-
-#undef X_MAX_PIN
 #define X_MAX_PIN          24
-
-#undef Y_MIN_PIN
 #define Y_MIN_PIN          26
-
-#undef Y_MAX_PIN
 #define Y_MAX_PIN          28
+
+#include "pins_GT2560_V3.h"

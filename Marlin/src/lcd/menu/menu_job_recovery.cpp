@@ -44,8 +44,10 @@ static void lcd_power_loss_recovery_cancel() {
   ui.return_to_status();
 }
 
+// TODO: Display long filename with Cancel/Resume buttons
+//       Requires supporting methods in PLR class.
 void menu_job_recovery() {
-  ui.defer_status_screen(true);
+  ui.defer_status_screen();
   START_MENU();
   STATIC_ITEM(MSG_OUTAGE_RECOVERY);
   MENU_ITEM(function, MSG_RESUME_PRINT, lcd_power_loss_recovery_resume);

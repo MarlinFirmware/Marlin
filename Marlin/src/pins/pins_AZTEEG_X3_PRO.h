@@ -37,19 +37,6 @@
 //
 // RAMPS pins overrides
 //
-#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT)
-  #define CASE_LIGHT_PIN   44
-#endif
-
-#ifndef FAN_PIN
-  #define FAN_PIN           6
-#endif
-
-#include "pins_RAMPS.h"
-
-// DIGIPOT slave addresses
-#define DIGIPOT_I2C_ADDRESS_A 0x2C   // unshifted slave address for first DIGIPOT 0x2C (0x58 <- 0x2C << 1)
-#define DIGIPOT_I2C_ADDRESS_B 0x2E   // unshifted slave address for second DIGIPOT 0x2E (0x5C <- 0x2E << 1)
 
 //
 // Servos
@@ -57,29 +44,34 @@
 // Tested this pin with bed leveling on a Delta with 1 servo.
 // Physical wire attachment on EXT1: GND, 5V, D47.
 //
-#undef SERVO0_PIN
 #define SERVO0_PIN         47
 
 //
 // Limit Switches
 //
-// Swap the MIN and MAX endstop pins because the X3 Pro comes with only
-// MIN endstop pin headers soldered onto the board.
-//
-#if ENABLED(DELTA)
-  #undef X_MIN_PIN
-  #undef X_MAX_PIN
-  #undef Y_MIN_PIN
-  #undef Y_MAX_PIN
-  #undef Z_MIN_PIN
-  #undef Z_MAX_PIN
+#define X_STOP_PIN          3
+#define Y_STOP_PIN         14
+#define Z_STOP_PIN         18
 
-  #define X_MIN_PIN         2
-  #define X_MAX_PIN         3
-  #define Y_MIN_PIN        15
-  #define Y_MAX_PIN        14
-  #define Z_MIN_PIN        19
-  #define Z_MAX_PIN        18
+#ifndef FAN_PIN
+  #define FAN_PIN           6
+#endif
+
+#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT)
+  #define CASE_LIGHT_PIN   44
+#endif
+
+//
+// Import RAMPS 1.4 pins
+//
+#include "pins_RAMPS.h"
+
+// DIGIPOT slave addresses
+#ifndef DIGIPOT_I2C_ADDRESS_A
+  #define DIGIPOT_I2C_ADDRESS_A 0x2C   // unshifted slave address for first DIGIPOT 0x2C (0x58 <- 0x2C << 1)
+#endif
+#ifndef DIGIPOT_I2C_ADDRESS_B
+  #define DIGIPOT_I2C_ADDRESS_B 0x2E   // unshifted slave address for second DIGIPOT 0x2E (0x5C <- 0x2E << 1)
 #endif
 
 //
@@ -139,7 +131,7 @@
 #undef BEEPER_PIN
 #define BEEPER_PIN         33
 
-#if ENABLED(VIKI2) || ENABLED(miniVIKI)
+#if ANY(VIKI2, miniVIKI)
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN    49   // For easy adapter board
   #undef BEEPER_PIN
@@ -152,7 +144,7 @@
 //
 // Misc. Functions
 //
-#if ENABLED(CASE_LIGHT_ENABLE)  && PIN_EXISTS(CASE_LIGHT) && defined(DOGLCD_A0) && DOGLCD_A0 == CASE_LIGHT_PIN
+#if ENABLED(CASE_LIGHT_ENABLE) && PIN_EXISTS(CASE_LIGHT) && defined(DOGLCD_A0) && DOGLCD_A0 == CASE_LIGHT_PIN
   #undef DOGLCD_A0              // Steal pin 44 for the case light; if you have a Viki2 and have connected it
   #define DOGLCD_A0        57   // following the Panucatt wiring diagram, you may need to tweak these pin assignments
                                 // as the wiring diagram uses pin 44 for DOGLCD_A0
@@ -162,15 +154,15 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #undef SPINDLE_LASER_PWM_PIN    // Definitions in pins_RAMPS.h are no good with the AzteegX3pro board
-#undef SPINDLE_LASER_ENABLE_PIN
+#undef SPINDLE_LASER_ENA_PIN
 #undef SPINDLE_DIR_PIN
 
 #if ENABLED(SPINDLE_LASER_ENABLE)   // EXP2 header
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
     #undef BTN_EN2
     #define BTN_EN2             31   // need 7 for the spindle speed PWM
   #endif
   #define SPINDLE_LASER_PWM_PIN     7   // must have a hardware PWM
-  #define SPINDLE_LASER_ENABLE_PIN 20   // Pin should have a pullup!
+  #define SPINDLE_LASER_ENA_PIN    20   // Pin should have a pullup!
   #define SPINDLE_DIR_PIN          21
 #endif

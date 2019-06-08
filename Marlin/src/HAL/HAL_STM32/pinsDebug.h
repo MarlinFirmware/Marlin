@@ -1,1 +1,1 @@
-#error "Debug pins is not yet supported for STM32!"
+#error "PINS_DEBUGGING is not yet supported for STM32!"

@@ -31,32 +31,22 @@
   #include "../../module/delta.h"
   #include "../../module/motion.h"
 
+  #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+  #include "../../core/debug_out.h"
+
   /**
    * M666: Set delta endstop adjustment
    */
   void GcodeSuite::M666() {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM(">>> M666");
-      }
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> M666");
     LOOP_XYZ(i) {
       if (parser.seen(axis_codes[i])) {
         const float v = parser.value_linear_units();
         if (v * Z_HOME_DIR <= 0) delta_endstop_adj[i] = v;
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("delta_endstop_adj[", axis_codes[i]);
-            SERIAL_ECHOLNPAIR("] = ", delta_endstop_adj[i]);
-          }
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", axis_codes[i], "] = ", delta_endstop_adj[i]);
       }
     }
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM("<<< M666");
-      }
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< M666");
   }
 
 #elif HAS_EXTRA_ENDSTOPS

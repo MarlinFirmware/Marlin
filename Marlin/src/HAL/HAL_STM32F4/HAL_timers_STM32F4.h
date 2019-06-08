@@ -65,13 +65,13 @@
 #ifdef STM32GENERIC
   extern void TC5_Handler();
   extern void TC7_Handler();
-  #define HAL_STEP_TIMER_ISR void TC5_Handler()
-  #define HAL_TEMP_TIMER_ISR void TC7_Handler()
+  #define HAL_STEP_TIMER_ISR() void TC5_Handler()
+  #define HAL_TEMP_TIMER_ISR() void TC7_Handler()
 #else
   extern void TC5_Handler(stimer_t *htim);
   extern void TC7_Handler(stimer_t *htim);
-  #define HAL_STEP_TIMER_ISR void TC5_Handler(stimer_t *htim)
-  #define HAL_TEMP_TIMER_ISR void TC7_Handler(stimer_t *htim)
+  #define HAL_STEP_TIMER_ISR() void TC5_Handler(stimer_t *htim)
+  #define HAL_TEMP_TIMER_ISR() void TC7_Handler(stimer_t *htim)
 #endif
 
 

@@ -50,6 +50,10 @@
 #define INTERSECTION_CIRCLE_RADIUS 5
 #define CROSSHAIRS_SIZE 3
 
+#ifndef G26_XY_FEEDRATE
+  #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
+#endif
+
 #if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
   #error "CROSSHAIRS_SIZE must be less than INTERSECTION_CIRCLE_RADIUS."
 #endif
@@ -83,7 +87,7 @@
  *   D    Disable     Disable the Unified Bed Leveling System. In the normal case the user is invoking this
  *                    command to see how well a Mesh as been adjusted to match a print surface. In order to do
  *                    this the Unified Bed Leveling System is turned on by the G26 command. The D parameter
- *                    alters the command's normal behaviour and disables the Unified Bed Leveling System even if
+ *                    alters the command's normal behavior and disables the Unified Bed Leveling System even if
  *                    it is on.
  *
  *   H #  Hotend      Set the Nozzle Temperature. If not specified, a default of 205 C. will be assumed.
@@ -127,7 +131,7 @@
  *   U #  Random      Randomize the order that the circles are drawn on the bed. The search for the closest
  *                    un-drawn circle is still done. But the distance to the location for each circle has a
  *                    random number of the specified size added to it. Specifying S50 will give an interesting
- *                    deviation from the normal behaviour on a 10 x 10 Mesh.
+ *                    deviation from the normal behavior on a 10 x 10 Mesh.
  *
  *   X #  X Coord.    Specify the starting location of the drawing activity.
  *
@@ -240,9 +244,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
 
   // Check if X or Y is involved in the movement.
   // Yes: a 'normal' movement. No: a retract() or recover()
-  feed_value = has_xy_component ? PLANNER_XY_FEEDRATE() / 3.0 : planner.settings.max_feedrate_mm_s[E_AXIS] / 1.5;
-
-  if (g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to() feed_value for XY:", feed_value);
+  feed_value = has_xy_component ? G26_XY_FEEDRATE : planner.settings.max_feedrate_mm_s[E_AXIS] / 1.5;
 
   destination[X_AXIS] = rx;
   destination[Y_AXIS] = ry;
@@ -323,19 +325,15 @@ inline bool look_for_lines_to_connect() {
     for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
       #if HAS_LCD_MENU
-        if (user_canceled()) return true;     // Check if the user wants to stop the Mesh Validation
+        if (user_canceled()) return true;
       #endif
 
-      if (i < GRID_MAX_POINTS_X) { // We can't connect to anything to the right than GRID_MAX_POINTS_X.
-                                   // This is already a half circle because we are at the edge of the bed.
+      if (i < GRID_MAX_POINTS_X) { // Can't connect to anything to the right than GRID_MAX_POINTS_X.
+                                   // Already a half circle at the edge of the bed.
 
         if (is_bitmap_set(circle_flags, i, j) && is_bitmap_set(circle_flags, i + 1, j)) { // check if we can do a line to the left
           if (!is_bitmap_set(horizontal_mesh_line_flags, i, j)) {
-
-            //
-            // We found two circles that need a horizontal line to connect them
-            // Print it!
-            //
+            // Two circles need a horizontal line to connect them
             sx = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
             ex = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
 
@@ -343,32 +341,19 @@ inline bool look_for_lines_to_connect() {
             sy = ey = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
             ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
 
-            if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey)) {
-
-              if (g26_debug_flag) {
-                SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=", sx);
-                SERIAL_ECHOPAIR(", sy=", sy);
-                SERIAL_ECHOPAIR(") -> (ex=", ex);
-                SERIAL_ECHOPAIR(", ey=", ey);
-                SERIAL_CHAR(')');
-                SERIAL_EOL();
-                //debug_current_and_destination(PSTR("Connecting horizontal line."));
-              }
+            if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey))
               print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
-            }
-            bitmap_set(horizontal_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if we skipped it
+
+            bitmap_set(horizontal_mesh_line_flags, i, j); // Mark done, even if skipped
           }
         }
 
-        if (j < GRID_MAX_POINTS_Y) { // We can't connect to anything further back than GRID_MAX_POINTS_Y.
-                                         // This is already a half circle because we are at the edge  of the bed.
+        if (j < GRID_MAX_POINTS_Y) {  // Can't connect to anything further back than GRID_MAX_POINTS_Y.
+                                      // Already a half circle at the edge of the bed.
 
           if (is_bitmap_set(circle_flags, i, j) && is_bitmap_set(circle_flags, i, j + 1)) { // check if we can do a line straight down
             if (!is_bitmap_set( vertical_mesh_line_flags, i, j)) {
-              //
-              // We found two circles that need a vertical line to connect them
-              // Print it!
-              //
+              // Two circles that need a vertical line to connect them
               sy = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
               ey = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
 
@@ -376,23 +361,10 @@ inline bool look_for_lines_to_connect() {
               sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
               ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
-              if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey)) {
-
-                if (g26_debug_flag) {
-                  SERIAL_ECHOPAIR(" Connecting with vertical line (sx=", sx);
-                  SERIAL_ECHOPAIR(", sy=", sy);
-                  SERIAL_ECHOPAIR(") -> (ex=", ex);
-                  SERIAL_ECHOPAIR(", ey=", ey);
-                  SERIAL_CHAR(')');
-                  SERIAL_EOL();
-
-                  #if ENABLED(AUTO_BED_LEVELING_UBL)
-                    debug_current_and_destination(PSTR("Connecting vertical line."));
-                  #endif
-                }
+              if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey))
                 print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
-              }
-              bitmap_set(vertical_mesh_line_flags, i, j);   // Mark it as done so we don't do it again, even if skipped
+
+              bitmap_set(vertical_mesh_line_flags, i, j); // Mark done, even if skipped
             }
           }
         }
@@ -570,13 +542,15 @@ void GcodeSuite::G26() {
   bool g26_continue_with_closest = parser.boolval('C'),
        g26_keep_heaters_on       = parser.boolval('K');
 
-  if (parser.seenval('B')) {
-    g26_bed_temp = parser.value_celsius();
-    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, 140)) {
-      SERIAL_ECHOLNPGM("?Specified bed temperature not plausible (40-140C).");
-      return;
+  #if HAS_HEATED_BED
+    if (parser.seenval('B')) {
+      g26_bed_temp = parser.value_celsius();
+      if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 10))) {
+        SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 10), "C).");
+        return;
+      }
     }
-  }
+  #endif
 
   if (parser.seenval('L')) {
     g26_layer_height = parser.value_linear_units();
@@ -602,7 +576,7 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('S')) {
     g26_nozzle = parser.value_float();
-    if (!WITHIN(g26_nozzle, 0.1, 1.0)) {
+    if (!WITHIN(g26_nozzle, 0.1, 2.0)) {
       SERIAL_ECHOLNPGM("?Specified nozzle size not plausible.");
       return;
     }
@@ -642,7 +616,7 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('H')) {
     g26_hotend_temp = parser.value_celsius();
-    if (!WITHIN(g26_hotend_temp, 165, 280)) {
+    if (!WITHIN(g26_hotend_temp, 165, (HEATER_0_MAXTEMP - 15))) {
       SERIAL_ECHOLNPGM("?Specified nozzle temperature not plausible.");
       return;
     }
@@ -687,6 +661,12 @@ void GcodeSuite::G26() {
     set_current_from_destination();
   }
 
+  #if DISABLED(NO_VOLUMETRICS)
+    bool volumetric_was_enabled = parser.volumetric_enabled;
+    parser.volumetric_enabled = false;
+    planner.calculate_volumetric_multipliers();
+  #endif
+
   if (turn_on_heaters() != G26_OK) goto LEAVE;
 
   current_position[E_AXIS] = 0.0;
@@ -717,8 +697,6 @@ void GcodeSuite::G26() {
   #if HAS_LCD_MENU
     ui.capture();
   #endif
-
-  //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
 
   #if DISABLED(ARC_SUPPORT)
 
@@ -761,6 +739,7 @@ void GcodeSuite::G26() {
       #if ENABLED(ARC_SUPPORT)
 
         #define ARC_LENGTH(quarters)  (INTERSECTION_CIRCLE_RADIUS * M_PI * (quarters) / 2)
+        #define INTERSECTION_CIRCLE_DIAM  ((INTERSECTION_CIRCLE_RADIUS) * 2)
         float sx = circle_x + INTERSECTION_CIRCLE_RADIUS,   // default to full circle
               ex = circle_x + INTERSECTION_CIRCLE_RADIUS,
               sy = circle_y, ey = circle_y,
@@ -768,10 +747,8 @@ void GcodeSuite::G26() {
 
         // Figure out where to start and end the arc - we always print counterclockwise
         if (xi == 0) {                             // left edge
-          sx = f ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
-          ex = b ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
-          sy = f ? circle_y : circle_y - (INTERSECTION_CIRCLE_RADIUS);
-          ey = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
+          if (!f) { sx = circle_x; sy -= INTERSECTION_CIRCLE_RADIUS; }
+          if (!b) { ex = circle_x; ey += INTERSECTION_CIRCLE_RADIUS; }
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (r) {                             // right edge
@@ -782,30 +759,23 @@ void GcodeSuite::G26() {
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (f) {
-          sx = circle_x + INTERSECTION_CIRCLE_RADIUS;
-          ex = circle_x - (INTERSECTION_CIRCLE_RADIUS);
-          sy = ey = circle_y;
+          ex -= INTERSECTION_CIRCLE_DIAM;
           arc_length = ARC_LENGTH(2);
         }
         else if (b) {
-          sx = circle_x - (INTERSECTION_CIRCLE_RADIUS);
-          ex = circle_x + INTERSECTION_CIRCLE_RADIUS;
-          sy = ey = circle_y;
+          sx -= INTERSECTION_CIRCLE_DIAM;
           arc_length = ARC_LENGTH(2);
         }
-        const float arc_offset[2] = {
-          circle_x - sx,
-          circle_y - sy
-        };
 
-        const float dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual circle
+        const float arc_offset[2] = { circle_x - sx, circle_y - sy },
+                    dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual circle
                     dy_s = current_position[Y_AXIS] - sy,
-                    dist_start = HYPOT2(dx_s, dy_s);
-        const float endpoint[XYZE] = {
-          ex, ey,
-          g26_layer_height,
-          current_position[E_AXIS] + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
-        };
+                    dist_start = HYPOT2(dx_s, dy_s),
+                    endpoint[XYZE] = {
+                      ex, ey,
+                      g26_layer_height,
+                      current_position[E_AXIS] + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
+                    };
 
         if (dist_start > 2.0) {
           retract_filament(destination);
@@ -819,18 +789,6 @@ void GcodeSuite::G26() {
         recover_filament(destination);
         const float save_feedrate = feedrate_mm_s;
         feedrate_mm_s = PLANNER_XY_FEEDRATE() / 10.0;
-
-        if (g26_debug_flag) {
-          SERIAL_ECHOPAIR(" plan_arc(ex=", endpoint[X_AXIS]);
-          SERIAL_ECHOPAIR(", ey=", endpoint[Y_AXIS]);
-          SERIAL_ECHOPAIR(", ez=", endpoint[Z_AXIS]);
-          SERIAL_ECHOPAIR(", len=", arc_length);
-          SERIAL_ECHOPAIR(") -> (ex=", current_position[X_AXIS]);
-          SERIAL_ECHOPAIR(", ey=", current_position[Y_AXIS]);
-          SERIAL_ECHOPAIR(", ez=", current_position[Z_AXIS]);
-          SERIAL_CHAR(')');
-          SERIAL_EOL();
-        }
 
         plan_arc(endpoint, arc_offset, false);  // Draw a counter-clockwise arc
         feedrate_mm_s = save_feedrate;
@@ -899,16 +857,18 @@ void GcodeSuite::G26() {
   retract_filament(destination);
   destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
 
-  //debug_current_and_destination(PSTR("ready to do Z-Raise."));
   move_to(destination, 0); // Raise the nozzle
-  //debug_current_and_destination(PSTR("done doing Z-Raise."));
 
   destination[X_AXIS] = g26_x_pos;                            // Move back to the starting position
   destination[Y_AXIS] = g26_y_pos;
   //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;         // Keep the nozzle where it is
 
   move_to(destination, 0);                                    // Move back to the starting position
-  //debug_current_and_destination(PSTR("done doing X/Y move."));
+
+  #if DISABLED(NO_VOLUMETRICS)
+    parser.volumetric_enabled = volumetric_was_enabled;
+    planner.calculate_volumetric_multipliers();
+  #endif
 
   #if HAS_LCD_MENU
     ui.release();                                             // Give back control of the LCD

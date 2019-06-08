@@ -36,11 +36,18 @@
 #endif
 
 /**
+ * Checks for FAST PWM
+ */
+#if ENABLED(FAST_PWM_FAN) && (ENABLED(USE_OCR2A_AS_TOP) && defined(TCCR2))
+    #error "USE_OCR2A_AS_TOP does not apply to devices with a single output TIMER2"
+#endif
+
+/**
  * Sanity checks for Spindle / Laser
  */
 #if ENABLED(SPINDLE_LASER_ENABLE)
-  #if !PIN_EXISTS(SPINDLE_LASER_ENABLE)
-    #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENABLE_PIN."
+  #if !PIN_EXISTS(SPINDLE_LASER_ENA)
+    #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENA_PIN."
   #elif SPINDLE_DIR_CHANGE && !PIN_EXISTS(SPINDLE_DIR)
     #error "SPINDLE_DIR_PIN not defined."
   #elif ENABLED(SPINDLE_LASER_PWM) && PIN_EXISTS(SPINDLE_LASER_PWM)

@@ -139,12 +139,12 @@
 //
 #define CASE_LIGHT_PIN      5
 #define SDSS               53
-#ifndef ROXYs_TRex
+#ifndef LED_PIN
   #define LED_PIN          13
 #endif
 
-#define SPINDLE_LASER_PWM_PIN     7   // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN  4   // Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN    -1   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENA_PIN     4   // Pin should have a pullup!
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN        5   // Analog Input
@@ -165,8 +165,10 @@
   #define BTN_EN2          33
   #define BTN_ENC          35
   #define SD_DETECT_PIN    49
-  #ifndef ROXYs_TRex
+  #ifndef KILL_PIN
     #define KILL_PIN       41
+  #endif
+  #ifndef BEEPER_PIN
     #define BEEPER_PIN     37
   #endif
 #endif

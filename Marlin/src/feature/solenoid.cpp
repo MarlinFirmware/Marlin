@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(EXT_SOLENOID) || ENABLED(MANUAL_SOLENOID_CONTROL)
+#if EITHER(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL)
 
 #include "solenoid.h"
 
@@ -95,4 +95,4 @@ void disable_all_solenoids() {
   #endif
 }
 
-#endif // EXT_SOLENOID
+#endif // EXT_SOLENOID || MANUAL_SOLENOID_CONTROL

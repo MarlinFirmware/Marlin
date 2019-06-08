@@ -33,7 +33,7 @@
   #include "neopixel.h"
 #endif
 
-#define HAS_WHITE_LED (ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED))
+#define HAS_WHITE_LED EITHER(RGBW_LED, NEOPIXEL_LED)
 
 /**
  * LEDcolor type for use with leds.set_color
@@ -120,19 +120,28 @@ typedef struct LEDColor {
   #else
     #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B, W)
   #endif
-  #define LEDColorWhite() LEDColor(0, 0, 0, 255)
 #else
-  #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B)
-  #define LEDColorWhite() LEDColor(255, 255, 255)
+  #define MakeLEDColor(R,G,B,W,I)   LEDColor(R, G, B)
 #endif
-#define LEDColorOff()     LEDColor(  0,   0,   0)
-#define LEDColorRed()     LEDColor(255,   0,   0)
-#define LEDColorOrange()  LEDColor(255,  80,   0)
-#define LEDColorYellow()  LEDColor(255, 255,   0)
-#define LEDColorGreen()   LEDColor(  0, 255,   0)
-#define LEDColorBlue()    LEDColor(  0,   0, 255)
-#define LEDColorIndigo()  LEDColor(  0, 255, 255)
-#define LEDColorViolet()  LEDColor(255,   0, 255)
+
+#define LEDColorOff()             LEDColor(  0,   0,   0)
+#define LEDColorRed()             LEDColor(255,   0,   0)
+#if ENABLED(LED_COLORS_REDUCE_GREEN)
+  #define LEDColorOrange()        LEDColor(255,  25,   0)
+  #define LEDColorYellow()        LEDColor(255,  75,   0)
+#else
+  #define LEDColorOrange()        LEDColor(255,  80,   0)
+  #define LEDColorYellow()        LEDColor(255, 255,   0)
+#endif
+#define LEDColorGreen()           LEDColor(  0, 255,   0)
+#define LEDColorBlue()            LEDColor(  0,   0, 255)
+#define LEDColorIndigo()          LEDColor(  0, 255, 255)
+#define LEDColorViolet()          LEDColor(255,   0, 255)
+#if HAS_WHITE_LED
+  #define LEDColorWhite()         LEDColor(  0,   0,   0, 255)
+#else
+  #define LEDColorWhite()         LEDColor(255, 255, 255)
+#endif
 
 class LEDLights {
 public:
@@ -183,7 +192,7 @@ public:
     static inline LEDColor get_color() { return lights_on ? color : LEDColorOff(); }
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
+  #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
     static LEDColor color; // last non-off color
     static bool lights_on; // the last set color was "on"
   #endif

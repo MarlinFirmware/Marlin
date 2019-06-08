@@ -32,6 +32,10 @@
   #include "../../module/configuration_store.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extensible_ui/ui_api.h"
+#endif
+
 //#define M420_C_USE_MEAN
 
 /**
@@ -66,8 +70,12 @@ void GcodeSuite::M420() {
         bilinear_grid_spacing[Y_AXIS] = (MAX_PROBE_Y - (MIN_PROBE_Y)) / (GRID_MAX_POINTS_Y - 1);
       #endif
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
           Z_VALUES(x, y) = 0.001 * random(-200, 200);
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
+          #endif
+        }
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_X) " mesh ");
       SERIAL_ECHOPAIR(" (", MIN_PROBE_X);
       SERIAL_CHAR(','); SERIAL_ECHO(MIN_PROBE_Y);
@@ -171,8 +179,12 @@ void GcodeSuite::M420() {
             set_bed_leveling_enabled(false);
             // Subtract the mean from all values
             for (uint8_t x = GRID_MAX_POINTS_X; x--;)
-              for (uint8_t y = GRID_MAX_POINTS_Y; y--;)
+              for (uint8_t y = GRID_MAX_POINTS_Y; y--;) {
                 Z_VALUES(x, y) -= zmean;
+                #if ENABLED(EXTENSIBLE_UI)
+                  ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
+                #endif
+              }
             #if ENABLED(ABL_BILINEAR_SUBDIVISION)
               bed_level_virt_interpolate();
             #endif

@@ -23,10 +23,6 @@
 #include "../gcode.h"
 #include "../../module/temperature.h"
 
-#if NUM_SERIAL > 1
-  #include "../../gcode/queue.h"
-#endif
-
 /**
  * M105: Read hot end and bed temperature
  */

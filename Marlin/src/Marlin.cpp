@@ -30,6 +30,7 @@
 
 #include "Marlin.h"
 
+#include "core/utility.h"
 #include "lcd/ultralcd.h"
 #include "module/motion.h"
 #include "module/planner.h"
@@ -84,6 +85,10 @@
   #include "feature/leds/leds.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "feature/bltouch.h"
+#endif
+
 #if HAS_SERVOS
   #include "module/servo.h"
 #endif
@@ -114,8 +119,8 @@
 #endif
 
 #if ENABLED(G38_PROBE_TARGET)
-  bool G38_move = false,
-       G38_endstop_hit = false;
+  uint8_t G38_move; // = 0
+  bool G38_did_trigger; // = false
 #endif
 
 #if ENABLED(DELTA)
@@ -128,7 +133,7 @@
   #include "feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
+#if BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT)
   #include "feature/pause.h"
 #endif
 
@@ -152,7 +157,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER) || ENABLED(MAGNETIC_PARKING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
   #include "module/tool_change.h"
 #endif
 
@@ -179,11 +184,11 @@ bool Running = true;
 #endif
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
-volatile bool wait_for_heatup = true;
+bool wait_for_heatup = true;
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if HAS_RESUME_CONTINUE
-  volatile bool wait_for_user; // = false;
+  bool wait_for_user; // = false;
 #endif
 
 #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -328,7 +333,7 @@ void disable_all_steppers() {
       ExtUI::onFilamentRunout(ExtUI::getActiveTool());
     #endif
 
-    #if ENABLED(HOST_PROMPT_SUPPORT) || ENABLED(HOST_ACTION_COMMANDS)
+    #if EITHER(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS)
       const char tool = '0'
         #if NUM_RUNOUT_SENSORS > 1
           + active_extruder
@@ -376,7 +381,7 @@ void disable_all_steppers() {
     #endif // HOST_ACTION_COMMANDS
 
     if (run_runout_script)
-      enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      enqueue_and_echo_commands_front_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
   }
 
 #endif // HAS_FILAMENT_SENSOR
@@ -443,7 +448,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   }
 
   // Prevent steppers timing-out in the middle of M600
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ENABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
+  #if BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT)
     #define MOVE_AWAY_TEST !did_pause_print
   #else
     #define MOVE_AWAY_TEST true
@@ -452,7 +457,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   if (stepper_inactive_time) {
     static bool already_shutdown_steppers; // = false
     if (planner.has_blocks_queued())
-      gcode.previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
+      gcode.reset_stepper_timeout();
     else if (MOVE_AWAY_TEST && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
       if (!already_shutdown_steppers) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
@@ -468,14 +473,11 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
         #if ENABLED(DISABLE_INACTIVE_E)
           disable_e_steppers();
         #endif
-        #if HAS_LCD_MENU
-          ui.status_screen();
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
-            if (ubl.lcd_map_control) {
-              ubl.lcd_map_control = false;
-              ui.defer_status_screen(false);
-            }
-          #endif
+        #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
+          if (ubl.lcd_map_control) {
+            ubl.lcd_map_control = false;
+            ui.defer_status_screen(false);
+          }
         #endif
       }
     }
@@ -612,7 +614,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
         }
       #endif // !SWITCHING_EXTRUDER
 
-      gcode.previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
+      gcode.reset_stepper_timeout();
     }
   #endif // EXTRUDER_RUNOUT_PREVENT
 
@@ -718,7 +720,7 @@ void idle(
   #endif
 
   #if ENABLED(PRUSA_MMU2)
-    mmu2.mmuLoop();
+    mmu2.mmu_loop();
   #endif
 }
 
@@ -726,12 +728,12 @@ void idle(
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(PGM_P const lcd_msg/*=NULL*/) {
+void kill(PGM_P const lcd_msg/*=nullptr*/) {
   thermalManager.disable_all_heaters();
 
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
-  #if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
+  #if HAS_DISPLAY
     ui.kill_screen(lcd_msg ? lcd_msg : PSTR(MSG_KILLED));
   #else
     UNUSED(lcd_msg);
@@ -764,11 +766,34 @@ void minkill() {
     suicide();
   #endif
 
-  while (1) {
-    #if ENABLED(USE_WATCHDOG)
-      watchdog_reset();
-    #endif
-  } // Wait for reset
+  #if HAS_KILL
+
+    // Wait for kill to be released
+    while (!READ(KILL_PIN)) {
+      #if ENABLED(USE_WATCHDOG)
+        watchdog_reset();
+      #endif
+    }
+
+    // Wait for kill to be pressed
+    while (READ(KILL_PIN)) {
+      #if ENABLED(USE_WATCHDOG)
+        watchdog_reset();
+      #endif
+    }
+
+    void(*resetFunc)(void) = 0; // Declare resetFunc() at address 0
+    resetFunc();                // Jump to address 0
+
+  #else // !HAS_KILL
+
+    for (;;) {
+      #if ENABLED(USE_WATCHDOG)
+        watchdog_reset();
+      #endif
+    } // Wait for reset
+
+  #endif // !HAS_KILL
 }
 
 /**
@@ -848,6 +873,10 @@ void setup() {
 
   setup_killpin();
 
+  #if HAS_DRIVER(TMC2208)
+    tmc2208_serial_begin();
+  #endif
+
   setup_powerhold();
 
   #if HAS_STEPPER_RESET
@@ -879,9 +908,6 @@ void setup() {
     #endif
     tmc_init_cs_pins();
   #endif
-  #if HAS_DRIVER(TMC2208)
-    tmc2208_serial_begin();
-  #endif
 
   #ifdef BOARD_INIT
     BOARD_INIT();
@@ -910,10 +936,23 @@ void setup() {
   #endif
 
   SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR(MSG_FREE_MEMORY, freeMemory());
-  SERIAL_ECHOLNPAIR(MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
+  SERIAL_ECHOLNPAIR(MSG_FREE_MEMORY, freeMemory(), MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   queue_setup();
+
+  // UI must be initialized before EEPROM
+  // (because EEPROM code calls the UI).
+  ui.init();
+  ui.reset_status();
+
+  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+    ui.show_bootscreen();
+  #endif
+
+  #if ENABLED(SDIO_SUPPORT) && SD_DETECT_PIN == -1
+    // Auto-mount the SD for EEPROM.dat emulation
+    if (!card.isDetected()) card.initsd();
+  #endif
 
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
@@ -921,9 +960,7 @@ void setup() {
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
-    COPY(current_position, home_offset);
-  #else
-    ZERO(current_position);
+    LOOP_XYZ(a) current_position[a] += home_offset[a];
   #endif
 
   // Vital to init stepper/planner equivalent for current_position
@@ -950,12 +987,12 @@ void setup() {
   #endif
 
   #if ENABLED(SPINDLE_LASER_ENABLE)
-    OUT_WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // init spindle to off
+    OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // init spindle to off
     #if SPINDLE_DIR_CHANGE
       OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);  // init rotation to clockwise (M3)
     #endif
     #if ENABLED(SPINDLE_LASER_PWM) && defined(SPINDLE_LASER_PWM_PIN) && SPINDLE_LASER_PWM_PIN >= 0
-      SET_OUTPUT(SPINDLE_LASER_PWM_PIN);
+      SET_PWM(SPINDLE_LASER_PWM_PIN);
       analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
     #endif
   #endif
@@ -980,7 +1017,7 @@ void setup() {
     dac_init();
   #endif
 
-  #if (ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE)) && HAS_SOLENOID_1
+  #if EITHER(Z_PROBE_SLED, SOLENOID_PROBE) && HAS_SOLENOID_1
     OUT_WRITE(SOL1_PIN, LOW); // OFF
   #endif
 
@@ -1002,7 +1039,7 @@ void setup() {
 
   #if HAS_CASE_LIGHT
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
-      SET_OUTPUT(CASE_LIGHT_PIN);
+      if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
     #endif
     update_case_light();
   #endif
@@ -1017,19 +1054,12 @@ void setup() {
     fanmux_init();
   #endif
 
-  ui.init();
-  ui.reset_status();
-
-  #if ENABLED(SHOW_BOOTSCREEN)
-    ui.show_bootscreen();
-  #endif
-
   #if ENABLED(MIXING_EXTRUDER)
     mixer.init();
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch_init();
+    bltouch.init(/*set_voltage=*/true);
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -1117,6 +1147,9 @@ void loop() {
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)
           card.removeJobRecoveryFile();
+        #endif
+        #ifdef EVENT_GCODE_SD_STOP
+          enqueue_and_echo_commands_P(PSTR(EVENT_GCODE_SD_STOP));
         #endif
       }
     #endif // SDSUPPORT

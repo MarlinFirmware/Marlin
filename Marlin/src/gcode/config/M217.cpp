@@ -27,14 +27,10 @@
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#if NUM_SERIAL > 1
-  #include "../../gcode/queue.h"
-#endif
-
 void M217_report(const bool eeprom=false) {
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    serialprintPGM(eeprom ? PSTR("  M217") : PSTR("Singlenozzle:"));
+    serialprintPGM(eeprom ? PSTR("  M217") : PSTR("Toolchange:"));
     SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length));
     SERIAL_ECHOPAIR(" P", LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed));

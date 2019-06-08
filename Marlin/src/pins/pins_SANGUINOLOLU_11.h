@@ -137,7 +137,7 @@
   #define LCD_BACKLIGHT_PIN 17   // LCD backlight LED
 #endif
 
-#if DISABLED(SPINDLE_LASER_ENABLE) && ENABLED(SANGUINOLOLU_V_1_2) && !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL))  // try to use IO Header
+#if DISABLED(SPINDLE_LASER_ENABLE) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(ULTRA_LCD, NEWPANEL)  // try to use IO Header
   #define CASE_LIGHT_PIN     4   // MUST BE HARDWARE PWM  - see if IO Header is available
 #endif
 
@@ -179,7 +179,6 @@
     #else // DOGM SPI LCD Support
 
       #define DOGLCD_A0         30
-      #define LCD_CONTRAST       1
 
       #if ENABLED(MAKRPANEL)
 
@@ -278,9 +277,9 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if ENABLED(SPINDLE_LASER_ENABLE)
-  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL))  // try to use IO Header
+  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(ULTRA_LCD, NEWPANEL)  // try to use IO Header
 
-    #define SPINDLE_LASER_ENABLE_PIN 10   // Pin should have a pullup/pulldown!
+    #define SPINDLE_LASER_ENA_PIN    10   // Pin should have a pullup/pulldown!
     #define SPINDLE_LASER_PWM_PIN     4   // MUST BE HARDWARE PWM
     #define SPINDLE_DIR_PIN          11
 
@@ -308,7 +307,7 @@
      *                                /RESET  O|     |O  1A
      *                                /SLEEP  O|     |O  1B
      *  SPINDLE_LASER_PWM_PIN           STEP  O|     |O  VDD
-     *  SPINDLE_LASER_ENABLE_PIN         DIR  O|     |O  GND
+     *  SPINDLE_LASER_ENA_PIN         DIR  O|     |O  GND
      *                                         -------
      *
      *  Note: Socket names vary from vendor to vendor.
@@ -320,7 +319,7 @@
     #define X_ENABLE_PIN             14
     #define X_STEP_PIN                1
     #define SPINDLE_LASER_PWM_PIN    15   // MUST BE HARDWARE PWM
-    #define SPINDLE_LASER_ENABLE_PIN 21   // Pin should have a pullup!
+    #define SPINDLE_LASER_ENA_PIN    21   // Pin should have a pullup!
     #define SPINDLE_DIR_PIN          -1   // No pin available on the socket for the direction pin
   #endif
 #endif // SPINDLE_LASER_ENABLE

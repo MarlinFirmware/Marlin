@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from __future__ import division
+
 """ Generate the stepper delay lookup table for Marlin firmware. """
 
 import argparse
@@ -16,35 +19,35 @@ args = parser.parse_args()
 cpu_freq = args.cpu_freq * 1000000
 timer_freq = cpu_freq / args.divider
 
-print "#ifndef SPEED_LOOKUPTABLE_H"
-print "#define SPEED_LOOKUPTABLE_H"
-print
-print '#include "Marlin.h"'
-print
+print("#ifndef SPEED_LOOKUPTABLE_H")
+print("#define SPEED_LOOKUPTABLE_H")
+print()
+print('#include "Marlin.h"')
+print()
 
-print "const uint16_t speed_lookuptable_fast[256][2] PROGMEM = {"
+print("const uint16_t speed_lookuptable_fast[256][2] PROGMEM = {")
 a = [ timer_freq / ((i*256)+(args.cpu_freq*2)) for i in range(256) ]
 b = [ a[i] - a[i+1] for i in range(255) ]
 b.append(b[-1])
 for i in range(32):
-    print "  ",
+    print("  ", end=' ')
     for j in range(8):
-        print "{%d, %d}," % (a[8*i+j], b[8*i+j]),
-    print
-print "};"
-print
+        print("{%d, %d}," % (a[8*i+j], b[8*i+j]), end=' ')
+    print()
+print("};")
+print()
 
-print "const uint16_t speed_lookuptable_slow[256][2] PROGMEM = {"
+print("const uint16_t speed_lookuptable_slow[256][2] PROGMEM = {")
 a = [ timer_freq / ((i*8)+(args.cpu_freq*2)) for i in range(256) ]
 b = [ a[i] - a[i+1] for i in range(255) ]
 b.append(b[-1])
 for i in range(32):
-    print "  ",
+    print("  ", end=' ')
     for j in range(8):
-        print "{%d, %d}," % (a[8*i+j], b[8*i+j]),
-    print
-print "};"
-print
+        print("{%d, %d}," % (a[8*i+j], b[8*i+j]), end=' ')
+    print()
+print("};")
+print()
 
-print "#endif"
+print("#endif")
 
