@@ -33,6 +33,27 @@
 #include <libmaple/iwdg.h>
 #include "watchdog_STM32F1.h"
 
+
+/**
+ * @brief  Initialized the independent hardware watchdog.
+ *
+ * @return No return
+ *
+ * @details The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and 625 reload value (counts down to 0)
+ */
+void watchdog_init(void) {
+  iwdg_init(IWDG_PRE_256, STM32F1_WD_RELOAD);
+}
+
+
+/**
+ * @brief  Reset the independent hardware watchdog timer.
+ *
+ * @return No return
+ *
+ * @details The watchdog must be reset before it triggers a full hardware restart
+ */
+
 void watchdog_reset() {
   #if PIN_EXISTS(LED)
     TOGGLE(LED_PIN);  // heartbeat indicator
@@ -44,16 +65,7 @@ void watchdogSetup(void) {
   // do whatever. don't remove this function.
 }
 
-/**
- * @brief  Initialized the independent hardware watchdog.
- *
- * @return No return
- *
- * @details The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and 625 reload value (counts down to 0)
- */
-void watchdog_init(void) {
-  //iwdg_init(IWDG_PRE_256, STM32F1_WD_RELOAD);
-}
+
 
 #endif // USE_WATCHDOG
 
