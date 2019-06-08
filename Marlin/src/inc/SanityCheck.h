@@ -48,6 +48,7 @@
 #if !defined(CONFIGURATION_ADV_H_VERSION) || HEXIFY(CONFIGURATION_ADV_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
   #error "You are using an old Configuration_adv.h file, update it before building Marlin."
 #endif
+#undef HEXIFY
 
 /**
  * Warnings for old configurations
@@ -355,6 +356,8 @@
   #error "Z_MIN_PROBE_ENDSTOP is no longer required. Please remove it from Configuration.h."
 #elif defined(DUAL_NOZZLE_DUPLICATION_MODE)
   #error "DUAL_NOZZLE_DUPLICATION_MODE is now MULTI_NOZZLE_DUPLICATION. Please update your configuration."
+#elif defined(MENU_ITEM_CASE_LIGHT)
+  #error "MENU_ITEM_CASE_LIGHT is now CASE_LIGHT_MENU. Please update your configuration."
 #endif
 
 #define BOARD_MKS_13     -47
@@ -370,6 +373,10 @@
 #elif MB(FORMBOT_TREX2)
   #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
 #endif
+#undef BOARD_MKS_13
+#undef BOARD_TRIGORILLA
+#undef BOARD_RURAMPS4D
+#undef BOARD_FORMBOT_TREX2
 
 /**
  * Marlin release, version and default string
@@ -1739,6 +1746,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
   #endif
 #endif
+#undef _RGB_TEST
 
 /**
  * Auto Fan check for PWM pins
@@ -1961,16 +1969,18 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "SENSORLESS_HOMING requires Z_MAX_ENDSTOP_INVERTING and ENDSTOPPULLUP_ZMAX when homing to Z_MAX."
   #elif ENDSTOP_NOISE_THRESHOLD
     #error "SENSORLESS_HOMING is incompatible with ENDSTOP_NOISE_THRESHOLD."
+  #elif !(X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS)
+    #error "SENSORLESS_HOMING requires a TMC stepper driver with StallGuard on X, Y, or Z axes."
   #endif
 #endif
 
-// Sensorless homing/probing requirements
-#if ENABLED(SENSORLESS_HOMING) && !(X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS)
-  #error "SENSORLESS_HOMING requires a TMC stepper driver with StallGuard on X, Y, or Z axes."
-#elif BOTH(SENSORLESS_PROBING, DELTA) && !(X_SENSORLESS && Y_SENSORLESS && Z_SENSORLESS)
-  #error "SENSORLESS_PROBING for DELTA requires TMC stepper drivers with StallGuard on X, Y, and Z axes."
-#elif ENABLED(SENSORLESS_PROBING) && !Z_SENSORLESS
-  #error "SENSORLESS_PROBING requires a TMC stepper driver with StallGuard on Z."
+// Sensorless probing requirements
+#if ENABLED(SENSORLESS_PROBING)
+  #if ENABLED(DELTA) && !(X_SENSORLESS && Y_SENSORLESS && Z_SENSORLESS)
+    #error "SENSORLESS_PROBING for DELTA requires TMC stepper drivers with StallGuard on X, Y, and Z axes."
+  #elif !Z_SENSORLESS
+    #error "SENSORLESS_PROBING requires a TMC stepper driver with StallGuard on Z."
+  #endif
 #endif
 
 // Sensorless homing is required for both combined steppers in an H-bot

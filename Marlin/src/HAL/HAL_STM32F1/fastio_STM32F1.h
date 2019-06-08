@@ -49,7 +49,7 @@
 #define SET_PWM_OD(IO)        pinMode(IO, PWM_OPEN_DRAIN)
 
 #define IS_INPUT(IO)          (_GET_MODE(IO) == GPIO_INPUT_FLOATING || _GET_MODE(IO) == GPIO_INPUT_ANALOG || _GET_MODE(IO) == GPIO_INPUT_PU || _GET_MODE(IO) == GPIO_INPUT_PD)
-#define IS_OUTPUT(IO)         (_GET_MODE(IO) == GPIO_OUTPUT_PP)
+#define IS_OUTPUT(IO)         (_GET_MODE(IO) == GPIO_OUTPUT_PP || _GET_MODE(IO) == GPIO_OUTPUT_OD)
 
 #define PWM_PIN(IO)           (PIN_MAP[IO].timer_device != nullptr)
 

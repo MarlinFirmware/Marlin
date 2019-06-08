@@ -1380,7 +1380,9 @@ void MarlinUI::update() {
   }
 
   void MarlinUI::pause_print() {
-    synchronize(PSTR(MSG_PAUSE_PRINT));
+    #if HAS_LCD_MENU
+      synchronize(PSTR(MSG_PAUSE_PRINT));
+    #endif
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       if (recovery.enabled) recovery.save(true, false);
@@ -1396,7 +1398,7 @@ void MarlinUI::update() {
       #if HAS_SPI_LCD
         lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
       #endif
-      enqueue_and_echo_commands_P(PSTR("M25 P\nM24"));
+      enqueue_and_echo_commands_front_P(PSTR("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)
       enqueue_and_echo_commands_P(PSTR("M25"));
     #elif defined(ACTION_ON_PAUSE)

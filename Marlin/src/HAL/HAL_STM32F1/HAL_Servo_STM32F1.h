@@ -46,8 +46,15 @@ class libServo {
     void move(const int32_t value);
     int32_t read() const;
   private:
+    void servoWrite(uint8_t pin, const uint16_t duty_cycle);
+
     uint8_t servoIndex;               // index into the channel data for this servo
     int32_t pin = NOT_ATTACHED;
     int32_t minAngle;
     int32_t maxAngle;
+    int32_t angle;
+
+    bool setupSoftPWM(const int32_t pin);
+    void pauseSoftPWM();
+    void pwmSetDuty(const uint16_t duty_cycle);
 };

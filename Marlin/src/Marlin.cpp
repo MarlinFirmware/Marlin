@@ -381,7 +381,7 @@ void disable_all_steppers() {
     #endif // HOST_ACTION_COMMANDS
 
     if (run_runout_script)
-      enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      enqueue_and_echo_commands_front_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
   }
 
 #endif // HAS_FILAMENT_SENSOR
@@ -873,6 +873,10 @@ void setup() {
 
   setup_killpin();
 
+  #if HAS_DRIVER(TMC2208)
+    tmc2208_serial_begin();
+  #endif
+
   setup_powerhold();
 
   #if HAS_STEPPER_RESET
@@ -903,9 +907,6 @@ void setup() {
       SPI.begin();
     #endif
     tmc_init_cs_pins();
-  #endif
-  #if HAS_DRIVER(TMC2208)
-    tmc2208_serial_begin();
   #endif
 
   #ifdef BOARD_INIT
