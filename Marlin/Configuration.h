@@ -759,7 +759,7 @@
  */
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
   // my 4MAX Printer: vg3r - Steps - Filament
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.16032, 80.16835, 398.24771, 99.46 }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.16032, 80.16835, 398.24771, 102.17 }
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Steps - Filament
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.12018, 80.10413, 397.14058, 100.56 }
@@ -1004,10 +1004,10 @@
 
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
   // my 4MAX Printer: vg3r - Offset
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.50  // Z offset: -below +above  [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.03  // Z offset: -below +above  [the nozzle]
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Offset
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.92  // Z offset: -below +above  [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.06  // Z offset: -below +above  [the nozzle]
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0      // Z offset: -below +above  [the nozzle]
 #endif
@@ -1137,7 +1137,7 @@
 #if ENABLED(BLTOUCH)
   #if ENABLED(ANYCUBIC_4MAX_VG3R)
     // vg3r offset from extruder |<--?->|BLTOUCH|
-    #define BLTOUCH_X_MAX_OFFSET 8
+    #define BLTOUCH_X_MAX_OFFSET 6
   #elif ENABLED(ANYCUBIC_4MAX_7OF9)
     // 7of9 offset from extruder |<--?->|BLTOUCH|
     #define BLTOUCH_X_MAX_OFFSET 6
