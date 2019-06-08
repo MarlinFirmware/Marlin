@@ -50,7 +50,7 @@
 
 #define BedAC
 
-//#define tallVersion
+#define tallVersion
 
 /*
  * Enables a filament sensor plugged into the laser pin. Disables the laser

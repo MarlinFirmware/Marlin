@@ -1305,7 +1305,8 @@ bool get_target_extruder_from_command(const uint16_t code) {
 }
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  bool extruder_duplication_enabled = false; // Used in Dual X mode 2
+  bool extruder_duplication_enabled,
+       mirrored_duplication_mode;
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
@@ -11076,47 +11077,80 @@ inline void gcode_M502() {
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
-  /**
+/**
    * M605: Set dual x-carriage movement mode
    *
-   *    M605 S0: Full control mode. The slicer has full control over x-carriage movement
-   *    M605 S1: Auto-park mode. The inactive head will auto park/unpark without slicer involvement
-   *    M605 S2 [Xnnn] [Rmmm]: Duplication mode. The second extruder will duplicate the first with nnn
-   *                         units x-offset and an optional differential hotend temperature of
-   *                         mmm degrees. E.g., with "M605 S2 X100 R2" the second extruder will duplicate
-   *                         the first with a spacing of 100mm in the x direction and 2 degrees hotter.
+   *   M605 S0 : (FULL_CONTROL) The slicer has full control over both X-carriages and can achieve optimal travel
+   *             results as long as it supports dual X-carriages.
    *
-   *    Note: the X axis should be homed after changing dual x-carriage mode.
+   *   M605 S1 : (AUTO_PARK) The firmware automatically parks and unparks the X-carriages on tool-change so that
+   *             additional slicer support is not required.
+   *
+   *   M605 S2 X R : (DUPLICATION) The firmware moves the second X-carriage and extruder in synchronization with
+   *             the first X-carriage and extruder, to print 2 copies of the same object at the same time.
+   *             Set the constant X-offset and temperature differential with M605 S2 X[offs] R[deg] and
+   *             follow with "M605 S2" to initiate duplicated movement. For example, use "M605 S2 X100 R2" to
+   *             make a copy 100mm to the right with E1 2° hotter than E0.
+   *
+   *   M605 S3 : (MIRRORED) Formbot/Vivedino-inspired mirrored mode in which the second extruder duplicates
+   *             the movement of the first except the second extruder is reversed in the X axis.
+   *             The temperature differential and initial X offset must be set with "M605 S2 X[offs] R[deg]",
+   *             then followed by "M605 S3" to initiate mirrored movement.
+   *
+   *    M605 W  : IDEX What? command.
+   *
+   *    Note: the X axis should be homed after changing Dual X-carriage mode.
    */
   inline void gcode_M605() {
-    planner.synchronize();
+
+     planner.synchronize();
+
+    const DualXMode previous_mode = dual_x_carriage_mode;
     if (parser.seen('S')) dual_x_carriage_mode = (DualXMode)parser.value_byte();
-    switch (dual_x_carriage_mode) {
-      case DXC_FULL_CONTROL_MODE:
-      case DXC_AUTO_PARK_MODE:
-        break;
-      case DXC_DUPLICATION_MODE:
-        if (parser.seen('X')) duplicate_extruder_x_offset = MAX(parser.value_linear_units(), X2_MIN_POS - x_home_pos(0));
-        if (parser.seen('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
-        SERIAL_ECHO_START();
-        SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-        SERIAL_CHAR(' ');
-        SERIAL_ECHO(hotend_offset[X_AXIS][0]);
-        SERIAL_CHAR(',');
-        SERIAL_ECHO(hotend_offset[Y_AXIS][0]);
-        SERIAL_CHAR(' ');
-        SERIAL_ECHO(duplicate_extruder_x_offset);
-        SERIAL_CHAR(',');
-        SERIAL_ECHOLN(hotend_offset[Y_AXIS][1]);
-        break;
-      default:
-        dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
-        break;
+      SERIAL_ECHOLNPAIR("Mode Change ", dual_x_carriage_mode);
+      SERIAL_ECHOLNPAIR("From Mode ", previous_mode);
+
+      mirrored_duplication_mode = false;
+
+      if (dual_x_carriage_mode == DXC_MIRRORED_MODE) {
+        if (previous_mode != DXC_DUPLICATION_MODE) {
+          SERIAL_ECHOLN("Printer must be in DXC_DUPLICATION_MODE prior to ");
+          SERIAL_ECHOLN("specifying DXC_MIRRORED_MODE.");
+          dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+          return;
+        }
+        SERIAL_ECHOLN("DXC_MIRRORED_MODE Set");
+        mirrored_duplication_mode = true;
+        float x_jog = current_position[X_AXIS] - .1;
+        for (uint8_t i = 2; --i;) {
+          planner.buffer_line(x_jog, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, 0);
+          x_jog += .1;
+        }
+        return;
+      }
+
+      switch (dual_x_carriage_mode) {
+        case DXC_FULL_CONTROL_MODE:
+          SERIAL_ECHOLN("DXC_FULL_CONTROL_MODE Set");
+          break;
+        case DXC_AUTO_PARK_MODE:
+          SERIAL_ECHOLN("DXC_AUTO_PARK_MODE Set");
+          break;
+        case DXC_DUPLICATION_MODE:
+          SERIAL_ECHOLN("DXC_DUPLICATION_MODE Set");
+          if (parser.seen('X')) duplicate_extruder_x_offset = max(parser.value_linear_units(), X2_MIN_POS - x_home_pos(0));
+          if (parser.seen('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
+          if (active_extruder != 0) tool_change(0);
+          break;
+        default:
+          SERIAL_ECHOLN("Default Mode Set");
+          dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+          break;
+      }
+      active_extruder_parked = false;
+      extruder_duplication_enabled = false;
+      delayed_move_time = 0;
     }
-    active_extruder_parked = false;
-    extruder_duplication_enabled = false;
-    delayed_move_time = 0;
-  }
 
 #elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
 

@@ -55,7 +55,8 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 extern const char axis_codes[XYZE];
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  extern bool extruder_duplication_enabled;
+  extern bool extruder_duplication_enabled,
+              mirrored_duplication_mode;
 #endif
 
 #if HAS_X2_ENABLE
