@@ -726,7 +726,11 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
-    STOW_PROBE();
+    #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
+      bltouch.stow();
+    #else
+      STOW_PROBE();
+    #endif
     LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
     SERIAL_ERROR_MSG(MSG_ERR_PROBING_FAILED);
   }

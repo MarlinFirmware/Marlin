@@ -361,7 +361,12 @@ void PrintJobRecovery::resume() {
 
   // Move back to the saved Z
   dtostrf(info.current_position[Z_AXIS], 1, 3, str_1);
-  sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+  #if Z_HOME_DIR > 0
+    sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+  #else
+    gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
+    sprintf_P(cmd, PSTR("G92.9 Z%s"), str_1);
+  #endif
   gcode.process_subcommands_now(cmd);
 
   // Un-retract
