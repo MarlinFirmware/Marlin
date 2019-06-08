@@ -1080,6 +1080,40 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif
 
+
+#if ENABLED(DUAL_X_CARRIAGE)
+
+  void _recalc_IDEX_settings() {
+    if (active_extruder) {                      // For the 2nd extruder re-home so the next tool-change gets the new offsets.
+      enqueue_and_echo_commands_P(PSTR("G28")); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
+      active_extruder = 0;
+    }
+  }
+
+  void menu_IDEX() {
+    START_MENU();
+    MENU_BACK(MSG_MAIN);
+
+    MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
+    const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
+    MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, need_g28
+      ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
+      : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
+    );
+    MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, need_g28
+      ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
+      : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
+    );
+    MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Z_OFFSET , &hotend_offset[Z_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
+    MENU_ITEM(gcode, MSG_IDEX_SAVE_OFFSETS, PSTR("M500"));
+    END_MENU();
+  }
+
+#endif
+
   /**
    *
    * "Main" menu
@@ -1142,6 +1176,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #endif
       }
     #endif // SDSUPPORT
+
+    #if ENABLED(DUAL_X_CARRIAGE)
+      MENU_ITEM(submenu, MSG_IDEX_MENU, menu_IDEX);
+    #endif
 
     #if ENABLED(LCD_INFO_MENU)
       MENU_ITEM(submenu, MSG_INFO_MENU, lcd_info_menu);
