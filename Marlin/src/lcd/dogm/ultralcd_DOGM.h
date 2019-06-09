@@ -177,12 +177,12 @@
 // Get the Ascent, Descent, and total Height for the Info Screen font
 #if ENABLED(USE_SMALL_INFOFONT)
   extern const u8g_fntpgm_uint8_t u8g_font_6x9[];
-  #define INFO_FONT_ASCENT 7
+  #define INFO_FONT_ASCENT  7
 #else
-  #define INFO_FONT_ASCENT 8
+  #define INFO_FONT_ASCENT  8
 #endif
-#define INFO_FONT_DESCENT 2
-#define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
-#define INFO_FONT_WIDTH   6
+#define INFO_FONT_DESCENT   2
+#define INFO_FONT_HEIGHT    (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
+#define INFO_FONT_SPACING   6
 
 extern U8G_CLASS u8g;

@@ -58,17 +58,19 @@
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
   const char *str = i16tostr3(temp);
   const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
-  lcd_moveto(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty);
+  lcd_moveto(tx - (len * (INFO_FONT_SPACING) + 3) / 2, ty);    // 3 = degree char width
   lcd_put_u8str(&str[3-len]);
   lcd_put_wchar(LCD_STR_DEGREE[0]);
 }
 
-#define X_LABEL_POS      3
-#define X_VALUE_POS     11
-#define XYZ_SPACING     37
-#define XYZ_BASELINE    (30 + INFO_FONT_ASCENT)
-#define EXTRAS_BASELINE (40 + INFO_FONT_ASCENT)
-#define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
+#define X_LABEL_POS                 3
+#define X_VALUE_POS                 11
+#define XYZ_SPACING                 37
+#define STATUS_ICONS_TEXT_BASELINE  28
+#define XYZ_BASELINE                (30 + INFO_FONT_ASCENT)
+#define EXTRAS_BASELINE             (40 + INFO_FONT_ASCENT)
+#define STATUS_BASELINE             (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
+
 
 #define ANIM_HOTEND (HOTENDS && ENABLED(STATUS_HOTEND_ANIM))
 #if ANIM_HOTEND
@@ -160,18 +162,18 @@ inline void _draw_hotend_status(const int8_t heater, const bool blink) {
 
   if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
 
-    #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
-
-    const float prop = target - 20,
-                perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
-    uint8_t tall = uint8_t(perc * BAR_TALL + 0.5f);
-    NOMORE(tall, BAR_TALL);
-
     #ifdef STATUS_HOTEND_ANIM
       // Draw hotend bitmap, either whole or split by the heating percent
       const uint8_t hx = STATUS_HOTEND_X(heater), bw = STATUS_HOTEND_BYTEWIDTH(heater);
       #if ENABLED(STATUS_HEAT_PERCENT)
-        if (isHeat && tall <= BAR_TALL) {
+        #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
+
+        const float prop = target - 20,
+                    perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
+        uint8_t tall = uint8_t(perc * (BAR_TALL) + 0.5f);
+        NOMORE(tall, BAR_TALL);
+
+        if (isHeat) {
           const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
           u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(heater, false));
           u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(heater, true) + ph * bw);
@@ -193,8 +195,8 @@ inline void _draw_hotend_status(const int8_t heater, const bool blink) {
     if (dodraw) _draw_centered_temp(target + 0.5, tx, 7);
   }
 
-  if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-    _draw_centered_temp(temp + 0.5f, tx, 28);
+  if (PAGE_CONTAINS(STATUS_ICONS_TEXT_BASELINE - INFO_FONT_ASCENT, STATUS_ICONS_TEXT_BASELINE - 1))
+    _draw_centered_temp(temp + 0.5f, tx, STATUS_ICONS_TEXT_BASELINE);
 
   if (STATIC_HOTEND && HOTEND_DOT && PAGE_CONTAINS(17, 19)) {
     u8g.setColorIndex(0); // set to white on black
@@ -236,15 +238,14 @@ inline void _draw_hotend_status(const int8_t heater, const bool blink) {
 
     if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
 
-      #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
-
-      const float prop = target - 20,
-                  perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
-      uint8_t tall = uint8_t(perc * (BAR_TALL) + 0.5f);
-      NOMORE(tall, BAR_TALL);
-
       // Draw a heating progress bar, if specified
       #if ENABLED(STATUS_HEAT_PERCENT)
+        #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2) // DON'T use STATUS_BED_HEIGHT so percent bar have standardized height
+
+        const float prop = target - 20,
+                    perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
+        uint8_t tall = uint8_t(perc * (BAR_TALL) + 0.5f);
+        NOMORE(tall, BAR_TALL);
 
         if (isHeat) {
           const uint8_t bx = STATUS_BED_X + STATUS_BED_WIDTH + 1;
@@ -255,7 +256,6 @@ inline void _draw_hotend_status(const int8_t heater, const bool blink) {
               u8g.drawVLine(bx + 1, STATUS_HEATERS_Y + ph, tall);
           }
         }
-
       #endif
 
     }
@@ -270,8 +270,8 @@ inline void _draw_hotend_status(const int8_t heater, const bool blink) {
       if (dodraw) _draw_centered_temp(target + 0.5, tx, 7);
     }
 
-    if (PAGE_CONTAINS(28 - (INFO_FONT_ASCENT), 28 - 1))
-      _draw_centered_temp(temp + 0.5f, tx, 28);
+    if (PAGE_CONTAINS(STATUS_ICONS_TEXT_BASELINE - INFO_FONT_ASCENT, STATUS_ICONS_TEXT_BASELINE - 1))
+      _draw_centered_temp(temp + 0.5f, tx, STATUS_ICONS_TEXT_BASELINE);
 
     if (STATIC_BED && BED_DOT && PAGE_CONTAINS(17, 19)) {
       u8g.setColorIndex(0); // set to white on black
@@ -304,8 +304,8 @@ inline void _draw_hotend_status(const int8_t heater, const bool blink) {
         if (dodraw) _draw_centered_temp(target + 0.5, STATUS_CHAMBER_TEXT_X, 7);
       }
     #endif
-    if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_temp(temp + 0.5f, STATUS_CHAMBER_TEXT_X, 28);
+    if (PAGE_CONTAINS(STATUS_ICONS_TEXT_BASELINE - INFO_FONT_ASCENT, STATUS_ICONS_TEXT_BASELINE - 1))
+      _draw_centered_temp(temp + 0.5f, STATUS_CHAMBER_TEXT_X, STATUS_ICONS_TEXT_BASELINE);
   }
 
 #endif
@@ -472,7 +472,7 @@ void MarlinUI::draw_status_screen() {
 
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
-      if (PAGE_CONTAINS(STATUS_FAN_TEXT_Y - INFO_FONT_ASCENT, STATUS_FAN_TEXT_Y - 1)) {
+      if (PAGE_CONTAINS(STATUS_ICONS_TEXT_BASELINE - INFO_FONT_ASCENT, STATUS_ICONS_TEXT_BASELINE - 1)) {
         char c = '%';
         uint16_t spd = thermalManager.fan_speed[0];
         if (spd) {
@@ -482,7 +482,7 @@ void MarlinUI::draw_status_screen() {
               c = '*';
             }
           #endif
-          lcd_moveto(STATUS_FAN_TEXT_X, STATUS_FAN_TEXT_Y);
+          lcd_moveto(STATUS_FAN_TEXT_X, STATUS_ICONS_TEXT_BASELINE);
           lcd_put_u8str(i16tostr3(thermalManager.fanPercent(spd)));
           lcd_put_wchar(c);
         }
