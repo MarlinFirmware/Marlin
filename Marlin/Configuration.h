@@ -1444,6 +1444,15 @@
 #define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
 
 //
+// Don't cooldown after print
+//
+// When enabled, the printer will not cooldown after a print is canceled from the LCD. 
+//
+
+//#define DONT_COOLDOWN_AFTER_PRINT_ABORT
+
+
+//
 // M100 Free Memory Watcher
 //
 //#define M100_FREE_MEMORY_WATCHER    // Add M100 (Free Memory Watcher) to debug memory usage
