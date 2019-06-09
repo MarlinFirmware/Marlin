@@ -693,7 +693,7 @@
  * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
  * lowest stepping frequencies.
  */
-#define ADAPTIVE_STEP_SMOOTHING
+//#define ADAPTIVE_STEP_SMOOTHING
 
 /**
  * Custom Microstepping
@@ -1266,7 +1266,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 0
+#define TX_BUFFER_SIZE 32
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
@@ -1576,13 +1576,13 @@
 
   #if AXIS_IS_TMC(Z)
     #define Z_CURRENT     1000
-    #define Z_MICROSTEPS   16
+    #define Z_MICROSTEPS   4
     #define Z_RSENSE     0.11
   #endif
 
   #if AXIS_IS_TMC(Z2)
     #define Z2_CURRENT    1000
-    #define Z2_MICROSTEPS  16
+    #define Z2_MICROSTEPS  4
     #define Z2_RSENSE    0.11
   #endif
 
@@ -1652,10 +1652,10 @@
    * The default SW SPI pins are defined the respective pins files,
    * but you can override or define them here.
    */
-  //#define TMC_USE_SW_SPI
-  //#define TMC_SW_MOSI       -1
-  //#define TMC_SW_MISO       -1
-  //#define TMC_SW_SCK        -1
+  #define TMC_USE_SW_SPI
+  #define TMC_SW_MOSI       51
+  #define TMC_SW_MISO       50
+  #define TMC_SW_SCK        52
 
   /**
    * Software enable
@@ -1765,7 +1765,7 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  #define TMC_DEBUG
+  //#define TMC_DEBUG
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
