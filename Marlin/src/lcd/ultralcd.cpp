@@ -196,10 +196,39 @@ millis_t next_button_update_ms;
 
   #endif
 
-  void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte) {
+  void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte, bool wordwrap/*=false*/) {
     SETCURSOR(x, y);
-    if (string) {
-      uint8_t *p = (uint8_t*)string;
+    if (!string) return;
+
+    uint8_t *p = (uint8_t*)string;
+    if (wordwrap) {
+      uint8_t *wrd = p, c = 0;
+      for (;;) {
+        wchar_t ch;
+        p = get_utf8_value_cb(p, cb_read_byte, &ch);
+        const bool eol = !ch;
+        if (eol || ch == ' ' || ch == '-' || ch == '+' || ch == '.') {
+          if (!c && ch == ' ') continue; // collapse extra spaces
+          if (x + c > LCD_WIDTH && c < (LCD_WIDTH) * 3 / 4) { // should it wrap?
+            x = 0; y++;               // move x to string len (plus space)
+            SETCURSOR(0, y);          // simulate carriage return
+          }
+          c += !eol;                  // +1 so the space will be printed
+          x += c;                     // advance x to new position
+          while (c--) {               // character countdown
+            wrd = get_utf8_value_cb(wrd, cb_read_byte, &ch); // get characters again
+            lcd_put_wchar(ch);        // word (plus space) to the LCD
+          }
+          if (eol) break;             // all done
+          wrd = nullptr;              // set up for next word
+        }
+        else {
+          if (!wrd) wrd = p;          // starting a new word?
+          c++;                        // count word characters
+        }
+      }
+    }
+    else {
       for (;;) {
         wchar_t ch;
         p = get_utf8_value_cb(p, cb_read_byte, &ch);
@@ -221,7 +250,7 @@ millis_t next_button_update_ms;
       x = (LCD_WIDTH - plen - slen) / 2;
       y = LCD_HEIGHT > 3 ? 1 : 0;
     }
-    wrap_string_P(x, y, pref);
+    wrap_string_P(x, y, pref, true);
     if (string) {
       if (x) { x = 0; y++; } // Move to the start of the next line
       wrap_string(x, y, string);

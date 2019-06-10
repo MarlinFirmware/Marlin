@@ -904,9 +904,6 @@
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
 #define BLTOUCH
-#if ENABLED(BLTOUCH)
-  #define BLTOUCH_DELAY 500   // (ms) Enable and increase if needed
-#endif
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
