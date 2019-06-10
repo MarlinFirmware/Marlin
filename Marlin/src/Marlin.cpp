@@ -1132,13 +1132,7 @@ void loop() {
 
     #if ENABLED(SDSUPPORT)
       card.checkautostart();
-      #ifdef DONT_COOLDOWN_AFTER_PRINT_ABORT
-        bool dont_cooldown = false;
-      #endif
       if (card.flag.abort_sd_printing) {
-        #ifdef DONT_COOLDOWN_AFTER_PRINT_ABORT
-          dont_cooldown = true;
-        #endif
         card.stopSDPrint(
           #if SD_RESORT
             true
@@ -1147,10 +1141,7 @@ void loop() {
         clear_command_queue();
         quickstop_stepper();
         print_job_timer.stop();
-        #ifdef DONT_COOLDOWN_AFTER_PRINT_ABORT
-          if(!dont_cooldown)
-            thermalManager.disable_all_heaters();
-        #else
+        #if DISABLED(PRINT_ABORT_NO_COOLDOWN)
           thermalManager.disable_all_heaters();
         #endif
         thermalManager.zero_fan_speeds();
