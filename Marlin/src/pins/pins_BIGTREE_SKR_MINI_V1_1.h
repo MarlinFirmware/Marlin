@@ -180,10 +180,12 @@
     // When sharing the SD card with a PC we want the menu options to
     // mount/unmount the card and refresh it. So we disable card detect.
     #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN           // redefine detect pin onboard tf card
-    #define SD_DETECT_PIN  PA3
-    #if TEMP_1_PIN == PA3
-      #error "TEMP_1_PIN and SD_DETECT_PIN are in conflict."
+    #undef SD_DETECT_PIN
+    #if DISABLED(SHARED_SD_CARD)
+      #define SD_DETECT_PIN PA3
+      #if TEMP_SENSOR_1 && TEMP_1_PIN == PA3
+        #error "TEMP_1_PIN and SD_DETECT_PIN are in conflict."
+      #endif
     #endif
   #endif
 
