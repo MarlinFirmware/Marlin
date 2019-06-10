@@ -34,12 +34,12 @@
 //
 // Limit Switches
 //
-#define U_MIN_PIN          -1
-#define V_MIN_PIN          -1
-#define W_MIN_PIN          -1
-#define X_STOP_PIN         PC2
-#define Y_STOP_PIN         PC1
-#define Z_STOP_PIN         PC0
+#define X_MIN_PIN          PC2
+#define X_MAX_PIN          PA2
+#define Y_MIN_PIN          PC1
+#define Y_MAX_PIN          PA1
+#define Z_MIN_PIN          PC0
+#define Z_MAX_PIN          PC3
 
 //
 // Steppers
@@ -52,38 +52,18 @@
 #define X_STEP_PIN         PC6
 #define X_DIR_PIN          PC7
 #define X_ENABLE_PIN       PB15
-//#ifndef X_CS_PIN
-//  #define X_CS_PIN         PC10
-//#endif
 
 #define Y_STEP_PIN         PB13
 #define Y_DIR_PIN          PB14
 #define Y_ENABLE_PIN       PB12
-//#ifndef Y_CS_PIN
-//  #define Y_CS_PIN         PC11
-//#endif
 
 #define Z_STEP_PIN         PB10
 #define Z_DIR_PIN          PB11
 #define Z_ENABLE_PIN       PB2
-//#ifndef Z_CS_PIN
-//  #define Z_CS_PIN         PC12
-//#endif
 
 #define E0_STEP_PIN        PC5
 #define E0_DIR_PIN         PB0
 #define E0_ENABLE_PIN      PC4
-//#ifndef E0_CS_PIN
-//  #define E0_CS_PIN        PC13
-//#endif
-
-//#define E1_STEP_PIN        PC8
-//#define E1_DIR_PIN         PC9
-//#define E1_ENABLE_PIN      PA8
-
-//#define E2_STEP_PIN        PC10
-//#define E2_DIR_PIN         PC11
-//#define E2_ENABLE_PIN      PA8
 
 #if ENABLED(TMC_USE_SW_SPI)
   #define TMC_SW_SCK       PB3
@@ -92,25 +72,17 @@
 #endif
 
 //
-// Misc. Functions
-//
-
-//#define LED_PIN            PD2
-
-//
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PA8   // EXTRUDER 1
-//#define HEATER_1_PIN       PD2
-#define  FAN_PIN           PC8
-#define HEATER_BED_PIN     PC9   // BED
+#define HEATER_0_PIN       PA8
+#define FAN_PIN            PC8
+#define HEATER_BED_PIN     PC9
 
 //
 // Temperature Sensors
 //
 #define TEMP_BED_PIN         PB1   // Analog Input
 #define TEMP_0_PIN           PA0   // Analog Input
-//#define TEMP_1_PIN           PA3   // Analog Input (onboard SD_DETECT_PIN)
 
 //
 // LCD Pins
@@ -137,8 +109,6 @@
   #define BTN_EN2          PB8
   #define SD_DETECT_PIN    PB9
 
-  //#define LCD_SDSS         P0_16   // (16) J3-7 & AUX-4
-
   #define LCD_PINS_ENABLE  PB6
   #define LCD_PINS_D4      PC13
 
@@ -150,12 +120,12 @@
 
 #endif // ULTRA_LCD
 
-//#define _SPI1                   // if using spi1, please open it or enable spi3
+//#define _SPI1                 // If using SPI1, please open it or enable SPI3
 
 #ifdef _SPI1
-  #define SDSS             PA4  // SPI1片选
+  #define SDSS             PA4  // SPI1
 #else
-  #define SDSS             PA15 // SPI3片选
+  #define SDSS             PA15 // SPI3
   //#define DISABLE_DEBUG
   #define DISABLE_JTAG
 #endif
