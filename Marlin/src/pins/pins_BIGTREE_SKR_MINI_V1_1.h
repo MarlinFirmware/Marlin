@@ -177,6 +177,7 @@
 #elif ENABLED(STM32_SD_ONBOARD)
 
   #if ENABLED(USB_SD_ONBOARD)
+
     // When sharing the SD card with a PC we want the menu options to
     // mount/unmount the card and refresh it. So we disable card detect.
     #define SHARED_SD_CARD
@@ -187,6 +188,7 @@
         #error "TEMP_1_PIN and SD_DETECT_PIN are in conflict."
       #endif
     #endif
+
   #endif
 
   #define SCK_PIN          PA5
