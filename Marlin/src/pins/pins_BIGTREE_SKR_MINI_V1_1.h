@@ -110,7 +110,7 @@
 //
 #define TEMP_BED_PIN         PB1   // Analog Input
 #define TEMP_0_PIN           PA0   // Analog Input
-//#define TEMP_1_PIN           PA3   // Analog Input
+//#define TEMP_1_PIN           PA3   // Analog Input (onboard SD_DETECT_PIN)
 
 //
 // LCD Pins
@@ -182,6 +182,9 @@
     #define SHARED_SD_CARD
     #undef SD_DETECT_PIN           // redefine detect pin onboard tf card
     #define SD_DETECT_PIN  PA3
+    #if TEMP_1_PIN == PA3
+      #error "TEMP_1_PIN and SD_DETECT_PIN are in conflict."
+    #endif
   #endif
 
   #define SCK_PIN          PA5
