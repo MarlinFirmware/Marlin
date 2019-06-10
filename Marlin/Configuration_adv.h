@@ -1652,10 +1652,10 @@
    * The default SW SPI pins are defined the respective pins files,
    * but you can override or define them here.
    */
-  #define TMC_USE_SW_SPI
-  #define TMC_SW_MOSI       51
-  #define TMC_SW_MISO       50
-  #define TMC_SW_SCK        52
+  //#define TMC_USE_SW_SPI
+  #define TMC_SW_MOSI       -1 //51
+  #define TMC_SW_MISO       -1 //50
+  #define TMC_SW_SCK        -1 //52
 
   /**
    * Software enable
@@ -1771,7 +1771,7 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  //#define TMC_DEBUG
+  #define TMC_DEBUG
 
   /**
    * You can set your own advanced settings by filling in predefined functions.

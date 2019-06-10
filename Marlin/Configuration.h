@@ -715,7 +715,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 125 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 4, 125 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
