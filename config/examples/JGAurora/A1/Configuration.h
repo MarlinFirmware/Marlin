@@ -75,7 +75,7 @@
 // build by the user have been successfully uploaded into firmware.
 #define STRING_CONFIG_H_AUTHOR "(Roberto Mariani & Samuel Pinches)" // Who made the changes.
 #define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 "Marlin 2b6 (8/6/19)" // will be shown during bootup in line 1
+#define STRING_SPLASH_LINE1 "Marlin 2b6 (10/6/19)" // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 "JGAuroraForum.com"         // will be shown during bootup in line 2
 
 /**
@@ -1972,8 +1972,7 @@
 // MKS Robin 320x240 color display
 // Also used for JGAurora A5S & A1 TFT LCD's (16-bit Parallel LCD via FSMC)
 #define MKS_ROBIN_TFT
-
-//#define PRINTER_EVENT_LEDS
+#define PRINTER_EVENT_LEDS
 
 //=============================================================================
 //============================  Other Controllers  ============================
@@ -2075,7 +2074,7 @@
 //#define RGB_LED
 //#define RGBW_LED
 
-#if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
+#if EITHER(RGB_LED, RGBW_LED)
   #define RGB_LED_R_PIN 34
   #define RGB_LED_G_PIN 43
   #define RGB_LED_B_PIN 35

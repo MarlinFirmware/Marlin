@@ -98,6 +98,12 @@
   #if HAS_SLOW_BUTTONS
     volatile uint8_t MarlinUI::slow_buttons;
   #endif
+  #if defined(TOUCH_BUTTONS)
+    #include "xpt2046.h"
+    volatile uint8_t MarlinUI::touch_buttons;
+    uint8_t MarlinUI::read_touch_buttons() { return xpt2046_read_buttons(); }
+  #endif
+
 #endif
 
 #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
@@ -290,7 +296,9 @@ void MarlinUI::init() {
   #if HAS_ENCODER_ACTION && HAS_SLOW_BUTTONS
     slow_buttons = 0;
   #endif
-
+  #if HAS_ENCODER_ACTION && defined(TOUCH_BUTTONS)
+    touch_buttons = 0;
+  #endif
   update_buttons();
 
   #if HAS_ENCODER_ACTION
@@ -769,7 +777,10 @@ void MarlinUI::update() {
       #if HAS_SLOW_BUTTONS
         slow_buttons = read_slow_buttons(); // Buttons that take too long to read in interrupt context
       #endif
+      #if defined(TOUCH_BUTTONS)
+        touch_buttons = read_touch_buttons();
 
+      #endif
       #if ENABLED(REPRAPWORLD_KEYPAD)
 
         if (handle_keypad()) {
@@ -999,8 +1010,8 @@ void MarlinUI::update() {
 
   uint8_t get_ADC_keyValue(void) {
     if (thermalManager.ADCKey_count >= 16) {
-      const uint16_t currentkpADCValue = thermalManager.current_ADCKey_raw << 2;
-      thermalManager.current_ADCKey_raw = 1024;
+      const uint16_t currentkpADCValue = thermalManager.current_ADCKey_raw >> 2;
+      thermalManager.current_ADCKey_raw = 0;
       thermalManager.ADCKey_count = 0;
       if (currentkpADCValue < 4000)
         for (uint8_t i = 0; i < ADC_KEY_NUM; i++) {
@@ -1107,9 +1118,12 @@ void MarlinUI::update() {
 
         #endif // UP || DWN || LFT || RT
 
-        buttons = newbutton
+        buttons |= newbutton
           #if HAS_SLOW_BUTTONS
             | slow_buttons
+          #endif
+          #if defined(TOUCH_BUTTONS)
+            | touch_buttons
           #endif
         ;
       #elif HAS_ADC_BUTTONS
@@ -1398,7 +1412,7 @@ void MarlinUI::update() {
       #if HAS_SPI_LCD
         lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
       #endif
-      enqueue_and_echo_commands_front_P(PSTR("M25 P\nM24"));
+      enqueue_and_echo_commands_P(PSTR("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)
       enqueue_and_echo_commands_P(PSTR("M25"));
     #elif defined(ACTION_ON_PAUSE)

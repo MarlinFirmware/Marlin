@@ -109,7 +109,6 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       /**
        * This should never happen. Add a Sanitycheck for timer number.
        * Should be a general timer since basic timers have no CC channels.
-       * Advanced timers should be skipped if possible too, and are not listed above.
        */
       break;
   }
@@ -214,7 +213,7 @@ timer_dev* get_timer_dev(int number) {
       case 12: return &timer12;
     #endif
     #if STM32_HAVE_TIMER(13)
-      case 13: return &timer14;
+      case 13: return &timer13;
     #endif
     #if STM32_HAVE_TIMER(14)
       case 14: return &timer14;
