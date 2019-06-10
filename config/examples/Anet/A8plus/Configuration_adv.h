@@ -841,6 +841,8 @@
 
   #define EVENT_GCODE_SD_STOP "G28XY\nG91\nG1 F1000 Z+20\nG1 F5000 Y" STRINGIFY(Y_MAX_POS) "\nG90\nM84 X Y E"      // G-code to run on Stop Print (e.g., "G28XY" or "G27")
 
+  //#define PRINT_ABORT_NO_COOLDOWN         // Leave the heaters on after Stop Print (not recommended!)
+
   /**
    * Continue after Power-Loss (Creality3D)
    *

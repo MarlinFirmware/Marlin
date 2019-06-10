@@ -842,6 +842,8 @@
 
   #define EVENT_GCODE_SD_STOP "G28XY"       // G-code to run on Stop Print (e.g., "G28XY" or "G27")
 
+  //#define PRINT_ABORT_NO_COOLDOWN         // Leave the heaters on after Stop Print (not recommended!)
+
   /**
    * Continue after Power-Loss (Creality3D)
    *
