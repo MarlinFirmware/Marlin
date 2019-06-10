@@ -1,16 +1,18 @@
 NOTE ON FLASHING THE FIRMWARE:
 
-The firmware for the atmel chip being used for USB on the mighty board is the same as an arduino Mega, however it does not do an automatic reset. 
-If you want the printer to reset on DTR you will need to flash it will the firmware for the arduino mega.
+The firmware for the Atmel chip used for USB on the Mighty Board is the same as the Arduino Mega's, but it doesn't do an automatic reset. If you want the printer to reset on DTR you will need to flash it with the firmware for the Arduino Mega.
 
-***Use with all nozzle settings***
+### Use with all nozzle settings
+
 Build plate shape: Rectangular
-[X]Origin at center
-[X]Heater bed
+  [X] Origin at center
+  [X] Heated bed
 G-code flavor: Marlin
 
-***Right Nozzle***
+### Right Nozzle
+
 Number of Extruders: 1
+
 X (Width) 227
 Y (Depth) 148
 Z (Heigth) 150
