@@ -107,7 +107,6 @@
 
   #define BTN_EN1          PD2
   #define BTN_EN2          PB8
-  #define SD_DETECT_PIN    PB9
 
   #define LCD_PINS_ENABLE  PB6
   #define LCD_PINS_D4      PC13
@@ -120,51 +119,16 @@
 
 #endif // ULTRA_LCD
 
-//#define _SPI1                 // If using SPI1, please open it or enable SPI3
+//
+// SD Card
+//
 
-#ifdef _SPI1
-  #define SDSS             PA4  // SPI1
+// Marlin uses the SD drive attached to the LCD
+//#define STM32_SD_LCD
+
+#ifdef STM32_SD_LCD
+  #define SD_DETECT_PIN    PB9
+  #define ENABLE_SPI3
 #else
-  #define SDSS             PA15 // SPI3
-  //#define DISABLE_DEBUG
-  #define DISABLE_JTAG
-#endif
-
-//#define USB_SD_DISABLED
-//#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
-
-//#define LPC_SD_LCD            // Marlin uses the SD drive attached to the LCD
-//#define STM32_SD_ONBOARD      // Marlin uses the SD drive on the control board
-
-#if ENABLED(LPC_SD_LCD)
-
-  #define SCK_PIN          PB3
-  #define MISO_PIN         PB4
-  #define MOSI_PIN         PB5
-  #define SS_PIN           PA15  // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    PA4   // Chip select for "System" SD card
-
-#elif ENABLED(STM32_SD_ONBOARD)
-
-  #if ENABLED(USB_SD_ONBOARD)
-
-    // When sharing the SD card with a PC we want the menu options to
-    // mount/unmount the card and refresh it. So we disable card detect.
-    #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN
-    #if DISABLED(SHARED_SD_CARD)
-      #define SD_DETECT_PIN PA3
-      #if TEMP_SENSOR_1 && TEMP_1_PIN == PA3
-        #error "TEMP_1_PIN and SD_DETECT_PIN are in conflict."
-      #endif
-    #endif
-
-  #endif
-
-  #define SCK_PIN          PA5
-  #define MISO_PIN         PA6
-  #define MOSI_PIN         PA7
-  #define SS_PIN           PA15   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    PA4    // Chip select for "System" SD card
-
+  #define SD_DETECT_PIN    PA3
 #endif
