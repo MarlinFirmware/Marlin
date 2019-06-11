@@ -1378,6 +1378,18 @@
 #define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
 
 //
+// Option to heat before homing
+//
+
+//#define HEAT_BEFORE_HOME
+#ifdef HEAT_BEFORE_HOME
+  #define TEMP_BEFORE_HOME 80
+  #define STRINGIZE_NX(A) #A
+  #define STRINGIZE(A) STRINGIZE_NX(A)
+  #define HOMING_SCRIPT "M109 S"STRINGIZE(TEMP_BEFORE_HOME)"\nG28\nM109 S0"
+#endif
+
+//
 // M100 Free Memory Watcher
 //
 //#define M100_FREE_MEMORY_WATCHER    // Add M100 (Free Memory Watcher) to debug memory usage
