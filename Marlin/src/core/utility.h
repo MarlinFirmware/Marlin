@@ -37,21 +37,10 @@ inline void serial_delay(const millis_t ms) {
   #endif
 }
 
-#if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
-  void crc16(uint16_t *crc, const void * const data, uint16_t cnt);
-#endif
-
-#if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
-  /**
-   * These support functions allow the use of large bit arrays of flags that take very
-   * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
-   * to unsigned long will allow us to go to 32x32 if higher resolution Mesh's are needed
-   * in the future.
-   */
-  FORCE_INLINE void bitmap_clear(uint16_t bits[16], const uint8_t x, const uint8_t y)  { CBI(bits[y], x); }
-  FORCE_INLINE void bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y)    { SBI(bits[y], x); }
-  FORCE_INLINE bool is_bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
-#endif
+// 16x16 bit arrays
+FORCE_INLINE void bitmap_clear(uint16_t bits[16], const uint8_t x, const uint8_t y)  { CBI(bits[y], x); }
+FORCE_INLINE void bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y)    { SBI(bits[y], x); }
+FORCE_INLINE bool is_bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void log_machine_info();
@@ -76,4 +65,3 @@ public:
 // Converts from an uint8_t in the range of 0-255 to an uint8_t
 // in the range 0-100 while avoiding rounding artifacts
 constexpr uint8_t ui8_to_percent(const uint8_t i) { return (int(i) * 100 + 127) / 255; }
-constexpr uint8_t all_on = 0xFF, all_off = 0x00;
