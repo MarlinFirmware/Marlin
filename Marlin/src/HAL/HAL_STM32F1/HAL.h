@@ -255,6 +255,9 @@ void HAL_adc_init(void);
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 uint16_t HAL_adc_get_result(void);
 
+uint16_t analogRead(pin_t pin); // need HAL_ANALOG_SELECT() first
+void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
+
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)

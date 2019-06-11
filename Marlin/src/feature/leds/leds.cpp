@@ -118,7 +118,9 @@ void LEDLights::set_color(const LEDColor &incol
 
     // This variant uses 3-4 separate pins for the RGB(W) components.
     // If the pins can do PWM then their intensity will be set.
-    #define UPDATE_RGBW(C,c) do{ if (PWM_PIN(RGB_LED_##C##_PIN)) analogWrite(RGB_LED_##C##_PIN, incol.c); else WRITE(RGB_LED_##C##_PIN, incol.c ? HIGH : LOW); }while(0)
+    #define UPDATE_RGBW(C,c) do { if (PWM_PIN(RGB_LED_##C##_PIN)) \
+        analogWrite(pin_t(RGB_LED_##C##_PIN), incol.c); \
+      else WRITE(RGB_LED_##C##_PIN, incol.c ? HIGH : LOW); } while(0)
     UPDATE_RGBW(R,r);
     UPDATE_RGBW(G,g);
     UPDATE_RGBW(B,b);
