@@ -488,6 +488,12 @@
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1, v1, v1)
 
 /**
+ * ARRAY_BY_FANS based on FAN_COUNT
+ */
+#define ARRAY_BY_FANS(...) ARRAY_N(FAN_COUNT, __VA_ARGS__)
+#define ARRAY_BY_FANS1(v1) ARRAY_BY_FANS(v1, v1, v1, v1, v1, v1)
+
+/**
  * Driver Timings
  * NOTE: Driver timing order is longest-to-shortest duration.
  *       Preserve this ordering when adding new drivers.

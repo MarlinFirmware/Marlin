@@ -30,12 +30,12 @@
 
 #include "tempstat.h"
 #include "../../module/temperature.h"
+#include "../../libs/timeout.h"
 
 void handle_status_leds(void) {
   static int8_t old_red = -1;  // Invalid value to force LED initialization
-  static millis_t next_status_led_update_ms = 0;
-  if (ELAPSED(millis(), next_status_led_update_ms)) {
-    next_status_led_update_ms += 500; // Update every 0.5s
+  static Timeout status_led_timeout(500); // Update every 0.5s
+  if (status_led_timeout.advance()) {
     float max_temp = 0.0;
     #if HAS_HEATED_BED
       max_temp = MAX(thermalManager.degTargetBed(), thermalManager.degBed());

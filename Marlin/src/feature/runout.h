@@ -31,6 +31,7 @@
 #include "../gcode/queue.h"
 
 #include "../inc/MarlinConfig.h"
+#include "../libs/timeout.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extensible_ui/ui_api.h"
@@ -298,10 +299,8 @@ class FilamentSensorBase {
 
       static inline void run() {
         #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
-          static millis_t t = 0;
-          const millis_t ms = millis();
-          if (ELAPSED(ms, t)) {
-            t = millis() + 1000UL;
+          static Timeout t(1000);
+          if (t.advance()) {
             LOOP_L_N(i, EXTRUDERS) {
               serialprintPGM(i ? PSTR(", ") : PSTR("Remaining mm: "));
               SERIAL_ECHO(runout_mm_countdown[i]);

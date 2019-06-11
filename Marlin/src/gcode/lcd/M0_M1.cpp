@@ -26,6 +26,7 @@
 
 #include "../gcode.h"
 #include "../../module/stepper.h"
+#include "../../libs/timeout.h"
 
 #if HAS_LCD_MENU
   #include "../../lcd/ultralcd.h"
@@ -99,8 +100,8 @@ void GcodeSuite::M0_M1() {
   #endif
 
   if (ms > 0) {
-    ms += millis();  // wait until this time for a click
-    while (PENDING(millis(), ms) && wait_for_user) idle();
+    Timeout soon(ms);
+    while (soon.pending() && wait_for_user) idle(); // Wait for timeout or click
   }
   else
     while (wait_for_user) idle();

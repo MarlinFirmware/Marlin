@@ -25,7 +25,9 @@
  * power.h - power control
  */
 
+#include "../inc/MarlinConfigPre.h"
 #include "../core/millis_t.h"
+#include "../libs/timeout.h"
 
 class Power {
   public:
@@ -33,7 +35,7 @@ class Power {
     static void power_on();
     static void power_off();
   private:
-    static millis_t lastPowerOn;
+    static Timeout power_off_timeout;
     static bool is_power_needed();
 };
 

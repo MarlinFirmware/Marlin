@@ -52,6 +52,7 @@
 #endif
 #include <math.h>
 #include "libs/nozzle.h"
+#include "libs/timeout.h"
 
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
@@ -200,7 +201,7 @@ millis_t max_inactive_time, // = 0
          stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
 #if PIN_EXISTS(CHDK)
-  extern millis_t chdk_timeout;
+  extern Timeout chdk_timeout;
 #endif
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -486,10 +487,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   }
 
   #if PIN_EXISTS(CHDK) // Check if pin should be set to LOW (after M240 set it HIGH)
-    if (chdk_timeout && ELAPSED(ms, chdk_timeout)) {
-      chdk_timeout = 0;
-      WRITE(CHDK_PIN, LOW);
-    }
+    if (chdk_timeout.once(ms)) WRITE(CHDK_PIN, LOW);
   #endif
 
   #if HAS_KILL
@@ -640,17 +638,15 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     L6470.monitor_driver();
   #endif
 
-  // Limit check_axes_activity frequency to 10Hz
-  static millis_t next_check_axes_ms = 0;
-  if (ELAPSED(ms, next_check_axes_ms)) {
+  // Call check_axes_activity every 100ms (10Hz)
+  static Timeout check_axes_timeout(100);
+  if (check_axes_timeout.advance(ms))
     planner.check_axes_activity();
-    next_check_axes_ms = ms + 100UL;
-  }
 
   #if PIN_EXISTS(FET_SAFETY)
-    static millis_t FET_next;
-    if (ELAPSED(ms, FET_next)) {
-      FET_next = ms + FET_SAFETY_DELAY;  // 2uS pulse every FET_SAFETY_DELAY mS
+    // 2uS pulse every FET_SAFETY_DELAY mS
+    static Timeout fet_timeout(FET_SAFETY_DELAY);
+    if (fet_timeout.advance(ms)) {
       OUT_WRITE(FET_SAFETY_PIN, !FET_SAFETY_INVERTED);
       DELAY_US(2);
       WRITE(FET_SAFETY_PIN, FET_SAFETY_INVERTED);
@@ -693,11 +689,8 @@ void idle(
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
-    static millis_t i2cpem_next_update_ms;
-    if (planner.has_blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
-      I2CPEM.update();
-      i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
-    }
+    static Timeout i2cpem_timeout(I2CPE_MIN_UPD_TIME_MS);
+    if (i2cpem_timeout.advance()) I2CPEM.update();
   #endif
 
   #ifdef HAL_IDLETASK
@@ -891,11 +884,11 @@ void setup() {
   #endif
 
   #if NUM_SERIAL > 0
-    uint32_t serial_connect_timeout = millis() + 1000UL;
-    while (!MYSERIAL0 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    Timeout serial_connect_timeout(1000, true);
+    while (!MYSERIAL0 && serial_connect_timeout.pending()) { /*nada*/ }
     #if NUM_SERIAL > 1
-      serial_connect_timeout = millis() + 1000UL;
-      while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+      serial_connect_timeout.reset();
+      while (!MYSERIAL1 && serial_connect_timeout.pending()) { /*nada*/ }
     #endif
   #endif
 

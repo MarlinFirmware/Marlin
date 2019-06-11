@@ -28,6 +28,7 @@
 #include "thermistor/thermistors.h"
 
 #include "../inc/MarlinConfig.h"
+#include "../libs/timeout.h"
 
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "../feature/power.h"
@@ -187,19 +188,19 @@ struct PIDHeaterInfo : public HeaterInfo {
 
 // Heater idle handling
 typedef struct {
-  millis_t timeout_ms;
+  Timeout timeout;
   bool timed_out;
-  inline void update(const millis_t &ms) { if (!timed_out && timeout_ms && ELAPSED(ms, timeout_ms)) timed_out = true; }
-  inline void start(const millis_t &ms) { timeout_ms = millis() + ms; timed_out = false; }
-  inline void reset() { timeout_ms = 0; timed_out = false; }
+  inline void update(const millis_t &ms) { if (!timed_out && timeout.primed_elapsed(ms)) timed_out = true; }
+  inline void start(const millis_t &dura) { timeout.prime(dura); timed_out = false; }
+  inline void reset() { timeout.stop(); timed_out = false; }
   inline void expire() { start(0); }
 } heater_idle_t;
 
 // Heater watch handling
 typedef struct {
   uint16_t target;
-  millis_t next_ms;
-  inline bool elapsed(const millis_t &ms) { return next_ms && ELAPSED(ms, next_ms); }
+  Timeout timeout;
+  inline bool elapsed(const millis_t &ms) { return timeout.primed_elapsed(ms); }
   inline bool elapsed() { return elapsed(millis()); }
 } heater_watch_t;
 
@@ -343,7 +344,7 @@ class Temperature {
         static heater_watch_t watch_bed;
       #endif
       #if DISABLED(PIDTEMPBED)
-        static millis_t next_bed_check_ms;
+        static Timeout bed_check_timeout;
       #endif
       #ifdef BED_MINTEMP
         static int16_t mintemp_raw_BED;
@@ -357,7 +358,7 @@ class Temperature {
       #if WATCH_CHAMBER
         static heater_watch_t watch_chamber;
       #endif
-      static millis_t next_chamber_check_ms;
+      static Timeout chamber_check_timeout;
       #ifdef CHAMBER_MINTEMP
         static int16_t mintemp_raw_CHAMBER;
       #endif
@@ -371,7 +372,7 @@ class Temperature {
     #endif
 
     #ifdef MILLISECONDS_PREHEAT_TIME
-      static millis_t preheat_end_time[HOTENDS];
+      static Timeout preheat_timeout[HOTENDS];
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -379,7 +380,7 @@ class Temperature {
     #endif
 
     #if HAS_AUTO_FAN
-      static millis_t next_auto_fan_check_ms;
+      static Timeout auto_fan_check_timeout;
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -469,7 +470,7 @@ class Temperature {
       #if ENABLED(ADAPTIVE_FAN_SLOWING)
         static uint8_t fan_speed_scaler[FAN_COUNT];
       #else
-        static constexpr uint8_t fan_speed_scaler[FAN_COUNT] = ARRAY_N(FAN_COUNT, 128, 128, 128, 128, 128, 128);
+        static constexpr uint8_t fan_speed_scaler[FAN_COUNT] = ARRAY_BY_FANS1(128);
       #endif
 
       static inline uint8_t lcd_fanSpeedActual(const uint8_t target) {
@@ -534,15 +535,15 @@ class Temperature {
     #ifdef MILLISECONDS_PREHEAT_TIME
       static bool is_preheating(const uint8_t e) {
         E_UNUSED();
-        return preheat_end_time[HOTEND_INDEX] && PENDING(millis(), preheat_end_time[HOTEND_INDEX]);
+        return preheat_timeout[HOTEND_INDEX].primed_pending();
       }
       static void start_preheat_time(const uint8_t e) {
         E_UNUSED();
-        preheat_end_time[HOTEND_INDEX] = millis() + MILLISECONDS_PREHEAT_TIME;
+        preheat_timeout[HOTEND_INDEX].reset();
       }
       static void reset_preheat_time(const uint8_t e) {
         E_UNUSED();
-        preheat_end_time[HOTEND_INDEX] = 0;
+        preheat_timeout[HOTEND_INDEX].stop();
       }
     #else
       #define is_preheating(n) (false)
@@ -758,13 +759,10 @@ class Temperature {
     #if HAS_TEMP_SENSOR
       static void print_heater_states(const uint8_t target_extruder);
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
-        static uint8_t auto_report_temp_interval;
-        static millis_t next_temp_report_ms;
+        static Timeout temp_report_timeout;
         static void auto_report_temperatures(void);
-        static inline void set_auto_report_interval(uint8_t v) {
-          NOMORE(v, 60);
-          auto_report_temp_interval = v;
-          next_temp_report_ms = millis() + 1000UL * v;
+        static inline void set_auto_report_interval(const uint8_t v) {
+          temp_report_timeout.prime(MIN(v, 60) * 1000UL);
         }
       #endif
     #endif
@@ -817,7 +815,7 @@ class Temperature {
       enum TRState : char { TRInactive, TRFirstHeating, TRStable, TRRunaway };
 
       typedef struct {
-        millis_t timer = 0;
+        Timeout timeout = 0;
         TRState state = TRInactive;
       } tr_state_machine_t;
 

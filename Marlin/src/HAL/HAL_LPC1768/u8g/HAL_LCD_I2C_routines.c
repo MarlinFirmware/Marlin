@@ -25,6 +25,8 @@
 
 #ifdef TARGET_LPC1768
 
+#include "../../../core/millis_t.h"
+
 #ifdef __cplusplus
   extern "C" {
 #endif
@@ -32,8 +34,6 @@
 #include <lpc17xx_i2c.h>
 #include <lpc17xx_pinsel.h>
 #include <lpc17xx_libcfg_default.h>
-
-#include "../../../core/millis_t.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
 

@@ -47,6 +47,7 @@
 #include "../module/stepper.h"
 #include "../Marlin.h"
 #include "../HAL/shared/Delay.h"
+#include "../libs/timeout.h"
 
 Max7219 max7219;
 
@@ -532,9 +533,8 @@ void Max7219::idle_tasks() {
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     static uint8_t refresh_cnt; // = 0
     constexpr uint16_t refresh_limit = 5;
-    static millis_t next_blink = 0;
-    const millis_t ms = millis();
-    const bool do_blink = ELAPSED(ms, next_blink);
+    static Timeout next_blink(1000);
+    const bool do_blink = next_blink.advance();
   #else
     static uint16_t refresh_cnt; // = 0
     constexpr bool do_blink = true;
@@ -550,10 +550,7 @@ void Max7219::idle_tasks() {
   }
 
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
-    if (do_blink) {
-      led_toggle(MAX7219_X_LEDS - 1, MAX7219_Y_LEDS - 1);
-      next_blink = ms + 1000;
-    }
+    if (do_blink) led_toggle(MAX7219_X_LEDS - 1, MAX7219_Y_LEDS - 1);
   #endif
 
   #if defined(MAX7219_DEBUG_PLANNER_HEAD) && defined(MAX7219_DEBUG_PLANNER_TAIL) && MAX7219_DEBUG_PLANNER_HEAD == MAX7219_DEBUG_PLANNER_TAIL

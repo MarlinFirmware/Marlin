@@ -32,6 +32,7 @@
 #include "../module/planner.h"
 #include "../module/temperature.h"
 #include "../Marlin.h"
+#include "../libs/timeout.h"
 
 #if ENABLED(PRINTER_EVENT_LEDS)
   #include "../feature/leds/printer_event_leds.h"
@@ -375,8 +376,8 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
         };
         uint32_t bytes_received;
         uint16_t checksum;
-        millis_t timeout;
-      } packet{};
+        Timeout timeout;
+      } packet {};
 
     #pragma pack(pop)
 
@@ -386,7 +387,7 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
       packet.header.checksum = 0;
       packet.bytes_received = 0;
       packet.checksum = 0x53A2;
-      packet.timeout = millis() + STREAM_MAX_WAIT;
+      packet.timeout.prime(STREAM_MAX_WAIT);
     }
 
     void stream_reset() {
@@ -406,26 +407,26 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
     // whether the stream times out from data starvation
     // takes the data variable by reference in order to return status
     bool stream_read(uint8_t& data) {
-      if (ELAPSED(millis(), packet.timeout)) {
+      if (packet.timeout.elapsed()) {
         stream_state = StreamState::PACKET_TIMEOUT;
         return false;
       }
       if (!serial_data_available(card.transfer_port_index)) return false;
       data = read_serial(card.transfer_port_index);
-      packet.timeout = millis() + STREAM_MAX_WAIT;
+      packet.timeout.reset();
       return true;
     }
 
     template<const size_t buffer_size>
     void receive(char (&buffer)[buffer_size]) {
       uint8_t data = 0;
-      millis_t transfer_timeout = millis() + RX_TIMESLICE;
+      Timeout transfer_timeout(RX_TIMESLICE, true);
 
       #if ENABLED(SDSUPPORT)
         PORT_REDIRECT(card.transfer_port_index);
       #endif
 
-      while (PENDING(millis(), transfer_timeout)) {
+      while (transfer_timeout.pending()) {
         switch (stream_state) {
           case StreamState::STREAM_RESET:
             stream_reset();
@@ -529,13 +530,13 @@ void gcode_line_error(PGM_P const err, const int8_t port) {
             }
             break;
           case StreamState::PACKET_FLUSHRX:
-            if (ELAPSED(millis(), packet.timeout)) {
+            if (packet.timeout.elapsed()) {
               stream_state = StreamState::PACKET_RESEND;
               break;
             }
             if (!serial_data_available(card.transfer_port_index)) break;
             read_serial(card.transfer_port_index); // throw away data
-            packet.timeout = millis() + STREAM_MAX_WAIT;
+            packet.timeout.reset();
             break;
           case StreamState::PACKET_TIMEOUT:
             SERIAL_ECHO_START();

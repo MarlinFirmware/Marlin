@@ -37,6 +37,8 @@ extern "C" {
 
 #include "../../sd/cardreader.h"
 #include "../../inc/MarlinConfig.h"
+#include "../../libs/timeout.h"
+
 #include "HAL.h"
 #include "HAL_timers.h"
 
@@ -96,8 +98,8 @@ void HAL_init() {
     MSC_SD_Init(0);                         // Enable USB SD card access
   #endif
 
-  const millis_t usb_timeout = millis() + 2000;
-  while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
+  Timeout usb_timeout(2000, true);
+  while (!USB_Configuration && usb_timeout.pending()) {
     delay(50);
     HAL_idletask();
     #if PIN_EXISTS(LED)
@@ -110,7 +112,10 @@ void HAL_init() {
     #if NUM_SERIAL > 1
       MYSERIAL1.begin(BAUDRATE);
     #endif
-    SERIAL_PRINTF("\n\necho:%s (%dMhz) Initialized\n", isLPC1769() ? "LPC1769" : "LPC1768", SystemCoreClock / 1000000);
+    SERIAL_EOL(); SERIAL_EOL();
+    SERIAL_ECHO_START();
+    serialprintPGM(isLPC1769() ? PSTR("LPC1769") : PSTR("LPC1768"));
+    SERIAL_ECHOLNPGM(" (", SystemCoreClock / 1000000, "Mhz) Initialized");
     SERIAL_FLUSHTX();
   #endif
 

@@ -34,6 +34,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#include "../libs/timeout.h"
+
 #if IS_SCARA
   #include "../libs/buzzer.h"
   #include "../lcd/ultralcd.h"
@@ -701,15 +703,12 @@ void clean_up_after_endstop_or_probe_move() {
     float raw[XYZE];
     COPY(raw, current_position);
 
+    Timeout idle_timeout(200, true);
+
     // Calculate and execute the segments
     while (--segments) {
-
-      static millis_t next_idle_ms = millis() + 200UL;
       thermalManager.manage_heater();  // This returns immediately if not really needed.
-      if (ELAPSED(millis(), next_idle_ms)) {
-        next_idle_ms = millis() + 200UL;
-        idle();
-      }
+      if (idle_timeout.advance()) idle();
 
       LOOP_XYZE(i) raw[i] += segment_distance[i];
 
@@ -791,15 +790,15 @@ void clean_up_after_endstop_or_probe_move() {
       float raw[XYZE];
       COPY(raw, current_position);
 
+      Timeout idle_timeout(200, true);
+
       // Calculate and execute the segments
       while (--segments) {
-        static millis_t next_idle_ms = millis() + 200UL;
         thermalManager.manage_heater();  // This returns immediately if not really needed.
-        if (ELAPSED(millis(), next_idle_ms)) {
-          next_idle_ms = millis() + 200UL;
-          idle();
-        }
+        if (idle_timeout.advance()) idle();
+
         LOOP_XYZE(i) raw[i] += segment_distance[i];
+
         if (!planner.buffer_line(raw, fr_mm_s, active_extruder, cartesian_segment_mm
           #if ENABLED(SCARA_FEEDRATE_SCALING)
             , inv_duration

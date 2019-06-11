@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
+#include "../libs/timeout.h"
 
 #if HAS_BUZZER
   #include "../libs/buzzer.h"
@@ -289,7 +290,7 @@ public:
     static void abort_print();
     static void pause_print();
     static void resume_print();
-    
+
     #if HAS_PRINT_PROGRESS
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
         static uint8_t progress_bar_percent;
@@ -329,8 +330,8 @@ public:
           static millis_t progress_bar_ms;  // Start time for the current progress bar cycle
           static void draw_progress_bar(const uint8_t percent);
           #if PROGRESS_MSG_EXPIRE > 0
-            static millis_t MarlinUI::expire_status_ms; // = 0
-            static inline void reset_progress_bar_timeout() { expire_status_ms = 0; }
+            static Timeout MarlinUI::status_message_timeout; // = 0
+            static inline void reset_progress_bar_timeout() { status_message_timeout.stop(); }
           #endif
         #endif
 
@@ -345,7 +346,7 @@ public:
       #endif
 
       #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
-        static millis_t next_filament_display;
+        static Timeout filament_display_timeout;
       #endif
 
       static void quick_feedback(const bool clear_buttons=true);

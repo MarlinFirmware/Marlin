@@ -30,6 +30,7 @@
 #include "../module/stepper_indirection.h"
 #include "../module/printcounter.h"
 #include "../libs/duration_t.h"
+#include "../libs/timeout.h"
 #include "../gcode/gcode.h"
 
 #if ENABLED(TMC_DEBUG)
@@ -314,18 +315,15 @@
   }
 
   void monitor_tmc_driver() {
-    static millis_t next_poll = 0;
     const millis_t ms = millis();
-    bool need_update_error_counters = ELAPSED(ms, next_poll);
-    bool need_debug_reporting = false;
-    if (need_update_error_counters)
-      next_poll = ms + MONITOR_DRIVER_STATUS_INTERVAL_MS;
+    static Timeout next_poll_timeout(MONITOR_DRIVER_STATUS_INTERVAL_MS);
+    const bool need_update_error_counters = next_poll_timeout.advance(ms);
     #if ENABLED(TMC_DEBUG)
-      static millis_t next_debug_reporting = 0;
-      if (report_tmc_status_interval && ELAPSED(ms, next_debug_reporting)) {
-        need_debug_reporting = true;
-        next_debug_reporting = ms + report_tmc_status_interval;
-      }
+      static Timeout debug_report_timeout(0);
+      const bool need_debug_reporting = (report_tmc_status_interval && debug_report_timeout.elapsed(ms));
+      if (need_debug_reporting) debug_report_timeout.prime(report_tmc_status_interval, ms);
+    #else
+      constexpr bool need_debug_reporting = false;
     #endif
     if (need_update_error_counters || need_debug_reporting) {
       #if AXIS_IS_TMC(X)

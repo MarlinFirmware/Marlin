@@ -26,15 +26,17 @@
 
 #include "../module/stepper_indirection.h"
 #include "../module/temperature.h"
+#include "../libs/timeout.h"
 
 uint8_t controllerfan_speed;
 
 void controllerfan_update() {
-  static millis_t lastMotorOn = 0, // Last time a motor was turned on
-                  nextMotorCheck = 0; // Last time the state was checked
   const millis_t ms = millis();
-  if (ELAPSED(ms, nextMotorCheck)) {
-    nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
+
+  static millis_t lastMotorOn = 0; // Last time a motor was turned on
+  static Timeout check_motor_timeout(2500, ms); // Not time-critical, so only check every 2.5s
+
+  if (check_motor_timeout.advance(ms)) {
 
     // If any of the drivers or the bed are enabled...
     if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON

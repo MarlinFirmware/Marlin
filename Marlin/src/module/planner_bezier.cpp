@@ -38,6 +38,7 @@
 #include "../Marlin.h"
 #include "../core/language.h"
 #include "../gcode/queue.h"
+#include "../libs/timeout.h"
 
 // See the meaning in the documentation of cubic_b_spline().
 #define MIN_STEP 0.002f
@@ -120,16 +121,12 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
   bez_target[Y_AXIS] = position[Y_AXIS];
   float step = MAX_STEP;
 
-  millis_t next_idle_ms = millis() + 200UL;
+  Timeout idle_timeout(200);
 
   while (t < 1) {
 
     thermalManager.manage_heater();
-    millis_t now = millis();
-    if (ELAPSED(now, next_idle_ms)) {
-      next_idle_ms = now + 200UL;
-      idle();
-    }
+    if (idle_timeout.advance()) idle();
 
     // First try to reduce the step in order to make it sufficiently
     // close to a linear interpolation.

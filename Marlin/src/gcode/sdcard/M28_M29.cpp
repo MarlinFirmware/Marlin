@@ -49,8 +49,7 @@ void GcodeSuite::M28() {
     // Binary transfer mode
     if ((card.flag.binary_mode = binary_mode)) {
       SERIAL_ECHO_START();
-      SERIAL_ECHO(" preparing to receive: ");
-      SERIAL_ECHOLN(p);
+      SERIAL_ECHOLNPAIR(" preparing to receive: ", p);
       card.openFile(p, false);
       #if NUM_SERIAL > 1
         card.transfer_port_index = command_queue_port[cmd_queue_index_r];

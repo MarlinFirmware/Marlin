@@ -92,7 +92,8 @@ int8_t MMU2::state = 0;
 volatile int8_t MMU2::finda = 1;
 volatile bool MMU2::finda_runout_valid;
 int16_t MMU2::version = -1, MMU2::buildnr = -1;
-millis_t MMU2::last_request, MMU2::next_P0_request;
+millis_t MMU2::last_request;
+Timeout MMU2::P0_request_timeout(300);
 char MMU2::rx_buffer[16], MMU2::tx_buffer[16];
 
 #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
@@ -282,7 +283,7 @@ void MMU2::mmu_loop() {
         last_cmd = cmd;
         cmd = MMU_CMD_NONE;
       }
-      else if (ELAPSED(millis(), next_P0_request)) {
+      else if (P0_request_timeout.elapsed()) {
         // read FINDA
         tx_str_P(PSTR("P0\n"));
         state = 2; // wait for response
@@ -334,7 +335,7 @@ void MMU2::mmu_loop() {
 bool MMU2::rx_start() {
   // check for start message
   if (rx_str_P(PSTR("start\n"))) {
-    next_P0_request = millis() + 300;
+    P0_request_timeout.reset();
     return true;
   }
   return false;
@@ -424,7 +425,7 @@ void MMU2::clear_rx_buffer() {
  */
 bool MMU2::rx_ok() {
   if (rx_str_P(PSTR("ok\n"))) {
-    next_P0_request = millis() + 300;
+    P0_request_timeout.reset();
     return true;
   }
   return false;

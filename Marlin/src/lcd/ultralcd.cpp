@@ -76,6 +76,7 @@
 #include "../gcode/queue.h"
 
 #include "../Marlin.h"
+#include "../libs/timeout.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
  #include "../feature/power_loss_recovery.h"
@@ -85,12 +86,12 @@
  #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if HAS_BUZZER
-  #include "../libs/buzzer.h"
-#endif
-
 #if HAS_TRINAMIC
   #include "../feature/tmc_util.h"
+#endif
+
+#if HAS_BUZZER
+  #include "../libs/buzzer.h"
 #endif
 
 #if HAS_ENCODER_ACTION
@@ -111,10 +112,10 @@
 uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
 
 #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
-  millis_t MarlinUI::next_filament_display; // = 0
+  Timeout MarlinUI::filament_display_timeout(5000);
 #endif
 
-millis_t next_button_update_ms;
+Timeout button_update_timeout(300);
 
 #if HAS_GRAPHICAL_LCD
   bool MarlinUI::drawing_screen, MarlinUI::first_page; // = false
@@ -329,12 +330,8 @@ void MarlinUI::init() {
 
 bool MarlinUI::get_blink() {
   static uint8_t blink = 0;
-  static millis_t next_blink_ms = 0;
-  millis_t ms = millis();
-  if (ELAPSED(ms, next_blink_ms)) {
-    blink ^= 0xFF;
-    next_blink_ms = ms + 1000 - (LCD_UPDATE_INTERVAL) / 2;
-  }
+  static Timeout next_blink_ms(1000 - (LCD_UPDATE_INTERVAL) / 2);
+  if (next_blink_ms.advance()) blink ^= 0xFF;
   return blink != 0;
 }
 
@@ -394,7 +391,7 @@ bool MarlinUI::get_blink() {
             #endif
           }
         #endif
-        next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
+        button_update_timeout.prime(ADC_MIN_KEY_DELAY);
         return true;
       }
 
@@ -455,7 +452,7 @@ bool MarlinUI::get_blink() {
 #if ENABLED(LCD_PROGRESS_BAR)
   millis_t MarlinUI::progress_bar_ms; // = 0
   #if PROGRESS_MSG_EXPIRE > 0
-    millis_t MarlinUI::expire_status_ms; // = 0
+    millis_t MarlinUI::status_message_timeout;
   #endif
 #endif
 
@@ -487,21 +484,13 @@ void MarlinUI::status_screen() {
 
     #if PROGRESS_MSG_EXPIRE > 0
 
-      // Handle message expire
-      if (expire_status_ms > 0) {
-
-        // Expire the message if a job is active and the bar has ticks
-        if (get_progress() > 2 && !print_job_timer.isPaused()) {
-          if (ELAPSED(ms, expire_status_ms)) {
-            status_message[0] = '\0';
-            expire_status_ms = 0;
-          }
-        }
-        else {
-          // Defer message expiration before bar appears
-          // and during any pause (not just SD)
-          expire_status_ms += LCD_UPDATE_INTERVAL;
-        }
+      // Handle message expiration
+      if (status_message_timeout.primed()) {
+        // Don't expire before progress bar appears or while paused
+        if (get_progress() < 3 || print_job_timer.isPaused())
+          status_message_timeout.ms += LCD_UPDATE_INTERVAL;
+        else if (status_message_timeout.once(ms))
+          status_message[0] = '\0';
       }
 
     #endif // PROGRESS_MSG_EXPIRE
@@ -512,7 +501,7 @@ void MarlinUI::status_screen() {
 
     if (use_click()) {
       #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
-        next_filament_display = millis() + 5000UL;  // Show status message for 5s
+        filament_display_timeout.reset();  // Show status message for 5s
       #endif
       goto_screen(menu_main);
       init_lcd(); // May revive the LCD if static electricity killed it
@@ -574,7 +563,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
   #if HAS_ENCODER_ACTION
     if (clear_buttons) buttons = 0;
-    next_button_update_ms = millis() + 500;
+    button_update_timeout.prime(500);
   #else
     UNUSED(clear_buttons);
   #endif
@@ -600,7 +589,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   extern bool no_reentry; // Flag to prevent recursion into menu handlers
 
   int8_t manual_move_axis = (int8_t)NO_AXIS;
-  millis_t manual_move_start_time = 0;
+  Timeout manual_move_timeout(250);
 
   #if IS_KINEMATIC
     bool MarlinUI::processing_manual_move = false;
@@ -619,7 +608,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
     if (processing_manual_move) return;
 
-    if (manual_move_axis != (int8_t)NO_AXIS && ELAPSED(millis(), manual_move_start_time) && !planner.is_full()) {
+    if (manual_move_axis != (int8_t)NO_AXIS && manual_move_timeout.elapsed() && !planner.is_full()) {
 
       #if IS_KINEMATIC
 
@@ -711,13 +700,13 @@ bool MarlinUI::detected() {
 void MarlinUI::update() {
 
   static uint16_t max_display_update_time = 0;
-  static millis_t next_lcd_update_ms;
+  static Timeout lcd_update_timeout(LCD_UPDATE_INTERVAL);
   millis_t ms = millis();
 
   #if HAS_LCD_MENU
 
     #if LCD_TIMEOUT_TO_STATUS
-      static millis_t return_to_status_ms = 0;
+      static Timeout return_to_status_timeout(LCD_TIMEOUT_TO_STATUS);
     #endif
 
     // Handle any queued Move Axis motion
@@ -776,18 +765,18 @@ void MarlinUI::update() {
       init_lcd(); // May revive the LCD if static electricity killed it
 
       ms = millis();
-      next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // delay LCD update until after SD activity completes
+      lcd_update_timeout.reset(ms);  // delay LCD update until after SD activity completes
     }
 
   #endif // SDSUPPORT && SD_DETECT_PIN
 
-  if (ELAPSED(ms, next_lcd_update_ms)
+  if (lcd_update_timeout.elapsed(ms)
     #if HAS_GRAPHICAL_LCD
       || drawing_screen
     #endif
   ) {
 
-    next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
+    lcd_update_timeout.reset(ms);
 
     #if ENABLED(LCD_HAS_STATUS_INDICATORS)
       update_indicators();
@@ -803,7 +792,7 @@ void MarlinUI::update() {
 
         if (handle_keypad()) {
           #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
-            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+            return_to_status_timeout.reset(ms);
           #endif
         }
 
@@ -852,7 +841,7 @@ void MarlinUI::update() {
           encoderDiff = 0;
         }
         #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
-          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+          return_to_status_timeout.reset(ms);
         #endif
         refresh(LCDVIEW_REDRAW_NOW);
       }
@@ -882,7 +871,7 @@ void MarlinUI::update() {
         }
         refresh(LCDVIEW_REDRAW_NOW);
         #if LCD_TIMEOUT_TO_STATUS
-          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+          return_to_status_timeout.reset(ms);
         #endif
       }
     #endif
@@ -957,8 +946,8 @@ void MarlinUI::update() {
     #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
       // Return to Status Screen after a timeout
       if (on_status_screen() || defer_return_to_status)
-        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-      else if (ELAPSED(ms, return_to_status_ms))
+        return_to_status_timeout.reset(ms);
+      else if (return_to_status_timeout.elapsed(ms))
         return_to_status();
     #endif
 
@@ -974,7 +963,7 @@ void MarlinUI::update() {
       default: break;
     } // switch
 
-  } // ELAPSED(ms, next_lcd_update_ms)
+  } // lcd_update_timeout.elapsed(ms)
 }
 
 #if HAS_ADC_BUTTONS
@@ -1072,7 +1061,7 @@ void MarlinUI::update() {
    */
   void MarlinUI::update_buttons() {
     const millis_t now = millis();
-    if (ELAPSED(now, next_button_update_ms)) {
+    if (button_update_timeout.elapsed(now)) {
 
       #if HAS_DIGITAL_BUTTONS
 
@@ -1112,25 +1101,25 @@ void MarlinUI::update() {
           #if BUTTON_EXISTS(UP)
             else if (BUTTON_PRESSED(UP)) {
               encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
-              next_button_update_ms = now + 300;
+              button_update_timeout.reset(now);
             }
           #endif
           #if BUTTON_EXISTS(DWN)
             else if (BUTTON_PRESSED(DWN)) {
               encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
-              next_button_update_ms = now + 300;
+              button_update_timeout.reset(now);
             }
           #endif
           #if BUTTON_EXISTS(LFT)
             else if (BUTTON_PRESSED(LFT)) {
               encoderDiff = -pulses;
-              next_button_update_ms = now + 300;
+              button_update_timeout.reset(now);
             }
           #endif
           #if BUTTON_EXISTS(RT)
             else if (BUTTON_PRESSED(RT)) {
               encoderDiff = pulses;
-              next_button_update_ms = now + 300;
+              button_update_timeout.reset(now);
             }
           #endif
 
@@ -1164,7 +1153,7 @@ void MarlinUI::update() {
 
       #endif
 
-    } // next_button_update_ms
+    } // button_update_timeout
 
     #if HAS_ENCODER_WHEEL
       static uint8_t lastEncoderBits;
@@ -1207,7 +1196,7 @@ void MarlinUI::update() {
         // so they are called during normal lcd_update
         uint8_t slow_bits = lcd.readButtons() << B_I2C_BTN_OFFSET;
         #if ENABLED(LCD_I2C_VIKI)
-          if ((slow_bits & (B_MI | B_RI)) && PENDING(millis(), next_button_update_ms)) // LCD clicked
+          if ((slow_bits & (B_MI | B_RI)) && button_update_timeout.pending()) // LCD clicked
             slow_bits &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
         #endif // LCD_I2C_VIKI
         return slow_bits;
@@ -1254,12 +1243,12 @@ void MarlinUI::update() {
     #if ENABLED(LCD_PROGRESS_BAR)
       progress_bar_ms = millis();
       #if PROGRESS_MSG_EXPIRE > 0
-        expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
+        status_message_timeout.ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
       #endif
     #endif
 
     #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
-      next_filament_display = millis() + 5000UL; // Show status message for 5s
+      filament_display_timeout.reset(); // Show status message for 5s
     #endif
 
     #if HAS_SPI_LCD && ENABLED(STATUS_MESSAGE_SCROLLING)

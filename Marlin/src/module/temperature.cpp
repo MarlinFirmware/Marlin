@@ -32,6 +32,7 @@
 #include "planner.h"
 #include "../core/language.h"
 #include "../HAL/shared/Delay.h"
+#include "../libs/timeout.h"
 
 #define MAX6675_SEPARATE_SPI EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO)
 
@@ -152,7 +153,7 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
   #endif
 
   #if ENABLED(ADAPTIVE_FAN_SLOWING)
-    uint8_t Temperature::fan_speed_scaler[FAN_COUNT] = ARRAY_N(FAN_COUNT, 128, 128, 128, 128, 128, 128);
+    uint8_t Temperature::fan_speed_scaler[FAN_COUNT] = ARRAY_BY_FANS1(128);
   #endif
 
   #if HAS_LCD_MENU
@@ -223,7 +224,7 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
     heater_watch_t Temperature::watch_bed; // = { 0 }
   #endif
   #if DISABLED(PIDTEMPBED)
-    millis_t Temperature::next_bed_check_ms;
+    Timeout Temperature::bed_check_timeout(BED_CHECK_INTERVAL);
   #endif
   #if HEATER_IDLE_HANDLER
     heater_idle_t Temperature::bed_idle; // = { 0 }
@@ -242,7 +243,7 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
     #if WATCH_CHAMBER
       heater_watch_t Temperature::watch_chamber = { 0 };
     #endif
-    millis_t Temperature::next_chamber_check_ms;
+    Timeout Temperature::chamber_check_timeout(CHAMBER_CHECK_INTERVAL);
   #endif // HAS_HEATED_CHAMBER
 #endif // HAS_TEMP_CHAMBER
 
@@ -291,7 +292,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
 #endif
 
 #ifdef MILLISECONDS_PREHEAT_TIME
-  millis_t Temperature::preheat_end_time[HOTENDS] = { 0 };
+  Timeout Temperature::preheat_timeout[HOTENDS] = ARRAY_BY_HOTENDS1(MILLISECONDS_PREHEAT_TIME);
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -299,7 +300,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
 #endif
 
 #if HAS_AUTO_FAN
-  millis_t Temperature::next_auto_fan_check_ms = 0;
+  Timeout Temperature::auto_fan_check_timeout(2500);
 #endif
 
 #if ENABLED(FAN_SOFT_PWM)
@@ -343,10 +344,11 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
     int cycles = 0;
     bool heating = true;
 
-    millis_t next_temp_ms = millis(), t1 = next_temp_ms, t2 = next_temp_ms;
-    long t_high = 0, t_low = 0;
+    millis_t t1 = millis(), t2 = t1;
 
-    long bias, d;
+    Timeout heater_state_timeout(2000, t1);
+
+    long t_high = 0, t_low = 0, bias, d;
     PID_t tune_pid = { 0, 0, 0 };
     float max = 0, min = 10000;
 
@@ -379,13 +381,13 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
       const uint16_t watch_temp_period = GTV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
       const uint8_t watch_temp_increase = GTV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
       const float watch_temp_target = target - float(watch_temp_increase + GTV(TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1);
-      millis_t temp_change_ms = next_temp_ms + watch_temp_period * 1000UL;
+      Timeout temp_change_timeout(watch_temp_period * 1000, t1);
       float next_watch_temp = 0.0;
       bool heated = false;
     #endif
 
     #if HAS_AUTO_FAN
-      next_auto_fan_check_ms = next_temp_ms + 2500UL;
+      auto_fan_check_timeout.reset(t1);
     #endif
 
     if (target > GHV(BED_MAXTEMP, temp_range[heater].maxtemp) - 15) {
@@ -427,10 +429,8 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
         #endif
 
         #if HAS_AUTO_FAN
-          if (ELAPSED(ms, next_auto_fan_check_ms)) {
+          if (auto_fan_check_timeout.advance(ms))
             checkExtruderAutoFans();
-            next_auto_fan_check_ms = ms + 2500UL;
-          }
         #endif
 
         if (heating && current > target) {
@@ -494,12 +494,11 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
       }
 
       // Report heater states every 2 seconds
-      if (ELAPSED(ms, next_temp_ms)) {
+      if (heater_state_timeout.advance(ms)) {
         #if HAS_TEMP_SENSOR
           print_heater_states(heater >= 0 ? heater : active_extruder);
           SERIAL_EOL();
         #endif
-        next_temp_ms = ms + 2000UL;
 
         // Make sure heating is actually working
         #if WATCH_BED || WATCH_HOTENDS
@@ -515,10 +514,10 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
             if (!heated) {                                          // If not yet reached target...
               if (current > next_watch_temp) {                      // Over the watch temp?
                 next_watch_temp = current + watch_temp_increase;    // - set the next temp to watch for
-                temp_change_ms = ms + watch_temp_period * 1000UL;   // - move the expiration timer up
+                temp_change_timeout.reset(ms);                      // - move the expiration timer up
                 if (current > watch_temp_target) heated = true;     // - Flag if target temperature reached
               }
-              else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
+              else if (temp_change_timeout.elapsed(ms))             // Watch timer expired
                 _temp_error(heater, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, heater));
             }
             else if (current < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
@@ -1022,7 +1021,7 @@ void Temperature::manage_heater() {
 
     #if WATCH_HOTENDS
       // Make sure temperature is increasing
-      if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) { // Time to check this extruder?
+      if (watch_hotend[e].timeout.primed_elapsed(ms)) { // Time to check this extruder?
         if (degHotend(e) < watch_hotend[e].target)                             // Failed to increase enough?
           _temp_error(e, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, e));
         else                                                                 // Start again if the target is still far off
@@ -1039,10 +1038,8 @@ void Temperature::manage_heater() {
   } // HOTEND_LOOP
 
   #if HAS_AUTO_FAN
-    if (ELAPSED(ms, next_auto_fan_check_ms)) { // only need to check fan state very infrequently
+    if (auto_fan_check_timeout.advance(ms)) // need to check fan state infrequently
       checkExtruderAutoFans();
-      next_auto_fan_check_ms = ms + 2500UL;
-    }
   #endif
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -1078,12 +1075,12 @@ void Temperature::manage_heater() {
     do {
 
       #if DISABLED(PIDTEMPBED)
-        if (PENDING(ms, next_bed_check_ms)
+        if (bed_check_timeout.pending(ms)
           #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
             && paused == last_pause_state
           #endif
         ) break;
-        next_bed_check_ms = ms + BED_CHECK_INTERVAL;
+        bed_check_timeout.reset(ms);
         #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
           last_pause_state = paused;
         #endif
@@ -1153,8 +1150,7 @@ void Temperature::manage_heater() {
       }
     #endif
 
-    if (ELAPSED(ms, next_chamber_check_ms)) {
-      next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
+    if (chamber_check_timeout.advance(ms)) {
 
       if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
         #if ENABLED(CHAMBER_LIMIT_SWITCHING)
@@ -1782,10 +1778,10 @@ void Temperature::init() {
     E_UNUSED();
     if (degTargetHotend(HOTEND_INDEX) && degHotend(HOTEND_INDEX) < degTargetHotend(HOTEND_INDEX) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
       watch_hotend[HOTEND_INDEX].target = degHotend(HOTEND_INDEX) + WATCH_TEMP_INCREASE;
-      watch_hotend[HOTEND_INDEX].next_ms = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
+      watch_hotend[HOTEND_INDEX].timeout.prime((WATCH_TEMP_PERIOD) * 1000UL);
     }
     else
-      watch_hotend[HOTEND_INDEX].next_ms = 0;
+      watch_hotend[HOTEND_INDEX].timeout.stop();
   }
 #endif
 
@@ -1798,10 +1794,10 @@ void Temperature::init() {
   void Temperature::start_watching_bed() {
     if (degTargetBed() && degBed() < degTargetBed() - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
       watch_bed.target = degBed() + WATCH_BED_TEMP_INCREASE;
-      watch_bed.next_ms = millis() + (WATCH_BED_TEMP_PERIOD) * 1000UL;
+      watch_bed.timeout.prime((WATCH_BED_TEMP_PERIOD) * 1000UL);
     }
     else
-      watch_bed.next_ms = 0;
+      watch_bed.timeout.stop();
   }
 #endif
 
@@ -1814,10 +1810,10 @@ void Temperature::init() {
   void Temperature::start_watching_chamber() {
     if (degChamber() < degTargetChamber() - (WATCH_CHAMBER_TEMP_INCREASE + TEMP_CHAMBER_HYSTERESIS + 1)) {
       watch_chamber.target = degChamber() + WATCH_CHAMBER_TEMP_INCREASE;
-      watch_chamber.next_ms = millis() + (WATCH_CHAMBER_TEMP_PERIOD) * 1000UL;
+      watch_chamber.timeout.prime((WATCH_CHAMBER_TEMP_PERIOD) * 1000UL);
     }
     else
-      watch_chamber.next_ms = 0;
+      watch_chamber.timeout.stop();
   }
 #endif
 
@@ -1842,7 +1838,7 @@ void Temperature::init() {
       SERIAL_ECHOPGM("Thermal Thermal Runaway Running. Heater ID: ");
       if (heater_id == -2) SERIAL_ECHOPGM("chamber");
       if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHO(heater_id);
-      SERIAL_ECHOPAIR(" ;  State:", sm.state, " ;  Timer:", sm.timer, " ;  Temperature:", current, " ;  Target Temp:", target);
+      SERIAL_ECHOPAIR(" ;  State:", sm.state, " ;  Timeout:", sm.timeout.ms, " ;  Temperature:", current, " ;  Target Temp:", target);
       if (heater_id >= 0)
         SERIAL_ECHOPAIR(" ;  Idle Timeout:", hotend_idle[heater_id].timed_out);
       else
@@ -1901,10 +1897,10 @@ void Temperature::init() {
         #endif
 
         if (current >= tr_target_temperature[heater_index] - hysteresis_degc) {
-          sm.timer = millis() + period_seconds * 1000UL;
+          sm.timeout.prime(period_seconds * 1000UL);
           break;
         }
-        else if (PENDING(millis(), sm.timer)) break;
+        else if (sm.timeout.pending()) break;
         sm.state = TRRunaway;
 
       case TRRunaway:
@@ -2028,9 +2024,9 @@ void Temperature::disable_all_heaters() {
     #endif
 
     // Return last-read value between readings
-    static millis_t next_max6675_ms[COUNT_6675] = { 0 };
-    millis_t ms = millis();
-    if (PENDING(ms, next_max6675_ms[hindex]))
+    static Timeout max6675_timeout[COUNT_6675] = ARRAY_N(COUNT_6675, MAX6675_HEAT_INTERVAL, MAX6675_HEAT_INTERVAL, MAX6675_HEAT_INTERVAL);
+    const millis_t ms = millis();
+    if (max6675_timeout[hindex].pending(ms))
       return int(
         #if COUNT_6675 == 1
           max6675_temp
@@ -2039,7 +2035,7 @@ void Temperature::disable_all_heaters() {
         #endif
       );
 
-    next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
+    max6675_timeout[hindex].reset(ms);
 
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
@@ -2860,12 +2856,10 @@ void Temperature::isr() {
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES)
 
-    uint8_t Temperature::auto_report_temp_interval;
-    millis_t Temperature::next_temp_report_ms;
+    Timeout Temperature::temp_report_timeout;
 
     void Temperature::auto_report_temperatures() {
-      if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
-        next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
+      if (temp_report_timeout.primed_advance()) {
         PORT_REDIRECT(SERIAL_BOTH);
         print_heater_states(active_extruder);
         SERIAL_EOL();
@@ -2921,7 +2915,7 @@ void Temperature::isr() {
       float target_temp = -1.0, old_temp = 9999.0;
       bool wants_to_cool = false, first_loop = true;
       wait_for_heatup = true;
-      millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
+      millis_t now, next_bed_temp_ms = 0, next_cool_check_ms = 0;
       do {
         // Target temperature might be changed during the loop
         if (target_temp != degTargetHotend(target_extruder)) {
@@ -2933,8 +2927,8 @@ void Temperature::isr() {
         }
 
         now = millis();
-        if (ELAPSED(now, next_temp_ms)) { // Print temp & remaining time every 1s while waiting
-          next_temp_ms = now + 1000UL;
+        if (ELAPSED(now, next_bed_temp_ms)) { // Print temp & remaining time every 1s while waiting
+          next_bed_temp_ms = now + 1000UL;
           print_heater_states(target_extruder);
           #if TEMP_RESIDENCY_TIME > 0
             SERIAL_ECHOPGM(" W:");
@@ -3039,7 +3033,7 @@ void Temperature::isr() {
       float target_temp = -1, old_temp = 9999;
       bool wants_to_cool = false;
       wait_for_heatup = true;
-      millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
+      millis_t now, next_bed_temp_ms = 0, next_cool_check_ms = 0;
 
       #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
         const GcodeSuite::MarlinBusyState old_busy_state = gcode.busy_state;
@@ -3062,8 +3056,8 @@ void Temperature::isr() {
         }
 
         now = millis();
-        if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
-          next_temp_ms = now + 1000UL;
+        if (ELAPSED(now, next_bed_temp_ms)) { //Print Temp Reading every 1 second while heating up.
+          next_bed_temp_ms = now + 1000UL;
           print_heater_states(active_extruder);
           #if TEMP_BED_RESIDENCY_TIME > 0
             SERIAL_ECHOPGM(" W:");
@@ -3160,7 +3154,7 @@ void Temperature::isr() {
       float target_temp = -1, old_temp = 9999;
       bool wants_to_cool = false, first_loop = true;
       wait_for_heatup = true;
-      millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
+      millis_t now, next_chamber_temp_ms = 0, next_cool_check_ms = 0;
 
       #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
         const GcodeSuite::MarlinBusyState old_busy_state = gcode.busy_state;
@@ -3178,8 +3172,8 @@ void Temperature::isr() {
         }
 
         now = millis();
-        if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
-          next_temp_ms = now + 1000UL;
+        if (ELAPSED(now, next_chamber_temp_ms)) { //Print Temp Reading every 1 second while heating up.
+          next_chamber_temp_ms = now + 1000UL;
           print_heater_states(active_extruder);
           #if TEMP_CHAMBER_RESIDENCY_TIME > 0
             SERIAL_ECHOPGM(" W:");

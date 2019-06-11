@@ -28,6 +28,7 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/temperature.h"
+#include "../../libs/timeout.h"
 
 #if ENABLED(DELTA)
   #include "../../module/delta.h"
@@ -152,7 +153,7 @@ void plan_arc(
     const float inv_duration = fr_mm_s / MM_PER_ARC_SEGMENT;
   #endif
 
-  millis_t next_idle_ms = millis() + 200UL;
+  Timeout idle_timeout(200, true);
 
   #if N_ARC_CORRECTION > 1
     int8_t arc_recalc_count = N_ARC_CORRECTION;
@@ -161,10 +162,7 @@ void plan_arc(
   for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
 
     thermalManager.manage_heater();
-    if (ELAPSED(millis(), next_idle_ms)) {
-      next_idle_ms = millis() + 200UL;
-      idle();
-    }
+    if (idle_timeout.advance()) idle();
 
     #if N_ARC_CORRECTION > 1
       if (--arc_recalc_count) {

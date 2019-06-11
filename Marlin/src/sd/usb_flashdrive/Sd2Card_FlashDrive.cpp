@@ -25,6 +25,7 @@
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
 
 #include "../../core/serial.h"
+#include "../../libs/timeout.h"
 
 #include "lib/Usb.h"
 #include "lib/masstorage.h"
@@ -46,18 +47,16 @@ Sd2Card::state_t Sd2Card::state;
 // of initializing the USB library for the first time.
 
 void Sd2Card::idle() {
-  static uint32_t next_retry;
+  static Timeout retry_timeout(2000);
 
   switch (state) {
     case USB_HOST_DELAY_INIT:
-      next_retry = millis() + 2000;
+      retry_timeout.reset();
       state = USB_HOST_WAITING;
       break;
     case USB_HOST_WAITING:
-      if (ELAPSED(millis(), next_retry)) {
-        next_retry = millis() + 2000;
+      if (retry_timeout.advance())
         state = USB_HOST_UNINITIALIZED;
-      }
       break;
     case USB_HOST_UNINITIALIZED:
       SERIAL_ECHOPGM("Starting USB host...");

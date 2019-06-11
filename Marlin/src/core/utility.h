@@ -131,6 +131,9 @@ inline void serial_delay(const millis_t ms) {
   #define log_machine_info() NOOP
 #endif
 
+//
+// Restorer class for REMEMBER/RESTORE objects
+//
 template<typename T>
 class restorer {
   T& ref_;

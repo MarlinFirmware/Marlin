@@ -1237,17 +1237,17 @@ void Planner::check_axes_activity() {
 
     #if FAN_KICKSTART_TIME > 0
 
-      static millis_t fan_kick_end[FAN_COUNT] = { 0 };
+      static Timeout fan_kick_timeout[FAN_COUNT] = { 0 };
 
       #define KICKSTART_FAN(f) \
         if (tail_fan_speed[f]) { \
           millis_t ms = millis(); \
-          if (fan_kick_end[f] == 0) { \
-            fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
+          if (fan_kick_timeout[f].stopped()) { \
+            fan_kick_timeout[f].prime(FAN_KICKSTART_TIME); \
             tail_fan_speed[f] = 255; \
-          } else if (PENDING(ms, fan_kick_end[f])) \
+          } else if (fan_kick_timeout[f].pending(ms)) \
             tail_fan_speed[f] = 255; \
-        } else fan_kick_end[f] = 0
+        } else fan_kick_timeout[f].stop()
 
       #if HAS_FAN0
         KICKSTART_FAN(0);

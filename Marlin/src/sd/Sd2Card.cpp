@@ -39,6 +39,7 @@
 #include "Sd2Card.h"
 
 #include "../Marlin.h"
+#include "../libs/timeout.h"
 
 #if ENABLED(SD_CHECK_AND_RETRY)
   static bool crcSupported = true;
@@ -230,9 +231,9 @@ bool Sd2Card::eraseSingleBlockEnable() {
 bool Sd2Card::init(const uint8_t sckRateID/*=0*/, const pin_t chipSelectPin/*=SD_CHIP_SELECT_PIN*/) {
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
+
   // 16-bit init start time allows over a minute
-  const millis_t init_timeout = millis() + SD_INIT_TIMEOUT;
-  uint32_t arg;
+  const Timeout init_timeout(SD_INIT_TIMEOUT, true);
 
   // If init takes more than 4s it could trigger
   // watchdog leading to a reboot loop.
@@ -259,7 +260,7 @@ bool Sd2Card::init(const uint8_t sckRateID/*=0*/, const pin_t chipSelectPin/*=SD
 
   // Command to go idle in SPI mode
   while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
-    if (ELAPSED(millis(), init_timeout)) {
+    if (init_timeout.elapsed()) {
       error(SD_CARD_ERROR_CMD0);
       goto FAIL;
     }
@@ -288,7 +289,7 @@ bool Sd2Card::init(const uint8_t sckRateID/*=0*/, const pin_t chipSelectPin/*=SD
       break;
     }
 
-    if (ELAPSED(millis(), init_timeout)) {
+    if (init_timeout.elapsed()) {
       error(SD_CARD_ERROR_CMD8);
       goto FAIL;
     }
@@ -300,14 +301,17 @@ bool Sd2Card::init(const uint8_t sckRateID/*=0*/, const pin_t chipSelectPin/*=SD
   #endif
 
   // Initialize card and send host supports SDHC if SD2
-  arg = type() == SD_CARD_TYPE_SD2 ? 0x40000000 : 0;
-  while ((status_ = cardAcmd(ACMD41, arg)) != R1_READY_STATE) {
-    // Check for timeout
-    if (ELAPSED(millis(), init_timeout)) {
-      error(SD_CARD_ERROR_ACMD41);
-      goto FAIL;
+  {
+    uint32_t arg = type() == SD_CARD_TYPE_SD2 ? 0x40000000 : 0;
+    while ((status_ = cardAcmd(ACMD41, arg)) != R1_READY_STATE) {
+      // Check for timeout
+      if (init_timeout.elapsed()) {
+        error(SD_CARD_ERROR_ACMD41);
+        goto FAIL;
+      }
     }
   }
+
   // If SD2 read OCR register to check for SDHC card
   if (type() == SD_CARD_TYPE_SD2) {
     if (cardCommand(CMD58, 0)) {
@@ -440,9 +444,9 @@ bool Sd2Card::readData(uint8_t* dst) {
 bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   bool success = false;
 
-  const millis_t read_timeout = millis() + SD_READ_TIMEOUT;
+  const Timeout read_timeout(SD_READ_TIMEOUT, true);
   while ((status_ = spiRec()) == 0xFF) {      // Wait for start block token
-    if (ELAPSED(millis(), read_timeout)) {
+    if (read_timeout.elapsed()) {
       error(SD_CARD_ERROR_READ_TIMEOUT);
       goto FAIL;
     }
@@ -535,8 +539,8 @@ bool Sd2Card::setSckRate(const uint8_t sckRateID) {
  * \return true for success, false for timeout.
  */
 bool Sd2Card::waitNotBusy(const millis_t timeout_ms) {
-  const millis_t wait_timeout = millis() + timeout_ms;
-  while (spiRec() != 0xFF) if (ELAPSED(millis(), wait_timeout)) return false;
+  const Timeout wait_timeout(timeout_ms, true);
+  while (spiRec() != 0xFF) if (wait_timeout.elapsed()) return false;
   return true;
 }
 
@@ -652,4 +656,4 @@ bool Sd2Card::writeStop() {
   return success;
 }
 
-#endif // SDSUPPORT
+#endif // SDSUPPORT && !(USB_FLASH_DRIVE_SUPPORT || SDIO_SUPPORT)

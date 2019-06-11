@@ -631,7 +631,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   #elif BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
 
     // Alternate Status message and Filament display
-    if (ELAPSED(millis(), next_filament_display)) {
+    if (filament_display_timeout.elapsed()) {
       lcd_put_u8str_P(PSTR("Dia "));
       lcd_put_u8str(ftostr12ns(filament_width_meas));
       lcd_put_u8str_P(PSTR(" V"));

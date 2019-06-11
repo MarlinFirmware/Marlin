@@ -44,7 +44,9 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-extern millis_t manual_move_start_time;
+#include "../../libs/timeout.h"
+extern Timeout manual_move_timeout;
+
 extern int8_t manual_move_axis;
 #if ENABLED(MANUAL_E_MOVES_RELATIVE)
   float manual_move_e_origin = 0;
@@ -64,7 +66,7 @@ inline void manual_move_to_current(AxisEnum axis
   #if E_MANUAL > 1
     if (axis == E_AXIS) ui.manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
   #endif
-  manual_move_start_time = millis() + (move_menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
+  if (move_menu_scale >= 1.0f) manual_move_timeout.reset(); // delay for bigger moves
   manual_move_axis = (int8_t)axis;
 }
 

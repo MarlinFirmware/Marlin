@@ -187,11 +187,9 @@ void I2CPositionEncoder::update() {
     #endif
 
     if (ABS(error) > I2CPE_ERR_CNT_THRESH * planner.settings.axis_steps_per_mm[encoderAxis]) {
-      const millis_t ms = millis();
-      if (ELAPSED(ms, nextErrorCountTime)) {
+      if (nextErrorTimeout.advance()) {
         SERIAL_ECHOLNPAIR("Large error on ", axis_codes[encoderAxis], " axis. error: ", (int)error, "; diffSum: ", diffSum);
         errorCount++;
-        nextErrorCountTime = ms + I2CPE_ERR_CNT_DEBOUNCE_MS;
       }
     }
   }

@@ -24,6 +24,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "../module/planner.h"
+#include "../libs/timeout.h"
 
 #include <Wire.h>
 
@@ -128,8 +129,9 @@ class I2CPositionEncoder {
               position;
 
     millis_t  lastPositionTime    = 0,
-              nextErrorCountTime  = 0,
               lastErrorTime;
+
+    Timeout nextErrorTimeout;
 
     #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
       uint8_t errIdx = 0, errPrstIdx = 0;
@@ -138,6 +140,8 @@ class I2CPositionEncoder {
     #endif
 
   public:
+    I2CPositionEncoder() { nextErrorTimeout.dura = I2CPE_ERR_CNT_DEBOUNCE_MS; }
+
     void init(const uint8_t address, const AxisEnum axis);
     void reset();
 

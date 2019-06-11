@@ -47,6 +47,8 @@ GcodeSuite gcode;
 
 #include "../Marlin.h" // for idle() and suspend_auto_report
 
+#include "../libs/timeout.h"
+
 millis_t GcodeSuite::previous_move_ms;
 
 bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
@@ -141,9 +143,8 @@ void GcodeSuite::get_destination_from_command() {
 /**
  * Dwell waits immediately. It does not synchronize. Use M400 instead of G4
  */
-void GcodeSuite::dwell(millis_t time) {
-  time += millis();
-  while (PENDING(millis(), time)) idle();
+void GcodeSuite::dwell(const millis_t time) {
+  for (Timeout soon(time); soon.pending(); idle());
 }
 
 /**
@@ -866,10 +867,10 @@ void GcodeSuite::process_next_command() {
    * while the machine is not accepting commands.
    */
   void GcodeSuite::host_keepalive() {
+    static Timeout busy_signal_timeout;
     const millis_t ms = millis();
-    static millis_t next_busy_signal_ms = 0;
     if (!suspend_auto_report && host_keepalive_interval && busy_state != NOT_BUSY) {
-      if (PENDING(ms, next_busy_signal_ms)) return;
+      if (busy_signal_timeout.pending()) return;
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:
@@ -885,7 +886,7 @@ void GcodeSuite::process_next_command() {
           break;
       }
     }
-    next_busy_signal_ms = ms + host_keepalive_interval * 1000UL;
+    busy_signal_timeout.prime(host_keepalive_interval * 1000UL, ms);
   }
 
 #endif // HOST_KEEPALIVE_FEATURE

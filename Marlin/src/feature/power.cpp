@@ -31,11 +31,12 @@
 #include "power.h"
 #include "../module/temperature.h"
 #include "../module/stepper_indirection.h"
+#include "../libs/timeout.h"
 #include "../Marlin.h"
 
 Power powerManager;
 
-millis_t Power::lastPowerOn;
+Timeout Power::power_off_timeout(POWER_TIMEOUT * 1000);
 
 bool Power::is_power_needed() {
   #if ENABLED(AUTO_POWER_FANS)
@@ -98,19 +99,18 @@ bool Power::is_power_needed() {
 }
 
 void Power::check() {
-  static millis_t nextPowerCheck = 0;
+  static Timeout power_check_timeout(2500);
   millis_t ms = millis();
-  if (ELAPSED(ms, nextPowerCheck)) {
-    nextPowerCheck = ms + 2500UL;
+  if (power_check_timeout.advance(ms)) {
     if (is_power_needed())
       power_on();
-    else if (!lastPowerOn || ELAPSED(ms, lastPowerOn + (POWER_TIMEOUT) * 1000UL))
+    else if (!power_off_timeout.primed_pending(ms))
       power_off();
   }
 }
 
 void Power::power_on() {
-  lastPowerOn = millis();
+  power_off_timeout.reset();
   if (!powersupply_on) {
     PSU_PIN_ON();
 

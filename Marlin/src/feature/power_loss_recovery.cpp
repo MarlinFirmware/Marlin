@@ -45,6 +45,7 @@ job_recovery_info_t PrintJobRecovery::info;
 #include "../module/printcounter.h"
 #include "../module/temperature.h"
 #include "../core/serial.h"
+#include "../libs/timeout.h"
 
 #if ENABLED(FWRETRACT)
   #include "fwretract.h"
@@ -129,8 +130,7 @@ void PrintJobRecovery::load() {
 void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=true*/) {
 
   #if SAVE_INFO_INTERVAL_MS > 0
-    static millis_t next_save_ms; // = 0
-    millis_t ms = millis();
+    static Timeout auto_save_timeout(SAVE_INFO_INTERVAL_MS);
   #endif
 
   #ifndef POWER_LOSS_MIN_Z_CHANGE
@@ -144,16 +144,12 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
         || READ(POWER_LOSS_PIN) == POWER_LOSS_STATE
       #endif
       #if SAVE_INFO_INTERVAL_MS > 0       // Save if interval is elapsed
-        || ELAPSED(ms, next_save_ms)
+        || auto_save_timeout.advance()
       #endif
       // Save if Z is above the last-saved position by some minimum height
       || current_position[Z_AXIS] > info.current_position[Z_AXIS] + POWER_LOSS_MIN_Z_CHANGE
     #endif
   ) {
-
-    #if SAVE_INFO_INTERVAL_MS > 0
-      next_save_ms = ms + SAVE_INFO_INTERVAL_MS;
-    #endif
 
     // Set Head and Foot to matching non-zero values
     if (!++info.valid_head) ++info.valid_head; // non-zero in sequence

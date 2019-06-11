@@ -23,6 +23,7 @@
 #pragma once
 
 #include "../../inc/MarlinConfig.h"
+#include "../../libs/timeout.h"
 
 #if HAS_FILAMENT_SENSOR
   #include "../runout.h"
@@ -79,7 +80,8 @@ private:
   static volatile int8_t finda;
   static volatile bool finda_runout_valid;
   static int16_t version, buildnr;
-  static millis_t last_request, next_P0_request;
+  static millis_t last_request;
+  static Timeout P0_request_timeout;
   static char rx_buffer[16], tx_buffer[16];
 
   static inline void set_runout_valid(const bool valid) {

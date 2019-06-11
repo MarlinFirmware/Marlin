@@ -32,6 +32,7 @@
 #include "../../gcode/queue.h"
 #include "../../sd/cardreader.h"
 #include "../../libs/buzzer.h"
+#include "../../libs/timeout.h"
 
 #if ENABLED(EEPROM_SETTINGS)
   #include "../../module/configuration_store.h"
@@ -204,14 +205,14 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     #endif
 
     #if BOTH(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
-      static millis_t doubleclick_expire_ms = 0;
-      // Going to menu_main from status screen? Remember first click time.
-      // Going back to status screen within a very short time? Go to Z babystepping.
+      static Timeout doubleclick_timeout(DOUBLECLICK_MAX_INTERVAL);
       if (screen == menu_main) {
-        if (on_status_screen())
-          doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
+        // Going to menu from status? Reset the timeout.
+        if (on_status_screen()) doubleclick_timeout.reset();
       }
-      else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
+      else if (screen == status_screen && currentScreen == menu_main && doubleclick_timeout.pending()) {
+
+        // Another click before timeout? Welcome to Z babystepping.
 
         #if ENABLED(BABYSTEP_WITHOUT_HOMING)
           constexpr bool can_babystep = true;
