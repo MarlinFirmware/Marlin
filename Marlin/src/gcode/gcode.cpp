@@ -120,7 +120,8 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     // Only update power loss recovery on moves with E
-    if (seen[E_AXIS] && (seen[X_AXIS] || seen[Y_AXIS]) && IS_SD_PRINTING()) recovery.save();
+    if (recovery.enabled && IS_SD_PRINTING() && seen[E_AXIS] && (seen[X_AXIS] || seen[Y_AXIS]))
+      recovery.save();
   #endif
 
   if (parser.linearval('F') > 0)
