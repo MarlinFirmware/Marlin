@@ -21,10 +21,11 @@
  */
 #ifdef ARDUINO_ARCH_ESP32
 
+#include "../../inc/MarlinConfigPre.h"
+
 #include "i2s.h"
 
 #include "../shared/Marduino.h"
-#include "../../core/macros.h"
 #include "driver/periph_ctrl.h"
 #include "rom/lldesc.h"
 #include "soc/i2s_struct.h"

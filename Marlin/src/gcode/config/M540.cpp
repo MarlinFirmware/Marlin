@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
+#if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
 
 #include "../gcode.h"
 #include "../../module/stepper.h"
@@ -37,4 +37,4 @@ void GcodeSuite::M540() {
 
 }
 
-#endif // ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+#endif // SD_ABORT_ON_ENDSTOP_HIT

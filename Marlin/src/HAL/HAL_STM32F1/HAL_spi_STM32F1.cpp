@@ -40,8 +40,9 @@
 #include "../shared/HAL_SPI.h"
 #include "pins_arduino.h"
 #include "spi_pins.h"
-#include "../../core/macros.h"
 #include <SPI.h>
+
+#include "../../inc/MarlinConfigPre.h"
 
 // --------------------------------------------------------------------------
 // Public Variables
@@ -179,6 +180,21 @@ void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) 
   spiConfig = SPISettings(spiClock, (BitOrder)bitOrder, dataMode);
   SPI.beginTransaction(spiConfig);
 }
+
+#if ENABLED(SPI_EEPROM)
+
+// Read single byte from specified SPI channel
+uint8_t spiRec(uint32_t chan) { return spiRec(); }
+
+// Write single byte to specified SPI channel
+void spiSend(uint32_t chan, byte b) { spiSend(b); }
+
+// Write buffer to specified SPI channel
+void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
+  for (size_t p = 0; p < n; p++) spiSend(buf[p]);
+}
+
+#endif // SPI_EEPROM
 
 #endif // SOFTWARE_SPI
 
