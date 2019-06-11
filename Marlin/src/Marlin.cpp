@@ -1131,7 +1131,9 @@ void loop() {
   for (;;) {
 
     #if ENABLED(SDSUPPORT)
+
       card.checkautostart();
+
       if (card.flag.abort_sd_printing) {
         card.stopSDPrint(
           #if SD_RESORT
@@ -1153,6 +1155,7 @@ void loop() {
           enqueue_and_echo_commands_P(PSTR(EVENT_GCODE_SD_STOP));
         #endif
       }
+
     #endif // SDSUPPORT
 
     if (commands_in_queue < BUFSIZE) get_available_commands();
