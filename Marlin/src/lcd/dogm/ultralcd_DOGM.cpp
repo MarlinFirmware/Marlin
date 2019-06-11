@@ -48,6 +48,7 @@
 
 #include "../lcdprint.h"
 #include "../fontutils.h"
+#include "../../libs/numtostr.h"
 #include "../ultralcd.h"
 
 #include "../../sd/cardreader.h"
