@@ -354,17 +354,12 @@ void CardReader::initsd() {
     flag.detected = true;
     SERIAL_ECHO_MSG(MSG_SD_CARD_OK);
     #if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
-      SERIAL_ECHOLN("Loading settings from SD.");
-      if (settings.load()) {
-        ui.set_status_P(PSTR("Settings loaded (SD)"));
-      }
+      (void)settings.load();
     #endif
   }
   setroot();
 
   ui.refresh();
-
-  
 }
 
 void CardReader::release() {
@@ -567,9 +562,10 @@ void CardReader::checkautostart() {
   if (!isDetected()) initsd();
 
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
-      SERIAL_ECHOLN("Loading settings from SD");
-      settings.load();
+    SERIAL_ECHOLNPGM("Loading settings from SD");
+    (void)settings.load();
   #endif
+
   if (isDetected()
     #if ENABLED(POWER_LOSS_RECOVERY)
       && !recovery.valid() // Don't run auto#.g when a resume file exists
