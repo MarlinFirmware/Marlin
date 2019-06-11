@@ -148,4 +148,18 @@ void LEDLights::set_color(const LEDColor &incol
   void LEDLights::toggle() { if (lights_on) set_off(); else update(); }
 #endif
 
+#ifdef LED_BACKLIGHT_TIMEOUT
+
+  millis_t LEDLights::led_off_time; // = 0
+
+  void LEDLights::update_timeout(const bool power_on) {
+    const millis_t ms = millis();
+    if (power_on)
+      reset_timeout(ms);
+    else if (ELAPSED(ms, led_off_time))
+      set_off();
+  }
+
+#endif
+
 #endif // HAS_COLOR_LEDS
