@@ -1141,7 +1141,7 @@ void loop() {
         clear_command_queue();
         quickstop_stepper();
         print_job_timer.stop();
-        #if DISABLED(PRINT_ABORT_NO_COOLDOWN)
+        #if DISABLED(SD_ABORT_NO_COOLDOWN)
           thermalManager.disable_all_heaters();
         #endif
         thermalManager.zero_fan_speeds();
