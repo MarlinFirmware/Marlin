@@ -435,7 +435,11 @@ void menu_motion() {
   //
   // Auto Home
   //
-  MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+  #ifdef HEAT_BEFORE_HOME
+    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR(HOMING_SCRIPT));
+    #else
+    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+  #endif
   #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
     MENU_ITEM(gcode, MSG_AUTO_HOME_X, PSTR("G28 X"));
     MENU_ITEM(gcode, MSG_AUTO_HOME_Y, PSTR("G28 Y"));
