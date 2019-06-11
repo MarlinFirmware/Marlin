@@ -1131,6 +1131,7 @@ void loop() {
   for (;;) {
 
     #if ENABLED(SDSUPPORT)
+
       card.checkautostart();
 
       if (card.flag.abort_sd_printing) {
@@ -1142,7 +1143,9 @@ void loop() {
         clear_command_queue();
         quickstop_stepper();
         print_job_timer.stop();
-        thermalManager.disable_all_heaters();
+        #if DISABLED(SD_ABORT_NO_COOLDOWN)
+          thermalManager.disable_all_heaters();
+        #endif
         thermalManager.zero_fan_speeds();
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1152,6 +1155,7 @@ void loop() {
           enqueue_and_echo_commands_P(PSTR(EVENT_GCODE_SD_STOP));
         #endif
       }
+
     #endif // SDSUPPORT
 
     if (commands_in_queue < BUFSIZE) get_available_commands();
