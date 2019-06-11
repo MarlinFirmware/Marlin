@@ -413,15 +413,6 @@ void menu_move() {
   END_MENU();
 }
 
-void inverse_home_menu(){
-  START_MENU();
-  MENU_BACK(MSG_MOTION);
-  MENU_ITEM(gcode, MSG_10MM_AWAY, PSTR(AWAY_10_MM));
-  MENU_ITEM(gcode, MSG_50MM_AWAY, PSTR(AWAY_50_MM));
-  MENU_ITEM(gcode, MSG_MAX_AWAY, PSTR(AWAY_MAX_MM));
-  END_MENU();
-}
-
 void _lcd_ubl_level_bed();
 void menu_bed_leveling();
 
@@ -449,25 +440,12 @@ void menu_motion() {
     #else
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
   #endif
-
   #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
     MENU_ITEM(gcode, MSG_AUTO_HOME_X, PSTR("G28 X"));
     MENU_ITEM(gcode, MSG_AUTO_HOME_Y, PSTR("G28 Y"));
     MENU_ITEM(gcode, MSG_AUTO_HOME_Z, PSTR("G28 Z"));
   #endif
 
-  //
-  // Inverse Home
-  //
-  #ifdef INVERSE_HOME
-    MENU_ITEM(submenu, MSG_INVERSE_HOME, inverse_home_menu);
-  #endif
-
-  //
-  // Inverse Home
-  //
-  MENU_ITEM(gcode, MSG_GANTRY_TEST, PSTR("G99"));
-  
   //
   // Auto Z-Align
   //
