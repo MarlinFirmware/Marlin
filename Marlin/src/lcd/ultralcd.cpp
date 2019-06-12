@@ -1461,9 +1461,9 @@ void MarlinUI::update() {
       #if HAS_SPI_LCD
         lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
       #endif
-      queue.inject_front_P(PSTR("M25 P\nM24"));
+      queue.inject_P(PSTR("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)
-      queue.inject_front_P(PSTR("M25"));
+      queue.inject_P(PSTR("M25"));
     #elif defined(ACTION_ON_PAUSE)
       host_action_pause();
     #endif

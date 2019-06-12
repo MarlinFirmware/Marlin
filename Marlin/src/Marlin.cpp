@@ -369,7 +369,7 @@ void disable_all_steppers() {
     #endif // HOST_ACTION_COMMANDS
 
     if (run_runout_script)
-      queue.inject_front_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
   }
 
 #endif // HAS_FILAMENT_SENSOR

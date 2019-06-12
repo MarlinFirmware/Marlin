@@ -152,71 +152,39 @@ bool GCodeQueue::enqueue_one(const char* cmd) {
   return false;
 }
 
-bool early_cmd; // = false
-
 /**
- * Insert a high Priority command from RAM into the main command buffer.
- * Return true if the command was consumed
- * Return false for a full buffer, or if the 'command' is a comment.
+ * Process the next "immediate" command.
  */
-inline bool GCodeQueue::_enqueue_front(const char * const cmd) {
-  if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') return true;
-  if (*cmd == ';' || length >= BUFSIZE) return false;
-  if (index_r == 0) index_r = BUFSIZE;
-  --index_r;
-  strcpy(buffer[index_r], cmd);
-  send_ok[index_r] = false;
-  #if NUM_SERIAL > 1
-    port[index_r] = -1;
-  #endif
-  length++;
+bool GCodeQueue::process_injected_command() {
+  if (injected_commands_P == nullptr) return false;
+
+  char c;
+  size_t i = 0;
+  while ((c = pgm_read_byte(&injected_commands_P[i])) && c != '\n') i++;
+  if (!i) return false;
+
+  char cmd[i + 1];
+  memcpy_P(cmd, injected_commands_P, i);
+  cmd[i] = '\0';
+
+  injected_commands_P = c ? injected_commands_P + i + 1 : nullptr;
+
+  parser.parse(cmd);
+  PORT_REDIRECT(SERIAL_PORT);
+  gcode.process_parsed_command();
+  PORT_RESTORE();
+
   return true;
 }
 
 /**
- * Insert in the front of queue, one or many commands to run from program memory.
- * Aborts the current queue, if any.
- * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
- */
-void GCodeQueue::inject_front_P(PGM_P const pgcode) {
-  early_cmd = true;
-  injected_commands_P = pgcode;
-  (void)drain_injected(); // first command executed asap (when possible)
-}
-
-/**
- * Inject the next "immediate" command, when possible, onto the front of the queue.
- * Return true if any immediate commands remain to inject.
- * Do not inject a comment or use leading space!.
- */
-bool GCodeQueue::drain_injected() {
-  while (injected_commands_P != nullptr) {
-    size_t i = 0;
-    char c, cmd[60];
-    strncpy_P(cmd, injected_commands_P, sizeof(cmd) - 1);
-    cmd[sizeof(cmd) - 1] = '\0';
-    while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
-    cmd[i] = '\0';
-
-    if (early_cmd ? _enqueue_front(cmd) : enqueue_one(cmd)) {
-      injected_commands_P = c ? injected_commands_P + i + 1 : nullptr; // next command or done
-      if (!c) early_cmd = false;
-    }
-    else
-      return true; // buffer is full (or command is comment)
-  }
-  return false;   // return whether any more remain
-}
-
-/**
  * Enqueue one or many commands to run from program memory.
+ * Do not inject a comment or use leading spaces!
  * Aborts the current queue, if any.
- * Note: drain_injected() must be called repeatedly to drain the commands afterwards
+ * Note: process_injected_command() will be called to drain any commands afterwards
  */
 void GCodeQueue::inject_P(PGM_P const pgcode) {
-  early_cmd = false;
   injected_commands_P = pgcode;
-  (void)drain_injected(); // first command executed asap (when possible)
 }
 
 /**
@@ -861,9 +829,6 @@ void GCodeQueue::get_serial_commands() {
  */
 void GCodeQueue::get_available_commands() {
 
-  // if any immediate commands remain, don't get other commands yet
-  if (drain_injected()) return;
-
   get_serial_commands();
 
   #if ENABLED(SDSUPPORT)
@@ -875,6 +840,9 @@ void GCodeQueue::get_available_commands() {
  * Get the next command in the queue, optionally log it to SD, then dispatch it
  */
 void GCodeQueue::advance() {
+
+  // Process immediate commands
+  if (process_injected_command()) return;
 
   // Return if the G-code buffer is empty
   if (!length) return;

@@ -70,7 +70,7 @@ public:
   /**
    * Enqueue one or many commands to run from program memory.
    * Aborts the current queue, if any.
-   * Note: drain_injected() must be called repeatedly to drain the commands afterwards
+   * Note: process_injected_command() will process them.
    */
   static void inject_P(PGM_P const pgcode);
 
@@ -83,13 +83,6 @@ public:
    * Enqueue from program memory and return only when commands are actually enqueued
    */
   static void enqueue_now_P(PGM_P const cmd);
-
-  /**
-   * Insert in the front of queue, one or many commands to run from program memory.
-   * Aborts the current queue, if any.
-   * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
-   */
-  void inject_front_P(PGM_P const pgcode);
 
   /**
    * Get the next command in the queue, optionally log it to SD, then dispatch it
@@ -143,9 +136,8 @@ private:
     #endif
   );
 
-  static bool _enqueue_front(const char* cmd);
-
-  static bool drain_injected();
+  // Process the next "immediate" command
+  static bool process_injected_command();
 
   /**
    * Enqueue with Serial Echo
