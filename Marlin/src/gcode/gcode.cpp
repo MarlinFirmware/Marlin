@@ -181,7 +181,7 @@ void GcodeSuite::dwell(millis_t time) {
 // Placeholders for non-migrated codes
 //
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
-  extern void M100_dump_routine(PGM_P const title, const char *start, const char *end);
+  extern void M100_dump_routine(PGM_P const title, char *start, char *end);
 #endif
 
 /**
