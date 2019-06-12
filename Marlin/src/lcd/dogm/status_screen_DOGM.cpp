@@ -33,6 +33,7 @@
 #include "ultralcd_DOGM.h"
 #include "../ultralcd.h"
 #include "../lcdprint.h"
+#include "../../libs/numtostr.h"
 
 #include "../../module/motion.h"
 #include "../../module/temperature.h"

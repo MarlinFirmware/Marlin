@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../ultralcd.h"
+#include "../../libs/numtostr.h"
 #include "../../inc/MarlinConfig.h"
 
 #include "limits.h"

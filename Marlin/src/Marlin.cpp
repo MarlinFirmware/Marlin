@@ -73,10 +73,6 @@
   #include "feature/mixing.h"
 #endif
 
-#if ENABLED(BEZIER_CURVE_SUPPORT)
-  #include "module/planner_bezier.h"
-#endif
-
 #if ENABLED(MAX7219_DEBUG)
   #include "feature/Max7219_Debug_LEDs.h"
 #endif
@@ -93,10 +89,6 @@
   #include "module/servo.h"
 #endif
 
-#if HAS_DIGIPOTSS
-  #include <SPI.h>
-#endif
-
 #if ENABLED(DAC_STEPPER_CURRENT)
   #include "feature/dac/stepper_dac.h"
 #endif
@@ -110,7 +102,7 @@
   #include "feature/I2CPositionEncoder.h"
 #endif
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)
   #include "feature/tmc_util.h"
 #endif
 
@@ -178,10 +170,6 @@
 #endif
 
 bool Running = true;
-
-#if ENABLED(TEMPERATURE_UNITS_SUPPORT)
-  TempUnit input_temp_units = TEMPUNIT_C;
-#endif
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
 bool wait_for_heatup = true;
@@ -1131,6 +1119,7 @@ void loop() {
   for (;;) {
 
     #if ENABLED(SDSUPPORT)
+
       card.checkautostart();
 
       if (card.flag.abort_sd_printing) {
@@ -1142,7 +1131,9 @@ void loop() {
         clear_command_queue();
         quickstop_stepper();
         print_job_timer.stop();
-        thermalManager.disable_all_heaters();
+        #if DISABLED(SD_ABORT_NO_COOLDOWN)
+          thermalManager.disable_all_heaters();
+        #endif
         thermalManager.zero_fan_speeds();
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1152,6 +1143,7 @@ void loop() {
           enqueue_and_echo_commands_P(PSTR(EVENT_GCODE_SD_STOP));
         #endif
       }
+
     #endif // SDSUPPORT
 
     if (commands_in_queue < BUFSIZE) get_available_commands();

@@ -33,6 +33,7 @@
 
 #include "ultralcd_HD44780.h"
 #include "../ultralcd.h"
+#include "../../libs/numtostr.h"
 
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
