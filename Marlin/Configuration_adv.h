@@ -2115,19 +2115,18 @@
 #endif
 
 /**
- * Coolant control
+ * Coolant Control
  *
- * Add the M7, M8, and M9 commands to turn mist or flood coolant on and off
+ * Add the M7, M8, and M9 commands to turn mist or flood coolant on and off.
  *
- * You'll need to select pins for mist and flood ON/OFF
+ * Note: COOLANT_MIST_PIN and/or COOLANT_FLOOD_PIN must also be defined.
  */
-//#define COOLANT_ENABLE
-#if ENABLED(COOLANT_ENABLE)
-  #define COOLANT_MIST           true   // set to "true" if mist coolant is present
-  #define COOLANT_FLOOD          true   // set to "true" if flood coolant is present
-  #define COOLANT_MIST_INVERT    false  // set to "true" if the on/off function is reversed
-  #define COOLANT_FLOOD_INVERT   false  // set to "true" if the on/off function is reversed
-
+//#define COOLANT_CONTROL
+#if ENABLED(COOLANT_CONTROL)
+  #define COOLANT_MIST                // Enable if mist coolant is present
+  #define COOLANT_FLOOD               // Enable if flood coolant is present
+  #define COOLANT_MIST_INVERT  false  // Set "true" if the on/off function is reversed
+  #define COOLANT_FLOOD_INVERT false  // Set "true" if the on/off function is reversed
 #endif
 
 /**

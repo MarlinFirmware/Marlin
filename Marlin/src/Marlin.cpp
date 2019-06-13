@@ -986,10 +986,10 @@ void setup() {
   #endif
 
   #if ENABLED(COOLANT_MIST)
-    OUT_WRITE(COOLANT_MIST_PIN, COOLANT_MIST_INVERT);  // init coolant to off
+    OUT_WRITE(COOLANT_MIST_PIN, COOLANT_MIST_INVERT);   // Init Mist Coolant OFF
   #endif
   #if ENABLED(COOLANT_FLOOD)
-    OUT_WRITE(COOLANT_FLOOD_PIN, COOLANT_FLOOD_INVERT);  // init coolant to off
+    OUT_WRITE(COOLANT_FLOOD_PIN, COOLANT_FLOOD_INVERT); // Init Flood Coolant OFF
   #endif
 
   #if HAS_BED_PROBE

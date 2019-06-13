@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,48 +22,42 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(COOLANT_ENABLE)
+#if ENABLED(COOLANT_CONTROL)
 
 #include "../gcode.h"
-#include "../../module/stepper.h"
+#include "../../module/planner.h"
 
 #if ENABLED(COOLANT_MIST)
-/**
- * M7: Mist Coolant On
- *
- */
-
-void GcodeSuite::M7() {
-  planner.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
-
-  WRITE(COOLANT_MIST_PIN, !COOLANT_MIST_INVERT);  // turn on mist coolant
-}
-#endif // COOLANT_MIST
+  /**
+   * M7: Mist Coolant On
+   */
+  void GcodeSuite::M7() {
+    planner.synchronize();                            // Wait for move to arrive
+    WRITE(COOLANT_MIST_PIN, !(COOLANT_MIST_INVERT));  // Turn on Mist coolant
+  }
+#endif
 
 #if ENABLED(COOLANT_FLOOD)
-/**
- * M8: Flood Coolant On
- *
- */
-
-void GcodeSuite::M8() {
-  planner.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
-
-  WRITE(COOLANT_FLOOD_PIN, !COOLANT_FLOOD_INVERT);  // turn on flood coolant
-}
-#endif // COOLANT_FLOOD
+  /**
+   * M8: Flood Coolant On
+   */
+  void GcodeSuite::M8() {
+    planner.synchronize();                              // Wait for move to arrive
+    WRITE(COOLANT_FLOOD_PIN, !(COOLANT_FLOOD_INVERT));  // Turn on Flood coolant
+  }
+#endif
 
 /**
- * M9 turn off coolant
+ * M9: Coolant OFF
  */
 void GcodeSuite::M9() {
-  planner.synchronize();
+  planner.synchronize();                            // Wait for move to arrive
   #if ENABLED(COOLANT_MIST)
-    WRITE(COOLANT_MIST_PIN, COOLANT_MIST_INVERT);  // turn off mist coolant
+    WRITE(COOLANT_MIST_PIN, COOLANT_MIST_INVERT);   // Turn off Mist coolant
   #endif
   #if ENABLED(COOLANT_FLOOD)
-    WRITE(COOLANT_FLOOD_PIN, COOLANT_FLOOD_INVERT);  // turn off flood coolant
+    WRITE(COOLANT_FLOOD_PIN, COOLANT_FLOOD_INVERT); // Turn off Flood coolant
   #endif
 }
 
-#endif // COOLANT_ENABLE
+#endif // COOLANT_CONTROL
