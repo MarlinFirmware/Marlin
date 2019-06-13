@@ -124,9 +124,9 @@
 //
 
 // Marlin uses the SD drive attached to the LCD
-//#define STM32_SD_LCD
+#define STM32_SD_LCD
 
-#ifdef STM32_SD_LCD
+#if ENABLED(STM32_SD_LCD)
   #define SD_DETECT_PIN    PB9
   #define ENABLE_SPI3
 #else

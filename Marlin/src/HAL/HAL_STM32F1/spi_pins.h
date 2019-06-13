@@ -26,8 +26,28 @@
  * Define SPI Pins: SCK, MISO, MOSI, SS
  *
  * Any PIN can be used for Chip Select (SS)
+ * 
+ * SPI1 is enabled by default
  */
-#define SCK_PIN   PA5
-#define MISO_PIN  PA6
-#define MOSI_PIN  PA7
-#define SS_PIN    PA4
+#if ENABLED(ENABLE_SPI3)
+  #undef BOARD_NR_SPI
+  #define BOARD_NR_SPI 3 
+  #define SCK_PIN   BOARD_SPI3_SCK_PIN
+  #define MISO_PIN  BOARD_SPI3_MISO_PIN
+  #define MOSI_PIN  BOARD_SPI3_MOSI_PIN
+  #define SS_PIN    BOARD_SPI3_NSS_PIN
+#elif ENABLED(ENABLE_SPI2)
+  #undef BOARD_NR_SPI
+  #define BOARD_NR_SPI 2
+  #define SCK_PIN   BOARD_SPI2_SCK_PIN
+  #define MISO_PIN  BOARD_SPI2_MISO_PIN
+  #define MOSI_PIN  BOARD_SPI2_MOSI_PIN
+  #define SS_PIN    BOARD_SPI2_NSS_PIN
+#else
+  #undef BOARD_NR_SPI
+  #define BOARD_NR_SPI 1 
+  #define SCK_PIN   BOARD_SPI1_SCK_PIN
+  #define MISO_PIN  BOARD_SPI1_MISO_PIN
+  #define MOSI_PIN  BOARD_SPI1_MOSI_PIN
+//  #define SS_PIN    BOARD_SPI1_NSS_PIN
+#endif
