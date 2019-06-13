@@ -28,6 +28,9 @@
   #define BOARD_NAME "BIGTREE SKR mini V1.1"
 #endif
 
+  //#define DISABLE_DEBUG
+  #define DISABLE_JTAG
+
 // Ignore temp readings during develpment.
 //#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
