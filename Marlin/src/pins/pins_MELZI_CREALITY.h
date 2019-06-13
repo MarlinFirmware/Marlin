@@ -45,13 +45,12 @@
 #undef LCD_PINS_D5
 #undef LCD_PINS_D6
 #undef LCD_PINS_D7
-#undef FIL_RUNOUT_PIN
+#undef FIL_RUNOUT_PIN           // Uses Beeper/LED Pin Pulled to GND
 
 #define LCD_SDSS           31   // Smart Controller SD card reader (rather than the Melzi)
 #define LCD_PINS_RS        28   // ST9720 CS
 #define LCD_PINS_ENABLE    17   // ST9720 DAT
 #define LCD_PINS_D4        30   // ST9720 CLK
-#define FIL_RUNOUT_PIN     -1   // Uses Beeper/LED Pin Pulled to GND
 
 #if DISABLED(SPEAKER) && ENABLED(BLTOUCH)
   #define SERVO0_PIN 27

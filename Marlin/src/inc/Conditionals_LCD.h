@@ -156,9 +156,14 @@
     #define RGB_LED
   #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define NEOPIXEL_LED
-    #define NEOPIXEL_TYPE       NEO_GRB
+    #undef NEOPIXEL_TYPE
+    #define NEOPIXEL_TYPE       NEO_RGB
+    #undef NEOPIXEL_PIXELS
     #define NEOPIXEL_PIXELS     3
-    #define NEOPIXEL_BRIGHTNESS 127
+    #ifndef NEOPIXEL_BRIGHTNESS
+      #define NEOPIXEL_BRIGHTNESS 127
+    #endif
+    #define NEOPIXEL_STARTUP_TEST
   #endif
 
 #endif
@@ -329,8 +334,14 @@
   #define ULTRA_LCD
 #endif
 
+// Extensible UI serial touch screens. (See src/lcd/extensible_ui)
+#if ENABLED(MALYAN_LCD)
+  #define EXTENSIBLE_UI
+#endif
+
 // Aliases for LCD features
 #define HAS_SPI_LCD          ENABLED(ULTRA_LCD)
+#define HAS_DISPLAY         (HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI))
 #define HAS_GRAPHICAL_LCD    ENABLED(DOGLCD)
 #define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
@@ -394,9 +405,6 @@
   #define E_MANUAL        EXTRUDERS
 #elif ENABLED(PRUSA_MMU2)
   #define E_STEPPERS 1
-  #ifndef TOOLCHANGE_ZRAISE
-    #define TOOLCHANGE_ZRAISE 0
-  #endif
 #endif
 
 // No inactive extruders with MK2_MULTIPLEXER or SWITCHING_NOZZLE
@@ -465,9 +473,6 @@
     #undef SERVO_DELAY
     #define SERVO_DELAY { 50 }
   #endif
-  #ifndef BLTOUCH_DELAY
-    #define BLTOUCH_DELAY 375
-  #endif
 
   // Always disable probe pin inverting for BLTouch
   #undef Z_MIN_PROBE_ENDSTOP_INVERTING
@@ -516,9 +521,6 @@
   #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 #endif
 
-#if ENABLED(MALYAN_LCD)
-  #define EXTENSIBLE_UI
-#endif
 #define HAS_SOFTWARE_ENDSTOPS EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
 #define HAS_RESUME_CONTINUE   ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER)
 #define HAS_COLOR_LEDS        ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)

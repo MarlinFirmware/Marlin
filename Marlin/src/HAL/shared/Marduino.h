@@ -48,3 +48,19 @@
 #ifndef CBI
   #define CBI(A,B) (A &= ~(1 << (B)))
 #endif
+
+#ifndef __AVR__
+  #ifndef strchr_P // Some platforms define a macro (DUE, teensy35)
+    inline const char* strchr_P(const char *s, int c) { return strchr(s,c); }
+    //#define strchr_P(s,c) strchr(s,c)
+  #endif
+#endif
+
+// Restart causes
+#define RST_POWER_ON    1
+#define RST_EXTERNAL    2
+#define RST_BROWN_OUT   4
+#define RST_WATCHDOG    8
+#define RST_JTAG       16
+#define RST_SOFTWARE   32
+#define RST_BACKUP     64

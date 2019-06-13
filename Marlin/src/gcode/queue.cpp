@@ -76,11 +76,11 @@ static int serial_count[NUM_SERIAL] = { 0 };
 bool send_ok[BUFSIZE];
 
 /**
- * Next Injected Command pointer. NULL if no commands are being injected.
+ * Next Injected Command pointer. nullptr if no commands are being injected.
  * Used by Marlin internally to ensure that commands initiated from within
  * are enqueued ahead of any pending serial or sd card commands.
  */
-static PGM_P injected_commands_P = NULL;
+static PGM_P injected_commands_P = nullptr;
 
 void queue_setup() {
   // Send "ok" after commands by default
@@ -132,6 +132,7 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false
 
 /**
  * Enqueue with Serial Echo
+ * Return true if the command was consumed
  */
 bool enqueue_and_echo_command(const char* cmd) {
 
@@ -139,10 +140,7 @@ bool enqueue_and_echo_command(const char* cmd) {
   //SERIAL_ECHO(cmd);
   //SERIAL_ECHOPGM("\") \n");
 
-  if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') {
-    //SERIAL_ECHOLNPGM("Null command found...   Did not queue!");
-    return true;
-  }
+  if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') return true;
 
   if (_enqueuecommand(cmd)) {
     SERIAL_ECHO_START();
@@ -152,30 +150,81 @@ bool enqueue_and_echo_command(const char* cmd) {
   return false;
 }
 
+#if HAS_QUEUE_FRONT
+
+  bool early_cmd; // = false
+
+  /**
+   * Insert a high Priority command from RAM into the main command buffer.
+   * Return true if the command was consumed
+   * Return false for a full buffer, or if the 'command' is a comment.
+   */
+  inline bool _enqueuecommand_front(const char* cmd) {
+    if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') return true;
+    if (*cmd == ';' || commands_in_queue >= BUFSIZE) return false;
+    if (cmd_queue_index_r == 0) cmd_queue_index_r = BUFSIZE;
+    --cmd_queue_index_r;
+    strcpy(command_queue[cmd_queue_index_r], cmd);
+    send_ok[cmd_queue_index_r] = false;
+    #if NUM_SERIAL > 1
+      command_queue_port[cmd_queue_index_r] = -1;
+    #endif
+    commands_in_queue++;
+    return true;
+  }
+
+  /**
+   * Insert in the front of queue, one or many commands to run from program memory.
+   * Aborts the current queue, if any.
+   * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
+   */
+  void enqueue_and_echo_commands_front_P(PGM_P const pgcode) {
+    early_cmd = true;
+    enqueue_and_echo_commands_P(pgcode);
+  }
+
+#endif
+
 /**
  * Inject the next "immediate" command, when possible, onto the front of the queue.
  * Return true if any immediate commands remain to inject.
+ * Do not inject a comment or use leading space!.
  */
 static bool drain_injected_commands_P() {
-  if (injected_commands_P != NULL) {
+  while (injected_commands_P != nullptr) {
     size_t i = 0;
     char c, cmd[60];
     strncpy_P(cmd, injected_commands_P, sizeof(cmd) - 1);
     cmd[sizeof(cmd) - 1] = '\0';
     while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
     cmd[i] = '\0';
-    if (enqueue_and_echo_command(cmd))     // success?
-      injected_commands_P = c ? injected_commands_P + i + 1 : NULL; // next command or done
+
+    if (
+      #if HAS_QUEUE_FRONT
+        early_cmd ? _enqueuecommand_front(cmd) :
+      #endif
+      enqueue_and_echo_command(cmd)
+    ) {
+      injected_commands_P = c ? injected_commands_P + i + 1 : nullptr; // next command or done
+      #if HAS_QUEUE_FRONT
+        if (!c) early_cmd = false;
+      #endif
+    }
+    else
+      return true; // buffer is full (or command is comment);
   }
-  return (injected_commands_P != NULL);    // return whether any more remain
+  return false;   // return whether any more remain
 }
 
 /**
- * Record one or many commands to run from program memory.
+ * Enqueue one or many commands to run from program memory.
  * Aborts the current queue, if any.
  * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
  */
 void enqueue_and_echo_commands_P(PGM_P const pgcode) {
+  #if HAS_QUEUE_FRONT
+    early_cmd = false;
+  #endif
   injected_commands_P = pgcode;
   (void)drain_injected_commands_P(); // first command executed asap (when possible)
 }
@@ -597,18 +646,18 @@ inline void get_serial_commands() {
         char* command = serial_line_buffer[i];
 
         while (*command == ' ') command++;                // Skip leading spaces
-        char *npos = (*command == 'N') ? command : NULL;  // Require the N parameter to start the line
+        char *npos = (*command == 'N') ? command : nullptr;  // Require the N parameter to start the line
 
         if (npos) {
 
-          bool M110 = strstr_P(command, PSTR("M110")) != NULL;
+          bool M110 = strstr_P(command, PSTR("M110")) != nullptr;
 
           if (M110) {
             char* n2pos = strchr(command + 4, 'N');
             if (n2pos) npos = n2pos;
           }
 
-          gcode_N = strtol(npos + 1, NULL, 10);
+          gcode_N = strtol(npos + 1, nullptr, 10);
 
           if (gcode_N != gcode_LastN + 1 && !M110)
             return gcode_line_error(PSTR(MSG_ERR_LINE_NO), i);
@@ -617,7 +666,7 @@ inline void get_serial_commands() {
           if (apos) {
             uint8_t checksum = 0, count = uint8_t(apos - command);
             while (count) checksum ^= command[--count];
-            if (strtol(apos + 1, NULL, 10) != checksum)
+            if (strtol(apos + 1, nullptr, 10) != checksum)
               return gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH), i);
           }
           else
@@ -635,7 +684,7 @@ inline void get_serial_commands() {
         if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
-            switch (strtol(gpos + 1, NULL, 10)) {
+            switch (strtol(gpos + 1, nullptr, 10)) {
               case 0:
               case 1:
               #if ENABLED(ARC_SUPPORT)

@@ -87,7 +87,7 @@
  *   D    Disable     Disable the Unified Bed Leveling System. In the normal case the user is invoking this
  *                    command to see how well a Mesh as been adjusted to match a print surface. In order to do
  *                    this the Unified Bed Leveling System is turned on by the G26 command. The D parameter
- *                    alters the command's normal behaviour and disables the Unified Bed Leveling System even if
+ *                    alters the command's normal behavior and disables the Unified Bed Leveling System even if
  *                    it is on.
  *
  *   H #  Hotend      Set the Nozzle Temperature. If not specified, a default of 205 C. will be assumed.
@@ -131,7 +131,7 @@
  *   U #  Random      Randomize the order that the circles are drawn on the bed. The search for the closest
  *                    un-drawn circle is still done. But the distance to the location for each circle has a
  *                    random number of the specified size added to it. Specifying S50 will give an interesting
- *                    deviation from the normal behaviour on a 10 x 10 Mesh.
+ *                    deviation from the normal behavior on a 10 x 10 Mesh.
  *
  *   X #  X Coord.    Specify the starting location of the drawing activity.
  *

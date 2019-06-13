@@ -73,13 +73,15 @@
 #elif IS_TEENSY35 || IS_TEENSY36
   #include "../HAL_TEENSY35_36/HAL_Servo_Teensy.h"
 #elif defined(TARGET_LPC1768)
-  #include "../HAL_LPC1768/MarlinServo.h"
+  #include "../HAL_LPC1768/HAL_Servo_LPC1768.h"
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #include "../HAL_STM32F1/HAL_Servo_STM32F1.h"
 #elif defined(STM32GENERIC) && defined(STM32F4)
   #include "../HAL_STM32F4/HAL_Servo_STM32F4.h"
 #elif defined(ARDUINO_ARCH_STM32)
   #include "../HAL_STM32/HAL_Servo_STM32.h"
+#elif defined(ARDUINO_ARCH_ESP32)
+  #include "../HAL_ESP32/HAL_Servo_ESP32.h"
 #else
   #include <stdint.h>
 

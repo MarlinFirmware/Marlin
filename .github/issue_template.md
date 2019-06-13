@@ -1,6 +1,6 @@
 <!--
 
-Have you read Marlin's Code of Conduct? By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md
+Have you read Marlin's Code of Conduct? By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/bugfix-2.0.x/.github/code_of_conduct.md
 
 Do you want to ask a question? Are you looking for support? Please don't post here. Instead please use the Marlin Firmware forum at http://forums.reprap.org/list.php?415 or the Marlin Facebook Group https://www.facebook.com/groups/1049718498464482/.
 

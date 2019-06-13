@@ -71,6 +71,9 @@ void LEDLights::setup() {
   #if ENABLED(NEOPIXEL_LED)
     setup_neopixel();
   #endif
+  #if ENABLED(PCA9533)
+    RGBinit();
+  #endif
   #if ENABLED(LED_USER_PRESET_STARTUP)
     set_default();
   #endif
@@ -89,6 +92,9 @@ void LEDLights::set_color(const LEDColor &incol
                             : pixels.Color(incol.r, incol.g, incol.b, incol.w);
     static uint16_t nextLed = 0;
 
+    #ifdef NEOPIXEL_BKGD_LED_INDEX
+      if (NEOPIXEL_BKGD_LED_INDEX == nextLed) { nextLed++; return; }
+    #endif
     pixels.setBrightness(incol.i);
     if (!isSequence)
       set_neopixel_color(neocolor);

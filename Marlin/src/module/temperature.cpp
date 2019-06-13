@@ -68,6 +68,10 @@
   #include "tool_change.h"
 #endif
 
+#if HAS_BUZZER
+  #include "../libs/buzzer.h"
+#endif
+
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
@@ -76,6 +80,10 @@
     static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE, (void*)HEATER_4_TEMPTABLE, (void*)HEATER_5_TEMPTABLE);
     static constexpr uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN, HEATER_4_TEMPTABLE_LEN, HEATER_5_TEMPTABLE_LEN);
   #endif
+#endif
+
+#ifndef THERMAL_PROTECTION_GRACE_PERIOD
+  #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
 #endif
 
 Temperature thermalManager;
@@ -138,8 +146,9 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
 
   #endif
 
-  #if ENABLED(PROBING_FANS_OFF)
+  #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
     bool Temperature::fans_paused; // = false;
+    uint8_t Temperature::saved_fan_speed[FAN_COUNT]; // = { 0 }
   #endif
 
   #if ENABLED(ADAPTIVE_FAN_SLOWING)
@@ -181,7 +190,6 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
   #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
 
     void Temperature::set_fans_paused(const bool p) {
-      static uint8_t saved_fan_speed[FAN_COUNT]; // = { 0 }
       if (p != fans_paused) {
         fans_paused = p;
         if (p)
@@ -233,8 +241,8 @@ hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
     #endif
     #if WATCH_CHAMBER
       heater_watch_t Temperature::watch_chamber = { 0 };
-      millis_t Temperature::next_chamber_check_ms;
     #endif
+    millis_t Temperature::next_chamber_check_ms;
   #endif // HAS_HEATED_CHAMBER
 #endif // HAS_TEMP_CHAMBER
 
@@ -310,7 +318,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
 // public:
 
 #if HAS_ADC_BUTTONS
-  uint32_t Temperature::current_ADCKey_raw = 0;
+  uint32_t Temperature::current_ADCKey_raw = 1024;
   uint8_t Temperature::ADCKey_count = 0;
 #endif
 
@@ -750,10 +758,22 @@ void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P
     else SERIAL_ECHOPGM(MSG_HEATER_BED);
     SERIAL_EOL();
   }
+
   #if DISABLED(BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE)
     if (!killed) {
       Running = false;
       killed = true;
+
+      disable_all_heaters();
+
+      #if HAS_BUZZER && PIN_EXISTS(BEEPER)
+        for (uint8_t i = 20; i--;) {
+          WRITE(BEEPER_PIN, HIGH); delay(25);
+          WRITE(BEEPER_PIN, LOW); delay(80);
+        }
+        WRITE(BEEPER_PIN, HIGH);
+      #endif
+
       kill(lcd_msg);
     }
     else
@@ -975,9 +995,6 @@ void Temperature::manage_heater() {
   #endif
 
   #if HAS_THERMAL_PROTECTION
-    #ifndef THERMAL_PROTECTION_GRACE_PERIOD
-      #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
-    #endif
     #if THERMAL_PROTECTION_GRACE_PERIOD > 0
       static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
       if (ELAPSED(ms, grace_period)) grace_period = 0UL;
@@ -1058,56 +1075,61 @@ void Temperature::manage_heater() {
       }
     #endif // WATCH_BED
 
-    #if DISABLED(PIDTEMPBED)
-      if (PENDING(ms, next_bed_check_ms)
+    do {
+
+      #if DISABLED(PIDTEMPBED)
+        if (PENDING(ms, next_bed_check_ms)
+          #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
+            && paused == last_pause_state
+          #endif
+        ) break;
+        next_bed_check_ms = ms + BED_CHECK_INTERVAL;
         #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
-          && paused == last_pause_state
+          last_pause_state = paused;
         #endif
-      ) return;
-      next_bed_check_ms = ms + BED_CHECK_INTERVAL;
-      #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
-        last_pause_state = paused;
       #endif
-    #endif
 
-    #if HEATER_IDLE_HANDLER
-      bed_idle.update(ms);
-    #endif
+      #if HEATER_IDLE_HANDLER
+        bed_idle.update(ms);
+      #endif
 
-    #if HAS_THERMALLY_PROTECTED_BED
-      thermal_runaway_protection(tr_state_machine_bed, temp_bed.current, temp_bed.target, -1, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
-    #endif
+      #if HAS_THERMALLY_PROTECTED_BED
+        thermal_runaway_protection(tr_state_machine_bed, temp_bed.current, temp_bed.target, -1, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
+      #endif
 
-    #if HEATER_IDLE_HANDLER
-      if (bed_idle.timed_out) {
-        temp_bed.soft_pwm_amount = 0;
-        #if DISABLED(PIDTEMPBED)
-          WRITE_HEATER_BED(LOW);
-        #endif
-      }
-      else
-    #endif
-    {
-      #if ENABLED(PIDTEMPBED)
-        temp_bed.soft_pwm_amount = WITHIN(temp_bed.current, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
-      #else
-        // Check if temperature is within the correct band
-        if (WITHIN(temp_bed.current, BED_MINTEMP, BED_MAXTEMP)) {
-          #if ENABLED(BED_LIMIT_SWITCHING)
-            if (temp_bed.current >= temp_bed.target + BED_HYSTERESIS)
-              temp_bed.soft_pwm_amount = 0;
-            else if (temp_bed.current <= temp_bed.target - (BED_HYSTERESIS))
-              temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
-          #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
-            temp_bed.soft_pwm_amount = temp_bed.current < temp_bed.target ? MAX_BED_POWER >> 1 : 0;
+      #if HEATER_IDLE_HANDLER
+        if (bed_idle.timed_out) {
+          temp_bed.soft_pwm_amount = 0;
+          #if DISABLED(PIDTEMPBED)
+            WRITE_HEATER_BED(LOW);
           #endif
         }
-        else {
-          temp_bed.soft_pwm_amount = 0;
-          WRITE_HEATER_BED(LOW);
-        }
+        else
       #endif
-    }
+      {
+        #if ENABLED(PIDTEMPBED)
+          temp_bed.soft_pwm_amount = WITHIN(temp_bed.current, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
+        #else
+          // Check if temperature is within the correct band
+          if (WITHIN(temp_bed.current, BED_MINTEMP, BED_MAXTEMP)) {
+            #if ENABLED(BED_LIMIT_SWITCHING)
+              if (temp_bed.current >= temp_bed.target + BED_HYSTERESIS)
+                temp_bed.soft_pwm_amount = 0;
+              else if (temp_bed.current <= temp_bed.target - (BED_HYSTERESIS))
+                temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
+            #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
+              temp_bed.soft_pwm_amount = temp_bed.current < temp_bed.target ? MAX_BED_POWER >> 1 : 0;
+            #endif
+          }
+          else {
+            temp_bed.soft_pwm_amount = 0;
+            WRITE_HEATER_BED(LOW);
+          }
+        #endif
+      }
+
+    } while (false);
+
   #endif // HAS_HEATED_BED
 
   #if HAS_HEATED_CHAMBER
@@ -1123,35 +1145,36 @@ void Temperature::manage_heater() {
 
     #if WATCH_CHAMBER
       // Make sure temperature is increasing
-      if (watch_chamber.elapsed(ms)) {                  // Time to check the chamber?
-        if (degChamber() < watch_chamber.target)   // Failed to increase enough?
+      if (watch_chamber.elapsed(ms)) {              // Time to check the chamber?
+        if (degChamber() < watch_chamber.target)    // Failed to increase enough?
           _temp_error(-2, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, -2));
         else
-          start_watching_chamber();                     // Start again if the target is still far off
+          start_watching_chamber();                 // Start again if the target is still far off
       }
-    #endif // WATCH_CHAMBER
+    #endif
 
-    if (PENDING(ms, next_chamber_check_ms)) return;
-    next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
+    if (ELAPSED(ms, next_chamber_check_ms)) {
+      next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
 
-    if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
-      #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-        if (temp_chamber.current >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
-          temp_chamber.soft_pwm_amount = 0;
-        else if (temp_chamber.current <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
-          temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
-      #else
-        temp_chamber.soft_pwm_amount = temp_chamber.current < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
+      if (WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
+        #if ENABLED(CHAMBER_LIMIT_SWITCHING)
+          if (temp_chamber.current >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
+            temp_chamber.soft_pwm_amount = 0;
+          else if (temp_chamber.current <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
+            temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
+        #else
+          temp_chamber.soft_pwm_amount = temp_chamber.current < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
+        #endif
+      }
+      else {
+        temp_chamber.soft_pwm_amount = 0;
+        WRITE_HEATER_CHAMBER(LOW);
+      }
+
+      #if ENABLED(THERMAL_PROTECTION_CHAMBER)
+        thermal_runaway_protection(tr_state_machine_chamber, temp_chamber.current, temp_chamber.target, -2, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS);
       #endif
     }
-    else {
-      temp_chamber.soft_pwm_amount = 0;
-      WRITE_HEATER_CHAMBER(LOW);
-    }
-
-    #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-      thermal_runaway_protection(tr_state_machine_chamber, temp_chamber.current, temp_chamber.target, -2, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS);
-    #endif
 
     // TODO: Implement true PID pwm
     //temp_bed.soft_pwm_amount = WITHIN(temp_chamber.current, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? (int)get_pid_output_chamber() >> 1 : 0;
@@ -1170,18 +1193,144 @@ void Temperature::manage_heater() {
   uint8_t l = 0, r = LEN, m;                                           \
   for (;;) {                                                           \
     m = (l + r) >> 1;                                                  \
-    if (m == l || m == r) return (short)pgm_read_word(&TBL[LEN-1][1]); \
+    if (!m) return short(pgm_read_word(&TBL[0][1]));                   \
+    if (m == l || m == r) return short(pgm_read_word(&TBL[LEN-1][1])); \
     short v00 = pgm_read_word(&TBL[m-1][0]),                           \
           v10 = pgm_read_word(&TBL[m-0][0]);                           \
          if (raw < v00) r = m;                                         \
     else if (raw > v10) l = m;                                         \
     else {                                                             \
-      const short v01 = (short)pgm_read_word(&TBL[m-1][1]),            \
-                  v11 = (short)pgm_read_word(&TBL[m-0][1]);            \
+      const short v01 = short(pgm_read_word(&TBL[m-1][1])),            \
+                  v11 = short(pgm_read_word(&TBL[m-0][1]));            \
       return v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00);  \
     }                                                                  \
   }                                                                    \
 }while(0)
+
+#if HAS_USER_THERMISTORS
+
+  user_thermistor_t Temperature::user_thermistor[USER_THERMISTORS]; // Initialized by settings.load()
+
+  void Temperature::reset_user_thermistors() {
+    user_thermistor_t user_thermistor[USER_THERMISTORS] = {
+      #if ENABLED(HEATER_0_USER_THERMISTOR)
+        { true, 0, 0, HOTEND0_PULLUP_RESISTOR_OHMS, HOTEND0_RESISTANCE_25C_OHMS, 0, 0, HOTEND0_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_1_USER_THERMISTOR)
+        { true, 0, 0, HOTEND1_PULLUP_RESISTOR_OHMS, HOTEND1_RESISTANCE_25C_OHMS, 0, 0, HOTEND1_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_2_USER_THERMISTOR)
+        { true, 0, 0, HOTEND2_PULLUP_RESISTOR_OHMS, HOTEND2_RESISTANCE_25C_OHMS, 0, 0, HOTEND2_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_3_USER_THERMISTOR)
+        { true, 0, 0, HOTEND3_PULLUP_RESISTOR_OHMS, HOTEND3_RESISTANCE_25C_OHMS, 0, 0, HOTEND3_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_4_USER_THERMISTOR)
+        { true, 0, 0, HOTEND4_PULLUP_RESISTOR_OHMS, HOTEND4_RESISTANCE_25C_OHMS, 0, 0, HOTEND4_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_5_USER_THERMISTOR)
+        { true, 0, 0, HOTEND5_PULLUP_RESISTOR_OHMS, HOTEND5_RESISTANCE_25C_OHMS, 0, 0, HOTEND5_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_BED_USER_THERMISTOR)
+        { true, 0, 0, BED_PULLUP_RESISTOR_OHMS, BED_RESISTANCE_25C_OHMS, 0, 0, BED_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
+        { true, 0, 0, CHAMBER_PULLUP_RESISTOR_OHMS, CHAMBER_RESISTANCE_25C_OHMS, 0, 0, CHAMBER_BETA, 0 }
+      #endif
+    };
+    COPY(thermalManager.user_thermistor, user_thermistor);
+  }
+
+  void Temperature::log_user_thermistor(const uint8_t t_index, const bool eprom/*=false*/) {
+
+    if (eprom)
+      SERIAL_ECHOPGM("  M305 ");
+    else
+      SERIAL_ECHO_START();
+    SERIAL_CHAR('P');
+    SERIAL_CHAR('0' + t_index);
+
+    const user_thermistor_t &t = user_thermistor[t_index];
+
+    SERIAL_ECHOPAIR_F(" R", t.series_res, 1);
+    SERIAL_ECHOPAIR_F(" T", t.res_25, 1);
+    SERIAL_ECHOPAIR_F(" B", t.beta, 1);
+    SERIAL_ECHOPAIR_F(" C", t.sh_c_coeff, 9);
+    SERIAL_ECHOPGM(" ; ");
+    serialprintPGM(
+      #if ENABLED(HEATER_0_USER_THERMISTOR)
+        t_index == CTI_HOTEND_0 ? PSTR("HOTEND 0") :
+      #endif
+      #if ENABLED(HEATER_1_USER_THERMISTOR)
+        t_index == CTI_HOTEND_1 ? PSTR("HOTEND 1") :
+      #endif
+      #if ENABLED(HEATER_2_USER_THERMISTOR)
+        t_index == CTI_HOTEND_2 ? PSTR("HOTEND 2") :
+      #endif
+      #if ENABLED(HEATER_3_USER_THERMISTOR)
+        t_index == CTI_HOTEND_3 ? PSTR("HOTEND 3") :
+      #endif
+      #if ENABLED(HEATER_4_USER_THERMISTOR)
+        t_index == CTI_HOTEND_4 ? PSTR("HOTEND 4") :
+      #endif
+      #if ENABLED(HEATER_5_USER_THERMISTOR)
+        t_index == CTI_HOTEND_5 ? PSTR("HOTEND 5") :
+      #endif
+      #if ENABLED(HEATER_BED_USER_THERMISTOR)
+        t_index == CTI_BED ? PSTR("BED") :
+      #endif
+      #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
+        t_index == CTI_CHAMBER ? PSTR("CHAMBER") :
+      #endif
+      nullptr
+    );
+    SERIAL_EOL();
+  }
+
+  float Temperature::user_thermistor_to_deg_c(const uint8_t t_index, const int raw) {
+    //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
+    //  static uint32_t clocks_total = 0;
+    //  static uint32_t calls = 0;
+    //  uint32_t tcnt5 = TCNT5;
+    //#endif
+
+    if (!WITHIN(t_index, 0, COUNT(user_thermistor) - 1)) return 25;
+
+    if (user_thermistor[t_index].pre_calc) {
+      // pre-calculate some variables
+      user_thermistor[t_index].pre_calc = false;
+      user_thermistor[t_index].res_25_recip = 1.0f / user_thermistor[t_index].res_25;
+      user_thermistor[t_index].res_25_log = logf(user_thermistor[t_index].res_25);
+      user_thermistor[t_index].beta_recip = 1.0f / user_thermistor[t_index].beta;
+      user_thermistor[t_index].sh_alpha = (1.0f / (THERMISTOR_RESISTANCE_NOMINAL_C - THERMISTOR_ABS_ZERO_C)) - (user_thermistor[t_index].beta_recip * user_thermistor[t_index].res_25_log) - (user_thermistor[t_index].sh_c_coeff * user_thermistor[t_index].res_25_log * user_thermistor[t_index].res_25_log * user_thermistor[t_index].res_25_log);
+    }
+
+    // maximum adc value .. take into account the over sampling
+    const int adc_max = (THERMISTOR_ADC_RESOLUTION * OVERSAMPLENR) - 1,
+              adc_raw = constrain(raw, 1, adc_max - 1); // constrain to prevent divide-by-zero
+
+    const float adc_inverse = (adc_max - adc_raw) - 0.5f,
+                resistance = user_thermistor[t_index].series_res * (adc_raw + 0.5f) / adc_inverse,
+                log_resistance = logf(resistance);
+
+    float value = user_thermistor[t_index].sh_alpha;
+    value += log_resistance * user_thermistor[t_index].beta_recip;
+    if (user_thermistor[t_index].sh_c_coeff != 0)
+      value += user_thermistor[t_index].sh_c_coeff * log_resistance * log_resistance * log_resistance;
+    value = 1.0f / value;
+
+    //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
+    //  int32_t clocks = TCNT5 - tcnt5;
+    //  if (clocks >= 0) {
+    //    clocks_total += clocks;
+    //    calls++;
+    //  }
+    //#endif
+
+    // Return degrees C (up to 999, as the LCD only displays 3 digits)
+    return MIN(value + THERMISTOR_ABS_ZERO_C, 999);
+  }
+#endif
 
 // Derived from RepRap FiveD extruder::getTemperature()
 // For hot end temperature measurement.
@@ -1201,7 +1350,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
 
   switch (e) {
     case 0:
-      #if ENABLED(HEATER_0_USES_MAX6675)
+      #if ENABLED(HEATER_0_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_0, raw);
+      #elif ENABLED(HEATER_0_USES_MAX6675)
         return raw * 0.25;
       #elif ENABLED(HEATER_0_USES_AD595)
         return TEMP_AD595(raw);
@@ -1211,7 +1362,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 1:
-      #if ENABLED(HEATER_1_USES_MAX6675)
+      #if ENABLED(HEATER_1_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_1, raw);
+      #elif ENABLED(HEATER_1_USES_MAX6675)
         return raw * 0.25;
       #elif ENABLED(HEATER_1_USES_AD595)
         return TEMP_AD595(raw);
@@ -1221,7 +1374,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 2:
-      #if ENABLED(HEATER_2_USES_AD595)
+      #if ENABLED(HEATER_2_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_2, raw);
+      #elif ENABLED(HEATER_2_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_2_USES_AD8495)
         return TEMP_AD8495(raw);
@@ -1229,7 +1384,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 3:
-      #if ENABLED(HEATER_3_USES_AD595)
+      #if ENABLED(HEATER_3_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_3, raw);
+      #elif ENABLED(HEATER_3_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_3_USES_AD8495)
         return TEMP_AD8495(raw);
@@ -1237,7 +1394,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 4:
-      #if ENABLED(HEATER_4_USES_AD595)
+      #if ENABLED(HEATER_4_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_4, raw);
+      #elif ENABLED(HEATER_4_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_4_USES_AD8495)
         return TEMP_AD8495(raw);
@@ -1245,7 +1404,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 5:
-      #if ENABLED(HEATER_5_USES_AD595)
+      #if ENABLED(HEATER_5_USER_THERMISTOR)
+        return user_thermistor_to_deg_c(CTI_HOTEND_5, raw);
+      #elif ENABLED(HEATER_5_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_5_USES_AD8495)
         return TEMP_AD8495(raw);
@@ -1268,8 +1429,10 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For bed temperature measurement.
   float Temperature::analog_to_celsius_bed(const int raw) {
-    #if ENABLED(HEATER_BED_USES_THERMISTOR)
-      SCAN_THERMISTOR_TABLE(BEDTEMPTABLE, BEDTEMPTABLE_LEN);
+    #if ENABLED(HEATER_BED_USER_THERMISTOR)
+      return user_thermistor_to_deg_c(CTI_BED, raw);
+    #elif ENABLED(HEATER_BED_USES_THERMISTOR)
+      SCAN_THERMISTOR_TABLE(BED_TEMPTABLE, BED_TEMPTABLE_LEN);
     #elif ENABLED(HEATER_BED_USES_AD595)
       return TEMP_AD595(raw);
     #elif ENABLED(HEATER_BED_USES_AD8495)
@@ -1284,8 +1447,10 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For chamber temperature measurement.
   float Temperature::analog_to_celsius_chamber(const int raw) {
-    #if ENABLED(HEATER_CHAMBER_USES_THERMISTOR)
-      SCAN_THERMISTOR_TABLE(CHAMBERTEMPTABLE, CHAMBERTEMPTABLE_LEN);
+    #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
+      return user_thermistor_to_deg_c(CTI_CHAMBER, raw);
+    #elif ENABLED(HEATER_CHAMBER_USES_THERMISTOR)
+      SCAN_THERMISTOR_TABLE(CHAMBER_TEMPTABLE, CHAMBER_TEMPTABLE_LEN);
     #elif ENABLED(HEATER_CHAMBER_USES_AD595)
       return TEMP_AD595(raw);
     #elif ENABLED(HEATER_CHAMBER_USES_AD8495)
@@ -1531,7 +1696,7 @@ void Temperature::init() {
     }while(0)
     #define _TEMP_MAX_E(NR) do{ \
       temp_range[NR].maxtemp = HEATER_ ##NR## _MAXTEMP; \
-      while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) > HEATER_ ##NR## _MAXTEMP) \
+      while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > HEATER_ ##NR## _MAXTEMP) \
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
 
@@ -1589,7 +1754,7 @@ void Temperature::init() {
       while (analog_to_celsius_bed(mintemp_raw_BED) < BED_MINTEMP) mintemp_raw_BED += TEMPDIR(BED) * (OVERSAMPLENR);
     #endif
     #ifdef BED_MAXTEMP
-      while (analog_to_celsius_bed(maxtemp_raw_BED) > BED_MAXTEMP) mintemp_raw_BED -= TEMPDIR(BED) * (OVERSAMPLENR);
+      while (analog_to_celsius_bed(maxtemp_raw_BED) > BED_MAXTEMP) maxtemp_raw_BED -= TEMPDIR(BED) * (OVERSAMPLENR);
     #endif
   #endif // HAS_HEATED_BED
 
@@ -1598,7 +1763,7 @@ void Temperature::init() {
       while (analog_to_celsius_chamber(mintemp_raw_CHAMBER) < CHAMBER_MINTEMP) mintemp_raw_CHAMBER += TEMPDIR(CHAMBER) * (OVERSAMPLENR);
     #endif
     #ifdef CHAMBER_MAXTEMP
-      while (analog_to_celsius_chamber(maxtemp_raw_CHAMBER) > CHAMBER_MAXTEMP) mintemp_raw_CHAMBER -= TEMPDIR(CHAMBER) * (OVERSAMPLENR);
+      while (analog_to_celsius_chamber(maxtemp_raw_CHAMBER) > CHAMBER_MAXTEMP) maxtemp_raw_CHAMBER -= TEMPDIR(CHAMBER) * (OVERSAMPLENR);
     #endif
   #endif
 
@@ -1642,8 +1807,8 @@ void Temperature::init() {
 
 #if WATCH_CHAMBER
   /**
-   * Start Heating Sanity Check for hotends that are below
-   * their target temperature by a configurable margin.
+   * Start Heating Sanity Check for chamber that is below
+   * its target temperature by a configurable margin.
    * This is called when the temperature is set. (M141, M191)
    */
   void Temperature::start_watching_chamber() {
@@ -2002,6 +2167,15 @@ void Temperature::set_current_temp_raw() {
 #endif
 
 void Temperature::readings_ready() {
+
+  #if THERMAL_PROTECTION_GRACE_PERIOD > 0
+    const millis_t ms = millis();
+    static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD; // NOTE: millis() == 0 on reset
+    if (ELAPSED(ms, grace_period)) grace_period = 0;
+  #else
+    static constexpr millis_t grace_period = 0;
+  #endif
+
   // Update the raw values if they've been read. Else we could be updating them during reading.
   if (!temp_meas_ready) set_current_temp_raw();
 
@@ -2042,6 +2216,9 @@ void Temperature::readings_ready() {
       #endif // HOTENDS > 2
     #endif // HOTENDS > 1
   };
+
+  // Give ADC temperature readings time to settle at boot-up before testing
+  if (grace_period) return;
 
   for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
     const int16_t tdir = temp_dir[e], rawtemp = temp_hotend[e].raw * tdir;
@@ -2148,6 +2325,7 @@ void Temperature::isr() {
 
   #if HAS_ADC_BUTTONS
     static unsigned int raw_ADCKey_value = 0;
+    static bool ADCKey_pressed = false;
   #endif
 
   #if ENABLED(SLOW_PWM_HEATERS)
@@ -2550,16 +2728,19 @@ void Temperature::isr() {
           next_sensor_state = adc_sensor_state; // redo this state
         else if (ADCKey_count < 16) {
           raw_ADCKey_value = HAL_READ_ADC();
-          if (raw_ADCKey_value > 900) {
-            //ADC Key release
-            ADCKey_count = 0;
-            current_ADCKey_raw = 0;
-          }
-          else {
-            current_ADCKey_raw += raw_ADCKey_value;
+          if (raw_ADCKey_value <= 900) {
+            NOMORE(current_ADCKey_raw, raw_ADCKey_value);
             ADCKey_count++;
           }
+          else { //ADC Key release
+            if (ADCKey_count > 0) ADCKey_count++; else ADCKey_pressed = false;
+            if (ADCKey_pressed) {
+              ADCKey_count = 0;
+              current_ADCKey_raw = 1024;
+            }
+          }
         }
+        if (ADCKey_count == 16) ADCKey_pressed = true;
         break;
     #endif // ADC_KEYPAD
 

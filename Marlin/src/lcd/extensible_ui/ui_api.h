@@ -54,12 +54,16 @@ namespace ExtUI {
 
   enum axis_t     : uint8_t { X, Y, Z };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5 };
-  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED };
+  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5 };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
   constexpr uint8_t fanCount      = FAN_COUNT;
+
+  #if HAS_MESH
+    typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  #endif
 
   bool isMoving();
   bool isAxisPositionKnown(const axis_t);
@@ -69,6 +73,11 @@ namespace ExtUI {
   bool canMove(const extruder_t);
   void enqueueCommands_P(PGM_P const);
   bool commandsInQueue();
+
+  bool isHeaterIdle(const heater_t);
+  bool isHeaterIdle(const extruder_t);
+  void enableHeater(const heater_t);
+  void enableHeater(const extruder_t);
 
   /**
    * Getters and setters
@@ -117,9 +126,8 @@ namespace ExtUI {
   #if HAS_LEVELING
     bool getLevelingActive();
     void setLevelingActive(const bool);
+    bool getMeshValid();
     #if HAS_MESH
-      #include "../../feature/bedlevel/bedlevel.h"
-      bool getMeshValid();
       bed_mesh_t getMeshArray();
       float getMeshPoint(const uint8_t xpos, const uint8_t ypos);
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);

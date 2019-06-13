@@ -109,21 +109,21 @@
 #endif
 
 // Add time for each stepper
-#ifdef HAS_X_STEP
+#if HAS_X_STEP
   #define ISR_START_X_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
   #define ISR_X_STEPPER_CYCLES       ISR_STEPPER_CYCLES
 #else
   #define ISR_START_X_STEPPER_CYCLES 0UL
   #define ISR_X_STEPPER_CYCLES       0UL
 #endif
-#ifdef HAS_Y_STEP
+#if HAS_Y_STEP
   #define ISR_START_Y_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
   #define ISR_Y_STEPPER_CYCLES       ISR_STEPPER_CYCLES
 #else
   #define ISR_START_Y_STEPPER_CYCLES 0UL
   #define ISR_Y_STEPPER_CYCLES       0UL
 #endif
-#ifdef HAS_Z_STEP
+#if HAS_Z_STEP
   #define ISR_START_Z_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
   #define ISR_Z_STEPPER_CYCLES       ISR_STEPPER_CYCLES
 #else
@@ -135,13 +135,8 @@
 #define ISR_START_E_STEPPER_CYCLES   ISR_START_STEPPER_CYCLES
 #define ISR_E_STEPPER_CYCLES         ISR_STEPPER_CYCLES
 
-// If linear advance is disabled, then the loop also handles them
-#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER) // ToDo: ???
-  // HELP ME: What is what?
-  // Directions are set up for MIXING_STEPPERS - like before.
-  // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
-  //   These loops are a bit faster than advancing a bresenham counter.
-  // Always only one e-stepper is stepped.
+// If linear advance is disabled, the loop also handles them
+#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
   #define ISR_START_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_START_STEPPER_CYCLES))
   #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
 #else
@@ -156,9 +151,11 @@
 #define MIN_ISR_LOOP_CYCLES (ISR_X_STEPPER_CYCLES + ISR_Y_STEPPER_CYCLES + ISR_Z_STEPPER_CYCLES + ISR_E_STEPPER_CYCLES + ISR_MIXING_STEPPER_CYCLES)
 
 // Calculate the minimum MPU cycles needed per pulse to enforce, limited to the max stepper rate
-#define _MIN_STEPPER_PULSE_CYCLES(N) MAX((unsigned long)((F_CPU) / (MAXIMUM_STEPPER_RATE)), ((F_CPU) / 500000UL) * (N))
+#define _MIN_STEPPER_PULSE_CYCLES(N) MAX(uint32_t((F_CPU) / (MAXIMUM_STEPPER_RATE)), ((F_CPU) / 500000UL) * (N))
 #if MINIMUM_STEPPER_PULSE
-  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES((unsigned long)(MINIMUM_STEPPER_PULSE))
+  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(uint32_t(MINIMUM_STEPPER_PULSE))
+#elif HAS_DRIVER(LV8729)
+  #define MIN_STEPPER_PULSE_CYCLES uint32_t((((F_CPU) - 1) / 2000000) + 1) // 0.5µs, aka 500ns
 #else
   #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1UL)
 #endif
@@ -167,7 +164,11 @@
 // adding the "start stepper pulse" code section execution cycles to account for that not all
 // pulses start at the beginning of the loop, so an extra time must be added to compensate so
 // the last generated pulse (usually the extruder stepper) has the right length
-#define MIN_PULSE_TICKS (((PULSE_TIMER_TICKS_PER_US) * (unsigned long)(MINIMUM_STEPPER_PULSE)) + ((MIN_ISR_START_LOOP_CYCLES) / (unsigned long)(PULSE_TIMER_PRESCALE)))
+#if HAS_DRIVER(LV8729)
+  #define MIN_PULSE_TICKS ((((PULSE_TIMER_TICKS_PER_US) + 1) / 2) + ((MIN_ISR_START_LOOP_CYCLES) / uint32_t(PULSE_TIMER_PRESCALE)))
+#else
+  #define MIN_PULSE_TICKS (((PULSE_TIMER_TICKS_PER_US) * uint32_t(MINIMUM_STEPPER_PULSE)) + ((MIN_ISR_START_LOOP_CYCLES) / uint32_t(PULSE_TIMER_PRESCALE)))
+#endif
 
 // Calculate the extra ticks of the PULSE timer between step pulses
 #define ADDED_STEP_TICKS (((MIN_STEPPER_PULSE_CYCLES) / (PULSE_TIMER_PRESCALE)) - (MIN_PULSE_TICKS))

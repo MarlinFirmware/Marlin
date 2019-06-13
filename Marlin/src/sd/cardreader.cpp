@@ -81,10 +81,10 @@ uint8_t CardReader::workDirDepth;
         char **CardReader::sortshort, **CardReader::sortnames;
       #else
         char CardReader::sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
-        char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
+        char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_STORAGE];
       #endif
     #elif DISABLED(SDSORT_USES_STACK)
-      char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
+      char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_STORAGE];
     #endif
 
     #if HAS_FOLDER_SORTING
@@ -158,7 +158,7 @@ char *createFilename(char *buffer, const dir_t &p) {
 
 uint16_t nrFile_index;
 
-void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/) {
+void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=nullptr*/) {
   dir_t p;
   uint8_t cnt = 0;
 
@@ -226,7 +226,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 
         case LS_GetFilename:
           createFilename(filename, p);
-          if (match != NULL) {
+          if (match != nullptr) {
             if (strcasecmp(match, filename) == 0) return;
           }
           else if (cnt == nrFile_index) return;  // 0 based index
@@ -241,7 +241,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 void CardReader::ls() {
   lsAction = LS_SerialPrint;
   root.rewind();
-  lsDive(NULL, root);
+  lsDive(nullptr, root);
 }
 
 #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
@@ -276,7 +276,7 @@ void CardReader::ls() {
 
       // Find the item, setting the long filename
       diveDir.rewind();
-      lsDive(NULL, diveDir, segment);
+      lsDive(nullptr, diveDir, segment);
 
       // Print /LongNamePart to serial output
       SERIAL_CHAR('/');
@@ -528,11 +528,11 @@ void CardReader::report_status() {
 
 void CardReader::write_command(char *buf) {
   char* begin = buf;
-  char* npos = NULL;
+  char* npos = nullptr;
   char* end = buf + strlen(buf) - 1;
 
   file.writeError = false;
-  if ((npos = strchr(buf, 'N')) != NULL) {
+  if ((npos = strchr(buf, 'N')) != nullptr) {
     begin = strchr(npos, ' ') + 1;
     end = strchr(npos, '*') - 1;
   }
@@ -566,7 +566,7 @@ void CardReader::checkautostart() {
     sprintf_P(autoname, PSTR("auto%c.g"), autostart_index + '0');
     dir_t p;
     root.rewind();
-    while (root.readDir(&p, NULL) > 0) {
+    while (root.readDir(&p, nullptr) > 0) {
       for (int8_t i = (int8_t)strlen((char*)p.name); i--;) p.name[i] = tolower(p.name[i]);
       if (p.name[9] != '~' && strncmp((char*)p.name, autoname, 5) == 0) {
         openAndPrintFile(autoname);
@@ -602,9 +602,9 @@ void CardReader::closefile(const bool store_location) {
  * Get the name of a file in the current directory by index
  * with optional name to match.
  */
-void CardReader::getfilename(uint16_t nr, const char * const match/*=NULL*/) {
+void CardReader::getfilename(uint16_t nr, const char * const match/*=nullptr*/) {
   #if ENABLED(SDSORT_CACHE_NAMES)
-    if (match != NULL) {
+    if (match != nullptr) {
       while (nr < sort_count) {
         if (strcasecmp(match, sortshort[nr]) == 0) break;
         nr++;
@@ -620,14 +620,14 @@ void CardReader::getfilename(uint16_t nr, const char * const match/*=NULL*/) {
   lsAction = LS_GetFilename;
   nrFile_index = nr;
   workDir.rewind();
-  lsDive(NULL, workDir, match);
+  lsDive(nullptr, workDir, match);
 }
 
 uint16_t CardReader::getnrfilenames() {
   lsAction = LS_Count;
   nrFiles = 0;
   workDir.rewind();
-  lsDive(NULL, workDir);
+  lsDive(nullptr, workDir);
   //SERIAL_ECHOLN(nrFiles);
   return nrFiles;
 }
@@ -639,7 +639,7 @@ uint16_t CardReader::getnrfilenames() {
  *
  * Returns a pointer to the last segment (filename) of the given DOS 8.3 path.
  *
- * A NULL result indicates an unrecoverable error.
+ * A nullptr result indicates an unrecoverable error.
  */
 const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, const bool echo/*=false*/) {
   // Track both parent and subfolder
@@ -647,15 +647,13 @@ const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, con
   SdFile *sub = &newDir1, *startDir;
 
   const char *dirname_start = path;
-  char echo_fn[105];
-  
-  if (path[0] == '/') { 
+  if (path[0] == '/') {
     curDir = &root;
     workDirDepth = 0;
     dirname_start++;
   }
   else
-    curDir = &workDir; 
+    curDir = &workDir;
 
   startDir = curDir;
 
@@ -676,7 +674,7 @@ const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, con
     // Open curDir
     if (!sub->open(curDir, dosSubdirname, O_READ)) {
       SERIAL_ECHOLNPAIR(MSG_SD_OPEN_FILE_FAIL, dosSubdirname, ".");
-      return NULL;
+      return nullptr;
     }
 
     // Close curDir if not at starting-point
@@ -762,11 +760,13 @@ void CardReader::setroot() {
       #endif
     #else
       // Copy filenames into the static array
-      #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
-        #define SET_SORTNAME(I) do{ strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN); \
-                                    sortnames[I][SORTED_LONGNAME_MAXLEN] = '\0'; }while(0)
+      #define _SET_SORTNAME(I) strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN)
+      #if SORTED_LONGNAME_MAXLEN == LONG_FILENAME_LENGTH
+        // Short name sorting always use LONG_FILENAME_LENGTH with no trailing nul
+        #define SET_SORTNAME(I) _SET_SORTNAME(I)
       #else
-        #define SET_SORTNAME(I) strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN)
+        // Copy multiple name blocks. Add a nul for the longest case.
+        #define SET_SORTNAME(I) do{ _SET_SORTNAME(I); sortnames[I][SORTED_LONGNAME_MAXLEN] = '\0'; }while(0)
       #endif
       #if ENABLED(SDSORT_CACHE_NAMES)
         #define SET_SORTSHORT(I) strcpy(sortshort[I], filename)
@@ -800,7 +800,7 @@ void CardReader::setroot() {
 
       // Never sort more than the max allowed
       // If you use folders to organize, 20 may be enough
-      if (fileCnt > SDSORT_LIMIT) fileCnt = SDSORT_LIMIT;
+      NOMORE(fileCnt, SDSORT_LIMIT);
 
       // Sort order is always needed. May be static or dynamic.
       #if ENABLED(SDSORT_DYNAMIC_RAM)
@@ -818,7 +818,7 @@ void CardReader::setroot() {
             sortnames = new char*[fileCnt];
           #endif
         #elif ENABLED(SDSORT_USES_STACK)
-          char sortnames[fileCnt][SORTED_LONGNAME_MAXLEN];
+          char sortnames[fileCnt][SORTED_LONGNAME_STORAGE];
         #endif
 
         // Folder sorting needs 1 bit per entry for flags.

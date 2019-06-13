@@ -70,8 +70,12 @@
     #define SERVO0_PIN     11
   #endif
 #endif
-#define SERVO1_PIN          6
-#define SERVO2_PIN          5
+#ifndef SERVO1_PIN
+  #define SERVO1_PIN        6
+#endif
+#ifndef SERVO2_PIN
+  #define SERVO2_PIN        5
+#endif
 #ifndef SERVO3_PIN
   #define SERVO3_PIN        4
 #endif
@@ -79,14 +83,30 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN           3
-#ifndef X_MAX_PIN
-  #define X_MAX_PIN         2
+#ifndef X_STOP_PIN
+  #ifndef X_MIN_PIN
+    #define X_MIN_PIN       3
+  #endif
+  #ifndef X_MAX_PIN
+    #define X_MAX_PIN       2
+  #endif
 #endif
-#define Y_MIN_PIN          14
-#define Y_MAX_PIN          15
-#define Z_MIN_PIN          18
-#define Z_MAX_PIN          19
+#ifndef Y_STOP_PIN
+  #ifndef Y_MIN_PIN
+    #define Y_MIN_PIN      14
+  #endif
+  #ifndef Y_MAX_PIN
+    #define Y_MAX_PIN      15
+  #endif
+#endif
+#ifndef Z_STOP_PIN
+  #ifndef Z_MIN_PIN
+    #define Z_MIN_PIN      18
+  #endif
+  #ifndef Z_MAX_PIN
+    #define Z_MAX_PIN      19
+  #endif
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -502,62 +522,60 @@
       #define SD_DETECT_PIN     49
       #define KILL_PIN          41
 
-    #elif ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
-
-      #define DOGLCD_A0         27
-      #define DOGLCD_CS         25
-
-      // GLCD features
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
+    #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
 
       #define BEEPER_PIN        37
-      // not connected to a pin
-      #define LCD_BACKLIGHT_PIN 65   // backlight LED on A11/D65
-
-      #define BTN_EN1           31
-      #define BTN_EN2           33
       #define BTN_ENC           35
-
       #define SD_DETECT_PIN     49
       #define KILL_PIN          41
 
-    #elif ENABLED(FYSETC_MINI_12864)   // Added in Marlin 1.1.9+
+      #if ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
 
-      // From https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
-      #define BEEPER_PIN        37
+        #define DOGLCD_A0       27
+        #define DOGLCD_CS       25
 
-      #define DOGLCD_A0         16
-      #define DOGLCD_CS         17
+        // GLCD features
+        // Uncomment screen orientation
+        //#define LCD_SCREEN_ROT_90
+        //#define LCD_SCREEN_ROT_180
+        //#define LCD_SCREEN_ROT_270
 
-      #define BTN_EN1           31
-      #define BTN_EN2           33
-      #define BTN_ENC           35
+        // not connected to a pin
+        #define LCD_BACKLIGHT_PIN 65   // backlight LED on A11/D65
 
-      #define SD_DETECT_PIN     49
+        #define BTN_EN1         31
+        #define BTN_EN2         33
 
+      #elif ENABLED(FYSETC_MINI_12864)
 
+        // From https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
 
-      //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
-                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+        #define DOGLCD_A0       16
+        #define DOGLCD_CS       17
 
-      #define LCD_RESET_PIN     23   // Must be high or open for LCD to operate normally.
+        #define BTN_EN1         33
+        #define BTN_EN2         31
 
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-        #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN 25
+        //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
+                                    //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+        #define LCD_RESET_PIN   23   // Must be high or open for LCD to operate normally.
+
+        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+          #ifndef RGB_LED_R_PIN
+            #define RGB_LED_R_PIN 25
+          #endif
+          #ifndef RGB_LED_G_PIN
+            #define RGB_LED_G_PIN 27
+          #endif
+          #ifndef RGB_LED_B_PIN
+            #define RGB_LED_B_PIN 29
+          #endif
+        #elif ENABLED(FYSETC_MINI_12864_2_1)
+          #define NEOPIXEL_PIN    25
         #endif
-        #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN 27
-        #endif
-        #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN 29
-        #endif
-      #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN    25
-      #endif
+
+    #endif
 
     #elif ENABLED(MINIPANEL)
 

@@ -57,15 +57,13 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\inc\MarlinConfigPre.h
-//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\HAL\HAL_DUE\u8g_com_HAL_DUE_sw_spi_shared.cpp
-
 #if HAS_GRAPHICAL_LCD
 
-#include "../shared/Marduino.h"
 #include "../shared/Delay.h"
 
 #include <U8glib.h>
+
+#include "u8g_com_HAL_DUE_sw_spi_shared.h"
 
 void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
   PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
@@ -78,10 +76,10 @@ void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
   if (level) port->PIO_SODR = mask; else port->PIO_CODR = mask;
 }
 
-extern Pio *SCK_pPio, *MOSI_pPio;
-extern uint32_t SCK_dwMask, MOSI_dwMask;
+Pio *SCK_pPio, *MOSI_pPio;
+uint32_t SCK_dwMask, MOSI_dwMask;
 
-void U8G_spiSend_sw_DUE_mode_0(uint8_t val) { // 800KHz
+void u8g_spiSend_sw_DUE_mode_0(uint8_t val) { // 3MHz
   for (uint8_t i = 0; i < 8; i++) {
     if (val & 0x80)
       MOSI_pPio->PIO_SODR = MOSI_dwMask;
@@ -89,24 +87,24 @@ void U8G_spiSend_sw_DUE_mode_0(uint8_t val) { // 800KHz
       MOSI_pPio->PIO_CODR = MOSI_dwMask;
     DELAY_NS(48);
     SCK_pPio->PIO_SODR = SCK_dwMask;
-    DELAY_NS(905); // 762 dead, 810 garbage, 858/0 900kHz, 905/1 825k, 953/1 800k, 1000/2 725KHz
+    DELAY_NS(125);
     val <<= 1;
     SCK_pPio->PIO_CODR = SCK_dwMask;
   }
 }
 
-
-void U8G_spiSend_sw_DUE_mode_3(uint8_t val) { // 800KHz
+void u8g_spiSend_sw_DUE_mode_3(uint8_t val) { // 3.5MHz
   for (uint8_t i = 0; i < 8; i++) {
     SCK_pPio->PIO_CODR = SCK_dwMask;
-    DELAY_NS(48);
+    DELAY_NS(50);
     if (val & 0x80)
       MOSI_pPio->PIO_SODR = MOSI_dwMask;
     else
       MOSI_pPio->PIO_CODR = MOSI_dwMask;
-    SCK_pPio->PIO_SODR = SCK_dwMask;
-    DELAY_NS(905); // 762 dead, 810 garbage, 858/0 900kHz, 905/1 825k, 953/1 800k, 1000/2 725KHz
     val <<= 1;
+    DELAY_NS(10);
+    SCK_pPio->PIO_SODR = SCK_dwMask;
+    DELAY_NS(70);
   }
 }
 

@@ -68,7 +68,7 @@ bool screen_changed;
 // Value Editing
 PGM_P MenuItemBase::editLabel;
 void* MenuItemBase::editValue;
-int16_t MenuItemBase::minEditValue, MenuItemBase::maxEditValue;
+int32_t MenuItemBase::minEditValue, MenuItemBase::maxEditValue;
 screenFunc_t MenuItemBase::callbackFunc;
 bool MenuItemBase::liveEdit;
 
@@ -136,13 +136,13 @@ void MenuItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   if (ui.should_draw())
     draw_edit_screen(editLabel, strfunc(ui.encoderPosition + minEditValue));
   if (ui.lcd_clicked || (liveEdit && ui.should_draw())) {
-    if (editValue != NULL) loadfunc(editValue, ui.encoderPosition + minEditValue);
+    if (editValue != nullptr) loadfunc(editValue, ui.encoderPosition + minEditValue);
     if (callbackFunc && (liveEdit || ui.lcd_clicked)) (*callbackFunc)();
     if (ui.use_click()) ui.goto_previous_screen();
   }
 }
 
-void MenuItemBase::init(PGM_P const el, void * const ev, const int16_t minv, const int16_t maxv, const uint16_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
+void MenuItemBase::init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint16_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
   ui.save_previous_screen();
   ui.refresh();
   editLabel = el;
@@ -300,7 +300,7 @@ void MarlinUI::_synchronize() {
 
 // Display the synchronize screen with a custom message
 // ** This blocks the command queue! **
-void MarlinUI::synchronize(PGM_P const msg/*=NULL*/) {
+void MarlinUI::synchronize(PGM_P const msg/*=nullptr*/) {
   static const char moving[] PROGMEM = MSG_MOVING;
   sync_message = msg ? msg : moving;
   _synchronize();
@@ -445,7 +445,7 @@ void _lcd_draw_homing() {
 //
 bool ui_selection; // = false
 void set_ui_selection(const bool sel) { ui_selection = sel; }
-void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string/*=NULL*/, PGM_P const suff/*=NULL*/) {
+void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
   if (ui.encoderPosition) {
     ui_selection = int16_t(ui.encoderPosition) > 0;
     ui.encoderPosition = 0;

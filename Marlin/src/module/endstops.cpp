@@ -36,8 +36,12 @@
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
 
-#if BOTH(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED, SDSUPPORT)
+#if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
   #include "printcounter.h" // for print_job_timer
+#endif
+
+#if ENABLED(BLTOUCH)
+  #include "../feature/bltouch.h"
 #endif
 
 Endstops endstops;
@@ -361,7 +365,7 @@ void Endstops::event_handler() {
       ui.status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 
-    #if BOTH(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED, SDSUPPORT)
+    #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
         card.stopSDPrint();
         quickstop_stepper();
@@ -373,7 +377,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
 }
 
-static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
+static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
   if (label) serialprintPGM(label);
   SERIAL_ECHOPGM(": ");
   serialprintPGM(is_hit ? PSTR(MSG_ENDSTOP_HIT) : PSTR(MSG_ENDSTOP_OPEN));
@@ -381,6 +385,9 @@ static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
 }
 
 void _O2 Endstops::M119() {
+  #if ENABLED(BLTOUCH)
+    bltouch._set_SW_mode();
+  #endif
   SERIAL_ECHOLNPGM(MSG_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(MSG_##S))
   #if HAS_X_MIN
@@ -456,6 +463,9 @@ void _O2 Endstops::M119() {
         print_es_state(extDigitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
     #endif
+  #endif
+  #if ENABLED(BLTOUCH)
+    bltouch._reset_SW_mode();
   #endif
 } // Endstops::M119
 

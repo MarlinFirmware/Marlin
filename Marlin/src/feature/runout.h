@@ -41,6 +41,9 @@
 #endif
 
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG
+#ifndef FILAMENT_RUNOUT_THRESHOLD
+  #define FILAMENT_RUNOUT_THRESHOLD 5
+#endif
 
 class FilamentMonitorBase {
   public:
@@ -337,11 +340,11 @@ class FilamentSensorBase {
 
   class RunoutResponseDebounced {
     private:
-      static constexpr int8_t runout_threshold = 5;
+      static constexpr int8_t runout_threshold = FILAMENT_RUNOUT_THRESHOLD;
       static int8_t runout_count;
     public:
       static inline void reset()                                  { runout_count = runout_threshold; }
-      static inline void run()                                    { runout_count--; }
+      static inline void run()                                    { if (runout_count >= 0) runout_count--; }
       static inline bool has_run_out()                            { return runout_count < 0; }
       static inline void block_completed(const block_t* const b)  { UNUSED(b); }
       static inline void filament_present(const uint8_t extruder) { runout_count = runout_threshold; UNUSED(extruder); }

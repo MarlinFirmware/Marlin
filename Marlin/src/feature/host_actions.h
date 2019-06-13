@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#include <stdint.h>
+#include <stddef.h>
 
 void host_action(const char * const pstr, const bool eol=true);
 
@@ -64,8 +64,8 @@ void host_action(const char * const pstr, const bool eol=true);
   void host_action_prompt_button(const char * const pstr);
   void host_action_prompt_end();
   void host_action_prompt_show();
-  void host_prompt_do(const PromptReason type, const char * const pstr, const char * const pbtn=NULL);
-  inline void host_prompt_open(const PromptReason reason, const char * const pstr, const char * const pbtn=NULL) {
+  void host_prompt_do(const PromptReason type, const char * const pstr, const char * const pbtn=nullptr);
+  inline void host_prompt_open(const PromptReason reason, const char * const pstr, const char * const pbtn=nullptr) {
     if (host_prompt_reason == PROMPT_NOT_DEFINED) host_prompt_do(reason, pstr, pbtn);
   }
 

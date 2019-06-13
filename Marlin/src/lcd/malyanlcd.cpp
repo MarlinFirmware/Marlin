@@ -474,52 +474,28 @@ namespace ExtUI {
     #endif
   }
 
-  void onPrinterKilled(PGM_P const msg) {}
-  void onMediaInserted() {};
-  void onMediaError() {};
-  void onMediaRemoved() {};
-  void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
-  void onPrintTimerStarted() {}
-  void onPrintTimerPaused() {}
-  void onPrintTimerStopped() {}
-  void onFilamentRunout() {}
-  void onUserConfirmRequired(const char * const msg) {}
   void onStatusChanged(const char * const msg) {
     write_to_lcd_P(PSTR("{E:"));
     write_to_lcd(msg);
     write_to_lcd_P("}");
   }
+
+  // Not needed for Malyan LCD
+  void onPrinterKilled(PGM_P const msg) { UNUSED(msg); }
+  void onMediaInserted() {};
+  void onMediaError() {};
+  void onMediaRemoved() {};
+  void onPlayTone(const uint16_t frequency, const uint16_t duration) { UNUSED(frequency); UNUSED(duration); }
+  void onPrintTimerStarted() {}
+  void onPrintTimerPaused() {}
+  void onPrintTimerStopped() {}
+  void onFilamentRunout() {}
+  void onUserConfirmRequired(const char * const msg) { UNUSED(msg); }
   void onFactoryReset() {}
-
-  void onStoreSettings(char *buff) {
-    // This is called when saving to EEPROM (i.e. M500). If the ExtUI needs
-    // permanent data to be stored, it can write up to eeprom_data_size bytes
-    // into buff.
-
-    // Example:
-    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
-    //  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
-  }
-
-  void onLoadSettings(const char *buff) {
-    // This is called while loading settings from EEPROM. If the ExtUI
-    // needs to retrieve data, it should copy up to eeprom_data_size bytes
-    // from buff
-
-    // Example:
-    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
-    //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
-  }
-
-  void onConfigurationStoreWritten(bool success) {
-    // This is called after the entire EEPROM has been written,
-    // whether successful or not.
-  }
-
-  void onConfigurationStoreRead(bool success) {
-    // This is called after the entire EEPROM has been read,
-    // whether successful or not.
-  }
+  void onStoreSettings(char *buff) { UNUSED(buff); }
+  void onLoadSettings(const char *buff) { UNUSED(buff); }
+  void onConfigurationStoreWritten(bool success) { UNUSED(success); }
+  void onConfigurationStoreRead(bool success) { UNUSED(success); }
 }
 
 #endif // MALYAN_LCD
