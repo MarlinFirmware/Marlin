@@ -22,6 +22,10 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#ifdef LED_BACKLIGHT_TIMEOUT
+  #include "../feature/leds/leds.h"
+#endif
+
 // These displays all share the MarlinUI class
 #if HAS_DISPLAY
   #include "ultralcd.h"
@@ -563,6 +567,16 @@ void MarlinUI::status_screen() {
 void MarlinUI::kill_screen(PGM_P lcd_msg) {
   init();
   set_alert_status_P(lcd_msg);
+
+  // RED ALERT. RED ALERT.
+  #ifdef LED_BACKLIGHT_TIMEOUT
+    leds.set_color(LEDColorRed());
+    #ifdef NEOPIXEL_BKGD_LED_INDEX
+      pixels.setPixelColor(NEOPIXEL_BKGD_LED_INDEX, 255, 0, 0, 0);
+      pixels.show();
+    #endif
+  #endif
+
   draw_kill_screen();
 }
 
@@ -714,6 +728,10 @@ void MarlinUI::update() {
   static millis_t next_lcd_update_ms;
   millis_t ms = millis();
 
+  #ifdef LED_BACKLIGHT_TIMEOUT
+    leds.update_timeout(powersupply_on);
+  #endif
+
   #if HAS_LCD_MENU
 
     #if LCD_TIMEOUT_TO_STATUS
@@ -777,6 +795,10 @@ void MarlinUI::update() {
 
       ms = millis();
       next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // delay LCD update until after SD activity completes
+
+      #ifdef LED_BACKLIGHT_TIMEOUT
+        leds.reset_timeout(ms);
+      #endif
     }
 
   #endif // SDSUPPORT && SD_DETECT_PIN
@@ -851,10 +873,16 @@ void MarlinUI::update() {
           encoderPosition += (encoderDiff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
           encoderDiff = 0;
         }
+
         #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
           return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
         #endif
+
         refresh(LCDVIEW_REDRAW_NOW);
+
+        #ifdef LED_BACKLIGHT_TIMEOUT
+          leds.reset_timeout(ms);
+        #endif
       }
 
     #endif
