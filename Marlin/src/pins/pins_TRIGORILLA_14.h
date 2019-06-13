@@ -92,11 +92,11 @@
  // Software serial  E0
   #ifdef E0_SERIAL_TX_PIN
    #undef E0_SERIAL_TX_PIN
-   #define E0_SERIAL_TX_PIN    11 // D43:OK | D42:OK | D21:OK | D20:OK | D11:OK | D6:OK
+   #define E0_SERIAL_TX_PIN    11 //SERVO0_PIN
   #endif
   #ifdef E0_SERIAL_RX_PIN
    #undef E0_SERIAL_RX_PIN
-   #define E0_SERIAL_RX_PIN    12 // D12:OK, D50:OK, D51:OK, D52:OK D53:OK
+   #define E0_SERIAL_RX_PIN    12 //PS_ON_PIN
   #endif
 
  // Software serial  X
