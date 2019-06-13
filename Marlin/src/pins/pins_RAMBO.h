@@ -153,6 +153,12 @@
 #define SPINDLE_DIR_PIN          32
 
 //
+// M7/M8/M9 - Coolant Control
+//
+#define COOLANT_MIST_PIN   22
+#define COOLANT_FLOOD_PIN  44
+
+//
 // Průša i3 MK2 Multiplexer Support
 //
 #define E_MUX0_PIN         17
