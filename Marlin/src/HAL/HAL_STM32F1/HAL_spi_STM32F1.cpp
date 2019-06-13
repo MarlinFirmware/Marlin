@@ -36,6 +36,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 #include "../shared/HAL_SPI.h"
 #include "pins_arduino.h"
@@ -105,8 +106,11 @@ void spiInit(uint8_t spiRate) {
     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
     default:                clock = SPI_CLOCK_DIV2; // Default from the SPI library
   }
-  spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
+  SPI.setModule(SPI_DEVICE);
   SPI.begin();
+  SPI.setClockDivider(clock);
+  SPI.setBitOrder(MSBFIRST);
+  SPI.setDataMode(SPI_MODE0);
 }
 
 /**
@@ -117,9 +121,9 @@ void spiInit(uint8_t spiRate) {
  * @details
  */
 uint8_t spiRec(void) {
-  SPI.beginTransaction(spiConfig);
+  digitalWrite(SS_PIN, LOW);
   uint8_t returnByte = SPI.transfer(0xFF);
-  SPI.endTransaction();
+  digitalWrite(SS_PIN, HIGH);
   return returnByte;
 }
 
@@ -133,9 +137,9 @@ uint8_t spiRec(void) {
  * @details Uses DMA
  */
 void spiRead(uint8_t* buf, uint16_t nbyte) {
-  SPI.beginTransaction(spiConfig);
+  digitalWrite(SS_PIN, LOW);
   SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
-  SPI.endTransaction();
+  digitalWrite(SS_PIN, HIGH);
 }
 
 /**
@@ -146,9 +150,9 @@ void spiRead(uint8_t* buf, uint16_t nbyte) {
  * @details
  */
 void spiSend(uint8_t b) {
-  SPI.beginTransaction(spiConfig);
+  digitalWrite(SS_PIN, LOW);
   SPI.send(b);
-  SPI.endTransaction();
+  digitalWrite(SS_PIN, HIGH);
 }
 
 /**
@@ -160,25 +164,10 @@ void spiSend(uint8_t b) {
  * @details Use DMA
  */
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
-  SPI.beginTransaction(spiConfig);
+  digitalWrite(SS_PIN, LOW);
   SPI.send(token);
   SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
-  SPI.endTransaction();
-}
-
-/**
- * @brief  Begin SPI transaction, set clock, bit order, data mode
- *
- * @param  spiClock   Clock setting
- * @param  bitOrder   Bit Order setting
- * @param  dataMode   Data Mode setting
- * @return Nothing
- *
- * @details Uses an SPI Config via SPISettings
- */
-void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
-  spiConfig = SPISettings(spiClock, (BitOrder)bitOrder, dataMode);
-  SPI.beginTransaction(spiConfig);
+  digitalWrite(SS_PIN, HIGH);
 }
 
 #if ENABLED(SPI_EEPROM)

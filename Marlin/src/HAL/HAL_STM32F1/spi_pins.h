@@ -21,7 +21,6 @@
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
-
 /**
  * Define SPI Pins: SCK, MISO, MOSI, SS
  *
@@ -30,24 +29,21 @@
  * SPI1 is enabled by default
  */
 #if ENABLED(ENABLE_SPI3)
-  #undef BOARD_NR_SPI
-  #define BOARD_NR_SPI 3 
+  #define SPI_DEVICE 3
   #define SCK_PIN   BOARD_SPI3_SCK_PIN
   #define MISO_PIN  BOARD_SPI3_MISO_PIN
   #define MOSI_PIN  BOARD_SPI3_MOSI_PIN
   #define SS_PIN    BOARD_SPI3_NSS_PIN
 #elif ENABLED(ENABLE_SPI2)
-  #undef BOARD_NR_SPI
-  #define BOARD_NR_SPI 2
+  #define SPI_DEVICE 2
   #define SCK_PIN   BOARD_SPI2_SCK_PIN
   #define MISO_PIN  BOARD_SPI2_MISO_PIN
   #define MOSI_PIN  BOARD_SPI2_MOSI_PIN
   #define SS_PIN    BOARD_SPI2_NSS_PIN
 #else
-  #undef BOARD_NR_SPI
-  #define BOARD_NR_SPI 1 
+  #define SPI_DEVICE 1
   #define SCK_PIN   BOARD_SPI1_SCK_PIN
   #define MISO_PIN  BOARD_SPI1_MISO_PIN
   #define MOSI_PIN  BOARD_SPI1_MOSI_PIN
-//  #define SS_PIN    BOARD_SPI1_NSS_PIN
+  #define SS_PIN    BOARD_SPI1_NSS_PIN
 #endif

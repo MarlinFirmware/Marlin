@@ -123,7 +123,10 @@
 // SD Card
 //
 
-// Marlin uses the SD drive attached to the LCD
+// By default the onboard SD is enabled. 
+// To disable it and use an external SD (connected to LCD)
+// uncomment STM32_SD_LCD.
+
 // #define STM32_SD_LCD
 
 #if ENABLED(STM32_SD_LCD)
