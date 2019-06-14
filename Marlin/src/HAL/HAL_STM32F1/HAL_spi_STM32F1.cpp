@@ -76,8 +76,7 @@ void spiBegin() {
   #if !PIN_EXISTS(SS)
     #error "SS_PIN not defined!"
   #endif
-  SET_OUTPUT(SS_PIN);
-  WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SS_PIN, HIGH);
 }
 
 /**
@@ -114,9 +113,9 @@ void spiInit(uint8_t spiRate) {
  * @details
  */
 uint8_t spiRec(void) {
-  digitalWrite(SS_PIN, LOW);
+  WRITE(SS_PIN, LOW);
   uint8_t returnByte = SPI.transfer(0xFF);
-  digitalWrite(SS_PIN, HIGH);
+  WRITE(SS_PIN, HIGH);
   return returnByte;
 }
 
@@ -130,9 +129,9 @@ uint8_t spiRec(void) {
  * @details Uses DMA
  */
 void spiRead(uint8_t* buf, uint16_t nbyte) {
-  digitalWrite(SS_PIN, LOW);
+  WRITE(SS_PIN, LOW);
   SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
-  digitalWrite(SS_PIN, HIGH);
+  WRITE(SS_PIN, HIGH);
 }
 
 /**
@@ -143,9 +142,9 @@ void spiRead(uint8_t* buf, uint16_t nbyte) {
  * @details
  */
 void spiSend(uint8_t b) {
-  digitalWrite(SS_PIN, LOW);
+  WRITE(SS_PIN, LOW);
   SPI.send(b);
-  digitalWrite(SS_PIN, HIGH);
+  WRITE(SS_PIN, HIGH);
 }
 
 /**
@@ -157,10 +156,10 @@ void spiSend(uint8_t b) {
  * @details Use DMA
  */
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
-  digitalWrite(SS_PIN, LOW);
+  WRITE(SS_PIN, LOW);
   SPI.send(token);
   SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
-  digitalWrite(SS_PIN, HIGH);
+  WRITE(SS_PIN, HIGH);
 }
 
 #if ENABLED(SPI_EEPROM)
