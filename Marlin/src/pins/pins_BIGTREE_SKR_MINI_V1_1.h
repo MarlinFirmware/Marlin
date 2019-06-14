@@ -98,8 +98,8 @@
  *  (MOSI)   PB5 | · · | PB8 (BTN_EN2)               (LCD_D5)  PB7 | · · | PC13 (LCD_D4)
  * (SD_SS)  PA15 | · · | PD2 (BTN_EN1)               (LCD_RS) PC12 | · · | PB6  (LCD_EN)
  *   (SCK)   PB3 | · · | PB4 (MISO)                 (BTN_ENC) PC11 | · · | PC10 (BEEPER)
- *                ￣￣                                               ￣￣  
- *                EXP2                                              EXP1  
+ *                ￣￣￣                                             ￣￣￣
+ *                EXP2                                              EXP1
  */
 
 #if ENABLED(ULTRA_LCD)
