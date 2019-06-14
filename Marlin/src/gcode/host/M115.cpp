@@ -69,6 +69,27 @@ void GcodeSuite::M115() {
       #endif
     );
 
+    // Acceleration Clamping (M201)
+    cap_line(PSTR("ACCEL CLAMP")
+      #if ENABLED(MAX_ACCELERATION_CAP)
+        , true
+      #endif
+    );
+
+    // Feedrate Clamping (M203)
+    cap_line(PSTR("FEED CLAMP")
+      #if ENABLED(MAX_FEEDRATE_CAP)
+        , true
+      #endif
+    );
+
+    // Jerk Clamping (M205)
+    cap_line(PSTR("JERK CLAMP")
+      #if ENABLED(MAX_JERK_CAP)
+        , true
+      #endif
+    );
+
     // AUTOREPORT_TEMP (M155)
     cap_line(PSTR("AUTOREPORT_TEMP")
       #if ENABLED(AUTO_REPORT_TEMPERATURES)

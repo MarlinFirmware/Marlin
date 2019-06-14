@@ -62,12 +62,20 @@ void GcodeSuite::M201() {
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
       const uint8_t a = (i == E_AXIS ? E_AXIS_N(target_extruder) : i);
-      #if ENABLED(LIMIT_MAX_ACCELERATION)
-        planner.settings.max_acceleration_mm_per_s2[a] = constrain(parser.value_axis_units((AxisEnum)a), 10, planner.max_acceleration_limits[(int)a]);
+      #if DISABLED(MAX_ACCELERATION_CAP)
+        planner.settings.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
       #else
-        planner.settings.max_acceleration_mm_per_s2[a] = MAX(parser.value_axis_units((AxisEnum)a), 10);
+        #ifdef MAX_ACCELERATION_MANUAL
+          static constexpr float max_accel[] = MAX_ACCELERATION_MANUAL;
+          static uint8_t ac_multiplier = 1;
+        #else
+          static constexpr float max_accel[] = DEFAULT_MAX_ACCELERATION;
+          static uint8_t ac_multiplier = 2;
+        #endif
+        if(parser.value_axis_units((AxisEnum)a) > max_accel[(AxisEnum)a] * ac_multiplier)
+          SERIAL_ECHOLNPAIR("Max acceleration clamped to ",  (max_accel[(AxisEnum)a] * ac_multiplier));
+        planner.settings.max_acceleration_mm_per_s2[a] = constrain(parser.value_axis_units((AxisEnum)a), 1, max_accel[(AxisEnum)a] * ac_multiplier);
       #endif
-
     }
   }
   // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
@@ -86,8 +94,21 @@ void GcodeSuite::M203() {
 
   LOOP_XYZE(i)
     if (parser.seen(axis_codes[i])) {
-      const uint8_t a = (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i);
-      planner.settings.max_feedrate_mm_s[a] = parser.value_axis_units((AxisEnum)a);
+      const uint8_t a = (i == E_AXIS ? E_AXIS_N(target_extruder) : i);
+      #if DISABLED(MAX_FEEDRATE_CAP)
+        planner.settings.max_feedrate_mm_s[a] = parser.value_axis_units((AxisEnum)a);
+      #else
+        #ifdef MAX_FEEDRATE_MANUAL
+          static constexpr float max_feedrates[] = MAX_FEEDRATE_MANUAL;
+          static uint8_t fr_multiplier = 1;
+        #else
+          static constexpr float max_feedrates[] = DEFAULT_MAX_FEEDRATE;
+          static uint8_t fr_multiplier = 2;
+        #endif
+        if(parser.value_axis_units((AxisEnum)a) > max_feedrates[(AxisEnum)a] * fr_multiplier)
+          SERIAL_ECHOLNPAIR("Max feedrate clamped to ",  (max_feedrates[(AxisEnum)a] * fr_multiplier));
+        planner.settings.max_feedrate_mm_s[a] = constrain(parser.value_axis_units((AxisEnum)a), 1, max_feedrates[(AxisEnum)a] * fr_multiplier);
+      #endif
     }
 }
 
@@ -157,17 +178,70 @@ void GcodeSuite::M205() {
     }
   #endif
   #if HAS_CLASSIC_JERK
-    if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
-    if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
+    #ifdef MAX_JERK_MANUAL
+      static constexpr float max_jerk[] = MAX_JERK_MANUAL;
+    #endif
+    if (parser.seen('X')) {
+      #if DISABLED(MAX_JERK_CAP)
+        planner.max_jerk[X_AXIS] = parser.value_linear_units();
+      #else
+        #ifdef MAX_JERK_MANUAL
+          static float jrk_x_limit = max_jerk[X_AXIS];
+        #else
+          static float jrk_x_limit = DEFAULT_XJERK * 2;
+        #endif
+        if(parser.value_linear_units() > jrk_x_limit)
+          SERIAL_ECHOLNPAIR("X Jerk clamped to ",  jrk_x_limit);
+        planner.max_jerk[X_AXIS] = constrain(parser.value_linear_units(), 1, jrk_x_limit);
+      #endif
+    }
+    if (parser.seen('Y')) {
+      #if DISABLED(MAX_JERK_CAP)
+        planner.max_jerk[Y_AXIS] = parser.value_linear_units();
+      #else
+        #ifdef MAX_JERK_MANUAL
+          static float jrk_y_limit = max_jerk[Y_AXIS];
+        #else
+          static float jrk_y_limit = DEFAULT_YJERK * 2;
+        #endif
+        if(parser.value_linear_units() > jrk_y_limit)
+          SERIAL_ECHOLNPAIR("Y Jerk clamped to ",  jrk_y_limit);
+        planner.max_jerk[Y_AXIS] = constrain(parser.value_linear_units(), 1, jrk_y_limit);
+      #endif
+    }
     if (parser.seen('Z')) {
-      planner.max_jerk[Z_AXIS] = parser.value_linear_units();
+      #if DISABLED(MAX_JERK_CAP)
+        planner.max_jerk[Z_AXIS] = parser.value_linear_units();
+      #else
+        #ifdef MAX_JERK_MANUAL
+          static float jrk_z_limit = max_jerk[Z_AXIS];
+        #else
+          static float jrk_z_limit = DEFAULT_ZJERK * 2;
+        #endif
+        if(parser.value_linear_units() > jrk_z_limit)
+          SERIAL_ECHOLNPAIR("Z Jerk clamped to ",  jrk_z_limit);
+        planner.max_jerk[Z_AXIS] = constrain(parser.value_linear_units(), 1, jrk_z_limit);
+      #endif
       #if HAS_MESH
         if (planner.max_jerk[Z_AXIS] <= 0.1f)
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
     #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
-      if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
+      if (parser.seen('E')) {
+        #if DISABLED(MAX_JERK_CAP)
+        planner.max_jerk[E_AXIS] = parser.value_linear_units();
+      #else
+        #ifdef MAX_JERK_MANUAL
+          static float jrk_e_limit = max_jerk[E_AXIS];
+        #else
+          static float jrk_e_limit = DEFAULT_EJERK * 2;
+        #endif
+        if(parser.value_linear_units() > jrk_e_limit)
+          SERIAL_ECHOLNPAIR("E Jerk clamped to ",  jrk_e_limit);
+        planner.max_jerk[E_AXIS] = constrain(parser.value_linear_units(), 1, jrk_e_limit);
+      #endif
+      }
     #endif
   #endif
 }

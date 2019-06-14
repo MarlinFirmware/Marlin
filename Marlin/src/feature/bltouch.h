@@ -44,12 +44,10 @@ public:
   FORCE_INLINE static bool stow()                { return stow_proc(); }
   FORCE_INLINE static bool status()              { return status_proc(); }
 
-  FORCE_INLINE static void reset()       { command(BLTOUCH_RESET); }
-  FORCE_INLINE static void selftest()    { command(BLTOUCH_SELFTEST); }
+  // Native BLTouch commands ("Underscore"...), used in lcd menus and internally
+  FORCE_INLINE static void _reset()              { command(BLTOUCH_RESET, BLTOUCH_RESET_DELAY); }
 
-  FORCE_INLINE static void set_5V_mode() { command(BLTOUCH_5V_MODE); }
-  FORCE_INLINE static void set_OD_mode() { command(BLTOUCH_OD_MODE); }
-  FORCE_INLINE static void set_SW_mode() { command(BLTOUCH_SW_MODE); }
+  FORCE_INLINE static void _selftest()           { command(BLTOUCH_SELFTEST, BLTOUCH_DELAY); }
 
   FORCE_INLINE static void reset()       { command(BLTOUCH_RESET); }
   FORCE_INLINE static void selftest()    { command(BLTOUCH_SELFTEST); }
@@ -58,8 +56,8 @@ public:
   FORCE_INLINE static void set_OD_mode() { command(BLTOUCH_OD_MODE); }
   FORCE_INLINE static void set_SW_mode() { command(BLTOUCH_SW_MODE); }
 
-  FORCE_INLINE static void _deploy()     { command(BLTOUCH_DEPLOY); }
-  FORCE_INLINE static void _stow()       { command(BLTOUCH_STOW); }
+  FORCE_INLINE static void _deploy()             { command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
+  FORCE_INLINE static void _stow()               { command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
 
   FORCE_INLINE static void _deploy()     { command(BLTOUCH_DEPLOY); }
   FORCE_INLINE static void _stow()       { command(BLTOUCH_STOW); }
