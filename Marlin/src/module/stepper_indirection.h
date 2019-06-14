@@ -58,8 +58,8 @@
 #if HAS_TRINAMIC
   #include <TMCStepper.h>
   #include "../feature/tmc_util.h"
-  #if TMCSTEPPER_VERSION < 0x000202
-    #error "Update TMCStepper library to 0.2.2 or newer."
+  #if TMCSTEPPER_VERSION < 0x000401
+    #error "Update TMCStepper library to 0.4.1 or newer."
   #endif
 
   #define ____TMC_CLASS(MODEL, A, I, E) TMCMarlin<TMC##MODEL##Stepper, A, I, E>

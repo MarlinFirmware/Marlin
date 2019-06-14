@@ -565,13 +565,14 @@
     chopconf.toff = chopper_timing.toff;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
     st.CHOPCONF(chopconf.sr);
 
+    st.sdoff(0);
     st.rms_current(mA);
     st.microsteps(microsteps);
+    #if ENABLED(SQUARE_WAVE_STEPPING)
+      st.dedge(true);
+    #endif
     st.intpol(INTERPOLATE);
     st.diss2g(true); // Disable short to ground protection. Too many false readings?
 
