@@ -92,14 +92,14 @@
 //
 
 /**
- *               _____                                             _____
- *           NC | · · | GND                                    5V | · · | GND
- *        RESET | · · | 1.31(SD_DETECT)             (LCD_D7) 1.23 | · · | 1.22 (LCD_D6)
- *   (MOSI)0.18 | · · | 3.25(BTN_EN2)               (LCD_D5) 1.21 | · · | 1.20 (LCD_D4)
- *  (SD_SS)0.16 | · · | 3.26(BTN_EN1)               (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
- *    (SCK)0.15 | · · | 0.17(MISO)                 (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
- *               ￣￣                                               ￣￣
- *               EXP2                                              EXP1
+ *                _____                                             _____
+ *            NC | · · | GND                                    5V | · · | GND
+ *         RESET | · · | PB9 (SD_DETECT)             (LCD_D7) PC14 | · · | PC15 (LCD_D6)
+ *  (MOSI)   PB5 | · · | PB8 (BTN_EN2)               (LCD_D5)  PB7 | · · | PC13 (LCD_D4)
+ * (SD_SS)  PA15 | · · | PD2 (BTN_EN1)               (LCD_RS) PC12 | · · | PB6  (LCD_EN)
+ *   (SCK)   PB3 | · · | PB4 (MISO)                 (BTN_ENC) PC11 | · · | PC10 (BEEPER)
+ *                ￣￣                                               ￣￣  
+ *                EXP2                                              EXP1  
  */
 
 #if ENABLED(ULTRA_LCD)
