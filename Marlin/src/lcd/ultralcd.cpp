@@ -204,33 +204,36 @@ millis_t next_button_update_ms;
     SETCURSOR(x, y);
     if (!string) return;
 
+    auto _newline = [&x, &y]() {
+      x = 0; y++;               // move x to string len (plus space)
+      SETCURSOR(0, y);          // simulate carriage return
+    };
+
     uint8_t *p = (uint8_t*)string;
     wchar_t ch;
     if (wordwrap) {
-      uint8_t *wrd = p, c = 0;
+      uint8_t *wrd = nullptr, c = 0;
+      // find the end of the part
       for (;;) {
+        if (!wrd) wrd = p;            // Get word start /before/ advancing
         p = get_utf8_value_cb(p, cb_read_byte, &ch);
-        const bool eol = !ch;
+        const bool eol = !ch;         // zero ends the string
+        // End or a break between phrases?
         if (eol || ch == ' ' || ch == '-' || ch == '+' || ch == '.') {
-          if (!c && ch == ' ') continue; // collapse extra spaces
-          if (x + c > LCD_WIDTH && x >= (LCD_WIDTH) / 4) { // should it wrap?
-            x = 0; y++;               // move x to string len (plus space)
-            SETCURSOR(0, y);          // simulate carriage return
-          }
+          if (!c && ch == ' ') { if (wrd) wrd++; continue; } // collapse extra spaces
+          // Past the right and the word is not too long?
+          if (x + c > LCD_WIDTH && x >= (LCD_WIDTH) / 4) _newline(); // should it wrap?
           c += !eol;                  // +1 so the space will be printed
           x += c;                     // advance x to new position
           while (c) {                 // character countdown
             --c;                      // count down to zero
             wrd = get_utf8_value_cb(wrd, cb_read_byte, &ch); // get characters again
-            lcd_put_wchar(ch);        // word (plus space) to the LCD
+            lcd_put_wchar(ch);        // character to the LCD
           }
-          if (eol) break;             // all done
+          if (eol) break;             // all done!
           wrd = nullptr;              // set up for next word
         }
-        else {
-          if (!wrd) wrd = p;          // starting a new word?
-          c++;                        // count word characters
-        }
+        else c++;                     // count word characters
       }
     }
     else {
@@ -239,10 +242,7 @@ millis_t next_button_update_ms;
         if (!ch) break;
         lcd_put_wchar(ch);
         x++;
-        if (x >= LCD_WIDTH) {
-          x = 0; y++;
-          SETCURSOR(0, y);
-        }
+        if (x >= LCD_WIDTH) _newline();
       }
     }
   }
