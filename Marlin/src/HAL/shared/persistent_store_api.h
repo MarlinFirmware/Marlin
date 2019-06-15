@@ -25,6 +25,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "../../libs/crc16.h"
+
 class PersistentStore {
 public:
   static bool access_start();

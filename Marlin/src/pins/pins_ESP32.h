@@ -31,17 +31,23 @@
 #define BOARD_NAME "Espressif ESP32"
 
 //
+// I2S (steppers & other output-only pins)
+//
+#define I2S_STEPPER_STREAM
+#define I2S_WS              25
+#define I2S_BCK             26
+#define I2S_DATA            27
+
+//
 // Limit Switches
 //
-#define X_MIN_PIN          34
-#define Y_MIN_PIN          35
-#define Z_MIN_PIN          15
+#define X_MIN_PIN           34
+#define Y_MIN_PIN           35
+#define Z_MIN_PIN           15
 
 //
 // Steppers
 //
-#define I2S_STEPPER_STREAM
-
 #define X_STEP_PIN         128
 #define X_DIR_PIN          129
 #define X_ENABLE_PIN       130

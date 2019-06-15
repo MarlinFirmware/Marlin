@@ -120,7 +120,8 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     // Only update power loss recovery on moves with E
-    if (seen[E_AXIS] && (seen[X_AXIS] || seen[Y_AXIS]) && IS_SD_PRINTING()) recovery.save();
+    if (recovery.enabled && IS_SD_PRINTING() && seen[E_AXIS] && (seen[X_AXIS] || seen[Y_AXIS]))
+      recovery.save();
   #endif
 
   if (parser.linearval('F') > 0)
@@ -180,7 +181,7 @@ void GcodeSuite::dwell(millis_t time) {
 // Placeholders for non-migrated codes
 //
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
-  extern void M100_dump_routine(PGM_P const title, const char *start, const char *end);
+  extern void M100_dump_routine(PGM_P const title, char *start, char *end);
 #endif
 
 /**
@@ -326,9 +327,19 @@ void GcodeSuite::process_parsed_command(
       #endif
 
       #if ENABLED(SPINDLE_LASER_ENABLE)
-        case 3: M3_M4(false); break;                              // M3: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CW
-        case 4: M3_M4(true ); break;                              // M4: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CCW
-        case 5: M5(); break;                                      // M5 - turn spindle/laser off
+        case 3: M3_M4(false); break;                              // M3: Turn ON Laser | Spindle (clockwise), set Power | Speed
+        case 4: M3_M4(true ); break;                              // M4: Turn ON Laser | Spindle (counter-clockwise), set Power | Speed
+        case 5: M5(); break;                                      // M5: Turn OFF Laser | Spindle
+      #endif
+
+      #if ENABLED(COOLANT_CONTROL)
+        #if ENABLED(COOLANT_MIST)
+          case 7: M7(); break;                                    // M7: Mist coolant ON
+        #endif
+        #if ENABLED(COOLANT_FLOOD)
+          case 8: M8(); break;                                    // M8: Flood coolant ON
+        #endif
+        case 9: M9(); break;                                      // M9: Coolant OFF
       #endif
 
       #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
@@ -338,9 +349,9 @@ void GcodeSuite::process_parsed_command(
       case 17: M17(); break;                                      // M17: Enable all stepper motors
 
       #if ENABLED(SDSUPPORT)
-        case 20: M20(); break;                                    // M20: list SD card
-        case 21: M21(); break;                                    // M21: init SD card
-        case 22: M22(); break;                                    // M22: release SD card
+        case 20: M20(); break;                                    // M20: List SD card
+        case 21: M21(); break;                                    // M21: Init SD card
+        case 22: M22(); break;                                    // M22: Release SD card
         case 23: M23(); break;                                    // M23: Select file
         case 24: M24(); break;                                    // M24: Start SD print
         case 25: M25(); break;                                    // M25: Pause SD print
@@ -658,7 +669,7 @@ void GcodeSuite::process_parsed_command(
         case 524: M524(); break;                                   // M524: Abort the current SD print job
       #endif
 
-      #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
+      #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
         case 540: M540(); break;                                  // M540: Set abort on endstop hit for SD printing
       #endif
 

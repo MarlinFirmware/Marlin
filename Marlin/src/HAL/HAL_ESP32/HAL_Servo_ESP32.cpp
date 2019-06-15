@@ -27,7 +27,9 @@
 
 #include "HAL_Servo_ESP32.h"
 
-int Servo::channel_next_free = 0;
+// Adjacent channels (0/1, 2/3 etc.) share the same timer and therefore the same frequency and resolution settings on ESP32,
+// so we only allocate servo channels up high to avoid side effects with regards to analogWrite (fans, leds, laser pwm etc.)
+int Servo::channel_next_free = 12;
 
 Servo::Servo() {
   this->channel = channel_next_free++;
@@ -42,7 +44,7 @@ int8_t Servo::attach(const int pin) {
   return true;
 }
 
-void Servo::detach() { ledcDetachPin(this->pin) }
+void Servo::detach() { ledcDetachPin(this->pin); }
 
 int Servo::read() { return this->degrees; }
 

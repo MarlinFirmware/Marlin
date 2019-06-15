@@ -58,8 +58,8 @@
 #if HAS_TRINAMIC
   #include <TMCStepper.h>
   #include "../feature/tmc_util.h"
-  #if TMCSTEPPER_VERSION < 0x000202
-    #error "Update TMCStepper library to 0.2.2 or newer."
+  #if TMCSTEPPER_VERSION < 0x000401
+    #error "Update TMCStepper library to 0.4.1 or newer."
   #endif
 
   #define ____TMC_CLASS(MODEL, A, I, E) TMCMarlin<TMC##MODEL##Stepper, A, I, E>
@@ -95,6 +95,8 @@
 void restore_stepper_drivers();  // Called by PSU_ON
 void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
+#define AXIS_HAS_SQUARE_WAVE(A) (AXIS_IS_TMC(A) && ENABLED(SQUARE_WAVE_STEPPING))
+
 // X Stepper
 #if AXIS_DRIVER_TYPE_X(L6470)
   extern L6470 stepperX;
@@ -127,7 +129,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define X_DIR_READ READ(X_DIR_PIN)
 #endif
 #define X_STEP_INIT SET_OUTPUT(X_STEP_PIN)
-#define X_STEP_WRITE(STATE) WRITE(X_STEP_PIN,STATE)
+#if AXIS_HAS_SQUARE_WAVE(X)
+  #define X_STEP_WRITE(STATE) do { if(STATE) TOGGLE(X_STEP_PIN); } while(0)
+#else
+  #define X_STEP_WRITE(STATE) WRITE(X_STEP_PIN,STATE)
+#endif
 #define X_STEP_READ READ(X_STEP_PIN)
 
 // Y Stepper
@@ -162,7 +168,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Y_DIR_READ READ(Y_DIR_PIN)
 #endif
 #define Y_STEP_INIT SET_OUTPUT(Y_STEP_PIN)
-#define Y_STEP_WRITE(STATE) WRITE(Y_STEP_PIN,STATE)
+#if AXIS_HAS_SQUARE_WAVE(Y)
+  #define Y_STEP_WRITE(STATE) do { if (STATE) TOGGLE(Y_STEP_PIN); } while(0)
+#else
+  #define Y_STEP_WRITE(STATE) WRITE(Y_STEP_PIN,STATE)
+#endif
 #define Y_STEP_READ READ(Y_STEP_PIN)
 
 // Z Stepper
@@ -197,7 +207,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Z_DIR_READ READ(Z_DIR_PIN)
 #endif
 #define Z_STEP_INIT SET_OUTPUT(Z_STEP_PIN)
-#define Z_STEP_WRITE(STATE) WRITE(Z_STEP_PIN,STATE)
+#if AXIS_HAS_SQUARE_WAVE(Z)
+  #define Z_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Z_STEP_PIN); } while(0)
+#else
+  #define Z_STEP_WRITE(STATE) WRITE(Z_STEP_PIN,STATE)
+#endif
 #define Z_STEP_READ READ(Z_STEP_PIN)
 
 // X2 Stepper
@@ -233,7 +247,12 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define X2_DIR_READ READ(X2_DIR_PIN)
   #endif
   #define X2_STEP_INIT SET_OUTPUT(X2_STEP_PIN)
-  #define X2_STEP_WRITE(STATE) WRITE(X2_STEP_PIN,STATE)
+  #if AXIS_HAS_SQUARE_WAVE(X2)
+    #define X2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(X2_STEP_PIN); } while(0)
+  #else
+    #define X2_STEP_WRITE(STATE) WRITE(X2_STEP_PIN,STATE)
+  #endif
+
   #define X2_STEP_READ READ(X2_STEP_PIN)
 #endif
 
@@ -270,7 +289,12 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Y2_DIR_READ READ(Y2_DIR_PIN)
   #endif
   #define Y2_STEP_INIT SET_OUTPUT(Y2_STEP_PIN)
-  #define Y2_STEP_WRITE(STATE) WRITE(Y2_STEP_PIN,STATE)
+  #if AXIS_HAS_SQUARE_WAVE(Y2)
+    #define Y2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Y2_STEP_PIN); } while(0)
+  #else
+    #define Y2_STEP_WRITE(STATE) WRITE(Y2_STEP_PIN,STATE)
+  #endif
+
   #define Y2_STEP_READ READ(Y2_STEP_PIN)
 #else
   #define Y2_DIR_WRITE(STATE) NOOP
@@ -309,7 +333,12 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z2_DIR_READ READ(Z2_DIR_PIN)
   #endif
   #define Z2_STEP_INIT SET_OUTPUT(Z2_STEP_PIN)
-  #define Z2_STEP_WRITE(STATE) WRITE(Z2_STEP_PIN,STATE)
+  #if AXIS_HAS_SQUARE_WAVE(Z2)
+    #define Z2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Z2_STEP_PIN); } while(0)
+  #else
+    #define Z2_STEP_WRITE(STATE) WRITE(Z2_STEP_PIN,STATE)
+  #endif
+
   #define Z2_STEP_READ READ(Z2_STEP_PIN)
 #else
   #define Z2_DIR_WRITE(STATE) NOOP
@@ -348,7 +377,12 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z3_DIR_READ READ(Z3_DIR_PIN)
   #endif
   #define Z3_STEP_INIT SET_OUTPUT(Z3_STEP_PIN)
-  #define Z3_STEP_WRITE(STATE) WRITE(Z3_STEP_PIN,STATE)
+  #if AXIS_HAS_SQUARE_WAVE(Z3)
+    #define Z3_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Z3_STEP_PIN); } while(0)
+  #else
+    #define Z3_STEP_WRITE(STATE) WRITE(Z3_STEP_PIN,STATE)
+  #endif
+
   #define Z3_STEP_READ READ(Z3_STEP_PIN)
 #else
   #define Z3_DIR_WRITE(STATE) NOOP
@@ -386,7 +420,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E0_DIR_READ READ(E0_DIR_PIN)
 #endif
 #define E0_STEP_INIT SET_OUTPUT(E0_STEP_PIN)
-#define E0_STEP_WRITE(STATE) WRITE(E0_STEP_PIN,STATE)
+#if AXIS_HAS_SQUARE_WAVE(E0)
+  #define E0_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E0_STEP_PIN); } while(0)
+#else
+  #define E0_STEP_WRITE(STATE) WRITE(E0_STEP_PIN,STATE)
+#endif
 #define E0_STEP_READ READ(E0_STEP_PIN)
 
 // E1 Stepper
@@ -421,7 +459,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E1_DIR_READ READ(E1_DIR_PIN)
 #endif
 #define E1_STEP_INIT SET_OUTPUT(E1_STEP_PIN)
-#define E1_STEP_WRITE(STATE) WRITE(E1_STEP_PIN,STATE)
+#if AXIS_HAS_SQUARE_WAVE(E1)
+  #define E1_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E1_STEP_PIN); } while(0)
+#else
+  #define E1_STEP_WRITE(STATE) WRITE(E1_STEP_PIN,STATE)
+#endif
 #define E1_STEP_READ READ(E1_STEP_PIN)
 
 // E2 Stepper
@@ -456,7 +498,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E2_DIR_READ READ(E2_DIR_PIN)
 #endif
 #define E2_STEP_INIT SET_OUTPUT(E2_STEP_PIN)
-#define E2_STEP_WRITE(STATE) WRITE(E2_STEP_PIN,STATE)
+#if AXIS_HAS_SQUARE_WAVE(E2)
+  #define E2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E2_STEP_PIN); } while(0)
+#else
+  #define E2_STEP_WRITE(STATE) WRITE(E2_STEP_PIN,STATE)
+#endif
 #define E2_STEP_READ READ(E2_STEP_PIN)
 
 // E3 Stepper
@@ -491,7 +537,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E3_DIR_READ READ(E3_DIR_PIN)
 #endif
 #define E3_STEP_INIT SET_OUTPUT(E3_STEP_PIN)
-#define E3_STEP_WRITE(STATE) WRITE(E3_STEP_PIN,STATE)
+#if AXIS_HAS_SQUARE_WAVE(E3)
+  #define E3_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E3_STEP_PIN); } while(0)
+#else
+  #define E3_STEP_WRITE(STATE) WRITE(E3_STEP_PIN,STATE)
+#endif
 #define E3_STEP_READ READ(E3_STEP_PIN)
 
 // E4 Stepper
@@ -526,7 +576,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E4_DIR_READ READ(E4_DIR_PIN)
 #endif
 #define E4_STEP_INIT SET_OUTPUT(E4_STEP_PIN)
-#define E4_STEP_WRITE(STATE) WRITE(E4_STEP_PIN,STATE)
+#if AXIS_HAS_SQUARE_WAVE(E4)
+  #define E4_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E4_STEP_PIN); } while(0)
+#else
+  #define E4_STEP_WRITE(STATE) WRITE(E4_STEP_PIN,STATE)
+#endif
 #define E4_STEP_READ READ(E4_STEP_PIN)
 
 // E5 Stepper
@@ -561,7 +615,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E5_DIR_READ READ(E5_DIR_PIN)
 #endif
 #define E5_STEP_INIT SET_OUTPUT(E5_STEP_PIN)
-#define E5_STEP_WRITE(STATE) WRITE(E5_STEP_PIN,STATE)
+#if AXIS_HAS_SQUARE_WAVE(E5)
+  #define E5_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E5_STEP_PIN); } while(0)
+#else
+  #define E5_STEP_WRITE(STATE) WRITE(E5_STEP_PIN,STATE)
+#endif
 #define E5_STEP_READ READ(E5_STEP_PIN)
 
 /**
