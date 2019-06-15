@@ -2160,14 +2160,14 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 #if ENABLED(MAX_JERK_CAP)
-  #ifdef MAX_JERK_CAP
-    constexpr float sanity_arr_6[] = MAX_JERK_CAP;
-    static_assert(COUNT(sanity_arr_6) >= XYZE, "MAX_JERK_CAP requires X, Y, Z and E elements.");
-    static_assert(COUNT(sanity_arr_6) <= XYZE, "MAX_JERK_CAP has too many elements, requires X, Y, Z and E elements only.");
+  #ifdef MAX_JERK_MANUAL
+    constexpr float sanity_arr_6[] = MAX_JERK_MANUAL;
+    static_assert(COUNT(sanity_arr_6) >= XYZE, "MAX_JERK_MANUAL requires X, Y, Z and E elements.");
+    static_assert(COUNT(sanity_arr_6) <= XYZE, "MAX_JERK_MANUAL has too many elements, requires X, Y, Z and E elements only.");
     static_assert(   _ARR_TEST(6,0) && _ARR_TEST(6,1) && _ARR_TEST(6,2)
                   && _ARR_TEST(6,3) && _ARR_TEST(6,4) && _ARR_TEST(6,5)
                   && _ARR_TEST(6,6) && _ARR_TEST(6,7) && _ARR_TEST(6,8),
-                  "MAX_JERK_CAP values must be positive.");
+                  "MAX_JERK_MANUAL values must be positive.");
   #endif
 #endif
 
