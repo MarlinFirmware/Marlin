@@ -92,7 +92,7 @@ class TMCStorage {
         uint8_t hybrid_thrs = 0;
       #endif
       #if USE_SENSORLESS
-        int8_t homing_thrs = 0;
+        int16_t homing_thrs = 0;
       #endif
     } stored;
 };
@@ -132,8 +132,9 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       }
     #endif
     #if USE_SENSORLESS
-      inline int8_t sgt() { return TMC::sgt(); }
-      void sgt(const int8_t sgt_val) {
+      inline int16_t homing_threshold() { return TMC::sgt(); }
+      void homing_threshold(int16_t sgt_val) {
+        sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
         TMC::sgt(sgt_val);
         #if HAS_LCD_MENU
           this->stored.homing_thrs = sgt_val;
@@ -148,9 +149,12 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
         inline void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
       #endif
       #if USE_SENSORLESS
-        inline void refresh_homing_thrs() { sgt(this->stored.homing_thrs); }
+        inline void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
       #endif
     #endif
+
+    static constexpr int8_t sgt_min = -64,
+                            sgt_max =  63;
 };
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
@@ -211,8 +215,9 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
     }
 
     #if USE_SENSORLESS
-      inline int8_t sgt() { return TMC2660Stepper::sgt(); }
-      void sgt(const int8_t sgt_val) {
+      inline int16_t homing_threshold() { return TMC2660Stepper::sgt(); }
+      void homing_threshold(int16_t sgt_val) {
+        sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
         TMC2660Stepper::sgt(sgt_val);
         #if HAS_LCD_MENU
           this->stored.homing_thrs = sgt_val;
@@ -224,9 +229,12 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
       inline void refresh_stepper_current() { rms_current(this->val_mA); }
 
       #if USE_SENSORLESS
-        inline void refresh_homing_thrs() { sgt(this->stored.homing_thrs); }
+        inline void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
       #endif
     #endif
+
+    static constexpr int8_t sgt_min = -64,
+                            sgt_max =  63;
 };
 
 template<typename TMC>
@@ -262,7 +270,7 @@ void tmc_print_current(TMC &st) {
   void tmc_print_sgt(TMC &st) {
     st.printLabel();
     SERIAL_ECHOPGM(" homing sensitivity: ");
-    SERIAL_PRINTLN(st.sgt(), DEC);
+    SERIAL_PRINTLN(st.homing_threshold(), DEC);
   }
 #endif
 
