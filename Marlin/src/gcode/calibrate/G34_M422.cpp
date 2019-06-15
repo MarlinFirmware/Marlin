@@ -109,7 +109,7 @@ void GcodeSuite::G34() {
     // Always home with tool 0 active
     #if HOTENDS > 1
       const uint8_t old_tool_index = active_extruder;
-      tool_change(0, 0, true);
+      tool_change(0, true);
     #endif
 
     #if HAS_DUPLICATION_MODE
@@ -263,7 +263,7 @@ void GcodeSuite::G34() {
 
     // Restore the active tool after homing
     #if HOTENDS > 1
-      tool_change(old_tool_index, 0, (
+      tool_change(old_tool_index, (
         #if ENABLED(PARKING_EXTRUDER)
           false // Fetch the previous toolhead
         #else

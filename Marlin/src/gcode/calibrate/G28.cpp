@@ -242,7 +242,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
       const uint8_t old_tool_index = active_extruder;
     #endif
-    tool_change(0, 0, true);
+    tool_change(0, true);
   #endif
 
   #if HAS_DUPLICATION_MODE
@@ -428,7 +428,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     #else
       #define NO_FETCH true
     #endif
-    tool_change(old_tool_index, 0, NO_FETCH);
+    tool_change(old_tool_index, NO_FETCH);
   #endif
 
   ui.refresh();

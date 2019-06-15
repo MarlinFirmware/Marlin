@@ -365,7 +365,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
 
 #if ENABLED(SWITCHING_TOOLHEAD)
 
-  inline void switching_toolhead_tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+  inline void switching_toolhead_tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
     if (no_move) return;
 
     constexpr uint16_t angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
@@ -469,7 +469,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
 
 #if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
 
-  inline void magnetic_switching_toolhead_tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+  inline void magnetic_switching_toolhead_tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
     if (no_move) return;
 
     const float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS,
@@ -653,7 +653,7 @@ inline void invalid_extruder_error(const uint8_t e) {
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
  */
-void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
 
   #if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
     if (tmp_extruder == active_extruder) return;
@@ -661,7 +661,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
   #if ENABLED(MIXING_EXTRUDER)
 
-    UNUSED(fr_mm_s); UNUSED(no_move);
+    UNUSED(no_move);
 
     if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
       return invalid_extruder_error(tmp_extruder);
@@ -673,13 +673,13 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
   #elif ENABLED(PRUSA_MMU2)
 
-    UNUSED(fr_mm_s); UNUSED(no_move);
+    UNUSED(no_move);
 
     mmu2.tool_change(tmp_extruder);
 
   #elif EXTRUDERS < 2
 
-    UNUSED(fr_mm_s); UNUSED(no_move);
+    UNUSED(no_move);
 
     if (tmp_extruder) invalid_extruder_error(tmp_extruder);
     return;
@@ -704,7 +704,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
     if (!no_move && !all_axes_homed()) {
       no_move = true;
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No move on toolchange");
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No move (not homed)");
     }
 
     #if HAS_LCD_MENU
@@ -749,8 +749,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         raise_nozzle(active_extruder);
       #endif
 
-      const float old_feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : feedrate_mm_s;
-      feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
+      REMEMBER(fr, feedrate_mm_s, XY_PROBE_FEEDRATE_MM_S);
 
       #if HAS_SOFTWARE_ENDSTOPS
         #if HAS_HOTEND_OFFSET
@@ -803,9 +802,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #elif ENABLED(MAGNETIC_PARKING_EXTRUDER) // Magnetic Parking extruder
         magnetic_parking_extruder_tool_change(tmp_extruder);
       #elif ENABLED(SWITCHING_TOOLHEAD) // Switching Toolhead
-        switching_toolhead_tool_change(tmp_extruder, fr_mm_s, no_move);
+        switching_toolhead_tool_change(tmp_extruder, no_move);
       #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD) // Magnetic Switching Toolhead
-        magnetic_switching_toolhead_tool_change(tmp_extruder, fr_mm_s, no_move);
+        magnetic_switching_toolhead_tool_change(tmp_extruder, no_move);
       #elif ENABLED(SWITCHING_NOZZLE) && !SWITCHING_NOZZLE_TWO_SERVOS
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
@@ -885,6 +884,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           apply_motion_limits(destination);
         #endif
 
+        // Should the nozzle move back to the old position?
         if (!idex_full_control
           #if ENABLED(TOOLCHANGE_NO_RETURN)
             && false
@@ -899,7 +899,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #if ENABLED(DUAL_X_CARRIAGE)
           active_extruder_parked = false;
         #endif
-        feedrate_mm_s = old_feedrate_mm_s;
       }
       #if ENABLED(SWITCHING_NOZZLE)
         else {
