@@ -297,11 +297,14 @@
 
     st.en_pwm_mode(stealth);
 
-    PWMCONF_t pwmconf{0};
-    pwmconf.pwm_freq = 0b01; // f_pwm = 2/683 f_clk
+    TMC2160_n::PWMCONF_t pwmconf{0};
+    pwmconf.pwm_lim = 12;
+    pwmconf.pwm_reg = 8;
+    pwmconf.pwm_autograd = true;
     pwmconf.pwm_autoscale = true;
-    pwmconf.pwm_grad = 5;
-    pwmconf.pwm_ampl = 180;
+    pwmconf.pwm_freq = 0b01;
+    pwmconf.pwm_grad = 14;
+    pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -562,13 +565,14 @@
     chopconf.toff = chopper_timing.toff;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
     st.CHOPCONF(chopconf.sr);
 
+    st.sdoff(0);
     st.rms_current(mA);
     st.microsteps(microsteps);
+    #if ENABLED(SQUARE_WAVE_STEPPING)
+      st.dedge(true);
+    #endif
     st.intpol(INTERPOLATE);
     st.diss2g(true); // Disable short to ground protection. Too many false readings?
 
@@ -651,11 +655,14 @@
 
     st.en_pwm_mode(stealth);
 
-    PWMCONF_t pwmconf{0};
-    pwmconf.pwm_freq = 0b01; // f_pwm = 2/683 f_clk
+    TMC2160_n::PWMCONF_t pwmconf{0};
+    pwmconf.pwm_lim = 12;
+    pwmconf.pwm_reg = 8;
+    pwmconf.pwm_autograd = true;
     pwmconf.pwm_autoscale = true;
-    pwmconf.pwm_grad = 5;
-    pwmconf.pwm_ampl = 180;
+    pwmconf.pwm_freq = 0b01;
+    pwmconf.pwm_grad = 14;
+    pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
     #if ENABLED(HYBRID_THRESHOLD)

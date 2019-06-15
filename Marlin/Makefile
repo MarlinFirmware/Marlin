@@ -237,6 +237,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),31)
 else ifeq ($(HARDWARE_MOTHERBOARD),441)
 # TRONXY V3 1.0
 else ifeq ($(HARDWARE_MOTHERBOARD),442)
+# Z-Bolt X Series
+else ifeq ($(HARDWARE_MOTHERBOARD),550)
 
 #
 # Other ATmega1280, ATmega2560
@@ -288,6 +290,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),75)
 else ifeq ($(HARDWARE_MOTHERBOARD),76)
 # Geeetech GT2560 Rev B for A20(M/D)
 else ifeq ($(HARDWARE_MOTHERBOARD),86)
+# Einstart retrofit
+else ifeq ($(HARDWARE_MOTHERBOARD),666)
 
 #
 # ATmega1281, ATmega2561

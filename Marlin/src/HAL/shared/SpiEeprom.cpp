@@ -115,5 +115,4 @@ void eeprom_update_block(const void* src, void* eeprom_address, size_t n) {
   delay(7);   // wait for page write to complete
 }
 
-
-#endif // ENABLED(SPI_EEPROM)
+#endif // SPI_EEPROM
