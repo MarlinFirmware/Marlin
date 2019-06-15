@@ -576,13 +576,23 @@ void menu_backlash();
       #endif
     #endif
     #if HAS_CLASSIC_JERK
-      #define EDIT_JERK(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_V##N##_JERK, &planner.max_jerk[_AXIS(N)], 1, 990)
+      static constexpr float max_jerk_arr[] =
+        #ifdef MAX_ACCELERATION_MANUAL
+          MAX_JERK_MANUAL
+        #elif ENABLED(MAX_JERK_CAP)
+          {(DEFAULT_XJERK * 2), (DEFAULT_YJERK * 2), (DEFAULT_ZJERK * 2), (DEFAULT_EJERK * 2)}
+        #else
+          { 990, 990, 990, 990 }
+        #endif
+      ;
+      
+      #define EDIT_JERK(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_V##N##_JERK, &planner.max_jerk[_AXIS(N)], 1, max_jerk_arr[_AXIS(N)])
       EDIT_JERK(A);
       EDIT_JERK(B);
       #if ENABLED(DELTA)
         EDIT_JERK(C);
       #else
-        MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1f, 990);
+        MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1f,  max_jerk_arr[C_AXIS]);
       #endif
       #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
         EDIT_JERK(E);
