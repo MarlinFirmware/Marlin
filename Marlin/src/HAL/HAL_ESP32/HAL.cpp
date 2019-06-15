@@ -193,6 +193,9 @@ void HAL_adc_start_conversion(uint8_t adc_pin) {
 }
 
 void analogWrite(int pin, int value) {
+
+  if (!PWM_PIN(pin)) return;
+
   static int cnt_channel = 1,
              pin_to_channel[40] = {};
   if (pin_to_channel[pin] == 0) {

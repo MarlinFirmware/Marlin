@@ -57,6 +57,7 @@
 
 #if ENABLED(PRINTCOUNTER)
   #include "../../core/utility.h"
+  #include "../../libs/numtostr.h"
 #endif
 
 #if DO_SWITCH_EXTRUDER || EITHER(SWITCHING_NOZZLE, PARKING_EXTRUDER)

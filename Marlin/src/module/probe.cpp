@@ -103,6 +103,26 @@ float zprobe_zoffset; // Initialized by settings.load()
     #endif
   }
 
+#elif ENABLED(TOUCH_MI_PROBE)
+
+  // Move to the magnet to unlock the probe
+  void run_deploy_moves_script() {
+    #ifndef TOUCH_MI_DEPLOY_XPOS
+      #define TOUCH_MI_DEPLOY_XPOS 0
+    #elif X_HOME_DIR > 0 && TOUCH_MI_DEPLOY_XPOS > X_MAX_BED
+      TemporaryGlobalEndstopsState unlock_x(false);
+    #endif
+    do_blocking_move_to_x(TOUCH_MI_DEPLOY_XPOS);
+  }
+
+  // Move down to the bed to stow the probe
+  void run_stow_moves_script() {
+    const float old_pos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+    endstops.enable_z_probe(false);
+    do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, MMM_TO_MMS(HOMING_FEEDRATE_Z));
+    do_blocking_move_to(old_pos, MMM_TO_MMS(HOMING_FEEDRATE_Z));
+  }
+
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
   void run_deploy_moves_script() {
@@ -366,7 +386,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       if (deploy) bltouch.deploy(); else bltouch.stow();
     #endif
 
-  #elif ENABLED(Z_PROBE_ALLEN_KEY)
+  #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
 
     deploy ? run_deploy_moves_script() : run_stow_moves_script();
 

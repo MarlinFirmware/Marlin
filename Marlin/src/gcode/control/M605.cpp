@@ -158,11 +158,12 @@
    *             A value of 0 disables duplication.
    */
   void GcodeSuite::M605() {
+    bool ena = false;
     if (parser.seen("EPS")) {
       planner.synchronize();
       if (parser.seenval('P')) duplication_e_mask = parser.value_int();   // Set the mask directly
-      else if (parser.seenval('E')) duplication_e_mask = pow(2, e + 1) - 1;    // Set the mask by E index
-      const bool ena = (2 == parser.intval('S', extruder_duplication_enabled ? 2 : 0));
+      else if (parser.seenval('E')) duplication_e_mask = pow(2, parser.value_int() + 1) - 1; // Set the mask by E index
+      ena = (2 == parser.intval('S', extruder_duplication_enabled ? 2 : 0));
       extruder_duplication_enabled = ena && (duplication_e_mask >= 3);
     }
     SERIAL_ECHO_START();

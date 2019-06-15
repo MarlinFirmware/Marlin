@@ -69,6 +69,16 @@
 #endif
 
 //
+// Filament Runout Pins
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   49
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN  47
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN         55   // F1
@@ -187,142 +197,101 @@
 #endif
 
 //
-// Extruder Auto Fan Pins
-//
-#define ORIG_E0_AUTO_FAN_PIN EX1_FAN_PIN
-#define ORIG_E1_AUTO_FAN_PIN EX2_FAN_PIN
-
-//
 // Misc. Functions
 //
 #define LED_PIN            13   // B7
 #define CUTOFF_RESET_PIN   16   // H1
 #define CUTOFF_TEST_PIN    17   // H0
-#define CASE_LIGHT_PIN     44   // L5   MUST BE HARDWARE PWM
 
 //
 // LCD / Controller
 //
-#ifdef REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#if ENABLED(ULTRA_LCD)
 
-  #define LCD_PINS_RS      33   // C4: LCD-STROBE
-  #define LCD_PINS_ENABLE  72   // J2: LEFT
-  #define LCD_PINS_D4      35   // C2: LCD-CLK
-  #define LCD_PINS_D5      32   // C5: RLED
-  #define LCD_PINS_D6      34   // C3: LCD-DATA
-  #define LCD_PINS_D7      31   // C6: GLED
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
-  #define BTN_EN2          75   // J4, UP
-  #define BTN_EN1          73   // J3, DOWN
-  //STOP button connected as KILL_PIN
-  #define KILL_PIN         14   // J1, RIGHT
-  //KILL - not connected
+    #define LCD_PINS_RS    33   // C4: LCD-STROBE
+    #define LCD_PINS_ENABLE 72  // J2: LEFT
+    #define LCD_PINS_D4    35   // C2: LCD-CLK
+    #define LCD_PINS_D5    32   // C5: RLED
+    #define LCD_PINS_D6    34   // C3: LCD-DATA
+    #define LCD_PINS_D7    31   // C6: GLED
 
-  #define BEEPER_PIN        8   // H5, SD_WP
+    #define BTN_EN2        75   // J4, UP
+    #define BTN_EN1        73   // J3, DOWN
+    //STOP button connected as KILL_PIN
+    #define KILL_PIN       14   // J1, RIGHT
+    //KILL - not connected
+
+    #define BEEPER_PIN      8   // H5, SD_WP
+
+    //on board leds
+    #define STAT_LED_RED_LED  SERVO0_PIN   // C1 (1280-EX1, DEBUG2)
+    #define STAT_LED_BLUE_PIN SERVO1_PIN   // C0 (1280-EX2, DEBUG3)
+
+  #else
+    // Replicator uses a 3-wire SR controller with HD44780
+    #define SR_DATA_PIN    34   // C3
+    #define SR_CLK_PIN     35   // C2
+    #define SR_STROBE_PIN  33   // C4
+
+    #define BTN_UP         75   // J4
+    #define BTN_DWN        73   // J3
+    #define BTN_LFT        72   // J2
+    #define BTN_RT         14   // J1
+
+    // Disable encoder
+    #undef BTN_EN1
+    #undef BTN_EN2
+
+    #define BEEPER_PIN      4   // G5
+
+    #define STAT_LED_RED_PIN  32   // C5
+    #define STAT_LED_BLUE_PIN 31   // C6 (Actually green)
+
+  #endif
 
   #define BTN_CENTER       15   // J0
   #define BTN_ENC          BTN_CENTER
 
-  //on board leds
-  #define STAT_LED_RED_LED  SERVO0_PIN   // C1 (1280-EX1, DEBUG2)
-  #define STAT_LED_BLUE_PIN SERVO1_PIN   // C0 (1280-EX2, DEBUG3)
-
-#else
-  // Replicator uses a 3-wire SR controller with HD44780
-  // For now, pretend it's the SAV
-  //
-  //#define FF_INTERFACEBOARD
-
-  #define SR_DATA_PIN      34   // C3
-  #define SR_CLK_PIN       35   // C2
-  #define SR_STROBE_PIN    33   // C4
-
-  #define BTN_UP           75   // J4
-  #define BTN_DWN          73   // J3
-  #define BTN_LFT          72   // J2
-  #define BTN_RT           14   // J1
-  #define BTN_CENTER       15   // J0
-  #define BTN_ENC          BTN_CENTER
-
-  // Disable encoder
-  #undef BTN_EN1
-  #undef BTN_EN2
-
-  #define BEEPER_PIN         4   // G5
-
-  #define STAT_LED_RED_PIN  32   // C5
-  #define STAT_LED_BLUE_PIN 31   // C6 (Actually green)
-
-#endif
+#endif // ULTRA_LCD
 
 //
 // SD Card
 //
 #define SDSS               53   // B0
 #define SD_DETECT_PIN       9   // H6
-#define MAX_PIN             THERMO_SCK_PIN
 
 //
-// M3/M4/M5 - Spindle/Laser Control
+//TMC 2208
 //
-#define SPINDLE_LASER_ENA_PIN    66   // K4   Pin should have a pullup!
-#define SPINDLE_LASER_PWM_PIN     8   // H5   MUST BE HARDWARE PWM
-#define SPINDLE_DIR_PIN          67   // K5
+#if HAS_DRIVER(TMC2208)
+  /**
+   * TMC2208 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  #define X_HARDWARE_SERIAL Serial2
+  #define Y_HARDWARE_SERIAL Serial1
 
+  /**
+   * Software serial
+   */
 
-// Check if all pins are defined in mega/pins_arduino.h
-//#include <Arduino.h>
-static_assert(NUM_DIGITAL_PINS > MAX_PIN, "add missing pins to [arduino dir]/hardware/arduino/avr/variants/mega/pins_arduino.h based on fastio.h"
-                                          "to digital_pin_to_port_PGM, digital_pin_to_bit_mask_PGM, digital_pin_to_timer_PGM, NUM_DIGITAL_PINS, see below");
+  #define X_SERIAL_TX_PIN  16
+  #define X_SERIAL_RX_PIN  17
 
-/* in [arduino dir]/hardware/arduino/avr/variants/mega/pins_arduino.h
-change:
-#define NUM_DIGITAL_PINS            70
-to:
-#define NUM_DIGITAL_PINS            80
+  #define Y_SERIAL_TX_PIN  18
+  #define Y_SERIAL_RX_PIN  19
 
-to digital_pin_to_port_PGM add at the end:
-const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
-....
-        PG      , // PG 4 ** 70 **
-        PG      , // PG 3 ** 71 **
-        PJ      , // PJ 2 ** 72 **
-        PJ      , // PJ 3 ** 73 **
-        PJ      , // PJ 7 ** 74 **
-        PJ      , // PJ 4 ** 75 **
-        PJ      , // PJ 5 ** 76 **
-        PJ      , // PJ 6 ** 77 **
-        PE      , // PE 2 ** 78 **
-        PE      , // PE 6 ** 79 **
-};
+  #define Z_SERIAL_TX_PIN  41
+  #define Z_SERIAL_RX_PIN  66
 
-to digital_pin_to_bit_mask_PGM  add at the end:
-const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[] = {
-....
-        _BV( 4 )        , // PG 4 ** 70 **
-        _BV( 3 )        , // PG 3 ** 71 **
-        _BV( 2 )        , // PJ 2 ** 72 **
-        _BV( 3 )        , // PJ 3 ** 73 **
-        _BV( 7 )        , // PJ 7 ** 74 **
-        _BV( 4 )        , // PJ 4 ** 75 **
-        _BV( 5 )        , // PJ 5 ** 76 **
-        _BV( 6 )        , // PJ 6 ** 77 **
-        _BV( 2 )        , // PE 2 ** 78 **
-        _BV( 6 )        , // PE 6 ** 79 **
-};
+  #define E0_SERIAL_TX_PIN 40
+  #define E0_SERIAL_RX_PIN 67
 
-to digital_pin_to_timer_PGM add at the end:
-const uint8_t PROGMEM digital_pin_to_timer_PGM[] = {
-....
-        NOT_ON_TIMER    , // PG 4 ** 70 **
-        NOT_ON_TIMER    , // PG 3 ** 71 **
-        NOT_ON_TIMER    , // PJ 2 ** 72 **
-        NOT_ON_TIMER    , // PJ 3 ** 73 **
-        NOT_ON_TIMER    , // PJ 7 ** 74 **
-        NOT_ON_TIMER    , // PJ 4 ** 75 **
-        NOT_ON_TIMER    , // PJ 5 ** 76 **
-        NOT_ON_TIMER    , // PJ 6 ** 77 **
-        NOT_ON_TIMER    , // PE 2 ** 78 **
-        NOT_ON_TIMER    , // PE 6 ** 79 **
-};
-*/
+  #define E1_SERIAL_TX_PIN 37
+  #define E1_SERIAL_RX_PIN 68
+
+#endif
