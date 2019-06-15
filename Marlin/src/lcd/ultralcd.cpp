@@ -205,21 +205,22 @@ millis_t next_button_update_ms;
     if (!string) return;
 
     uint8_t *p = (uint8_t*)string;
+    wchar_t ch;
     if (wordwrap) {
       uint8_t *wrd = p, c = 0;
       for (;;) {
-        wchar_t ch;
         p = get_utf8_value_cb(p, cb_read_byte, &ch);
         const bool eol = !ch;
         if (eol || ch == ' ' || ch == '-' || ch == '+' || ch == '.') {
           if (!c && ch == ' ') continue; // collapse extra spaces
-          if (x + c > LCD_WIDTH && c < (LCD_WIDTH) * 3 / 4) { // should it wrap?
+          if (x + c > LCD_WIDTH && x >= (LCD_WIDTH) / 4) { // should it wrap?
             x = 0; y++;               // move x to string len (plus space)
             SETCURSOR(0, y);          // simulate carriage return
           }
           c += !eol;                  // +1 so the space will be printed
           x += c;                     // advance x to new position
-          while (c--) {               // character countdown
+          while (c) {                 // character countdown
+            --c;                      // count down to zero
             wrd = get_utf8_value_cb(wrd, cb_read_byte, &ch); // get characters again
             lcd_put_wchar(ch);        // word (plus space) to the LCD
           }
@@ -234,7 +235,6 @@ millis_t next_button_update_ms;
     }
     else {
       for (;;) {
-        wchar_t ch;
         p = get_utf8_value_cb(p, cb_read_byte, &ch);
         if (!ch) break;
         lcd_put_wchar(ch);
