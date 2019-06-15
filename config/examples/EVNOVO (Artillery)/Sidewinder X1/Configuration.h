@@ -714,6 +714,11 @@
  */
 #define DEFAULT_MAX_FEEDRATE          { 300, 300, 50, 40 }
 
+//#define MAX_FEEDRATE_CAP // Define limit that M203 cannot exceed as 2x default
+#if ENABLED(MAX_FEEDRATE_CAP)
+  //#define MAX_FEEDRATE_MANUAL { 600, 600, 10, 50 } // Overide default limits with manual values
+#endif
+
 /**
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
@@ -721,6 +726,11 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 10000 }
+
+//#define MAX_ACCELERATION_CAP // Define limit that M201 cannot exceed as 2x default
+#if ENABLED(MAX_ACCELERATION_CAP)
+  //#define MAX_ACCELERATION_MANUAL { 6000, 6000, 200, 20000 } // Overide default limits with manual values
+#endif
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -754,6 +764,11 @@
   #define DEFAULT_XJERK 8.0
   #define DEFAULT_YJERK 8.0
   #define DEFAULT_ZJERK  0.3
+
+  //#define MAX_JERK_CAP // Define limit that M205 cannot exceed as 2x default
+  #if ENABLED(MAX_JERK_CAP)
+    //#define MAX_JERK_MANUAL { 20, 20, .6, 10 } // Overide default limits with manual values
+  #endif
 #endif
 
 #define DEFAULT_EJERK    5.0  // May be used by Linear Advance
