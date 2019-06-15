@@ -39,9 +39,9 @@
   #include "../../feature/power_loss_recovery.h"
 #endif
 
-#if HAS_GAMES
-  #include "game/game.h"
-#endif
+// #if HAS_GAMES
+//   #include "game/game.h"
+// #endif
 
 #define MACHINE_CAN_STOP (EITHER(SDSUPPORT, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL))
 #define MACHINE_CAN_PAUSE (ANY(SDSUPPORT, HOST_PROMPT_SUPPORT, PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE))
@@ -64,7 +64,7 @@ void menu_user();
 void menu_temp_e0_filament_change();
 void menu_change_filament();
 void menu_info();
-void menu_led();
+// void menu_led();
 
 #if ENABLED(MIXING_EXTRUDER)
   void menu_mixer();
@@ -82,15 +82,15 @@ void menu_led();
   #endif
 #endif
 
-#if HAS_GAME_MENU
-  void menu_game();
-#elif ENABLED(MARLIN_BRICKOUT)
-  void lcd_goto_brickout();
-#elif ENABLED(MARLIN_INVADERS)
-  void lcd_goto_invaders();
-#elif ENABLED(MARLIN_SNAKE)
-  void lcd_goto_snake();
-#endif
+// #if HAS_GAME_MENU
+//   void menu_game();
+// #elif ENABLED(MARLIN_BRICKOUT)
+//   void lcd_goto_brickout();
+// #elif ENABLED(MARLIN_INVADERS)
+//   void lcd_goto_invaders();
+// #elif ENABLED(MARLIN_SNAKE)
+//   void lcd_goto_snake();
+// #endif
 
 void menu_main() {
   START_MENU();
@@ -165,7 +165,6 @@ void menu_main() {
     if (!busy) MENU_ITEM(submenu, MSG_MMU2_MENU, menu_mmu2);
   #endif
 
-  MENU_ITEM(submenu, MSG_CONFIGURATION, menu_configuration);
 
   #if ENABLED(CUSTOM_USER_MENUS)
     MENU_ITEM(submenu, MSG_USER_MENU, menu_user);
@@ -186,9 +185,9 @@ void menu_main() {
     MENU_ITEM(submenu, MSG_INFO_MENU, menu_info);
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU)
-    MENU_ITEM(submenu, MSG_LED_CONTROL, menu_led);
-  #endif
+  // #if ENABLED(LED_CONTROL_MENU)
+  //   MENU_ITEM(submenu, MSG_LED_CONTROL, menu_led);
+  // #endif
 
   //
   // Switch power on/off
@@ -210,14 +209,14 @@ void menu_main() {
 
     if (card_detected) {
       if (!card_open) {
-        MENU_ITEM(gcode,
-          #if PIN_EXISTS(SD_DETECT)
-            MSG_CHANGE_SDCARD, PSTR("M21")
-          #else
-            MSG_RELEASE_SDCARD, PSTR("M22")
-          #endif
-        );
         MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
+        // MENU_ITEM(gcode,
+        //   #if PIN_EXISTS(SD_DETECT)
+        //     MSG_CHANGE_SDCARD, PSTR("M21")
+        //   #else
+        //     MSG_RELEASE_SDCARD, PSTR("M22")
+        //   #endif
+        // );
       }
     }
     else {
@@ -229,6 +228,8 @@ void menu_main() {
       #endif
     }
   #endif // HAS_ENCODER_WHEEL && SDSUPPORT
+
+  MENU_ITEM(submenu, MSG_CONFIGURATION, menu_configuration);
 
   #if HAS_SERVICE_INTERVALS && ENABLED(PRINTCOUNTER)
     #if SERVICE_INTERVAL_1 > 0
@@ -242,21 +243,21 @@ void menu_main() {
     #endif
   #endif
 
-  #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
-    MENU_ITEM(submenu, "Game", (
-      #if HAS_GAME_MENU
-        menu_game
-      #elif ENABLED(MARLIN_BRICKOUT)
-        brickout.enter_game
-      #elif ENABLED(MARLIN_INVADERS)
-        invaders.enter_game
-      #elif ENABLED(MARLIN_SNAKE)
-        snake.enter_game
-      #elif ENABLED(MARLIN_MAZE)
-        maze.enter_game
-      #endif
-    ));
-  #endif
+  // #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
+  //   MENU_ITEM(submenu, "Game", (
+  //     #if HAS_GAME_MENU
+  //       menu_game
+  //     #elif ENABLED(MARLIN_BRICKOUT)
+  //       brickout.enter_game
+  //     #elif ENABLED(MARLIN_INVADERS)
+  //       invaders.enter_game
+  //     #elif ENABLED(MARLIN_SNAKE)
+  //       snake.enter_game
+  //     #elif ENABLED(MARLIN_MAZE)
+  //       maze.enter_game
+  //     #endif
+  //   ));
+  // #endif
 
   END_MENU();
 }

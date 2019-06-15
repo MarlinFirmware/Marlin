@@ -47,15 +47,31 @@
   #endif
 #endif
 
+#if HAS_GAMES
+  #include "game/game.h"
+#endif
+
+
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
 void menu_delta_calibrate();
+void menu_led();
 
 static void lcd_factory_settings() {
   settings.reset();
   ui.completion_feedback();
 }
+
+#if HAS_GAME_MENU
+  void menu_game();
+#elif ENABLED(MARLIN_BRICKOUT)
+  void lcd_goto_brickout();
+#elif ENABLED(MARLIN_INVADERS)
+  void lcd_goto_invaders();
+#elif ENABLED(MARLIN_SNAKE)
+  void lcd_goto_snake();
+#endif
 
 #if ENABLED(LCD_PROGRESS_BAR_TEST)
 
@@ -327,6 +343,10 @@ void menu_configuration() {
     MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
+  #if ENABLED(LED_CONTROL_MENU)
+    MENU_ITEM(submenu, MSG_LED_CONTROL, menu_led);
+  #endif
+
   const bool busy = printer_busy();
   if (!busy) {
     //
@@ -397,6 +417,30 @@ void menu_configuration() {
 
   if (!busy)
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
+
+  MENU_ITEM(gcode,
+            #if PIN_EXISTS(SD_DETECT)
+               MSG_CHANGE_SDCARD, PSTR("M21")
+            #else
+              MSG_RELEASE_SDCARD, PSTR("M22")
+            #endif
+          );
+
+  #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
+    MENU_ITEM(submenu, "Game", (
+      #if HAS_GAME_MENU
+        menu_game
+      #elif ENABLED(MARLIN_BRICKOUT)
+        brickout.enter_game
+      #elif ENABLED(MARLIN_INVADERS)
+        invaders.enter_game
+      #elif ENABLED(MARLIN_SNAKE)
+        snake.enter_game
+      #elif ENABLED(MARLIN_MAZE)
+        maze.enter_game
+      #endif
+    ));
+  #endif  
 
   END_MENU();
 }

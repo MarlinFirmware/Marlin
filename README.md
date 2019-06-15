@@ -1,12 +1,11 @@
 # Marlin 3D Printer Firmware
 
-[![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=bugfix-2.0.x)](https://travis-ci.org/MarlinFirmware/Marlin)
-![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
-![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
-![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
+Marlin firmware build modified for JGAurora A5S and A1 using STM32F103ZET6, via STM32F1 HAL.
 
-<img align="top" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
+Includes awesome [LCD/touchscreen work by jmz52 for MKS Robin](https://github.com/jmz52/Marlin/tree/MKS-Robin-Touch-POC).
+Uses [STM32F1 HAL managed by Roger Clark](https://github.com/rogerclarkmelbourne/Arduino_STM32).
 
+--------
 Additional documentation can be found at the [Marlin Home Page](http://marlinfw.org/).
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 

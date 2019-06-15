@@ -886,7 +886,7 @@
   #define MSG_INIT_SDCARD                     _UxGT("Init. SD card")
 #endif
 #ifndef MSG_CHANGE_SDCARD
-  #define MSG_CHANGE_SDCARD                   _UxGT("Change SD card")
+  #define MSG_CHANGE_SDCARD                   _UxGT("Reload SD card")
 #endif
 #ifndef MSG_RELEASE_SDCARD
   #define MSG_RELEASE_SDCARD                  _UxGT("Release SD card")

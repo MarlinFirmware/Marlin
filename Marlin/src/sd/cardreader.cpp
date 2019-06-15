@@ -32,6 +32,7 @@
 #include "../module/printcounter.h"
 #include "../core/language.h"
 #include "../gcode/queue.h"
+#include "../module/configuration_store.h"
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/emergency_parser.h"
@@ -352,10 +353,18 @@ void CardReader::initsd() {
   else {
     flag.detected = true;
     SERIAL_ECHO_MSG(MSG_SD_CARD_OK);
+    #if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
+      SERIAL_ECHOLN("Loading settings from SD.");
+      if (settings.load()) {
+        ui.set_status_P(PSTR("Settings loaded (SD)"));
+      }
+    #endif
   }
   setroot();
 
   ui.refresh();
+
+  
 }
 
 void CardReader::release() {
@@ -557,6 +566,10 @@ void CardReader::checkautostart() {
 
   if (!isDetected()) initsd();
 
+  #if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
+      SERIAL_ECHOLN("Loading settings from SD");
+      settings.load();
+  #endif
   if (isDetected()
     #if ENABLED(POWER_LOSS_RECOVERY)
       && !recovery.valid() // Don't run auto#.g when a resume file exists
