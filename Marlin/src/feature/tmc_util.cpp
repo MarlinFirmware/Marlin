@@ -95,38 +95,38 @@
         constexpr uint8_t STST_bp = 31;
       #endif
       TMC_driver_data data;
-      data.drv_status = st.DRV_STATUS();
+      const auto ds = data.drv_status = st.DRV_STATUS();
       #ifdef __AVR__
         // 8-bit optimization saves up to 70 bytes of PROGMEM per axis
         uint8_t spart;
         #if ENABLED(TMC_DEBUG)
-          data.sg_result = data.drv_status & SG_RESULT_bm;
-          spart = data.drv_status >> 8;
-          data.is_stealth = !!(spart & _BV(STEALTH_bp - 8));
-          spart = data.drv_status >> 16;
+          data.sg_result = ds & SG_RESULT_bm;
+          spart = ds >> 8;
+          data.is_stealth = TEST(spart, STEALTH_bp - 8);
+          spart = ds >> 16;
           data.cs_actual = spart & (CS_ACTUAL_bm >> 16);
         #endif
-        spart = data.drv_status >> 24;
-        data.is_ot = !!(spart & _BV(OT_bp - 24));
-        data.is_otpw = !!(spart & _BV(OTPW_bp - 24));
+        spart = ds >> 24;
+        data.is_ot = TEST(spart, OT_bp - 24);
+        data.is_otpw = TEST(spart, OTPW_bp - 24);
         data.is_s2g = !!(spart & (S2G_bm >> 24));
         #if ENABLED(TMC_DEBUG)
-          data.is_stall = !!(spart & _BV(STALL_GUARD_bp - 24));
-          data.is_standstill = !!(spart & _BV(STST_bp - 24));
+          data.is_stall = TEST(spart, STALL_GUARD_bp - 24);
+          data.is_standstill = TEST(spart, STST_bp - 24);
           data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
         #endif
       #else // !__AVR__
 
-        data.is_ot = !!(data.drv_status & _BV(OT_bp));
-        data.is_otpw = !!(data.drv_status & _BV(OTPW_bp));
-        data.is_s2g = !!(data.drv_status & S2G_bm);
+        data.is_ot = TEST(ds, OT_bp);
+        data.is_otpw = TEST(ds, OTPW_bp);
+        data.is_s2g = !!(ds & S2G_bm);
         #if ENABLED(TMC_DEBUG)
           constexpr uint8_t CS_ACTUAL_sb = 16;
-          data.sg_result = data.drv_status & SG_RESULT_bm;
-          data.is_stealth = !!(data.drv_status & _BV(STEALTH_bp));
-          data.cs_actual = (data.drv_status & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
-          data.is_stall = !!(data.drv_status & _BV(STALL_GUARD_bp));
-          data.is_standstill = !!(data.drv_status & _BV(STST_bp));
+          data.sg_result = ds & SG_RESULT_bm;
+          data.is_stealth = TEST(ds, STEALTH_bp);
+          data.cs_actual = (ds & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
+          data.is_stall = TEST(ds, STALL_GUARD_bp);
+          data.is_standstill = TEST(ds, STST_bp);
           data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
         #endif
 
@@ -147,25 +147,25 @@
       constexpr uint8_t OTPW_bp = 0, OT_bp = 1;
       constexpr uint8_t S2G_bm = 0b11110; // 2..5
       TMC_driver_data data;
-      data.drv_status = st.DRV_STATUS();
-      data.is_otpw = !!(data.drv_status & _BV(OTPW_bp));
-      data.is_ot = !!(data.drv_status & _BV(OT_bp));
-      data.is_s2g = !!(data.drv_status & S2G_bm);
+      const auto ds = data.drv_status = st.DRV_STATUS();
+      data.is_otpw = TEST(ds, OTPW_bp);
+      data.is_ot = TEST(ds, OT_bp);
+      data.is_s2g = !!(ds & S2G_bm);
       #if ENABLED(TMC_DEBUG)
         constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
         constexpr uint8_t STEALTH_bp = 30, STST_bp = 31;
         #ifdef __AVR__
           // 8-bit optimization saves up to 12 bytes of PROGMEM per axis
-          uint8_t spart = data.drv_status >> 16;
+          uint8_t spart = ds >> 16;
           data.cs_actual = spart & (CS_ACTUAL_bm >> 16);
-          spart = data.drv_status >> 24;
-          data.is_stealth = !!(spart & _BV(STEALTH_bp - 24));
-          data.is_standstill = !!(spart & _BV(STST_bp - 24));
+          spart = ds >> 24;
+          data.is_stealth = TEST(spart, STEALTH_bp - 24);
+          data.is_standstill = TEST(spart, STST_bp - 24);
         #else
           constexpr uint8_t CS_ACTUAL_sb = 16;
-          data.cs_actual = (data.drv_status & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
-          data.is_stealth = !!(data.drv_status & _BV(STEALTH_bp));
-          data.is_standstill = !!(data.drv_status & _BV(STST_bp));
+          data.cs_actual = (ds & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
+          data.is_stealth = TEST(ds, STEALTH_bp);
+          data.is_standstill = TEST(ds, STST_bp);
         #endif
         #if HAS_STALLGUARD
           data.sg_result_reasonable = false;
@@ -186,18 +186,18 @@
       constexpr uint8_t OT_bp = 1, OTPW_bp = 2;
       constexpr uint8_t S2G_bm = 0b11000;
       TMC_driver_data data;
-      data.drv_status = st.DRVSTATUS();
-      uint8_t spart = data.drv_status & 0xFF;
-      data.is_otpw = !!(spart & _BV(OTPW_bp));
-      data.is_ot = !!(spart & _BV(OT_bp));
-      data.is_s2g = !!(data.drv_status & S2G_bm);
+      const auto ds = data.drv_status = st.DRVSTATUS();
+      uint8_t spart = ds & 0xFF;
+      data.is_otpw = TEST(spart, OTPW_bp);
+      data.is_ot = TEST(spart, OT_bp);
+      data.is_s2g = !!(ds & S2G_bm);
       #if ENABLED(TMC_DEBUG)
         constexpr uint8_t STALL_GUARD_bp = 0;
         constexpr uint8_t STST_bp = 7, SG_RESULT_sp = 10;
         constexpr uint32_t SG_RESULT_bm = 0xFFC00; // 10:19
-        data.is_stall = !!(spart & _BV(STALL_GUARD_bp));
-        data.is_standstill = !!(spart & _BV(STST_bp));
-        data.sg_result = (data.drv_status & SG_RESULT_bm) >> SG_RESULT_sp;
+        data.is_stall = TEST(spart, STALL_GUARD_bp);
+        data.is_standstill = TEST(spart, STST_bp);
+        data.sg_result = (ds & SG_RESULT_bm) >> SG_RESULT_sp;
         data.sg_result_reasonable = true;
       #endif
       return data;

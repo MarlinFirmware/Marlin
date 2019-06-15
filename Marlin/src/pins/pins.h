@@ -170,6 +170,8 @@
   #include "pins_VORON.h"             // ATmega2560                                 env:megaatmega2560
 #elif MB(TRONXY_V3_1_0)
   #include "pins_TRONXY_V3_1_0.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(Z_BOLT_X_SERIES)
+  #include "pins_Z_BOLT_X_SERIES.h"   // ATmega2560                                 env:megaatmega2560
 
 //
 // Other ATmega1280, ATmega2560
