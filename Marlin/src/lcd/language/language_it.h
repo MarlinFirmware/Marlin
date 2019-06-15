@@ -273,7 +273,7 @@
 #define MSG_WATCH                           _UxGT("Schermata info")
 #define MSG_PREPARE                         _UxGT("Prepara")
 #define MSG_TUNE                            _UxGT("Regola")
-#define MSG_START_PRINT                     _UxGT("Avvia stampa")
+#define MSG_START_PRINT                     _UxGT("Avvia stampa")
 #define MSG_BUTTON_NEXT                     _UxGT("Prossimo")
 #define MSG_BUTTON_INIT                     _UxGT("Inizializza")
 #define MSG_BUTTON_STOP                     _UxGT("Stop")

@@ -85,7 +85,7 @@ inline void sdcard_start_selected_file() {
     do_select_screen(
       PSTR(MSG_BUTTON_PRINT), PSTR(MSG_BUTTON_CANCEL),
       sdcard_start_selected_file, ui.goto_previous_screen,
-      PSTR(MSG_START_PRINT " "), card.longest_filename(), PSTR("?")
+      PSTR(MSG_START_PRINT " "), card.longest_filename(), PSTR("?")
     );
   }
 

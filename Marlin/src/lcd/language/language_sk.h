@@ -282,7 +282,7 @@
 #define MSG_WATCH                           _UxGT("Info. obrazovka")
 #define MSG_PREPARE                         _UxGT("Príprava tlače")
 #define MSG_TUNE                            _UxGT("Doladenie tlače")
-#define MSG_START_PRINT                     _UxGT("Spustiť tlač")
+#define MSG_START_PRINT                     _UxGT("Spustiť tlač")
 #define MSG_BUTTON_NEXT                     _UxGT("Ďalší")
 #define MSG_BUTTON_INIT                     _UxGT("Inicial.")
 #define MSG_BUTTON_STOP                     _UxGT("Zastaviť")

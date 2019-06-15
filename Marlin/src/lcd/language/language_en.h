@@ -760,7 +760,7 @@
   #define MSG_TUNE                            _UxGT("Tune")
 #endif
 #ifndef MSG_START_PRINT
-  #define MSG_START_PRINT                     _UxGT("Start print")
+  #define MSG_START_PRINT                     _UxGT("Start print")
 #endif
 #ifndef MSG_BUTTON_NEXT
   #define MSG_BUTTON_NEXT                     _UxGT("Next")

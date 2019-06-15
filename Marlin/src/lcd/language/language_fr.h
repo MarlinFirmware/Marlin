@@ -276,7 +276,7 @@
 #define MSG_WATCH                           _UxGT("Surveiller")
 #define MSG_PREPARE                         _UxGT("Préparer")
 #define MSG_TUNE                            _UxGT("Régler")
-#define MSG_START_PRINT                     _UxGT("Démarrer impression")
+#define MSG_START_PRINT                     _UxGT("Démarrer impression")
 #define MSG_BUTTON_NEXT                     _UxGT("Suivant")
 #define MSG_BUTTON_INIT                     _UxGT("Init.")
 #define MSG_BUTTON_STOP                     _UxGT("Stop")
