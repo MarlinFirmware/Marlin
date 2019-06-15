@@ -40,7 +40,6 @@
 #define A1                 0x01
 #define A5S                0x02
 
-
 // #define STM32_XL_DENSITY // required, but should be set by platformio flags, not here! (why? not sure.)
 
 //#define MCU_STM32F103ZE // not yet required
@@ -56,23 +55,12 @@
 //#define EEPROM_CHITCHAT
 //#define DEBUG_EEPROM_READWRITE
 
-
-
 //
 // Limit Switches
 //
-#if MACHINE_MODEL == A1
-  // A1 use X_MAX_PIN to detect homing
-  #define X_MIN_PIN        -1
-  #define X_MAX_PIN        PC6
-#else
-  #define X_MIN_PIN        PC6
-  #define X_MAX_PIN        -1
-#endif
-#define Y_MIN_PIN          PG8
-#define Y_MAX_PIN          -1
-#define Z_MIN_PIN          PG7
-#define Z_MAX_PIN          -1
+#define X_STOP_PIN         PC6
+#define Y_STOP_PIN         PG8
+#define Z_STOP_PIN         PG7
 
 //
 // Steppers
@@ -129,17 +117,13 @@
 //
 // Misc.
 //
-#define BEEPER_PIN         PC3 // use PB7 to shut up if desired
+#define BEEPER_PIN         PC3    // use PB7 to shut up if desired
 #define LED_PIN            PC13
-#define SDSS               -1
-
 
 // Touch support
-#define BTN_ENC            PA11 // Real pin is needed to enable encoder's push button functionality used by touch screen. PA11 gives stable value.
-#define BTN_EN1            -1
-#define BTN_EN2            -1
+#define BTN_ENC            PA11   // Real pin is needed to enable encoder's push button functionality used by touch screen. PA11 gives stable value.
 
 #define TOUCH_CS           PA4
-//#define TOUCH_INTERRUPT    PC4// not yet implemented
+//#define TOUCH_INTERRUPT    PC4    // Not yet implemented
 
 #define NO_PAUSE_AFTER_PRINT
