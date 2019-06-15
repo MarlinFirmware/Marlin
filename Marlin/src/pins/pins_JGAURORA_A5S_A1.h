@@ -36,10 +36,6 @@
 
 #define BOARD_NAME "JGAurora A5S A1 board"
 
-// MACHINE_MODEL
-#define A1                 0x01
-#define A5S                0x02
-
 // #define STM32_XL_DENSITY // required, but should be set by platformio flags, not here! (why? not sure.)
 
 //#define MCU_STM32F103ZE // not yet required
