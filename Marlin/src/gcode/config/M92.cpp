@@ -40,6 +40,8 @@ void report_M92(const bool echo=true, const int8_t e=-1) {
       SERIAL_ECHOPAIR(" M92 T", (int)i);
       SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
     }
+  #else
+    UNUSED(e);
   #endif
 }
 
