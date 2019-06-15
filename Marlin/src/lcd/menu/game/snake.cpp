@@ -211,7 +211,7 @@ void SnakeGame::game_screen() {
       snake_tail[head_ind].y = y;
 
       // Change snake direction if set
-      const int8_t enc = int8_t((1-2*ui.encoderDirection)*ui.encoderPosition), diff = enc - old_encoder;
+      const int8_t enc = int8_t(ui.encoderPosition), diff = enc - old_encoder;
       if (diff) {
         old_encoder = enc;
         turn_snake(diff > 0);

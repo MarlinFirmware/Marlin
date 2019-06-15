@@ -263,9 +263,9 @@ void InvadersGame::game_screen() {
   if (ui.first_page) {
 
     // Update Cannon Position
-    int16_t ep = int16_t((1-2*ui.encoderDirection)*ui.encoderPosition);
+    int16_t ep = int16_t(ui.encoderPosition);
     ep = constrain(ep, 0, (LCD_PIXEL_WIDTH - (CANNON_W)) / (CANNON_VEL));
-    ui.encoderPosition = (1-2*ui.encoderDirection)*ep;
+    ui.encoderPosition = ep;
 
     ep *= (CANNON_VEL);
     if (ep > cannon_x) { cannon_x += CANNON_VEL - 1; if (ep - cannon_x < 2) cannon_x = ep; }

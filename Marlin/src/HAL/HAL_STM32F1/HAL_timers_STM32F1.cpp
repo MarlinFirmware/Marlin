@@ -42,7 +42,7 @@
 // Local defines
 // --------------------------------------------------------------------------
 
-#define NUM_HARDWARE_TIMERS 2
+#define NUM_HARDWARE_TIMERS 4
 
 //#define PRESCALER 1
 // --------------------------------------------------------------------------
@@ -94,21 +94,18 @@ const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
  */
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
-  nvic_irq_num irq_num = NVIC_TIMER2;
+  nvic_irq_num irq_num;
   switch (timer_num) {
     case 1: irq_num = NVIC_TIMER1_CC; break;
     case 2: irq_num = NVIC_TIMER2; break;
     case 3: irq_num = NVIC_TIMER3; break;
     case 4: irq_num = NVIC_TIMER4; break;
     case 5: irq_num = NVIC_TIMER5; break;
-    #ifdef STM32_HIGH_DENSITY
-      // 6 & 7 are basic timers, avoid them
-      case 8: irq_num = NVIC_TIMER8_CC; break;
-    #endif
     default:
       /**
-       * This should never happen. Add a Sanitycheck for timer number.
-       * Should be a general timer since basic timers have no CC channels.
+       *  We should not get here, add Sanitycheck for timer number. Should be a general timer
+       *  since basic timers do not have CC channels.
+       *  Advanced timers should be skipped if possible too, and are not listed above.
        */
       break;
   }
@@ -121,27 +118,23 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
       timer_pause(STEP_TIMER_DEV);
-      timer_set_mode(STEP_TIMER_DEV, STEP_TIMER_CHAN, TIMER_OUTPUT_COMPARE); // counter
       timer_set_count(STEP_TIMER_DEV, 0);
       timer_set_prescaler(STEP_TIMER_DEV, (uint16_t)(STEPPER_TIMER_PRESCALE - 1));
       timer_set_reload(STEP_TIMER_DEV, 0xFFFF);
-      timer_oc_set_mode(STEP_TIMER_DEV, STEP_TIMER_CHAN, TIMER_OC_MODE_FROZEN, TIMER_OC_NO_PRELOAD); // no output pin change
       timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (STEPPER_TIMER_RATE / frequency)));
-      timer_no_ARR_preload_ARPE(STEP_TIMER_DEV); // Need to be sure no preload on ARR register
       timer_attach_interrupt(STEP_TIMER_DEV, STEP_TIMER_CHAN, stepTC_Handler);
-      nvic_irq_set_priority(irq_num, STEP_TIMER_IRQ_PRIO);
+      nvic_irq_set_priority(irq_num, 1);
       timer_generate_update(STEP_TIMER_DEV);
       timer_resume(STEP_TIMER_DEV);
       break;
     case TEMP_TIMER_NUM:
       timer_pause(TEMP_TIMER_DEV);
-      timer_set_mode(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, TIMER_OUTPUT_COMPARE);
       timer_set_count(TEMP_TIMER_DEV, 0);
       timer_set_prescaler(TEMP_TIMER_DEV, (uint16_t)(TEMP_TIMER_PRESCALE - 1));
       timer_set_reload(TEMP_TIMER_DEV, 0xFFFF);
       timer_set_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), ((F_CPU / TEMP_TIMER_PRESCALE) / frequency)));
       timer_attach_interrupt(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, tempTC_Handler);
-      nvic_irq_set_priority(irq_num, TEMP_TIMER_IRQ_PRIO);
+      nvic_irq_set_priority(irq_num, 2);
       timer_generate_update(TEMP_TIMER_DEV);
       timer_resume(TEMP_TIMER_DEV);
       break;
@@ -152,6 +145,7 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
     case STEP_TIMER_NUM: ENABLE_STEPPER_DRIVER_INTERRUPT(); break;
     case TEMP_TIMER_NUM: ENABLE_TEMPERATURE_INTERRUPT(); break;
+    default: break;
   }
 }
 
@@ -159,11 +153,12 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
     case STEP_TIMER_NUM: DISABLE_STEPPER_DRIVER_INTERRUPT(); break;
     case TEMP_TIMER_NUM: DISABLE_TEMPERATURE_INTERRUPT(); break;
+    default: break;
   }
 }
 
 static inline bool timer_irq_enabled(const timer_dev * const dev, const uint8_t interrupt) {
-  return bool(*bb_perip(&(dev->regs).gen->DIER, interrupt));
+  return bool(*bb_perip(&(dev->regs).adv->DIER, interrupt));
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
@@ -213,12 +208,12 @@ timer_dev* get_timer_dev(int number) {
       case 12: return &timer12;
     #endif
     #if STM32_HAVE_TIMER(13)
-      case 13: return &timer13;
+      case 13: return &timer14;
     #endif
     #if STM32_HAVE_TIMER(14)
       case 14: return &timer14;
     #endif
-    default: return nullptr;
+      default: return nullptr;
   }
 }
 
