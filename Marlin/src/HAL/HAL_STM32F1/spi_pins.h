@@ -46,6 +46,7 @@
  *
  * Any PIN can be used for Chip Select (SS_PIN)
  * 
+ * SPI1 is enabled by default
  */
 
 #ifndef SCK_PIN
@@ -67,6 +68,6 @@
   #define SPI_DEVICE 3
 #elif ENABLED(ENABLE_SPI2)
   #define SPI_DEVICE 2
-#else ENABLED(ENABLE_SPI1)
+#else
   #define SPI_DEVICE 1
 #endif
