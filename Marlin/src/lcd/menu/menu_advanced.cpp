@@ -507,7 +507,7 @@ void menu_backlash();
     START_MENU();
     MENU_BACK(MSG_ADVANCED_SETTINGS);
 
-    static constexpr max_accel = MAX(planner.settings.max_acceleration_mm_per_s2[_AXIS(A)], planner.settings.max_acceleration_mm_per_s2[_AXIS(B)], planner.settings.max_acceleration_mm_per_s2[_AXIS(C)]);
+    static constexpr float max_accel = MAX(planner.settings.max_acceleration_mm_per_s2[_AXIS(A)], planner.settings.max_acceleration_mm_per_s2[_AXIS(B)], planner.settings.max_acceleration_mm_per_s2[_AXIS(C)]);
     // M204 P Acceleration
     MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_ACC, &planner.settings.acceleration, 25, max_accel);
 
