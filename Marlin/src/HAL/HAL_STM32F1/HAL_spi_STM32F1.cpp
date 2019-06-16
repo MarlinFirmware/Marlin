@@ -162,7 +162,7 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
   WRITE(SS_PIN, HIGH);
 }
 
-#if ENABLED(SPI_EEPROM) || MB(ALLIGATOR) /* DAC SPI */
+#if ENABLED(SPI_EEPROM)
 
 // Read single byte from specified SPI channel
 uint8_t spiRec(uint32_t chan) { return SPI.transfer(ff); }
