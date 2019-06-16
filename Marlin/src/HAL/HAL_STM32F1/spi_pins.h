@@ -46,30 +46,27 @@
  *
  * Any PIN can be used for Chip Select (SS_PIN)
  * 
- * SPI1 is enabled by default
  */
 
 #ifndef SCK_PIN
- #error "SPI SCK_PIN Not Defined"
+  #define SCK_PIN  PA5
 #endif
 #ifndef MISO_PIN
- #error "SPI MISO_PIN Not Defined"
+  #define MISO_PIN PA6
 #endif
 #ifndef MOSI_PIN
- #error "SPI MOSI_PIN Not Defined"
+  #define MOSI_PIN PA7
 #endif
 #ifndef SS_PIN
- #error "SPI SS_PIN Not Defined"
+  #define SS_PIN   PA4
 #endif
 #undef SDSS
-#define SDSS  SS_PIN
+#define SDSS       SS_PIN
 
 #if ENABLED(ENABLE_SPI3)
   #define SPI_DEVICE 3
 #elif ENABLED(ENABLE_SPI2)
   #define SPI_DEVICE 2
-#elif ENABLED(ENABLE_SPI1)
+#else ENABLED(ENABLE_SPI1)
   #define SPI_DEVICE 1
-#else
- #error "Invalid SPI Device Selected"
 #endif
