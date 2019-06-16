@@ -778,6 +778,8 @@ void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P
     }
     else
       disable_all_heaters(); // paranoia
+  #else
+    UNUSED(killed);
   #endif
 }
 
