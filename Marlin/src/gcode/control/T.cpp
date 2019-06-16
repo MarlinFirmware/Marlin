@@ -68,7 +68,6 @@ void GcodeSuite::T(const uint8_t tool_index) {
 
     tool_change(
       tool_index,
-      MMM_TO_MMS(parser.linearval('F')),
       (tool_index == active_extruder) || parser.boolval('S')
     );
 
