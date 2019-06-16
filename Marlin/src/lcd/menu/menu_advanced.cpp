@@ -467,7 +467,7 @@ void menu_backlash();
     #else
       static constexpr uint8_t fr_mult = 1;
     #endif
-    #define EDIT_VMAX(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_##N, &planner.settings.max_feedrate_mm_s[_AXIS(N)], 1, (fr_mult[_AXIS(N)] * fr_mult))
+    #define EDIT_VMAX(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_##N, &planner.settings.max_feedrate_mm_s[_AXIS(N)], 1, (max_fr[_AXIS(N)] * fr_mult))
     EDIT_VMAX(A);
     EDIT_VMAX(B);
     EDIT_VMAX(C);
