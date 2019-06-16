@@ -133,8 +133,17 @@
 //#define STM32_SD_LCD
 
 #if ENABLED(STM32_SD_LCD)
-  #define SD_DETECT_PIN    PB9
   #define ENABLE_SPI3
+  #define SD_DETECT_PIN PB9
+  #define SCK_PIN       PB3
+  #define MISO_PIN      PB4
+  #define MOSI_PIN      PB5
+  #define SS_PIN        PA15
 #else
-  #define SD_DETECT_PIN    PA3
+  #define ENABLE_SPI1
+  #define SD_DETECT_PIN PA3
+  #define SCK_PIN       PA5
+  #define MISO_PIN      PA6
+  #define MOSI_PIN      PA7
+  #define SS_PIN        PA4
 #endif
