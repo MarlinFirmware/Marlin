@@ -116,7 +116,7 @@
 // the jumper next to the limit switch socket when using sensorless homing.
 //
 
-#if HAS_DRIVER(TMC2208)
+#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
   // Software serial
   #define X_SERIAL_RX_PIN  71
   #define X_SERIAL_TX_PIN  72
