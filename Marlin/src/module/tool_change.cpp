@@ -894,8 +894,16 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
           if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
           do_blocking_move_to(destination);
         }
-        else if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No move back");
-
+        else if (!idex_full_control) {
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No return XY");
+          // Move back down
+          do_blocking_move_to_z(destination[Z_AXIS], planner.settings.max_feedrate_mm_s[Z_AXIS]);
+        }
+        else
+        {
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No return XYZ");
+        }
+        
         #if ENABLED(DUAL_X_CARRIAGE)
           active_extruder_parked = false;
         #endif
