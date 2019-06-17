@@ -1199,12 +1199,13 @@ class output_window(Text):
 
 
     def _clear_all(self):
-        '''erases all text'''
-
-        isok = askokcancel('Clear All', 'Erase all text?', frame=self,
-                           default='ok')
-        if isok:
-            self.delete('1.0', 'end')
+        #'''erases all text'''
+        #
+        #isok = askokcancel('Clear All', 'Erase all text?', frame=self,
+        #                   default='ok')
+        #if isok:
+        #    self.delete('1.0', 'end')
+        self.delete('1.0', 'end')
 
 
 # end - output_window
