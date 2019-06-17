@@ -311,7 +311,7 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
   #if ENABLED(SPINDLE_LASER_PWM)
     void update_spindle_laser_power();
   #endif
-  
+
   inline void _lcd_spindle_laser_off() { set_spindle_laser_enabled(false); }
   void set_spindle_direction(bool);
   inline void _lcd_spindle_laser_on(const bool is_M4) {
