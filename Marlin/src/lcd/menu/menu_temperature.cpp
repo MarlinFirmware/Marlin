@@ -305,14 +305,15 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
 
 #if ENABLED(SPINDLE_LASER_ENABLE)
 
-  extern uint8_t spindle_laser_power;
+  extern uint16_t spindle_laser_power;
   bool spindle_laser_enabled();
   void set_spindle_laser_enabled(const bool enabled);
   #if ENABLED(SPINDLE_LASER_PWM)
     void update_spindle_laser_power();
   #endif
-
+  
   inline void _lcd_spindle_laser_off() { set_spindle_laser_enabled(false); }
+  void set_spindle_direction(bool);
   inline void _lcd_spindle_laser_on(const bool is_M4) {
     #if SPINDLE_DIR_CHANGE
       set_spindle_direction(is_M4);
@@ -329,7 +330,7 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
     MENU_BACK(MSG_MAIN);
     if (spindle_laser_enabled()) {
       #if ENABLED(SPINDLE_LASER_PWM)
-        MENU_ITEM_EDIT_CALLBACK(int3, MSG_LASER_POWER, &spindle_laser_power, SPEED_POWER_MIN, SPEED_POWER_MAX, update_spindle_laser_power);
+        MENU_ITEM_EDIT_CALLBACK(uint16_3, MSG_LASER_POWER, &spindle_laser_power, SPEED_POWER_MIN, SPEED_POWER_MAX, update_spindle_laser_power);
       #endif
       MENU_ITEM(function, MSG_LASER_OFF, _lcd_spindle_laser_off);
     }
