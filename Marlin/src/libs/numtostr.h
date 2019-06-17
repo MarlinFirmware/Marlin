@@ -27,7 +27,7 @@
 char* ui8tostr4pct(const uint8_t i);
 
 // Convert uint8_t to string with 123 format
-char* ui8tostr3(const uint8_t x);
+char* ui8tostr3(const uint8_t i);
 
 // Convert int8_t to string with 123 format
 char* i8tostr3(const int8_t x);
