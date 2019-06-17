@@ -124,7 +124,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
         SERIAL_ECHO(buffer);
         PRINT_PIN(pin);
         PRINT_PORT(pin);
-        if ((int8_t)DIGITAL_PIN_TO_ANALOG_PIN(pin) >= 0) {
+        if (IS_ANALOG(pin)) {
           sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
           SERIAL_ECHO(buffer);
         }
@@ -186,7 +186,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
     SERIAL_ECHO(buffer);
     PRINT_PIN(pin);
     PRINT_PORT(pin);
-    if ((int8_t)DIGITAL_PIN_TO_ANALOG_PIN(pin) >= 0) {
+    if (IS_ANALOG(pin)) {
       sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
       SERIAL_ECHO(buffer);
     }
@@ -209,10 +209,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
         else
       #endif
       {
-        if (pwm_status(pin)) {
-          // do nothing
-        }
-        else if (GET_PINMODE(pin)) {
+        if (GET_PINMODE(pin)) {
           SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);
           print_input_or_output(true);
           SERIAL_ECHO(digitalRead_mod(pin));
@@ -230,10 +227,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
           SERIAL_ECHO(digitalRead_mod(pin));
         }
         //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
-        if (extended) {
-          SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);
-          pwm_details(pin);  // report PWM capabilities only if doing an extended report
-        }
+        if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
       }
     }
     SERIAL_EOL();
