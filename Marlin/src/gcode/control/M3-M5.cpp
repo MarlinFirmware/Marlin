@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../module/stepper.h"
 
-uint16_t spindle_laser_power; // = 0
+uint8_t spindle_laser_power; // = 0
 
 /**
  * M3: Spindle Clockwise
