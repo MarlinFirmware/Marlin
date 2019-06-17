@@ -45,7 +45,7 @@
 
 void LCD_IO_Init(uint8_t cs, uint8_t rs);
 void LCD_IO_WriteData(uint16_t RegValue);
-void LCD_IO_WriteReg(uint8_t Reg);
+void LCD_IO_WriteReg(uint16_t Reg);
 uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize);
 
 static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
@@ -250,8 +250,8 @@ void LCD_IO_WriteData(uint16_t RegValue) {
   __DSB();
 }
 
-void LCD_IO_WriteReg(uint8_t Reg) {
-  LCD->REG = (uint16_t)Reg;
+void LCD_IO_WriteReg(uint16_t Reg) {
+  LCD->REG = Reg;
   __DSB();
 }
 
