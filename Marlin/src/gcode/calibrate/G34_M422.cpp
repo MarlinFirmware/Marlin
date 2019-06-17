@@ -164,7 +164,6 @@ void GcodeSuite::G34() {
         const uint8_t zstepper = iteration % 2 ? Z_STEPPER_COUNT - 1 - izstepper : izstepper;
 
         // Safe clearance even on an incline
-        do_blocking_move_to_z(z_probe);
         if (iteration == 0 || izstepper > 0) do_blocking_move_to_z(z_probe);
 
         // Probe a Z height for each stepper
