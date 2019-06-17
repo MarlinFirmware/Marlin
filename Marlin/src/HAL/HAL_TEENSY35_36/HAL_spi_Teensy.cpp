@@ -1,3 +1,24 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 #include "HAL.h"
@@ -8,32 +29,27 @@
 
 static SPISettings spiConfig;
 
-// Standard SPI functions
-/** Initialize SPI bus */
 void spiBegin(void) {
   #if !PIN_EXISTS(SS)
     #error SS_PIN not defined!
   #endif
-  SET_OUTPUT(SS_PIN);
-  WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SS_PIN, HIGH);
   SET_OUTPUT(SCK_PIN);
   SET_INPUT(MISO_PIN);
   SET_OUTPUT(MOSI_PIN);
 
-  //#if DISABLED(SOFTWARE_SPI)
-  #if 0
+  #if 0 && DISABLED(SOFTWARE_SPI)
     // set SS high - may be chip select for another SPI device
     #if SET_SPI_SS_HIGH
       WRITE(SS_PIN, HIGH);
-    #endif  // SET_SPI_SS_HIGH
+    #endif
     // set a default rate
     spiInit(SPI_HALF_SPEED); // 1
-  #endif  // SOFTWARE_SPI
+  #endif
 }
 
-/** Configure SPI for specified SPI speed */
 void spiInit(uint8_t spiRate) {
-  // Use datarates Marlin uses
+  // Use Marlin data-rates
   uint32_t clock;
   switch (spiRate) {
   case SPI_FULL_SPEED:    clock = 10000000; break;
@@ -49,44 +65,39 @@ void spiInit(uint8_t spiRate) {
   SPI.begin();
 }
 
-//------------------------------------------------------------------------------
-/** SPI receive a byte */
 uint8_t spiRec(void) {
   SPI.beginTransaction(spiConfig);
   uint8_t returnByte = SPI.transfer(0xFF);
   SPI.endTransaction();
   return returnByte;
-//  SPDR = 0xFF;
-//  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-//  return SPDR;
+  //SPDR = 0xFF;
+  //while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+  //return SPDR;
 }
-//------------------------------------------------------------------------------
-/** SPI read data  */
+
 void spiRead(uint8_t* buf, uint16_t nbyte) {
   SPI.beginTransaction(spiConfig);
   SPI.transfer(buf, nbyte);
   SPI.endTransaction();
-//if (nbyte-- == 0) return;
-//  SPDR = 0xFF;
-//for (uint16_t i = 0; i < nbyte; i++) {
-//  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-//  buf[i] = SPDR;
-//  SPDR = 0xFF;
-//}
-//while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-//buf[nbyte] = SPDR;
+  //if (nbyte-- == 0) return;
+  //  SPDR = 0xFF;
+  //for (uint16_t i = 0; i < nbyte; i++) {
+  //  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+  //  buf[i] = SPDR;
+  //  SPDR = 0xFF;
+  //}
+  //while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+  //buf[nbyte] = SPDR;
 }
-//------------------------------------------------------------------------------
-/** SPI send a byte */
+
 void spiSend(uint8_t b) {
   SPI.beginTransaction(spiConfig);
   SPI.transfer(b);
   SPI.endTransaction();
-//  SPDR = b;
-//  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+  //SPDR = b;
+  //while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
 }
-//------------------------------------------------------------------------------
-/** SPI send block  */
+
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
   SPI.beginTransaction(spiConfig);
   SPDR = token;
@@ -100,11 +111,9 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
   SPI.endTransaction();
 }
 
-
-/** Begin SPI transaction, set clock, bit order, data mode */
+// Begin SPI transaction, set clock, bit order, data mode
 void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
   spiConfig = SPISettings(spiClock, bitOrder, dataMode);
-
   SPI.beginTransaction(spiConfig);
 }
 

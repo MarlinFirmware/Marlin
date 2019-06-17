@@ -62,8 +62,7 @@ void spiBegin() {
     #error "SS_PIN not defined!"
   #endif
 
-  WRITE(SS_PIN, HIGH);
-  SET_OUTPUT(SS_PIN);
+  OUT_WRITE(SS_PIN, HIGH);
 }
 
 void spiInit(uint8_t spiRate) {

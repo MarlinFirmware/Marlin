@@ -75,9 +75,12 @@
  *
  * M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
  * M1   -> M0
- * M3   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to clockwise
- * M4   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to counter-clockwise
- * M5   - Turn laser/spindle off
+ * M3   - Turn ON Laser | Spindle (clockwise), set Power | Speed. (Requires SPINDLE_LASER_ENABLE)
+ * M4   - Turn ON Laser | Spindle (counter-clockwise), set Power | Speed. (Requires SPINDLE_LASER_ENABLE)
+ * M5   - Turn OFF Laser | Spindle. (Requires SPINDLE_LASER_ENABLE)
+ * M7   - Turn mist coolant ON. (Requires COOLANT_CONTROL)
+ * M8   - Turn flood coolant ON. (Requires COOLANT_CONTROL)
+ * M9   - Turn coolant OFF. (Requires COOLANT_CONTROL)
  * M12  - Set up closed loop control system. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
@@ -458,6 +461,16 @@ private:
   #if ENABLED(SPINDLE_LASER_ENABLE)
     static void M3_M4(const bool is_M4);
     static void M5();
+  #endif
+
+  #if ENABLED(COOLANT_CONTROL)
+    #if ENABLED(COOLANT_MIST)
+      static void M7();
+    #endif
+    #if ENABLED(COOLANT_FLOOD)
+      static void M8();
+    #endif
+    static void M9();
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)

@@ -91,6 +91,7 @@
 #define BOARD_DUPLICATOR_I3_PLUS 31   // Wanhao Duplicator i3 Plus
 #define BOARD_VORON             441   // VORON Design
 #define BOARD_TRONXY_V3_1_0     442   // Tronxy TRONXY-V3-1.0
+#define BOARD_Z_BOLT_X_SERIES   550   // Z-Bolt X Series
 
 //
 // Other ATmega1280, ATmega2560
@@ -246,6 +247,7 @@
 #define BOARD_MORPHEUS         1806   // STM32F103C8/STM32F103CB Libmaple based stm32f1 controller
 #define BOARD_MKS_ROBIN        1808   // MKS Robin / STM32F103ZET6
 #define BOARD_BIGTREE_SKR_MINI_V1_1 1814 // STM32F103RC
+#define BOARD_JGAURORA_A5S_A1  1810   // JGAurora A5S A1 / STM32F103ZET6
 
 //
 // STM32 ARM Cortex-M4F

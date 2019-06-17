@@ -78,13 +78,11 @@ void HAL_init() {
   //_DBG("\n\nDebug running\n");
   // Initialise the SD card chip select pins as soon as possible
   #if PIN_EXISTS(SS)
-    WRITE(SS_PIN, HIGH);
-    SET_OUTPUT(SS_PIN);
+    OUT_WRITE(SS_PIN, HIGH);
   #endif
 
   #if defined(ONBOARD_SD_CS) && ONBOARD_SD_CS > -1
-    WRITE(ONBOARD_SD_CS, HIGH);
-    SET_OUTPUT(ONBOARD_SD_CS);
+    OUT_WRITE(ONBOARD_SD_CS, HIGH);
   #endif
 
   USB_Init();                               // USB Initialization
