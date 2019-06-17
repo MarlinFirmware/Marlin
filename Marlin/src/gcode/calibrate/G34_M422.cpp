@@ -159,9 +159,13 @@ void GcodeSuite::G34() {
       // Initialize minimum value
       float z_measured_min = 100000.0f;
       // Probe all positions (one per Z-Stepper)
-      for (uint8_t zstepper = 0; zstepper < Z_STEPPER_COUNT; ++zstepper) {
+      for (uint8_t izstepper = 0; izstepper < Z_STEPPER_COUNT; ++izstepper) {
+        // iteration odd/even --> downward / upward stepper sequence 
+        const uint8_t zstepper = iteration % 2 ? Z_STEPPER_COUNT - 1 - izstepper : izstepper;
+
         // Safe clearance even on an incline
         do_blocking_move_to_z(z_probe);
+        if (iteration == 0 || izstepper > 0) do_blocking_move_to_z(z_probe);
 
         // Probe a Z height for each stepper
         if (isnan(probe_pt(z_auto_align_xpos[zstepper], z_auto_align_ypos[zstepper], PROBE_PT_RAISE, 0, true))) {
@@ -202,9 +206,6 @@ void GcodeSuite::G34() {
       );
       SERIAL_EOL();
       SERIAL_EOL();
-
-      // Raise to the new next probing height right away
-      do_blocking_move_to_z(z_probe);
 
       // The following correction actions are to be enabled for select Z-steppers only
       stepper.set_separate_multi_axis(true);
