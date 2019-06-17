@@ -28,8 +28,8 @@
   #define BOARD_NAME "BIGTREE SKR mini V1.1"
 #endif
 
-  //#define DISABLE_DEBUG
-  #define DISABLE_JTAG
+//#define DISABLE_DEBUG
+#define DISABLE_JTAG
 
 // Ignore temp readings during develpment.
 //#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
@@ -98,12 +98,11 @@
  *  (MOSI)   PB5 | · · | PB8 (BTN_EN2)               (LCD_D5)  PB7 | · · | PC13 (LCD_D4)
  * (SD_SS)  PA15 | · · | PD2 (BTN_EN1)               (LCD_RS) PC12 | · · | PB6  (LCD_EN)
  *   (SCK)   PB3 | · · | PB4 (MISO)                 (BTN_ENC) PC11 | · · | PC10 (BEEPER)
- *                ￣￣￣                                             ￣￣￣
+ *                -----                                             -----
  *                EXP2                                              EXP1
  */
 
 #if ENABLED(ULTRA_LCD)
-
   #define BEEPER_PIN       PC10
   #define BTN_ENC          PC11
   #define LCD_PINS_RS      PC12
@@ -119,8 +118,24 @@
     #define LCD_PINS_D6    PC15
     #define LCD_PINS_D7    PC14
   #endif
-
 #endif // ULTRA_LCD
+
+#if ENABLED(FYSETC_MINI_12864)
+  #define LCD_BACKLIGHT_PIN  -1
+  #define LCD_RESET_PIN    PC13
+  #define DOGLCD_A0        PC12
+  #define DOGLCD_CS        PB6
+  #define DOGLCD_SCK       PB3
+  #define DOGLCD_MOSI      PB5
+  #define FORCE_SOFT_SPI   // SPI MODE3
+  #undef LCD_PINS_D4
+  #undef LCD_PINS_D5
+  #undef LCD_PINS_D6
+  #undef LCD_PINS_D7
+  #define LED_PIN PB7  // red pwm
+  //#define LED_PIN PC15 // green
+  //#define LED_PIN PC14 // blue
+#endif // FYSETC_MINI_12864
 
 //
 // SD Card
