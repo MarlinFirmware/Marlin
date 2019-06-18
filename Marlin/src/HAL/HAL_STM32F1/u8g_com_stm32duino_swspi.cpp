@@ -31,8 +31,7 @@
 
 static uint8_t SPI_speed = SPI_SPEED;
 
-static inline uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t miso_pin=-1)
-{
+static inline uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t miso_pin=-1) {
   for (uint8_t i = 0; i < 8; i++) {
     if (spi_speed == 0) {
       WRITE(DOGLCD_MOSI, !!(b & 0x80));
@@ -59,8 +58,7 @@ static inline uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, c
   return b;
 }
 
-static inline uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t miso_pin=-1)
-{
+static inline uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t miso_pin=-1) {
   for (uint8_t i = 0; i < 8; i++) {
     const uint8_t state = (b & 0x80) ? HIGH : LOW;
     if (spi_speed == 0) {
@@ -93,18 +91,14 @@ static void u8g_sw_spi_HAL_STM32F1_shift_out(uint8_t val) {
   #endif
 }
 
-static uint8_t swSpiInit(const uint8_t spi_speed)
-{
-  #if (PIN_EXISTS(LCD_RESET))
+static uint8_t swSpiInit(const uint8_t spi_speed) {
+  #if PIN_EXISTS(LCD_RESET)
     SET_OUTPUT(LCD_RESET_PIN);
   #endif
-  SET_OUTPUT(DOGLCD_CS);
   SET_OUTPUT(DOGLCD_A0);
-  SET_OUTPUT(DOGLCD_SCK);
-  SET_OUTPUT(DOGLCD_MOSI);
-  WRITE(DOGLCD_CS, HIGH);
-  WRITE(DOGLCD_SCK, LOW);
-  WRITE(DOGLCD_MOSI, LOW);
+  OUT_WRITE(DOGLCD_SCK, LOW);
+  OUT_WRITE(DOGLCD_MOSI, LOW);
+  OUT_WRITE(DOGLCD_CS, HIGH);
   return spi_speed;
 }
 
@@ -118,7 +112,7 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       break;
 
     case U8G_COM_MSG_RESET:
-      #if (PIN_EXISTS(LCD_RESET))
+      #if PIN_EXISTS(LCD_RESET)
         WRITE(LCD_RESET_PIN, arg_val);
       #endif
       break;
@@ -144,23 +138,21 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       break;
 
     case U8G_COM_MSG_WRITE_SEQ: {
-        uint8_t *ptr = (uint8_t *)arg_ptr;
-        while (arg_val > 0) {
-          u8g_sw_spi_HAL_STM32F1_shift_out(*ptr++);
-          arg_val--;
-        }
+      uint8_t *ptr = (uint8_t *)arg_ptr;
+      while (arg_val > 0) {
+        u8g_sw_spi_HAL_STM32F1_shift_out(*ptr++);
+        arg_val--;
       }
-      break;
+    } break;
 
-      case U8G_COM_MSG_WRITE_SEQ_P: {
-        uint8_t *ptr = (uint8_t *)arg_ptr;
-        while (arg_val > 0) {
-          u8g_sw_spi_HAL_STM32F1_shift_out(u8g_pgm_read(ptr));
-          ptr++;
-          arg_val--;
-        }
+    case U8G_COM_MSG_WRITE_SEQ_P: {
+      uint8_t *ptr = (uint8_t *)arg_ptr;
+      while (arg_val > 0) {
+        u8g_sw_spi_HAL_STM32F1_shift_out(u8g_pgm_read(ptr));
+        ptr++;
+        arg_val--;
       }
-      break;
+    } break;
 
     case U8G_COM_MSG_ADDRESS: /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
       WRITE(DOGLCD_A0, arg_val);
