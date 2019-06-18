@@ -23,30 +23,14 @@
  */
 
 /**
- * Define SPI Pins: SCK, MISO, MOSI, SS
- *
  * STM32F1 Default SPI Pins
- * 
- * SPI1
- * SCK_PIN  PA5
- * MISO_PIN PA6
- * MOSI_PIN PA7
- * SS_PIN   PA4
- * 
- * SPI2
- * SCK_PIN  PB13
- * MISO_PIN PB14
- * MOSI_PIN PB15
- * SS_PIN   PB12
- * 
- * SPI3
- * SCK_PIN  PB3
- * MISO_PIN PB4
- * MOSI_PIN PB5
- * SS_PIN   PA15
+ *
+ *         SS     SCK     MISO    MOSI
+ * SPI1    PA4    PA5     PA6     PA7 
+ * SPI2    PB12   PB13    PB14    PB15
+ * SPI3    PA15   PB3     PB4     PB5 
  *
  * Any pin can be used for Chip Select (SS_PIN)
- * 
  * SPI1 is enabled by default
  */
 
