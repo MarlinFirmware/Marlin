@@ -32,11 +32,14 @@ char* ui8tostr3(const uint8_t i);
 // Convert int8_t to string with 123 format
 char* i8tostr3(const int8_t x);
 
-// Convert uint16_t to string with 123 format
-char* ui16tostr3(const uint16_t x);
+// Convert uint16_t to string with 12345 format
+char* ui16tostr5(const uint16_t x);
 
 // Convert uint16_t to string with 1234 format
 char* ui16tostr4(const uint16_t x);
+
+// Convert uint16_t to string with 123 format
+char* ui16tostr3(const uint16_t x);
 
 // Convert int16_t to string with 123 format
 char* i16tostr3(const int16_t x);

@@ -75,9 +75,9 @@
  *
  * M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
  * M1   -> M0
- * M3   - Turn ON Laser | Spindle (clockwise), set Power | Speed. (Requires SPINDLE_LASER_ENABLE)
- * M4   - Turn ON Laser | Spindle (counter-clockwise), set Power | Speed. (Requires SPINDLE_LASER_ENABLE)
- * M5   - Turn OFF Laser | Spindle. (Requires SPINDLE_LASER_ENABLE)
+ * M3   - Turn ON Laser | Spindle (clockwise), set Power | Speed. (Requires SPINDLE_FEATURE or LASER_FEATURE)
+ * M4   - Turn ON Laser | Spindle (counter-clockwise), set Power | Speed. (Requires SPINDLE_FEATURE or LASER_FEATURE)
+ * M5   - Turn OFF Laser | Spindle. (Requires SPINDLE_FEATURE or LASER_FEATURE)
  * M7   - Turn mist coolant ON. (Requires COOLANT_CONTROL)
  * M8   - Turn flood coolant ON. (Requires COOLANT_CONTROL)
  * M9   - Turn coolant OFF. (Requires COOLANT_CONTROL)
@@ -453,7 +453,7 @@ private:
     static void M0_M1();
   #endif
 
-  #if ENABLED(SPINDLE_LASER_ENABLE)
+  #if HAS_CUTTER
     static void M3_M4(const bool is_M4);
     static void M5();
   #endif

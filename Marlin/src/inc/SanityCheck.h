@@ -348,8 +348,16 @@
   #error "MAX6675_SS is now MAX6675_SS_PIN. Please update your configuration and/or pins."
 #elif defined(MAX6675_SS2)
   #error "MAX6675_SS2 is now MAX6675_SS2_PIN. Please update your configuration and/or pins."
+#elif defined(SPINDLE_LASER_ENABLE)
+  #error "SPINDLE_LASER_ENABLE is now SPINDLE_FEATURE or LASER_FEATURE. Please update your Configuration_adv.h."
 #elif defined(SPINDLE_LASER_ENABLE_PIN)
-  #error "SPINDLE_LASER_ENABLE_PIN is now SPINDLE_LASER_ENA_PIN. Please update your configuration and/or pins."
+  #error "SPINDLE_LASER_ENABLE_PIN is now SPINDLE_LASER_ENA_PIN. Please update your Configuration_adv.h and/or pins."
+#elif defined(SPINDLE_DIR_CHANGE)
+  #error "SPINDLE_DIR_CHANGE is now SPINDLE_CHANGE_DIR. Please update your Configuration_adv.h."
+#elif defined(SPINDLE_STOP_ON_DIR_CHANGE)
+  #error "SPINDLE_STOP_ON_DIR_CHANGE is now SPINDLE_CHANGE_DIR_STOP. Please update your Configuration_adv.h."
+#elif defined(SPINDLE_LASER_ENABLE_INVERT)
+  #error "SPINDLE_LASER_ENABLE_INVERT is now SPINDLE_LASER_ACTIVE_HIGH. Please update your Configuration_adv.h."
 #elif defined(CHAMBER_HEATER_PIN)
   #error "CHAMBER_HEATER_PIN is now HEATER_CHAMBER_PIN. Please update your configuration and/or pins."
 #elif defined(TMC_Z_CALIBRATION)
@@ -2283,4 +2291,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif HAS_HOTEND_OFFSET
     #error "MIN_ and MAX_SOFTWARE_ENDSTOPS are both required with offset hotends."
   #endif
+#endif
+
+#if BOTH(SPINDLE_FEATURE, LASER_FEATURE)
+  #error "Enable only one of SPINDLE_FEATURE or LASER_FEATURE."
 #endif
