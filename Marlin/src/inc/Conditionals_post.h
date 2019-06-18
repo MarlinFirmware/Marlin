@@ -1692,7 +1692,7 @@
   #endif
 #endif
 
-// needs to be here so that we catch the above changes to our defines
+// Defined here to catch the above defines
 #if ENABLED(SDCARD_SORT_ALPHA)
   #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
 #endif
