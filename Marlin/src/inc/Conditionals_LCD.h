@@ -46,7 +46,7 @@
   #define ADC_KEY_NUM 8
   #define ULTIPANEL
 
-  // this helps to implement ADC_KEYPAD menus
+  // This helps to implement ADC_KEYPAD menus
   #define REVERSE_MENU_DIRECTION
   #define ENCODER_PULSES_PER_STEP 1
   #define ENCODER_STEPS_PER_MENU_ITEM 1
@@ -97,8 +97,6 @@
 
   #define U8GLIB_SSD1306
   #define ULTIPANEL
-  #define REVERSE_ENCODER_DIRECTION
-  #define REVERSE_MENU_DIRECTION
 
 #elif ENABLED(RA_CONTROL_PANEL)
 
@@ -149,7 +147,6 @@
   #define LCD_CONTRAST_MIN 0
   #define LCD_CONTRAST_MAX 255
   #define DEFAULT_LCD_CONTRAST 220
-  #define REVERSE_ENCODER_DIRECTION
   #define LED_COLORS_REDUCE_GREEN
   #if POWER_SUPPLY > 0 && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
     #define LED_BACKLIGHT_TIMEOUT 10000
@@ -182,7 +179,6 @@
 
 #if ENABLED(ULTI_CONTROLLER)
   #define U8GLIB_SSD1309
-  #define REVERSE_ENCODER_DIRECTION
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
   #define LCD_CONTRAST_MIN 0
   #define LCD_CONTRAST_MAX 254
