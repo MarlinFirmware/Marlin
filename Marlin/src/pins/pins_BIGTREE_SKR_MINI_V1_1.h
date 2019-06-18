@@ -111,31 +111,32 @@
   #define BTN_EN2          PB8
 
   #define LCD_PINS_ENABLE  PB6
-  #define LCD_PINS_D4      PC13
 
-  #if ENABLED(ULTIPANEL)
-    #define LCD_PINS_D5    PB7
-    #define LCD_PINS_D6    PC15
-    #define LCD_PINS_D7    PC14
-  #endif
+  #if ENABLED(FYSETC_MINI_12864)
+
+    #define LCD_BACKLIGHT_PIN -1
+    #define LCD_RESET_PIN  PC13
+    #define DOGLCD_A0      PC12
+    #define DOGLCD_CS      PB6
+    #define DOGLCD_SCK     PB3
+    #define DOGLCD_MOSI    PB5
+    #define FORCE_SOFT_SPI   // SPI MODE3
+    #define LED_PIN PB7  // red pwm
+    //#define LED_PIN PC15 // green
+    //#define LED_PIN PC14 // blue
+
+  #else // !FYSETC_MINI_12864
+
+    #define LCD_PINS_D4    PC13
+    #if ENABLED(ULTIPANEL)
+      #define LCD_PINS_D5  PB7
+      #define LCD_PINS_D6  PC15
+      #define LCD_PINS_D7  PC14
+    #endif
+
+  #endif // !FYSETC_MINI_12864
+
 #endif // ULTRA_LCD
-
-#if ENABLED(FYSETC_MINI_12864)
-  #define LCD_BACKLIGHT_PIN  -1
-  #define LCD_RESET_PIN    PC13
-  #define DOGLCD_A0        PC12
-  #define DOGLCD_CS        PB6
-  #define DOGLCD_SCK       PB3
-  #define DOGLCD_MOSI      PB5
-  #define FORCE_SOFT_SPI   // SPI MODE3
-  #undef LCD_PINS_D4
-  #undef LCD_PINS_D5
-  #undef LCD_PINS_D6
-  #undef LCD_PINS_D7
-  #define LED_PIN PB7  // red pwm
-  //#define LED_PIN PC15 // green
-  //#define LED_PIN PC14 // blue
-#endif // FYSETC_MINI_12864
 
 //
 // SD Card
