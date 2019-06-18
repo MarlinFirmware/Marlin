@@ -97,6 +97,7 @@
       TMC_driver_data data;
       const auto ds = data.drv_status = st.DRV_STATUS();
       #ifdef __AVR__
+
         // 8-bit optimization saves up to 70 bytes of PROGMEM per axis
         uint8_t spart;
         #if ENABLED(TMC_DEBUG)
@@ -115,6 +116,7 @@
           data.is_standstill = TEST(spart, STST_bp - 24);
           data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
         #endif
+
       #else // !__AVR__
 
         data.is_ot = TEST(ds, OT_bp);
@@ -481,9 +483,9 @@
   #if HAS_TMCX1X0
     static void _tmc_parse_drv_status(TMC2130Stepper &st, const TMC_drv_status_enum i) {
       switch (i) {
-        case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('X'); break;
+        case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('*'); break;
         case TMC_SG_RESULT:  SERIAL_PRINT(st.sg_result(), DEC); break;
-        case TMC_FSACTIVE:   if (st.fsactive())   SERIAL_CHAR('X'); break;
+        case TMC_FSACTIVE:   if (st.fsactive())   SERIAL_CHAR('*'); break;
         case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }
@@ -519,8 +521,8 @@
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
         case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
-        case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('X'); break;
-        case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('X'); break;
+        case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('*'); break;
+        case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('*'); break;
         default: break;
       }
     }
@@ -541,10 +543,10 @@
 
     static void _tmc_parse_drv_status(TMC2208Stepper &st, const TMC_drv_status_enum i) {
       switch (i) {
-        case TMC_T157: if (st.t157()) SERIAL_CHAR('X'); break;
-        case TMC_T150: if (st.t150()) SERIAL_CHAR('X'); break;
-        case TMC_T143: if (st.t143()) SERIAL_CHAR('X'); break;
-        case TMC_T120: if (st.t120()) SERIAL_CHAR('X'); break;
+        case TMC_T157: if (st.t157()) SERIAL_CHAR('*'); break;
+        case TMC_T150: if (st.t150()) SERIAL_CHAR('*'); break;
+        case TMC_T143: if (st.t143()) SERIAL_CHAR('*'); break;
+        case TMC_T120: if (st.t120()) SERIAL_CHAR('*'); break;
         case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }
@@ -634,13 +636,13 @@
     SERIAL_CHAR('\t');
     switch (i) {
       case TMC_DRV_CODES:     st.printLabel();  break;
-      case TMC_STST:          if (st.stst())         SERIAL_CHAR('X'); break;
-      case TMC_OLB:           if (st.olb())          SERIAL_CHAR('X'); break;
-      case TMC_OLA:           if (st.ola())          SERIAL_CHAR('X'); break;
-      case TMC_S2GB:          if (st.s2gb())         SERIAL_CHAR('X'); break;
-      case TMC_S2GA:          if (st.s2ga())         SERIAL_CHAR('X'); break;
-      case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('X'); break;
-      case TMC_OT:            if (st.ot())           SERIAL_CHAR('X'); break;
+      case TMC_STST:          if (st.stst())         SERIAL_CHAR('*'); break;
+      case TMC_OLB:           if (st.olb())          SERIAL_CHAR('*'); break;
+      case TMC_OLA:           if (st.ola())          SERIAL_CHAR('*'); break;
+      case TMC_S2GB:          if (st.s2gb())         SERIAL_CHAR('*'); break;
+      case TMC_S2GA:          if (st.s2ga())         SERIAL_CHAR('*'); break;
+      case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('*'); break;
+      case TMC_OT:            if (st.ot())           SERIAL_CHAR('*'); break;
       case TMC_DRV_STATUS_HEX: {
         const uint32_t drv_status = st.DRV_STATUS();
         SERIAL_CHAR('\t');
