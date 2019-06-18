@@ -126,7 +126,7 @@
 // SD Card
 //
 
-// By default the onboard SD is enabled. 
+// By default the onboard SD is enabled.
 // To disable it and use an external SD (connected to LCD)
 // enable STM32_SD_LCD.
 

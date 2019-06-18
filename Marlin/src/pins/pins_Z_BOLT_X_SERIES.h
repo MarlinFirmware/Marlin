@@ -21,7 +21,7 @@
  */
 
 /**
- *  Z-Bolt X Series board – based on Arduino Mega2560 
+ *  Z-Bolt X Series board – based on Arduino Mega2560
  */
 
 #if HOTENDS > 4 || E_STEPPERS > 4
