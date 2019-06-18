@@ -1303,7 +1303,8 @@ void Planner::check_axes_activity() {
         analogWrite(FAN2_PIN, CALC_FAN_SPEED(2));
       #endif
     #endif
-
+  #else
+    UNUSED(tail_fan_speed);
   #endif // FAN_COUNT > 0
 
   #if ENABLED(AUTOTEMP)
