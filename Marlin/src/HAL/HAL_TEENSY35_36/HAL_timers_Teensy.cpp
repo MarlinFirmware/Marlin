@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
  * Teensy3.5 __MK64FX512__
  * Teensy3.6 __MK66FX1M0__

@@ -170,6 +170,8 @@
   #include "pins_VORON.h"             // ATmega2560                                 env:megaatmega2560
 #elif MB(TRONXY_V3_1_0)
   #include "pins_TRONXY_V3_1_0.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(Z_BOLT_X_SERIES)
+  #include "pins_Z_BOLT_X_SERIES.h"   // ATmega2560                                 env:megaatmega2560
 
 //
 // Other ATmega1280, ATmega2560
@@ -426,6 +428,8 @@
   #include "pins_MORPHEUS.h"          // STM32F1                                    env:STM32F1
 #elif MB(MKS_ROBIN)
   #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:mks_robin
+#elif MB(JGAURORA_A5S_A1)
+  #include "pins_JGAURORA_A5S_A1.h"   // STM32F1                                    env:JGAURORA_A5S_A1
 
 //
 // STM32 ARM Cortex-M4F

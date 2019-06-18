@@ -21,12 +21,12 @@
  */
 
 /**
- * Originally from Arduino Sd2Card Library
+ * Adapted from Arduino Sd2Card Library
  * Copyright (C) 2009 by William Greiman
  */
 
 /**
- * Description: HAL for AVR - SPI functions
+ * HAL for AVR - SPI functions
  */
 
 #ifdef __AVR__
@@ -37,34 +37,23 @@
 
 #include "../../inc/MarlinConfig.h"
 
-// --------------------------------------------------------------------------
-// Public Variables
-// --------------------------------------------------------------------------
-
-
-// --------------------------------------------------------------------------
-// Public functions
-// --------------------------------------------------------------------------
-
-void spiBegin (void) {
-  SET_OUTPUT(SS_PIN);
-  WRITE(SS_PIN, HIGH);
+void spiBegin(void) {
+  OUT_WRITE(SS_PIN, HIGH);
   SET_OUTPUT(SCK_PIN);
   SET_INPUT(MISO_PIN);
   SET_OUTPUT(MOSI_PIN);
 
   #if DISABLED(SOFTWARE_SPI)
     // SS must be in output mode even it is not chip select
-    SET_OUTPUT(SS_PIN);
+    //SET_OUTPUT(SS_PIN);
     // set SS high - may be chip select for another SPI device
-    #if SET_SPI_SS_HIGH
-      WRITE(SS_PIN, HIGH);
-    #endif  // SET_SPI_SS_HIGH
+    //#if SET_SPI_SS_HIGH
+      //WRITE(SS_PIN, HIGH);
+    //#endif
     // set a default rate
     spiInit(1);
-  #endif  // SOFTWARE_SPI
+  #endif
 }
-
 
 #if DISABLED(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
@@ -190,22 +179,26 @@ void spiBegin (void) {
   }
 
 
-#else
+#else // SOFTWARE_SPI || FORCE_SOFT_SPI
 
-  /** nop to tune soft SPI timing */
+  //------------------------------------------------------------------------------
+  // Software SPI
+  //------------------------------------------------------------------------------
+
+  // nop to tune soft SPI timing
   #define nop asm volatile ("\tnop\n")
 
-  /** Set SPI rate */
+  // Set SPI rate
   void spiInit(uint8_t spiRate) {
     UNUSED(spiRate);  // nothing to do
   }
 
-  /** Begin SPI transaction, set clock, bit order, data mode */
+  // Begin SPI transaction, set clock, bit order, data mode
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
     UNUSED(spiBeginTransaction);  // nothing to do
   }
 
-  /** Soft SPI receive byte */
+  // Soft SPI receive byte
   uint8_t spiRec() {
     uint8_t data = 0;
     // no interrupts during byte receive - about 8µs
@@ -230,13 +223,13 @@ void spiBegin (void) {
     return data;
   }
 
-  /** Soft SPI read data */
+  // Soft SPI read data
   void spiRead(uint8_t* buf, uint16_t nbyte) {
     for (uint16_t i = 0; i < nbyte; i++)
       buf[i] = spiRec();
   }
 
-  /** Soft SPI send byte */
+  // Soft SPI send byte
   void spiSend(uint8_t data) {
     // no interrupts during byte send - about 8µs
     cli();
@@ -257,13 +250,13 @@ void spiBegin (void) {
     sei();
   }
 
-  /** Soft SPI send block */
+  // Soft SPI send block
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
     spiSend(token);
     for (uint16_t i = 0; i < 512; i++)
       spiSend(buf[i]);
   }
 
-#endif // SOFTWARE_SPI, FORCE_SOFT_SPI
+#endif // SOFTWARE_SPI || FORCE_SOFT_SPI
 
 #endif // __AVR__

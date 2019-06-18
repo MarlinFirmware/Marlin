@@ -75,9 +75,12 @@
  *
  * M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
  * M1   -> M0
- * M3   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to clockwise
- * M4   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to counter-clockwise
- * M5   - Turn laser/spindle off
+ * M3   - Turn ON Laser | Spindle (clockwise), set Power | Speed. (Requires SPINDLE_LASER_ENABLE)
+ * M4   - Turn ON Laser | Spindle (counter-clockwise), set Power | Speed. (Requires SPINDLE_LASER_ENABLE)
+ * M5   - Turn OFF Laser | Spindle. (Requires SPINDLE_LASER_ENABLE)
+ * M7   - Turn mist coolant ON. (Requires COOLANT_CONTROL)
+ * M8   - Turn flood coolant ON. (Requires COOLANT_CONTROL)
+ * M9   - Turn coolant OFF. (Requires COOLANT_CONTROL)
  * M12  - Set up closed loop control system. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
@@ -213,7 +216,7 @@
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
  * M504 - Validate EEPROM contents. (Requires EEPROM_SETTINGS)
- * M524 - Abort the current SD print job (started with M24)
+ * M524 - Abort the current SD print job started with M24. (Requires SDSUPPORT)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires SD_ABORT_ON_ENDSTOP_HIT)
  * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130 or TMC2208)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
@@ -309,19 +312,14 @@ public:
   static int8_t get_target_e_stepper_from_command();
   static void get_destination_from_command();
 
-  static void process_parsed_command(
-    #if USE_EXECUTE_COMMANDS_IMMEDIATE
-      const bool no_ok = false
-    #endif
-  );
+  static void process_parsed_command(const bool no_ok=false);
   static void process_next_command();
 
-  #if USE_EXECUTE_COMMANDS_IMMEDIATE
-    static void process_subcommands_now_P(PGM_P pgcode);
-    static void process_subcommands_now(char * gcode);
-  #endif
+  // Execute G-code as a macro, preserving parser state
+  static void process_subcommands_now_P(PGM_P pgcode);
+  static void process_subcommands_now(char * gcode);
 
-  FORCE_INLINE static void home_all_axes() { G28(true); }
+  static inline void home_all_axes() { process_subcommands_now_P(PSTR("G28")); }
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     /**
@@ -458,6 +456,16 @@ private:
   #if ENABLED(SPINDLE_LASER_ENABLE)
     static void M3_M4(const bool is_M4);
     static void M5();
+  #endif
+
+  #if ENABLED(COOLANT_CONTROL)
+    #if ENABLED(COOLANT_MIST)
+      static void M7();
+    #endif
+    #if ENABLED(COOLANT_FLOOD)
+      static void M8();
+    #endif
+    static void M9();
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)

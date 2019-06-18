@@ -327,8 +327,12 @@
 #define MSG_BLTOUCH_5V_MODE                 _UxGT("BLTouch modo 5V")
 #define MSG_BLTOUCH_OD_MODE                 _UxGT("BLTouch modo OD")
 #define MSG_BLTOUCH_MODE_STORE              _UxGT("BLTouch modo mem.")
-#define MSG_BLTOUCH_STOW                    _UxGT("Ritrai BLTouch")
+#define MSG_BLTOUCH_MODE_STORE_5V           _UxGT("Metti BLTouch a 5V")
+#define MSG_BLTOUCH_MODE_STORE_OD           _UxGT("Metti BLTouch a OD")
+#define MSG_BLTOUCH_MODE_ECHO               _UxGT("Segnala modo")
+#define MSG_BLTOUCH_MODE_CHANGE             _UxGT("PERICOLO: Impostazioni errate possono cause danni! Procedo comunque?")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Estendi Sonda-Z")
+#define MSG_BLTOUCH_STOW                    _UxGT("Ritrai BLTouch")
 #define MSG_MANUAL_STOW                     _UxGT("Ritrai Sonda-Z")
 #define MSG_HOME                            _UxGT("Home")  // Usato come MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("prima")
@@ -417,6 +421,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Riprendi stampa")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Ugello: ")
 #define MSG_RUNOUT_SENSOR                   _UxGT("Sens.filo termin.")  // Max 17 caratteri
+#define MSG_RUNOUT_DISTANCE_MM              _UxGT("Dist mm filo term.")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Home fallito")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Sondaggio fallito")
 #define MSG_M600_TOO_COLD                   _UxGT("M600:Troppo freddo")

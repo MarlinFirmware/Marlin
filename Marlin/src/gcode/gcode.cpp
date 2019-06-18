@@ -187,11 +187,7 @@ void GcodeSuite::dwell(millis_t time) {
 /**
  * Process the parsed command and dispatch it to its handler
  */
-void GcodeSuite::process_parsed_command(
-  #if USE_EXECUTE_COMMANDS_IMMEDIATE
-    const bool no_ok
-  #endif
-) {
+void GcodeSuite::process_parsed_command(const bool no_ok) {
   KEEPALIVE_STATE(IN_HANDLER);
 
   // Handle a known G, M, or T
@@ -327,9 +323,19 @@ void GcodeSuite::process_parsed_command(
       #endif
 
       #if ENABLED(SPINDLE_LASER_ENABLE)
-        case 3: M3_M4(false); break;                              // M3: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CW
-        case 4: M3_M4(true ); break;                              // M4: turn spindle/laser on, set laser/spindle power/speed, set rotation direction CCW
-        case 5: M5(); break;                                      // M5 - turn spindle/laser off
+        case 3: M3_M4(false); break;                              // M3: Turn ON Laser | Spindle (clockwise), set Power | Speed
+        case 4: M3_M4(true ); break;                              // M4: Turn ON Laser | Spindle (counter-clockwise), set Power | Speed
+        case 5: M5(); break;                                      // M5: Turn OFF Laser | Spindle
+      #endif
+
+      #if ENABLED(COOLANT_CONTROL)
+        #if ENABLED(COOLANT_MIST)
+          case 7: M7(); break;                                    // M7: Mist coolant ON
+        #endif
+        #if ENABLED(COOLANT_FLOOD)
+          case 8: M8(); break;                                    // M8: Flood coolant ON
+        #endif
+        case 9: M9(); break;                                      // M9: Coolant OFF
       #endif
 
       #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
@@ -339,9 +345,9 @@ void GcodeSuite::process_parsed_command(
       case 17: M17(); break;                                      // M17: Enable all stepper motors
 
       #if ENABLED(SDSUPPORT)
-        case 20: M20(); break;                                    // M20: list SD card
-        case 21: M21(); break;                                    // M21: init SD card
-        case 22: M22(); break;                                    // M22: release SD card
+        case 20: M20(); break;                                    // M20: List SD card
+        case 21: M21(); break;                                    // M21: Init SD card
+        case 22: M22(); break;                                    // M22: Release SD card
         case 23: M23(); break;                                    // M23: Select file
         case 24: M24(); break;                                    // M24: Start SD print
         case 25: M25(); break;                                    // M25: Pause SD print
@@ -796,10 +802,7 @@ void GcodeSuite::process_parsed_command(
 
   KEEPALIVE_STATE(NOT_BUSY);
 
-  #if USE_EXECUTE_COMMANDS_IMMEDIATE
-    if (!no_ok)
-  #endif
-      ok_to_send();
+  if (!no_ok) ok_to_send();
 }
 
 /**
@@ -825,43 +828,39 @@ void GcodeSuite::process_next_command() {
   process_parsed_command();
 }
 
-#if USE_EXECUTE_COMMANDS_IMMEDIATE
+/**
+ * Run a series of commands, bypassing the command queue to allow
+ * G-code "macros" to be called from within other G-code handlers.
+ */
 
-  /**
-   * Run a series of commands, bypassing the command queue to allow
-   * G-code "macros" to be called from within other G-code handlers.
-   */
-
-  void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
-    char * const saved_cmd = parser.command_ptr;        // Save the parser state
-    for (;;) {
-      PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline
-      const size_t len = delim ? delim - pgcode : strlen_P(pgcode); // Get the command length
-      char cmd[len + 1];                                // Allocate a stack buffer
-      strncpy_P(cmd, pgcode, len);                      // Copy the command to the stack
-      cmd[len] = '\0';                                  // End with a nul
-      parser.parse(cmd);                                // Parse the command
-      process_parsed_command(true);                     // Process it
-      if (!delim) break;                                // Last command?
-      pgcode = delim + 1;                               // Get the next command
-    }
-    parser.parse(saved_cmd);                            // Restore the parser state
+void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
+  char * const saved_cmd = parser.command_ptr;        // Save the parser state
+  for (;;) {
+    PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline
+    const size_t len = delim ? delim - pgcode : strlen_P(pgcode); // Get the command length
+    char cmd[len + 1];                                // Allocate a stack buffer
+    strncpy_P(cmd, pgcode, len);                      // Copy the command to the stack
+    cmd[len] = '\0';                                  // End with a nul
+    parser.parse(cmd);                                // Parse the command
+    process_parsed_command(true);                     // Process it
+    if (!delim) break;                                // Last command?
+    pgcode = delim + 1;                               // Get the next command
   }
+  parser.parse(saved_cmd);                            // Restore the parser state
+}
 
-  void GcodeSuite::process_subcommands_now(char * gcode) {
-    char * const saved_cmd = parser.command_ptr;        // Save the parser state
-    for (;;) {
-      char * const delim = strchr(gcode, '\n');         // Get address of next newline
-      if (delim) *delim = '\0';                         // Replace with nul
-      parser.parse(gcode);                              // Parse the current command
-      process_parsed_command(true);                     // Process it
-      if (!delim) break;                                // Last command?
-      gcode = delim + 1;                                // Get the next command
-    }
-    parser.parse(saved_cmd);                            // Restore the parser state
+void GcodeSuite::process_subcommands_now(char * gcode) {
+  char * const saved_cmd = parser.command_ptr;        // Save the parser state
+  for (;;) {
+    char * const delim = strchr(gcode, '\n');         // Get address of next newline
+    if (delim) *delim = '\0';                         // Replace with nul
+    parser.parse(gcode);                              // Parse the current command
+    process_parsed_command(true);                     // Process it
+    if (!delim) break;                                // Last command?
+    gcode = delim + 1;                                // Get the next command
   }
-
-#endif // USE_EXECUTE_COMMANDS_IMMEDIATE
+  parser.parse(saved_cmd);                            // Restore the parser state
+}
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 

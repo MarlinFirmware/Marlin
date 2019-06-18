@@ -69,8 +69,7 @@ void spiBegin(void) {
     #error "SS_PIN not defined!"
   #endif
 
-  SET_OUTPUT(SS_PIN);
-  WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SS_PIN, HIGH);
 }
 
 /** Configure SPI for specified SPI speed */
