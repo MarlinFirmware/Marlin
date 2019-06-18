@@ -273,7 +273,7 @@ else ifeq ($(HARDWARE_MOTHERBOARD),304)
 # Einsy Retro
 else ifeq ($(HARDWARE_MOTHERBOARD),305)
 # Elefu Ra Board (v3)
-else ifeq ($(HARDWARE_MOTHERBOARD),21)
+else ifeq ($(HARDWARE_MOTHERBOARD),23)
 # Leapfrog
 else ifeq ($(HARDWARE_MOTHERBOARD),999)
 # Mega controller
