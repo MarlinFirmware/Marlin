@@ -137,7 +137,7 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(SPINDLE_LASER_ENABLE)
+#if HAS_CUTTER
   #undef HEATER_0_PIN
   #undef HEATER_BED_PIN
   #undef FAN_PIN

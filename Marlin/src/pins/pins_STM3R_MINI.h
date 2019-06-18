@@ -106,7 +106,7 @@
 #define TEMP_2_PIN         PA3
 
 // Laser control
-#if ENABLED(SPINDLE_LASER_ENABLE)
+#if HAS_CUTTER
   #define SPINDLE_LASER_PWM_PIN     PB8
   #define SPINDLE_LASER_ENA_PIN     PD5
 #endif

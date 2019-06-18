@@ -84,7 +84,7 @@
 #undef SPINDLE_LASER_ENA_PIN
 #undef SPINDLE_DIR_PIN
 
-#if ENABLED(SPINDLE_LASER_ENABLE)
+#if HAS_CUTTER
   #undef SDA                       // use EXP3 header
   #undef SCL
   #if SERVO0_PIN == 7
