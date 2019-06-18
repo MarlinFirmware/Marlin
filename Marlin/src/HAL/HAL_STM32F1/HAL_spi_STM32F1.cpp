@@ -157,14 +157,14 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
 #if ENABLED(SPI_EEPROM)
 
 // Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan) { return spiRec(); }
+uint8_t spiRec(uint32_t chan) { return SPI.transfer(ff); }
 
 // Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b) { spiSend(b); }
+void spiSend(uint32_t chan, byte b) { SPI.send(b); }
 
 // Write buffer to specified SPI channel
 void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
-  for (size_t p = 0; p < n; p++) spiSend(buf[p]);
+  for (size_t p = 0; p < n; p++) spiSend(chan, buf[p]);
 }
 
 #endif // SPI_EEPROM
