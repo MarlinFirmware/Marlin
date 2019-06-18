@@ -312,19 +312,14 @@ public:
   static int8_t get_target_e_stepper_from_command();
   static void get_destination_from_command();
 
-  static void process_parsed_command(
-    #if USE_EXECUTE_COMMANDS_IMMEDIATE
-      const bool no_ok = false
-    #endif
-  );
+  static void process_parsed_command(const bool no_ok=false);
   static void process_next_command();
 
-  #if USE_EXECUTE_COMMANDS_IMMEDIATE
-    static void process_subcommands_now_P(PGM_P pgcode);
-    static void process_subcommands_now(char * gcode);
-  #endif
+  // Execute G-code as a macro, preserving parser state
+  static void process_subcommands_now_P(PGM_P pgcode);
+  static void process_subcommands_now(char * gcode);
 
-  FORCE_INLINE static void home_all_axes() { G28(true); }
+  static inline void home_all_axes() { process_subcommands_now_P(PSTR("G28")); }
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     /**
