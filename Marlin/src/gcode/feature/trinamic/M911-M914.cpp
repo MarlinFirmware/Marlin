@@ -41,7 +41,7 @@
   #define M91x_SOME_E (M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5))
 
   #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_SOME_E
-    #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, TMC2160, TMC5130, TMC5160, TMC2208, TMC2209, or TMC2660."
+    #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, 2160, 2208, 2209, 2660, 5130, or 5160."
   #endif
 
   /**
