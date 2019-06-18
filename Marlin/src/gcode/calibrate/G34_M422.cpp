@@ -125,10 +125,7 @@ void GcodeSuite::G34() {
       #define Z_BASIC_CLEARANCE Z_CLEARANCE_BETWEEN_PROBES
     #endif
 
-    // 0.05 is a 5% incline. On a 300mm bed that would be a misalignment of about 1.5cm.
-    // This angle is the maximum misalignment catered for
-    #define MAX_ANGLE 0.05f
-    float z_probe = Z_BASIC_CLEARANCE + MAX_ANGLE * (
+    float z_probe = Z_BASIC_CLEARANCE + G34_MAX_INCLINE_PERCENT * (
       #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
          SQRT(MAX(HYPOT2(z_auto_align_xpos[0] - z_auto_align_ypos[0], z_auto_align_xpos[1] - z_auto_align_ypos[1]),
                   HYPOT2(z_auto_align_xpos[1] - z_auto_align_ypos[1], z_auto_align_xpos[2] - z_auto_align_ypos[2]),

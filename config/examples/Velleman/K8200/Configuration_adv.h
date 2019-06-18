@@ -617,6 +617,11 @@
   #define Z_STEPPER_ALIGN_ITERATIONS 3
   // Enable to restore leveling setup after operation
   #define RESTORE_LEVELING_AFTER_G34
+  
+  // 0.05 is a 5% incline. On a 300mm bed that would be a misalignment of about 1.5cm.
+  // This angle is the maximum misalignment catered for
+  #define G34_MAX_INCLINE_PERCENT 0.05f
+  
   // Use the amplification factor to de-/increase correction step.
   // In case the stepper (spindle) position is further out than the test point
   // Use a value > 1. NOTE: This may cause instability
