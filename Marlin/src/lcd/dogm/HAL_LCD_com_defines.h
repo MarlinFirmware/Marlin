@@ -51,7 +51,7 @@
   uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
   #define U8G_COM_SSD_I2C_HAL u8g_com_arduino_ssd_i2c_fn
 
-  #ifdef ARDUINO_ARCH_STM32F1
+  #if defined(ARDUINO_ARCH_STM32F1) && PIN_EXISTS(FSMC_CS)
     uint8_t u8g_com_stm32duino_fsmc_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
     #define U8G_COM_HAL_FSMC_FN u8g_com_stm32duino_fsmc_fn
   #else

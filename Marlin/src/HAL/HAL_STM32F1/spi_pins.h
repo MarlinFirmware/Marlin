@@ -21,6 +21,7 @@
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
+
 /**
  * Define SPI Pins: SCK, MISO, MOSI, SS
  *
@@ -44,7 +45,7 @@
  * MOSI_PIN PB5
  * SS_PIN   PA15
  *
- * Any PIN can be used for Chip Select (SS_PIN)
+ * Any pin can be used for Chip Select (SS_PIN)
  * 
  * SPI1 is enabled by default
  */
