@@ -161,7 +161,7 @@ void GcodeSuite::G34() {
       // Probe all positions (one per Z-Stepper)
       for (uint8_t izstepper = 0; izstepper < Z_STEPPER_COUNT; ++izstepper) {
         // iteration odd/even --> downward / upward stepper sequence 
-        const uint8_t zstepper = iteration % 2 ? Z_STEPPER_COUNT - 1 - izstepper : izstepper;
+        const uint8_t zstepper = (iteration & 1) ? Z_STEPPER_COUNT - 1 - izstepper : izstepper;
 
         // Safe clearance even on an incline
         if (iteration == 0 || izstepper > 0) do_blocking_move_to_z(z_probe);
