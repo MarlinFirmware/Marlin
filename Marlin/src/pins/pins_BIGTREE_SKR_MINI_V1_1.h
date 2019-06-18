@@ -120,10 +120,26 @@
     #define DOGLCD_CS      PB6
     #define DOGLCD_SCK     PB3
     #define DOGLCD_MOSI    PB5
+
     #define FORCE_SOFT_SPI   // SPI MODE3
-    #define LED_PIN PB7  // red pwm
-    //#define LED_PIN PC15 // green
-    //#define LED_PIN PC14 // blue
+
+    #define LED_PIN        PB7   // red pwm
+    //#define LED_PIN        PC15   // green
+    //#define LED_PIN        PC14   // blue
+
+    //#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    //  #ifndef RGB_LED_R_PIN
+    //    #define RGB_LED_R_PIN PB7
+    //  #endif
+    //  #ifndef RGB_LED_G_PIN
+    //    #define RGB_LED_G_PIN PC15
+    //  #endif
+    //  #ifndef RGB_LED_B_PIN
+    //    #define RGB_LED_B_PIN PC14
+    //  #endif
+    //#elif ENABLED(FYSETC_MINI_12864_2_1)
+    //  #define NEOPIXEL_PIN    PB7
+    //#endif
 
   #else // !FYSETC_MINI_12864
 
