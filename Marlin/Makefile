@@ -229,6 +229,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),443)
 else ifeq ($(HARDWARE_MOTHERBOARD),243)
 # Creality: CR10S, CR20, CR-X
 else ifeq ($(HARDWARE_MOTHERBOARD),244)
+# Dagoma F5
+else ifeq ($(HARDWARE_MOTHERBOARD),245)
 # Fysetc F6
 else ifeq ($(HARDWARE_MOTHERBOARD),541)
 # Duplicator i3 Plus
