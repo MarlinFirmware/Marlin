@@ -101,56 +101,76 @@
  *                -----                                             -----
  *                EXP2                                              EXP1
  */
-
 #if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN       PC10
   #define BTN_ENC          PC11
-  #define LCD_PINS_RS      PC12
 
-  #define BTN_EN1          PD2
-  #define BTN_EN2          PB8
+  #if ENABLED(CR10_STOCKDISPLAY)
+    #define KILL_PIN       PC12
+    #define LCD_PINS_RS    PC15
 
-  #define LCD_PINS_ENABLE  PB6
+    #define BTN_EN1        PB6
+    #define BTN_EN2        PC13
 
-  #if ENABLED(FYSETC_MINI_12864)
+    #define LCD_PINS_ENABLE PC14
+    #define LCD_PINS_D4    PB7
 
-    #define LCD_BACKLIGHT_PIN -1
-    #define LCD_RESET_PIN  PC13
-    #define DOGLCD_A0      PC12
-    #define DOGLCD_CS      PB6
-    #define DOGLCD_SCK     PB3
-    #define DOGLCD_MOSI    PB5
+  #else
+    #define LCD_PINS_RS    PC12
 
-    #define FORCE_SOFT_SPI   // SPI MODE3
+    #define BTN_EN1        PD2
+    #define BTN_EN2        PB8
 
-    #define LED_PIN        PB7   // red pwm
-    //#define LED_PIN        PC15   // green
-    //#define LED_PIN        PC14   // blue
-
-    //#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-    //  #ifndef RGB_LED_R_PIN
-    //    #define RGB_LED_R_PIN PB7
-    //  #endif
-    //  #ifndef RGB_LED_G_PIN
-    //    #define RGB_LED_G_PIN PC15
-    //  #endif
-    //  #ifndef RGB_LED_B_PIN
-    //    #define RGB_LED_B_PIN PC14
-    //  #endif
-    //#elif ENABLED(FYSETC_MINI_12864_2_1)
-    //  #define NEOPIXEL_PIN    PB7
-    //#endif
-
-  #else // !FYSETC_MINI_12864
-
+    #define LCD_PINS_ENABLE PB6
     #define LCD_PINS_D4    PC13
-    #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5  PB7
-      #define LCD_PINS_D6  PC15
-      #define LCD_PINS_D7  PC14
-    #endif
 
-  #endif // !FYSETC_MINI_12864
+    #define LCD_SDSS       PA15
+    #define SD_DETECT_PIN  PB9
+
+    #if ENABLED(FYSETC_MINI_12864)
+      #define DOGLCD_CS    PB6
+      #define DOGLCD_A0    PC12
+      #define DOGLCD_SCK   PB3
+      #define DOGLCD_MOSI  PB5
+      #define FORCE_SOFT_SPI
+
+      #define LCD_BACKLIGHT_PIN -1
+
+      #define FORCE_SOFT_SPI      // Use this if default of hardware SPI causes display problems
+                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+      #define LCD_RESET_PIN PC13   // Must be high or open for LCD to operate normally.
+
+      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #ifndef RGB_LED_R_PIN
+          #define RGB_LED_R_PIN PB7
+        #endif
+        #ifndef RGB_LED_G_PIN
+          #define RGB_LED_G_PIN PC15
+        #endif
+        #ifndef RGB_LED_B_PIN
+          #define RGB_LED_B_PIN PC14
+        #endif
+      #elif ENABLED(FYSETC_MINI_12864_2_1)
+        #define NEOPIXEL_PIN    PB7
+      #endif
+
+    #else // !FYSETC_MINI_12864
+
+      #if ENABLED(MKS_MINI_12864)
+        #define DOGLCD_CS  PB7
+        #define DOGLCD_A0  PC15
+      #endif
+
+      #if ENABLED(ULTIPANEL)
+        #define LCD_PINS_D5 PB7
+        #define LCD_PINS_D6 PC15
+        #define LCD_PINS_D7 PC14
+      #endif
+
+    #endif // !FYSETC_MINI_12864
+
+  #endif
 
 #endif // ULTRA_LCD
 
@@ -179,3 +199,14 @@
   #define MOSI_PIN      PA7
   #define SS_PIN        PA4
 #endif
+
+#ifndef ST7920_DELAY_1
+  #define ST7920_DELAY_1 DELAY_NS(125)
+#endif
+#ifndef ST7920_DELAY_2
+  #define ST7920_DELAY_2 DELAY_NS(125)
+#endif
+#ifndef ST7920_DELAY_3
+  #define ST7920_DELAY_3 DELAY_NS(125)
+#endif
+
