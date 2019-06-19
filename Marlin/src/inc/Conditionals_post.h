@@ -1733,11 +1733,11 @@
 // When sharing the SD card with a PC we want the menu options to
 // mount/unmount the card and refresh it. So we disable card detect.
 //
-#if ENABLED(USB_SD_ONBOARD)
+#if ALL(USB_SD_ONBOARD, SDSUPPORT, LPC_SD_ONBOARD)
   #undef SD_DETECT_PIN
   #define SHARED_SD_CARD
 #endif
 
-#if ENABLED(SDSUPPORT) && (ENABLED(USB_SD_DISABLED) || !PIN_EXISTS(ONBOARD_SD_CS))
+#if ENABLED(SDSUPPORT) && !ENABLED(SHARED_SD_CARD)
   #define INIT_SDCARD_ON_BOOT
 #endif
