@@ -1522,8 +1522,8 @@
   #define USER_DESC_4 "Fill Mesh Points"
   #define USER_GCODE_4 "G29 P3 \n G29 P3 \n G29 P3 \n G29 T"
   
-  #define USER_DESC_2 "PID Tune"
-  #define USER_GCODE_2 "M106 S128 \n M303 C8 S225 E1 U \n M500 \n M117 PID Tune Done"
+  #define USER_DESC_2 "PID Tune Bed"
+  #define USER_GCODE_2 "M303 C4 S75 E-1 U \n M500 \n M117 PID Bed Done"
 
   #define USER_DESC_5 "Run Mesh Validation"
   #define USER_GCODE_5 "G26"
