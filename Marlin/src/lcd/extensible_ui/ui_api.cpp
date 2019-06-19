@@ -526,11 +526,11 @@ namespace ExtUI {
   }
 
   void setAxisMaxFeedrate_mm_s(const float value, const axis_t axis) {
-    planner.settings.max_feedrate_mm_s[axis] = value;
+    planner.set_max_feedrate(axis, value);
   }
 
   void setAxisMaxFeedrate_mm_s(const float value, const extruder_t extruder) {
-    planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = value;
+    planner.set_max_feedrate(E_AXIS_N(axis - E0), value);
   }
 
   float getAxisMaxAcceleration_mm_s2(const axis_t axis) {
@@ -542,11 +542,11 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const axis_t axis) {
-    planner.settings.max_acceleration_mm_per_s2[axis] = value;
+    planner.set_max_acceleration(axis, value);
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
-    planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)] = value;
+    planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
   }
 
   #if HAS_FILAMENT_SENSOR
@@ -594,11 +594,11 @@ namespace ExtUI {
     }
 
     void setAxisMaxJerk_mm_s(const float value, const axis_t axis) {
-      planner.max_jerk[axis] = value;
+      planner.set_max_jerk(axis, value);
     }
 
     void setAxisMaxJerk_mm_s(const float value, const extruder_t extruder) {
-      planner.max_jerk[E_AXIS] = value;
+      planner.set_max_jerk(E_AXIS, value);
     }
   #endif
 

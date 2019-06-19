@@ -354,6 +354,10 @@ class Planner {
 
     static void reset_acceleration_rates();
     static void refresh_positioning();
+    static void set_max_acceleration(uint8_t axis, float targetValue);
+    static void set_max_feedrate(uint8_t axis, float targetValue);
+    static void set_max_jerk(AxisEnum axis, float targetValue);
+
 
     FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
       e_factor[e] = (flow_percentage[e] * 0.01f

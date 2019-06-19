@@ -2838,6 +2838,62 @@ void Planner::refresh_positioning() {
   reset_acceleration_rates();
 }
 
+void Planner::set_max_acceleration(uint8_t axis, float targetValue) {
+  #if DISABLED(MAX_ACCELERATION_CAP)
+    planner.settings.max_acceleration_mm_per_s2[axis] = targetValue;
+  #else
+    #ifdef MAX_ACCELERATION_MANUAL
+      static constexpr float max_accel[] = MAX_ACCELERATION_MANUAL;
+      static uint8_t ac_multiplier = 1;
+    #else
+      static constexpr float max_accel[] = DEFAULT_MAX_ACCELERATION;
+      static uint8_t ac_multiplier = 2;
+    #endif
+    if(targetValue > max_accel[(AxisEnum)axis] * ac_multiplier)
+      SERIAL_ECHOLNPAIR("Max acceleration clamped to ",  (max_accel[(AxisEnum)axis] * ac_multiplier));
+    planner.settings.max_acceleration_mm_per_s2[axis] = constrain(targetValue, 1, max_accel[(AxisEnum)axis] * ac_multiplier);
+  #endif
+}
+void Planner::set_max_feedrate(uint8_t axis, float targetValue) {
+  #if DISABLED(MAX_FEEDRATE_CAP)
+    planner.settings.max_feedrate_mm_s[axis] = targetValue;
+  #else
+    #ifdef MAX_FEEDRATE_MANUAL
+      static constexpr float max_feedrates[] = MAX_FEEDRATE_MANUAL;
+      static uint8_t fr_multiplier = 1;
+    #else
+      static constexpr float max_feedrates[] = DEFAULT_MAX_FEEDRATE;
+      static uint8_t fr_multiplier = 2;
+    #endif
+    if(targetValue > max_feedrates[(AxisEnum)axis] * fr_multiplier)
+      SERIAL_ECHOLNPAIR("Max feedrate clamped to ",  (max_feedrates[(AxisEnum)axis] * fr_multiplier));
+    planner.settings.max_feedrate_mm_s[axis] = constrain(targetValue, 1, max_feedrates[(AxisEnum)axis] * fr_multiplier);
+  #endif
+}
+void Planner::set_max_jerk(AxisEnum axis, float targetValue) {
+  #if DISABLED(MAX_JERK_CAP)
+        planner.max_jerk[axis] = targetValue;
+  #else
+    #ifdef MAX_JERK_MANUAL
+      static constexpr float max_jerk[] = MAX_JERK_MANUAL;
+      static float jrk_limit = max_jerk[axis];
+    #else
+      static float jrk_limit;
+      if( axis == X_AXIS)
+        jrk_limit = (DEFAULT_XJERK * 2);
+      else if (axis == Y_AXIS)
+        jrk_limit = (DEFAULT_YJERK * 2);
+      else if (axis == Z_AXIS)
+        jrk_limit = (DEFAULT_ZJERK * 2);
+      else if (axis == E_AXIS)
+        jrk_limit = (DEFAULT_EJERK * 2);
+    #endif
+    if(targetValue > jrk_limit)
+      SERIAL_ECHOLNPAIR("Jerk clamped to ",  jrk_limit);
+    planner.max_jerk[axis] = constrain(targetValue, 1, jrk_limit);
+  #endif
+}
+
 #if ENABLED(AUTOTEMP)
 
   void Planner::autotemp_M104_M109() {
