@@ -35,11 +35,7 @@
 #include "../../module/stepper.h"
 #include "../../sd/cardreader.h"
 
-#if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../../feature/power_loss_recovery.h"
-#endif
-
-#if HAS_GAMES
+#if HAS_GAMES && DISABLED(LCD_INFO_MENU)
   #include "game/game.h"
 #endif
 
@@ -60,11 +56,23 @@ void menu_tune();
 void menu_motion();
 void menu_temperature();
 void menu_configuration();
-void menu_user();
-void menu_temp_e0_filament_change();
-void menu_change_filament();
-void menu_info();
-void menu_led();
+
+#if ENABLED(CUSTOM_USER_MENUS)
+  void menu_user();
+#endif
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void menu_temp_e0_filament_change();
+  void menu_change_filament();
+#endif
+
+#if ENABLED(LCD_INFO_MENU)
+  void menu_info();
+#endif
+
+#if ENABLED(LED_CONTROL_MENU)
+  void menu_led();
+#endif
 
 #if ENABLED(MIXING_EXTRUDER)
   void menu_mixer();
@@ -80,16 +88,6 @@ void menu_led();
   #if SERVICE_INTERVAL_3 > 0
     void menu_service3();
   #endif
-#endif
-
-#if HAS_GAME_MENU
-  void menu_game();
-#elif ENABLED(MARLIN_BRICKOUT)
-  void lcd_goto_brickout();
-#elif ENABLED(MARLIN_INVADERS)
-  void lcd_goto_invaders();
-#elif ENABLED(MARLIN_SNAKE)
-  void lcd_goto_snake();
 #endif
 
 void menu_main() {
@@ -242,7 +240,7 @@ void menu_main() {
     #endif
   #endif
 
-  #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
+  #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
     MENU_ITEM(submenu, "Game", (
       #if HAS_GAME_MENU
         menu_game

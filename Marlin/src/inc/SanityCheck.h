@@ -1051,9 +1051,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * Touch-MI probe requirements
    */
   #if ENABLED(TOUCH_MI_PROBE)
-    #if ENABLED(Z_SAFE_HOMING)
+    #if DISABLED(Z_SAFE_HOMING)
       #error "TOUCH_MI_PROBE requires Z_SAFE_HOMING."
-    #elif ENABLED(TOUCH_MI_RETRACT_Z)
+    #elif !defined(TOUCH_MI_RETRACT_Z)
       #error "TOUCH_MI_PROBE requires TOUCH_MI_RETRACT_Z."
     #elif defined(Z_AFTER_PROBING)
       #error "TOUCH_MI_PROBE requires Z_AFTER_PROBING to be disabled."
@@ -1841,6 +1841,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(G3D_PANEL) \
   + (ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864)) \
   + ENABLED(MKS_MINI_12864) \
+  + ENABLED(FYSETC_MINI_12864_X_X) \
   + ENABLED(FYSETC_MINI_12864_1_2) \
   + ENABLED(FYSETC_MINI_12864_2_0) \
   + ENABLED(FYSETC_MINI_12864_2_1) \

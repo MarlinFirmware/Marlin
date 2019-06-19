@@ -85,7 +85,7 @@ void GcodeSuite::G29() {
       mbl.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_bl_move) {
-        enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
+        queue.inject_P(PSTR("G28\nG29 S2"));
         return;
       }
       state = MeshNext;

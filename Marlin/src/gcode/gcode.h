@@ -216,7 +216,7 @@
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
  * M504 - Validate EEPROM contents. (Requires EEPROM_SETTINGS)
- * M524 - Abort the current SD print job (started with M24)
+ * M524 - Abort the current SD print job started with M24. (Requires SDSUPPORT)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires SD_ABORT_ON_ENDSTOP_HIT)
  * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130 or TMC2208)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
@@ -312,19 +312,14 @@ public:
   static int8_t get_target_e_stepper_from_command();
   static void get_destination_from_command();
 
-  static void process_parsed_command(
-    #if USE_EXECUTE_COMMANDS_IMMEDIATE
-      const bool no_ok = false
-    #endif
-  );
+  static void process_parsed_command(const bool no_ok=false);
   static void process_next_command();
 
-  #if USE_EXECUTE_COMMANDS_IMMEDIATE
-    static void process_subcommands_now_P(PGM_P pgcode);
-    static void process_subcommands_now(char * gcode);
-  #endif
+  // Execute G-code in-place, preserving current G-code parameters
+  static void process_subcommands_now_P(PGM_P pgcode);
+  static void process_subcommands_now(char * gcode);
 
-  FORCE_INLINE static void home_all_axes() { G28(true); }
+  static inline void home_all_axes() { process_subcommands_now_P(PSTR("G28")); }
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     /**

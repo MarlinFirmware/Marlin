@@ -45,8 +45,7 @@
 
 #define __I
 #define __IO volatile
- typedef struct
- {
+ typedef struct {
    __I  uint32_t CPUID;                   /*!< Offset: 0x000 (R/ )  CPUID Base Register                                   */
    __IO uint32_t ICSR;                    /*!< Offset: 0x004 (R/W)  Interrupt Control and State Register                  */
    __IO uint32_t VTOR;                    /*!< Offset: 0x008 (R/W)  Vector Table Offset Register                          */
@@ -161,11 +160,10 @@ enum TEMP_PINS : char {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
   #endif
-    ADC_PIN_COUNT
+  ADC_PIN_COUNT
 };
 
 uint16_t HAL_adc_results[ADC_PIN_COUNT];
-
 
 // --------------------------------------------------------------------------
 // Function prototypes
@@ -209,6 +207,9 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
 
 void HAL_init(void) {
   NVIC_SetPriorityGrouping(0x3);
+  #if PIN_EXISTS(LED)
+    OUT_WRITE(LED_PIN, LOW);
+  #endif
 }
 
 /* VGPV Done with defines

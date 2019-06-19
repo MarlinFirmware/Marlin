@@ -369,7 +369,7 @@ void disable_all_steppers() {
     #endif // HOST_ACTION_COMMANDS
 
     if (run_runout_script)
-      enqueue_and_echo_commands_front_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
   }
 
 #endif // HAS_FILAMENT_SENSOR
@@ -425,7 +425,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     runout.run();
   #endif
 
-  if (commands_in_queue < BUFSIZE) get_available_commands();
+  if (queue.length < BUFSIZE) queue.get_available_commands();
 
   const millis_t ms = millis();
 
@@ -508,7 +508,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     const int HOME_DEBOUNCE_DELAY = 2500;
     if (!IS_SD_PRINTING() && !READ(HOME_PIN)) {
       if (!homeDebounceCount) {
-        enqueue_and_echo_commands_P(PSTR("G28"));
+        queue.inject_P(PSTR("G28"));
         LCD_MESSAGEPGM(MSG_AUTO_HOME);
       }
       if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
@@ -797,7 +797,7 @@ void stop() {
   #endif
 
   if (IsRunning()) {
-    Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
+    queue.stop();
     SERIAL_ERROR_MSG(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
@@ -926,8 +926,6 @@ void setup() {
   SERIAL_ECHO_START();
   SERIAL_ECHOLNPAIR(MSG_FREE_MEMORY, freeMemory(), MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
-  queue_setup();
-
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
   ui.init();
@@ -937,7 +935,7 @@ void setup() {
     ui.show_bootscreen();
   #endif
 
-  #if ENABLED(SDIO_SUPPORT) && SD_DETECT_PIN == -1
+  #if ENABLED(SDIO_SUPPORT) && !PIN_EXISTS(SD_DETECT)
     // Auto-mount the SD for EEPROM.dat emulation
     if (!card.isDetected()) card.initsd();
   #endif
@@ -1135,7 +1133,7 @@ void loop() {
             true
           #endif
         );
-        clear_command_queue();
+        queue.clear();
         quickstop_stepper();
         print_job_timer.stop();
         #if DISABLED(SD_ABORT_NO_COOLDOWN)
@@ -1147,14 +1145,14 @@ void loop() {
           card.removeJobRecoveryFile();
         #endif
         #ifdef EVENT_GCODE_SD_STOP
-          enqueue_and_echo_commands_P(PSTR(EVENT_GCODE_SD_STOP));
+          queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
         #endif
       }
 
     #endif // SDSUPPORT
 
-    if (commands_in_queue < BUFSIZE) get_available_commands();
-    advance_command_queue();
+    if (queue.length < BUFSIZE) queue.get_available_commands();
+    queue.advance();
     endstops.event_handler();
     idle();
   }

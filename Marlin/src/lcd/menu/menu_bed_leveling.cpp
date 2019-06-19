@@ -105,9 +105,9 @@
         ui.wait_for_bl_move = true;
         ui.goto_screen(_lcd_level_bed_done);
         #if ENABLED(MESH_BED_LEVELING)
-          enqueue_and_echo_commands_P(PSTR("G29 S2"));
+          queue.inject_P(PSTR("G29 S2"));
         #elif ENABLED(PROBE_MANUALLY)
-          enqueue_and_echo_commands_P(PSTR("G29 V1"));
+          queue.inject_P(PSTR("G29 V1"));
         #endif
       }
       else
@@ -157,9 +157,9 @@
     // G29 Records Z, moves, and signals when it pauses
     ui.wait_for_bl_move = true;
     #if ENABLED(MESH_BED_LEVELING)
-      enqueue_and_echo_commands_P(manual_probe_index ? PSTR("G29 S2") : PSTR("G29 S1"));
+      queue.inject_P(manual_probe_index ? PSTR("G29 S2") : PSTR("G29 S1"));
     #elif ENABLED(PROBE_MANUALLY)
-      enqueue_and_echo_commands_P(PSTR("G29 V1"));
+      queue.inject_P(PSTR("G29 V1"));
     #endif
   }
 
@@ -194,7 +194,7 @@
     ui.defer_status_screen();
     set_all_unhomed();
     ui.goto_screen(_lcd_level_bed_homing);
-    enqueue_and_echo_commands_P(PSTR("G28"));
+    queue.inject_P(PSTR("G28"));
   }
 
 #endif // PROBE_MANUALLY || MESH_BED_LEVELING

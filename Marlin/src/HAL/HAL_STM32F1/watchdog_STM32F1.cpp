@@ -34,7 +34,7 @@
 #include "watchdog_STM32F1.h"
 
 void watchdog_reset() {
-  #if PIN_EXISTS(LED)
+  #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
     TOGGLE(LED_PIN);  // heartbeat indicator
   #endif
   iwdg_feed();

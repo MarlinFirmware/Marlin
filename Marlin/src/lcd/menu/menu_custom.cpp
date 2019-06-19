@@ -38,7 +38,7 @@
 #endif
 
 void _lcd_user_gcode(PGM_P const cmd) {
-  enqueue_and_echo_commands_P(cmd);
+  queue.inject_P(cmd);
   #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK)
     ui.completion_feedback();
   #endif
