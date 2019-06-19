@@ -393,6 +393,8 @@
 #define TEMP_SENSOR_4 0
 #if(ENABLED(BedAC))
   #define TEMP_SENSOR_BED 11
+#elif ENABLED(TREX3)
+  #define TEMP_SENSOR_BED 1
 #else
   #define TEMP_SENSOR_BED 0
 #endif
@@ -497,15 +499,20 @@
 // If your configuration is significantly different than this and you don't understand the issues involved, you probably
 // shouldn't use bed PID until someone else verifies your hardware works.
 // If this is enabled, find your own PID constants below.
-#define PIDTEMPBED
-
+#if ENABLED(BedAC)
+  #define PIDTEMPBED
+#endif
 //#define BED_LIMIT_SWITCHING
 
 // This sets the max power delivered to the bed, and replaces the HEATER_BED_DUTY_CYCLE_DIVIDER option.
 // all forms of bed control obey this (PID, bang-bang, bang-bang with hysteresis)
 // setting this to anything other than 255 enables a form of PWM to the bed just like HEATER_BED_DUTY_CYCLE_DIVIDER did,
 // so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
-#define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
+#if ENABLED(TREX3) && DISABLED(BedAC)
+  #define MAX_BED_POWER 225 // limits duty cycle to bed; 255=full current
+#else
+  #define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
+#endif
 
 #if ENABLED(PIDTEMPBED)
 
@@ -513,10 +520,15 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 10.00
-  #define DEFAULT_bedKi .023
-  #define DEFAULT_bedKd 305.4
-
+  #if ENABLED(BedAC)
+    #define DEFAULT_bedKp 245.24
+    #define DEFAULT_bedKi 48.28
+    #define DEFAULT_bedKd 311.39
+  #else
+    #define DEFAULT_bedKp 10.00
+    #define DEFAULT_bedKi .023
+    #define DEFAULT_bedKd 305.4
+  #endif
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
   //#define DEFAULT_bedKp 97.1
