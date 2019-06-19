@@ -76,7 +76,7 @@
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
-  #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
+  #define THERMAL_PROTECTION_HYSTERESIS 10     // Degrees Celsius
 
   /**
    * Whenever an M104, M109, or M303 increases the target temperature, the
@@ -100,11 +100,11 @@
 #if ENABLED(THERMAL_PROTECTION_BED)
   #if ENABLED(TREX3) && DISABLED(BedAC)
     #define THERMAL_PROTECTION_BED_PERIOD 50    // Seconds
-    #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
   #else
     #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
-    #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
   #endif
+  
+  #define THERMAL_PROTECTION_BED_HYSTERESIS 4 // Degrees Celsius
 
   /**
    * As described above, except for the bed (M140/M190/M303).
