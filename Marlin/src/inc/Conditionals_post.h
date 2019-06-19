@@ -1727,3 +1727,17 @@
     #define LCD_HEIGHT 2
   #endif
 #endif
+
+//
+// The external SD card is not used. Hardware SPI is used to access the card.
+// When sharing the SD card with a PC we want the menu options to
+// mount/unmount the card and refresh it. So we disable card detect.
+//
+#if ENABLED(USB_SD_ONBOARD)
+  #undef SD_DETECT_PIN
+  #define SHARED_SD_CARD
+#endif
+
+#if ENABLED(SDSUPPORT) && (ENABLED(USB_SD_DISABLED) || !PIN_EXISTS(ONBOARD_SD_CS))
+  #define INIT_SDCARD_ON_BOOT
+#endif

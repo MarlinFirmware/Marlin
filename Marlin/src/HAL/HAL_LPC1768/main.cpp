@@ -81,8 +81,8 @@ void HAL_init() {
     OUT_WRITE(SS_PIN, HIGH);
   #endif
 
-  #if defined(ONBOARD_SD_CS) && ONBOARD_SD_CS > -1
-    OUT_WRITE(ONBOARD_SD_CS, HIGH);
+  #if PIN_EXISTS(ONBOARD_SD_CS) && ONBOARD_SD_CS_PIN != SS_PIN
+    OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH);
   #endif
 
   USB_Init();                               // USB Initialization
@@ -90,7 +90,7 @@ void HAL_init() {
   delay(1000);                              // Give OS time to notice
   USB_Connect(TRUE);
 
-  #if DISABLED(USB_SD_DISABLED) && !BOTH(SDSUPPORT, SHARED_SD_CARD)
+  #if DISABLED(USB_SD_DISABLED)
     MSC_SD_Init(0);                         // Enable USB SD card access
   #endif
 

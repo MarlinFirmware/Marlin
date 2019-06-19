@@ -86,7 +86,7 @@
 #define FAN1_PIN           P0_26
 
 #define LCD_SDSS           P0_16   // LCD SD chip select
-#define ONBOARD_SD_CS      P0_06   // On board SD chip select
+#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
 
 #if ENABLED(AZSMZ_12864)
   #define BEEPER_PIN       P1_30
@@ -107,16 +107,10 @@
   #define SS_PIN           LCD_SDSS
   #define SD_DETECT_PIN    P3_25
 #elif ENABLED(LPC_SD_ONBOARD)
-  #if ENABLED(USB_SD_ONBOARD)
-    // When sharing the SD card with a PC we want the menu options to
-    // mount/unmount the card and refresh it. So we disable card detect.
-    #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN
-  #endif
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           ONBOARD_SD_CS
+  #define SS_PIN           ONBOARD_SD_CS_PIN
 #endif
 
 //
