@@ -1982,7 +1982,6 @@
 // MKS Robin 320x240 color display
 // Also used for JGAurora A5S & A1 TFT LCD's (16-bit Parallel LCD via FSMC)
 #define MKS_ROBIN_TFT
-#define PRINTER_EVENT_LEDS
 
 //=============================================================================
 //============================  Other Controllers  ============================
