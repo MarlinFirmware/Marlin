@@ -190,8 +190,8 @@ void process_lcd_j_command(const char* command) {
     case 'E':
       // enable or disable steppers
       // switch to relative
-      enqueue_and_echo_commands_now_P(PSTR("G91"));
-      enqueue_and_echo_commands_now_P(steppers_enabled ? PSTR("M18") : PSTR("M17"));
+      queue.enqueue_now_P(PSTR("G91"));
+      queue.enqueue_now_P(steppers_enabled ? PSTR("M18") : PSTR("M17"));
       steppers_enabled = !steppers_enabled;
       break;
     case 'A':
@@ -204,7 +204,7 @@ void process_lcd_j_command(const char* command) {
       // The M200 class UI seems to send movement in .1mm values.
       char cmd[20];
       sprintf_P(cmd, PSTR("G1 %c%03.1f"), axis, atof(command + 1) / 10.0);
-      enqueue_and_echo_command_now(cmd);
+      queue.enqueue_one_now(cmd);
     } break;
     default:
       SERIAL_ECHOLNPAIR("UNKNOWN J COMMAND", command);
@@ -247,7 +247,7 @@ void process_lcd_p_command(const char* command) {
             true
           #endif
         );
-        clear_command_queue();
+        queue.clear();
         quickstop_stepper();
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
@@ -258,7 +258,7 @@ void process_lcd_p_command(const char* command) {
       break;
     case 'H':
       // Home all axis
-      enqueue_and_echo_commands_now_P(PSTR("G28"));
+      queue.enqueue_now_P(PSTR("G28"));
       break;
     default: {
       #if ENABLED(SDSUPPORT)
@@ -321,7 +321,7 @@ void process_lcd_s_command(const char* command) {
 
     case 'H':
       // Home all axis
-      enqueue_and_echo_command("G28");
+      queue.inject_P(PSTR("G28"));
       break;
 
     case 'L': {

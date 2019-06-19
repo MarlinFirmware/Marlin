@@ -777,10 +777,10 @@ namespace ExtUI {
   float getFeedrate_percent() { return feedrate_percentage; }
 
   void enqueueCommands_P(PGM_P const gcode) {
-    enqueue_and_echo_commands_P(gcode);
+    queue.inject_P(gcode);
   }
 
-  bool commandsInQueue() { return (planner.movesplanned() || commands_in_queue); }
+  bool commandsInQueue() { return (planner.movesplanned() || queue.length); }
 
   bool isAxisPositionKnown(const axis_t axis) {
     return TEST(axis_known_position, axis);
