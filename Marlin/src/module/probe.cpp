@@ -378,6 +378,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
   #elif HAS_Z_SERVO_PROBE
 
+    // M401 M402 comes in here and do not work.
     #if DISABLED(BLTOUCH)
       MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
     #elif ENABLED(BLTOUCH_HS_MODE)
