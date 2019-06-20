@@ -910,6 +910,12 @@
 //   Set to 3 or more for slow probes, averaging the results.
 //#define MULTIPLE_PROBING 2
 
+// If multiple probing is used, removes the n samples with largest deviation from the
+// median and averages over the remaining samples to yield the result.
+#ifdef MULTIPLE_PROBING
+  #define PROBING_OUTLIERS_REMOVED 0
+#endif
+
 /**
  * Z probes require clearance when deploying, stowing, and moving between
  * probe points to avoid hitting the bed and other hardware.

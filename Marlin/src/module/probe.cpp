@@ -633,8 +633,8 @@ static float run_z_probe() {
   #endif
 
   #if MULTIPLE_PROBING > 2
-    float probes_total = 0;
-    for (uint8_t p = MULTIPLE_PROBING + 1; --p;) {
+    float probes[MULTIPLE_PROBING];
+    for (uint8_t p = 0; p < MULTIPLE_PROBING; p++) {
   #endif
 
       // move down slowly to find bed
@@ -651,15 +651,47 @@ static float run_z_probe() {
       #endif
 
   #if MULTIPLE_PROBING > 2
-      probes_total += current_position[Z_AXIS];
-      if (p > 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      // insert value into sorted array.
+      for (int i = 0; i <= p; i++) {
+        if (i == p || probes[i] > current_position[Z_AXIS]) {
+          // Shift all meaningful values after i-th position towards end of array.
+          for (int m = p - 1; m >= i; m--) {
+            probes[m+1] = probes[m];
+          }
+          probes[i] = current_position[Z_AXIS];
+          break;
+        }
+      }
+      // probes[] is now sorted from lowest to highest.
+      if (p < MULTIPLE_PROBING - 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
   #endif
 
   #if MULTIPLE_PROBING > 2
-
-    // Return the average value of all probes
-    const float measured_z = probes_total * (1.0f / (MULTIPLE_PROBING));
+    // Remove n values furthest away from median.
+    int min_avg_idx = 0;
+    int max_avg_idx = MULTIPLE_PROBING-1;
+    #if PROBING_OUTLIERS_REMOVED > 0
+      float median;
+      if (MULTIPLE_PROBING % 2 == 0) {
+        median = (probes[MULTIPLE_PROBING / 2] + probes[(MULTIPLE_PROBING / 2) - 1]) * 0.5f;
+      } else {
+        median = probes[(MULTIPLE_PROBING-1) / 2];
+      }
+      for (int i = 0; i < PROBING_OUTLIERS_REMOVED; i++) {
+        if(abs(probes[max_avg_idx] - median) > abs(probes[min_avg_idx] - median)) {
+          max_avg_idx--;
+        } else {
+          min_avg_idx++;
+        }
+      }
+    #endif
+    // Return the average value of all remaining probes.
+    float probes_total = 0;
+    for(int i = min_avg_idx; i <= max_avg_idx; i++) {
+      probes_total += probes[i];
+    }
+    const float measured_z = probes_total * (1.0f / (MULTIPLE_PROBING - PROBING_OUTLIERS_REMOVED));
 
   #elif MULTIPLE_PROBING == 2
 
