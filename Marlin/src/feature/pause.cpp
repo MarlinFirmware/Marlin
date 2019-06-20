@@ -683,7 +683,9 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
 
   #if HAS_DISPLAY
     ui.reset_status();
-    ui.return_to_status();
+    #if HAS_LCD_MENU
+      ui.return_to_status();
+    #endif
   #endif
 }
 
