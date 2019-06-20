@@ -1328,7 +1328,7 @@ SERIAL_ECHO(Checkkey);
 				else
 					RTS_SndData(ExchangePageBase + 85, ExchangepageAddr); 
 				enqueue_and_echo_commands_P(PSTR("G29"));
-				enqueue_and_echo_commands_P(PSTR("G28"));
+				enqueue_and_echo_commands_P(PSTR("G28 Z"));
 				//stepper.synchronize();
 				//set_bed_leveling_enabled(false);
 				//enqueue_and_echo_commands_P((PSTR("G1 F100 Z10.2;")));
