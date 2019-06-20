@@ -163,8 +163,8 @@
     #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
   #endif
 
-  #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE)
-  #define TMC_UART_SW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_RSENSE, ST##_SERIAL_RX_PIN > -1)
+  #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE, ST##_SLAVE_ADDRESS)
+  #define TMC_UART_SW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_RSENSE, ST##_SLAVE_ADDRESS, ST##_SERIAL_RX_PIN > -1)
 
   #define _TMC_SPI_DEFINE(IC, ST, AI) __TMC_SPI_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
   #define TMC_SPI_DEFINE(ST, AI) _TMC_SPI_DEFINE(ST##_DRIVER_TYPE, ST, AI##_AXIS)
@@ -318,95 +318,94 @@
 #endif // TMC2160
 
 //
-// TMC2208 Driver objects and inits
+// TMC2208/2209 Driver objects and inits
 //
-#if HAS_DRIVER(TMC2208)
-  // Stepper objects of TMC2208 steppers used
-  #if AXIS_DRIVER_TYPE_X(TMC2208)
+#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+  #if AXIS_HAS_UART(X)
     #ifdef X_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X, X);
     #else
       TMC_UART_DEFINE(SW, X, X);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_X2(TMC2208)
+  #if AXIS_HAS_UART(X2)
     #ifdef X2_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X2, X);
     #else
       TMC_UART_DEFINE(SW, X2, X);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_Y(TMC2208)
+  #if AXIS_HAS_UART(Y)
     #ifdef Y_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Y, Y);
     #else
       TMC_UART_DEFINE(SW, Y, Y);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_Y2(TMC2208)
+  #if AXIS_HAS_UART(Y2)
     #ifdef Y2_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Y2, Y);
     #else
       TMC_UART_DEFINE(SW, Y2, Y);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_Z(TMC2208)
+  #if AXIS_HAS_UART(Z)
     #ifdef Z_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Z, Z);
     #else
       TMC_UART_DEFINE(SW, Z, Z);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_Z2(TMC2208)
+  #if AXIS_HAS_UART(Z2)
     #ifdef Z2_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Z2, Z);
     #else
       TMC_UART_DEFINE(SW, Z2, Z);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_Z3(TMC2208)
+  #if AXIS_HAS_UART(Z3)
     #ifdef Z3_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Z3, Z);
     #else
       TMC_UART_DEFINE(SW, Z3, Z);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E0(TMC2208)
+  #if AXIS_HAS_UART(E0)
     #ifdef E0_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 0);
     #else
       TMC_UART_DEFINE_E(SW, 0);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E1(TMC2208)
+  #if AXIS_HAS_UART(E1)
     #ifdef E1_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 1);
     #else
       TMC_UART_DEFINE_E(SW, 1);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E2(TMC2208)
+  #if AXIS_HAS_UART(E2)
     #ifdef E2_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 2);
     #else
       TMC_UART_DEFINE_E(SW, 2);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E3(TMC2208)
+  #if AXIS_HAS_UART(E3)
     #ifdef E3_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 3);
     #else
       TMC_UART_DEFINE_E(SW, 3);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E4(TMC2208)
+  #if AXIS_HAS_UART(E4)
     #ifdef E4_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 4);
     #else
       TMC_UART_DEFINE_E(SW, 4);
     #endif
   #endif
-  #if AXIS_DRIVER_TYPE_E5(TMC2208)
+  #if AXIS_HAS_UART(E5)
     #ifdef E5_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 5);
     #else
@@ -414,92 +413,92 @@
     #endif
   #endif
 
-  void tmc2208_serial_begin() {
-    #if AXIS_DRIVER_TYPE_X(TMC2208)
+  void tmc_serial_begin() {
+    #if AXIS_HAS_UART(X)
       #ifdef X_HARDWARE_SERIAL
         X_HARDWARE_SERIAL.begin(115200);
       #else
         stepperX.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_X2(TMC2208)
+    #if AXIS_HAS_UART(X2)
       #ifdef X2_HARDWARE_SERIAL
         X2_HARDWARE_SERIAL.begin(115200);
       #else
         stepperX2.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_Y(TMC2208)
+    #if AXIS_HAS_UART(Y)
       #ifdef Y_HARDWARE_SERIAL
         Y_HARDWARE_SERIAL.begin(115200);
       #else
         stepperY.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_Y2(TMC2208)
+    #if AXIS_HAS_UART(Y2)
       #ifdef Y2_HARDWARE_SERIAL
         Y2_HARDWARE_SERIAL.begin(115200);
       #else
         stepperY2.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_Z(TMC2208)
+    #if AXIS_HAS_UART(Z)
       #ifdef Z_HARDWARE_SERIAL
         Z_HARDWARE_SERIAL.begin(115200);
       #else
         stepperZ.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_Z2(TMC2208)
+    #if AXIS_HAS_UART(Z2)
       #ifdef Z2_HARDWARE_SERIAL
         Z2_HARDWARE_SERIAL.begin(115200);
       #else
         stepperZ2.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_Z3(TMC2208)
+    #if AXIS_HAS_UART(Z3)
       #ifdef Z3_HARDWARE_SERIAL
         Z3_HARDWARE_SERIAL.begin(115200);
       #else
         stepperZ3.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_E0(TMC2208)
+    #if AXIS_HAS_UART(E0)
       #ifdef E0_HARDWARE_SERIAL
         E0_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE0.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_E1(TMC2208)
+    #if AXIS_HAS_UART(E1)
       #ifdef E1_HARDWARE_SERIAL
         E1_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE1.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_E2(TMC2208)
+    #if AXIS_HAS_UART(E2)
       #ifdef E2_HARDWARE_SERIAL
         E2_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE2.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_E3(TMC2208)
+    #if AXIS_HAS_UART(E3)
       #ifdef E3_HARDWARE_SERIAL
         E3_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE3.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_E4(TMC2208)
+    #if AXIS_HAS_UART(E4)
       #ifdef E4_HARDWARE_SERIAL
         E4_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE4.beginSerial(115200);
       #endif
     #endif
-    #if AXIS_DRIVER_TYPE_E5(TMC2208)
+    #if AXIS_HAS_UART(E5)
       #ifdef E5_HARDWARE_SERIAL
         E5_HARDWARE_SERIAL.begin(115200);
       #else
@@ -507,7 +506,9 @@
       #endif
     #endif
   }
+#endif
 
+#if HAS_DRIVER(TMC2208)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
   void tmc_init(TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const bool stealth) {
     TMC2208_n::GCONF_t gconf{0};
@@ -554,6 +555,50 @@
     delay(200);
   }
 #endif // TMC2208
+
+#if HAS_DRIVER(TMC2209)
+  template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+  void tmc_init(TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const bool stealth) {
+    TMC2208_n::GCONF_t gconf{0};
+    gconf.pdn_disable = true; // Use UART
+    gconf.mstep_reg_select = true; // Select microsteps with UART
+    gconf.i_scale_analog = false;
+    gconf.en_spreadcycle = !stealth;
+    st.GCONF(gconf.sr);
+    st.stored.stealthChop_enabled = stealth;
+
+    TMC2208_n::CHOPCONF_t chopconf{0};
+    chopconf.tbl = 0b01; // blank_time = 24
+    chopconf.toff = chopper_timing.toff;
+    chopconf.intpol = INTERPOLATE;
+    chopconf.hend = chopper_timing.hend + 3;
+    chopconf.hstrt = chopper_timing.hstrt - 1;
+    st.CHOPCONF(chopconf.sr);
+
+    st.rms_current(mA, HOLD_MULTIPLIER);
+    st.microsteps(microsteps);
+    st.iholddelay(10);
+    st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
+
+    TMC2208_n::PWMCONF_t pwmconf{0};
+    pwmconf.pwm_lim = 12;
+    pwmconf.pwm_reg = 8;
+    pwmconf.pwm_autograd = true;
+    pwmconf.pwm_autoscale = true;
+    pwmconf.pwm_freq = 0b01;
+    pwmconf.pwm_grad = 14;
+    pwmconf.pwm_ofs = 36;
+    st.PWMCONF(pwmconf.sr);
+
+    #if ENABLED(HYBRID_THRESHOLD)
+      st.set_pwm_thrs(thrs);
+    #else
+      UNUSED(thrs);
+    #endif
+
+    st.GSTAT(0b111); // Clear
+  }
+#endif // TMC2209
 
 #if HAS_DRIVER(TMC2660)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
@@ -791,29 +836,29 @@ void reset_stepper_drivers() {
   #if USE_SENSORLESS
     #if X_SENSORLESS
       #if AXIS_HAS_STALLGUARD(X)
-        stepperX.sgt(X_STALL_SENSITIVITY);
+        stepperX.homing_threshold(X_STALL_SENSITIVITY);
       #endif
       #if AXIS_HAS_STALLGUARD(X2)
-        stepperX2.sgt(X_STALL_SENSITIVITY);
+        stepperX2.homing_threshold(X_STALL_SENSITIVITY);
       #endif
     #endif
     #if Y_SENSORLESS
       #if AXIS_HAS_STALLGUARD(Y)
-        stepperY.sgt(Y_STALL_SENSITIVITY);
+        stepperY.homing_threshold(Y_STALL_SENSITIVITY);
       #endif
       #if AXIS_HAS_STALLGUARD(Y2)
-        stepperY2.sgt(Y_STALL_SENSITIVITY);
+        stepperY2.homing_threshold(Y_STALL_SENSITIVITY);
       #endif
     #endif
     #if Z_SENSORLESS
       #if AXIS_HAS_STALLGUARD(Z)
-        stepperZ.sgt(Z_STALL_SENSITIVITY);
+        stepperZ.homing_threshold(Z_STALL_SENSITIVITY);
       #endif
       #if AXIS_HAS_STALLGUARD(Z2)
-        stepperZ2.sgt(Z_STALL_SENSITIVITY);
+        stepperZ2.homing_threshold(Z_STALL_SENSITIVITY);
       #endif
       #if AXIS_HAS_STALLGUARD(Z3)
-        stepperZ3.sgt(Z_STALL_SENSITIVITY);
+        stepperZ3.homing_threshold(Z_STALL_SENSITIVITY);
       #endif
     #endif
   #endif
