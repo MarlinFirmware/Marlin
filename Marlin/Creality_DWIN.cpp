@@ -1330,8 +1330,12 @@ SERIAL_ECHO(Checkkey);
 				enqueue_and_echo_commands_P(PSTR("G29")); 
 				//stepper.synchronize();
 				set_bed_leveling_enabled(false);
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z10.2;"))); 
-				enqueue_and_echo_commands_P(PSTR("G1 X150 Y150 F5000")); 
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z10.2;")));
+				char comdbuf[30];
+				memset(comdbuf,0,sizeof(comdbuf));
+				sprintf_P(comdbuf, PSTR("G1 X%i Y%i F5000"), Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT);
+				enqueue_and_echo_command(comdbuf);
+
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0.0")));
 				//set_bed_leveling_enabled(true);
 				RTS_SndData(3, AutoLevelIcon);//2=On, 3=Off
