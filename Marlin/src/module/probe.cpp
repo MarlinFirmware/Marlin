@@ -619,7 +619,7 @@ static float run_z_probe() {
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("1st Probe Z:", first_probe_z);
 
-    // move up to make clearance for the probe
+    // Raise to give the probe clearance
     do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
   #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
@@ -634,11 +634,23 @@ static float run_z_probe() {
     }
   #endif
 
-  #if MULTIPLE_PROBING > 2
+  #ifdef PROBING_OUTLIERS_REMOVED
     float probes[MULTIPLE_PROBING];
-    for (uint8_t p = 0; p < MULTIPLE_PROBING; p++) {
+  #else
+    #define PROBING_OUTLIERS_REMOVED 0
   #endif
 
+  #if MULTIPLE_PROBING > 2
+    float probes_total = 0;
+    for (
+      #if PROBING_OUTLIERS_REMOVED
+        uint8_t p = 0; p < MULTIPLE_PROBING; p++
+      #else
+        uint8_t p = MULTIPLE_PROBING; p--;
+      #endif
+    )
+  #endif
+    {
       // Probe downward slowly to find the bed
       if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) {
         if (DEBUGGING(LEVELING)) {
@@ -652,39 +664,50 @@ static float run_z_probe() {
         backlash.measure_with_probe();
       #endif
 
-  #if MULTIPLE_PROBING > 2
-      // Insert Z measurement into probes[]. Keep it sorted ascending.
-      for (uint8_t i = 0; i <= p; i++) {                                      // Iterate the saved Zs to insert the new Z
-        if (i == p || probes[i] > current_position[Z_AXIS]) {                 // Last index or new Z is smaller than this Z
-          for (int8_t m = p; --m >= i;) probes[m + 1] = probes[m];            // Shift items down after the insertion point
-          probes[i] = current_position[Z_AXIS];                               // Insert the new Z measurement
-          break;                                                              // Only one to insert. Done!
+      const float z = current_position[Z_AXIS];
+
+      #if PROBING_OUTLIERS_REMOVED
+        // Insert Z measurement into probes[]. Keep it sorted ascending.
+        for (uint8_t i = 0; i <= p; i++) {                            // Iterate the saved Zs to insert the new Z
+          if (i == p || probes[i] > z) {       // Last index or new Z is smaller than this Z
+            for (int8_t m = p; --m >= i;) probes[m + 1] = probes[m];  // Shift items down after the insertion point
+            probes[i] = z;                     // Insert the new Z measurement
+            break;                                                    // Only one to insert. Done!
+          }
         }
-      }
-      // Small Z raise after all but the last probe
-      if (p < MULTIPLE_PROBING - 1)
-        do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      #elif MULTIPLE_PROBING > 2
+        probes_total += z;
+      #endif
+
+      #if MULTIPLE_PROBING > 2
+        // Small Z raise after all but the last probe
+        if (p
+          #if PROBING_OUTLIERS_REMOVED
+            < MULTIPLE_PROBING - 1
+          #endif
+        ) do_blocking_move_to_z(z + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      #endif
     }
-  #endif
 
   #if MULTIPLE_PROBING > 2
-    uint8_t min_avg_idx = 0, max_avg_idx = MULTIPLE_PROBING - 1;
 
-    #if PROBING_OUTLIERS_REMOVED > 0
+    #if PROBING_OUTLIERS_REMOVED
       // Take the center value (or average the two middle values) as the median
       static constexpr int PHALF = (MULTIPLE_PROBING - 1) / 2;
       const float middle = probes[PHALF],
                   median = ((MULTIPLE_PROBING) & 1) ? middle : (middle + probes[PHALF + 1]) * 0.5f;
+
       // Remove values farthest from the median
-      for (uint8_t i = 0; i < PROBING_OUTLIERS_REMOVED; i++)
+      uint8_t min_avg_idx = 0, max_avg_idx = MULTIPLE_PROBING - 1;
+      for (uint8_t i = PROBING_OUTLIERS_REMOVED; i--;)
         if (ABS(probes[max_avg_idx] - median) > ABS(probes[min_avg_idx] - median))
           max_avg_idx--; else min_avg_idx++;
-    #endif
 
-    // Return the average value of all remaining probes.
-    float probes_total = 0;
-    for (uint8_t i = min_avg_idx; i <= max_avg_idx; i++)
-      probes_total += probes[i];
+      // Return the average value of all remaining probes.
+      for (uint8_t i = min_avg_idx; i <= max_avg_idx; i++)
+        probes_total += probes[i];
+
+    #endif
 
     const float measured_z = probes_total * RECIPROCAL(MULTIPLE_PROBING - (PROBING_OUTLIERS_REMOVED));
 
