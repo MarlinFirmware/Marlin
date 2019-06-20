@@ -510,6 +510,9 @@
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST // Extra test for Allen Key Probe
   #endif
+  #if MULTIPLE_PROBING < 3
+    #undef PROBING_OUTLIERS_REMOVED
+  #endif
 #else
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN

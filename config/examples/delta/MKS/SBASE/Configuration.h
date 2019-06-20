@@ -1017,11 +1017,8 @@
 //   Set to 2 for a fast/slow probe, using the second probe result.
 //   Set to 3 or more for slow probes, averaging the results.
 //#define MULTIPLE_PROBING 2
-
-// If multiple probing is used, removes the n samples with largest deviation from the
-// median and averages over the remaining samples to yield the result.
-#ifdef MULTIPLE_PROBING
-  #define PROBING_OUTLIERS_REMOVED 0
+#if MULTIPLE_PROBING > 2
+  //#define PROBING_OUTLIERS_REMOVED 1  // Remove this number of atypical readings
 #endif
 
 /**

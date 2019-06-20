@@ -1104,16 +1104,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Probes need Z_AFTER_PROBING >= 0."
   #endif
 
-  #if MULTIPLE_PROBING && MULTIPLE_PROBING < 2
-    #error "MULTIPLE_PROBING must be >= 2."
-  #endif
-
-  #if PROBING_OUTLIERS_REMOVED && MULTIPLE_PROBING < 3
-    #error "If using PROBING_OUTLIERS_REMOVED, MULTIPLE_PROBING must be >= 3."
-  #endif
-
-  #if PROBING_OUTLIERS_REMOVED >= MULTIPLE_PROBING
-    #error "MULTIPLE_PROBING must be > PROBING_OUTLIERS_REMOVED."
+  #if MULTIPLE_PROBING
+    #if MULTIPLE_PROBING < 2
+      #error "MULTIPLE_PROBING must be >= 2."
+    #elif PROBING_OUTLIERS_REMOVED >= MULTIPLE_PROBING
+      #error "PROBING_OUTLIERS_REMOVED must be smaller than MULTIPLE_PROBING."
+    #endif
   #endif
 
   #if Z_PROBE_LOW_POINT > 0
