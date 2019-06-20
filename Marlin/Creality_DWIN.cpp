@@ -1327,10 +1327,11 @@ SERIAL_ECHO(Checkkey);
 					RTS_SndData(ExchangePageBase + 43, ExchangepageAddr); // Autoleve ... ,please wait
 				else
 					RTS_SndData(ExchangePageBase + 85, ExchangepageAddr); 
-				enqueue_and_echo_commands_P(PSTR("G29")); 
+				enqueue_and_echo_commands_P(PSTR("G29"));
+				enqueue_and_echo_commands_P(PSTR("G28"));
 				//stepper.synchronize();
-				set_bed_leveling_enabled(false);
-				enqueue_and_echo_commands_P((PSTR("G1 F100 Z10.2;")));
+				//set_bed_leveling_enabled(false);
+				//enqueue_and_echo_commands_P((PSTR("G1 F100 Z10.2;")));
 				char comdbuf[30];
 				memset(comdbuf,0,sizeof(comdbuf));
 				sprintf_P(comdbuf, PSTR("G1 X%i Y%i F5000"), Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT);
