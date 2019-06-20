@@ -588,10 +588,12 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 }
 
 /**
- * @details Used by probe_pt to do a single Z probe at the current position.
+ * @brief Probe at the current XY (possibly more than once) to find the bed Z.
+ *
+ * @details Used by probe_pt to get the bed Z height at the current XY.
  *          Leaves current_position[Z_AXIS] at the height where the probe triggered.
  *
- * @return The raw Z position where the probe was triggered
+ * @return The Z position of the bed at the current XY or NAN on error.
  */
 static float run_z_probe() {
 
@@ -613,7 +615,7 @@ static float run_z_probe() {
       return NAN;
     }
 
-    float first_probe_z = current_position[Z_AXIS];
+    const float first_probe_z = current_position[Z_AXIS];
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("1st Probe Z:", first_probe_z);
 
@@ -626,7 +628,7 @@ static float run_z_probe() {
     // move down quickly before doing the slow probe
     const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (zprobe_zoffset < 0 ? -zprobe_zoffset : 0);
     if (current_position[Z_AXIS] > z) {
-      // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
+      // Probe down fast. If the probe never triggered, raise for probe clearance
       if (!do_probe_move(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
         do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
@@ -637,7 +639,7 @@ static float run_z_probe() {
     for (uint8_t p = 0; p < MULTIPLE_PROBING; p++) {
   #endif
 
-      // move down slowly to find bed
+      // Probe downward slowly to find the bed
       if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) {
         if (DEBUGGING(LEVELING)) {
           DEBUG_ECHOLNPGM("SLOW Probe fail!");
@@ -651,47 +653,40 @@ static float run_z_probe() {
       #endif
 
   #if MULTIPLE_PROBING > 2
-      // insert value into sorted array.
-      for (int i = 0; i <= p; i++) {
-        if (i == p || probes[i] > current_position[Z_AXIS]) {
-          // Shift all meaningful values after i-th position towards end of array.
-          for (int m = p - 1; m >= i; m--) {
-            probes[m+1] = probes[m];
-          }
-          probes[i] = current_position[Z_AXIS];
-          break;
+      // Insert Z measurement into probes[]. Keep it sorted ascending.
+      for (uint8_t i = 0; i <= p; i++) {                                      // Iterate the saved Zs to insert the new Z
+        if (i == p || probes[i] > current_position[Z_AXIS]) {                 // Last index or new Z is smaller than this Z
+          for (int8_t m = p; --m >= i;) probes[m + 1] = probes[m];            // Shift items down after the insertion point
+          probes[i] = current_position[Z_AXIS];                               // Insert the new Z measurement
+          break;                                                              // Only one to insert. Done!
         }
       }
-      // probes[] is now sorted from lowest to highest.
-      if (p < MULTIPLE_PROBING - 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      // Small Z raise after all but the last probe
+      if (p < MULTIPLE_PROBING - 1)
+        do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
   #endif
 
   #if MULTIPLE_PROBING > 2
-    // Remove n values furthest away from median.
-    int min_avg_idx = 0;
-    int max_avg_idx = MULTIPLE_PROBING-1;
+    uint8_t min_avg_idx = 0, max_avg_idx = MULTIPLE_PROBING - 1;
+
     #if PROBING_OUTLIERS_REMOVED > 0
-      float median;
-      if (MULTIPLE_PROBING % 2 == 0) {
-        median = (probes[MULTIPLE_PROBING / 2] + probes[(MULTIPLE_PROBING / 2) - 1]) * 0.5f;
-      } else {
-        median = probes[(MULTIPLE_PROBING-1) / 2];
-      }
-      for (int i = 0; i < PROBING_OUTLIERS_REMOVED; i++) {
-        if(abs(probes[max_avg_idx] - median) > abs(probes[min_avg_idx] - median)) {
-          max_avg_idx--;
-        } else {
-          min_avg_idx++;
-        }
-      }
+      // Take the center value (or average the two middle values) as the median
+      static constexpr int PHALF = (MULTIPLE_PROBING - 1) / 2;
+      const float middle = probes[PHALF],
+                  median = ((MULTIPLE_PROBING) & 1) ? middle : (middle + probes[PHALF + 1]) * 0.5f;
+      // Remove values farthest from the median
+      for (uint8_t i = 0; i < PROBING_OUTLIERS_REMOVED; i++)
+        if (ABS(probes[max_avg_idx] - median) > ABS(probes[min_avg_idx] - median))
+          max_avg_idx--; else min_avg_idx++;
     #endif
+
     // Return the average value of all remaining probes.
     float probes_total = 0;
-    for(int i = min_avg_idx; i <= max_avg_idx; i++) {
+    for (uint8_t i = min_avg_idx; i <= max_avg_idx; i++)
       probes_total += probes[i];
-    }
-    const float measured_z = probes_total * (1.0f / (MULTIPLE_PROBING - PROBING_OUTLIERS_REMOVED));
+
+    const float measured_z = probes_total * RECIPROCAL(MULTIPLE_PROBING - (PROBING_OUTLIERS_REMOVED));
 
   #elif MULTIPLE_PROBING == 2
 
