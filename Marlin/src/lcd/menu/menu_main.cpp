@@ -35,6 +35,10 @@
 #include "../../module/stepper.h"
 #include "../../sd/cardreader.h"
 
+#if HAS_GAMES && DISABLED(LCD_INFO_MENU)
+  #include "game/game.h"
+#endif
+
 #define MACHINE_CAN_STOP (EITHER(SDSUPPORT, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL))
 #define MACHINE_CAN_PAUSE (ANY(SDSUPPORT, HOST_PROMPT_SUPPORT, PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE))
 
@@ -83,19 +87,6 @@ void menu_configuration();
   #endif
   #if SERVICE_INTERVAL_3 > 0
     void menu_service3();
-  #endif
-#endif
-
-#if HAS_GAMES
-  #include "game/game.h"
-  #if HAS_GAME_MENU
-    void menu_game();
-  #elif ENABLED(MARLIN_BRICKOUT)
-    void lcd_goto_brickout();
-  #elif ENABLED(MARLIN_INVADERS)
-    void lcd_goto_invaders();
-  #elif ENABLED(MARLIN_SNAKE)
-    void lcd_goto_snake();
   #endif
 #endif
 
@@ -249,7 +240,7 @@ void menu_main() {
     #endif
   #endif
 
-  #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
+  #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
     MENU_ITEM(submenu, "Game", (
       #if HAS_GAME_MENU
         menu_game

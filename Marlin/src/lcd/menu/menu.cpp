@@ -99,7 +99,7 @@ void MarlinUI::goto_previous_screen() {
 /////////// Common Menu Actions ////////////
 ////////////////////////////////////////////
 
-void MenuItem_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
+void MenuItem_gcode::action(PGM_P pgcode) { queue.inject_P(pgcode); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
@@ -410,15 +410,15 @@ void MarlinUI::completion_feedback(const bool good/*=true*/) {
 
 #if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
 
-  void lcd_enqueue_command(const char * const cmd) {
+  void lcd_enqueue_one_now(const char * const cmd) {
     no_reentry = true;
-    enqueue_and_echo_command_now(cmd);
+    queue.enqueue_one_now(cmd);
     no_reentry = false;
   }
 
-  void lcd_enqueue_commands_P(PGM_P const cmd) {
+  void lcd_enqueue_one_now_P(PGM_P const cmd) {
     no_reentry = true;
-    enqueue_and_echo_commands_now_P(cmd);
+    queue.enqueue_now_P(cmd);
     no_reentry = false;
   }
 

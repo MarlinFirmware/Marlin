@@ -315,7 +315,7 @@ public:
   static void process_parsed_command(const bool no_ok=false);
   static void process_next_command();
 
-  // Execute G-code as a macro, preserving parser state
+  // Execute G-code in-place, preserving current G-code parameters
   static void process_subcommands_now_P(PGM_P pgcode);
   static void process_subcommands_now(char * gcode);
 

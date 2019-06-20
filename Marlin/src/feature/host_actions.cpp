@@ -142,7 +142,7 @@ void host_action(const char * const pstr, const bool eol) {
         break;
       case PROMPT_PAUSE_RESUME:
         msg = PSTR("LCD_PAUSE_RESUME");
-        enqueue_and_echo_commands_P(PSTR("M24"));
+        queue.inject_P(PSTR("M24"));
         break;
       case PROMPT_INFO:
         msg = PSTR("GCODE_INFO");

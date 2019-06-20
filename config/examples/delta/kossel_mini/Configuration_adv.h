@@ -754,6 +754,7 @@
     #define CALIBRATION_PIN_PULLUP
   #endif
 #endif
+
 /**
  * Adaptive Step Smoothing increases the resolution of multi-axis moves, particularly at step frequencies
  * below 1kHz (for AVR) or 10kHz (for ARM), where aliasing between axes in multi-axis moves causes audible

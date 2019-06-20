@@ -28,109 +28,125 @@
 
 #include "../inc/MarlinConfig.h"
 
-/**
- * GCode line number handling. Hosts may include line numbers when sending
- * commands to Marlin, and lines will be checked for sequentiality.
- * M110 N<int> sets the current line number.
- */
-extern long gcode_LastN, Stopped_gcode_LastN;
-
-/**
- * GCode Command Queue
- * A simple ring buffer of BUFSIZE command strings.
- *
- * Commands are copied into this buffer by the command injectors
- * (immediate, serial, sd card) and they are processed sequentially by
- * the main loop. The gcode.process_next_command method parses the next
- * command and hands off execution to individual handler functions.
- */
-extern uint8_t commands_in_queue, // Count of commands in the queue
-               cmd_queue_index_r; // Ring buffer read position
-
-extern char command_queue[BUFSIZE][MAX_CMD_SIZE];
-
-/*
- * The port that the command was received on
- */
-#if NUM_SERIAL > 1
-  extern int16_t command_queue_port[BUFSIZE];
-#endif
-
-/**
- * Initialization of queue for setup()
- */
-void queue_setup();
-
-/**
- * Clear the Marlin command queue
- */
-void clear_command_queue();
-
-/**
- * Clear the serial line and request a resend of
- * the next expected line number.
- */
-void flush_and_request_resend();
-
-/**
- * Send an "ok" message to the host, indicating
- * that a command was successfully processed.
- *
- * If ADVANCED_OK is enabled also include:
- *   N<int>  Line number of the command, if any
- *   P<int>  Planner space remaining
- *   B<int>  Block queue space remaining
- */
-void ok_to_send();
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+class GCodeQueue {
+public:
   /**
-   * Insert in the front of queue, one or many commands to run from program memory.
-   * Aborts the current queue, if any.
-   * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
+   * GCode line number handling. Hosts may include line numbers when sending
+   * commands to Marlin, and lines will be checked for sequentiality.
+   * M110 N<int> sets the current line number.
    */
-  void enqueue_and_echo_commands_front_P(PGM_P const pgcode);
-#endif
+  static long last_N, stopped_N;
 
-/**
- * Enqueue one or many commands to run from program memory.
- * Aborts the current queue, if any.
- * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
- */
-void enqueue_and_echo_commands_P(PGM_P const pgcode);
+  static inline void stop() { stopped_N = last_N; }
 
-/**
- * Enqueue with Serial Echo
- * Return true on success
- */
-bool enqueue_and_echo_command(const char* cmd);
+  /**
+   * GCode Command Queue
+   * A simple ring buffer of BUFSIZE command strings.
+   *
+   * Commands are copied into this buffer by the command injectors
+   * (immediate, serial, sd card) and they are processed sequentially by
+   * the main loop. The gcode.process_next_command method parses the next
+   * command and hands off execution to individual handler functions.
+   */
+  static uint8_t length,  // Count of commands in the queue
+                 index_r; // Ring buffer read position
 
-#define HAS_LCD_QUEUE_NOW (ENABLED(MALYAN_LCD) || (HAS_LCD_MENU && ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)))
-#define HAS_QUEUE_NOW (ENABLED(SDSUPPORT) || HAS_LCD_QUEUE_NOW)
-#define HAS_QUEUE_FRONT ENABLED(ADVANCED_PAUSE_FEATURE)
+  static char buffer[BUFSIZE][MAX_CMD_SIZE];
 
-#if HAS_QUEUE_NOW
+  /*
+   * The port that the command was received on
+   */
+  #if NUM_SERIAL > 1
+    static int16_t port[BUFSIZE];
+  #endif
+
+  GCodeQueue();
+
+  /**
+   * Clear the Marlin command queue
+   */
+  static void clear();
+
+  /**
+   * Enqueue one or many commands to run from program memory.
+   * Aborts the current queue, if any.
+   * Note: process_injected_command() will process them.
+   */
+  static void inject_P(PGM_P const pgcode);
+
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  void enqueue_and_echo_command_now(const char* cmd);
-  #if HAS_LCD_QUEUE_NOW
-    /**
-     * Enqueue from program memory and return only when commands are actually enqueued
-     */
-    void enqueue_and_echo_commands_now_P(PGM_P const cmd);
+  static void enqueue_one_now(const char* cmd);
+
+  /**
+   * Enqueue from program memory and return only when commands are actually enqueued
+   */
+  static void enqueue_now_P(PGM_P const cmd);
+
+  /**
+   * Get the next command in the queue, optionally log it to SD, then dispatch it
+   */
+  static void advance();
+
+  /**
+   * Add to the circular command queue the next command from:
+   *  - The command-injection queue (injected_commands_P)
+   *  - The active serial input (usually USB)
+   *  - The SD card file being actively printed
+   */
+  static void get_available_commands();
+
+  /**
+   * Send an "ok" message to the host, indicating
+   * that a command was successfully processed.
+   *
+   * If ADVANCED_OK is enabled also include:
+   *   N<int>  Line number of the command, if any
+   *   P<int>  Planner space remaining
+   *   B<int>  Block queue space remaining
+   */
+  static void ok_to_send();
+
+  /**
+   * Clear the serial line and request a resend of
+   * the next expected line number.
+   */
+  static void flush_and_request_resend();
+
+private:
+
+  static uint8_t index_w;  // Ring buffer write position
+
+  static void get_serial_commands();
+
+  #if ENABLED(SDSUPPORT)
+    static void get_sdcard_commands();
   #endif
-#endif
 
-/**
- * Add to the circular command queue the next command from:
- *  - The command-injection queue (injected_commands_P)
- *  - The active serial input (usually USB)
- *  - The SD card file being actively printed
- */
-void get_available_commands();
+  static void _commit_command(bool say_ok
+    #if NUM_SERIAL > 1
+      , int16_t p=-1
+    #endif
+  );
 
-/**
- * Get the next command in the queue, optionally log it to SD, then dispatch it
- */
-void advance_command_queue();
+  static bool _enqueue(const char* cmd, bool say_ok=false
+    #if NUM_SERIAL > 1
+      , int16_t p=-1
+    #endif
+  );
+
+  // Process the next "immediate" command
+  static bool process_injected_command();
+
+  /**
+   * Enqueue with Serial Echo
+   * Return true on success
+   */
+  static bool enqueue_one(const char* cmd);
+
+  static void gcode_line_error(PGM_P const err, const int8_t port);
+
+};
+
+extern GCodeQueue queue;
