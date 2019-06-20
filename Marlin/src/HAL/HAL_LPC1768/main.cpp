@@ -90,7 +90,7 @@ void HAL_init() {
   delay(1000);                              // Give OS time to notice
   USB_Connect(TRUE);
 
-  #if DISABLED(USB_SD_DISABLED) && !BOTH(SHARED_SD_CARD, INIT_SDCARD_ON_BOOT)
+  #if DISABLED(USB_SD_DISABLED, INIT_SDCARD_ON_BOOT)
     MSC_SD_Init(0);                         // Enable USB SD card access
   #endif
 
