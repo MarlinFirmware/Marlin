@@ -284,7 +284,7 @@ void RTSSHOW::RTS_Init()
 			{
 				for(int yCount  = 0; yCount < GRID_MAX_POINTS_X; yCount++)
 				{
-					if((showcount++) < 16)
+					if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
 					{
 						rtscheck.RTS_SndData(z_values[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
 						rtscheck.RTS_SndData(showcount,AutolevelIcon);
