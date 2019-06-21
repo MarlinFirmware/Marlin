@@ -5312,7 +5312,7 @@ void home_all_axes() { gcode_G28(true); }
 
           z_values[xCount][yCount] = measured_z + zoffset;
           #if ENABLED(CREALITY_DWIN)
-	          if((showcount++) < 16 && waitway == 3)
+	          if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X) && waitway == 3)
 	      	  {
 			        rtscheck.RTS_SndData(z_values[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
 			        rtscheck.RTS_SndData(showcount,AutolevelIcon);
@@ -5495,7 +5495,7 @@ void home_all_axes() { gcode_G28(true); }
 
               z_values[xCount][yCount] = measured_z + zoffset;
               #if ENABLED(CREALITY_DWIN)
-                if((showcount++) < 16 && waitway == 3)
+                if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X) && waitway == 3)
                 {
                   rtscheck.RTS_SndData(z_values[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
                   rtscheck.RTS_SndData(showcount,AutolevelIcon);
