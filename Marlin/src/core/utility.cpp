@@ -72,6 +72,8 @@ void safe_delay(millis_t ms) {
         "Z_PROBE_SLED"
       #elif ENABLED(Z_PROBE_ALLEN_KEY)
         "Z_PROBE_ALLEN_KEY"
+      #elif ENABLED(SOLENOID_PROBE)
+        "SOLENOID_PROBE"
       #else
         "NONE"
       #endif
