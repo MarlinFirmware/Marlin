@@ -39,7 +39,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(p)); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PORT(p) print_port(p)
 #define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
-#define MULTI_NAME_PAD 14 // space needed to be pretty if not first name assigned to a pin
+#define MULTI_NAME_PAD 20 // spaces needed to be pretty if not first name assigned to a pin
 
 // pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
 #ifndef M43_NEVER_TOUCH
@@ -107,19 +107,21 @@ static inline void print_port(pin_t pin) {
   char buffer[8];
   char port = 'A' + char(pin >> 4); // pin div 16
   /* seems not to be required for our devices
-  gpio_dev* gp = PIN_MAP[pin].gpio_device;
-  if (gp == &gpioa) port = 'A';
-  else if (gp == &gpiob) port = 'B';
-  else if (gp == &gpioc) port = 'C';
-  else if (gp == &gpiod) port = 'D';
-  #if STM32_NR_GPIO_PORTS > 4
-    else if (gp == &gpioe) port = 'E';
-    else if (gp == &gpiof) port = 'F';
-    else if (gp == &gpiog) port = 'G';
-  #endif
+    gpio_dev* gp = PIN_MAP[pin].gpio_device;
+    if (gp == &gpioa) port = 'A';
+    else if (gp == &gpiob) port = 'B';
+    else if (gp == &gpioc) port = 'C';
+    else if (gp == &gpiod) port = 'D';
+    #if STM32_NR_GPIO_PORTS > 4
+      else if (gp == &gpioe) port = 'E';
+      else if (gp == &gpiof) port = 'F';
+      else if (gp == &gpiog) port = 'G';
+    #endif
   */
-  sprintf_P(buffer, PSTR("P%c%hd "), port, int16_t(PIN_MAP[pin].gpio_bit));
+  const int16_t gbit = PIN_MAP[pin].gpio_bit;
+  sprintf_P(buffer, PSTR("P%c%hd "), port, gbit);
+  if (gbit < 10) SERIAL_CHAR(' ');
   SERIAL_ECHO(buffer);
 }
 
-#endif //__STM32F1__
+#endif // __STM32F1__
