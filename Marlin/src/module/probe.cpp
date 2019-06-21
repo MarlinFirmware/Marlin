@@ -376,14 +376,13 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     dock_sled(!deploy);
 
+  #elif ENABLED(BLTOUCH)
+
+    deploy ? bltouch.deploy() : bltouch.stow();
+
   #elif HAS_Z_SERVO_PROBE
 
-    // A BLTOUCH is a "special" kind of Z_SERVO_PROBE
-    #if ENABLED(BLTOUCH)
-      if (deploy) bltouch.deploy(); else bltouch.stow();
-    #else
-      MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
-    #endif
+    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
 
   #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
 
@@ -446,14 +445,12 @@ bool set_probe_deployed(const bool deploy) {
               oldYpos = current_position[Y_AXIS];
 
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
+
     #if USES_Z_MIN_PROBE_ENDSTOP
       #define PROBE_STOWED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
     #else
       #define PROBE_STOWED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
     #endif
-  #endif
-
-  #ifdef PROBE_STOWED
 
     // Only deploy/stow if needed
     if (PROBE_STOWED() == deploy) {
