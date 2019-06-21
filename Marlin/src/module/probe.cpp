@@ -376,15 +376,13 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     dock_sled(!deploy);
 
+  #elif ENABLED(BLTOUCH)
+
+    deploy ? bltouch.deploy() : bltouch.stow();
+
   #elif HAS_Z_SERVO_PROBE
 
-    #if DISABLED(BLTOUCH)
-      MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
-    #elif ENABLED(BLTOUCH_HS_MODE)
-      // In HIGH SPEED MODE, use the normal retractable probe logic in this code
-      // i.e. no intermediate STOWs and DEPLOYs in between individual probe actions
-      if (deploy) bltouch.deploy(); else bltouch.stow();
-    #endif
+    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
 
   #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
 
@@ -447,14 +445,12 @@ bool set_probe_deployed(const bool deploy) {
               oldYpos = current_position[Y_AXIS];
 
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
+
     #if USES_Z_MIN_PROBE_ENDSTOP
       #define PROBE_STOWED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
     #else
       #define PROBE_STOWED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
     #endif
-  #endif
-
-  #ifdef PROBE_STOWED
 
     // Only deploy/stow if needed
     if (PROBE_STOWED() == deploy) {
@@ -746,11 +742,7 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
-    #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
-      bltouch.stow();
-    #else
-      STOW_PROBE();
-    #endif
+    STOW_PROBE();
     LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
     SERIAL_ERROR_MSG(MSG_ERR_PROBING_FAILED);
   }
