@@ -604,7 +604,7 @@ static float run_z_probe() {
   const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
 
   // Double-probing does a fast probe followed by a slow probe
-  #if MULTIPLE_PROBING == 2
+  #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
     if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) {
@@ -634,19 +634,17 @@ static float run_z_probe() {
     }
   #endif
 
-  #ifdef PROBING_OUTLIERS_REMOVED
-    float probes[MULTIPLE_PROBING];
-  #else
-    #define PROBING_OUTLIERS_REMOVED 0
+  #ifdef EXTRA_PROBING
+    float probes[TOTAL_PROBING];
   #endif
 
-  #if MULTIPLE_PROBING > 2
+  #if TOTAL_PROBING > 2
     float probes_total = 0;
     for (
-      #if PROBING_OUTLIERS_REMOVED
-        uint8_t p = 0; p < MULTIPLE_PROBING; p++
+      #if EXTRA_PROBING
+        uint8_t p = 0; p < TOTAL_PROBING; p++
       #else
-        uint8_t p = MULTIPLE_PROBING; p--;
+        uint8_t p = TOTAL_PROBING; p--;
       #endif
     )
   #endif
@@ -666,7 +664,7 @@ static float run_z_probe() {
 
       const float z = current_position[Z_AXIS];
 
-      #if PROBING_OUTLIERS_REMOVED
+      #if EXTRA_PROBING
         // Insert Z measurement into probes[]. Keep it sorted ascending.
         for (uint8_t i = 0; i <= p; i++) {                            // Iterate the saved Zs to insert the new Z
           if (i == p || probes[i] > z) {       // Last index or new Z is smaller than this Z
@@ -675,31 +673,31 @@ static float run_z_probe() {
             break;                                                    // Only one to insert. Done!
           }
         }
-      #elif MULTIPLE_PROBING > 2
+      #elif TOTAL_PROBING > 2
         probes_total += z;
       #endif
 
-      #if MULTIPLE_PROBING > 2
+      #if TOTAL_PROBING > 2
         // Small Z raise after all but the last probe
         if (p
-          #if PROBING_OUTLIERS_REMOVED
-            < MULTIPLE_PROBING - 1
+          #if EXTRA_PROBING
+            < TOTAL_PROBING - 1
           #endif
         ) do_blocking_move_to_z(z + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
       #endif
     }
 
-  #if MULTIPLE_PROBING > 2
+  #if TOTAL_PROBING > 2
 
-    #if PROBING_OUTLIERS_REMOVED
+    #if EXTRA_PROBING
       // Take the center value (or average the two middle values) as the median
-      static constexpr int PHALF = (MULTIPLE_PROBING - 1) / 2;
+      static constexpr int PHALF = (TOTAL_PROBING - 1) / 2;
       const float middle = probes[PHALF],
-                  median = ((MULTIPLE_PROBING) & 1) ? middle : (middle + probes[PHALF + 1]) * 0.5f;
+                  median = ((TOTAL_PROBING) & 1) ? middle : (middle + probes[PHALF + 1]) * 0.5f;
 
       // Remove values farthest from the median
-      uint8_t min_avg_idx = 0, max_avg_idx = MULTIPLE_PROBING - 1;
-      for (uint8_t i = PROBING_OUTLIERS_REMOVED; i--;)
+      uint8_t min_avg_idx = 0, max_avg_idx = TOTAL_PROBING - 1;
+      for (uint8_t i = EXTRA_PROBING; i--;)
         if (ABS(probes[max_avg_idx] - median) > ABS(probes[min_avg_idx] - median))
           max_avg_idx--; else min_avg_idx++;
 
@@ -709,9 +707,9 @@ static float run_z_probe() {
 
     #endif
 
-    const float measured_z = probes_total * RECIPROCAL(MULTIPLE_PROBING - (PROBING_OUTLIERS_REMOVED));
+    const float measured_z = probes_total * (1.0f / (MULTIPLE_PROBING));
 
-  #elif MULTIPLE_PROBING == 2
+  #elif TOTAL_PROBING == 2
 
     const float z2 = current_position[Z_AXIS];
 
