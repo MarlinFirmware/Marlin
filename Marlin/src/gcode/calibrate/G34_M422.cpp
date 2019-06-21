@@ -125,7 +125,7 @@ void GcodeSuite::G34() {
       #define Z_BASIC_CLEARANCE Z_CLEARANCE_BETWEEN_PROBES
     #endif
 
-    float z_probe = Z_BASIC_CLEARANCE + G34_MAX_INCLINE_PERCENT * (
+    float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * (
       #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
          SQRT(MAX(HYPOT2(z_auto_align_xpos[0] - z_auto_align_ypos[0], z_auto_align_xpos[1] - z_auto_align_ypos[1]),
                   HYPOT2(z_auto_align_xpos[1] - z_auto_align_ypos[1], z_auto_align_xpos[2] - z_auto_align_ypos[2]),
@@ -157,7 +157,7 @@ void GcodeSuite::G34() {
       float z_measured_min = 100000.0f;
       // Probe all positions (one per Z-Stepper)
       for (uint8_t izstepper = 0; izstepper < Z_STEPPER_COUNT; ++izstepper) {
-        // iteration odd/even --> downward / upward stepper sequence 
+        // iteration odd/even --> downward / upward stepper sequence
         const uint8_t zstepper = (iteration & 1) ? Z_STEPPER_COUNT - 1 - izstepper : izstepper;
 
         // Safe clearance even on an incline
