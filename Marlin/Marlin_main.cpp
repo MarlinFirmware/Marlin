@@ -8244,7 +8244,7 @@ inline void gcode_M104() {
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
+      if (dual_x_carriage_mode >= DXC_DUPLICATION_MODE && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 
@@ -8399,7 +8399,7 @@ inline void gcode_M109() {
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
+      if (dual_x_carriage_mode >= DXC_DUPLICATION_MODE && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 
