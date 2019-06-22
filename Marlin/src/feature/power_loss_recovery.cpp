@@ -278,7 +278,7 @@ void PrintJobRecovery::resume() {
   // Pretend that all axes are homed
   axis_homed = axis_known_position = xyz_bits;
 
-  char cmd[50], str_1[16], str_2[16];
+  char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16];
 
   // Select the previously active tool (with no_move)
   #if EXTRUDERS > 1

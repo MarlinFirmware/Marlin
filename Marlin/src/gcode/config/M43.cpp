@@ -114,7 +114,7 @@ inline void servo_probe_test() {
                       ", stow angle:   ", servo_angles[probe_index][1]
     );
 
-    bool deploy_state, stow_state;
+    bool deploy_state = false, stow_state;
 
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
 
