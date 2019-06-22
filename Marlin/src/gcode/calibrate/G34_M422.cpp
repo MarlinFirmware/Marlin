@@ -285,8 +285,8 @@ void GcodeSuite::G34() {
       bltouch._stow();
     #endif
 
-    // Home after the alignment procedure
-    home_all_axes();
+    // Home Z after the alignment procedure
+    process_subcommands_now_P(PSTR("G28 Z"));
 
   } while(0);
 
