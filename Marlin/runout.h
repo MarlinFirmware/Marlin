@@ -62,7 +62,7 @@ class FilamentRunoutSensor {
       #else
         // Read the sensor for the active extruder
         bool is_out;
-        if(dual_x_carriage_mode >= DXC_DUPLICATION_MODE)
+        if(extruder_duplication_enabled)
         {
           is_out = (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING) || (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING);
         } else {
