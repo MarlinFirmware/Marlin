@@ -671,6 +671,8 @@ static float run_z_probe() {
         }
       #elif TOTAL_PROBING > 2
         probes_total += z;
+      #else
+        UNUSED(z);
       #endif
 
       #if TOTAL_PROBING > 2
