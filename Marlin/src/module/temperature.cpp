@@ -806,8 +806,6 @@ float Temperature::get_pid_output(const int8_t e) {
                    temp_dState[HOTENDS] = { 0 };
       static bool pid_reset[HOTENDS] = { false };
       float pid_error = temp_hotend[HOTEND_INDEX].target - temp_hotend[HOTEND_INDEX].current;
-      work_pid[HOTEND_INDEX].Kd = PID_K2 * PID_PARAM(Kd, HOTEND_INDEX) * (temp_hotend[HOTEND_INDEX].current - temp_dState[HOTEND_INDEX]) + float(PID_K1) * work_pid[HOTEND_INDEX].Kd;
-      temp_dState[HOTEND_INDEX] = temp_hotend[HOTEND_INDEX].current;
 
       if (temp_hotend[HOTEND_INDEX].target == 0
         || pid_error < -(PID_FUNCTIONAL_RANGE)
@@ -825,13 +823,21 @@ float Temperature::get_pid_output(const int8_t e) {
       else {
         if (pid_reset[HOTEND_INDEX]) {
           temp_iState[HOTEND_INDEX] = 0.0;
+          work_pid[HOTEND_INDEX].Kd = 0.0;
           pid_reset[HOTEND_INDEX] = false;
         }
+
+        work_pid[HOTEND_INDEX].Kd =  work_pid[HOTEND_INDEX].Kd + PID_K2 * ( PID_PARAM(Kd, HOTEND_INDEX) * (temp_dState[HOTEND_INDEX] - temp_hotend[HOTEND_INDEX].current) - work_pid[HOTEND_INDEX].Kd);
         temp_iState[HOTEND_INDEX] += pid_error;
+        float max_power_over_i_gain = (float)PID_MAX / PID_PARAM(Ki, HOTEND_INDEX);
+        if (temp_iState[HOTEND_INDEX] > max_power_over_i_gain)
+          temp_iState[HOTEND_INDEX] = max_power_over_i_gain;
+        if (temp_iState[HOTEND_INDEX] < 0)
+          temp_iState[HOTEND_INDEX] = 0;
         work_pid[HOTEND_INDEX].Kp = PID_PARAM(Kp, HOTEND_INDEX) * pid_error;
         work_pid[HOTEND_INDEX].Ki = PID_PARAM(Ki, HOTEND_INDEX) * temp_iState[HOTEND_INDEX];
 
-        pid_output = work_pid[HOTEND_INDEX].Kp + work_pid[HOTEND_INDEX].Ki - work_pid[HOTEND_INDEX].Kd;
+        pid_output = work_pid[HOTEND_INDEX].Kp + work_pid[HOTEND_INDEX].Ki + work_pid[HOTEND_INDEX].Kd;
 
         #if ENABLED(PID_EXTRUSION_SCALING)
           work_pid[HOTEND_INDEX].Kc = 0;
@@ -851,14 +857,13 @@ float Temperature::get_pid_output(const int8_t e) {
         #endif // PID_EXTRUSION_SCALING
 
         if (pid_output > PID_MAX) {
-          if (pid_error > 0) temp_iState[HOTEND_INDEX] -= pid_error; // conditional un-integration
           pid_output = PID_MAX;
         }
         else if (pid_output < 0) {
-          if (pid_error < 0) temp_iState[HOTEND_INDEX] -= pid_error; // conditional un-integration
           pid_output = 0;
         }
       }
+      temp_dState[HOTEND_INDEX] = temp_hotend[HOTEND_INDEX].current;
 
     #else // PID_OPENLOOP
 
@@ -901,7 +906,7 @@ float Temperature::get_pid_output(const int8_t e) {
 
 #if ENABLED(PIDTEMPBED)
 
-  float Temperature::get_pid_output_bed() {
+float Temperature::get_pid_output_bed() {
 
     #if DISABLED(PID_OPENLOOP)
 
@@ -910,21 +915,25 @@ float Temperature::get_pid_output(const int8_t e) {
 
       float pid_error = temp_bed.target - temp_bed.current;
       temp_iState += pid_error;
+      float max_power_over_i_gain = (float)MAX_BED_POWER / temp_bed.pid.Ki;
+      if (temp_iState > max_power_over_i_gain)
+        temp_iState = max_power_over_i_gain;
+      if (temp_iState < 0)
+        temp_iState = 0;
       work_pid.Kp = temp_bed.pid.Kp * pid_error;
       work_pid.Ki = temp_bed.pid.Ki * temp_iState;
-      work_pid.Kd = PID_K2 * temp_bed.pid.Kd * (temp_bed.current - temp_dState) + PID_K1 * work_pid.Kd;
+      work_pid.Kd = work_pid.Kd + PID_K2 * (temp_bed.pid.Kd * (temp_dState - temp_bed.current) - work_pid.Kd);
 
       temp_dState = temp_bed.current;
 
-      float pid_output = work_pid.Kp + work_pid.Ki - work_pid.Kd;
+      float pid_output = work_pid.Kp + work_pid.Ki + work_pid.Kd;
       if (pid_output > MAX_BED_POWER) {
-        if (pid_error > 0) temp_iState -= pid_error; // conditional un-integration
         pid_output = MAX_BED_POWER;
       }
       else if (pid_output < 0) {
-        if (pid_error < 0) temp_iState -= pid_error; // conditional un-integration
         pid_output = 0;
       }
+      
 
     #else // PID_OPENLOOP
 
@@ -946,6 +955,7 @@ float Temperature::get_pid_output(const int8_t e) {
 
     return pid_output;
   }
+
 
 #endif // PIDTEMPBED
 
