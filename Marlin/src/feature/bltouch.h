@@ -39,7 +39,7 @@ typedef unsigned char BLTCommand;
  * The following commands require different minimum delays.
  *
  * 500ms required for a reliable Reset.
- * 
+ *
  * 750ms required for Deploy/Stow, otherwise the alarm state
  *       will not be seen until the following move command.
  */
