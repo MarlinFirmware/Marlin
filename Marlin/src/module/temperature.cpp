@@ -942,7 +942,6 @@ float Temperature::get_pid_output(const int8_t e) {
     return pid_output;
   }
 
-
 #endif // PIDTEMPBED
 
 /**
