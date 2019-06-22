@@ -287,7 +287,7 @@ void GcodeSuite::G34() {
 
     // Home Z after the alignment procedure
     process_subcommands_now_P(PSTR("G28 Z"));
-    
+
   } while(0);
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G34");
