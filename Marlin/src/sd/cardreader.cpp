@@ -368,7 +368,7 @@ void CardReader::openAndPrintFile(const char *name) {
   sprintf_P(cmd, PSTR("M23 %s"), name);
   for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
   queue.enqueue_one_now(cmd);
-  queue.inject_P(PSTR("M24"));
+  queue.enqueue_now_P(PSTR("M24"));
 }
 
 void CardReader::startFileprint() {
