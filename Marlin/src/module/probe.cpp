@@ -663,14 +663,16 @@ static float run_z_probe() {
       #if EXTRA_PROBING
         // Insert Z measurement into probes[]. Keep it sorted ascending.
         for (uint8_t i = 0; i <= p; i++) {                            // Iterate the saved Zs to insert the new Z
-          if (i == p || probes[i] > z) {       // Last index or new Z is smaller than this Z
+          if (i == p || probes[i] > z) {                              // Last index or new Z is smaller than this Z
             for (int8_t m = p; --m >= i;) probes[m + 1] = probes[m];  // Shift items down after the insertion point
-            probes[i] = z;                     // Insert the new Z measurement
+            probes[i] = z;                                            // Insert the new Z measurement
             break;                                                    // Only one to insert. Done!
           }
         }
       #elif TOTAL_PROBING > 2
         probes_total += z;
+      #else
+        UNUSED(z);
       #endif
 
       #if TOTAL_PROBING > 2
