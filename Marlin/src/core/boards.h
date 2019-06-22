@@ -51,47 +51,48 @@
 // RAMPS Derivatives - ATmega1280, ATmega2560
 //
 
-#define BOARD_3DRAG             77    // 3Drag Controller
-#define BOARD_K8200             78    // Velleman K8200 Controller (derived from 3Drag Controller)
-#define BOARD_K8400             79    // Velleman K8400 Controller (derived from 3Drag Controller)
-#define BOARD_BAM_DICE          401   // 2PrintBeta BAM&DICE with STK drivers
-#define BOARD_BAM_DICE_DUE      402   // 2PrintBeta BAM&DICE Due with STK drivers
-#define BOARD_MKS_BASE          40    // MKS BASE v1.0
-#define BOARD_MKS_BASE_14       404   // MKS v1.4 A4982 stepper drivers
-#define BOARD_MKS_BASE_15       405   // MKS v1.5 with Allegro A4982 stepper drivers
-#define BOARD_MKS_BASE_HEROIC   41    // MKS BASE 1.0 with Heroic HR4982 stepper drivers
-#define BOARD_MKS_GEN_13        47    // MKS GEN v1.3 or 1.4
-#define BOARD_MKS_GEN_L         53    // MKS GEN L
-#define BOARD_KFB_2             136   // Bigtreetech or BIQU KFB2.0
-#define BOARD_ZRIB_V20          504   // zrib V2.0 control board (Chinese knock off RAMPS replica)
-#define BOARD_FELIX2            37    // Felix 2.0+ Electronics Board (RAMPS like)
-#define BOARD_RIGIDBOARD        42    // Invent-A-Part RigidBoard
-#define BOARD_RIGIDBOARD_V2     52    // Invent-A-Part RigidBoard V2
-#define BOARD_SAINSMART_2IN1    49    // Sainsmart 2-in-1 board
-#define BOARD_ULTIMAKER         7     // Ultimaker
-#define BOARD_ULTIMAKER_OLD     71    // Ultimaker (Older electronics. Pre 1.5.4. This is rare)
-#define BOARD_AZTEEG_X3         67    // Azteeg X3
-#define BOARD_AZTEEG_X3_PRO     68    // Azteeg X3 Pro
-#define BOARD_ULTIMAIN_2        72    // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
-#define BOARD_RUMBA             80    // Rumba
-#define BOARD_RUMBA_RAISE3D     333   // Raise3D N series Rumba derivative
-#define BOARD_RL200             801   // Rapide Lite 200 (v1, low-cost RUMBA clone with drv)
-#define BOARD_FORMBOT_TREX2PLUS 95    // Formbot T-Rex 2 Plus
-#define BOARD_FORMBOT_TREX3     96    // Formbot T-Rex 3
-#define BOARD_FORMBOT_RAPTOR    97    // Formbot Raptor
-#define BOARD_FORMBOT_RAPTOR2   98    // Formbot Raptor 2
-#define BOARD_BQ_ZUM_MEGA_3D    503   // bq ZUM Mega 3D
-#define BOARD_MAKEBOARD_MINI    431   // MakeBoard Mini v2.1.2 is a control board sold by MicroMake
-#define BOARD_TRIGORILLA_13     343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
-#define BOARD_TRIGORILLA_14     443   // TriGorilla Anycubic version 1.4 based on RAMPS EFB
-#define BOARD_RAMPS_ENDER_4     243   // Creality: Ender-4, CR-8
-#define BOARD_RAMPS_CREALITY    244   // Creality: CR10S, CR20, CR-X
-#define BOARD_RAMPS_DAGOMA      245   // Dagoma F5
-#define BOARD_FYSETC_F6_13      541   // Fysetc F6
-#define BOARD_DUPLICATOR_I3_PLUS 31   // Wanhao Duplicator i3 Plus
-#define BOARD_VORON             441   // VORON Design
-#define BOARD_TRONXY_V3_1_0     442   // Tronxy TRONXY-V3-1.0
-#define BOARD_Z_BOLT_X_SERIES   550   // Z-Bolt X Series
+#define BOARD_3DRAG                 77    // 3Drag Controller
+#define BOARD_K8200                 78    // Velleman K8200 Controller (derived from 3Drag Controller)
+#define BOARD_K8400                 79    // Velleman K8400 Controller (derived from 3Drag Controller)
+#define BOARD_BAM_DICE              401   // 2PrintBeta BAM&DICE with STK drivers
+#define BOARD_BAM_DICE_DUE          402   // 2PrintBeta BAM&DICE Due with STK drivers
+#define BOARD_MKS_BASE              40    // MKS BASE v1.0
+#define BOARD_MKS_BASE_14           404   // MKS v1.4 A4982 stepper drivers
+#define BOARD_MKS_BASE_15           405   // MKS v1.5 with Allegro A4982 stepper drivers
+#define BOARD_MKS_BASE_HEROIC       41    // MKS BASE 1.0 with Heroic HR4982 stepper drivers
+#define BOARD_MKS_GEN_13            47    // MKS GEN v1.3 or 1.4
+#define BOARD_MKS_GEN_L             53    // MKS GEN L
+#define BOARD_KFB_2                 136   // Bigtreetech or BIQU KFB2.0
+#define BOARD_ZRIB_V20              504   // zrib V2.0 control board (Chinese knock off RAMPS replica)
+#define BOARD_FELIX2                37    // Felix 2.0+ Electronics Board (RAMPS like)
+#define BOARD_RIGIDBOARD            42    // Invent-A-Part RigidBoard
+#define BOARD_RIGIDBOARD_V2         52    // Invent-A-Part RigidBoard V2
+#define BOARD_SAINSMART_2IN1        49    // Sainsmart 2-in-1 board
+#define BOARD_ULTIMAKER             7     // Ultimaker
+#define BOARD_ULTIMAKER_OLD         71    // Ultimaker (Older electronics. Pre 1.5.4. This is rare)
+#define BOARD_AZTEEG_X3             67    // Azteeg X3
+#define BOARD_AZTEEG_X3_PRO         68    // Azteeg X3 Pro
+#define BOARD_ULTIMAIN_2            72    // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
+#define BOARD_RUMBA                 80    // Rumba
+#define BOARD_RUMBA_RAISE3D         333   // Raise3D N series Rumba derivative
+#define BOARD_RL200                 801   // Rapide Lite 200 (v1, low-cost RUMBA clone with drv)
+#define BOARD_FORMBOT_TREX2PLUS     95    // Formbot T-Rex 2 Plus
+#define BOARD_FORMBOT_TREX3         96    // Formbot T-Rex 3
+#define BOARD_FORMBOT_RAPTOR        97    // Formbot Raptor
+#define BOARD_FORMBOT_RAPTOR2       98    // Formbot Raptor 2
+#define BOARD_BQ_ZUM_MEGA_3D        503   // bq ZUM Mega 3D
+#define BOARD_MAKEBOARD_MINI        431   // MakeBoard Mini v2.1.2 is a control board sold by MicroMake
+#define BOARD_TRIGORILLA_13         343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
+#define BOARD_TRIGORILLA_14         443   // TriGorilla Anycubic version 1.4 based on RAMPS EFB
+#define BOARD_TRIGORILLA_14_REV_1_1 543   // TriGorilla Anycubic version 1.4 based on RAMPS EFB, New servo pin layout
+#define BOARD_RAMPS_ENDER_4         243   // Creality: Ender-4, CR-8
+#define BOARD_RAMPS_CREALITY        244   // Creality: CR10S, CR20, CR-X
+#define BOARD_RAMPS_DAGOMA          245   // Dagoma F5
+#define BOARD_FYSETC_F6_13          541   // Fysetc F6
+#define BOARD_DUPLICATOR_I3_PLUS    31    // Wanhao Duplicator i3 Plus
+#define BOARD_VORON                 441   // VORON Design
+#define BOARD_TRONXY_V3_1_0         442   // Tronxy TRONXY-V3-1.0
+#define BOARD_Z_BOLT_X_SERIES       550   // Z-Bolt X Series
 
 //
 // Other ATmega1280, ATmega2560
