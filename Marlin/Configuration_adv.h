@@ -1520,24 +1520,24 @@
   #endif
 
   #define USER_DESC_1 "1. Run UBL"
-  #define USER_DESC_3 "2. Set Z Offset"
+  #define USER_DESC_2 "2. Set Z Offset"
 
   #if ENABLED(ABL_Bilinear)
     #define USER_GCODE_1 "M502 \n M500 \n M501 \n M190 S60 \n T0 \n G28 \n G29 \n M500 \n G28 \n M420 S1 \n " COMMFANNSPEED " M109 S225 \n G1 X100 Y 100 \n G1 Z0 \n M77 \n M400 \n M117 Set Z Offset"
-    #define USER_GCODE_3 "M190 S60 \n " COMMFANNSPEED " M104 235 \n G28 \n M420 S1 \n G1 X100 Y 100 \n G1 Z0"
+    #define USER_GCODE_2 "M190 S60 \n " COMMFANNSPEED " M104 235 \n G28 \n M420 S1 \n G1 X100 Y 100 \n G1 Z0"
   #else
     #define USER_GCODE_1 "M502 \n M500 \n M501 \n M190 S60 \n T0 \n G28 \n G29 P1 \n G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n " COMMFANNSPEED " M109 S225 \n G1 X150 Y 150 \n G1 Z0 \n M77 \n M117 Set Z Offset"
-    #define USER_GCODE_3 "M190 S60 \n " COMMFANNSPEED " M104 235 \n G28 \n G29 L1 \n G1 X100 Y 100 \n G1 Z0"
+    #define USER_GCODE_2 "M190 S60 \n " COMMFANNSPEED " M104 235 \n G28 \n G29 L1 \n G1 X100 Y 100 \n G1 Z0"
   #endif
     
-  #define USER_DESC_4 "Store Settings"
-  #define USER_GCODE_4 "M500"
+  #define USER_DESC_3 "Store Settings"
+  #define USER_GCODE_3 "M500"
   
-  #define USER_DESC_2 "PID Tune Bed"
-  #define USER_GCODE_2 "M303E-1S75U \n M500 \n M117 PID Bed Done"
+  #define USER_DESC_5 "PID Tune Bed"
+  #define USER_GCODE_5 "M303E-1S75U \n M500 \n M117 PID Bed Done"
 
-  #define USER_DESC_5 "Run Mesh Validation"
-  #define USER_GCODE_5 "G26"
+  #define USER_DESC_4 "PID Tune Tool 1"
+  #define USER_GCODE_4 "M106 S128 \n M303 C8 S225 E0 U \n M500 \n M117 PID Tune L Done"
 #endif
 
 /**
