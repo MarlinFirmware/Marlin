@@ -36,12 +36,12 @@ typedef unsigned char BLTCommand;
 #define BLTOUCH_RESET          160
 
 /**
- * The following commands require different minumum delays.
+ * The following commands require different minimum delays.
  *
- * 500ms needed for a reliable Reset
+ * 500ms required for a reliable Reset.
  * 
- * 750ms needed for Deploy/Stow, otherwise you will
- * not catch an alarm state until the following move command.
+ * 750ms required for Deploy/Stow, otherwise the alarm state
+ *       will not be seen until the following move command.
  */
 
 #ifndef BLTOUCH_SET5V_DELAY
@@ -51,7 +51,7 @@ typedef unsigned char BLTCommand;
   #define BLTOUCH_SETOD_DELAY   150
 #endif
 #ifndef BLTOUCH_MODE_STORE_DELAY
-  #define BLTOUCH_MODE_STORE_DELAY   150
+  #define BLTOUCH_MODE_STORE_DELAY 150
 #endif
 #ifndef BLTOUCH_DEPLOY_DELAY
   #define BLTOUCH_DEPLOY_DELAY   750
