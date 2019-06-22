@@ -1144,8 +1144,8 @@ SERIAL_ECHO(Checkkey);
 			AutoLevelStatus?RTS_SndData(2, AutoLevelIcon):RTS_SndData(3, AutoLevelIcon);
 			RTS_SndData(10, FilenameIcon);	//Motor Icon
 			waitway = 2;		//only for prohibiting to receive massage
-
-			enqueue_and_echo_commands_P((PSTR("G28")));
+			if(!all_axes_known())
+				enqueue_and_echo_commands_P((PSTR("G28")));
 			waitway = 2;
 			 set_bed_leveling_enabled(false);
 			enqueue_and_echo_commands_P((PSTR("G1 F150 Z0.0")));
@@ -1307,7 +1307,8 @@ SERIAL_ECHO(Checkkey);
 			else if(recdat.data[0] == 4) 	// Assitant Level
 			{
 				waitway = 4;		//only for prohibiting to receive massage
-				enqueue_and_echo_commands_P((PSTR("G28 X0 Y0 Z0")));
+				if(!all_axes_known())
+					enqueue_and_echo_commands_P((PSTR("G28 X0 Y0 Z0")));
 				enqueue_and_echo_commands_P((PSTR("G90")));
 				waitway = 2;
 				set_bed_leveling_enabled(false);

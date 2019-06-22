@@ -94,7 +94,7 @@
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-//#define ABL_BLTOUCH
+#define ABL_BLTOUCH
 
 /*
    Choose bed leveling type here
@@ -1584,19 +1584,15 @@
 
 #endif
 #if ENABLED(MeshFast)
-#define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 3
 #elif (ENABLED(MeshStd) )
-  #if ENABLED(CREALITY_DWIN)
-    #define GRID_MAX_POINTS_X 4
-  #else
-    #define GRID_MAX_POINTS_X 5
-  #endif
+  #define GRID_MAX_POINTS_X 5
 #elif ENABLED( MeshFine)
-#define GRID_MAX_POINTS_X 8
+  #define GRID_MAX_POINTS_X 8
 #elif ENABLED(MeshExtreme)
-#define GRID_MAX_POINTS_X 15
+  #define GRID_MAX_POINTS_X 15
 #else
-GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 3
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
