@@ -47,10 +47,6 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(BLTOUCH)
-  #include "../feature/bltouch.h"
-#endif
-
 #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
   #include "../lcd/ultralcd.h"
 #endif
@@ -1421,10 +1417,6 @@ void homeaxis(const AxisEnum axis) {
   // Fast move towards endstop until triggered
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 1 Fast:");
 
-  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    if (axis == Z_AXIS && bltouch.deploy()) return; // The initial DEPLOY
-  #endif
-
   do_homing_move(axis, 1.5f * max_length(
     #if ENABLED(DELTA)
       Z_AXIS
@@ -1435,7 +1427,7 @@ void homeaxis(const AxisEnum axis) {
   );
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
-    if (axis == Z_AXIS) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
+    if (axis == Z_AXIS) STOW_PROBE(); // Intermediate STOW (in LOW SPEED MODE)
   #endif
 
   // When homing Z with probe respect probe clearance
@@ -1460,14 +1452,10 @@ void homeaxis(const AxisEnum axis) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");
 
     #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
-      if (axis == Z_AXIS && bltouch.deploy()) return; // Intermediate DEPLOY (in LOW SPEED MODE)
+      if (axis == Z_AXIS && DEPLOY_PROBE()) return; // Intermediate DEPLOY (in LOW SPEED MODE)
     #endif
 
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
-
-    #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-      if (axis == Z_AXIS) bltouch.stow(); // The final STOW
-    #endif
   }
 
   #if HAS_EXTRA_ENDSTOPS
