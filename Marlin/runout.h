@@ -62,18 +62,23 @@ class FilamentRunoutSensor {
       #else
         // Read the sensor for the active extruder
         bool is_out;
-        switch (active_extruder) {
-          case 0: is_out = READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING; break;
-          case 1: is_out = READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING; break;
-          #if NUM_RUNOUT_SENSORS > 2
-            case 2: is_out = READ(FIL_RUNOUT3_PIN) == FIL_RUNOUT_INVERTING; break;
-            #if NUM_RUNOUT_SENSORS > 3
-              case 3: is_out = READ(FIL_RUNOUT4_PIN) == FIL_RUNOUT_INVERTING; break;
-              #if NUM_RUNOUT_SENSORS > 4
-                case 4: is_out = READ(FIL_RUNOUT5_PIN) == FIL_RUNOUT_INVERTING; break;
+        if(dual_x_carriage_mode >= DXC_DUPLICATION_MODE)
+        {
+          is_out = (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING) || (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING);
+        } else {
+          switch (active_extruder) {
+            case 0: is_out = READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING; break;
+            case 1: is_out = READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING; break;
+            #if NUM_RUNOUT_SENSORS > 2
+              case 2: is_out = READ(FIL_RUNOUT3_PIN) == FIL_RUNOUT_INVERTING; break;
+              #if NUM_RUNOUT_SENSORS > 3
+                case 3: is_out = READ(FIL_RUNOUT4_PIN) == FIL_RUNOUT_INVERTING; break;
+                #if NUM_RUNOUT_SENSORS > 4
+                  case 4: is_out = READ(FIL_RUNOUT5_PIN) == FIL_RUNOUT_INVERTING; break;
+                #endif
               #endif
             #endif
-          #endif
+          }
         }
       #endif
       return (is_out ? ++runout_count : (runout_count = 0)) > FIL_RUNOUT_THRESHOLD;
