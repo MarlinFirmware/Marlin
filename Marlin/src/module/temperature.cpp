@@ -458,9 +458,15 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
               if (cycles > 2) {
                 float Ku = (4.0f * d) / (float(M_PI) * (max - min) * 0.5f),
                       Tu = ((float)(t_low + t_high) * 0.001f);
-                tune_pid.Kp = 0.6f * Ku;
-                tune_pid.Ki = 2 * tune_pid.Kp / Tu;
-                tune_pid.Kd = tune_pid.Kp * Tu * 0.125f;
+                if (heater == -1){
+                  tune_pid.Kp = 0.2*Ku;
+                  tune_pid.Ki = 2*tune_pid.Kp/Tu;
+                  tune_pid.Kd = tune_pid.Kp*Tu/3;
+                } else {
+                  tune_pid.Kp = 0.6f * Ku;
+                  tune_pid.Ki = 2 * tune_pid.Kp / Tu;
+                  tune_pid.Kd = tune_pid.Kp * Tu * 0.125f;
+                }
                 SERIAL_ECHOPAIR(MSG_KU, Ku, MSG_TU, Tu);
                 SERIAL_ECHOLNPGM("\n" MSG_CLASSIC_PID);
                 SERIAL_ECHOLNPAIR(MSG_KP, tune_pid.Kp, MSG_KI, tune_pid.Ki, MSG_KD, tune_pid.Kd);
