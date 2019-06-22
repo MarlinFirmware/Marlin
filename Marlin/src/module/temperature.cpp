@@ -901,7 +901,7 @@ float Temperature::get_pid_output(const int8_t e) {
 
 #if ENABLED(PIDTEMPBED)
 
-float Temperature::get_pid_output_bed() {
+  float Temperature::get_pid_output_bed() {
 
     #if DISABLED(PID_OPENLOOP)
 
