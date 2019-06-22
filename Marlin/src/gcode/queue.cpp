@@ -225,9 +225,9 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  */
 void GCodeQueue::ok_to_send() {
   #if NUM_SERIAL > 1
-    const int16_t pt = port[index_r];
-    if (pt < 0) return;
-    PORT_REDIRECT(pt);
+    const int16_t pn = port[index_r];
+    if (pn < 0) return;
+    PORT_REDIRECT(pn);
   #endif
   if (!send_ok[index_r]) return;
   SERIAL_ECHOPGM(MSG_OK);
