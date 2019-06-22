@@ -350,11 +350,13 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
     PID_t tune_pid = { 0, 0, 0 };
     float max = 0, min = 10000;
 
+    const bool isbed = (heater < 0);
+    
     #if HAS_PID_FOR_BOTH
-      #define GHV(B,H) (heater < 0 ? (B) : (H))
-      #define SHV(B,H) do{ if (heater < 0) temp_bed.soft_pwm_amount = B; else temp_hotend[heater].soft_pwm_amount = H; }while(0)
-      #define ONHEATINGSTART() (heater < 0 ? printerEventLEDs.onBedHeatingStart() : printerEventLEDs.onHotendHeatingStart())
-      #define ONHEATING(S,C,T) do{ if (heater < 0) printerEventLEDs.onBedHeating(S,C,T); else printerEventLEDs.onHotendHeating(S,C,T); }while(0)
+      #define GHV(B,H) (isbed ? (B) : (H))
+      #define SHV(B,H) do{ if (isbed) temp_bed.soft_pwm_amount = B; else temp_hotend[heater].soft_pwm_amount = H; }while(0)
+      #define ONHEATINGSTART() (isbed ? printerEventLEDs.onBedHeatingStart() : printerEventLEDs.onHotendHeatingStart())
+      #define ONHEATING(S,C,T) (isbed ? printerEventLEDs.onBedHeating(S,C,T) : printerEventLEDs.onHotendHeating(S,C,T))
     #elif ENABLED(PIDTEMPBED)
       #define GHV(B,H) B
       #define SHV(B,H) (temp_bed.soft_pwm_amount = B)
@@ -370,7 +372,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
     #if WATCH_BED || WATCH_HOTENDS
       #define HAS_TP_BED BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
       #if HAS_TP_BED && BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
-        #define GTV(B,H) (heater < 0 ? (B) : (H))
+        #define GTV(B,H) (isbed ? (B) : (H))
       #elif HAS_TP_BED
         #define GTV(B,H) (B)
       #else
@@ -456,29 +458,25 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
 
               SERIAL_ECHOPAIR(MSG_BIAS, bias, MSG_D, d, MSG_T_MIN, min, MSG_T_MAX, max);
               if (cycles > 2) {
-                float Ku = (4.0f * d) / (float(M_PI) * (max - min) * 0.5f),
-                      Tu = ((float)(t_low + t_high) * 0.001f);
-                if (heater == -1){
-                  tune_pid.Kp = 0.2*Ku;
-                  tune_pid.Ki = 2*tune_pid.Kp/Tu;
-                  tune_pid.Kd = tune_pid.Kp*Tu/3;
-                } else {
-                  tune_pid.Kp = 0.6f * Ku;
-                  tune_pid.Ki = 2 * tune_pid.Kp / Tu;
-                  tune_pid.Kd = tune_pid.Kp * Tu * 0.125f;
-                }
+                const float Ku = (4.0f * d) / (float(M_PI) * (max - min) * 0.5f),
+                            Tu = float(t_low + t_high) * 0.001f,
+                            pf = isbed ? 0.2f : 0.6f,
+                            df = isbed ? 1.0f / 3.0f : 1.0f / 8.0f;
+                tune_pid.Kp = Ku * pf;
+                tune_pid.Kd = tune_pid.Kp * Tu * df;
+                tune_pid.Ki = 2 * tune_pid.Kp / Tu;
                 SERIAL_ECHOPAIR(MSG_KU, Ku, MSG_TU, Tu);
                 SERIAL_ECHOLNPGM("\n" MSG_CLASSIC_PID);
                 SERIAL_ECHOLNPAIR(MSG_KP, tune_pid.Kp, MSG_KI, tune_pid.Ki, MSG_KD, tune_pid.Kd);
                 /**
-                tune_pid.Kp = 0.33*Ku;
-                tune_pid.Ki = tune_pid.Kp/Tu;
-                tune_pid.Kd = tune_pid.Kp*Tu/3;
+                tune_pid.Kp = 0.33 * Ku;
+                tune_pid.Ki = tune_pid.Kp / Tu;
+                tune_pid.Kd = tune_pid.Kp * Tu / 3;
                 SERIAL_ECHOLNPGM(" Some overshoot");
                 SERIAL_ECHOLNPAIR(" Kp: ", tune_pid.Kp, " Ki: ", tune_pid.Ki, " Kd: ", tune_pid.Kd, " No overshoot");
-                tune_pid.Kp = 0.2*Ku;
-                tune_pid.Ki = 2*tune_pid.Kp/Tu;
-                tune_pid.Kd = tune_pid.Kp*Tu/3;
+                tune_pid.Kp = 0.2 * Ku;
+                tune_pid.Ki = 2 * tune_pid.Kp / Tu;
+                tune_pid.Kd = tune_pid.Kp * Tu / 3;
                 SERIAL_ECHOPAIR(" Kp: ", tune_pid.Kp, " Ki: ", tune_pid.Ki, " Kd: ", tune_pid.Kd);
                 */
               }
@@ -502,7 +500,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
       // Report heater states every 2 seconds
       if (ELAPSED(ms, next_temp_ms)) {
         #if HAS_TEMP_SENSOR
-          print_heater_states(heater >= 0 ? heater : active_extruder);
+          print_heater_states(isbed ? active_extruder : heater);
           SERIAL_EOL();
         #endif
         next_temp_ms = ms + 2000UL;
@@ -513,9 +511,9 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
             #if WATCH_BED && WATCH_HOTENDS
               true
             #elif WATCH_HOTENDS
-              heater >= 0
+              !isbed
             #else
-              heater < 0
+              isbed
             #endif
           ) {
             if (!heated) {                                          // If not yet reached target...
@@ -575,7 +573,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
         // Use the result? (As with "M303 U1")
         if (set_result) {
           #if HAS_PID_FOR_BOTH
-            if (heater < 0) _SET_BED_PID(); else _SET_EXTRUDER_PID();
+            if (isbed) _SET_BED_PID(); else _SET_EXTRUDER_PID();
           #elif ENABLED(PIDTEMP)
             _SET_EXTRUDER_PID();
           #else
