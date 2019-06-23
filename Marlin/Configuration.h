@@ -911,8 +911,8 @@
                                         X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
 */
 #if (ENABLED(MachineMini) || ENABLED(MachineCR20) || ENABLED(MachineEnder2) || ENABLED(MachineEnder3) || ENABLED(MachineEnder4))
-#define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 25 }
-#define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 50 }
+#define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 500 }
 #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
@@ -921,8 +921,8 @@
 #define DEFAULT_ZJERK                  0.4
 #define DEFAULT_EJERK                  5.0
 #elif (ENABLED(MachineCR10SPro))
-#define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 25 }
-#define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 70 }
+#define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 1000 }
 #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
@@ -931,8 +931,8 @@
 #define DEFAULT_ZJERK                 0.4
 #define DEFAULT_EJERK                 5.0
 #elif (ENABLED(MachineCR10Std))
-#define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 25 }
-#define DEFAULT_MAX_ACCELERATION      { 1500, 1500, 100, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 50 }
+#define DEFAULT_MAX_ACCELERATION      { 1500, 1500, 100, 500 }
 #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
@@ -941,8 +941,8 @@
 #define DEFAULT_ZJERK                  0.4
 #define DEFAULT_EJERK                  5.0
 #elif ENABLED( MachineS4)
-#define DEFAULT_MAX_FEEDRATE          { 500, 400, 10, 25 }
-#define DEFAULT_MAX_ACCELERATION      { 1000, 750, 100, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 500, 400, 10, 50 }
+#define DEFAULT_MAX_ACCELERATION      { 1000, 750, 100, 500 }
 #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
@@ -951,8 +951,8 @@
 #define DEFAULT_ZJERK                  0.4
 #define DEFAULT_EJERK                  5.0
 #elif ENABLED(MachineS5)
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 25 }
-#define DEFAULT_MAX_ACCELERATION      { 1000, 500, 100, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 50 }
+#define DEFAULT_MAX_ACCELERATION      { 1000, 500, 100, 500 }
 #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
