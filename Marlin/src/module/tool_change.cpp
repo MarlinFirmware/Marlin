@@ -885,25 +885,19 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
         #endif
 
         // Should the nozzle move back to the old position?
-        if (!idex_full_control
+        if (!idex_full_control) {
           #if ENABLED(TOOLCHANGE_NO_RETURN)
-            && false
+            // Just move back down
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back Z only");
+            do_blocking_move_to_z(destination[Z_AXIS], planner.settings.max_feedrate_mm_s[Z_AXIS]);
+          #else
+            // Move back to the original (or adjusted) position
+            if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
+            do_blocking_move_to(destination);
           #endif
-        ) {
-          // Move back to the original (or adjusted) position
-          if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
-          do_blocking_move_to(destination);
         }
-        else if (!idex_full_control) {
-          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No return XY");
-          // Move back down
-          do_blocking_move_to_z(destination[Z_AXIS], planner.settings.max_feedrate_mm_s[Z_AXIS]);
-        }
-        else
-        {
-          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No return XYZ");
-        }
-        
+        else if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back skipped");
+
         #if ENABLED(DUAL_X_CARRIAGE)
           active_extruder_parked = false;
         #endif
