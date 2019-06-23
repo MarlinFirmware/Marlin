@@ -740,6 +740,7 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
           #else
             current_position[E_AXIS] -= toolchange_settings.swap_length / planner.e_factor[active_extruder];
             planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.retract_speed), active_extruder);
+            planner.synchronize();
           #endif
         }
       }
@@ -781,8 +782,8 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
             current_position[Y_AXIS] = toolchange_settings.change_point.y;
           #endif
           planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
+          planner.synchronize();
         #endif
-        planner.synchronize();
       }
 
       #if HAS_HOTEND_OFFSET
