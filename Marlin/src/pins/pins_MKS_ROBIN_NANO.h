@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -45,21 +45,13 @@
 #define SPI_MODULE 2
 
 //
-// Servos
-//
-//#define SERVO0_PIN         -1   // XS1 - 5
-//#define SERVO1_PIN         -1   // XS1 - 6
-//#define SERVO2_PIN         -1   // XS2 - 5
-//#define SERVO3_PIN         -1   // XS2 - 6
-
-//
 // Limit Switches
 //
-#define X_MIN_PIN          PA15
-#define X_MAX_PIN          PA15
-#define Y_MIN_PIN          PA12
-#define Y_MAX_PIN          PA12
-#define Z_MIN_PIN          PA11
+#define X_MIN_PIN         PA15
+#define X_MAX_PIN           -1   // Pin is not connected.
+#define Y_MIN_PIN         PA12
+#define Y_MAX_PIN           -1   // Pin is not connected.
+#define Z_MIN_PIN         PA11
 #define Z_MAX_PIN          PC4
 
 //
@@ -110,7 +102,7 @@
 
 #define POWER_LOSS_PIN     PA2   // PW_DET
 #define PS_ON_PIN          PA3   // PW_OFF
-#define FIL_RUNOUT_PIN     PA4  // MT_DET
+#define FIL_RUNOUT_PIN     PA4   // MT_DET
 
 #define BEEPER_PIN         PC5
 #define LED_PIN            PB2
@@ -122,10 +114,10 @@
  * Enabling 'LCD_RESET_PIN' causes flickering when entering the LCD menu due to LCD controller reset.
  * Reset feature was designed to "revive the LCD if static electricity killed it."
  */
-//#define LCD_RESET_PIN      PF6
+//#define LCD_RESET_PIN     PF6
 #define LCD_BACKLIGHT_PIN  PD13
-#define FSMC_CS_PIN        PD7  // NE4
-#define FSMC_RS_PIN        PD11   // A0
-#define TOUCH_CS           PA7
+#define FSMC_CS_PIN         PD7  // NE4
+#define FSMC_RS_PIN        PD11  // A0
+#define TOUCH_CS            PA7
 
 #define SD_DETECT_PIN      PD12
