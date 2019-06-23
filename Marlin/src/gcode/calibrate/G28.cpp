@@ -43,10 +43,6 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(BLTOUCH)
-  #include "../../feature/bltouch.h"
-#endif
-
 #include "../../lcd/ultralcd.h"
 
 #if HAS_DRIVER(L6470)                         // set L6470 absolute position registers to counts
@@ -279,6 +275,10 @@ void GcodeSuite::G28(const bool always_home_all) {
           (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
     );
 
+    #if HAS_BED_PROBE
+      STOW_PROBE();
+    #endif
+
     if (z_homing_height && (doX || doY)) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       destination[Z_AXIS] = z_homing_height;
@@ -345,9 +345,6 @@ void GcodeSuite::G28(const bool always_home_all) {
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
       if (doZ) {
-        #if ENABLED(BLTOUCH)
-          bltouch.init();
-        #endif
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
         #else
