@@ -1328,6 +1328,8 @@ SERIAL_ECHO(Checkkey);
 					RTS_SndData(ExchangePageBase + 43, ExchangepageAddr); // Autoleve ... ,please wait
 				else
 					RTS_SndData(ExchangePageBase + 85, ExchangepageAddr); 
+				if(!all_axes_known())
+					enqueue_and_echo_commands_P((PSTR("G28 X0 Y0 Z0")));
 				enqueue_and_echo_commands_P(PSTR("G29"));
 				enqueue_and_echo_commands_P(PSTR("G28 Z"));
 				//stepper.synchronize();
