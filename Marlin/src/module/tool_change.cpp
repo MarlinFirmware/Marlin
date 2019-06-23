@@ -717,8 +717,10 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
       constexpr bool idex_full_control = false;
     #endif
 
+    const bool can_move_away = !no_move && !idex_full_control;
+
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      const bool should_swap = !no_move && toolchange_settings.swap_length && !idex_full_control;
+      const bool should_swap = can_move_away && toolchange_settings.swap_length;
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         const bool too_cold = !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(active_extruder) || thermalManager.targetTooColdToExtrude(tmp_extruder));
       #else
@@ -766,7 +768,7 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
 
       set_destination_from_current();
 
-      if (!no_move && !idex_full_control) {
+      if (can_move_away) {
         #if DISABLED(SWITCHING_NOZZLE)
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position[Z_AXIS] += toolchange_settings.z_raise;
@@ -885,7 +887,7 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
         #endif
 
         // Should the nozzle move back to the old position?
-        if (!idex_full_control) {
+        if (can_move_away) {
           #if ENABLED(TOOLCHANGE_NO_RETURN)
             // Just move back down
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back Z only");
