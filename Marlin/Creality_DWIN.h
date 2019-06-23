@@ -21,7 +21,7 @@
 /*************Register and Variable addr*****************/
 #define	RegAddr_W	0x80
 #define	RegAddr_R	0x81
-#define	VarAddr_W	0x82		
+#define	VarAddr_W	0x82
 #define	VarAddr_R	0x83
 #define	ExchangePageBase	(unsigned long)0x5A010000	//the first page ID. other page = first page ID + relevant num;
 #define	StartSoundSet	((unsigned long)0x060480A0)		// 06,start-music; 04, 4 musics; 80, the volume value; 04, return value about music number.
@@ -44,7 +44,7 @@
 #define	IconPrintstatus		0x1014
 #define	Percentage			0x1016
 #define	FanKeyIcon			0x101E
-
+#define EcoKeyIcon          0x101F
 #define	HeatPercentIcon		0x1024
 
 #define	NzBdSet				0x1032
@@ -87,7 +87,7 @@
 
 typedef struct DataBuf
 {
-    unsigned char len;  
+    unsigned char len;
     unsigned char head[2];
     unsigned char command;
     unsigned long addr;
@@ -125,7 +125,7 @@ class RTSSHOW {
     void RTS_SDcard_Stop();
     void RTS_HandleData();
     void RTS_Init();
-    
+
     DB recdat;
     DB snddat;
   private:
