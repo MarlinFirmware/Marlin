@@ -41,13 +41,13 @@ namespace ExtUI {
     ScreenHandler.UpdateScreenVPData();
   }
 
- void onIdle() { ScreenHandler.loop(); }
+  void onIdle() { ScreenHandler.loop(); }
 
- void onPrinterKilled(const char* msg) {
-   ScreenHandler.sendinfoscreen(PSTR(MSG_HALTED), msg, PSTR(""), PSTR(MSG_PLEASE_RESET), true, true, true, true);
-   ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
-   while (!ScreenHandler.loop());  // Wait while anything is left to be sent
- }
+  void onPrinterKilled(const char* msg) {
+    ScreenHandler.sendinfoscreen(PSTR(MSG_HALTED), msg, PSTR(""), PSTR(MSG_PLEASE_RESET), true, true, true, true);
+    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
+    while (!ScreenHandler.loop());  // Wait while anything is left to be sent
+  }
 
   void onMediaInserted() { ScreenHandler.SDCardInserted(); }
   void onMediaError()    { ScreenHandler.SDCardError(); }
