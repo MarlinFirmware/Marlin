@@ -156,6 +156,8 @@
   #include "pins_TRIGORILLA_13.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(TRIGORILLA_14)
   #include "pins_TRIGORILLA_14.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(TRIGORILLA_14_11)
+  #include "pins_TRIGORILLA_14.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RAMPS_ENDER_4)
   #include "pins_RAMPS_ENDER_4.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RAMPS_CREALITY)

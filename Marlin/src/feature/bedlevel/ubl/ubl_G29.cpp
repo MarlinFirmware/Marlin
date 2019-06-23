@@ -313,6 +313,7 @@
 
     // Check for commands that require the printer to be homed
     if (may_move) {
+      planner.synchronize();
       if (axis_unhomed_error()) gcode.home_all_axes();
       #if ENABLED(DUAL_X_CARRIAGE)
         if (active_extruder != 0) tool_change(0);

@@ -90,7 +90,6 @@
 //https://github.com/mikeshub/SailfishLCD
 //uses the code directly from Sailfish
 
-  #include <LCD.h>
   #include <SailfishLCD.h>
   #define LCD_CLASS LiquidCrystalSerial
 
