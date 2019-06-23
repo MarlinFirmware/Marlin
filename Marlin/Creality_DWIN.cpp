@@ -280,9 +280,33 @@ void RTSSHOW::RTS_Init()
 	#if HAS_MESH && (ENABLED(MachineCR10SPro) || ENABLED(Force10SProDisplay))
 		if (leveling_is_valid())
 		{
-			for(int xCount  = 0; xCount < GRID_MAX_POINTS_X; xCount++)
+			bool zig = true;
+			for (uint8_t yCount = 0, showcount=0; yCount < GRID_MAX_POINTS_Y; yCount++) {
+				int8_t inStart, inStop, inInc;
+
+			if (zig) { // away from origin
+				inStart = 0;
+				inStop = GRID_MAX_POINTS_X;
+				inInc = 1;
+			}
+			else {     // towards origin
+				inStart = GRID_MAX_POINTS_X - 1;
+				inStop = -1;
+				inInc = -1;
+			}
+
+			zig ^= true; // zag
+			for (int8_t xCount = inStart; xCount != inStop; xCount += inInc) {
+				if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
+				{
+					rtscheck.RTS_SndData(z_values[xCount][yCount] *1000, AutolevelVal + (showcount-1)*2);
+					rtscheck.RTS_SndData(showcount,AutolevelIcon);
+				}
+			}
+		}
+			/* for(int yCount  = 0; yCount < GRID_MAX_POINTS_X; xCount++)
 			{
-				for(int yCount  = 0; yCount < GRID_MAX_POINTS_X; yCount++)
+				for(int xCount  = 0; xCount < GRID_MAX_POINTS_X; yCount++)
 				{
 					if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
 					{
@@ -290,7 +314,7 @@ void RTSSHOW::RTS_Init()
 						rtscheck.RTS_SndData(showcount,AutolevelIcon);
 					}
 				}
-			}
+			}*/
 			RTS_SndData(2, AutoLevelIcon);//2=On, 3=Off
 			enqueue_and_echo_commands_P((PSTR("M420 S1")));
 			AutoLevelStatus = planner.leveling_active;
