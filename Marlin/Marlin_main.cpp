@@ -5314,7 +5314,7 @@ void home_all_axes() { gcode_G28(true); }
           #if ENABLED(CREALITY_DWIN)
 	          if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X) && waitway == 3)
 	      	  {
-			        rtscheck.RTS_SndData(z_values[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
+			        rtscheck.RTS_SndData(z_values[xCount][yCount] *1000, AutolevelVal + (showcount-1)*2);
 			        rtscheck.RTS_SndData(showcount,AutolevelIcon);
 		        }
           #endif
@@ -5497,7 +5497,7 @@ void home_all_axes() { gcode_G28(true); }
               #if ENABLED(CREALITY_DWIN)
                 if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X) && waitway == 3)
                 {
-                  rtscheck.RTS_SndData(z_values[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
+                  rtscheck.RTS_SndData(z_values[xCount][yCount] *1000, AutolevelVal + (showcount-1)*2);
                   rtscheck.RTS_SndData(showcount,AutolevelIcon);
                 }
               #endif

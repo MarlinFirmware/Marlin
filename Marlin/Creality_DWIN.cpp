@@ -286,7 +286,7 @@ void RTSSHOW::RTS_Init()
 				{
 					if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
 					{
-						rtscheck.RTS_SndData(z_values[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
+						rtscheck.RTS_SndData(z_values[xCount][yCount] *1000, AutolevelVal + (showcount-1)*2);
 						rtscheck.RTS_SndData(showcount,AutolevelIcon);
 					}
 				}
@@ -2290,8 +2290,8 @@ void RTSUpdate()	//looping at the loop function
 
 	EachMomentUpdate();
 
-if(waitway!=0)
-	SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
+//if(waitway!=0)
+	//SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
 	/*wait to receive massage and response*/
 	if(!waitway && rtscheck.RTS_RecData() > 0) {
 		//SERIAL_PROTOCOLLN("  Handle Data ");
