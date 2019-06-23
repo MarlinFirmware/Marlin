@@ -343,7 +343,7 @@ extern bool wait_for_heatup;
 // Inactivity shutdown timer
 extern millis_t max_inactive_time, stepper_inactive_time;
 
-#if ENABLED(USE_CONTROLLER_FAN)
+#if EITHER(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
   extern uint8_t controllerfan_speed;
 #endif
 
