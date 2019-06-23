@@ -262,6 +262,10 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     set_destination_from_current();
 
+    #if HAS_BED_PROBE
+      STOW_PROBE();
+    #endif
+
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
       if (doZ) homeaxis(Z_AXIS);
@@ -274,10 +278,6 @@ void GcodeSuite::G28(const bool always_home_all) {
       #endif
           (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
     );
-
-    #if HAS_BED_PROBE
-      STOW_PROBE();
-    #endif
 
     if (z_homing_height && (doX || doY)) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
