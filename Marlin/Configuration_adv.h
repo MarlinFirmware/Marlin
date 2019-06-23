@@ -103,7 +103,7 @@
   #else
     #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
   #endif
-  
+
   #define THERMAL_PROTECTION_BED_HYSTERESIS 4 // Degrees Celsius
 
   /**
@@ -1367,19 +1367,21 @@
  *
  * See http://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
  */
-//#define SPINDLE_LASER_ENABLE
+#if ENABLED(TREX3)
+#define SPINDLE_LASER_ENABLE
+#endif
 #if ENABLED(SPINDLE_LASER_ENABLE)
-#define SPINDLE_LASER_ENABLE_PIN 0
-  #define SPINDLE_LASER_ENABLE_INVERT   false  // set to "true" if the on/off function is reversed
-  #define SPINDLE_LASER_PWM             false   // set to true if your controller supports setting the speed/power
-  #define SPINDLE_LASER_PWM_INVERT      false   // set to "true" if the speed/power goes up when you want it to go slower
-  #define SPINDLE_LASER_POWERUP_DELAY   5   // delay in milliseconds to allow the spindle/laser to come up to speed/power
-  #define SPINDLE_LASER_POWERDOWN_DELAY 5   // delay in milliseconds to allow the spindle to stop
-  #define SPINDLE_DIR_CHANGE            false   // set to true if your spindle controller supports changing spindle direction
-  #define SPINDLE_INVERT_DIR            false
-  #define SPINDLE_STOP_ON_DIR_CHANGE    true   // set to true if Marlin should stop the spindle before changing rotation direction
 
-  /**
+#define SPINDLE_LASER_ENABLE_INVERT true // set to "true" if the on/off function is reversed
+#define SPINDLE_LASER_PWM false          // set to true if your controller supports setting the speed/power
+#define SPINDLE_LASER_PWM_INVERT true    // set to "true" if the speed/power goes up when you want it to go slower
+#define SPINDLE_LASER_POWERUP_DELAY 1    // delay in milliseconds to allow the spindle/laser to come up to speed/power
+#define SPINDLE_LASER_POWERDOWN_DELAY 1  // delay in milliseconds to allow the spindle to stop
+#define SPINDLE_DIR_CHANGE false         // set to true if your spindle controller supports changing spindle direction
+#define SPINDLE_INVERT_DIR false
+#define SPINDLE_STOP_ON_DIR_CHANGE false // set to true if Marlin should stop the spindle before changing rotation direction
+
+/**
    *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
    *
    *  SPEED/POWER = PWM duty cycle * SPEED_POWER_SLOPE + SPEED_POWER_INTERCEPT
@@ -1388,26 +1390,17 @@
    *  set the following for your controller (ALL MUST BE SET)
    */
 
-  #define SPEED_POWER_SLOPE    118.4
-  #define SPEED_POWER_INTERCEPT  0
-  #define SPEED_POWER_MIN     5000
-  #define SPEED_POWER_MAX    30000    // SuperPID router controller 0 - 30,000 RPM
+#define SPEED_POWER_SLOPE 118.4
+#define SPEED_POWER_INTERCEPT 0
+#define SPEED_POWER_MIN 5000
+#define SPEED_POWER_MAX 30000 // SuperPID router controller 0 - 30,000 RPM
 
-  //#define SPEED_POWER_SLOPE      0.3922
-  //#define SPEED_POWER_INTERCEPT  0
-  //#define SPEED_POWER_MIN       10
-  //#define SPEED_POWER_MAX      100      // 0-100%
+//#define SPEED_POWER_SLOPE      0.3922
+//#define SPEED_POWER_INTERCEPT  0
+//#define SPEED_POWER_MIN       10
+//#define SPEED_POWER_MAX      100      // 0-100%
 #endif
 
-#if(!ENABLED(FilamentSensor))
-  #define FAN_AS_LASER
-#endif
-#if ENABLED(FAN_AS_LASER)
-  #define FAN_NUM_AS_LASER 1
-  #define LASER_PIN_DEDICATED true
-  #else
-  #define FAN_NUM_AS_LASER -1
-#endif
 /**
  * Filament Width Sensor
  *
@@ -1529,10 +1522,10 @@
     #define USER_GCODE_1 "M502 \n M500 \n M501 \n M190 S60 \n T0 \n G28 \n G29 P1 \n G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n " COMMFANNSPEED " M109 S225 \n G1 X150 Y 150 \n G1 Z0 \n M77 \n M117 Set Z Offset"
     #define USER_GCODE_2 "M190 S60 \n " COMMFANNSPEED " M104 235 \n G28 \n G29 L1 \n G1 X100 Y 100 \n G1 Z0"
   #endif
-    
+
   #define USER_DESC_3 "Store Settings"
   #define USER_GCODE_3 "M500"
-  
+
   #define USER_DESC_5 "PID Tune Bed"
   #define USER_GCODE_5 "M303E-1S75U \n M500 \n M117 PID Bed Done"
 

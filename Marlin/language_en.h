@@ -1044,6 +1044,13 @@
 #ifndef MSG_M600_TOO_COLD
   #define MSG_M600_TOO_COLD                   _UxGT("M600: Too cold")
 #endif
+#ifndef MSG_LASER_ON
+    #define MSG_LASER_ON _UxGT("Laser on")
+#endif
+
+#ifndef MSG_LASER_OFF
+    #define MSG_LASER_OFF _UxGT("Laser off")
+#endif
 
 //
 // Filament Change screens show up to 3 lines on a 4-line display
