@@ -5312,7 +5312,7 @@ void home_all_axes() { gcode_G28(true); }
 
           z_values[xCount][yCount] = measured_z + zoffset;
           #if ENABLED(CREALITY_DWIN)
-	          if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X) && waitway == 3)
+	          if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
 	      	  {
 			        rtscheck.RTS_SndData(z_values[xCount][yCount] *1000, AutolevelVal + (showcount-1)*2);
 			        rtscheck.RTS_SndData(showcount,AutolevelIcon);
@@ -5495,7 +5495,7 @@ void home_all_axes() { gcode_G28(true); }
 
               z_values[xCount][yCount] = measured_z + zoffset;
               #if ENABLED(CREALITY_DWIN)
-                if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X) && waitway == 3)
+                if((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
                 {
                   rtscheck.RTS_SndData(z_values[xCount][yCount] *1000, AutolevelVal + (showcount-1)*2);
                   rtscheck.RTS_SndData(showcount,AutolevelIcon);
@@ -5576,7 +5576,7 @@ void home_all_axes() { gcode_G28(true); }
         if (!dryrun) extrapolate_unprobed_bed_level();
         print_bilinear_leveling_grid();
         #if ENABLED(CREALITY_DWIN)
-          if(waitway == 3)
+          if(waitway == 3 || (!print_job_timer.isRunning && !card.sdprinting))
           {
             waitway = 0;
             if(LanguageRecbuf != 0)

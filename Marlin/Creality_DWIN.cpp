@@ -1329,7 +1329,7 @@ SERIAL_ECHO(Checkkey);
 				else
 					RTS_SndData(ExchangePageBase + 85, ExchangepageAddr); 
 				if(!all_axes_known())
-					enqueue_and_echo_commands_P((PSTR("G28 X0 Y0 Z0")));
+					enqueue_and_echo_commands_P((PSTR("G28")));
 				enqueue_and_echo_commands_P(PSTR("G29"));
 				enqueue_and_echo_commands_P(PSTR("G28 Z"));
 				//stepper.synchronize();
