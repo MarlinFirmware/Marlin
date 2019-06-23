@@ -37,8 +37,9 @@
  */
 
 #include "../../core/macros.h"
-#include <stdint.h>
 #include "../../module/endstops.h"
+
+#include <stdint.h>
 
 // One ISR for all EXT-Interrupts
 void endstop_ISR(void) { endstops.update(); }
