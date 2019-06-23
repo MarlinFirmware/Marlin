@@ -43,8 +43,8 @@
  * With no parameters report driver currents.
  */
 void GcodeSuite::M906() {
-  #define TMC_SAY_CURRENT(Q) tmc_get_current(stepper##Q)
-  #define TMC_SET_CURRENT(Q) tmc_set_current(stepper##Q, value)
+  #define TMC_SAY_CURRENT(Q) tmc_print_current(stepper##Q)
+  #define TMC_SET_CURRENT(Q) stepper##Q.rms_current(value)
 
   bool report = true;
 

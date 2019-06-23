@@ -46,12 +46,12 @@
 #define DAC_DEV_ADDRESS (BASE_ADDR | DAC_OR_ADDRESS)
 
 void mcp4728_init();
-uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value);
+uint8_t mcp4728_analogWrite(const uint8_t channel, const uint16_t value);
 uint8_t mcp4728_eepromWrite();
-uint8_t mcp4728_setVref_all(uint8_t value);
-uint8_t mcp4728_setGain_all(uint8_t value);
-uint16_t mcp4728_getValue(uint8_t channel);
+uint8_t mcp4728_setVref_all(const uint8_t value);
+uint8_t mcp4728_setGain_all(const uint8_t value);
+uint16_t mcp4728_getValue(const uint8_t channel);
 uint8_t mcp4728_fastWrite();
-uint8_t mcp4728_simpleCommand(byte simpleCommand);
-uint8_t mcp4728_getDrvPct(uint8_t channel);
+uint8_t mcp4728_simpleCommand(const byte simpleCommand);
+uint8_t mcp4728_getDrvPct(const uint8_t channel);
 void mcp4728_setDrvPct(uint8_t pct[XYZE]);

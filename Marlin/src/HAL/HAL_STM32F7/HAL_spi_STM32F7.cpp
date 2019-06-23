@@ -38,7 +38,7 @@
 
 #include "HAL.h"
 #include "../shared/HAL_SPI.h"
-#include "pins_arduino.h"
+#include <pins_arduino.h>
 #include "spi_pins.h"
 #include "../../core/macros.h"
 #include <SPI.h>
@@ -81,8 +81,7 @@ void spiBegin(void) {
     #error SS_PIN not defined!
   #endif
 
-  SET_OUTPUT(SS_PIN);
-  WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SS_PIN, HIGH);
 }
 
 /** Configure SPI for specified SPI speed */

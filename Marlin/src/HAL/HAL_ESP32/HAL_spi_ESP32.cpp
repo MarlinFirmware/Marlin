@@ -29,7 +29,7 @@
 
 #include "HAL.h"
 #include "../shared/HAL_SPI.h"
-#include "pins_arduino.h"
+#include <pins_arduino.h>
 #include "spi_pins.h"
 #include "../../core/macros.h"
 #include <SPI.h>
@@ -62,8 +62,7 @@ void spiBegin() {
     #error "SS_PIN not defined!"
   #endif
 
-  WRITE(SS_PIN, HIGH);
-  SET_OUTPUT(SS_PIN);
+  OUT_WRITE(SS_PIN, HIGH);
 }
 
 void spiInit(uint8_t spiRate) {

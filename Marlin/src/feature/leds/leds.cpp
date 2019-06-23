@@ -71,6 +71,9 @@ void LEDLights::setup() {
   #if ENABLED(NEOPIXEL_LED)
     setup_neopixel();
   #endif
+  #if ENABLED(PCA9533)
+    RGBinit();
+  #endif
   #if ENABLED(LED_USER_PRESET_STARTUP)
     set_default();
   #endif
@@ -115,7 +118,9 @@ void LEDLights::set_color(const LEDColor &incol
 
     // This variant uses 3-4 separate pins for the RGB(W) components.
     // If the pins can do PWM then their intensity will be set.
-    #define UPDATE_RGBW(C,c) do{ if (PWM_PIN(RGB_LED_##C##_PIN)) analogWrite(RGB_LED_##C##_PIN, incol.c); else WRITE(RGB_LED_##C##_PIN, incol.c ? HIGH : LOW); }while(0)
+    #define UPDATE_RGBW(C,c) do { if (PWM_PIN(RGB_LED_##C##_PIN)) \
+        analogWrite(pin_t(RGB_LED_##C##_PIN), incol.c); \
+      else WRITE(RGB_LED_##C##_PIN, incol.c ? HIGH : LOW); } while(0)
     UPDATE_RGBW(R,r);
     UPDATE_RGBW(G,g);
     UPDATE_RGBW(B,b);
@@ -143,6 +148,20 @@ void LEDLights::set_color(const LEDColor &incol
 
 #if ENABLED(LED_CONTROL_MENU)
   void LEDLights::toggle() { if (lights_on) set_off(); else update(); }
+#endif
+
+#ifdef LED_BACKLIGHT_TIMEOUT
+
+  millis_t LEDLights::led_off_time; // = 0
+
+  void LEDLights::update_timeout(const bool power_on) {
+    const millis_t ms = millis();
+    if (power_on)
+      reset_timeout(ms);
+    else if (ELAPSED(ms, led_off_time))
+      set_off();
+  }
+
 #endif
 
 #endif // HAS_COLOR_LEDS

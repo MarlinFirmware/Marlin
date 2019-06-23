@@ -46,7 +46,7 @@ void USB::init() {
 }
 
 uint8_t USB::getUsbTaskState(void) {
-  return ( usb_task_state);
+  return usb_task_state;
 }
 
 void USB::setUsbTaskState(uint8_t state) {

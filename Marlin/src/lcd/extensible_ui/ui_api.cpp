@@ -57,6 +57,7 @@
 
 #if ENABLED(PRINTCOUNTER)
   #include "../../core/utility.h"
+  #include "../../libs/numtostr.h"
 #endif
 
 #if DO_SWITCH_EXTRUDER || EITHER(SWITCHING_NOZZLE, PARKING_EXTRUDER)
@@ -170,12 +171,17 @@ namespace ExtUI {
 
   void enableHeater(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
-      #if HAS_HEATED_BED
-        if (heater == BED)
-          thermalManager.reset_bed_idle_timer();
-        else
-      #endif
-          thermalManager.reset_heater_idle_timer(heater - H0);
+      switch (heater) {
+        #if HAS_HEATED_BED
+          case BED:
+            thermalManager.reset_bed_idle_timer();
+            return;
+        #endif
+        #if HAS_HEATED_CHAMBER
+          case CHAMBER: return; // Chamber has no idle timer
+        #endif
+        default: thermalManager.reset_heater_idle_timer(heater - H0);
+      }
     #endif
   }
 
@@ -188,23 +194,31 @@ namespace ExtUI {
   }
 
   bool isHeaterIdle(const heater_t heater) {
-    return (false
-      #if HEATER_IDLE_HANDLER
-        || (heater == BED ? (false
-          #if HAS_HEATED_BED
-            || thermalManager.bed_idle.timed_out
-          #endif
-        ) : thermalManager.hotend_idle[heater - H0].timed_out)
-      #endif
-    );
+    #if HEATER_IDLE_HANDLER
+      switch (heater) {
+        #if HAS_HEATED_BED
+          case BED: return thermalManager.bed_idle.timed_out;
+        #endif
+        #if HAS_HEATED_CHAMBER
+          case CHAMBER: return false; // Chamber has no idle timer
+        #endif
+        default: return thermalManager.hotend_idle[heater - H0].timed_out;
+      }
+    #else
+      return false;
+    #endif
   }
 
   float getActualTemp_celsius(const heater_t heater) {
-    return heater == BED ? (0
+    switch (heater) {
       #if HAS_HEATED_BED
-        + thermalManager.degBed()
+        case BED: return thermalManager.degBed();
       #endif
-    ) : thermalManager.degHotend(heater - H0);
+      #if HAS_HEATED_CHAMBER
+        case CHAMBER: return thermalManager.degChamber();
+      #endif
+      default: return thermalManager.degHotend(heater - H0);
+    }
   }
 
   float getActualTemp_celsius(const extruder_t extruder) {
@@ -212,11 +226,15 @@ namespace ExtUI {
   }
 
   float getTargetTemp_celsius(const heater_t heater) {
-    return heater == BED ? (0
+    switch (heater) {
       #if HAS_HEATED_BED
-        + thermalManager.degTargetBed()
+        case BED: return thermalManager.degTargetBed();
       #endif
-    ) : thermalManager.degTargetHotend(heater - H0);
+      #if HAS_HEATED_CHAMBER
+        case CHAMBER: return thermalManager.degTargetChamber();
+      #endif
+      default: return thermalManager.degTargetHotend(heater - H0);
+    }
   }
 
   float getTargetTemp_celsius(const extruder_t extruder) {
@@ -455,13 +473,13 @@ namespace ExtUI {
     int getTMCBumpSensitivity(const axis_t axis) {
       switch (axis) {
         #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
-          case X: return stepperX.sgt();
+          case X: return stepperX.homing_threshold();
         #endif
         #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
-          case Y: return stepperY.sgt();
+          case Y: return stepperY.homing_threshold();
         #endif
         #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
-          case Z: return stepperZ.sgt();
+          case Z: return stepperZ.homing_threshold();
         #endif
         default: return 0;
       }
@@ -470,13 +488,13 @@ namespace ExtUI {
     void setTMCBumpSensitivity(const float value, const axis_t axis) {
       switch (axis) {
         #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
-          case X: stepperX.sgt(clamp(value, -64, 63)); break;
+          case X: stepperX.homing_threshold(value); break;
         #endif
         #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
-          case Y: stepperY.sgt(clamp(value, -64, 63)); break;
+          case Y: stepperY.homing_threshold(value); break;
         #endif
         #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
-          case Z: stepperZ.sgt(clamp(value, -64, 63)); break;
+          case Z: stepperZ.homing_threshold(value); break;
         #endif
         default: break;
       }
@@ -759,10 +777,10 @@ namespace ExtUI {
   float getFeedrate_percent() { return feedrate_percentage; }
 
   void enqueueCommands_P(PGM_P const gcode) {
-    enqueue_and_echo_commands_P(gcode);
+    queue.inject_P(gcode);
   }
 
-  bool commandsInQueue() { return (planner.movesplanned() || commands_in_queue); }
+  bool commandsInQueue() { return (planner.movesplanned() || queue.length); }
 
   bool isAxisPositionKnown(const axis_t axis) {
     return TEST(axis_known_position, axis);
@@ -831,35 +849,15 @@ namespace ExtUI {
   }
 
   void pausePrint() {
-    #if ENABLED(SDSUPPORT)
-      card.pauseSDPrint();
-      print_job_timer.pause();
-      #if ENABLED(PARK_HEAD_ON_PAUSE)
-        enqueue_and_echo_commands_P(PSTR("M125"));
-      #endif
-      ui.set_status_P(PSTR(MSG_PRINT_PAUSED));
-    #endif
+    ui.pause_print();
   }
 
   void resumePrint() {
-    #if ENABLED(SDSUPPORT)
-      ui.set_status_P(PSTR(MSG_FILAMENT_CHANGE_RESUME_1));
-      #if ENABLED(PARK_HEAD_ON_PAUSE)
-        wait_for_heatup = wait_for_user = false;
-        enqueue_and_echo_commands_P(PSTR("M24"));
-      #else
-        card.startFileprint();
-        print_job_timer.start();
-      #endif
-    #endif
+    ui.resume_print();
   }
 
   void stopPrint() {
-    #if ENABLED(SDSUPPORT)
-      wait_for_heatup = wait_for_user = false;
-      card.flag.abort_sd_printing = true;
-      ui.set_status_P(PSTR(MSG_PRINT_ABORTED));
-    #endif
+    ui.abort_print();
   }
 
   FileList::FileList() { refresh(); }

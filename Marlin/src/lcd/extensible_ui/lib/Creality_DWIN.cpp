@@ -435,7 +435,7 @@ int RTSSHOW::RTS_RecData()
 			recdat.addr = databuf[4];
 			recdat.addr = (recdat.addr << 8) | databuf[5];
 			recdat.bytelen = databuf[6];
-			for (int i = 0; i < recdat.bytelen; i += 2)
+			for (unsigned long i = 0; i < recdat.bytelen; i += 2)
 			{
 				recdat.data[i / 2] = databuf[7 + i];
 				recdat.data[i / 2] = (recdat.data[i / 2] << 8) | databuf[8 + i];
@@ -445,7 +445,7 @@ int RTSSHOW::RTS_RecData()
 		{
 			recdat.addr = databuf[4];
 			recdat.bytelen = databuf[5];
-			for (int i = 0; i < recdat.bytelen; i++)
+			for (unsigned long i = 0; i < recdat.bytelen; i++)
 			{
 				recdat.data[i] = databuf[6 + i];
 				//recdat.data[i]= (recdat.data[i] << 8 )| databuf[7+i];
@@ -559,7 +559,7 @@ void RTSSHOW::RTS_SndData(int n, unsigned long addr, unsigned char cmd /*= VarAd
 {
 	if (cmd == VarAddr_W)
 	{
-		if (n > 0xFFFF)
+		if ((uint8_t)n > 0xFFFF)
 		{
 			snddat.data[0] = n >> 16;
 			snddat.data[1] = n & 0xFFFF;
@@ -679,7 +679,7 @@ void RTSSHOW::RTS_SDCardUpate(void)
 			RTS_SndData(0, Choosefilename + j);
 		for (int j = 0; j < 8; j++)
 			RTS_SndData(0, FilenameCount + j);
-		for (uint16_t i = 0; i < CardRecbuf.Filesum; i++)
+		for (int i = 0; i < CardRecbuf.Filesum; i++)
 		{
 			delay(3);
 			RTS_SndData(CardRecbuf.Cardshowfilename[i], CardRecbuf.addr[i]);
@@ -1632,7 +1632,7 @@ void RTSSHOW::RTS_HandleData()
 		if (isMediaInserted() && recdat.addr == FilenameChs)
 		{
 			SERIAL_ECHOLN("Filename-Media");
-			if (recdat.data[0] > CardRecbuf.Filesum)
+			if (recdat.data[0] > (uint8_t)CardRecbuf.Filesum)
 				break;
 
 			SERIAL_ECHOLN("Recdata");
@@ -1716,7 +1716,7 @@ void RTSSHOW::RTS_HandleData()
 
 #if FAN_COUNT > 0
 				for (uint8_t i = 0; i < FAN_COUNT; i++)
-					setTargetFan_percent(FanOn, i);
+					setTargetFan_percent(FanOn, (fan_t)i);
 #endif
 				FanStatus = false;
 
@@ -1865,7 +1865,7 @@ void onPrintTimerStopped()
 
 #if FAN_COUNT > 0
 	for (uint8_t i = 0; i < FAN_COUNT; i++)
-		setTargetFan_percent(FanOff, i);
+		setTargetFan_percent(FanOff, (fan_t)i);
 #endif
 	FanStatus = true;
 
@@ -2001,13 +2001,14 @@ void onConfigurationStoreRead(bool success)
                     }
                 }
             }
-            RTS_SndData(2, AutoLevelIcon); //2=On, 3=Off
-            enqueue_and_echo_commands_P((PSTR("M420 S1")));
-            AutoLevelStatus = planner.leveling_active;
+            rtscheck.RTS_SndData(2, AutoLevelIcon); //2=On, 3=Off
+            enqueueCommands_P((PSTR("M420 S1")));
+            AutoLevelStatus = true;
         }
         else
         {
-            RTS_SndData(3, AutoLevelIcon); /*Off*/
+            rtscheck.RTS_SndData(3, AutoLevelIcon); /*Off*/
+            AutoLevelStatus = false;
         }
     #endif
 

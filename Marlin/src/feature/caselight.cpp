@@ -69,12 +69,15 @@ void update_case_light() {
 
   #else // !CASE_LIGHT_USE_NEOPIXEL
 
-    if (PWM_PIN(CASE_LIGHT_PIN))
-      analogWrite(CASE_LIGHT_PIN, n10ct);
-    else {
-      const bool s = case_light_on ? !INVERT_CASE_LIGHT : INVERT_CASE_LIGHT;
-      WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
-    }
+    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+      if (PWM_PIN(CASE_LIGHT_PIN))
+        analogWrite(CASE_LIGHT_PIN, n10ct);
+      else
+    #endif
+      {
+        const bool s = case_light_on ? !INVERT_CASE_LIGHT : INVERT_CASE_LIGHT;
+        WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
+      }
 
   #endif // !CASE_LIGHT_USE_NEOPIXEL
 }

@@ -85,16 +85,10 @@ void GcodeSuite::M907() {
    */
   void GcodeSuite::M908() {
     #if HAS_DIGIPOTSS
-      stepper.digitalPotWrite(
-        parser.intval('P'),
-        parser.intval('S')
-      );
+      stepper.digitalPotWrite(parser.intval('P'), parser.intval('S'));
     #endif
     #if ENABLED(DAC_STEPPER_CURRENT)
-      dac_current_raw(
-        parser.byteval('P', -1),
-        parser.ushortval('S', 0)
-      );
+      dac_current_raw(parser.byteval('P', -1), parser.ushortval('S', 0));
     #endif
   }
 

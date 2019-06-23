@@ -73,10 +73,6 @@
   #include "feature/mixing.h"
 #endif
 
-#if ENABLED(BEZIER_CURVE_SUPPORT)
-  #include "module/planner_bezier.h"
-#endif
-
 #if ENABLED(MAX7219_DEBUG)
   #include "feature/Max7219_Debug_LEDs.h"
 #endif
@@ -93,10 +89,6 @@
   #include "module/servo.h"
 #endif
 
-#if HAS_DIGIPOTSS
-  #include <SPI.h>
-#endif
-
 #if ENABLED(DAC_STEPPER_CURRENT)
   #include "feature/dac/stepper_dac.h"
 #endif
@@ -110,7 +102,7 @@
   #include "feature/I2CPositionEncoder.h"
 #endif
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)
   #include "feature/tmc_util.h"
 #endif
 
@@ -178,10 +170,6 @@
 #endif
 
 bool Running = true;
-
-#if ENABLED(TEMPERATURE_UNITS_SUPPORT)
-  TempUnit input_temp_units = TEMPUNIT_C;
-#endif
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
 bool wait_for_heatup = true;
@@ -381,7 +369,7 @@ void disable_all_steppers() {
     #endif // HOST_ACTION_COMMANDS
 
     if (run_runout_script)
-      enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
   }
 
 #endif // HAS_FILAMENT_SENSOR
@@ -437,7 +425,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     runout.run();
   #endif
 
-  if (commands_in_queue < BUFSIZE) get_available_commands();
+  if (queue.length < BUFSIZE) queue.get_available_commands();
 
   const millis_t ms = millis();
 
@@ -520,7 +508,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     const int HOME_DEBOUNCE_DELAY = 2500;
     if (!IS_SD_PRINTING() && !READ(HOME_PIN)) {
       if (!homeDebounceCount) {
-        enqueue_and_echo_commands_P(PSTR("G28"));
+        queue.inject_P(PSTR("G28"));
         LCD_MESSAGEPGM(MSG_AUTO_HOME);
       }
       if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
@@ -809,7 +797,7 @@ void stop() {
   #endif
 
   if (IsRunning()) {
-    Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
+    queue.stop();
     SERIAL_ERROR_MSG(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
@@ -873,6 +861,10 @@ void setup() {
 
   setup_killpin();
 
+  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+    tmc_serial_begin();
+  #endif
+
   setup_powerhold();
 
   #if HAS_STEPPER_RESET
@@ -904,9 +896,6 @@ void setup() {
     #endif
     tmc_init_cs_pins();
   #endif
-  #if HAS_DRIVER(TMC2208)
-    tmc2208_serial_begin();
-  #endif
 
   #ifdef BOARD_INIT
     BOARD_INIT();
@@ -937,8 +926,6 @@ void setup() {
   SERIAL_ECHO_START();
   SERIAL_ECHOLNPAIR(MSG_FREE_MEMORY, freeMemory(), MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
-  queue_setup();
-
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
   ui.init();
@@ -948,7 +935,7 @@ void setup() {
     ui.show_bootscreen();
   #endif
 
-  #if ENABLED(SDIO_SUPPORT) && SD_DETECT_PIN == -1
+  #if ENABLED(SDIO_SUPPORT) && !PIN_EXISTS(SD_DETECT)
     // Auto-mount the SD for EEPROM.dat emulation
     if (!card.isDetected()) card.initsd();
   #endif
@@ -994,6 +981,13 @@ void setup() {
       SET_PWM(SPINDLE_LASER_PWM_PIN);
       analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
     #endif
+  #endif
+
+  #if ENABLED(COOLANT_MIST)
+    OUT_WRITE(COOLANT_MIST_PIN, COOLANT_MIST_INVERT);   // Init Mist Coolant OFF
+  #endif
+  #if ENABLED(COOLANT_FLOOD)
+    OUT_WRITE(COOLANT_FLOOD_PIN, COOLANT_FLOOD_INVERT); // Init Flood Coolant OFF
   #endif
 
   #if HAS_BED_PROBE
@@ -1053,16 +1047,12 @@ void setup() {
     fanmux_init();
   #endif
 
-  #if HAS_TRINAMIC && HAS_LCD_MENU
-    init_tmc_section();
-  #endif
-
   #if ENABLED(MIXING_EXTRUDER)
     mixer.init();
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch.init();
+    bltouch.init(/*set_voltage=*/true);
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -1134,6 +1124,7 @@ void loop() {
   for (;;) {
 
     #if ENABLED(SDSUPPORT)
+
       card.checkautostart();
 
       if (card.flag.abort_sd_printing) {
@@ -1142,23 +1133,26 @@ void loop() {
             true
           #endif
         );
-        clear_command_queue();
+        queue.clear();
         quickstop_stepper();
         print_job_timer.stop();
-        thermalManager.disable_all_heaters();
+        #if DISABLED(SD_ABORT_NO_COOLDOWN)
+          thermalManager.disable_all_heaters();
+        #endif
         thermalManager.zero_fan_speeds();
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)
           card.removeJobRecoveryFile();
         #endif
         #ifdef EVENT_GCODE_SD_STOP
-          enqueue_and_echo_commands_P(PSTR(EVENT_GCODE_SD_STOP));
+          queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
         #endif
       }
+
     #endif // SDSUPPORT
 
-    if (commands_in_queue < BUFSIZE) get_available_commands();
-    advance_command_queue();
+    if (queue.length < BUFSIZE) queue.get_available_commands();
+    queue.advance();
     endstops.event_handler();
     idle();
   }

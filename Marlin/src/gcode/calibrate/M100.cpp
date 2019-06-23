@@ -51,7 +51,7 @@
  * Also, there are two support functions that can be called from a developer's C code.
  *
  *    uint16_t check_for_free_memory_corruption(PGM_P const free_memory_start);
- *    void M100_dump_routine(PGM_P const title, const char *start, const char *end);
+ *    void M100_dump_routine(PGM_P const title, char *start, char *end);
  *
  * Initial version by Roxy-3D
  */
@@ -63,43 +63,34 @@
 #if defined(__AVR__) || IS_32BIT_TEENSY
 
   extern char __bss_end;
-  char* end_bss =  &__bss_end;
-  char* free_memory_start = end_bss;
-
-
-  char* free_memory_end = 0;
-  char* stacklimit = 0;
-  char* heaplimit = 0;
+  char *end_bss = &__bss_end,
+       *free_memory_start = end_bss, *free_memory_end = 0,
+       *stacklimit = 0, *heaplimit = 0;
 
   #define MEMORY_END_CORRECTION 0
 
 #elif defined(TARGET_LPC1768)
 
-  extern char   __bss_end__;
-  extern char   __StackLimit;
-  extern char   __HeapLimit;
+  extern char __bss_end__, __StackLimit, __HeapLimit;
 
-  char* end_bss =  &__bss_end__;
-  char* stacklimit =  &__StackLimit;
-  char* heaplimit =  &__HeapLimit ;
+  char *end_bss = &__bss_end__,
+       *stacklimit = &__StackLimit,
+       *heaplimit = &__HeapLimit ;
 
   #define MEMORY_END_CORRECTION 0x200
 
-  char* free_memory_start = heaplimit;
-  char* free_memory_end = stacklimit - MEMORY_END_CORRECTION;
-
+  char *free_memory_start = heaplimit,
+       *free_memory_end = stacklimit - MEMORY_END_CORRECTION;
 
 #elif defined(__SAM3X8E__)
 
-  extern char   _ebss;
+  extern char _ebss;
 
-  char* end_bss = &_ebss;
-
-  char* free_memory_start = end_bss;
-
-  char* free_memory_end = 0;
-  char* stacklimit = 0;
-  char* heaplimit = 0;
+  char *end_bss = &_ebss,
+       *free_memory_start = end_bss,
+       *free_memory_end = 0,
+       *stacklimit = 0,
+       *heaplimit = 0;
 
   #define MEMORY_END_CORRECTION 0x10000  // need to stay well below 0x20080000 or M100 F crashes
 
@@ -141,7 +132,7 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
    *  the block. If so, it may indicate memory corruption due to a bad pointer.
    *  Unexpected bytes are flagged in the right column.
    */
-  inline void dump_free_memory(const char *start_free_memory, const char *end_free_memory) {
+  inline void dump_free_memory(char *start_free_memory, char *end_free_memory) {
     //
     // Start and end the dump on a nice 16 byte boundary
     // (even though the values are not 16-byte aligned).
@@ -162,7 +153,7 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
       SERIAL_CHAR('|');                   // Point out non test bytes
       for (uint8_t i = 0; i < 16; i++) {
         char ccc = (char)start_free_memory[i]; // cast to char before automatically casting to char on assignment, in case the compiler is broken
-        if (&start_free_memory[i] >= (const char*)command_queue && &start_free_memory[i] < (const char*)(command_queue + sizeof(command_queue))) { // Print out ASCII in the command buffer area
+        if (&start_free_memory[i] >= (char*)queue.buffer && &start_free_memory[i] < (char*)queue.buffer + sizeof(queue.buffer)) { // Print out ASCII in the command buffer area
           if (!WITHIN(ccc, ' ', 0x7E)) ccc = ' ';
         }
         else { // If not in the command buffer area, flag bytes that don't match the test byte
@@ -177,7 +168,7 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     }
   }
 
-  void M100_dump_routine(PGM_P const title, const char *start, const char *end) {
+  void M100_dump_routine(PGM_P const title, char *start, char *end) {
     serialprintPGM(title);
     SERIAL_EOL();
     //
@@ -198,7 +189,7 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
 
   SERIAL_ECHOPAIR("\nfmc() n=", n);
   SERIAL_ECHOPAIR("\nfree_memory_start=", hex_address(free_memory_start));
-  SERIAL_ECHOLNPAIR("  end_free_memory=",          hex_address(end_free_memory));
+  SERIAL_ECHOLNPAIR("  end_free_memory=", hex_address(end_free_memory));
 
   if (end_free_memory < start_free_memory)  {
     SERIAL_ECHOPGM(" end_free_memory < Heap ");
@@ -340,11 +331,11 @@ void GcodeSuite::M100() {
   char *sp = top_of_stack();
   if (!free_memory_end) free_memory_end = sp - MEMORY_END_CORRECTION;
   SERIAL_ECHOPAIR("\nbss_end               : ", hex_address(end_bss));
-  if (heaplimit) SERIAL_ECHOPAIR("\n__heaplimit           : ", hex_address(heaplimit ));
+  if (heaplimit) SERIAL_ECHOPAIR("\n__heaplimit           : ", hex_address(heaplimit));
   SERIAL_ECHOPAIR("\nfree_memory_start     : ", hex_address(free_memory_start));
   if (stacklimit) SERIAL_ECHOPAIR("\n__stacklimit          : ", hex_address(stacklimit));
-  SERIAL_ECHOPAIR("\nfree_memory_end       : ", hex_address(free_memory_end  ));
-  if (MEMORY_END_CORRECTION)  SERIAL_ECHOPAIR("\nMEMORY_END_CORRECTION: ", MEMORY_END_CORRECTION );
+  SERIAL_ECHOPAIR("\nfree_memory_end       : ", hex_address(free_memory_end));
+  if (MEMORY_END_CORRECTION)  SERIAL_ECHOPAIR("\nMEMORY_END_CORRECTION: ", MEMORY_END_CORRECTION);
   SERIAL_ECHOLNPAIR("\nStack Pointer         : ", hex_address(sp));
 
   // Always init on the first invocation of M100

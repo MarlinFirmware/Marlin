@@ -27,8 +27,9 @@
  * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
  */
 
-#include <avr/io.h>
 #include "../../core/macros.h"
+
+#include <avr/io.h>
 
 #define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__) || defined(__AVR_AT90USB647__))
 #define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
@@ -81,9 +82,8 @@
 #define _SET_INPUT(IO)        CBI(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 #define _SET_OUTPUT(IO)       SBI(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 
-#define _IS_INPUT(IO)        !TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
+#define _IS_INPUT(IO)         !TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 #define _IS_OUTPUT(IO)        TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
-#define _HAS_TIMER(IO)        bool(DIO ## IO ## _PWM)
 
 // digitalRead/Write wrappers
 #ifdef FASTIO_EXT_START
@@ -106,7 +106,6 @@
 
 #define IS_INPUT(IO)          _IS_INPUT(IO)
 #define IS_OUTPUT(IO)         _IS_OUTPUT(IO)
-#define HAS_TIMER(IO)         _HAS_TIMER(IO)
 
 #define OUT_WRITE(IO,V)       do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 
@@ -353,5 +352,3 @@ enum ClockSource2 : char {
 #else
   #error "unknown CPU"
 #endif
-
-#define USEABLE_HARDWARE_PWM(P) (PWM_PIN(P) && !PWM_CHK(P))

@@ -28,6 +28,10 @@
 
 #if HAS_LCD_MENU && ENABLED(LCD_INFO_MENU)
 
+#if HAS_GAMES
+  #include "game/game.h"
+#endif
+
 #include "menu.h"
 // #include "../../module/motion.h"
 // #include "../../module/planner.h"
@@ -219,6 +223,21 @@ void menu_info() {
   MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, menu_info_thermistors); // Thermistors >
   #if ENABLED(PRINTCOUNTER)
     MENU_ITEM(submenu, MSG_INFO_STATS_MENU, menu_info_stats);          // Printer Stats >
+  #endif
+  #if HAS_GAMES
+    MENU_ITEM(submenu, "Game", (
+      #if HAS_GAME_MENU
+        menu_game
+      #elif ENABLED(MARLIN_BRICKOUT)
+        brickout.enter_game
+      #elif ENABLED(MARLIN_INVADERS)
+        invaders.enter_game
+      #elif ENABLED(MARLIN_SNAKE)
+        snake.enter_game
+      #elif ENABLED(MARLIN_MAZE)
+        maze.enter_game
+      #endif
+    ));
   #endif
   END_MENU();
 }

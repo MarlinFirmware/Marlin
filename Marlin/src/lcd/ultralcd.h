@@ -74,9 +74,9 @@
 
     #include "fontutils.h"
 
-    void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte);
-    inline void wrap_string_P(uint8_t &x, uint8_t &y, PGM_P const pstr) { _wrap_string(x, y, pstr, read_byte_rom); }
-    inline void wrap_string(uint8_t &x, uint8_t &y, const char * const string) { _wrap_string(x, y, string, read_byte_ram); }
+    void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
+    inline void wrap_string_P(uint8_t &x, uint8_t &y, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(x, y, pstr, read_byte_rom, wordwrap); }
+    inline void wrap_string(uint8_t &x, uint8_t &y, const char * const string, const bool wordwrap=false) { _wrap_string(x, y, string, read_byte_ram, wordwrap); }
 
     #if ENABLED(SDSUPPORT)
       #include "../sd/cardreader.h"
@@ -285,6 +285,10 @@ public:
       static void advance_status_scroll();
       static char* status_and_len(uint8_t &len);
     #endif
+
+    static void abort_print();
+    static void pause_print();
+    static void resume_print();
 
     #if HAS_PRINT_PROGRESS
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)

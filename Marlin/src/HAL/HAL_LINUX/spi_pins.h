@@ -21,7 +21,8 @@
  */
 #pragma once
 
-#include "src/core/macros.h"
+#include "../../core/macros.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if BOTH(SDSUPPORT, DOGLCD) && (LCD_PINS_D4 == SCK_PIN || LCD_PINS_ENABLE == MOSI_PIN || DOGLCD_SCK == SCK_PIN || DOGLCD_MOSI == MOSI_PIN)
   #define LPC_SOFTWARE_SPI  // If the SD card and LCD adapter share the same SPI pins, then software SPI is currently
