@@ -4599,15 +4599,16 @@ inline void gcode_G28(const bool always_home_all) {
   #if ENABLED(CREALITY_DWIN)
    if(waitway > 1)
   {
-	if(AutohomeKey)
-	{
-		InforShowStatus = AutohomeKey = false;
-		if(LanguageRecbuf != 0)
-			rtscheck.RTS_SndData(ExchangePageBase + 29 + AxisPagenum, ExchangepageAddr);
-		else
-			rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
-	}
-	waitway = 0;
+    if(AutohomeKey)
+    {
+      InforShowStatus = AutohomeKey = false;
+      if(LanguageRecbuf != 0)
+        rtscheck.RTS_SndData(ExchangePageBase + 29 + AxisPagenum, ExchangepageAddr);
+      else
+        rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
+    }
+    if(waitway!=3)
+      waitway = 0;
 
    }
 	rtscheck.RTS_SndData(10*current_position[X_AXIS], DisplayXaxis);
