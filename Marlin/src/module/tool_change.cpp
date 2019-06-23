@@ -769,8 +769,8 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
 
       set_destination_from_current();
 
-      if (can_move_away) {
-        #if DISABLED(SWITCHING_NOZZLE)
+      #if DISABLED(SWITCHING_NOZZLE)
+        if (can_move_away) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position[Z_AXIS] += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
@@ -783,8 +783,8 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
           #endif
           planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
           planner.synchronize();
-        #endif
-      }
+        }
+      #endif
 
       #if HAS_HOTEND_OFFSET
         #if ENABLED(DUAL_X_CARRIAGE)
