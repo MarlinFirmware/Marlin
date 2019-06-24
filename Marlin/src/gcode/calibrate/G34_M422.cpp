@@ -133,11 +133,11 @@ void GcodeSuite::G34() {
 
     // Home before the alignment procedure
     #if ENABLED(HOME_AFTER_DEACTIVATE)
-      const bool z = !TEST(axis_known_position, Z_AXIS);
+      const bool xyz = TEST(axis_known_position, X_AXIS) && TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS);      
     #else
-      const bool z = !TEST(axis_homed, Z_AXIS);
+      const bool xzy = TEST(axis_homed, X_AXIS) && TEST(axis_homed, Y_AXIS) && TEST(axis_homed, Z_AXIS);
     #endif
-    if (z) home_all_axes();
+    if (!xyz) home_all_axes();
     
     // Move the Z coordinate realm towards the positive - dirty trick
     current_position[Z_AXIS] -= z_probe * 0.5;
