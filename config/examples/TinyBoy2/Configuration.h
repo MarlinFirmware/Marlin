@@ -1548,6 +1548,10 @@
   #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
   #define NOZZLE_CLEAN_END_POINT   {100, 60, (Z_MIN_POS + 1)}
 
+  // Uncomment this if you want bed-leveling temporarily disabled while
+  // cleaning the nozzle and restored to its previous state when finished.
+  //#define NOZZLE_CLEAN_WITHOUT_BED_LEVELING
+
   // Circular pattern radius
   #define NOZZLE_CLEAN_CIRCLE_RADIUS 6.5
   // Circular pattern circle fragments number
