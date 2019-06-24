@@ -241,15 +241,16 @@
 // STM32 ARM Cortex-M3
 //
 
-#define BOARD_STM32F1R         1800   // STM32R Libmaple based STM32F1 controller
-#define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
-#define BOARD_STM3R_MINI       1803   // STM32 Libmaple based stm32f1 controller
-#define BOARD_GTM32_PRO_VB     1805   // STM32f103VET6 controller
-#define BOARD_MORPHEUS         1806   // STM32F103C8/STM32F103CB Libmaple based stm32f1 controller
-#define BOARD_MKS_ROBIN        1808   // MKS Robin / STM32F103ZET6
-#define BOARD_MKS_ROBIN_NANO   1812   // MKS Robin nano / STM32F103VET6
-#define BOARD_BIGTREE_SKR_MINI_V1_1 1814 // STM32F103RC
-#define BOARD_JGAURORA_A5S_A1  1820   // JGAurora A5S A1 / STM32F103ZET6
+#define BOARD_STM32F1R                1800  // STM32R Libmaple based STM32F1 controller
+#define BOARD_MALYAN_M200             1801  // STM32C8T6 Libmaple based stm32f1 controller
+#define BOARD_STM3R_MINI              1803  // STM32 Libmaple based stm32f1 controller
+#define BOARD_GTM32_PRO_VB            1805  // STM32f103VET6 controller
+#define BOARD_MORPHEUS                1806  // STM32F103C8/STM32F103CB Libmaple based stm32f1 controller
+#define BOARD_MKS_ROBIN               1808  // MKS Robin / STM32F103ZET6
+#define BOARD_MKS_ROBIN_MINI          1813  // MKS Robin Mini / STM32F103VET6
+#define BOARD_MKS_ROBIN_NANO          1812  // MKS Robin Nano / STM32F103VET6
+#define BOARD_BIGTREE_SKR_MINI_V1_1   1814  // STM32F103RC
+#define BOARD_JGAURORA_A5S_A1         1820  // JGAurora A5S A1 / STM32F103ZET6
 
 //
 // STM32 ARM Cortex-M4F

@@ -80,7 +80,7 @@ void ac_home() {
 
 void ac_setup(const bool reset_bed) {
   #if HOTENDS > 1
-    tool_change(0, 0, true);
+    tool_change(0, true);
   #endif
 
   planner.synchronize();
@@ -104,7 +104,7 @@ void ac_cleanup(
   #endif
   clean_up_after_endstop_or_probe_move();
   #if HOTENDS > 1
-    tool_change(old_tool_index, 0, true);
+    tool_change(old_tool_index, true);
   #endif
 }
 
