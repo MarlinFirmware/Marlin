@@ -415,7 +415,11 @@ void _O2 Endstops::M119() {
     ES_REPORT(Y2_MAX);
   #endif
   #if HAS_Z_MIN
-    ES_REPORT(Z_MIN);
+    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      print_es_state(READ(Z_MIN_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_Z_PROBE));
+    #else
+      ES_REPORT(Z_MIN);
+    #endif
   #endif
   #if HAS_Z2_MIN
     ES_REPORT(Z2_MIN);
