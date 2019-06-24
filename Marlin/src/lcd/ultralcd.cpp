@@ -521,7 +521,9 @@ void MarlinUI::status_screen() {
         next_filament_display = millis() + 5000UL;  // Show status message for 5s
       #endif
       goto_screen(menu_main);
-      init_lcd(); // May revive the LCD if static electricity killed it
+      #if DISABLED(NO_LCD_REINIT)
+        init_lcd(); // May revive the LCD if static electricity killed it
+      #endif
       return;
     }
 
@@ -793,7 +795,9 @@ void MarlinUI::update() {
           }
         }
 
-        init_lcd(); // May revive the LCD if static electricity killed it
+        #if DISABLED(NO_LCD_REINIT)
+          init_lcd(); // May revive the LCD if static electricity killed it
+        #endif
 
       #endif
 
