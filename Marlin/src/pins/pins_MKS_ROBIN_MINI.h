@@ -45,14 +45,6 @@
 #define SPI_MODULE 2
 
 //
-// Servos
-//
-//#define SERVO0_PIN         -1   // 
-//#define SERVO1_PIN         -1   // 
-//#define SERVO2_PIN         -1   // 
-//#define SERVO3_PIN         -1  // 
-
-//
 // Limit Switches
 //
 #define X_MIN_PIN          PA15
@@ -81,10 +73,6 @@
 #define E0_STEP_PIN        PD6
 #define E0_DIR_PIN         PD3
 
-//#define E1_ENABLE_PIN      PA12
-//#define E1_STEP_PIN        PA11
-//#define E1_DIR_PIN         PA8
-
 //
 // Temperature Sensors
 //
@@ -101,9 +89,7 @@
 
 #define FAN_PIN            PB1   // FAN
 
-#define BTN_ENC            PB3  // Pin is not connected. Real pin is needed to enable encoder's push button functionality used by touch screen
-#define BTN_EN1            -1
-#define BTN_EN2            -1
+#define BTN_ENC            PB3   // Pin is not connected. Real pin is needed to enable encoder's push button functionality used by touch screen
 
 //#define MAX6675_SS_PIN     PE5  // TC1 - CS1
 //#define MAX6675_SS_PIN     PE6  // TC2 - CS2
@@ -124,19 +110,21 @@
  */
 //#define LCD_RESET_PIN      PF6
 #define LCD_BACKLIGHT_PIN  PD13
-#define FSMC_CS_PIN        PD7  // NE4
+#define FSMC_CS_PIN        PD7    // NE4
 #define FSMC_RS_PIN        PD11   // A0
 #define TOUCH_CS           PC2
 
 #define SD_DETECT_PIN      PD12
+
 // Motor current PWM pins
 #define MOTOR_CURRENT_PWM_XY_PIN   PA6
 #define MOTOR_CURRENT_PWM_Z_PIN    PA7
 #define MOTOR_CURRENT_PWM_E_PIN    PB0
 #define MOTOR_CURRENT_PWM_RANGE    65535 // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
-#define DEFAULT_PWM_MOTOR_CURRENT  {1030, 1030, 1030} // 1.05Amp per driver, here is XY, Z and E. This values determined empirically.
+#define DEFAULT_PWM_MOTOR_CURRENT  { 1030, 1030, 1030 } // 1.05Amp per driver, here is XY, Z and E. This values determined empirically.
 
-// this is a kind of workaround in case native marlin "digipot" interface won't work, required to uncomment related code in stm32f1/hal.cpp
+// This is a kind of workaround in case native marlin "digipot" interface won't work.
+// Required to enable related code in STM32F1/HAL.cpp
 //#ifndef MKS_ROBIN_MINI_VREF_PWM
 //  #define MKS_ROBIN_MINI_VREF_PWM
 //#endif
