@@ -17,7 +17,7 @@ X (Width) 227
 Y (Depth) 148
 Z (Heigth) 150
 
-Extruder 1 - 
+Extruder 1 -
     Nozzle size: 0.4
     Compatible material diameter: 1.75
     Nozzle offset X: 0
@@ -55,7 +55,7 @@ X (Width) 227
 Y (Depth) 148
 Z (Heigth) 150
 
-Extruder 1 - 
+Extruder 1 -
     Nozzle size: 0.4
     Compatible material diameter: 1.75
     Nozzle offset X: -34
@@ -95,7 +95,7 @@ X (Width) 295 <---- bed width + 2 x nozzle offset
 Y (Depth) 148
 Z (Heigth) 150
 
-Extruder 1 - 
+Extruder 1 -
     Nozzle size: 0.4
     Compatible material diameter: 1.75
     Nozzle offset X: 0
@@ -105,7 +105,7 @@ Extruder 1 -
     G1 X150 Y70 F9000;move away from print in case extrusion cool down speed modifier too low
     ;Extruder End G-code;
 
-Extruder 2 - 
+Extruder 2 -
     Nozzle size: 0.4
     Compatible material diameter: 1.75
     Nozzle offset X: -34

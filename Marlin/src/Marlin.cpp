@@ -106,6 +106,10 @@
   #include "feature/tmc_util.h"
 #endif
 
+#if HAS_CUTTER
+  #include "feature/spindle_laser.h"
+#endif
+
 #if ENABLED(SDSUPPORT)
   CardReader card;
 #endif
@@ -972,15 +976,8 @@ void setup() {
     OUT_WRITE(PHOTOGRAPH_PIN, LOW);
   #endif
 
-  #if ENABLED(SPINDLE_LASER_ENABLE)
-    OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // init spindle to off
-    #if SPINDLE_DIR_CHANGE
-      OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);  // init rotation to clockwise (M3)
-    #endif
-    #if ENABLED(SPINDLE_LASER_PWM) && defined(SPINDLE_LASER_PWM_PIN) && SPINDLE_LASER_PWM_PIN >= 0
-      SET_PWM(SPINDLE_LASER_PWM_PIN);
-      analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
-    #endif
+  #if HAS_CUTTER
+    cutter.init();
   #endif
 
   #if ENABLED(COOLANT_MIST)
