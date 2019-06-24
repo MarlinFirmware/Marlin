@@ -350,7 +350,7 @@ namespace ExtUI {
     #if EXTRUDERS > 1
       const uint8_t e = extruder - E0;
       #if DO_SWITCH_EXTRUDER || EITHER(SWITCHING_NOZZLE, PARKING_EXTRUDER)
-        if (e != active_extruder) tool_change(e, 0, no_move);
+        if (e != active_extruder) tool_change(e, no_move);
       #endif
       active_extruder = e;
     #endif
@@ -473,13 +473,13 @@ namespace ExtUI {
     int getTMCBumpSensitivity(const axis_t axis) {
       switch (axis) {
         #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
-          case X: return stepperX.sgt();
+          case X: return stepperX.homing_threshold();
         #endif
         #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
-          case Y: return stepperY.sgt();
+          case Y: return stepperY.homing_threshold();
         #endif
         #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
-          case Z: return stepperZ.sgt();
+          case Z: return stepperZ.homing_threshold();
         #endif
         default: return 0;
       }
@@ -488,13 +488,13 @@ namespace ExtUI {
     void setTMCBumpSensitivity(const float value, const axis_t axis) {
       switch (axis) {
         #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
-          case X: stepperX.sgt(clamp(value, -64, 63)); break;
+          case X: stepperX.homing_threshold(value); break;
         #endif
         #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
-          case Y: stepperY.sgt(clamp(value, -64, 63)); break;
+          case Y: stepperY.homing_threshold(value); break;
         #endif
         #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
-          case Z: stepperZ.sgt(clamp(value, -64, 63)); break;
+          case Z: stepperZ.homing_threshold(value); break;
         #endif
         default: break;
       }

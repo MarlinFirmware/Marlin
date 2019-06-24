@@ -512,7 +512,7 @@ FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
     case PAUSE_MESSAGE_HEAT:     return lcd_pause_heat_message;
     case PAUSE_MESSAGE_HEATING:  return lcd_pause_heating_message;
     case PAUSE_MESSAGE_OPTION:   pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
-                                          return menu_pause_option;
+                                 return menu_pause_option;
     case PAUSE_MESSAGE_STATUS:
     default: break;
   }

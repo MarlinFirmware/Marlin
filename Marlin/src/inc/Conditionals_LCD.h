@@ -335,7 +335,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extensible_ui)
-#if ENABLED(MALYAN_LCD)
+#if EITHER(DGUS_LCD, MALYAN_LCD)
   #define EXTENSIBLE_UI
 #endif
 
@@ -504,18 +504,24 @@
 
 #if HAS_BED_PROBE
   #define USES_Z_MIN_PROBE_ENDSTOP DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #define HOMING_Z_WITH_PROBE      (Z_HOME_DIR < 0 && !USES_Z_MIN_PROBE_ENDSTOP)
   #ifndef Z_PROBE_LOW_POINT
     #define Z_PROBE_LOW_POINT -5
   #endif
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST // Extra test for Allen Key Probe
   #endif
+  #ifdef MULTIPLE_PROBING
+    #if EXTRA_PROBING
+      #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
+    #else
+      #define TOTAL_PROBING MULTIPLE_PROBING
+    #endif
+  #endif
 #else
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
-
-#define HOMING_Z_WITH_PROBE (HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
 
 #ifdef GRID_MAX_POINTS_X
   #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
