@@ -204,7 +204,7 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
   PGM_P p = pgcode;
   for (;;) {
     char c;
-    while ((c = p[i]) && c != '\n') i++;
+    while ((c = pgm_read_byte(&p[i])) && c != '\n') i++;
     char cmd[i + 1];
     memcpy_P(cmd, p, i);
     cmd[i] = '\0';
