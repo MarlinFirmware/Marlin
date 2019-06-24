@@ -269,7 +269,8 @@
   #define MOSI_PIN         P0_18
   #define SS_PIN           P0_16
 #elif SD_CONNECTION_IS(ONBOARD)
-  //#define SD_DETECT_PIN  P0_27   // (57) open-drain
+  #undef SD_DETECT_PIN
+  #define SD_DETECT_PIN    P0_27
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09

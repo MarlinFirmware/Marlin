@@ -201,6 +201,7 @@
   #define MOSI_PIN         P0_18
   #define SS_PIN           P1_23
 #elif SD_CONNECTION_IS(ONBOARD)
+  #undef SD_DETECT_PIN
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09

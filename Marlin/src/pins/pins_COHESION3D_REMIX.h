@@ -227,6 +227,7 @@
   #define MOSI_PIN         P0_09   // (51)  system defined J3-10 & AUX-3
   #define SS_PIN           P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
 #elif SD_CONNECTION_IS(ONBOARD)
+  #undef SD_DETECT_PIN
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
