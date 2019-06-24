@@ -350,7 +350,7 @@ namespace ExtUI {
     #if EXTRUDERS > 1
       const uint8_t e = extruder - E0;
       #if DO_SWITCH_EXTRUDER || EITHER(SWITCHING_NOZZLE, PARKING_EXTRUDER)
-        if (e != active_extruder) tool_change(e, 0, no_move);
+        if (e != active_extruder) tool_change(e, no_move);
       #endif
       active_extruder = e;
     #endif
