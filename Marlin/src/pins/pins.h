@@ -430,6 +430,8 @@
   #include "pins_MORPHEUS.h"          // STM32F1                                    env:STM32F1
 #elif MB(MKS_ROBIN)
   #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:mks_robin
+#elif MB(MKS_ROBIN_MINI)
+  #include "pins_MKS_ROBIN_MINI.h"    // STM32F1                                    env:mks_robin_mini
 #elif MB(JGAURORA_A5S_A1)
   #include "pins_JGAURORA_A5S_A1.h"   // STM32F1                                    env:JGAURORA_A5S_A1
 
