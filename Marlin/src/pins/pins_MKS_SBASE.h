@@ -158,15 +158,15 @@
 #define ENET_TXD0          P1_00   // J12-11
 #define ENET_TXD1          P1_01   // J12-12
 
-#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+#ifndef SDARD_CONNECTION
+  #define SDCARD_CONNECTION ONBOARD
   #undef USB_SD_DISABLED
-  #define LPC_SD_ONBOARD
   #define USB_SD_ONBOARD
 #endif
 
 #define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
 
-#if ENABLED(LPC_SD_CUSTOM_CABLE)
+#if SD_CONNECTION_IS(CUSTOM_CABLE)
 
   /**
    * A custom cable is needed. See the README file in the
@@ -187,7 +187,7 @@
   #define SS_PIN           P0_28
   #define LPC_SOFTWARE_SPI  // With a custom cable we need software SPI because the
                             // selected pins are not on a hardware SPI controller
-#elif ENABLED(LPC_SD_LCD)
+#elif SD_CONNECTION_IS(LCD)
   // use standard cable and header, SPI and SD detect sre shared with on-board SD card
   // hardware SPI is used for both SD cards. The detect pin is shred between the
   // LCD and onboard SD readers so we disable it.
@@ -195,7 +195,7 @@
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
   #define SS_PIN           P0_28
-#elif ENABLED(LPC_SD_ONBOARD)
+#elif SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN    P0_27
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08

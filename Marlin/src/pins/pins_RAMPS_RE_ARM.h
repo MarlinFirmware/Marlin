@@ -413,24 +413,26 @@
 //
 // SD Support
 //
-#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION ONBOARD
   #undef USB_SD_DISABLED
-  #define LPC_SD_ONBOARD
   #define USB_SD_ONBOARD
 #endif
 
 #define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
 
-#if ENABLED(LPC_SD_LCD)
+#if SD_CONNECTION_IS(LCD)
   #define SCK_PIN          P0_15   // (52)  system defined J3-9 & AUX-3
   #define MISO_PIN         P0_17   // (50)  system defined J3-10 & AUX-3
   #define MOSI_PIN         P0_18   // (51)  system defined J3-10 & AUX-3
   #define SS_PIN           P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
-#elif ENABLED(LPC_SD_ONBOARD)
+#elif SD_CONNECTION_IS(ONBOARD)
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
   #define SS_PIN           ONBOARD_SD_CS_PIN
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "No custom SD drive cable defined for this board."
 #endif
 
 /**
