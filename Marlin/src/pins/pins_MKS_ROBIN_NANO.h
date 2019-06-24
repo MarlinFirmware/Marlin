@@ -21,7 +21,7 @@
  */
 
 /**
- * MKS Robin nano(STM32F130VET6) board pin assignments
+ * MKS Robin nano (STM32F130VET6) board pin assignments
  */
 
 #ifndef __STM32F1__
@@ -110,11 +110,10 @@
 /**
  * Note: MKS Robin TFT screens may have different TFT controllers
  * If the screen stays white, disable 'LCD_RESET_PIN' to rely on the bootloader to do screen initialization.
- *
- * Enabling 'LCD_RESET_PIN' causes flickering when entering the LCD menu due to LCD controller reset.
- * Reset feature was designed to "revive the LCD if static electricity killed it."
  */
-//#define LCD_RESET_PIN     PF6
+#define LCD_RESET_PIN      PF6
+#define NO_LCD_REINIT             // Suppress LCD re-initialization
+
 #define LCD_BACKLIGHT_PIN  PD13
 #define FSMC_CS_PIN         PD7  // NE4
 #define FSMC_RS_PIN        PD11  // A0
