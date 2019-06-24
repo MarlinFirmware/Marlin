@@ -38,10 +38,6 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(BLTOUCH)
-  #include "../../feature/bltouch.h"
-#endif
-
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -279,11 +275,9 @@ void GcodeSuite::G34() {
     // After this operation the z position needs correction
     set_axis_is_not_at_home(Z_AXIS);
 
-    #if BOTH(BLTOUCH, BLTOUCH_HS_MODE)
-      // In BLTOUCH HS mode, the pin is still deployed at this point.
-      // The upcoming G28 means travel, so it is better to stow the pin.
-      bltouch._stow();
-    #endif
+    // Stow the probe, as the last call to probe_pt(...) left
+    // the probe deployed if it was successful.
+    STOW_PROBE();
 
     // Home Z after the alignment procedure
     process_subcommands_now_P(PSTR("G28 Z"));
