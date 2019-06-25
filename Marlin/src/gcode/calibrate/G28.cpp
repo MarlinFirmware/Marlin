@@ -41,6 +41,7 @@
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
+  #define STOW_PROBE_BEFORE_HOMING NONE(Z_PROBE_ALLEN_KEY, Z_PROBE_SLED)
 #endif
 
 #include "../../lcd/ultralcd.h"
@@ -262,7 +263,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     set_destination_from_current();
 
-    #if HAS_BED_PROBE
+    #if STOW_PROBE_BEFORE_HOMING
       STOW_PROBE();
     #endif
 
