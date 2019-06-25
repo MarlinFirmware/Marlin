@@ -384,9 +384,9 @@ static void print_es_state(const bool is_pin,
                            PGM_P const label=nullptr) {
   if (label) serialprintPGM(label);
   SERIAL_ECHOPGM(": ");
-  SERIAL_ECHOPGM(is_pin ? "1 / " : "0 / ");
-  SERIAL_ECHOPGM(is_inv ? "Y = " : "N = ");
-  SERIAL_ECHOPGM(is_pin != is_inv ? means1 : means0);
+  serialprintPGM(is_pin ? PSTR(MSG_M119_PIN1) : PSTR(MSG_M119_PIN0));
+  serialprintPGM(is_inv ? PSTR(MSG_M119_INVY) : PSTR(MSG_M119_INVN));
+  serialprintPGM(is_pin != is_inv ? means1 : means0);
   SERIAL_EOL();
 }
 
@@ -447,7 +447,11 @@ void _O2 Endstops::M119() {
     ES_REPORT(Z3_MAX);
   #endif
   #if USES_Z_MIN_PROBE_ENDSTOP
-    print_es_state(READ(Z_MIN_PROBE_PIN), Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_ENDSTOP_HIT), PSTR(MSG_ENDSTOP_NOHIT), PSTR(MSG_Z_PROBE));
+    #if ENABLED(BLTOUCH)
+      print_es_state(READ(Z_MIN_PROBE_PIN), Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_ENDSTOP_M1_BLTOUCH), PSTR(MSG_ENDSTOP_M0_BLTOUCH), PSTR(MSG_Z_PROBE));
+    #else
+      print_es_state(READ(Z_MIN_PROBE_PIN), Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_ENDSTOP_HIT), PSTR(MSG_ENDSTOP_NOHIT), PSTR(MSG_Z_PROBE));
+    #endif
   #endif
   #if HAS_FILAMENT_SENSOR
     #if NUM_RUNOUT_SENSORS == 1
