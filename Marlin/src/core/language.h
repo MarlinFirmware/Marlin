@@ -218,6 +218,8 @@
 #define MSG_ENDSTOP_NOHIT                   "NOT TRIGGERED"
 #define MSG_ENDSTOP_M0_BLTOUCH              "PIN DOWN"
 #define MSG_ENDSTOP_M1_BLTOUCH              "PIN UP"
+#define MSG_ENDSTOP_M0RUNOUT                "NO FILAMENT"
+#define MSG_ENDSTOP_M1RUNOUT                "FILAMENT OK"
 #define MSG_HOTEND_OFFSET                   "Hotend offsets:"
 #define MSG_DUPLICATION_MODE                "Duplication mode: "
 #define MSG_SOFT_ENDSTOPS                   "Soft endstops: "

@@ -457,7 +457,7 @@ void _O2 Endstops::M119() {
     #if NUM_RUNOUT_SENSORS == 1
       SERIAL_ECHOPGM(MSG_FILAMENT_RUNOUT_SENSOR);
       SERIAL_CHAR(' ');
-      print_es_state(READ(FIL_RUNOUT_PIN), FIL_RUNOUT_INVERTING, PSTR(MSG_ENDSTOP_HIT), PSTR(MSG_ENDSTOP_NOHIT));
+      print_es_state(READ(FIL_RUNOUT_PIN), FIL_RUNOUT_INVERTING, PSTR(MSG_ENDSTOP_M1RUNOUT), PSTR(MSG_ENDSTOP_M0RUNOUT));
     #else
       for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; i++) {
         pin_t pin;
@@ -480,7 +480,7 @@ void _O2 Endstops::M119() {
         }
         SERIAL_ECHOPGM(MSG_FILAMENT_RUNOUT_SENSOR);
         if (i > 1)  SERIAL_CHAR('0' + i); else SERIAL_CHAR(' ');
-        print_es_state(extDigitalRead(pin), FIL_RUNOUT_INVERTING, PSTR(MSG_ENDSTOP_HIT), PSTR(MSG_ENDSTOP_NOHIT));
+        print_es_state(extDigitalRead(pin), FIL_RUNOUT_INVERTING, PSTR(MSG_ENDSTOP_M1RUNOUT), PSTR(MSG_ENDSTOP_M0RUNOUT));
       }
     #endif
   #endif
