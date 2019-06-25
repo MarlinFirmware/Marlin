@@ -46,7 +46,7 @@ bool Power::is_power_needed() {
     HOTEND_LOOP() if (thermalManager.autofan_speed[e]) return true;
   #endif
 
-  #if EITHER(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
+  #if ENABLED(AUTO_POWER_CONTROLLERFAN)
     if (controllerfan_speed) return true;
   #endif
 

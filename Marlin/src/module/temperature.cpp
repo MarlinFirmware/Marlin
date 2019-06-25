@@ -633,7 +633,7 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
   );
 }
 
-#if HAS_AUTO_FAN || ENABLED(AUTO_POWER_E_FANS)
+#if HAS_AUTO_FAN
 
   #define AUTO_1_IS_0 (E1_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
   #define AUTO_2_IS_0 (E2_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
@@ -687,7 +687,7 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
       if (temp_hotend[e].current > EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[e]));
 
-    #if HAS_AUTO_CHAMBER_FAN || ENABLED(AUTO_POWER_CHAMBER_FAN)
+    #if HAS_AUTO_CHAMBER_FAN
       if (temp_chamber.current > CHAMBER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[CHAMBER_FAN_INDEX]));
     #endif
@@ -705,7 +705,7 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
       if (TEST(fanDone, realFan)) continue;
       const bool fan_on = TEST(fanState, realFan);
       switch (f) {
-        #if (HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E) || ENABLED(AUTO_POWER_CHAMBER_FAN)
+        #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
           case CHAMBER_FAN_INDEX:
             chamberfan_speed = fan_on ? CHAMBER_AUTO_FAN_SPEED : 0;
             break;

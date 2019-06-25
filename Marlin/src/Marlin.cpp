@@ -153,7 +153,7 @@
   #include "module/tool_change.h"
 #endif
 
-#if EITHER(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
+#if ENABLED(USE_CONTROLLER_FAN)
   #include "feature/controllerfan.h"
 #endif
 
@@ -515,7 +515,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     }
   #endif
 
-  #if EITHER(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
+  #if ENABLED(USE_CONTROLLER_FAN)
     controllerfan_update(); // Check if fan should be turned on to cool stepper drivers down
   #endif
 
