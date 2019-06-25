@@ -73,6 +73,8 @@
 // Check SDCARD_CONNECTION options
 #if ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
   #error "LPC_SD_(LCD|ONBOARD|CUSTOM_CABLE) are now SDCARD_CONNECTION. Please update your Configuration_adv.h."
-#elif 1 < (ENABLED(USB_SD_DISABLED) + ENABLED(USB_SD_ONBOARD))
-  #error "Enable only one of USB_SD_DISABLED or USB_SD_ONBOARD."
+#endif
+
+#if ENABLED(USB_SD_ONBOARD)
+  #error "USB_SD_ONBOARD is no longer used (see USB_SD_DISABLED). Please update your Configuration_adv.h."
 #endif

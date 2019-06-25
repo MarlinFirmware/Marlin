@@ -1053,13 +1053,17 @@
      * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
      */
     //#define SDCARD_CONNECTION LCD
-
-    // Enable only one of the following options:
-    //#define USB_SD_ONBOARD    // Provide the onboard SD card to the host as a USB mass storage device.
-    //#define USB_SD_DISABLED   // Disable SD Card access over USB (for security).
   #endif
 
 #endif // SDSUPPORT
+
+#ifdef TARGET_LPC1768
+  /**
+   * By default the onboard SD card reader is shared as a USB mass storage device. To disbale this
+   * sharing define the following.
+   */
+  //#define USB_SD_DISABLED   // Disable SD Card access over USB (for security).
+#endif
 
 /**
  * Additional options for Graphical Displays

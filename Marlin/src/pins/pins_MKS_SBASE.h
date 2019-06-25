@@ -160,8 +160,6 @@
 
 #ifndef SDARD_CONNECTION
   #define SDCARD_CONNECTION ONBOARD
-  #undef USB_SD_DISABLED
-  #define USB_SD_ONBOARD
 #endif
 
 #define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
