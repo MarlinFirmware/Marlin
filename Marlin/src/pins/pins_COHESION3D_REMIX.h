@@ -213,35 +213,25 @@
 //
 // SD Support
 //
-#if NONE(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
-  #undef USB_SD_DISABLED
-  #define USB_SD_ONBOARD
-  #define LPC_SD_ONBOARD
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION ONBOARD
 #endif
 
-#if ENABLED(LPC_SD_LCD)
+#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
 
+#if SD_CONNECTION_IS(LCD)
   #define SCK_PIN          P0_07   // (52)  system defined J3-9 & AUX-3
   #define MISO_PIN         P0_08   // (50)  system defined J3-10 & AUX-3
   #define MOSI_PIN         P0_09   // (51)  system defined J3-10 & AUX-3
   #define SS_PIN           P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
-
-#elif ENABLED(LPC_SD_ONBOARD)
-
-  #if ENABLED(USB_SD_ONBOARD)
-    // When sharing the SD card with a PC the LCD menu options are
-    // needed to mount/unmount and refresh SD. So disable SD detect.
-    #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN   // No SD detect pin for the onboard card
-  #endif
-
+#elif SD_CONNECTION_IS(ONBOARD)
+  #undef SD_DETECT_PIN
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
-
+  #define SS_PIN           ONBOARD_SD_CS_PIN
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "No custom SD drive cable defined for this board."
 #endif
 
 //
