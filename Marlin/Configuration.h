@@ -138,8 +138,8 @@
   #define ANYCUBIC_4MAX
 
   // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
-  //#define ANYCUBIC_4MAX_VG3R
-  #define ANYCUBIC_4MAX_7OF9
+  #define ANYCUBIC_4MAX_VG3R
+  //#define ANYCUBIC_4MAX_7OF9
   //#define ANYCUBIC_4MAX_DEFAULT
 
 #endif
@@ -955,7 +955,7 @@
 
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
   // my 4MAX Printer: vg3r - Offset
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.03  // Z offset: -below +above  [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.98  // Z offset: -below +above  [the nozzle]
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Offset
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.58  // Z offset: -below +above  [the nozzle]
@@ -1264,7 +1264,11 @@
   // Set the boundaries for probing (where the probe can reach).
   #define LEFT_PROBE_BED_POSITION   X_PROBE_OFFSET_FROM_EXTRUDER
   #define RIGHT_PROBE_BED_POSITION  X_BED_SIZE - MIN_PROBE_EDGE
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  #define FRONT_PROBE_BED_POSITION  MIN_PROBE_EDGE + 4 /* +4 vg3r specific adjustment */
+#else
   #define FRONT_PROBE_BED_POSITION  MIN_PROBE_EDGE
+#endif
   #define BACK_PROBE_BED_POSITION   Y_BED_SIZE - MIN_PROBE_EDGE
 
   // Probe along the Y axis, advancing X after each column
