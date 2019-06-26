@@ -2877,7 +2877,7 @@ void Planner::set_max_feedrate(uint8_t axis, float targetValue) {
 
 void Planner::set_max_jerk(AxisEnum axis, float targetValue) {
   #if DISABLED(MAX_JERK_CAP)
-        Planner::max_jerk[axis] = targetValue;
+    planner.max_jerk[axis] = targetValue;
   #else
     #ifdef MAX_JERK_MANUAL
     static constexpr float Planner::max_jerk[] = MAX_JERK_MANUAL;
