@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# mffp
+# mffp [1|2] [commit-id]
 #
 # Push the given commit (or HEAD) upstream immediately.
 # By default: `git push upstream HEAD:bugfix-1.1.x`
