@@ -38,10 +38,6 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(BLTOUCH)
-  #include "../../feature/bltouch.h"
-#endif
-
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -109,7 +105,7 @@ void GcodeSuite::G34() {
     // Always home with tool 0 active
     #if HOTENDS > 1
       const uint8_t old_tool_index = active_extruder;
-      tool_change(0, 0, true);
+      tool_change(0, true);
     #endif
 
     #if HAS_DUPLICATION_MODE
@@ -125,10 +121,7 @@ void GcodeSuite::G34() {
       #define Z_BASIC_CLEARANCE Z_CLEARANCE_BETWEEN_PROBES
     #endif
 
-    // 0.05 is a 5% incline. On a 300mm bed that would be a misalignment of about 1.5cm.
-    // This angle is the maximum misalignment catered for
-    #define MAX_ANGLE 0.05f
-    float z_probe = Z_BASIC_CLEARANCE + MAX_ANGLE * (
+    float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * (
       #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
          SQRT(MAX(HYPOT2(z_auto_align_xpos[0] - z_auto_align_ypos[0], z_auto_align_xpos[1] - z_auto_align_ypos[1]),
                   HYPOT2(z_auto_align_xpos[1] - z_auto_align_ypos[1], z_auto_align_xpos[2] - z_auto_align_ypos[2]),
@@ -160,7 +153,7 @@ void GcodeSuite::G34() {
       float z_measured_min = 100000.0f;
       // Probe all positions (one per Z-Stepper)
       for (uint8_t izstepper = 0; izstepper < Z_STEPPER_COUNT; ++izstepper) {
-        // iteration odd/even --> downward / upward stepper sequence 
+        // iteration odd/even --> downward / upward stepper sequence
         const uint8_t zstepper = (iteration & 1) ? Z_STEPPER_COUNT - 1 - izstepper : izstepper;
 
         // Safe clearance even on an incline
@@ -266,7 +259,7 @@ void GcodeSuite::G34() {
 
     // Restore the active tool after homing
     #if HOTENDS > 1
-      tool_change(old_tool_index, 0, (
+      tool_change(old_tool_index, (
         #if ENABLED(PARKING_EXTRUDER)
           false // Fetch the previous toolhead
         #else
@@ -282,14 +275,12 @@ void GcodeSuite::G34() {
     // After this operation the z position needs correction
     set_axis_is_not_at_home(Z_AXIS);
 
-    #if BOTH(BLTOUCH, BLTOUCH_HS_MODE)
-      // In BLTOUCH HS mode, the pin is still deployed at this point.
-      // The upcoming G28 means travel, so it is better to stow the pin.
-      bltouch._stow();
-    #endif
+    // Stow the probe, as the last call to probe_pt(...) left
+    // the probe deployed if it was successful.
+    STOW_PROBE();
 
-    // Home after the alignment procedure
-    home_all_axes();
+    // Home Z after the alignment procedure
+    process_subcommands_now_P(PSTR("G28 Z"));
 
   } while(0);
 

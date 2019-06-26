@@ -40,7 +40,7 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENA)
+#if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !NUM_SERVOS                       // Try to use servo connector first
     #define SPINDLE_LASER_ENA_PIN     6 // Pin should have a pullup/pulldown!
     #define SPINDLE_LASER_PWM_PIN     4 // MUST BE HARDWARE PWM

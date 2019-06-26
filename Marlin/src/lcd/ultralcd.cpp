@@ -1424,6 +1424,10 @@ void MarlinUI::update() {
     set_status_P(msg, -1);
   }
 
+  #if ENABLED(SDSUPPORT)
+    extern bool wait_for_user, wait_for_heatup;
+  #endif
+
   void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
@@ -1441,6 +1445,10 @@ void MarlinUI::update() {
       return_to_status();
     #endif
   }
+
+  #if ANY(PARK_HEAD_ON_PAUSE, SDSUPPORT)
+    #include "../gcode/queue.h"
+  #endif
 
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU

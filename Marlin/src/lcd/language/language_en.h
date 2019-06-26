@@ -190,6 +190,18 @@
 #ifndef MSG_LASER_POWER
   #define MSG_LASER_POWER                     _UxGT("Laser power")
 #endif
+#ifndef MSG_SPINDLE_MENU
+  #define MSG_SPINDLE_MENU                    _UxGT("Spindle Control")
+#endif
+#ifndef MSG_SPINDLE_OFF
+  #define MSG_SPINDLE_OFF                     _UxGT("Spindle Off")
+#endif
+#ifndef MSG_SPINDLE_ON
+  #define MSG_SPINDLE_ON                      _UxGT("Spindle On")
+#endif
+#ifndef MSG_SPINDLE_POWER
+  #define MSG_SPINDLE_POWER                   _UxGT("Spindle power")
+#endif
 #ifndef MSG_SPINDLE_REVERSE
   #define MSG_SPINDLE_REVERSE                 _UxGT("Spindle Reverse")
 #endif

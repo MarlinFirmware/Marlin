@@ -204,9 +204,9 @@
 
 #endif // ULTRA_LCD
 
-#if HAS_DRIVER(TMC2208)
+#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
   /**
-   * TMC2208 stepper drivers
+   * TMC2208/TMC2209 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
@@ -227,7 +227,7 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if HOTENDS < 3 && ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENA)
+#if HOTENDS < 3 && HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #define SPINDLE_LASER_ENA_PIN 45   // Use E2 ENA
   #define SPINDLE_LASER_PWM_PIN 12   // MUST BE HARDWARE PWM
   #define SPINDLE_DIR_PIN       47   // Use E2 DIR

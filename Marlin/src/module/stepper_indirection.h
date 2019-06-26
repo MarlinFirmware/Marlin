@@ -58,8 +58,8 @@
 #if HAS_TRINAMIC
   #include <TMCStepper.h>
   #include "../feature/tmc_util.h"
-  #if TMCSTEPPER_VERSION < 0x000401
-    #error "Update TMCStepper library to 0.4.1 or newer."
+  #if TMCSTEPPER_VERSION < 0x000405
+    #error "Update TMCStepper library to 0.4.5 or newer."
   #endif
 
   #define ____TMC_CLASS(MODEL, A, I, E) TMCMarlin<TMC##MODEL##Stepper, A, I, E>
@@ -81,8 +81,8 @@
 
   static constexpr chopper_timing_t chopper_timing = CHOPPER_TIMING;
 
-  #if HAS_DRIVER(TMC2208)
-    void tmc2208_serial_begin();
+  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+    void tmc_serial_begin();
   #endif
 #endif
 

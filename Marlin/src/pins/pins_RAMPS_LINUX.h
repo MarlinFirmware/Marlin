@@ -228,7 +228,7 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENA)
+#if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
     #define SPINDLE_LASER_ENA_PIN     4   // Pin should have a pullup/pulldown!
     #define SPINDLE_LASER_PWM_PIN     6   // MUST BE HARDWARE PWM
@@ -268,9 +268,9 @@
   #endif
 #endif
 
-#if ENABLED(HAVE_TMC2208)
+#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
   /**
-   * TMC2208 stepper drivers
+   * TMC2208/TMC2209 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below

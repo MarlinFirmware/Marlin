@@ -99,7 +99,7 @@ void MarlinUI::goto_previous_screen() {
 /////////// Common Menu Actions ////////////
 ////////////////////////////////////////////
 
-void MenuItem_gcode::action(PGM_P pgcode) { queue.inject_P(pgcode); }
+void MenuItem_gcode::action(PGM_P const pgcode) { queue.inject_P(pgcode); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
@@ -162,7 +162,8 @@ DEFINE_MENU_EDIT_ITEM(int4);        // 1234, -123 right-justified
 DEFINE_MENU_EDIT_ITEM(int8);        // 123, -12   right-justified
 DEFINE_MENU_EDIT_ITEM(uint8);       // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234, -123 right-justified
+DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234       right-justified
+DEFINE_MENU_EDIT_ITEM(uint16_5);    // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(float52);     // 123.45
 DEFINE_MENU_EDIT_ITEM(float43);     // 1.234

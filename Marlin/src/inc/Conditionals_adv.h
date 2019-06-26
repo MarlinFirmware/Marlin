@@ -26,6 +26,8 @@
  * Defines that depend on advanced configuration.
  */
 
+#define HAS_CUTTER EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1

@@ -106,9 +106,9 @@
   #define TMC_SW_SCK       P1_09   // ETH
 #endif
 
-#if HAS_DRIVER(TMC2208)
+#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
   /**
-   * TMC2208 stepper drivers
+   * TMC2208/TMC2209 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
@@ -239,9 +239,13 @@
 // M3/M4/M5 - Spindle/Laser Control
 //            Use servo pins, if available
 //
-#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENA)
+#if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if NUM_SERVOS > 1
-    #error "SPINDLE_LASER_ENABLE requires 3 free servo pins."
+    #if ENABLED(SPINDLE_FEATURE)
+      #error "SPINDLE_FEATURE requires 3 free servo pins."
+    #else
+      #error "LASER_FEATURE requires 3 free servo pins."
+    #endif
   #endif
   #define SPINDLE_LASER_ENA_PIN    SERVO1_PIN   // (6) Pin should have a pullup/pulldown!
   #define SPINDLE_LASER_PWM_PIN    SERVO3_PIN   // (4) MUST BE HARDWARE PWM
