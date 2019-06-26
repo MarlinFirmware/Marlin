@@ -205,12 +205,13 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
   for (;;) {
     char c;
     while ((c = pgm_read_byte(&p[i])) && c != '\n') {
-    char cmd[i + 1];
-    memcpy_P(cmd, p, i);
-    cmd[i] = '\0';
-    enqueue_one_now(cmd);
-    if (!c) break;
-    p += i + 1;
+      char cmd[i + 1];
+      memcpy_P(cmd, p, i);
+      cmd[i] = '\0';
+      enqueue_one_now(cmd);
+      if (!c) break;
+      p += i + 1;
+    }
   }
 }
 
