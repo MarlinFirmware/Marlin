@@ -39,9 +39,12 @@
   #include "../../feature/tmc_util.h"
 #endif
 
-#if HAS_BED_PROBE
+#if HOMING_Z_WITH_PROBE || ENABLED(BLTOUCH)
   #include "../../module/probe.h"
-  #define STOW_PROBE_BEFORE_HOMING NONE(Z_PROBE_ALLEN_KEY, Z_PROBE_SLED)
+#endif
+
+#if ENABLED(BLTOUCH)
+  #include "../../feature/bltouch.h"
 #endif
 
 #include "../../lcd/ultralcd.h"
@@ -255,10 +258,6 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     set_destination_from_current();
 
-    #if STOW_PROBE_BEFORE_HOMING
-      STOW_PROBE();
-    #endif
-
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
       if (doZ) homeaxis(Z_AXIS);
@@ -338,6 +337,9 @@ void GcodeSuite::G28(const bool always_home_all) {
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
       if (doZ) {
+        #if ENABLED(BLTOUCH)
+          bltouch.init();
+        #endif
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
         #else
