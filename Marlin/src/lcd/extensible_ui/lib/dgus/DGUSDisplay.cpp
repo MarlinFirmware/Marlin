@@ -787,7 +787,7 @@ void DGUSDisplay::ProcessRx() {
   while (dgusserial.available()) {
     switch (rx_datagram_state) {
 
-      case DGUS_IDLE:	// Waiting for the first header byte
+      case DGUS_IDLE: // Waiting for the first header byte
         receivedbyte = dgusserial.read();
         //DEBUG_ECHOPAIR("< ",x);
         if (DGUS_HEADER1 == receivedbyte) rx_datagram_state = DGUS_HEADER1_SEEN;
@@ -842,7 +842,7 @@ void DGUSDisplay::ProcessRx() {
         if (command == DGUS_CMD_READVAR) {
           const uint16_t vp = tmp[0] << 8 | tmp[1];
           const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
-          //DEBUG_ECHOPAIR(" vp=", vp);	DEBUG_ECHOPAIR(" dlen=", dlen);
+          //DEBUG_ECHOPAIR(" vp=", vp, " dlen=", dlen);
           DGUS_VP_Variable ramcopy;
           if (populate_VPVar(vp, &ramcopy)) {
             if (!(dlen == ramcopy.size || (dlen == 2 && ramcopy.size == 1)))

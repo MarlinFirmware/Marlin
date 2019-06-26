@@ -53,7 +53,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SERVOS && !(IS_32BIT_TEENSY || defined(TARGET_LPC1768) || defined(STM32F1) || defined(STM32F1xx) || defined(STM32F4) || defined(STM32F4xx) || defined(STM32F7xx) || defined(ARDUINO_ARCH_ESP32))
+#if SHARED_SERVOS
 
 #include "servo.h"
 #include "servo_private.h"
@@ -157,4 +157,4 @@ void Servo::move(const int value) {
   }
 }
 
-#endif // HAS_SERVOS
+#endif // SHARED_SERVOS

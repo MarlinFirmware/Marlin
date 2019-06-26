@@ -434,6 +434,10 @@
   #include "pins_MKS_ROBIN_MINI.h"    // STM32F1                                    env:mks_robin_mini
 #elif MB(JGAURORA_A5S_A1)
   #include "pins_JGAURORA_A5S_A1.h"   // STM32F1                                    env:JGAURORA_A5S_A1
+#elif MB(FYSETC_AIO_II)
+  #include "pins_FYSETC_AIO_II.h"     // STM32F1                                    env:fysetc_STM32F1
+#elif MB(FYSETC_CHEETAH)
+  #include "pins_FYSETC_CHEETAH.h"    // STM32F1                                    env:fysetc_STM32F1
 
 //
 // STM32 ARM Cortex-M4F
@@ -455,8 +459,6 @@
   #include "pins_BLACK_STM32F407VE.h" // STM32F4                                    env:black_stm32f407ve
 #elif MB(STEVAL)
   #include "pins_STEVAL.h"            // STM32F4                                    env:STM32F4
-
-
 
 //
 // ARM Cortex M7

@@ -63,6 +63,8 @@ uint8_t _getc();
 #include "HAL_timers.h"
 #include "serial.h"
 
+#define SHARED_SERVOS HAS_SERVOS
+
 extern HalSerial usb_serial;
 #define MYSERIAL0 usb_serial
 #define NUM_SERIAL 1
