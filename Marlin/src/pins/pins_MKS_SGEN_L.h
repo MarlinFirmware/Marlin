@@ -28,17 +28,8 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME        "MKS SGEN-L"
-#endif
-#ifndef BOARD_WEBSITE_URL
-  #define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SGEN_L"
-#endif
-
-#define LED_PIN            P1_18   // Used as a status indicator
-#define LED2_PIN           P1_19
-#define LED3_PIN           P1_20
-#define LED4_PIN           P1_21
+#define BOARD_NAME        "MKS SGEN-L"
+#define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SGEN_L"
 
 //
 // Servo pin
@@ -100,7 +91,6 @@
 #ifndef E1_CS_PIN
   #define E1_CS_PIN        P1_17
 #endif
-
 
 //
 // Software SPI pins for TMC2130 stepper drivers
@@ -172,6 +162,13 @@
   #define FAN_PIN          P2_04
 #endif
 
+//
+// Misc. Functions
+//
+#define LED_PIN            P1_18   // Used as a status indicator
+#define LED2_PIN           P1_19
+#define LED3_PIN           P1_20
+#define LED4_PIN           P1_21
 
 /**
  *                _____                                            _____
@@ -183,7 +180,6 @@
  *                -----                                            -----
  *                EXP1                                             EXP2
  */
-
 #if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN       P1_31
   #define BTN_ENC          P1_30
@@ -256,45 +252,30 @@
 
 #endif // ULTRA_LCD
 
-#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
-  #undef USB_SD_DISABLED
-  #define USB_SD_ONBOARD
-  #define LPC_SD_ONBOARD
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION ONBOARD
 #endif
 
-#if ENABLED(LPC_SD_LCD)
-  // use standard cable and header, SPI and SD detect sre shared with on-board SD card
-  // hardware SPI is used for both SD cards. The detect pin is shred between the
-  // LCD and onboard SD readers so we disable it.
+#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
+
+#if SD_CONNECTION_IS(LCD)
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_28   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
-
-#elif ENABLED(LPC_SD_ONBOARD)
-
-  // The external SD card is not used. Hardware SPI is used to access the card.
-  #if ENABLED(USB_SD_ONBOARD)
-    // When sharing the SD card with a PC we want the menu options to
-    // mount/unmount the card and refresh it. So we disable card detect.
-    #define SHARED_SD_CARD
-  #else
-    #define SD_DETECT_PIN  P0_27
-  #endif
+  #define SS_PIN           P0_28
+#elif SD_CONNECTION_IS(ONBOARD)
+  #define SD_DETECT_PIN    P0_27
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
-
+  #define SS_PIN           ONBOARD_SD_CS_PIN
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "No custom SD drive cable defined for this board."
 #endif
 
 //
-// Misc. Functions
+// Other Pins
 //
-#define PIN_P0_02          P0_02   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
-#define PIN_P0_03          P0_03   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
-#define PS_ON_PIN          P1_23   // SERVO P1.23
-#define PIN_P0_27          P0_27   // EXP2/Onboard SD
-#define PIN_P0_28          P0_28   // EXP2
+//#define PIN_P0_02          P0_02   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+//#define PIN_P0_03          P0_03   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+//#define PS_ON_PIN          P1_23   // SERVO P1.23
