@@ -2880,8 +2880,8 @@ void Planner::set_max_jerk(AxisEnum axis, float targetValue) {
     planner.max_jerk[axis] = targetValue;
   #else
     #ifdef MAX_JERK_MANUAL
-    static constexpr float Planner::max_jerk[] = MAX_JERK_MANUAL;
-    static float jrk_limit = max_jerk[axis];
+    static constexpr float max_jerk_limit[] = MAX_JERK_MANUAL;
+    static float jrk_limit = max_jerk_limit[axis];
     #else
       static float jrk_limit;
       if( axis == X_AXIS)
