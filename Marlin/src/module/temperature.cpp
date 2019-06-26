@@ -351,7 +351,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
     float max = 0, min = 10000;
 
     const bool isbed = (heater < 0);
-    
+
     #if HAS_PID_FOR_BOTH
       #define GHV(B,H) (isbed ? (B) : (H))
       #define SHV(B,H) do{ if (isbed) temp_bed.soft_pwm_amount = B; else temp_hotend[heater].soft_pwm_amount = H; }while(0)
