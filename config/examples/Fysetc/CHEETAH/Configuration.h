@@ -104,7 +104,7 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT 1 // geo-f:由于libmaple 0 用的是USB，1才是串口 old:0
+#define SERIAL_PORT 1 // libmaple USB 1, old:0
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
@@ -2091,7 +2091,7 @@
 //#define RGBW_LED
 
 #if EITHER(RGB_LED, RGBW_LED)
-  //#define RGB_LED_R_PIN 34 
+  //#define RGB_LED_R_PIN 34
   //#define RGB_LED_G_PIN 43
   //#define RGB_LED_B_PIN 35
   //#define RGB_LED_W_PIN -1
