@@ -439,14 +439,6 @@ G29_TYPE GcodeSuite::G29() {
     // Be formal so G29 can be done successively without G28.
     if (!no_action) set_bed_leveling_enabled(false);
 
-    #if HAS_BED_PROBE
-      // Deploy the probe. Probe will raise if needed.
-      if (DEPLOY_PROBE()) {
-        set_bed_leveling_enabled(abl_should_enable);
-        G29_RETURN(false);
-      }
-    #endif
-
     if (!faux) setup_for_endstop_or_probe_move();
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
