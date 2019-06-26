@@ -944,6 +944,13 @@ void setup() {
     if (!card.isDetected()) card.initsd();
   #endif
 
+  // USE_CONTROLLER_FAN must be initialized before EEPROM
+  // (because fanController.init code Initialize the default configurations).
+  #if ENABLED(USE_CONTROLLER_FAN)
+    SET_OUTPUT(CONTROLLER_FAN_PIN);
+    fanController.init();
+  #endif
+
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
   (void)settings.load();
@@ -989,11 +996,6 @@ void setup() {
 
   #if HAS_BED_PROBE
     endstops.enable_z_probe(false);
-  #endif
-
-  #if ENABLED(USE_CONTROLLER_FAN)
-    SET_OUTPUT(CONTROLLER_FAN_PIN);
-    fanController.init();
   #endif
 
   #if HAS_STEPPER_RESET

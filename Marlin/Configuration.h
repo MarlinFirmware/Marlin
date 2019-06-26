@@ -138,8 +138,8 @@
   #define ANYCUBIC_4MAX
 
   // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
-  #define ANYCUBIC_4MAX_VG3R
-  //#define ANYCUBIC_4MAX_7OF9
+  //#define ANYCUBIC_4MAX_VG3R
+  #define ANYCUBIC_4MAX_7OF9
   //#define ANYCUBIC_4MAX_DEFAULT
 
 #endif
@@ -958,7 +958,7 @@
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.98  // Z offset: -below +above  [the nozzle]
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Offset
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.58  // Z offset: -below +above  [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.67  // Z offset: -below +above  [the nozzle]
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0      // Z offset: -below +above  [the nozzle]
 #endif

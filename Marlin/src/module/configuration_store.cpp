@@ -274,7 +274,7 @@ typedef struct SettingsDataStruct {
   //
   // controller fan
   //
-  controllerFan_settings_t fanController_settings;     // M ? 
+  controllerFan_settings_t fanController_settings;     // M710
 
 
 
@@ -1694,6 +1694,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
           EEPROM_READ(fanController.settings_fan);
         #else
+          dummy=0;
           for (uint8_t q=3; q--;) EEPROM_READ(dummy);
         #endif
       }
