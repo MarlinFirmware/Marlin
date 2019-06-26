@@ -481,6 +481,11 @@
 #elif MB(LINUX_RAMPS)
   #include "pins_RAMPS_LINUX.h"       // Linux                                      env:linux_native
 
+#elif MB(FYSETC_AIO_II)
+  #include "pins_FYSETC_AIO_II.h"
+#elif MB(FYSETC_CHEETAH)
+  #include "pins_FYSETC_CHEETAH.h"
+  
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
