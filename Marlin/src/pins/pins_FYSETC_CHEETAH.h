@@ -21,20 +21,13 @@
  */
 
 #ifndef __STM32F1__
-  #error "Oops!  Make sure you have an STM32F1 board selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
-
-/**
- * 21017 Victor Perez Marlin for stm32f1 test
- */
 
 #define DEFAULT_MACHINE_NAME "3D Printer"
-//#define BOARD_NAME "Marlin for STM32"
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "FYSETC CHEETAH"
-  #define DEFAULT_WEBSITE_URL "https://fysetc.com"
-#endif
+#define BOARD_NAME "FYSETC CHEETAH"
+#define BOARD_WEBSITE_URL "https://fysetc.com"
 
 // Ignore temp readings during develpment.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
@@ -47,13 +40,14 @@
 //
 // Limit Switches
 //
-#define U_MIN_PIN          -1
-#define V_MIN_PIN          -1
-#define W_MIN_PIN          -1
-
 #define X_STOP_PIN         PA1
 #define Y_STOP_PIN         PB4
 #define Z_STOP_PIN         PA15
+
+//
+// Filament runout
+//
+#define FIL_RUNOUT_PIN     PB5
 
 //
 // Steppers
@@ -74,93 +68,75 @@
 #define E0_DIR_PIN         PC14
 #define E0_ENABLE_PIN      PC13
 
-#define X_HARDWARE_SERIAL  MSerial2 // geo-f:need double check
+#define X_HARDWARE_SERIAL  MSerial2   // Port correct?
 #define Y_HARDWARE_SERIAL  MSerial2
 #define Z_HARDWARE_SERIAL  MSerial2
 #define E0_HARDWARE_SERIAL MSerial2
 
-#define X_SLAVE_ADDR  0
-#define Y_SLAVE_ADDR  1
-#define Z_SLAVE_ADDR  2
-#define E0_SLAVE_ADDR 3
-
-#define TMC2209_XYZE_IN_ONE
-
-//
-// Misc. Functions
-//
-#define LED_PIN            -1
-
-//
-// Filament runout
-//
-#define FIL_RUNOUT_PIN     PB5
-
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PC6   // EXTRUDER 1 
-//#define HEATER_1_PIN     PB1
-
-#define HEATER_BED_PIN     PC7   // BED
-
+#define HEATER_0_PIN       PC6
+#define HEATER_BED_PIN     PC7
 #ifndef FAN_PIN
   #define FAN_PIN          PC8
 #endif
-#define FAN1_PIN           -1
-
 
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN       PC5   // ANALOG NUMBERING
-#define TEMP_0_PIN         PC4   // ANALOG NUMBERING
-//#define TEMP_1_PIN         PA2   // ANALOG NUMBERING
+#define TEMP_BED_PIN       PC5   // Analog Input
+#define TEMP_0_PIN         PC4   // Analog Input
+
+//
+// Misc. Functions
+//
+#define SDSS               PA4
 
 //
 // LCD Pins
 //
-//#define LCD_RESET_PIN			-1  
-#define LCD_RED_PIN				PB0
-#define LCD_GREEN_PIN			PB7
-#define LCD_BLUE_PIN 			PB6
+#if ENABLED(ULTRA_LCD)
 
-#define BEEPER_PIN        PC9
+  #define BEEPER_PIN       PC9
 
+  #if HAS_GRAPHICAL_LCD
+    #define DOGLCD_A0      PB14
+    #define DOGLCD_CS      PB12
+    #define DOGLCD_SCK     PB13
+    #define DOGLCD_MOSI    PB15
+    //#define LCD_SCREEN_ROT_90
+    //#define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROT_270
 
-// Pins for DOGM SPI LCD Support
-#define DOGLCD_A0         PB14
-#define DOGLCD_CS         PB12
+    #if ENABLED(FYSETC_MINI_12864) || ENABLED(U8GLIB_ST7920)
+      #define FORCE_SOFT_SPI
+    #endif
+  #endif
 
-#define DOGLCD_SCK        PB13
-#define DOGLCD_MOSI       PB15
+  #define LCD_PINS_RS      PB12   // CS -- SOFT SPI for ENDER3 LCD
+  #define LCD_PINS_D4      PB13   // SCLK
+  #define LCD_PINS_ENABLE  PB15   // DATA MOSI
 
-#define LCD_PINS_RS       PB12  // CS    // SOFT SPI for ENDER3 LCD
-#define LCD_PINS_D4       PB13 // SCLK
-#define LCD_PINS_ENABLE   PB15 // DATA MOSI
+  // not connected to a pin
+  #define SD_DETECT_PIN    PC3
 
-#if ENABLED(FYSETC_MINI_12864) || ENABLED (U8GLIB_ST7920)
-  #define FORCE_SOFT_SPI
+  #ifndef RGB_LED_R_PIN
+    #define RGB_LED_R_PIN  PB0
+  #endif
+  #ifndef RGB_LED_G_PIN
+    #define RGB_LED_G_PIN  PB7
+  #endif
+  #ifndef RGB_LED_B_PIN
+    #define RGB_LED_B_PIN  PB6
+  #endif
+
+  //#define LCD_CONTRAST   190
+
+  #if ENABLED(NEWPANEL)
+    #define BTN_EN1        PC11
+    #define BTN_EN2        PC10
+    #define BTN_ENC        PC12
+  #endif
+
 #endif
-
-//#define LCD_BACKLIGHT_PIN -1   // backlight LED on A11/D65
-#define SDSS              PA4
-
-//#define KILL_PIN          -1
-// GLCD features
-//#define LCD_CONTRAST   190
-// Uncomment screen orientation
-//#define LCD_SCREEN_ROT_90
-//#define LCD_SCREEN_ROT_180
-//#define LCD_SCREEN_ROT_270
-// The encoder and click button
-#define BTN_EN1           PC11
-#define BTN_EN2           PC10
-#define BTN_ENC           PC12
-// not connected to a pin
-#define SD_DETECT_PIN     PC3
-
-#define RGB_LED_R_PIN PB0
-#define RGB_LED_G_PIN PB7
-#define RGB_LED_B_PIN PB6
-
