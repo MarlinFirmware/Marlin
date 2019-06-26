@@ -200,17 +200,9 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
   #endif
 
-  if (parser.boolval('O')) {
-    if (
-      #if ENABLED(HOME_AFTER_DEACTIVATE)
-        all_axes_known()  // homing needed anytime steppers deactivate
-      #else
-        all_axes_homed()  // homing needed only if never homed
-      #endif
-    ) {
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
-      return;
-    }
+  if (!homing_needed() && parser.boolval('O')) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
+    return;
   }
 
   // Wait for planner moves to finish!
