@@ -10,19 +10,19 @@ Import("env", "projenv")
 env.AddPostAction(
 	"$BUILD_DIR/${PROGNAME}.elf",
 	env.VerboseAction(" ".join([
-                "$OBJCOPY",
-                "-O",
-                "ihex",
-                "$BUILD_DIR/${PROGNAME}.elf",
+				"$OBJCOPY",
+				"-O",
+				"ihex",
+				"$BUILD_DIR/${PROGNAME}.elf",
 				"$BUILD_DIR/${PROGNAME}.hex"
-            ]), "Building $TARGET"))
+			]), "Building $TARGET"))
 
 # please keep $SOURCE variable, it will be replaced with a path to firmware
 
 # Generic
 #env.Replace(
-#   UPLOADER="serial_upload.bat"
-#    UPLOADCMD="$UPLOADER stm32loader.py $SOURCE"
+#	UPLOADER="serial_upload.bat"
+#	UPLOADCMD="$UPLOADER stm32loader.py $SOURCE"
 #)
 
 # In-line command with arguments
