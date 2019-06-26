@@ -991,7 +991,7 @@ void setup() {
     endstops.enable_z_probe(false);
   #endif
 
-  #if ENABLED(USE_CONTROLLER_FAN)
+  #if HAS_CONTROLLER_FAN
     SET_OUTPUT(CONTROLLER_FAN_PIN);
   #endif
 

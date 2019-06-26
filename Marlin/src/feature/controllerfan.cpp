@@ -79,9 +79,11 @@ void controllerfan_update() {
     uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
     controllerfan_speed = speed;
 
-    // allows digital or PWM fan output to be used (see M42 handling)
-    WRITE(CONTROLLER_FAN_PIN, speed);
-    analogWrite(CONTROLLER_FAN_PIN, speed);
+    #if HAS_CONTROLLER_FAN
+      // allows digital or PWM fan output to be used (see M42 handling)
+      WRITE(CONTROLLER_FAN_PIN, speed);
+      analogWrite(CONTROLLER_FAN_PIN, speed);
+    #endif
   }
 }
 
