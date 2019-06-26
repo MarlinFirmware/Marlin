@@ -132,13 +132,7 @@ void GcodeSuite::G34() {
     );
 
     // Home before the alignment procedure
-    if (!
-        #if ENABLED(HOME_AFTER_DEACTIVATE)
-          all_axes_known()  // homing needed anytime steppers deactivate
-        #else
-          all_axes_homed()  // homing needed only if never homed
-        #endif
-       ) home_all_axes();
+    if (homing_needed()) home_all_axes();
     
     // Move the Z coordinate realm towards the positive - dirty trick
     current_position[Z_AXIS] -= z_probe * 0.5;
