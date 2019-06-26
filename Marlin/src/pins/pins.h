@@ -324,6 +324,8 @@
   #include "pins_MKS_SBASE.h"           // LPC1768                                    env:LPC1768
 #elif MB(MKS_SGEN)
   #include "pins_MKS_SGEN.h"            // LPC1769                                    env:LPC1769
+#elif MB(MKS_SGEN_L)
+  #include "pins_MKS_SGEN_L.h"          // LPC1768                                    env:LPC1768
 #elif MB(AZSMZ_MINI)
   #include "pins_AZSMZ_MINI.h"          // LPC1768                                    env:LPC1768
 #elif MB(AZTEEG_X5_GT)
