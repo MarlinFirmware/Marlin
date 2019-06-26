@@ -112,58 +112,55 @@
 #endif
 
 #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+  /**
+   * TMC2208 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  //#define X_HARDWARE_SERIAL  Serial
+  //#define X2_HARDWARE_SERIAL Serial1
+  //#define Y_HARDWARE_SERIAL  Serial1
+  //#define Y2_HARDWARE_SERIAL Serial1
+  //#define Z_HARDWARE_SERIAL  Serial1
+  //#define Z2_HARDWARE_SERIAL Serial1
+  //#define E0_HARDWARE_SERIAL Serial1
+  //#define E1_HARDWARE_SERIAL Serial1
+  //#define E2_HARDWARE_SERIAL Serial1
+  //#define E3_HARDWARE_SERIAL Serial1
+  //#define E4_HARDWARE_SERIAL Serial1
 
+  //
+  // Software serial
+  //
 
-/**
- * TMC2208 stepper drivers
- *
- * Hardware serial communication ports.
- * If undefined software serial is used according to the pins below
- */
-//#define X_HARDWARE_SERIAL  Serial
-//#define X2_HARDWARE_SERIAL Serial1
-//#define Y_HARDWARE_SERIAL  Serial1
-//#define Y2_HARDWARE_SERIAL Serial1
-//#define Z_HARDWARE_SERIAL  Serial1
-//#define Z2_HARDWARE_SERIAL Serial1
-//#define E0_HARDWARE_SERIAL Serial1
-//#define E1_HARDWARE_SERIAL Serial1
-//#define E2_HARDWARE_SERIAL Serial1
-//#define E3_HARDWARE_SERIAL Serial1
-//#define E4_HARDWARE_SERIAL Serial1
+  #define X_SERIAL_TX_PIN  P1_04
+  #define X_SERIAL_RX_PIN  P1_01
 
-//
-// Software serial
-//
+  #define Y_SERIAL_TX_PIN  P1_09
+  #define Y_SERIAL_RX_PIN  P1_08
 
-#define X_SERIAL_TX_PIN  P1_04
-#define X_SERIAL_RX_PIN  P1_01
+  #define Z_SERIAL_TX_PIN  P1_14
+  #define Z_SERIAL_RX_PIN  P1_10
 
-#define Y_SERIAL_TX_PIN  P1_09
-#define Y_SERIAL_RX_PIN  P1_08
+  #define E0_SERIAL_TX_PIN P1_16
+  #define E0_SERIAL_RX_PIN P1_15
 
-#define Z_SERIAL_TX_PIN  P1_14
-#define Z_SERIAL_RX_PIN  P1_10
+  #define E1_SERIAL_TX_PIN P4_29
+  #define E1_SERIAL_RX_PIN P1_17
 
-#define E0_SERIAL_TX_PIN P1_16
-#define E0_SERIAL_RX_PIN P1_15
+  #define Z2_SERIAL_TX_PIN P4_29
+  #define Z2_SERIAL_RX_PIN P1_17
 
-#define E1_SERIAL_TX_PIN P4_29
-#define E1_SERIAL_RX_PIN P1_17
-
-#define Z2_SERIAL_TX_PIN P4_29
-#define Z2_SERIAL_RX_PIN P1_17
-
-#endif
-
+#endif // TMC2208 || TMC2209
 
 //
 // Temperature Sensors
 // 3.3V max when defined as an analog input
 //
-#define TEMP_0_PIN         0   // A0 (TH1)
-#define TEMP_BED_PIN       1   // A1 (TB)
-#define TEMP_1_PIN         2   // A2 (TH2)
+#define TEMP_0_PIN         0   // Analog Input A0 (TH1)
+#define TEMP_BED_PIN       1   // Analog Input A1 (TB)
+#define TEMP_1_PIN         2   // Analog Input A2 (TH2)
 
 //
 // Heaters / Fans
@@ -176,16 +173,16 @@
 #endif
 
 
-/*
-|                _____                                            _____
-| (BEEPER) 1.31 | · · | 1.30 (BTN_ENC)          (MISO)       0.8 | · · | 0.7  (SD_SCK)
-| (LCD_EN) 0.18 | · · | 0.16 (LCD_RS)           (BTN_EN1)   3.25 | · · | 0.28 (SD_CS2)
-| (LCD_D4) 0.15 | · · | 0.17 (LCD_D5)           (BTN_EN2)   3.26 | · · | 1.20 (SD_MOSI)
-| (LCD_D6)  1.0 | · · | 1.22 (LCD_D7)           (SD_DETECT) 0.27 | · · | RST
-|           GND | · · | 5V                                   GND | · · | NC
-|                ￣￣                                             ￣￣
-|                EXP1                                             EXP2
-*/
+/**
+ *                _____                                            _____
+ * (BEEPER) 1.31 | · · | 1.30 (BTN_ENC)          (MISO)       0.8 | · · | 0.7  (SD_SCK)
+ * (LCD_EN) 0.18 | · · | 0.16 (LCD_RS)           (BTN_EN1)   3.25 | · · | 0.28 (SD_CS2)
+ * (LCD_D4) 0.15 | · · | 0.17 (LCD_D5)           (BTN_EN2)   3.26 | · · | 1.20 (SD_MOSI)
+ * (LCD_D6)  1.0 | · · | 1.22 (LCD_D7)           (SD_DETECT) 0.27 | · · | RST
+ *           GND | · · | 5V                                   GND | · · | NC
+ *                -----                                            -----
+ *                EXP1                                             EXP2
+ */
 
 #if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN       P1_31
@@ -265,7 +262,6 @@
   #define LPC_SD_ONBOARD
 #endif
 
-
 #if ENABLED(LPC_SD_LCD)
   // use standard cable and header, SPI and SD detect sre shared with on-board SD card
   // hardware SPI is used for both SD cards. The detect pin is shred between the
@@ -302,4 +298,3 @@
 #define PS_ON_PIN          P1_23   // SERVO P1.23
 #define PIN_P0_27          P0_27   // EXP2/Onboard SD
 #define PIN_P0_28          P0_28   // EXP2
-
