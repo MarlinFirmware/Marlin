@@ -1062,13 +1062,11 @@
 
 #endif // SDSUPPORT
 
-#ifdef TARGET_LPC1768
-  /**
-   * By default the onboard SD card reader is shared as a USB mass storage device. To disbale this
-   * sharing define the following.
-   */
-  //#define USB_SD_DISABLED   // Disable SD Card access over USB (for security).
-#endif
+/**
+ * By default an onboard SD card reader will be shared as a USB mass-
+ * storage device. This option hides the SD card from the host PC.
+ */
+//#define NO_SD_HOST_DRIVE   // Disable SD Card access over USB (for security).
 
 /**
  * Additional options for Graphical Displays

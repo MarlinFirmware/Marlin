@@ -69,12 +69,3 @@
 #if IS_RE_ARM_BOARD && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && HAS_DRIVER(TMC2130) && DISABLED(TMC_USE_SW_SPI)
   #error "Re-ARM with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER and TMC2130 require TMC_USE_SW_SPI"
 #endif
-
-// Check SDCARD_CONNECTION options
-#if ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
-  #error "LPC_SD_(LCD|ONBOARD|CUSTOM_CABLE) are now SDCARD_CONNECTION. Please update your Configuration_adv.h."
-#endif
-
-#if ENABLED(USB_SD_ONBOARD)
-  #error "USB_SD_ONBOARD is no longer used (see USB_SD_DISABLED). Please update your Configuration_adv.h."
-#endif

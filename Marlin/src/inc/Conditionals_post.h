@@ -1734,7 +1734,7 @@
 // mount/unmount the card and refresh it. So we disable card detect.
 //
 #if ENABLED(SDSUPPORT)
-  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(USB_SD_DISABLED)
+  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE)
     #undef SD_DETECT_PIN
     #define SHARED_SD_CARD
   #endif
