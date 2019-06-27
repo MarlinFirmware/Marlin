@@ -966,7 +966,7 @@ G29_TYPE GcodeSuite::G29() {
     #ifdef Z_PROBE_END_SCRIPT
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
       planner.synchronize();
-      queue.inject_P(PSTR(Z_PROBE_END_SCRIPT));
+      process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
     #endif
 
     // Auto Bed Leveling is complete! Enable if possible.
