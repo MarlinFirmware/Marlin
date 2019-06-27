@@ -1384,7 +1384,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif (E1_AUTO_FAN_PIN == CONTROLLER_FAN_PIN) && (CONTROLLER_FAN_PIN != PS_ON_PIN)
     #error "You cannot set E1_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
   #elif (E2_AUTO_FAN_PIN == CONTROLLER_FAN_PIN) && (CONTROLLER_FAN_PIN != PS_ON_PIN)
-    #err(or "You cannot set E2_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
+    #error "You cannot set E2_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
   #elif (E3_AUTO_FAN_PIN == CONTROLLER_FAN_PIN) && (CONTROLLER_FAN_PIN != PS_ON_PIN)
     #error "You cannot set E3_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
   #endif
