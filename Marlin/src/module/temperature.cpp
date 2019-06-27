@@ -684,11 +684,11 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
     uint8_t fanState = 0;
 
     HOTEND_LOOP()
-      if (temp_hotend[e].current > EXTRUDER_AUTO_FAN_TEMPERATURE)
+      if (temp_hotend[e].current >= EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[e]));
 
     #if HAS_AUTO_CHAMBER_FAN
-      if (temp_chamber.current > CHAMBER_AUTO_FAN_TEMPERATURE)
+      if (temp_chamber.current >= CHAMBER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[CHAMBER_FAN_INDEX]));
     #endif
 
