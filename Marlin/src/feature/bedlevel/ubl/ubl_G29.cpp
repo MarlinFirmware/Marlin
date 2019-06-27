@@ -674,11 +674,12 @@
       ui.reset_status();
       ui.release();
     #endif
+
     #ifdef Z_PROBE_END_SCRIPT
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
       if (probe_deployed) {
         planner.synchronize();
-        queue.enqueue_now_P(PSTR(Z_PROBE_END_SCRIPT));
+        process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
       }
     #endif
 
