@@ -66,8 +66,6 @@ void host_action(const char * const pstr, const bool eol) {
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
-  #include "../gcode/gcode.h"
-
   PromptReason host_prompt_reason = PROMPT_NOT_DEFINED;
 
   void host_action_prompt(const char * const ptype, const bool eol=true) {
@@ -144,7 +142,7 @@ void host_action(const char * const pstr, const bool eol) {
         break;
       case PROMPT_PAUSE_RESUME:
         msg = PSTR("LCD_PAUSE_RESUME");
-        gcode.process_subcommands_now_P(PSTR("M24"));
+        queue.inject_P(PSTR("M24"));
         break;
       case PROMPT_INFO:
         msg = PSTR("GCODE_INFO");
