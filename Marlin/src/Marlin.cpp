@@ -508,7 +508,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     const int HOME_DEBOUNCE_DELAY = 2500;
     if (!IS_SD_PRINTING() && !READ(HOME_PIN)) {
       if (!homeDebounceCount) {
-        queue.inject_P(PSTR("G28"));
+        queue.enqueue_now_P(PSTR("G28"));
         LCD_MESSAGEPGM(MSG_AUTO_HOME);
       }
       if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
