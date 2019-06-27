@@ -89,6 +89,8 @@ typedef int8_t pin_t;
 #undef pgm_read_word
 #define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
+inline void HAL_init(void) { }
+
 // Clear the reset reason
 void HAL_clear_reset_source(void);
 

@@ -27,9 +27,8 @@
  */
 
 #define CPU_32_BIT
-#define HAL_INIT
 
-void HAL_init();
+void HAL_init(void);
 
 #include <stdint.h>
 #include <stdarg.h>
