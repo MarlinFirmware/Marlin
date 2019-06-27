@@ -158,6 +158,8 @@ extern uint16_t HAL_adc_result;
 // Memory related
 #define __bss_end __bss_end__
 
+inline void HAL_init(void) { }
+
 /** clear reset reason */
 void HAL_clear_reset_source (void);
 
