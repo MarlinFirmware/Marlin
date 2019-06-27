@@ -280,9 +280,9 @@
 #define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
   #define CONTROLLER_FAN_PIN 2           // Set a custom pin for the controller fan
+  #define CONTROLLERFAN_SECS 60          // Duration in seconds for the fan to run after all motors are disabled
+  #define CONTROLLERFAN_SPEED 130        // 255 == full speed
 #endif
-#define CONTROLLERFAN_SECS 60          // Duration in seconds for the fan to run after all motors are disabled
-#define CONTROLLERFAN_SPEED 130        // 255 == full speed
 
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
