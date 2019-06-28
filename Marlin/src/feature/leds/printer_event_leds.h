@@ -35,6 +35,13 @@ private:
   #if HAS_LEDS_OFF_FLAG
     static bool leds_off_after_print;
   #endif
+  static inline void set_done() {
+    #if ENABLED(LED_USER_PRESET_OFF_DEFAULT)
+      leds.set_default();
+    #else
+      leds.set_off();
+    #endif
+  }
 
 public:
   #if HAS_TEMP_HOTEND
@@ -60,14 +67,14 @@ public:
         leds_off_after_print = true;
       #else
         safe_delay(2000);
-        leds.set_off();
+        set_done();
       #endif
     }
 
     static inline void onResumeAfterWait() {
       #if HAS_LEDS_OFF_FLAG
         if (leds_off_after_print) {
-          leds.set_off();
+          set_done();
           leds_off_after_print = false;
         }
       #endif
