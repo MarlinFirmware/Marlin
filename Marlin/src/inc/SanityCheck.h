@@ -2284,3 +2284,11 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "MIN_ and MAX_SOFTWARE_ENDSTOPS are both required with offset hotends."
   #endif
 #endif
+
+#if ENABLED(AUTO_POWER_CONTROL)
+  #if ENABLED(AUTO_POWER_E_TEMP) && !defined(EXTRUDER_AUTO_FAN_TEMPERATURE)
+    #error "EXTRUDER_AUTO_FAN_TEMPERATURE is required for AUTO_POWER_E_TEMP."
+  #elif ENABLED(AUTO_POWER_CHAMBER_TEMP) && !defined(CHAMBER_AUTO_FAN_TEMPERATURE)
+    #error "CHAMBER_AUTO_FAN_TEMPERATURE is required for AUTO_POWER_CHAMBER_TEMP."
+  #endif
+#endif
