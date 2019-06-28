@@ -985,7 +985,7 @@
     st.TCOOLTHRS(0xFFFFF);
     return true;
   }
-  void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth) {
+  void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth _UNUSED) {
     st.TCOOLTHRS(0);
   }
 

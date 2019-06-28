@@ -245,6 +245,7 @@ namespace ExtUI {
     #if FAN_COUNT > 0
       return thermalManager.fanPercent(thermalManager.fan_speed[fan - FAN0]);
     #else
+      UNUSED(fan);
       return 0;
     #endif
   }
@@ -253,6 +254,7 @@ namespace ExtUI {
     #if FAN_COUNT > 0
       return thermalManager.fanPercent(thermalManager.scaledFanSpeed(fan - FAN0));
     #else
+      UNUSED(fan);
       return 0;
     #endif
   }
@@ -261,7 +263,7 @@ namespace ExtUI {
     return flags.manual_motion ? destination[axis] : current_position[axis];
   }
 
-  float getAxisPosition_mm(const extruder_t extruder) {
+  float getAxisPosition_mm(const extruder_t) {
     return flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
   }
 
@@ -361,6 +363,9 @@ namespace ExtUI {
         if (e != active_extruder) tool_change(e, no_move);
       #endif
       active_extruder = e;
+    #else
+      UNUSED(extruder);
+      UNUSED(no_move);
     #endif
   }
 
@@ -514,6 +519,9 @@ namespace ExtUI {
   }
 
   float getAxisSteps_per_mm(const extruder_t extruder) {
+    #if DISABLED(DISTINCT_E_FACTORS) || E_STEPPERS == 1
+      UNUSED(extruder);
+    #endif
     return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)];
   }
 
@@ -522,6 +530,9 @@ namespace ExtUI {
   }
 
   void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
+    #if DISABLED(DISTINCT_E_FACTORS) || E_STEPPERS == 1
+      UNUSED(extruder);
+    #endif
     planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = value;
   }
 
@@ -530,6 +541,9 @@ namespace ExtUI {
   }
 
   float getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
+    #if DISABLED(DISTINCT_E_FACTORS) || E_STEPPERS == 1
+      UNUSED(extruder);
+    #endif
     return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
   }
 
@@ -538,6 +552,9 @@ namespace ExtUI {
   }
 
   void setAxisMaxFeedrate_mm_s(const float value, const extruder_t extruder) {
+    #if DISABLED(DISTINCT_E_FACTORS) || E_STEPPERS == 1
+      UNUSED(extruder);
+    #endif
     planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = value;
   }
 
@@ -546,6 +563,9 @@ namespace ExtUI {
   }
 
   float getAxisMaxAcceleration_mm_s2(const extruder_t extruder) {
+    #if DISABLED(DISTINCT_E_FACTORS) || E_STEPPERS == 1
+      UNUSED(extruder);
+    #endif
     return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)];
   }
 
@@ -554,6 +574,9 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
+    #if DISABLED(DISTINCT_E_FACTORS) || E_STEPPERS == 1
+      UNUSED(extruder);
+    #endif
     planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)] = value;
   }
 
@@ -597,7 +620,7 @@ namespace ExtUI {
       return planner.max_jerk[axis];
     }
 
-    float getAxisMaxJerk_mm_s(const extruder_t extruder) {
+    float getAxisMaxJerk_mm_s(const extruder_t) {
       return planner.max_jerk[E_AXIS];
     }
 
@@ -605,7 +628,7 @@ namespace ExtUI {
       planner.max_jerk[axis] = value;
     }
 
-    void setAxisMaxJerk_mm_s(const float value, const extruder_t extruder) {
+    void setAxisMaxJerk_mm_s(const float value, const extruder_t) {
       planner.max_jerk[E_AXIS] = value;
     }
   #endif
@@ -829,6 +852,9 @@ namespace ExtUI {
     #if FAN_COUNT > 0
       if (fan < FAN_COUNT)
         thermalManager.set_fan_speed(fan - FAN0, map(clamp(value, 0, 100), 0, 100, 0, 255));
+    #else
+      UNUSED(value);
+      UNUSED(fan);
     #endif
   }
 
