@@ -158,7 +158,7 @@
 #define ENET_TXD0          P1_00   // J12-11
 #define ENET_TXD1          P1_01   // J12-12
 
-#ifndef SDARD_CONNECTION
+#ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION ONBOARD
 #endif
 
