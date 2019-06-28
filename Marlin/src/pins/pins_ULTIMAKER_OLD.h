@@ -80,7 +80,7 @@
 #endif
 
 #if ENABLED(BOARD_REV_1_0)
-  #if ENABLED(SPINDLE_LASER_ENABLE)
+  #if HAS_CUTTER
     #define X_STOP_PIN     13   // SW1  (didn't change) - also has a useable hardware PWM
     #define Y_STOP_PIN     12   // SW2
     #define Z_STOP_PIN     11   // SW3
@@ -106,7 +106,7 @@
 //
 // Z Probe (when not Z_MIN_PIN)
 //
-#if !defined(Z_MIN_PROBE_PIN) && !BOTH(SPINDLE_LASER_ENABLE, BOARD_REV_1_0)
+#if !defined(Z_MIN_PROBE_PIN) && !(HAS_CUTTER && ENABLED(BOARD_REV_1_0))
   #define Z_MIN_PROBE_PIN  Z_MAX_PIN
 #endif
 
@@ -125,7 +125,7 @@
 #define Z_DIR_PIN          39
 #define Z_ENABLE_PIN       35
 
-#if BOTH(SPINDLE_LASER_ENABLE, BOARD_REV_1_1_TO_1_3) && EXTRUDERS == 1
+#if HAS_CUTTER && ENABLED(BOARD_REV_1_1_TO_1_3) && EXTRUDERS == 1
   // Move E0 to the spare and get Spindle/Laser signals from E0
   #define E0_STEP_PIN      49
   #define E0_DIR_PIN       47
@@ -214,7 +214,7 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(SPINDLE_LASER_ENABLE)
+#if HAS_CUTTER
   #if EITHER(BOARD_REV_1_0, BOARD_REV_1_5) // Use the last three SW positions
     #define SPINDLE_DIR_PIN          10   // 1.0: SW4  1.5: EXP3-6 ("10")
     #define SPINDLE_LASER_PWM_PIN     9   // 1.0: SW5  1.5: EXP3-7 ( "9") .. MUST BE HARDWARE PWM

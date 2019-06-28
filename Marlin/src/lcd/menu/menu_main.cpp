@@ -74,6 +74,11 @@ void menu_configuration();
   void menu_led();
 #endif
 
+#if HAS_CUTTER
+  #include "../../feature/spindle_laser.h"
+  void menu_spindle_laser();
+#endif
+
 #if ENABLED(MIXING_EXTRUDER)
   void menu_mixer();
 #endif
@@ -152,6 +157,10 @@ void menu_main() {
 
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
   }
+
+  #if HAS_CUTTER
+    MENU_ITEM(submenu, MSG_CUTTER(MENU), menu_spindle_laser);
+  #endif
 
   MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
 

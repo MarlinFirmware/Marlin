@@ -157,7 +157,7 @@
 #undef SPINDLE_LASER_ENA_PIN
 #undef SPINDLE_DIR_PIN
 
-#if ENABLED(SPINDLE_LASER_ENABLE)   // EXP2 header
+#if HAS_CUTTER   // EXP2 header
   #if ANY(VIKI2, miniVIKI)
     #undef BTN_EN2
     #define BTN_EN2             31   // need 7 for the spindle speed PWM

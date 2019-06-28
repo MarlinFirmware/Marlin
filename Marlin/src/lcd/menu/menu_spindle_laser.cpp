@@ -20,14 +20,35 @@
  *
  */
 
-/**
- * Test LPC176x-specific configuration values for errors at compile-time.
- */
+//
+// Spindle / Laser Menu
+//
 
-//#if ENABLED(SPINDLE_LASER_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
-//  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
-//#endif
+#include "../../inc/MarlinConfig.h"
 
-#if IS_RE_ARM_BOARD && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && HAS_DRIVER(TMC2130) && DISABLED(TMC_USE_SW_SPI)
-  #error "Re-ARM with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER and TMC2130 require TMC_USE_SW_SPI"
-#endif
+#if HAS_CUTTER
+
+  #include "menu.h"
+
+  #include "../../feature/spindle_laser.h"
+
+  void menu_spindle_laser() {
+
+    START_MENU();
+    MENU_BACK(MSG_MAIN);
+    if (cutter.enabled()) {
+      #if ENABLED(SPINDLE_LASER_PWM)
+        MENU_ITEM_EDIT_CALLBACK(CUTTER_MENU_TYPE, MSG_CUTTER(POWER), &cutter.power, SPEED_POWER_MIN, SPEED_POWER_MAX, cutter.update_output);
+      #endif
+      MENU_ITEM(function, MSG_CUTTER(OFF), cutter.disable);
+    }
+    else {
+      MENU_ITEM(function, MSG_CUTTER(ON), cutter.enable_forward);
+      #if ENABLED(SPINDLE_CHANGE_DIR)
+        MENU_ITEM(function, MSG_SPINDLE_REVERSE, cutter.enable_reverse);
+      #endif
+    }
+    END_MENU();
+  }
+
+#endif // HAS_CUTTER

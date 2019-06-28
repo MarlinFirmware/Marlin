@@ -116,7 +116,7 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(SPINDLE_LASER_ENABLE)
+#if HAS_CUTTER
   #undef HEATER_0_PIN
   #define SPINDLE_LASER_ENA_PIN     P2_07   // FET 1
   #undef HEATER_BED_PIN
