@@ -886,7 +886,7 @@ void MarlinUI::draw_status_screen() {
               uint16_t spd = thermalManager.fan_speed[0];
               if (blink) c = 'F';
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
-                else { c = '*'; spd = (spd * thermalManager.fan_speed_scaler[0]) >> 7; }
+                else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
               #endif
               per = thermalManager.fanPercent(spd);
             }

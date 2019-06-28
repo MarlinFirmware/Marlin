@@ -171,6 +171,9 @@ hotend_info_t Temperature::temp_hotend[HOTENDS
 
   #endif
 
+  /**
+   * Set the print fan speed for a target extruder
+   */
   void Temperature::set_fan_speed(uint8_t target, uint16_t speed) {
 
     NOMORE(speed, 255U);

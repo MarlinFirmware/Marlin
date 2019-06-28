@@ -246,7 +246,7 @@ namespace ExtUI {
   }
 
   float getActualFan_percent(const fan_t fan) {
-    return thermalManager.fanPercent((thermalManager.fan_speed[fan - FAN0] * uint16_t(thermalManager.fan_speed_scaler[fan - FAN0])) >> 7);
+    return thermalManager.fanPercent(thermalManager.scaledFanSpeed(fan - FAN0));
   }
 
   float getAxisPosition_mm(const axis_t axis) {
