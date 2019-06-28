@@ -434,6 +434,8 @@
   #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:mks_robin
 #elif MB(MKS_ROBIN_MINI)
   #include "pins_MKS_ROBIN_MINI.h"    // STM32F1                                    env:mks_robin_mini
+#elif MB(MKS_ROBIN_NANO)
+  #include "pins_MKS_ROBIN_NANO.h"    // STM32F1                                    env:mks_robin_nano
 #elif MB(JGAURORA_A5S_A1)
   #include "pins_JGAURORA_A5S_A1.h"   // STM32F1                                    env:JGAURORA_A5S_A1
 #elif MB(FYSETC_AIO_II)
