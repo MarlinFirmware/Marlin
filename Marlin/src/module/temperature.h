@@ -756,7 +756,11 @@ class Temperature {
     #endif // HEATER_IDLE_HANDLER
 
     #if HAS_TEMP_SENSOR
-      static void print_heater_states(const uint8_t target_extruder);
+      static void print_heater_states(const uint8_t target_extruder
+        #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+          , const bool include_r=false
+        #endif
+      );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         static uint8_t auto_report_temp_interval;
         static millis_t next_temp_report_ms;

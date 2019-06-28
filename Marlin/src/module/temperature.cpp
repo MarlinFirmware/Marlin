@@ -112,7 +112,11 @@ Temperature thermalManager;
   bool Temperature::adaptive_fan_slowing = true;
 #endif
 
-hotend_info_t Temperature::temp_hotend[HOTENDS]; // = { 0 }
+hotend_info_t Temperature::temp_hotend[HOTENDS
+  #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+    + 1
+  #endif
+]; // = { 0 }
 
 #if ENABLED(AUTO_POWER_E_FANS)
   uint8_t Temperature::autofan_speed[HOTENDS]; // = { 0 }
@@ -2773,22 +2777,25 @@ void Temperature::isr() {
     #endif
     , const int8_t e=-3
   ) {
-    #if !(HAS_HEATED_BED && HAS_TEMP_HOTEND && HAS_TEMP_CHAMBER) && HOTENDS <= 1
-      UNUSED(e);
-    #endif
-
-    SERIAL_CHAR(' ');
-    SERIAL_CHAR(
-      #if HAS_TEMP_CHAMBER && HAS_HEATED_BED && HAS_TEMP_HOTEND
-        e == -2 ? 'C' : e == -1 ? 'B' : 'T'
-      #elif HAS_HEATED_BED && HAS_TEMP_HOTEND
-        e == -1 ? 'B' : 'T'
-      #elif HAS_TEMP_HOTEND
-        'T'
-      #else
-        'B'
+    char k;
+    switch (e) {
+      #if HAS_TEMP_CHAMBER
+        case -2: k = 'C'; break;
       #endif
-    );
+      #if HAS_TEMP_HOTEND
+        default: k = 'T'; break;
+        #if HAS_HEATED_BED
+          case -1: k = 'B'; break;
+        #endif
+        #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+          case -3: k = 'R'; break;
+        #endif
+      #elif HAS_HEATED_BED
+        default: k = 'B'; break;
+      #endif
+    }
+    SERIAL_CHAR(' ');
+    SERIAL_CHAR(k);
     #if HOTENDS > 1
       if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
@@ -2796,19 +2803,31 @@ void Temperature::isr() {
     SERIAL_ECHO(c);
     SERIAL_ECHOPAIR(" /" , t);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      SERIAL_ECHOPAIR(" (", r / OVERSAMPLENR);
+      SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
       SERIAL_CHAR(')');
     #endif
     delay(2);
   }
 
-  void Temperature::print_heater_states(const uint8_t target_extruder) {
+  void Temperature::print_heater_states(const uint8_t target_extruder
+    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+      , const bool include_r/*=false*/
+    #endif
+  ) {
     #if HAS_TEMP_HOTEND
       print_heater_state(degHotend(target_extruder), degTargetHotend(target_extruder)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawHotendTemp(target_extruder)
         #endif
       );
+      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+        if (include_r) print_heater_state(redundant_temperature, degTargetHotend(target_extruder)
+          #if ENABLED(SHOW_TEMP_ADC_VALUES)
+            , redundant_temperature_raw
+          #endif
+          , -3 // REDUNDANT
+        );
+      #endif
     #endif
     #if HAS_HEATED_BED
       print_heater_state(degBed(), degTargetBed()

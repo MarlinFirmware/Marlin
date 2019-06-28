@@ -33,7 +33,11 @@ void GcodeSuite::M105() {
 
   #if HAS_TEMP_SENSOR
     SERIAL_ECHOPGM(MSG_OK);
-    thermalManager.print_heater_states(target_extruder);
+    thermalManager.print_heater_states(target_extruder
+      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+        , parser.boolval('R')
+      #endif
+    );
   #else // !HAS_TEMP_SENSOR
     SERIAL_ERROR_MSG(MSG_ERR_NO_THERMISTORS);
   #endif
