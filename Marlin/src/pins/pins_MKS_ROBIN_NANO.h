@@ -47,12 +47,10 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN         PA15
-#define X_MAX_PIN           -1   // Pin is not connected.
-#define Y_MIN_PIN         PA12
-#define Y_MAX_PIN           -1   // Pin is not connected.
+#define X_STOP_PIN        PA15
+#define Y_STOP_PIN        PA12
 #define Z_MIN_PIN         PA11
-#define Z_MAX_PIN          PC4
+#define Z_MAX_PIN         PC4
 
 //
 // Steppers
@@ -94,8 +92,6 @@
 #define FAN_PIN            PA1   // FAN
 
 #define BTN_ENC            PC13  // Pin is not connected. Real pin is needed to enable encoder's push button functionality used by touch screen
-#define BTN_EN1            -1
-#define BTN_EN2            -1
 
 //#define MAX6675_SS_PIN     PE5  // TC1 - CS1
 //#define MAX6675_SS_PIN     PE6  // TC2 - CS2
@@ -115,8 +111,8 @@
 #define NO_LCD_REINIT             // Suppress LCD re-initialization
 
 #define LCD_BACKLIGHT_PIN  PD13
-#define FSMC_CS_PIN         PD7  // NE4
+#define FSMC_CS_PIN        PD7   // NE4
 #define FSMC_RS_PIN        PD11  // A0
-#define TOUCH_CS            PA7
+#define TOUCH_CS           PA7
 
 #define SD_DETECT_PIN      PD12
