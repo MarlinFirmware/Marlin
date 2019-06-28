@@ -2768,11 +2768,13 @@ void Planner::set_machine_position_mm(const float &a, const float &b, const floa
 void Planner::set_position_mm(const float &rx, const float &ry, const float &rz, const float &e) {
   float raw[XYZE] = { rx, ry, rz, e };
   #if HAS_POSITION_MODIFIERS
+  {
     apply_modifiers(raw
       #if HAS_LEVELING
         , true
       #endif
     );
+  }
   #endif
   #if IS_KINEMATIC
     position_cart[X_AXIS] = rx;
