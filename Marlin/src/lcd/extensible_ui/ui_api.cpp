@@ -794,6 +794,10 @@ namespace ExtUI {
     return TEST(axis_known_position, axis);
   }
 
+  bool isAxisPositionKnown(const extruder_t) {
+    return TEST(axis_known_position, E_AXIS);
+  }
+
   bool isPositionKnown() { return all_axes_known(); }
   bool isMachineHomed() { return all_axes_homed(); }
 
