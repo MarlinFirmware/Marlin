@@ -90,6 +90,13 @@ GCodeQueue::GCodeQueue() {
 }
 
 /**
+ * Checks whether there are any commands yet to be executed
+ */
+bool GCodeQueue::has_commands_queued() {
+  return queue.length || injected_commands_P;
+}
+
+/**
  * Clear the Marlin command queue
  */
 void GCodeQueue::clear() {
@@ -161,7 +168,10 @@ bool GCodeQueue::process_injected_command() {
   char c;
   size_t i = 0;
   while ((c = pgm_read_byte(&injected_commands_P[i])) && c != '\n') i++;
-  if (!i) return false;
+  if (!i) {
+    injected_commands_P = nullptr;
+    return false;
+  }
 
   char cmd[i + 1];
   memcpy_P(cmd, injected_commands_P, i);

@@ -85,6 +85,11 @@ public:
   static void enqueue_now_P(PGM_P const cmd);
 
   /**
+   * Checks whether there are any commands in the queue
+   */
+  static bool has_commands_queued();
+
+  /**
    * Get the next command in the queue, optionally log it to SD, then dispatch it
    */
   static void advance();
