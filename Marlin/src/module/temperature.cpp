@@ -1967,17 +1967,13 @@ void Temperature::disable_all_heaters() {
   #if HAS_HEATED_BED
     temp_bed.target = 0;
     temp_bed.soft_pwm_amount = 0;
-    #if HAS_HEATED_BED
-      WRITE_HEATER_BED(LOW);
-    #endif
+    WRITE_HEATER_BED(LOW);
   #endif
 
   #if HAS_HEATED_CHAMBER
     temp_chamber.target = 0;
     temp_chamber.soft_pwm_amount = 0;
-    #if HAS_HEATED_CHAMBER
-      WRITE_HEATER_CHAMBER(LOW);
-    #endif
+    WRITE_HEATER_CHAMBER(LOW);
   #endif
 }
 
