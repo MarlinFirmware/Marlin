@@ -296,7 +296,7 @@
   #define LCD_PINS_ENABLE  P0_18   // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4      P2_06   // J3-8 & AUX-3 (SCK, CLK)
 
-#elif ENABLED(ULTRA_LCD)
+#elif HAS_SPI_LCD
 
   //#define SCK_PIN        P0_15   // (52)  system defined J3-9 & AUX-3
   //#define MISO_PIN       P0_17   // (50)  system defined J3-10 & AUX-3
@@ -392,7 +392,7 @@
     //#define LCD_SCREEN_ROT_270
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // Ethernet pins

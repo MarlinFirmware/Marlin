@@ -138,7 +138,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
   // ramps-fd lcd adaptor
 
   #define BEEPER_PIN       37
@@ -202,7 +202,7 @@
     #define DOGLCD_MISO    74   // MISO_PIN
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
   /**

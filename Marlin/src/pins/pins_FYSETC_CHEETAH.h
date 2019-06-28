@@ -96,7 +96,7 @@
 //
 // LCD Pins
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #define BEEPER_PIN       PC9
 

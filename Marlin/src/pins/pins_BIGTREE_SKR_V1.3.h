@@ -179,7 +179,7 @@
 |               ￣￣                                               ￣￣
 |               EXP2                                              EXP1
 */
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
   #define BEEPER_PIN       P1_30   // (37) not 5V tolerant
   #define BTN_ENC          P0_28   // (58) open-drain
 
@@ -249,7 +249,7 @@
 
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // SD Support

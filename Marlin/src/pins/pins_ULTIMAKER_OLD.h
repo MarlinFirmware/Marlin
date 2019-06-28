@@ -191,7 +191,7 @@
 
   #endif // !NEWPANEL
 
-#endif // ULTRA_LCD
+#endif
 
 //
 // case light  - see spindle section for more info on available hardware PWMs

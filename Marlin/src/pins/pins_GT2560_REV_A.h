@@ -95,7 +95,7 @@
 #define SUICIDE_PIN        54   // Must be enabled at startup to keep power flowing
 #define KILL_PIN           -1
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #define BEEPER_PIN       18
 
@@ -138,4 +138,4 @@
 
   #endif // !NEWPANEL
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD

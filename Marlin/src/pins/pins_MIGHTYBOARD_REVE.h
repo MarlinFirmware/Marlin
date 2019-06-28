@@ -206,7 +206,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
@@ -254,7 +254,7 @@
   #define BTN_CENTER       15   // J0
   #define BTN_ENC          BTN_CENTER
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // SD Card

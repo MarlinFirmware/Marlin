@@ -94,7 +94,7 @@
  * by redrawing the screen after SD card accesses.
  */
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
   #define BEEPER_PIN       P1_30
   #define BTN_EN1          P3_26
   #define BTN_EN2          P3_25

@@ -207,7 +207,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #if ENABLED(RADDS_DISPLAY)
 
@@ -268,7 +268,7 @@
 
   #endif // SPARK_FULL_GRAPHICS
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 #ifndef SDSS
   #define SDSS              4

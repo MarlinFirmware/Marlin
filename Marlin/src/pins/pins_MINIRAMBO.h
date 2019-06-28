@@ -140,7 +140,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #if !MB(MINIRAMBO_10A)
     #define KILL_PIN       32
@@ -188,4 +188,4 @@
 
   #endif // NEWPANEL
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD

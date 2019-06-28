@@ -74,7 +74,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #if BOTH(NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D4
@@ -127,4 +127,4 @@
 
   #endif // NEWPANEL
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
