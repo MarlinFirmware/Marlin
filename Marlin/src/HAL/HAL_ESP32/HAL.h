@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -123,7 +123,6 @@ void HAL_adc_start_conversion(uint8_t adc_pin);
 
 // Enable hooks into idle and setup for HAL
 #define HAL_IDLETASK 1
-#define HAL_INIT 1
 #define BOARD_INIT() HAL_init_board();
 void HAL_idletask(void);
 void HAL_init(void);

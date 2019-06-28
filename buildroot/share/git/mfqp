@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# mfqp
+# mfqp [-q|--quick] [1|2]
 #
 # Add all changed files, commit as "patch", do `mfrb` and `git push -f`
 #
@@ -24,7 +24,7 @@ done
 
 [[ ${INFO[4]} =~ [0-9] ]] && USAGE=1
 
-[[ $USAGE ]] && { echo "usage: `basename $0` [1|2]" 1>&2 ; exit 1 ; }
+[[ $USAGE ]] && { echo "usage: `basename $0` [-hq] [1|2]" 1>&2 ; exit 1 ; }
 
 git add .
 git commit -m "patch"

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -306,6 +306,7 @@
 
   void unified_bed_leveling::G29() {
 
+    bool probe_deployed = false;
     if (g29_parameter_parsing()) return; // Abort on parameter error
 
     const int8_t p_val = parser.intval('P', -1);
@@ -418,6 +419,7 @@
         }
         do_blocking_move_to_xy(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)));
         report_current_position();
+        probe_deployed = true;
       }
 
     #endif // HAS_BED_PROBE
@@ -457,6 +459,7 @@
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
             report_current_position();
+            probe_deployed = true;
             break;
 
         #endif // HAS_BED_PROBE
@@ -492,6 +495,7 @@
                 SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
                 return;
               }
+              probe_deployed = true;
             }
 
             if (!position_is_reachable(g29_x_pos, g29_y_pos)) {
@@ -669,6 +673,14 @@
       ui.quick_feedback();
       ui.reset_status();
       ui.release();
+    #endif
+
+    #ifdef Z_PROBE_END_SCRIPT
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+      if (probe_deployed) {
+        planner.synchronize();
+        process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
+      }
     #endif
 
     return;

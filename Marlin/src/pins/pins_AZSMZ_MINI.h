@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@
 #define FAN1_PIN           P0_26
 
 #define LCD_SDSS           P0_16   // LCD SD chip select
-#define ONBOARD_SD_CS      P0_06   // On board SD chip select
+#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
 
 #if ENABLED(AZSMZ_12864)
   #define BEEPER_PIN       P1_30
@@ -95,28 +95,24 @@
   #define BTN_EN1          P4_28
   #define BTN_EN2          P1_27
   #define BTN_ENC          P3_26
-  #if DISABLED(LPC_SD_ONBOARD)
-    #define LPC_SD_LCD
+  #ifndef SDCARD_CONNECTION
+    #define SDCARD_CONNECTION LCD
   #endif
 #endif
 
-#if ENABLED(LPC_SD_LCD)
+#if SD_CONNECTION_IS(LCD)
   #define SCK_PIN          P0_15
   #define MISO_PIN         P0_17
   #define MOSI_PIN         P0_18
   #define SS_PIN           LCD_SDSS
   #define SD_DETECT_PIN    P3_25
-#elif ENABLED(LPC_SD_ONBOARD)
-  #if ENABLED(USB_SD_ONBOARD)
-    // When sharing the SD card with a PC we want the menu options to
-    // mount/unmount the card and refresh it. So we disable card detect.
-    #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN
-  #endif
+#elif SD_CONNECTION_IS(ONBOARD)
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           ONBOARD_SD_CS
+  #define SS_PIN           ONBOARD_SD_CS_PIN
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "No custom SD drive cable defined for this board."
 #endif
 
 //

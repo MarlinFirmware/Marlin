@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# mfadd
+# mfadd (user|ref) [copyname]
 #
 # Add a remote and fetch it. Optionally copy a branch.
 #
 # Example: mfadd myfork:patch-1 copy_of_patch-1
 #
 
-[[ $# > 0 && $# < 3 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` (user | ref copyname)" 1>&2 ; exit 1; }
+[[ $# > 0 && $# < 3 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` (user|ref) [copyname]" 1>&2 ; exit 1; }
 
 # If a colon is included, split the parts
 if [[ $1 =~ ":" ]]; then

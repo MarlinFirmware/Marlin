@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# mfpr
+# mfpr [1|2]
 #
-# Make a PR of the current branch against RCBugFix or dev
+# Make a PR against bugfix-1.1.x or bugfix-2.0.x
 #
 
 [[ $# < 2 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` [branch]" 1>&2 ; exit 1; }
