@@ -100,6 +100,10 @@
   #include "../feature/power_loss_recovery.h"
 #endif
 
+#if HAS_CUTTER
+  #include "../feature/spindle_laser.h"
+#endif
+
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
@@ -1220,6 +1224,11 @@ void Planner::check_axes_activity() {
     #endif
   }
   else {
+
+    #if HAS_CUTTER
+      cutter.refresh();
+    #endif
+
     #if FAN_COUNT > 0
       FANS_LOOP(i)
         tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
@@ -1235,6 +1244,9 @@ void Planner::check_axes_activity() {
     #endif
   }
 
+  //
+  // Disable inactive axes
+  //
   #if ENABLED(DISABLE_X)
     if (!axis_active.x) disable_X();
   #endif
@@ -1248,6 +1260,9 @@ void Planner::check_axes_activity() {
     if (!axis_active.e) disable_e_steppers();
   #endif
 
+  //
+  // Update Fan speeds
+  //
   #if FAN_COUNT > 0
 
     #if FAN_KICKSTART_TIME > 0
@@ -1839,6 +1854,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if ENABLED(MIXING_EXTRUDER)
     MIXER_POPULATE_BLOCK();
+  #endif
+
+  #if HAS_CUTTER
+    block->cutter_power = cutter.power;
   #endif
 
   #if FAN_COUNT > 0
