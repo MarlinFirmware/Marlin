@@ -108,7 +108,7 @@
 //
 // Display
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
@@ -184,7 +184,7 @@
 
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // SD Support

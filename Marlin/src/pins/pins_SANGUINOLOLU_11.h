@@ -153,9 +153,9 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
-  #if ENABLED(DOGLCD)
+  #if HAS_GRAPHICAL_LCD
 
     #if ENABLED(U8GLIB_ST7920) // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
@@ -205,7 +205,7 @@
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
 
-  #else // !DOGLCD
+  #else // !HAS_GRAPHICAL_LCD
 
     #define LCD_PINS_RS          4
     #define LCD_PINS_ENABLE     17
@@ -214,7 +214,7 @@
     #define LCD_PINS_D6         28
     #define LCD_PINS_D7         27
 
-  #endif // !DOGLCD
+  #endif // !HAS_GRAPHICAL_LCD
 
   #if ENABLED(LCD_I2C_PANELOLU2)
 
@@ -271,7 +271,7 @@
 
   #define SD_DETECT_PIN         -1
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // M3/M4/M5 - Spindle/Laser Control

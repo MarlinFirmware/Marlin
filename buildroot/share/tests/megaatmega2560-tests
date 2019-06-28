@@ -43,7 +43,7 @@ opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING EEPROM_SETTINGS \
 opt_enable SLOW_PWM_HEATERS THERMAL_PROTECTION_CHAMBER
 opt_set TEMP_SENSOR_CHAMBER 3
 opt_set HEATER_CHAMBER_PIN 45
-exec_test $1 $2 "RAMPS with 2 extruders, RRDFGSC, Linear ABL, LEDs, and many options"
+exec_test $1 $2 "RAMPS with 2 extruders, RepRap LCD, Linear ABL, LEDs, and many options"
 
 #
 # Test a probeless build of AUTO_BED_LEVELING_UBL, with lots of extruders

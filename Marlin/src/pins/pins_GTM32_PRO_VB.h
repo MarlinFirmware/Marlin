@@ -108,7 +108,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
     #define LCD_PINS_RS    PE6   // CS chip select /SS chip slave select
@@ -142,7 +142,7 @@
   //#define LCD_PINS_D14   PD9   // RXD3
   //#define LCD_PINS_D13   PD8   // TXD3
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // SPI2 on LCD conn

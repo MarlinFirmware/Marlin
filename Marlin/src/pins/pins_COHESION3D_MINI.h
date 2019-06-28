@@ -135,7 +135,7 @@
 // connector are shared with the onboard SD card, and Marlin does not support reading
 // G-code files from the onboard SD card.
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #define BEEPER_PIN       P0_27   // EXP2-7 - open drain
 
@@ -154,7 +154,7 @@
     #error "SDSUPPORT is not currently supported by the Cohesion3D boards"
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // Ethernet pins

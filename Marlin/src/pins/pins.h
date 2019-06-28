@@ -878,14 +878,21 @@
 #ifndef LCD_PINS_D4
   #define LCD_PINS_D4 -1
 #endif
-#ifndef LCD_PINS_D5
-  #define LCD_PINS_D5 -1
-#endif
-#ifndef LCD_PINS_D6
-  #define LCD_PINS_D6 -1
-#endif
-#ifndef LCD_PINS_D7
-  #define LCD_PINS_D7 -1
+
+#if HAS_CHARACTER_LCD
+  #ifndef LCD_PINS_D5
+    #define LCD_PINS_D5 -1
+  #endif
+  #ifndef LCD_PINS_D6
+    #define LCD_PINS_D6 -1
+  #endif
+  #ifndef LCD_PINS_D7
+    #define LCD_PINS_D7 -1
+  #endif
+#else
+  #undef LCD_PINS_D5
+  #undef LCD_PINS_D6
+  #undef LCD_PINS_D7
 #endif
 
 /**

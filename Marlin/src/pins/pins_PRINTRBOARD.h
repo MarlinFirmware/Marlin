@@ -165,4 +165,4 @@
 
   #endif
 
-#endif // ULTRA_LCD && NEWPANEL
+#endif // HAS_SPI_LCD && NEWPANEL

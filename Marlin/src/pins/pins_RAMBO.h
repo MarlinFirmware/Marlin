@@ -168,7 +168,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #define KILL_PIN         80
 
@@ -234,4 +234,4 @@
 
   #endif // !NEWPANEL
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD

@@ -112,7 +112,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #define LCD_PINS_RS       42
   #define LCD_PINS_ENABLE   43
@@ -167,4 +167,4 @@
 
     #define BEEPER_PIN      -1
   #endif // SPARK_FULL_GRAPHICS
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD

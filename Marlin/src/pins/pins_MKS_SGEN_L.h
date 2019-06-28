@@ -180,7 +180,7 @@
  *                -----                                            -----
  *                EXP1                                             EXP2
  */
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
   #define BEEPER_PIN       P1_31
   #define BTN_ENC          P1_30
 
@@ -250,7 +250,7 @@
 
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION ONBOARD

@@ -322,7 +322,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   //
   // LCD Display output pins
@@ -565,4 +565,4 @@
     #endif
   #endif // NEWPANEL
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD

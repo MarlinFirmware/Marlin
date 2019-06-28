@@ -68,7 +68,7 @@
 #define HEATER_BED_PIN      8
 #define TEMP_BED_PIN        6
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
   #if ENABLED(U8GLIB_ST7920)    // SPI GLCD 12864 ST7920
     #define LCD_PINS_RS    30
     #define LCD_PINS_ENABLE 20
