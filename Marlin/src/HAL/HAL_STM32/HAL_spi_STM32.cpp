@@ -152,4 +152,4 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
 
 #endif // SOFTWARE_SPI
 
-#endif // ARDUINO_ARCH_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
