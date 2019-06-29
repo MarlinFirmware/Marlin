@@ -1053,7 +1053,7 @@
 #endif // SDSUPPORT
 
 /**
- * By default an onboard SD card reader will be shared as a USB mass-
+ * By default an onboard SD card reader may be shared as a USB mass-
  * storage device. This option hides the SD card from the host PC.
  */
 //#define NO_SD_HOST_DRIVE   // Disable SD Card access over USB (for security).
