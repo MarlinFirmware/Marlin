@@ -30,9 +30,9 @@
 #include "../../parser.h"
 #include "../../../module/motion.h"
 
-#if HAS_LEVELING && ENABLED(NOZZLE_CLEAN_WITHOUT_BED_LEVELING)
-#include "../../../module/planner.h"
-#include "../../../feature/bedlevel/bedlevel.h"
+#if HAS_LEVELING
+  #include "../../../module/planner.h"
+  #include "../../../feature/bedlevel/bedlevel.h"
 #endif
 
 /**
@@ -47,7 +47,7 @@ void GcodeSuite::G12() {
                 objects = parser.ushortval('T', NOZZLE_CLEAN_TRIANGLES);
   const float radius = parser.floatval('R', NOZZLE_CLEAN_CIRCLE_RADIUS);
 
-  #if HAS_LEVELING && ENABLED(NOZZLE_CLEAN_WITHOUT_BED_LEVELING)
+  #if HAS_LEVELING
     const bool was_enabled = planner.leveling_active;
     set_bed_leveling_enabled(false);
   #endif
@@ -55,7 +55,7 @@ void GcodeSuite::G12() {
   Nozzle::clean(pattern, strokes, radius, objects);
 
   // Re-enable bed level correction if it had been on
-  #if HAS_LEVELING && ENABLED(NOZZLE_CLEAN_WITHOUT_BED_LEVELING)
+  #if HAS_LEVELING
     set_bed_leveling_enabled(was_enabled);
   #endif
 }
