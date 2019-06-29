@@ -451,10 +451,12 @@
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define XYZE_N (XYZ + E_STEPPERS)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
+  #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
   #define XYZE_N XYZE
   #define E_AXIS_N(E) E_AXIS
+  #define UNUSED_E(E) UNUSED(E)
 #endif
 
 /**
