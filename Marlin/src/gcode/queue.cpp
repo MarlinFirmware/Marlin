@@ -90,7 +90,7 @@ GCodeQueue::GCodeQueue() {
 }
 
 /**
- * Checks whether there are any commands yet to be executed
+ * Check whether there are any commands yet to be executed
  */
 bool GCodeQueue::has_commands_queued() {
   return queue.length || injected_commands_P;

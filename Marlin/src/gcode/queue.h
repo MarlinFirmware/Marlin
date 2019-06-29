@@ -85,7 +85,7 @@ public:
   static void enqueue_now_P(PGM_P const cmd);
 
   /**
-   * Check whether there are any commands in the queue
+   * Check whether there are any commands yet to be executed
    */
   static bool has_commands_queued();
 
