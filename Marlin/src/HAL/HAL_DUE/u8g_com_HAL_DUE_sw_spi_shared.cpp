@@ -87,7 +87,7 @@ void u8g_spiSend_sw_DUE_mode_0(uint8_t val) { // 3MHz
       MOSI_pPio->PIO_CODR = MOSI_dwMask;
     DELAY_NS(48);
     SCK_pPio->PIO_SODR = SCK_dwMask;
-    DELAY_NS(125);
+    DELAY_NS(905);
     val <<= 1;
     SCK_pPio->PIO_CODR = SCK_dwMask;
   }
