@@ -355,7 +355,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       #endif
       while (wait_for_user) idle();
       ui.reset_status();
-      KEEPALIVE_STATE(IN_HANDLER);
+
     } while(
       #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
         true

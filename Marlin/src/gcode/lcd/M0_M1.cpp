@@ -118,7 +118,6 @@ void GcodeSuite::M0_M1() {
   #endif
 
   wait_for_user = false;
-  KEEPALIVE_STATE(IN_HANDLER);
 }
 
 #endif // HAS_RESUME_CONTINUE

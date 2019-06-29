@@ -339,9 +339,9 @@ public:
 
     static void host_keepalive();
 
-    #define KEEPALIVE_STATE(n) gcode.busy_state = gcode.n
+    #define KEEPALIVE_STATE(N) REMEMBER(_KA_, gcode.busy_state, gcode.N)
   #else
-    #define KEEPALIVE_STATE(n) NOOP
+    #define KEEPALIVE_STATE(N) NOOP
   #endif
 
   static void dwell(millis_t time);
