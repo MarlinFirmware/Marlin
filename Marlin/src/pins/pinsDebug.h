@@ -121,7 +121,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
         SERIAL_ECHO(buffer);
         PRINT_PIN(pin);
         PRINT_PORT(pin);
-        if ((int8_t)DIGITAL_PIN_TO_ANALOG_PIN(pin) >= 0) {
+        if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
           sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
           SERIAL_ECHO(buffer);
         }
@@ -183,7 +183,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
     SERIAL_ECHO(buffer);
     PRINT_PIN(pin);
     PRINT_PORT(pin);
-    if ((int8_t)DIGITAL_PIN_TO_ANALOG_PIN(pin) >= 0) {
+    if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
       sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
       SERIAL_ECHO(buffer);
     }

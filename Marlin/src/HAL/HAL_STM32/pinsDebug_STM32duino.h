@@ -16,10 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #include <Arduino.h>
 
-#ifdef NUM_DIGITAL_PINS  //only present in ST's Arduino core (STM32duino, STM32Core)
+#ifdef NUM_DIGITAL_PINS  // Only in ST's Arduino core (STM32duino, STM32Core)
 
 /**
  *  Life gets complicated if you want an easy to use M43 I output (in port/pin order)
@@ -65,7 +66,6 @@
  *
  *  NOTE -  the Arduino pin number is what is used by the M42 command, NOT the port/pin for that
  *          signal.  The Arduino pin number is listed by the M43 I command.
-
  */
 
 extern const PinName digitalPin[];  // provided by the platform
@@ -75,26 +75,21 @@ extern const PinName digitalPin[];  // provided by the platform
 // make a list of the Arduino pin numbers in the Port/Pin order
 //
 
-
-#define _PIN_ADD_2(NAME_ALPHA, ARDUINO_NUM) { {NAME_ALPHA}, ARDUINO_NUM  },
-#define _PIN_ADD(NAME_ALPHA, ARDUINO_NUM) {NAME_ALPHA, ARDUINO_NUM},
+#define _PIN_ADD_2(NAME_ALPHA, ARDUINO_NUM) { {NAME_ALPHA}, ARDUINO_NUM },
+#define _PIN_ADD(NAME_ALPHA, ARDUINO_NUM) { NAME_ALPHA, ARDUINO_NUM },
 #define PIN_ADD(NAME) _PIN_ADD(#NAME, NAME)
-
 
 typedef struct {
   char Port_pin_alpha[5];
   pin_t Ard_num;
-
 } XrefInfo;
 
 const XrefInfo pin_xref[] PROGMEM = {
-
-#include "pins_Xref.h"
-
+  #include "pins_Xref.h"
 };
+
 ////////////////////////////////////////////////////////////
 
-//
 #define MODE_PIN_INPUT  0 // Input mode (reset state)
 #define MODE_PIN_OUTPUT 1 // General purpose output mode
 #define MODE_PIN_ALT    2 // Alternate function mode
@@ -106,13 +101,9 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define PORT_NUM(P) ((P  >> 4) & 0x0007)
 #define PORT_ALPHA(P) ('A' + (P  >> 4))
 
-
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
-
-
-
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 #define VALID_PIN(Ard_num) ((Ard_num >= 0) && (Ard_num < NUMBER_PINS_TOTAL))
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
@@ -125,7 +116,7 @@ const XrefInfo pin_xref[] PROGMEM = {
 // x is a variable used to search pin_array
 #define GET_ARRAY_IS_DIGITAL(x) ((bool) pin_array[x].is_digital)
 #define GET_ARRAY_PIN(x) ((pin_t) pin_array[x].pin)
-#define PRINT_ARRAY_NAME(x)  do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
+#define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
 
 #ifndef M43_NEVER_TOUCH
@@ -169,122 +160,114 @@ uint8_t get_pin_mode(pin_t Ard_num) {
     case 'L' : mode_all = GPIOL->MODER; break;
     #endif
   }
-  uint8_t mode_pin = (mode_all >> (2 * uint8_t(PIN_NUM(digitalPin[Ard_num])))) & 0x03;
-  return mode_pin;
+  return (mode_all >> (2 * uint8_t(PIN_NUM(digitalPin[Ard_num])))) & 0x03;
 }
 
 bool GET_PINMODE(pin_t Ard_num) {
   uint8_t pin_mode = get_pin_mode(Ard_num);
-  if (pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT)  // assume all alt definitions are PWM
-    return 1;
-  return 0;
+  return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT;  // assume all alt definitions are PWM
 }
 
-  uint8_t digital_pin_to_analog_pin(pin_t Ard_num) {
-    if ((Ard_num >= NUM_ANALOG_FIRST) && (Ard_num <= NUM_ANALOG_FIRST + NUM_ANALOG_INPUTS))
-      return Ard_num - NUM_ANALOG_FIRST;
-    return -1;
-  }
+uint8_t digital_pin_to_analog_pin(pin_t Ard_num) {
+  if (Ard_num >= NUM_ANALOG_FIRST && Ard_num <= NUM_ANALOG_FIRST + NUM_ANALOG_INPUTS)
+    return Ard_num - NUM_ANALOG_FIRST;
+  return -1;
+}
 
-  bool IS_ANALOG(pin_t Ard_num) {
-      if (get_pin_mode(Ard_num) == MODE_PIN_ANALOG)
-        return true;
-      return false;
-    }
+bool IS_ANALOG(pin_t Ard_num) {
+  return get_pin_mode(Ard_num) == MODE_PIN_ANALOG;
+}
 
-  bool is_digital(pin_t x) {
-      pin_t Ard_num = pin_array[x].pin;
-      if (get_pin_mode(Ard_num) == MODE_PIN_INPUT || get_pin_mode(Ard_num) == MODE_PIN_OUTPUT )
-        return true;
-      return false;
-    }
+bool is_digital(pin_t x) {
+  pin_t Ard_num = pin_array[x].pin;
+  return get_pin_mode(Ard_num) == MODE_PIN_INPUT || get_pin_mode(Ard_num) == MODE_PIN_OUTPUT;
+}
 
+void port_print(pin_t Ard_num) {
+  char buffer[16];
+  pin_t Index;
+  for (Index = 0; Index < NUMBER_PINS_TOTAL; Index++)
+    if (Ard_num == pin_xref[Index].Ard_num) break;
+  sprintf_P(buffer, PSTR("%s"), pin_xref[Index].Port_pin_alpha);
+  SERIAL_ECHO(buffer);
+  if (pin_xref[Index].Port_pin_alpha[3] == 0) SERIAL_CHAR(' ');
 
-  void port_print(pin_t Ard_num) {
-    char buffer[16];
-    pin_t Index;
-    for (Index = 0; Index < NUMBER_PINS_TOTAL; Index++)
-      if (Ard_num == pin_xref[Index].Ard_num) break;
-    sprintf_P(buffer, PSTR("%s"), pin_xref[Index].Port_pin_alpha);
+  // print analog pin number
+  const pin_t Port_pin = digital_pin_to_analog_pin(Ard_num);
+  if (Port_pin >= 0) {
+    sprintf_P(buffer, PSTR(" (A%d) "), uint8_t(Port_pin));
     SERIAL_ECHO(buffer);
-    if (pin_xref[Index].Port_pin_alpha[3] == 0)
-      SERIAL_CHAR(' ');
-    // print analog pin number
-    pin_t Port_pin =  digital_pin_to_analog_pin(Ard_num);
-    if (Port_pin >= 0) {
-      sprintf_P(buffer, PSTR(" (A%d) "), (uint8_t) Port_pin);
-      SERIAL_ECHO(buffer);
-      if (Port_pin < 10) SERIAL_CHAR(' ');
-    }
-    else {
-      sprintf_P(buffer, PSTR("       "));
-      SERIAL_ECHO(buffer);
-    }
-    // print number to be used with M42
-    sprintf_P(buffer, PSTR(" M42 P%d "), Ard_num);
-    SERIAL_ECHO(buffer);
-    if (pin_xref[Index].Ard_num < 10) SERIAL_CHAR(' ');
-    if (pin_xref[Index].Ard_num < 100) SERIAL_CHAR(' ');
-
-
+    if (Port_pin < 10) SERIAL_CHAR(' ');
   }
+  else
+    SERIAL_ECHO_SP(7);
 
-  bool pwm_status(pin_t Ard_num) {
-    if (get_pin_mode(Ard_num) == MODE_PIN_ALT)
-      return true;
-    return false;
-  }
+  // Print number to be used with M42
+  sprintf_P(buffer, PSTR(" M42 P%d "), Ard_num);
+  SERIAL_ECHO(buffer);
+  if (pin_xref[Index].Ard_num < 10) SERIAL_CHAR(' ');
+  if (pin_xref[Index].Ard_num < 100) SERIAL_CHAR(' ');
+}
 
-  void pwm_details(pin_t Ard_num) {
-    if (get_pin_mode(Ard_num) == MODE_PIN_ALT) {
-      uint32_t alt_all = 0;
-      pin_t pin_number = uint8_t(PIN_NUM(digitalPin[Ard_num]));
-      switch (PORT_ALPHA(digitalPin[Ard_num])) {  // get alt function
-        case 'A' : alt_all = GPIOA->AFR[pin_number  < 8 ? 0 : 1]; break;
-        case 'B' : alt_all = GPIOB->AFR[pin_number  < 8 ? 0 : 1]; break;
-        case 'C' : alt_all = GPIOC->AFR[pin_number  < 8 ? 0 : 1]; break;
-        case 'D' : alt_all = GPIOD->AFR[pin_number  < 8 ? 0 : 1]; break;
-        #ifdef PE_0
-        case 'E' : alt_all = GPIOE->AFR[pin_number  < 8 ? 0 : 1]; break;
-        #elif defined (PF_0)
-        case 'F' : alt_all = GPIOF->AFR[pin_number  < 8 ? 0 : 1]; break;
-        #elif defined (PG_0)
-        case 'G' : alt_all = GPIOG->AFR[pin_number  < 8 ? 0 : 1]; break;
-        #elif defined (PH_0)
-        case 'H' : alt_all = GPIOH->AFR[pin_number  < 8 ? 0 : 1]; break;
-        #elif defined (PI_0)
-        case 'I' : alt_all = GPIOI->AFR[pin_number  < 8 ? 0 : 1]; break;
-        #elif defined (PJ_0)
-        case 'J' : alt_all = GPIOJ->AFR[pin_number  < 8 ? 0 : 1]; break;
-        #elif defined (PK_0)
-        case 'K' : alt_all = GPIOK->AFR[pin_number  < 8 ? 0 : 1]; break;
-        #elif defined (PL_0)
-        case 'L' : alt_all = GPIOL->AFR[pin_number  < 8 ? 0 : 1]; break;
-        #endif
+bool pwm_status(pin_t Ard_num) {
+  return get_pin_mode(Ard_num) == MODE_PIN_ALT;
+}
 
-      }
-      if (pin_number  >= 8) pin_number -= 8;
-      uint8_t alt_func = (alt_all >> (4 * pin_number)) & 0x0F;
-      switch (alt_func) {
-        case  0 : SERIAL_ECHOPGM("Alt Function: 0  - system (misc. I/O)"); break;
-        case  1 : SERIAL_ECHOPGM("Alt Function: 1  - TIM1/TIM2 (probably PWM)"); break;
-        case  2 : SERIAL_ECHOPGM("Alt Function: 2  - TIM3..5 (probably PWM)"); break;
-        case  3 : SERIAL_ECHOPGM("Alt Function: 3  - TIM8..11 (probably PWM)"); break;
-        case  4 : SERIAL_ECHOPGM("Alt Function: 4  - I2C1..3"); break;
-        case  5 : SERIAL_ECHOPGM("Alt Function: 5  - SPI1/SPI2"); break;
-        case  6 : SERIAL_ECHOPGM("Alt Function: 6  - SPI3"); break;
-        case  7 : SERIAL_ECHOPGM("Alt Function: 7  - USART1..3"); break;
-        case  8 : SERIAL_ECHOPGM("Alt Function: 8  - USART4..6"); break;
-        case  9 : SERIAL_ECHOPGM("Alt Function: 9  - CAN1/CAN2, TIM12..14  (probably PWM)"); break;
-        case 10 : SERIAL_ECHOPGM("Alt Function: 10 - OTG"); break;
-        case 11 : SERIAL_ECHOPGM("Alt Function: 11 - ETH"); break;
-        case 12 : SERIAL_ECHOPGM("Alt Function: 12 - FSMC, SDIO, OTG"); break;
-        case 13 : SERIAL_ECHOPGM("Alt Function: 13 - DCMI"); break;
-        case 14 : SERIAL_ECHOPGM("Alt Function: 14 - unused (shouldn't see this)"); break;
-        case 15 : SERIAL_ECHOPGM("Alt Function: 15 - EVENTOUT"); break;
-      }
+void pwm_details(pin_t Ard_num) {
+  if (pwm_status(Ard_num)) {
+    uint32_t alt_all = 0;
+    pin_t pin_number = uint8_t(PIN_NUM(digitalPin[Ard_num]));
+    const bool over_7 = pin_number >= 8;
+    const uint8_t ind = over_7 ? 1 : 0;
+    switch (PORT_ALPHA(digitalPin[Ard_num])) {  // get alt function
+      case 'A' : alt_all = GPIOA->AFR[ind]; break;
+      case 'B' : alt_all = GPIOB->AFR[ind]; break;
+      case 'C' : alt_all = GPIOC->AFR[ind]; break;
+      case 'D' : alt_all = GPIOD->AFR[ind]; break;
+      #ifdef PE_0
+        case 'E' : alt_all = GPIOE->AFR[ind]; break;
+      #elif defined (PF_0)
+        case 'F' : alt_all = GPIOF->AFR[ind]; break;
+      #elif defined (PG_0)
+        case 'G' : alt_all = GPIOG->AFR[ind]; break;
+      #elif defined (PH_0)
+        case 'H' : alt_all = GPIOH->AFR[ind]; break;
+      #elif defined (PI_0)
+        case 'I' : alt_all = GPIOI->AFR[ind]; break;
+      #elif defined (PJ_0)
+        case 'J' : alt_all = GPIOJ->AFR[ind]; break;
+      #elif defined (PK_0)
+        case 'K' : alt_all = GPIOK->AFR[ind]; break;
+      #elif defined (PL_0)
+        case 'L' : alt_all = GPIOL->AFR[ind]; break;
+      #endif
+
     }
-  }  // pwm_details
+    if (over_7) pin_number -= 8;
 
+    uint8_t alt_func = (alt_all >> (4 * pin_number)) & 0x0F;
+    SERIAL_ECHOPAIR("Alt Function: ", alt_func);
+    if (alt_func < 10) SERIAL_CHAR(' ');
+    SERIAL_ECHOPGM(" - ");
+    switch (alt_func) {
+      case  0 : SERIAL_ECHOPGM("system (misc. I/O)"); break;
+      case  1 : SERIAL_ECHOPGM("TIM1/TIM2 (probably PWM)"); break;
+      case  2 : SERIAL_ECHOPGM("TIM3..5 (probably PWM)"); break;
+      case  3 : SERIAL_ECHOPGM("TIM8..11 (probably PWM)"); break;
+      case  4 : SERIAL_ECHOPGM("I2C1..3"); break;
+      case  5 : SERIAL_ECHOPGM("SPI1/SPI2"); break;
+      case  6 : SERIAL_ECHOPGM("SPI3"); break;
+      case  7 : SERIAL_ECHOPGM("USART1..3"); break;
+      case  8 : SERIAL_ECHOPGM("USART4..6"); break;
+      case  9 : SERIAL_ECHOPGM("CAN1/CAN2, TIM12..14  (probably PWM)"); break;
+      case 10 : SERIAL_ECHOPGM("OTG"); break;
+      case 11 : SERIAL_ECHOPGM("ETH"); break;
+      case 12 : SERIAL_ECHOPGM("FSMC, SDIO, OTG"); break;
+      case 13 : SERIAL_ECHOPGM("DCMI"); break;
+      case 14 : SERIAL_ECHOPGM("unused (shouldn't see this)"); break;
+      case 15 : SERIAL_ECHOPGM("EVENTOUT"); break;
+    }
+  }
+} // pwm_details
 
-#endif  // end STM32duino
+#endif // NUM_DIGITAL_PINS

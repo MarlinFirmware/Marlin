@@ -16,17 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Support routines for STM32GENERIC (Maple)
  */
 
-
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
 
-#ifdef BOARD_NR_GPIO_PINS  //only found in STM32GENERIC (Maple)
+#ifdef BOARD_NR_GPIO_PINS  // Only in STM32GENERIC (Maple)
 
 #ifdef __STM32F1__
   #include "../HAL_STM32F1/fastio_STM32F1.h"
@@ -47,7 +47,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 #define NAME_FORMAT(p) PSTR("%-##p##s")
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(p)); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PORT(p) print_port(p)
-#define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
+#define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 20 // space needed to be pretty if not first name assigned to a pin
 
 // pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
@@ -133,5 +133,4 @@ static inline void print_port(pin_t pin) {
   SERIAL_ECHO(buffer);
 }
 
-
-#endif
+#endif // BOARD_NR_GPIO_PINS

@@ -66,7 +66,7 @@
 #define PORTD 3
 #define PORTE 4
 
-#define _STM32_PIN(P_ORT,_PIN) ((PORT##P_ORT * 16) + _PIN)
+#define _STM32_PIN(P,PN) ((PORT##P * 16) + PN)
 
 #define PA0  _STM32_PIN(A,  0)
 #define PA1  _STM32_PIN(A,  1)
