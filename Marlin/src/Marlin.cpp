@@ -941,7 +941,7 @@ void setup() {
 
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
-  (void)settings.load();
+  if (!settings.loaded) (void)settings.load();
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset

@@ -29,7 +29,7 @@
 
 class MarlinSettings {
   public:
-    MarlinSettings() { }
+    static bool loaded;
 
     static uint16_t datasize();
 
