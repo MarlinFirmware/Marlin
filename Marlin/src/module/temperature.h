@@ -472,11 +472,11 @@ class Temperature {
         static constexpr uint8_t fan_speed_scaler[FAN_COUNT] = ARRAY_N(FAN_COUNT, 128, 128, 128, 128, 128, 128);
       #endif
 
-      static inline uint8_t scaledFanSpeed(const uint8_t target) {
+      static inline uint8_t scaledFanSpeed(const uint8_t target, const uint8_t fs) {
         return (fs * uint16_t(fan_speed_scaler[target])) >> 7;
       }
 
-      static inline uint8_t scaledFanSpeed(const uint8_t target, const uint8_t fs) {
+      static inline uint8_t scaledFanSpeed(const uint8_t target) {
         return scaledFanSpeed(target, fan_speed[target]);
       }
 
