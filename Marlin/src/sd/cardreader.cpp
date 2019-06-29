@@ -32,6 +32,7 @@
 #include "../module/printcounter.h"
 #include "../core/language.h"
 #include "../gcode/queue.h"
+#include "../module/configuration_store.h"
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/emergency_parser.h"
@@ -352,6 +353,9 @@ void CardReader::initsd() {
   else {
     flag.detected = true;
     SERIAL_ECHO_MSG(MSG_SD_CARD_OK);
+    #if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
+      (void)settings.load();
+    #endif
   }
   setroot();
 
@@ -556,6 +560,11 @@ void CardReader::checkautostart() {
   if (autostart_index < 0 || flag.sdprinting) return;
 
   if (!isDetected()) initsd();
+
+  #if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
+    SERIAL_ECHOLNPGM("Loading settings from SD");
+    (void)settings.load();
+  #endif
 
   if (isDetected()
     #if ENABLED(POWER_LOSS_RECOVERY)
