@@ -161,6 +161,8 @@ bool GCodeQueue::enqueue_one(const char* cmd) {
 
 /**
  * Process the next "immediate" command.
+ * Return 'true' if any commands were processed,
+ * or remain to process.
  */
 bool GCodeQueue::process_injected_command() {
   if (injected_commands_P == nullptr) return false;
@@ -168,22 +170,16 @@ bool GCodeQueue::process_injected_command() {
   char c;
   size_t i = 0;
   while ((c = pgm_read_byte(&injected_commands_P[i])) && c != '\n') i++;
-  if (!i) {
-    injected_commands_P = nullptr;
-    return false;
+  if (i) {
+    char cmd[i + 1];
+    memcpy_P(cmd, injected_commands_P, i);
+    cmd[i] = '\0';
+
+    parser.parse(cmd);
+    PORT_REDIRECT(SERIAL_PORT);
+    gcode.process_parsed_command();
   }
-
-  char cmd[i + 1];
-  memcpy_P(cmd, injected_commands_P, i);
-  cmd[i] = '\0';
-
   injected_commands_P = c ? injected_commands_P + i + 1 : nullptr;
-
-  parser.parse(cmd);
-  PORT_REDIRECT(SERIAL_PORT);
-  gcode.process_parsed_command();
-  PORT_RESTORE();
-
   return true;
 }
 
@@ -193,17 +189,13 @@ bool GCodeQueue::process_injected_command() {
  * Aborts the current queue, if any.
  * Note: process_injected_command() will be called to drain any commands afterwards
  */
-void GCodeQueue::inject_P(PGM_P const pgcode) {
-  injected_commands_P = pgcode;
-}
+void GCodeQueue::inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
 
 /**
  * Enqueue and return only when commands are actually enqueued.
  * Never call this from a G-code handler!
  */
-void GCodeQueue::enqueue_one_now(const char* cmd) {
-  while (!enqueue_one(cmd)) idle();
-}
+void GCodeQueue::enqueue_one_now(const char* cmd) { while (!enqueue_one(cmd)) idle(); }
 
 /**
  * Enqueue from program memory and return only when commands are actually enqueued
