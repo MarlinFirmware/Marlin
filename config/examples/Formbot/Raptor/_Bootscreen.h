@@ -31,7 +31,6 @@
  */
 #include <avr/pgmspace.h>
 
-#define CUSTOM_BOOTSCREEN_TIMEOUT   2500
 #define CUSTOM_BOOTSCREEN_BMPWIDTH  128
 #define CUSTOM_BOOTSCREEN_INVERTED
 
