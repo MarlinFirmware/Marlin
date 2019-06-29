@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,9 +48,9 @@ void SysTick_Callback() {
   disk_timerproc();
 }
 
-void HAL_init() {
+void HAL_init(void) {
 
-  // Support the 4 LEDs some LPC176x boards have
+  // Init LEDs
   #if PIN_EXISTS(LED)
     SET_DIR_OUTPUT(LED_PIN);
     WRITE_PIN_CLR(LED_PIN);
@@ -72,6 +72,20 @@ void HAL_init() {
       TOGGLE(LED_PIN);
       delay(100);
     }
+  #endif
+
+  // Init Servo Pins
+  #if PIN_EXISTS(SERVO0)
+    OUT_WRITE(SERVO0_PIN, LOW);
+  #endif
+  #if PIN_EXISTS(SERVO1)
+    OUT_WRITE(SERVO1_PIN, LOW);
+  #endif
+  #if PIN_EXISTS(SERVO2)
+    OUT_WRITE(SERVO2_PIN, LOW);
+  #endif
+  #if PIN_EXISTS(SERVO3)
+    OUT_WRITE(SERVO3_PIN, LOW);
   #endif
 
   //debug_frmwrk_init();

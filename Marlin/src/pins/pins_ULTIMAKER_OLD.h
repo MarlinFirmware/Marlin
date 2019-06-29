@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
  * Ultimaker pin assignments (Old electronics)
  */
 
- /**
+/**
  * Rev B   3 JAN 2017
  *
  * Details on pin definitions for M3, M4 & M5 spindle control commands and for
@@ -55,10 +55,9 @@
  *      and repeat steps 2 - 5
  */
 
-#define board_rev_1_1_TO_1_3
-//#define board_rev_1_0
-//#define board_rev_1_5
-
+#define BOARD_REV_1_1_TO_1_3
+//#define BOARD_REV_1_0
+//#define BOARD_REV_1_5
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
@@ -71,37 +70,43 @@
 //
 // Limit Switches
 //
-#if ENABLED(board_rev_1_1_TO_1_3)
-  #define X_MIN_PIN          15   // SW1
-  #define X_MAX_PIN          14   // SW2
-  #define Y_MIN_PIN          17   // SW3
-  #define Y_MAX_PIN          16   // SW4
-  #define Z_MIN_PIN          19   // SW5
-  #define Z_MAX_PIN          18   // SW6
+#if ENABLED(BOARD_REV_1_1_TO_1_3)
+  #define X_MIN_PIN        15   // SW1
+  #define X_MAX_PIN        14   // SW2
+  #define Y_MIN_PIN        17   // SW3
+  #define Y_MAX_PIN        16   // SW4
+  #define Z_MIN_PIN        19   // SW5
+  #define Z_MAX_PIN        18   // SW6
 #endif
 
-#if ENABLED(board_rev_1_0)
-  #define X_MIN_PIN          13   // SW1
-  #define X_MAX_PIN          12   // SW2
-  #define Y_MIN_PIN          11   // SW3
-  #define Y_MAX_PIN          10   // SW4
-  #define Z_MIN_PIN           9   // SW5
-  #define Z_MAX_PIN           8   // SW6
+#if ENABLED(BOARD_REV_1_0)
+  #if HAS_CUTTER
+    #define X_STOP_PIN     13   // SW1  (didn't change) - also has a useable hardware PWM
+    #define Y_STOP_PIN     12   // SW2
+    #define Z_STOP_PIN     11   // SW3
+  #else
+    #define X_MIN_PIN      13   // SW1
+    #define X_MAX_PIN      12   // SW2
+    #define Y_MIN_PIN      11   // SW3
+    #define Y_MAX_PIN      10   // SW4
+    #define Z_MIN_PIN       9   // SW5
+    #define Z_MAX_PIN       8   // SW6
+  #endif
 #endif
 
-#if ENABLED(board_rev_1_5)
-  #define X_MIN_PIN          22
-  #define X_MAX_PIN          24
-  #define Y_MIN_PIN          26
-  #define Y_MAX_PIN          28
-  #define Z_MIN_PIN          30
-  #define Z_MAX_PIN          32
+#if ENABLED(BOARD_REV_1_5)
+  #define X_MIN_PIN        22
+  #define X_MAX_PIN        24
+  #define Y_MIN_PIN        26
+  #define Y_MAX_PIN        28
+  #define Z_MIN_PIN        30
+  #define Z_MAX_PIN        32
 #endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
-#ifndef Z_MIN_PROBE_PIN
+#if !defined(Z_MIN_PROBE_PIN) && !(HAS_CUTTER && ENABLED(BOARD_REV_1_0))
   #define Z_MIN_PROBE_PIN  Z_MAX_PIN
 #endif
 
@@ -120,13 +125,20 @@
 #define Z_DIR_PIN          39
 #define Z_ENABLE_PIN       35
 
-#define E0_STEP_PIN        43
-#define E0_DIR_PIN         45
-#define E0_ENABLE_PIN      41
+#if HAS_CUTTER && ENABLED(BOARD_REV_1_1_TO_1_3) && EXTRUDERS == 1
+  // Move E0 to the spare and get Spindle/Laser signals from E0
+  #define E0_STEP_PIN      49
+  #define E0_DIR_PIN       47
+  #define E0_ENABLE_PIN    48
+#else
+  #define E0_STEP_PIN      43
+  #define E0_DIR_PIN       45
+  #define E0_ENABLE_PIN    41
 
-#define E1_STEP_PIN        -1   // 49
-#define E1_DIR_PIN         -1   // 47
-#define E1_ENABLE_PIN      -1   // 48
+  #define E1_STEP_PIN      49
+  #define E1_DIR_PIN       47
+  #define E1_ENABLE_PIN    48
+#endif
 
 //
 // Temperature Sensors
@@ -144,111 +156,82 @@
 //
 // LCD / Controller
 //
-#if ANY(board_rev_1_0, board_rev_1_1_TO_1_3)
-  #define LCD_PINS_RS        24
-  #define LCD_PINS_ENABLE    22
-  #define LCD_PINS_D4        36
-  #define LCD_PINS_D5        34
-  #define LCD_PINS_D6        32
-  #define LCD_PINS_D7        30
+#if ANY(BOARD_REV_1_0, BOARD_REV_1_1_TO_1_3)
 
-#elif ENABLED(board_rev_1_5, ULTRA_LCD)
+  #define LCD_PINS_RS      24
+  #define LCD_PINS_ENABLE  22
+  #define LCD_PINS_D4      36
+  #define LCD_PINS_D5      34
+  #define LCD_PINS_D6      32
+  #define LCD_PINS_D7      30
 
-  #define BEEPER_PIN 18
+#elif ENABLED(BOARD_REV_1_5, ULTRA_LCD)
+
+  #define BEEPER_PIN       18
 
   #if ENABLED(NEWPANEL)
 
-    #define LCD_PINS_RS 20
+    #define LCD_PINS_RS    20
     #define LCD_PINS_ENABLE 17
-    #define LCD_PINS_D4 16
-    #define LCD_PINS_D5 21
-    #define LCD_PINS_D6 5
-    #define LCD_PINS_D7 6
+    #define LCD_PINS_D4    16
+    #define LCD_PINS_D5    21
+    #define LCD_PINS_D6     5
+    #define LCD_PINS_D7     6
 
     // buttons are directly attached
-    #define BTN_EN1 40
-    #define BTN_EN2 42
-    #define BTN_ENC 19
+    #define BTN_EN1        40
+    #define BTN_EN2        42
+    #define BTN_ENC        19
 
-    #define SD_DETECT_PIN 38
+    #define SD_DETECT_PIN  38
 
   #else // !NEWPANEL - Old style panel with shift register
 
     // buttons are attached to a shift register
-    #define SHIFT_CLK 38
-    #define SHIFT_LD 42
-    #define SHIFT_OUT 40
-    #define SHIFT_EN 17
+    #define SHIFT_CLK      38
+    #define SHIFT_LD       42
+    #define SHIFT_OUT      40
+    #define SHIFT_EN       17
 
-    #define LCD_PINS_RS 16
+    #define LCD_PINS_RS    16
     #define LCD_PINS_ENABLE 5
-    #define LCD_PINS_D4 6
-    #define LCD_PINS_D5 21
-    #define LCD_PINS_D6 20
-    #define LCD_PINS_D7 19
-
-    #define SD_DETECT_PIN -1
+    #define LCD_PINS_D4     6
+    #define LCD_PINS_D5    21
+    #define LCD_PINS_D6    20
+    #define LCD_PINS_D7    19
 
   #endif // !NEWPANEL
 
-#endif // ULTRA_LCD
+#endif
 
 //
 // case light  - see spindle section for more info on available hardware PWMs
 //
-#if !PIN_EXISTS(CASE_LIGHT) && ENABLED(board_rev_1_5)
+#if !PIN_EXISTS(CASE_LIGHT) && ENABLED(BOARD_REV_1_5)
   #define CASE_LIGHT_PIN        7   // use PWM -  MUST BE HARDWARE PWM
 #endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(SPINDLE_LASER_ENABLE)
-
-  #if ENABLED(board_rev_1_0)       // use the last three SW positions
-
-    #undef Z_MIN_PROBE_PIN
-    #undef X_MIN_PIN              // SW1
-    #undef X_MAX_PIN              // SW2
-    #undef Y_MIN_PIN              // SW3
-    #undef Y_MAX_PIN              // SW4
-    #undef Z_MIN_PIN              // SW5
-    #undef Z_MAX_PIN              // SW6
-
-    #define X_STOP_PIN         13   // SW1  (didn't change) - also has a useable hardware PWM
-    #define Y_STOP_PIN         12   // SW2
-    #define Z_STOP_PIN         11   // SW3
-
-    #define SPINDLE_DIR_PIN          10   // SW4
-    #define SPINDLE_LASER_PWM_PIN     9   // SW5  MUST BE HARDWARE PWM
-    #define SPINDLE_LASER_ENA_PIN     8   // SW6  Pin should have a pullup!
-
-  #elif ENABLED(board_rev_1_5)      // use the same pins - but now they are on a different connector
-
-    #define SPINDLE_DIR_PIN          10   // EXP3-6 (silkscreen says 10)
-    #define SPINDLE_LASER_PWM_PIN     9   // EXP3-7 (silkscreen says 9) MUST BE HARDWARE PWM
-    #define SPINDLE_LASER_ENA_PIN     8   // EXP3-8 (silkscreen says 8) Pin should have a pullup!
-
-  #elif ENABLED(board_rev_1_1_TO_1_3)
-
+#if HAS_CUTTER
+  #if EITHER(BOARD_REV_1_0, BOARD_REV_1_5) // Use the last three SW positions
+    #define SPINDLE_DIR_PIN          10   // 1.0: SW4  1.5: EXP3-6 ("10")
+    #define SPINDLE_LASER_PWM_PIN     9   // 1.0: SW5  1.5: EXP3-7 ( "9") .. MUST BE HARDWARE PWM
+    #define SPINDLE_LASER_ENA_PIN     8   // 1.0: SW6  1.5: EXP3-8 ( "8") .. Pin should have a pullup!
+  #elif ENABLED(BOARD_REV_1_1_TO_1_3)
     /**
-     *  Only four hardware PWMs physically connected to anything on these boards:
+     * Only four hardware PWMs physically connected to anything on these boards:
      *
-     *    HEATER_0_PIN    2  silkscreen varies - usually "PWM 1" or "HEATER1"
-     *    HEATER_1_PIN    3  silkscreen varies - usually "PWM 2" or "HEATER2"
-     *    HEATER_BED_PIN  4  silkscreen varies - usually "PWM 3" or "HEATED BED"
-     *    E0_DIR_PIN     45
+     *   HEATER_0_PIN    2  silkscreen varies - usually "PWM 1" or "HEATER1"
+     *   HEATER_1_PIN    3  silkscreen varies - usually "PWM 2" or "HEATER2"
+     *   HEATER_BED_PIN  4  silkscreen varies - usually "PWM 3" or "HEATED BED"
+     *   E0_DIR_PIN     45
      *
-     *   If one of the heaters is used then special precautions will usually be needed.
-     *   They have an LED and resistor pullup to +24V which could damage 3.3V-5V ICs.
+     * If one of the heaters is used then special precautions will usually be needed.
+     * They have an LED and resistor pullup to +24V which could damage 3.3V-5V ICs.
      */
-    #if EXTRUDERS == 1                     // Move E0 stepper module to the spare and get signals from E0
-      #undef E0_STEP_PIN
-      #undef E0_DIR_PIN
-      #undef E0_ENABLE_PIN
-      #define E0_STEP_PIN              49
-      #define E0_DIR_PIN               47
-      #define E0_ENABLE_PIN            48
+    #if EXTRUDERS == 1
       #define SPINDLE_DIR_PIN          43
       #define SPINDLE_LASER_PWM_PIN    45   // MUST BE HARDWARE PWM
       #define SPINDLE_LASER_ENA_PIN    41   // Pin should have a pullup!

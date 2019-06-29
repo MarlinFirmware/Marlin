@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -249,6 +249,7 @@
 #define BOARD_MORPHEUS                1806  // STM32F103C8/STM32F103CB Libmaple based stm32f1 controller
 #define BOARD_MKS_ROBIN               1808  // MKS Robin / STM32F103ZET6
 #define BOARD_MKS_ROBIN_MINI          1813  // MKS Robin Mini / STM32F103VET6
+#define BOARD_MKS_ROBIN_NANO          1812  // MKS Robin Nano / STM32F103VET6
 #define BOARD_BIGTREE_SKR_MINI_V1_1   1814  // STM32F103RC
 #define BOARD_JGAURORA_A5S_A1         1820  // JGAurora A5S A1 / STM32F103ZET6
 #define BOARD_FYSETC_AIO_II           1890  // FYSETC AIO_II

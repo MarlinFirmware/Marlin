@@ -684,7 +684,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   // them only during blinks we gain a bit of stability.
   const bool       blink             = ui.get_blink();
   const uint16_t   feedrate_perc     = feedrate_percentage;
-  const uint16_t   fs                = (thermalManager.fan_speed[0] * uint16_t(thermalManager.fan_speed_scaler[0])) >> 7;
+  const uint16_t   fs                = thermalManager.scaledFanSpeed(0);
   const int16_t    extruder_1_target = thermalManager.degTargetHotend(0);
   #if HOTENDS > 1
     const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
@@ -734,7 +734,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
 
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
       if (!blink && thermalManager.fan_speed_scaler[0] < 128)
-        spd = (spd * thermalManager.fan_speed_scaler[0]) >> 7;
+        spd = thermalManager.scaledFanSpeed(0, spd);
     #endif
 
     draw_fan_speed(thermalManager.fanPercent(spd));

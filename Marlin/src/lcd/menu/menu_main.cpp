@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +72,11 @@ void menu_configuration();
 
 #if ENABLED(LED_CONTROL_MENU)
   void menu_led();
+#endif
+
+#if HAS_CUTTER
+  #include "../../feature/spindle_laser.h"
+  void menu_spindle_laser();
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -152,6 +157,10 @@ void menu_main() {
 
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
   }
+
+  #if HAS_CUTTER
+    MENU_ITEM(submenu, MSG_CUTTER(MENU), menu_spindle_laser);
+  #endif
 
   MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
 

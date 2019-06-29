@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,7 +172,7 @@
 //
 // EEPROM
 //
-#define E2END 0x8000  // 32Kb (24lc256)
+#define E2END 0x7FFF  // 32Kb (24lc256)
 #define I2C_EEPROM    // EEPROM on I2C-0
 //#define EEPROM_SD   // EEPROM on SDCARD
 //#define SPI_EEPROM  // EEPROM on SPI-0
@@ -186,7 +186,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #if ANY(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER, REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
     #define BEEPER_PIN      62
@@ -255,4 +255,4 @@
     #define BTN_ENC         40
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD

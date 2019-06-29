@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -451,10 +451,12 @@
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define XYZE_N (XYZ + E_STEPPERS)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
+  #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
   #define XYZE_N XYZE
   #define E_AXIS_N(E) E_AXIS
+  #define UNUSED_E(E) UNUSED(E)
 #endif
 
 /**
