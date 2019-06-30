@@ -79,55 +79,57 @@ static inline bool IS_ANALOG(pin_t pin) {
   return false;
 }
 
-static inline bool GET_PINMODE(pin_t pin) {
-  return VALID_PIN(pin) ? !IS_INPUT(pin) : false;
+static inline bool GET_PINMODE(const pin_t pin) {
+  return VALID_PIN(pin) && !IS_INPUT(pin);
 }
 
-static inline bool GET_ARRAY_IS_DIGITAL(int16_t array_pin) {
-  pin_t pin = GET_ARRAY_PIN(array_pin);
-  bool isDigital = !IS_ANALOG(pin);
-  #ifdef NUM_ANALOG_INPUTS
-    if (!isDigital && PIN_MAP[pin].adc_channel >= NUM_ANALOG_INPUTS)
-      isDigital = true;
-  #endif
-  return isDigital;
+static inline bool GET_ARRAY_IS_DIGITAL(const int16_t array_pin) {
+  const pin_t pin = GET_ARRAY_PIN(array_pin);
+  return (!IS_ANALOG(pin)
+    #ifdef NUM_ANALOG_INPUTS
+      || PIN_MAP[pin].adc_channel >= NUM_ANALOG_INPUTS
+    #endif
+  );
 }
 
-static inline void pwm_details(pin_t pin) {
+static inline void pwm_details(const pin_t pin) {
   if (PWM_PIN(pin)) {
-    char buffer[16], num = '?';
     timer_dev * const tdev = PIN_MAP[pin].timer_device;
     const uint8_t channel = PIN_MAP[pin].timer_channel;
-    if (tdev == &timer1) num = '1';
-    else if (tdev == &timer1) num = '1';
-    else if (tdev == &timer2) num = '2';
-    else if (tdev == &timer3) num = '3';
-    else if (tdev == &timer4) num = '4';
-    #ifdef STM32_HIGH_DENSITY
-      else if (tdev == &timer5) num = '5';
-      else if (tdev == &timer8) num = '8';
-    #endif
+    const char num = (
+      #ifdef STM32_HIGH_DENSITY
+        tdev == &timer8 ? '8' :
+        tdev == &timer5 ? '5' :
+      #endif
+      tdev == &timer4 ? '4' :
+      tdev == &timer3 ? '3' :
+      tdev == &timer2 ? '2' :
+      tdev == &timer1 ? '1' : '?'
+    );
+    char buffer[10];
     sprintf_P(buffer, PSTR(" TIM%c CH%c"), num, ('0' + channel));
     SERIAL_ECHO(buffer);
   }
 }
 
 static inline void print_port(pin_t pin) {
-  char buffer[6];
-  char port = 'A' + char(pin >> 4); // pin div 16
+  const char port = 'A' + char(pin >> 4); // pin div 16
   /* seems not to be required for our devices
-  gpio_dev* gp = PIN_MAP[pin].gpio_device;
-  if (gp == &gpioa) port = 'A';
-  else if (gp == &gpiob) port = 'B';
-  else if (gp == &gpioc) port = 'C';
-  else if (gp == &gpiod) port = 'D';
-  #if STM32_NR_GPIO_PORTS > 4
-    else if (gp == &gpioe) port = 'E';
-    else if (gp == &gpiof) port = 'F';
-    else if (gp == &gpiog) port = 'G';
-  #endif
+  gpio_dev * const gp = PIN_MAP[pin].gpio_device;
+  const char port = (
+    #if STM32_NR_GPIO_PORTS > 4
+      gp == &gpiog ? 'G' :
+      gp == &gpiof ? 'F' :
+      gp == &gpioe ? 'E' :
+    #endif
+    gp == &gpiod ? 'D' :
+    gp == &gpioc ? 'C' :
+    gp == &gpiob ? 'B' :
+    gp == &gpioa ? 'A' : '?'
+  );
   */
   const int16_t gbit = PIN_MAP[pin].gpio_bit;
+  char buffer[6];
   sprintf_P(buffer, PSTR("P%c%hd "), port, gbit);
   if (gbit < 10) SERIAL_CHAR(' ');
   SERIAL_ECHO(buffer);
