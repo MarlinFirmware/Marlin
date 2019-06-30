@@ -630,13 +630,13 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
 #define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING alse // Set to true to invert the logic of the probe.
 
 /**
  * Stepper Drivers
@@ -1984,7 +1984,6 @@
 //========================== Extensible UI Displays ===========================
 //=============================================================================
 
-<<<<<<< HEAD
 //
 // DGUS Touch Display with DWIN OS
 //
@@ -1993,16 +1992,6 @@
 //
 // Touch-screen LCD for Malyan M200 printers
 //
-=======
-//
-// DGUS Touch Display with DWIN OS
-//
-//#define DGUS_LCD
-
-//
-// Touch-screen LCD for Malyan M200 printers
-//
->>>>>>> upstream/bugfix-2.0.x
 //#define MALYAN_LCD
 
 //
