@@ -768,8 +768,7 @@
             ui.wait_for_release();
             ui.quick_feedback();
             ui.release();
-            restore_ubl_active_state_and_leave();
-            return;
+            return restore_ubl_active_state_and_leave();
           }
         #endif
 
@@ -844,7 +843,6 @@
     float unified_bed_leveling::measure_point_with_encoder() {
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       move_z_with_encoder(0.01f);
-      KEEPALIVE_STATE(IN_HANDLER);
       return current_position[Z_AXIS];
     }
 
@@ -889,15 +887,6 @@
       return thickness;
     }
 
-    void abort_manual_probe_remaining_mesh() {
-      SERIAL_ECHOLNPGM("\nMesh only partially populated.");
-      do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-      ui.release();
-      KEEPALIVE_STATE(IN_HANDLER);
-      ui.quick_feedback();
-      ubl.restore_ubl_active_state_and_leave();
-    }
-
     void unified_bed_leveling::manually_probe_remaining_mesh(const float &rx, const float &ry, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
 
       ui.capture();
@@ -939,9 +928,7 @@
           SERIAL_ECHOLNPGM("\nMesh only partially populated.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
           ui.release();
-          KEEPALIVE_STATE(IN_HANDLER);
-          restore_ubl_active_state_and_leave();
-          return;
+          return restore_ubl_active_state_and_leave();
         }
 
         z_values[location.x_index][location.y_index] = current_position[Z_AXIS] - thick;
@@ -957,7 +944,6 @@
       if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
       restore_ubl_active_state_and_leave();
-      KEEPALIVE_STATE(IN_HANDLER);
       do_blocking_move_to(rx, ry, Z_CLEARANCE_DEPLOY_PROBE);
     }
 
@@ -1046,7 +1032,7 @@
 
         if (!lcd_map_control) ui.return_to_status();                // Just editing a single point? Return to status
 
-        if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
+        if (click_and_hold(abort_fine_tune)) break;                 // Button held down? Abort editing
 
         z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
         #if ENABLED(EXTENSIBLE_UI)
@@ -1058,10 +1044,7 @@
 
       } while (location.x_index >= 0 && --g29_repetition_cnt > 0);
 
-      FINE_TUNE_EXIT:
-
       ui.release();
-      KEEPALIVE_STATE(IN_HANDLER);
 
       if (do_ubl_mesh_map) display_map(g29_map_type);
       restore_ubl_active_state_and_leave();

@@ -320,11 +320,11 @@ void GcodeSuite::M43() {
     }
 
     #if HAS_RESUME_CONTINUE
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), PSTR("Continue"));
       #endif
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
     #endif
 
     for (;;) {
@@ -346,7 +346,7 @@ void GcodeSuite::M43() {
       }
 
       #if HAS_RESUME_CONTINUE
-        if (!wait_for_user) { KEEPALIVE_STATE(IN_HANDLER); break; }
+        if (!wait_for_user) break;
       #endif
 
       safe_delay(200);

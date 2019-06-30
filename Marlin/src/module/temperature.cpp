@@ -2925,7 +2925,6 @@ void Temperature::isr() {
       #endif
 
       #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
-        const GcodeSuite::MarlinBusyState old_busy_state = gcode.busy_state;
         KEEPALIVE_STATE(NOT_BUSY);
       #endif
 
@@ -3019,10 +3018,6 @@ void Temperature::isr() {
         #endif
       }
 
-      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
-        gcode.busy_state = old_busy_state;
-      #endif
-
       return wait_for_heatup;
     }
 
@@ -3058,7 +3053,6 @@ void Temperature::isr() {
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
       #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
-        const GcodeSuite::MarlinBusyState old_busy_state = gcode.busy_state;
         KEEPALIVE_STATE(NOT_BUSY);
       #endif
 
@@ -3145,10 +3139,6 @@ void Temperature::isr() {
 
       if (wait_for_heatup) ui.reset_status();
 
-      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
-        gcode.busy_state = old_busy_state;
-      #endif
-
       return wait_for_heatup;
     }
 
@@ -3179,7 +3169,6 @@ void Temperature::isr() {
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
       #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
-        const GcodeSuite::MarlinBusyState old_busy_state = gcode.busy_state;
         KEEPALIVE_STATE(NOT_BUSY);
       #endif
 
@@ -3246,10 +3235,6 @@ void Temperature::isr() {
       } while (wait_for_heatup && TEMP_CHAMBER_CONDITIONS);
 
       if (wait_for_heatup) ui.reset_status();
-
-      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
-        gcode.busy_state = old_busy_state;
-      #endif
 
       return wait_for_heatup;
     }
