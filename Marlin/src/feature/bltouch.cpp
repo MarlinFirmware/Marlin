@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,6 +53,9 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
   //               This mode will stay active until manual SET_OD_MODE or power cycle
   // BLTOUCH V3.1: SET_5V_MODE or SET_OD_MODE (if enabled).
   //               At power on, the probe will default to the eeprom settings configured by the user
+  _reset();
+  _stow();
+
   #if ENABLED(BLTOUCH_FORCE_MODE_SET)
 
     constexpr bool should_set = true;
@@ -84,9 +87,6 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
         || true
       #endif
     ));
-
-  _reset();
-  _stow();
 }
 
 void BLTouch::clear() {

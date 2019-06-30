@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -32,8 +32,9 @@
 // --------------------------------------------------------------------------
 
 #include "HAL.h"
-#include <STM32ADC.h>
 #include "../../inc/MarlinConfig.h"
+
+#include <STM32ADC.h>
 
 // --------------------------------------------------------------------------
 // Externals
@@ -45,8 +46,7 @@
 
 #define __I
 #define __IO volatile
- typedef struct
- {
+ typedef struct {
    __I  uint32_t CPUID;                   /*!< Offset: 0x000 (R/ )  CPUID Base Register                                   */
    __IO uint32_t ICSR;                    /*!< Offset: 0x004 (R/W)  Interrupt Control and State Register                  */
    __IO uint32_t VTOR;                    /*!< Offset: 0x008 (R/W)  Vector Table Offset Register                          */
@@ -161,11 +161,10 @@ enum TEMP_PINS : char {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
   #endif
-    ADC_PIN_COUNT
+  ADC_PIN_COUNT
 };
 
 uint16_t HAL_adc_results[ADC_PIN_COUNT];
-
 
 // --------------------------------------------------------------------------
 // Function prototypes
@@ -209,6 +208,9 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
 
 void HAL_init(void) {
   NVIC_SetPriorityGrouping(0x3);
+  #if PIN_EXISTS(LED)
+    OUT_WRITE(LED_PIN, LOW);
+  #endif
 }
 
 /* VGPV Done with defines
@@ -312,5 +314,16 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
 }
 
 uint16_t HAL_adc_get_result(void) { return HAL_adc_result; }
+
+uint16_t analogRead(pin_t pin) {
+  const bool is_analog = _GET_MODE(pin) == GPIO_INPUT_ANALOG;
+  return is_analog ? analogRead(uint8_t(pin)) : 0;
+}
+
+// Wrapper to maple unprotected analogWrite
+void analogWrite(pin_t pin, int pwm_val8) {
+  if (PWM_PIN(pin) && IS_OUTPUT(pin))
+    analogWrite(uint8_t(pin), pwm_val8);
+}
 
 #endif // __STM32F1__

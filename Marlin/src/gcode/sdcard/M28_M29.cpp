@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ void GcodeSuite::M28() {
       SERIAL_ECHOLN(p);
       card.openFile(p, false);
       #if NUM_SERIAL > 1
-        card.transfer_port_index = command_queue_port[cmd_queue_index_r];
+        card.transfer_port_index = queue.port[queue.index_r];
       #endif
     }
     else

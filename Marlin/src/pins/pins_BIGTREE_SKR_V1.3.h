@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,9 +107,9 @@
   #define TMC_SW_SCK       P0_04
 #endif
 
-#if HAS_DRIVER(TMC2208)
+#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
     /**
-   * TMC2208 stepper drivers
+   * TMC2208/TMC2209 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
@@ -179,7 +179,7 @@
 |               ￣￣                                               ￣￣
 |               EXP2                                              EXP1
 */
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
   #define BEEPER_PIN       P1_30   // (37) not 5V tolerant
   #define BTN_ENC          P0_28   // (58) open-drain
 
@@ -249,48 +249,38 @@
 
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // SD Support
 //
 
-#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
-  #undef USB_SD_DISABLED
-  #define USB_SD_ONBOARD
-  #define LPC_SD_LCD
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION LCD
 #endif
 
-#if ENABLED(LPC_SD_LCD)
+#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
 
+#if SD_CONNECTION_IS(LCD)
   #define SCK_PIN          P0_15
   #define MISO_PIN         P0_17
   #define MOSI_PIN         P0_18
-  #define SS_PIN           P0_16   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
-
-#elif ENABLED(LPC_SD_ONBOARD)
-
-  #if ENABLED(USB_SD_ONBOARD)
-    // When sharing the SD card with a PC we want the menu options to
-    // mount/unmount the card and refresh it. So we disable card detect.
-    #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN
-    //#define SD_DETECT_PIN  P0_27   // (57) open-drain
-  #endif
-
+  #define SS_PIN           P0_16
+#elif SD_CONNECTION_IS(ONBOARD)
+  #undef SD_DETECT_PIN
+  #define SD_DETECT_PIN    P0_27
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
-
+  #define SS_PIN           ONBOARD_SD_CS_PIN
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "No custom SD drive cable defined for this board."
 #endif
 
- /**
-  * Special pins
-  *   P1_30  (37) (NOT 5V tolerant)
-  *   P1_31  (49) (NOT 5V tolerant)
-  *   P0_27  (57) (Open collector)
-  *   P0_28  (58) (Open collector)
-  */
+/**
+ * Special pins
+ *   P1_30  (37) (NOT 5V tolerant)
+ *   P1_31  (49) (NOT 5V tolerant)
+ *   P0_27  (57) (Open collector)
+ *   P0_28  (58) (Open collector)
+ */

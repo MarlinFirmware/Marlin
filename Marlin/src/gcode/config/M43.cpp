@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,7 +114,7 @@ inline void servo_probe_test() {
                       ", stow angle:   ", servo_angles[probe_index][1]
     );
 
-    bool deploy_state, stow_state;
+    bool deploy_state = false, stow_state;
 
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
 
@@ -320,11 +320,11 @@ void GcodeSuite::M43() {
     }
 
     #if HAS_RESUME_CONTINUE
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), PSTR("Continue"));
       #endif
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
     #endif
 
     for (;;) {
@@ -346,7 +346,7 @@ void GcodeSuite::M43() {
       }
 
       #if HAS_RESUME_CONTINUE
-        if (!wait_for_user) { KEEPALIVE_STATE(IN_HANDLER); break; }
+        if (!wait_for_user) break;
       #endif
 
       safe_delay(200);

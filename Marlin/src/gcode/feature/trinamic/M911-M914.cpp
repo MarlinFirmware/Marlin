@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 
 #if ENABLED(MONITOR_DRIVER_STATUS)
 
-  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2660) || AXIS_DRIVER_TYPE(ST, TMC5130) || AXIS_DRIVER_TYPE(ST, TMC5160))
+  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2209) || AXIS_DRIVER_TYPE(ST, TMC2660) || AXIS_DRIVER_TYPE(ST, TMC5130) || AXIS_DRIVER_TYPE(ST, TMC5160))
   #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
 
   #define M91x_SOME_X (M91x_USE(X) || M91x_USE(X2))
@@ -41,7 +41,7 @@
   #define M91x_SOME_E (M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5))
 
   #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_SOME_E
-    #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, TMC2208, or TMC2660."
+    #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, 2160, 2208, 2209, 2660, 5130, or 5160."
   #endif
 
   /**
@@ -313,39 +313,39 @@
     bool report = true;
     const uint8_t index = parser.byteval('I');
     LOOP_XYZ(i) if (parser.seen(axis_codes[i])) {
-      const int8_t value = (int8_t)constrain(parser.value_int(), -64, 63);
+      const int16_t value = parser.value_int();
       report = false;
       switch (i) {
         #if X_SENSORLESS
           case X_AXIS:
             #if AXIS_HAS_STALLGUARD(X)
-              if (index < 2) stepperX.sgt(value);
+              if (index < 2) stepperX.homing_threshold(value);
             #endif
             #if AXIS_HAS_STALLGUARD(X2)
-              if (!(index & 1)) stepperX2.sgt(value);
+              if (!(index & 1)) stepperX2.homing_threshold(value);
             #endif
             break;
         #endif
         #if Y_SENSORLESS
           case Y_AXIS:
             #if AXIS_HAS_STALLGUARD(Y)
-              if (index < 2) stepperY.sgt(value);
+              if (index < 2) stepperY.homing_threshold(value);
             #endif
             #if AXIS_HAS_STALLGUARD(Y2)
-              if (!(index & 1)) stepperY2.sgt(value);
+              if (!(index & 1)) stepperY2.homing_threshold(value);
             #endif
             break;
         #endif
         #if Z_SENSORLESS
           case Z_AXIS:
             #if AXIS_HAS_STALLGUARD(Z)
-              if (index < 2) stepperZ.sgt(value);
+              if (index < 2) stepperZ.homing_threshold(value);
             #endif
             #if AXIS_HAS_STALLGUARD(Z2)
-              if (index == 0 || index == 2) stepperZ2.sgt(value);
+              if (index == 0 || index == 2) stepperZ2.homing_threshold(value);
             #endif
             #if AXIS_HAS_STALLGUARD(Z3)
-              if (index == 0 || index == 3) stepperZ3.sgt(value);
+              if (index == 0 || index == 3) stepperZ3.homing_threshold(value);
             #endif
             break;
         #endif

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1051,13 +1051,13 @@ void MarlinSettings::postprocess() {
       tmc_sgt_t tmc_sgt = { 0, 0, 0 };
       #if USE_SENSORLESS
         #if X_SENSORLESS
-          tmc_sgt.X = stepperX.sgt();
+          tmc_sgt.X = stepperX.homing_threshold();
         #endif
         #if Y_SENSORLESS
-          tmc_sgt.Y = stepperY.sgt();
+          tmc_sgt.Y = stepperY.homing_threshold();
         #endif
         #if Z_SENSORLESS
-          tmc_sgt.Z = stepperZ.sgt();
+          tmc_sgt.Z = stepperZ.homing_threshold();
         #endif
       #endif
       EEPROM_WRITE(tmc_sgt);
@@ -1834,29 +1834,29 @@ void MarlinSettings::postprocess() {
           if (!validating) {
             #ifdef X_STALL_SENSITIVITY
               #if AXIS_HAS_STALLGUARD(X)
-                stepperX.sgt(tmc_sgt.X);
+                stepperX.homing_threshold(tmc_sgt.X);
               #endif
               #if AXIS_HAS_STALLGUARD(X2)
-                stepperX2.sgt(tmc_sgt.X);
+                stepperX2.homing_threshold(tmc_sgt.X);
               #endif
             #endif
             #ifdef Y_STALL_SENSITIVITY
               #if AXIS_HAS_STALLGUARD(Y)
-                stepperY.sgt(tmc_sgt.Y);
+                stepperY.homing_threshold(tmc_sgt.Y);
               #endif
               #if AXIS_HAS_STALLGUARD(Y2)
-                stepperY2.sgt(tmc_sgt.Y);
+                stepperY2.homing_threshold(tmc_sgt.Y);
               #endif
             #endif
             #ifdef Z_STALL_SENSITIVITY
               #if AXIS_HAS_STALLGUARD(Z)
-                stepperZ.sgt(tmc_sgt.Z);
+                stepperZ.homing_threshold(tmc_sgt.Z);
               #endif
               #if AXIS_HAS_STALLGUARD(Z2)
-                stepperZ2.sgt(tmc_sgt.Z);
+                stepperZ2.homing_threshold(tmc_sgt.Z);
               #endif
               #if AXIS_HAS_STALLGUARD(Z3)
-                stepperZ3.sgt(tmc_sgt.Z);
+                stepperZ3.homing_threshold(tmc_sgt.Z);
               #endif
             #endif
           }
@@ -3254,18 +3254,18 @@ void MarlinSettings::reset() {
        * TMC Sensorless homing thresholds
        */
       #if USE_SENSORLESS
-        CONFIG_ECHO_HEADING("TMC2130 StallGuard threshold:");
+        CONFIG_ECHO_HEADING("StallGuard threshold:");
         CONFIG_ECHO_START();
         #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
           say_M914();
           #if X_SENSORLESS
-            SERIAL_ECHOPAIR(" X", stepperX.sgt());
+            SERIAL_ECHOPAIR(" X", stepperX.homing_threshold());
           #endif
           #if Y_SENSORLESS
-            SERIAL_ECHOPAIR(" Y", stepperY.sgt());
+            SERIAL_ECHOPAIR(" Y", stepperY.homing_threshold());
           #endif
           #if Z_SENSORLESS
-            SERIAL_ECHOPAIR(" Z", stepperZ.sgt());
+            SERIAL_ECHOPAIR(" Z", stepperZ.homing_threshold());
           #endif
           SERIAL_EOL();
         #endif
@@ -3278,20 +3278,20 @@ void MarlinSettings::reset() {
           say_M914();
           SERIAL_ECHOPGM(" I1");
           #if HAS_X2_SENSORLESS
-            SERIAL_ECHOPAIR(" X", stepperX2.sgt());
+            SERIAL_ECHOPAIR(" X", stepperX2.homing_threshold());
           #endif
           #if HAS_Y2_SENSORLESS
-            SERIAL_ECHOPAIR(" Y", stepperY2.sgt());
+            SERIAL_ECHOPAIR(" Y", stepperY2.homing_threshold());
           #endif
           #if HAS_Z2_SENSORLESS
-            SERIAL_ECHOPAIR(" Z", stepperZ2.sgt());
+            SERIAL_ECHOPAIR(" Z", stepperZ2.homing_threshold());
           #endif
           SERIAL_EOL();
         #endif
 
         #if HAS_Z3_SENSORLESS
           say_M914();
-          SERIAL_ECHOLNPAIR(" I2 Z", stepperZ3.sgt());
+          SERIAL_ECHOLNPAIR(" I2 Z", stepperZ3.homing_threshold());
         #endif
 
       #endif // USE_SENSORLESS

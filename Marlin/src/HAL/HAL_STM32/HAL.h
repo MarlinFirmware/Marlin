@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -28,6 +28,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
+#include "../../core/macros.h"
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
@@ -150,7 +151,6 @@ extern uint16_t HAL_adc_result;
 #define __bss_end __bss_end__
 
 // Enable hooks into  setup for HAL
-#define HAL_INIT 1
 void HAL_init(void);
 
 /** clear reset reason */

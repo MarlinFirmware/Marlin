@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,9 +48,9 @@ void SysTick_Callback() {
   disk_timerproc();
 }
 
-void HAL_init() {
+void HAL_init(void) {
 
-  // Support the 4 LEDs some LPC176x boards have
+  // Init LEDs
   #if PIN_EXISTS(LED)
     SET_DIR_OUTPUT(LED_PIN);
     WRITE_PIN_CLR(LED_PIN);
@@ -74,17 +74,29 @@ void HAL_init() {
     }
   #endif
 
+  // Init Servo Pins
+  #if PIN_EXISTS(SERVO0)
+    OUT_WRITE(SERVO0_PIN, LOW);
+  #endif
+  #if PIN_EXISTS(SERVO1)
+    OUT_WRITE(SERVO1_PIN, LOW);
+  #endif
+  #if PIN_EXISTS(SERVO2)
+    OUT_WRITE(SERVO2_PIN, LOW);
+  #endif
+  #if PIN_EXISTS(SERVO3)
+    OUT_WRITE(SERVO3_PIN, LOW);
+  #endif
+
   //debug_frmwrk_init();
   //_DBG("\n\nDebug running\n");
   // Initialise the SD card chip select pins as soon as possible
   #if PIN_EXISTS(SS)
-    WRITE(SS_PIN, HIGH);
-    SET_OUTPUT(SS_PIN);
+    OUT_WRITE(SS_PIN, HIGH);
   #endif
 
-  #if defined(ONBOARD_SD_CS) && ONBOARD_SD_CS > -1
-    WRITE(ONBOARD_SD_CS, HIGH);
-    SET_OUTPUT(ONBOARD_SD_CS);
+  #if PIN_EXISTS(ONBOARD_SD_CS) && ONBOARD_SD_CS_PIN != SS_PIN
+    OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH);
   #endif
 
   USB_Init();                               // USB Initialization
@@ -92,7 +104,7 @@ void HAL_init() {
   delay(1000);                              // Give OS time to notice
   USB_Connect(TRUE);
 
-  #if DISABLED(USB_SD_DISABLED)
+  #if !BOTH(SHARED_SD_CARD, INIT_SDCARD_ON_BOOT) && DISABLED(NO_SD_HOST_DRIVE)
     MSC_SD_Init(0);                         // Enable USB SD card access
   #endif
 
@@ -119,7 +131,7 @@ void HAL_init() {
 
 // HAL idle task
 void HAL_idletask(void) {
-  #if BOTH(SDSUPPORT, SHARED_SD_CARD)
+  #if ENABLED(SHARED_SD_CARD)
     // If Marlin is using the SD card we need to lock it to prevent access from
     // a PC via USB.
     // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but

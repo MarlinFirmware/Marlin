@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,14 +53,14 @@ extern uint8_t marlin_debug_flags;
   extern int8_t serial_port_index;
   #define _PORT_REDIRECT(n,p)   REMEMBER(n,serial_port_index,p)
   #define _PORT_RESTORE(n)      RESTORE(n)
-  #define SERIAL_OUT(WHAT, ...) do{ \
-    if (!serial_port_index || serial_port_index == SERIAL_BOTH) (void)MYSERIAL0.WHAT(__VA_ARGS__); \
-    if ( serial_port_index) (void)MYSERIAL1.WHAT(__VA_ARGS__); \
+  #define SERIAL_OUT(WHAT, V...) do{ \
+    if (!serial_port_index || serial_port_index == SERIAL_BOTH) (void)MYSERIAL0.WHAT(V); \
+    if ( serial_port_index) (void)MYSERIAL1.WHAT(V); \
   }while(0)
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
   #define _PORT_RESTORE(n)      NOOP
-  #define SERIAL_OUT(WHAT, ...) (void)MYSERIAL0.WHAT(__VA_ARGS__)
+  #define SERIAL_OUT(WHAT, V...) (void)MYSERIAL0.WHAT(V)
 #endif
 
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
@@ -68,11 +68,11 @@ extern uint8_t marlin_debug_flags;
 
 #define SERIAL_CHAR(x)          SERIAL_OUT(write, x)
 #define SERIAL_ECHO(x)          SERIAL_OUT(print, x)
-#define SERIAL_ECHO_F(...)      SERIAL_OUT(print, __VA_ARGS__)
+#define SERIAL_ECHO_F(V...)      SERIAL_OUT(print, V)
 #define SERIAL_ECHOLN(x)        SERIAL_OUT(println, x)
 #define SERIAL_PRINT(x,b)       SERIAL_OUT(print, x, b)
 #define SERIAL_PRINTLN(x,b)     SERIAL_OUT(println, x, b)
-#define SERIAL_PRINTF(...)      SERIAL_OUT(printf, __VA_ARGS__)
+#define SERIAL_PRINTF(V...)      SERIAL_OUT(printf, V)
 #define SERIAL_FLUSH()          SERIAL_OUT(flush)
 
 #if TX_BUFFER_SIZE > 0
@@ -82,70 +82,70 @@ extern uint8_t marlin_debug_flags;
 #endif
 
 // Print up to 12 pairs of values
-#define __SEP_N(N,...)      _SEP_##N(__VA_ARGS__)
-#define _SEP_N(N,...)       __SEP_N(N,__VA_ARGS__)
-#define _SEP_1(PRE)         SERIAL_ECHOPGM(PRE)
-#define _SEP_2(PRE,V)       serial_echopair_PGM(PSTR(PRE),V)
-#define _SEP_3(a,b,c)       do{ _SEP_2(a,b); SERIAL_ECHOPGM(c); }while(0)
-#define _SEP_4(a,b,...)     do{ _SEP_2(a,b); _SEP_2(__VA_ARGS__); }while(0)
-#define _SEP_5(a,b,...)     do{ _SEP_2(a,b); _SEP_3(__VA_ARGS__); }while(0)
-#define _SEP_6(a,b,...)     do{ _SEP_2(a,b); _SEP_4(__VA_ARGS__); }while(0)
-#define _SEP_7(a,b,...)     do{ _SEP_2(a,b); _SEP_5(__VA_ARGS__); }while(0)
-#define _SEP_8(a,b,...)     do{ _SEP_2(a,b); _SEP_6(__VA_ARGS__); }while(0)
-#define _SEP_9(a,b,...)     do{ _SEP_2(a,b); _SEP_7(__VA_ARGS__); }while(0)
-#define _SEP_10(a,b,...)    do{ _SEP_2(a,b); _SEP_8(__VA_ARGS__); }while(0)
-#define _SEP_11(a,b,...)    do{ _SEP_2(a,b); _SEP_9(__VA_ARGS__); }while(0)
-#define _SEP_12(a,b,...)    do{ _SEP_2(a,b); _SEP_10(__VA_ARGS__); }while(0)
-#define _SEP_13(a,b,...)    do{ _SEP_2(a,b); _SEP_11(__VA_ARGS__); }while(0)
-#define _SEP_14(a,b,...)    do{ _SEP_2(a,b); _SEP_12(__VA_ARGS__); }while(0)
-#define _SEP_15(a,b,...)    do{ _SEP_2(a,b); _SEP_13(__VA_ARGS__); }while(0)
-#define _SEP_16(a,b,...)    do{ _SEP_2(a,b); _SEP_14(__VA_ARGS__); }while(0)
-#define _SEP_17(a,b,...)    do{ _SEP_2(a,b); _SEP_15(__VA_ARGS__); }while(0)
-#define _SEP_18(a,b,...)    do{ _SEP_2(a,b); _SEP_16(__VA_ARGS__); }while(0)
-#define _SEP_19(a,b,...)    do{ _SEP_2(a,b); _SEP_17(__VA_ARGS__); }while(0)
-#define _SEP_20(a,b,...)    do{ _SEP_2(a,b); _SEP_18(__VA_ARGS__); }while(0)
-#define _SEP_21(a,b,...)    do{ _SEP_2(a,b); _SEP_19(__VA_ARGS__); }while(0)
-#define _SEP_22(a,b,...)    do{ _SEP_2(a,b); _SEP_20(__VA_ARGS__); }while(0)
-#define _SEP_23(a,b,...)    do{ _SEP_2(a,b); _SEP_21(__VA_ARGS__); }while(0)
-#define _SEP_24(a,b,...)    do{ _SEP_2(a,b); _SEP_22(__VA_ARGS__); }while(0)
+#define __SEP_N(N,V...)   _SEP_##N(V)
+#define _SEP_N(N,V...)    __SEP_N(N,V)
+#define _SEP_1(PRE)       SERIAL_ECHOPGM(PRE)
+#define _SEP_2(PRE,V)     serial_echopair_PGM(PSTR(PRE),V)
+#define _SEP_3(a,b,c)     do{ _SEP_2(a,b); SERIAL_ECHOPGM(c); }while(0)
+#define _SEP_4(a,b,V...)  do{ _SEP_2(a,b); _SEP_2(V); }while(0)
+#define _SEP_5(a,b,V...)  do{ _SEP_2(a,b); _SEP_3(V); }while(0)
+#define _SEP_6(a,b,V...)  do{ _SEP_2(a,b); _SEP_4(V); }while(0)
+#define _SEP_7(a,b,V...)  do{ _SEP_2(a,b); _SEP_5(V); }while(0)
+#define _SEP_8(a,b,V...)  do{ _SEP_2(a,b); _SEP_6(V); }while(0)
+#define _SEP_9(a,b,V...)  do{ _SEP_2(a,b); _SEP_7(V); }while(0)
+#define _SEP_10(a,b,V...) do{ _SEP_2(a,b); _SEP_8(V); }while(0)
+#define _SEP_11(a,b,V...) do{ _SEP_2(a,b); _SEP_9(V); }while(0)
+#define _SEP_12(a,b,V...) do{ _SEP_2(a,b); _SEP_10(V); }while(0)
+#define _SEP_13(a,b,V...) do{ _SEP_2(a,b); _SEP_11(V); }while(0)
+#define _SEP_14(a,b,V...) do{ _SEP_2(a,b); _SEP_12(V); }while(0)
+#define _SEP_15(a,b,V...) do{ _SEP_2(a,b); _SEP_13(V); }while(0)
+#define _SEP_16(a,b,V...) do{ _SEP_2(a,b); _SEP_14(V); }while(0)
+#define _SEP_17(a,b,V...) do{ _SEP_2(a,b); _SEP_15(V); }while(0)
+#define _SEP_18(a,b,V...) do{ _SEP_2(a,b); _SEP_16(V); }while(0)
+#define _SEP_19(a,b,V...) do{ _SEP_2(a,b); _SEP_17(V); }while(0)
+#define _SEP_20(a,b,V...) do{ _SEP_2(a,b); _SEP_18(V); }while(0)
+#define _SEP_21(a,b,V...) do{ _SEP_2(a,b); _SEP_19(V); }while(0)
+#define _SEP_22(a,b,V...) do{ _SEP_2(a,b); _SEP_20(V); }while(0)
+#define _SEP_23(a,b,V...) do{ _SEP_2(a,b); _SEP_21(V); }while(0)
+#define _SEP_24(a,b,V...) do{ _SEP_2(a,b); _SEP_22(V); }while(0)
 
-#define SERIAL_ECHOPAIR(...) _SEP_N(NUM_ARGS(__VA_ARGS__),__VA_ARGS__)
+#define SERIAL_ECHOPAIR(V...) _SEP_N(NUM_ARGS(V),V)
 
 // Print up to 12 pairs of values followed by newline
-#define __SELP_N(N,...)   _SELP_##N(__VA_ARGS__)
-#define _SELP_N(N,...)    __SELP_N(N,__VA_ARGS__)
-#define _SELP_1(PRE)      SERIAL_ECHOLNPGM(PRE)
-#define _SELP_2(PRE,V)    do{ serial_echopair_PGM(PSTR(PRE),V); SERIAL_EOL(); }while(0)
-#define _SELP_3(a,b,c)    do{ _SEP_2(a,b); SERIAL_ECHOLNPGM(c); }while(0)
-#define _SELP_4(a,b,...)  do{ _SEP_2(a,b); _SELP_2(__VA_ARGS__); }while(0)
-#define _SELP_5(a,b,...)  do{ _SEP_2(a,b); _SELP_3(__VA_ARGS__); }while(0)
-#define _SELP_6(a,b,...)  do{ _SEP_2(a,b); _SELP_4(__VA_ARGS__); }while(0)
-#define _SELP_7(a,b,...)  do{ _SEP_2(a,b); _SELP_5(__VA_ARGS__); }while(0)
-#define _SELP_8(a,b,...)  do{ _SEP_2(a,b); _SELP_6(__VA_ARGS__); }while(0)
-#define _SELP_9(a,b,...)  do{ _SEP_2(a,b); _SELP_7(__VA_ARGS__); }while(0)
-#define _SELP_10(a,b,...) do{ _SEP_2(a,b); _SELP_8(__VA_ARGS__); }while(0)
-#define _SELP_11(a,b,...) do{ _SEP_2(a,b); _SELP_9(__VA_ARGS__); }while(0)
-#define _SELP_12(a,b,...) do{ _SEP_2(a,b); _SELP_10(__VA_ARGS__); }while(0)
-#define _SELP_13(a,b,...) do{ _SEP_2(a,b); _SELP_11(__VA_ARGS__); }while(0)
-#define _SELP_14(a,b,...) do{ _SEP_2(a,b); _SELP_12(__VA_ARGS__); }while(0)
-#define _SELP_15(a,b,...) do{ _SEP_2(a,b); _SELP_13(__VA_ARGS__); }while(0)
-#define _SELP_16(a,b,...) do{ _SEP_2(a,b); _SELP_14(__VA_ARGS__); }while(0)
-#define _SELP_17(a,b,...) do{ _SEP_2(a,b); _SELP_15(__VA_ARGS__); }while(0)
-#define _SELP_18(a,b,...) do{ _SEP_2(a,b); _SELP_16(__VA_ARGS__); }while(0)
-#define _SELP_19(a,b,...) do{ _SEP_2(a,b); _SELP_17(__VA_ARGS__); }while(0)
-#define _SELP_20(a,b,...) do{ _SEP_2(a,b); _SELP_18(__VA_ARGS__); }while(0)
-#define _SELP_21(a,b,...) do{ _SEP_2(a,b); _SELP_19(__VA_ARGS__); }while(0)
-#define _SELP_22(a,b,...) do{ _SEP_2(a,b); _SELP_20(__VA_ARGS__); }while(0)
-#define _SELP_23(a,b,...) do{ _SEP_2(a,b); _SELP_21(__VA_ARGS__); }while(0)
-#define _SELP_24(a,b,...) do{ _SEP_2(a,b); _SELP_22(__VA_ARGS__); }while(0)
+#define __SELP_N(N,V...)   _SELP_##N(V)
+#define _SELP_N(N,V...)    __SELP_N(N,V)
+#define _SELP_1(PRE)       SERIAL_ECHOLNPGM(PRE)
+#define _SELP_2(PRE,V)     do{ serial_echopair_PGM(PSTR(PRE),V); SERIAL_EOL(); }while(0)
+#define _SELP_3(a,b,c)     do{ _SEP_2(a,b); SERIAL_ECHOLNPGM(c); }while(0)
+#define _SELP_4(a,b,V...)  do{ _SEP_2(a,b); _SELP_2(V); }while(0)
+#define _SELP_5(a,b,V...)  do{ _SEP_2(a,b); _SELP_3(V); }while(0)
+#define _SELP_6(a,b,V...)  do{ _SEP_2(a,b); _SELP_4(V); }while(0)
+#define _SELP_7(a,b,V...)  do{ _SEP_2(a,b); _SELP_5(V); }while(0)
+#define _SELP_8(a,b,V...)  do{ _SEP_2(a,b); _SELP_6(V); }while(0)
+#define _SELP_9(a,b,V...)  do{ _SEP_2(a,b); _SELP_7(V); }while(0)
+#define _SELP_10(a,b,V...) do{ _SEP_2(a,b); _SELP_8(V); }while(0)
+#define _SELP_11(a,b,V...) do{ _SEP_2(a,b); _SELP_9(V); }while(0)
+#define _SELP_12(a,b,V...) do{ _SEP_2(a,b); _SELP_10(V); }while(0)
+#define _SELP_13(a,b,V...) do{ _SEP_2(a,b); _SELP_11(V); }while(0)
+#define _SELP_14(a,b,V...) do{ _SEP_2(a,b); _SELP_12(V); }while(0)
+#define _SELP_15(a,b,V...) do{ _SEP_2(a,b); _SELP_13(V); }while(0)
+#define _SELP_16(a,b,V...) do{ _SEP_2(a,b); _SELP_14(V); }while(0)
+#define _SELP_17(a,b,V...) do{ _SEP_2(a,b); _SELP_15(V); }while(0)
+#define _SELP_18(a,b,V...) do{ _SEP_2(a,b); _SELP_16(V); }while(0)
+#define _SELP_19(a,b,V...) do{ _SEP_2(a,b); _SELP_17(V); }while(0)
+#define _SELP_20(a,b,V...) do{ _SEP_2(a,b); _SELP_18(V); }while(0)
+#define _SELP_21(a,b,V...) do{ _SEP_2(a,b); _SELP_19(V); }while(0)
+#define _SELP_22(a,b,V...) do{ _SEP_2(a,b); _SELP_20(V); }while(0)
+#define _SELP_23(a,b,V...) do{ _SEP_2(a,b); _SELP_21(V); }while(0)
+#define _SELP_24(a,b,V...) do{ _SEP_2(a,b); _SELP_22(V); }while(0)
 
-#define SERIAL_ECHOLNPAIR(...) _SELP_N(NUM_ARGS(__VA_ARGS__),__VA_ARGS__)
+#define SERIAL_ECHOLNPAIR(V...) _SELP_N(NUM_ARGS(V),V)
 
 #define SERIAL_ECHOPGM(S)           (serialprintPGM(PSTR(S)))
 #define SERIAL_ECHOLNPGM(S)         (serialprintPGM(PSTR(S "\n")))
 
-#define SERIAL_ECHOPAIR_F(pre, ...) do{ SERIAL_ECHO(pre); SERIAL_ECHO_F(__VA_ARGS__); }while(0)
-#define SERIAL_ECHOLNPAIR_F(...)    do{ SERIAL_ECHOPAIR_F(__VA_ARGS__); SERIAL_EOL(); }while(0)
+#define SERIAL_ECHOPAIR_F(pre, V...) do{ SERIAL_ECHO(pre); SERIAL_ECHO_F(V); }while(0)
+#define SERIAL_ECHOLNPAIR_F(V...)    do{ SERIAL_ECHOPAIR_F(V); SERIAL_EOL(); }while(0)
 
 #define SERIAL_ECHO_START()         serial_echo_start()
 #define SERIAL_ERROR_START()        serial_error_start()
@@ -185,4 +185,4 @@ void print_bin(const uint16_t val);
 void print_xyz(PGM_P const prefix, PGM_P const suffix, const float x, const float y, const float z);
 void print_xyz(PGM_P const prefix, PGM_P const suffix, const float xyz[]);
 #define SERIAL_POS(SUFFIX,VAR) do { print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
-#define SERIAL_XYZ(PREFIX,...) do { print_xyz(PSTR(PREFIX), nullptr, __VA_ARGS__); } while(0)
+#define SERIAL_XYZ(PREFIX,V...) do { print_xyz(PSTR(PREFIX), nullptr, V); } while(0)

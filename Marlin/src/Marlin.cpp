@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,6 +104,10 @@
 
 #if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)
   #include "feature/tmc_util.h"
+#endif
+
+#if HAS_CUTTER
+  #include "feature/spindle_laser.h"
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -369,7 +373,7 @@ void disable_all_steppers() {
     #endif // HOST_ACTION_COMMANDS
 
     if (run_runout_script)
-      enqueue_and_echo_commands_front_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
   }
 
 #endif // HAS_FILAMENT_SENSOR
@@ -425,7 +429,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     runout.run();
   #endif
 
-  if (commands_in_queue < BUFSIZE) get_available_commands();
+  if (queue.length < BUFSIZE) queue.get_available_commands();
 
   const millis_t ms = millis();
 
@@ -502,19 +506,16 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if HAS_HOME
-    // Check to see if we have to home, use poor man's debouncer
-    // ---------------------------------------------------------
-    static int homeDebounceCount = 0;   // poor man's debouncing count
-    const int HOME_DEBOUNCE_DELAY = 2500;
-    if (!IS_SD_PRINTING() && !READ(HOME_PIN)) {
-      if (!homeDebounceCount) {
-        enqueue_and_echo_commands_P(PSTR("G28"));
+    // Handle a standalone HOME button
+    constexpr millis_t HOME_DEBOUNCE_DELAY = 1000UL;
+    static millis_t next_home_key_ms; // = 0
+    if (!IS_SD_PRINTING() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
+      const millis_t ms = millis();
+      if (ELAPSED(ms, next_home_key_ms)) {
+        next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
         LCD_MESSAGEPGM(MSG_AUTO_HOME);
+        queue.enqueue_now_P(PSTR("G28"));
       }
-      if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
-        homeDebounceCount++;
-      else
-        homeDebounceCount = 0;
     }
   #endif
 
@@ -797,7 +798,7 @@ void stop() {
   #endif
 
   if (IsRunning()) {
-    Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
+    queue.stop();
     SERIAL_ERROR_MSG(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
@@ -825,9 +826,7 @@ void stop() {
  */
 void setup() {
 
-  #ifdef HAL_INIT
-    HAL_init();
-  #endif
+  HAL_init();
 
   #if HAS_DRIVER(L6470)
     L6470.init();         // setup SPI and then init chips
@@ -861,8 +860,8 @@ void setup() {
 
   setup_killpin();
 
-  #if HAS_DRIVER(TMC2208)
-    tmc2208_serial_begin();
+  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+    tmc_serial_begin();
   #endif
 
   setup_powerhold();
@@ -926,8 +925,6 @@ void setup() {
   SERIAL_ECHO_START();
   SERIAL_ECHOLNPAIR(MSG_FREE_MEMORY, freeMemory(), MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
-  queue_setup();
-
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
   ui.init();
@@ -937,7 +934,7 @@ void setup() {
     ui.show_bootscreen();
   #endif
 
-  #if ENABLED(SDIO_SUPPORT) && SD_DETECT_PIN == -1
+  #if ENABLED(SDIO_SUPPORT) && !PIN_EXISTS(SD_DETECT)
     // Auto-mount the SD for EEPROM.dat emulation
     if (!card.isDetected()) card.initsd();
   #endif
@@ -974,15 +971,8 @@ void setup() {
     OUT_WRITE(PHOTOGRAPH_PIN, LOW);
   #endif
 
-  #if ENABLED(SPINDLE_LASER_ENABLE)
-    OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ENABLE_INVERT);  // init spindle to off
-    #if SPINDLE_DIR_CHANGE
-      OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);  // init rotation to clockwise (M3)
-    #endif
-    #if ENABLED(SPINDLE_LASER_PWM) && defined(SPINDLE_LASER_PWM_PIN) && SPINDLE_LASER_PWM_PIN >= 0
-      SET_PWM(SPINDLE_LASER_PWM_PIN);
-      analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
-    #endif
+  #if HAS_CUTTER
+    cutter.init();
   #endif
 
   #if ENABLED(COOLANT_MIST)
@@ -1100,7 +1090,7 @@ void setup() {
     init_closedloop();
   #endif
 
-  #if ENABLED(SDSUPPORT) && DISABLED(ULTRA_LCD)
+  #if ENABLED(INIT_SDCARD_ON_BOOT) && !HAS_SPI_LCD
     card.beginautostart();
   #endif
 
@@ -1135,7 +1125,7 @@ void loop() {
             true
           #endif
         );
-        clear_command_queue();
+        queue.clear();
         quickstop_stepper();
         print_job_timer.stop();
         #if DISABLED(SD_ABORT_NO_COOLDOWN)
@@ -1147,14 +1137,14 @@ void loop() {
           card.removeJobRecoveryFile();
         #endif
         #ifdef EVENT_GCODE_SD_STOP
-          enqueue_and_echo_commands_P(PSTR(EVENT_GCODE_SD_STOP));
+          queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
         #endif
       }
 
     #endif // SDSUPPORT
 
-    if (commands_in_queue < BUFSIZE) get_available_commands();
-    advance_command_queue();
+    if (queue.length < BUFSIZE) queue.get_available_commands();
+    queue.advance();
     endstops.event_handler();
     idle();
   }

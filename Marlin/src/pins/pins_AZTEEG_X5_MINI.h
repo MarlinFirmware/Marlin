@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -108,7 +108,7 @@
 //
 // Display
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
@@ -184,35 +184,28 @@
 
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // SD Support
 //
-#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
-  #define LPC_SD_ONBOARD
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION ONBOARD
 #endif
 
-#if ENABLED(LPC_SD_LCD)
+#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
 
-  #define SCK_PIN            P0_15
-  #define MISO_PIN           P0_17
-  #define MOSI_PIN           P0_18
-  #define SS_PIN             P1_23   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
-
-#elif ENABLED(LPC_SD_ONBOARD)
-
-  #if ENABLED(USB_SD_ONBOARD)
-    // When sharing the SD card with a PC we want the menu options to
-    // mount/unmount the card and refresh it. So we disable card detect.
-    #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN // there is also no detect pin for the onboard card
-  #endif
-  #define SCK_PIN            P0_07
-  #define MISO_PIN           P0_08
-  #define MOSI_PIN           P0_09
-  #define SS_PIN             P0_06   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
-
+#if SD_CONNECTION_IS(LCD)
+  #define SCK_PIN          P0_15
+  #define MISO_PIN         P0_17
+  #define MOSI_PIN         P0_18
+  #define SS_PIN           P1_23
+#elif SD_CONNECTION_IS(ONBOARD)
+  #undef SD_DETECT_PIN
+  #define SCK_PIN          P0_07
+  #define MISO_PIN         P0_08
+  #define MOSI_PIN         P0_09
+  #define SS_PIN           ONBOARD_SD_CS_PIN
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "No custom SD drive cable defined for this board."
 #endif

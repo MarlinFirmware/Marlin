@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -306,6 +306,7 @@
 
   void unified_bed_leveling::G29() {
 
+    bool probe_deployed = false;
     if (g29_parameter_parsing()) return; // Abort on parameter error
 
     const int8_t p_val = parser.intval('P', -1);
@@ -313,6 +314,7 @@
 
     // Check for commands that require the printer to be homed
     if (may_move) {
+      planner.synchronize();
       if (axis_unhomed_error()) gcode.home_all_axes();
       #if ENABLED(DUAL_X_CARRIAGE)
         if (active_extruder != 0) tool_change(0);
@@ -417,6 +419,7 @@
         }
         do_blocking_move_to_xy(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)));
         report_current_position();
+        probe_deployed = true;
       }
 
     #endif // HAS_BED_PROBE
@@ -456,6 +459,7 @@
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
             report_current_position();
+            probe_deployed = true;
             break;
 
         #endif // HAS_BED_PROBE
@@ -491,6 +495,7 @@
                 SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
                 return;
               }
+              probe_deployed = true;
             }
 
             if (!position_is_reachable(g29_x_pos, g29_y_pos)) {
@@ -670,6 +675,14 @@
       ui.release();
     #endif
 
+    #ifdef Z_PROBE_END_SCRIPT
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+      if (probe_deployed) {
+        planner.synchronize();
+        gcode.process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
+      }
+    #endif
+
     return;
   }
 
@@ -755,8 +768,7 @@
             ui.wait_for_release();
             ui.quick_feedback();
             ui.release();
-            restore_ubl_active_state_and_leave();
-            return;
+            return restore_ubl_active_state_and_leave();
           }
         #endif
 
@@ -831,7 +843,6 @@
     float unified_bed_leveling::measure_point_with_encoder() {
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       move_z_with_encoder(0.01f);
-      KEEPALIVE_STATE(IN_HANDLER);
       return current_position[Z_AXIS];
     }
 
@@ -876,15 +887,6 @@
       return thickness;
     }
 
-    void abort_manual_probe_remaining_mesh() {
-      SERIAL_ECHOLNPGM("\nMesh only partially populated.");
-      do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-      ui.release();
-      KEEPALIVE_STATE(IN_HANDLER);
-      ui.quick_feedback();
-      ubl.restore_ubl_active_state_and_leave();
-    }
-
     void unified_bed_leveling::manually_probe_remaining_mesh(const float &rx, const float &ry, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
 
       ui.capture();
@@ -926,9 +928,7 @@
           SERIAL_ECHOLNPGM("\nMesh only partially populated.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
           ui.release();
-          KEEPALIVE_STATE(IN_HANDLER);
-          restore_ubl_active_state_and_leave();
-          return;
+          return restore_ubl_active_state_and_leave();
         }
 
         z_values[location.x_index][location.y_index] = current_position[Z_AXIS] - thick;
@@ -944,7 +944,6 @@
       if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
       restore_ubl_active_state_and_leave();
-      KEEPALIVE_STATE(IN_HANDLER);
       do_blocking_move_to(rx, ry, Z_CLEARANCE_DEPLOY_PROBE);
     }
 
@@ -1033,7 +1032,7 @@
 
         if (!lcd_map_control) ui.return_to_status();                // Just editing a single point? Return to status
 
-        if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
+        if (click_and_hold(abort_fine_tune)) break;                 // Button held down? Abort editing
 
         z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
         #if ENABLED(EXTENSIBLE_UI)
@@ -1045,10 +1044,7 @@
 
       } while (location.x_index >= 0 && --g29_repetition_cnt > 0);
 
-      FINE_TUNE_EXIT:
-
       ui.release();
-      KEEPALIVE_STATE(IN_HANDLER);
 
       if (do_ubl_mesh_map) display_map(g29_map_type);
       restore_ubl_active_state_and_leave();

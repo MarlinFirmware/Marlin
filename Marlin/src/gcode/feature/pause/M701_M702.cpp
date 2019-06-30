@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,7 +92,7 @@ void GcodeSuite::M701() {
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder)
-      tool_change(target_extruder, 0, false);
+      tool_change(target_extruder, false);
   #endif
 
   // Lift Z axis
@@ -121,7 +121,7 @@ void GcodeSuite::M701() {
   #if EXTRUDERS > 1 && DISABLED(PRUSA_MMU2)
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
-      tool_change(active_extruder_before_filament_change, 0, false);
+      tool_change(active_extruder_before_filament_change, false);
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
@@ -191,7 +191,7 @@ void GcodeSuite::M702() {
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder)
-      tool_change(target_extruder, 0, false);
+      tool_change(target_extruder, false);
   #endif
 
   // Lift Z axis
@@ -205,7 +205,7 @@ void GcodeSuite::M702() {
     #if EXTRUDERS > 1 && ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
       if (!parser.seenval('T')) {
         HOTEND_LOOP() {
-          if (e != active_extruder) tool_change(e, 0, false);
+          if (e != active_extruder) tool_change(e, false);
           unload_filament(-fc_settings[e].unload_length, true, PAUSE_MODE_UNLOAD_FILAMENT);
         }
       }
@@ -231,7 +231,7 @@ void GcodeSuite::M702() {
   #if EXTRUDERS > 1 && DISABLED(PRUSA_MMU2)
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
-      tool_change(active_extruder_before_filament_change, 0, false);
+      tool_change(active_extruder_before_filament_change, false);
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)

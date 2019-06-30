@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +72,8 @@ void safe_delay(millis_t ms) {
         "Z_PROBE_SLED"
       #elif ENABLED(Z_PROBE_ALLEN_KEY)
         "Z_PROBE_ALLEN_KEY"
+      #elif ENABLED(SOLENOID_PROBE)
+        "SOLENOID_PROBE"
       #else
         "NONE"
       #endif

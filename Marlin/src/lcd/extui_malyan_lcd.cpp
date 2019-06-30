@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  */
 
 /**
- * malyanlcd.cpp
+ * extui_malyan_lcd.cpp
  *
  * LCD implementation for Malyan's LCD, a separate ESP8266 MCU running
  * on Serial1 for the M200 board. This module outputs a pseudo-gcode
@@ -113,7 +113,8 @@ void write_to_lcd(const char * const message) {
  */
 void process_lcd_c_command(const char* command) {
   switch (command[0]) {
-    case 'C': {
+    case 'C': // Cope with both V1 early rev and later LCDs.
+    case 'S': {
       int raw_feedrate = atoi(command + 1);
       feedrate_percentage = raw_feedrate * 10;
       feedrate_percentage = constrain(feedrate_percentage, 10, 999);
@@ -190,8 +191,8 @@ void process_lcd_j_command(const char* command) {
     case 'E':
       // enable or disable steppers
       // switch to relative
-      enqueue_and_echo_commands_now_P(PSTR("G91"));
-      enqueue_and_echo_commands_now_P(steppers_enabled ? PSTR("M18") : PSTR("M17"));
+      queue.enqueue_now_P(PSTR("G91"));
+      queue.enqueue_now_P(steppers_enabled ? PSTR("M18") : PSTR("M17"));
       steppers_enabled = !steppers_enabled;
       break;
     case 'A':
@@ -204,7 +205,7 @@ void process_lcd_j_command(const char* command) {
       // The M200 class UI seems to send movement in .1mm values.
       char cmd[20];
       sprintf_P(cmd, PSTR("G1 %c%03.1f"), axis, atof(command + 1) / 10.0);
-      enqueue_and_echo_command_now(cmd);
+      queue.enqueue_one_now(cmd);
     } break;
     default:
       SERIAL_ECHOLNPAIR("UNKNOWN J COMMAND", command);
@@ -247,7 +248,7 @@ void process_lcd_p_command(const char* command) {
             true
           #endif
         );
-        clear_command_queue();
+        queue.clear();
         quickstop_stepper();
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
@@ -258,7 +259,7 @@ void process_lcd_p_command(const char* command) {
       break;
     case 'H':
       // Home all axis
-      enqueue_and_echo_commands_now_P(PSTR("G28"));
+      queue.enqueue_now_P(PSTR("G28"));
       break;
     default: {
       #if ENABLED(SDSUPPORT)
@@ -318,11 +319,6 @@ void process_lcd_s_command(const char* command) {
       );
       write_to_lcd(message_buffer);
     } break;
-
-    case 'H':
-      // Home all axis
-      enqueue_and_echo_command("G28");
-      break;
 
     case 'L': {
       #if ENABLED(SDSUPPORT)
@@ -474,14 +470,15 @@ namespace ExtUI {
     #endif
   }
 
-  void onStatusChanged(const char * const msg) {
+  // {E:<msg>} is for error states.
+  void onPrinterKilled(PGM_P msg) {
     write_to_lcd_P(PSTR("{E:"));
-    write_to_lcd(msg);
+    write_to_lcd_P(msg);
     write_to_lcd_P("}");
   }
 
   // Not needed for Malyan LCD
-  void onPrinterKilled(PGM_P const msg) { UNUSED(msg); }
+  void onStatusChanged(const char * const msg) { UNUSED(msg); }
   void onMediaInserted() {};
   void onMediaError() {};
   void onMediaRemoved() {};

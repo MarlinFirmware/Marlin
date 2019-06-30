@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@
   #define ADC_KEY_NUM 8
   #define ULTIPANEL
 
-  // this helps to implement ADC_KEYPAD menus
+  // This helps to implement ADC_KEYPAD menus
   #define REVERSE_MENU_DIRECTION
   #define ENCODER_PULSES_PER_STEP 1
   #define ENCODER_STEPS_PER_MENU_ITEM 1
@@ -97,8 +97,6 @@
 
   #define U8GLIB_SSD1306
   #define ULTIPANEL
-  #define REVERSE_ENCODER_DIRECTION
-  #define REVERSE_MENU_DIRECTION
 
 #elif ENABLED(RA_CONTROL_PANEL)
 
@@ -141,14 +139,14 @@
   #define DEFAULT_LCD_CONTRAST 150
   #define LCD_CONTRAST_MAX 255
 
-#elif ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
+#elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
 
   #define FYSETC_MINI_12864
   #define DOGLCD
   #define ULTIPANEL
   #define LCD_CONTRAST_MIN 0
   #define LCD_CONTRAST_MAX 255
-  #define DEFAULT_LCD_CONTRAST 255
+  #define DEFAULT_LCD_CONTRAST 220
   #define LED_COLORS_REDUCE_GREEN
   #if POWER_SUPPLY > 0 && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
     #define LED_BACKLIGHT_TIMEOUT 10000
@@ -181,7 +179,6 @@
 
 #if ENABLED(ULTI_CONTROLLER)
   #define U8GLIB_SSD1309
-  #define REVERSE_ENCODER_DIRECTION
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
   #define LCD_CONTRAST_MIN 0
   #define LCD_CONTRAST_MAX 254
@@ -338,7 +335,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extensible_ui)
-#if ENABLED(MALYAN_LCD)
+#if EITHER(DGUS_LCD, MALYAN_LCD)
   #define EXTENSIBLE_UI
 #endif
 
@@ -454,10 +451,12 @@
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define XYZE_N (XYZ + E_STEPPERS)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
+  #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
   #define XYZE_N XYZE
   #define E_AXIS_N(E) E_AXIS
+  #define UNUSED_E(E) UNUSED(E)
 #endif
 
 /**
@@ -507,18 +506,24 @@
 
 #if HAS_BED_PROBE
   #define USES_Z_MIN_PROBE_ENDSTOP DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #define HOMING_Z_WITH_PROBE      (Z_HOME_DIR < 0 && !USES_Z_MIN_PROBE_ENDSTOP)
   #ifndef Z_PROBE_LOW_POINT
     #define Z_PROBE_LOW_POINT -5
   #endif
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST // Extra test for Allen Key Probe
   #endif
+  #ifdef MULTIPLE_PROBING
+    #if EXTRA_PROBING
+      #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
+    #else
+      #define TOTAL_PROBING MULTIPLE_PROBING
+    #endif
+  #endif
 #else
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
-
-#define HOMING_Z_WITH_PROBE (HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
 
 #ifdef GRID_MAX_POINTS_X
   #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))

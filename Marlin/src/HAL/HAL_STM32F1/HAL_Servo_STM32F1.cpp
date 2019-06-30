@@ -1,10 +1,10 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (C) 2017 Victor Perez
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ bool libServo::attach(const int32_t pin, const int32_t minAngle, const int32_t m
   if (!PWM_PIN(pin)) return false;
 
   timer_dev *tdev = PIN_MAP[pin].timer_device;
-  uint8_t tchan = PIN_MAP[pin].timer_channel;
+  //uint8_t tchan = PIN_MAP[pin].timer_channel;
 
   SET_PWM(pin);
   servoWrite(pin, 0);
@@ -221,7 +221,7 @@ void libServo::move(const int32_t value) {
 
 #else
 
-  bool libServo::setupSoftPWM(const int32_t pin) {}
+  bool libServo::setupSoftPWM(const int32_t pin) { return false; }
   void libServo::pwmSetDuty(const uint16_t duty_cycle) {}
   void libServo::pauseSoftPWM() {}
 

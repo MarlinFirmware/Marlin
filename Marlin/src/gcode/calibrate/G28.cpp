@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -203,17 +203,9 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
   #endif
 
-  if (parser.boolval('O')) {
-    if (
-      #if ENABLED(HOME_AFTER_DEACTIVATE)
-        all_axes_known()  // homing needed anytime steppers deactivate
-      #else
-        all_axes_homed()  // homing needed only if never homed
-      #endif
-    ) {
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
-      return;
-    }
+  if (!homing_needed() && parser.boolval('O')) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
+    return;
   }
 
   // Wait for planner moves to finish!
@@ -242,7 +234,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
       const uint8_t old_tool_index = active_extruder;
     #endif
-    tool_change(0, 0, true);
+    tool_change(0, true);
   #endif
 
   #if HAS_DUPLICATION_MODE
@@ -428,7 +420,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     #else
       #define NO_FETCH true
     #endif
-    tool_change(old_tool_index, 0, NO_FETCH);
+    tool_change(old_tool_index, NO_FETCH);
   #endif
 
   ui.refresh();

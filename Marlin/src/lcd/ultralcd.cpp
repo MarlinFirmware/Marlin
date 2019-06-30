@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@
   #endif
 #endif
 
-#if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
+#if ENABLED(INIT_SDCARD_ON_BOOT)
   uint8_t lcd_sd_status;
 #endif
 
@@ -204,45 +204,45 @@ millis_t next_button_update_ms;
     SETCURSOR(x, y);
     if (!string) return;
 
+    auto _newline = [&x, &y]() {
+      x = 0; y++;               // move x to string len (plus space)
+      SETCURSOR(0, y);          // simulate carriage return
+    };
+
     uint8_t *p = (uint8_t*)string;
+    wchar_t ch;
     if (wordwrap) {
-      uint8_t *wrd = p, c = 0;
+      uint8_t *wrd = nullptr, c = 0;
+      // find the end of the part
       for (;;) {
-        wchar_t ch;
+        if (!wrd) wrd = p;            // Get word start /before/ advancing
         p = get_utf8_value_cb(p, cb_read_byte, &ch);
-        const bool eol = !ch;
+        const bool eol = !ch;         // zero ends the string
+        // End or a break between phrases?
         if (eol || ch == ' ' || ch == '-' || ch == '+' || ch == '.') {
-          if (!c && ch == ' ') continue; // collapse extra spaces
-          if (x + c > LCD_WIDTH && c < (LCD_WIDTH) * 3 / 4) { // should it wrap?
-            x = 0; y++;               // move x to string len (plus space)
-            SETCURSOR(0, y);          // simulate carriage return
-          }
+          if (!c && ch == ' ') { if (wrd) wrd++; continue; } // collapse extra spaces
+          // Past the right and the word is not too long?
+          if (x + c > LCD_WIDTH && x >= (LCD_WIDTH) / 4) _newline(); // should it wrap?
           c += !eol;                  // +1 so the space will be printed
           x += c;                     // advance x to new position
-          while (c--) {               // character countdown
+          while (c) {                 // character countdown
+            --c;                      // count down to zero
             wrd = get_utf8_value_cb(wrd, cb_read_byte, &ch); // get characters again
-            lcd_put_wchar(ch);        // word (plus space) to the LCD
+            lcd_put_wchar(ch);        // character to the LCD
           }
-          if (eol) break;             // all done
+          if (eol) break;             // all done!
           wrd = nullptr;              // set up for next word
         }
-        else {
-          if (!wrd) wrd = p;          // starting a new word?
-          c++;                        // count word characters
-        }
+        else c++;                     // count word characters
       }
     }
     else {
       for (;;) {
-        wchar_t ch;
         p = get_utf8_value_cb(p, cb_read_byte, &ch);
         if (!ch) break;
         lcd_put_wchar(ch);
         x++;
-        if (x >= LCD_WIDTH) {
-          x = 0; y++;
-          SETCURSOR(0, y);
-        }
+        if (x >= LCD_WIDTH) _newline();
       }
     }
   }
@@ -315,9 +315,13 @@ void MarlinUI::init() {
 
   #endif // HAS_SHIFT_ENCODER
 
-  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
-    SET_INPUT_PULLUP(SD_DETECT_PIN);
-    lcd_sd_status = 2; // UNKNOWN
+  #if ENABLED(SDSUPPORT)
+    #if PIN_EXISTS(SD_DETECT)
+      SET_INPUT_PULLUP(SD_DETECT_PIN);
+    #endif
+    #if ENABLED(INIT_SDCARD_ON_BOOT)
+      lcd_sd_status = 2; // UNKNOWN
+    #endif
   #endif
 
   #if HAS_ENCODER_ACTION && HAS_SLOW_BUTTONS
@@ -439,7 +443,7 @@ bool MarlinUI::get_blink() {
 
         #endif // HAS_LCD_MENU
 
-        if (!homed && RRK(EN_KEYPAD_F1)) enqueue_and_echo_commands_P(PSTR("G28"));
+        if (!homed && RRK(EN_KEYPAD_F1)) queue.inject_P(PSTR("G28"));
         return true;
       }
 
@@ -519,7 +523,9 @@ void MarlinUI::status_screen() {
         next_filament_display = millis() + 5000UL;  // Show status message for 5s
       #endif
       goto_screen(menu_main);
-      init_lcd(); // May revive the LCD if static electricity killed it
+      #if DISABLED(NO_LCD_REINIT)
+        init_lcd(); // May revive the LCD if static electricity killed it
+      #endif
       return;
     }
 
@@ -766,7 +772,7 @@ void MarlinUI::update() {
 
   #endif // HAS_LCD_MENU
 
-  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
+  #if ENABLED(INIT_SDCARD_ON_BOOT)
 
     const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
     if (sd_status != lcd_sd_status && detected()) {
@@ -782,16 +788,22 @@ void MarlinUI::update() {
         else
           set_status_P(PSTR(MSG_SD_INSERTED));
       }
-      else {
-        card.release();
-        if (old_sd_status != 2) {
-          set_status_P(PSTR(MSG_SD_REMOVED));
-          if (!on_status_screen()) return_to_status();
+      #if PIN_EXISTS(SD_DETECT)
+        else {
+          card.release();
+          if (old_sd_status != 2) {
+            set_status_P(PSTR(MSG_SD_REMOVED));
+            if (!on_status_screen()) return_to_status();
+          }
         }
-      }
+
+        #if DISABLED(NO_LCD_REINIT)
+          init_lcd(); // May revive the LCD if static electricity killed it
+        #endif
+
+      #endif
 
       refresh();
-      init_lcd(); // May revive the LCD if static electricity killed it
 
       ms = millis();
       next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // delay LCD update until after SD activity completes
@@ -801,7 +813,7 @@ void MarlinUI::update() {
       #endif
     }
 
-  #endif // SDSUPPORT && SD_DETECT_PIN
+  #endif // INIT_SDCARD_ON_BOOT
 
   if (ELAPSED(ms, next_lcd_update_ms)
     #if HAS_GRAPHICAL_LCD
@@ -1418,6 +1430,10 @@ void MarlinUI::update() {
     set_status_P(msg, -1);
   }
 
+  #if ENABLED(SDSUPPORT)
+    extern bool wait_for_user, wait_for_heatup;
+  #endif
+
   void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
@@ -1435,6 +1451,10 @@ void MarlinUI::update() {
       return_to_status();
     #endif
   }
+
+  #if ANY(PARK_HEAD_ON_PAUSE, SDSUPPORT)
+    #include "../gcode/queue.h"
+  #endif
 
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU
@@ -1455,9 +1475,9 @@ void MarlinUI::update() {
       #if HAS_SPI_LCD
         lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
       #endif
-      enqueue_and_echo_commands_front_P(PSTR("M25 P\nM24"));
+      queue.inject_P(PSTR("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)
-      enqueue_and_echo_commands_P(PSTR("M25"));
+      queue.inject_P(PSTR("M25"));
     #elif defined(ACTION_ON_PAUSE)
       host_action_pause();
     #endif
@@ -1469,7 +1489,7 @@ void MarlinUI::update() {
       wait_for_heatup = wait_for_user = false;
     #endif
     #if ENABLED(SDSUPPORT)
-      if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
+      if (card.isPaused()) queue.inject_P(PSTR("M24"));
     #endif
     #ifdef ACTION_ON_RESUME
       host_action_resume();

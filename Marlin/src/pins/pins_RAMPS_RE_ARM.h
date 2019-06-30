@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,9 +106,9 @@
   #define TMC_SW_SCK       P1_09   // ETH
 #endif
 
-#if HAS_DRIVER(TMC2208)
+#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
   /**
-   * TMC2208 stepper drivers
+   * TMC2208/TMC2209 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
@@ -239,9 +239,13 @@
 // M3/M4/M5 - Spindle/Laser Control
 //            Use servo pins, if available
 //
-#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENA)
+#if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if NUM_SERVOS > 1
-    #error "SPINDLE_LASER_ENABLE requires 3 free servo pins."
+    #if ENABLED(SPINDLE_FEATURE)
+      #error "SPINDLE_FEATURE requires 3 free servo pins."
+    #else
+      #error "LASER_FEATURE requires 3 free servo pins."
+    #endif
   #endif
   #define SPINDLE_LASER_ENA_PIN    SERVO1_PIN   // (6) Pin should have a pullup/pulldown!
   #define SPINDLE_LASER_PWM_PIN    SERVO3_PIN   // (4) MUST BE HARDWARE PWM
@@ -296,7 +300,7 @@
   #define LCD_PINS_ENABLE  P0_18   // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4      P2_06   // J3-8 & AUX-3 (SCK, CLK)
 
-#elif ENABLED(ULTRA_LCD)
+#elif HAS_SPI_LCD
 
   //#define SCK_PIN        P0_15   // (52)  system defined J3-9 & AUX-3
   //#define MISO_PIN       P0_17   // (50)  system defined J3-10 & AUX-3
@@ -392,7 +396,7 @@
     //#define LCD_SCREEN_ROT_270
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // Ethernet pins
@@ -413,35 +417,25 @@
 //
 // SD Support
 //
-#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
-  #undef USB_SD_DISABLED
-  #define USB_SD_ONBOARD
-  #define LPC_SD_ONBOARD
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION ONBOARD
 #endif
 
-#if ENABLED(LPC_SD_LCD)
+#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
 
+#if SD_CONNECTION_IS(LCD)
   #define SCK_PIN          P0_15   // (52)  system defined J3-9 & AUX-3
   #define MISO_PIN         P0_17   // (50)  system defined J3-10 & AUX-3
   #define MOSI_PIN         P0_18   // (51)  system defined J3-10 & AUX-3
   #define SS_PIN           P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
-
-#elif ENABLED(LPC_SD_ONBOARD)
-
-  #if ENABLED(USB_SD_ONBOARD)
-    // When sharing the SD card with a PC we want the menu options to
-    // mount/unmount the card and refresh it. So we disable card detect.
-    #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN // there is also no detect pin for the onboard card
-  #endif
-
+#elif SD_CONNECTION_IS(ONBOARD)
+  #undef SD_DETECT_PIN
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
-
+  #define SS_PIN           ONBOARD_SD_CS_PIN
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "No custom SD drive cable defined for this board."
 #endif
 
 /**

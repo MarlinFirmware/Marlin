@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -189,6 +189,18 @@
 #endif
 #ifndef MSG_LASER_POWER
   #define MSG_LASER_POWER                     _UxGT("Laser power")
+#endif
+#ifndef MSG_SPINDLE_MENU
+  #define MSG_SPINDLE_MENU                    _UxGT("Spindle Control")
+#endif
+#ifndef MSG_SPINDLE_OFF
+  #define MSG_SPINDLE_OFF                     _UxGT("Spindle Off")
+#endif
+#ifndef MSG_SPINDLE_ON
+  #define MSG_SPINDLE_ON                      _UxGT("Spindle On")
+#endif
+#ifndef MSG_SPINDLE_POWER
+  #define MSG_SPINDLE_POWER                   _UxGT("Spindle power")
 #endif
 #ifndef MSG_SPINDLE_REVERSE
   #define MSG_SPINDLE_REVERSE                 _UxGT("Spindle Reverse")

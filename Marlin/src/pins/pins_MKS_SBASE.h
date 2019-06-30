@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,13 +158,13 @@
 #define ENET_TXD0          P1_00   // J12-11
 #define ENET_TXD1          P1_01   // J12-12
 
-#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
-  #undef USB_SD_DISABLED
-  #define USB_SD_ONBOARD
-  #define LPC_SD_ONBOARD
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION ONBOARD
 #endif
 
-#if ENABLED(LPC_SD_CUSTOM_CABLE)
+#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
+
+#if SD_CONNECTION_IS(CUSTOM_CABLE)
 
   /**
    * A custom cable is needed. See the README file in the
@@ -182,37 +182,23 @@
   #define SCK_PIN          P1_22   // J8-2 (moved from EXP2 P0.7)
   #define MISO_PIN         P1_23   // J8-3 (moved from EXP2 P0.8)
   #define MOSI_PIN         P2_12   // J8-4 (moved from EXP2 P0.9)
-  #define SS_PIN           P0_28   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
+  #define SS_PIN           P0_28
   #define LPC_SOFTWARE_SPI  // With a custom cable we need software SPI because the
                             // selected pins are not on a hardware SPI controller
-#elif ENABLED(LPC_SD_LCD)
-
+#elif SD_CONNECTION_IS(LCD)
   // use standard cable and header, SPI and SD detect sre shared with on-board SD card
   // hardware SPI is used for both SD cards. The detect pin is shred between the
   // LCD and onboard SD readers so we disable it.
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_28   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
-
-#elif ENABLED(LPC_SD_ONBOARD)
-
-  // The external SD card is not used. Hardware SPI is used to access the card.
-  #if ENABLED(USB_SD_ONBOARD)
-    // When sharing the SD card with a PC we want the menu options to
-    // mount/unmount the card and refresh it. So we disable card detect.
-    #define SHARED_SD_CARD
-  #else
-    #define SD_DETECT_PIN  P0_27
-  #endif
+  #define SS_PIN           P0_28
+#elif SD_CONNECTION_IS(ONBOARD)
+  #define SD_DETECT_PIN    P0_27
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
-
+  #define SS_PIN           ONBOARD_SD_CS_PIN
 #endif
 
 /**
@@ -228,7 +214,7 @@
  * that the garbage/lines are erased immediately after the SD card accesses are completed.
  */
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
   #define BEEPER_PIN       P1_31   // EXP1.1
   #define BTN_ENC          P1_30   // EXP1.2
   #define BTN_EN1          P3_26   // EXP2.5
@@ -288,7 +274,7 @@
 
 /**
  * Example for trinamic drivers using the J8 connector on MKs Sbase.
- * 2130s need 1 pin for each driver. 2208s need 2 pins for serial control.
+ * 2130s need 1 pin for each driver. 2208/2209s need 2 pins for serial control.
  * This board does not have enough pins to use hardware serial.
  */
 
@@ -316,7 +302,7 @@
  #endif
 #endif
 
-#if MB(MKS_SBASE) && HAS_DRIVER(TMC2208)
+#if MB(MKS_SBASE) && (HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209))
   // The shortage of pins becomes apparent.
   // Worst case you may have to give up the LCD
   // RX pins need to be interrupt capable

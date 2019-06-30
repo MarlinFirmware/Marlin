@@ -1984,6 +1984,7 @@
 //========================== Extensible UI Displays ===========================
 //=============================================================================
 
+<<<<<<< HEAD
 //
 // DGUS Touch Display with DWIN OS
 //
@@ -1992,6 +1993,16 @@
 //
 // Touch-screen LCD for Malyan M200 printers
 //
+=======
+//
+// DGUS Touch Display with DWIN OS
+//
+//#define DGUS_LCD
+
+//
+// Touch-screen LCD for Malyan M200 printers
+//
+>>>>>>> upstream/bugfix-2.0.x
 //#define MALYAN_LCD
 
 //

@@ -1,6 +1,6 @@
-/***************
- * example.cpp *
- ***************/
+/*********************
+ * extui_example.cpp *
+ *********************/
 
 /****************************************************************************
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
@@ -19,11 +19,11 @@
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfigPre.h"
 
 #if BOTH(EXTUI_EXAMPLE, EXTENSIBLE_UI)
 
-#include "../ui_api.h"
+#include "extensible_ui/ui_api.h"
 
 // To implement a new UI, complete the functions below and
 // read or update Marlin's state using the methods in the

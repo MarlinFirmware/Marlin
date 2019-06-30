@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -96,6 +96,8 @@ typedef int8_t pin_t;
 // Add type-checking to pgm_read_word
 #undef pgm_read_word
 #define pgm_read_word(addr) (*((uint16_t*)(addr)))
+
+inline void HAL_init(void) { }
 
 /** clear reset reason */
 void HAL_clear_reset_source(void);

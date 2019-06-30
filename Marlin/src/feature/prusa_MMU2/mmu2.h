@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ private:
 
   static void command(const uint8_t cmd);
   static bool get_response(void);
-  static void manage_response(bool move_axes, bool turn_off_nozzle);
+  static void manage_response(const bool move_axes, const bool turn_off_nozzle);
 
   #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
     static void load_to_nozzle();

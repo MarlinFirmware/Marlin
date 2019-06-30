@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@
          #endif
       ;
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_DRIVER(TMC2208)
+      #if HAS_TMCX1X0 || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
         uint8_t cs_actual;
       #endif
       #if HAS_STALLGUARD
@@ -97,6 +97,7 @@
       TMC_driver_data data;
       const auto ds = data.drv_status = st.DRV_STATUS();
       #ifdef __AVR__
+
         // 8-bit optimization saves up to 70 bytes of PROGMEM per axis
         uint8_t spart;
         #if ENABLED(TMC_DEBUG)
@@ -115,6 +116,7 @@
           data.is_standstill = TEST(spart, STST_bp - 24);
           data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
         #endif
+
       #else // !__AVR__
 
         data.is_ot = TEST(ds, OT_bp);
@@ -137,7 +139,7 @@
 
   #endif // HAS_TMCX1X0
 
-  #if HAS_DRIVER(TMC2208)
+  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
 
     #if ENABLED(TMC_DEBUG)
       static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
@@ -174,7 +176,7 @@
       return data;
     }
 
-  #endif // TMC2208
+  #endif // TMC2208 || TMC2209
 
   #if HAS_DRIVER(TMC2660)
 
@@ -228,9 +230,7 @@
     SERIAL_ECHO(timestamp);
     SERIAL_ECHOPGM(": ");
     st.printLabel();
-    SERIAL_ECHOPGM(" driver overtemperature warning! (");
-    SERIAL_ECHO(st.getMilliamps());
-    SERIAL_ECHOLNPGM("mA)");
+    SERIAL_ECHOLNPAIR(" driver overtemperature warning! (", st.getMilliamps(), "mA)");
   }
 
   template<typename TMC>
@@ -239,7 +239,7 @@
     st.printLabel();
     SERIAL_CHAR(':'); SERIAL_PRINT(pwm_scale, DEC);
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_DRIVER(TMC2208)
+      #if HAS_TMCX1X0 || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
         SERIAL_CHAR('/'); SERIAL_PRINT(data.cs_actual, DEC);
       #endif
       #if HAS_STALLGUARD
@@ -386,7 +386,7 @@
       if ((report_tmc_status_interval = update_interval))
         SERIAL_ECHOLNPGM("axis:pwm_scale"
           #if HAS_STEALTHCHOP
-            "/current_scale"
+            "/curr_scale"
           #endif
           #if HAS_STALLGUARD
             "/mech_load"
@@ -398,6 +398,7 @@
 
   enum TMC_debug_enum : char {
     TMC_CODES,
+    TMC_UART_ADDR,
     TMC_ENABLED,
     TMC_CURRENT,
     TMC_RMS_CURRENT,
@@ -482,9 +483,9 @@
   #if HAS_TMCX1X0
     static void _tmc_parse_drv_status(TMC2130Stepper &st, const TMC_drv_status_enum i) {
       switch (i) {
-        case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('X'); break;
-        case TMC_SG_RESULT:  SERIAL_PRINT(st.sg_result(), DEC);   break;
-        case TMC_FSACTIVE:   if (st.fsactive())   SERIAL_CHAR('X'); break;
+        case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('*'); break;
+        case TMC_SG_RESULT:  SERIAL_PRINT(st.sg_result(), DEC); break;
+        case TMC_FSACTIVE:   if (st.fsactive())   SERIAL_CHAR('*'); break;
         case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }
@@ -515,22 +516,37 @@
     }
   #endif
 
-  #if HAS_DRIVER(TMC2208)
+  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
     static void _tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
         case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
-        case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('X'); break;
-        case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('X'); break;
+        case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('*'); break;
+        case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('*'); break;
         default: break;
       }
     }
+
+    #if HAS_DRIVER(TMC2209)
+      template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+      static void _tmc_status(TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const TMC_debug_enum i) {
+        switch (i) {
+          case TMC_SGT:       SERIAL_PRINT(st.SGTHRS(), DEC); break;
+          case TMC_UART_ADDR: SERIAL_PRINT(st.get_address(), DEC); break;
+          default:
+            TMC2208Stepper *parent = &st;
+            _tmc_status(*parent, i);
+            break;
+        }
+      }
+    #endif
+
     static void _tmc_parse_drv_status(TMC2208Stepper &st, const TMC_drv_status_enum i) {
       switch (i) {
-        case TMC_T157: if (st.t157()) SERIAL_CHAR('X'); break;
-        case TMC_T150: if (st.t150()) SERIAL_CHAR('X'); break;
-        case TMC_T143: if (st.t143()) SERIAL_CHAR('X'); break;
-        case TMC_T120: if (st.t120()) SERIAL_CHAR('X'); break;
+        case TMC_T157: if (st.t157()) SERIAL_CHAR('*'); break;
+        case TMC_T150: if (st.t150()) SERIAL_CHAR('*'); break;
+        case TMC_T143: if (st.t143()) SERIAL_CHAR('*'); break;
+        case TMC_T120: if (st.t120()) SERIAL_CHAR('*'); break;
         case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }
@@ -620,13 +636,13 @@
     SERIAL_CHAR('\t');
     switch (i) {
       case TMC_DRV_CODES:     st.printLabel();  break;
-      case TMC_STST:          if (st.stst())         SERIAL_CHAR('X'); break;
-      case TMC_OLB:           if (st.olb())          SERIAL_CHAR('X'); break;
-      case TMC_OLA:           if (st.ola())          SERIAL_CHAR('X'); break;
-      case TMC_S2GB:          if (st.s2gb())         SERIAL_CHAR('X'); break;
-      case TMC_S2GA:          if (st.s2ga())         SERIAL_CHAR('X'); break;
-      case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('X'); break;
-      case TMC_OT:            if (st.ot())           SERIAL_CHAR('X'); break;
+      case TMC_STST:          if (st.stst())         SERIAL_CHAR('*'); break;
+      case TMC_OLB:           if (st.olb())          SERIAL_CHAR('*'); break;
+      case TMC_OLA:           if (st.ola())          SERIAL_CHAR('*'); break;
+      case TMC_S2GB:          if (st.s2gb())         SERIAL_CHAR('*'); break;
+      case TMC_S2GA:          if (st.s2ga())         SERIAL_CHAR('*'); break;
+      case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('*'); break;
+      case TMC_OT:            if (st.ot())           SERIAL_CHAR('*'); break;
       case TMC_DRV_STATUS_HEX: {
         const uint32_t drv_status = st.DRV_STATUS();
         SERIAL_CHAR('\t');
@@ -759,6 +775,9 @@
     #define TMC_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL);  tmc_debug_loop(ITEM, print_x, print_y, print_z, print_e); }while(0)
     #define DRV_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); drv_status_loop(ITEM, print_x, print_y, print_z, print_e); }while(0)
     TMC_REPORT("\t",                 TMC_CODES);
+    #if HAS_DRIVER(TMC2209)
+      TMC_REPORT("Address\t",        TMC_UART_ADDR);
+    #endif
     TMC_REPORT("Enabled\t",          TMC_ENABLED);
     TMC_REPORT("Set current",        TMC_CURRENT);
     TMC_REPORT("RMS current",        TMC_RMS_CURRENT);
@@ -770,7 +789,7 @@
     #endif
     TMC_REPORT("CS actual\t",        TMC_CS_ACTUAL);
     TMC_REPORT("PWM scale",          TMC_PWM_SCALE);
-    #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2224) || HAS_DRIVER(TMC2660) || HAS_DRIVER(TMC2208)
+    #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2224) || HAS_DRIVER(TMC2660) || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
       TMC_REPORT("vsense\t",         TMC_VSENSE);
     #endif
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
@@ -802,7 +821,7 @@
     DRV_REPORT("s2ga\t",             TMC_S2GA);
     DRV_REPORT("otpw\t",             TMC_DRV_OTPW);
     DRV_REPORT("ot\t",               TMC_OT);
-    #if HAS_DRIVER(TMC2208)
+    #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
       DRV_REPORT("157C\t",           TMC_T157);
       DRV_REPORT("150C\t",           TMC_T150);
       DRV_REPORT("143C\t",           TMC_T143);
@@ -826,7 +845,7 @@
       }
     }
   #endif
-  #if HAS_DRIVER(TMC2208)
+  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
     static void tmc_get_ic_registers(TMC2208Stepper, const TMC_get_registers_enum) { SERIAL_CHAR('\t'); }
   #endif
 
@@ -961,6 +980,15 @@
     st.en_pwm_mode(restore_stealth);
     st.diag1_stall(false);
   }
+
+  bool tmc_enable_stallguard(TMC2209Stepper &st) {
+    st.TCOOLTHRS(0xFFFFF);
+    return true;
+  }
+  void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth _UNUSED) {
+    st.TCOOLTHRS(0);
+  }
+
   bool tmc_enable_stallguard(TMC2660Stepper) {
     // TODO
     return false;

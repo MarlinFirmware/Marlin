@@ -225,10 +225,14 @@ else ifeq ($(HARDWARE_MOTHERBOARD),431)
 else ifeq ($(HARDWARE_MOTHERBOARD),343)
 # TriGorilla Anycubic version 1.4 based on RAMPS EFB
 else ifeq ($(HARDWARE_MOTHERBOARD),443)
+# TriGorilla Anycubic version 1.4 Rev 1.1
+else ifeq ($(HARDWARE_MOTHERBOARD),444)
 # Creality: Ender-4, CR-8
 else ifeq ($(HARDWARE_MOTHERBOARD),243)
 # Creality: CR10S, CR20, CR-X
 else ifeq ($(HARDWARE_MOTHERBOARD),244)
+# Dagoma F5
+else ifeq ($(HARDWARE_MOTHERBOARD),245)
 # Fysetc F6
 else ifeq ($(HARDWARE_MOTHERBOARD),541)
 # Duplicator i3 Plus
@@ -273,7 +277,7 @@ else ifeq ($(HARDWARE_MOTHERBOARD),304)
 # Einsy Retro
 else ifeq ($(HARDWARE_MOTHERBOARD),305)
 # Elefu Ra Board (v3)
-else ifeq ($(HARDWARE_MOTHERBOARD),21)
+else ifeq ($(HARDWARE_MOTHERBOARD),23)
 # Leapfrog
 else ifeq ($(HARDWARE_MOTHERBOARD),999)
 # Mega controller
@@ -591,7 +595,7 @@ ifeq ($(U8GLIB), 1)
 endif
 
 ifeq ($(TMC), 1)
-  LIB_CXXSRC += TMCStepper.cpp COOLCONF.cpp DRV_STATUS.cpp IHOLD_IRUN.cpp CHOPCONF.cpp  GCONF.cpp PWMCONF.cpp DRV_CONF.cpp DRVCONF.cpp DRVCTRL.cpp DRVSTATUS.cpp ENCMODE.cpp  RAMP_STAT.cpp SGCSCONF.cpp SHORT_CONF.cpp SMARTEN.cpp SW_MODE.cpp SW_SPI.cpp TMC2130Stepper.cpp TMC2208Stepper.cpp TMC2660Stepper.cpp TMC5130Stepper.cpp TMC5160Stepper.cpp
+  LIB_CXXSRC += TMCStepper.cpp COOLCONF.cpp DRV_STATUS.cpp IHOLD_IRUN.cpp CHOPCONF.cpp GCONF.cpp PWMCONF.cpp DRV_CONF.cpp DRVCONF.cpp DRVCTRL.cpp DRVSTATUS.cpp ENCMODE.cpp RAMP_STAT.cpp SGCSCONF.cpp SHORT_CONF.cpp SMARTEN.cpp SW_MODE.cpp SW_SPI.cpp TMC2130Stepper.cpp TMC2208Stepper.cpp TMC2209Stepper.cpp TMC2660Stepper.cpp TMC5130Stepper.cpp TMC5160Stepper.cpp
 endif
 
 ifeq ($(RELOC_WORKAROUND), 1)
@@ -662,8 +666,8 @@ LIBWARN = -w -Wno-packed-bitfield-compat
 CSTANDARD = -std=gnu99
 CXXSTANDARD = -std=gnu++11
 CDEBUG = -g$(DEBUG)
-CWARN   = -Wall -Wstrict-prototypes -Wno-packed-bitfield-compat -Wno-pragmas
-CXXWARN = -Wall                     -Wno-packed-bitfield-compat -Wno-pragmas
+CWARN   = -Wall -Wstrict-prototypes -Wno-packed-bitfield-compat -Wno-pragmas -Wunused-parameter
+CXXWARN = -Wall                     -Wno-packed-bitfield-compat -Wno-pragmas -Wunused-parameter
 CTUNING = -fsigned-char -funsigned-bitfields -fpack-struct -fno-exceptions \
           -fshort-enums -ffunction-sections -fdata-sections
 ifneq ($(HARDWARE_MOTHERBOARD),)

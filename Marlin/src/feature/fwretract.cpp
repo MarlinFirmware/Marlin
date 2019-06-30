@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,14 +156,12 @@ void FWRetract::retract(const bool retracting
     );
     current_retract[active_extruder] = base_retract * unscale_e;
     prepare_move_to_destination();                        // set_current_to_destination
-    planner.synchronize();                                // Wait for move to complete
 
     // Is a Z hop set, and has the hop not yet been done?
     if (settings.retract_zraise > 0.01 && !current_hop) {           // Apply hop only once
       current_hop += settings.retract_zraise;                       // Add to the hop total (again, only once)
       feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Maximum Z feedrate
       prepare_move_to_destination();                      // Raise up, set_current_to_destination
-      planner.synchronize();                              // Wait for move to complete
     }
   }
   else {
@@ -172,7 +170,6 @@ void FWRetract::retract(const bool retracting
       current_hop = 0.0;
       feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Z feedrate to max
       prepare_move_to_destination();                      // Lower Z, set_current_to_destination
-      planner.synchronize();                              // Wait for move to complete
     }
 
     const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
@@ -189,7 +186,6 @@ void FWRetract::retract(const bool retracting
       #endif
     );
     prepare_move_to_destination();                        // Recover E, set_current_to_destination
-    planner.synchronize();                                // Wait for move to complete
   }
 
   #if ENABLED(RETRACT_SYNC_MIXING)

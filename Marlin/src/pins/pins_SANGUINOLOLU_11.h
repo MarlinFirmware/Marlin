@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -137,7 +137,7 @@
   #define LCD_BACKLIGHT_PIN 17   // LCD backlight LED
 #endif
 
-#if DISABLED(SPINDLE_LASER_ENABLE) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(ULTRA_LCD, NEWPANEL)  // try to use IO Header
+#if NONE(SPINDLE_FEATURE, LASER_FEATURE) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(ULTRA_LCD, NEWPANEL)  // try to use IO Header
   #define CASE_LIGHT_PIN     4   // MUST BE HARDWARE PWM  - see if IO Header is available
 #endif
 
@@ -153,9 +153,9 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
-  #if ENABLED(DOGLCD)
+  #if HAS_GRAPHICAL_LCD
 
     #if ENABLED(U8GLIB_ST7920) // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
@@ -205,7 +205,7 @@
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
 
-  #else // !DOGLCD
+  #else // !HAS_GRAPHICAL_LCD
 
     #define LCD_PINS_RS          4
     #define LCD_PINS_ENABLE     17
@@ -214,7 +214,7 @@
     #define LCD_PINS_D6         28
     #define LCD_PINS_D7         27
 
-  #endif // !DOGLCD
+  #endif // !HAS_GRAPHICAL_LCD
 
   #if ENABLED(LCD_I2C_PANELOLU2)
 
@@ -271,12 +271,12 @@
 
   #define SD_DETECT_PIN         -1
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(SPINDLE_LASER_ENABLE)
+#if HAS_CUTTER
   #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(ULTRA_LCD, NEWPANEL)  // try to use IO Header
 
     #define SPINDLE_LASER_ENA_PIN    10   // Pin should have a pullup/pulldown!
@@ -322,4 +322,4 @@
     #define SPINDLE_LASER_ENA_PIN    21   // Pin should have a pullup!
     #define SPINDLE_DIR_PIN          -1   // No pin available on the socket for the direction pin
   #endif
-#endif // SPINDLE_LASER_ENABLE
+#endif
