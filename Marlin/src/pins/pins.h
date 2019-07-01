@@ -350,6 +350,8 @@
   #include "pins_BIQU_B300_V1.0.h"      // LPC1768                                    env:LPC1768
 #elif MB(BIGTREE_SKR_V1_3)
   #include "pins_BIGTREE_SKR_V1.3.h"    // LPC1768                                    env:LPC1768
+#elif MB(TH3D_EZBOARD)
+  #include "pins_TH3D_EZBOARD.h"        // LPC1768                                    env:LPC1768
 
 //
 // Other 32-bit Boards
