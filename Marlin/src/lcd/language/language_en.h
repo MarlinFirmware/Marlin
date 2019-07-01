@@ -961,7 +961,7 @@
   #define MSG_TOUCHMI_ZTEST                   _UxGT("Z offset Test")
 #endif
 #ifndef MSG_TOUCHMI_SAVE
- #define MSG_TOUCHMI_SAVE                     _UxGT("Save")
+  #define MSG_TOUCHMI_SAVE                    _UxGT("Save")
 #endif
 #ifndef MSG_MANUAL_DEPLOY_TOUCHMI
   #define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("Deploy TouchMI")
