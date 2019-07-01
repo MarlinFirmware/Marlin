@@ -87,7 +87,7 @@
 #define E0_DIR_PIN         PB4
 
 #if HAS_DRIVER(TMC2209)
-    /**
+  /**
    * TMC2209 stepper drivers
    * Hardware serial communication ports.
    */
@@ -117,16 +117,17 @@
 #define USB_CONNECT_INVERTING false
 
 #define SD_DETECT_PIN      PC4
-/*
-|                    _____
-|                5V | · · | GND 
-|     (LCD_EN) PB7  | · · | PB8  (LCD_RS)
-|     (LCD_D4) PB9  | · · | PA10 (BTN_EN2)
-|             RESET | · · | PA9  (BTN_EN1)
-|    (BTN_ENC) PB6  | · · | PB5  (BEEPER)
-|                    ￣￣
-|                    EXP1
-*/
+
+/**
+ *                 _____
+ *             5V | · · | GND 
+ *  (LCD_EN) PB7  | · · | PB8  (LCD_RS)
+ *  (LCD_D4) PB9  | · · | PA10 (BTN_EN2)
+ *          RESET | · · | PA9  (BTN_EN1)
+ * (BTN_ENC) PB6  | · · | PB5  (BEEPER)
+ *                 ￣￣
+ *                 EXP1
+ */
 #if HAS_SPI_LCD
   #define BEEPER_PIN       PB5
   #define BTN_ENC          PB6
@@ -139,8 +140,9 @@
 
     #define LCD_PINS_ENABLE PB7
     #define LCD_PINS_D4    PB9
+
   #else
-    #error "only CR10_STOCKDISPLAY supported!"
+    #error "Only CR10_STOCKDISPLAY is currently supported on the BIGTREE_SKR_MINI_E3."
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
