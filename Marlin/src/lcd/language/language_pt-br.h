@@ -189,6 +189,7 @@
 #define MSG_MOVE_Z                          _UxGT("Mover Z")
 #define MSG_MOVE_E                          _UxGT("Mover Extrusor")
 #define MSG_HOTEND_TOO_COLD                 _UxGT("Extrus. mto fria")
+#define MSG_MOVE_0025MM                     _UxGT("Mover 0.025mm")
 #define MSG_MOVE_01MM                       _UxGT("Mover 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Mover 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Mover 10mm")
