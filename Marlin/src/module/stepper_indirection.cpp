@@ -26,8 +26,6 @@
  * Stepper motor driver indirection to allow some stepper functions to
  * be done via SPI/I2c instead of direct pin manipulation.
  *
- * Part of Marlin
- *
  * Copyright (c) 2015 Dominik Wenger
  */
 

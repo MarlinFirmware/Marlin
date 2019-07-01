@@ -681,6 +681,8 @@
         planner.synchronize();
         gcode.process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
       }
+    #else
+      UNUSED(probe_deployed);
     #endif
 
     return;
