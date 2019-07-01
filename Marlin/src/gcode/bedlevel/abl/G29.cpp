@@ -978,8 +978,6 @@ G29_TYPE GcodeSuite::G29() {
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G29");
 
-  KEEPALIVE_STATE(IN_HANDLER);
-
   if (planner.leveling_active)
     sync_plan_position();
 

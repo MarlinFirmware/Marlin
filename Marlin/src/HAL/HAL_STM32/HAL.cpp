@@ -23,11 +23,6 @@
 
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
-
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include "HAL.h"
 
 #include "../../inc/MarlinConfig.h"
@@ -41,7 +36,7 @@
   #else
     #error "EEPROM_EMULATED_WITH_SRAM is currently only supported for STM32F4xx and STM32F7xx"
   #endif
-#endif // EEPROM_EMULATED_WITH_SRAM
+#endif
 
 // --------------------------------------------------------------------------
 // Externals
@@ -146,4 +141,4 @@ uint16_t HAL_adc_get_result(void) {
   return HAL_adc_result;
 }
 
-#endif // ARDUINO_ARCH_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

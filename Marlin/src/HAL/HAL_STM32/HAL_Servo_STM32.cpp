@@ -54,4 +54,4 @@ void libServo::move(const int value) {
 }
 #endif // HAS_SERVOS
 
-#endif // ARDUINO_ARCH_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

@@ -93,7 +93,7 @@ inline void sdcard_start_selected_file() {
 
 class MenuItem_sdfile {
   public:
-    static void action(CardReader &theCard) {
+    static void action(CardReader &) {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
         // Save menu state for the selected file
         sd_encoder_position = ui.encoderPosition;

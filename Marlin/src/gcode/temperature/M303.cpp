@@ -62,10 +62,6 @@ void GcodeSuite::M303() {
   #endif
 
   thermalManager.PID_autotune(temp, e, c, u);
-
-  #if DISABLED(BUSY_WHILE_HEATING)
-    KEEPALIVE_STATE(IN_HANDLER);
-  #endif
 }
 
 #endif // HAS_PID_HEATING

@@ -1169,8 +1169,11 @@ void Planner::recalculate() {
  * Maintain fans, paste extruder pressure,
  */
 void Planner::check_axes_activity() {
-  uint8_t axis_active[NUM_AXIS] = { 0 },
-          tail_fan_speed[FAN_COUNT];
+  uint8_t axis_active[NUM_AXIS] = { 0 };
+
+  #if FAN_COUNT > 0
+    uint8_t tail_fan_speed[FAN_COUNT];
+  #endif
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
@@ -1182,15 +1185,18 @@ void Planner::check_axes_activity() {
   #endif
 
   if (has_blocks_queued()) {
-    #if FAN_COUNT > 0
-      FANS_LOOP(i)
-        tail_fan_speed[i] = (block_buffer[block_buffer_tail].fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
-    #endif
-
     block_t* block;
 
-    #if ENABLED(BARICUDA)
+    #if FAN_COUNT > 0 || ENABLED(BARICUDA)
       block = &block_buffer[block_buffer_tail];
+    #endif
+
+    #if FAN_COUNT > 0
+      FANS_LOOP(i)
+        tail_fan_speed[i] = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
+    #endif
+
+    #if ENABLED(BARICUDA)
       #if HAS_HEATER_1
         tail_valve_pressure = block->valve_pressure;
       #endif
@@ -1207,7 +1213,7 @@ void Planner::check_axes_activity() {
   else {
     #if FAN_COUNT > 0
       FANS_LOOP(i)
-        tail_fan_speed[i] = (thermalManager.fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
+        tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1236,30 +1242,19 @@ void Planner::check_axes_activity() {
   #if FAN_COUNT > 0
 
     #if FAN_KICKSTART_TIME > 0
-
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
-
-      #define KICKSTART_FAN(f) \
-        if (tail_fan_speed[f]) { \
-          millis_t ms = millis(); \
-          if (fan_kick_end[f] == 0) { \
+      #define KICKSTART_FAN(f)                         \
+        if (tail_fan_speed[f]) {                       \
+          millis_t ms = millis();                      \
+          if (fan_kick_end[f] == 0) {                  \
             fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
-            tail_fan_speed[f] = 255; \
-          } else if (PENDING(ms, fan_kick_end[f])) \
-            tail_fan_speed[f] = 255; \
+            tail_fan_speed[f] = 255;                   \
+          } else if (PENDING(ms, fan_kick_end[f]))     \
+            tail_fan_speed[f] = 255;                   \
         } else fan_kick_end[f] = 0
-
-      #if HAS_FAN0
-        KICKSTART_FAN(0);
-      #endif
-      #if HAS_FAN1
-        KICKSTART_FAN(1);
-      #endif
-      #if HAS_FAN2
-        KICKSTART_FAN(2);
-      #endif
-
-    #endif // FAN_KICKSTART_TIME > 0
+    #else
+      #define KICKSTART_FAN(f) NOOP
+    #endif
 
     #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
       #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : 0)
@@ -1268,43 +1263,24 @@ void Planner::check_axes_activity() {
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
-
-      #if HAS_FAN0
-        thermalManager.soft_pwm_amount_fan[0] = CALC_FAN_SPEED(0);
-      #endif
-      #if HAS_FAN1
-        thermalManager.soft_pwm_amount_fan[1] = CALC_FAN_SPEED(1);
-      #endif
-      #if HAS_FAN2
-        thermalManager.soft_pwm_amount_fan[2] = CALC_FAN_SPEED(2);
-      #endif
-
+      #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(F);
     #elif ENABLED(FAST_PWM_FAN)
-
-      #if HAS_FAN0
-        set_pwm_duty(FAN_PIN, CALC_FAN_SPEED(0));
-      #endif
-      #if HAS_FAN1
-        set_pwm_duty(FAN1_PIN, CALC_FAN_SPEED(1));
-      #endif
-      #if HAS_FAN2
-        set_pwm_duty(FAN2_PIN, CALC_FAN_SPEED(2));
-      #endif
-
+      #define _FAN_SET(F) set_pwm_duty(FAN##F##_PIN, CALC_FAN_SPEED(F));
     #else
-
-      #if HAS_FAN0
-        analogWrite(pin_t(FAN_PIN), CALC_FAN_SPEED(0));
-      #endif
-      #if HAS_FAN1
-        analogWrite(pin_t(FAN1_PIN), CALC_FAN_SPEED(1));
-      #endif
-      #if HAS_FAN2
-        analogWrite(pin_t(FAN2_PIN), CALC_FAN_SPEED(2));
-      #endif
+      #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
     #endif
-  #else
-    UNUSED(tail_fan_speed);
+    #define FAN_SET(F) do{ KICKSTART_FAN(F); _FAN_SET(F); }while(0)
+
+    #if HAS_FAN0
+      FAN_SET(0);
+    #endif
+    #if HAS_FAN1
+      FAN_SET(1);
+    #endif
+    #if HAS_FAN2
+      FAN_SET(2);
+    #endif
+
   #endif // FAN_COUNT > 0
 
   #if ENABLED(AUTOTEMP)
@@ -2768,11 +2744,13 @@ void Planner::set_machine_position_mm(const float &a, const float &b, const floa
 void Planner::set_position_mm(const float &rx, const float &ry, const float &rz, const float &e) {
   float raw[XYZE] = { rx, ry, rz, e };
   #if HAS_POSITION_MODIFIERS
+  {
     apply_modifiers(raw
       #if HAS_LEVELING
         , true
       #endif
     );
+  }
   #endif
   #if IS_KINEMATIC
     position_cart[X_AXIS] = rx;

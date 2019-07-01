@@ -68,6 +68,9 @@ public:
       #endif
       0
     );
+    #if DISABLED(MEASURE_BACKLASH_WHEN_PROBING)
+      UNUSED(e);
+    #endif
   }
 
   static inline bool has_measurement(const uint8_t e) {
@@ -76,6 +79,9 @@ public:
         || (measured_count[e] > 0)
       #endif
     );
+    #if DISABLED(MEASURE_BACKLASH_WHEN_PROBING)
+      UNUSED(e);
+    #endif
   }
 
   static inline bool has_any_measurement() {

@@ -115,4 +115,4 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   return NVIC->ISER[IRQ_Id >> 5] & _BV32(IRQ_Id & 0x1F);
 }
 
-#endif // ARDUINO_ARCH_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
