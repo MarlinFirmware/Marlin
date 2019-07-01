@@ -746,17 +746,12 @@
 
 /**
  * Junction Deviation
- *  
- * Use Junction Deviation instead of traditional Jerk Limiting
- * 
- * A = DEFAULT_ACCELERATION (acceleration for printing moves)
- * V = Jerk for X and Y (values typically match)
- * 
- * Junction Deviation = 0.4*V^2/A
- * 
- * Ex: If your Jerk value is 8.0 and your Acceleration is 1250, then: 0.4*8.0^2/1250 = 0.02048 (mm)
  *
- * See http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html or http://archive.today/MEzaG
+ * Use Junction Deviation instead of traditional Jerk Limiting
+ *
+ * See:
+ *   https://reprap.org/forum/read.php?1,739819
+ *   http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
 //#define JUNCTION_DEVIATION
 #if ENABLED(JUNCTION_DEVIATION)
