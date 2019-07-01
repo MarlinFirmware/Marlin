@@ -714,9 +714,15 @@
 #define DEFAULT_RETRACT_ACCELERATION  2000    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
-//
-// Use Junction Deviation instead of traditional Jerk Limiting
-//
+/**
+ * Junction Deviation
+ *
+ * Use Junction Deviation instead of traditional Jerk Limiting
+ *
+ * See:
+ *   https://reprap.org/forum/read.php?1,739819
+ *   http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
+ */
 #define JUNCTION_DEVIATION
 #if ENABLED(JUNCTION_DEVIATION)
   #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
