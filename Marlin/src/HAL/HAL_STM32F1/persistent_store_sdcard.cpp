@@ -28,7 +28,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+#if ENABLED(SD_EEPROM_EMULATION)
 
 #include "../shared/persistent_store_api.h"
 
