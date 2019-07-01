@@ -260,13 +260,10 @@
 
 /**
  * Electromagnetic Switching Toolhead
- * 
- * Extruder parking algorithm applicable for CoreXY or HBot kinematics.
- * It implies location of all printers heads on one side of your printer
- * and holding with electromagnet.
- * 
- * This scheme supports more than 2 printing heads:
- * https://youtu.be/JolbsAKTKf4
+ *
+ * Parking for CoreXY / HBot kinematics.
+ * Toolheads are parked at one edge and held with an electromagnet.
+ * Supports more than 2 Toolheads. See https://youtu.be/JolbsAKTKf4
  */
 //#define ELECTROMAGNETIC_SWITCHING_TOOLHEAD
 
@@ -282,10 +279,9 @@
     #define SWITCHING_TOOLHEAD_Y_RELEASE      5         // (mm) Security distance Y axis
     #define SWITCHING_TOOLHEAD_X_SECURITY   -35         // (mm) Security distance X axis
   #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-    #define SWITCHING_TOOLHEAD_Z_HOP        2
+    #define SWITCHING_TOOLHEAD_Z_HOP          2         // (mm) Z raise for switching
   #endif
 #endif
-
 
 /**
  * "Mixing Extruder"
