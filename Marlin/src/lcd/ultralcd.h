@@ -277,8 +277,8 @@ public:
     static char status_message[];
     static bool has_status();
 
-    static uint8_t status_message_level;      // Higher levels block lower levels
-    static inline void reset_alert_level() { status_message_level = 0; }
+    static uint8_t alert_level; // Higher levels block lower levels
+    static inline void reset_alert_level() { alert_level = 0; }
 
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
       static uint8_t status_scroll_offset;

@@ -26,7 +26,7 @@
   #include "../feature/leds/leds.h"
 #endif
 
-// These displays all share the MarlinUI class
+// All displays share the MarlinUI class
 #if HAS_DISPLAY
   #include "ultralcd.h"
   #include "fontutils.h"
@@ -56,7 +56,7 @@
 #endif
 
 #ifdef MAX_MESSAGE_LENGTH
-  uint8_t MarlinUI::status_message_level; // = 0
+  uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
 
@@ -82,11 +82,11 @@
 #include "../Marlin.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
- #include "../feature/power_loss_recovery.h"
+  #include "../feature/power_loss_recovery.h"
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
- #include "../feature/bedlevel/bedlevel.h"
+  #include "../feature/bedlevel/bedlevel.h"
 #endif
 
 #if HAS_BUZZER
@@ -1316,7 +1316,7 @@ void MarlinUI::update() {
   bool MarlinUI::has_status() { return (status_message[0] != '\0'); }
 
   void MarlinUI::set_status(const char * const message, const bool persist) {
-    if (status_message_level > 0) return;
+    if (alert_level) return;
 
     // Here we have a problem. The message is encoded in UTF8, so
     // arbitrarily cutting it will be a problem. We MUST be sure
@@ -1343,8 +1343,8 @@ void MarlinUI::update() {
   #include <stdarg.h>
 
   void MarlinUI::status_printf_P(const uint8_t level, PGM_P const fmt, ...) {
-    if (level < status_message_level) return;
-    status_message_level = level;
+    if (level < alert_level) return;
+    alert_level = level;
     va_list args;
     va_start(args, fmt);
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
@@ -1353,19 +1353,18 @@ void MarlinUI::update() {
   }
 
   void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
-    if (level < 0) level = status_message_level = 0;
-    if (level < status_message_level) return;
-    status_message_level = level;
+    if (level < 0) level = alert_level = 0;
+    if (level < alert_level) return;
+    alert_level = level;
 
-    // Here we have a problem. The message is encoded in UTF8, so
-    // arbitrarily cutting it will be a problem. We MUST be sure
-    // that there is no cutting in the middle of a multibyte character!
+    // Since the message is encoded in UTF8 it must
+    // only be cut on a character boundary.
 
     // Get a pointer to the null terminator
     PGM_P pend = message + strlen_P(message);
 
-    //  If length of supplied UTF8 string is greater than
-    // our buffer size, start cutting whole UTF8 chars
+    // If length of supplied UTF8 string is greater than
+    // the buffer size, start cutting whole UTF8 chars
     while ((pend - message) > MAX_MESSAGE_LENGTH) {
       --pend;
       while (!START_OF_UTF8_CHAR(pgm_read_byte(pend))) --pend;
