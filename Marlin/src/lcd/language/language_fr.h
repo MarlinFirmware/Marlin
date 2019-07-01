@@ -334,6 +334,11 @@
 #define MSG_BLTOUCH_MODE_STORE_5V           _UxGT("Mise en 5V")
 #define MSG_BLTOUCH_MODE_STORE_OD           _UxGT("Mise en OD")
 #define MSG_BLTOUCH_MODE_ECHO               _UxGT("Afficher Mode")
+#define MSG_TOUCHMI_PROBE                   _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("Init. TouchMI")
+#define MSG_TOUCHMI_ZTEST                   _UxGT("Test décalage Z")
+#define MSG_TOUCHMI_SAVE                    _UxGT("Sauvegarde")
+#define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("Déployer TouchMI")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Déployer Sonde Z")
 #define MSG_MANUAL_STOW                     _UxGT("Ranger Sonde Z")
 #define MSG_HOME                            _UxGT("Origine")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
