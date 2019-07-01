@@ -89,9 +89,7 @@
 #if HAS_DRIVER(TMC2209)
     /**
    * TMC2209 stepper drivers
-   *
    * Hardware serial communication ports.
-   * If undefined software serial is used according to the pins below
    */
   #define X_HARDWARE_SERIAL  Serial4
   #define Y_HARDWARE_SERIAL  Serial4
@@ -102,13 +100,13 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA0   // ANALOG NUMBERING
-#define TEMP_BED_PIN       PC3   // ANALOG NUMBERING
+#define TEMP_0_PIN         PA0   // Analog Input
+#define TEMP_BED_PIN       PC3   // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PC8   // EXTRUDER 1
+#define HEATER_0_PIN       PC8   // EXTRUDER
 #define HEATER_BED_PIN     PC9   // BED
 #define FAN_PIN            PA8
 
@@ -119,12 +117,6 @@
 #define USB_CONNECT_INVERTING false
 
 #define SD_DETECT_PIN      PC4
-
-#define SS_PIN             PA4   // Chip select for SD card used by Marlin
-#define SCK_PIN            PA5
-#define MISO_PIN           PA6
-#define MOSI_PIN           PA7
-#define SDSS               SS_PIN
 /*
 |                    _____
 |                5V | · · | GND 
@@ -135,7 +127,7 @@
 |                    ￣￣
 |                    EXP1
 */
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
   #define BEEPER_PIN       PB5
   #define BTN_ENC          PB6
 
@@ -152,13 +144,3 @@
   #endif
 
 #endif // ULTRA_LCD
-
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 DELAY_NS(125)
-#endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 DELAY_NS(125)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 DELAY_NS(125)
-#endif
