@@ -270,7 +270,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     MENU_ITEM(submenu, MSG_MOVE_10MM, menu_move_10mm);
     MENU_ITEM(submenu, MSG_MOVE_1MM, menu_move_1mm);
     MENU_ITEM(submenu, MSG_MOVE_01MM, menu_move_01mm);
-    if (axis == Z_AXIS) 
+    if (axis == Z_AXIS)
       MENU_ITEM(submenu, MSG_MOVE_0025MM, menu_move_0025mm);
   }
   END_MENU();
