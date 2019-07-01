@@ -20,25 +20,19 @@
  *
  */
 
-#ifndef __STM32F1__
+#ifndef TARGET_STM32F1
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
-
-/**
- * Marlin for STM32F103RC
- */
 
 #ifndef BOARD_NAME
   #define BOARD_NAME "BIGTREE SKR MINI E3"
 #endif
 
+// Release PB3/PB4 (E0 STP/DIR) from JTAG pins
+#define DISABLE_JTAG
+
 // Ignore temp readings during develpment.
 //#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
-
-//
-// Release PB3/PB4 (E0 STP/DIR) from JTAG pins
-//
-#define DISABLE_JTAG
 
 //
 // Servos
@@ -48,12 +42,9 @@
 //
 // Limit Switches
 //
-#define X_MAX_PIN          PC0
-#define Y_MAX_PIN          PC1
-#define Z_MAX_PIN          PC2
-#define X_MIN_PIN          PC0
-#define Y_MIN_PIN          PC1
-#define Z_MIN_PIN          PC2
+#define X_STOP_PIN         PC0
+#define Y_STOP_PIN         PC1
+#define Z_STOP_PIN         PC2
 
 //
 // Z Probe must be this pins
@@ -120,12 +111,12 @@
 
 /**
  *                 _____
- *             5V | · · | GND 
+ *             5V | · · | GND
  *  (LCD_EN) PB7  | · · | PB8  (LCD_RS)
  *  (LCD_D4) PB9  | · · | PA10 (BTN_EN2)
  *          RESET | · · | PA9  (BTN_EN1)
  * (BTN_ENC) PB6  | · · | PB5  (BEEPER)
- *                 ￣￣
+ *                 -----
  *                 EXP1
  */
 #if HAS_SPI_LCD
