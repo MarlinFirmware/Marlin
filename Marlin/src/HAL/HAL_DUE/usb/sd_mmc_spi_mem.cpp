@@ -34,6 +34,7 @@ Ctrl_status sd_mmc_spi_read_capacity(uint32_t *nb_sector) {
 }
 
 bool sd_mmc_spi_unload(bool unload) {
+  UNUSED(unload);
   return true;
 }
 
