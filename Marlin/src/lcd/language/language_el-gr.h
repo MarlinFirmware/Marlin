@@ -72,6 +72,7 @@
 #define MSG_MOVE_Y                          _UxGT("Μετακίνηση Y")
 #define MSG_MOVE_Z                          _UxGT("Μετακίνηση Z")
 #define MSG_MOVE_E                          _UxGT("Εξωθητήρας")
+#define MSG_MOVE_0025MM                     _UxGT("Μετακίνηση 0,025 μμ")
 #define MSG_MOVE_01MM                       _UxGT("Μετακίνηση 0,1 μμ")
 #define MSG_MOVE_1MM                        _UxGT("Μετακίνηση 1 μμ")
 #define MSG_MOVE_10MM                       _UxGT("Μετακίνηση 10 μμ")
