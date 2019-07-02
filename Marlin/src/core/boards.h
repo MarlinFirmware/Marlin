@@ -199,6 +199,7 @@
 #define BOARD_AZTEEG_X5_MINI          2017  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
 #define BOARD_MKS_SGEN                2018  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_MKS_SGEN_L              2019  // MKS-SGen-L (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_TH3D_EZBOARD            2020  // TH3D EZBoard v1.0
 
 //
 // SAM3X8E ARM Cortex M3
