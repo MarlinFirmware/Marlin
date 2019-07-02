@@ -580,18 +580,18 @@ class Temperature {
     }
 
     #if WATCH_HOTENDS
-      static void start_watching_heater(const uint8_t e=0);
+      static void start_watching_hotend(const uint8_t e=0);
     #else
-      static inline void start_watching_heater(const uint8_t e=0) { UNUSED(e); }
+      static inline void start_watching_hotend(const uint8_t e=0) { UNUSED(e); }
     #endif
 
     #if HAS_LCD_MENU
-      static inline void start_watching_E0() { start_watching_heater(0); }
-      static inline void start_watching_E1() { start_watching_heater(1); }
-      static inline void start_watching_E2() { start_watching_heater(2); }
-      static inline void start_watching_E3() { start_watching_heater(3); }
-      static inline void start_watching_E4() { start_watching_heater(4); }
-      static inline void start_watching_E5() { start_watching_heater(5); }
+      static inline void start_watching_E0() { start_watching_hotend(0); }
+      static inline void start_watching_E1() { start_watching_hotend(1); }
+      static inline void start_watching_E2() { start_watching_hotend(2); }
+      static inline void start_watching_E3() { start_watching_hotend(3); }
+      static inline void start_watching_E4() { start_watching_hotend(4); }
+      static inline void start_watching_E5() { start_watching_hotend(5); }
     #endif
 
     static void setTargetHotend(const int16_t celsius, const uint8_t e) {
@@ -607,7 +607,7 @@ class Temperature {
         powerManager.power_on();
       #endif
       temp_hotend[ee].target = MIN(celsius, temp_range[ee].maxtemp - 15);
-      start_watching_heater(ee);
+      start_watching_hotend(ee);
     }
 
     #if WATCH_CHAMBER
@@ -748,7 +748,7 @@ class Temperature {
       static void reset_heater_idle_timer(const uint8_t e) {
         E_UNUSED();
         hotend_idle[HOTEND_INDEX].reset();
-        start_watching_heater(HOTEND_INDEX);
+        start_watching_hotend(HOTEND_INDEX);
       }
 
       #if HAS_HEATED_BED

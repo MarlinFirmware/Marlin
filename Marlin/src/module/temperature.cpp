@@ -1033,7 +1033,7 @@ void Temperature::manage_heater() {
         if (degHotend(e) < watch_hotend[e].target)                             // Failed to increase enough?
           _temp_error(e, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, e));
         else                                                                 // Start again if the target is still far off
-          start_watching_heater(e);
+          start_watching_hotend(e);
       }
     #endif
 
@@ -1785,7 +1785,7 @@ void Temperature::init() {
    * their target temperature by a configurable margin.
    * This is called when the temperature is set. (M104, M109)
    */
-  void Temperature::start_watching_heater(const uint8_t e) {
+  void Temperature::start_watching_hotend(const uint8_t e) {
     E_UNUSED();
     const uint8_t ee = HOTEND_INDEX;
     if (degTargetHotend(ee) && degHotend(ee) < degTargetHotend(ee) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
