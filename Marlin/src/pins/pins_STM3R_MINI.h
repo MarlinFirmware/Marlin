@@ -34,8 +34,8 @@
 // Enable I2C_EEPROM for testing
 #define I2C_EEPROM
 
-// Ignore temp readings during develpment.
-#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+// Ignore temp readings during development.
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
 // Limit Switches

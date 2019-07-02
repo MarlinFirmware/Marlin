@@ -37,7 +37,7 @@
 //#define DISABLE_JTAGSWD
 
 // Ignore temp readings during development.
-#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
 // Limit Switches
