@@ -53,56 +53,52 @@
 //
 // Steppers
 //
-#define X_STEP_PIN          P2_00
-#define X_DIR_PIN           P1_16
-#define X_ENABLE_PIN        P1_17
+#define X_STEP_PIN         P2_00
+#define X_DIR_PIN          P1_16
+#define X_ENABLE_PIN       P1_17
 
-#define Y_STEP_PIN          P2_01
-#define Y_DIR_PIN           P1_10
-#define Y_ENABLE_PIN        P1_09
+#define Y_STEP_PIN         P2_01
+#define Y_DIR_PIN          P1_10
+#define Y_ENABLE_PIN       P1_09
 
-#define Z_STEP_PIN          P2_02
-#define Z_DIR_PIN           P1_15
-#define Z_ENABLE_PIN        P1_14
+#define Z_STEP_PIN         P2_02
+#define Z_DIR_PIN          P1_15
+#define Z_ENABLE_PIN       P1_14
 
-#define E0_STEP_PIN         P2_03
-#define E0_DIR_PIN          P1_04
-#define E0_ENABLE_PIN       P1_08
+#define E0_STEP_PIN        P2_03
+#define E0_DIR_PIN         P1_04
+#define E0_ENABLE_PIN      P1_08
 
-#define E1_STEP_PIN         P2_08
-#define E1_DIR_PIN          P2_13
-#define E1_ENABLE_PIN       P4_29
+#define E1_STEP_PIN        P2_08
+#define E1_DIR_PIN         P2_13
+#define E1_ENABLE_PIN      P4_29
 
 #if HAS_DRIVER(TMC2208)
-  /**
-   * TMC2208 stepper drivers
-   * Software serial
-   */
-
-  #define X_SERIAL_TX_PIN    P0_04
-  #define X_SERIAL_RX_PIN    P0_05
-
-  #define Y_SERIAL_TX_PIN    P0_10
-  #define Y_SERIAL_RX_PIN    P0_11
-
-  #define Z_SERIAL_TX_PIN    P0_19
-  #define Z_SERIAL_RX_PIN    P0_20
-
-  #define E0_SERIAL_TX_PIN   P0_22
-  #define E0_SERIAL_RX_PIN   P0_21
-
+  //
+  // TMC2208 stepper drivers
+  // Software serial
+  //
+  #define X_SERIAL_TX_PIN  P0_04
+  #define X_SERIAL_RX_PIN  P0_05
+  #define Y_SERIAL_TX_PIN  P0_10
+  #define Y_SERIAL_RX_PIN  P0_11
+  #define Z_SERIAL_TX_PIN  P0_19
+  #define Z_SERIAL_RX_PIN  P0_20
+  #define E0_SERIAL_TX_PIN P0_22
+  #define E0_SERIAL_RX_PIN P0_21
 #endif
 
-// Analog Inputs
-//  3.3V max when defined as an analog input
 //
-#define TEMP_0_PIN          0   // P0_23
-#define TEMP_BED_PIN        1   // P0_24
-#define TEMP_1_PIN          2   // P0_25
+// Temp Sensors
+//  3.3V max when defined as an Analog Input!
+//
+#define TEMP_0_PIN          0   // Analog Input P0_23
+#define TEMP_BED_PIN        1   // Analog Input P0_24
+#define TEMP_1_PIN          2   // Analog Input P0_25
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-  #define FILWIDTH_PIN      3   // P0_26
+  #define FILWIDTH_PIN      3   // Analog Input P0_26
 #else
-  #define TEMP_2_PIN        3   // P0_26
+  #define TEMP_2_PIN        3   // Analog Input P0_26
 #endif
 
 //
@@ -124,6 +120,18 @@
 #define ORIG_E2_AUTO_FAN_PIN  AUTO_FAN_PIN
 
 //
+// SD Card
+//
+
+#define SDCARD_CONNECTION ONBOARD
+
+#define SCK_PIN            P0_07
+#define MISO_PIN           P0_08
+#define MOSI_PIN           P0_09
+#define ONBOARD_SD_CS_PIN  P0_06
+#define SS_PIN             ONBOARD_SD_CS_PIN
+
+//
 // LCD / Controller
 //
 
@@ -134,7 +142,7 @@
  *  (LCD_D4) P0_15 | · · | P3_25 (BTN_EN2)
  *   (RESET) P2_11 | · · | P3_26 (BTN_EN1)
  * (BTN_ENC) P1_30 | · · | P1_31 (BEEPER)
- *                  ￣￣
+ *                  -----
  *                  EXP1
  *
  * LCD_PINS_D5, D6, and D7 are not present in the EXP1 connector, and will need to be
@@ -146,20 +154,12 @@
  */
 
 #if ENABLED(CR10_STOCKDISPLAY)
-  #define BEEPER_PIN        P1_31
-  #define BTN_EN1           P3_26
-  #define BTN_EN2           P3_25
-  #define BTN_ENC           P1_30
-  #define LCD_PINS_RS       P0_16
-  #define LCD_PINS_ENABLE   P0_18
-  #define LCD_PINS_D4       P0_15
-  #define KILL_PIN          P2_11
+  #define BEEPER_PIN       P1_31
+  #define BTN_EN1          P3_26
+  #define BTN_EN2          P3_25
+  #define BTN_ENC          P1_30
+  #define LCD_PINS_RS      P0_16
+  #define LCD_PINS_ENABLE  P0_18
+  #define LCD_PINS_D4      P0_15
+  #define KILL_PIN         P2_11
 #endif
-
-#define SDCARD_CONNECTION ONBOARD
-
-#define SCK_PIN            P0_07
-#define MISO_PIN           P0_08
-#define MOSI_PIN           P0_09
-#define ONBOARD_SD_CS_PIN  P0_06
-#define SS_PIN             ONBOARD_SD_CS_PIN
