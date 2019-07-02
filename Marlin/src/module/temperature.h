@@ -596,17 +596,18 @@ class Temperature {
 
     static void setTargetHotend(const int16_t celsius, const uint8_t e) {
       E_UNUSED();
+      const uint8_t ee = HOTEND_INDEX;
       #ifdef MILLISECONDS_PREHEAT_TIME
         if (celsius == 0)
-          reset_preheat_time(HOTEND_INDEX);
-        else if (temp_hotend[HOTEND_INDEX].target == 0)
-          start_preheat_time(HOTEND_INDEX);
+          reset_preheat_time(ee);
+        else if (temp_hotend[ee].target == 0)
+          start_preheat_time(ee);
       #endif
       #if ENABLED(AUTO_POWER_CONTROL)
         powerManager.power_on();
       #endif
-      temp_hotend[HOTEND_INDEX].target = MIN(celsius, temp_range[HOTEND_INDEX].maxtemp - 15);
-      start_watching_heater(HOTEND_INDEX);
+      temp_hotend[ee].target = MIN(celsius, temp_range[ee].maxtemp - 15);
+      start_watching_heater(ee);
     }
 
     #if WATCH_CHAMBER

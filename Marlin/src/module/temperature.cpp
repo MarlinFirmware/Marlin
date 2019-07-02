@@ -809,6 +809,7 @@ float Temperature::get_pid_output(const int8_t e) {
     #define _HOTEND_TEST (e == active_extruder)
   #endif
   E_UNUSED();
+  const uint8_t ee = HOTEND_INDEX;
   float pid_output;
   #if ENABLED(PIDTEMP)
     #if DISABLED(PID_OPENLOOP)
@@ -816,38 +817,38 @@ float Temperature::get_pid_output(const int8_t e) {
       static float temp_iState[HOTENDS] = { 0 },
                    temp_dState[HOTENDS] = { 0 };
       static bool pid_reset[HOTENDS] = { false };
-      const float pid_error = temp_hotend[HOTEND_INDEX].target - temp_hotend[HOTEND_INDEX].current;
+      const float pid_error = temp_hotend[ee].target - temp_hotend[ee].current;
 
-      if (temp_hotend[HOTEND_INDEX].target == 0
+      if (temp_hotend[ee].target == 0
         || pid_error < -(PID_FUNCTIONAL_RANGE)
         #if HEATER_IDLE_HANDLER
-          || hotend_idle[HOTEND_INDEX].timed_out
+          || hotend_idle[ee].timed_out
         #endif
       ) {
         pid_output = 0;
-        pid_reset[HOTEND_INDEX] = true;
+        pid_reset[ee] = true;
       }
       else if (pid_error > PID_FUNCTIONAL_RANGE) {
         pid_output = BANG_MAX;
-        pid_reset[HOTEND_INDEX] = true;
+        pid_reset[ee] = true;
       }
       else {
-        if (pid_reset[HOTEND_INDEX]) {
-          temp_iState[HOTEND_INDEX] = 0.0;
-          work_pid[HOTEND_INDEX].Kd = 0.0;
-          pid_reset[HOTEND_INDEX] = false;
+        if (pid_reset[ee]) {
+          temp_iState[ee] = 0.0;
+          work_pid[ee].Kd = 0.0;
+          pid_reset[ee] = false;
         }
 
-        work_pid[HOTEND_INDEX].Kd = work_pid[HOTEND_INDEX].Kd + PID_K2 * (PID_PARAM(Kd, HOTEND_INDEX) * (temp_dState[HOTEND_INDEX] - temp_hotend[HOTEND_INDEX].current) - work_pid[HOTEND_INDEX].Kd);
-        const float max_power_over_i_gain = (float)PID_MAX / PID_PARAM(Ki, HOTEND_INDEX);
-        temp_iState[HOTEND_INDEX] = constrain(temp_iState[HOTEND_INDEX] + pid_error, 0, max_power_over_i_gain);
-        work_pid[HOTEND_INDEX].Kp = PID_PARAM(Kp, HOTEND_INDEX) * pid_error;
-        work_pid[HOTEND_INDEX].Ki = PID_PARAM(Ki, HOTEND_INDEX) * temp_iState[HOTEND_INDEX];
+        work_pid[ee].Kd = work_pid[ee].Kd + PID_K2 * (PID_PARAM(Kd, ee) * (temp_dState[ee] - temp_hotend[ee].current) - work_pid[ee].Kd);
+        const float max_power_over_i_gain = (float)PID_MAX / PID_PARAM(Ki, ee);
+        temp_iState[ee] = constrain(temp_iState[ee] + pid_error, 0, max_power_over_i_gain);
+        work_pid[ee].Kp = PID_PARAM(Kp, ee) * pid_error;
+        work_pid[ee].Ki = PID_PARAM(Ki, ee) * temp_iState[ee];
 
-        pid_output = work_pid[HOTEND_INDEX].Kp + work_pid[HOTEND_INDEX].Ki + work_pid[HOTEND_INDEX].Kd;
+        pid_output = work_pid[ee].Kp + work_pid[ee].Ki + work_pid[ee].Kd;
 
         #if ENABLED(PID_EXTRUSION_SCALING)
-          work_pid[HOTEND_INDEX].Kc = 0;
+          work_pid[ee].Kc = 0;
           if (_HOTEND_TEST) {
             const long e_position = stepper.position(E_AXIS);
             if (e_position > last_e_position) {
@@ -858,49 +859,51 @@ float Temperature::get_pid_output(const int8_t e) {
               lpq[lpq_ptr] = 0;
 
             if (++lpq_ptr >= lpq_len) lpq_ptr = 0;
-            work_pid[HOTEND_INDEX].Kc = (lpq[lpq_ptr] * planner.steps_to_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
-            pid_output += work_pid[HOTEND_INDEX].Kc;
+            work_pid[ee].Kc = (lpq[lpq_ptr] * planner.steps_to_mm[E_AXIS]) * PID_PARAM(Kc, ee);
+            pid_output += work_pid[ee].Kc;
           }
         #endif // PID_EXTRUSION_SCALING
 
         pid_output = constrain(pid_output, 0, PID_MAX);
       }
-      temp_dState[HOTEND_INDEX] = temp_hotend[HOTEND_INDEX].current;
+      temp_dState[ee] = temp_hotend[ee].current;
 
     #else // PID_OPENLOOP
 
-      const float pid_output = constrain(temp_hotend[HOTEND_INDEX].target, 0, PID_MAX);
+      const float pid_output = constrain(temp_hotend[ee].target, 0, PID_MAX);
 
     #endif // PID_OPENLOOP
 
     #if ENABLED(PID_DEBUG)
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR(
-        MSG_PID_DEBUG, HOTEND_INDEX,
-        MSG_PID_DEBUG_INPUT, temp_hotend[HOTEND_INDEX].current,
+        MSG_PID_DEBUG, ee,
+        MSG_PID_DEBUG_INPUT, temp_hotend[ee].current,
         MSG_PID_DEBUG_OUTPUT, pid_output
       );
       #if DISABLED(PID_OPENLOOP)
         SERIAL_ECHOPAIR(
-          MSG_PID_DEBUG_PTERM, work_pid[HOTEND_INDEX].Kp,
-          MSG_PID_DEBUG_ITERM, work_pid[HOTEND_INDEX].Ki,
-          MSG_PID_DEBUG_DTERM, work_pid[HOTEND_INDEX].Kd
+          MSG_PID_DEBUG_PTERM, work_pid[ee].Kp,
+          MSG_PID_DEBUG_ITERM, work_pid[ee].Ki,
+          MSG_PID_DEBUG_DTERM, work_pid[ee].Kd
           #if ENABLED(PID_EXTRUSION_SCALING)
-            , MSG_PID_DEBUG_CTERM, work_pid[HOTEND_INDEX].Kc
+            , MSG_PID_DEBUG_CTERM, work_pid[ee].Kc
           #endif
         );
       #endif
       SERIAL_EOL();
     #endif // PID_DEBUG
 
-  #else /* PID off */
+  #else // No PID enabled
+
     #if HEATER_IDLE_HANDLER
-      #define _TIMED_OUT_TEST hotend_idle[HOTEND_INDEX].timed_out
+      #define _TIMED_OUT_TEST hotend_idle[ee].timed_out
     #else
       #define _TIMED_OUT_TEST false
     #endif
-    pid_output = (!_TIMED_OUT_TEST && temp_hotend[HOTEND_INDEX].current < temp_hotend[HOTEND_INDEX].target) ? BANG_MAX : 0;
+    pid_output = (!_TIMED_OUT_TEST && temp_hotend[ee].current < temp_hotend[ee].target) ? BANG_MAX : 0;
     #undef _TIMED_OUT_TEST
+
   #endif
 
   return pid_output;
@@ -1784,12 +1787,13 @@ void Temperature::init() {
    */
   void Temperature::start_watching_heater(const uint8_t e) {
     E_UNUSED();
-    if (degTargetHotend(HOTEND_INDEX) && degHotend(HOTEND_INDEX) < degTargetHotend(HOTEND_INDEX) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
-      watch_hotend[HOTEND_INDEX].target = degHotend(HOTEND_INDEX) + WATCH_TEMP_INCREASE;
-      watch_hotend[HOTEND_INDEX].next_ms = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
+    const uint8_t ee = HOTEND_INDEX;
+    if (degTargetHotend(ee) && degHotend(ee) < degTargetHotend(ee) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
+      watch_hotend[ee].target = degHotend(ee) + WATCH_TEMP_INCREASE;
+      watch_hotend[ee].next_ms = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
     }
     else
-      watch_hotend[HOTEND_INDEX].next_ms = 0;
+      watch_hotend[ee].next_ms = 0;
   }
 #endif
 
