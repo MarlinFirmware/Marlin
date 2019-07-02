@@ -45,6 +45,13 @@
   #define E_UNUSED()
 #endif
 
+// Identifiers for other heaters
+typedef enum : int8_t {
+  INDEX_NONE = -4,
+  H_REDUNDANT, H_CHAMBER, H_BED,
+  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5
+} heater_ind_t;
+
 // PID storage
 typedef struct { float Kp, Ki, Kd;     } PID_t;
 typedef struct { float Kp, Ki, Kd, Kc; } PIDC_t;
@@ -706,7 +713,7 @@ class Temperature {
     /**
      * The software PWM power for a heater
      */
-    static int16_t getHeaterPower(const int8_t heater);
+    static int16_t getHeaterPower(const heater_ind_t heater);
 
     /**
      * Switch off all heaters, set all target temperatures to 0
@@ -717,7 +724,7 @@ class Temperature {
      * Perform auto-tuning for hotend or bed in response to M303
      */
     #if HAS_PID_HEATING
-      static void PID_autotune(const float &target, const int8_t hotend, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const float &target, const heater_ind_t hotend, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;
@@ -807,7 +814,7 @@ class Temperature {
 
     static void checkExtruderAutoFans();
 
-    static float get_pid_output(const int8_t e);
+    static float get_pid_output_hotend(const uint8_t e);
 
     #if ENABLED(PIDTEMPBED)
       static float get_pid_output_bed();
@@ -817,9 +824,9 @@ class Temperature {
       static float get_pid_output_chamber();
     #endif
 
-    static void _temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
-    static void min_temp_error(const int8_t e);
-    static void max_temp_error(const int8_t e);
+    static void _temp_error(const heater_ind_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
+    static void min_temp_error(const heater_ind_t e);
+    static void max_temp_error(const heater_ind_t e);
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER)
 
@@ -840,7 +847,7 @@ class Temperature {
         static tr_state_machine_t tr_state_machine_chamber;
       #endif
 
-      static void thermal_runaway_protection(tr_state_machine_t &state, const float &current, const float &target, const int8_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc);
+      static void thermal_runaway_protection(tr_state_machine_t &state, const float &current, const float &target, const heater_ind_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc);
 
     #endif // THERMAL_PROTECTION
 };
