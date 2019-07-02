@@ -699,11 +699,11 @@ int16_t Temperature::getHeaterPower(const int8_t heater) {
         SBI(fanState, pgm_read_byte(&fanBit[CHAMBER_FAN_INDEX]));
     #endif
 
-    #define _UPDATE_AUTO_FAN(P,D,A) do{             \
-      if (PWM_PIN(P##_AUTO_FAN_PIN) && A < 255)     \
-        analogWrite(P##_AUTO_FAN_PIN, D ? A : 0);   \
-      else                                          \
-        WRITE(P##_AUTO_FAN_PIN, D);                 \
+    #define _UPDATE_AUTO_FAN(P,D,A) do{                  \
+      if (PWM_PIN(P##_AUTO_FAN_PIN) && A < 255)          \
+        analogWrite(pin_t(P##_AUTO_FAN_PIN), D ? A : 0); \
+      else                                               \
+        WRITE(P##_AUTO_FAN_PIN, D);                      \
     }while(0)
 
     uint8_t fanDone = 0;

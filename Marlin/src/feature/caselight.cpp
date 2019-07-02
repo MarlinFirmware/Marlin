@@ -71,7 +71,7 @@ void update_case_light() {
 
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
       if (PWM_PIN(CASE_LIGHT_PIN))
-        analogWrite(CASE_LIGHT_PIN, n10ct);
+        analogWrite(pin_t(CASE_LIGHT_PIN), n10ct);
       else
     #endif
       {
