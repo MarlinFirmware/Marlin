@@ -430,7 +430,7 @@ bool MarlinUI::get_blink() {
 
           if (RRK(EN_KEYPAD_MIDDLE))  goto_screen(menu_move);
 
-          #if DISABLED(DELTA) && Z_HOME_DIR == -1
+          #if DISABLED(DELTA) && Z_HOME_DIR < 0
             if (RRK(EN_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
           #endif
 
