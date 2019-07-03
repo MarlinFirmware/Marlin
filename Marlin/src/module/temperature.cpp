@@ -2232,7 +2232,7 @@ void Temperature::readings_ready() {
         #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
           if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
         #endif
-          min_temp_error((heater_ind_t)e);
+            min_temp_error((heater_ind_t)e);
       }
       #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
         else
