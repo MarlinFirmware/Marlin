@@ -489,9 +489,18 @@
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // 4MAX with PID Autotune
   // my 4MAX Printer: 7of9 - PID - Hotend
-  #define DEFAULT_Kp 22.2 // Autotune 12.97
-  #define DEFAULT_Ki 1.08 // Autotune 0.72
-  #define DEFAULT_Kd 114  // Autotune 58.44
+  //
+  //  Auto tuned with command: M303 E-0 S235 C8   and FAN 100%: M106 S255
+  //
+  //  Measurement#:   1       2       3       4
+  //  Degrees °C:     S235    S235    S220    S250   ~235
+  //  noozle_Kp:      19.30   18.12   18.33   18.26  ~18.5025
+  //  noozle_Ki:      1.38    1.26    1.28    1.24   ~1.29
+  //  noozle_Kd:      67.59   65.31   65.68   67.32  ~66.475
+
+  #define DEFAULT_Kp 18.50
+  #define DEFAULT_Ki 1.29
+  #define DEFAULT_Kd 66.47
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   // Default 4MAX
   #define DEFAULT_Kp 22.2
@@ -554,9 +563,17 @@
   #elif ENABLED(ANYCUBIC_4MAX_7OF9)
     // 4MAX with PID Autotune
     // my 4MAX Printer: 7of9 - PID - BED
-    #define DEFAULT_bedKp 22.20  // Autotube 266.39
-    #define DEFAULT_bedKi 1.08   // Autotube 51.57
-    #define DEFAULT_bedKd 114.00 // Autotube 344.01
+
+    //  Auto tuned with command: M303 E-1 S90 C8
+    //  Measurement #: 1       2       3       4
+    //  Degrees°C:     S90     S90     S60     S60     ~ 75
+    //  bedKp:         126.18  119.52  70.09   75.08   ~ 97.72
+    //  bedKi:         24.45   23.54   13.16   14.32   ~ 18.87
+    //  bedKd:         434.11  404.67  248.76  262.42  ~ 337.49
+    #define DEFAULT_bedKp 119.52  //#2
+    #define DEFAULT_bedKi 23.54   //#2
+    #define DEFAULT_bedKd 404.67  //#2
+
   #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
     //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
     //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
