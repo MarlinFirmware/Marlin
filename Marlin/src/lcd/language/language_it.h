@@ -339,7 +339,7 @@
 #define MSG_TOUCHMI_PROBE                   _UxGT("TouchMI")
 #define MSG_TOUCHMI_INIT                    _UxGT("Inizializ.TouchMI")
 #define MSG_TOUCHMI_ZTEST                   _UxGT("Test Z offset")
-#define MSG_TOUCHMI_SAVE                    _UxGT("Memorizzae")
+#define MSG_TOUCHMI_SAVE                    _UxGT("Memorizzare")
 #define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("Estendi TouchMI")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Estendi Sonda-Z")
 #define MSG_BLTOUCH_STOW                    _UxGT("Ritrai BLTouch")
