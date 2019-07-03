@@ -350,6 +350,8 @@
   #include "pins_BIQU_B300_V1.0.h"      // LPC1768                                    env:LPC1768
 #elif MB(BIGTREE_SKR_V1_3)
   #include "pins_BIGTREE_SKR_V1.3.h"    // LPC1768                                    env:LPC1768
+#elif MB(TH3D_EZBOARD)
+  #include "pins_TH3D_EZBOARD.h"        // LPC1768                                    env:LPC1768
 
 //
 // Other 32-bit Boards
@@ -422,6 +424,8 @@
   #include "pins_STM3R_MINI.h"        // STM32F1                                    env:STM32F1
 #elif MB(BIGTREE_SKR_MINI_V1_1)
   #include "pins_BIGTREE_SKR_MINI_V1_1.h" // STM32F1                                env:BIGTREE_SKR_MINI
+#elif MB(BIGTREE_SKR_MINI_E3)
+  #include "pins_BIGTREE_SKR_MINI_E3.h" // STM32F1                                  env:BIGTREE_SKR_MINI
 #elif MB(MALYAN_M200)
   #include "pins_MALYAN_M200.h"       // STM32F1                                    env:malyanm200
 #elif MB(CHITU3D)

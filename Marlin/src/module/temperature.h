@@ -45,6 +45,13 @@
   #define E_UNUSED()
 #endif
 
+// Identifiers for other heaters
+typedef enum : int8_t {
+  INDEX_NONE = -4,
+  H_REDUNDANT, H_CHAMBER, H_BED,
+  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5
+} heater_ind_t;
+
 // PID storage
 typedef struct { float Kp, Ki, Kd;     } PID_t;
 typedef struct { float Kp, Ki, Kd, Kc; } PIDC_t;
@@ -580,33 +587,34 @@ class Temperature {
     }
 
     #if WATCH_HOTENDS
-      static void start_watching_heater(const uint8_t e=0);
+      static void start_watching_hotend(const uint8_t e=0);
     #else
-      static inline void start_watching_heater(const uint8_t e=0) { UNUSED(e); }
+      static inline void start_watching_hotend(const uint8_t e=0) { UNUSED(e); }
     #endif
 
     #if HAS_LCD_MENU
-      static inline void start_watching_E0() { start_watching_heater(0); }
-      static inline void start_watching_E1() { start_watching_heater(1); }
-      static inline void start_watching_E2() { start_watching_heater(2); }
-      static inline void start_watching_E3() { start_watching_heater(3); }
-      static inline void start_watching_E4() { start_watching_heater(4); }
-      static inline void start_watching_E5() { start_watching_heater(5); }
+      static inline void start_watching_E0() { start_watching_hotend(0); }
+      static inline void start_watching_E1() { start_watching_hotend(1); }
+      static inline void start_watching_E2() { start_watching_hotend(2); }
+      static inline void start_watching_E3() { start_watching_hotend(3); }
+      static inline void start_watching_E4() { start_watching_hotend(4); }
+      static inline void start_watching_E5() { start_watching_hotend(5); }
     #endif
 
     static void setTargetHotend(const int16_t celsius, const uint8_t e) {
       E_UNUSED();
+      const uint8_t ee = HOTEND_INDEX;
       #ifdef MILLISECONDS_PREHEAT_TIME
         if (celsius == 0)
-          reset_preheat_time(HOTEND_INDEX);
-        else if (temp_hotend[HOTEND_INDEX].target == 0)
-          start_preheat_time(HOTEND_INDEX);
+          reset_preheat_time(ee);
+        else if (temp_hotend[ee].target == 0)
+          start_preheat_time(ee);
       #endif
       #if ENABLED(AUTO_POWER_CONTROL)
         powerManager.power_on();
       #endif
-      temp_hotend[HOTEND_INDEX].target = MIN(celsius, temp_range[HOTEND_INDEX].maxtemp - 15);
-      start_watching_heater(HOTEND_INDEX);
+      temp_hotend[ee].target = MIN(celsius, temp_range[ee].maxtemp - 15);
+      start_watching_hotend(ee);
     }
 
     #if WATCH_CHAMBER
@@ -705,7 +713,7 @@ class Temperature {
     /**
      * The software PWM power for a heater
      */
-    static int16_t getHeaterPower(const int8_t heater);
+    static int16_t getHeaterPower(const heater_ind_t heater);
 
     /**
      * Switch off all heaters, set all target temperatures to 0
@@ -716,7 +724,7 @@ class Temperature {
      * Perform auto-tuning for hotend or bed in response to M303
      */
     #if HAS_PID_HEATING
-      static void PID_autotune(const float &target, const int8_t hotend, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const float &target, const heater_ind_t hotend, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;
@@ -747,7 +755,7 @@ class Temperature {
       static void reset_heater_idle_timer(const uint8_t e) {
         E_UNUSED();
         hotend_idle[HOTEND_INDEX].reset();
-        start_watching_heater(HOTEND_INDEX);
+        start_watching_hotend(HOTEND_INDEX);
       }
 
       #if HAS_HEATED_BED
@@ -806,7 +814,7 @@ class Temperature {
 
     static void checkExtruderAutoFans();
 
-    static float get_pid_output(const int8_t e);
+    static float get_pid_output_hotend(const uint8_t e);
 
     #if ENABLED(PIDTEMPBED)
       static float get_pid_output_bed();
@@ -816,9 +824,9 @@ class Temperature {
       static float get_pid_output_chamber();
     #endif
 
-    static void _temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
-    static void min_temp_error(const int8_t e);
-    static void max_temp_error(const int8_t e);
+    static void _temp_error(const heater_ind_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
+    static void min_temp_error(const heater_ind_t e);
+    static void max_temp_error(const heater_ind_t e);
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER)
 
@@ -839,7 +847,7 @@ class Temperature {
         static tr_state_machine_t tr_state_machine_chamber;
       #endif
 
-      static void thermal_runaway_protection(tr_state_machine_t &state, const float &current, const float &target, const int8_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc);
+      static void thermal_runaway_protection(tr_state_machine_t &state, const float &current, const float &target, const heater_ind_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc);
 
     #endif // THERMAL_PROTECTION
 };

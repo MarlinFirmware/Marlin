@@ -153,7 +153,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   #include "module/tool_change.h"
 #endif
 
@@ -941,7 +941,9 @@ void setup() {
 
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
-  (void)settings.load();
+  #if DISABLED(SD_EEPROM_EMULATION)
+    (void)settings.load();
+  #endif
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
@@ -1078,6 +1080,10 @@ void setup() {
     pe_solenoid_init();
   #endif
 
+  #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+    est_init();
+  #endif
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.check();
   #endif
@@ -1090,8 +1096,17 @@ void setup() {
     init_closedloop();
   #endif
 
-  #if ENABLED(INIT_SDCARD_ON_BOOT) && !HAS_SPI_LCD
-    card.beginautostart();
+  #if !HAS_SPI_LCD
+
+    #if ENABLED(SD_EEPROM_EMULATION)
+      SERIAL_ECHOLNPGM("Loading settings from SD");
+      (void)settings.load();
+    #endif
+
+    #if ENABLED(INIT_SDCARD_ON_BOOT)
+      card.beginautostart();
+    #endif
+
   #endif
 
   #if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)

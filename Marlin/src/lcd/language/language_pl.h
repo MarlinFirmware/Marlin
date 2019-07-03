@@ -70,6 +70,7 @@
 #define MSG_MOVE_Y                          _UxGT("Przesuń w Y")
 #define MSG_MOVE_Z                          _UxGT("Przesuń w Z")
 #define MSG_MOVE_E                          _UxGT("Ekstruzja (os E)")
+#define MSG_MOVE_0025MM                     _UxGT("Przesuń co .025mm")
 #define MSG_MOVE_01MM                       _UxGT("Przesuń co .1mm")
 #define MSG_MOVE_1MM                        _UxGT("Przesuń co 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Przesuń co 10mm")

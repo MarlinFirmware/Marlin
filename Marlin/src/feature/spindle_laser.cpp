@@ -41,7 +41,7 @@ void SpindleLaser::init() {
   #endif
   #if ENABLED(SPINDLE_LASER_PWM) && PIN_EXISTS(SPINDLE_LASER_PWM)
     SET_PWM(SPINDLE_LASER_PWM_PIN);
-    analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
+    analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
   #endif
 }
 
@@ -55,7 +55,7 @@ void SpindleLaser::init() {
   void SpindleLaser::set_ocr(const uint8_t ocr) {
     WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ACTIVE_HIGH); // turn spindle on (active low)
     #if ENABLED(SPINDLE_LASER_PWM)
-      analogWrite(SPINDLE_LASER_PWM_PIN, (SPINDLE_LASER_PWM_INVERT) ? 255 - ocr : ocr);
+      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), (SPINDLE_LASER_PWM_INVERT) ? 255 - ocr : ocr);
     #endif
   }
 
@@ -75,8 +75,8 @@ void SpindleLaser::update_output() {
       set_ocr(ocr_val & 0xFF);                                                            // ...limited to Atmel PWM max
     }
     else {                                                                                // Convert RPM to PWM duty cycle
-      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);                         // Turn spindle off (active low)
-      analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);             // Only write low byte
+      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);                           // Turn spindle off (active low)
+      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_INVERT ? 255 : 0);      // Only write low byte
     }
   #else
     WRITE(SPINDLE_LASER_ENA_PIN, ena ? SPINDLE_LASER_ACTIVE_HIGH : !SPINDLE_LASER_ACTIVE_HIGH);

@@ -258,7 +258,16 @@
  */
 //#define MAGNETIC_SWITCHING_TOOLHEAD
 
-#if EITHER(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD)
+/**
+ * Electromagnetic Switching Toolhead
+ *
+ * Parking for CoreXY / HBot kinematics.
+ * Toolheads are parked at one edge and held with an electromagnet.
+ * Supports more than 2 Toolheads. See https://youtu.be/JolbsAKTKf4
+ */
+//#define ELECTROMAGNETIC_SWITCHING_TOOLHEAD
+
+#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   #define SWITCHING_TOOLHEAD_Y_POS          235         // (mm) Y position of the toolhead dock
   #define SWITCHING_TOOLHEAD_Y_SECURITY      10         // (mm) Security distance Y axis
   #define SWITCHING_TOOLHEAD_Y_CLEAR         60         // (mm) Minimum distance from dock for unobstructed X axis
@@ -269,6 +278,8 @@
   #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
     #define SWITCHING_TOOLHEAD_Y_RELEASE      5         // (mm) Security distance Y axis
     #define SWITCHING_TOOLHEAD_X_SECURITY   -35         // (mm) Security distance X axis
+  #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+    #define SWITCHING_TOOLHEAD_Z_HOP          2         // (mm) Z raise for switching
   #endif
 #endif
 
@@ -841,12 +852,13 @@
  * on the right, enable and set TOUCH_MI_DEPLOY_XPOS to the deploy position.
  *
  * Also requires: BABYSTEPPING, BABYSTEP_ZPROBE_OFFSET, Z_SAFE_HOMING,
- *                MIN_PROBE_EDGE, and a minimum Z_HOMING_HEIGHT of 10.
+ *                and a minimum Z_HOMING_HEIGHT of 10.
  */
 //#define TOUCH_MI_PROBE
 #if ENABLED(TOUCH_MI_PROBE)
   #define TOUCH_MI_RETRACT_Z 0.5                  // Height at which the probe retracts
   //#define TOUCH_MI_DEPLOY_XPOS (X_MAX_BED + 2)  // For a magnet on the right side of the bed
+  //#define TOUCH_MI_MANUAL_DEPLOY                // For manual deploy (LCD menu)
 #endif
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)

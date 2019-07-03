@@ -836,47 +836,41 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Special tool-changing options
+ */
+#if 1 < 0 \
+  + ENABLED(SINGLENOZZLE) \
+  + ENABLED(DUAL_X_CARRIAGE) \
+  + ENABLED(PARKING_EXTRUDER) \
+  + ENABLED(MAGNETIC_PARKING_EXTRUDER) \
+  + ENABLED(SWITCHING_TOOLHEAD) \
+  + ENABLED(MAGNETIC_SWITCHING_TOOLHEAD) \
+  + ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #error "Please select only one of SINGLENOZZLE, DUAL_X_CARRIAGE, PARKING_EXTRUDER, SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, or ELECTROMAGNETIC_SWITCHING_TOOLHEAD."
+#endif
+
+/**
  * (Magnetic) Parking Extruder requirements
  */
-#if ENABLED(PARKING_EXTRUDER)
-  #if ENABLED(DUAL_X_CARRIAGE)
-    #error "PARKING_EXTRUDER and DUAL_X_CARRIAGE are incompatible."
-  #elif ENABLED(SINGLENOZZLE)
-    #error "PARKING_EXTRUDER and SINGLENOZZLE are incompatible."
-  #elif ENABLED(EXT_SOLENOID)
-    #error "PARKING_EXTRUDER and EXT_SOLENOID are incompatible. (Pins are used twice.)"
-  #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
-    #error "Enable only one of PARKING_EXTRUDER and MAGNETIC_PARKING_EXTRUDER."
+#if ANY(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
+  #if ENABLED(EXT_SOLENOID)
+    #error "(MAGNETIC_)PARKING_EXTRUDER and EXT_SOLENOID are incompatible. (Pins are used twice.)"
   #elif EXTRUDERS != 2
-    #error "PARKING_EXTRUDER requires exactly 2 EXTRUDERS."
-  #elif !PIN_EXISTS(SOL0, SOL1)
-    #error "PARKING_EXTRUDER requires SOL0_PIN and SOL1_PIN."
+    #error "(MAGNETIC_)PARKING_EXTRUDER requires exactly 2 EXTRUDERS."
   #elif !defined(PARKING_EXTRUDER_PARKING_X)
-    #error "PARKING_EXTRUDER requires PARKING_EXTRUDER_PARKING_X."
+    #error "(MAGNETIC_)PARKING_EXTRUDER requires PARKING_EXTRUDER_PARKING_X."
   #elif !defined(TOOLCHANGE_ZRAISE)
-    #error "PARKING_EXTRUDER requires TOOLCHANGE_ZRAISE."
+    #error "(MAGNETIC_)PARKING_EXTRUDER requires TOOLCHANGE_ZRAISE."
   #elif TOOLCHANGE_ZRAISE < 0
     #error "TOOLCHANGE_ZRAISE must be 0 or higher."
-  #elif !defined(PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE) || !WITHIN(PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE, LOW, HIGH)
-    #error "PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE must be defined as HIGH or LOW."
-  #elif !defined(PARKING_EXTRUDER_SOLENOIDS_DELAY) || !WITHIN(PARKING_EXTRUDER_SOLENOIDS_DELAY, 0, 2000)
-    #error "PARKING_EXTRUDER_SOLENOIDS_DELAY must be between 0 and 2000 (ms)."
-  #endif
-#elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
-  #if ENABLED(DUAL_X_CARRIAGE)
-    #error "MAGNETIC_PARKING_EXTRUDER and DUAL_X_CARRIAGE are incompatible."
-  #elif ENABLED(SINGLENOZZLE)
-    #error "MAGNETIC_PARKING_EXTRUDER and SINGLENOZZLE are incompatible."
-  #elif ENABLED(EXT_SOLENOID)
-    #error "MAGNETIC_PARKING_EXTRUDER and EXT_SOLENOID are incompatible. (Pins are used twice.)"
-  #elif EXTRUDERS != 2
-    #error "MAGNETIC_PARKING_EXTRUDER requires exactly 2 EXTRUDERS."
-  #elif !defined(PARKING_EXTRUDER_PARKING_X)
-    #error "MAGNETIC_PARKING_EXTRUDER requires PARKING_EXTRUDER_PARKING_X."
-  #elif !defined(TOOLCHANGE_ZRAISE)
-    #error "MAGNETIC_PARKING_EXTRUDER requires TOOLCHANGE_ZRAISE."
-  #elif TOOLCHANGE_ZRAISE < 0
-    #error "TOOLCHANGE_ZRAISE must be 0 or higher."
+  #elif ENABLED(PARKING_EXTRUDER)
+    #if !PIN_EXISTS(SOL0, SOL1)
+      #error "PARKING_EXTRUDER requires SOL0_PIN and SOL1_PIN."
+    #elif !defined(PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE) || !WITHIN(PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE, LOW, HIGH)
+      #error "PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE must be defined as HIGH or LOW."
+    #elif !defined(PARKING_EXTRUDER_SOLENOIDS_DELAY) || !WITHIN(PARKING_EXTRUDER_SOLENOIDS_DELAY, 0, 2000)
+      #error "PARKING_EXTRUDER_SOLENOIDS_DELAY must be between 0 and 2000 (ms)."
+    #endif
   #endif
 #endif
 
@@ -884,13 +878,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Switching Toolhead requirements
  */
 #if ENABLED(SWITCHING_TOOLHEAD)
-  #if ENABLED(DUAL_X_CARRIAGE)
-    #error "SWITCHING_TOOLHEAD and DUAL_X_CARRIAGE are incompatible."
-  #elif ENABLED(SINGLENOZZLE)
-    #error "SWITCHING_TOOLHEAD and SINGLENOZZLE are incompatible."
-  #elif ENABLED(PARKING_EXTRUDER)
-    #error "SWITCHING_TOOLHEAD and PARKING_EXTRUDER are incompatible."
-  #elif !defined(SWITCHING_TOOLHEAD_SERVO_NR)
+  #if !defined(SWITCHING_TOOLHEAD_SERVO_NR)
     #error "SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_SERVO_NR."
   #elif EXTRUDERS < 2
     #error "SWITCHING_TOOLHEAD requires at least 2 EXTRUDERS."
@@ -908,6 +896,22 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "SWITCHING_TOOLHEAD requires TOOLCHANGE_ZRAISE."
   #elif TOOLCHANGE_ZRAISE < 0
     #error "TOOLCHANGE_ZRAISE must be 0 or higher."
+  #endif
+#endif
+
+#if ANY(MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #if ENABLED(EXT_SOLENOID)
+    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD and EXT_SOLENOID are incompatible. (Pins are used twice.)"
+  #elif !PIN_EXISTS(SOL0)
+    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SOL0_PIN."
+  #elif !defined(SWITCHING_TOOLHEAD_Y_POS)
+    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_POS"
+  #elif !defined(SWITCHING_TOOLHEAD_X_POS)
+    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_X_POS"
+  #elif !defined(SWITCHING_TOOLHEAD_Z_HOP)
+    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Z_HOP."
+  #elif !defined(SWITCHING_TOOLHEAD_Y_CLEAR)
+    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_CLEAR."
   #endif
 #endif
 
@@ -1348,7 +1352,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Dual X Carriage requirements
  */
 #if ENABLED(DUAL_X_CARRIAGE)
-  #if EXTRUDERS == 1
+  #if EXTRUDERS < 2
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
   #elif CORE_IS_XY || CORE_IS_XZ
     #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, or COREZX."
@@ -1361,7 +1365,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif X_HOME_DIR != -1 || X2_HOME_DIR != 1
     #error "DUAL_X_CARRIAGE requires X_HOME_DIR -1 and X2_HOME_DIR 1."
   #endif
-#endif // DUAL_X_CARRIAGE
+#endif
 
 /**
  * Make sure auto fan pins don't conflict with the fan pin
@@ -1848,7 +1852,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       && DISABLED(MKS_12864OLED_SSD1306) ) \
   + (ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(BQ_LCD_SMART_CONTROLLER)) \
   + ENABLED(LCD_FOR_MELZI) \
-  + ENABLED(MALYAN_LCD) \
   + ENABLED(MKS_12864OLED) \
   + ENABLED(MKS_12864OLED_SSD1306) \
   + ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
@@ -1882,7 +1885,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(OLED_PANEL_TINYBOY2) \
   + ENABLED(ZONESTAR_LCD) \
   + ENABLED(ULTI_CONTROLLER) \
-  + (ENABLED(EXTENSIBLE_UI) && DISABLED(MALYAN_LCD))
+  + ENABLED(MALYAN_LCD) \
+  + ENABLED(DGUS_LCD) \
+  + (ENABLED(EXTENSIBLE_UI) && DISABLED(MALYAN_LCD, DGUS_LCD))
   #error "Please select no more than one LCD controller option."
 #endif
 
@@ -2285,7 +2290,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 /**
  * Require soft endstops for certain setups
  */
-#if DISABLED(MIN_SOFTWARE_ENDSTOPS) || DISABLED(MAX_SOFTWARE_ENDSTOPS)
+#if !BOTH(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #if ENABLED(DUAL_X_CARRIAGE)
     #error "DUAL_X_CARRIAGE requires both MIN_ and MAX_SOFTWARE_ENDSTOPS."
   #elif HAS_HOTEND_OFFSET
