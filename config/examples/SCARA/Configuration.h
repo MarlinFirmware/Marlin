@@ -61,16 +61,12 @@
 /**
  * MORGAN_SCARA was developed by QHARLEY in South Africa in 2012-2013.
  * Implemented and slightly reworked by JCERNY in June, 2014.
- *
- * MAKERARM_SCARA is in development, included as an alternate example.
- * Other SCARA models may be added, or SCARA may be unified in the future.
  */
 
 // Specify the specific SCARA model
 #define MORGAN_SCARA
-//#define MAKERARM_SCARA
 
-#if EITHER(MORGAN_SCARA, MAKERARM_SCARA)
+#if ENABLED(MORGAN_SCARA)
 
   //#define DEBUG_SCARA_KINEMATICS
   #define SCARA_FEEDRATE_SCALING // Convert XY feedrate from mm/s to degrees/s on the fly
