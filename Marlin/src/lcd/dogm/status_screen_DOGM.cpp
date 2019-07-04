@@ -105,7 +105,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
   #define SHOW_ON_STATE false
 #endif
 
-FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
+FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blink) {
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
   #endif
@@ -404,11 +404,11 @@ void MarlinUI::draw_status_screen() {
   if (PAGE_UNDER(6 + 1 + 12 + 1 + 6 + 1)) {
     // Extruders
     for (uint8_t e = 0; e < MAX_HOTEND_DRAW; ++e)
-      _draw_heater_status(e, blink);
+      _draw_heater_status((heater_ind_t)e, blink);
 
     // Heated bed
     #if HAS_HEATED_BED && HOTENDS < 4
-      _draw_heater_status(-1, blink);
+      _draw_heater_status(H_BED, blink);
     #endif
 
     #if HAS_HEATED_CHAMBER

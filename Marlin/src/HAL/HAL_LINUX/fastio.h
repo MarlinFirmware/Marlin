@@ -51,8 +51,6 @@
 #define _READ(IO)             READ_PIN(IO)
 
 /// Write to a pin
-#define _WRITE_VAR(IO,V)      digitalWrite(IO,V)
-
 #define _WRITE(IO,V)          WRITE_PIN(IO,V)
 
 /// toggle a pin
@@ -84,7 +82,6 @@
 #define READ(IO)             _READ(IO)
 
 /// Write to a pin wrapper
-#define WRITE_VAR(IO,V)      _WRITE_VAR(IO,V)
 #define WRITE(IO,V)          _WRITE(IO,V)
 
 /// toggle a pin wrapper

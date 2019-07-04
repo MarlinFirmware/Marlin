@@ -258,7 +258,7 @@
    *   T     Topology   Display the Mesh Map Topology.
    *                    'T' can be used alone (e.g., G29 T) or in combination with most of the other commands.
    *                    This option works with all Phase commands (e.g., G29 P4 R 5 T X 50 Y100 C -.1 O)
-   *                    This parameter can also specify a Map Type. T0 (the default) is user-readable. T1 can
+   *                    This parameter can also specify a Map Type. T0 (the default) is user-readable. T1
    *                    is suitable to paste into a spreadsheet for a 3D graph of the mesh.
    *
    *   U     Unlevel    Perform a probe of the outer perimeter to assist in physically leveling unlevel beds.

@@ -81,10 +81,6 @@
 
 #include "../Marlin.h"
 
-#if ENABLED(SD_EEPROM_EMULATION)
-  #include "../module/configuration_store.h"
-#endif
-
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/power_loss_recovery.h"
 #endif
@@ -430,7 +426,7 @@ bool MarlinUI::get_blink() {
 
           if (RRK(EN_KEYPAD_MIDDLE))  goto_screen(menu_move);
 
-          #if DISABLED(DELTA) && Z_HOME_DIR == -1
+          #if DISABLED(DELTA) && Z_HOME_DIR < 0
             if (RRK(EN_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
           #endif
 
@@ -787,13 +783,8 @@ void MarlinUI::update() {
       if (sd_status) {
         safe_delay(500); // Some boards need a delay to get settled
         card.initsd();
-        if (old_sd_status == 2) {
-          #if ENABLED(SD_EEPROM_EMULATION)
-            SERIAL_ECHOLNPGM("Loading settings from SD");
-            (void)settings.load();
-          #endif
+        if (old_sd_status == 2)
           card.beginautostart();  // Initial boot
-        }
         else
           set_status_P(PSTR(MSG_SD_INSERTED));
       }
