@@ -377,7 +377,6 @@
 #endif
 #define MSG_INFO_MIN_TEMP                   _UxGT("Min Sıc.")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Max Sıc.")
-#define MSG_INFO_PSU                        _UxGT("Güç Kaynağı")
 #define MSG_DRIVE_STRENGTH                  _UxGT("Sürücü Gücü")
 #define MSG_DAC_PERCENT                     _UxGT("Sürücü %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Yaz")

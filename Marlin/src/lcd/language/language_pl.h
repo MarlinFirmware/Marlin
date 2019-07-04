@@ -220,7 +220,6 @@
 
 #define MSG_INFO_MIN_TEMP                   _UxGT("Min Temp")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Max Temp")
-#define MSG_INFO_PSU                        _UxGT("Zasilacz")
 
 #define MSG_DRIVE_STRENGTH                  _UxGT("Siła silnika")
 #define MSG_DAC_PERCENT                     _UxGT("Siła %")

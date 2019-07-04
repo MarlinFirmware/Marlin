@@ -224,7 +224,6 @@
 
 #define MSG_INFO_MIN_TEMP                   _UxGT("Temp. mínima")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Temp. màxima")
-#define MSG_INFO_PSU                        _UxGT("Font alimentacio")
 
 #define MSG_DRIVE_STRENGTH                  _UxGT("Força motor")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")

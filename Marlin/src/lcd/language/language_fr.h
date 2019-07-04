@@ -422,7 +422,6 @@
 
 #define MSG_INFO_MIN_TEMP                   _UxGT("Temp Min")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Temp Max")
-#define MSG_INFO_PSU                        _UxGT("Alimentation")
 #define MSG_DRIVE_STRENGTH                  _UxGT("Puiss. moteur ")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM sauv.")

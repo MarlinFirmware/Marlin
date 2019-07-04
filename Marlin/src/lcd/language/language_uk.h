@@ -208,7 +208,6 @@
 
 #define MSG_INFO_MIN_TEMP                   _UxGT("Мін Темп.")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Макс Темп.")
-#define MSG_INFO_PSU                        _UxGT("Джерело жив.")
 
 #define MSG_DRIVE_STRENGTH                  _UxGT("Сила мотору")
 #define MSG_DAC_PERCENT                     _UxGT("% мотору")

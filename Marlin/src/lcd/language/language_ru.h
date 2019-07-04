@@ -348,7 +348,6 @@
 #endif
 #define MSG_INFO_MIN_TEMP                   _UxGT("Мин. Т")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Макс. Т")
-#define MSG_INFO_PSU                        _UxGT("Блок питания")
 #define MSG_DRIVE_STRENGTH                  _UxGT("Сила привода")
 #define MSG_DAC_PERCENT                     _UxGT("Привод %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Запись DAC EEPROM")

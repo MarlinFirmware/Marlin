@@ -220,7 +220,6 @@
 
 #define MSG_INFO_MIN_TEMP                   _UxGT("Temperatura mínima")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Temperatura máxima")
-#define MSG_INFO_PSU                        _UxGT("Fuente de poder")
 #define MSG_DRIVE_STRENGTH                  _UxGT("Potencia driver")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Escribe DAC EEPROM")

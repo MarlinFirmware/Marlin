@@ -44,9 +44,9 @@
 //
 // PSU / SERVO
 //
-// If POWER_SUPPLY is specified, always hijack Servo 3
+// If POWER_SUPPLY_CONTROL_FEATURE is specified, always hijack Servo 3
 //
-#if POWER_SUPPLY > 0
+#if ENABLED(POWER_SUPPLY_CONTROL_FEATURE)
   #define SERVO3_PIN       -1
   #define PS_ON_PIN         4
 #endif

@@ -340,7 +340,6 @@
 
 #define MSG_INFO_MIN_TEMP                   _UxGT("最低温度")  //"Min Temp"
 #define MSG_INFO_MAX_TEMP                   _UxGT("最高温度")  //"Max Temp"
-#define MSG_INFO_PSU                        _UxGT("电源供应")  //"Power Supply"
 #define MSG_DRIVE_STRENGTH                  _UxGT("驱动力度") // "Drive Strength"
 #define MSG_DAC_PERCENT                     _UxGT("驱动 %") // "Driver %"
 #define MSG_DAC_EEPROM_WRITE                _UxGT("保存驱动设置") // "DAC EEPROM Write"

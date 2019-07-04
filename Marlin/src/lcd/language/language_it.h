@@ -419,7 +419,6 @@
 #endif
 #define MSG_INFO_MIN_TEMP                   _UxGT("Temp min")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Temp max")
-#define MSG_INFO_PSU                        _UxGT("Alimentatore")
 #define MSG_DRIVE_STRENGTH                  _UxGT("Potenza Drive")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Scrivi DAC EEPROM")

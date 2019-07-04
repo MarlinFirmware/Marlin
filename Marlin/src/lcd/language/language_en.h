@@ -1191,9 +1191,6 @@
 #ifndef MSG_INFO_MAX_TEMP
   #define MSG_INFO_MAX_TEMP                   _UxGT("Max Temp")
 #endif
-#ifndef MSG_INFO_PSU
-  #define MSG_INFO_PSU                        _UxGT("PSU")
-#endif
 #ifndef MSG_DRIVE_STRENGTH
   #define MSG_DRIVE_STRENGTH                  _UxGT("Drive Strength")
 #endif

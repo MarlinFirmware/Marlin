@@ -376,6 +376,8 @@
   #error "USB_SD_DISABLED is now NO_SD_HOST_DRIVE. Please update your Configuration_adv.h."
 #elif defined(USB_SD_ONBOARD)
   #error "USB_SD_ONBOARD is obsolete. Disable NO_SD_HOST_DRIVE instead."
+#elif defined(POWER_SUPPLY)
+  #error "POWER_SUPPLY is now POWER_SUPPLY_CONTROL_FEATURE and POWER_SUPPLY_PIN_INVERTING. Please update your configuration."
 #endif
 
 #define BOARD_MKS_13     -47
@@ -1548,7 +1550,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * LED Backlight Timeout
  */
-#if defined(LED_BACKLIGHT_TIMEOUT) && !(EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && POWER_SUPPLY > 0)
+#if defined(LED_BACKLIGHT_TIMEOUT) && !(EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && HAS_POWER_SWITCH)
   #error "LED_BACKLIGHT_TIMEOUT requires a Fysetc Mini Panel and a Power Switch."
 #endif
 

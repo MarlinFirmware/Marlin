@@ -340,7 +340,6 @@
 #endif
 #define MSG_INFO_MIN_TEMP                   _UxGT("Tenp. Minimoa")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Tenp. Maximoa")
-#define MSG_INFO_PSU                        _UxGT("Elikadura-iturria")
 #define MSG_DRIVE_STRENGTH                  _UxGT("Driver-aren potentzia")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Idatzi DAC EEPROM")
