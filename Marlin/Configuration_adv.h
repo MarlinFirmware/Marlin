@@ -284,6 +284,10 @@
   #define CONTROLLERFAN_SPEED 255        // 255 == full speed
 #endif
 
+// Make Fan Off During Filament Change to prevent temp drop fast.
+//  
+#define TURN_OFF_FAN_DURING_FILAMENT_CHANGE
+
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)

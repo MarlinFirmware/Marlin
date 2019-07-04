@@ -45,6 +45,10 @@
   #include "../../../feature/mixing.h"
 #endif
 
+#if ENABLED(TURN_OFF_FAN_DURING_FILAMENT_CHANGE)
+  #include "../../../module/temperature.h"
+#endif
+
 /**
  * M600: Pause for filament change
  *
@@ -99,6 +103,11 @@ void GcodeSuite::M600() {
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // Don't allow filament change without homing first
     if (axis_unhomed_error()) home_all_axes();
+  #endif
+
+  #if ENABLED(TURN_OFF_FAN_DURING_FILAMENT_CHANGE)
+     const uint8_t current_fanspd = thermalManager.fan_speed[0];
+     thermalManager.set_fan_speed(0, 0);
   #endif
 
   #if EXTRUDERS > 1
@@ -171,6 +180,10 @@ void GcodeSuite::M600() {
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, false);
+  #endif
+
+  #if ENABLED(TURN_OFF_FAN_DURING_FILAMENT_CHANGE)
+     thermalManager.set_fan_speed(0, current_fanspd);
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
