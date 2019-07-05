@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * MKS BASE v1.5 with A4982 stepper drivers and digital micro-stepping

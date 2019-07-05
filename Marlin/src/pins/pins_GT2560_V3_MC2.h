@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /*****************************************************************
  * GT2560 V3.0 pin assignment (for Mecreator 2)
