@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // 100k Zonestar thermistor. Adjusted By Hally
 const short temptable_501[][2] PROGMEM = {

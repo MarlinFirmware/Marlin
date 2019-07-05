@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // R25 = 100 kOhm, beta25 = 3960 K, 4.7 kOhm pull-up, RS thermistor 198-961
 const short temptable_10[][2] PROGMEM = {

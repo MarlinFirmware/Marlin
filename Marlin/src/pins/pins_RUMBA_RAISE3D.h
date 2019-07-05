@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #define DEFAULT_MACHINE_NAME "Raise3D N Series"
 #define BOARD_NAME           "Raise3D Rumba"

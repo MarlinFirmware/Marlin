@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Rapide Lite 200 v1 (RUMBA clone) pin assignments. Has slightly different assignment for

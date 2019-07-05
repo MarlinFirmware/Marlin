@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * KFB 2.0 – Arduino Mega2560 with RAMPS v1.4 pin assignments

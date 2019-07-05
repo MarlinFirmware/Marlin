@@ -269,19 +269,22 @@
   #define DISABLE_INACTIVE_E DISABLE_E
 #endif
 
-// Power Signal Control Definitions
-// By default use ATX definition
-#ifndef POWER_SUPPLY
-  #define POWER_SUPPLY 1
+/**
+ * Power Supply Control
+ */
+#ifndef PSU_NAME
+  #if ENABLED(PSU_CONTROL)
+    #if PSU_ACTIVE_HIGH
+      #define PSU_NAME "XBox"     // X-Box 360 (203W)
+    #else
+      #define PSU_NAME "ATX"      // ATX style
+    #endif
+  #else
+    #define PSU_NAME "Generic"    // No control
+  #endif
 #endif
-#if (POWER_SUPPLY == 1)     // 1 = ATX
-  #define PS_ON_AWAKE  LOW
-  #define PS_ON_ASLEEP HIGH
-#elif (POWER_SUPPLY == 2)   // 2 = X-Box 360 203W
-  #define PS_ON_AWAKE  HIGH
-  #define PS_ON_ASLEEP LOW
-#endif
-#define HAS_POWER_SWITCH (POWER_SUPPLY > 0 && PIN_EXISTS(PS_ON))
+
+#define HAS_POWER_SWITCH (ENABLED(PSU_CONTROL) && PIN_EXISTS(PS_ON))
 
 /**
  * Temp Sensor defines
