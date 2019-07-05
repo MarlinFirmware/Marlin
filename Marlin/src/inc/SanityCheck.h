@@ -1417,7 +1417,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * test whether case light pin has been defined if case light menu is active.
  */
-#if ENABLED(CASE_LIGHT_MENU) && !ANY_PIN(CASE_LIGHT)
+#if ENABLED(CASE_LIGHT_MENU) && !PIN_EXISTS(CASE_LIGHT)
  #error "CASE_LIGHT_MENU requires CASE_LIGHT_PIN to be defined."
 #endif
 
