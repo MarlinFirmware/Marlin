@@ -341,8 +341,6 @@ typedef struct SettingsDataStruct {
 
 MarlinSettings settings;
 
-bool MarlinSettings::loaded; // = false
-
 uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 
 /**
@@ -2109,7 +2107,6 @@ void MarlinSettings::postprocess() {
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onConfigurationStoreRead(success);
       #endif
-      if (success) loaded = true;
       return success;
     }
     reset();
