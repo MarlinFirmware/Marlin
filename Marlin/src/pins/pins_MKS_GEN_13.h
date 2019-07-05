@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * Arduino Mega with RAMPS v1.4 adjusted pin assignments
@@ -45,9 +44,9 @@
 //
 // PSU / SERVO
 //
-// If PSU_CONTROL is specified, always hijack Servo 3
+// If POWER_SUPPLY is specified, always hijack Servo 3
 //
-#if ENABLED(PSU_CONTROL)
+#if POWER_SUPPLY > 0
   #define SERVO3_PIN       -1
   #define PS_ON_PIN         4
 #endif

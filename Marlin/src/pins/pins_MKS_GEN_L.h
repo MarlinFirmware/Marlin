@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * MKS GEN L – Arduino Mega2560 with RAMPS v1.4 pin assignments

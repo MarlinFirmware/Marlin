@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
  /**
   * 2017 Victor Perez Marlin for stm32f1 test

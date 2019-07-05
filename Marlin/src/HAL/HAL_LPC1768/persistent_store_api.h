@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
-
 #include "../shared/persistent_store_api.h"
 
 #define FLASH_EEPROM_EMULATION
