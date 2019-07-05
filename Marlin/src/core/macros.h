@@ -84,10 +84,6 @@
 #define SBI32(n,b) (n |= _BV32(b))
 #define CBI32(n,b) (n &= ~_BV32(b))
 
-// Macros for maths shortcuts
-#undef M_PI
-#define M_PI 3.14159265358979323846f
-
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
