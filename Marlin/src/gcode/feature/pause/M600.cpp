@@ -126,7 +126,7 @@ void GcodeSuite::M600() {
   if (parser.seenval('X')) park_point.x = parser.linearval('X');
   if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
 
-  #if HAS_HOTEND_OFFSET && DISABLED(DUAL_X_CARRIAGE, DELTA)
+  #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
     park_point.x += hotend_offset[X_AXIS][active_extruder];
     park_point.y += hotend_offset[Y_AXIS][active_extruder];
   #endif

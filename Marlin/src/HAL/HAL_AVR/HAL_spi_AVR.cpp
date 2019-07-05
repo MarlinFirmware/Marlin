@@ -55,7 +55,7 @@ void spiBegin(void) {
   #endif
 }
 
-#if DISABLED(SOFTWARE_SPI, FORCE_SOFT_SPI)
+#if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   //------------------------------------------------------------------------------
   // Hardware SPI
