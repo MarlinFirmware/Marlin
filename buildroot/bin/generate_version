@@ -5,7 +5,20 @@
 # Make a _Version.h file
 #
 
-DIR="${1}"
+DIR=${1:-"Marlin/src/inc"}
+
+# MRCC3=$( git merge-base HEAD upstream/bugfix-2.0.x 2>/dev/null )
+# MRCC2=$( git merge-base HEAD upstream/bugfix-1.1.x 2>/dev/null )
+# MRCC1=$( git merge-base HEAD upstream/1.1.x 2>/dev/null )
+
+# BASE='?'
+# if [[ -n $MRCC3 && $MRCC3 != $MRCC2 ]]; then
+#   BASE=bugfix-2.0.x
+# elif [[ -n $MRCC2 ]]; then
+#   BASE=bugfix-1.1.x
+# elif [[ -n $MRCC1 ]]; then
+#   BASE=1.1.x
+# fi
 
 BUILDATE=$(date '+%s')
 DISTDATE=$(date '+%Y-%m-%d %H:%M')
