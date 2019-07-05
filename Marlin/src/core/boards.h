@@ -193,7 +193,7 @@
 #define BOARD_COHESION3D_MINI         2011  // Cohesion3D Mini
 #define BOARD_SMOOTHIEBOARD           2012  // Smoothieboard
 #define BOARD_AZTEEG_X5_MINI_WIFI     2013  // Azteeg X5 Mini Wifi (Power outputs: Hotend0, Bed, Fan)
-#define BOARD_BIQU_SKR_V1_1           2014  // BIQU SKR_V1.1 (Power outputs: Hotend0,Hotend1, Fan, Bed)
+#define BOARD_BIGTREE_SKR_V1_1        2014  // BIGTREE SKR_V1.1 (Power outputs: Hotend0,Hotend1, Fan, Bed)
 #define BOARD_BIQU_B300_V1_0          2015  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
 #define BOARD_BIGTREE_SKR_V1_3        2016  // BIGTREE SKR_V1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 #define BOARD_AZTEEG_X5_MINI          2017  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)

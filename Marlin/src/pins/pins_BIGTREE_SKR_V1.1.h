@@ -26,7 +26,7 @@
 #endif
 
 #ifndef BOARD_NAME
-  #define BOARD_NAME "BIQU SKR V1.1"
+  #define BOARD_NAME "BIGTREE SKR V1.1"
 #endif
 
 //
