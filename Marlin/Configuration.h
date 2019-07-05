@@ -480,32 +480,47 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
+  // Auto tuned  PIDs with command:
+  //
+  //   M301 E0 P0 I0 D0 ; set current PIDs to ZERO!
+  //   M106 E0 S255     ; set Fan to 100%
+  //   M303 E0 S240 C8  ; Start auto PID tune
+
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
   // 4MAX with PID Autotune
-  // my 4MAX Printer: vg3r - PID - Hotend
-  #define DEFAULT_Kp 22.2 // Autotune 13.74
-  #define DEFAULT_Ki 1.08 // Autotune 0.72
-  #define DEFAULT_Kd 114  // Autotune 65.85
+  // my 4MAX Printer: vg3r - PID - Hotend with silicone heater cover
+  //
+  // Measurement#:   1       2       3      4      5
+  // Degrees°C:      S240    S240    S240   S240   S230   ~218
+  // DEFAULT_Kp:     15.90   13.92   14.43  13.79  13.84  ~14.376
+  // DEFAULT_Ki:     0.93    0.79    0.81   0.76   0.77   ~0.812
+  // DEFAULT_Kd:     67.72   61.55   64.40  62.98  62.37  ~63.804
+  #define DEFAULT_Kp 14.38
+  #define DEFAULT_Ki 0.81
+  #define DEFAULT_Kd 63.80
+  // Or save/change with: M301 E0 P14.38 I0.81 D63.80;
+
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // 4MAX with PID Autotune
-  // my 4MAX Printer: 7of9 - PID - Hotend
-  //
-  //  Auto tuned with command: M303 E-0 S235 C8   and FAN 100%: M106 S255
+  // my 4MAX Printer: 7of9 - PID - Hotend with silicone heater cover
   //
   //  Measurement#:   1       2       3       4
   //  Degrees °C:     S235    S235    S220    S250   ~235
   //  noozle_Kp:      19.30   18.12   18.33   18.26  ~18.5025
   //  noozle_Ki:      1.38    1.26    1.28    1.24   ~1.29
   //  noozle_Kd:      67.59   65.31   65.68   67.32  ~66.475
-
   #define DEFAULT_Kp 18.50
   #define DEFAULT_Ki 1.29
   #define DEFAULT_Kd 66.47
+  // Or save/change with: M301 E0 P18.50 I1.29 D66.47;
+
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
-  // Default 4MAX
+  // Default 4MAX pre-configured hotend PIDs
+  //
   #define DEFAULT_Kp 22.2
   #define DEFAULT_Ki 1.08
   #define DEFAULT_Kd 114
+
 #endif
 
 
@@ -551,20 +566,30 @@
 #define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
 
 #if ENABLED(PIDTEMPBED)
+    //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
-  //#define PID_BED_DEBUG // Sends debug data to the serial port.
+    // Autotune PIDs with command:
+    //
+    //   M304 P0 I0 D0    ; set current BED_PIDs to ZERO!
+    //   m303 e-1 s90 c8  ; Start auto PID tune
 
   #if ENABLED(ANYCUBIC_4MAX_VG3R)
-    // 4MAX with PID Autotune
-    // my 4MAX Printer: vg3r - PID - BED
-    #define DEFAULT_bedKp 22.20  // Autotune 213.67
-    #define DEFAULT_bedKi 1.08   // Autotune 42.07
-    #define DEFAULT_bedKd 114.00 // Autotune 271.31
-  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
-    // 4MAX with PID Autotune
-    // my 4MAX Printer: 7of9 - PID - BED
+    // 4MAX with PID Autotune - my 4MAX Printer: vg3r - PID - BED
+    //
+    // Measurement#:   1       2       3       4       5
+    // Degrees°C: 	   S90     S90     S90     S90     S85     ~ 89
+    // bedKp:          364.77  339.54  347.21  312.70  317.89  ~ 336.422
+    // bedKi:          71.82   66.85   68.37   61.57   61.60   ~ 66.042
+    // bedKd:          463.16  431.13  440.83  397.01  410.16  ~ 428.458
+    #define DEFAULT_bedKp 336.42
+    #define DEFAULT_bedKi 66.04
+    #define DEFAULT_bedKd 428.46
+    // Or save/change with: M304 P336.42 I66.04 D428.49
 
-    //  Auto tuned with command: M303 E-1 S90 C8
+  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
+    // 4MAX with PID Autotune - my 4MAX Printer: 7of9 - PID - BED
+    //
+    //  Autotuned with command: M303 E-1 S90 C8
     //  Measurement #: 1       2       3       4
     //  Degrees°C:     S90     S90     S60     S60     ~ 75
     //  bedKp:         126.18  119.52  70.09   75.08   ~ 97.72
@@ -573,23 +598,16 @@
     #define DEFAULT_bedKp 119.52  //#2
     #define DEFAULT_bedKi 23.54   //#2
     #define DEFAULT_bedKd 404.67  //#2
+    // Or save/change with: M304 P119.52 I23.54 D404.67
 
   #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
-    //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-    //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-    // Default ANYCUBIC 4MAX
+    // Factory Default for ANYCUBIC 4MAX
+    //
     #define DEFAULT_bedKp 22.20
     #define DEFAULT_bedKi 1.08
     #define DEFAULT_bedKd 114.00
   #endif
 
-  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from pidautotune
-  //#define DEFAULT_bedKp 97.1
-  //#define DEFAULT_bedKi 1.41
-  //#define DEFAULT_bedKd 1675.16
-
-  // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
 
 // @section extruder
