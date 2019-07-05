@@ -942,7 +942,7 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
       #elif ENABLED(SWITCHING_NOZZLE) && !SWITCHING_NOZZLE_TWO_SERVOS   // Switching Nozzle (single servo)
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
-        current_position[Z_AXIS] += MAX(-zdiff, 0.0) + toolchange_settings.z_raise;
+        current_position[Z_AXIS] += _MAX(-zdiff, 0.0) + toolchange_settings.z_raise;
         #if HAS_SOFTWARE_ENDSTOPS
           NOMORE(current_position[Z_AXIS], soft_endstop[Z_AXIS].max);
         #endif

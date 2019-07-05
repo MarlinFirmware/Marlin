@@ -382,7 +382,7 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
     }
     else {
       PGM_P p = text;
-      int dly = time / MAX(slen, 1);
+      int dly = time / _MAX(slen, 1);
       for (uint8_t i = 0; i <= slen; i++) {
 
         // Go to the correct place
@@ -1325,7 +1325,7 @@ void MarlinUI::draw_status_screen() {
          */
 
         clear_custom_char(&new_char);
-        const uint8_t ypix = MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, HD44780_CHAR_HEIGHT);
+        const uint8_t ypix = _MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, HD44780_CHAR_HEIGHT);
         for (j = upper_left.y_pixel_offset; j < ypix; j++) {
           i = upper_left.x_pixel_mask;
           for (k = 0; k < pixels_per_x_mesh_pnt; k++) {

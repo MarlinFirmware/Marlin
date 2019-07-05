@@ -190,7 +190,7 @@
 #define ZERO(a)             memset(a,0,sizeof(a))
 #define COPY(a,b) do{ \
     static_assert(sizeof(a[0]) == sizeof(b[0]), "COPY: '" STRINGIFY(a) "' and '" STRINGIFY(b) "' types (sizes) don't match!"); \
-    memcpy(&a[0],&b[0],MIN(sizeof(a),sizeof(b))); \
+    memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
   }while(0)
 
 // Macros for initializing arrays

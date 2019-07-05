@@ -169,7 +169,7 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
                         text_width_1 = (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH),
                         text_width_2 = (sizeof(STRING_SPLASH_LINE2) - 1) * (MENU_FONT_WIDTH);
     #endif
-    constexpr uint8_t text_max_width = MAX(text_width_1, text_width_2),
+    constexpr uint8_t text_max_width = _MAX(text_width_1, text_width_2),
                       rspace = width - (START_BMPWIDTH);
 
     int8_t offx, offy, txt_base, txt_offx_1, txt_offx_2;

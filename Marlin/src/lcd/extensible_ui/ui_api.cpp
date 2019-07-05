@@ -99,7 +99,7 @@
 #endif
 
 inline float clamp(const float value, const float minimum, const float maximum) {
-  return MAX(MIN(value, maximum), minimum);
+  return _MAX(_MIN(value, maximum), minimum);
 }
 
 static struct {

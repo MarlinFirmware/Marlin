@@ -49,7 +49,7 @@ void write_serial_thread() {
 void read_serial_thread() {
   char buffer[255] = {};
   for (;;) {
-    std::size_t len = MIN(usb_serial.receive_buffer.free(), 254U);
+    std::size_t len = _MIN(usb_serial.receive_buffer.free(), 254U);
     if (fgets(buffer, len, stdin))
       for (std::size_t i = 0; i < strlen(buffer); i++)
         usb_serial.receive_buffer.write(buffer[i]);
