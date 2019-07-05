@@ -176,13 +176,7 @@ void menu_info_board() {
   STATIC_ITEM(BOARD_NAME, true, true);                           // MyPrinterController
   STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
   STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION, true);    // Protocol: 1.0
-  #if POWER_SUPPLY == 0
-    STATIC_ITEM(MSG_INFO_PSU ": Generic", true);
-  #elif POWER_SUPPLY == 1
-    STATIC_ITEM(MSG_INFO_PSU ": ATX", true);  // Power Supply: ATX
-  #elif POWER_SUPPLY == 2
-    STATIC_ITEM(MSG_INFO_PSU ": XBox", true); // Power Supply: XBox
-  #endif
+  STATIC_ITEM(MSG_INFO_PSU ": " PSU_NAME, true);
   END_SCREEN();
 }
 
