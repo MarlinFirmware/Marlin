@@ -132,7 +132,7 @@
 // Types
 // --------------------------------------------------------------------------
 
-typedef int8_t pin_t;
+typedef int16_t pin_t;
 
 #define HAL_SERVO_LIB libServo
 
