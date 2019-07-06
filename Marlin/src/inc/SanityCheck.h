@@ -1408,10 +1408,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Test case light not using the same pin as the fan
+ * Case Light requirements
  */
-#if ENABLED(CASE_LIGHT_ENABLE) && CASE_LIGHT_PIN == FAN_PIN
-  #error "You cannot set CASE_LIGHT_PIN equal to FAN_PIN."
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #if !PIN_EXISTS(CASE_LIGHT)
+    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN to be defined."
+  #elif CASE_LIGHT_PIN == FAN_PIN
+    #error "CASE_LIGHT_PIN conflicts with FAN_PIN. Resolve before continuing."
+  #endif
 #endif
 
 /**
