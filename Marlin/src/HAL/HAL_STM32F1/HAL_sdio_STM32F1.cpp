@@ -124,6 +124,8 @@ bool SDIO_ReadBlock(uint32_t blockAddress, uint8_t *data) {
   return false;
 }
 
+uint32_t millis();
+
 bool SDIO_WriteBlock(uint32_t blockAddress, const uint8_t *data) {
   if (SDIO_GetCardState() != SDIO_CARD_TRANSFER) return false;
   if (blockAddress >= SdCard.LogBlockNbr) return false;
