@@ -947,7 +947,7 @@ class output_window(Text):
         Text.__init__(self, self.frame, borderwidth=3, relief="sunken")
         self.config(tabs=(400,))  # configure Text widget tab stops
         self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'word', undo = 'True')
-#        self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
+        #self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
         self.config(height  = 24, width = 100)
         self.config(insertbackground = 'pale green')  # keyboard insertion point
         self.pack(side='left', fill='both', expand=True)
@@ -970,24 +970,24 @@ class output_window(Text):
         self.config(yscrollcommand=scrb.set)
         scrb.pack(side='right', fill='y')
 
-#        self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
-#        self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
-#        self.scrb_Y.pack(side='right', fill='y')
-#
-#        self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
-#        self.scrb_X.config(xscrollcommand=self.scrb_X.set)
-#        self.scrb_X.pack(side='bottom', fill='x')
+        #self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
+        #self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
+        #self.scrb_Y.pack(side='right', fill='y')
 
-#        scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
-#        self.config(xscrollcommand=scrb_X.set)
-#        scrb_X.pack(side='bottom', fill='x')
-#
-#        scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
-#        self.config(yscrollcommand=scrb.set)
-#        scrb.pack(side='right', fill='y')
+        #self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
+        #self.scrb_X.config(xscrollcommand=self.scrb_X.set)
+        #self.scrb_X.pack(side='bottom', fill='x')
 
-#        self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
-#        self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
+        #scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
+        #self.config(xscrollcommand=scrb_X.set)
+        #scrb_X.pack(side='bottom', fill='x')
+
+        #scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
+        #self.config(yscrollcommand=scrb.set)
+        #scrb.pack(side='right', fill='y')
+
+        #self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
+        #self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
 
 
         # pop-up menu
@@ -1003,7 +1003,7 @@ class output_window(Text):
         self.popup.add_separator()
         self.popup.add_command(label='Save As', command=self._file_save_as)
         self.popup.add_separator()
- #       self.popup.add_command(label='Repeat Build(CTL-shift-r)', command=self._rebuild)
+        #self.popup.add_command(label='Repeat Build(CTL-shift-r)', command=self._rebuild)
         self.popup.add_command(label='Repeat Build', command=self._rebuild)
         self.popup.add_separator()
         self.popup.add_command(label='Scroll Errors (CTL-shift-e)', command=self._scroll_errors)
@@ -1199,12 +1199,13 @@ class output_window(Text):
 
 
     def _clear_all(self):
-        '''erases all text'''
-
-        isok = askokcancel('Clear All', 'Erase all text?', frame=self,
-                           default='ok')
-        if isok:
-            self.delete('1.0', 'end')
+        #'''erases all text'''
+        #
+        #isok = askokcancel('Clear All', 'Erase all text?', frame=self,
+        #                   default='ok')
+        #if isok:
+        #    self.delete('1.0', 'end')
+        self.delete('1.0', 'end')
 
 
 # end - output_window
