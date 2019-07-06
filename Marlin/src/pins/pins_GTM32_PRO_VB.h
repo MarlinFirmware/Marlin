@@ -57,12 +57,12 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PE5 // Pins 15,17 of ENDSTOPS connector
-#define X_MAX_PIN          PE4 // Pins 16,18 of ENDSTOPS connector
-#define Y_MIN_PIN          PE3 // Pins 9,11 of ENDSTOPS connector
-#define Y_MAX_PIN          PE2 // Pins 10,12 of ENDSTOPS connector
-#define Z_MIN_PIN          PE1 // Pins 3,5 of ENDSTOPS connector
-#define Z_MAX_PIN          PE0 // Pins 4,6 of ENDSTOPS connector
+#define X_MIN_PIN          PE5   // ENDSTOPS 15,17
+#define X_MAX_PIN          PE4   // ENDSTOPS 16,18
+#define Y_MIN_PIN          PE3   // ENDSTOPS 9,11
+#define Y_MAX_PIN          PE2   // ENDSTOPS 10,12
+#define Z_MIN_PIN          PE1   // ENDSTOPS 3,5
+#define Z_MAX_PIN          PE0   // ENDSTOPS 4,6
 
 //
 // Steppers
@@ -100,16 +100,16 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PB0 // EXT0 port
-#define HEATER_1_PIN       PB5 // EXT1 port
-#define HEATER_2_PIN       PB4 // EXT2 port
-#define HEATER_BED_PIN     PB1 // CON2X3 hotbed port
+#define HEATER_0_PIN       PB0   // EXT0 port
+#define HEATER_1_PIN       PB5   // EXT1 port
+#define HEATER_2_PIN       PB4   // EXT2 port
+#define HEATER_BED_PIN     PB1   // CON2X3 hotbed port
 
 //
 // These are FAN PWM pins on EXT0..EXT2 connectors.
 //
 //#define FAN_PIN            PB9   // EXT0 port
-#define ORIG_E0_AUTO_FAN_PIN PB9 // EXT0 port, used as main extruder fan
+#define ORIG_E0_AUTO_FAN_PIN PB9   // EXT0 port, used as main extruder fan
 #define FAN1_PIN           PB8   // EXT1 port
 #define FAN2_PIN           PB7   // EXT2 port
 
@@ -146,8 +146,7 @@
 
   #else
     //
-    // Anoter option that GTM32Pro support is a serial port LCD Display
-    // Such LCDs aren't supported by Marlin though as of 2019/07/05
+    // Serial LCDs can be implemented in ExtUI
     //
     //#define LCD_UART_TX    PD8
     //#define LCD_UART_RX    PD9
