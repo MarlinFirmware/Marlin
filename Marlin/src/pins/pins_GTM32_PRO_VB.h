@@ -149,8 +149,8 @@
     // Anoter option that GTM32Pro support is a serial port LCD Display
     // Such LCDs aren't supported by Marlin though as of 2019/07/05
     //
-    //#define LCD_UART_TX        PD8
-    //#define LCD_UART_RX        PD9
+    //#define LCD_UART_TX    PD8
+    //#define LCD_UART_RX    PD9
   #endif
 
   #ifndef ST7920_DELAY_1
@@ -171,16 +171,12 @@
   // RepRapDiscount Smart Controller, but adds an FFC40 connector
   // connected with a flat wire to J2 connector on the board.
   //
-  #define BTN_EN1        PE8
-  #define BTN_EN2        PE9
-  #define BTN_ENC        PE13
+  #define BTN_EN1          PE8
+  #define BTN_EN2          PE9
+  #define BTN_ENC          PE13
 
   #define GTM32_PRO_VB_USE_LCD_BEEPER
   #define GTM32_PRO_VB_USE_EXT_SDCARD
-#else
-  #define BTN_EN1        -1
-  #define BTN_EN2        -1
-  #define BTN_ENC        -1
 #endif
 
 //
@@ -190,44 +186,41 @@
   // This is pin 32 on J2 FFC40 and pin, goes to the beeper
   // on Geeetech's version of RepRapDiscount Smart Controller
   // (e.g. on Rostock 301)
-  #define BEEPER_PIN         PE12
+  #define BEEPER_PIN       PE12
 #else
   // This is the beeper on the board itself
-  #define BEEPER_PIN         PB10
+  #define BEEPER_PIN       PB10
 #endif
 
-//
-// There is an on-board TF_CARD_SOCKET microSD card socket, which doesn't have its
-// card detect pin connected anywhere.
-//
-// There is also an FFC10 connector labeled SD_CARD, and the same pins are routed
-// to the FFC40 connector labeled J2 and usually go to the SD Card slot on the
-// Geeetech's version of RepRapDiscount Smart Controller. Both connectors have the
-// card detect signal.
-//
-// The onboard card and the external card on either SD_CARD or J2 connectors are
-// two separate devices and can work simultaneously. Unfortunately, Marlin only
-// support one SPI flash device as of 2019/07/05, so we only enable one of them
-// here.
-//
-#if defined(GTM32_PRO_VB_USE_EXT_SDCARD)
+/**
+ * The on-board TF_CARD_SOCKET microSD card socket has no SD Detect pin wired.
+ *
+ * The FFC10 (SD_CARD) connector has the same pins as those routed to the FFC40 (J2)
+ * connector, which usually go to the SD Card slot on the Geeetech version of the
+ * RepRapDiscount Smart Controller. Both connectors have the card detect signal.
+ *
+ * The on-board SD card and the external card (on either SD_CARD or J2) are two
+ * separate devices and can work simultaneously. Unfortunately, Marlin only supports
+ * a single SPI Flash device (as of 2019-07-05) so only one is enabled here.
+ */
+#if ENABLED(GTM32_PRO_VB_USE_EXT_SDCARD)
   //
   // SD Card on RepRapDiscount Smart Controller (J2) or on SD_CARD connector
   //
-  #define SS_PIN             PC11
-  #define SCK_PIN            PC12
-  #define MOSI_PIN           PD2
-  #define MISO_PIN           PC8
-  #define SD_DETECT_PIN      PC7
+  #define SS_PIN           PC11
+  #define SCK_PIN          PC12
+  #define MOSI_PIN         PD2
+  #define MISO_PIN         PC8
+  #define SD_DETECT_PIN    PC7
 #else
   //
   // Use the on-board card socket labeled TF_CARD_SOCKET
   //
-  #define SS_PIN             PA4
-  #define SCK_PIN            PA5
-  #define MOSI_PIN           PA7
-  #define MISO_PIN           PA6
-  #define SD_DETECT_PIN      -1  // Card detect is not connected
+  #define SS_PIN           PA4
+  #define SCK_PIN          PA5
+  #define MOSI_PIN         PA7
+  #define MISO_PIN         PA6
+  #define SD_DETECT_PIN    -1  // Card detect is not connected
 #endif
 
 #define SDSS               SS_PIN
