@@ -94,7 +94,7 @@
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-#define ABL_BLTOUCH
+//#define ABL_BLTOUCH
 
 /*
    Choose bed leveling type here
@@ -1197,8 +1197,11 @@
 #endif
 
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 10
-
+#if ENABLED(ABL_BLTOUCH)
+  #define MIN_PROBE_EDGE 3
+#else
+  #define MIN_PROBE_EDGE 10
+#endif
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 6000
 
@@ -1603,34 +1606,12 @@
 #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
 // The Z probe minimum outer margin (to validate G29 parameters).
-#define MIN_PROBE_EDGE 10
-
+#define MESH_INSET 5
 // Set the boundaries for probing (where the probe can reach).
-
-#if( (X_PROBE_OFFSET_FROM_EXTRUDER + 15) > 0 )
-#define LEFT_PROBE_BED_POSITION (X_PROBE_OFFSET_FROM_EXTRUDER + 5)
-#else
-#define LEFT_PROBE_BED_POSITION 10
-#endif
-
-#if( (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER - 10) < X_BED_SIZE)
-#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER - 5)
-#else
-#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - 10)
-#endif
-
-#if ( (Y_PROBE_OFFSET_FROM_EXTRUDER + 25) > 10 )
-#define FRONT_PROBE_BED_POSITION (Y_PROBE_OFFSET_FROM_EXTRUDER + 25)
-#else
-#define FRONT_PROBE_BED_POSITION 25
-#endif
-
-#if( (Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER - 25) < Y_BED_SIZE)
-#define BACK_PROBE_BED_POSITION (Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER - 25)
-#else
-#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - 25)
-#endif
-
+  #define LEFT_PROBE_BED_POSITION (MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER)) + MESH_INSET
+  #define FRONT_PROBE_BED_POSITION (MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER)) + MESH_INSET
+  #define RIGHT_PROBE_BED_POSITION (MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER)) - MESH_INSET
+  #define BACK_PROBE_BED_POSITION (MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER)) - MESH_INSET
 
 
 // Probe along the Y axis, advancing X after each column
