@@ -41,7 +41,7 @@ public:
     #ifdef BACKLASH_SMOOTHING_MM
       static float smoothing_mm;
     #endif
-    static inline void set_correction(const float &v) { correction = MAX(0, MIN(1.0, v)) * all_on; }
+    static inline void set_correction(const float &v) { correction = _MAX(0, _MIN(1.0, v)) * all_on; }
     static inline float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
   #else
     static constexpr uint8_t correction = (BACKLASH_CORRECTION) * 0xFF;

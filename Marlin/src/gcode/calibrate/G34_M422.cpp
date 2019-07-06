@@ -123,7 +123,7 @@ void GcodeSuite::G34() {
 
     float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * (
       #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-         SQRT(MAX(HYPOT2(z_auto_align_xpos[0] - z_auto_align_ypos[0], z_auto_align_xpos[1] - z_auto_align_ypos[1]),
+         SQRT(_MAX(HYPOT2(z_auto_align_xpos[0] - z_auto_align_ypos[0], z_auto_align_xpos[1] - z_auto_align_ypos[1]),
                   HYPOT2(z_auto_align_xpos[1] - z_auto_align_ypos[1], z_auto_align_xpos[2] - z_auto_align_ypos[2]),
                   HYPOT2(z_auto_align_xpos[2] - z_auto_align_ypos[2], z_auto_align_xpos[0] - z_auto_align_ypos[0])))
       #else
@@ -174,7 +174,7 @@ void GcodeSuite::G34() {
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " measured position is ", z_measured[zstepper]);
 
         // Remember the minimum measurement to calculate the correction later on
-        z_measured_min = MIN(z_measured_min, z_measured[zstepper]);
+        z_measured_min = _MIN(z_measured_min, z_measured[zstepper]);
       } // for (zstepper)
 
       if (err_break) break;
@@ -182,11 +182,11 @@ void GcodeSuite::G34() {
       // Adapt the next probe clearance height based on the new measurements.
       // Safe_height = lowest distance to bed (= highest measurement) plus highest measured misalignment.
       #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-        z_maxdiff = MAX(ABS(z_measured[0] - z_measured[1]), ABS(z_measured[1] - z_measured[2]), ABS(z_measured[2] - z_measured[0]));
-        z_probe = Z_BASIC_CLEARANCE + MAX(z_measured[0], z_measured[1], z_measured[2]) + z_maxdiff;
+        z_maxdiff = _MAX(ABS(z_measured[0] - z_measured[1]), ABS(z_measured[1] - z_measured[2]), ABS(z_measured[2] - z_measured[0]));
+        z_probe = Z_BASIC_CLEARANCE + _MAX(z_measured[0], z_measured[1], z_measured[2]) + z_maxdiff;
       #else
         z_maxdiff = ABS(z_measured[0] - z_measured[1]);
-        z_probe = Z_BASIC_CLEARANCE + MAX(z_measured[0], z_measured[1]) + z_maxdiff;
+        z_probe = Z_BASIC_CLEARANCE + _MAX(z_measured[0], z_measured[1]) + z_maxdiff;
       #endif
 
       SERIAL_ECHOPAIR("\n"
@@ -210,7 +210,7 @@ void GcodeSuite::G34() {
                     z_align_abs = ABS(z_align_move);
 
         // Optimize one iterations correction based on the first measurements
-        if (z_align_abs > 0.0f) amplification = iteration == 1 ? MIN(last_z_align_move[zstepper] / z_align_abs, 2.0f) : z_auto_align_amplification;
+        if (z_align_abs > 0.0f) amplification = iteration == 1 ? _MIN(last_z_align_move[zstepper] / z_align_abs, 2.0f) : z_auto_align_amplification;
 
         // Check for less accuracy compared to last move
         if (last_z_align_move[zstepper] < z_align_abs - 1.0) {

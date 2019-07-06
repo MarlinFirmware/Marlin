@@ -239,7 +239,7 @@ void menu_bed_leveling() {
   const bool is_homed = all_axes_known();
 
   // Auto Home if not using manual probing
-  #if DISABLED(PROBE_MANUALLY, MESH_BED_LEVELING)
+  #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
     if (!is_homed) MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
   #endif
 

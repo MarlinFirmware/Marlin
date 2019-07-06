@@ -353,8 +353,8 @@ void CardReader::initsd() {
   else {
     flag.detected = true;
     SERIAL_ECHO_MSG(MSG_SD_CARD_OK);
-    #if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
-      (void)settings.load();
+    #if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+      settings.first_load();
     #endif
   }
   setroot();
@@ -560,10 +560,8 @@ void CardReader::checkautostart() {
   if (autostart_index < 0 || flag.sdprinting) return;
 
   if (!isDetected()) initsd();
-
-  #if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
-    SERIAL_ECHOLNPGM("Loading settings from SD");
-    (void)settings.load();
+  #if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+    else settings.first_load();
   #endif
 
   if (isDetected()

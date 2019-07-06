@@ -213,7 +213,7 @@ class unified_bed_leveling {
       const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * (1.0f / (MESH_X_DIST)),
                   z1 = z_values[x1_i][yi];
 
-      return z1 + xratio * (z_values[MIN(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1); // Don't allow x1_i+1 to be past the end of the array
+      return z1 + xratio * (z_values[_MIN(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1); // Don't allow x1_i+1 to be past the end of the array
                                                                                       // If it is, it is clamped to the last element of the
                                                                                       // z_values[][] array and no correction is applied.
     }
@@ -242,7 +242,7 @@ class unified_bed_leveling {
       const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * (1.0f / (MESH_Y_DIST)),
                   z1 = z_values[xi][y1_i];
 
-      return z1 + yratio * (z_values[xi][MIN(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1); // Don't allow y1_i+1 to be past the end of the array
+      return z1 + yratio * (z_values[xi][_MIN(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1); // Don't allow y1_i+1 to be past the end of the array
                                                                                       // If it is, it is clamped to the last element of the
                                                                                       // z_values[][] array and no correction is applied.
     }
@@ -268,11 +268,11 @@ class unified_bed_leveling {
 
       const float z1 = calc_z0(rx0,
                                mesh_index_to_xpos(cx), z_values[cx][cy],
-                               mesh_index_to_xpos(cx + 1), z_values[MIN(cx, GRID_MAX_POINTS_X - 2) + 1][cy]);
+                               mesh_index_to_xpos(cx + 1), z_values[_MIN(cx, GRID_MAX_POINTS_X - 2) + 1][cy]);
 
       const float z2 = calc_z0(rx0,
-                               mesh_index_to_xpos(cx), z_values[cx][MIN(cy, GRID_MAX_POINTS_Y - 2) + 1],
-                               mesh_index_to_xpos(cx + 1), z_values[MIN(cx, GRID_MAX_POINTS_X - 2) + 1][MIN(cy, GRID_MAX_POINTS_Y - 2) + 1]);
+                               mesh_index_to_xpos(cx), z_values[cx][_MIN(cy, GRID_MAX_POINTS_Y - 2) + 1],
+                               mesh_index_to_xpos(cx + 1), z_values[_MIN(cx, GRID_MAX_POINTS_X - 2) + 1][_MIN(cy, GRID_MAX_POINTS_Y - 2) + 1]);
 
       float z0 = calc_z0(ry0,
                          mesh_index_to_ypos(cy), z1,
