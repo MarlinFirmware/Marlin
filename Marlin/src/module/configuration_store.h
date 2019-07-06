@@ -29,8 +29,6 @@
 
 class MarlinSettings {
   public:
-    MarlinSettings() { }
-
     static uint16_t datasize();
 
     static void reset();
@@ -55,8 +53,14 @@ class MarlinSettings {
     #endif
 
     #if ENABLED(EEPROM_SETTINGS)
+
       static bool load();      // Return 'true' if data was loaded ok
       static bool validate();  // Return 'true' if EEPROM data is ok
+
+      static inline void first_load() {
+        static bool loaded = false;
+        if (!loaded && load()) loaded = true;
+      }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
@@ -73,6 +77,8 @@ class MarlinSettings {
     #else
       FORCE_INLINE
       static bool load() { reset(); report(); return true; }
+      FORCE_INLINE
+      static void first_load() { (void)load(); }
     #endif
 
     #if DISABLED(DISABLE_M503)
