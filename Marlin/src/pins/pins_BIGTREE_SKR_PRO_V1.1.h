@@ -19,22 +19,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #ifndef TARGET_STM32F4
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "BIGTREE SKR Pro V1.1"
-#endif
-
-#define EEPROM_EMULATED_WITH_SRAM
-
 #if HOTENDS > 3 || E_STEPPERS > 3
   #error "BIGTREE SKR Pro V1.1 supports up to 3 hotends / E-steppers."
 #endif
+
+#define BOARD_NAME "BIGTREE SKR Pro V1.1"
+
+#define EEPROM_EMULATED_WITH_SRAM
 
 //
 // Servos
