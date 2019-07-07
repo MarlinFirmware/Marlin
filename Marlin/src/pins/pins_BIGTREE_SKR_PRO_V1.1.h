@@ -221,15 +221,17 @@
 
   #endif
 
-#endif // HAS_SPI_LCD
+  // Alter timing for graphical display
+  #if HAS_GRAPHICAL_DISPLAY
+    #ifndef ST7920_DELAY_1
+      #define ST7920_DELAY_1 DELAY_NS(96)
+    #endif
+    #ifndef ST7920_DELAY_2
+      #define ST7920_DELAY_2 DELAY_NS(48)
+    #endif
+    #ifndef ST7920_DELAY_3
+      #define ST7920_DELAY_3 DELAY_NS(600)
+    #endif
+  #endif
 
-// Alter timing for graphical display
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 DELAY_NS(96)
-#endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 DELAY_NS(48)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 DELAY_NS(600)
-#endif
+#endif // HAS_SPI_LCD
