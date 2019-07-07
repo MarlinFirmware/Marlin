@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,14 +104,20 @@
 // Software SPI pins for TMC2130 stepper drivers
 //
 #if ENABLED(TMC_USE_SW_SPI)
-  #define TMC_SW_MOSI      PC12
-  #define TMC_SW_MISO      PC11
-  #define TMC_SW_SCK       PC10
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI      PC12
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO      PC11
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK       PC10
+  #endif
 #endif
 
 #if HAS_TMC220x
   /**
-   * TMC2208 stepper drivers
+   * TMC2208/TMC2209 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
@@ -174,16 +180,20 @@
 //
 #define SDSS               PB12
 
-/*
-|               _____                                             _____
-|           NC | · · | GND                                    5V | · · | GND
-|        RESET | · · | PF12(SD_DETECT)             (LCD_D7)  PG7 | · · | PG6  (LCD_D6)
-|   (MOSI)PB15 | · · | PF11(BTN_EN2)               (LCD_D5)  PG3 | · · | PG2  (LCD_D4)
-|  (SD_SS)PB12 | · · | PG10(BTN_EN1)               (LCD_RS) PD10 | · · | PD11 (LCD_EN)
-|    (SCK)PB13 | · · | PB14(MISO)                 (BTN_ENC)  PA8 | · · | PG4  (BEEPER)
-|               ￣￣                                               ￣￣
-|               EXP2                                              EXP1
-*/
+/**
+ *               _____                                             _____
+ *           NC | · · | GND                                    5V | · · | GND
+ *        RESET | · · | PF12(SD_DETECT)             (LCD_D7)  PG7 | · · | PG6  (LCD_D6)
+ *   (MOSI)PB15 | · · | PF11(BTN_EN2)               (LCD_D5)  PG3 | · · | PG2  (LCD_D4)
+ *  (SD_SS)PB12 | · · | PG10(BTN_EN1)               (LCD_RS) PD10 | · · | PD11 (LCD_EN)
+ *    (SCK)PB13 | · · | PB14(MISO)                 (BTN_ENC)  PA8 | · · | PG4  (BEEPER)
+ *               ￣￣                                               ￣￣
+ *               EXP2                                              EXP1
+ */
+
+//
+// LCDs and Controllers
+//
 #if HAS_SPI_LCD
   #define BEEPER_PIN       PG4
   #define BTN_ENC          PA8
