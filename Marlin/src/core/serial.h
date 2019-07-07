@@ -24,8 +24,7 @@
 //#include <stdint.h>
 
 //#include "../inc/MarlinConfigPre.h"
-#include "../HAL/platforms.h"
-#include HAL_PATH(../HAL, HAL.h)
+#include "../HAL/HAL.h"
 
 // #include "../core/macros.h"
 
