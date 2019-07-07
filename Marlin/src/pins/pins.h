@@ -467,6 +467,8 @@
   #include "pins_BLACK_STM32F407VE.h" // STM32F4                                    env:black_stm32f407ve
 #elif MB(STEVAL)
   #include "pins_STEVAL.h"            // STM32F4                                    env:STM32F4
+#elif MB(BIGTREE_SKR_PRO_V1_1)
+  #include "pins_BIGTREE_SKR_PRO_V1.1.h" // STM32F4                                 env:BIGTREE_SKR_PRO
 
 //
 // ARM Cortex M7
