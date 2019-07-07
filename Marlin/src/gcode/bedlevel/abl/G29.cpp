@@ -394,10 +394,10 @@ G29_TYPE GcodeSuite::G29() {
 
       if (parser.seen('H')) {
         const int16_t size = (int16_t)parser.value_linear_units();
-        left_probe_bed_position  = MAX(X_CENTER - size / 2, MIN_PROBE_X);
-        right_probe_bed_position = MIN(left_probe_bed_position + size, MAX_PROBE_X);
-        front_probe_bed_position = MAX(Y_CENTER - size / 2, MIN_PROBE_Y);
-        back_probe_bed_position  = MIN(front_probe_bed_position + size, MAX_PROBE_Y);
+        left_probe_bed_position  = _MAX(X_CENTER - size / 2, MIN_PROBE_X);
+        right_probe_bed_position = _MIN(left_probe_bed_position + size, MAX_PROBE_X);
+        front_probe_bed_position = _MAX(Y_CENTER - size / 2, MIN_PROBE_Y);
+        back_probe_bed_position  = _MIN(front_probe_bed_position + size, MAX_PROBE_Y);
       }
       else {
         left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : LEFT_PROBE_BED_POSITION;
@@ -511,7 +511,7 @@ G29_TYPE GcodeSuite::G29() {
     if (verbose_level || seenQ) {
       SERIAL_ECHOPGM("Manual G29 ");
       if (g29_in_progress) {
-        SERIAL_ECHOPAIR("point ", MIN(abl_probe_index + 1, abl_points));
+        SERIAL_ECHOPAIR("point ", _MIN(abl_probe_index + 1, abl_points));
         SERIAL_ECHOLNPAIR(" of ", abl_points);
       }
       else
@@ -977,8 +977,6 @@ G29_TYPE GcodeSuite::G29() {
   if (!faux) clean_up_after_endstop_or_probe_move();
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G29");
-
-  KEEPALIVE_STATE(IN_HANDLER);
 
   if (planner.leveling_active)
     sync_plan_position();

@@ -153,12 +153,7 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
       SERIAL_CHAR('|');                   // Point out non test bytes
       for (uint8_t i = 0; i < 16; i++) {
         char ccc = (char)start_free_memory[i]; // cast to char before automatically casting to char on assignment, in case the compiler is broken
-        if (&start_free_memory[i] >= (char*)queue.buffer && &start_free_memory[i] < (char*)queue.buffer + sizeof(queue.buffer)) { // Print out ASCII in the command buffer area
-          if (!WITHIN(ccc, ' ', 0x7E)) ccc = ' ';
-        }
-        else { // If not in the command buffer area, flag bytes that don't match the test byte
-          ccc = (ccc == TEST_BYTE) ? ' ' : '?';
-        }
+        ccc = (ccc == TEST_BYTE) ? ' ' : '?';
         SERIAL_CHAR(ccc);
       }
       SERIAL_EOL();

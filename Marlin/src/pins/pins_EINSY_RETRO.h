@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Einsy-Retro pin assignments
@@ -62,7 +63,7 @@
 
 #else
 
-  #if X_HOME_DIR == -1
+  #if X_HOME_DIR < 0
     #define X_MIN_PIN      X_DIAG_PIN
     #define X_MAX_PIN      81
   #else
@@ -70,7 +71,7 @@
     #define X_MAX_PIN      X_DIAG_PIN
   #endif
 
-  #if Y_HOME_DIR == -1
+  #if Y_HOME_DIR < 0
     #define Y_MIN_PIN      Y_DIAG_PIN
     #define Y_MAX_PIN      57
   #else

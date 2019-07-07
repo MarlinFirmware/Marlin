@@ -90,12 +90,6 @@
 // Set USE_SOFTWARE_SPI nonzero to ALWAYS use Software SPI.
 #define USE_SOFTWARE_SPI 0
 
-// Define software SPI pins so Mega can use unmodified 168/328 shields
-#define SOFT_SPI_CS_PIN   10 // Software SPI chip select pin for the SD
-#define SOFT_SPI_MOSI_PIN 11 // Software SPI Master Out Slave In pin
-#define SOFT_SPI_MISO_PIN 12 // Software SPI Master In Slave Out pin
-#define SOFT_SPI_SCK_PIN  13 // Software SPI Clock pin
-
 /**
  * The __cxa_pure_virtual function is an error handler that is invoked when
  * a pure virtual function is called.

@@ -82,6 +82,7 @@
 #define MSG_MOVE_Y                          _UxGT("Yジク イドウ")                  // "Move Y"
 #define MSG_MOVE_Z                          _UxGT("Zジク イドウ")                  // "Move Z"
 #define MSG_MOVE_E                          _UxGT("エクストルーダー")                // "Extruder"
+#define MSG_MOVE_0025MM                     _UxGT("0.025mm イドウ")               // "Move 0.025mm"
 #define MSG_MOVE_01MM                       _UxGT("0.1mm イドウ")                 // "Move 0.1mm"
 #define MSG_MOVE_1MM                        _UxGT("  1mm イドウ")                 // "Move 1mm"
 #define MSG_MOVE_10MM                       _UxGT(" 10mm イドウ")                 // "Move 10mm"

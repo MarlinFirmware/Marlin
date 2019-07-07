@@ -45,7 +45,7 @@
 typedef uint16_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF
 
-#define HAL_TIMER_RATE         (F_CPU)  // frequency of timers peripherals
+#define HAL_TIMER_RATE uint32_t(F_CPU)  // frequency of timers peripherals
 
 #define STEP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
 #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
@@ -59,6 +59,9 @@ typedef uint16_t hal_timer_t;
 //#define TEMP_TIMER_NUM 4  // 2->4, Timer 2 for Stepper Current PWM
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
 #define SERVO0_TIMER_NUM 1  // SERVO0 or BLTOUCH
+
+#define STEP_TIMER_IRQ_PRIO 1
+#define TEMP_TIMER_IRQ_PRIO 2
 
 #define TEMP_TIMER_PRESCALE     1000 // prescaler for setting Temp timer, 72Khz
 #define TEMP_TIMER_FREQUENCY    1000 // temperature interrupt frequency
@@ -126,43 +129,38 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
  */
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
-  //compare = MIN(compare, HAL_TIMER_TYPE_MAX);
   switch (timer_num) {
   case STEP_TIMER_NUM:
-    timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, compare);
-    return;
+    // NOTE: WE have set ARPE = 0, which means the Auto reload register is not preloaded
+    // and there is no need to use any compare, as in the timer mode used, setting ARR to the compare value
+    // will result in exactly the same effect, ie trigerring an interrupt, and on top, set counter to 0
+    timer_set_reload(STEP_TIMER_DEV, compare); // We reload direct ARR as needed during counting up
+    break;
   case TEMP_TIMER_NUM:
     timer_set_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, compare);
-    return;
-  default:
-    return;
-  }
-}
-
-FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
-  switch (timer_num) {
-  case STEP_TIMER_NUM:
-    return timer_get_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN);
-  case TEMP_TIMER_NUM:
-    return timer_get_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN);
-  default:
-    return 0;
+    break;
   }
 }
 
 FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch (timer_num) {
   case STEP_TIMER_NUM:
-    timer_set_count(STEP_TIMER_DEV, 0);
+    // No counter to clear
     timer_generate_update(STEP_TIMER_DEV);
     return;
   case TEMP_TIMER_NUM:
     timer_set_count(TEMP_TIMER_DEV, 0);
     timer_generate_update(TEMP_TIMER_DEV);
     return;
-  default:
-    return;
   }
 }
 
 #define HAL_timer_isr_epilogue(TIMER_NUM)
+
+// No command is available in framework to turn off ARPE bit, which is turned on by default in libmaple.
+// Needed here to reset ARPE=0 for stepper timer
+FORCE_INLINE static void timer_no_ARR_preload_ARPE(timer_dev *dev) {
+  bb_peri_set_bit(&(dev->regs).gen->CR1, TIMER_CR1_ARPE_BIT, 0);
+}
+
+#define TIMER_OC_NO_PRELOAD 0 // Need to disable preload also on compare registers.

@@ -192,7 +192,7 @@ void HAL_adc_start_conversion(uint8_t adc_pin) {
   HAL_adc_result = mv*1023.0/3300.0;
 }
 
-void analogWrite(int pin, int value) {
+void analogWrite(pin_t pin, int value) {
 
   if (!PWM_PIN(pin)) return;
 

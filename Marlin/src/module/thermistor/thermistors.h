@@ -56,6 +56,9 @@
 #if ANY_THERMISTOR_IS(501) // 100K Zonestar thermistor
   #include "thermistor_501.h"
 #endif
+#if ANY_THERMISTOR_IS(512) // 100k thermistor in RPW-Ultra hotend, Pull-up = 4.7 kOhm, "unknown model"
+  #include "thermistor_512.h"
+#endif
 #if ANY_THERMISTOR_IS(6) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 8.2 kOhm, "EPCOS ?"
   #include "thermistor_6.h"
 #endif

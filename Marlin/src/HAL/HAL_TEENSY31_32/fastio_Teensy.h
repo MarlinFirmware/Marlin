@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O Routines for Teensy 3.5 and Teensy 3.6
@@ -72,7 +73,6 @@
 
 #define READ(IO)              _READ(IO)
 
-#define WRITE_VAR(IO,V)       _WRITE_VAR(IO,V)
 #define WRITE(IO,V)           _WRITE(IO,V)
 #define TOGGLE(IO)            _TOGGLE(IO)
 

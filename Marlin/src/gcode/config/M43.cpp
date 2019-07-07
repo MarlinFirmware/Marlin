@@ -42,6 +42,10 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#ifndef GET_PIN_MAP_PIN_M43
+  #define GET_PIN_MAP_PIN_M43(Q) GET_PIN_MAP_PIN(Q)
+#endif
+
 inline void toggle_pins() {
   const bool ignore_protection = parser.boolval('I');
   const int repeat = parser.intval('R', 1),
@@ -50,7 +54,7 @@ inline void toggle_pins() {
             wait = parser.intval('W', 500);
 
   for (uint8_t i = start; i <= end; i++) {
-    pin_t pin = GET_PIN_MAP_PIN(i);
+    pin_t pin = GET_PIN_MAP_PIN_M43(i);
     if (!VALID_PIN(pin)) continue;
     if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
       report_pin_state_extended(pin, ignore_protection, true, "Untouched ");
@@ -306,7 +310,7 @@ void GcodeSuite::M43() {
     #endif
     uint8_t pin_state[last_pin - first_pin + 1];
     for (uint8_t i = first_pin; i <= last_pin; i++) {
-      pin_t pin = GET_PIN_MAP_PIN(i);
+      pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (!VALID_PIN(pin)) continue;
       if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
       pinMode(pin, INPUT_PULLUP);
@@ -320,16 +324,16 @@ void GcodeSuite::M43() {
     }
 
     #if HAS_RESUME_CONTINUE
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), PSTR("Continue"));
       #endif
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
     #endif
 
     for (;;) {
       for (uint8_t i = first_pin; i <= last_pin; i++) {
-        pin_t pin = GET_PIN_MAP_PIN(i);
+        pin_t pin = GET_PIN_MAP_PIN_M43(i);
         if (!VALID_PIN(pin)) continue;
         if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
         const byte val =
@@ -346,7 +350,7 @@ void GcodeSuite::M43() {
       }
 
       #if HAS_RESUME_CONTINUE
-        if (!wait_for_user) { KEEPALIVE_STATE(IN_HANDLER); break; }
+        if (!wait_for_user) break;
       #endif
 
       safe_delay(200);
@@ -355,7 +359,7 @@ void GcodeSuite::M43() {
   else {
     // Report current state of selected pin(s)
     for (uint8_t i = first_pin; i <= last_pin; i++) {
-      pin_t pin = GET_PIN_MAP_PIN(i);
+      pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
     }
   }

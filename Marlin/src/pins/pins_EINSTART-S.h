@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Einstart-S pin assignments
@@ -31,7 +32,7 @@
   #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
 #endif
 
-#if DISABLED(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768)
+#if NONE(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768)
   #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
     #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
   #endif

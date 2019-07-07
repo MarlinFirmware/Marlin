@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * 24 May 2018 - @chepo for STM32F103VET6
@@ -33,21 +34,36 @@
 #define BOARD_NAME "GTM32 Pro VB"
 
 //#define DISABLE_DEBUG
+
+//
+// It is required to disable JTAG function because its pins are
+// used as GPIO to drive the Y axis stepper.
+// DO NOT ENABLE!
+//
 #define DISABLE_JTAG
+
+//
+// If you don't need the SWDIO functionality (any more), you may
+// disable SWD here to regain PA13/PA14 pins for other use.
+//
 //#define DISABLE_JTAGSWD
 
 // Ignore temp readings during development.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
+// Enable EEPROM Emulation for this board as it doesn't have EEPROM
+#define FLASH_EEPROM_EMULATION
+#define E2END 0xFFF // EEPROM end address (4kB)
+
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PE5
-#define X_MAX_PIN          PE4
-#define Y_MIN_PIN          PE3
-#define Y_MAX_PIN          PE2
-#define Z_MIN_PIN          PE1
-#define Z_MAX_PIN          PE0
+#define X_MIN_PIN          PE5   // ENDSTOPS 15,17
+#define X_MAX_PIN          PE4   // ENDSTOPS 16,18
+#define Y_MIN_PIN          PE3   // ENDSTOPS 9,11
+#define Y_MAX_PIN          PE2   // ENDSTOPS 10,12
+#define Z_MIN_PIN          PE1   // ENDSTOPS 3,5
+#define Z_MAX_PIN          PE0   // ENDSTOPS 4,6
 
 //
 // Steppers
@@ -64,46 +80,52 @@
 #define Z_DIR_PIN          PD3
 #define Z_ENABLE_PIN       PB3
 
-#define E0_STEP_PIN        PB2
-#define E0_DIR_PIN         PB11
-#define E0_ENABLE_PIN      PC4
+// Extruder stepper pins
+// NOTE: Numbering here is made according to EXT connector numbers,
+//       the FANx_PWM line numbering in the schematics is reverse.
+//       That is, E0_*_PIN are the E2_* lines connected to E2_A1 step
+//       stick that drives the EXT0 output on the board.
+//
+#define E0_STEP_PIN        PC14
+#define E0_DIR_PIN         PC13
+#define E0_ENABLE_PIN      PC15
 
 #define E1_STEP_PIN        PA0
 #define E1_DIR_PIN         PB6
 #define E1_ENABLE_PIN      PA1
 
-#define E2_STEP_PIN        PC14
-#define E2_DIR_PIN         PC13
-#define E2_ENABLE_PIN      PC15
+#define E2_STEP_PIN        PB2
+#define E2_DIR_PIN         PB11
+#define E2_ENABLE_PIN      PC4
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PB0
-#define HEATER_1_PIN       PB5
-#define HEATER_2_PIN       PB4
-#define HEATER_BED_PIN     PB1
+#define HEATER_0_PIN       PB0   // EXT0 port
+#define HEATER_1_PIN       PB5   // EXT1 port
+#define HEATER_2_PIN       PB4   // EXT2 port
+#define HEATER_BED_PIN     PB1   // CON2X3 hotbed port
 
-#define FAN_PIN            PB7   // TODO: Add functionality
-#define FAN1_PIN           PB8   // TODO: Add functionality
-#define FAN2_PIN           PB9   // TODO: Add functionality
+//
+// These are FAN PWM pins on EXT0..EXT2 connectors.
+//
+//#define FAN_PIN            PB9   // EXT0 port
+#define ORIG_E0_AUTO_FAN_PIN PB9   // EXT0 port, used as main extruder fan
+#define FAN1_PIN           PB8   // EXT1 port
+#define FAN2_PIN           PB7   // EXT2 port
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PC2   // PORT NUMBERING
-#define TEMP_1_PIN         PC1   // PORT NUMBERING
-#define TEMP_2_PIN         PC0   // PORT NUMBERING
-#define TEMP_BED_PIN       PC3   // PORT NUMBERING
+#define TEMP_0_PIN         PC2   // EXT0 port
+#define TEMP_1_PIN         PC1   // EXT1 port
+#define TEMP_2_PIN         PC0   // EXT2 port
+#define TEMP_BED_PIN       PC3   // CON2X3 hotbed port
 
 //
 // Misc. Functions
 //
 #define LED_PWM            PD12   // External LED, pin 2 on LED labeled connector
-//#define RESET_PIN        NRST
-#define T_PEN              PE6
-
-#define BEEPER_PIN         PB10
 
 //
 // LCD / Controller
@@ -111,6 +133,11 @@
 #if HAS_SPI_LCD
 
   #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    //
+    // LCD display on J2 FFC40
+    // Geeetech's LCD2004A Control Panel is very much like
+    // RepRapDiscount Smart Controller, but adds an FFC40 connector
+    //
     #define LCD_PINS_RS    PE6   // CS chip select /SS chip slave select
     #define LCD_PINS_ENABLE PE14 // SID (MOSI)
     #define LCD_PINS_D4    PD8   // SCK (CLK) clock
@@ -118,12 +145,12 @@
     #define LCD_PINS_D6    PD10
     #define LCD_PINS_D7    PE15
 
-    #define BTN_EN1        PE8
-    #define BTN_EN2        PE9
-    #define BTN_ENC        PE13
-
-    #define SD_DETECT_PIN  PC7
-    #define KILL_PIN       -1
+  #else
+    //
+    // Serial LCDs can be implemented in ExtUI
+    //
+    //#define LCD_UART_TX    PD8
+    //#define LCD_UART_RX    PD9
   #endif
 
   #ifndef ST7920_DELAY_1
@@ -136,59 +163,72 @@
     #define ST7920_DELAY_3 DELAY_NS(715)
   #endif
 
-  //
-  // UART LCD Pins, if used
-  //
-  //#define LCD_PINS_D14   PD9   // RXD3
-  //#define LCD_PINS_D13   PD8   // TXD3
-
 #endif // HAS_SPI_LCD
 
-//
-// SPI2 on LCD conn
-//
-#define SPI2_MOSI          PB15
-#define SPI2_MISO          PB14
-#define SPI2_SCK           PB13
-#define SPI2_NSS           PB12
+#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+  //
+  // Geeetech's LCD2004A Control Panel is very much like
+  // RepRapDiscount Smart Controller, but adds an FFC40 connector
+  // connected with a flat wire to J2 connector on the board.
+  //
+  #define BTN_EN1          PE8
+  #define BTN_EN2          PE9
+  #define BTN_ENC          PE13
+
+  #define GTM32_PRO_VB_USE_LCD_BEEPER
+  #define GTM32_PRO_VB_USE_EXT_SDCARD
+#endif
 
 //
-// SD Card on LCD
+// Beeper
 //
-#define SD_CD              PC7
-#define SD_DATA0           PC8
-#define SD_DATA1           PC9
-#define SD_DATA2           PC10
-#define SD_DATA3           PC11
-#define SD_CMD             PD2
-#define SD_CLK             PC12
+#ifdef GTM32_PRO_VB_USE_LCD_BEEPER
+  // This is pin 32 on J2 FFC40 and pin, goes to the beeper
+  // on Geeetech's version of RepRapDiscount Smart Controller
+  // (e.g. on Rostock 301)
+  #define BEEPER_PIN       PE12
+#else
+  // This is the beeper on the board itself
+  #define BEEPER_PIN       PB10
+#endif
 
-//
-// SPI Flash (on board Card Socket)
-//
-#define SPI1_NSS           PA4
-#define SPI1_SCK           PA5
-#define SPI1_MISO          PA6
-#define SPI1_MOSI          PA7
+/**
+ * The on-board TF_CARD_SOCKET microSD card socket has no SD Detect pin wired.
+ *
+ * The FFC10 (SD_CARD) connector has the same pins as those routed to the FFC40 (J2)
+ * connector, which usually go to the SD Card slot on the Geeetech version of the
+ * RepRapDiscount Smart Controller. Both connectors have the card detect signal.
+ *
+ * The on-board SD card and the external card (on either SD_CARD or J2) are two
+ * separate devices and can work simultaneously. Unfortunately, Marlin only supports
+ * a single SPI Flash device (as of 2019-07-05) so only one is enabled here.
+ */
+#if ENABLED(GTM32_PRO_VB_USE_EXT_SDCARD)
+  //
+  // SD Card on RepRapDiscount Smart Controller (J2) or on SD_CARD connector
+  //
+  #define SS_PIN           PC11
+  #define SCK_PIN          PC12
+  #define MOSI_PIN         PD2
+  #define MISO_PIN         PC8
+  #define SD_DETECT_PIN    PC7
+#else
+  //
+  // Use the on-board card socket labeled TF_CARD_SOCKET
+  //
+  #define SS_PIN           PA4
+  #define SCK_PIN          PA5
+  #define MOSI_PIN         PA7
+  #define MISO_PIN         PA6
+  #define SD_DETECT_PIN    -1  // Card detect is not connected
+#endif
 
+#define SDSS               SS_PIN
+ 
 //
-// Debug
+// ESP WiFi can be soldered to J9 connector which is wired to USART2.
+// Must define WIFISUPPORT in Configuration.h for the printer.
 //
-//#define SDA              PA13
-//#define SCL              PA14
-
-//
-// Wifi
-//
-#define USART2_RX          PA3   // Default alternate function
-#define USART2_TX          PA2   // Default alternate function
-
-//
-// For future use
-//
-//#undef USB_DM
-//#undef CAN_TX
-//#undef USB_DP
-//#undef CAN_RX
-//#undef BOARD_JTDI_PIN
-//#define BOOT0            BOOT0
+#define ESP_WIFI_MODULE_COM       2
+#define ESP_WIFI_MODULE_BAUDRATE  115200
+#define ESP_WIFI_MODULE_RESET_PIN -1

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 void u8g_i2c_init(uint8_t options);
 uint8_t u8g_i2c_wait(uint8_t mask, uint8_t pos);

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // Stock BQ Hephestos 2 100k thermistor.
 // Created on 29/12/2017 with an ambient temperature of 20C.

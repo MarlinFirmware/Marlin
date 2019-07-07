@@ -41,7 +41,7 @@ void GcodeSuite::M122() {
     #if ENABLED(MONITOR_DRIVER_STATUS)
       const bool sflag = parser.seen('S'), s0 = sflag && !parser.value_bool();
       if (sflag) tmc_set_report_interval(s0 ? 0 : MONITOR_DRIVER_STATUS_INTERVAL_MS);
-      if (!s0 && parser.seenval('P')) tmc_set_report_interval(MIN(parser.value_ushort(), MONITOR_DRIVER_STATUS_INTERVAL_MS));
+      if (!s0 && parser.seenval('P')) tmc_set_report_interval(_MIN(parser.value_ushort(), MONITOR_DRIVER_STATUS_INTERVAL_MS));
     #endif
 
     if (parser.seen('V'))

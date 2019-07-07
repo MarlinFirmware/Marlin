@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Formbot Raptor pin assignments
@@ -124,7 +125,7 @@
 //
 // Augmentation for auto-assigning RAMPS plugs
 //
-#if DISABLED(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
+#if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
   #if HOTENDS > 1
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB

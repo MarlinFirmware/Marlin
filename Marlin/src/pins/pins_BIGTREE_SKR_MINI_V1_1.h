@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #ifndef TARGET_STM32F1
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
@@ -48,10 +49,6 @@
 // Steppers
 //
 
-/**
- * TODO: Currently using same Enable pin for all steppers.
- */
-
 #define X_STEP_PIN         PC6
 #define X_DIR_PIN          PC7
 #define X_ENABLE_PIN       PB15
@@ -69,9 +66,15 @@
 #define E0_ENABLE_PIN      PC4
 
 #if ENABLED(TMC_USE_SW_SPI)
-  #define TMC_SW_SCK       PB3
-  #define TMC_SW_MISO      PB4
-  #define TMC_SW_MOSI      PB5
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_SCK     PB3
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO    PB4
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_MOSI    PB5
+  #endif
 #endif
 
 //
@@ -84,8 +87,8 @@
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN         PB1   // Analog Input
-#define TEMP_0_PIN           PA0   // Analog Input
+#define TEMP_BED_PIN       PB1   // Analog Input
+#define TEMP_0_PIN         PA0   // Analog Input
 
 //
 // LCD Pins
@@ -166,19 +169,19 @@
 
 #if ENABLED(STM32_SD_LCD)
   #define ENABLE_SPI3
-  #define SD_DETECT_PIN PB9
-  #define SCK_PIN       PB3
-  #define MISO_PIN      PB4
-  #define MOSI_PIN      PB5
-  #define SS_PIN        PA15
+  #define SD_DETECT_PIN    PB9
+  #define SCK_PIN          PB3
+  #define MISO_PIN         PB4
+  #define MOSI_PIN         PB5
+  #define SS_PIN           PA15
 #else
   #define SDCARD_CONNECTION ONBOARD
   #define ENABLE_SPI1
-  #define SD_DETECT_PIN PA3
-  #define SCK_PIN       PA5
-  #define MISO_PIN      PA6
-  #define MOSI_PIN      PA7
-  #define SS_PIN        PA4
+  #define SD_DETECT_PIN    PA3
+  #define SCK_PIN          PA5
+  #define MISO_PIN         PA6
+  #define MOSI_PIN         PA7
+  #define SS_PIN           PA4
 #endif
 
 #ifndef ST7920_DELAY_1

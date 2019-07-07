@@ -59,16 +59,8 @@
 
 #if HAS_GRAPHICAL_LCD
 
-//#include <inttypes.h>
 #include <U8glib.h>
-
-#define SPI_FULL_SPEED 0
-#define SPI_HALF_SPEED 1
-#define SPI_QUARTER_SPEED 2
-#define SPI_EIGHTH_SPEED 3
-#define SPI_SIXTEENTH_SPEED 4
-#define SPI_SPEED_5 5
-#define SPI_SPEED_6 6
+#include "../../shared/HAL_SPI.h"
 
 void spiBegin();
 void spiInit(uint8_t spiRate);

@@ -277,8 +277,8 @@ public:
     static char status_message[];
     static bool has_status();
 
-    static uint8_t status_message_level;      // Higher levels block lower levels
-    static inline void reset_alert_level() { status_message_level = 0; }
+    static uint8_t alert_level; // Higher levels block lower levels
+    static inline void reset_alert_level() { alert_level = 0; }
 
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
       static uint8_t status_scroll_offset;
@@ -293,7 +293,7 @@ public:
     #if HAS_PRINT_PROGRESS
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
         static uint8_t progress_bar_percent;
-        static void set_progress(const uint8_t progress) { progress_bar_percent = MIN(progress, 100); }
+        static void set_progress(const uint8_t progress) { progress_bar_percent = _MIN(progress, 100); }
       #endif
       static uint8_t get_progress();
     #else

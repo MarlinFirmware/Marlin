@@ -56,6 +56,7 @@ static int pending_char = -1;
 
 // Public Methods
 void MarlinSerialUSB::begin(const long baud_setting) {
+  UNUSED(baud_setting);
 }
 
 void MarlinSerialUSB::end() {

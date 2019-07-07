@@ -326,7 +326,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     screen_changed = false;
   }
   if (screen_items > 0 && encoderLine >= screen_items - limit) {
-    encoderLine = MAX(0, screen_items - limit);
+    encoderLine = _MAX(0, screen_items - limit);
     ui.encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM);
   }
   if (is_menu) {

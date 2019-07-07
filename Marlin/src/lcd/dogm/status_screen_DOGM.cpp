@@ -96,7 +96,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
   #define CHAMBER_ALT() false
 #endif
 
-#define MAX_HOTEND_DRAW MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
+#define MAX_HOTEND_DRAW _MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
 #define STATUS_HEATERS_BOT (STATUS_HEATERS_Y + STATUS_HEATERS_HEIGHT - 1)
 
 #if ENABLED(MARLIN_DEV_MODE)
@@ -105,7 +105,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
   #define SHOW_ON_STATE false
 #endif
 
-FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
+FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blink) {
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
   #endif
@@ -271,7 +271,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     if (!TEST(axis_homed, axis))
       while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
     else {
-      #if DISABLED(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
+      #if NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
         if (!TEST(axis_known_position, axis))
           lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
         else
@@ -404,11 +404,11 @@ void MarlinUI::draw_status_screen() {
   if (PAGE_UNDER(6 + 1 + 12 + 1 + 6 + 1)) {
     // Extruders
     for (uint8_t e = 0; e < MAX_HOTEND_DRAW; ++e)
-      _draw_heater_status(e, blink);
+      _draw_heater_status((heater_ind_t)e, blink);
 
     // Heated bed
     #if HAS_HEATED_BED && HOTENDS < 4
-      _draw_heater_status(-1, blink);
+      _draw_heater_status(H_BED, blink);
     #endif
 
     #if HAS_HEATED_CHAMBER

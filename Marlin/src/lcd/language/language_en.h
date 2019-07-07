@@ -543,6 +543,9 @@
 #ifndef MSG_HOTEND_TOO_COLD
   #define MSG_HOTEND_TOO_COLD                 _UxGT("Hotend too cold")
 #endif
+#ifndef MSG_MOVE_0025MM
+  #define MSG_MOVE_0025MM                     _UxGT("Move 0.025mm")
+#endif
 #ifndef MSG_MOVE_01MM
   #define MSG_MOVE_01MM                       _UxGT("Move 0.1mm")
 #endif
@@ -947,6 +950,21 @@
 #endif
 #ifndef MSG_BLTOUCH_MODE_CHANGE
   #define MSG_BLTOUCH_MODE_CHANGE             _UxGT("DANGER: Bad settings can cause damage! Proceed anyway?")
+#endif
+#ifndef MSG_TOUCHMI_PROBE
+  #define MSG_TOUCHMI_PROBE                   _UxGT("TouchMI")
+#endif
+#ifndef MSG_TOUCHMI_INIT
+  #define MSG_TOUCHMI_INIT                    _UxGT("Init TouchMI")
+#endif
+#ifndef MSG_TOUCHMI_ZTEST
+  #define MSG_TOUCHMI_ZTEST                   _UxGT("Z offset Test")
+#endif
+#ifndef MSG_TOUCHMI_SAVE
+  #define MSG_TOUCHMI_SAVE                    _UxGT("Save")
+#endif
+#ifndef MSG_MANUAL_DEPLOY_TOUCHMI
+  #define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("Deploy TouchMI")
 #endif
 #ifndef MSG_MANUAL_DEPLOY
   #define MSG_MANUAL_DEPLOY                   _UxGT("Deploy Z-Probe")

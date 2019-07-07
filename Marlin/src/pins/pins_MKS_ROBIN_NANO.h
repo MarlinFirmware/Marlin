@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * MKS Robin nano (STM32F130VET6) board pin assignments
@@ -89,7 +90,7 @@
 #define HEATER_1_PIN       PB0   // HEATER2
 #define HEATER_BED_PIN     PA0   // HOT BED
 
-#define FAN_PIN            PA1   // FAN
+#define FAN_PIN            PB1   // FAN
 
 #define BTN_ENC            PC13  // Pin is not connected. Real pin is needed to enable encoder's push button functionality used by touch screen
 

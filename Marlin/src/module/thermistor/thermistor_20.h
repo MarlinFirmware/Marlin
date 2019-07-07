@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // PT100 with INA826 amp on Ultimaker v2.0 electronics
 // The PT100 in the Ultimaker v2.0 electronics has a high sample value for a high temperature.
