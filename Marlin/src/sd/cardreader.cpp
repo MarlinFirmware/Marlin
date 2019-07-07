@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include "../module/printcounter.h"
 #include "../core/language.h"
 #include "../gcode/queue.h"
+#include "../module/configuration_store.h"
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/emergency_parser.h"
@@ -352,6 +353,9 @@ void CardReader::initsd() {
   else {
     flag.detected = true;
     SERIAL_ECHO_MSG(MSG_SD_CARD_OK);
+    #if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+      settings.first_load();
+    #endif
   }
   setroot();
 
@@ -367,8 +371,8 @@ void CardReader::openAndPrintFile(const char *name) {
   char cmd[4 + strlen(name) + 1]; // Room for "M23 ", filename, and null
   sprintf_P(cmd, PSTR("M23 %s"), name);
   for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
-  enqueue_and_echo_command_now(cmd);
-  enqueue_and_echo_commands_P(PSTR("M24"));
+  queue.enqueue_one_now(cmd);
+  queue.enqueue_now_P(PSTR("M24"));
 }
 
 void CardReader::startFileprint() {
@@ -556,6 +560,9 @@ void CardReader::checkautostart() {
   if (autostart_index < 0 || flag.sdprinting) return;
 
   if (!isDetected()) initsd();
+  #if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+    else settings.first_load();
+  #endif
 
   if (isDetected()
     #if ENABLED(POWER_LOSS_RECOVERY)
@@ -800,7 +807,7 @@ void CardReader::setroot() {
 
       // Never sort more than the max allowed
       // If you use folders to organize, 20 may be enough
-      NOMORE(fileCnt, SDSORT_LIMIT);
+      NOMORE(fileCnt, uint16_t(SDSORT_LIMIT));
 
       // Sort order is always needed. May be static or dynamic.
       #if ENABLED(SDSORT_DYNAMIC_RAM)
@@ -1001,7 +1008,7 @@ void CardReader::printingHasFinished() {
     #endif
 
     print_job_timer.stop();
-    if (print_job_timer.duration() > 60) enqueue_and_echo_commands_P(PSTR("M31"));
+    if (print_job_timer.duration() > 60) queue.inject_P(PSTR("M31"));
 
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();

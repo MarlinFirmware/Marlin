@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -246,13 +246,13 @@ void PrintCounter::tick() {
     data.printTime += delta;
 
     #if SERVICE_INTERVAL_1 > 0
-      data.nextService1 -= MIN(delta, data.nextService1);
+      data.nextService1 -= _MIN(delta, data.nextService1);
     #endif
     #if SERVICE_INTERVAL_2 > 0
-      data.nextService2 -= MIN(delta, data.nextService2);
+      data.nextService2 -= _MIN(delta, data.nextService2);
     #endif
     #if SERVICE_INTERVAL_3 > 0
-      data.nextService3 -= MIN(delta, data.nextService3);
+      data.nextService3 -= _MIN(delta, data.nextService3);
     #endif
 
     update_next = now + updateInterval * 1000;

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Einsy-Retro pin assignments
@@ -62,7 +63,7 @@
 
 #else
 
-  #if X_HOME_DIR == -1
+  #if X_HOME_DIR < 0
     #define X_MIN_PIN      X_DIAG_PIN
     #define X_MAX_PIN      81
   #else
@@ -70,7 +71,7 @@
     #define X_MAX_PIN      X_DIAG_PIN
   #endif
 
-  #if Y_HOME_DIR == -1
+  #if Y_HOME_DIR < 0
     #define Y_MIN_PIN      Y_DIAG_PIN
     #define Y_MAX_PIN      57
   #else
@@ -162,7 +163,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #define KILL_PIN         32
 
@@ -190,4 +191,4 @@
     #define SD_DETECT_PIN     15
 
   #endif // NEWPANEL
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD

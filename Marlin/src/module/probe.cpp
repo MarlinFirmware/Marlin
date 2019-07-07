@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,6 +101,42 @@ float zprobe_zoffset; // Initialized by settings.load()
     #if HAS_SOLENOID_1 && DISABLED(EXT_SOLENOID)
       WRITE(SOL1_PIN, !stow); // switch solenoid
     #endif
+  }
+
+#elif ENABLED(TOUCH_MI_PROBE)
+
+  // Move to the magnet to unlock the probe
+  void run_deploy_moves_script() {
+    #ifndef TOUCH_MI_DEPLOY_XPOS
+      #define TOUCH_MI_DEPLOY_XPOS 0
+    #elif TOUCH_MI_DEPLOY_XPOS > X_MAX_BED
+      TemporaryGlobalEndstopsState unlock_x(false);
+    #endif
+
+    #if ENABLED(TOUCH_MI_MANUAL_DEPLOY)
+      const screenFunc_t prev_screen = ui.currentScreen;
+      LCD_MESSAGEPGM(MSG_MANUAL_DEPLOY_TOUCHMI);
+      ui.return_to_status();
+
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
+      wait_for_user = true; // LCD click or M108 will clear this
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI probe."), PSTR("Continue"));
+      #endif
+      while (wait_for_user) idle();
+      ui.reset_status();
+      ui.goto_screen(prev_screen);
+    #else
+      do_blocking_move_to_x(TOUCH_MI_DEPLOY_XPOS);
+    #endif
+  }
+
+  // Move down to the bed to stow the probe
+  void run_stow_moves_script() {
+    const float old_pos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+    endstops.enable_z_probe(false);
+    do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, MMM_TO_MMS(HOMING_FEEDRATE_Z));
+    do_blocking_move_to(old_pos, MMM_TO_MMS(HOMING_FEEDRATE_Z));
   }
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
@@ -283,7 +319,7 @@ float zprobe_zoffset; // Initialized by settings.load()
     #endif
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
-      #if DISABLED(DELTA, HOME_AFTER_DEACTIVATE)
+      #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
         disable_X(); disable_Y();
       #endif
     #endif
@@ -335,7 +371,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       #endif
       while (wait_for_user) idle();
       ui.reset_status();
-      KEEPALIVE_STATE(IN_HANDLER);
+
     } while(
       #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
         true
@@ -366,7 +402,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       if (deploy) bltouch.deploy(); else bltouch.stow();
     #endif
 
-  #elif ENABLED(Z_PROBE_ALLEN_KEY)
+  #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
 
     deploy ? run_deploy_moves_script() : run_stow_moves_script();
 
@@ -408,7 +444,7 @@ bool set_probe_deployed(const bool deploy) {
   #endif
 
   if (deploy_stow_condition && unknown_condition)
-    do_probe_raise(MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
+    do_probe_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
     #if ENABLED(Z_PROBE_SLED)
@@ -568,10 +604,12 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 }
 
 /**
- * @details Used by probe_pt to do a single Z probe at the current position.
+ * @brief Probe at the current XY (possibly more than once) to find the bed Z.
+ *
+ * @details Used by probe_pt to get the bed Z height at the current XY.
  *          Leaves current_position[Z_AXIS] at the height where the probe triggered.
  *
- * @return The raw Z position where the probe was triggered
+ * @return The Z position of the bed at the current XY or NAN on error.
  */
 static float run_z_probe() {
 
@@ -582,7 +620,7 @@ static float run_z_probe() {
   const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
 
   // Double-probing does a fast probe followed by a slow probe
-  #if MULTIPLE_PROBING == 2
+  #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
     if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) {
@@ -593,11 +631,11 @@ static float run_z_probe() {
       return NAN;
     }
 
-    float first_probe_z = current_position[Z_AXIS];
+    const float first_probe_z = current_position[Z_AXIS];
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("1st Probe Z:", first_probe_z);
 
-    // move up to make clearance for the probe
+    // Raise to give the probe clearance
     do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
   #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
@@ -606,18 +644,28 @@ static float run_z_probe() {
     // move down quickly before doing the slow probe
     const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (zprobe_zoffset < 0 ? -zprobe_zoffset : 0);
     if (current_position[Z_AXIS] > z) {
-      // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
+      // Probe down fast. If the probe never triggered, raise for probe clearance
       if (!do_probe_move(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
         do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
   #endif
 
-  #if MULTIPLE_PROBING > 2
-    float probes_total = 0;
-    for (uint8_t p = MULTIPLE_PROBING + 1; --p;) {
+  #ifdef EXTRA_PROBING
+    float probes[TOTAL_PROBING];
   #endif
 
-      // move down slowly to find bed
+  #if TOTAL_PROBING > 2
+    float probes_total = 0;
+    for (
+      #if EXTRA_PROBING
+        uint8_t p = 0; p < TOTAL_PROBING; p++
+      #else
+        uint8_t p = TOTAL_PROBING; p--;
+      #endif
+    )
+  #endif
+    {
+      // Probe downward slowly to find the bed
       if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) {
         if (DEBUGGING(LEVELING)) {
           DEBUG_ECHOLNPGM("SLOW Probe fail!");
@@ -630,18 +678,56 @@ static float run_z_probe() {
         backlash.measure_with_probe();
       #endif
 
-  #if MULTIPLE_PROBING > 2
-      probes_total += current_position[Z_AXIS];
-      if (p > 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      const float z = current_position[Z_AXIS];
+
+      #if EXTRA_PROBING
+        // Insert Z measurement into probes[]. Keep it sorted ascending.
+        for (uint8_t i = 0; i <= p; i++) {                            // Iterate the saved Zs to insert the new Z
+          if (i == p || probes[i] > z) {                              // Last index or new Z is smaller than this Z
+            for (int8_t m = p; --m >= i;) probes[m + 1] = probes[m];  // Shift items down after the insertion point
+            probes[i] = z;                                            // Insert the new Z measurement
+            break;                                                    // Only one to insert. Done!
+          }
+        }
+      #elif TOTAL_PROBING > 2
+        probes_total += z;
+      #else
+        UNUSED(z);
+      #endif
+
+      #if TOTAL_PROBING > 2
+        // Small Z raise after all but the last probe
+        if (p
+          #if EXTRA_PROBING
+            < TOTAL_PROBING - 1
+          #endif
+        ) do_blocking_move_to_z(z + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      #endif
     }
-  #endif
 
-  #if MULTIPLE_PROBING > 2
+  #if TOTAL_PROBING > 2
 
-    // Return the average value of all probes
+    #if EXTRA_PROBING
+      // Take the center value (or average the two middle values) as the median
+      static constexpr int PHALF = (TOTAL_PROBING - 1) / 2;
+      const float middle = probes[PHALF],
+                  median = ((TOTAL_PROBING) & 1) ? middle : (middle + probes[PHALF + 1]) * 0.5f;
+
+      // Remove values farthest from the median
+      uint8_t min_avg_idx = 0, max_avg_idx = TOTAL_PROBING - 1;
+      for (uint8_t i = EXTRA_PROBING; i--;)
+        if (ABS(probes[max_avg_idx] - median) > ABS(probes[min_avg_idx] - median))
+          max_avg_idx--; else min_avg_idx++;
+
+      // Return the average value of all remaining probes.
+      for (uint8_t i = min_avg_idx; i <= max_avg_idx; i++)
+        probes_total += probes[i];
+
+    #endif
+
     const float measured_z = probes_total * (1.0f / (MULTIPLE_PROBING));
 
-  #elif MULTIPLE_PROBING == 2
+  #elif TOTAL_PROBING == 2
 
     const float z2 = current_position[Z_AXIS];
 
@@ -694,7 +780,7 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   const float nz =
     #if ENABLED(DELTA)
       // Move below clip height or xy move will be aborted by do_blocking_move_to
-      MIN(current_position[Z_AXIS], delta_clip_start_height)
+      _MIN(current_position[Z_AXIS], delta_clip_start_height)
     #else
       current_position[Z_AXIS]
     #endif
@@ -726,11 +812,7 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
-    #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
-      bltouch.stow();
-    #else
-      STOW_PROBE();
-    #endif
+    STOW_PROBE();
     LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
     SERIAL_ERROR_MSG(MSG_ERR_PROBING_FAILED);
   }

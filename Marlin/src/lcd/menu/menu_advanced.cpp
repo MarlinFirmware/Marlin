@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ void menu_backlash();
   // Set the home offset based on the current_position
   //
   void _lcd_set_home_offsets() {
-    enqueue_and_echo_commands_P(PSTR("M428"));
+    queue.inject_P(PSTR("M428"));
     ui.return_to_status();
   }
 #endif
@@ -255,7 +255,7 @@ void menu_backlash();
         autotune_temp[e]
       #endif
     );
-    lcd_enqueue_command(cmd);
+    lcd_enqueue_one_now(cmd);
   }
 
 #endif // PID_AUTOTUNE_MENU
@@ -616,7 +616,7 @@ void menu_backlash();
 void menu_advanced_settings() {
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     lcd_runout_distance_mm = runout.runout_distance();
-  #endif  
+  #endif
   START_MENU();
   MENU_BACK(MSG_CONFIGURATION);
 

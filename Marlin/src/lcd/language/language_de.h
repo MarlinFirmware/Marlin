@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,6 +80,10 @@
 #define MSG_LASER_OFF                       _UxGT("Laser aus")
 #define MSG_LASER_ON                        _UxGT("Laser an")
 #define MSG_LASER_POWER                     _UxGT("Laserleistung")
+#define MSG_SPINDLE_MENU                    _UxGT("Spindel-Steuerung")
+#define MSG_SPINDLE_OFF                     _UxGT("Spindel Aus")
+#define MSG_SPINDLE_ON                      _UxGT("Spindel An")
+#define MSG_SPINDLE_POWER                   _UxGT("Spindelleistung")
 #define MSG_SPINDLE_REVERSE                 _UxGT("Spindelrichtung")
 #define MSG_SWITCH_PS_ON                    _UxGT("Netzteil ein")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Netzteil aus")
@@ -99,6 +103,8 @@
 #define MSG_UBL_UNHOMED                     _UxGT("Home XYZ zuerst")
 #define MSG_UBL_TOOLS                       _UxGT("UBL-Werkzeuge")
 #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
+#define MSG_LCD_PROBING_MESH                _UxGT("Messpunkt")
+#define MSG_LCD_TILTING_MESH                _UxGT("Berührungspunkt")
 #define MSG_IDEX_MENU                       _UxGT("IDEX-Modus")
 #define MSG_OFFSETS_MENU                    _UxGT("Werkzeugversätze")
 #define MSG_IDEX_MODE_AUTOPARK              _UxGT("Autom. Parken")
@@ -193,6 +199,7 @@
 #define MSG_MOVE_Z                          _UxGT("Bewege Z")
 #define MSG_MOVE_E                          _UxGT("Bewege Extruder")
 #define MSG_HOTEND_TOO_COLD                 _UxGT("Hotend zu kalt")
+#define MSG_MOVE_0025MM                     _UxGT(" 0,025 mm")
 #define MSG_MOVE_01MM                       _UxGT(" 0,1 mm")
 #define MSG_MOVE_1MM                        _UxGT(" 1,0 mm")
 #define MSG_MOVE_10MM                       _UxGT("10,0 mm")
@@ -231,7 +238,7 @@
 #define MSG_JUNCTION_DEVIATION              _UxGT("Junction Dev")
 #define MSG_VELOCITY                        _UxGT("Geschwindigkeit")
 #define MSG_VMAX                            _UxGT("V max ") // space intentional
-#define MSG_VMIN                            _UxGT("V min")
+#define MSG_VMIN                            _UxGT("V min ")
 #define MSG_VTRAV_MIN                       _UxGT("V min Leerfahrt")
 #define MSG_ACCELERATION                    _UxGT("Beschleunigung")
 #define MSG_AMAX                            _UxGT("A max ") // space intentional
@@ -258,7 +265,7 @@
 #define MSG_MOTION                          _UxGT("Bewegung")
 #define MSG_FILAMENT                        _UxGT("Filament")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm³")
-#define MSG_FILAMENT_DIAM                   _UxGT("Durchm. Filament")
+#define MSG_FILAMENT_DIAM                   _UxGT("Filamentdurchmesser")
 #define MSG_FILAMENT_UNLOAD                 _UxGT("Entladen mm")
 #define MSG_FILAMENT_LOAD                   _UxGT("Laden mm")
 #define MSG_ADVANCE_K                       _UxGT("Vorschubfaktor")
@@ -325,9 +332,18 @@
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("BLTouch ausfahren")
 #define MSG_BLTOUCH_SW_MODE                 _UxGT("BLTouch SW-Modus")
 #define MSG_BLTOUCH_5V_MODE                 _UxGT("BLTouch 5V-Modus")
-#define MSG_BLTOUCH_OD_MODE                 _UxGT("BLTouch OD Mode")
+#define MSG_BLTOUCH_OD_MODE                 _UxGT("BLTouch OD-Modus")
 #define MSG_BLTOUCH_MODE_STORE              _UxGT("BLTouch Mode Store")
+#define MSG_BLTOUCH_MODE_STORE_5V           _UxGT("BLTouch auf 5V")
+#define MSG_BLTOUCH_MODE_STORE_OD           _UxGT("BLTouch auf OD")
 #define MSG_BLTOUCH_STOW                    _UxGT("BLTouch einfahren")
+#define MSG_BLTOUCH_MODE_ECHO               _UxGT("BLTouch Modus: ")
+#define MSG_BLTOUCH_MODE_CHANGE             _UxGT("ACHTUNG: Falsche Einstellung - kann zu Beschädigung führen! Fortfahren?")
+#define MSG_TOUCHMI_PROBE                   _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("TouchMI initial.")
+#define MSG_TOUCHMI_ZTEST                   _UxGT("Test Z-Versatz")
+#define MSG_TOUCHMI_SAVE                    _UxGT("Speichern")
+#define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("TouchMI ausfahren")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Z-Sonde ausfahren")
 #define MSG_MANUAL_STOW                     _UxGT("Z-Sonde einfahren")
 #define MSG_HOME                            _UxGT("Vorher") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
@@ -418,7 +434,8 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Mehr entladen")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Druck weiter")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Düse: ")
-#define MSG_RUNOUT_SENSOR                   _UxGT("Auslaufsensor")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Runout-Sensor")
+#define MSG_RUNOUT_DISTANCE_MM              _UxGT("Runout-Weg mm")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Homing gescheitert")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Probing gescheitert")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: zu kalt")

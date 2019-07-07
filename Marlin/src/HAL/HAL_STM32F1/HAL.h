@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -117,9 +117,8 @@
   #define NUM_SERIAL 1
 #endif
 
-// Use HAL_init() to set interrupt grouping.
-#define HAL_INIT
-void HAL_init();
+// Set interrupt grouping for this MCU
+void HAL_init(void);
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -254,6 +253,9 @@ void HAL_adc_init(void);
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 uint16_t HAL_adc_get_result(void);
+
+uint16_t analogRead(pin_t pin); // need HAL_ANALOG_SELECT() first
+void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin

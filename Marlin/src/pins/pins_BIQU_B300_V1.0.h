@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * BIQU BQ111-A4
@@ -82,9 +83,15 @@
 // Software SPI pins for TMC2130 stepper drivers
 //
 #if ENABLED(TMC_USE_SW_SPI)
-  #define TMC_SW_MOSI      P0_18   // ETH
-  #define TMC_SW_MISO      P0_17   // ETH
-  #define TMC_SW_SCK       P0_15   // ETH
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI    P0_18   // ETH
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO    P0_17   // ETH
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK     P0_15   // ETH
+  #endif
 #endif
 
 //
@@ -119,7 +126,7 @@
  * for the onboard SD card, and a chip select signal is not provided for the remote
  * SD card.
  */
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #define BEEPER_PIN       P1_31   // EXP1-1
 
@@ -132,15 +139,15 @@
   #define LCD_PINS_ENABLE  P0_18   // (MOSI) EXP1-3
   #define LCD_PINS_D4      P0_15   // (SCK)  EXP1-5
 
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) && DISABLED(DOGLCD)
-    #error "REPRAP_DISCOUNT_SMART_CONTROLLER is not supported by the BIQU BQ111-A4"
+  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) && HAS_CHARACTER_LCD
+    #error "REPRAP_DISCOUNT_SMART_CONTROLLER is not supported by the BIQU B300 v1.0"
   #endif
 
   #if ENABLED(SDSUPPORT)
-    #error "SDSUPPORT is not supported by the BIQU BQ111-A4 when an LCD controller is used"
+    #error "SDSUPPORT is not supported by the BIQU B300 v1.0 when an LCD controller is used"
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 /**
  * SD Card Reader

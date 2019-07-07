@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
@@ -28,20 +28,20 @@
 
 #include "../shared/persistent_store_api.h"
 
-#if DISABLED(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
+#if NONE(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
   #include <EEPROM.h>
   static bool eeprom_data_written = false;
 #endif
 
 bool PersistentStore::access_start() {
-  #if DISABLED(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
+  #if NONE(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
     eeprom_buffer_fill();
   #endif
   return true;
 }
 
 bool PersistentStore::access_finish() {
-  #if DISABLED(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
+  #if NONE(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
     if (eeprom_data_written) {
       eeprom_buffer_flush();
       eeprom_data_written = false;
@@ -76,7 +76,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     pos++;
     value++;
   };
-  #if DISABLED(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
+  #if NONE(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
     eeprom_data_written = true;
   #endif
 
@@ -115,4 +115,4 @@ size_t PersistentStore::capacity() {
 }
 
 #endif // EEPROM_SETTINGS
-#endif // ARDUINO_ARCH_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

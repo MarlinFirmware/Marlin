@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,24 +22,12 @@
 #pragma once
 
 /**
- * stepper_indirection.h - stepper motor driver indirection macros
- * to allow some stepper functions to be done via SPI/I2c instead of direct pin manipulation
- * Part of Marlin
+ * stepper_indirection.h
+ *
+ * Stepper motor driver indirection to allow some stepper functions to
+ * be done via SPI/I2c instead of direct pin manipulation.
  *
  * Copyright (c) 2015 Dominik Wenger
- *
- * Marlin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * at your option) any later version.
- *
- * Marlin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Marlin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "../inc/MarlinConfig.h"
@@ -58,8 +46,8 @@
 #if HAS_TRINAMIC
   #include <TMCStepper.h>
   #include "../feature/tmc_util.h"
-  #if TMCSTEPPER_VERSION < 0x000202
-    #error "Update TMCStepper library to 0.2.2 or newer."
+  #if TMCSTEPPER_VERSION < 0x000405
+    #error "Update TMCStepper library to 0.4.5 or newer."
   #endif
 
   #define ____TMC_CLASS(MODEL, A, I, E) TMCMarlin<TMC##MODEL##Stepper, A, I, E>
@@ -81,8 +69,8 @@
 
   static constexpr chopper_timing_t chopper_timing = CHOPPER_TIMING;
 
-  #if HAS_DRIVER(TMC2208)
-    void tmc2208_serial_begin();
+  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+    void tmc_serial_begin();
   #endif
 #endif
 
@@ -94,6 +82,8 @@
 
 void restore_stepper_drivers();  // Called by PSU_ON
 void reset_stepper_drivers();    // Called by settings.load / settings.reset
+
+#define AXIS_HAS_SQUARE_WAVE(A) (AXIS_IS_TMC(A) && ENABLED(SQUARE_WAVE_STEPPING))
 
 // X Stepper
 #if AXIS_DRIVER_TYPE_X(L6470)
@@ -127,7 +117,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define X_DIR_READ READ(X_DIR_PIN)
 #endif
 #define X_STEP_INIT SET_OUTPUT(X_STEP_PIN)
-#if AXIS_IS_TMC(X) && ENABLED(SQUARE_WAVE_STEPPING)
+#if AXIS_HAS_SQUARE_WAVE(X)
   #define X_STEP_WRITE(STATE) do { if(STATE) TOGGLE(X_STEP_PIN); } while(0)
 #else
   #define X_STEP_WRITE(STATE) WRITE(X_STEP_PIN,STATE)
@@ -166,7 +156,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Y_DIR_READ READ(Y_DIR_PIN)
 #endif
 #define Y_STEP_INIT SET_OUTPUT(Y_STEP_PIN)
-#if AXIS_IS_TMC(Y) && ENABLED(SQUARE_WAVE_STEPPING)
+#if AXIS_HAS_SQUARE_WAVE(Y)
   #define Y_STEP_WRITE(STATE) do { if (STATE) TOGGLE(Y_STEP_PIN); } while(0)
 #else
   #define Y_STEP_WRITE(STATE) WRITE(Y_STEP_PIN,STATE)
@@ -205,7 +195,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Z_DIR_READ READ(Z_DIR_PIN)
 #endif
 #define Z_STEP_INIT SET_OUTPUT(Z_STEP_PIN)
-#if AXIS_IS_TMC(Z) && ENABLED(SQUARE_WAVE_STEPPING)
+#if AXIS_HAS_SQUARE_WAVE(Z)
   #define Z_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Z_STEP_PIN); } while(0)
 #else
   #define Z_STEP_WRITE(STATE) WRITE(Z_STEP_PIN,STATE)
@@ -245,7 +235,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define X2_DIR_READ READ(X2_DIR_PIN)
   #endif
   #define X2_STEP_INIT SET_OUTPUT(X2_STEP_PIN)
-  #if AXIS_IS_TMC(X2) && ENABLED(SQUARE_WAVE_STEPPING)
+  #if AXIS_HAS_SQUARE_WAVE(X2)
     #define X2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(X2_STEP_PIN); } while(0)
   #else
     #define X2_STEP_WRITE(STATE) WRITE(X2_STEP_PIN,STATE)
@@ -287,7 +277,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Y2_DIR_READ READ(Y2_DIR_PIN)
   #endif
   #define Y2_STEP_INIT SET_OUTPUT(Y2_STEP_PIN)
-  #if AXIS_IS_TMC(Y2) && ENABLED(SQUARE_WAVE_STEPPING)
+  #if AXIS_HAS_SQUARE_WAVE(Y2)
     #define Y2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Y2_STEP_PIN); } while(0)
   #else
     #define Y2_STEP_WRITE(STATE) WRITE(Y2_STEP_PIN,STATE)
@@ -331,7 +321,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z2_DIR_READ READ(Z2_DIR_PIN)
   #endif
   #define Z2_STEP_INIT SET_OUTPUT(Z2_STEP_PIN)
-  #if AXIS_IS_TMC(Z2) && ENABLED(SQUARE_WAVE_STEPPING)
+  #if AXIS_HAS_SQUARE_WAVE(Z2)
     #define Z2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Z2_STEP_PIN); } while(0)
   #else
     #define Z2_STEP_WRITE(STATE) WRITE(Z2_STEP_PIN,STATE)
@@ -375,7 +365,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z3_DIR_READ READ(Z3_DIR_PIN)
   #endif
   #define Z3_STEP_INIT SET_OUTPUT(Z3_STEP_PIN)
-  #if AXIS_IS_TMC(Z3) && ENABLED(SQUARE_WAVE_STEPPING)
+  #if AXIS_HAS_SQUARE_WAVE(Z3)
     #define Z3_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Z3_STEP_PIN); } while(0)
   #else
     #define Z3_STEP_WRITE(STATE) WRITE(Z3_STEP_PIN,STATE)
@@ -418,7 +408,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E0_DIR_READ READ(E0_DIR_PIN)
 #endif
 #define E0_STEP_INIT SET_OUTPUT(E0_STEP_PIN)
-#if AXIS_IS_TMC(E0) && ENABLED(SQUARE_WAVE_STEPPING)
+#if AXIS_HAS_SQUARE_WAVE(E0)
   #define E0_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E0_STEP_PIN); } while(0)
 #else
   #define E0_STEP_WRITE(STATE) WRITE(E0_STEP_PIN,STATE)
@@ -457,7 +447,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E1_DIR_READ READ(E1_DIR_PIN)
 #endif
 #define E1_STEP_INIT SET_OUTPUT(E1_STEP_PIN)
-#if AXIS_IS_TMC(E1) && ENABLED(SQUARE_WAVE_STEPPING)
+#if AXIS_HAS_SQUARE_WAVE(E1)
   #define E1_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E1_STEP_PIN); } while(0)
 #else
   #define E1_STEP_WRITE(STATE) WRITE(E1_STEP_PIN,STATE)
@@ -496,7 +486,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E2_DIR_READ READ(E2_DIR_PIN)
 #endif
 #define E2_STEP_INIT SET_OUTPUT(E2_STEP_PIN)
-#if AXIS_IS_TMC(E2) && ENABLED(SQUARE_WAVE_STEPPING)
+#if AXIS_HAS_SQUARE_WAVE(E2)
   #define E2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E2_STEP_PIN); } while(0)
 #else
   #define E2_STEP_WRITE(STATE) WRITE(E2_STEP_PIN,STATE)
@@ -535,7 +525,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E3_DIR_READ READ(E3_DIR_PIN)
 #endif
 #define E3_STEP_INIT SET_OUTPUT(E3_STEP_PIN)
-#if AXIS_IS_TMC(E3) && ENABLED(SQUARE_WAVE_STEPPING)
+#if AXIS_HAS_SQUARE_WAVE(E3)
   #define E3_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E3_STEP_PIN); } while(0)
 #else
   #define E3_STEP_WRITE(STATE) WRITE(E3_STEP_PIN,STATE)
@@ -574,7 +564,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E4_DIR_READ READ(E4_DIR_PIN)
 #endif
 #define E4_STEP_INIT SET_OUTPUT(E4_STEP_PIN)
-#if AXIS_IS_TMC(E4) && ENABLED(SQUARE_WAVE_STEPPING)
+#if AXIS_HAS_SQUARE_WAVE(E4)
   #define E4_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E4_STEP_PIN); } while(0)
 #else
   #define E4_STEP_WRITE(STATE) WRITE(E4_STEP_PIN,STATE)
@@ -613,7 +603,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E5_DIR_READ READ(E5_DIR_PIN)
 #endif
 #define E5_STEP_INIT SET_OUTPUT(E5_STEP_PIN)
-#if AXIS_IS_TMC(E5) && ENABLED(SQUARE_WAVE_STEPPING)
+#if AXIS_HAS_SQUARE_WAVE(E5)
   #define E5_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E5_STEP_PIN); } while(0)
 #else
   #define E5_STEP_WRITE(STATE) WRITE(E5_STEP_PIN,STATE)

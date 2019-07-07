@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ void controllerfan_update() {
 
     // allows digital or PWM fan output to be used (see M42 handling)
     WRITE(CONTROLLER_FAN_PIN, speed);
-    analogWrite(CONTROLLER_FAN_PIN, speed);
+    analogWrite(pin_t(CONTROLLER_FAN_PIN), speed);
   }
 }
 

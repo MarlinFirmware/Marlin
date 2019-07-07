@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -200,6 +200,17 @@ public:
   #if ENABLED(LED_CONTROL_MENU)
     static void toggle();  // swap "off" with color
     static inline void update() { set_color(color); }
+  #endif
+
+  #ifdef LED_BACKLIGHT_TIMEOUT
+    private:
+      static millis_t led_off_time;
+    public:
+      static inline void reset_timeout(const millis_t &ms) {
+        led_off_time = ms + LED_BACKLIGHT_TIMEOUT;
+        if (!lights_on) set_default();
+      }
+      static void update_timeout(const bool power_on);
   #endif
 };
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ void GcodeSuite::G29() {
       mbl.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_bl_move) {
-        enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
+        queue.inject_P(PSTR("G28\nG29 S2"));
         return;
       }
       state = MeshNext;
@@ -197,7 +197,7 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
-    SERIAL_ECHOPAIR("MBL G29 point ", MIN(mbl_probe_index, GRID_MAX_POINTS));
+    SERIAL_ECHOPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS));
     SERIAL_ECHOLNPAIR(" of ", int(GRID_MAX_POINTS));
   }
 

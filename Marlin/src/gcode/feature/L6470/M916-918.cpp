@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,10 +106,10 @@ void GcodeSuite::M916() {
 
     // turn the motor(s) both directions
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
-    process_subcommands_now_P(gcode_string);
+    process_subcommands_now(gcode_string);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_max, final_feedrate);
-    process_subcommands_now_P(gcode_string);
+    process_subcommands_now(gcode_string);
 
     // get the status after the motors have stopped
     planner.synchronize();
@@ -226,10 +226,10 @@ void GcodeSuite::M917() {
     DEBUG_ECHOLNPAIR("   OCD threshold : ", (ocd_th_val + 1) * 375);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
-    process_subcommands_now_P(gcode_string);
+    process_subcommands_now(gcode_string);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_max, final_feedrate);
-    process_subcommands_now_P(gcode_string);
+    process_subcommands_now(gcode_string);
 
     planner.synchronize();
 
@@ -518,10 +518,10 @@ void GcodeSuite::M918() {
     DEBUG_ECHOLNPAIR("...feedrate = ", current_feedrate);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f F%4.3f"), temp_axis_string, position_min, current_feedrate);
-    process_subcommands_now_P(gcode_string);
+    process_subcommands_now(gcode_string);
 
     sprintf_P(gcode_string, PSTR("G0 %s%4.3f F%4.3f"), temp_axis_string, position_max, current_feedrate);
-    process_subcommands_now_P(gcode_string);
+    process_subcommands_now(gcode_string);
 
     planner.synchronize();
 

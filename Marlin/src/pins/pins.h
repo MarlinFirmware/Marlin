@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,6 +156,8 @@
   #include "pins_TRIGORILLA_13.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(TRIGORILLA_14)
   #include "pins_TRIGORILLA_14.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(TRIGORILLA_14_11)
+  #include "pins_TRIGORILLA_14.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RAMPS_ENDER_4)
   #include "pins_RAMPS_ENDER_4.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RAMPS_CREALITY)
@@ -170,6 +172,8 @@
   #include "pins_VORON.h"             // ATmega2560                                 env:megaatmega2560
 #elif MB(TRONXY_V3_1_0)
   #include "pins_TRONXY_V3_1_0.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(Z_BOLT_X_SERIES)
+  #include "pins_Z_BOLT_X_SERIES.h"   // ATmega2560                                 env:megaatmega2560
 
 //
 // Other ATmega1280, ATmega2560
@@ -320,6 +324,8 @@
   #include "pins_MKS_SBASE.h"           // LPC1768                                    env:LPC1768
 #elif MB(MKS_SGEN)
   #include "pins_MKS_SGEN.h"            // LPC1769                                    env:LPC1769
+#elif MB(MKS_SGEN_L)
+  #include "pins_MKS_SGEN_L.h"          // LPC1768                                    env:LPC1768
 #elif MB(AZSMZ_MINI)
   #include "pins_AZSMZ_MINI.h"          // LPC1768                                    env:LPC1768
 #elif MB(AZTEEG_X5_GT)
@@ -338,12 +344,14 @@
   #include "pins_COHESION3D_MINI.h"     // LPC1769                                    env:LPC1769
 #elif MB(SMOOTHIEBOARD)
   #include "pins_SMOOTHIEBOARD.h"       // LPC1769                                    env:LPC1769
-#elif MB(BIQU_SKR_V1_1)
-  #include "pins_BIQU_SKR_V1.1.h"       // LPC1768                                    env:LPC1768
+#elif MB(BIGTREE_SKR_V1_1)
+  #include "pins_BIGTREE_SKR_V1.1.h"    // LPC1768                                    env:LPC1768
 #elif MB(BIQU_B300_V1_0)
   #include "pins_BIQU_B300_V1.0.h"      // LPC1768                                    env:LPC1768
 #elif MB(BIGTREE_SKR_V1_3)
   #include "pins_BIGTREE_SKR_V1.3.h"    // LPC1768                                    env:LPC1768
+#elif MB(TH3D_EZBOARD)
+  #include "pins_TH3D_EZBOARD.h"        // LPC1768                                    env:LPC1768
 
 //
 // Other 32-bit Boards
@@ -416,6 +424,8 @@
   #include "pins_STM3R_MINI.h"        // STM32F1                                    env:STM32F1
 #elif MB(BIGTREE_SKR_MINI_V1_1)
   #include "pins_BIGTREE_SKR_MINI_V1_1.h" // STM32F1                                env:BIGTREE_SKR_MINI
+#elif MB(BIGTREE_SKR_MINI_E3)
+  #include "pins_BIGTREE_SKR_MINI_E3.h" // STM32F1                                  env:BIGTREE_SKR_MINI
 #elif MB(MALYAN_M200)
   #include "pins_MALYAN_M200.h"       // STM32F1                                    env:malyanm200
 #elif MB(CHITU3D)
@@ -426,6 +436,16 @@
   #include "pins_MORPHEUS.h"          // STM32F1                                    env:STM32F1
 #elif MB(MKS_ROBIN)
   #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:mks_robin
+#elif MB(MKS_ROBIN_MINI)
+  #include "pins_MKS_ROBIN_MINI.h"    // STM32F1                                    env:mks_robin_mini
+#elif MB(MKS_ROBIN_NANO)
+  #include "pins_MKS_ROBIN_NANO.h"    // STM32F1                                    env:mks_robin_nano
+#elif MB(JGAURORA_A5S_A1)
+  #include "pins_JGAURORA_A5S_A1.h"   // STM32F1                                    env:JGAURORA_A5S_A1
+#elif MB(FYSETC_AIO_II)
+  #include "pins_FYSETC_AIO_II.h"     // STM32F1                                    env:fysetc_STM32F1
+#elif MB(FYSETC_CHEETAH)
+  #include "pins_FYSETC_CHEETAH.h"    // STM32F1                                    env:fysetc_STM32F1
 
 //
 // STM32 ARM Cortex-M4F
@@ -447,8 +467,8 @@
   #include "pins_BLACK_STM32F407VE.h" // STM32F4                                    env:black_stm32f407ve
 #elif MB(STEVAL)
   #include "pins_STEVAL.h"            // STM32F4                                    env:STM32F4
-
-
+#elif MB(BIGTREE_SKR_PRO_V1_1)
+  #include "pins_BIGTREE_SKR_PRO_V1.1.h" // STM32F4                                 env:BIGTREE_SKR_PRO
 
 //
 // ARM Cortex M7
@@ -646,6 +666,7 @@
 #ifndef FAN_PIN
   #define FAN_PIN -1
 #endif
+#define FAN0_PIN FAN_PIN
 #ifndef FAN1_PIN
   #define FAN1_PIN -1
 #endif
@@ -722,7 +743,7 @@
 #ifndef LED_PIN
   #define LED_PIN -1
 #endif
-#if POWER_SUPPLY == 0 || !defined(PS_ON_PIN)
+#if DISABLED(PSU_CONTROL) || !defined(PS_ON_PIN)
   #undef PS_ON_PIN
   #define PS_ON_PIN -1
 #endif
@@ -801,6 +822,10 @@
     #define X_MIN_PIN -1
     #define X_MAX_PIN X_STOP_PIN
   #endif
+#elif X_HOME_DIR < 0
+  #define X_STOP_PIN X_MIN_PIN
+#else
+  #define X_STOP_PIN X_MAX_PIN
 #endif
 
 #ifdef Y_STOP_PIN
@@ -811,6 +836,10 @@
     #define Y_MIN_PIN -1
     #define Y_MAX_PIN Y_STOP_PIN
   #endif
+#elif Y_HOME_DIR < 0
+  #define Y_STOP_PIN Y_MIN_PIN
+#else
+  #define Y_STOP_PIN Y_MAX_PIN
 #endif
 
 #ifdef Z_STOP_PIN
@@ -821,6 +850,10 @@
     #define Z_MIN_PIN -1
     #define Z_MAX_PIN Z_STOP_PIN
   #endif
+#elif Z_HOME_DIR < 0
+  #define Z_STOP_PIN Z_MIN_PIN
+#else
+  #define Z_STOP_PIN Z_MAX_PIN
 #endif
 
 //
@@ -864,14 +897,21 @@
 #ifndef LCD_PINS_D4
   #define LCD_PINS_D4 -1
 #endif
-#ifndef LCD_PINS_D5
-  #define LCD_PINS_D5 -1
-#endif
-#ifndef LCD_PINS_D6
-  #define LCD_PINS_D6 -1
-#endif
-#ifndef LCD_PINS_D7
-  #define LCD_PINS_D7 -1
+
+#if HAS_CHARACTER_LCD
+  #ifndef LCD_PINS_D5
+    #define LCD_PINS_D5 -1
+  #endif
+  #ifndef LCD_PINS_D6
+    #define LCD_PINS_D6 -1
+  #endif
+  #ifndef LCD_PINS_D7
+    #define LCD_PINS_D7 -1
+  #endif
+#else
+  #undef LCD_PINS_D5
+  #undef LCD_PINS_D6
+  #undef LCD_PINS_D7
 #endif
 
 /**

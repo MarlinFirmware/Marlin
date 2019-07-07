@@ -1,10 +1,10 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (C) 2017 Victor Perez
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 /**
  * Software SPI functions originally from Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  */
 
 /**
@@ -38,7 +38,7 @@
 
 #include "HAL.h"
 #include "../shared/HAL_SPI.h"
-#include "pins_arduino.h"
+#include <pins_arduino.h>
 #include "spi_pins.h"
 #include "../../core/macros.h"
 #include <SPI.h>
@@ -81,8 +81,7 @@ void spiBegin(void) {
     #error SS_PIN not defined!
   #endif
 
-  SET_OUTPUT(SS_PIN);
-  WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SS_PIN, HIGH);
 }
 
 /** Configure SPI for specified SPI speed */

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,11 +172,11 @@
         break;
 
       case 2: // Raise by Z-park height
-        do_blocking_move_to_z(MIN(current_position[Z_AXIS] + park.z, Z_MAX_POS), fr_z);
+        do_blocking_move_to_z(_MIN(current_position[Z_AXIS] + park.z, Z_MAX_POS), fr_z);
         break;
 
       default: // Raise to at least the Z-park height
-        do_blocking_move_to_z(MAX(park.z, current_position[Z_AXIS]), fr_z);
+        do_blocking_move_to_z(_MAX(park.z, current_position[Z_AXIS]), fr_z);
     }
 
     do_blocking_move_to_xy(park.x, park.y, fr_xy);

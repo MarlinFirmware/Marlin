@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -212,7 +212,7 @@ void menu_tmc_current() {
 
 #if ENABLED(SENSORLESS_HOMING)
 
-  #define TMC_EDIT_STORED_SGT(ST) MENU_ITEM_EDIT_CALLBACK(int8, MSG_##ST, &stepper##ST.stored.homing_thrs, -64, 63, refresh_homing_thrs_##ST);
+  #define TMC_EDIT_STORED_SGT(ST) MENU_ITEM_EDIT_CALLBACK(int4, MSG_##ST, &stepper##ST.stored.homing_thrs, stepper##ST.sgt_min, stepper##ST.sgt_max, refresh_homing_thrs_##ST);
 
   #if X_SENSORLESS
     void refresh_homing_thrs_X()  { stepperX.refresh_homing_thrs();  }
