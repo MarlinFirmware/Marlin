@@ -22,8 +22,6 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include <stdint.h>
-
 #include "../shared/Marduino.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio_AVR.h"
@@ -36,6 +34,7 @@
   #include "MarlinSerial.h"
 #endif
 
+#include <stdint.h>
 #include <util/delay.h>
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
