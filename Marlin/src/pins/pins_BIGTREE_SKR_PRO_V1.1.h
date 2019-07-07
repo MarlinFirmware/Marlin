@@ -39,7 +39,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN        PA1
+#define SERVO0_PIN         PA1
 
 //
 // Limit Switches
@@ -187,41 +187,41 @@
 |               ￣￣                                               ￣￣
 |               EXP2                                              EXP1
 */
-#if ENABLED(ULTRA_LCD)
-  #define BEEPER_PIN        PG4
-  #define BTN_ENC           PA8
+#if HAS_SPI_LCD
+  #define BEEPER_PIN       PG4
+  #define BTN_ENC          PA8
 
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS     PG6
+    #define LCD_PINS_RS    PG6
 
-    #define BTN_EN1         PD11
-    #define BTN_EN2         PG2
+    #define BTN_EN1        PD11
+    #define BTN_EN2        PG2
 
     #define LCD_PINS_ENABLE PG7
-    #define LCD_PINS_D4     PG3
+    #define LCD_PINS_D4    PG3
 
   #else
 
-    #define LCD_PINS_RS     PD10
+    #define LCD_PINS_RS    PD10
 
-    #define BTN_EN1         PG10
-    #define BTN_EN2         PF11
-    #define SD_DETECT_PIN   PF12
+    #define BTN_EN1        PG10
+    #define BTN_EN2        PF11
+    #define SD_DETECT_PIN  PF12
 
-    #define LCD_SDSS        PB12
+    #define LCD_SDSS       PB12
 
     #define LCD_PINS_ENABLE PD11
-    #define LCD_PINS_D4     PG2
+    #define LCD_PINS_D4    PG2
 
     #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5   PG3
-      #define LCD_PINS_D6   PG6
-      #define LCD_PINS_D7   PG7
+      #define LCD_PINS_D5  PG3
+      #define LCD_PINS_D6  PG6
+      #define LCD_PINS_D7  PG7
     #endif
 
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
 // Alter timing for graphical display
 #ifndef ST7920_DELAY_1
