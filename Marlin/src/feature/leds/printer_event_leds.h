@@ -35,8 +35,9 @@ private:
   #if HAS_LEDS_OFF_FLAG
     static bool leds_off_after_print;
   #endif
+
   static inline void set_done() {
-    #if ENABLED(LED_USER_PRESET_OFF_DEFAULT)
+    #if ENABLED(LED_COLOR_PRESETS)
       leds.set_default();
     #else
       leds.set_off();
