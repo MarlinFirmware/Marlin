@@ -31,6 +31,7 @@
 #ifdef USBCON
   #include "HardwareSerial.h"
 #else
+  #define HardwareSerial_h // Hack to prevent HardwareSerial.h header inclusion
   #include "MarlinSerial.h"
 #endif
 

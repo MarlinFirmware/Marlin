@@ -33,11 +33,6 @@
 
 #include HAL_PATH(../HAL, spi_pins.h)
 
-// Trick to disable the standard HWserial
-#if defined(__AVR__) && !defined(USBCON)
-  #define HardwareSerial_h
-#endif
-
 #include "Conditionals_post.h"
 #include "SanityCheck.h"
 
