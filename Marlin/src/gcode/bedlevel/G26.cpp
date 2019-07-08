@@ -167,7 +167,7 @@ int8_t g26_prime_flag;
    * If the LCD is clicked, cancel, wait for release, return true
    */
   bool user_canceled() {
-    if (!ui.button_pressed()) return false; // Return if the button isn't pressed
+    if (!ui.button_debounced()) return false; // Return if the button isn't pressed
     ui.set_status_P(PSTR(MSG_G26_CANCELED), 99);
     #if HAS_LCD_MENU
       ui.quick_feedback();
@@ -433,7 +433,7 @@ inline bool prime_nozzle() {
 
       recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
 
-      while (!ui.button_pressed()) {
+      while (!ui.button_debounced()) {
         ui.chirp();
         destination.e += 0.25;
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)

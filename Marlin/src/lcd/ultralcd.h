@@ -527,6 +527,8 @@ public:
 
   #if HAS_ENCODER_ACTION
 
+    #define BTN_DEBOUNCE_THRESHOLD 2
+
     static volatile uint8_t buttons;
     #if ENABLED(REPRAPWORLD_KEYPAD)
       static volatile uint8_t keypad_buttons;
@@ -539,6 +541,20 @@ public:
 
     static void update_buttons();
     static inline bool button_pressed() { return BUTTON_CLICK(); }
+    static inline bool button_debounced() {
+      #if BTN_DEBOUNCE_THRESHOLD
+        static uint8_t thresh; // = 0
+        if (!button_pressed())
+          thresh = 0;
+        else if (thresh >= BTN_DEBOUNCE_THRESHOLD)
+          return true;
+        else
+          ++thresh;
+        return false;
+      #else
+        return button_pressed();
+      #endif
+    }
     #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
       static void wait_for_release();
     #endif

@@ -761,7 +761,7 @@
         #endif
 
         #if HAS_LCD_MENU
-          if (ui.button_pressed()) {
+          if (ui.button_debounced()) {
             ui.quick_feedback(false); // Preserve button state for click-and-hold
             SERIAL_ECHOLNPGM("\nMesh only partially populated.\n");
             STOW_PROBE();
@@ -811,12 +811,12 @@
     typedef void (*clickFunc_t)();
 
     bool click_and_hold(const clickFunc_t func=nullptr) {
-      if (ui.button_pressed()) {
-        ui.quick_feedback(false);                // Preserve button state for click-and-hold
+      if (ui.button_debounced()) {
+        ui.quick_feedback(false);               // Preserve button state for click-and-hold
         const millis_t nxt = millis() + 1500UL;
-        while (ui.button_pressed()) {                // Loop while the encoder is pressed. Uses hardware flag!
-          idle();                                 // idle, of course
-          if (ELAPSED(millis(), nxt)) {           // After 1.5 seconds
+        while (ui.button_debounced()) {         // Loop while the encoder is pressed. Uses hardware flag!
+          idle();                               // idle, of course
+          if (ELAPSED(millis(), nxt)) {         // After 1.5 seconds
             ui.quick_feedback();
             if (func) (*func)();
             ui.wait_for_release();
@@ -830,7 +830,7 @@
 
     void unified_bed_leveling::move_z_with_encoder(const float &multiplier) {
       ui.wait_for_release();
-      while (!ui.button_pressed()) {
+      while (!ui.button_debounced()) {
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
         if (encoder_diff) {
@@ -1034,7 +1034,7 @@
           #endif
           idle();
           SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
-        } while (!ui.button_pressed());
+        } while (!ui.button_debounced());
 
         if (!lcd_map_control) ui.return_to_status();        // Just editing a single point? Return to status
 

@@ -213,7 +213,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     bool MarlinUI::external_control; // = false
 
     void MarlinUI::wait_for_release() {
-      while (button_pressed()) safe_delay(50);
+      while (button_debounced()) safe_delay(50);
       safe_delay(50);
     }
 
@@ -758,7 +758,7 @@ void MarlinUI::update() {
     // Handle any queued Move Axis motion
     manage_manual_move();
 
-    // Update button states for button_pressed(), etc.
+    // Update button states for button_debounced(), etc.
     // If the state changes the next update may be delayed 300-500ms.
     update_buttons();
 
@@ -809,7 +809,7 @@ void MarlinUI::update() {
     #endif // TOUCH_BUTTONS
 
     // Integrated LCD click handling via button_pressed
-    if (!external_control && button_pressed()) {
+    if (!external_control && button_debounced()) {
       if (!wait_for_unclick) {                        // If not waiting for a debounce release:
         wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
         lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
