@@ -146,7 +146,7 @@ void stepperTask(void* parameter) {
     xQueueReceive(dma.queue, &dma.current, portMAX_DELAY);
     dma.rw_pos = 0;
 
-    for (i = 0; i < DMA_SAMPLE_COUNT; i++) {
+    while (dma.rw_pos < DMA_SAMPLE_COUNT) {
       // Fill with the port data post pulse_phase until the next step
       if (remaining) {
         i2s_push_sample();
