@@ -855,7 +855,7 @@
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
-        //, MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f);
+        //, _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f);
       planner.synchronize();
 
       SERIAL_ECHOPGM("Place shim under nozzle");
@@ -1385,10 +1385,10 @@
     #include "../../../libs/vector_3.h"
 
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
-      constexpr int16_t x_min = MAX(MIN_PROBE_X, MESH_MIN_X),
-                        x_max = MIN(MAX_PROBE_X, MESH_MAX_X),
-                        y_min = MAX(MIN_PROBE_Y, MESH_MIN_Y),
-                        y_max = MIN(MAX_PROBE_Y, MESH_MAX_Y);
+      constexpr int16_t x_min = _MAX(MIN_PROBE_X, MESH_MIN_X),
+                        x_max = _MIN(MAX_PROBE_X, MESH_MAX_X),
+                        y_min = _MAX(MIN_PROBE_Y, MESH_MIN_Y),
+                        y_max = _MIN(MAX_PROBE_Y, MESH_MAX_Y);
 
       bool abort_flag = false;
 
@@ -1654,7 +1654,7 @@
 
       SERIAL_ECHOPGM("Extrapolating mesh...");
 
-      const float weight_scaled = weight_factor * MAX(MESH_X_DIST, MESH_Y_DIST);
+      const float weight_scaled = weight_factor * _MAX(MESH_X_DIST, MESH_Y_DIST);
 
       for (uint8_t jx = 0; jx < GRID_MAX_POINTS_X; jx++)
         for (uint8_t jy = 0; jy < GRID_MAX_POINTS_Y; jy++)

@@ -102,10 +102,10 @@ inline bool food_on_line() {
   for (uint8_t n = 0; n < head_ind; ++n) {
     pos_t &p = snake_tail[n], &q = snake_tail[n + 1];
     if (p.x == q.x) {
-      if ((foodx == p.x - 1 || foodx == p.x) && WITHIN(foody, MIN(p.y, q.y), MAX(p.y, q.y)))
+      if ((foodx == p.x - 1 || foodx == p.x) && WITHIN(foody, _MIN(p.y, q.y), _MAX(p.y, q.y)))
         return true;
     }
-    else if ((foody == p.y - 1 || foody == p.y) && WITHIN(foodx, MIN(p.x, q.x), MAX(p.x, q.x)))
+    else if ((foody == p.y - 1 || foody == p.y) && WITHIN(foodx, _MIN(p.x, q.x), _MAX(p.x, q.x)))
       return true;
   }
   return false;
@@ -164,9 +164,9 @@ bool snake_overlap() {
       const pos_t &p = snake_tail[n], &q = snake_tail[n + 1];
       if (p.x != q.x) {
         // Crossing horizontal segment
-        if (WITHIN(h1.x, MIN(p.x, q.x), MAX(p.x, q.x)) && (h1.y <= p.y) == (h2.y >= p.y)) return true;
+        if (WITHIN(h1.x, _MIN(p.x, q.x), _MAX(p.x, q.x)) && (h1.y <= p.y) == (h2.y >= p.y)) return true;
       } // Overlapping vertical segment
-      else if (h1.x == p.x && MIN(h1.y, h2.y) <= MAX(p.y, q.y) && MAX(h1.y, h2.y) >= MIN(p.y, q.y)) return true;
+      else if (h1.x == p.x && _MIN(h1.y, h2.y) <= _MAX(p.y, q.y) && _MAX(h1.y, h2.y) >= _MIN(p.y, q.y)) return true;
     }
   }
   else {
@@ -176,9 +176,9 @@ bool snake_overlap() {
       const pos_t &p = snake_tail[n], &q = snake_tail[n + 1];
       if (p.y != q.y) {
         // Crossing vertical segment
-        if (WITHIN(h1.y, MIN(p.y, q.y), MAX(p.y, q.y)) && (h1.x <= p.x) == (h2.x >= p.x)) return true;
+        if (WITHIN(h1.y, _MIN(p.y, q.y), _MAX(p.y, q.y)) && (h1.x <= p.x) == (h2.x >= p.x)) return true;
       } // Overlapping horizontal segment
-      else if (h1.y == p.y && MIN(h1.x, h2.x) <= MAX(p.x, q.x) && MAX(h1.x, h2.x) >= MIN(p.x, q.x)) return true;
+      else if (h1.y == p.y && _MIN(h1.x, h2.x) <= _MAX(p.x, q.x) && _MAX(h1.x, h2.x) >= _MIN(p.x, q.x)) return true;
     }
   }
   return false;
@@ -254,12 +254,12 @@ void SnakeGame::game_screen() {
     for (uint8_t n = 0; n < head_ind; ++n) {
       const pos_t &p = snake_tail[n], &q = snake_tail[n + 1];
       if (p.x == q.x) {
-        const int8_t y1 = GAMEY(MIN(p.y, q.y)), y2 = GAMEY(MAX(p.y, q.y));
+        const int8_t y1 = GAMEY(_MIN(p.y, q.y)), y2 = GAMEY(_MAX(p.y, q.y));
         if (PAGE_CONTAINS(y1, y2))
           u8g.drawVLine(GAMEX(p.x), y1, y2 - y1 + 1);
       }
       else if (PAGE_CONTAINS(GAMEY(p.y), GAMEY(p.y))) {
-        const int8_t x1 = GAMEX(MIN(p.x, q.x)), x2 = GAMEX(MAX(p.x, q.x));
+        const int8_t x1 = GAMEX(_MIN(p.x, q.x)), x2 = GAMEX(_MAX(p.x, q.x));
         u8g.drawHLine(x1, GAMEY(p.y), x2 - x1 + 1);
       }
     }
@@ -270,14 +270,14 @@ void SnakeGame::game_screen() {
     for (uint8_t n = 0; n < head_ind; ++n) {
       const pos_t &p = snake_tail[n], &q = snake_tail[n + 1];
       if (p.x == q.x) {
-        const int8_t y1 = GAMEY(MIN(p.y, q.y)), y2 = GAMEY(MAX(p.y, q.y));
+        const int8_t y1 = GAMEY(_MIN(p.y, q.y)), y2 = GAMEY(_MAX(p.y, q.y));
         if (PAGE_CONTAINS(y1, y2 + 1))
           u8g.drawFrame(GAMEX(p.x), y1, 2, y2 - y1 + 1 + 1);
       }
       else {
         const int8_t py = GAMEY(p.y);
         if (PAGE_CONTAINS(py, py + 1)) {
-          const int8_t x1 = GAMEX(MIN(p.x, q.x)), x2 = GAMEX(MAX(p.x, q.x));
+          const int8_t x1 = GAMEX(_MIN(p.x, q.x)), x2 = GAMEX(_MAX(p.x, q.x));
           u8g.drawFrame(x1, py, x2 - x1 + 1 + 1, 2);
         }
       }
@@ -289,7 +289,7 @@ void SnakeGame::game_screen() {
     for (uint8_t n = 0; n < head_ind; ++n) {
       const pos_t &p = snake_tail[n], &q = snake_tail[n + 1];
       if (p.x == q.x) {
-        const int8_t y1 = MIN(p.y, q.y), y2 = MAX(p.y, q.y);
+        const int8_t y1 = _MIN(p.y, q.y), y2 = _MAX(p.y, q.y);
         if (PAGE_CONTAINS(GAMEY(y1), GAMEY(y2) + SNAKE_SIZ - 1)) {
           for (int8_t i = y1; i <= y2; ++i) {
             const int8_t y = GAMEY(i);
@@ -301,7 +301,7 @@ void SnakeGame::game_screen() {
       else {
         const int8_t py = GAMEY(p.y);
         if (PAGE_CONTAINS(py, py + SNAKE_SIZ - 1)) {
-          const int8_t x1 = MIN(p.x, q.x), x2 = MAX(p.x, q.x);
+          const int8_t x1 = _MIN(p.x, q.x), x2 = _MAX(p.x, q.x);
           for (int8_t i = x1; i <= x2; ++i)
             u8g.drawBox(GAMEX(i), py, SNAKE_SIZ, SNAKE_SIZ);
         }

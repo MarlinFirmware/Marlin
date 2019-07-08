@@ -344,8 +344,8 @@
   #include "pins_COHESION3D_MINI.h"     // LPC1769                                    env:LPC1769
 #elif MB(SMOOTHIEBOARD)
   #include "pins_SMOOTHIEBOARD.h"       // LPC1769                                    env:LPC1769
-#elif MB(BIQU_SKR_V1_1)
-  #include "pins_BIQU_SKR_V1.1.h"       // LPC1768                                    env:LPC1768
+#elif MB(BIGTREE_SKR_V1_1)
+  #include "pins_BIGTREE_SKR_V1.1.h"    // LPC1768                                    env:LPC1768
 #elif MB(BIQU_B300_V1_0)
   #include "pins_BIQU_B300_V1.0.h"      // LPC1768                                    env:LPC1768
 #elif MB(BIGTREE_SKR_V1_3)
@@ -467,6 +467,8 @@
   #include "pins_BLACK_STM32F407VE.h" // STM32F4                                    env:black_stm32f407ve
 #elif MB(STEVAL)
   #include "pins_STEVAL.h"            // STM32F4                                    env:STM32F4
+#elif MB(BIGTREE_SKR_PRO_V1_1)
+  #include "pins_BIGTREE_SKR_PRO_V1.1.h" // STM32F4                                 env:BIGTREE_SKR_PRO
 
 //
 // ARM Cortex M7
@@ -741,7 +743,7 @@
 #ifndef LED_PIN
   #define LED_PIN -1
 #endif
-#if POWER_SUPPLY == 0 || !defined(PS_ON_PIN)
+#if DISABLED(PSU_CONTROL) || !defined(PS_ON_PIN)
   #undef PS_ON_PIN
   #define PS_ON_PIN -1
 #endif

@@ -84,10 +84,6 @@
 #define SBI32(n,b) (n |= _BV32(b))
 #define CBI32(n,b) (n &= ~_BV32(b))
 
-// Macros for maths shortcuts
-#undef M_PI
-#define M_PI 3.14159265358979323846f
-
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
@@ -194,7 +190,7 @@
 #define ZERO(a)             memset(a,0,sizeof(a))
 #define COPY(a,b) do{ \
     static_assert(sizeof(a[0]) == sizeof(b[0]), "COPY: '" STRINGIFY(a) "' and '" STRINGIFY(b) "' types (sizes) don't match!"); \
-    memcpy(&a[0],&b[0],MIN(sizeof(a),sizeof(b))); \
+    memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
   }while(0)
 
 // Macros for initializing arrays

@@ -503,7 +503,7 @@ void Max7219::range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const
 
 // Apply changes to update a quantity
 void Max7219::quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv) {
-  for (uint8_t i = MIN(nv, ov); i < MAX(nv, ov); i++)
+  for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
     #if MAX7219_X_LEDS == 8
       #if MAX7219_Y_LEDS == 8
         led_set(i >> 1, y + (i & 1), nv >= ov); // single 8x8 LED matrix.  Use two lines to get 16 LED's

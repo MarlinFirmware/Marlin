@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Re-ARM with RAMPS v1.4 pin assignments
@@ -101,9 +102,15 @@
 // Software SPI pins for TMC2130 stepper drivers
 //
 #if ENABLED(TMC_USE_SW_SPI)
-  #define TMC_SW_MOSI      P1_00   // ETH
-  #define TMC_SW_MISO      P1_08   // ETH
-  #define TMC_SW_SCK       P1_09   // ETH
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI    P1_00   // ETH
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO    P1_08   // ETH
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK     P1_09   // ETH
+  #endif
 #endif
 
 #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
@@ -151,7 +158,7 @@
 //
 // Augmentation for auto-assigning RAMPS plugs
 //
-#if DISABLED(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
+#if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
   #if HOTENDS > 1
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #if HOTENDS > 1 || E_STEPPERS > 1
   #error "Ender-4 supports only 1 hotend / E-stepper. Comment out this line to continue."

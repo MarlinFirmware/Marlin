@@ -112,7 +112,7 @@ static void createChar_P(const char c, const byte * const ptr) {
 #endif
 
 void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARSET_INFO*/) {
-  #if DISABLED(LCD_PROGRESS_BAR, SHOW_BOOTSCREEN)
+  #if NONE(LCD_PROGRESS_BAR, SHOW_BOOTSCREEN)
     UNUSED(screen_charset);
   #endif
 
@@ -382,7 +382,7 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
     }
     else {
       PGM_P p = text;
-      int dly = time / MAX(slen, 1);
+      int dly = time / _MAX(slen, 1);
       for (uint8_t i = 0; i <= slen; i++) {
 
         // Go to the correct place
@@ -516,7 +516,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     if (!TEST(axis_homed, axis))
       while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
     else {
-      #if DISABLED(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
+      #if NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
         if (!TEST(axis_known_position, axis))
           lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
         else
@@ -1325,7 +1325,7 @@ void MarlinUI::draw_status_screen() {
          */
 
         clear_custom_char(&new_char);
-        const uint8_t ypix = MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, HD44780_CHAR_HEIGHT);
+        const uint8_t ypix = _MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, HD44780_CHAR_HEIGHT);
         for (j = upper_left.y_pixel_offset; j < ypix; j++) {
           i = upper_left.x_pixel_mask;
           for (k = 0; k < pixels_per_x_mesh_pnt; k++) {

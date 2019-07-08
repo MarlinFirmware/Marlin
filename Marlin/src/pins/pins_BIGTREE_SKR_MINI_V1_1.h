@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #ifndef TARGET_STM32F1
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
@@ -65,9 +66,15 @@
 #define E0_ENABLE_PIN      PC4
 
 #if ENABLED(TMC_USE_SW_SPI)
-  #define TMC_SW_SCK       PB3
-  #define TMC_SW_MISO      PB4
-  #define TMC_SW_MOSI      PB5
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_SCK     PB3
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO    PB4
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_MOSI    PB5
+  #endif
 #endif
 
 //

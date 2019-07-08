@@ -108,7 +108,7 @@ uint16_t mcp4728_getValue(const uint8_t channel) { return mcp4728_values[channel
 uint16_t mcp4728_getVout(const uint8_t channel) {
   const uint32_t vref = 2048,
                  vOut = (vref * mcp4728_values[channel] * (_DAC_STEPPER_GAIN + 1)) / 4096;
-  return MIN(vOut, defaultVDD);
+  return _MIN(vOut, defaultVDD);
 }
 #endif
 

@@ -143,7 +143,7 @@ hotend_info_t Temperature::temp_hotend[HOTENDS
           set_fan_speed(fan, new_fan_speed[fan]);
           break;
         default:
-          new_fan_speed[fan] = MIN(tmp_temp, 255U);
+          new_fan_speed[fan] = _MIN(tmp_temp, 255U);
           break;
       }
     }
@@ -163,7 +163,7 @@ hotend_info_t Temperature::temp_hotend[HOTENDS
 
     uint8_t Temperature::lcd_tmpfan_speed[
       #if ENABLED(SINGLENOZZLE)
-        MAX(EXTRUDERS, FAN_COUNT)
+        _MAX(EXTRUDERS, FAN_COUNT)
       #else
         FAN_COUNT
       #endif
@@ -976,13 +976,13 @@ void Temperature::manage_heater() {
   updateTemperaturesFromRawValues(); // also resets the watchdog
 
   #if ENABLED(HEATER_0_USES_MAX6675)
-    if (temp_hotend[0].current > MIN(HEATER_0_MAXTEMP, HEATER_0_MAX6675_TMAX - 1.0)) max_temp_error(H_E0);
-    if (temp_hotend[0].current < MAX(HEATER_0_MINTEMP, HEATER_0_MAX6675_TMIN + .01)) min_temp_error(H_E0);
+    if (temp_hotend[0].current > _MIN(HEATER_0_MAXTEMP, HEATER_0_MAX6675_TMAX - 1.0)) max_temp_error(H_E0);
+    if (temp_hotend[0].current < _MAX(HEATER_0_MINTEMP, HEATER_0_MAX6675_TMIN + .01)) min_temp_error(H_E0);
   #endif
 
   #if ENABLED(HEATER_1_USES_MAX6675)
-    if (temp_hotend[1].current > MIN(HEATER_1_MAXTEMP, HEATER_1_MAX6675_TMAX - 1.0)) max_temp_error(H_E1);
-    if (temp_hotend[1].current < MAX(HEATER_1_MINTEMP, HEATER_1_MAX6675_TMIN + .01)) min_temp_error(H_E1);
+    if (temp_hotend[1].current > _MIN(HEATER_1_MAXTEMP, HEATER_1_MAX6675_TMAX - 1.0)) max_temp_error(H_E1);
+    if (temp_hotend[1].current < _MAX(HEATER_1_MINTEMP, HEATER_1_MAX6675_TMIN + .01)) min_temp_error(H_E1);
   #endif
 
   #define HAS_THERMAL_PROTECTION (ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER))
@@ -1325,7 +1325,7 @@ void Temperature::manage_heater() {
     //#endif
 
     // Return degrees C (up to 999, as the LCD only displays 3 digits)
-    return MIN(value + THERMISTOR_ABS_ZERO_C, 999);
+    return _MIN(value + THERMISTOR_ABS_ZERO_C, 999);
   }
 #endif
 
@@ -1884,7 +1884,7 @@ void Temperature::init() {
 
         #if ENABLED(ADAPTIVE_FAN_SLOWING)
           if (adaptive_fan_slowing && heater_id >= 0) {
-            const int fan_index = MIN(heater_id, FAN_COUNT - 1);
+            const int fan_index = _MIN(heater_id, FAN_COUNT - 1);
             if (fan_speed[fan_index] == 0 || current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.25f))
               fan_speed_scaler[fan_index] = 128;
             else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.3335f))

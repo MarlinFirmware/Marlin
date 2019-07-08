@@ -106,7 +106,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
           // the current segment travels in the same direction as the correction
           if (reversing == (error_correction < 0)) {
             if (segment_proportion == 0)
-              segment_proportion = MIN(1.0f, block->millimeters / smoothing_mm);
+              segment_proportion = _MIN(1.0f, block->millimeters / smoothing_mm);
             error_correction = CEIL(segment_proportion * error_correction);
           }
           else
