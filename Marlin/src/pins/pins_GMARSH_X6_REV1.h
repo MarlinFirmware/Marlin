@@ -22,27 +22,24 @@
 #pragma once
 
 #ifndef TARGET_LPC1768
-  #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
+  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "GMARSH X6 REV1"
-#endif
+#define BOARD_NAME "GMARSH X6 REV1"
 
 // Ignore temp readings during develpment.
 //#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
-
 //
-// enables 12MHz clock output on P1.27 pin for synchronizing TMC2208 chip clocks
+// Enable 12MHz clock output on P1.27 pin to sync TMC2208 chip clocks
 //
 #define LPC1768_ENABLE_CLKOUT_12M
 
 //
 // Servos
 //
-#define SERVO0_PIN         P1_26	// PWM1[6]
-#define SERVO1_PIN         P1_18	// PWM1[1]
+#define SERVO0_PIN         P1_26   // PWM1[6]
+#define SERVO1_PIN         P1_18   // PWM1[1]
 
 //
 // Limit Switches
@@ -82,25 +79,24 @@
 #define E2_DIR_PIN         P2_08
 #define E2_ENABLE_PIN      P2_05
 
-
 //
 // TMC2208 UART pins
 //
 #if HAS_DRIVER(TMC2208)
-  #define X_SERIAL_TX_PIN    P1_00
-  #define X_SERIAL_RX_PIN    P1_00
-  #define Y_SERIAL_TX_PIN    P1_09
-  #define Y_SERIAL_RX_PIN    P1_09
-  #define Z_SERIAL_TX_PIN    P1_16
-  #define Z_SERIAL_RX_PIN    P1_16
-  #define E0_SERIAL_TX_PIN   P0_04
-  #define E0_SERIAL_RX_PIN   P0_04
-  #define E1_SERIAL_TX_PIN   P2_02
-  #define E1_SERIAL_RX_PIN   P2_02
-  #define E2_SERIAL_TX_PIN   P2_06
-  #define E2_SERIAL_RX_PIN   P2_06
+  #define X_SERIAL_TX_PIN  P1_00
+  #define X_SERIAL_RX_PIN  P1_00
+  #define Y_SERIAL_TX_PIN  P1_09
+  #define Y_SERIAL_RX_PIN  P1_09
+  #define Z_SERIAL_TX_PIN  P1_16
+  #define Z_SERIAL_RX_PIN  P1_16
+  #define E0_SERIAL_TX_PIN P0_04
+  #define E0_SERIAL_RX_PIN P0_04
+  #define E1_SERIAL_TX_PIN P2_02
+  #define E1_SERIAL_RX_PIN P2_02
+  #define E2_SERIAL_TX_PIN P2_06
+  #define E2_SERIAL_RX_PIN P2_06
 #else
-	#error "HAS_DRIVER(TMC2208)" not defined, UART configuration of TMC2208s is required for this board to function correctly.
+  #error "TMC2208 UART configuration is required for GMarsh X6."
 #endif
 
 //
@@ -146,7 +142,6 @@
   #define LCD_PINS_ENABLE  P0_21
   #define LCD_PINS_D4      P2_11
 #endif
-
 
 //
 // SD Support
