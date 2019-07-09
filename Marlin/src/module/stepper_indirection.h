@@ -69,7 +69,7 @@
 
   static constexpr chopper_timing_t chopper_timing = CHOPPER_TIMING;
 
-  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+  #if HAS_TMC220x
     void tmc_serial_begin();
   #endif
 #endif
