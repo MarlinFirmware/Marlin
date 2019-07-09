@@ -50,3 +50,5 @@
 #define XSTR_(M) #M
 #define XSTR(M) XSTR_(M)
 #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL_PLATFORM/NAME)
+
+#include HAL_PATH(.,HAL.h)

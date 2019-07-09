@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,14 +104,20 @@
 // Software SPI pins for TMC2130 stepper drivers
 //
 #if ENABLED(TMC_USE_SW_SPI)
-  #define TMC_SW_MOSI      PC12
-  #define TMC_SW_MISO      PC11
-  #define TMC_SW_SCK       PC10
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI      PC12
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO      PC11
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK       PC10
+  #endif
 #endif
 
-#if HAS_DRIVER(TMC2208)
+#if HAS_TMC220x
   /**
-   * TMC2208 stepper drivers
+   * TMC2208/TMC2209 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
@@ -130,33 +136,33 @@
 
   //
   // Software serial
-  //   
+  //
   #define X_SERIAL_TX_PIN  PC13
-  #define X_SERIAL_RX_PIN  PE4
+  #define X_SERIAL_RX_PIN  PC13
 
   #define Y_SERIAL_TX_PIN  PE3
-  #define Y_SERIAL_RX_PIN  PE2
+  #define Y_SERIAL_RX_PIN  PE3
 
-  #define Z_SERIAL_TX_PIN  PE0
+  #define Z_SERIAL_TX_PIN  PE1
   #define Z_SERIAL_RX_PIN  PE1
 
   #define E0_SERIAL_TX_PIN PD4
-  #define E0_SERIAL_RX_PIN PD2
+  #define E0_SERIAL_RX_PIN PD4
 
-  #define E1_SERIAL_TX_PIN PD0
+  #define E1_SERIAL_TX_PIN PD1
   #define E1_SERIAL_RX_PIN PD1
 
-  #define Z2_SERIAL_TX_PIN PD6
-  #define Z2_SERIAL_RX_PIN PD5
+  #define E2_SERIAL_TX_PIN PD6
+  #define E2_SERIAL_RX_PIN PD6
 #endif
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PF3  // T0
-#define TEMP_1_PIN         PF4  // T1
-#define TEMP_2_PIN         PF5  // T2
-#define TEMP_BED_PIN       PF6  // TB
+#define TEMP_0_PIN         PF4  // T1 <-> E0
+#define TEMP_1_PIN         PF5  // T2 <-> E1
+#define TEMP_2_PIN         PF6  // T3 <-> E2
+#define TEMP_BED_PIN       PF3  // T0 <-> Bed
 
 //
 // Heaters / Fans
@@ -174,16 +180,20 @@
 //
 #define SDSS               PB12
 
-/*
-|               _____                                             _____
-|           NC | · · | GND                                    5V | · · | GND
-|        RESET | · · | PF12(SD_DETECT)             (LCD_D7)  PG7 | · · | PG6  (LCD_D6)
-|   (MOSI)PB15 | · · | PF11(BTN_EN2)               (LCD_D5)  PG3 | · · | PG2  (LCD_D4)
-|  (SD_SS)PB12 | · · | PG10(BTN_EN1)               (LCD_RS) PD10 | · · | PD11 (LCD_EN)
-|    (SCK)PB13 | · · | PB14(MISO)                 (BTN_ENC)  PA8 | · · | PG4  (BEEPER)
-|               ￣￣                                               ￣￣
-|               EXP2                                              EXP1
-*/
+/**
+ *               _____                                             _____
+ *           NC | · · | GND                                    5V | · · | GND
+ *        RESET | · · | PF12(SD_DETECT)             (LCD_D7)  PG7 | · · | PG6  (LCD_D6)
+ *   (MOSI)PB15 | · · | PF11(BTN_EN2)               (LCD_D5)  PG3 | · · | PG2  (LCD_D4)
+ *  (SD_SS)PB12 | · · | PG10(BTN_EN1)               (LCD_RS) PD10 | · · | PD11 (LCD_EN)
+ *    (SCK)PB13 | · · | PB14(MISO)                 (BTN_ENC)  PA8 | · · | PG4  (BEEPER)
+ *               ￣￣                                               ￣￣
+ *               EXP2                                              EXP1
+ */
+
+//
+// LCDs and Controllers
+//
 #if HAS_SPI_LCD
   #define BEEPER_PIN       PG4
   #define BTN_ENC          PA8
@@ -219,7 +229,7 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_GRAPHICAL_DISPLAY
+  #if HAS_GRAPHICAL_LCD
     #ifndef ST7920_DELAY_1
       #define ST7920_DELAY_1 DELAY_NS(96)
     #endif

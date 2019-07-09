@@ -24,7 +24,7 @@
 
 // Pin lists 1.1.x and 2.0.x synchronized 2018-02-17
 
-#line 31 // set __LINE__ to a known value for both passes
+#line 28 // set __LINE__ to a known value for both passes
 
 //
 // Analog Pin Assignments
