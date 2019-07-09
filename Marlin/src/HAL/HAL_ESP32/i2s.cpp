@@ -56,7 +56,7 @@ static i2s_dev_t* I2S[I2S_NUM_MAX] = {&I2S0, &I2S1};
 static i2s_dma_t dma;
 
 // output value
-uint32_t i2s_port_data;
+uint32_t i2s_port_data = 0;
 
 #define I2S_ENTER_CRITICAL()  portENTER_CRITICAL(&i2s_spinlock[i2s_num])
 #define I2S_EXIT_CRITICAL()   portEXIT_CRITICAL(&i2s_spinlock[i2s_num])
@@ -140,7 +140,7 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
 }
 
 void stepperTask(void* parameter) {
-  uint32_t i, remaining = 0;
+  uint32_t remaining = 0;
 
   while (1) {
     xQueueReceive(dma.queue, &dma.current, portMAX_DELAY);
@@ -254,7 +254,7 @@ int i2s_init() {
 
   I2S0.fifo_conf.dscr_en = 0;
 
-  I2S0.conf_chan.tx_chan_mod = 0;
+  I2S0.conf_chan.tx_chan_mod = 4;
   I2S0.fifo_conf.tx_fifo_mod = 0;
   I2S0.conf.tx_mono = 0;
 
@@ -314,11 +314,17 @@ int i2s_init() {
 }
 
 void i2s_write(uint8_t pin, uint8_t val) {
-  SET_BIT_TO(i2s_port_data, pin, val);
+  if (pin < 16)
+    SET_BIT_TO(i2s_port_data, pin, val);
+  else
+    SET_BIT_TO(I2S0.conf_single_data, pin, val);
 }
 
 uint8_t i2s_state(uint8_t pin) {
-  return TEST(i2s_port_data, pin);
+  if (pin < 16)
+    return TEST(i2s_port_data, pin);
+
+  return TEST(I2S0.conf_single_data, pin);
 }
 
 void i2s_push_sample() {
