@@ -44,9 +44,7 @@ extern uint32_t MSC_SD_Init(uint8_t pdrv);
 extern "C" int isLPC1769();
 extern "C" void disk_timerproc(void);
 
-void SysTick_Callback() {
-  disk_timerproc();
-}
+void SysTick_Callback() { disk_timerproc(); }
 
 void HAL_init(void) {
 
@@ -99,8 +97,8 @@ void HAL_init(void) {
     OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH);
   #endif
 
-  #if defined(LPC1768_ENABLE_CLKOUT_12M)
-    /*
+  #ifdef LPC1768_ENABLE_CLKOUT_12M
+   /**
     * CLKOUTCFG register
     * bit 8 (CLKOUT_EN) = enables CLKOUT signal. Disabled for now to prevent glitch when enabling GPIO.
     * bits 7:4 (CLKOUTDIV) = set to 0 for divider setting of /1
