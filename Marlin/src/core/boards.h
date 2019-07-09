@@ -200,6 +200,7 @@
 #define BOARD_MKS_SGEN                2018  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_MKS_SGEN_L              2019  // MKS-SGen-L (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_TH3D_EZBOARD            2020  // TH3D EZBoard v1.0
+#define BOARD_GMARSH_X6_REV1          2021  // GMARSH X6 board, revision 1 prototype
 
 //
 // SAM3X8E ARM Cortex M3
