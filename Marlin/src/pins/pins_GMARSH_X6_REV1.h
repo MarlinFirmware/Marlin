@@ -122,7 +122,7 @@
 //
 // LCD
 //
-#ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
+#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
   #define BEEPER_PIN       P0_19
   #define BTN_EN1          P1_23
   #define BTN_EN2          P1_24
@@ -133,14 +133,6 @@
   #define LCD_PINS_D5      P0_22
   #define LCD_PINS_D6      P1_29
   #define LCD_PINS_D7      P1_28
-#elif REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-  #define BEEPER_PIN       P0_19
-  #define BTN_EN1          P1_23
-  #define BTN_EN2          P1_24
-  #define BTN_ENC          P1_25
-  #define LCD_PINS_RS      P0_20
-  #define LCD_PINS_ENABLE  P0_21
-  #define LCD_PINS_D4      P2_11
 #endif
 
 //
