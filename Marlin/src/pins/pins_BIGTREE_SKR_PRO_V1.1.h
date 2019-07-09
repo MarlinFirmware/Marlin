@@ -109,7 +109,7 @@
   #define TMC_SW_SCK       PC10
 #endif
 
-#if HAS_DRIVER(TMC2208)
+#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
   /**
    * TMC2208 stepper drivers
    *
@@ -130,33 +130,33 @@
 
   //
   // Software serial
-  //   
+  //
   #define X_SERIAL_TX_PIN  PC13
-  #define X_SERIAL_RX_PIN  PE4
+  #define X_SERIAL_RX_PIN  PC13
 
   #define Y_SERIAL_TX_PIN  PE3
-  #define Y_SERIAL_RX_PIN  PE2
+  #define Y_SERIAL_RX_PIN  PE3
 
-  #define Z_SERIAL_TX_PIN  PE0
+  #define Z_SERIAL_TX_PIN  PE1
   #define Z_SERIAL_RX_PIN  PE1
 
   #define E0_SERIAL_TX_PIN PD4
-  #define E0_SERIAL_RX_PIN PD2
+  #define E0_SERIAL_RX_PIN PD4
 
-  #define E1_SERIAL_TX_PIN PD0
+  #define E1_SERIAL_TX_PIN PD1
   #define E1_SERIAL_RX_PIN PD1
 
-  #define Z2_SERIAL_TX_PIN PD6
-  #define Z2_SERIAL_RX_PIN PD5
+  #define E2_SERIAL_TX_PIN PD6
+  #define E2_SERIAL_RX_PIN PD6
 #endif
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PF3  // T0
-#define TEMP_1_PIN         PF4  // T1
-#define TEMP_2_PIN         PF5  // T2
-#define TEMP_BED_PIN       PF6  // TB
+#define TEMP_0_PIN         PF4  // T1 <-> E0
+#define TEMP_1_PIN         PF5  // T2 <-> E1
+#define TEMP_2_PIN         PF6  // T3 <-> E2
+#define TEMP_BED_PIN       PF3  // T0 <-> Bed
 
 //
 // Heaters / Fans
@@ -219,7 +219,7 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_GRAPHICAL_DISPLAY
+  #if HAS_GRAPHICAL_LCD
     #ifndef ST7920_DELAY_1
       #define ST7920_DELAY_1 DELAY_NS(96)
     #endif
