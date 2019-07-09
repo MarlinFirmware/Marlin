@@ -48,7 +48,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(p)); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PORT(p) print_port(p)
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define MULTI_NAME_PAD 20 // space needed to be pretty if not first name assigned to a pin
+#define MULTI_NAME_PAD 21 // space needed to be pretty if not first name assigned to a pin
 
 // pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
 #ifndef M43_NEVER_TOUCH
@@ -97,7 +97,7 @@ static inline void pwm_details(const pin_t pin) {
     timer_dev * const tdev = PIN_MAP[pin].timer_device;
     const uint8_t channel = PIN_MAP[pin].timer_channel;
     const char num = (
-      #ifdef STM32_HIGH_DENSITY
+      #if defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
         tdev == &timer8 ? '8' :
         tdev == &timer5 ? '5' :
       #endif
@@ -114,22 +114,8 @@ static inline void pwm_details(const pin_t pin) {
 
 static inline void print_port(pin_t pin) {
   const char port = 'A' + char(pin >> 4); // pin div 16
-  /* seems not to be required for our devices
-  gpio_dev * const gp = PIN_MAP[pin].gpio_device;
-  const char port = (
-    #if STM32_NR_GPIO_PORTS > 4
-      gp == &gpiog ? 'G' :
-      gp == &gpiof ? 'F' :
-      gp == &gpioe ? 'E' :
-    #endif
-    gp == &gpiod ? 'D' :
-    gp == &gpioc ? 'C' :
-    gp == &gpiob ? 'B' :
-    gp == &gpioa ? 'A' : '?'
-  );
-  */
   const int16_t gbit = PIN_MAP[pin].gpio_bit;
-  char buffer[6];
+  char buffer[8];
   sprintf_P(buffer, PSTR("P%c%hd "), port, gbit);
   if (gbit < 10) SERIAL_CHAR(' ');
   SERIAL_ECHO(buffer);
