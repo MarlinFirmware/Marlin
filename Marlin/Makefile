@@ -307,6 +307,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1316)
 else ifeq ($(HARDWARE_MOTHERBOARD),1317)
 # Einstart retrofit
 else ifeq ($(HARDWARE_MOTHERBOARD),1318)
+# Wanhao 0ne+ i3 Mini
+else ifeq ($(HARDWARE_MOTHERBOARD),1319)
 
 #
 # ATmega1281, ATmega2561
