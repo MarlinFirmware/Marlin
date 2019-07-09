@@ -115,7 +115,7 @@
 #endif
 
 #if HAS_TMC220x
-    /**
+  /**
    * TMC2208/TMC2209 stepper drivers
    *
    * Hardware serial communication ports.
