@@ -309,7 +309,7 @@
 //
 // TMC2208/2209 Driver objects and inits
 //
-#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+#if HAS_TMC220x
   #if AXIS_HAS_UART(X)
     #ifdef X_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X, X);
