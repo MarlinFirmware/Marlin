@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,12 +57,11 @@ public:
 
   //static bool active() { return READ(SPINDLE_LASER_ENA_PIN) == SPINDLE_LASER_ACTIVE_HIGH; }
 
+  static void update_output();
+
   #if ENABLED(SPINDLE_LASER_PWM)
-    static void update_output();
     static void set_ocr(const uint8_t ocr);
     static inline void set_ocr_power(const uint8_t pwr) { power = pwr; set_ocr(pwr); }
-  #else
-    static inline void update_output() { }
   #endif
 
   // Wait for spindle to spin up or spin down

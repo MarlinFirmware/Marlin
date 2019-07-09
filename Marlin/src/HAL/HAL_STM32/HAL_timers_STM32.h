@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2017 Victor Perez
  *
@@ -49,7 +49,7 @@
     #define TEMP_TIMER 17
   #endif
 
-#elif defined STM32F1xx
+#elif defined(STM32F1xx)
 
   #define HAL_TIMER_RATE (F_CPU) // frequency of timer peripherals
 
@@ -61,19 +61,7 @@
     #define TEMP_TIMER 2
   #endif
 
-#elif defined STM32F4xx
-
-  #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
-
-  #ifndef STEP_TIMER
-    #define STEP_TIMER 5
-  #endif
-
-  #ifndef TEMP_TIMER
-    #define TEMP_TIMER 7
-  #endif
-
-#elif defined STM32F7xx
+#elif defined(STM32F4xx) || defined(STM32F7xx)
 
   #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 

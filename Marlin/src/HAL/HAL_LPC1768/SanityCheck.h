@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Test LPC176x-specific configuration values for errors at compile-time.
@@ -30,12 +31,4 @@
 
 #if IS_RE_ARM_BOARD && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && HAS_DRIVER(TMC2130) && DISABLED(TMC_USE_SW_SPI)
   #error "Re-ARM with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER and TMC2130 require TMC_USE_SW_SPI"
-#endif
-
-#if 1 < (ENABLED(LPC_SD_CUSTOM_CABLE) + ENABLED(LPC_SD_LCD) + ENABLED(LPC_SD_ONBOARD))
-  #error "Enable only one of LPC_SD_CUSTOM_CABLE, LPC_SD_LCD, or LPC_SD_ONBOARD."
-#endif
-
-#if 1 < (ENABLED(USB_SD_DISABLED) + ENABLED(USB_SD_ONBOARD))
-  #error "Enable only one of USB_SD_DISABLED or USB_SD_ONBOARD."
 #endif

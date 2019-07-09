@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,6 +78,10 @@
 #define MSG_LASER_OFF                       _UxGT("Laser Off")
 #define MSG_LASER_ON                        _UxGT("Laser On")
 #define MSG_LASER_POWER                     _UxGT("Potenza laser")
+#define MSG_SPINDLE_MENU                    _UxGT("Controllo mandrino")
+#define MSG_SPINDLE_OFF                     _UxGT("Mandrino Off")
+#define MSG_SPINDLE_ON                      _UxGT("Mandrino On")
+#define MSG_SPINDLE_POWER                   _UxGT("Potenza mandrino")
 #define MSG_SPINDLE_REVERSE                 _UxGT("Inverti mandrino")
 #define MSG_SWITCH_PS_ON                    _UxGT("Accendi aliment.")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Spegni aliment.")
@@ -193,6 +197,7 @@
 #define MSG_MOVE_Z                          _UxGT("Muovi Z")
 #define MSG_MOVE_E                          _UxGT("Estrusore")
 #define MSG_HOTEND_TOO_COLD                 _UxGT("Ugello freddo")
+#define MSG_MOVE_0025MM                     _UxGT("Muovi di 0.025mm")
 #define MSG_MOVE_01MM                       _UxGT("Muovi di 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Muovi di 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Muovi di 10mm")
@@ -331,6 +336,11 @@
 #define MSG_BLTOUCH_MODE_STORE_OD           _UxGT("Metti BLTouch a OD")
 #define MSG_BLTOUCH_MODE_ECHO               _UxGT("Segnala modo")
 #define MSG_BLTOUCH_MODE_CHANGE             _UxGT("PERICOLO: Impostazioni errate possono cause danni! Procedo comunque?")
+#define MSG_TOUCHMI_PROBE                   _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("Inizializ.TouchMI")
+#define MSG_TOUCHMI_ZTEST                   _UxGT("Test Z offset")
+#define MSG_TOUCHMI_SAVE                    _UxGT("Memorizzare")
+#define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("Estendi TouchMI")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Estendi Sonda-Z")
 #define MSG_BLTOUCH_STOW                    _UxGT("Ritrai BLTouch")
 #define MSG_MANUAL_STOW                     _UxGT("Ritrai Sonda-Z")

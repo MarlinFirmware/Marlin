@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -322,7 +322,7 @@ uint16_t analogRead(pin_t pin) {
 
 // Wrapper to maple unprotected analogWrite
 void analogWrite(pin_t pin, int pwm_val8) {
-  if (PWM_PIN(pin) && IS_OUTPUT(pin))
+  if (PWM_PIN(pin))
     analogWrite(uint8_t(pin), pwm_val8);
 }
 

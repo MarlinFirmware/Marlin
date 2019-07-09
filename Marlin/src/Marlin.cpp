@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -153,7 +153,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   #include "module/tool_change.h"
 #endif
 
@@ -506,19 +506,16 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if HAS_HOME
-    // Check to see if we have to home, use poor man's debouncer
-    // ---------------------------------------------------------
-    static int homeDebounceCount = 0;   // poor man's debouncing count
-    const int HOME_DEBOUNCE_DELAY = 2500;
-    if (!IS_SD_PRINTING() && !READ(HOME_PIN)) {
-      if (!homeDebounceCount) {
-        queue.inject_P(PSTR("G28"));
+    // Handle a standalone HOME button
+    constexpr millis_t HOME_DEBOUNCE_DELAY = 1000UL;
+    static millis_t next_home_key_ms; // = 0
+    if (!IS_SD_PRINTING() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
+      const millis_t ms = millis();
+      if (ELAPSED(ms, next_home_key_ms)) {
+        next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
         LCD_MESSAGEPGM(MSG_AUTO_HOME);
+        queue.enqueue_now_P(PSTR("G28"));
       }
-      if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
-        homeDebounceCount++;
-      else
-        homeDebounceCount = 0;
     }
   #endif
 
@@ -829,9 +826,7 @@ void stop() {
  */
 void setup() {
 
-  #ifdef HAL_INIT
-    HAL_init();
-  #endif
+  HAL_init();
 
   #if HAS_DRIVER(L6470)
     L6470.init();         // setup SPI and then init chips
@@ -865,7 +860,7 @@ void setup() {
 
   setup_killpin();
 
-  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+  #if HAS_TMC220x
     tmc_serial_begin();
   #endif
 
@@ -953,7 +948,7 @@ void setup() {
 
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
-  (void)settings.load();
+  settings.first_load();
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
@@ -1086,6 +1081,10 @@ void setup() {
     pe_solenoid_init();
   #endif
 
+  #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+    est_init();
+  #endif
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.check();
   #endif
@@ -1098,7 +1097,7 @@ void setup() {
     init_closedloop();
   #endif
 
-  #if ENABLED(SDSUPPORT) && DISABLED(ULTRA_LCD)
+  #if ENABLED(INIT_SDCARD_ON_BOOT) && !HAS_SPI_LCD
     card.beginautostart();
   #endif
 

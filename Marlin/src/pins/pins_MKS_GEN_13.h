@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Arduino Mega with RAMPS v1.4 adjusted pin assignments
@@ -44,9 +45,9 @@
 //
 // PSU / SERVO
 //
-// If POWER_SUPPLY is specified, always hijack Servo 3
+// If PSU_CONTROL is specified, always hijack Servo 3
 //
-#if POWER_SUPPLY > 0
+#if ENABLED(PSU_CONTROL)
   #define SERVO3_PIN       -1
   #define PS_ON_PIN         4
 #endif

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * RAMPS-FD
@@ -138,7 +139,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
   // ramps-fd lcd adaptor
 
   #define BEEPER_PIN       37
@@ -202,9 +203,9 @@
     #define DOGLCD_MISO    74   // MISO_PIN
   #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD
 
-#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+#if HAS_TMC220x
   /**
    * TMC2208/TMC2209 stepper drivers
    *

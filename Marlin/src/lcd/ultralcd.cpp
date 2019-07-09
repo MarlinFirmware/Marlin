@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
   #include "../feature/leds/leds.h"
 #endif
 
-// These displays all share the MarlinUI class
+// All displays share the MarlinUI class
 #if HAS_DISPLAY
   #include "ultralcd.h"
   #include "fontutils.h"
@@ -56,7 +56,7 @@
 #endif
 
 #ifdef MAX_MESSAGE_LENGTH
-  uint8_t MarlinUI::status_message_level; // = 0
+  uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
 
@@ -82,11 +82,11 @@
 #include "../Marlin.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
- #include "../feature/power_loss_recovery.h"
+  #include "../feature/power_loss_recovery.h"
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
- #include "../feature/bedlevel/bedlevel.h"
+  #include "../feature/bedlevel/bedlevel.h"
 #endif
 
 #if HAS_BUZZER
@@ -104,7 +104,7 @@
   #endif
 #endif
 
-#if ENABLED(SDSUPPORT)
+#if ENABLED(INIT_SDCARD_ON_BOOT)
   uint8_t lcd_sd_status;
 #endif
 
@@ -150,7 +150,7 @@ millis_t next_button_update_ms;
             static uint8_t filename_scroll_hash;
             if (filename_scroll_hash != hash) {                              // If the hash changed...
               filename_scroll_hash = hash;                                   // Save the new hash
-              filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
+              filename_scroll_max = _MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
               filename_scroll_pos = 0;                                       // Reset scroll to the start
               lcd_status_update_delay = 8;                                   // Don't scroll right away
             }
@@ -319,7 +319,9 @@ void MarlinUI::init() {
     #if PIN_EXISTS(SD_DETECT)
       SET_INPUT_PULLUP(SD_DETECT_PIN);
     #endif
-    lcd_sd_status = 2; // UNKNOWN
+    #if ENABLED(INIT_SDCARD_ON_BOOT)
+      lcd_sd_status = 2; // UNKNOWN
+    #endif
   #endif
 
   #if HAS_ENCODER_ACTION && HAS_SLOW_BUTTONS
@@ -424,7 +426,7 @@ bool MarlinUI::get_blink() {
 
           if (RRK(EN_KEYPAD_MIDDLE))  goto_screen(menu_move);
 
-          #if DISABLED(DELTA) && Z_HOME_DIR == -1
+          #if DISABLED(DELTA) && Z_HOME_DIR < 0
             if (RRK(EN_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
           #endif
 
@@ -521,7 +523,9 @@ void MarlinUI::status_screen() {
         next_filament_display = millis() + 5000UL;  // Show status message for 5s
       #endif
       goto_screen(menu_main);
-      init_lcd(); // May revive the LCD if static electricity killed it
+      #if DISABLED(NO_LCD_REINIT)
+        init_lcd(); // May revive the LCD if static electricity killed it
+      #endif
       return;
     }
 
@@ -768,7 +772,7 @@ void MarlinUI::update() {
 
   #endif // HAS_LCD_MENU
 
-  #if ENABLED(SDSUPPORT)
+  #if ENABLED(INIT_SDCARD_ON_BOOT)
 
     const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
     if (sd_status != lcd_sd_status && detected()) {
@@ -793,7 +797,9 @@ void MarlinUI::update() {
           }
         }
 
-        init_lcd(); // May revive the LCD if static electricity killed it
+        #if DISABLED(NO_LCD_REINIT)
+          init_lcd(); // May revive the LCD if static electricity killed it
+        #endif
 
       #endif
 
@@ -807,7 +813,7 @@ void MarlinUI::update() {
       #endif
     }
 
-  #endif // SDSUPPORT
+  #endif // INIT_SDCARD_ON_BOOT
 
   if (ELAPSED(ms, next_lcd_update_ms)
     #if HAS_GRAPHICAL_LCD
@@ -1310,7 +1316,7 @@ void MarlinUI::update() {
   bool MarlinUI::has_status() { return (status_message[0] != '\0'); }
 
   void MarlinUI::set_status(const char * const message, const bool persist) {
-    if (status_message_level > 0) return;
+    if (alert_level) return;
 
     // Here we have a problem. The message is encoded in UTF8, so
     // arbitrarily cutting it will be a problem. We MUST be sure
@@ -1337,8 +1343,8 @@ void MarlinUI::update() {
   #include <stdarg.h>
 
   void MarlinUI::status_printf_P(const uint8_t level, PGM_P const fmt, ...) {
-    if (level < status_message_level) return;
-    status_message_level = level;
+    if (level < alert_level) return;
+    alert_level = level;
     va_list args;
     va_start(args, fmt);
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
@@ -1347,19 +1353,18 @@ void MarlinUI::update() {
   }
 
   void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
-    if (level < 0) level = status_message_level = 0;
-    if (level < status_message_level) return;
-    status_message_level = level;
+    if (level < 0) level = alert_level = 0;
+    if (level < alert_level) return;
+    alert_level = level;
 
-    // Here we have a problem. The message is encoded in UTF8, so
-    // arbitrarily cutting it will be a problem. We MUST be sure
-    // that there is no cutting in the middle of a multibyte character!
+    // Since the message is encoded in UTF8 it must
+    // only be cut on a character boundary.
 
     // Get a pointer to the null terminator
     PGM_P pend = message + strlen_P(message);
 
-    //  If length of supplied UTF8 string is greater than
-    // our buffer size, start cutting whole UTF8 chars
+    // If length of supplied UTF8 string is greater than
+    // the buffer size, start cutting whole UTF8 chars
     while ((pend - message) > MAX_MESSAGE_LENGTH) {
       --pend;
       while (!START_OF_UTF8_CHAR(pgm_read_byte(pend))) --pend;

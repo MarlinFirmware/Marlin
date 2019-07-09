@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,10 @@
   #include "../../module/probe.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../../feature/bltouch.h"
+#endif
+
 #include "../../lcd/ultralcd.h"
 
 #if HAS_DRIVER(L6470)                         // set L6470 absolute position registers to counts
@@ -71,7 +75,7 @@
     const float mlx = max_length(X_AXIS),
                 mly = max_length(Y_AXIS),
                 mlratio = mlx > mly ? mly / mlx : mlx / mly,
-                fr_mm_s = MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
+                fr_mm_s = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
 
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states { false, false, false, false, false, false, false };
@@ -199,17 +203,9 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
   #endif
 
-  if (parser.boolval('O')) {
-    if (
-      #if ENABLED(HOME_AFTER_DEACTIVATE)
-        all_axes_known()  // homing needed anytime steppers deactivate
-      #else
-        all_axes_homed()  // homing needed only if never homed
-      #endif
-    ) {
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
-      return;
-    }
+  if (!homing_needed() && parser.boolval('O')) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
+    return;
   }
 
   // Wait for planner moves to finish!
@@ -261,10 +257,6 @@ void GcodeSuite::G28(const bool always_home_all) {
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
 
     set_destination_from_current();
-
-    #if HAS_BED_PROBE
-      STOW_PROBE();
-    #endif
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
@@ -345,6 +337,9 @@ void GcodeSuite::G28(const bool always_home_all) {
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
       if (doZ) {
+        #if ENABLED(BLTOUCH)
+          bltouch.init();
+        #endif
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
         #else

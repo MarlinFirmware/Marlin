@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -148,7 +148,7 @@
   #define LCD_CONTRAST_MAX 255
   #define DEFAULT_LCD_CONTRAST 220
   #define LED_COLORS_REDUCE_GREEN
-  #if POWER_SUPPLY > 0 && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
+  #if (HAS_POWER_SWITCH && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1))
     #define LED_BACKLIGHT_TIMEOUT 10000
   #endif
 
@@ -451,10 +451,12 @@
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define XYZE_N (XYZ + E_STEPPERS)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
+  #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
   #define XYZE_N XYZE
   #define E_AXIS_N(E) E_AXIS
+  #define UNUSED_E(E) UNUSED(E)
 #endif
 
 /**
@@ -542,7 +544,7 @@
 #define HAS_GAMES     ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
 #define HAS_GAME_MENU (1 < ENABLED(MARLIN_BRICKOUT) + ENABLED(MARLIN_INVADERS) + ENABLED(MARLIN_SNAKE) + ENABLED(MARLIN_MAZE))
 
-#define IS_SCARA     EITHER(MORGAN_SCARA, MAKERARM_SCARA)
+#define IS_SCARA     ENABLED(MORGAN_SCARA)
 #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
 #define IS_CARTESIAN !IS_KINEMATIC
 

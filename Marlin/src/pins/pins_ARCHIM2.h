@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * ARCHIM2 pin assignment
@@ -70,7 +71,7 @@
   #define E0_DIAG_PIN      78   // PB23
   #define E1_DIAG_PIN      25   // PD0
 
-  #if X_HOME_DIR == -1
+  #if X_HOME_DIR < 0
     #define X_MIN_PIN      X_DIAG_PIN
     #define X_MAX_PIN      32
   #else
@@ -78,7 +79,7 @@
     #define X_MAX_PIN      X_DIAG_PIN
   #endif
 
-  #if Y_HOME_DIR == -1
+  #if Y_HOME_DIR < 0
     #define Y_MIN_PIN      Y_DIAG_PIN
     #define Y_MAX_PIN      15
   #else
@@ -148,9 +149,15 @@
 // Required for the Archim2 board.
 //
 #if ENABLED(TMC_USE_SW_SPI)
-  #define TMC_SW_MOSI      28   // PD3
-  #define TMC_SW_MISO      26   // PD1
-  #define TMC_SW_SCK       27   // PD2
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI    28   // PD3
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO    26   // PD1
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK     27   // PD2
+  #endif
 #endif
 
 //
@@ -224,7 +231,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
   #define BEEPER_PIN       23   // D24 PA15_CTS1
   #define LCD_PINS_RS      17   // D17 PA12_RXD1
   #define LCD_PINS_ENABLE  24   // D23 PA14_RTS1
@@ -241,4 +248,4 @@
     #define BTN_EN2        13   // D13 PB27_TIOB0
     #define BTN_ENC        16   // D16 PA13_TXD1 // the click
   #endif // NEWPANEL
-#endif // ULTRA_LCD
+#endif // HAS_SPI_LCD

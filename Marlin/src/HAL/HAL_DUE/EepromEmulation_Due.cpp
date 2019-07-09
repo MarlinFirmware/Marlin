@@ -34,7 +34,7 @@
 #include "../shared/persistent_store_api.h"
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM, SPI_EEPROM)
+#if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM)
 
 #include "../shared/Marduino.h"
 
