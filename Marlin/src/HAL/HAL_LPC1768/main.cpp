@@ -44,9 +44,7 @@ extern uint32_t MSC_SD_Init(uint8_t pdrv);
 extern "C" int isLPC1769();
 extern "C" void disk_timerproc(void);
 
-void SysTick_Callback() {
-  disk_timerproc();
-}
+void SysTick_Callback() { disk_timerproc(); }
 
 void HAL_init(void) {
 
@@ -97,6 +95,26 @@ void HAL_init(void) {
 
   #if PIN_EXISTS(ONBOARD_SD_CS) && ONBOARD_SD_CS_PIN != SS_PIN
     OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH);
+  #endif
+
+  #ifdef LPC1768_ENABLE_CLKOUT_12M
+   /**
+    * CLKOUTCFG register
+    * bit 8 (CLKOUT_EN) = enables CLKOUT signal. Disabled for now to prevent glitch when enabling GPIO.
+    * bits 7:4 (CLKOUTDIV) = set to 0 for divider setting of /1
+    * bits 3:0 (CLKOUTSEL) = set to 1 to select main crystal oscillator as CLKOUT source
+    */
+    LPC_SC->CLKOUTCFG = (0<<8)|(0<<4)|(1<<0);
+    // set P1.27 pin to function 01 (CLKOUT)
+    PINSEL_CFG_Type PinCfg;
+    PinCfg.Portnum = 1;
+    PinCfg.Pinnum = 27;
+    PinCfg.Funcnum = 1;    // function 01 (CLKOUT)
+    PinCfg.OpenDrain = 0;  // not open drain
+    PinCfg.Pinmode = 2;    // no pull-up/pull-down
+    PINSEL_ConfigPin(&PinCfg);
+    // now set CLKOUT_EN bit
+    LPC_SC->CLKOUTCFG |= (1<<8);
   #endif
 
   USB_Init();                               // USB Initialization
