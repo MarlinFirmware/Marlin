@@ -201,9 +201,8 @@
   #define FIL_RUNOUT_PIN   39   // SERVO2_PIN
 #endif
 
-// I2C EEPROM with 8K of space
 #define I2C_EEPROM
-#define E2END 0x1FFF
+#define E2END 0x1FFF // 8KB
 
 //
 // LCD / Controller

@@ -40,7 +40,7 @@
 #define DEFAULT_MACHINE_NAME "STM32F407VET6"
 
 //#define I2C_EEPROM
-//#define E2END 0x1FFF // EEPROM end address (8kB)
+//#define E2END 0x1FFF // 8KB
 #define SRAM_EEPROM_EMULATION
 
 #if HOTENDS > 2 || E_STEPPERS > 2

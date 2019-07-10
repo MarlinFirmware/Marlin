@@ -41,14 +41,14 @@
 
 //#define MCU_STM32F103ZE // not yet required
 
-// // I2C EEPROM with 64K of space - AT24C64
-// #define I2C_EEPROM
-// #define E2END 0x7FFF
+// #define I2C_EEPROM   // AT24C64
+// #define E2END 0x7FFF // 64KB
 
 // Enable EEPROM Emulation for this board
 
 //#define FLASH_EEPROM_EMULATION 1
-//#define E2END  0xFFF //((uint32)(EEPROM_START_ADDRESS + EEPROM_PAGE_SIZE + EEPROM_PAGE_SIZE)) // not 0xFFF
+//#define E2END 0xFFF // 4KB
+//#define E2END uint32(EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE * 2) - 1)
 //#define EEPROM_CHITCHAT
 //#define DEBUG_EEPROM_READWRITE
 

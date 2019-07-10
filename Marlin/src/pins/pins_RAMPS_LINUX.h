@@ -49,6 +49,8 @@
   #define BOARD_NAME "RAMPS 1.4"
 #endif
 
+#define E2END 0xFFF // 4KB
+
 #define IS_RAMPS_EFB
 
 //

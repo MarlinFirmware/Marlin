@@ -32,8 +32,7 @@
 
 #define I2C_EEPROM
 
-#undef E2END
-#define E2END 0xFFF // EEPROM end address (4kB)
+#define E2END 0xFFF // 4KB
 
 #if HOTENDS > 2 || E_STEPPERS > 2
   #error "Arm'ed supports up to 2 hotends / E-steppers."

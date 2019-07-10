@@ -29,7 +29,8 @@
 #include "../shared/persistent_store_api.h"
 #include <stdio.h>
 
-uint8_t buffer[E2END];
+#define LINUX_EEPROM_SIZE (E2END + 1)
+uint8_t buffer[LINUX_EEPROM_SIZE];
 char filename[] = "eeprom.dat";
 
 bool PersistentStore::access_start() {
@@ -40,8 +41,8 @@ bool PersistentStore::access_start() {
   fseek(eeprom_file, 0L, SEEK_END);
   std::size_t file_size = ftell(eeprom_file);
 
-  if (file_size < E2END) {
-    memset(buffer + file_size, eeprom_erase_value, E2END - file_size);
+  if (file_size < LINUX_EEPROM_SIZE) {
+    memset(buffer + file_size, eeprom_erase_value, LINUX_EEPROM_SIZE - file_size);
   }
   else {
     fseek(eeprom_file, 0L, SEEK_SET);

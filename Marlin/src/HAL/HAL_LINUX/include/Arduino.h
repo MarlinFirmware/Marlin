@@ -43,8 +43,6 @@
 #define FALLING      0x03
 #define RISING       0x04
 
-#define E2END 0xFFF // EEPROM end address
-
 typedef uint8_t byte;
 #define PROGMEM
 #define PSTR(v) (v)
