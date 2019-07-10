@@ -47,7 +47,7 @@
 
 const uint8_t PROGMEM digital_pin_to_port_PGM_plus_70[] = {
   // PORTLIST
-  // -------------------------------------------
+  // ------------------------
   PE  , // PE 0 ** 0 ** USART0_RX
   PE  , // PE 1 ** 1 ** USART0_TX
   PE  , // PE 4 ** 2 ** PWM2
@@ -140,7 +140,7 @@ const uint8_t PROGMEM digital_pin_to_port_PGM_plus_70[] = {
 
 const uint8_t PROGMEM digital_pin_to_bit_mask_PGM_plus_70[] = {
   // PIN IN PORT
-  // -------------------------------------------
+  // ------------------------
   _BV( 0 )  , // PE 0 ** 0 ** USART0_RX
   _BV( 1 )  , // PE 1 ** 1 ** USART0_TX
   _BV( 4 )  , // PE 4 ** 2 ** PWM2
@@ -234,7 +234,7 @@ const uint8_t PROGMEM digital_pin_to_bit_mask_PGM_plus_70[] = {
 
 const uint8_t PROGMEM digital_pin_to_timer_PGM_plus_70[] = {
   // TIMERS
-  // -------------------------------------------
+  // ------------------------
   NOT_ON_TIMER  , // PE 0 ** 0 ** USART0_RX
   NOT_ON_TIMER  , // PE 1 ** 1 ** USART0_TX
   TIMER3B , // PE 4 ** 2 ** PWM2

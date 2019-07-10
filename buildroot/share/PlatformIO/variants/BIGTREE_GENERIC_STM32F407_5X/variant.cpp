@@ -108,7 +108,7 @@ const PinName digitalPin[] = {
   PE_15, //D64 - 1:FSMC_D12
   PD_8,  //D65 - 1:FSMC_D13 / USART3_TX
   PD_9,  //D66 - 1:FSMC_D14 / USART3_RX
-  PD_10, //D67 - 1:FSMC_D15 
+  PD_10, //D67 - 1:FSMC_D15
   PD_11, //D68 - 1:FSMC_A16
   PD_12, //D69 - 1:FSMC_A17 / TIM4_CH1
   PD_13, //D70 - 1:FSMC_A18 / TIM4_CH2
@@ -220,7 +220,7 @@ const PinName digitalPin[] = {
 }
 #endif
 
-// ----------------------------------------------------------------------------
+// ------------------------
 
 #ifdef __cplusplus
 extern "C" {

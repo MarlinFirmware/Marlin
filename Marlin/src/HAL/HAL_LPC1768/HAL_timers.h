@@ -25,10 +25,6 @@
  * HAL For LPC1768
  */
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include <stdint.h>
 
 #include "../../core/macros.h"
@@ -51,9 +47,9 @@
 #define SBIT_MR3R 10
 #define SBIT_MR3S 11
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 #define _HAL_TIMER(T) _CAT(LPC_TIM, T)
 #define _HAL_TIMER_IRQ(T) TIMER##T##_IRQn
@@ -95,9 +91,9 @@ typedef uint32_t hal_timer_t;
 #define STEP_TIMER _HAL_TIMER(STEP_TIMER_NUM)
 #define TEMP_TIMER _HAL_TIMER(TEMP_TIMER_NUM)
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 void HAL_timer_init(void);
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
