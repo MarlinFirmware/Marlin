@@ -30,8 +30,8 @@
 
 #define E2END 0xFFF   // EEPROM end address
 
-// Ignore temp readings during develpment.
-#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+// Ignore temp readings during development.
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 #if HOTENDS > 3 || E_STEPPERS > 3
   #error "The-Borg supports up to 3 hotends / E-steppers."

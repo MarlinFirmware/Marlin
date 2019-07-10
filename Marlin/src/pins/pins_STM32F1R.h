@@ -32,8 +32,8 @@
 #define BOARD_NAME           "Misc. STM32F1R"
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
 
-// Ignore temp readings during develpment.
-#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+// Ignore temp readings during development.
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
 // Limit Switches

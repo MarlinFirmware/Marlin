@@ -30,8 +30,8 @@
 #define BOARD_NAME        "FYSETC Cheetah"
 #define BOARD_WEBSITE_URL "https://fysetc.com"
 
-// Ignore temp readings during develpment.
-#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+// Ignore temp readings during development.
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
 // Servos

@@ -130,7 +130,7 @@
 
 // All these generations of Gen7 supply thermistor power
 // via PS_ON, so ignore bad thermistor readings
-#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 #define DEBUG_PIN           0
 

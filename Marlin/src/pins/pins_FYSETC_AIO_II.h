@@ -30,8 +30,8 @@
 
 #define pins_v2_20190128   // geo-f:add for new pins define
 
-// Ignore temp readings during develpment.
-#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+// Ignore temp readings during development.
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
 // Limit Switches
