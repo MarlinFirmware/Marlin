@@ -56,5 +56,4 @@ void watchdog_init(void) {
 }
 
 #endif // USE_WATCHDOG
-
 #endif // __STM32F1__
