@@ -24,10 +24,6 @@
 
 #define CPU_32_BIT
 
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
-
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
