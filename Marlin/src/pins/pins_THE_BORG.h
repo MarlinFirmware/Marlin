@@ -25,8 +25,8 @@
   #error "Oops! Select an STM32F7 board in 'Tools > Board.'"
 #endif
 
-#define DEFAULT_MACHINE_NAME "The-Borge"
-#define BOARD_NAME "The-Borge"
+#define BOARD_NAME           "The-Borge"
+#define DEFAULT_MACHINE_NAME BOARD_NAME
 
 #define E2END 0xFFF   // EEPROM end address
 

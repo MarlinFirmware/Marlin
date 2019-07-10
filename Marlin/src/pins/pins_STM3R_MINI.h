@@ -29,8 +29,8 @@
  * 21017 Victor Perez Marlin for stm32f1 test
  */
 
-#define DEFAULT_MACHINE_NAME "STM3R Mini"
-#define BOARD_NAME "Marlin for STM32"
+#define BOARD_NAME           "STM3R Mini"
+#define DEFAULT_MACHINE_NAME BOARD_NAME
 
 // Enable I2C_EEPROM for testing
 #define I2C_EEPROM

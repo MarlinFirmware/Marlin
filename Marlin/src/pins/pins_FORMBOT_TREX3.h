@@ -33,8 +33,8 @@
   #error "Formbot supports up to 2 hotends / E-steppers. Comment this line to keep going."
 #endif
 
-#define DEFAULT_MACHINE_NAME "Formbot"
 #define BOARD_NAME           "Formbot"
+#define DEFAULT_MACHINE_NAME BOARD_NAME
 
 //
 // Servos

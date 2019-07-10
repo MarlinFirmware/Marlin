@@ -26,8 +26,8 @@
 #endif
 
 #define RUMBA32_V1_0
-#define DEFAULT_MACHINE_NAME "RUMBA32"
-#define BOARD_NAME "RUMBA32"
+#define BOARD_NAME           "RUMBA32"
+#define DEFAULT_MACHINE_NAME BOARD_NAME
 
 //#define I2C_EEPROM
 

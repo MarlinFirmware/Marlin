@@ -25,14 +25,10 @@
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
-#ifndef ARMED_V1_0
-  #define ARMED_V1_1
-#endif
+#define ARMED_V1_1
 
-#define DEFAULT_MACHINE_NAME "Arm'ed"
-
-#undef BOARD_NAME
-#define BOARD_NAME "Arm'ed"
+#define BOARD_NAME           "Arm'ed"
+#define DEFAULT_MACHINE_NAME BOARD_NAME
 
 #define I2C_EEPROM
 
@@ -90,10 +86,10 @@
 #define E0_DIR_PIN         PB6
 #define E0_CS_PIN          PB4
 
-#ifdef ARMED_V1_0
-  #define E0_ENABLE_PIN    PB3
-#else
+#ifdef ARMED_V1_1
   #define E0_ENABLE_PIN    PC12
+#else
+  #define E0_ENABLE_PIN    PB3
 #endif
 
 #ifdef ARMED_SWAP_X_E1

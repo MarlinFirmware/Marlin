@@ -25,7 +25,9 @@
  * RIGIDBOARD Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#define BOARD_NAME "RigidBoard"
+#ifndef BOARD_NAME
+  #define BOARD_NAME "RigidBoard"
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)

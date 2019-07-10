@@ -27,7 +27,7 @@
 
 #define DEFAULT_MACHINE_NAME "3D Printer"
 
-#define BOARD_NAME "FYSETC CHEETAH"
+#define BOARD_NAME        "FYSETC Cheetah"
 #define BOARD_WEBSITE_URL "https://fysetc.com"
 
 // Ignore temp readings during develpment.

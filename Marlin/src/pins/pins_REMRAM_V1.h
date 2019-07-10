@@ -25,10 +25,10 @@
   #error "Oops! Select an STM32F7 board in 'Tools > Board.'"
 #endif
 
+#define BOARD_NAME           "RemRam v1"
 #define DEFAULT_MACHINE_NAME "RemRam"
-#define BOARD_NAME "RemRam v1"
 
-#define EEPROM_EMULATED_WITH_SRAM // Emulate the EEPROM using Backup SRAM
+#define SRAM_EEPROM_EMULATION // Emulate the EEPROM using Backup SRAM
 
 #if HOTENDS > 1 || E_STEPPERS > 1
   #error "RemRam supports only one hotend / E-stepper."

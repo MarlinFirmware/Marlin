@@ -29,8 +29,8 @@
  * 2017 Victor Perez Marlin for stm32f1 test
  */
 
+#define BOARD_NAME           "Chitu3D"
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
-#define BOARD_NAME "Chitu3d Marlin"
 
 // Enable I2C_EEPROM for testing
 //#define I2C_EEPROM

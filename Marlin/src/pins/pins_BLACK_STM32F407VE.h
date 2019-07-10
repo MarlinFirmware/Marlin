@@ -33,8 +33,11 @@
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
+#ifndef BOARD_NAME
+  #define BOARD_NAME "Black STM32F4VET6"
+#endif
+
 #define DEFAULT_MACHINE_NAME "STM32F407VET6"
-//#define BOARD_NAME "Black STM32F4VET6"
 
 //#define I2C_EEPROM
 //#define E2END 0x1FFF // EEPROM end address (8kB)

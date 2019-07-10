@@ -29,7 +29,7 @@
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME        "MKS SGEN"
+#define BOARD_NAME        "MKS SGen"
 #define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SGEN"
 
 #include "pins_MKS_SBASE.h"

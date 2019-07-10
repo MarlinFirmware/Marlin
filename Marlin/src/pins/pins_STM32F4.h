@@ -25,8 +25,8 @@
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
+#define BOARD_NAME           "Misc. STM32F4"
 #define DEFAULT_MACHINE_NAME "STM32F407VET6"
-#define BOARD_NAME "STM32F4 Board"
 
 //#define I2C_EEPROM
 

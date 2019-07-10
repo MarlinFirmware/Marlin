@@ -30,7 +30,7 @@
 #endif
 
 #define BOARD_NAME        "Azteeg X5 GT"
-#define BOARD_WEBSITE_URL "https://www.panucatt.com/azteeg_X5_GT_reprap_3d_printer_controller_p/ax5gt.htm"
+#define BOARD_WEBSITE_URL "https://tinyurl.com/yx8tdqa3"
 
 //
 //  Set CPU

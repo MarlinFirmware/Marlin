@@ -66,9 +66,9 @@
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#define DEFAULT_MACHINE_NAME    "SAV MkI"
-#define DEFAULT_SOURCE_CODE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
 #define BOARD_NAME              "SAV MkI"
+#define DEFAULT_MACHINE_NAME    BOARD_NAME
+#define DEFAULT_SOURCE_CODE_URL "https://tinyurl.com/onru38b"
 
 //
 // Servos

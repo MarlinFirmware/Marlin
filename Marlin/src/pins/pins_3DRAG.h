@@ -30,7 +30,7 @@
 #endif
 
 #ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "3Drag"
+  #define DEFAULT_MACHINE_NAME BOARD_NAME
 #endif
 
 #ifndef DEFAULT_SOURCE_CODE_URL

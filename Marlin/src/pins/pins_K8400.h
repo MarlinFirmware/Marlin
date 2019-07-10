@@ -32,8 +32,8 @@
  *  - Second heater has moved pin
  */
 
-#define DEFAULT_MACHINE_NAME    "Vertex"
 #define BOARD_NAME              "K8400"
+#define DEFAULT_MACHINE_NAME    "Vertex"
 
 #include "pins_3DRAG.h"
 
