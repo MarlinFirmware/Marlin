@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+#
+# mftest [name] [index]
+#
+# Set configuration options based on a test
+# By default it will do megaatmega2560
+# Use 'mftest -' to pick from the list.
+#
+
+MFINFO=$(mfinfo) || exit 1
+[[ -d Marlin/src ]] || { echo "Please 'cd' up to repo root." ; exit 1 ; }
+
+TESTPATH=buildroot/share/tests
+
+shopt -s extglob nocasematch
+
+# Get test, allowing shorthand
+TESTENV=${1:-"mega"}
+case $TESTENV in
+     due) TESTENV='DUE' ;;
+     esp) TESTENV='esp32' ;;
+    lin*) TESTENV='linux_native' ;;
+ lpc?(8)) TESTENV='LPC1768' ;;
+    lpc9) TESTENV='LPC1769' ;;
+    mega) TESTENV='megaatmega2560' ;;
+     stm) TESTENV='STM32F1' ;;
+     t35) TESTENV='teensy35' ;;
+  teensy) TESTENV='teensy35' ;;
+esac
+
+# Matching patterns
+ISNUM='^[0-9]+$'
+ISCMD='^(restore|opt|exec|use|pins|env)_'
+ISEXEC='^exec_'
+
+# List available tests and ask for selection
+if [[ $1 == '-' ]]; then
+  IND=0
+  NAMES=()
+  for FILE in $( ls -1 $TESTPATH/*-tests )
+  do
+    let IND++
+    TNAME=${FILE/-tests/}
+    TNAME=${TNAME/$TESTPATH\//}
+    NAMES+=($TNAME)
+    echo " $IND) $TNAME"
+  done
+
+  echo
+  for (( ; ; ))
+  do
+    read -p "Select a test to apply (1-$IND) : " NAMEIND
+    [[ -z "$NAMEIND" ]] && { echo "Quitting." ; exit 1 ; }
+    [[ $NAMEIND =~ $ISNUM ]] && ((NAMEIND >= 1 && NAMEIND <= IND)) && { TESTENV=${NAMES[$NAMEIND-1]} ; break ; }
+    echo "Invalid selection."
+  done
+fi
+
+# Get the contents of the test file
+OUT=$( cat $TESTPATH/$TESTENV-tests 2>/dev/null ) || { echo "Can't find test '$TESTENV'." ; exit 1 ; }
+
+# Count up the number of tests
+# TODO: List test descriptions with numbers
+TESTCOUNT=$( awk "/$ISEXEC/{a++}END{print a}" <<<"$OUT" )
+
+# Get the entered or interactive test index
+CHOICE=${2:-0}
+
+if [[ $TESTCOUNT > 1 && ( $CHOICE == 0 || $1 == '-' ) ]]; then
+  for (( ; ; ))
+  do
+    read -p "Test '$TESTENV' index (1-$TESTCOUNT) : " CHOICE
+    [[ -z "$CHOICE" ]] && CHOICE=1
+    [[ $CHOICE =~ $ISNUM ]] && ((CHOICE >= 1 && CHOICE <= TESTCOUNT)) && break
+    echo "Invalid test index '$CHOICE'."
+  done
+else
+  # Confirm a manually-entered test index
+  ((CHOICE >= 1 && CHOICE <= TESTCOUNT)) || { echo "Invalid test index '$CHOICE' (1-$TESTCOUNT)." ; exit 1 ; }
+fi
+
+# Finally, run the specified test lines
+echo "$OUT" | {
+  IND=0
+  while IFS= read -r LINE
+  do
+    if [[ $LINE =~ $ISCMD ]]; then
+      ((!IND)) && let IND++
+      if [[ $LINE =~ $ISEXEC ]]; then
+        ((IND++ > CHOICE)) && break
+      else
+        ((!HEADER)) && {
+          HEADER=1
+          echo -e "\n#\n# Test $TESTENV ($CHOICE) $DESC\n#"
+        }
+        ((IND == CHOICE)) && { echo "$LINE" ; eval "$LINE" ; }
+      fi
+    fi
+  done
+}
+
+# Build the test too?
+echo ; read -p "Build $TESTENV test #$CHOICE (y/N) ? " BUILD_YES
+[[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && platformio run --project-dir . -e $TESTENV

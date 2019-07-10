@@ -21,9 +21,12 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfigPre.h"
-#include "../core/minmax.h"
-#include HAL_PATH(../HAL, HAL.h)
+//#include <stdint.h>
+
+//#include "../inc/MarlinConfigPre.h"
+#include "../HAL/HAL.h"
+
+// #include "../core/macros.h"
 
 /**
  * Define debug bit-masks

@@ -22,8 +22,6 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include <stdint.h>
-
 #include "../shared/Marduino.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio_AVR.h"
@@ -33,9 +31,11 @@
 #ifdef USBCON
   #include "HardwareSerial.h"
 #else
+  #define HardwareSerial_h // Hack to prevent HardwareSerial.h header inclusion
   #include "MarlinSerial.h"
 #endif
 
+#include <stdint.h>
 #include <util/delay.h>
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>

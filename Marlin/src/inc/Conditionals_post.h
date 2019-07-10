@@ -909,7 +909,7 @@
   #define HAS_TMCX1X0       (HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5130) || HAS_DRIVER(TMC5160))
   #define TMC_HAS_SPI       (HAS_TMCX1X0 || HAS_DRIVER(TMC2660))
   #define HAS_STALLGUARD    (HAS_TMCX1X0 || HAS_DRIVER(TMC2209) || HAS_DRIVER(TMC2660))
-  #define HAS_STEALTHCHOP   (HAS_TMCX1X0 || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209))
+  #define HAS_STEALTHCHOP   (HAS_TMCX1X0 || HAS_TMC220x)
 
   #define STEALTHCHOP_ENABLED ANY(STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_E)
   #define USE_SENSORLESS EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
@@ -1660,8 +1660,9 @@
 #endif
 
 // Force SDCARD_SORT_ALPHA to be enabled for Graphical LCD on LPC1768
+// on boards where SD card and LCD display share the same SPI bus
 // because of a bug in the shared SPI implementation. (See #8122)
-#if defined(TARGET_LPC1768) && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+#if defined(TARGET_LPC1768) && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && (SCK_PIN == LCD_PINS_D4)
   #define SDCARD_SORT_ALPHA         // Keeps one directory level in RAM. Changing
                                     // directory levels still glitches the screen,
                                     // but the following LCD update cleans it up.

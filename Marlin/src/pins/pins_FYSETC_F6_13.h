@@ -117,7 +117,7 @@
 // the jumper next to the limit switch socket when using sensorless homing.
 //
 
-#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+#if HAS_TMC220x
   // Software serial
   // At the moment, F6 rx pins are not pc interrupt pins
   #define X_SERIAL_RX_PIN  -1   // 71

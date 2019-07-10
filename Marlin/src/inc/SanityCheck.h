@@ -2015,7 +2015,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * TMC2208/2209 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
  */
-#if (HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
+#if HAS_TMC220x && !defined(TARGET_LPC1768) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
        defined(X_HARDWARE_SERIAL ) \
     || defined(X2_HARDWARE_SERIAL) \
     || defined(Y_HARDWARE_SERIAL ) \
@@ -2033,9 +2033,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * TMC2208/2209 software UART is only supported on AVR and LPC
+ * TMC2208/2209 software UART is only supported on AVR, LPC, STM32F1 and STM32F4
  */
-#if (HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)) && !defined(__AVR__) && !defined(TARGET_LPC1768) && !( \
+#if HAS_TMC220x && !defined(__AVR__) && !defined(TARGET_LPC1768) && !defined(TARGET_STM32F1) && !defined(TARGET_STM32F4) && !( \
        defined(X_HARDWARE_SERIAL ) \
     || defined(X2_HARDWARE_SERIAL) \
     || defined(Y_HARDWARE_SERIAL ) \
@@ -2048,7 +2048,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     || defined(E3_HARDWARE_SERIAL) \
     || defined(E4_HARDWARE_SERIAL) \
     || defined(E5_HARDWARE_SERIAL) )
-  #error "TMC2208 Software Serial is supported only on AVR and LPC1768 platforms."
+  #error "TMC2208 Software Serial is supported only on AVR, LPC1768, STM32F1 and STM32F4 platforms."
 #endif
 
 #if ENABLED(SENSORLESS_HOMING)
