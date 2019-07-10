@@ -80,16 +80,16 @@
     TIM_HandleTypeDef handle;
     uint32_t callback;
   } tTimerConfig;
-  typedef tTimerConfig stm32f4_timer_t;
+  typedef tTimerConfig stm32_timer_t;
 #else
-  typedef stimer_t stm32f4_timer_t;
+  typedef stimer_t stm32_timer_t;
 #endif
 
 // ------------------------
 // Public Variables
 // ------------------------
 
-extern stm32f4_timer_t TimerHandle[];
+extern stm32_timer_t TimerHandle[];
 
 // ------------------------
 // Public functions

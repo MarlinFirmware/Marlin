@@ -39,7 +39,7 @@
 // Private Variables
 // ------------------------
 
-stm32f4_timer_t TimerHandle[NUM_HARDWARE_TIMERS];
+stm32_timer_t TimerHandle[NUM_HARDWARE_TIMERS];
 
 // ------------------------
 // Public functions

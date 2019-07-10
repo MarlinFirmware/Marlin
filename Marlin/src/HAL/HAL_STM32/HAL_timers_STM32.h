@@ -128,13 +128,13 @@ extern void Temp_Handler(stimer_t *htim);
 // Types
 // ------------------------
 
-typedef stimer_t stm32f4_timer_t;
+typedef stimer_t stm32_timer_t;
 
 // ------------------------
 // Public Variables
 // ------------------------
 
-extern stm32f4_timer_t TimerHandle[];
+extern stm32_timer_t TimerHandle[];
 
 // ------------------------
 // Public functions
