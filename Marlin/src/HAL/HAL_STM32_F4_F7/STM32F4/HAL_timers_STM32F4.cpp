@@ -22,8 +22,7 @@
 
 #if defined(STM32GENERIC) && defined(STM32F4)
 
-#include "HAL.h"
-
+#include "../HAL.h"
 #include "HAL_timers_STM32F4.h"
 
 // ------------------------
@@ -35,6 +34,7 @@
 #define TEMP_TIMER_IRQ_ID TIM7_IRQn
 
 //#define PRESCALER 1
+
 // ------------------------
 // Private Variables
 // ------------------------

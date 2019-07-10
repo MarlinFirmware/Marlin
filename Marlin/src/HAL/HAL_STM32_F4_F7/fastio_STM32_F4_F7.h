@@ -23,11 +23,10 @@
 #pragma once
 
 /**
- * Fast I/O interfaces for STM32F4
+ * Fast I/O interfaces for STM32F4/7
  * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
  */
 
-#undef _BV
 #define _BV(b) (1 << (b))
 
 #define READ(IO)                digitalRead(IO)
@@ -43,7 +42,7 @@
 #define SET_INPUT_PULLUP(IO)    _SET_MODE(IO, INPUT_PULLUP)                       /*!< Input with Pull-up activation         */
 #define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLDOWN)                     /*!< Input with Pull-down activation       */
 #define SET_OUTPUT(IO)          OUT_WRITE(IO, LOW)
-#define SET_PWM(IO)             pinMode(IO, PWM)
+#define SET_PWM(IO)             _SET_MODE(IO, PWM)
 
 #define TOGGLE(IO)              OUT_WRITE(IO, !READ(IO))
 
@@ -151,3 +150,43 @@
 #define PE13 _STM32_PIN(E, 13)
 #define PE14 _STM32_PIN(E, 14)
 #define PE15 _STM32_PIN(E, 15)
+
+#ifdef STM32F7
+  #define PORTF 5
+  #define PORTG 6
+
+  #define PF0  _STM32_PIN(F,  0)
+  #define PF1  _STM32_PIN(F,  1)
+  #define PF2  _STM32_PIN(F,  2)
+  #define PF3  _STM32_PIN(F,  3)
+  #define PF4  _STM32_PIN(F,  4)
+  #define PF5  _STM32_PIN(F,  5)
+  #define PF6  _STM32_PIN(F,  6)
+  #define PF7  _STM32_PIN(F,  7)
+  #define PF8  _STM32_PIN(F,  8)
+  #define PF9  _STM32_PIN(F,  9)
+  #define PF10 _STM32_PIN(F, 10)
+  #define PF11 _STM32_PIN(F, 11)
+  #define PF12 _STM32_PIN(F, 12)
+  #define PF13 _STM32_PIN(F, 13)
+  #define PF14 _STM32_PIN(F, 14)
+  #define PF15 _STM32_PIN(F, 15)
+
+  #define PG0  _STM32_PIN(G,  0)
+  #define PG1  _STM32_PIN(G,  1)
+  #define PG2  _STM32_PIN(G,  2)
+  #define PG3  _STM32_PIN(G,  3)
+  #define PG4  _STM32_PIN(G,  4)
+  #define PG5  _STM32_PIN(G,  5)
+  #define PG6  _STM32_PIN(G,  6)
+  #define PG7  _STM32_PIN(G,  7)
+  #define PG8  _STM32_PIN(G,  8)
+  #define PG9  _STM32_PIN(G,  9)
+  #define PG10 _STM32_PIN(G, 10)
+  #define PG11 _STM32_PIN(G, 11)
+  #define PG12 _STM32_PIN(G, 12)
+  #define PG13 _STM32_PIN(G, 13)
+  #define PG14 _STM32_PIN(G, 14)
+  #define PG15 _STM32_PIN(G, 15)
+
+#endif // STM32GENERIC && STM32F7

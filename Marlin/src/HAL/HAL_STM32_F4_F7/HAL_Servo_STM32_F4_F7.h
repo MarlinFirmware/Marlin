@@ -4,6 +4,7 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,39 +20,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#if defined(STM32GENERIC) && defined(STM32F4)
+//#ifdef STM32F7
+//  #include <../../libraries/Servo/src/Servo.h>
+//#else
+  #include <Servo.h>
+//#endif
 
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(USE_WATCHDOG)
-
-  #include "watchdog_STM32F4.h"
-
-  IWDG_HandleTypeDef hiwdg;
-
-  void watchdog_init() {
-    hiwdg.Instance = IWDG;
-    hiwdg.Init.Prescaler = IWDG_PRESCALER_32; //32kHz LSI clock and 32x prescalar = 1024Hz IWDG clock
-    hiwdg.Init.Reload = 4095;           //4095 counts = 4 seconds at 1024Hz
-    if (HAL_IWDG_Init(&hiwdg) != HAL_OK) {
-      //Error_Handler();
-    }
-  }
-
-  void watchdog_reset() {
-    /* Refresh IWDG: reload counter */
-    if (HAL_IWDG_Refresh(&hiwdg) != HAL_OK) {
-      /* Refresh Error */
-      //Error_Handler();
-    }
-    else {
-      #if PIN_EXISTS(LED)
-        TOGGLE(LED_PIN);  // heartbeat indicator
-      #endif
-    }
-  }
-
-#endif // USE_WATCHDOG
-
-#endif // STM32GENERIC && STM32F4
+// Inherit and expand on the official library
+class libServo : public Servo {
+  public:
+    int8_t attach(const int pin);
+    int8_t attach(const int pin, const int min, const int max);
+    void move(const int value);
+  private:
+    uint16_t min_ticks, max_ticks;
+    uint8_t servoIndex;               // index into the channel data for this servo
+};

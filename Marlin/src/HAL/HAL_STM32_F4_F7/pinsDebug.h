@@ -18,10 +18,10 @@
  */
 #pragma once
 
-/**
- * Define SPI Pins: SCK, MISO, MOSI, SS
- */
-#define SCK_PIN   PA5
-#define MISO_PIN  PA6
-#define MOSI_PIN  PA7
-#define SS_PIN    PA8
+#ifdef NUM_DIGITAL_PINS             // Only in ST's Arduino core (STM32duino, STM32Core)
+  #include "../HAL_STM32/pinsDebug_STM32duino.h"
+#elif defined(BOARD_NR_GPIO_PINS)   // Only in STM32GENERIC (Maple)
+  #include "../HAL_STM32/pinsDebug_STM32GENERIC.h"
+#else
+  #error "M43 Pins Debugging not supported for this board."
+#endif

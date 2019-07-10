@@ -57,8 +57,8 @@
 
 #define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM)
 #define TEMP_ISR_ENABLED() HAL_timer_interrupt_enabled(TEMP_TIMER_NUM)
-// TODO change this
 
+// TODO change this
 
 extern void TC5_Handler();
 extern void TC7_Handler();

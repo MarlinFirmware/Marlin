@@ -4,7 +4,7 @@
 
 https://github.com/danieleff/STM32GENERIC
 
-but i have not committed the changes needed for the Borg there yet, so please use:
+but I haven't committed the changes needed for the Borg there yet, so please use:
 
 https://github.com/Spawn32/STM32GENERIC
 
@@ -15,9 +15,9 @@ Download the latest GNU ARM Embedded Toolchain:
 
 https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 
-(The one in Arduino dosen't support STM32F7).
+(The one in Arduino doesn't support STM32F7).
 
-Change compiler.path in platform.txt to point to that you downloaded.
+Change compiler.path in platform.txt to point to the one you downloaded.
 
 # This HAL is in development.
 # Currently only tested on "The Borg".
@@ -25,4 +25,3 @@ Change compiler.path in platform.txt to point to that you downloaded.
 You will also need the latest Arduino 1.9.0-beta or newer.
 
 This HAL is a modified version of Chris Barr's Picoprint STM32F4 HAL, so shouldn't be to hard to get it to work on a F4.
-

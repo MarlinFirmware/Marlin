@@ -24,22 +24,22 @@
 
 #define CPU_32_BIT
 
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
-
-#include <stdint.h>
-
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_STM32F7.h"
-#include "watchdog_STM32F7.h"
+#include "fastio_STM32_F4_F7.h"
+#include "watchdog_STM32_F4_F7.h"
 
-#include "HAL_timers_STM32F7.h"
+#include "HAL_timers_STM32_F4_F7.h"
 
 #include "../../inc/MarlinConfigPre.h"
+
+#include <stdint.h>
+
+#ifdef defined(STM32F4) && USBCON
+  #include <USBSerial.h>
+#endif
 
 // ------------------------
 // Defines
@@ -47,6 +47,10 @@
 
 //Serial override
 //extern HalSerial usb_serial;
+
+#if defined(STM32F4) && SERIAL_PORT == 0
+  #error "Serial port 0 does not exist"
+#endif
 
 #if !WITHIN(SERIAL_PORT, -1, 6)
   #error "SERIAL_PORT must be from -1 to 6"
@@ -68,6 +72,9 @@
 #endif
 
 #ifdef SERIAL_PORT_2
+  #if defined(STM32F4) && SERIAL_PORT_2 == 0
+    #error "Serial port 0 does not exist"
+  #endif
   #if !WITHIN(SERIAL_PORT_2, -1, 6)
     #error "SERIAL_PORT_2 must be from -1 to 6"
   #elif SERIAL_PORT_2 == SERIAL_PORT
@@ -127,6 +134,10 @@
 
 typedef int8_t pin_t;
 
+#ifdef STM32F4
+  #define HAL_SERVO_LIB libServo
+#endif
+
 // ------------------------
 // Public Variables
 // ------------------------
@@ -158,6 +169,7 @@ extern "C" {
 */
 
 extern "C" char* _sbrk(int incr);
+
 /*
 static int freeMemory() {
   volatile int top;
@@ -165,12 +177,16 @@ static int freeMemory() {
   return top;
 }
 */
+
 static int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
+//
 // SPI: Extended functions which take a channel number (hardware SPI only)
+//
+
 /** Write single byte to specified SPI channel */
 void spiSend(uint32_t chan, byte b);
 /** Write buffer to specified SPI channel */
@@ -178,19 +194,22 @@ void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
 /** Read single byte from specified SPI channel */
 uint8_t spiRec(uint32_t chan);
 
-
+//
 // EEPROM
+//
 
 /**
- * TODO: Write all this eeprom stuff. Can emulate eeprom in flash as last resort.
- * Wire library should work for i2c eeproms.
+ * TODO: Write all this EEPROM stuff. Can emulate EEPROM in flash as last resort.
+ * Wire library should work for i2c EEPROMs.
  */
 void eeprom_write_byte(uint8_t *pos, unsigned char value);
 uint8_t eeprom_read_byte(uint8_t *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
+//
 // ADC
+//
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 
@@ -206,3 +225,8 @@ uint16_t HAL_adc_get_result(void);
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+#ifdef STM32F4
+  #define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
+  #define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
+#endif

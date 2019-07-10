@@ -21,7 +21,7 @@
  *
  */
 
-#ifdef STM32F7
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -52,10 +52,10 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc) {
+bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = eeprom_read_byte((uint8_t*)pos);
-    *value = c;
+    if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;
     value++;
@@ -66,4 +66,4 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // EEPROM_SETTINGS
-#endif // STM32F7
+#endif // STM32GENERIC && (STM32F4 || STM32F7)
