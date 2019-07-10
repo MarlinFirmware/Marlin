@@ -30,7 +30,7 @@
 #endif
 
 #ifndef BOARD_NAME
-  #define BOARD_NAME        "Azteeg X5 MINI"
+  #define BOARD_NAME      "Azteeg X5 MINI"
 #endif
 #define BOARD_WEBSITE_URL "http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm"
 

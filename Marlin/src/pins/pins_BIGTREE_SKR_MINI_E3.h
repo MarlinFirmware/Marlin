@@ -24,9 +24,7 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "BIGTREE SKR MINI E3"
-#endif
+#define BOARD_NAME "BIGTREE SKR Mini E3"
 
 // Release PB3/PB4 (E0 STP/DIR) from JTAG pins
 #define DISABLE_JTAG
