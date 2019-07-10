@@ -951,10 +951,10 @@
   #endif
   #if AXIS_DRIVER_TYPE_X2(TMC2208) || AXIS_DRIVER_TYPE_X2(TMC2209)
     #ifndef X2_SERIAL_TX_PIN
-      #define X2_SERIAL_TX_PIN    _EPIN(E_STEPPERS, SERIAL_TX)
+      #define X2_SERIAL_TX_PIN _EPIN(E_STEPPERS, SERIAL_TX)
     #endif
     #ifndef X2_SERIAL_RX_PIN
-      #define X2_SERIAL_RX_PIN    _EPIN(E_STEPPERS, SERIAL_RX)
+      #define X2_SERIAL_RX_PIN _EPIN(E_STEPPERS, SERIAL_RX)
     #endif
   #endif
   #define Y2_E_INDEX INCREMENT(E_STEPPERS)
