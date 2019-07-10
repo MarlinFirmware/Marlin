@@ -986,10 +986,10 @@
   #endif
   #if AXIS_DRIVER_TYPE_Y2(TMC2208) || AXIS_DRIVER_TYPE_Y2(TMC2209)
     #ifndef Y2_SERIAL_TX_PIN
-      #define Y2_SERIAL_TX_PIN    _EPIN(Y2_E_INDEX, SERIAL_TX)
+      #define Y2_SERIAL_TX_PIN _EPIN(Y2_E_INDEX, SERIAL_TX)
     #endif
     #ifndef Y2_SERIAL_RX_PIN
-      #define Y2_SERIAL_RX_PIN    _EPIN(Y2_E_INDEX, SERIAL_RX)
+      #define Y2_SERIAL_RX_PIN _EPIN(Y2_E_INDEX, SERIAL_RX)
     #endif
   #endif
   #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
@@ -1021,10 +1021,10 @@
   #endif
   #if AXIS_DRIVER_TYPE_Z2(TMC2208) || AXIS_DRIVER_TYPE_Z2(TMC2209)
     #ifndef Z2_SERIAL_TX_PIN
-      #define Z2_SERIAL_TX_PIN    _EPIN(Z2_E_INDEX, SERIAL_TX)
+      #define Z2_SERIAL_TX_PIN _EPIN(Z2_E_INDEX, SERIAL_TX)
     #endif
     #ifndef Z2_SERIAL_RX_PIN
-      #define Z2_SERIAL_RX_PIN    _EPIN(Z2_E_INDEX, SERIAL_RX)
+      #define Z2_SERIAL_RX_PIN _EPIN(Z2_E_INDEX, SERIAL_RX)
     #endif
   #endif
   #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
@@ -1055,10 +1055,10 @@
   #endif
   #if AXIS_DRIVER_TYPE_Z3(TMC2208) || AXIS_DRIVER_TYPE_Z3(TMC2209)
     #ifndef Z3_SERIAL_TX_PIN
-      #define Z3_SERIAL_TX_PIN    _EPIN(Z3_E_INDEX, SERIAL_TX)
+      #define Z3_SERIAL_TX_PIN _EPIN(Z3_E_INDEX, SERIAL_TX)
     #endif
     #ifndef Z3_SERIAL_RX_PIN
-      #define Z3_SERIAL_RX_PIN    _EPIN(Z3_E_INDEX, SERIAL_RX)
+      #define Z3_SERIAL_RX_PIN _EPIN(Z3_E_INDEX, SERIAL_RX)
     #endif
   #endif
 #endif
