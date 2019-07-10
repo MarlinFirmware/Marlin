@@ -67,8 +67,7 @@ void reset_ball() {
 void BrickoutGame::game_screen() {
   if (game_frame()) {     // Run logic twice for finer resolution
     // Update Paddle Position
-    paddle_x = (int8_t)ui.encoderPosition;
-    paddle_x = constrain(paddle_x, 0, (LCD_PIXEL_WIDTH - (PADDLE_W)) / (PADDLE_VEL));
+    paddle_x = constrain(int8_t(ui.encoderPosition), 0, (LCD_PIXEL_WIDTH - (PADDLE_W)) / (PADDLE_VEL));
     ui.encoderPosition = paddle_x;
     paddle_x *= (PADDLE_VEL);
 

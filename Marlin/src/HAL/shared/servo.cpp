@@ -127,7 +127,7 @@ void Servo::writeMicroseconds(int value) {
   byte channel = this->servoIndex;
   if (channel < MAX_SERVOS) {  // ensure channel is valid
     // ensure pulse width is valid
-    value = constrain(value, SERVO_MIN(), SERVO_MAX()) - (TRIM_DURATION);
+    LIMIT(value, SERVO_MIN(), SERVO_MAX()) - (TRIM_DURATION);
     value = usToTicks(value);  // convert to ticks after compensating for interrupt overhead - 12 Aug 2009
 
     CRITICAL_SECTION_START;

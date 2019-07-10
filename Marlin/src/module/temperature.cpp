@@ -460,7 +460,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
             if (cycles > 0) {
               const long max_pow = GHV(MAX_BED_POWER, PID_MAX);
               bias += (d * (t_high - t_low)) / (t_low + t_high);
-              bias = constrain(bias, 20, max_pow - 20);
+              LIMIT(bias, 20, max_pow - 20);
               d = (bias > max_pow >> 1) ? max_pow - 1 - bias : bias;
 
               SERIAL_ECHOPAIR(MSG_BIAS, bias, MSG_D, d, MSG_T_MIN, min, MSG_T_MAX, max);
@@ -874,7 +874,7 @@ float Temperature::get_pid_output_hotend(const uint8_t e) {
           }
         #endif // PID_EXTRUSION_SCALING
 
-        pid_output = constrain(pid_output, 0, PID_MAX);
+        LIMIT(pid_output, 0, PID_MAX);
       }
       temp_dState[ee] = temp_hotend[ee].current;
 
@@ -1070,7 +1070,7 @@ void Temperature::manage_heater() {
     if (filament_sensor) {
       meas_shift_index = filwidth_delay_index[0] - meas_delay_cm;
       if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
-      meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
+      LIMIT(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
       planner.calculate_volumetric_for_width_sensor(measurement_delay[meas_shift_index]);
     }
   #endif // FILAMENT_WIDTH_SENSOR

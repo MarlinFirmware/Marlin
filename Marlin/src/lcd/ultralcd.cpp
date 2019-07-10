@@ -548,7 +548,7 @@ void MarlinUI::status_screen() {
     else if ((old_frm < 100 && new_frm > 100) || (old_frm > 100 && new_frm < 100))
       new_frm = 100;
 
-    new_frm = constrain(new_frm, 10, 999);
+    LIMIT(new_frm, 10, 999);
 
     if (old_frm != new_frm) {
       feedrate_percentage = new_frm;
