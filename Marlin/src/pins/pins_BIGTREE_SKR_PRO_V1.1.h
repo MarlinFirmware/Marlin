@@ -31,7 +31,7 @@
 
 #define BOARD_NAME "BIGTREE SKR Pro V1.1"
 
-#define EEPROM_EMULATED_WITH_SRAM
+#define SRAM_EEPROM_EMULATION
 
 //
 // Servos

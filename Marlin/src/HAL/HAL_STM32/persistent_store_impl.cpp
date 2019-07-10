@@ -28,20 +28,20 @@
 
 #include "../shared/persistent_store_api.h"
 
-#if NONE(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
+#if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
   #include <EEPROM.h>
   static bool eeprom_data_written = false;
 #endif
 
 bool PersistentStore::access_start() {
-  #if NONE(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
+  #if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
     eeprom_buffer_fill();
   #endif
   return true;
 }
 
 bool PersistentStore::access_finish() {
-  #if NONE(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
+  #if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
     if (eeprom_data_written) {
       eeprom_buffer_flush();
       eeprom_data_written = false;
@@ -66,7 +66,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
           return true;
         }
       }
-    #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
+    #elif DISABLED(SRAM_EEPROM_EMULATION)
       eeprom_buffered_write_byte(pos, v);
     #else
       *(__IO uint8_t *)(BKPSRAM_BASE + (uint8_t * const)pos) = v;
@@ -76,7 +76,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     pos++;
     value++;
   };
-  #if NONE(EEPROM_EMULATED_WITH_SRAM, SPI_EEPROM, I2C_EEPROM)
+  #if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
     eeprom_data_written = true;
   #endif
 
@@ -89,7 +89,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
     const uint8_t c = (
       #if EITHER(SPI_EEPROM, I2C_EEPROM)
         eeprom_read_byte((uint8_t*)pos)
-      #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
+      #elif DISABLED(SRAM_EEPROM_EMULATION)
         eeprom_buffered_read_byte(pos)
       #else
         (*(__IO uint8_t *)(BKPSRAM_BASE + ((uint8_t*)pos)))
@@ -107,7 +107,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 size_t PersistentStore::capacity() {
   #if EITHER(SPI_EEPROM, I2C_EEPROM)
     return E2END + 1;
-  #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
+  #elif DISABLED(SRAM_EEPROM_EMULATION)
     return E2END + 1;
   #else
     return 4096; // 4kB

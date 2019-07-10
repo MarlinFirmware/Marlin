@@ -28,13 +28,13 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
-#if ENABLED(EEPROM_EMULATED_WITH_SRAM)
+#if ENABLED(SRAM_EEPROM_EMULATION)
   #if STM32F7xx
     #include "stm32f7xx_ll_pwr.h"
   #elif STM32F4xx
     #include "stm32f4xx_ll_pwr.h"
   #else
-    #error "EEPROM_EMULATED_WITH_SRAM is currently only supported for STM32F4xx and STM32F7xx"
+    #error "SRAM_EEPROM_EMULATION is currently only supported for STM32F4xx and STM32F7xx"
   #endif
 #endif
 
@@ -100,7 +100,7 @@ void HAL_init(void) {
     OUT_WRITE(LED_PIN, LOW);
   #endif
 
-  #if ENABLED(EEPROM_EMULATED_WITH_SRAM)
+  #if ENABLED(SRAM_EEPROM_EMULATION)
   // Enable access to backup SRAM
   __HAL_RCC_PWR_CLK_ENABLE();
   HAL_PWR_EnableBkUpAccess();
