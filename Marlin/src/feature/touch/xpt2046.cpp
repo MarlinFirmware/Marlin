@@ -22,10 +22,6 @@
 
 #include "xpt2046.h"
 
-#if ENABLED(TOUCH_CALIBRATION)
-  #include "../../lcd/menu/touch/calibration.h"
-#endif
-
 static uint32_t timeout = 0;
 
 extern int8_t encoderDiff;
@@ -51,13 +47,6 @@ uint8_t xpt2046_read_buttons()
     return 0;
 
   timeout = millis() + 250;
-
-  #if ENABLED(TOUCH_CALIBRATION)
-    tsoffsets[0] = calibration.results[0];
-    tsoffsets[1] = calibration.results[1];
-    tsoffsets[2] = calibration.results[2];
-    tsoffsets[3] = calibration.results[3];
-  #endif
 
   if (tsoffsets[0] + tsoffsets[1] == 0) {
     // Not yet set, so use defines as fallback...
