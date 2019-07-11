@@ -32,7 +32,7 @@
 #define BOARD_NAME        "MKS SGen"
 #define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SGEN"
 
-#include "pins_MKS_SBASE.h"
+#include "../lpc1768/pins_MKS_SBASE.h"
 
 #undef E1_STEP_PIN
 #undef E1_DIR_PIN

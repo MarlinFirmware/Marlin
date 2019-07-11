@@ -29,19 +29,11 @@
   #error "Z-Bolt X Series board supports up to 4 hotends / E-steppers."
 #endif
 
+#if !defined(__AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
+#endif
+
 #define BOARD_NAME "Z-Bolt X Series"
-
-#if ENABLED(TARGET_LPC1768)
-  #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
-#elif defined(__STM32F1__)
-  #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
-#endif
-
-#if NONE(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768)
-  #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-    #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-  #endif
-#endif
 
 //
 // Servos

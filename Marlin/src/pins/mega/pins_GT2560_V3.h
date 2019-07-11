@@ -149,15 +149,33 @@
 //
 #define BEEPER_PIN         18
 
-#define LCD_PINS_RS        20
-#define LCD_PINS_ENABLE    17
-#define LCD_PINS_D4        16
-#define LCD_PINS_D5        21
-#define LCD_PINS_D6         5
-#define LCD_PINS_D7        36
+#ifndef LCD_PINS_RS
+  #define LCD_PINS_RS      20
+#endif
+#ifndef LCD_PINS_ENABLE
+  #define LCD_PINS_ENABLE  17
+#endif
+#ifndef LCD_PINS_D4
+  #define LCD_PINS_D4      16
+#endif
+#ifndef LCD_PINS_D5
+  #define LCD_PINS_D5      21
+#endif
+#ifndef LCD_PINS_D6
+  #define LCD_PINS_D6       5
+#endif
+#ifndef LCD_PINS_D7
+  #define LCD_PINS_D7      36
+#endif
 
 #if ENABLED(NEWPANEL)
-  #define BTN_EN1          42
-  #define BTN_EN2          40
-  #define BTN_ENC          19
+  #ifndef BTN_EN1
+    #define BTN_EN1        42
+  #endif
+  #ifndef BTN_EN2
+    #define BTN_EN2        40
+  #endif
+  #ifndef BTN_ENC
+    #define BTN_ENC        19
+  #endif
 #endif
