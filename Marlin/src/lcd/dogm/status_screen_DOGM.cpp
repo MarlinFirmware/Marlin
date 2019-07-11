@@ -358,7 +358,7 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if DO_DRAW_CHAMBER
-    #if ANIM_HAMBER
+    #if ANIM_CHAMBER
       #define CHAMBER_BITMAP(S) ((S) ? status_chamber_on_bmp : status_chamber_bmp)
     #else
       #define CHAMBER_BITMAP(S) status_chamber_bmp
