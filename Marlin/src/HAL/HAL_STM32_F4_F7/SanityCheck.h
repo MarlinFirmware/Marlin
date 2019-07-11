@@ -4,7 +4,6 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,16 +21,17 @@
  */
 #pragma once
 
-#include <Servo.h>
+/**
+ * Test STM32F4/7-specific configuration values for errors at compile-time.
+ */
+//#if ENABLED(SPINDLE_LASER_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
+//  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
+//#endif
 
-// Inherit and expand on the official library
-class libServo : public Servo {
-  public:
-    int8_t attach(const int pin);
-    int8_t attach(const int pin, const int min, const int max);
-    void move(const int value);
-  private:
-    uint16_t min_ticks;
-    uint16_t max_ticks;
-    uint8_t servoIndex;               // index into the channel data for this servo
-};
+#if ENABLED(EMERGENCY_PARSER)
+  #error "EMERGENCY_PARSER is not yet implemented for STM32F4/7. Disable EMERGENCY_PARSER to continue."
+#endif
+
+#if ENABLED(FAST_PWM_FAN)
+  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#endif

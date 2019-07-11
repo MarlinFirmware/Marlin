@@ -24,22 +24,20 @@
 
 #define CPU_32_BIT
 
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
-
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
-#include "fastio_STM32F4.h"
-#include "watchdog_STM32F4.h"
-#include "HAL_timers_STM32F4.h"
+
+#include "fastio_STM32_F4_F7.h"
+#include "watchdog_STM32_F4_F7.h"
+
+#include "HAL_timers_STM32_F4_F7.h"
 
 #include "../../inc/MarlinConfigPre.h"
 
 #include <stdint.h>
 
-#ifdef USBCON
+#ifdef defined(STM32F4) && USBCON
   #include <USBSerial.h>
 #endif
 
@@ -50,7 +48,7 @@
 //Serial override
 //extern HalSerial usb_serial;
 
-#if SERIAL_PORT == 0
+#if defined(STM32F4) && SERIAL_PORT == 0
   #error "Serial port 0 does not exist"
 #endif
 
@@ -74,10 +72,9 @@
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == 0
+  #if defined(STM32F4) && SERIAL_PORT_2 == 0
     #error "Serial port 0 does not exist"
   #endif
-
   #if !WITHIN(SERIAL_PORT_2, -1, 6)
     #error "SERIAL_PORT_2 must be from -1 to 6"
   #elif SERIAL_PORT_2 == SERIAL_PORT
@@ -103,7 +100,6 @@
   #define NUM_SERIAL 1
 #endif
 
-#undef _BV
 #define _BV(b) (1 << (b))
 
 /**
@@ -138,7 +134,9 @@
 
 typedef int8_t pin_t;
 
-#define HAL_SERVO_LIB libServo
+#ifdef STM32F4
+  #define HAL_SERVO_LIB libServo
+#endif
 
 // ------------------------
 // Public Variables
@@ -228,5 +226,7 @@ uint16_t HAL_adc_get_result(void);
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-#define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
-#define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
+#ifdef STM32F4
+  #define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
+  #define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
+#endif

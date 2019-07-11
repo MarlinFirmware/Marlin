@@ -47,7 +47,7 @@
 /** @addtogroup EEPROM_Emulation
   * @{
   */
-#if defined(STM32GENERIC) && defined(STM32F4)
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
 /* Includes ------------------------------------------------------------------*/
 #include "eeprom_emul.h"
@@ -516,7 +516,7 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data) {
   return HAL_FLASH_Program(TYPEPROGRAM_HALFWORD, NewPageAddress, VALID_PAGE);
 }
 
-#endif // STM32GENERIC && STM32F4
+#endif // STM32GENERIC && (STM32F4 || STM32F7)
 
 /**
  * @}

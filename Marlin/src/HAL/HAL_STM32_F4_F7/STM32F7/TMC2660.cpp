@@ -25,22 +25,22 @@
  *
  */
 
-//#include <Arduino.h>
+#if defined(STM32GENERIC) && defined(STM32F7)
 
-#ifdef STM32F7
+#include "../../../inc/MarlinConfigPre.h"
+
+#if HAS_DRIVER(TMC2660)
 
 #include <stdbool.h>
 #include <SPI.h>
 #include "TMC2660.h"
 
-#include "HAL.h"
-#include "../../core/serial.h"
-#include "../../inc/MarlinConfig.h"
-#include "../../Marlin.h"
-#include "../../module/stepper_indirection.h"
-#include "../../module/printcounter.h"
-#include "../../libs/duration_t.h"
-#include "../../libs/hex_print_routines.h"
+#include "../../../inc/MarlinConfig.h"
+#include "../../../Marlin.h"
+#include "../../../module/stepper_indirection.h"
+#include "../../../module/printcounter.h"
+#include "../../../libs/duration_t.h"
+#include "../../../libs/hex_print_routines.h"
 
 //some default values used in initialization
 #define DEFAULT_MICROSTEPPING_VALUE 32
@@ -630,19 +630,19 @@ uint16_t TMC26XStepper::getCoolStepLowerSgThreshold() {
 }
 
 uint16_t TMC26XStepper::getCoolStepUpperSgThreshold() {
-  return (uint8_t)((cool_step_register_value & SE_MAX_PATTERN) >> 8) << 5;
+  return uint8_t((cool_step_register_value & SE_MAX_PATTERN) >> 8) << 5;
 }
 
 uint8_t TMC26XStepper::getCoolStepCurrentIncrementSize() {
-  return (uint8_t)((cool_step_register_value & CURRENT_DOWN_STEP_SPEED_PATTERN) >> 13);
+  return uint8_t((cool_step_register_value & CURRENT_DOWN_STEP_SPEED_PATTERN) >> 13);
 }
 
 uint8_t TMC26XStepper::getCoolStepNumberOfSGReadings() {
-  return (uint8_t)((cool_step_register_value & SE_CURRENT_STEP_WIDTH_PATTERN) >> 5);
+  return uint8_t((cool_step_register_value & SE_CURRENT_STEP_WIDTH_PATTERN) >> 5);
 }
 
 uint8_t TMC26XStepper::getCoolStepLowerCurrentLimit() {
-  return (uint8_t)((cool_step_register_value & MINIMUM_CURRENT_FOURTH) >> 15);
+  return uint8_t((cool_step_register_value & MINIMUM_CURRENT_FOURTH) >> 15);
 }
 
 void TMC26XStepper::setEnabled(boolean enabled) {
@@ -895,4 +895,4 @@ inline void TMC26XStepper::send262(uint32_t datagram) {
   driver_status_result = i_datagram;
 }
 
-#endif // STM32F7
+#endif // STM32GENERIC && STM32F7

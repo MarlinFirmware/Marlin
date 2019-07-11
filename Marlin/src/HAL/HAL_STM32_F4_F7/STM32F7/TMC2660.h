@@ -140,7 +140,6 @@ class TMC26XStepper {
      */
     void un_start();
 
-
     /*!
      * \brief Set the rotation speed in RPM.
      * \param whatSpeed the desired speed in RPM.

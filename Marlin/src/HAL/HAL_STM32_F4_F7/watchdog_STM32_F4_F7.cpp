@@ -20,13 +20,13 @@
  *
  */
 
-#ifdef STM32F7
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(USE_WATCHDOG)
 
-  #include "watchdog_STM32F7.h"
+  #include "watchdog_STM32_F4_F7.h"
 
   IWDG_HandleTypeDef hiwdg;
 
@@ -36,6 +36,11 @@
     hiwdg.Init.Reload = 4095;           //4095 counts = 4 seconds at 1024Hz
     if (HAL_IWDG_Init(&hiwdg) != HAL_OK) {
       //Error_Handler();
+    }
+    else {
+      #if PIN_EXISTS(LED) && !ENABLED(PINS_DEBUGGING)
+        TOGGLE(LED_PIN);  // heartbeat indicator
+      #endif
     }
   }
 
@@ -48,5 +53,4 @@
   }
 
 #endif // USE_WATCHDOG
-
-#endif // STM32F7
+#endif // STM32GENERIC && (STM32F4 || STM32F7)

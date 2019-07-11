@@ -60,10 +60,12 @@ extern uint8_t marlin_debug_flags;
     if (!serial_port_index || serial_port_index == SERIAL_BOTH) (void)MYSERIAL0.WHAT(V); \
     if ( serial_port_index) (void)MYSERIAL1.WHAT(V); \
   }while(0)
+  #define SERIAL_ASSERT(P)      if(serial_port_index!=(P)){ debugger(); }
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
   #define _PORT_RESTORE(n)      NOOP
   #define SERIAL_OUT(WHAT, V...) (void)MYSERIAL0.WHAT(V)
+  #define SERIAL_ASSERT(P)      NOOP
 #endif
 
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)

@@ -20,10 +20,9 @@
  *
  */
 
-#ifdef STM32F7
+#if defined(STM32GENERIC) && defined(STM32F7)
 
-#include "HAL.h"
-
+#include "../HAL.h"
 #include "HAL_timers_STM32F7.h"
 
 // ------------------------
@@ -33,6 +32,7 @@
 #define NUM_HARDWARE_TIMERS 2
 
 //#define PRESCALER 1
+
 // ------------------------
 // Private Variables
 // ------------------------
@@ -43,8 +43,7 @@ tTimerConfig timerConfig[NUM_HARDWARE_TIMERS];
 // Public functions
 // ------------------------
 
-
-bool timers_initialized[NUM_HARDWARE_TIMERS] = {false};
+bool timers_initialized[NUM_HARDWARE_TIMERS] = { false };
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
@@ -128,4 +127,4 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   return NVIC->ISER[IRQ_Id >> 5] & _BV32(IRQ_Id & 0x1F);
 }
 
-#endif // STM32F7
+#endif // STM32GENERIC && STM32F7

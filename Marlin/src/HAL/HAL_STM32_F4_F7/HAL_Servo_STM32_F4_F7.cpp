@@ -21,13 +21,13 @@
  *
  */
 
-#ifdef STM32F7
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_SERVOS
 
-#include "HAL_Servo_STM32F7.h"
+#include "HAL_Servo_STM32_F4_F7.h"
 
 int8_t libServo::attach(const int pin) {
   if (this->servoIndex >= MAX_SERVOS) return -1;
@@ -49,6 +49,6 @@ void libServo::move(const int value) {
     #endif
   }
 }
-#endif // HAS_SERVOS
 
-#endif // STM32F7
+#endif // HAS_SERVOS
+#endif // STM32GENERIC && (STM32F4 || STM32F7)
