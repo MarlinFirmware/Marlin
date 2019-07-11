@@ -47,6 +47,8 @@
   #define IS_RAMPS_SF
 #endif
 
+#define HAS_FREE_AUX2_PINS !(BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))
+
 //
 // RAMPS 1.3 / 1.4 - ATmega1280, ATmega2560
 //
@@ -1079,3 +1081,5 @@
     #endif
   #endif
 #endif
+
+#undef HAS_FREE_AUX2_PINS

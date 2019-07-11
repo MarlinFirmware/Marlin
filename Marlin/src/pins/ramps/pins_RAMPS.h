@@ -258,12 +258,10 @@
   #define PS_ON_PIN        12
 #endif
 
-#define AUX2_PINS_FREE !( BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD) )
-
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN) && !defined(SPINDLE_LASER_ENA_PIN)
-  #if NUM_SERVOS <= 1 // try to use servo connector first
+  #if NUM_SERVOS <= 1 // Prefer the servo connector
     #define CASE_LIGHT_PIN  6   // Hardware PWM
-  #elif AUX2_PINS_FREE
+  #elif HAS_FREE_AUX2_PINS
     #define CASE_LIGHT_PIN 44   // Hardware PWM
   #endif
 #endif
@@ -276,7 +274,7 @@
     #define SPINDLE_LASER_ENA_PIN     4   // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN     6   // Hardware PWM
     #define SPINDLE_DIR_PIN           5
-  #elif AUX2_PINS_FREE
+  #elif HAS_FREE_AUX2_PINS
     #define SPINDLE_LASER_ENA_PIN    40   // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN    44   // Hardware PWM
     #define SPINDLE_DIR_PIN          65
@@ -284,8 +282,6 @@
     #error "No auto-assignable Spindle/Laser pins available."
   #endif
 #endif
-
-#undef AUX2_PINS_FREE
 
 //
 // TMC software SPI

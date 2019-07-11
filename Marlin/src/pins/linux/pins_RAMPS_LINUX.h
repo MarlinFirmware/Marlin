@@ -221,9 +221,9 @@
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN) && !defined(SPINDLE_LASER_ENA_PIN)
-  #if NUM_SERVOS <= 1 // try to use servo connector first
+  #if NUM_SERVOS <= 1 // Prefer the servo connector
     #define CASE_LIGHT_PIN    6   // Hardware PWM
-  #elif !(BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))  // try to use AUX 2
+  #elif HAS_FREE_AUX2_PINS        // try to use AUX 2
     #define CASE_LIGHT_PIN   44   // Hardware PWM
   #endif
 #endif
@@ -232,11 +232,11 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
-  #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
+  #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // Prefer the servo connector
     #define SPINDLE_LASER_ENA_PIN     4   // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN     6   // Hardware PWM
     #define SPINDLE_DIR_PIN           5
-  #elif !(BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))  // try to use AUX 2
+  #elif HAS_FREE_AUX2_PINS                // try to use AUX 2
     #define SPINDLE_LASER_ENA_PIN    40   // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN    44   // Hardware PWM
     #define SPINDLE_DIR_PIN          65
