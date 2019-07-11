@@ -23,6 +23,7 @@
 #ifdef ARDUINO_ARCH_ESP32
 
 #include "HAL.h"
+#include "HAL_timers_ESP32.h"
 #include <rom/rtc.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
@@ -67,6 +68,9 @@ uint16_t HAL_adc_result;
 // ------------------------
 
 esp_adc_cal_characteristics_t characteristics;
+volatile int numPWMUsed=0;
+volatile int pwmPins[MAX_PWM_PINS];
+volatile int pwmValues[MAX_PWM_PINS];
 
 // ------------------------
 // Public functions
@@ -91,6 +95,9 @@ void HAL_init_board(void) {
     #endif
     server.begin();
   #endif
+
+  HAL_timer_start(PWM_TIMER_NUM, PWM_TIMER_FREQUENCY);
+
 }
 
 void HAL_idletask(void) {
@@ -173,20 +180,55 @@ void HAL_adc_start_conversion(uint8_t adc_pin) {
 }
 
 void analogWrite(pin_t pin, int value) {
+  int idx=-1;
 
-  if (!PWM_PIN(pin)) return;
+  // Search Pin
+  for (int i=0; i<numPWMUsed; ++i){
+    // Found
+    if (pwmPins[i] == pin){
 
-  static int cnt_channel = 1,
-             pin_to_channel[40] = {};
-  if (pin_to_channel[pin] == 0) {
-    ledcAttachPin(pin, cnt_channel);
-    ledcSetup(cnt_channel, 490, 8);
-    ledcWrite(cnt_channel, value);
+      idx=i;
+      break;
+    }
+  }
+  // not found ?
+  if (idx < 0) {
+    // No slots remaining
+    if (numPWMUsed >= MAX_PWM_PINS-1)
+      return;
 
-    pin_to_channel[pin] = cnt_channel++;
+    // take new slot for pin
+    idx = numPWMUsed;
+    pwmPins[idx] = pin;
+    ++numPWMUsed;
   }
 
-  ledcWrite(pin_to_channel[pin], value);
+  // Use 7bit internal value - add 1 to have 100% high at 255
+  pwmValues[idx] = (value + 1) / 2;
 }
+
+// Handle PWM timer interrupt
+HAL_PWM_TIMER_ISR(){
+  HAL_timer_isr_prologue(PWM_TIMER_NUM);
+
+  static unsigned int count = 0;
+
+  for (int i=0; i<numPWMUsed; ++i){
+    if (count == 0)
+       // Start of interval
+        WRITE(pwmPins[i], (pwmValues[i] ? 1 : 0));
+    else
+      //end of duration
+      if (pwmValues[i] == count)
+        WRITE(pwmPins[i], 0);
+  }
+
+  // 128 for 7 Bit resolution
+  if (++count>127)
+    count=0;
+
+  HAL_timer_isr_epilogue(PWM_TIMER_NUM);
+}
+
 
 #endif // ARDUINO_ARCH_ESP32
