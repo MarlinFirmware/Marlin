@@ -227,7 +227,7 @@ bool Sd2Card::eraseSingleBlockEnable() {
  * \return true for success, false for failure.
  * The reason for failure can be determined by calling errorCode() and errorData().
  */
-bool Sd2Card::init(const uint8_t sckRateID/*=0*/, const pin_t chipSelectPin/*=SD_CHIP_SELECT_PIN*/) {
+bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
   // 16-bit init start time allows over a minute
