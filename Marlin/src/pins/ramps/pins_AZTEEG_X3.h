@@ -92,7 +92,7 @@
     #undef SERVO0_PIN
     #define SERVO0_PIN     11
   #endif
-  #define SPINDLE_LASER_PWM_PIN     7   // MUST BE HARDWARE PWM
-  #define SPINDLE_LASER_ENA_PIN    20   // Pin should have a pullup!
+  #define SPINDLE_LASER_PWM_PIN     7   // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN    20   // Pullup!
   #define SPINDLE_DIR_PIN          21
 #endif

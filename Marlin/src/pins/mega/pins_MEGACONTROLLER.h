@@ -161,6 +161,6 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN     6   // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENA_PIN     7   // Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     6   // Hardware PWM
+#define SPINDLE_LASER_ENA_PIN     7   // Pullup!
 #define SPINDLE_DIR_PIN           8

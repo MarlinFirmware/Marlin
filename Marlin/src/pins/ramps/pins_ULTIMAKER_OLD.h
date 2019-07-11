@@ -242,13 +242,13 @@
      */
     #if EXTRUDERS == 1
       #define SPINDLE_DIR_PIN          43
-      #define SPINDLE_LASER_PWM_PIN    45   // MUST BE HARDWARE PWM
-      #define SPINDLE_LASER_ENA_PIN    41   // Pin should have a pullup!
+      #define SPINDLE_LASER_PWM_PIN    45   // Hardware PWM
+      #define SPINDLE_LASER_ENA_PIN    41   // Pullup!
     #elif TEMP_SENSOR_BED == 0  // Can't use E0 so see if HEATER_BED_PIN is available
       #undef HEATER_BED_PIN
       #define SPINDLE_DIR_PIN          38   // Probably pin 4 on 10 pin connector closest to the E0 socket
-      #define SPINDLE_LASER_PWM_PIN     4   // MUST BE HARDWARE PWM - Special precautions usually needed.
-      #define SPINDLE_LASER_ENA_PIN    40   // Pin should have a pullup! (Probably pin 6 on the 10-pin
+      #define SPINDLE_LASER_PWM_PIN     4   // Hardware PWM - Special precautions usually needed.
+      #define SPINDLE_LASER_ENA_PIN    40   // Pullup! (Probably pin 6 on the 10-pin
                                             // connector closest to the E0 socket)
     #endif
   #endif

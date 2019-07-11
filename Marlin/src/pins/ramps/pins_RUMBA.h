@@ -156,10 +156,10 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #ifndef SPINDLE_LASER_PWM_PIN
-  #define SPINDLE_LASER_PWM_PIN 4   // MUST BE HARDWARE PWM. Pin 4 interrupts OC0* and OC1* always in use?
+  #define SPINDLE_LASER_PWM_PIN 4   // Hardware PWM. Pin 4 interrupts OC0* and OC1* always in use?
 #endif
 #ifndef SPINDLE_LASER_ENA_PIN
-  #define SPINDLE_LASER_ENA_PIN    14   // Pin should have a pullup!
+  #define SPINDLE_LASER_ENA_PIN    14   // Pullup!
 #endif
 #ifndef SPINDLE_DIR_PIN
   #define SPINDLE_DIR_PIN  15

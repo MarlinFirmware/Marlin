@@ -78,9 +78,9 @@
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN   66   // Do not use pin 53 if there is even the remote possibility of using Display/SD card
+  #define MAX6675_SS_PIN   66   // Don't use 53 if there is even the remote possibility of using Display/SD card
 #else
-  #define MAX6675_SS_PIN   66   // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
+  #define MAX6675_SS_PIN   66   // Don't use 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
 //
@@ -106,11 +106,11 @@
 #define SDPOWER            48
 #define SDSS               53
 #define LED_PIN            13
-#define CASE_LIGHT_PIN     45   // MUST BE HARDWARE PWM
+#define CASE_LIGHT_PIN     45   // Hardware PWM
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN    41   // Pin should have a pullup/pulldown!
-#define SPINDLE_LASER_PWM_PIN    45   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENA_PIN    41   // Pullup or pulldown!
+#define SPINDLE_LASER_PWM_PIN    45   // Hardware PWM
 #define SPINDLE_DIR_PIN          43

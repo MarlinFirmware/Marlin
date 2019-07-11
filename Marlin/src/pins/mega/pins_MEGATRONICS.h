@@ -114,7 +114,7 @@
   #define LCD_PINS_D6     27
   #define LCD_PINS_D7     29
 
-  // Buttons directly attached using AUX-2
+  // Buttons directly attached to AUX-2
   #define BTN_EN1         59
   #define BTN_EN2         64
   #define BTN_ENC         43
@@ -126,6 +126,6 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN     3   // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENA_PIN     4   // Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     3   // Hardware PWM
+#define SPINDLE_LASER_ENA_PIN     4   // Pullup!
 #define SPINDLE_DIR_PIN          11

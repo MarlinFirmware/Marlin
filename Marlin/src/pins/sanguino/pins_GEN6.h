@@ -106,7 +106,7 @@
 //
 #define SDSS               17
 #define DEBUG_PIN           0
-#define CASE_LIGHT_PIN     16   // MUST BE HARDWARE PWM
+#define CASE_LIGHT_PIN     16   // Hardware PWM
 
 // RS485 pins
 #define TX_ENABLE_PIN      12
@@ -115,6 +115,6 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN     5   // Pin should have a pullup/pulldown!
-#define SPINDLE_LASER_PWM_PIN    16   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENA_PIN     5   // Pullup or pulldown!
+#define SPINDLE_LASER_PWM_PIN    16   // Hardware PWM
 #define SPINDLE_DIR_PIN           6

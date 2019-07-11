@@ -169,9 +169,9 @@
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN   66   // Do not use pin 53 if there is even the remote possibility of using Display/SD card
+  #define MAX6675_SS_PIN   66   // Don't use 53 if there is even the remote possibility of using Display/SD card
 #else
-  #define MAX6675_SS_PIN   66   // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
+  #define MAX6675_SS_PIN   66   // Don't use 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
 //
@@ -262,9 +262,9 @@
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN) && !defined(SPINDLE_LASER_ENA_PIN)
   #if NUM_SERVOS <= 1 // try to use servo connector first
-    #define CASE_LIGHT_PIN  6   // MUST BE HARDWARE PWM
+    #define CASE_LIGHT_PIN  6   // Hardware PWM
   #elif AUX2_PINS_FREE
-    #define CASE_LIGHT_PIN 44   // MUST BE HARDWARE PWM
+    #define CASE_LIGHT_PIN 44   // Hardware PWM
   #endif
 #endif
 
@@ -273,12 +273,12 @@
 //
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
   #if !NUM_SERVOS                         // Use servo connector if possible
-    #define SPINDLE_LASER_ENA_PIN     4   // Pin should have a pullup/pulldown!
-    #define SPINDLE_LASER_PWM_PIN     6   // MUST BE HARDWARE PWM
+    #define SPINDLE_LASER_ENA_PIN     4   // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN     6   // Hardware PWM
     #define SPINDLE_DIR_PIN           5
   #elif AUX2_PINS_FREE
-    #define SPINDLE_LASER_ENA_PIN    40   // Pin should have a pullup/pulldown!
-    #define SPINDLE_LASER_PWM_PIN    44   // MUST BE HARDWARE PWM
+    #define SPINDLE_LASER_ENA_PIN    40   // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN    44   // Hardware PWM
     #define SPINDLE_DIR_PIN          65
   #else
     #error "No auto-assignable Spindle/Laser pins available."
@@ -621,7 +621,7 @@
       // Beeper on AUX-4
       #define BEEPER_PIN        33
 
-      // Buttons are directly attached using AUX-2
+      // Buttons are directly attached to AUX-2
       #if ENABLED(REPRAPWORLD_KEYPAD)
         #define SHIFT_OUT       40
         #define SHIFT_CLK       44

@@ -132,8 +132,8 @@
 #if HAS_CUTTER   // use the LED_PIN for spindle speed control or case light
   #undef LED_PIN
   #define SPINDLE_DIR_PIN          16
-  #define SPINDLE_LASER_ENA_PIN    17   // Pin should have a pullup!
-  #define SPINDLE_LASER_PWM_PIN     8   // MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_ENA_PIN    17   // Pullup!
+  #define SPINDLE_LASER_PWM_PIN     8   // Hardware PWM
 #else
   #undef LED_PIN
   #define CASE_LIGHT_PIN            8

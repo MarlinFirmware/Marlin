@@ -161,9 +161,9 @@
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN) && !defined(SPINDLE_LASER_ENA_PIN)
   #if NUM_SERVOS <= 1 // try to use servo connector first
-    #define CASE_LIGHT_PIN    6   // MUST BE HARDWARE PWM
+    #define CASE_LIGHT_PIN    6   // Hardware PWM
   #elif AUX2_PINS_FREE
-    #define CASE_LIGHT_PIN   44   // MUST BE HARDWARE PWM
+    #define CASE_LIGHT_PIN   44   // Hardware PWM
   #endif
 #endif
 
@@ -172,12 +172,12 @@
 //
 #if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
-    #define SPINDLE_LASER_ENA_PIN     4   // Pin should have a pullup/pulldown!
-    #define SPINDLE_LASER_PWM_PIN     6   // MUST BE HARDWARE PWM
+    #define SPINDLE_LASER_ENA_PIN     4   // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN     6   // Hardware PWM
     #define SPINDLE_DIR_PIN           5
   #elif AUX2_PINS_FREE
-    #define SPINDLE_LASER_ENA_PIN    40   // Pin should have a pullup/pulldown!
-    #define SPINDLE_LASER_PWM_PIN    44   // MUST BE HARDWARE PWM
+    #define SPINDLE_LASER_ENA_PIN    40   // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN    44   // Hardware PWM
     #define SPINDLE_DIR_PIN          65
   #endif
 #endif

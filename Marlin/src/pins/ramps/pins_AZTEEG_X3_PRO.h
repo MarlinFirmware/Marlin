@@ -160,10 +160,9 @@
 
 #if HAS_CUTTER   // EXP2 header
   #if ANY(VIKI2, miniVIKI)
-    #undef BTN_EN2
-    #define BTN_EN2             31   // need 7 for the spindle speed PWM
+    #define BTN_EN2        31   // Pin 7 needed for Spindle PWM
   #endif
-  #define SPINDLE_LASER_PWM_PIN     7   // must have a hardware PWM
-  #define SPINDLE_LASER_ENA_PIN    20   // Pin should have a pullup!
-  #define SPINDLE_DIR_PIN          21
+  #define SPINDLE_LASER_PWM_PIN  7   // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN 20   // Pullup!
+  #define SPINDLE_DIR_PIN       21
 #endif

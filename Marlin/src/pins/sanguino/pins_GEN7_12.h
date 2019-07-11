@@ -123,9 +123,9 @@
 #define PS_ON_PIN          15
 
 #if GEN7_VERSION < 13
-  #define CASE_LIGHT_PIN   16   // MUST BE HARDWARE PWM
+  #define CASE_LIGHT_PIN   16   // Hardware PWM
 #else     // Gen7 v1.3 removed the I2C connector & signals so need to get PWM off the PC power supply header
-  #define CASE_LIGHT_PIN   15   // MUST BE HARDWARE PWM
+  #define CASE_LIGHT_PIN   15   // Hardware PWM
 #endif
 
 // All these generations of Gen7 supply thermistor power
@@ -141,10 +141,10 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN    10   // Pin should have a pullup/pulldown!
+#define SPINDLE_LASER_ENA_PIN    10   // Pullup or pulldown!
 #define SPINDLE_DIR_PIN          11
 #if GEN7_VERSION < 13
-  #define SPINDLE_LASER_PWM_PIN  16   // MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_PWM_PIN  16   // Hardware PWM
 #else  // Gen7 v1.3 removed the I2C connector & signals so need to get PWM off the PC power supply header
-  #define SPINDLE_LASER_PWM_PIN  15   // MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_PWM_PIN  15   // Hardware PWM
 #endif

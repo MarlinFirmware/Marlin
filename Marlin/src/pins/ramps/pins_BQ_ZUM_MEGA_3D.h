@@ -50,8 +50,8 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN    40   // Pin should have a pullup/pulldown!
-#define SPINDLE_LASER_PWM_PIN    44   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENA_PIN    40   // Pullup or pulldown!
+#define SPINDLE_LASER_PWM_PIN    44   // Hardware PWM
 #define SPINDLE_DIR_PIN          42
 
 //
@@ -94,7 +94,7 @@
 #undef PS_ON_PIN                // 12
 #define PS_ON_PIN          81   // External Power Supply
 
-#define CASE_LIGHT_PIN     44   // MUST BE HARDWARE PWM
+#define CASE_LIGHT_PIN     44   // Hardware PWM
 
 
 // This board has headers for Z-min, Z-max and IND_S_5V *but* as the bq team

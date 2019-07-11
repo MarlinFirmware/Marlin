@@ -230,6 +230,6 @@
 //
 #if HOTENDS < 3 && HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #define SPINDLE_LASER_ENA_PIN 45   // Use E2 ENA
-  #define SPINDLE_LASER_PWM_PIN 12   // MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_PWM_PIN 12   // Hardware PWM
   #define SPINDLE_DIR_PIN       47   // Use E2 DIR
 #endif

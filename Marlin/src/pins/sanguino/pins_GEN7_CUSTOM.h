@@ -104,7 +104,7 @@
 //
 #define SDSS               31   // SCL pin of I2C header || CS Pin for SD Card support
 #define PS_ON_PIN          19
-#define CASE_LIGHT_PIN     15   // MUST BE HARDWARE PWM
+#define CASE_LIGHT_PIN     15   // Hardware PWM
 
 // A pin for debugging
 #define DEBUG_PIN          -1
@@ -134,6 +134,6 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN     5   // Pin should have a pullup/pulldown!
-#define SPINDLE_LASER_PWM_PIN    16   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENA_PIN     5   // Pullup or pulldown!
+#define SPINDLE_LASER_PWM_PIN    16   // Hardware PWM
 #define SPINDLE_DIR_PIN           6
