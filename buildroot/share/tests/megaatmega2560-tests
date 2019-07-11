@@ -7,11 +7,6 @@
 set -e
 
 #
-# Backup pins_RAMPS.h
-#
-cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
-
-#
 # Build with the default configurations
 #
 restore_configs
@@ -265,16 +260,19 @@ exec_test $1 $2 "Many less common options"
 #
 use_example_configs Creality/CR-10S
 exec_test $1 $2 "Full-featured CR-10S config"
+
 #
 # BQ Hephestos 2
 #restore_configs
 #use_example_configs Hephestos_2
 #exec_test $1 $2 "Stuff"
+
 #
 # Delta Config (generic) + ABL bilinear + BLTOUCH
 use_example_configs delta/generic
 opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR BLTOUCH BLTOUCH_FORCE_5V_MODE
 exec_test $1 $2 "Delta Config (generic) + ABL bilinear + BLTOUCH"
+
 #
 # Delta Config (generic) + UBL + ALLEN_KEY + OLED_PANEL_TINYBOY2 + EEPROM_SETTINGS
 #
@@ -282,16 +280,19 @@ use_example_configs delta/generic
 opt_enable AUTO_BED_LEVELING_UBL RESTORE_LEVELING_AFTER_G28 Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT \
            OLED_PANEL_TINYBOY2 MESH_EDIT_GFX_OVERLAY
 exec_test $1 $2 "Delta Config (generic) + UBL + ALLEN_KEY + OLED_PANEL_TINYBOY2 + EEPROM_SETTINGS"
+
 #
 # Delta Config (FLSUN AC because it's complex)
 #
 use_example_configs delta/FLSUN/auto_calibrate
 exec_test $1 $2 "Delta Config (FLSUN AC because it's complex)"
+
 #
 # Makibox Config  need to check board type for Teensy++ 2.0
 #
 #use_example_configs makibox
 #exec_test $1 $2 "Stuff"
+
 #
 # SCARA with TMC2130
 #
@@ -305,6 +306,7 @@ opt_set Y_DRIVER_TYPE TMC2130
 opt_set Z_DRIVER_TYPE TMC2130
 opt_set E0_DRIVER_TYPE TMC2660
 exec_test $1 $2 "SCARA with TMC2130, TMC2209, and TMC2660"
+
 #
 # Test mixed TMC config
 #
@@ -317,13 +319,12 @@ opt_set X_MIN_ENDSTOP_INVERTING true
 opt_set Y_MIN_ENDSTOP_INVERTING true
 opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER MONITOR_DRIVER_STATUS STEALTHCHOP_XY STEALTHCHOP_Z STEALTHCHOP_E HYBRID_THRESHOLD USE_ZMIN_PLUG SENSORLESS_HOMING TMC_DEBUG
 exec_test $1 $2 "Mixed TMC configuration"
+
 #
 # tvrrug Config need to check board type for sanguino atmega644p
 #
 #use_example_configs tvrrug/Round2
 #exec_test $1 $2 "Stuff"
-#
-#
 
 # clean up
 restore_configs

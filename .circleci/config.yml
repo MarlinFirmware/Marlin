@@ -54,10 +54,9 @@ jobs:
             generate_version ./Marlin/src/inc
             cat ./Marlin/src/inc/_Version.h
             #
-            # Backup pins_RAMPS.h
+            # Back up pins_RAMPS.h
             #
-            cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
-            #
+            backup_ramps
 
             env_backup
 
