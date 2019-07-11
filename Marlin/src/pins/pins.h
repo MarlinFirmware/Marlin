@@ -195,48 +195,48 @@
 //
 
 #elif MB(CNCONTROLS_11)
-  #include "pins_CNCONTROLS_11.h"               // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "mega/pins_CNCONTROLS_11.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(CNCONTROLS_12)
-  #include "pins_CNCONTROLS_12.h"               // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "mega/pins_CNCONTROLS_12.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MIGHTYBOARD_REVE)
-  #include "pins_MIGHTYBOARD_REVE.h"            // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(CHEAPTRONIC)
-  #include "pins_CHEAPTRONIC.h"                 // ATmega2560                             env:megaatmega2560
+  #include "mega/pins_CHEAPTRONIC.h"            // ATmega2560                             env:megaatmega2560
 #elif MB(CHEAPTRONIC_V2)
-  #include "pins_CHEAPTRONICv2.h"               // ATmega2560                             env:megaatmega2560
+  #include "mega/pins_CHEAPTRONICv2.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(MEGATRONICS)
-  #include "pins_MEGATRONICS.h"                 // ATmega2560                             env:megaatmega2560
+  #include "mega/pins_MEGATRONICS.h"            // ATmega2560                             env:megaatmega2560
 #elif MB(MEGATRONICS_2)
-  #include "pins_MEGATRONICS_2.h"               // ATmega2560                             env:megaatmega2560
+  #include "mega/pins_MEGATRONICS_2.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(MEGATRONICS_3) || MB(MEGATRONICS_31) || MB(MEGATRONICS_32)
-  #include "pins_MEGATRONICS_3.h"               // ATmega2560                             env:megaatmega2560
+  #include "mega/pins_MEGATRONICS_3.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(ELEFU_3)
-  #include "pins_ELEFU_3.h"                     // ATmega2560                             env:megaatmega2560
+  #include "mega/pins_ELEFU_3.h"                // ATmega2560                             env:megaatmega2560
 #elif MB(LEAPFROG)
-  #include "pins_LEAPFROG.h"                    // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "mega/pins_LEAPFROG.h"               // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MEGACONTROLLER)
-  #include "pins_MEGACONTROLLER.h"              // ATmega2560                             env:megaatmega2560
+  #include "mega/pins_MEGACONTROLLER.h"         // ATmega2560                             env:megaatmega2560
 #elif MB(GT2560_REV_A)
-  #include "pins_GT2560_REV_A.h"                // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "mega/pins_GT2560_REV_A.h"           // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(GT2560_REV_A_PLUS)
-  #include "pins_GT2560_REV_A_PLUS.h"           // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "mega/pins_GT2560_REV_A_PLUS.h"      // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(GT2560_V3)
-  #include "pins_GT2560_V3.h"                   // ATmega2560                             env:megaatmega2560
+  #include "mega/pins_GT2560_V3.h"              // ATmega2560                             env:megaatmega2560
 #elif MB(GT2560_V3_MC2)
-  #include "pins_GT2560_V3_MC2.h"               // ATmega2560                             env:megaatmega2560
+  #include "mega/pins_GT2560_V3_MC2.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(GT2560_V3_A20)
-  #include "pins_GT2560_V3_A20.h"               // ATmega2560                             env:megaatmega2560
+  #include "mega/pins_GT2560_V3_A20.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(EINSTART_S)
-  #include "pins_EINSTART-S.h"                  // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "mega/pins_EINSTART-S.h"             // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561
 //
 
 #elif MB(MINITRONICS)
-  #include "pins_MINITRONICS.h"                 // ATmega1281                             env:megaatmega1280
+  #include "mega/pins_MINITRONICS.h"            // ATmega1281                             env:megaatmega1280
 #elif MB(SILVER_GATE)
-  #include "pins_SILVER_GATE.h"                 // ATmega2561                             env:megaatmega2560
+  #include "mega/pins_SILVER_GATE.h"            // ATmega2561                             env:megaatmega2560
 
 //
 // Sanguinololu and Derivatives - ATmega644P, ATmega1284P
