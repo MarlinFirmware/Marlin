@@ -128,6 +128,7 @@
 #define BOARD_GT2560_V3_MC2           1316  // Geeetech GT2560 Rev B for Mecreator2
 #define BOARD_GT2560_V3_A20           1317  // Geeetech GT2560 Rev B for A20(M/D)
 #define BOARD_EINSTART_S              1318  // Einstart retrofit
+#define BOARD_WANHAO_ONEPLUS          1319  // Wanhao 0ne+ i3 Mini
 
 //
 // ATmega1281, ATmega2561
