@@ -56,7 +56,11 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #define LCD_UPDATE_INTERVAL 100
+  #if ENABLED(TOUCH_BUTTONS)
+    #define LCD_UPDATE_INTERVAL 50
+  #else
+    #define LCD_UPDATE_INTERVAL 100
+  #endif
 
   #if HAS_LCD_MENU
 
@@ -497,6 +501,11 @@ public:
       static volatile uint8_t slow_buttons;
       static uint8_t read_slow_buttons();
     #endif
+    #if ENABLED(TOUCH_BUTTONS)
+      static volatile uint8_t touch_buttons;
+      static uint8_t read_touch_buttons();
+    #endif
+
     static void update_buttons();
     static inline bool button_pressed() { return BUTTON_CLICK(); }
     #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
