@@ -448,7 +448,7 @@ bool ui_selection; // = false
 void set_ui_selection(const bool sel) { ui_selection = sel; }
 void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
   if (ui.encoderPosition) {
-    ui_selection = int16_t(ui.encoderPosition) > 0;
+    ui_selection = (ENCODERBASE) > 0 == int16_t(ui.encoderPosition) > 0;
     ui.encoderPosition = 0;
   }
   const bool got_click = ui.use_click();
