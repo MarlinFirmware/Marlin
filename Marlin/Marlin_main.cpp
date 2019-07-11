@@ -876,7 +876,7 @@ static bool drain_injected_commands_P() {
       {
         if (enqueue_and_echo_command(commandbuf))     // success?
           {
-              injected_commands_P = NULL; // next command or done	
+              injected_commands_P = NULL; // next command or done
               waitway= 7;
           }
       }
@@ -1254,8 +1254,8 @@ inline void get_serial_commands() {
                 delay(1);
                 rtscheck.RTS_SndData(100 ,PrintscheduleIcon);
                 delay(1);
-                rtscheck.RTS_SndData(100 ,PrintscheduleIcon+1);	
-                
+                rtscheck.RTS_SndData(100 ,PrintscheduleIcon+1);
+
                 if(LanguageRecbuf != 0)
                 {
                   //rtscheck.RTS_SndData(3,IconPrintstatus); // the printing done
@@ -1270,7 +1270,7 @@ inline void get_serial_commands() {
                 {
                   settings.save();
                 last_zoffset = rts_probe_zoffset;
-                } 
+                }
                 FilementStatus[1] = PrintStatue[1] = 0;
                 CardCheckStatus[0] = 0;
               }
@@ -2167,9 +2167,9 @@ void clean_up_after_endstop_or_probe_move() {
 
       if(deploy)
         bltouch_command(BLTOUCH_SW_MODE);
-        
+
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
-      
+
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
@@ -2341,13 +2341,13 @@ void clean_up_after_endstop_or_probe_move() {
     do_blocking_move_to_z(z, fr_mm_s);
 
     // Check to see if the probe was triggered
-    
+
       #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
         const bool probe_triggered = TEST(endstops.trigger_state(), Z_MIN);
       #else
         const bool probe_triggered = TEST(endstops.trigger_state(), Z_MIN_PROBE);
       #endif
-    
+
 
     #if QUIET_PROBING
       probing_pause(false);
@@ -3535,7 +3535,7 @@ inline void gcode_G0_G1(
       {
         InforShowStatus = true;
         thermalManager.setTargetHotend(0, 0);
-        
+
         if(LanguageRecbuf != 0)
         {
           rtscheck.RTS_SndData(4,IconPrintstatus);	// 4 for Pause
@@ -3544,18 +3544,18 @@ inline void gcode_G0_G1(
         else
         {
           rtscheck.RTS_SndData(4+CEIconGrap,IconPrintstatus);	// 4 for Pause
-          rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr); 
+          rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
         }
         waitway = 0;
         //disable_X();
         //disable_Y();
-      }	
+      }
       else if(waitway == 5)
       {
         InforShowStatus = true;
         thermalManager.setTargetHotend(0, 0);
         waitway = 0;
-        
+
         if(LanguageRecbuf != 0)
           rtscheck.RTS_SndData(ExchangePageBase + 44, ExchangepageAddr); //exchange to 38 page
         else
@@ -4516,7 +4516,7 @@ inline void gcode_G28(const bool always_home_all) {
 	{
 		InforShowStatus = true;
 		thermalManager.setTargetHotend(0, 0);
-		
+
 		if(LanguageRecbuf != 0)
 		{
 			rtscheck.RTS_SndData(4,IconPrintstatus);	// 4 for Pause
@@ -4525,18 +4525,18 @@ inline void gcode_G28(const bool always_home_all) {
 		else
 		{
 			rtscheck.RTS_SndData(4+CEIconGrap,IconPrintstatus);	// 4 for Pause
-			rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr); 
+			rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
 		}
 		waitway = 0;
 		//disable_X();
 		//disable_Y();
-	}	
+	}
 	else if(waitway == 5)
 	{
 		InforShowStatus = true;
 		thermalManager.setTargetHotend(0, 0);
 		waitway = 0;
-		
+
 		if(LanguageRecbuf != 0)
 			rtscheck.RTS_SndData(ExchangePageBase + 38, ExchangepageAddr); //exchange to 38 page
 		else
@@ -4916,9 +4916,6 @@ void home_all_axes() { gcode_G28(true); }
    *
    */
   inline void gcode_G29() {
-    #if ENABLED(CREALITY_DWIN)
-      if(AutoLevelStatus &&PrinterStatusKey[0] == 1 ) return;
-    #endif
     #if ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(PROBE_MANUALLY)
       const bool seenQ = parser.seen('Q');
     #else
@@ -5458,7 +5455,7 @@ void home_all_axes() { gcode_G28(true); }
           zig ^= true; // zag
 
           // Inner loop is Y with PROBE_Y_FIRST enabled
-          
+
           for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
             float xBase = left_probe_bed_position + xGridSpacing * xCount,
                   yBase = front_probe_bed_position + yGridSpacing * yCount;
@@ -5583,7 +5580,7 @@ void home_all_axes() { gcode_G28(true); }
             if(LanguageRecbuf != 0)
               rtscheck.RTS_SndData(ExchangePageBase + 22, ExchangepageAddr);	// Autolevel
             else
-              rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr); 
+              rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
           }
           settings.save();
         #endif
@@ -8790,9 +8787,9 @@ inline void gcode_M109() {
 				}
 				else
 				{
-					rtscheck.RTS_SndData(2+CEIconGrap,IconPrintstatus);	
+					rtscheck.RTS_SndData(2+CEIconGrap,IconPrintstatus);
 					delay(1);
-					rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr); 
+					rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 				}
 				CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
 				FilementStatus[1] = 1; 	//begin to check filement status.
@@ -8803,7 +8800,7 @@ inline void gcode_M109() {
 		}
 		else
 			PreheatStatus[1] = true;
-		
+
     #endif
     lcd_reset_status();
     #if ENABLED(PRINTER_EVENT_LEDS)
@@ -8950,7 +8947,7 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-    if (wait_for_heatup){ 
+    if (wait_for_heatup){
       #if ENABLED(CREALITY_DWIN)
         if(PreheatStatus[1])
       {
@@ -8977,17 +8974,17 @@ inline void gcode_M109() {
           }
           else
           {
-            rtscheck.RTS_SndData(2+CEIconGrap,IconPrintstatus);	
+            rtscheck.RTS_SndData(2+CEIconGrap,IconPrintstatus);
             delay(1);
-            rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr); 
+            rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
           }
 
           CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
           FilementStatus[1] = 1; 	//begin to check filement status.
-          
+
 	//SERIAL_ECHOPAIR("\n ***M190 Status[1] =",FilementStatus[1]);
         }
-        
+
 	//SERIAL_ECHOPAIR("\n ***PrinterStatusKey[1] =",PrinterStatusKey[1]);
         PreheatStatus[1] = PreheatStatus[0] = false;
       }
@@ -9265,14 +9262,14 @@ inline void gcode_M18_M84() {
     #endif
   }
   #if ENABLED(CREALITY_DWIN)
-    rtscheck.RTS_SndData(11, FilenameIcon); 
-	
+    rtscheck.RTS_SndData(11, FilenameIcon);
+
     delay(1000);
     rtscheck.RTS_SndData(0,PrintscheduleIcon);
     rtscheck.RTS_SndData(0,PrintscheduleIcon+1);
     rtscheck.RTS_SndData(0,Percentage);
     delay(2);
-    for(int j = 0;j < 10;j++)	
+    for(int j = 0;j < 10;j++)
     {
       rtscheck.RTS_SndData(0,Printfilename+j); //clean screen.
       rtscheck.RTS_SndData(0,Choosefilename+j); //clean filename
@@ -9283,13 +9280,13 @@ inline void gcode_M18_M84() {
     SERIAL_ECHO("\n SD Stop Setting Screen ");
     if(LanguageRecbuf != 0)
     {
-      rtscheck.RTS_SndData(0,IconPrintstatus);	// 0 for ready 
+      rtscheck.RTS_SndData(0,IconPrintstatus);	// 0 for ready
       delay(2);
       rtscheck.RTS_SndData(ExchangePageBase + 1, ExchangepageAddr); //exchange to 1 page
     }
     else
     {
-      rtscheck.RTS_SndData(0+CEIconGrap,IconPrintstatus);	// 0 for ready 
+      rtscheck.RTS_SndData(0+CEIconGrap,IconPrintstatus);	// 0 for ready
       delay(2);
       rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); //exchange to 45 page
     }

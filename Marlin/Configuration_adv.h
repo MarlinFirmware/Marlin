@@ -102,14 +102,14 @@
 
   #define THERMAL_PROTECTION_BED_PERIOD 50    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
-  
+
   #define WATCH_BED_TEMP_PERIOD 180                // Seconds
   #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
 #else
 
   #define THERMAL_PROTECTION_BED_PERIOD 30    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
-  
+
   #define WATCH_BED_TEMP_PERIOD 120                // Seconds
   #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
 #endif
@@ -778,7 +778,7 @@
  * See http://marlinfw.org/docs/features/lin_advance.html for full instructions.
  * Mention @Sebastianv650 on GitHub to alert the author of any issues.
  */
-  #if((DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard) && DISABLED(MachineCR10SPro) ) || ENABLED(OrigLA))
+  #if((DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard) && DISABLED(MachineCR10SPro) && DISABLED(MachineCR10Max) ) || ENABLED(OrigLA))
 #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)
@@ -825,7 +825,7 @@
    #define MESH_MAX_Y (Y_BED_SIZE - 25)
   #endif
 
-  
+
   //#define MESH_MIN_X 0 - X_PROBE_OFFSET_FROM_EXTRUDER
   //#define MESH_MIN_Y MESH_INSET
   //#define MESH_MAX_X X_BED_SIZE - 5
@@ -987,7 +987,7 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
- 
+
 #define ADVANCED_PAUSE_FEATURE
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -1575,18 +1575,18 @@
 #if ENABLED(BedDC)
     #define USER_DESC_1 "UBL Commission Step 1"
   #define USER_GCODE_1 "M502 \n M500 \n M501 \n M190 S55 \n M104 S225 \n G28 \n G29 P1 \n G29 S1 \n M117 Run Step 2 \n"
- 
+
   #define USER_DESC_2 "UBL Commission Step 2"
   #define USER_GCODE_2 "G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n M109 S225 \n G1 X100 Y 100 \n G1 Z0 \n M117 Set Z Offset \n"
 
   #define USER_DESC_3 "Prep for Z Adjust"
   #define USER_GCODE_3 "M190 55 \n M104 235 \n G28 \n G29 L1 \n G1 X100 Y 100 \n G1 Z0"
 #endif
-  
+
 #if ENABLED(BedAC)
     #define USER_DESC_1 "UBL Commission Step 1"
   #define USER_GCODE_1 "M502 \n M500 \n M501 \n M190 S75 \n M104 S225 \n G28 \n G29 P1 \n G29 S1 \n M117 Run Step 2 \n"
- 
+
   #define USER_DESC_2 "UBL Commission Step 2"
   #define USER_GCODE_2 "G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n M109 S225 \n G1 X100 Y 100 \n G1 Z0 \n M117 Set Z Offset \n"
 

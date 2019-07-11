@@ -22,7 +22,8 @@
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work, need to map pin
 //#define MachineCR10Std
-#define MachineCR10SPro
+//#define MachineCR10SPro
+#define MachineCR10Max
 //#define MachineCRX
 //#define MachineS4
 //#define MachineS5
@@ -173,6 +174,23 @@
    Advanced settings can be found in Configuration_adv.h
 
 */
+#if ENABLED(MachineCR10Max)
+  #if DISABLED(GraphicLCD)
+    #define CREALITY_DWIN
+    #define Force10SProDisplay
+     #define FIL_RUNOUT_PIN 2
+     #define FIL_RUNOUT_INVERTING false
+  #endif
+  #if DISABLED(ABL_NCSW) && DISABLED(ABL_EZABL)
+    #define ABL_BLTOUCH
+  #endif
+  #if DISABLED(ABL_UBL)
+    #define ABL_BI
+  #endif
+  #define MeshStd
+  #define SD_DETECT_PIN 49
+#endif
+
 #if(ENABLED(MachineCR10SPro))
   #if DISABLED(GraphicLCD)
     #define CREALITY_DWIN
@@ -292,6 +310,8 @@
 #define CUSTOM_MACHINE_NAME "CR-Xtreme"
 #elif(ENABLED(MachineCR10SPro))
 #define CUSTOM_MACHINE_NAME "TM3D 10S Pro"
+#elif(ENABLED(MachineCR10Max))
+#define CUSTOM_MACHINE_NAME "TM3D Max"
 #elif(ENABLED(MachineCR10Std))
 #define CUSTOM_MACHINE_NAME "300 SuPeR"
 #elif(ENABLED(MachineS4))
@@ -318,7 +338,7 @@
 #define VerChar1 "X"
 #elif(ENABLED(MachineS4))
 #define VerChar1 "4"
-#elif(ENABLED(MachineS5))
+#elif(ENABLED(MachineS5) || ENABLED(MachineCR10Max))
 #define VerChar1 "5"
 #endif
 
@@ -682,7 +702,7 @@
 // #define  DEFAULT_Kd 59.93
 #if ENABLED(HotendStock)
 
-    #if(ENABLED(MachineCRX) || ENABLED(MachineCR10SPro))
+    #if(ENABLED(MachineCRX) ||  ENABLED(MachineCR10SPro) || ENABLED(MachineCR10Max))
       #define  DEFAULT_Kp 20.84
       #define  DEFAULT_Ki 1.96
       #define  DEFAULT_Kd 55.47
@@ -900,7 +920,7 @@
 */
 #if(ENABLED(Bondtech) || ENABLED(E3DTitan))
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 415 }
-#elif ENABLED(MachineCR10SPro)
+#elif ENABLED(MachineCR10SPro) || ENABLED(MachineCR10Max)
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 140 }
 #else
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
@@ -950,7 +970,7 @@
 #define DEFAULT_YJERK                 10.0
 #define DEFAULT_ZJERK                  0.4
 #define DEFAULT_EJERK                  5.0
-#elif ENABLED(MachineS5)
+#elif ENABLED(MachineS5) || ENABLED(MachineCR10Max)
 #define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 50 }
 #define DEFAULT_MAX_ACCELERATION      { 1000, 500, 100, 500 }
 #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
@@ -1158,10 +1178,10 @@
     #define Y_PROBE_OFFSET_FROM_EXTRUDER -10  // Y offset: -front +behind [the nozzle]
     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
   #endif
-#elif ENABLED(MachineCR10SPro) && ENABLED(HotendStock)
+#elif ENABLED(MachineCR10SPro) || ENABLED(MachineCR10Max) && ENABLED(HotendStock)
   #if ENABLED(ABL_BLTOUCH)
-    #define X_PROBE_OFFSET_FROM_EXTRUDER -41  // X offset: -left  +right  [of the nozzle]
-    #define Y_PROBE_OFFSET_FROM_EXTRUDER -8  // Y offset: -front +behind [the nozzle]
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -27  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER -0  // Y offset: -front +behind [the nozzle]
     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
   #endif
 
@@ -1292,7 +1312,7 @@
   #endif
 #else
   #define INVERT_X_DIR false
-  #if(ENABLED(MachineCRX) || ENABLED(MachineCR10SPro))
+  #if(ENABLED(MachineCRX) || ENABLED(MachineCR10SPro) || ENABLED(MachineCR10Max))
     #define INVERT_Y_DIR true
   #else
     #define INVERT_Y_DIR false
@@ -1427,7 +1447,11 @@
 #define Y_BED_SIZE 500
 #define Z_MAX_POS 500
 #endif
-
+#if ENABLED(MachineCR10Max)
+#define X_BED_SIZE 465
+#define Y_BED_SIZE 450
+#define Z_MAX_POS 470
+#endif
 #endif
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1606,7 +1630,11 @@
 #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
 // The Z probe minimum outer margin (to validate G29 parameters).
-#define MESH_INSET 5
+#if ENABLED(MachineCR10Max)
+  #define MESH_INSET 15
+#else
+  #define MESH_INSET 5
+#endif
 // Set the boundaries for probing (where the probe can reach).
   #define LEFT_PROBE_BED_POSITION (MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER)) + MESH_INSET
   #define FRONT_PROBE_BED_POSITION (MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER)) + MESH_INSET
@@ -1721,7 +1749,7 @@
 #define PROBE_PT_3_Y 60
 #define MESH_INSET 20
 #endif
-#if ENABLED(MachineS5)
+#if ENABLED(MachineS5) || ENABLED(MachineCR10Max)
 #define PROBE_PT_1_X 80       // Probing points for 3-Point leveling of the mesh
 #define PROBE_PT_1_Y 420
 #define PROBE_PT_2_X 420
@@ -1807,7 +1835,7 @@
 #if ENABLED(MachineS4)
   #define Z_SAFE_HOMING_X_POINT 60    // X point for Z homing when homing all axis (G28).
   #define Z_SAFE_HOMING_Y_POINT 60    // Y point for Z homing when homing all axis (G28).
-#elif ENABLED(MachineS5)
+#elif ENABLED(MachineS5) || ENABLED(MachineCR10Max)
   #define Z_SAFE_HOMING_X_POINT 80    // X point for Z homing when homing all axis (G28).
   #define Z_SAFE_HOMING_Y_POINT 80    // Y point for Z homing when homing all axis (G28).
 #else
