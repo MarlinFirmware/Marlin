@@ -114,6 +114,6 @@
 #define LCD_BACKLIGHT_PIN  PD13
 #define FSMC_CS_PIN        PD7   // NE4
 #define FSMC_RS_PIN        PD11  // A0
-#define TOUCH_CS           PA7
+#define TOUCH_CS_PIN       PA7
 
 #define SD_DETECT_PIN      PD12

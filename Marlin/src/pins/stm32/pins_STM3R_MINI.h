@@ -274,4 +274,12 @@
     #endif
   #endif // NEWPANEL
 
+#elif ENABLED(TOUCH_BUTTONS)
+
+  #define TOUCH_CS_PIN      PB12   // SPI2_NSS
+  #define TOUCH_SCK_PIN     PB13
+  #define TOUCH_MOSI_PIN    PB14
+  #define TOUCH_MISO_PIN    PB15
+  #define TOUCH_INT_PIN      PC6   // (PenIRQ coming from ADS7843)
+
 #endif // HAS_SPI_LCD
