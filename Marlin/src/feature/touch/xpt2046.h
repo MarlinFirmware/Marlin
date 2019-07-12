@@ -18,9 +18,10 @@
  */
 #pragma once
 
-#include "../../lcd/ultralcd.h"
+#include <stdint.h>
 
-// We rely on XPT2046 compatible mode to ADS7843, hence no Z1 and Z2 measurements possible.
+// Relies on XPT2046-compatible mode of ADS7843,
+// hence no Z1 / Z2 measurements are possible.
 
 #define XPT2046_DFR_MODE        0x00
 #define XPT2046_SER_MODE        0x04
@@ -29,6 +30,12 @@
 #define XPT2046_X               0x10
 #define XPT2046_Y               0x50
 
-uint16_t getInTouch(uint8_t coordinate);
-uint8_t xpt2046_read_buttons();
-void touch_xpt2046_swspi_init(void);
+class XPT2046 {
+public:
+  static void swspi_init(void);
+  static uint8_t read_buttons();
+private:
+  static uint16_t getInTouch(uint8_t coordinate);
+};
+
+extern XPT2046 touch;

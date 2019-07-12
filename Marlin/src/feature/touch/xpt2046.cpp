@@ -16,26 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "../../inc/MarlinConfig.h"
+
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(TOUCH_BUTTONS)
 
 #include "xpt2046.h"
 
+XPT2046 touch;
+
+#include "../../inc/MarlinConfig.h"
+
 extern int8_t encoderDiff;
 
-void touch_xpt2046_swspi_init(void) {
+void XPT2046::swspi_init(void) {
   SET_INPUT(TOUCH_INT); // Pendrive interrupt pin, used as polling in getInTouch()
   SET_INPUT(TOUCH_MISO);
   SET_OUTPUT(TOUCH_MOSI);
 
   OUT_WRITE(TOUCH_SCK,0);
   OUT_WRITE(TOUCH_CS, 1);
-  // This is a dummy read needed to enable pendrive status pin
+
+  // This dummy read is needed to enable pendrive status pin
   getInTouch(XPT2046_X);
 }
 
-uint8_t xpt2046_read_buttons() {
+#include "../../lcd/ultralcd.h" // For EN_C bit mask
+
+uint8_t XPT2046::read_buttons() {
   int16_t tsoffsets[4] = { 0 };
 
   static uint32_t timeout = 0;
@@ -52,10 +60,10 @@ uint8_t xpt2046_read_buttons() {
 
   // We rely on XPT2046 compatible mode to ADS7843, hence no Z1 and Z2 measurements possible.
 
-  if (READ(TOUCH_INT)) return 0; // if TOUCH_INT is high, no fingers are pressing on the touch screen > exit
+  if (READ(TOUCH_INT)) return 0; // If HIGH there are no screen presses.
   const uint16_t x = uint16_t(((uint32_t(getInTouch(XPT2046_X))) * tsoffsets[0]) >> 16) + tsoffsets[1],
                  y = uint16_t(((uint32_t(getInTouch(XPT2046_Y))) * tsoffsets[2]) >> 16) + tsoffsets[3];
-  if (READ(TOUCH_INT)) return 0; // The fingers still need to be on the TS to have a valid read.
+  if (READ(TOUCH_INT)) return 0; // Fingers must still be on the TS for a valid read.
 
   if (y < 185 || y > 224) return 0;
 
@@ -66,7 +74,7 @@ uint8_t xpt2046_read_buttons() {
   return 0;
 }
 
-uint16_t getInTouch(uint8_t coordinate) {
+uint16_t XPT2046::getInTouch(uint8_t coordinate) {
   uint16_t data[3], delta[3];
 
   coordinate |= XPT2046_CONTROL | XPT2046_DFR_MODE;

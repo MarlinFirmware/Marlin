@@ -948,7 +948,7 @@ void setup() {
   settings.first_load();
 
   #if ENABLED(TOUCH_BUTTONS)
-    touch_xpt2046_swspi_init();
+    touch.swspi_init();
   #endif
 
   #if HAS_M206_COMMAND
