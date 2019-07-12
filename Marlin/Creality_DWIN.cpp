@@ -1370,7 +1370,10 @@ SERIAL_ECHO(Checkkey);
 			{
 				waitway = 4;		//only for prohibiting to receive massage
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;")));
-				enqueue_and_echo_commands_P((PSTR("G1 X150 Y150 F5000")));
+                char comdbuf[30];
+				memset(comdbuf,0,sizeof(comdbuf));
+				sprintf_P(comdbuf, PSTR("G1 X%i Y%i F5000"), X_CENTER, Y_CENTER);
+				enqueue_and_echo_command(comdbuf);
 				waitway = 2;
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0")));
 			}
@@ -1378,7 +1381,10 @@ SERIAL_ECHO(Checkkey);
 			{
 				waitway = 4;		//only for prohibiting to receive massage
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;")));
-				enqueue_and_echo_commands_P((PSTR("G1 X30 Y30 F5000")));
+                char comdbuf[30];
+				memset(comdbuf,0,sizeof(comdbuf));
+				sprintf_P(comdbuf, PSTR("G1 X%i Y%i F5000"), (X_MIN_BED + LEVEL_CORNERS_INSET), (Y_MIN_BED + LEVEL_CORNERS_INSET));
+				enqueue_and_echo_command(comdbuf);
 				waitway = 2;
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0")));
 			}
@@ -1386,7 +1392,10 @@ SERIAL_ECHO(Checkkey);
 			{
 				waitway = 4;		//only for prohibiting to receive massage
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;")));
-				enqueue_and_echo_commands_P((PSTR("G1 X270 Y30 F5000")));
+				char comdbuf[30];
+				memset(comdbuf,0,sizeof(comdbuf));
+				sprintf_P(comdbuf, PSTR("G1 X%i Y%i F5000"), (X_MAX_BED - LEVEL_CORNERS_INSET), (Y_MIN_BED + LEVEL_CORNERS_INSET));
+				enqueue_and_echo_command(comdbuf);
 				waitway = 2;
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0")));
 			}
@@ -1394,7 +1403,10 @@ SERIAL_ECHO(Checkkey);
 			{
 				waitway = 4;		//only for prohibiting to receive massage
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;")));
-				enqueue_and_echo_commands_P((PSTR("G1 X270 Y270 F5000")));
+				char comdbuf[30];
+				memset(comdbuf,0,sizeof(comdbuf));
+				sprintf_P(comdbuf, PSTR("G1 X%i Y%i F5000"), (X_MAX_BED - LEVEL_CORNERS_INSET), (Y_MAX_BED - LEVEL_CORNERS_INSET));
+				enqueue_and_echo_command(comdbuf);
 				waitway = 2;
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0")));
 			}
@@ -1402,7 +1414,10 @@ SERIAL_ECHO(Checkkey);
 			{
 				waitway = 4;		//only for prohibiting to receive massage
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;")));
-				enqueue_and_echo_commands_P((PSTR("G1 X30 Y270 F5000")));
+				char comdbuf[30];
+				memset(comdbuf,0,sizeof(comdbuf));
+				sprintf_P(comdbuf, PSTR("G1 X%i Y%i F5000"), (X_MIN_BED + LEVEL_CORNERS_INSET), (Y_MAX_BED - LEVEL_CORNERS_INSET));
+				enqueue_and_echo_command(comdbuf);
 				waitway = 2;
 				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0")));
 			}

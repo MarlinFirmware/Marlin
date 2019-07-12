@@ -75,8 +75,13 @@
 #endif
 #define Y_MIN_PIN          14
 #define Y_MAX_PIN          -1//15
-#define Z_MIN_PIN          18
-#define Z_MAX_PIN          19
+#if ENABLED(MachineCR10Max)
+  #define Z_MIN_PIN          19
+  #define Z_MAX_PIN          18
+#else
+  #define Z_MIN_PIN          18
+  #define Z_MAX_PIN          19
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -424,7 +429,7 @@
       #define BTN_ENC           35
       #if(ENABLED(BoardRev2))
         #define SD_DETECT_PIN     49
-        
+
       #else
         #define SD_DETECT_PIN     -1
       #endif
@@ -444,7 +449,7 @@
       #else
         #define SD_DETECT_PIN     -1
       #endif
-      
+
     #elif ENABLED(LCD_I2C_PANELOLU2)
 
       #define BTN_EN1           47
@@ -492,7 +497,7 @@
       #define BTN_EN2           37
       #define BTN_ENC           31
 
-      #define LCD_SDSS          53 
+      #define LCD_SDSS          53
       #if(ENABLED(BoardRev2))
         #define SD_DETECT_PIN     49
       #else
@@ -527,7 +532,7 @@
         #define SD_DETECT_PIN     -1
       #endif
       #define KILL_PIN          64
-      
+
     #elif ENABLED(MINIPANEL)
 
       #define BEEPER_PIN        42
@@ -554,7 +559,7 @@
         #define SD_DETECT_PIN     -1
       #endif
       #define KILL_PIN          64
-      
+
     #elif ENABLED(ZONESTAR_LCD)
 
       #define ADC_KEYPAD_PIN    12
@@ -589,7 +594,7 @@
         #define SD_DETECT_PIN     -1
       #endif
       #define KILL_PIN          41
-      
+
       #endif
 
     #endif
