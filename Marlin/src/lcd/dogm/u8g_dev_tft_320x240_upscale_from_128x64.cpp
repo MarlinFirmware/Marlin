@@ -125,6 +125,7 @@ static const uint8_t clear_screen_sequence[] = {
   U8G_ESC_END
 };
 
+#if ENABLED(TOUCH_BUTTONS)
 static const uint8_t separation_line_sequence_left[] = {
   U8G_ESC_ADR(0), LCD_COLUMN, U8G_ESC_ADR(1), U8G_ESC_DATA(10), U8G_ESC_DATA(159),
   U8G_ESC_ADR(0), LCD_ROW,    U8G_ESC_ADR(1), U8G_ESC_DATA(170), U8G_ESC_DATA(173),
@@ -159,6 +160,7 @@ static const uint8_t button2_sequence[] = {
   U8G_ESC_ADR(0), LCD_WRITE_RAM, U8G_ESC_ADR(1),
   U8G_ESC_END
 };
+#endif
 
 static const uint8_t st7789v_init_sequence[] = { // 0x8552 - ST7789V
   U8G_ESC_ADR(0),
@@ -207,6 +209,7 @@ static const uint8_t ili9341_init_sequence[] = { // 0x9341 - ILI9341
   U8G_ESC_END
 };
 
+#if ENABLED(TOUCH_BUTTONS)
 static const uint8_t button0[] = {
    B01111111,B11111111,B11111111,B11111111,B11111110,
    B10000000,B00000000,B00000000,B00000000,B00000001,
@@ -276,7 +279,6 @@ static const uint8_t button2[] = {
    B01111111,B11111111,B11111111,B11111111,B11111110,
 };
 
-#if ENABLED(TOUCH_BUTTONS)
 void drawImage(const uint8_t *data, u8g_t *u8g, u8g_dev_t *dev, uint16_t length, uint16_t height, uint16_t color) {
   uint16_t i, j, k;
   uint16_t buffer[160];
@@ -306,7 +308,7 @@ void drawImage(const uint8_t *data, u8g_t *u8g, u8g_dev_t *dev, uint16_t length,
     #endif
   }
 }
-#endif
+#endif // TOUCH_BUTTONS
 
 // used to fill RGB565 (16bits) background
 inline void memset2(const void *ptr, uint16_t fill, size_t cnt) {
