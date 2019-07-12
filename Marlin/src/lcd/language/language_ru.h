@@ -78,7 +78,7 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("Выровнять углы")
 #define MSG_NEXT_CORNER                     _UxGT("Следующий угол")
 #define MSG_EDITING_STOPPED                 _UxGT("Ред. сетки завершено")
-#define MSG_USER_MENU                       _UxGT("Свои комманды")
+#define MSG_USER_MENU                       _UxGT("Свои команды")
 
 #define MSG_UBL_DOING_G29                   _UxGT("Выполняем G29")
 #define MSG_UBL_UNHOMED                     _UxGT("Паркуем сначала XYZ")
@@ -338,7 +338,7 @@
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Закончено")
   #define MSG_INFO_PRINT_TIME               _UxGT("Общее время печати")
   #define MSG_INFO_PRINT_LONGEST            _UxGT("Наидольшее задание")
-  #define MSG_INFO_PRINT_FILAMENT           _UxGT("Длинна филамента")
+  #define MSG_INFO_PRINT_FILAMENT           _UxGT("Длина филамента")
 #else
   #define MSG_INFO_PRINT_COUNT              _UxGT("Отпечатков")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Закончено")

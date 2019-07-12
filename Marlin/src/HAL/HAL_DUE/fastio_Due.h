@@ -39,6 +39,8 @@
 
 #include <pins_arduino.h>
 
+#include "../../inc/MarlinConfigPre.h"
+
 /**
  * Utility functions
  */

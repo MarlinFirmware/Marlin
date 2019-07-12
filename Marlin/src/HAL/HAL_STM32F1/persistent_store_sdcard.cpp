@@ -33,7 +33,7 @@
 #include "../shared/persistent_store_api.h"
 
 #ifndef E2END
-  #define E2END 4095
+  #define E2END 0xFFF // 4KB
 #endif
 #define HAL_STM32F1_EEPROM_SIZE (E2END + 1)
 

@@ -18,12 +18,6 @@
  */
 #pragma once
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
-#include <stdint.h>
-
 #include "../shared/Marduino.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio_AVR.h"
@@ -33,18 +27,20 @@
 #ifdef USBCON
   #include "HardwareSerial.h"
 #else
+  #define HardwareSerial_h // Hack to prevent HardwareSerial.h header inclusion
   #include "MarlinSerial.h"
 #endif
 
+#include <stdint.h>
 #include <util/delay.h>
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 //#define analogInputToDigitalPin(IO) IO
 
@@ -59,9 +55,9 @@
 // On AVR this is in math.h?
 //#define square(x) ((x)*(x))
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 typedef uint16_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF
@@ -71,9 +67,9 @@ typedef int8_t pin_t;
 #define SHARED_SERVOS HAS_SERVOS
 #define HAL_SERVO_LIB Servo
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 //extern uint8_t MCUSR;
 
@@ -105,9 +101,9 @@ typedef int8_t pin_t;
   #endif
 #endif
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 void HAL_init(void);
 

@@ -36,7 +36,6 @@
  * (Located in Marlin/buildroot/share/pin_interrupt_test/pin_interrupt_test.ino)
  */
 
-#include "../../core/macros.h"
 #include "../../module/endstops.h"
 
 #include <stdint.h>

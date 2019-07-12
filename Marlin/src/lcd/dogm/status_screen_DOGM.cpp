@@ -56,14 +56,6 @@
   #include "../../feature/mixing.h"
 #endif
 
-FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
-  const char *str = i16tostr3(temp);
-  const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
-  lcd_moveto(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty);
-  lcd_put_u8str(&str[3-len]);
-  lcd_put_wchar(LCD_STR_DEGREE[0]);
-}
-
 #define X_LABEL_POS      3
 #define X_VALUE_POS     11
 #define XYZ_SPACING     37
@@ -105,6 +97,14 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
   #define SHOW_ON_STATE false
 #endif
 
+FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
+  const char *str = i16tostr3(temp);
+  const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
+  lcd_moveto(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty);
+  lcd_put_u8str(&str[3-len]);
+  lcd_put_wchar(LCD_STR_DEGREE[0]);
+}
+
 FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blink) {
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
@@ -131,27 +131,6 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
   #else
     const float temp = IFBED(thermalManager.degBed(), thermalManager.degHotend(heater)),
                 target = IFBED(thermalManager.degTargetBed(), thermalManager.degTargetHotend(heater));
-  #endif
-
-  #if HAS_HEATED_CHAMBER
-    FORCE_INLINE void _draw_chamber_status(const bool blink) {
-      const float temp = thermalManager.degChamber(),
-                  target = thermalManager.degTargetChamber();
-      #if !HEATER_IDLE_HANDLER
-        UNUSED(blink);
-      #endif
-      if (PAGE_UNDER(7)) {
-        #if HEATER_IDLE_HANDLER
-          const bool is_idle = false, // thermalManager.chamber_idle.timed_out,
-                     dodraw = (blink || !is_idle);
-        #else
-          constexpr bool dodraw = true;
-        #endif
-        if (dodraw) _draw_centered_temp(target + 0.5, STATUS_CHAMBER_TEXT_X, 7);
-      }
-      if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-        _draw_centered_temp(temp + 0.5f, STATUS_CHAMBER_TEXT_X, 28);
-    }
   #endif
 
   #if DISABLED(STATUS_HOTEND_ANIM)
@@ -254,6 +233,29 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
   }
 
 }
+
+#if HAS_HEATED_CHAMBER
+
+  FORCE_INLINE void _draw_chamber_status(const bool blink) {
+    const float temp = thermalManager.degChamber(),
+                target = thermalManager.degTargetChamber();
+    #if !HEATER_IDLE_HANDLER
+      UNUSED(blink);
+    #endif
+    if (PAGE_UNDER(7)) {
+      #if HEATER_IDLE_HANDLER
+        const bool is_idle = false, // thermalManager.chamber_idle.timed_out,
+                   dodraw = (blink || !is_idle);
+      #else
+        constexpr bool dodraw = true;
+      #endif
+      if (dodraw) _draw_centered_temp(target + 0.5, STATUS_CHAMBER_TEXT_X, 7);
+    }
+    if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
+      _draw_centered_temp(temp + 0.5f, STATUS_CHAMBER_TEXT_X, 28);
+  }
+
+#endif
 
 //
 // Before homing, blink '123' <-> '???'.
@@ -358,7 +360,7 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if DO_DRAW_CHAMBER
-    #if ANIM_HAMBER
+    #if ANIM_CHAMBER
       #define CHAMBER_BITMAP(S) ((S) ? status_chamber_on_bmp : status_chamber_bmp)
     #else
       #define CHAMBER_BITMAP(S) status_chamber_bmp

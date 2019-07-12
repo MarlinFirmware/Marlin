@@ -50,7 +50,7 @@
         if (!isnan(z_values[x][y])) {
           SERIAL_ECHO_START();
           SERIAL_ECHOPAIR("  M421 I", x, " J", y);
-          SERIAL_ECHOPAIR_F(" Z", z_values[x][y], 2);
+          SERIAL_ECHOPAIR_F(" Z", z_values[x][y], 4);
           SERIAL_EOL();
           serial_delay(75); // Prevent Printrun from exploding
         }
