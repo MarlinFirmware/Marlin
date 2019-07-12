@@ -38,6 +38,10 @@
 #include "libmaple/dma.h"
 #include "boards.h"
 
+#ifndef LCD_READ_ID
+  #define LCD_READ_ID 0x04   // Read display identification information (0xD3 on ILI9341)
+#endif
+
 /* Timing configuration */
 #define FSMC_ADDRESS_SETUP_TIME   15  // AddressSetupTime
 #define FSMC_DATA_SETUP_TIME      15  // DataSetupTime
