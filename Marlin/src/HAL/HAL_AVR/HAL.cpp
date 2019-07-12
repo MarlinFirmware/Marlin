@@ -37,17 +37,18 @@
 
 void HAL_init(void) {
   // Init Servo Pins
+  #define INIT_SERVO(N) OUT_WRITE(SERVO##N##_PIN, LOW)
   #if HAS_SERVO_0
-    OUT_WRITE(SERVO0_PIN, LOW);
+    INIT_SERVO(0);
   #endif
   #if HAS_SERVO_1
-    OUT_WRITE(SERVO1_PIN, LOW);
+    INIT_SERVO(1);
   #endif
   #if HAS_SERVO_2
-    OUT_WRITE(SERVO2_PIN, LOW);
+    INIT_SERVO(2);
   #endif
   #if HAS_SERVO_3
-    OUT_WRITE(SERVO3_PIN, LOW);
+    INIT_SERVO(3);
   #endif
 }
 
