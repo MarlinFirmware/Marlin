@@ -29,7 +29,7 @@
   #define ARMED_V1_1
 #endif
 
-#undef BOARD_NAME// Defined on the command line by Arduino Core STM32
+#undef BOARD_NAME // Defined on the command line by Arduino Core STM32
 #define BOARD_NAME           "Arm'ed"
 #define DEFAULT_MACHINE_NAME BOARD_NAME
 
