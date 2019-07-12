@@ -46,8 +46,10 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs);
 void LCD_IO_WriteData(uint16_t RegValue);
 void LCD_IO_WriteReg(uint16_t Reg);
 uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize);
+#ifdef LCD_USE_DMA_FSMC
 void LCD_IO_WriteMultiple(uint16_t data, uint32_t count);
 void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
+#endif
 
 static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
 
@@ -65,13 +67,12 @@ uint8_t u8g_com_stm32duino_fsmc_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, voi
     case U8G_COM_MSG_INIT:
       u8g_SetPIOutput(u8g, U8G_PI_RESET);
 
-#ifdef LCD_USE_DMA_FSMC
-      dma_init(FSMC_DMA_DEV);
-      dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
-      dma_set_priority(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, DMA_PRIORITY_MEDIUM);
-#endif
+      #ifdef LCD_USE_DMA_FSMC
+        dma_init(FSMC_DMA_DEV);
+        dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+        dma_set_priority(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, DMA_PRIORITY_MEDIUM);
+      #endif
 
-      //LCD_IO_Init(FSMC_CS_PIN, FSMC_RS_PIN);
       LCD_IO_Init(u8g->pin_list[U8G_PI_CS], u8g->pin_list[U8G_PI_A0]);
       u8g_Delay(50);
 
@@ -219,7 +220,6 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
   gpio_set_mode(GPIOD, 15, GPIO_AF_OUTPUT_PP);  // FSMC_D01
   gpio_set_mode(GPIOD,  0, GPIO_AF_OUTPUT_PP);  // FSMC_D02
   gpio_set_mode(GPIOD,  1, GPIO_AF_OUTPUT_PP);  // FSMC_D03
-
   gpio_set_mode(GPIOE,  7, GPIO_AF_OUTPUT_PP);  // FSMC_D04
   gpio_set_mode(GPIOE,  8, GPIO_AF_OUTPUT_PP);  // FSMC_D05
   gpio_set_mode(GPIOE,  9, GPIO_AF_OUTPUT_PP);  // FSMC_D06
@@ -229,7 +229,6 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
   gpio_set_mode(GPIOE, 13, GPIO_AF_OUTPUT_PP);  // FSMC_D10
   gpio_set_mode(GPIOE, 14, GPIO_AF_OUTPUT_PP);  // FSMC_D11
   gpio_set_mode(GPIOE, 15, GPIO_AF_OUTPUT_PP);  // FSMC_D12
-
   gpio_set_mode(GPIOD,  8, GPIO_AF_OUTPUT_PP);  // FSMC_D13
   gpio_set_mode(GPIOD,  9, GPIO_AF_OUTPUT_PP);  // FSMC_D14
   gpio_set_mode(GPIOD, 10, GPIO_AF_OUTPUT_PP);  // FSMC_D15
@@ -275,8 +274,7 @@ uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize) {
     data <<= 8;
     data |= (LCD->RAM & 0x00FF);
   }
-
-  return (uint32_t)data;
+  return uint32_t(data);
 }
 
 #if ENABLED(LCD_USE_DMA_FSMC)
