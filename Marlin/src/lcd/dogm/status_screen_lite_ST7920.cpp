@@ -807,7 +807,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
   }
   #if !STATUS_EXPIRE_SECONDS
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      else
+      else if (blink_changed())
         draw_status_message();
     #endif
   #else
