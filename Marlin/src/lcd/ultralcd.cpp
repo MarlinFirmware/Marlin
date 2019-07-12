@@ -105,7 +105,7 @@
   #if ENABLED(TOUCH_BUTTONS)
     #include "../feature/touch/xpt2046.h"
     volatile uint8_t MarlinUI::touch_buttons;
-    uint8_t MarlinUI::read_touch_buttons() { return xpt2046_read_buttons(); }
+    uint8_t MarlinUI::read_touch_buttons() { return touch.read_buttons(); }
   #endif
 #endif
 
@@ -329,11 +329,13 @@ void MarlinUI::init() {
     #endif
   #endif
 
-  #if HAS_ENCODER_ACTION && HAS_SLOW_BUTTONS
-    slow_buttons = 0;
-  #endif
-  #if HAS_ENCODER_ACTION && ENABLED(TOUCH_BUTTONS)
-    touch_buttons = 0;
+  #if HAS_ENCODER_ACTION
+    #if HAS_SLOW_BUTTONS
+      slow_buttons = 0;
+    #endif
+    #if ENABLED(TOUCH_BUTTONS)
+      touch_buttons = 0;
+    #endif
   #endif
 
   update_buttons();
@@ -830,9 +832,10 @@ void MarlinUI::update() {
   ) {
 
     next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
+
     #if ENABLED(TOUCH_BUTTONS)
       if (on_status_screen())
-        next_lcd_update_ms += LCD_UPDATE_INTERVAL*2;
+        next_lcd_update_ms += (LCD_UPDATE_INTERVAL) * 2;
     #endif
 
     #if ENABLED(LCD_HAS_STATUS_INDICATORS)
