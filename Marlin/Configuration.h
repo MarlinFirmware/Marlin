@@ -137,8 +137,8 @@
   #define ANYCUBIC_4MAX
 
   // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
-  //#define ANYCUBIC_4MAX_VG3R
-  #define ANYCUBIC_4MAX_7OF9
+  #define ANYCUBIC_4MAX_VG3R
+  //#define ANYCUBIC_4MAX_7OF9
   //#define ANYCUBIC_4MAX_DEFAULT
 
 #endif
@@ -529,6 +529,7 @@
   #define DEFAULT_Kp 22.2
   #define DEFAULT_Ki 1.08
   #define DEFAULT_Kd 114
+  // Save/change with: M301 E0 P22.2 I1.08 D114;
 
 #endif
 
@@ -601,9 +602,10 @@
   #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
     // Factory Default for ANYCUBIC 4MAX
     //
-    #define DEFAULT_bedKp 22.20
-    #define DEFAULT_bedKi 1.08
-    #define DEFAULT_bedKd 114.00
+    #define  DEFAULT_bedKp 10.00
+    #define  DEFAULT_bedKi .023
+    #define  DEFAULT_bedKd 305.4
+    // Save/change with: M304 P10.00 I0.023 D305.4
   #endif
 
 #endif // PIDTEMPBED
