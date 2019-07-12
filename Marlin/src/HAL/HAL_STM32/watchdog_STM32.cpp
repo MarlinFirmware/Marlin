@@ -22,9 +22,11 @@
 
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(USE_WATCHDOG)
+
+  #include "../../inc/MarlinConfig.h"
 
   #include "watchdog_STM32.h"
   #include <IWatchdog.h>
@@ -33,7 +35,7 @@
 
   void watchdog_reset() {
     IWatchdog.reload();
-    #if PIN_EXISTS(LED)
+    #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
       TOGGLE(LED_PIN);  // heartbeat indicator
     #endif
   }

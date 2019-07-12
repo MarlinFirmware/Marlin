@@ -85,10 +85,6 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 
 #elif USE_SOFTWARE_SPI
   #define SOFTWARE_SPI
 #endif  // MEGA_SOFT_SPI
-//------------------------------------------------------------------------------
-// SPI pin definitions - do not edit here - change in SdFatConfig.h
-//
-#define SD_CHIP_SELECT_PIN SS_PIN
 
 /**
  * \class Sd2Card
@@ -123,7 +119,7 @@ public:
    *
    * \return true for success or false for failure.
    */
-  bool init(const uint8_t sckRateID=SPI_FULL_SPEED, const pin_t chipSelectPin=SD_CHIP_SELECT_PIN);
+  bool init(const uint8_t sckRateID, const pin_t chipSelectPin);
 
   bool readBlock(uint32_t block, uint8_t* dst);
 
