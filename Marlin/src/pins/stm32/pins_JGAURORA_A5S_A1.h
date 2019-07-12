@@ -117,10 +117,13 @@
 #define BEEPER_PIN         PC3    // use PB7 to shut up if desired
 #define LED_PIN            PC13
 
+//
 // Touch support
-#define BTN_ENC            PA11   // Real pin is needed to enable encoder's push button functionality used by touch screen. PA11 gives stable value.
-
-#define TOUCH_CS           PA4
-//#define TOUCH_INTERRUPT    PC4    // Not yet implemented
+//
+#if ENABLED(TOUCH_BUTTONS)
+  #define BTN_ENC          PA11   // Real pin needed to enable encoder's push button functionality used by touch screen. PA11 gives stable value.
+  #define TOUCH_CS_PIN     PA4
+  #define TOUCH_INT_PIN    PC4
+#endif
 
 #define NO_PAUSE_AFTER_PRINT
