@@ -31,12 +31,12 @@
  * M412: Enable / Disable filament runout detection
  */
 void GcodeSuite::M412() {
-  if (parser.seen("HS"
+  if (parser.seen("RS"
     #ifdef FILAMENT_RUNOUT_DISTANCE_MM
       "D"
     #endif
     #if ENABLED(HOST_ACTION_COMMANDS)
-      "R"
+      "H"
     #endif
   )) {
     #if ENABLED(HOST_ACTION_COMMANDS)
