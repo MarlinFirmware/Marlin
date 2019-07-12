@@ -73,16 +73,16 @@ void HAL_init(void) {
   #endif
 
   // Init Servo Pins
-  #if PIN_EXISTS(SERVO0)
+  #if HAS_SERVO_0
     OUT_WRITE(SERVO0_PIN, LOW);
   #endif
-  #if PIN_EXISTS(SERVO1)
+  #if HAS_SERVO_1
     OUT_WRITE(SERVO1_PIN, LOW);
   #endif
-  #if PIN_EXISTS(SERVO2)
+  #if HAS_SERVO_2
     OUT_WRITE(SERVO2_PIN, LOW);
   #endif
-  #if PIN_EXISTS(SERVO3)
+  #if HAS_SERVO_3
     OUT_WRITE(SERVO3_PIN, LOW);
   #endif
 
