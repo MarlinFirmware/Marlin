@@ -64,10 +64,10 @@
 #include <string.h>
 
 #if ENABLED(LCD_USE_DMA_FSMC)
-extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
-extern void LCD_IO_WriteSequence_Async(uint16_t *data, uint16_t length);
-extern void LCD_IO_WaitSequence_Async();
-extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
+  extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
+  extern void LCD_IO_WriteSequence_Async(uint16_t *data, uint16_t length);
+  extern void LCD_IO_WaitSequence_Async();
+  extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
 #endif
 
 #define WIDTH 128
@@ -92,19 +92,19 @@ extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
 #define COLOR_DARK  0x0003 // Some dark color
 
 #ifndef TFT_MARLINUI_COLOR
-#define TFT_MARLINUI_COLOR COLOR_WHITE
+  #define TFT_MARLINUI_COLOR COLOR_WHITE
 #endif
 #ifndef TFT_MARLINBG_COLOR
-#define TFT_MARLINBG_COLOR COLOR_BLACK
+  #define TFT_MARLINBG_COLOR COLOR_BLACK
 #endif
 #ifndef TFT_DISABLED_COLOR
-#define TFT_DISABLED_COLOR COLOR_DARK
+  #define TFT_DISABLED_COLOR COLOR_DARK
 #endif
 #ifndef TFT_BTSLEFT_COLOR
-#define TFT_BTSLEFT_COLOR COLOR_BLUE
+  #define TFT_BTSLEFT_COLOR COLOR_BLUE
 #endif
 #ifndef TFT_BTRIGHT_COLOR
-#define TFT_BTRIGHT_COLOR COLOR_RED
+  #define TFT_BTRIGHT_COLOR COLOR_RED
 #endif
 
 static uint32_t lcd_id = 0;
@@ -280,25 +280,24 @@ static const uint8_t button2[] = {
 };
 
 void drawImage(const uint8_t *data, u8g_t *u8g, u8g_dev_t *dev, uint16_t length, uint16_t height, uint16_t color) {
-  uint16_t i, j, k;
   uint16_t buffer[160];
 
-  for (i = 0; i < height; i++) {
-    k = 0;
-    for (j = 0; j < length; j++) {
-      if (*(data + (i * (length >> 3) + (j >> 3))) & (128 >> (j & 7))) {
-        buffer[k++] = color;
-        buffer[k++] = color;
-      } else {
-        buffer[k++] = TFT_MARLINBG_COLOR;
-        buffer[k++] = TFT_MARLINBG_COLOR;
-      }
+  for (uint16_t i = 0; i < height; i++) {
+    uint16_t k = 0;
+    for (uint16_t j = 0; j < length; j++) {
+      uint16_t v = TFT_MARLINBG_COLOR;
+      if (*(data + (i * (length >> 3) + (j >> 3))) & (0x80 >> (j & 7)))
+        v = color;
+      else
+        v = TFT_MARLINBG_COLOR;
+      buffer[k++] = v; buffer[k++] = v;
     }
     #ifdef LCD_USE_DMA_FSMC
       if (k <= 80) { // generally is... for our buttons
-        memcpy(&buffer[k], &buffer[0], sizeof(uint16_t)*k);
-        LCD_IO_WriteSequence(buffer, sizeof(uint16_t)*k);
-      } else {
+        memcpy(&buffer[k], &buffer[0], k * sizeof(uint16_t));
+        LCD_IO_WriteSequence(buffer, k * sizeof(uint16_t));
+      }
+      else {
         LCD_IO_WriteSequence(buffer, k);
         LCD_IO_WriteSequence(buffer, k);
       }
@@ -325,12 +324,11 @@ static uint8_t page;
 uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
   #ifdef LCD_USE_DMA_FSMC
-    static uint16_t bufferA[512];
-    static uint16_t bufferB[512];
+    static uint16_t bufferA[512], bufferB[512];
     uint16_t* buffer = &bufferA[0];
     bool allow_async = true;
   #else
-    uint16_t buffer[256]; //16 bit RGB 565 pixel line buffer
+    uint16_t buffer[256]; // 16-bit RGB 565 pixel line buffer
   #endif
   uint16_t i;
   switch (msg) {
@@ -354,7 +352,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         LCD_IO_WriteMultiple(TFT_MARLINBG_COLOR, (320*240));
       #else
         memset2(buffer, TFT_MARLINBG_COLOR, 160);
-        for (i = 0; i < 960; i++)
+        for (uint16_t i = 0; i < 960; i++)
           u8g_WriteSequence(u8g, dev, 160, (uint8_t *)buffer);
       #endif
 
@@ -369,10 +367,10 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         #else
           memset2(buffer, TFT_DISABLED_COLOR, 150);
           u8g_WriteEscSeqP(u8g, dev, separation_line_sequence_left);
-          for (i = 0; i < 4; i++)
+          for (uint8_t i = 4; i--;)
             u8g_WriteSequence(u8g, dev, 150, (uint8_t *)buffer);
           u8g_WriteEscSeqP(u8g, dev, separation_line_sequence_right);
-          for (i = 0; i < 4; i++)
+          for (uint8_t i = 4; i--;)
             u8g_WriteSequence(u8g, dev, 150, (uint8_t *)buffer);
         #endif
 
@@ -389,9 +387,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
       return 0;
 
-    case U8G_DEV_MSG_STOP:
-      preinit = true;
-      break;
+    case U8G_DEV_MSG_STOP: preinit = true; break;
 
     case U8G_DEV_MSG_PAGE_FIRST:
       page = 0;
@@ -399,16 +395,14 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       break;
 
     case U8G_DEV_MSG_PAGE_NEXT:
-      page++;
-      if (page > 8)
-        return 1;
+      if (++page > 8) return 1;
 
-      for (uint16_t y = 0; y < 8; y++) {
+      for (uint8_t y = 0; y < 8; y++) {
         uint32_t k = 0;
         #ifdef LCD_USE_DMA_FSMC
           buffer = (y & 1) ? bufferB : bufferA;
         #endif
-        for (i = 0; i < (uint32_t)pb->width; i++) {
+        for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
           const uint8_t b = *(((uint8_t *)pb->buf) + i);
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;
           buffer[k++] = c; buffer[k++] = c;
@@ -421,11 +415,11 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
               LCD_IO_WriteSequence(buffer, 512); // last line of last page
             else
               LCD_IO_WriteSequence_Async(buffer, 512);
-          } else {
-            LCD_IO_WriteSequence(buffer, 512);
           }
+          else
+            LCD_IO_WriteSequence(buffer, 512);
         #else
-          for (k = 0; k < 2; k++) {
+          for (uint8_t i = 2; i--;) {
             u8g_WriteSequence(u8g, dev, 128, (uint8_t*)buffer);
             u8g_WriteSequence(u8g, dev, 128, (uint8_t*)&(buffer[64]));
             u8g_WriteSequence(u8g, dev, 128, (uint8_t*)&(buffer[128]));

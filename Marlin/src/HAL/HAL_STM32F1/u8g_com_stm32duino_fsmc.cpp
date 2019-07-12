@@ -51,8 +51,8 @@ void LCD_IO_WriteData(uint16_t RegValue);
 void LCD_IO_WriteReg(uint16_t Reg);
 uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize);
 #ifdef LCD_USE_DMA_FSMC
-void LCD_IO_WriteMultiple(uint16_t data, uint32_t count);
-void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
+  void LCD_IO_WriteMultiple(uint16_t data, uint32_t count);
+  void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
 #endif
 
 static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
@@ -66,8 +66,7 @@ uint8_t u8g_com_stm32duino_fsmc_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, voi
   static uint8_t isCommand;
 
   switch(msg) {
-    case U8G_COM_MSG_STOP:
-      break;
+    case U8G_COM_MSG_STOP: break;
     case U8G_COM_MSG_INIT:
       u8g_SetPIOutput(u8g, U8G_PI_RESET);
 
@@ -282,6 +281,7 @@ uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize) {
 }
 
 #if ENABLED(LCD_USE_DMA_FSMC)
+
 void LCD_IO_WriteMultiple(uint16_t color, uint32_t count) {
   while (count > 0) {
     dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, &color, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM);
@@ -317,8 +317,8 @@ void LCD_IO_WaitSequence_Async() {
   while ((dma_get_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL) & 0x0A) == 0) {};
   dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
 }
+
 #endif // LCD_USE_DMA_FSMC
 
 #endif // HAS_GRAPHICAL_LCD
-
 #endif // ARDUINO_ARCH_STM32F1 && FSMC_CS_PIN
