@@ -43,15 +43,15 @@
 XPT2046 touch;
 extern int8_t encoderDiff;
 
-void XPT2046::swspi_init(void) {
-  SET_INPUT(TOUCH_INT_PIN); // Pendrive interrupt pin, used as polling in getInTouch()
+void XPT2046::init(void) {
+  SET_INPUT(TOUCH_INT_PIN); // Pendrive interrupt pin, used as polling in getInTouch
   SET_INPUT(TOUCH_MISO_PIN);
   SET_OUTPUT(TOUCH_MOSI_PIN);
 
   OUT_WRITE(TOUCH_SCK_PIN, 0);
   OUT_WRITE(TOUCH_CS_PIN, 1);
 
-  // This dummy read is needed to enable pendrive status pin
+  // Read once to enable pendrive status pin
   getInTouch(XPT2046_X);
 }
 
@@ -88,17 +88,16 @@ uint8_t XPT2046::read_buttons() {
   return 0;
 }
 
-uint16_t XPT2046::getInTouch(uint8_t coordinate) {
-  uint16_t data[3], delta[3];
-
-  coordinate |= XPT2046_CONTROL | XPT2046_DFR_MODE;
+uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {
+  uint16_t data[3];
 
   OUT_WRITE(TOUCH_CS_PIN, LOW);
 
+  const uint8_t coord = uint8_t(coordinate) | XPT2046_CONTROL | XPT2046_DFR_MODE;
   for (uint16_t i = 0; i < 3 ; i++) {
     for (uint8_t j = 0x80; j; j >>= 1) {
       WRITE(TOUCH_SCK_PIN, LOW);
-      WRITE(TOUCH_MOSI_PIN, bool(coordinate & j));
+      WRITE(TOUCH_MOSI_PIN, bool(coord & j));
       WRITE(TOUCH_SCK_PIN, HIGH);
     }
 
@@ -114,14 +113,14 @@ uint16_t XPT2046::getInTouch(uint8_t coordinate) {
 
   WRITE(TOUCH_CS_PIN, HIGH);
 
-  delta[0] = _MAX(data[0], data[1]) - _MIN(data[0], data[1]);
-  delta[1] = _MAX(data[0], data[2]) - _MIN(data[0], data[2]);
-  delta[2] = _MAX(data[1], data[2]) - _MIN(data[1], data[2]);
+  uint16_t delta01 = _MAX(data[0], data[1]) - _MIN(data[0], data[1]),
+           delta02 = _MAX(data[0], data[2]) - _MIN(data[0], data[2]);
+           delta12 = _MAX(data[1], data[2]) - _MIN(data[1], data[2]);
 
-  if (delta[0] <= delta[1] && delta[0] <= delta[2])
+  if (delta01 <= delta02 && delta01 <= delta12)
     return (data[0] + data[1]) >> 1;
 
-  if (delta[1] <= delta[2])
+  if (delta02 <= delta12)
     return (data[0] + data[2]) >> 1;
 
   return (data[1] + data[2]) >> 1;

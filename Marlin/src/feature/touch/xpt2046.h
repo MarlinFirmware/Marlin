@@ -23,19 +23,21 @@
 // Relies on XPT2046-compatible mode of ADS7843,
 // hence no Z1 / Z2 measurements are possible.
 
-#define XPT2046_DFR_MODE        0x00
-#define XPT2046_SER_MODE        0x04
-#define XPT2046_CONTROL         0x80
+#define XPT2046_DFR_MODE 0x00
+#define XPT2046_SER_MODE 0x04
+#define XPT2046_CONTROL  0x80
 
-#define XPT2046_X               0x10
-#define XPT2046_Y               0x50
+enum XPTCoordinate : uint8_t {
+  XPT2046_X = 0x10,
+  XPT2046_Y = 0x50
+};
 
 class XPT2046 {
 public:
-  static void swspi_init(void);
+  static void init(void);
   static uint8_t read_buttons();
 private:
-  static uint16_t getInTouch(uint8_t coordinate);
+  static uint16_t getInTouch(const XPTCoordinate coordinate);
 };
 
 extern XPT2046 touch;
