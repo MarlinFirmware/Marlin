@@ -189,10 +189,6 @@ void menu_main() {
     #endif
   #endif
 
-  #if ENABLED(LCD_INFO_MENU)
-    MENU_ITEM(submenu, MSG_INFO_MENU, menu_info);
-  #endif
-
   #if ENABLED(LED_CONTROL_MENU)
     MENU_ITEM(submenu, MSG_LED_CONTROL, menu_led);
   #endif
@@ -263,6 +259,11 @@ void menu_main() {
         maze.enter_game
       #endif
     ));
+  #endif
+
+  // Keep INFO menu always at the bottom
+  #if ENABLED(LCD_INFO_MENU)
+    MENU_ITEM(submenu, MSG_INFO_MENU, menu_info);
   #endif
 
   END_MENU();
