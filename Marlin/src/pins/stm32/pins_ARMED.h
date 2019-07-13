@@ -25,13 +25,17 @@
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
-#define ARMED_V1_1
+#ifndef ARMED_V1_0
+  #define ARMED_V1_1
+#endif
 
+#undef BOARD_NAME // Defined on the command line by Arduino Core STM32
 #define BOARD_NAME           "Arm'ed"
 #define DEFAULT_MACHINE_NAME BOARD_NAME
 
 #define I2C_EEPROM
 
+#undef E2END // Defined in Arduino Core STM32 to be used with EEPROM emulation. This board uses a real EEPROM.
 #define E2END 0xFFF // 4KB
 
 #if HOTENDS > 2 || E_STEPPERS > 2
