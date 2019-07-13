@@ -200,7 +200,7 @@
 #define MSG_MOVE_E                          _UxGT("Bewege Extruder")
 #define MSG_HOTEND_TOO_COLD                 _UxGT("Hotend zu kalt")
 #define MSG_MOVE_0025MM                     _UxGT(" 0,025 mm")
-#define MSG_MOVE_01MM                       _UxGT(" 0,100 mm")
+#define MSG_MOVE_01MM                       _UxGT(" 0,1   mm")
 #define MSG_MOVE_1MM                        _UxGT(" 1,0   mm")
 #define MSG_MOVE_10MM                       _UxGT("10,0   mm")
 #define MSG_SPEED                           _UxGT("Geschw.")
