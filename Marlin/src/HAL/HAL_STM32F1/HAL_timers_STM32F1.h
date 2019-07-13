@@ -25,16 +25,12 @@
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include <stdint.h>
 #include <libmaple/timer.h>
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 /**
  * TODO: Check and confirm what timer we will use for each Temps and stepper driving.
@@ -96,21 +92,16 @@ timer_dev* get_timer_dev(int number);
 extern "C" void tempTC_Handler(void);
 extern "C" void stepTC_Handler(void);
 
-// --------------------------------------------------------------------------
-// Types
-// --------------------------------------------------------------------------
-
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
-/*
-static HardwareTimer StepperTimer(STEP_TIMER_NUM);
-static HardwareTimer TempTimer(TEMP_TIMER_NUM);
-*/
-// --------------------------------------------------------------------------
+// ------------------------
+
+//static HardwareTimer StepperTimer(STEP_TIMER_NUM);
+//static HardwareTimer TempTimer(TEMP_TIMER_NUM);
+
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 void HAL_timer_enable_interrupt(const uint8_t timer_num);

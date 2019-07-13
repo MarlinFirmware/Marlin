@@ -115,9 +115,8 @@ void process_lcd_c_command(const char* command) {
   switch (command[0]) {
     case 'C': // Cope with both V1 early rev and later LCDs.
     case 'S': {
-      int raw_feedrate = atoi(command + 1);
-      feedrate_percentage = raw_feedrate * 10;
-      feedrate_percentage = constrain(feedrate_percentage, 10, 999);
+      feedrate_percentage = atoi(command + 1) * 10;
+      LIMIT(feedrate_percentage, 10, 999);
     } break;
     case 'T': {
       thermalManager.setTargetHotend(atoi(command + 1), 0);

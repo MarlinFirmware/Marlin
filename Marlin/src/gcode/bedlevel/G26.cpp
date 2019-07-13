@@ -337,9 +337,9 @@ inline bool look_for_lines_to_connect() {
             sx = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
             ex = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
 
-            sx = constrain(sx, X_MIN_POS + 1, X_MAX_POS - 1);
+            LIMIT(sx, X_MIN_POS + 1, X_MAX_POS - 1);
             sy = ey = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
-            ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
+            LIMIT(ex, X_MIN_POS + 1, X_MAX_POS - 1);
 
             if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey))
               print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
@@ -358,8 +358,8 @@ inline bool look_for_lines_to_connect() {
               ey = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
 
               sx = ex = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
-              sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
-              ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
+              LIMIT(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
+              LIMIT(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
               if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey))
                 print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
@@ -832,10 +832,10 @@ void GcodeSuite::G26() {
             // Check to make sure this segment is entirely on the bed, skip if not.
             if (!position_is_reachable(rx, ry) || !position_is_reachable(xe, ye)) continue;
           #else                                               // not, we need to skip
-            rx = constrain(rx, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
-            ry = constrain(ry, Y_MIN_POS + 1, Y_MAX_POS - 1);
-            xe = constrain(xe, X_MIN_POS + 1, X_MAX_POS - 1);
-            ye = constrain(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
+            LIMIT(rx, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
+            LIMIT(ry, Y_MIN_POS + 1, Y_MAX_POS - 1);
+            LIMIT(xe, X_MIN_POS + 1, X_MAX_POS - 1);
+            LIMIT(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
           #endif
 
           print_line_from_here_to_there(rx, ry, g26_layer_height, xe, ye, g26_layer_height);

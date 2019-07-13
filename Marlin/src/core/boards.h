@@ -95,85 +95,91 @@
 #define BOARD_Z_BOLT_X_SERIES         1141  // Z-Bolt X Series
 
 //
+// RAMBo and derivatives
+//
+
+#define BOARD_RAMBO                   1200  // Rambo
+#define BOARD_MINIRAMBO               1201  // Mini-Rambo
+#define BOARD_MINIRAMBO_10A           1202  // Mini-Rambo 1.0a
+#define BOARD_EINSY_RAMBO             1203  // Einsy Rambo
+#define BOARD_EINSY_RETRO             1204  // Einsy Retro
+#define BOARD_SCOOVO_X9H              1205  // abee Scoovo X9H
+
+//
 // Other ATmega1280, ATmega2560
 //
 
-#define BOARD_CNCONTROLS_11           1200  // Cartesio CN Controls V11
-#define BOARD_CNCONTROLS_12           1201  // Cartesio CN Controls V12
-#define BOARD_CHEAPTRONIC             1202  // Cheaptronic v1.0
-#define BOARD_CHEAPTRONIC_V2          1203  // Cheaptronic v2.0
-#define BOARD_MIGHTYBOARD_REVE        1204  // Makerbot Mightyboard Revision E
-#define BOARD_MEGATRONICS             1205  // Megatronics
-#define BOARD_MEGATRONICS_2           1206  // Megatronics v2.0
-#define BOARD_MEGATRONICS_3           1207  // Megatronics v3.0
-#define BOARD_MEGATRONICS_31          1208  // Megatronics v3.1
-#define BOARD_MEGATRONICS_32          1209  // Megatronics v3.2
-#define BOARD_RAMBO                   1210  // Rambo
-#define BOARD_MINIRAMBO               1211  // Mini-Rambo
-#define BOARD_MINIRAMBO_10A           1212  // Mini-Rambo 1.0a
-#define BOARD_EINSY_RAMBO             1213  // Einsy Rambo
-#define BOARD_EINSY_RETRO             1214  // Einsy Retro
-#define BOARD_ELEFU_3                 1215  // Elefu Ra Board (v3)
-#define BOARD_LEAPFROG                1216  // Leapfrog
-#define BOARD_MEGACONTROLLER          1217  // Mega controller
-#define BOARD_SCOOVO_X9H              1218  // abee Scoovo X9H
-#define BOARD_GT2560_REV_A            1219  // Geeetech GT2560 Rev. A
-#define BOARD_GT2560_REV_A_PLUS       1220  // Geeetech GT2560 Rev. A+ (with auto level probe)
-#define BOARD_GT2560_V3               1221  // Geeetech GT2560 Rev B for A10(M/D)
-#define BOARD_GT2560_V3_MC2           1222  // Geeetech GT2560 Rev B for Mecreator2
-#define BOARD_GT2560_V3_A20           1223  // Geeetech GT2560 Rev B for A20(M/D)
-#define BOARD_EINSTART_S              1224  // Einstart retrofit
+#define BOARD_CNCONTROLS_11           1300  // Cartesio CN Controls V11
+#define BOARD_CNCONTROLS_12           1301  // Cartesio CN Controls V12
+#define BOARD_CHEAPTRONIC             1302  // Cheaptronic v1.0
+#define BOARD_CHEAPTRONIC_V2          1303  // Cheaptronic v2.0
+#define BOARD_MIGHTYBOARD_REVE        1304  // Makerbot Mightyboard Revision E
+#define BOARD_MEGATRONICS             1305  // Megatronics
+#define BOARD_MEGATRONICS_2           1306  // Megatronics v2.0
+#define BOARD_MEGATRONICS_3           1307  // Megatronics v3.0
+#define BOARD_MEGATRONICS_31          1308  // Megatronics v3.1
+#define BOARD_MEGATRONICS_32          1309  // Megatronics v3.2
+#define BOARD_ELEFU_3                 1310  // Elefu Ra Board (v3)
+#define BOARD_LEAPFROG                1311  // Leapfrog
+#define BOARD_MEGACONTROLLER          1312  // Mega controller
+#define BOARD_GT2560_REV_A            1313  // Geeetech GT2560 Rev. A
+#define BOARD_GT2560_REV_A_PLUS       1314  // Geeetech GT2560 Rev. A+ (with auto level probe)
+#define BOARD_GT2560_V3               1315  // Geeetech GT2560 Rev B for A10(M/D)
+#define BOARD_GT2560_V3_MC2           1316  // Geeetech GT2560 Rev B for Mecreator2
+#define BOARD_GT2560_V3_A20           1317  // Geeetech GT2560 Rev B for A20(M/D)
+#define BOARD_EINSTART_S              1318  // Einstart retrofit
+#define BOARD_WANHAO_ONEPLUS          1319  // Wanhao 0ne+ i3 Mini
 
 //
 // ATmega1281, ATmega2561
 //
 
-#define BOARD_MINITRONICS             1300  // Minitronics v1.0/1.1
-#define BOARD_SILVER_GATE             1301  // Silvergate v1.0
+#define BOARD_MINITRONICS             1400  // Minitronics v1.0/1.1
+#define BOARD_SILVER_GATE             1401  // Silvergate v1.0
 
 //
 // Sanguinololu and Derivatives - ATmega644P, ATmega1284P
 //
 
-#define BOARD_SANGUINOLOLU_11         1400  // Sanguinololu < 1.2
-#define BOARD_SANGUINOLOLU_12         1401  // Sanguinololu 1.2 and above
-#define BOARD_MELZI                   1402  // Melzi
-#define BOARD_MELZI_MAKR3D            1403  // Melzi with ATmega1284 (MaKr3d version)
-#define BOARD_MELZI_CREALITY          1404  // Melzi Creality3D board (for CR-10 etc)
-#define BOARD_MELZI_MALYAN            1405  // Melzi Malyan M150 board
-#define BOARD_MELZI_TRONXY            1406  // Tronxy X5S
-#define BOARD_STB_11                  1407  // STB V1.1
-#define BOARD_AZTEEG_X1               1408  // Azteeg X1
-#define BOARD_ANET_10                 1409  // Anet 1.0 (Melzi clone)
+#define BOARD_SANGUINOLOLU_11         1500  // Sanguinololu < 1.2
+#define BOARD_SANGUINOLOLU_12         1501  // Sanguinololu 1.2 and above
+#define BOARD_MELZI                   1502  // Melzi
+#define BOARD_MELZI_MAKR3D            1503  // Melzi with ATmega1284 (MaKr3d version)
+#define BOARD_MELZI_CREALITY          1504  // Melzi Creality3D board (for CR-10 etc)
+#define BOARD_MELZI_MALYAN            1505  // Melzi Malyan M150 board
+#define BOARD_MELZI_TRONXY            1506  // Tronxy X5S
+#define BOARD_STB_11                  1507  // STB V1.1
+#define BOARD_AZTEEG_X1               1508  // Azteeg X1
+#define BOARD_ANET_10                 1509  // Anet 1.0 (Melzi clone)
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
 //
 
-#define BOARD_GEN3_MONOLITHIC         1500  // Gen3 Monolithic Electronics
-#define BOARD_GEN3_PLUS               1501  // Gen3+
-#define BOARD_GEN6                    1502  // Gen6
-#define BOARD_GEN6_DELUXE             1503  // Gen6 deluxe
-#define BOARD_GEN7_CUSTOM             1504  // Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
-#define BOARD_GEN7_12                 1505  // Gen7 v1.1, v1.2
-#define BOARD_GEN7_13                 1506  // Gen7 v1.3
-#define BOARD_GEN7_14                 1507  // Gen7 v1.4
-#define BOARD_OMCA_A                  1508  // Alpha OMCA board
-#define BOARD_OMCA                    1509  // Final OMCA board
-#define BOARD_SETHI                   1510  // Sethi 3D_1
+#define BOARD_GEN3_MONOLITHIC         1600  // Gen3 Monolithic Electronics
+#define BOARD_GEN3_PLUS               1601  // Gen3+
+#define BOARD_GEN6                    1602  // Gen6
+#define BOARD_GEN6_DELUXE             1603  // Gen6 deluxe
+#define BOARD_GEN7_CUSTOM             1604  // Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
+#define BOARD_GEN7_12                 1605  // Gen7 v1.1, v1.2
+#define BOARD_GEN7_13                 1606  // Gen7 v1.3
+#define BOARD_GEN7_14                 1607  // Gen7 v1.4
+#define BOARD_OMCA_A                  1608  // Alpha OMCA board
+#define BOARD_OMCA                    1609  // Final OMCA board
+#define BOARD_SETHI                   1610  // Sethi 3D_1
 
 //
 // Teensyduino - AT90USB1286, AT90USB1286P
 //
 
-#define BOARD_TEENSYLU                1600  // Teensylu
-#define BOARD_PRINTRBOARD             1601  // Printrboard (AT90USB1286)
-#define BOARD_PRINTRBOARD_REVF        1602  // Printrboard Revision F (AT90USB1286)
-#define BOARD_BRAINWAVE               1603  // Brainwave (AT90USB646)
-#define BOARD_BRAINWAVE_PRO           1604  // Brainwave Pro (AT90USB1286)
-#define BOARD_SAV_MKI                 1605  // SAV Mk-I (AT90USB1286)
-#define BOARD_TEENSY2                 1606  // Teensy++2.0 (AT90USB1286)
-#define BOARD_5DPRINT                 1607  // 5DPrint D8 Driver Board
+#define BOARD_TEENSYLU                1700  // Teensylu
+#define BOARD_PRINTRBOARD             1701  // Printrboard (AT90USB1286)
+#define BOARD_PRINTRBOARD_REVF        1702  // Printrboard Revision F (AT90USB1286)
+#define BOARD_BRAINWAVE               1703  // Brainwave (AT90USB646)
+#define BOARD_BRAINWAVE_PRO           1704  // Brainwave Pro (AT90USB1286)
+#define BOARD_SAV_MKI                 1705  // SAV Mk-I (AT90USB1286)
+#define BOARD_TEENSY2                 1706  // Teensy++2.0 (AT90USB1286)
+#define BOARD_5DPRINT                 1707  // 5DPrint D8 Driver Board
 
 //
 // LPC1768 ARM Cortex M3
@@ -259,19 +265,24 @@
 #define BOARD_FYSETC_CHEETAH          4012  // FYSETC CHEETAH
 
 //
-// STM32 ARM Cortex-M4F
+// ARM Cortex-M4F
 //
 
 #define BOARD_TEENSY31_32             4100  // Teensy3.1 and Teensy3.2
 #define BOARD_TEENSY35_36             4101  // Teensy3.5 and Teensy3.6
-#define BOARD_BEAST                   4102  // STM32F4xxVxT6 Libmaple-based STM32F4 controller
-#define BOARD_STM32F4                 4103  // STM32 STM32GENERIC-based STM32F4 controller
-#define BOARD_ARMED                   4104  // Arm'ed STM32F4-based controller
-#define BOARD_RUMBA32                 4105  // RUMBA32 STM32F4-based controller
-#define BOARD_BLACK_STM32F407VE       4106  // BLACK_STM32F407VE
-#define BOARD_BLACK_STM32F407ZE       4107  // BLACK_STM32F407ZE
-#define BOARD_STEVAL                  4108  // STEVAL-3DP001V1 3D PRINTER BOARD
-#define BOARD_BIGTREE_SKR_PRO_V1_1    4109  // BigTreeTech SKR Pro v1.1 (STM32F407ZG)
+
+//
+// STM32 ARM Cortex-M4F
+//
+
+#define BOARD_BEAST                   4200  // STM32F4xxVxT6 Libmaple-based STM32F4 controller
+#define BOARD_STM32F4                 4201  // STM32 STM32GENERIC-based STM32F4 controller
+#define BOARD_ARMED                   4202  // Arm'ed STM32F4-based controller
+#define BOARD_RUMBA32                 4203  // RUMBA32 STM32F4-based controller
+#define BOARD_BLACK_STM32F407VE       4204  // BLACK_STM32F407VE
+#define BOARD_BLACK_STM32F407ZE       4205  // BLACK_STM32F407ZE
+#define BOARD_STEVAL                  4206  // STEVAL-3DP001V1 3D PRINTER BOARD
+#define BOARD_BIGTREE_SKR_PRO_V1_1    4207  // BigTreeTech SKR Pro v1.1 (STM32F407ZG)
 
 //
 // ARM Cortex M7

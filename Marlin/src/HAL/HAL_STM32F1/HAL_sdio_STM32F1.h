@@ -21,18 +21,14 @@
  */
 #pragma once
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include "../shared/Marduino.h"
 
 #include "libmaple/sdio.h"
 #include "libmaple/dma.h"
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 #define SDMMC_CMD_GO_IDLE_STATE                       ((uint8_t)0)   /* Resets the SD memory card. */
 #define SDMMC_CMD_ALL_SEND_CID                        ((uint8_t)2)   /* Asks any card connected to the host to send the CID numbers on the CMD line. */
@@ -106,9 +102,9 @@
 
 #define SDIO_CLOCK                           18000000       /* 18 MHz */
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 typedef struct {
   uint32_t CardType;      // Card Type
@@ -121,9 +117,9 @@ typedef struct {
   uint32_t LogBlockSize;  // Logical block size in bytes
 } SDIO_CardInfoTypeDef;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 inline uint32_t SDIO_GetCardState(void);
 
