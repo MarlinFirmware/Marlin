@@ -134,22 +134,12 @@
   #define MOTHERBOARD BOARD_RAMPS_14_EFB
 #endif
 
-<<<<<<< HEAD
-// Optional custom name for your RepStrap or other custom machine
-// Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "Olli MK1"
-
-// Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
-// You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
-#define MACHINE_UUID "b9c99eec-3388-11e8-b467-0ed5f89f718b"
-=======
 // Name displayed in the LCD "Ready" message and Info menu
-//#define CUSTOM_MACHINE_NAME "3D Printer"
+#define CUSTOM_MACHINE_NAME "Olli MK1"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
-//#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
->>>>>>> upstream/bugfix-2.0.x
+#define MACHINE_UUID "b9c99eec-3388-11e8-b467-0ed5f89f718b
 
 // @section extruder
 
