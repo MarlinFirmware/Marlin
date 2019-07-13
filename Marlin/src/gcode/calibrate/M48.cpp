@@ -127,7 +127,7 @@ void GcodeSuite::M48() {
             (int) (0.1250000000 * (DELTA_PRINTABLE_RADIUS)),
             (int) (0.3333333333 * (DELTA_PRINTABLE_RADIUS))
           #else
-            (int) 5.0, (int) (0.125 * MIN(X_BED_SIZE, Y_BED_SIZE))
+            (int) 5.0, (int) (0.125 * _MIN(X_BED_SIZE, Y_BED_SIZE))
           #endif
         );
 
@@ -163,8 +163,8 @@ void GcodeSuite::M48() {
           Y_current = Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER) + sin(RADIANS(angle)) * radius;
 
           #if DISABLED(DELTA)
-            X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
-            Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
+            LIMIT(X_current, X_MIN_POS, X_MAX_POS);
+            LIMIT(Y_current, Y_MIN_POS, Y_MAX_POS);
           #else
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.

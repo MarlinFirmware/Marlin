@@ -197,7 +197,7 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
-    SERIAL_ECHOPAIR("MBL G29 point ", MIN(mbl_probe_index, GRID_MAX_POINTS));
+    SERIAL_ECHOPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS));
     SERIAL_ECHOLNPAIR(" of ", int(GRID_MAX_POINTS));
   }
 

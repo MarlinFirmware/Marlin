@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // R25 = 100 kOhm, beta25 = 4120 K, 4.7 kOhm pull-up, mendel-parts
 const short temptable_3[][2] PROGMEM = {

@@ -33,6 +33,10 @@
  * This file is part of the Arduino Sd2Card Library
  */
 
+#include <stdint.h>
+
+#include "../inc/MarlinConfigPre.h"
+
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
   #include "usb_flashdrive/Sd2Card_FlashDrive.h"
 #elif ENABLED(SDIO_SUPPORT)
@@ -43,7 +47,6 @@
 
 #include "SdFatConfig.h"
 #include "SdFatStructs.h"
-#include <stdint.h>
 
 //==============================================================================
 // SdVolume class

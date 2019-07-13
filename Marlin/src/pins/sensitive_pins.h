@@ -131,7 +131,7 @@
 // Mixing stepper, Switching stepper, or regular stepper
 #define E_NEEDED(N) (ENABLED(MIXING_EXTRUDER) && MIXING_STEPPERS > N) \
                  || (ENABLED(SWITCHING_EXTRUDER) && E_STEPPERS > N) \
-                 || (DISABLED(SWITCHING_EXTRUDER, MIXING_EXTRUDER) && EXTRUDERS > N)
+                 || (NONE(SWITCHING_EXTRUDER, MIXING_EXTRUDER) && EXTRUDERS > N)
 
 #define _E0_CS
 #define _E0_MS1

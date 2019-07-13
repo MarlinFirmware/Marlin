@@ -39,7 +39,7 @@
 void _man_probe_pt(const float &rx, const float &ry) {
   do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
   ui.synchronize();
-  move_menu_scale = MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
+  move_menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
   ui.goto_screen(lcd_move_z);
 }
 

@@ -27,15 +27,11 @@
 
 #include "MarlinConfigPre.h"
 
-#include HAL_PATH(../HAL, HAL.h)
+#include "../HAL/HAL.h"
 
 #include "../pins/pins.h"
 
 #include HAL_PATH(../HAL, spi_pins.h)
-
-#if defined(__AVR__) && !defined(USBCON)
-  #define HardwareSerial_h // trick to disable the standard HWserial
-#endif
 
 #include "Conditionals_post.h"
 #include "SanityCheck.h"
@@ -47,4 +43,3 @@
 #include "../core/language.h"
 #include "../core/utility.h"
 #include "../core/serial.h"
-#include "../core/minmax.h"

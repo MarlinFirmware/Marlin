@@ -30,7 +30,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT) && DISABLED(USB_FLASH_DRIVE_SUPPORT, SDIO_SUPPORT)
+#if ENABLED(SDSUPPORT) && NONE(USB_FLASH_DRIVE_SUPPORT, SDIO_SUPPORT)
 
 /* Enable FAST CRC computations - You can trade speed for FLASH space if
  * needed by disabling the following define */
@@ -227,7 +227,7 @@ bool Sd2Card::eraseSingleBlockEnable() {
  * \return true for success, false for failure.
  * The reason for failure can be determined by calling errorCode() and errorData().
  */
-bool Sd2Card::init(const uint8_t sckRateID/*=0*/, const pin_t chipSelectPin/*=SD_CHIP_SELECT_PIN*/) {
+bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
   // 16-bit init start time allows over a minute

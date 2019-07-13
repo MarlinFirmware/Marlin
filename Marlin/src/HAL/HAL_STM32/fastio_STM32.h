@@ -27,21 +27,21 @@
  * These use GPIO register access for fast port manipulation.
  */
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 extern GPIO_TypeDef * FastIOPortMap[];
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 void FastIO_init(); // Must be called before using fast io macros
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 #define _BV32(b) (1UL << (b))
 
@@ -65,7 +65,6 @@ void FastIO_init(); // Must be called before using fast io macros
 #define _SET_MODE(IO,M)         pinMode(IO, M)
 #define _SET_OUTPUT(IO)         pinMode(IO, OUTPUT)                               /*!< Output Push Pull Mode & GPIO_NOPULL   */
 
-#define WRITE_VAR(IO,V)         _WRITE(IO,V)
 #define WRITE(IO,V)             _WRITE(IO,V)
 #define READ(IO)                _READ(IO)
 #define TOGGLE(IO)              _TOGGLE(IO)

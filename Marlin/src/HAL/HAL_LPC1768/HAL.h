@@ -34,7 +34,7 @@ void HAL_init(void);
 #include <stdarg.h>
 #include <algorithm>
 
-extern "C" volatile millis_t _millis;
+extern "C" volatile uint32_t _millis;
 
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"

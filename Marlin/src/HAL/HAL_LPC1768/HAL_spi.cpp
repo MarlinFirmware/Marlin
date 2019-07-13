@@ -49,15 +49,11 @@
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include <SPI.h>
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 #if ENABLED(LPC_SOFTWARE_SPI)
 
   #include "SoftwareSPI.h"
@@ -162,7 +158,7 @@
     // setup for SPI mode
     SSP_CFG_Type HW_SPI_init; // data structure to hold init values
     SSP_ConfigStructInit(&HW_SPI_init);  // set values for SPI mode
-    HW_SPI_init.ClockRate = Marlin_speed[MIN(spiRate, 6)]; // put in the specified bit rate
+    HW_SPI_init.ClockRate = Marlin_speed[_MIN(spiRate, 6)]; // put in the specified bit rate
     HW_SPI_init.Mode |= SSP_CR1_SSP_EN;
     SSP_Init(LPC_SSPn, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
   }

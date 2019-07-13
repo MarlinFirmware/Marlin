@@ -48,8 +48,8 @@ void Servo::detach() { ledcDetachPin(this->pin); }
 
 int Servo::read() { return this->degrees; }
 
-void Servo::write(int degrees) {
-  this->degrees = constrain(degrees, MIN_ANGLE, MAX_ANGLE);
+void Servo::write(int inDegrees) {
+  this->degrees = constrain(inDegrees, MIN_ANGLE, MAX_ANGLE);
   int us = map(this->degrees, MIN_ANGLE, MAX_ANGLE, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
   int duty = map(us, 0, TAU_USEC, 0, MAX_COMPARE);
   ledcWrite(channel, duty);

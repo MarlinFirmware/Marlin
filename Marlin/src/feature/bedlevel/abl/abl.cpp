@@ -301,7 +301,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
     #endif
 
     gridx = gx;
-    nextx = MIN(gridx + 1, ABL_BG_POINTS_X - 1);
+    nextx = _MIN(gridx + 1, ABL_BG_POINTS_X - 1);
   }
 
   if (last_y != ry || last_gridx != gridx) {
@@ -318,7 +318,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
       #endif
 
       gridy = gy;
-      nexty = MIN(gridy + 1, ABL_BG_POINTS_Y - 1);
+      nexty = _MIN(gridy + 1, ABL_BG_POINTS_Y - 1);
     }
 
     if (last_gridx != gridx || last_gridy != gridy) {
@@ -369,10 +369,10 @@ float bilinear_z_offset(const float raw[XYZ]) {
         cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
         cx2 = CELL_INDEX(X, destination[X_AXIS]),
         cy2 = CELL_INDEX(Y, destination[Y_AXIS]);
-    cx1 = constrain(cx1, 0, ABL_BG_POINTS_X - 2);
-    cy1 = constrain(cy1, 0, ABL_BG_POINTS_Y - 2);
-    cx2 = constrain(cx2, 0, ABL_BG_POINTS_X - 2);
-    cy2 = constrain(cy2, 0, ABL_BG_POINTS_Y - 2);
+    LIMIT(cx1, 0, ABL_BG_POINTS_X - 2);
+    LIMIT(cy1, 0, ABL_BG_POINTS_Y - 2);
+    LIMIT(cx2, 0, ABL_BG_POINTS_X - 2);
+    LIMIT(cy2, 0, ABL_BG_POINTS_Y - 2);
 
     // Start and end in the same cell? No split needed.
     if (cx1 == cx2 && cy1 == cy2) {
@@ -384,7 +384,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
     #define LINE_SEGMENT_END(A) (current_position[_AXIS(A)] + (destination[_AXIS(A)] - current_position[_AXIS(A)]) * normalized_dist)
 
     float normalized_dist, end[XYZE];
-    const int8_t gcx = MAX(cx1, cx2), gcy = MAX(cy1, cy2);
+    const int8_t gcx = _MAX(cx1, cx2), gcy = _MAX(cy1, cy2);
 
     // Crosses on the X and not already split on this X?
     // The x_splits flags are insurance against rounding errors.

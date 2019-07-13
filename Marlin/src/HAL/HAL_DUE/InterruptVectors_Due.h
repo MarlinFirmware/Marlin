@@ -24,8 +24,6 @@
 /**
  * InterruptVectors_Due.h
  *
- * Copyright (c) 2017 Eduardo José Tagle. All right reserved
- *
  * This module relocates the Interrupt vector table to SRAM, allowing new
  * interrupt handlers to be added at runtime. This is required because the
  * Arduino runtime steals interrupt handlers that Marlin MUST use to support

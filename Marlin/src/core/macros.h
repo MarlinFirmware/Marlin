@@ -21,8 +21,6 @@
  */
 #pragma once
 
-#include "minmax.h"
-
 #define NUM_AXIS 4
 #define ABCE 4
 #define XYZE 4
@@ -75,18 +73,20 @@
 #undef _BV
 #define _BV(n) (1<<(n))
 #define TEST(n,b) !!((n)&_BV(b))
-#define SBI(n,b) (n |= _BV(b))
-#define CBI(n,b) (n &= ~_BV(b))
 #define SET_BIT_TO(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
+
+#ifndef SBI
+  #define SBI(A,B) (A |= (1 << (B)))
+#endif
+
+#ifndef CBI
+  #define CBI(A,B) (A &= ~(1 << (B)))
+#endif
 
 #define _BV32(b) (1UL << (b))
 #define TEST32(n,b) !!((n)&_BV32(b))
 #define SBI32(n,b) (n |= _BV32(b))
 #define CBI32(n,b) (n &= ~_BV32(b))
-
-// Macros for maths shortcuts
-#undef M_PI
-#define M_PI 3.14159265358979323846f
 
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
@@ -194,7 +194,7 @@
 #define ZERO(a)             memset(a,0,sizeof(a))
 #define COPY(a,b) do{ \
     static_assert(sizeof(a[0]) == sizeof(b[0]), "COPY: '" STRINGIFY(a) "' and '" STRINGIFY(b) "' types (sizes) don't match!"); \
-    memcpy(&a[0],&b[0],MIN(sizeof(a),sizeof(b))); \
+    memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
   }while(0)
 
 // Macros for initializing arrays
@@ -272,4 +272,59 @@
   #define I2C_ADDRESS(A) ((A) << 1)
 #else
   #define I2C_ADDRESS(A) A
+#endif
+
+// Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
+#define _NUM_ARGS(_0,_24_,_23,_22,_21,_20,_19,_18,_17,_16,_15,_14,_13,_12,_11,_10,_9,_8,_7,_6,_5,_4,_3,_2,_1,N,...) N
+#define NUM_ARGS(V...) _NUM_ARGS(0,V,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+
+#ifdef __cplusplus
+
+  #ifndef _MINMAX_H_
+  #define _MINMAX_H_
+
+    extern "C++" {
+
+      // C++11 solution that is standards compliant. Return type is deduced automatically
+      template <class L, class R> static inline constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+        return lhs < rhs ? lhs : rhs;
+      }
+      template <class L, class R> static inline constexpr auto _MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+        return lhs > rhs ? lhs : rhs;
+      }
+      template<class T, class ... Ts> static inline constexpr const T _MIN(T V, Ts... Vs) { return _MIN(V, _MIN(Vs...)); }
+      template<class T, class ... Ts> static inline constexpr const T _MAX(T V, Ts... Vs) { return _MAX(V, _MAX(Vs...)); }
+
+    }
+
+  #endif
+
+#else
+
+  #define MIN_2(a,b)      ((a)<(b)?(a):(b))
+  #define MIN_3(a,...)    MIN_2(a,MIN_2(__VA_ARGS__))
+  #define MIN_4(a,...)    MIN_2(a,MIN_3(__VA_ARGS__))
+  #define MIN_5(a,...)    MIN_2(a,MIN_4(__VA_ARGS__))
+  #define MIN_6(a,...)    MIN_2(a,MIN_5(__VA_ARGS__))
+  #define MIN_7(a,...)    MIN_2(a,MIN_6(__VA_ARGS__))
+  #define MIN_8(a,...)    MIN_2(a,MIN_7(__VA_ARGS__))
+  #define MIN_9(a,...)    MIN_2(a,MIN_8(__VA_ARGS__))
+  #define MIN_10(a,...)   MIN_2(a,MIN_9(__VA_ARGS__))
+  #define __MIN_N(N, ...) MIN_##N(__VA_ARGS__)
+  #define _MIN_N(N, ...)  __MIN_N(N,__VA_ARGS__)
+  #define _MIN(...)       _MIN_N(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+
+  #define MAX_2(a,b)      ((a)>(b)?(a):(b))
+  #define MAX_3(a,...)    MAX_2(a,MAX_2(__VA_ARGS__))
+  #define MAX_4(a,...)    MAX_2(a,MAX_3(__VA_ARGS__))
+  #define MAX_5(a,...)    MAX_2(a,MAX_4(__VA_ARGS__))
+  #define MAX_6(a,...)    MAX_2(a,MAX_5(__VA_ARGS__))
+  #define MAX_7(a,...)    MAX_2(a,MAX_6(__VA_ARGS__))
+  #define MAX_8(a,...)    MAX_2(a,MAX_7(__VA_ARGS__))
+  #define MAX_9(a,...)    MAX_2(a,MAX_8(__VA_ARGS__))
+  #define MAX_10(a,...)   MAX_2(a,MAX_9(__VA_ARGS__))
+  #define __MAX_N(N, ...) MAX_##N(__VA_ARGS__)
+  #define _MAX_N(N, ...)  __MAX_N(N,__VA_ARGS__)
+  #define _MAX(...)       _MAX_N(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+
 #endif

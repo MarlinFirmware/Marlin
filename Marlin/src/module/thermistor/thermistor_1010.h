@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // Pt1000 with 1k0 pullup
 const short temptable_1010[][2] PROGMEM = {

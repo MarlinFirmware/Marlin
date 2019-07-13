@@ -733,7 +733,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   // reach the final_rate exactly at the end of this block.
   if (plateau_steps < 0) {
     const float accelerate_steps_float = CEIL(intersection_distance(initial_rate, final_rate, accel, block->step_event_count));
-    accelerate_steps = MIN(uint32_t(MAX(accelerate_steps_float, 0)), block->step_event_count);
+    accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
     plateau_steps = 0;
 
     #if ENABLED(S_CURVE_ACCELERATION)
@@ -855,7 +855,7 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t * const 
 
       const float new_entry_speed_sqr = TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH)
         ? max_entry_speed_sqr
-        : MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next ? next->entry_speed_sqr : sq(float(MINIMUM_PLANNER_SPEED)), current->millimeters));
+        : _MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next ? next->entry_speed_sqr : sq(float(MINIMUM_PLANNER_SPEED)), current->millimeters));
       if (current->entry_speed_sqr != new_entry_speed_sqr) {
 
         // Need to recalculate the block speed - Mark it now, so the stepper
@@ -1157,7 +1157,7 @@ void Planner::recalculate() {
     }
 
     float t = autotemp_min + high * autotemp_factor;
-    t = constrain(t, autotemp_min, autotemp_max);
+    LIMIT(t, autotemp_min, autotemp_max);
     if (t < oldt) t = t * (1 - float(AUTOTEMP_OLDWEIGHT)) + oldt * float(AUTOTEMP_OLDWEIGHT);
     oldt = t;
     thermalManager.setTargetHotend(t, 0);
@@ -1289,10 +1289,10 @@ void Planner::check_axes_activity() {
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
-      analogWrite(HEATER_1_PIN, tail_valve_pressure);
+      analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure);
     #endif
     #if HAS_HEATER_2
-      analogWrite(HEATER_2_PIN, tail_e_to_p_pressure);
+      analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure);
     #endif
   #endif
 }
@@ -1817,7 +1817,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   }
 
   block->steps[E_AXIS] = esteps;
-  block->step_event_count = MAX(block->steps[A_AXIS], block->steps[B_AXIS], block->steps[C_AXIS], esteps);
+  block->step_event_count = _MAX(block->steps[A_AXIS], block->steps[B_AXIS], block->steps[C_AXIS], esteps);
 
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
@@ -2128,9 +2128,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     }
     ys0 = axis_segment_time_us[Y_AXIS][0] = ys0 + segment_time_us;
 
-    const uint32_t max_x_segment_time = MAX(xs0, xs1, xs2),
-                   max_y_segment_time = MAX(ys0, ys1, ys2),
-                   min_xy_segment_time = MIN(max_x_segment_time, max_y_segment_time);
+    const uint32_t max_x_segment_time = _MAX(xs0, xs1, xs2),
+                   max_y_segment_time = _MAX(ys0, ys1, ys2),
+                   min_xy_segment_time = _MIN(max_x_segment_time, max_y_segment_time);
     if (min_xy_segment_time < MAX_FREQ_TIME_US) {
       const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME_US);
       NOMORE(speed_factor, low_sf);
@@ -2370,7 +2370,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       }
 
       // Get the lowest speed
-      vmax_junction_sqr = MIN(vmax_junction_sqr, block->nominal_speed_sqr, previous_nominal_speed_sqr);
+      vmax_junction_sqr = _MIN(vmax_junction_sqr, block->nominal_speed_sqr, previous_nominal_speed_sqr);
     }
     else // Init entry speed to zero. Assume it starts from rest. Planner will correct this later.
       vmax_junction_sqr = 0;
@@ -2427,7 +2427,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
       // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
       const float previous_nominal_speed = SQRT(previous_nominal_speed_sqr);
-      vmax_junction = MIN(nominal_speed, previous_nominal_speed);
+      vmax_junction = _MIN(nominal_speed, previous_nominal_speed);
 
       // Now limit the jerk in all axes.
       const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
@@ -2448,9 +2448,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
         const float jerk = (v_exit > v_entry)
             ? //                                  coasting             axis reversal
-              ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : MAX(v_exit, -v_entry) )
+              ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : _MAX(v_exit, -v_entry) )
             : // v_exit <= v_entry                coasting             axis reversal
-              ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : MAX(-v_exit, v_entry) );
+              ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : _MAX(-v_exit, v_entry) );
 
         if (jerk > max_jerk[axis]) {
           v_factor *= max_jerk[axis] / jerk;
@@ -2470,7 +2470,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     previous_safe_speed = safe_speed;
 
     #if ENABLED(JUNCTION_DEVIATION)
-      vmax_junction_sqr = MIN(vmax_junction_sqr, sq(vmax_junction));
+      vmax_junction_sqr = _MIN(vmax_junction_sqr, sq(vmax_junction));
     #else
       vmax_junction_sqr = sq(vmax_junction);
     #endif
@@ -2485,7 +2485,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // If we are trying to add a split block, start with the
   // max. allowed speed to avoid an interrupted first move.
-  block->entry_speed_sqr = !split_move ? sq(float(MINIMUM_PLANNER_SPEED)) : MIN(vmax_junction_sqr, v_allowable_sqr);
+  block->entry_speed_sqr = !split_move ? sq(float(MINIMUM_PLANNER_SPEED)) : _MIN(vmax_junction_sqr, v_allowable_sqr);
 
   // Initialize planner efficiency flags
   // Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.

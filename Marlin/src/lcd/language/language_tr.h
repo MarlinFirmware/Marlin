@@ -186,6 +186,7 @@
 #define MSG_MOVE_Z                          _UxGT("Z Hareketi")
 #define MSG_MOVE_E                          _UxGT("Ekstruder")
 #define MSG_HOTEND_TOO_COLD                 _UxGT("Nozul Çok Soğuk")
+#define MSG_MOVE_0025MM                     _UxGT("0.025mm")
 #define MSG_MOVE_01MM                       _UxGT("0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("1mm")
 #define MSG_MOVE_10MM                       _UxGT("10mm")

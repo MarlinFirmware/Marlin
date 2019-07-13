@@ -48,7 +48,7 @@ uint8_t MarlinUI::preheat_fan_speed[2];
 //
 
 void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const uint8_t fan) {
-  if (temph > 0) thermalManager.setTargetHotend(MIN(heater_maxtemp[endnum] - 15, temph), endnum);
+  if (temph > 0) thermalManager.setTargetHotend(_MIN(heater_maxtemp[endnum] - 15, temph), endnum);
   #if HAS_HEATED_BED
     if (tempb >= 0) thermalManager.setTargetBed(tempb);
   #else

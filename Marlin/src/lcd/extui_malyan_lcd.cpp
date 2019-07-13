@@ -80,7 +80,7 @@ bool last_printing_status = false;
 // Everything written needs the high bit set.
 void write_to_lcd_P(PGM_P const message) {
   char encoded_message[MAX_CURLY_COMMAND];
-  uint8_t message_length = MIN(strlen_P(message), sizeof(encoded_message));
+  uint8_t message_length = _MIN(strlen_P(message), sizeof(encoded_message));
 
   for (uint8_t i = 0; i < message_length; i++)
     encoded_message[i] = pgm_read_byte(&message[i]) | 0x80;
@@ -90,7 +90,7 @@ void write_to_lcd_P(PGM_P const message) {
 
 void write_to_lcd(const char * const message) {
   char encoded_message[MAX_CURLY_COMMAND];
-  const uint8_t message_length = MIN(strlen(message), sizeof(encoded_message));
+  const uint8_t message_length = _MIN(strlen(message), sizeof(encoded_message));
 
   for (uint8_t i = 0; i < message_length; i++)
     encoded_message[i] = message[i] | 0x80;
@@ -115,9 +115,8 @@ void process_lcd_c_command(const char* command) {
   switch (command[0]) {
     case 'C': // Cope with both V1 early rev and later LCDs.
     case 'S': {
-      int raw_feedrate = atoi(command + 1);
-      feedrate_percentage = raw_feedrate * 10;
-      feedrate_percentage = constrain(feedrate_percentage, 10, 999);
+      feedrate_percentage = atoi(command + 1) * 10;
+      LIMIT(feedrate_percentage, 10, 999);
     } break;
     case 'T': {
       thermalManager.setTargetHotend(atoi(command + 1), 0);
@@ -145,7 +144,7 @@ void process_lcd_eb_command(const char* command) {
   switch (command[0]) {
     case '0': {
       elapsed = print_job_timer.duration();
-      sprintf_P(elapsed_buffer, PSTR("%02u%02u%02u"), uint16_t(elapsed.hour()), uint16_t(elapsed.minute()) % 60UL, elapsed.second());
+      sprintf_P(elapsed_buffer, PSTR("%02u%02u%02u"), uint16_t(elapsed.hour()), uint16_t(elapsed.minute()) % 60, uint16_t(elapsed.second()) % 60);
 
       char message_buffer[MAX_CURLY_COMMAND];
       sprintf_P(message_buffer,
@@ -461,7 +460,7 @@ namespace ExtUI {
       // issue a percent of 0.
       const uint8_t percent_done = IS_SD_PRINTING() ? card.percentDone() : last_printing_status ? 100 : 0;
       if (percent_done != last_percent_done) {
-        char message_buffer[10];
+        char message_buffer[16];
         sprintf_P(message_buffer, PSTR("{TQ:%03i}"), percent_done);
         write_to_lcd(message_buffer);
         last_percent_done = percent_done;

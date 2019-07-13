@@ -24,10 +24,6 @@
 
 #define CPU_32_BIT
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include <stdint.h>
 
 #include "../shared/Marduino.h"
@@ -43,9 +39,9 @@
 #include "WebSocketSerial.h"
 #include "FlushableHardwareSerial.h"
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 extern portMUX_TYPE spinlock;
 
@@ -69,24 +65,24 @@ extern portMUX_TYPE spinlock;
 #undef pgm_read_ptr
 #define pgm_read_ptr(addr) (*(addr))
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 typedef int16_t pin_t;
 
 #define HAL_SERVO_LIB Servo
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 /** result of last ADC conversion */
 extern uint16_t HAL_adc_result;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 // clear reset reason
 void HAL_clear_reset_source (void);
@@ -98,7 +94,7 @@ void _delay_ms(int delay);
 
 int freeMemory(void);
 
-void analogWrite(int pin, int value);
+void analogWrite(pin_t pin, int value);
 
 // EEPROM
 void eeprom_write_byte(uint8_t *pos, unsigned char value);

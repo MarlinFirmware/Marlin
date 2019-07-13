@@ -24,7 +24,7 @@
 
 // Pin lists 1.1.x and 2.0.x synchronized 2018-02-17
 
-#line 31 // set __LINE__ to a known value for both passes
+#line 28 // set __LINE__ to a known value for both passes
 
 //
 // Analog Pin Assignments
@@ -766,15 +766,6 @@
 #endif
 #if defined(SPARE_IO) && SPARE_IO >= 0
   REPORT_NAME_DIGITAL(__LINE__, SPARE_IO)
-#endif
-#if defined(SPI_CHAN_DAC) && SPI_CHAN_DAC >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_CHAN_DAC)
-#endif
-#if defined(SPI_CHAN_EEPROM1) && SPI_CHAN_EEPROM1 >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_CHAN_EEPROM1)
-#endif
-#if defined(SPI_EEPROM) && SPI_EEPROM >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_EEPROM)
 #endif
 #if defined(SPI_EEPROM1_CS) && SPI_EEPROM1_CS >= 0
   REPORT_NAME_DIGITAL(__LINE__, SPI_EEPROM1_CS)

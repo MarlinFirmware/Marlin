@@ -136,7 +136,7 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
   float csum = 0, cmax = 0;
   MIXER_STEPPER_LOOP(i) {
     const float v = color[t][i];
-    cmax = MAX(cmax, v);
+    cmax = _MAX(cmax, v);
     csum += v;
   }
   //SERIAL_ECHOPAIR("Mixer::refresh_collector(", proportion, ", ", int(t), ") cmax=", cmax, "  csum=", csum, "  color");

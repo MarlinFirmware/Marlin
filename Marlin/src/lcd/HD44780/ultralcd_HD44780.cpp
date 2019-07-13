@@ -112,7 +112,7 @@ static void createChar_P(const char c, const byte * const ptr) {
 #endif
 
 void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARSET_INFO*/) {
-  #if DISABLED(LCD_PROGRESS_BAR, SHOW_BOOTSCREEN)
+  #if NONE(LCD_PROGRESS_BAR, SHOW_BOOTSCREEN)
     UNUSED(screen_charset);
   #endif
 
@@ -382,7 +382,7 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
     }
     else {
       PGM_P p = text;
-      int dly = time / MAX(slen, 1);
+      int dly = time / _MAX(slen, 1);
       for (uint8_t i = 0; i <= slen; i++) {
 
         // Go to the correct place
@@ -516,7 +516,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     if (!TEST(axis_homed, axis))
       while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
     else {
-      #if DISABLED(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
+      #if NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
         if (!TEST(axis_known_position, axis))
           lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
         else
@@ -526,7 +526,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
-FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, const bool blink) {
+FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
     const bool isBed = heater < 0;
     const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater)),
@@ -567,7 +567,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
 }
 
 FORCE_INLINE void _draw_bed_status(const bool blink) {
-  _draw_heater_status(-1, (
+  _draw_heater_status(H_BED, (
     #if HAS_LEVELING
       planner.leveling_active && blink ? '_' :
     #endif
@@ -750,19 +750,17 @@ void MarlinUI::draw_status_screen() {
       //
       // Hotend 0 Temperature
       //
-      _draw_heater_status(0, -1, blink);
+      _draw_heater_status(H_E0, -1, blink);
 
       //
       // Hotend 1 or Bed Temperature
       //
       #if HOTENDS > 1
         lcd_moveto(8, 0);
-        lcd_put_wchar(LCD_STR_THERMOMETER[0]);
-        _draw_heater_status(1, -1, blink);
+        _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
       #elif HAS_HEATED_BED
         lcd_moveto(8, 0);
-        lcd_put_wchar(LCD_STR_BEDTEMP[0]);
-        _draw_heater_status(-1, -1, blink);
+        _draw_bed_status(blink);
       #endif
 
     #else // LCD_WIDTH >= 20
@@ -770,14 +768,14 @@ void MarlinUI::draw_status_screen() {
       //
       // Hotend 0 Temperature
       //
-      _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);
+      _draw_heater_status(H_E0, LCD_STR_THERMOMETER[0], blink);
 
       //
       // Hotend 1 or Bed Temperature
       //
       #if HOTENDS > 1
         lcd_moveto(10, 0);
-        _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
+        _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
       #elif HAS_HEATED_BED
         lcd_moveto(10, 0);
         _draw_bed_status(blink);
@@ -806,7 +804,7 @@ void MarlinUI::draw_status_screen() {
         #if HOTENDS > 2 || (HOTENDS > 1 && HAS_HEATED_BED)
 
           #if HOTENDS > 2
-            _draw_heater_status(2, LCD_STR_THERMOMETER[0], blink);
+            _draw_heater_status(H_E2, LCD_STR_THERMOMETER[0], blink);
             lcd_moveto(10, 1);
           #endif
 
@@ -911,7 +909,7 @@ void MarlinUI::draw_status_screen() {
     //
     // Hotend 0 Temperature
     //
-    _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);
+    _draw_heater_status(H_E0, LCD_STR_THERMOMETER[0], blink);
 
     //
     // Z Coordinate
@@ -931,7 +929,7 @@ void MarlinUI::draw_status_screen() {
     //
     lcd_moveto(0, 1);
     #if HOTENDS > 1
-      _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
+      _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
     #elif HAS_HEATED_BED
       _draw_bed_status(blink);
     #endif
@@ -948,7 +946,7 @@ void MarlinUI::draw_status_screen() {
     //
     lcd_moveto(0, 2);
     #if HOTENDS > 2
-      _draw_heater_status(2, LCD_STR_THERMOMETER[0], blink);
+      _draw_heater_status(H_E2, LCD_STR_THERMOMETER[0], blink);
     #elif HOTENDS > 1 && HAS_HEATED_BED
       _draw_bed_status(blink);
     #elif HAS_PRINT_PROGRESS
@@ -987,7 +985,7 @@ void MarlinUI::draw_status_screen() {
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       if (row < LCD_HEIGHT) {
         lcd_moveto(LCD_WIDTH - 9, row);
-        _draw_heater_status(extruder, LCD_STR_THERMOMETER[0], get_blink());
+        _draw_heater_status((heater_ind_t)extruder, LCD_STR_THERMOMETER[0], get_blink());
       }
     }
 
@@ -1327,7 +1325,7 @@ void MarlinUI::draw_status_screen() {
          */
 
         clear_custom_char(&new_char);
-        const uint8_t ypix = MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, HD44780_CHAR_HEIGHT);
+        const uint8_t ypix = _MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, HD44780_CHAR_HEIGHT);
         for (j = upper_left.y_pixel_offset; j < ypix; j++) {
           i = upper_left.x_pixel_mask;
           for (k = 0; k < pixels_per_x_mesh_pnt; k++) {

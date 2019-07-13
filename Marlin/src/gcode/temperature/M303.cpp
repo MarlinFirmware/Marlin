@@ -36,19 +36,18 @@
  *       U<bool> with a non-zero value will apply the result to current settings
  */
 void GcodeSuite::M303() {
-
-  const int8_t e = parser.intval('E');
-
-  if (!WITHIN(e, 0
-    #if ENABLED(PIDTEMPBED)
-      -1
-    #endif
-    ,
-    #if ENABLED(PIDTEMP)
-      HOTENDS
-    #endif
-    -1
-  )) {
+  #if ENABLED(PIDTEMPBED)
+    #define SI H_BED
+  #else
+    #define SI H_E0
+  #endif
+  #if ENABLED(PIDTEMP)
+    #define EI HOTENDS - 1
+  #else
+    #define EI H_BED
+  #endif
+  const heater_ind_t e = (heater_ind_t)parser.intval('E');
+  if (!WITHIN(e, SI, EI)) {
     SERIAL_ECHOLNPGM(MSG_PID_BAD_EXTRUDER_NUM);
     return;
   }
