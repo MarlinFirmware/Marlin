@@ -374,7 +374,12 @@
 /**
  * M355 Case Light on-off / brightness
  */
-#define CASE_LIGHT_ENABLE
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define CASE_LIGHT_ENABLE
+#else // ANYCUBIC_4MAX_DEFAULT
+//#define CASE_LIGHT_ENABLE
+#endif
+
 #if ENABLED(CASE_LIGHT_ENABLE)
   //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
@@ -546,7 +551,11 @@
 
   // Safety: The probe needs time to recognize the command.
   //         Minimum command delay (ms). Enable and increase if needed.
-  #define BLTOUCH_DELAY 375 //500 Default
+  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+    #define BLTOUCH_DELAY 375
+  #else // ANYCUBIC_4MAX_DEFAULT
+    //#define BLTOUCH_DELAY 500
+  #endif
 
   /**
    * Settings for BLTOUCH Classic 1.2, 1.3 or BLTouch Smart 1.0, 2.0, 2.2, 3.0, 3.1, and most clones:
@@ -624,8 +633,8 @@
 
 #define AXIS_RELATIVE_MODES { false, false, false, false }
 
-// Allow duplication mode with a basic dual-nozzle extruder
-//#define DUAL_NOZZLE_DUPLICATION_MODE
+// Add a Duplicate option for well-separated conjoined nozzles
+//#define MULTI_NOZZLE_DUPLICATION
 
 // By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
 #define INVERT_X_STEP_PIN false
@@ -804,7 +813,7 @@
  *    M909, M910 & LCD - only PRINTRBOARD_REVF & RIGIDBOARD_V2
  */
 //#define PWM_MOTOR_CURRENT { 1300, 1300, 1250 }          // Values in milliamps
-#define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
+//#define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 //#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 }    // Default drive percent - X, Y, Z, E axis
 
 // Use an I2C based DIGIPOT (e.g., Azteeg X3 Pro)
@@ -816,6 +825,7 @@
    *                        A   (A shifted)   B   (B shifted)  IC
    * Smoothie              0x2C (0x58)       0x2D (0x5A)       MCP4451
    * AZTEEG_X3_PRO         0x2C (0x58)       0x2E (0x5C)       MCP4451
+   * AZTEEG_X5_MINI        0x2C (0x58)       0x2E (0x5C)       MCP4451
    * AZTEEG_X5_MINI_WIFI         0x58              0x5C        MCP4451
    * MIGHTYBOARD_REVE      0x2F (0x5E)                         MCP4018
    */
@@ -871,7 +881,7 @@
     #define PROGRESS_BAR_MSG_TIME 3000    // (ms) Amount of time to show the status message
     #define PROGRESS_MSG_EXPIRE   0       // (ms) Amount of time to retain the status message (0=forever)
     //#define PROGRESS_MSG_ONCE           // Show the message for MSG_TIME then clear it
-    #define LCD_PROGRESS_BAR_TEST       // Add a menu item to test the progress bar
+    //#define LCD_PROGRESS_BAR_TEST       // Add a menu item to test the progress bar
   #endif
 #endif
 
@@ -888,7 +898,7 @@
     #define LED_USER_PRESET_BLUE         0  // User defined BLUE value
     #define LED_USER_PRESET_WHITE      255  // User defined WHITE value
     #define LED_USER_PRESET_BRIGHTNESS 255  // User defined intensity
-    #define LED_USER_PRESET_STARTUP       // Have the printer display the user preset color on startup
+    #define LED_USER_PRESET_STARTUP         // Have the printer display the user preset color on startup
   #endif
 #endif // LED_CONTROL_MENU
 
@@ -922,7 +932,12 @@
    * an option on the LCD screen to continue the print from the last-known
    * point in the file.
    */
-  #define POWER_LOSS_RECOVERY
+   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+    #define POWER_LOSS_RECOVERY
+   #else // ANYCUBIC_4MAX_DEFAULT
+    //#define POWER_LOSS_RECOVERY
+   #endif
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     //#define POWER_LOSS_PIN         44 // Pin to detect power loss
     //#define POWER_LOSS_STATE     HIGH // State of pin indicating power loss

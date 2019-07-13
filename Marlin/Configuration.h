@@ -945,7 +945,11 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-#define BLTOUCH
+ #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define BLTOUCH
+ #else
+  //#define BLTOUCH
+ #endif
 
 /**
  * Touch-MI Probe by hotends.fr
