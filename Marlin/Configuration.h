@@ -73,8 +73,8 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(Erkan, Anycubic 4MAX)" // Who made the changes.
-//#define SHOW_BOOTSCREEN
+#define STRING_CONFIG_H_AUTHOR "(G3m1n1S3rv3r, Anycubic 4MAX)" // Who made the changes.
+#define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 "Marlin 2.0.x"                    // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 "http://github.com/geminiserver"  // will be shown during bootup in line 2
 
@@ -137,8 +137,8 @@
   #define ANYCUBIC_4MAX
 
   // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
-  #define ANYCUBIC_4MAX_VG3R
-  //#define ANYCUBIC_4MAX_7OF9
+  //#define ANYCUBIC_4MAX_VG3R
+  #define ANYCUBIC_4MAX_7OF9
   //#define ANYCUBIC_4MAX_DEFAULT
 
 #endif
@@ -708,14 +708,23 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
-#define X_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
-#define Y_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
-#define Z_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the probe.
-
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Z_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define X_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Z_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true // Set to true to invert the logic of the probe.
+#else // ANYCUBIC_4MAX_DEFAULT - check if this is really the default!
+  #define X_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+  #define Y_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+  #define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+  #define X_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+  #define Y_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+  #define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
+#endif
 /**
  * Stepper Drivers
  *
@@ -871,6 +880,7 @@
 #endif
 
 #define DEFAULT_EJERK    10.0  // May be used by Linear Advance
+
 /**
  * S-Curve Acceleration
  *
@@ -939,7 +949,11 @@
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
-#define Z_PROBE_SERVO_NR 2         // Defaults to SERVO 0 connector.
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define Z_PROBE_SERVO_NR 2         // Defaults to SERVO 0 connector.
+#else
+  //#define Z_PROBE_SERVO_NR 0         // Defaults to SERVO 0 connector.
+#endif
 //#define Z_SERVO_ANGLES {10,90}   // Z Servo Deploy and Stow angles
 
 /**
@@ -1137,7 +1151,7 @@
 
 //#define UNKNOWN_Z_NO_RAISE // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
 
-#define Z_HOMING_HEIGHT 4  // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
+#define Z_HOMING_HEIGHT 4  // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
@@ -1162,7 +1176,11 @@
 #endif
 
 // The size of the print bed
-#define X_BED_SIZE 218 - BLTOUCH_X_MAX_OFFSET
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define X_BED_SIZE 218 - BLTOUCH_X_MAX_OFFSET
+#else
+  #define X_BED_SIZE 218
+#endif
 #define Y_BED_SIZE 218
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
@@ -1275,7 +1293,11 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-#define AUTO_BED_LEVELING_BILINEAR
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define AUTO_BED_LEVELING_BILINEAR
+#else
+  //#define AUTO_BED_LEVELING_BILINEAR
+#endif
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 
@@ -1404,7 +1426,11 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#define LCD_BED_LEVELING
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define LCD_BED_LEVELING
+#else
+  //#define LCD_BED_LEVELING
+#endif
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
@@ -1594,10 +1620,10 @@
 #define NOZZLE_PARK_FEATURE
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
-  // Specify a park position as { X, Y, Z }
+  // Specify a park position as { X, Y, Z_raise }
   #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
-  #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
-  #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
+  #define NOZZLE_PARK_XY_FEEDRATE 100   // (mm/s) X and Y axes feedrate (also used for delta Z axis)
+  #define NOZZLE_PARK_Z_FEEDRATE 5      // (mm/s) Z axis feedrate (not used for delta printers)
 #endif
 
 /**
@@ -2259,7 +2285,11 @@
 #endif
 
 // Support for Adafruit Neopixel LED driver
-#define NEOPIXEL_LED
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define NEOPIXEL_LED
+#else
+  //#define NEOPIXEL_LED
+#endif
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRB    // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   #define NEOPIXEL_PIN    SERVO3_PIN // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
