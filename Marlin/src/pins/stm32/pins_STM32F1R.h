@@ -38,9 +38,6 @@
 //
 // Limit Switches
 //
-#define U_MIN_PIN          -1
-#define V_MIN_PIN          -1
-#define W_MIN_PIN          -1
 #define X_STOP_PIN         PB3
 #define Y_STOP_PIN         PB4
 #define Z_STOP_PIN         PB5
