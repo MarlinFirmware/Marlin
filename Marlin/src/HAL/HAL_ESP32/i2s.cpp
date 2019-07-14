@@ -254,11 +254,13 @@ int i2s_init() {
 
   I2S0.fifo_conf.dscr_en = 0;
 
-  #if ENABLED(I2S_STEPPER_SPLIT_STREAM)
-    I2S0.conf_chan.tx_chan_mod = 4;
-  #else
-    I2S0.conf_chan.tx_chan_mod = 0;
-  #endif
+  I2S0.conf_chan.tx_chan_mod = (
+    #if ENABLED(I2S_STEPPER_SPLIT_STREAM)
+      4
+    #else
+      0
+    #endif
+  );
   I2S0.fifo_conf.tx_fifo_mod = 0;
   I2S0.conf.tx_mono = 0;
 
@@ -329,8 +331,7 @@ void i2s_write(uint8_t pin, uint8_t val) {
 
 uint8_t i2s_state(uint8_t pin) {
   #if ENABLED(I2S_STEPPER_SPLIT_STREAM)
-    if (pin >= 16)
-      return TEST(I2S0.conf_single_data, pin);
+    if (pin >= 16) return TEST(I2S0.conf_single_data, pin);
   #endif
   return TEST(i2s_port_data, pin);
 }
