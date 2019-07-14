@@ -95,9 +95,6 @@ void HAL_init_board(void) {
     #endif
     server.begin();
   #endif
-
-  HAL_timer_start(PWM_TIMER_NUM, PWM_TIMER_FREQUENCY);
-
 }
 
 void HAL_idletask(void) {
@@ -180,6 +177,22 @@ void HAL_adc_start_conversion(uint8_t adc_pin) {
 }
 
 void analogWrite(pin_t pin, int value) {
+  // Use ledc hardware for internal pins
+  if (pin < 34){
+    static int cnt_channel = 1,
+            pin_to_channel[40] = {};
+    if (pin_to_channel[pin] == 0) {
+      ledcAttachPin(pin, cnt_channel);
+      ledcSetup(cnt_channel, 490, 8);
+      ledcWrite(cnt_channel, value);
+
+      pin_to_channel[pin] = cnt_channel++;
+    }
+
+   ledcWrite(pin_to_channel[pin], value);
+   return;
+  }
+
   int idx=-1;
 
   // Search Pin
@@ -200,6 +213,10 @@ void analogWrite(pin_t pin, int value) {
     // take new slot for pin
     idx = numPWMUsed;
     pwmPins[idx] = pin;
+    // Start timer on first use
+    if (numPWMUsed == 0)
+      HAL_timer_start(PWM_TIMER_NUM, PWM_TIMER_FREQUENCY);
+
     ++numPWMUsed;
   }
 
