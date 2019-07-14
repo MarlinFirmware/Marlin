@@ -68,9 +68,9 @@ uint16_t HAL_adc_result;
 // ------------------------
 
 esp_adc_cal_characteristics_t characteristics;
-volatile int numPWMUsed=0;
-volatile int pwmPins[MAX_PWM_PINS];
-volatile int pwmValues[MAX_PWM_PINS];
+volatile int numPWMUsed = 0,
+             pwmPins[MAX_PWM_PINS],
+             pwmValues[MAX_PWM_PINS];
 
 // ------------------------
 // Public functions
@@ -172,50 +172,39 @@ void HAL_adc_init() {
 void HAL_adc_start_conversion(uint8_t adc_pin) {
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)get_channel(adc_pin), &characteristics, &mv);
-
-  HAL_adc_result = mv*1023.0/3300.0;
+  HAL_adc_result = mv * 1023.0 / 3300.0;
 }
 
 void analogWrite(pin_t pin, int value) {
   // Use ledc hardware for internal pins
-  if (pin < 34){
-    static int cnt_channel = 1,
-            pin_to_channel[40] = {};
+  if (pin < 34) {
+    static int cnt_channel = 1, pin_to_channel[40] = { 0 };
     if (pin_to_channel[pin] == 0) {
       ledcAttachPin(pin, cnt_channel);
       ledcSetup(cnt_channel, 490, 8);
       ledcWrite(cnt_channel, value);
-
       pin_to_channel[pin] = cnt_channel++;
     }
-
-   ledcWrite(pin_to_channel[pin], value);
-   return;
+    ledcWrite(pin_to_channel[pin], value);
+    return;
   }
 
-  int idx=-1;
+  int idx = -1;
 
   // Search Pin
-  for (int i=0; i<numPWMUsed; ++i){
-    // Found
-    if (pwmPins[i] == pin){
+  for (int i = 0; i < numPWMUsed; ++i)
+    if (pwmPins[i] == pin) { idx = i; break; }
 
-      idx=i;
-      break;
-    }
-  }
   // not found ?
   if (idx < 0) {
     // No slots remaining
-    if (numPWMUsed >= MAX_PWM_PINS-1)
-      return;
+    if (numPWMUsed >= MAX_PWM_PINS) return;
 
-    // take new slot for pin
+    // Take new slot for pin
     idx = numPWMUsed;
     pwmPins[idx] = pin;
     // Start timer on first use
-    if (numPWMUsed == 0)
-      HAL_timer_start(PWM_TIMER_NUM, PWM_TIMER_FREQUENCY);
+    if (idx == 0) HAL_timer_start(PWM_TIMER_NUM, PWM_TIMER_FREQUENCY);
 
     ++numPWMUsed;
   }
@@ -225,27 +214,22 @@ void analogWrite(pin_t pin, int value) {
 }
 
 // Handle PWM timer interrupt
-HAL_PWM_TIMER_ISR(){
+HAL_PWM_TIMER_ISR() {
   HAL_timer_isr_prologue(PWM_TIMER_NUM);
 
-  static unsigned int count = 0;
+  static uint8_t count = 0;
 
-  for (int i=0; i<numPWMUsed; ++i){
-    if (count == 0)
-       // Start of interval
-        WRITE(pwmPins[i], (pwmValues[i] ? 1 : 0));
-    else
-      //end of duration
-      if (pwmValues[i] == count)
-        WRITE(pwmPins[i], 0);
+  for (int i = 0; i < numPWMUsed; ++i) {
+    if (count == 0)                   // Start of interval
+      WRITE(pwmPins[i], pwmValues[i] ? HIGH : LOW);
+    else if (pwmValues[i] == count)   // End of duration
+      WRITE(pwmPins[i], LOW);
   }
 
   // 128 for 7 Bit resolution
-  if (++count>127)
-    count=0;
+  count = (count + 1) & 0x7F;
 
   HAL_timer_isr_epilogue(PWM_TIMER_NUM);
 }
-
 
 #endif // ARDUINO_ARCH_ESP32
