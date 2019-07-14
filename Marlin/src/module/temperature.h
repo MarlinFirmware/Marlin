@@ -828,7 +828,9 @@ class Temperature {
     static void min_temp_error(const heater_ind_t e);
     static void max_temp_error(const heater_ind_t e);
 
-    #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER)
+    #define HAS_THERMAL_PROTECTION (EITHER(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER) || HAS_THERMALLY_PROTECTED_BED)
+
+    #if HAS_THERMAL_PROTECTION
 
       enum TRState : char { TRInactive, TRFirstHeating, TRStable, TRRunaway };
 
@@ -849,7 +851,7 @@ class Temperature {
 
       static void thermal_runaway_protection(tr_state_machine_t &state, const float &current, const float &target, const heater_ind_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc);
 
-    #endif // THERMAL_PROTECTION
+    #endif // HAS_THERMAL_PROTECTION
 };
 
 extern Temperature thermalManager;

@@ -1005,8 +1005,6 @@ void Temperature::manage_heater() {
     if (temp_hotend[1].current < _MAX(HEATER_1_MINTEMP, HEATER_1_MAX6675_TMIN + .01)) min_temp_error(H_E1);
   #endif
 
-  #define HAS_THERMAL_PROTECTION (ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER))
-
   #if HAS_THERMAL_PROTECTION || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || HEATER_IDLE_HANDLER
     millis_t ms = millis();
   #endif
@@ -1933,7 +1931,7 @@ void Temperature::init() {
     }
   }
 
-#endif // THERMAL_PROTECTION_HOTENDS || THERMAL_PROTECTION_BED || ENABLED(THERMAL_PROTECTION_CHAMBER)
+#endif // HAS_THERMAL_PROTECTION
 
 void Temperature::disable_all_heaters() {
 

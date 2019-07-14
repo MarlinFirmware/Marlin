@@ -22,6 +22,8 @@
 
 #ifndef STM32F4
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
+#elif HOTENDS > 3 || E_STEPPERS > 3
+  #error "RUMBA32 supports up to 3 hotends / E-steppers."
 #endif
 
 #define RUMBA32_V1_0
@@ -30,10 +32,6 @@
 
 //#define I2C_EEPROM
 #define E2END 0xFFF // 4KB
-
-#if HOTENDS > 3 || E_STEPPERS > 3
-  #error "RUMBA32 supports up to 3 hotends / E-steppers."
-#endif
 
 //
 // Limit Switches

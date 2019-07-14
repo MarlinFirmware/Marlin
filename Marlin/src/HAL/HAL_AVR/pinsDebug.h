@@ -353,6 +353,8 @@ static void pwm_details(uint8_t pin) {
         timer_prefix(0, 'A', 3);
       #endif
     }
+  #else
+    UNUSED(print_is_also_tied);
   #endif
 } // pwm_details
 

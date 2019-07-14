@@ -1548,7 +1548,7 @@
 /**
  * Make sure DOGLCD_SCK and DOGLCD_MOSI are defined.
  */
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
   #ifndef DOGLCD_SCK
     #define DOGLCD_SCK  SCK_PIN
   #endif
