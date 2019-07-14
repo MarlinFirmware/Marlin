@@ -230,12 +230,14 @@
 
   // Alter timing for graphical display
   #if HAS_GRAPHICAL_LCD
-    #undef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_NS(96)
-    #undef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_NS(48)
-    #undef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_NS(600)
+    #ifndef ST7920_DELAY_1
+      #define ST7920_DELAY_1 DELAY_NS(96)
+    #ifndef ST7920_DELAY_2
+      #define ST7920_DELAY_2 DELAY_NS(48)
+    #endif
+    #ifndef ST7920_DELAY_3
+      #define ST7920_DELAY_3 DELAY_NS(600)
+    #endif
   #endif
 
 #endif // HAS_SPI_LCD
