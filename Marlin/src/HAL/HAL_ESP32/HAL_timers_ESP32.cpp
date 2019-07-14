@@ -47,7 +47,7 @@ static timg_dev_t *TG[2] = {&TIMERG0, &TIMERG1};
 const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
   { TIMER_GROUP_0, TIMER_0, STEPPER_TIMER_PRESCALE, stepTC_Handler }, // 0 - Stepper
   { TIMER_GROUP_0, TIMER_1,    TEMP_TIMER_PRESCALE, tempTC_Handler }, // 1 - Temperature
-  { TIMER_GROUP_1, TIMER_0,                      1, nullptr }, // 2
+  { TIMER_GROUP_1, TIMER_0,     PWM_TIMER_PRESCALE, pwmTC_Handler  }, // 2 - PWM
   { TIMER_GROUP_1, TIMER_1,                      1, nullptr }, // 3
 };
 
@@ -55,28 +55,28 @@ const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
 // Public functions
 // ------------------------
 
-void IRAM_ATTR timer_group0_isr(void *para) {
-  const int timer_idx = (int)para;
+void IRAM_ATTR timer_isr(void *para) {
+  const tTimerConfig& timer = TimerConfig[(int)para];
 
   // Retrieve the interrupt status and the counter value
   // from the timer that reported the interrupt
-  uint32_t intr_status = TIMERG0.int_st_timers.val;
-  TIMERG0.hw_timer[timer_idx].update = 1;
+  uint32_t intr_status = TG[timer.group]->int_st_timers.val;
+  TG[timer.group]->hw_timer[timer.idx].update = 1;
 
   // Clear the interrupt
-  if (intr_status & BIT(timer_idx)) {
-    switch (timer_idx) {
-      case TIMER_0: TIMERG0.int_clr_timers.t0 = 1; break;
-      case TIMER_1: TIMERG0.int_clr_timers.t1 = 1; break;
+  if (intr_status & BIT(timer.idx)) {
+    switch (timer.idx) {
+      case TIMER_0: TG[timer.group]->int_clr_timers.t0 = 1; break;
+      case TIMER_1: TG[timer.group]->int_clr_timers.t1 = 1; break;
+      case TIMER_MAX: break;
     }
   }
 
-  const tTimerConfig timer = TimerConfig[timer_idx];
   timer.fn();
 
   // After the alarm has been triggered
   // Enable it again so it gets triggered the next time
-  TIMERG0.hw_timer[timer_idx].config.alarm_en = TIMER_ALARM_EN;
+  TG[timer.group]->hw_timer[timer.idx].config.alarm_en = TIMER_ALARM_EN;
 }
 
 /**
@@ -106,8 +106,7 @@ void HAL_timer_start(const uint8_t timer_num, uint32_t frequency) {
 
   timer_enable_intr(timer.group, timer.idx);
 
-  // TODO need to deal with timer_group1_isr
-  timer_isr_register(timer.group, timer.idx, timer_group0_isr, (void*)timer.idx, 0, nullptr);
+  timer_isr_register(timer.group, timer.idx, timer_isr, (void*)timer_num, 0, nullptr);
 
   timer_start(timer.group, timer.idx);
 }
