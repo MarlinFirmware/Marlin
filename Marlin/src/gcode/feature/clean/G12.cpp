@@ -41,18 +41,15 @@
 void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first
   if (axis_unhomed_error()) return;
-  bool clean_x, clean_y, clean_z = false;
-  if(parser.seen('X')) clean_x = true;
-  if(parser.seen('Y')) clean_y = true;
 
-  #undef XY_PARAM
-  #define XY_PARAM "XY"
+  const bool seenxyz = parser.seen("XYZ"),
+             clean_x = !seenxyz || parser.boolval('X'),
+             clean_y = !seenxyz || parser.boolval('Y');
 
-  #if DISABLED(NOZZLE_CLEAN_NO_Z)
-    if(parser.seen('Z')) clean_z = true;
-    if (!parser.seen(XY_PARAM "Z")) clean_x = clean_y = clean_z = true;
+  #if ENABLED(NOZZLE_CLEAN_NO_Z)
+    static constexpr bool clean_z = false;
   #else
-    if (!parser.seen(XY_PARAM "Z")) clean_x = clean_y = true;
+    const bool clean_z = !seenxyz || parser.boolval('Z');
   #endif
 
   const uint8_t pattern = parser.ushortval('P', 0),
@@ -60,18 +57,16 @@ void GcodeSuite::G12() {
                 objects = parser.ushortval('T', NOZZLE_CLEAN_TRIANGLES);
   const float radius = parser.floatval('R', NOZZLE_CLEAN_CIRCLE_RADIUS);
 
-  #if HAS_LEVELING && DISABLED(NOZZLE_CLEAN_NO_Z)
+  #if HAS_LEVELING
     const bool was_enabled = planner.leveling_active;
-    if(clean_z)
-      set_bed_leveling_enabled(false);
+    if (clean_z) set_bed_leveling_enabled(false);
   #endif
 
   Nozzle::clean(pattern, strokes, radius, objects, clean_x, clean_y, clean_z);
 
   // Re-enable bed level correction if it had been on
-  #if HAS_LEVELING && DISABLED(NOZZLE_CLEAN_NO_Z)
-    if(clean_z)
-      set_bed_leveling_enabled(was_enabled);
+  #if HAS_LEVELING
+    if (clean_z) set_bed_leveling_enabled(was_enabled);
   #endif
 }
 
