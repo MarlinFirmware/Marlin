@@ -2252,7 +2252,7 @@ void MarlinSettings::reset() {
     planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
     planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
     planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
-    #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+    #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
       planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
     #endif
   #endif
@@ -2768,7 +2768,7 @@ void MarlinSettings::reset() {
       #endif
       #if HAS_CLASSIC_JERK
         SERIAL_ECHOPGM(" X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>");
-        #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+        #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
           SERIAL_ECHOPGM(" E<max_e_jerk>");
         #endif
       #endif
@@ -2786,7 +2786,7 @@ void MarlinSettings::reset() {
         , " X", LINEAR_UNIT(planner.max_jerk[X_AXIS])
         , " Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS])
         , " Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS])
-        #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+        #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
           , " E", LINEAR_UNIT(planner.max_jerk[E_AXIS])
         #endif
       #endif
