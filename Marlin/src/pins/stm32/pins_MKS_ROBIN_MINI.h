@@ -101,8 +101,9 @@
 //#define LED_PIN            PB2
 
 /**
- * Note: MKS Robin TFT screens may have different TFT controllers
- * If the screen stays white, disable 'LCD_RESET_PIN' to rely on the bootloader to do screen initialization.
+ * Note: MKS Robin TFT screens use various TFT controllers.
+ * If the screen stays white, disable 'LCD_RESET_PIN'
+ * to let the bootloader init the screen.
  */
 #define LCD_RESET_PIN      PF6
 #define NO_LCD_REINIT             // Suppress LCD re-initialization

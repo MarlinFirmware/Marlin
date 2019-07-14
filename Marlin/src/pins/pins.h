@@ -450,6 +450,8 @@
   #include "stm32/pins_CHITU3D.h"               // STM32F1                                env:STM32F1
 #elif MB(GTM32_PRO_VB)
   #include "stm32/pins_GTM32_PRO_VB.h"          // STM32F1                                env:STM32F1
+#elif MB(LONGER3D_LK)
+  #include "stm32/pins_LONGER3D_LK.h"           // STM32F1                                env:alfawise_U20
 #elif MB(MORPHEUS)
   #include "stm32/pins_MORPHEUS.h"              // STM32F1                                env:STM32F1
 #elif MB(MKS_ROBIN)
