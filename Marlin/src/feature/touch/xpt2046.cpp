@@ -113,9 +113,9 @@ uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {
 
   WRITE(TOUCH_CS_PIN, HIGH);
 
-  uint16_t delta01 = _MAX(data[0], data[1]) - _MIN(data[0], data[1]),
-           delta02 = _MAX(data[0], data[2]) - _MIN(data[0], data[2]);
-           delta12 = _MAX(data[1], data[2]) - _MIN(data[1], data[2]);
+  uint16_t delta01 = _MAX(data[0], data[1]) - _MIN(data[0], data[1]);
+  uint16_t delta02 = _MAX(data[0], data[2]) - _MIN(data[0], data[2]);
+  uint16_t delta12 = _MAX(data[1], data[2]) - _MIN(data[1], data[2]);
 
   if (delta01 <= delta02 && delta01 <= delta12)
     return (data[0] + data[1]) >> 1;
