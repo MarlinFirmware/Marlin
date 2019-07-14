@@ -59,6 +59,8 @@
   #include "../../sd/cardreader.h"
 #endif
 
+#define TEXT_MODE_LCD_WIDTH 16
+
 #define BUFFER_WIDTH   256
 #define BUFFER_HEIGHT  32
 
@@ -619,13 +621,12 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
   set_ddram_address(DDRAM_LINE_4);
   begin_data();
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
-
     uint8_t slen = utf8_strlen(str);
 
-    if (slen <= LCD_WIDTH) {
+    if (slen <= TEXT_MODE_LCD_WIDTH) {
       // String fits the LCD, so just print it
       write_str(str);
-      while (slen < LCD_WIDTH) { write_byte(' '); ++slen; }
+      while (slen < TEXT_MODE_LCD_WIDTH) { write_byte(' '); ++slen; }
     }
     else {
       // String is larger than the available space in screen.
@@ -634,12 +635,12 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
       // and the string remaining length
       uint8_t rlen;
       const char *stat = ui.status_and_len(rlen);
-      write_str(stat, LCD_WIDTH);
+      write_str(stat, TEXT_MODE_LCD_WIDTH);
 
       // If the remaining string doesn't completely fill the screen
-      if (rlen < LCD_WIDTH) {
+      if (rlen < TEXT_MODE_LCD_WIDTH) {
         write_byte('.');                        // Always at 1+ spaces left, draw a dot
-        uint8_t chars = LCD_WIDTH - rlen;       // Amount of space left in characters
+        uint8_t chars = TEXT_MODE_LCD_WIDTH - rlen;       // Amount of space left in characters
         if (--chars) {                          // Draw a second dot if there's space
           write_byte('.');
           if (--chars) write_str(str, chars);   // Print a second copy of the message
@@ -651,8 +652,8 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
   #else
 
     uint8_t slen = utf8_strlen(str);
-    write_str(str, LCD_WIDTH);
-    for (; slen < LCD_WIDTH; ++slen) write_byte(' ');
+    write_str(str, TEXT_MODE_LCD_WIDTH);
+    for (; slen < TEXT_MODE_LCD_WIDTH; ++slen) write_byte(' ');
 
   #endif
 }
@@ -760,7 +761,8 @@ bool ST7920_Lite_Status_Screen::position_changed() {
 bool ST7920_Lite_Status_Screen::status_changed() {
   uint8_t checksum = 0;
   for (const char *p = ui.status_message; *p; p++) checksum ^= *p;
-  static uint8_t last_checksum = 0, changed = last_checksum != checksum;
+  static uint8_t last_checksum = 0;
+  bool changed = last_checksum != checksum;
   if (changed) last_checksum = checksum;
   return changed;
 }
@@ -805,7 +807,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
   }
   #if !STATUS_EXPIRE_SECONDS
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      else
+      else if (blink_changed())
         draw_status_message();
     #endif
   #else
