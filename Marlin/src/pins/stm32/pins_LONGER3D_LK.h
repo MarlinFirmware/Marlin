@@ -40,11 +40,11 @@
 // Limit Switches
 //
 #define X_STOP_PIN         PC1  // pin 16
-#define X_MAX_PIN          PC0  // pin 15 Used as filament sensor on Alfawise setup
+//#define X_MAX_PIN        PC0  // pin 15 Used as filament sensor on Alfawise setup
 #define Y_MIN_PIN          PC15 // pin 9
-#define Y_MAX_PIN          PC14 // pin 8 Unused in stock Alfawise setup
+//#define Y_MAX_PIN        PC14 // pin 8 Unused in stock Alfawise setup
 #define Z_MIN_PIN          PE6  // pin 5 Standard Endstop or Z_Probe endstop function
-#define Z_MAX_PIN          PE5  // pin 4 Unused in stock Alfawise setup
+//#define Z_MAX_PIN        PE5  // pin 4 Unused in stock Alfawise setup
                                 // May be used for BLTouch Servo function on older variants (<= V08)
 //
 // Steppers
