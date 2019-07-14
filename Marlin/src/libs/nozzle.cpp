@@ -155,23 +155,13 @@
    * @param pattern one of the available patterns
    * @param argument depends on the cleaning pattern
    */
-  void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects/*=0*/, const bool clean_x, const bool clean_y, const bool clean_z) {
-
+  void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const bool clean_x, const bool clean_y, const bool clean_z) {
     point_t start = NOZZLE_CLEAN_START_POINT;
     point_t end = NOZZLE_CLEAN_END_POINT;
+    if (!clean_x) start.x = end.x = current_position[X_AXIS];
+    if (!clean_y) start.y = end.y = current_position[Y_AXIS];
+    if (!clean_z) start.z = end.z = current_position[Z_AXIS];
 
-    if(!clean_x) {
-      start.x = current_position[X_AXIS];
-      end.x = current_position[X_AXIS];
-    }
-    if(!clean_y) {
-      start.y = current_position[Y_AXIS];
-      end.y = current_position[Y_AXIS];
-    }
-    if(!clean_z) {
-      start.z = current_position[Z_AXIS];
-      end.z = current_position[Z_AXIS];
-    }
     switch (pattern) {
       case 1:
         zigzag(NOZZLE_CLEAN_START_POINT, NOZZLE_CLEAN_END_POINT, strokes, objects);
@@ -190,9 +180,9 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
-  void Nozzle::park(const uint8_t z_action, const point_t &park /*= NOZZLE_PARK_POINT*/) {
-    const float fr_xy = NOZZLE_PARK_XY_FEEDRATE;
-    const float fr_z = NOZZLE_PARK_Z_FEEDRATE;
+  void Nozzle::park(const uint8_t z_action, const point_t &park/*=NOZZLE_PARK_POINT*/) {
+    const float fr_xy = NOZZLE_PARK_XY_FEEDRATE,
+                fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
     switch (z_action) {
       case 1: // Go to Z-park height
