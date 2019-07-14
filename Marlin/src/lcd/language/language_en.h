@@ -868,10 +868,10 @@
   #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #endif
 #ifndef MSG_FILAMENT_SWAP_LENGTH
-  #define MSG_FILAMENT_SWAP_LENGTH            _UxGT("Swap Distance")
+  #define MSG_FILAMENT_SWAP_LENGTH            _UxGT("Swap Length")
 #endif
 #ifndef MSG_FILAMENT_PURGE_LENGTH
-  #define MSG_FILAMENT_PURGE_LENGTH           _UxGT("Purge Distance")
+  #define MSG_FILAMENT_PURGE_LENGTH           _UxGT("Purge Length")
 #endif
 #ifndef MSG_TOOL_CHANGE
   #define MSG_TOOL_CHANGE                     _UxGT("Tool Change")
