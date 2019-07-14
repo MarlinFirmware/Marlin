@@ -109,12 +109,12 @@ static void lcd_factory_settings() {
     START_MENU();
     MENU_BACK(MSG_CONFIGURATION);
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      int max_extrude =
-      #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        EXTRUDE_MAXLENGTH
-      #else
-        500
-      #endif
+      constexpr float max_extrude =
+        #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
+          EXTRUDE_MAXLENGTH
+        #else
+          500
+        #endif
       ;
       MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, max_extrude);
       MENU_ITEM_EDIT(float3, MSG_FILAMENT_PURGE_LENGTH, &toolchange_settings.extra_prime, 0, max_extrude);
