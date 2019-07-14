@@ -543,8 +543,8 @@
 #ifndef MSG_HOTEND_TOO_COLD
   #define MSG_HOTEND_TOO_COLD                 _UxGT("Hotend too cold")
 #endif
-#ifndef MSG_MOVE_001MM
-  #define MSG_MOVE_001MM                       _UxGT("Move 0.01mm")
+#ifndef MSG_MOVE_Z_DIST
+  #define MSG_MOVE_Z_DIST                     _UxGT("Move %smm")
 #endif
 #ifndef MSG_MOVE_01MM
   #define MSG_MOVE_01MM                       _UxGT("Move 0.1mm")
