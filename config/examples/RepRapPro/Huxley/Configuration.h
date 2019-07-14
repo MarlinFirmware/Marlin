@@ -1573,6 +1573,9 @@ Black rubber belt(MXL), 18 - tooth aluminium pulley : 87.489 step per mm (Huxley
 
   // Moves the nozzle to the initial position
   #define NOZZLE_CLEAN_GOBACK
+
+  // Safety feature for side mounted purge buckets and such expected to be used on tool change
+  //#define NOZZLE_CLEAN_NO_Z
 #endif
 
 /**
