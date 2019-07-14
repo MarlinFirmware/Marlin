@@ -23,9 +23,7 @@
 
 #ifndef TARGET_STM32F4
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#endif
-
-#if HOTENDS > 3 || E_STEPPERS > 3
+#elif HOTENDS > 3 || E_STEPPERS > 3
   #error "BIGTREE SKR Pro V1.1 supports up to 3 hotends / E-steppers."
 #endif
 

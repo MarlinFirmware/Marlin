@@ -176,6 +176,8 @@
   #include "ramps/pins_TRONXY_V3_1_0.h"         // ATmega2560                             env:megaatmega2560
 #elif MB(Z_BOLT_X_SERIES)
   #include "ramps/pins_Z_BOLT_X_SERIES.h"       // ATmega2560                             env:megaatmega2560
+#elif MB(TT_OSCAR)
+  #include "ramps/pins_TT_OSCAR.h"              // ATmega2560                             env:megaatmega2560
 
 //
 // RAMBo and derivatives
@@ -448,6 +450,8 @@
   #include "stm32/pins_CHITU3D.h"               // STM32F1                                env:STM32F1
 #elif MB(GTM32_PRO_VB)
   #include "stm32/pins_GTM32_PRO_VB.h"          // STM32F1                                env:STM32F1
+#elif MB(LONGER3D_LK)
+  #include "stm32/pins_LONGER3D_LK.h"           // STM32F1                                env:alfawise_U20
 #elif MB(MORPHEUS)
   #include "stm32/pins_MORPHEUS.h"              // STM32F1                                env:STM32F1
 #elif MB(MKS_ROBIN)

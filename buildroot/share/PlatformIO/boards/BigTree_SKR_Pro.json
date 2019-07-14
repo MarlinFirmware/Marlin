@@ -54,8 +54,7 @@
     "protocols": [
       "stlink",
       "dfu",
-      "jlink",
-	  "cmsis-dap"
+      "jlink"
     ],
     "require_upload_port": true,
     "use_1200bps_touch": false,

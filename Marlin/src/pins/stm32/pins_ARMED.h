@@ -23,6 +23,8 @@
 
 #ifndef STM32F4
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
+#elif HOTENDS > 2 || E_STEPPERS > 2
+  #error "Arm'ed supports up to 2 hotends / E-steppers."
 #endif
 
 #ifndef ARMED_V1_0
@@ -37,10 +39,6 @@
 
 #undef E2END // Defined in Arduino Core STM32 to be used with EEPROM emulation. This board uses a real EEPROM.
 #define E2END 0xFFF // 4KB
-
-#if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Arm'ed supports up to 2 hotends / E-steppers."
-#endif
 
 //
 // Limit Switches

@@ -27,9 +27,7 @@
 
 #ifndef __STM32F1__
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
-
-#if HOTENDS > 2 || E_STEPPERS > 2
+#elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
@@ -117,8 +115,9 @@
 #define SD_DETECT_PIN      PD12
 
 /**
- * Note: MKS Robin TFT screens may have different TFT controllers
- * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader init the screen.
+ * Note: MKS Robin TFT screens use various TFT controllers.
+ * If the screen stays white, disable 'LCD_RESET_PIN'
+ * to let the bootloader init the screen.
  */
 #if ENABLED(MKS_ROBIN_TFT)
   #define LCD_RESET_PIN      PF6
