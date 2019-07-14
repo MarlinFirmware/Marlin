@@ -176,6 +176,8 @@
   #include "ramps/pins_TRONXY_V3_1_0.h"         // ATmega2560                             env:megaatmega2560
 #elif MB(Z_BOLT_X_SERIES)
   #include "ramps/pins_Z_BOLT_X_SERIES.h"       // ATmega2560                             env:megaatmega2560
+#elif MB(TT_OSCAR)
+  #include "ramps/pins_TT_OSCAR.h"              // ATmega2560                             env:megaatmega2560
 
 //
 // RAMBo and derivatives
