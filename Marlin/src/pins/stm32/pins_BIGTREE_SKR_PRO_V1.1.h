@@ -232,6 +232,7 @@
   #if HAS_GRAPHICAL_LCD
     #ifndef ST7920_DELAY_1
       #define ST7920_DELAY_1 DELAY_NS(96)
+    #endif
     #ifndef ST7920_DELAY_2
       #define ST7920_DELAY_2 DELAY_NS(48)
     #endif
