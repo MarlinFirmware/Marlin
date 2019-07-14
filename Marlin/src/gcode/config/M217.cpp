@@ -72,12 +72,12 @@ void GcodeSuite::M217() {
     #undef SPR_PARAM
     #define SPR_PARAM "SPRE"
 
-    int max_extrude =
-    #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-      EXTRUDE_MAXLENGTH
-    #else
-      500
-    #endif
+    static constexpr float max_extrude =
+      #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
+        EXTRUDE_MAXLENGTH
+      #else
+        500
+      #endif
     ;
 
     if (parser.seenval('S')) { const float v = parser.value_linear_units(); toolchange_settings.swap_length = constrain(v, 0, max_extrude); }
@@ -85,12 +85,14 @@ void GcodeSuite::M217() {
     if (parser.seenval('P')) { const int16_t v = parser.value_linear_units(); toolchange_settings.prime_speed = constrain(v, 10, 5400); }
     if (parser.seenval('R')) { const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
   #endif
+
   #if ENABLED(TOOLCHANGE_PARK)
     #undef XY_PARAM
     #define XY_PARAM "XY"
     if (parser.seenval('X')) { toolchange_settings.change_point.x = parser.value_linear_units(); }
     if (parser.seenval('Y')) { toolchange_settings.change_point.y = parser.value_linear_units(); }
   #endif
+
   if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
 
   if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
