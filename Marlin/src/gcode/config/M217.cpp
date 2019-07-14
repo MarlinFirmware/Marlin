@@ -72,8 +72,16 @@ void GcodeSuite::M217() {
     #undef SPR_PARAM
     #define SPR_PARAM "SPRE"
 
-    if (parser.seenval('S')) { const float v = parser.value_linear_units(); toolchange_settings.swap_length = constrain(v, 0, 500); }
-    if (parser.seenval('E')) { const float v = parser.value_linear_units(); toolchange_settings.extra_prime = constrain(v, 0, 500); }
+    int max_extrude =
+    #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
+      EXTRUDE_MAXLENGTH
+    #else
+      500
+    #endif
+    ;
+
+    if (parser.seenval('S')) { const float v = parser.value_linear_units(); toolchange_settings.swap_length = constrain(v, 0, max_extrude); }
+    if (parser.seenval('E')) { const float v = parser.value_linear_units(); toolchange_settings.extra_prime = constrain(v, 0, max_extrude); }
     if (parser.seenval('P')) { const int16_t v = parser.value_linear_units(); toolchange_settings.prime_speed = constrain(v, 10, 5400); }
     if (parser.seenval('R')) { const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
   #endif
