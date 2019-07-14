@@ -46,10 +46,10 @@
     #endif
 
     // Move to the starting point
-    #if DISABLED(NOZZLE_CLEAN_NO_Z)
-      do_blocking_move_to(start.x, start.y, start.z);
-    #else
+    #if ENABLED(NOZZLE_CLEAN_NO_Z)
       do_blocking_move_to_xy(start.x, start.y);
+    #else
+      do_blocking_move_to(start.x, start.y, start.z);
     #endif
 
     // Start the stroke pattern
@@ -80,10 +80,10 @@
       const float ix = current_position[X_AXIS], iy = current_position[Y_AXIS], iz = current_position[Z_AXIS];
     #endif
 
-    #if DISABLED(NOZZLE_CLEAN_NO_Z)
-      do_blocking_move_to(start.x, start.y, start.z);
-    #else
+    #if ENABLED(NOZZLE_CLEAN_NO_Z)
       do_blocking_move_to_xy(start.x, start.y);
+    #else
+      do_blocking_move_to(start.x, start.y, start.z);
     #endif
 
     const uint8_t zigs = objects << 1;
@@ -127,10 +127,10 @@
       const float ix = current_position[X_AXIS], iy = current_position[Y_AXIS], iz = current_position[Z_AXIS];
     #endif
 
-    #if DISABLED(NOZZLE_CLEAN_NO_Z)
-      do_blocking_move_to(start.x, start.y, start.z);
-    #else
+    #if ENABLED(NOZZLE_CLEAN_NO_Z)
       do_blocking_move_to_xy(start.x, start.y);
+    #else
+      do_blocking_move_to(start.x, start.y, start.z);
     #endif
 
     for (uint8_t s = 0; s < strokes; s++)
