@@ -554,7 +554,7 @@ void menu_backlash();
       #else
         MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1f, 990);
       #endif
-      #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+      #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
         EDIT_JERK(E);
       #endif
     #endif
