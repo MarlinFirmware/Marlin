@@ -75,8 +75,8 @@
 // build by the user have been successfully uploaded into firmware.
 #define STRING_CONFIG_H_AUTHOR "(G3m1n1S3rv3r, Anycubic 4MAX)" // Who made the changes.
 #define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 "Marlin 2.0.x"                    // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 "http://github.com/geminiserver"  // will be shown during bootup in line 2
+#define STRING_SPLASH_LINE1 "4MAX Marlin 2.0.x"                // will be shown during bootup in line 1
+#define STRING_SPLASH_LINE2 "https://git.io/fjXzr"             // will be shown during bootup in line 2
 
 /**
  * *** VENDORS PLEASE READ ***
