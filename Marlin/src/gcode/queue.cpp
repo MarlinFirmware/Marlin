@@ -173,7 +173,7 @@ bool GCodeQueue::process_injected_command() {
 
   // Extract current command and move pointer to next command
   char cmd[i + 1];
-  if (i) memcpy_P(cmd, injected_commands_P, i);
+  memcpy_P(cmd, injected_commands_P, i);
   cmd[i] = '\0';
   injected_commands_P = c ? injected_commands_P + i + 1 : nullptr;
 
