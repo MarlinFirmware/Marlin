@@ -20,10 +20,8 @@
  *
  */
 
-//#include "pincode.h"
-
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
 #if HOTENDS > 5 || E_STEPPERS > 5
@@ -38,14 +36,14 @@
 //
 #define SERVO0_PIN         11
 #define SERVO1_PIN         12
-#define SERVO2_PIN         5
-#define SERVO3_PIN         4
+#define SERVO2_PIN          5
+#define SERVO3_PIN          4
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN          3
-#define X_MAX_PIN          2
+#define X_MIN_PIN           3
+#define X_MAX_PIN           2
 #define Y_MIN_PIN          14
 #define Y_MAX_PIN          15
 #define Z_MIN_PIN          18
@@ -217,7 +215,7 @@
 #define LED_PIN            13
 
 //#ifndef FILWIDTH_PIN
-//  #define FILWIDTH_PIN    5   // Analog Input
+//  #define FILWIDTH_PIN      5   // Analog Input
 //#endif
 
 // DIO 4 (Servos plug) for the runout sensor.
@@ -314,7 +312,7 @@
 
     #else
 
-      #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
+      #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
         #define LCD_PINS_DC 25   // Set as output on init
         #define LCD_PINS_RS 27   // Pull low for 1s to init
         // DOGM SPI LCD Support
@@ -387,7 +385,7 @@
       #define BTN_EN2      43
       #define BTN_ENC      32
       #define LCD_SDSS     53
-      //#define KILL_PIN   41
+      //#define KILL_PIN     41
 
     #elif ENABLED(LCD_I2C_VIKI)
 
@@ -398,7 +396,7 @@
       #define LCD_SDSS     53
       #define SD_DETECT_PIN 49
 
-    #elif ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #elif EITHER(VIKI2, miniVIKI)
 
       #define DOGLCD_CS    45
       #define DOGLCD_A0    44
@@ -430,7 +428,7 @@
 
       #define LCD_SDSS     53
       #define SD_DETECT_PIN 49
-      // #define KILL_PIN    41
+      //#define KILL_PIN     41
 
     #elif ENABLED(MKS_MINI_12864)
 
@@ -502,10 +500,10 @@
         #define BTN_ENC    31
       #endif
 
-    #if ENABLED(G3D_PANEL)
-      #define SD_DETECT_PIN 49
-      //#define KILL_PIN   41
-    #endif
+      #if ENABLED(G3D_PANEL)
+        #define SD_DETECT_PIN 49
+        //#define KILL_PIN     41
+      #endif
 
     #endif
 
