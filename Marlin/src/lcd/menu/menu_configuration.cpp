@@ -109,7 +109,7 @@ static void lcd_factory_settings() {
     START_MENU();
     MENU_BACK(MSG_CONFIGURATION);
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      constexpr float max_extrude =
+      static constexpr float max_extrude =
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           EXTRUDE_MAXLENGTH
         #else
