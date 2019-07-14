@@ -158,7 +158,7 @@
   void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects/*=0*/, const bool clean_x, const bool clean_y, const bool clean_z) {
 
     point_t start = NOZZLE_CLEAN_START_POINT;
-    pont_t end = NOZZLE_CLEAN_END_POINT;
+    point_t end = NOZZLE_CLEAN_END_POINT;
 
     if(!clean_x) {
       start.x = current_position[X_AXIS];
