@@ -30,7 +30,7 @@
 #endif
 
 #if HOTENDS > 3 || E_STEPPERS > 3
-  #error "Formbot supports up to 3 hotends / E-steppers. Comment this line to keep going."
+  #error "Formbot supports up to 3 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_NAME           "Formbot Raptor"
