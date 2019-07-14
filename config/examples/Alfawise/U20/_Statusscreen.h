@@ -33,10 +33,9 @@
 // Status Screen Logo bitmap
 //
 #define STATUS_LOGO_Y            0
-#define STATUS_LOGO_WIDTH       36
+#define STATUS_LOGO_WIDTH       38
 
 static unsigned char status_logo_bmp[] PROGMEM = {
-
   B11111111,B11111111,B11111111,B11111111,B11111100,
   B10000000,B00000000,B00010000,B00000111,B11111100,
   B10000000,B00000000,B00010000,B00000000,B11111100,
@@ -67,9 +66,6 @@ static unsigned char status_logo_bmp[] PROGMEM = {
   B11100000,B00000000,B11110000,B00000000,B11111100,
   B11111000,B00000011,B11110000,B00000111,B11111100
 };
-
-#define LOGO_CHARS sizeof(status_logo_bmp)
-
 
 //
 // Use default bitmaps
