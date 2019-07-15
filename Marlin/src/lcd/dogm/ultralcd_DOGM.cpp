@@ -219,32 +219,33 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
 
-  #if PIN_EXISTS(LCD_BACKLIGHT) // Enable LCD backlight
-    #if ENABLED(MKS_ROBIN_TFT)
-      // Stay black to avoid white color on (re)init
-      OUT_WRITE(LCD_BACKLIGHT_PIN, LOW);
-    #else
-      OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
-    #endif
+  #if PIN_EXISTS(LCD_BACKLIGHT)
+    OUT_WRITE(LCD_BACKLIGHT_PIN, (
+      #if ENABLED(DELAYED_BACKLIGHT_INIT)
+        LOW  // Illuminate after reset
+      #else
+        HIGH // Illuminate right away
+      #endif
+    ));
   #endif
 
   #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
     SET_OUTPUT(LCD_PINS_DC);
-    #if !defined(LCD_RESET_PIN)
+    #ifndef LCD_RESET_PIN
       #define LCD_RESET_PIN LCD_PINS_RS
     #endif
   #endif
 
   #if PIN_EXISTS(LCD_RESET)
-    OUT_WRITE(LCD_RESET_PIN, LOW); // perform a clean hardware reset
+    // Perform a clean hardware reset with needed delays
+    OUT_WRITE(LCD_RESET_PIN, LOW);
     _delay_ms(5);
     WRITE(LCD_RESET_PIN, HIGH);
-    _delay_ms(5); // delay to allow the display to initialize
+    _delay_ms(5);
     u8g.begin();
   #endif
 
-  #if ENABLED(MKS_ROBIN_TFT) && PIN_EXISTS(LCD_BACKLIGHT)
-    // Enable LCD backlight, late for TFT
+  #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
     WRITE(LCD_BACKLIGHT_PIN, HIGH);
   #endif
 
@@ -253,11 +254,11 @@ void MarlinUI::init_lcd() {
   #endif
 
   #if ENABLED(LCD_SCREEN_ROT_90)
-    u8g.setRot90();   // Rotate screen by 90°
+    u8g.setRot90();
   #elif ENABLED(LCD_SCREEN_ROT_180)
-    u8g.setRot180();  // Rotate screen by 180°
+    u8g.setRot180();
   #elif ENABLED(LCD_SCREEN_ROT_270)
-    u8g.setRot270();  // Rotate screen by 270°
+    u8g.setRot270();
   #endif
 
   uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));
