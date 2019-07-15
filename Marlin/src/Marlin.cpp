@@ -739,6 +739,10 @@ void idle(
   #if ENABLED(PRUSA_MMU2)
     mmu2.mmu_loop();
   #endif
+
+  #if ENABLED(JOY_XY)
+    Temperature::inject_joy_action();
+  #endif
 }
 
 /**

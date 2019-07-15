@@ -114,6 +114,18 @@ hotend_info_t Temperature::temp_hotend[HOTENDS
   #endif
 ]; // = { 0 }
 
+#if HAS_JOY_ADC_X
+  temp_info_t Temperature::joy_x; // = { 0 }
+#endif
+
+#if HAS_JOY_ADC_Y
+  temp_info_t Temperature::joy_y; // = { 0 }
+#endif
+
+#if HAS_JOY_ADC_Z
+  temp_info_t Temperature::joy_z; // = { 0 }
+#endif
+
 #if ENABLED(AUTO_POWER_E_FANS)
   uint8_t Temperature::autofan_speed[HOTENDS]; // = { 0 }
 #endif
@@ -1685,6 +1697,18 @@ void Temperature::init() {
   #if HAS_TEMP_ADC_5
     HAL_ANALOG_SELECT(TEMP_5_PIN);
   #endif
+  #if HAS_JOY_ADC_X
+    HAL_ANALOG_SELECT(JOY_X_PIN);
+  #endif
+  #if HAS_JOY_ADC_Y
+    HAL_ANALOG_SELECT(JOY_Y_PIN);
+  #endif
+  #if HAS_JOY_ADC_Z
+    HAL_ANALOG_SELECT(JOY_Z_PIN);
+  #endif
+  #if HAS_JOY_ADC_EN
+    SET_INPUT_PULLUP(JOY_EN_PIN);
+  #endif
   #if HAS_HEATED_BED
     HAL_ANALOG_SELECT(TEMP_BED_PIN);
   #endif
@@ -2195,6 +2219,18 @@ void Temperature::set_current_temp_raw() {
     temp_chamber.update();
   #endif
 
+  #if HAS_JOY_ADC_X
+    joy_x.raw = joy_x.acc;
+  #endif
+
+  #if HAS_JOY_ADC_Y
+    joy_y.raw = joy_y.acc;
+  #endif
+
+  #if HAS_JOY_ADC_Z
+    joy_z.raw = joy_z.acc;
+  #endif
+
   temp_meas_ready = true;
 }
 
@@ -2223,6 +2259,18 @@ void Temperature::readings_ready() {
 
   #if HAS_TEMP_CHAMBER
     temp_chamber.reset();
+  #endif
+
+  #if HAS_JOY_ADC_X
+    joy_x.acc = 0;
+  #endif
+
+  #if HAS_JOY_ADC_Y
+    joy_y.acc = 0;
+  #endif
+
+  #if HAS_JOY_ADC_Z
+    joy_z.acc = 0;
   #endif
 
   static constexpr int8_t temp_dir[] = {
@@ -2707,6 +2755,33 @@ void Temperature::isr() {
     #if HAS_TEMP_ADC_5
       case PrepareTemp_5: HAL_START_ADC(TEMP_5_PIN); break;
       case MeasureTemp_5: ACCUMULATE_ADC(temp_hotend[5]); break;
+    #endif
+
+    #if HAS_JOY_ADC_X
+      case PrepareJoy_X:
+        HAL_START_ADC(JOY_X_PIN);
+        break;
+      case MeasureJoy_X:
+        ACCUMULATE_ADC(joy_x);
+        break;
+    #endif
+
+    #if HAS_JOY_ADC_Y
+      case PrepareJoy_Y:
+        HAL_START_ADC(JOY_Y_PIN);
+        break;
+      case MeasureJoy_Y:
+        ACCUMULATE_ADC(joy_y);
+        break;
+    #endif
+
+    #if HAS_JOY_ADC_Z
+      case PrepareJoy_Z:
+        HAL_START_ADC(JOY_Z_PIN);
+        break;
+      case MeasureJoy_Z:
+        ACCUMULATE_ADC(joy_z);
+        break;
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -3241,3 +3316,127 @@ void Temperature::isr() {
   #endif // HAS_HEATED_CHAMBER
 
 #endif // HAS_TEMP_SENSOR
+
+
+#if ENABLED(JOY_XY)
+  void Temperature::inject_joy_action() {
+    static const int QUEUE_DEPTH = 5;  // insert up to this many movements
+    const float target_lag = 0.25f;  // aim for 1/4th second of lag
+    const float seg_time = target_lag / QUEUE_DEPTH;  // 0.05 seconds, short segments inserted every 1/20th of a second
+    const unsigned long timer_limit_ms = (unsigned long)(seg_time * 500);  // 25 ms minimum delay between insertions
+    static unsigned long last_run = 0;
+    
+    // Only inject a command if the planner has less than five movements and there are no unparsed commands
+    if (planner.movesplanned() >= QUEUE_DEPTH || GCodeQueue::has_commands_queued()) {
+      return;
+    }
+    
+    // Since small moves can get merged/collapsed by the planner, the movement queue is not reliable for controlling the lag
+    if (millis() - last_run < timer_limit_ms) {
+      return;
+    }
+    last_run = millis();
+    
+    #if HAS_JOY_ADC_EN
+      // Do nothing if enable pin is not low (signal is active-low)
+      if (READ(JOY_EN_PIN)) {
+        return;
+      }
+    #endif
+    
+    // Normalized ADC values are 0 at end of dead zone and scale linearly to -1 or +1 at outer limits
+    float norm_adc[3] = { 0, 0, 0 };
+    
+    #if HAS_JOY_ADC_X
+      static const int16_t joy_x_limits[4] = JOY_X_LIMITS;  // minimum allowed, dead zone start, dead zone end, maximum allowed
+      if (joy_x.raw <= joy_x_limits[3] && joy_x.raw >= joy_x_limits[0]) {
+        // within limits, check dead zone
+        if (joy_x.raw > joy_x_limits[2]) {
+          norm_adc[0] = (joy_x.raw - joy_x_limits[2])/(float)(joy_x_limits[3] - joy_x_limits[2]);
+        }
+        else if (joy_x.raw < joy_x_limits[1]) {
+          norm_adc[0] = (joy_x.raw - joy_x_limits[1])/(float)(joy_x_limits[1] - joy_x_limits[0]);  // negative value
+        }
+      }
+    #endif
+    
+    #if HAS_JOY_ADC_X
+      static const int16_t joy_y_limits[4] = JOY_Y_LIMITS;  // minimum allowed, dead zone start, dead zone end, maximum allowed
+      if (joy_y.raw <= joy_y_limits[3] && joy_y.raw >= joy_y_limits[0]) {
+        // within limits, check dead zone
+        if (joy_y.raw > joy_y_limits[2]) {
+          norm_adc[1] = (joy_y.raw - joy_y_limits[2])/(float)(joy_y_limits[3] - joy_y_limits[2]);
+        }
+        else if (joy_y.raw < joy_y_limits[1]) {
+          norm_adc[1] = (joy_y.raw - joy_y_limits[1])/(float)(joy_y_limits[1] - joy_y_limits[0]);  // negative value
+        }
+      }
+    #endif
+    
+    #if HAS_JOY_ADC_X
+      static const int16_t joy_z_limits[4] = JOY_Z_LIMITS;  // minimum allowed, dead zone start, dead zone end, maximum allowed
+      if (joy_z.raw <= joy_z_limits[3] && joy_z.raw >= joy_z_limits[0]) {
+        // within limits, check dead zone
+        if (joy_z.raw > joy_z_limits[2]) {
+          norm_adc[2] = (joy_z.raw - joy_z_limits[2])/(float)(joy_z_limits[3] - joy_z_limits[2]);
+        }
+        else if (joy_z.raw < joy_z_limits[1]) {
+          norm_adc[2] = (joy_z.raw - joy_z_limits[1])/(float)(joy_z_limits[1] - joy_z_limits[0]);  // negative value
+        }
+      }
+    #endif
+    
+    // adc value of zero means no movement in that axis, regardless of reason: outside max limits, inside dead zone, doesn't have pins defined
+    
+    // quadratic scaling of joystick to feedrate
+    float move_dist[3];
+    float diag_dist = 0;
+    for (uint8_t i = 0; i < 3; i++) {
+      move_dist[i] = seg_time * norm_adc[i] * norm_adc[i] * planner.settings.max_feedrate_mm_s[i];
+      if (move_dist[i] == 0) {
+        continue;
+      }
+      
+      // a movement that's too small disappears when printed as decimal with 4 digits of precision
+      if (move_dist[i] < 0.0002) {
+        move_dist[i] = 0.0002;
+      }
+      if (norm_adc[i] < 0) {
+        move_dist[i] = -move_dist[i];  // preserve sign
+      }
+      diag_dist += move_dist[i] * move_dist[i];
+    }
+    diag_dist = sqrt(diag_dist);  // diagonal distance in mm
+    if (diag_dist == 0) {
+      return;  // no movement
+    }
+    
+    float net_feed_mm_s = diag_dist / seg_time;  // distance traveled divided by segment time
+
+    char tmp[36+5];  // should fit (with null terminator) in 36 chars, add a bit of margin for safety
+    char txs[10];
+    char tys[10];
+    char tzs[10];
+    char tfs[10];
+    
+    // G1 X-0.1234 Y-0.1234 Z-0.1234 F1000*
+    
+    dtostrf(move_dist[0] , 0, 4, txs);
+    dtostrf(move_dist[1] , 0, 4, tys);
+    dtostrf(move_dist[2] , 0, 4, tzs);
+    dtostrf(ceil(net_feed_mm_s * 60), 0, 0, tfs);
+    
+    sprintf_P(tmp, PSTR("G1 X%s Y%s Z%s F%s"), txs, tys, tzs, tfs);
+    
+    // 
+    const bool relative_mode_backup = relative_mode;
+    relative_mode = true;
+    if (!GCodeQueue::has_commands_queued()) {
+      // seems dangerous because it will try forever (and call idle which in turn calls this function)
+      // but if the queue is empty and the command is well-formed, it should succeed immediately
+      GCodeQueue::enqueue_one_now(tmp);  
+    }
+    GCodeQueue::advance();
+    relative_mode = relative_mode_backup;
+  }
+#endif // ENABLED(JOY_XY)

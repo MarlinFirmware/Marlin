@@ -123,6 +123,18 @@ enum ADCSensorState : char {
     PrepareTemp_5,
     MeasureTemp_5,
   #endif
+  #if HAS_JOY_ADC_X
+    PrepareJoy_X,
+    MeasureJoy_X,
+  #endif
+  #if HAS_JOY_ADC_Y
+    PrepareJoy_Y,
+    MeasureJoy_Y,
+  #endif
+  #if HAS_JOY_ADC_Z
+    PrepareJoy_Z,
+    MeasureJoy_Z,
+  #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     Prepare_FILWIDTH,
     Measure_FILWIDTH,
@@ -283,6 +295,18 @@ class Temperature {
 
     #if HAS_TEMP_CHAMBER
       static chamber_info_t temp_chamber;
+    #endif
+
+    #if HAS_JOY_ADC_X
+      static temp_info_t joy_x;
+    #endif
+
+    #if HAS_JOY_ADC_Y
+      static temp_info_t joy_y;
+    #endif
+
+    #if HAS_JOY_ADC_Z
+      static temp_info_t joy_z;
     #endif
 
     #if ENABLED(AUTO_POWER_E_FANS)
@@ -794,6 +818,10 @@ class Temperature {
 
     #if HAS_DISPLAY
       static void set_heating_message(const uint8_t e);
+    #endif
+
+    #if ENABLED(JOY_XY)
+      static void inject_joy_action();
     #endif
 
   private:
