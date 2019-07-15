@@ -233,6 +233,7 @@
  #if ENABLED(MKS_ROBIN_TFT)
    #define DOGLCD
    #define IS_ULTIPANEL
+   #define DELAYED_BACKLIGHT_INIT
  #endif
 
 /**
