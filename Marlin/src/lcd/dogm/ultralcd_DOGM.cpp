@@ -220,7 +220,12 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
 void MarlinUI::init_lcd() {
 
   #if PIN_EXISTS(LCD_BACKLIGHT) // Enable LCD backlight
-    OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
+    #if ENABLED(MKS_ROBIN_TFT)
+      // Stay black to avoid white color on (re)init
+      OUT_WRITE(LCD_BACKLIGHT_PIN, LOW);
+    #else
+      OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
+    #endif
   #endif
 
   #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
@@ -233,12 +238,14 @@ void MarlinUI::init_lcd() {
   #if PIN_EXISTS(LCD_RESET)
     OUT_WRITE(LCD_RESET_PIN, LOW); // perform a clean hardware reset
     _delay_ms(5);
-    OUT_WRITE(LCD_RESET_PIN, HIGH);
+    WRITE(LCD_RESET_PIN, HIGH);
     _delay_ms(5); // delay to allow the display to initialize
+    u8g.begin();
   #endif
 
-  #if PIN_EXISTS(LCD_RESET)
-    u8g.begin();
+  #if ENABLED(MKS_ROBIN_TFT) && PIN_EXISTS(LCD_BACKLIGHT)
+    // Enable LCD backlight, late for TFT
+    WRITE(LCD_BACKLIGHT_PIN, HIGH);
   #endif
 
   #if HAS_LCD_CONTRAST
