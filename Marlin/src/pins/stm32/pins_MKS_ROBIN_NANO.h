@@ -50,6 +50,10 @@
 #define Z_MIN_PIN         PA11
 #define Z_MAX_PIN         PC4
 
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   PA4   // MT_DET
+#endif
+
 //
 // Steppers
 //
@@ -89,28 +93,41 @@
 
 #define FAN_PIN            PB1   // FAN
 
-#define BTN_ENC            PC13  // Pin is not connected. Real pin is needed to enable encoder's push button functionality used by touch screen
-
+//
+// Thermocouples
+//
 //#define MAX6675_SS_PIN     PE5  // TC1 - CS1
 //#define MAX6675_SS_PIN     PE6  // TC2 - CS2
 
+//
+// Misc. Functions
+//
 #define POWER_LOSS_PIN     PA2   // PW_DET
 #define PS_ON_PIN          PA3   // PW_OFF
-#define FIL_RUNOUT_PIN     PA4   // MT_DET
 
-#define BEEPER_PIN         PC5
 #define LED_PIN            PB2
 
-/**
- * Note: MKS Robin TFT screens may have different TFT controllers
- * If the screen stays white, disable 'LCD_RESET_PIN' to rely on the bootloader to do screen initialization.
- */
-#define LCD_RESET_PIN      PF6
-#define NO_LCD_REINIT             // Suppress LCD re-initialization
-
-#define LCD_BACKLIGHT_PIN  PD13
-#define FSMC_CS_PIN        PD7   // NE4
-#define FSMC_RS_PIN        PD11  // A0
-#define TOUCH_CS           PA7
-
+//
+// LCD / Controller
+//
+#define BEEPER_PIN         PC5
 #define SD_DETECT_PIN      PD12
+
+/**
+ * Note: MKS Robin TFT screens use various TFT controllers.
+ * If the screen stays white, disable 'LCD_RESET_PIN'
+ * to let the bootloader init the screen.
+ */
+#if ENABLED(MKS_ROBIN_TFT)
+  #define LCD_RESET_PIN      PF6
+  #define NO_LCD_REINIT             // Suppress LCD re-initialization
+
+  #define LCD_BACKLIGHT_PIN  PD13
+
+  #if ENABLED(TOUCH_BUTTONS)
+    #define BTN_ENC          PC13   // Not connected. TODO: Replace this hack to enable button code
+    #define FSMC_CS_PIN      PD7    // NE4
+    #define FSMC_RS_PIN      PD11   // A0
+    #define TOUCH_CS_PIN     PA7
+  #endif
+#endif

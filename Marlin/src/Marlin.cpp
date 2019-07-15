@@ -57,6 +57,10 @@
 #include "gcode/parser.h"
 #include "gcode/queue.h"
 
+#if ENABLED(TOUCH_BUTTONS)
+  #include "feature/touch/xpt2046.h"
+#endif
+
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "feature/host_actions.h"
 #endif
@@ -942,6 +946,10 @@ void setup() {
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
   settings.first_load();
+
+  #if ENABLED(TOUCH_BUTTONS)
+    touch.init();
+  #endif
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
