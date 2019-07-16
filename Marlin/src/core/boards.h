@@ -93,6 +93,7 @@
 #define BOARD_VORON                   1139  // VORON Design
 #define BOARD_TRONXY_V3_1_0           1140  // Tronxy TRONXY-V3-1.0
 #define BOARD_Z_BOLT_X_SERIES         1141  // Z-Bolt X Series
+#define BOARD_TT_OSCAR                1142  // TT OSCAR
 
 //
 // RAMBo and derivatives
@@ -263,6 +264,7 @@
 #define BOARD_JGAURORA_A5S_A1         4010  // JGAurora A5S A1 (STM32F103ZET6)
 #define BOARD_FYSETC_AIO_II           4011  // FYSETC AIO_II
 #define BOARD_FYSETC_CHEETAH          4012  // FYSETC CHEETAH
+#define BOARD_LONGER3D_LK             4013  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
 
 //
 // ARM Cortex-M4F
