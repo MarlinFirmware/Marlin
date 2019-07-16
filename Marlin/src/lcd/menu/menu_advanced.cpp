@@ -507,7 +507,7 @@ void menu_backlash();
     START_MENU();
     MENU_BACK(MSG_ADVANCED_SETTINGS);
 
-    static float max_accel = MAX(planner.settings.max_acceleration_mm_per_s2[_AXIS(A)], planner.settings.max_acceleration_mm_per_s2[_AXIS(B)], planner.settings.max_acceleration_mm_per_s2[_AXIS(C)]);
+    static float max_accel = _MAX(planner.settings.max_acceleration_mm_per_s2[_AXIS(A)], planner.settings.max_acceleration_mm_per_s2[_AXIS(B)], planner.settings.max_acceleration_mm_per_s2[_AXIS(C)]);
     // M204 P Acceleration
     MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_ACC, &planner.settings.acceleration, 25, max_accel);
 
@@ -585,7 +585,7 @@ void menu_backlash();
           { 990, 990, 990, 990 }
         #endif
       ;
-      
+
       #define EDIT_JERK(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_V##N##_JERK, &planner.max_jerk[_AXIS(N)], 1, max_jerk_arr[_AXIS(N)])
       EDIT_JERK(A);
       EDIT_JERK(B);
