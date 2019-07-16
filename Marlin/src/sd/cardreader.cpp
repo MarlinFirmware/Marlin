@@ -1015,7 +1015,7 @@ void CardReader::printingHasFinished() {
     #endif
 
     #if EITHER(ULTRA_LCD, EXTENSIBLE_UI) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
-      ui.progress_bar_percent = 0;
+      ui.progress_bar_percent = 100;
     #endif
 
     ui.reset_status();

@@ -26,6 +26,7 @@
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
+#include "../../lcd/ultralcd.h"
 
 /**
  * M23: Open a file
@@ -36,6 +37,10 @@ void GcodeSuite::M23() {
   // Simplify3D includes the size, so zero out all spaces (#7227)
   for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
   card.openFile(parser.string_arg, true);
+
+  #if EITHER(ULTRA_LCD, EXTENSIBLE_UI) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    ui.progress_bar_percent = 0;
+  #endif
 }
 
 #endif // SDSUPPORT
