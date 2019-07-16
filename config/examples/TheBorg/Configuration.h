@@ -2032,8 +2032,16 @@
 //=============================================================================
 
 //
-// CONTROLLER TYPE: Keypad / Add-on
+// Alfawise U30 ILI9341 2.8 TP Ver 1.2
+// (Blue PCB on the back of touchscreen)
 //
+//#define TOUCH_BUTTONS
+#if ENABLED(TOUCH_BUTTONS)
+  #define XPT2046_X_CALIBRATION   12316
+  #define XPT2046_Y_CALIBRATION  -8981
+  #define XPT2046_X_OFFSET       -43
+  #define XPT2046_Y_OFFSET        257
+#endif
 
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1

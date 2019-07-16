@@ -24,6 +24,7 @@ env:
   - TEST_PLATFORM="teensy35"
   - TEST_PLATFORM="linux_native"
   - TEST_PLATFORM="esp32"
+  - TEST_PLATFORM="alfawise_U20"
 
 addons:
   apt:
