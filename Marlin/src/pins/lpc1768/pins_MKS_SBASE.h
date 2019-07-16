@@ -260,7 +260,7 @@
         #define RGB_LED_B_PIN P1_22        // J8-2  (LCD_D7 on Fysetc schematic)
       #endif
     #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN    P2_12
+      #define NEOPIXEL_PIN P2_12
     #endif
 
   #elif ENABLED(MINIPANEL)
@@ -304,9 +304,14 @@
 #endif
 
 #if MB(MKS_SBASE) && HAS_TMC220x
-  // The shortage of pins becomes apparent.
-  // Worst case you may have to give up the LCD
-  // RX pins need to be interrupt capable
+
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *
+   * The shortage of pins becomes apparent.
+   * Worst case you may have to give up the LCD
+   * RX pins need to be interrupt capable
+   */
   #define X_SERIAL_TX_PIN  P1_22   // J8-2
   #define X_SERIAL_RX_PIN  P2_12   // J8-4 Interrupt Capable
   #define Y_SERIAL_TX_PIN  P1_23   // J8-3
@@ -344,26 +349,26 @@
  *  PWM1.6   P2_05   RAMPS_D10_PIN
  */
 
- /**
-  * Special pins
-  *   P1_30 - not 5V tolerant - EXP1
-  *   P1_31 - not 5V tolerant - EXP1
-  *   P0_27 - open collector  - EXP2
-  *   P0_28 - open collector  - EXP2
-  *
-  */
+/**
+ * Special pins
+ *   P1_30 - not 5V tolerant - EXP1
+ *   P1_31 - not 5V tolerant - EXP1
+ *   P0_27 - open collector  - EXP2
+ *   P0_28 - open collector  - EXP2
+ *
+ */
 
- /**
-  * Serial Ports
-  *   P0_00 - Port  3
-  *   P0_01 - SD Card (Onboard)
-  *   P0_10 - Port  2
-  *   P0_11 - Y_EN/Y_DIR
-  *   P0_15 - Port  1
-  *   P0_16 - EXP1
-  *   P0_02 - Port  0
-  *   P0_03 - AUX1
-  *   P0_29 - Port -1
-  *   P0_30 - USB
-  *
-  */
+/**
+ * Serial Ports
+ *   P0_00 - Port  3
+ *   P0_01 - SD Card (Onboard)
+ *   P0_10 - Port  2
+ *   P0_11 - Y_EN/Y_DIR
+ *   P0_15 - Port  1
+ *   P0_16 - EXP1
+ *   P0_02 - Port  0
+ *   P0_03 - AUX1
+ *   P0_29 - Port -1
+ *   P0_30 - USB
+ *
+ */
