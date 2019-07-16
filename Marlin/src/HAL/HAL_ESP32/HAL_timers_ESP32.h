@@ -40,6 +40,7 @@ typedef uint64_t hal_timer_t;
 
 #define STEP_TIMER_NUM 0  // index of timer to use for stepper
 #define TEMP_TIMER_NUM 1  // index of timer to use for temperature
+#define PWM_TIMER_NUM  2  // index of timer to use for PWM outputs
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
 
 #define HAL_TIMER_RATE APB_CLK_FREQ // frequency of timer peripherals
@@ -59,6 +60,14 @@ typedef uint64_t hal_timer_t;
 #define TEMP_TIMER_PRESCALE    1000 // prescaler for setting Temp timer, 72Khz
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
 
+#define PWM_TIMER_PRESCALE       10
+#if ENABLED(FAST_PWM_FAN)
+  #define PWM_TIMER_FREQUENCY  FAST_PWM_FAN_FREQUENCY
+#else
+  #define PWM_TIMER_FREQUENCY  (50*128) // 50Hz and 7bit resolution
+#endif
+#define MAX_PWM_PINS             32 // Number of PWM pin-slots
+
 #define PULSE_TIMER_RATE         STEPPER_TIMER_RATE   // frequency of pulse timer
 #define PULSE_TIMER_PRESCALE     STEPPER_TIMER_PRESCALE
 #define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
@@ -72,10 +81,11 @@ typedef uint64_t hal_timer_t;
 
 #define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler(void)
 #define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler(void)
+#define HAL_PWM_TIMER_ISR() extern "C" void pwmTC_Handler(void)
 
 extern "C" void tempTC_Handler(void);
 extern "C" void stepTC_Handler(void);
-
+extern "C" void pwmTC_Handler(void);
 
 // ------------------------
 // Types

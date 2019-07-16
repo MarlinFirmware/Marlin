@@ -963,12 +963,6 @@ G29_TYPE GcodeSuite::G29() {
 
     #endif // ABL_PLANAR
 
-    #ifdef Z_PROBE_END_SCRIPT
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
-      planner.synchronize();
-      process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
-    #endif
-
     // Auto Bed Leveling is complete! Enable if possible.
     planner.leveling_active = dryrun ? abl_should_enable : true;
   } // !isnan(measured_z)
@@ -983,6 +977,12 @@ G29_TYPE GcodeSuite::G29() {
 
   #if HAS_BED_PROBE && defined(Z_AFTER_PROBING)
     move_z_after_probing();
+  #endif
+
+  #ifdef Z_PROBE_END_SCRIPT
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+    planner.synchronize();
+    process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
   #endif
 
   report_current_position();
