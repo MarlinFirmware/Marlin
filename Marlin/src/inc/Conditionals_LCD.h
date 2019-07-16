@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,22 +29,18 @@
 #if ENABLED(CARTESIO_UI)
 
   #define DOGLCD
-  #define ULTIPANEL
+  #define IS_ULTIPANEL
   #define DEFAULT_LCD_CONTRAST 90
   #define LCD_CONTRAST_MIN 60
   #define LCD_CONTRAST_MAX 140
 
-#elif ENABLED(MAKRPANEL)
-
-  #define U8GLIB_ST7565_64128N
-
 #elif ENABLED(ZONESTAR_LCD)
 
   #define ADC_KEYPAD
-  #define REPRAPWORLD_KEYPAD
+  #define IS_RRW_KEYPAD
   #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
   #define ADC_KEY_NUM 8
-  #define ULTIPANEL
+  #define IS_ULTIPANEL
 
   // This helps to implement ADC_KEYPAD menus
   #define REVERSE_MENU_DIRECTION
@@ -53,22 +49,18 @@
   #define ENCODER_FEEDRATE_DEADZONE 2
 
 #elif ENABLED(RADDS_DISPLAY)
-  #define ULTIPANEL
+  #define IS_ULTIPANEL
   #define ENCODER_PULSES_PER_STEP 2
 
-#elif ENABLED(ANET_FULL_GRAPHICS_LCD)
+#elif EITHER(ANET_FULL_GRAPHICS_LCD, BQ_LCD_SMART_CONTROLLER)
 
-  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-
-#elif ENABLED(BQ_LCD_SMART_CONTROLLER)
-
-  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #define IS_RRD_FG_SC
 
 #elif ANY(miniVIKI, VIKI2, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864)
 
-  #define ULTRA_LCD
+  #define IS_ULTRA_LCD
   #define DOGLCD
-  #define ULTIMAKERCONTROLLER
+  #define IS_ULTIPANEL
 
   #if ENABLED(miniVIKI)
     #define LCD_CONTRAST_MIN      75
@@ -95,24 +87,24 @@
 
 #elif ENABLED(OLED_PANEL_TINYBOY2)
 
-  #define U8GLIB_SSD1306
-  #define ULTIPANEL
+  #define IS_U8GLIB_SSD1306
+  #define IS_ULTIPANEL
 
 #elif ENABLED(RA_CONTROL_PANEL)
 
   #define LCD_I2C_TYPE_PCA8574
   #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
-  #define ULTIPANEL
+  #define IS_ULTIPANEL
 
 #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
   #define DOGLCD
   #define U8GLIB_ST7920
-  #define ULTIPANEL
+  #define IS_ULTIPANEL
 
 #elif ENABLED(CR10_STOCKDISPLAY)
 
-  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #define IS_RRD_FG_SC
   #ifndef ST7920_DELAY_1
     #define ST7920_DELAY_1 DELAY_NS(125)
   #endif
@@ -125,13 +117,13 @@
 
 #elif ENABLED(MKS_12864OLED)
 
-  #define REPRAP_DISCOUNT_SMART_CONTROLLER
+  #define IS_RRD_SC
   #define U8GLIB_SH1106
 
 #elif ENABLED(MKS_12864OLED_SSD1306)
 
-  #define REPRAP_DISCOUNT_SMART_CONTROLLER
-  #define U8GLIB_SSD1306
+  #define IS_RRD_SC
+  #define IS_U8GLIB_SSD1306
 
 #elif ENABLED(MKS_MINI_12864)
 
@@ -143,12 +135,12 @@
 
   #define FYSETC_MINI_12864
   #define DOGLCD
-  #define ULTIPANEL
+  #define IS_ULTIPANEL
   #define LCD_CONTRAST_MIN 0
   #define LCD_CONTRAST_MAX 255
   #define DEFAULT_LCD_CONTRAST 220
   #define LED_COLORS_REDUCE_GREEN
-  #if POWER_SUPPLY > 0 && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
+  #if HAS_POWER_SWITCH && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
     #define LED_BACKLIGHT_TIMEOUT 10000
   #endif
 
@@ -167,17 +159,8 @@
     #define NEOPIXEL_STARTUP_TEST
   #endif
 
-#endif
+#elif ENABLED(ULTI_CONTROLLER)
 
-#if EITHER(MAKRPANEL, MINIPANEL)
-  #define DOGLCD
-  #define ULTIPANEL
-  #ifndef DEFAULT_LCD_CONTRAST
-    #define DEFAULT_LCD_CONTRAST 17
-  #endif
-#endif
-
-#if ENABLED(ULTI_CONTROLLER)
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
   #define LCD_CONTRAST_MIN 0
@@ -185,42 +168,53 @@
   #define DEFAULT_LCD_CONTRAST 127
   #define ENCODER_PULSES_PER_STEP 2
   #define ENCODER_STEPS_PER_MENU_ITEM 2
-#endif
-
-// 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
-#define HAS_SSD1306_OLED_I2C ANY(U8GLIB_SSD1306, U8GLIB_SSD1309, U8GLIB_SH1106)
-#if HAS_SSD1306_OLED_I2C
-  #define ULTRA_LCD
-  #define DOGLCD
-#endif
-
-#if EITHER(PANEL_ONE, U8GLIB_SH1106)
-
-  #define ULTIMAKERCONTROLLER
 
 #elif ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
 
-  #define REPRAP_DISCOUNT_SMART_CONTROLLER
+  #define IS_RRD_SC
   #define LCD_WIDTH 16
   #define LCD_HEIGHT 2
 
 #endif
 
+#if ENABLED(IS_RRD_FG_SC)
+  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#endif
+
+#if EITHER(MAKRPANEL, MINIPANEL)
+  #define IS_ULTIPANEL
+  #define DOGLCD
+  #if ENABLED(MAKRPANEL)
+    #define U8GLIB_ST7565_64128N
+  #endif
+  #ifndef DEFAULT_LCD_CONTRAST
+    #define DEFAULT_LCD_CONTRAST 17
+  #endif
+#endif
+
+#if ENABLED(IS_U8GLIB_SSD1306)
+  #define U8GLIB_SSD1306
+#endif
+
+// 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
+#define HAS_SSD1306_OLED_I2C ANY(U8GLIB_SSD1306, U8GLIB_SSD1309, U8GLIB_SH1106)
+#if HAS_SSD1306_OLED_I2C
+  #define IS_ULTRA_LCD
+  #define DOGLCD
+#endif
+
 #if ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, LCD_FOR_MELZI, SILVER_GATE_GLCD_CONTROLLER)
   #define DOGLCD
   #define U8GLIB_ST7920
+  #define IS_RRD_SC
+#endif
+
+#if ENABLED(IS_RRD_SC)
   #define REPRAP_DISCOUNT_SMART_CONTROLLER
 #endif
 
-#if ANY(ULTIMAKERCONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER, G3D_PANEL, RIGIDBOT_PANEL, ULTI_CONTROLLER)
-  #define ULTIPANEL
-#endif
-
-#if ENABLED(REPRAPWORLD_KEYPAD)
-  #define NEWPANEL
-  #if ENABLED(ULTIPANEL) && !defined(REPRAPWORLD_KEYPAD_MOVE_STEP)
-    #define REPRAPWORLD_KEYPAD_MOVE_STEP 1.0
-  #endif
+#if ANY(ULTIMAKERCONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER, G3D_PANEL, RIGIDBOT_PANEL, ULTI_CONTROLLER, PANEL_ONE, U8GLIB_SH1106)
+  #define IS_ULTIPANEL
 #endif
 
 /**
@@ -229,19 +223,17 @@
 
  // Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
  #if ENABLED(U8GLIB_SH1106_EINSTART)
-   #define ULTRA_LCD
    #define DOGLCD
-   #define ULTIPANEL
-   #define NEWPANEL
+   #define IS_ULTIPANEL
  #endif
 
  /**
   * FSMC/SPI TFT PANELS
   */
  #if ENABLED(MKS_ROBIN_TFT)
-   #define ULTRA_LCD
    #define DOGLCD
-   #define ULTIPANEL
+   #define IS_ULTIPANEL
+   #define DELAYED_BACKLIGHT_INIT
  #endif
 
 /**
@@ -265,7 +257,7 @@
   #define LCD_I2C_TYPE_MCP23017
   #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
   #define LCD_USE_I2C_BUZZER   // Enable buzzer on LCD (optional)
-  #define ULTIPANEL
+  #define IS_ULTIPANEL
 
 #elif ENABLED(LCD_I2C_VIKI)
 
@@ -280,7 +272,7 @@
   #define LCD_I2C_TYPE_MCP23017
   #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
   #define LCD_USE_I2C_BUZZER   // Enable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
-  #define ULTIPANEL
+  #define IS_ULTIPANEL
 
   #define ENCODER_FEEDRATE_DEADZONE 4
 
@@ -292,7 +284,7 @@
   #define STD_ENCODER_PULSES_PER_STEP 2
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
 
-#elif ANY(miniVIKI, VIKI2, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864, OLED_PANEL_TINYBOY2, BQ_LCD_SMART_CONTROLLER, LCD_I2C_PANELOLU2, REPRAP_DISCOUNT_SMART_CONTROLLER)
+#elif ANY(REPRAP_DISCOUNT_SMART_CONTROLLER, miniVIKI, VIKI2, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864, OLED_PANEL_TINYBOY2, BQ_LCD_SMART_CONTROLLER, LCD_I2C_PANELOLU2)
 
   #define STD_ENCODER_PULSES_PER_STEP 4
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
@@ -321,21 +313,41 @@
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 #if ENABLED(FF_INTERFACEBOARD)
   #define SR_LCD_3W_NL    // Non latching 3 wire shift register
-  #define ULTIPANEL
-#endif
-
-#if ENABLED(SAV_3DLCD)
+  #define IS_ULTIPANEL
+#elif ENABLED(SAV_3DLCD)
   #define SR_LCD_2W_NL    // Non latching 2 wire shift register
-  #define ULTIPANEL
+  #define IS_ULTIPANEL
 #endif
 
+#if ENABLED(IS_ULTIPANEL)
+  #define ULTIPANEL
+#endif
 #if ENABLED(ULTIPANEL)
-  #define NEWPANEL  // Disable this if you actually have no click-encoder panel
+  #define IS_ULTRA_LCD
+  #ifndef NEWPANEL
+    #define NEWPANEL
+  #endif
+#endif
+
+#if ENABLED(IS_ULTRA_LCD)
   #define ULTRA_LCD
 #endif
 
+#if ENABLED(IS_RRW_KEYPAD)
+  #define REPRAPWORLD_KEYPAD
+#endif
+
+// Keypad needs a move step
+#if ENABLED(REPRAPWORLD_KEYPAD)
+  #define NEWPANEL
+  #ifndef REPRAPWORLD_KEYPAD_MOVE_STEP
+    #define REPRAPWORLD_KEYPAD_MOVE_STEP 1.0
+  #endif
+#endif
+
 // Extensible UI serial touch screens. (See src/lcd/extensible_ui)
-#if EITHER(DGUS_LCD, MALYAN_LCD)
+#if EITHER(MALYAN_LCD, DGUS_LCD)
+  #define IS_EXTUI
   #define EXTENSIBLE_UI
 #endif
 
@@ -345,8 +357,7 @@
 #define HAS_GRAPHICAL_LCD    ENABLED(DOGLCD)
 #define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
-
-#define HAS_ADC_BUTTONS     ENABLED(ADC_KEYPAD)
+#define HAS_ADC_BUTTONS      ENABLED(ADC_KEYPAD)
 
 /**
  * Default LCD contrast for Graphical LCD displays
@@ -451,10 +462,12 @@
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define XYZE_N (XYZ + E_STEPPERS)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
+  #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
   #define XYZE_N XYZE
   #define E_AXIS_N(E) E_AXIS
+  #define UNUSED_E(E) UNUSED(E)
 #endif
 
 /**
@@ -542,7 +555,7 @@
 #define HAS_GAMES     ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
 #define HAS_GAME_MENU (1 < ENABLED(MARLIN_BRICKOUT) + ENABLED(MARLIN_INVADERS) + ENABLED(MARLIN_SNAKE) + ENABLED(MARLIN_MAZE))
 
-#define IS_SCARA     EITHER(MORGAN_SCARA, MAKERARM_SCARA)
+#define IS_SCARA     ENABLED(MORGAN_SCARA)
 #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
 #define IS_CARTESIAN !IS_KINEMATIC
 

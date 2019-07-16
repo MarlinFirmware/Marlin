@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,6 +90,13 @@ GCodeQueue::GCodeQueue() {
 }
 
 /**
+ * Check whether there are any commands yet to be executed
+ */
+bool GCodeQueue::has_commands_queued() {
+  return queue.length || injected_commands_P;
+}
+
+/**
  * Clear the Marlin command queue
  */
 void GCodeQueue::clear() {
@@ -154,6 +161,8 @@ bool GCodeQueue::enqueue_one(const char* cmd) {
 
 /**
  * Process the next "immediate" command.
+ * Return 'true' if any commands were processed,
+ * or remain to process.
  */
 bool GCodeQueue::process_injected_command() {
   if (injected_commands_P == nullptr) return false;
@@ -161,19 +170,19 @@ bool GCodeQueue::process_injected_command() {
   char c;
   size_t i = 0;
   while ((c = pgm_read_byte(&injected_commands_P[i])) && c != '\n') i++;
-  if (!i) return false;
 
+  // Extract current command and move pointer to next command
   char cmd[i + 1];
   memcpy_P(cmd, injected_commands_P, i);
   cmd[i] = '\0';
-
   injected_commands_P = c ? injected_commands_P + i + 1 : nullptr;
 
-  parser.parse(cmd);
-  PORT_REDIRECT(SERIAL_PORT);
-  gcode.process_parsed_command();
-  PORT_RESTORE();
-
+  // Execute command if non-blank
+  if (i) {
+    parser.parse(cmd);
+    PORT_REDIRECT(SERIAL_PORT);
+    gcode.process_parsed_command();
+  }
   return true;
 }
 
@@ -183,17 +192,13 @@ bool GCodeQueue::process_injected_command() {
  * Aborts the current queue, if any.
  * Note: process_injected_command() will be called to drain any commands afterwards
  */
-void GCodeQueue::inject_P(PGM_P const pgcode) {
-  injected_commands_P = pgcode;
-}
+void GCodeQueue::inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
 
 /**
  * Enqueue and return only when commands are actually enqueued.
  * Never call this from a G-code handler!
  */
-void GCodeQueue::enqueue_one_now(const char* cmd) {
-  while (!enqueue_one(cmd)) idle();
-}
+void GCodeQueue::enqueue_one_now(const char* cmd) { while (!enqueue_one(cmd)) idle(); }
 
 /**
  * Enqueue from program memory and return only when commands are actually enqueued

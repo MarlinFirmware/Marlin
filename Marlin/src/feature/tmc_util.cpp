@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@
          #endif
       ;
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+      #if HAS_TMCX1X0 || HAS_TMC220x
         uint8_t cs_actual;
       #endif
       #if HAS_STALLGUARD
@@ -139,7 +139,7 @@
 
   #endif // HAS_TMCX1X0
 
-  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+  #if HAS_TMC220x
 
     #if ENABLED(TMC_DEBUG)
       static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
@@ -239,7 +239,7 @@
     st.printLabel();
     SERIAL_CHAR(':'); SERIAL_PRINT(pwm_scale, DEC);
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+      #if HAS_TMCX1X0 || HAS_TMC220x
         SERIAL_CHAR('/'); SERIAL_PRINT(data.cs_actual, DEC);
       #endif
       #if HAS_STALLGUARD
@@ -516,7 +516,7 @@
     }
   #endif
 
-  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+  #if HAS_TMC220x
     static void _tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
@@ -789,7 +789,7 @@
     #endif
     TMC_REPORT("CS actual\t",        TMC_CS_ACTUAL);
     TMC_REPORT("PWM scale",          TMC_PWM_SCALE);
-    #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2224) || HAS_DRIVER(TMC2660) || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+    #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2224) || HAS_DRIVER(TMC2660) || HAS_TMC220x
       TMC_REPORT("vsense\t",         TMC_VSENSE);
     #endif
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
@@ -821,7 +821,7 @@
     DRV_REPORT("s2ga\t",             TMC_S2GA);
     DRV_REPORT("otpw\t",             TMC_DRV_OTPW);
     DRV_REPORT("ot\t",               TMC_OT);
-    #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+    #if HAS_TMC220x
       DRV_REPORT("157C\t",           TMC_T157);
       DRV_REPORT("150C\t",           TMC_T150);
       DRV_REPORT("143C\t",           TMC_T143);
@@ -845,7 +845,7 @@
       }
     }
   #endif
-  #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+  #if HAS_TMC220x
     static void tmc_get_ic_registers(TMC2208Stepper, const TMC_get_registers_enum) { SERIAL_CHAR('\t'); }
   #endif
 
@@ -985,7 +985,7 @@
     st.TCOOLTHRS(0xFFFFF);
     return true;
   }
-  void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth) {
+  void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth _UNUSED) {
     st.TCOOLTHRS(0);
   }
 

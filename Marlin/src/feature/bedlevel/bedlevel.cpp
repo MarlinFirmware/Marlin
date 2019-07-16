@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -222,9 +222,9 @@ void reset_bed_level() {
     #ifdef MANUAL_PROBE_START_Z
       #if MANUAL_PROBE_HEIGHT > 0
         do_blocking_move_to(rx, ry, MANUAL_PROBE_HEIGHT);
-        do_blocking_move_to_z(MAX(0,MANUAL_PROBE_START_Z));
+        do_blocking_move_to_z(_MAX(0,MANUAL_PROBE_START_Z));
       #else
-        do_blocking_move_to(rx, ry, MAX(0,MANUAL_PROBE_START_Z));
+        do_blocking_move_to(rx, ry, _MAX(0,MANUAL_PROBE_START_Z));
       #endif
     #elif MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position[Z_AXIS];

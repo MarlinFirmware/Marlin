@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ static void lcd_factory_settings() {
       return;
     }
     bar_percent += (int8_t)ui.encoderPosition;
-    bar_percent = constrain(bar_percent, 0, 100);
+    LIMIT(bar_percent, 0, 100);
     ui.encoderPosition = 0;
     draw_menu_item_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
     lcd_moveto((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
@@ -109,7 +109,15 @@ static void lcd_factory_settings() {
     START_MENU();
     MENU_BACK(MSG_CONFIGURATION);
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, 200);
+      static constexpr float max_extrude =
+        #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
+          EXTRUDE_MAXLENGTH
+        #else
+          500
+        #endif
+      ;
+      MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, max_extrude);
+      MENU_ITEM_EDIT(float3, MSG_FILAMENT_PURGE_LENGTH, &toolchange_settings.extra_prime, 0, max_extrude);
       MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
       MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);
     #endif
@@ -219,6 +227,19 @@ static void lcd_factory_settings() {
 
 #endif
 
+#if ENABLED(TOUCH_MI_PROBE)
+  void menu_touchmi() {
+    START_MENU();
+    ui.defer_status_screen();
+    MENU_BACK(MSG_CONFIGURATION);
+    MENU_ITEM(gcode, MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nG1 F200 Z0"));
+    MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    MENU_ITEM(gcode, MSG_TOUCHMI_SAVE, PSTR("M500\nG1 F200 Z10"));
+    MENU_ITEM(gcode, MSG_TOUCHMI_ZTEST, PSTR("G28\nG1 F200 Z0"));
+    END_MENU();
+  }
+#endif
+
 #if ENABLED(CASE_LIGHT_MENU)
 
   #include "../../feature/caselight.h"
@@ -270,27 +291,27 @@ static void lcd_factory_settings() {
 
   void _menu_configuration_preheat_settings(const uint8_t material) {
     #if HOTENDS > 5
-      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP, HEATER_4_MINTEMP, HEATER_5_MINTEMP)
-      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP)
+      #define MINTEMP_ALL _MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP, HEATER_4_MINTEMP, HEATER_5_MINTEMP)
+      #define MAXTEMP_ALL _MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP)
     #elif HOTENDS > 4
-      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP, HEATER_4_MINTEMP)
-      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP)
+      #define MINTEMP_ALL _MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP, HEATER_4_MINTEMP)
+      #define MAXTEMP_ALL _MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP)
     #elif HOTENDS > 3
-      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP)
-      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP)
+      #define MINTEMP_ALL _MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP)
+      #define MAXTEMP_ALL _MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP)
     #elif HOTENDS > 2
-      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP)
-      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP)
+      #define MINTEMP_ALL _MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP)
+      #define MAXTEMP_ALL _MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP)
     #elif HOTENDS > 1
-      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP)
-      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP)
+      #define MINTEMP_ALL _MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP)
+      #define MAXTEMP_ALL _MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP)
     #else
       #define MINTEMP_ALL HEATER_0_MINTEMP
       #define MAXTEMP_ALL HEATER_0_MAXTEMP
     #endif
     START_MENU();
     MENU_BACK(MSG_CONFIGURATION);
-    MENU_ITEM_EDIT(uint8, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
+    MENU_ITEM_EDIT(percent, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
     #if HAS_TEMP_HOTEND
       MENU_ITEM_EDIT(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
     #endif
@@ -346,6 +367,10 @@ void menu_configuration() {
 
     #if ENABLED(BLTOUCH)
       MENU_ITEM(submenu, MSG_BLTOUCH, menu_bltouch);
+    #endif
+
+    #if ENABLED(TOUCH_MI_PROBE)
+      MENU_ITEM(submenu, MSG_TOUCHMI_PROBE, menu_touchmi);
     #endif
   }
 

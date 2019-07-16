@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,9 +120,9 @@ inline void move_to(
   if (a3 != NO_AXIS) destination[a3] = p3;
 
   // Make sure coordinates are within bounds
-  destination[X_AXIS] = MAX(MIN(destination[X_AXIS], X_MAX_POS), X_MIN_POS);
-  destination[Y_AXIS] = MAX(MIN(destination[Y_AXIS], Y_MAX_POS), Y_MIN_POS);
-  destination[Z_AXIS] = MAX(MIN(destination[Z_AXIS], Z_MAX_POS), Z_MIN_POS);
+  destination[X_AXIS] = _MAX(_MIN(destination[X_AXIS], X_MAX_POS), X_MIN_POS);
+  destination[Y_AXIS] = _MAX(_MIN(destination[Y_AXIS], Y_MAX_POS), Y_MIN_POS);
+  destination[Z_AXIS] = _MAX(_MIN(destination[Z_AXIS], Z_MAX_POS), Z_MIN_POS);
 
   // Move to position
   do_blocking_move_to(destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
@@ -411,9 +411,13 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     SERIAL_ECHOLNPGM("Nozzle Tip Outer Dimensions:");
     #if HAS_X_CENTER
       SERIAL_ECHOLNPAIR(" X", m.nozzle_outer_dimension[X_AXIS]);
+    #else
+      UNUSED(m);
     #endif
     #if HAS_Y_CENTER
       SERIAL_ECHOLNPAIR(" Y", m.nozzle_outer_dimension[Y_AXIS]);
+    #else
+      UNUSED(m);
     #endif
     SERIAL_EOL();
   }
@@ -518,6 +522,8 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
 
   #if HOTENDS > 1
     set_nozzle(m, extruder);
+  #else
+    UNUSED(extruder);
   #endif
 
   probe_sides(m, uncertainty);

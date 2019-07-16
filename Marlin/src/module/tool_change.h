@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      float swap_length;
+      float swap_length, extra_prime;
       int16_t prime_speed, retract_speed;
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
@@ -90,6 +90,10 @@
   #if FAN_COUNT > 0
     extern uint8_t singlenozzle_fan_speed[EXTRUDERS];
   #endif
+#endif
+
+#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  void est_init();
 #endif
 
 /**

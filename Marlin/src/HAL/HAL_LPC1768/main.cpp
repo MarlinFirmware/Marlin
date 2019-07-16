@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,13 +44,11 @@ extern uint32_t MSC_SD_Init(uint8_t pdrv);
 extern "C" int isLPC1769();
 extern "C" void disk_timerproc(void);
 
-void SysTick_Callback() {
-  disk_timerproc();
-}
+void SysTick_Callback() { disk_timerproc(); }
 
-void HAL_init() {
+void HAL_init(void) {
 
-  // Support the 4 LEDs some LPC176x boards have
+  // Init LEDs
   #if PIN_EXISTS(LED)
     SET_DIR_OUTPUT(LED_PIN);
     WRITE_PIN_CLR(LED_PIN);
@@ -74,6 +72,21 @@ void HAL_init() {
     }
   #endif
 
+  // Init Servo Pins
+  #define INIT_SERVO(N) OUT_WRITE(SERVO##N##_PIN, LOW)
+  #if HAS_SERVO_0
+    INIT_SERVO(0);
+  #endif
+  #if HAS_SERVO_1
+    INIT_SERVO(1);
+  #endif
+  #if HAS_SERVO_2
+    INIT_SERVO(2);
+  #endif
+  #if HAS_SERVO_3
+    INIT_SERVO(3);
+  #endif
+
   //debug_frmwrk_init();
   //_DBG("\n\nDebug running\n");
   // Initialise the SD card chip select pins as soon as possible
@@ -83,6 +96,26 @@ void HAL_init() {
 
   #if PIN_EXISTS(ONBOARD_SD_CS) && ONBOARD_SD_CS_PIN != SS_PIN
     OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH);
+  #endif
+
+  #ifdef LPC1768_ENABLE_CLKOUT_12M
+   /**
+    * CLKOUTCFG register
+    * bit 8 (CLKOUT_EN) = enables CLKOUT signal. Disabled for now to prevent glitch when enabling GPIO.
+    * bits 7:4 (CLKOUTDIV) = set to 0 for divider setting of /1
+    * bits 3:0 (CLKOUTSEL) = set to 1 to select main crystal oscillator as CLKOUT source
+    */
+    LPC_SC->CLKOUTCFG = (0<<8)|(0<<4)|(1<<0);
+    // set P1.27 pin to function 01 (CLKOUT)
+    PINSEL_CFG_Type PinCfg;
+    PinCfg.Portnum = 1;
+    PinCfg.Pinnum = 27;
+    PinCfg.Funcnum = 1;    // function 01 (CLKOUT)
+    PinCfg.OpenDrain = 0;  // not open drain
+    PinCfg.Pinmode = 2;    // no pull-up/pull-down
+    PINSEL_ConfigPin(&PinCfg);
+    // now set CLKOUT_EN bit
+    LPC_SC->CLKOUTCFG |= (1<<8);
   #endif
 
   USB_Init();                               // USB Initialization

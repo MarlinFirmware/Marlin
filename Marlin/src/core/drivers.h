@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,6 +83,8 @@
                        || HAS_DRIVER(TMC2660) \
                        || HAS_DRIVER(TMC5130) \
                        || HAS_DRIVER(TMC5160) )
+
+#define HAS_TMC220x (HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209))
 
 #define AXIS_IS_TMC(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) \
                            || AXIS_DRIVER_TYPE(A,TMC2160) \

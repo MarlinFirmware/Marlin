@@ -3,7 +3,7 @@ sudo: require
 
 language: python
 python:
-  - "2.7"
+  - "3.7"
 
 notifications:
   email: false
@@ -24,6 +24,7 @@ env:
   - TEST_PLATFORM="teensy35"
   - TEST_PLATFORM="linux_native"
   - TEST_PLATFORM="esp32"
+  - TEST_PLATFORM="alfawise_U20"
 
 addons:
   apt:

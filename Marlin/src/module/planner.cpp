@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -733,7 +733,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   // reach the final_rate exactly at the end of this block.
   if (plateau_steps < 0) {
     const float accelerate_steps_float = CEIL(intersection_distance(initial_rate, final_rate, accel, block->step_event_count));
-    accelerate_steps = MIN(uint32_t(MAX(accelerate_steps_float, 0)), block->step_event_count);
+    accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
     plateau_steps = 0;
 
     #if ENABLED(S_CURVE_ACCELERATION)
@@ -855,7 +855,7 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t * const 
 
       const float new_entry_speed_sqr = TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH)
         ? max_entry_speed_sqr
-        : MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next ? next->entry_speed_sqr : sq(float(MINIMUM_PLANNER_SPEED)), current->millimeters));
+        : _MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next ? next->entry_speed_sqr : sq(float(MINIMUM_PLANNER_SPEED)), current->millimeters));
       if (current->entry_speed_sqr != new_entry_speed_sqr) {
 
         // Need to recalculate the block speed - Mark it now, so the stepper
@@ -1157,7 +1157,7 @@ void Planner::recalculate() {
     }
 
     float t = autotemp_min + high * autotemp_factor;
-    t = constrain(t, autotemp_min, autotemp_max);
+    LIMIT(t, autotemp_min, autotemp_max);
     if (t < oldt) t = t * (1 - float(AUTOTEMP_OLDWEIGHT)) + oldt * float(AUTOTEMP_OLDWEIGHT);
     oldt = t;
     thermalManager.setTargetHotend(t, 0);
@@ -1169,8 +1169,11 @@ void Planner::recalculate() {
  * Maintain fans, paste extruder pressure,
  */
 void Planner::check_axes_activity() {
-  uint8_t axis_active[NUM_AXIS] = { 0 },
-          tail_fan_speed[FAN_COUNT];
+  uint8_t axis_active[NUM_AXIS] = { 0 };
+
+  #if FAN_COUNT > 0
+    uint8_t tail_fan_speed[FAN_COUNT];
+  #endif
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
@@ -1182,15 +1185,18 @@ void Planner::check_axes_activity() {
   #endif
 
   if (has_blocks_queued()) {
-    #if FAN_COUNT > 0
-      FANS_LOOP(i)
-        tail_fan_speed[i] = (block_buffer[block_buffer_tail].fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
-    #endif
-
     block_t* block;
 
-    #if ENABLED(BARICUDA)
+    #if FAN_COUNT > 0 || ENABLED(BARICUDA)
       block = &block_buffer[block_buffer_tail];
+    #endif
+
+    #if FAN_COUNT > 0
+      FANS_LOOP(i)
+        tail_fan_speed[i] = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
+    #endif
+
+    #if ENABLED(BARICUDA)
       #if HAS_HEATER_1
         tail_valve_pressure = block->valve_pressure;
       #endif
@@ -1207,7 +1213,7 @@ void Planner::check_axes_activity() {
   else {
     #if FAN_COUNT > 0
       FANS_LOOP(i)
-        tail_fan_speed[i] = (thermalManager.fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
+        tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1236,30 +1242,19 @@ void Planner::check_axes_activity() {
   #if FAN_COUNT > 0
 
     #if FAN_KICKSTART_TIME > 0
-
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
-
-      #define KICKSTART_FAN(f) \
-        if (tail_fan_speed[f]) { \
-          millis_t ms = millis(); \
-          if (fan_kick_end[f] == 0) { \
+      #define KICKSTART_FAN(f)                         \
+        if (tail_fan_speed[f]) {                       \
+          millis_t ms = millis();                      \
+          if (fan_kick_end[f] == 0) {                  \
             fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
-            tail_fan_speed[f] = 255; \
-          } else if (PENDING(ms, fan_kick_end[f])) \
-            tail_fan_speed[f] = 255; \
+            tail_fan_speed[f] = 255;                   \
+          } else if (PENDING(ms, fan_kick_end[f]))     \
+            tail_fan_speed[f] = 255;                   \
         } else fan_kick_end[f] = 0
-
-      #if HAS_FAN0
-        KICKSTART_FAN(0);
-      #endif
-      #if HAS_FAN1
-        KICKSTART_FAN(1);
-      #endif
-      #if HAS_FAN2
-        KICKSTART_FAN(2);
-      #endif
-
-    #endif // FAN_KICKSTART_TIME > 0
+    #else
+      #define KICKSTART_FAN(f) NOOP
+    #endif
 
     #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
       #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : 0)
@@ -1268,43 +1263,24 @@ void Planner::check_axes_activity() {
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
-
-      #if HAS_FAN0
-        thermalManager.soft_pwm_amount_fan[0] = CALC_FAN_SPEED(0);
-      #endif
-      #if HAS_FAN1
-        thermalManager.soft_pwm_amount_fan[1] = CALC_FAN_SPEED(1);
-      #endif
-      #if HAS_FAN2
-        thermalManager.soft_pwm_amount_fan[2] = CALC_FAN_SPEED(2);
-      #endif
-
+      #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(F);
     #elif ENABLED(FAST_PWM_FAN)
-
-      #if HAS_FAN0
-        set_pwm_duty(FAN_PIN, CALC_FAN_SPEED(0));
-      #endif
-      #if HAS_FAN1
-        set_pwm_duty(FAN1_PIN, CALC_FAN_SPEED(1));
-      #endif
-      #if HAS_FAN2
-        set_pwm_duty(FAN2_PIN, CALC_FAN_SPEED(2));
-      #endif
-
+      #define _FAN_SET(F) set_pwm_duty(FAN##F##_PIN, CALC_FAN_SPEED(F));
     #else
-
-      #if HAS_FAN0
-        analogWrite(pin_t(FAN_PIN), CALC_FAN_SPEED(0));
-      #endif
-      #if HAS_FAN1
-        analogWrite(pin_t(FAN1_PIN), CALC_FAN_SPEED(1));
-      #endif
-      #if HAS_FAN2
-        analogWrite(pin_t(FAN2_PIN), CALC_FAN_SPEED(2));
-      #endif
+      #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
     #endif
-  #else
-    UNUSED(tail_fan_speed);
+    #define FAN_SET(F) do{ KICKSTART_FAN(F); _FAN_SET(F); }while(0)
+
+    #if HAS_FAN0
+      FAN_SET(0);
+    #endif
+    #if HAS_FAN1
+      FAN_SET(1);
+    #endif
+    #if HAS_FAN2
+      FAN_SET(2);
+    #endif
+
   #endif // FAN_COUNT > 0
 
   #if ENABLED(AUTOTEMP)
@@ -1313,10 +1289,10 @@ void Planner::check_axes_activity() {
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
-      analogWrite(HEATER_1_PIN, tail_valve_pressure);
+      analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure);
     #endif
     #if HAS_HEATER_2
-      analogWrite(HEATER_2_PIN, tail_e_to_p_pressure);
+      analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure);
     #endif
   #endif
 }
@@ -1841,7 +1817,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   }
 
   block->steps[E_AXIS] = esteps;
-  block->step_event_count = MAX(block->steps[A_AXIS], block->steps[B_AXIS], block->steps[C_AXIS], esteps);
+  block->step_event_count = _MAX(block->steps[A_AXIS], block->steps[B_AXIS], block->steps[C_AXIS], esteps);
 
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
@@ -2152,9 +2128,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     }
     ys0 = axis_segment_time_us[Y_AXIS][0] = ys0 + segment_time_us;
 
-    const uint32_t max_x_segment_time = MAX(xs0, xs1, xs2),
-                   max_y_segment_time = MAX(ys0, ys1, ys2),
-                   min_xy_segment_time = MIN(max_x_segment_time, max_y_segment_time);
+    const uint32_t max_x_segment_time = _MAX(xs0, xs1, xs2),
+                   max_y_segment_time = _MAX(ys0, ys1, ys2),
+                   min_xy_segment_time = _MIN(max_x_segment_time, max_y_segment_time);
     if (min_xy_segment_time < MAX_FREQ_TIME_US) {
       const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME_US);
       NOMORE(speed_factor, low_sf);
@@ -2394,7 +2370,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       }
 
       // Get the lowest speed
-      vmax_junction_sqr = MIN(vmax_junction_sqr, block->nominal_speed_sqr, previous_nominal_speed_sqr);
+      vmax_junction_sqr = _MIN(vmax_junction_sqr, block->nominal_speed_sqr, previous_nominal_speed_sqr);
     }
     else // Init entry speed to zero. Assume it starts from rest. Planner will correct this later.
       vmax_junction_sqr = 0;
@@ -2451,7 +2427,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
       // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
       const float previous_nominal_speed = SQRT(previous_nominal_speed_sqr);
-      vmax_junction = MIN(nominal_speed, previous_nominal_speed);
+      vmax_junction = _MIN(nominal_speed, previous_nominal_speed);
 
       // Now limit the jerk in all axes.
       const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
@@ -2472,9 +2448,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
         const float jerk = (v_exit > v_entry)
             ? //                                  coasting             axis reversal
-              ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : MAX(v_exit, -v_entry) )
+              ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : _MAX(v_exit, -v_entry) )
             : // v_exit <= v_entry                coasting             axis reversal
-              ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : MAX(-v_exit, v_entry) );
+              ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : _MAX(-v_exit, v_entry) );
 
         if (jerk > max_jerk[axis]) {
           v_factor *= max_jerk[axis] / jerk;
@@ -2494,7 +2470,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     previous_safe_speed = safe_speed;
 
     #if ENABLED(JUNCTION_DEVIATION)
-      vmax_junction_sqr = MIN(vmax_junction_sqr, sq(vmax_junction));
+      vmax_junction_sqr = _MIN(vmax_junction_sqr, sq(vmax_junction));
     #else
       vmax_junction_sqr = sq(vmax_junction);
     #endif
@@ -2509,7 +2485,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // If we are trying to add a split block, start with the
   // max. allowed speed to avoid an interrupted first move.
-  block->entry_speed_sqr = !split_move ? sq(float(MINIMUM_PLANNER_SPEED)) : MIN(vmax_junction_sqr, v_allowable_sqr);
+  block->entry_speed_sqr = !split_move ? sq(float(MINIMUM_PLANNER_SPEED)) : _MIN(vmax_junction_sqr, v_allowable_sqr);
 
   // Initialize planner efficiency flags
   // Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.
@@ -2768,11 +2744,13 @@ void Planner::set_machine_position_mm(const float &a, const float &b, const floa
 void Planner::set_position_mm(const float &rx, const float &ry, const float &rz, const float &e) {
   float raw[XYZE] = { rx, ry, rz, e };
   #if HAS_POSITION_MODIFIERS
+  {
     apply_modifiers(raw
       #if HAS_LEVELING
         , true
       #endif
     );
+  }
   #endif
   #if IS_KINEMATIC
     position_cart[X_AXIS] = rx;

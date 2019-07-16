@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #undef M_PI           // Redefined by all
 #undef _BV            // Redefined by some
 #undef sq             // Redefined by teensy3/wiring.h
+#undef vsnprintf_P    // Defined by avr/pgmspace.h in some platforms
 
 #include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
 
@@ -40,6 +41,10 @@
 
 #undef sq
 #define sq(x) ((x)*(x))
+
+#ifndef vsnprintf_P
+  #define vsnprintf_P vsnprintf
+#endif
 
 #ifndef SBI
   #define SBI(A,B) (A |= (1 << (B)))
@@ -64,3 +69,7 @@
 #define RST_JTAG       16
 #define RST_SOFTWARE   32
 #define RST_BACKUP     64
+
+#ifndef M_PI
+  #define M_PI 3.14159265358979323846f
+#endif

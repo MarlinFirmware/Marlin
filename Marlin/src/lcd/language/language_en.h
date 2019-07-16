@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -189,6 +189,18 @@
 #endif
 #ifndef MSG_LASER_POWER
   #define MSG_LASER_POWER                     _UxGT("Laser power")
+#endif
+#ifndef MSG_SPINDLE_MENU
+  #define MSG_SPINDLE_MENU                    _UxGT("Spindle Control")
+#endif
+#ifndef MSG_SPINDLE_OFF
+  #define MSG_SPINDLE_OFF                     _UxGT("Spindle Off")
+#endif
+#ifndef MSG_SPINDLE_ON
+  #define MSG_SPINDLE_ON                      _UxGT("Spindle On")
+#endif
+#ifndef MSG_SPINDLE_POWER
+  #define MSG_SPINDLE_POWER                   _UxGT("Spindle power")
 #endif
 #ifndef MSG_SPINDLE_REVERSE
   #define MSG_SPINDLE_REVERSE                 _UxGT("Spindle Reverse")
@@ -531,6 +543,9 @@
 #ifndef MSG_HOTEND_TOO_COLD
   #define MSG_HOTEND_TOO_COLD                 _UxGT("Hotend too cold")
 #endif
+#ifndef MSG_MOVE_0025MM
+  #define MSG_MOVE_0025MM                     _UxGT("Move 0.025mm")
+#endif
 #ifndef MSG_MOVE_01MM
   #define MSG_MOVE_01MM                       _UxGT("Move 0.1mm")
 #endif
@@ -853,13 +868,16 @@
   #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #endif
 #ifndef MSG_FILAMENT_SWAP_LENGTH
-  #define MSG_FILAMENT_SWAP_LENGTH            _UxGT("Retract Distance")
+  #define MSG_FILAMENT_SWAP_LENGTH            _UxGT("Swap Length")
+#endif
+#ifndef MSG_FILAMENT_PURGE_LENGTH
+  #define MSG_FILAMENT_PURGE_LENGTH           _UxGT("Purge Length")
 #endif
 #ifndef MSG_TOOL_CHANGE
-  #define MSG_TOOL_CHANGE                      _UxGT("Tool Change")
+  #define MSG_TOOL_CHANGE                     _UxGT("Tool Change")
 #endif
 #ifndef MSG_TOOL_CHANGE_ZLIFT
-  #define MSG_TOOL_CHANGE_ZLIFT                _UxGT("Z Raise")
+  #define MSG_TOOL_CHANGE_ZLIFT               _UxGT("Z Raise")
 #endif
 #ifndef MSG_SINGLENOZZLE_PRIME_SPD
   #define MSG_SINGLENOZZLE_PRIME_SPD          _UxGT("Prime Speed")
@@ -935,6 +953,21 @@
 #endif
 #ifndef MSG_BLTOUCH_MODE_CHANGE
   #define MSG_BLTOUCH_MODE_CHANGE             _UxGT("DANGER: Bad settings can cause damage! Proceed anyway?")
+#endif
+#ifndef MSG_TOUCHMI_PROBE
+  #define MSG_TOUCHMI_PROBE                   _UxGT("TouchMI")
+#endif
+#ifndef MSG_TOUCHMI_INIT
+  #define MSG_TOUCHMI_INIT                    _UxGT("Init TouchMI")
+#endif
+#ifndef MSG_TOUCHMI_ZTEST
+  #define MSG_TOUCHMI_ZTEST                   _UxGT("Z offset Test")
+#endif
+#ifndef MSG_TOUCHMI_SAVE
+  #define MSG_TOUCHMI_SAVE                    _UxGT("Save")
+#endif
+#ifndef MSG_MANUAL_DEPLOY_TOUCHMI
+  #define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("Deploy TouchMI")
 #endif
 #ifndef MSG_MANUAL_DEPLOY
   #define MSG_MANUAL_DEPLOY                   _UxGT("Deploy Z-Probe")

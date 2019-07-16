@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,9 +72,10 @@
 #define MSG_MOVE_Y                          _UxGT("Μετακίνηση Y")
 #define MSG_MOVE_Z                          _UxGT("Μετακίνηση Z")
 #define MSG_MOVE_E                          _UxGT("Εξωθητήρας")
-#define MSG_MOVE_01MM                       _UxGT("Μετακίνηση 0,1μμ")
-#define MSG_MOVE_1MM                        _UxGT("Μετακίνηση 1μμ")
-#define MSG_MOVE_10MM                       _UxGT("Μετακίνηση 10μμ")
+#define MSG_MOVE_0025MM                     _UxGT("Μετακίνηση 0,025 μμ")
+#define MSG_MOVE_01MM                       _UxGT("Μετακίνηση 0,1 μμ")
+#define MSG_MOVE_1MM                        _UxGT("Μετακίνηση 1 μμ")
+#define MSG_MOVE_10MM                       _UxGT("Μετακίνηση 10 μμ")
 #define MSG_SPEED                           _UxGT("Ταχύτητα")
 #define MSG_BED_Z                           _UxGT("Επ. Εκτύπωσης Z")
 #define MSG_NOZZLE                          _UxGT("Ακροφύσιο")

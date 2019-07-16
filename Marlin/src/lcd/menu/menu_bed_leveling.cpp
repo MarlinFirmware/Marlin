@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -239,7 +239,7 @@ void menu_bed_leveling() {
   const bool is_homed = all_axes_known();
 
   // Auto Home if not using manual probing
-  #if DISABLED(PROBE_MANUALLY, MESH_BED_LEVELING)
+  #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
     if (!is_homed) MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
   #endif
 

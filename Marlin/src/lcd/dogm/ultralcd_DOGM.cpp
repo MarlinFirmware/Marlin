@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -162,14 +162,14 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
     // Determine text space needed
     #ifndef STRING_SPLASH_LINE2
       constexpr uint8_t text_total_height = MENU_FONT_HEIGHT,
-                        text_width_1 = (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH),
+                        text_width_1 = uint8_t(sizeof(STRING_SPLASH_LINE1) - 1) * uint8_t(MENU_FONT_WIDTH),
                         text_width_2 = 0;
     #else
-      constexpr uint8_t text_total_height = (MENU_FONT_HEIGHT) * 2,
-                        text_width_1 = (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH),
-                        text_width_2 = (sizeof(STRING_SPLASH_LINE2) - 1) * (MENU_FONT_WIDTH);
+      constexpr uint8_t text_total_height = uint8_t(MENU_FONT_HEIGHT) * 2,
+                        text_width_1 = uint8_t(sizeof(STRING_SPLASH_LINE1) - 1) * uint8_t(MENU_FONT_WIDTH),
+                        text_width_2 = uint8_t(sizeof(STRING_SPLASH_LINE2) - 1) * uint8_t(MENU_FONT_WIDTH);
     #endif
-    constexpr uint8_t text_max_width = MAX(text_width_1, text_width_2),
+    constexpr uint8_t text_max_width = _MAX(text_width_1, text_width_2),
                       rspace = width - (START_BMPWIDTH);
 
     int8_t offx, offy, txt_base, txt_offx_1, txt_offx_2;
@@ -219,26 +219,34 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
 
-  #if PIN_EXISTS(LCD_BACKLIGHT) // Enable LCD backlight
-    OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
+  #if PIN_EXISTS(LCD_BACKLIGHT)
+    OUT_WRITE(LCD_BACKLIGHT_PIN, (
+      #if ENABLED(DELAYED_BACKLIGHT_INIT)
+        LOW  // Illuminate after reset
+      #else
+        HIGH // Illuminate right away
+      #endif
+    ));
   #endif
 
   #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
     SET_OUTPUT(LCD_PINS_DC);
-    #if !defined(LCD_RESET_PIN)
+    #ifndef LCD_RESET_PIN
       #define LCD_RESET_PIN LCD_PINS_RS
     #endif
   #endif
 
   #if PIN_EXISTS(LCD_RESET)
-    OUT_WRITE(LCD_RESET_PIN, LOW); // perform a clean hardware reset
+    // Perform a clean hardware reset with needed delays
+    OUT_WRITE(LCD_RESET_PIN, LOW);
     _delay_ms(5);
-    OUT_WRITE(LCD_RESET_PIN, HIGH);
-    _delay_ms(5); // delay to allow the display to initialize
+    WRITE(LCD_RESET_PIN, HIGH);
+    _delay_ms(5);
+    u8g.begin();
   #endif
 
-  #if PIN_EXISTS(LCD_RESET)
-    u8g.begin();
+  #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
+    WRITE(LCD_BACKLIGHT_PIN, HIGH);
   #endif
 
   #if HAS_LCD_CONTRAST
@@ -246,11 +254,11 @@ void MarlinUI::init_lcd() {
   #endif
 
   #if ENABLED(LCD_SCREEN_ROT_90)
-    u8g.setRot90();   // Rotate screen by 90°
+    u8g.setRot90();
   #elif ENABLED(LCD_SCREEN_ROT_180)
-    u8g.setRot180();  // Rotate screen by 180°
+    u8g.setRot180();
   #elif ENABLED(LCD_SCREEN_ROT_270)
-    u8g.setRot270();  // Rotate screen by 270°
+    u8g.setRot270();
   #endif
 
   uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));

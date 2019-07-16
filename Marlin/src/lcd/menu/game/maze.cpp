@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,12 +89,12 @@ void MazeGame::game_screen() {
   // for (uint8_t n = 0; n < head_ind; ++n) {
   //   const pos_t &p = maze_walls[n], &q = maze_walls[n + 1];
   //   if (p.x == q.x) {
-  //     const int8_t y1 = GAMEY(MIN(p.y, q.y)), y2 = GAMEY(MAX(p.y, q.y));
+  //     const int8_t y1 = GAMEY(_MIN(p.y, q.y)), y2 = GAMEY(_MAX(p.y, q.y));
   //     if (PAGE_CONTAINS(y1, y2))
   //       u8g.drawVLine(GAMEX(p.x), y1, y2 - y1 + 1);
   //   }
   //   else if (PAGE_CONTAINS(GAMEY(p.y), GAMEY(p.y))) {
-  //     const int8_t x1 = GAMEX(MIN(p.x, q.x)), x2 = GAMEX(MAX(p.x, q.x));
+  //     const int8_t x1 = GAMEX(_MIN(p.x, q.x)), x2 = GAMEX(_MAX(p.x, q.x));
   //     u8g.drawHLine(x1, GAMEY(p.y), x2 - x1 + 1);
   //   }
   // }

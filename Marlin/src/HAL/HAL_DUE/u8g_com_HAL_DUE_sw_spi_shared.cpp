@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ void u8g_spiSend_sw_DUE_mode_0(uint8_t val) { // 3MHz
       MOSI_pPio->PIO_CODR = MOSI_dwMask;
     DELAY_NS(48);
     SCK_pPio->PIO_SODR = SCK_dwMask;
-    DELAY_NS(125);
+    DELAY_NS(905);
     val <<= 1;
     SCK_pPio->PIO_CODR = SCK_dwMask;
   }

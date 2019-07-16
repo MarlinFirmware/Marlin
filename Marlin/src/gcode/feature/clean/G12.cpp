@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,11 @@
 #include "../../parser.h"
 #include "../../../module/motion.h"
 
+#if HAS_LEVELING
+  #include "../../../module/planner.h"
+  #include "../../../feature/bedlevel/bedlevel.h"
+#endif
+
 /**
  * G12: Clean the nozzle
  */
@@ -37,12 +42,32 @@ void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first
   if (axis_unhomed_error()) return;
 
+  const bool seenxyz = parser.seen("XYZ"),
+             clean_x = !seenxyz || parser.boolval('X'),
+             clean_y = !seenxyz || parser.boolval('Y');
+
+  #if ENABLED(NOZZLE_CLEAN_NO_Z)
+    static constexpr bool clean_z = false;
+  #else
+    const bool clean_z = !seenxyz || parser.boolval('Z');
+  #endif
+
   const uint8_t pattern = parser.ushortval('P', 0),
                 strokes = parser.ushortval('S', NOZZLE_CLEAN_STROKES),
                 objects = parser.ushortval('T', NOZZLE_CLEAN_TRIANGLES);
   const float radius = parser.floatval('R', NOZZLE_CLEAN_CIRCLE_RADIUS);
 
-  Nozzle::clean(pattern, strokes, radius, objects);
+  #if HAS_LEVELING
+    const bool was_enabled = planner.leveling_active;
+    if (clean_z) set_bed_leveling_enabled(false);
+  #endif
+
+  Nozzle::clean(pattern, strokes, radius, objects, clean_x, clean_y, clean_z);
+
+  // Re-enable bed level correction if it had been on
+  #if HAS_LEVELING
+    if (clean_z) set_bed_leveling_enabled(was_enabled);
+  #endif
 }
 
 #endif // NOZZLE_CLEAN_FEATURE

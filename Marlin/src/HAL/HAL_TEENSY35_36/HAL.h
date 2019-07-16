@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -27,10 +27,6 @@
 
 #define CPU_32_BIT
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
@@ -47,9 +43,9 @@
 #define ST7920_DELAY_2 DELAY_NS(750)
 #define ST7920_DELAY_3 DELAY_NS(750)
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 #define IS_32BIT_TEENSY (defined(__MK64FX512__) || defined(__MK66FX1M0__))
 #define IS_TEENSY35 defined(__MK64FX512__)
@@ -96,6 +92,8 @@ typedef int8_t pin_t;
 // Add type-checking to pgm_read_word
 #undef pgm_read_word
 #define pgm_read_word(addr) (*((uint16_t*)(addr)))
+
+inline void HAL_init(void) { }
 
 /** clear reset reason */
 void HAL_clear_reset_source(void);

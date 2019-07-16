@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -162,7 +162,8 @@ DEFINE_MENU_EDIT_ITEM(int4);        // 1234, -123 right-justified
 DEFINE_MENU_EDIT_ITEM(int8);        // 123, -12   right-justified
 DEFINE_MENU_EDIT_ITEM(uint8);       // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234, -123 right-justified
+DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234       right-justified
+DEFINE_MENU_EDIT_ITEM(uint16_5);    // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(float52);     // 123.45
 DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
@@ -325,7 +326,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     screen_changed = false;
   }
   if (screen_items > 0 && encoderLine >= screen_items - limit) {
-    encoderLine = MAX(0, screen_items - limit);
+    encoderLine = _MAX(0, screen_items - limit);
     ui.encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM);
   }
   if (is_menu) {
@@ -447,7 +448,7 @@ bool ui_selection; // = false
 void set_ui_selection(const bool sel) { ui_selection = sel; }
 void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
   if (ui.encoderPosition) {
-    ui_selection = int16_t(ui.encoderPosition) > 0;
+    ui_selection = ((ENCODERBASE) > 0) == (int16_t(ui.encoderPosition) > 0);
     ui.encoderPosition = 0;
   }
   const bool got_click = ui.use_click();

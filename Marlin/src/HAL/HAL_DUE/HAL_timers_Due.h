@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,15 +26,11 @@
  * For ARDUINO_ARCH_SAM
  */
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include <stdint.h>
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
@@ -69,9 +65,9 @@ typedef uint32_t hal_timer_t;
 #define HAL_TEMP_TIMER_ISR()  void TC4_Handler()
 #define HAL_TONE_TIMER_ISR()  void TC6_Handler()
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 typedef struct {
   Tc          *pTimerRegs;
@@ -80,15 +76,15 @@ typedef struct {
   uint8_t     priority;
 } tTimerConfig;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 extern const tTimerConfig TimerConfig[];
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 

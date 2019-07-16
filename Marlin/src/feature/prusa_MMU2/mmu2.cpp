@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,8 +47,8 @@ MMU2 mmu2;
 
 #define MMU_TODELAY 100
 #define MMU_TIMEOUT 10
-#define MMU_CMD_TIMEOUT 60000ul //5min timeout for mmu commands (except P0)
-#define MMU_P0_TIMEOUT 3000ul //timeout for P0 command: 3seconds
+#define MMU_CMD_TIMEOUT 60000ul // 5min timeout for mmu commands (except P0)
+#define MMU_P0_TIMEOUT 3000ul   // Timeout for P0 command: 3seconds
 
 #define MMU_CMD_NONE 0
 #define MMU_CMD_T0   0x10
@@ -327,7 +327,6 @@ void MMU2::mmu_loop() {
   }
 }
 
-
 /**
  * Check if MMU was started
  */
@@ -339,7 +338,6 @@ bool MMU2::rx_start() {
   }
   return false;
 }
-
 
 /**
  * Check if the data received ends with the given string.
@@ -373,7 +371,6 @@ bool MMU2::rx_str_P(const char* str) {
   return true;
 }
 
-
 /**
  * Transfer data to MMU, no argument
  */
@@ -384,7 +381,6 @@ void MMU2::tx_str_P(const char* str) {
   rx_buffer[0] = '\0';
   last_request = millis();
 }
-
 
 /**
  * Transfer data to MMU, single argument
@@ -397,7 +393,6 @@ void MMU2::tx_printf_P(const char* format, int argument = -1) {
   last_request = millis();
 }
 
-
 /**
  * Transfer data to MMU, two arguments
  */
@@ -409,7 +404,6 @@ void MMU2::tx_printf_P(const char* format, int argument1, int argument2) {
   last_request = millis();
 }
 
-
 /**
  * Empty the rx buffer
  */
@@ -417,7 +411,6 @@ void MMU2::clear_rx_buffer() {
   while (mmuSerial.available()) mmuSerial.read();
   rx_buffer[0] = '\0';
 }
-
 
 /**
  * Check if we received 'ok' from MMU
@@ -429,7 +422,6 @@ bool MMU2::rx_ok() {
   }
   return false;
 }
-
 
 /**
  * Check if MMU has compatible firmware
@@ -443,7 +435,6 @@ void MMU2::check_version() {
   }
 }
 
-
 /**
  * Handle tool change
  */
@@ -455,14 +446,12 @@ void MMU2::tool_change(uint8_t index) {
 
   if (index != extruder) {
 
-    KEEPALIVE_STATE(IN_HANDLER);
     disable_E0();
     ui.status_printf_P(0, PSTR(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
 
     command(MMU_CMD_T0 + index);
 
     manage_response(true, true);
-    KEEPALIVE_STATE(IN_HANDLER);
 
     command(MMU_CMD_C0);
     extruder = index; //filament change is finished
@@ -474,12 +463,10 @@ void MMU2::tool_change(uint8_t index) {
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(extruder));
 
     ui.reset_status();
-    KEEPALIVE_STATE(NOT_BUSY);
   }
 
   set_runout_valid(true);
 }
-
 
 /**
  *
@@ -497,7 +484,6 @@ void MMU2::tool_change(const char* special) {
   #if ENABLED(MMU2_MENUS)
 
     set_runout_valid(false);
-    KEEPALIVE_STATE(IN_HANDLER);
 
     switch (*special) {
       case '?': {
@@ -526,13 +512,10 @@ void MMU2::tool_change(const char* special) {
       } break;
     }
 
-    KEEPALIVE_STATE(NOT_BUSY);
-
     set_runout_valid(true);
 
   #endif
 }
-
 
 /**
  * Set next command
@@ -542,7 +525,6 @@ void MMU2::command(const uint8_t mmu_cmd) {
   cmd = mmu_cmd;
   ready = false;
 }
-
 
 /**
  * Wait for response from MMU
@@ -561,11 +543,10 @@ bool MMU2::get_response(void) {
   return ret;
 }
 
-
 /**
  * Wait for response and deal with timeout if nexcessary
  */
-void MMU2::manage_response(bool move_axes, bool turn_off_nozzle) {
+void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
 
   bool response = false;
   mmu_print_saved = false;
@@ -573,12 +554,14 @@ void MMU2::manage_response(bool move_axes, bool turn_off_nozzle) {
   float resume_position[XYZE];
   int16_t resume_hotend_temp;
 
+  KEEPALIVE_STATE(PAUSED_FOR_USER);
+
   while (!response) {
 
-    response = get_response(); //wait for "ok" from mmu
+    response = get_response(); // wait for "ok" from mmu
 
-    if (!response) { //no "ok" was received in reserved time frame, user will fix the issue on mmu unit
-      if (!mmu_print_saved) { //first occurence, we are saving current position, park print head in certain position and disable nozzle heater
+    if (!response) {          // No "ok" was received in reserved time frame, user will fix the issue on mmu unit
+      if (!mmu_print_saved) { // First occurrence. Save current position, park print head, disable nozzle heater.
 
         planner.synchronize();
 
@@ -600,13 +583,10 @@ void MMU2::manage_response(bool move_axes, bool turn_off_nozzle) {
         BUZZ(100, 659);
         BUZZ(300, 440);
         BUZZ(100, 659);
-
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
       }
     }
     else if (mmu_print_saved) {
       SERIAL_ECHOLNPGM("MMU starts responding\n");
-      KEEPALIVE_STATE(IN_HANDLER);
 
       if (turn_off_nozzle && resume_hotend_temp) {
         thermalManager.setTargetHotend(resume_hotend_temp, active_extruder);
@@ -639,14 +619,10 @@ void MMU2::manage_response(bool move_axes, bool turn_off_nozzle) {
 void MMU2::set_filament_type(uint8_t index, uint8_t filamentType) {
   if (!enabled) return;
 
-  KEEPALIVE_STATE(IN_HANDLER);
-
   cmd_arg = filamentType;
   command(MMU_CMD_F0 + index);
 
   manage_response(true, true);
-
-  KEEPALIVE_STATE(NOT_BUSY);
 }
 
 void MMU2::filament_runout() {
@@ -679,8 +655,6 @@ void MMU2::filament_runout() {
       return false;
     }
     else {
-      KEEPALIVE_STATE(IN_HANDLER);
-
       command(MMU_CMD_T0 + index);
       manage_response(true, true);
       command(MMU_CMD_C0);
@@ -692,8 +666,6 @@ void MMU2::filament_runout() {
       load_to_nozzle();
 
       BUZZ(200, 404);
-
-      KEEPALIVE_STATE(NOT_BUSY);
       return true;
     }
   }
@@ -721,7 +693,6 @@ void MMU2::filament_runout() {
       return false;
     }
 
-    KEEPALIVE_STATE(IN_HANDLER);
     LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
     const bool saved_e_relative_mode = gcode.axis_relative_modes[E_AXIS];
     gcode.axis_relative_modes[E_AXIS] = true;
@@ -757,8 +728,6 @@ void MMU2::filament_runout() {
 
     BUZZ(200, 404);
 
-    KEEPALIVE_STATE(NOT_BUSY);
-
     gcode.axis_relative_modes[E_AXIS] = saved_e_relative_mode;
 
     disable_E0();
@@ -781,8 +750,6 @@ void MMU2::filament_runout() {
       return false;
     }
 
-    KEEPALIVE_STATE(IN_HANDLER);
-
     filament_ramming();
 
     command(MMU_CMD_U0);
@@ -794,8 +761,6 @@ void MMU2::filament_runout() {
     extruder = MMU2_NO_TOOL;
 
     set_runout_valid(false);
-
-    KEEPALIVE_STATE(NOT_BUSY);
 
     return true;
   }

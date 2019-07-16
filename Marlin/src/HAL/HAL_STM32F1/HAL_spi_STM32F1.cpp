@@ -1,10 +1,10 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (C) 2017 Victor Perez
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 /**
  * Software SPI functions originally from Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  */
 
 /**
@@ -32,34 +32,25 @@
 
 #ifdef __STM32F1__
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include "../../inc/MarlinConfig.h"
 #include <SPI.h>
 
-
-// --------------------------------------------------------------------------
-// Public Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 #if ENABLED(SOFTWARE_SPI)
 
-  // --------------------------------------------------------------------------
+  // ------------------------
   // Software SPI
-  // --------------------------------------------------------------------------
+  // ------------------------
   #error "Software SPI not supported for STM32F1. Use hardware SPI."
 
 #else
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Hardware SPI
-// --------------------------------------------------------------------------
+// ------------------------
 
 /**
  * VGPV SPI speed start and F_CPU/2, by default 72/2 = 36Mhz
