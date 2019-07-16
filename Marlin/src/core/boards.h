@@ -265,6 +265,7 @@
 #define BOARD_FYSETC_AIO_II           4011  // FYSETC AIO_II
 #define BOARD_FYSETC_CHEETAH          4012  // FYSETC CHEETAH
 #define BOARD_LONGER3D_LK             4013  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
+#define BOARD_BIGTREE_SKR_E3_DIP      4014  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC)
 
 //
 // ARM Cortex-M4F
