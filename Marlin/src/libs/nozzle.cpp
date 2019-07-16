@@ -158,21 +158,29 @@
   void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const bool clean_x, const bool clean_y, const bool clean_z) {
     point_t start = NOZZLE_CLEAN_START_POINT;
     point_t end = NOZZLE_CLEAN_END_POINT;
+    if(pattern==2) {
+      if(!clean_x || !clean_y) {
+        SERIAL_ECHOLNPGM("Warning : Clean Circle requires both X and Y");
+        return;
+      }
+      end = NOZZLE_CLEAN_CIRCLE_MIDDLE;
+    }
+
     if (!clean_x) start.x = end.x = current_position[X_AXIS];
     if (!clean_y) start.y = end.y = current_position[Y_AXIS];
     if (!clean_z) start.z = end.z = current_position[Z_AXIS];
 
     switch (pattern) {
       case 1:
-        zigzag(NOZZLE_CLEAN_START_POINT, NOZZLE_CLEAN_END_POINT, strokes, objects);
+        zigzag(start, end, strokes, objects);
         break;
 
       case 2:
-        circle(NOZZLE_CLEAN_START_POINT, NOZZLE_CLEAN_CIRCLE_MIDDLE, strokes, radius);
+        circle(start, end, strokes, radius);
         break;
 
       default:
-        stroke(NOZZLE_CLEAN_START_POINT, NOZZLE_CLEAN_END_POINT, strokes);
+        stroke(start, end, strokes);
     }
   }
 
