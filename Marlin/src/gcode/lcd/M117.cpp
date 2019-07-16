@@ -27,7 +27,8 @@
  * M117: Set LCD Status Message
  */
 void GcodeSuite::M117() {
-
-  ui.set_status(parser.string_arg);
-
+  if(strlen(parser.string_arg))
+    ui.set_status(parser.string_arg);
+  else
+    ui.reset_status();
 }
