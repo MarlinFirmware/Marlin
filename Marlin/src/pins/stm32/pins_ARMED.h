@@ -137,12 +137,45 @@
 //
 #define SD_DETECT_PIN      PA15
 #define BEEPER_PIN         PC9
-#define LCD_PINS_RS        PE9
-#define LCD_PINS_ENABLE    PE8
-#define LCD_PINS_D4        PB12
-#define LCD_PINS_D5        PB13
-#define LCD_PINS_D6        PB14
-#define LCD_PINS_D7        PB15
+
+#if ENABLED(FYSETC_MINI_12864)
+  //
+  // See https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+  //
+  #define DOGLCD_A0        PE9
+  #define DOGLCD_CS        PE8
+
+  #define LCD_BACKLIGHT_PIN -1
+
+  #define LCD_RESET_PIN    PB12   // Must be high or open for LCD to operate normally.
+
+  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #ifndef RGB_LED_R_PIN
+      #define RGB_LED_R_PIN PB13
+    #endif
+    #ifndef RGB_LED_G_PIN
+      #define RGB_LED_G_PIN PB14
+    #endif
+    #ifndef RGB_LED_B_PIN
+      #define RGB_LED_B_PIN PB15
+    #endif
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+    #define NEOPIXEL_PIN    PB13
+  #endif
+#else
+  #define LCD_PINS_RS       PE9
+  #define LCD_PINS_ENABLE   PE8
+  #define LCD_PINS_D4       PB12
+  #define LCD_PINS_D5       PB13
+  #define LCD_PINS_D6       PB14
+  #define LCD_PINS_D7       PB15
+
+  #if ENABLED(MKS_MINI_12864)
+    #define DOGLCD_CS       PB13
+    #define DOGLCD_A0       PB14
+  #endif
+#endif
+
 #define BTN_EN1            PC4
 #define BTN_EN2            PC5
 #define BTN_ENC            PC3
