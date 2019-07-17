@@ -100,6 +100,10 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
   }
 }
 
+TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(planner.leveling_active) {
+  set_bed_leveling_enabled(enable);
+}
+
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
   void set_z_fade_height(const float zfh, const bool do_report/*=true*/) {
