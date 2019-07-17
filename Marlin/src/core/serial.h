@@ -21,12 +21,7 @@
  */
 #pragma once
 
-//#include <stdint.h>
-
-//#include "../inc/MarlinConfigPre.h"
 #include "../HAL/HAL.h"
-
-// #include "../core/macros.h"
 
 /**
  * Define debug bit-masks
