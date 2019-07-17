@@ -62,7 +62,6 @@ static void lcd_factory_settings() {
   #include "../lcdprint.h"
 
   static void progress_bar_test() {
-    ui.encoder_direction_normal();
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();

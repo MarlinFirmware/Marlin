@@ -392,7 +392,7 @@ bool MarlinUI::get_blink() {
         #if HAS_ENCODER_ACTION
           refresh(LCDVIEW_REDRAW_NOW);
           #if HAS_LCD_MENU
-            if (encoderDirection == -1) {     // ADC_KEYPAD forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
+            if (encoderDirection == -(ENCODERBASE)) { // ADC_KEYPAD forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
                    if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
@@ -480,7 +480,6 @@ bool MarlinUI::get_blink() {
 void MarlinUI::status_screen() {
 
   #if HAS_LCD_MENU
-    encoder_direction_normal();
     ENCODER_RATE_MULTIPLY(false);
   #endif
 
