@@ -88,3 +88,5 @@ class Nozzle {
 
   #endif
 };
+
+extern Nozzle nozzle;

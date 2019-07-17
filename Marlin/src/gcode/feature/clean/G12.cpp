@@ -60,7 +60,7 @@ void GcodeSuite::G12() {
     if (clean_z) set_bed_leveling_enabled(false);
   #endif
 
-  Nozzle::clean(pattern, strokes, radius, objects, cleans);
+  nozzle.clean(pattern, strokes, radius, objects, cleans);
 
   // Re-enable bed level correction if it had been on
   #if HAS_LEVELING
