@@ -45,7 +45,7 @@ void FastIO_init(); // Must be called before using fast io macros
 
 #define _BV32(b) (1UL << (b))
 
-#if !defined(PWM)
+#ifndef PWM
   #define PWM OUTPUT
 #endif
 

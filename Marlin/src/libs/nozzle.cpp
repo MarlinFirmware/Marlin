@@ -26,6 +26,8 @@
 
 #include "nozzle.h"
 
+Nozzle nozzle;
+
 #include "../Marlin.h"
 #include "../module/motion.h"
 #include "point_t.h"
@@ -155,24 +157,34 @@
    * @param pattern one of the available patterns
    * @param argument depends on the cleaning pattern
    */
-  void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const bool clean_x, const bool clean_y, const bool clean_z) {
+  void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const uint8_t cleans) {
     point_t start = NOZZLE_CLEAN_START_POINT;
     point_t end = NOZZLE_CLEAN_END_POINT;
-    if (!clean_x) start.x = end.x = current_position[X_AXIS];
-    if (!clean_y) start.y = end.y = current_position[Y_AXIS];
-    if (!clean_z) start.z = end.z = current_position[Z_AXIS];
+
+    if (pattern == 2) {
+      if (!(cleans & (_BV(X_AXIS) | _BV(Y_AXIS)))) {
+        SERIAL_ECHOLNPGM("Warning : Clean Circle requires XY");
+        return;
+      }
+      end = NOZZLE_CLEAN_CIRCLE_MIDDLE;
+    }
+    else {
+      if (!TEST(cleans, X_AXIS)) start.x = end.x = current_position[X_AXIS];
+      if (!TEST(cleans, Y_AXIS)) start.y = end.y = current_position[Y_AXIS];
+    }
+    if (!TEST(cleans, Z_AXIS)) start.z = end.z = current_position[Z_AXIS];
 
     switch (pattern) {
       case 1:
-        zigzag(NOZZLE_CLEAN_START_POINT, NOZZLE_CLEAN_END_POINT, strokes, objects);
+        zigzag(start, end, strokes, objects);
         break;
 
       case 2:
-        circle(NOZZLE_CLEAN_START_POINT, NOZZLE_CLEAN_CIRCLE_MIDDLE, strokes, radius);
+        circle(start, end, strokes, radius);
         break;
 
       default:
-        stroke(NOZZLE_CLEAN_START_POINT, NOZZLE_CLEAN_END_POINT, strokes);
+        stroke(start, end, strokes);
     }
   }
 

@@ -822,12 +822,6 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
          return invalid_extruder_error(tmp_extruder);
     #endif
 
-    #if HAS_LEVELING
-      // Set current position to the physical position
-      const bool leveling_was_active = planner.leveling_active;
-      set_bed_leveling_enabled(false);
-    #endif
-
     if (tmp_extruder >= EXTRUDERS)
       return invalid_extruder_error(tmp_extruder);
 
@@ -874,6 +868,11 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
         }
       }
     #endif // TOOLCHANGE_FILAMENT_SWAP
+
+    #if HAS_LEVELING
+      // Set current position to the physical position
+      TEMPORARY_BED_LEVELING_STATE(false);
+    #endif
 
     if (tmp_extruder != active_extruder) {
 
@@ -982,7 +981,7 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
           singlenozzle_temp[active_extruder] = thermalManager.temp_hotend[0].target;
           if (singlenozzle_temp[tmp_extruder] && singlenozzle_temp[tmp_extruder] != singlenozzle_temp[active_extruder]) {
             thermalManager.setTargetHotend(singlenozzle_temp[tmp_extruder], 0);
-            #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+            #if HAS_DISPLAY
               thermalManager.set_heating_message(0);
             #endif
             (void)thermalManager.wait_for_hotend(0, false);  // Wait for heating or cooling
@@ -1069,11 +1068,6 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
 
     #if HAS_FANMUX
       fanmux_switch(active_extruder);
-    #endif
-
-    #if HAS_LEVELING
-      // Restore leveling to re-establish the logical position
-      set_bed_leveling_enabled(leveling_was_active);
     #endif
 
     SERIAL_ECHO_START();
