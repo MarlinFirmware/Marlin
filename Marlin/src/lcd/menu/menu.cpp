@@ -204,6 +204,10 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
       lcd_z_fade_height = planner.z_fade_height;
     #endif
 
+    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      progress_reset();
+    #endif
+
     #if BOTH(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
       static millis_t doubleclick_expire_ms = 0;
       // Going to menu_main from status screen? Remember first click time.

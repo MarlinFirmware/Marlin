@@ -1015,7 +1015,7 @@ void CardReader::printingHasFinished() {
     #endif
 
     #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-      ui.set_progress(100);
+      ui.set_progress_done();
     #endif
 
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)

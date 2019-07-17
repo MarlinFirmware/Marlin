@@ -1522,13 +1522,15 @@ void MarlinUI::update() {
     uint8_t MarlinUI::get_progress() {
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
         uint8_t &progress = progress_bar_percent;
+        #define _PLIMIT(P) ((P) & 0x7F)
       #else
+        #define _PLIMIT(P) P
         uint8_t progress = 0;
       #endif
       #if ENABLED(SDSUPPORT)
         if (IS_SD_PRINTING()) progress = card.percentDone();
       #endif
-      return progress;
+      return _PLIMIT(progress);
     }
   #endif
 
