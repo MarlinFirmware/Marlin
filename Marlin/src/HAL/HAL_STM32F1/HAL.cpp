@@ -118,6 +118,9 @@ const uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_5
     TEMP_5_PIN,
   #endif
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    FILWIDTH_PIN,
+  #endif
   #if HAS_JOY_ADC_X
     JOY_X_PIN,
   #endif
@@ -125,10 +128,7 @@ const uint8_t adc_pins[] = {
     JOY_Y_PIN,
   #endif
   #if HAS_JOY_ADC_Z
-    JOY_Y_PIN,
-  #endif
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    FILWIDTH_PIN,
+    JOY_Z_PIN,
   #endif
 };
 
@@ -157,6 +157,9 @@ enum TEMP_PINS : char {
   #if HAS_TEMP_ADC_5
     TEMP_5,
   #endif
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    FILWIDTH,
+  #endif
   #if HAS_JOY_ADC_X
     JOY_X,
   #endif
@@ -166,17 +169,10 @@ enum TEMP_PINS : char {
   #if HAS_JOY_ADC_Z
     JOY_Z,
   #endif
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    FILWIDTH,
-  #endif
   ADC_PIN_COUNT
 };
 
 uint16_t HAL_adc_results[ADC_PIN_COUNT];
-
-// ------------------------
-// Function prototypes
-// ------------------------
 
 // ------------------------
 // Private functions

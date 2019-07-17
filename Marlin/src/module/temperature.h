@@ -92,56 +92,43 @@ typedef struct { float Kp, Ki, Kd, Kc; } PIDC_t;
 enum ADCSensorState : char {
   StartSampling,
   #if HAS_TEMP_ADC_0
-    PrepareTemp_0,
-    MeasureTemp_0,
+    PrepareTemp_0, MeasureTemp_0,
   #endif
   #if HAS_HEATED_BED
-    PrepareTemp_BED,
-    MeasureTemp_BED,
+    PrepareTemp_BED, MeasureTemp_BED,
   #endif
   #if HAS_TEMP_CHAMBER
-    PrepareTemp_CHAMBER,
-    MeasureTemp_CHAMBER,
+    PrepareTemp_CHAMBER, MeasureTemp_CHAMBER,
   #endif
   #if HAS_TEMP_ADC_1
-    PrepareTemp_1,
-    MeasureTemp_1,
+    PrepareTemp_1, MeasureTemp_1,
   #endif
   #if HAS_TEMP_ADC_2
-    PrepareTemp_2,
-    MeasureTemp_2,
+    PrepareTemp_2, MeasureTemp_2,
   #endif
   #if HAS_TEMP_ADC_3
-    PrepareTemp_3,
-    MeasureTemp_3,
+    PrepareTemp_3, MeasureTemp_3,
   #endif
   #if HAS_TEMP_ADC_4
-    PrepareTemp_4,
-    MeasureTemp_4,
+    PrepareTemp_4, MeasureTemp_4,
   #endif
   #if HAS_TEMP_ADC_5
-    PrepareTemp_5,
-    MeasureTemp_5,
+    PrepareTemp_5, MeasureTemp_5,
   #endif
   #if HAS_JOY_ADC_X
-    PrepareJoy_X,
-    MeasureJoy_X,
+    PrepareJoy_X, MeasureJoy_X,
   #endif
   #if HAS_JOY_ADC_Y
-    PrepareJoy_Y,
-    MeasureJoy_Y,
+    PrepareJoy_Y, MeasureJoy_Y,
   #endif
   #if HAS_JOY_ADC_Z
-    PrepareJoy_Z,
-    MeasureJoy_Z,
+    PrepareJoy_Z, MeasureJoy_Z,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    Prepare_FILWIDTH,
-    Measure_FILWIDTH,
+    Prepare_FILWIDTH, Measure_FILWIDTH,
   #endif
   #if HAS_ADC_BUTTONS
-    Prepare_ADC_KEY,
-    Measure_ADC_KEY,
+    Prepare_ADC_KEY, Measure_ADC_KEY,
   #endif
   SensorsReady, // Temperatures ready. Delay the next round of readings to let ADC pins settle.
   StartupDelay  // Startup, delay initial temp reading a tiny bit so the hardware can settle
@@ -300,11 +287,9 @@ class Temperature {
     #if HAS_JOY_ADC_X
       static temp_info_t joy_x;
     #endif
-
     #if HAS_JOY_ADC_Y
       static temp_info_t joy_y;
     #endif
-
     #if HAS_JOY_ADC_Z
       static temp_info_t joy_z;
     #endif
@@ -820,7 +805,7 @@ class Temperature {
       static void set_heating_message(const uint8_t e);
     #endif
 
-    #if ENABLED(JOY_XY)
+    #if ENABLED(JOYSTICK)
       static void inject_joy_action();
     #endif
 

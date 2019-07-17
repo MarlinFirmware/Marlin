@@ -474,36 +474,24 @@ void _O2 Endstops::M119() {
   #if ENABLED(BLTOUCH)
     bltouch._reset_SW_mode();
   #endif
-  #if HAS_JOY_ADC_X || HAS_JOY_ADC_Y || HAS_JOY_ADC_Z
-    char tmp[7];  // space for printing the raw int16 value
+
+  #if ENABLED(JOYSTICK)
+    SERIAL_ECHOPGM("Joystick");
+    #if HAS_JOY_ADC_X
+      SERIAL_ECHOPAIR(" X", thermalManager.joy_x.raw);
+    #endif
+    #if HAS_JOY_ADC_Y
+      SERIAL_ECHOPAIR(" Y", thermalManager.joy_y.raw);
+    #endif
+    #if HAS_JOY_ADC_Z
+      SERIAL_ECHOPAIR(" Z", thermalManager.joy_z.raw);
+    #endif
+    #if HAS_JOY_ADC_EN
+      SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), "EN=", "HIGH (dis", "LOW (en", "abled");
+    #endif
+    SERIAL_EOL();
   #endif
-  
-  #if HAS_JOY_ADC_X
-    SERIAL_ECHOPGM("Joystick x: ");
-    sprintf_P(tmp, PSTR("%d"), Temperature::joy_x.raw);
-    SERIAL_ECHOLN(tmp);
-  #endif
-  #if HAS_JOY_ADC_Y
-    SERIAL_ECHOPGM("Joystick y: ");
-    sprintf_P(tmp, PSTR("%d"), Temperature::joy_y.raw);
-    SERIAL_ECHOLN(tmp);
-  #endif
-  #if HAS_JOY_ADC_Z
-    SERIAL_ECHOPGM("Joystick z: ");
-    sprintf_P(tmp, PSTR("%d"), Temperature::joy_z.raw);
-    SERIAL_ECHOLN(tmp);
-  #endif
-  #if HAS_JOY_ADC_EN
-    SERIAL_ECHOPGM("Joystick enable: ");
-    if (READ(JOY_EN_PIN)) {
-      SERIAL_ECHOLNPGM("Disable (inactive-high)");
-    }
-    else {
-      SERIAL_ECHOLNPGM("Enable (active-low)");
-    }
-  #else
-    SERIAL_ECHOLNPGM("Joystick always enabled, no enable pin defined");
-  #endif
+
 } // Endstops::M119
 
 // The following routines are called from an ISR context. It could be the temperature ISR, the

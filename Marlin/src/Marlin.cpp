@@ -740,8 +740,8 @@ void idle(
     mmu2.mmu_loop();
   #endif
 
-  #if ENABLED(JOY_XY)
-    Temperature::inject_joy_action();
+  #if ENABLED(JOYSTICK)
+    thermalManager.inject_joy_action();
   #endif
 }
 
