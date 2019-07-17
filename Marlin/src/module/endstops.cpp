@@ -487,7 +487,7 @@ void _O2 Endstops::M119() {
       SERIAL_ECHOPAIR(" Z", thermalManager.joy_z.raw);
     #endif
     #if HAS_JOY_ADC_EN
-      SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), "EN=", "HIGH (dis", "LOW (en", "abled");
+      SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
     #endif
     SERIAL_EOL();
   #endif

@@ -3340,7 +3340,7 @@ void Temperature::isr() {
     // Normalized ADC values are 0 at end of deadzone and scale linearly to -1 or +1 at outer limits
     float norm_adc[XYZ] = { 0 };
 
-    auto _normalize_joy = [](float &adc, const int16_t raw, const const int16_t (&joy_limits)[4]){
+    auto _normalize_joy = [](float &adc, const int16_t raw, const int16_t (&joy_limits)[4]){
       if (WITHIN(raw, joy_limits[0], joy_limits[3])) {
         // within limits, check deadzone
         if (raw > joy_limits[2])
@@ -3368,6 +3368,7 @@ void Temperature::isr() {
     // quadratic scaling of joystick to feedrate
     float move_dist[XYZ], diag_dist = 0;
     LOOP_XYZ(i) {
+      move_dist[i] = 0;
       if (!norm_adc[i]) continue;
       move_dist[i] = seg_time * sq(norm_adc[i]) * planner.settings.max_feedrate_mm_s[i];
       // Very small movements disappear when printed as decimal with 4 digits of precision
@@ -3384,18 +3385,19 @@ void Temperature::isr() {
 
     char tmp[36+5];  // Should fit (with null) in 36 chars. A bit of margin for safety.
     strcpy_P(tmp, PSTR("G1 X"));
-    dtostrf(move_dist[X_AXIS], 0, 4, tmp[strlen(tmp)]);
+    dtostrf(move_dist[X_AXIS], 0, 4, &tmp[strlen(tmp)]);
     strcat_P(tmp, PSTR(" Y"));
-    dtostrf(move_dist[Y_AXIS], 0, 4, tmp[strlen(tmp)]);
+    dtostrf(move_dist[Y_AXIS], 0, 4, &tmp[strlen(tmp)]);
     strcat_P(tmp, PSTR(" Z"));
-    dtostrf(move_dist[Z_AXIS], 0, 4, tmp[strlen(tmp)]);
+    dtostrf(move_dist[Z_AXIS], 0, 4, &tmp[strlen(tmp)]);
     strcat_P(tmp, PSTR(" F"));
-    dtostrf(ceil(net_feed_mm_s * 60), 0, 0, tmp[strlen(tmp)]);
+    dtostrf(ceil(net_feed_mm_s * 60), 0, 0, &tmp[strlen(tmp)]);
 
     // Prevent re-entry to this method until done!
     REMEMBER(inj, injecting_now, true);
     REMEMBER(rm, relative_mode, true);
     queue.enqueue_one_now(tmp);
+    queue.advance();
   }
 
 #endif // JOYSTICK
