@@ -92,11 +92,13 @@ uint8_t XPT2046::read_buttons() {
 }
 
 bool XPT2046::isTouched() {
-  #if PIN_EXISTS(TOUCH_INT)
-    return (READ(TOUCH_INT_PIN) != HIGH);
-  #else
-    return (getInTouch(XPT2046_Z1) >= XPT2046_Z1_TRESHHOLD);
-  #endif
+  return (
+    #if PIN_EXISTS(TOUCH_INT)
+      READ(TOUCH_INT_PIN) != HIGH
+    #else
+      getInTouch(XPT2046_Z1) >= XPT2046_Z1_TRESHHOLD
+    #endif
+  );
 }
 
 uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {
