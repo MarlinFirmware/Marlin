@@ -96,11 +96,17 @@ void LEDLights::set_color(const LEDColor &incol
       if (NEOPIXEL_BKGD_LED_INDEX == nextLed) { nextLed++; return; }
     #endif
     pixels.setBrightness(incol.i);
+    #if HAS_TWO_NEOPIXEL
+      pixels2.setBrightness(incol.i);
+    #endif
     if (!isSequence)
       set_neopixel_color(neocolor);
     else {
       pixels.setPixelColor(nextLed, neocolor);
-      pixels.show();
+      #if HAS_TWO_NEOPIXEL
+        pixels2.setPixelColor(nextLed, neocolor);
+      #endif
+      NEOPIXELSHOW;
       if (++nextLed >= pixels.numPixels()) nextLed = 0;
       return;
     }

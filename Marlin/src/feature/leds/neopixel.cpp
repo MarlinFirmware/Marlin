@@ -35,11 +35,17 @@
 #endif
 
 Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800);
+#if HAS_TWO_NEOPIXEL
+  Adafruit_NeoPixel pixels2(NEOPIXEL_PIXELS, NEOPIXEL2_PIN, NEOPIXEL2_TYPE + NEO_KHZ800);
+#endif
 
 #ifdef NEOPIXEL_BKGD_LED_INDEX
   void set_neopixel_color_background() {
     uint8_t background_color[4] = NEOPIXEL_BKGD_COLOR;
     pixels.setPixelColor(NEOPIXEL_BKGD_LED_INDEX, pixels.Color(background_color[0], background_color[1], background_color[2], background_color[3]));
+    #if HAS_TWO_NEOPIXEL
+      pixels2.setPixelColor(NEOPIXEL_BKGD_LED_INDEX, pixels.Color(background_color[0], background_color[1], background_color[2], background_color[3]));
+    #endif
   }
 #endif
 
@@ -52,21 +58,32 @@ void set_neopixel_color(const uint32_t color) {
       }
     #endif
     pixels.setPixelColor(i, color);
+    #if HAS_TWO_NEOPIXEL
+      pixels2.setPixelColor(i, color);
+    #endif
   }
-  pixels.show();
+  NEOPIXELSHOW;
 }
 
 void set_neopixel_color_startup(const uint32_t color) {
-  for (uint16_t i = 0; i < pixels.numPixels(); ++i)
+  for (uint16_t i = 0; i < pixels.numPixels(); ++i) {
     pixels.setPixelColor(i, color);
-  pixels.show();
+    #if HAS_TWO_NEOPIXEL
+      pixels2.setPixelColor(i, color);
+    #endif
+  }
+  NEOPIXELSHOW;
 }
 
 void setup_neopixel() {
   SET_OUTPUT(NEOPIXEL_PIN);
   pixels.setBrightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
   pixels.begin();
-  pixels.show(); // initialize to all off
+  #if HAS_TWO_NEOPIXEL
+    pixels2.setBrightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
+    pixels2.begin();
+  #endif
+  NEOPIXELSHOW;   // initialize to all off
 
   #if ENABLED(NEOPIXEL_STARTUP_TEST)
     safe_delay(1000);
@@ -99,7 +116,10 @@ bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, c
   #else
     static uint16_t nextLed = 0;
     pixels.setPixelColor(nextLed, color);
-    pixels.show();
+    #if HAS_TWO_NEOPIXEL
+      pixels2.setPixelColor(nextLed, color);
+    #endif
+    NEOPIXELSHOW;
     if (++nextLed >= pixels.numPixels()) nextLed = 0;
     return true;
   #endif
