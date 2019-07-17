@@ -51,7 +51,7 @@
   #include "../feature/bltouch.h"
 #endif
 
-#if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+#if HAS_DISPLAY
   #include "../lcd/ultralcd.h"
 #endif
 
@@ -1044,7 +1044,7 @@ bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool
     if (zz) SERIAL_CHAR('Z');
     SERIAL_ECHOLNPGM(" " MSG_FIRST);
 
-    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+    #if HAS_DISPLAY
       ui.status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
     #endif
     return true;

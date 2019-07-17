@@ -38,8 +38,8 @@ void GcodeSuite::M23() {
   for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
   card.openFile(parser.string_arg, true);
 
-  #if EITHER(ULTRA_LCD, EXTENSIBLE_UI) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    ui.progress_bar_percent = 0;
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    ui.set_progress(0);
   #endif
 }
 

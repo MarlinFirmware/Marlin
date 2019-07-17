@@ -982,7 +982,7 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
           singlenozzle_temp[active_extruder] = thermalManager.temp_hotend[0].target;
           if (singlenozzle_temp[tmp_extruder] && singlenozzle_temp[tmp_extruder] != singlenozzle_temp[active_extruder]) {
             thermalManager.setTargetHotend(singlenozzle_temp[tmp_extruder], 0);
-            #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+            #if HAS_DISPLAY
               thermalManager.set_heating_message(0);
             #endif
             (void)thermalManager.wait_for_hotend(0, false);  // Wait for heating or cooling
