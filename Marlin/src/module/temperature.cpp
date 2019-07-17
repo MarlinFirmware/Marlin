@@ -977,10 +977,7 @@ void Temperature::manage_heater() {
 
   #if EARLY_WATCHDOG
     // If thermal manager is still not running, make sure to at least reset the watchdog!
-    if (!inited) {
-      watchdog_reset();
-      return;
-    }
+    if (!inited) return watchdog_reset();
   #endif
 
   #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
@@ -2926,7 +2923,7 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-  #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+  #if HAS_DISPLAY
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       #if HOTENDS > 1

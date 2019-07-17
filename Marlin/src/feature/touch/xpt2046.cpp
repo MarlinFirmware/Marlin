@@ -44,12 +44,15 @@ XPT2046 touch;
 extern int8_t encoderDiff;
 
 void XPT2046::init(void) {
-  SET_INPUT(TOUCH_INT_PIN); // Pendrive interrupt pin, used as polling in getInTouch
   SET_INPUT(TOUCH_MISO_PIN);
   SET_OUTPUT(TOUCH_MOSI_PIN);
-
-  OUT_WRITE(TOUCH_SCK_PIN, 0);
+  SET_OUTPUT(TOUCH_SCK_PIN);
   OUT_WRITE(TOUCH_CS_PIN, 1);
+
+  #if PIN_EXISTS(TOUCH_INT)
+    // Optional Pendrive interrupt pin
+    SET_INPUT(TOUCH_INT_PIN);
+  #endif
 
   // Read once to enable pendrive status pin
   getInTouch(XPT2046_X);
@@ -74,10 +77,10 @@ uint8_t XPT2046::read_buttons() {
 
   // We rely on XPT2046 compatible mode to ADS7843, hence no Z1 and Z2 measurements possible.
 
-  if (READ(TOUCH_INT_PIN)) return 0; // If HIGH there are no screen presses.
+  if (!isTouched()) return 0;
   const uint16_t x = uint16_t(((uint32_t(getInTouch(XPT2046_X))) * tsoffsets[0]) >> 16) + tsoffsets[1],
                  y = uint16_t(((uint32_t(getInTouch(XPT2046_Y))) * tsoffsets[2]) >> 16) + tsoffsets[3];
-  if (READ(TOUCH_INT_PIN)) return 0; // Fingers must still be on the TS for a valid read.
+  if (!isTouched()) return 0; // Fingers must still be on the TS for a valid read.
 
   if (y < 185 || y > 224) return 0;
 
@@ -86,6 +89,16 @@ uint8_t XPT2046::read_buttons() {
   else if (WITHIN(x, 221, 298)) return EN_C;
 
   return 0;
+}
+
+bool XPT2046::isTouched() {
+  return (
+    #if PIN_EXISTS(TOUCH_INT)
+      READ(TOUCH_INT_PIN) != HIGH
+    #else
+      getInTouch(XPT2046_Z1) >= XPT2046_Z1_TRESHHOLD
+    #endif
+  );
 }
 
 uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {

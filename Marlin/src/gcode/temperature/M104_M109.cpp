@@ -125,7 +125,7 @@ void GcodeSuite::M109() {
         print_job_timer.start();
     #endif
 
-    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+    #if HAS_DISPLAY
       if (thermalManager.isHeatingHotend(target_extruder) || !no_wait_for_cooling)
         thermalManager.set_heating_message(target_extruder);
     #endif
