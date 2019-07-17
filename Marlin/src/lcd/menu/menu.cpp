@@ -275,7 +275,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
       encoder_direction_normal();
     #endif
 
-    set_ui_selection(false);
+    set_selection(false);
   }
 }
 
@@ -446,14 +446,16 @@ void _lcd_draw_homing() {
 //
 // Selection screen presents a prompt and two options
 //
-bool ui_selection; // = false
-void set_ui_selection(const bool sel) { ui_selection = sel; }
-void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
-  if (ui.encoderPosition) {
-    ui_selection = ((ui.encoderDirection > 0) == int16_t(ui.encoderPosition) > 0);
-    ui.encoderPosition = 0;
+bool MarlinUI::selection; // = false
+bool MarlinUI::update_selection() {
+  if (encoderPosition) {
+    selection = ((encoderDirection > 0) == int16_t(encoderPosition) > 0);
+    encoderPosition = 0;
   }
-  const bool got_click = ui.use_click();
+  return selection;
+}
+void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
+  const bool ui_selection = ui.update_selection(), got_click = ui.use_click();
   if (got_click || ui.should_draw()) {
     draw_select_screen(yes, no, ui_selection, pref, string, suff);
     if (got_click) { ui_selection ? yesFunc() : noFunc(); }

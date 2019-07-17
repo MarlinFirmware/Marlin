@@ -111,7 +111,7 @@ static inline void _lcd_level_bed_corners_homing() {
   if (all_axes_homed()) {
     bed_corner = 0;
     ui.goto_screen(menu_level_bed_corners);
-    set_ui_selection(true);
+    ui.set_selection(true);
     _lcd_goto_next_corner();
   }
 }
