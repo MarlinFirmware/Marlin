@@ -1449,7 +1449,7 @@
 #endif
 #if ENABLED(MachineCR10Max)
 #define X_BED_SIZE 475
-#define Y_BED_SIZE 460
+#define Y_BED_SIZE 450
 #define Z_MAX_POS 470
 #endif
 #endif
