@@ -98,6 +98,10 @@
   #include "../../feature/babystep.h"
 #endif
 
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../../feature/host_actions.h"
+#endif
+
 inline float clamp(const float value, const float minimum, const float maximum) {
   return _MAX(_MIN(value, maximum), minimum);
 }
