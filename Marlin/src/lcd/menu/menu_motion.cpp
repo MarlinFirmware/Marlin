@@ -74,7 +74,6 @@ inline void manual_move_to_current(AxisEnum axis
 
 static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
   if (ui.use_click()) return ui.goto_previous_screen_no_defer();
-  ui.encoder_direction_normal();
   if (ui.encoderPosition && !ui.processing_manual_move) {
 
     // Start with no limits to movement
@@ -158,7 +157,6 @@ static void _lcd_move_e(
   #endif
 ) {
   if (ui.use_click()) return ui.goto_previous_screen_no_defer();
-  ui.encoder_direction_normal();
   if (ui.encoderPosition) {
     if (!ui.processing_manual_move) {
       const float diff = float(int16_t(ui.encoderPosition)) * move_menu_scale;

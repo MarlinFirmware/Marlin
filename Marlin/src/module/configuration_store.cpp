@@ -1390,7 +1390,7 @@ void MarlinSettings::postprocess() {
         float runout_distance_mm;
         EEPROM_READ(runout_distance_mm);
         #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
-          runout.set_runout_distance(runout_distance_mm);
+          if (!validating) runout.set_runout_distance(runout_distance_mm);
         #endif
       }
 

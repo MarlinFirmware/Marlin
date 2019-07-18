@@ -41,7 +41,6 @@
 
   void lcd_mixer_gradient_z_start_edit() {
     ui.defer_status_screen();
-    ui.encoder_direction_normal();
     ENCODER_RATE_MULTIPLY(true);
     if (ui.encoderPosition != 0) {
       mixer.gradient.start_z += float(int16_t(ui.encoderPosition)) * 0.1;
@@ -66,7 +65,6 @@
 
   void lcd_mixer_gradient_z_end_edit() {
     ui.defer_status_screen();
-    ui.encoder_direction_normal();
     ENCODER_RATE_MULTIPLY(true);
     if (ui.encoderPosition != 0) {
       mixer.gradient.end_z += float(int16_t(ui.encoderPosition)) * 0.1;
