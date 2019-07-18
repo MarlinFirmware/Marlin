@@ -57,3 +57,9 @@ env = Environment(
     CPPFLAGS= '-Wall -static -std=gnu++11 -march=armv6 -mlittle-endian ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 -march=armv6 -mlittle-endian ' + debug_flags)
 add_program(env, 'armv6l')
+
+env = Environment(
+    CXX='aarch64-linux-gnu-g++',
+    CPPFLAGS= '-Wall -static -std=gnu++11 ' + debug_flags,
+    LINKFLAGS='-Wall -static -std=gnu++11 ' + debug_flags)
+add_program(env, 'aarch64')
