@@ -46,7 +46,7 @@
 #define Z_STOP_PIN         PC15
 
 //
-// Z Probe must be this pins
+// Z Probe must be this pin
 //
 #define Z_MIN_PROBE_PIN    PC14
 
