@@ -237,7 +237,7 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1134)
 else ifeq ($(HARDWARE_MOTHERBOARD),1135)
 # Dagoma F5
 else ifeq ($(HARDWARE_MOTHERBOARD),1136)
-# Fysetc F6
+# FYSETC F6
 else ifeq ($(HARDWARE_MOTHERBOARD),1137)
 # Duplicator i3 Plus
 else ifeq ($(HARDWARE_MOTHERBOARD),1138)

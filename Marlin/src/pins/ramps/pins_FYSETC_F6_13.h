@@ -22,7 +22,7 @@
 #pragma once
 
 //
-// Fysetc F6 pin assignments
+// FYSETC F6 pin assignments
 //
 
 #ifndef __AVR_ATmega2560__

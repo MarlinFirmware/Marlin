@@ -88,7 +88,7 @@
 #define BOARD_RAMPS_ENDER_4           1134  // Creality: Ender-4, CR-8
 #define BOARD_RAMPS_CREALITY          1135  // Creality: CR10S, CR20, CR-X
 #define BOARD_RAMPS_DAGOMA            1136  // Dagoma F5
-#define BOARD_FYSETC_F6_13            1137  // Fysetc F6
+#define BOARD_FYSETC_F6_13            1137  // FYSETC F6
 #define BOARD_DUPLICATOR_I3_PLUS      1138  // Wanhao Duplicator i3 Plus
 #define BOARD_VORON                   1139  // VORON Design
 #define BOARD_TRONXY_V3_1_0           1140  // Tronxy TRONXY-V3-1.0
