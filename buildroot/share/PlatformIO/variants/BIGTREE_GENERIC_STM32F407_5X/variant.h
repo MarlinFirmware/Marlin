@@ -135,7 +135,7 @@ extern const PinName digitalPin[];
   #define PE15  64 //1:FSMC_D12
   #define PD8   65 //1:FSMC_D13 / USART3_TX
   #define PD9   66 //1:FSMC_D14 / USART3_RX
-  #define PD10  67 //1:FSMC_D15 
+  #define PD10  67 //1:FSMC_D15
   #define PD11  68 //1:FSMC_A16
   #define PD12  69 //1:FSMC_A17 / TIM4_CH1
   #define PD13  70 //1:FSMC_A18 / TIM4_CH2
