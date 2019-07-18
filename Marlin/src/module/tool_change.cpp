@@ -349,7 +349,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
       fast_line_to_current(X_AXIS);
       planner.synchronize(); // Always sync the final move
 
-      DEBUG_ECHOLNPGM("PE Tool-Change done.");
+      if (DEBUGGING(LEVELING)) DEBUG_POS("PE Tool-Change done.", current_position);
     }
     else { // nomove == true
       // Only engage magnetic field for new extruder
@@ -455,7 +455,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
     fast_line_to_current(Y_AXIS); // Move away from docked toolhead
     planner.synchronize();        // Always sync the final move
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("ST Tool-Change done.");
+    if (DEBUGGING(LEVELING)) DEBUG_POS("ST Tool-Change done.", current_position);
   }
 
 #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
@@ -582,7 +582,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
     planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Y_AXIS], active_extruder); // move away from docked toolhead
     planner.synchronize(); // Always sync last tool-change move
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("MST Tool-Change done.");
+    if (DEBUGGING(LEVELING)) DEBUG_POS("MST Tool-Change done.", current_position);
   }
 
 #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
@@ -683,10 +683,10 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
 
     // 9. Apply Z hotend offset to current position
 
-    current_position[Z_AXIS] += hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
     if (DEBUGGING(LEVELING)) DEBUG_POS("(9) Applying Z-offset", current_position);
+    current_position[Z_AXIS] += hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("EMST Tool-Change done.");
+    if (DEBUGGING(LEVELING)) DEBUG_POS("EMST Tool-Change done.", current_position);
   }
 
 #endif // ELECTROMAGNETIC_SWITCHING_TOOLHEAD
