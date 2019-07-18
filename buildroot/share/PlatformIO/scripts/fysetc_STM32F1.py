@@ -26,9 +26,10 @@ env.AddPostAction(
 #)
 
 # In-line command with arguments
-#env.Replace(
-#    UPLOADCMD="executable -arg1 -arg2 $SOURCE"
-#)
+env.Replace(
+	UPLOADCMD="stm32flash -v -i rts,-dtr,dtr " + '$UPLOAD_PORT' + " -R -w $BUILD_DIR/${PROGNAME}.hex"
+)
+
 
 # Python callback
 #def on_upload(source, target, env):

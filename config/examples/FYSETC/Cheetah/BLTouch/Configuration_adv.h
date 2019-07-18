@@ -879,7 +879,7 @@
  * LED Control Menu
  * Enable this feature to add LED Control to the LCD menu
  */
-#define LED_CONTROL_MENU
+//#define LED_CONTROL_MENU
 #if ENABLED(LED_CONTROL_MENU)
   #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
   #if ENABLED(LED_COLOR_PRESETS)
@@ -906,7 +906,7 @@
 
   // Reverse SD sort to show "more recent" files first, according to the card's FAT.
   // Since the FAT gets out of order with usage, SDCARD_SORT_ALPHA is recommended.
-  #define SDCARD_RATHERRECENTFIRST
+  //#define SDCARD_RATHERRECENTFIRST
 
   #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
 
@@ -1648,7 +1648,7 @@
   #endif
 
   #if AXIS_IS_TMC(Y)
-    #define Y_CURRENT     650
+    #define Y_CURRENT     500
     #define Y_MICROSTEPS   16
     #define Y_RSENSE     0.11
   #endif
