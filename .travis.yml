@@ -18,6 +18,7 @@ env:
   - TEST_PLATFORM="linux_native"
   - TEST_PLATFORM="esp32"
   - TEST_PLATFORM="alfawise_U20"
+  - TEST_PLATFORM="black_stm32f407ve"
 
 before_install:
   #
