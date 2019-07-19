@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@
 #define extDigitalWrite(IO,V)   digitalWrite(IO,V)
 
 // PWM outputs
-#define PWM_PIN(P)              (P < 34) // NOTE Pins >= 34 are input only on ESP32, so they can't be used for output.
+#define PWM_PIN(P)              (P < 34 || P > 127) // NOTE Pins >= 34 are input only on ESP32, so they can't be used for output.
 
 // Toggle pin value
 #define TOGGLE(IO)              WRITE(IO, !READ(IO))

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,8 +48,8 @@
 #define _TMC5160            5160
 #define _TMC5160_STANDALONE 5161
 
-#define _ACTUAL(V) _CAT(_, V)
-#define _AXIS_DRIVER_TYPE(A,T) (defined(A##_DRIVER_TYPE) && _ACTUAL(A##_DRIVER_TYPE) == _CAT(_, T))
+#define _DRIVER_ID(V) _CAT(_, V)
+#define _AXIS_DRIVER_TYPE(A,T) (_DRIVER_ID(A##_DRIVER_TYPE) == _CAT(_, T))
 
 #define AXIS_DRIVER_TYPE_X(T) _AXIS_DRIVER_TYPE(X,T)
 #define AXIS_DRIVER_TYPE_Y(T) _AXIS_DRIVER_TYPE(Y,T)
@@ -84,6 +84,8 @@
                        || HAS_DRIVER(TMC5130) \
                        || HAS_DRIVER(TMC5160) )
 
+#define HAS_TMC220x (HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209))
+
 #define AXIS_IS_TMC(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) \
                            || AXIS_DRIVER_TYPE(A,TMC2160) \
                            || AXIS_DRIVER_TYPE(A,TMC2208) \
@@ -116,3 +118,12 @@
                                    || AXIS_DRIVER_TYPE(A,TMC2209) \
                                    || AXIS_DRIVER_TYPE(A,TMC5130) \
                                    || AXIS_DRIVER_TYPE(A,TMC5160) )
+
+//
+// Stretching 'drivers.h' to include LPC SD options
+//
+#define _SDCARD_LCD          1
+#define _SDCARD_ONBOARD      2
+#define _SDCARD_CUSTOM_CABLE 3
+#define _SDCARD_ID(V) _CAT(_SDCARD_, V)
+#define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 
 #include "Sd2Card_FlashDrive.h"
 
-#if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+#if HAS_DISPLAY
   #include "../../lcd/ultralcd.h"
 #endif
 
@@ -63,7 +63,7 @@ void Sd2Card::idle() {
       SERIAL_ECHOPGM("Starting USB host...");
       if (!usb.start()) {
         SERIAL_ECHOPGM(" Failed. Retrying in 2s.");
-        #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+        #if HAS_DISPLAY
           LCD_MESSAGEPGM("USB start failed");
         #endif
         state = USB_HOST_DELAY_INIT;

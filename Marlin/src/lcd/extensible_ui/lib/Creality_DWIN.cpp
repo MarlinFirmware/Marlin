@@ -171,7 +171,7 @@ void onIdle()
 		if (PoweroffContinue)
 		{
 			PoweroffContinue = false;
-			enqueueCommands_P(power_off_commands[3]);
+			injectCommands_P(power_off_commands[3]);
 			card.startFileprint();
 			print_job_timer.power_off_start();
 		}
@@ -753,7 +753,7 @@ void RTSSHOW::RTS_HandleData()
 			InforShowStatus = true;
 			TPShowStatus = false;
 			stopPrint();
-			enqueueCommands_P(PSTR("M84"));
+			injectCommands_P(PSTR("M84"));
 			RTS_SndData(11, FilenameIcon);
 			RTS_SndData(0, PrintscheduleIcon);
 			RTS_SndData(0, PrintscheduleIcon + 1);
@@ -936,7 +936,7 @@ void RTSSHOW::RTS_HandleData()
 			RTS_SndData(getZOffset_mm() * 100, 0x1026);
 		}
 		//SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
-		enqueueCommands_P((PSTR("M500")));
+		injectCommands_P((PSTR("M500")));
 		//SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 		break;
 
@@ -1059,9 +1059,9 @@ void RTSSHOW::RTS_HandleData()
 			RTS_SndData(10, FilenameIcon); //Motor Icon
 			waitway = 2;				   //only for prohibiting to receive massage
 			if (!isPositionKnown())
-				enqueueCommands_P((PSTR("G28")));
+				injectCommands_P((PSTR("G28")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0.0")));
+			injectCommands_P((PSTR("G1 F100 Z0.0")));
 			RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
 		}
 		else if (recdat.data[0] == 2) // Exchange filement
@@ -1097,7 +1097,7 @@ void RTSSHOW::RTS_HandleData()
 		}
 		else if (recdat.data[0] == 6) // Diabalestepper
 		{
-			enqueueCommands_P(PSTR("M84"));
+			injectCommands_P(PSTR("M84"));
 			RTS_SndData(11, FilenameIcon);
 		}
 		break;
@@ -1119,42 +1119,42 @@ void RTSSHOW::RTS_HandleData()
 		if (recdat.data[0] == 1) // Top Left
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			enqueueCommands_P((PSTR("G1 F100 Z3;")));
-			enqueueCommands_P((PSTR("G1 X30 Y30 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3;")));
+			injectCommands_P((PSTR("G1 X30 Y30 F5000")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 2) // Top Right
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			enqueueCommands_P((PSTR("G1 F100 Z3")));
-			enqueueCommands_P((PSTR("G1 X270 Y30 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3")));
+			injectCommands_P((PSTR("G1 X270 Y30 F5000")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 3) //  Centre
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			enqueueCommands_P((PSTR("G1 F100 Z3")));
-			enqueueCommands_P((PSTR("G1 X150 Y150 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3")));
+			injectCommands_P((PSTR("G1 X150 Y150 F5000")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 4) // Bottom Left
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			enqueueCommands_P((PSTR("G1 F100 Z3")));
-			enqueueCommands_P((PSTR("G1 X30 Y270 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3")));
+			injectCommands_P((PSTR("G1 X30 Y270 F5000")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 5) //  Bottom Right
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			enqueueCommands_P((PSTR("G1 F100 Z3")));
-			enqueueCommands_P((PSTR("G1 X270 Y270 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3")));
+			injectCommands_P((PSTR("G1 X270 Y270 F5000")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F200 Z0")));
+			injectCommands_P((PSTR("G1 F200 Z0")));
 		}
 		break;
 #else
@@ -1162,10 +1162,10 @@ void RTSSHOW::RTS_HandleData()
 		{
 			// Disallow Z homing if X or Y are unknown
 			if (!isAxisPositionKnown((axis_t)X) || !isAxisPositionKnown((axis_t)Y))
-				enqueueCommands_P(PSTR("G28"));
+				injectCommands_P(PSTR("G28"));
 			else
-				enqueueCommands_P(PSTR("G28 Z"));
-			enqueueCommands_P(PSTR("G1 F150 Z0.0"));
+				injectCommands_P(PSTR("G28 Z"));
+			injectCommands_P(PSTR("G1 F150 Z0.0"));
 			RTS_SndData(getZOffset_mm() * 100, 0x1026);
 		}
 		else if (recdat.data[0] == 2) // Z-axis to Up
@@ -1177,7 +1177,7 @@ void RTSSHOW::RTS_HandleData()
 				babystepAxis_steps(40, (axis_t)Z);
 				setZOffset_mm(getZOffset_mm() + 0.1);
 				RTS_SndData(getZOffset_mm() * 100, 0x1026);
-				enqueueCommands_P(PSTR("M500"));
+				injectCommands_P(PSTR("M500"));
 			}
 		}
 		else if (recdat.data[0] == 3) // Z-axis to Down
@@ -1187,7 +1187,7 @@ void RTSSHOW::RTS_HandleData()
 				babystepAxis_steps(-40, (axis_t)Z);
 				setZOffset_mm(getZOffset_mm() - 0.1);
 				RTS_SndData(getZOffset_mm() * 100, 0x1026);
-				enqueueCommands_P(PSTR("M500"));
+				injectCommands_P(PSTR("M500"));
 			}
 		}
 		else if (recdat.data[0] == 4) // Assitant Level
@@ -1195,9 +1195,9 @@ void RTSSHOW::RTS_HandleData()
 			//setLevelingActive(false); // FIX ME
 			waitway = 4; //only for prohibiting to receive massage
 			if (!isPositionKnown())
-				enqueueCommands_P((PSTR("G28")));
+				injectCommands_P((PSTR("G28")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0.0")));
+			injectCommands_P((PSTR("G1 F100 Z0.0")));
 			RTS_SndData(ExchangePageBase + 84, ExchangepageAddr);
 		}
 		else if (recdat.data[0] == 5) // AutoLevel "Measuring" Button
@@ -1205,59 +1205,59 @@ void RTSSHOW::RTS_HandleData()
 			waitway = 3; //only for prohibiting to receive massage
 			RTS_SndData(1, AutolevelIcon);
 			RTS_SndData(ExchangePageBase + 85, ExchangepageAddr);
-			enqueueCommands_P(PSTR(USER_GCODE_1));
+			injectCommands_P(PSTR(USER_GCODE_1));
 		}
 		else if (recdat.data[0] == 6) // Assitant Level ,  Centre 1
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			enqueueCommands_P((PSTR("G1 F100 Z3;")));
-			enqueueCommands_P((PSTR("G1 X150 Y150 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3;")));
+			injectCommands_P((PSTR("G1 X150 Y150 F5000")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 7) // Assitant Level , Front Left 2
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			enqueueCommands_P((PSTR("G1 F100 Z3;")));
-			enqueueCommands_P((PSTR("G1 X30 Y30 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3;")));
+			injectCommands_P((PSTR("G1 X30 Y30 F5000")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 8) // Assitant Level , Front Right 3
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			enqueueCommands_P((PSTR("G1 F100 Z3;")));
-			enqueueCommands_P((PSTR("G1 X270 Y30 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3;")));
+			injectCommands_P((PSTR("G1 X270 Y30 F5000")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 9) // Assitant Level , Back Right 4
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			enqueueCommands_P((PSTR("G1 F100 Z3;")));
-			enqueueCommands_P((PSTR("G1 X270 Y270 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3;")));
+			injectCommands_P((PSTR("G1 X270 Y270 F5000")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 10) // Assitant Level , Back Left 5
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			enqueueCommands_P((PSTR("G1 F100 Z3;")));
-			enqueueCommands_P((PSTR("G1 X30 Y270 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3;")));
+			injectCommands_P((PSTR("G1 X30 Y270 F5000")));
 			waitway = 2;
-			enqueueCommands_P((PSTR("G1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 11) // Autolevel switch
 		{
 			if (getLevelingActive()) //turn on the Autolevel
 			{
 				RTS_SndData(3, AutoLevelIcon);
-				enqueueCommands_P((PSTR("M420 S0")));
+				injectCommands_P((PSTR("M420 S0")));
 			}
 			else //turn off the Autolevel
 			{
 				RTS_SndData(2, AutoLevelIcon);
-				enqueueCommands_P((PSTR("M420 S1")));
+				injectCommands_P((PSTR("M420 S1")));
 			}
 			RTS_SndData(getZOffset_mm() * 100, 0x1026);
 		}
@@ -1293,8 +1293,8 @@ void RTSSHOW::RTS_HandleData()
 			if (recdat.data[0] == 3) //autohome
 			{
 				waitway = 4;
-				enqueueCommands_P((PSTR("G28")));
-				enqueueCommands_P((PSTR("G1 F100 Z10")));
+				injectCommands_P((PSTR("G28")));
+				injectCommands_P((PSTR("G1 F100 Z10")));
 				InforShowStatus = AutohomeKey = true;
 				AutoHomeIconNum = 0;
 				RTS_SndData(ExchangePageBase + 74, ExchangepageAddr);
@@ -1452,7 +1452,7 @@ void RTSSHOW::RTS_HandleData()
 				settings.save();
 			}
 			else {
-				enqueueCommands_P(PSTR("M300"));
+				injectCommands_P(PSTR("M300"));
 			}*/
 		// may at some point use language change screens to save eeprom explicitly
 		break;
@@ -1468,7 +1468,7 @@ void RTSSHOW::RTS_HandleData()
 
 			if (FilementStatus[0] == 1) // check filement before starting to print
 			{
-				enqueueCommands_P(PSTR("M24"));
+				injectCommands_P(PSTR("M24"));
 				for (int j = 0; j < 10; j++) //clean screen.
 					RTS_SndData(0, Printfilename + j);
 
@@ -1546,12 +1546,12 @@ void RTSSHOW::RTS_HandleData()
 			if (power_off_commands_count > 0)
 			{
 				sprintf_P(cmd1, PSTR("M190 S%i"), power_off_info.target_temperature_bed);
-				enqueueCommands_P(cmd1);
+				injectCommands_P(cmd1);
 				sprintf_P(cmd1, PSTR("M109 S%i"), power_off_info.target_temperature[0]);
-				enqueueCommands_P(cmd1);
-				enqueueCommands_P(PSTR("M106 S255"));
+				injectCommands_P(cmd1);
+				injectCommands_P(PSTR("M106 S255"));
 				sprintf_P(cmd1, PSTR("T%i"), power_off_info.saved_extruder);
-				enqueueCommands_P(cmd1);
+				injectCommands_P(cmd1);
 				power_off_type_yes = 1;
 
 #if FAN_COUNT > 0
@@ -1696,7 +1696,7 @@ void RTSSHOW::RTS_HandleData()
 				printFile(files.shortFilename());
 
 				//enqueue_and_echo_command(cmd);
-				//enqueueCommands_P(PSTR("M24"));
+				//injectCommands_P(PSTR("M24"));
 				for (int j = 0; j < 10; j++) //clean screen.
 					RTS_SndData(0, Printfilename + j);
 
@@ -1823,9 +1823,9 @@ void onPrintTimerStarted()
     #if ENABLED(POWER_LOSS_RECOVERY)
         if (PoweroffContinue)
         {
-            enqueueCommands_P(power_off_commands[0]);
-            enqueueCommands_P(power_off_commands[1]);
-            enqueueCommands_P((PSTR("G28 X0 Y0")));
+            injectCommands_P(power_off_commands[0]);
+            injectCommands_P(power_off_commands[1]);
+            injectCommands_P((PSTR("G28 X0 Y0")));
         }
     #endif
 	PrinterStatusKey[1] = 3;
@@ -2002,13 +2002,11 @@ void onConfigurationStoreRead(bool success)
                 }
             }
             rtscheck.RTS_SndData(2, AutoLevelIcon); //2=On, 3=Off
-            enqueueCommands_P((PSTR("M420 S1")));
-            AutoLevelStatus = true;
+            injectCommands_P(PSTR("M420 S1"));
         }
         else
         {
             rtscheck.RTS_SndData(3, AutoLevelIcon); /*Off*/
-            AutoLevelStatus = false;
         }
     #endif
 

@@ -1,9 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +24,7 @@
 
 // Pin lists 1.1.x and 2.0.x synchronized 2018-02-17
 
-#line 31 // set __LINE__ to a known value for both passes
+#line 28 // set __LINE__ to a known value for both passes
 
 //
 // Analog Pin Assignments
@@ -770,15 +767,6 @@
 #if defined(SPARE_IO) && SPARE_IO >= 0
   REPORT_NAME_DIGITAL(__LINE__, SPARE_IO)
 #endif
-#if defined(SPI_CHAN_DAC) && SPI_CHAN_DAC >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_CHAN_DAC)
-#endif
-#if defined(SPI_CHAN_EEPROM1) && SPI_CHAN_EEPROM1 >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_CHAN_EEPROM1)
-#endif
-#if defined(SPI_EEPROM) && SPI_EEPROM >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_EEPROM)
-#endif
 #if defined(SPI_EEPROM1_CS) && SPI_EEPROM1_CS >= 0
   REPORT_NAME_DIGITAL(__LINE__, SPI_EEPROM1_CS)
 #endif
@@ -1171,4 +1159,19 @@
 #endif
 #if PIN_EXISTS(FET_SAFETY)
   REPORT_NAME_DIGITAL(__LINE__, FET_SAFETY_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_MISO)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_MISO_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_MOSI)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_MOSI_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_SCK)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_SCK_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_CS)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_CS_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_INT)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_INT_PIN)
 #endif

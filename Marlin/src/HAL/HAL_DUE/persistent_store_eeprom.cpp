@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
@@ -29,7 +29,7 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/persistent_store_api.h"
 
-#if DISABLED(I2C_EEPROM, SPI_EEPROM)
+#if !defined(E2END) && NONE(I2C_EEPROM, SPI_EEPROM)
   #define E2END 0xFFF // Default to Flash emulated EEPROM size (EepromEmulation_Due.cpp)
 #endif
 
@@ -38,7 +38,7 @@ extern void eeprom_flush(void);
 bool PersistentStore::access_start() { return true; }
 
 bool PersistentStore::access_finish() {
-  #if DISABLED(I2C_EEPROM, SPI_EEPROM)
+  #if NONE(I2C_EEPROM, SPI_EEPROM)
     eeprom_flush();
   #endif
   return true;

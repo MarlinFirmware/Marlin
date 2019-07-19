@@ -20,7 +20,7 @@ namespace ExtUI {
 /*************Register and Variable addr*****************/
 #define	RegAddr_W	0x80
 #define	RegAddr_R	0x81
-#define	VarAddr_W	0x82		
+#define	VarAddr_W	0x82
 #define	VarAddr_R	0x83
 #define	ExchangePageBase	(unsigned long)0x5A010000	//the first page ID. other page = first page ID + relevant num;
 #define	StartSoundSet	((unsigned long)0x060480A0)		// 06,start-music; 04, 4 musics; 80, the volume value; 04, return value about music number.
@@ -86,7 +86,7 @@ namespace ExtUI {
 
 typedef struct DataBuf
 {
-    unsigned char len;  
+    unsigned char len;
     unsigned char head[2];
     unsigned char command;
     unsigned long addr;
@@ -124,7 +124,7 @@ class RTSSHOW {
     void RTS_SDcard_Stop();
     void RTS_HandleData();
     void RTS_Init();
-    
+
     DB recdat;
     DB snddat;
     unsigned char databuf[SizeofDatabuf];
@@ -175,7 +175,6 @@ extern unsigned char LanguageRecbuf;
 extern unsigned char AxisPagenum;
 extern bool AutohomeKey;
 extern bool TPShowStatus;
-extern bool AutoLevelStatus;
 extern int Update_Time_Value;
 extern bool PoweroffContinue;
 extern char FilementStatus[2];

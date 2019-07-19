@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Test AVR specific configuration values for errors at compile-time.
+ * Test AVR-specific configuration values for errors at compile-time.
  */
 
 /**
@@ -43,65 +43,15 @@
 #endif
 
 /**
- * Sanity checks for Spindle / Laser
+ * Sanity checks for Spindle / Laser PWM
  */
-#if ENABLED(SPINDLE_LASER_ENABLE)
-  #if !PIN_EXISTS(SPINDLE_LASER_ENA)
-    #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENA_PIN."
-  #elif SPINDLE_DIR_CHANGE && !PIN_EXISTS(SPINDLE_DIR)
-    #error "SPINDLE_DIR_PIN not defined."
-  #elif ENABLED(SPINDLE_LASER_PWM) && PIN_EXISTS(SPINDLE_LASER_PWM)
-    #if !(WITHIN(SPINDLE_LASER_PWM_PIN, 2, 13) || WITHIN(SPINDLE_LASER_PWM_PIN, 44, 46))
-      #error "SPINDLE_LASER_PWM_PIN not assigned to a PWM pin."
-    #elif SPINDLE_LASER_POWERUP_DELAY < 1
-      #error "SPINDLE_LASER_POWERUP_DELAY must be greater than 0."
-    #elif SPINDLE_LASER_POWERDOWN_DELAY < 1
-      #error "SPINDLE_LASER_POWERDOWN_DELAY must be greater than 0."
-    #elif !defined(SPINDLE_LASER_PWM_INVERT)
-      #error "SPINDLE_LASER_PWM_INVERT missing."
-    #elif !defined(SPEED_POWER_SLOPE) || !defined(SPEED_POWER_INTERCEPT) || !defined(SPEED_POWER_MIN) || !defined(SPEED_POWER_MAX)
-      #error "SPINDLE_LASER_PWM equation constant(s) missing."
-    #elif SPINDLE_LASER_PWM_PIN == 4 || WITHIN(SPINDLE_LASER_PWM_PIN, 11, 13)
-      #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by a system interrupt."
-    #elif PIN_EXISTS(X_MAX) && X_MAX_PIN == SPINDLE_LASER_PWM_PIN
-      #error "SPINDLE_LASER_PWM pin is in use by X_MAX endstop."
-    #elif PIN_EXISTS(X_MIN) && X_MIN_PIN == SPINDLE_LASER_PWM_PIN
-      #error "SPINDLE_LASER_PWM pin is in use by X_MIN endstop."
-    #elif PIN_EXISTS(Z_STEP) && Z_STEP_PIN == SPINDLE_LASER_PWM_PIN
-      #error "SPINDLE_LASER_PWM pin in use by Z_STEP."
-    #elif NUM_SERVOS > 0 && (WITHIN(SPINDLE_LASER_PWM_PIN, 2, 3) || SPINDLE_LASER_PWM_PIN == 5)
-      #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by the servo system."
-    #elif PIN_EXISTS(CASE_LIGHT) && SPINDLE_LASER_PWM_PIN == CASE_LIGHT_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by CASE_LIGHT_PIN."
-    #elif PIN_EXISTS(E0_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E0_AUTO_FAN_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by E0_AUTO_FAN_PIN."
-    #elif PIN_EXISTS(E1_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E1_AUTO_FAN_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by E1_AUTO_FAN_PIN."
-    #elif PIN_EXISTS(E2_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E2_AUTO_FAN_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by E2_AUTO_FAN_PIN."
-    #elif PIN_EXISTS(E3_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E3_AUTO_FAN_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by E3_AUTO_FAN_PIN."
-    #elif PIN_EXISTS(E4_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E4_AUTO_FAN_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by E4_AUTO_FAN_PIN."
-    #elif PIN_EXISTS(E5_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E5_AUTO_FAN_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by E5_AUTO_FAN_PIN."
-    #elif PIN_EXISTS(FAN) && SPINDLE_LASER_PWM_PIN == FAN_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by FAN_PIN."
-    #elif PIN_EXISTS(FAN1) && SPINDLE_LASER_PWM_PIN == FAN1_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by FAN1_PIN."
-    #elif PIN_EXISTS(FAN2) && SPINDLE_LASER_PWM_PIN == FAN2_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by FAN2_PIN."
-    #elif PIN_EXISTS(CONTROLLERFAN) && SPINDLE_LASER_PWM_PIN == CONTROLLERFAN_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by CONTROLLERFAN_PIN."
-    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_XY) && SPINDLE_LASER_PWM_PIN == MOTOR_CURRENT_PWM_XY_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by MOTOR_CURRENT_PWM_XY."
-    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_Z) && SPINDLE_LASER_PWM_PIN == MOTOR_CURRENT_PWM_Z_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by MOTOR_CURRENT_PWM_Z."
-    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_E) && SPINDLE_LASER_PWM_PIN == MOTOR_CURRENT_PWM_E_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used by MOTOR_CURRENT_PWM_E."
-    #endif
+#if ENABLED(SPINDLE_LASER_PWM)
+  #if SPINDLE_LASER_PWM_PIN == 4 || WITHIN(SPINDLE_LASER_PWM_PIN, 11, 13)
+    #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by a system interrupt."
+  #elif NUM_SERVOS > 0 && (WITHIN(SPINDLE_LASER_PWM_PIN, 2, 3) || SPINDLE_LASER_PWM_PIN == 5)
+    #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by the servo system."
   #endif
-#endif // SPINDLE_LASER_ENABLE
+#endif
 
 /**
  * The Trinamic library includes SoftwareSerial.h, leading to a compile error.

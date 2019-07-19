@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,8 +48,8 @@ void Servo::detach() { ledcDetachPin(this->pin); }
 
 int Servo::read() { return this->degrees; }
 
-void Servo::write(int degrees) {
-  this->degrees = constrain(degrees, MIN_ANGLE, MAX_ANGLE);
+void Servo::write(int inDegrees) {
+  this->degrees = constrain(inDegrees, MIN_ANGLE, MAX_ANGLE);
   int us = map(this->degrees, MIN_ANGLE, MAX_ANGLE, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
   int duty = map(us, 0, TAU_USEC, 0, MAX_COMPARE);
   ledcWrite(channel, duty);

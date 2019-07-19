@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,18 @@ void reset_bed_level();
 #if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
   void _manual_goto_xy(const float &x, const float &y);
 #endif
+
+/**
+ * A class to save and change the bed leveling state,
+ * then restore it when it goes out of scope.
+ */
+class TemporaryBedLevelingState {
+  bool saved;
+  public:
+    TemporaryBedLevelingState(const bool enable);
+    ~TemporaryBedLevelingState() { set_bed_leveling_enabled(saved); }
+};
+#define TEMPORARY_BED_LEVELING_STATE(enable) TemporaryBedLevelingState tbls(enable)
 
 #if HAS_MESH
 

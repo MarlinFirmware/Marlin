@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -258,7 +258,7 @@
    *   T     Topology   Display the Mesh Map Topology.
    *                    'T' can be used alone (e.g., G29 T) or in combination with most of the other commands.
    *                    This option works with all Phase commands (e.g., G29 P4 R 5 T X 50 Y100 C -.1 O)
-   *                    This parameter can also specify a Map Type. T0 (the default) is user-readable. T1 can
+   *                    This parameter can also specify a Map Type. T0 (the default) is user-readable. T1
    *                    is suitable to paste into a spreadsheet for a 3D graph of the mesh.
    *
    *   U     Unlevel    Perform a probe of the outer perimeter to assist in physically leveling unlevel beds.
@@ -306,6 +306,7 @@
 
   void unified_bed_leveling::G29() {
 
+    bool probe_deployed = false;
     if (g29_parameter_parsing()) return; // Abort on parameter error
 
     const int8_t p_val = parser.intval('P', -1);
@@ -418,6 +419,7 @@
         }
         do_blocking_move_to_xy(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)));
         report_current_position();
+        probe_deployed = true;
       }
 
     #endif // HAS_BED_PROBE
@@ -457,6 +459,7 @@
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
             report_current_position();
+            probe_deployed = true;
             break;
 
         #endif // HAS_BED_PROBE
@@ -492,6 +495,7 @@
                 SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
                 return;
               }
+              probe_deployed = true;
             }
 
             if (!position_is_reachable(g29_x_pos, g29_y_pos)) {
@@ -671,6 +675,16 @@
       ui.release();
     #endif
 
+    #ifdef Z_PROBE_END_SCRIPT
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+      if (probe_deployed) {
+        planner.synchronize();
+        gcode.process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
+      }
+    #else
+      UNUSED(probe_deployed);
+    #endif
+
     return;
   }
 
@@ -756,8 +770,7 @@
             ui.wait_for_release();
             ui.quick_feedback();
             ui.release();
-            restore_ubl_active_state_and_leave();
-            return;
+            return restore_ubl_active_state_and_leave();
           }
         #endif
 
@@ -832,7 +845,6 @@
     float unified_bed_leveling::measure_point_with_encoder() {
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       move_z_with_encoder(0.01f);
-      KEEPALIVE_STATE(IN_HANDLER);
       return current_position[Z_AXIS];
     }
 
@@ -843,7 +855,7 @@
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
-        //, MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f);
+        //, _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f);
       planner.synchronize();
 
       SERIAL_ECHOPGM("Place shim under nozzle");
@@ -875,15 +887,6 @@
       restore_ubl_active_state_and_leave();
 
       return thickness;
-    }
-
-    void abort_manual_probe_remaining_mesh() {
-      SERIAL_ECHOLNPGM("\nMesh only partially populated.");
-      do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-      ui.release();
-      KEEPALIVE_STATE(IN_HANDLER);
-      ui.quick_feedback();
-      ubl.restore_ubl_active_state_and_leave();
     }
 
     void unified_bed_leveling::manually_probe_remaining_mesh(const float &rx, const float &ry, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
@@ -927,9 +930,7 @@
           SERIAL_ECHOLNPGM("\nMesh only partially populated.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
           ui.release();
-          KEEPALIVE_STATE(IN_HANDLER);
-          restore_ubl_active_state_and_leave();
-          return;
+          return restore_ubl_active_state_and_leave();
         }
 
         z_values[location.x_index][location.y_index] = current_position[Z_AXIS] - thick;
@@ -945,7 +946,6 @@
       if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
       restore_ubl_active_state_and_leave();
-      KEEPALIVE_STATE(IN_HANDLER);
       do_blocking_move_to(rx, ry, Z_CLEARANCE_DEPLOY_PROBE);
     }
 
@@ -1034,7 +1034,7 @@
 
         if (!lcd_map_control) ui.return_to_status();                // Just editing a single point? Return to status
 
-        if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
+        if (click_and_hold(abort_fine_tune)) break;                 // Button held down? Abort editing
 
         z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
         #if ENABLED(EXTENSIBLE_UI)
@@ -1046,10 +1046,7 @@
 
       } while (location.x_index >= 0 && --g29_repetition_cnt > 0);
 
-      FINE_TUNE_EXIT:
-
       ui.release();
-      KEEPALIVE_STATE(IN_HANDLER);
 
       if (do_ubl_mesh_map) display_map(g29_map_type);
       restore_ubl_active_state_and_leave();
@@ -1388,10 +1385,10 @@
     #include "../../../libs/vector_3.h"
 
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
-      constexpr int16_t x_min = MAX(MIN_PROBE_X, MESH_MIN_X),
-                        x_max = MIN(MAX_PROBE_X, MESH_MAX_X),
-                        y_min = MAX(MIN_PROBE_Y, MESH_MIN_Y),
-                        y_max = MIN(MAX_PROBE_Y, MESH_MAX_Y);
+      constexpr int16_t x_min = _MAX(MIN_PROBE_X, MESH_MIN_X),
+                        x_max = _MIN(MAX_PROBE_X, MESH_MAX_X),
+                        y_min = _MAX(MIN_PROBE_Y, MESH_MIN_Y),
+                        y_max = _MIN(MAX_PROBE_Y, MESH_MAX_Y);
 
       bool abort_flag = false;
 
@@ -1657,7 +1654,7 @@
 
       SERIAL_ECHOPGM("Extrapolating mesh...");
 
-      const float weight_scaled = weight_factor * MAX(MESH_X_DIST, MESH_Y_DIST);
+      const float weight_scaled = weight_factor * _MAX(MESH_X_DIST, MESH_Y_DIST);
 
       for (uint8_t jx = 0; jx < GRID_MAX_POINTS_X; jx++)
         for (uint8_t jy = 0; jy < GRID_MAX_POINTS_Y; jy++)

@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -28,14 +28,6 @@
 
 #define CPU_32_BIT
 
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
-
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include "../../core/macros.h"
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
@@ -51,9 +43,9 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 #ifdef SERIAL_USB
   #define UsbSerial Serial
@@ -117,9 +109,8 @@
   #define NUM_SERIAL 1
 #endif
 
-// Use HAL_init() to set interrupt grouping.
-#define HAL_INIT
-void HAL_init();
+// Set interrupt grouping for this MCU
+void HAL_init(void);
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -157,22 +148,22 @@ void HAL_init();
 #define RST_SOFTWARE   32
 #define RST_BACKUP     64
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 typedef int8_t pin_t;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 /** result of last ADC conversion */
 extern uint16_t HAL_adc_result;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 // Disable interrupts
 #define cli() noInterrupts()

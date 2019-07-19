@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ void ac_home() {
 
 void ac_setup(const bool reset_bed) {
   #if HOTENDS > 1
-    tool_change(0, 0, true);
+    tool_change(0, true);
   #endif
 
   planner.synchronize();
@@ -104,7 +104,7 @@ void ac_cleanup(
   #endif
   clean_up_after_endstop_or_probe_move();
   #if HOTENDS > 1
-    tool_change(old_tool_index, 0, true);
+    tool_change(old_tool_index, true);
   #endif
 }
 
@@ -610,7 +610,7 @@ void GcodeSuite::G33() {
       }
 
       // adjust delta_height and endstops by the max amount
-      const float z_temp = MAX(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
+      const float z_temp = _MAX(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
       delta_height -= z_temp;
       LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
     }

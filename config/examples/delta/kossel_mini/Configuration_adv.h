@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -352,8 +352,11 @@
 #define E4_AUTO_FAN_PIN -1
 #define E5_AUTO_FAN_PIN -1
 #define CHAMBER_AUTO_FAN_PIN -1
+
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED 255   // 255 == full speed
+#define CHAMBER_AUTO_FAN_TEMPERATURE 30
+#define CHAMBER_AUTO_FAN_SPEED 255
 
 /**
  * Part-Cooling Fan Multiplexer
@@ -375,16 +378,13 @@
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
-  //#define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
+  //#define CASE_LIGHT_MENU                   // Add Case Light options to the LCD menu
+  //#define CASE_LIGHT_NO_BRIGHTNESS          // Disable brightness control. Enable for non-PWM lighting.
   //#define CASE_LIGHT_USE_NEOPIXEL           // Use Neopixel LED as case light, requires NEOPIXEL_LED.
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
     #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
   #endif
 #endif
-
-//===========================================================================
-//============================ Mechanical Settings ==========================
-//===========================================================================
 
 // @section homing
 
@@ -527,6 +527,73 @@
 // Enable this if X or Y can't home without homing the other axis first.
 //#define CODEPENDENT_XY_HOMING
 
+#if ENABLED(BLTOUCH)
+  /**
+   * Either: Use the defaults (recommended) or: For special purposes, use the following DEFINES
+   * Do not activate settings that the probe might not understand. Clones might misunderstand
+   * advanced commands.
+   *
+   * Note: If the probe is not deploying, check a "Cmd: Reset" and "Cmd: Self-Test" and then
+   *       check the wiring of the BROWN, RED and ORANGE wires.
+   *
+   * Note: If the trigger signal of your probe is not being recognized, it has been very often
+   *       because the BLACK and WHITE wires needed to be swapped. They are not "interchangeable"
+   *       like they would be with a real switch. So please check the wiring first.
+   *
+   * Settings for all BLTouch and clone probes:
+   */
+
+  // Safety: The probe needs time to recognize the command.
+  //         Minimum command delay (ms). Enable and increase if needed.
+  //#define BLTOUCH_DELAY 500
+
+  /**
+   * Settings for BLTOUCH Classic 1.2, 1.3 or BLTouch Smart 1.0, 2.0, 2.2, 3.0, 3.1, and most clones:
+   */
+
+  // Feature: Switch into SW mode after a deploy. It makes the output pulse longer. Can be useful
+  //          in special cases, like noisy or filtered input configurations.
+  //#define BLTOUCH_FORCE_SW_MODE
+
+  /**
+   * Settings for BLTouch Smart 3.0 and 3.1
+   * Summary:
+   *   - Voltage modes: 5V and OD (open drain - "logic voltage free") output modes
+   *   - High-Speed mode
+   *   - Disable LCD voltage options
+   */
+
+  /**
+   * Danger: Don't activate 5V mode unless attached to a 5V-tolerant controller!
+   * V3.0 or 3.1: Set default mode to 5V mode at Marlin startup.
+   * If disabled, OD mode is the hard-coded default on 3.0
+   * On startup, Marlin will compare its eeprom to this vale. If the selected mode
+   * differs, a mode set eeprom write will be completed at initialization.
+   * Use the option below to force an eeprom write to a V3.1 probe regardless.
+   */
+  //#define BLTOUCH_SET_5V_MODE
+
+  /**
+   * Safety: Activate if connecting a probe with an unknown voltage mode.
+   * V3.0: Set a probe into mode selected above at Marlin startup. Required for 5V mode on 3.0
+   * V3.1: Force a probe with unknown mode into selected mode at Marlin startup ( = Probe EEPROM write )
+   * To preserve the life of the probe, use this once then turn it off and re-flash.
+   */
+  //#define BLTOUCH_FORCE_MODE_SET
+
+  /**
+   * Use "HIGH SPEED" mode for probing.
+   * Danger: Disable if your probe sometimes fails. Only suitable for stable well-adjusted systems.
+   * This feature was designed for Delta's with very fast Z moves however higher speed cartesians may function
+   * If the machine cannot raise the probe fast enough after a trigger, it may enter a fault state.
+   */
+  //#define BLTOUCH_HS_MODE
+
+  // Safety: Enable voltage mode settings in the LCD menu.
+  //#define BLTOUCH_LCD_VOLTAGE_MENU
+
+#endif // BLTOUCH
+
 /**
  * Z Steppers Auto-Alignment
  * Add the G34 command to align multiple Z steppers using a bed probe.
@@ -540,6 +607,10 @@
   #define Z_STEPPER_ALIGN_ITERATIONS 3
   // Enable to restore leveling setup after operation
   #define RESTORE_LEVELING_AFTER_G34
+
+  // On a 300mm bed a 5% grade would give a misalignment of ~1.5cm
+  #define G34_MAX_GRADE  5  // (%) Maximum incline G34 will handle
+
   // Use the amplification factor to de-/increase correction step.
   // In case the stepper (spindle) position is further out than the test point
   // Use a value > 1. NOTE: This may cause instability
@@ -550,7 +621,7 @@
 
 // @section machine
 
-#define AXIS_RELATIVE_MODES {false, false, false, false}
+#define AXIS_RELATIVE_MODES { false, false, false, false }
 
 // Add a Duplicate option for well-separated conjoined nozzles
 //#define MULTI_NOZZLE_DUPLICATION
@@ -567,7 +638,7 @@
 #define DEFAULT_STEPPER_DEACTIVE_TIME 60
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
-#define DISABLE_INACTIVE_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
+#define DISABLE_INACTIVE_Z true  // Set to false if the nozzle will fall down on your printed part when print has finished.
 #define DISABLE_INACTIVE_E true
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
@@ -577,11 +648,13 @@
 
 // @section lcd
 
-#if ENABLED(ULTIPANEL)
+#if EITHER(ULTIPANEL, EXTENSIBLE_UI)
   #define MANUAL_FEEDRATE_XYZ 50*60
   #define MANUAL_FEEDRATE { MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
-  #define MANUAL_E_MOVES_RELATIVE // Show LCD extruder moves as relative rather than absolute positions
-  #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
+  #if ENABLED(ULTIPANEL)
+    #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
+    #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
+  #endif
 #endif
 
 // @section extras
@@ -683,11 +756,12 @@
   // Define pin which is read during calibration
   #ifndef CALIBRATION_PIN
     #define CALIBRATION_PIN -1 // Override in pins.h or set to -1 to use your Z endstop
-    #define CALIBRATION_PIN_INVERTING false // set to true to invert the pin
+    #define CALIBRATION_PIN_INVERTING false // Set to true to invert the pin
     //#define CALIBRATION_PIN_PULLDOWN
     #define CALIBRATION_PIN_PULLUP
   #endif
 #endif
+
 /**
  * Adaptive Step Smoothing increases the resolution of multi-axis moves, particularly at step frequencies
  * below 1kHz (for AVR) or 10kHz (for ARM), where aliasing between axes in multi-axis moves causes audible
@@ -743,6 +817,7 @@
    *                        A   (A shifted)   B   (B shifted)  IC
    * Smoothie              0x2C (0x58)       0x2D (0x5A)       MCP4451
    * AZTEEG_X3_PRO         0x2C (0x58)       0x2E (0x5C)       MCP4451
+   * AZTEEG_X5_MINI        0x2C (0x58)       0x2E (0x5C)       MCP4451
    * AZTEEG_X5_MINI_WIFI         0x58              0x5C        MCP4451
    * MIGHTYBOARD_REVE      0x2F (0x5E)                         MCP4018
    */
@@ -905,12 +980,15 @@
   // Enable this option to scroll long filenames in the SD card menu
   //#define SCROLL_LONG_FILENAMES
 
+  // Leave the heaters on after Stop Print (not recommended!)
+  //#define SD_ABORT_NO_COOLDOWN
+
   /**
    * This option allows you to abort SD printing when any endstop is triggered.
    * This feature must be enabled with "M540 S1" or from the LCD menu.
    * To have any effect, endstops must be enabled during SD printing.
    */
-  //#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+  //#define SD_ABORT_ON_ENDSTOP_HIT
 
   /**
    * This option makes it easier to print the same SD Card file again.
@@ -961,18 +1039,26 @@
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
 
-  // LPC-based boards have on-board SD Card options. Override here or defaults apply.
   #ifdef TARGET_LPC1768
-    //#define LPC_SD_LCD          // Use the SD drive in the external LCD controller.
-    //#define LPC_SD_ONBOARD      // Use the SD drive on the control board. (No SD_DETECT_PIN. M21 to init.)
-    //#define LPC_SD_CUSTOM_CABLE // Use a custom cable to access the SD (as defined in a pins file).
-    //#define USB_SD_DISABLED     // Disable SD Card access over USB (for security).
-    #if ENABLED(LPC_SD_ONBOARD)
-      //#define USB_SD_ONBOARD    // Provide the onboard SD card to the host as a USB mass storage device.
-    #endif
+    /**
+     * Set this option to one of the following (or the board's defaults apply):
+     *
+     *           LCD - Use the SD drive in the external LCD controller.
+     *       ONBOARD - Use the SD drive on the control board. (No SD_DETECT_PIN. M21 to init.)
+     *  CUSTOM_CABLE - Use a custom cable to access the SD (as defined in a pins file).
+     *
+     * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
+     */
+    //#define SDCARD_CONNECTION LCD
   #endif
 
 #endif // SDSUPPORT
+
+/**
+ * By default an onboard SD card reader may be shared as a USB mass-
+ * storage device. This option hides the SD card from the host PC.
+ */
+//#define NO_SD_HOST_DRIVE   // Disable SD Card access over USB (for security).
 
 /**
  * Additional options for Graphical Displays
@@ -1040,6 +1126,7 @@
   #define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
   #define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
   #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
+  #define STATUS_CHAMBER_ANIM         // Use a second bitmap to indicate chamber heating
   //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
@@ -1361,6 +1448,7 @@
 #if EXTRUDERS > 1
   // Z raise distance for tool-change, as needed for some extruders
   #define TOOLCHANGE_ZRAISE     2  // (mm)
+  //#define TOOLCHANGE_NO_RETURN   // Never return to the previous position on tool-change
 
   // Retract and prime filament on tool-change
   //#define TOOLCHANGE_FILAMENT_SWAP
@@ -1646,7 +1734,6 @@
   //#define E5_CS_PIN         -1
 
   /**
-   * Use software SPI for TMC2130.
    * Software option for SPI driven drivers (TMC2130, TMC2160, TMC2660, TMC5130 and TMC5160).
    * The default SW SPI pins are defined the respective pins files,
    * but you can override or define them here.
@@ -1657,6 +1744,29 @@
   //#define TMC_SW_SCK        -1
 
   /**
+   * Four TMC2209 drivers can use the same HW/SW serial port with hardware configured addresses.
+   * Set the address using jumpers on pins MS1 and MS2.
+   * Address | MS1  | MS2
+   *       0 | LOW  | LOW
+   *       1 | HIGH | LOW
+   *       2 | LOW  | HIGH
+   *       3 | HIGH | HIGH
+   */
+  #define  X_SLAVE_ADDRESS 0
+  #define  Y_SLAVE_ADDRESS 0
+  #define  Z_SLAVE_ADDRESS 0
+  #define X2_SLAVE_ADDRESS 0
+  #define Y2_SLAVE_ADDRESS 0
+  #define Z2_SLAVE_ADDRESS 0
+  #define Z3_SLAVE_ADDRESS 0
+  #define E0_SLAVE_ADDRESS 0
+  #define E1_SLAVE_ADDRESS 0
+  #define E2_SLAVE_ADDRESS 0
+  #define E3_SLAVE_ADDRESS 0
+  #define E4_SLAVE_ADDRESS 0
+  #define E5_SLAVE_ADDRESS 0
+
+  /**
    * Software enable
    *
    * Use for drivers that do not use a dedicated enable pin, but rather handle the same
@@ -1665,7 +1775,7 @@
   //#define SOFTWARE_DRIVER_ENABLE
 
   /**
-   * TMC2130, TMC2160, TMC2208, TMC5130 and TMC5160 only
+   * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130 and TMC5160 only
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */
@@ -1691,7 +1801,7 @@
 
   /**
    * Monitor Trinamic drivers for error conditions,
-   * like overtemperature and short to ground. TMC2208 requires hardware serial.
+   * like overtemperature and short to ground.
    * In the case of overtemperature Marlin can decrease the driver current until error condition clears.
    * Other detected conditions can be used to stop the current print.
    * Relevant g-codes:
@@ -1709,7 +1819,7 @@
   #endif
 
   /**
-   * TMC2130, TMC2160, TMC2208, TMC5130 and TMC5160 only
+   * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130 and TMC5160 only
    * The driver will switch to spreadCycle when stepper speed is over HYBRID_THRESHOLD.
    * This mode allows for faster movements at the expense of higher noise levels.
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
@@ -1732,7 +1842,7 @@
   #define E5_HYBRID_THRESHOLD     30
 
   /**
-   * TMC2130, TMC2160, TMC2660, TMC5130, and TMC5160 only
+   * TMC2130, TMC2160, TMC2209, TMC2660, TMC5130, and TMC5160 only
    * Use StallGuard2 to sense an obstacle and trigger an endstop.
    * Connect the stepper driver's DIAG1 pin to the X/Y endstop pin.
    * X, Y, and Z homing will always be done in spreadCycle mode.
@@ -1744,7 +1854,7 @@
    * It is advised to set X/Y/Z_HOME_BUMP_MM to 0.
    * M914 X/Y/Z to live tune the setting
    */
-  //#define SENSORLESS_HOMING // TMC2130 only
+  //#define SENSORLESS_HOMING // StallGuard capable drivers only
 
   /**
    * Use StallGuard2 to probe the bed with the nozzle.
@@ -1752,13 +1862,20 @@
    * CAUTION: This could cause damage to machines that use a lead screw or threaded rod
    *          to move the Z axis. Take extreme care when attempting to enable this feature.
    */
-  //#define SENSORLESS_PROBING // TMC2130 only
+  //#define SENSORLESS_PROBING // StallGuard capable drivers only
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
+    // TMC2209: 0...255. TMC2130: -64...63
     #define X_STALL_SENSITIVITY  8
     #define Y_STALL_SENSITIVITY  8
     //#define Z_STALL_SENSITIVITY  8
   #endif
+
+  /**
+   * Beta feature!
+   * Create a 50/50 square wave step pulse optimal for stepper drivers.
+   */
+  //#define SQUARE_WAVE_STEPPING
 
   /**
    * Enable M122 debugging command for TMC stepper drivers.
@@ -2006,36 +2123,53 @@
  *
  * See http://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
  */
-//#define SPINDLE_LASER_ENABLE
-#if ENABLED(SPINDLE_LASER_ENABLE)
+//#define SPINDLE_FEATURE
+//#define LASER_FEATURE
+#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+  #define SPINDLE_LASER_ACTIVE_HIGH     false  // Set to "true" if the on/off function is active HIGH
+  #define SPINDLE_LASER_PWM             true   // Set to "true" if your controller supports setting the speed/power
+  #define SPINDLE_LASER_PWM_INVERT      true   // Set to "true" if the speed/power goes up when you want it to go slower
+  #define SPINDLE_LASER_POWERUP_DELAY   5000   // (ms) Delay to allow the spindle/laser to come up to speed/power
+  #define SPINDLE_LASER_POWERDOWN_DELAY 5000   // (ms) Delay to allow the spindle to stop
 
-  #define SPINDLE_LASER_ENABLE_INVERT   false  // set to "true" if the on/off function is reversed
-  #define SPINDLE_LASER_PWM             true   // set to true if your controller supports setting the speed/power
-  #define SPINDLE_LASER_PWM_INVERT      true   // set to "true" if the speed/power goes up when you want it to go slower
-  #define SPINDLE_LASER_POWERUP_DELAY   5000   // delay in milliseconds to allow the spindle/laser to come up to speed/power
-  #define SPINDLE_LASER_POWERDOWN_DELAY 5000   // delay in milliseconds to allow the spindle to stop
-  #define SPINDLE_DIR_CHANGE            true   // set to true if your spindle controller supports changing spindle direction
-  #define SPINDLE_INVERT_DIR            false
-  #define SPINDLE_STOP_ON_DIR_CHANGE    true   // set to true if Marlin should stop the spindle before changing rotation direction
+  #if ENABLED(SPINDLE_FEATURE)
+    //#define SPINDLE_CHANGE_DIR               // Enable if your spindle controller can change spindle direction
+    #define SPINDLE_CHANGE_DIR_STOP            // Enable if the spindle should stop before changing spin direction
+    #define SPINDLE_INVERT_DIR          false  // Set to "true" if the spin direction is reversed
 
-  /**
-   *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
-   *
-   *  SPEED/POWER = PWM duty cycle * SPEED_POWER_SLOPE + SPEED_POWER_INTERCEPT
-   *    where PWM duty cycle varies from 0 to 255
-   *
-   *  set the following for your controller (ALL MUST BE SET)
-   */
+    /**
+     *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
+     *
+     *  SPEED/POWER = PWM duty cycle * SPEED_POWER_SLOPE + SPEED_POWER_INTERCEPT
+     *    where PWM duty cycle varies from 0 to 255
+     *
+     *  set the following for your controller (ALL MUST BE SET)
+     */
+    #define SPEED_POWER_SLOPE    118.4
+    #define SPEED_POWER_INTERCEPT  0
+    #define SPEED_POWER_MIN     5000
+    #define SPEED_POWER_MAX    30000    // SuperPID router controller 0 - 30,000 RPM
+  #else
+    #define SPEED_POWER_SLOPE      0.3922
+    #define SPEED_POWER_INTERCEPT  0
+    #define SPEED_POWER_MIN       10
+    #define SPEED_POWER_MAX      100    // 0-100%
+  #endif
+#endif
 
-  #define SPEED_POWER_SLOPE    118.4
-  #define SPEED_POWER_INTERCEPT  0
-  #define SPEED_POWER_MIN     5000
-  #define SPEED_POWER_MAX    30000    // SuperPID router controller 0 - 30,000 RPM
-
-  //#define SPEED_POWER_SLOPE      0.3922
-  //#define SPEED_POWER_INTERCEPT  0
-  //#define SPEED_POWER_MIN       10
-  //#define SPEED_POWER_MAX      100      // 0-100%
+/**
+ * Coolant Control
+ *
+ * Add the M7, M8, and M9 commands to turn mist or flood coolant on and off.
+ *
+ * Note: COOLANT_MIST_PIN and/or COOLANT_FLOOD_PIN must also be defined.
+ */
+//#define COOLANT_CONTROL
+#if ENABLED(COOLANT_CONTROL)
+  #define COOLANT_MIST                // Enable if mist coolant is present
+  #define COOLANT_FLOOD               // Enable if flood coolant is present
+  #define COOLANT_MIST_INVERT  false  // Set "true" if the on/off function is reversed
+  #define COOLANT_FLOOD_INVERT false  // Set "true" if the on/off function is reversed
 #endif
 
 /**

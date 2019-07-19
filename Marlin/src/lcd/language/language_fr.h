@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -195,6 +195,7 @@
 #define MSG_MOVE_Z                          _UxGT("Déplacer Z")
 #define MSG_MOVE_E                          _UxGT("Extrudeur")
 #define MSG_HOTEND_TOO_COLD                 _UxGT("Buse trop froide")
+#define MSG_MOVE_0025MM                     _UxGT("Déplacer 0.025mm")
 #define MSG_MOVE_01MM                       _UxGT("Déplacer 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Déplacer 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Déplacer 10mm")
@@ -334,6 +335,11 @@
 #define MSG_BLTOUCH_MODE_STORE_5V           _UxGT("Mise en 5V")
 #define MSG_BLTOUCH_MODE_STORE_OD           _UxGT("Mise en OD")
 #define MSG_BLTOUCH_MODE_ECHO               _UxGT("Afficher Mode")
+#define MSG_TOUCHMI_PROBE                   _UxGT("TouchMI")
+#define MSG_TOUCHMI_INIT                    _UxGT("Init. TouchMI")
+#define MSG_TOUCHMI_ZTEST                   _UxGT("Test décalage Z")
+#define MSG_TOUCHMI_SAVE                    _UxGT("Sauvegarde")
+#define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("Déployer TouchMI")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Déployer Sonde Z")
 #define MSG_MANUAL_STOW                     _UxGT("Ranger Sonde Z")
 #define MSG_HOME                            _UxGT("Origine")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST

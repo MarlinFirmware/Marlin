@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Description: HAL for
@@ -27,15 +28,11 @@
 
 #pragma once
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include <stdint.h>
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
@@ -47,8 +44,8 @@ typedef uint32_t hal_timer_t;
 #define FTM0_TIMER_PRESCALE_BITS 0b011
 #define FTM1_TIMER_PRESCALE_BITS 0b010
 
-#define FTM0_TIMER_RATE (F_BUS / FTM0_TIMER_PRESCALE) // 60MHz / 8 = 7500kHz
-#define FTM1_TIMER_RATE (F_BUS / FTM1_TIMER_PRESCALE) // 60MHz / 4 = 15MHz
+#define FTM0_TIMER_RATE (F_BUS / (FTM0_TIMER_PRESCALE)) // 60MHz / 8 = 7500kHz
+#define FTM1_TIMER_RATE (F_BUS / (FTM1_TIMER_PRESCALE)) // 60MHz / 4 = 15MHz
 
 #define HAL_TIMER_RATE         (FTM0_TIMER_RATE)
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,6 @@
  * Stepper motor driver indirection to allow some stepper functions to
  * be done via SPI/I2c instead of direct pin manipulation.
  *
- * Part of Marlin
- *
  * Copyright (c) 2015 Dominik Wenger
  */
 
@@ -47,8 +45,8 @@
 #if HAS_DRIVER(TMC26X)
   #include <SPI.h>
 
-  #ifdef STM32F7
-    #include "../HAL/HAL_STM32F7/TMC2660.h"
+  #if defined(STM32GENERIC) && defined(STM32F7)
+    #include "../HAL/HAL_STM32_F4_F7/STM32F7/TMC2660.h"
   #else
     #include <TMC26XStepper.h>
   #endif
@@ -311,7 +309,7 @@
 //
 // TMC2208/2209 Driver objects and inits
 //
-#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+#if HAS_TMC220x
   #if AXIS_HAS_UART(X)
     #ifdef X_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X, X);
@@ -591,6 +589,7 @@
     #endif
 
     st.GSTAT(0b111); // Clear
+    delay(200);
   }
 #endif // TMC2209
 

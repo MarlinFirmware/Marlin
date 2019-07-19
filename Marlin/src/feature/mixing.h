@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 //#define MIXER_NORMALIZER_DEBUG
 
-#if !defined(__AVR__) // || DUAL_MIXING_EXTRUDER
+#ifndef __AVR__ // || DUAL_MIXING_EXTRUDER
   // Use 16-bit (or fastest) data for the integer mix factors
   typedef uint_fast16_t mixer_comp_t;
   typedef uint_fast16_t mixer_accu_t;
@@ -103,7 +103,7 @@ class Mixer {
   static void refresh_collector(const float proportion=1.0, const uint8_t t=selected_vtool, float (&c)[MIXING_STEPPERS]=collector);
 
   // Used up to Planner level
-  FORCE_INLINE static void set_collector(const uint8_t c, const float f) { collector[c] = MAX(f, 0.0f); }
+  FORCE_INLINE static void set_collector(const uint8_t c, const float f) { collector[c] = _MAX(f, 0.0f); }
 
   static void normalize(const uint8_t tool_index);
   FORCE_INLINE static void normalize() { normalize(selected_vtool); }
@@ -142,7 +142,7 @@ class Mixer {
     static inline void copy_mix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]) {
       // Scale each component to the largest one in terms of COLOR_A_MASK
       // So the largest component will be COLOR_A_MASK and the other will be in proportion to it
-      const float scale = (COLOR_A_MASK) * RECIPROCAL(float(MAX(mix[0], mix[1])));
+      const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1])));
 
       // Scale all values so their maximum is COLOR_A_MASK
       MIXER_STEPPER_LOOP(i) tcolor[i] = mix[i] * scale;

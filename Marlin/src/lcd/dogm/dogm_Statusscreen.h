@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Standard Marlin Status Screen bitmaps
@@ -1169,7 +1170,7 @@
     #define STATUS_LOGO_X 0
   #endif
   #ifndef STATUS_LOGO_Y
-    #define STATUS_LOGO_Y MIN(0, 10 - (STATUS_LOGO_HEIGHT) / 2)
+    #define STATUS_LOGO_Y _MIN(0, 10 - (STATUS_LOGO_HEIGHT) / 2)
   #endif
   #ifndef STATUS_LOGO_HEIGHT
     #define STATUS_LOGO_HEIGHT (sizeof(status_logo_bmp) / (STATUS_LOGO_BYTEWIDTH))

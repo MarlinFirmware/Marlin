@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -443,8 +443,8 @@
       int8_t cell_xi = (raw[X_AXIS] - (MESH_MIN_X)) * (1.0f / (MESH_X_DIST)),
              cell_yi = (raw[Y_AXIS] - (MESH_MIN_Y)) * (1.0f / (MESH_Y_DIST));
 
-      cell_xi = constrain(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
-      cell_yi = constrain(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
+      LIMIT(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
+      LIMIT(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
 
       const float x0 = mesh_index_to_xpos(cell_xi),   // 64 byte table lookup avoids mul+add
                   y0 = mesh_index_to_ypos(cell_yi);

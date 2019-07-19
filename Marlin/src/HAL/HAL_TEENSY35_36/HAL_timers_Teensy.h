@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -25,15 +25,11 @@
  * Teensy3.6 (__MK66FX1M0__)
  */
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include <stdint.h>
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
