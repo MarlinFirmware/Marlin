@@ -43,19 +43,23 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PE0
-#define X_MAX_PIN          -1
-#define Y_MIN_PIN          PE1
-#define Y_MAX_PIN          -1
-#define Z_MIN_PIN          PE14
-#define Z_MAX_PIN          -1
+#define X_STOP_PIN         PE0
+#define Y_STOP_PIN         PE1
+#define Z_STOP_PIN         PE14
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
-// #ifndef Z_MIN_PROBE_PIN
-//   #define Z_MIN_PROBE_PIN  PA4
-// #endif
+//#ifndef Z_MIN_PROBE_PIN
+//  #define Z_MIN_PROBE_PIN  PA4
+//#endif
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   PA3
+#endif
 
 //
 // Steppers
@@ -85,13 +89,12 @@
 
 #define E0_STEP_PIN        PB5
 #define E0_DIR_PIN         PB6
-#define E0_CS_PIN          PB4
-
 #ifdef ARMED_V1_1
   #define E0_ENABLE_PIN    PC12
 #else
   #define E0_ENABLE_PIN    PB3
 #endif
+#define E0_CS_PIN          PB4
 
 #ifdef ARMED_SWAP_X_E1
   #define E1_STEP_PIN      PD3
@@ -137,20 +140,48 @@
 //
 #define SD_DETECT_PIN      PA15
 #define BEEPER_PIN         PC9
-#define LCD_PINS_RS        PE9
-#define LCD_PINS_ENABLE    PE8
-#define LCD_PINS_D4        PB12
-#define LCD_PINS_D5        PB13
-#define LCD_PINS_D6        PB14
-#define LCD_PINS_D7        PB15
+
+#if ENABLED(FYSETC_MINI_12864)
+  //
+  // See https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+  //
+  #define DOGLCD_A0        PE9
+  #define DOGLCD_CS        PE8
+
+  #define LCD_BACKLIGHT_PIN -1
+
+  #define LCD_RESET_PIN    PB12   // Must be high or open for LCD to operate normally.
+
+  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #ifndef RGB_LED_R_PIN
+      #define RGB_LED_R_PIN PB13
+    #endif
+    #ifndef RGB_LED_G_PIN
+      #define RGB_LED_G_PIN PB14
+    #endif
+    #ifndef RGB_LED_B_PIN
+      #define RGB_LED_B_PIN PB15
+    #endif
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+    #define NEOPIXEL_PIN   PB13
+  #endif
+#else
+  #define LCD_PINS_RS      PE9
+  #define LCD_PINS_ENABLE  PE8
+  #define LCD_PINS_D4      PB12
+  #define LCD_PINS_D5      PB13
+  #define LCD_PINS_D6      PB14
+  #define LCD_PINS_D7      PB15
+
+  #if ENABLED(MKS_MINI_12864)
+    #define DOGLCD_CS      PB13
+    #define DOGLCD_A0      PB14
+  #endif
+#endif
+
 #define BTN_EN1            PC4
 #define BTN_EN2            PC5
 #define BTN_ENC            PC3
-
-//
-// Filament runout detection
-//
-#define FIL_RUNOUT_PIN     PA3
 
 //
 // Extension pins
