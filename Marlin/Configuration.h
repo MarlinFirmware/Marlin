@@ -13,8 +13,8 @@
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
-#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
-//#define MachineCRX //Currently only supports GraphicLCD
+//#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+#define MachineCRX //Currently only supports GraphicLCD
 //#define MachineS4
 //#define MachineS5
 
@@ -32,7 +32,7 @@
 #define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
 //#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
 //#define ForceCRXDisplay
-//#define Force10SProDisplay
+#define Force10SProDisplay
 #define TM3DTouchscreenUpdates // Enables TM3D Error screens and eeprom screen not found in Creality screen firmware
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
@@ -282,11 +282,9 @@
   #define SolidBedMounts
 #endif
 
-#if(DISABLED(MachineEnder4) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard)) && DISABLED(MachineCR10SPro)
+#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, GraphicLCD)
   #define SHOW_CUSTOM_BOOTSCREEN
-#endif
 // Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
-#if(DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4) && ( DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD)))
   #define CUSTOM_STATUS_SCREEN_IMAGE
 #endif
 
@@ -1904,7 +1902,7 @@
   //========================= Unified Bed Leveling ============================
   //===========================================================================
 
-  #if DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD)
+  #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, GraphicLCD)
     #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
   #endif
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
@@ -1937,7 +1935,7 @@
  */
 #if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
 
-#if DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4) && ( DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD))
+#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, GraphicLCD)
   #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 #endif
 #if ENABLED(MachineMini)
@@ -2574,10 +2572,9 @@
   #define MINIPANEL
 #elif ENABLED(MachineCR20)
   #define MKS_MINI_12864
-#elif(DISABLED(OrigLCD) && DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD))
+#elif NONE(MachineCR10SPro, MachineCRX, OrigLCD) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-#endif
-#if(ENABLED(OrigLCD))
+#elif ENABLED(OrigLCD)
   #define CR10_STOCKDISPLAY
 #endif
 //
@@ -2815,7 +2812,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extensible_ui'.
 //
-#if ENABLED(MachineCR10SPro) && DISABLED(GraphicLCD)
+#if ANY(MachineCR10SPro, MachineCRX) && DISABLED(GraphicLCD)
   #define EXTENSIBLE_UI
 #endif
 

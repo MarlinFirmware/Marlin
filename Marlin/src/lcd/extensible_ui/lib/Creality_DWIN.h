@@ -132,7 +132,7 @@ class RTSSHOW {
 
 static RTSSHOW rtscheck;
 
-#ifdef MachineCRX
+#if defined(MachineCRX) && !defined(Force10SProDisplay)
   #define	Addvalue	2
   #define	PrintChoice_Value	(1+Addvalue)
   #define	TempControl_Value	(4+Addvalue)

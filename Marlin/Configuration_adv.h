@@ -1211,7 +1211,7 @@
                                             // Note: Extra time may be added to mitigate controller latency.
       #define BABYSTEP_ALWAYS_AVAILABLE     // Allow babystepping at all times (not just during movement).
       #define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
-      #if DISABLED(MachineCR10SPro) && DISABLED(GraphicLCD)
+      #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, GraphicLCD)
         #define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
       #endif
     #endif
@@ -1599,7 +1599,7 @@
 
   #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
   #define HOME_BEFORE_FILAMENT_CHANGE             // Ensure homing has been completed prior to parking for filament change
-  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard)) && DISABLED(MachineCR10SPro)
+  #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, GraphicLCD)
     //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
     //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
   #endif
