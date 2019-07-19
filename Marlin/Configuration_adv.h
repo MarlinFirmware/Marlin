@@ -1204,7 +1204,7 @@
   #define BABYSTEP_MULTIPLICATOR  10         // Babysteps are very small. Increase for faster motion.
 
   //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
-  
+
   #if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW)
     #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
       #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
@@ -1525,7 +1525,7 @@
 #if EXTRUDERS > 1
   // Z raise distance for tool-change, as needed for some extruders
   #define TOOLCHANGE_ZRAISE     2  // (mm)
-  //#define TOOLCHANGE_NO_RETURN   // Never return to the previous position on tool-change
+  #define TOOLCHANGE_NO_RETURN   // Never return to the previous position on tool-change
 
   // Retract and prime filament on tool-change
   #define TOOLCHANGE_FILAMENT_SWAP
@@ -2398,7 +2398,7 @@
   #elif ENABLED(ABL_BI)
     #define USER_GCODE_1 "M117 \n M502 \n M500 \n M501 \n M190 S" CommBedTmp" \n M117 Probing.... \n M104 S225 \n G28 \n G29 \n M500 \n G28 \n M420 S \n M109 S225 \n G1 X100 Y 100 \n G1 Z0 \n M77 \n M117 Set Z Offset"
   #endif
-  
+
   #define USER_DESC_2 "PID Tune"
   #define USER_GCODE_2 "M106 S128 \n M303 C8 S225 E1 U \n M500 \n M117 PID Tune Done"
 

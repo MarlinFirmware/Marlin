@@ -2283,7 +2283,7 @@
  * Attention: EXPERIMENTAL. G-code arguments may change.
  *
  */
-#if DISABLED(MachineCR10Orig)
+#if ENABLED(MachineCRX)
   #define NOZZLE_CLEAN_FEATURE
 #endif
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
