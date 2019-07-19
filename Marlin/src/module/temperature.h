@@ -805,8 +805,11 @@ class Temperature {
       static void set_heating_message(const uint8_t e);
     #endif
 
-    #if ENABLED(JOYSTICK)
-      static void inject_joy_action();
+    #if ENABLED(POLL_JOG)
+      #if ENABLED(JOYSTICK)
+        static void calculate_joy_value(float norm_jog[XYZ]);
+      #endif
+      static void inject_jog_action();
     #endif
 
   private:

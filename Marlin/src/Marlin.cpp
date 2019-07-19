@@ -740,8 +740,8 @@ void idle(
     mmu2.mmu_loop();
   #endif
 
-  #if ENABLED(JOYSTICK)
-    thermalManager.inject_joy_action();
+  #if ENABLED(POLL_JOG)
+    thermalManager.inject_jog_action();
   #endif
 }
 

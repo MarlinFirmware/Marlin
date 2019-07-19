@@ -3311,9 +3311,41 @@ void Temperature::isr() {
 
 #endif // HAS_TEMP_SENSOR
 
-#if ENABLED(JOYSTICK)
+#if ENABLED(POLL_JOG)
 
-  void Temperature::inject_joy_action() {
+  #if ENABLED(JOYSTICK)
+    void Temperature::calculate_joy_value(float norm_jog[XYZ]) {
+      // Do nothing if enable pin (active-low) is not LOW
+      #if HAS_JOY_ADC_EN
+        if (READ(JOY_EN_PIN)) return;
+      #endif
+
+      auto _normalize_joy = [](float &adc, const int16_t raw, const int16_t (&joy_limits)[4]){
+        if (WITHIN(raw, joy_limits[0], joy_limits[3])) {
+          // within limits, check deadzone
+          if (raw > joy_limits[2])
+            adc = (raw - joy_limits[2]) / float(joy_limits[3] - joy_limits[2]);
+          else if (raw < joy_limits[1])
+            adc = (raw - joy_limits[1]) / float(joy_limits[1] - joy_limits[0]);  // negative value
+        }
+      };
+
+      #if HAS_JOY_ADC_X
+        static constexpr int16_t joy_x_limits[4] = JOY_X_LIMITS;
+        _normalize_joy(norm_jog[X_AXIS], joy_x.raw, joy_x_limits);
+      #endif
+      #if HAS_JOY_ADC_Y
+        static constexpr int16_t joy_y_limits[4] = JOY_Y_LIMITS;
+        _normalize_joy(norm_jog[Y_AXIS], joy_y.raw, joy_y_limits);
+      #endif
+      #if HAS_JOY_ADC_Z
+        static constexpr int16_t joy_z_limits[4] = JOY_Z_LIMITS;
+        _normalize_joy(norm_jog[Z_AXIS], joy_z.raw, joy_z_limits);
+      #endif
+    }
+  #endif // JOYSTICK
+
+  void Temperature::inject_jog_action() {
     static constexpr int QUEUE_DEPTH = 5;                                 // Insert up to this many movements
     static constexpr float target_lag = 0.25f,                            // Aim for 1/4th second of lag
                            seg_time = target_lag / QUEUE_DEPTH;           // 0.05 seconds, short segments inserted every 1/20th of a second
@@ -3328,52 +3360,30 @@ void Temperature::isr() {
     if (PENDING(millis(), next_run)) return;
     next_run = millis() + timer_limit_ms;
 
-    // Do nothing if enable pin (active-low) is not LOW
-    #if HAS_JOY_ADC_EN
-      if (READ(JOY_EN_PIN)) return;
-    #endif
-
     // Only inject a command if the planner has fewer than 5 moves and there are no unparsed commands
     if (planner.movesplanned() >= QUEUE_DEPTH || queue.has_commands_queued())
       return;
 
-    // Normalized ADC values are 0 at end of deadzone and scale linearly to -1 or +1 at outer limits
-    float norm_adc[XYZ] = { 0 };
+    // Normalized jog values are 0 for no movement and -1 or +1 for as max feedrate (nonlinear relationship)
+    // Jog are initialized to zero and handling input can update values but doesn't have to
+    // You could use a two-axis joystick and a one-axis keypad and they might work together
+    float norm_jog[XYZ] = { 0 };
 
-    auto _normalize_joy = [](float &adc, const int16_t raw, const int16_t (&joy_limits)[4]){
-      if (WITHIN(raw, joy_limits[0], joy_limits[3])) {
-        // within limits, check deadzone
-        if (raw > joy_limits[2])
-          adc = (raw - joy_limits[2]) / float(joy_limits[3] - joy_limits[2]);
-        else if (raw < joy_limits[1])
-          adc = (raw - joy_limits[1]) / float(joy_limits[1] - joy_limits[0]);  // negative value
-      }
-    };
-
-    #if HAS_JOY_ADC_X
-      static constexpr int16_t joy_x_limits[4] = JOY_X_LIMITS;
-      _normalize_joy(norm_adc[X_AXIS], joy_x.raw, joy_x_limits);
-    #endif
-    #if HAS_JOY_ADC_Y
-      static constexpr int16_t joy_y_limits[4] = JOY_Y_LIMITS;
-      _normalize_joy(norm_adc[Y_AXIS], joy_y.raw, joy_y_limits);
-    #endif
-    #if HAS_JOY_ADC_Z
-      static constexpr int16_t joy_z_limits[4] = JOY_Z_LIMITS;
-      _normalize_joy(norm_adc[Z_AXIS], joy_z.raw, joy_z_limits);
+    #if ENABLED(JOYSTICK)
+      // Uses ADC values and predefined limits, edge of dead zone to maximum value maps linearly to 0 to 1 (or 0 to -1)
+      calculate_joy_value(norm_jog);
     #endif
 
-    // An ADC of 0 means: outside max limits, inside deadzone, pins undefined, etc.
-
-    // quadratic scaling of joystick to feedrate
-    float move_dist[XYZ], diag_dist = 0;
+    // Other non-joystick poll-based jogging can be implemented here
+    
+    // Jogging value maps continuously (quadratic relationship) to feedrate
+    float move_dist[XYZ] = { 0 }, diag_dist = 0;
     LOOP_XYZ(i) {
-      move_dist[i] = 0;
-      if (!norm_adc[i]) continue;
-      move_dist[i] = seg_time * sq(norm_adc[i]) * planner.settings.max_feedrate_mm_s[i];
+      if (!norm_jog[i]) continue;
+      move_dist[i] = seg_time * sq(norm_jog[i]) * planner.settings.max_feedrate_mm_s[i];
       // Very small movements disappear when printed as decimal with 4 digits of precision
       NOLESS(move_dist[i], 0.0002f);
-      if (norm_adc[i] < 0) move_dist[i] *= -1;  // preserve sign
+      if (norm_jog[i] < 0) move_dist[i] *= -1;  // preserve sign
       diag_dist += sq(move_dist[i]);
     }
     if (UNEAR_ZERO(diag_dist)) return;  // no movement
@@ -3400,4 +3410,4 @@ void Temperature::isr() {
     queue.advance();
   }
 
-#endif // JOYSTICK
+#endif // POLL_JOG
