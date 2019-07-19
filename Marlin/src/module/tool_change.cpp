@@ -81,6 +81,10 @@
   #include "../lcd/ultralcd.h"
 #endif
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #include "../feature/pause.h"
+#endif
+
 #if DO_SWITCH_EXTRUDER
 
   #if EXTRUDERS > 3
