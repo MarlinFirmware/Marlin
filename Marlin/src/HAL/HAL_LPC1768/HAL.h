@@ -147,7 +147,9 @@ using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 #define HAL_ADC_READY()        FilteredADC::finished_conversion()
 
 // A grace period to allow ADC readings to stabilize, preventing false alarms
-#define THERMAL_PROTECTION_GRACE_PERIOD 1000
+#ifndef THERMAL_PROTECTION_GRACE_PERIOD
+  #define THERMAL_PROTECTION_GRACE_PERIOD 1000
+#endif
 
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
