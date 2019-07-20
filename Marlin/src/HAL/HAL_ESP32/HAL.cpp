@@ -46,7 +46,7 @@
 #endif
 
 // ------------------------
-// Externals
+// Externs
 // ------------------------
 
 portMUX_TYPE spinlock = portMUX_INITIALIZER_UNLOCKED;
@@ -177,6 +177,7 @@ void HAL_adc_init() {
   // Calculate ADC characteristics (i.e., gain and offset factors for each attenuation level)
   for (int i = 0; i < ADC_ATTEN_MAX; i++) {
     esp_adc_cal_characterize(ADC_UNIT_1, (adc_atten_t)i, ADC_WIDTH_BIT_12, V_REF, &characteristics[i]);
+
     // Change attenuation 100mV below the calibrated threshold
     thresholds[i] = esp_adc_cal_raw_to_voltage(4095, &characteristics[i]);
   }

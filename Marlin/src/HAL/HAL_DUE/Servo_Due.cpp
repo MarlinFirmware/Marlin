@@ -50,9 +50,9 @@
 
 static volatile int8_t Channel[_Nbr_16timers];              // counter for the servo being pulsed for each timer (or -1 if refresh interval)
 
-//------------------------------------------------------------------------------
+// ------------------------
 /// Interrupt handler for the TC0 channel 1.
-//------------------------------------------------------------------------------
+// ------------------------
 void Servo_Handler(timer16_Sequence_t timer, Tc *pTc, uint8_t channel);
 
 #ifdef _useTimer1
