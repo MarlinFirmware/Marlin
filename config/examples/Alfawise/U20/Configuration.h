@@ -1619,8 +1619,11 @@
   // Middle point of circle
   #define NOZZLE_CLEAN_CIRCLE_MIDDLE NOZZLE_CLEAN_START_POINT
 
-  // Moves the nozzle to the initial position
+  // Move the nozzle to the initial position after cleaning
   #define NOZZLE_CLEAN_GOBACK
+
+  // Enable for a purge/clean station that's always at the gantry height (thus no Z move)
+  //#define NOZZLE_CLEAN_NO_Z
 #endif
 
 /**
@@ -2123,7 +2126,7 @@
 #define MKS_ROBIN_TFT
 
 //=============================================================================
-//============================= SPI Touch Screens =============================
+//============================  Other Controllers  ============================
 //=============================================================================
 
 #define TOUCH_BUTTONS
@@ -2146,14 +2149,6 @@
     #define XPT2046_Y_OFFSET        257
   #endif
 #endif
-
-//=============================================================================
-//============================  Other Controllers  ============================
-//=============================================================================
-
-//
-// CONTROLLER TYPE: Keypad / Add-on
-//
 
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1

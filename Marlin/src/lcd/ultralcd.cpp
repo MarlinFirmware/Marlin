@@ -1467,7 +1467,7 @@ void MarlinUI::update() {
     #endif
     print_job_timer.stop();
     set_status_P(PSTR(MSG_PRINT_ABORTED));
-    #if HAS_SPI_LCD
+    #if HAS_LCD_MENU
       return_to_status();
     #endif
   }
