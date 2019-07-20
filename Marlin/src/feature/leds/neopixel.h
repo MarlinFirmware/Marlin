@@ -25,10 +25,27 @@
  * Neopixel support
  */
 
+// ------------------------
+// Includes
+// ------------------------
+
 #include "../../inc/MarlinConfig.h"
 
 #include <Adafruit_NeoPixel.h>
 #include <stdint.h>
+
+// ------------------------
+// Externs
+// ------------------------
+
+extern Adafruit_NeoPixel pixels;
+#if HAS_TWO_NEOPIXEL
+  extern Adafruit_NeoPixel pixels2;
+#endif
+
+// ------------------------
+// Defines
+// ------------------------
 
 #define HAS_TWO_NEOPIXEL  defined(NEOPIXEL2_TYPE) && (NEOPIXEL2_TYPE != NEOPIXEL_TYPE)
 
@@ -40,6 +57,10 @@
 #else
   #define NEO_WHITE 0, 0, 0, 255
 #endif
+
+// ------------------------
+// Function prototypes
+// ------------------------
 
 void setup_neopixel();
 void set_neopixel_color(const uint32_t color);
@@ -57,8 +78,3 @@ inline void neopixel_show() {
     #endif
   #endif
 }
-
-extern Adafruit_NeoPixel pixels;
-#if HAS_TWO_NEOPIXEL
-  extern Adafruit_NeoPixel pixels2;
-#endif
