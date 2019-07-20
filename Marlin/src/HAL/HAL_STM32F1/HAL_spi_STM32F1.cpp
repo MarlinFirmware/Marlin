@@ -104,7 +104,7 @@ void spiInit(uint8_t spiRate) {
  * @details
  */
 uint8_t spiRec(void) {
-  uint8_t returnByte = SPI.transfer(0xFF);
+  uint8_t returnByte = SPI.transfer(ff);
   return returnByte;
 }
 

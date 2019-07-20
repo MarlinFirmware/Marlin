@@ -260,7 +260,11 @@ extern "C" {
 void HAL_adc_init(void) {
   // configure the ADC
   adc.calibrate();
-  adc.setSampleRate(ADC_SMPR_41_5); // ?
+  #if F_CPU > 72000000
+    adc.setSampleRate(ADC_SMPR_71_5); // 71.5 ADC cycles
+  #else
+    adc.setSampleRate(ADC_SMPR_41_5); // 41.5 ADC cycles
+  #endif
   adc.setPins(adc_pins, ADC_PIN_COUNT);
   adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), nullptr);
   adc.setScanMode();
