@@ -44,15 +44,19 @@
 void setup_neopixel();
 void set_neopixel_color(const uint32_t color);
 //bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
-#if PIN_EXISTS(NEOPIXEL2)
-  #if HAS_TWO_NEOPIXEL
-    #define NEOPIXELSHOW pixels.show(); pixels2.show()
-  #else
-    #define NEOPIXELSHOW pixels.show(); pixels.setPin(NEOPIXEL2_PIN); pixels.show(); pixels.setPin(NEOPIXEL_PIN)
+
+inline void neopixel_show() {
+  pixels.show();
+  #if PIN_EXISTS(NEOPIXEL2)
+    #if HAS_TWO_NEOPIXEL
+      pixels2.show();
+    #else
+      pixels.setPin(NEOPIXEL2_PIN);
+      pixels.show();
+      pixels.setPin(NEOPIXEL_PIN);
+    #endif
   #endif
-#else
-  #define NEOPIXELSHOW pixels.show()
-#endif
+}
 
 extern Adafruit_NeoPixel pixels;
 #if HAS_TWO_NEOPIXEL
