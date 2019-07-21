@@ -2041,7 +2041,7 @@ void Temperature::disable_all_heaters() {
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
     //
-    #if !MAX6675_SEPARATE_SPI
+    #if !(MAX6675_SEPARATE_SPI)
       spiBegin();
       spiInit(MAX6675_SPEED_BITS);
     #endif
