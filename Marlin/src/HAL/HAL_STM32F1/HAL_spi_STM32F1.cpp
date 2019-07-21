@@ -97,7 +97,7 @@ void spiInit(uint8_t spiRate) {
     case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
     case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
-    default:                clock = SPI_CLOCK_MAX;  // Default from the SPI library
+    default:                clock = SPI_CLOCK_DIV2;  // Default from the SPI library
   }
   SPI.setModule(SPI_DEVICE);
   SPI.begin();
