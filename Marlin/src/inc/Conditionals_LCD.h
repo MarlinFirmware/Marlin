@@ -151,12 +151,14 @@
     #define NEOPIXEL_LED
     #undef NEOPIXEL_TYPE
     #define NEOPIXEL_TYPE       NEO_RGB
-    #undef NEOPIXEL_PIXELS
-    #define NEOPIXEL_PIXELS     3
+    #if NEOPIXEL_PIXELS < 3
+      #undef NEOPIXELS_PIXELS
+      #define NEOPIXEL_PIXELS     3
+    #endif
     #ifndef NEOPIXEL_BRIGHTNESS
       #define NEOPIXEL_BRIGHTNESS 127
     #endif
-    #define NEOPIXEL_STARTUP_TEST
+    //#define NEOPIXEL_STARTUP_TEST
   #endif
 
 #elif ENABLED(ULTI_CONTROLLER)

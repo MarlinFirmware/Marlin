@@ -28,8 +28,8 @@
  *******************************************************************************
  * Automatically generated from STM32F407Z(E-G)Tx.xml
  */
-#include "Arduino.h"
-#include "PeripheralPins.h"
+#include <Arduino.h>
+#include <PeripheralPins.h>
 
 /* =====
  * Note: Commented lines are alternative possibilities which are not used by default.

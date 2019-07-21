@@ -27,14 +27,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-
-#ifndef _VARIANT_ARDUINO_STM32_
-#define _VARIANT_ARDUINO_STM32_
+#pragma once
 
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-#include "PeripheralPins.h"
+#include <PeripheralPins.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -292,5 +290,3 @@ extern const PinName digitalPin[];
 #define SERIAL_PORT_MONITOR     Serial
 #define SERIAL_PORT_HARDWARE    Serial1
 #endif
-
-#endif /* _VARIANT_ARDUINO_STM32_ */

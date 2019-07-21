@@ -676,7 +676,7 @@ namespace ExtUI {
         UNUSED(mm);
       #endif
 
-      #if EXTRUDERS > 1
+      #if EXTRUDERS > 1 && HAS_HOTEND_OFFSET
         /**
          * When linked_nozzles is false, as an axis is babystepped
          * adjust the hotend offsets so that the other nozzles are
