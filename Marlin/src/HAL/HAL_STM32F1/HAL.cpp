@@ -201,6 +201,11 @@ void HAL_init(void) {
   #if PIN_EXISTS(LED)
     OUT_WRITE(LED_PIN, LOW);
   #endif
+  #if PIN_EXISTS(USB_CONNECT)
+    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
+    delay(1000);                                         // Give OS time to notice
+    OUT_WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
+  #endif
 }
 
 /* VGPV Done with defines
