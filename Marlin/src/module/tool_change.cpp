@@ -956,13 +956,13 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
 
         #if ENABLED(SINGLENOZZLE)
           #if FAN_COUNT > 0
-            singlenozzle_fan_speed[active_extruder] = thermalManager.fan_speed[0];
-            thermalManager.fan_speed[0] = singlenozzle_fan_speed[tmp_extruder];
+            singlenozzle_fan_speed[!active_extruder] = thermalManager.fan_speed[0];
+            thermalManager.fan_speed[0] = singlenozzle_fan_speed[active_extruder];
           #endif
 
-          singlenozzle_temp[active_extruder] = thermalManager.temp_hotend[0].target;
-          if (singlenozzle_temp[tmp_extruder] && singlenozzle_temp[tmp_extruder] != singlenozzle_temp[active_extruder]) {
-            thermalManager.setTargetHotend(singlenozzle_temp[tmp_extruder], 0);
+          singlenozzle_temp[!active_extruder] = thermalManager.temp_hotend[0].target;
+          if (singlenozzle_temp[active_extruder] && singlenozzle_temp[active_extruder] != singlenozzle_temp[!active_extruder]) {
+            thermalManager.setTargetHotend(singlenozzle_temp[active_extruder], 0);
             #if HAS_DISPLAY
               thermalManager.set_heating_message(0);
             #endif
@@ -974,10 +974,13 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
             #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              do_pause_e_move(toolchange_settings.swap_length + toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
+              do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.prime_speed));
+              do_pause_e_move(toolchange_settings.extra_prime, ADVANCED_PAUSE_PURGE_FEEDRATE);
             #else
-              current_position[E_AXIS] += (toolchange_settings.swap_length + toolchange_settings.extra_prime) / planner.e_factor[tmp_extruder];
+              current_position[E_AXIS] += (toolchange_settings.swap_length) / planner.e_factor[tmp_extruder];
               planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed), tmp_extruder);
+              current_position[E_AXIS] += (toolchange_settings.extra_prime) / planner.e_factor[tmp_extruder];
+              planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed/5), tmp_extruder);
             #endif
             planner.synchronize();
             planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = current_position[E_AXIS] - (TOOLCHANGE_FIL_EXTRA_PRIME)));
