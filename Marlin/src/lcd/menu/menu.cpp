@@ -476,7 +476,7 @@ bool MarlinUI::update_selection() {
 void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
   const bool ui_selection = ui.update_selection(), got_click = ui.use_click();
   if (got_click || ui.should_draw()) {
-    ui.encoder_direction_menus();
+    ui.encoder_direction_leftright();
     draw_select_screen(yes, no, ui_selection, pref, string, suff);
     if (got_click) { ui_selection ? yesFunc() : noFunc(); }
   }

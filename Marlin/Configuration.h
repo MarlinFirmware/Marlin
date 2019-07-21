@@ -1680,6 +1680,7 @@
 // This option reverses the encoder direction everywhere.
 //
 //  Set this option if CLOCKWISE causes values to DECREASE
+//  This also change MENU and SELECT SCREEN direction.
 //
 //#define REVERSE_ENCODER_DIRECTION
 
@@ -1690,6 +1691,14 @@
 //  If CLOCKWISE normally moves UP this makes it go DOWN.
 //
 //#define REVERSE_MENU_DIRECTION
+
+//
+// This option reverses the encoder direction for Select Screen.
+//
+//  If CLOCKWISE normally moves LEFT this makes it go RIGHT.
+//  If CLOCKWISE normally moves RIGHT this makes it go LEFT.
+//
+//#define REVERSE_LEFTRIGHT_DIRECTION
 
 //
 // Individual Axis Homing
