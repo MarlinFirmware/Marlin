@@ -33,7 +33,7 @@
 #include "../core/language.h"
 #include "../HAL/shared/Delay.h"
 
-#define MAX6675_SEPARATE_SPI EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO)
+#define MAX6675_SEPARATE_SPI (EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO))
 
 #if MAX6675_SEPARATE_SPI
   #include "../libs/private_spi.h"
@@ -2041,7 +2041,7 @@ void Temperature::disable_all_heaters() {
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
     //
-    #if !(MAX6675_SEPARATE_SPI)
+    #if !MAX6675_SEPARATE_SPI
       spiBegin();
       spiInit(MAX6675_SPEED_BITS);
     #endif
