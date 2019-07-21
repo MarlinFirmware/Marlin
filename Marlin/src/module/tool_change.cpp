@@ -766,6 +766,7 @@ inline void invalid_extruder_error(const uint8_t e) {
  */
 void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
 
+  const uint8_t old_tool = active_extruder;
   #if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
     if (tmp_extruder == active_extruder) return;
   #endif
@@ -956,19 +957,18 @@ void tool_change(const uint8_t tmp_extruder, bool no_move/*=false*/) {
 
         #if ENABLED(SINGLENOZZLE)
           #if FAN_COUNT > 0
-            singlenozzle_fan_speed[!active_extruder] = thermalManager.fan_speed[0];
-            thermalManager.fan_speed[0] = singlenozzle_fan_speed[active_extruder];
+            singlenozzle_fan_speed[old_tool] = thermalManager.fan_speed[0];
+            thermalManager.fan_speed[0] = singlenozzle_fan_speed[tmp_extruder];
           #endif
 
-          singlenozzle_temp[!active_extruder] = thermalManager.temp_hotend[0].target;
-          if (singlenozzle_temp[active_extruder] && singlenozzle_temp[active_extruder] != singlenozzle_temp[!active_extruder]) {
-            thermalManager.setTargetHotend(singlenozzle_temp[active_extruder], 0);
+          singlenozzle_temp[old_tool] = thermalManager.temp_hotend[0].target;
+          if (singlenozzle_temp[tmp_extruder] && singlenozzle_temp[tmp_extruder] != singlenozzle_temp[old_tool]) {
+            thermalManager.setTargetHotend(singlenozzle_temp[tmp_extruder], 0);
             #if HAS_DISPLAY
               thermalManager.set_heating_message(0);
             #endif
             (void)thermalManager.wait_for_hotend(0, false);  // Wait for heating or cooling
           }
-          active_extruder = tmp_extruder;
         #endif
 
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
