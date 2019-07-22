@@ -978,10 +978,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
               do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.prime_speed));
               do_pause_e_move(toolchange_settings.extra_prime, ADVANCED_PAUSE_PURGE_FEEDRATE);
             #else
-              current_position[E_AXIS] += (toolchange_settings.swap_length) / planner.e_factor[new_tool];
+              current_position[E_AXIS] += toolchange_settings.swap_length / planner.e_factor[new_tool];
               planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed), new_tool);
-              current_position[E_AXIS] += (toolchange_settings.extra_prime) / planner.e_factor[new_tool];
-              planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed/5), new_tool);
+              current_position[E_AXIS] += toolchange_settings.extra_prime / planner.e_factor[new_tool];
+              planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed * 0.2f), new_tool);
             #endif
             planner.synchronize();
             planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = current_position[E_AXIS] - (TOOLCHANGE_FIL_EXTRA_PRIME)));
