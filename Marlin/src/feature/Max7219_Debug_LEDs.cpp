@@ -210,23 +210,31 @@ void Max7219::send(const uint8_t reg, const uint8_t data) {
   CRITICAL_SECTION_END;
 }
 
-// Send out a single native row of bits to all units
-void Max7219::refresh_line(const uint8_t line) {
-  for (uint8_t u = MAX7219_NUMBER_UNITS; u--;)
-    send(LINE_REG(line), led_line[(u << 3) | (line & 0x7)]);
+// Send out a single native row of bits to just one unit
+void Max7219::refresh_unit_line(const uint8_t line) {
+  #if MAX7219_NUMBER_UNITS == 1
+    send(LINE_REG(line), led_line[line]);
+  #else
+    for (uint8_t u = MAX7219_NUMBER_UNITS; u--;)
+      if (u == (line >> 3)) send(LINE_REG(line), led_line[line]); else noop();
+  #endif
   pulse_load();
 }
 
-// Send out a single native row of bits to just one unit
-void Max7219::refresh_unit_line(const uint8_t line) {
-  for (uint8_t u = MAX7219_NUMBER_UNITS; u--;)
-    if (u == (line >> 3)) send(LINE_REG(line), led_line[line]); else noop();
+// Send out a single native row of bits to all units
+void Max7219::refresh_line(const uint8_t line) {
+  #if MAX7219_NUMBER_UNITS == 1
+    refresh_unit_line(line);
+  #else
+    for (uint8_t u = MAX7219_NUMBER_UNITS; u--;)
+      send(LINE_REG(line), led_line[(u << 3) | (line & 0x7)]);
+  #endif
   pulse_load();
 }
 
 void Max7219::set(const uint8_t line, const uint8_t bits) {
   led_line[line] = bits;
-  refresh_line(line);
+  refresh_unit_line(line);
 }
 
 #if ENABLED(MAX7219_NUMERIC)
@@ -268,7 +276,7 @@ void Max7219::led_set(const uint8_t x, const uint8_t y, const bool on) {
   if (x > MAX7219_X_LEDS - 1 || y > MAX7219_Y_LEDS - 1) return error(PSTR("led_set"), x, y);
   if (BIT_7219(x, y) == on) return;
   XOR_7219(x, y);
-  refresh_line(LED_IND(x, y));
+  refresh_unit_line(LED_IND(x, y));
 }
 
 void Max7219::led_on(const uint8_t x, const uint8_t y) {
@@ -287,20 +295,28 @@ void Max7219::led_toggle(const uint8_t x, const uint8_t y) {
 }
 
 void Max7219::send_row(const uint8_t row) {
-  #if _ROT == 0 || _ROT == 180
-    refresh_line(LED_IND(0, row));
-  #else
+  #if _ROT == 0 || _ROT == 180            // Native Lines are horizontal too
+    #if MAX7219_X_LEDS <= 8
+      refresh_unit_line(LED_IND(0, row)); // A single unit line
+    #else
+      refresh_line(LED_IND(0, row));      // Same line, all units
+    #endif
+  #else                                   // Native lines are vertical
     UNUSED(row);
-    refresh();
+    refresh();                            // Actually a column
   #endif
 }
 
 void Max7219::send_column(const uint8_t col) {
-  #if _ROT == 90 || _ROT == 270
-    refresh_line(LED_IND(col, 0));
-  #else
+  #if _ROT == 90 || _ROT == 270           // Native Lines are vertical too
+    #if MAX7219_Y_LEDS <= 8
+      refresh_unit_line(LED_IND(col, 0)); // A single unit line
+    #else
+      refresh_line(LED_IND(col, 0));      // Same line, all units
+    #endif
+  #else                                   // Native lines are horizontal
     UNUSED(col);
-    refresh();
+    refresh();                            // Actually a row
   #endif
 }
 
@@ -544,12 +560,12 @@ void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv) 
   for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
     #if MAX7219_X_LEDS == 8
       #if MAX7219_Y_LEDS == 8
-        led_set(i >> 1, pos + (i & 1), nv >= ov); // single 8x8 LED matrix.  Use two lines to get 16 LED's
+        led_set(i >> 1, pos + (i & 1), nv >= ov); // Single 8x8 LED matrix.  Use two lines to get 16 LED's
       #else
         led_set(pos, i, nv >= ov);                // The Max7219 Y-Axis has at least 16 LED's.  So use a single column
       #endif
     #else
-      led_set(i, pos, nv >= ov);                // LED matrix has at least 16 LED's on the X-Axis.  Use single line of LED's
+      led_set(i, pos, nv >= ov);                  // LED matrix has at least 16 LED's on the X-Axis.  Use single line of LED's
     #endif
 }
 
