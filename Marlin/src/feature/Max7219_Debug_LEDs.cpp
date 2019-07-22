@@ -48,6 +48,28 @@
 #include "../Marlin.h"
 #include "../HAL/shared/Delay.h"
 
+#define HAS_SIDE_BY_SIDE (ENABLED(MAX7219_SIDE_BY_SIDE) && MAX7219_NUMBER_UNITS > 1)
+
+#if _ROT == 0 || _ROT == 180
+  #if HAS_SIDE_BY_SIDE
+    #define MAX7219_X_LEDS  8
+    #define MAX7219_Y_LEDS  MAX7219_LINES
+  #else
+    #define MAX7219_Y_LEDS  8
+    #define MAX7219_X_LEDS  MAX7219_LINES
+  #endif
+#elif _ROT == 90 || _ROT == 270
+  #if HAS_SIDE_BY_SIDE
+    #define MAX7219_Y_LEDS  8
+    #define MAX7219_X_LEDS  MAX7219_LINES
+  #else
+    #define MAX7219_X_LEDS  8
+    #define MAX7219_Y_LEDS  MAX7219_LINES
+  #endif
+#else
+  #error "MAX7219_ROTATE must be a multiple of +/- 90°."
+#endif
+
 Max7219 max7219;
 
 uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
@@ -59,24 +81,39 @@ uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
 #else
   #define _LED_BIT(Q)   ((Q) & 0x7)
 #endif
-
-#if (_ROT == 0 || _ROT == 270) == ENABLED(MAX7219_REVERSE_ORDER)
-  #define _LED_UNIT(Q)  ((MAX7219_NUMBER_UNITS - 1 - ((Q) >> 3)) << 3)
-#else
-  #define _LED_UNIT(Q)  ((Q) & ~0x7)
-#endif
-
-#if _ROT < 180
-  #define _LED_IND(P,Q) (_LED_UNIT(P) + (Q))
-#else
-  #define _LED_IND(P,Q) (_LED_UNIT(P) + (7 - ((Q) & 0x7)))
-#endif
 #if _ROT == 0 || _ROT == 180
-  #define LED_IND(X,Y)  _LED_IND(X,Y)
   #define LED_BIT(X,Y)  _LED_BIT(X)
-#elif _ROT == 90 || _ROT == 270
-  #define LED_IND(X,Y)  _LED_IND(Y,X)
+#else
   #define LED_BIT(X,Y)  _LED_BIT(Y)
+#endif
+#if _ROT == 0 || _ROT == 90
+  #define _LED_IND(P,Q) (_LED_TOP(P) + ((Q) & 0x7))
+#else
+  #define _LED_IND(P,Q) (_LED_TOP(P) + (7 - ((Q) & 0x7)))
+#endif
+
+#if HAS_SIDE_BY_SIDE
+  #if (_ROT == 0 || _ROT == 90) == DISABLED(MAX7219_REVERSE_ORDER)
+    #define _LED_TOP(Q)  ((MAX7219_NUMBER_UNITS - 1 - ((Q) >> 3)) << 3)
+  #else
+    #define _LED_TOP(Q)  ((Q) & ~0x7)
+  #endif
+  #if _ROT == 0 || _ROT == 180
+    #define LED_IND(X,Y)  _LED_IND(Y,Y)
+  #elif _ROT == 90 || _ROT == 270
+    #define LED_IND(X,Y)  _LED_IND(X,X)
+  #endif
+#else
+  #if (_ROT == 0 || _ROT == 270) == DISABLED(MAX7219_REVERSE_ORDER)
+    #define _LED_TOP(Q)  ((Q) & ~0x7)
+  #else
+    #define _LED_TOP(Q)  ((MAX7219_NUMBER_UNITS - 1 - ((Q) >> 3)) << 3)
+  #endif
+  #if _ROT == 0 || _ROT == 180
+    #define LED_IND(X,Y)  _LED_IND(X,Y)
+  #elif _ROT == 90 || _ROT == 270
+    #define LED_IND(X,Y)  _LED_IND(Y,X)
+  #endif
 #endif
 
 #define XOR_7219(X,Y) do{ led_line[LED_IND(X,Y)] ^=  _BV(LED_BIT(X,Y)); }while(0)
