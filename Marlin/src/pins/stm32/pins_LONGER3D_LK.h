@@ -18,7 +18,9 @@
  */
 #pragma once
 
-// Longer3D LK1/LK2 & Alfawise U20/U30 (STM32F103VET6) board pin assignments
+/**
+ * Longer3D LK1/LK2 & Alfawise U20/U30 (STM32F103VET6) board pin assignments
+ */
 
 #if !defined(__STM32F1__) && !defined(STM32F1xx)
   #error "Oops! Select a STM32F1 board in 'Tools > Board.'"
