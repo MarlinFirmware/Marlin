@@ -231,36 +231,36 @@
 
   #if ENABLED(FYSETC_MINI_12864)
     /**
-     * The Fysetc display can NOT use the SCK and MOSI pins on EXP2, so a
+     * The FYSETC display can NOT use the SCK and MOSI pins on EXP2, so a
      * special cable is needed to go between EXP2 on the FYSETC and the
      * controller board's EXP2 and J8. It also means that a software SPI
      * is needed to drive those pins.
      *
-     * The Fysetc requires mode 3 SPI interface.
+     * The FYSETC requires mode 3 SPI interface.
      *
      * Pins 6, 7 & 8 on EXP2 are no connects. That means a second special
      * cable will be needed if the RGB LEDs are to be active.
      */
-    #define DOGLCD_CS      LCD_PINS_ENABLE // EXP1.3  (LCD_EN on Fysetc schematic)
-    #define DOGLCD_A0      LCD_PINS_RS     // EXP1.4  (LCD_A0 on Fysetc schematic)
-    #define DOGLCD_SCK     P2_11           // J8-5  (SCK on Fysetc schematic)
-    #define DOGLCD_MOSI    P4_28           // J8-6  (MOSI on Fysetc schematic)
+    #define DOGLCD_CS      LCD_PINS_ENABLE // EXP1.3  (LCD_EN on FYSETC schematic)
+    #define DOGLCD_A0      LCD_PINS_RS     // EXP1.4  (LCD_A0 on FYSETC schematic)
+    #define DOGLCD_SCK     P2_11           // J8-5  (SCK on FYSETC schematic)
+    #define DOGLCD_MOSI    P4_28           // J8-6  (MOSI on FYSETC schematic)
 
     //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
                                 //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
     #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
-        #define RGB_LED_R_PIN P2_12        // J8-4  (LCD_D6 on Fysetc schematic)
+        #define RGB_LED_R_PIN P2_12        // J8-4  (LCD_D6 on FYSETC schematic)
       #endif
       #ifndef RGB_LED_G_PIN
-        #define RGB_LED_G_PIN P1_23        // J8-3  (LCD_D5 on Fysetc schematic)
+        #define RGB_LED_G_PIN P1_23        // J8-3  (LCD_D5 on FYSETC schematic)
       #endif
       #ifndef RGB_LED_B_PIN
-        #define RGB_LED_B_PIN P1_22        // J8-2  (LCD_D7 on Fysetc schematic)
+        #define RGB_LED_B_PIN P1_22        // J8-2  (LCD_D7 on FYSETC schematic)
       #endif
     #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN    P2_12
+      #define NEOPIXEL_PIN P2_12
     #endif
 
   #elif ENABLED(MINIPANEL)
@@ -304,9 +304,14 @@
 #endif
 
 #if MB(MKS_SBASE) && HAS_TMC220x
-  // The shortage of pins becomes apparent.
-  // Worst case you may have to give up the LCD
-  // RX pins need to be interrupt capable
+
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *
+   * The shortage of pins becomes apparent.
+   * Worst case you may have to give up the LCD
+   * RX pins need to be interrupt capable
+   */
   #define X_SERIAL_TX_PIN  P1_22   // J8-2
   #define X_SERIAL_RX_PIN  P2_12   // J8-4 Interrupt Capable
   #define Y_SERIAL_TX_PIN  P1_23   // J8-3
@@ -344,26 +349,26 @@
  *  PWM1.6   P2_05   RAMPS_D10_PIN
  */
 
- /**
-  * Special pins
-  *   P1_30 - not 5V tolerant - EXP1
-  *   P1_31 - not 5V tolerant - EXP1
-  *   P0_27 - open collector  - EXP2
-  *   P0_28 - open collector  - EXP2
-  *
-  */
+/**
+ * Special pins
+ *   P1_30 - not 5V tolerant - EXP1
+ *   P1_31 - not 5V tolerant - EXP1
+ *   P0_27 - open collector  - EXP2
+ *   P0_28 - open collector  - EXP2
+ *
+ */
 
- /**
-  * Serial Ports
-  *   P0_00 - Port  3
-  *   P0_01 - SD Card (Onboard)
-  *   P0_10 - Port  2
-  *   P0_11 - Y_EN/Y_DIR
-  *   P0_15 - Port  1
-  *   P0_16 - EXP1
-  *   P0_02 - Port  0
-  *   P0_03 - AUX1
-  *   P0_29 - Port -1
-  *   P0_30 - USB
-  *
-  */
+/**
+ * Serial Ports
+ *   P0_00 - Port  3
+ *   P0_01 - SD Card (Onboard)
+ *   P0_10 - Port  2
+ *   P0_11 - Y_EN/Y_DIR
+ *   P0_15 - Port  1
+ *   P0_16 - EXP1
+ *   P0_02 - Port  0
+ *   P0_03 - AUX1
+ *   P0_29 - Port -1
+ *   P0_30 - USB
+ *
+ */

@@ -88,7 +88,7 @@
 #define BOARD_RAMPS_ENDER_4           1134  // Creality: Ender-4, CR-8
 #define BOARD_RAMPS_CREALITY          1135  // Creality: CR10S, CR20, CR-X
 #define BOARD_RAMPS_DAGOMA            1136  // Dagoma F5
-#define BOARD_FYSETC_F6_13            1137  // Fysetc F6
+#define BOARD_FYSETC_F6_13            1137  // FYSETC F6
 #define BOARD_DUPLICATOR_I3_PLUS      1138  // Wanhao Duplicator i3 Plus
 #define BOARD_VORON                   1139  // VORON Design
 #define BOARD_TRONXY_V3_1_0           1140  // Tronxy TRONXY-V3-1.0
@@ -261,10 +261,11 @@
 #define BOARD_MKS_ROBIN_NANO          4007  // MKS Robin Nano (STM32F103VET6)
 #define BOARD_BIGTREE_SKR_MINI_V1_1   4008  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
 #define BOARD_BIGTREE_SKR_MINI_E3     4009  // BigTreeTech SKR Mini E3 (STM32F103RC)
-#define BOARD_JGAURORA_A5S_A1         4010  // JGAurora A5S A1 (STM32F103ZET6)
-#define BOARD_FYSETC_AIO_II           4011  // FYSETC AIO_II
-#define BOARD_FYSETC_CHEETAH          4012  // FYSETC CHEETAH
-#define BOARD_LONGER3D_LK             4013  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
+#define BOARD_BIGTREE_SKR_E3_DIP      4010  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC)
+#define BOARD_JGAURORA_A5S_A1         4011  // JGAurora A5S A1 (STM32F103ZET6)
+#define BOARD_FYSETC_AIO_II           4012  // FYSETC AIO_II
+#define BOARD_FYSETC_CHEETAH          4013  // FYSETC Cheetah
+#define BOARD_LONGER3D_LK             4014  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
 
 //
 // ARM Cortex-M4F

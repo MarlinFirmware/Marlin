@@ -42,7 +42,6 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 #define GET_ARRAY_PIN(p) pin_t(pin_array[p].pin)
 #define pwm_status(pin) PWM_PIN(pin)
 #define digitalRead_mod(p) extDigitalRead(p)
-#define NAME_FORMAT(p) PSTR("%-##p##s")
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(p)); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PORT(p) print_port(p)
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)

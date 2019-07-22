@@ -506,7 +506,7 @@ static bool udd_ep_interrupt(void);
 //@}
 
 
-//--------------------------------------------------------
+// ------------------------
 //--- INTERNAL ROUTINES TO MANAGED GLOBAL EVENTS
 
 /**
@@ -1307,7 +1307,7 @@ void udd_test_mode_packet(void)
 
 
 
-//--------------------------------------------------------
+// ------------------------
 //--- INTERNAL ROUTINES TO MANAGED THE CONTROL ENDPOINT
 
 static void udd_reset_ep_ctrl(void)
@@ -1729,7 +1729,7 @@ static bool udd_ctrl_interrupt(void)
 }
 
 
-//--------------------------------------------------------
+// ------------------------
 //--- INTERNAL ROUTINES TO MANAGED THE BULK/INTERRUPT/ISOCHRONOUS ENDPOINTS
 
 #if (0 != USB_DEVICE_MAX_EP)

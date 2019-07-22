@@ -89,7 +89,6 @@
   // Step 7: Get the Z coordinate, click goes to the next point or exits
   //
   void _lcd_level_bed_get_z() {
-    ui.encoder_direction_normal();
 
     if (ui.use_click()) {
 

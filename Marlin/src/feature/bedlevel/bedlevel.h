@@ -46,6 +46,18 @@ void reset_bed_level();
   void _manual_goto_xy(const float &x, const float &y);
 #endif
 
+/**
+ * A class to save and change the bed leveling state,
+ * then restore it when it goes out of scope.
+ */
+class TemporaryBedLevelingState {
+  bool saved;
+  public:
+    TemporaryBedLevelingState(const bool enable);
+    ~TemporaryBedLevelingState() { set_bed_leveling_enabled(saved); }
+};
+#define TEMPORARY_BED_LEVELING_STATE(enable) TemporaryBedLevelingState tbls(enable)
+
 #if HAS_MESH
 
   typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];

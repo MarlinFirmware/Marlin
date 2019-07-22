@@ -785,7 +785,7 @@ class Temperature {
       #endif
     #endif
 
-    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+    #if HAS_DISPLAY
       static void set_heating_message(const uint8_t e);
     #endif
 
