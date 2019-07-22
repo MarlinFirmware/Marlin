@@ -416,24 +416,24 @@ void Max7219::set_columns_32bits(const uint8_t x, uint32_t val) {
 void Max7219::register_setup() {
   for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
     send(max7219_reg_scanLimit, 0x07);
-  pulse_load();                        // tell the chips to load the clocked out data
+  pulse_load();                               // Tell the chips to load the clocked out data
 
   for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
-    send(max7219_reg_decodeMode, 0x00);     // using an led matrix (not digits)
-  pulse_load();                        // tell the chips to load the clocked out data
+    send(max7219_reg_decodeMode, 0x00);       // Using an led matrix (not digits)
+  pulse_load();                               // Tell the chips to load the clocked out data
 
   for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
-    send(max7219_reg_shutdown, 0x01);       // not in shutdown mode
-  pulse_load();                        // tell the chips to load the clocked out data
+    send(max7219_reg_shutdown, 0x01);         // Not in shutdown mode
+  pulse_load();                               // Tell the chips to load the clocked out data
 
   for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
-    send(max7219_reg_displayTest, 0x00);    // no display test
-  pulse_load();                        // tell the chips to load the clocked out data
+    send(max7219_reg_displayTest, 0x00);      // No display test
+  pulse_load();                               // Tell the chips to load the clocked out data
 
   for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
-    send(max7219_reg_intensity, 0x01 & 0x0F); // the first 0x0F is the value you can set
-                                                 // range: 0x00 to 0x0F
-  pulse_load();                          // tell the chips to load the clocked out data
+    send(max7219_reg_intensity, 0x01 & 0x0F); // The first 0x0F is the value you can set
+                                              // Range: 0x00 to 0x0F
+  pulse_load();                               // Tell the chips to load the clocked out data
 }
 
 #ifdef MAX7219_INIT_TEST
@@ -472,10 +472,10 @@ void Max7219::init() {
 
   register_setup();
 
-  for (uint8_t i = 0; i <= 7; i++) {      // Empty registers to turn all LEDs off
+  for (uint8_t i = 0; i <= 7; i++) {  // Empty registers to turn all LEDs off
     led_line[i] = 0x00;
     send(max7219_reg_digit0 + i, 0);
-    pulse_load();                 // tell the chips to load the clocked out data
+    pulse_load();                     // Tell the chips to load the clocked out data
   }
 
   #ifdef MAX7219_INIT_TEST
