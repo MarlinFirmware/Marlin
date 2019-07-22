@@ -117,7 +117,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
     if (GET_ARRAY_PIN(x) == pin) {
       if (found) multi_name_pin = true;
       found = true;
-      if (!multi_name_pin) {    // report digitial and analog pin number only on the first time through
+      if (!multi_name_pin) {    // report digital and analog pin number only on the first time through
         sprintf_P(buffer, PSTR("%sPIN: "), start_string);     // digital pin number
         SERIAL_ECHO(buffer);
         PRINT_PIN(pin);
