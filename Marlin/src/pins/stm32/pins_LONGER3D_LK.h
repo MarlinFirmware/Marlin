@@ -38,12 +38,20 @@
 // Limit Switches
 //
 #define X_MIN_PIN          PC1   // pin 16
-//#define X_MAX_PIN        PC0   // pin 15 Used as filament sensor on Alfawise setup
+#define X_MAX_PIN          PC0   // pin 15 (Filament sensor on Alfawise setup)
 #define Y_MIN_PIN          PC15  // pin 9
-//#define Y_MAX_PIN        PC14  // pin 8 Unused in stock Alfawise setup
+#define Y_MAX_PIN          PC14  // pin 8 (Unused in stock Alfawise setup)
 #define Z_MIN_PIN          PE6   // pin 5 Standard Endstop or Z_Probe endstop function
-//#define Z_MAX_PIN        PE5   // pin 4 Unused in stock Alfawise setup
+#define Z_MAX_PIN          PE5   // pin 4 (Unused in stock Alfawise setup)
                                  // May be used for BLTouch Servo function on older variants (<= V08)
+
+//
+// Filament Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   PC0   // XMAX plug on PCB used as filament runout sensor on Alfawise boards (inverting true)
+#endif
+
 //
 // Steppers
 //
@@ -79,11 +87,6 @@
 #define FAN_SOFT_PWM             // Required to avoid issues with heating or STLink
 #define FAN_MIN_PWM        35    // Fan will not start in 1-30 range
 #define FAN_MAX_PWM        255
-
-// Filament Sensor
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PC0   // XMAX plug on PCB used as filament runout sensor on Alfawise boards (inverting true)
-#endif
 
 //#define BEEPER_PIN       PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
                                  // Can drive a PC Buzzer, if connected between PWM and 5V pins
