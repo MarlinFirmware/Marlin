@@ -28,15 +28,20 @@
 #define XPT2046_CONTROL  0x80
 
 enum XPTCoordinate : uint8_t {
-  XPT2046_X = 0x10,
-  XPT2046_Y = 0x50
+  XPT2046_X  = 0x10,
+  XPT2046_Y  = 0x50,
+  XPT2046_Z1 = 0x30,
+  XPT2046_Z2 = 0x40
 };
+
+#define XPT2046_Z1_TRESHHOLD 10
 
 class XPT2046 {
 public:
   static void init(void);
   static uint8_t read_buttons();
 private:
+  static bool isTouched();
   static uint16_t getInTouch(const XPTCoordinate coordinate);
 };
 

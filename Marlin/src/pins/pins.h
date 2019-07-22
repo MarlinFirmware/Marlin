@@ -444,6 +444,8 @@
   #include "stm32/pins_BIGTREE_SKR_MINI_V1_1.h" // STM32F1                                env:BIGTREE_SKR_MINI
 #elif MB(BIGTREE_SKR_MINI_E3)
   #include "stm32/pins_BIGTREE_SKR_MINI_E3.h"   // STM32F1                                env:BIGTREE_SKR_MINI
+#elif MB(BIGTREE_SKR_E3_DIP)
+  #include "stm32/pins_BIGTREE_SKR_E3_DIP.h"    // STM32F1                                env:BIGTREE_SKR_MINI
 #elif MB(MALYAN_M200)
   #include "stm32/pins_MALYAN_M200.h"           // STM32F1                                env:malyanm200
 #elif MB(CHITU3D)

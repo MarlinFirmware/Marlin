@@ -56,7 +56,6 @@ void MarlinGame::draw_game_over() {
 void MarlinGame::init_game(const uint8_t init_state, const screenFunc_t screen) {
   score = 0;
   game_state = init_state;
-  ui.encoder_direction_normal();
   ui.goto_screen(screen);
   ui.defer_status_screen();
 }

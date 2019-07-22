@@ -50,7 +50,7 @@ void GcodeSuite::M150() {
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : pixels.getBrightness()
+    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : neo.brightness()
   ));
 }
 

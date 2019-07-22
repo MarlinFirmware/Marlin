@@ -142,6 +142,8 @@ void GcodeSuite::G34() {
           z_maxdiff = 0.0f,
           amplification = z_auto_align_amplification;
 
+    const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
+
     uint8_t iteration;
     bool err_break = false;
     for (iteration = 0; iteration < z_auto_align_iterations; ++iteration) {
@@ -159,18 +161,18 @@ void GcodeSuite::G34() {
         // Safe clearance even on an incline
         if (iteration == 0 || izstepper > 0) do_blocking_move_to_z(z_probe);
 
-        // Probe a Z height for each stepper
-        if (isnan(probe_pt(z_auto_align_xpos[zstepper], z_auto_align_ypos[zstepper], PROBE_PT_RAISE, 0, true))) {
+        // Probe a Z height for each stepper.
+        const float z_probed_height = probe_pt(z_auto_align_xpos[zstepper], z_auto_align_ypos[zstepper], raise_after, 0, true);
+        if (isnan(z_probed_height)) {
           SERIAL_ECHOLNPGM("Probing failed.");
           err_break = true;
           break;
         }
 
-        // This is not the trigger Z value. It is the position of the probe after raising it.
-        // It is higher than the trigger value by a constant value (not known here). This value
-        // is more useful for determining the desired next iteration Z position for probing. It is
-        // equally well suited for determining the misalignment, just like the trigger position would be.
-        z_measured[zstepper] = current_position[Z_AXIS];
+        // Add height to each value, to provide a more useful target height for
+        // the next iteration of probing. This allows adjustments to be made away from the bed.
+        z_measured[zstepper] = z_probed_height + Z_CLEARANCE_BETWEEN_PROBES;
+
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " measured position is ", z_measured[zstepper]);
 
         // Remember the minimum measurement to calculate the correction later on
