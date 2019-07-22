@@ -443,7 +443,6 @@ void Max7219::register_setup() {
     constexpr int8_t way[] = { 1, 0, 0, 1, -1, 0, 0, -1 };
     int8_t px = 0, py = 0, dir = 0;
     for (uint8_t i = MAX7219_X_LEDS * MAX7219_Y_LEDS; i--;) {
-      //SERIAL_ECHOLNPAIR("spiral ", int(i));
       led_set(px, py, on);
       delay(del);
       const int8_t x = px + way[dir], y = py + way[dir + 1];
