@@ -80,7 +80,7 @@ void spiBegin() {
  */
 void spiInit(uint8_t spiRate) {
   /**
-   * STM32F1 APB1 = 72MHz, APB2 = 36MHz, max SPI speed of this MCU if 18Mhz 
+   * STM32F1 APB1 = 36MHz, APB2 = 72MHz, max SPI speed of this MCU if 18Mhz
    * STM32F1 has 3 SPI ports, SPI1 in APB1, SPI2/SPI3 in APB2
    * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
    */
