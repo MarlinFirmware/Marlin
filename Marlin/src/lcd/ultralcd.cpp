@@ -538,7 +538,7 @@ void MarlinUI::status_screen() {
       return;
     }
 
-  #endif // HAS_LCD_MENU
+  #endif
 
   #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
 
@@ -802,7 +802,9 @@ void MarlinUI::update() {
           card.release();
           if (old_sd_status != 2) {
             set_status_P(PSTR(MSG_SD_REMOVED));
-            if (!on_status_screen()) return_to_status();
+            #if HAS_LCD_MENU
+              return_to_status();
+            #endif
           }
         }
 

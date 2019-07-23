@@ -770,8 +770,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool == active_extruder) return;
   #endif
 
-  const uint8_t old_tool = active_extruder;
-
   #if ENABLED(MIXING_EXTRUDER)
 
     UNUSED(no_move);
@@ -824,6 +822,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       constexpr bool idex_full_control = false;
     #endif
 
+    const uint8_t old_tool = active_extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
