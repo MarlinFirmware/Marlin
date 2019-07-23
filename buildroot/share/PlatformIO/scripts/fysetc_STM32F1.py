@@ -1,6 +1,8 @@
 from os.path import join
 Import("env", "projenv")
 
+platform = env.PioPlatform()
+
 # Relocate firmware from 0x08000000 to 0x08002000
 #env['CPPDEFINES'].remove(("VECT_TAB_ADDR", 134217728))
 #env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08010000"))
@@ -27,7 +29,8 @@ env.AddPostAction(
 
 # In-line command with arguments
 env.Replace(
-	UPLOADCMD="stm32flash -v -i rts,-dtr,dtr " + '$UPLOAD_PORT' + " -R -w $BUILD_DIR/${PROGNAME}.hex"
+	UPLOADER=platform.get_package_dir("tool-stm32duino") + '/stm32flash/stm32flash',
+	UPLOADCMD='"${UPLOADER}" -v -i rts,-dtr,dtr,-rts -R -b 115200 -g 0x8000000 -w "${BUILD_DIR}/${PROGNAME}.hex" ${UPLOAD_PORT}'
 )
 
 

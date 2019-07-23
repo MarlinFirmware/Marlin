@@ -137,7 +137,7 @@ void initISR(timer16_Sequence_t timer) {
   #endif
 }
 
-void finISR(timer16_Sequence_t timer) {
+void finISR(timer16_Sequence_t) {
   #ifdef _useTimer1
     TC_Stop(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1);
   #endif
