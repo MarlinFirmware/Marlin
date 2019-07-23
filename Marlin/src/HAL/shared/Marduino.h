@@ -41,6 +41,10 @@
 #undef sq
 #define sq(x) ((x)*(x))
 
+#ifndef vsnprintf_P
+  #define vsnprintf_P vsnprintf
+#endif
+
 #ifndef SBI
   #define SBI(A,B) (A |= (1 << (B)))
 #endif
