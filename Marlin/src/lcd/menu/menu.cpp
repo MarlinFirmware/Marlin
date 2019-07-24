@@ -156,15 +156,16 @@ void MenuItemBase::init(PGM_P const el, void * const ev, const int32_t minv, con
 
 #define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuItem<MenuItemInfo_##NAME>
 
+DEFINE_MENU_EDIT_ITEM(percent);     // 100%       right-justified
 DEFINE_MENU_EDIT_ITEM(int3);        // 123, -12   right-justified
 DEFINE_MENU_EDIT_ITEM(int4);        // 1234, -123 right-justified
 DEFINE_MENU_EDIT_ITEM(int8);        // 123, -12   right-justified
 DEFINE_MENU_EDIT_ITEM(uint8);       // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234       right-justified
 DEFINE_MENU_EDIT_ITEM(uint16_5);    // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(float52);     // 123.45
+DEFINE_MENU_EDIT_ITEM(float52);     // _2.34, 12.34, -2.34 or 123.45, -23.45
 DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
 DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(float5_25);   // 12345      right-justified (25 increment)

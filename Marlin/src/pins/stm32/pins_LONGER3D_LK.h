@@ -16,34 +16,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * ALFAWISE U30 (STM32F103VET6) board pin assignments
+ * Longer3D LK1/LK2 & Alfawise U20/U30 (STM32F103VET6) board pin assignments
  */
 
 #if !defined(__STM32F1__) && !defined(STM32F1xx)
   #error "Oops! Select a STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "LONGER3D only supports 1 hotend / E-stepper. Comment out this line to continue."
+  #error "Longer3D board only supports 1 hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_NAME "Longer3D"
-#define ALFAWISE_UX0             // Common to all Alfawise STM32F1 boards
+#define ALFAWISE_UX0             // Common to all Longer3D STM32F1 boards (used for Open drain mosfets)
 
+//#define DISABLE_DEBUG          //  We still want to debug with STLINK...
+#define DISABLE_JTAG             //  We free the jtag pins (PA15) but keep STLINK
                                  //  Release PB4 (STEP_X_PIN) from JTAG NRST role.
-//#define DISABLE_DEBUG          //  > Hobi : We still want to debug with STLINK...
-#define DISABLE_JTAG             //  we free the jtag pins (PA15) but keep STLINK
-
 //
 // Limit Switches
 //
-#define X_STOP_PIN         PC1   // pin 16
-//#define X_MAX_PIN        PC0   // pin 15 Used as filament sensor on Alfawise setup
+#define X_MIN_PIN          PC1   // pin 16
+#define X_MAX_PIN          PC0   // pin 15 (Filament sensor on Alfawise setup)
 #define Y_MIN_PIN          PC15  // pin 9
-//#define Y_MAX_PIN        PC14  // pin 8 Unused in stock Alfawise setup
+#define Y_MAX_PIN          PC14  // pin 8 (Unused in stock Alfawise setup)
 #define Z_MIN_PIN          PE6   // pin 5 Standard Endstop or Z_Probe endstop function
-//#define Z_MAX_PIN        PE5   // pin 4 Unused in stock Alfawise setup
+#define Z_MAX_PIN          PE5   // pin 4 (Unused in stock Alfawise setup)
                                  // May be used for BLTouch Servo function on older variants (<= V08)
+
+//
+// Filament Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   PC0   // XMAX plug on PCB used as filament runout sensor on Alfawise boards (inverting true)
+#endif
+
 //
 // Steppers
 //
@@ -78,12 +86,7 @@
 #define FAN_PIN            PA15  // pin 77 (4cm Fan)
 #define FAN_SOFT_PWM             // Required to avoid issues with heating or STLink
 #define FAN_MIN_PWM        35    // Fan will not start in 1-30 range
-#define FAN_MAX_PWM       255
-
-// Filament Sensor
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PC0   // XMAX plug on PCB used as filament runout sensor on Alfawise boards (inverting true)
-#endif
+#define FAN_MAX_PWM        255
 
 //#define BEEPER_PIN       PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
                                  // Can drive a PC Buzzer, if connected between PWM and 5V pins
@@ -93,17 +96,14 @@
 //
 // PWM
 //
-//#define NUM_SERVOS        1
-//#define SERVO0_TIMER_NUM  1 // General or Adv. timer to use for the servo PWM (2 & 5 are reserved)
-
-#define SERVO0_PWM_OD
 #define SERVO0_PIN         PD13  // Open drain PWM pin on the V0G (GND or floating 5V)
+#define SERVO0_PWM_OD            // Comment this if using PE5
 
-//#define SERVO0_PIN         PE5   // Pulled up PWM pin on the V08 (3.3V or 0)
+//#define SERVO0_PIN       PE5   // Pulled up PWM pin on the V08 (3.3V or 0)
 
 /**
  * Note: Alfawise screens use various TFT controllers. Supported screens
- * are based on the ILI9342, ILI9328 and ST7798V. Define init sequences for
+ * are based on the ILI9341, ILI9328 and ST7798V. Define init sequences for
  * other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
  *
  * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader
@@ -112,7 +112,6 @@
  * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
  * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
  */
-#pragma once
 
 #define LCD_RESET_PIN      PC4   // pin 33
 #define LCD_BACKLIGHT_PIN  PD12  // pin 59
@@ -123,8 +122,8 @@
 #define FSMC_DMA_DEV       DMA2
 #define FSMC_DMA_CHANNEL   DMA_CH5
 
-#define DOGLCD_MOSI -1  // Prevent auto-define by Conditionals_post.h
-#define DOGLCD_SCK  -1
+#define DOGLCD_MOSI        -1  // Prevent auto-define by Conditionals_post.h
+#define DOGLCD_SCK         -1
 
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer
@@ -146,13 +145,12 @@
 //
 // SPI1 (EEPROM W25Q64 + DAC OUT)
 //
-
 #undef E2END
-#define E2END             0x7FF // EEPROM end address (reserve 2kB on sd/sram, real spi one is 8MB/64Mbits)
+#define E2END              0x7FF // EEPROM end address (reserve 2kB on sd/sram, real spi one is 8MB/64Mbits)
 /*
-#define SPI_EEPROM        1   // If commented this will create a file on the SD card as a replacement
-#define SPI_CHAN_EEPROM1  1
-#define SPI_EEPROM1_CS       PC5 // pin 34
+#define SPI_EEPROM         1   // If commented this will create a file on the SD card as a replacement
+#define SPI_CHAN_EEPROM1   1
+#define SPI_EEPROM1_CS     PC5 // pin 34
 
 //#define EEPROM_SCK  BOARD_SPI1_SCK_PIN   // PA5 pin 30
 //#define EEPROM_MISO BOARD_SPI1_MISO_PIN  // PA6 pin 31

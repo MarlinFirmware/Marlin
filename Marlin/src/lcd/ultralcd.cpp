@@ -538,7 +538,7 @@ void MarlinUI::status_screen() {
       return;
     }
 
-  #endif // HAS_LCD_MENU
+  #endif
 
   #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
 
@@ -587,8 +587,8 @@ void MarlinUI::kill_screen(PGM_P lcd_msg) {
   #ifdef LED_BACKLIGHT_TIMEOUT
     leds.set_color(LEDColorRed());
     #ifdef NEOPIXEL_BKGD_LED_INDEX
-      pixels.setPixelColor(NEOPIXEL_BKGD_LED_INDEX, 255, 0, 0, 0);
-      pixels.show();
+      neo.set_pixel_color(NEOPIXEL_BKGD_LED_INDEX, 255, 0, 0, 0);
+      neo.show();
     #endif
   #endif
 
@@ -802,7 +802,9 @@ void MarlinUI::update() {
           card.release();
           if (old_sd_status != 2) {
             set_status_P(PSTR(MSG_SD_REMOVED));
-            if (!on_status_screen()) return_to_status();
+            #if HAS_LCD_MENU
+              return_to_status();
+            #endif
           }
         }
 
@@ -1467,7 +1469,7 @@ void MarlinUI::update() {
     #endif
     print_job_timer.stop();
     set_status_P(PSTR(MSG_PRINT_ABORTED));
-    #if HAS_SPI_LCD
+    #if HAS_LCD_MENU
       return_to_status();
     #endif
   }

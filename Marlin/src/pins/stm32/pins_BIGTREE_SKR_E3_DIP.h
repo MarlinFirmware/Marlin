@@ -148,7 +148,7 @@
 //
 // USB connect control
 //
-#define USB_CONNECT        PC13
+#define USB_CONNECT_PIN    PC13
 #define USB_CONNECT_INVERTING false
 
 #define SD_DETECT_PIN      PC4

@@ -107,7 +107,6 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 #define VALID_PIN(ANUM) ((ANUM) >= 0 && (ANUM) < NUMBER_PINS_TOTAL)
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
-#define NAME_FORMAT(p) PSTR("%-##p##s")
 #define PRINT_PIN(Q)
 #define PRINT_PORT(ANUM) port_print(ANUM)
 #define DIGITAL_PIN_TO_ANALOG_PIN(ANUM) -1  // will report analog pin number in the print port routine

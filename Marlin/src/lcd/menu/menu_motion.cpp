@@ -414,8 +414,11 @@ void menu_move() {
   END_MENU();
 }
 
-void _lcd_ubl_level_bed();
-void menu_bed_leveling();
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  void _lcd_ubl_level_bed();
+#elif ENABLED(LCD_BED_LEVELING)
+  void menu_bed_leveling();
+#endif
 
 void menu_motion() {
   START_MENU();

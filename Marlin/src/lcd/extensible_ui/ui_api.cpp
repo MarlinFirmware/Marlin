@@ -676,22 +676,20 @@ namespace ExtUI {
         UNUSED(mm);
       #endif
 
-      #if EXTRUDERS > 1
+      #if EXTRUDERS > 1 && HAS_HOTEND_OFFSET
         /**
          * When linked_nozzles is false, as an axis is babystepped
          * adjust the hotend offsets so that the other nozzles are
          * unaffected by the babystepping of the active nozzle.
          */
         if (!linked_nozzles) {
-          //HOTEND_LOOP()
-            //if (e != active_extruder)
-              //hotend_offset[axis][e] += mm;
+          HOTEND_LOOP()
+            if (e != active_extruder)
+              hotend_offset[axis][e] += mm;
 
-          #if HAS_HOTEND_OFFSET
-            normalizeNozzleOffset(X);
-            normalizeNozzleOffset(Y);
-            normalizeNozzleOffset(Z);
-          #endif
+          normalizeNozzleOffset(X);
+          normalizeNozzleOffset(Y);
+          normalizeNozzleOffset(Z);
         }
       #else
         UNUSED(linked_nozzles);
