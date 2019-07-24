@@ -35,9 +35,9 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          38  // PD8  X_STOP
+#define X_MIN_PIN          38  // PD8   X_STOP
 #define X_MAX_PIN          -1
-#define Y_MIN_PIN          39  // PD9  Y_STOP
+#define Y_MIN_PIN          39  // PD9   Y_STOP
 #define Y_MAX_PIN          -1
 #define Z_MIN_PIN          40  // PD10  Z_STOP
 #define Z_MAX_PIN          -1

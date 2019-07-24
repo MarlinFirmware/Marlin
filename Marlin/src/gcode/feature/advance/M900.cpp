@@ -44,10 +44,10 @@
 void GcodeSuite::M900() {
 
   #if EXTRUDERS < 2
-    constexpr uint8_t tmp_extruder = 0;
+    constexpr uint8_t tool_index = 0;
   #else
-    const uint8_t tmp_extruder = parser.intval('T', active_extruder);
-    if (tmp_extruder >= EXTRUDERS) {
+    const uint8_t tool_index = parser.intval('T', active_extruder);
+    if (tool_index >= EXTRUDERS) {
       SERIAL_ECHOLNPGM("?T value out of range.");
       return;
     }
@@ -55,17 +55,17 @@ void GcodeSuite::M900() {
 
   #if ENABLED(EXTRA_LIN_ADVANCE_K)
 
-    bool ext_slot = TEST(lin_adv_slot, tmp_extruder);
+    bool ext_slot = TEST(lin_adv_slot, tool_index);
 
     if (parser.seenval('S')) {
       const bool slot = parser.value_bool();
       if (ext_slot != slot) {
         ext_slot = slot;
-        SET_BIT_TO(lin_adv_slot, tmp_extruder, slot);
+        SET_BIT_TO(lin_adv_slot, tool_index, slot);
         planner.synchronize();
-        const float temp = planner.extruder_advance_K[tmp_extruder];
-        planner.extruder_advance_K[tmp_extruder] = saved_extruder_advance_K[tmp_extruder];
-        saved_extruder_advance_K[tmp_extruder] = temp;
+        const float temp = planner.extruder_advance_K[tool_index];
+        planner.extruder_advance_K[tool_index] = saved_extruder_advance_K[tool_index];
+        saved_extruder_advance_K[tool_index] = temp;
       }
     }
 
@@ -73,10 +73,10 @@ void GcodeSuite::M900() {
       const float newK = parser.value_float();
       if (WITHIN(newK, 0, 10)) {
         if (ext_slot)
-          saved_extruder_advance_K[tmp_extruder] = newK;
+          saved_extruder_advance_K[tool_index] = newK;
         else {
           planner.synchronize();
-          planner.extruder_advance_K[tmp_extruder] = newK;
+          planner.extruder_advance_K[tool_index] = newK;
         }
       }
       else
@@ -87,10 +87,10 @@ void GcodeSuite::M900() {
       const float newL = parser.value_float();
       if (WITHIN(newL, 0, 10)) {
         if (!ext_slot)
-          saved_extruder_advance_K[tmp_extruder] = newL;
+          saved_extruder_advance_K[tool_index] = newL;
         else {
           planner.synchronize();
-          planner.extruder_advance_K[tmp_extruder] = newL;
+          planner.extruder_advance_K[tool_index] = newL;
         }
       }
       else
@@ -117,7 +117,7 @@ void GcodeSuite::M900() {
       const float newK = parser.value_float();
       if (WITHIN(newK, 0, 10)) {
         planner.synchronize();
-        planner.extruder_advance_K[tmp_extruder] = newK;
+        planner.extruder_advance_K[tool_index] = newK;
       }
       else
         SERIAL_ECHOLNPGM("?K value out of range (0-10).");
