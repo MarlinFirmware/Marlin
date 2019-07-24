@@ -398,8 +398,6 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
         sg_result = this->TMC_SW_SPI->transfer(0);
         sg_result <<= 8;
         sg_result |= this->TMC_SW_SPI->transfer(0);
-        sg_result &= 0x3FF;
-
       }
       else {
         SPI.beginTransaction(SPISettings(16000000/8, MSBFIRST, SPI_MODE3));
@@ -410,13 +408,11 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
         sg_result = SPI.transfer(0);
         sg_result <<= 8;
         sg_result |= SPI.transfer(0);
-        sg_result &= 0x3FF;
         SPI.endTransaction();
       }
       this->switchCSpin(HIGH);
 
-      if (sg_result == 0) return true;
-      else return false;
+      return (sg_result & 0x3FF) == 0;
     }
 
   #endif // SPI_ENDSTOPS
