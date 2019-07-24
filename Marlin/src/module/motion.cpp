@@ -1122,14 +1122,15 @@ float get_homing_bump_feedrate(const AxisEnum axis) {
     #if ENABLED(SPI_ENDSTOPS)
       switch (axis) {
         #if X_SPI_SENSORLESS
-          case X_AXIS: endstops.tmc_spi_homing.x = true; break;
+          case X_AXIS:
         #endif
         #if Y_SPI_SENSORLESS
-          case Y_AXIS: endstops.tmc_spi_homing.y = true; break;
+          case Y_AXIS:
         #endif
         #if Z_SPI_SENSORLESS
-          case Z_AXIS: endstops.tmc_spi_homing.z = true; break;
+          case Z_AXIS:
         #endif
+            SBI(endstops.tmc_spi_homing, axis);
         default: break;
       }
     #endif
@@ -1191,14 +1192,15 @@ float get_homing_bump_feedrate(const AxisEnum axis) {
     #if ENABLED(SPI_ENDSTOPS)
       switch (axis) {
         #if X_SPI_SENSORLESS
-          case X_AXIS: endstops.tmc_spi_homing.x = false; break;
+          case X_AXIS:
         #endif
         #if Y_SPI_SENSORLESS
-          case Y_AXIS: endstops.tmc_spi_homing.y = false; break;
+          case Y_AXIS:
         #endif
         #if Z_SPI_SENSORLESS
-          case Z_AXIS: endstops.tmc_spi_homing.z = false; break;
+          case Z_AXIS:
         #endif
+            CBI(endstops.tmc_spi_homing, axis);
         default: break;
       }
     #endif
