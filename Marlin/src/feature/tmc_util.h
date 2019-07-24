@@ -348,17 +348,15 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 #endif
 
 /**
- * TMC2130 specific sensorless homing using stallGuard2.
+ * TMC2130-specific sensorless homing using stallGuard2.
  * stallGuard2 only works when in spreadCycle mode.
- * spreadCycle and stealthChop are mutually exclusive.
+ * spreadCycle and stealthChop are mutually-exclusive.
  *
  * Defined here because of limitations with templates and headers.
  */
 #if USE_SENSORLESS
   // Track enabled status of stealthChop and only re-enable where applicable
-  struct sensorless_t {
-    bool x, y, z, x2, y2, z2, z3;
-  };
+  struct sensorless_t { bool x, y, z, x2, y2, z2, z3; };
 
   bool tmc_enable_stallguard(TMC2130Stepper &st);
   void tmc_disable_stallguard(TMC2130Stepper &st, const bool restore_stealth);

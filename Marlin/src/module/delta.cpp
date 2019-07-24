@@ -227,7 +227,7 @@ void home_delta() {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    sensorless_t stealth_states { false, false, false, false, false, false, false };
+    sensorless_t stealth_states { false };
     stealth_states.x = tmc_enable_stallguard(stepperX);
     stealth_states.y = tmc_enable_stallguard(stepperY);
     stealth_states.z = tmc_enable_stallguard(stepperZ);

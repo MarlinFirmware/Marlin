@@ -65,7 +65,7 @@ void GcodeSuite::M201() {
       planner.settings.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
     }
   }
-  // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
+
   planner.reset_acceleration_rates();
 }
 
