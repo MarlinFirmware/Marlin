@@ -358,6 +358,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
  * Defined here because of limitations with templates and headers.
  */
 #if USE_SENSORLESS
+
   // Track enabled status of stealthChop and only re-enable where applicable
   struct sensorless_t { bool x, y, z, x2, y2, z2, z3; };
 
@@ -388,7 +389,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
       this->switchCSpin(LOW);
 
-      if (this->TMC_SW_SPI != NULL) {
+      if (this->TMC_SW_SPI != nullptr) {
         this->TMC_SW_SPI->transfer(TMC2130_n::DRV_STATUS_t::address);
         this->TMC_SW_SPI->transfer16(0);
         // We only care about the last 10 bits
@@ -397,7 +398,8 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
         sg_result |= this->TMC_SW_SPI->transfer(0);
         sg_result &= 0x3FF;
 
-      } else {
+      }
+      else {
         SPI.beginTransaction(SPISettings(16000000/8, MSBFIRST, SPI_MODE3));
         // Read DRV_STATUS
         SPI.transfer(TMC2130_n::DRV_STATUS_t::address);
@@ -414,8 +416,10 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
       if (sg_result == 0) return true;
       else return false;
     }
-  #endif
-#endif
+
+  #endif // SPI_ENDSTOPS
+
+#endif // USE_SENSORLESS
 
 #if TMC_HAS_SPI
   void tmc_init_cs_pins();

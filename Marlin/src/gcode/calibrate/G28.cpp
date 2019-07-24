@@ -226,7 +226,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-    slow_homing_t slow_homing{0};
+    slow_homing_t slow_homing { 0 };
     slow_homing.acceleration.x = planner.settings.max_acceleration_mm_per_s2[X_AXIS];
     slow_homing.acceleration.y = planner.settings.max_acceleration_mm_per_s2[Y_AXIS];
     slow_homing.jerk.x = planner.max_jerk[X_AXIS];
@@ -237,7 +237,6 @@ void GcodeSuite::G28(const bool always_home_all) {
     planner.max_jerk[X_AXIS] = 0;
     planner.max_jerk[Y_AXIS] = 0;
 
-    // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
     planner.reset_acceleration_rates();
   #endif
 
@@ -446,7 +445,6 @@ void GcodeSuite::G28(const bool always_home_all) {
     planner.max_jerk[X_AXIS] = slow_homing.jerk.x;
     planner.max_jerk[Y_AXIS] = slow_homing.jerk.y;
 
-    // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
     planner.reset_acceleration_rates();
   #endif
 
