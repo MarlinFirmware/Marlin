@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../HAL/HAL.h"
+#include "../inc/MarlinConfig.h"
 
 /**
  * Define debug bit-masks

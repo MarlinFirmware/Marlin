@@ -687,9 +687,12 @@ void idle(
 
   #if ENABLED(I2C_POSITION_ENCODERS)
     static millis_t i2cpem_next_update_ms;
-    if (planner.has_blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
-      I2CPEM.update();
-      i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
+    if (planner.has_blocks_queued()) {
+      const millis_t ms = millis();
+      if (ELAPSED(ms, i2cpem_next_update_ms)) {
+        I2CPEM.update();
+        i2cpem_next_update_ms = ms + I2CPE_MIN_UPD_TIME_MS;
+      }
     }
   #endif
 
