@@ -468,6 +468,8 @@
   #include "stm32/pins_FYSETC_AIO_II.h"         // STM32F1                                env:fysetc_STM32F1
 #elif MB(FYSETC_CHEETAH)
   #include "stm32/pins_FYSETC_CHEETAH.h"        // STM32F1                                env:fysetc_STM32F1
+#elif MB(MKS_ROBIN_LITE)
+  #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
 
 //
 // ARM Cortex-M4F
