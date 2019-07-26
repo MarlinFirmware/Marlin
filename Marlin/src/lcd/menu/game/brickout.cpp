@@ -28,8 +28,6 @@
 
 #define BRICK_H      5
 #define BRICK_TOP    MENU_FONT_ASCENT
-#define BRICK_ROWS   4
-#define BRICK_COLS  16
 
 #define PADDLE_H     2
 #define PADDLE_VEL   3
@@ -42,16 +40,20 @@
 #define BRICK_COL(X) ((X) / (BRICK_W))
 #define BRICK_ROW(Y) ((Y - (BRICK_TOP)) / (BRICK_H))
 
-uint8_t balls_left, brick_count;
-uint16_t bricks[BRICK_ROWS];
+constexpr uint8_t &balls_left            = marlin_game_data.brickout.balls_left;
+constexpr uint8_t &brick_count           = marlin_game_data.brickout.brick_count;
+constexpr uint16_t (&bricks)[BRICK_ROWS] = marlin_game_data.brickout.bricks;
+constexpr int8_t &paddle_x               = marlin_game_data.brickout.paddle_x;
+constexpr int8_t &hit_dir                = marlin_game_data.brickout.hit_dir;
+constexpr fixed_t &ballx                 = marlin_game_data.brickout.ballx;
+constexpr fixed_t &bally                 = marlin_game_data.brickout.bally;
+constexpr fixed_t &ballh                 = marlin_game_data.brickout.ballh;
+constexpr fixed_t &ballv                 = marlin_game_data.brickout.ballv;
 
 inline void reset_bricks(const uint16_t v) {
   brick_count = (BRICK_COLS) * (BRICK_ROWS);
   LOOP_L_N(i, BRICK_ROWS) bricks[i] = v;
 }
-
-int8_t paddle_x, hit_dir;
-fixed_t ballx, bally, ballh, ballv;
 
 void reset_ball() {
   constexpr uint8_t ball_dist = 24;

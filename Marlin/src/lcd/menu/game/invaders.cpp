@@ -120,20 +120,6 @@ const unsigned char ufo[] PROGMEM = {
   B01111111,B11110000
 };
 
-#define INVASION_SIZE 3
-
-#if INVASION_SIZE == 3
-  #define INVADER_COLS   5
-#elif INVASION_SIZE == 4
-  #define INVADER_COLS   6
-#else
-  #define INVADER_COLS   8
-  #undef INVASION_SIZE
-  #define INVASION_SIZE  5
-#endif
-
-#define INVADER_ROWS INVASION_SIZE
-
 constexpr uint8_t inv_type[] = {
   #if INVADER_ROWS == 5
     0, 1, 1, 2, 2
@@ -178,14 +164,27 @@ constexpr uint8_t inv_type[] = {
 #define INV_X_CTR(C,T)  (INV_X_LEFT(C,T) + inv_wide[T] / 2)
 #define INV_Y_BOT(R)    (invaders_y + (R + 1) * (ROW_H) - 2)
 
-typedef struct { int8_t x, y, v; } laser_t;
+constexpr uint8_t &cannons_left                                = marlin_game_data.invaders.cannons_left;
+constexpr int8_t &cannon_x                                     = marlin_game_data.invaders.cannon_x;
+constexpr laser_t &explod                                      = marlin_game_data.invaders.explod;
+constexpr laser_t &laser                                       = marlin_game_data.invaders.laser;
+constexpr laser_t (&bullet)[10]                                = marlin_game_data.invaders.bullet;
+constexpr int8_t &invaders_x                                   = marlin_game_data.invaders.invaders_x;
+constexpr int8_t &invaders_y                                   = marlin_game_data.invaders.invaders_y;
+constexpr int8_t &invaders_dir                                 = marlin_game_data.invaders.invaders_dir;
+constexpr int8_t &leftmost                                     = marlin_game_data.invaders.leftmost;
+constexpr int8_t &rightmost                                    = marlin_game_data.invaders.rightmost;
+constexpr int8_t &botmost                                      = marlin_game_data.invaders.botmost;
+constexpr uint8_t &invader_count                               = marlin_game_data.invaders.invader_count;
+constexpr uint8_t &quit_count                                  = marlin_game_data.invaders.quit_count;
+constexpr uint8_t (&bugs)[INVADER_ROWS]                        = marlin_game_data.invaders.bugs;
+constexpr uint8_t (&shooters)[(INVADER_ROWS) * (INVADER_COLS)] = marlin_game_data.invaders.shooters;
+constexpr int8_t &ufox                                         = marlin_game_data.invaders.ufox;
+constexpr int8_t &ufov                                         = marlin_game_data.invaders.ufov;
+constexpr uint8_t &blink_count                                 = marlin_game_data.invaders.blink_count;
+constexpr bool &game_blink                                     = marlin_game_data.invaders.game_blink;
 
-uint8_t cannons_left;
-int8_t cannon_x;
-laser_t explod, laser, bullet[10];
 constexpr uint8_t inv_off[] = { 2, 1, 0 }, inv_wide[] = { 8, 11, 12 };
-int8_t invaders_x, invaders_y, invaders_dir, leftmost, rightmost, botmost;
-uint8_t invader_count, quit_count, bugs[INVADER_ROWS], shooters[(INVADER_ROWS) * (INVADER_COLS)];
 
 inline void update_invader_data() {
   uint8_t inv_mask = 0;
@@ -218,7 +217,7 @@ inline void reset_invaders() {
   reset_bullets();
 }
 
-int8_t ufox, ufov;
+
 inline void spawn_ufo() {
   ufov = random(0, 2) ? 1 : -1;
   ufox = ufov > 0 ? -(UFO_W) : LCD_PIXEL_WIDTH - 1;
@@ -255,8 +254,6 @@ inline void kill_cannon(uint8_t &game_state, const uint8_t st) {
 }
 
 void InvadersGame::game_screen() {
-  static bool game_blink;
-
   ui.refresh(LCDVIEW_CALL_NO_REDRAW); // Call as often as possible
 
   // Run game logic once per full screen
@@ -278,7 +275,6 @@ void InvadersGame::game_screen() {
 
       if (game_state > 1) { if (--game_state == 2) { reset_invaders(); } else if (game_state == 100) { game_state = 1; } break; }
 
-      static uint8_t blink_count;
       const bool did_blink = (++blink_count > invader_count >> 1);
       if (did_blink) {
         game_blink = !game_blink;

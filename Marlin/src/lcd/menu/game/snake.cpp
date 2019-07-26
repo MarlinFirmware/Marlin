@@ -65,15 +65,17 @@
 
 constexpr fixed_t snakev = FTOP(0.20);
 
-int8_t snake_dir, // NESW
-       foodx, foody, food_cnt,
-       old_encoder;
-fixed_t snakex, snakey;
+constexpr int8_t &snake_dir       = marlin_game_data.snake.snake_dir; // NESW
+constexpr int8_t &foodx           = marlin_game_data.snake.foodx;
+constexpr int8_t &foody           = marlin_game_data.snake.foody;
+constexpr int8_t &food_cnt        = marlin_game_data.snake.food_cnt;
+constexpr int8_t &old_encoder     = marlin_game_data.snake.old_encoder;
+constexpr fixed_t &snakex         = marlin_game_data.snake.snakex;
+constexpr fixed_t &snakey         = marlin_game_data.snake.snakey;
+constexpr uint8_t &head_ind       = marlin_game_data.snake.head_ind;
 
 // Up to 50 lines, then you win!
-typedef struct { int8_t x, y; } pos_t;
-uint8_t head_ind;
-pos_t snake_tail[50];
+constexpr pos_t (&snake_tail)[50] = marlin_game_data.snake.snake_tail;
 
 // Remove the first pixel from the tail.
 // If needed, shift out the first segment.

@@ -76,3 +76,71 @@ public:
   class MazeGame : MarlinGame { public: static void enter_game(); static void game_screen(); };
   extern MazeGame maze;
 #endif
+
+// As only one game is active at a time, we can pool some
+// or all of the game data in a union to free up RAM that
+// ordinarily be reserved.
+
+typedef struct { int8_t x, y; } pos_t;
+typedef struct { int8_t x, y, v; } laser_t;
+
+#if ENABLED(MARLIN_BRICKOUT)
+  #define BRICK_ROWS   4
+  #define BRICK_COLS  16
+#endif
+
+#if ENABLED(MARLIN_INVADERS)
+  #define INVASION_SIZE 3
+
+  #if INVASION_SIZE == 3
+    #define INVADER_COLS   5
+  #elif INVASION_SIZE == 4
+    #define INVADER_COLS   6
+  #else
+    #define INVADER_COLS   8
+    #undef INVASION_SIZE
+    #define INVASION_SIZE  5
+  #endif
+
+  #define INVADER_ROWS INVASION_SIZE
+#endif
+
+#define INVADER_ROWS INVASION_SIZE
+
+union MarlinGameData {
+  #if ENABLED(MARLIN_BRICKOUT)
+    struct {
+      uint8_t balls_left, brick_count;
+      uint16_t bricks[BRICK_ROWS];
+      int8_t paddle_x, hit_dir;
+      fixed_t ballx, bally, ballh, ballv;
+    } brickout;
+  #endif
+  #if ENABLED(MARLIN_INVADERS)
+    struct {
+      uint8_t cannons_left;
+      int8_t cannon_x;
+      laser_t bullet[10], laser, explod;
+      int8_t invaders_x, invaders_y, invaders_dir, leftmost, rightmost, botmost;
+      uint8_t invader_count, quit_count;
+      uint8_t bugs[INVADER_ROWS], shooters[(INVADER_ROWS) * (INVADER_COLS)];
+      int8_t ufox, ufov;
+      uint8_t blink_count;
+      bool game_blink;
+    } invaders;
+  #endif
+  #if ENABLED(MARLIN_SNAKE)
+    struct {
+      int8_t snake_dir, foodx, foody, food_cnt, old_encoder;
+      pos_t snake_tail[50];
+      fixed_t snakex, snakey;
+      uint8_t head_ind;
+    } snake;
+  #endif
+  #if ENABLED(MARLIN_MAZE)
+    struct {
+    } maze;
+  #endif
+};
+
+extern MarlinGameData marlin_game_data;

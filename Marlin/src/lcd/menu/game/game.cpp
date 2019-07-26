@@ -64,4 +64,6 @@ void MarlinGame::exit_game() {
   ui.goto_previous_screen_no_defer();
 }
 
+MarlinGameData marlin_game_data;
+
 #endif // HAS_GAMES
