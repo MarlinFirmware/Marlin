@@ -74,10 +74,10 @@
 #define HEIGHT 64
 #define PAGE_HEIGHT 8
 
-#define X_MIN 32
-#define Y_MIN 32
-#define X_MAX (X_MIN + 2 * WIDTH  - 1)
-#define Y_MAX (Y_MIN + 2 * HEIGHT - 1)
+#define X_LO 32
+#define Y_LO 32
+#define X_HI (X_LO + 2 * WIDTH  - 1)
+#define Y_HI (Y_LO + 2 * HEIGHT - 1)
 
 #define LCD_COLUMN      0x2A   /* Colomn address register */
 #define LCD_ROW         0x2B   /* Row address register */
@@ -112,8 +112,8 @@ static uint32_t lcd_id = 0;
 #define U8G_ESC_DATA(x) (uint8_t)(x >> 8), (uint8_t)(x & 0xFF)
 
 static const uint8_t page_first_sequence[] = {
-  U8G_ESC_ADR(0), LCD_COLUMN, U8G_ESC_ADR(1), U8G_ESC_DATA(X_MIN), U8G_ESC_DATA(X_MAX),
-  U8G_ESC_ADR(0), LCD_ROW,    U8G_ESC_ADR(1), U8G_ESC_DATA(Y_MIN), U8G_ESC_DATA(Y_MAX),
+  U8G_ESC_ADR(0), LCD_COLUMN, U8G_ESC_ADR(1), U8G_ESC_DATA(X_LO), U8G_ESC_DATA(X_HI),
+  U8G_ESC_ADR(0), LCD_ROW,    U8G_ESC_ADR(1), U8G_ESC_DATA(Y_LO), U8G_ESC_DATA(Y_HI),
   U8G_ESC_ADR(0), LCD_WRITE_RAM, U8G_ESC_ADR(1),
   U8G_ESC_END
 };

@@ -29,7 +29,6 @@
 #undef M_PI           // Redefined by all
 #undef _BV            // Redefined by some
 #undef sq             // Redefined by teensy3/wiring.h
-#undef vsnprintf_P    // Defined by avr/pgmspace.h in some platforms
 
 #include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
 
