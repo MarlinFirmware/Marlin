@@ -40,10 +40,8 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PC13
-#define X_MAX_PIN          PC13
-#define Y_MIN_PIN          PC0
-#define Y_MAX_PIN          PC0
+#define X_STOP_PIN         PC13
+#define Y_STOP_PIN         PC0
 #define Z_MIN_PIN          PC12
 #define Z_MAX_PIN          PB9
 
