@@ -266,7 +266,7 @@
 #define BOARD_FYSETC_AIO_II           4012  // FYSETC AIO_II
 #define BOARD_FYSETC_CHEETAH          4013  // FYSETC Cheetah
 #define BOARD_LONGER3D_LK             4014  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
-#define BOARD_MKS_ROBIN_LITE          4015  // MKS Robin Lite/Lite2 (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_LITE          4016  // MKS Robin Lite/Lite2 (STM32F103RCT6)
 
 //
 // ARM Cortex-M4F
