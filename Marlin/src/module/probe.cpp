@@ -108,7 +108,7 @@ float zprobe_zoffset; // Initialized by settings.load()
   // Move to the magnet to unlock the probe
   void run_deploy_moves_script() {
     #ifndef TOUCH_MI_DEPLOY_XPOS
-      #define TOUCH_MI_DEPLOY_XPOS 0
+      #define TOUCH_MI_DEPLOY_XPOS X_MIN_POS
     #elif TOUCH_MI_DEPLOY_XPOS > X_MAX_BED
       TemporaryGlobalEndstopsState unlock_x(false);
     #endif
