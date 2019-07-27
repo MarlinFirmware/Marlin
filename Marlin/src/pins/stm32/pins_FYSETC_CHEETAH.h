@@ -33,6 +33,8 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
+#define DISABLE_JTAG
+
 //
 // Servos
 //
@@ -69,7 +71,7 @@
 #define E0_DIR_PIN         PC14
 #define E0_ENABLE_PIN      PC13
 
-#define X_HARDWARE_SERIAL  MSerial2   // Port correct?
+#define X_HARDWARE_SERIAL  MSerial2
 #define Y_HARDWARE_SERIAL  MSerial2
 #define Z_HARDWARE_SERIAL  MSerial2
 #define E0_HARDWARE_SERIAL MSerial2

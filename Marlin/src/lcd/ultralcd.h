@@ -56,7 +56,11 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #define LCD_UPDATE_INTERVAL 100
+  #if ENABLED(TOUCH_BUTTONS)
+    #define LCD_UPDATE_INTERVAL 50
+  #else
+    #define LCD_UPDATE_INTERVAL 100
+  #endif
 
   #if HAS_LCD_MENU
 
@@ -294,6 +298,8 @@ public:
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
         static uint8_t progress_bar_percent;
         static void set_progress(const uint8_t progress) { progress_bar_percent = _MIN(progress, 100); }
+        static void set_progress_done() { set_progress(0x80 + 100); }
+        static void progress_reset() { if (progress_bar_percent & 0x80) set_progress(0); }
       #endif
       static uint8_t get_progress();
     #else
@@ -418,6 +424,11 @@ public:
     static int16_t preheat_hotend_temp[2], preheat_bed_temp[2];
     static uint8_t preheat_fan_speed[2];
 
+    // Select Screen (modal NO/YES style dialog)
+    static bool selection;
+    static void set_selection(const bool sel) { selection = sel; }
+    static bool update_selection();
+
     static void manage_manual_move();
 
     static bool lcd_clicked;
@@ -497,6 +508,11 @@ public:
       static volatile uint8_t slow_buttons;
       static uint8_t read_slow_buttons();
     #endif
+    #if ENABLED(TOUCH_BUTTONS)
+      static volatile uint8_t touch_buttons;
+      static uint8_t read_touch_buttons();
+    #endif
+
     static void update_buttons();
     static inline bool button_pressed() { return BUTTON_CLICK(); }
     #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)

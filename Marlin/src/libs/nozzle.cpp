@@ -26,6 +26,8 @@
 
 #include "nozzle.h"
 
+Nozzle nozzle;
+
 #include "../Marlin.h"
 #include "../module/motion.h"
 #include "point_t.h"
@@ -46,7 +48,11 @@
     #endif
 
     // Move to the starting point
-    do_blocking_move_to(start.x, start.y, start.z);
+    #if ENABLED(NOZZLE_CLEAN_NO_Z)
+      do_blocking_move_to_xy(start.x, start.y);
+    #else
+      do_blocking_move_to(start.x, start.y, start.z);
+    #endif
 
     // Start the stroke pattern
     for (uint8_t i = 0; i < (strokes >> 1); i++) {
@@ -76,7 +82,11 @@
       const float ix = current_position[X_AXIS], iy = current_position[Y_AXIS], iz = current_position[Z_AXIS];
     #endif
 
-    do_blocking_move_to(start.x, start.y, start.z);
+    #if ENABLED(NOZZLE_CLEAN_NO_Z)
+      do_blocking_move_to_xy(start.x, start.y);
+    #else
+      do_blocking_move_to(start.x, start.y, start.z);
+    #endif
 
     const uint8_t zigs = objects << 1;
     const bool horiz = ABS(diffx) >= ABS(diffy);    // Do a horizontal wipe?
@@ -119,7 +129,11 @@
       const float ix = current_position[X_AXIS], iy = current_position[Y_AXIS], iz = current_position[Z_AXIS];
     #endif
 
-    do_blocking_move_to(start.x, start.y, start.z);
+    #if ENABLED(NOZZLE_CLEAN_NO_Z)
+      do_blocking_move_to_xy(start.x, start.y);
+    #else
+      do_blocking_move_to(start.x, start.y, start.z);
+    #endif
 
     for (uint8_t s = 0; s < strokes; s++)
       for (uint8_t i = 0; i < NOZZLE_CLEAN_CIRCLE_FN; i++)
@@ -143,18 +157,34 @@
    * @param pattern one of the available patterns
    * @param argument depends on the cleaning pattern
    */
-  void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects/*=0*/) {
+  void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const uint8_t cleans) {
+    point_t start = NOZZLE_CLEAN_START_POINT;
+    point_t end = NOZZLE_CLEAN_END_POINT;
+
+    if (pattern == 2) {
+      if (!(cleans & (_BV(X_AXIS) | _BV(Y_AXIS)))) {
+        SERIAL_ECHOLNPGM("Warning : Clean Circle requires XY");
+        return;
+      }
+      end = NOZZLE_CLEAN_CIRCLE_MIDDLE;
+    }
+    else {
+      if (!TEST(cleans, X_AXIS)) start.x = end.x = current_position[X_AXIS];
+      if (!TEST(cleans, Y_AXIS)) start.y = end.y = current_position[Y_AXIS];
+    }
+    if (!TEST(cleans, Z_AXIS)) start.z = end.z = current_position[Z_AXIS];
+
     switch (pattern) {
       case 1:
-        zigzag(NOZZLE_CLEAN_START_POINT, NOZZLE_CLEAN_END_POINT, strokes, objects);
+        zigzag(start, end, strokes, objects);
         break;
 
       case 2:
-        circle(NOZZLE_CLEAN_START_POINT, NOZZLE_CLEAN_CIRCLE_MIDDLE, strokes, radius);
+        circle(start, end, strokes, radius);
         break;
 
       default:
-        stroke(NOZZLE_CLEAN_START_POINT, NOZZLE_CLEAN_END_POINT, strokes);
+        stroke(start, end, strokes);
     }
   }
 
@@ -162,9 +192,9 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
-  void Nozzle::park(const uint8_t z_action, const point_t &park /*= NOZZLE_PARK_POINT*/) {
-    const float fr_xy = NOZZLE_PARK_XY_FEEDRATE;
-    const float fr_z = NOZZLE_PARK_Z_FEEDRATE;
+  void Nozzle::park(const uint8_t z_action, const point_t &park/*=NOZZLE_PARK_POINT*/) {
+    const float fr_xy = NOZZLE_PARK_XY_FEEDRATE,
+                fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
     switch (z_action) {
       case 1: // Go to Z-park height

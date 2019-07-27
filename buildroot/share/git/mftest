@@ -35,6 +35,7 @@ esac
 ISNUM='^[0-9]+$'
 ISCMD='^(restore|opt|exec|use|pins|env)_'
 ISEXEC='^exec_'
+ISCONT='\\ *$'
 
 # List available tests and ask for selection
 if [[ $TESTENV == '-' ]]; then
@@ -102,9 +103,11 @@ fi
 # Finally, run the specified test lines
 echo "$OUT" | {
   IND=0
+  GOTX=0
+  CMD=""
   while IFS= read -r LINE
   do
-    if [[ $LINE =~ $ISCMD ]]; then
+    if [[ $LINE =~ $ISCMD || $GOTX == 1 ]]; then
       ((!IND)) && let IND++
       if [[ $LINE =~ $ISEXEC ]]; then
         ((IND++ > CHOICE)) && break
@@ -113,7 +116,11 @@ echo "$OUT" | {
           HEADER=1
           echo -e "\n#\n# Test $TESTENV ($CHOICE) $DESC\n#"
         }
-        ((IND == CHOICE)) && { echo "$LINE" ; eval "$LINE" ; }
+        ((IND == CHOICE)) && {
+          GOTX=1
+          [[ $CMD == "" ]] && CMD="$LINE" || CMD=$( echo -e "$CMD$LINE" | sed -e 's/\\//g' )
+          [[ $LINE =~ $ISCONT ]] || { echo $CMD ; eval "$CMD" ; CMD="" ; }
+        }
       fi
     fi
   done

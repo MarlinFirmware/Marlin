@@ -110,7 +110,7 @@
 
 #if HAS_TMC220x
   /**
-   * TMC2208 stepper drivers
+   * TMC2208/TMC2209 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
@@ -192,7 +192,7 @@
   #define BTN_ENC          P1_30
 
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS    P1_0
+    #define LCD_PINS_RS    P1_00
 
     #define BTN_EN1        P0_18
     #define BTN_EN2        P0_15

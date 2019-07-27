@@ -33,13 +33,16 @@
  *  I         - Initialize (clear) the matrix
  *  F         - Fill the matrix (set all bits)
  *  P         - Dump the led_line[] array values
- *  C<column> - Set a column to the 8-bit value V
- *  R<row>    - Set a row to the 8-bit value V
- *  X<pos>    - X position of an LED to set or toggle
- *  Y<pos>    - Y position of an LED to set or toggle
- *  V<value>  - The potentially 32-bit value or on/off state to set
- *              (for example: a chain of 4 Max7219 devices can have 32 bit
- *               rows or columns depending upon rotation)
+ *  C<column> - Set a column to the bitmask given by 'V' (Units 0-3 in portrait layout)
+ *  R<row>    - Set a row to the bitmask given by 'V' (Units 0-3 in landscape layout)
+ *  X<pos>    - X index of an LED to set or toggle
+ *  Y<pos>    - Y index of an LED to set or toggle
+ *  V<value>  - LED on/off state or row/column bitmask (8, 16, 24, or 32-bits)
+ *              ('C' / 'R' can be used to update up to 4 units at once)
+ *
+ * Directly set a native matrix row to the 8-bit value 'V':
+ *  D<line>   - Display line (0..7)
+ *  U<unit>   - Unit index (0..MAX7219_NUMBER_UNITS-1)
  */
 void GcodeSuite::M7219() {
   if (parser.seen('I')) {
@@ -62,12 +65,13 @@ void GcodeSuite::M7219() {
   else if (parser.seenval('X') || parser.seenval('Y')) {
     const uint8_t x = parser.byteval('X'), y = parser.byteval('Y');
     if (parser.seenval('V'))
-      max7219.led_set(x, y, parser.boolval('V'));
+      max7219.led_set(x, y, v > 0);
     else
       max7219.led_toggle(x, y);
   }
   else if (parser.seen('D')) {
-    const uint8_t line = parser.byteval('D') + (parser.byteval('U') << 3);
+    const uint8_t uline = parser.value_byte() & 0x7,
+                  line = uline + parser.byteval('U') << 3;
     if (line < MAX7219_LINES) {
       max7219.led_line[line] = v;
       return max7219.refresh_line(line);

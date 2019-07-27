@@ -176,6 +176,8 @@
   #include "ramps/pins_TRONXY_V3_1_0.h"         // ATmega2560                             env:megaatmega2560
 #elif MB(Z_BOLT_X_SERIES)
   #include "ramps/pins_Z_BOLT_X_SERIES.h"       // ATmega2560                             env:megaatmega2560
+#elif MB(TT_OSCAR)
+  #include "ramps/pins_TT_OSCAR.h"              // ATmega2560                             env:megaatmega2560
 
 //
 // RAMBo and derivatives
@@ -442,12 +444,16 @@
   #include "stm32/pins_BIGTREE_SKR_MINI_V1_1.h" // STM32F1                                env:BIGTREE_SKR_MINI
 #elif MB(BIGTREE_SKR_MINI_E3)
   #include "stm32/pins_BIGTREE_SKR_MINI_E3.h"   // STM32F1                                env:BIGTREE_SKR_MINI
+#elif MB(BIGTREE_SKR_E3_DIP)
+  #include "stm32/pins_BIGTREE_SKR_E3_DIP.h"    // STM32F1                                env:BIGTREE_SKR_MINI
 #elif MB(MALYAN_M200)
   #include "stm32/pins_MALYAN_M200.h"           // STM32F1                                env:malyanm200
 #elif MB(CHITU3D)
   #include "stm32/pins_CHITU3D.h"               // STM32F1                                env:STM32F1
 #elif MB(GTM32_PRO_VB)
   #include "stm32/pins_GTM32_PRO_VB.h"          // STM32F1                                env:STM32F1
+#elif MB(LONGER3D_LK)
+  #include "stm32/pins_LONGER3D_LK.h"           // STM32F1                                env:alfawise_U20
 #elif MB(MORPHEUS)
   #include "stm32/pins_MORPHEUS.h"              // STM32F1                                env:STM32F1
 #elif MB(MKS_ROBIN)
@@ -456,6 +462,8 @@
   #include "stm32/pins_MKS_ROBIN_MINI.h"        // STM32F1                                env:mks_robin_mini
 #elif MB(MKS_ROBIN_NANO)
   #include "stm32/pins_MKS_ROBIN_NANO.h"        // STM32F1                                env:mks_robin_nano
+#elif MB(MKS_ROBIN_LITE)
+  #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:JGAURORA_A5S_A1
 #elif MB(FYSETC_AIO_II)

@@ -65,7 +65,7 @@ void GcodeSuite::M201() {
       planner.settings.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
     }
   }
-  // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
+
   planner.reset_acceleration_rates();
 }
 
@@ -161,7 +161,7 @@ void GcodeSuite::M205() {
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
-    #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+    #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
       if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
     #endif
   #endif

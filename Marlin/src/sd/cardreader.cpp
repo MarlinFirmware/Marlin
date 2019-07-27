@@ -1008,17 +1008,15 @@ void CardReader::printingHasFinished() {
     #endif
 
     print_job_timer.stop();
-    if (print_job_timer.duration() > 60) queue.inject_P(PSTR("M31"));
+    queue.enqueue_now_P(print_job_timer.duration() > 60 ? PSTR("M31") : PSTR("M117"));
 
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
 
-    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
-      ui.progress_bar_percent = 0;
+    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      ui.set_progress_done();
     #endif
-
-    ui.reset_status();
 
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
       ui.reselect_last_file();

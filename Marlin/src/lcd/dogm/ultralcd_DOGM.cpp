@@ -107,8 +107,8 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
     FORCE_INLINE void draw_custom_bootscreen(const u8g_pgm_uint8_t * const bmp, const bool erase=true) {
-      constexpr u8g_uint_t left = (LCD_PIXEL_WIDTH  - (CUSTOM_BOOTSCREEN_BMPWIDTH)) / 2,
-                           top = (LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2;
+      constexpr u8g_uint_t left = u8g_uint_t((LCD_PIXEL_WIDTH  - (CUSTOM_BOOTSCREEN_BMPWIDTH)) / 2),
+                           top = u8g_uint_t((LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2);
       #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
         constexpr u8g_uint_t right = left + CUSTOM_BOOTSCREEN_BMPWIDTH,
                             bottom = top + CUSTOM_BOOTSCREEN_BMPHEIGHT;
@@ -219,26 +219,34 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
 
-  #if PIN_EXISTS(LCD_BACKLIGHT) // Enable LCD backlight
-    OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
+  #if PIN_EXISTS(LCD_BACKLIGHT)
+    OUT_WRITE(LCD_BACKLIGHT_PIN, (
+      #if ENABLED(DELAYED_BACKLIGHT_INIT)
+        LOW  // Illuminate after reset
+      #else
+        HIGH // Illuminate right away
+      #endif
+    ));
   #endif
 
   #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
     SET_OUTPUT(LCD_PINS_DC);
-    #if !defined(LCD_RESET_PIN)
+    #ifndef LCD_RESET_PIN
       #define LCD_RESET_PIN LCD_PINS_RS
     #endif
   #endif
 
   #if PIN_EXISTS(LCD_RESET)
-    OUT_WRITE(LCD_RESET_PIN, LOW); // perform a clean hardware reset
+    // Perform a clean hardware reset with needed delays
+    OUT_WRITE(LCD_RESET_PIN, LOW);
     _delay_ms(5);
-    OUT_WRITE(LCD_RESET_PIN, HIGH);
-    _delay_ms(5); // delay to allow the display to initialize
+    WRITE(LCD_RESET_PIN, HIGH);
+    _delay_ms(5);
+    u8g.begin();
   #endif
 
-  #if PIN_EXISTS(LCD_RESET)
-    u8g.begin();
+  #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
+    WRITE(LCD_BACKLIGHT_PIN, HIGH);
   #endif
 
   #if HAS_LCD_CONTRAST
@@ -246,11 +254,11 @@ void MarlinUI::init_lcd() {
   #endif
 
   #if ENABLED(LCD_SCREEN_ROT_90)
-    u8g.setRot90();   // Rotate screen by 90°
+    u8g.setRot90();
   #elif ENABLED(LCD_SCREEN_ROT_180)
-    u8g.setRot180();  // Rotate screen by 180°
+    u8g.setRot180();
   #elif ENABLED(LCD_SCREEN_ROT_270)
-    u8g.setRot270();  // Rotate screen by 270°
+    u8g.setRot270();
   #endif
 
   uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));

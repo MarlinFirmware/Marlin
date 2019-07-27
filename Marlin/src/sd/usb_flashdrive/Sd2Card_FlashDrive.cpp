@@ -31,7 +31,7 @@
 
 #include "Sd2Card_FlashDrive.h"
 
-#if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+#if HAS_DISPLAY
   #include "../../lcd/ultralcd.h"
 #endif
 
@@ -63,7 +63,7 @@ void Sd2Card::idle() {
       SERIAL_ECHOPGM("Starting USB host...");
       if (!usb.start()) {
         SERIAL_ECHOPGM(" Failed. Retrying in 2s.");
-        #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+        #if HAS_DISPLAY
           LCD_MESSAGEPGM("USB start failed");
         #endif
         state = USB_HOST_DELAY_INIT;

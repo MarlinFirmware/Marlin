@@ -27,9 +27,7 @@
 
 #ifndef __STM32F1__
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
-
-#if HOTENDS > 2 || E_STEPPERS > 2
+#elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
@@ -111,11 +109,15 @@
 #define LED_PIN            PB2
 
 /**
- * Note: MKS Robin TFT screens may have different TFT controllers
- * If the screen stays white, disable 'LCD_RESET_PIN' to rely on the bootloader to do screen initialization.
+ * Note: MKS Robin TFT screens use various TFT controllers. Supported screens
+ * are based on the ILI9342, ILI9328 and ST7798V. Define init sequences for
+ * other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
  *
- * Enabling 'LCD_RESET_PIN' causes flickering when entering the LCD menu due to LCD controller reset.
- * Reset feature was designed to "revive the LCD if static electricity killed it."
+ * If the screen stays white, disable 'LCD_RESET_PIN'
+ * to let the bootloader init the screen.
+ *
+ * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+ * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
  */
 //#define LCD_RESET_PIN      PF6
 #define LCD_BACKLIGHT_PIN  PG11

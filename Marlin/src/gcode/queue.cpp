@@ -170,16 +170,19 @@ bool GCodeQueue::process_injected_command() {
   char c;
   size_t i = 0;
   while ((c = pgm_read_byte(&injected_commands_P[i])) && c != '\n') i++;
-  if (i) {
-    char cmd[i + 1];
-    memcpy_P(cmd, injected_commands_P, i);
-    cmd[i] = '\0';
 
+  // Extract current command and move pointer to next command
+  char cmd[i + 1];
+  memcpy_P(cmd, injected_commands_P, i);
+  cmd[i] = '\0';
+  injected_commands_P = c ? injected_commands_P + i + 1 : nullptr;
+
+  // Execute command if non-blank
+  if (i) {
     parser.parse(cmd);
     PORT_REDIRECT(SERIAL_PORT);
     gcode.process_parsed_command();
   }
-  injected_commands_P = c ? injected_commands_P + i + 1 : nullptr;
   return true;
 }
 

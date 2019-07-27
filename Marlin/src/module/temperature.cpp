@@ -33,7 +33,7 @@
 #include "../core/language.h"
 #include "../HAL/shared/Delay.h"
 
-#define MAX6675_SEPARATE_SPI EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO)
+#define MAX6675_SEPARATE_SPI (EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO))
 
 #if MAX6675_SEPARATE_SPI
   #include "../libs/private_spi.h"
@@ -977,10 +977,7 @@ void Temperature::manage_heater() {
 
   #if EARLY_WATCHDOG
     // If thermal manager is still not running, make sure to at least reset the watchdog!
-    if (!inited) {
-      watchdog_reset();
-      return;
-    }
+    if (!inited) return watchdog_reset();
   #endif
 
   #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
@@ -1004,8 +1001,6 @@ void Temperature::manage_heater() {
     if (temp_hotend[1].current > _MIN(HEATER_1_MAXTEMP, HEATER_1_MAX6675_TMAX - 1.0)) max_temp_error(H_E1);
     if (temp_hotend[1].current < _MAX(HEATER_1_MINTEMP, HEATER_1_MAX6675_TMIN + .01)) min_temp_error(H_E1);
   #endif
-
-  #define HAS_THERMAL_PROTECTION (ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER))
 
   #if HAS_THERMAL_PROTECTION || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || HEATER_IDLE_HANDLER
     millis_t ms = millis();
@@ -1542,7 +1537,11 @@ void Temperature::updateTemperaturesFromRawValues() {
 #endif
 
 // Init fans according to whether they're native PWM or Software PWM
-#define _INIT_SOFT_FAN(P) OUT_WRITE(P, FAN_INVERTING ? LOW : HIGH)
+#ifdef ALFAWISE_UX0
+  #define _INIT_SOFT_FAN(P) OUT_WRITE_OD(P, FAN_INVERTING ? LOW : HIGH)
+#else
+  #define _INIT_SOFT_FAN(P) OUT_WRITE(P, FAN_INVERTING ? LOW : HIGH)
+#endif
 #if ENABLED(FAN_SOFT_PWM)
   #define _INIT_FAN_PIN(P) _INIT_SOFT_FAN(P)
 #else
@@ -1564,7 +1563,6 @@ void Temperature::updateTemperaturesFromRawValues() {
 #else
   #define INIT_CHAMBER_AUTO_FAN_PIN(P) SET_OUTPUT(P)
 #endif
-
 
 /**
  * Initialize the temperature manager
@@ -1592,8 +1590,13 @@ void Temperature::init() {
   #endif
 
   #if HAS_HEATER_0
-    OUT_WRITE(HEATER_0_PIN, HEATER_0_INVERTING);
+    #ifdef ALFAWISE_UX0
+      OUT_WRITE_OD(HEATER_0_PIN, HEATER_0_INVERTING);
+    #else
+      OUT_WRITE(HEATER_0_PIN, HEATER_0_INVERTING);
+    #endif
   #endif
+
   #if HAS_HEATER_1
     OUT_WRITE(HEATER_1_PIN, HEATER_1_INVERTING);
   #endif
@@ -1609,9 +1612,15 @@ void Temperature::init() {
   #if HAS_HEATER_5
     OUT_WRITE(HEATER_5_PIN, HEATER_5_INVERTING);
   #endif
+
   #if HAS_HEATED_BED
-    OUT_WRITE(HEATER_BED_PIN, HEATER_BED_INVERTING);
+    #ifdef ALFAWISE_UX0
+      OUT_WRITE_OD(HEATER_BED_PIN, HEATER_BED_INVERTING);
+    #else
+      OUT_WRITE(HEATER_BED_PIN, HEATER_BED_INVERTING);
+    #endif
   #endif
+
   #if HAS_HEATED_CHAMBER
     OUT_WRITE(HEATER_CHAMBER_PIN, HEATER_CHAMBER_INVERTING);
   #endif
@@ -1933,7 +1942,7 @@ void Temperature::init() {
     }
   }
 
-#endif // THERMAL_PROTECTION_HOTENDS || THERMAL_PROTECTION_BED || ENABLED(THERMAL_PROTECTION_CHAMBER)
+#endif // HAS_THERMAL_PROTECTION
 
 void Temperature::disable_all_heaters() {
 
@@ -2914,7 +2923,7 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-  #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+  #if HAS_DISPLAY
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       #if HOTENDS > 1
