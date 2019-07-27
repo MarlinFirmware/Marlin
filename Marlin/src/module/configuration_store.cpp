@@ -460,7 +460,7 @@ void MarlinSettings::postprocess() {
     #define EEPROM_SKIP(VAR) (eeprom_index += sizeof(VAR))
   #endif
 
-  #define EEPROM_START()          int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()
+  #define EEPROM_START()          int eeprom_index = EEPROM_OFFSET; if (!persistentStore.access_start()) { return false; }
   #define EEPROM_FINISH()         persistentStore.access_finish()
   #define EEPROM_WRITE(VAR)       do{ persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);              UPDATE_TEST_INDEX(VAR); }while(0)
   #define EEPROM_READ(VAR)        do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating);  UPDATE_TEST_INDEX(VAR); }while(0)
@@ -2111,7 +2111,7 @@ void MarlinSettings::postprocess() {
       (void)save();
       SERIAL_ECHO_MSG("EEPROM Initialized");
     #endif
-    return true;
+    return false;
   }
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
