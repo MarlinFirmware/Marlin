@@ -472,6 +472,7 @@
   #include "stm32/pins_FYSETC_CHEETAH.h"        // STM32F1                                env:fysetc_STM32F1
 #elif MB(FYSETC_CHEETAH_V12)
   #include "stm32/pins_FYSETC_CHEETAH_V12.h"    // STM32F1                                env:fysetc_STM32F1
+
 //
 // ARM Cortex-M4F
 //
