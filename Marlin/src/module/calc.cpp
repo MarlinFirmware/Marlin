@@ -175,8 +175,8 @@ void get_coordinates()
     double next_feedrate_mm_s = MMM_TO_MMS(code_value());
     if(next_feedrate_mm_s > 0.0) feedrate_mm_s = next_feedrate_mm_s;
     // https://github.com/eyal0/OctoPrint-PrintTimeGenius/issues/128
-    if (feedrate_mm_s > 0xfffffff) {
-      feedrate_mm_s = 0xfffffff;
+    if (feedrate_mm_s > 0x53bd8) {
+      feedrate_mm_s = 0x53bd8;
     }
   }
 }
