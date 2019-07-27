@@ -37,6 +37,10 @@
 #include "../../../lcd/ultralcd.h"
 #include "../../../module/motion.h"
 #include "../../../module/stepper.h"
+  
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extensible_ui/ui_api.h"
+#endif
 
 // Save 130 bytes with non-duplication of PSTR
 inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
