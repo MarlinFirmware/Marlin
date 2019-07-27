@@ -19,6 +19,7 @@ env:
   - TEST_PLATFORM="esp32"
   - TEST_PLATFORM="alfawise_U20"
   - TEST_PLATFORM="black_stm32f407ve"
+  - TEST_PLATFORM="adafruit_grandcentral_m4"
 
 before_install:
   #
