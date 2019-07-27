@@ -234,6 +234,8 @@
   #include "mega/pins_EINSTART-S.h"             // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(WANHAO_ONEPLUS)
   #include "mega/pins_WANHAO_ONEPLUS.h"         // ATmega2560                             env:megaatmega2560
+#elif MB(OVERLORD)
+  #include "mega/pins_OVERLORD.h"               // ATmega2560                             env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561
