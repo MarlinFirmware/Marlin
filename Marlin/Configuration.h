@@ -1788,6 +1788,11 @@
                                   // This is a LCD2004 display with 5 analog buttons.
 
 //
+// Overlord OLED display + buttons + LEDs + buzzer
+//
+//#define OVERLORD_OLED
+
+//
 // Generic 16x2, 16x4, 20x2, or 20x4 character-based LCD.
 //
 //#define ULTRA_LCD
