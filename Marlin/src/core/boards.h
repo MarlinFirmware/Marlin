@@ -259,13 +259,14 @@
 #define BOARD_MKS_ROBIN               4005  // MKS Robin (STM32F103ZET6)
 #define BOARD_MKS_ROBIN_MINI          4006  // MKS Robin Mini (STM32F103VET6)
 #define BOARD_MKS_ROBIN_NANO          4007  // MKS Robin Nano (STM32F103VET6)
-#define BOARD_BIGTREE_SKR_MINI_V1_1   4008  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
-#define BOARD_BIGTREE_SKR_MINI_E3     4009  // BigTreeTech SKR Mini E3 (STM32F103RC)
-#define BOARD_BIGTREE_SKR_E3_DIP      4010  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC)
-#define BOARD_JGAURORA_A5S_A1         4011  // JGAurora A5S A1 (STM32F103ZET6)
-#define BOARD_FYSETC_AIO_II           4012  // FYSETC AIO_II
-#define BOARD_FYSETC_CHEETAH          4013  // FYSETC Cheetah
-#define BOARD_LONGER3D_LK             4014  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
+#define BOARD_MKS_ROBIN_LITE          4008  // MKS Robin Lite/Lite2 (STM32F103RCT6)
+#define BOARD_BIGTREE_SKR_MINI_V1_1   4009  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
+#define BOARD_BIGTREE_SKR_MINI_E3     4010  // BigTreeTech SKR Mini E3 (STM32F103RC)
+#define BOARD_BIGTREE_SKR_E3_DIP      4011  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC)
+#define BOARD_JGAURORA_A5S_A1         4012  // JGAurora A5S A1 (STM32F103ZET6)
+#define BOARD_FYSETC_AIO_II           4013  // FYSETC AIO_II
+#define BOARD_FYSETC_CHEETAH          4014  // FYSETC Cheetah
+#define BOARD_LONGER3D_LK             4015  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
 
 //
 // ARM Cortex-M4F
