@@ -27,20 +27,13 @@
 
 #include "pins_FYSETC_CHEETAH.h"
 
-#ifdef X_HARDWARE_SERIAL
- #undef X_HARDWARE_SERIAL
-#endif
-#ifdef Y_HARDWARE_SERIAL
- #undef Y_HARDWARE_SERIAL
-#endif
-#ifdef Z_HARDWARE_SERIAL
- #undef Z_HARDWARE_SERIAL
-#endif
-#ifdef E0_HARDWARE_SERIAL
- #undef E0_HARDWARE_SERIAL
-#endif
+#undef X_HARDWARE_SERIAL
+#undef Y_HARDWARE_SERIAL
+#undef Z_HARDWARE_SERIAL
+#undef E0_HARDWARE_SERIAL
 
 #if HAS_TMC220x
+
   /**
    * TMC2208/TMC2209 stepper drivers
    */
@@ -62,12 +55,6 @@
 
 #endif
 
-#ifdef RGB_LED_R_PIN
- #undef RGB_LED_R_PIN
-#endif
-#ifdef RGB_LED_G_PIN
- #undef RGB_LED_G_PIN
-#endif
-#ifdef RGB_LED_B_PIN
- #undef RGB_LED_B_PIN
-#endif
+#undef RGB_LED_R_PIN
+#undef RGB_LED_G_PIN
+#undef RGB_LED_B_PIN
