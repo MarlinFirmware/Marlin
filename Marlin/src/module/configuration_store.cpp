@@ -98,8 +98,6 @@
   #include "../feature/runout.h"
 #endif
 
-#include "../lcd/extensible_ui/ui_api.h"
-
 #if ENABLED(EXTRA_LIN_ADVANCE_K)
 extern float saved_extruder_advance_K[EXTRUDERS];
 #endif

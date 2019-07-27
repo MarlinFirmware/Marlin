@@ -121,9 +121,11 @@ void process_lcd_c_command(const char* command) {
     case 'T': {
       thermalManager.setTargetHotend(atoi(command + 1), 0);
     } break;
+    #if HAS_HEATED_BED
     case 'P': {
-      thermalManager.setTargetBed(atoi(command + 1));
+        thermalManager.setTargetBed(atoi(command + 1));
     } break;
+    #endif
 
     default:
       SERIAL_ECHOLNPAIR("UNKNOWN C COMMAND", command);
