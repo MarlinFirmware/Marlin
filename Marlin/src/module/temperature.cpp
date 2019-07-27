@@ -462,12 +462,22 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
                             Tu = float(t_low + t_high) * 0.001f,
                             pf = isbed ? 0.2f : 0.6f,
                             df = isbed ? 1.0f / 3.0f : 1.0f / 8.0f;
-                tune_pid.Kp = Ku * pf;
-                tune_pid.Kd = tune_pid.Kp * Tu * df;
-                tune_pid.Ki = 2 * tune_pid.Kp / Tu;
+
                 SERIAL_ECHOPAIR(MSG_KU, Ku, MSG_TU, Tu);
-                SERIAL_ECHOLNPGM("\n" MSG_CLASSIC_PID);
-                SERIAL_ECHOLNPAIR(MSG_KP, tune_pid.Kp, MSG_KI, tune_pid.Ki, MSG_KD, tune_pid.Kd);
+                if (isbed){//Do not remove this otherwise PID autotune won't work right for the bed!
+                  tune_pid.Kp = 0.2 * Ku;
+                  tune_pid.Ki = 2 * tune_pid.Kp / Tu;
+                  tune_pid.Kd = tune_pid.Kp * Tu / 3;
+                  SERIAL_ECHOLNPGM("\n" " No overshoot");//works far better for the bed. Classic and some have bad ringing
+                  SERIAL_ECHOLNPAIR(MSG_KP, tune_pid.Kp, MSG_KI, tune_pid.Ki, MSG_KD, tune_pid.Kd);
+                }else{
+                  tune_pid.Kp = Ku * pf;
+                  tune_pid.Kd = tune_pid.Kp * Tu * df;
+                  tune_pid.Ki = 2 * tune_pid.Kp / Tu;
+                  SERIAL_ECHOLNPGM("\n" MSG_CLASSIC_PID);
+                  SERIAL_ECHOLNPAIR(MSG_KP, tune_pid.Kp, MSG_KI, tune_pid.Ki, MSG_KD, tune_pid.Kd);
+                }
+
                 /**
                 tune_pid.Kp = 0.33 * Ku;
                 tune_pid.Ki = tune_pid.Kp / Tu;
@@ -832,12 +842,12 @@ float Temperature::get_pid_output(const int8_t e) {
         }
 
         work_pid[HOTEND_INDEX].Kd = work_pid[HOTEND_INDEX].Kd + PID_K2 * (PID_PARAM(Kd, HOTEND_INDEX) * (temp_dState[HOTEND_INDEX] - temp_hotend[HOTEND_INDEX].current) - work_pid[HOTEND_INDEX].Kd);
-        const float max_power_over_i_gain = (float)PID_MAX / PID_PARAM(Ki, HOTEND_INDEX);
+        const float max_power_over_i_gain = (float)PID_MAX / PID_PARAM(Ki, HOTEND_INDEX)  - (float)MIN_POWER;
         temp_iState[HOTEND_INDEX] = constrain(temp_iState[HOTEND_INDEX] + pid_error, 0, max_power_over_i_gain);
         work_pid[HOTEND_INDEX].Kp = PID_PARAM(Kp, HOTEND_INDEX) * pid_error;
         work_pid[HOTEND_INDEX].Ki = PID_PARAM(Ki, HOTEND_INDEX) * temp_iState[HOTEND_INDEX];
 
-        pid_output = work_pid[HOTEND_INDEX].Kp + work_pid[HOTEND_INDEX].Ki + work_pid[HOTEND_INDEX].Kd;
+        pid_output = work_pid[HOTEND_INDEX].Kp + work_pid[HOTEND_INDEX].Ki + work_pid[HOTEND_INDEX].Kd + (float)MIN_POWER;
 
         #if ENABLED(PID_EXTRUSION_SCALING)
           work_pid[HOTEND_INDEX].Kc = 0;
@@ -867,23 +877,26 @@ float Temperature::get_pid_output(const int8_t e) {
     #endif // PID_OPENLOOP
 
     #if ENABLED(PID_DEBUG)
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR(
-        MSG_PID_DEBUG, HOTEND_INDEX,
-        MSG_PID_DEBUG_INPUT, temp_hotend[HOTEND_INDEX].current,
-        MSG_PID_DEBUG_OUTPUT, pid_output
-      );
-      #if DISABLED(PID_OPENLOOP)
+      if (e == active_extruder){
+        SERIAL_ECHO_START();
         SERIAL_ECHOPAIR(
-          MSG_PID_DEBUG_PTERM, work_pid[HOTEND_INDEX].Kp,
-          MSG_PID_DEBUG_ITERM, work_pid[HOTEND_INDEX].Ki,
-          MSG_PID_DEBUG_DTERM, work_pid[HOTEND_INDEX].Kd
-          #if ENABLED(PID_EXTRUSION_SCALING)
-            , MSG_PID_DEBUG_CTERM, work_pid[HOTEND_INDEX].Kc
-          #endif
+          MSG_PID_DEBUG, HOTEND_INDEX,
+          MSG_PID_DEBUG_INPUT, temp_hotend[HOTEND_INDEX].current,
+          MSG_PID_DEBUG_OUTPUT, pid_output
         );
-      #endif
-      SERIAL_EOL();
+        #if DISABLED(PID_OPENLOOP)
+          SERIAL_ECHOPAIR(
+            MSG_PID_DEBUG_PTERM, work_pid[HOTEND_INDEX].Kp,
+            MSG_PID_DEBUG_ITERM, work_pid[HOTEND_INDEX].Ki,
+            MSG_PID_DEBUG_DTERM, work_pid[HOTEND_INDEX].Kd
+            #if ENABLED(PID_EXTRUSION_SCALING)
+              , MSG_PID_DEBUG_CTERM, work_pid[HOTEND_INDEX].Kc
+            #endif
+          );
+        #endif
+        SERIAL_EOL();
+      }
+      
     #endif // PID_DEBUG
 
   #else /* PID off */
@@ -907,19 +920,36 @@ float Temperature::get_pid_output(const int8_t e) {
 
       static PID_t work_pid = { 0 };
       static float temp_iState = 0, temp_dState = 0;
-
-      const float max_power_over_i_gain = (float)MAX_BED_POWER / temp_bed.pid.Ki,
+      static bool pid_reset = true;
+      float pid_output = 0;
+      const float max_power_over_i_gain = (float)MAX_BED_POWER / temp_bed.pid.Ki - (float)MIN_BED_POWER,
                   pid_error = temp_bed.target - temp_bed.current;
 
-      temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
+      if (temp_bed.target == 0 || pid_error < -(PID_FUNCTIONAL_RANGE) ) {
+        pid_output = 0;
+        pid_reset = true;
+      }
+      else if (pid_error > PID_FUNCTIONAL_RANGE) {
+        pid_output = BANG_MAX;
+        pid_reset = true;
+      }
+      else {
+        if (pid_reset) {
+          temp_iState = 0.0;
+          work_pid.Kd = 0.0;
+          pid_reset = false;
+        }
 
-      work_pid.Kp = temp_bed.pid.Kp * pid_error;
-      work_pid.Ki = temp_bed.pid.Ki * temp_iState;
-      work_pid.Kd = work_pid.Kd + PID_K2 * (temp_bed.pid.Kd * (temp_dState - temp_bed.current) - work_pid.Kd);
+        temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
+        
+        work_pid.Kp = temp_bed.pid.Kp * pid_error;
+        work_pid.Ki = temp_bed.pid.Ki * temp_iState;
+        work_pid.Kd = work_pid.Kd + PID_K2 * (temp_bed.pid.Kd * (temp_dState - temp_bed.current) - work_pid.Kd);
 
-      temp_dState = temp_bed.current;
+        temp_dState = temp_bed.current;
 
-      const float pid_output = constrain(work_pid.Kp + work_pid.Ki + work_pid.Kd, 0, MAX_BED_POWER);
+        pid_output = constrain(work_pid.Kp + work_pid.Ki + work_pid.Kd + (float)MIN_BED_POWER, 0, MAX_BED_POWER);
+      }
 
     #else // PID_OPENLOOP
 
