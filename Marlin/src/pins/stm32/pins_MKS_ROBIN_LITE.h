@@ -32,11 +32,12 @@
 #ifndef BOARD_NAME
   #define BOARD_NAME "MKS Robin Lite"
 #endif
-#define BOARD_WEBSITE_URL "github.com/makerbase-mks"
+#define BOARD_WEBSITE_URL "https://github.com/makerbase-mks"
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
 #define ENABLE_SPI2
+
 //
 // Limit Switches
 //
@@ -48,7 +49,6 @@
 //
 // Steppers
 //
-
 #define X_STEP_PIN         PC6
 #define X_DIR_PIN          PB12
 #define X_ENABLE_PIN       PB10
@@ -116,21 +116,21 @@
 #endif // HAS_SPI_LCD
 
 // Motor current PWM pins
-#define MOTOR_CURRENT_PWM_XY_PIN   PB0
-#define MOTOR_CURRENT_PWM_Z_PIN    PA7
-#define MOTOR_CURRENT_PWM_E_PIN    PA6
-#define MOTOR_CURRENT_PWM_RANGE    65535/10/3.3 // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
-#define DEFAULT_PWM_MOTOR_CURRENT  { 1000, 1000, 1000 } // 1.05Amp per driver, here is XY, Z and E. This values determined empirically.
+#define MOTOR_CURRENT_PWM_XY_PIN PB0
+#define MOTOR_CURRENT_PWM_Z_PIN  PA7
+#define MOTOR_CURRENT_PWM_E_PIN  PA6
+#define MOTOR_CURRENT_PWM_RANGE (65535/10/3.3) // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
+#define DEFAULT_PWM_MOTOR_CURRENT { 1000, 1000, 1000 } // 1.05Amp per driver, here is XY, Z and E. This values determined empirically.
 
 //
 // SD Card
 //
-  #define ENABLE_SPI2
-  #define SD_DETECT_PIN    PC10
-  #define SCK_PIN          PB13
-  #define MISO_PIN         P1B4
-  #define MOSI_PIN         P1B5
-  #define SS_PIN           PA15
+#define ENABLE_SPI2
+#define SD_DETECT_PIN      PC10
+#define SCK_PIN            PB13
+#define MISO_PIN           P1B4
+#define MOSI_PIN           P1B5
+#define SS_PIN             PA15
 
 #ifndef ST7920_DELAY_1
   #define ST7920_DELAY_1 DELAY_NS(125)
