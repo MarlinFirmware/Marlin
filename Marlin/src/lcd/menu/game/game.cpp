@@ -30,6 +30,8 @@ int MarlinGame::score;
 uint8_t MarlinGame::game_state;
 millis_t MarlinGame::next_frame;
 
+MarlinGameData marlin_game_data;
+
 bool MarlinGame::game_frame() {
   static int8_t slew;
   if (ui.first_page) slew = 2;
@@ -63,7 +65,5 @@ void MarlinGame::init_game(const uint8_t init_state, const screenFunc_t screen) 
 void MarlinGame::exit_game() {
   ui.goto_previous_screen_no_defer();
 }
-
-MarlinGameData marlin_game_data;
 
 #endif // HAS_GAMES
