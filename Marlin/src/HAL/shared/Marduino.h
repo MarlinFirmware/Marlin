@@ -41,10 +41,6 @@
 #undef sq
 #define sq(x) ((x)*(x))
 
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
-
 #ifndef SBI
   #define SBI(A,B) (A |= (1 << (B)))
 #endif
@@ -57,6 +53,10 @@
   #ifndef strchr_P // Some platforms define a macro (DUE, teensy35)
     inline const char* strchr_P(const char *s, int c) { return strchr(s,c); }
     //#define strchr_P(s,c) strchr(s,c)
+  #endif
+
+  #ifndef vsnprintf_P
+    #define vsnprintf_P vsnprintf
   #endif
 #endif
 
