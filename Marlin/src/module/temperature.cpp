@@ -823,10 +823,6 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
   _temp_error(heater, PSTR(MSG_T_MINTEMP), TEMP_ERR_PSTR(MSG_ERR_MINTEMP, heater));
 }
 
-#ifndef MIN_POWER
-  #define MIN_POWER 0
-#endif
-
 float Temperature::get_pid_output_hotend(const uint8_t e) {
   #if HOTENDS == 1
     #define _HOTEND_TEST true
