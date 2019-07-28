@@ -37,7 +37,7 @@
 #include "../../../lcd/ultralcd.h"
 #include "../../../module/motion.h"
 #include "../../../module/stepper.h"
-  
+
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extensible_ui/ui_api.h"
 #endif
