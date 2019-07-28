@@ -669,6 +669,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 540: M540(); break;                                  // M540: Set abort on endstop hit for SD printing
       #endif
 
+      case 575: M575(); break;                                    // M575: Set new serial baudrate
+
       #if HAS_BED_PROBE
         case 851: M851(); break;                                  // M851: Set Z Probe Z Offset
       #endif
