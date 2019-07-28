@@ -41,6 +41,8 @@
   #define HAL_PLATFORM HAL_ESP32
 #elif defined(__PLAT_LINUX__)
   #define HAL_PLATFORM HAL_LINUX
+#elif defined(__SAMD51__)
+  #define HAL_PLATFORM HAL_SAMD51
 #else
   #error "Unsupported Platform!"
 #endif
