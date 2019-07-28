@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
 
 // NOTE: IF YOU CHANGE LANGUAGE FILES OR MERGE A FILE WITH CHANGES
 //
-//   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h"
+//   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRA_LCD" / "SDSUPPORT" #define IN "Configuration.h"
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
 // See also http://marlinfw.org/docs/development/lcd_language.html
 
@@ -89,9 +89,47 @@
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
-#ifdef DEFAULT_WEBSITE_URL
+#ifdef BOARD_WEBSITE_URL
   #undef  WEBSITE_URL
-  #define WEBSITE_URL DEFAULT_WEBSITE_URL
+  #define WEBSITE_URL BOARD_WEBSITE_URL
+#endif
+
+#if HAS_GRAPHICAL_LCD
+  //
+  // Custom characters from Marlin_symbols.fon which was merged into ISO10646-0-3.bdf
+  // \x00 intentionally skipped to avoid problems in strings
+  //
+  #define LCD_STR_REFRESH     "\x01"
+  #define LCD_STR_FOLDER      "\x02"
+  #define LCD_STR_ARROW_RIGHT "\x03"
+  #define LCD_STR_UPLEVEL     "\x04"
+  #define LCD_STR_CLOCK       "\x05"
+  #define LCD_STR_FEEDRATE    "\x06"
+  #define LCD_STR_BEDTEMP     "\x07"
+  #define LCD_STR_THERMOMETER "\x08"
+  #define LCD_STR_DEGREE      "\x09"
+
+  #define LCD_STR_SPECIAL_MAX '\x09'
+  // Maximum here is 0x1F because 0x20 is ' ' (space) and the normal charsets begin.
+  // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
+
+  // Symbol characters
+  #define LCD_STR_FILAM_DIA   "\xF8"
+  #define LCD_STR_FILAM_MUL   "\xA4"
+
+#elif HAS_CHARACTER_LCD
+
+  // Custom characters defined in the first 8 characters of the LCD
+  #define LCD_STR_BEDTEMP     "\x00" // Print only as a char. This will have 'unexpected' results when used in a string!
+  #define LCD_STR_DEGREE      "\x01"
+  #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
+  #define LCD_STR_UPLEVEL     "\x03"
+  #define LCD_STR_REFRESH     "\x04"
+  #define LCD_STR_FOLDER      "\x05"
+  #define LCD_STR_FEEDRATE    "\x06"
+  #define LCD_STR_CLOCK       "\x07"
+  #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
+
 #endif
 
 // Common LCD messages
@@ -124,6 +162,8 @@
 #define MSG_BEGIN_FILE_LIST                 "Begin file list"
 #define MSG_END_FILE_LIST                   "End file list"
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
+#define MSG_INVALID_E_STEPPER               "Invalid E stepper"
+#define MSG_E_STEPPER_NOT_SPECIFIED         "E stepper not specified"
 #define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
 #define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
@@ -159,7 +199,6 @@
 #define MSG_SKEW_MIN                        "min_skew_factor: "
 #define MSG_SKEW_MAX                        "max_skew_factor: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
-#define MSG_ERR_M355_NONE                   "No case light"
 #define MSG_ERR_M421_PARAMETERS             "M421 incorrect parameter usage"
 #define MSG_ERR_BAD_PLANE_MODE              "G5 requires XY plane mode"
 #define MSG_ERR_MESH_XY                     "Mesh point cannot be resolved"
@@ -169,6 +208,8 @@
 #define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
 #define MSG_ERR_M303_DISABLED               "PIDTEMP disabled"
 #define MSG_M119_REPORT                     "Reporting endstop status"
+#define MSG_ON                              "ON"
+#define MSG_OFF                             "OFF"
 #define MSG_ENDSTOP_HIT                     "TRIGGERED"
 #define MSG_ENDSTOP_OPEN                    "open"
 #define MSG_HOTEND_OFFSET                   "Hotend offsets:"
@@ -246,6 +287,8 @@
 #define MSG_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
 
 #define MSG_HEATER_BED                      "bed"
+#define MSG_HEATER_CHAMBER                  "chamber"
+
 #define MSG_STOPPED_HEATER                  ", system stopped! Heater_ID: "
 #define MSG_REDUNDANCY                      "Heater switched off. Temperature difference between temp sensors is too high !"
 #define MSG_T_HEATING_FAILED                "Heating failed"
@@ -303,7 +346,6 @@
 #define MSG_LCD_N3 " 4"
 #define MSG_LCD_N4 " 5"
 #define MSG_LCD_N5 " 6"
-#define MSG_E0 "E0"
 #define MSG_E1 "E1"
 #define MSG_E2 "E2"
 #define MSG_E3 "E3"
@@ -325,15 +367,15 @@
 
 #include INCLUDE_LANGUAGE
 
-#if DISABLED(DISPLAY_CHARSET_ISO10646_1) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_5) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_CN) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_TR) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_PL) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_CZ) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_SK)
+#if NONE(DISPLAY_CHARSET_ISO10646_1, \
+         DISPLAY_CHARSET_ISO10646_5, \
+         DISPLAY_CHARSET_ISO10646_KANA, \
+         DISPLAY_CHARSET_ISO10646_GREEK, \
+         DISPLAY_CHARSET_ISO10646_CN, \
+         DISPLAY_CHARSET_ISO10646_TR, \
+         DISPLAY_CHARSET_ISO10646_PL, \
+         DISPLAY_CHARSET_ISO10646_CZ, \
+         DISPLAY_CHARSET_ISO10646_SK)
   #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #endif
 

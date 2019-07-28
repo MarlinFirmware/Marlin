@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,16 +55,16 @@ void GcodeSuite::M48() {
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 4)) {
-    SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).");
+    SERIAL_ECHOLNPGM("?(V)erbose level is implausible (0-4).");
     return;
   }
 
   if (verbose_level > 0)
-    SERIAL_PROTOCOLLNPGM("M48 Z-Probe Repeatability Test");
+    SERIAL_ECHOLNPGM("M48 Z-Probe Repeatability Test");
 
   const int8_t n_samples = parser.byteval('P', 10);
   if (!WITHIN(n_samples, 4, 50)) {
-    SERIAL_PROTOCOLLNPGM("?Sample size not plausible (4-50).");
+    SERIAL_ECHOLNPGM("?Sample size not plausible (4-50).");
     return;
   }
 
@@ -77,14 +77,14 @@ void GcodeSuite::M48() {
               Y_probe_location = parser.linearval('Y', Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
   if (!position_is_reachable_by_probe(X_probe_location, Y_probe_location)) {
-    SERIAL_PROTOCOLLNPGM("? (X,Y) out of bounds.");
+    SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
     return;
   }
 
   bool seen_L = parser.seen('L');
   uint8_t n_legs = seen_L ? parser.value_byte() : 0;
   if (n_legs > 15) {
-    SERIAL_PROTOCOLLNPGM("?Number of legs in movement not plausible (0-15).");
+    SERIAL_ECHOLNPGM("?Number of legs in movement not plausible (0-15).");
     return;
   }
   if (n_legs == 1) n_legs = 2;
@@ -98,7 +98,7 @@ void GcodeSuite::M48() {
    * we don't want to use that as a starting point for each probe.
    */
   if (verbose_level > 2)
-    SERIAL_PROTOCOLLNPGM("Positioning the probe...");
+    SERIAL_ECHOLNPGM("Positioning the probe...");
 
   // Disable bed level correction in M48 because we want the raw data when we probe
 
@@ -127,7 +127,7 @@ void GcodeSuite::M48() {
             (int) (0.1250000000 * (DELTA_PRINTABLE_RADIUS)),
             (int) (0.3333333333 * (DELTA_PRINTABLE_RADIUS))
           #else
-            (int) 5.0, (int) (0.125 * MIN(X_BED_SIZE, Y_BED_SIZE))
+            (int) 5.0, (int) (0.125 * _MIN(X_BED_SIZE, Y_BED_SIZE))
           #endif
         );
 
@@ -163,8 +163,8 @@ void GcodeSuite::M48() {
           Y_current = Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER) + sin(RADIANS(angle)) * radius;
 
           #if DISABLED(DELTA)
-            X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
-            Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
+            LIMIT(X_current, X_MIN_POS, X_MAX_POS);
+            LIMIT(Y_current, Y_MIN_POS, Y_MAX_POS);
           #else
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
@@ -178,7 +178,7 @@ void GcodeSuite::M48() {
             }
           #endif
           if (verbose_level > 3) {
-            SERIAL_PROTOCOLPGM("Going to:");
+            SERIAL_ECHOPGM("Going to:");
             SERIAL_ECHOPAIR(" X", X_current);
             SERIAL_ECHOPAIR(" Y", Y_current);
             SERIAL_ECHOLNPAIR(" Z", current_position[Z_AXIS]);
@@ -215,22 +215,15 @@ void GcodeSuite::M48() {
       sigma = SQRT(sum / (n + 1));
       if (verbose_level > 0) {
         if (verbose_level > 1) {
-          SERIAL_PROTOCOL(n + 1);
-          SERIAL_PROTOCOLPGM(" of ");
-          SERIAL_PROTOCOL((int)n_samples);
-          SERIAL_PROTOCOLPGM(": z: ");
-          SERIAL_PROTOCOL_F(sample_set[n], 3);
+          SERIAL_ECHO(n + 1);
+          SERIAL_ECHOPAIR(" of ", (int)n_samples);
+          SERIAL_ECHOPAIR_F(": z: ", sample_set[n], 3);
           if (verbose_level > 2) {
-            SERIAL_PROTOCOLPGM(" mean: ");
-            SERIAL_PROTOCOL_F(mean, 4);
-            SERIAL_PROTOCOLPGM(" sigma: ");
-            SERIAL_PROTOCOL_F(sigma, 6);
-            SERIAL_PROTOCOLPGM(" min: ");
-            SERIAL_PROTOCOL_F(min, 3);
-            SERIAL_PROTOCOLPGM(" max: ");
-            SERIAL_PROTOCOL_F(max, 3);
-            SERIAL_PROTOCOLPGM(" range: ");
-            SERIAL_PROTOCOL_F(max-min, 3);
+            SERIAL_ECHOPAIR_F(" mean: ", mean, 4);
+            SERIAL_ECHOPAIR_F(" sigma: ", sigma, 6);
+            SERIAL_ECHOPAIR_F(" min: ", min, 3);
+            SERIAL_ECHOPAIR_F(" max: ", max, 3);
+            SERIAL_ECHOPAIR_F(" range: ", max-min, 3);
           }
           SERIAL_EOL();
         }
@@ -242,23 +235,16 @@ void GcodeSuite::M48() {
   STOW_PROBE();
 
   if (probing_good) {
-    SERIAL_PROTOCOLLNPGM("Finished!");
+    SERIAL_ECHOLNPGM("Finished!");
 
     if (verbose_level > 0) {
-      SERIAL_PROTOCOLPGM("Mean: ");
-      SERIAL_PROTOCOL_F(mean, 6);
-      SERIAL_PROTOCOLPGM(" Min: ");
-      SERIAL_PROTOCOL_F(min, 3);
-      SERIAL_PROTOCOLPGM(" Max: ");
-      SERIAL_PROTOCOL_F(max, 3);
-      SERIAL_PROTOCOLPGM(" Range: ");
-      SERIAL_PROTOCOL_F(max-min, 3);
-      SERIAL_EOL();
+      SERIAL_ECHOPAIR_F("Mean: ", mean, 6);
+      SERIAL_ECHOPAIR_F(" Min: ", min, 3);
+      SERIAL_ECHOPAIR_F(" Max: ", max, 3);
+      SERIAL_ECHOLNPAIR_F(" Range: ", max-min, 3);
     }
 
-    SERIAL_PROTOCOLPGM("Standard Deviation: ");
-    SERIAL_PROTOCOL_F(sigma, 6);
-    SERIAL_EOL();
+    SERIAL_ECHOLNPAIR_F("Standard Deviation: ", sigma, 6);
     SERIAL_EOL();
   }
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #else
   #define _X_MAX
 #endif
-#if PIN_EXISTS(X_CS)
+#if PIN_EXISTS(X_CS) && AXIS_HAS_SPI(X)
   #define _X_CS X_CS_PIN,
 #else
   #define _X_CS
@@ -68,7 +68,7 @@
 #else
   #define _Y_MAX
 #endif
-#if PIN_EXISTS(Y_CS)
+#if PIN_EXISTS(Y_CS) && AXIS_HAS_SPI(Y)
   #define _Y_CS Y_CS_PIN,
 #else
   #define _Y_CS
@@ -101,7 +101,7 @@
 #else
   #define _Z_MAX
 #endif
-#if PIN_EXISTS(Z_CS)
+#if PIN_EXISTS(Z_CS) && AXIS_HAS_SPI(Z)
   #define _Z_CS Z_CS_PIN,
 #else
   #define _Z_CS
@@ -131,27 +131,30 @@
 // Mixing stepper, Switching stepper, or regular stepper
 #define E_NEEDED(N) (ENABLED(MIXING_EXTRUDER) && MIXING_STEPPERS > N) \
                  || (ENABLED(SWITCHING_EXTRUDER) && E_STEPPERS > N) \
-                 || (DISABLED(SWITCHING_EXTRUDER) && DISABLED(MIXING_EXTRUDER) && EXTRUDERS > N)
+                 || (NONE(SWITCHING_EXTRUDER, MIXING_EXTRUDER) && EXTRUDERS > N)
 
-#if PIN_EXISTS(E0_CS)
-  #define _E0_CS E0_CS_PIN,
-#else
-  #define _E0_CS
-#endif
-#if PIN_EXISTS(E0_MS1)
-  #define _E0_MS1 E0_MS1_PIN,
-#else
-  #define _E0_MS1
-#endif
-#if PIN_EXISTS(E0_MS2)
-  #define _E0_MS2 E0_MS2_PIN,
-#else
-  #define _E0_MS2
-#endif
-#if PIN_EXISTS(E0_MS3)
-  #define _E0_MS3 E0_MS3_PIN,
-#else
-  #define _E0_MS3
+#define _E0_CS
+#define _E0_MS1
+#define _E0_MS2
+#define _E0_MS3
+
+#if E_NEEDED(0)
+  #if PIN_EXISTS(E0_CS) && AXIS_HAS_SPI(E0)
+    #undef _E0_CS
+    #define _E0_CS E0_CS_PIN,
+  #endif
+  #if PIN_EXISTS(E0_MS1)
+    #undef _E0_MS1
+    #define _E0_MS1 E0_MS1_PIN,
+  #endif
+  #if PIN_EXISTS(E0_MS2)
+    #undef _E0_MS2
+    #define _E0_MS2 E0_MS2_PIN,
+  #endif
+  #if PIN_EXISTS(E0_MS3)
+    #undef _E0_MS3
+    #define _E0_MS3 E0_MS3_PIN,
+  #endif
 #endif
 
 #define _E1_CS
@@ -160,7 +163,7 @@
 #define _E1_MS3
 
 #if E_NEEDED(1)
-  #if PIN_EXISTS(E1_CS)
+  #if PIN_EXISTS(E1_CS) && AXIS_HAS_SPI(E1)
     #undef _E1_CS
     #define _E1_CS E1_CS_PIN,
   #endif
@@ -184,7 +187,7 @@
 #define _E2_MS3
 
 #if E_NEEDED(2)
-  #if PIN_EXISTS(E2_CS)
+  #if PIN_EXISTS(E2_CS) && AXIS_HAS_SPI(E2)
     #undef _E2_CS
     #define _E2_CS E2_CS_PIN,
   #endif
@@ -208,7 +211,7 @@
 #define _E3_MS3
 
 #if E_NEEDED(3)
-  #if PIN_EXISTS(E3_CS)
+  #if PIN_EXISTS(E3_CS) && AXIS_HAS_SPI(E3)
     #undef _E3_CS
     #define _E3_CS E3_CS_PIN,
   #endif
@@ -232,7 +235,7 @@
 #define _E4_MS3
 
 #if E_NEEDED(4)
-  #if PIN_EXISTS(E4_CS)
+  #if PIN_EXISTS(E4_CS) && AXIS_HAS_SPI(E4)
     #undef _E4_CS
     #define _E4_CS E4_CS_PIN,
   #endif
@@ -256,7 +259,7 @@
 #define _E5_MS3
 
 #if E_NEEDED(5)
-  #if PIN_EXISTS(E5_CS)
+  #if PIN_EXISTS(E5_CS) && AXIS_HAS_SPI(E5)
     #undef _E5_CS
     #define _E5_CS E5_CS_PIN,
   #endif
@@ -278,12 +281,17 @@
 // E Steppers
 //
 
-#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, _E0_CS _E0_MS1 _E0_MS2 _E0_MS3
+#define _E0_PINS
 #define _E1_PINS
 #define _E2_PINS
 #define _E3_PINS
 #define _E4_PINS
 #define _E5_PINS
+
+#if EXTRUDERS
+  #undef _E0_PINS
+  #define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, _E0_CS _E0_MS1 _E0_MS2 _E0_MS3
+#endif
 
 #if ENABLED(SWITCHING_EXTRUDER)
                       // Tools 0 and 1 use E0
@@ -320,33 +328,37 @@
 // Heaters, Fans, Temp Sensors
 //
 
-#define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_0_PIN),
+#define _H0_PINS
 #define _H1_PINS
 #define _H2_PINS
 #define _H3_PINS
 #define _H4_PINS
 #define _H5_PINS
 
-#if HOTENDS > 1
-  #undef _H1_PINS
-  #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_1_PIN),
-  #if HOTENDS > 2
-    #undef _H2_PINS
-    #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_2_PIN),
-    #if HOTENDS > 3
-      #undef _H3_PINS
-      #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_3_PIN),
-      #if HOTENDS > 4
-        #undef _H4_PINS
-        #define _H4_PINS HEATER_4_PIN, E4_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_4_PIN),
-        #if HOTENDS > 5
-          #undef _H5_PINS
-          #define _H5_PINS HEATER_5_PIN, E5_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_5_PIN),
-        #endif // HOTENDS > 5
-      #endif // HOTENDS > 4
-    #endif // HOTENDS > 3
-  #endif // HOTENDS > 2
-#endif // HOTENDS > 1
+#if HOTENDS
+  #undef _H0_PINS
+  #define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_0_PIN),
+  #if HOTENDS > 1
+    #undef _H1_PINS
+    #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_1_PIN),
+    #if HOTENDS > 2
+      #undef _H2_PINS
+      #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_2_PIN),
+      #if HOTENDS > 3
+        #undef _H3_PINS
+        #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_3_PIN),
+        #if HOTENDS > 4
+          #undef _H4_PINS
+          #define _H4_PINS HEATER_4_PIN, E4_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_4_PIN),
+          #if HOTENDS > 5
+            #undef _H5_PINS
+            #define _H5_PINS HEATER_5_PIN, E5_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_5_PIN),
+          #endif // HOTENDS > 5
+        #endif // HOTENDS > 4
+      #endif // HOTENDS > 3
+    #endif // HOTENDS > 2
+  #endif // HOTENDS > 1
+#endif // HOTENDS
 
 #define _BED_PINS HEATER_BED_PIN, analogInputToDigitalPin(TEMP_BED_PIN),
 
@@ -355,8 +367,8 @@
 // Chip Select and Digital Micro-stepping
 //
 
-#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)
-  #if PIN_EXISTS(X2_CS)
+#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+  #if PIN_EXISTS(X2_CS) && AXIS_HAS_SPI(X2)
     #define _X2_CS X2_CS_PIN,
   #else
     #define _X2_CS
@@ -382,7 +394,7 @@
 #endif
 
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  #if PIN_EXISTS(Y2_CS)
+  #if PIN_EXISTS(Y2_CS) && AXIS_HAS_SPI(Y2)
     #define _Y2_CS Y2_CS_PIN,
   #else
     #define _Y2_CS
@@ -408,7 +420,7 @@
 #endif
 
 #if Z_MULTI_STEPPER_DRIVERS
-  #if PIN_EXISTS(Z2_CS)
+  #if PIN_EXISTS(Z2_CS) && AXIS_HAS_SPI(Z2)
     #define _Z2_CS Z2_CS_PIN,
   #else
     #define _Z2_CS
@@ -434,7 +446,7 @@
 #endif
 
 #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-  #if PIN_EXISTS(Z3_CS)
+  #if PIN_EXISTS(Z3_CS) && AXIS_HAS_SPI(Z3)
     #define _Z3_CS Z3_CS_PIN,
   #else
     #define _Z3_CS

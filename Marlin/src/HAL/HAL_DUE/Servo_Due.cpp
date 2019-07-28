@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,15 +44,15 @@
 
 #if HAS_SERVOS
 
-#include <Arduino.h>
+#include "../shared/Marduino.h"
 #include "../shared/servo.h"
 #include "../shared/servo_private.h"
 
 static volatile int8_t Channel[_Nbr_16timers];              // counter for the servo being pulsed for each timer (or -1 if refresh interval)
 
-//------------------------------------------------------------------------------
+// ------------------------
 /// Interrupt handler for the TC0 channel 1.
-//------------------------------------------------------------------------------
+// ------------------------
 void Servo_Handler(timer16_Sequence_t timer, Tc *pTc, uint8_t channel);
 
 #ifdef _useTimer1
@@ -77,13 +77,13 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel) {
   if (Channel[timer] < 0)
     tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG; // channel set to -1 indicated that refresh interval completed so reset the timer
   else if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && SERVO(timer, Channel[timer]).Pin.isActive)
-    digitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW); // pulse this channel low if activated
+    extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW); // pulse this channel low if activated
 
   Channel[timer]++;    // increment to the next channel
   if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && Channel[timer] < SERVOS_PER_TIMER) {
     tc->TC_CHANNEL[channel].TC_RA = tc->TC_CHANNEL[channel].TC_CV + SERVO(timer,Channel[timer]).ticks;
     if (SERVO(timer,Channel[timer]).Pin.isActive)    // check if activated
-      digitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH); // its an active channel so pulse it high
+      extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH); // its an active channel so pulse it high
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
@@ -137,7 +137,7 @@ void initISR(timer16_Sequence_t timer) {
   #endif
 }
 
-void finISR(timer16_Sequence_t timer) {
+void finISR(timer16_Sequence_t) {
   #ifdef _useTimer1
     TC_Stop(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1);
   #endif

@@ -8,9 +8,10 @@
  */
 #pragma once
 
-#include <stdlib.h>
-#include <Arduino.h>
+#include "../HAL/shared/Marduino.h"
 #include "../core/macros.h"
+
+#include <stdlib.h>
 #include <stddef.h> // wchar_t
 #include <stdint.h> // uint32_t
 
@@ -26,10 +27,6 @@ uint8_t read_byte_rom(uint8_t * str);
 //#undef wchar_t
 #define wchar_t uint32_t
 //typedef uint32_t wchar_t;
-
-#ifndef NUM_ARRAY
-  #define NUM_ARRAY(a) (sizeof(a)/sizeof((a)[0]))
-#endif
 
 typedef uint16_t pixel_len_t;
 #define PIXEL_LEN_NOLIMIT ((pixel_len_t)(-1))

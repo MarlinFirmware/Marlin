@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,9 +63,9 @@
 
 #define INVALID_SERVO         255     // flag indicating an invalid servo index
 
-//
-#define usToTicks(_us)    (( clockCyclesPerMicrosecond()* _us) / PRESCALER)     // converts microseconds to tick (PRESCALER depends on architecture)
-#define ticksToUs(_ticks) (( (unsigned)_ticks * PRESCALER)/ clockCyclesPerMicrosecond() ) // converts from ticks back to microseconds
+// Convert microseconds to ticks and back (PRESCALER depends on architecture)
+#define usToTicks(_us)    (clockCyclesPerMicrosecond() * (_us) / (PRESCALER))
+#define ticksToUs(_ticks) (unsigned(_ticks) * (PRESCALER) / clockCyclesPerMicrosecond())
 
 //#define NBR_TIMERS        ((MAX_SERVOS) / (SERVOS_PER_TIMER))
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@
 #define MSG_AUTOSTART                       _UxGT("Автостарт")
 #define MSG_DISABLE_STEPPERS                _UxGT("Изкл. двигатели")
 #define MSG_AUTO_HOME                       _UxGT("Паркиране")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Калибровка Z")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Задай Начало")
 #define MSG_SET_ORIGIN                      _UxGT("Изходна точка")
 #define MSG_PREHEAT_1                       _UxGT("Подгряване " PREHEAT_1_LABEL)
@@ -63,6 +62,7 @@
 #define MSG_MOVE_Y                          _UxGT("Движение по Y")
 #define MSG_MOVE_Z                          _UxGT("Движение по Z")
 #define MSG_MOVE_E                          _UxGT("Екструдер")
+#define MSG_MOVE_0025MM                     _UxGT("Премести с 0.025mm")
 #define MSG_MOVE_01MM                       _UxGT("Премести с 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Премести с 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Премести с 10mm")
@@ -77,8 +77,8 @@
 #define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Максимум")
 #define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Фактор")
 #define MSG_AUTOTEMP                        _UxGT("Авто-темп.")
-#define MSG_ON                              _UxGT("Вкл. ")
-#define MSG_OFF                             _UxGT("Изкл. ")
+#define MSG_LCD_ON                          _UxGT("Вкл.")
+#define MSG_LCD_OFF                         _UxGT("Изкл.")
 #define MSG_A_RETRACT                       _UxGT("A-откат")
 #define MSG_A_TRAVEL                        _UxGT("A-travel")
 #define MSG_STEPS_PER_MM                    _UxGT("Стъпки/mm")

@@ -33,7 +33,7 @@ if [[ $2 = "ALL" ]]; then
   declare -a tests=(${dir_list[@]/*run_tests/})
   for f in "${tests[@]}"; do
     env_backup
-    testenv=$(basename $f | cut -d"_" -f1)
+    testenv=$(basename $f | cut -d"-" -f1)
     printf "Running \033[0;32m$f\033[0m Tests\n"
     exec_test $1 "$testenv --target clean" "Setup Build Environment"
     $f $1 $testenv
@@ -42,7 +42,7 @@ if [[ $2 = "ALL" ]]; then
 else
   env_backup
   exec_test $1 "$2 --target clean" "Setup Build Environment"
-  $2_tests $1 $2
+  $2-tests $1 $2
   env_restore
 fi
 printf "\033[0;32mAll tests completed successfully\033[0m\n"

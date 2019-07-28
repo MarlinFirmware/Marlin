@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,21 +39,26 @@
  * M104: Set hot end temperature
  */
 void GcodeSuite::M104() {
-  if (get_target_extruder_from_command()) return;
+
   if (DEBUGGING(DRYRUN)) return;
 
-  const uint8_t e = target_extruder;
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+    constexpr int8_t target_extruder = 0;
+  #else
+    const int8_t target_extruder = get_target_extruder_from_command();
+    if (target_extruder < 0) return;
+  #endif
 
   if (parser.seenval('S')) {
     const int16_t temp = parser.value_celsius();
     #if ENABLED(SINGLENOZZLE)
-      singlenozzle_temp[e] = temp;
-      if (e != active_extruder) return;
+      singlenozzle_temp[target_extruder] = temp;
+      if (target_extruder != active_extruder) return;
     #endif
-    thermalManager.setTargetHotend(temp, e);
+    thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (dxc_is_duplicating() && e == 0)
+      if (dxc_is_duplicating() && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 
@@ -82,8 +87,14 @@ void GcodeSuite::M104() {
  */
 void GcodeSuite::M109() {
 
-  if (get_target_extruder_from_command()) return;
   if (DEBUGGING(DRYRUN)) return;
+
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+    constexpr int8_t target_extruder = 0;
+  #else
+    const int8_t target_extruder = get_target_extruder_from_command();
+    if (target_extruder < 0) return;
+  #endif
 
   const bool no_wait_for_cooling = parser.seenval('S'),
              set_temp = no_wait_for_cooling || parser.seenval('R');
@@ -114,7 +125,7 @@ void GcodeSuite::M109() {
         print_job_timer.start();
     #endif
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_DISPLAY
       if (thermalManager.isHeatingHotend(target_extruder) || !no_wait_for_cooling)
         thermalManager.set_heating_message(target_extruder);
     #endif

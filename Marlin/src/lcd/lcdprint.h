@@ -48,10 +48,12 @@ int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length);
  */
 int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length);
 
-void lcd_moveto(int col, int row);
+void lcd_moveto(const uint8_t col, const uint8_t row);
+
+void lcd_put_int(const int i);
 
 inline int lcd_put_u8str_P(PGM_P str) { return lcd_put_u8str_max_P(str, PIXEL_LEN_NOLIMIT); }
 
 inline int lcd_put_u8str(const char* str) { return lcd_put_u8str_max(str, PIXEL_LEN_NOLIMIT); }
 
-inline int lcd_put_wchar(wchar_t c) { return lcd_put_wchar_max(c, PIXEL_LEN_NOLIMIT); }
+inline int lcd_put_wchar(const wchar_t c) { return lcd_put_wchar_max(c, PIXEL_LEN_NOLIMIT); }

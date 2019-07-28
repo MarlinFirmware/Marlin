@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -28,83 +28,99 @@
 
 #define CPU_32_BIT
 
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
-
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
-#include <stdint.h>
-#include <util/atomic.h>
-#include <Arduino.h>
-
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
+#include "../../core/macros.h"
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_Stm32f1.h"
-#include "watchdog_Stm32f1.h"
+#include "fastio_STM32F1.h"
+#include "watchdog_STM32F1.h"
 
-#include "HAL_timers_Stm32f1.h"
+#include "HAL_timers_STM32F1.h"
 
+#include <stdint.h>
+#include <util/atomic.h>
 
-// --------------------------------------------------------------------------
+#include "../../inc/MarlinConfigPre.h"
+
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
-#if !WITHIN(SERIAL_PORT, -1, 3)
-  #error "SERIAL_PORT must be from -1 to 3"
+#ifdef SERIAL_USB
+  #define UsbSerial Serial
+  #define MSerial1  Serial1
+  #define MSerial2  Serial2
+  #define MSerial3  Serial3
+  #define MSerial4  Serial4
+  #define MSerial5  Serial5
+#else
+  extern USBSerial SerialUSB;
+  #define UsbSerial SerialUSB
+  #define MSerial1  Serial
+  #define MSerial2  Serial1
+  #define MSerial3  Serial2
+  #define MSerial4  Serial3
+  #define MSerial5  Serial4
+#endif
+
+#if !WITHIN(SERIAL_PORT, -1, 5)
+  #error "SERIAL_PORT must be from -1 to 5"
 #endif
 #if SERIAL_PORT == -1
-  extern USBSerial SerialUSB;
-  #define MYSERIAL0 SerialUSB
+  #define MYSERIAL0 UsbSerial
 #elif SERIAL_PORT == 0
-  #define MYSERIAL0 Serial
+  #error "Serial port 0 does not exist"
 #elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
+  #define MYSERIAL0 MSerial1
 #elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
+  #define MYSERIAL0 MSerial2
 #elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
+  #define MYSERIAL0 MSerial3
+#elif SERIAL_PORT == 4
+  #define MYSERIAL0 MSerial4
+#elif SERIAL_PORT == 5
+  #define MYSERIAL0 MSerial5
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if !WITHIN(SERIAL_PORT_2, -1, 3)
-    #error "SERIAL_PORT_2 must be from -1 to 3"
+  #if !WITHIN(SERIAL_PORT_2, -1, 5)
+    #error "SERIAL_PORT_2 must be from -1 to 5"
   #elif SERIAL_PORT_2 == SERIAL_PORT
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-    extern USBSerial SerialUSB;
-    #define MYSERIAL1 SerialUSB
+    #define MYSERIAL1 UsbSerial
   #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 Serial
+  #error "Serial port 0 does not exist"
   #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 Serial1
+    #define MYSERIAL1 MSerial1
   #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 Serial2
+    #define MYSERIAL1 MSerial2
   #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 Serial3
+    #define MYSERIAL1 MSerial3
+  #elif SERIAL_PORT_2 == 4
+    #define MYSERIAL1 MSerial4
+  #elif SERIAL_PORT_2 == 5
+    #define MYSERIAL1 MSerial5
   #endif
 #else
   #define NUM_SERIAL 1
 #endif
 
-// Use HAL_init() to set interrupt grouping.
-#define HAL_INIT
-void HAL_init();
+// Set interrupt grouping for this MCU
+void HAL_init(void);
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
 #ifndef analogInputToDigitalPin
   #define analogInputToDigitalPin(p) (p)
+#endif
+
+#ifndef digitalPinHasPWM
+  #define digitalPinHasPWM(P) (PIN_MAP[P].timer_device != nullptr)
 #endif
 
 #define CRITICAL_SECTION_START  uint32_t primask = __get_primask(); (void)__iCliRetVal()
@@ -132,22 +148,22 @@ void HAL_init();
 #define RST_SOFTWARE   32
 #define RST_BACKUP     64
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 typedef int8_t pin_t;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 /** result of last ADC conversion */
 extern uint16_t HAL_adc_result;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 // Disable interrupts
 #define cli() noInterrupts()
@@ -159,10 +175,10 @@ extern uint16_t HAL_adc_result;
 #define __bss_end __bss_end__
 
 /** clear reset reason */
-void HAL_clear_reset_source (void);
+void HAL_clear_reset_source(void);
 
 /** reset reason */
-uint8_t HAL_get_reset_source (void);
+uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(const int delay);
 
@@ -180,12 +196,21 @@ static int freeMemory() {
   return top;
 }
 */
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 static int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
+#pragma GCC diagnostic pop
+
+//
 // SPI: Extended functions which take a channel number (hardware SPI only)
+//
+
 /** Write single byte to specified SPI channel */
 void spiSend(uint32_t chan, byte b);
 /** Write buffer to specified SPI channel */
@@ -193,19 +218,22 @@ void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
 /** Read single byte from specified SPI channel */
 uint8_t spiRec(uint32_t chan);
 
-
+//
 // EEPROM
+//
 
 /**
- * TODO: Write all this eeprom stuff. Can emulate eeprom in flash as last resort.
- * Wire library should work for i2c eeproms.
+ * TODO: Write all this EEPROM stuff. Can emulate EEPROM in flash as last resort.
+ * Wire library should work for i2c EEPROMs.
  */
 void eeprom_write_byte(uint8_t *pos, unsigned char value);
 uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block (void *__dst, const void *__src, size_t __n);
-void eeprom_update_block (const void *__src, void *__dst, size_t __n);
+void eeprom_read_block(void *__dst, const void *__src, size_t __n);
+void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
+//
 // ADC
+//
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT_ANALOG);
 
@@ -216,22 +244,10 @@ void HAL_adc_init(void);
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-
 uint16_t HAL_adc_get_result(void);
 
-/* Todo: Confirm none of this is needed.
-uint16_t HAL_getAdcReading(uint8_t chan);
-
-void HAL_startAdcConversion(uint8_t chan);
-uint8_t HAL_pinToAdcChannel(int pin);
-
-uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
-//uint16_t HAL_getAdcSuperSample(uint8_t chan);
-
-void HAL_enable_AdcFreerun(void);
-//void HAL_disable_AdcFreerun(uint8_t chan);
-
-*/
+uint16_t analogRead(pin_t pin); // need HAL_ANALOG_SELECT() first
+void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin

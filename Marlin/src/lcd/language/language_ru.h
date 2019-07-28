@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Парковка X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Парковка Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Парковка Z")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Калибровать Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Нулевое положение")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Нажмите чтобы начать")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Следующая точка")
@@ -79,7 +78,7 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("Выровнять углы")
 #define MSG_NEXT_CORNER                     _UxGT("Следующий угол")
 #define MSG_EDITING_STOPPED                 _UxGT("Ред. сетки завершено")
-#define MSG_USER_MENU                       _UxGT("Свои комманды")
+#define MSG_USER_MENU                       _UxGT("Свои команды")
 
 #define MSG_UBL_DOING_G29                   _UxGT("Выполняем G29")
 #define MSG_UBL_UNHOMED                     _UxGT("Паркуем сначала XYZ")
@@ -169,6 +168,7 @@
 #define MSG_MOVE_Y                          _UxGT("Движение по Y")
 #define MSG_MOVE_Z                          _UxGT("Движение по Z")
 #define MSG_MOVE_E                          _UxGT("Экструдер")
+#define MSG_MOVE_0025MM                     _UxGT("Движение 0.025мм")
 #define MSG_MOVE_01MM                       _UxGT("Движение 0.1мм")
 #define MSG_MOVE_1MM                        _UxGT("Движение 1мм")
 #define MSG_MOVE_10MM                       _UxGT("Движение 10мм")
@@ -184,8 +184,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Макс")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Фактор")
 #define MSG_AUTOTEMP                        _UxGT("Автотемпература")
-#define MSG_ON                              _UxGT("Вкл.")
-#define MSG_OFF                             _UxGT("Выкл.")
+#define MSG_LCD_ON                          _UxGT("Вкл.")
+#define MSG_LCD_OFF                         _UxGT("Выкл.")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -338,7 +338,7 @@
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Закончено")
   #define MSG_INFO_PRINT_TIME               _UxGT("Общее время печати")
   #define MSG_INFO_PRINT_LONGEST            _UxGT("Наидольшее задание")
-  #define MSG_INFO_PRINT_FILAMENT           _UxGT("Длинна филамента")
+  #define MSG_INFO_PRINT_FILAMENT           _UxGT("Длина филамента")
 #else
   #define MSG_INFO_PRINT_COUNT              _UxGT("Отпечатков")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Закончено")

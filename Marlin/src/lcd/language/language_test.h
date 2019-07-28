@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@
 #define STRG_ASCII_2 _UxGT(" !\"#$%&'()*+,-./")
 #define STRG_ASCII_3 _UxGT("0123456789:;<=>?")
 #define STRG_ASCII_4 _UxGT("@ABCDEFGHIJKLMNO")
-#define STRG_ASCII_5 _UxGT("PQRSTUVWXYZ[\]^_")
+#define STRG_ASCII_5 _UxGT("PQRSTUVWXYZ[\\]^_")
 #define STRG_ASCII_6 _UxGT("`abcdefghijklmno")
 #define STRG_ASCII_7 _UxGT("pqrstuvwxyz{|}~")
 

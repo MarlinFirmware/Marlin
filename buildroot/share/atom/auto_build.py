@@ -1,10 +1,11 @@
+#!/usr/bin/env python
 #######################################
 #
 # Marlin 3D Printer Firmware
-# Copyright (C) 2018 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+# Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
 #
 # Based on Sprinter and grbl.
-# Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+# Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -68,6 +69,9 @@
 #
 #######################################
 
+from __future__ import print_function
+from __future__ import division
+
 import sys
 import os
 
@@ -76,26 +80,26 @@ pwd = pwd.replace('\\', '/')
 if 0 <= pwd.find('buildroot/share/atom'):
   pwd = pwd[ : pwd.find('buildroot/share/atom')]
   os.chdir(pwd)
-print 'pwd: ', pwd
+print('pwd: ', pwd)
 
 num_args = len(sys.argv)
 if num_args > 1:
   build_type = str(sys.argv[1])
 else:
-  print 'Please specify build type'
+  print('Please specify build type')
   exit()
 
-print'build_type:  ', build_type
+print('build_type:  ', build_type)
 
-print '\nWorking\n'
+print('\nWorking\n')
 
 python_ver = sys.version_info[0] # major version - 2 or 3
 
 if python_ver == 2:
-  print "python version " + str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2])
+  print("python version " + str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2]))
 else:
-  print "python version " + str(sys.version_info[0])
-  print "This script only runs under python 2"
+  print("python version " + str(sys.version_info[0]))
+  print("This script only runs under python 2")
   exit()
 
 import platform
@@ -105,6 +109,7 @@ current_OS = platform.system()
 target_env = ''
 board_name = ''
 
+from datetime import datetime, date, time
 
 #########
 #  Python 2 error messages:
@@ -543,13 +548,13 @@ def get_CPU_name(environment):
 #  returns: environment
 def get_env(board_name, ver_Marlin):
       def no_environment():
-            print 'ERROR - no environment for this board'
-            print board_name
+            print('ERROR - no environment for this board')
+            print(board_name)
             raise SystemExit(0)                          # no environment so quit
 
       def invalid_board():
-            print 'ERROR - invalid board'
-            print board_name
+            print('ERROR - invalid board')
+            print(board_name)
             raise SystemExit(0)                          # quit if unable to find board
 
 
@@ -600,9 +605,9 @@ def get_env(board_name, ver_Marlin):
               invalid_board()
 
       if build_type == 'traceback' and not(target_env == 'LPC1768_debug_and_upload' or target_env == 'DUE_debug')  and Marlin_ver == 2:
-          print "ERROR - this board isn't setup for traceback"
-          print 'board_name: ', board_name
-          print 'target_env: ', target_env
+          print("ERROR - this board isn't setup for traceback")
+          print('board_name: ', board_name)
+          print('target_env: ', target_env)
           raise SystemExit(0)
 
       return target_env
@@ -824,12 +829,12 @@ def run_PIO(dummy):
     global build_type
     global target_env
     global board_name
-    print 'build_type:  ', build_type
+    print('build_type:  ', build_type)
 
     import subprocess
     import sys
 
-    print 'starting platformio'
+    print('starting platformio')
 
     if   build_type == 'build':
           # platformio run -e  target_env
@@ -880,7 +885,7 @@ def run_PIO(dummy):
 
 
     else:
-          print 'ERROR - unknown build type:  ', build_type
+          print('ERROR - unknown build type:  ', build_type)
           raise SystemExit(0)     # kill everything
 
   # stream output from subprocess and split it into lines
@@ -892,6 +897,8 @@ def run_PIO(dummy):
     write_to_screen_queue('\nBoard name: ' + board_name  + '\n')  # put build info at the bottom of the screen
     write_to_screen_queue('Build type: ' + build_type  + '\n')
     write_to_screen_queue('Environment used: ' + target_env  + '\n')
+    write_to_screen_queue(str(datetime.now()) + '\n')
+
 # end - run_PIO
 
 
@@ -940,7 +947,7 @@ class output_window(Text):
         Text.__init__(self, self.frame, borderwidth=3, relief="sunken")
         self.config(tabs=(400,))  # configure Text widget tab stops
         self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'word', undo = 'True')
-#        self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
+        #self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
         self.config(height  = 24, width = 100)
         self.config(insertbackground = 'pale green')  # keyboard insertion point
         self.pack(side='left', fill='both', expand=True)
@@ -963,24 +970,24 @@ class output_window(Text):
         self.config(yscrollcommand=scrb.set)
         scrb.pack(side='right', fill='y')
 
-#        self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
-#        self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
-#        self.scrb_Y.pack(side='right', fill='y')
-#
-#        self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
-#        self.scrb_X.config(xscrollcommand=self.scrb_X.set)
-#        self.scrb_X.pack(side='bottom', fill='x')
+        #self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
+        #self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
+        #self.scrb_Y.pack(side='right', fill='y')
 
-#        scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
-#        self.config(xscrollcommand=scrb_X.set)
-#        scrb_X.pack(side='bottom', fill='x')
-#
-#        scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
-#        self.config(yscrollcommand=scrb.set)
-#        scrb.pack(side='right', fill='y')
+        #self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
+        #self.scrb_X.config(xscrollcommand=self.scrb_X.set)
+        #self.scrb_X.pack(side='bottom', fill='x')
 
-#        self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
-#        self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
+        #scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
+        #self.config(xscrollcommand=scrb_X.set)
+        #scrb_X.pack(side='bottom', fill='x')
+
+        #scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
+        #self.config(yscrollcommand=scrb.set)
+        #scrb.pack(side='right', fill='y')
+
+        #self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
+        #self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
 
 
         # pop-up menu
@@ -996,7 +1003,7 @@ class output_window(Text):
         self.popup.add_separator()
         self.popup.add_command(label='Save As', command=self._file_save_as)
         self.popup.add_separator()
- #       self.popup.add_command(label='Repeat Build(CTL-shift-r)', command=self._rebuild)
+        #self.popup.add_command(label='Repeat Build(CTL-shift-r)', command=self._rebuild)
         self.popup.add_command(label='Repeat Build', command=self._rebuild)
         self.popup.add_separator()
         self.popup.add_command(label='Scroll Errors (CTL-shift-e)', command=self._scroll_errors)
@@ -1096,7 +1103,7 @@ class output_window(Text):
         self.start_thread()
 
     def rebuild(self, event):
-        print "event happened"
+        print("event happened")
         self._rebuild()
 
 
@@ -1192,12 +1199,13 @@ class output_window(Text):
 
 
     def _clear_all(self):
-        '''erases all text'''
-
-        isok = askokcancel('Clear All', 'Erase all text?', frame=self,
-                           default='ok')
-        if isok:
-            self.delete('1.0', 'end')
+        #'''erases all text'''
+        #
+        #isok = askokcancel('Clear All', 'Erase all text?', frame=self,
+        #                   default='ok')
+        #if isok:
+        #    self.delete('1.0', 'end')
+        self.delete('1.0', 'end')
 
 
 # end - output_window

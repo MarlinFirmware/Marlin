@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+#if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
 
 #include "../gcode.h"
 
@@ -31,35 +31,25 @@
   #include "../../module/delta.h"
   #include "../../module/motion.h"
 
+  #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+  #include "../../core/debug_out.h"
+
   /**
    * M666: Set delta endstop adjustment
    */
   void GcodeSuite::M666() {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM(">>> M666");
-      }
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> M666");
     LOOP_XYZ(i) {
       if (parser.seen(axis_codes[i])) {
         const float v = parser.value_linear_units();
         if (v * Z_HOME_DIR <= 0) delta_endstop_adj[i] = v;
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("delta_endstop_adj[", axis_codes[i]);
-            SERIAL_ECHOLNPAIR("] = ", delta_endstop_adj[i]);
-          }
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", axis_codes[i], "] = ", delta_endstop_adj[i]);
       }
     }
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM("<<< M666");
-      }
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< M666");
   }
 
-#elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+#elif HAS_EXTRA_ENDSTOPS
 
   #include "../../module/endstops.h"
 
@@ -107,6 +97,6 @@
     }
   }
 
-#endif // X_DUAL_ENDSTOPS || Y_DUAL_ENDSTOPS || Z_DUAL_ENDSTOPS
+#endif // HAS_EXTRA_ENDSTOPS
 
-#endif // DELTA || X_DUAL_ENDSTOPS || Y_DUAL_ENDSTOPS || Z_DUAL_ENDSTOPS
+#endif // DELTA || HAS_EXTRA_ENDSTOPS

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Паркування X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Паркування Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Паркування Z")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Калібрування Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Паркування XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Почати")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Слідуюча Точка")
@@ -73,6 +72,7 @@
 #define MSG_MOVE_Y                          _UxGT("Рух по Y")
 #define MSG_MOVE_Z                          _UxGT("Рух по Z")
 #define MSG_MOVE_E                          _UxGT("Екструдер")
+#define MSG_MOVE_0025MM                     _UxGT("Рух по 0.025mm")
 #define MSG_MOVE_01MM                       _UxGT("Рух по 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Рух по 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Рух по 10mm")
@@ -87,8 +87,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Макс")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Факт")
 #define MSG_AUTOTEMP                        _UxGT("Автотемпер.")
-#define MSG_ON                              _UxGT("Увімк.")
-#define MSG_OFF                             _UxGT("Вимк. ")
+#define MSG_LCD_ON                          _UxGT("Увімк.")
+#define MSG_LCD_OFF                         _UxGT("Вимк.")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")

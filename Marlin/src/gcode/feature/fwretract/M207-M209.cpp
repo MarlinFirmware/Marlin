@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,16 +45,16 @@ void GcodeSuite::M207() {
 /**
  * M208: Set firmware un-retraction values
  *
- *   S[+units]    retract_recover_length (in addition to M207 S*)
- *   W[+units]    swap_retract_recover_length (multi-extruder)
+ *   S[+units]    retract_recover_extra (in addition to M207 S*)
+ *   W[+units]    swap_retract_recover_extra (multi-extruder)
  *   F[units/min] retract_recover_feedrate_mm_s
  *   R[units/min] swap_retract_recover_feedrate_mm_s
  */
 void GcodeSuite::M208() {
-  if (parser.seen('S')) fwretract.settings.retract_recover_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('S')) fwretract.settings.retract_recover_extra = parser.value_axis_units(E_AXIS);
   if (parser.seen('F')) fwretract.settings.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
   if (parser.seen('R')) fwretract.settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('W')) fwretract.settings.swap_retract_recover_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('W')) fwretract.settings.swap_retract_recover_extra = parser.value_axis_units(E_AXIS);
 }
 
 #if ENABLED(FWRETRACT_AUTORETRACT)

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("X 홈으로")
 #define MSG_AUTO_HOME_Y                     _UxGT("Y 홈으로")
 #define MSG_AUTO_HOME_Z                     _UxGT("Z 홈으로")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Z 캘리브레이션")
 #define MSG_LEVEL_BED_HOMING                _UxGT("XYZ 홈으로")
 #define MSG_LEVEL_BED_WAITING               _UxGT("누르면 시작합니다")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("다음 Point")
@@ -89,12 +88,11 @@
 #define MSG_IDEX_MENU                       _UxGT("IDEX Mode")
 #define MSG_IDEX_MODE_AUTOPARK              _UxGT("Auto-Park")
 #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplication")
-#define MSG_IDEX_MODE_SCALED_COPY           _UxGT("Scaled copy")
+#define MSG_IDEX_MODE_MIRRORED_COPY         _UxGT("미러 사본")
 #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Full control")
-#define MSG_IDEX_X_OFFSET                   _UxGT("2nd nozzle X")
-#define MSG_IDEX_Y_OFFSET                   _UxGT("2nd nozzle Y")
-#define MSG_IDEX_Z_OFFSET                   _UxGT("2nd nozzle Z")
-#define MSG_IDEX_SAVE_OFFSETS               _UxGT("Save Offsets")
+#define MSG_X_OFFSET                        _UxGT("2nd nozzle X")
+#define MSG_Y_OFFSET                        _UxGT("2nd nozzle Y")
+#define MSG_Z_OFFSET                        _UxGT("2nd nozzle Z")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Manually Build Mesh")
 #define MSG_UBL_BC_INSERT                   _UxGT("Place shim & measure")
 #define MSG_UBL_BC_INSERT2                  _UxGT("Measure")
@@ -179,6 +177,7 @@
 #define MSG_MOVE_Y                          _UxGT("Move Y")
 #define MSG_MOVE_Z                          _UxGT("Move Z")
 #define MSG_MOVE_E                          _UxGT("Extruder")
+#define MSG_MOVE_0025MM                     _UxGT("Move 0.025mm")
 #define MSG_MOVE_01MM                       _UxGT("Move 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Move 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Move 10mm")
@@ -194,8 +193,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Autotemp")
-#define MSG_ON                              _UxGT("On ")
-#define MSG_OFF                             _UxGT("Off")
+#define MSG_LCD_ON                          _UxGT("On")
+#define MSG_LCD_OFF                         _UxGT("Off")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -259,7 +258,7 @@
 #define MSG_PAUSE_PRINT                     _UxGT("일시정지")
 #define MSG_RESUME_PRINT                    _UxGT("재시작")
 #define MSG_STOP_PRINT                      _UxGT("출력중지")
-#define MSG_POWER_LOSS_RECOVERY             _UxGT("Power-Loss Recovery")
+#define MSG_OUTAGE_RECOVERY                 _UxGT("Outage Recovery")
 #define MSG_CARD_MENU                       _UxGT("SD 카드출력")
 #define MSG_NO_CARD                         _UxGT("SD 카드없음")
 #define MSG_DWELL                           _UxGT("슬립모드...")
@@ -373,7 +372,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Purge more")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Continue")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozzle: ")
-#define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Runout Sensor")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Runout Sensor")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Homing failed")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Probing failed")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: Too cold")

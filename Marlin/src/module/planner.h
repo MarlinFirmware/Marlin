@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,7 +114,7 @@ typedef struct block_t {
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
-    MIXER_BLOCK_DEFINITION;                 // Normalized color for the mixing steppers
+    MIXER_BLOCK_FIELD;                      // Normalized color for the mixing steppers
   #endif
 
   // Settings for the trapezoid generator
@@ -159,7 +159,7 @@ typedef struct block_t {
 
 } block_t;
 
-#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || ENABLED(SCARA_FEEDRATE_SCALING))
+#define HAS_POSITION_FLOAT ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX)
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
@@ -175,13 +175,9 @@ typedef struct {
         min_travel_feedrate_mm_s;               // (mm/s) M205 T - Minimum travel feedrate
 } planner_settings_t;
 
-#ifndef XY_SKEW_FACTOR
+#if DISABLED(SKEW_CORRECTION)
   #define XY_SKEW_FACTOR 0
-#endif
-#ifndef XZ_SKEW_FACTOR
   #define XZ_SKEW_FACTOR 0
-#endif
-#ifndef YZ_SKEW_FACTOR
   #define YZ_SKEW_FACTOR 0
 #endif
 
@@ -257,7 +253,7 @@ class Planner {
 
     #if HAS_CLASSIC_JERK
       static float max_jerk[
-        #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+        #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
           XYZ                                    // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
         #else
           XYZE                                   // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
@@ -291,7 +287,7 @@ class Planner {
 
     static skew_factor_t skew_factor;
 
-    #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
+    #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       static bool abort_on_endstop_hit;
     #endif
 
@@ -739,7 +735,7 @@ class Planner {
       if (cleaning_buffer_counter) {
         --cleaning_buffer_counter;
         #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
-          if (!cleaning_buffer_counter) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+          if (!cleaning_buffer_counter) queue.inject_P(PSTR(SD_FINISHED_RELEASECOMMAND));
         #endif
       }
     }
@@ -750,7 +746,7 @@ class Planner {
     FORCE_INLINE static bool has_blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
     /**
-     * The current block. NULL if the buffer is empty.
+     * The current block. nullptr if the buffer is empty.
      * This also marks the block as busy.
      * WARNING: Called from Stepper ISR context!
      */
@@ -767,7 +763,7 @@ class Planner {
           --delay_before_delivering;
           // If the number of movements queued is less than 3, and there is still time
           //  to wait, do not deliver anything
-          if (nr_moves < 3 && delay_before_delivering) return NULL;
+          if (nr_moves < 3 && delay_before_delivering) return nullptr;
           delay_before_delivering = 0;
         }
 
@@ -775,7 +771,7 @@ class Planner {
         block_t * const block = &block_buffer[block_buffer_tail];
 
         // No trapezoid calculated? Don't execute yet.
-        if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return NULL;
+        if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return nullptr;
 
         #if ENABLED(ULTRA_LCD)
           block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
@@ -797,7 +793,7 @@ class Planner {
         clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
       #endif
 
-      return NULL;
+      return nullptr;
     }
 
     /**
@@ -861,12 +857,12 @@ class Planner {
       static void autotemp_M104_M109();
     #endif
 
-    #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+    #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
       FORCE_INLINE static void recalculate_max_e_jerk() {
         #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)
           for (uint8_t i = 0; i < EXTRUDERS; i++)
-            max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS + i]);
+            max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]);
         #else
           max_e_jerk = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS]);
         #endif
@@ -952,6 +948,6 @@ class Planner {
     #endif // JUNCTION_DEVIATION
 };
 
-#define PLANNER_XY_FEEDRATE() (MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]))
+#define PLANNER_XY_FEEDRATE() (_MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]))
 
 extern Planner planner;

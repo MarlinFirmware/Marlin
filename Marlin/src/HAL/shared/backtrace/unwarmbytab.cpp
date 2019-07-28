@@ -47,17 +47,17 @@ static const UnwTabEntry *UnwTabSearchIndex(const UnwTabEntry *start, const UnwT
 }
 
 /*
- * Get the function name or NULL if not found
+ * Get the function name or nullptr if not found
  */
 static const char *UnwTabGetFunctionName(const UnwindCallbacks *cb, uint32_t address) {
   uint32_t flag_word = 0;
   if (!cb->readW(address-4,&flag_word))
-    return NULL;
+    return nullptr;
 
   if ((flag_word & 0xFF000000) == 0xFF000000) {
     return (const char *)(address - 4 - (flag_word & 0x00FFFFFF));
   }
-  return NULL;
+  return nullptr;
 }
 
 /**

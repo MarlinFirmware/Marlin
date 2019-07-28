@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,92 +30,147 @@
 
 #include "menu.h"
 #include "../../module/temperature.h"
+#include "../../gcode/queue.h"
+#include "../../module/printcounter.h"
+#include "../../module/stepper.h"
+#include "../../sd/cardreader.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_GAMES && DISABLED(LCD_INFO_MENU)
+  #include "game/game.h"
+#endif
 
-  #include "../../sd/cardreader.h"
-  #include "../../gcode/queue.h"
-  #include "../../module/printcounter.h"
+#define MACHINE_CAN_STOP (EITHER(SDSUPPORT, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL))
+#define MACHINE_CAN_PAUSE (ANY(SDSUPPORT, HOST_PROMPT_SUPPORT, PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE))
 
-  void lcd_sdcard_pause() {
-    card.pauseSDPrint();
-    print_job_timer.pause();
-    #if ENABLED(PARK_HEAD_ON_PAUSE)
-      enqueue_and_echo_commands_P(PSTR("M125"));
-    #endif
-    ui.reset_status();
+#if MACHINE_CAN_STOP
+  void menu_abort_confirm() {
+    do_select_screen(PSTR(MSG_BUTTON_STOP), PSTR(MSG_BACK), ui.abort_print, ui.goto_previous_screen, PSTR(MSG_STOP_PRINT), nullptr, PSTR("?"));
   }
+#endif // MACHINE_CAN_STOP
 
-  void lcd_sdcard_resume() {
-    #if ENABLED(PARK_HEAD_ON_PAUSE)
-      enqueue_and_echo_commands_P(PSTR("M24"));
-    #else
-      card.startFileprint();
-      print_job_timer.start();
-    #endif
-    ui.reset_status();
-  }
-
-  void lcd_sdcard_stop() {
-    wait_for_heatup = wait_for_user = false;
-    card.abort_sd_printing = true;
-    ui.setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
-    ui.return_to_status();
-  }
-
-  #if ENABLED(MENU_ADDAUTOSTART)
-
-    void lcd_autostart_sd() { card.beginautostart(); }
-
-  #endif
-
-#endif // SDSUPPORT
+#if ENABLED(PRUSA_MMU2)
+  #include "../../lcd/menu/menu_mmu2.h"
+#endif
 
 void menu_tune();
 void menu_motion();
 void menu_temperature();
 void menu_configuration();
-void menu_user();
-void menu_temp_e0_filament_change();
-void menu_change_filament();
-void menu_info();
-void menu_led();
+
+#if ENABLED(CUSTOM_USER_MENUS)
+  void menu_user();
+#endif
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void menu_temp_e0_filament_change();
+  void menu_change_filament();
+#endif
+
+#if ENABLED(LCD_INFO_MENU)
+  void menu_info();
+#endif
+
+#if ENABLED(LED_CONTROL_MENU)
+  void menu_led();
+#endif
+
+#if HAS_CUTTER
+  #include "../../feature/spindle_laser.h"
+  void menu_spindle_laser();
+#endif
+
+#if ENABLED(MIXING_EXTRUDER)
+  void menu_mixer();
+#endif
+
+#if HAS_SERVICE_INTERVALS && ENABLED(PRINTCOUNTER)
+  #if SERVICE_INTERVAL_1 > 0
+    void menu_service1();
+  #endif
+  #if SERVICE_INTERVAL_2 > 0
+    void menu_service2();
+  #endif
+  #if SERVICE_INTERVAL_3 > 0
+    void menu_service3();
+  #endif
+#endif
 
 void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
 
-  #if ENABLED(SDSUPPORT)
-    if (card.cardOK) {
-      if (card.isFileOpen()) {
-        if (IS_SD_PRINTING())
-          MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
-        else
-          MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
-        MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
+  const bool busy = IS_SD_PRINTING() || print_job_timer.isRunning()
+    #if ENABLED(SDSUPPORT)
+      , card_detected = card.isDetected()
+      , card_open = card_detected && card.isFileOpen()
+    #endif
+  ;
+
+  if (busy) {
+    #if MACHINE_CAN_PAUSE
+      MENU_ITEM(function, MSG_PAUSE_PRINT, ui.pause_print);
+    #endif
+    #if MACHINE_CAN_STOP
+      MENU_ITEM(submenu, MSG_STOP_PRINT, menu_abort_confirm);
+    #endif
+    MENU_ITEM(submenu, MSG_TUNE, menu_tune);
+  }
+  else {
+    #if !HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
+      //
+      // Autostart
+      //
+      #if ENABLED(MENU_ADDAUTOSTART)
+        if (!busy) MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
+      #endif
+
+      if (card_detected) {
+        if (!card_open) {
+          MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
+          MENU_ITEM(gcode,
+            #if PIN_EXISTS(SD_DETECT)
+              MSG_CHANGE_SDCARD, PSTR("M21")
+            #else
+              MSG_RELEASE_SDCARD, PSTR("M22")
+            #endif
+          );
+        }
       }
       else {
-        MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
-        #if !PIN_EXISTS(SD_DETECT)
-          MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
+        #if PIN_EXISTS(SD_DETECT)
+          MENU_ITEM(function, MSG_NO_CARD, nullptr);
+        #else
+          MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));
+          MENU_ITEM(function, MSG_SD_RELEASED, nullptr);
         #endif
       }
-    }
-    else {
-      MENU_ITEM(submenu, MSG_NO_CARD, menu_sdcard);
-      #if !PIN_EXISTS(SD_DETECT)
-        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
-      #endif
-    }
-  #endif // SDSUPPORT
+    #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
-  const bool busy = printer_busy();
-  if (busy)
-    MENU_ITEM(submenu, MSG_TUNE, menu_tune);
-  else {
+    #if MACHINE_CAN_PAUSE
+      const bool paused = (print_job_timer.isPaused()
+        #if ENABLED(SDSUPPORT)
+          || card.isPaused()
+        #endif
+      );
+      if (paused) MENU_ITEM(function, MSG_RESUME_PRINT, ui.resume_print);
+    #endif
+
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
-    MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
   }
+
+  #if HAS_CUTTER
+    MENU_ITEM(submenu, MSG_CUTTER(MENU), menu_spindle_laser);
+  #endif
+
+  MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
+
+  #if ENABLED(MIXING_EXTRUDER)
+    MENU_ITEM(submenu, MSG_MIXER, menu_mixer);
+  #endif
+
+  #if ENABLED(MMU2_MENUS)
+    if (!busy) MENU_ITEM(submenu, MSG_MMU2_MENU, menu_mmu2);
+  #endif
 
   MENU_ITEM(submenu, MSG_CONFIGURATION, menu_configuration);
 
@@ -152,12 +207,62 @@ void menu_main() {
       MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 
-  //
-  // Autostart
-  //
-  #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
-    if (!busy)
-      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
+  #if HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
+    //
+    // Autostart
+    //
+    #if ENABLED(MENU_ADDAUTOSTART)
+      if (!busy) MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
+    #endif
+
+    if (card_detected) {
+      if (!card_open) {
+        MENU_ITEM(gcode,
+          #if PIN_EXISTS(SD_DETECT)
+            MSG_CHANGE_SDCARD, PSTR("M21")
+          #else
+            MSG_RELEASE_SDCARD, PSTR("M22")
+          #endif
+        );
+        MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
+      }
+    }
+    else {
+      #if PIN_EXISTS(SD_DETECT)
+        MENU_ITEM(function, MSG_NO_CARD, nullptr);
+      #else
+        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));
+        MENU_ITEM(function, MSG_SD_RELEASED, nullptr);
+      #endif
+    }
+  #endif // HAS_ENCODER_WHEEL && SDSUPPORT
+
+  #if HAS_SERVICE_INTERVALS && ENABLED(PRINTCOUNTER)
+    #if SERVICE_INTERVAL_1 > 0
+      MENU_ITEM(submenu, SERVICE_NAME_1, menu_service1);
+    #endif
+    #if SERVICE_INTERVAL_2 > 0
+      MENU_ITEM(submenu, SERVICE_NAME_2, menu_service2);
+    #endif
+    #if SERVICE_INTERVAL_3 > 0
+      MENU_ITEM(submenu, SERVICE_NAME_3, menu_service3);
+    #endif
+  #endif
+
+  #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
+    MENU_ITEM(submenu, "Game", (
+      #if HAS_GAME_MENU
+        menu_game
+      #elif ENABLED(MARLIN_BRICKOUT)
+        brickout.enter_game
+      #elif ENABLED(MARLIN_INVADERS)
+        invaders.enter_game
+      #elif ENABLED(MARLIN_SNAKE)
+        snake.enter_game
+      #elif ENABLED(MARLIN_MAZE)
+        maze.enter_game
+      #endif
+    ));
   #endif
 
   END_MENU();

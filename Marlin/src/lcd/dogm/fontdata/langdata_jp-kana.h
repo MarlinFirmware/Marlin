@@ -95,7 +95,7 @@ const u8g_fntpgm_uint8_t fontpage_97_252_252[24] U8G_FONT_SECTION("fontpage_97_2
   0x00,0x06,0x0c,0x00,0xfe,0x00,0x00,0x00,0x00,0x00,0xfc,0xfc,0x00,0x03,0x00,0x00,
   0x00,0x05,0x01,0x01,0x06,0x00,0x02,0xf8};
 
-#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
+#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
     FONTDATA_ITEM(97, 161, 164, fontpage_97_161_164), // 'ァ' -- 'イ'
     FONTDATA_ITEM(97, 166, 166, fontpage_97_166_166), // 'ウ' -- 'ウ'

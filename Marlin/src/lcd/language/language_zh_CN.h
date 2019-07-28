@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("回X原位")  //"Home X"
 #define MSG_AUTO_HOME_Y                     _UxGT("回Y原位")  //"Home Y"
 #define MSG_AUTO_HOME_Z                     _UxGT("回Z原位")  //"Home Z"
-#define MSG_TMC_Z_CALIBRATION               _UxGT("⊿校准Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("平台调平XYZ归原位")  //"Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               _UxGT("单击开始热床调平")  //"Click to Begin"
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("下个热床调平点")  //"Next Point"
@@ -165,6 +164,7 @@
 #define MSG_MOVE_Y                          _UxGT("移动Y")  //"Move Y"
 #define MSG_MOVE_Z                          _UxGT("移动Z")  //"Move Z"
 #define MSG_MOVE_E                          _UxGT("挤出机")  //"Extruder"
+#define MSG_MOVE_0025MM                     _UxGT("移动 0.025 mm")  //"Move 0.025mm"
 #define MSG_MOVE_01MM                       _UxGT("移动 0.1 mm")  //"Move 0.1mm"
 #define MSG_MOVE_1MM                        _UxGT("移动 1 mm")  //"Move 1mm"
 #define MSG_MOVE_10MM                       _UxGT("移动 10 mm")  //"Move 10mm"
@@ -180,8 +180,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 最大")  //" " LCD_STR_THERMOMETER " Max"
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 因数")  //" " LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        _UxGT("自动控温")  //"Autotemp"
-#define MSG_ON                              _UxGT("开 ")  //"On "
-#define MSG_OFF                             _UxGT("关 ")  //"Off"
+#define MSG_LCD_ON                          _UxGT("开")  //"On"
+#define MSG_LCD_OFF                         _UxGT("关")  //"Off"
 #define MSG_PID_P                           _UxGT("PID-P")  //"PID-P"
 #define MSG_PID_I                           _UxGT("PID-I")  //"PID-I"
 #define MSG_PID_D                           _UxGT("PID-D")  //"PID-D"
@@ -257,8 +257,8 @@
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("换手回抽长度mm")  //"Swap Re.mm" swap_retract_length, swap retract length (positive mm), for extruder change
 #define MSG_CONTROL_RETRACTF                _UxGT("回抽速率mm/s")  //"Retract  V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
 #define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Hop mm")  //"Hop mm" retract_zraise, retract Z-lift
-#define MSG_CONTROL_RETRACT_RECOVER         _UxGT("回抽恢复长度mm")  //"UnRet +mm" retract_recover_length, additional recover length (mm, added to retract length when recovering)
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("换手回抽恢复长度mm")  //"S UnRet+mm" swap_retract_recover_length, additional swap recover length (mm, added to retract length when recovering from extruder change)
+#define MSG_CONTROL_RETRACT_RECOVER         _UxGT("回抽恢复长度mm")  //"UnRet +mm" retract_recover_extra, additional recover length (mm, added to retract length when recovering)
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("换手回抽恢复长度mm")  //"S UnRet+mm" swap_retract_recover_extra, additional swap recover length (mm, added to retract length when recovering from extruder change)
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("回抽恢复后进料速率mm/s")  //"UnRet  V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
 #define MSG_CONTROL_RETRACT_RECOVER_SWAPF   _UxGT("S UnRet V") // "S UnRet V"
 #define MSG_AUTORETRACT                     _UxGT("自动抽回")  //"AutoRetr." autoretract_enabled,

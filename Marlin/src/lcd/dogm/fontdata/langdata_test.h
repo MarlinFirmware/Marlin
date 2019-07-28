@@ -217,7 +217,7 @@ const u8g_fntpgm_uint8_t fontpage_97_193_255[753] U8G_FONT_SECTION("fontpage_97_
   0x28,0x80,0x60,0x10,0x08,0x05,0x06,0x06,0x06,0x00,0x00,0xf8,0x08,0x08,0x08,0x08,
   0x08};
 
-#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
+#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
     FONTDATA_ITEM(8, 128, 255, fontpage_8_128_255), // 'Ѐ' -- 'ѿ'
     FONTDATA_ITEM(97, 129, 191, fontpage_97_129_191), // 'め' -- 'タ'

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 
 #if ENABLED(SPI_EEPROM)
 
-#include HAL_PATH(.., HAL.h)
+#include "../HAL.h"
 
 #define CMD_WREN  6   // WREN
 #define CMD_READ  2   // WRITE
@@ -115,5 +115,4 @@ void eeprom_update_block(const void* src, void* eeprom_address, size_t n) {
   delay(7);   // wait for page write to complete
 }
 
-
-#endif // ENABLED(SPI_EEPROM)
+#endif // SPI_EEPROM

@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifdef ARDUINO_ARCH_STM32
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -28,20 +28,20 @@
 
 #include "../shared/persistent_store_api.h"
 
-#if DISABLED(EEPROM_EMULATED_WITH_SRAM) && DISABLED(SPI_EEPROM) && DISABLED(I2C_EEPROM)
+#if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
   #include <EEPROM.h>
   static bool eeprom_data_written = false;
 #endif
 
 bool PersistentStore::access_start() {
-  #if DISABLED(EEPROM_EMULATED_WITH_SRAM) && DISABLED(SPI_EEPROM) && DISABLED(I2C_EEPROM)
+  #if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
     eeprom_buffer_fill();
   #endif
   return true;
 }
 
 bool PersistentStore::access_finish() {
-  #if DISABLED(EEPROM_EMULATED_WITH_SRAM) && DISABLED(SPI_EEPROM) && DISABLED(I2C_EEPROM)
+  #if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
     if (eeprom_data_written) {
       eeprom_buffer_flush();
       eeprom_data_written = false;
@@ -55,19 +55,18 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     uint8_t v = *value;
 
     // Save to either external EEPROM, program flash or Backup SRAM
-    #if ENABLED(SPI_EEPROM) || ENABLED(I2C_EEPROM)
+    #if EITHER(SPI_EEPROM, I2C_EEPROM)
       // EEPROM has only ~100,000 write cycles,
       // so only write bytes that have changed!
       uint8_t * const p = (uint8_t * const)pos;
       if (v != eeprom_read_byte(p)) {
         eeprom_write_byte(p, v);
         if (eeprom_read_byte(p) != v) {
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+          SERIAL_ECHO_MSG(MSG_ERR_EEPROM_WRITE);
           return true;
         }
       }
-    #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
+    #elif DISABLED(SRAM_EEPROM_EMULATION)
       eeprom_buffered_write_byte(pos, v);
     #else
       *(__IO uint8_t *)(BKPSRAM_BASE + (uint8_t * const)pos) = v;
@@ -77,20 +76,20 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     pos++;
     value++;
   };
-  #if DISABLED(EEPROM_EMULATED_WITH_SRAM) && DISABLED(SPI_EEPROM) && DISABLED(I2C_EEPROM)
+  #if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
     eeprom_data_written = true;
   #endif
 
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing) {
+bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     // Read from either external EEPROM, program flash or Backup SRAM
     const uint8_t c = (
-      #if ENABLED(SPI_EEPROM) || ENABLED(I2C_EEPROM)
+      #if EITHER(SPI_EEPROM, I2C_EEPROM)
         eeprom_read_byte((uint8_t*)pos)
-      #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
+      #elif DISABLED(SRAM_EEPROM_EMULATION)
         eeprom_buffered_read_byte(pos)
       #else
         (*(__IO uint8_t *)(BKPSRAM_BASE + ((uint8_t*)pos)))
@@ -106,9 +105,9 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 }
 
 size_t PersistentStore::capacity() {
-  #if ENABLED(SPI_EEPROM) || ENABLED(I2C_EEPROM)
+  #if EITHER(SPI_EEPROM, I2C_EEPROM)
     return E2END + 1;
-  #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
+  #elif DISABLED(SRAM_EEPROM_EMULATION)
     return E2END + 1;
   #else
     return 4096; // 4kB
@@ -116,4 +115,4 @@ size_t PersistentStore::capacity() {
 }
 
 #endif // EEPROM_SETTINGS
-#endif // ARDUINO_ARCH_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

@@ -16,7 +16,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
  - ISO10646_Kana.fon ([fe2bd23](https://github.com/MarlinFirmware/Marlin/commit/fe2bd237d556439499dfdee852c1550c7a16430a))
  - Marlin_symbols.fon ([fe2bd23](https://github.com/MarlinFirmware/Marlin/commit/fe2bd237d556439499dfdee852c1550c7a16430a))
 
-Additional changes to the original font files being distritubted with Marlin are copyrighted under the terms of the [GPLv3](http://www.gnu.org/licenses/gpl-3.0.txt) license.
+Additional changes to the original font files distributed with Marlin are copyrighted under the terms of the [GPLv3](http://www.gnu.org/licenses/gpl-3.0.txt) license.
 
 
 ## Documentation

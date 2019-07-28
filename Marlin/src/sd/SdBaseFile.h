@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 
 /**
  * Arduino SdFat Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
@@ -108,7 +108,7 @@ static inline uint16_t FAT_YEAR(uint16_t fatDate) { return 1980 + (fatDate >> 9)
  *
  * \return Extracted month [1,12]
  */
-static inline uint8_t FAT_MONTH(uint16_t fatDate) { return (fatDate >> 5) & 0XF; }
+static inline uint8_t FAT_MONTH(uint16_t fatDate) { return (fatDate >> 5) & 0xF; }
 
 /**
  * day part of FAT directory date field

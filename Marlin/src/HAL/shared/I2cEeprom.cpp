@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,50 +29,18 @@
 
 #if ENABLED(I2C_EEPROM)
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
-#include HAL_PATH(.., HAL.h)
+#include "../HAL.h"
 #include <Wire.h>
 
-// --------------------------------------------------------------------------
-// Externals
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Local defines
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Types
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Public Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Private Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Function prototypes
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Private functions
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 static uint8_t eeprom_device_address = 0x50;
+
+// ------------------------
+// Public functions
+// ------------------------
 
 static void eeprom_init(void) {
   static bool eeprom_initialized = false;
@@ -87,7 +55,7 @@ void eeprom_write_byte(uint8_t *pos, unsigned char value) {
 
   eeprom_init();
 
-  Wire.beginTransmission(eeprom_device_address);
+  Wire.beginTransmission(I2C_ADDRESS(eeprom_device_address));
   Wire.write((int)(eeprom_address >> 8));   // MSB
   Wire.write((int)(eeprom_address & 0xFF)); // LSB
   Wire.write(value);
@@ -103,7 +71,7 @@ void eeprom_write_byte(uint8_t *pos, unsigned char value) {
 void eeprom_update_block(const void *pos, void* eeprom_address, size_t n) {
   eeprom_init();
 
-  Wire.beginTransmission(eeprom_device_address);
+  Wire.beginTransmission(I2C_ADDRESS(eeprom_device_address));
   Wire.write((int)((unsigned)eeprom_address >> 8));   // MSB
   Wire.write((int)((unsigned)eeprom_address & 0xFF)); // LSB
   Wire.endTransmission();
@@ -115,7 +83,7 @@ void eeprom_update_block(const void *pos, void* eeprom_address, size_t n) {
     flag |= Wire.read() ^ ptr[c];
 
   if (flag) {
-    Wire.beginTransmission(eeprom_device_address);
+    Wire.beginTransmission(I2C_ADDRESS(eeprom_device_address));
     Wire.write((int)((unsigned)eeprom_address >> 8));   // MSB
     Wire.write((int)((unsigned)eeprom_address & 0xFF)); // LSB
     Wire.write((uint8_t*)pos, n);
@@ -127,14 +95,12 @@ void eeprom_update_block(const void *pos, void* eeprom_address, size_t n) {
   }
 }
 
-
 uint8_t eeprom_read_byte(uint8_t *pos) {
-  byte data = 0xFF;
   unsigned eeprom_address = (unsigned)pos;
 
   eeprom_init();
 
-  Wire.beginTransmission(eeprom_device_address);
+  Wire.beginTransmission(I2C_ADDRESS(eeprom_device_address));
   Wire.write((int)(eeprom_address >> 8));   // MSB
   Wire.write((int)(eeprom_address & 0xFF)); // LSB
   Wire.endTransmission();
@@ -142,11 +108,11 @@ uint8_t eeprom_read_byte(uint8_t *pos) {
   return Wire.available() ? Wire.read() : 0xFF;
 }
 
-// maybe let's not read more than 30 or 32 bytes at a time!
+// Don't read more than 30..32 bytes at a time!
 void eeprom_read_block(void* pos, const void* eeprom_address, size_t n) {
   eeprom_init();
 
-  Wire.beginTransmission(eeprom_device_address);
+  Wire.beginTransmission(I2C_ADDRESS(eeprom_device_address));
   Wire.write((int)((unsigned)eeprom_address >> 8));   // MSB
   Wire.write((int)((unsigned)eeprom_address & 0xFF)); // LSB
   Wire.endTransmission();

@@ -1,10 +1,10 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (C) 2017 Victor Perez
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,37 +20,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifdef ARDUINO_ARCH_STM32
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
 
 #include "../../inc/MarlinConfig.h"
 
 #include <SPI.h>
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 static SPISettings spiConfig;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 #if ENABLED(SOFTWARE_SPI)
-  // --------------------------------------------------------------------------
+  // ------------------------
   // Software SPI
-  // --------------------------------------------------------------------------
+  // ------------------------
   #error "Software SPI not supported for STM32. Use Hardware SPI."
 
 #else
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Hardware SPI
-// --------------------------------------------------------------------------
+// ------------------------
 
 /**
  * VGPV SPI speed start and PCLK2/2, by default 108/2 = 54Mhz
@@ -68,8 +65,7 @@ void spiBegin(void) {
     #error "SS_PIN not defined!"
   #endif
 
-  SET_OUTPUT(SS_PIN);
-  WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SS_PIN, HIGH);
 }
 
 /** Configure SPI for specified SPI speed */
@@ -115,10 +111,9 @@ uint8_t spiRec(void) {
  */
 void spiRead(uint8_t* buf, uint16_t nbyte) {
   if (nbyte == 0) return;
+  memset(buf, 0xFF, nbyte);
   SPI.beginTransaction(spiConfig);
-  for (int i = 0; i < nbyte; i++) {
-    buf[i] = SPI.transfer(0xFF);
-  }
+  SPI.transfer(buf, nbyte);
   SPI.endTransaction();
 }
 
@@ -144,12 +139,13 @@ void spiSend(uint8_t b) {
  * @details Use DMA
  */
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  uint8_t rxBuf[512];
   SPI.beginTransaction(spiConfig);
   SPI.transfer(token);
-  SPI.transfer((uint8_t*)buf, (uint8_t*)0, 512);
+  SPI.transfer((uint8_t*)buf, &rxBuf, 512);
   SPI.endTransaction();
 }
 
 #endif // SOFTWARE_SPI
 
-#endif // ARDUINO_ARCH_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

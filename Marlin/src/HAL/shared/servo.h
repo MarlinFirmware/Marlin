@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * servo.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
@@ -73,13 +74,15 @@
 #elif IS_TEENSY35 || IS_TEENSY36
   #include "../HAL_TEENSY35_36/HAL_Servo_Teensy.h"
 #elif defined(TARGET_LPC1768)
-  #include "../HAL_LPC1768/MarlinServo.h"
+  #include "../HAL_LPC1768/HAL_Servo_LPC1768.h"
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #include "../HAL_STM32F1/HAL_Servo_STM32F1.h"
 #elif defined(STM32GENERIC) && defined(STM32F4)
   #include "../HAL_STM32F4/HAL_Servo_STM32F4.h"
 #elif defined(ARDUINO_ARCH_STM32)
   #include "../HAL_STM32/HAL_Servo_STM32.h"
+#elif defined(ARDUINO_ARCH_ESP32)
+  #include "../HAL_ESP32/HAL_Servo_ESP32.h"
 #else
   #include <stdint.h>
 

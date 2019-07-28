@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
 
 #include "../shared/persistent_store_api.h"
 
@@ -39,8 +39,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     if (v != eeprom_read_byte(p)) {
       eeprom_write_byte(p, v);
       if (eeprom_read_byte(p) != v) {
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+        SERIAL_ECHO_MSG(MSG_ERR_EEPROM_WRITE);
         return true;
       }
     }
@@ -64,5 +63,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 
 size_t PersistentStore::capacity() { return E2END + 1; }
 
-#endif // EEPROM_SETTINGS
+#endif // EEPROM_SETTINGS || SD_FIRMWARE_UPDATE
 #endif // __AVR__

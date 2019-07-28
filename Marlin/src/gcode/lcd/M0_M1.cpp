@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,10 +31,18 @@
   #include "../../lcd/ultralcd.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extensible_ui/ui_api.h"
+#endif
+
 #include "../../sd/cardreader.h"
 
 #if HAS_LEDS_OFF_FLAG
   #include "../../feature/leds/printer_event_leds.h"
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../../feature/host_actions.h"
 #endif
 
 /**
@@ -62,13 +70,17 @@ void GcodeSuite::M0_M1() {
   #if HAS_LCD_MENU
 
     if (has_message)
-      ui.setstatus(args, true);
+      ui.set_status(args, true);
     else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
         ui.reset_progress_bar_timeout();
       #endif
     }
+
+  #elif ENABLED(EXTENSIBLE_UI)
+
+    ExtUI::onUserConfirmRequired(has_message ? args : MSG_USERWAIT); // SRAM string
 
   #else
 
@@ -82,12 +94,20 @@ void GcodeSuite::M0_M1() {
   KEEPALIVE_STATE(PAUSED_FOR_USER);
   wait_for_user = true;
 
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M0/1 Break Called"), PSTR("Continue"));
+  #endif
+
   if (ms > 0) {
     ms += millis();  // wait until this time for a click
     while (PENDING(millis(), ms) && wait_for_user) idle();
   }
   else
     while (wait_for_user) idle();
+
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onUserConfirmRequired(nullptr);
+  #endif
 
   #if HAS_LEDS_OFF_FLAG
     printerEventLEDs.onResumeAfterWait();
@@ -98,7 +118,6 @@ void GcodeSuite::M0_M1() {
   #endif
 
   wait_for_user = false;
-  KEEPALIVE_STATE(IN_HANDLER);
 }
 
 #endif // HAS_RESUME_CONTINUE

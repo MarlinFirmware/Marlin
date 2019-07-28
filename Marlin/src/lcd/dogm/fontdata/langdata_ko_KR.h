@@ -424,7 +424,7 @@ const u8g_fntpgm_uint8_t fontpage_431_136_136[34] U8G_FONT_SECTION("fontpage_431
   0x00,0x08,0x0b,0x0b,0x0a,0x01,0xfe,0x71,0x01,0xfd,0x01,0x71,0x49,0x89,0x49,0x71,
   0x01,0x01};
 
-#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
+#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
     FONTDATA_ITEM(344, 240, 240, fontpage_344_240_240), // '거' -- '거'
     FONTDATA_ITEM(345, 224, 224, fontpage_345_224_224), // '고' -- '고'

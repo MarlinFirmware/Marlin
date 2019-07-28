@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && (ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION))
+#if HAS_LCD_MENU && EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
 
 #include "menu.h"
 #include "../../module/delta.h"
@@ -39,7 +39,7 @@
 void _man_probe_pt(const float &rx, const float &ry) {
   do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
   ui.synchronize();
-  move_menu_scale = MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
+  move_menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
   ui.goto_screen(lcd_move_z);
 }
 
@@ -50,10 +50,12 @@ void _man_probe_pt(const float &rx, const float &ry) {
   float lcd_probe_pt(const float &rx, const float &ry) {
     _man_probe_pt(rx, ry);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
-    ui.defer_status_screen(true);
+    ui.defer_status_screen();
     wait_for_user = true;
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Delta Calibration in progress"), PSTR("Continue"));
+    #endif
     while (wait_for_user) idle();
-    KEEPALIVE_STATE(IN_HANDLER);
     ui.goto_previous_screen_no_defer();
     return current_position[Z_AXIS];
   }
@@ -70,7 +72,7 @@ void _man_probe_pt(const float &rx, const float &ry) {
   }
 
   void _lcd_delta_calibrate_home() {
-    enqueue_and_echo_commands_P(PSTR("G28"));
+    queue.inject_P(PSTR("G28"));
     ui.goto_screen(_lcd_calibrate_homing);
   }
 
@@ -111,8 +113,6 @@ void menu_delta_calibrate() {
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     MENU_ITEM(gcode, MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
-    MENU_ITEM(gcode, MSG_DELTA_HEIGHT_CALIBRATE, PSTR("G33 S P1"));
-    MENU_ITEM(gcode, MSG_DELTA_Z_OFFSET_CALIBRATE, PSTR("G33 P-1"));
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
       MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);

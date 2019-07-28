@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Xジク ゲンテンフッキ")             // "Home X"
 #define MSG_AUTO_HOME_Y                     _UxGT("Yジク ゲンテンフッキ")             // "Home Y"
 #define MSG_AUTO_HOME_Z                     _UxGT("Zジク ゲンテンフッキ")             // "Home Z"
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Zジク コウセイ")
 #define MSG_LEVEL_BED_HOMING                _UxGT("ゲンテンフッキチュウ")              // "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               _UxGT("レベリングカイシ")                // "Click to Begin"
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("ツギノソクテイテンヘ")             // "Next Point"
@@ -83,6 +82,7 @@
 #define MSG_MOVE_Y                          _UxGT("Yジク イドウ")                  // "Move Y"
 #define MSG_MOVE_Z                          _UxGT("Zジク イドウ")                  // "Move Z"
 #define MSG_MOVE_E                          _UxGT("エクストルーダー")                // "Extruder"
+#define MSG_MOVE_0025MM                     _UxGT("0.025mm イドウ")               // "Move 0.025mm"
 #define MSG_MOVE_01MM                       _UxGT("0.1mm イドウ")                 // "Move 0.1mm"
 #define MSG_MOVE_1MM                        _UxGT("  1mm イドウ")                 // "Move 1mm"
 #define MSG_MOVE_10MM                       _UxGT(" 10mm イドウ")                 // "Move 10mm"
@@ -97,8 +97,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" サイコウ") // " Max"
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" ファクター") // " Fact"
 #define MSG_AUTOTEMP                        _UxGT("ジドウオンドセイギョ")               // "Autotemp"
-#define MSG_ON                              _UxGT("オン ")                         // "On "
-#define MSG_OFF                             _UxGT("オフ ")                         // "Off"
+#define MSG_LCD_ON                          _UxGT("オン")                         // "On"
+#define MSG_LCD_OFF                         _UxGT("オフ")                         // "Off"
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")

@@ -1,33 +1,33 @@
-/* Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-Contact information
--------------------
-
-Circuits At Home, LTD
-Web      :  http://www.circuitsathome.com
-e-mail   :  support@circuitsathome.com
+/**
+ * Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Contact information
+ * -------------------
+ *
+ * Circuits At Home, LTD
+ * Web      :  http://www.circuitsathome.com
+ * e-mail   :  support@circuitsathome.com
  */
 
-#if !defined(_usb_h_) || defined(_ch9_h_)
-#error "Never include usb_ch9.h directly; include Usb.h instead"
-#else
+#ifndef _usb_h_
+  #error "Never include usb_ch9.h directly; include Usb.h instead"
+#endif
 
 /* USB chapter 9 structures */
-#define _ch9_h_
 
 /* Misc.USB constants */
 #define DEV_DESCR_LEN   18      //device descriptor length
@@ -78,7 +78,6 @@ e-mail   :  support@circuitsathome.com
 #define USB_DESCRIPTOR_OTG                      0x09    // bDescriptorType for an OTG Descriptor.
 
 #define HID_DESCRIPTOR_HID                      0x21
-
 
 
 /* OTG SET FEATURE Constants    */
@@ -169,5 +168,3 @@ typedef struct {
         uint8_t bDescrType; // Type of class descriptor
         uint16_t wDescriptorLength; // Total size of the Report descriptor
 } __attribute__((packed)) HID_CLASS_DESCRIPTOR_LEN_AND_TYPE;
-
-#endif // _ch9_h_
