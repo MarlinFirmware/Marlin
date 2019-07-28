@@ -18,11 +18,11 @@
  */
 #ifdef __STM32F1__
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if HAS_GRAPHICAL_LCD && ENABLED(FORCE_SOFT_SPI)
 
-#include "HAL.h"
+#include "../HAL.h"
 #include <U8glib.h>
 
 #undef SPI_SPEED

@@ -21,25 +21,14 @@
  */
 #pragma once
 
-#define __MARLIN_FIRMWARE__
+#include "../../../inc/MarlinConfigPre.h"
+#include "../../shared/Marduino.h"
 
-//
-// Prefix header to acquire configurations
-//
+void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index);
+void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level);
 
-#include "../HAL/platforms.h"
+void u8g_spiSend_sw_DUE_mode_0(uint8_t val);
+void u8g_spiSend_sw_DUE_mode_3(uint8_t val);
 
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "../core/millis_t.h"
-#include "Version.h"
-#include "../../Configuration.h"
-
-#include "Conditionals_LCD.h"
-#include HAL_PATH(../HAL, inc/Conditionals_LCD.h)
-
-#include "../core/drivers.h"
-#include "../../Configuration_adv.h"
-
-#include "Conditionals_adv.h"
-#include HAL_PATH(../HAL, inc/Conditionals_adv.h)
+extern Pio *SCK_pPio, *MOSI_pPio;
+extern uint32_t SCK_dwMask, MOSI_dwMask;

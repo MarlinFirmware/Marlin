@@ -20,26 +20,3 @@
  *
  */
 #pragma once
-
-#define __MARLIN_FIRMWARE__
-
-//
-// Prefix header to acquire configurations
-//
-
-#include "../HAL/platforms.h"
-
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "../core/millis_t.h"
-#include "Version.h"
-#include "../../Configuration.h"
-
-#include "Conditionals_LCD.h"
-#include HAL_PATH(../HAL, inc/Conditionals_LCD.h)
-
-#include "../core/drivers.h"
-#include "../../Configuration_adv.h"
-
-#include "Conditionals_adv.h"
-#include HAL_PATH(../HAL, inc/Conditionals_adv.h)
