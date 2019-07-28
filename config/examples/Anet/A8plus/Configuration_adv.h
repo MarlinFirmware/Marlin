@@ -1749,6 +1749,9 @@
    *       1 | HIGH | LOW
    *       2 | LOW  | HIGH
    *       3 | HIGH | HIGH
+   *
+   * Set *_SERIAL_TX_PIN and *_SERIAL_RX_PIN to match for all drivers
+   * on the same serial port, either here or in your board's pins file.
    */
   #define  X_SLAVE_ADDRESS 0
   #define  Y_SLAVE_ADDRESS 0
