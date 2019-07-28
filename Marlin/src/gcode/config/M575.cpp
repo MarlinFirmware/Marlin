@@ -36,9 +36,19 @@ void GcodeSuite::M575() {
   if (parser.seenval('B')) baudrate = parser.value_long();
   if (baudrate != 0) {
     #if NUM_SERIAL > 0
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("New baudrate for serial: ", serialN);
-      SERIAL_ECHOLNPAIR(" is: ", baudrate);
+      if ( (serialN == -99) || (serialN == 0)) {
+        SERIAL_ECHO_START();
+        SERIAL_ECHOLNPAIR(" New baudrate for serial0 is: ", baudrate);
+      }
+      #if NUM_SERIAL > 1
+        if ((serialN == -99) || (serialN == 1)) {
+          SERIAL_ECHO_START();
+          SERIAL_ECHOLNPAIR(" New baudrate for serial1 is: ", baudrate);
+        }
+      #endif
+      SERIAL_FLUSH();
+    #endif
+    #if NUM_SERIAL > 0
       if ( (serialN == -99) || (serialN == 0)) {
         MYSERIAL0.end();
         MYSERIAL0.begin(baudrate);
