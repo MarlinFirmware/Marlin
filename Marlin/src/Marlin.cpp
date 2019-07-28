@@ -820,16 +820,16 @@ void stop() {
  *  - Print startup messages and diagnostics
  *  - Get EEPROM or default settings
  *  - Initialize managers for:
- *    • temperature
- *    • planner
- *    • watchdog
- *    • stepper
- *    • photo pin
- *    • servos
- *    • LCD controller
- *    • Digipot I2C
- *    • Z probe sled
- *    • status LEDs
+ *    â€¢ temperature
+ *    â€¢ planner
+ *    â€¢ watchdog
+ *    â€¢ stepper
+ *    â€¢ photo pin
+ *    â€¢ servos
+ *    â€¢ LCD controller
+ *    â€¢ Digipot I2C
+ *    â€¢ Z probe sled
+ *    â€¢ status LEDs
  */
 void setup() {
 
@@ -936,15 +936,17 @@ void setup() {
   // (because EEPROM code calls the UI).
   ui.init();
   ui.reset_status();
-
+  //DrDitto
+  /* 
   #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
     ui.show_bootscreen();
   #endif
-
-  #if ENABLED(SDIO_SUPPORT) && !PIN_EXISTS(SD_DETECT)
-    // Auto-mount the SD for EEPROM.dat emulation
-    if (!card.isDetected()) card.initsd();
-  #endif
+  */
+#if ENABLED(SDIO_SUPPORT) && !PIN_EXISTS(SD_DETECT)
+  // Auto-mount the SD for EEPROM.dat emulation
+  if (!card.isDetected())
+    card.initsd();
+#endif
 
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
@@ -1028,11 +1030,6 @@ void setup() {
   #if PIN_EXISTS(STAT_LED_BLUE)
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
-
-  #if HAS_COLOR_LEDS
-    leds.setup();
-  #endif
-
   #if HAS_CASE_LIGHT
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
       if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
