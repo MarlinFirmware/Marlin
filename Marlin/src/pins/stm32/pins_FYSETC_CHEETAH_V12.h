@@ -32,6 +32,10 @@
 #undef Z_HARDWARE_SERIAL
 #undef E0_HARDWARE_SERIAL
 
+#undef RGB_LED_R_PIN
+#undef RGB_LED_G_PIN
+#undef RGB_LED_B_PIN
+
 #if HAS_TMC220x
 
   /**
@@ -54,7 +58,3 @@
   #define E0_SERIAL_RX_PIN PA3
 
 #endif
-
-#undef RGB_LED_R_PIN
-#undef RGB_LED_G_PIN
-#undef RGB_LED_B_PIN
