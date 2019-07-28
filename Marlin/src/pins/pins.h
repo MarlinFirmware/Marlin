@@ -452,8 +452,6 @@
   #include "stm32/pins_CHITU3D.h"               // STM32F1                                env:STM32F1
 #elif MB(GTM32_PRO_VB)
   #include "stm32/pins_GTM32_PRO_VB.h"          // STM32F1                                env:STM32F1
-#elif MB(LONGER3D_LK)
-  #include "stm32/pins_LONGER3D_LK.h"           // STM32F1                                env:alfawise_U20
 #elif MB(MORPHEUS)
   #include "stm32/pins_MORPHEUS.h"              // STM32F1                                env:STM32F1
 #elif MB(MKS_ROBIN)
@@ -462,8 +460,6 @@
   #include "stm32/pins_MKS_ROBIN_MINI.h"        // STM32F1                                env:mks_robin_mini
 #elif MB(MKS_ROBIN_NANO)
   #include "stm32/pins_MKS_ROBIN_NANO.h"        // STM32F1                                env:mks_robin_nano
-#elif MB(MKS_ROBIN_LITE)
-  #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:JGAURORA_A5S_A1
 #elif MB(FYSETC_AIO_II)
@@ -472,6 +468,8 @@
   #include "stm32/pins_FYSETC_CHEETAH.h"        // STM32F1                                env:fysetc_STM32F1
 #elif MB(FYSETC_CHEETAH_V12)
   #include "stm32/pins_FYSETC_CHEETAH_V12.h"    // STM32F1                                env:fysetc_STM32F1
+#elif MB(LONGER3D_LK)
+  #include "stm32/pins_LONGER3D_LK.h"           // STM32F1                                env:alfawise_U20
 
 //
 // ARM Cortex-M4F
