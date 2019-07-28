@@ -68,7 +68,7 @@
   #include "tool_change.h"
 #endif
 
-#if HAS_BUZZER
+#if HAS_BUZZER && PIN_EXISTS(BEEPER)
   #include "../libs/buzzer.h"
 #endif
 
