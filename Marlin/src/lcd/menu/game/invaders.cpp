@@ -26,6 +26,28 @@
 
 #include "game.h"
 
+#define CANNON_W      11
+#define CANNON_H       8
+#define CANNON_VEL     4
+#define CANNON_Y      (LCD_PIXEL_HEIGHT - 1 - CANNON_H)
+
+#define INVADER_VEL    3
+
+#define INVADER_TOP   MENU_FONT_ASCENT
+#define INVADERS_WIDE ((INVADER_COL_W) * (INVADER_COLS))
+#define INVADERS_HIGH ((INVADER_ROW_H) * (INVADER_ROWS))
+
+#define UFO_H          5
+#define UFO_W         13
+
+#define LASER_H        4
+#define SHOT_H         3
+#define EXPL_W        11
+#define LIFE_W         8
+#define LIFE_H         5
+
+#define INVADER_RIGHT ((INVADER_COLS) * (INVADER_COL_W))
+
 // 11x8
 const unsigned char invader[3][2][16] PROGMEM = {
   { { B00000110,B00000000,
@@ -134,9 +156,9 @@ constexpr uint8_t inv_type[] = {
 
 invaders_data_t &idat = marlin_game_data.invaders;
 
-#define INV_X_LEFT(C,T) (idat.pos.x + (C) * (COL_W) + inv_off[T])
+#define INV_X_LEFT(C,T) (idat.pos.x + (C) * (INVADER_COL_W) + inv_off[T])
 #define INV_X_CTR(C,T)  (INV_X_LEFT(C,T) + inv_wide[T] / 2)
-#define INV_Y_BOT(R)    (idat.pos.y + (R + 1) * (ROW_H) - 2)
+#define INV_Y_BOT(R)    (idat.pos.y + (R + 1) * (INVADER_ROW_H) - 2)
 
 constexpr uint8_t inv_off[] = { 2, 1, 0 }, inv_wide[] = { 8, 11, 12 };
 
@@ -152,9 +174,9 @@ inline void update_invader_data() {
       if (TEST(m, x)) idat.shooters[sc++] = (y << 4) | x;
   }
   idat.leftmost = 0;
-  LOOP_L_N(i, INVADER_COLS)            { if (TEST(inv_mask, i)) break; idat.leftmost -= COL_W; }
+  LOOP_L_N(i, INVADER_COLS)            { if (TEST(inv_mask, i)) break; idat.leftmost -= INVADER_COL_W; }
   idat.rightmost = LCD_PIXEL_WIDTH - (INVADERS_WIDE);
-  for (uint8_t i = INVADER_COLS; i--;) { if (TEST(inv_mask, i)) break; idat.rightmost += COL_W; }
+  for (uint8_t i = INVADER_COLS; i--;) { if (TEST(inv_mask, i)) break; idat.rightmost += INVADER_COL_W; }
   if (idat.count == 2) idat.dir = idat.dir > 0 ? INVADER_VEL + 1 : -(INVADER_VEL + 1);
 }
 
@@ -239,9 +261,9 @@ void InvadersGame::game_screen() {
         const int8_t newx = idat.pos.x + idat.dir;
         if (!WITHIN(newx, idat.leftmost, idat.rightmost)) { // Invaders reached the edge?
           idat.dir *= -1;                                   // Invaders change direction
-          idat.pos.y += (ROW_H) / 2;                        // Invaders move down
+          idat.pos.y += (INVADER_ROW_H) / 2;                        // Invaders move down
           idat.pos.x -= idat.dir;                           // ...and only move down this time.
-          if (idat.pos.y + idat.botmost * (ROW_H) - 2 >= CANNON_Y) // Invaders reached the bottom?
+          if (idat.pos.y + idat.botmost * (INVADER_ROW_H) - 2 >= CANNON_Y) // Invaders reached the bottom?
             kill_cannon(game_state, 20);                    // Kill the cannon. Reset invaders.
         }
 
@@ -272,9 +294,9 @@ void InvadersGame::game_screen() {
 
       // Did the laser collide with an invader?
       if (idat.laser.v && WITHIN(idat.laser.y, idat.pos.y, idat.pos.y + INVADERS_HIGH - 1)) {
-        const int8_t col = idat.col(idat.laser.x);
+        const int8_t col = idat.laser_col();
         if (WITHIN(col, 0, INVADER_COLS - 1)) {
-          const int8_t row = idat.row(idat.laser.y);
+          const int8_t row = idat.laser_row();
           if (WITHIN(row, 0, INVADER_ROWS - 1)) {
             const uint8_t mask = _BV(col);
             if (idat.bugs[row] & mask) {
@@ -290,7 +312,7 @@ void InvadersGame::game_screen() {
                 // Explode sound!
                 _BUZZ(40, 10);
                 // Explosion bitmap!
-                explode(invx + inv_wide[type] / 2, idat.pos.y + row * (ROW_H));
+                explode(invx + inv_wide[type] / 2, idat.pos.y + row * (INVADER_ROW_H));
                 // If invaders are gone, go to reset invaders state
                 if (--idat.count) update_invader_data(); else { game_state = 20; reset_bullets(); }
               } // laser x hit
@@ -347,7 +369,7 @@ void InvadersGame::game_screen() {
   u8g.setColorIndex(1);
 
   // Draw invaders
-  if (PAGE_CONTAINS(idat.pos.y, idat.pos.y + idat.botmost * (ROW_H) - 2 - 1)) {
+  if (PAGE_CONTAINS(idat.pos.y, idat.pos.y + idat.botmost * (INVADER_ROW_H) - 2 - 1)) {
     int8_t yy = idat.pos.y;
     for (uint8_t y = 0; y < INVADER_ROWS; ++y) {
       const uint8_t type = inv_type[y];
@@ -356,10 +378,10 @@ void InvadersGame::game_screen() {
         for (uint8_t x = 0; x < INVADER_COLS; ++x) {
           if (TEST(idat.bugs[y], x))
             u8g.drawBitmapP(xx, yy, 2, INVADER_H, invader[type][idat.game_blink]);
-          xx += COL_W;
+          xx += INVADER_COL_W;
         }
       }
-      yy += ROW_H;
+      yy += INVADER_ROW_H;
     }
   }
 

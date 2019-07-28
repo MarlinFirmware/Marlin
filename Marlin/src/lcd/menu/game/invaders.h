@@ -37,37 +37,14 @@
 
 #define INVADER_ROWS INVASION_SIZE
 
-#define CANNON_W      11
-#define CANNON_H       8
-#define CANNON_VEL     4
-#define CANNON_Y      (LCD_PIXEL_HEIGHT - 1 - CANNON_H)
-
-#define COL_W         14
-#define INVADER_H      8
-#define ROW_H         (INVADER_H + 2)
-#define INVADER_VEL    3
-
-#define INVADER_TOP   MENU_FONT_ASCENT
-#define INVADERS_WIDE ((COL_W) * (INVADER_COLS))
-#define INVADERS_HIGH ((ROW_H) * (INVADER_ROWS))
-
-#define UFO_H          5
-#define UFO_W         13
-
-#define LASER_H        4
-#define SHOT_H         3
-#define EXPL_W        11
-#define LIFE_W         8
-#define LIFE_H         5
-
-#define INVADER_RIGHT ((INVADER_COLS) * (COL_W))
+#define INVADER_COL_W   14
+#define INVADER_H        8
+#define INVADER_ROW_H   (INVADER_H + 2)
 
 typedef struct { int8_t x, y, v; } laser_t;
 
 typedef struct {
   pos_t pos;
-  int8_t col(const int8_t x) { return ((x - pos.x) / (COL_W)); };
-  int8_t row(const int8_t y) { return ((y - pos.y + 2) / (ROW_H)); };
   uint8_t cannons_left;
   int8_t cannon_x;
   laser_t bullet[10], laser, explod;
@@ -76,6 +53,8 @@ typedef struct {
   uint8_t bugs[INVADER_ROWS], shooters[(INVADER_ROWS) * (INVADER_COLS)];
   int8_t ufox, ufov;
   bool game_blink;
+  int8_t laser_col() { return ((laser.x - pos.x) / (INVADER_COL_W)); };
+  int8_t laser_row() { return ((laser.y - pos.y + 2) / (INVADER_ROW_H)); };
 } invaders_data_t;
 
 class InvadersGame : MarlinGame { public: static void enter_game(), game_screen(); };
