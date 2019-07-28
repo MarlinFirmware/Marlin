@@ -469,9 +469,9 @@ public:
 
     #if ENABLED(G26_MESH_VALIDATION)
       static inline void chirp() {
-      #if HAS_BUZZER
-        buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-      #endif
+        #if HAS_BUZZER
+          buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+        #endif
       }
     #endif
 
