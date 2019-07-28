@@ -350,7 +350,7 @@ public:
         static inline void refresh_contrast() { set_contrast(contrast); }
       #endif
 
-      #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+#if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         static millis_t next_filament_display;
       #endif
 
