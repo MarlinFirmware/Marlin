@@ -42,3 +42,7 @@
 #if ENABLED(FAST_PWM_FAN)
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif
+
+#if ENABLED(EEPROM_SETTINGS)
+  #warning "Did you activate the SmartEEPROM? See https://github.com/GMagician/SAMD51-SmartEEprom-Activator"
+#endif
