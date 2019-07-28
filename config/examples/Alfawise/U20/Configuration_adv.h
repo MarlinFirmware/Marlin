@@ -1040,7 +1040,7 @@
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
 
-  #ifdef TARGET_LPC1768
+  #if defined(TARGET_LPC1768) || defined(ADAFRUIT_GRAND_CENTRAL_M4)
     /**
      * Set this option to one of the following (or the board's defaults apply):
      *
