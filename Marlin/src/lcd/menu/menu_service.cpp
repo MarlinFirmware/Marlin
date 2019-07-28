@@ -39,7 +39,7 @@ inline void _menu_service(const int index, PGM_P const name) {
     []{
       print_job_timer.resetServiceInterval(index);
       #if HAS_BUZZER
-        ui.completion_feedback(true);
+        ui.completion_feedback();
       #endif
       ui.reset_status();
       ui.return_to_status();
