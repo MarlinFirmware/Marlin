@@ -120,7 +120,7 @@
                                    || AXIS_DRIVER_TYPE(A,TMC5160) )
 
 //
-// Stretching 'drivers.h' to include LPC SD options
+// Stretching 'drivers.h' to include LPC/SAMD51 SD options
 //
 #define _SDCARD_LCD          1
 #define _SDCARD_ONBOARD      2

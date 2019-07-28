@@ -303,6 +303,11 @@
 #define BOARD_ESP32                   6000
 
 //
+// SAMD51 ARM Cortex M4
+//
+#define BOARD_AGCM4_RURAMPS4D_13      6100
+
+//
 // Simulations
 //
 
