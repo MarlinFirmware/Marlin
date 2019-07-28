@@ -71,10 +71,10 @@ void BrickoutGame::game_screen() {
       // Provisionally update the ball position
       const fixed_t newx = bdat.ballx + bdat.ballh, newy = bdat.bally + bdat.ballv;  // current next position
       if (!WITHIN(newx, 0, BTOF(LCD_PIXEL_WIDTH - 1))) {    // out in x?
-        bdat.ballh = -bdat.ballh; _BUZZ(5, 220);                      // bounce x
+        bdat.ballh = -bdat.ballh; _BUZZ(5, 220);            // bounce x
       }
       if (newy < 0) {                                       // out in y?
-        bdat.ballv = -bdat.ballv; _BUZZ(5, 280);                      // bounce v
+        bdat.ballv = -bdat.ballv; _BUZZ(5, 280);            // bounce v
         bdat.hit_dir = 1;
       }
       // Did the ball go below the bottom?
@@ -131,7 +131,7 @@ void BrickoutGame::game_screen() {
         }
       }
 
-      bdat.ballx += bdat.ballh; bdat.bally += bdat.ballv;   // update with new velocity
+      bdat.ballx += bdat.ballh; bdat.bally += bdat.ballv; // update with new velocity
 
     } while (false);
   }

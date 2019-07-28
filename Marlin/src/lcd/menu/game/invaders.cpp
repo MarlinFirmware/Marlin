@@ -237,15 +237,15 @@ void InvadersGame::game_screen() {
 
       if (idat.count && did_blink) {
         const int8_t newx = idat.pos.x + idat.dir;
-        if (!WITHIN(newx, idat.leftmost, idat.rightmost)) {             // Invaders reached the edge?
-          idat.dir *= -1;                                 // Invaders change direction
-          idat.pos.y += (ROW_H) / 2;                          // Invaders move down
-          idat.pos.x -= idat.dir;                         // ...and only move down this time.
+        if (!WITHIN(newx, idat.leftmost, idat.rightmost)) { // Invaders reached the edge?
+          idat.dir *= -1;                                   // Invaders change direction
+          idat.pos.y += (ROW_H) / 2;                        // Invaders move down
+          idat.pos.x -= idat.dir;                           // ...and only move down this time.
           if (idat.pos.y + idat.botmost * (ROW_H) - 2 >= CANNON_Y) // Invaders reached the bottom?
-            kill_cannon(game_state, 20);                      // Kill the cannon. Reset invaders.
+            kill_cannon(game_state, 20);                    // Kill the cannon. Reset invaders.
         }
 
-        idat.pos.x += idat.dir;               // Invaders take one step left/right
+        idat.pos.x += idat.dir; // Invaders take one step left/right
 
         // Randomly shoot if invaders are listed
         if (idat.count && !random(0, 20)) {
