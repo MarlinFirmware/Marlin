@@ -21,50 +21,26 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
-#include "../../dogm/ultralcd_DOGM.h"
-#include "../../lcdprint.h"
-#include "../../ultralcd.h"
+#include <stdint.h>
 
-//#define MUTE_GAMES
+typedef struct { int8_t x, y; } pos_t;
 
-#ifdef MUTE_GAMES
-  #define _BUZZ(D,F) NOOP
-#else
-  #define _BUZZ(D,F) BUZZ(D,F)
-#endif
+// Simple 8:8 fixed-point
+typedef int16_t fixed_t;
+#define FTOP(F) fixed_t((F)*256.0f)
+#define PTOF(P) (float(P)*(1.0f/256.0f))
+#define BTOF(X) (fixed_t(X)<<8)
+#define FTOB(X) int8_t(fixed_t(X)>>8)
 
-#if HAS_GAME_MENU
-  void menu_game();
-#endif
+class MarlinGame {
+protected:
+  static int score;
+  static uint8_t game_state;
+  static millis_t next_frame;
 
-#if ENABLED(MARLIN_BRICKOUT)
-  #include "brickout.h"
-#endif
-#if ENABLED(MARLIN_INVADERS)
-  #include "invaders.h"
-#endif
-#if ENABLED(MARLIN_MAZE)
-  #include "maze.h"
-#endif
-#if ENABLED(MARLIN_SNAKE)
-  #include "snake.h"
-#endif
-
-// Pool game data to save SRAM
-union MarlinGameData {
-  #if ENABLED(MARLIN_BRICKOUT)
-    brickout_data_t brickout;
-  #endif
-  #if ENABLED(MARLIN_INVADERS)
-    invaders_data_t invaders;
-  #endif
-  #if ENABLED(MARLIN_SNAKE)
-    snake_data_t snake;
-  #endif
-  #if ENABLED(MARLIN_MAZE)
-    maze_data_t maze;
-  #endif
+  static bool game_frame();
+  static void draw_game_over();
+  static void exit_game();
+public:
+  static void init_game(const uint8_t init_state, const screenFunc_t screen);
 };
-
-extern MarlinGameData marlin_game_data;
