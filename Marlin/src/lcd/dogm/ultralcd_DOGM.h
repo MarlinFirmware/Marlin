@@ -112,8 +112,15 @@
   // MINIPanel display
   //#define U8G_CLASS U8GLIB_MINI12864
   //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 8 stripes
-  #define U8G_CLASS U8GLIB_MINI12864_2X
-  #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 8 stripes
+  //DrDitto
+  /* In order to fix MKS_MINI_12864 over 32 Bits FAST MCUS
+  */
+  #if ENABLED(MKS_MINI_12864) && ENABLED(CPU_32_BIT)
+    #define U8G_CLASS U8GLIB_MINI12864_2X_HAL
+  #else
+    #define U8G_CLASS U8GLIB_MINI12864_2X
+  #endif
+  #define U8G_PARAM DOGLCD_CS, DOGLCD_A0 // 8 stripes
 #elif ENABLED(FYSETC_MINI_12864)
   // The FYSETC_MINI_12864 display
   #define U8G_CLASS U8GLIB_MINI12864_2X_HAL
@@ -177,7 +184,7 @@
 
 // Get the Ascent, Descent, and total Height for the Info Screen font
 #if ENABLED(USE_SMALL_INFOFONT)
-  extern const u8g_fntpgm_uint8_t u8g_font_6x9[];
+    extern const u8g_fntpgm_uint8_t u8g_font_6x9[];
   #define INFO_FONT_ASCENT 7
 #else
   #define INFO_FONT_ASCENT 8
