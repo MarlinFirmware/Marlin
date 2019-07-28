@@ -51,7 +51,7 @@
 #if PIN_EXISTS(MAIN_VOLTAGE_MEASURE) && MAIN_VOLTAGE_MEASURE_PIN < NUM_ANALOG_INPUTS
   REPORT_NAME_ANALOG(__LINE__, MAIN_VOLTAGE_MEASURE_PIN)
 #endif
-#if !defined(ARDUINO_ARCH_SAM)  //TC1 & TC2 are macros in the SAM tool chain
+#if !defined(ARDUINO_ARCH_SAM) && !defined(ARDUINO_ARCH_SAMD)  //TC1 & TC2 are macros in the SAM/SAMD tool chain
   #if defined(TC1) && TC1 >= 0 && TC1 < NUM_ANALOG_INPUTS
     REPORT_NAME_ANALOG(__LINE__, TC1)
   #endif

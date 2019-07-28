@@ -454,6 +454,8 @@
   #include "stm32/pins_MKS_ROBIN_MINI.h"        // STM32F1                                env:mks_robin_mini
 #elif MB(MKS_ROBIN_NANO)
   #include "stm32/pins_MKS_ROBIN_NANO.h"        // STM32F1                                env:mks_robin_nano
+#elif MB(MKS_ROBIN_LITE)
+  #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
 #elif MB(BIGTREE_SKR_MINI_V1_1)
   #include "stm32/pins_BIGTREE_SKR_MINI_V1_1.h" // STM32F1                                env:BIGTREE_SKR_MINI
 #elif MB(BIGTREE_SKR_MINI_E3)
@@ -514,6 +516,13 @@
 
 #elif MB(ESP32)
   #include "esp32/pins_ESP32.h"                 // ESP32                                  env:esp32
+
+//
+// Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
+//
+
+#elif MB(AGCM4_RURAMPS4D_13)
+  #include "samd/pins_AGCM4_RURAMPS4D_13.h"     // SAMD51                                 env:adafruit_grandcentral_m4
 
 //
 // Linux Native Debug board
