@@ -17,15 +17,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Ported by Giuliano Zaro
  */
 
 /**
- * Adafruit Grand Central M4 pin assignments
- *
+ * Adafruit Grand Central M4 pin assignments ported by Giuliano Zaro
  */
-
 #ifndef ARDUINO_GRAND_CENTRAL_M4
   #error "Oops! Select 'Adafruit Grand Central M4' in 'Tools > Board.'"
 #endif
@@ -149,9 +145,9 @@
 //
 // Misc. Functions
 //
-#define SDSS               4
-#define LED_PIN           -1   // 13 - HEATER_0_PIN
-#define PS_ON_PIN         -1   // 57
+#define SDSS                4
+#define LED_PIN            -1   // 13 - HEATER_0_PIN
+#define PS_ON_PIN          -1   // 57
 
 // MKS TFT / Nextion Use internal USART-1
 #define TFT_LCD_MODULE_COM        1
@@ -176,40 +172,40 @@
 
   #if EITHER(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER)
 
-    #define BEEPER_PIN      75
-    #define LCD_PINS_D4     48
-    #define LCD_PINS_D7     53
-    #define SD_DETECT_PIN   -1    // 51 can't be used, it's MOSI
-    #define LCD_PINS_RS     76
+    #define BEEPER_PIN     75
+    #define LCD_PINS_D4    48
+    #define LCD_PINS_D7    53
+    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
+    #define LCD_PINS_RS    76
     #define LCD_PINS_ENABLE 77
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
-    #define BEEPER_PIN      75
-    #define LCD_PINS_D4     48
-    #define SD_DETECT_PIN   -1    // 51 can't be used, it's MOSI
-    #define LCD_PINS_RS     76
+    #define BEEPER_PIN     75
+    #define LCD_PINS_D4    48
+    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
+    #define LCD_PINS_RS    76
     #define LCD_PINS_ENABLE 77
 
   #elif HAS_SSD1306_OLED_I2C
 
-    #define BEEPER_PIN      75
-    #define LCD_SDSS        10
-    #define SD_DETECT_PIN   -1    // 51 can't be used, it's MOSI
+    #define BEEPER_PIN     75
+    #define LCD_SDSS       10
+    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
 
   #elif ENABLED(FYSETC_MINI_12864)
 
-    #define BEEPER_PIN      75
-    #define DOGLCD_CS       77
-    #define DOGLCD_A0       76
+    #define BEEPER_PIN     75
+    #define DOGLCD_CS      77
+    #define DOGLCD_A0      76
 
     //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
                                 //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-    #define LCD_RESET_PIN   48   // Must be high or open for LCD to operate normally.
+    #define LCD_RESET_PIN  48   // Must be high or open for LCD to operate normally.
 
     #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-      #error Pin compatibility check needed! Grand central M4 pins 50, 51 and 52 are not GPIO pins, they are wired to MISO, MOSI, and SCK
+      #error "Pin compatibility check needed! Grand central M4 pins 50, 51 and 52 are not GPIO pins, they are wired to MISO, MOSI, and SCK."
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN 50   // D5
       #endif
@@ -220,25 +216,25 @@
         #define RGB_LED_B_PIN 53   // D7
       #endif
     #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #error Pin compatibility check needed! Grand central M4 pins 50, 51 and 52 are not GPIO pins, they are wired to MISO, MOSI, and SCK
+      #error "Pin compatibility check needed! Grand central M4 pins 50, 51 and 52 are not GPIO pins, they are wired to MISO, MOSI, and SCK."
       #define NEOPIXEL_PIN    50   // D5
     #endif
 
   #elif ENABLED(MKS_MINI_12864)
-    #error Pin compatibility check needed! Grand central M4 pins 50, 51 and 52 are not GPIO pins, they are wired to MISO, MOSI, and SCK
+    #error "Pin compatibility check needed! Grand central M4 pins 50, 51 and 52 are not GPIO pins, they are wired to MISO, MOSI, and SCK."
     #define ORIG_BEEPER_PIN 75
 
-    #define DOGLCD_A0       52
-    #define DOGLCD_CS       50
+    #define DOGLCD_A0      52
+    #define DOGLCD_CS      50
 
-    #define SD_DETECT_PIN   -1    // 51 can't be used, it's MOSI
+    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
 
   #endif
 
   #if ENABLED(NEWPANEL)
-    #define BTN_EN1         44
-    #define BTN_EN2         42
-    #define BTN_ENC         40
+    #define BTN_EN1        44
+    #define BTN_EN2        42
+    #define BTN_ENC        40
   #endif
 
 #endif // HAS_SPI_LCD
@@ -252,7 +248,7 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #undef SDSS
-  #define SDSS            83
+  #define SDSS             83
   #undef SD_DETECT_PIN
-  #define SD_DETECT_PIN   95
+  #define SD_DETECT_PIN    95
 #endif

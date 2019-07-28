@@ -132,24 +132,24 @@
   #define PWM_PIN(P)        (WITHIN(P, 2, 13) || WITHIN(P, 22, 23) || WITHIN(P, 44, 45) || P == 48)
 
   // Return fullfilled ADCx->INPUTCTRL.reg
-  #define PIN_TO_INPUTCTRL(P)     ((PIN_TO_AIN(P) == 0) ? ADC_INPUTCTRL_MUXPOS_AIN0       \
-                                   : (PIN_TO_AIN(P) == 1) ? ADC_INPUTCTRL_MUXPOS_AIN1     \
-                                   : (PIN_TO_AIN(P) == 2) ? ADC_INPUTCTRL_MUXPOS_AIN2     \
-                                   : (PIN_TO_AIN(P) == 3) ? ADC_INPUTCTRL_MUXPOS_AIN3     \
-                                   : (PIN_TO_AIN(P) == 4) ? ADC_INPUTCTRL_MUXPOS_AIN4     \
-                                   : (PIN_TO_AIN(P) == 5) ? ADC_INPUTCTRL_MUXPOS_AIN5     \
-                                   : (PIN_TO_AIN(P) == 6) ? ADC_INPUTCTRL_MUXPOS_AIN6     \
-                                   : (PIN_TO_AIN(P) == 7) ? ADC_INPUTCTRL_MUXPOS_AIN7     \
-                                   : (PIN_TO_AIN(P) == 8) ? ADC_INPUTCTRL_MUXPOS_AIN8     \
-                                   : (PIN_TO_AIN(P) == 9) ? ADC_INPUTCTRL_MUXPOS_AIN9     \
-                                   : (PIN_TO_AIN(P) == 10) ? ADC_INPUTCTRL_MUXPOS_AIN10   \
-                                   : (PIN_TO_AIN(P) == 11) ? ADC_INPUTCTRL_MUXPOS_AIN11   \
-                                   : (PIN_TO_AIN(P) == 12) ? ADC_INPUTCTRL_MUXPOS_AIN12   \
-                                   : (PIN_TO_AIN(P) == 13) ? ADC_INPUTCTRL_MUXPOS_AIN13   \
-                                   : (PIN_TO_AIN(P) == 14) ? ADC_INPUTCTRL_MUXPOS_AIN14   \
+  #define PIN_TO_INPUTCTRL(P)     (  (PIN_TO_AIN(P) == 0) ? ADC_INPUTCTRL_MUXPOS_AIN0   \
+                                   : (PIN_TO_AIN(P) == 1) ? ADC_INPUTCTRL_MUXPOS_AIN1   \
+                                   : (PIN_TO_AIN(P) == 2) ? ADC_INPUTCTRL_MUXPOS_AIN2   \
+                                   : (PIN_TO_AIN(P) == 3) ? ADC_INPUTCTRL_MUXPOS_AIN3   \
+                                   : (PIN_TO_AIN(P) == 4) ? ADC_INPUTCTRL_MUXPOS_AIN4   \
+                                   : (PIN_TO_AIN(P) == 5) ? ADC_INPUTCTRL_MUXPOS_AIN5   \
+                                   : (PIN_TO_AIN(P) == 6) ? ADC_INPUTCTRL_MUXPOS_AIN6   \
+                                   : (PIN_TO_AIN(P) == 7) ? ADC_INPUTCTRL_MUXPOS_AIN7   \
+                                   : (PIN_TO_AIN(P) == 8) ? ADC_INPUTCTRL_MUXPOS_AIN8   \
+                                   : (PIN_TO_AIN(P) == 9) ? ADC_INPUTCTRL_MUXPOS_AIN9   \
+                                   : (PIN_TO_AIN(P) == 10) ? ADC_INPUTCTRL_MUXPOS_AIN10 \
+                                   : (PIN_TO_AIN(P) == 11) ? ADC_INPUTCTRL_MUXPOS_AIN11 \
+                                   : (PIN_TO_AIN(P) == 12) ? ADC_INPUTCTRL_MUXPOS_AIN12 \
+                                   : (PIN_TO_AIN(P) == 13) ? ADC_INPUTCTRL_MUXPOS_AIN13 \
+                                   : (PIN_TO_AIN(P) == 14) ? ADC_INPUTCTRL_MUXPOS_AIN14 \
                                    : ADC_INPUTCTRL_MUXPOS_AIN15)
 
-  #define ANAPIN_TO_SAMDPIN(P)    ((P == 0) ? PIN_TO_SAMD_PIN(67)     \
+  #define ANAPIN_TO_SAMDPIN(P)    (  (P == 0) ? PIN_TO_SAMD_PIN(67)   \
                                    : (P == 1) ? PIN_TO_SAMD_PIN(68)   \
                                    : (P == 2) ? PIN_TO_SAMD_PIN(69)   \
                                    : (P == 3) ? PIN_TO_SAMD_PIN(70)   \

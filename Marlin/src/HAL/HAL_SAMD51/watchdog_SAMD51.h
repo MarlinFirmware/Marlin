@@ -26,6 +26,6 @@ void watchdog_init();
 // Reset watchdog. MUST be called at least every 4 seconds after the
 // first watchdog_init or SAMD will go into emergency procedures.
 inline void watchdog_reset() {
-  SYNC(WDT->SYNCBUSY.bit.CLEAR);        // I test before, if previous is 'ongoing', so I don't lose time waiting for command execution
+  SYNC(WDT->SYNCBUSY.bit.CLEAR);        // Test first if previous is 'ongoing' to save time waiting for command execution
   WDT->CLEAR.reg = WDT_CLEAR_CLEAR_KEY;
 }

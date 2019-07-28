@@ -35,7 +35,6 @@
 #define PIN_TO_ADC(P)       (ANAPIN_TO_ADCAIN(P) >> 8)
 #define PIN_TO_AIN(P)       (ANAPIN_TO_ADCAIN(P) & 0xFF)
 
-
 // Private defines
 #define PIN_TO_SAMD_PIN(P)    DIO##P##_PIN
 
@@ -69,4 +68,3 @@
                                            : (P == 2 && WITHIN(B, 30, 31)) ? 0x100 + 12 + (B) - 30  \
                                            : (P == 3 && WITHIN(B, 0, 1)) ? 0x100 + 14 + (B)         \
                                            : -1)
-

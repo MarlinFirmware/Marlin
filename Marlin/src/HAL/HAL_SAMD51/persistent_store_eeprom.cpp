@@ -28,15 +28,15 @@
 #include "../shared/persistent_store_api.h"
 
 #if NONE(SPI_EEPROM, I2C_EEPROM)
-  #define NVMCTRL_CMD(c)    do{                                                   \
-                              SYNC(!NVMCTRL->STATUS.bit.READY);                   \
-                              NVMCTRL->INTFLAG.bit.DONE = true;                   \
-                              NVMCTRL->CTRLB.reg = c | NVMCTRL_CTRLB_CMDEX_KEY;   \
-                              SYNC(NVMCTRL->INTFLAG.bit.DONE);                    \
+  #define NVMCTRL_CMD(c)    do{                                                 \
+                              SYNC(!NVMCTRL->STATUS.bit.READY);                 \
+                              NVMCTRL->INTFLAG.bit.DONE = true;                 \
+                              NVMCTRL->CTRLB.reg = c | NVMCTRL_CTRLB_CMDEX_KEY; \
+                              SYNC(NVMCTRL->INTFLAG.bit.DONE);                  \
                             }while(0)
-  #define NVMCTRL_FLUSH()   do{                                             \
-                              if (NVMCTRL->SEESTAT.bit.LOAD)                \
-                                NVMCTRL_CMD(NVMCTRL_CTRLB_CMD_SEEFLUSH);    \
+  #define NVMCTRL_FLUSH()   do{                                           \
+                              if (NVMCTRL->SEESTAT.bit.LOAD)              \
+                                NVMCTRL_CMD(NVMCTRL_CTRLB_CMD_SEEFLUSH);  \
                             }while(0)
 #endif
 
@@ -87,7 +87,6 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     pos++;
     value++;
   }
-
   return false;
 }
 
@@ -104,32 +103,24 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
     crc16(crc, &c, 1);
     pos++;
     value++;
-    }
-
+  }
   return false;
 }
 
-size_t PersistentStore::capacity() { 
+size_t PersistentStore::capacity() {
   #if ANY(SPI_EEPROM, I2C_EEPROM)
     return E2END + 1;
   #else
-    const uint8_t psz = NVMCTRL->SEESTAT.bit.PSZ;
-    const uint8_t sblk = NVMCTRL->SEESTAT.bit.SBLK;
+    const uint8_t psz = NVMCTRL->SEESTAT.bit.PSZ,
+                  sblk = NVMCTRL->SEESTAT.bit.SBLK;
 
-    if (!psz && !sblk)
-      return 0;
-    else if (psz <= 2)
-      return (0x200 << psz);
-    else if (sblk == 1 || psz == 3)
-      return 4096;
-    else if (sblk == 2 || psz == 4)
-      return 8192;
-    else if (sblk <= 4 || psz == 5)
-      return 16384;
-    else if (sblk >= 9 && psz == 7)
-      return 65536;
-    else
-      return 32768;
+         if (!psz && !sblk)         return     0;
+    else if (psz <= 2)              return (0x200 << psz);
+    else if (sblk == 1 || psz == 3) return  4096;
+    else if (sblk == 2 || psz == 4) return  8192;
+    else if (sblk <= 4 || psz == 5) return 16384;
+    else if (sblk >= 9 && psz == 7) return 65536;
+    else                            return 32768;
   #endif
 }
 

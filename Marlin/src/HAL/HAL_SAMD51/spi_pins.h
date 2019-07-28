@@ -47,7 +47,7 @@
 
 #else
 
-  #error Unsupported board!
+  #error "Unsupported board!"
 
 #endif
 

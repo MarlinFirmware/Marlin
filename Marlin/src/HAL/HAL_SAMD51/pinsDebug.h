@@ -18,6 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
+
 #define NUMBER_PINS_TOTAL PINS_COUNT
 
 #define digitalRead_mod(p) extDigitalRead(p)
@@ -48,7 +50,6 @@ void pwm_details(int32_t pin) {
     //SERIAL_ECHOPAIR("PWM = ", duty);
   }
 }
-
 
 /**
  * AGCM4 Board pin |  PORT  | Label

@@ -25,10 +25,9 @@
 #include "Adafruit_ZeroDMA.h"
 #include "wiring_private.h"
 
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Local defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 #if HAS_TEMP_ADC_0
   #define GET_TEMP_0_ADC()          PIN_TO_ADC(TEMP_0_PIN)
@@ -104,9 +103,9 @@
 
 #define DMA_IS_REQUIRED     ADC_IS_REQUIRED
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 #if DMA_IS_REQUIRED
 
@@ -117,9 +116,9 @@
 
 #endif
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Private Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 uint16_t HAL_adc_result;
 
@@ -275,9 +274,9 @@ uint16_t HAL_adc_result;
 
 #endif // ADC_IS_REQUIRED
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Private functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 #if DMA_IS_REQUIRED
 
@@ -302,7 +301,7 @@ uint16_t HAL_adc_result;
         if (descriptor != nullptr)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
         adc0ProgramDMA.startJob();
-        }
+      }
 
       adc0ReadDMA.setTrigger(ADC0_DMAC_ID_RESRDY);
       adc0ReadDMA.setAction(DMA_TRIGGER_ACTON_BEAT);
@@ -364,9 +363,9 @@ uint16_t HAL_adc_result;
 
 #endif // DMA_IS_REQUIRED
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 // HAL initialization task
 void HAL_init(void) {
@@ -382,8 +381,10 @@ void HAL_init(void) {
 }
 
 // HAL idle task
-/*void HAL_idletask(void) {
-}*/
+/*
+void HAL_idletask(void) {
+}
+*/
 
 void HAL_clear_reset_source(void) { }
 
@@ -393,19 +394,12 @@ uint8_t HAL_get_reset_source(void) {
   RSTC_RCAUSE_Type resetCause;
 
   resetCause.reg = REG_RSTC_RCAUSE;
-  if (resetCause.bit.POR)
-    return RST_POWER_ON;
-  else if (resetCause.bit.EXT)
-    return RST_EXTERNAL;
-  else if (resetCause.bit.BODCORE || resetCause.bit.BODVDD)
-    return RST_BROWN_OUT;
-  else if (resetCause.bit.WDT)
-    return RST_WATCHDOG;
-  else if (resetCause.bit.SYST || resetCause.bit.NVM)
-    return RST_SOFTWARE;
-  else if (resetCause.bit.BACKUP)
-    return RST_BACKUP;
-
+  if (resetCause.bit.POR)                                   return RST_POWER_ON;
+  else if (resetCause.bit.EXT)                              return RST_EXTERNAL;
+  else if (resetCause.bit.BODCORE || resetCause.bit.BODVDD) return RST_BROWN_OUT;
+  else if (resetCause.bit.WDT)                              return RST_WATCHDOG;
+  else if (resetCause.bit.SYST || resetCause.bit.NVM)       return RST_SOFTWARE;
+  else if (resetCause.bit.BACKUP)                           return RST_BACKUP;
   return 0;
 }
 #pragma pop_macro("WDT")
@@ -422,9 +416,9 @@ int freeMemory() {
   return (int)&free_memory - (heap_end ? heap_end : (int)&__bss_end__);
 }
 
-// --------------------------------------------------------------------------
+// ------------------------
 // ADC
-// --------------------------------------------------------------------------
+// ------------------------
 
 void HAL_adc_init(void) {
   #if ADC_IS_REQUIRED
