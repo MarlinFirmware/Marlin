@@ -163,7 +163,13 @@ class Endstops {
     #endif
 
     #if ENABLED(SPI_ENDSTOPS)
-      static uint8_t tmc_spi_homing;
+      typedef struct {
+        union {
+          bool any;
+          struct { bool x:1, y:1, z:1; }
+        }
+      } tmc_spi_homing_t;
+      static tmc_spi_homing_t tmc_spi_homing;
       static void clear_endstop_state();
       static bool tmc_spi_homing_check();
     #endif

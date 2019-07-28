@@ -77,7 +77,7 @@ Endstops::esbits_t Endstops::live_state = 0;
 #endif
 
 #if ENABLED(SPI_ENDSTOPS)
-  uint8_t Endstops::tmc_spi_homing; // = 0
+  Endstops::tmc_spi_homing_t Endstops::tmc_spi_homing; // = 0
 #endif
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
   millis_t sg_guard_period; // = 0
@@ -794,19 +794,19 @@ void Endstops::update() {
   bool Endstops::tmc_spi_homing_check() {
     bool hit = false;
     #if X_SPI_SENSORLESS
-      if (TEST(tmc_spi_homing, X_AXIS) && stepperX.test_stall_status()) {
+      if (tmc_spi_homing.x && stepperX.test_stall_status()) {
         SBI(live_state, X_STOP);
         hit = true;
       }
     #endif
     #if Y_SPI_SENSORLESS
-      if (TEST(tmc_spi_homing, Y_AXIS) && stepperY.test_stall_status()) {
+      if (tmc_spi_homing.y && stepperY.test_stall_status()) {
         SBI(live_state, Y_STOP);
         hit = true;
       }
     #endif
     #if Z_SPI_SENSORLESS
-      if (TEST(tmc_spi_homing, Z_AXIS) && stepperZ.test_stall_status()) {
+      if (tmc_spi_homing.z && stepperZ.test_stall_status()) {
         SBI(live_state, Z_STOP);
         hit = true;
       }
