@@ -21,44 +21,54 @@
  */
 
 #include "../../inc/MarlinConfig.h"
+
+#if NUM_SERIAL > 0
+
 #include "../gcode.h"
 
 /**
- * M575 - set hotend offset (in linear units)
+ * M575 - Change serial baud rate
  *
- *   P<Serial channel number>
- *   B<baudrate>
+ *   P<index>    - Serial port index. Omit for all.
+ *   B<baudrate> - Baud rate (bits per second)
  */
 void GcodeSuite::M575() {
-  long baudrate = 0;
-  int serialN = -99;
-  if (parser.seenval('P')) serialN = parser.value_int();
-  if (parser.seenval('B')) baudrate = parser.value_long();
-  if (baudrate != 0) {
-    #if NUM_SERIAL > 0
-      if ( (serialN == -99) || (serialN == 0)) {
+  const int32_t baud = parser.ulongval('B');
+  switch (baud) {
+    case 2400: case 9600: case 19200: case 38400: case 57600:
+    case 115200: case 250000: case 500000: case 1000000: {
+      const int8_t port = parser.intval('P', -99);
+      const bool set0 = (port == -99 || port == 0);
+      if (set0) {
         SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR(" New baudrate for serial0 is: ", baudrate);
+        SERIAL_ECHOLNPAIR(" Serial "
+          #if NUM_SERIAL > 1
+            , '0',
+          #else
+            "0"
+          #endif
+          " baud rate set to ", baud
+        );
       }
       #if NUM_SERIAL > 1
-        if ((serialN == -99) || (serialN == 1)) {
+        const bool set1 = (port == -99 || port == 1);
+        if (set1) {
           SERIAL_ECHO_START();
-          SERIAL_ECHOLNPAIR(" New baudrate for serial1 is: ", baudrate);
+          SERIAL_ECHOLNPAIR(" Serial ", '1', " baud rate set to ", baud);
         }
       #endif
+
       SERIAL_FLUSH();
-    #endif
-    #if NUM_SERIAL > 0
-      if ( (serialN == -99) || (serialN == 0)) {
-        MYSERIAL0.end();
-        MYSERIAL0.begin(baudrate);
-      }
+
+      if (set0) { MYSERIAL0.end(); MYSERIAL0.begin(baud); }
+
       #if NUM_SERIAL > 1
-        if ((serialN == -99) || (serialN == 1)) {
-          MYSERIAL1.end();
-          MYSERIAL1.begin(baudrate);
-        }
+        if (set1) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
       #endif
-    #endif
+
+    } break;
+    default: SERIAL_ECHO_MSG("?(B)aud rate is implausible.");
   }
 }
+
+#endif // NUM_SERIAL > 0

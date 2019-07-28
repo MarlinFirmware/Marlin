@@ -782,7 +782,9 @@ private:
     static void M540();
   #endif
 
-  static void M575();
+  #if NUM_SERIAL > 0
+    static void M575();
+  #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     static void M600();
