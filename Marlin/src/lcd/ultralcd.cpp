@@ -21,11 +21,14 @@
  */
 
 #include "../inc/MarlinConfigPre.h"
-
-#ifdef LED_BACKLIGHT_TIMEOUT
+//DrDitto
+#ifdef FYSETC_MINI_12864
   #include "../feature/leds/leds.h"
+#else
+  #ifdef LED_BACKLIGHT_TIMEOUT
+    #include "../feature/leds/leds.h"
+  #endif
 #endif
-
 // All displays share the MarlinUI class
 #if HAS_DISPLAY
   #include "ultralcd.h"
@@ -270,77 +273,101 @@ millis_t next_button_update_ms;
 #endif // HAS_LCD_MENU
 
 void MarlinUI::init() {
-
-  init_lcd();
-
-  #if HAS_DIGITAL_BUTTONS
-
-    #if BUTTON_EXISTS(EN1)
-      SET_INPUT_PULLUP(BTN_EN1);
-    #endif
-    #if BUTTON_EXISTS(EN2)
-      SET_INPUT_PULLUP(BTN_EN2);
-    #endif
-    #if BUTTON_EXISTS(ENC)
-      SET_INPUT_PULLUP(BTN_ENC);
-    #endif
-
-    #if BUTTON_EXISTS(UP)
-      SET_INPUT(BTN_UP);
-    #endif
-    #if BUTTON_EXISTS(DWN)
-      SET_INPUT(BTN_DWN);
-    #endif
-    #if BUTTON_EXISTS(LFT)
-      SET_INPUT(BTN_LFT);
-    #endif
-    #if BUTTON_EXISTS(RT)
-      SET_INPUT(BTN_RT);
-    #endif
-
-  #endif // !HAS_DIGITAL_BUTTONS
-
-  #if HAS_SHIFT_ENCODER
-
-    #if ENABLED(SR_LCD_2W_NL) // Non latching 2 wire shift register
-
-      SET_OUTPUT(SR_DATA_PIN);
-      SET_OUTPUT(SR_CLK_PIN);
-
-    #elif defined(SHIFT_CLK)
-
-      SET_OUTPUT(SHIFT_CLK);
-      OUT_WRITE(SHIFT_LD, HIGH);
-      #if defined(SHIFT_EN) && SHIFT_EN >= 0
-        OUT_WRITE(SHIFT_EN, LOW);
+  #if PIN_EXISTS(LCD_BACKLIGHT)
+    OUT_WRITE(LCD_BACKLIGHT_PIN, (
+      #if ENABLED(DELAYED_BACKLIGHT_INIT)
+        LOW  // Illuminate after reset
+      #else
+        HIGH // Illuminate right away
       #endif
-      SET_INPUT_PULLUP(SHIFT_OUT);
+    ));
+  #endif
 
-    #endif
-
-  #endif // HAS_SHIFT_ENCODER
-
-  #if ENABLED(SDSUPPORT)
-    #if PIN_EXISTS(SD_DETECT)
-      SET_INPUT_PULLUP(SD_DETECT_PIN);
-    #endif
-    #if ENABLED(INIT_SDCARD_ON_BOOT)
-      lcd_sd_status = 2; // UNKNOWN
+  #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
+    SET_OUTPUT(LCD_PINS_DC);
+    #ifndef LCD_RESET_PIN
+      #define LCD_RESET_PIN LCD_PINS_RS
     #endif
   #endif
 
-  #if HAS_ENCODER_ACTION
-    #if HAS_SLOW_BUTTONS
-      slow_buttons = 0;
-    #endif
-    #if ENABLED(TOUCH_BUTTONS)
-      touch_buttons = 0;
-    #endif
+  #if PIN_EXISTS(LCD_RESET)
+    // Perform a clean hardware reset with needed delays
+    OUT_WRITE(LCD_RESET_PIN, LOW);
+    _delay_ms(5);
+    WRITE(LCD_RESET_PIN, HIGH);
+    _delay_ms(5);
+    //u8g.begin();
   #endif
 
-  update_buttons();
+  #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
+    WRITE(LCD_BACKLIGHT_PIN, HIGH);
+  #endif
+  //DrDitto
+  #if HAS_COLOR_LEDS
+    leds.setup();
+    u8g.setContrast(255);
+  #endif
+  #if ENABLED(SHOW_BOOTSCREEN)
+    ui.show_bootscreen();
+  #endif
+    
+    init_lcd();
 
-  #if HAS_ENCODER_ACTION
+#if HAS_DIGITAL_BUTTONS
+
+#if BUTTON_EXISTS(EN1)
+    SET_INPUT_PULLUP(BTN_EN1);
+#endif
+#if BUTTON_EXISTS(EN2)
+    SET_INPUT_PULLUP(BTN_EN2);
+#endif
+#if BUTTON_EXISTS(ENC)
+    SET_INPUT_PULLUP(BTN_ENC);
+#endif
+#if BUTTON_EXISTS(UP)
+    SET_INPUT(BTN_UP);
+#endif
+#if BUTTON_EXISTS(DWN)
+    SET_INPUT(BTN_DWN);
+#endif
+#if BUTTON_EXISTS(LFT)
+    SET_INPUT(BTN_LFT);
+#endif
+#if BUTTON_EXISTS(RT)
+    SET_INPUT(BTN_RT);
+#endif
+#endif // !HAS_DIGITAL_BUTTONS
+#if HAS_SHIFT_ENCODER
+#if ENABLED(SR_LCD_2W_NL) // Non latching 2 wire shift register
+    SET_OUTPUT(SR_DATA_PIN);
+    SET_OUTPUT(SR_CLK_PIN);
+#elif defined(SHIFT_CLK)
+    SET_OUTPUT(SHIFT_CLK);
+    OUT_WRITE(SHIFT_LD, HIGH);
+#if defined(SHIFT_EN) && SHIFT_EN >= 0
+    OUT_WRITE(SHIFT_EN, LOW);
+#endif
+    SET_INPUT_PULLUP(SHIFT_OUT);
+#endif
+#endif // HAS_SHIFT_ENCODER
+#if ENABLED(SDSUPPORT)
+#if PIN_EXISTS(SD_DETECT)
+    SET_INPUT_PULLUP(SD_DETECT_PIN);
+#endif
+#if ENABLED(INIT_SDCARD_ON_BOOT)
+    lcd_sd_status = 2; // UNKNOWN
+#endif
+#endif
+#if HAS_ENCODER_ACTION
+#if HAS_SLOW_BUTTONS
+    slow_buttons = 0;
+#endif
+#if ENABLED(TOUCH_BUTTONS)
+    touch_buttons = 0;
+#endif
+#endif
+    update_buttons();
+#if HAS_ENCODER_ACTION
     encoderDiff = 0;
   #endif
 }
