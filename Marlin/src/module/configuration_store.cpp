@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V67"
+#define EEPROM_VERSION "V68"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -98,10 +98,8 @@
   #include "../feature/runout.h"
 #endif
 
-#include "../lcd/extensible_ui/ui_api.h"
-
 #if ENABLED(EXTRA_LIN_ADVANCE_K)
-extern float saved_extruder_advance_K[EXTRUDERS];
+  extern float saved_extruder_advance_K[EXTRUDERS];
 #endif
 
 #if EXTRUDERS > 1
@@ -126,7 +124,7 @@ typedef struct {  int16_t X, Y, Z;                                         } tmc
 typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_stealth_enabled_t;
 
 // Limit an index to an array size
-#define ALIM(I,ARR) MIN(I, COUNT(ARR) - 1)
+#define ALIM(I,ARR) _MIN(I, COUNT(ARR) - 1)
 
 /**
  * Current EEPROM Layout
@@ -1390,7 +1388,7 @@ void MarlinSettings::postprocess() {
         float runout_distance_mm;
         EEPROM_READ(runout_distance_mm);
         #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
-          runout.set_runout_distance(runout_distance_mm);
+          if (!validating) runout.set_runout_distance(runout_distance_mm);
         #endif
       }
 
@@ -2252,7 +2250,7 @@ void MarlinSettings::reset() {
     planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
     planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
     planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
-    #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+    #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
       planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
     #endif
   #endif
@@ -2290,6 +2288,7 @@ void MarlinSettings::reset() {
   #if EXTRUDERS > 1
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
+      toolchange_settings.extra_prime = TOOLCHANGE_FIL_EXTRA_PRIME;
       toolchange_settings.prime_speed = TOOLCHANGE_FIL_SWAP_PRIME_SPEED;
       toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
     #endif
@@ -2767,7 +2766,7 @@ void MarlinSettings::reset() {
       #endif
       #if HAS_CLASSIC_JERK
         SERIAL_ECHOPGM(" X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>");
-        #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+        #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
           SERIAL_ECHOPGM(" E<max_e_jerk>");
         #endif
       #endif
@@ -2785,7 +2784,7 @@ void MarlinSettings::reset() {
         , " X", LINEAR_UNIT(planner.max_jerk[X_AXIS])
         , " Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS])
         , " Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS])
-        #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+        #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
           , " E", LINEAR_UNIT(planner.max_jerk[E_AXIS])
         #endif
       #endif
@@ -3254,7 +3253,7 @@ void MarlinSettings::reset() {
        * TMC Sensorless homing thresholds
        */
       #if USE_SENSORLESS
-        CONFIG_ECHO_HEADING("TMC2130 StallGuard threshold:");
+        CONFIG_ECHO_HEADING("StallGuard threshold:");
         CONFIG_ECHO_START();
         #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
           say_M914();

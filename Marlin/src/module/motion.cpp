@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@
   #include "../feature/bltouch.h"
 #endif
 
-#if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+#if HAS_DISPLAY
   #include "../lcd/ultralcd.h"
 #endif
 
@@ -125,7 +125,7 @@ float destination[XYZE]; // = { 0 }
     );
     LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp[i][e];
     #if ENABLED(DUAL_X_CARRIAGE)
-      hotend_offset[X_AXIS][1] = MAX(X2_HOME_POS, X2_MAX_POS);
+      hotend_offset[X_AXIS][1] = _MAX(X2_HOME_POS, X2_MAX_POS);
     #endif
   }
 #endif
@@ -473,7 +473,7 @@ void clean_up_after_endstop_or_probe_move() {
       if (axis == X_AXIS) {
 
         // In Dual X mode hotend_offset[X] is T1's home position
-        const float dual_max_x = MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
+        const float dual_max_x = _MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
 
         if (new_tool_index != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
@@ -484,7 +484,7 @@ void clean_up_after_endstop_or_probe_move() {
           // In Duplication Mode, T0 can move as far left as X1_MIN_POS
           // but not so far to the right that T1 would move past the end
           soft_endstop[X_AXIS].min = X1_MIN_POS;
-          soft_endstop[X_AXIS].max = MIN(X1_MAX_POS, dual_max_x - duplicate_extruder_x_offset);
+          soft_endstop[X_AXIS].max = _MIN(X1_MAX_POS, dual_max_x - duplicate_extruder_x_offset);
         }
         else {
           // In other modes, T0 can move from X1_MIN_POS to X1_MAX_POS
@@ -507,7 +507,7 @@ void clean_up_after_endstop_or_probe_move() {
         case X_AXIS:
         case Y_AXIS:
           // Get a minimum radius for clamping
-          delta_max_radius = MIN(ABS(MAX(soft_endstop[X_AXIS].min, soft_endstop[Y_AXIS].min)), soft_endstop[X_AXIS].max, soft_endstop[Y_AXIS].max);
+          delta_max_radius = _MIN(ABS(_MAX(soft_endstop[X_AXIS].min, soft_endstop[Y_AXIS].min)), soft_endstop[X_AXIS].max, soft_endstop[Y_AXIS].max);
           delta_max_radius_2 = sq(delta_max_radius);
           break;
         case Z_AXIS:
@@ -538,10 +538,8 @@ void clean_up_after_endstop_or_probe_move() {
 
     #endif
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING))
-      SERIAL_ECHOLNPAIR("Axis ", axis_codes[axis], " min:", soft_endstop[axis].min, " max:", soft_endstop[axis].max);
-  #endif
+  if (DEBUGGING(LEVELING))
+    SERIAL_ECHOLNPAIR("Axis ", axis_codes[axis], " min:", soft_endstop[axis].min, " max:", soft_endstop[axis].max);
 }
 
   /**
@@ -1044,7 +1042,7 @@ bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool
     if (zz) SERIAL_CHAR('Z');
     SERIAL_ECHOLNPGM(" " MSG_FIRST);
 
-    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+    #if HAS_DISPLAY
       ui.status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
     #endif
     return true;
@@ -1073,7 +1071,7 @@ float get_homing_bump_feedrate(const AxisEnum axis) {
    * Set sensorless homing if the axis has it, accounting for Core Kinematics.
    */
   sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis) {
-    sensorless_t stealth_states { false, false, false, false, false, false, false };
+    sensorless_t stealth_states { false };
 
     switch (axis) {
       default: break;
@@ -1441,7 +1439,7 @@ void homeaxis(const AxisEnum axis) {
   // When homing Z with probe respect probe clearance
   const float bump = axis_home_dir * (
     #if HOMING_Z_WITH_PROBE
-      (axis == Z_AXIS && (Z_HOME_BUMP_MM)) ? MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_HOME_BUMP_MM) :
+      (axis == Z_AXIS && (Z_HOME_BUMP_MM)) ? _MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_HOME_BUMP_MM) :
     #endif
     home_bump_mm(axis)
   );

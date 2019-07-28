@@ -1,10 +1,10 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (C) 2017 Victor Perez
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,35 +23,31 @@
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include "../../inc/MarlinConfig.h"
 
 #include <SPI.h>
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 static SPISettings spiConfig;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 #if ENABLED(SOFTWARE_SPI)
-  // --------------------------------------------------------------------------
+  // ------------------------
   // Software SPI
-  // --------------------------------------------------------------------------
+  // ------------------------
   #error "Software SPI not supported for STM32. Use Hardware SPI."
 
 #else
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Hardware SPI
-// --------------------------------------------------------------------------
+// ------------------------
 
 /**
  * VGPV SPI speed start and PCLK2/2, by default 108/2 = 54Mhz
@@ -152,4 +148,4 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
 
 #endif // SOFTWARE_SPI
 
-#endif // ARDUINO_ARCH_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 /**
  * Adapted from Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  */
 
 /**
@@ -30,10 +30,6 @@
  */
 
 #ifdef __AVR__
-
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
 
 #include "../../inc/MarlinConfig.h"
 
@@ -55,11 +51,11 @@ void spiBegin(void) {
   #endif
 }
 
-#if DISABLED(SOFTWARE_SPI, FORCE_SOFT_SPI)
+#if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
-  //------------------------------------------------------------------------------
+  // ------------------------
   // Hardware SPI
-  //------------------------------------------------------------------------------
+  // ------------------------
 
   // make sure SPCR rate is in expected bits
   #if (SPR0 != 0 || SPR1 != 1)
@@ -173,7 +169,7 @@ void spiBegin(void) {
     // Invert the SPI2X bit
     clockDiv ^= 0x1;
 
-    SPCR = _BV(SPE) | _BV(MSTR) | ((bitOrder == SPI_LSBFIRST) ? _BV(DORD) : 0) |
+    SPCR = _BV(SPE) | _BV(MSTR) | ((bitOrder == LSBFIRST) ? _BV(DORD) : 0) |
       (dataMode << CPHA) | ((clockDiv >> 1) << SPR0);
     SPSR = clockDiv | 0x01;
   }
@@ -181,9 +177,9 @@ void spiBegin(void) {
 
 #else // SOFTWARE_SPI || FORCE_SOFT_SPI
 
-  //------------------------------------------------------------------------------
+  // ------------------------
   // Software SPI
-  //------------------------------------------------------------------------------
+  // ------------------------
 
   // nop to tune soft SPI timing
   #define nop asm volatile ("\tnop\n")

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,8 +67,7 @@ void reset_ball() {
 void BrickoutGame::game_screen() {
   if (game_frame()) {     // Run logic twice for finer resolution
     // Update Paddle Position
-    paddle_x = (int8_t)ui.encoderPosition;
-    paddle_x = constrain(paddle_x, 0, (LCD_PIXEL_WIDTH - (PADDLE_W)) / (PADDLE_VEL));
+    paddle_x = constrain(int8_t(ui.encoderPosition), 0, (LCD_PIXEL_WIDTH - (PADDLE_W)) / (PADDLE_VEL));
     ui.encoderPosition = paddle_x;
     paddle_x *= (PADDLE_VEL);
 

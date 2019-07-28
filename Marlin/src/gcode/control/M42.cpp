@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ void GcodeSuite::M42() {
   #if FAN_COUNT > 0
     switch (pin) {
       #if HAS_FAN0
-        case FAN_PIN: thermalManager.fan_speed[0] = pin_status; break;
+        case FAN0_PIN: thermalManager.fan_speed[0] = pin_status; break;
       #endif
       #if HAS_FAN1
         case FAN1_PIN: thermalManager.fan_speed[1] = pin_status; break;

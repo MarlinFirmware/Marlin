@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(LCD_SET_PROGRESS_MANUALLY) && EITHER(EXTENSIBLE_UI, ULTRA_LCD)
+#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
 #include "../../lcd/ultralcd.h"
@@ -42,4 +42,4 @@ void GcodeSuite::M73() {
     ui.set_progress(parser.value_byte());
 }
 
-#endif // LCD_SET_PROGRESS_MANUALLY && (EXTENSIBLE_UI || ULTRA_LCD)
+#endif // LCD_SET_PROGRESS_MANUALLY

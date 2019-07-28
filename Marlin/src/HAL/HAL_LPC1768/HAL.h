@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -27,15 +27,14 @@
  */
 
 #define CPU_32_BIT
-#define HAL_INIT
 
-void HAL_init();
+void HAL_init(void);
 
 #include <stdint.h>
 #include <stdarg.h>
 #include <algorithm>
 
-extern "C" volatile millis_t _millis;
+extern "C" volatile uint32_t _millis;
 
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
@@ -134,7 +133,7 @@ uint8_t spiRec(uint32_t chan);
                                     // Memory usage per ADC channel (bytes): (6 * ADC_MEDIAN_FILTER_SIZE) + 16
                                     // 8 * ((6 * 23) + 16 ) = 1232 Bytes for 8 channels
 
-#define ADC_LOWPASS_K_VALUE    (6)  // Higher values increase rise time
+#define ADC_LOWPASS_K_VALUE    (2)  // Higher values increase rise time
                                     // Rise time sample delays for 100% signal convergence on full range step
                                     // (1 : 13, 2 : 32, 3 : 67, 4 : 139, 5 : 281, 6 : 565, 7 : 1135, 8 : 2273)
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
@@ -148,7 +147,9 @@ using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 #define HAL_ADC_READY()        FilteredADC::finished_conversion()
 
 // A grace period to allow ADC readings to stabilize, preventing false alarms
-#define THERMAL_PROTECTION_GRACE_PERIOD 1000
+#ifndef THERMAL_PROTECTION_GRACE_PERIOD
+  #define THERMAL_PROTECTION_GRACE_PERIOD 1000
+#endif
 
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);

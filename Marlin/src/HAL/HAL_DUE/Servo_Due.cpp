@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,9 +50,9 @@
 
 static volatile int8_t Channel[_Nbr_16timers];              // counter for the servo being pulsed for each timer (or -1 if refresh interval)
 
-//------------------------------------------------------------------------------
+// ------------------------
 /// Interrupt handler for the TC0 channel 1.
-//------------------------------------------------------------------------------
+// ------------------------
 void Servo_Handler(timer16_Sequence_t timer, Tc *pTc, uint8_t channel);
 
 #ifdef _useTimer1
@@ -137,7 +137,7 @@ void initISR(timer16_Sequence_t timer) {
   #endif
 }
 
-void finISR(timer16_Sequence_t timer) {
+void finISR(timer16_Sequence_t) {
   #ifdef _useTimer1
     TC_Stop(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1);
   #endif

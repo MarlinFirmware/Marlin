@@ -1,9 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+#include "../inc/MarlinConfig.h"
 
 #define MAX_NAME_LENGTH  39    // one place to specify the format of all the sources of names
                                // "-" left justify, "39" minimum width of name, pad with blanks
@@ -43,7 +42,7 @@
 #define REPORT_NAME_ANALOG(COUNTER, NAME) _ADD_PIN(#NAME, COUNTER)
 
 #include "pinsDebug_list.h"
-#line 47
+#line 46
 
 // manually add pins that have names that are macros which don't play well with these macros
 #if SERIAL_PORT == 0 && (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY || defined(ARDUINO_ARCH_SAM))
@@ -95,10 +94,9 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #include "pinsDebug_list.h"
-  #line 99
+  #line 98
 
 };
-
 
 #include HAL_PATH(../HAL, pinsDebug.h)  // get the correct support file for this CPU
 
@@ -119,12 +117,12 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
     if (GET_ARRAY_PIN(x) == pin) {
       if (found) multi_name_pin = true;
       found = true;
-      if (!multi_name_pin) {    // report digitial and analog pin number only on the first time through
+      if (!multi_name_pin) {    // report digital and analog pin number only on the first time through
         sprintf_P(buffer, PSTR("%sPIN: "), start_string);     // digital pin number
         SERIAL_ECHO(buffer);
         PRINT_PIN(pin);
         PRINT_PORT(pin);
-        if (IS_ANALOG(pin)) {
+        if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
           sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
           SERIAL_ECHO(buffer);
         }
@@ -186,7 +184,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
     SERIAL_ECHO(buffer);
     PRINT_PIN(pin);
     PRINT_PORT(pin);
-    if (IS_ANALOG(pin)) {
+    if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
       sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
       SERIAL_ECHO(buffer);
     }
@@ -209,7 +207,10 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
         else
       #endif
       {
-        if (GET_PINMODE(pin)) {
+        if (pwm_status(pin)) {
+          // do nothing
+        }
+        else if (GET_PINMODE(pin)) {
           SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);
           print_input_or_output(true);
           SERIAL_ECHO(digitalRead_mod(pin));
@@ -227,7 +228,10 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
           SERIAL_ECHO(digitalRead_mod(pin));
         }
         //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
-        if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report
+        if (extended) {
+          SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);
+          pwm_details(pin);  // report PWM capabilities only if doing an extended report
+        }
       }
     }
     SERIAL_EOL();

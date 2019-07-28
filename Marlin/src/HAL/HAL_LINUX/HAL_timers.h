@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,15 +24,11 @@
  * HAL timers for Linux X86_64
  */
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include <stdint.h>
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 

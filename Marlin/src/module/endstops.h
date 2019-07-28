@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,27 +29,16 @@
 #include <stdint.h>
 
 enum EndstopEnum : char {
-  X_MIN,
-  Y_MIN,
-  Z_MIN,
-  Z_MIN_PROBE,
-  X_MAX,
-  Y_MAX,
-  Z_MAX,
-  X2_MIN,
-  X2_MAX,
-  Y2_MIN,
-  Y2_MAX,
-  Z2_MIN,
-  Z2_MAX,
-  Z3_MIN,
-  Z3_MAX
+  X_MIN,  Y_MIN,  Z_MIN,  Z_MIN_PROBE,
+  X_MAX,  Y_MAX,  Z_MAX,
+  X2_MIN, X2_MAX,
+  Y2_MIN, Y2_MAX,
+  Z2_MIN, Z2_MAX,
+  Z3_MIN, Z3_MAX
 };
 
 class Endstops {
-
   public:
-
     #if HAS_EXTRA_ENDSTOPS
       typedef uint16_t esbits_t;
       #if ENABLED(X_DUAL_ENDSTOPS)

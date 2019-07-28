@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ bool last_printing_status = false;
 // Everything written needs the high bit set.
 void write_to_lcd_P(PGM_P const message) {
   char encoded_message[MAX_CURLY_COMMAND];
-  uint8_t message_length = MIN(strlen_P(message), sizeof(encoded_message));
+  uint8_t message_length = _MIN(strlen_P(message), sizeof(encoded_message));
 
   for (uint8_t i = 0; i < message_length; i++)
     encoded_message[i] = pgm_read_byte(&message[i]) | 0x80;
@@ -90,7 +90,7 @@ void write_to_lcd_P(PGM_P const message) {
 
 void write_to_lcd(const char * const message) {
   char encoded_message[MAX_CURLY_COMMAND];
-  const uint8_t message_length = MIN(strlen(message), sizeof(encoded_message));
+  const uint8_t message_length = _MIN(strlen(message), sizeof(encoded_message));
 
   for (uint8_t i = 0; i < message_length; i++)
     encoded_message[i] = message[i] | 0x80;
@@ -113,21 +113,19 @@ void write_to_lcd(const char * const message) {
  */
 void process_lcd_c_command(const char* command) {
   switch (command[0]) {
-    case 'C': {
-      int raw_feedrate = atoi(command + 1);
-      feedrate_percentage = raw_feedrate * 10;
-      feedrate_percentage = constrain(feedrate_percentage, 10, 999);
-    } break;
-    case 'T': {
-      thermalManager.setTargetHotend(atoi(command + 1), 0);
-    } break;
-    case 'P': {
-      thermalManager.setTargetBed(atoi(command + 1));
-    } break;
+    case 'C': // Cope with both V1 early rev and later LCDs.
+    case 'S':
+      feedrate_percentage = atoi(command + 1) * 10;
+      LIMIT(feedrate_percentage, 10, 999);
+      break;
 
-    default:
-      SERIAL_ECHOLNPAIR("UNKNOWN C COMMAND", command);
-      return;
+    case 'T': thermalManager.setTargetHotend(atoi(command + 1), 0); break;
+
+    #if HAS_HEATED_BED
+      case 'P': thermalManager.setTargetBed(atoi(command + 1)); break;
+    #endif
+
+    default: SERIAL_ECHOLNPAIR("UNKNOWN C COMMAND", command);
   }
 }
 
@@ -144,25 +142,24 @@ void process_lcd_eb_command(const char* command) {
   switch (command[0]) {
     case '0': {
       elapsed = print_job_timer.duration();
-      sprintf_P(elapsed_buffer, PSTR("%02u%02u%02u"), uint16_t(elapsed.hour()), uint16_t(elapsed.minute()) % 60UL, elapsed.second());
+      sprintf_P(elapsed_buffer, PSTR("%02u%02u%02u"), uint16_t(elapsed.hour()), uint16_t(elapsed.minute()) % 60, uint16_t(elapsed.second()) % 60);
 
       char message_buffer[MAX_CURLY_COMMAND];
       sprintf_P(message_buffer,
-              PSTR("{T0:%03.0f/%03i}{T1:000/000}{TP:%03.0f/%03i}{TQ:%03i}{TT:%s}"),
-              thermalManager.degHotend(0),
-              thermalManager.degTargetHotend(0),
-              #if HAS_HEATED_BED
-                thermalManager.degBed(),
-                thermalManager.degTargetBed(),
-              #else
-                0, 0,
-              #endif
-              #if ENABLED(SDSUPPORT)
-                card.percentDone(),
-              #else
-                0,
-              #endif
-              elapsed_buffer);
+        PSTR("{T0:%03.0f/%03i}{T1:000/000}{TP:%03.0f/%03i}{TQ:%03i}{TT:%s}"),
+        thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
+        #if HAS_HEATED_BED
+          thermalManager.degBed(), thermalManager.degTargetBed(),
+        #else
+          0, 0,
+        #endif
+        #if ENABLED(SDSUPPORT)
+          card.percentDone(),
+        #else
+          0,
+        #endif
+        elapsed_buffer
+      );
       write_to_lcd(message_buffer);
     } break;
 
@@ -319,11 +316,6 @@ void process_lcd_s_command(const char* command) {
       write_to_lcd(message_buffer);
     } break;
 
-    case 'H':
-      // Home all axis
-      queue.inject_P(PSTR("G28"));
-      break;
-
     case 'L': {
       #if ENABLED(SDSUPPORT)
         if (!card.isDetected()) card.initsd();
@@ -465,7 +457,7 @@ namespace ExtUI {
       // issue a percent of 0.
       const uint8_t percent_done = IS_SD_PRINTING() ? card.percentDone() : last_printing_status ? 100 : 0;
       if (percent_done != last_percent_done) {
-        char message_buffer[10];
+        char message_buffer[16];
         sprintf_P(message_buffer, PSTR("{TQ:%03i}"), percent_done);
         write_to_lcd(message_buffer);
         last_percent_done = percent_done;
@@ -474,14 +466,15 @@ namespace ExtUI {
     #endif
   }
 
-  void onStatusChanged(const char * const msg) {
+  // {E:<msg>} is for error states.
+  void onPrinterKilled(PGM_P msg) {
     write_to_lcd_P(PSTR("{E:"));
-    write_to_lcd(msg);
+    write_to_lcd_P(msg);
     write_to_lcd_P("}");
   }
 
   // Not needed for Malyan LCD
-  void onPrinterKilled(PGM_P const msg) { UNUSED(msg); }
+  void onStatusChanged(const char * const msg) { UNUSED(msg); }
   void onMediaInserted() {};
   void onMediaError() {};
   void onMediaRemoved() {};

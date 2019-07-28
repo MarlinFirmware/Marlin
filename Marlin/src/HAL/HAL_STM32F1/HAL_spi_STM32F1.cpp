@@ -1,10 +1,10 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (C) 2017 Victor Perez
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 /**
  * Software SPI functions originally from Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  */
 
 /**
@@ -32,34 +32,25 @@
 
 #ifdef __STM32F1__
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include "../../inc/MarlinConfig.h"
 #include <SPI.h>
 
-
-// --------------------------------------------------------------------------
-// Public Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 #if ENABLED(SOFTWARE_SPI)
 
-  // --------------------------------------------------------------------------
+  // ------------------------
   // Software SPI
-  // --------------------------------------------------------------------------
+  // ------------------------
   #error "Software SPI not supported for STM32F1. Use hardware SPI."
 
 #else
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Hardware SPI
-// --------------------------------------------------------------------------
+// ------------------------
 
 /**
  * VGPV SPI speed start and F_CPU/2, by default 72/2 = 36Mhz
@@ -88,15 +79,25 @@ void spiBegin() {
  * @details
  */
 void spiInit(uint8_t spiRate) {
+  /**
+   * STM32F1 APB2 = 72MHz, APB1 = 36MHz, max SPI speed of this MCU if 18Mhz
+   * STM32F1 has 3 SPI ports, SPI1 in APB2, SPI2/SPI3 in APB1
+   * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
+   */
+  #if SPI_DEVICE == 1
+    #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
+  #else
+    #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
+  #endif
   uint8_t  clock;
   switch (spiRate) {
-    case SPI_FULL_SPEED:    clock = SPI_CLOCK_DIV2 ; break;
+    case SPI_FULL_SPEED:    clock = SPI_CLOCK_MAX ;  break;
     case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4 ; break;
     case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8 ; break;
     case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
     case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
-    default:                clock = SPI_CLOCK_DIV2; // Default from the SPI library
+    default:                clock = SPI_CLOCK_DIV2;  // Default from the SPI library
   }
   SPI.setModule(SPI_DEVICE);
   SPI.begin();
@@ -113,7 +114,7 @@ void spiInit(uint8_t spiRate) {
  * @details
  */
 uint8_t spiRec(void) {
-  uint8_t returnByte = SPI.transfer(0xFF);
+  uint8_t returnByte = SPI.transfer(ff);
   return returnByte;
 }
 

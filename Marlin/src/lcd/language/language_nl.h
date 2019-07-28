@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,6 +80,7 @@
 #define MSG_MOVE_Y                          _UxGT("Verplaats Y")
 #define MSG_MOVE_Z                          _UxGT("Verplaats Z")
 #define MSG_MOVE_E                          _UxGT("Extruder")
+#define MSG_MOVE_0025MM                     _UxGT("Verplaats 0.025mm")
 #define MSG_MOVE_01MM                       _UxGT("Verplaats 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Verplaats 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Verplaats 10mm")

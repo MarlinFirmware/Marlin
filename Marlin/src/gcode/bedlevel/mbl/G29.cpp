@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,10 @@
 #include "../../../lcd/ultralcd.h"
 #include "../../../module/motion.h"
 #include "../../../module/stepper.h"
+  
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extensible_ui/ui_api.h"
+#endif
 
 // Save 130 bytes with non-duplication of PSTR
 inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
@@ -197,7 +201,7 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
-    SERIAL_ECHOPAIR("MBL G29 point ", MIN(mbl_probe_index, GRID_MAX_POINTS));
+    SERIAL_ECHOPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS));
     SERIAL_ECHOLNPAIR(" of ", int(GRID_MAX_POINTS));
   }
 

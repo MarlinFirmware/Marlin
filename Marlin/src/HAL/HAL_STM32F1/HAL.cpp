@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -27,22 +27,14 @@
 
 #ifdef __STM32F1__
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include "HAL.h"
 #include "../../inc/MarlinConfig.h"
 
 #include <STM32ADC.h>
 
-// --------------------------------------------------------------------------
-// Externals
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 #define __I
 #define __IO volatile
@@ -70,13 +62,10 @@
    __IO uint32_t CPACR;                   /*!< Offset: 0x088 (R/W)  Coprocessor Access Control Register                   */
  } SCB_Type;
 
-// --------------------------------------------------------------------------
-// Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Local defines
-// --------------------------------------------------------------------------
+// ------------------------
+
 #define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address  */
 #define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base Address  */
 
@@ -89,18 +78,19 @@
 #define SCB_AIRCR_PRIGROUP_Pos              8                                             /*!< SCB AIRCR: PRIGROUP Position */
 #define SCB_AIRCR_PRIGROUP_Msk             (7UL << SCB_AIRCR_PRIGROUP_Pos)                /*!< SCB AIRCR: PRIGROUP Mask */
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
+
 #ifdef SERIAL_USB
   USBSerial SerialUSB;
 #endif
 
 uint16_t HAL_adc_result;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Private Variables
-// --------------------------------------------------------------------------
+// ------------------------
 STM32ADC adc(ADC1);
 
 uint8_t adc_pins[] = {
@@ -166,13 +156,13 @@ enum TEMP_PINS : char {
 
 uint16_t HAL_adc_results[ADC_PIN_COUNT];
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Function prototypes
-// --------------------------------------------------------------------------
+// ------------------------
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Private functions
-// --------------------------------------------------------------------------
+// ------------------------
 static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   uint32_t reg_value;
   uint32_t PriorityGroupTmp = (PriorityGroup & (uint32_t)0x07);               /* only values 0..7 are used          */
@@ -185,9 +175,9 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   SCB->AIRCR =  reg_value;
 }
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 //
 // Leave PA11/PA12 intact if USBSerial is not used
@@ -210,6 +200,11 @@ void HAL_init(void) {
   NVIC_SetPriorityGrouping(0x3);
   #if PIN_EXISTS(LED)
     OUT_WRITE(LED_PIN, LOW);
+  #endif
+  #if PIN_EXISTS(USB_CONNECT)
+    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
+    delay(1000);                                         // Give OS time to notice
+    OUT_WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
 }
 
@@ -263,14 +258,18 @@ extern "C" {
 }
 */
 
-// --------------------------------------------------------------------------
+// ------------------------
 // ADC
-// --------------------------------------------------------------------------
+// ------------------------
 // Init the AD in continuous capture mode
 void HAL_adc_init(void) {
   // configure the ADC
   adc.calibrate();
-  adc.setSampleRate(ADC_SMPR_41_5); // ?
+  #if F_CPU > 72000000
+    adc.setSampleRate(ADC_SMPR_71_5); // 71.5 ADC cycles
+  #else
+    adc.setSampleRate(ADC_SMPR_41_5); // 41.5 ADC cycles
+  #endif
   adc.setPins(adc_pins, ADC_PIN_COUNT);
   adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), nullptr);
   adc.setScanMode();
@@ -322,7 +321,7 @@ uint16_t analogRead(pin_t pin) {
 
 // Wrapper to maple unprotected analogWrite
 void analogWrite(pin_t pin, int pwm_val8) {
-  if (PWM_PIN(pin) && IS_OUTPUT(pin))
+  if (PWM_PIN(pin))
     analogWrite(uint8_t(pin), pwm_val8);
 }
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1262,7 +1262,7 @@ void Stepper::isr() {
   // Program timer compare for the maximum period, so it does NOT
   // flag an interrupt while this ISR is running - So changes from small
   // periods to big periods are respected and the timer does not reset to 0
-  HAL_timer_set_compare(STEP_TIMER_NUM, HAL_TIMER_TYPE_MAX);
+  HAL_timer_set_compare(STEP_TIMER_NUM, hal_timer_t(HAL_TIMER_TYPE_MAX));
 
   // Count of ticks for the next ISR
   hal_timer_t next_isr_ticks = 0;
@@ -1291,7 +1291,7 @@ void Stepper::isr() {
 
     uint32_t interval =
       #if ENABLED(LIN_ADVANCE)
-        MIN(nextAdvanceISR, nextMainISR)  // Nearest time interval
+        _MIN(nextAdvanceISR, nextMainISR)  // Nearest time interval
       #else
         nextMainISR                       // Remaining stepper ISR time
       #endif
@@ -1404,7 +1404,7 @@ void Stepper::stepper_pulse_phase_isr() {
 
   // Count of pending loops and events for this iteration
   const uint32_t pending_events = step_event_count - step_events_completed;
-  uint8_t events_to_do = MIN(pending_events, steps_per_isr);
+  uint8_t events_to_do = _MIN(pending_events, steps_per_isr);
 
   // Just update the value we will get at the end of the loop
   step_events_completed += events_to_do;
@@ -2502,7 +2502,7 @@ void Stepper::report_positions() {
         if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
           motor_current_setting[driver] = current; // update motor_current_setting
 
-        #define _WRITE_CURRENT_PWM(P) analogWrite(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+        #define _WRITE_CURRENT_PWM(P) analogWrite(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
         switch (driver) {
           case 0:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)

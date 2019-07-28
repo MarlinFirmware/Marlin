@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
 
 // NOTE: IF YOU CHANGE LANGUAGE FILES OR MERGE A FILE WITH CHANGES
 //
-//   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h"
+//   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRA_LCD" / "SDSUPPORT" #define IN "Configuration.h"
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
 // See also http://marlinfw.org/docs/development/lcd_language.html
 
@@ -367,15 +367,15 @@
 
 #include INCLUDE_LANGUAGE
 
-#if DISABLED(DISPLAY_CHARSET_ISO10646_1) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_5) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_CN) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_TR) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_PL) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_CZ) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_SK)
+#if NONE(DISPLAY_CHARSET_ISO10646_1, \
+         DISPLAY_CHARSET_ISO10646_5, \
+         DISPLAY_CHARSET_ISO10646_KANA, \
+         DISPLAY_CHARSET_ISO10646_GREEK, \
+         DISPLAY_CHARSET_ISO10646_CN, \
+         DISPLAY_CHARSET_ISO10646_TR, \
+         DISPLAY_CHARSET_ISO10646_PL, \
+         DISPLAY_CHARSET_ISO10646_CZ, \
+         DISPLAY_CHARSET_ISO10646_SK)
   #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #endif
 

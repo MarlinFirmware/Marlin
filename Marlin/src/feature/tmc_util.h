@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@
 #define CHOPPER_DEFAULT_19V  { 4,  1, 1 }
 #define CHOPPER_DEFAULT_24V  { 4,  2, 1 }
 #define CHOPPER_DEFAULT_36V  { 5,  2, 4 }
-#define CHOPPER_PRUSAMK3_24V { 4,  1, 4 }
+#define CHOPPER_PRUSAMK3_24V { 3, -2, 6 }
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
 
 #if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
@@ -348,17 +348,15 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 #endif
 
 /**
- * TMC2130 specific sensorless homing using stallGuard2.
+ * TMC2130-specific sensorless homing using stallGuard2.
  * stallGuard2 only works when in spreadCycle mode.
- * spreadCycle and stealthChop are mutually exclusive.
+ * spreadCycle and stealthChop are mutually-exclusive.
  *
  * Defined here because of limitations with templates and headers.
  */
 #if USE_SENSORLESS
   // Track enabled status of stealthChop and only re-enable where applicable
-  struct sensorless_t {
-    bool x, y, z, x2, y2, z2, z3;
-  };
+  struct sensorless_t { bool x, y, z, x2, y2, z2, z3; };
 
   bool tmc_enable_stallguard(TMC2130Stepper &st);
   void tmc_disable_stallguard(TMC2130Stepper &st, const bool restore_stealth);

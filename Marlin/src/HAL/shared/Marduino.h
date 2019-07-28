@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +54,10 @@
     inline const char* strchr_P(const char *s, int c) { return strchr(s,c); }
     //#define strchr_P(s,c) strchr(s,c)
   #endif
+
+  #ifndef vsnprintf_P
+    #define vsnprintf_P vsnprintf
+  #endif
 #endif
 
 // Restart causes
@@ -64,3 +68,7 @@
 #define RST_JTAG       16
 #define RST_SOFTWARE   32
 #define RST_BACKUP     64
+
+#ifndef M_PI
+  #define M_PI 3.14159265358979323846f
+#endif

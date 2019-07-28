@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,15 +27,11 @@
 
 #include "MarlinConfigPre.h"
 
-#include HAL_PATH(../HAL, HAL.h)
+#include "../HAL/HAL.h"
 
 #include "../pins/pins.h"
 
 #include HAL_PATH(../HAL, spi_pins.h)
-
-#if defined(__AVR__) && !defined(USBCON)
-  #define HardwareSerial_h // trick to disable the standard HWserial
-#endif
 
 #include "Conditionals_post.h"
 #include "SanityCheck.h"
@@ -47,4 +43,3 @@
 #include "../core/language.h"
 #include "../core/utility.h"
 #include "../core/serial.h"
-#include "../core/minmax.h"

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,6 @@
 
   void lcd_mixer_gradient_z_start_edit() {
     ui.defer_status_screen();
-    ui.encoder_direction_normal();
     ENCODER_RATE_MULTIPLY(true);
     if (ui.encoderPosition != 0) {
       mixer.gradient.start_z += float(int16_t(ui.encoderPosition)) * 0.1;
@@ -66,7 +65,6 @@
 
   void lcd_mixer_gradient_z_end_edit() {
     ui.defer_status_screen();
-    ui.encoder_direction_normal();
     ENCODER_RATE_MULTIPLY(true);
     if (ui.encoderPosition != 0) {
       mixer.gradient.end_z += float(int16_t(ui.encoderPosition)) * 0.1;

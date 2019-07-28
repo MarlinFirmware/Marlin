@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -783,14 +783,13 @@ void Endstops::update() {
   bool Endstops::monitor_flag = false;
 
   /**
-   * monitors endstops & Z probe for changes
+   * Monitor Endstops and Z Probe for changes
    *
    * If a change is detected then the LED is toggled and
-   * a message is sent out the serial port
+   * a message is sent out the serial port.
    *
    * Yes, we could miss a rapid back & forth change but
    * that won't matter because this is all manual.
-   *
    */
   void Endstops::monitor() {
 

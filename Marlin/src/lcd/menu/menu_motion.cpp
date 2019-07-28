@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,6 @@ inline void manual_move_to_current(AxisEnum axis
 
 static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
   if (ui.use_click()) return ui.goto_previous_screen_no_defer();
-  ui.encoder_direction_normal();
   if (ui.encoderPosition && !ui.processing_manual_move) {
 
     // Start with no limits to movement
@@ -158,7 +157,6 @@ static void _lcd_move_e(
   #endif
 ) {
   if (ui.use_click()) return ui.goto_previous_screen_no_defer();
-  ui.encoder_direction_normal();
   if (ui.encoderPosition) {
     if (!ui.processing_manual_move) {
       const float diff = float(int16_t(ui.encoderPosition)) * move_menu_scale;
@@ -239,9 +237,10 @@ void _goto_manual_move(const float scale) {
   move_menu_scale = scale;
   ui.goto_screen(_manual_move_func_ptr);
 }
-void menu_move_10mm() { _goto_manual_move(10); }
-void menu_move_1mm()  { _goto_manual_move( 1); }
-void menu_move_01mm() { _goto_manual_move( 0.1f); }
+void menu_move_10mm()   { _goto_manual_move(10); }
+void menu_move_1mm()    { _goto_manual_move( 1); }
+void menu_move_01mm()   { _goto_manual_move( 0.1f); }
+void menu_move_0025mm() { _goto_manual_move( 0.025f); }
 
 void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=-1) {
   _manual_move_func_ptr = func;
@@ -269,6 +268,8 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     MENU_ITEM(submenu, MSG_MOVE_10MM, menu_move_10mm);
     MENU_ITEM(submenu, MSG_MOVE_1MM, menu_move_1mm);
     MENU_ITEM(submenu, MSG_MOVE_01MM, menu_move_01mm);
+    if (axis == Z_AXIS)
+      MENU_ITEM(submenu, MSG_MOVE_0025MM, menu_move_0025mm);
   }
   END_MENU();
 }
@@ -413,8 +414,11 @@ void menu_move() {
   END_MENU();
 }
 
-void _lcd_ubl_level_bed();
-void menu_bed_leveling();
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  void _lcd_ubl_level_bed();
+#elif ENABLED(LCD_BED_LEVELING)
+  void menu_bed_leveling();
+#endif
 
 void menu_motion() {
   START_MENU();

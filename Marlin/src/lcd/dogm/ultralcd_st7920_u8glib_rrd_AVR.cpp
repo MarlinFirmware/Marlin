@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,11 +42,17 @@
 // Optimize this code with -O3
 #pragma GCC optimize (3)
 
-#define ST7920_SND_BIT \
-  WRITE(ST7920_CLK_PIN, LOW);        ST7920_DELAY_1; \
-  WRITE(ST7920_DAT_PIN, val & 0x80); ST7920_DELAY_2; \
-  WRITE(ST7920_CLK_PIN, HIGH);       ST7920_DELAY_3; \
-  val <<= 1
+
+#ifdef ARDUINO_ARCH_STM32F1
+  #define ST7920_DAT(V) !!((V) & 0x80)
+#else
+  #define ST7920_DAT(V) ((V) & 0x80)
+#endif
+#define ST7920_SND_BIT do{ \
+  WRITE(ST7920_CLK_PIN, LOW);             ST7920_DELAY_1; \
+  WRITE(ST7920_DAT_PIN, ST7920_DAT(val)); ST7920_DELAY_2; \
+  WRITE(ST7920_CLK_PIN, HIGH);            ST7920_DELAY_3; \
+  val <<= 1; }while(0)
 
 // Optimize this code with -O3
 #pragma GCC optimize (3)

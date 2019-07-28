@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,6 @@
  */
 #pragma once
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include <stdint.h>
 #include "driver/timer.h"
 
@@ -33,9 +29,9 @@
 #include "../../inc/MarlinConfig.h"
 #include "../../pins/pins.h"
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 //
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
@@ -44,6 +40,7 @@ typedef uint64_t hal_timer_t;
 
 #define STEP_TIMER_NUM 0  // index of timer to use for stepper
 #define TEMP_TIMER_NUM 1  // index of timer to use for temperature
+#define PWM_TIMER_NUM  2  // index of timer to use for PWM outputs
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
 
 #define HAL_TIMER_RATE APB_CLK_FREQ // frequency of timer peripherals
@@ -63,6 +60,14 @@ typedef uint64_t hal_timer_t;
 #define TEMP_TIMER_PRESCALE    1000 // prescaler for setting Temp timer, 72Khz
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
 
+#define PWM_TIMER_PRESCALE       10
+#if ENABLED(FAST_PWM_FAN)
+  #define PWM_TIMER_FREQUENCY  FAST_PWM_FAN_FREQUENCY
+#else
+  #define PWM_TIMER_FREQUENCY  (50*128) // 50Hz and 7bit resolution
+#endif
+#define MAX_PWM_PINS             32 // Number of PWM pin-slots
+
 #define PULSE_TIMER_RATE         STEPPER_TIMER_RATE   // frequency of pulse timer
 #define PULSE_TIMER_PRESCALE     STEPPER_TIMER_PRESCALE
 #define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
@@ -76,14 +81,15 @@ typedef uint64_t hal_timer_t;
 
 #define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler(void)
 #define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler(void)
+#define HAL_PWM_TIMER_ISR() extern "C" void pwmTC_Handler(void)
 
 extern "C" void tempTC_Handler(void);
 extern "C" void stepTC_Handler(void);
+extern "C" void pwmTC_Handler(void);
 
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 typedef struct {
   timer_group_t  group;
@@ -92,15 +98,15 @@ typedef struct {
   void           (*fn)(void);
 } tTimerConfig;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 extern const tTimerConfig TimerConfig[];
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 void HAL_timer_start (const uint8_t timer_num, uint32_t frequency);
 void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t count);

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,8 +98,12 @@
   #include "../../feature/babystep.h"
 #endif
 
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../../feature/host_actions.h"
+#endif
+
 inline float clamp(const float value, const float minimum, const float maximum) {
-  return MAX(MIN(value, maximum), minimum);
+  return _MAX(_MIN(value, maximum), minimum);
 }
 
 static struct {
@@ -242,18 +246,28 @@ namespace ExtUI {
   }
 
   float getTargetFan_percent(const fan_t fan) {
-    return thermalManager.fanPercent(thermalManager.fan_speed[fan - FAN0]);
+    #if FAN_COUNT > 0
+      return thermalManager.fanPercent(thermalManager.fan_speed[fan - FAN0]);
+    #else
+      UNUSED(fan);
+      return 0;
+    #endif
   }
 
   float getActualFan_percent(const fan_t fan) {
-    return thermalManager.fanPercent((thermalManager.fan_speed[fan - FAN0] * uint16_t(thermalManager.fan_speed_scaler[fan - FAN0])) >> 7);
+    #if FAN_COUNT > 0
+      return thermalManager.fanPercent(thermalManager.scaledFanSpeed(fan - FAN0));
+    #else
+      UNUSED(fan);
+      return 0;
+    #endif
   }
 
   float getAxisPosition_mm(const axis_t axis) {
     return flags.manual_motion ? destination[axis] : current_position[axis];
   }
 
-  float getAxisPosition_mm(const extruder_t extruder) {
+  float getAxisPosition_mm(const extruder_t) {
     return flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
   }
 
@@ -350,9 +364,12 @@ namespace ExtUI {
     #if EXTRUDERS > 1
       const uint8_t e = extruder - E0;
       #if DO_SWITCH_EXTRUDER || EITHER(SWITCHING_NOZZLE, PARKING_EXTRUDER)
-        if (e != active_extruder) tool_change(e, 0, no_move);
+        if (e != active_extruder) tool_change(e, no_move);
       #endif
       active_extruder = e;
+    #else
+      UNUSED(extruder);
+      UNUSED(no_move);
     #endif
   }
 
@@ -506,6 +523,7 @@ namespace ExtUI {
   }
 
   float getAxisSteps_per_mm(const extruder_t extruder) {
+    UNUSED_E(extruder);
     return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)];
   }
 
@@ -514,6 +532,7 @@ namespace ExtUI {
   }
 
   void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
+    UNUSED_E(extruder);
     planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = value;
   }
 
@@ -522,6 +541,7 @@ namespace ExtUI {
   }
 
   float getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
+    UNUSED_E(extruder);
     return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
   }
 
@@ -530,6 +550,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxFeedrate_mm_s(const float value, const extruder_t extruder) {
+    UNUSED_E(extruder);
     planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = value;
   }
 
@@ -538,6 +559,7 @@ namespace ExtUI {
   }
 
   float getAxisMaxAcceleration_mm_s2(const extruder_t extruder) {
+    UNUSED_E(extruder);
     return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)];
   }
 
@@ -546,6 +568,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
+    UNUSED_E(extruder);
     planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)] = value;
   }
 
@@ -589,7 +612,7 @@ namespace ExtUI {
       return planner.max_jerk[axis];
     }
 
-    float getAxisMaxJerk_mm_s(const extruder_t extruder) {
+    float getAxisMaxJerk_mm_s(const extruder_t) {
       return planner.max_jerk[E_AXIS];
     }
 
@@ -597,7 +620,7 @@ namespace ExtUI {
       planner.max_jerk[axis] = value;
     }
 
-    void setAxisMaxJerk_mm_s(const float value, const extruder_t extruder) {
+    void setAxisMaxJerk_mm_s(const float value, const extruder_t) {
       planner.max_jerk[E_AXIS] = value;
     }
   #endif
@@ -649,9 +672,11 @@ namespace ExtUI {
             && (linked_nozzles || active_extruder == 0)
           #endif
         ) zprobe_zoffset += mm;
+      #else
+        UNUSED(mm);
       #endif
 
-      #if EXTRUDERS > 1
+      #if EXTRUDERS > 1 && HAS_HOTEND_OFFSET
         /**
          * When linked_nozzles is false, as an axis is babystepped
          * adjust the hotend offsets so that the other nozzles are
@@ -668,6 +693,7 @@ namespace ExtUI {
         }
       #else
         UNUSED(linked_nozzles);
+        UNUSED(mm);
       #endif
     }
 
@@ -776,14 +802,18 @@ namespace ExtUI {
 
   float getFeedrate_percent() { return feedrate_percentage; }
 
-  void enqueueCommands_P(PGM_P const gcode) {
+  void injectCommands_P(PGM_P const gcode) {
     queue.inject_P(gcode);
   }
 
-  bool commandsInQueue() { return (planner.movesplanned() || queue.length); }
+  bool commandsInQueue() { return (planner.movesplanned() || queue.has_commands_queued()); }
 
   bool isAxisPositionKnown(const axis_t axis) {
     return TEST(axis_known_position, axis);
+  }
+
+  bool isAxisPositionKnown(const extruder_t) {
+    return TEST(axis_known_position, E_AXIS);
   }
 
   bool isPositionKnown() { return all_axes_known(); }
@@ -814,8 +844,13 @@ namespace ExtUI {
   }
 
   void setTargetFan_percent(const float value, const fan_t fan) {
-    if (fan < FAN_COUNT)
-      thermalManager.set_fan_speed(fan - FAN0, map(clamp(value, 0, 100), 0, 100, 0, 255));
+    #if FAN_COUNT > 0
+      if (fan < FAN_COUNT)
+        thermalManager.set_fan_speed(fan - FAN0, map(clamp(value, 0, 100), 0, 100, 0, 255));
+    #else
+      UNUSED(value);
+      UNUSED(fan);
+    #endif
   }
 
   void setFeedrate_percent(const float value) {

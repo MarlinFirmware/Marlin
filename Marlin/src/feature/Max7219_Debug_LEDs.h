@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * This module is off by default, but can be enabled to facilitate the display of
@@ -51,16 +52,6 @@
   #define MAX7219_NUMBER_UNITS 1
 #endif
 #define MAX7219_LINES (8 * (MAX7219_NUMBER_UNITS))
-
-#if _ROT == 0 || _ROT == 180
-  #define MAX7219_Y_LEDS          8
-  #define MAX7219_X_LEDS          MAX7219_LINES
-#elif _ROT == 90 || _ROT == 270
-  #define MAX7219_X_LEDS          8
-  #define MAX7219_Y_LEDS          MAX7219_LINES
-#else
-  #error "MAX7219_ROTATE must be a multiple of +/- 90°."
-#endif
 
 //
 // MAX7219 registers
