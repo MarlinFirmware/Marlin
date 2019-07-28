@@ -1038,7 +1038,7 @@
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
 
-  #if defined(TARGET_LPC1768) || defined(ADAFRUIT_GRAND_CENTRAL_M4)
+  #if HAS_SDCARD_CONNECTION
     /**
      * Set this option to one of the following (or the board's defaults apply):
      *
