@@ -609,7 +609,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   #endif
 
   #if HAS_BUZZER
-    // Buzz and wait. The delay is needed for buttons to settle!
+    // Buzz and wait. Is the delay needed for buttons to settle?
     buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
   #endif
 

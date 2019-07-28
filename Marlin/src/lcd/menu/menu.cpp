@@ -438,17 +438,15 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if ENABLED(EEPROM_SETTINGS)
   void lcd_store_settings() {
+    const bool saved = settings.save();
     #if HAS_BUZZER
-      ui.completion_feedback(settings.save());
-    #else
-      settings.save();
+      ui.completion_feedback(saved);
     #endif
   }
   void lcd_load_settings() {
+    const bool loaded = settings.load();
     #if HAS_BUZZER
-      ui.completion_feedback(settings.load());
-    #else
-      settings.load();
+      ui.completion_feedback(loaded);
     #endif
   }
 #endif

@@ -604,12 +604,11 @@ void menu_backlash();
       do_select_screen(
         PSTR(MSG_BUTTON_INIT), PSTR(MSG_BUTTON_CANCEL),
         []{
+          const bool inited = settings.init_eeprom();
           #if HAS_BUZZER
-            ui.completion_feedback(settings.init_eeprom());
-          #else
-            settings.init_eeprom();
+            ui.completion_feedback(inited);
           #endif
-          },
+        },
         ui.goto_previous_screen,
         PSTR(MSG_INIT_EEPROM), nullptr, PSTR("?")
       );
@@ -704,11 +703,10 @@ void menu_advanced_settings() {
       //
       // Toggle the SD Firmware Update state in EEPROM
       //
-      const bool new_state = !settings.sd_update_status();
+      const bool new_state = !settings.sd_update_status(),
+                 didset = settings.set_sd_update_status(new_state);
       #if HAS_BUZZER
-        ui.completion_feedback(settings.set_sd_update_status(new_state));
-      #else
-        settings.set_sd_update_status(new_state);
+        ui.completion_feedback(didset);
       #endif
       ui.return_to_status();
       if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
