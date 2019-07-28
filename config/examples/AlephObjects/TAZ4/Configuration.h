@@ -529,7 +529,7 @@
 #define MAX_BED_POWER 206 // limits duty cycle to bed; 255=full current
 
 #if ENABLED(PIDTEMPBED)
-
+  //#define MIN_BED_POWER 0
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
   //24V 360W silicone heater from NPH on 3mm borosilicate (TAZ 2.2+)
