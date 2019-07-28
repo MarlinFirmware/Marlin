@@ -89,11 +89,14 @@ U8G_CLASS u8g(U8G_PARAM);
   }
 
 #endif
-
-void MarlinUI::set_font(const MarlinFont font_nr) {
-  static char currentfont = 0;
-  if (font_nr != currentfont) {
-    switch ((currentfont = font_nr)) {
+  
+  void MarlinUI::set_font(const MarlinFont font_nr)
+  {
+    static char currentfont = 0;
+    if (font_nr != currentfont)
+    {
+      switch ((currentfont = font_nr))
+      {
       case FONT_STATUSMENU : u8g.setFont(FONT_STATUSMENU_NAME); break;
       case FONT_EDIT       : u8g.setFont(EDIT_FONT_NAME);       break;
       default:
@@ -218,7 +221,9 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
-
+//DrDitto
+/* Moved to ultralcd.cpp*/  
+/* 
   #if PIN_EXISTS(LCD_BACKLIGHT)
     OUT_WRITE(LCD_BACKLIGHT_PIN, (
       #if ENABLED(DELAYED_BACKLIGHT_INIT)
@@ -248,12 +253,12 @@ void MarlinUI::init_lcd() {
   #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
     WRITE(LCD_BACKLIGHT_PIN, HIGH);
   #endif
-
+*/
   #if HAS_LCD_CONTRAST
     refresh_contrast();
   #endif
 
-  #if ENABLED(LCD_SCREEN_ROT_90)
+#if ENABLED(LCD_SCREEN_ROT_90)
     u8g.setRot90();
   #elif ENABLED(LCD_SCREEN_ROT_180)
     u8g.setRot180();
