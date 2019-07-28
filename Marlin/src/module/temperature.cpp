@@ -942,10 +942,10 @@ float Temperature::get_pid_output_hotend(const uint8_t e) {
       static float temp_iState = 0, temp_dState = 0;
       static bool pid_reset = true;
       float pid_output = 0;
-      const float max_power_over_i_gain = (float)MAX_BED_POWER / temp_bed.pid.Ki - (float)MIN_BED_POWER,
+      const float max_power_over_i_gain = float(MAX_BED_POWER) / temp_bed.pid.Ki - float(MIN_BED_POWER),
                   pid_error = temp_bed.target - temp_bed.current;
 
-      if (temp_bed.target == 0 || pid_error < -(PID_FUNCTIONAL_RANGE) ) {
+      if (!temp_bed.target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
         pid_output = 0;
         pid_reset = true;
       }
@@ -961,14 +961,14 @@ float Temperature::get_pid_output_hotend(const uint8_t e) {
         }
 
         temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
-        
+
         work_pid.Kp = temp_bed.pid.Kp * pid_error;
         work_pid.Ki = temp_bed.pid.Ki * temp_iState;
         work_pid.Kd = work_pid.Kd + PID_K2 * (temp_bed.pid.Kd * (temp_dState - temp_bed.current) - work_pid.Kd);
 
         temp_dState = temp_bed.current;
 
-        pid_output = constrain(work_pid.Kp + work_pid.Ki + work_pid.Kd + (float)MIN_BED_POWER, 0, MAX_BED_POWER);
+        pid_output = constrain(work_pid.Kp + work_pid.Ki + work_pid.Kd + float(MIN_BED_POWER), 0, MAX_BED_POWER);
       }
 
     #else // PID_OPENLOOP
