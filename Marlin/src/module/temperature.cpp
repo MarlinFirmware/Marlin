@@ -471,13 +471,14 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
                             df = isbed ? 1.0f / 3.0f : 1.0f / 8.0f;
 
                 SERIAL_ECHOPAIR(MSG_KU, Ku, MSG_TU, Tu);
-                if (isbed){//Do not remove this otherwise PID autotune won't work right for the bed!
-                  tune_pid.Kp = 0.2 * Ku;
+                if (isbed) { // Do not remove this otherwise PID autotune won't work right for the bed!
+                  tune_pid.Kp = Ku * 0.2f;
                   tune_pid.Ki = 2 * tune_pid.Kp / Tu;
                   tune_pid.Kd = tune_pid.Kp * Tu / 3;
-                  SERIAL_ECHOLNPGM("\n" " No overshoot");//works far better for the bed. Classic and some have bad ringing
+                  SERIAL_ECHOLNPGM("\n" " No overshoot"); // Works far better for the bed. Classic and some have bad ringing.
                   SERIAL_ECHOLNPAIR(MSG_KP, tune_pid.Kp, MSG_KI, tune_pid.Ki, MSG_KD, tune_pid.Kd);
-                }else{
+                }
+                else {
                   tune_pid.Kp = Ku * pf;
                   tune_pid.Kd = tune_pid.Kp * Tu * df;
                   tune_pid.Ki = 2 * tune_pid.Kp / Tu;
