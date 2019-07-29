@@ -251,12 +251,12 @@ void GcodeSuite::M48() {
     SERIAL_ECHOLNPAIR_F("Standard Deviation: ", sigma, 6);
     SERIAL_EOL();
   
-   //Displaying the result of the command M48 in the status bar
-      #if ENABLED(ULTRA_LCD)
-        char sigma_str[8];
-        dtostrf(sigma, 2, 6, sigma_str);
-        ui.status_printf_P(0, PSTR(MSG_M48_RESULT ": %s"), sigma_str);
-      #endif
+    // Displaying the result of the command M48 in the status bar
+    #if ENABLED(ULTRA_LCD)
+      char sigma_str[8];
+      dtostrf(sigma, 2, 6, sigma_str);
+      ui.status_printf_P(0, PSTR(MSG_M48_RESULT ": %s"), sigma_str);
+    #endif
   }
 
   clean_up_after_endstop_or_probe_move();
