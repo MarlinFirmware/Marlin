@@ -175,7 +175,7 @@ void menu_info_board() {
 //
 // About Printer > Printer Info
 //
-#if DISABLED(LCD_INFO_PRINTER_SHOWS_BOOTSCREEN)
+#if DISABLED(LCD_PRINTER_INFO_IS_BOOTSCREEN)
   void menu_info_printer() {
     if (ui.use_click()) return ui.goto_previous_screen();
     START_SCREEN();
@@ -210,7 +210,7 @@ void menu_info_board() {
       ui.draw_custom_bootscreen();
     }
   #endif
-#endif // LCD_INFO_PRINTER_SHOWS_BOOTSCREEN
+#endif // LCD_PRINTER_INFO_IS_BOOTSCREEN
 
 //
 // "About Printer" submenu
@@ -218,7 +218,7 @@ void menu_info_board() {
 void menu_info() {
   START_MENU();
   MENU_BACK(MSG_MAIN);
-  #if ENABLED(LCD_INFO_PRINTER_SHOWS_BOOTSCREEN)
+  #if ENABLED(LCD_PRINTER_INFO_IS_BOOTSCREEN)
     MENU_ITEM(submenu, MSG_INFO_PRINTER_MENU, (
       #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
         menu_show_custom_bootscreen
