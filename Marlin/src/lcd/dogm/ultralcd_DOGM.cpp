@@ -153,7 +153,7 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
         do {
           draw_custom_bootscreen(f, f == 0);
         } while (u8g.nextPage());
-        if(d) safe_delay(d);
+        if (d) safe_delay(d);
       }
 
       #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
