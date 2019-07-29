@@ -316,7 +316,7 @@ public:
       static inline void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
 
       #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-        static void draw_custom_bootscreen(const uint8_t frame = 0, const bool erase=true);
+        static void draw_custom_bootscreen(const uint8_t frame=0);
         static void show_custom_bootscreen();
       #endif
 
