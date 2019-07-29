@@ -30,6 +30,10 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
+#if ENABLED(ULTRA_LCD)
+  #include "../../lcd/ultralcd.h"
+#endif
+
 #if HAS_LEVELING
   #include "../../module/planner.h"
 #endif
