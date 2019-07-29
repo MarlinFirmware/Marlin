@@ -916,10 +916,10 @@
  */
 #define X_PROBE_OFFSET_FROM_EXTRUDER -31  // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -2.84   // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -2.45   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 10
+#define MIN_PROBE_EDGE 15
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED (80*60)
@@ -939,7 +939,7 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-//#define MULTIPLE_PROBING 2
+#define MULTIPLE_PROBING 2
 //#define EXTRA_PROBING    1
 
 /**
@@ -958,7 +958,7 @@
  */
 #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
+#define Z_CLEARANCE_MULTI_PROBE     2 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
@@ -1051,11 +1051,11 @@
 #define Y_BED_SIZE 210
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS (0-30-X_PROBE_OFFSET_FROM_EXTRUDER)
-#define Y_MIN_POS (0-30-Y_PROBE_OFFSET_FROM_EXTRUDER)
+#define X_MIN_POS (0-40-X_PROBE_OFFSET_FROM_EXTRUDER)
+#define Y_MIN_POS (0-33-Y_PROBE_OFFSET_FROM_EXTRUDER)
 #define Z_MIN_POS 0
-#define X_MAX_POS (X_BED_SIZE+10)
-#define Y_MAX_POS (Y_BED_SIZE+10)
+#define X_MAX_POS (X_MIN_POS+290)
+#define Y_MAX_POS (Y_MIN_POS+300)
 #define Z_MAX_POS 180
 
 /**
