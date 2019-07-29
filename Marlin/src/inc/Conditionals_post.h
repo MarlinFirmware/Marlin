@@ -1153,10 +1153,17 @@
   #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
 #endif
 
+#ifndef MIN_POWER
+  #define MIN_POWER 0
+#endif
+
 /**
  * Heated bed requires settings
  */
 #if HAS_HEATED_BED
+  #ifndef MIN_BED_POWER
+    #define MIN_BED_POWER 0
+  #endif
   #ifndef MAX_BED_POWER
     #define MAX_BED_POWER 255
   #endif

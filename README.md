@@ -1,4 +1,4 @@
-# Marlin 3D Printer Firmware
+﻿# Marlin 3D Printer Firmware
 
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=bugfix-2.0.x)](https://travis-ci.org/MarlinFirmware/Marlin)
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
@@ -49,6 +49,7 @@ Marlin 2.0 introduces a layer of abstraction so that all the existing high-level
   ----|---------|-----|-----|----|-----|---
   [STEVAL-3DP001V1](http://www.st.com/en/evaluation-tools/steval-3dp001v1.html)|[STM32F401VE Arm-Cortex M4](http://www.st.com/en/microcontrollers/stm32f401ve.html)|84MHz|512k|64+32k|3.3-5V|yes
   [Smoothieboard](http://reprap.org/wiki/Smoothieboard)|LPC1769 ARM-Cortex M3|120MHz|512k|64k|3.3-5V|no
+  [Adafruit Grand Central M4](https://www.adafruit.com/product/4064)|ARM-Cortex M4|120MHz|1M|256k|3.3V|yes
 
 ## Submitting Patches
 

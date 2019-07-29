@@ -855,6 +855,9 @@
 
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
+#if ENABLED(LCD_INFO_MENU)
+  //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
+#endif
 
 // Scroll a longer status message into view
 //#define STATUS_MESSAGE_SCROLLING
@@ -1041,7 +1044,7 @@
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
 
-  #ifdef TARGET_LPC1768
+  #if HAS_SDCARD_CONNECTION
     /**
      * Set this option to one of the following (or the board's defaults apply):
      *
@@ -1139,6 +1142,7 @@
   //#define MARLIN_BRICKOUT
   //#define MARLIN_INVADERS
   //#define MARLIN_SNAKE
+  //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
 #endif // HAS_GRAPHICAL_LCD
 
@@ -1753,6 +1757,9 @@
    *       1 | HIGH | LOW
    *       2 | LOW  | HIGH
    *       3 | HIGH | HIGH
+   *
+   * Set *_SERIAL_TX_PIN and *_SERIAL_RX_PIN to match for all drivers
+   * on the same serial port, either here or in your board's pins file.
    */
   #define  X_SLAVE_ADDRESS 0
   #define  Y_SLAVE_ADDRESS 0

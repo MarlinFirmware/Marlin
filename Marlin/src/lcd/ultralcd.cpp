@@ -562,7 +562,7 @@ void MarlinUI::status_screen() {
     if (old_frm != new_frm) {
       feedrate_percentage = new_frm;
       encoderPosition = 0;
-      #if ENABLED(BEEP_ON_FEEDRATE_CHANGE)
+      #if HAS_BUZZER && ENABLED(BEEP_ON_FEEDRATE_CHANGE)
         static millis_t next_beep;
         #ifndef GOT_MS
           const millis_t ms = millis();
@@ -608,8 +608,10 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     UNUSED(clear_buttons);
   #endif
 
-  // Buzz and wait. The delay is needed for buttons to settle!
-  buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+  #if HAS_BUZZER
+    // Buzz and wait. Is the delay needed for buttons to settle?
+    buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+  #endif
 
   #if HAS_LCD_MENU
     #if ENABLED(LCD_USE_I2C_BUZZER)

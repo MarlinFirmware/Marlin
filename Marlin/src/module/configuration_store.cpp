@@ -98,10 +98,8 @@
   #include "../feature/runout.h"
 #endif
 
-#include "../lcd/extensible_ui/ui_api.h"
-
 #if ENABLED(EXTRA_LIN_ADVANCE_K)
-extern float saved_extruder_advance_K[EXTRUDERS];
+  extern float saved_extruder_advance_K[EXTRUDERS];
 #endif
 
 #if EXTRUDERS > 1
@@ -2030,8 +2028,7 @@ void MarlinSettings::postprocess() {
           const char extui_data[ExtUI::eeprom_data_size] = { 0 };
           _FIELD_TEST(extui_data);
           EEPROM_READ(extui_data);
-          if(!validating)
-            ExtUI::onLoadSettings(extui_data);
+          if (!validating) ExtUI::onLoadSettings(extui_data);
         }
       #endif
 
