@@ -38,7 +38,9 @@ inline void _menu_service(const int index, PGM_P const name) {
     PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
     []{
       print_job_timer.resetServiceInterval(index);
-      ui.completion_feedback(true);
+      #if HAS_BUZZER
+        ui.completion_feedback();
+      #endif
       ui.reset_status();
       ui.return_to_status();
     },

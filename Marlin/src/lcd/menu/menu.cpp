@@ -31,7 +31,9 @@
 #include "../../module/printcounter.h"
 #include "../../gcode/queue.h"
 #include "../../sd/cardreader.h"
-#include "../../libs/buzzer.h"
+#if HAS_BUZZER
+  #include "../../libs/buzzer.h"
+#endif
 
 #if ENABLED(EEPROM_SETTINGS)
   #include "../../module/configuration_store.h"
@@ -346,13 +348,15 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     encoderTopLine = encoderLine;
 }
 
-void MarlinUI::completion_feedback(const bool good/*=true*/) {
-  if (good) {
-    BUZZ(100, 659);
-    BUZZ(100, 698);
+#if HAS_BUZZER
+  void MarlinUI::completion_feedback(const bool good/*=true*/) {
+    if (good) {
+      BUZZ(100, 659);
+      BUZZ(100, 698);
+    }
+    else BUZZ(20, 440);
   }
-  else BUZZ(20, 440);
-}
+#endif
 
 #if HAS_LINE_TO_Z
 
@@ -433,8 +437,18 @@ void MarlinUI::completion_feedback(const bool good/*=true*/) {
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)
-  void lcd_store_settings()   { ui.completion_feedback(settings.save()); }
-  void lcd_load_settings()    { ui.completion_feedback(settings.load()); }
+  void lcd_store_settings() {
+    const bool saved = settings.save();
+    #if HAS_BUZZER
+      ui.completion_feedback(saved);
+    #endif
+  }
+  void lcd_load_settings() {
+    const bool loaded = settings.load();
+    #if HAS_BUZZER
+      ui.completion_feedback(loaded);
+    #endif
+  }
 #endif
 
 void _lcd_draw_homing() {
