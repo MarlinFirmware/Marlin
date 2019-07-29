@@ -782,7 +782,7 @@ private:
     static void M540();
   #endif
 
-  #if NUM_SERIAL > 0
+  #if ENABLED(BAUD_RATE_GCODE)
     static void M575();
   #endif
 

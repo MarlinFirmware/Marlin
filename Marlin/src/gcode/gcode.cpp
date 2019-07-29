@@ -669,7 +669,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 540: M540(); break;                                  // M540: Set abort on endstop hit for SD printing
       #endif
 
-      #if NUM_SERIAL > 0
+      #if ENABLED(BAUD_RATE_GCODE)
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 

@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if NUM_SERIAL > 0
+#if ENABLED(BAUD_RATE_GCODE)
 
 #include "../gcode.h"
 
@@ -71,4 +71,4 @@ void GcodeSuite::M575() {
   }
 }
 
-#endif // NUM_SERIAL > 0
+#endif // NUM_SERIAL > 0 && BAUD_RATE_GCODE
