@@ -33,14 +33,6 @@
 #endif
 
 #include "menu.h"
-// #include "../../module/motion.h"
-// #include "../../module/planner.h"
-// #include "../../module/temperature.h"
-// #include "../../Marlin.h"
-
-// #if HAS_LEVELING
-//   #include "../../feature/bedlevel/bedlevel.h"
-// #endif
 
 #if ENABLED(PRINTCOUNTER)
 
