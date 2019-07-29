@@ -30,7 +30,7 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
   #include "../../lcd/ultralcd.h"
 #endif
 
@@ -250,9 +250,9 @@ void GcodeSuite::M48() {
 
     SERIAL_ECHOLNPAIR_F("Standard Deviation: ", sigma, 6);
     SERIAL_EOL();
-  
-    // Displaying the result of the command M48 in the status bar
-    #if ENABLED(ULTRA_LCD)
+
+    // Display M28 results in the status bar
+    #if HAS_SPI_LCD
       char sigma_str[8];
       dtostrf(sigma, 2, 6, sigma_str);
       ui.status_printf_P(0, PSTR(MSG_M48_RESULT ": %s"), sigma_str);
