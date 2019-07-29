@@ -250,7 +250,11 @@ void menu_main() {
   #endif
 
   #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
-    MENU_ITEM(submenu, "Game", (
+    #if ENABLED(GAMES_EASTER_EGG)
+      MENU_ITEM_DUMMY();
+      MENU_ITEM_DUMMY();
+    #endif
+    MENU_ITEM(submenu, MSG_GAMES, (
       #if HAS_GAME_MENU
         menu_game
       #elif ENABLED(MARLIN_BRICKOUT)

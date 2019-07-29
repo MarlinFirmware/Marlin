@@ -1385,6 +1385,9 @@
 #ifndef MSG_END_Z
   #define MSG_END_Z                           _UxGT("  End Z")
 #endif
+#ifndef MSG_GAMES
+  #define MSG_GAMES                           _UxGT("Games")
+#endif
 #ifndef MSG_BRICKOUT
   #define MSG_BRICKOUT                        _UxGT("Brickout")
 #endif
