@@ -55,11 +55,11 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_LCD
 
-#include "../shared/Delay.h"
+#include "../../shared/Delay.h"
 
 #include <U8glib.h>
 

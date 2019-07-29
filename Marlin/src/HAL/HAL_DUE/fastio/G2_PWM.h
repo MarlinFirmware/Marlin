@@ -26,8 +26,8 @@
  * PR #7500. It is hardwired for the PRINTRBOARD_G2 Motor Current needs.
  */
 
-#include "../../inc/MarlinConfigPre.h"
-#include "../../module/stepper.h"
+#include "../../../inc/MarlinConfigPre.h"
+#include "../../../module/stepper.h"
 //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\module\stepper.h
 //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\HAL\HAL_DUE\G2_PWM.h
 
