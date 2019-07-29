@@ -400,8 +400,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   void draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
-    const uint8_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
+    ui.encoder_direction_normal();
 
+    const uint8_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
     bool extra_row = labellen > LCD_WIDTH - 2 - vallen;
 
     #if ENABLED(USE_BIG_EDIT_FONT)
