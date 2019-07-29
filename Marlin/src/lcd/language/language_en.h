@@ -1400,6 +1400,13 @@
 #ifndef MSG_MAZE
   #define MSG_MAZE                            _UxGT("Maze")
 #endif
+//M48 Test
+#ifndef MSG_M48_TEST
+  #define MSG_M48_TEST                        _UxGT("Accuracy probe M48")
+#endif
+#ifndef MSG_M48_RESULT
+  #define MSG_M48_RESULT                      _UxGT("M48 result")
+#endif
 
 //
 // Filament Change screens show up to 3 lines on a 4-line display
