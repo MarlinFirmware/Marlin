@@ -482,7 +482,12 @@ void menu_motion() {
   #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
     MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
   #endif
-
+  
+  //Menu M48 Test
+  #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+  MENU_ITEM(gcode, MSG_M48_TEST, PSTR("G28\nM48 P10"));
+  #endif
+  
   //
   // Disable Steppers
   //
