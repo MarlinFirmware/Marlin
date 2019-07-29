@@ -55,7 +55,7 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_LCD && DISABLED(U8GLIB_ST7920)
 
@@ -64,8 +64,8 @@
 
 #include "u8g_com_HAL_DUE_sw_spi_shared.h"
 
-#include "../shared/Marduino.h"
-#include "../shared/Delay.h"
+#include "../../shared/Marduino.h"
+#include "../../shared/Delay.h"
 
 #include <U8glib.h>
 

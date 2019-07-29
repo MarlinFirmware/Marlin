@@ -40,7 +40,7 @@
  * Some jitter in the Vref signal is OK so the interrupt priority is left at its default value.
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if MB(PRINTRBOARD_G2)
 

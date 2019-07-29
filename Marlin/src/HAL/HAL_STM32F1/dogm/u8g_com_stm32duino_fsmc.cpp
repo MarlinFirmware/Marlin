@@ -26,17 +26,17 @@
  * Communication interface for FSMC
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if defined(ARDUINO_ARCH_STM32F1) && PIN_EXISTS(FSMC_CS) // FSMC on 100/144 pins SoCs
 
 #if HAS_GRAPHICAL_LCD
 
-#include "U8glib.h"
-#include "libmaple/fsmc.h"
-#include "libmaple/gpio.h"
-#include "libmaple/dma.h"
-#include "boards.h"
+#include <U8glib.h>
+#include <libmaple/fsmc.h>
+#include <libmaple/gpio.h>
+#include <libmaple/dma.h>
+#include <boards.h>
 
 #ifndef LCD_READ_ID
   #define LCD_READ_ID 0x04   // Read display identification information (0xD3 on ILI9341)

@@ -30,13 +30,13 @@
 #include "../HAL/HAL.h"
 
 #include "../pins/pins.h"
-
 #include HAL_PATH(../HAL, spi_pins.h)
 
 #include "Conditionals_post.h"
-#include "SanityCheck.h"
+#include HAL_PATH(../HAL, inc/Conditionals_post.h)
 
-#include HAL_PATH(../HAL, SanityCheck.h)
+#include "SanityCheck.h"
+#include HAL_PATH(../HAL, inc/SanityCheck.h)
 
 // Include all core headers
 #include "../core/enum.h"
