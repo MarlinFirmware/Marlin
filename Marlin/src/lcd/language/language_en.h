@@ -265,6 +265,12 @@
 #ifndef MSG_LCD_TILTING_MESH
   #define MSG_LCD_TILTING_MESH                _UxGT("Tilting point")
 #endif
+#ifndef MSG_M48_TEST
+  #define MSG_M48_TEST                        _UxGT("Accuracy probe M48")
+#endif
+#ifndef MSG_M48_RESULT
+  #define MSG_M48_RESULT                      _UxGT("M48 result")
+#endif
 #ifndef MSG_IDEX_MENU
   #define MSG_IDEX_MENU                       _UxGT("IDEX Mode")
 #endif
@@ -1385,6 +1391,7 @@
 #ifndef MSG_END_Z
   #define MSG_END_Z                           _UxGT("  End Z")
 #endif
+
 #ifndef MSG_GAMES
   #define MSG_GAMES                           _UxGT("Games")
 #endif
@@ -1399,13 +1406,6 @@
 #endif
 #ifndef MSG_MAZE
   #define MSG_MAZE                            _UxGT("Maze")
-#endif
-//M48 Test
-#ifndef MSG_M48_TEST
-  #define MSG_M48_TEST                        _UxGT("Accuracy probe M48")
-#endif
-#ifndef MSG_M48_RESULT
-  #define MSG_M48_RESULT                      _UxGT("M48 result")
 #endif
 
 //
