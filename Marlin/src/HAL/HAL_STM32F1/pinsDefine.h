@@ -42,7 +42,8 @@
 #define PB4  0x14
 #define PB5  0x15
 #define PB6  0x16
-#define PB7  0x17
+#define PB7  0x17 // 36 pins (F103T)
+
 #define PB8  0x18
 #define PB9  0x19
 #define PB10 0x1A
@@ -52,22 +53,28 @@
 #define PB14 0x1E
 #define PB15 0x1F
 
-#define PC0  0x20
-#define PC1  0x21
-#define PC2  0x22
-#define PC3  0x23
-#define PC4  0x24
-#define PC5  0x25
-#define PC6  0x26
-#define PC7  0x27
-#define PC8  0x28
-#define PC9  0x29
-#define PC10 0x2A
-#define PC11 0x2B
-#define PC12 0x2C
-#define PC13 0x2D
-#define PC14 0x2E
-#define PC15 0x2F
+#if defined(MCU_STM32F103CB) || defined(MCU_STM32F103C8)
+  #define PC13 0x20
+  #define PC14 0x21
+  #define PC15 0x22
+#else
+  #define PC0  0x20
+  #define PC1  0x21
+  #define PC2  0x22
+  #define PC3  0x23
+  #define PC4  0x24
+  #define PC5  0x25
+  #define PC6  0x26
+  #define PC7  0x27
+  #define PC8  0x28
+  #define PC9  0x29
+  #define PC10 0x2A
+  #define PC11 0x2B
+  #define PC12 0x2C
+  #define PC13 0x2D
+  #define PC14 0x2E
+  #define PC15 0x2F
+#endif
 
 #define PD0  0x30
 #define PD1  0x31
