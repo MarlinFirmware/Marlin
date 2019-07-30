@@ -45,7 +45,7 @@ bool PersistentStore::access_start() {
     NVMCTRL->SEECFG.reg = NVMCTRL_SEECFG_WMODE_BUFFERED;  // Buffered mode and segment reallocation active
   #endif
 
-  return true; 
+  return true;
 }
 
 bool PersistentStore::access_finish() {

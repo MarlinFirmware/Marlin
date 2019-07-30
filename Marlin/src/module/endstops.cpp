@@ -330,7 +330,7 @@ void Endstops::resync() {
 void Endstops::event_handler() {
   static uint8_t prev_hit_state; // = 0
   if (hit_state && hit_state != prev_hit_state) {
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SPI_LCD
       char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -361,7 +361,7 @@ void Endstops::event_handler() {
     #endif
     SERIAL_EOL();
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SPI_LCD
       ui.status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 
