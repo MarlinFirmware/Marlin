@@ -25,7 +25,7 @@
   *  ╦╔═╗╔═╗┬ ┬┬─┐┌─┐┬─┐┌─┐╔═╗┌─┐┬─┐┬ ┬┌┬┐ ┌─┐┌─┐┌┬┐
   *  ║║ ╦╠═╣│ │├┬┘│ │├┬┘├─┤╠╣ │ │├┬┘│ ││││ │  │ ││││
   * ╚╝╚═╝╩ ╩└─┘┴└─└─┘┴└─┴ ┴╚  └─┘┴└─└─┘┴ ┴o└─┘└─┘┴ ┴
-  *   Pin assignments for 32-bit JGAurora A5S & A1 
+  *   Pin assignments for 32-bit JGAurora A5S & A1
   */
 
 #ifndef __STM32F1__

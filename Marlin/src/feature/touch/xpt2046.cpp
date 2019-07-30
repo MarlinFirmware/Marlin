@@ -84,12 +84,12 @@ uint8_t XPT2046::read_buttons() {
 
   if (y < 175 || y > 234) return 0;
 
-       if (WITHIN(x,  11,  109)) encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * ENCODER_PULSES_PER_STEP;
+       if (WITHIN(x,  11, 109)) encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * ENCODER_PULSES_PER_STEP;
   else if (WITHIN(x, 111, 209)) encoderDiff =   ENCODER_STEPS_PER_MENU_ITEM  * ENCODER_PULSES_PER_STEP;
   else if (WITHIN(x, 211, 309)) return EN_C;
-      #ifdef REVERSE_ENCODER_DIRECTION
-          encoderDiff = -encoderDiff;
-      #endif
+  #if ENABLED(REVERSE_ENCODER_DIRECTION)
+    encoderDiff = -encoderDiff;
+  #endif
   return 0;
 }
 

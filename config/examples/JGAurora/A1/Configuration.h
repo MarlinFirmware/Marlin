@@ -2057,7 +2057,6 @@
   #define XPT2046_X_OFFSET       -43
   #define XPT2046_Y_OFFSET        257
   #define XPT2046_Z1_THRESHOLD 1
-
 #endif
 
 //

@@ -463,7 +463,7 @@
 #elif MB(BIGTREE_SKR_E3_DIP)
   #include "stm32/pins_BIGTREE_SKR_E3_DIP.h"    // STM32F1                                env:BIGTREE_SKR_MINI
 #elif MB(JGAURORA_A5S_A1)
-  #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:JGAURORA_A5S_A1
+  #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:jgaurora_a5s_a1
 #elif MB(FYSETC_AIO_II)
   #include "stm32/pins_FYSETC_AIO_II.h"         // STM32F1                                env:fysetc_STM32F1
 #elif MB(FYSETC_CHEETAH)
