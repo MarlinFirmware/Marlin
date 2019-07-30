@@ -253,8 +253,8 @@ int Servo::read() { // return the value as degrees
 }
 
 int Servo::readMicroseconds() {
-  return (servoIndex != INVALID_SERVO) ? ticksToUs(servos[servoIndex].ticks) + TRIM_DURATION
-                                       : 0;
+  if (servoIndex == INVALID_SERVO) return 0;
+  return ticksToUs(servos[servoIndex].ticks) + TRIM_DURATION;
 }
 
 void Servo::move(const int value) {
