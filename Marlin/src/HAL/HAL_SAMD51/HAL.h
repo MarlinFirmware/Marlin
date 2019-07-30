@@ -76,8 +76,6 @@
 
 typedef int8_t pin_t;
 
-//#define HAL_SERVO_LIB Servo
-
 //
 // Interrupts
 //
