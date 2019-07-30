@@ -405,8 +405,6 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     const uint8_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
     bool extra_row = labellen > LCD_WIDTH - 2 - vallen;
 
-    ui.encoder_direction_normal();
-
     #if ENABLED(USE_BIG_EDIT_FONT)
       // Use the menu font if the label won't fit on a single line
       constexpr uint8_t lcd_edit_width = (LCD_PIXEL_WIDTH) / (EDIT_FONT_WIDTH);
