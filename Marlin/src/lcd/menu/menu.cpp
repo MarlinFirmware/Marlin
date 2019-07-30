@@ -467,6 +467,7 @@ void _lcd_draw_homing() {
 //
 bool MarlinUI::selection; // = false
 bool MarlinUI::update_selection() {
+  encoder_direction_select();
   if (encoderPosition) {
     selection = int16_t(encoderPosition) > 0;
     encoderPosition = 0;
