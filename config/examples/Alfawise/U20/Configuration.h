@@ -2129,6 +2129,9 @@
 //============================  Other Controllers  ============================
 //=============================================================================
 
+//
+// ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
+//
 #define TOUCH_BUTTONS
 #if ENABLED(TOUCH_BUTTONS)
   #define TOUCH_CALIBRATION // Include user calibration widget in menus (Alfawise)

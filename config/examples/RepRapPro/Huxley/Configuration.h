@@ -2088,8 +2088,7 @@ Black rubber belt(MXL), 18 - tooth aluminium pulley : 87.489 step per mm (Huxley
 //=============================================================================
 
 //
-// Alfawise U30 ILI9341 2.8 TP Ver 1.2
-// (Blue PCB on the back of touchscreen)
+// ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
 //
 //#define TOUCH_BUTTONS
 #if ENABLED(TOUCH_BUTTONS)
