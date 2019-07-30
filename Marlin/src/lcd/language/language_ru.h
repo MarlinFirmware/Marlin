@@ -89,7 +89,7 @@
 #define MSG_UBL_LEVEL_BED                   _UxGT("Калибровка UBL")
 
 #define MSG_M48_TEST                        _UxGT("Проверка датчика Z")
-#define MSG_M48_DEVIATION                   _UxGT("Результат")
+#define MSG_M48_DEVIATION                   _UxGT("Отклонение")
 
 // TODO: IDEX Menu
 #define MSG_OFFSETS_MENU                    _UxGT("Размещение сопел")
