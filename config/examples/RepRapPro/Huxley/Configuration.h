@@ -2079,17 +2079,16 @@ Black rubber belt(MXL), 18 - tooth aluminium pulley : 87.489 step per mm (Huxley
 //=============================================================================
 
 //
-// MKS Robin 320x240 color display
+// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, A1, etc.)
 //
-//#define MKS_ROBIN_TFT
+//#define FSMC_GRAPHICAL_TFT
 
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
 
 //
-// Alfawise U30 ILI9341 2.8 TP Ver 1.2
-// (Blue PCB on the back of touchscreen)
+// ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
 //
 //#define TOUCH_BUTTONS
 #if ENABLED(TOUCH_BUTTONS)

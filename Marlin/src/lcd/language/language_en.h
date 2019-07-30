@@ -265,6 +265,12 @@
 #ifndef MSG_LCD_TILTING_MESH
   #define MSG_LCD_TILTING_MESH                _UxGT("Tilting point")
 #endif
+#ifndef MSG_M48_TEST
+  #define MSG_M48_TEST                        _UxGT("M48 Probe Test")
+#endif
+#ifndef MSG_M48_DEVIATION
+  #define MSG_M48_DEVIATION                   _UxGT("Deviation")
+#endif
 #ifndef MSG_IDEX_MENU
   #define MSG_IDEX_MENU                       _UxGT("IDEX Mode")
 #endif
@@ -543,8 +549,8 @@
 #ifndef MSG_HOTEND_TOO_COLD
   #define MSG_HOTEND_TOO_COLD                 _UxGT("Hotend too cold")
 #endif
-#ifndef MSG_MOVE_0025MM
-  #define MSG_MOVE_0025MM                     _UxGT("Move 0.025mm")
+#ifndef MSG_MOVE_Z_DIST
+  #define MSG_MOVE_Z_DIST                     _UxGT("Move %smm")
 #endif
 #ifndef MSG_MOVE_01MM
   #define MSG_MOVE_01MM                       _UxGT("Move 0.1mm")
@@ -1385,6 +1391,7 @@
 #ifndef MSG_END_Z
   #define MSG_END_Z                           _UxGT("  End Z")
 #endif
+
 #ifndef MSG_GAMES
   #define MSG_GAMES                           _UxGT("Games")
 #endif
