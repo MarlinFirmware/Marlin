@@ -181,7 +181,9 @@ millis_t next_button_update_ms;
     }
   #endif
 
-  int8_t MarlinUI::encoderDirection = 1;
+  #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
+    int8_t MarlinUI::encoderDirection = ENCODERBASE;
+  #endif
 
   bool MarlinUI::lcd_clicked;
   float move_menu_scale;
