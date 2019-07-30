@@ -35,7 +35,7 @@
 #endif
 #define BOARD_NAME "JGAurora A5S A1 board"
 
-// #define STM32_XL_DENSITY // required, but is set by platformio flags, not here! (why? not sure.)
+#define STM32_XL_DENSITY
 // #define MCU_STM32F103ZE // not yet required
 // Enable EEPROM Emulation for this board, so that we don't overwrite factory data
 
