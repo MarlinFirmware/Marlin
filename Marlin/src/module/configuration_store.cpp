@@ -460,7 +460,7 @@ void MarlinSettings::postprocess() {
     #define EEPROM_SKIP(VAR) (eeprom_index += sizeof(VAR))
   #endif
 
-  #define EEPROM_START()          if (!persistentStore.access_start()) { SERIAL_ERROR_MSG("EEPROM connect error."); return false; } \
+  #define EEPROM_START()          if (!persistentStore.access_start()) { SERIAL_ECHO_MSG("No EEPROM."); return false; } \
                                   int eeprom_index = EEPROM_OFFSET
   #define EEPROM_FINISH()         persistentStore.access_finish()
   #define EEPROM_WRITE(VAR)       do{ persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);              UPDATE_TEST_INDEX(VAR); }while(0)
