@@ -1369,6 +1369,9 @@
   //#define SERIAL_XON_XOFF
 #endif
 
+// Add M575 G-code to change the baud rate
+//#define BAUD_RATE_GCODE
+
 #if ENABLED(SDSUPPORT)
   // Enable this option to collect and display the maximum
   // RX queue usage after transferring a file to SD.
