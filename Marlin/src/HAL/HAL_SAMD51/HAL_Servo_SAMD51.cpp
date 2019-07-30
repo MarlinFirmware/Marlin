@@ -20,14 +20,15 @@
  */
 
 /**
- * 
- * This code comes from Arduino library but, at the moment this is written, such library is buggy and uncompilable
- *
+ * This comes from Arduino library which at the moment is buggy and uncompilable
  */
 
-#if defined(__SAMD51__)
+#ifdef __SAMD51__
 
 #include "../../inc/MarlinConfig.h"
+
+#if HAS_SERVOS
+
 #include "SAMD51.h"
 #include "HAL_Servo_SAMD51.h"
 
@@ -66,31 +67,23 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel, uint8_t in
     tc->COUNT16.COUNT.reg = 0;
     SYNC(tc->COUNT16.SYNCBUSY.bit.COUNT);
   }
-  else {
-    if (SERVO_INDEX(timer, currentServoIndex[timer]) < ServoCount && SERVO(timer, currentServoIndex[timer]).Pin.isActive) {
-      digitalWrite(SERVO(timer, currentServoIndex[timer]).Pin.nbr, LOW);   // pulse this channel low if activated
-    }
-  }
+  else if (SERVO_INDEX(timer, currentServoIndex[timer]) < ServoCount && SERVO(timer, currentServoIndex[timer]).Pin.isActive)
+    digitalWrite(SERVO(timer, currentServoIndex[timer]).Pin.nbr, LOW);   // pulse this channel low if activated
 
   // Select the next servo controlled by this timer
   currentServoIndex[timer]++;
 
   if (SERVO_INDEX(timer, currentServoIndex[timer]) < ServoCount && currentServoIndex[timer] < SERVOS_PER_TIMER) {
-    if (SERVO(timer, currentServoIndex[timer]).Pin.isActive) {   // check if activated
+    if (SERVO(timer, currentServoIndex[timer]).Pin.isActive)     // check if activated
       digitalWrite(SERVO(timer, currentServoIndex[timer]).Pin.nbr, HIGH);   // it's an active channel so pulse it high
-    }
 
     // Get the counter value
     const uint16_t tcCounterValue = tc->COUNT16.COUNT.reg;
     SYNC(tc->COUNT16.SYNCBUSY.bit.COUNT);
 
-    tc->COUNT16.CC[channel].reg = (uint16_t)(tcCounterValue + SERVO(timer, currentServoIndex[timer]).ticks);
-    if (channel == 0) {
-      SYNC(tc->COUNT16.SYNCBUSY.bit.CC0); 
-    }
-    else if (channel == 1) {
-      SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
-    }
+    tc->COUNT16.CC[channel].reg = uint16_t(tcCounterValue + SERVO(timer, currentServoIndex[timer]).ticks);
+         if (channel == 0) SYNC(tc->COUNT16.SYNCBUSY.bit.CC0); 
+    else if (channel == 1) SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
@@ -99,18 +92,13 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel, uint8_t in
     const uint16_t tcCounterValue = tc->COUNT16.COUNT.reg;
     SYNC(tc->COUNT16.SYNCBUSY.bit.COUNT);
 
-    if (tcCounterValue + 4UL < usToTicks(REFRESH_INTERVAL)) {   // allow a few ticks to ensure the next OCR1A not missed
+    if (tcCounterValue + 4UL < usToTicks(REFRESH_INTERVAL))     // allow a few ticks to ensure the next OCR1A not missed
       tc->COUNT16.CC[channel].reg = (uint16_t)usToTicks(REFRESH_INTERVAL);
-    }
-    else {
+    else
       tc->COUNT16.CC[channel].reg = (uint16_t)(tcCounterValue + 4UL);   // at least REFRESH_INTERVAL has elapsed
-    }
-    if (channel == 0) {
-      SYNC(tc->COUNT16.SYNCBUSY.bit.CC0);
-    }
-    else if (channel == 1) {
-      SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
-    }
+
+         if (channel == 0) SYNC(tc->COUNT16.SYNCBUSY.bit.CC0); 
+    else if (channel == 1) SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
 
     currentServoIndex[timer] = -1;   // this will get incremented at the end of the refresh period to start again at the first channel
   }
@@ -157,12 +145,8 @@ static void _initISR(Tc *tc, uint8_t channel, uint32_t id, IRQn_Type irqn, uint8
 
   // First interrupt request after 1 ms
   tc->COUNT16.CC[channel].reg = (uint16_t)usToTicks(1000UL);
-  if (channel == 0) {
-    SYNC(tc->COUNT16.SYNCBUSY.bit.CC0);
-  }
-  else if (channel == 1) {
-    SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
-  }
+       if (channel == 0) SYNC(tc->COUNT16.SYNCBUSY.bit.CC0);
+  else if (channel == 1) SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
 
   // Configure interrupt request
   // TODO this should be changed if more than one channel per timer is used by the Servo library
@@ -180,22 +164,22 @@ static void _initISR(Tc *tc, uint8_t channel, uint32_t id, IRQn_Type irqn, uint8
 }
 
 static void initISR(timer16_Sequence_t timer) {
-  #if defined (_useTimer1)
+  #ifdef _useTimer1
     if (timer == _timer1)
       _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1, INTENSET_BIT_FOR_TIMER_1);
   #endif
-  #if defined (_useTimer2)
+  #ifdef _useTimer2
     if (timer == _timer2)
       _initISR(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2, ID_TC_FOR_TIMER2, IRQn_FOR_TIMER2, INTENSET_BIT_FOR_TIMER_2);
   #endif
 }
 
 static void finISR(timer16_Sequence_t timer) {
-  #if defined (_useTimer1)
+  #ifdef _useTimer1
     // Disable the match channel interrupt request
     TC_FOR_TIMER1->COUNT16.INTENCLR.reg = INTENCLR_BIT_FOR_TIMER_1;
   #endif
-  #if defined (_useTimer2)
+  #ifdef _useTimer2
     // Disable the match channel interrupt request
     TC_FOR_TIMER2->COUNT16.INTENCLR.reg = INTENCLR_BIT_FOR_TIMER_2;
   #endif
@@ -203,10 +187,8 @@ static void finISR(timer16_Sequence_t timer) {
 
 static boolean isTimerActive(timer16_Sequence_t timer) {
   // returns true if any servo is active on this timer
-  for (uint8_t channel = 0; channel < SERVOS_PER_TIMER; channel++) {
-    if (SERVO(timer, channel).Pin.isActive)
-      return true;
-  }
+  for (uint8_t channel = 0; channel < SERVOS_PER_TIMER; channel++)
+    if (SERVO(timer, channel).Pin.isActive) return true;
   return false;
 }
 
@@ -217,9 +199,8 @@ Servo::Servo() {
     servoIndex = ServoCount++;                                    // assign a servo index to this instance
     servos[servoIndex].ticks = usToTicks(DEFAULT_PULSE_WIDTH);    // store default values
   }
-  else {
+  else
     servoIndex = INVALID_SERVO;  // too many servos
-  }
 }
 
 uint8_t Servo::attach(int pin) {
@@ -297,4 +278,5 @@ bool Servo::attached() {
   return servos[servoIndex].Pin.isActive;
 }
 
+#endif // HAS_SERVOS
 #endif // __SAMD51__
