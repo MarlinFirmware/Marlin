@@ -306,7 +306,7 @@
  *
  * Define one or both of these to override the default 0-255 range.
  */
-  #define FAN_MIN_PWM 30
+#define FAN_MIN_PWM 30
 //#define FAN_MAX_PWM 128
 
 /**
@@ -857,6 +857,9 @@
 
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
+#if ENABLED(LCD_INFO_MENU)
+  //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
+#endif
 
 // Scroll a longer status message into view
 #define STATUS_MESSAGE_SCROLLING
@@ -1141,6 +1144,7 @@
   //#define MARLIN_BRICKOUT
   //#define MARLIN_INVADERS
   //#define MARLIN_SNAKE
+  //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
 #endif // HAS_GRAPHICAL_LCD
 
