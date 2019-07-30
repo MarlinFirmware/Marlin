@@ -57,7 +57,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     case 3: irq_num = NVIC_TIMER3; break;
     case 4: irq_num = NVIC_TIMER4; break;
     case 5: irq_num = NVIC_TIMER5; break;
-    #ifdef STM32_HIGH_DENSITY
+    #if ENABLED(STM32_HIGH_DENSITY)
       // 6 & 7 are basic timers, avoid them
       case 8: irq_num = NVIC_TIMER8_CC; break;
     #endif
