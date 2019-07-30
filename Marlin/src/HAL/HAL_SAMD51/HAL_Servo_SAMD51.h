@@ -20,18 +20,16 @@
  */
 
 /**
- *
- * This code comes from Arduino library but, at the moment this is written, such library is buggy and uncompilable
- *
+ * This comes from Arduino library which at the moment is buggy and uncompilable
  */
 
 #pragma once
 
 #define _useTimer1
- //#define _useTimer2   // <- TODO do not activate until the code in Servo.cpp has been changed in order
-                        //         to manage more than one channel per timer on the SAMD architecture
+//#define _useTimer2    // <- TODO do not activate until the code in Servo.cpp has been changed to
+                        //         manage more than one channel per timer on the SAMD architecture
 
-#if defined (_useTimer1)
+#ifdef _useTimer1
   #define TC_FOR_TIMER1             TC3
   #define CHANNEL_FOR_TIMER1        0
   #define INTENSET_BIT_FOR_TIMER_1  TC_INTENSET_MC0
@@ -41,7 +39,8 @@
   #define IRQn_FOR_TIMER1           TC3_IRQn
   #define HANDLER_FOR_TIMER1        TC3_Handler
 #endif
-#if defined (_useTimer2)
+
+#ifdef _useTimer2
   #define TC_FOR_TIMER2             TC3
   #define CHANNEL_FOR_TIMER2        1
   #define INTENSET_BIT_FOR_TIMER_2  TC_INTENSET_MC1
@@ -52,13 +51,13 @@
 #endif
 
 typedef enum {
-  #if defined (_useTimer1)
+  #ifdef _useTimer1
     _timer1,
   #endif
-  #if defined (_useTimer2)
+  #ifdef _useTimer2
     _timer2,
   #endif
-    _Nbr_16timers
+  _Nbr_16timers
 } timer16_Sequence_t;
 
 #define Servo_VERSION           2     // software version of this library
@@ -69,7 +68,7 @@ typedef enum {
 #define REFRESH_INTERVAL    20000     // minumim time to refresh servos in microseconds 
 
 #define SERVOS_PER_TIMER       12     // the maximum number of servos controlled by one timer 
-#define MAX_SERVOS          (_Nbr_16timers  * SERVOS_PER_TIMER)
+#define MAX_SERVOS          (_Nbr_16timers * (SERVOS_PER_TIMER))
 
 #define INVALID_SERVO         255     // flag indicating an invalid servo index
 
@@ -96,9 +95,9 @@ class Servo {
     void move(const int value);
     bool attached();                   // return true if this servo is attached, otherwise false 
   private:
-    uint8_t servoIndex;               // index into the channel data for this servo
-    int8_t min;                       // minimum is this value times 4 added to MIN_PULSE_WIDTH    
-    int8_t max;                       // maximum is this value times 4 added to MAX_PULSE_WIDTH   
+    uint8_t servoIndex;                // index into the channel data for this servo
+    int8_t min;                        // minimum is this value times 4 added to MIN_PULSE_WIDTH    
+    int8_t max;                        // maximum is this value times 4 added to MAX_PULSE_WIDTH   
 };
 
 #define HAL_SERVO_LIB Servo
