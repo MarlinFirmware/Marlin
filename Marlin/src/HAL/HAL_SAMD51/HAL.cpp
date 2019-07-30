@@ -389,7 +389,7 @@ void HAL_idletask(void) {
 void HAL_clear_reset_source(void) { }
 
 #pragma push_macro("WDT")
-#undef WDT    // Required to be able to use '.bit.WDT'. Compiler wrongly replace struct field with WDT define 
+#undef WDT    // Required to be able to use '.bit.WDT'. Compiler wrongly replace struct field with WDT define
 uint8_t HAL_get_reset_source(void) {
   RSTC_RCAUSE_Type resetCause;
 

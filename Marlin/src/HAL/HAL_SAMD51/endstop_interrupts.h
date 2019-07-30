@@ -27,7 +27,7 @@
  * Any pin can be used for external interrupts, but there are some restrictions.
  * At most 16 different external interrupts can be used at one time.
  * Further, you can’t just pick any 16 pins to use. This is because every pin on the SAMD51
- * connects to what is called an EXTINT line, and only one pin per EXTINT line can be used for external 
+ * connects to what is called an EXTINT line, and only one pin per EXTINT line can be used for external
  * interrupts at a time
  */
 
