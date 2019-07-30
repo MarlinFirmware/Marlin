@@ -266,10 +266,10 @@
   #define MSG_LCD_TILTING_MESH                _UxGT("Tilting point")
 #endif
 #ifndef MSG_M48_TEST
-  #define MSG_M48_TEST                        _UxGT("Accuracy probe M48")
+  #define MSG_M48_TEST                        _UxGT("M48 Probe Test")
 #endif
-#ifndef MSG_M48_RESULT
-  #define MSG_M48_RESULT                      _UxGT("M48 result")
+#ifndef MSG_M48_DEVIATION
+  #define MSG_M48_DEVIATION                   _UxGT("Deviation")
 #endif
 #ifndef MSG_IDEX_MENU
   #define MSG_IDEX_MENU                       _UxGT("IDEX Mode")
