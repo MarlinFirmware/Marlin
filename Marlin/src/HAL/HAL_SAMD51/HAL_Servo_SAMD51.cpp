@@ -208,8 +208,6 @@ uint8_t Servo::attach(int pin) {
 }
 
 uint8_t Servo::attach(int pin, int min, int max) {
-  timer16_Sequence_t timer;
-
   if (servoIndex < MAX_SERVOS) {
     pinMode(pin, OUTPUT);                                   // set servo pin to output
     servos[servoIndex].Pin.nbr = pin;
@@ -217,7 +215,7 @@ uint8_t Servo::attach(int pin, int min, int max) {
     this->min = (MIN_PULSE_WIDTH - min) / 4; //resolution of min/max is 4 uS
     this->max = (MAX_PULSE_WIDTH - max) / 4;
     // initialize the timer if it has not already been initialized
-    timer = SERVO_INDEX_TO_TIMER(servoIndex);
+    timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
     if (!isTimerActive(timer)) initISR(timer);
     servos[servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
   }
@@ -225,10 +223,8 @@ uint8_t Servo::attach(int pin, int min, int max) {
 }
 
 void Servo::detach() {
-  timer16_Sequence_t timer;
-
   servos[servoIndex].Pin.isActive = false;
-  timer = SERVO_INDEX_TO_TIMER(servoIndex);
+  timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
   if (!isTimerActive(timer)) finISR(timer);
 }
 
