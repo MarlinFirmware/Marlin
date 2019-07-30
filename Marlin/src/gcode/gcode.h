@@ -782,6 +782,10 @@ private:
     static void M540();
   #endif
 
+  #if ENABLED(BAUD_RATE_GCODE)
+    static void M575();
+  #endif
+
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     static void M600();
     static void M603();

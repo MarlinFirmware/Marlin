@@ -29,6 +29,8 @@
 #undef M_PI           // Redefined by all
 #undef _BV            // Redefined by some
 #undef sq             // Redefined by teensy3/wiring.h
+#undef SBI            // Redefined by arduino/const_functions.h
+#undef CBI            // Redefined by arduino/const_functions.h
 
 #include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
 
