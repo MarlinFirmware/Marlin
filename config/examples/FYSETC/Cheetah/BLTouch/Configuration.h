@@ -745,9 +745,15 @@
 #define DEFAULT_RETRACT_ACCELERATION  500    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   500    // X, Y, Z acceleration for travel (non printing) moves
 
-//
-// Use Junction Deviation instead of traditional Jerk Limiting
-//
+/**
+ * Junction Deviation
+ *
+ * Use Junction Deviation instead of traditional Jerk Limiting
+ *
+ * See:
+ *   https://reprap.org/forum/read.php?1,739819
+ *   http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
+ */
 //#define JUNCTION_DEVIATION
 #if ENABLED(JUNCTION_DEVIATION)
   #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
@@ -2021,8 +2027,16 @@
 //=============================================================================
 
 //
-// CONTROLLER TYPE: Keypad / Add-on
+// Alfawise U30 ILI9341 2.8 TP Ver 1.2
+// (Blue PCB on the back of touchscreen)
 //
+//#define TOUCH_BUTTONS
+#if ENABLED(TOUCH_BUTTONS)
+  #define XPT2046_X_CALIBRATION   12316
+  #define XPT2046_Y_CALIBRATION  -8981
+  #define XPT2046_X_OFFSET       -43
+  #define XPT2046_Y_OFFSET        257
+#endif
 
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
