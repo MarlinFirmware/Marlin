@@ -54,7 +54,11 @@
 #endif
 
 #include "../lcd/ultralcd.h"
-#include "../libs/buzzer.h"
+
+#if HAS_BUZZER
+  #include "../libs/buzzer.h"
+#endif
+
 #include "../libs/nozzle.h"
 #include "pause.h"
 
@@ -436,7 +440,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
 
   // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
   if (!axis_unhomed_error())
-    Nozzle::park(2, park_point);
+    nozzle.park(2, park_point);
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;

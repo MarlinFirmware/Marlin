@@ -392,7 +392,7 @@ bool MarlinUI::get_blink() {
         #if HAS_ENCODER_ACTION
           refresh(LCDVIEW_REDRAW_NOW);
           #if HAS_LCD_MENU
-            if (encoderDirection == -1) {     // ADC_KEYPAD forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
+            if (encoderDirection == -(ENCODERBASE)) { // ADC_KEYPAD forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
                    if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
@@ -480,7 +480,6 @@ bool MarlinUI::get_blink() {
 void MarlinUI::status_screen() {
 
   #if HAS_LCD_MENU
-    encoder_direction_normal();
     ENCODER_RATE_MULTIPLY(false);
   #endif
 
@@ -539,7 +538,7 @@ void MarlinUI::status_screen() {
       return;
     }
 
-  #endif // HAS_LCD_MENU
+  #endif
 
   #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
 
@@ -563,7 +562,7 @@ void MarlinUI::status_screen() {
     if (old_frm != new_frm) {
       feedrate_percentage = new_frm;
       encoderPosition = 0;
-      #if ENABLED(BEEP_ON_FEEDRATE_CHANGE)
+      #if HAS_BUZZER && ENABLED(BEEP_ON_FEEDRATE_CHANGE)
         static millis_t next_beep;
         #ifndef GOT_MS
           const millis_t ms = millis();
@@ -588,8 +587,8 @@ void MarlinUI::kill_screen(PGM_P lcd_msg) {
   #ifdef LED_BACKLIGHT_TIMEOUT
     leds.set_color(LEDColorRed());
     #ifdef NEOPIXEL_BKGD_LED_INDEX
-      pixels.setPixelColor(NEOPIXEL_BKGD_LED_INDEX, 255, 0, 0, 0);
-      pixels.show();
+      neo.set_pixel_color(NEOPIXEL_BKGD_LED_INDEX, 255, 0, 0, 0);
+      neo.show();
     #endif
   #endif
 
@@ -609,8 +608,10 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     UNUSED(clear_buttons);
   #endif
 
-  // Buzz and wait. The delay is needed for buttons to settle!
-  buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+  #if HAS_BUZZER
+    // Buzz and wait. Is the delay needed for buttons to settle?
+    buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+  #endif
 
   #if HAS_LCD_MENU
     #if ENABLED(LCD_USE_I2C_BUZZER)
@@ -803,7 +804,9 @@ void MarlinUI::update() {
           card.release();
           if (old_sd_status != 2) {
             set_status_P(PSTR(MSG_SD_REMOVED));
-            if (!on_status_screen()) return_to_status();
+            #if HAS_LCD_MENU
+              return_to_status();
+            #endif
           }
         }
 
@@ -1468,7 +1471,7 @@ void MarlinUI::update() {
     #endif
     print_job_timer.stop();
     set_status_P(PSTR(MSG_PRINT_ABORTED));
-    #if HAS_SPI_LCD
+    #if HAS_LCD_MENU
       return_to_status();
     #endif
   }
@@ -1522,13 +1525,15 @@ void MarlinUI::update() {
     uint8_t MarlinUI::get_progress() {
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
         uint8_t &progress = progress_bar_percent;
+        #define _PLIMIT(P) ((P) & 0x7F)
       #else
+        #define _PLIMIT(P) P
         uint8_t progress = 0;
       #endif
       #if ENABLED(SDSUPPORT)
         if (IS_SD_PRINTING()) progress = card.percentDone();
       #endif
-      return progress;
+      return _PLIMIT(progress);
     }
   #endif
 

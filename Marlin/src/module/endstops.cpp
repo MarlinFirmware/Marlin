@@ -330,7 +330,7 @@ void Endstops::resync() {
 void Endstops::event_handler() {
   static uint8_t prev_hit_state; // = 0
   if (hit_state && hit_state != prev_hit_state) {
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SPI_LCD
       char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -361,7 +361,7 @@ void Endstops::event_handler() {
     #endif
     SERIAL_EOL();
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SPI_LCD
       ui.status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 
@@ -783,14 +783,13 @@ void Endstops::update() {
   bool Endstops::monitor_flag = false;
 
   /**
-   * monitors endstops & Z probe for changes
+   * Monitor Endstops and Z Probe for changes
    *
    * If a change is detected then the LED is toggled and
-   * a message is sent out the serial port
+   * a message is sent out the serial port.
    *
    * Yes, we could miss a rapid back & forth change but
    * that won't matter because this is all manual.
-   *
    */
   void Endstops::monitor() {
 

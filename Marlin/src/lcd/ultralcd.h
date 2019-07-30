@@ -258,15 +258,15 @@ public:
     #endif
   }
 
-  static inline void buzz(const long duration, const uint16_t freq) {
-    #if ENABLED(LCD_USE_I2C_BUZZER)
-      lcd.buzz(duration, freq);
-    #elif PIN_EXISTS(BEEPER)
-      buzzer.tone(duration, freq);
-    #else
-      UNUSED(duration); UNUSED(freq);
-    #endif
-  }
+  #if HAS_BUZZER
+    static inline void buzz(const long duration, const uint16_t freq) {
+      #if ENABLED(LCD_USE_I2C_BUZZER)
+        lcd.buzz(duration, freq);
+      #elif PIN_EXISTS(BEEPER)
+        buzzer.tone(duration, freq);
+      #endif
+    }
+  #endif
 
   // LCD implementations
   static void clear_lcd();
@@ -298,6 +298,8 @@ public:
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
         static uint8_t progress_bar_percent;
         static void set_progress(const uint8_t progress) { progress_bar_percent = _MIN(progress, 100); }
+        static void set_progress_done() { set_progress(0x80 + 100); }
+        static void progress_reset() { if (progress_bar_percent & 0x80) set_progress(0); }
       #endif
       static uint8_t get_progress();
     #else
@@ -313,7 +315,14 @@ public:
       static inline void refresh(const LCDViewAction type) { lcdDrawUpdate = type; }
       static inline void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
 
+      #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+        static void draw_custom_bootscreen(const uint8_t frame=0);
+        static void show_custom_bootscreen();
+      #endif
+
       #if ENABLED(SHOW_BOOTSCREEN)
+        static void draw_marlin_bootscreen();
+        static void show_marlin_bootscreen();
         static void show_bootscreen();
       #endif
 
@@ -353,7 +362,9 @@ public:
       #endif
 
       static void quick_feedback(const bool clear_buttons=true);
-      static void completion_feedback(const bool good=true);
+      #if HAS_BUZZER
+        static void completion_feedback(const bool good=true);
+      #endif
 
       #if DISABLED(LIGHTWEIGHT_UI)
         static void draw_status_message(const bool blink);
@@ -422,6 +433,11 @@ public:
     static int16_t preheat_hotend_temp[2], preheat_bed_temp[2];
     static uint8_t preheat_fan_speed[2];
 
+    // Select Screen (modal NO/YES style dialog)
+    static bool selection;
+    static void set_selection(const bool sel) { selection = sel; }
+    static bool update_selection();
+
     static void manage_manual_move();
 
     static bool lcd_clicked;
@@ -459,7 +475,11 @@ public:
     #endif
 
     #if ENABLED(G26_MESH_VALIDATION)
-      static inline void chirp() { buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ); }
+      static inline void chirp() {
+        #if HAS_BUZZER
+          buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+        #endif
+      }
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)

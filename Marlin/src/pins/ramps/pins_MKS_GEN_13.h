@@ -96,6 +96,8 @@
   #undef SD_DETECT_PIN
   #undef BEEPER_PIN
   #undef KILL_PIN
+  #undef STAT_LED_RED_PIN
+  #undef STAT_LED_BLUE_PIN
 
   //
   // VIKI2 12-wire lead

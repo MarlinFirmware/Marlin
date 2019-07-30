@@ -51,7 +51,7 @@
 #if PIN_EXISTS(MAIN_VOLTAGE_MEASURE) && MAIN_VOLTAGE_MEASURE_PIN < NUM_ANALOG_INPUTS
   REPORT_NAME_ANALOG(__LINE__, MAIN_VOLTAGE_MEASURE_PIN)
 #endif
-#if !defined(ARDUINO_ARCH_SAM)  //TC1 & TC2 are macros in the SAM tool chain
+#if !defined(ARDUINO_ARCH_SAM) && !defined(ARDUINO_ARCH_SAMD)  //TC1 & TC2 are macros in the SAM/SAMD tool chain
   #if defined(TC1) && TC1 >= 0 && TC1 < NUM_ANALOG_INPUTS
     REPORT_NAME_ANALOG(__LINE__, TC1)
   #endif
@@ -1171,4 +1171,7 @@
 #endif
 #if PIN_EXISTS(TOUCH_CS)
   REPORT_NAME_DIGITAL(__LINE__, TOUCH_CS_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_INT)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_INT_PIN)
 #endif

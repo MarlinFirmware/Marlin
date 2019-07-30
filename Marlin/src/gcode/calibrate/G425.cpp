@@ -74,7 +74,6 @@ struct measurements_t {
   float nozzle_outer_dimension[2] = {CALIBRATION_NOZZLE_OUTER_DIAMETER, CALIBRATION_NOZZLE_OUTER_DIAMETER};
 };
 
-#define TEMPORARY_BED_LEVELING_STATE(enable) TemporaryBedLevelingState tbls(enable)
 #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
 
 #if ENABLED(BACKLASH_GCODE)
@@ -88,20 +87,6 @@ struct measurements_t {
 #else
   #define TEMPORARY_BACKLASH_SMOOTHING(value)
 #endif
-
-/**
- * A class to save and change the bed leveling state,
- * then restore it when it goes out of scope.
- */
-class TemporaryBedLevelingState {
-  bool saved;
-
-  public:
-    TemporaryBedLevelingState(const bool enable) : saved(planner.leveling_active) {
-      set_bed_leveling_enabled(enable);
-    }
-    ~TemporaryBedLevelingState() { set_bed_leveling_enabled(saved); }
-};
 
 /**
  * Move to a particular location. Up to three individual axes

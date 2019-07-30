@@ -29,7 +29,6 @@
 #undef M_PI           // Redefined by all
 #undef _BV            // Redefined by some
 #undef sq             // Redefined by teensy3/wiring.h
-#undef vsnprintf_P    // Defined by avr/pgmspace.h in some platforms
 
 #include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
 
@@ -41,10 +40,6 @@
 
 #undef sq
 #define sq(x) ((x)*(x))
-
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
 
 #ifndef SBI
   #define SBI(A,B) (A |= (1 << (B)))
@@ -58,6 +53,10 @@
   #ifndef strchr_P // Some platforms define a macro (DUE, teensy35)
     inline const char* strchr_P(const char *s, int c) { return strchr(s,c); }
     //#define strchr_P(s,c) strchr(s,c)
+  #endif
+
+  #ifndef vsnprintf_P
+    #define vsnprintf_P vsnprintf
   #endif
 #endif
 

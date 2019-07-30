@@ -1,5 +1,5 @@
-dist: xenial
-sudo: require
+dist: bionic
+sudo: false
 
 language: python
 python:
@@ -7,13 +7,6 @@ python:
 
 notifications:
   email: false
-
-# Cache PlatformIO packages using Travis CI container-based infrastructure
-sudo: false
-cache:
-  pip: true
-  directories:
-  - "~/.platformio"
 
 env:
   - TEST_PLATFORM="megaatmega2560"
@@ -25,16 +18,10 @@ env:
   - TEST_PLATFORM="linux_native"
   - TEST_PLATFORM="esp32"
   - TEST_PLATFORM="alfawise_U20"
-
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-7
+  - TEST_PLATFORM="black_stm32f407ve"
+  - TEST_PLATFORM="adafruit_grandcentral_m4"
 
 before_install:
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
   #
   # Fetch the tag information for the current branch
   - git fetch origin --tags
