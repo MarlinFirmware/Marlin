@@ -84,7 +84,6 @@
 #define PB5  0x15
 #define PB6  0x16
 #define PB7  0x17 // 36 pins (F103T)
-
 #define PB8  0x18
 #define PB9  0x19
 #define PB10 0x1A
