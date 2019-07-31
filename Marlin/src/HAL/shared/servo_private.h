@@ -47,8 +47,10 @@
   #include "../HAL_AVR/ServoTimers.h"
 #elif defined(ARDUINO_ARCH_SAM)
   #include "../HAL_DUE/ServoTimers.h"
+#elif defined(__SAMD51__)
+  #include "../HAL_SAMD51/ServoTimers.h"
 #else
-  #error "This library only supports boards with an AVR or SAM3X processor."
+  #error "This library only supports boards with an AVR, SAM3X or SAMD51 processor."
 #endif
 
 // Macros
@@ -78,7 +80,7 @@
 // Types
 
 typedef struct {
-  uint8_t nbr        : 6 ;            // a pin number from 0 to 63
+  uint8_t nbr        : 7 ;            // a pin number from 0 to 127
   uint8_t isActive   : 1 ;            // true if this channel is enabled, pin not pulsed if false
 } ServoPin_t;
 

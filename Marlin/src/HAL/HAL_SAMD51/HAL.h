@@ -76,6 +76,9 @@
 
 typedef int8_t pin_t;
 
+#define SHARED_SERVOS HAS_SERVOS
+#define HAL_SERVO_LIB Servo
+
 //
 // Interrupts
 //
