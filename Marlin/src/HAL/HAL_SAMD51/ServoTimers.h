@@ -29,8 +29,8 @@
 //#define _useTimer2    // <- TODO do not activate until the code in Servo.cpp has been changed to
                         //         manage more than one channel per timer on the SAMD architecture
 
-#define TRIM_DURATION  5      // compensation ticks to trim adjust for digitalWrite delays
-#define PRESCALER      64     // timer prescaler
+#define TRIM_DURATION           5   // compensation ticks to trim adjust for digitalWrite delays
+#define SERVO_TIMER_PRESCALER   64  // timer prescaler
 
 #ifdef _useTimer1
   #define TC_FOR_TIMER1             TC3

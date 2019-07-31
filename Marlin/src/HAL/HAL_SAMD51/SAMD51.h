@@ -20,8 +20,8 @@
  */
 #pragma once
 
-#define SYNC(sc)    while (sc) {   \
-                      asm("");     \
+#define SYNC(sc)    while (sc) {  \
+                      asm("");    \
                     }
 
 // Get SAMD port/pin from specified arduino pin

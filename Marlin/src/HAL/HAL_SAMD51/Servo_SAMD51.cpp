@@ -29,10 +29,10 @@
 
 #if HAS_SERVOS
 
-//#include "SAMD51.h"
 #include "../shared/Marduino.h"
 #include "../shared/servo.h"
 #include "../shared/servo_private.h"
+#include "SAMD51.h"
 
 static volatile int8_t currentServoIndex[_Nbr_16timers];    // index for the servo being pulsed for each timer (or -1 if refresh interval)
 
@@ -78,8 +78,8 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel, uint8_t in
     SYNC(tc->COUNT16.SYNCBUSY.bit.COUNT);
 
     tc->COUNT16.CC[channel].reg = uint16_t(tcCounterValue + SERVO(timer, currentServoIndex[timer]).ticks);
-         if (channel == 0) SYNC(tc->COUNT16.SYNCBUSY.bit.CC0); 
-    else if (channel == 1) SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
+         if (channel == 0) { SYNC(tc->COUNT16.SYNCBUSY.bit.CC0); }
+    else if (channel == 1) { SYNC(tc->COUNT16.SYNCBUSY.bit.CC1); }
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
@@ -93,8 +93,8 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel, uint8_t in
     else
       tc->COUNT16.CC[channel].reg = (uint16_t)(tcCounterValue + 4UL);   // at least REFRESH_INTERVAL has elapsed
 
-         if (channel == 0) SYNC(tc->COUNT16.SYNCBUSY.bit.CC0); 
-    else if (channel == 1) SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
+         if (channel == 0) { SYNC(tc->COUNT16.SYNCBUSY.bit.CC0); }
+    else if (channel == 1) { SYNC(tc->COUNT16.SYNCBUSY.bit.CC1); }
 
     currentServoIndex[timer] = -1;   // this will get incremented at the end of the refresh period to start again at the first channel
   }
@@ -130,8 +130,8 @@ static void _initISR(Tc *tc, uint8_t channel, IRQn_Type irqn, uint8_t intEnableB
 
   // First interrupt request after 1 ms
   tc->COUNT16.CC[channel].reg = (uint16_t)usToTicks(1000UL);
-       if (channel == 0) SYNC(tc->COUNT16.SYNCBUSY.bit.CC0);
-  else if (channel == 1) SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
+       if (channel == 0) { SYNC(tc->COUNT16.SYNCBUSY.bit.CC0); }
+  else if (channel == 1) { SYNC(tc->COUNT16.SYNCBUSY.bit.CC1); }
 
   // Configure interrupt request
   // TODO this should be changed if more than one channel per timer is used by the Servo library
@@ -148,7 +148,7 @@ static void _initISR(Tc *tc, uint8_t channel, IRQn_Type irqn, uint8_t intEnableB
   SYNC(tc->COUNT16.SYNCBUSY.bit.ENABLE);
 }
 
-static void initISR(timer16_Sequence_t timer) {
+void initISR(timer16_Sequence_t timer) {
   #ifdef _useTimer1
     if (timer == _timer1)
       _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, IRQn_FOR_TIMER1, INTENSET_BIT_FOR_TIMER_1);
@@ -159,7 +159,7 @@ static void initISR(timer16_Sequence_t timer) {
   #endif
 }
 
-static void finISR(timer16_Sequence_t timer) {
+void finISR(timer16_Sequence_t timer) {
   #ifdef _useTimer1
     // Disable the match channel interrupt request
     TC_FOR_TIMER1->COUNT16.INTENCLR.reg = INTENCLR_BIT_FOR_TIMER_1;

@@ -33,8 +33,6 @@
 #define STEP_TIMER_IRQ_ID TIM5_IRQn
 #define TEMP_TIMER_IRQ_ID TIM7_IRQn
 
-//#define PRESCALER 1
-
 // ------------------------
 // Private Variables
 // ------------------------
