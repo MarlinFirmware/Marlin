@@ -1603,15 +1603,13 @@ void homeaxis(const AxisEnum axis) {
   #endif
 
   #ifdef HOMING_BACKOFF_MM
-    constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM;
-    if(axis == X_AXIS) {
-      do_blocking_move_to_x(current_position[X_AXIS] - (ABS(endstop_backoff[X_AXIS]) * (X_HOME_DIR)));
-    }
-    else if (axis == Y_AXIS) {
-      do_blocking_move_to_y(current_position[Y_AXIS] - (ABS(endstop_backoff[Y_AXIS]) * (Y_HOME_DIR)));
-    }
-    else if (axis == Z_AXIS) {
-      do_blocking_move_to_z(current_position[Z_AXIS] - (ABS(endstop_backoff[Z_AXIS]) * (Z_HOME_DIR)));
+    constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM,
+                    backoff_pos = current_position[axis] - ABS(endstop_backoff[axis]) * axis_home_dir;
+    switch (axis) {
+      case X_AXIS: do_blocking_move_to_x(backoff_pos); break;
+      case Y_AXIS: do_blocking_move_to_y(backoff_pos); break;
+      case Z_AXIS: do_blocking_move_to_z(backoff_pos); break;
+      default: break;
     }
   #endif
 
