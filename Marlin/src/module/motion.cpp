@@ -423,6 +423,9 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
 void do_blocking_move_to_x(const float &rx, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(rx, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
 }
+void do_blocking_move_to_y(const float &ry, const float &fr_mm_s/*=0.0*/) {
+  do_blocking_move_to(current_position[Y_AXIS], ry, current_position[Z_AXIS], fr_mm_s);
+}
 void do_blocking_move_to_z(const float &rz, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], rz, fr_mm_s);
 }
@@ -1597,6 +1600,19 @@ void homeaxis(const AxisEnum axis) {
   // Put away the Z probe
   #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS && STOW_PROBE()) return;
+  #endif
+
+  #ifdef HOMING_BACKOFF_MM
+    constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM;
+    if(axis == X_AXIS) {
+      do_blocking_move_to_x(current_position[X_AXIS] - (ABS(endstop_backoff[X_AXIS]) * (X_HOME_DIR)));
+    }
+    else if (axis == Y_AXIS) {
+      do_blocking_move_to_y(current_position[Y_AXIS] - (ABS(endstop_backoff[Y_AXIS]) * (Y_HOME_DIR)));
+    }
+    else if (axis == Z_AXIS) {
+      do_blocking_move_to_z(current_position[Z_AXIS] - (ABS(endstop_backoff[Z_AXIS]) * (Z_HOME_DIR)));
+    }
   #endif
 
   // Clear retracted status if homing the Z axis
