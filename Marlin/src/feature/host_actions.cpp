@@ -110,7 +110,9 @@ void host_action(const char * const pstr, const bool eol) {
       case PROMPT_FILAMENT_RUNOUT:
         msg = PSTR("FILAMENT_RUNOUT");
         if (response == 0) {
-          pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+          #endif
           host_action_prompt_end();   // Close current prompt
           host_action_prompt_begin(PSTR("Paused"));
           host_action_prompt_button(PSTR("Purge More"));
@@ -133,7 +135,9 @@ void host_action(const char * const pstr, const bool eol) {
               runout.reset();
             }
           #endif
-          pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+          #endif
         }
         break;
       case PROMPT_USER_CONTINUE:
@@ -142,7 +146,9 @@ void host_action(const char * const pstr, const bool eol) {
         break;
       case PROMPT_PAUSE_RESUME:
         msg = PSTR("LCD_PAUSE_RESUME");
-        queue.inject_P(PSTR("M24"));
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          queue.inject_P(PSTR("M24"));
+        #endif
         break;
       case PROMPT_INFO:
         msg = PSTR("GCODE_INFO");
