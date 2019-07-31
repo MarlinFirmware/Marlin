@@ -1604,11 +1604,9 @@ void homeaxis(const AxisEnum axis) {
 
   #if defined(HOMING_BACKOFF_MM) && DISABLED(DELTA)
     constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM;
-    const float backoff_len = endstop_backoff[axis];
-    if (backoff_len) {
-      float backoff_pos[XYZ]; COPY(backoff_pos, current_position);
-      backoff_pos[axis] -= ABS(backoff_len) * axis_home_dir;
-      do_blocking_move_to(backoff_pos);
+    if (endstop_backoff[axis]) {
+      current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
+      line_to_current_position();
     }
   #endif
 
