@@ -752,7 +752,7 @@
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       DEPLOY_PROBE();
 
-      uint16_t count = GRID_MAX_POINTS, current = 1;
+      uint8_t count = GRID_MAX_POINTS, current = 1;
 
       do {
         current = (GRID_MAX_POINTS) - count + 1;
