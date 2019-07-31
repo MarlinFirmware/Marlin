@@ -1603,14 +1603,10 @@ void homeaxis(const AxisEnum axis) {
   #endif
 
   #ifdef HOMING_BACKOFF_MM
-    constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM,
-                    backoff_pos = current_position[axis] - ABS(endstop_backoff[axis]) * axis_home_dir;
-    switch (axis) {
-      case X_AXIS: do_blocking_move_to_x(backoff_pos); break;
-      case Y_AXIS: do_blocking_move_to_y(backoff_pos); break;
-      case Z_AXIS: do_blocking_move_to_z(backoff_pos); break;
-      default: break;
-    }
+    constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM;
+    float backoff_pos[XYZ]; COPY(backoff_pos, current_position);
+    backoff_pos[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
+    do_blocking_move_to(backoff_pos);
   #endif
 
   // Clear retracted status if homing the Z axis
