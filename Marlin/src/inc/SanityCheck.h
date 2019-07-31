@@ -550,6 +550,12 @@
   #error "SERIAL_PORT_2 is not supported for your MOTHERBOARD. Disable it to continue."
 #endif
 
+#if ENABLED(BAUD_RATE_GCODE)
+  #if !defined(__AVR__) && !defined(ARDUINO_ARCH_SAM)
+    #error "BAUD_RATE_GCODE is only supported on AVR and DUE"
+  #endif
+#endif
+
 /**
  * Multiple Stepper Drivers Per Axis
  */

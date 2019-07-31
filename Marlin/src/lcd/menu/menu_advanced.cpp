@@ -470,6 +470,60 @@ void menu_cancelobject();
     }
   #endif
 
+  #if ENABLED(BAUD_RATE_GCODE)
+
+    static void lcd_set_serial1_baud() {
+      START_MENU();
+      #if NUM_SERIAL == 1
+        MENU_BACK(MSG_ADVANCED_SETTINGS);
+      #else
+        MENU_BACK(MSG_SERIAL_SELECT);
+      #endif
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_2400, PSTR("M575P0B2400U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_9600, PSTR("M575P0B9600U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_19200, PSTR("M575P0B19200U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_38400, PSTR("M575P0B38400U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_57600, PSTR("M575P0B57600U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_115200, PSTR("M575P0B115200U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_230400, PSTR("M575P0B230400U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_250000, PSTR("M575P0B250000U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_500000, PSTR("M575P0B500000U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_1000000, PSTR("M575P0B1000000U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_2000000, PSTR("M575P0B2000000U"));
+      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_4000000, PSTR("M575P0B4000000U"));
+      END_MENU();
+    }
+
+    #if NUM_SERIAL > 1
+      static void lcd_set_serial2_baud() {
+        START_MENU();
+        MENU_BACK(MSG_SERIAL_SELECT);
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_2400, PSTR("M575P1B2400U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_9600, PSTR("M575P1B9600U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_19200, PSTR("M575P1B19200U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_38400, PSTR("M575P1B38400U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_57600, PSTR("M575P1B57600U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_115200, PSTR("M575P1B115200U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_230400, PSTR("M575P1B230400U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_250000, PSTR("M575P1B250000U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_500000, PSTR("M575P1B500000U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_1000000, PSTR("M575P1B1000000U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_2000000, PSTR("M575P1B2000000U"));
+        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_4000000, PSTR("M575P1B4000000U"));
+        END_MENU();
+      }
+
+      static void lcd_select_serial_baud() {
+        START_MENU();
+        MENU_BACK(MSG_ADVANCED_SETTINGS);
+        MENU_ITEM(submenu, MSG_SELECTSERIAL0, lcd_set_serial1_baud);
+        MENU_ITEM(submenu, MSG_SELECTSERIAL1, lcd_set_serial2_baud);
+        END_MENU();
+      }
+    #endif
+
+  #endif
+
 #endif // !SLIM_LCD_MENUS
 
 // M92 Steps-per-mm
@@ -523,6 +577,15 @@ void menu_advanced_settings() {
       if (!printer_busy())
         SUBMENU(MSG_ZPROBE_OFFSETS, menu_probe_offsets);
     #endif
+
+    #if ENABLED(BAUD_RATE_GCODE)
+      #if (NUM_SERIAL>1)
+        MENU_ITEM(submenu, MSG_SERIAL_SELECT, lcd_select_serial_baud);
+      #else
+        MENU_ITEM(submenu, MSG_SELECTSERIAL0, lcd_set_serial1_baud);
+      #endif
+    #endif
+
   #endif // !SLIM_LCD_MENUS
 
   // M92 - Steps Per mm
