@@ -111,7 +111,7 @@ void host_action(const char * const pstr, const bool eol) {
         msg = PSTR("FILAMENT_RUNOUT");
         if (response == 0) {
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+            pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
           #endif
           host_action_prompt_end();   // Close current prompt
           host_action_prompt_begin(PSTR("Paused"));
@@ -136,7 +136,7 @@ void host_action(const char * const pstr, const bool eol) {
             }
           #endif
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+            pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
           #endif
         }
         break;
@@ -147,7 +147,7 @@ void host_action(const char * const pstr, const bool eol) {
       case PROMPT_PAUSE_RESUME:
         msg = PSTR("LCD_PAUSE_RESUME");
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
-        queue.inject_P(PSTR("M24"));
+          queue.inject_P(PSTR("M24"));
         #endif
         break;
       case PROMPT_INFO:
