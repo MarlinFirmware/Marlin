@@ -65,8 +65,6 @@ void GcodeSuite::M201() {
       planner.set_max_acceleration(a, parser.value_axis_units((AxisEnum)a));
     }
   }
-
-  planner.reset_acceleration_rates();
 }
 
 /**
