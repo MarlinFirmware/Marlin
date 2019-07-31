@@ -35,8 +35,6 @@
  * (Located in Marlin/buildroot/share/pin_interrupt_test/pin_interrupt_test.ino)
  */
 
-#pragma once
-
 #include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts

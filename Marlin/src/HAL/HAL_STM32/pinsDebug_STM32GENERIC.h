@@ -89,6 +89,8 @@ static inline bool GET_ARRAY_IS_DIGITAL(const int16_t array_pin) {
   );
 }
 
+#include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
+
 static inline void pwm_details(const pin_t pin) {
   if (PWM_PIN(pin)) {
     timer_dev * const tdev = PIN_MAP[pin].timer_device;
