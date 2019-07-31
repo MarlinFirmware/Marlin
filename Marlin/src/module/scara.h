@@ -25,8 +25,6 @@
  * scara.h - SCARA-specific functions
  */
 
-#pragma once
-
 #include "../core/macros.h"
 
 extern float delta_segments_per_second;
