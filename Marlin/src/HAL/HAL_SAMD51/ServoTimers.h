@@ -18,12 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * This comes from Arduino library which at the moment is buggy and uncompilable
  */
-
-#pragma once
 
 #define _useTimer1
 //#define _useTimer2    // <- TODO do not activate until the code in Servo.cpp has been changed to
