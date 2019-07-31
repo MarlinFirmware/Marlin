@@ -274,7 +274,6 @@
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
  */
-#pragma once
 
 #include "../inc/MarlinConfig.h"
 #include "parser.h"
