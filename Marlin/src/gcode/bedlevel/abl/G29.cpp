@@ -36,7 +36,7 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if BOTH(LCD_BED_LEVELING, PROBE_MANUALLY)
+#if HAS_LCD_MENU
   #include "../../../lcd/ultralcd.h"
 #endif
 
