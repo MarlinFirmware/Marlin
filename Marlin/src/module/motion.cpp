@@ -1602,11 +1602,14 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && STOW_PROBE()) return;
   #endif
 
-  #ifdef HOMING_BACKOFF_MM
+  #if defined(HOMING_BACKOFF_MM) && DISABLED(DELTA)
     constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM;
-    float backoff_pos[XYZ]; COPY(backoff_pos, current_position);
-    backoff_pos[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
-    do_blocking_move_to(backoff_pos);
+    const float backoff_len = endstop_backoff[axis];
+    if (backoff_len) {
+      float backoff_pos[XYZ]; COPY(backoff_pos, current_position);
+      backoff_pos[axis] -= ABS(backoff_len) * axis_home_dir;
+      do_blocking_move_to(backoff_pos);
+    }
   #endif
 
   // Clear retracted status if homing the Z axis
