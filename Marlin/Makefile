@@ -247,6 +247,10 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1139)
 else ifeq ($(HARDWARE_MOTHERBOARD),1140)
 # Z-Bolt X Series
 else ifeq ($(HARDWARE_MOTHERBOARD),1141)
+# TT OSCAR
+else ifeq ($(HARDWARE_MOTHERBOARD),1142)
+# Overlord/Overlord Pro
+else ifeq ($(HARDWARE_MOTHERBOARD),1143)
 
 #
 # RAMBo and derivatives
@@ -314,9 +318,11 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1319)
 # ATmega1281, ATmega2561
 #
 
+# Minitronics v1.0/1.1
 else ifeq ($(HARDWARE_MOTHERBOARD),1400)
   MCU              ?= atmega1281
-else ifeq ($(HARDWARE_MOTHERBOARD),1410)
+# Silvergate v1.0
+else ifeq ($(HARDWARE_MOTHERBOARD),1401)
   MCU              ?= atmega1281
 
 #
