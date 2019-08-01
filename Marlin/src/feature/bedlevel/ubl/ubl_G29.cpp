@@ -761,7 +761,7 @@
 
         SERIAL_ECHOLNPAIR("\nProbing mesh point ", int(current), "/", int(GRID_MAX_POINTS), ".\n");
         #if HAS_DISPLAY
-          ui.status_printf_P(0, PSTR(MSG_LCD_PROBING_MESH " %i/%i"), int(current), int(GRID_MAX_POINTS));
+          ui.status_printf_P(0, PSTR(MSG_PROBING_MESH " %i/%i"), int(current), int(GRID_MAX_POINTS));
         #endif
 
         #if HAS_LCD_MENU
