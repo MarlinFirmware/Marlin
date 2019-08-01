@@ -28,9 +28,7 @@
 #define SERVO_TIMER_PRESCALER   64  // timer prescaler factor to 64 (avoid overflowing 16-bit clock counter, at 120MHz this is 1831 ticks per millisecond
 
 
-#define SERVO_TC                TC3
-#define SERVO_IRQn              TC3_IRQn
-#define SERVO_ISR_HANDLER       TC3_Handler
+#define SERVO_TCx               3
 
 typedef enum {
   #ifdef _useTimer1
