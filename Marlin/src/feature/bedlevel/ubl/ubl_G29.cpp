@@ -760,9 +760,11 @@
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
         SERIAL_ECHOLNPAIR("\nProbing mesh point ", int(current), "/", int(GRID_MAX_POINTS), ".\n");
-        #if HAS_LCD_MENU
+        #if HAS_DISPLAY
           ui.status_printf_P(0, PSTR(MSG_LCD_PROBING_MESH " %i/%i"), int(current), int(GRID_MAX_POINTS));
+        #endif
 
+        #if HAS_LCD_MENU
           if (ui.button_pressed()) {
             ui.quick_feedback(false); // Preserve button state for click-and-hold
             SERIAL_ECHOLNPGM("\nMesh only partially populated.\n");
@@ -1405,7 +1407,7 @@
 
       if (do_3_pt_leveling) {
         SERIAL_ECHOLNPGM("Tilting mesh (1/3)");
-        #if HAS_LCD_MENU
+        #if HAS_DISPLAY
           ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 1/3"));
         #endif
 
@@ -1424,7 +1426,7 @@
 
         if (!abort_flag) {
           SERIAL_ECHOLNPGM("Tilting mesh (2/3)");
-          #if HAS_LCD_MENU
+          #if HAS_DISPLAY
             ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 2/3"));
           #endif
 
@@ -1444,7 +1446,7 @@
 
         if (!abort_flag) {
           SERIAL_ECHOLNPGM("Tilting mesh (3/3)");
-          #if HAS_LCD_MENU
+          #if HAS_DISPLAY
             ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 3/3"));
           #endif
 
@@ -1485,7 +1487,7 @@
 
             if (!abort_flag) {
               SERIAL_ECHOLNPAIR("Tilting mesh point ", current, "/", total_points, "\n");
-              #if HAS_LCD_MENU
+              #if HAS_DISPLAY
                 ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " %i/%i"), current, total_points);
               #endif
 
