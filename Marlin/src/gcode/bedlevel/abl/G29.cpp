@@ -255,7 +255,7 @@ G29_TYPE GcodeSuite::G29() {
       ABL_VAR int indexIntoAB[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
       ABL_VAR float eqnAMatrix[(GRID_MAX_POINTS) * 3], // "A" matrix of the linear system of equations
-                    eqnBVector[GRID_MAX_POINTS],     // "B" vector of Z points
+                    eqnBVector[GRID_MAX_POINTS],       // "B" vector of Z points
                     mean;
     #endif
 
@@ -311,8 +311,7 @@ G29_TYPE GcodeSuite::G29() {
 
         const float rx = RAW_X_POSITION(parser.linearval('X', NAN)),
                     ry = RAW_Y_POSITION(parser.linearval('Y', NAN));
-        int8_t i = parser.byteval('I', -1),
-               j = parser.byteval('J', -1);
+        int8_t i = parser.byteval('I', -1), j = parser.byteval('J', -1);
 
         if (!isnan(rx) && !isnan(ry)) {
           // Get nearest i / j from rx / ry
