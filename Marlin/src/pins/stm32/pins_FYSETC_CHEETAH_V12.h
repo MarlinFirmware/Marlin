@@ -36,6 +36,8 @@
 #undef RGB_LED_G_PIN
 #undef RGB_LED_B_PIN
 
+#define FAN1_PIN          PB0 // Fan1
+
 #if HAS_TMC220x
 
   /**
