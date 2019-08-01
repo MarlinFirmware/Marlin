@@ -1602,7 +1602,7 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && STOW_PROBE()) return;
   #endif
 
-  #if defined(HOMING_BACKOFF_MM) && DISABLED(DELTA)
+  #ifdef HOMING_BACKOFF_MM
     constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM;
     const AxisEnum backoff_mm = endstop_backoff[
       #if ENABLED(DELTA)
