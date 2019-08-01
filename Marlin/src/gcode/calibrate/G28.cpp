@@ -391,15 +391,6 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #endif // DUAL_X_CARRIAGE
 
-  #ifdef HOMING_BACKOFF_MM
-    endstops.enable(false);
-    constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM;
-    const float backoff_x = doX ? ABS(endstop_backoff[X_AXIS]) * (X_HOME_DIR) : 0,
-                backoff_y = doY ? ABS(endstop_backoff[Y_AXIS]) * (Y_HOME_DIR) : 0,
-                backoff_z = doZ ? ABS(endstop_backoff[Z_AXIS]) * (Z_HOME_DIR) : 0;
-    if (backoff_z) do_blocking_move_to_z(current_position[Z_AXIS] - backoff_z);
-    if (backoff_x || backoff_y) do_blocking_move_to_xy(current_position[X_AXIS] - backoff_x, current_position[Y_AXIS] - backoff_y);
-  #endif
   endstops.not_homing();
 
   #if BOTH(DELTA, DELTA_HOME_TO_SAFE_ZONE)

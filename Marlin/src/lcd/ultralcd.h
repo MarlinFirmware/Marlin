@@ -539,14 +539,24 @@ public:
     #else
       #define ENCODERBASE +1
     #endif
-    #if ENABLED(REVERSE_MENU_DIRECTION)
+
+    #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
       static int8_t encoderDirection;
-      static inline void encoder_direction_normal() { encoderDirection = +(ENCODERBASE); }
-      static inline void encoder_direction_menus()  { encoderDirection = -(ENCODERBASE); }
+      static inline void encoder_direction_normal() { encoderDirection = ENCODERBASE; }
     #else
       static constexpr int8_t encoderDirection = ENCODERBASE;
       static inline void encoder_direction_normal() {}
+    #endif
+
+    #if ENABLED(REVERSE_MENU_DIRECTION)
+      static inline void encoder_direction_menus()  { encoderDirection = -(ENCODERBASE); }
+    #else
       static inline void encoder_direction_menus()  {}
+    #endif
+    #if ENABLED(REVERSE_SELECT_DIRECTION)
+      static inline void encoder_direction_select()  { encoderDirection = -(ENCODERBASE); }
+    #else
+      static inline void encoder_direction_select()  {}
     #endif
 
   #else

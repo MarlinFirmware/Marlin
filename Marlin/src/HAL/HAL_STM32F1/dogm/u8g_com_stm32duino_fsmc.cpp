@@ -119,7 +119,7 @@ __attribute__((always_inline)) __STATIC_INLINE void __DSB(void) {
 
 #define FSMC_CS_NE1   PD7
 
-#ifdef STM32_XL_DENSITY
+#if ENABLED(STM32_XL_DENSITY)
   #define FSMC_CS_NE2 PG9
   #define FSMC_CS_NE3 PG10
   #define FSMC_CS_NE4 PG12
@@ -151,7 +151,7 @@ __attribute__((always_inline)) __STATIC_INLINE void __DSB(void) {
 #define FSMC_RS_A22   PE6
 #define FSMC_RS_A23   PE2
 
-#ifdef STM32_XL_DENSITY
+#if ENABLED(STM32_XL_DENSITY)
   #define FSMC_RS_A24 PG13
   #define FSMC_RS_A25 PG14
 #endif
@@ -173,7 +173,7 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
 
   switch (cs) {
     case FSMC_CS_NE1: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION1; break;
-    #ifdef STM32_XL_DENSITY
+    #if ENABLED(STM32_XL_DENSITY)
       case FSMC_CS_NE2: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION2; break;
       case FSMC_CS_NE3: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION3; break;
       case FSMC_CS_NE4: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION4; break;
@@ -184,7 +184,7 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
   #define _ORADDR(N) controllerAddress |= (_BV32(N) - 2)
 
   switch (rs) {
-    #ifdef STM32_XL_DENSITY
+    #if ENABLED(STM32_XL_DENSITY)
       case FSMC_RS_A0:  _ORADDR( 1); break;
       case FSMC_RS_A1:  _ORADDR( 2); break;
       case FSMC_RS_A2:  _ORADDR( 3); break;
@@ -210,7 +210,7 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
     case FSMC_RS_A21: _ORADDR(22); break;
     case FSMC_RS_A22: _ORADDR(23); break;
     case FSMC_RS_A23: _ORADDR(24); break;
-    #ifdef STM32_XL_DENSITY
+    #if ENABLED(STM32_XL_DENSITY)
       case FSMC_RS_A24: _ORADDR(25); break;
       case FSMC_RS_A25: _ORADDR(26); break;
     #endif
@@ -242,7 +242,7 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
   gpio_set_mode(PIN_MAP[cs].gpio_device, PIN_MAP[cs].gpio_bit, GPIO_AF_OUTPUT_PP);  //FSMC_CS_NEx
   gpio_set_mode(PIN_MAP[rs].gpio_device, PIN_MAP[rs].gpio_bit, GPIO_AF_OUTPUT_PP);  //FSMC_RS_Ax
 
-  #ifdef STM32_XL_DENSITY
+  #if ENABLED(STM32_XL_DENSITY)
     FSMC_NOR_PSRAM4_BASE->BCR = FSMC_BCR_WREN | FSMC_BCR_MTYP_SRAM | FSMC_BCR_MWID_16BITS | FSMC_BCR_MBKEN;
     FSMC_NOR_PSRAM4_BASE->BTR = (FSMC_DATA_SETUP_TIME << 8) | FSMC_ADDRESS_SETUP_TIME;
   #else // PSRAM1 for STM32F103V (high density)
