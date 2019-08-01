@@ -783,6 +783,10 @@ G29_TYPE GcodeSuite::G29() {
 
     #endif // AUTO_BED_LEVELING_3POINT
 
+    #if HAS_DISPLAY
+      ui.reset_status();
+    #endif
+
     // Stow the probe. No raise for FIX_MOUNTED_PROBE.
     if (STOW_PROBE()) {
       set_bed_leveling_enabled(abl_should_enable);
