@@ -21,8 +21,7 @@
 #pragma once
 
 #define _useTimer1
-//#define _useTimer2    // <- TODO do not activate until the code in Servo_SAMD51.cpp has been changed to
-                        //         manage more than one channel per timer on the SAMD architecture
+#define _useTimer2
 
 #define TRIM_DURATION           5   // compensation ticks to trim adjust for digitalWrite delays
 #define SERVO_TIMER_PRESCALER   64  // timer prescaler factor to 64 (avoid overflowing 16-bit clock counter, at 120MHz this is 1831 ticks per millisecond

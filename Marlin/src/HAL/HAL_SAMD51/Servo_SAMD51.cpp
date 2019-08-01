@@ -75,13 +75,21 @@ HAL_SERVO_TIMER_ISR() {
     #elif !defined(_useTimer2)
       _timer1
     #else
-      (tc->COUNT16.INTFLAG.reg & TC_INTFLAG_MC0) ? _timer1 : _timer2
+      (tc->COUNT16.INTFLAG.reg & tc->COUNT16.INTENSET.reg & TC_INTFLAG_MC0) ? _timer1 : _timer2
     #endif
   ;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
 
   if (currentServoIndex[timer] < 0) {
-    tc->COUNT16.COUNT.reg = TC_COUNTER_START_VAL;   // TODO need fix to handle multi channels
+    #if defined(_useTimer1) && defined(_useTimer2)
+      if (currentServoIndex[timer ^ 1] >= 0) {
+        // Wait for both channels
+        // Clear the interrupt
+        tc->COUNT16.INTFLAG.reg = (tcChannel == 0) ? TC_INTFLAG_MC0 : TC_INTFLAG_MC1;
+        return;
+      }
+    #endif
+    tc->COUNT16.COUNT.reg = TC_COUNTER_START_VAL;
     SYNC(tc->COUNT16.SYNCBUSY.bit.COUNT);
   }
   else if (SERVO_INDEX(timer, currentServoIndex[timer]) < ServoCount && SERVO(timer, currentServoIndex[timer]).Pin.isActive)
@@ -154,6 +162,9 @@ void initISR(timer16_Sequence_t timer) {
     tc->COUNT16.CTRLBSET.reg = TC_CTRLBCLR_DIR;
     SYNC(tc->COUNT16.SYNCBUSY.bit.CTRLB);
 
+    // Reset all servo indexes
+    memset (currentServoIndex, 0xFF, sizeof(currentServoIndex));
+
     // Configure interrupt request
     NVIC_ClearPendingIRQ(SERVO_IRQn);
     NVIC_SetPriority(SERVO_IRQn, 5);
@@ -199,7 +210,7 @@ void finISR(timer16_Sequence_t timer) {
   // Disable the match channel interrupt request
   tc->COUNT16.INTENCLR.reg = (tcChannel == 0) ? TC_INTENCLR_MC0 : TC_INTENCLR_MC1;
 
-  #if defined(_useTimer1) && defined(_useTimer1)
+  #if defined(_useTimer1) && defined(_useTimer2)
     if ((tc->COUNT16.INTENCLR.reg & (TC_INTENCLR_MC0|TC_INTENCLR_MC1)) == 0) {
   #else
     if (true) {
