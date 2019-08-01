@@ -1673,7 +1673,8 @@
  *
  *  Reversed Value Edit and Menu Nav? Enable REVERSE_ENCODER_DIRECTION.
  *  Reversed Menu Navigation only?    Enable REVERSE_MENU_DIRECTION.
- *  Reversed Value Editing only?      Enable BOTH options.
+ *  Reversed Select Screen only?      Enable REVERSE_SELECT_DIRECTION
+ *  Reversed Value Editing only?      Enable ALL options above
  */
 
 //
