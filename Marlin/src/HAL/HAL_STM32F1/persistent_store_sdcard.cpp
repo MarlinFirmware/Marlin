@@ -22,6 +22,7 @@
 
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ * Implementation of EEPROM settings in SD Card
  */
 
 #ifdef __STM32F1__
@@ -33,7 +34,7 @@
 #include "../shared/persistent_store_api.h"
 
 #ifndef E2END
-  #define E2END 0xFFF // 4KB
+  #define E2END 4095 //  0xFFF // 4KB
 #endif
 #define HAL_STM32F1_EEPROM_SIZE (E2END + 1)
 
@@ -61,12 +62,15 @@ static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
   }
 
   bool PersistentStore::access_finish() {
-    if (!card.isDetected()) return false;
+    if (!card.isDetected()) { 
+       return false; }
 
     SdFile file, root = card.getroot();
     int16_t bytes_written = 0;
     if (file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC)) {
-      bytes_written = file.write(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
+        int16_t bytes_read =0;
+      for (; bytes_read < HAL_STM32F1_EEPROM_SIZE; bytes_read++)
+          bytes_written += file.write(HAL_STM32F1_eeprom_content[bytes_read]);
       file.close();
     }
     return (bytes_written == HAL_STM32F1_EEPROM_SIZE);
