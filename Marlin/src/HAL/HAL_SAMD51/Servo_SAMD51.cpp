@@ -33,18 +33,20 @@
 #include "../shared/servo.h"
 #include "../shared/servo_private.h"
 #include "SAMD51.h"
+#include "HAL_timers_SAMD51.h"
 
-#define _TC_GCLK_ID(t)          TC##t##_GCLK_ID
-#define TC_GCLK_ID              _TC_GCLK_ID(SERVO_TCx)
+#define __TC_GCLK_ID(t)         TC##t##_GCLK_ID
+#define _TC_GCLK_ID(t)          __TC_GCLK_ID(t)
+#define TC_GCLK_ID              _TC_GCLK_ID(SERVO_TC)
 
-#define _SERVO_IRQn(t)          TC##t##_IRQn
-#define SERVO_IRQn              _SERVO_IRQn(SERVO_TCx)
+#define _TC_PRESCALER(d)        TC_CTRLA_PRESCALER_DIV##d##_Val
+#define TC_PRESCALER(d)         _TC_PRESCALER(d)
 
-#define _SERVO_ISR_HANDLER(t)   TC##t##_Handler
-#define SERVO_ISR_HANDLER       _SERVO_ISR_HANDLER(SERVO_TCx)
+#define __SERVO_IRQn(t)         TC##t##_IRQn
+#define _SERVO_IRQn(t)          __SERVO_IRQn(t)
+#define SERVO_IRQn              _SERVO_IRQn(SERVO_TC)
 
-#define _SERVO_TC(t)            TC##t
-#define SERVO_TC                _SERVO_TC(SERVO_TCx)
+#define HAL_SERVO_TIMER_ISR()   TC_HANDLER(SERVO_TC)
 
 #define TIMER_TCCHANNEL(t)      ((t) & 1)
 #define TC_COUNTER_START_VAL    0xFFFF
@@ -54,30 +56,33 @@ static bool initialized;                                    // Servo TC has been
 static volatile int8_t currentServoIndex[_Nbr_16timers];    // index for the servo being pulsed for each timer (or -1 if refresh interval)
 
 FORCE_INLINE static uint16_t getTimerCount() {
-  SERVO_TC->COUNT16.CTRLBSET.reg = TC_CTRLBCLR_CMD_READSYNC;
-  SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.CTRLB || SERVO_TC->COUNT16.SYNCBUSY.bit.COUNT);
+  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
 
-  return SERVO_TC->COUNT16.COUNT.reg;
+  tc->COUNT16.CTRLBSET.reg = TC_CTRLBCLR_CMD_READSYNC;
+  SYNC(tc->COUNT16.SYNCBUSY.bit.CTRLB || tc->COUNT16.SYNCBUSY.bit.COUNT);
+
+  return tc->COUNT16.COUNT.reg;
 }
 
 // ----------------------------
 // Interrupt handler for the TC
 // ----------------------------
-void SERVO_ISR_HANDLER() {
+HAL_SERVO_TIMER_ISR() {
+  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
   const timer16_Sequence_t timer =
-    #if !defined(_timer1)
+    #if !defined(_useTimer1)
       _timer2
-    #elif !defined(_timer2)
+    #elif !defined(_useTimer2)
       _timer1
     #else
-      (SERVO_TC->COUNT16.INTFLAG.reg & TC_INTFLAG_MC0) ? _timer1 : _timer2
+      (tc->COUNT16.INTFLAG.reg & TC_INTFLAG_MC0) ? _timer1 : _timer2
     #endif
   ;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
 
   if (currentServoIndex[timer] < 0) {
-    SERVO_TC->COUNT16.COUNT.reg = TC_COUNTER_START_VAL;  // TODO need fix to handle multi channels
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.COUNT);
+    tc->COUNT16.COUNT.reg = TC_COUNTER_START_VAL;   // TODO need fix to handle multi channels
+    SYNC(tc->COUNT16.SYNCBUSY.bit.COUNT);
   }
   else if (SERVO_INDEX(timer, currentServoIndex[timer]) < ServoCount && SERVO(timer, currentServoIndex[timer]).Pin.isActive)
     digitalWrite(SERVO(timer, currentServoIndex[timer]).Pin.nbr, LOW);      // pulse this channel low if activated
@@ -89,7 +94,7 @@ void SERVO_ISR_HANDLER() {
     if (SERVO(timer, currentServoIndex[timer]).Pin.isActive)                // check if activated
       digitalWrite(SERVO(timer, currentServoIndex[timer]).Pin.nbr, HIGH);   // it's an active channel so pulse it high
 
-    SERVO_TC->COUNT16.CC[channel].reg = getTimerCounter() - (uint16_t)SERVO(timer, currentServoIndex[timer]).ticks;
+    tc->COUNT16.CC[tcChannel].reg = getTimerCount() - (uint16_t)SERVO(timer, currentServoIndex[timer]).ticks;
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
@@ -98,29 +103,32 @@ void SERVO_ISR_HANDLER() {
     const uint16_t tcCounterValue = getTimerCount();
 
     if ((TC_COUNTER_START_VAL - tcCounterValue) + 4UL < usToTicks(REFRESH_INTERVAL))  // allow a few ticks to ensure the next OCR1A not missed
-      SERVO_TC->COUNT16.CC[channel].reg = TC_COUNTER_START_VAL - (uint16_t)usToTicks(REFRESH_INTERVAL);
+      tc->COUNT16.CC[tcChannel].reg = TC_COUNTER_START_VAL - (uint16_t)usToTicks(REFRESH_INTERVAL);
     else
-      SERVO_TC->COUNT16.CC[channel].reg = (uint16_t)(tcCounterValue - 4UL);           // at least REFRESH_INTERVAL has elapsed
+      tc->COUNT16.CC[tcChannel].reg = (uint16_t)(tcCounterValue - 4UL);               // at least REFRESH_INTERVAL has elapsed
   }
-  if (channel == 0) {
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.CC0); 
+  if (tcChannel == 0) {
+    SYNC(tc->COUNT16.SYNCBUSY.bit.CC0); 
     // Clear the interrupt
-    SERVO_TC->COUNT16.INTFLAG.reg = TC_INTFLAG_MC0;
+    tc->COUNT16.INTFLAG.reg = TC_INTFLAG_MC0;
   }
   else {
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.CC1); 
+    SYNC(tc->COUNT16.SYNCBUSY.bit.CC1); 
     // Clear the interrupt
-    SERVO_TC->COUNT16.INTFLAG.reg = TC_INTFLAG_MC1;
+    tc->COUNT16.INTFLAG.reg = TC_INTFLAG_MC1;
   }
 }
 
-static void initISR(timer16_Sequence_t timer) {
+void initISR(timer16_Sequence_t timer) {
+  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
+  const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
+
   if (!initialized) {
     NVIC_DisableIRQ(SERVO_IRQn);
 
     // Disable the timer
-    SERVO_TC->COUNT16.CTRLA.bit.ENABLE = false;
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.ENABLE);
+    tc->COUNT16.CTRLA.bit.ENABLE = false;
+    SYNC(tc->COUNT16.SYNCBUSY.bit.ENABLE);
 
     // Select GCLK0 as timer/counter input clock source
     GCLK->PCHCTRL[TC_GCLK_ID].bit.CHEN = false;
@@ -129,22 +137,22 @@ static void initISR(timer16_Sequence_t timer) {
     SYNC(!GCLK->PCHCTRL[TC_GCLK_ID].bit.CHEN);
 
     // Reset the timer
-    SERVO_TC->COUNT16.CTRLA.bit.SWRST = true;
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.SWRST);
-    SYNC(SERVO_TC->COUNT16.CTRLA.bit.SWRST);
+    tc->COUNT16.CTRLA.bit.SWRST = true;
+    SYNC(tc->COUNT16.SYNCBUSY.bit.SWRST);
+    SYNC(tc->COUNT16.CTRLA.bit.SWRST);
 
     // Set timer counter mode to 16 bits
-    SERVO_TC->COUNT16.CTRLA.reg = TC_CTRLA_MODE_COUNT16;
+    tc->COUNT16.CTRLA.reg = TC_CTRLA_MODE_COUNT16;
 
     // Set timer counter mode as normal PWM
-    SERVO_TC->COUNT16.WAVE.bit.WAVEGEN = TCC_WAVE_WAVEGEN_NPWM_Val;
+    tc->COUNT16.WAVE.bit.WAVEGEN = TCC_WAVE_WAVEGEN_NPWM_Val;
 
     // Set the prescaler factor
-    SERVO_TC->COUNT16.CTRLA.bit.PRESCALER = TCC_CTRLA_PRESCALER_DIV64_Val;?
+    tc->COUNT16.CTRLA.bit.PRESCALER = TC_PRESCALER(SERVO_TIMER_PRESCALER);
 
     // Count down
-    SERVO_TC->COUNT16.CTRLBSET.reg = TC_CTRLBCLR_DIR;
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.CTRLB);
+    tc->COUNT16.CTRLBSET.reg = TC_CTRLBCLR_DIR;
+    SYNC(tc->COUNT16.SYNCBUSY.bit.CTRLB);
 
     // Configure interrupt request
     NVIC_ClearPendingIRQ(SERVO_IRQn);
@@ -154,45 +162,51 @@ static void initISR(timer16_Sequence_t timer) {
     initialized = true;
   }
 
-  if (!SERVO_TC->COUNT16.CTRLA.bit.ENABLE) {
+  if (!tc->COUNT16.CTRLA.bit.ENABLE) {
     // Reset the timer counter
-    SERVO_TC->COUNT16.COUNT.reg = TC_COUNTER_START_VAL;
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.COUNT);
+    tc->COUNT16.COUNT.reg = TC_COUNTER_START_VAL;
+    SYNC(tc->COUNT16.SYNCBUSY.bit.COUNT);
 
     // Enable the timer and start it
-    SERVO_TC->COUNT16.CTRLA.bit.ENABLE = true;
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.ENABLE);
+    tc->COUNT16.CTRLA.bit.ENABLE = true;
+    SYNC(tc->COUNT16.SYNCBUSY.bit.ENABLE);
   }
   // First interrupt request after 1 ms
-  SERVO_TC->COUNT16.CC[tcChannel].reg = getTimerCount() - (uint16_t)usToTicks(1000UL);
+  tc->COUNT16.CC[tcChannel].reg = getTimerCount() - (uint16_t)usToTicks(1000UL);
 
   if (tcChannel == 0 ) {
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.CC0);
+    SYNC(tc->COUNT16.SYNCBUSY.bit.CC0);
 
     // Clear pending match interrupt
-    SERVO_TC->COUNT16.INTFLAG.reg = TC_INTENSET_MC0;
+    tc->COUNT16.INTFLAG.reg = TC_INTENSET_MC0;
     // Enable the match channel interrupt request
-    SERVO_TC->COUNT16.INTENSET.reg = TC_INTENSET_MC0;
+    tc->COUNT16.INTENSET.reg = TC_INTENSET_MC0;
   }
   else {
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.CC1);
+    SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
 
     // Clear pending match interrupt
-    SERVO_TC->COUNT16.INTFLAG.reg = TC_INTENSET_MC1;
+    tc->COUNT16.INTFLAG.reg = TC_INTENSET_MC1;
     // Enable the match channel interrupt request
-    SERVO_TC->COUNT16.INTENSET.reg = TC_INTENSET_MC1;
+    tc->COUNT16.INTENSET.reg = TC_INTENSET_MC1;
   }
 }
 
 void finISR(timer16_Sequence_t timer) {
-  // Disable the match channel interrupt request
+  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
-  SERVO_TC->COUNT16.INTENCLR.reg = (tcChannel == 0) ? TC_INTENCLR_MC0 : TC_INTENCLR_MC1;
 
-  if (SERVO_TC->COUNT16.INTENCLR.reg & (TC_INTENCLR_MC0|TC_INTENCLR_MC1) == 0) {
+  // Disable the match channel interrupt request
+  tc->COUNT16.INTENCLR.reg = (tcChannel == 0) ? TC_INTENCLR_MC0 : TC_INTENCLR_MC1;
+
+  #if defined(_useTimer1) && defined(_useTimer1)
+    if ((tc->COUNT16.INTENCLR.reg & (TC_INTENCLR_MC0|TC_INTENCLR_MC1)) == 0) {
+  #else
+    if (true) {
+  #endif
     // Disable the timer if not used
-    SERVO_TC->COUNT16.CTRLA.bit.ENABLE = false;
-    SYNC(SERVO_TC->COUNT16.SYNCBUSY.bit.ENABLE);
+    tc->COUNT16.CTRLA.bit.ENABLE = false;
+    SYNC(tc->COUNT16.SYNCBUSY.bit.ENABLE);
   }
 }
 
