@@ -1604,7 +1604,7 @@ void homeaxis(const AxisEnum axis) {
 
   #ifdef HOMING_BACKOFF_MM
     constexpr float endstop_backoff[XYZ] = HOMING_BACKOFF_MM;
-    const AxisEnum backoff_mm = endstop_backoff[
+    const float backoff_mm = endstop_backoff[
       #if ENABLED(DELTA)
         Z_AXIS
       #else
