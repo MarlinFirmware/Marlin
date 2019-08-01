@@ -709,7 +709,7 @@ G29_TYPE GcodeSuite::G29() {
             if (!position_is_reachable_by_probe(xProbe, yProbe)) continue;
           #endif
 
-          SERIAL_ECHOLNPAIR("\nProbing mesh point ", int(pt_index), "/", int(GRID_MAX_POINTS), ".");
+          if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", int(pt_index), "/", int(GRID_MAX_POINTS), ".");
           #if HAS_DISPLAY
             ui.status_printf_P(0, PSTR(MSG_PROBING_MESH " %i/%i"), int(pt_index), int(GRID_MAX_POINTS));
           #endif
@@ -751,7 +751,7 @@ G29_TYPE GcodeSuite::G29() {
       // Probe at 3 arbitrary points
 
       for (uint8_t i = 0; i < 3; ++i) {
-        SERIAL_ECHOLNPAIR("\nProbing point ", int(i), "/3.");
+        if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", int(i), "/3.");
         #if HAS_DISPLAY
           ui.status_printf_P(0, PSTR(MSG_PROBING_MESH " %i/3"), int(i));
         #endif
