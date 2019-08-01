@@ -69,8 +69,6 @@
 #define usToTicks(_us)    (clockCyclesPerMicrosecond() * (_us) / (SERVO_TIMER_PRESCALER))
 #define ticksToUs(_ticks) (unsigned(_ticks) * (SERVO_TIMER_PRESCALER) / clockCyclesPerMicrosecond())
 
-//#define NBR_TIMERS        ((MAX_SERVOS) / (SERVOS_PER_TIMER))
-
 // convenience macros
 #define SERVO_INDEX_TO_TIMER(_servo_nbr) ((timer16_Sequence_t)(_servo_nbr / (SERVOS_PER_TIMER))) // returns the timer controlling this servo
 #define SERVO_INDEX_TO_CHANNEL(_servo_nbr) (_servo_nbr % (SERVOS_PER_TIMER))       // returns the index of the servo on this timer

@@ -20,35 +20,17 @@
  */
 #pragma once
 
-/**
- * This comes from Arduino library which at the moment is buggy and uncompilable
- */
-
 #define _useTimer1
-//#define _useTimer2    // <- TODO do not activate until the code in Servo.cpp has been changed to
+//#define _useTimer2    // <- TODO do not activate until the code in Servo_SAMD51.cpp has been changed to
                         //         manage more than one channel per timer on the SAMD architecture
 
 #define TRIM_DURATION           5   // compensation ticks to trim adjust for digitalWrite delays
-#define SERVO_TIMER_PRESCALER   64  // timer prescaler
+#define SERVO_TIMER_PRESCALER   64  // timer prescaler factor to 64 (avoid overflowing 16-bit clock counter, at 120MHz this is 1831 ticks per millisecond
 
-#ifdef _useTimer1
-  #define TC_FOR_TIMER1             TC3
-  #define CHANNEL_FOR_TIMER1        0
-  #define INTENSET_BIT_FOR_TIMER_1  TC_INTENSET_MC0
-  #define INTENCLR_BIT_FOR_TIMER_1  TC_INTENCLR_MC0
-  #define INTFLAG_BIT_FOR_TIMER_1   TC_INTFLAG_MC0
-  #define IRQn_FOR_TIMER1           TC3_IRQn
-  #define HANDLER_FOR_TIMER1        TC3_Handler
-#endif
 
-#ifdef _useTimer2
-  #define TC_FOR_TIMER2             TC3
-  #define CHANNEL_FOR_TIMER2        1
-  #define INTENSET_BIT_FOR_TIMER_2  TC_INTENSET_MC1
-  #define INTENCLR_BIT_FOR_TIMER_2  TC_INTENCLR_MC1
-  #define IRQn_FOR_TIMER2           TC3_IRQn
-  #define HANDLER_FOR_TIMER2        TC3_Handler
-#endif
+#define SERVO_TC                TC3
+#define SERVO_IRQn              TC3_IRQn
+#define SERVO_ISR_HANDLER       TC3_Handler
 
 typedef enum {
   #ifdef _useTimer1
