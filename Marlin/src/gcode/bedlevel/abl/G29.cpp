@@ -254,7 +254,7 @@ G29_TYPE GcodeSuite::G29() {
 
       ABL_VAR int indexIntoAB[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
-      ABL_VAR float eqnAMatrix[GRID_MAX_POINTS * 3], // "A" matrix of the linear system of equations
+      ABL_VAR float eqnAMatrix[(GRID_MAX_POINTS) * 3], // "A" matrix of the linear system of equations
                     eqnBVector[GRID_MAX_POINTS],     // "B" vector of Z points
                     mean;
     #endif
@@ -711,7 +711,7 @@ G29_TYPE GcodeSuite::G29() {
             if (!position_is_reachable_by_probe(xProbe, yProbe)) continue;
           #endif
 
-          SERIAL_ECHOLNPAIR("\nProbing mesh point ", int(current), "/", GRID_MAX_POINTS, ".\n");
+          SERIAL_ECHOLNPAIR("\nProbing mesh point ", int(current), "/", int(GRID_MAX_POINTS), ".\n");
           #if HAS_LCD_MENU
             ui.status_printf_P(0, PSTR(MSG_LCD_PROBING_MESH " %i/%i"), int(current), int(GRID_MAX_POINTS));
           #endif
