@@ -710,9 +710,10 @@ G29_TYPE GcodeSuite::G29() {
             // Avoid probing outside the round or hexagonal area
             if (!position_is_reachable_by_probe(xProbe, yProbe)) continue;
           #endif
-          SERIAL_ECHOLNPAIR("\nProbing mesh point ", current, "/", GRID_MAX_POINTS, ".\n");
+
+          SERIAL_ECHOLNPAIR("\nProbing mesh point ", int(current), "/", GRID_MAX_POINTS, ".\n");
           #if HAS_LCD_MENU
-            ui.status_printf_P(0, PSTR(MSG_LCD_PROBING_MESH " %i/%i"), current, int(GRID_MAX_POINTS));
+            ui.status_printf_P(0, PSTR(MSG_LCD_PROBING_MESH " %i/%i"), int(current), int(GRID_MAX_POINTS));
           #endif
 
           measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, raise_after, verbose_level);
@@ -752,9 +753,9 @@ G29_TYPE GcodeSuite::G29() {
       // Probe at 3 arbitrary points
 
       for (uint8_t i = 0; i < 3; ++i) {
-        SERIAL_ECHOLNPAIR("\nProbing point ", i, "/", 3, ".\n");
+        SERIAL_ECHOLNPAIR("\nProbing point ", int(i), "/3.\n");
         #if HAS_LCD_MENU
-          ui.status_printf_P(0, PSTR(MSG_LCD_PROBING_MESH " %i/%i"), int(i), int(3));
+          ui.status_printf_P(0, PSTR(MSG_LCD_PROBING_MESH " %i/3"), int(i));
         #endif
 
         // Retain the last probe position

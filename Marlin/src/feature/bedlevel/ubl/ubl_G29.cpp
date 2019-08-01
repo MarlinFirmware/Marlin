@@ -759,9 +759,9 @@
 
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
-        SERIAL_ECHOLNPAIR("\nProbing mesh point ", current, "/", GRID_MAX_POINTS, ".\n");
+        SERIAL_ECHOLNPAIR("\nProbing mesh point ", int(current), "/", int(GRID_MAX_POINTS), ".\n");
         #if HAS_LCD_MENU
-          ui.status_printf_P(0, PSTR(MSG_LCD_PROBING_MESH " %i/%i"), current, int(GRID_MAX_POINTS));
+          ui.status_printf_P(0, PSTR(MSG_LCD_PROBING_MESH " %i/%i"), int(current), int(GRID_MAX_POINTS));
 
           if (ui.button_pressed()) {
             ui.quick_feedback(false); // Preserve button state for click-and-hold
