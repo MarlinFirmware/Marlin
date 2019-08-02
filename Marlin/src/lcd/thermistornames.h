@@ -79,6 +79,8 @@
   #define THERMISTOR_NAME "ATC Semitec 204GT-2"
 #elif THERMISTOR_ID == 20
   #define THERMISTOR_NAME "PT100 UltiMB"
+#elif THERMISTOR_ID == 201
+  #define THERMISTOR_NAME "PT100 OverLord"
 #elif THERMISTOR_ID == 60
   #define THERMISTOR_NAME "Makers Tool"
 #elif THERMISTOR_ID == 70
