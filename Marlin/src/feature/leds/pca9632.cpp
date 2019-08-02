@@ -58,19 +58,18 @@
 #define PCA9632_AUTOGLO     0xC0
 #define PCA9632_AUTOGI      0xE0
 
-// Red   LED0
-// Green LED1
-// Blue  LED2
-#if !defined(PCA9632_RED)
-#define PCA9632_RED 0x00
+// Red   LED0 ... Green LED1 ... Blue  LED2
+#ifndef PCA9632_RED
+  #define PCA9632_RED 0x00
 #endif
-#if !defined(PCA9632_GRN)
-#define PCA9632_GRN 0x02
+#ifndef PCA9632_GRN
+  #define PCA9632_GRN 0x02
 #endif
-#if !defined(PCA9632_BLU)
-#define PCA9632_BLU 0x04
+#ifndef PCA9632_BLU
+  #define PCA9632_BLU 0x04
 #endif
-// If any of the color indexs are greater than 0x04 then can't use auto increment
+
+// If any of the color indexes are greater than 0x04 they can't use auto increment
 #if !defined(PCA9632_NO_AUTO_INC) && ((PCA9632_RED > 0x04) || (PCA9632_GRN > 0x04) || (PCA9632_BLU > 0x04))
 #define PCA9632_NO_AUTO_INC
 #endif
@@ -139,14 +138,13 @@ void pca9632_set_led_color(const LEDColor &color) {
 }
 
 #if ENABLED(PCA9632_BUZZER)
-  void pca9632_buzz(uint16_t const f, uint16_t d)
-  {
+  void pca9632_buzz(uint16_t const f, uint16_t d) {
     UNUSED(f); UNUSED(d);
     uint8_t data[] = PCA9632_BUZZER_DATA;
-
     Wire.beginTransmission(I2C_ADDRESS(PCA9632_ADDRESS));
     Wire.write(data, sizeof(data));
     Wire.endTransmission();
   }
 #endif
+
 #endif // PCA9632
