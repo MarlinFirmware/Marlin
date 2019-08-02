@@ -67,8 +67,6 @@
  *                   With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY and detach.
  */
 
-#pragma once
-
 #if IS_TEENSY32
   #include "../HAL_TEENSY31_32/HAL_Servo_Teensy.h"
 #elif IS_TEENSY35 || IS_TEENSY36

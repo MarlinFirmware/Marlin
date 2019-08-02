@@ -274,7 +274,6 @@
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
  */
-#pragma once
 
 #include "../inc/MarlinConfig.h"
 #include "parser.h"
@@ -780,6 +779,10 @@ private:
 
   #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
     static void M540();
+  #endif
+
+  #if ENABLED(BAUD_RATE_GCODE)
+    static void M575();
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)

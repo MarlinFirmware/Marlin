@@ -484,6 +484,7 @@
 #define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #define PID_K1 0.95      // Smoothing factor within any PID loop
 #if ENABLED(PIDTEMP)
+  //#define MIN_POWER 0
   #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
   #define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
   //#define PID_DEBUG             // Sends debug data to the serial port.
@@ -578,6 +579,8 @@
     //
     //   M304 P0 I0 D0    ; set current BED_PIDs to ZERO!
     //   m303 e-1 s90 c8  ; Start auto PID tune
+    //#define MIN_BED_POWER 0
+    //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
   #if ENABLED(ANYCUBIC_4MAX_VG3R)
     // 4MAX with PID Autotune - my 4MAX Printer: vg3r - PID - BED
@@ -1871,6 +1874,14 @@
 //#define REVERSE_MENU_DIRECTION
 
 //
+// This option reverses the encoder direction for Select Screen.
+//
+//  If CLOCKWISE normally moves LEFT this makes it go RIGHT.
+//  If CLOCKWISE normally moves RIGHT this makes it go LEFT.
+//
+//#define REVERSE_SELECT_DIRECTION
+
+//
 // Individual Axis Homing
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
@@ -2210,17 +2221,16 @@
 //=============================================================================
 
 //
-// MKS Robin 320x240 color display
+// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, A1, etc.)
 //
-//#define MKS_ROBIN_TFT
+//#define FSMC_GRAPHICAL_TFT
 
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
 
 //
-// Alfawise U30 ILI9341 2.8 TP Ver 1.2
-// (Blue PCB on the back of touchscreen)
+// ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
 //
 //#define TOUCH_BUTTONS
 #if ENABLED(TOUCH_BUTTONS)

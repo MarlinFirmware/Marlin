@@ -164,7 +164,7 @@
 #define MSG_MOVE_Y                          _UxGT("移動Y")  //"Move Y"
 #define MSG_MOVE_Z                          _UxGT("移動Z")  //"Move Z"
 #define MSG_MOVE_E                          _UxGT("擠出機")  //"Extruder"
-#define MSG_MOVE_0025MM                     _UxGT("移動 0.025 mm")  //"Move 0.025mm"
+#define MSG_MOVE_Z_DIST                     _UxGT("移動 %s mm")  //"Move 0.025mm"
 #define MSG_MOVE_01MM                       _UxGT("移動 0.1 mm")  //"Move 0.1mm"
 #define MSG_MOVE_1MM                        _UxGT("移動 1 mm")  //"Move 1mm"
 #define MSG_MOVE_10MM                       _UxGT("移動 10 mm")  //"Move 10mm"

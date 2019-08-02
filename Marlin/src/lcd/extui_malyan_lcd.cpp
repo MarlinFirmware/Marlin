@@ -114,20 +114,18 @@ void write_to_lcd(const char * const message) {
 void process_lcd_c_command(const char* command) {
   switch (command[0]) {
     case 'C': // Cope with both V1 early rev and later LCDs.
-    case 'S': {
+    case 'S':
       feedrate_percentage = atoi(command + 1) * 10;
       LIMIT(feedrate_percentage, 10, 999);
-    } break;
-    case 'T': {
-      thermalManager.setTargetHotend(atoi(command + 1), 0);
-    } break;
-    case 'P': {
-      thermalManager.setTargetBed(atoi(command + 1));
-    } break;
+      break;
 
-    default:
-      SERIAL_ECHOLNPAIR("UNKNOWN C COMMAND", command);
-      return;
+    case 'T': thermalManager.setTargetHotend(atoi(command + 1), 0); break;
+
+    #if HAS_HEATED_BED
+      case 'P': thermalManager.setTargetBed(atoi(command + 1)); break;
+    #endif
+
+    default: SERIAL_ECHOLNPAIR("UNKNOWN C COMMAND", command);
   }
 }
 
@@ -148,21 +146,20 @@ void process_lcd_eb_command(const char* command) {
 
       char message_buffer[MAX_CURLY_COMMAND];
       sprintf_P(message_buffer,
-              PSTR("{T0:%03.0f/%03i}{T1:000/000}{TP:%03.0f/%03i}{TQ:%03i}{TT:%s}"),
-              thermalManager.degHotend(0),
-              thermalManager.degTargetHotend(0),
-              #if HAS_HEATED_BED
-                thermalManager.degBed(),
-                thermalManager.degTargetBed(),
-              #else
-                0, 0,
-              #endif
-              #if ENABLED(SDSUPPORT)
-                card.percentDone(),
-              #else
-                0,
-              #endif
-              elapsed_buffer);
+        PSTR("{T0:%03.0f/%03i}{T1:000/000}{TP:%03.0f/%03i}{TQ:%03i}{TT:%s}"),
+        thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
+        #if HAS_HEATED_BED
+          thermalManager.degBed(), thermalManager.degTargetBed(),
+        #else
+          0, 0,
+        #endif
+        #if ENABLED(SDSUPPORT)
+          card.percentDone(),
+        #else
+          0,
+        #endif
+        elapsed_buffer
+      );
       write_to_lcd(message_buffer);
     } break;
 
