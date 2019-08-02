@@ -1130,6 +1130,8 @@ void loop() {
 
   for (;;) {
 
+    idle(); // Do an idle first so boot is slightly faster
+
     #if ENABLED(SDSUPPORT)
 
       card.checkautostart();
@@ -1161,6 +1163,5 @@ void loop() {
     if (queue.length < BUFSIZE) queue.get_available_commands();
     queue.advance();
     endstops.event_handler();
-    idle();
   }
 }

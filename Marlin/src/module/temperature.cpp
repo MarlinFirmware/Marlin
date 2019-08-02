@@ -126,6 +126,14 @@ hotend_info_t Temperature::temp_hotend[HOTENDS
   uint8_t Temperature::chamberfan_speed; // = 0
 #endif
 
+#if HAS_THERMAL_PROTECTION
+  #if THERMAL_PROTECTION_GRACE_PERIOD > 0
+    static millis_t grace_period; // = 0
+  #else
+    static constexpr millis_t grace_period = 0UL;
+  #endif
+#endif
+
 #if FAN_COUNT > 0
 
   uint8_t Temperature::fan_speed[FAN_COUNT]; // = { 0 }
@@ -1036,18 +1044,10 @@ void Temperature::manage_heater() {
     millis_t ms = millis();
   #endif
 
-  #if HAS_THERMAL_PROTECTION
-    #if THERMAL_PROTECTION_GRACE_PERIOD > 0
-      static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
-      if (ELAPSED(ms, grace_period)) grace_period = 0UL;
-    #else
-      static constexpr millis_t grace_period = 0UL;
-    #endif
-  #endif
-
+  const bool can_err = !grace_period;
   HOTEND_LOOP() {
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-      if (!grace_period && degHotend(e) > temp_range[e].maxtemp)
+      if (can_err && degHotend(e) > temp_range[e].maxtemp)
         _temp_error((heater_ind_t)e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, e));
     #endif
 
@@ -1103,7 +1103,7 @@ void Temperature::manage_heater() {
   #if HAS_HEATED_BED
 
     #if ENABLED(THERMAL_PROTECTION_BED)
-      if (!grace_period && degBed() > BED_MAXTEMP)
+      if (can_err && degBed() > BED_MAXTEMP)
         _temp_error(H_BED, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, H_BED));
     #endif
 
@@ -1181,7 +1181,7 @@ void Temperature::manage_heater() {
     #endif
 
     #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-      if (!grace_period && degChamber() > CHAMBER_MAXTEMP)
+      if (can_err && degChamber() > CHAMBER_MAXTEMP)
         _temp_error(H_CHAMBER, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, H_CHAMBER));
     #endif
 
@@ -1829,6 +1829,10 @@ void Temperature::init() {
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
   #endif
+
+  #if HAS_THERMAL_PROTECTION && THERMAL_PROTECTION_GRACE_PERIOD > 0
+    grace_period = millis() + THERMAL_PROTECTION_GRACE_PERIOD;
+  #endif
 }
 
 #if WATCH_HOTENDS
@@ -2224,12 +2228,8 @@ void Temperature::set_current_temp_raw() {
 
 void Temperature::readings_ready() {
 
-  #if THERMAL_PROTECTION_GRACE_PERIOD > 0
-    const millis_t ms = millis();
-    static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD; // NOTE: millis() == 0 on reset
-    if (ELAPSED(ms, grace_period)) grace_period = 0;
-  #else
-    static constexpr millis_t grace_period = 0;
+  #if HAS_THERMAL_PROTECTION && THERMAL_PROTECTION_GRACE_PERIOD > 0
+    if (grace_period && ELAPSED(millis(), grace_period)) grace_period = 0;
   #endif
 
   // Update the raw values if they've been read. Else we could be updating them during reading.
@@ -2249,6 +2249,9 @@ void Temperature::readings_ready() {
   #if HAS_TEMP_CHAMBER
     temp_chamber.acc = 0;
   #endif
+
+  // Give ADC temperature readings time to settle at boot-up before testing
+  if (grace_period) return;
 
   static constexpr int8_t temp_dir[] = {
     #if ENABLED(HEATER_0_USES_MAX6675)
@@ -2276,9 +2279,6 @@ void Temperature::readings_ready() {
       #endif // HOTENDS > 2
     #endif // HOTENDS > 1
   };
-
-  // Give ADC temperature readings time to settle at boot-up before testing
-  if (grace_period) return;
 
   for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
     const int8_t tdir = temp_dir[e];
