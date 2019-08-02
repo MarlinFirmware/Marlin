@@ -707,8 +707,8 @@
 // #if defined(SDA) && SDA >= 0
 //   REPORT_NAME_DIGITAL(__LINE__, SDA)
 // #endif
-#if defined(SDPOWER) && SDPOWER >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SDPOWER)
+#if PIN_EXISTS(SDPOWER)
+  REPORT_NAME_DIGITAL(__LINE__, SDPOWER_PIN)
 #endif
 #if defined(SDSS) && SDSS >= 0
   REPORT_NAME_DIGITAL(__LINE__, SDSS)

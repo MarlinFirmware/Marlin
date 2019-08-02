@@ -133,9 +133,8 @@ CardReader::CardReader() {
   // Disable autostart until card is initialized
   autostart_index = -1;
 
-  //power to SD reader
-  #if SDPOWER > -1
-    OUT_WRITE(SDPOWER, HIGH);
+  #if PIN_EXISTS(SDPOWER)
+    OUT_WRITE(SDPOWER_PIN, HIGH); // Power the SD reader
   #endif
 }
 
