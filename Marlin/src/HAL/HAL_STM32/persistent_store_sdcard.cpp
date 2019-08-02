@@ -22,6 +22,7 @@
 
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ * Implementation of EEPROM settings in SD Card
  */
 
 #ifdef TARGET_STM32F4
@@ -37,7 +38,8 @@
 #endif
 #define HAL_STM32F4_EEPROM_SIZE (E2END + 1)     //16K  size
 
-static char HAL_STM32F1_eeprom_content[HAL_STM32F4_EEPROM_SIZE];
+#define _ALIGN(x) __attribute__ ((aligned(x))) // SDIO uint32_t* compat.
+static char _ALIGN(4) HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
 
 #if ENABLED(SDSUPPORT)
 
@@ -99,5 +101,4 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
 size_t PersistentStore::capacity() { return HAL_STM32F4_EEPROM_SIZE; }
 
 #endif // EEPROM_SETTINGS
-
 #endif // __STM32F4__
