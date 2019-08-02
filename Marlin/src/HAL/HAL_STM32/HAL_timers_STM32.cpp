@@ -32,8 +32,6 @@
 
 #define NUM_HARDWARE_TIMERS 2
 
-//#define PRESCALER 1
-
 // ------------------------
 // Private Variables
 // ------------------------

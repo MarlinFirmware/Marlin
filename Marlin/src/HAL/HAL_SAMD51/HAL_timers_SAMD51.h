@@ -33,7 +33,6 @@ typedef uint32_t hal_timer_t;
 
 #define STEP_TIMER_NUM      0  // index of timer to use for stepper (also +1 for 32bits counter)
 #define PULSE_TIMER_NUM     STEP_TIMER_NUM
-#define TONE_TIMER_NUM      2  // index of timer to use for beeper tones (also +1 for 32bits counter)
 #define TEMP_TIMER_NUM      4  // index of timer to use for temperature (also +1 for 32bits counter)
 
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
@@ -53,9 +52,10 @@ typedef uint32_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define TC_PRIORITY(t)        (t == STEP_TIMER_NUM || t == PULSE_TIMER_NUM) ? 2     \
-                               : (t == TEMP_TIMER_NUM) ? 6                          \
-                               : (t == TONE_TIMER_NUM) ? 5 : 7
+#define TC_PRIORITY(t)        (t == STEP_TIMER_NUM || t == PULSE_TIMER_NUM) ? 2   \
+                               : (t == TEMP_TIMER_NUM) ? 6                        \
+                               : 7
+
 #define _TC_HANDLER(t)        void TC##t##_Handler()
 #define TC_HANDLER(t)         _TC_HANDLER(t)
 #define HAL_STEP_TIMER_ISR()  TC_HANDLER(STEP_TIMER_NUM)
@@ -63,7 +63,6 @@ typedef uint32_t hal_timer_t;
   #define HAL_PULSE_TIMER_ISR()  TC_HANDLER(PULSE_TIMER_NUM)
 #endif
 #define HAL_TEMP_TIMER_ISR()  TC_HANDLER(TEMP_TIMER_NUM)
-#define HAL_TONE_TIMER_ISR()  TC_HANDLER(TONE_TIMER_NUM)
 
 // --------------------------------------------------------------------------
 // Types

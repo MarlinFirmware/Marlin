@@ -40,8 +40,8 @@
 const tTimerConfig TimerConfig[NUM_HARDWARE_TIMERS] = {
   { TC0, TC0_IRQn, TC_PRIORITY(0) },
   { TC1, TC1_IRQn, TC_PRIORITY(1) },
-  { TC2, TC2_IRQn, TC_PRIORITY(2) },
-  { TC3, TC3_IRQn, TC_PRIORITY(3) },
+  { TC2, TC2_IRQn, TC_PRIORITY(2) },  // Reserved by framework tone function
+  { TC3, TC3_IRQn, TC_PRIORITY(3) },  // Reserved by servo library
   { TC4, TC4_IRQn, TC_PRIORITY(4) },
   { TC5, TC5_IRQn, TC_PRIORITY(5) },
   { TC6, TC6_IRQn, TC_PRIORITY(6) },
