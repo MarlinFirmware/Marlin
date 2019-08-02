@@ -24,9 +24,11 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if ENABLED(EEPROM_SETTINGS)&& EITHER(FLASH_EEPROM_EMULATION,SRAM_EEPROM_EMULATION)
 
 #include "../shared/persistent_store_api.h"
+
+//#if ENABLED(FLASH_EEPROM_EMULATION)                           //使能它表示用芯片flash 模拟EEPROM 
 
 #if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
   #include <EEPROM.h>
@@ -112,7 +114,7 @@ size_t PersistentStore::capacity() {
   #else
     return 4096; // 4kB
   #endif
-}
+} 
 
-#endif // EEPROM_SETTINGS
+#endif // EEPROM_SETTINGS && FLASH_EEPROM_EMULATION
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
