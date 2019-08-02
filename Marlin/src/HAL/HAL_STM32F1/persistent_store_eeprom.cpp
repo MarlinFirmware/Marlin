@@ -26,7 +26,15 @@
 
 #include "../shared/persistent_store_api.h"
 
-bool PersistentStore::access_start() { return true; }
+bool PersistentStore::access_start() {
+  #if ENABLED(SPI_EEPROM)
+    SET_OUTPUT(BOARD_SPI1_SCK_PIN);
+    SET_OUTPUT(BOARD_SPI1_MOSI_PIN);
+    SET_INPUT(BOARD_SPI1_MISO_PIN);
+    SET_OUTPUT(SPI_EEPROM1_CS);
+  #endif
+  return true;
+}
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
