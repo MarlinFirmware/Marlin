@@ -58,7 +58,7 @@
 #define PCA9632_AUTOGLO     0xC0
 #define PCA9632_AUTOGI      0xE0
 
-// Red   LED0 ... Green LED1 ... Blue  LED2
+// Red=LED0   Green=LED1   Blue=LED2
 #ifndef PCA9632_RED
   #define PCA9632_RED 0x00
 #endif
@@ -70,8 +70,8 @@
 #endif
 
 // If any of the color indexes are greater than 0x04 they can't use auto increment
-#if !defined(PCA9632_NO_AUTO_INC) && ((PCA9632_RED > 0x04) || (PCA9632_GRN > 0x04) || (PCA9632_BLU > 0x04))
-#define PCA9632_NO_AUTO_INC
+#if !defined(PCA9632_NO_AUTO_INC) && (PCA9632_RED > 0x04 || PCA9632_GRN > 0x04 || PCA9632_BLU > 0x04)
+  #define PCA9632_NO_AUTO_INC
 #endif
 
 #define LED_OFF   0x00
@@ -89,22 +89,21 @@ static void PCA9632_WriteRegister(const byte addr, const byte regadd, const byte
   Wire.endTransmission();
 }
 
-static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte value1, const byte value2, const byte value3) {
-  uint8_t data[6], len;
+static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte vr, const byte vg, const byte vb) {
   #if DISABLED(PCA9632_NO_AUTO_INC)
-    len = 4;
+    uint8_t data[4], len = 4;
     data[0] = PCA9632_AUTO_IND | regadd;
-    data[1 + (PCA9632_RED >> 1)] = value1;
-    data[1 + (PCA9632_GRN >> 1)] = value2;
-    data[1 + (PCA9632_BLU >> 1)] = value3;
+    data[1 + (PCA9632_RED >> 1)] = vr;
+    data[1 + (PCA9632_GRN >> 1)] = vg;
+    data[1 + (PCA9632_BLU >> 1)] = vb;
   #else
-    len = 6;
+    uint8_t data[6], len = 6;
     data[0] = regadd + (PCA9632_RED >> 1);
-    data[1] = value1;
+    data[1] = vr;
     data[2] = regadd + (PCA9632_GRN >> 1);
-    data[3] = value2;
+    data[3] = vg;
     data[4] = regadd + (PCA9632_BLU >> 1);
-    data[5] = value3;
+    data[5] = vb;
   #endif
   Wire.beginTransmission(I2C_ADDRESS(addr));
   Wire.write(data, len);
