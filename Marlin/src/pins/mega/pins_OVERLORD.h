@@ -119,19 +119,23 @@
 //
 // LCD / Controller
 //
-#define BTN_ENC            16   // Enter Pin
-#define BTN_UP             19   // Button UP Pin
-#define BTN_DWN            17   // Button DOWN Pin
+#if HAS_GRAPHICAL_LCD
+  // OVERLORD OLED pins
+  #define LCD_PINS_RS      20
+  #define LCD_PINS_D5      21
+  #define LCD_PINS_ENABLE  15
+  #define LCD_PINS_D4      14
+  #define LCD_PINS_D6       5
+  #define LCD_PINS_D7       6
+  #ifndef LCD_RESET_PIN
+    #define LCD_RESET_PIN   5   // LCD_PINS_D6
+  #endif
+#endif
 
-// OVERLORD OLED PINS
-#define LCD_PINS_RS        20
-#define LCD_PINS_D5        21
-#define LCD_PINS_ENABLE    15
-#define LCD_PINS_D4        14
-#define LCD_PINS_D6         5
-#define LCD_PINS_D7         6
-#ifndef LCD_RESET_PIN
-  #define LCD_RESET_PIN     5   // LCD_PINS_D6
+#if ENABLED(NEWPANEL)
+  #define BTN_ENC          16   // Enter Pin
+  #define BTN_UP           19   // Button UP Pin
+  #define BTN_DWN          17   // Button DOWN Pin
 #endif
 
 // Additional connectors/pins on the Overlord V1.X board
