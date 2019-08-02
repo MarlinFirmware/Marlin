@@ -52,7 +52,6 @@
 #define TC_COUNTER_START_VAL    0xFFFF
 
 
-static bool initialized;                                    // Servo TC has been initialized
 static volatile int8_t currentServoIndex[_Nbr_16timers];    // index for the servo being pulsed for each timer (or -1 if refresh interval)
 
 FORCE_INLINE static uint16_t getTimerCount() {
@@ -70,7 +69,7 @@ FORCE_INLINE static uint16_t getTimerCount() {
 HAL_SERVO_TIMER_ISR() {
   Tc * const tc = TimerConfig[SERVO_TC].pTimer;
   const timer16_Sequence_t timer =
-    #if !defined(_useTimer1)
+    #ifndef _useTimer1
       _timer2
     #elif !defined(_useTimer2)
       _timer1
@@ -131,6 +130,7 @@ void initISR(timer16_Sequence_t timer) {
   Tc * const tc = TimerConfig[SERVO_TC].pTimer;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
 
+  static bool initialized = false;  // Servo TC has been initialized
   if (!initialized) {
     NVIC_DisableIRQ(SERVO_IRQn);
 
@@ -163,7 +163,7 @@ void initISR(timer16_Sequence_t timer) {
     SYNC(tc->COUNT16.SYNCBUSY.bit.CTRLB);
 
     // Reset all servo indexes
-    memset (currentServoIndex, 0xFF, sizeof(currentServoIndex));
+    memset(currentServoIndex, 0xFF, sizeof(currentServoIndex));
 
     // Configure interrupt request
     NVIC_ClearPendingIRQ(SERVO_IRQn);
@@ -210,11 +210,11 @@ void finISR(timer16_Sequence_t timer) {
   // Disable the match channel interrupt request
   tc->COUNT16.INTENCLR.reg = (tcChannel == 0) ? TC_INTENCLR_MC0 : TC_INTENCLR_MC1;
 
-  #if defined(_useTimer1) && defined(_useTimer2)
-    if ((tc->COUNT16.INTENCLR.reg & (TC_INTENCLR_MC0|TC_INTENCLR_MC1)) == 0) {
-  #else
-    if (true) {
-  #endif
+  if (true
+    #if defined(_useTimer1) && defined(_useTimer2)
+      && (tc->COUNT16.INTENCLR.reg & (TC_INTENCLR_MC0|TC_INTENCLR_MC1)) == 0
+    #endif
+  ) {
     // Disable the timer if not used
     tc->COUNT16.CTRLA.bit.ENABLE = false;
     SYNC(tc->COUNT16.SYNCBUSY.bit.ENABLE);
