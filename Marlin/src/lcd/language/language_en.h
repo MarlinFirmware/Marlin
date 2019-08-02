@@ -235,6 +235,9 @@
 #ifndef MSG_EDITING_STOPPED
   #define MSG_EDITING_STOPPED                 _UxGT("Mesh Editing Stopped")
 #endif
+#ifndef MSG_PROBING_MESH
+  #define MSG_PROBING_MESH                    _UxGT("Probing point")
+#endif
 #ifndef MSG_MESH_X
   #define MSG_MESH_X                          _UxGT("Index X")
 #endif
@@ -258,9 +261,6 @@
 #endif
 #ifndef MSG_UBL_LEVEL_BED
   #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
-#endif
-#ifndef MSG_LCD_PROBING_MESH
-  #define MSG_LCD_PROBING_MESH                _UxGT("Probing point")
 #endif
 #ifndef MSG_LCD_TILTING_MESH
   #define MSG_LCD_TILTING_MESH                _UxGT("Tilting point")
