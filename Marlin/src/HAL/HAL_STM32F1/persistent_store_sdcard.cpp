@@ -22,6 +22,7 @@
 
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ * Implementation of EEPROM settings in SD Card
  */
 
 #ifdef __STM32F1__
@@ -37,7 +38,8 @@
 #endif
 #define HAL_STM32F1_EEPROM_SIZE (E2END + 1)
 
-static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
+#define _ALIGN(x) __attribute__ ((aligned(x))) // SDIO uint32_t* compat.
+static char _ALIGN(4) HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
 
 #if ENABLED(SDSUPPORT)
 
@@ -52,7 +54,7 @@ static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
     if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
       return false;
 
-    int16_t bytes_read = file.read(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
+    int bytes_read = file.read(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
     if (bytes_read < 0) return false;
     for (; bytes_read < HAL_STM32F1_EEPROM_SIZE; bytes_read++)
       HAL_STM32F1_eeprom_content[bytes_read] = 0xFF;
@@ -64,7 +66,7 @@ static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
     if (!card.isDetected()) return false;
 
     SdFile file, root = card.getroot();
-    int16_t bytes_written = 0;
+    int bytes_written = 0;
     if (file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC)) {
       bytes_written = file.write(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
       file.close();
