@@ -2,7 +2,7 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
+ * Based on Sprinter and grbl.f
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,7 +34,7 @@
 #include "../shared/persistent_store_api.h"
 
 #ifndef E2END
-  #define E2END 4095 //  0xFFF // 4KB
+  #define E2END 4095 // 0xFFF // 4KB
 #endif
 #define HAL_STM32F1_EEPROM_SIZE (E2END + 1)
 
@@ -62,15 +62,13 @@ static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
   }
 
   bool PersistentStore::access_finish() {
-    if (!card.isDetected()) { 
-       return false; }
+    if (!card.isDetected()) return false;
 
     SdFile file, root = card.getroot();
     int16_t bytes_written = 0;
     if (file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC)) {
-        int16_t bytes_read =0;
-      for (; bytes_read < HAL_STM32F1_EEPROM_SIZE; bytes_read++)
-          bytes_written += file.write(HAL_STM32F1_eeprom_content[bytes_read]);
+      for (int16_t i = 0; i < HAL_STM32F1_EEPROM_SIZE; i++)
+        bytes_written += file.write(HAL_STM32F1_eeprom_content[i]);
       file.close();
     }
     return (bytes_written == HAL_STM32F1_EEPROM_SIZE);
