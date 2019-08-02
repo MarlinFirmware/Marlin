@@ -36,7 +36,7 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if HAS_LCD_MENU
+#if HAS_DISPLAY
   #include "../../../lcd/ultralcd.h"
 #endif
 
