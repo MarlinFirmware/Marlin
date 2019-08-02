@@ -1788,11 +1788,6 @@
                                   // This is a LCD2004 display with 5 analog buttons.
 
 //
-// Overlord OLED display + buttons + LEDs + buzzer
-//
-//#define OVERLORD_OLED
-
-//
 // Generic 16x2, 16x4, 20x2, or 20x4 character-based LCD.
 //
 //#define ULTRA_LCD
@@ -2018,6 +2013,11 @@
 // Einstart S OLED SSD1306
 //
 //#define U8GLIB_SH1106_EINSTART
+
+//
+// Overlord OLED display/controller with i2c buzzer and LEDs
+//
+//#define OVERLORD_OLED
 
 //=============================================================================
 //========================== Extensible UI Displays ===========================
