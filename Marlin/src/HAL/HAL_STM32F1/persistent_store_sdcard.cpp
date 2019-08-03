@@ -22,6 +22,7 @@
 
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ * Implementation of EEPROM settings in SD Card
  */
 
 #ifdef __STM32F1__
@@ -35,9 +36,10 @@
 #ifndef E2END
   #define E2END 0xFFF // 4KB
 #endif
-#define HAL_STM32F1_EEPROM_SIZE (E2END + 1)
+#define HAL_EEPROM_SIZE (E2END + 1)
 
-static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
+#define _ALIGN(x) __attribute__ ((aligned(x))) // SDIO uint32_t* compat.
+static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
 
 #if ENABLED(SDSUPPORT)
 
@@ -52,10 +54,10 @@ static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
     if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
       return false;
 
-    int16_t bytes_read = file.read(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
+    int bytes_read = file.read(HAL_eeprom_data, HAL_EEPROM_SIZE);
     if (bytes_read < 0) return false;
-    for (; bytes_read < HAL_STM32F1_EEPROM_SIZE; bytes_read++)
-      HAL_STM32F1_eeprom_content[bytes_read] = 0xFF;
+    for (; bytes_read < HAL_EEPROM_SIZE; bytes_read++)
+      HAL_eeprom_data[bytes_read] = 0xFF;
     file.close();
     return true;
   }
@@ -64,12 +66,12 @@ static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
     if (!card.isDetected()) return false;
 
     SdFile file, root = card.getroot();
-    int16_t bytes_written = 0;
+    int bytes_written = 0;
     if (file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC)) {
-      bytes_written = file.write(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
+      bytes_written = file.write(HAL_eeprom_data, HAL_EEPROM_SIZE);
       file.close();
     }
-    return (bytes_written == HAL_STM32F1_EEPROM_SIZE);
+    return (bytes_written == HAL_EEPROM_SIZE);
   }
 
 #else // !SDSUPPORT
@@ -78,9 +80,9 @@ static char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
 
 #endif // !SDSUPPORT
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   for (size_t i = 0; i < size; i++)
-    HAL_STM32F1_eeprom_content[pos + i] = value[i];
+    HAL_eeprom_data[pos + i] = value[i];
   crc16(crc, value, size);
   pos += size;
   return false;
@@ -88,7 +90,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t si
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   for (size_t i = 0; i < size; i++) {
-    uint8_t c = HAL_STM32F1_eeprom_content[pos + i];
+    uint8_t c = HAL_eeprom_data[pos + i];
     if (writing) value[i] = c;
     crc16(crc, &c, 1);
   }
@@ -96,7 +98,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   return false;
 }
 
-size_t PersistentStore::capacity() { return HAL_STM32F1_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return HAL_EEPROM_SIZE; }
 
 #endif // EEPROM_SETTINGS
 

@@ -234,6 +234,8 @@
   #include "mega/pins_EINSTART-S.h"             // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(WANHAO_ONEPLUS)
   #include "mega/pins_WANHAO_ONEPLUS.h"         // ATmega2560                             env:megaatmega2560
+#elif MB(OVERLORD)
+  #include "mega/pins_OVERLORD.h"               // ATmega2560                             env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561
@@ -438,36 +440,40 @@
 
 #elif MB(STM32F1R)
   #include "stm32/pins_STM32F1R.h"              // STM32F1                                env:STM32F1
-#elif MB(STM3R_MINI)
-  #include "stm32/pins_STM3R_MINI.h"            // STM32F1                                env:STM32F1
-#elif MB(BIGTREE_SKR_MINI_V1_1)
-  #include "stm32/pins_BIGTREE_SKR_MINI_V1_1.h" // STM32F1                                env:BIGTREE_SKR_MINI
-#elif MB(BIGTREE_SKR_MINI_E3)
-  #include "stm32/pins_BIGTREE_SKR_MINI_E3.h"   // STM32F1                                env:BIGTREE_SKR_MINI
-#elif MB(BIGTREE_SKR_E3_DIP)
-  #include "stm32/pins_BIGTREE_SKR_E3_DIP.h"    // STM32F1                                env:BIGTREE_SKR_MINI
 #elif MB(MALYAN_M200)
   #include "stm32/pins_MALYAN_M200.h"           // STM32F1                                env:malyanm200
-#elif MB(CHITU3D)
-  #include "stm32/pins_CHITU3D.h"               // STM32F1                                env:STM32F1
+#elif MB(STM3R_MINI)
+  #include "stm32/pins_STM3R_MINI.h"            // STM32F1                                env:STM32F1
 #elif MB(GTM32_PRO_VB)
   #include "stm32/pins_GTM32_PRO_VB.h"          // STM32F1                                env:STM32F1
-#elif MB(LONGER3D_LK)
-  #include "stm32/pins_LONGER3D_LK.h"           // STM32F1                                env:alfawise_U20
 #elif MB(MORPHEUS)
   #include "stm32/pins_MORPHEUS.h"              // STM32F1                                env:STM32F1
+#elif MB(CHITU3D)
+  #include "stm32/pins_CHITU3D.h"               // STM32F1                                env:STM32F1
 #elif MB(MKS_ROBIN)
   #include "stm32/pins_MKS_ROBIN.h"             // STM32F1                                env:mks_robin
 #elif MB(MKS_ROBIN_MINI)
   #include "stm32/pins_MKS_ROBIN_MINI.h"        // STM32F1                                env:mks_robin_mini
 #elif MB(MKS_ROBIN_NANO)
   #include "stm32/pins_MKS_ROBIN_NANO.h"        // STM32F1                                env:mks_robin_nano
+#elif MB(MKS_ROBIN_LITE)
+  #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
+#elif MB(BIGTREE_SKR_MINI_V1_1)
+  #include "stm32/pins_BIGTREE_SKR_MINI_V1_1.h" // STM32F1                                env:BIGTREE_SKR_MINI
+#elif MB(BIGTREE_SKR_MINI_E3)
+  #include "stm32/pins_BIGTREE_SKR_MINI_E3.h"   // STM32F1                                env:BIGTREE_SKR_MINI
+#elif MB(BIGTREE_SKR_E3_DIP)
+  #include "stm32/pins_BIGTREE_SKR_E3_DIP.h"    // STM32F1                                env:BIGTREE_SKR_MINI
 #elif MB(JGAURORA_A5S_A1)
-  #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:JGAURORA_A5S_A1
+  #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:jgaurora_a5s_a1
 #elif MB(FYSETC_AIO_II)
   #include "stm32/pins_FYSETC_AIO_II.h"         // STM32F1                                env:fysetc_STM32F1
 #elif MB(FYSETC_CHEETAH)
   #include "stm32/pins_FYSETC_CHEETAH.h"        // STM32F1                                env:fysetc_STM32F1
+#elif MB(FYSETC_CHEETAH_V12)
+  #include "stm32/pins_FYSETC_CHEETAH_V12.h"    // STM32F1                                env:fysetc_STM32F1
+#elif MB(LONGER3D_LK)
+  #include "stm32/pins_LONGER3D_LK.h"           // STM32F1                                env:alfawise_U20
 
 //
 // ARM Cortex-M4F
@@ -512,6 +518,13 @@
 
 #elif MB(ESP32)
   #include "esp32/pins_ESP32.h"                 // ESP32                                  env:esp32
+
+//
+// Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
+//
+
+#elif MB(AGCM4_RURAMPS4D_13)
+  #include "samd/pins_AGCM4_RURAMPS4D_13.h"     // SAMD51                                 env:adafruit_grandcentral_m4
 
 //
 // Linux Native Debug board
@@ -761,8 +774,8 @@
 #ifndef SD_DETECT_PIN
   #define SD_DETECT_PIN -1
 #endif
-#ifndef SDPOWER
-  #define SDPOWER -1
+#ifndef SDPOWER_PIN
+  #define SDPOWER_PIN -1
 #endif
 #ifndef SDSS
   #define SDSS -1

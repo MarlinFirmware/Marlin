@@ -116,9 +116,8 @@ void Servo::detach() {
 }
 
 void Servo::write(int value) {
-  if (value < MIN_PULSE_WIDTH) { // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
+  if (value < MIN_PULSE_WIDTH)    // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
     value = map(constrain(value, 0, 180), 0, 180, SERVO_MIN(), SERVO_MAX());
-  }
   this->writeMicroseconds(value);
 }
 
@@ -140,7 +139,7 @@ void Servo::writeMicroseconds(int value) {
 int Servo::read() { return map(this->readMicroseconds() + 1, SERVO_MIN(), SERVO_MAX(), 0, 180); }
 
 int Servo::readMicroseconds() {
-  return (this->servoIndex == INVALID_SERVO) ? 0 : ticksToUs(servo_info[this->servoIndex].ticks) + TRIM_DURATION;
+  return (this->servoIndex == INVALID_SERVO) ? 0 : ticksToUs(servo_info[this->servoIndex].ticks) + (TRIM_DURATION);
 }
 
 bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }

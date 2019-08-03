@@ -103,7 +103,7 @@
 //
 // Misc. Functions
 //
-#define SDPOWER            48
+#define SDPOWER_PIN        48
 #define SDSS               53
 #define LED_PIN            13
 #define CASE_LIGHT_PIN     45   // Hardware PWM

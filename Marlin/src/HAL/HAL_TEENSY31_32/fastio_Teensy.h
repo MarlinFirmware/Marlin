@@ -27,8 +27,6 @@
  * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
  */
 
-#pragma once
-
 #ifndef MASK
   #define MASK(PIN) (1 << PIN)
 #endif

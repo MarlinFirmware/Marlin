@@ -58,12 +58,21 @@
 #define PCA9632_AUTOGLO     0xC0
 #define PCA9632_AUTOGI      0xE0
 
-// Red   LED0
-// Green LED1
-// Blue  LED2
-#define PCA9632_RED     0x00
-#define PCA9632_GRN     0x02
-#define PCA9632_BLU     0x04
+// Red=LED0   Green=LED1   Blue=LED2
+#ifndef PCA9632_RED
+  #define PCA9632_RED 0x00
+#endif
+#ifndef PCA9632_GRN
+  #define PCA9632_GRN 0x02
+#endif
+#ifndef PCA9632_BLU
+  #define PCA9632_BLU 0x04
+#endif
+
+// If any of the color indexes are greater than 0x04 they can't use auto increment
+#if !defined(PCA9632_NO_AUTO_INC) && (PCA9632_RED > 0x04 || PCA9632_GRN > 0x04 || PCA9632_BLU > 0x04)
+  #define PCA9632_NO_AUTO_INC
+#endif
 
 #define LED_OFF   0x00
 #define LED_ON    0x01
@@ -80,12 +89,24 @@ static void PCA9632_WriteRegister(const byte addr, const byte regadd, const byte
   Wire.endTransmission();
 }
 
-static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte value1, const byte value2, const byte value3) {
+static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte vr, const byte vg, const byte vb) {
+  #if DISABLED(PCA9632_NO_AUTO_INC)
+    uint8_t data[4], len = 4;
+    data[0] = PCA9632_AUTO_IND | regadd;
+    data[1 + (PCA9632_RED >> 1)] = vr;
+    data[1 + (PCA9632_GRN >> 1)] = vg;
+    data[1 + (PCA9632_BLU >> 1)] = vb;
+  #else
+    uint8_t data[6], len = 6;
+    data[0] = regadd + (PCA9632_RED >> 1);
+    data[1] = vr;
+    data[2] = regadd + (PCA9632_GRN >> 1);
+    data[3] = vg;
+    data[4] = regadd + (PCA9632_BLU >> 1);
+    data[5] = vb;
+  #endif
   Wire.beginTransmission(I2C_ADDRESS(addr));
-  Wire.write(PCA9632_AUTO_IND | regadd);
-  Wire.write(value1);
-  Wire.write(value2);
-  Wire.write(value3);
+  Wire.write(data, len);
   Wire.endTransmission();
 }
 
@@ -114,5 +135,15 @@ void pca9632_set_led_color(const LEDColor &color) {
   PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.r, color.g, color.b);
   PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_LEDOUT, LEDOUT);
 }
+
+#if ENABLED(PCA9632_BUZZER)
+  void pca9632_buzz(uint16_t const f, uint16_t d) {
+    UNUSED(f); UNUSED(d);
+    uint8_t data[] = PCA9632_BUZZER_DATA;
+    Wire.beginTransmission(I2C_ADDRESS(PCA9632_ADDRESS));
+    Wire.write(data, sizeof(data));
+    Wire.endTransmission();
+  }
+#endif
 
 #endif // PCA9632

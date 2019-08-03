@@ -39,7 +39,7 @@
 
 void _lcd_user_gcode(PGM_P const cmd) {
   queue.inject_P(cmd);
-  #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK)
+  #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK) && HAS_BUZZER
     ui.completion_feedback();
   #endif
   #if ENABLED(USER_SCRIPT_RETURN)

@@ -385,7 +385,7 @@ inline bool turn_on_heaters() {
   #if HAS_HEATED_BED
 
     if (g26_bed_temp > 25) {
-      #if ENABLED(ULTRA_LCD)
+      #if HAS_SPI_LCD
         ui.set_status_P(PSTR("G26 Heating Bed."), 99);
         ui.quick_feedback();
         #if HAS_LCD_MENU
@@ -406,7 +406,7 @@ inline bool turn_on_heaters() {
   #endif // HAS_HEATED_BED
 
   // Start heating the active nozzle
-  #if ENABLED(ULTRA_LCD)
+  #if HAS_SPI_LCD
     ui.set_status_P(PSTR("G26 Heating Nozzle."), 99);
     ui.quick_feedback();
   #endif
@@ -420,7 +420,7 @@ inline bool turn_on_heaters() {
     )
   ) return G26_ERR;
 
-  #if ENABLED(ULTRA_LCD)
+  #if HAS_SPI_LCD
     ui.reset_status();
     ui.quick_feedback();
   #endif
@@ -472,7 +472,7 @@ inline bool prime_nozzle() {
     else
   #endif
   {
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SPI_LCD
       ui.set_status_P(PSTR("Fixed Length Prime."), 99);
       ui.quick_feedback();
     #endif

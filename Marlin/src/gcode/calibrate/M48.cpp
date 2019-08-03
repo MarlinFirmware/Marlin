@@ -30,6 +30,10 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
+#if HAS_SPI_LCD
+  #include "../../lcd/ultralcd.h"
+#endif
+
 #if HAS_LEVELING
   #include "../../module/planner.h"
 #endif
@@ -246,6 +250,13 @@ void GcodeSuite::M48() {
 
     SERIAL_ECHOLNPAIR_F("Standard Deviation: ", sigma, 6);
     SERIAL_EOL();
+
+    #if HAS_SPI_LCD
+      // Display M48 results in the status bar
+      char sigma_str[8];
+      dtostrf(sigma, 2, 6, sigma_str);
+      ui.status_printf_P(0, PSTR(MSG_M48_DEVIATION ": %s"), sigma_str);
+    #endif
   }
 
   clean_up_after_endstop_or_probe_move();

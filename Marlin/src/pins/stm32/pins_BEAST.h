@@ -86,7 +86,6 @@
 //
 // Misc. Functions
 //
-#define SDPOWER            -1
 #define SDSS               PA15
 #define LED_PIN            PB2
 

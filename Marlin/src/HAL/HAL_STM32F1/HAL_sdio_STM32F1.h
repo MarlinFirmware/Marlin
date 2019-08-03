@@ -23,8 +23,8 @@
 
 #include "../shared/Marduino.h"
 
-#include "libmaple/sdio.h"
-#include "libmaple/dma.h"
+#include <libmaple/sdio.h>
+#include <libmaple/dma.h>
 
 // ------------------------
 // Defines

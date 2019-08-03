@@ -67,8 +67,6 @@
  *                   With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY and detach.
  */
 
-#pragma once
-
 #if IS_TEENSY32
   #include "../HAL_TEENSY31_32/HAL_Servo_Teensy.h"
 #elif IS_TEENSY35 || IS_TEENSY36
@@ -86,10 +84,10 @@
 #else
   #include <stdint.h>
 
-  #if defined(__AVR__) || defined(ARDUINO_ARCH_SAM)
+  #if defined(__AVR__) || defined(ARDUINO_ARCH_SAM) || defined (__SAMD51__)
     // we're good to go
   #else
-    #error "This library only supports boards with an AVR or SAM3X processor."
+    #error "This library only supports boards with an AVR, SAM3X or SAMD51 processor."
   #endif
 
   #define Servo_VERSION           2     // software version of this library

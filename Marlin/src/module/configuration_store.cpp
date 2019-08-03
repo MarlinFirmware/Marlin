@@ -98,10 +98,8 @@
   #include "../feature/runout.h"
 #endif
 
-#include "../lcd/extensible_ui/ui_api.h"
-
 #if ENABLED(EXTRA_LIN_ADVANCE_K)
-extern float saved_extruder_advance_K[EXTRUDERS];
+  extern float saved_extruder_advance_K[EXTRUDERS];
 #endif
 
 #if EXTRUDERS > 1
@@ -462,7 +460,8 @@ void MarlinSettings::postprocess() {
     #define EEPROM_SKIP(VAR) (eeprom_index += sizeof(VAR))
   #endif
 
-  #define EEPROM_START()          int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()
+  #define EEPROM_START()          if (!persistentStore.access_start()) { SERIAL_ECHO_MSG("No EEPROM."); return false; } \
+                                  int eeprom_index = EEPROM_OFFSET
   #define EEPROM_FINISH()         persistentStore.access_finish()
   #define EEPROM_WRITE(VAR)       do{ persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);              UPDATE_TEST_INDEX(VAR); }while(0)
   #define EEPROM_READ(VAR)        do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating);  UPDATE_TEST_INDEX(VAR); }while(0)
@@ -576,7 +575,7 @@ void MarlinSettings::postprocess() {
       #if HAS_FILAMENT_SENSOR
         const bool &runout_sensor_enabled = runout.enabled;
       #else
-        const bool runout_sensor_enabled = false;
+        const bool runout_sensor_enabled = true;
       #endif
       #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
         const float &runout_distance_mm = runout.runout_distance();
@@ -2030,8 +2029,7 @@ void MarlinSettings::postprocess() {
           const char extui_data[ExtUI::eeprom_data_size] = { 0 };
           _FIELD_TEST(extui_data);
           EEPROM_READ(extui_data);
-          if(!validating)
-            ExtUI::onLoadSettings(extui_data);
+          if (!validating) ExtUI::onLoadSettings(extui_data);
         }
       #endif
 
@@ -2114,7 +2112,7 @@ void MarlinSettings::postprocess() {
       (void)save();
       SERIAL_ECHO_MSG("EEPROM Initialized");
     #endif
-    return true;
+    return false;
   }
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)

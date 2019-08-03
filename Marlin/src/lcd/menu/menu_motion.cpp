@@ -29,6 +29,13 @@
 #if HAS_LCD_MENU
 
 #include "menu.h"
+
+#include "../lcdprint.h"
+
+#if HAS_GRAPHICAL_LCD
+  #include "../dogm/ultralcd_DOGM.h"
+#endif
+
 #include "../../module/motion.h"
 
 #if ENABLED(DELTA)
@@ -230,6 +237,10 @@ inline void lcd_move_e() { _lcd_move_e(); }
 // "Motion" > "Move Xmm" > "Move XYZ" submenu
 //
 
+#ifndef SHORT_MANUAL_Z_MOVE
+  #define SHORT_MANUAL_Z_MOVE 0.025
+#endif
+
 screenFunc_t _manual_move_func_ptr;
 
 void _goto_manual_move(const float scale) {
@@ -240,7 +251,6 @@ void _goto_manual_move(const float scale) {
 void menu_move_10mm()   { _goto_manual_move(10); }
 void menu_move_1mm()    { _goto_manual_move( 1); }
 void menu_move_01mm()   { _goto_manual_move( 0.1f); }
-void menu_move_0025mm() { _goto_manual_move( 0.025f); }
 
 void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=-1) {
   _manual_move_func_ptr = func;
@@ -268,8 +278,18 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     MENU_ITEM(submenu, MSG_MOVE_10MM, menu_move_10mm);
     MENU_ITEM(submenu, MSG_MOVE_1MM, menu_move_1mm);
     MENU_ITEM(submenu, MSG_MOVE_01MM, menu_move_01mm);
-    if (axis == Z_AXIS)
-      MENU_ITEM(submenu, MSG_MOVE_0025MM, menu_move_0025mm);
+    if (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
+      MENU_ITEM(submenu, "", []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
+      MENU_ITEM_ADDON_START(1);
+        char tmp[20], numstr[10];
+        // Determine digits needed right of decimal
+        const uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
+                             !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
+        dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr);
+        sprintf_P(tmp, PSTR(MSG_MOVE_Z_DIST), numstr);
+        LCDPRINT(tmp);
+      MENU_ITEM_ADDON_END();
+    }
   }
   END_MENU();
 }
@@ -481,6 +501,10 @@ void menu_motion() {
 
   #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
     MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+  #endif
+
+  #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+    MENU_ITEM(gcode, MSG_M48_TEST, PSTR("G28\nM48 P10"));
   #endif
 
   //
