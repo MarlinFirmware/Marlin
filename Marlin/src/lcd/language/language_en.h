@@ -1576,3 +1576,12 @@
 #ifndef MSG_BACKLASH_SMOOTHING
   #define MSG_BACKLASH_SMOOTHING              _UxGT("Smoothing")
 #endif
+#ifndef MSG_THERMAL_RUNAWAY_ON
+  #define MSG_THERMAL_RUNAWAY_ON              _UxGT("Tx Runaway: On")
+#endif
+#ifndef MSG_THERMAL_RUNAWAY_BED_ON
+  #define MSG_THERMAL_RUNAWAY_BED_ON          _UxGT("TBed Runaway: On")
+#endif
+#ifndef MSG_THERMAL_RUNAWAY_CHAMBER_ON
+  #define MSG_THERMAL_RUNAWAY_CHAMBER_ON      _UxGT("TChamber Runaway: On")
+#endif
