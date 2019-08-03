@@ -23,7 +23,7 @@
 #ifdef ARDUINO_ARCH_ESP32
 
 #include "HAL.h"
-#include "HAL_timers_ESP32.h"
+#include "timers.h"
 #include <rom/rtc.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>

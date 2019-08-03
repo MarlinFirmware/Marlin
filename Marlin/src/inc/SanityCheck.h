@@ -395,6 +395,7 @@
 #define BOARD_RURAMPS4D     -1002
 #define BOARD_FORMBOT_TREX2 -1003
 #define BOARD_BIQU_SKR_V1_1 -1004
+#define BOARD_STM32F1R      -1005
 #if MB(MKS_13)
   #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
 #elif MB(TRIGORILLA)
@@ -405,12 +406,15 @@
   #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
 #elif MB(BIQU_SKR_V1_1)
   #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
+#elif MB(STM32F1R)
+  #error "BOARD_STM32F1R has been renamed BOARD_STM32F103R. Please update your configuration."
 #endif
 #undef BOARD_MKS_13
 #undef BOARD_TRIGORILLA
 #undef BOARD_RURAMPS4D
 #undef BOARD_FORMBOT_TREX2
 #undef BOARD_BIQU_SKR_V1_1
+#undef BOARD_STM32F1R
 
 /**
  * Marlin release, version and default string
@@ -1108,6 +1112,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "TOUCH_MI_PROBE requires Z_MIN_PROBE_ENDSTOP_INVERTING to be set to false."
     #elif DISABLED(BABYSTEP_ZPROBE_OFFSET)
       #error "TOUCH_MI_PROBE requires BABYSTEPPING with BABYSTEP_ZPROBE_OFFSET."
+    #elif !HAS_RESUME_CONTINUE
+      #error "TOUCH_MI_PROBE currently requires an LCD controller or EMERGENCY_PARSER."
     #endif
   #endif
 
