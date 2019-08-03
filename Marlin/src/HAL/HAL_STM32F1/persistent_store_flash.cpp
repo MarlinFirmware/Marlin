@@ -88,7 +88,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   return false;
 }
 
-size_t PersistentStore::capacity() { return EEPROM_PAGE_SIZE * 2 + 1; }
+size_t PersistentStore::capacity() { return EEPROM_PAGE_SIZE * 2; }
 
 #endif // EEPROM_SETTINGS && EEPROM FLASH
 #endif // __STM32F1__
