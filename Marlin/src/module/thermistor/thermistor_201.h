@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#define REVERSE_TEMP_SENSOR_RANGE
+
 // PT100 with LMV324 amp on Overlord v1.1 electronics
 const short temptable_201[][2] PROGMEM = {
   { OV(   0),   0 },
@@ -53,38 +55,3 @@ const short temptable_201[][2] PROGMEM = {
   { OV( 572), 233 },
   { OV(1155), 490 }
 };
-
-// Although this thermistor uses a table, the sensor range is
-// reversed like a thermocouple, so these must be set here.
-#if THERMISTOR_HEATER_0 == 201
-  #define HEATER_0_RAW_HI_TEMP 16383
-  #define HEATER_0_RAW_LO_TEMP 0
-#endif
-#if THERMISTOR_HEATER_1 == 201
-  #define HEATER_1_RAW_HI_TEMP 16383
-  #define HEATER_1_RAW_LO_TEMP 0
-#endif
-#if THERMISTOR_HEATER_2 == 201
-  #define HEATER_2_RAW_HI_TEMP 16383
-  #define HEATER_2_RAW_LO_TEMP 0
-#endif
-#if THERMISTOR_HEATER_3 == 201
-  #define HEATER_3_RAW_HI_TEMP 16383
-  #define HEATER_3_RAW_LO_TEMP 0
-#endif
-#if THERMISTOR_HEATER_4 == 201
-  #define HEATER_4_RAW_HI_TEMP 16383
-  #define HEATER_4_RAW_LO_TEMP 0
-#endif
-#if THERMISTOR_HEATER_5 == 201
-  #define HEATER_5_RAW_HI_TEMP 16383
-  #define HEATER_5_RAW_LO_TEMP 0
-#endif
-#if THERMISTORBED == 201
-  #define HEATER_BED_RAW_HI_TEMP 16383
-  #define HEATER_BED_RAW_LO_TEMP 0
-#endif
-#if THERMISTORCHAMBER == 201
-  #define HEATER_CHAMBER_RAW_HI_TEMP 16383
-  #define HEATER_CHAMBER_RAW_LO_TEMP 0
-#endif
