@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(LCD_USE_I2C_BUZZER)
+#if ENABLED(LCD_USE_I2C_BUZZER) || ENABLED(PCA9632_BUZZER)
 
   #define BUZZ(d,f) ui.buzz(d,f)
 

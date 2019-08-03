@@ -568,7 +568,7 @@ void MarlinUI::status_screen() {
           const millis_t ms = millis();
         #endif
         if (ELAPSED(ms, next_beep)) {
-          BUZZ(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
+          buzz(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
           next_beep = ms + 500UL;
         }
       #endif
@@ -728,16 +728,6 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
  */
 
 LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
-
-bool MarlinUI::detected() {
-  return
-    #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
-      lcd.LcdDetected() == 1
-    #else
-      true
-    #endif
-  ;
-}
 
 void MarlinUI::update() {
 
@@ -1294,23 +1284,6 @@ void MarlinUI::update() {
 
     #endif // HAS_ENCODER_WHEEL
   }
-
-  #if HAS_SLOW_BUTTONS
-
-    uint8_t MarlinUI::read_slow_buttons() {
-      #if ENABLED(LCD_I2C_TYPE_MCP23017)
-        // Reading these buttons this is likely to be too slow to call inside interrupt context
-        // so they are called during normal lcd_update
-        uint8_t slow_bits = lcd.readButtons() << B_I2C_BTN_OFFSET;
-        #if ENABLED(LCD_I2C_VIKI)
-          if ((slow_bits & (B_MI | B_RI)) && PENDING(millis(), next_button_update_ms)) // LCD clicked
-            slow_bits &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
-        #endif // LCD_I2C_VIKI
-        return slow_bits;
-      #endif // LCD_I2C_TYPE_MCP23017
-    }
-
-  #endif
 
 #endif // HAS_ENCODER_ACTION
 
