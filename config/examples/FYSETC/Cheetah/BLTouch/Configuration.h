@@ -2001,6 +2001,11 @@
 //
 //#define SILVER_GATE_GLCD_CONTROLLER
 
+//
+// Overlord OLED display/controller with i2c buzzer and LEDs
+//
+//#define OVERLORD_OLED
+
 //=============================================================================
 //========================== Extensible UI Displays ===========================
 //=============================================================================

@@ -37,8 +37,6 @@
   #include "runout.h"
 #endif
 
-extern bool wait_for_user;
-
 void host_action(const char * const pstr, const bool eol) {
   SERIAL_ECHOPGM("//action:");
   serialprintPGM(pstr);
@@ -65,6 +63,10 @@ void host_action(const char * const pstr, const bool eol) {
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
+
+  #if HAS_RESUME_CONTINUE
+    extern bool wait_for_user;
+  #endif
 
   PromptReason host_prompt_reason = PROMPT_NOT_DEFINED;
 
@@ -141,8 +143,10 @@ void host_action(const char * const pstr, const bool eol) {
         }
         break;
       case PROMPT_USER_CONTINUE:
+        #if HAS_RESUME_CONTINUE
+          wait_for_user = false;
+        #endif
         msg = PSTR("FILAMENT_RUNOUT_CONTINUE");
-        wait_for_user = false;
         break;
       case PROMPT_PAUSE_RESUME:
         msg = PSTR("LCD_PAUSE_RESUME");

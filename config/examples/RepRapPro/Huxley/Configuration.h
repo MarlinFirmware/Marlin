@@ -2062,6 +2062,11 @@ Black rubber belt(MXL), 18 - tooth aluminium pulley : 87.489 step per mm (Huxley
 //
 //#define U8GLIB_SH1106_EINSTART
 
+//
+// Overlord OLED display/controller with i2c buzzer and LEDs
+//
+//#define OVERLORD_OLED
+
 //=============================================================================
 //========================== Extensible UI Displays ===========================
 //=============================================================================

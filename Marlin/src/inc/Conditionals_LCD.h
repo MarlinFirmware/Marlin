@@ -163,6 +163,7 @@
 
 #elif ENABLED(ULTI_CONTROLLER)
 
+  #define IS_ULTIPANEL
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
   #define LCD_CONTRAST_MIN 0
@@ -198,6 +199,24 @@
   #define U8GLIB_SSD1306
 #endif
 
+#if ENABLED(OVERLORD_OLED)
+  #define IS_ULTIPANEL
+  #define U8GLIB_SH1106
+  /**
+   * PCA9632 for buzzer and LEDs via i2c
+   * No auto-inc, red and green leds switched, buzzer
+   */
+  #define PCA9632
+  #define PCA9632_NO_AUTO_INC
+  #define PCA9632_GRN         0x00
+  #define PCA9632_RED         0x02
+  #define PCA9632_BUZZER
+  #define PCA9632_BUZZER_DATA { 0x09, 0x02 }
+
+  #define ENCODER_PULSES_PER_STEP     1 // Overlord uses buttons
+  #define ENCODER_STEPS_PER_MENU_ITEM 1
+#endif
+
 // 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
 #define HAS_SSD1306_OLED_I2C ANY(U8GLIB_SSD1306, U8GLIB_SSD1309, U8GLIB_SH1106)
 #if HAS_SSD1306_OLED_I2C
@@ -205,41 +224,42 @@
   #define DOGLCD
 #endif
 
+// ST7920-based graphical displays
 #if ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, LCD_FOR_MELZI, SILVER_GATE_GLCD_CONTROLLER)
   #define DOGLCD
   #define U8GLIB_ST7920
   #define IS_RRD_SC
 #endif
 
+// RepRapDiscount LCD or Graphical LCD with rotary click encoder
 #if ENABLED(IS_RRD_SC)
   #define REPRAP_DISCOUNT_SMART_CONTROLLER
 #endif
 
-#if ANY(ULTIMAKERCONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER, G3D_PANEL, RIGIDBOT_PANEL, ULTI_CONTROLLER, PANEL_ONE, U8GLIB_SH1106)
+/**
+ * SPI Ultipanels
+ */
+
+// Basic Ultipanel-like displays
+#if ANY(ULTIMAKERCONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER, G3D_PANEL, RIGIDBOT_PANEL, PANEL_ONE, U8GLIB_SH1106)
   #define IS_ULTIPANEL
 #endif
 
-/**
- * SPI PANELS
- */
+// Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
+#if ENABLED(U8GLIB_SH1106_EINSTART)
+  #define DOGLCD
+  #define IS_ULTIPANEL
+#endif
 
- // Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
- #if ENABLED(U8GLIB_SH1106_EINSTART)
-   #define DOGLCD
-   #define IS_ULTIPANEL
- #endif
-
- /**
-  * FSMC/SPI TFT PANELS
-  */
- #if ENABLED(FSMC_GRAPHICAL_TFT)
-   #define DOGLCD
-   #define IS_ULTIPANEL
-   #define DELAYED_BACKLIGHT_INIT
- #endif
+// FSMC/SPI TFT Panels
+#if ENABLED(FSMC_GRAPHICAL_TFT)
+  #define DOGLCD
+  #define IS_ULTIPANEL
+  #define DELAYED_BACKLIGHT_INIT
+#endif
 
 /**
- * I2C PANELS
+ * I2C Panels
  */
 
 #if EITHER(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004)

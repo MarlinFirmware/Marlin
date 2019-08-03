@@ -103,6 +103,8 @@ typedef struct {
 
 class PrintJobRecovery {
   public:
+    static const char filename[5];
+
     static SdFile file;
     static job_recovery_info_t info;
 

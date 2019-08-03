@@ -104,7 +104,7 @@ const PinName digitalPin[] = {
 extern "C" {
 #endif
 
-/**
+ /**
   * @brief  System Clock Configuration
   * @param  None
   * @retval None

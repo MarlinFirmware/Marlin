@@ -1,9 +1,8 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,16 +20,20 @@
  */
 #pragma once
 
-/**
- * Driver for the Philips PCA9632 LED driver.
- * Written by Robert Mendon Feb 2017.
- */
+#define _useTimer1
+#define _useTimer2
 
-struct LEDColor;
-typedef LEDColor LEDColor;
+#define TRIM_DURATION           5   // compensation ticks to trim adjust for digitalWrite delays
+#define SERVO_TIMER_PRESCALER   64  // timer prescaler factor to 64 (avoid overflowing 16-bit clock counter, at 120MHz this is 1831 ticks per millisecond
 
-void pca9632_set_led_color(const LEDColor &color);
+#define SERVO_TC                3
 
-#if ENABLED(PCA9632_BUZZER)
-  void pca9632_buzz(uint16_t const, uint16_t);
-#endif
+typedef enum {
+  #ifdef _useTimer1
+    _timer1,
+  #endif
+  #ifdef _useTimer2
+    _timer2,
+  #endif
+  _Nbr_16timers
+} timer16_Sequence_t;
