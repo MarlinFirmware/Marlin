@@ -51,8 +51,15 @@ static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
     if (!card.isDetected()) return false;
 
     SdFile file, root = card.getroot();
-    if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
-      return false;
+    if (!file.open(&root, EEPROM_FILENAME, O_RDONLY)){
+      if (file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC)) { // if file doesnt exist, try create file
+        file.write(" ");
+        file.close();
+        if (!file.open(&root, EEPROM_FILENAME, O_RDONLY)){ 
+          return false;
+        }
+      } else { return false;}
+    }
 
     int bytes_read = file.read(HAL_eeprom_data, HAL_EEPROM_SIZE);
     if (bytes_read < 0) return false;
