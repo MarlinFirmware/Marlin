@@ -102,6 +102,14 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
   }
 }
 
+#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER) && DISABLED(PCA9632_BUZZER)
+  void MarlinUI::buzz(const long duration, const uint16_t freq) {
+    buzzer.tone(duration, freq);
+  }
+#endif
+
+bool MarlinUI::detected() { return true; }
+
 #if ENABLED(SHOW_BOOTSCREEN)
 
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
