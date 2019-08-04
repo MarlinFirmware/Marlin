@@ -155,7 +155,7 @@ hotend_info_t Temperature::temp_hotend[HOTENDS
     uint8_t Temperature::saved_fan_speed[FAN_COUNT]; // = { 0 }
   #endif
 
-  #if ENABLED(ADAPTIVE_FAN_SLOWING)
+  #if ENABLED(ADAPTIVE_FAN_SLOWING) || defined(__PLATFORMIO_BUILD_DEBUG__)
     uint8_t Temperature::fan_speed_scaler[FAN_COUNT] = ARRAY_N(FAN_COUNT, 128, 128, 128, 128, 128, 128);
   #endif
 
