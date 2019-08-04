@@ -24,8 +24,6 @@
  * delta.h - Delta-specific functions
  */
 
-#pragma once
-
 extern float delta_height,
              delta_endstop_adj[ABC],
              delta_radius,

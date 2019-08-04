@@ -51,7 +51,7 @@
 #if PIN_EXISTS(MAIN_VOLTAGE_MEASURE) && MAIN_VOLTAGE_MEASURE_PIN < NUM_ANALOG_INPUTS
   REPORT_NAME_ANALOG(__LINE__, MAIN_VOLTAGE_MEASURE_PIN)
 #endif
-#if !defined(ARDUINO_ARCH_SAM)  //TC1 & TC2 are macros in the SAM tool chain
+#if !defined(ARDUINO_ARCH_SAM) && !defined(ARDUINO_ARCH_SAMD)  //TC1 & TC2 are macros in the SAM/SAMD tool chain
   #if defined(TC1) && TC1 >= 0 && TC1 < NUM_ANALOG_INPUTS
     REPORT_NAME_ANALOG(__LINE__, TC1)
   #endif
@@ -707,8 +707,8 @@
 // #if defined(SDA) && SDA >= 0
 //   REPORT_NAME_DIGITAL(__LINE__, SDA)
 // #endif
-#if defined(SDPOWER) && SDPOWER >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SDPOWER)
+#if PIN_EXISTS(SDPOWER)
+  REPORT_NAME_DIGITAL(__LINE__, SDPOWER_PIN)
 #endif
 #if defined(SDSS) && SDSS >= 0
   REPORT_NAME_DIGITAL(__LINE__, SDSS)

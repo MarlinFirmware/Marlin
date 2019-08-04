@@ -268,7 +268,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   //
   // LCD Display output pins

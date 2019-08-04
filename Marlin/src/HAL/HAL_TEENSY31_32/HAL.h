@@ -19,19 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Description: HAL for Teensy 3.5 and Teensy 3.6
  */
 
-#pragma once
-
 #define CPU_32_BIT
 
 #include "../shared/Marduino.h"
-
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 
 #include "fastio_Teensy.h"
 #include "watchdog_Teensy.h"

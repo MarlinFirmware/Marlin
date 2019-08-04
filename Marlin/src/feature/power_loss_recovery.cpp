@@ -35,6 +35,7 @@ bool PrintJobRecovery::enabled; // Initialized by settings.load()
 
 SdFile PrintJobRecovery::file;
 job_recovery_info_t PrintJobRecovery::info;
+const char PrintJobRecovery::filename[5] = "/PLR";
 
 #include "../sd/cardreader.h"
 #include "../lcd/ultralcd.h"

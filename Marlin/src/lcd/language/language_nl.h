@@ -80,7 +80,7 @@
 #define MSG_MOVE_Y                          _UxGT("Verplaats Y")
 #define MSG_MOVE_Z                          _UxGT("Verplaats Z")
 #define MSG_MOVE_E                          _UxGT("Extruder")
-#define MSG_MOVE_0025MM                     _UxGT("Verplaats 0.025mm")
+#define MSG_MOVE_Z_DIST                     _UxGT("Verplaats %smm")
 #define MSG_MOVE_01MM                       _UxGT("Verplaats 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Verplaats 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Verplaats 10mm")

@@ -25,8 +25,6 @@
  * Teensy3.2 (__MK20DX256__)
  */
 
-#pragma once
-
 #include <stdint.h>
 
 // ------------------------

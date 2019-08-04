@@ -56,7 +56,9 @@ void menu_advanced_settings();
 
 static void lcd_factory_settings() {
   settings.reset();
-  ui.completion_feedback();
+  #if HAS_BUZZER
+    ui.completion_feedback();
+  #endif
 }
 
 #if ENABLED(LCD_PROGRESS_BAR_TEST)

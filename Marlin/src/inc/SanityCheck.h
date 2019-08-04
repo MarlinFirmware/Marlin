@@ -376,6 +376,16 @@
   #error "USB_SD_DISABLED is now NO_SD_HOST_DRIVE. Please update your Configuration_adv.h."
 #elif defined(USB_SD_ONBOARD)
   #error "USB_SD_ONBOARD is obsolete. Disable NO_SD_HOST_DRIVE instead."
+#elif POWER_SUPPLY == 1
+  #error "Replace POWER_SUPPLY 1 by enabling PSU_CONTROL and setting PSU_ACTIVE_HIGH to 'false'."
+#elif POWER_SUPPLY == 2
+  #error "Replace POWER_SUPPLY 2 by enabling PSU_CONTROL and setting PSU_ACTIVE_HIGH to 'true'."
+#elif defined(POWER_SUPPLY)
+  #error "POWER_SUPPLY is now obsolete. Please remove it from Configuration.h."
+#elif defined(MKS_ROBIN_TFT)
+  #error "MKS_ROBIN_TFT is now FSMC_GRAPHICAL_TFT. Please update your configuration."
+#elif defined(SDPOWER)
+  #error "SDPOWER is now SDPOWER_PIN. Please update your configuration and/or pins."
 #endif
 
 #define BOARD_MKS_13        -1109
@@ -1879,9 +1889,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(MKS_12864OLED) \
   + ENABLED(MKS_12864OLED_SSD1306) \
   + ENABLED(U8GLIB_SH1106_EINSTART) \
+  + ENABLED(OVERLORD_OLED) \
   + ENABLED(DGUS_LCD) \
   + ENABLED(MALYAN_LCD) \
-  + ENABLED(MKS_ROBIN_TFT)
+  + ENABLED(FSMC_GRAPHICAL_TFT)
   #error "Please select no more than one LCD controller option."
 #endif
 

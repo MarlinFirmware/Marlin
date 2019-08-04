@@ -28,7 +28,7 @@
 
 //#define MUTE_GAMES
 
-#ifdef MUTE_GAMES
+#if ENABLED(MUTE_GAMES) || !HAS_BUZZER
   #define _BUZZ(D,F) NOOP
 #else
   #define _BUZZ(D,F) BUZZ(D,F)

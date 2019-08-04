@@ -79,7 +79,7 @@ void BrickoutGame::game_screen() {
       }
       // Did the ball go below the bottom?
       else if (newy > BTOF(LCD_PIXEL_HEIGHT)) {
-        BUZZ(500, 75);
+        _BUZZ(500, 75);
         if (--bdat.balls_left) reset_ball(); else game_state = 0;
         break; // done
       }
