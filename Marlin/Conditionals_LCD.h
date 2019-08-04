@@ -477,14 +477,45 @@
   #endif
   #undef Z_SERVO_ANGLES
   #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
+  #define BLTOUCH_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
-  #define BLTOUCH_DEPLOY    10
-  #define BLTOUCH_SW_MODE   60
-  #define BLTOUCH_STOW      90
-  #define BLTOUCH_SELFTEST 120
-  #define BLTOUCH_5V_MODE  140
-  #define BLTOUCH_OD_MODE  150
-  #define BLTOUCH_RESET    160
+  #define BLTOUCH_DEPLOY       10
+  #define BLTOUCH_SW_MODE      60
+  #define BLTOUCH_STOW         90
+  #define BLTOUCH_SELFTEST    120
+  #define BLTOUCH_MODE_STORE  130
+  #define BLTOUCH_5V_MODE     140
+  #define BLTOUCH_OD_MODE     150
+  #define BLTOUCH_RESET       160
+  
+/**
+ * The following commands require different minimum delays.
+ *
+ * 500ms required for a reliable Reset.
+ *
+ * 750ms required for Deploy/Stow, otherwise the alarm state
+ *       will not be seen until the following move command.
+ */
+
+#ifndef BLTOUCH_SET5V_DELAY
+  #define BLTOUCH_SET5V_DELAY   150
+#endif
+#ifndef BLTOUCH_SETOD_DELAY
+  #define BLTOUCH_SETOD_DELAY   150
+#endif
+#ifndef BLTOUCH_MODE_STORE_DELAY
+  #define BLTOUCH_MODE_STORE_DELAY 150
+#endif
+#ifndef BLTOUCH_DEPLOY_DELAY
+  #define BLTOUCH_DEPLOY_DELAY   750
+#endif
+#ifndef BLTOUCH_STOW_DELAY
+  #define BLTOUCH_STOW_DELAY     750
+#endif
+#ifndef BLTOUCH_RESET_DELAY
+  #define BLTOUCH_RESET_DELAY    500
+#endif
+
   #define _TEST_BLTOUCH(P) (READ(P##_PIN) != P##_ENDSTOP_INVERTING)
 
   // Always disable probe pin inverting for BLTouch

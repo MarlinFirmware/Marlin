@@ -77,6 +77,10 @@
   #define LPQ_LEN thermalManager.lpq_len
 #endif
 
+#if ENABLED(BLTOUCH)
+  extern bool bltouch_last_written_mode;
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 typedef struct PID { float Kp, Ki, Kd; } PID;
@@ -158,6 +162,11 @@ typedef struct SettingsDataStruct {
   //
   bool planner_leveling_active;                         // M420 S  planner.leveling_active
   int8_t ubl_storage_slot;                              // ubl.storage_slot
+
+  //
+  // BLTOUCH
+  //
+  bool bltouch_last_written_mode;
 
   //
   // DELTA / [XYZ]_DUAL_ENDSTOPS
@@ -572,6 +581,20 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ubl_active);
       EEPROM_WRITE(storage_slot);
     #endif // AUTO_BED_LEVELING_UBL
+
+    //
+    // BLTOUCH
+    //
+    {
+      _FIELD_TEST(bltouch_last_written_mode);
+      #if ENABLED(BLTOUCH)
+        const bool &eeprom_bltouch_last_written_mode = bltouch_last_written_mode;
+      #else
+        constexpr bool eeprom_bltouch_last_written_mode = false;
+      #endif
+      EEPROM_WRITE(eeprom_bltouch_last_written_mode);
+    }
+
 
     // 11 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
@@ -1190,6 +1213,19 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dummyb);
         EEPROM_READ(dummyui8);
       #endif // AUTO_BED_LEVELING_UBL
+
+      //
+      // BLTOUCH
+      //
+      {
+        _FIELD_TEST(bltouch_last_written_mode);
+        #if ENABLED(BLTOUCH)
+          bool &eeprom_bltouch_last_written_mode = bltouch_last_written_mode;
+        #else
+          bool eeprom_bltouch_last_written_mode;
+        #endif
+        EEPROM_READ(eeprom_bltouch_last_written_mode);
+      }
 
       //
       // DELTA Geometry or Dual Endstops offsets
