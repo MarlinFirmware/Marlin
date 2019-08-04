@@ -23,7 +23,7 @@
 
 #define REVERSE_TEMP_SENSOR_RANGE
 
-// PT100 with INA826 amp on Ultimaker v2.0 electronics
+// Pt100 with INA826 amp on Ultimaker v2.0 electronics
 const short temptable_20[][2] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },

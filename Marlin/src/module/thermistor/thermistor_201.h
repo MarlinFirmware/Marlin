@@ -23,7 +23,7 @@
 
 #define REVERSE_TEMP_SENSOR_RANGE
 
-// PT100 with LMV324 amp on Overlord v1.1 electronics
+// Pt100 with LMV324 amp on Overlord v1.1 electronics
 const short temptable_201[][2] PROGMEM = {
   { OV(   0),   0 },
   { OV(   8),   1 },
