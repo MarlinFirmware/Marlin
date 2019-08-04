@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #ifndef TARGET_LPC1768
   #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."

@@ -2312,6 +2312,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
+/**
+ * Ensure this option is set intentionally
+ */
+#if ENABLED(PSU_CONTROL) && !defined(PSU_ACTIVE_HIGH)
+  #error "PSU_CONTROL requires PSU_ACTIVE_HIGH to be defined as 'true' or 'false'."
+#endif
+
 #if HAS_CUTTER
   #define _PIN_CONFLICT(P) (PIN_EXISTS(P) && P##_PIN == SPINDLE_LASER_PWM_PIN)
   #if BOTH(SPINDLE_FEATURE, LASER_FEATURE)

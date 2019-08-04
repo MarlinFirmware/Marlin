@@ -53,14 +53,6 @@
 #define SPI_SPEED_5         5   // Set SCK rate to 1/32 of max rate
 #define SPI_SPEED_6         6   // Set SCK rate to 1/64 of max rate
 
-#define SPI_LSBFIRST 0
-#define SPI_MSBFIRST 1
-
-#define SPI_DATAMODE_0 0x00
-#define SPI_DATAMODE_1 0x04
-#define SPI_DATAMODE_2 0x08
-#define SPI_DATAMODE_3 0x0C
-
 // Standard SPI functions
 /** Initialize SPI bus */
 void spiBegin(void);

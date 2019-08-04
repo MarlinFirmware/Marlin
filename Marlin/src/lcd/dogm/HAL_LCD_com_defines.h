@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // Use this file to select the com driver for device drivers that are NOT in the U8G library
 

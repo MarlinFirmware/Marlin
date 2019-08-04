@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #if !defined(__STM32F1__) && !defined(__STM32F4__)
   #error "Oops! Select an STM32F1/4 board in 'Tools > Board.'"

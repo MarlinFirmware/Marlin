@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
   Fontname: -Misc-Fixed-Medium-R-Normal--9-90-75-75-C-60-ISO10646-1

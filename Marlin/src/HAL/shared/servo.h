@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * servo.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2

@@ -47,7 +47,7 @@
   // hardware pin defs
   #define SD_CHIP_SELECT_PIN  SS_PIN            // The default chip select pin for the SD card is SS.
 #else  // SOFTWARE_SPI
-  #define SD_CHIP_SELECT_PIN  SOFT_SPI_CS_PIN   // SPI chip select pin
+  #define SD_CHIP_SELECT_PIN  10                // Software SPI chip select pin for the SD
 #endif // SOFTWARE_SPI
 
 class Sd2Card {

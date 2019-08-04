@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * RIGIDBOARD V2 Arduino Mega with RAMPS v1.4 pin assignments

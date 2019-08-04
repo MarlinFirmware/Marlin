@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // Pt100 with 4k7 pullup
 const short temptable_147[][2] PROGMEM = {
