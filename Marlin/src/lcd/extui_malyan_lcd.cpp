@@ -119,10 +119,10 @@ void process_lcd_c_command(const char* command) {
       LIMIT(feedrate_percentage, 10, 999);
       break;
 
-    case 'T': thermalManager.setTargetHotend(atoi(command + 1), 0); break;
+    case 'T': ExtUI::setTargetTemp_celsius(atoi(command + 1), ExtUI::extruder_t::E0); break;
 
     #if HAS_HEATED_BED
-      case 'P': thermalManager.setTargetBed(atoi(command + 1)); break;
+      case 'P': ExtUI::setTargetTemp_celsius(atoi(command + 1), ExtUI::heater_t::BED); break;
     #endif
 
     default: SERIAL_ECHOLNPAIR("UNKNOWN C COMMAND", command);
@@ -180,29 +180,30 @@ void process_lcd_eb_command(const char* command) {
  * X, Y, Z, A (extruder)
  */
 void process_lcd_j_command(const char* command) {
-  static bool steppers_enabled = false;
   char axis = command[0];
+  float axis_position = 0;
+  bool axis_known = false;
+  #define MOVE_AXIS(TARGET) \ 
+      axis_known = true; \
+      axis_position = ExtUI::getAxisPosition_mm(TARGET); \
+      axis_position += atof(command + 1) / 10.0; \
+      ExtUI::setAxisPosition_mm(axis_position, TARGET);
 
   switch (axis) {
     case 'E':
-      // enable or disable steppers
-      // switch to relative
-      queue.enqueue_now_P(PSTR("G91"));
-      queue.enqueue_now_P(steppers_enabled ? PSTR("M18") : PSTR("M17"));
-      steppers_enabled = !steppers_enabled;
       break;
     case 'A':
-      axis = 'E';
-      // fallthru
+      MOVE_AXIS(ExtUI::extruder_t::E0);
+      break;
     case 'Y':
+      MOVE_AXIS(ExtUI::axis_t::Y);
+      break;
     case 'Z':
-    case 'X': {
-      // G0 <AXIS><distance>
-      // The M200 class UI seems to send movement in .1mm values.
-      char cmd[20];
-      sprintf_P(cmd, PSTR("G1 %c%03.1f"), axis, atof(command + 1) / 10.0);
-      queue.enqueue_one_now(cmd);
-    } break;
+      MOVE_AXIS(ExtUI::axis_t::Z);
+      break;
+    case 'X': 
+      MOVE_AXIS(ExtUI::axis_t::X);
+      break;
     default:
       SERIAL_ECHOLNPAIR("UNKNOWN J COMMAND", command);
       return;
@@ -234,25 +235,18 @@ void process_lcd_j_command(const char* command) {
 void process_lcd_p_command(const char* command) {
 
   switch (command[0]) {
+    case 'P':
+        ExtUI::pausePrint();
+        write_to_lcd_P(PSTR("{SYS:PAUSED}"));
+        break;
+    case 'R':
+        ExtUI::resumePrint();
+        write_to_lcd_P(PSTR("{SYS:RESUMED}"));
+        break;
     case 'X':
-      #if ENABLED(SDSUPPORT)
-        // cancel print
-        write_to_lcd_P(PSTR("{SYS:CANCELING}"));
-        last_printing_status = false;
-        card.stopSDPrint(
-          #if SD_RESORT
-            true
-          #endif
-        );
-        queue.clear();
-        quickstop_stepper();
-        print_job_timer.stop();
-        thermalManager.disable_all_heaters();
-        thermalManager.zero_fan_speeds();
-        wait_for_heatup = false;
-        write_to_lcd_P(PSTR("{SYS:STARTED}"));
-      #endif
-      break;
+        ExtUI::stopPrint();
+        write_to_lcd_P(PSTR("{SYS:STARTED}"));      
+        break;
     case 'H':
       // Home all axis
       queue.enqueue_now_P(PSTR("G28"));
@@ -405,8 +399,7 @@ namespace ExtUI {
     /**
      * The Malyan LCD actually runs as a separate MCU on Serial 1.
      * This code's job is to siphon the weird curly-brace commands from
-     * it and translate into gcode, which then gets injected into
-     * the command queue where possible.
+     * it and translate into ExtUI operations where possible.
      */
     inbound_count = 0;
     LCD_SERIAL.begin(500000);
@@ -455,13 +448,13 @@ namespace ExtUI {
       // If there was a print in progress, we need to emit the final
       // print status as {TQ:100}. Reset last percent done so a new print will
       // issue a percent of 0.
-      const uint8_t percent_done = IS_SD_PRINTING() ? card.percentDone() : last_printing_status ? 100 : 0;
+      const uint8_t percent_done = (ExtUI::isPrinting()||ExtUI::isPrintingFromMediaPaused()) ? ExtUI::getProgress_percent() : last_printing_status ? 100 : 0;
       if (percent_done != last_percent_done) {
         char message_buffer[16];
         sprintf_P(message_buffer, PSTR("{TQ:%03i}"), percent_done);
         write_to_lcd(message_buffer);
         last_percent_done = percent_done;
-        last_printing_status = IS_SD_PRINTING();
+        last_printing_status = ExtUI::isPrinting();
       }
     #endif
   }
