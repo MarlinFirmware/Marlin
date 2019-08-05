@@ -445,7 +445,7 @@
 #elif MB(STM3R_MINI)
   #include "stm32/pins_STM3R_MINI.h"            // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_PRO_VB)
-  #include "stm32/pins_GTM32_PRO_VB.h"          // STM32F1                                env:STM32F103VB
+  #include "stm32/pins_GTM32_PRO_VB.h"          // STM32F1                                env:STM32F103VE
 #elif MB(MORPHEUS)
   #include "stm32/pins_MORPHEUS.h"              // STM32F1                                env:STM32F103C?
 #elif MB(CHITU3D)
