@@ -35,7 +35,7 @@
 #ifndef E2END
   #define E2END 0xFFF // 4KB
 #endif
-#define HAL_EEPROM_SIZE int(E2END + 1) // 16KB
+#define HAL_EEPROM_SIZE int(E2END + 1)
 
 #define _ALIGN(x) __attribute__ ((aligned(x)))
 static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
@@ -100,4 +100,4 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
 size_t PersistentStore::capacity() { return HAL_EEPROM_SIZE; }
 
 #endif // EEPROM_SETTINGS
-#endif // TARGET_STM32F4 || TARGET_STM32F7
+#endif // STM32
