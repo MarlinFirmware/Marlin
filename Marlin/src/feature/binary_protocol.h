@@ -109,8 +109,8 @@ private:
             }
           } while (presult == HSDR_POLL_MORE);
         }
+        return true;
       }
-      else
     #endif
     return (dummy_transfer || card.write(buffer, length) >= 0);
   }
