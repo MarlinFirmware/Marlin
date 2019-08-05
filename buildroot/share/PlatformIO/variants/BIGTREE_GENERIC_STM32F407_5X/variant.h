@@ -69,52 +69,52 @@ extern const PinName digitalPin[];
   #define PC15  2  //OSC32_OUT
   #define PH0   3  //OSC_IN
   #define PH1   4  //OSC_OUT
-  #define PC0   5  //1:  2:ADC123_IN10
-  #define PC1   6  //1:  2:ADC123_IN11
-  #define PC2   7  //1:SPI2_MISO  2:ADC123_IN12
-  #define PC3   8  //1:SPI2_MOSI  2:ADC123_IN13
-  #define PA0   9  //1:UART4_TX / TIM5_CH1  2:ADC123_IN0
-  #define PA1   10 //1:UART4_RX / TIM5_CH2 / TIM2_CH2  2:ADC123_IN1
-  #define PA2   11 //1:USART2_TX /TIM5_CH3 / TIM9_CH1 / TIM2_CH3  2:ADC123_IN2
-  #define PA3   12 //1:USART2_RX /TIM5_CH4 / TIM9_CH2 / TIM2_CH4  2:ADC123_IN3
-  #define PA4   13 //NOT FT 1:SPI1_NSS / SPI3_NSS / USART2_CK  2:ADC12_IN4 / DAC_OUT1
-  #define PA5   14 //NOT FT 1:SPI1_SCK  2:ADC12_IN5 / DAC_OUT2
-  #define PA6   15 //1:SPI1_MISO / TIM13_CH1 / TIM3_CH1  2:ADC12_IN6
-  #define PA7   16 //1:SPI1_MOSI / TIM14_CH1 / TIM3_CH2  2:ADC12_IN7
-  #define PC4   17 //1:  2:ADC12_IN14
-  #define PC5   18 //1:  2:ADC12_IN15
-  #define PB0   19 //1:TIM3_CH3  2:ADC12_IN8
-  #define PB1   20 //1:TIM3_CH4  2:ADC12_IN9
-  #define PB2   21 //BOOT1
-  #define PB10  22 //1:SPI2_SCK / I2C2_SCL / USART3_TX / TIM2_CH3
-  #define PB11  23 //1:I2C2_SDA / USART3_RX / TIM2_CH4
-  #define PB12  24 //1:SPI2_NSS / OTG_HS_ID
-  #define PB13  25 //1:SPI2_SCK  2:OTG_HS_VBUS
-  #define PB14  26 //1:SPI2_MISO / TIM12_CH1 / OTG_HS_DM
-  #define PB15  27 //SPI2_MOSI / TIM12_CH2 / OTG_HS_DP
-  #define PC6   28 //1:TIM8_CH1 / SDIO_D6 / USART6_TX / TIM3_CH1
-  #define PC7   29 //1:TIM8_CH2 / SDIO_D7 / USART6_RX / TIM3_CH2
-  #define PC8   30 //1:TIM8_CH3 / SDIO_D0 / TIM3_CH3
-  #define PC9   31 //1:TIM8_CH4 / SDIO_D1 / TIM3_CH4
-  #define PA8   32 //1:TIM1_CH1 / I2C3_SCL / OTG_FS_SOF
-  #define PA9   33 //1:USART1_TX / TIM1_CH2  2:OTG_FS_VBUS
-  #define PA10  34 //1:USART1_RX / TIM1_CH3 / OTG_FS_ID
-  #define PA11  35 //1:TIM1_CH4 / OTG_FS_DM
-  #define PA12  36 //1:OTG_FS_DP
-  #define PA13  37 //0:JTMS-SWDIO
-  #define PA14  38 //0:JTCK-SWCLK
-  #define PA15  39 //0:JTDI  1:SPI3_NSS / SPI1_NSS
-  #define PC10  40 //1:UART4_TX / SPI3_SCK / SDIO_D2 / USART3_TX
-  #define PC11  41 //1:UART4_RX / SPI3_MISO / SDIO_D3 / USART3_RX
-  #define PC12  42 //1:UART5_TX / SPI3_MOSI / SDIO_CK
-  #define PD2   43 //1:UART5_RX / SDIO_CMD
-  #define PB3   44 //0:JTDO  1:SPI3_SCK / TIM2_CH2 / SPI1_SCK
-  #define PB4   45 //0:NJTRST  1:SPI3_MISO / TIM3_CH1 / SPI1_MISO
-  #define PB5   45 //1:TIM3_CH2 / SPI1_MOSI / SPI3_MOSI
-  #define PB6   47 //1:I2C1_SCL / TIM4_CH1 / USART1_TX
-  #define PB7   48 //1:I2C1_SDA / TIM4_CH2 / USART1_RX
-  #define PB8   49 //1:I2C1_SCL / TIM4_CH3 / SDIO_D4 / TIM10_CH1
-  #define PB9   50 //1:I2C1_SDA / TIM4_CH4 / SDIO_D5 / TIM11_CH1 / SPI2_NSS
+  #define PB2   5  //BOOT1
+  #define PB10  6  //1:SPI2_SCK / I2C2_SCL / USART3_TX / TIM2_CH3
+  #define PB11  7  //1:I2C2_SDA / USART3_RX / TIM2_CH4
+  #define PB12  8  //1:SPI2_NSS / OTG_HS_ID
+  #define PB13  9  //1:SPI2_SCK  2:OTG_HS_VBUS
+  #define PB14  10 //1:SPI2_MISO / TIM12_CH1 / OTG_HS_DM
+  #define PB15  11 //SPI2_MOSI / TIM12_CH2 / OTG_HS_DP
+  #define PC6   12 //1:TIM8_CH1 / SDIO_D6 / USART6_TX / TIM3_CH1
+  #define PC7   13 //1:TIM8_CH2 / SDIO_D7 / USART6_RX / TIM3_CH2
+  #define PC8   14 //1:TIM8_CH3 / SDIO_D0 / TIM3_CH3
+  #define PC9   15 //1:TIM8_CH4 / SDIO_D1 / TIM3_CH4
+  #define PA8   16 //1:TIM1_CH1 / I2C3_SCL / OTG_FS_SOF
+  #define PA9   17 //1:USART1_TX / TIM1_CH2  2:OTG_FS_VBUS
+  #define PA10  18 //1:USART1_RX / TIM1_CH3 / OTG_FS_ID
+  #define PA11  19 //1:TIM1_CH4 / OTG_FS_DM
+  #define PA12  20 //1:OTG_FS_DP
+  #define PA13  21 //0:JTMS-SWDIO
+  #define PA14  22 //0:JTCK-SWCLK
+  #define PA15  23 //0:JTDI  1:SPI3_NSS / SPI1_NSS
+  #define PC10  24 //1:UART4_TX / SPI3_SCK / SDIO_D2 / USART3_TX
+  #define PC11  25 //1:UART4_RX / SPI3_MISO / SDIO_D3 / USART3_RX
+  #define PC12  26 //1:UART5_TX / SPI3_MOSI / SDIO_CK
+  #define PD2   27 //1:UART5_RX / SDIO_CMD
+  #define PB3   28 //0:JTDO  1:SPI3_SCK / TIM2_CH2 / SPI1_SCK
+  #define PB4   29 //0:NJTRST  1:SPI3_MISO / TIM3_CH1 / SPI1_MISO
+  #define PB5   30 //1:TIM3_CH2 / SPI1_MOSI / SPI3_MOSI
+  #define PB6   31 //1:I2C1_SCL / TIM4_CH1 / USART1_TX
+  #define PB7   32 //1:I2C1_SDA / TIM4_CH2 / USART1_RX
+  #define PB8   33 //1:I2C1_SCL / TIM4_CH3 / SDIO_D4 / TIM10_CH1
+  #define PB9   34 //1:I2C1_SDA / TIM4_CH4 / SDIO_D5 / TIM11_CH1 / SPI2_NSS
+  #define PA0   35 //1:UART4_TX / TIM5_CH1  2:ADC123_IN0
+  #define PA1   36 //1:UART4_RX / TIM5_CH2 / TIM2_CH2  2:ADC123_IN1
+  #define PA2   37 //1:USART2_TX /TIM5_CH3 / TIM9_CH1 / TIM2_CH3  2:ADC123_IN2
+  #define PA3   38 //1:USART2_RX /TIM5_CH4 / TIM9_CH2 / TIM2_CH4  2:ADC123_IN3
+  #define PA4   39 //NOT FT 1:SPI1_NSS / SPI3_NSS / USART2_CK  2:ADC12_IN4 / DAC_OUT1
+  #define PA5   40 //NOT FT 1:SPI1_SCK  2:ADC12_IN5 / DAC_OUT2
+  #define PA6   41 //1:SPI1_MISO / TIM13_CH1 / TIM3_CH1  2:ADC12_IN6
+  #define PA7   42 //1:SPI1_MOSI / TIM14_CH1 / TIM3_CH2  2:ADC12_IN7
+  #define PB0   43 //1:TIM3_CH3  2:ADC12_IN8
+  #define PB1   44 //1:TIM3_CH4  2:ADC12_IN9
+  #define PC0   45 //1:  2:ADC123_IN10
+  #define PC1   46 //1:  2:ADC123_IN11
+  #define PC2   47 //1:SPI2_MISO  2:ADC123_IN12
+  #define PC3   48 //1:SPI2_MOSI  2:ADC123_IN13
+  #define PC4   49 //1:  2:ADC12_IN14
+  #define PC5   50 //1:  2:ADC12_IN15
 #endif
 #if STM32F4X_PIN_NUM >= 100  //100 pins mcu, 82 gpio
   #define PE2   51 //1:FSMC_A23
@@ -222,7 +222,7 @@ extern const PinName digitalPin[];
 // Below ADC, DAC and PWM definitions already done in the core
 // Could be redefined here if needed
 // ADC resolution is 12bits
-//#define ADC_RESOLUTION          12
+#define ADC_RESOLUTION          12
 //#define DACC_RESOLUTION         12
 
 // PWM resolution
