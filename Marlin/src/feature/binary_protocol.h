@@ -19,8 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
+
+#include "../inc/MarlinConfig.h"
 
 #define BINARY_STREAM_COMPRESSION
 
@@ -34,8 +35,8 @@ inline bool bs_serial_data_available(const uint8_t index) {
     #if NUM_SERIAL > 1
       case 1: return MYSERIAL1.available();
     #endif
-    default: return false;
   }
+  return false;
 }
 
 inline int bs_read_serial(const uint8_t index) {
@@ -44,8 +45,8 @@ inline int bs_read_serial(const uint8_t index) {
     #if NUM_SERIAL > 1
       case 1: return MYSERIAL1.read();
     #endif
-    default: return -1;
   }
+  return -1;
 }
 
 #if ENABLED(BINARY_STREAM_COMPRESSION)
@@ -64,15 +65,9 @@ private:
         data = &buffer[2];
         return *reinterpret_cast<Open*>(buffer);
       }
-      bool compression_enabled() {
-        return compression & 0x1;
-      }
-      bool dummy_transfer() {
-        return dummy & 0x1;
-      }
-      static char* filename() {
-        return data;
-      }
+      bool compression_enabled() { return compression & 0x1; }
+      bool dummy_transfer() { return dummy & 0x1; }
+      static char* filename() { return data; }
       private:
         uint8_t dummy, compression;
         static char* data;  // variable length strings complicate things
@@ -80,11 +75,10 @@ private:
   };
 
   static bool file_open(char* filename) {
-    if(!dummy_transfer) {
+    if (!dummy_transfer) {
       card.initsd();
       card.openFile(filename, false);
-      if (!card.isFileOpen())
-        return false;
+      if (!card.isFileOpen()) return false;
     }
     transfer_active = true;
     data_waiting = 0;
@@ -118,12 +112,7 @@ private:
       }
       else
     #endif
-      if (!dummy_transfer) {
-        if (card.write(buffer, length) < 0) {
-          return false;
-        }
-      }
-    return true;
+    return (dummy_transfer || card.write(buffer, length) >= 0);
   }
 
   static bool file_close() {
@@ -131,9 +120,7 @@ private:
       #if ENABLED(BINARY_STREAM_COMPRESSION)
         // flush any buffered data
         if (data_waiting) {
-          if (card.write(decode_buffer, data_waiting) < 0) {
-            return false;
-          }
+          if (card.write(decode_buffer, data_waiting) < 0) return false;
           data_waiting = 0;
         }
       #endif
@@ -160,13 +147,7 @@ private:
     return;
   }
 
-  enum class FileTransfer : uint8_t {
-    QUERY,
-    OPEN,
-    CLOSE,
-    WRITE,
-    ABORT
-  };
+  enum class FileTransfer : uint8_t { QUERY, OPEN, CLOSE, WRITE, ABORT };
 
   static size_t data_waiting, transfer_timeout, idle_timeout;
   static bool transfer_active, dummy_transfer, compression;
@@ -175,11 +156,10 @@ public:
 
   static void idle() {
     // If a transfer is interrupted and a file is left open, abort it after TIMEOUT ms
-    if (transfer_active && ELAPSED(millis(), idle_timeout)) {
-      idle_timeout = millis() + IDLE_PERIOD;
-      if(ELAPSED(millis(), transfer_timeout)) {
-        transfer_abort();
-      }
+    const millis_t ms = millis();
+    if (transfer_active && ELAPSED(ms, idle_timeout)) {
+      idle_timeout = ms + IDLE_PERIOD;
+      if (ELAPSED(ms, transfer_timeout)) transfer_abort();
     }
   }
 
@@ -191,49 +171,46 @@ public:
         #if ENABLED(BINARY_STREAM_COMPRESSION)
           SERIAL_ECHOLNPAIR(":compresion:heatshrink,", HEATSHRINK_STATIC_WINDOW_BITS, ",", HEATSHRINK_STATIC_LOOKAHEAD_BITS);
         #else
-          SERIAL_ECHOLN(":compresion:none");
+          SERIAL_ECHOLNPGM(":compresion:none");
         #endif
         break;
       case FileTransfer::OPEN:
-        if (!transfer_active) {
-          if(Packet::Open::validate(buffer, length)) {
+        if (transfer_active)
+          SERIAL_ECHOLNPGM("PFT:busy");
+        else {
+          if (Packet::Open::validate(buffer, length)) {
             auto packet = Packet::Open::decode(buffer);
             compression = packet.compression_enabled();
             dummy_transfer = packet.dummy_transfer();
             if (file_open(packet.filename())) {
-              SERIAL_ECHOLN("PFT:success");
+              SERIAL_ECHOLNPGM("PFT:success");
               break;
             }
           }
-          SERIAL_ECHOLN("PFT:fail");
-        } else {
-          SERIAL_ECHOLN("PFT:busy");
+          SERIAL_ECHOLNPGM("PFT:fail");
         }
         break;
       case FileTransfer::CLOSE:
         if (transfer_active) {
-          if (file_close()) {
-            SERIAL_ECHOLN("PFT:success");
-          } else {
-            SERIAL_ECHOLN("PFT:ioerror");
-          }
+          if (file_close())
+            SERIAL_ECHOLNPGM("PFT:success");
+          else
+            SERIAL_ECHOLNPGM("PFT:ioerror");
         }
-        else SERIAL_ECHOLN("PFT:invalid");
+        else SERIAL_ECHOLNPGM("PFT:invalid");
         break;
       case FileTransfer::WRITE:
-        if (transfer_active) {
-          if (!file_write(buffer, length)) {
-            SERIAL_ECHOLN("PFT:ioerror");
-          }
-        }
-        else SERIAL_ECHOLN("PFT:invalid");
+        if (!transfer_active)
+          SERIAL_ECHOLNPGM("PFT:invalid");
+        else if (!file_write(buffer, length))
+          SERIAL_ECHOLNPGM("PFT:ioerror");
         break;
       case FileTransfer::ABORT:
         transfer_abort();
-        SERIAL_ECHOLN("PFT:success");
+        SERIAL_ECHOLNPGM("PFT:success");
         break;
       default:
-        SERIAL_ECHOLN("PTF:invalid");
+        SERIAL_ECHOLNPGM("PTF:invalid");
         break;
     }
   }
@@ -243,27 +220,12 @@ public:
 
 class BinaryStream {
 public:
-  enum class Protocol : uint8_t {
-    CONTROL,
-    FILE_TRANSFER,
-  };
+  enum class Protocol : uint8_t { CONTROL, FILE_TRANSFER };
 
-  enum class ProtocolControl : uint8_t {
-    SYNC = 1,
-    CLOSE,
-  };
+  enum class ProtocolControl : uint8_t { SYNC = 1, CLOSE };
 
-  enum class StreamState : uint8_t {
-    PACKET_RESET,
-    PACKET_WAIT,
-    PACKET_HEADER,
-    PACKET_DATA,
-    PACKET_FOOTER,
-    PACKET_PROCESS,
-    PACKET_RESEND,
-    PACKET_TIMEOUT,
-    PACKET_ERROR,
-  };
+  enum class StreamState : uint8_t { PACKET_RESET, PACKET_WAIT, PACKET_HEADER, PACKET_DATA, PACKET_FOOTER,
+                                     PACKET_PROCESS, PACKET_RESEND, PACKET_TIMEOUT, PACKET_ERROR };
 
   struct Packet { // 10 byte protocol overhead, ascii with checksum and line number has a minimum of 7 increasing with line
     struct [[gnu::packed]]  Header {
@@ -275,42 +237,25 @@ public:
       uint16_t size;        // data length
       uint16_t checksum;    // header checksum
 
-      uint8_t protocol() {
-        return (meta >> 4) & 0xF;
-      }
-      uint8_t type() {
-        return meta & 0xF;
-      }
-      void reset() {
-        token = 0;
-        sync = 0;
-        meta = 0;
-        size = 0;
-        checksum = 0;
-      }
+      uint8_t protocol() { return (meta >> 4) & 0xF; }
+      uint8_t type() { return meta & 0xF; }
+      void reset() { token = 0; sync = 0; meta = 0; size = 0; checksum = 0; }
     };
 
     struct [[gnu::packed]] Footer {
       uint16_t checksum; // full packet checksum
-      void reset() {
-        checksum = 0;
-      }
+      void reset() { checksum = 0; }
     };
 
-    uint8_t header_data[sizeof(Header)];
-    uint8_t footer_data[sizeof(Footer)];
+    uint8_t header_data[sizeof(Header)],
+            footer_data[sizeof(Footer)];
     uint32_t bytes_received;
-    uint16_t checksum;
-    uint16_t header_checksum;
+    uint16_t checksum, header_checksum;
     millis_t timeout;
     char* buffer;
 
-    Header& header() {
-      return *reinterpret_cast<Header*>(header_data);
-    }
-    Footer& footer() {
-      return *reinterpret_cast<Footer*>(footer_data);
-    }
+    Header& header() { return *reinterpret_cast<Header*>(header_data); }
+    Footer& footer() { return *reinterpret_cast<Footer*>(footer_data); }
     void reset() {
       header().reset();
       footer().reset();
@@ -359,17 +304,14 @@ public:
 
     while (PENDING(millis(), transfer_window)) {
       switch (stream_state) {
-        /*
+         /**
           * Data stream packet handling
           */
         case StreamState::PACKET_RESET:
           packet.reset();
           stream_state = StreamState::PACKET_WAIT;
         case StreamState::PACKET_WAIT:
-          if (!stream_read(data)) {
-            idle();
-            return; // no active packet so don't wait
-          }
+          if (!stream_read(data)) { idle(); return; }  // no active packet so don't wait
           packet.header_data[1] = data;
           if (packet.header().token == Packet::Header::HEADER_TOKEN) {
             packet.bytes_received = 2;
@@ -387,7 +329,7 @@ public:
           packet.checksum = checksum(packet.checksum, data);
 
           // header checksum calculation can't contain the checksum
-          if(packet.bytes_received == sizeof(Packet::Header) - 2)
+          if (packet.bytes_received == sizeof(Packet::Header) - 2)
             packet.header_checksum = packet.checksum;
 
           if (packet.bytes_received == sizeof(Packet::Header)) {
@@ -405,22 +347,19 @@ public:
                   stream_state = StreamState::PACKET_DATA;
                   packet.buffer = static_cast<char *>(&buffer[0]); // multipacket buffering not implemented, always allocate whole buffer to packet
                 }
-                else {
+                else
                   stream_state = StreamState::PACKET_PROCESS;
-                }
+              }
+              else if (packet.header().sync == sync - 1) {           // ok response must have been lost
+                SERIAL_ECHOLNPAIR("ok", packet.header().sync);  // transmit valid packet received and drop the payload
+                stream_state = StreamState::PACKET_RESET;
+              }
+              else if (packet_retries) {
+                stream_state = StreamState::PACKET_RESET; // could be packets already buffered on flow controlled connections, drop them without ack
               }
               else {
-                if (packet.header().sync == sync - 1) {           // ok response must have been lost
-                  SERIAL_ECHOLNPAIR("ok", packet.header().sync);  // transmit valid packet received and drop the payload
-                  stream_state = StreamState::PACKET_RESET;
-                }
-                else if(packet_retries) {
-                  stream_state = StreamState::PACKET_RESET; // could be packets already buffered on flow controlled connections, drop them without ack
-                }
-                else {
-                  SERIAL_ECHO_MSG("Datastream packet out of order");
-                  stream_state = StreamState::PACKET_RESEND;
-                }
+                SERIAL_ECHO_MSG("Datastream packet out of order");
+                stream_state = StreamState::PACKET_RESEND;
               }
             }
             else {
@@ -466,7 +405,7 @@ public:
           }
           break;
         case StreamState::PACKET_PROCESS:
-          sync ++;
+          sync++;
           packet_retries = 0;
           bytes_received += packet.header().size;
 
@@ -482,13 +421,11 @@ public:
             SERIAL_ECHOLNPAIR("Resend request ", int(packet_retries));
             SERIAL_ECHOLNPAIR("rs", sync);
           }
-          else {
+          else
             stream_state = StreamState::PACKET_ERROR;
-          }
           break;
         case StreamState::PACKET_TIMEOUT:
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM("Datastream timeout");
+          SERIAL_ECHO_MSG("Datastream timeout");
           stream_state = StreamState::PACKET_RESEND;
           break;
         case StreamState::PACKET_ERROR:
@@ -507,8 +444,8 @@ public:
           case ProtocolControl::CLOSE: // revert back to ASCII mode
             card.flag.binary_mode = false;
             break;
-        default:
-          SERIAL_ECHO_MSG("Unknown BinaryProtocolControl Packet");
+          default:
+            SERIAL_ECHO_MSG("Unknown BinaryProtocolControl Packet");
         }
         break;
       case Protocol::FILE_TRANSFER:
@@ -530,4 +467,5 @@ public:
   uint32_t bytes_received;
   StreamState stream_state = StreamState::PACKET_RESET;
 };
+
 extern BinaryStream binaryStream[NUM_SERIAL];
