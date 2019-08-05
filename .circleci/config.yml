@@ -239,8 +239,9 @@ jobs:
             use_example_configs Mks/Sbase
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
-            echo testing STM32F1 targets...
-            export TEST_PLATFORM="-e STM32F1"
+
+            echo testing STM32F103RE targets...
+            export TEST_PLATFORM="-e STM32F103RE"
             restore_configs
             echo use_example_configs STM32F10
             use_example_configs STM32F10
