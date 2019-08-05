@@ -124,5 +124,18 @@
 #define FSMC_CS_PIN        PG12  // NE4
 #define FSMC_RS_PIN        PF0   // A0
 
-#define SD_DETECT_PIN      PF12
-#define SDSS               -1
+//
+// Custom SPI pins
+//
+#define SCK_PIN            PC12
+#define MISO_PIN           PC8
+#define MOSI_PIN           PD2
+#define SS_PIN              -1
+
+//
+// Onboard SD Card
+//
+#define ONBOARD_SD_CS      PC11
+#define SDSS               PD2
+
+#define SD_DETECT_PIN       -1   // PF12
