@@ -923,7 +923,7 @@
 #define MIN_PROBE_EDGE 15
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED (80*60)
+#define XY_PROBE_SPEED (50*60)
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
@@ -1053,7 +1053,7 @@
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS (0-40-X_PROBE_OFFSET_FROM_EXTRUDER)
-#define Y_MIN_POS (0-33-Y_PROBE_OFFSET_FROM_EXTRUDER)
+#define Y_MIN_POS (0-62-Y_PROBE_OFFSET_FROM_EXTRUDER)
 #define Z_MIN_POS 0
 #define X_MAX_POS (X_MIN_POS+290)
 #define Y_MAX_POS (Y_MIN_POS+300)
