@@ -82,10 +82,6 @@
   #endif
 #endif
 
-#ifndef THERMAL_PROTECTION_GRACE_PERIOD
-  #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
-#endif
-
 Temperature thermalManager;
 
 /**
@@ -124,14 +120,6 @@ hotend_info_t Temperature::temp_hotend[HOTENDS
 
 #if ENABLED(AUTO_POWER_CHAMBER_FAN)
   uint8_t Temperature::chamberfan_speed; // = 0
-#endif
-
-#if HAS_THERMAL_PROTECTION
-  #if THERMAL_PROTECTION_GRACE_PERIOD > 0
-    static millis_t grace_period; // = 0
-  #else
-    static constexpr millis_t grace_period = 0UL;
-  #endif
 #endif
 
 #if FAN_COUNT > 0
@@ -1044,10 +1032,9 @@ void Temperature::manage_heater() {
     millis_t ms = millis();
   #endif
 
-  const bool can_err = !grace_period;
   HOTEND_LOOP() {
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-      if (can_err && degHotend(e) > temp_range[e].maxtemp)
+      if (degHotend(e) > temp_range[e].maxtemp)
         _temp_error((heater_ind_t)e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, e));
     #endif
 
@@ -1103,7 +1090,7 @@ void Temperature::manage_heater() {
   #if HAS_HEATED_BED
 
     #if ENABLED(THERMAL_PROTECTION_BED)
-      if (can_err && degBed() > BED_MAXTEMP)
+      if (degBed() > BED_MAXTEMP)
         _temp_error(H_BED, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, H_BED));
     #endif
 
@@ -1181,7 +1168,7 @@ void Temperature::manage_heater() {
     #endif
 
     #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-      if (can_err && degChamber() > CHAMBER_MAXTEMP)
+      if (degChamber() > CHAMBER_MAXTEMP)
         _temp_error(H_CHAMBER, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, H_CHAMBER));
     #endif
 
@@ -1829,10 +1816,6 @@ void Temperature::init() {
   #if ENABLED(PROBING_HEATERS_OFF)
     paused = false;
   #endif
-
-  #if HAS_THERMAL_PROTECTION && THERMAL_PROTECTION_GRACE_PERIOD > 0
-    grace_period = millis() + THERMAL_PROTECTION_GRACE_PERIOD;
-  #endif
 }
 
 #if WATCH_HOTENDS
@@ -2227,10 +2210,6 @@ void Temperature::set_current_temp_raw() {
 #endif
 
 void Temperature::readings_ready() {
-
-  #if HAS_THERMAL_PROTECTION && THERMAL_PROTECTION_GRACE_PERIOD > 0
-    if (grace_period && ELAPSED(millis(), grace_period)) grace_period = 0;
-  #endif
 
   // Update the raw values if they've been read. Else we could be updating them during reading.
   if (!temp_meas_ready) set_current_temp_raw();
