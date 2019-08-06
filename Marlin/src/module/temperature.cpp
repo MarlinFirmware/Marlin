@@ -2229,9 +2229,6 @@ void Temperature::readings_ready() {
     temp_chamber.acc = 0;
   #endif
 
-  // Give ADC temperature readings time to settle at boot-up before testing
-  if (grace_period) return;
-
   static constexpr int8_t temp_dir[] = {
     #if ENABLED(HEATER_0_USES_MAX6675)
       0
