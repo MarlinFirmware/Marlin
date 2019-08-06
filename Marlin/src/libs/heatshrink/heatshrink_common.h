@@ -1,3 +1,6 @@
+/**
+ * libs/heatshrink/heatshrink_common.h
+ */
 #pragma once
 
 #define HEATSHRINK_AUTHOR "Scott Vokes <vokes.s@gmail.com>"
