@@ -1,5 +1,5 @@
 /**
- * libs/heatshrink_decoder.cpp
+ * libs/heatshrink/heatshrink_decoder.cpp
  */
 #include <stdlib.h>
 #include <string.h>
