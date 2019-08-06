@@ -180,29 +180,25 @@ void process_lcd_eb_command(const char* command) {
  * X, Y, Z, A (extruder)
  */
 void process_lcd_j_command(const char* command) {
-  char axis = command[0];
-  float axis_position = 0;
-  bool axis_known = false;
-  #define MOVE_AXIS(TARGET) \ 
-      axis_known = true; \
-      axis_position = ExtUI::getAxisPosition_mm(TARGET); \
-      axis_position += atof(command + 1) / 10.0; \
-      ExtUI::setAxisPosition_mm(axis_position, TARGET);
+  auto move_axis = [](const auto axis) {
+    float dist = atof(command + 1) / 10.0;
+    ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
+  }
 
-  switch (axis) {
+  switch (command[0]) {
     case 'E':
       break;
     case 'A':
-      MOVE_AXIS(ExtUI::extruder_t::E0);
+      move_axis(ExtUI::extruder_t::E0);
       break;
     case 'Y':
-      MOVE_AXIS(ExtUI::axis_t::Y);
+      move_axis(ExtUI::axis_t::Y);
       break;
     case 'Z':
-      MOVE_AXIS(ExtUI::axis_t::Z);
+      move_axis(ExtUI::axis_t::Z);
       break;
-    case 'X': 
-      MOVE_AXIS(ExtUI::axis_t::X);
+    case 'X':
+      move_axis(ExtUI::axis_t::X);
       break;
     default:
       SERIAL_ECHOLNPAIR("UNKNOWN J COMMAND", command);
@@ -245,7 +241,7 @@ void process_lcd_p_command(const char* command) {
         break;
     case 'X':
         ExtUI::stopPrint();
-        write_to_lcd_P(PSTR("{SYS:STARTED}"));      
+        write_to_lcd_P(PSTR("{SYS:STARTED}"));
         break;
     case 'H':
       // Home all axis
