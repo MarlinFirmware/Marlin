@@ -2002,6 +2002,13 @@
 //
 //#define SILVER_GATE_GLCD_CONTROLLER
 
+//#define CUSTOM_LCD_SIZE
+
+#if ENABLED(CUSTOM_LCD_SIZE)
+  #define LCD_WIDTH 16
+  #define LCD_HEIGHT 2
+#endif
+
 //
 // Overlord OLED display/controller with i2c buzzer and LEDs
 //

@@ -750,7 +750,11 @@ void MarlinUI::draw_status_screen() {
       //
       // Hotend 0 Temperature
       //
-      _draw_heater_status(H_E0, -1, blink);
+      #if ENABLED(CUSTOM_LCD_SIZE)
+        _draw_heater_status(H_E0, LCD_STR_THERMOMETER[0], blink);
+      #else
+        _draw_heater_status(H_E0, -1, blink);
+      #endif
 
       //
       // Hotend 1 or Bed Temperature
