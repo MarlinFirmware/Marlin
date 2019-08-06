@@ -240,6 +240,7 @@ void process_lcd_p_command(const char* command) {
         write_to_lcd_P(PSTR("{SYS:RESUMED}"));
         break;
     case 'X':
+        write_to_lcd_P(PSTR("{SYS:CANCELING}"));
         ExtUI::stopPrint();
         write_to_lcd_P(PSTR("{SYS:STARTED}"));
         break;
