@@ -163,7 +163,7 @@ void initISR(timer16_Sequence_t timer) {
     SYNC(tc->COUNT16.SYNCBUSY.bit.CTRLB);
 
     // Reset all servo indexes
-    memset(currentServoIndex, 0xFF, sizeof(currentServoIndex));
+    memset((void *)currentServoIndex, 0xFF, sizeof(currentServoIndex));
 
     // Configure interrupt request
     NVIC_ClearPendingIRQ(SERVO_IRQn);

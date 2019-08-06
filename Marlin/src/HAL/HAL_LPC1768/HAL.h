@@ -146,11 +146,6 @@ using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 #define HAL_READ_ADC()         FilteredADC::get_result()
 #define HAL_ADC_READY()        FilteredADC::finished_conversion()
 
-// A grace period to allow ADC readings to stabilize, preventing false alarms
-#ifndef THERMAL_PROTECTION_GRACE_PERIOD
-  #define THERMAL_PROTECTION_GRACE_PERIOD 1000
-#endif
-
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 // P0.6 thru P0.9 are for the onboard SD card
