@@ -660,7 +660,9 @@ def line_print(line_input):
       platformio_highlights = [
               ['Environment', 0, 'highlight_blue'],
               ['[SKIP]', 1, 'warning'],
+              ['[IGNORED]', 1, 'warning'],
               ['[ERROR]', 1, 'error'],
+              ['[FAILED]', 1, 'error'],
               ['[SUCCESS]', 1, 'highlight_green']
       ]
 
@@ -698,14 +700,15 @@ def line_print(line_input):
               found_right = text.find(']', found + 1)
               write_to_screen_queue(text[               : found + 1   ])
               write_to_screen_queue(text[found + 1      : found_right ], highlight[2])
-              write_to_screen_queue(text[found_right :                ] + '\n')
+              write_to_screen_queue(text[found_right :                ] + '\n' + '\n')
             break
         if did_something == False:
           r_loc = text.find('\r') + 1
           if r_loc > 0 and r_loc < len(text):  # need to split this line
             text = text.split('\r')
             for line in text:
-              write_to_screen_queue(line + '\n')
+              if not(line == ""):
+                write_to_screen_queue(line + '\n')
           else:
             write_to_screen_queue(text + '\n')
       # end - write_to_screen_with_replace
