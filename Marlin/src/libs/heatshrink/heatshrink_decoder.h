@@ -1,5 +1,5 @@
 /**
- * libs/heatshrink_decoder.h
+ * libs/heatshrink/heatshrink_decoder.h
  */
 #pragma once
 
