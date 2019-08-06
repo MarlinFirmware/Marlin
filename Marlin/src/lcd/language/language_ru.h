@@ -86,6 +86,7 @@
 
 #define MSG_M48_TEST                        _UxGT("Проверка датчика Z")
 #define MSG_M48_DEVIATION                   _UxGT("Отклонение")
+#define MSG_M48_POINT                       _UxGT("Точка")
 
 // TODO: IDEX Menu
 #define MSG_OFFSETS_MENU                    _UxGT("Размещение сопел")

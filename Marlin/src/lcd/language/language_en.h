@@ -256,6 +256,9 @@
 #ifndef MSG_M48_TEST
   #define MSG_M48_TEST                        _UxGT("M48 Probe Test")
 #endif
+#ifndef MSG_M48_POINT
+  #define MSG_M48_POINT                       _UxGT("M48 Point")
+#endif
 #ifndef MSG_M48_DEVIATION
   #define MSG_M48_DEVIATION                   _UxGT("Deviation")
 #endif
