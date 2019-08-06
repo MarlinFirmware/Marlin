@@ -1,3 +1,6 @@
+/**
+ * libs/heatshrink_config.h
+ */
 #pragma once
 
 // Should functionality assuming dynamic allocation be used?
