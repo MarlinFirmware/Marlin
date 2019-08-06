@@ -182,10 +182,9 @@
   #define BTN_ENC          35
   #define SD_DETECT_PIN    49
 
-  #ifndef MAX7219_DEBUG          // Formbot T-Rex's are low on extra pins.  We steal the Kill
-    #ifndef KILL_PIN             // pin to provide a Clock signal for the Max7219's
-      #define KILL_PIN       41
-    #endif
+  // Allow MAX7219 to steal the KILL pin
+  #if !defined(KILL_PIN) && MAX7219_CLK_PIN != 41 && MAX7219_DIN_PIN != 41 && MAX7219_LOAD_PIN != 41
+    #define KILL_PIN       41
   #endif
 
   #define LCD_PINS_RS      16
