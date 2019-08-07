@@ -957,30 +957,55 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #if ENABLED(BLTOUCH)
 
-    /**
-     *
-     * "BLTouch" submenu
-     *
-     */
-    static void bltouch_menu() {
+    extern void _bltouch_reset();
+    extern void _bltouch_selftest();
+    extern void _bltouch_deploy();
+    extern void _bltouch_stow();
+    extern void _bltouch_set_SW_mode();
+    extern void _bltouch_set_5V_mode();
+    extern void _bltouch_set_OD_mode();
+    extern void _bltouch_mode_store();
+    extern void bltouch_mode_conv_5V();
+    extern void bltouch_mode_conv_OD();
+    extern bool bltouch_last_written_mode;
+
+    #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
+      void bltouch_report() {
+        SERIAL_ECHOLNPAIR("EEPROM Last BLTouch Mode - ", (int)bltouch_last_written_mode);
+        SERIAL_ECHOPGM("Configuration BLTouch Mode - ");
+          #if ENABLED(BLTOUCH_SET_5V_MODE)
+            SERIAL_ECHOLNPGM("5V");
+          #else
+            SERIAL_ECHOLNPGM("OD");
+          #endif
+        char mess[21];
+        strcpy_P(mess, PSTR("BLTouch Mode - "));
+        strcpy_P(&mess[15], bltouch_last_written_mode ? PSTR("5V") : PSTR("OD"));
+        lcd_setalertstatusPGM(mess);
+        lcd_return_to_status();
+      }
+    #endif
+
+    void bltouch_menu() {
       START_MENU();
-      //
-      // ^ Main
-      //
       MENU_BACK(MSG_MAIN);
-      MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
-      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-      MENU_ITEM(gcode, MSG_BLTOUCH_DEPLOY, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_DEPLOY)));
-      MENU_ITEM(gcode, MSG_BLTOUCH_STOW, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_STOW)));
-      #if ENABLED(BLTOUCH_V3)
-        MENU_ITEM(gcode, MSG_BLTOUCH_SW_MODE, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SW_MODE)));
-        MENU_ITEM(gcode, MSG_BLTOUCH_5V_MODE, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_5V_MODE)));
-        MENU_ITEM(gcode, MSG_BLTOUCH_OD_MODE, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_OD_MODE)));
+      MENU_ITEM(function, MSG_BLTOUCH_RESET, _bltouch_reset);
+      MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, _bltouch_selftest);
+      MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, _bltouch_deploy);
+      MENU_ITEM(function, MSG_BLTOUCH_STOW, _bltouch_stow);
+      MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, _bltouch_set_SW_mode);
+      #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
+        MENU_ITEM(function, MSG_BLTOUCH_5V_MODE, _bltouch_set_5V_mode);
+        MENU_ITEM(function, MSG_BLTOUCH_OD_MODE, _bltouch_set_OD_mode);
+        MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE, _bltouch_mode_store);
+        MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE_5V, bltouch_mode_conv_5V);
+        MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE_OD, bltouch_mode_conv_OD);
+        MENU_ITEM(function, MSG_BLTOUCH_MODE_ECHO, bltouch_report);
       #endif
       END_MENU();
     }
 
-  #endif // BLTOUCH
+  #endif
 
   #if ENABLED(LCD_PROGRESS_BAR_TEST)
 
