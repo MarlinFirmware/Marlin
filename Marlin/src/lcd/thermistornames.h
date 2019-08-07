@@ -57,6 +57,10 @@
   #define THERMISTOR_NAME "Generic 10K"
 #elif THERMISTOR_ID == 5
   #define THERMISTOR_NAME "ATC 104GT-2"
+#elif THERMISTOR_ID == 501
+  #define THERMISTOR_NAME "Zonestar (Tronxy X3A)"
+#elif THERMISTOR_ID == 512
+  #define THERMISTOR_NAME "RPW-Ultra"
 #elif THERMISTOR_ID == 6
   #define THERMISTOR_NAME "EPCOS (alt)"
 #elif THERMISTOR_ID == 7
@@ -75,10 +79,14 @@
   #define THERMISTOR_NAME "E3104FXT (alt)"
 #elif THERMISTOR_ID == 13
   #define THERMISTOR_NAME "Hisens 3950"
+#elif THERMISTOR_ID == 15
+  #define THERMISTOR_NAME "100k JGAurora A5"
 #elif THERMISTOR_ID == 18
   #define THERMISTOR_NAME "ATC Semitec 204GT-2"
 #elif THERMISTOR_ID == 20
-  #define THERMISTOR_NAME "PT100 UltiMB"
+  #define THERMISTOR_NAME "Pt100 UltiMB"
+#elif THERMISTOR_ID == 201
+  #define THERMISTOR_NAME "Pt100 OverLord"
 #elif THERMISTOR_ID == 60
   #define THERMISTOR_NAME "Makers Tool"
 #elif THERMISTOR_ID == 70
@@ -98,13 +106,11 @@
 #elif THERMISTOR_ID == 1010
   #define THERMISTOR_NAME "PT1000 1K"
 #elif THERMISTOR_ID == 147
-  #define THERMISTOR_NAME "PT100 4K7"
+  #define THERMISTOR_NAME "Pt100 4K7"
 #elif THERMISTOR_ID == 110
-  #define THERMISTOR_NAME "PT100 1K"
+  #define THERMISTOR_NAME "Pt100 1K"
 #elif THERMISTOR_ID == 666
   #define THERMISTOR_NAME "Einstart S"
-#elif THERMISTOR_ID == 501
-  #define THERMISTOR_NAME "Zonestar (Tronxy X3A)"
 
 // High Temperature thermistors
 #elif THERMISTOR_ID == 61

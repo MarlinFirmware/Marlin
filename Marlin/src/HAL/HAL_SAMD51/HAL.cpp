@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -193,8 +193,8 @@ uint16_t HAL_adc_result;
   uint16_t HAL_adc_results[COUNT(adc_pins)];
 
   #if ADC0_IS_REQUIRED
-    Adafruit_ZeroDMA adc0ProgramDMA,
-                     adc0ReadDMA;
+    Adafruit_ZeroDMA adc0DMAProgram,
+                     adc0DMARead;
 
     const HAL_DMA_DAC_Registers adc0_dma_regs_list[] = {
       #if GET_TEMP_0_ADC() == 0
@@ -233,8 +233,8 @@ uint16_t HAL_adc_result;
   #endif // ADC0_IS_REQUIRED
 
   #if ADC1_IS_REQUIRED
-    Adafruit_ZeroDMA adc1ProgramDMA,
-                     adc1ReadDMA;
+    Adafruit_ZeroDMA adc1DMAProgram,
+                     adc1DMARead;
 
     const HAL_DMA_DAC_Registers adc1_dma_regs_list[] = {
       #if GET_TEMP_0_ADC() == 1
@@ -284,11 +284,11 @@ uint16_t HAL_adc_result;
     DmacDescriptor *descriptor;
 
     #if ADC0_IS_REQUIRED
-      adc0ProgramDMA.setTrigger(ADC0_DMAC_ID_SEQ);
-      adc0ProgramDMA.setAction(DMA_TRIGGER_ACTON_BEAT);
-      adc0ProgramDMA.loop(true);
-      if (adc0ProgramDMA.allocate() == DMA_STATUS_OK) {
-        descriptor = adc0ProgramDMA.addDescriptor(
+      adc0DMAProgram.setTrigger(ADC0_DMAC_ID_SEQ);
+      adc0DMAProgram.setAction(DMA_TRIGGER_ACTON_BEAT);
+      adc0DMAProgram.loop(true);
+      if (adc0DMAProgram.allocate() == DMA_STATUS_OK) {
+        descriptor = adc0DMAProgram.addDescriptor(
           (void *)adc0_dma_regs_list,         // SRC
           (void *)&ADC0->DSEQDATA.reg,        // DEST
           sizeof(adc0_dma_regs_list) / 4,     // CNT
@@ -300,14 +300,14 @@ uint16_t HAL_adc_result;
         );
         if (descriptor != nullptr)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
-        adc0ProgramDMA.startJob();
+        adc0DMAProgram.startJob();
       }
 
-      adc0ReadDMA.setTrigger(ADC0_DMAC_ID_RESRDY);
-      adc0ReadDMA.setAction(DMA_TRIGGER_ACTON_BEAT);
-      adc0ReadDMA.loop(true);
-      if (adc0ReadDMA.allocate() == DMA_STATUS_OK) {
-        adc0ReadDMA.addDescriptor(
+      adc0DMARead.setTrigger(ADC0_DMAC_ID_RESRDY);
+      adc0DMARead.setAction(DMA_TRIGGER_ACTON_BEAT);
+      adc0DMARead.loop(true);
+      if (adc0DMARead.allocate() == DMA_STATUS_OK) {
+        adc0DMARead.addDescriptor(
           (void *)&ADC0->RESULT.reg,          // SRC
           &HAL_adc_results,                   // DEST
           ADC0_AINCOUNT,                      // CNT
@@ -317,15 +317,15 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_DST                     // STEPSEL
         );
-        adc0ReadDMA.startJob();
+        adc0DMARead.startJob();
       }
     #endif
     #if ADC1_IS_REQUIRED
-      adc1ProgramDMA.setTrigger(ADC1_DMAC_ID_SEQ);
-      adc1ProgramDMA.setAction(DMA_TRIGGER_ACTON_BEAT);
-      adc1ProgramDMA.loop(true);
-      if (adc1ProgramDMA.allocate() == DMA_STATUS_OK) {
-        descriptor = adc1ProgramDMA.addDescriptor(
+      adc1DMAProgram.setTrigger(ADC1_DMAC_ID_SEQ);
+      adc1DMAProgram.setAction(DMA_TRIGGER_ACTON_BEAT);
+      adc1DMAProgram.loop(true);
+      if (adc1DMAProgram.allocate() == DMA_STATUS_OK) {
+        descriptor = adc1DMAProgram.addDescriptor(
           (void *)adc1_dma_regs_list,         // SRC
           (void *)&ADC1->DSEQDATA.reg,        // DEST
           sizeof(adc1_dma_regs_list) / 4,     // CNT
@@ -337,14 +337,14 @@ uint16_t HAL_adc_result;
         );
         if (descriptor != nullptr)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
-        adc1ProgramDMA.startJob();
+        adc1DMAProgram.startJob();
       }
 
-      adc1ReadDMA.setTrigger(ADC1_DMAC_ID_RESRDY);
-      adc1ReadDMA.setAction(DMA_TRIGGER_ACTON_BEAT);
-      adc1ReadDMA.loop(true);
-      if (adc1ReadDMA.allocate() == DMA_STATUS_OK) {
-        adc1ReadDMA.addDescriptor(
+      adc1DMARead.setTrigger(ADC1_DMAC_ID_RESRDY);
+      adc1DMARead.setAction(DMA_TRIGGER_ACTON_BEAT);
+      adc1DMARead.loop(true);
+      if (adc1DMARead.allocate() == DMA_STATUS_OK) {
+        adc1DMARead.addDescriptor(
           (void *)&ADC1->RESULT.reg,          // SRC
           &HAL_adc_results[ADC0_AINCOUNT],    // DEST
           ADC1_AINCOUNT,                      // CNT
@@ -354,11 +354,11 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_DST                     // STEPSEL
         );
-        adc1ReadDMA.startJob();
+        adc1DMARead.startJob();
       }
     #endif
 
-    DMAC->PRICTRL0.bit.RRLVLEN0 = true;                         // Activate round robin for DMA channels used by ADCs
+    DMAC->PRICTRL0.bit.RRLVLEN0 = true;                         // Activate round robin for DMA channels required by ADCs
   }
 
 #endif // DMA_IS_REQUIRED

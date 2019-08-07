@@ -159,7 +159,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
               if (!GET_PINMODE(pin)) {
                 //pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating - stopped doing this
                                                // because this could interfere with inductive/capacitive
-                                               // sensors (high impedance voltage divider) and with PT100 amplifier
+                                               // sensors (high impedance voltage divider) and with Pt100 amplifier
                 print_input_or_output(false);
                 SERIAL_ECHO(digitalRead_mod(pin));
               }

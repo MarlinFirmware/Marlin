@@ -87,7 +87,7 @@ XS      X-Endstop   (Min)
 PS      SPST Switch to enable DC 24v
 BT      Bed Thermistor (header not populated)
 ET      Extruder Thermistor
-PT1     PT100 Thermocouple (not populated)
+PT1     Pt100 Thermocouple (not populated)
 TC      Thermocouple (not populated)
 VBRG    LED Output from PCA5933
 BUTTONS

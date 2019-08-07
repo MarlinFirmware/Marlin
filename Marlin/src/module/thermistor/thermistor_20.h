@@ -21,41 +21,9 @@
  */
 #pragma once
 
-// PT100 with INA826 amp on Ultimaker v2.0 electronics
-// The PT100 in the Ultimaker v2.0 electronics has a high sample value for a high temperature.
-// This does not match the normal thermistor behavior so we need to set the following defines
-#if THERMISTOR_HEATER_0 == 20
-  #define HEATER_0_RAW_HI_TEMP 16383
-  #define HEATER_0_RAW_LO_TEMP 0
-#endif
-#if THERMISTOR_HEATER_1 == 20
-  #define HEATER_1_RAW_HI_TEMP 16383
-  #define HEATER_1_RAW_LO_TEMP 0
-#endif
-#if THERMISTOR_HEATER_2 == 20
-  #define HEATER_2_RAW_HI_TEMP 16383
-  #define HEATER_2_RAW_LO_TEMP 0
-#endif
-#if THERMISTOR_HEATER_3 == 20
-  #define HEATER_3_RAW_HI_TEMP 16383
-  #define HEATER_3_RAW_LO_TEMP 0
-#endif
-#if THERMISTOR_HEATER_4 == 20
-  #define HEATER_4_RAW_HI_TEMP 16383
-  #define HEATER_4_RAW_LO_TEMP 0
-#endif
-#if THERMISTOR_HEATER_5 == 20
-  #define HEATER_5_RAW_HI_TEMP 16383
-  #define HEATER_5_RAW_LO_TEMP 0
-#endif
-#if THERMISTORBED == 20
-  #define HEATER_BED_RAW_HI_TEMP 16383
-  #define HEATER_BED_RAW_LO_TEMP 0
-#endif
-#if THERMISTORCHAMBER == 20
-  #define HEATER_CHAMBER_RAW_HI_TEMP 16383
-  #define HEATER_CHAMBER_RAW_LO_TEMP 0
-#endif
+#define REVERSE_TEMP_SENSOR_RANGE
+
+// Pt100 with INA826 amp on Ultimaker v2.0 electronics
 const short temptable_20[][2] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },

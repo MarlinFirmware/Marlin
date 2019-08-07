@@ -659,6 +659,13 @@ void idle(
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
+
+  #if ENABLED(SPI_ENDSTOPS)
+    if (endstops.tmc_spi_homing.any && ELAPSED(millis(), sg_guard_period))
+      for (uint8_t i = 4; i--;) // Read SGT 4 times per idle loop
+        if (endstops.tmc_spi_homing_check()) break;
+  #endif
+
   #if ENABLED(MAX7219_DEBUG)
     max7219.idle_tasks();
   #endif
@@ -1130,6 +1137,8 @@ void loop() {
 
   for (;;) {
 
+    idle(); // Do an idle first so boot is slightly faster
+
     #if ENABLED(SDSUPPORT)
 
       card.checkautostart();
@@ -1161,6 +1170,5 @@ void loop() {
     if (queue.length < BUFSIZE) queue.get_available_commands();
     queue.advance();
     endstops.event_handler();
-    idle();
   }
 }
