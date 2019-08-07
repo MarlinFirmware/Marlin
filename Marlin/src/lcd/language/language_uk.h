@@ -72,7 +72,7 @@
 #define MSG_MOVE_Y                          _UxGT("Рух по Y")
 #define MSG_MOVE_Z                          _UxGT("Рух по Z")
 #define MSG_MOVE_E                          _UxGT("Екструдер")
-#define MSG_MOVE_0025MM                     _UxGT("Рух по 0.025mm")
+#define MSG_MOVE_Z_DIST                     _UxGT("Рух по %smm")
 #define MSG_MOVE_01MM                       _UxGT("Рух по 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Рух по 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Рух по 10mm")

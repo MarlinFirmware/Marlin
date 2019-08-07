@@ -119,7 +119,10 @@
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
-#if ENABLED(MKS_ROBIN_TFT)
+#if ENABLED(FSMC_GRAPHICAL_TFT)
+  #define FSMC_CS_PIN        PD7    // NE4
+  #define FSMC_RS_PIN        PD11   // A0
+
   #define LCD_RESET_PIN      PF6
   #define NO_LCD_REINIT             // Suppress LCD re-initialization
 
@@ -127,8 +130,6 @@
 
   #if ENABLED(TOUCH_BUTTONS)
     #define BTN_ENC          PC13   // Not connected. TODO: Replace this hack to enable button code
-    #define FSMC_CS_PIN      PD7    // NE4
-    #define FSMC_RS_PIN      PD11   // A0
     #define TOUCH_CS_PIN     PA7
   #endif
 #endif

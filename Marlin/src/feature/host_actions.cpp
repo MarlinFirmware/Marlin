@@ -37,8 +37,6 @@
   #include "runout.h"
 #endif
 
-extern bool wait_for_user;
-
 void host_action(const char * const pstr, const bool eol) {
   SERIAL_ECHOPGM("//action:");
   serialprintPGM(pstr);
@@ -65,6 +63,10 @@ void host_action(const char * const pstr, const bool eol) {
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
+
+  #if HAS_RESUME_CONTINUE
+    extern bool wait_for_user;
+  #endif
 
   PromptReason host_prompt_reason = PROMPT_NOT_DEFINED;
 
@@ -110,7 +112,9 @@ void host_action(const char * const pstr, const bool eol) {
       case PROMPT_FILAMENT_RUNOUT:
         msg = PSTR("FILAMENT_RUNOUT");
         if (response == 0) {
-          pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+          #endif
           host_action_prompt_end();   // Close current prompt
           host_action_prompt_begin(PSTR("Paused"));
           host_action_prompt_button(PSTR("Purge More"));
@@ -133,16 +137,22 @@ void host_action(const char * const pstr, const bool eol) {
               runout.reset();
             }
           #endif
-          pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+          #endif
         }
         break;
       case PROMPT_USER_CONTINUE:
+        #if HAS_RESUME_CONTINUE
+          wait_for_user = false;
+        #endif
         msg = PSTR("FILAMENT_RUNOUT_CONTINUE");
-        wait_for_user = false;
         break;
       case PROMPT_PAUSE_RESUME:
         msg = PSTR("LCD_PAUSE_RESUME");
-        queue.inject_P(PSTR("M24"));
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          queue.inject_P(PSTR("M24"));
+        #endif
         break;
       case PROMPT_INFO:
         msg = PSTR("GCODE_INFO");

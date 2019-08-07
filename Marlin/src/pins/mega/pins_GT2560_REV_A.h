@@ -89,7 +89,6 @@
 //
 // Misc. Functions
 //
-#define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
 #define PS_ON_PIN          12

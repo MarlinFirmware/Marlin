@@ -83,7 +83,6 @@
 // SD Card
 //
 #define SD_DETECT_PIN      -1
-#define SDPOWER            -1
 #define SDSS               53
 
 //

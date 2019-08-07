@@ -258,15 +258,17 @@ public:
     #endif
   }
 
-  static inline void buzz(const long duration, const uint16_t freq) {
-    #if ENABLED(LCD_USE_I2C_BUZZER)
-      lcd.buzz(duration, freq);
-    #elif PIN_EXISTS(BEEPER)
-      buzzer.tone(duration, freq);
-    #else
-      UNUSED(duration); UNUSED(freq);
-    #endif
-  }
+  #if HAS_BUZZER
+    static inline void buzz(const long duration, const uint16_t freq) {
+      #if ENABLED(LCD_USE_I2C_BUZZER)
+        lcd.buzz(duration, freq);
+      #elif PIN_EXISTS(BEEPER)
+        buzzer.tone(duration, freq);
+      #elif ENABLED(PCA9632_BUZZER)
+        pca9632_buzz(duration, freq);
+      #endif
+    }
+  #endif
 
   // LCD implementations
   static void clear_lcd();
@@ -315,7 +317,14 @@ public:
       static inline void refresh(const LCDViewAction type) { lcdDrawUpdate = type; }
       static inline void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
 
+      #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+        static void draw_custom_bootscreen(const uint8_t frame=0);
+        static void show_custom_bootscreen();
+      #endif
+
       #if ENABLED(SHOW_BOOTSCREEN)
+        static void draw_marlin_bootscreen();
+        static void show_marlin_bootscreen();
         static void show_bootscreen();
       #endif
 
@@ -355,7 +364,9 @@ public:
       #endif
 
       static void quick_feedback(const bool clear_buttons=true);
-      static void completion_feedback(const bool good=true);
+      #if HAS_BUZZER
+        static void completion_feedback(const bool good=true);
+      #endif
 
       #if DISABLED(LIGHTWEIGHT_UI)
         static void draw_status_message(const bool blink);
@@ -466,7 +477,11 @@ public:
     #endif
 
     #if ENABLED(G26_MESH_VALIDATION)
-      static inline void chirp() { buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ); }
+      static inline void chirp() {
+        #if HAS_BUZZER
+          buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+        #endif
+      }
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -526,14 +541,24 @@ public:
     #else
       #define ENCODERBASE +1
     #endif
-    #if ENABLED(REVERSE_MENU_DIRECTION)
+
+    #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
       static int8_t encoderDirection;
-      static inline void encoder_direction_normal() { encoderDirection = +(ENCODERBASE); }
-      static inline void encoder_direction_menus()  { encoderDirection = -(ENCODERBASE); }
+      static inline void encoder_direction_normal() { encoderDirection = ENCODERBASE; }
     #else
       static constexpr int8_t encoderDirection = ENCODERBASE;
       static inline void encoder_direction_normal() {}
+    #endif
+
+    #if ENABLED(REVERSE_MENU_DIRECTION)
+      static inline void encoder_direction_menus()  { encoderDirection = -(ENCODERBASE); }
+    #else
       static inline void encoder_direction_menus()  {}
+    #endif
+    #if ENABLED(REVERSE_SELECT_DIRECTION)
+      static inline void encoder_direction_select()  { encoderDirection = -(ENCODERBASE); }
+    #else
+      static inline void encoder_direction_select()  {}
     #endif
 
   #else

@@ -64,10 +64,9 @@
  * @details Only configures SS pin since libmaple creates and initialize the SPI object
  */
 void spiBegin() {
-  #if !PIN_EXISTS(SS)
-    #error "SS_PIN not defined!"
+  #if PIN_EXISTS(SS)
+    OUT_WRITE(SS_PIN, HIGH);
   #endif
-  OUT_WRITE(SS_PIN, HIGH);
 }
 
 /**

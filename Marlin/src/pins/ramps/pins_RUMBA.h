@@ -215,7 +215,6 @@
 #define BEEPER_PIN         44
 
 #if ENABLED(SDSUPPORT)
-  #define SDPOWER          -1
   #define SDSS             53
   #define SD_DETECT_PIN    49
 #endif

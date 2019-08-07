@@ -27,8 +27,6 @@
  * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
  */
 
-#include "../../core/macros.h"
-
 #include <avr/io.h>
 
 #define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__) || defined(__AVR_AT90USB647__))
@@ -41,15 +39,15 @@
  * Include Ports and Functions
  */
 #if AVR_ATmega328_FAMILY
-  #include "fastio_168.h"
+  #include "fastio/fastio_168.h"
 #elif AVR_ATmega1284_FAMILY
-  #include "fastio_644.h"
+  #include "fastio/fastio_644.h"
 #elif AVR_ATmega2560_FAMILY
-  #include "fastio_1280.h"
+  #include "fastio/fastio_1280.h"
 #elif AVR_AT90USB1286_FAMILY
-  #include "fastio_AT90USB.h"
+  #include "fastio/fastio_AT90USB.h"
 #elif AVR_ATmega2561_FAMILY
-  #include "fastio_1281.h"
+  #include "fastio/fastio_1281.h"
 #else
   #error "No FastIO definition for the selected AVR Board."
 #endif
@@ -274,6 +272,8 @@ enum ClockSource2 : char {
 #define SET_FOCB(T,V) SET_FOC(T,B,V)
 #define SET_FOCC(T,V) SET_FOC(T,C,V)
 
+#if 0
+
 /**
  * PWM availability macros
  */
@@ -336,6 +336,8 @@ enum ClockSource2 : char {
 #endif
 
 #define PWM_CHK(P) (PWM_CHK_HEATER(P) || PWM_CHK_SERVO(P) || PWM_CHK_MOTOR_CURRENT(P) || PWM_CHK_FAN_A(P) || PWM_CHK_FAN_B(P))
+
+#endif // PWM_CHK is not used in Marlin
 
 // define which hardware PWMs are available for the current CPU
 // all timer 1 PWMS deleted from this list because they are never available

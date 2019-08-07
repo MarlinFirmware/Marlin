@@ -42,8 +42,7 @@
 //
 // Misc. Functions
 //
-#undef SDPOWER
-#define SDPOWER             1
+#define SDPOWER_PIN         1
 
 #define PS_ON_PIN          12
 

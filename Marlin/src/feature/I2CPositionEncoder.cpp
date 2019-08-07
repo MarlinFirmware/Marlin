@@ -424,7 +424,6 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     travelledDistance = mm_from_count(ABS(stopCount - startCount));
 
     SERIAL_ECHOLNPAIR("Attempted travel: ", travelDistance, "mm");
-
     SERIAL_ECHOLNPAIR("   Actual travel:  ", travelledDistance, "mm");
 
     //Calculate new axis steps per unit

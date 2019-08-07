@@ -181,9 +181,12 @@
   #define BTN_EN2          33
   #define BTN_ENC          35
   #define SD_DETECT_PIN    49
-  #ifndef KILL_PIN
+
+  // Allow MAX7219 to steal the KILL pin
+  #if !defined(KILL_PIN) && MAX7219_CLK_PIN != 41 && MAX7219_DIN_PIN != 41 && MAX7219_LOAD_PIN != 41
     #define KILL_PIN       41
   #endif
+
   #define LCD_PINS_RS      16
   #define LCD_PINS_ENABLE  17
   #define LCD_PINS_D4      23

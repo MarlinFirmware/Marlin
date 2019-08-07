@@ -650,6 +650,7 @@
 
 #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
   #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
+  #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
   #if ENABLED(ULTIPANEL)
     #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
     //#define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
@@ -850,6 +851,9 @@
 
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
+#if ENABLED(LCD_INFO_MENU)
+  //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
+#endif
 
 // Scroll a longer status message into view
 //#define STATUS_MESSAGE_SCROLLING
@@ -1036,7 +1040,7 @@
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
 
-  #ifdef TARGET_LPC1768
+  #if HAS_SDCARD_CONNECTION
     /**
      * Set this option to one of the following (or the board's defaults apply):
      *
@@ -1134,6 +1138,7 @@
   //#define MARLIN_BRICKOUT
   //#define MARLIN_INVADERS
   //#define MARLIN_SNAKE
+  //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
 #endif // HAS_GRAPHICAL_LCD
 
@@ -1362,6 +1367,9 @@
   // the host to signal the RX buffer is becoming full.
   //#define SERIAL_XON_XOFF
 #endif
+
+// Add M575 G-code to change the baud rate
+//#define BAUD_RATE_GCODE
 
 #if ENABLED(SDSUPPORT)
   // Enable this option to collect and display the maximum
@@ -1748,6 +1756,9 @@
    *       1 | HIGH | LOW
    *       2 | LOW  | HIGH
    *       3 | HIGH | HIGH
+   *
+   * Set *_SERIAL_TX_PIN and *_SERIAL_RX_PIN to match for all drivers
+   * on the same serial port, either here or in your board's pins file.
    */
   #define  X_SLAVE_ADDRESS 0
   #define  Y_SLAVE_ADDRESS 0
@@ -1839,17 +1850,25 @@
   #define E5_HYBRID_THRESHOLD     30
 
   /**
+   * Use StallGuard2 to home / probe X, Y, Z.
+   *
    * TMC2130, TMC2160, TMC2209, TMC2660, TMC5130, and TMC5160 only
-   * Use StallGuard2 to sense an obstacle and trigger an endstop.
    * Connect the stepper driver's DIAG1 pin to the X/Y endstop pin.
    * X, Y, and Z homing will always be done in spreadCycle mode.
    *
-   * X/Y/Z_STALL_SENSITIVITY is used for tuning the trigger sensitivity.
-   * Higher values make the system LESS sensitive.
-   * Lower value make the system MORE sensitive.
-   * Too low values can lead to false positives, while too high values will collide the axis without triggering.
-   * It is advised to set X/Y/Z_HOME_BUMP_MM to 0.
-   * M914 X/Y/Z to live tune the setting
+   * X/Y/Z_STALL_SENSITIVITY is used to tune the trigger sensitivity.
+   * Use M914 X Y Z to live-adjust the sensitivity.
+   *  Higher: LESS sensitive. (Too high => failure to trigger)
+   *   Lower: MORE sensitive. (Too low  => false positives)
+   *
+   * It is recommended to set [XYZ]_HOME_BUMP_MM to 0.
+   *
+   * SPI_ENDSTOPS  *** Beta feature! *** TMC2130 Only ***
+   * Poll the driver through SPI to determine load when homing.
+   * Removes the need for a wire from DIAG1 to an endstop pin.
+   *
+   * IMPROVE_HOMING_RELIABILITY tunes acceleration and jerk when
+   * homing and adds a guard period for endstop triggering.
    */
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
 
@@ -1866,6 +1885,8 @@
     #define X_STALL_SENSITIVITY  8
     #define Y_STALL_SENSITIVITY  8
     //#define Z_STALL_SENSITIVITY  8
+    //#define SPI_ENDSTOPS              // TMC2130 only
+    //#define IMPROVE_HOMING_RELIABILITY
   #endif
 
   /**
