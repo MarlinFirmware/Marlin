@@ -688,7 +688,7 @@ void idle(
     print_job_timer.tick();
   #endif
 
-  #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
+  #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER) && DISABLED(PCA9632_BUZZER)
     buzzer.tick();
   #endif
 

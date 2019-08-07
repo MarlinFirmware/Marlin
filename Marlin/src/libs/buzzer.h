@@ -27,6 +27,11 @@
 
   #define BUZZ(d,f) ui.buzz(d,f)
 
+#elif ENABLED(PCA9632_BUZZER)
+
+  #include "../feature/leds/pca9632.h"
+  #define BUZZ(d, f) pca9632_buzz(d,f)
+
 #elif PIN_EXISTS(BEEPER)
 
   #include "circularqueue.h"
