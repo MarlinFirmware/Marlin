@@ -707,7 +707,7 @@ def line_print(line_input):
           if r_loc > 0 and r_loc < len(text):  # need to split this line
             text = text.split('\r')
             for line in text:
-              if not(line == ""):
+              if line != "":
                 write_to_screen_queue(line + '\n')
           else:
             write_to_screen_queue(text + '\n')
