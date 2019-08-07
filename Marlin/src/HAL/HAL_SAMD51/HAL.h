@@ -132,11 +132,17 @@ void noTone(const pin_t _pin);
 
 // Enable hooks into idle and setup for HAL
 void HAL_init(void);
-/*#define HAL_IDLETASK 1
-void HAL_idletask(void);*/
+/*
+#define HAL_IDLETASK 1
+void HAL_idletask(void);
+*/
 
 //
 // Utility functions
 //
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 int freeMemory(void);
+#pragma GCC diagnostic pop

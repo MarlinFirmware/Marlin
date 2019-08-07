@@ -74,6 +74,7 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("调平边角") // "Level corners"
 
 #define MSG_NEXT_CORNER                     _UxGT("下个边角") // "Next corner"
+#define MSG_EDIT_MESH                       _UxGT("编辑网格") // "Edit Mesh"
 #define MSG_EDITING_STOPPED                 _UxGT("网格编辑已停止") // "Mesh Editing Stopped"
 #define MSG_USER_MENU                       _UxGT("定制命令") // "Custom Commands"
 
@@ -82,7 +83,6 @@
 #define MSG_UBL_TOOLS                       _UxGT("UBL工具") // "UBL Tools"
 #define MSG_UBL_LEVEL_BED                   _UxGT("统一热床调平(UBL)") // "Unified Bed Leveling"
 #define MSG_UBL_MANUAL_MESH                 _UxGT("手工创设网格") // "Manually Build Mesh"
-
 #define MSG_UBL_BC_INSERT                   _UxGT("放置垫片并测量") // "Place shim & measure"
 #define MSG_UBL_BC_INSERT2                  _UxGT("测量") // "Measure"
 #define MSG_UBL_BC_REMOVE                   _UxGT("移除并测量热床") // "Remove & measure bed"
@@ -118,7 +118,6 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("输出到CSV") // "Output for CSV"
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("输出到备份") // "Off Printer Backup"
 #define MSG_UBL_INFO_UBL                    _UxGT("输出UBL信息") // "Output UBL Info"
-#define MSG_EDIT_MESH                       _UxGT("编辑网格") // "Edit Mesh"
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("填充合计") // "Fill-in Amount"
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("手工填充") // "Manual Fill-in"
 #define MSG_UBL_SMART_FILLIN                _UxGT("聪明填充") // "Smart Fill-in"
@@ -133,7 +132,7 @@
 #define MSG_UBL_SAVE_MESH                   _UxGT("保存热床网格") // "Save Bed Mesh"
 #define MSG_MESH_LOADED                     _UxGT("网格 %i 已装载") // "Mesh %i loaded"
 #define MSG_MESH_SAVED                      _UxGT("网格 %i 已保存") // "Mesh %i saved"
-#define MSG_NO_STORAGE                      _UxGT("没有存储") // "No storage"
+#define MSG_UBL_NO_STORAGE                  _UxGT("没有存储") // "No storage"
 #define MSG_UBL_SAVE_ERROR                  _UxGT("错误: UBL保存") // "Err: UBL Save"
 #define MSG_UBL_RESTORE_ERROR               _UxGT("错误: UBL还原") // "Err: UBL Restore"
 #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Z偏移已停止") // "Z-Offset Stopped"
