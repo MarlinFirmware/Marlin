@@ -237,7 +237,7 @@ def resolve_path(path):
           line_num = path[ line_start + 1 : column_start]
           if line_num == '':
             line_num = 1
-        if not(column_start == column_end):
+        if column_start != column_end:
           column_num = path[ column_start + 1 : column_end]
           if column_num == '':
             column_num = 0
@@ -276,7 +276,7 @@ def resolve_path(path):
 
 
             start = path.find('/')
-            if not(0 == start):            # make sure path starts with '/'
+            if start != 0:                  # make sure path starts with '/'
               while 0 == path.find(' '):    # eat any spaces at the beginning
                 path = path[ 1 : ]
               path = '/' + path
@@ -604,7 +604,7 @@ def get_env(board_name, ver_Marlin):
           else:
               invalid_board()
 
-      if build_type == 'traceback' and not(target_env == 'LPC1768_debug_and_upload' or target_env == 'DUE_debug')  and Marlin_ver == 2:
+      if build_type == 'traceback' and target_env != 'LPC1768_debug_and_upload' and target_env != 'DUE_debug' and Marlin_ver == 2:
           print("ERROR - this board isn't setup for traceback")
           print('board_name: ', board_name)
           print('target_env: ', target_env)
@@ -707,7 +707,7 @@ def line_print(line_input):
           if r_loc > 0 and r_loc < len(text):  # need to split this line
             text = text.split('\r')
             for line in text:
-              if line != "":
+              if line != '':
                 write_to_screen_queue(line + '\n')
           else:
             write_to_screen_queue(text + '\n')
@@ -1067,10 +1067,10 @@ class output_window(Text):
             countVar = tk.IntVar()
             search_position = '1.0'
             search_count = 0
-            while not(search_position == '') and search_count < 100:
+            while search_position != '' and search_count < 100:
                 search_position = self.search("error", search_position, stopindex="end", count=countVar, nocase=1)
                 search_count = search_count + 1
-                if not(search_position == ''):
+                if search_position != '':
                     error_found = True
                     end_pos = '{}+{}c'.format(search_position, 5)
                     self.tag_add("error_highlight_inactive", search_position, end_pos)
