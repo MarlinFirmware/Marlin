@@ -45,6 +45,8 @@
 
 #if ENABLED(MALYAN_LCD)
 
+#define DEBUG_MALYAN_LCD
+
 #include "extensible_ui/ui_api.h"
 
 #include "ultralcd.h"
@@ -61,6 +63,9 @@
 #else
   #define LONG_FILENAME_LENGTH 0
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_MALYAN_LCD)
+#include "../core/debug_out.h"
 
 // On the Malyan M200, this will be Serial1. On a RAMPS board,
 // it might not be.
@@ -125,7 +130,7 @@ void process_lcd_c_command(const char* command) {
       case 'P': ExtUI::setTargetTemp_celsius(atoi(command + 1), ExtUI::heater_t::BED); break;
     #endif
 
-    default: SERIAL_ECHOLNPAIR("UNKNOWN C COMMAND", command);
+    default: DEBUG_ECHOLNPAIR("UNKNOWN C COMMAND ", command);
   }
 }
 
@@ -163,9 +168,7 @@ void process_lcd_eb_command(const char* command) {
       write_to_lcd(message_buffer);
     } break;
 
-    default:
-      SERIAL_ECHOLNPAIR("UNKNOWN E/B COMMAND", command);
-      return;
+    default: DEBUG_ECHOLNPAIR("UNKNOWN E/B COMMAND ", command);
   }
 }
 
@@ -181,28 +184,17 @@ void process_lcd_eb_command(const char* command) {
  */
 void process_lcd_j_command(const char* command) {
   auto move_axis = [](const auto axis) {
-    float dist = atof(command + 1) / 10.0;
+    const float dist = atof(command + 1) / 10.0;
     ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
   }
 
   switch (command[0]) {
-    case 'E':
-      break;
-    case 'A':
-      move_axis(ExtUI::extruder_t::E0);
-      break;
-    case 'Y':
-      move_axis(ExtUI::axis_t::Y);
-      break;
-    case 'Z':
-      move_axis(ExtUI::axis_t::Z);
-      break;
-    case 'X':
-      move_axis(ExtUI::axis_t::X);
-      break;
-    default:
-      SERIAL_ECHOLNPAIR("UNKNOWN J COMMAND", command);
-      return;
+    case 'E': break;
+    case 'A': move_axis(ExtUI::extruder_t::E0); break;
+    case 'Y': move_axis(ExtUI::axis_t::Y); break;
+    case 'Z': move_axis(ExtUI::axis_t::Z); break;
+    case 'X': move_axis(ExtUI::axis_t::X); break;
+    default: DEBUG_ECHOLNPAIR("UNKNOWN J COMMAND ", command);
   }
 }
 
@@ -244,10 +236,7 @@ void process_lcd_p_command(const char* command) {
         ExtUI::stopPrint();
         write_to_lcd_P(PSTR("{SYS:STARTED}"));
         break;
-    case 'H':
-      // Home all axis
-      queue.enqueue_now_P(PSTR("G28"));
-      break;
+    case 'H': queue.enqueue_now_P(PSTR("G28")); break; // Home all axes
     default: {
       #if ENABLED(SDSUPPORT)
         // Print file 000 - a three digit number indicating which
@@ -329,9 +318,7 @@ void process_lcd_s_command(const char* command) {
       #endif
     } break;
 
-    default:
-      SERIAL_ECHOLNPAIR("UNKNOWN S COMMAND", command);
-      return;
+    default: DEBUG_ECHOLNPAIR("UNKNOWN S COMMAND ", command);
   }
 }
 
@@ -345,34 +332,22 @@ void process_lcd_command(const char* command) {
 
   current++; // skip the leading {. The trailing one is already gone.
   byte command_code = *current++;
-  if (*current != ':') {
-    SERIAL_ECHOLNPAIR("UNKNOWN COMMAND FORMAT", command);
-    return;
-  }
+  if (*current == ':') {
 
-  current++; // skip the :
+    current++; // skip the :
 
-  switch (command_code) {
-    case 'S':
-      process_lcd_s_command(current);
-      break;
-    case 'J':
-      process_lcd_j_command(current);
-      break;
-    case 'P':
-      process_lcd_p_command(current);
-      break;
-    case 'C':
-      process_lcd_c_command(current);
-      break;
-    case 'B':
-    case 'E':
-      process_lcd_eb_command(current);
-      break;
-    default:
-      SERIAL_ECHOLNPAIR("UNKNOWN COMMAND", command);
-      return;
+    switch (command_code) {
+      case 'S': process_lcd_s_command(current); break;
+      case 'J': process_lcd_j_command(current); break;
+      case 'P': process_lcd_p_command(current); break;
+      case 'C': process_lcd_c_command(current); break;
+      case 'B':
+      case 'E': process_lcd_eb_command(current); break;
+      default: DEBUG_ECHOLNPAIR("UNKNOWN COMMAND ", command);
+    }
   }
+  else
+    DEBUG_ECHOLNPAIR("UNKNOWN COMMAND FORMAT ", command);
 }
 
 /**
