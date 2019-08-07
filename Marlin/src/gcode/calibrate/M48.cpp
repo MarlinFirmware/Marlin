@@ -252,8 +252,7 @@ void GcodeSuite::M48() {
     #if HAS_SPI_LCD
       // Display M48 results in the status bar
       char sigma_str[8];
-      dtostrf(sigma, 2, 6, sigma_str);
-      ui.status_printf_P(0, PSTR(MSG_M48_DEVIATION ": %s"), sigma_str);
+      ui.status_printf_P(0, PSTR(MSG_M48_DEVIATION ": %s"), dtostrf(sigma, 2, 6, sigma_str));
     #endif
   }
 
