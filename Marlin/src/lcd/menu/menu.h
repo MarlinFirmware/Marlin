@@ -191,8 +191,8 @@ class TMenuItem : MenuItemBase {
   public:
     static void action_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=nullptr, const bool live=false) {
       // Make sure minv and maxv fit within int16_t
-      const int32_t minv = _MAX(scale(minValue), INT_MIN),
-                    maxv = _MIN(scale(maxValue), INT_MAX);
+      const int32_t minv = _MAX(scale(minValue), INT16_MIN),
+                    maxv = _MIN(scale(maxValue), INT16_MAX);
       init(pstr, ptr, minv, maxv - minv, scale(*ptr) - minv, edit, callback, live);
     }
     static void edit() { MenuItemBase::edit(to_string, load); }

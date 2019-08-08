@@ -45,7 +45,7 @@
 
 #if ENABLED(MALYAN_LCD)
 
-//#define DEBUG_MALYAN_LCD
+#define DEBUG_MALYAN_LCD
 
 #include "extensible_ui/ui_api.h"
 
@@ -151,10 +151,10 @@ void process_lcd_eb_command(const char* command) {
 
       char message_buffer[MAX_CURLY_COMMAND];
       sprintf_P(message_buffer,
-        PSTR("{T0:%03.0f/%03i}{T1:000/000}{TP:%03.0f/%03i}{TQ:%03i}{TT:%s}"),
-        thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
+        PSTR("{T0:%03i/%03i}{T1:000/000}{TP:%03i/%03i}{TQ:%03i}{TT:%s}"),
+        int(thermalManager.degHotend(0)), thermalManager.degTargetHotend(0),
         #if HAS_HEATED_BED
-          thermalManager.degBed(), thermalManager.degTargetBed(),
+          int(thermalManager.degBed()), thermalManager.degTargetBed(),
         #else
           0, 0,
         #endif
@@ -183,15 +183,14 @@ void process_lcd_eb_command(const char* command) {
  * X, Y, Z, A (extruder)
  */
 void process_lcd_j_command(const char* command) {
-
-  auto move_axis = [command](const auto axis) {
+  auto move_axis = [](const auto axis) {
     const float dist = atof(command + 1) / 10.0;
     ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
-  };
+  }
 
   switch (command[0]) {
     case 'E': break;
-    case 'A': move_axis(ExtUI::extruder_t::E0, dist); break;
+    case 'A': move_axis(ExtUI::extruder_t::E0); break;
     case 'Y': move_axis(ExtUI::axis_t::Y); break;
     case 'Z': move_axis(ExtUI::axis_t::Z); break;
     case 'X': move_axis(ExtUI::axis_t::X); break;
@@ -286,10 +285,10 @@ void process_lcd_s_command(const char* command) {
     case 'I': {
       // temperature information
       char message_buffer[MAX_CURLY_COMMAND];
-      sprintf_P(message_buffer, PSTR("{T0:%03.0f/%03i}{T1:000/000}{TP:%03.0f/%03i}"),
-        thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
+      sprintf_P(message_buffer, PSTR("{T0:%03i/%03i}{T1:000/000}{TP:%03i/%03i}"),
+        int(thermalManager.degHotend(0)), thermalManager.degTargetHotend(0),
         #if HAS_HEATED_BED
-          thermalManager.degBed(), thermalManager.degTargetBed()
+          int(thermalManager.degBed()), thermalManager.degTargetBed()
         #else
           0, 0
         #endif

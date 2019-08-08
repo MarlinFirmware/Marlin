@@ -395,6 +395,7 @@ public:
     static inline void init() {}
     static inline void update() {}
     static inline void refresh() {}
+    static inline void return_to_status() {}
     static inline void set_alert_status_P(PGM_P message) { UNUSED(message); }
     static inline void set_status(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
     static inline void set_status_P(PGM_P const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }

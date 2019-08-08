@@ -109,9 +109,8 @@
 //#define TFT_BTRIGHT_COLOR  0x145F // 00010 100010 11111 Cyan
 
 //===========================================================================
-//============================= @section info ===============================
-//===========================================================================
 
+// @section info
 
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this

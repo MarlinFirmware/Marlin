@@ -70,7 +70,7 @@ else:
               com_CDC = com_last
               description_CDC = description_last
 
-      if  com_CDC == '' and not(com_first == ''):
+      if  com_CDC == '' and com_first != '':
           com_CDC = com_first
           description_CDC = description_first
       elif com_CDC == '':

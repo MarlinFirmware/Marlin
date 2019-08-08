@@ -450,7 +450,7 @@ void MarlinSettings::postprocess() {
   #define WORD_PADDED_EEPROM ENABLED(__STM32F1__, FLASH_EEPROM_EMULATION)
 
   #if WORD_PADDED_EEPROM && ENABLED(DEBUG_EEPROM_READWRITE)
-    #define UPDATE_TEST_INDEX(VAR) (text_index += sizeof(VAR))
+    #define UPDATE_TEST_INDEX(VAR) (test_index += sizeof(VAR))
   #else
     #define UPDATE_TEST_INDEX(VAR) NOOP
   #endif

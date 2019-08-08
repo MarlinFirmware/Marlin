@@ -52,7 +52,7 @@ static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
 
     SdFile file, root = card.getroot();
     if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
-      return false;
+      return true; // false aborts the save
 
     int bytes_read = file.read(HAL_eeprom_data, HAL_EEPROM_SIZE);
     if (bytes_read < 0) return false;
