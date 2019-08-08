@@ -27,4 +27,4 @@ def encrypt(source, target, env):
     finally:
         firmware.close()
         robin.close()
-env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", encrypt);
+env.AddPostAction('"$BUILD_DIR/${PROGNAME}.bin"', encrypt);

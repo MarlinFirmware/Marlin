@@ -15,8 +15,8 @@ env.AddPostAction(
 				"$OBJCOPY",
 				"-O",
 				"ihex",
-				"$BUILD_DIR/${PROGNAME}.elf",
-				"$BUILD_DIR/${PROGNAME}.hex"
+				'"$BUILD_DIR/${PROGNAME}.elf"',
+				'"$BUILD_DIR/${PROGNAME}.hex"'
 			]), "Building $TARGET"))
 
 # please keep $SOURCE variable, it will be replaced with a path to firmware
