@@ -66,7 +66,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     firstWrite = false;
   }
 
-  for (size_t i=0; i<size; i++) {
+  for (size_t i = 0; i < size; i++) {
     if (FLASH_ProgramHalfWord(EEPROM_PAGE0_BASE + (pos + i) * 2, value[i]) != FLASH_COMPLETE)
       return true;
   }
@@ -77,18 +77,16 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
-  for (size_t i=0; i<size; i++) {
+  for (size_t i = 0; i < size; i++) {
     uint8_t v = *(uint16_t *)(EEPROM_PAGE0_BASE + (pos + i) * 2);
-    if (writing) {
-      value[i] = v;
-    }
+    if (writing) value[i] = v;
     crc16(crc, &v, 1);
   }
   pos += size;
   return false;
 }
 
-size_t PersistentStore::capacity() { return size_t(E2END+1); }
+size_t PersistentStore::capacity() { return size_t(E2END + 1); }
 
 #endif // EEPROM_SETTINGS && EEPROM FLASH
 #endif // __STM32F1__
