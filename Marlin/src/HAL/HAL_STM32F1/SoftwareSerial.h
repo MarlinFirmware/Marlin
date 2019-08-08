@@ -18,6 +18,8 @@
  */
 #include "HAL.h"
 
+#define SW_SERIAL_PLACEHOLDER 1
+
 class SoftwareSerial {
 public:
   SoftwareSerial(pin_t RX_pin, pin_t TX_pin);
