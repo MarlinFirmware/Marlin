@@ -80,16 +80,13 @@
 #define MSG_LEVEL_BED                       _UxGT("Калибровать стол")
 #define MSG_LEVEL_CORNERS                   _UxGT("Выровнять углы")
 #define MSG_NEXT_CORNER                     _UxGT("Следующий угол")
+#define MSG_EDIT_MESH                       _UxGT("Редактировать сетку")
 #define MSG_EDITING_STOPPED                 _UxGT("Ред. сетки завершено")
 #define MSG_USER_MENU                       _UxGT("Свои команды")
 
-#define MSG_UBL_DOING_G29                   _UxGT("Выполняем G29")
-#define MSG_UBL_UNHOMED                     _UxGT("Паркуем сначала XYZ")
-#define MSG_UBL_TOOLS                       _UxGT("Утилиты UBL")
-#define MSG_UBL_LEVEL_BED                   _UxGT("Калибровка UBL")
-
 #define MSG_M48_TEST                        _UxGT("Проверка датчика Z")
 #define MSG_M48_DEVIATION                   _UxGT("Отклонение")
+#define MSG_M48_POINT                       _UxGT("Точка")
 
 // TODO: IDEX Menu
 #define MSG_OFFSETS_MENU                    _UxGT("Размещение сопел")
@@ -98,6 +95,10 @@
 #define MSG_Y_OFFSET                        _UxGT("2-е сопло Y")
 #define MSG_Z_OFFSET                        _UxGT("2-е сопло Z")
 
+#define MSG_UBL_DOING_G29                   _UxGT("Выполняем G29")
+#define MSG_UBL_UNHOMED                     _UxGT("Паркуем сначала XYZ")
+#define MSG_UBL_TOOLS                       _UxGT("Утилиты UBL")
+#define MSG_UBL_LEVEL_BED                   _UxGT("Калибровка UBL")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Постр. сетку от руки")
 #define MSG_UBL_BC_INSERT                   _UxGT("Пост. шимм и измер.")
 #define MSG_UBL_BC_INSERT2                  _UxGT("Измерение")
@@ -136,7 +137,6 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Вывести в CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Забекапить сетку")
 #define MSG_UBL_INFO_UBL                    _UxGT("Вывод информации UBL")
-#define MSG_EDIT_MESH                       _UxGT("Редактировать сетку")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Кол-во заполнителя")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Ручное заполнение")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Умное заполнение")
@@ -151,7 +151,7 @@
 #define MSG_UBL_SAVE_MESH                   _UxGT("Сохранить сетку стола")
 #define MSG_MESH_LOADED                     _UxGT("Сетка %i загружена")
 #define MSG_MESH_SAVED                      _UxGT("Сетка %i сохранена")
-#define MSG_NO_STORAGE                      _UxGT("Нет хранилища")
+#define MSG_UBL_NO_STORAGE                  _UxGT("Нет хранилища")
 #define MSG_UBL_SAVE_ERROR                  _UxGT("Ошибка: Сохран. UBL")
 #define MSG_UBL_RESTORE_ERROR               _UxGT("Ошибка: Восстан. UBL")
 #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Смещение Z останов.")
@@ -306,7 +306,7 @@
 // TODO: TouchMI Probe, Manual deploy/stow
 
 #define MSG_HOME                            _UxGT("Паркуй") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("первый")
+#define MSG_FIRST                           _UxGT("сначала")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Смещение Z")
 #define MSG_BABYSTEP_X                      _UxGT("Микрошаг X")
 #define MSG_BABYSTEP_Y                      _UxGT("Микрошаг Y")

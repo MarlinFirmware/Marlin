@@ -332,8 +332,7 @@ void PrintJobRecovery::resume() {
     // Restore leveling state before 'G92 Z' to ensure
     // the Z stepper count corresponds to the native Z.
     if (info.fade || info.leveling) {
-      dtostrf(info.fade, 1, 1, str_1);
-      sprintf_P(cmd, PSTR("M420 S%i Z%s"), int(info.leveling), str_1);
+      sprintf_P(cmd, PSTR("M420 S%i Z%s"), int(info.leveling), dtostrf(info.fade, 1, 1, str_1));
       gcode.process_subcommands_now(cmd);
     }
   #endif
@@ -355,9 +354,10 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Move back to the saved XY
-  dtostrf(info.current_position[X_AXIS], 1, 3, str_1);
-  dtostrf(info.current_position[Y_AXIS], 1, 3, str_2);
-  sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"), str_1, str_2);
+  sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"),
+    dtostrf(info.current_position[X_AXIS], 1, 3, str_1),
+    dtostrf(info.current_position[Y_AXIS], 1, 3, str_2)
+  );
   gcode.process_subcommands_now(cmd);
 
   // Move back to the saved Z
@@ -382,8 +382,7 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Restore E position with G92.9
-  dtostrf(info.current_position[E_AXIS], 1, 3, str_1);
-  sprintf_P(cmd, PSTR("G92.9 E%s"), str_1);
+  sprintf_P(cmd, PSTR("G92.9 E%s"), dtostrf(info.current_position[E_AXIS], 1, 3, str_1));
   gcode.process_subcommands_now(cmd);
 
   // Relative mode

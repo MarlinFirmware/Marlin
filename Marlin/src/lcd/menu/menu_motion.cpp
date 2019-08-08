@@ -285,8 +285,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
         // Determine digits needed right of decimal
         const uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
                              !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
-        dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr);
-        sprintf_P(tmp, PSTR(MSG_MOVE_Z_DIST), numstr);
+        sprintf_P(tmp, PSTR(MSG_MOVE_Z_DIST), dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
         LCDPRINT(tmp);
       MENU_ITEM_ADDON_END();
     }

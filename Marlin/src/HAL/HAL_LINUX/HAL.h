@@ -81,7 +81,10 @@ extern HalSerial usb_serial;
 inline void HAL_init(void) { }
 
 // Utility functions
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 int freeMemory(void);
+#pragma GCC diagnostic pop
 
 // SPI: Extended functions which take a channel number (hardware SPI only)
 /** Write single byte to specified SPI channel */

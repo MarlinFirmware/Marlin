@@ -666,17 +666,14 @@ void ST7920_Lite_Status_Screen::draw_position(const float x, const float y, cons
   // If position is unknown, flash the labels.
   const unsigned char alt_label = position_known ? 0 : (ui.get_blink() ? ' ' : 0);
 
-  dtostrf(x, -4, 0, str);
   write_byte(alt_label ? alt_label : 'X');
-  write_str(str, 4);
+  write_str(dtostrf(x, -4, 0, str), 4);
 
-  dtostrf(y, -4, 0, str);
   write_byte(alt_label ? alt_label : 'Y');
-  write_str(str, 4);
+  write_str(dtostrf(y, -4, 0, str), 4);
 
-  dtostrf(z, -5, 1, str);
   write_byte(alt_label ? alt_label : 'Z');
-  write_str(str, 5);
+  write_str(dtostrf(z, -5, 1, str), 5);
 }
 
 bool ST7920_Lite_Status_Screen::indicators_changed() {

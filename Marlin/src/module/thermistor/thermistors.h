@@ -89,7 +89,7 @@
 #if ANY_THERMISTOR_IS(18) // ATC Semitec 204GT-2 (4.7k pullup) Dagoma.Fr - MKS_Base_DKU001327
   #include "thermistor_18.h"
 #endif
-#if ANY_THERMISTOR_IS(20) // PT100 with INA826 amp on Ultimaker v2.0 electronics
+#if ANY_THERMISTOR_IS(20) // Pt100 with INA826 amp on Ultimaker v2.0 electronics
   #include "thermistor_20.h"
 #endif
 #if ANY_THERMISTOR_IS(51) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 1 kOhm, "EPCOS"
@@ -127,6 +127,9 @@
 #endif
 #if ANY_THERMISTOR_IS(147) // Pt100 with 4k7 pullup
   #include "thermistor_147.h"
+#endif
+#if ANY_THERMISTOR_IS(201) // Pt100 with LMV324 Overlord
+  #include "thermistor_201.h"
 #endif
 #if ANY_THERMISTOR_IS(666) // beta25 = UNK, R25 = 200K, Pull-up = 10 kOhm, "Unidentified 200K NTC thermistor (Einstart S)"
   #include "thermistor_666.h"
@@ -241,74 +244,76 @@ static_assert(
 // For thermistors the highest temperature results in the lowest ADC value
 // For thermocouples the highest temperature results in the highest ADC value
 #ifndef HEATER_0_RAW_HI_TEMP
-  #ifdef HEATER_0_USES_THERMISTOR
-    #define HEATER_0_RAW_HI_TEMP 0
-    #define HEATER_0_RAW_LO_TEMP 16383
-  #else
+  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_0_USES_THERMISTOR)
     #define HEATER_0_RAW_HI_TEMP 16383
     #define HEATER_0_RAW_LO_TEMP 0
+  #else
+    #define HEATER_0_RAW_HI_TEMP 0
+    #define HEATER_0_RAW_LO_TEMP 16383
   #endif
 #endif
 #ifndef HEATER_1_RAW_HI_TEMP
-  #ifdef HEATER_1_USES_THERMISTOR
-    #define HEATER_1_RAW_HI_TEMP 0
-    #define HEATER_1_RAW_LO_TEMP 16383
-  #else
+  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_1_USES_THERMISTOR)
     #define HEATER_1_RAW_HI_TEMP 16383
     #define HEATER_1_RAW_LO_TEMP 0
+  #else
+    #define HEATER_1_RAW_HI_TEMP 0
+    #define HEATER_1_RAW_LO_TEMP 16383
   #endif
 #endif
 #ifndef HEATER_2_RAW_HI_TEMP
-  #ifdef HEATER_2_USES_THERMISTOR
-    #define HEATER_2_RAW_HI_TEMP 0
-    #define HEATER_2_RAW_LO_TEMP 16383
-  #else
+  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_2_USES_THERMISTOR)
     #define HEATER_2_RAW_HI_TEMP 16383
     #define HEATER_2_RAW_LO_TEMP 0
+  #else
+    #define HEATER_2_RAW_HI_TEMP 0
+    #define HEATER_2_RAW_LO_TEMP 16383
   #endif
 #endif
 #ifndef HEATER_3_RAW_HI_TEMP
-  #ifdef HEATER_3_USES_THERMISTOR
-    #define HEATER_3_RAW_HI_TEMP 0
-    #define HEATER_3_RAW_LO_TEMP 16383
-  #else
+  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_3_USES_THERMISTOR)
     #define HEATER_3_RAW_HI_TEMP 16383
     #define HEATER_3_RAW_LO_TEMP 0
+  #else
+    #define HEATER_3_RAW_HI_TEMP 0
+    #define HEATER_3_RAW_LO_TEMP 16383
   #endif
 #endif
 #ifndef HEATER_4_RAW_HI_TEMP
-  #ifdef HEATER_4_USES_THERMISTOR
-    #define HEATER_4_RAW_HI_TEMP 0
-    #define HEATER_4_RAW_LO_TEMP 16383
-  #else
+  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_4_USES_THERMISTOR)
     #define HEATER_4_RAW_HI_TEMP 16383
     #define HEATER_4_RAW_LO_TEMP 0
+  #else
+    #define HEATER_4_RAW_HI_TEMP 0
+    #define HEATER_4_RAW_LO_TEMP 16383
   #endif
 #endif
 #ifndef HEATER_5_RAW_HI_TEMP
-  #ifdef HEATER_5_USES_THERMISTOR
-    #define HEATER_5_RAW_HI_TEMP 0
-    #define HEATER_5_RAW_LO_TEMP 16383
-  #else
+  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_5_USES_THERMISTOR)
     #define HEATER_5_RAW_HI_TEMP 16383
     #define HEATER_5_RAW_LO_TEMP 0
+  #else
+    #define HEATER_5_RAW_HI_TEMP 0
+    #define HEATER_5_RAW_LO_TEMP 16383
   #endif
 #endif
 #ifndef HEATER_BED_RAW_HI_TEMP
-  #ifdef HEATER_BED_USES_THERMISTOR
-    #define HEATER_BED_RAW_HI_TEMP 0
-    #define HEATER_BED_RAW_LO_TEMP 16383
-  #else
+  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_BED_USES_THERMISTOR)
     #define HEATER_BED_RAW_HI_TEMP 16383
     #define HEATER_BED_RAW_LO_TEMP 0
+  #else
+    #define HEATER_BED_RAW_HI_TEMP 0
+    #define HEATER_BED_RAW_LO_TEMP 16383
   #endif
 #endif
 #ifndef HEATER_CHAMBER_RAW_HI_TEMP
-  #ifdef HEATER_CHAMBER_USES_THERMISTOR
-    #define HEATER_CHAMBER_RAW_HI_TEMP 0
-    #define HEATER_CHAMBER_RAW_LO_TEMP 16383
-  #else
+  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_CHAMBER_USES_THERMISTOR)
     #define HEATER_CHAMBER_RAW_HI_TEMP 16383
     #define HEATER_CHAMBER_RAW_LO_TEMP 0
+  #else
+    #define HEATER_CHAMBER_RAW_HI_TEMP 0
+    #define HEATER_CHAMBER_RAW_LO_TEMP 16383
   #endif
 #endif
+
+#undef REVERSE_TEMP_SENSOR_RANGE

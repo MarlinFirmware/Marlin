@@ -268,7 +268,11 @@ class Temperature {
 
     static volatile bool in_temp_isr;
 
-    static hotend_info_t temp_hotend[HOTENDS];
+    static hotend_info_t temp_hotend[HOTENDS
+      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+        + 1
+      #endif
+    ];
 
     #if HAS_HEATED_BED
       static bed_info_t temp_bed;

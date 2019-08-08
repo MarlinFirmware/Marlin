@@ -92,7 +92,10 @@ uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(int delay);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 int freeMemory(void);
+#pragma GCC diagnostic pop
 
 void analogWrite(pin_t pin, int value);
 
