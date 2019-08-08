@@ -421,17 +421,17 @@ def open_file(path):
 def get_build_last():
       env_last = ''
       DIR_PWD = os.listdir('.')
-      if '.pioenvs' in DIR_PWD:
+      if '.pio' in DIR_PWD:
         date_last = 0.0
-        DIR__pioenvs = os.listdir('.pioenvs')
+        DIR__pioenvs = os.listdir('.pio')
         for name in DIR__pioenvs:
           if 0 <= name.find('.') or 0 <= name.find('-'):   # skip files in listing
             continue
-          DIR_temp = os.listdir('.pioenvs/' + name)
+          DIR_temp = os.listdir('.pio/build/' + name)
           for names_temp in DIR_temp:
 
             if 0 == names_temp.find('firmware.'):
-              date_temp = os.path.getmtime('.pioenvs/' + name + '/' + names_temp)
+              date_temp = os.path.getmtime('.pio/build/' + name + '/' + names_temp)
               if date_temp > date_last:
                 date_last = date_temp
                 env_last = name
