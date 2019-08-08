@@ -38,9 +38,7 @@
 #include "../gcode/gcode.h"
 #include "../lcd/ultralcd.h"
 
-#if ANY(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY, PROBE_TRIGGERED_WHEN_STOWED_TEST) || (QUIET_PROBING && ENABLED(PROBING_STEPPERS_OFF))
-  #include "../Marlin.h" // for stop(), disable_e_steppers
-#endif
+#include "../Marlin.h" // for stop(), disable_e_steppers, wait_for_user
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
@@ -62,6 +60,10 @@ float zprobe_zoffset; // Initialized by settings.load()
 
 #if ENABLED(BLTOUCH)
   #include "../feature/bltouch.h"
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../feature/host_actions.h" // for PROMPT_USER_CONTINUE
 #endif
 
 #if HAS_Z_SERVO_PROBE
