@@ -594,32 +594,6 @@
   #define INVERT_E_DIR false
 #endif
 
-#if ENABLED(HOST_ACTION_COMMANDS)
-  #ifndef ACTION_ON_PAUSE
-    #define ACTION_ON_PAUSE   "pause"
-  #endif
-  #ifndef ACTION_ON_RESUME
-    #define ACTION_ON_RESUME  "resume"
-  #endif
-  #ifndef ACTION_ON_PAUSED
-    #define ACTION_ON_PAUSED  "paused"
-  #endif
-  #ifndef ACTION_ON_RESUMED
-    #define ACTION_ON_RESUMED "resumed"
-  #endif
-  #ifndef ACTION_ON_CANCEL
-    #define ACTION_ON_CANCEL  "cancel"
-  #endif
-  #if ENABLED(G29_RETRY_AND_RECOVER)
-    #ifndef ACTION_ON_G29_RECOVER
-      #define ACTION_ON_G29_RECOVER "probe_rewipe"
-    #endif
-    #ifndef ACTION_ON_G29_FAILURE
-      #define ACTION_ON_G29_FAILURE "probe_failed"
-    #endif
-  #endif
-#endif
-
 #if ENABLED(SLIM_LCD_MENUS)
   #define BOOT_MARLIN_LOGO_SMALL
 #endif
