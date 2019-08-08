@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
+
 #include "HAL.h"
 
 #define SW_SERIAL_PLACEHOLDER 1
