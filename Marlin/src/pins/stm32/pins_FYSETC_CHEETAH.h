@@ -35,6 +35,13 @@
 
 #define DISABLE_JTAG
 
+#undef E2END
+#define E2END              0x7FF // EEPROM end address (reserve 4kB, 2kB usable)
+
+#define FLASH_EEPROM_EMULATION
+#define EEPROM_PAGE_SIZE	    uint16(0x800)  /* Page size = 2KByte */
+#define EEPROM_START_ADDRESS	uint32(0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE)
+
 //
 // Servos
 //
@@ -143,10 +150,3 @@
   #endif
 
 #endif
-
-#undef E2END
-#define E2END              0x7FF // EEPROM end address (reserve 4kB, 2kB usable)
-
-#define FLASH_EEPROM_EMULATION
-#define EEPROM_PAGE_SIZE	    (uint16)0x800  /* Page size = 2KByte */
-#define EEPROM_START_ADDRESS	((uint32)(0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE))
