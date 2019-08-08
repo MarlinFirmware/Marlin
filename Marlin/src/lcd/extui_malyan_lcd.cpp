@@ -183,18 +183,18 @@ void process_lcd_eb_command(const char* command) {
  * X, Y, Z, A (extruder)
  */
 void process_lcd_j_command(const char* command) {
-  const float dist = atof(command + 1) / 10.0;
 
-  auto move_axis = [](const auto axis, float dist) {
+  auto move_axis = [command](const auto axis) {
+    const float dist = atof(command + 1) / 10.0;
     ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
   };
 
   switch (command[0]) {
     case 'E': break;
     case 'A': move_axis(ExtUI::extruder_t::E0, dist); break;
-    case 'Y': move_axis(ExtUI::axis_t::Y, dist); break;
-    case 'Z': move_axis(ExtUI::axis_t::Z, dist); break;
-    case 'X': move_axis(ExtUI::axis_t::X, dist); break;
+    case 'Y': move_axis(ExtUI::axis_t::Y); break;
+    case 'Z': move_axis(ExtUI::axis_t::Z); break;
+    case 'X': move_axis(ExtUI::axis_t::X); break;
     default: DEBUG_ECHOLNPAIR("UNKNOWN J COMMAND ", command);
   }
 }
