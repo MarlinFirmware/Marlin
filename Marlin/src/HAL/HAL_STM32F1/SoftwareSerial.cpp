@@ -28,7 +28,7 @@
 
 // Constructor
 
-SoftwareSerial::SoftwareSerial(pin_t RX_pin, pin_t TX_pin) {}
+SoftwareSerial::SoftwareSerial(int8_t RX_pin, int8_t TX_pin) {}
 
 // Public
 
