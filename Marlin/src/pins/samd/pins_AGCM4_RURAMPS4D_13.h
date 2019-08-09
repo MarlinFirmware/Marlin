@@ -172,37 +172,40 @@
 
   #if EITHER(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER)
 
-    #define BEEPER_PIN     75
-    #define LCD_PINS_D4    48
-    #define LCD_PINS_D7    53
-    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
-    #define LCD_PINS_RS    76
-    #define LCD_PINS_ENABLE 77
+    #error "Pin compatibility check needed!"
+    #define BEEPER_PIN      54
+    #define LCD_PINS_D4     48
+    #define LCD_PINS_D7     53
+    #define SD_DETECT_PIN   -1    // 51 can't be used, it's MOSI
+    #define LCD_PINS_RS     55
+    #define LCD_PINS_ENABLE 56
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
-    #define BEEPER_PIN     75
-    #define LCD_PINS_D4    48
-    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
-    #define LCD_PINS_RS    76
-    #define LCD_PINS_ENABLE 77
+    #define BEEPER_PIN      54
+    #define LCD_PINS_D4     48
+    #define SD_DETECT_PIN   -1    // 51 can't be used, it's MOSI
+    #define LCD_PINS_RS     55
+    #define LCD_PINS_ENABLE 56
 
   #elif HAS_SSD1306_OLED_I2C
 
-    #define BEEPER_PIN     75
-    #define LCD_SDSS       10
-    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
+    #error "Pin compatibility check needed!"
+    #define BEEPER_PIN      54
+    #define LCD_SDSS        10
+    #define SD_DETECT_PIN   -1    // 51 can't be used, it's MOSI
 
   #elif ENABLED(FYSETC_MINI_12864)
 
-    #define BEEPER_PIN     75
-    #define DOGLCD_CS      77
-    #define DOGLCD_A0      76
+    #error "Pin compatibility check needed!"
+    #define BEEPER_PIN      54
+    #define DOGLCD_CS       56
+    #define DOGLCD_A0       55
 
-    //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
-                                //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+    //#define FORCE_SOFT_SPI       // Use this if default of hardware SPI causes display problems
+                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-    #define LCD_RESET_PIN  48   // Must be high or open for LCD to operate normally.
+    #define LCD_RESET_PIN   48    // Must be high or open for LCD to operate normally.
 
     #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #error "Pin compatibility check needed! Grand central M4 pins 50, 51 and 52 are not GPIO pins, they are wired to MISO, MOSI, and SCK."
