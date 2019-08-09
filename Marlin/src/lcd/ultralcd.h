@@ -151,7 +151,7 @@
 
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  #if BUTTON_EXISTS(ENC)
+  #if BUTTON_EXISTS(ENC) || ENABLED(TOUCH_BUTTONS)
     #define BLEN_C 2
     #define EN_C _BV(BLEN_C)
   #endif
