@@ -661,9 +661,15 @@ void idle(
 ) {
 
   #if ENABLED(SPI_ENDSTOPS)
-    if (endstops.tmc_spi_homing.any && ELAPSED(millis(), sg_guard_period))
-      for (uint8_t i = 4; i--;) // Read SGT 4 times per idle loop
-        if (endstops.tmc_spi_homing_check()) break;
+  if (endstops.tmc_spi_homing.any
+    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+      && ELAPSED(millis(), sg_guard_period)
+    #endif
+    ) {
+    for (uint8_t i = 4; i--;) // Read SGT 4 times per idle loop
+      if (endstops.tmc_spi_homing_check())
+        break;
+    }
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
