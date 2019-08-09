@@ -667,8 +667,7 @@ void idle(
       #endif
     ) {
       for (uint8_t i = 4; i--;) // Read SGT 4 times per idle loop
-        if (endstops.tmc_spi_homing_check())
-          break;
+        if (endstops.tmc_spi_homing_check()) break;
     }
   #endif
 
