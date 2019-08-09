@@ -31,13 +31,16 @@
 #include "menu.h"
 #include "../../module/printcounter.h"
 
+int _index;
+
 inline void _menu_service(const int index, PGM_P const name) {
   char sram[30];
+  _index = index;
   strncpy_P(sram, name, 29);
   do_select_screen(
     PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
     []{
-      print_job_timer.resetServiceInterval(index);
+      print_job_timer.resetServiceInterval(_index);
       #if HAS_BUZZER
         ui.completion_feedback();
       #endif
