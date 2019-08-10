@@ -777,7 +777,7 @@ void MarlinUI::update() {
         const millis_t ms = millis();
         if (ELAPSED(ms, next_button_update_ms)) {
           next_button_update_ms = ms + 50;
-          encoderDiff = ENCODER_STEPS_PER_MENU_ITEM * ENCODER_PULSES_PER_STEP;
+          encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP);
           if (buttons & EN_A) encoderDiff *= -1;
           if (!wait_for_unclick) {
             next_button_update_ms += 250;
@@ -789,12 +789,17 @@ void MarlinUI::update() {
         }
       }
     }
-    else if (!external_control && button_pressed()) {
-      if (!wait_for_unclick) {                        // If not waiting for a debounce release:
-        wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
-        lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
-        wait_for_user = false;                        //  - Any click clears wait for user
-        quick_feedback();                             //  - Always make a click sound
+    else {
+      //
+      // Integrated LCD click handling via button_pressed()
+      //
+      if (!external_control && button_pressed()) {
+        if (!wait_for_unclick) {                        // If not waiting for a debounce release:
+          wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
+          lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
+          wait_for_user = false;                        //  - Any click clears wait for user
+          quick_feedback();                             //  - Always make a click sound
+        }
       }
     }
     else wait_for_unclick = false;
@@ -809,7 +814,9 @@ void MarlinUI::update() {
   #endif // HAS_LCD_MENU
 
   #if ENABLED(INIT_SDCARD_ON_BOOT)
-
+    //
+    // SPI SD Card detection (and first card init when the LCD is present)
+    //
     const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
     if (sd_status != lcd_sd_status && detected()) {
 
