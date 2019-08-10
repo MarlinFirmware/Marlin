@@ -789,17 +789,15 @@ void MarlinUI::update() {
         }
       }
     }
-    else {
       //
       // Integrated LCD click handling via button_pressed()
       //
-      if (!external_control && button_pressed()) {
-        if (!wait_for_unclick) {                        // If not waiting for a debounce release:
-          wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
-          lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
-          wait_for_user = false;                        //  - Any click clears wait for user
-          quick_feedback();                             //  - Always make a click sound
-        }
+    else if (!external_control && button_pressed()) {
+      if (!wait_for_unclick) {                        // If not waiting for a debounce release:
+        wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
+        lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
+        wait_for_user = false;                        //  - Any click clears wait for user
+        quick_feedback();                             //  - Always make a click sound
       }
     }
     else wait_for_unclick = false;
