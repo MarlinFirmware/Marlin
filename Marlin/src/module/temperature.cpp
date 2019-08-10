@@ -118,7 +118,7 @@ hotend_info_t Temperature::temp_hotend[HOTENDS
   uint8_t Temperature::autofan_speed[HOTENDS]; // = { 0 }
 #endif
 
-#if HAS_AUTO_CHAMBER_FAN
+#if ENABLED(AUTO_POWER_CHAMBER_FAN)
   uint8_t Temperature::chamberfan_speed; // = 0
 #endif
 
@@ -709,7 +709,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
       if (TEST(fanDone, realFan)) continue;
       const bool fan_on = TEST(fanState, realFan);
       switch (f) {
-        #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
+        #if ENABLED(AUTO_POWER_CHAMBER_FAN)
           case CHAMBER_FAN_INDEX:
             chamberfan_speed = fan_on ? CHAMBER_AUTO_FAN_SPEED : 0;
             break;

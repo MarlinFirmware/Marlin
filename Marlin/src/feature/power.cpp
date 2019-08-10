@@ -50,7 +50,7 @@ bool Power::is_power_needed() {
     if (controllerfan_speed) return true;
   #endif
 
-  #if HAS_AUTO_CHAMBER_FAN
+  #if ENABLED(AUTO_POWER_CHAMBER_FAN)
     if (thermalManager.chamberfan_speed) return true;
   #endif
 
