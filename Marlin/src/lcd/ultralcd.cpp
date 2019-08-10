@@ -764,7 +764,35 @@ void MarlinUI::update() {
 
     // If the action button is pressed...
     static bool wait_for_unclick; // = 0
-    if (!external_control && button_pressed()) {
+    if (touch_buttons) {
+      if ((buttons & EN_A) || (buttons & EN_B)) {
+        if (ELAPSED(millis(), next_button_update_ms)) {
+          if (buttons & EN_A) 
+            encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * ENCODER_PULSES_PER_STEP;
+          else
+            encoderDiff = ENCODER_STEPS_PER_MENU_ITEM * ENCODER_PULSES_PER_STEP;
+
+          if (!wait_for_unclick) {
+            next_button_update_ms = millis() + 300;
+            #if HAS_BUZZER
+              buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+            #endif
+            wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
+          }
+          else
+            next_button_update_ms = millis() + 50;
+        }
+      }
+      if (buttons & EN_C) {
+        if (!wait_for_unclick) {                        // If not waiting for a debounce release:
+          wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
+          lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
+          wait_for_user = false;                        //  - Any click clears wait for user
+          quick_feedback();                             //  - Always make a click sound
+        }
+      }
+    }
+    else if (!external_control && button_pressed()) {
       if (!wait_for_unclick) {                        // If not waiting for a debounce release:
         wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
         lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
