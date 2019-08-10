@@ -129,7 +129,6 @@
   #define LCD_BACKLIGHT_PIN  PD13
 
   #if ENABLED(TOUCH_BUTTONS)
-    #define BTN_ENC          PC13   // Not connected. TODO: Replace this hack to enable button code
     #define TOUCH_CS_PIN     PA7
   #endif
 #endif
