@@ -137,7 +137,7 @@
   #define TOUCH_MISO_PIN   PB15  // pin 54
   #define TOUCH_INT_PIN    PC6   // pin 63 (PenIRQ coming from ADS7843)
 
-//#define BTN_ENC          PB0   // pin 35 unconnected pin on Alfawise. (PC13 to try)
+  //#define BTN_ENC        PB0   // pin 35 unconnected pin on Alfawise. (PC13 to try)
   #define BTN_EN1          -1    // Real pin is needed to enable encoder's push button
   #define BTN_EN2          -1    // functionality used by touch screen
 #endif
