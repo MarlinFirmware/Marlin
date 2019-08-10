@@ -80,10 +80,10 @@ uint8_t XPT2046::read_buttons() {
 
   if (y < 175 || y > 234) return 0;
 
-  if (WITHIN(x,  11, 109)) return EN_A; //encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * ENCODER_PULSES_PER_STEP;
-  if (WITHIN(x, 111, 209)) return EN_B; //encoderDiff =   ENCODER_STEPS_PER_MENU_ITEM  * ENCODER_PULSES_PER_STEP;
-  if (WITHIN(x, 211, 309)) return EN_C;
-  return 0;
+  return WITHIN(x,  11, 109) ? EN_A
+       : WITHIN(x, 111, 209) ? EN_B
+       : WITHIN(x, 211, 309) ? EN_C
+       : 0;
 }
 
 bool XPT2046::isTouched() {
