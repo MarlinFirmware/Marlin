@@ -118,7 +118,7 @@ hotend_info_t Temperature::temp_hotend[HOTENDS
   uint8_t Temperature::autofan_speed[HOTENDS]; // = { 0 }
 #endif
 
-#if ENABLED(AUTO_POWER_CHAMBER_FAN)
+#if HAS_AUTO_CHAMBER_FAN
   uint8_t Temperature::chamberfan_speed; // = 0
 #endif
 
