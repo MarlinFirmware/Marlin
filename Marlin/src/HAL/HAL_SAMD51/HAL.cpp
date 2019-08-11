@@ -59,12 +59,12 @@
 #else
   #define GET_TEMP_5_ADC()          -1
 #endif
-#if HAS_HEATED_BED
+#if HAS_TEMP_ADC_BED
   #define GET_BED_ADC()             PIN_TO_ADC(TEMP_BED_PIN)
 #else
   #define GET_BED_ADC()             -1
 #endif
-#if HAS_HEATED_CHAMBER
+#if HAS_TEMP_ADC_CHAMBER
   #define GET_CHAMBER_ADC()         PIN_TO_ADC(TEMP_CHAMBER_PIN)
 #else
   #define GET_CHAMBER_ADC()         -1

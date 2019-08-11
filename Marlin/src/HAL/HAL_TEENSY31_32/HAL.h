@@ -97,9 +97,12 @@ uint8_t HAL_get_reset_source(void);
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 extern "C" {
   int freeMemory(void);
 }
+#pragma GCC diagnostic pop
 
 // SPI: Extended functions which take a channel number (hardware SPI only)
 

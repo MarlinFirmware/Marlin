@@ -189,7 +189,7 @@ void port_print(const pin_t Ard_num) {
   for (Index = 0; Index < NUMBER_PINS_TOTAL; Index++)
     if (Ard_num == GET_PIN_MAP_PIN_M43(Index)) break;
 
-  char * const ppa = pin_xref[Index].Port_pin_alpha;
+  const char * ppa = pin_xref[Index].Port_pin_alpha;
   sprintf_P(buffer, PSTR("%s"), ppa);
   SERIAL_ECHO(buffer);
   if (ppa[3] == '\0') SERIAL_CHAR(' ');

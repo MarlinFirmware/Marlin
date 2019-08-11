@@ -146,10 +146,10 @@ void process_lcd_eb_command(const char* command) {
 
       char message_buffer[MAX_CURLY_COMMAND];
       sprintf_P(message_buffer,
-        PSTR("{T0:%03.0f/%03i}{T1:000/000}{TP:%03.0f/%03i}{TQ:%03i}{TT:%s}"),
-        thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
+        PSTR("{T0:%03i/%03i}{T1:000/000}{TP:%03i/%03i}{TQ:%03i}{TT:%s}"),
+        int(thermalManager.degHotend(0)), thermalManager.degTargetHotend(0),
         #if HAS_HEATED_BED
-          thermalManager.degBed(), thermalManager.degTargetBed(),
+          int(thermalManager.degBed()), thermalManager.degTargetBed(),
         #else
           0, 0,
         #endif
@@ -199,8 +199,8 @@ void process_lcd_j_command(const char* command) {
     case 'X': {
       // G0 <AXIS><distance>
       // The M200 class UI seems to send movement in .1mm values.
-      char cmd[20];
-      sprintf_P(cmd, PSTR("G1 %c%03.1f"), axis, atof(command + 1) / 10.0);
+      char cmd[20], pos[6];
+      sprintf_P(cmd, PSTR("G1 %c%s"), axis, dtostrf(atof(command + 1) / 10.0, -5, 3, pos));
       queue.enqueue_one_now(cmd);
     } break;
     default:
@@ -305,10 +305,10 @@ void process_lcd_s_command(const char* command) {
     case 'I': {
       // temperature information
       char message_buffer[MAX_CURLY_COMMAND];
-      sprintf_P(message_buffer, PSTR("{T0:%03.0f/%03i}{T1:000/000}{TP:%03.0f/%03i}"),
-        thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
+      sprintf_P(message_buffer, PSTR("{T0:%03i/%03i}{T1:000/000}{TP:%03i/%03i}"),
+        int(thermalManager.degHotend(0)), thermalManager.degTargetHotend(0),
         #if HAS_HEATED_BED
-          thermalManager.degBed(), thermalManager.degTargetBed()
+          int(thermalManager.degBed()), thermalManager.degTargetBed()
         #else
           0, 0
         #endif

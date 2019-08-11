@@ -232,6 +232,9 @@
 #ifndef MSG_NEXT_CORNER
   #define MSG_NEXT_CORNER                     _UxGT("Next Corner")
 #endif
+#ifndef MSG_EDIT_MESH
+  #define MSG_EDIT_MESH                       _UxGT("Edit Mesh")
+#endif
 #ifndef MSG_EDITING_STOPPED
   #define MSG_EDITING_STOPPED                 _UxGT("Mesh Editing Stopped")
 #endif
@@ -250,23 +253,11 @@
 #ifndef MSG_USER_MENU
   #define MSG_USER_MENU                       _UxGT("Custom Commands")
 #endif
-#ifndef MSG_UBL_DOING_G29
-  #define MSG_UBL_DOING_G29                   _UxGT("Doing G29")
-#endif
-#ifndef MSG_UBL_UNHOMED
-  #define MSG_UBL_UNHOMED                     _UxGT("Home XYZ First")
-#endif
-#ifndef MSG_UBL_TOOLS
-  #define MSG_UBL_TOOLS                       _UxGT("UBL Tools")
-#endif
-#ifndef MSG_UBL_LEVEL_BED
-  #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
-#endif
-#ifndef MSG_LCD_TILTING_MESH
-  #define MSG_LCD_TILTING_MESH                _UxGT("Tilting Point")
-#endif
 #ifndef MSG_M48_TEST
   #define MSG_M48_TEST                        _UxGT("M48 Probe Test")
+#endif
+#ifndef MSG_M48_POINT
+  #define MSG_M48_POINT                       _UxGT("M48 Point")
 #endif
 #ifndef MSG_M48_DEVIATION
   #define MSG_M48_DEVIATION                   _UxGT("Deviation")
@@ -297,6 +288,21 @@
 #endif
 #ifndef MSG_Z_OFFSET
   #define MSG_Z_OFFSET                        _UxGT("2nd nNozzle Z")
+#endif
+#ifndef MSG_UBL_DOING_G29
+  #define MSG_UBL_DOING_G29                   _UxGT("Doing G29")
+#endif
+#ifndef MSG_UBL_UNHOMED
+  #define MSG_UBL_UNHOMED                     _UxGT("Home XYZ First")
+#endif
+#ifndef MSG_UBL_TOOLS
+  #define MSG_UBL_TOOLS                       _UxGT("UBL Tools")
+#endif
+#ifndef MSG_UBL_LEVEL_BED
+  #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
+#endif
+#ifndef MSG_LCD_TILTING_MESH
+  #define MSG_LCD_TILTING_MESH                _UxGT("Tilting Point")
 #endif
 #ifndef MSG_UBL_MANUAL_MESH
   #define MSG_UBL_MANUAL_MESH                 _UxGT("Manually Build Mesh")
@@ -412,9 +418,6 @@
 #ifndef MSG_UBL_INFO_UBL
   #define MSG_UBL_INFO_UBL                    _UxGT("Output UBL Info")
 #endif
-#ifndef MSG_EDIT_MESH
-  #define MSG_EDIT_MESH                       _UxGT("Edit Mesh")
-#endif
 #ifndef MSG_UBL_FILLIN_AMOUNT
   #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Fill-in Amount")
 #endif
@@ -457,8 +460,8 @@
 #ifndef MSG_MESH_SAVED
   #define MSG_MESH_SAVED                      _UxGT("Mesh %i Saved")
 #endif
-#ifndef MSG_NO_STORAGE
-  #define MSG_NO_STORAGE                      _UxGT("No Storage")
+#ifndef MSG_UBL_NO_STORAGE
+  #define MSG_UBL_NO_STORAGE                  _UxGT("No Storage")
 #endif
 #ifndef MSG_UBL_SAVE_ERROR
   #define MSG_UBL_SAVE_ERROR                  _UxGT("Err: UBL Save")

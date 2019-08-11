@@ -243,6 +243,7 @@
   #define DIO5_PIN    PIN_PC21
   #define DIO16_PIN   PIN_PC22
   #define DIO17_PIN   PIN_PC23
+  #define DIO88_PIN   PIN_PC24    // NEOPIXEL
   // PORTD
   #define DIO22_PIN   PIN_PD12
   #define DIO6_PIN    PIN_PD20

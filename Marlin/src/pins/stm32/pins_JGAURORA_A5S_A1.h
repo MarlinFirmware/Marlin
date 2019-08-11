@@ -122,7 +122,6 @@
 // Touch support
 //
 #if ENABLED(TOUCH_BUTTONS)
-  #define BTN_ENC          PA11   // Real pin needed to enable encoder's push button functionality used by touch screen. PA11 gives stable value.
   #define TOUCH_CS_PIN     PA4
   #define TOUCH_INT_PIN    PC4
 #endif
