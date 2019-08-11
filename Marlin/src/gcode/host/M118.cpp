@@ -40,10 +40,11 @@ void GcodeSuite::M118() {
       case '*':
         PORT_REDIRECT(SERIAL_BOTH);
         break;
-      #ifdef SERIAL_PORT_2  
       case '2':
-        PORT_REDIRECT(SERIAL_PORT_2);  
-      #endif  
+        #ifdef SERIAL_PORT_2  
+          PORT_REDIRECT(SERIAL_PORT_2);
+          break;  
+        #endif  
       case '1':
       default:
         PORT_REDIRECT(SERIAL_PORT);  
@@ -52,9 +53,8 @@ void GcodeSuite::M118() {
       p += 2;
       while (*p == ' ') ++p;
     }
-//  if (hasE || hasA) PORT_REDIRECT(serial);  
   if (hasE) SERIAL_ECHO_START();
   if (hasA) SERIAL_ECHOPGM("// ");
   SERIAL_ECHOLN(p);
-  PORT_RESTORE();
+  if (hasE || hasA) PORT_RESTORE();  
 }
