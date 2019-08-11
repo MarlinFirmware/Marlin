@@ -92,20 +92,16 @@
 #define KILL_PIN           64
 
 //
-// LCD / Controller
+// LCD / Controller (LCD is non-removable)
 //
 
-#if HAS_SPI_LCD
-  #define DOGLCD_A0        40
-  #define DOGLCD_CS        41
-  #define LCD_BACKLIGHT_PIN 65   // Backlight LED on A11/D65
-  #define LCD_RESET_PIN    27
-
-  #define LCD_CONTRAST    255
-
-  #if ENABLED(NEWPANEL)
-    #define BTN_EN1         2
-    #define BTN_EN2         3
-    #define BTN_ENC         5
-  #endif
-#endif
+#define DOGLCD_A0        40
+#define DOGLCD_CS        41
+#define LCD_BACKLIGHT_PIN 65   // Backlight LED on A11/D65
+#define LCD_RESET_PIN    27
+#define LCD_CONTRAST_MIN 0
+#define LCD_CONTRAST_MAX 255
+#define DEFAULT_LCD_CONTRAST 255
+#define BTN_EN1         2
+#define BTN_EN2         3
+#define BTN_ENC         5
