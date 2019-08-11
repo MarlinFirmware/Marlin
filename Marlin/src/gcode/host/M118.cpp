@@ -30,18 +30,29 @@
  */
 void GcodeSuite::M118() {
   bool hasE = false, hasA = false;
-  byte serial = 1;
   char *p = parser.string_arg;
   for (uint8_t i = 2; i--;)
     if ((p[0] == 'A' || p[0] == 'E') && (p[1] == '1' || p[1] == '2' || p[1] == '*')) {
       if (p[0] == 'A') hasA = true;
       if (p[0] == 'E') hasE = true;
-      if (p[1] == '*') serial = p[1];
-      else serial = p[1] - '0';
+      switch (p[1])
+      {
+      case '*':
+        PORT_REDIRECT(SERIAL_BOTH);
+        break;
+      #ifdef SERIAL_PORT_2  
+      case '2':
+        PORT_REDIRECT(SERIAL_PORT_2);  
+      #endif  
+      case '1':
+      default:
+        PORT_REDIRECT(SERIAL_PORT);  
+        break;
+      }
       p += 2;
       while (*p == ' ') ++p;
     }
-  if (hasE || hasA) PORT_REDIRECT(serial == '*'?SERIAL_BOTH:serial);  
+//  if (hasE || hasA) PORT_REDIRECT(serial);  
   if (hasE) SERIAL_ECHO_START();
   if (hasA) SERIAL_ECHOPGM("// ");
   SERIAL_ECHOLN(p);
