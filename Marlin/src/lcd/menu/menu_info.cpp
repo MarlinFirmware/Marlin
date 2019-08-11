@@ -240,6 +240,7 @@ void menu_info() {
     #if ENABLED(GAMES_EASTER_EGG)
       MENU_ITEM_DUMMY();
       MENU_ITEM_DUMMY();
+      MENU_ITEM_DUMMY();
     #endif
     MENU_ITEM(submenu, MSG_GAMES, (
       #if HAS_GAME_MENU
