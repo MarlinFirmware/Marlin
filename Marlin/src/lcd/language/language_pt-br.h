@@ -366,6 +366,8 @@
 #define MSG_CASE_LIGHT                      _UxGT("Luz da Impressora")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Intensidade Brilho")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Impressora Incorreta")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Total de Impressões")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Realizadas")

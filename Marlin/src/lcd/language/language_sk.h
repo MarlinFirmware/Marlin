@@ -415,6 +415,8 @@
 #define MSG_CASE_LIGHT                      _UxGT("Osvetlenie")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Jas svetla")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Nesprávna tlačiareň")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Počet tlačí")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Dokončené")

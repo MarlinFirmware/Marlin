@@ -185,3 +185,5 @@
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrar Centro")
 
 #define MSG_LCD_ENDSTOPS                    _UxGT("Fim de curso")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Impressora Incorreta")

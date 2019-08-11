@@ -346,6 +346,9 @@
 //#define MSG_INFO_PROTOCOL                 _UxGT("Protocol")
 //#define MSG_CASE_LIGHT                    _UxGT("Case light")
 //#define MSG_CASE_LIGHT_BRIGHTNESS         _UxGT("Light Brightness")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("잘못된 프린터")
+
 #if LCD_WIDTH >= 20
   //#define MSG_INFO_PRINT_COUNT            _UxGT("Print Count")
   //#define MSG_INFO_COMPLETED_PRINTS       _UxGT("Completed")

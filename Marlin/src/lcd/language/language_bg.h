@@ -144,3 +144,4 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Калибровка Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Калибровка Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Калибровка Център")
+#define MSG_EXPECTED_PRINTER                _UxGT("Неправилен принтер")

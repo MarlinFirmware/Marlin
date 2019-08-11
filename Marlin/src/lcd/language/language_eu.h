@@ -354,6 +354,9 @@
 #define MSG_ERR_HOMING_FAILED               _UxGT("Hasi. huts egin du")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Neurketak huts egin du")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: hotzegi")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Inprimagailu okerra")
+
 //
 // Filament Change screens show up to 3 lines on a 4-line display
 //                        ...or up to 2 lines on a 3-line display

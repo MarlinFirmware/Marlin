@@ -361,6 +361,9 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("Протокол")
 #define MSG_CASE_LIGHT                      _UxGT("Подсветка корпуса")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Яркость подсветки")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Неверный принтер")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Счётчик печати")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Закончено")

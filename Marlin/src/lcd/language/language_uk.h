@@ -192,6 +192,8 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("Протокол")
 #define MSG_CASE_LIGHT                      _UxGT("Підсвітка")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Неправильний принтер")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("К-сть друків")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Завершено")

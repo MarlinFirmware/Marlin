@@ -409,6 +409,8 @@
 #define MSG_CASE_LIGHT                      _UxGT("Lumière caisson")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Luminosité")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Imprimante incorrecte")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Nbre impressions")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Terminées")

@@ -494,6 +494,8 @@
 #define MSG_SNAKE                           _UxGT("Sn4k3")
 #define MSG_MAZE                            _UxGT("Maze")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Stampante errata")
+
 //
 // Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe
 //                                                  ...o fino a 2 linee su un display a 3 righe.

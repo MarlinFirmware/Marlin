@@ -185,3 +185,5 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Βαθμονόμηση Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Βαθμονόμηση Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Βαθμονόμηση κέντρου")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Εσφαλμένος εκτυπωτής")
