@@ -131,6 +131,9 @@
 #if ANY_THERMISTOR_IS(201) // Pt100 with LMV324 Overlord
   #include "thermistor_201.h"
 #endif
+#if ANY_THERMISTOR_IS(331) // Like table 1, but with 3V3 as input voltage
+  #include "thermistor_331.h"
+#endif
 #if ANY_THERMISTOR_IS(666) // beta25 = UNK, R25 = 200K, Pull-up = 10 kOhm, "Unidentified 200K NTC thermistor (Einstart S)"
   #include "thermistor_666.h"
 #endif

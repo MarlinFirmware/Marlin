@@ -113,6 +113,7 @@
 
 #define BOARD_CNCONTROLS_11           1300  // Cartesio CN Controls V11
 #define BOARD_CNCONTROLS_12           1301  // Cartesio CN Controls V12
+#define BOARD_CNCONTROLS_15           1325  // Cartesio CN Controls V15
 #define BOARD_CHEAPTRONIC             1302  // Cheaptronic v1.0
 #define BOARD_CHEAPTRONIC_V2          1303  // Cheaptronic v2.0
 #define BOARD_MIGHTYBOARD_REVE        1304  // Makerbot Mightyboard Revision E
