@@ -111,7 +111,10 @@ extern "C" volatile uint32_t _millis;
 //
 // Utility functions
 //
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 int freeMemory(void);
+#pragma GCC diagnostic pop
 
 //
 // SPI: Extended functions taking a channel number (Hardware SPI only)

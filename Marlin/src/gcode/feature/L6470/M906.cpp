@@ -101,8 +101,12 @@ void L6470_report_current(L6470 &motor, const uint8_t axis) {
   #endif
   sprintf_P(temp_buf, PSTR("\n...OverCurrent Threshold: %2d (%4d mA)"), overcurrent_threshold, (overcurrent_threshold + 1) * 375);
   SERIAL_ECHO(temp_buf);
-  sprintf_P(temp_buf, PSTR("   Stall Threshold: %2d (%7.2f mA)"), stall_threshold, (stall_threshold + 1) * 31.25);
+
+  char numstr[11];
+  dtostrf((stall_threshold + 1) * 31.25, 1, 2, numstr);
+  sprintf_P(temp_buf, PSTR("   Stall Threshold: %2d (%s mA)"), stall_threshold, numstr);
   SERIAL_ECHO(temp_buf);
+
   SERIAL_ECHOPGM("   Motor Status: ");
   const char * const stat_str;
   switch (motor_status) {
@@ -114,24 +118,42 @@ void L6470_report_current(L6470 &motor, const uint8_t axis) {
   }
   serialprintPGM(stat_str);
   SERIAL_EOL();
+
   SERIAL_ECHOPAIR("...microsteps: ", microsteps);
   SERIAL_ECHOPAIR("   ADC_OUT: ", adc_out);
   SERIAL_ECHOPGM("   Vs_compensation: ");
   serialprintPGM((motor.GetParam(L6470_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
-  sprintf_P(temp_buf, PSTR("   Compensation coefficient: ~%4.2f\n"), comp_coef * 0.01f);
-  SERIAL_ECHO(temp_buf);
+
+  SERIAL_ECHOLNPGM("   Compensation coefficient: ", dtostrf(comp_coef * 0.01f, 7, 2, numstr));
   SERIAL_ECHOPAIR("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD));
   SERIAL_ECHOPAIR("   KVAL_RUN : ", motor.GetParam(L6470_KVAL_RUN));
   SERIAL_ECHOPAIR("   KVAL_ACC: ", motor.GetParam(L6470_KVAL_ACC));
   SERIAL_ECHOPAIR("   KVAL_DEC: ", motor.GetParam(L6470_KVAL_DEC));
   SERIAL_ECHOPGM("   V motor max =  ");
+  float val;
+  PGM_P suf;
   switch (motor_status) {
-    case 0: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_HOLD)\n"), float(motor.GetParam(L6470_KVAL_HOLD)) * 100 / 256); break;
-    case 1: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_RUN) \n"), float(motor.GetParam(L6470_KVAL_RUN)) * 100 / 256); break;
-    case 2: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_ACC) \n"), float(motor.GetParam(L6470_KVAL_ACC)) * 100 / 256); break;
-    case 3: sprintf_P(temp_buf, PSTR(" %4.1f%% (KVAL_DEC) \n"), float(motor.GetParam(L6470_KVAL_DEC)) * 100 / 256); break;
+    case 0:
+      val = motor.GetParam(L6470_KVAL_HOLD);
+      suf = PSTR("(KVAL_HOLD)");
+      break;
+    case 1:
+      val = motor.GetParam(L6470_KVAL_RUN);
+      suf = PSTR("(KVAL_RUN)");
+      break;
+    case 2:
+      val = motor.GetParam(L6470_KVAL_ACC);
+      suf = PSTR("(KVAL_ACC)");
+      break;
+    case 3:
+      val = motor.GetParam(L6470_KVAL_DEC);
+      suf = PSTR("(KVAL_DEC)");
+      break;
   }
-  SERIAL_ECHO(temp_buf);
+  SERIAL_ECHO(dtostrf(val * 100 / 256, 10, 2, numstr));
+  SERIAL_ECHO("%% ");
+  serialprintPGM(suf);
+  SERIAL_EOL();
 }
 
 void GcodeSuite::M906() {
@@ -150,7 +172,7 @@ void GcodeSuite::M906() {
     report_current = false;
 
     if (planner.has_blocks_queued() || planner.cleaning_buffer_counter) {
-      SERIAL_ECHOLNPGM("ERROR - can't set KVAL_HOLD while steppers are moving");
+      SERIAL_ECHOLNPGM("!Can't set KVAL_HOLD with steppers moving");
       return;
     }
 

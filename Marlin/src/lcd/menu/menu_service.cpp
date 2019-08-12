@@ -26,39 +26,57 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && HAS_SERVICE_INTERVALS && ENABLED(PRINTCOUNTER)
+#if HAS_LCD_MENU && HAS_SERVICE_INTERVALS
 
 #include "menu.h"
 #include "../../module/printcounter.h"
 
-inline void _menu_service(const int index, PGM_P const name) {
-  char sram[30];
-  strncpy_P(sram, name, 29);
-  do_select_screen(
-    PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
-    []{
-      print_job_timer.resetServiceInterval(index);
-      #if HAS_BUZZER
-        ui.completion_feedback();
-      #endif
-      ui.reset_status();
-      ui.return_to_status();
-    },
-    ui.goto_previous_screen,
-    PSTR(MSG_SERVICE_RESET), sram, PSTR("?")
-  );
+inline void _service_reset(const int index) {
+  print_job_timer.resetServiceInterval(index);
+  #if HAS_BUZZER
+    ui.completion_feedback();
+  #endif
+  ui.reset_status();
+  ui.return_to_status();
 }
 
 #if SERVICE_INTERVAL_1 > 0
-  void menu_service1() { _menu_service(1, PSTR(SERVICE_NAME_1)); }
+  void menu_service1() {
+    char sram[30];
+    strncpy_P(sram, PSTR(SERVICE_NAME_1), 29);
+    do_select_screen(
+      PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
+      []{ _service_reset(1); },
+      ui.goto_previous_screen,
+      PSTR(MSG_SERVICE_RESET), sram, PSTR("?")
+    );
+  }
 #endif
 
 #if SERVICE_INTERVAL_2 > 0
-  void menu_service2() { _menu_service(2, PSTR(SERVICE_NAME_2)); }
+  void menu_service2() {
+    char sram[30];
+    strncpy_P(sram, PSTR(SERVICE_NAME_2), 29);
+    do_select_screen(
+      PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
+      []{ _service_reset(2); },
+      ui.goto_previous_screen,
+      PSTR(MSG_SERVICE_RESET), sram, PSTR("?")
+    );
+  }
 #endif
 
 #if SERVICE_INTERVAL_3 > 0
-  void menu_service3() { _menu_service(3, PSTR(SERVICE_NAME_3)); }
+  void menu_service3() {
+    char sram[30];
+    strncpy_P(sram, PSTR(SERVICE_NAME_3), 29);
+    do_select_screen(
+      PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
+      []{ _service_reset(3); },
+      ui.goto_previous_screen,
+      PSTR(MSG_SERVICE_RESET), sram, PSTR("?")
+    );
+  }
 #endif
 
-#endif // HAS_LCD_MENU && HAS_SERVICE_INTERVALS && PRINTCOUNTER
+#endif // HAS_LCD_MENU && HAS_SERVICE_INTERVALS

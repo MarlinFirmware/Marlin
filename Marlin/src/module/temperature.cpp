@@ -2220,6 +2220,9 @@ void Temperature::readings_ready() {
   #endif
 
   HOTEND_LOOP() temp_hotend[e].acc = 0;
+  #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+    temp_hotend[1].acc = 0;
+  #endif
 
   #if HAS_HEATED_BED
     temp_bed.acc = 0;

@@ -306,7 +306,7 @@
 // TODO: TouchMI Probe, Manual deploy/stow
 
 #define MSG_HOME                            _UxGT("Паркуй") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("первый")
+#define MSG_FIRST                           _UxGT("сначала")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Смещение Z")
 #define MSG_BABYSTEP_X                      _UxGT("Микрошаг X")
 #define MSG_BABYSTEP_Y                      _UxGT("Микрошаг Y")

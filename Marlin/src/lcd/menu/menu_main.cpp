@@ -83,7 +83,7 @@ void menu_configuration();
   void menu_mixer();
 #endif
 
-#if HAS_SERVICE_INTERVALS && ENABLED(PRINTCOUNTER)
+#if HAS_SERVICE_INTERVALS
   #if SERVICE_INTERVAL_1 > 0
     void menu_service1();
   #endif
@@ -237,7 +237,7 @@ void menu_main() {
     }
   #endif // HAS_ENCODER_WHEEL && SDSUPPORT
 
-  #if HAS_SERVICE_INTERVALS && ENABLED(PRINTCOUNTER)
+  #if HAS_SERVICE_INTERVALS
     #if SERVICE_INTERVAL_1 > 0
       MENU_ITEM(submenu, SERVICE_NAME_1, menu_service1);
     #endif

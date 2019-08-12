@@ -287,7 +287,7 @@
 #define MSG_BUTTON_INIT                     _UxGT("Bestätigen")
 #define MSG_BUTTON_STOP                     _UxGT("Stop")
 #define MSG_BUTTON_PRINT                    _UxGT("Drucken")
-#define MSG_BUTTON_RESET                    _UxGT("Zurücksetzen")
+#define MSG_BUTTON_RESET                    _UxGT("Reseten")
 #define MSG_BUTTON_CANCEL                   _UxGT("Abbrechen")
 #define MSG_BUTTON_DONE                     _UxGT("Fertig")
 #define MSG_PAUSE_PRINT                     _UxGT("SD-Druck pausieren")
