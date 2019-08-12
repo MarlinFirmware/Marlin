@@ -886,6 +886,10 @@ void setup() {
     runout.setup();
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.setup();
+  #endif
+
   setup_killpin();
 
   #if HAS_TMC220x

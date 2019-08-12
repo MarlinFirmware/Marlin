@@ -109,6 +109,14 @@ class PrintJobRecovery {
     static job_recovery_info_t info;
 
     static void init();
+    static void setup() {
+      #if ENABLED(POWER_LOSS_PULLUP)
+        SET_INPUT_PULLUP(POWER_LOSS_PIN);
+      #endif
+      #if ENABLED(POWER_LOSS_PULLDOWN)
+        SET_INPUT_PULLDOWN(POWER_LOSS_PIN);
+      #endif
+    }
 
     static bool enabled;
     static void enable(const bool onoff);
