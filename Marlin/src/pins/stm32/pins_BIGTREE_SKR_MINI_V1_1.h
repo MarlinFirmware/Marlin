@@ -191,3 +191,8 @@
 #ifndef ST7920_DELAY_3
   #define ST7920_DELAY_3 DELAY_NS(125)
 #endif
+
+#define FLASH_EEPROM_EMULATION
+#define EEPROM_PAGE_SIZE     (0x800) // 2KB
+#define EEPROM_START_ADDRESS (0x8000000 + (256 * 1024) - 2 * EEPROM_PAGE_SIZE)
+#define E2END                (EEPROM_PAGE_SIZE - 1)
