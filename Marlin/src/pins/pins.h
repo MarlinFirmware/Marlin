@@ -349,8 +349,6 @@
   #include "lpc1768/pins_BIQU_B300_V1.0.h"      // LPC1768                                env:LPC1768
 #elif MB(BIGTREE_SKR_V1_3)
   #include "lpc1768/pins_BIGTREE_SKR_V1.3.h"    // LPC1768                                env:LPC1768
-#elif MB(TH3D_EZBOARD)
-  #include "lpc1768/pins_TH3D_EZBOARD.h"        // LPC1768                                env:LPC1768
 #elif MB(GMARSH_X6_REV1)
   #include "lpc1768/pins_GMARSH_X6_REV1.h"      // LPC1768                                env:LPC1768
 
@@ -372,6 +370,8 @@
   #include "lpc1769/pins_COHESION3D_MINI.h"     // LPC1769                                env:LPC1769
 #elif MB(SMOOTHIEBOARD)
   #include "lpc1769/pins_SMOOTHIEBOARD.h"       // LPC1769                                env:LPC1769
+#elif MB(TH3D_EZBOARD)
+  #include "lpc1769/pins_TH3D_EZBOARD.h"        // LPC1769                                env:LPC1769
 
 //
 // Due (ATSAM) boards
