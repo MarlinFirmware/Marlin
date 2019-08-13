@@ -685,8 +685,9 @@
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
 #define ENDSTOP_INTERRUPTS_FEATURE
-//Olli To enable tmcxxxx SPI &&  ENDSTOP_INTERRUPTS_FEATURE, also set in TMCStepper.h
-#define NO_SOFTWARE_SERIAL
+// Olli: To enable tmcxxxx SPI and ENDSTOP_INTERRUPTS_FEATURE
+// use build_flags = -fmax-errors=5 -D NO_SOFTWARE_SERIAL
+// in platformio.ini
 /**
  * Endstop Noise Threshold
  *
