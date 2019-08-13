@@ -21,6 +21,7 @@
  */
 
 #include "../gcode.h"
+#include "../../core/serial.h"
 
 /**
  * M118: Display a message in the host console.
@@ -31,30 +32,26 @@
 void GcodeSuite::M118() {
   bool hasE = false, hasA = false;
   char *p = parser.string_arg;
+  int8_t ser_index = 0xFE; // No redirect as default -2 serial
   for (uint8_t i = 2; i--;)
     if ((p[0] == 'A' || p[0] == 'E') && (p[1] == '1' || p[1] == '2' || p[1] == '*')) {
       if (p[0] == 'A') hasA = true;
       if (p[0] == 'E') hasE = true;
-      switch (p[1])
-      {
-      case '*':
-        PORT_REDIRECT(SERIAL_BOTH);
-        break;
-      case '2':
-        #ifdef SERIAL_PORT_2  
-          PORT_REDIRECT(SERIAL_PORT_2);
-          break;  
-        #endif  
-      case '1':
-      default:
-        PORT_REDIRECT(SERIAL_PORT);  
-        break;
-      }
+      if(p[1] == '*')ser_index = SERIAL_BOTH; 
+      else if(p[1] == '1')ser_index = SERIAL_PORT; 
+      #ifdef SERIAL_PORT_2
+      else if(p[1] == '2')ser_index = SERIAL_PORT_2; 
+      #endif
       p += 2;
       while (*p == ' ') ++p;
     }
-  if (hasE) SERIAL_ECHO_START();
-  if (hasA) SERIAL_ECHOPGM("// ");
-  SERIAL_ECHOLN(p);
-  if (hasE || hasA) PORT_RESTORE();  
+  if(ser_index != 0xFE){
+    PORT_REDIRECT(ser_index);
+    if (hasE) SERIAL_ECHO_START();
+    if (hasA) SERIAL_ECHOPGM("// ");
+    SERIAL_ECHOLN(p);
+    PORT_RESTORE(); 
+  } else {
+    SERIAL_ECHOLN(p);
+  }
 }
