@@ -39,5 +39,5 @@ def addboot(source,target,env):
 	os.rename(target[0].path, firmware_without_bootloader_dir)
 	#os.rename(target[0].dir.path+'/firmware_with_bootloader.bin', target[0].dir.path+'/firmware.bin')
 
-env.AddPostAction('"$BUILD_DIR/${PROGNAME}.bin"', addboot);
+env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", addboot);
 

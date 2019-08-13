@@ -12,7 +12,7 @@ env.AddPostAction(
 	join("$BUILD_DIR","${PROGNAME}.elf"),
 	env.VerboseAction(" ".join([
 		"$OBJCOPY", "-O ihex", "$TARGET", # TARGET=.pio/build/fysetc_STM32F1/firmware.elf
-		"'" + join("$BUILD_DIR","${PROGNAME}.hex") + "'", # Note: $BUILD_DIR is a full path
+		"\"" + join("$BUILD_DIR","${PROGNAME}.hex") + "\"", # Note: $BUILD_DIR is a full path
 	]), "Building $TARGET"))
 
 # please keep $SOURCE variable, it will be replaced with a path to firmware
@@ -27,11 +27,11 @@ env.AddPostAction(
 UPLOAD_TOOL="stm32flash"
 platform = env.PioPlatform()
 if platform.get_package_dir("tool-stm32duino") != None:
-	UPLOAD_TOOL=expandvars("'" + join(platform.get_package_dir("tool-stm32duino"),"stm32flash","stm32flash") + "'")
+	UPLOAD_TOOL=expandvars("\"" + join(platform.get_package_dir("tool-stm32duino"),"stm32flash","stm32flash") + "\"")
 
 env.Replace(
 	UPLOADER=UPLOAD_TOOL,
-	UPLOADCMD=expandvars(UPLOAD_TOOL + " -v -i rts,-dtr,dtr $UPLOAD_PORT -R -w '" + join("$BUILD_DIR","${PROGNAME}.hex") + "'")
+	UPLOADCMD=expandvars(UPLOAD_TOOL + " -v -i rts,-dtr,dtr $UPLOAD_PORT -R -w \"" + join("$BUILD_DIR","${PROGNAME}.hex")+"\"")
 )
 
 # Python callback
