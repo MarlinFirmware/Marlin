@@ -9,11 +9,20 @@
 #define BOARD_NAME "CN Controls V15"
 
 //
+// Servos
+//
+#define SERVO0_PIN          6
+
+//
 // Limit Switches
 //
 #define X_STOP_PIN         34
 #define Y_STOP_PIN         39
 #define Z_STOP_PIN         62
+
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  49
+#endif
 
 //
 // Steppers
@@ -38,36 +47,26 @@
 // Temperature Sensors
 // Analog Inputs
 //
-#define TEMP_0_PIN          2
-//#define TEMP_1_PIN          1
-//#define TEMP_2_PIN          0
-//#define TEMP_3_PIN          3
-#define TEMP_BED_PIN        4
-#define TEMP_CHAMBER_PIN    5
-//#define TEMP_CHAMBER_2_PIN  6
-//#define TEMP_5_PIN          7
+#define TEMP_0_PIN          2   // Analog Input
+#define TEMP_BED_PIN        4   // Analog Input
+#define TEMP_CHAMBER_PIN    5   // Analog Input
 
 //
 // Heaters
 //
-#define HEATER_0_PIN         4
-//#define HEATER_1_PIN         3
-//#define HEATER_2_PIN         46
-//#define HEATER_3_PIN         5
-#define HEATER_BED_PIN       32
-#define HEATER_CHAMBER_PIN   33
+#define HEATER_0_PIN        4
+#define HEATER_BED_PIN     32
+#define HEATER_CHAMBER_PIN 33
 
 //
 // Fans
 //
 #define FAN0_PIN              8
-#define E0_AUTO_FAN_PIN      30
-#define E1_AUTO_FAN_PIN      30
-#define E2_AUTO_FAN_PIN      30
-#define E3_AUTO_FAN_PIN      30
-#define E4_AUTO_FAN_PIN      -1
-#define E5_AUTO_FAN_PIN      -1
-//#define CHAMBER_AUTO_FAN_PIN 10
+#define ORIG_E0_AUTO_FAN_PIN 30
+#define ORIG_E1_AUTO_FAN_PIN 30
+#define ORIG_E2_AUTO_FAN_PIN 30
+#define ORIG_E3_AUTO_FAN_PIN 30
+//#define ORIG_CHAMBER_AUTO_FAN_PIN 10
 
 //
 // Misc. Functions
@@ -83,7 +82,5 @@
 //#define PWM_2_PIN          13
 //#define SPARE_IO           17
 #define BEEPER_PIN         13
-#define Z_MIN_PROBE_PIN    49
-#define SERVO0_PIN          6      
 #define STAT_LED_BLUE_PIN  -1
 #define STAT_LED_RED_PIN   10 // 31
