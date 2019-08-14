@@ -29,12 +29,26 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+#define HAS_E_STEPPER_ENABLE (E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN) || AXIS_DRIVER_TYPE_E0(TMC2660) || AXIS_DRIVER_TYPE_E1(TMC2660) || AXIS_DRIVER_TYPE_E2(TMC2660) || AXIS_DRIVER_TYPE_E3(TMC2660) || AXIS_DRIVER_TYPE_E4(TMC2660) || AXIS_DRIVER_TYPE_E5(TMC2660)
+
 /**
- * M17: Enable power on all stepper motors
+ * M17: Enable stepper motors
  */
 void GcodeSuite::M17() {
-  LCD_MESSAGEPGM(MSG_NO_MOVE);
-  enable_all_steppers();
+  bool all_axis = !(parser.seen('X') || parser.seen('Y') || parser.seen('Z') || parser.seen('E'));
+
+  if (all_axis) {
+    LCD_MESSAGEPGM(MSG_NO_MOVE);
+    enable_all_steppers();
+  } else {
+    if (parser.seen('X')) enable_X();
+    if (parser.seen('Y')) enable_Y();
+    if (parser.seen('Z')) enable_Z();
+    // Only enable on boards that have separate ENABLE_PINS or another method for enabling the driver
+    #if HAS_E_STEPPER_ENABLE
+      if (parser.seen('E')) enable_e_steppers();
+    #endif
+  }
 }
 
 /**
@@ -55,7 +69,7 @@ void GcodeSuite::M18_M84() {
       if (parser.seen('Y')) disable_Y();
       if (parser.seen('Z')) disable_Z();
       // Only disable on boards that have separate ENABLE_PINS or another method for disabling the driver
-      #if (E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN) || AXIS_DRIVER_TYPE_E0(TMC2660) || AXIS_DRIVER_TYPE_E1(TMC2660) || AXIS_DRIVER_TYPE_E2(TMC2660) || AXIS_DRIVER_TYPE_E3(TMC2660) || AXIS_DRIVER_TYPE_E4(TMC2660) || AXIS_DRIVER_TYPE_E5(TMC2660)
+      #if HAS_E_STEPPER_ENABLE
         if (parser.seen('E')) disable_e_steppers();
       #endif
     }
