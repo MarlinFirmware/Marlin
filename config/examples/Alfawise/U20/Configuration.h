@@ -1379,8 +1379,8 @@
 #if ENABLED(LEVEL_BED_CORNERS)
   #define LEVEL_CORNERS_INSET 30    // (mm) An inset for corner leveling
   #define LEVEL_CORNERS_Z_HOP  4.0  // (mm) Move nozzle up before moving between corners
-  #define LEVEL_CORNERS_HEIGHT 0.0  // (mm) Z height of nozzle at leveling points
-  #define LEVEL_CENTER_TOO        // Move to the center after the last corner
+  #define LEVEL_CORNERS_HEIGHT 0.2  // (mm) Z height of nozzle at leveling points
+  #define LEVEL_CENTER_TOO          // Move to the center after the last corner
 #endif
 
 /**
@@ -1418,7 +1418,7 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (20*60)
+#define HOMING_FEEDRATE_XY (40*60)
 #define HOMING_FEEDRATE_Z  (7*60)
 
 // Validate that endstops are triggered on homing moves
@@ -2151,10 +2151,10 @@
 
   #if ENABLED(TS_V11)
     // Alfawise U20 ILI9341 2.8 TP Ver 1.1 / Green PCB on the back of touchscreen
-    #define XPT2046_X_CALIBRATION 11605
-    #define XPT2046_Y_CALIBRATION 9091
-    #define XPT2046_X_OFFSET -24
-    #define XPT2046_Y_OFFSET -17
+    #define XPT2046_X_CALIBRATION   11605
+    #define XPT2046_Y_CALIBRATION   9091
+    #define XPT2046_X_OFFSET       -24
+    #define XPT2046_Y_OFFSET       -17
   #endif
 
   #if ENABLED(TS_V12)
