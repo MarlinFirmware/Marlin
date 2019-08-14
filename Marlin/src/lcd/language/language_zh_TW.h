@@ -33,8 +33,8 @@
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT("已就緒.")  //" ready."
 #define MSG_BACK                            _UxGT("返回")         // ”Back“
-#define MSG_SD_INSERTED                     _UxGT("記憶卡已插入")  //"Card inserted"
-#define MSG_SD_REMOVED                      _UxGT("記憶卡被拔出")  //"Card removed"
+#define MSG_MEDIA_INSERTED                  _UxGT("記憶卡已插入")  //"Card inserted"
+#define MSG_MEDIA_REMOVED                   _UxGT("記憶卡被拔出")  //"Card removed"
 #define MSG_LCD_ENDSTOPS                    _UxGT("擋塊")  //"Endstops" // Max length 8 characters
 #define MSG_MAIN                            _UxGT("主選單")  //"Main"
 #define MSG_AUTOSTART                       _UxGT("自動開始")  //"Autostart"
@@ -243,8 +243,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("暫停列印")  //"Pause print"
 #define MSG_RESUME_PRINT                    _UxGT("恢復列印")  //"Resume print"
 #define MSG_STOP_PRINT                      _UxGT("停止列印")  //"Stop print"
-#define MSG_CARD_MENU                       _UxGT("從記憶卡上列印")  //"Print from SD"
-#define MSG_NO_CARD                         _UxGT("無記憶卡")  //"No SD card"
+#define MSG_MEDIA_MENU                      _UxGT("從記憶卡上列印")  //"Print from SD"
+#define MSG_NO_MEDIA                        _UxGT("無記憶卡")  //"No SD card"
 #define MSG_DWELL                           _UxGT("休眠 ...")  //"Sleep..."
 #define MSG_USERWAIT                        _UxGT("點擊繼續 ...")  //"Click to resume..."
 #define MSG_PRINT_PAUSED                    _UxGT("列印已暫停") // "Print paused"
@@ -265,8 +265,8 @@
 #define MSG_FILAMENTLOAD                    _UxGT("裝載絲料") // "Load filament"
 #define MSG_FILAMENTUNLOAD                  _UxGT("卸載絲料") // "Unload filament"
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("卸載全部") // "Unload All"
-#define MSG_INIT_SDCARD                     _UxGT("初始化記憶卡")  //"Init. SD card"
-#define MSG_CHANGE_SDCARD                   _UxGT("更換記憶卡")  //"Change SD card"
+#define MSG_INIT_MEDIA                      _UxGT("初始化記憶卡")  //"Init. SD card"
+#define MSG_CHANGE_MEDIA                    _UxGT("更換記憶卡")  //"Change SD card"
 #define MSG_ZPROBE_OUT                      _UxGT("Z探針在熱床之外")  //"Z probe out. bed" Z probe is not within the physical limits
 #define MSG_SKEW_FACTOR                     _UxGT("偏斜因數") // "Skew Factor"
 #define MSG_BLTOUCH                         _UxGT("BLTouch")     // "BLTouch"

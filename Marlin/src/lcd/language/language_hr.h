@@ -33,8 +33,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" spreman.")
-#define MSG_SD_INSERTED                     _UxGT("SD kartica umetnuta")
-#define MSG_SD_REMOVED                      _UxGT("SD kartica uklonjena")
+#define MSG_MEDIA_INSERTED                  _UxGT("SD kartica umetnuta")
+#define MSG_MEDIA_REMOVED                   _UxGT("SD kartica uklonjena")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Main")
 #define MSG_AUTOSTART                       _UxGT("Auto pokretanje")
@@ -145,8 +145,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pauziraj print")
 #define MSG_RESUME_PRINT                    _UxGT("Nastavi print")
 #define MSG_STOP_PRINT                      _UxGT("Zaustavi print")
-#define MSG_CARD_MENU                       _UxGT("Printaj s SD kartice")
-#define MSG_NO_CARD                         _UxGT("Nema SD kartice")
+#define MSG_MEDIA_MENU                      _UxGT("Printaj s SD kartice")
+#define MSG_NO_MEDIA                        _UxGT("Nema SD kartice")
 #define MSG_DWELL                           _UxGT("Sleep...")
 #define MSG_USERWAIT                        _UxGT("Čekaj korisnika...")
 #define MSG_PRINT_ABORTED                   _UxGT("Print otkazan")
@@ -162,8 +162,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Promijeni filament")
-#define MSG_INIT_SDCARD                     _UxGT("Init. SD karticu")
-#define MSG_CHANGE_SDCARD                   _UxGT("Promijeni SD karticu")
+#define MSG_INIT_MEDIA                      _UxGT("Init. SD karticu")
+#define MSG_CHANGE_MEDIA                    _UxGT("Promijeni SD karticu")
 #define MSG_ZPROBE_OUT                      _UxGT("Z probe out. bed")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")

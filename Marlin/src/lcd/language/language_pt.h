@@ -34,8 +34,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronta.")
-#define MSG_SD_INSERTED                     _UxGT("Cartão inserido")
-#define MSG_SD_REMOVED                      _UxGT("Cartão removido")
+#define MSG_MEDIA_INSERTED                  _UxGT("Cartão inserido")
+#define MSG_MEDIA_REMOVED                   _UxGT("Cartão removido")
 #define MSG_MAIN                            _UxGT("Menu principal")
 #define MSG_AUTOSTART                       _UxGT("Autostart")
 #define MSG_DISABLE_STEPPERS                _UxGT("Desactivar motores")
@@ -142,8 +142,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pausar impressão")
 #define MSG_RESUME_PRINT                    _UxGT("Retomar impressão")
 #define MSG_STOP_PRINT                      _UxGT("Parar impressão")
-#define MSG_CARD_MENU                       _UxGT("Imprimir do SD")
-#define MSG_NO_CARD                         _UxGT("Sem cartão SD")
+#define MSG_MEDIA_MENU                      _UxGT("Imprimir do SD")
+#define MSG_NO_MEDIA                        _UxGT("Sem cartão SD")
 #define MSG_DWELL                           _UxGT("Em espera...")
 #define MSG_USERWAIT                        _UxGT("Á espera de ordem")
 #define MSG_PRINT_ABORTED                   _UxGT("Impressão cancelada")
@@ -159,8 +159,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT(" DesRet  V")
 #define MSG_AUTORETRACT                     _UxGT(" AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Trocar filamento")
-#define MSG_INIT_SDCARD                     _UxGT("Inici. cartão SD")
-#define MSG_CHANGE_SDCARD                   _UxGT("Trocar cartão SD")
+#define MSG_INIT_MEDIA                      _UxGT("Inici. cartão SD")
+#define MSG_CHANGE_MEDIA                    _UxGT("Trocar cartão SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sensor fora/base")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("first")

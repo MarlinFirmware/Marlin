@@ -33,8 +33,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" er klar")
-#define MSG_SD_INSERTED                     _UxGT("Kort isat")
-#define MSG_SD_REMOVED                      _UxGT("Kort fjernet")
+#define MSG_MEDIA_INSERTED                  _UxGT("Kort isat")
+#define MSG_MEDIA_REMOVED                   _UxGT("Kort fjernet")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Menu")
 #define MSG_AUTOSTART                       _UxGT("Autostart")
@@ -146,8 +146,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pause printet")
 #define MSG_RESUME_PRINT                    _UxGT("Forsæt printet")
 #define MSG_STOP_PRINT                      _UxGT("Stop printet")
-#define MSG_CARD_MENU                       _UxGT("Print fra SD")
-#define MSG_NO_CARD                         _UxGT("Intet SD kort")
+#define MSG_MEDIA_MENU                      _UxGT("Print fra SD")
+#define MSG_NO_MEDIA                        _UxGT("Intet SD kort")
 #define MSG_DWELL                           _UxGT("Dvale...")
 #define MSG_USERWAIT                        _UxGT("Venter på bruger...")
 #define MSG_PRINT_ABORTED                   _UxGT("Print annulleret")
@@ -163,8 +163,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Skift filament")
-#define MSG_INIT_SDCARD                     _UxGT("Init. SD card")
-#define MSG_CHANGE_SDCARD                   _UxGT("Skift SD kort")
+#define MSG_INIT_MEDIA                      _UxGT("Init. SD card")
+#define MSG_CHANGE_MEDIA                    _UxGT("Skift SD kort")
 #define MSG_ZPROBE_OUT                      _UxGT("Probe udenfor plade")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Selv-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")

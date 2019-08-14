@@ -828,13 +828,13 @@ void MarlinUI::update() {
         if (old_sd_status == 2)
           card.beginautostart();  // Initial boot
         else
-          set_status_P(PSTR(MSG_SD_INSERTED));
+          set_status_P(PSTR(MSG_MEDIA_INSERTED));
       }
       #if PIN_EXISTS(SD_DETECT)
         else {
           card.release();
           if (old_sd_status != 2) {
-            set_status_P(PSTR(MSG_SD_REMOVED));
+            set_status_P(PSTR(MSG_MEDIA_REMOVED));
             #if HAS_LCD_MENU
               return_to_status();
             #endif
@@ -967,7 +967,7 @@ void MarlinUI::update() {
     #if HAS_LCD_MENU && ENABLED(SCROLL_LONG_FILENAMES)
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
-      if (currentScreen == menu_sdcard && !lcd_status_update_delay--) {
+      if (currentScreen == menu_media && !lcd_status_update_delay--) {
         lcd_status_update_delay = 4;
         if (++filename_scroll_pos > filename_scroll_max) {
           filename_scroll_pos = 0;

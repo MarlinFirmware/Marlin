@@ -32,8 +32,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" preparada.")
-#define MSG_SD_INSERTED                     _UxGT("Targeta detectada.")
-#define MSG_SD_REMOVED                      _UxGT("Targeta extreta.")
+#define MSG_MEDIA_INSERTED                  _UxGT("Targeta detectada.")
+#define MSG_MEDIA_REMOVED                   _UxGT("Targeta extreta.")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops")
 #define MSG_MAIN                            _UxGT("Menú principal")
 #define MSG_AUTOSTART                       _UxGT("Inici automatic")
@@ -149,8 +149,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pausa impressio")
 #define MSG_RESUME_PRINT                    _UxGT("Repren impressio")
 #define MSG_STOP_PRINT                      _UxGT("Atura impressio.")
-#define MSG_CARD_MENU                       _UxGT("Imprimeix de SD")
-#define MSG_NO_CARD                         _UxGT("No hi ha targeta")
+#define MSG_MEDIA_MENU                      _UxGT("Imprimeix de SD")
+#define MSG_NO_MEDIA                        _UxGT("No hi ha targeta")
 #define MSG_DWELL                           _UxGT("En repos...")
 #define MSG_USERWAIT                        _UxGT("Esperant usuari..")
 #define MSG_PRINT_ABORTED                   _UxGT("Imp. cancelada")
@@ -166,8 +166,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("DesRet V")
 #define MSG_AUTORETRACT                     _UxGT("Auto retraccio")
 #define MSG_FILAMENTCHANGE                  _UxGT("Canvia filament")
-#define MSG_INIT_SDCARD                     _UxGT("Inicialitza SD")
-#define MSG_CHANGE_SDCARD                   _UxGT("Canvia SD")
+#define MSG_INIT_MEDIA                      _UxGT("Inicialitza SD")
+#define MSG_CHANGE_MEDIA                    _UxGT("Canvia SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z fora")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reinicia BLTouch")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
