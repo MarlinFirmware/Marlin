@@ -216,6 +216,8 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocol")
 #define MSG_CASE_LIGHT                      _UxGT("Case licht")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Onjuiste printer")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Printed Aantal")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Totaal Voltooid")

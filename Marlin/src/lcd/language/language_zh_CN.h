@@ -323,6 +323,8 @@
 #define MSG_CASE_LIGHT                      _UxGT("外壳灯") // "Case light"
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("灯亮度") // "Light BRIGHTNESS"
 
+#define MSG_EXPECTED_PRINTER                _UxGT("打印机不正确") // "The printer is incorrect"
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("打印计数")  //"Print Count"
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("完成了")  //"Completed"

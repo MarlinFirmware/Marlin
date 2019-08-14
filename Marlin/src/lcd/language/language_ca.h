@@ -231,6 +231,8 @@
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Write")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Repren impressió")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Impressora incorrecta")
+
 //
 // Filament Change screens show up to 3 lines on a 4-line display
 //                        ...or up to 2 lines on a 3-line display

@@ -168,3 +168,5 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibroi Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Kalibroi Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Kalibroi Center")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Väärä tulostin")

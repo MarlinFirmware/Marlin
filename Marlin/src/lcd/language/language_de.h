@@ -409,6 +409,8 @@
 #define MSG_CASE_LIGHT                      _UxGT("Beleuchtung")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Helligkeit")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Falscher Drucker")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Gesamte Drucke")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Komplette Drucke")

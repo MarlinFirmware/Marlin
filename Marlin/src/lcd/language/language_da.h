@@ -229,6 +229,8 @@
 
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Forsæt print")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Forkert printer")
+
 #if LCD_HEIGHT >= 4
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Vent på start")
   #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("af filament")

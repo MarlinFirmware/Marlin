@@ -225,6 +225,8 @@
 
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Segue traballo")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Impresora incorrecta")
+
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Agarde para")

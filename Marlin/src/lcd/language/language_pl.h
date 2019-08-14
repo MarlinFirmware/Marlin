@@ -204,6 +204,8 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokół")
 #define MSG_CASE_LIGHT                      _UxGT("Oświetlenie")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Niepoprawna drukarka")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Wydrukowano")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Ukończono")

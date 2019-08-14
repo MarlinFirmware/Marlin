@@ -362,6 +362,9 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokol")
 #define MSG_CASE_LIGHT                      _UxGT("Aydınlatmayı Aç")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Aydınlatma Parlaklğı")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Yanlış Yazıcı")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Baskı Sayısı")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Tamamlanan")
