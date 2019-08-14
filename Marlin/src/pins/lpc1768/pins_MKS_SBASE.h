@@ -42,7 +42,7 @@
 #define LED4_PIN           P1_21
 
 //
-// Servo pin
+// Servos
 //
 #define SERVO0_PIN         P1_23   // J8-3 (low jitter)
 #define SERVO1_PIN         P2_12   // J8-4

@@ -33,7 +33,7 @@
 #define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SGEN_L"
 
 //
-// Servo pin
+// Servos
 //
 #define SERVO0_PIN         P1_23   // SERVO P1.23
 #define SERVO1_PIN         P2_00   // SERVO P2.0
