@@ -1,39 +1,28 @@
-dist: trusty
-sudo: require
+dist: bionic
+sudo: false
 
 language: python
 python:
-  - "2.7"
+  - "3.7"
 
 notifications:
   email: false
-
-# Cache PlatformIO packages using Travis CI container-based infrastructure
-sudo: false
-cache:
-  pip: true
-  directories:
-  - "~/.platformio"
 
 env:
   - TEST_PLATFORM="megaatmega2560"
   - TEST_PLATFORM="DUE"
   - TEST_PLATFORM="LPC1768"
   - TEST_PLATFORM="LPC1769"
-  #- TEST_PLATFORM="STM32F1"
+  - TEST_PLATFORM="STM32F1"
+  - TEST_PLATFORM="teensy31"
   - TEST_PLATFORM="teensy35"
   - TEST_PLATFORM="linux_native"
   - TEST_PLATFORM="esp32"
-
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-7
+  - TEST_PLATFORM="alfawise_U20"
+  - TEST_PLATFORM="black_stm32f407ve"
+  - TEST_PLATFORM="adafruit_grandcentral_m4"
 
 before_install:
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
   #
   # Fetch the tag information for the current branch
   - git fetch origin --tags
@@ -45,7 +34,7 @@ before_install:
 
 install:
   #- pip install -U platformio
-  - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
+  - pip install -U https://github.com/platformio/platformio-core/archive/master.zip
 
 before_script:
   # Update PlatformIO packages

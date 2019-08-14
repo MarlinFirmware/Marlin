@@ -54,7 +54,11 @@
 #endif
 
 #include "../lcd/ultralcd.h"
-#include "../libs/buzzer.h"
+
+#if HAS_BUZZER
+  #include "../libs/buzzer.h"
+#endif
+
 #include "../libs/nozzle.h"
 #include "pause.h"
 

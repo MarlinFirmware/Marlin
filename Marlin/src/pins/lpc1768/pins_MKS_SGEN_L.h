@@ -33,7 +33,7 @@
 #define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SGEN_L"
 
 //
-// Servo pin
+// Servos
 //
 #define SERVO0_PIN         P1_23   // SERVO P1.23
 #define SERVO1_PIN         P2_00   // SERVO P2.0
@@ -192,7 +192,7 @@
   #define BTN_ENC          P1_30
 
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS    P1_0
+    #define LCD_PINS_RS    P1_00
 
     #define BTN_EN1        P0_18
     #define BTN_EN2        P0_15

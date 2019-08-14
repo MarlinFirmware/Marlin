@@ -33,15 +33,19 @@
 #define BOARD_WEBSITE_URL "https://tinyurl.com/yx8tdqa3"
 
 //
-//  Set CPU
+// Custom CPU Speed 120MHz
 //
 #undef F_CPU
 #define F_CPU 120000000
 
 //
+// Servos
+//
+#define SERVO0_PIN         P1_23
+
+//
 // Limit Switches
 //
-
 #define X_MIN_PIN          P1_24
 #define X_MAX_PIN          P1_27
 #define Y_MIN_PIN          P1_25
@@ -128,8 +132,3 @@
   #define STAT_LED_RED_PIN P1_19
   #define STAT_LED_BLUE_PIN P1_20
 #endif
-
-//
-// Servo
-//
-#define SERVO0_PIN         P1_23

@@ -392,7 +392,7 @@ void _lcd_ubl_storage_mesh() {
   START_MENU();
   MENU_BACK(MSG_UBL_LEVEL_BED);
   if (!WITHIN(ubl_storage_slot, 0, a - 1)) {
-    STATIC_ITEM(MSG_NO_STORAGE);
+    STATIC_ITEM(MSG_UBL_NO_STORAGE);
   }
   else {
     MENU_ITEM_EDIT(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, a - 1);

@@ -76,6 +76,13 @@ Endstops::esbits_t Endstops::live_state = 0;
   float Endstops::z3_endstop_adj;
 #endif
 
+#if ENABLED(SPI_ENDSTOPS)
+  Endstops::tmc_spi_homing_t Endstops::tmc_spi_homing; // = 0
+#endif
+#if ENABLED(IMPROVE_HOMING_RELIABILITY)
+  millis_t sg_guard_period; // = 0
+#endif
+
 /**
  * Class and Instance Methods
  */
@@ -330,7 +337,7 @@ void Endstops::resync() {
 void Endstops::event_handler() {
   static uint8_t prev_hit_state; // = 0
   if (hit_state && hit_state != prev_hit_state) {
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SPI_LCD
       char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -361,7 +368,7 @@ void Endstops::event_handler() {
     #endif
     SERIAL_EOL();
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SPI_LCD
       ui.status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 
@@ -699,7 +706,7 @@ void Endstops::update() {
   // Now, we must signal, after validation, if an endstop limit is pressed or not
   if (stepper.axis_is_moving(X_AXIS)) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
-      #if HAS_X_MIN
+      #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_DIR < 0)
         #if ENABLED(X_DUAL_ENDSTOPS)
           PROCESS_DUAL_ENDSTOP(X, X2, MIN);
         #else
@@ -708,7 +715,7 @@ void Endstops::update() {
       #endif
     }
     else { // +direction
-      #if HAS_X_MAX
+      #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_DIR > 0)
         #if ENABLED(X_DUAL_ENDSTOPS)
           PROCESS_DUAL_ENDSTOP(X, X2, MAX);
         #else
@@ -720,7 +727,7 @@ void Endstops::update() {
 
   if (stepper.axis_is_moving(Y_AXIS)) {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
-      #if HAS_Y_MIN
+      #if HAS_Y_MIN || (Y_SPI_SENSORLESS && Y_HOME_DIR < 0)
         #if ENABLED(Y_DUAL_ENDSTOPS)
           PROCESS_DUAL_ENDSTOP(Y, Y2, MIN);
         #else
@@ -729,7 +736,7 @@ void Endstops::update() {
       #endif
     }
     else { // +direction
-      #if HAS_Y_MAX
+      #if HAS_Y_MAX || (Y_SPI_SENSORLESS && Y_HOME_DIR > 0)
         #if ENABLED(Y_DUAL_ENDSTOPS)
           PROCESS_DUAL_ENDSTOP(Y, Y2, MAX);
         #else
@@ -741,7 +748,7 @@ void Endstops::update() {
 
   if (stepper.axis_is_moving(Z_AXIS)) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
-      #if HAS_Z_MIN
+      #if HAS_Z_MIN || (Z_SPI_SENSORLESS && Z_HOME_DIR < 0)
         #if ENABLED(Z_TRIPLE_ENDSTOPS)
           PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MIN);
         #elif ENABLED(Z_DUAL_ENDSTOPS)
@@ -763,7 +770,7 @@ void Endstops::update() {
       #endif
     }
     else { // Z +direction. Gantry up, bed down.
-      #if HAS_Z_MAX
+      #if HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_DIR > 0)
         #if ENABLED(Z_TRIPLE_ENDSTOPS)
           PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MAX);
         #elif ENABLED(Z_DUAL_ENDSTOPS)
@@ -778,19 +785,61 @@ void Endstops::update() {
   }
 } // Endstops::update()
 
+#if ENABLED(SPI_ENDSTOPS)
+
+  #define X_STOP (X_HOME_DIR < 0 ? X_MIN : X_MAX)
+  #define Y_STOP (Y_HOME_DIR < 0 ? Y_MIN : Y_MAX)
+  #define Z_STOP (Z_HOME_DIR < 0 ? Z_MIN : Z_MAX)
+
+  bool Endstops::tmc_spi_homing_check() {
+    bool hit = false;
+    #if X_SPI_SENSORLESS
+      if (tmc_spi_homing.x && stepperX.test_stall_status()) {
+        SBI(live_state, X_STOP);
+        hit = true;
+      }
+    #endif
+    #if Y_SPI_SENSORLESS
+      if (tmc_spi_homing.y && stepperY.test_stall_status()) {
+        SBI(live_state, Y_STOP);
+        hit = true;
+      }
+    #endif
+    #if Z_SPI_SENSORLESS
+      if (tmc_spi_homing.z && stepperZ.test_stall_status()) {
+        SBI(live_state, Z_STOP);
+        hit = true;
+      }
+    #endif
+    return hit;
+  }
+
+  void Endstops::clear_endstop_state() {
+    #if X_SPI_SENSORLESS
+      CBI(live_state, X_STOP);
+    #endif
+    #if Y_SPI_SENSORLESS
+      CBI(live_state, Y_STOP);
+    #endif
+    #if Z_SPI_SENSORLESS
+      CBI(live_state, Z_STOP);
+    #endif
+  }
+
+#endif // SPI_ENDSTOPS
+
 #if ENABLED(PINS_DEBUGGING)
 
   bool Endstops::monitor_flag = false;
 
   /**
-   * monitors endstops & Z probe for changes
+   * Monitor Endstops and Z Probe for changes
    *
    * If a change is detected then the LED is toggled and
-   * a message is sent out the serial port
+   * a message is sent out the serial port.
    *
    * Yes, we could miss a rapid back & forth change but
    * that won't matter because this is all manual.
-   *
    */
   void Endstops::monitor() {
 

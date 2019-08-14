@@ -33,9 +33,13 @@
 #define BOARD_WEBSITE_URL "https://github.com/Ales2-k/Selena"
 
 //
+// Servos
+//
+#define SERVO0_PIN        P1_23
+
+//
 // Limit Switches
 //
-
 #define X_MIN_PIN          P1_28
 #define X_MAX_PIN          P1_25
 #define Y_MIN_PIN          P2_11
@@ -108,8 +112,3 @@
 
     #define SD_DETECT_PIN       -1
 #endif // REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-
-//
-// Servo
-//
-#define SERVO0_PIN        P1_23

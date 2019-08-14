@@ -63,10 +63,6 @@ void XPT2046::init(void) {
 uint8_t XPT2046::read_buttons() {
   int16_t tsoffsets[4] = { 0 };
 
-  static uint32_t timeout = 0;
-  if (PENDING(millis(), timeout)) return 0;
-  timeout = millis() + 250;
-
   if (tsoffsets[0] + tsoffsets[1] == 0) {
     // Not yet set, so use defines as fallback...
     tsoffsets[0] = XPT2046_X_CALIBRATION;
@@ -82,13 +78,12 @@ uint8_t XPT2046::read_buttons() {
                  y = uint16_t(((uint32_t(getInTouch(XPT2046_Y))) * tsoffsets[2]) >> 16) + tsoffsets[3];
   if (!isTouched()) return 0; // Fingers must still be on the TS for a valid read.
 
-  if (y < 185 || y > 224) return 0;
+  if (y < 175 || y > 234) return 0;
 
-       if (WITHIN(x,  21,  98)) encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * ENCODER_PULSES_PER_STEP;
-  else if (WITHIN(x, 121, 198)) encoderDiff =   ENCODER_STEPS_PER_MENU_ITEM  * ENCODER_PULSES_PER_STEP;
-  else if (WITHIN(x, 221, 298)) return EN_C;
-
-  return 0;
+  return WITHIN(x,  11, 109) ? EN_A
+       : WITHIN(x, 111, 209) ? EN_B
+       : WITHIN(x, 211, 309) ? EN_C
+       : 0;
 }
 
 bool XPT2046::isTouched() {
@@ -96,7 +91,7 @@ bool XPT2046::isTouched() {
     #if PIN_EXISTS(TOUCH_INT)
       READ(TOUCH_INT_PIN) != HIGH
     #else
-      getInTouch(XPT2046_Z1) >= XPT2046_Z1_TRESHHOLD
+      getInTouch(XPT2046_Z1) >= XPT2046_Z1_THRESHOLD
     #endif
   );
 }

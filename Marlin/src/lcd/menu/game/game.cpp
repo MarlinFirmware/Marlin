@@ -30,6 +30,8 @@ int MarlinGame::score;
 uint8_t MarlinGame::game_state;
 millis_t MarlinGame::next_frame;
 
+MarlinGameData marlin_game_data;
+
 bool MarlinGame::game_frame() {
   static int8_t slew;
   if (ui.first_page) slew = 2;

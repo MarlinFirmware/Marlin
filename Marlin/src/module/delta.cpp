@@ -227,10 +227,11 @@ void home_delta() {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    sensorless_t stealth_states { false, false, false, false, false, false, false };
-    stealth_states.x = tmc_enable_stallguard(stepperX);
-    stealth_states.y = tmc_enable_stallguard(stepperY);
-    stealth_states.z = tmc_enable_stallguard(stepperZ);
+    sensorless_t stealth_states {
+      tmc_enable_stallguard(stepperX),
+      tmc_enable_stallguard(stepperY),
+      tmc_enable_stallguard(stepperZ)
+    };
   #endif
 
   // Move all carriages together linearly until an endstop is hit.

@@ -31,12 +31,12 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
-#include "../shared/persistent_store_api.h"
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM)
 
 #include "../shared/Marduino.h"
+#include "../shared/persistent_store_api.h"
 
 #define EEPROMSize     4096
 #define PagesPerGroup   128

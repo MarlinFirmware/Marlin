@@ -37,7 +37,7 @@
 
 #include <stdint.h>
 
-#ifdef defined(STM32F4) && USBCON
+#if defined(STM32F4) && USBCON
   #include <USBSerial.h>
 #endif
 
@@ -100,8 +100,6 @@
   #define NUM_SERIAL 1
 #endif
 
-#define _BV(b) (1 << (b))
-
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
@@ -142,7 +140,7 @@ typedef int8_t pin_t;
 // Public Variables
 // ------------------------
 
-/** result of last ADC conversion */
+// Result of last ADC conversion
 extern uint16_t HAL_adc_result;
 
 // ------------------------
@@ -154,13 +152,16 @@ extern uint16_t HAL_adc_result;
 
 inline void HAL_init(void) { }
 
-/** clear reset reason */
+// Clear reset reason
 void HAL_clear_reset_source (void);
 
-/** reset reason */
+// Reset reason
 uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(const int delay);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 
 /*
 extern "C" {
@@ -183,15 +184,17 @@ static int freeMemory() {
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
+#pragma GCC diagnostic pop
+
 //
 // SPI: Extended functions which take a channel number (hardware SPI only)
 //
 
-/** Write single byte to specified SPI channel */
+// Write single byte to specified SPI channel
 void spiSend(uint32_t chan, byte b);
-/** Write buffer to specified SPI channel */
+// Write buffer to specified SPI channel
 void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-/** Read single byte from specified SPI channel */
+// Read single byte from specified SPI channel
 uint8_t spiRec(uint32_t chan);
 
 //

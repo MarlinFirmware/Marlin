@@ -343,7 +343,7 @@ void DGUSScreenVariableHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable 
   }
 
   void DGUSScreenVariableHandler::DGUSLCD_SD_StartPrint(DGUS_VP_Variable &var, void *val_ptr) {
-    if(!filelist.seek(file_to_print)) return;
+    if (!filelist.seek(file_to_print)) return;
     ExtUI::printFile(filelist.filename());
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_STATUS);
   }

@@ -62,7 +62,7 @@
 #define MSG_MOVE_Y                          _UxGT("Движение по Y")
 #define MSG_MOVE_Z                          _UxGT("Движение по Z")
 #define MSG_MOVE_E                          _UxGT("Екструдер")
-#define MSG_MOVE_0025MM                     _UxGT("Премести с 0.025mm")
+#define MSG_MOVE_Z_DIST                     _UxGT("Премести с %smm")
 #define MSG_MOVE_01MM                       _UxGT("Премести с 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Премести с 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Премести с 10mm")

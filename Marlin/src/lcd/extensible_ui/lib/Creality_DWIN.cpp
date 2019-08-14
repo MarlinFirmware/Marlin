@@ -40,7 +40,6 @@ char PrinterStatusKey[2] = {0}; // PrinterStatusKey[1] value: 0 represents to ke
 								// PrinterStatusKey[0] value: 0 reprensents 3D printer ready
 bool lcd_sd_status;				//represents SD-card status, true means SD is available, false means opposite.
 
-char Checkfilenum = 0;
 char FilenamesCount = 0;
 char cmdbuf[20] = {0};
 char FilementStatus[2] = {0};
@@ -874,20 +873,6 @@ void RTSSHOW::RTS_HandleData()
 		}
 		else if (recdat.addr == Resumeprint && recdat.data[0] == 1)
 		{
-#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
-/**************checking filement status during printing************/
-/* //FIX ME
-			if(RTS_CheckFilement(0))
-			{
-				for(startprogress=0;startprogress < 5;startprogress++)
-				{
-					RTS_SndData(startprogress, ExchFlmntIcon);
-					delay(400);
-				}
-				break;
-			} */
-#endif
-
 			resumePrint();
 
 			PrinterStatusKey[1] = 0;
@@ -1326,11 +1311,6 @@ void RTSSHOW::RTS_HandleData()
 
 	case Filement:
 
-#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
-/**************checking filement status during changing filement************/
-//if(RTS_CheckFilement(3)) break; //FIX ME
-#endif
-
 		unsigned int IconTemp;
 		if (recdat.addr == Exchfilement)
 		{
@@ -1458,17 +1438,13 @@ void RTSSHOW::RTS_HandleData()
 		break;
 
 	case No_Filement:
-		SERIAL_ECHO("\n No Filament");
-		if (recdat.data[0] == 1)
-		{
-/**************checking filement status during changing filement************/
-#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
-			//if(RTS_CheckFilement(0)) break; //FIX ME
-#endif
+		SERIAL_ECHOLN("\n No Filament");
 
-			if (FilementStatus[0] == 1) // check filement before starting to print
+    injectCommands_P(PSTR("M876P1"));
+		if (recdat.data[0] == 1) //Filament is out, resume / cancel selected on screen
+		{
+			if (FilementStatus[0] == 1) // Filament is out before printing starts
 			{
-				injectCommands_P(PSTR("M24"));
 				for (int j = 0; j < 10; j++) //clean screen.
 					RTS_SndData(0, Printfilename + j);
 
@@ -1516,19 +1492,25 @@ void RTSSHOW::RTS_HandleData()
 				RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
 			}
 		}
-		else if (recdat.data[0] == 0)
+		else if (recdat.data[0] == 0) // Filamet is out, Continue Selected
 		{
+      SERIAL_ECHOLN(" Filament Response Yes");
 			if (FilementStatus[0] == 1)
 			{
+        SERIAL_ECHOLN("Filament Stat 0 - 1");
 				RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
 				PrinterStatusKey[0] = 0;
+        injectCommands_P(PSTR("M876P1"));
 			}
 			else if (FilementStatus[0] == 2) // like the pause
 			{
+        SERIAL_ECHOLN("Filament Stat 0 - 2");
 				RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
+        injectCommands_P(PSTR("M876P1"));
 			}
 			else if (FilementStatus[0] == 3)
 			{
+        SERIAL_ECHOLN("Filament Stat 0 - 3");
 				RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
 			}
 			FilementStatus[0] = 0; // recover the status waiting to check filements
@@ -1684,11 +1666,6 @@ void RTSSHOW::RTS_HandleData()
 					//FilenamesCount = CardRecbuf.recordcount;
 					//memset(cmdbuf,0,sizeof(cmdbuf));
 					//strcpy(cmdbuf,cmd);
-
-#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
-					/**************checking filement status during printing beginning ************/
-					//if(RTS_CheckFilement(1)) break;
-#endif
 
 				//InforShowoStatus = true;
 				FileList files;
@@ -1879,23 +1856,27 @@ void onPrintTimerStopped()
 void onFilamentRunout()
 {
 	SERIAL_ECHOLN("==onFilamentRunout==");
-	waitway = 5;		//reject to receive cmd and jump to the corresponding page
 	PrintStatue[1] = 1; // for returning the corresponding page
-	Checkfilenum = 0;
 	PrinterStatusKey[1] = 4;
 	TPShowStatus = false;
+  FilementStatus[0] = 2;
+  rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
 }
 void onFilamentRunout(extruder_t extruder)
 {
 	SERIAL_ECHOLN("==onFilamentRunout==");
-    waitway = 5;        //reject to receive cmd and jump to the corresponding page
-    PrintStatue[1] = 1; // for returning the corresponding page
-    Checkfilenum = 0;
-    PrinterStatusKey[1] = 4;
-    TPShowStatus = false;
+  PrintStatue[1] = 1; // for returning the corresponding page
+  PrinterStatusKey[1] = 4;
+  TPShowStatus = false;
+  FilementStatus[0] = 2;
+  rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
 }
 void onUserConfirmRequired(const char *const msg)
 {
+  PrinterStatusKey[1] = 4;
+  TPShowStatus = false;
+  FilementStatus[0] = 2;
+  rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
 	SERIAL_ECHOLN("==onUserConfirmRequired==");
 }
 void onStatusChanged(const char *const msg)

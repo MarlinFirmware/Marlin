@@ -181,8 +181,8 @@ millis_t next_button_update_ms;
     }
   #endif
 
-  #if ENABLED(REVERSE_MENU_DIRECTION)
-    int8_t MarlinUI::encoderDirection = 1;
+  #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
+    int8_t MarlinUI::encoderDirection = ENCODERBASE;
   #endif
 
   bool MarlinUI::lcd_clicked;
@@ -562,7 +562,7 @@ void MarlinUI::status_screen() {
     if (old_frm != new_frm) {
       feedrate_percentage = new_frm;
       encoderPosition = 0;
-      #if ENABLED(BEEP_ON_FEEDRATE_CHANGE)
+      #if HAS_BUZZER && ENABLED(BEEP_ON_FEEDRATE_CHANGE)
         static millis_t next_beep;
         #ifndef GOT_MS
           const millis_t ms = millis();
@@ -608,8 +608,10 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     UNUSED(clear_buttons);
   #endif
 
-  // Buzz and wait. The delay is needed for buttons to settle!
-  buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+  #if HAS_BUZZER
+    // Buzz and wait. Is the delay needed for buttons to settle?
+    buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+  #endif
 
   #if HAS_LCD_MENU
     #if ENABLED(LCD_USE_I2C_BUZZER)
@@ -762,6 +764,35 @@ void MarlinUI::update() {
 
     // If the action button is pressed...
     static bool wait_for_unclick; // = 0
+    #if ENABLED(TOUCH_BUTTONS)
+      if (touch_buttons) {
+        if (!wait_for_unclick && (buttons & EN_C)) {    // If not waiting for a debounce release:
+          wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
+          lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
+          wait_for_user = false;                        //  - Any click clears wait for user
+          quick_feedback();                             //  - Always make a click sound
+        }
+        else if (buttons & (EN_A | EN_B)) {             // Ignore the encoder if clicked, to prevent "slippage"
+          const millis_t ms = millis();
+          if (ELAPSED(ms, next_button_update_ms)) {
+            next_button_update_ms = ms + 50;
+            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP);
+            if (buttons & EN_A) encoderDiff *= -1;
+            if (!wait_for_unclick) {
+              next_button_update_ms += 250;
+              #if HAS_BUZZER
+                buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+              #endif
+              wait_for_unclick = true;                  //  - Set debounce flag to ignore continous clicks
+            }
+          }
+        }
+      }
+      else
+    #endif //TOUCH_BUTTONS
+    //
+    // Integrated LCD click handling via button_pressed()
+    //
     if (!external_control && button_pressed()) {
       if (!wait_for_unclick) {                        // If not waiting for a debounce release:
         wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
@@ -782,7 +813,9 @@ void MarlinUI::update() {
   #endif // HAS_LCD_MENU
 
   #if ENABLED(INIT_SDCARD_ON_BOOT)
-
+    //
+    // SPI SD Card detection (and first card init when the LCD is present)
+    //
     const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
     if (sd_status != lcd_sd_status && detected()) {
 

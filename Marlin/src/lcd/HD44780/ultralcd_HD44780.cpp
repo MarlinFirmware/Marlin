@@ -269,7 +269,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // LCD_PROGRESS_BAR
 
-  #if ENABLED(SDSUPPORT)
+  #if ENABLED(SDSUPPORT) && HAS_LCD_MENU
 
     // CHARSET_MENU
     const static PROGMEM byte refresh[8] = {
@@ -319,7 +319,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
       #endif
         {
           createChar_P(LCD_STR_UPLEVEL[0], uplevel);
-          #if ENABLED(SDSUPPORT)
+          #if ENABLED(SDSUPPORT) && HAS_LCD_MENU
             // SD Card sub-menu special characters
             createChar_P(LCD_STR_REFRESH[0], refresh);
             createChar_P(LCD_STR_FOLDER[0], folder);
@@ -1024,6 +1024,8 @@ void MarlinUI::draw_status_screen() {
   }
 
   void draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+    ui.encoder_direction_normal();
+
     lcd_moveto(0, 1);
     lcd_put_u8str_P(pstr);
     if (value != nullptr) {

@@ -84,7 +84,6 @@
 //
 // Misc. Functions
 //
-#define SDPOWER            -1
 #define SDSS               -1
 #define LED_PIN            -1
 #define CASE_LIGHT_PIN      8
