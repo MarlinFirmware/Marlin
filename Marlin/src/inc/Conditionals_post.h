@@ -927,6 +927,11 @@
   #endif
 #endif
 
+#define HAS_E_STEPPER_ENABLE (HAS_E_DRIVER(TMC2660) \
+  || ( E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != X_ENABLE_PIN   \
+    && E0_ENABLE_PIN != Y_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN ) \
+)
+
 // Endstops and bed probe
 #define _HAS_STOP(A,M) (PIN_EXISTS(A##_##M) && !IS_X2_ENDSTOP(A,M) && !IS_Y2_ENDSTOP(A,M) && !IS_Z2_OR_PROBE(A,M))
 #define HAS_X_MIN _HAS_STOP(X,MIN)
