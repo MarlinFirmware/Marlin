@@ -1,4 +1,4 @@
-/**
+ /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -39,8 +39,8 @@
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" hazır.")
 #define MSG_BACK                            _UxGT("Geri")
-#define MSG_SD_INSERTED                     _UxGT("SD K. Yerleştirildi.")
-#define MSG_SD_REMOVED                      _UxGT("SD Kart Çıkarıldı.")
+#define MSG_MEDIA_INSERTED                  _UxGT("SD K. Yerleştirildi.")
+#define MSG_MEDIA_REMOVED                   _UxGT("SD Kart Çıkarıldı.")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Enstops") // Max length 8 characters
 #define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Yazılımsal Endstops")
 #define MSG_MAIN                            _UxGT("Ana")
@@ -260,7 +260,7 @@
 #define MSG_LOAD_EEPROM                     _UxGT("Hafızadan Yükle")
 #define MSG_RESTORE_FAILSAFE                _UxGT("Fabrika Ayarları")
 #define MSG_INIT_EEPROM                     _UxGT("EEPROM'u başlat")
-#define MSG_SD_UPDATE                       _UxGT("SD Güncellemesi")
+#define MSG_MEDIA_UPDATE                    _UxGT("SD Güncellemesi")
 #define MSG_RESET_PRINTER                   _UxGT("Yazıcıyı Resetle")
 #define MSG_REFRESH                         _UxGT("Yenile")
 #define MSG_WATCH                           _UxGT("Bilgi Ekranı")
@@ -270,8 +270,8 @@
 #define MSG_RESUME_PRINT                    _UxGT("Sürdür")
 #define MSG_STOP_PRINT                      _UxGT("Durdur")
 #define MSG_OUTAGE_RECOVERY                 _UxGT("Kesinti Kurtarma")
-#define MSG_CARD_MENU                       _UxGT("SD Karttan Yazdır")
-#define MSG_NO_CARD                         _UxGT("SD Kart Yok!")
+#define MSG_MEDIA_MENU                      _UxGT("SD Karttan Yazdır")
+#define MSG_NO_MEDIA                        _UxGT("SD Kart Yok!")
 #define MSG_DWELL                           _UxGT("Uyku...")
 #define MSG_USERWAIT                        _UxGT("Operatör bekleniyor.")
 #define MSG_PRINT_PAUSED                    _UxGT("Baskı Duraklatıldı")
@@ -298,8 +298,8 @@
 #define MSG_FILAMENTLOAD                    _UxGT("Filaman Yükle")
 #define MSG_FILAMENTUNLOAD                  _UxGT("Filaman Çıkart")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Tümünü Çıkart")
-#define MSG_INIT_SDCARD                     _UxGT("SD Kart Başlatılıyor")
-#define MSG_CHANGE_SDCARD                   _UxGT("SD Kart Değiştir")
+#define MSG_INIT_MEDIA                      _UxGT("SD Kart Başlatılıyor")
+#define MSG_CHANGE_MEDIA                    _UxGT("SD Kart Değiştir")
 #define MSG_ZPROBE_OUT                      _UxGT("Z Prob Açık. Tabla")
 #define MSG_SKEW_FACTOR                     _UxGT("Çarpıklık Faktörü")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")

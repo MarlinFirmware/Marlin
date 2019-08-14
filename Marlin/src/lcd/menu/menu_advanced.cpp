@@ -699,7 +699,7 @@ void menu_advanced_settings() {
 
   #if ENABLED(SD_FIRMWARE_UPDATE)
     bool sd_update_state = settings.sd_update_status();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_SD_UPDATE, &sd_update_state, []{
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_MEDIA_UPDATE, &sd_update_state, []{
       //
       // Toggle the SD Firmware Update state in EEPROM
       //

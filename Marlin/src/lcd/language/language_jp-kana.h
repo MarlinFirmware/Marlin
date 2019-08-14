@@ -38,8 +38,8 @@
 
 // 片仮名表示定義
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" ready.")
-#define MSG_SD_INSERTED                     _UxGT("カードガソウニュウサレマシタ")        // "Card inserted"
-#define MSG_SD_REMOVED                      _UxGT("カードガアリマセン")               // "Card removed"
+#define MSG_MEDIA_INSERTED                  _UxGT("カードガソウニュウサレマシタ")        // "Card inserted"
+#define MSG_MEDIA_REMOVED                   _UxGT("カードガアリマセン")               // "Card removed"
 #define MSG_LCD_ENDSTOPS                    _UxGT("エンドストップ")                  // "Endstops" // Max length 8 characters
 #define MSG_MAIN                            _UxGT("メイン")                       // "Main"
 #define MSG_AUTOSTART                       _UxGT("ジドウカイシ")                   // "Autostart"
@@ -139,8 +139,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("イチジテイシ")                  // "Pause print"
 #define MSG_RESUME_PRINT                    _UxGT("プリントサイカイ")                // "Resume print"
 #define MSG_STOP_PRINT                      _UxGT("プリントテイシ")                 // "Stop print"
-#define MSG_CARD_MENU                       _UxGT("SDカードカラプリント")            // "Print from SD"
-#define MSG_NO_CARD                         _UxGT("SDカードガアリマセン")            // "No SD card"
+#define MSG_MEDIA_MENU                      _UxGT("SDカードカラプリント")            // "Print from SD"
+#define MSG_NO_MEDIA                        _UxGT("SDカードガアリマセン")            // "No SD card"
 #define MSG_DWELL                           _UxGT("キュウシ")                     // "Sleep..."
 #define MSG_USERWAIT                        _UxGT("シバラクオマチクダサイ")           // "Wait for user..."
 #define MSG_PRINT_ABORTED                   _UxGT("プリントガチュウシサレマシタ")       // "Print aborted"
@@ -156,8 +156,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("ホショウソクド mm/s")            // "UnRet  V"
 #define MSG_AUTORETRACT                     _UxGT("ジドウヒキコミ")                 // "AutoRetr."
 #define MSG_FILAMENTCHANGE                  _UxGT("フィラメントコウカン")              // "Change filament"
-#define MSG_INIT_SDCARD                     _UxGT("SDカードサイヨミコミ")             // "Init. SD card"
-#define MSG_CHANGE_SDCARD                   _UxGT("SDカードコウカン")               // "Change SD card"
+#define MSG_INIT_MEDIA                      _UxGT("SDカードサイヨミコミ")             // "Init. SD card"
+#define MSG_CHANGE_MEDIA                    _UxGT("SDカードコウカン")               // "Change SD card"
 #define MSG_ZPROBE_OUT                      _UxGT("Zプローブ ベッドガイ")            // "Z probe out. bed"
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch ジコシンダン")          // "BLTouch Self-Test"
 #define MSG_BLTOUCH_RESET                   _UxGT("BLTouch リセット")             // "Reset BLTouch"

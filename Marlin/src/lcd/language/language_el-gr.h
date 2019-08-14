@@ -33,8 +33,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" έτοιμο.")
-#define MSG_SD_INSERTED                     _UxGT("Εισαγωγή κάρτας")
-#define MSG_SD_REMOVED                      _UxGT("Αφαίρεση κάρτας")
+#define MSG_MEDIA_INSERTED                  _UxGT("Εισαγωγή κάρτας")
+#define MSG_MEDIA_REMOVED                   _UxGT("Αφαίρεση κάρτας")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Βασική Οθόνη")
 #define MSG_AUTOSTART                       _UxGT("Αυτόματη εκκίνηση")
@@ -144,8 +144,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Παύση εκτύπωσης")
 #define MSG_RESUME_PRINT                    _UxGT("Συνέχιση εκτύπωσης")
 #define MSG_STOP_PRINT                      _UxGT("Διακοπή εκτύπωσης")
-#define MSG_CARD_MENU                       _UxGT("Εκτύπωση από SD")
-#define MSG_NO_CARD                         _UxGT("Δεν βρέθηκε SD")
+#define MSG_MEDIA_MENU                      _UxGT("Εκτύπωση από SD")
+#define MSG_NO_MEDIA                        _UxGT("Δεν βρέθηκε SD")
 #define MSG_DWELL                           _UxGT("Αναστολή λειτουργίας…")
 #define MSG_USERWAIT                        _UxGT("Αναμονή για χρήστη…")
 #define MSG_PRINT_ABORTED                   _UxGT("Διακόπτεται η εκτύπωση")
@@ -161,8 +161,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
 #define MSG_AUTORETRACT                     _UxGT("Αυτόματη ανάσυρση")
 #define MSG_FILAMENTCHANGE                  _UxGT("Αλλαγή νήματος")
-#define MSG_INIT_SDCARD                     _UxGT("Προετοιμασία κάρτας SD")
-#define MSG_CHANGE_SDCARD                   _UxGT("Αλλαγή κάρτας SD")
+#define MSG_INIT_MEDIA                      _UxGT("Προετοιμασία κάρτας SD")
+#define MSG_CHANGE_MEDIA                    _UxGT("Αλλαγή κάρτας SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Διερεύνηση Z εκτός κλίνης")
 #define MSG_YX_UNHOMED                      _UxGT("Επαναφορά Χ/Υ πριν από Ζ")
 #define MSG_XYZ_UNHOMED                     _UxGT("Επαναφορά ΧΥΖ πρώτα")

@@ -33,8 +33,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" готовий.")
-#define MSG_SD_INSERTED                     _UxGT("Картка вставлена")
-#define MSG_SD_REMOVED                      _UxGT("Картка видалена")
+#define MSG_MEDIA_INSERTED                  _UxGT("Картка вставлена")
+#define MSG_MEDIA_REMOVED                   _UxGT("Картка видалена")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Кінцевик") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Меню")
 #define MSG_AUTOSTART                       _UxGT("Автостарт")
@@ -145,8 +145,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Призупинити друк")
 #define MSG_RESUME_PRINT                    _UxGT("Відновити друк")
 #define MSG_STOP_PRINT                      _UxGT("Скасувати друк")
-#define MSG_CARD_MENU                       _UxGT("Друкувати з SD")
-#define MSG_NO_CARD                         _UxGT("Відсутня SD карт.")
+#define MSG_MEDIA_MENU                      _UxGT("Друкувати з SD")
+#define MSG_NO_MEDIA                        _UxGT("Відсутня SD карт.")
 #define MSG_DWELL                           _UxGT("Сплячка...")
 #define MSG_USERWAIT                        _UxGT("Очікування дій...")
 #define MSG_PRINT_ABORTED                   _UxGT("Друк скасовано")
@@ -154,8 +154,8 @@
 #define MSG_KILLED                          _UxGT("ПЕРЕРВАНО. ")
 #define MSG_STOPPED                         _UxGT("ЗУПИНЕНО. ")
 #define MSG_FILAMENTCHANGE                  _UxGT("Зміна волокна")
-#define MSG_INIT_SDCARD                     _UxGT("Старт SD картки")
-#define MSG_CHANGE_SDCARD                   _UxGT("Заміна SD карти")
+#define MSG_INIT_MEDIA                      _UxGT("Старт SD картки")
+#define MSG_CHANGE_MEDIA                    _UxGT("Заміна SD карти")
 #define MSG_ZPROBE_OUT                      _UxGT("Z дет. не в межах")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Само-Тест")
 #define MSG_BLTOUCH_RESET                   _UxGT("Скинути BLTouch")

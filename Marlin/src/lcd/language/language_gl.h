@@ -33,8 +33,8 @@
 #define NOT_EXTENDED_ISO10646_1_5X7
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" lista.")
-#define MSG_SD_INSERTED                     _UxGT("Tarxeta inserida")
-#define MSG_SD_REMOVED                      _UxGT("Tarxeta retirada")
+#define MSG_MEDIA_INSERTED                  _UxGT("Tarxeta inserida")
+#define MSG_MEDIA_REMOVED                   _UxGT("Tarxeta retirada")
 #define MSG_LCD_ENDSTOPS                    _UxGT("FinCarro")
 #define MSG_MAIN                            _UxGT("Menu principal")
 #define MSG_AUTOSTART                       _UxGT("Autoarranque")
@@ -145,8 +145,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pausar impres.")
 #define MSG_RESUME_PRINT                    _UxGT("Seguir impres.")
 #define MSG_STOP_PRINT                      _UxGT("Deter impres.")
-#define MSG_CARD_MENU                       _UxGT("Tarxeta SD")
-#define MSG_NO_CARD                         _UxGT("Sen tarxeta SD")
+#define MSG_MEDIA_MENU                      _UxGT("Tarxeta SD")
+#define MSG_NO_MEDIA                        _UxGT("Sen tarxeta SD")
 #define MSG_DWELL                           _UxGT("En repouso...")
 #define MSG_USERWAIT                        _UxGT("A espera...")
 #define MSG_PRINT_ABORTED                   _UxGT("Impre. cancelada")
@@ -162,8 +162,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Recuperacion V")
 #define MSG_AUTORETRACT                     _UxGT("Retraccion auto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Cambiar filamen.")
-#define MSG_INIT_SDCARD                     _UxGT("Iniciando SD")
-#define MSG_CHANGE_SDCARD                   _UxGT("Cambiar SD")
+#define MSG_INIT_MEDIA                      _UxGT("Iniciando SD")
+#define MSG_CHANGE_MEDIA                    _UxGT("Cambiar SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda-Z sen cama")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_BLTOUCH_SELFTEST                _UxGT("Comprobar BLTouch")

@@ -33,8 +33,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" valmis.")
-#define MSG_SD_INSERTED                     _UxGT("Kortti asetettu")
-#define MSG_SD_REMOVED                      _UxGT("Kortti poistettu")
+#define MSG_MEDIA_INSERTED                  _UxGT("Kortti asetettu")
+#define MSG_MEDIA_REMOVED                   _UxGT("Kortti poistettu")
 #define MSG_MAIN                            _UxGT("Palaa")
 #define MSG_AUTOSTART                       _UxGT("Automaatti")
 #define MSG_DISABLE_STEPPERS                _UxGT("Vapauta moottorit")
@@ -136,8 +136,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Keskeytä tulostus")
 #define MSG_RESUME_PRINT                    _UxGT("Jatka tulostusta")
 #define MSG_STOP_PRINT                      _UxGT("Pysäytä tulostus")
-#define MSG_CARD_MENU                       _UxGT("Korttivalikko")
-#define MSG_NO_CARD                         _UxGT("Ei korttia")
+#define MSG_MEDIA_MENU                      _UxGT("Korttivalikko")
+#define MSG_NO_MEDIA                        _UxGT("Ei korttia")
 #define MSG_DWELL                           _UxGT("Nukkumassa...")
 #define MSG_USERWAIT                        _UxGT("Odotet. valintaa")
 #define MSG_PRINT_ABORTED                   _UxGT("Print aborted")
@@ -153,8 +153,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
 #define MSG_AUTORETRACT                     _UxGT("AutoVeto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Change filament")
-#define MSG_INIT_SDCARD                     _UxGT("Init. SD-Card")
-#define MSG_CHANGE_SDCARD                   _UxGT("Change SD-Card")
+#define MSG_INIT_MEDIA                      _UxGT("Init. SD-Card")
+#define MSG_CHANGE_MEDIA                    _UxGT("Change SD-Card")
 #define MSG_ZPROBE_OUT                      _UxGT("Z probe out. bed")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("first")

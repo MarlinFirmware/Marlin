@@ -30,8 +30,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
-#define MSG_SD_INSERTED                     _UxGT("Karta włożona")
-#define MSG_SD_REMOVED                      _UxGT("Karta usunięta")
+#define MSG_MEDIA_INSERTED                  _UxGT("Karta włożona")
+#define MSG_MEDIA_REMOVED                   _UxGT("Karta usunięta")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Kranców.") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Menu główne")
 #define MSG_AUTOSTART                       _UxGT("Autostart")
@@ -144,8 +144,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pauza")
 #define MSG_RESUME_PRINT                    _UxGT("Wznowienie")
 #define MSG_STOP_PRINT                      _UxGT("Stop")
-#define MSG_CARD_MENU                       _UxGT("Karta SD")
-#define MSG_NO_CARD                         _UxGT("Brak karty")
+#define MSG_MEDIA_MENU                      _UxGT("Karta SD")
+#define MSG_NO_MEDIA                        _UxGT("Brak karty")
 #define MSG_DWELL                           _UxGT("Uśpij...")
 #define MSG_USERWAIT                        _UxGT("Oczekiwanie...")
 #define MSG_PRINT_ABORTED                   _UxGT("Druk przerwany")
@@ -161,8 +161,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Cof. wycof.  V")
 #define MSG_AUTORETRACT                     _UxGT("Auto. wycofanie")
 #define MSG_FILAMENTCHANGE                  _UxGT("Zmień filament")
-#define MSG_INIT_SDCARD                     _UxGT("Inicjal. karty SD")
-#define MSG_CHANGE_SDCARD                   _UxGT("Zmiana karty SD")
+#define MSG_INIT_MEDIA                      _UxGT("Inicjal. karty SD")
+#define MSG_CHANGE_MEDIA                    _UxGT("Zmiana karty SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z za stołem")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
