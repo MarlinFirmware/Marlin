@@ -77,6 +77,10 @@ void controllerfan_update() {
 
     // Fan off if no steppers have been enabled for CONTROLLERFAN_SECS seconds
     uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
+    #ifdef CONTROLLERFAN_SPEED_WHEN_ONLY_Z_ACTIVE
+      if ((speed != 0) && (X_ENABLE_READ != X_ENABLE_ON) && (Y_ENABLE_READ != Y_ENABLE_ON))
+        speed = CONTROLLERFAN_SPEED_WHEN_ONLY_Z_ACTIVE;
+    #endif
     controllerfan_speed = speed;
 
     // allows digital or PWM fan output to be used (see M42 handling)
