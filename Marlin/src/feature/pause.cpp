@@ -353,7 +353,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
     planner.settings.retract_acceleration = saved_acceleration;
   #endif
 
-  // Disable extruders steppers for manual filament changing (only on boards that have separate ENABLE_PINS)
+  // Disable E steppers for manual change
   #if HAS_E_STEPPER_ENABLE
     disable_e_stepper(active_extruder);
     safe_delay(100);
