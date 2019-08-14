@@ -970,10 +970,6 @@
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
-//===========================================================================
-//=============================     motion      =============================
-//===========================================================================
-
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
 #define X_ENABLE_ON 0
@@ -1292,9 +1288,7 @@
 //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
 
 
-//===========================================================================
-//================================== Homing =================================
-//===========================================================================
+// @section homing
 
 // The center of the bed is at (X=0, Y=0)
 //#define BED_CENTER_AT_0_0
