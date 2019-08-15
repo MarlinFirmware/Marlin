@@ -1007,6 +1007,13 @@
   //#define AUTO_REPORT_SD_STATUS
 
   /**
+   * Set the vendor info the serial USB interface, if changable
+   */
+  //#define  USB_DEVICE_VENDOR_ID           0x0000
+  //#define  USB_DEVICE_PRODUCT_ID          0x0000
+  //#define  USB_DEVICE_MANUFACTURE_NAME    "ACME Corporation"
+
+  /**
    * Support for USB thumb drives using an Arduino USB Host Shield or
    * equivalent MAX3421E breakout board. The USB thumb drive will appear
    * to Marlin as an SD card.
