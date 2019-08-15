@@ -75,6 +75,7 @@
 // build by the user have been successfully uploaded into firmware.
 #define STRING_CONFIG_H_AUTHOR "(1138-4EB, Geeetech Prusa i3 Pro B BLTouch config)" // Who made the changes.
 #define SHOW_BOOTSCREEN
+//#define ANIMATED_MARLIN_BOOTSCREEN            // animating Marlin bootscreen. Costs ‭3262‬ bytes of PROGMEM.
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
 
