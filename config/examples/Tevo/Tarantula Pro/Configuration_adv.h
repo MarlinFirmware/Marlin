@@ -2300,6 +2300,13 @@
 #endif
 
 /**
+ * Startup commands
+ *
+ * Execute certain G-code commands immediately after power-on.
+ */
+//#define STARTUP_COMMANDS "M17 Z"
+
+/**
  * G-code Macros
  *
  * Add G-codes M810-M819 to define and run G-code macros.

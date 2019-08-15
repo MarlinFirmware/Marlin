@@ -30,11 +30,21 @@
 #endif
 
 /**
- * M17: Enable power on all stepper motors
+ * M17: Enable stepper motors
  */
 void GcodeSuite::M17() {
-  LCD_MESSAGEPGM(MSG_NO_MOVE);
-  enable_all_steppers();
+  if (parser.seen("XYZE")) {
+    if (parser.seen('X')) enable_X();
+    if (parser.seen('Y')) enable_Y();
+    if (parser.seen('Z')) enable_Z();
+    #if HAS_E_STEPPER_ENABLE
+      if (parser.seen('E')) enable_e_steppers();
+    #endif
+  }
+  else {
+    LCD_MESSAGEPGM(MSG_NO_MOVE);
+    enable_all_steppers();
+  }
 }
 
 /**
@@ -45,20 +55,17 @@ void GcodeSuite::M18_M84() {
     stepper_inactive_time = parser.value_millis_from_seconds();
   }
   else {
-    bool all_axis = !(parser.seen('X') || parser.seen('Y') || parser.seen('Z') || parser.seen('E'));
-    if (all_axis) {
-      planner.finish_and_disable();
-    }
-    else {
+    if (parser.seen("XYZE")) {
       planner.synchronize();
       if (parser.seen('X')) disable_X();
       if (parser.seen('Y')) disable_Y();
       if (parser.seen('Z')) disable_Z();
-      // Only disable on boards that have separate ENABLE_PINS or another method for disabling the driver
-      #if (E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN) || AXIS_DRIVER_TYPE_E0(TMC2660) || AXIS_DRIVER_TYPE_E1(TMC2660) || AXIS_DRIVER_TYPE_E2(TMC2660) || AXIS_DRIVER_TYPE_E3(TMC2660) || AXIS_DRIVER_TYPE_E4(TMC2660) || AXIS_DRIVER_TYPE_E5(TMC2660)
+      #if HAS_E_STEPPER_ENABLE
         if (parser.seen('E')) disable_e_steppers();
       #endif
     }
+    else
+      planner.finish_and_disable();
 
     #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
       if (ubl.lcd_map_control) {
