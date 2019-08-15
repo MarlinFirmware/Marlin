@@ -1169,8 +1169,10 @@ void Planner::recalculate() {
  * Maintain fans, paste extruder pressure,
  */
 void Planner::check_axes_activity() {
-  unsigned char axis_active[NUM_AXIS] = { 0 },
-                tail_fan_speed[FAN_COUNT];
+  unsigned char axis_active[NUM_AXIS] = { 0 };
+#if FAN_COUNT > 0
+  unsigned char tail_fan_speed[FAN_COUNT]  = { 0 };
+#endif
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
