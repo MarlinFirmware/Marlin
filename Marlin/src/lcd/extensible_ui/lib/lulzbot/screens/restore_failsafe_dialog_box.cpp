@@ -34,7 +34,7 @@ void RestoreFailsafeDialogBox::onRedraw(draw_mode_t) {
 }
 
 bool RestoreFailsafeDialogBox::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1:
       ExtUI::injectCommands_P(PSTR("M502\nM117 Factory settings restored."));
       AlertDialogBox::show(F("Factory settings restored."));

@@ -31,16 +31,16 @@ using namespace ExtUI;
 using namespace Theme;
 
 void FilamentMenu::onRedraw(draw_mode_t what) {
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(Theme::bg_color))
        .cmd(CLEAR(true,true,true));
   }
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     CommandProcessor cmd;
       cmd.font(font_large)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
       #define GRID_ROWS 9
       #define GRID_COLS 2
          .text  ( BTN_POS(1,1),      BTN_SIZE(2,1), F("Filament Options:"))
@@ -85,7 +85,7 @@ void FilamentMenu::onRedraw(draw_mode_t what) {
 }
 
 bool FilamentMenu::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1: GOTO_PREVIOUS();                   break;
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     case 2: GOTO_SCREEN(FilamentRunoutScreen); break;

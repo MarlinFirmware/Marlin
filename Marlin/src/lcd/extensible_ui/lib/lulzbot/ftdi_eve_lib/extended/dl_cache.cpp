@@ -77,7 +77,7 @@ bool DLCache::has_data() {
 bool DLCache::wait_until_idle() {
   const unsigned long startTime = millis();
   do {
-    if((millis() - startTime) > 250) {
+    if ((millis() - startTime) > 250) {
       SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM("Timeout on DL_Cache::Wait_Until_Idle()");
       CLCD::CommandFifo::reset();
@@ -86,7 +86,7 @@ bool DLCache::wait_until_idle() {
     #ifdef __MARLIN_FIRMWARE__
       ExtUI::yield();
     #endif
-  } while(CLCD::CommandFifo::is_processing());
+  } while (CLCD::CommandFifo::is_processing());
   return true;
 }
 
@@ -104,7 +104,7 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
 
   // Execute any commands already in the FIFO
   cmd.execute();
-  if(!wait_until_idle())
+  if (!wait_until_idle())
     return false;
 
   // Figure out how long the display list is
@@ -112,7 +112,7 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
   uint32_t free_space  = 0;
   uint32_t dl_alloc    = 0;
 
-  if(dl_addr == 0) {
+  if (dl_addr == 0) {
     // If we are allocating new space...
     dl_addr     = CLCD::mem_read_32(DL_FREE_ADDR);
     free_space  = MAP::RAM_G_SIZE - dl_addr;
@@ -126,16 +126,16 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
     dl_size     = new_dl_size;
   }
 
-  if(dl_size > free_space) {
+  if (dl_size > free_space) {
     // Not enough memory to cache the display list.
-    #if defined(UI_FRAMEWORK_DEBUG)
+    #ifdef UI_FRAMEWORK_DEBUG
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR("Not enough space in GRAM to cache display list, free space: ", free_space);
       SERIAL_ECHOLNPAIR(" Required: ", dl_size);
     #endif
     return false;
   } else {
-    #if defined(UI_FRAMEWORK_DEBUG)
+    #ifdef UI_FRAMEWORK_DEBUG
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR("Saving DL to RAMG cache, bytes: ", dl_size);
       SERIAL_ECHOLNPAIR(" Free space: ", free_space);
@@ -143,7 +143,7 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
     cmd.memcpy(dl_addr, MAP::RAM_DL, dl_size);
     cmd.execute();
     save_slot(dl_slot, dl_addr, dl_size);
-    if(dl_alloc > 0) {
+    if (dl_alloc > 0) {
       // If we allocated space dynamically, then adjust dl_free_addr.
       CLCD::mem_write_32(DL_FREE_ADDR, dl_addr + dl_alloc);
     }
@@ -164,7 +164,7 @@ void DLCache::load_slot() {
 void DLCache::append() {
   CLCD::CommandFifo cmd;
   cmd.append(dl_addr, dl_size);
-  #if defined(UI_FRAMEWORK_DEBUG)
+  #ifdef UI_FRAMEWORK_DEBUG
     cmd.execute();
     wait_until_idle();
     SERIAL_ECHO_START();

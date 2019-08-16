@@ -67,7 +67,7 @@ void StressTestScreen::onRedraw(draw_mode_t) {
 
 bool StressTestScreen::onTouchEnd(uint8_t tag) {
   CommandProcessor cmd;
-  switch(tag) {
+  switch (tag) {
     case 1:
       runTestOnBootup(false);
       GOTO_SCREEN(StatusScreen);
@@ -87,7 +87,7 @@ void StressTestScreen::runTestOnBootup(bool enable) {
 }
 
 void StressTestScreen::startupCheck() {
-  if(LockScreen::get_hash() == 0xDEAD) {
+  if (LockScreen::get_hash() == 0xDEAD) {
     GOTO_SCREEN(StressTestScreen);
   }
 }
@@ -119,8 +119,8 @@ void StressTestScreen::onIdle() {
   current_screen.onRefresh();
   reset_menu_timeout();
 
-  if(!commandsInQueue()) {
-      if(!isPositionKnown()) {
+  if (!commandsInQueue()) {
+      if (!isPositionKnown()) {
         injectCommands_P(PSTR("G28"));
       } else {
         injectCommands_P(PSTR(
@@ -134,12 +134,12 @@ void StressTestScreen::onIdle() {
       }
   }
 
-  if(refresh_timer.elapsed(STRESS_TEST_CHANGE_INTERVAL)) {
+  if (refresh_timer.elapsed(STRESS_TEST_CHANGE_INTERVAL)) {
     setTargetFan_percent(random(100),FAN0);
   }
 
-  if(watchDogTestNow()) {
-      if(random(2) % 2)
+  if (watchDogTestNow()) {
+      if (random(2) % 2)
         iterativeLockup();
       else
         recursiveLockup();

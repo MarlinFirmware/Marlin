@@ -36,22 +36,22 @@ void BaseScreen::onEntry() {
 }
 
 bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t &style, uint16_t &options, bool post) {
-  if(post) {
+  if (post) {
     cmd.colors(normal_btn);
     return false;
   }
 
-  #if defined(LCD_TIMEOUT_TO_STATUS)
-    if(EventLoop::get_pressed_tag() != 0) {
+  #ifdef LCD_TIMEOUT_TO_STATUS
+    if (EventLoop::get_pressed_tag() != 0) {
       reset_menu_timeout();
     }
   #endif
 
-  if(tag != 0 && EventLoop::get_pressed_tag() == tag) {
+  if (tag != 0 && EventLoop::get_pressed_tag() == tag) {
     options = OPT_FLAT;
   }
 
-  if(style & cmd.STYLE_DISABLED) {
+  if (style & cmd.STYLE_DISABLED) {
     cmd.tag(0);
     style &= ~cmd.STYLE_DISABLED;
     cmd.colors(disabled_btn);
@@ -61,9 +61,9 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
 }
 
 void BaseScreen::onIdle() {
-  #if defined(LCD_TIMEOUT_TO_STATUS)
+  #ifdef LCD_TIMEOUT_TO_STATUS
     const uint32_t elapsed = millis() - last_interaction;
-    if(elapsed > uint32_t(LCD_TIMEOUT_TO_STATUS) * 1000) {
+    if (elapsed > uint32_t(LCD_TIMEOUT_TO_STATUS) * 1000) {
       reset_menu_timeout();
       GOTO_SCREEN(StatusScreen);
     }
@@ -71,12 +71,12 @@ void BaseScreen::onIdle() {
 }
 
 void BaseScreen::reset_menu_timeout() {
-  #if defined(LCD_TIMEOUT_TO_STATUS)
+  #ifdef LCD_TIMEOUT_TO_STATUS
     last_interaction = millis();
   #endif
 }
 
-#if defined(LCD_TIMEOUT_TO_STATUS)
+#ifdef LCD_TIMEOUT_TO_STATUS
   uint32_t BaseScreen::last_interaction;
 #endif
 

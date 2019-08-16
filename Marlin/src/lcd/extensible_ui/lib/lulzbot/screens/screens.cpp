@@ -92,7 +92,7 @@ SCREEN_TABLE {
   DECL_SCREEN(LockScreen),
   DECL_SCREEN(FilesScreen),
   DECL_SCREEN(EndstopStatesScreen),
-#if defined(LULZBOT_USE_BIOPRINTER_UI)
+#ifdef LULZBOT_USE_BIOPRINTER_UI
   DECL_SCREEN(BioPrintingDialogBox),
   DECL_SCREEN(BioConfirmHomeXYZ),
   DECL_SCREEN(BioConfirmHomeE),

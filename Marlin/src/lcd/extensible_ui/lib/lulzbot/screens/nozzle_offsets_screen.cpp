@@ -53,7 +53,7 @@ void NozzleOffsetScreen::onRedraw(draw_mode_t what) {
 
 bool NozzleOffsetScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
-  switch(tag) {
+  switch (tag) {
     case  2: UI_DECREMENT(NozzleOffset_mm, X, E1); break;
     case  3: UI_INCREMENT(NozzleOffset_mm, X, E1); break;
     case  4: UI_DECREMENT(NozzleOffset_mm, Y, E1); break;

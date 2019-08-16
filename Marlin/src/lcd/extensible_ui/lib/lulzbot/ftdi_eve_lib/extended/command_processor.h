@@ -28,8 +28,6 @@ typedef struct {
   uint32_t rgb;
 } btn_colors;
 
-
-
 /**************************** Enhanced Command Processor **************************/
 
 /* The CommandProcessor class wraps the CommandFifo with several features to make
@@ -48,7 +46,7 @@ class CommandProcessor : public CLCD::CommandFifo {
 
   private:
     static bool default_button_style_func(CommandProcessor &, uint8_t tag, uint8_t & /*style*/, uint16_t &options, bool) {
-      if(tag != 0 && FTDI::EventLoop::get_pressed_tag() == tag) {
+      if (tag != 0 && FTDI::EventLoop::get_pressed_tag() == tag) {
         options = FTDI::OPT_FLAT;
       }
       return false;
@@ -70,7 +68,7 @@ class CommandProcessor : public CLCD::CommandFifo {
 
     FORCEDINLINE void linear_widget_box(int16_t &x, int16_t &y, int16_t &w, int16_t &h, bool tracker = false) {
       const uint16_t th = widget_thickness()/2;
-      if(w > h) {
+      if (w > h) {
         x += tracker ? th * 2.5 : th;
         y += h/2  - th/2;
         w -= tracker ? th * 5.0 : th * 2;
@@ -105,7 +103,7 @@ class CommandProcessor : public CLCD::CommandFifo {
     inline CommandProcessor& bitmap_size(uint8_t filter, uint8_t wrapx, uint8_t wrapy, uint16_t width, uint16_t height) {
       cmd(FTDI::BITMAP_SIZE(filter, wrapx, wrapy, width, height));
       #if FTDI_API_LEVEL >= 810
-        if(FTDI::ftdi_chip >= 810)
+        if (FTDI::ftdi_chip >= 810)
           cmd(FTDI::BITMAP_SIZE_H(width >> 9, height >> 9));
       #endif
       return *this;
@@ -114,7 +112,7 @@ class CommandProcessor : public CLCD::CommandFifo {
     inline CommandProcessor& bitmap_layout(uint8_t format, uint16_t linestride, uint16_t height) {
       cmd(FTDI::BITMAP_LAYOUT(format, linestride, height));
       #if FTDI_API_LEVEL >= 810
-        if(FTDI::ftdi_chip >= 810)
+        if (FTDI::ftdi_chip >= 810)
           cmd(FTDI::BITMAP_LAYOUT_H(linestride >> 10, height >> 9));
       #endif
       return *this;
@@ -130,7 +128,7 @@ class CommandProcessor : public CLCD::CommandFifo {
     inline CommandProcessor& font     (int16_t  font)             {_font = font; return *this;}
 
     inline CommandProcessor& enabled  (bool enabled) {
-      if(enabled)
+      if (enabled)
         _style &= ~STYLE_DISABLED;
       else
         _style |= STYLE_DISABLED;
@@ -239,8 +237,8 @@ class CommandProcessor : public CLCD::CommandFifo {
     }
 
     uint8_t track_tag (uint16_t &value) {
-      if(is_tracking) {
-        if(FTDI::EventLoop::is_touch_held()) {
+      if (is_tracking) {
+        if (FTDI::EventLoop::is_touch_held()) {
           return CLCD::get_tracker(value);
         } else {
           CLCD::CommandFifo::track(0, 0, 0, 0, 0);
@@ -310,13 +308,13 @@ class CommandProcessor : public CLCD::CommandFifo {
     FORCEDINLINE CommandProcessor& icon(int16_t x, int16_t y, int16_t w, int16_t h, const FTDI::bitmap_info_t& info, const float scale = 1) {
       using namespace FTDI;
       cmd(BEGIN(BITMAPS));
-      if(scale != 1) {
+      if (scale != 1) {
         cmd(BITMAP_TRANSFORM_A(uint32_t(float(256)/scale)));
         cmd(BITMAP_TRANSFORM_E(uint32_t(float(256)/scale)));
       }
       cmd(BITMAP_SIZE(info.filter, info.wrapx, info.wrapy, info.width*scale, info.height*scale));
       cmd(VERTEX2F((x + w/2 - info.width*scale/2)*16, (y + h/2 - info.height*scale/2)*16));
-      if(scale != 1) {
+      if (scale != 1) {
         cmd(BITMAP_TRANSFORM_A(256));
         cmd(BITMAP_TRANSFORM_E(256));
       }
@@ -327,10 +325,10 @@ class CommandProcessor : public CLCD::CommandFifo {
     CommandProcessor& button(int16_t x, int16_t y, int16_t w, int16_t h, T text, uint16_t options = FTDI::OPT_3D) {
       using namespace FTDI;
       bool styleModified = false;
-      if(_btn_style_callback) styleModified = _btn_style_callback(*this, _tag, _style, options, false);
+      if (_btn_style_callback) styleModified = _btn_style_callback(*this, _tag, _style, options, false);
       CLCD::CommandFifo::button(x, y, w, h, _font, options);
       CLCD::CommandFifo::str(text);
-      if(_btn_style_callback && styleModified) _btn_style_callback(*this, _tag, _style, options, true);
+      if (_btn_style_callback && styleModified) _btn_style_callback(*this, _tag, _style, options, true);
       return *this;
     }
 

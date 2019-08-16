@@ -172,7 +172,7 @@ class CachedScreen {
   protected:
     static bool storeBackground(){
       DLCache dlcache(DL_SLOT);
-      if(!dlcache.store(DL_SIZE)) {
+      if (!dlcache.store(DL_SIZE)) {
         SERIAL_ECHO_START();
         SERIAL_ECHOLNPGM("CachedScreen::storeBackground() failed: not enough DL cache space");
         return false;
@@ -199,7 +199,7 @@ class CachedScreen {
 
       cmd.cmd(CMD_DLSTART);
 
-      if(dlcache.has_data()) {
+      if (dlcache.has_data()) {
         dlcache.append();
       } else {
         current_screen.onRedraw(BACKGROUND);

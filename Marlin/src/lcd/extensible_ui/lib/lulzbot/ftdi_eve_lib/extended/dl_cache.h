@@ -32,7 +32,7 @@
  *   void some_function() {
  *     DLCache dlcache(UNIQUE_ID);
  *
- *     if(dlcache.hasData()) {
+ *     if (dlcache.hasData()) {
  *        dlcache.append();
  *     } else {
  *        // Add stuff to the DL

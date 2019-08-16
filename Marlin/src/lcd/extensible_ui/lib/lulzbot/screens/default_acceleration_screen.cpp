@@ -45,7 +45,7 @@ void DefaultAccelerationScreen::onRedraw(draw_mode_t what) {
 
 bool DefaultAccelerationScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
-  switch(tag) {
+  switch (tag) {
     case  2: UI_DECREMENT(PrintingAcceleration_mm_s2); break;
     case  3: UI_INCREMENT(PrintingAcceleration_mm_s2); break;
     case  4: UI_DECREMENT(TravelAcceleration_mm_s2);   break;

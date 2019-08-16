@@ -36,7 +36,7 @@ void AlertDialogBox::onEntry() {
 }
 
 void AlertDialogBox::onRedraw(draw_mode_t what) {
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     drawOkayButton();
   }
 }
@@ -58,7 +58,7 @@ void AlertDialogBox::showError(const T message) {
 }
 
 void AlertDialogBox::hide() {
-  if(AT_SCREEN(AlertDialogBox))
+  if (AT_SCREEN(AlertDialogBox))
     GOTO_PREVIOUS();
 }
 

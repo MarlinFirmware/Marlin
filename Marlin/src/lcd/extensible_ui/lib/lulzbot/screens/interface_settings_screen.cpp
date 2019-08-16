@@ -55,10 +55,10 @@ void InterfaceSettingsScreen::onEntry() {
 void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
   CommandProcessor cmd;
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
 
     #define GRID_COLS 4
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
       #define GRID_ROWS 7
     #else
       #define GRID_ROWS 6
@@ -81,8 +81,8 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
     #undef EDGE_R
   }
 
-  if(what & FOREGROUND) {
-    #if defined(TOUCH_UI_PORTRAIT)
+  if (what & FOREGROUND) {
+    #ifdef TOUCH_UI_PORTRAIT
       constexpr uint8_t w = 2;
     #else
       constexpr uint8_t w = 1;
@@ -98,7 +98,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .tag(5).toggle(BTN_POS(3,5), BTN_SIZE(w,1), F("off\xFFon"), UIData::animations_enabled())
     #undef EDGE_R
     #define EDGE_R 0
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .colors(normal_btn)
        .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), F("Customize Sounds"))
        .colors(action_btn)
@@ -112,10 +112,10 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
 }
 
 bool InterfaceSettingsScreen::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1: GOTO_PREVIOUS(); return true;
     case 4:
-      if(!LockScreen::is_enabled())
+      if (!LockScreen::is_enabled())
         LockScreen::enable();
       else
         LockScreen::disable();
@@ -133,7 +133,7 @@ bool InterfaceSettingsScreen::onTouchStart(uint8_t tag) {
   #undef EDGE_R
   #define EDGE_R 30
   CommandProcessor cmd;
-  switch(tag) {
+  switch (tag) {
     case 2: cmd.track_linear(BTN_POS(3,3), BTN_SIZE(2,1), 2).execute(); break;
     case 3: cmd.track_linear(BTN_POS(3,4), BTN_SIZE(2,1), 3).execute(); break;
     default: break;
@@ -146,12 +146,12 @@ bool InterfaceSettingsScreen::onTouchStart(uint8_t tag) {
 }
 
 void InterfaceSettingsScreen::onIdle() {
-  if(refresh_timer.elapsed(TOUCH_UPDATE_INTERVAL)) {
+  if (refresh_timer.elapsed(TOUCH_UPDATE_INTERVAL)) {
     refresh_timer.start();
 
     uint16_t value;
     CommandProcessor cmd;
-    switch(cmd.track_tag(value)) {
+    switch (cmd.track_tag(value)) {
       case 2:
         screen_data.InterfaceSettingsScreen.brightness = float(value) * 128 / 0xFFFF;
         CLCD::set_brightness(screen_data.InterfaceSettingsScreen.brightness);
@@ -259,10 +259,10 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
 
     bool success = UIFlashStorage::read_config_data(data, LULZBOT_EEPROM_BACKUP_SIZE);
 
-    if(success)
+    if (success)
       success = persistentStore.write_data(0, data, LULZBOT_EEPROM_BACKUP_SIZE) == PERSISTENT_STORE_SUCCESS;
 
-    if(success)
+    if (success)
       StatusScreen::setStatusMessage(F("Settings restored from backup"));
     else
       StatusScreen::setStatusMessage(F("Settings restored to default"));
@@ -273,7 +273,7 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
   bool InterfaceSettingsScreen::backupEEPROM() {
     uint8_t data[LULZBOT_EEPROM_BACKUP_SIZE];
 
-    if(persistentStore.read_data(0, data, LULZBOT_EEPROM_BACKUP_SIZE) != PERSISTENT_STORE_SUCCESS)
+    if (persistentStore.read_data(0, data, LULZBOT_EEPROM_BACKUP_SIZE) != PERSISTENT_STORE_SUCCESS)
       return false;
 
     UIFlashStorage::write_config_data(data, LULZBOT_EEPROM_BACKUP_SIZE);

@@ -40,7 +40,7 @@ void FeedratePercentScreen::onRedraw(draw_mode_t what) {
 
 bool FeedratePercentScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
-  switch(tag) {
+  switch (tag) {
     case 4: UI_DECREMENT(Feedrate_percent); break;
     case 5: UI_INCREMENT(Feedrate_percent); break;
     default:

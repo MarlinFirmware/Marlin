@@ -29,7 +29,7 @@
   #define FTDI_EXTENDED
 #endif
 
-#if defined(FTDI_EXTENDED)
+#ifdef FTDI_EXTENDED
   #include "rgb_t.h"
   #include "bitmap_info.h"
   #include "tiny_timer.h"

@@ -27,11 +27,11 @@
 
 uint8_t ScreenRef::lookupScreen(onRedraw_func_t onRedraw_ptr) {
   for(uint8_t type = 0; type < functionTableSize; type++) {
-    if(GET_METHOD(type, onRedraw) == onRedraw_ptr) {
+    if (GET_METHOD(type, onRedraw) == onRedraw_ptr) {
       return type;
     }
   }
-  #if defined(UI_FRAMEWORK_DEBUG)
+  #ifdef UI_FRAMEWORK_DEBUG
     SERIAL_ECHO_START();
     SERIAL_ECHOPAIR("Screen not found: ", (uintptr_t) onRedraw_ptr);
   #endif
@@ -40,9 +40,9 @@ uint8_t ScreenRef::lookupScreen(onRedraw_func_t onRedraw_ptr) {
 
 void ScreenRef::setScreen(onRedraw_func_t onRedraw_ptr) {
   uint8_t type = lookupScreen(onRedraw_ptr);
-  if(type != 0xFF) {
+  if (type != 0xFF) {
     setType(type);
-    #if defined(UI_FRAMEWORK_DEBUG)
+    #ifdef UI_FRAMEWORK_DEBUG
       SERIAL_ECHO_START();
       SERIAL_ECHOLNPAIR("New screen: ", type);
     #endif

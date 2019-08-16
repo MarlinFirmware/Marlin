@@ -34,7 +34,7 @@
   #include "../../ui_api.h"
 #endif
 
-#if defined(__MARLIN_FIRMWARE__)
+#ifdef __MARLIN_FIRMWARE__
     // If __MARLIN_FIRMWARE__ exists, then we are being
     // compiled inside Marlin.
     #include "pin_mappings.h"

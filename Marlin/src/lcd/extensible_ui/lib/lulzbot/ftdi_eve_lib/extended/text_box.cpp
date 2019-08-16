@@ -36,15 +36,15 @@ namespace FTDI {
     for(;;) {
       // Find next tentative line break.
       char delim = *(p);
-      while(delim && delim != ' ' && delim != '\n') {
+      while (delim && delim != ' ' && delim != '\n') {
         delim = *(++p);
       }
       // Check to see whether to break the line.
       const uint16_t margin = fm.get_text_width("  ");
       const uint16_t lw = p > str ? fm.get_text_width(str, p - str) + margin : 0;
-      if(lw < w) {
+      if (lw < w) {
         width = lw;
-        switch(delim) {
+        switch (delim) {
           case '\0':
             end = p;
             break;
@@ -70,7 +70,7 @@ namespace FTDI {
     width = height = 0;
     for(;;) {
       uint16_t line_width = find_line_break(fm, wrap_width, line_start, line_end);
-      if(line_end == line_start) break;
+      if (line_end == line_start) break;
       width  = max(width, line_width);
       height += fm.height;
       line_start = line_end;
@@ -88,9 +88,9 @@ namespace FTDI {
     for(;;) {
       box_width = w;
       measure_text_box(fm, str, box_width, box_height);
-      if(box_width <= (uint16_t)w && box_height <= (uint16_t)h) break;
+      if (box_width <= (uint16_t)w && box_height <= (uint16_t)h) break;
       fm.load(--font);
-      if(font == 26) break;
+      if (font == 26) break;
     }
 
     const uint16_t dx = (options & OPT_RIGHTX) ? w : (options & OPT_CENTERX) ? w/2 : 0;
@@ -100,14 +100,14 @@ namespace FTDI {
     const char *line_end;
     for(;;) {
       find_line_break(fm, w, line_start, line_end);
-      if(line_end == line_start) break;
+      if (line_end == line_start) break;
 
       const size_t line_len = line_end - line_start;
-      if(line_len) {
+      if (line_len) {
         char line[line_len + 1];
         strncpy(line, line_start, line_len);
         line[line_len] = 0;
-        if(line[line_len - 1] == '\n' || line[line_len - 1] == ' ')
+        if (line[line_len - 1] == '\n' || line[line_len - 1] == ' ')
           line[line_len - 1] = 0;
 
         cmd.CLCD::CommandFifo::text(x + dx, y + dy, font, options & ~OPT_CENTERY);

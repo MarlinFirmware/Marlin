@@ -63,7 +63,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
   cmd.tag(15);
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     cmd.cmd(COLOR_RGB(bg_color));
 
     // Draw touch surfaces
@@ -84,13 +84,13 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .icon (x, y, h, v, Bed_Heat_Icon_Info, icon_scale * 2);
   }
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     char bed_str[15];
 
     cmd.font(font_xlarge)
        .cmd(COLOR_RGB(bg_text_enabled));
 
-    if(!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0) {
+    if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0) {
       sprintf_P(bed_str, PSTR("%-3d C"), ROUND(getTargetTemp_celsius(BED)));
       ui.bounds(POLY(target_temp), x, y, h, v);
       cmd.text(x, y, h, v, bed_str);
@@ -110,13 +110,13 @@ void StatusScreen::draw_syringe(draw_mode_t what) {
   CommandProcessor cmd;
   PolyUI ui(cmd, what);
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     // Paint the shadow for the syringe
     ui.color(shadow_rgb);
     ui.shadow(POLY(syringe_outline), shadow_depth);
   }
 
-  if(what & FOREGROUND && e_homed) {
+  if (what & FOREGROUND && e_homed) {
     // Paint the syringe icon
     ui.color(syringe_rgb);
     ui.fill(POLY(syringe_outline));
@@ -145,19 +145,19 @@ void StatusScreen::draw_arrows(draw_mode_t what) {
   ui.button_stroke(stroke_rgb, 28);
   ui.button_shadow(shadow_rgb, shadow_depth);
 
-  if((what & BACKGROUND) || jog_xy) {
+  if ((what & BACKGROUND) || jog_xy) {
     ui.button(1, POLY(x_neg));
     ui.button(2, POLY(x_pos));
     ui.button(3, POLY(y_neg));
     ui.button(4, POLY(y_pos));
   }
 
-  if((what & BACKGROUND) || z_homed) {
+  if ((what & BACKGROUND) || z_homed) {
     ui.button(5, POLY(z_neg));
     ui.button(6, POLY(z_pos));
   }
 
-  if((what & BACKGROUND) || e_homed) {
+  if ((what & BACKGROUND) || e_homed) {
     ui.button(7, POLY(e_neg));
     ui.button(8, POLY(e_pos));
   }
@@ -171,14 +171,14 @@ void StatusScreen::draw_fine_motion(draw_mode_t what) {
   cmd.font(font_medium)
      .tag(16);
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
 
     ui.bounds(POLY(fine_label), x, y, h, v);
     cmd.cmd(COLOR_RGB(bg_text_enabled))
        .text(x, y, h, v, F("Fine motion:"));
   }
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     ui.bounds(POLY(fine_toggle), x, y, h, v);
     cmd.colors(ui_toggle)
        .toggle(x, y, h, v, F("no\xFFyes"), fine_motion);
@@ -192,20 +192,20 @@ void StatusScreen::draw_overlay_icons(draw_mode_t what) {
   CommandProcessor cmd;
   PolyUI ui(cmd, what);
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     ui.button_fill  (fill_rgb);
     ui.button_stroke(stroke_rgb, 28);
     ui.button_shadow(shadow_rgb, shadow_depth);
 
-    if(!jog_xy) {
+    if (!jog_xy) {
       ui.button(12, POLY(padlock));
     }
 
-    if(!e_homed) {
+    if (!e_homed) {
       ui.button(13, POLY(home_e));
     }
 
-    if(!z_homed) {
+    if (!z_homed) {
       ui.button(14, POLY(home_z));
     }
   }
@@ -228,7 +228,7 @@ void StatusScreen::draw_buttons(draw_mode_t) {
         isPrintingFromMedia() ?
           F("Printing") :
       #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-        #if defined(LULZBOT_MANUAL_USB_STARTUP)
+        #ifdef LULZBOT_MANUAL_USB_STARTUP
         (Sd2Card::ready() ? F("USB Drive") : F("Enable USB"))
         #else
         F("USB Drive")
@@ -248,7 +248,7 @@ void StatusScreen::onStartup() {
 }
 
 void StatusScreen::onRedraw(draw_mode_t what) {
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(bg_color));
     cmd.cmd(CLEAR(true,true,true));
@@ -268,20 +268,20 @@ bool StatusScreen::onTouchStart(uint8_t) {
 }
 
 bool StatusScreen::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1:
     case 2:
     case 3:
     case 4:
     case 12:
-      if(!jog_xy) {
+      if (!jog_xy) {
         jog_xy = true;
         injectCommands_P(PSTR("M17"));
       }
       break;
     case 9:
       #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
-      if(!Sd2Card::ready()) {
+      if (!Sd2Card::ready()) {
         StatusScreen::setStatusMessage(F("Insert USB drive..."));
         Sd2Card::usbStartup();
       } else {
@@ -305,11 +305,11 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 }
 
 bool StatusScreen::onTouchHeld(uint8_t tag) {
-  if(tag >= 1 && tag <= 4 && !jog_xy) return false;
-  if(ExtUI::isMoving()) return false; // Don't allow moves to accumulate
+  if (tag >= 1 && tag <= 4 && !jog_xy) return false;
+  if (ExtUI::isMoving()) return false; // Don't allow moves to accumulate
   #define UI_INCREMENT_AXIS(axis) MoveAxisScreen::setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
   #define UI_DECREMENT_AXIS(axis) MoveAxisScreen::setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
-  switch(tag) {
+  switch (tag) {
     case 1: UI_DECREMENT_AXIS(X);  break;
     case 2: UI_INCREMENT_AXIS(X);  break;
     case 4: UI_DECREMENT_AXIS(Y);  break; // NOTE: Y directions inverted because bed rather than needle moves
@@ -322,7 +322,7 @@ bool StatusScreen::onTouchHeld(uint8_t tag) {
   }
   #undef UI_DECREMENT_AXIS
   #undef UI_INCREMENT_AXIS
-  if(increment < 10 && !fine_motion)
+  if (increment < 10 && !fine_motion)
     increment += 0.5;
   current_screen.onRefresh();
   return false;
@@ -337,10 +337,10 @@ void StatusScreen::setStatusMessage(const char * const str) {
 }
 
 void StatusScreen::onIdle() {
-  if(isPrintingFromMedia())
+  if (isPrintingFromMedia())
     BioPrintingDialogBox::show();
 
-  if(refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
+  if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     onRefresh();
     refresh_timer.start();
   }

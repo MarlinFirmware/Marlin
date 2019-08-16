@@ -45,7 +45,7 @@ void DisplayTuningScreen::onRedraw(draw_mode_t what) {
 bool DisplayTuningScreen::onTouchHeld(uint8_t tag) {
   #define REG_INCREMENT(a,i) CLCD::mem_write_16(CLCD::REG::a, CLCD::mem_read_16(CLCD::REG::a) + i)
   const float increment = getIncrement();
-  switch(tag) {
+  switch (tag) {
     case  2: REG_INCREMENT(HOFFSET, -increment);  break;
     case  3: REG_INCREMENT(HOFFSET,  increment);  break;
     case  4: REG_INCREMENT(VOFFSET, -increment);  break;

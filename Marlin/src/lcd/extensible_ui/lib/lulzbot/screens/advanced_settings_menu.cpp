@@ -31,17 +31,17 @@ using namespace ExtUI;
 using namespace Theme;
 
 void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(Theme::bg_color))
        .cmd(CLEAR(true,true,true));
   }
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
       #define GRID_ROWS 9
       #define GRID_COLS 2
       #if HAS_BED_PROBE
@@ -151,7 +151,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
 }
 
 bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1: SaveSettingsDialogBox::promptToSaveSettings(); break;
     #if HAS_BED_PROBE
     case 2:  GOTO_SCREEN(ZOffsetScreen);              break;

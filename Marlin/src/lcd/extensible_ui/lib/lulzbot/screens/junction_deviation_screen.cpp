@@ -41,7 +41,7 @@ void JunctionDeviationScreen::onRedraw(draw_mode_t what) {
 
 bool JunctionDeviationScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
-  switch(tag) {
+  switch (tag) {
     case  2: UI_DECREMENT(JunctionDeviation_mm); break;
     case  3: UI_INCREMENT(JunctionDeviation_mm); break;
     default:

@@ -36,7 +36,7 @@ namespace FTDI {
 
   void SoundPlayer::play(effect_t effect, note_t note) {
 
-    #if defined(UI_FRAMEWORK_DEBUG)
+    #ifdef UI_FRAMEWORK_DEBUG
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR("Playing note ", note);
       SERIAL_ECHOLNPAIR(", instrument ", effect);
@@ -69,13 +69,13 @@ namespace FTDI {
     wait     = 250; // Adding this delay causes the note to not be clipped, not sure why.
     timer.start();
 
-    if(mode == PLAY_ASYNCHRONOUS) return;
+    if (mode == PLAY_ASYNCHRONOUS) return;
 
     // If playing synchronously, then play all the notes here
 
-    while(has_more_notes()) {
+    while (has_more_notes()) {
       onIdle();
-      #if defined(EXTENSIBLE_UI)
+      #ifdef EXTENSIBLE_UI
         ExtUI::yield();
       #endif
     }
@@ -86,16 +86,16 @@ namespace FTDI {
   }
 
   void SoundPlayer::onIdle() {
-    if(!sequence) return;
+    if (!sequence) return;
 
     const bool ready_for_next_note = (wait == 0) ? !is_sound_playing() : timer.elapsed(wait);
 
-    if(ready_for_next_note) {
+    if (ready_for_next_note) {
       const effect_t fx = effect_t(pgm_read_byte(&sequence->effect));
       const note_t   nt =   note_t(pgm_read_byte(&sequence->note));
       const uint32_t ms = uint32_t(pgm_read_byte(&sequence->sixteenths)) * 1000 / 16;
 
-      if(ms == 0 && fx == SILENCE && nt == END_SONG) {
+      if (ms == 0 && fx == SILENCE && nt == END_SONG) {
         sequence = 0;
         play(SILENCE, REST);
       } else {

@@ -36,7 +36,7 @@ void ConfirmEraseFlashDialogBox::onRedraw(draw_mode_t) {
 }
 
 bool ConfirmEraseFlashDialogBox::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1:
       SpinnerDialogBox::show(F("Erasing..."));
       UIFlashStorage::format_flash();

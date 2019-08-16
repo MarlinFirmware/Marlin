@@ -68,21 +68,21 @@ void draw_circular_progress(CommandProcessor& cmd, int x, int y, int w, int h, u
   cmd.cmd(VERTEX2F(cx + ro*sin(a1) + 16,cy - ro*cos(a1) + 8));
 
   // Paint lower-right quadrant
-  if(a > PI/2) {
+  if (a > PI/2) {
     cmd.cmd(BEGIN(EDGE_STRIP_R));
     cmd.cmd(VERTEX2F(cx, cy));
     cmd.cmd(VERTEX2F(cx + ro*cos(a2),cy + ro*sin(a2) + 16));
   }
 
   // Paint lower-left quadrant
-  if(a > PI) {
+  if (a > PI) {
     cmd.cmd(BEGIN(EDGE_STRIP_B));
     cmd.cmd(VERTEX2F(cx, cy));
     cmd.cmd(VERTEX2F(cx - ro*sin(a3) - 8,cy + ro*cos(a3)));
   }
 
   // Paint upper-left quadrant
-  if(a > 1.5*PI) {
+  if (a > 1.5*PI) {
     cmd.cmd(BEGIN(EDGE_STRIP_L));
     cmd.cmd(VERTEX2F(cx, cy));
     cmd.cmd(VERTEX2F(cx - ro*cos(a4),cy - ro*sin(a4)));

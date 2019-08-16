@@ -22,7 +22,7 @@
 
 #include "ftdi_basic.h"
 
-#if defined(FTDI_BASIC)
+#ifdef FTDI_BASIC
 
 #define MULTIPLE_OF_4(val) ((((val)+3)>>2)<<2)
 
@@ -59,7 +59,7 @@ uint16_t CLCD::FontMetrics::get_text_width(const char *str, size_t n) const {
   const uint8_t *p = (const uint8_t *) str;
   for(;;) {
     const uint8_t val = *p++; n--;
-    if(!val || n == 0) break;
+    if (!val || n == 0) break;
     width += val < 128 ? char_widths[val] : 0;
   }
   return width;
@@ -70,7 +70,7 @@ uint16_t CLCD::FontMetrics::get_text_width_P(const char *str, size_t n) const {
   const uint8_t *p = (const uint8_t *) str;
   for(;;) {
     const uint8_t val = pgm_read_byte(p++); n--;
-    if(!val || n == 0) break;
+    if (!val || n == 0) break;
     width += val < 128 ? char_widths[val] : 0;
   }
   return width;
@@ -79,7 +79,7 @@ uint16_t CLCD::FontMetrics::get_text_width_P(const char *str, size_t n) const {
 /************************** HOST COMMAND FUNCTION *********************************/
 
 void CLCD::host_cmd (unsigned char host_command, unsigned char byte2) {  // Sends 24-Bit Host Command to LCD
-  if(host_command != ACTIVE) {
+  if (host_command != ACTIVE) {
     host_command |= 0x40;
   }
   spi_ftdi_select();
@@ -879,13 +879,13 @@ bool CLCD::CommandFifo::has_fault() {
 
 #if FTDI_API_LEVEL == 800
 void CLCD::CommandFifo::start() {
-  if(command_write_ptr == 0xFFFFFFFFul) {
+  if (command_write_ptr == 0xFFFFFFFFul) {
     command_write_ptr = mem_read_32(REG::CMD_WRITE) & 0x0FFF;
   }
 }
 
 void CLCD::CommandFifo::execute() {
-  if(command_write_ptr != 0xFFFFFFFFul) {
+  if (command_write_ptr != 0xFFFFFFFFul) {
     mem_write_32(REG::CMD_WRITE, command_write_ptr);
   }
 }
@@ -905,8 +905,8 @@ template <class T> bool CLCD::CommandFifo::_write_unaligned(T data, uint16_t len
   uint32_t bytes_tail, bytes_head;
   uint32_t command_read_ptr;
 
-  #if defined(UI_FRAMEWORK_DEBUG)
-  if(command_write_ptr == 0xFFFFFFFFul) {
+  #ifdef UI_FRAMEWORK_DEBUG
+  if (command_write_ptr == 0xFFFFFFFFul) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("Attempt to write to FIFO before CommandFifo::Cmd_Start().");
   }
@@ -923,13 +923,13 @@ template <class T> bool CLCD::CommandFifo::_write_unaligned(T data, uint16_t len
       bytes_head = 0;
     }
     // Check for faults which can lock up the command processor
-    if(has_fault()) {
-      #if defined(UI_FRAMEWORK_DEBUG)
+    if (has_fault()) {
+      #ifdef UI_FRAMEWORK_DEBUG
         SERIAL_ECHOLNPGM("Fault waiting for space in the command processor");
       #endif
       return false;
     }
-  } while((bytes_tail + bytes_head) < len);
+  } while ((bytes_tail + bytes_head) < len);
 
   /* Write as many bytes as possible following REG::CMD_WRITE */
   uint16_t bytes_to_write = min(len, bytes_tail);
@@ -938,13 +938,13 @@ template <class T> bool CLCD::CommandFifo::_write_unaligned(T data, uint16_t len
   ptr  += bytes_to_write;
   len  -= bytes_to_write;
 
-  if(len > 0) {
+  if (len > 0) {
     /* Write remaining bytes at start of circular buffer */
     mem_write_bulk (MAP::RAM_CMD, T(ptr), len);
     command_write_ptr = len;
   }
 
-  if(command_write_ptr == 4096U) {
+  if (command_write_ptr == 4096U) {
     command_write_ptr = 0;
   }
   return true;
@@ -969,7 +969,7 @@ void CLCD::CommandFifo::execute() {
 }
 
 void CLCD::CommandFifo::reset() {
-  #if defined(UI_FRAMEWORK_DEBUG)
+  #ifdef UI_FRAMEWORK_DEBUG
     SERIAL_ECHOLNPGM("Resetting command processor");
   #endif
   safe_delay(100);
@@ -987,8 +987,8 @@ void CLCD::CommandFifo::reset() {
 template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
   const uint8_t padding = MULTIPLE_OF_4(len) - len;
 
-  if(has_fault()) {
-    #if defined(UI_FRAMEWORK_DEBUG)
+  if (has_fault()) {
+    #ifdef UI_FRAMEWORK_DEBUG
       SERIAL_ECHOLNPGM("Faulted... ignoring write.");
     #endif
     return false;
@@ -997,22 +997,22 @@ template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
   // for writing data without us having to do our own FIFO
   // management.
   uint16_t Command_Space = mem_read_32(REG::CMDB_SPACE) & 0x0FFF;
-  if(Command_Space < (len + padding)) {
-    #if defined(UI_FRAMEWORK_DEBUG)
+  if (Command_Space < (len + padding)) {
+    #ifdef UI_FRAMEWORK_DEBUG
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR("Waiting for ", len + padding);
       SERIAL_ECHOPAIR(" bytes in command queue, now free: ", Command_Space);
     #endif
     do {
       Command_Space = mem_read_32(REG::CMDB_SPACE) & 0x0FFF;
-      if(has_fault()) {
-        #if defined(UI_FRAMEWORK_DEBUG)
+      if (has_fault()) {
+        #ifdef UI_FRAMEWORK_DEBUG
           SERIAL_ECHOLNPGM("... fault");
         #endif
         return false;
       }
-    } while(Command_Space < len + padding);
-    #if defined(UI_FRAMEWORK_DEBUG)
+    } while (Command_Space < len + padding);
+    #ifdef UI_FRAMEWORK_DEBUG
       SERIAL_ECHOLNPGM("... done");
     #endif
   }
@@ -1040,7 +1040,7 @@ void CLCD::init (void) {
   spi_init();                                  // Set Up I/O Lines for SPI and FT800/810 Control
   ftdi_reset();                                // Power down/up the FT8xx with the apropriate delays
 
-  if(Use_Crystal == 1) {
+  if (Use_Crystal == 1) {
     host_cmd(CLKEXT, 0);
   }
   else {
@@ -1053,8 +1053,8 @@ void CLCD::init (void) {
   uint8_t counter;
   for(counter = 0; counter < 250; counter++) {
    uint8_t device_id = mem_read_8(REG::ID);            // Read Device ID, Should Be 0x7C;
-   if(device_id == 0x7c) {
-     #if defined(UI_FRAMEWORK_DEBUG)
+   if (device_id == 0x7c) {
+     #ifdef UI_FRAMEWORK_DEBUG
        SERIAL_ECHO_START();
        SERIAL_ECHOLNPGM("FTDI chip initialized ");
      #endif
@@ -1063,8 +1063,8 @@ void CLCD::init (void) {
    else {
      delay(1);
    }
-   if(counter == 249) {
-     #if defined(UI_FRAMEWORK_DEBUG)
+   if (counter == 249) {
+     #ifdef UI_FRAMEWORK_DEBUG
        SERIAL_ECHO_START();
        SERIAL_ECHOLNPAIR("Timeout waiting for device ID, should be 124, got ", device_id);
      #endif
@@ -1104,10 +1104,10 @@ void CLCD::init (void) {
   /* turn on the display by setting DISP high */
   /* turn on the Audio Amplifier by setting GPIO_1 high for the select few modules supporting this */
   /* no need to use GPIOX here since DISP/GPIO_0 and GPIO_1 are on REG::GPIO for FT81x as well */
-  if(GPIO_1_Audio_Shutdown) {
+  if (GPIO_1_Audio_Shutdown) {
     mem_write_8(REG::GPIO_DIR,   GPIO_DISP  | GPIO_GP1);
     mem_write_8(REG::GPIO,       GPIO_DISP  | GPIO_GP1);
-  } else if(GPIO_0_Audio_Enable) {
+  } else if (GPIO_0_Audio_Enable) {
     mem_write_8(REG::GPIO_DIR,   GPIO_DISP  | GPIO_GP0);
     mem_write_8(REG::GPIO,       GPIO_DISP  | GPIO_GP0);
   }
@@ -1144,7 +1144,7 @@ void CLCD::default_display_orientation() {
   #if FTDI_API_LEVEL >= 810
     // Set the initial display orientation. On the FT810, we use the command
     // processor to do this since it will also update the transform matrices.
-    if(FTDI::ftdi_chip >= 810) {
+    if (FTDI::ftdi_chip >= 810) {
       CommandFifo cmd;
       cmd.setrotate(0
         #if ENABLED(TOUCH_UI_MIRRORED)
@@ -1160,7 +1160,7 @@ void CLCD::default_display_orientation() {
       cmd.execute();
     }
     else {
-      #if defined(TOUCH_UI_INVERTED)
+      #ifdef TOUCH_UI_INVERTED
         mem_write_32(REG::ROTATE, 1);
       #endif
     }

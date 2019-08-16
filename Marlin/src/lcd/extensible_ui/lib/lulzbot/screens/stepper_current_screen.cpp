@@ -55,7 +55,7 @@ void StepperCurrentScreen::onRedraw(draw_mode_t what) {
 
 bool StepperCurrentScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
-  switch(tag) {
+  switch (tag) {
     case  2: UI_DECREMENT(AxisCurrent_mA, X ); break;
     case  3: UI_INCREMENT(AxisCurrent_mA, X ); break;
     case  4: UI_DECREMENT(AxisCurrent_mA, Y ); break;

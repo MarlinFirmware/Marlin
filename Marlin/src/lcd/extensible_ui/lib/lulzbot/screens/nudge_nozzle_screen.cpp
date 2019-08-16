@@ -60,7 +60,7 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
   #if EXTRUDERS > 1 || HAS_BED_PROBE
     w.toggle  (9,  PSTR("Show Offsets:"), PSTR("no\xFFyes"), screen_data.NudgeNozzleScreen.show_offsets, PSTR("Yes\nNo"));
 
-    if(screen_data.NudgeNozzleScreen.show_offsets) {
+    if (screen_data.NudgeNozzleScreen.show_offsets) {
       char str[19], num1[7];
 
       w.draw_mode(BOTH);
@@ -92,7 +92,7 @@ bool NudgeNozzleScreen::onTouchHeld(uint8_t tag) {
     constexpr bool link = true;
   #endif
   int16_t steps;
-  switch(tag) {
+  switch (tag) {
     case  2: steps = mmToWholeSteps(inc, X); smartAdjustAxis_steps(-steps, X, link); screen_data.NudgeNozzleScreen.rel[0] -= steps; break;
     case  3: steps = mmToWholeSteps(inc, X); smartAdjustAxis_steps( steps, X, link); screen_data.NudgeNozzleScreen.rel[0] += steps; break;
     case  4: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps(-steps, Y, link); screen_data.NudgeNozzleScreen.rel[1] -= steps; break;
@@ -113,7 +113,7 @@ bool NudgeNozzleScreen::onTouchHeld(uint8_t tag) {
 }
 
 bool NudgeNozzleScreen::onTouchEnd(uint8_t tag) {
-  if(tag == 1) {
+  if (tag == 1) {
     SaveSettingsDialogBox::promptToSaveSettings();
     return true;
   } else {

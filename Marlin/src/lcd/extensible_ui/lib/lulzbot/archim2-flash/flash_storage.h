@@ -20,7 +20,8 @@
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
-#if defined(LULZBOT_TOUCH_UI)
+#ifdef LULZBOT_TOUCH_UI
+
 class SPIFlash {
   public:
     static constexpr uint32_t erase_unit_size = 4 * 1024; // Minimum erase unit
@@ -105,4 +106,5 @@ class UIFlashStorage::BootMediaReader {
 
     static int16_t read(void *obj, void *buffer, const size_t size);
 };
+
 #endif // LULZBOT_TOUCH_UI

@@ -71,7 +71,7 @@ bool MoveAxisScreen::onTouchHeld(uint8_t tag) {
   #define UI_INCREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
   #define UI_DECREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
   const float increment = getIncrement();
-  switch(tag) {
+  switch (tag) {
     case  2: UI_DECREMENT_AXIS(X); break;
     case  3: UI_INCREMENT_AXIS(X); break;
     case  4: UI_DECREMENT_AXIS(Y); break;
@@ -122,7 +122,7 @@ void MoveAxisScreen::setManualFeedrate(ExtUI::extruder_t, float increment_mm) {
 }
 
 void MoveAxisScreen::onIdle() {
-  if(refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
+  if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     onRefresh();
     refresh_timer.start();
   }

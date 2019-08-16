@@ -36,7 +36,7 @@ using namespace Theme;
 #define GRID_ROWS 9
 
 void BioPrintingDialogBox::draw_status_message(draw_mode_t what, const char* message) {
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(COLOR_RGB(bg_text_enabled));
     draw_text_box(cmd, BTN_POS(1,2), BTN_SIZE(2,2), message, OPT_CENTER, font_large);
@@ -44,7 +44,7 @@ void BioPrintingDialogBox::draw_status_message(draw_mode_t what, const char* mes
 }
 
 void BioPrintingDialogBox::draw_progress(draw_mode_t what) {
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.font(font_large)
        .text(BTN_POS(1,1), BTN_SIZE(2,2), isPrinting() ? F("Printing...") : F("Finished."))
@@ -56,7 +56,7 @@ void BioPrintingDialogBox::draw_progress(draw_mode_t what) {
 }
 
 void BioPrintingDialogBox::draw_time_remaining(draw_mode_t what) {
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     const uint32_t elapsed = getProgress_seconds_elapsed();
     const uint8_t hrs = elapsed/3600;
     const uint8_t min = (elapsed/60)%60;
@@ -71,7 +71,7 @@ void BioPrintingDialogBox::draw_time_remaining(draw_mode_t what) {
 }
 
 void BioPrintingDialogBox::draw_interaction_buttons(draw_mode_t what) {
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(font_medium)
@@ -89,7 +89,7 @@ void BioPrintingDialogBox::draw_interaction_buttons(draw_mode_t what) {
 }
 
 void BioPrintingDialogBox::onRedraw(draw_mode_t what) {
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     draw_progress(FOREGROUND);
     draw_time_remaining(FOREGROUND);
     draw_interaction_buttons(FOREGROUND);
@@ -97,11 +97,11 @@ void BioPrintingDialogBox::onRedraw(draw_mode_t what) {
 }
 
 bool BioPrintingDialogBox::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1: GOTO_SCREEN(FeedratePercentScreen); break;
     case 2: GOTO_SCREEN(TuneMenu); break;
     case 3:
-     if(isPrinting()) {
+     if (isPrinting()) {
        GOTO_SCREEN(ConfirmAbortPrintDialogBox);
      } else {
        GOTO_SCREEN(StatusScreen);
@@ -130,18 +130,18 @@ void BioPrintingDialogBox::setStatusMessage(const char* message) {
   draw_interaction_buttons(BACKGROUND);
   storeBackground();
 
-  #if defined(UI_FRAMEWORK_DEBUG)
+  #ifdef UI_FRAMEWORK_DEBUG
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR("New status message: ", message);
   #endif
 
-  if(AT_SCREEN(BioPrintingDialogBox)) {
+  if (AT_SCREEN(BioPrintingDialogBox)) {
     current_screen.onRefresh();
   }
 }
 
 void BioPrintingDialogBox::onIdle() {
-  if(refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
+  if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     onRefresh();
     refresh_timer.start();
   }

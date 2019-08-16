@@ -43,16 +43,16 @@ namespace ExtUI {
   }
 
   void onMediaInserted() {
-    if(AT_SCREEN(StatusScreen))
+    if (AT_SCREEN(StatusScreen))
       StatusScreen::setStatusMessage(F(MSG_MEDIA_INSERTED));
     sound.play(media_inserted, PLAY_ASYNCHRONOUS);
   }
 
   void onMediaRemoved() {
-    if(AT_SCREEN(StatusScreen))
+    if (AT_SCREEN(StatusScreen))
       StatusScreen::setStatusMessage(F(MSG_MEDIA_REMOVED));
     sound.play(media_removed, PLAY_ASYNCHRONOUS);
-    if(AT_SCREEN(FilesScreen)) {
+    if (AT_SCREEN(FilesScreen)) {
       GOTO_SCREEN(StatusScreen)
     }
   }
@@ -102,7 +102,7 @@ namespace ExtUI {
 
   void onConfigurationStoreWritten(bool success) {
     #ifdef LULZBOT_EEPROM_BACKUP_SIZE
-      if(success && InterfaceSettingsScreen::backupEEPROM()) {
+      if (success && InterfaceSettingsScreen::backupEEPROM()) {
         SERIAL_ECHOLNPGM("Made backup of EEPROM to SPI Flash");
       }
     #else
@@ -118,7 +118,7 @@ namespace ExtUI {
   }
 
   void onUserConfirmRequired(const char * const msg) {
-    if(msg)
+    if (msg)
       ConfirmUserRequestAlertBox::show(msg);
     else
       ConfirmUserRequestAlertBox::hide();

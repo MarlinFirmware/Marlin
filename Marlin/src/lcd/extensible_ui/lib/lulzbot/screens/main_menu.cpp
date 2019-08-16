@@ -30,21 +30,21 @@ using namespace FTDI;
 using namespace Theme;
 
 void MainMenu::onRedraw(draw_mode_t what) {
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(Theme::bg_color))
        .cmd(CLEAR(true,true,true));
   }
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
       #define GRID_ROWS 8
       #define GRID_COLS 2
         .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), F("Auto Home"))
-        #if defined(NOZZLE_CLEAN_FEATURE)
+        #ifdef NOZZLE_CLEAN_FEATURE
          .enabled(1)
         #else
          .enabled(0)
@@ -55,7 +55,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
         .tag(6).button( BTN_POS(1,3), BTN_SIZE(2,1), F("Temperature"))
         .tag(7).button( BTN_POS(1,4), BTN_SIZE(2,1), F("Change Filament"))
         .tag(8).button( BTN_POS(1,5), BTN_SIZE(2,1), F("Advanced Settings"))
-        #if defined(PRINTCOUNTER)
+        #ifdef PRINTCOUNTER
          .enabled(1)
         #else
          .enabled(0)
@@ -81,7 +81,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
         .tag(6).button( BTN_POS(1,3), BTN_SIZE(1,1), F("Temperature"))
         .tag(7).button( BTN_POS(2,3), BTN_SIZE(1,1), F("Change Filament"))
         .tag(8).button( BTN_POS(1,4), BTN_SIZE(1,1), F("Advanced Settings"))
-        #if defined(PRINTCOUNTER)
+        #ifdef PRINTCOUNTER
          .enabled(1)
         #else
          .enabled(0)
@@ -99,7 +99,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
 bool MainMenu::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
 
-  switch(tag) {
+  switch (tag) {
     case 1:  GOTO_PREVIOUS();                                         break;
     case 2:  SpinnerDialogBox::enqueueAndWait_P(F("G28"));            break;
     #if ENABLED(NOZZLE_CLEAN_FEATURE)

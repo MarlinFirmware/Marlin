@@ -25,8 +25,6 @@
 #ifdef FTDI_EXTENDED
 using namespace FTDI;
 
-
-
 enum {
   UNPRESSED       = 0x00
 };
@@ -117,16 +115,16 @@ namespace FTDI {
     // If the LCD is processing commands, don't check
     // for tags since they may be changing and could
     // cause spurious events.
-    if(!touch_timer.elapsed(TOUCH_UPDATE_INTERVAL) || CLCD::CommandFifo::is_processing()) {
+    if (!touch_timer.elapsed(TOUCH_UPDATE_INTERVAL) || CLCD::CommandFifo::is_processing()) {
       return;
     }
 
     const uint8_t tag = CLCD::get_tag();
 
-    switch(pressed_tag) {
+    switch (pressed_tag) {
       case UNPRESSED:
-        if(tag != 0) {
-          #if defined(UI_FRAMEWORK_DEBUG)
+        if (tag != 0) {
+          #ifdef UI_FRAMEWORK_DEBUG
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPAIR("Touch start: ", tag);
           #endif
@@ -137,12 +135,12 @@ namespace FTDI {
           // When the user taps on a button, activate the onTouchStart handler
           const uint8_t lastScreen = current_screen.getScreen();
 
-          if(current_screen.onTouchStart(tag)) {
+          if (current_screen.onTouchStart(tag)) {
             touch_timer.start();
-            if(UIData::flags.bits.touch_start_sound) sound.play(press_sound);
+            if (UIData::flags.bits.touch_start_sound) sound.play(press_sound);
           }
 
-          if(lastScreen != current_screen.getScreen()) {
+          if (lastScreen != current_screen.getScreen()) {
             // In the case in which a touch event triggered a new screen to be
             // drawn, we don't issue a touchEnd since it would be sent to the
             // wrong screen.
@@ -155,16 +153,16 @@ namespace FTDI {
         }
         break;
       default: // PRESSED
-        if(!UIData::flags.bits.touch_debouncing) {
-          if(tag == pressed_tag) {
+        if (!UIData::flags.bits.touch_debouncing) {
+          if (tag == pressed_tag) {
             // The user is holding down a button.
-            if(touch_timer.elapsed(1000 / TOUCH_REPEATS_PER_SECOND) && current_screen.onTouchHeld(tag)) {
+            if (touch_timer.elapsed(1000 / TOUCH_REPEATS_PER_SECOND) && current_screen.onTouchHeld(tag)) {
               current_screen.onRefresh();
-              if(UIData::flags.bits.touch_repeat_sound) sound.play(repeat_sound);
+              if (UIData::flags.bits.touch_repeat_sound) sound.play(repeat_sound);
               touch_timer.start();
             }
           }
-          else if(tag == 0) {
+          else if (tag == 0) {
             touch_timer.start();
             UIData::flags.bits.touch_debouncing = true;
           }
@@ -173,23 +171,23 @@ namespace FTDI {
         else {
           // Debouncing...
 
-          if(tag == pressed_tag) {
+          if (tag == pressed_tag) {
             // If while debouncing, we detect a press, then cancel debouncing.
             UIData::flags.bits.touch_debouncing = false;
           }
 
-          else if(touch_timer.elapsed(DEBOUNCE_PERIOD)) {
+          else if (touch_timer.elapsed(DEBOUNCE_PERIOD)) {
             UIData::flags.bits.touch_debouncing = false;
 
-            if(UIData::flags.bits.ignore_unpress) {
+            if (UIData::flags.bits.ignore_unpress) {
               UIData::flags.bits.ignore_unpress = false;
               pressed_tag = UNPRESSED;
               break;
             }
 
-            if(UIData::flags.bits.touch_end_sound) sound.play(unpress_sound);
+            if (UIData::flags.bits.touch_end_sound) sound.play(unpress_sound);
 
-            #if defined(UI_FRAMEWORK_DEBUG)
+            #ifdef UI_FRAMEWORK_DEBUG
               SERIAL_ECHO_START();
               SERIAL_ECHOLNPAIR("Touch end: ", tag);
             #endif
@@ -201,7 +199,7 @@ namespace FTDI {
           }
         }
         break;
-    } // switch(pressed_tag)
+    } // switch (pressed_tag)
 
   } // processEvents()
 
@@ -220,7 +218,7 @@ namespace FTDI {
       * crash. Re-entry can happen because some functions
       * (e.g. planner.synchronize) call idle().
       */
-    if(!UIData::flags.bits.prevent_reentry) {
+    if (!UIData::flags.bits.prevent_reentry) {
       UIData::flags.bits.prevent_reentry = true;
       current_screen.onIdle();
       process_events();

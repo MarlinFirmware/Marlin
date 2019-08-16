@@ -63,7 +63,7 @@ bool MediaPlayerScreen::playCardMedia() {
     strcpy_P(fname, PSTR("STARTUP.AVI"));
 
     MediaFileReader reader;
-    if(!reader.open(fname))
+    if (!reader.open(fname))
       return false;
 
     SERIAL_ECHO_START();
@@ -77,7 +77,7 @@ bool MediaPlayerScreen::playCardMedia() {
 // Attempt to play media from the onboard SPI flash chip
 bool MediaPlayerScreen::playBootMedia() {
   UIFlashStorage::BootMediaReader reader;
-  if(!reader.isAvailable()) return false;
+  if (!reader.isAvailable()) return false;
 
   SERIAL_ECHO_START();
   SERIAL_ECHOLNPGM("Starting to play boot video");
@@ -87,7 +87,7 @@ bool MediaPlayerScreen::playBootMedia() {
 
 void MediaPlayerScreen::playStream(void *obj, media_streamer_func_t *data_stream) {
   #if FTDI_API_LEVEL >= 810
-    if(FTDI::ftdi_chip >= 810) {
+    if (FTDI::ftdi_chip >= 810) {
       // Set up the media FIFO on the end of RAMG, as the top of RAMG
       // will be used as the framebuffer.
 
@@ -121,9 +121,9 @@ void MediaPlayerScreen::playStream(void *obj, media_streamer_func_t *data_stream
       do {
         // Write block n
         nBytes = (*data_stream)(obj, buf, block_size);
-        if(nBytes == -1) break;
+        if (nBytes == -1) break;
 
-        if(millis() - t > 10) {
+        if (millis() - t > 10) {
           ExtUI::yield();
           t = millis();
         }
@@ -133,23 +133,23 @@ void MediaPlayerScreen::playStream(void *obj, media_streamer_func_t *data_stream
         // Wait for FTDI810 to finish playing block n-1
         timeouts = 20;
         do {
-          if(millis() - t > 10) {
+          if (millis() - t > 10) {
             ExtUI::yield();
             t = millis();
             timeouts--;
-            if(timeouts == 0) {
+            if (timeouts == 0) {
               SERIAL_ECHO_START();
               SERIAL_ECHOLNPGM("Timeout playing video");
               cmd.reset();
               goto exit;
             }
           }
-        } while(CLCD::mem_read_32(CLCD::REG::MEDIAFIFO_READ) != writePtr);
+        } while (CLCD::mem_read_32(CLCD::REG::MEDIAFIFO_READ) != writePtr);
 
         // Start playing block n
         writePtr = (writePtr + nBytes) % fifo_size;
         CLCD::mem_write_32(CLCD::REG::MEDIAFIFO_WRITE, writePtr);
-      } while(nBytes == block_size);
+      } while (nBytes == block_size);
 
       SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM("Done playing video");

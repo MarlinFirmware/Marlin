@@ -88,7 +88,7 @@
   }
 
 namespace FTDI {
-  #if defined(TOUCH_UI_PORTRAIT)
+  #ifdef TOUCH_UI_PORTRAIT
     constexpr uint16_t display_width  = Vsize;
     constexpr uint16_t display_height = Hsize;
   #else

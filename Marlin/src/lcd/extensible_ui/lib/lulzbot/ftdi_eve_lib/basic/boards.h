@@ -44,7 +44,7 @@
     typedef ft810_registers  ftdi_registers;
 
 
-#if defined(LCD_FTDI_VM800B35A)
+#ifdef LCD_FTDI_VM800B35A
   #if !(HAS_RESOLUTION)
     #define LCD_320x240
   #endif

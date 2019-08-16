@@ -36,7 +36,7 @@
 using namespace FTDI;
 using namespace Theme;
 
-#if defined(TOUCH_UI_PORTRAIT)
+#ifdef TOUCH_UI_PORTRAIT
   #define GRID_ROWS 8
 #else
   #define GRID_ROWS 8
@@ -47,9 +47,9 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
 
   #define GRID_COLS 3
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     cmd.tag(6)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
       .fgcolor(Theme::axis_label)
         .font(Theme::font_large)
                          .button( BTN_POS(1,5), BTN_SIZE(2,1), F(""), OPT_FLAT)
@@ -84,27 +84,27 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
     #endif
   }
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     using namespace ExtUI;
     char x_str[15];
     char y_str[15];
     char z_str[15];
 
-    if(isAxisPositionKnown(X)) {
+    if (isAxisPositionKnown(X)) {
       dtostrf(getAxisPosition_mm(X), 5, 1, x_str);
       strcat_P(x_str, PSTR(" mm"));
     } else {
       strcpy_P(x_str, PSTR("?"));
     }
 
-    if(isAxisPositionKnown(Y)) {
+    if (isAxisPositionKnown(Y)) {
       dtostrf(getAxisPosition_mm(Y), 5, 1, y_str);
       strcat_P(y_str, PSTR(" mm"));
     } else {
       strcpy_P(y_str, PSTR("?"));
     }
 
-    if(isAxisPositionKnown(Z)) {
+    if (isAxisPositionKnown(Z)) {
       dtostrf(getAxisPosition_mm(Z), 5, 1, z_str);
       strcat_P(z_str, PSTR(" mm"));
     } else {
@@ -112,7 +112,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
     }
 
     cmd.tag(6).font(Theme::font_medium)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
          .text  ( BTN_POS(2,5), BTN_SIZE(2,1), x_str)
          .text  ( BTN_POS(2,6), BTN_SIZE(2,1), y_str)
          .text  ( BTN_POS(2,7), BTN_SIZE(2,1), z_str);
@@ -126,7 +126,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
   #undef GRID_COLS
 }
 
-#if defined(TOUCH_UI_PORTRAIT)
+#ifdef TOUCH_UI_PORTRAIT
   #define GRID_COLS 8
 #else
   #define GRID_COLS 12
@@ -137,9 +137,9 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
   CommandProcessor cmd;
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     cmd.font(Theme::font_small)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .tag(5)
        .fgcolor(temp)      .button( BTN_POS(1,1), BTN_SIZE(4,2), F(""), OPT_FLAT)
                                   .button( BTN_POS(1,1), BTN_SIZE(8,1), F(""), OPT_FLAT)
@@ -180,7 +180,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .icon  (BTN_POS(5,2), BTN_SIZE(1,1), Fan_Icon_Info, icon_scale);
   }
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     using namespace ExtUI;
     char e0_str[15];
     char e1_str[15];
@@ -239,9 +239,9 @@ void StatusScreen::draw_progress(draw_mode_t what) {
 
   CommandProcessor cmd;
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     cmd.tag(0).font(font_medium)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .fgcolor(progress) .button(BTN_POS(1,3), BTN_SIZE(4,1), F(""), OPT_FLAT)
                                  .button(BTN_POS(5,3), BTN_SIZE(4,1), F(""), OPT_FLAT);
     #else
@@ -250,7 +250,7 @@ void StatusScreen::draw_progress(draw_mode_t what) {
     #endif
   }
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     const uint32_t elapsed = getProgress_seconds_elapsed();
     const uint8_t hrs = elapsed/3600;
     const uint8_t min = (elapsed/60)%60;
@@ -262,7 +262,7 @@ void StatusScreen::draw_progress(draw_mode_t what) {
     sprintf_P(progress_str, PSTR("%-3d %%"),      getProgress_percent() );
 
     cmd.font(font_medium)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .tag(0).text(BTN_POS(1,3), BTN_SIZE(4,1), time_str)
               .text(BTN_POS(5,3), BTN_SIZE(4,1), progress_str);
     #else
@@ -277,7 +277,7 @@ void StatusScreen::draw_progress(draw_mode_t what) {
 
 void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
   #define GRID_COLS 4
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     using namespace ExtUI;
 
     const bool has_media = isMediaInserted() && !isPrintingFromMedia();
@@ -291,14 +291,14 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
       .enabled(has_media)
     #endif
        .colors(has_media ? action_btn : normal_btn)
-      #if defined(TOUCH_UI_PORTRAIT)
+      #ifdef TOUCH_UI_PORTRAIT
          .tag(3).button( BTN_POS(1,8), BTN_SIZE(2,1),
       #else
          .tag(3).button( BTN_POS(1,7), BTN_SIZE(2,2),
       #endif
       isPrintingFromMedia() ? F("Printing") :
       #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-        #if defined(LULZBOT_MANUAL_USB_STARTUP)
+        #ifdef LULZBOT_MANUAL_USB_STARTUP
         (Sd2Card::ready() ? F("USB Drive") : F("Enable USB"))
         #else
         F("USB Drive")
@@ -308,7 +308,7 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
         F("SD Card"))
       #endif
       .colors(!has_media ? action_btn : normal_btn)
-      #if defined(TOUCH_UI_PORTRAIT)
+      #ifdef TOUCH_UI_PORTRAIT
        .tag(4).button( BTN_POS(3,8), BTN_SIZE(2,1), F("MENU"));
       #else
        .tag(4).button( BTN_POS(3,7), BTN_SIZE(2,2), F("MENU"));
@@ -319,18 +319,18 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
 
 void StatusScreen::draw_status_message(draw_mode_t what, const char* message) {
   #define GRID_COLS 1
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.fgcolor(Theme::status_msg)
        .tag(0)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .button( BTN_POS(1,4), BTN_SIZE(1,1), F(""), OPT_FLAT);
     #else
        .button( BTN_POS(1,3), BTN_SIZE(1,2), F(""), OPT_FLAT);
     #endif
 
     draw_text_box(cmd,
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
       BTN_POS(1,4), BTN_SIZE(1,1),
     #else
       BTN_POS(1,3), BTN_SIZE(1,2),
@@ -359,12 +359,12 @@ void StatusScreen::setStatusMessage(const char* message) {
   draw_interaction_buttons(BACKGROUND);
   storeBackground();
 
-  #if defined(UI_FRAMEWORK_DEBUG)
+  #ifdef UI_FRAMEWORK_DEBUG
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR("New status message: ", message);
   #endif
 
-  if(AT_SCREEN(StatusScreen)) {
+  if (AT_SCREEN(StatusScreen)) {
     current_screen.onRefresh();
   }
 }
@@ -385,7 +385,7 @@ void StatusScreen::onStartup() {
 }
 
 void StatusScreen::onRedraw(draw_mode_t what) {
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     draw_temperature(FOREGROUND);
     draw_progress(FOREGROUND);
     draw_axis_position(FOREGROUND);
@@ -398,7 +398,7 @@ void StatusScreen::onEntry() {
 }
 
 void StatusScreen::onIdle() {
-  if(refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
+  if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     onRefresh();
     refresh_timer.start();
   }
@@ -408,10 +408,10 @@ void StatusScreen::onIdle() {
 bool StatusScreen::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
 
-  switch(tag) {
+  switch (tag) {
     case 3:
       #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
-      if(!Sd2Card::ready()) {
+      if (!Sd2Card::ready()) {
         StatusScreen::setStatusMessage(F("Insert USB drive..."));
         Sd2Card::usbStartup();
       } else {
@@ -422,7 +422,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       #endif
       break;
     case 4:
-      if(isPrinting()) {
+      if (isPrinting()) {
         GOTO_SCREEN(TuneMenu);
       } else {
         GOTO_SCREEN(MainMenu);
@@ -430,7 +430,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       break;
     case 5:  GOTO_SCREEN(TemperatureScreen); break;
     case 6:
-      if(!isPrinting()) {
+      if (!isPrinting()) {
         GOTO_SCREEN(MoveAxisScreen);
       }
       break;

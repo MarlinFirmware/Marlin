@@ -41,7 +41,7 @@ void ZOffsetScreen::onRedraw(draw_mode_t what) {
 
 bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
-  switch(tag) {
+  switch (tag) {
     case 4: UI_DECREMENT(ZOffset_mm); break;
     case 5: UI_INCREMENT(ZOffset_mm); break;
     default:
@@ -51,4 +51,4 @@ bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // LULZBOT_TOUCH_UI && HAS_BED_PROBE

@@ -44,7 +44,7 @@ namespace FTDI {
     void     spi_flash_deselect ();
 
     inline uint8_t spi_recv() {
-      #if defined(CLCD_USE_SOFT_SPI)
+      #ifdef CLCD_USE_SOFT_SPI
         return _soft_spi_xfer(0x00);
       #else
         return ::SPI.transfer(0x00);
@@ -52,7 +52,7 @@ namespace FTDI {
     };
 
     inline void spi_send (uint8_t val) {
-      #if defined(CLCD_USE_SOFT_SPI)
+      #ifdef CLCD_USE_SOFT_SPI
         _soft_spi_send(val);
       #else
         ::SPI.transfer(val);
@@ -109,14 +109,14 @@ namespace FTDI {
     template<bulk_write_op byte_op>
     void spi_write_bulk(const void *data, uint16_t len, uint8_t padding) {
       const uint8_t* p = (const uint8_t *)data;
-      while(len--)     spi_send(byte_op(p++));
-      while(padding--) spi_send(0);
+      while (len--)     spi_send(byte_op(p++));
+      while (padding--) spi_send(0);
     }
 
     template<bulk_write_op byte_op>
     void spi_write_bulk(const void *data, uint16_t len) {
       const uint8_t* p = (const uint8_t *)data;
-      while(len--) spi_send(byte_op(p++));
+      while (len--) spi_send(byte_op(p++));
     }
 
     void spi_read_bulk(      void *data, uint16_t len);

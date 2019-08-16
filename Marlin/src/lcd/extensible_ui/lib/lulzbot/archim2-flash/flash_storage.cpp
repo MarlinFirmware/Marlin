@@ -64,7 +64,7 @@ bool UIFlashStorage::is_present = false;
      status = spi_read_8();
      spi_flash_deselect();
      safe_delay(1);
-    } while(status & 1);
+    } while (status & 1);
   }
 
   void SPIFlash::erase_sector_4k(uint32_t addr) {
@@ -144,7 +144,7 @@ bool UIFlashStorage::is_present = false;
    */
   uint32_t SPIFlash::write(uint32_t addr, const void *_data, size_t size) {
     const uint8_t *data = (const uint8_t*) _data;
-    while(size) {
+    while (size) {
       const uint32_t page_start = addr & 0xFFFF00ul;
       const uint32_t page_end   = page_start + 256;
       const uint32_t write_size = min(page_end - addr, size);
@@ -177,7 +177,7 @@ bool UIFlashStorage::is_present = false;
         ((manufacturer_id == 0xEF) && (device_type == 0x14) && (capacity == 0x15)) || // Winbond W25Q16JV
         ((manufacturer_id == 0x1F) && (device_type == 0x86) && (capacity == 0x01)) ;  // Adesto AT255F161
 
-    if(!is_known) {
+    if (!is_known) {
       SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Unable to locate supported SPI Flash Memory.");
       SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Manufacturer ID, got: ", manufacturer_id);
       SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Device Type    , got: ", device_type);
@@ -189,7 +189,7 @@ bool UIFlashStorage::is_present = false;
 
   void UIFlashStorage::initialize() {
     for(uint8_t i = 0; i < 10; i++) {
-      if(check_known_device()) {
+      if (check_known_device()) {
         is_present = true;
         break;
       }
@@ -199,7 +199,7 @@ bool UIFlashStorage::is_present = false;
 
   /**************************** DATA STORAGE AREA (first 4K or 64k) ********************/
 
-  #if defined(DATA_STORAGE_SIZE_64K)
+  #ifdef DATA_STORAGE_SIZE_64K
     constexpr uint32_t data_storage_area_size = 64 * 1024; // Large erase unit
   #else
     constexpr uint32_t data_storage_area_size =  4 * 1024; // Small erase unit
@@ -244,7 +244,7 @@ bool UIFlashStorage::is_present = false;
       spi_read_begin(offset);
       spi_read_bulk (&delim, sizeof(delim));
       spi_read_end();
-      switch(delim) {
+      switch (delim) {
         case 0xFFFFFFFFul: return read_offset;
         case delimiter:    read_offset = offset; break;
         default:
@@ -260,10 +260,10 @@ bool UIFlashStorage::is_present = false;
    * appended, or -1 if the Flash needs to be erased */
   int32_t UIFlashStorage::get_config_write_offset(uint32_t block_size) {
     int32_t read_offset = get_config_read_offset(block_size);
-    if(read_offset == -1) return -1; // The SPI flash is invalid
+    if (read_offset == -1) return -1; // The SPI flash is invalid
 
     int32_t write_offset = read_offset + 4 + block_size;
-    if((write_offset + 4 + block_size) > data_storage_area_size) {
+    if ((write_offset + 4 + block_size) > data_storage_area_size) {
       SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Not enough free space in Flash.");
       return -1; // Not enough free space
     }
@@ -271,10 +271,10 @@ bool UIFlashStorage::is_present = false;
   }
 
   bool UIFlashStorage::verify_config_data(const void *data, size_t size) {
-    if(!is_present) return false;
+    if (!is_present) return false;
 
     int32_t read_addr = get_config_read_offset(size);
-    if(read_addr == -1) return false;
+    if (read_addr == -1) return false;
 
     uint32_t delim;
     spi_read_begin(read_addr);
@@ -285,10 +285,10 @@ bool UIFlashStorage::is_present = false;
   }
 
   bool UIFlashStorage::read_config_data(void *data, size_t size) {
-    if(!is_present) return false;
+    if (!is_present) return false;
 
     int32_t read_addr = get_config_read_offset(size);
-    if(read_addr == -1) return false;
+    if (read_addr == -1) return false;
 
     uint32_t delim;
     spi_read_begin(read_addr);
@@ -299,7 +299,7 @@ bool UIFlashStorage::is_present = false;
   }
 
   void UIFlashStorage::write_config_data(const void *data, size_t size) {
-    if(!is_present) {
+    if (!is_present) {
       SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("SPI Flash chip not present. Not saving UI settings.");
       return;
     }
@@ -307,16 +307,16 @@ bool UIFlashStorage::is_present = false;
     // Since Flash storage has a limited number of write cycles,
     // make sure that the data is different before rewriting.
 
-    if(verify_config_data(data, size)) {
+    if (verify_config_data(data, size)) {
       SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("UI settings already written, skipping write.");
       return;
     }
 
     int16_t write_addr = get_config_write_offset(size);
-    if(write_addr == -1) {
+    if (write_addr == -1) {
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("Erasing UI settings from SPI Flash... ");
-      #if defined(DATA_STORAGE_SIZE_64K)
+      #ifdef DATA_STORAGE_SIZE_64K
         erase_sector_64k(0);
       #else
         erase_sector_4k(0);
@@ -426,12 +426,12 @@ bool UIFlashStorage::is_present = false;
       strcpy_P( (char*) buff, (const char*) filename);
 
       MediaFileReader reader;
-      if(!reader.open((char*) buff)) {
+      if (!reader.open((char*) buff)) {
         SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Unable to find media file");
         return FILE_NOT_FOUND;
       }
 
-      if(get_media_file_size(slot) != 0xFFFFFFFFUL) {
+      if (get_media_file_size(slot) != 0xFFFFFFFFUL) {
         SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Media file already exists");
         return WOULD_OVERWRITE;
       }
@@ -444,13 +444,13 @@ bool UIFlashStorage::is_present = false;
       // Write out the file itself
       for(;;) {
         const int16_t nBytes = reader.read(buff, write_page_size);
-        if(nBytes == -1) {
+        if (nBytes == -1) {
           SERIAL_ECHOLNPGM("Failed to read from file");
           return READ_ERROR;
         }
 
         addr = write(addr, buff, nBytes);
-        if(nBytes != write_page_size)
+        if (nBytes != write_page_size)
           break;
 
         #if ENABLED(EXTENSIBLE_UI)
@@ -466,7 +466,7 @@ bool UIFlashStorage::is_present = false;
 
       // Verify the file index
 
-      if(get_media_file_start(slot+1) != (get_media_file_start(slot) + reader.size())) {
+      if (get_media_file_start(slot+1) != (get_media_file_start(slot) + reader.size())) {
         SERIAL_ECHOLNPGM("File index verification failed. ");
         verifyOk = false;
       }
@@ -475,16 +475,16 @@ bool UIFlashStorage::is_present = false;
       addr = get_media_file_start(slot);
       reader.rewind();
 
-      while(verifyOk) {
+      while (verifyOk) {
         const int16_t nBytes = reader.read(buff, write_page_size);
-        if(nBytes == -1) {
+        if (nBytes == -1) {
           SERIAL_ECHOPGM("Failed to read from file");
           verifyOk = false;
           break;
         }
 
         spi_read_begin(addr);
-        if(!spi_verify_bulk(buff, nBytes)) {
+        if (!spi_verify_bulk(buff, nBytes)) {
           verifyOk = false;
           spi_read_end();
           break;
@@ -492,13 +492,13 @@ bool UIFlashStorage::is_present = false;
         spi_read_end();
 
         addr += nBytes;
-        if(nBytes != write_page_size) break;
+        if (nBytes != write_page_size) break;
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::yield();
         #endif
       };
 
-      if(verifyOk) {
+      if (verifyOk) {
         SERIAL_ECHOLNPGM("DONE");
         return SUCCESS;
       } else {
@@ -511,10 +511,10 @@ bool UIFlashStorage::is_present = false;
   }
 
   bool UIFlashStorage::BootMediaReader::isAvailable(uint32_t slot) {
-    if(!is_present) return false;
+    if (!is_present) return false;
 
     bytes_remaining = get_media_file_size(slot);
-    if(bytes_remaining != 0xFFFFFFFFUL) {
+    if (bytes_remaining != 0xFFFFFFFFUL) {
       SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("Boot media file size:", bytes_remaining);
       addr = get_media_file_start(slot);
       return true;
@@ -524,12 +524,12 @@ bool UIFlashStorage::is_present = false;
   }
 
   int16_t UIFlashStorage::BootMediaReader::read(void *data, const size_t size) {
-    if(bytes_remaining == 0xFFFFFFFFUL) return -1;
+    if (bytes_remaining == 0xFFFFFFFFUL) return -1;
 
-    if(size > bytes_remaining)
+    if (size > bytes_remaining)
       return read(data, bytes_remaining);
 
-    if(size > 0) {
+    if (size > 0) {
       spi_read_begin(addr);
       spi_read_bulk(data, size);
       spi_read_end();

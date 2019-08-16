@@ -28,7 +28,7 @@
   #define FTDI_BASIC
 #endif
 
-#if defined(FTDI_BASIC)
+#ifdef FTDI_BASIC
   #include "registers_ft800.h"
   #include "registers_ft810.h"
   #include "constants.h"

@@ -32,14 +32,14 @@ using namespace ExtUI;
 
 void EndstopStatesScreen::onEntry() {
   BaseScreen::onEntry();
-  #if defined(LULZBOT_SET_PROBE_PINS_STATE)
+  #ifdef LULZBOT_SET_PROBE_PINS_STATE
     LULZBOT_SET_PROBE_PINS_STATE(true)
   #endif
 }
 
 void EndstopStatesScreen::onExit() {
   BaseScreen::onExit();
-  #if defined(LULZBOT_SET_PROBE_PINS_STATE)
+  #ifdef LULZBOT_SET_PROBE_PINS_STATE
     LULZBOT_SET_PROBE_PINS_STATE(false)
   #endif
 }
@@ -58,7 +58,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   #define PIN_ENABLED(LABEL,PIN,INV,X,Y)  cmd.enabled(1).colors(READ(PIN##_PIN) != INV ? action_btn : normal_btn).PIN_BTN(X,Y,PIN,LABEL);
   #define PIN_DISABLED(LABEL,PIN,INV,X,Y) cmd.enabled(0).PIN_BTN(X,Y,PIN,LABEL);
 
-  #if defined(TOUCH_UI_PORTRAIT)
+  #ifdef TOUCH_UI_PORTRAIT
   cmd.font(font_large)
   #else
   cmd.font(font_medium)
@@ -130,7 +130,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
 }
 
 bool EndstopStatesScreen::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1: GOTO_PREVIOUS(); break;
     #if HAS_SOFTWARE_ENDSTOPS
     case 2: setSoftEndstopState(!getSoftEndstopState());
@@ -144,7 +144,7 @@ bool EndstopStatesScreen::onTouchEnd(uint8_t tag) {
 void EndstopStatesScreen::onIdle() {
   constexpr uint32_t DIAGNOSTICS_UPDATE_INTERVAL = 100;
 
-  if(refresh_timer.elapsed(DIAGNOSTICS_UPDATE_INTERVAL)) {
+  if (refresh_timer.elapsed(DIAGNOSTICS_UPDATE_INTERVAL)) {
     onRefresh();
     refresh_timer.start();
     reset_menu_timeout();

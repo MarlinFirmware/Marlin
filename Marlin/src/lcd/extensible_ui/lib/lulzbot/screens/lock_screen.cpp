@@ -42,14 +42,14 @@ void LockScreen::onEntry() {
 void LockScreen::onRedraw(draw_mode_t what) {
   CommandProcessor cmd;
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .tag(0);
   }
 
-  if(what & FOREGROUND) {
-    #if defined(TOUCH_UI_PORTRAIT)
+  if (what & FOREGROUND) {
+    #ifdef TOUCH_UI_PORTRAIT
       #define GRID_COLS 1
       #define GRID_ROWS 10
     #else
@@ -63,7 +63,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
     #define MARGIN_B 3
 
     progmem_str message;
-    switch(message_style()) {
+    switch (message_style()) {
       case 'w':
         message = F("Wrong passcode!");
         break;
@@ -71,7 +71,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
         message = F("Passcode accepted!");
         break;
       default:
-        if(passcode == 0) {
+        if (passcode == 0) {
           message = F("Select Passcode:");
         } else {
           message = F("Enter Passcode:");
@@ -79,7 +79,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
     }
     message_style() = '\0'; // Terminate the string.
 
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
       constexpr uint8_t l = 6;
     #else
       constexpr uint8_t l = 3;
@@ -89,7 +89,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
 
     cmd.font(font_large)
        .cmd(COLOR_RGB(bg_text_enabled))
-       #if defined(TOUCH_UI_PORTRAIT)
+       #ifdef TOUCH_UI_PORTRAIT
        .text(BTN_POS(1,2), BTN_SIZE(1,1), message)
        .font(font_xlarge)
        .text(BTN_POS(1,4), BTN_SIZE(1,1), screen_data.LockScreen.passcode)
@@ -100,7 +100,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
        #endif
        .font(font_large)
        .colors(normal_btn)
-       #if defined(TOUCH_UI_PASSCODE)
+       #ifdef TOUCH_UI_PASSCODE
        .keys(BTN_POS(1,l+1), BTN_SIZE(1,1), F("123"),        pressed)
        .keys(BTN_POS(1,l+2), BTN_SIZE(1,1), F("456"),        pressed)
        .keys(BTN_POS(1,l+3), BTN_SIZE(1,1), F("789"),        pressed)
@@ -130,7 +130,7 @@ char &LockScreen::message_style() {
 }
 
 void LockScreen::onPasscodeEntered() {
-  if(passcode == 0) {
+  if (passcode == 0) {
     // We are defining a passcode
     message_style() = 0;
     onRefresh();
@@ -139,7 +139,7 @@ void LockScreen::onPasscodeEntered() {
     GOTO_PREVIOUS();
   } else {
     // We are verifying a passcode
-    if(passcode == compute_checksum()) {
+    if (passcode == compute_checksum()) {
       message_style() = 'g';
       onRefresh();
       sound.play(twinkle, PLAY_SYNCHRONOUS);
@@ -156,16 +156,16 @@ void LockScreen::onPasscodeEntered() {
 
 bool LockScreen::onTouchEnd(uint8_t tag) {
   char *c = strchr(screen_data.LockScreen.passcode,'_');
-  if(c) {
-    if(tag == '<') {
-      if(c != screen_data.LockScreen.passcode) {
+  if (c) {
+    if (tag == '<') {
+      if (c != screen_data.LockScreen.passcode) {
         // Backspace deletes previous entered characters.
         *--c = '_';
       }
     } else {
       // Append character to passcode
       *c++ = tag;
-      if(*c == '\0') {
+      if (*c == '\0') {
         // If at last character, then process the code.
         onPasscodeEntered();
       }
@@ -177,10 +177,10 @@ bool LockScreen::onTouchEnd(uint8_t tag) {
 uint16_t LockScreen::compute_checksum() {
   uint16_t checksum = 0;
   const char* c = screen_data.LockScreen.passcode;
-  while(*c) {
+  while (*c) {
     checksum = (checksum << 2) ^ *c++;
   }
-  if(checksum == 0) checksum = 0xFFFF; // Prevent a zero checksum
+  if (checksum == 0) checksum = 0xFFFF; // Prevent a zero checksum
   return checksum;
 }
 
@@ -192,7 +192,7 @@ uint16_t LockScreen::compute_checksum() {
 // the new screen. Otherwise it will be popped twice, taking
 // the user back to where they were before.
 void LockScreen::check_passcode() {
-  if(passcode == 0) return;
+  if (passcode == 0) return;
   message_style() = 0;
   GOTO_SCREEN(LockScreen);
 }

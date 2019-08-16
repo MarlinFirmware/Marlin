@@ -46,7 +46,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
      .tag(0);
 
   draw_text_box(cmd, BTN_POS(1,2), BTN_SIZE(4,1), F(
-      #if defined(LULZBOT_LCD_MACHINE_NAME)
+      #ifdef LULZBOT_LCD_MACHINE_NAME
       LULZBOT_LCD_MACHINE_NAME
       #else
       "Color Touch Panel"
@@ -55,7 +55,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
 
   cmd.tag(2);
   draw_text_box(cmd, BTN_POS(1,3), BTN_SIZE(4,3), F(
-      #if defined(LULZBOT_LCD_TOOLHEAD_NAME)
+      #ifdef LULZBOT_LCD_TOOLHEAD_NAME
         "Firmware for toolhead:\n" LULZBOT_LCD_TOOLHEAD_NAME "\n\n"
       #endif
       "(C) 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com"
@@ -68,7 +68,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
 }
 
 bool AboutScreen::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1: GOTO_PREVIOUS();            return true;
 #if ENABLED(DEVELOPER_SCREENS)
     case 2: GOTO_SCREEN(DeveloperMenu); return true;

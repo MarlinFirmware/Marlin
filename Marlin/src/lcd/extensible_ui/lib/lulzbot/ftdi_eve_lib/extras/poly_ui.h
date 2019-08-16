@@ -45,7 +45,7 @@
  *
  *     // Do something else if this point
  *     // closes a loop.
- *     if(r.end_of_loop()) {
+ *     if (r.end_of_loop()) {
  *       ...
  *     }
  *   }
@@ -84,20 +84,20 @@ class PolyReader {
 
     // Reads the next point in the polygon data structure
     void next() {
-      if(!p) return;
+      if (!p) return;
 
-      if(p == end) {
-        if(start_x != eol)
+      if (p == end) {
+        if (start_x != eol)
           close_loop();
         else
           p = NULL;
       } else {
         x = pgm_read_word_far(p++);
-        if(x == eol)
+        if (x == eol)
           close_loop();
         else {
           y = pgm_read_word_far(p++);
-          if(start_x == eol) {
+          if (start_x == eol) {
             start_x = x;
             start_y = y;
           }
@@ -219,10 +219,10 @@ class DeduplicatedPolyReader : public POLY_READER {
 
     void next() {
       do {
-        if(!POLY_READER::has_more()) return;
+        if (!POLY_READER::has_more()) return;
         POLY_READER::next();
-      } while(POLY_READER::x == last_x && POLY_READER::y == last_y && !POLY_READER::end_of_loop());
-      if(POLY_READER::end_of_loop()) {
+      } while (POLY_READER::x == last_x && POLY_READER::y == last_y && !POLY_READER::end_of_loop());
+      if (POLY_READER::end_of_loop()) {
         last_x = last_y = eol;
       } else {
         last_x = POLY_READER::x;
@@ -260,7 +260,7 @@ class GenericPolyUI {
       using namespace FTDI;
       int16_t x, y, w, h;
 
-      if(clip) {
+      if (clip) {
         // Clipping reduces the number of pixels that are
         // filled, allowing more complex shapes to be drawn
         // in the alloted time.
@@ -275,14 +275,14 @@ class GenericPolyUI {
       p.begin_loop();
       for(r.start();r.has_more();r.next()) {
         p(r.x * 16, r.y * 16);
-        if(r.end_of_loop()) {
+        if (r.end_of_loop()) {
           p.end_loop();
           p.begin_loop();
         }
       }
       p.end_loop();
       p.end_fill();
-      if(clip)
+      if (clip)
         cmd.cmd(RESTORE_CONTEXT());
     }
 
@@ -305,7 +305,7 @@ class GenericPolyUI {
       p.begin_loop();
       for(r.start();r.has_more(); r.next()) {
         p(r.x * 16, r.y * 16);
-        if(r.end_of_loop()) {
+        if (r.end_of_loop()) {
           p.end_loop();
           p.begin_loop();
         }
@@ -356,7 +356,7 @@ class GenericPolyUI {
       using namespace FTDI;
       // Draw the shadow
       #if FTDI_API_LEVEL >= 810
-      if(mode & BACKGROUND) {
+      if (mode & BACKGROUND) {
         cmd.cmd(SAVE_CONTEXT());
         cmd.cmd(TAG(tag));
         cmd.cmd(VERTEX_TRANSLATE_X(btn_shadow_depth * 16));
@@ -367,10 +367,10 @@ class GenericPolyUI {
       }
       #endif
 
-      if(mode & FOREGROUND) {
+      if (mode & FOREGROUND) {
         cmd.cmd(SAVE_CONTEXT());
         #if FTDI_API_LEVEL >= 810
-          if(EventLoop::get_pressed_tag() == tag) {
+          if (EventLoop::get_pressed_tag() == tag) {
             // "Push" the button
             cmd.cmd(VERTEX_TRANSLATE_X(btn_shadow_depth * 16));
             cmd.cmd(VERTEX_TRANSLATE_Y(btn_shadow_depth * 16));

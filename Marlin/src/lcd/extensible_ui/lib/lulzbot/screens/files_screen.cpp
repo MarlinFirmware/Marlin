@@ -69,7 +69,7 @@ uint16_t FilesScreen::getFileForTag(uint8_t tag) {
   return screen_data.FilesScreen.cur_page * files_per_page + tag - 2;
 }
 
-#if defined(TOUCH_UI_PORTRAIT)
+#ifdef TOUCH_UI_PORTRAIT
   #define GRID_COLS  6
   #define GRID_ROWS (files_per_page + header_h + footer_h)
 #else
@@ -86,17 +86,17 @@ void FilesScreen::drawFileButton(const char* filename, uint8_t tag, bool is_dir,
      .rectangle( 0, BTN_Y(header_h+line), display_width, BTN_H(1));
   cmd.cmd(COLOR_RGB(is_highlighted ? normal_btn.rgb : bg_text_enabled));
   #if ENABLED(SCROLL_LONG_FILENAMES)
-    if(is_highlighted) {
+    if (is_highlighted) {
       cmd.cmd(SAVE_CONTEXT());
       cmd.cmd(MACRO(0));
     }
   #endif
   cmd.text  (BTN_POS(1,header_h+line), BTN_SIZE(6,1), filename, OPT_CENTERY);
-  if(is_dir) {
+  if (is_dir) {
     cmd.text(BTN_POS(1,header_h+line), BTN_SIZE(6,1), F("> "),  OPT_CENTERY | OPT_RIGHTX);
   }
   #if ENABLED(SCROLL_LONG_FILENAMES)
-    if(is_highlighted) {
+    if (is_highlighted) {
       cmd.cmd(RESTORE_CONTEXT());
     }
   #endif
@@ -114,7 +114,7 @@ void FilesScreen::drawFileList() {
   #define MARGIN_B 0
   uint16_t fileIndex = screen_data.FilesScreen.cur_page * files_per_page;
   for(uint8_t i = 0; i < files_per_page; i++, fileIndex++) {
-    if(files.seek(fileIndex)) {
+    if (files.seek(fileIndex)) {
       drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
     } else {
       break;
@@ -149,7 +149,7 @@ void FilesScreen::drawHeader() {
 void FilesScreen::drawFooter() {
   #undef MARGIN_T
   #undef MARGIN_B
-  #if defined(TOUCH_UI_PORTRAIT)
+  #ifdef TOUCH_UI_PORTRAIT
   #define MARGIN_T 15
   #define MARGIN_B 5
   #else
@@ -168,7 +168,7 @@ void FilesScreen::drawFooter() {
      .tag(back_tag).button( BTN_POS(4,y), BTN_SIZE(3,h), F("Back"))
      .enabled(has_selection)
      .colors(has_selection ? action_btn : normal_btn);
-  if(screen_data.FilesScreen.flags.is_dir) {
+  if (screen_data.FilesScreen.flags.is_dir) {
     cmd.tag(244).button( BTN_POS(1, y), BTN_SIZE(3,h), F("Open"));
   } else {
     cmd.tag(243).button( BTN_POS(1, y), BTN_SIZE(3,h), F("Print"));
@@ -176,7 +176,7 @@ void FilesScreen::drawFooter() {
 }
 
 void FilesScreen::onRedraw(draw_mode_t what) {
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     drawHeader();
     drawSelectedFile();
     drawFooter();
@@ -196,15 +196,15 @@ void FilesScreen::gotoPage(uint8_t page) {
 }
 
 bool FilesScreen::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 240: GOTO_PREVIOUS();                  return true;
     case 241:
-      if(screen_data.FilesScreen.cur_page > 0) {
+      if (screen_data.FilesScreen.cur_page > 0) {
         gotoPage(screen_data.FilesScreen.cur_page-1);
       }
       break;
     case 242:
-      if(screen_data.FilesScreen.cur_page < (screen_data.FilesScreen.num_page-1)) {
+      if (screen_data.FilesScreen.cur_page < (screen_data.FilesScreen.num_page-1)) {
         gotoPage(screen_data.FilesScreen.cur_page+1);
       }
       break;
@@ -228,16 +228,16 @@ bool FilesScreen::onTouchEnd(uint8_t tag) {
       }
       break;
     default:
-      if(tag < 240) {
+      if (tag < 240) {
         screen_data.FilesScreen.selected_tag = tag;
         #if ENABLED(SCROLL_LONG_FILENAMES) && (FTDI_API_LEVEL >= 810)
-          if(FTDI::ftdi_chip >= 810) {
+          if (FTDI::ftdi_chip >= 810) {
             const char *longFilename = getSelectedLongFilename();
-            if(longFilename[0]) {
+            if (longFilename[0]) {
               CLCD::FontMetrics fm(font_medium);
               uint16_t text_width = fm.get_text_width(longFilename);
               screen_data.FilesScreen.scroll_pos = 0;
-              if(text_width > display_width)
+              if (text_width > display_width)
                 screen_data.FilesScreen.scroll_max = text_width - display_width + MARGIN_L + MARGIN_R;
               else
                 screen_data.FilesScreen.scroll_max = 0;
@@ -252,10 +252,10 @@ bool FilesScreen::onTouchEnd(uint8_t tag) {
 
 void FilesScreen::onIdle() {
   #if ENABLED(SCROLL_LONG_FILENAMES) && (FTDI_API_LEVEL >= 810)
-    if(FTDI::ftdi_chip >= 810) {
+    if (FTDI::ftdi_chip >= 810) {
       CLCD::mem_write_32(CLCD::REG::MACRO_0,
         VERTEX_TRANSLATE_X(-int32_t(screen_data.FilesScreen.scroll_pos)));
-      if(screen_data.FilesScreen.scroll_pos < screen_data.FilesScreen.scroll_max * 16)
+      if (screen_data.FilesScreen.scroll_pos < screen_data.FilesScreen.scroll_max * 16)
         screen_data.FilesScreen.scroll_pos++;
     }
   #endif

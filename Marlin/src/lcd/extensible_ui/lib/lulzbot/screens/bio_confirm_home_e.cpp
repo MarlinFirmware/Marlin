@@ -34,7 +34,7 @@ void BioConfirmHomeE::onRedraw(draw_mode_t) {
 }
 
 bool BioConfirmHomeE::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1:
       SpinnerDialogBox::enqueueAndWait_P(F(
         "G112\n"                            /* Home extruder */

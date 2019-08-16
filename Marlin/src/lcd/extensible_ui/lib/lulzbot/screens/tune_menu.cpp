@@ -30,14 +30,14 @@ using namespace FTDI;
 using namespace Theme;
 
 void TuneMenu::onRedraw(draw_mode_t what) {
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .font(font_medium);
   }
 
-  #if defined(TOUCH_UI_PORTRAIT)
+  #ifdef TOUCH_UI_PORTRAIT
     #define GRID_ROWS 8
     #define GRID_COLS 2
   #else
@@ -45,13 +45,13 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     #define GRID_COLS 2
   #endif
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     using namespace ExtUI;
 
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(font_medium)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .tag(2).enabled(1)      .button( BTN_POS(1,1), BTN_SIZE(2,1), F("Temperature"))
        .tag(3).enabled(!isPrinting()).button( BTN_POS(1,2), BTN_SIZE(2,1), F("Change Filament"))
        #if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -134,7 +134,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
 bool TuneMenu::onTouchEnd(uint8_t tag) {
   using namespace Theme;
   using namespace ExtUI;
-  switch(tag) {
+  switch (tag) {
     case 1:  GOTO_PREVIOUS();                    break;
     case 2:  GOTO_SCREEN(TemperatureScreen);     break;
     case 3:  GOTO_SCREEN(ChangeFilamentScreen);  break;

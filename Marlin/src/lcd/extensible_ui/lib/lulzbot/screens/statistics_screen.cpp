@@ -36,7 +36,7 @@ using namespace Theme;
 void StatisticsScreen::onRedraw(draw_mode_t what) {
   CommandProcessor cmd;
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     char buffer[21];
 
     cmd.cmd(CLEAR_COLOR_RGB(Theme::bg_color))
@@ -60,7 +60,7 @@ void StatisticsScreen::onRedraw(draw_mode_t what) {
     cmd.text(BTN_POS(3,6), BTN_SIZE(2,1), getFilamentUsed_str(buffer));
   }
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     cmd.font(Theme::font_medium)
        .colors(action_btn)
        .tag(1).button(BTN_POS(1,7), BTN_SIZE(4,1), F("Back"));
@@ -68,7 +68,7 @@ void StatisticsScreen::onRedraw(draw_mode_t what) {
 }
 
 bool StatisticsScreen::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1:        GOTO_PREVIOUS();              return true;
     default:                                     return false;
   }

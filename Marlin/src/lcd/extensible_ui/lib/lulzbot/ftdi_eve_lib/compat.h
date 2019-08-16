@@ -19,7 +19,7 @@
 
 #include "../config.h"
 
-#if defined(__MARLIN_FIRMWARE__)
+#ifdef __MARLIN_FIRMWARE__
   // Marlin will define the I/O functions for us
 
   #if ENABLED(LULZBOT_TOUCH_UI)
@@ -44,7 +44,7 @@
       static inline void set_input_pullup() {set_input(); set_high();}
       static inline void set_output()       {port::ddr()  = (port::ddr()  |   bits);}
       static inline uint8_t read()          {return port::pin() & bits;}
-      static inline void write(bool v)      {if(v) set_high(); else set_low();}
+      static inline void write(bool v)      {if (v) set_high(); else set_low();}
     };
 
     #define MAKE_AVR_PORT_PINS(ID) \

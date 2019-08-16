@@ -49,7 +49,7 @@
 
 // Otherwise. Define all the pins manually:
 
-#if defined(OTHER_PIN_LAYOUT)
+#ifdef OTHER_PIN_LAYOUT
     // Select interfacing pins, the following pin specifiers are supported:
     //
     //     ARDUINO_DIGITAL_1  - Arduino pin via digitalWrite/digitalRead
@@ -62,7 +62,7 @@
 
     // If using software SPI, specify pins for SCLK, MOSI, MISO
     //#define CLCD_USE_SOFT_SPI
-    #if defined(CLCD_USE_SOFT_SPI)
+    #ifdef CLCD_USE_SOFT_SPI
         #define CLCD_SOFT_SPI_MOSI             11
         #define CLCD_SOFT_SPI_MISO             12
         #define CLCD_SOFT_SPI_SCLK             13

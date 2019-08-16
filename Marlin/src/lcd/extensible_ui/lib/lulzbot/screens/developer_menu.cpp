@@ -32,7 +32,7 @@ using namespace FTDI;
 using namespace Theme;
 
 void DeveloperMenu::onRedraw(draw_mode_t what) {
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
@@ -52,7 +52,7 @@ void DeveloperMenu::onRedraw(draw_mode_t what) {
     #endif
 
     cmd.cmd(COLOR_RGB(bg_text_enabled));
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
       #define GRID_ROWS 10
       #define GRID_COLS 1
       cmd.font(font_large)         .text  ( BTN_POS(1,1), BTN_SIZE(1,1), F("Developer Menu"))
@@ -89,7 +89,7 @@ void DeveloperMenu::onRedraw(draw_mode_t what) {
 
 bool DeveloperMenu::onTouchEnd(uint8_t tag) {
   using namespace Theme;
-  switch(tag) {
+  switch (tag) {
     case 1: GOTO_PREVIOUS();                            break;
     case 2: GOTO_SCREEN(WidgetsScreen);                 break;
     case 3:
@@ -101,13 +101,13 @@ bool DeveloperMenu::onTouchEnd(uint8_t tag) {
     case 5: sound.play(js_bach_joy, PLAY_ASYNCHRONOUS); break;
     #if ENABLED(SDSUPPORT)
     case 6:
-        if(!MediaPlayerScreen::playCardMedia())
+        if (!MediaPlayerScreen::playCardMedia())
           AlertDialogBox::showError(F("Cannot open STARTUP.AVI"));
         break;
     #endif
     #ifdef SPI_FLASH_SS
       case 7:
-        if(!MediaPlayerScreen::playBootMedia())
+        if (!MediaPlayerScreen::playBootMedia())
           AlertDialogBox::showError(F("No boot media available"));
         break;
       case 8:
@@ -116,7 +116,7 @@ bool DeveloperMenu::onTouchEnd(uint8_t tag) {
         UIFlashStorage::error_t res = UIFlashStorage::write_media_file(F("STARTUP.AVI"));
         SpinnerDialogBox::hide();
         reset_menu_timeout();
-        switch(res) {
+        switch (res) {
           case UIFlashStorage::SUCCESS:
             AlertDialogBox::show(F("File copied!"));
             break;

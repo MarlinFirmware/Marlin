@@ -34,7 +34,7 @@ void BioConfirmHomeXYZ::onRedraw(draw_mode_t) {
 }
 
 bool BioConfirmHomeXYZ::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1:
       SpinnerDialogBox::enqueueAndWait_P(F(
         "G28 X Y Z\n"             /* Home all axis */

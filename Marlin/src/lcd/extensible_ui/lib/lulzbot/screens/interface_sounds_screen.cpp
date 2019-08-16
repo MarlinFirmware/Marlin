@@ -44,7 +44,7 @@ void InterfaceSoundsScreen::toggleSoundSelection(event_t event) {
 
 void InterfaceSoundsScreen::setSoundSelection(event_t event, const SoundPlayer::sound_t* sound) {
   for(uint8_t i = 0; i < SoundList::n; i++)
-    if(SoundList::data(i) == sound)
+    if (SoundList::data(i) == sound)
       event_sounds[event] = i;
 }
 
@@ -61,7 +61,7 @@ void InterfaceSoundsScreen::defaultSettings() {
 void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
   CommandProcessor cmd;
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .cmd(COLOR_RGB(bg_text_enabled))
@@ -83,8 +83,8 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
     #undef EDGE_R
   }
 
-  if(what & FOREGROUND) {
-    #if defined(TOUCH_UI_PORTRAIT)
+  if (what & FOREGROUND) {
+    #ifdef TOUCH_UI_PORTRAIT
       constexpr uint8_t w = 2;
     #else
       constexpr uint8_t w = 1;
@@ -113,7 +113,7 @@ void InterfaceSoundsScreen::onEntry() {
 }
 
 bool InterfaceSoundsScreen::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1: GOTO_PREVIOUS();                                              return true;
     case 3: UIData::enable_touch_sounds(!UIData::touch_sounds_enabled()); break;
     case 4: toggleSoundSelection(PRINTING_STARTED);                       break;
@@ -130,7 +130,7 @@ bool InterfaceSoundsScreen::onTouchStart(uint8_t tag) {
   CommandProcessor cmd;
   #undef EDGE_R
   #define EDGE_R 30
-  switch(tag) {
+  switch (tag) {
     case 2: cmd.track_linear(BTN_POS(3,2), BTN_SIZE(2,1), 2).execute(); break;
     default: break;
   }
@@ -138,12 +138,12 @@ bool InterfaceSoundsScreen::onTouchStart(uint8_t tag) {
 }
 
 void InterfaceSoundsScreen::onIdle() {
-  if(refresh_timer.elapsed(TOUCH_UPDATE_INTERVAL)) {
+  if (refresh_timer.elapsed(TOUCH_UPDATE_INTERVAL)) {
     refresh_timer.start();
 
     uint16_t value;
     CommandProcessor cmd;
-    switch(cmd.track_tag(value)) {
+    switch (cmd.track_tag(value)) {
       case 2:
         screen_data.InterfaceSettingsScreen.volume = value >> 8;
         SoundPlayer::set_volume(screen_data.InterfaceSettingsScreen.volume);

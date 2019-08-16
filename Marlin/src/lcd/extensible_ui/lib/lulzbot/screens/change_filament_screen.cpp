@@ -42,27 +42,27 @@ uint32_t getWarmColor(uint16_t temp, uint16_t cool, uint16_t low, uint16_t med, 
   rgb_t R0, R1, mix;
 
   float t;
-  if(temp < cool) {
+  if (temp < cool) {
     R0 = cool_rgb;
     R1 = low_rgb;
     t  = 0;
   }
-  else if(temp < low) {
+  else if (temp < low) {
     R0 = cool_rgb;
     R1 = low_rgb;
     t = (float(temp)-cool)/(low-cool);
   }
-  else if(temp < med) {
+  else if (temp < med) {
     R0 = low_rgb;
     R1 = med_rgb;
     t = (float(temp)-low)/(med-low);
   }
-  else if(temp < high) {
+  else if (temp < high) {
     R0 = med_rgb;
     R1 = high_rgb;
     t = (float(temp)-med)/(high-med);
   }
-  else if(temp >= high) {
+  else if (temp >= high) {
     R0 = med_rgb;
     R1 = high_rgb;
     t = 1;
@@ -97,7 +97,7 @@ void ChangeFilamentScreen::onExit() {
 void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
   CommandProcessor cmd;
 
-  #if defined(TOUCH_UI_PORTRAIT)
+  #ifdef TOUCH_UI_PORTRAIT
     #define GRID_COLS 2
     #define GRID_ROWS 11
   #else
@@ -105,17 +105,17 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     #define GRID_ROWS 6
   #endif
 
-  if(what & BACKGROUND) {
+  if (what & BACKGROUND) {
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .tag(0)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .font(font_large)
     #else
        .font(font_medium)
     #endif
        .text(BTN_POS(1,1), BTN_SIZE(2,1), F("Extruder Selection:"))
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .text(BTN_POS(1,7), BTN_SIZE(1,1), F("Current Temp:"))
     #else
        .text(BTN_POS(3,1), BTN_SIZE(2,1), F("Current Temp:"))
@@ -125,7 +125,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     drawTempGradient(BTN_POS(1,4), BTN_SIZE(1,3));
   }
 
-  if(what & FOREGROUND) {
+  if (what & FOREGROUND) {
     char e_str[15];
 
     const char *idle = PSTR("%-3d C / idle");
@@ -141,14 +141,14 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     const rgb_t tcol = getWarmColor(getActualTemp_celsius(getExtruder()), COOL_TEMP, LOW_TEMP, MED_TEMP, HIGH_TEMP);
     cmd.cmd(COLOR_RGB(tcol))
        .tag(15)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .rectangle(BTN_POS(2,7), BTN_SIZE(1,1))
     #else
        .rectangle(BTN_POS(3,2), BTN_SIZE(2,1))
     #endif
        .cmd(COLOR_RGB(tcol.luminance() > 128 ? 0x000000 : 0xFFFFFF))
        .font(font_medium)
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .text(BTN_POS(2,7), BTN_SIZE(1,1), e_str)
     #else
        .text(BTN_POS(3,2), BTN_SIZE(2,1), e_str)
@@ -157,9 +157,9 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
 
     const bool t_ok = getActualTemp_celsius(getExtruder()) > getSoftenTemp() - 10;
 
-    if(screen_data.ChangeFilamentScreen.t_tag && !t_ok) {
+    if (screen_data.ChangeFilamentScreen.t_tag && !t_ok) {
       cmd.text(BTN_POS(1,6), BTN_SIZE(1,1), F("Heating..."));
-    } else if(getActualTemp_celsius(getExtruder()) > 100) {
+    } else if (getActualTemp_celsius(getExtruder()) > 100) {
       cmd.cmd(COLOR_RGB(0xFF0000))
          .text(BTN_POS(1,4), BTN_SIZE(1,1), F("Caution:"))
          .colors(normal_btn)
@@ -176,7 +176,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     const bool tog11 = screen_data.ChangeFilamentScreen.e_tag == 11;
     #endif
 
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
       cmd.font(font_large)
     #else
       cmd.font(font_medium)
@@ -190,12 +190,12 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     #endif
        .tag(11)          .button (BTN_POS(2,2), BTN_SIZE(1,1), F("2"));
 
-    if(!t_ok) reset_menu_timeout();
+    if (!t_ok) reset_menu_timeout();
 
     const bool tog7 = screen_data.ChangeFilamentScreen.repeat_tag == 7;
     const bool tog8 = screen_data.ChangeFilamentScreen.repeat_tag == 8;
 
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
       cmd.font(font_large)
     #else
       cmd.font(font_small)
@@ -213,7 +213,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     .cmd(COLOR_MASK(1,1,1,1))
 
     .cmd(COLOR_RGB(t_ok ? bg_text_enabled : bg_text_disabled))
-    #if defined(TOUCH_UI_PORTRAIT)
+    #ifdef TOUCH_UI_PORTRAIT
        .font(font_large)
        .tag(0)                              .text   (BTN_POS(1,8),  BTN_SIZE(1,1), F("Unload"))
                                             .text   (BTN_POS(2,8),  BTN_SIZE(1,1), F("Load/Extrude"))
@@ -239,7 +239,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
 }
 
 uint8_t ChangeFilamentScreen::getSoftenTemp() {
-  switch(screen_data.ChangeFilamentScreen.t_tag) {
+  switch (screen_data.ChangeFilamentScreen.t_tag) {
     case 2:  return LOW_TEMP;
     case 3:  return MED_TEMP;
     case 4:  return HIGH_TEMP;
@@ -248,7 +248,7 @@ uint8_t ChangeFilamentScreen::getSoftenTemp() {
 }
 
 ExtUI::extruder_t ChangeFilamentScreen::getExtruder() {
-  switch(screen_data.ChangeFilamentScreen.e_tag) {
+  switch (screen_data.ChangeFilamentScreen.e_tag) {
     case 13: return ExtUI::E3;
     case 12: return ExtUI::E2;
     case 11: return ExtUI::E1;
@@ -258,7 +258,7 @@ ExtUI::extruder_t ChangeFilamentScreen::getExtruder() {
 
 bool ChangeFilamentScreen::onTouchStart(uint8_t tag) {
   // Make the Momentary and Continuous buttons slightly more responsive
-  switch(tag) {
+  switch (tag) {
     case 5: case 6: case 7: case 8:
       return ChangeFilamentScreen::onTouchHeld(tag);
     default:
@@ -268,7 +268,7 @@ bool ChangeFilamentScreen::onTouchStart(uint8_t tag) {
 
 bool ChangeFilamentScreen::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
-  switch(tag) {
+  switch (tag) {
     case 1: GOTO_PREVIOUS(); break;
     case 2:
     case 3:
@@ -297,11 +297,11 @@ bool ChangeFilamentScreen::onTouchEnd(uint8_t tag) {
 }
 
 bool ChangeFilamentScreen::onTouchHeld(uint8_t tag) {
-  if(ExtUI::isMoving()) return false; // Don't allow moves to accumulate
+  if (ExtUI::isMoving()) return false; // Don't allow moves to accumulate
   constexpr float increment = 1;
   #define UI_INCREMENT_AXIS(axis) MoveAxisScreen::setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
   #define UI_DECREMENT_AXIS(axis) MoveAxisScreen::setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
-  switch(tag) {
+  switch (tag) {
     case 5: case 7: UI_DECREMENT_AXIS(getExtruder()); break;
     case 6: case 8: UI_INCREMENT_AXIS(getExtruder()); break;
     default: return false;
@@ -312,8 +312,8 @@ bool ChangeFilamentScreen::onTouchHeld(uint8_t tag) {
 }
 
 void ChangeFilamentScreen::onIdle() {
-  if(screen_data.ChangeFilamentScreen.repeat_tag) onTouchHeld(screen_data.ChangeFilamentScreen.repeat_tag);
-  if(refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
+  if (screen_data.ChangeFilamentScreen.repeat_tag) onTouchHeld(screen_data.ChangeFilamentScreen.repeat_tag);
+  if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     onRefresh();
     refresh_timer.start();
   }

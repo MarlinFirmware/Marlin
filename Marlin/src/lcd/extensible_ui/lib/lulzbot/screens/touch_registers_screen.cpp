@@ -75,7 +75,7 @@ void TouchRegistersScreen::onRedraw(draw_mode_t) {
  }
 
  bool TouchRegistersScreen::onTouchEnd(uint8_t tag) {
-   switch(tag) {
+   switch (tag) {
      case 1:        GOTO_PREVIOUS();                 break;
      default:
        return false;

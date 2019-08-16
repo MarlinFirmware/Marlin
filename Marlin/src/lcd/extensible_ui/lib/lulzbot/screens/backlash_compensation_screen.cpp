@@ -48,7 +48,7 @@ void BacklashCompensationScreen::onRedraw(draw_mode_t what) {
 
 bool BacklashCompensationScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
-  switch(tag) {
+  switch (tag) {
     case  2:  UI_DECREMENT(AxisBacklash_mm, X); break;
     case  3:  UI_INCREMENT(AxisBacklash_mm, X); break;
     case  4:  UI_DECREMENT(AxisBacklash_mm, Y); break;

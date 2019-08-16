@@ -35,7 +35,7 @@ void ConfirmAutoCalibrationDialogBox::onRedraw(draw_mode_t) {
 }
 
 bool ConfirmAutoCalibrationDialogBox::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     case 1:
       GOTO_SCREEN(StatusScreen);
       injectCommands_P(PSTR(LULZBOT_CALIBRATION_COMMANDS));

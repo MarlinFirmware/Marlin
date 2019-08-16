@@ -51,7 +51,7 @@ void WidgetsScreen::onRedraw(draw_mode_t) {
   const uint16_t m   = (slider_val*12*60/0xFFFFU)%60;
   const uint16_t s   = (slider_val*12*60*60/0xFFFFU)%60;
 
-  #if defined(TOUCH_UI_PORTRAIT)
+  #ifdef TOUCH_UI_PORTRAIT
     #define GRID_COLS 3
     #define GRID_ROWS 8
     cmd.font(font_large)
@@ -106,14 +106,14 @@ void WidgetsScreen::onRedraw(draw_mode_t) {
   #endif
 
   cmd.cmd(COLOR_RGB(bg_text_enabled));
-  if(show_grid) DRAW_LAYOUT_GRID
+  if (show_grid) DRAW_LAYOUT_GRID
 }
 
 bool WidgetsScreen::onTouchStart(uint8_t tag) {
   CommandProcessor cmd;
-  switch(tag) {
+  switch (tag) {
     case 1: GOTO_PREVIOUS();                                               break;
-  #if defined(TOUCH_UI_PORTRAIT)
+  #ifdef TOUCH_UI_PORTRAIT
     case 2: cmd.track_circular (BTN_POS(1,2), BTN_SIZE(1,2), 2).execute(); break;
     case 4: cmd.track_linear   (BTN_POS(2,3), BTN_SIZE(2,1), 4).execute(); break;
     case 5: cmd.track_linear   (BTN_POS(2,4), BTN_SIZE(2,1), 5).execute(); break;
@@ -134,12 +134,12 @@ bool WidgetsScreen::onTouchStart(uint8_t tag) {
 }
 
 void WidgetsScreen::onIdle() {
-  if(refresh_timer.elapsed(TOUCH_UPDATE_INTERVAL)) {
+  if (refresh_timer.elapsed(TOUCH_UPDATE_INTERVAL)) {
     refresh_timer.start();
 
     uint16_t value;
     CommandProcessor cmd;
-    switch(cmd.track_tag(value)) {
+    switch (cmd.track_tag(value)) {
       case 1:
       case 2:
       case 3:
@@ -155,4 +155,4 @@ void WidgetsScreen::onIdle() {
   BaseScreen::onIdle();
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // LULZBOT_TOUCH_UI && DEVELOPER_SCREENS
