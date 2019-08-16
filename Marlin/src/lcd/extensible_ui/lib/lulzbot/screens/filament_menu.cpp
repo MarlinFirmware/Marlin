@@ -40,7 +40,7 @@ void FilamentMenu::onRedraw(draw_mode_t what) {
   if(what & FOREGROUND) {
     CommandProcessor cmd;
       cmd.font(font_large)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       #define GRID_ROWS 9
       #define GRID_COLS 2
          .text  ( BTN_POS(1,1),      BTN_SIZE(2,1), F("Filament Options:"))

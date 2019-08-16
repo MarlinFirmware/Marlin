@@ -29,7 +29,7 @@
 #include "../ftdi_eve_lib/extras/poly_ui.h"
 #include "../archim2-flash/flash_storage.h"
 
-#ifdef USE_PORTRAIT_ORIENTATION
+#ifdef TOUCH_UI_PORTRAIT
   #include "../theme/bootscreen_logo_portrait.h"
 #else
   #include "../theme/bootscreen_logo_landscape.h"

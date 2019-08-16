@@ -41,7 +41,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       #define GRID_ROWS 9
       #define GRID_COLS 2
       #if HAS_BED_PROBE

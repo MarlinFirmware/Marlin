@@ -1146,34 +1146,29 @@ void CLCD::default_display_orientation() {
     // processor to do this since it will also update the transform matrices.
     if(FTDI::ftdi_chip >= 810) {
       CommandFifo cmd;
-      #if    defined(USE_PORTRAIT_ORIENTATION) &&  defined(USE_INVERTED_ORIENTATION) &&  defined(USE_MIRRORED_ORIENTATION)
-      cmd.setrotate(7);
-      #elif  defined(USE_PORTRAIT_ORIENTATION) && !defined(USE_INVERTED_ORIENTATION) &&  defined(USE_MIRRORED_ORIENTATION)
-      cmd.setrotate(6);
-      #elif !defined(USE_PORTRAIT_ORIENTATION) &&  defined(USE_INVERTED_ORIENTATION) &&  defined(USE_MIRRORED_ORIENTATION)
-      cmd.setrotate(5);
-      #elif !defined(USE_PORTRAIT_ORIENTATION) && !defined(USE_INVERTED_ORIENTATION) &&  defined(USE_MIRRORED_ORIENTATION)
-      cmd.setrotate(4);
-      #elif  defined(USE_PORTRAIT_ORIENTATION) &&  defined(USE_INVERTED_ORIENTATION) && !defined(USE_MIRRORED_ORIENTATION)
-      cmd.setrotate(3);
-      #elif  defined(USE_PORTRAIT_ORIENTATION) && !defined(USE_INVERTED_ORIENTATION) && !defined(USE_MIRRORED_ORIENTATION)
-      cmd.setrotate(2);
-      #elif !defined(USE_PORTRAIT_ORIENTATION) &&  defined(USE_INVERTED_ORIENTATION) && !defined(USE_MIRRORED_ORIENTATION)
-      cmd.setrotate(1);
-      #else // !defined(USE_PORTRAIT_ORIENTATION) && !defined(USE_INVERTED_ORIENTATION) && !defined(USE_MIRRORED_ORIENTATION)
-      cmd.setrotate(0);
-      #endif
+      cmd.setrotate(0
+        #if ENABLED(TOUCH_UI_MIRRORED)
+          + 4
+        #endif
+        #if ENABLED(TOUCH_UI_PORTRAIT)
+          + 2
+        #endif
+        #if ENABLED(TOUCH_UI_INVERTED)
+          + 1
+        #endif
+      );
       cmd.execute();
     }
     else {
-      #if defined(USE_INVERTED_ORIENTATION)
+      #if defined(TOUCH_UI_INVERTED)
         mem_write_32(REG::ROTATE, 1);
       #endif
     }
-  #elif defined(USE_PORTRAIT_ORIENTATION) || defined(USE_MIRRORED_ORIENTATION)
+  #elif ANY(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
     #error PORTRAIT or MIRRORED orientation not supported on the FT800
-  #elif defined(USE_INVERTED_ORIENTATION)
+  #elif ENABLED(TOUCH_UI_INVERTED)
     mem_write_32(REG::ROTATE, 1);
   #endif
 }
+
 #endif // FTDI_BASIC

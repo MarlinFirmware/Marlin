@@ -36,7 +36,7 @@
 using namespace FTDI;
 using namespace Theme;
 
-#if defined(USE_PORTRAIT_ORIENTATION)
+#if defined(TOUCH_UI_PORTRAIT)
   #define GRID_ROWS 8
 #else
   #define GRID_ROWS 8
@@ -49,7 +49,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
 
   if(what & BACKGROUND) {
     cmd.tag(6)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       .fgcolor(Theme::axis_label)
         .font(Theme::font_large)
                          .button( BTN_POS(1,5), BTN_SIZE(2,1), F(""), OPT_FLAT)
@@ -112,7 +112,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
     }
 
     cmd.tag(6).font(Theme::font_medium)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
          .text  ( BTN_POS(2,5), BTN_SIZE(2,1), x_str)
          .text  ( BTN_POS(2,6), BTN_SIZE(2,1), y_str)
          .text  ( BTN_POS(2,7), BTN_SIZE(2,1), z_str);
@@ -126,7 +126,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
   #undef GRID_COLS
 }
 
-#if defined(USE_PORTRAIT_ORIENTATION)
+#if defined(TOUCH_UI_PORTRAIT)
   #define GRID_COLS 8
 #else
   #define GRID_COLS 12
@@ -139,7 +139,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
   if(what & BACKGROUND) {
     cmd.font(Theme::font_small)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .tag(5)
        .fgcolor(temp)      .button( BTN_POS(1,1), BTN_SIZE(4,2), F(""), OPT_FLAT)
                                   .button( BTN_POS(1,1), BTN_SIZE(8,1), F(""), OPT_FLAT)
@@ -241,7 +241,7 @@ void StatusScreen::draw_progress(draw_mode_t what) {
 
   if(what & BACKGROUND) {
     cmd.tag(0).font(font_medium)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .fgcolor(progress) .button(BTN_POS(1,3), BTN_SIZE(4,1), F(""), OPT_FLAT)
                                  .button(BTN_POS(5,3), BTN_SIZE(4,1), F(""), OPT_FLAT);
     #else
@@ -262,7 +262,7 @@ void StatusScreen::draw_progress(draw_mode_t what) {
     sprintf_P(progress_str, PSTR("%-3d %%"),      getProgress_percent() );
 
     cmd.font(font_medium)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .tag(0).text(BTN_POS(1,3), BTN_SIZE(4,1), time_str)
               .text(BTN_POS(5,3), BTN_SIZE(4,1), progress_str);
     #else
@@ -291,7 +291,7 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
       .enabled(has_media)
     #endif
        .colors(has_media ? action_btn : normal_btn)
-      #if defined(USE_PORTRAIT_ORIENTATION)
+      #if defined(TOUCH_UI_PORTRAIT)
          .tag(3).button( BTN_POS(1,8), BTN_SIZE(2,1),
       #else
          .tag(3).button( BTN_POS(1,7), BTN_SIZE(2,2),
@@ -308,7 +308,7 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
         F("SD Card"))
       #endif
       .colors(!has_media ? action_btn : normal_btn)
-      #if defined(USE_PORTRAIT_ORIENTATION)
+      #if defined(TOUCH_UI_PORTRAIT)
        .tag(4).button( BTN_POS(3,8), BTN_SIZE(2,1), F("MENU"));
       #else
        .tag(4).button( BTN_POS(3,7), BTN_SIZE(2,2), F("MENU"));
@@ -323,14 +323,14 @@ void StatusScreen::draw_status_message(draw_mode_t what, const char* message) {
     CommandProcessor cmd;
     cmd.fgcolor(Theme::status_msg)
        .tag(0)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .button( BTN_POS(1,4), BTN_SIZE(1,1), F(""), OPT_FLAT);
     #else
        .button( BTN_POS(1,3), BTN_SIZE(1,2), F(""), OPT_FLAT);
     #endif
 
     draw_text_box(cmd,
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       BTN_POS(1,4), BTN_SIZE(1,1),
     #else
       BTN_POS(1,3), BTN_SIZE(1,2),

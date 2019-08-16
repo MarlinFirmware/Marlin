@@ -45,7 +45,7 @@ void TouchCalibrationScreen::onEntry() {
        .cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .cmd(COLOR_RGB(bg_text_enabled))
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .font(font_large)
        .text  ( BTN_POS(1,8), BTN_SIZE(4,1), F("Release to begin"))
        .text  ( BTN_POS(1,9), BTN_SIZE(4,1), F("screen calibration"))
@@ -90,7 +90,7 @@ void TouchCalibrationScreen::onRedraw(draw_mode_t) {
      .cmd(CLEAR(true,true,true))
      .cmd(COLOR_RGB(bg_text_enabled))
 
-  #if defined(USE_PORTRAIT_ORIENTATION)
+  #if defined(TOUCH_UI_PORTRAIT)
      .font(font_large)
      .text  ( BTN_POS(1,8), BTN_SIZE(4,1), F("Touch the dots"))
      .text  ( BTN_POS(1,9), BTN_SIZE(4,1), F("to calibrate"))

@@ -40,7 +40,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       #define GRID_ROWS 8
       #define GRID_COLS 2
         .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), F("Auto Home"))

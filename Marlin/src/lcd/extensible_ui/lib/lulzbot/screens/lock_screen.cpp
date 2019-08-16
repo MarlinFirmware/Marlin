@@ -49,7 +49,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
   }
 
   if(what & FOREGROUND) {
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       #define GRID_COLS 1
       #define GRID_ROWS 10
     #else
@@ -79,7 +79,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
     }
     message_style() = '\0'; // Terminate the string.
 
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       constexpr uint8_t l = 6;
     #else
       constexpr uint8_t l = 3;
@@ -89,7 +89,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
 
     cmd.font(font_large)
        .cmd(COLOR_RGB(bg_text_enabled))
-       #if defined(USE_PORTRAIT_ORIENTATION)
+       #if defined(TOUCH_UI_PORTRAIT)
        .text(BTN_POS(1,2), BTN_SIZE(1,1), message)
        .font(font_xlarge)
        .text(BTN_POS(1,4), BTN_SIZE(1,1), screen_data.LockScreen.passcode)
@@ -100,7 +100,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
        #endif
        .font(font_large)
        .colors(normal_btn)
-       #if defined(USE_NUMERIC_PASSCODE)
+       #if defined(TOUCH_UI_PASSCODE)
        .keys(BTN_POS(1,l+1), BTN_SIZE(1,1), F("123"),        pressed)
        .keys(BTN_POS(1,l+2), BTN_SIZE(1,1), F("456"),        pressed)
        .keys(BTN_POS(1,l+3), BTN_SIZE(1,1), F("789"),        pressed)

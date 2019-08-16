@@ -58,7 +58,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
   if(what & BACKGROUND) {
 
     #define GRID_COLS 4
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       #define GRID_ROWS 7
     #else
       #define GRID_ROWS 6
@@ -82,7 +82,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
   }
 
   if(what & FOREGROUND) {
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       constexpr uint8_t w = 2;
     #else
       constexpr uint8_t w = 1;
@@ -98,7 +98,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .tag(5).toggle(BTN_POS(3,5), BTN_SIZE(w,1), F("off\xFFon"), UIData::animations_enabled())
     #undef EDGE_R
     #define EDGE_R 0
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .colors(normal_btn)
        .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), F("Customize Sounds"))
        .colors(action_btn)

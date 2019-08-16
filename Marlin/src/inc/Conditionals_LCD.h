@@ -381,9 +381,6 @@
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 #define HAS_ADC_BUTTONS      ENABLED(ADC_KEYPAD)
 
-// Does the Extensible UI provide a pin mapping for RepRapDiscount connectors?
-#define HAS_NEWPANEL_PINMAP ENABLED(LULZBOT_TOUCH_UI) && ANY(AO_EXP1_PINMAP, AO_EXP2_PINMAP, CR10_TFT_PINMAP)
-
 /**
  * Default LCD contrast for Graphical LCD displays
  */

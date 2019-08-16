@@ -58,7 +58,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   #define PIN_ENABLED(LABEL,PIN,INV,X,Y)  cmd.enabled(1).colors(READ(PIN##_PIN) != INV ? action_btn : normal_btn).PIN_BTN(X,Y,PIN,LABEL);
   #define PIN_DISABLED(LABEL,PIN,INV,X,Y) cmd.enabled(0).PIN_BTN(X,Y,PIN,LABEL);
 
-  #if defined(USE_PORTRAIT_ORIENTATION)
+  #if defined(TOUCH_UI_PORTRAIT)
   cmd.font(font_large)
   #else
   cmd.font(font_medium)

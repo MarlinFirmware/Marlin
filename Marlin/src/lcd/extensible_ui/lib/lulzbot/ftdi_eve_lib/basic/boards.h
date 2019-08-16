@@ -179,5 +179,5 @@
 
 #else
 
-  #error Unknown or no board specified. To add a new board, modify "ftdi_eve_boards.h"
+  #error Unknown or no LULZBOT_TOUCH_UI board specified. To add a new board, modify "ftdi_eve_boards.h"
 #endif

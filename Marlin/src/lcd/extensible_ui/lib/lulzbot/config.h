@@ -72,17 +72,17 @@
 // Defines how to orient the display. An inverted (i.e. upside-down) display
 // is supported on the FT800. The FT810 or better also support a portrait
 // and mirrored orientation.
-//#define USE_INVERTED_ORIENTATION
-//#define USE_PORTRAIT_ORIENTATION
-//#define USE_MIRRORED_ORIENTATION
+//#define TOUCH_UI_INVERTED
+//#define TOUCH_UI_PORTRAIT
+//#define TOUCH_UI_MIRRORED
 
 // Use a numeric passcode for "Parental lock".
 // This is a recommended for smaller displays.
-//#define USE_NUMERIC_PASSCODE
+//#define TOUCH_UI_PASSCODE
 
 // Define number of seconds after which the menu screens
 // timeout and returns the user to the status screen
-//#define MENU_TIMEOUT 120
+//#define LCD_TIMEOUT_TO_STATUS 120
 
 // Enable this to debug the event framework
 //#define UI_FRAMEWORK_DEBUG

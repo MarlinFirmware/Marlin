@@ -141,13 +141,13 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD || HAS_NEWPANEL_PINMAP
+#if HAS_SPI_LCD || TOUCH_UI_ENCODER
 
   #if !MB(MINIRAMBO_10A)
     #define KILL_PIN       32
   #endif
 
-  #if ENABLED(NEWPANEL) || HAS_NEWPANEL_PINMAP
+  #if ENABLED(NEWPANEL) || TOUCH_UI_ENCODER
 
     #if MB(MINIRAMBO_10A)
 

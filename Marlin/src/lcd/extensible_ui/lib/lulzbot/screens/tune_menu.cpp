@@ -37,7 +37,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .font(font_medium);
   }
 
-  #if defined(USE_PORTRAIT_ORIENTATION)
+  #if defined(TOUCH_UI_PORTRAIT)
     #define GRID_ROWS 8
     #define GRID_COLS 2
   #else
@@ -51,7 +51,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(font_medium)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .tag(2).enabled(1)      .button( BTN_POS(1,1), BTN_SIZE(2,1), F("Temperature"))
        .tag(3).enabled(!isPrinting()).button( BTN_POS(1,2), BTN_SIZE(2,1), F("Change Filament"))
        #if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -86,7 +86,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
       .tag(8)             .button( BTN_POS(1,7), BTN_SIZE(2,1), F("Cancel Print"))
       .tag(1).colors(action_btn)
                           .button( BTN_POS(1,8), BTN_SIZE(2,1), F("Back"));
-    #else // USE_PORTRAIT_ORIENTATION
+    #else // TOUCH_UI_PORTRAIT
        .tag(2).enabled(1) .button( BTN_POS(1,1), BTN_SIZE(1,1), F("Temperature"))
        .tag(3).enabled(!isPrinting()).button( BTN_POS(1,2), BTN_SIZE(1,1), F("Change Filament"))
       #if ENABLED(BABYSTEPPING)

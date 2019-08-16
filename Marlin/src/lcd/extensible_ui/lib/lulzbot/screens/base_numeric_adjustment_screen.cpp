@@ -30,7 +30,7 @@
 using namespace FTDI;
 using namespace Theme;
 
-#if defined(USE_PORTRAIT_ORIENTATION)
+#if defined(TOUCH_UI_PORTRAIT)
   #define GRID_COLS 13
   #define GRID_ROWS 10
 #else
@@ -49,7 +49,7 @@ BaseNumericAdjustmentScreen::widgets_t::widgets_t(draw_mode_t what) : _what(what
     CommandProcessor cmd;
     cmd.font(font_medium)
        .colors(action_btn)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .tag(1).button( BTN_POS(1,10), BTN_SIZE(13,1), F("Back"))
     #else
        .tag(1).button( BTN_POS(15,7), BTN_SIZE(4,1),  F("Back"))
@@ -73,7 +73,7 @@ void BaseNumericAdjustmentScreen::widgets_t::heading(const char *label) {
   CommandProcessor cmd;
   cmd.font(font_medium).cmd(COLOR_RGB(bg_text_enabled));
   if(_what & BACKGROUND) {
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       cmd.tag(0).fgcolor(bg_color).button( BTN_POS(1, _line), BTN_SIZE(12,1), progmem_str(label), OPT_FLAT);
     #else
       cmd.tag(0).fgcolor(bg_color).button( BTN_POS(5, _line), BTN_SIZE(8,1),  progmem_str(label), OPT_FLAT);
@@ -83,7 +83,7 @@ void BaseNumericAdjustmentScreen::widgets_t::heading(const char *label) {
   _line++;
 }
 
-#if defined(USE_PORTRAIT_ORIENTATION)
+#if defined(TOUCH_UI_PORTRAIT)
   #if defined(LCD_800x480)
     #undef EDGE_R
     #define EDGE_R 20
@@ -114,13 +114,13 @@ void BaseNumericAdjustmentScreen::widgets_t::_draw_increment_btn(uint8_t, const 
 
   cmd.tag(tag)
      .colors(increment == tag ? action_btn : normal_btn)
-  #if defined(USE_PORTRAIT_ORIENTATION)
+  #if defined(TOUCH_UI_PORTRAIT)
      .font(font_small);
   #else
      .font(font_medium);
   #endif
   switch(pos) {
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       case 0: cmd.button( BTN_POS(5,_line), BTN_SIZE(2,1), progmem_str(label)); break;
       case 1: cmd.button( BTN_POS(7,_line), BTN_SIZE(2,1), progmem_str(label)); break;
       case 2: cmd.button( BTN_POS(9,_line), BTN_SIZE(2,1), progmem_str(label)); break;
@@ -139,7 +139,7 @@ void BaseNumericAdjustmentScreen::widgets_t::increments() {
     CommandProcessor cmd;
     cmd.fgcolor(bg_color)
        .tag(0)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .font(font_small).button( BTN_POS(1, _line),  BTN_SIZE(4,1), F("Increment:"), OPT_FLAT);
     #else
        .font(font_medium).button( BTN_POS(15,1),     BTN_SIZE(4,1), F("Increment:"), OPT_FLAT);
@@ -152,7 +152,7 @@ void BaseNumericAdjustmentScreen::widgets_t::increments() {
       _draw_increment_btn(_line+1, 243 - _decimals);
   }
 
-  #if defined(USE_PORTRAIT_ORIENTATION)
+  #if defined(TOUCH_UI_PORTRAIT)
   _line++;
   #endif
 }
@@ -211,7 +211,7 @@ void BaseNumericAdjustmentScreen::widgets_t::button(uint8_t tag, const char *lab
     cmd.colors(normal_btn)
        .tag(is_enabled ? tag   : 0)
        .enabled(is_enabled)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .font(font_small)
     #else
        .font(font_medium)
@@ -246,7 +246,7 @@ void BaseNumericAdjustmentScreen::widgets_t::two_buttons(uint8_t tag1, const cha
   if(_what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.enabled(is_enabled)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .font(font_small)
     #else
        .font(font_medium)
@@ -264,7 +264,7 @@ void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, const char *lab
     cmd.fgcolor(bg_color)
        .tag(0)
        .font(font_small)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .button( BTN_POS(1, _line), BTN_SIZE( 8,1), progmem_str(label), OPT_FLAT);
     #else
        .button( BTN_POS(1, _line), BTN_SIZE(10,1), progmem_str(label), OPT_FLAT);
@@ -277,7 +277,7 @@ void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, const char *lab
        .enabled(is_enabled)
        .font(font_small)
        .colors(ui_toggle)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       .toggle(BTN_POS( 9,_line), BTN_SIZE(5,1), progmem_str(text), value);
     #else
       .toggle(BTN_POS(10,_line), BTN_SIZE(4,1), progmem_str(text), value);
@@ -299,7 +299,7 @@ void BaseNumericAdjustmentScreen::widgets_t::home_buttons(uint8_t tag) {
   if(_what & FOREGROUND) {
     CommandProcessor cmd;
     cmd
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .font(font_small)
     #else
        .font(font_medium)

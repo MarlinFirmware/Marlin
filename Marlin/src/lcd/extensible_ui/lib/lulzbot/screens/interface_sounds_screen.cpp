@@ -84,7 +84,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
   }
 
   if(what & FOREGROUND) {
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       constexpr uint8_t w = 2;
     #else
       constexpr uint8_t w = 1;

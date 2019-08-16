@@ -41,7 +41,7 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
     return false;
   }
 
-  #if defined(MENU_TIMEOUT)
+  #if defined(LCD_TIMEOUT_TO_STATUS)
     if(EventLoop::get_pressed_tag() != 0) {
       reset_menu_timeout();
     }
@@ -61,9 +61,9 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
 }
 
 void BaseScreen::onIdle() {
-  #if defined(MENU_TIMEOUT)
+  #if defined(LCD_TIMEOUT_TO_STATUS)
     const uint32_t elapsed = millis() - last_interaction;
-    if(elapsed > uint32_t(MENU_TIMEOUT) * 1000) {
+    if(elapsed > uint32_t(LCD_TIMEOUT_TO_STATUS) * 1000) {
       reset_menu_timeout();
       GOTO_SCREEN(StatusScreen);
     }
@@ -71,12 +71,12 @@ void BaseScreen::onIdle() {
 }
 
 void BaseScreen::reset_menu_timeout() {
-  #if defined(MENU_TIMEOUT)
+  #if defined(LCD_TIMEOUT_TO_STATUS)
     last_interaction = millis();
   #endif
 }
 
-#if defined(MENU_TIMEOUT)
+#if defined(LCD_TIMEOUT_TO_STATUS)
   uint32_t BaseScreen::last_interaction;
 #endif
 

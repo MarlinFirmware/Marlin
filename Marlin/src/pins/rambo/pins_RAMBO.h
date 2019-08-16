@@ -169,11 +169,11 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD || HAS_NEWPANEL_PINMAP
+#if HAS_SPI_LCD || TOUCH_UI_ENCODER
 
   #define KILL_PIN         80
 
-  #if ENABLED(NEWPANEL) || HAS_NEWPANEL_PINMAP
+  #if ENABLED(NEWPANEL) || TOUCH_UI_ENCODER
 
     #define LCD_PINS_RS     70
     #define LCD_PINS_ENABLE 71

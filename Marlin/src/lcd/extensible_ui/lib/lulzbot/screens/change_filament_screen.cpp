@@ -97,7 +97,7 @@ void ChangeFilamentScreen::onExit() {
 void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
   CommandProcessor cmd;
 
-  #if defined(USE_PORTRAIT_ORIENTATION)
+  #if defined(TOUCH_UI_PORTRAIT)
     #define GRID_COLS 2
     #define GRID_ROWS 11
   #else
@@ -109,13 +109,13 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .tag(0)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .font(font_large)
     #else
        .font(font_medium)
     #endif
        .text(BTN_POS(1,1), BTN_SIZE(2,1), F("Extruder Selection:"))
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .text(BTN_POS(1,7), BTN_SIZE(1,1), F("Current Temp:"))
     #else
        .text(BTN_POS(3,1), BTN_SIZE(2,1), F("Current Temp:"))
@@ -141,14 +141,14 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     const rgb_t tcol = getWarmColor(getActualTemp_celsius(getExtruder()), COOL_TEMP, LOW_TEMP, MED_TEMP, HIGH_TEMP);
     cmd.cmd(COLOR_RGB(tcol))
        .tag(15)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .rectangle(BTN_POS(2,7), BTN_SIZE(1,1))
     #else
        .rectangle(BTN_POS(3,2), BTN_SIZE(2,1))
     #endif
        .cmd(COLOR_RGB(tcol.luminance() > 128 ? 0x000000 : 0xFFFFFF))
        .font(font_medium)
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .text(BTN_POS(2,7), BTN_SIZE(1,1), e_str)
     #else
        .text(BTN_POS(3,2), BTN_SIZE(2,1), e_str)
@@ -176,7 +176,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     const bool tog11 = screen_data.ChangeFilamentScreen.e_tag == 11;
     #endif
 
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       cmd.font(font_large)
     #else
       cmd.font(font_medium)
@@ -195,7 +195,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     const bool tog7 = screen_data.ChangeFilamentScreen.repeat_tag == 7;
     const bool tog8 = screen_data.ChangeFilamentScreen.repeat_tag == 8;
 
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       cmd.font(font_large)
     #else
       cmd.font(font_small)
@@ -213,7 +213,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     .cmd(COLOR_MASK(1,1,1,1))
 
     .cmd(COLOR_RGB(t_ok ? bg_text_enabled : bg_text_disabled))
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
        .font(font_large)
        .tag(0)                              .text   (BTN_POS(1,8),  BTN_SIZE(1,1), F("Unload"))
                                             .text   (BTN_POS(2,8),  BTN_SIZE(1,1), F("Load/Extrude"))

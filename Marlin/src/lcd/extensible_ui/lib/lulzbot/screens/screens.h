@@ -93,7 +93,7 @@ enum {
 
 class BaseScreen : public UIScreen {
   protected:
-    #if defined(MENU_TIMEOUT)
+    #if defined(LCD_TIMEOUT_TO_STATUS)
       static uint32_t last_interaction;
     #endif
 
@@ -612,7 +612,7 @@ class LockScreen : public BaseScreen, public CachedScreen<LOCK_SCREEN_CACHE> {
 
 class FilesScreen : public BaseScreen, public CachedScreen<FILES_SCREEN_CACHE, FILE_SCREEN_DL_SIZE> {
   private:
-    #if defined(USE_PORTRAIT_ORIENTATION)
+    #if defined(TOUCH_UI_PORTRAIT)
       static constexpr uint8_t header_h       = 2;
       static constexpr uint8_t footer_h       = 2;
       static constexpr uint8_t files_per_page = 11;
