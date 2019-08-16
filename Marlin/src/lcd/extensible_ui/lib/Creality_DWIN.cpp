@@ -215,7 +215,7 @@ void onIdle()
 				rtscheck.RTS_SndData(startprogress, StartIcon);
 			else
 				rtscheck.RTS_SndData((startprogress - 100), StartIcon + 1);
-			delay(30);
+			delay_ms(30);
 			if ((startprogress += 1) > 200)
 			{
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -271,7 +271,7 @@ void onIdle()
 				rtscheck.RTS_SndData(startprogress, StartIcon);
 			else
 				rtscheck.RTS_SndData((startprogress - 100), StartIcon + 1);
-			delay(30);
+			delay_ms(30);
 			if ((startprogress += 1) > 200)
 			{
 				SERIAL_ECHOLN("  startprogress ");
@@ -432,7 +432,7 @@ int RTSSHOW::RTS_RecData()
 			}
 			continue;
 		}
-		delay(10);
+		delay_ms(10);
 		recnum++;
 	}
 
@@ -522,7 +522,7 @@ void RTSSHOW::RTS_SndData(void)
 		for (int i = 0; i < (snddat.len + 3); i++)
 		{
 			Serial2.write(databuf[i]);
-			delayMicroseconds(1);
+			delay_us(1);
 		}
 
 		memset(&snddat, 0, sizeof(snddat));
@@ -558,7 +558,7 @@ void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd
 		for (int i = 0; i < (len + 6); i++)
 		{
 			Serial2.write(databuf[i]);
-			delayMicroseconds(1);
+			delay_us(1);
 		}
 		memset(databuf, 0, sizeof(databuf));
 	}
@@ -702,7 +702,7 @@ void RTSSHOW::RTS_SDCardUpate(void)
 			RTS_SndData(0, FilenameCount + j);
 		for (int i = 0; i < CardRecbuf.Filesum; i++)
 		{
-			delay(3);
+			delay_ms(3);
 			RTS_SndData(CardRecbuf.Cardshowfilename[i], CardRecbuf.addr[i]);
 			RTS_SndData(1, FilenameIcon + 1 + i);
 			RTS_SndData((unsigned long)0xFFFF, FilenameNature + (i + 1) * 16); // white
@@ -779,7 +779,7 @@ void RTSSHOW::RTS_HandleData()
 			RTS_SndData(0, PrintscheduleIcon);
 			RTS_SndData(0, PrintscheduleIcon + 1);
 			RTS_SndData(0, Percentage);
-			delay(2);
+			delay_ms(2);
 			RTS_SndData(0, Timehour);
 			RTS_SndData(0, Timemin);
 
@@ -990,9 +990,9 @@ void RTSSHOW::RTS_HandleData()
 			setTargetTemp_celsius(0.0, BED);
 
 			RTS_SndData(0, NozzlePreheat);
-			delay(1);
+			delay_ms(1);
 			RTS_SndData(0, BedPreheat);
-			delay(1);
+			delay_ms(1);
 
 			RTS_SndData(8 + CEIconGrap, IconPrintstatus);
 			RTS_SndData(ExchangePageBase + 57, ExchangepageAddr);
@@ -1046,9 +1046,9 @@ void RTSSHOW::RTS_HandleData()
 
 			RTS_SndData(10, FilenameIcon); //Motor Icon
 			if (!isPositionKnown())
-				injectCommands_P(PSTR("G28\nG1 F100 Z0.0"));
+				injectCommands_P(PSTR("G28\nG1F100Z0.0"));
       else
-        injectCommands_P(PSTR("G1 F100 Z0.0"));
+        injectCommands_P(PSTR("G1F100Z0.0"));
 			waitway = 2;
 
 			RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
@@ -1063,7 +1063,7 @@ void RTSSHOW::RTS_HandleData()
 			RTS_SndData(10 * ChangeMaterialbuf[1], FilementUnit2);
 			RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
 			RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
-			delay(2);
+			delay_ms(2);
 			RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
 		}
 		else if (recdat.data[0] == 3) //Move
@@ -1073,7 +1073,7 @@ void RTSSHOW::RTS_HandleData()
 			RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
 			RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
 			RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
-			delay(2);
+			delay_ms(2);
 			RTS_SndData(ExchangePageBase + 71, ExchangepageAddr);
 		}
 		else if (recdat.data[0] == 4) //Language
@@ -1107,7 +1107,7 @@ void RTSSHOW::RTS_HandleData()
 #if (ENABLED(MachineCRX) && DISABLED(Force10SProDisplay)) || ENABLED(ForceCRXDisplay)
 		if (recdat.data[0] == 1) // Top Left
 		{
-			injectCommands_P(PSTR("G1 F100 Z3\nG1 X30 Y30 F5000\nG1 F100 Z0"));
+			injectCommands_P(PSTR("G1F100Z3\nG1X30Y30F5000\nG1F100 Z0"));
 			waitway = 2;
 		}
 		else if (recdat.data[0] == 2) // Top Right
@@ -1278,7 +1278,7 @@ void RTSSHOW::RTS_HandleData()
 		RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
 		RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
 
-		delay(1);
+		delay_ms(1);
 		RTS_SndData(10, FilenameIcon);
 		waitway = 0;
 		break;
@@ -1299,7 +1299,7 @@ void RTSSHOW::RTS_HandleData()
 				{
 					NozzleTempStatus[1] = 1;
 					RTS_SndData((int)PLA_ABSModeTemp, 0x1020);
-					delay(5);
+					delay_ms(5);
 					RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
 					break;
 				}
@@ -1314,7 +1314,7 @@ void RTSSHOW::RTS_HandleData()
 				{
 					NozzleTempStatus[1] = 1;
 					RTS_SndData((int)PLA_ABSModeTemp, 0x1020);
-					delay(5);
+					delay_ms(5);
 					RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
 					break;
 				}
@@ -1330,7 +1330,7 @@ void RTSSHOW::RTS_HandleData()
 				{
 					NozzleTempStatus[1] = 1;
 					RTS_SndData((int)PLA_ABSModeTemp, 0x1020);
-					delay(5);
+					delay_ms(5);
 					RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
 					break;
 				}
@@ -1346,7 +1346,7 @@ void RTSSHOW::RTS_HandleData()
 				{
 					NozzleTempStatus[1] = 1;
 					RTS_SndData((int)PLA_ABSModeTemp, 0x1020);
-					delay(5);
+					delay_ms(5);
 					RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
 					break;
 				}
@@ -1364,7 +1364,7 @@ void RTSSHOW::RTS_HandleData()
 
 				RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
 				RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
-				delay(5);
+				delay_ms(5);
 				RTS_SndData(ExchangePageBase + 68, ExchangepageAddr);
 				break;
 			}
@@ -1378,7 +1378,7 @@ void RTSSHOW::RTS_HandleData()
 			{
 				//InforShowoStatus = true;
 				NozzleTempStatus[0] = NozzleTempStatus[1] = 0;
-				delay(1);
+				delay_ms(1);
 				RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
 				break;
 			}
@@ -1522,7 +1522,7 @@ void RTSSHOW::RTS_HandleData()
 
 			wait_for_heatup = false;
 			PrinterStatusKey[0] = 0;
-			delay(500); //for system
+			delay_ms(500); //for system
 		}
 		break;
 #endif
@@ -1584,7 +1584,7 @@ void RTSSHOW::RTS_HandleData()
 			memset(buf, 0, sizeof(buf));
 			sprintf(buf, "%d/%d", (int)recdat.data[0], CardRecbuf.Filesum);
 			RTS_SndData(buf, FilenameCount);
-			delay(2);
+			delay_ms(2);
 			for (int j = 1; j <= CardRecbuf.Filesum; j++)
 			{
 				RTS_SndData((unsigned long)0xFFFF, FilenameNature + j * 16); // white
@@ -1633,7 +1633,7 @@ void RTSSHOW::RTS_HandleData()
 				}
 				else
 					RTS_SndData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], Printfilename);
-				delay(2);
+				delay_ms(2);
 
         #if FAN_COUNT > 0
           for (uint8_t i = 0; i < FAN_COUNT; i++)
@@ -1642,7 +1642,7 @@ void RTSSHOW::RTS_HandleData()
 				FanStatus = false;
 
 				RTS_SndData(1 + CEIconGrap, IconPrintstatus); // 1 for Heating
-				delay(2);
+				delay_ms(2);
 				RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 
 				TPShowStatus = InforShowStatus = true;
@@ -1701,7 +1701,7 @@ void onMediaInserted()
 			j = TEXTBYTELEN - 1;
 		}
 
-		delay(3);
+		delay_ms(3);
 		strncpy(CardRecbuf.Cardshowfilename[num], files.longFilename(), j);
 
 		strcpy(CardRecbuf.Cardfilename[num], files.filename());
@@ -1752,7 +1752,7 @@ void onPrintTimerStarted()
 	PrinterStatusKey[1] = 3;
 	InforShowStatus = true;
 	rtscheck.RTS_SndData(4 + CEIconGrap, IconPrintstatus);
-	delay(10);
+	delay_ms(10);
 	rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 	CardCheckStatus[0] = 1; // open the key of  checking card in  printing
 }
