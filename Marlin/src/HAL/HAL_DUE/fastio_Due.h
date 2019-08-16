@@ -70,7 +70,7 @@
   const uint32_t mask = MASK(DIO ## IO ## _PIN); \
   if (V) port->PIO_SODR = mask; \
   else port->PIO_CODR = mask; \
-} while(0)
+}while(0)
 
 // Toggle a pin
 #define _TOGGLE(IO) _WRITE(IO, !READ(IO))

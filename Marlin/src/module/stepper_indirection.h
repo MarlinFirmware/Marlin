@@ -118,7 +118,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 #define X_STEP_INIT SET_OUTPUT(X_STEP_PIN)
 #if AXIS_HAS_SQUARE_WAVE(X)
-  #define X_STEP_WRITE(STATE) do { if(STATE) TOGGLE(X_STEP_PIN); } while(0)
+  #define X_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(X_STEP_PIN); }while(0)
 #else
   #define X_STEP_WRITE(STATE) WRITE(X_STEP_PIN,STATE)
 #endif
@@ -157,7 +157,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 #define Y_STEP_INIT SET_OUTPUT(Y_STEP_PIN)
 #if AXIS_HAS_SQUARE_WAVE(Y)
-  #define Y_STEP_WRITE(STATE) do { if (STATE) TOGGLE(Y_STEP_PIN); } while(0)
+  #define Y_STEP_WRITE(STATE) do{ if (STATE) TOGGLE(Y_STEP_PIN); }while(0)
 #else
   #define Y_STEP_WRITE(STATE) WRITE(Y_STEP_PIN,STATE)
 #endif
@@ -196,7 +196,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 #define Z_STEP_INIT SET_OUTPUT(Z_STEP_PIN)
 #if AXIS_HAS_SQUARE_WAVE(Z)
-  #define Z_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Z_STEP_PIN); } while(0)
+  #define Z_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(Z_STEP_PIN); }while(0)
 #else
   #define Z_STEP_WRITE(STATE) WRITE(Z_STEP_PIN,STATE)
 #endif
@@ -236,7 +236,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #define X2_STEP_INIT SET_OUTPUT(X2_STEP_PIN)
   #if AXIS_HAS_SQUARE_WAVE(X2)
-    #define X2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(X2_STEP_PIN); } while(0)
+    #define X2_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(X2_STEP_PIN); }while(0)
   #else
     #define X2_STEP_WRITE(STATE) WRITE(X2_STEP_PIN,STATE)
   #endif
@@ -278,7 +278,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #define Y2_STEP_INIT SET_OUTPUT(Y2_STEP_PIN)
   #if AXIS_HAS_SQUARE_WAVE(Y2)
-    #define Y2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Y2_STEP_PIN); } while(0)
+    #define Y2_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(Y2_STEP_PIN); }while(0)
   #else
     #define Y2_STEP_WRITE(STATE) WRITE(Y2_STEP_PIN,STATE)
   #endif
@@ -322,7 +322,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #define Z2_STEP_INIT SET_OUTPUT(Z2_STEP_PIN)
   #if AXIS_HAS_SQUARE_WAVE(Z2)
-    #define Z2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Z2_STEP_PIN); } while(0)
+    #define Z2_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(Z2_STEP_PIN); }while(0)
   #else
     #define Z2_STEP_WRITE(STATE) WRITE(Z2_STEP_PIN,STATE)
   #endif
@@ -366,7 +366,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #define Z3_STEP_INIT SET_OUTPUT(Z3_STEP_PIN)
   #if AXIS_HAS_SQUARE_WAVE(Z3)
-    #define Z3_STEP_WRITE(STATE) do { if(STATE) TOGGLE(Z3_STEP_PIN); } while(0)
+    #define Z3_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(Z3_STEP_PIN); }while(0)
   #else
     #define Z3_STEP_WRITE(STATE) WRITE(Z3_STEP_PIN,STATE)
   #endif
@@ -409,7 +409,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 #define E0_STEP_INIT SET_OUTPUT(E0_STEP_PIN)
 #if AXIS_HAS_SQUARE_WAVE(E0)
-  #define E0_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E0_STEP_PIN); } while(0)
+  #define E0_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(E0_STEP_PIN); }while(0)
 #else
   #define E0_STEP_WRITE(STATE) WRITE(E0_STEP_PIN,STATE)
 #endif
@@ -448,7 +448,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 #define E1_STEP_INIT SET_OUTPUT(E1_STEP_PIN)
 #if AXIS_HAS_SQUARE_WAVE(E1)
-  #define E1_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E1_STEP_PIN); } while(0)
+  #define E1_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(E1_STEP_PIN); }while(0)
 #else
   #define E1_STEP_WRITE(STATE) WRITE(E1_STEP_PIN,STATE)
 #endif
@@ -487,7 +487,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 #define E2_STEP_INIT SET_OUTPUT(E2_STEP_PIN)
 #if AXIS_HAS_SQUARE_WAVE(E2)
-  #define E2_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E2_STEP_PIN); } while(0)
+  #define E2_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(E2_STEP_PIN); }while(0)
 #else
   #define E2_STEP_WRITE(STATE) WRITE(E2_STEP_PIN,STATE)
 #endif
@@ -526,7 +526,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 #define E3_STEP_INIT SET_OUTPUT(E3_STEP_PIN)
 #if AXIS_HAS_SQUARE_WAVE(E3)
-  #define E3_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E3_STEP_PIN); } while(0)
+  #define E3_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(E3_STEP_PIN); }while(0)
 #else
   #define E3_STEP_WRITE(STATE) WRITE(E3_STEP_PIN,STATE)
 #endif
@@ -565,7 +565,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 #define E4_STEP_INIT SET_OUTPUT(E4_STEP_PIN)
 #if AXIS_HAS_SQUARE_WAVE(E4)
-  #define E4_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E4_STEP_PIN); } while(0)
+  #define E4_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(E4_STEP_PIN); }while(0)
 #else
   #define E4_STEP_WRITE(STATE) WRITE(E4_STEP_PIN,STATE)
 #endif
@@ -604,7 +604,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 #define E5_STEP_INIT SET_OUTPUT(E5_STEP_PIN)
 #if AXIS_HAS_SQUARE_WAVE(E5)
-  #define E5_STEP_WRITE(STATE) do { if(STATE) TOGGLE(E5_STEP_PIN); } while(0)
+  #define E5_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(E5_STEP_PIN); }while(0)
 #else
   #define E5_STEP_WRITE(STATE) WRITE(E5_STEP_PIN,STATE)
 #endif
@@ -701,7 +701,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
         #define REV_E_DIR(E)  do{ if (extruder_duplication_enabled) { RDIR(0); RDIR(1); RDIR(2); } else  _REV_E_DIR(E); }while(0)
       #endif
     #else
-      #define DUPE(T,V)     do{ _DUPE(0,T,V); _DUPE(1,T,V); } while(0)
+      #define DUPE(T,V)     do{ _DUPE(0,T,V); _DUPE(1,T,V); }while(0)
       #define NORM_E_DIR(E) do{ if (extruder_duplication_enabled) { NDIR(0); NDIR(1); } else _NORM_E_DIR(E); }while(0)
       #define REV_E_DIR(E)  do{ if (extruder_duplication_enabled) { RDIR(0); RDIR(1); } else  _REV_E_DIR(E); }while(0)
     #endif
