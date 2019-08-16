@@ -2058,12 +2058,15 @@
   //#define LCD_480x272
   //#define LCD_800x480
 
-  // If your board has connectors for the RepRapDiscount Display
-  // (ULTRA_LCD), you can select a pin mapping:
+  // If your board has connectors for the RepRapDiscount Display,
+  // you can select a pre-defined pin mapping.
+  //
+  // See "Marlin/src/lcd/extensible_ui/lib/lulzbot/pin_mappings.h"
+  // for wiring diagrams.
 
-  //#define AO_EXP1_PINMAP  // AlephObject CLCD UI EXP1 mapping
-  //#define AO_EXP2_PINMAP  // AlephObject CLCD UI EXP2 mapping
-  //#define CR10_TFT_PINMAP // Rudolph Riedel's CR10 pin mapping
+  //#define AO_EXP1_PINMAP  // AlephObject CLCD UI EXP1 mapping (software SPI)
+  //#define AO_EXP2_PINMAP  // AlephObject CLCD UI EXP2 mapping (hardware SPI)
+  //#define CR10_TFT_PINMAP // Rudolph Riedel's CR10 pin mapping (software SPI)
 
   // Otherwise, define all the pins manually:
 
