@@ -38,8 +38,8 @@
 #define _SET_OUTPUT(IO)       _SET_MODE(IO, GPIO_OUTPUT_PP)
 #define _SET_OUTPUT_OD(IO)    _SET_MODE(IO, GPIO_OUTPUT_OD)
 
-#define OUT_WRITE(IO,V)       do{ _SET_OUTPUT(IO); WRITE(IO,V); } while(0)
-#define OUT_WRITE_OD(IO,V)    do{ _SET_OUTPUT_OD(IO); WRITE(IO,V); } while(0)
+#define OUT_WRITE(IO,V)       do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
+#define OUT_WRITE_OD(IO,V)    do{ _SET_OUTPUT_OD(IO); WRITE(IO,V); }while(0)
 
 #define SET_INPUT(IO)         _SET_MODE(IO, GPIO_INPUT_FLOATING)
 #define SET_INPUT_PULLUP(IO)  _SET_MODE(IO, GPIO_INPUT_PU)
