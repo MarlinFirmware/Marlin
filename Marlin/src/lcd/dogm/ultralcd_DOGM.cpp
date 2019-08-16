@@ -164,22 +164,22 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
   void MarlinUI::draw_marlin_bootscreen() {
     // Screen dimensions.
     //const uint8_t width = u8g.getWidth(), height = u8g.getHeight();
-    constexpr uint8_t width = LCD_PIXEL_WIDTH, height = LCD_PIXEL_HEIGHT;
+    constexpr u8g_uint_t width = LCD_PIXEL_WIDTH, height = LCD_PIXEL_HEIGHT;
 
     // Determine text space needed
     #ifndef STRING_SPLASH_LINE2
-      constexpr uint8_t text_total_height = MENU_FONT_HEIGHT,
+      constexpr u8g_uint_t text_total_height = MENU_FONT_HEIGHT,
                         text_width_1 = uint8_t(sizeof(STRING_SPLASH_LINE1) - 1) * uint8_t(MENU_FONT_WIDTH),
                         text_width_2 = 0;
     #else
-      constexpr uint8_t text_total_height = uint8_t(MENU_FONT_HEIGHT) * 2,
-                        text_width_1 = uint8_t(sizeof(STRING_SPLASH_LINE1) - 1) * uint8_t(MENU_FONT_WIDTH),
-                        text_width_2 = uint8_t(sizeof(STRING_SPLASH_LINE2) - 1) * uint8_t(MENU_FONT_WIDTH);
+      constexpr u8g_uint_t text_total_height = u8g_uint_t(MENU_FONT_HEIGHT) * 2,
+                        text_width_1 = u8g_uint_t(sizeof(STRING_SPLASH_LINE1) - 1) * uint8_t(MENU_FONT_WIDTH),
+                        text_width_2 = u8g_uint_t(sizeof(STRING_SPLASH_LINE2) - 1) * uint8_t(MENU_FONT_WIDTH);
     #endif
-    constexpr uint8_t text_max_width = _MAX(text_width_1, text_width_2),
+    constexpr u8g_uint_t text_max_width = _MAX(text_width_1, text_width_2),
                       rspace = width - (START_BMPWIDTH);
 
-    int8_t offx, offy, txt_base, txt_offx_1, txt_offx_2;
+    u8g_int_t offx, offy, txt_base, txt_offx_1, txt_offx_2;
 
     // Can the text fit to the right of the bitmap?
     if (text_max_width < rspace) {

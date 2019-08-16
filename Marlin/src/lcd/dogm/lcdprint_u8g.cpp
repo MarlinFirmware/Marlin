@@ -22,7 +22,7 @@
 
 int lcd_glyph_height(void) { return u8g_GetFontBBXHeight(u8g.getU8g()); }
 
-void lcd_moveto(const uint8_t col, const uint8_t row) { u8g.setPrintPos(col, row); }
+void lcd_moveto(const u8g_uint_t col, const u8g_uint_t row) { u8g.setPrintPos(col, row); }
 
 void lcd_put_int(const int i) { u8g.print(i); }
 

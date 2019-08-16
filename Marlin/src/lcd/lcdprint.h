@@ -48,7 +48,7 @@ int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length);
  */
 int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length);
 
-void lcd_moveto(const uint8_t col, const uint8_t row);
+void lcd_moveto(const u8g_uint_t col, const u8g_uint_t row);
 
 void lcd_put_int(const int i);
 
