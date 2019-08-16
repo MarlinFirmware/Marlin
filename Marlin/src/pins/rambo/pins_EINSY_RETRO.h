@@ -189,12 +189,7 @@
     #define BTN_ENC            9   // AUX-2
     #define BEEPER_PIN        84   // AUX-4
 
-    #if defined(USB_FLASH_DRIVE_SUPPORT) && defined(LULZBOT_USE_UHS3_USB)
-      // Use interrupt capable pin for SD_DETECT
-      #define SD_DETECT_PIN     21
-    #else
-      #define SD_DETECT_PIN     15
-    #endif
+    #define SD_DETECT_PIN     15
 
   #endif // NEWPANEL
 #endif // HAS_SPI_LCD

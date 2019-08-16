@@ -87,23 +87,13 @@
 #define Z_DIR_PIN          47
 #define Z_ENABLE_PIN       27
 
-#ifdef LULZBOT_SWAP_EXTRUDERS
-  #define E0_STEP_PIN      33
-  #define E0_DIR_PIN       42
-  #define E0_ENABLE_PIN    25
+#define E0_STEP_PIN        34
+#define E0_DIR_PIN         43
+#define E0_ENABLE_PIN      26
 
-  #define E1_STEP_PIN      34
-  #define E1_DIR_PIN       43
-  #define E1_ENABLE_PIN    26
-#else
-  #define E0_STEP_PIN      34
-  #define E0_DIR_PIN       43
-  #define E0_ENABLE_PIN    26
-
-  #define E1_STEP_PIN      33
-  #define E1_DIR_PIN       42
-  #define E1_ENABLE_PIN    25
-#endif
+#define E1_STEP_PIN        33
+#define E1_DIR_PIN         42
+#define E1_ENABLE_PIN      25
 
 // Microstepping pins - Mapping not from fastio.h (?)
 #define X_MS1_PIN          40
@@ -112,60 +102,36 @@
 #define Y_MS2_PIN          39
 #define Z_MS1_PIN          68
 #define Z_MS2_PIN          67
-#ifdef LULZBOT_SWAP_EXTRUDERS
-  #define E0_MS1_PIN       63
-  #define E0_MS2_PIN       64
-  #define E1_MS1_PIN       65
-  #define E1_MS2_PIN       66
-#else
-  #define E0_MS1_PIN       65
-  #define E0_MS2_PIN       66
-  #define E1_MS1_PIN       63
-  #define E1_MS2_PIN       64
-#endif
+#define E0_MS1_PIN         65
+#define E0_MS2_PIN         66
+#define E1_MS1_PIN         63
+#define E1_MS2_PIN         64
 
 #define DIGIPOTSS_PIN      38
-#ifdef LULZBOT_SWAP_EXTRUDERS
-  #define DIGIPOT_CHANNELS { 4, 5, 3, 1, 0 } // X Y Z E0 E1 digipot channels to stepper driver mapping
-#else
-  #define DIGIPOT_CHANNELS { 4, 5, 3, 0, 1 } // X Y Z E0 E1 digipot channels to stepper driver mapping
-#endif
+#define DIGIPOT_CHANNELS  { 4,5,3,0,1 }   // X Y Z E0 E1 digipot channels to stepper driver mapping
 #ifndef DIGIPOT_MOTOR_CURRENT
-  #define DIGIPOT_MOTOR_CURRENT { 135, 135, 135, 135, 135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
+  #define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 #endif
 
 //
 // Temperature Sensors
 //
-#ifdef LULZBOT_SWAP_EXTRUDERS
-  #define TEMP_0_PIN        1   // Analog Input
-  #define TEMP_1_PIN        0   // Analog Input
-#else
-  #define TEMP_0_PIN        0   // Analog Input
-  #define TEMP_1_PIN        1   // Analog Input
-#endif
+#define TEMP_0_PIN          0   // Analog Input
+#define TEMP_1_PIN          1   // Analog Input
 #define TEMP_BED_PIN        2   // Analog Input
 
 //
 // Heaters / Fans
 //
-#ifdef LULZBOT_SWAP_EXTRUDERS
-  #define HEATER_0_PIN      7
-  #define HEATER_1_PIN      9
-#else
-  #define HEATER_0_PIN      9
-  #define HEATER_1_PIN      7
-#endif
+#define HEATER_0_PIN        9
+#define HEATER_1_PIN        7
 #define HEATER_2_PIN        6
 #define HEATER_BED_PIN      3
 
-#ifdef LULZBOT_EXTRUDER_FAN_ON_PIN_6
-  #define FAN_PIN           6
-  #define FAN1_PIN          8
-#else
+#ifndef FAN_PIN
   #define FAN_PIN           8
-  #define FAN1_PIN          6
 #endif
+#define FAN1_PIN            6
 #define FAN2_PIN            2
 
 //
@@ -205,9 +171,7 @@
 //
 #if HAS_SPI_LCD || HAS_NEWPANEL_PINMAP
 
-  #ifndef LULZBOT_DISABLE_KILL_BUTTON
-    #define KILL_PIN 80
-  #endif
+  #define KILL_PIN         80
 
   #if ENABLED(NEWPANEL) || HAS_NEWPANEL_PINMAP
 
