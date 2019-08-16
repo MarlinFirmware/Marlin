@@ -88,7 +88,7 @@
 //#define UI_FRAMEWORK_DEBUG
 
 // Enable the developer's menu and screens
-#define DEVELOPER_SCREENS
+//#define DEVELOPER_SCREENS
 
 // Maximum feed rate for manual extrusion (mm/s)
 //#define MAX_MANUAL_FEEDRATE 240
