@@ -1146,9 +1146,9 @@ void CLCD::default_display_orientation() {
     // processor to do this since it will also update the transform matrices.
     if(FTDI::ftdi_chip >= 810) {
       CommandFifo cmd;
-      #if   defined(USE_PORTRAIT_ORIENTATION)  &&  defined(USE_INVERTED_ORIENTATION) &&  defined(USE_MIRRORED_ORIENTATION)
+      #if    defined(USE_PORTRAIT_ORIENTATION) &&  defined(USE_INVERTED_ORIENTATION) &&  defined(USE_MIRRORED_ORIENTATION)
       cmd.setrotate(7);
-      #elif defined(USE_PORTRAIT_ORIENTATION)  && !defined(USE_INVERTED_ORIENTATION) &&  defined(USE_MIRRORED_ORIENTATION)
+      #elif  defined(USE_PORTRAIT_ORIENTATION) && !defined(USE_INVERTED_ORIENTATION) &&  defined(USE_MIRRORED_ORIENTATION)
       cmd.setrotate(6);
       #elif !defined(USE_PORTRAIT_ORIENTATION) &&  defined(USE_INVERTED_ORIENTATION) &&  defined(USE_MIRRORED_ORIENTATION)
       cmd.setrotate(5);
@@ -1156,7 +1156,7 @@ void CLCD::default_display_orientation() {
       cmd.setrotate(4);
       #elif  defined(USE_PORTRAIT_ORIENTATION) &&  defined(USE_INVERTED_ORIENTATION) && !defined(USE_MIRRORED_ORIENTATION)
       cmd.setrotate(3);
-      #elif defined(USE_PORTRAIT_ORIENTATION)  && !defined(USE_INVERTED_ORIENTATION) && !defined(USE_MIRRORED_ORIENTATION)
+      #elif  defined(USE_PORTRAIT_ORIENTATION) && !defined(USE_INVERTED_ORIENTATION) && !defined(USE_MIRRORED_ORIENTATION)
       cmd.setrotate(2);
       #elif !defined(USE_PORTRAIT_ORIENTATION) &&  defined(USE_INVERTED_ORIENTATION) && !defined(USE_MIRRORED_ORIENTATION)
       cmd.setrotate(1);
@@ -1164,7 +1164,8 @@ void CLCD::default_display_orientation() {
       cmd.setrotate(0);
       #endif
       cmd.execute();
-    } else {
+    }
+    else {
       #if defined(USE_INVERTED_ORIENTATION)
         mem_write_32(REG::ROTATE, 1);
       #endif

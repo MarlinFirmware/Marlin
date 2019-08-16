@@ -74,4 +74,4 @@ bool StepperBumpSensitivityScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI  && HAS_TRINAMIC
+#endif // LULZBOT_TOUCH_UI && HAS_TRINAMIC
