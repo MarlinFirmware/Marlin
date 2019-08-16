@@ -35,9 +35,9 @@
 // If you have changed the LCD panel, you may override the resolution
 // below (see "ftdi_eve_resolutions.h" for definitions):
 
-//#define LCD_320x240
-//#define LCD_480x272
-//#define LCD_800x480
+//#define TOUCH_UI_320x240
+//#define TOUCH_UI_480x272
+//#define TOUCH_UI_800x480
 
 // Define the printer interface or pins used (see "ui_pin_mappings.h" for definitions):
 

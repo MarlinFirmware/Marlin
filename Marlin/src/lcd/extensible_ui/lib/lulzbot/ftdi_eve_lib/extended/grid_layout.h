@@ -33,7 +33,7 @@
 // Margin defines the margin (in pixels) on each side of a button in
 // the layout
 
-#if defined(LCD_800x480)
+#ifdef TOUCH_UI_800x480
   #define MARGIN_L         5
   #define MARGIN_R         5
   #define MARGIN_T         5

@@ -46,7 +46,7 @@
     static_assert(thfp + thb + Hsize == th, "Mismatch in display th"); \
     static_assert(tvfp + tvb + Vsize == tv, "Mismatch in display tv");
 
-#if defined(LCD_320x240)
+#ifdef TOUCH_UI_320x240
   namespace FTDI {
     constexpr uint8_t Pclk                 =    8;
     constexpr uint8_t Pclkpol              =    0;
@@ -69,7 +69,7 @@
     constexpr uint32_t default_transform_f =  0x00f68e75;
   }
 
-#elif defined(LCD_480x272)
+#elif defined(TOUCH_UI_480x272)
   namespace FTDI {
     constexpr uint8_t  Pclk                 =    7;
     constexpr uint8_t  Pclkpol              =    1;
@@ -96,7 +96,7 @@
     constexpr uint32_t default_transform_f  =  0x0120D000;
   }
 
-#elif defined(LCD_800x480)
+#elif defined(TOUCH_UI_800x480)
   namespace FTDI {
     constexpr uint8_t  Pclk                 =    3;
     constexpr uint8_t  Pclkpol              =    1;

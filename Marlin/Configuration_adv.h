@@ -1155,9 +1155,9 @@
   //#define LCD_ALEPHOBJECTS_CLCD_UI  // Aleph Objects Color LCD UI
 
   // Correct the resolution if not using the stock TFT panel.
-  //#define LCD_320x240
-  //#define LCD_480x272
-  //#define LCD_800x480
+  //#define TOUCH_UI_320x240
+  //#define TOUCH_UI_480x272
+  //#define TOUCH_UI_800x480
 
   // Mappings for boards with a standard RepRapDiscount Display connector
   //#define AO_EXP1_PINMAP    // AlephObjects CLCD UI EXP1 mapping

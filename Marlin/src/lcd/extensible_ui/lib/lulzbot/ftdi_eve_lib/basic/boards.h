@@ -22,7 +22,7 @@
 
 #pragma once
 
-#define HAS_RESOLUTION defined(LCD_320x240) || defined(LCD_480x272) || defined(LCD_800x480)
+#define HAS_RESOLUTION (defined(TOUCH_UI_320x240) || defined(TOUCH_UI_480x272) || defined(TOUCH_UI_800x480))
 
 #define IS_FT800 \
     constexpr uint16_t ftdi_chip = 800; \
@@ -45,8 +45,8 @@
 
 
 #ifdef LCD_FTDI_VM800B35A
-  #if !(HAS_RESOLUTION)
-    #define LCD_320x240
+  #if !HAS_RESOLUTION
+    #define TOUCH_UI_320x240
   #endif
   #ifndef FTDI_API_LEVEL
     #define FTDI_API_LEVEL                800
@@ -78,8 +78,8 @@
  */
 
 #elif defined(LCD_HAOYU_FT800CB)
-  #if !(HAS_RESOLUTION)
-    #define LCD_480x272
+  #if !HAS_RESOLUTION
+    #define TOUCH_UI_480x272
   #endif
   #ifndef FTDI_API_LEVEL
     #define FTDI_API_LEVEL                800
@@ -106,8 +106,8 @@
  */
 
 #elif defined(LCD_HAOYU_FT810CB)
-  #if !(HAS_RESOLUTION)
-    #define LCD_800x480
+  #if !HAS_RESOLUTION
+    #define TOUCH_UI_800x480
   #endif
   #ifndef FTDI_API_LEVEL
     #define FTDI_API_LEVEL                810
@@ -134,8 +134,8 @@
  */
 
 #elif defined(LCD_4DSYSTEMS_4DLCD_FT843)
-  #if !(HAS_RESOLUTION)
-    #define LCD_480x272
+  #if !HAS_RESOLUTION
+    #define TOUCH_UI_480x272
   #endif
   #ifndef FTDI_API_LEVEL
     #define FTDI_API_LEVEL                800
@@ -161,8 +161,8 @@
  *
  */
 #elif defined(LCD_ALEPHOBJECTS_CLCD_UI)
-  #if !(HAS_RESOLUTION)
-    #define LCD_800x480
+  #if !HAS_RESOLUTION
+    #define TOUCH_UI_800x480
   #endif
   #ifndef FTDI_API_LEVEL
     #define FTDI_API_LEVEL                810

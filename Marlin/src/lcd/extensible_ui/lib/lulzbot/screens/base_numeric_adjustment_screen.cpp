@@ -84,7 +84,7 @@ void BaseNumericAdjustmentScreen::widgets_t::heading(const char *label) {
 }
 
 #ifdef TOUCH_UI_PORTRAIT
-  #if defined(LCD_800x480)
+  #ifdef TOUCH_UI_800x480
     #undef EDGE_R
     #define EDGE_R 20
   #else

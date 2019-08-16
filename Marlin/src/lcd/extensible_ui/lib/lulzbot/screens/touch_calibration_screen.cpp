@@ -51,7 +51,7 @@ void TouchCalibrationScreen::onEntry() {
        .text  ( BTN_POS(1,9), BTN_SIZE(4,1), F("screen calibration"))
     #else
        .font(
-        #if defined(LCD_800x480)
+        #ifdef TOUCH_UI_800x480
           font_large
         #else
           font_medium
@@ -96,7 +96,7 @@ void TouchCalibrationScreen::onRedraw(draw_mode_t) {
      .text  ( BTN_POS(1,9), BTN_SIZE(4,1), F("to calibrate"))
   #else
      .font(
-       #if defined(LCD_800x480)
+       #ifdef TOUCH_UI_800x480
          font_large
        #else
          font_medium

@@ -23,7 +23,7 @@
 #pragma once
 
 namespace Theme {
-  #if defined(LCD_800x480)
+  #ifdef TOUCH_UI_800x480
     #ifdef TOUCH_UI_PORTRAIT
       constexpr int16_t  font_tiny     = 26;
       constexpr int16_t  font_xsmall   = 28;
@@ -40,7 +40,7 @@ namespace Theme {
       constexpr int16_t  font_xlarge   = 31;
     #endif
     constexpr float      icon_scale    = 1.0;
-  #elif defined(LCD_480x272)
+  #elif defined(TOUCH_UI_480x272)
     #ifdef TOUCH_UI_PORTRAIT
     constexpr int16_t  font_tiny     = 26;
     constexpr int16_t  font_xsmall   = 26;
@@ -58,7 +58,7 @@ namespace Theme {
     constexpr int16_t  font_xlarge   = 31;
     constexpr float    icon_scale    = 0.6;
     #endif
-  #elif defined(LCD_320x240)
+  #elif defined(TOUCH_UI_320x240)
     #ifdef TOUCH_UI_PORTRAIT
     constexpr int16_t  font_tiny     = 26;
     constexpr int16_t  font_xsmall   = 26;
