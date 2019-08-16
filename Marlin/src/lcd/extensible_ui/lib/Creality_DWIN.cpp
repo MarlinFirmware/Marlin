@@ -8,53 +8,53 @@
 
 namespace ExtUI
 {
-const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
-uint8_t progress_bar_percent;
-int startprogress = 0;
-CRec CardRecbuf;
-int temphot = 0;
-//int tempbed=0;
-//float pause_z = 0;
-#if DISABLED(POWER_LOSS_RECOVERY)
-int power_off_type_yes = 0;
-int power_off_commands_count = 0;
-#endif
+  const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
+  uint8_t progress_bar_percent;
+  int startprogress = 0;
+  CRec CardRecbuf;
+  int temphot = 0;
+  //int tempbed=0;
+  //float pause_z = 0;
+  #if DISABLED(POWER_LOSS_RECOVERY)
+    int power_off_type_yes = 0;
+    int power_off_commands_count = 0;
+  #endif
 
-float PLA_ABSModeTemp = 195;
-int last_target_temperature_bed;
-int last_target_temperature[4] = {0};
-char waitway = 0;
-int recnum = 0;
-unsigned char Percentrecord = 0;
-float ChangeMaterialbuf[2] = {0};
+  float PLA_ABSModeTemp = 195;
+  int last_target_temperature_bed;
+  int last_target_temperature[4] = {0};
+  char waitway = 0;
+  int recnum = 0;
+  unsigned char Percentrecord = 0;
+  float ChangeMaterialbuf[2] = {0};
 
-char NozzleTempStatus[3] = {0};
+  char NozzleTempStatus[3] = {0};
 
-bool PrintMode = true;
+  bool PrintMode = false; //Eco Mode default off
 
-char PrintStatue[2] = {0};		//PrintStatue[0], 0 represent  to 43 page, 1 represent to 44 page
-bool CardUpdate = false;		//represents to update file list
-char CardCheckStatus[2] = {0};  //CardCheckStatus[0] represents to check card in printing and after making sure to begin and to check card in heating with value as 1, but 0 for off
-unsigned char LanguageRecbuf;   // !0 represent Chinese, 0 represent English
-char PrinterStatusKey[2] = {0}; // PrinterStatusKey[1] value: 0 represents to keep temperature, 1 represents  to heating , 2 stands for cooling , 3 stands for printing
-								// PrinterStatusKey[0] value: 0 reprensents 3D printer ready
-bool lcd_sd_status;				//represents SD-card status, true means SD is available, false means opposite.
+  char PrintStatue[2] = {0};		//PrintStatue[0], 0 represent  to 43 page, 1 represent to 44 page
+  bool CardUpdate = false;		//represents to update file list
+  char CardCheckStatus[2] = {0};  //CardCheckStatus[0] represents to check card in printing and after making sure to begin and to check card in heating with value as 1, but 0 for off
+  unsigned char LanguageRecbuf;   // !0 represent Chinese, 0 represent English
+  char PrinterStatusKey[2] = {0}; // PrinterStatusKey[1] value: 0 represents to keep temperature, 1 represents  to heating , 2 stands for cooling , 3 stands for printing
+                  // PrinterStatusKey[0] value: 0 reprensents 3D printer ready
+  bool lcd_sd_status;				//represents SD-card status, true means SD is available, false means opposite.
 
-char FilenamesCount = 0;
-char cmdbuf[20] = {0};
-char FilementStatus[2] = {0};
+  char FilenamesCount = 0;
+  char cmdbuf[20] = {0};
+  char FilementStatus[2] = {0};
 
-unsigned char AxisPagenum = 0; //0 for 10mm, 1 for 1mm, 2 for 0.1mm
-bool InforShowStatus = true;
-bool TPShowStatus = false; // true for only opening time and percentage, false for closing time and percentage.
-bool FanStatus = true;
-bool AutohomeKey = false;
-unsigned char AutoHomeIconNum;
-unsigned long VolumeSet = 0x80;
-extern char power_off_commands[9][96];
-bool PoweroffContinue = false;
-extern const char *injected_commands_P;
-char commandbuf[30];
+  unsigned char AxisPagenum = 0; //0 for 10mm, 1 for 1mm, 2 for 0.1mm
+  bool InforShowStatus = true;
+  bool TPShowStatus = false; // true for only opening time and percentage, false for closing time and percentage.
+  bool FanStatus = true;
+  bool AutohomeKey = false;
+  unsigned char AutoHomeIconNum;
+  unsigned long VolumeSet = 0x80;
+  extern char power_off_commands[9][96];
+  bool PoweroffContinue = false;
+  extern const char *injected_commands_P;
+  char commandbuf[30];
 
 void onStartup()
 {
@@ -69,10 +69,12 @@ void onStartup()
 	//if(VolumeSet < 0 || VolumeSet > 0xFF)
 	VolumeSet = 0x20;
 
+  //Set Eco Mode
 	if (PrintMode)
 		rtscheck.RTS_SndData(3, FanKeyIcon + 1); // saving mode
 	else
 		rtscheck.RTS_SndData(2, FanKeyIcon + 1); // normal
+
 	last_target_temperature_bed = getTargetTemp_celsius(BED);
 	last_target_temperature[0] = getTargetTemp_celsius(H0);
 	rtscheck.RTS_SndData(100, FeedrateDisplay);
@@ -129,14 +131,17 @@ void onStartup()
 void onIdle()
 {
 
-	// After homing, reset back to motion screen
-	if (isAxisPositionKnown((axis_t)X) && !isAxisPositionKnown((axis_t)Y) && !isAxisPositionKnown((axis_t)Z))
-	{
+  if(waitway && !commandsInQueue())
+    waitway = 0; //clear waitway if nothing is going on
 
+	// After homing, reset back to motion screen
+	if (isAxisPositionKnown((axis_t)X) && isAxisPositionKnown((axis_t)Y) && isAxisPositionKnown((axis_t)Z))
+	{
 		switch (waitway)
 		{
 		case 1:
 			InforShowStatus = true;
+      SERIAL_ECHOLN("==waitway 1==");
 			rtscheck.RTS_SndData(4 + CEIconGrap, IconPrintstatus); // 4 for Pause
 			rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
 			waitway = 0;
@@ -148,12 +153,15 @@ void onIdle()
 
 		case 3:
 			waitway = 0;
-			rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
+      SERIAL_ECHOLN("==waitway 3==");
+      if(!isPrinting())
+			  rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
 			break;
 
 		case 4:
 			if (AutohomeKey)
 			{ //Manual Move Home Done
+        SERIAL_ECHOLN("==waitway 4==");
 				rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
 				AutohomeKey = false;
 				waitway = 0;
@@ -162,6 +170,7 @@ void onIdle()
 		case 5:
 			InforShowStatus = true;
 			waitway = 0;
+      SERIAL_ECHOLN("==waitway 5==");
 			rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); //exchange to 78 page
 			break;
 		}
@@ -349,6 +358,7 @@ void onIdle()
 					NozzleTempStatus[0] = 0;
 					rtscheck.RTS_SndData(10 * ChangeMaterialbuf[0], FilementUnit1);
 					rtscheck.RTS_SndData(10 * ChangeMaterialbuf[1], FilementUnit2);
+          SERIAL_ECHOLN("==Heating Done Change Filament==");
 					rtscheck.RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
 					//RTS_line_to_current(E_AXIS); //NEEDS FIX
 					setActiveTool(E0, true);
@@ -367,6 +377,18 @@ void onIdle()
 					rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
 				}
 			}
+
+
+      if (PrinterStatusKey[1] != 4) //paused
+      {
+        if (!WITHIN(last_target_temperature_bed, (getTargetTemp_celsius(BED)-3), (getTargetTemp_celsius(BED)+3)) || !WITHIN(last_target_temperature[0], (getTargetTemp_celsius(H0)-10), (getTargetTemp_celsius(H0)+10)))
+          PrinterStatusKey[1] = 1; //Heating
+        else if (isPrinting())
+          PrinterStatusKey[1] = 3; //Printing
+        else
+          PrinterStatusKey[1] = 0; //Idle
+
+      }
 			if (AutohomeKey)
 			{
 				rtscheck.RTS_SndData(AutoHomeIconNum++, AutoZeroIcon);
@@ -790,7 +812,7 @@ void RTSSHOW::RTS_HandleData()
 			InforShowStatus = true;
 			if (PrinterStatusKey[1] == 3) // during heating
 			{
-				RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
+				RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 			}
 			else if (PrinterStatusKey[1] == 4)
 			{
@@ -798,7 +820,7 @@ void RTSSHOW::RTS_HandleData()
 			}
 			else
 			{
-				RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
+				RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
 			}
 		}
 		else if (recdat.data[0] == 3)
@@ -838,26 +860,7 @@ void RTSSHOW::RTS_HandleData()
 	case PrintChoice:
 		if (recdat.addr == Stopprint)
 		{
-			if (PrintStatue[1] == 1 && recdat.data[0] == 0xF0) // in the pause
-			{
-				RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
-				break;
-			}
-			else if (PrintStatue[1] == 0 && recdat.data[0] == 0xF0)
-			{
-				if (PrinterStatusKey[1] == 3) // during heating
-				{
-					RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
-				}
-				else
-				{
-					RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-				}
-				break;
-			}
-			//FilementStatus[0]  =  0; // recover the status waiting to check filements
-
-			RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+			RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
 			RTS_SndData(0, Timehour);
 			RTS_SndData(0, Timemin);
 			CardCheckStatus[0] = 0; // close the key of  checking card in  printing
@@ -868,7 +871,7 @@ void RTSSHOW::RTS_HandleData()
 			if (recdat.data[0] != 0xF1)
 				break;
 
-			RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+			RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
 			pausePrint();
 		}
 		else if (recdat.addr == Resumeprint && recdat.data[0] == 1)
@@ -882,7 +885,7 @@ void RTSSHOW::RTS_HandleData()
 			PrintStatue[1] = 0;
 			//PrinterStatusKey[1] = 3;
 			CardCheckStatus[0] = 1; // open the key of  checking card in  printing
-			RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
+			RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 		}
 		if (recdat.addr == Resumeprint && recdat.data[0] == 2) // warming
 		{
@@ -1042,11 +1045,12 @@ void RTSSHOW::RTS_HandleData()
 				RTS_SndData(3, AutoLevelIcon);
 
 			RTS_SndData(10, FilenameIcon); //Motor Icon
-			waitway = 2;				   //only for prohibiting to receive massage
 			if (!isPositionKnown())
-				injectCommands_P((PSTR("G28")));
+				injectCommands_P(PSTR("G28\nG1 F100 Z0.0"));
+      else
+        injectCommands_P(PSTR("G1 F100 Z0.0"));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0.0")));
+
 			RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
 		}
 		else if (recdat.data[0] == 2) // Exchange filement
@@ -1103,43 +1107,29 @@ void RTSSHOW::RTS_HandleData()
 #if (ENABLED(MachineCRX) && DISABLED(Force10SProDisplay)) || ENABLED(ForceCRXDisplay)
 		if (recdat.data[0] == 1) // Top Left
 		{
-			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3;")));
-			injectCommands_P((PSTR("G1 X30 Y30 F5000")));
+			injectCommands_P(PSTR("G1 F100 Z3\nG1 X30 Y30 F5000\nG1 F100 Z0"));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 2) // Top Right
 		{
-			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3")));
-			injectCommands_P((PSTR("G1 X270 Y30 F5000")));
+			injectCommands_P(PSTR("G1F100Z3\nG1X270Y30F5000\nG1F100Z0"));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 3) //  Centre
 		{
-			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3")));
-			injectCommands_P((PSTR("G1 X150 Y150 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3\nG1 X150 Y150 F5000\nG1 F100 Z0")));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 4) // Bottom Left
 		{
-			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3")));
-			injectCommands_P((PSTR("G1 X30 Y270 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3\nG1 X30 Y270 F5000\nG1 F100 Z0")));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 5) //  Bottom Right
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3")));
-			injectCommands_P((PSTR("G1 X270 Y270 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3\nG1 X270 Y270 F5000\nG1 F200 Z0")));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F200 Z0")));
 		}
 		break;
 #else
@@ -1147,10 +1137,10 @@ void RTSSHOW::RTS_HandleData()
 		{
 			// Disallow Z homing if X or Y are unknown
 			if (!isAxisPositionKnown((axis_t)X) || !isAxisPositionKnown((axis_t)Y))
-				injectCommands_P(PSTR("G28"));
+				injectCommands_P(PSTR("G28\nG1 F150 Z0.0"));
 			else
-				injectCommands_P(PSTR("G28 Z"));
-			injectCommands_P(PSTR("G1 F150 Z0.0"));
+				injectCommands_P(PSTR("G28 Z\nG1 F150 Z0.0"));
+
 			RTS_SndData(getZOffset_mm() * 100, 0x1026);
 		}
 		else if (recdat.data[0] == 2) // Z-axis to Up
@@ -1177,12 +1167,14 @@ void RTSSHOW::RTS_HandleData()
 		}
 		else if (recdat.data[0] == 4) // Assitant Level
 		{
-			//setLevelingActive(false); // FIX ME
-			waitway = 4; //only for prohibiting to receive massage
+			setLevelingActive(false); // FIX ME
 			if (!isPositionKnown())
-				injectCommands_P((PSTR("G28")));
+				injectCommands_P((PSTR("G28\nG1 F100 Z0.0")));
+      else
+        injectCommands_P((PSTR("G1 F100 Z0.0")));
+
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0.0")));
+
 			RTS_SndData(ExchangePageBase + 84, ExchangepageAddr);
 		}
 		else if (recdat.data[0] == 5) // AutoLevel "Measuring" Button
@@ -1194,55 +1186,38 @@ void RTSSHOW::RTS_HandleData()
 		}
 		else if (recdat.data[0] == 6) // Assitant Level ,  Centre 1
 		{
-			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3;")));
-			injectCommands_P((PSTR("G1 X150 Y150 F5000")));
+			injectCommands_P(PSTR("G1 F100 Z3\nG1 X150 Y150 F5000\nG1 F100 Z0"));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 7) // Assitant Level , Front Left 2
 		{
-			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3;")));
-			injectCommands_P((PSTR("G1 X30 Y30 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3\nG1 X30 Y30 F5000\nG1 F100 Z0")));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 8) // Assitant Level , Front Right 3
 		{
-			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3;")));
-			injectCommands_P((PSTR("G1 X270 Y30 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3\nG1 X270 Y30 F5000\nG1 F100 Z0")));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 9) // Assitant Level , Back Right 4
 		{
-			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3;")));
-			injectCommands_P((PSTR("G1 X270 Y270 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3\nG1 X270 Y270 F5000\nG1 F100 Z0")));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 10) // Assitant Level , Back Left 5
 		{
-			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3;")));
-			injectCommands_P((PSTR("G1 X30 Y270 F5000")));
+			injectCommands_P((PSTR("G1 F100 Z3\nG1 X30 Y270 F5000\nG1 F100 Z0")));
 			waitway = 2;
-			injectCommands_P((PSTR("G1 F100 Z0")));
 		}
 		else if (recdat.data[0] == 11) // Autolevel switch
 		{
 			if (getLevelingActive()) //turn on the Autolevel
 			{
 				RTS_SndData(3, AutoLevelIcon);
-				injectCommands_P((PSTR("M420 S0")));
 			}
 			else //turn off the Autolevel
 			{
 				RTS_SndData(2, AutoLevelIcon);
-				injectCommands_P((PSTR("M420 S1")));
 			}
 			RTS_SndData(getZOffset_mm() * 100, 0x1026);
 		}
@@ -1278,8 +1253,7 @@ void RTSSHOW::RTS_HandleData()
 			if (recdat.data[0] == 3) //autohome
 			{
 				waitway = 4;
-				injectCommands_P((PSTR("G28")));
-				injectCommands_P((PSTR("G1 F100 Z10")));
+				injectCommands_P((PSTR("G28\nG1 F100 Z10")));
 				InforShowStatus = AutohomeKey = true;
 				AutoHomeIconNum = 0;
 				RTS_SndData(ExchangePageBase + 74, ExchangepageAddr);
@@ -1440,40 +1414,10 @@ void RTSSHOW::RTS_HandleData()
 	case No_Filement:
 		SERIAL_ECHOLN("\n No Filament");
 
-    injectCommands_P(PSTR("M876P1"));
+    //injectCommands_P(PSTR("M876P1"));
 		if (recdat.data[0] == 1) //Filament is out, resume / cancel selected on screen
 		{
-			if (FilementStatus[0] == 1) // Filament is out before printing starts
-			{
-				for (int j = 0; j < 10; j++) //clean screen.
-					RTS_SndData(0, Printfilename + j);
-
-				int filelen = strlen(CardRecbuf.Cardshowfilename[FilenamesCount]);
-				filelen = (TEXTBYTELEN - filelen) / 2;
-				if (filelen > 0)
-				{
-					char buf[20];
-					memset(buf, 0, sizeof(buf));
-					strncpy(buf, "         ", filelen);
-					strcpy(&buf[filelen], CardRecbuf.Cardshowfilename[FilenamesCount]);
-					RTS_SndData(buf, Printfilename);
-				}
-				else
-					RTS_SndData(CardRecbuf.Cardshowfilename[FilenamesCount], Printfilename);
-				delay(2);
-
-				RTS_SndData(1 + CEIconGrap, IconPrintstatus); // 1 for Heating
-				delay(2);
-				RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
-				TPShowStatus = InforShowStatus = true;
-				PrinterStatusKey[0] = 1;
-				PrinterStatusKey[1] = 3;
-				CardCheckStatus[0] = 1; // open the key of  checking card in  printing
-				FilenamesCount = PrintStatue[1] = 0;
-
-				FilementStatus[0] = 0; // recover the status waiting to check filements
-			}
-			else if (FilementStatus[0] == 2) // check filements status during printing
+			if (FilementStatus[0] == 2) // check filements status during printing
 			{
 				setHostResponse(1); //Send Resume host prompt command
 
@@ -1691,15 +1635,15 @@ void RTSSHOW::RTS_HandleData()
 					RTS_SndData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], Printfilename);
 				delay(2);
 
-#if FAN_COUNT > 0
-				for (uint8_t i = 0; i < FAN_COUNT; i++)
-					setTargetFan_percent(FanOn, (fan_t)i);
-#endif
+        #if FAN_COUNT > 0
+          for (uint8_t i = 0; i < FAN_COUNT; i++)
+            setTargetFan_percent(FanOn, (fan_t)i);
+          #endif
 				FanStatus = false;
 
 				RTS_SndData(1 + CEIconGrap, IconPrintstatus); // 1 for Heating
 				delay(2);
-				RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
+				RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 
 				TPShowStatus = InforShowStatus = true;
 				PrintStatue[1] = 0;
@@ -1809,7 +1753,7 @@ void onPrintTimerStarted()
 	InforShowStatus = true;
 	rtscheck.RTS_SndData(4 + CEIconGrap, IconPrintstatus);
 	delay(10);
-	rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
+	rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 	CardCheckStatus[0] = 1; // open the key of  checking card in  printing
 }
 
@@ -1821,6 +1765,8 @@ void onPrintTimerPaused()
 void onPrintTimerStopped()
 {
 	SERIAL_ECHOLN("==onPrintTimerStopped==");
+  if(waitway == 3)
+    return;
 	stopPrint();
 	SERIAL_ECHOLN("stopping ==");
 	SERIAL_ECHOLN("//action:cancel");
@@ -1983,11 +1929,12 @@ void onConfigurationStoreRead(bool success)
                 }
             }
             rtscheck.RTS_SndData(2, AutoLevelIcon); //2=On, 3=Off
-            injectCommands_P(PSTR("M420 S1"));
+            setLevelingActive(true);
         }
         else
         {
             rtscheck.RTS_SndData(3, AutoLevelIcon); /*Off*/
+            setLevelingActive(false);
         }
     #endif
 
