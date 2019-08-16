@@ -149,11 +149,11 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_SPI_LCD || HAS_NEWPANEL_PINMAP
 
   #define KILL_PIN         32
 
-  #if ENABLED(NEWPANEL)
+  #if ENABLED(NEWPANEL) || HAS_NEWPANEL_PINMAP
 
     #if ENABLED(CR10_STOCKDISPLAY)
       #define LCD_PINS_RS     85

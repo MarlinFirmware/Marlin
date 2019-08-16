@@ -141,13 +141,13 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_SPI_LCD || HAS_NEWPANEL_PINMAP
 
   #if !MB(MINIRAMBO_10A)
     #define KILL_PIN       32
   #endif
 
-  #if ENABLED(NEWPANEL)
+  #if ENABLED(NEWPANEL) || HAS_NEWPANEL_PINMAP
 
     #if MB(MINIRAMBO_10A)
 

@@ -368,7 +368,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extensible_ui)
-#if EITHER(MALYAN_LCD, DGUS_LCD)
+#if ANY(MALYAN_LCD, DGUS_LCD, LULZBOT_TOUCH_UI)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
 #endif
@@ -380,6 +380,9 @@
 #define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 #define HAS_ADC_BUTTONS      ENABLED(ADC_KEYPAD)
+
+// Does the Extensible UI provide a pin mapping for RepRapDiscount connectors?
+#define HAS_NEWPANEL_PINMAP ENABLED(LULZBOT_TOUCH_UI) && ANY(AO_EXP1_PINMAP, AO_EXP2_PINMAP, CR10_TFT_PINMAP)
 
 /**
  * Default LCD contrast for Graphical LCD displays
