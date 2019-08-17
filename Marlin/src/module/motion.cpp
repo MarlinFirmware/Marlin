@@ -1663,7 +1663,7 @@ void homeaxis(const AxisEnum axis) {
     ];
     if (backoff_mm) {
       current_position[axis] -= ABS(backoff_mm) * axis_home_dir;
-      line_to_current_position();
+      line_to_current_position(HOMING_FEEDRATE_Z);
     }
   #endif
 

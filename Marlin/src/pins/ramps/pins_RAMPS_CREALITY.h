@@ -35,6 +35,7 @@
 #define MOSFET_D_PIN 7
 
 #define FIL_RUNOUT_PIN 2
+#define SD_DETECT_PIN 49 //always define it here, even without an LCD as its onboard
 
 #include "pins_RAMPS.h"
 

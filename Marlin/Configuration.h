@@ -35,8 +35,8 @@
 #define Force10SProDisplay
 #define TM3DTouchscreenUpdates // Enables TM3D Error screens and eeprom screen not found in Creality screen firmware
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
-//#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
-//#define DualFilSensors //Using dual filament sensors on XMax and YMAX
+#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
+#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 
 /*
    Hotend Type
@@ -105,8 +105,8 @@
    Requires a sensor from above
    Melzi board users may only select ABL_BI for bilinear leveling
 */
-//#define ABL_BI
-#define ABL_UBL
+#define ABL_BI
+//#define ABL_UBL
 
 //#define POWER_LOSS_RECOVERY //Large and does not fit with any other features on Melzi, or UBL on Atmega
 /*
@@ -410,7 +410,7 @@
 #if(ENABLED(MachineCR10Orig))
 #define MOTHERBOARD BOARD_MELZI_CREALITY
 #else
-#define MOTHERBOARD BOARD_RAMPS_14_EFB
+#define MOTHERBOARD BOARD_RAMPS_CREALITY
 #endif
 #endif
 
@@ -1636,7 +1636,7 @@
 #define Z_MAX_POS 250
 #elif (ENABLED(MachineCRX))
 #define X_BED_SIZE 315
-#define Y_BED_SIZE 330
+#define Y_BED_SIZE 315
 #define Z_MAX_POS 400
 #elif (ENABLED(MachineCR10Std))
 #define X_BED_SIZE 315

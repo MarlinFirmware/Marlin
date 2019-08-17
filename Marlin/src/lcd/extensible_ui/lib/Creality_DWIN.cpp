@@ -8,6 +8,7 @@
 
 namespace ExtUI
 {
+  uint8_t waitway_lock = 0;
   const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
   uint8_t progress_bar_percent;
   int startprogress = 0;
@@ -131,34 +132,38 @@ void onIdle()
 {
 
   if(waitway && !commandsInQueue())
+    waitway_lock++;
+  if(waitway_lock > 100) {
+    waitway_lock = 0;
     waitway = 0; //clear waitway if nothing is going on
+  }
 
-	// After homing, reset back to motion screen
-	if (isAxisPositionKnown((axis_t)X) && isAxisPositionKnown((axis_t)Y) && isAxisPositionKnown((axis_t)Z))
-	{
 		switch (waitway)
 		{
 		case 1:
-			InforShowStatus = true;
-      SERIAL_ECHOLN("==waitway 1==");
-			rtscheck.RTS_SndData(4 + CEIconGrap, IconPrintstatus); // 4 for Pause
-			rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
-			waitway = 0;
+      if(isPositionKnown()) {
+        InforShowStatus = true;
+        SERIAL_ECHOLN("==waitway 1==");
+        rtscheck.RTS_SndData(4 + CEIconGrap, IconPrintstatus); // 4 for Pause
+        rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
+        waitway = 0;
+      }
 			break;
 
 		case 2:
-			waitway = 0;
+      if (isPositionKnown())
+			  waitway = 0;
 			break;
 
 		case 3:
 			waitway = 0;
       SERIAL_ECHOLN("==waitway 3==");
-      if(!isPrinting())
+      if(isPositionKnown())
 			  rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
 			break;
 
 		case 4:
-			if (AutohomeKey)
+			if (AutohomeKey && isPositionKnown())
 			{ //Manual Move Home Done
         SERIAL_ECHOLN("==waitway 4==");
 				rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
@@ -167,11 +172,14 @@ void onIdle()
 			}
 			break;
 		case 5:
-			InforShowStatus = true;
-			waitway = 0;
-      SERIAL_ECHOLN("==waitway 5==");
-			rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); //exchange to 78 page
-			break;
+        if(isPositionKnown()) {
+        InforShowStatus = true;
+        waitway = 0;
+        SERIAL_ECHOLN("==waitway 5==");
+        rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); //exchange to 78 page
+      }
+      break;
+
 		}
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -183,7 +191,7 @@ void onIdle()
 			print_job_timer.power_off_start();
 		}
 #endif
-	}
+
 
 	if (InforShowStatus)
 	{
@@ -1041,9 +1049,9 @@ void RTSSHOW::RTS_HandleData()
 
 			RTS_SndData(10, FilenameIcon); //Motor Icon
 			if (!isPositionKnown())
-				injectCommands_P(PSTR("G28\nG1F100Z0.0"));
+				injectCommands_P(PSTR("G28\nG1F1000Z0.0"));
       else
-        injectCommands_P(PSTR("G1F100Z0.0"));
+        injectCommands_P(PSTR("G1F1000Z0.0"));
 			waitway = 2;
 
 			RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
@@ -1102,28 +1110,28 @@ void RTSSHOW::RTS_HandleData()
 #if (ENABLED(MachineCRX) && DISABLED(Force10SProDisplay)) || ENABLED(ForceCRXDisplay)
 		if (recdat.data[0] == 1) // Top Left
 		{
-			injectCommands_P(PSTR("G1F100Z3\nG1X30Y30F5000\nG1F100 Z0"));
+			injectCommands_P(PSTR("G1F1000Z3\nG1X30Y30F5000\nG1F1000 Z0"));
 			waitway = 2;
 		}
 		else if (recdat.data[0] == 2) // Top Right
 		{
-			injectCommands_P(PSTR("G1F100Z3\nG1X270Y30F5000\nG1F100Z0"));
+			injectCommands_P(PSTR("G1F1000Z3\nG1X270Y30F5000\nG1F1000Z0"));
 			waitway = 2;
 		}
 		else if (recdat.data[0] == 3) //  Centre
 		{
-			injectCommands_P((PSTR("G1 F100 Z3\nG1 X150 Y150 F5000\nG1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F1000 Z3\nG1 X150 Y150 F5000\nG1 F1000 Z0")));
 			waitway = 2;
 		}
 		else if (recdat.data[0] == 4) // Bottom Left
 		{
-			injectCommands_P((PSTR("G1 F100 Z3\nG1 X30 Y270 F5000\nG1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F1000 Z3\nG1 X30 Y270 F5000\nG1 F1000 Z0")));
 			waitway = 2;
 		}
 		else if (recdat.data[0] == 5) //  Bottom Right
 		{
 			waitway = 4; //only for prohibiting to receive massage
-			injectCommands_P((PSTR("G1 F100 Z3\nG1 X270 Y270 F5000\nG1 F200 Z0")));
+			injectCommands_P((PSTR("G1 F1000 Z3\nG1 X270 Y270 F5000\nG1 F2000 Z0")));
 			waitway = 2;
 		}
 		break;
@@ -1132,9 +1140,9 @@ void RTSSHOW::RTS_HandleData()
 		{
 			// Disallow Z homing if X or Y are unknown
 			if (!isAxisPositionKnown((axis_t)X) || !isAxisPositionKnown((axis_t)Y))
-				injectCommands_P(PSTR("G28\nG1 F150 Z0.0"));
+				injectCommands_P(PSTR("G28\nG1F1500Z0.0"));
 			else
-				injectCommands_P(PSTR("G28 Z\nG1 F150 Z0.0"));
+				injectCommands_P(PSTR("G28Z\nG1F1500Z0.0"));
 
 			RTS_SndData(getZOffset_mm() * 100, 0x1026);
 		}
@@ -1164,9 +1172,9 @@ void RTSSHOW::RTS_HandleData()
 		{
 			setLevelingActive(false); // FIX ME
 			if (!isPositionKnown())
-				injectCommands_P((PSTR("G28\nG1 F100 Z0.0")));
+				injectCommands_P((PSTR("G28\nG1 F1000 Z0.0")));
       else
-        injectCommands_P((PSTR("G1 F100 Z0.0")));
+        injectCommands_P((PSTR("G1 F1000 Z0.0")));
 
 			waitway = 2;
 
@@ -1181,27 +1189,27 @@ void RTSSHOW::RTS_HandleData()
 		}
 		else if (recdat.data[0] == 6) // Assitant Level ,  Centre 1
 		{
-			injectCommands_P(PSTR("G1 F100 Z3\nG1 X150 Y150 F5000\nG1 F100 Z0"));
+			injectCommands_P(PSTR("G1 F1000 Z3\nG1 X150 Y150 F5000\nG1 F1000 Z0"));
 			waitway = 2;
 		}
 		else if (recdat.data[0] == 7) // Assitant Level , Front Left 2
 		{
-			injectCommands_P((PSTR("G1 F100 Z3\nG1 X30 Y30 F5000\nG1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F1000 Z3\nG1 X30 Y30 F5000\nG1 F1000 Z0")));
 			waitway = 2;
 		}
 		else if (recdat.data[0] == 8) // Assitant Level , Front Right 3
 		{
-			injectCommands_P((PSTR("G1 F100 Z3\nG1 X270 Y30 F5000\nG1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F1000 Z3\nG1 X270 Y30 F5000\nG1 F1000 Z0")));
 			waitway = 2;
 		}
 		else if (recdat.data[0] == 9) // Assitant Level , Back Right 4
 		{
-			injectCommands_P((PSTR("G1 F100 Z3\nG1 X270 Y270 F5000\nG1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F1000 Z3\nG1 X270 Y270 F5000\nG1 F1000 Z0")));
 			waitway = 2;
 		}
 		else if (recdat.data[0] == 10) // Assitant Level , Back Left 5
 		{
-			injectCommands_P((PSTR("G1 F100 Z3\nG1 X30 Y270 F5000\nG1 F100 Z0")));
+			injectCommands_P((PSTR("G1 F1000 Z3\nG1 X30 Y270 F5000\nG1 F1000 Z0")));
 			waitway = 2;
 		}
 		else if (recdat.data[0] == 11) // Autolevel switch
@@ -1248,7 +1256,7 @@ void RTSSHOW::RTS_HandleData()
 			if (recdat.data[0] == 3) //autohome
 			{
 				waitway = 4;
-				injectCommands_P((PSTR("G28\nG1 F100 Z10")));
+				injectCommands_P((PSTR("G28\nG1 F1000 Z10")));
 				InforShowStatus = AutohomeKey = true;
 				AutoHomeIconNum = 0;
 				RTS_SndData(ExchangePageBase + 74, ExchangepageAddr);
@@ -1629,7 +1637,27 @@ void RTSSHOW::RTS_HandleData()
 	recdat.head[1] = FHTWO;
 }
 
-void onPrinterKilled(PGM_P const msg) {}
+void onPrinterKilled(PGM_P msg) {
+  SERIAL_ECHOLN("***kill***");
+	rtscheck.RTS_SndData(ExchangePageBase + 15, ExchangepageAddr);
+  delay_ms(3);
+  int j = 0;
+  char outmsg[40];
+  for (j; j < 4; j++)
+	{
+    outmsg[j] = '*';
+  }
+  while (const char c = pgm_read_byte(msg++)) {
+    outmsg[j] = c;
+    j++;
+  }
+  for (j; j < 40; j++)
+	{
+    outmsg[j] = '*';
+  }
+  rtscheck.RTS_SndData(outmsg, MacVersion);
+  delay_ms(10);
+}
 
 void onMediaInserted()
 {
@@ -1787,6 +1815,9 @@ void onUserConfirmRequired(const char *const msg)
 }
 void onStatusChanged(const char *const msg)
 {
+  for (int j = 0; j < 40; j++) // Clear old message
+    rtscheck.RTS_SndData(' ', 0x20E8+j);
+  rtscheck.RTS_SndData(msg, 0x20E8);
 }
 void onFactoryReset()
 {

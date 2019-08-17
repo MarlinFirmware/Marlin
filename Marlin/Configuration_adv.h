@@ -925,7 +925,7 @@
   // as SD_DETECT_PIN in your board's pins definitions.
   // This setting should be disabled unless you are using a push button, pulling the pin to ground.
   // Note: This is always disabled for ULTIPANEL (except ELB_FULL_GRAPHIC_CONTROLLER).
-  #if DISABLED(MachineCR10SPro)
+  #if NONE(MachineCR10SPro, MachineCRX)
     #define SD_DETECT_INVERTED
   #endif
   #define SD_FINISHED_STEPPERRELEASE true          // Disable steppers when SD Print is finished
@@ -2394,16 +2394,16 @@
 #endif
   #define USER_DESC_1 "Setup"
   #if (ENABLED(ABL_UBL))
-    #define USER_GCODE_1 "M190S" CommBedTmp "\nG28\nG29P1\nM109S215\nG29S1\nG29S0\nG29F0.0\nG29A\nG28\nG1X150Y150F50\nG1Z0\nM500\nM400\nM77\nM117 Set Z Offset"
+    #define USER_GCODE_1 "M190S" CommBedTmp "\nG28\nG29P1\nM109S215\nG29S1\nG29S0\nG29F0.0\nG29A\nG28\nG1X150Y150F5000\nG1Z0\nM500\nM400\nM117 Set Z Offset"
   #elif ENABLED(ABL_BI)
-    #define USER_GCODE_1 "M190S" CommBedTmp "\n M117 Probing....\nM104S215\nG28\nG29\nM400\nM109S215\nG28\nM420S1\nG1X100Y100\nG1Z0\nM500\nM400\nM77\nM117 Set Z Offset"
+    #define USER_GCODE_1 "M190S" CommBedTmp "\n M117 Probing....\nM104S215\nG28\nG29\nM400\nM109S215\nG28\nM420S1\nG1X100Y100F5000\nG1Z0\nM500\nM400\nM117 Set Z Offset"
   #endif
 
   #define USER_DESC_2 "PID Tune"
   #define USER_GCODE_2 "M106 S128 \n M303 C8 S215 E1 U \n M500 \n M117 PID Tune Done"
 
   #define USER_DESC_3 "Prep for Z Adjust"
-  #define USER_GCODE_3 "M190S" CommBedTmp "\nM104S215\nG28\nG29L1\nG1 X100Y100\nG1Z0"
+  #define USER_GCODE_3 "M190S" CommBedTmp "\nM104S215\nG28\nG29L1\nG1 X100Y100F5000\nG1Z0"
 
   #define USER_DESC_4 "Store Settings"
   #define USER_GCODE_4 "M500\nM117 Settings Stored"
