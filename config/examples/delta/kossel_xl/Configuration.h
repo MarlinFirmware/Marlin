@@ -842,12 +842,13 @@
  * "Jerk" specifies the minimum speed change that requires acceleration.
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
+ *
+ * NOTE: Delta printers still require default jerk values if using
+ * JUNCTION_DEVIATION.
  */
-#if DISABLED(JUNCTION_DEVIATION)
-  #define DEFAULT_XJERK 10.0
-  #define DEFAULT_YJERK DEFAULT_XJERK
-  #define DEFAULT_ZJERK DEFAULT_XJERK // Must be same as XY for delta
-#endif
+#define DEFAULT_XJERK 10.0
+#define DEFAULT_YJERK DEFAULT_XJERK
+#define DEFAULT_ZJERK DEFAULT_XJERK // Must be same as XY for delta
 
 #define DEFAULT_EJERK   20.0  // May be used by Linear Advance
 
