@@ -208,7 +208,7 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
       #endif
     };
 
-    #if DISABLED(ANIMATED_MARLIN_BOOTSCREEN)
+    #if DISABLED(BOOT_MARLIN_LOGO_ANIMATED)
       draw_bootscreen_bmp(start_bmp, offx, offy, txt_base, txt_offx_1, txt_offx_2);
     #else
       constexpr millis_t d = MARLIN_BOOTSCREEN_FRAME_TIME;
