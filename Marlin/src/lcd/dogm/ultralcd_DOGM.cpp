@@ -115,7 +115,7 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
       #endif
 
       const u8g_pgm_uint8_t * const bmp =
-        #if ENABLED(ANIMATED_BOOTSCREEN)
+        #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED)
           (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame])
         #else
           custom_start_bmp
@@ -137,7 +137,7 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
 
     // Shows the custom bootscreen, with the u8g loop, animations and delays
     void MarlinUI::show_custom_bootscreen() {
-      #if DISABLED(ANIMATED_BOOTSCREEN)
+      #if DISABLED(CUSTOM_BOOTSCREEN_ANIMATED)
         constexpr millis_t d = 0;
         constexpr uint8_t f = 0;
       #else
