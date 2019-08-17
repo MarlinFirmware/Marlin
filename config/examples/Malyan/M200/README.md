@@ -11,10 +11,9 @@ guide you through the configuration and compilation.
    - Select "**Show verbose ouptut during: compilation**."
 3. Select **Tools** > **Board** > **Boards Manager**.
 4. Type "Malyan" into the Search field.
-5. The only boards shown will be STM32 Cords by STMicroelectronics. The version should be at least 1.6.0, but if it's later, that's fine. Choose install. This will download many tools and packages, be patient.
-6. From the Tools Menu, choose board, and scroll all the way down to 3D Printer Boards. 
-   Select 3D Printer Boards..
-7. From the Tools Menu, choose board part number:
+5. The only board listed will be "**STM32 Cores by STMicroelectronics**." Any version from 1.6.0 up is fine. Choose install. This will download many tools and packages, be patient.
+6. Open the **Tools** > **Board** submenu, scroll all the way down, and select **3D Printer Boards**.
+7. From the **Tools** menu, select a board part number:
    - If you own a M200 V1 or early run (black V2), choose **Malyan M200 V1**.
    - If you own a M200 V2 later run (white/black) or V3 (Pro), choose **Malyan M200 V2** (The V2 and V3 both share an STM32F070 MCU). Note that the V3 pinout is not complete (autolevel doesn't work as of this writing).
 8. From the **Tools** menu, choose **USB Support** > **CDC No Generic Serial**.
