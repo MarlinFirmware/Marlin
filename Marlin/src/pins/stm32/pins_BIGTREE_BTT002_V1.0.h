@@ -27,7 +27,7 @@
   #error "BIGTREE SKR Pro V1.1 supports up to 3 hotends / E-steppers."
 #endif
 
-#define BOARD_NAME "BIGTREE SKR Mk3 1.1"
+#define BOARD_NAME "BIGTREE Btt002 1.0"
 
 #define SRAM_EEPROM_EMULATION
 

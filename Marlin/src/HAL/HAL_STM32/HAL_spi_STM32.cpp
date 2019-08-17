@@ -90,7 +90,6 @@ void spiInit(uint8_t spiRate) {
   SPI.setSCLK(SCK_PIN);
   #endif
   SPI.begin();
-
 }
 
 /**
