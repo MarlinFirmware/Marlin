@@ -2570,3 +2570,7 @@
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
+
+//olli external eeprom
+//#define I2C_EEPROM
+//#define E2END 0x7FFF
