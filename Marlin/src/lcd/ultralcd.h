@@ -323,7 +323,6 @@ public:
       #endif
 
       #if ENABLED(SHOW_BOOTSCREEN)
-        static void splash_marlin_bootscreen(const uint8_t *);
         static void draw_marlin_bootscreen();
         static void show_marlin_bootscreen();
         static void show_bootscreen();
