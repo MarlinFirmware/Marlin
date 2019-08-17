@@ -20,7 +20,6 @@ namespace ExtUI
     int power_off_commands_count = 0;
   #endif
 
-  float PLA_ABSModeTemp = 195;
   int last_target_temperature_bed;
   int last_target_temperature[4] = {0};
   char waitway = 0;
@@ -352,17 +351,13 @@ void onIdle()
 				if (IconTemp >= 100)
 					IconTemp = 100;
 				rtscheck.RTS_SndData(IconTemp, HeatPercentIcon);
-				if (getActualTemp_celsius(H0) >= getTargetTemp_celsius(H0) && NozzleTempStatus[0])
+				if (getActualTemp_celsius(H0) > EXTRUDE_MINTEMP && NozzleTempStatus[0]!=0)
 				{
-					NozzleTempStatus[1] = 0;
 					NozzleTempStatus[0] = 0;
 					rtscheck.RTS_SndData(10 * ChangeMaterialbuf[0], FilementUnit1);
 					rtscheck.RTS_SndData(10 * ChangeMaterialbuf[1], FilementUnit2);
           SERIAL_ECHOLN("==Heating Done Change Filament==");
 					rtscheck.RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
-					//RTS_line_to_current(E_AXIS); //NEEDS FIX
-					setActiveTool(E0, true);
-					//delay(current_position[E_AXIS] * 1000);
 				}
 				else if (getActualTemp_celsius(H0) >= getTargetTemp_celsius(H0) && NozzleTempStatus[2])
 				{
@@ -964,7 +959,7 @@ void RTSSHOW::RTS_HandleData()
 		}
 		else if (recdat.data[0] == 5) //PLA mode
 		{
-			setTargetTemp_celsius((PLA_ABSModeTemp = PREHEAT_1_TEMP_HOTEND), H0);
+			setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, H0);
 			setTargetTemp_celsius(PREHEAT_1_TEMP_BED, BED);
 
 			RTS_SndData(PREHEAT_1_TEMP_HOTEND, NozzlePreheat);
@@ -972,7 +967,7 @@ void RTSSHOW::RTS_HandleData()
 		}
 		else if (recdat.data[0] == 6) //ABS mode
 		{
-			setTargetTemp_celsius((PLA_ABSModeTemp = PREHEAT_2_TEMP_HOTEND), H0);
+			setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, H0);
 			setTargetTemp_celsius(PREHEAT_2_TEMP_BED, BED);
 
 			RTS_SndData(PREHEAT_2_TEMP_HOTEND, NozzlePreheat);
@@ -1288,106 +1283,71 @@ void RTSSHOW::RTS_HandleData()
 		unsigned int IconTemp;
 		if (recdat.addr == Exchfilement)
 		{
-			if (recdat.data[0] == 1) // Unload filement1
+      if (getActualTemp_celsius(H0) < EXTRUDE_MINTEMP && recdat.data[0] < 5)
 			{
-				original_extruder = getActiveTool();
-				setActiveTool(E0, true);
-
-				setAxisPosition_mm((getAxisPosition_mm(getActiveTool()) - ChangeMaterialbuf[0]), getActiveTool());
-
-				if (NozzleTempStatus[1] == 0 && getActualTemp_celsius(H0) < (PLA_ABSModeTemp - 5))
-				{
-					NozzleTempStatus[1] = 1;
-					RTS_SndData((int)PLA_ABSModeTemp, 0x1020);
-					delay_ms(5);
-					RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
-					break;
-				}
-			}
-			else if (recdat.data[0] == 2) // Load filement1
-			{
-				original_extruder = getActiveTool();
-				setActiveTool(E0, true);
-				setAxisPosition_mm((getAxisPosition_mm(getActiveTool()) + ChangeMaterialbuf[0]), getActiveTool());
-
-				if (NozzleTempStatus[1] == 0 && getActualTemp_celsius(H0) < (PLA_ABSModeTemp - 5))
-				{
-					NozzleTempStatus[1] = 1;
-					RTS_SndData((int)PLA_ABSModeTemp, 0x1020);
-					delay_ms(5);
-					RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
-					break;
-				}
-			}
-			else if (recdat.data[0] == 3) // Unload filement2
-			{
-				original_extruder = getActiveTool();
-				setActiveTool(E1, true);
-
-				setAxisPosition_mm((getAxisPosition_mm(getActiveTool()) - ChangeMaterialbuf[1]), getActiveTool());
-
-				if (NozzleTempStatus[1] == 0 && getActualTemp_celsius(H0) < (PLA_ABSModeTemp - 5))
-				{
-					NozzleTempStatus[1] = 1;
-					RTS_SndData((int)PLA_ABSModeTemp, 0x1020);
-					delay_ms(5);
-					RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
-					break;
-				}
-			}
-			else if (recdat.data[0] == 4) // Load filement2
-			{
-				original_extruder = getActiveTool();
-				setActiveTool(E1, true);
-
-				setAxisPosition_mm((getAxisPosition_mm(getActiveTool()) - ChangeMaterialbuf[1]), getActiveTool());
-
-				if (NozzleTempStatus[1] == 0 && getActualTemp_celsius(H0) < (PLA_ABSModeTemp - 5))
-				{
-					NozzleTempStatus[1] = 1;
-					RTS_SndData((int)PLA_ABSModeTemp, 0x1020);
-					delay_ms(5);
-					RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
-					break;
-				}
-			}
-			else if (recdat.data[0] == 5) // sure to heat
-			{
-				NozzleTempStatus[0] = 1;
-				//InforShowoStatus = true;
-
-				setTargetTemp_celsius((getTargetTemp_celsius(H0) >= PLA_ABSModeTemp ? getTargetTemp_celsius(H0) : PLA_ABSModeTemp), H0);
-				IconTemp = getActualTemp_celsius(H0) * 100 / getTargetTemp_celsius(H0);
-				if (IconTemp >= 100)
-					IconTemp = 100;
-				RTS_SndData(IconTemp, HeatPercentIcon);
-
-				RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
-				RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
+				RTS_SndData((int)EXTRUDE_MINTEMP, 0x1020);
 				delay_ms(5);
-				RTS_SndData(ExchangePageBase + 68, ExchangepageAddr);
+				RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
 				break;
 			}
-			else if (recdat.data[0] == 6) //cancel to heat
-			{
-				NozzleTempStatus[1] = 0;
-				RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
-				break;
-			}
-			else if (recdat.data[0] == 0xF1) //Sure to cancel heating
-			{
-				//InforShowoStatus = true;
-				NozzleTempStatus[0] = NozzleTempStatus[1] = 0;
-				delay_ms(1);
-				RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
-				break;
-			}
-			else if (recdat.data[0] == 0xF0) // not to cancel heating
-				break;
 
+      switch(recdat.data[0])
+        {
+        case 1 : // Unload filement1
+        {
+          setAxisPosition_mm((getAxisPosition_mm(E0) - ChangeMaterialbuf[0]), E0);
+          break;
+        }
+        case 2: // Load filement1
+        {
+          setAxisPosition_mm((getAxisPosition_mm(E0) + ChangeMaterialbuf[0]), E0);
+          break;
+        }
+        case 3: // Unload filement2
+        {
+          setAxisPosition_mm((getAxisPosition_mm(E1) - ChangeMaterialbuf[1]), E1);
+          break;
+        }
+        case 4: // Load filement2
+        {
+          setAxisPosition_mm((getAxisPosition_mm(E1) + ChangeMaterialbuf[1]), E1);
+          break;
+        }
+        case 5: // sure to heat
+        {
+          NozzleTempStatus[0] = 1;
+          //InforShowoStatus = true;
+
+          setTargetTemp_celsius((PREHEAT_1_TEMP_HOTEND+10), H0);
+          IconTemp = getActualTemp_celsius(H0) * 100 / getTargetTemp_celsius(H0);
+          if (IconTemp >= 100)
+            IconTemp = 100;
+          RTS_SndData(IconTemp, HeatPercentIcon);
+
+          RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
+          RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
+          delay_ms(5);
+          RTS_SndData(ExchangePageBase + 68, ExchangepageAddr);
+          break;
+        }
+        case 6: //cancel to heat
+        {
+          RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
+          break;
+        }
+        case 0xF1: //Sure to cancel heating
+        {
+          //InforShowoStatus = true;
+          NozzleTempStatus[0] = 0;
+          delay_ms(1);
+          RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
+          break;
+        }
+        case 0xF0: // not to cancel heating
+          break;
+      }
 			RTS_SndData(10 * ChangeMaterialbuf[0], FilementUnit1); //It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
 			RTS_SndData(10 * ChangeMaterialbuf[1], FilementUnit2);
-			setActiveTool(original_extruder, true);
 		}
 		else if (recdat.addr == FilementUnit1)
 		{

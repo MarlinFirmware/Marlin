@@ -13,8 +13,8 @@
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
-#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
-//#define MachineCRX //Currently only supports GraphicLCD
+//#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+#define MachineCRX //Currently only supports GraphicLCD
 //#define MachineS4
 //#define MachineS5
 
@@ -32,7 +32,7 @@
 #define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
 //#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
 //#define ForceCRXDisplay
-//#define Force10SProDisplay
+#define Force10SProDisplay
 #define TM3DTouchscreenUpdates // Enables TM3D Error screens and eeprom screen not found in Creality screen firmware
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
