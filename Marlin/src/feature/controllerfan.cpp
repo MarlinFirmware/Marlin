@@ -36,8 +36,10 @@ void controllerfan_update() {
   if (ELAPSED(ms, nextMotorCheck)) {
     nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
 
+    const bool xory = X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON;
+
     // If any of the drivers or the bed are enabled...
-    if (X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON || Z_ENABLE_READ() == Z_ENABLE_ON
+    if (xory || Z_ENABLE_READ() == Z_ENABLE_ON
       #if HAS_HEATED_BED
         || thermalManager.temp_bed.soft_pwm_amount > 0
       #endif
@@ -76,16 +78,17 @@ void controllerfan_update() {
     }
 
     // Fan off if no steppers have been enabled for CONTROLLERFAN_SECS seconds
-    uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
-    #ifdef CONTROLLERFAN_SPEED_WHEN_ONLY_Z_ACTIVE
-      if ((speed != 0) && (X_ENABLE_READ != X_ENABLE_ON) && (Y_ENABLE_READ != Y_ENABLE_ON))
-        speed = CONTROLLERFAN_SPEED_WHEN_ONLY_Z_ACTIVE;
-    #endif
-    controllerfan_speed = speed;
+    controllerfan_speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : (
+      #ifdef CONTROLLERFAN_SPEED_Z_ONLY
+        xory ? CONTROLLERFAN_SPEED : CONTROLLERFAN_SPEED_Z_ONLY
+      #else
+        CONTROLLERFAN_SPEED
+      #endif
+    );
 
-    // allows digital or PWM fan output to be used (see M42 handling)
-    WRITE(CONTROLLER_FAN_PIN, speed);
-    analogWrite(pin_t(CONTROLLER_FAN_PIN), speed);
+    // Allow digital or PWM fan output (see M42 handling)
+    WRITE(CONTROLLER_FAN_PIN, controllerfan_speed);
+    analogWrite(pin_t(CONTROLLER_FAN_PIN), controllerfan_speed);
   }
 }
 
