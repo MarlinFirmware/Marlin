@@ -65,15 +65,15 @@ extern const PinName digitalPin[];
 
 #if STM32F4X_PIN_NUM >= 64  //64 pins mcu, 51 gpio
   #define PC13  0
-  #define PC14  1  //OSC32_IN
-  #define PC15  2  //OSC32_OUT
-  #define PH0   3  //OSC_IN
-  #define PH1   4  //OSC_OUT
-  #define PB2   5  //BOOT1
-  #define PB10  6  //1:SPI2_SCK / I2C2_SCL / USART3_TX / TIM2_CH3
-  #define PB11  7  //1:I2C2_SDA / USART3_RX / TIM2_CH4
-  #define PB12  8  //1:SPI2_NSS / OTG_HS_ID
-  #define PB13  9  //1:SPI2_SCK  2:OTG_HS_VBUS
+  #define PC14  1 //OSC32_IN
+  #define PC15  2 //OSC32_OUT
+  #define PH0   3 //OSC_IN
+  #define PH1   4 //OSC_OUT
+  #define PB2   5 //BOOT1
+  #define PB10  6 //1:SPI2_SCK / I2C2_SCL / USART3_TX / TIM2_CH3
+  #define PB11  7 //1:I2C2_SDA / USART3_RX / TIM2_CH4
+  #define PB12  8 //1:SPI2_NSS / OTG_HS_ID
+  #define PB13  9 //1:SPI2_SCK  2:OTG_HS_VBUS
   #define PB14  10 //1:SPI2_MISO / TIM12_CH1 / OTG_HS_DM
   #define PB15  11 //SPI2_MOSI / TIM12_CH2 / OTG_HS_DP
   #define PC6   12 //1:TIM8_CH1 / SDIO_D6 / USART6_TX / TIM3_CH1
@@ -115,114 +115,116 @@ extern const PinName digitalPin[];
   #define PC3   48 //1:SPI2_MOSI  2:ADC123_IN13
   #define PC4   49 //1:  2:ADC12_IN14
   #define PC5   50 //1:  2:ADC12_IN15
+  #if STM32F4X_PIN_NUM >= 144
+    #define PF3   51 //1:FSMC_A3  2:ADC3_IN9
+    #define PF4   52 //1:FSMC_A4  2:ADC3_IN14
+    #define PF5   53 //1:FSMC_A5  2:ADC3_IN15
+    #define PF6   54 //1:TIM10_CH1  2:ADC3_IN4
+    #define PF7   55 //1:TIM11_CH1  2:ADC3_IN5
+    #define PF8   56 //1:TIM13_CH1  2:ADC3_IN6
+    #define PF9   57 //1;TIM14_CH1  2:ADC3_IN7
+    #define PF10  58 //2:ADC3_IN8
+  #endif
 #endif
 #if STM32F4X_PIN_NUM >= 100  //100 pins mcu, 82 gpio
-  #define PE2   51 //1:FSMC_A23
-  #define PE3   52 //1:FSMC_A19
-  #define PE4   53 //1:FSMC_A20
-  #define PE5   54 //1:FSMC_A21
-  #define PE6   55 //1:FSMC_A22
-  #define PE7   56 //1:FSMC_D4
-  #define PE8   57 //1:FSMC_D5
-  #define PE9   58 //1:FSMC_D6 / TIM1_CH1
-  #define PE10  59 //1:FSMC_D7
-  #define PE11  60 //1:FSMC_D8 / TIM1_CH2
-  #define PE12  61 //1:FSMC_D9
-  #define PE13  62 //1:FSMC_D10 / TIM1_CH3
-  #define PE14  63 //1:FSMC_D11 / TIM1_CH4
-  #define PE15  64 //1:FSMC_D12
-  #define PD8   65 //1:FSMC_D13 / USART3_TX
-  #define PD9   66 //1:FSMC_D14 / USART3_RX
-  #define PD10  67 //1:FSMC_D15
-  #define PD11  68 //1:FSMC_A16
-  #define PD12  69 //1:FSMC_A17 / TIM4_CH1
-  #define PD13  70 //1:FSMC_A18 / TIM4_CH2
-  #define PD14  71 //1:FSMC_D0 / TIM4_CH3
-  #define PD15  72 //1:FSMC_D1 / TIM4_CH4
-  #define PD0   73 //1:FSMC_D2
-  #define PD1   74 //1:FSMC_D3
-  #define PD3   75 //1:FSMC_CLK
-  #define PD4   76 //1:FSMC_NOE
-  #define PD5   77 //1:USART2_TX
-  #define PD6   78 //1:USART2_RX
-  #define PD7   79
-  #define PE0   80
-  #define PE1   81
+  #define PE2   (35+STM32F4X_ADC_NUM) //1:FSMC_A23
+  #define PE3   (36+STM32F4X_ADC_NUM) //1:FSMC_A19
+  #define PE4   (37+STM32F4X_ADC_NUM) //1:FSMC_A20
+  #define PE5   (38+STM32F4X_ADC_NUM) //1:FSMC_A21
+  #define PE6   (39+STM32F4X_ADC_NUM) //1:FSMC_A22
+  #define PE7   (40+STM32F4X_ADC_NUM) //1:FSMC_D4
+  #define PE8   (41+STM32F4X_ADC_NUM) //1:FSMC_D5
+  #define PE9   (42+STM32F4X_ADC_NUM) //1:FSMC_D6 / TIM1_CH1
+  #define PE10  (43+STM32F4X_ADC_NUM) //1:FSMC_D7
+  #define PE11  (44+STM32F4X_ADC_NUM) //1:FSMC_D8 / TIM1_CH2
+  #define PE12  (45+STM32F4X_ADC_NUM) //1:FSMC_D9
+  #define PE13  (46+STM32F4X_ADC_NUM) //1:FSMC_D10 / TIM1_CH3
+  #define PE14  (47+STM32F4X_ADC_NUM) //1:FSMC_D11 / TIM1_CH4
+  #define PE15  (48+STM32F4X_ADC_NUM) //1:FSMC_D12
+  #define PD8   (49+STM32F4X_ADC_NUM) //1:FSMC_D13 / USART3_TX
+  #define PD9   (50+STM32F4X_ADC_NUM) //1:FSMC_D14 / USART3_RX
+  #define PD10  (51+STM32F4X_ADC_NUM) //1:FSMC_D15
+  #define PD11  (52+STM32F4X_ADC_NUM) //1:FSMC_A16
+  #define PD12  (53+STM32F4X_ADC_NUM) //1:FSMC_A17 / TIM4_CH1
+  #define PD13  (54+STM32F4X_ADC_NUM) //1:FSMC_A18 / TIM4_CH2
+  #define PD14  (55+STM32F4X_ADC_NUM) //1:FSMC_D0 / TIM4_CH3
+  #define PD15  (56+STM32F4X_ADC_NUM) //1:FSMC_D1 / TIM4_CH4
+  #define PD0   (57+STM32F4X_ADC_NUM) //1:FSMC_D2
+  #define PD1   (58+STM32F4X_ADC_NUM) //1:FSMC_D3
+  #define PD3   (59+STM32F4X_ADC_NUM) //1:FSMC_CLK
+  #define PD4   (60+STM32F4X_ADC_NUM) //1:FSMC_NOE
+  #define PD5   (61+STM32F4X_ADC_NUM) //1:USART2_TX
+  #define PD6   (62+STM32F4X_ADC_NUM) //1:USART2_RX
+  #define PD7   (63+STM32F4X_ADC_NUM)
+  #define PE0   (64+STM32F4X_ADC_NUM)
+  #define PE1   (65+STM32F4X_ADC_NUM)
 #endif
 #if STM32F4X_PIN_NUM >= 144  //144 pins mcu, 114 gpio
-  #define PF0   82 //1:FSMC_A0 / I2C2_SDA
-  #define PF1   83 //1:FSMC_A1 / I2C2_SCL
-  #define PF2   84 //1:FSMC_A2
-  #define PF3   85 //1:FSMC_A3  2:ADC3_IN9
-  #define PF4   86 //1:FSMC_A4  2:ADC3_IN14
-  #define PF5   87 //1:FSMC_A5  2:ADC3_IN15
-  #define PF6   88 //1:TIM10_CH1  2:ADC3_IN4
-  #define PF7   89 //1:TIM11_CH1  2:ADC3_IN5
-  #define PF8   90 //1:TIM13_CH1  2:ADC3_IN6
-  #define PF9   91 //1;TIM14_CH1  2:ADC3_IN7
-  #define PF10  92 //2:ADC3_IN8
-  #define PF11  93
-  #define PF12  94 //1:FSMC_A6
-  #define PF13  95 //1:FSMC_A7
-  #define PF14  96 //1:FSMC_A8
-  #define PF15  97 //1:FSMC_A9
-  #define PG0   98 //1:FSMC_A10
-  #define PG1   99 //1:FSMC_A11
-  #define PG2   100 //1:FSMC_A12
-  #define PG3   101 //1:FSMC_A13
-  #define PG4   102 //1:FSMC_A14
-  #define PG5   103 //1:FSMC_A15
-  #define PG6   104
-  #define PG7   105
-  #define PG8   106
-  #define PG9   107 //1:USART6_RX
-  #define PG10  108 //1:FSMC_NE3
-  #define PG11  109
-  #define PG12  110 //1:FSMC_NE4
-  #define PG13  111 //1:FSMC_A24
-  #define PG14  112 //1:FSMC_A25 / USART6_TX
-  #define PG15  113
+  #define PF0   (66+STM32F4X_ADC_NUM) //1:FSMC_A0 / I2C2_SDA
+  #define PF1   (67+STM32F4X_ADC_NUM) //1:FSMC_A1 / I2C2_SCL
+  #define PF2   (68+STM32F4X_ADC_NUM) //1:FSMC_A2
+  #define PF11  (69+STM32F4X_ADC_NUM)
+  #define PF12  (70+STM32F4X_ADC_NUM) //1:FSMC_A6
+  #define PF13  (71+STM32F4X_ADC_NUM) //1:FSMC_A7
+  #define PF14  (72+STM32F4X_ADC_NUM) //1:FSMC_A8
+  #define PF15  (73+STM32F4X_ADC_NUM) //1:FSMC_A9
+  #define PG0   (74+STM32F4X_ADC_NUM) //1:FSMC_A10
+  #define PG1   (75+STM32F4X_ADC_NUM) //1:FSMC_A11
+  #define PG2   (76+STM32F4X_ADC_NUM) //1:FSMC_A12
+  #define PG3   (77+STM32F4X_ADC_NUM) //1:FSMC_A13
+  #define PG4   (78+STM32F4X_ADC_NUM) //1:FSMC_A14
+  #define PG5   (79+STM32F4X_ADC_NUM) //1:FSMC_A15
+  #define PG6   (80+STM32F4X_ADC_NUM)
+  #define PG7   (81+STM32F4X_ADC_NUM)
+  #define PG8   (82+STM32F4X_ADC_NUM)
+  #define PG9   (83+STM32F4X_ADC_NUM) //1:USART6_RX
+  #define PG10  (84+STM32F4X_ADC_NUM) //1:FSMC_NE3
+  #define PG11  (85+STM32F4X_ADC_NUM)
+  #define PG12  (86+STM32F4X_ADC_NUM) //1:FSMC_NE4
+  #define PG13  (87+STM32F4X_ADC_NUM) //1:FSMC_A24
+  #define PG14  (88+STM32F4X_ADC_NUM) //1:FSMC_A25 / USART6_TX
+  #define PG15  (89+STM32F4X_ADC_NUM)
 #endif
 #if STM32F4X_PIN_NUM >= 176  //176 pins mcu, 140 gpio
-  #define PI8   114
-  #define PI9   115
-  #define PI10  116
-  #define PI11  117
-  #define PH2   118
-  #define PH3   119
-  #define PH4   120 //1:I2C2_SCL
-  #define PH5   121 //1:I2C2_SDA
-  #define PH6   122 //1:TIM12_CH1
-  #define PH7   123 //1:I2C3_SCL
-  #define PH8   124 //1:I2C3_SDA
-  #define PH9   125 //1:TIM12_CH2
-  #define PH10  126 //1:TIM5_CH1
-  #define PH11  127 //1:TIM5_CH2
-  #define PH12  128 //1:TIM5_CH3
-  #define PH13  129
-  #define PH14  130
-  #define PH15  131
-  #define PI0   132 //1:TIM5_CH4 / SPI2_NSS
-  #define PI1   133 //1:SPI2_SCK
-  #define PI2   134 //1:TIM8_CH4 /SPI2_MISO
-  #define PI3   135 //1:SPI2_MOS
-  #define PI4   136
-  #define PI5   137 //1:TIM8_CH1
-  #define PI6   138 //1:TIM8_CH2
-  #define PI7   139 //1:TIM8_CH3
+  #define PI8   (90+STM32F4X_ADC_NUM)
+  #define PI9   (91+STM32F4X_ADC_NUM)
+  #define PI10  (92+STM32F4X_ADC_NUM)
+  #define PI11  (93+STM32F4X_ADC_NUM)
+  #define PH2   (94+STM32F4X_ADC_NUM)
+  #define PH3   (95+STM32F4X_ADC_NUM)
+  #define PH4   (96+STM32F4X_ADC_NUM) //1:I2C2_SCL
+  #define PH5   (97+STM32F4X_ADC_NUM) //1:I2C2_SDA
+  #define PH6   (98+STM32F4X_ADC_NUM) //1:TIM12_CH1
+  #define PH7   (99+STM32F4X_ADC_NUM) //1:I2C3_SCL
+  #define PH8   (100+STM32F4X_ADC_NUM) //1:I2C3_SDA
+  #define PH9   (101+STM32F4X_ADC_NUM) //1:TIM12_CH2
+  #define PH10  (102+STM32F4X_ADC_NUM) //1:TIM5_CH1
+  #define PH11  (103+STM32F4X_ADC_NUM) //1:TIM5_CH2
+  #define PH12  (104+STM32F4X_ADC_NUM) //1:TIM5_CH3
+  #define PH13  (105+STM32F4X_ADC_NUM)
+  #define PH14  (106+STM32F4X_ADC_NUM)
+  #define PH15  (107+STM32F4X_ADC_NUM)
+  #define PI0   (108+STM32F4X_ADC_NUM) //1:TIM5_CH4 / SPI2_NSS
+  #define PI1   (109+STM32F4X_ADC_NUM) //1:SPI2_SCK
+  #define PI2   (110+STM32F4X_ADC_NUM) //1:TIM8_CH4 /SPI2_MISO
+  #define PI3   (111+STM32F4X_ADC_NUM) //1:SPI2_MOS
+  #define PI4   (112+STM32F4X_ADC_NUM)
+  #define PI5   (113+STM32F4X_ADC_NUM) //1:TIM8_CH1
+  #define PI6   (114+STM32F4X_ADC_NUM) //1:TIM8_CH2
+  #define PI7   (115+STM32F4X_ADC_NUM) //1:TIM8_CH3
 #endif
 
 
 // This must be a literal
-#define NUM_DIGITAL_PINS        (STM32F4X_GPIO_NUM + STM32F4X_ADC_NUM)
+#define NUM_DIGITAL_PINS        (STM32F4X_GPIO_NUM)
 // This must be a literal with a value less than or equal to MAX_ANALOG_INPUTS
 #define NUM_ANALOG_INPUTS       (STM32F4X_ADC_NUM)
-#define NUM_ANALOG_FIRST        (STM32F4X_GPIO_NUM)
+#define NUM_ANALOG_FIRST        35
 
 // Below ADC, DAC and PWM definitions already done in the core
 // Could be redefined here if needed
 // ADC resolution is 12bits
-#define ADC_RESOLUTION          12
+//#define ADC_RESOLUTION          12
 //#define DACC_RESOLUTION         12
 
 // PWM resolution
