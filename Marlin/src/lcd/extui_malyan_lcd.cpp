@@ -183,7 +183,7 @@ void process_lcd_eb_command(const char* command) {
  * X, Y, Z, A (extruder)
  */
 void process_lcd_j_command(const char* command) {
-  auto move_axis = [](const auto axis) {
+  auto move_axis = [command](const auto axis) {
     const float dist = atof(command + 1) / 10.0;
     ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
   }
