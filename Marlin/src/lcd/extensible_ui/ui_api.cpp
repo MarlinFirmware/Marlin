@@ -268,8 +268,11 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
+    const uint8_t old_tool = active_extruder;
     setActiveTool(extruder, true);
-    return flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
+    float pos = flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
+    setActiveTool(old_tool, true);
+    return pos;
   }
 
   void setAxisPosition_mm(const float position, const axis_t axis) {
@@ -316,6 +319,9 @@ namespace ExtUI {
       }
     #endif
 
+    constexpr float max_manual_feedrate[XYZE] = MANUAL_FEEDRATE;
+    setFeedrate_mm_s(max_manual_feedrate[axis]);
+
     if (!flags.manual_motion) set_destination_from_current();
     destination[axis] = clamp(position, min, max);
     flags.manual_motion = true;
@@ -324,6 +330,8 @@ namespace ExtUI {
   void setAxisPosition_mm(const float position, const extruder_t extruder) {
     setActiveTool(extruder, true);
 
+    constexpr float max_manual_feedrate[XYZE] = MANUAL_FEEDRATE;
+    setFeedrate_mm_s(max_manual_feedrate[E_AXIS]);
     if (!flags.manual_motion) set_destination_from_current();
     destination[E_AXIS] = position;
     flags.manual_motion = true;
@@ -365,6 +373,7 @@ namespace ExtUI {
     #if EXTRUDERS > 1
       const uint8_t e = extruder - E0;
       if (e != active_extruder) tool_change(e, no_move);
+      active_extruder = e;
     #else
       UNUSED(extruder);
       UNUSED(no_move);
