@@ -60,7 +60,7 @@
   #include "../../libs/numtostr.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || EITHER(SWITCHING_NOZZLE, PARKING_EXTRUDER)
+#if EXTRUDERS > 1
   #include "../../module/tool_change.h"
 #endif
 
@@ -267,8 +267,12 @@ namespace ExtUI {
     return flags.manual_motion ? destination[axis] : current_position[axis];
   }
 
-  float getAxisPosition_mm(const extruder_t) {
-    return flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
+  float getAxisPosition_mm(const extruder_t extruder) {
+    const unit8_t old_tool = active_extruder;
+    setActiveTool(extruder, true);
+    float pos = flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
+    setActiveTool(old_tool, true);
+    return pos;
   }
 
   void setAxisPosition_mm(const float position, const axis_t axis) {
@@ -363,9 +367,7 @@ namespace ExtUI {
   void setActiveTool(const extruder_t extruder, bool no_move) {
     #if EXTRUDERS > 1
       const uint8_t e = extruder - E0;
-      #if DO_SWITCH_EXTRUDER || EITHER(SWITCHING_NOZZLE, PARKING_EXTRUDER)
-        if (e != active_extruder) tool_change(e, no_move);
-      #endif
+      if (e != active_extruder) tool_change(e, no_move);
       active_extruder = e;
     #else
       UNUSED(extruder);
