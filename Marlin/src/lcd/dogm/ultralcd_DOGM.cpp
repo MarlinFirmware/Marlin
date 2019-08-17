@@ -209,14 +209,14 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
     };
 
     #if DISABLED(BOOT_MARLIN_LOGO_ANIMATED)
-      draw_bootscreen_bmp(start_bmp, offx, offy, txt_base, txt_offx_1, txt_offx_2);
+      draw_bootscreen_bmp(start_bmp);
     #else
       constexpr millis_t d = MARLIN_BOOTSCREEN_FRAME_TIME;
       LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
         u8g.firstPage();
         do {
           const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]);
-          draw_bootscreen_bmp(bmp, offx, offy, txt_base, txt_offx_1, txt_offx_2);
+          draw_bootscreen_bmp(bmp);
         } while (u8g.nextPage());
         if (d) safe_delay(d);
       }
