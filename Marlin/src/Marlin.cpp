@@ -548,28 +548,28 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
       #if ENABLED(SWITCHING_EXTRUDER)
         bool oldstatus;
         switch (active_extruder) {
-          default: oldstatus = E0_ENABLE_READ; enable_E0(); break;
+          default: oldstatus = E0_ENABLE_READ(); enable_E0(); break;
           #if E_STEPPERS > 1
-            case 2: case 3: oldstatus = E1_ENABLE_READ; enable_E1(); break;
+            case 2: case 3: oldstatus = E1_ENABLE_READ(); enable_E1(); break;
             #if E_STEPPERS > 2
-              case 4: case 5: oldstatus = E2_ENABLE_READ; enable_E2(); break;
+              case 4: case 5: oldstatus = E2_ENABLE_READ(); enable_E2(); break;
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
       #else // !SWITCHING_EXTRUDER
         bool oldstatus;
         switch (active_extruder) {
-          default: oldstatus = E0_ENABLE_READ; enable_E0(); break;
+          default: oldstatus = E0_ENABLE_READ(); enable_E0(); break;
           #if E_STEPPERS > 1
-            case 1: oldstatus = E1_ENABLE_READ; enable_E1(); break;
+            case 1: oldstatus = E1_ENABLE_READ(); enable_E1(); break;
             #if E_STEPPERS > 2
-              case 2: oldstatus = E2_ENABLE_READ; enable_E2(); break;
+              case 2: oldstatus = E2_ENABLE_READ(); enable_E2(); break;
               #if E_STEPPERS > 3
-                case 3: oldstatus = E3_ENABLE_READ; enable_E3(); break;
+                case 3: oldstatus = E3_ENABLE_READ(); enable_E3(); break;
                 #if E_STEPPERS > 4
-                  case 4: oldstatus = E4_ENABLE_READ; enable_E4(); break;
+                  case 4: oldstatus = E4_ENABLE_READ(); enable_E4(); break;
                   #if E_STEPPERS > 5
-                    case 5: oldstatus = E5_ENABLE_READ; enable_E5(); break;
+                    case 5: oldstatus = E5_ENABLE_READ(); enable_E5(); break;
                   #endif // E_STEPPERS > 5
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
