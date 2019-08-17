@@ -319,6 +319,9 @@ namespace ExtUI {
       }
     #endif
 
+    constexpr float max_manual_feedrate[XYZE] = MAX_MANUAL_FEEDRATE;
+    setFeedrate_mm_s(max_manual_feedrate[axis]);
+
     if (!flags.manual_motion) set_destination_from_current();
     destination[axis] = clamp(position, min, max);
     flags.manual_motion = true;
@@ -327,6 +330,8 @@ namespace ExtUI {
   void setAxisPosition_mm(const float position, const extruder_t extruder) {
     setActiveTool(extruder, true);
 
+    constexpr float max_manual_feedrate[XYZE] = MAX_MANUAL_FEEDRATE;
+    setFeedrate_mm_s(max_manual_feedrate[E_AXIS]);
     if (!flags.manual_motion) set_destination_from_current();
     destination[E_AXIS] = position;
     flags.manual_motion = true;
