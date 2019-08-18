@@ -1848,7 +1848,7 @@ void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval)
 			if ((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
 			{
 				rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
-				rtscheck.RTS_SndData(showcount, AutolevelIcon);
+				//rtscheck.RTS_SndData(showcount, AutolevelIcon);
 			}
 		}
 	}

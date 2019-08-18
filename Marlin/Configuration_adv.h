@@ -594,7 +594,7 @@
    * V3.1: Force a probe with unknown mode into selected mode at Marlin startup ( = Probe EEPROM write )
    * To preserve the life of the probe, use this once then turn it off and re-flash.
    */
-  #define BLTOUCH_FORCE_MODE_SET
+  //#define BLTOUCH_FORCE_MODE_SET
 
   /**
    * Use "HIGH SPEED" mode for probing.
@@ -665,6 +665,7 @@
 
 #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
   #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
+  #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
   #if ENABLED(ULTIPANEL)
     #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
     #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
@@ -678,7 +679,7 @@
 
 // If defined the movements slow down when the look ahead buffer is only half full
 #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define SLOWDOWN
+  #define SLOWDOWN
 #endif
 // Frequency limit
 // See nophead's blog for more info
@@ -782,8 +783,9 @@
  * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
  * lowest stepping frequencies.
  */
-//#define ADAPTIVE_STEP_SMOOTHING
-
+#if ENABLED(SKR13)
+  //#define ADAPTIVE_STEP_SMOOTHING
+#endif
 /**
  * Custom Microstepping
  * Override as-needed for your setup. Up to 3 MS pins are supported.
@@ -869,13 +871,16 @@
 #if(DISABLED(MachineCR10Orig))
   #define LCD_INFO_MENU
 #endif
+#if ENABLED(LCD_INFO_MENU)
+  //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
+#endif
 // Leave out seldom-used LCD menu items to recover some Program Memory
  #if(ENABLED(MachineCR10Orig) || ENABLED(LowMemoryBoard))
 #define SLIM_LCD_MENUS
 #endif
 
 // Scroll a longer status message into view
- #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
 #define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
@@ -885,8 +890,8 @@
 #define LCD_TIMEOUT_TO_STATUS 15000
 
 // Add an 'M73' G-code to set the current percentage
- #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define LCD_SET_PROGRESS_MANUALLY
+#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+  #define LCD_SET_PROGRESS_MANUALLY
 #endif
 #if ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY)
   #if((ENABLED(MachineEnder4) && DISABLED(GraphicLCD)))
@@ -936,11 +941,13 @@
    #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
   #define SDCARD_RATHERRECENTFIRST
 #endif
+#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
   #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
 
   //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
   #define EVENT_GCODE_SD_STOP "G28XY"       // G-code to run on Stop Print (e.g., "G28XY" or "G27")
+#endif
 
   /**
    * Continue after Power-Loss (Creality3D)
@@ -1001,12 +1008,12 @@
   #endif
 
   // This allows hosts to request long names for files and folders with M33
-  //#define LONG_FILENAME_HOST_SUPPORT
+  #define LONG_FILENAME_HOST_SUPPORT
 
   // Enable this option to scroll long filenames in the SD card menu
   #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-    #define SCROLL_LONG_FILENAMES
-  #endif
+  #define SCROLL_LONG_FILENAMES
+#endif
 
   // Leave the heaters on after Stop Print (not recommended!)
   //#define SD_ABORT_NO_COOLDOWN
@@ -1028,7 +1035,7 @@
   /**
    * Auto-report SdCard status with M27 S<seconds>
    */
-  //#define AUTO_REPORT_SD_STATUS
+  #define AUTO_REPORT_SD_STATUS
 
   /**
    * Support for USB thumb drives using an Arduino USB Host Shield or
@@ -1067,7 +1074,7 @@
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
 
-  #ifdef TARGET_LPC1768
+  #if HAS_SDCARD_CONNECTION
     /**
      * Set this option to one of the following (or the board's defaults apply):
      *
@@ -1077,7 +1084,7 @@
      *
      * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
      */
-    //#define SDCARD_CONNECTION LCD
+    #define SDCARD_CONNECTION ONBOARD
   #endif
 
 #endif // SDSUPPORT
@@ -1112,7 +1119,7 @@
 
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
-   #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
   //#define USE_BIG_EDIT_FONT
 #endif
   // A smaller font may be used on the Info Screen. Costs 2300 bytes of PROGMEM.
@@ -1155,20 +1162,24 @@
   //#define STATUS_COMBINE_HEATERS    // Use combined heater images instead of separate ones
   //#define STATUS_HOTEND_NUMBERLESS  // Use plain hotend icons instead of numbered ones (with 2+ hotends)
   #define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
-  #define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
-  #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
-  #define STATUS_CHAMBER_ANIM         // Use a second bitmap to indicate chamber heating
+  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+    #define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
+    #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
+  #endif
   //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
+
   #define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
+  //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
-  // Frivolous Game Options
-  //#define MARLIN_BRICKOUT
-  //#define MARLIN_INVADERS
-  //#define MARLIN_SNAKE
-
+  #if ENABLED(SKR13)
+    // Frivolous Game Options
+    #define MARLIN_BRICKOUT
+    #define MARLIN_INVADERS
+    #define MARLIN_SNAKE
+  #endif
 #endif // HAS_GRAPHICAL_LCD
 
 // @section safety
@@ -1201,28 +1212,30 @@
   //#define BABYSTEP_WITHOUT_HOMING
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR  10         // Babysteps are very small. Increase for faster motion.
+  #define BABYSTEP_MULTIPLICATOR 10         // Babysteps are very small. Increase for faster motion.
 
-  //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
-
-  #if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW)
-    #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
-      #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
+  #define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
+  #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
+    #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
                                             // Note: Extra time may be added to mitigate controller latency.
-      #define BABYSTEP_ALWAYS_AVAILABLE     // Allow babystepping at all times (not just during movement).
-      #define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
-      #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, GraphicLCD)
-        #define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
-      #endif
-    #endif
-    //#define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
-
-    //#define MOVE_Z_WHEN_IDLE                // Jump to the move Z menu on doubleclick when printer is idle.
+    #define BABYSTEP_ALWAYS_AVAILABLE     // Allow babystepping at all times (not just during movement).
+    //#define MOVE_Z_WHEN_IDLE              // Jump to the move Z menu on doubleclick when printer is idle.
     #if ENABLED(MOVE_Z_WHEN_IDLE)
-      #define MOVE_Z_IDLE_MULTIPLICATOR 1     // Multiply 1mm by this factor for the move step size.
+      #define MOVE_Z_IDLE_MULTIPLICATOR 1   // Multiply 1mm by this factor for the move step size.
     #endif
   #endif
 
+  //#define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
+
+  #if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW)
+    #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
+  #endif
+  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+    //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
+    #if NONE(MachineCR10Orig, LowMemoryBoard, EXTENSIBLE_UI)
+      #define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
+    #endif
+  #endif
 #endif
 
 // @section extruder
@@ -1243,7 +1256,7 @@
  * See http://marlinfw.org/docs/features/lin_advance.html for full instructions.
  * Mention @Sebastianv650 on GitHub to alert the author of any issues.
  */
-#if ((DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard)) || ENABLED(OrigLA)) && DISABLED(MachineCR10SPro)
+#if NONE(MachineCR10Orig, LowMemoryBoard, MachineCR10SPro, SKR13) || ENABLED(OrigLA) || ENABLED(SKR13, SKR13_UART)
   #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)
@@ -1295,18 +1308,18 @@
  * Repeatedly attempt G29 leveling until it succeeds.
  * Stop after G29_MAX_RETRIES attempts.
  */
-#if ENABLED(ABL_BI)
+#if ENABLED(ABL_BI) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard)
   #define G29_RETRY_AND_RECOVER
 #endif
 #if ENABLED(G29_RETRY_AND_RECOVER)
-  #define G29_MAX_RETRIES 1
+  #define G29_MAX_RETRIES 3
   #define G29_HALT_ON_FAILURE
   /**
    * Specify the GCODE commands that will be executed when leveling succeeds,
    * between attempts, and after the maximum number of retries have been tried.
    */
   #define G29_SUCCESS_COMMANDS "M117 Bed leveling done."
-  #define G29_RECOVER_COMMANDS "M117 Probe failed. Rewiping.\nG28\nG12 P0 S12 T0"
+  #define G29_RECOVER_COMMANDS "M117 Probe failed.\nG28\n"
   #define G29_FAILURE_COMMANDS "M117 Bed leveling failed.\nG0 Z10\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nG4 S1"
 
 #endif
@@ -1372,8 +1385,9 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MINIMUM_STEPPER_PULSE 2
-
+#if ENABLED(SKR13)
+  #define MINIMUM_STEPPER_PULSE 1
+#endif
 /**
  * Maximum stepping rate (in Hz) the stepper driver allows
  *  If undefined, defaults to 1MHz / (2 * MINIMUM_STEPPER_PULSE)
@@ -1441,6 +1455,9 @@
   //#define SERIAL_XON_XOFF
 #endif
 
+// Add M575 G-code to change the baud rate
+//#define BAUD_RATE_GCODE
+
 #if ENABLED(SDSUPPORT)
   // Enable this option to collect and display the maximum
   // RX queue usage after transferring a file to SD.
@@ -1496,8 +1513,8 @@
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  *
  */
- #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define FWRETRACT
+ #if ENABLED(SKR13)
+  #define FWRETRACT
 #endif
 #if ENABLED(FWRETRACT)
   #define FWRETRACT_AUTORETRACT           // costs ~500 bytes of PROGMEM
@@ -1542,7 +1559,7 @@
    */
   #define TOOLCHANGE_PARK
   #if ENABLED(TOOLCHANGE_PARK)
-    #define TOOLCHANGE_PARK_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
+    #define TOOLCHANGE_PARK_XY    { X_MAX_POS - 5, Y_MIN_POS + 10 }
     #define TOOLCHANGE_PARK_XY_FEEDRATE 6000  // (mm/m)
   #endif
 #endif
@@ -1587,7 +1604,7 @@
                                                   //   Filament can be extruded repeatedly from the Filament Change menu
                                                   //   until extrusion is consistent, and to purge old filament.
   #define ADVANCED_PAUSE_RESUME_PRIME          0  // (mm) Extra distance to prime nozzle after returning from park.
-  //#define ADVANCED_PAUSE_FANS_PAUSE             // Turn off print-cooling fans while the machine is paused.
+  #define ADVANCED_PAUSE_FANS_PAUSE             // Turn off print-cooling fans while the machine is paused.
 
                                                   // Filament Unload does a Retract, Delay, and Purge first:
   #define FILAMENT_UNLOAD_RETRACT_LENGTH       4  // (mm) Unload initial retract length.
@@ -1599,9 +1616,9 @@
 
   #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
   #define HOME_BEFORE_FILAMENT_CHANGE             // Ensure homing has been completed prior to parking for filament change
-  #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, GraphicLCD)
-    //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
-    //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
+  #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX)
+    #define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
+    #define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
   #endif
 #endif
 
@@ -1832,6 +1849,9 @@
    *       1 | HIGH | LOW
    *       2 | LOW  | HIGH
    *       3 | HIGH | HIGH
+   *
+   * Set *_SERIAL_TX_PIN and *_SERIAL_RX_PIN to match for all drivers
+   * on the same serial port, either here or in your board's pins file.
    */
   #define  X_SLAVE_ADDRESS 0
   #define  Y_SLAVE_ADDRESS 0
@@ -1906,7 +1926,7 @@
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
    * M913 X/Y/Z/E to live tune the setting
    */
-  //#define HYBRID_THRESHOLD
+  #define HYBRID_THRESHOLD
 
   #define X_HYBRID_THRESHOLD     100  // [mm/s]
   #define X2_HYBRID_THRESHOLD    100
@@ -2297,14 +2317,14 @@
 /**
  * Auto-report temperatures with M155 S<seconds>
  */
-  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define AUTO_REPORT_TEMPERATURES
+#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+  #define AUTO_REPORT_TEMPERATURES
 #endif
 /**
  * Include capabilities in M115 output
  */
-  #if(DISABLED(MachineCR10Orig))
-#define EXTENDED_CAPABILITIES_REPORT
+#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+  #define EXTENDED_CAPABILITIES_REPORT
 #endif
 /**
  * Disable all Volumetric extrusion options
@@ -2343,8 +2363,8 @@
 /**
  * Spend 28 bytes of SRAM to optimize the GCode parser
  */
- #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define FASTER_GCODE_PARSER
+#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+  #define FASTER_GCODE_PARSER
 #endif
 
 /**
@@ -2396,7 +2416,7 @@
   #if (ENABLED(ABL_UBL))
     #define USER_GCODE_1 "M190S" CommBedTmp "\nG28\nG29P1\nM109S215\nG29S1\nG29S0\nG29F0.0\nG29A\nG28\nG1X150Y150F5000\nG1Z0\nM500\nM400\nM117 Set Z Offset"
   #elif ENABLED(ABL_BI)
-    #define USER_GCODE_1 "M190S" CommBedTmp "\n M117 Probing....\nM104S215\nG28\nG29\nM400\nM109S215\nG28\nM420S1\nG1X100Y100F5000\nG1Z0\nM500\nM400\nM117 Set Z Offset"
+    #define USER_GCODE_1 "M190S" CommBedTmp "\nM104S215\nG28\nG29\nM400\nM109S215\nG28\nM420S1\nG1X100Y100F5000\nG1Z0\nM500\nM117 Set Z Offset"
   #endif
 
   #define USER_DESC_2 "PID Tune"
@@ -2533,6 +2553,7 @@
   #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90°)
                                    // connector at:  right=0   bottom=-90  top=90  left=180
   //#define MAX7219_REVERSE_ORDER  // The individual LED matrix units may be in reversed order
+  //#define MAX7219_SIDE_BY_SIDE   // Big chip+matrix boards can be chained side-by-side
 
   /**
    * Sample debug features
@@ -2643,7 +2664,7 @@
 /**
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
-#if DISABLED(MachineCR10Orig)
+#if NONE(MachineCR10Orig, LowMemoryBoard)
   #define PINS_DEBUGGING
 #endif
 // Enable Marlin dev mode which adds some special commands
