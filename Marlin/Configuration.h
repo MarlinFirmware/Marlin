@@ -1716,7 +1716,7 @@
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
-#if (NONE(MachineCR10Orig, MachineCR20, MachineEnder4, MachineEnder5, MachineCRX) || ENABLED(AddonFilSensor))
+#if (NONE(MachineCR10Orig, MachineCR20, MachineEnder4, MachineEnder5, MachineCRX) || ANY(AddonFilSensor, lerdgeFilSensor, DualFilSensors  ))
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
