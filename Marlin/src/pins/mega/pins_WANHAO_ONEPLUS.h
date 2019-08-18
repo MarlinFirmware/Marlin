@@ -92,9 +92,9 @@
 #define KILL_PIN           64
 
 //
-// LCD / Controller (Integrated MKS_MINI_12864)
+// LCD / Controller (Integrated MINIPANEL)
 //
-#if ENABLED(MKS_MINI_12864)
+#if ENABLED(MINIPANEL)
   #define DOGLCD_A0        40
   #define DOGLCD_CS        41
   #define LCD_BACKLIGHT_PIN 65   // Backlight LED on A11/D65
