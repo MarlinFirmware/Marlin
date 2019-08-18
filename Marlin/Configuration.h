@@ -9,13 +9,15 @@
 //#define MachineEnder3
 //#define MachineEnder4
 //#define MachineEnder5
+//#define MachineEnder5Plus
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
 //#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
-#define MachineCRX //Currently only supports GraphicLCD
+#define MachineCRX
+//#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
 
@@ -245,8 +247,27 @@
     #define ABL_BI
   #endif
   #define MeshStd
-  #define BoardRev2
-  #define SD_DETECT_PIN 49
+#endif
+
+#if ENABLED(MachineCR10Max)
+  #if DISABLED(ABL_NCSW) && DISABLED(ABL_EZABL)
+    #define ABL_BLTOUCH
+  #endif
+  #if DISABLED(ABL_UBL)
+    #define ABL_BI
+  #endif
+  #define MeshStd
+#endif
+
+#if ENABLED(MachineEnder5Plus)
+  #if DISABLED(ABL_NCSW) && DISABLED(ABL_EZABL)
+    #define ABL_BLTOUCH
+  #endif
+  #if DISABLED(ABL_UBL)
+    #define ABL_BI
+  #endif
+  #define MeshStd
+
 #endif
 
 #if ENABLED(MachineEnder2) || ENABLED(MachineEnder3) || ENABLED(MachineCR10)
@@ -302,6 +323,8 @@
 #define CUSTOM_MACHINE_NAME "TM3D Ender4"
 #elif(ENABLED(MachineEnder5))
 #define CUSTOM_MACHINE_NAME "TM3D Ender5"
+#elif(ENABLED(MachineEnder5Plus))
+#define CUSTOM_MACHINE_NAME "TM3D E5 Plus"
 #elif(ENABLED(MachineCR20))
 #define CUSTOM_MACHINE_NAME "SuPeR CR-20"
 #elif(ENABLED(MachineCR10Orig))
@@ -310,6 +333,8 @@
 #define CUSTOM_MACHINE_NAME "TM3D CR-X"
 #elif(ENABLED(MachineCR10SPro))
 #define CUSTOM_MACHINE_NAME "TM3D 10S Pro"
+#elif(ENABLED(MachineCR10Max))
+#define CUSTOM_MACHINE_NAME "TM3D Max"
 #elif(ENABLED(MachineCR10Std))
 #define CUSTOM_MACHINE_NAME "300 SuPeR"
 #elif(ENABLED(MachineS4))
@@ -328,6 +353,8 @@
 #define VerChar1 "E4"
 #elif(ENABLED(MachineEnder5))
 #define VerChar1 "E5"
+#elif(ENABLED(MachineEnder5Plus))
+#define VerChar1 "E5P"
 #elif(ENABLED(MachineCR20))
 #define VerChar1 "2"
 #elif(ENABLED(MachineCR10Orig))
@@ -338,7 +365,7 @@
 #define VerChar1 "X"
 #elif(ENABLED(MachineS4))
 #define VerChar1 "4"
-#elif(ENABLED(MachineS5))
+#elif(ENABLED(MachineS5) || ENABLED(MachineCR10Max))
 #define VerChar1 "5"
 #endif
 
@@ -800,10 +827,14 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
 #if ENABLED(HotendStock)
-  #if(ENABLED(MachineCRX) || ENABLED(MachineCR10SPro))
+  #if ANY(MachineCRX, MachineCR10SPro, MachineCR10Max)
     #define  DEFAULT_Kp 17.5
     #define  DEFAULT_Ki 1.37
     #define  DEFAULT_Kd 55.47
+  #elif ENABLED(MachineEnder5Plus)
+    #define  DEFAULT_Kp 14.72
+    #define  DEFAULT_Ki 0.89
+    #define  DEFAULT_Kd 61.22
   #else
     // Stock CR-10 Hotend fan 100%
     #define  DEFAULT_Kp 17.42
@@ -951,7 +982,7 @@
 // Specify here all the endstop connectors that are connected to any endstop or probe.
 // Almost all printers will be using one per axis. Probes will use one or more of the
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
-#if ENABLED(MachineEnder5)
+#if ANY(MachineEnder5, MachineEnder5Plus)
   #define USE_ZMIN_PLUG
   #define USE_XMAX_PLUG
   #define USE_YMAX_PLUG
@@ -1117,7 +1148,7 @@
   #define EStepsmm 415
 #elif ENABLED(EZRstruder)
   #define EStepsmm 93
-#elif ENABLED(MachineCR10SPro)
+#elif ANY(MachineCR10SPro, MachineCR10Max)
   #define EStepsmm 140
 #else
   #define EStepsmm 95
@@ -1136,7 +1167,7 @@
   #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
-#elif (ANY(MachineMini, MachineCR20, MachineEnder2, MachineEnder3, MachineEnder4, MachineEnder5))
+#elif (ANY(MachineMini, MachineCR20, MachineEnder2, MachineEnder3, MachineEnder4, MachineEnder5, MachineEnder5Plus))
   #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 75 }
   #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
@@ -1160,7 +1191,7 @@
   #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
-#elif ENABLED(MachineS5)
+#elif ANY(MachineS5, MachineCR10Max)
   #define DEFAULT_MAX_FEEDRATE          { 500, 400, 15, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 1000, 700, 100, 75 }
   #define DEFAULT_ACCELERATION          400    // X, Y, Z and E acceleration for printing moves
@@ -1353,19 +1384,27 @@
  *     O-- FRONT --+
  *   (0,0)
  */
- #if ENABLED(MachineCRX) && ENABLED(HotendStock)
+#if ENABLED(MachineCRX) && ENABLED(HotendStock)
    #if ENABLED(ABL_BLTOUCH)
      #define X_PROBE_OFFSET_FROM_EXTRUDER -22  // X offset: -left  +right  [of the nozzle]
      #define Y_PROBE_OFFSET_FROM_EXTRUDER -45  // Y offset: -front +behind [the nozzle]
      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
-   #endif
-
-   #if ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)
+   #elif ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)
      #define X_PROBE_OFFSET_FROM_EXTRUDER -44  // X offset: -left  +right  [of the nozzle]
      #define Y_PROBE_OFFSET_FROM_EXTRUDER -10  // Y offset: -front +behind [the nozzle]
      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
    #endif
- #else
+#elif ANY(MachineCR10SPro, MachineCR10Max) && ENABLED(HotendStock)
+  #if ENABLED(ABL_BLTOUCH)
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -27  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER -0  // Y offset: -front +behind [the nozzle]
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #elif ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -27  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER 0  // Y offset: -front +behind [the nozzle]
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #endif
+#else
    #if (ENABLED(ABL_BLTOUCH) && ENABLED(HotendStock))
      #define X_PROBE_OFFSET_FROM_EXTRUDER -41  // X offset: -left  +right  [of the nozzle]
      #define Y_PROBE_OFFSET_FROM_EXTRUDER -8  // Y offset: -front +behind [the nozzle]
@@ -1521,7 +1560,7 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 
 
-#if(ANY(MachineEnder4, MachineEnder5))
+#if(ANY(MachineEnder4, MachineEnder5, MachineEnder5Plus))
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR true
@@ -1545,7 +1584,7 @@
   #endif
 #else
   #define INVERT_X_DIR false
-  #if(ENABLED(MachineCRX) || ENABLED(MachineCR10SPro))
+  #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max)
     #define INVERT_Y_DIR true
   #else
     #define INVERT_Y_DIR false
@@ -1579,7 +1618,7 @@
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
-#if ENABLED(MachineEnder5)
+#if ANY(MachineEnder5, MachineEnder5Plus)
   #define X_HOME_DIR 1
   #define Y_HOME_DIR 1
   #define Z_HOME_DIR -1
@@ -1611,6 +1650,10 @@
   #define X_BED_SIZE 220
   #define Y_BED_SIZE 220
   #define Z_MAX_POS 300
+#elif ENABLED(MachineEnder5Plus)
+  #define X_BED_SIZE 360
+  #define Y_BED_SIZE 360
+  #define Z_MAX_POS 400
 #elif ENABLED(MachineCR20)
   #define X_BED_SIZE 230
   #define Y_BED_SIZE 230
@@ -1623,6 +1666,10 @@
   #define X_BED_SIZE 400
   #define Y_BED_SIZE 400
   #define Z_MAX_POS 400
+#elif ENABLED(MachineCR10Max)
+  #define X_BED_SIZE 475
+  #define Y_BED_SIZE 450
+  #define Z_MAX_POS 470
 #elif ENABLED(MachineS5)
   #define X_BED_SIZE 500
   #define Y_BED_SIZE 500
@@ -1648,6 +1695,10 @@
   #define X_BED_SIZE 220
   #define Y_BED_SIZE 220
   #define Z_MAX_POS 300
+#elif ENABLED(MachineEnder5Plus)
+  #define X_BED_SIZE 360
+  #define Y_BED_SIZE 360
+  #define Z_MAX_POS 400
 #elif(ENABLED(MachineCR20))
   #define X_BED_SIZE 240
   #define Y_BED_SIZE 240
@@ -1664,6 +1715,10 @@
   #define X_BED_SIZE 410
   #define Y_BED_SIZE 400
   #define Z_MAX_POS 400
+#elif ENABLED(MachineCR10Max)
+  #define X_BED_SIZE 475
+  #define Y_BED_SIZE 450
+  #define Z_MAX_POS 470
 #elif ENABLED(MachineS5)
   #define X_BED_SIZE 510
   #define Y_BED_SIZE 500
@@ -1861,36 +1916,13 @@
 
   // Set the number of grid points per dimension.
 
-#define MESH_INSET 15
-
-// Set the boundaries for probing (where the probe can reach).
-/*
-
-#if( (X_PROBE_OFFSET_FROM_EXTRUDER ) > MESH_INSET )
-  #define LEFT_PROBE_BED_POSITION (X_PROBE_OFFSET_FROM_EXTRUDER + MESH_INSET + 1)
+#if ENABLED(MachineCR10Max)
+  #define MESH_INSET 15
 #else
-  #define LEFT_PROBE_BED_POSITION MESH_INSET + 1
+  #define MESH_INSET 5
 #endif
 
-#if( (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER) < X_BED_SIZE - MESH_INSET)
-  #define RIGHT_PROBE_BED_POSITION (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER - MESH_INSET - 1)
-#else
-  #define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - X_PROBE_OFFSET_FROM_EXTRUDER - MESH_INSET -1)
-#endif
-
-#if ( (Y_PROBE_OFFSET_FROM_EXTRUDER + MESH_INSET) > MESH_INSET )
-  #define FRONT_PROBE_BED_POSITION (Y_PROBE_OFFSET_FROM_EXTRUDER + MESH_INSET + 1)
-#else
-  #define FRONT_PROBE_BED_POSITION MESH_INSET + 1
-#endif
-
-#if( (Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER ) < Y_BED_SIZE - MESH_INSET)
-#define BACK_PROBE_BED_POSITION (Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER - MESH_INSET - 1)
-#else
-    #define BACK_PROBE_BED_POSITION (Y_BED_SIZE - Y_PROBE_OFFSET_FROM_EXTRUDER - MESH_INSET - 1 )
-#endif
-
-*/
+  // Set the boundaries for probing (where the probe can reach).
   #define LEFT_PROBE_BED_POSITION (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER)) + MESH_INSET
   #define FRONT_PROBE_BED_POSITION (_MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER)) + MESH_INSET
   #define RIGHT_PROBE_BED_POSITION (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER)) - MESH_INSET
@@ -1973,12 +2005,19 @@
   #define PROBE_PT_2_Y 180
   #define PROBE_PT_3_X 150
   #define PROBE_PT_3_Y 50
-#elif (ENABLED(MachineCR10Std) )
+#elif (ENABLED(MachineCR10Std))
   #define PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
   #define PROBE_PT_1_Y 270
   #define PROBE_PT_2_X 250
   #define PROBE_PT_2_Y 270
   #define PROBE_PT_3_X 250
+  #define PROBE_PT_3_Y 50
+#elif (ENABLED(MachineEnder5Plus))
+  #define PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
+  #define PROBE_PT_1_Y 320
+  #define PROBE_PT_2_X 320
+  #define PROBE_PT_2_Y 320
+  #define PROBE_PT_3_X 320
   #define PROBE_PT_3_Y 50
 #elif ENABLED( MachineS4)
   #define PROBE_PT_1_X 60       // Probing points for 3-Point leveling of the mesh
@@ -1987,7 +2026,7 @@
   #define PROBE_PT_2_Y 340
   #define PROBE_PT_3_X 340
   #define PROBE_PT_3_Y 60
-#elif ENABLED(MachineS5)
+#elif ANY(MachineS5, MachineCR10Max)
   #define PROBE_PT_1_X 80       // Probing points for 3-Point leveling of the mesh
   #define PROBE_PT_1_Y 420
   #define PROBE_PT_2_X 420
@@ -2062,7 +2101,7 @@
   #if ENABLED(MachineS4)
     #define Z_SAFE_HOMING_X_POINT 60 + HOMING_ADD   // X point for Z homing when homing all axis (G28).
     #define Z_SAFE_HOMING_Y_POINT 60 + HOMING_ADD    // Y point for Z homing when homing all axis (G28).
-  #elif ENABLED(MachineS5)
+  #elif ANY(MachineS5, MachineCR10Max)
     #define Z_SAFE_HOMING_X_POINT 80 + HOMING_ADD    // X point for Z homing when homing all axis (G28).
     #define Z_SAFE_HOMING_Y_POINT 80 + HOMING_ADD    // Y point for Z homing when homing all axis (G28).
   #elif ENABLED(MachineCRX)
@@ -2562,7 +2601,7 @@
   #define MINIPANEL
 #elif ENABLED(MachineCR20)
   #define MKS_MINI_12864
-#elif NONE(MachineCR10SPro, MachineCRX, OrigLCD) || ENABLED(GraphicLCD)
+#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, OrigLCD) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #elif ENABLED(OrigLCD)
   #define CR10_STOCKDISPLAY
@@ -2807,7 +2846,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extensible_ui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX) && DISABLED(GraphicLCD)
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && DISABLED(GraphicLCD)
   #define EXTENSIBLE_UI
 #endif
 

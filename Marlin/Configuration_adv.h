@@ -930,7 +930,7 @@
   // as SD_DETECT_PIN in your board's pins definitions.
   // This setting should be disabled unless you are using a push button, pulling the pin to ground.
   // Note: This is always disabled for ULTIPANEL (except ELB_FULL_GRAPHIC_CONTROLLER).
-  #if NONE(MachineCR10SPro, MachineCRX)
+  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus)
     #define SD_DETECT_INVERTED
   #endif
   #define SD_FINISHED_STEPPERRELEASE true          // Disable steppers when SD Print is finished
@@ -1256,7 +1256,7 @@
  * See http://marlinfw.org/docs/features/lin_advance.html for full instructions.
  * Mention @Sebastianv650 on GitHub to alert the author of any issues.
  */
-#if NONE(MachineCR10Orig, LowMemoryBoard, MachineCR10SPro, SKR13) || ENABLED(OrigLA) || ENABLED(SKR13, SKR13_UART)
+#if NONE(MachineCR10Orig, LowMemoryBoard, MachineCR10SPro, MachineCR10Max, SKR13) || ENABLED(OrigLA) || ENABLED(SKR13, SKR13_UART)
   #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)
@@ -1616,7 +1616,7 @@
 
   #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
   #define HOME_BEFORE_FILAMENT_CHANGE             // Ensure homing has been completed prior to parking for filament change
-  #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX)
+  #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineEnder5Plus, MachineCRX)
     #define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
     #define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
   #endif
