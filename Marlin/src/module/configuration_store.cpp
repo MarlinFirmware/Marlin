@@ -2798,12 +2798,6 @@ void MarlinSettings::reset() {
       }
     #endif
 
-    #if HAS_FILAMENT_SENSOR
-      CONFIG_ECHO_HEADING("Filament Runout Sensor:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M412 S", int(runout.enabled));
-    #endif
-
     /**
      * Bed Leveling
      */
