@@ -914,21 +914,13 @@ void RTSSHOW::RTS_HandleData()
 			tmp_zprobe_offset = ((float)recdat.data[0]) / 100;
 		}
 
-		//SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
-		//SERIAL_ECHOPAIR("\n target = ",(zprobe_zoffset - rts_probe_zoffset));
-		//SERIAL_ECHOPAIR("\n target axis = ",Z_AXIS);
-		//SERIAL_ECHOPAIR("\n steps mm = ",planner.steps_to_mm[Z_AXIS]);
 		if (WITHIN((tmp_zprobe_offset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
 		{
 			babystepAxis_steps((400 * (getZOffset_mm() - tmp_zprobe_offset) * -1), (axis_t)Z);
 			setZOffset_mm(tmp_zprobe_offset);
-			//SERIAL_ECHOPAIR("\n StepsMoved = ",(400 * (zprobe_zoffset - rts_probe_zoffset) * -1));
-			//SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 			RTS_SndData(getZOffset_mm() * 100, 0x1026);
 		}
-		//SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
 		injectCommands_P((PSTR("M500")));
-		//SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 		break;
 
 	case TempControl:
@@ -1043,9 +1035,9 @@ void RTSSHOW::RTS_HandleData()
 		else if (recdat.data[0] == 1) //Bed Autoleveling
 		{
 			if (getLevelingActive())
-				RTS_SndData(2, AutoLevelIcon);
-			else
 				RTS_SndData(3, AutoLevelIcon);
+			else
+				RTS_SndData(2, AutoLevelIcon);
 
 			RTS_SndData(10, FilenameIcon); //Motor Icon
 			if (!isPositionKnown())
@@ -1183,7 +1175,35 @@ void RTSSHOW::RTS_HandleData()
 		else if (recdat.data[0] == 5) // AutoLevel "Measuring" Button
 		{
 			waitway = 3; //only for prohibiting to receive massage
-			RTS_SndData(1, AutolevelIcon);
+			RTS_SndData(3, AutolevelIcon);
+      bool zig = true;
+            for (uint8_t yCount = 0, showcount = 0; yCount < GRID_MAX_POINTS_Y; yCount++)
+            {
+                int8_t inStart, inStop, inInc;
+
+                if (zig)
+                { // away from origin
+                    inStart = 0;
+                    inStop = GRID_MAX_POINTS_X;
+                    inInc = 1;
+                }
+                else
+                { // towards origin
+                    inStart = GRID_MAX_POINTS_X - 1;
+                    inStop = -1;
+                    inInc = -1;
+                }
+
+                zig ^= true; // zag
+                for (int8_t xCount = inStart; xCount != inStop; xCount += inInc)
+                {
+                    if ((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
+                    {
+                        rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
+                        //rtscheck.RTS_SndData(showcount, AutolevelIcon);
+                    }
+                }
+            }
 			RTS_SndData(ExchangePageBase + 85, ExchangepageAddr);
 			injectCommands_P(PSTR(USER_GCODE_1));
 		}
@@ -1700,28 +1720,56 @@ void onMediaInserted()
 		//SERIAL_ECHO(CardRecbuf.Filesum);
 		rtscheck.RTS_SndData(1, FilenameIcon + CardRecbuf.Filesum);
 	}
-	if (LanguageRecbuf != 0)
-		rtscheck.RTS_SndData(0, IconPrintstatus); // 0 for Ready
-	else
-		rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
+		rtscheck.RTS_SndData(17, IconPrintstatus);
 
 	lcd_sd_status = isMediaInserted();
 };
 void onMediaError()
 {
+  for (int i = 0; i < MaxFileNumber; i++)
+	{
+		for (int j = 0; j < 10; j++)
+			rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
+	}
+
+	for (int j = 0; j < 10; j++)
+	{
+		rtscheck.RTS_SndData(0, Printfilename + j);  //clean screen.
+		rtscheck.RTS_SndData(0, Choosefilename + j); //clean filename
+	}
+	for (int j = 0; j < 8; j++)
+		rtscheck.RTS_SndData(0, FilenameCount + j);
+	for (int j = 1; j <= MaxFileNumber; j++)
+	{
+		rtscheck.RTS_SndData(10, FilenameIcon + j);
+		rtscheck.RTS_SndData(10, FilenameIcon1 + j);
+	}
 	SERIAL_ECHOLN("***Initing card fails***");
-	if (LanguageRecbuf != 0)
-		rtscheck.RTS_SndData(6, IconPrintstatus); // 6 for Card Removed
-	else
-		rtscheck.RTS_SndData(6 + CEIconGrap, IconPrintstatus);
+		rtscheck.RTS_SndData(18, IconPrintstatus);
 };
+
 void onMediaRemoved()
 {
+  for (int i = 0; i < MaxFileNumber; i++)
+	{
+		for (int j = 0; j < 10; j++)
+			rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
+	}
+
+	for (int j = 0; j < 10; j++)
+	{
+		rtscheck.RTS_SndData(0, Printfilename + j);  //clean screen.
+		rtscheck.RTS_SndData(0, Choosefilename + j); //clean filename
+	}
+	for (int j = 0; j < 8; j++)
+		rtscheck.RTS_SndData(0, FilenameCount + j);
+	for (int j = 1; j <= MaxFileNumber; j++)
+	{
+		rtscheck.RTS_SndData(10, FilenameIcon + j);
+		rtscheck.RTS_SndData(10, FilenameIcon1 + j);
+	}
 	SERIAL_ECHOLN("***Card Removed***");
-	if (LanguageRecbuf != 0)
-		rtscheck.RTS_SndData(6, IconPrintstatus); // 6 for Card Removed
-	else
-		rtscheck.RTS_SndData(6 + CEIconGrap, IconPrintstatus);
+	rtscheck.RTS_SndData(18, IconPrintstatus);
 };
 
 void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
@@ -1915,16 +1963,16 @@ void onConfigurationStoreRead(bool success)
                     if ((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
                     {
                         rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
-                        rtscheck.RTS_SndData(showcount, AutolevelIcon);
+                        //rtscheck.RTS_SndData(showcount, AutolevelIcon);
                     }
                 }
             }
-            rtscheck.RTS_SndData(2, AutoLevelIcon); //2=On, 3=Off
+            rtscheck.RTS_SndData(3, AutoLevelIcon); //2=On, 3=Off
             setLevelingActive(true);
         }
         else
         {
-            rtscheck.RTS_SndData(3, AutoLevelIcon); /*Off*/
+            rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
             setLevelingActive(false);
         }
     #endif
