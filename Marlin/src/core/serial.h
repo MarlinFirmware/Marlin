@@ -184,5 +184,5 @@ void print_bin(const uint16_t val);
 
 void print_xyz(PGM_P const prefix, PGM_P const suffix, const float x, const float y, const float z);
 void print_xyz(PGM_P const prefix, PGM_P const suffix, const float xyz[]);
-#define SERIAL_POS(SUFFIX,VAR) do { print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
-#define SERIAL_XYZ(PREFIX,V...) do { print_xyz(PSTR(PREFIX), nullptr, V); } while(0)
+#define SERIAL_POS(SUFFIX,VAR) do { print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); }while(0)
+#define SERIAL_XYZ(PREFIX,V...) do { print_xyz(PSTR(PREFIX), nullptr, V); }while(0)

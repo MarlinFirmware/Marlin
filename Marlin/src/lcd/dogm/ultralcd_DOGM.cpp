@@ -115,17 +115,14 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
       #endif
 
       const u8g_pgm_uint8_t * const bmp =
-        #if ENABLED(ANIMATED_BOOTSCREEN)
+        #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED)
           (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame])
         #else
           custom_start_bmp
         #endif
       ;
 
-      u8g.drawBitmapP(
-        left, top,
-        CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp
-      );
+      u8g.drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
 
       #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
         if (frame == 0) {
@@ -140,7 +137,7 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
 
     // Shows the custom bootscreen, with the u8g loop, animations and delays
     void MarlinUI::show_custom_bootscreen() {
-      #if DISABLED(ANIMATED_BOOTSCREEN)
+      #if DISABLED(CUSTOM_BOOTSCREEN_ANIMATED)
         constexpr millis_t d = 0;
         constexpr uint8_t f = 0;
       #else
@@ -200,13 +197,29 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
     NOLESS(offx, 0);
     NOLESS(offy, 0);
 
-    u8g.drawBitmapP(offx, offy, (START_BMPWIDTH + 7) / 8, START_BMPHEIGHT, start_bmp);
-    set_font(FONT_MENU);
-    #ifndef STRING_SPLASH_LINE2
-      u8g.drawStr(txt_offx_1, txt_base, STRING_SPLASH_LINE1);
+    auto draw_bootscreen_bmp = [offx, offy, txt_base, txt_offx_1, txt_offx_2](const uint8_t *bitmap) {
+      u8g.drawBitmapP(offx, offy, START_BMP_BYTEWIDTH, START_BMPHEIGHT, bitmap);
+      set_font(FONT_MENU);
+      #ifndef STRING_SPLASH_LINE2
+        u8g.drawStr(txt_offx_1, txt_base, STRING_SPLASH_LINE1);
+      #else
+        u8g.drawStr(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), STRING_SPLASH_LINE1);
+        u8g.drawStr(txt_offx_2, txt_base, STRING_SPLASH_LINE2);
+      #endif
+    };
+
+    #if DISABLED(BOOT_MARLIN_LOGO_ANIMATED)
+      draw_bootscreen_bmp(start_bmp);
     #else
-      u8g.drawStr(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), STRING_SPLASH_LINE1);
-      u8g.drawStr(txt_offx_2, txt_base, STRING_SPLASH_LINE2);
+      constexpr millis_t d = MARLIN_BOOTSCREEN_FRAME_TIME;
+      LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
+        u8g.firstPage();
+        do {
+          const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]);
+          draw_bootscreen_bmp(bmp);
+        } while (u8g.nextPage());
+        if (d) safe_delay(d);
+      }
     #endif
   }
 

@@ -1654,7 +1654,7 @@
   #define Z_MAX_POS 250
 #elif (ENABLED(MachineCRX))
   #define X_BED_SIZE 315
-  #define Y_BED_SIZE 315
+  #define Y_BED_SIZE 308
   #define Z_MAX_POS 400
 #elif (ENABLED(MachineCR10Std))
   #define X_BED_SIZE 315

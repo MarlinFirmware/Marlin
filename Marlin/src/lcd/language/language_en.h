@@ -61,14 +61,14 @@
 #ifndef MSG_BACK
   #define MSG_BACK                            _UxGT("Back")
 #endif
-#ifndef MSG_SD_INSERTED
-  #define MSG_SD_INSERTED                     _UxGT("Card Inserted")
+#ifndef MSG_MEDIA_INSERTED
+  #define MSG_MEDIA_INSERTED                  _UxGT("Media Inserted")
 #endif
-#ifndef MSG_SD_REMOVED
-  #define MSG_SD_REMOVED                      _UxGT("Card Removed")
+#ifndef MSG_MEDIA_REMOVED
+  #define MSG_MEDIA_REMOVED                   _UxGT("Media Removed")
 #endif
-#ifndef MSG_SD_RELEASED
-  #define MSG_SD_RELEASED                     _UxGT("Card Released")
+#ifndef MSG_MEDIA_RELEASED
+  #define MSG_MEDIA_RELEASED                  _UxGT("Media Released")
 #endif
 #ifndef MSG_LCD_ENDSTOPS
   #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
@@ -765,8 +765,8 @@
 #ifndef MSG_INIT_EEPROM
   #define MSG_INIT_EEPROM                     _UxGT("Initialize EEPROM")
 #endif
-#ifndef MSG_SD_UPDATE
-  #define MSG_SD_UPDATE                       _UxGT("SD Update")
+#ifndef MSG_MEDIA_UPDATE
+  #define MSG_MEDIA_UPDATE                    _UxGT("Media Update")
 #endif
 #ifndef MSG_RESET_PRINTER
   #define MSG_RESET_PRINTER                   _UxGT("Reset Printer")
@@ -819,11 +819,11 @@
 #ifndef MSG_OUTAGE_RECOVERY
   #define MSG_OUTAGE_RECOVERY                 _UxGT("Outage Recovery")
 #endif
-#ifndef MSG_CARD_MENU
-  #define MSG_CARD_MENU                       _UxGT("Print from SD")
+#ifndef MSG_MEDIA_MENU
+  #define MSG_MEDIA_MENU                      _UxGT("Print from Media")
 #endif
-#ifndef MSG_NO_CARD
-  #define MSG_NO_CARD                         _UxGT("No SD Card")
+#ifndef MSG_NO_MEDIA
+  #define MSG_NO_MEDIA                        _UxGT("No Media")
 #endif
 #ifndef MSG_DWELL
   #define MSG_DWELL                           _UxGT("Sleep...")
@@ -909,14 +909,14 @@
 #ifndef MSG_FILAMENTUNLOAD_ALL
   #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Unload All")
 #endif
-#ifndef MSG_INIT_SDCARD
-  #define MSG_INIT_SDCARD                     _UxGT("Init. SD Card")
+#ifndef MSG_INIT_MEDIA
+  #define MSG_INIT_MEDIA                      _UxGT("Init. Media")
 #endif
-#ifndef MSG_CHANGE_SDCARD
-  #define MSG_CHANGE_SDCARD                   _UxGT("Change SD Card")
+#ifndef MSG_CHANGE_MEDIA
+  #define MSG_CHANGE_MEDIA                    _UxGT("Change Media")
 #endif
-#ifndef MSG_RELEASE_SDCARD
-  #define MSG_RELEASE_SDCARD                  _UxGT("Release SD Card")
+#ifndef MSG_RELEASE_MEDIA
+  #define MSG_RELEASE_MEDIA                   _UxGT("Release Media")
 #endif
 #ifndef MSG_ZPROBE_OUT
   #define MSG_ZPROBE_OUT                      _UxGT("Z Probe Past Bed")
@@ -1164,6 +1164,11 @@
 #ifndef MSG_CASE_LIGHT_BRIGHTNESS
   #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Light Brightness")
 #endif
+
+#ifndef MSG_EXPECTED_PRINTER
+  #define MSG_EXPECTED_PRINTER                 _UxGT("INCORRECT PRINTER")
+#endif
+
 #if LCD_WIDTH >= 20
   #ifndef MSG_INFO_PRINT_COUNT
     #define MSG_INFO_PRINT_COUNT              _UxGT("Print Count")

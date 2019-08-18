@@ -45,6 +45,8 @@
 
 #if ENABLED(MALYAN_LCD)
 
+#define DEBUG_MALYAN_LCD
+
 #include "extensible_ui/ui_api.h"
 
 #include "ultralcd.h"
@@ -61,6 +63,9 @@
 #else
   #define LONG_FILENAME_LENGTH 0
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_MALYAN_LCD)
+#include "../core/debug_out.h"
 
 // On the Malyan M200, this will be Serial1. On a RAMPS board,
 // it might not be.
@@ -119,13 +124,13 @@ void process_lcd_c_command(const char* command) {
       LIMIT(feedrate_percentage, 10, 999);
       break;
 
-    case 'T': thermalManager.setTargetHotend(atoi(command + 1), 0); break;
+    case 'T': ExtUI::setTargetTemp_celsius(atoi(command + 1), ExtUI::extruder_t::E0); break;
 
     #if HAS_HEATED_BED
-      case 'P': thermalManager.setTargetBed(atoi(command + 1)); break;
+      case 'P': ExtUI::setTargetTemp_celsius(atoi(command + 1), ExtUI::heater_t::BED); break;
     #endif
 
-    default: SERIAL_ECHOLNPAIR("UNKNOWN C COMMAND", command);
+    default: DEBUG_ECHOLNPAIR("UNKNOWN C COMMAND ", command);
   }
 }
 
@@ -163,9 +168,7 @@ void process_lcd_eb_command(const char* command) {
       write_to_lcd(message_buffer);
     } break;
 
-    default:
-      SERIAL_ECHOLNPAIR("UNKNOWN E/B COMMAND", command);
-      return;
+    default: DEBUG_ECHOLNPAIR("UNKNOWN E/B COMMAND ", command);
   }
 }
 
@@ -180,32 +183,18 @@ void process_lcd_eb_command(const char* command) {
  * X, Y, Z, A (extruder)
  */
 void process_lcd_j_command(const char* command) {
-  static bool steppers_enabled = false;
-  char axis = command[0];
+  auto move_axis = [command](const auto axis) {
+    const float dist = atof(command + 1) / 10.0;
+    ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
+  }
 
-  switch (axis) {
-    case 'E':
-      // enable or disable steppers
-      // switch to relative
-      queue.enqueue_now_P(PSTR("G91"));
-      queue.enqueue_now_P(steppers_enabled ? PSTR("M18") : PSTR("M17"));
-      steppers_enabled = !steppers_enabled;
-      break;
-    case 'A':
-      axis = 'E';
-      // fallthru
-    case 'Y':
-    case 'Z':
-    case 'X': {
-      // G0 <AXIS><distance>
-      // The M200 class UI seems to send movement in .1mm values.
-      char cmd[20], pos[6];
-      sprintf_P(cmd, PSTR("G1 %c%s"), axis, dtostrf(atof(command + 1) / 10.0, -5, 3, pos));
-      queue.enqueue_one_now(cmd);
-    } break;
-    default:
-      SERIAL_ECHOLNPAIR("UNKNOWN J COMMAND", command);
-      return;
+  switch (command[0]) {
+    case 'E': break;
+    case 'A': move_axis(ExtUI::extruder_t::E0); break;
+    case 'Y': move_axis(ExtUI::axis_t::Y); break;
+    case 'Z': move_axis(ExtUI::axis_t::Z); break;
+    case 'X': move_axis(ExtUI::axis_t::X); break;
+    default: DEBUG_ECHOLNPAIR("UNKNOWN J COMMAND ", command);
   }
 }
 
@@ -234,29 +223,20 @@ void process_lcd_j_command(const char* command) {
 void process_lcd_p_command(const char* command) {
 
   switch (command[0]) {
+    case 'P':
+        ExtUI::pausePrint();
+        write_to_lcd_P(PSTR("{SYS:PAUSED}"));
+        break;
+    case 'R':
+        ExtUI::resumePrint();
+        write_to_lcd_P(PSTR("{SYS:RESUMED}"));
+        break;
     case 'X':
-      #if ENABLED(SDSUPPORT)
-        // cancel print
         write_to_lcd_P(PSTR("{SYS:CANCELING}"));
-        last_printing_status = false;
-        card.stopSDPrint(
-          #if SD_RESORT
-            true
-          #endif
-        );
-        queue.clear();
-        quickstop_stepper();
-        print_job_timer.stop();
-        thermalManager.disable_all_heaters();
-        thermalManager.zero_fan_speeds();
-        wait_for_heatup = false;
+        ExtUI::stopPrint();
         write_to_lcd_P(PSTR("{SYS:STARTED}"));
-      #endif
-      break;
-    case 'H':
-      // Home all axis
-      queue.enqueue_now_P(PSTR("G28"));
-      break;
+        break;
+    case 'H': queue.enqueue_now_P(PSTR("G28")); break; // Home all axes
     default: {
       #if ENABLED(SDSUPPORT)
         // Print file 000 - a three digit number indicating which
@@ -338,9 +318,7 @@ void process_lcd_s_command(const char* command) {
       #endif
     } break;
 
-    default:
-      SERIAL_ECHOLNPAIR("UNKNOWN S COMMAND", command);
-      return;
+    default: DEBUG_ECHOLNPAIR("UNKNOWN S COMMAND ", command);
   }
 }
 
@@ -354,34 +332,22 @@ void process_lcd_command(const char* command) {
 
   current++; // skip the leading {. The trailing one is already gone.
   byte command_code = *current++;
-  if (*current != ':') {
-    SERIAL_ECHOLNPAIR("UNKNOWN COMMAND FORMAT", command);
-    return;
-  }
+  if (*current == ':') {
 
-  current++; // skip the :
+    current++; // skip the :
 
-  switch (command_code) {
-    case 'S':
-      process_lcd_s_command(current);
-      break;
-    case 'J':
-      process_lcd_j_command(current);
-      break;
-    case 'P':
-      process_lcd_p_command(current);
-      break;
-    case 'C':
-      process_lcd_c_command(current);
-      break;
-    case 'B':
-    case 'E':
-      process_lcd_eb_command(current);
-      break;
-    default:
-      SERIAL_ECHOLNPAIR("UNKNOWN COMMAND", command);
-      return;
+    switch (command_code) {
+      case 'S': process_lcd_s_command(current); break;
+      case 'J': process_lcd_j_command(current); break;
+      case 'P': process_lcd_p_command(current); break;
+      case 'C': process_lcd_c_command(current); break;
+      case 'B':
+      case 'E': process_lcd_eb_command(current); break;
+      default: DEBUG_ECHOLNPAIR("UNKNOWN COMMAND ", command);
+    }
   }
+  else
+    DEBUG_ECHOLNPAIR("UNKNOWN COMMAND FORMAT ", command);
 }
 
 /**
@@ -405,8 +371,7 @@ namespace ExtUI {
     /**
      * The Malyan LCD actually runs as a separate MCU on Serial 1.
      * This code's job is to siphon the weird curly-brace commands from
-     * it and translate into gcode, which then gets injected into
-     * the command queue where possible.
+     * it and translate into ExtUI operations where possible.
      */
     inbound_count = 0;
     LCD_SERIAL.begin(500000);
@@ -455,13 +420,13 @@ namespace ExtUI {
       // If there was a print in progress, we need to emit the final
       // print status as {TQ:100}. Reset last percent done so a new print will
       // issue a percent of 0.
-      const uint8_t percent_done = IS_SD_PRINTING() ? card.percentDone() : last_printing_status ? 100 : 0;
+      const uint8_t percent_done = (ExtUI::isPrinting() || ExtUI::isPrintingFromMediaPaused()) ? ExtUI::getProgress_percent() : last_printing_status ? 100 : 0;
       if (percent_done != last_percent_done) {
         char message_buffer[16];
         sprintf_P(message_buffer, PSTR("{TQ:%03i}"), percent_done);
         write_to_lcd(message_buffer);
         last_percent_done = percent_done;
-        last_printing_status = IS_SD_PRINTING();
+        last_printing_status = ExtUI::isPrinting();
       }
     #endif
   }
