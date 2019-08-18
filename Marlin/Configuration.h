@@ -9,7 +9,7 @@
 //#define MachineEnder3
 //#define MachineEnder4
 //#define MachineEnder5
-//#define MachineEnder5Plus
+#define MachineEnder5Plus
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work
 //#define MachineCR20Pro
@@ -17,7 +17,7 @@
 //#define MachineCR10S
 //#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
 //#define MachineCRX
-#define MachineCR10Max
+//#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
 
@@ -306,7 +306,7 @@
   #define SolidBedMounts
 #endif
 
-#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, GraphicLCD)
+#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus) || ENABLED(GraphicLCD)
   #define SHOW_CUSTOM_BOOTSCREEN
 // Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
   #define CUSTOM_STATUS_SCREEN_IMAGE
