@@ -79,6 +79,10 @@ float zprobe_zoffset; // Initialized by settings.load()
   #include "stepper_indirection.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extensible_ui/ui_api.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -370,6 +374,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       wait_for_user = true;
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), PSTR("Continue"));
+      #endif
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onStatusChanged(PSTR("Stow Probe"));
       #endif
       while (wait_for_user) idle();
       ui.reset_status();

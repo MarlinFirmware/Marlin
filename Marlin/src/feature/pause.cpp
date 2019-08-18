@@ -187,6 +187,9 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       host_action_prompt_button(PSTR("Continue"));
       host_action_prompt_show();
     #endif
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onStatusChanged(PSTR("Load Filament"));
+    #endif
     while (wait_for_user) {
       #if HAS_BUZZER
         filament_change_beep(max_beep_count);
@@ -238,6 +241,9 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     wait_for_user = true;
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Continuous Purge Running..."), PSTR("Continue"));
+    #endif
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onStatusChanged(PSTR("Continuous Purge Running..."));
     #endif
     for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
       do_pause_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
@@ -517,6 +523,9 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   #if ENABLED(HOST_PROMPT_SUPPORT)
     host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Nozzle Parked"), PSTR("Continue"));
   #endif
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onStatusChanged(PSTR("Nozzle Parked"));
+  #endif
   while (wait_for_user) {
     #if HAS_BUZZER
       filament_change_beep(max_beep_count);
@@ -536,6 +545,10 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("HeaterTimeout"), PSTR("Reheat"));
+      #endif
+
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onStatusChanged(PSTR("HeaterTimeout"));
       #endif
 
       // Wait for LCD click or M108
