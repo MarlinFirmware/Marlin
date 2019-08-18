@@ -3,7 +3,6 @@
 #include <arduino.h>
 #include <wstring.h>
 #include <stdio.h>
-
 #include "../ui_api.h"
 
 namespace ExtUI
@@ -130,16 +129,18 @@ void onStartup()
 
 void onIdle()
 {
-
   if(waitway && !commandsInQueue())
     waitway_lock++;
+  else
+    waitway_lock = 0;
+
   if(waitway_lock > 100) {
     waitway_lock = 0;
     waitway = 0; //clear waitway if nothing is going on
   }
 
-		switch (waitway)
-		{
+	switch (waitway)
+	{
 		case 1:
       if(isPositionKnown()) {
         InforShowStatus = true;
@@ -151,19 +152,20 @@ void onIdle()
 			break;
 
 		case 2:
-      if (isPositionKnown())
+      if (isPositionKnown() && !commandsInQueue())
 			  waitway = 0;
 			break;
 
 		case 3:
-			waitway = 0;
       SERIAL_ECHOLN("==waitway 3==");
-      if(isPositionKnown())
+      if(isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1))) {
 			  rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
+        waitway = 0;
+      }
 			break;
 
 		case 4:
-			if (AutohomeKey && isPositionKnown())
+			if (AutohomeKey && isPositionKnown() && !commandsInQueue())
 			{ //Manual Move Home Done
         SERIAL_ECHOLN("==waitway 4==");
 				rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
@@ -172,92 +174,30 @@ void onIdle()
 			}
 			break;
 		case 5:
-        if(isPositionKnown()) {
+        if(isPositionKnown() && !commandsInQueue()) {
         InforShowStatus = true;
         waitway = 0;
         SERIAL_ECHOLN("==waitway 5==");
         rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); //exchange to 78 page
       }
       break;
-
 		}
 
-#if ENABLED(POWER_LOSS_RECOVERY)
-		if (PoweroffContinue)
-		{
-			PoweroffContinue = false;
-			injectCommands_P(power_off_commands[3]);
-			card.startFileprint();
-			print_job_timer.power_off_start();
-		}
-#endif
-
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (PoweroffContinue)
+      {
+        PoweroffContinue = false;
+        injectCommands_P(power_off_commands[3]);
+        card.startFileprint();
+        print_job_timer.power_off_start();
+      }
+    #endif
 
 	if (InforShowStatus)
 	{
-		if ((power_off_type_yes == 0) && lcd_sd_status && (power_off_commands_count > 0)) // print the file before the power is off.
-		{
-			SERIAL_ECHOLN("  ***test1*** ");
-			if (startprogress == 0)
-			{
-				rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
-
-				rtscheck.RTS_SndData(5, VolumeIcon);
-				rtscheck.RTS_SndData(8, SoundIcon);
-				rtscheck.RTS_SndData(0xC0, VolumeIcon - 2);
-				if (VolumeSet == 0)
-				{
-					rtscheck.RTS_SndData(0, VolumeIcon);
-					rtscheck.RTS_SndData(9, SoundIcon);
-				}
-				else
-				{
-					rtscheck.RTS_SndData((VolumeSet + 1) / 32 - 1, VolumeIcon);
-					rtscheck.RTS_SndData(8, SoundIcon);
-				}
-				rtscheck.RTS_SndData(VolumeSet, VolumeIcon - 2);
-				rtscheck.RTS_SndData(VolumeSet << 8, SoundAddr + 1);
-			}
-			if (startprogress <= 100)
-				rtscheck.RTS_SndData(startprogress, StartIcon);
-			else
-				rtscheck.RTS_SndData((startprogress - 100), StartIcon + 1);
-			delay_ms(30);
-			if ((startprogress += 1) > 200)
-			{
-#if ENABLED(POWER_LOSS_RECOVERY)
-				power_off_type_yes = 1;
-
-				for (uint16_t i = 0; i < CardRecbuf.Filesum; i++)
-				{
-					if (!strcmp(CardRecbuf.Cardfilename[i], &power_off_info.sd_filename[1]))
-					{
-						InforShowStatus = true;
-						int filelen = strlen(CardRecbuf.Cardshowfilename[i]);
-						filelen = (TEXTBYTELEN - filelen) / 2;
-						if (filelen > 0)
-						{
-							char buf[20];
-							memset(buf, 0, sizeof(buf));
-							strncpy(buf, "         ", filelen);
-							strcpy(&buf[filelen], CardRecbuf.Cardshowfilename[i]);
-							RTS_SndData(buf, Printfilename);
-						}
-						else
-							RTS_SndData(CardRecbuf.Cardshowfilename[i], Printfilename); //filenames
-						RTS_SndData(ExchangePageBase + 76, ExchangepageAddr);
-						break;
-					}
-				}
-#endif
-			}
-
-			return;
-		}
-		else if ((power_off_type_yes == 0) && !power_off_commands_count)
-		{
-
-			if (startprogress == 0)
+    if(power_off_type_yes ==0)
+    {
+      if (startprogress == 0)
 			{
 				rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
 
@@ -278,30 +218,50 @@ void onIdle()
 				rtscheck.RTS_SndData(startprogress, StartIcon);
 			else
 				rtscheck.RTS_SndData((startprogress - 100), StartIcon + 1);
-			delay_ms(30);
-			if ((startprogress += 1) > 200)
+      if ((startprogress += 1) > 200)
 			{
-				SERIAL_ECHOLN("  startprogress ");
-				power_off_type_yes = 1;
-				InforShowStatus = true;
-				TPShowStatus = false;
-				rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          if(lcd_sd_status && (power_off_commands_count > 0)) {
+            for (uint16_t i = 0; i < CardRecbuf.Filesum; i++)
+            {
+              if (!strcmp(CardRecbuf.Cardfilename[i], &power_off_info.sd_filename[1]))
+              {
+                InforShowStatus = true;
+                int filelen = strlen(CardRecbuf.Cardshowfilename[i]);
+                filelen = (TEXTBYTELEN - filelen) / 2;
+                if (filelen > 0)
+                {
+                  char buf[20];
+                  memset(buf, 0, sizeof(buf));
+                  strncpy(buf, "         ", filelen);
+                  strcpy(&buf[filelen], CardRecbuf.Cardshowfilename[i]);
+                  RTS_SndData(buf, Printfilename);
+                }
+                else
+                  RTS_SndData(CardRecbuf.Cardshowfilename[i], Printfilename); //filenames
+                RTS_SndData(ExchangePageBase + 76, ExchangepageAddr);
+                break;
+              }
+            }
+          }
+          return;
+        #endif
+          SERIAL_ECHOLN("  startprogress ");
+          power_off_type_yes = 1;
+          InforShowStatus = true;
+          TPShowStatus = false;
+          rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
 			}
 			return;
-		}
-		else
-		{
+    }
+
 			if (TPShowStatus && isPrinting()) //need to optimize
 			{
-				static unsigned int last_cardpercentValue = 101;
 				rtscheck.RTS_SndData(getProgress_seconds_elapsed() / 3600, Timehour);
-				rtscheck.RTS_SndData((getProgress_seconds_elapsed() / 3600) / 60, Timemin);
-
-				if (last_cardpercentValue != getProgress_percent())
-				{
-					if (progress_bar_percent > 0)
+				rtscheck.RTS_SndData((getProgress_seconds_elapsed() % 3600) / 60, Timemin);
+					if (getProgress_percent() > 0)
 					{
-						Percentrecord = progress_bar_percent + 1;
+						Percentrecord = getProgress_percent() + 1;
 						if (Percentrecord <= 50)
 						{
 							rtscheck.RTS_SndData((unsigned int)Percentrecord * 2, PrintscheduleIcon);
@@ -319,37 +279,30 @@ void onIdle()
 						rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
 					}
 					rtscheck.RTS_SndData((unsigned int)getProgress_percent(), Percentage);
-					last_cardpercentValue = getProgress_percent();
-				}
 			}
 
 			rtscheck.RTS_SndData(getZOffset_mm() * 100, 0x1026);
 			//float temp_buf = getActualTemp_celsius(H0);
 			rtscheck.RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
 			rtscheck.RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
-			if (last_target_temperature_bed != getTargetTemp_celsius(BED) || (last_target_temperature[0] != getTargetTemp_celsius(H0)))
-			{
-				rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
-				rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
+      rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
+			rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
 
 				if (isPrinting())
 				{
 					//keep the icon
 				}
-				else if (last_target_temperature_bed < getTargetTemp_celsius(BED) || (last_target_temperature[0] < getTargetTemp_celsius(H0)))
+				else if (getActualTemp_celsius(BED) < getTargetTemp_celsius(BED) || (getActualTemp_celsius(H0) < getTargetTemp_celsius(H0)))
 				{
-					rtscheck.RTS_SndData(1 + CEIconGrap, IconPrintstatus);
+					rtscheck.RTS_SndData(1 + CEIconGrap, IconPrintstatus); // Heating Status
 					PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 1 : PrinterStatusKey[1]);
 				}
-				else if (last_target_temperature_bed > getTargetTemp_celsius(BED) || (last_target_temperature[0] > getTargetTemp_celsius(H0)))
+				else if (getActualTemp_celsius(BED) > getTargetTemp_celsius(BED) || (getActualTemp_celsius(H0) > getTargetTemp_celsius(H0)))
 				{
-					rtscheck.RTS_SndData(8 + CEIconGrap, IconPrintstatus);
+					rtscheck.RTS_SndData(8 + CEIconGrap, IconPrintstatus); // Cooling Status
 					PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 2 : PrinterStatusKey[1]);
 				}
 
-				last_target_temperature_bed = getTargetTemp_celsius(BED);
-				last_target_temperature[0] = getTargetTemp_celsius(H0);
-			}
 
 			if (NozzleTempStatus[0] || NozzleTempStatus[2]) //statuse of loadfilement and unloadfinement when temperature is less than
 			{
@@ -402,7 +355,7 @@ void onIdle()
 			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
 			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
 			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
-		}
+
 
 		if (getLevelingActive())
 			rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
@@ -410,7 +363,6 @@ void onIdle()
 			rtscheck.RTS_SndData(3, AutoLevelIcon); /*On*/
 	}
 	if (rtscheck.RTS_RecData() > 0)
-		//SERIAL_PROTOCOLLN("  Handle Data ");
 		rtscheck.RTS_HandleData();
 }
 
@@ -823,7 +775,7 @@ void RTSSHOW::RTS_HandleData()
 			}
 			else
 			{
-				RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
+				RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 			}
 		}
 		else if (recdat.data[0] == 3)
@@ -1413,7 +1365,7 @@ void RTSSHOW::RTS_HandleData()
 				PrintStatue[1] = 0;
 				PrinterStatusKey[1] = 3;
 				CardCheckStatus[0] = 1; // open the key of  checking card in  printing
-				RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
+				RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 
 				FilementStatus[0] = 0; // recover the status waiting to check filements
 			}
@@ -1482,7 +1434,7 @@ void RTSSHOW::RTS_HandleData()
 				CardCheckStatus[0] = 1; // open the key of  checking card in  printing
 
 				RTS_SndData(1 + CEIconGrap, IconPrintstatus);
-				RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
+				RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 
 				//card.startFileprint();
 				//print_job_timer.power_off_start();
@@ -1855,6 +1807,7 @@ void onFilamentRunout(extruder_t extruder)
 }
 void onUserConfirmRequired(const char *const msg)
 {
+  PrintStatue[1] = 1; // for returning the corresponding page
   PrinterStatusKey[1] = 4;
   TPShowStatus = false;
   FilementStatus[0] = 2;
@@ -1873,6 +1826,10 @@ void onFactoryReset()
 }
 void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval)
 {
+  if(waitway==3)
+    if(isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1)))
+			  rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
+
 	bool zig = true;
 	for (uint8_t yCount = 0, showcount = 0; yCount < GRID_MAX_POINTS_Y; yCount++)
 	{

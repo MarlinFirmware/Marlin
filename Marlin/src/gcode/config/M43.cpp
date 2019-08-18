@@ -42,6 +42,10 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extensible_ui/ui_api.h"
+#endif
+
 #ifndef GET_PIN_MAP_PIN_M43
   #define GET_PIN_MAP_PIN_M43(Q) GET_PIN_MAP_PIN(Q)
 #endif
@@ -324,6 +328,10 @@ void GcodeSuite::M43() {
     }
 
     #if HAS_RESUME_CONTINUE
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onUserConfirmRequired("M43 Called");
+      #endif
+
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
       #if ENABLED(HOST_PROMPT_SUPPORT)

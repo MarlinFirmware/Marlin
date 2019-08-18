@@ -9,14 +9,14 @@
 //#define MachineEnder3
 //#define MachineEnder4
 //#define MachineEnder5
-#define MachineEnder5Plus
+//#define MachineEnder5Plus
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
 //#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
-//#define MachineCRX
+#define MachineCRX
 //#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
@@ -99,7 +99,7 @@
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-//#define ABL_BLTOUCH
+#define ABL_BLTOUCH
 
 //#define CREALITY_ABL_MOUNT //Using creality ABL mount
 //#define E3D_DUALFAN_MOUNT // Using HD Modular mount as above with 2 5015 blowers and sensor on the right
@@ -827,9 +827,9 @@
 
 #if ENABLED(HotendStock)
   #if ANY(MachineCRX, MachineCR10SPro, MachineCR10Max)
-    #define  DEFAULT_Kp 17.5
-    #define  DEFAULT_Ki 1.37
-    #define  DEFAULT_Kd 55.47
+    #define DEFAULT_Kp 20.22
+    #define DEFAULT_Ki 3.43
+    #define DEFAULT_Kd 29.81
   #elif ENABLED(MachineEnder5Plus)
     #define  DEFAULT_Kp 14.72
     #define  DEFAULT_Ki 0.89

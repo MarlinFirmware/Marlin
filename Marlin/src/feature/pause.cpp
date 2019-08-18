@@ -187,6 +187,9 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       host_action_prompt_button(PSTR("Continue"));
       host_action_prompt_show();
     #endif
+    #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onUserConfirmRequired("Load Filament");
+      #endif
     while (wait_for_user) {
       #if HAS_BUZZER
         filament_change_beep(max_beep_count);
@@ -509,6 +512,10 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
     active_extruder = DXC_ext;
     extruder_duplication_enabled = false;
+  #endif
+
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onUserConfirmRequired("Paused for User");
   #endif
 
   // Wait for filament insert by user and press button
