@@ -1936,7 +1936,7 @@ void onConfigurationStoreWritten(bool success)
 void onConfigurationStoreRead(bool success)
 {
 	SERIAL_ECHOLN("==onConfigurationStoreRead==");
-    #if HAS_MESH && (ENABLED(MachineCR10SPro) || ENABLED(Force10SProDisplay))
+    #if HAS_MESH && (ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(Force10SProDisplay))
         if (ExtUI::getMeshValid())
         {
             bool zig = true;
