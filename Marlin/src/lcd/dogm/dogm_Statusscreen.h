@@ -657,8 +657,13 @@
     #endif
 
   #endif
+#elif ENABLED(STATUS_COMBINE_HEATERS) && HAS_HEATED_BED && HOTENDS < 4
 
-#endif // !STATUS_BED_WIDTH && !STATUS_COMBINE_HEATERS && HAS_HEATED_BED && HOTENDS < 4
+  #ifndef STATUS_BED_TEXT_X
+    #define STATUS_BED_TEXT_X (STATUS_BED_X + 11)
+  #endif
+
+#endif
 
 #if HAS_HEATED_CHAMBER
 
@@ -1372,7 +1377,7 @@
 #if STATUS_CHAMBER_WIDTH && !STATUS_HEATERS_WIDTH
 
   #ifndef STATUS_CHAMBER_X
-    #define STATUS_CHAMBER_X (128 - (STATUS_FAN_BYTEWIDTH + STATUS_CHAMBER_BYTEWIDTH) * 8)
+    #define STATUS_CHAMBER_X (128 - (STATUS_FAN_BYTEWIDTH + STATUS_CHAMBER_BYTEWIDTH + STATUS_BED_BYTEWIDTH) * 8)
   #endif
 
   #ifndef STATUS_CHAMBER_HEIGHT
@@ -1388,7 +1393,7 @@
   #endif
 
   #ifndef STATUS_CHAMBER_TEXT_X
-    #define STATUS_CHAMBER_TEXT_X (STATUS_CHAMBER_X + 7)
+    #define STATUS_CHAMBER_TEXT_X (STATUS_CHAMBER_X + 6)
   #endif
 
   static_assert(
@@ -1401,7 +1406,25 @@
       "Status chamber bitmap (status_chamber_on_bmp) dimensions don't match data."
     );
   #endif
-
+#else
+  #if !defined(STATUS_CHAMBER_X) && DISABLED(STATUS_COMBINE_HEATERS)
+    #define STATUS_CHAMBER_X (128 - (STATUS_FAN_BYTEWIDTH + STATUS_CHAMBER_BYTEWIDTH) * 8)
+  #elif !defined(STATUS_CHAMBER_X) && ENABLED(STATUS_COMBINE_HEATERS)
+    #define STATUS_CHAMBER_X (128 - (STATUS_FAN_BYTEWIDTH + STATUS_CHAMBER_BYTEWIDTH + STATUS_BED_BYTEWIDTH) * 8)
+  #endif
+  #ifndef STATUS_CHAMBER_TEXT_X
+    #define STATUS_CHAMBER_TEXT_X (STATUS_CHAMBER_X + 6)
+  #endif
+  #ifndef STATUS_CHAMBER_Y
+    #define STATUS_CHAMBER_Y(S) (20 - STATUS_CHAMBER_HEIGHT(S))
+  #endif
+  #ifndef STATUS_CHAMBER_HEIGHT
+    #ifdef STATUS_CHAMBER_ANIM
+      #define STATUS_CHAMBER_HEIGHT(S) ((S) ? sizeof(status_chamber_on_bmp) / (STATUS_CHAMBER_BYTEWIDTH) : sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
+    #else
+      #define STATUS_CHAMBER_HEIGHT(S) (sizeof(status_chamber_bmp) / (STATUS_CHAMBER_BYTEWIDTH))
+    #endif
+  #endif
 #endif
 
 //
