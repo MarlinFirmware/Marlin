@@ -52,7 +52,6 @@ namespace ExtUI
   unsigned long VolumeSet = 0x80;
   extern char power_off_commands[9][96];
   bool PoweroffContinue = false;
-  extern const char *injected_commands_P;
   char commandbuf[30];
 
 void onStartup()
@@ -292,12 +291,12 @@ void onIdle()
 				{
 					//keep the icon
 				}
-				else if (getActualTemp_celsius(BED) < getTargetTemp_celsius(BED) || (getActualTemp_celsius(H0) < getTargetTemp_celsius(H0)))
+				else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(H0) < (getTargetTemp_celsius(H0) - THERMAL_PROTECTION_HYSTERESIS)))
 				{
 					rtscheck.RTS_SndData(1 + CEIconGrap, IconPrintstatus); // Heating Status
 					PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 1 : PrinterStatusKey[1]);
 				}
-				else if (getActualTemp_celsius(BED) > getTargetTemp_celsius(BED) || (getActualTemp_celsius(H0) > getTargetTemp_celsius(H0)))
+				else if (getActualTemp_celsius(BED) > (getTargetTemp_celsius(BED) + THERMAL_PROTECTION_BED_HYSTERESIS) || (getActualTemp_celsius(H0) > (getTargetTemp_celsius(H0) + THERMAL_PROTECTION_HYSTERESIS)))
 				{
 					rtscheck.RTS_SndData(8 + CEIconGrap, IconPrintstatus); // Cooling Status
 					PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 2 : PrinterStatusKey[1]);
