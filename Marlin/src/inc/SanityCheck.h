@@ -525,10 +525,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "Enable only one of ENDSTOPPULLUP_Z_MIN or ENDSTOPPULLDOWN_Z_MIN."
 #endif
 
-#if BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
-  #error "Enable only one of POWER_LOSS_PULLUP or POWER_LOSS_PULLDOWN."
-#endif
-
 /**
  * LCD Info Screen Style
  */
