@@ -938,7 +938,7 @@
   #define LCD_PINS_D4 -1
 #endif
 
-#if HAS_CHARACTER_LCD
+#if HAS_CHARACTER_LCD || TOUCH_UI_ULTIPANEL
   #ifndef LCD_PINS_D5
     #define LCD_PINS_D5 -1
   #endif

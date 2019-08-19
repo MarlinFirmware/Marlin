@@ -445,7 +445,7 @@ void GcodeSuite::G33() {
              _tower_results       = (_4p_calibration && towers_set) || probe_points >= 3,
              _opposite_results    = (_4p_calibration && !towers_set) || probe_points >= 3,
              _endstop_results     = probe_points != 1 && probe_points != -1 && probe_points != 0,
-             _angle_results       = probe_points >= 3  && towers_set;
+             _angle_results       = probe_points >= 3 && towers_set;
   static const char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
   int8_t iterations = 0;
   float test_precision,

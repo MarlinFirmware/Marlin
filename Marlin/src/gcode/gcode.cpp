@@ -342,6 +342,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 12: M12(); break;                                    // M12: Synchronize and optionally force a CLC set
       #endif
 
+      #if ENABLED(EXPECTED_PRINTER_CHECK)
+        case 16: M16(); break;                                    // M16: Expected printer check
+      #endif
+
       case 17: M17(); break;                                      // M17: Enable all stepper motors
 
       #if ENABLED(SDSUPPORT)

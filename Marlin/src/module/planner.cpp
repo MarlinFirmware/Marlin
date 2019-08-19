@@ -2037,6 +2037,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
 
     block_buffer_runtime_us += segment_time_us;
+    block->segment_time_us = segment_time_us;
 
     if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
   #endif

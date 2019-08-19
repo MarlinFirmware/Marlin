@@ -14,8 +14,10 @@
 
 #if HAS_GRAPHICAL_LCD
   #include "dogm/u8g_fontutf8.h"
+  typedef u8g_uint_t lcd_uint_t;
 #else
   #define _UxGT(a) a
+  typedef uint8_t lcd_uint_t;
 #endif
 
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
@@ -48,7 +50,7 @@ int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length);
  */
 int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length);
 
-void lcd_moveto(const uint8_t col, const uint8_t row);
+void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row);
 
 void lcd_put_int(const int i);
 

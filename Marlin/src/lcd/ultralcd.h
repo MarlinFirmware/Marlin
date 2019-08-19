@@ -76,11 +76,11 @@
       #define LCDWRITE(c) lcd_put_wchar(c)
     #endif
 
-    #include "fontutils.h"
+    #include "lcdprint.h"
 
-    void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
-    inline void wrap_string_P(uint8_t &x, uint8_t &y, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(x, y, pstr, read_byte_rom, wordwrap); }
-    inline void wrap_string(uint8_t &x, uint8_t &y, const char * const string, const bool wordwrap=false) { _wrap_string(x, y, string, read_byte_ram, wordwrap); }
+    void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
+    inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
+    inline void wrap_string(uint8_t &col, uint8_t &row, const char * const string, const bool wordwrap=false) { _wrap_string(col, row, string, read_byte_ram, wordwrap); }
 
     #if ENABLED(SDSUPPORT)
       #include "../sd/cardreader.h"
@@ -486,7 +486,7 @@ public:
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      static void ubl_plot(const uint8_t x, const uint8_t inverted_y);
+      static void ubl_plot(const uint8_t x_plot, const uint8_t y_plot);
     #endif
 
     static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
