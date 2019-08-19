@@ -1358,20 +1358,19 @@ void RTSSHOW::RTS_HandleData()
 		{
 			if (FilementStatus[0] == 2) // check filements status during printing
 			{
-				setHostResponse(1); //Send Resume host prompt command
+        if( (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)) {
+          setHostResponse(1); //Send Resume host prompt command
 
-				RTS_SndData(1 + CEIconGrap, IconPrintstatus);
-				PrintStatue[1] = 0;
-				PrinterStatusKey[1] = 3;
-				CardCheckStatus[0] = 1; // open the key of  checking card in  printing
-				RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-
-				FilementStatus[0] = 0; // recover the status waiting to check filements
+          RTS_SndData(1 + CEIconGrap, IconPrintstatus);
+          PrintStatue[1] = 0;
+          PrinterStatusKey[1] = 3;
+          CardCheckStatus[0] = 1; // open the key of  checking card in  printing
+          RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
+          FilementStatus[0] = 0; // recover the status waiting to check filements
+        }
 			}
 			else if (FilementStatus[0] == 3)
 			{
-				//RTS_SndData(current_position[E_AXIS], FilementUnit1);
-				// RTS_SndData(current_position[E_AXIS], FilementUnit2);
 				RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
 			}
 		}
