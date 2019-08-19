@@ -1662,7 +1662,7 @@ void onMediaInserted()
 		delay_ms(3);
 		strncpy(CardRecbuf.Cardshowfilename[num], files.longFilename(), j);
 
-		strcpy(CardRecbuf.Cardfilename[num], files.filename());
+		strcpy(CardRecbuf.Cardfilename[num], files.shortFilename());
 		CardRecbuf.addr[num] = SDFILE_ADDR + num * 10;
 		rtscheck.RTS_SndData(CardRecbuf.Cardshowfilename[num], CardRecbuf.addr[num]);
 		CardRecbuf.Filesum = (++num);
