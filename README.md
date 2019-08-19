@@ -1,28 +1,28 @@
-﻿#Creality CR10SPro, CR-X, CR10 Max, and Ender 5 Plus touchscreen supported Firmware
+﻿## Creality CR10SPro, CR-X, CR10 Max, and Ender 5 Plus touchscreen supported Firmware
 
 The firmware branches maintained here are made possible by the support of sponsors like [[Tiny Machines 3D](https://tinymachines3d.com/)] as well as our customer base through 3D printing services. If you would like to support continued development, please consider you’re next machine purchase from Tiny Machines and thank them for supporting open source development or consider ordering anything outside you’re own machines capabilities through us! Maintaining and developing these branches takes a signifigant investment of both time and money (parts and machines). If you dont need anything printed or any additional machines, you can also support us through Patreon here – [[https://www.patreon.com/InsanityAutomation](https://www.patreon.com/InsanityAutomation)]
 
-#Creality Firmware Branches
+## Creality Firmware Branches
   - 1.1.9 Firmware (Stable, EOL) [[TM_CR10](https://github.com/InsanityAutomation/Marlin/tree/TM_CR10)]
   - 2.0 Firmware (Beta, but well tested) [[Creality_Marlin2.0.x](https://github.com/InsanityAutomation/Marlin/tree/Creality_Marlin2.0.x)]
   - 2.0 Development Branch [[Creality_2.0_Devel](https://github.com/InsanityAutomation/Marlin/tree/Creality_2.0_Devel)]
   - Touchscreen Firmware (10SPro and CR-X 1.1.9 Stable) [[Creality_DWINTest](https://github.com/InsanityAutomation/Marlin/tree/Creality_DWINTest)]
   - Touchscreen Firmware (10SPro and CR-X 2.0 Active Development) [[CrealityDwin_2.0](https://github.com/InsanityAutomation/Marlin/tree/CrealityDwin_2.0)]
-#Formbot / Vivedino Firmware Branches
+## Formbot / Vivedino Firmware Branches
   - Raptor 1 1.1.9 Firmware [[TM_Raptor](https://github.com/InsanityAutomation/Marlin/tree/TM_Raptor)]
   - Raptor 1/2 2.0 Firmware [[Raptor_2.0.X](https://github.com/InsanityAutomation/Marlin/tree/Raptor_2.0.X)]
   - Trex 2+/3 1.1.9 Firmware [[Trex3_1.1.9](https://github.com/InsanityAutomation/Marlin/tree/Trex3_1.1.9)]
   - Trex 2+/3 2.0 Firmware (Be warned of layer shift issue below!) [[TM_Trex2+_2.0.x(https://github.com/InsanityAutomation/Marlin/tree/TM_Trex2+_2.0.x)]
-#Mamorubot / HieHa Firmware Branches
+## Mamorubot / HieHa Firmware Branches
   - SX4 1.1.9 Firmware (Stable, EOL) [[Mamorubot_SX4]( https://github.com/InsanityAutomation/Marlin/tree/Mamorubot_SX4)]
   - SX4 2.0 Firmware (Beta, but well tested) [[TM_SX4_2.0](https://github.com/InsanityAutomation/Marlin/tree/TM_SX4_2.0)]
   - SX4 Development Branch [[TM_SX4_2.0_Devel](https://github.com/InsanityAutomation/Marlin/tree/TM_SX4_2.0_Devel)]
-#Other Firmware
+## Other Firmware
   - Raise 3D N2+ (Dual) 2.0 [[Raise3D-N2+-Dual](https://github.com/InsanityAutomation/Marlin/tree/Raise3D-N2+-Dual)]
 
 [[Marlin Commit History](https://github.com/MarlinFirmware/Marlin/pulls?q=is%3Apr+is%3Aclosed+author%3AInsanityAutomation)]
 
-#Active Projects
+## Active Projects
   - [[Tracing Marlin 2.0 Planner bug causing layer Shifting] (https://github.com/MarlinFirmware/Marlin/issues/12403)]
   - Creality Dwin Touchscreen rewrite to ExtUI
   - [[IDEX drifting z offset on tool change with UBL]( https://github.com/MarlinFirmware/Marlin/issues/13817)]
@@ -39,7 +39,7 @@ The firmware branches maintained here are made possible by the support of sponso
   - Smoothing integration and vendor components of Marlin 2.0 (Revision to version.h handling, limit clamping, usability enhancements ect)
   - Consolidate more probing functions, improve G33/4 and G28/29 handling
   - Video documentation of firmware branch configuration options and flashing with platformio
-#Planned Projects
+## Planned Projects
   - Implement Virtual Tools
   - Port Duet2 Wifi with Duex5 to Marlin 2.0
   - Further Gcode Parity with RRF
@@ -49,7 +49,7 @@ The firmware branches maintained here are made possible by the support of sponso
   - Integrate 12 stepper LPC1778 PCB to configure ideXY quad head system as well as integrate 3 extruder mixing to IDEX
   - Video walkthrough of each bed leveling system usage and all functions
 
-#Marlin
+## Marlin
 This is just one of many forks of Marlin. We dont try to bury that behind fancy marketting or anything else. As you can see from the links above, most of the work done here is submitted back to the mainstream Marlin branches. The end goal of every project is to get it to the point where it is merged and maintained there. See marlin resources, including how to contribute to the Marlin Project as well, down below.
 
 ## Building Marlin 2.0
@@ -57,7 +57,7 @@ This is just one of many forks of Marlin. We dont try to bury that behind fancy 
 To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). We've posted detailed instructions on [Building Marlin with Arduino](http://marlinfw.org/docs/basics/install_arduino.html) and [Building Marlin with PlatformIO for ReArm](http://marlinfw.org/docs/basics/install_rearm.html) (which applies well to other 32-bit boards).
 
 
-#The current Marlin dev team consists of:
+## The current Marlin dev team consists of:
 
  - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA &nbsp; [![Flattr Scott](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=thinkyhead&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
  - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - USA
