@@ -1550,9 +1550,9 @@ void RTSSHOW::RTS_HandleData()
 					//strcpy(cmdbuf,cmd);
 
 				//InforShowoStatus = true;
-				FileList files;
-				files.seek(CardRecbuf.recordcount);
-				printFile(files.shortFilename());
+				//FileList files;
+				//files.seek(CardRecbuf.recordcount);
+				printFile(CardRecbuf.Cardfilename[CardRecbuf.recordcount]);
 
 				//enqueue_and_echo_command(cmd);
 				//injectCommands_P(PSTR("M24"));
