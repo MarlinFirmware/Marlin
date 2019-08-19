@@ -1,6 +1,7 @@
-﻿## Creality CR10SPro, CR-X, CR10 Max, and Ender 5 Plus touchscreen supported Firmware
+﻿## Creality CR10S Pro, CR-X, CR10 Max and Ender 5 Plus Touch Screen supported firmware
 
-The firmware branches maintained here are made possible by the support of sponsors like [[Tiny Machines 3D](https://tinymachines3d.com/)] as well as our customer base through 3D printing services. If you would like to support continued development, please consider you’re next machine purchase from Tiny Machines and thank them for supporting open source development or consider ordering anything outside you’re own machines capabilities through us! Maintaining and developing these branches takes a signifigant investment of both time and money (parts and machines). If you dont need anything printed or any additional machines, you can also support us through Patreon here – [[https://www.patreon.com/InsanityAutomation](https://www.patreon.com/InsanityAutomation)]
+The firmware branches maintained here are made possible by the support of sponsors like [Tiny Machines 3D(https://tinymachines3d.com/) as well as our customer base through our 3D printing Services. Maintaining and developing these branches takes a significant investment, made up of time and machines. To support continued development, please consider your next 3D Printer related purchase from Tiny Machines 3D and thank them for supporting open source development. Or, consider us for printing services outside of your machine’s capabilities. If you do not need anything printed or a 3D Printer but still want to contribute, you can support us through [Patreon(https://www.patreon.com/InsanityAutomation)].
+
 
 ## Creality Firmware Branches
   - 1.1.9 Firmware (Stable, EOL) [[TM_CR10](https://github.com/InsanityAutomation/Marlin/tree/TM_CR10)]
