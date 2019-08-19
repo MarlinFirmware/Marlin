@@ -111,12 +111,6 @@ static void createChar_P(const char c, const byte * const ptr) {
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
 
-#if HAS_BUZZER && ENABLED(LCD_USE_I2C_BUZZER)
-  void MarlinUI::buzz(const long duration, const uint16_t freq) {
-    lcd.buzz(duration, freq);
-  }
-#endif
-
 void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARSET_INFO*/) {
   #if NONE(LCD_PROGRESS_BAR, SHOW_BOOTSCREEN)
     UNUSED(screen_charset);
@@ -367,11 +361,9 @@ void MarlinUI::init_lcd() {
 }
 
 bool MarlinUI::detected() {
-  return
+  return true
     #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
-      lcd.LcdDetected() == 1
-    #else
-      true
+      && lcd.LcdDetected() == 1
     #endif
   ;
 }
@@ -382,9 +374,9 @@ bool MarlinUI::detected() {
       // Reading these buttons this is likely to be too slow to call inside interrupt context
       // so they are called during normal lcd_update
       uint8_t slow_bits = lcd.readButtons()
-      #if !BUTTON_EXISTS(ENC)
-        << B_I2C_BTN_OFFSET
-      #endif
+        #if !BUTTON_EXISTS(ENC)
+          << B_I2C_BTN_OFFSET
+        #endif
       ;
       #if ENABLED(LCD_I2C_VIKI)
         if ((slow_bits & (B_MI | B_RI)) && PENDING(millis(), next_button_update_ms)) // LCD clicked

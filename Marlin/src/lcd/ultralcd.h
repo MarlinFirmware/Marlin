@@ -261,7 +261,7 @@ public:
   #if HAS_BUZZER
     static void buzz(const long duration, const uint16_t freq);
   #endif
-  
+
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
     static void update_indicators();
   #endif

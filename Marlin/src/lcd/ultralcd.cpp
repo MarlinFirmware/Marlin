@@ -64,6 +64,19 @@
   uint8_t MarlinUI::progress_bar_percent; // = 0
 #endif
 
+#if HAS_BUZZER
+  #include "../libs/buzzer.h"
+  void MarlinUI::buzz(const long duration, const uint16_t freq) {
+    #if ENABLED(LCD_USE_I2C_BUZZER)
+      lcd.buzz(duration, freq);
+    #elif ENABLED(PCA9632_BUZZER)
+      pca9632_buzz(const long duration, const uint16_t freq) {
+    #elif USE_BEEPER
+      buzzer.tone(duration, freq);
+    #endif
+  }
+#endif
+
 #if HAS_SPI_LCD
 
 #if HAS_GRAPHICAL_LCD
@@ -87,10 +100,6 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../feature/bedlevel/bedlevel.h"
-#endif
-
-#if HAS_BUZZER
-  #include "../libs/buzzer.h"
 #endif
 
 #if HAS_TRINAMIC
@@ -611,13 +620,12 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   #if HAS_BUZZER
     // Buzz and wait. Is the delay needed for buttons to settle?
     buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-  #endif
-
-  #if HAS_LCD_MENU
-    #if ENABLED(LCD_USE_I2C_BUZZER)
-      delay(10);
-    #elif PIN_EXISTS(BEEPER)
-      for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+    #if HAS_LCD_MENU
+      #if USE_BEEPER
+        for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+      #else
+        delay(10);
+      #endif
     #endif
   #endif
 }
