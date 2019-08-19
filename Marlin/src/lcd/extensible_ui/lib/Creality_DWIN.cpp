@@ -288,7 +288,7 @@ void onIdle()
 
 				if (isPrinting())
 				{
-					RTS_SndData(0 + CEIconGrap, IconPrintstatus);
+					rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
 				}
 				else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(H0) < (getTargetTemp_celsius(H0) - THERMAL_PROTECTION_HYSTERESIS)))
 				{
