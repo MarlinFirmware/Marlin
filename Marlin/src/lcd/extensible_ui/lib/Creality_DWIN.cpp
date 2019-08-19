@@ -34,7 +34,7 @@ namespace ExtUI
   char PrintStatue[2] = {0};		//PrintStatue[0], 0 represent  to 43 page, 1 represent to 44 page
   bool CardUpdate = false;		//represents to update file list
   char CardCheckStatus[2] = {0};  //CardCheckStatus[0] represents to check card in printing and after making sure to begin and to check card in heating with value as 1, but 0 for off
-  unsigned char LanguageRecbuf;   // !0 represent Chinese, 0 represent English
+
   char PrinterStatusKey[2] = {0}; // PrinterStatusKey[1] value: 0 represents to keep temperature, 1 represents  to heating , 2 stands for cooling , 3 stands for printing
                   // PrinterStatusKey[0] value: 0 reprensents 3D printer ready
   bool lcd_sd_status;				//represents SD-card status, true means SD is available, false means opposite.
@@ -57,7 +57,6 @@ namespace ExtUI
 void onStartup()
 {
 	Serial2.begin(115200);
-	LanguageRecbuf = 0; //Force language to English, 1=Chinese but currently not implemented
 
 	rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
 	rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
@@ -289,7 +288,7 @@ void onIdle()
 
 				if (isPrinting())
 				{
-					//keep the icon
+					RTS_SndData(0 + CEIconGrap, IconPrintstatus);
 				}
 				else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(H0) < (getTargetTemp_celsius(H0) - THERMAL_PROTECTION_HYSTERESIS)))
 				{
@@ -614,9 +613,6 @@ void RTSSHOW::RTS_SDCardUpate(void)
 				CardCheckStatus[0] = 0; //cancel to check card during printing the gcode file
 			}
 
-			if (LanguageRecbuf != 0)
-				RTS_SndData(6, IconPrintstatus); // 6 for Card Removed
-			else
 				RTS_SndData(6 + CEIconGrap, IconPrintstatus);
 			for (int i = 0; i < CardRecbuf.Filesum; i++)
 			{
