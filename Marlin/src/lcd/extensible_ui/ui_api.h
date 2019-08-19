@@ -66,6 +66,7 @@ namespace ExtUI {
 
   bool isMoving();
   bool isAxisPositionKnown(const axis_t);
+  bool isAxisPositionKnown(const extruder_t);
   bool isPositionKnown(); // Axis position guaranteed, steppers active since homing
   bool isMachineHomed(); // Axis position most likely correct, steppers may have deactivated
   bool canMove(const axis_t);

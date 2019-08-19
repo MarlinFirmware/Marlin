@@ -81,7 +81,7 @@
 #define STRING_CONFIG_H_AUTHOR "(Roberto Mariani & Samuel Pinches)" // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 "JG-A1 v2.0 (29-7-19)" // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 "JGAuroraForum.com"         // will be shown during bootup in line 2
+#define STRING_SPLASH_LINE2 "JGAuroraForum.com" // will be shown during bootup in line 2
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -2040,6 +2040,12 @@
 // Touch-screen LCD for Malyan M200 printers
 //
 //#define MALYAN_LCD
+
+//
+// LulzBot Color Touch UI for FTDI EVE (FT800/FT810) displays
+// See Configuration_adv.h for all configuration options.
+//
+//#define LULZBOT_TOUCH_UI
 
 //
 // Third-party or vendor-customized controller interfaces.

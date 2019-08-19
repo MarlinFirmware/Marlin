@@ -2316,7 +2316,7 @@ void Stepper::report_positions() {
   #define EXTRA_CYCLES_BABYSTEP (STEP_PULSE_CYCLES - (CYCLES_EATEN_BABYSTEP))
 
   #define _ENABLE(AXIS) enable_## AXIS()
-  #define _READ_DIR(AXIS) AXIS ##_DIR_READ
+  #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
   #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
@@ -2404,9 +2404,9 @@ void Stepper::report_positions() {
           enable_Y();
           enable_Z();
 
-          const uint8_t old_x_dir_pin = X_DIR_READ,
-                        old_y_dir_pin = Y_DIR_READ,
-                        old_z_dir_pin = Z_DIR_READ;
+          const uint8_t old_x_dir_pin = X_DIR_READ(),
+                        old_y_dir_pin = Y_DIR_READ(),
+                        old_z_dir_pin = Z_DIR_READ();
 
           X_DIR_WRITE(INVERT_X_DIR ^ z_direction);
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);

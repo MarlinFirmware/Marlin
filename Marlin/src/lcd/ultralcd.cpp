@@ -205,13 +205,13 @@ millis_t next_button_update_ms;
 
   #endif
 
-  void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte, bool wordwrap/*=false*/) {
-    SETCURSOR(x, y);
+  void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, bool wordwrap/*=false*/) {
+    SETCURSOR(col, row);
     if (!string) return;
 
-    auto _newline = [&x, &y]() {
-      x = 0; y++;               // move x to string len (plus space)
-      SETCURSOR(0, y);          // simulate carriage return
+    auto _newline = [&col, &row]() {
+      col = 0; row++;                 // Move col to string len (plus space)
+      SETCURSOR(0, row);              // Simulate carriage return
     };
 
     uint8_t *p = (uint8_t*)string;
@@ -227,9 +227,9 @@ millis_t next_button_update_ms;
         if (eol || ch == ' ' || ch == '-' || ch == '+' || ch == '.') {
           if (!c && ch == ' ') { if (wrd) wrd++; continue; } // collapse extra spaces
           // Past the right and the word is not too long?
-          if (x + c > LCD_WIDTH && x >= (LCD_WIDTH) / 4) _newline(); // should it wrap?
+          if (col + c > LCD_WIDTH && col >= (LCD_WIDTH) / 4) _newline(); // should it wrap?
           c += !eol;                  // +1 so the space will be printed
-          x += c;                     // advance x to new position
+          col += c;                   // advance col to new position
           while (c) {                 // character countdown
             --c;                      // count down to zero
             wrd = get_utf8_value_cb(wrd, cb_read_byte, &ch); // get characters again
@@ -246,25 +246,25 @@ millis_t next_button_update_ms;
         p = get_utf8_value_cb(p, cb_read_byte, &ch);
         if (!ch) break;
         lcd_put_wchar(ch);
-        x++;
-        if (x >= LCD_WIDTH) _newline();
+        col++;
+        if (col >= LCD_WIDTH) _newline();
       }
     }
   }
 
   void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
-    uint8_t x = 0, y = 0;
+    uint8_t row = 0, col = 0;
     if (!string && plen + slen <= LCD_WIDTH) {
-      x = (LCD_WIDTH - plen - slen) / 2;
-      y = LCD_HEIGHT > 3 ? 1 : 0;
+      row = (LCD_WIDTH - plen - slen) / 2;
+      col = LCD_HEIGHT > 3 ? 1 : 0;
     }
-    wrap_string_P(x, y, pref, true);
+    wrap_string_P(row, col, pref, true);
     if (string) {
-      if (x) { x = 0; y++; } // Move to the start of the next line
-      wrap_string(x, y, string);
+      if (row) { row = 0; col++; } // Move to the start of the next line
+      wrap_string(row, col, string);
     }
-    if (suff) wrap_string_P(x, y, suff);
+    if (suff) wrap_string_P(row, col, suff);
   }
 
 #endif // HAS_LCD_MENU
@@ -764,6 +764,35 @@ void MarlinUI::update() {
 
     // If the action button is pressed...
     static bool wait_for_unclick; // = 0
+    #if ENABLED(TOUCH_BUTTONS)
+      if (touch_buttons) {
+        if (!wait_for_unclick && (buttons & EN_C)) {    // If not waiting for a debounce release:
+          wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
+          lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
+          wait_for_user = false;                        //  - Any click clears wait for user
+          quick_feedback();                             //  - Always make a click sound
+        }
+        else if (buttons & (EN_A | EN_B)) {             // Ignore the encoder if clicked, to prevent "slippage"
+          const millis_t ms = millis();
+          if (ELAPSED(ms, next_button_update_ms)) {
+            next_button_update_ms = ms + 50;
+            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP);
+            if (buttons & EN_A) encoderDiff *= -1;
+            if (!wait_for_unclick) {
+              next_button_update_ms += 250;
+              #if HAS_BUZZER
+                buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+              #endif
+              wait_for_unclick = true;                  //  - Set debounce flag to ignore continous clicks
+            }
+          }
+        }
+      }
+      else
+    #endif //TOUCH_BUTTONS
+    //
+    // Integrated LCD click handling via button_pressed()
+    //
     if (!external_control && button_pressed()) {
       if (!wait_for_unclick) {                        // If not waiting for a debounce release:
         wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
@@ -784,7 +813,9 @@ void MarlinUI::update() {
   #endif // HAS_LCD_MENU
 
   #if ENABLED(INIT_SDCARD_ON_BOOT)
-
+    //
+    // SPI SD Card detection (and first card init when the LCD is present)
+    //
     const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
     if (sd_status != lcd_sd_status && detected()) {
 
@@ -797,13 +828,13 @@ void MarlinUI::update() {
         if (old_sd_status == 2)
           card.beginautostart();  // Initial boot
         else
-          set_status_P(PSTR(MSG_SD_INSERTED));
+          set_status_P(PSTR(MSG_MEDIA_INSERTED));
       }
       #if PIN_EXISTS(SD_DETECT)
         else {
           card.release();
           if (old_sd_status != 2) {
-            set_status_P(PSTR(MSG_SD_REMOVED));
+            set_status_P(PSTR(MSG_MEDIA_REMOVED));
             #if HAS_LCD_MENU
               return_to_status();
             #endif
@@ -936,7 +967,7 @@ void MarlinUI::update() {
     #if HAS_LCD_MENU && ENABLED(SCROLL_LONG_FILENAMES)
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
-      if (currentScreen == menu_sdcard && !lcd_status_update_delay--) {
+      if (currentScreen == menu_media && !lcd_status_update_delay--) {
         lcd_status_update_delay = 4;
         if (++filename_scroll_pos > filename_scroll_max) {
           filename_scroll_pos = 0;

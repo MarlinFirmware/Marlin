@@ -94,12 +94,16 @@
 #define LED_PIN            PC2   // pin 17
 
 //
-// PWM
+// PWM for a servo probe
+// Other servo devices are not supported on this board!
 //
-#define SERVO0_PIN         PD13  // Open drain PWM pin on the V0G (GND or floating 5V)
-#define SERVO0_PWM_OD            // Comment this if using PE5
+#if HAS_Z_SERVO_PROBE
+  #define SERVO0_PIN       PD13  // Open drain PWM pin on the V0G (GND or floating 5V)
+  #define SERVO0_PWM_OD          // Comment this if using PE5
 
-//#define SERVO0_PIN       PE5   // Pulled up PWM pin on the V08 (3.3V or 0)
+  //#define SERVO0_PIN     PE5   // Pulled up PWM pin on the V08 (3.3V or 0)
+  //#undef Z_MAX_PIN             // Uncomment if using ZMAX connector (PE5)
+#endif
 
 /**
  * Note: Alfawise screens use various TFT controllers. Supported screens
@@ -136,23 +140,30 @@
   #define TOUCH_MOSI_PIN   PB14  // pin 53
   #define TOUCH_MISO_PIN   PB15  // pin 54
   #define TOUCH_INT_PIN    PC6   // pin 63 (PenIRQ coming from ADS7843)
-
-  #define BTN_ENC          PB0   // pin 35 unconnected pin on Alfawise. (PC13 to try)
-  #define BTN_EN1          -1    // Real pin is needed to enable encoder's push button
-  #define BTN_EN2          -1    // functionality used by touch screen
 #endif
 
 //
-// SPI1 (EEPROM W25Q64 + DAC OUT)
+// Persistent Storage
+// If no option is selected below the SD Card will be used
 //
-#undef E2END
-#define E2END              0x7FF // EEPROM end address (reserve 2kB on sd/sram, real spi one is 8MB/64Mbits)
-/*
-#define SPI_EEPROM         1   // If commented this will create a file on the SD card as a replacement
-#define SPI_CHAN_EEPROM1   1
-#define SPI_EEPROM1_CS     PC5 // pin 34
+//#define SPI_EEPROM
+#define FLASH_EEPROM_EMULATION
 
-//#define EEPROM_SCK  BOARD_SPI1_SCK_PIN   // PA5 pin 30
-//#define EEPROM_MISO BOARD_SPI1_MISO_PIN  // PA6 pin 31
-//#define EEPROM_MOSI BOARD_SPI1_MOSI_PIN  // PA7 pin 32
-*/
+#undef E2END
+#if ENABLED(SPI_EEPROM)
+  // SPI1 EEPROM Winbond W25Q64 (8MB/64Mbits)
+  #define SPI_CHAN_EEPROM1   1
+  #define SPI_EEPROM1_CS     PC5   // pin 34
+  #define EEPROM_SCK  BOARD_SPI1_SCK_PIN    // PA5 pin 30
+  #define EEPROM_MISO BOARD_SPI1_MISO_PIN   // PA6 pin 31
+  #define EEPROM_MOSI BOARD_SPI1_MOSI_PIN   // PA7 pin 32
+  #define EEPROM_PAGE_SIZE   0x1000U        // 4KB (from datasheet)
+  #define E2END ((16 * EEPROM_PAGE_SIZE)-1) // Limit to 64KB for now...
+#elif ENABLED(FLASH_EEPROM_EMULATION)
+  // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
+  #define EEPROM_START_ADDRESS (0x8000000UL + (512 * 1024) - 2 * EEPROM_PAGE_SIZE)
+  #define EEPROM_PAGE_SIZE     (0x800U)     // 2KB, but will use 2x more (4KB)
+  #define E2END (EEPROM_PAGE_SIZE - 1)
+#else
+  #define E2END (0x7FFU) // On SD, Limit to 2KB, require this amount of RAM
+#endif

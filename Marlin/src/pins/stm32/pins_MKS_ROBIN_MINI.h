@@ -125,7 +125,6 @@
   #define LCD_BACKLIGHT_PIN PD13
 
   #if ENABLED(TOUCH_BUTTONS)
-    #define BTN_ENC        PB3    // Not connected. TODO: Replace this hack to enable button code
     #define TOUCH_CS_PIN   PC2
   #endif
 #endif
@@ -134,7 +133,7 @@
 #define MOTOR_CURRENT_PWM_XY_PIN   PA6
 #define MOTOR_CURRENT_PWM_Z_PIN    PA7
 #define MOTOR_CURRENT_PWM_E_PIN    PB0
-#define MOTOR_CURRENT_PWM_RANGE    65535 // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
+#define MOTOR_CURRENT_PWM_RANGE    1500 // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
 #define DEFAULT_PWM_MOTOR_CURRENT  { 1030, 1030, 1030 } // 1.05Amp per driver, here is XY, Z and E. This values determined empirically.
 
 // This is a kind of workaround in case native marlin "digipot" interface won't work.

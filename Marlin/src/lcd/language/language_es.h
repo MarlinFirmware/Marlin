@@ -34,8 +34,8 @@
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" lista.")
 #define MSG_BACK                            _UxGT("Atrás")
-#define MSG_SD_INSERTED                     _UxGT("Tarjeta colocada")
-#define MSG_SD_REMOVED                      _UxGT("Tarjeta retirada")
+#define MSG_MEDIA_INSERTED                  _UxGT("Tarjeta colocada")
+#define MSG_MEDIA_REMOVED                   _UxGT("Tarjeta retirada")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Menú principal")
 #define MSG_AUTOSTART                       _UxGT("Inicio automático")
@@ -143,8 +143,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pausar impresión")
 #define MSG_RESUME_PRINT                    _UxGT("Reanudar impresión")
 #define MSG_STOP_PRINT                      _UxGT("Detener impresión")
-#define MSG_CARD_MENU                       _UxGT("Menú de SD")
-#define MSG_NO_CARD                         _UxGT("No hay tarjeta SD")
+#define MSG_MEDIA_MENU                      _UxGT("Menú de SD")
+#define MSG_NO_MEDIA                        _UxGT("No hay tarjeta SD")
 #define MSG_DWELL                           _UxGT("Reposo...")
 #define MSG_USERWAIT                        _UxGT("Esperando órdenes")
 #define MSG_PRINT_ABORTED                   _UxGT("Impresión cancelada")
@@ -160,8 +160,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("DesRet V")
 #define MSG_AUTORETRACT                     _UxGT("Retracción Auto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Cambiar filamento")
-#define MSG_INIT_SDCARD                     _UxGT("Iniciando tarjeta")
-#define MSG_CHANGE_SDCARD                   _UxGT("Cambiar tarjeta")
+#define MSG_INIT_MEDIA                      _UxGT("Iniciando tarjeta")
+#define MSG_CHANGE_MEDIA                    _UxGT("Cambiar tarjeta")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z fuera")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Auto-Prueba")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reiniciar BLTouch")
@@ -203,6 +203,8 @@
 #define MSG_INFO_BAUDRATE                   _UxGT("Baudios")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocolo")
 #define MSG_CASE_LIGHT                      _UxGT("Luz cabina")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Impresora incorrecta")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Conteo de impresión")

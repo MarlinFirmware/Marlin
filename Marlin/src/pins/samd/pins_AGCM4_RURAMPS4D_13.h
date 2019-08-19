@@ -102,7 +102,7 @@
 
 #if HAS_FILAMENT_SENSOR
   #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN   Y_MIN_PIN
+    #define FIL_RUNOUT_PIN Y_MIN_PIN
   #endif
 #endif
 
@@ -170,64 +170,69 @@
 //
 #if HAS_SPI_LCD
 
-  #if EITHER(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER)
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
-    #define BEEPER_PIN     75
-    #define LCD_PINS_D4    48
-    #define LCD_PINS_D7    53
-    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
-    #define LCD_PINS_RS    76
-    #define LCD_PINS_ENABLE 77
+    #define BEEPER_PIN      54
+    #define LCD_PINS_D4     48
+    #define SD_DETECT_PIN   -1    // 51 can't be used, it's MOSI
+    #define LCD_PINS_RS     55
+    #define LCD_PINS_ENABLE 56
 
-  #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #elif EITHER(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER)
 
-    #define BEEPER_PIN     75
-    #define LCD_PINS_D4    48
-    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
-    #define LCD_PINS_RS    76
-    #define LCD_PINS_ENABLE 77
+    #error "Pin compatibility check needed!"
+    #define BEEPER_PIN      54
+    #define LCD_PINS_D4     48
+    #define LCD_PINS_D5     -1    // 50 can't be used, it's MISO
+    #define LCD_PINS_D6     -1    // 52 can't be used, it's SCK
+    #define LCD_PINS_D7     53
+    #define SD_DETECT_PIN   -1    // 51 can't be used, it's MOSI
+    #define LCD_PINS_RS     55
+    #define LCD_PINS_ENABLE 56
 
   #elif HAS_SSD1306_OLED_I2C
 
-    #define BEEPER_PIN     75
-    #define LCD_SDSS       10
-    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
+    #error "Pin compatibility check needed!"
+    #define BEEPER_PIN      54
+    #define LCD_SDSS        10
+    #define SD_DETECT_PIN   -1    // 51 can't be used, it's MOSI
 
   #elif ENABLED(FYSETC_MINI_12864)
 
-    #define BEEPER_PIN     75
-    #define DOGLCD_CS      77
-    #define DOGLCD_A0      76
+    #define BEEPER_PIN      54
+    #define DOGLCD_CS       56
+    #define DOGLCD_A0       55
 
-    //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
-                                //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+    //#define FORCE_SOFT_SPI       // Use this if default of hardware SPI causes display problems
+                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-    #define LCD_RESET_PIN  48   // Must be high or open for LCD to operate normally.
+    #define LCD_RESET_PIN   48    // Must be high or open for LCD to operate normally.
 
     #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-      #error "Pin compatibility check needed! Grand central M4 pins 50, 51 and 52 are not GPIO pins, they are wired to MISO, MOSI, and SCK."
+      #error "Pin compatibility check needed!"
       #ifndef RGB_LED_R_PIN
-        #define RGB_LED_R_PIN 50   // D5
+        #define RGB_LED_R_PIN 50  // 50 can't be used, it's MISO
       #endif
       #ifndef RGB_LED_G_PIN
-        #define RGB_LED_G_PIN 52   // D6
+        #define RGB_LED_G_PIN 52  // 52 can't be used, it's SCK
       #endif
       #ifndef RGB_LED_B_PIN
-        #define RGB_LED_B_PIN 53   // D7
+        #define RGB_LED_B_PIN 53
       #endif
     #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #error "Pin compatibility check needed! Grand central M4 pins 50, 51 and 52 are not GPIO pins, they are wired to MISO, MOSI, and SCK."
-      #define NEOPIXEL_PIN    50   // D5
+      #error "Pin compatibility check needed!"
+      #define NEOPIXEL_PIN 50     // 50 can't be used, it's MISO
     #endif
 
   #elif ENABLED(MKS_MINI_12864)
-    #error "Pin compatibility check needed! Grand central M4 pins 50, 51 and 52 are not GPIO pins, they are wired to MISO, MOSI, and SCK."
+
+    #error "Pin compatibility check needed!"
     #define ORIG_BEEPER_PIN 75
 
-    #define DOGLCD_A0      52
-    #define DOGLCD_CS      50
+    #define DOGLCD_A0      52     // 52 can't be used, it's SCK
+    #define DOGLCD_CS      50     // 50 can't be used, it's MISO
 
-    #define SD_DETECT_PIN  -1    // 51 can't be used, it's MOSI
+    #define SD_DETECT_PIN  -1     // 51 can't be used, it's MOSI
 
   #endif
 

@@ -62,7 +62,7 @@ void lcd_sd_updir() {
     //  ui.drawing_screen = screen_changed = true;
     //#endif
 
-    goto_screen(menu_sdcard, sd_encoder_position, sd_top_line, sd_items);
+    goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
 
     defer_status_screen();
@@ -122,7 +122,7 @@ class MenuItem_sdfolder {
     }
 };
 
-void menu_sdcard() {
+void menu_media() {
   ui.encoder_direction_menus();
 
   const uint16_t fileCnt = card.get_num_Files();
@@ -149,9 +149,9 @@ void menu_sdcard() {
       card.getfilename_sorted(nr);
 
       if (card.flag.filenameIsDir)
-        MENU_ITEM(sdfolder, MSG_CARD_MENU, card);
+        MENU_ITEM(sdfolder, MSG_MEDIA_MENU, card);
       else
-        MENU_ITEM(sdfile, MSG_CARD_MENU, card);
+        MENU_ITEM(sdfile, MSG_MEDIA_MENU, card);
     }
     else {
       MENU_ITEM_DUMMY();
