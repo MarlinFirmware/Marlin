@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for AVR
+# Build tests for AVR ATmega2560
 #
 
 # exit on first failure
