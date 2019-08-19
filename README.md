@@ -4,33 +4,33 @@ The firmware branches maintained here are made possible by the support of sponso
 
 
 ## Creality Firmware Branches
-  - 1.1.9 Firmware (Stable, EOL) [[TM_CR10](https://github.com/InsanityAutomation/Marlin/tree/TM_CR10)]
-  - 2.0 Firmware (Beta, but well tested) [[Creality_Marlin2.0.x](https://github.com/InsanityAutomation/Marlin/tree/Creality_Marlin2.0.x)]
-  - 2.0 Development Branch [[Creality_2.0_Devel](https://github.com/InsanityAutomation/Marlin/tree/Creality_2.0_Devel)]
-  - Touchscreen Firmware (10SPro and CR-X 1.1.9 Stable) [[Creality_DWINTest](https://github.com/InsanityAutomation/Marlin/tree/Creality_DWINTest)]
-  - Touchscreen Firmware (10SPro and CR-X 2.0 Active Development) [[CrealityDwin_2.0](https://github.com/InsanityAutomation/Marlin/tree/CrealityDwin_2.0)]
+  - 1.1.9 Firmware (Stable, EOL) [TM_CR10](https://github.com/InsanityAutomation/Marlin/tree/TM_CR10)
+  - 2.0 Firmware (Beta, but well tested) [Creality_Marlin2.0.x](https://github.com/InsanityAutomation/Marlin/tree/Creality_Marlin2.0.x)
+  - 2.0 Development Branch [Creality_2.0_Devel](https://github.com/InsanityAutomation/Marlin/tree/Creality_2.0_Devel)
+  - Touchscreen Firmware (10SPro and CR-X 1.1.9 Stable) [Creality_DWINTest](https://github.com/InsanityAutomation/Marlin/tree/Creality_DWINTest)
+  - Touchscreen Firmware (10SPro and CR-X 2.0 Active Development) [CrealityDwin_2.0](https://github.com/InsanityAutomation/Marlin/tree/CrealityDwin_2.0)
 ## Formbot / Vivedino Firmware Branches
-  - Raptor 1 1.1.9 Firmware [[TM_Raptor](https://github.com/InsanityAutomation/Marlin/tree/TM_Raptor)]
-  - Raptor 1/2 2.0 Firmware [[Raptor_2.0.X](https://github.com/InsanityAutomation/Marlin/tree/Raptor_2.0.X)]
-  - Trex 2+/3 1.1.9 Firmware [[Trex3_1.1.9](https://github.com/InsanityAutomation/Marlin/tree/Trex3_1.1.9)]
-  - Trex 2+/3 2.0 Firmware (Be warned of layer shift issue below!) [[TM_Trex2+_2.0.x(https://github.com/InsanityAutomation/Marlin/tree/TM_Trex2+_2.0.x)]
+  - Raptor 1 1.1.9 Firmware [TM_Raptor](https://github.com/InsanityAutomation/Marlin/tree/TM_Raptor)
+  - Raptor 1/2 2.0 Firmware [Raptor_2.0.X](https://github.com/InsanityAutomation/Marlin/tree/Raptor_2.0.X)
+  - Trex 2+/3 1.1.9 Firmware [Trex3_1.1.9](https://github.com/InsanityAutomation/Marlin/tree/Trex3_1.1.9)
+  - Trex 2+/3 2.0 Firmware (Be warned of layer shift issue below!) [TM_Trex2+_2.0.x](https://github.com/InsanityAutomation/Marlin/tree/TM_Trex2+_2.0.x)
 ## Mamorubot / HieHa Firmware Branches
-  - SX4 1.1.9 Firmware (Stable, EOL) [[Mamorubot_SX4]( https://github.com/InsanityAutomation/Marlin/tree/Mamorubot_SX4)]
-  - SX4 2.0 Firmware (Beta, but well tested) [[TM_SX4_2.0](https://github.com/InsanityAutomation/Marlin/tree/TM_SX4_2.0)]
-  - SX4 Development Branch [[TM_SX4_2.0_Devel](https://github.com/InsanityAutomation/Marlin/tree/TM_SX4_2.0_Devel)]
+  - SX4 1.1.9 Firmware (Stable, EOL) [Mamorubot_SX4]( https://github.com/InsanityAutomation/Marlin/tree/Mamorubot_SX4)
+  - SX4 2.0 Firmware (Beta, but well tested) [TM_SX4_2.0](https://github.com/InsanityAutomation/Marlin/tree/TM_SX4_2.0)
+  - SX4 Development Branch [TM_SX4_2.0_Devel](https://github.com/InsanityAutomation/Marlin/tree/TM_SX4_2.0_Devel)
 ## Other Firmware
-  - Raise 3D N2+ (Dual) 2.0 [[Raise3D-N2+-Dual](https://github.com/InsanityAutomation/Marlin/tree/Raise3D-N2+-Dual)]
+  - Raise 3D N2+ (Dual) 2.0 [Raise3D-N2+-Dual](https://github.com/InsanityAutomation/Marlin/tree/Raise3D-N2+-Dual)
 
-[[Marlin Commit History](https://github.com/MarlinFirmware/Marlin/pulls?q=is%3Apr+is%3Aclosed+author%3AInsanityAutomation)]
+[Marlin Commit History](https://github.com/MarlinFirmware/Marlin/pulls?q=is%3Apr+is%3Aclosed+author%3AInsanityAutomation)
 
 ## Active Projects
-  - [[Tracing Marlin 2.0 Planner bug causing layer Shifting] (https://github.com/MarlinFirmware/Marlin/issues/12403)]
+  - [Tracing Marlin 2.0 Planner bug causing layer Shifting](https://github.com/MarlinFirmware/Marlin/issues/12403)
   - Creality Dwin Touchscreen rewrite to ExtUI
-  - [[IDEX drifting z offset on tool change with UBL]( https://github.com/MarlinFirmware/Marlin/issues/13817)]
-  - [[Multiple touch homing] (https://github.com/MarlinFirmware/Marlin/issues/9802)]
-  - [[Tool change offset changes] (https://github.com/MarlinFirmware/Marlin/issues/12568)]
-  - [[Hotend offset adjustment clamping] (https://github.com/MarlinFirmware/Marlin/pull/13669)]
-  - [[Filament width sensor hang on 32 bit] (https://github.com/MarlinFirmware/Marlin/issues/13701)]
+  - [IDEX drifting z offset on tool change with UBL](https://github.com/MarlinFirmware/Marlin/issues/13817)
+  - [Multiple touch homing](https://github.com/MarlinFirmware/Marlin/issues/9802)
+  - [Tool change offset changes](https://github.com/MarlinFirmware/Marlin/issues/12568)
+  - [Hotend offset adjustment clamping](https://github.com/MarlinFirmware/Marlin/pull/13669)
+  - [Filament width sensor hang on 32 bit](https://github.com/MarlinFirmware/Marlin/issues/13701)
   - Probe point output for all leveling types matching incomplete ubl implementation
   - SKR1.1 Pro integration to Trex2 with TMC2209 Drivers
   - SKR1.3 Integration to Mamorubot SX4
