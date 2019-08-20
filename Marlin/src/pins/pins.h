@@ -202,6 +202,8 @@
   #include "mega/pins_CNCONTROLS_11.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(CNCONTROLS_12)
   #include "mega/pins_CNCONTROLS_12.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+#elif MB(CNCONTROLS_15)
+  #include "mega/pins_CNCONTROLS_15.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MIGHTYBOARD_REVE)
   #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(CHEAPTRONIC)

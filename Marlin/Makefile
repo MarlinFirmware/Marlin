@@ -277,42 +277,44 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1205)
 else ifeq ($(HARDWARE_MOTHERBOARD),1300)
 # Cartesio CN Controls V12
 else ifeq ($(HARDWARE_MOTHERBOARD),1301)
-# Cheaptronic v1.0
+# Cartesio CN Controls V15
 else ifeq ($(HARDWARE_MOTHERBOARD),1302)
-# Cheaptronic v2.0
+# Cheaptronic v1.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1303)
-# Makerbot Mightyboard Revision E
+# Cheaptronic v2.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1304)
-# Megatronics
+# Makerbot Mightyboard Revision E
 else ifeq ($(HARDWARE_MOTHERBOARD),1305)
-# Megatronics v2.0
+# Megatronics
 else ifeq ($(HARDWARE_MOTHERBOARD),1306)
-# Megatronics v3.0
+# Megatronics v2.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1307)
-# Megatronics v3.1
+# Megatronics v3.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1308)
-# Megatronics v3.2
+# Megatronics v3.1
 else ifeq ($(HARDWARE_MOTHERBOARD),1309)
-# Elefu Ra Board (v3)
+# Megatronics v3.2
 else ifeq ($(HARDWARE_MOTHERBOARD),1310)
-# Leapfrog
+# Elefu Ra Board (v3)
 else ifeq ($(HARDWARE_MOTHERBOARD),1311)
-# Mega controller
+# Leapfrog
 else ifeq ($(HARDWARE_MOTHERBOARD),1312)
-# Geeetech GT2560 Rev B for Mecreator2
+# Mega controller
 else ifeq ($(HARDWARE_MOTHERBOARD),1313)
-# Geeetech GT2560 Rev. A
+# Geeetech GT2560 Rev B for Mecreator2
 else ifeq ($(HARDWARE_MOTHERBOARD),1314)
-# Geeetech GT2560 Rev. A+ (with auto level probe)
+# Geeetech GT2560 Rev. A
 else ifeq ($(HARDWARE_MOTHERBOARD),1315)
-# Geeetech GT2560 Rev B for A10(M/D)
+# Geeetech GT2560 Rev. A+ (with auto level probe)
 else ifeq ($(HARDWARE_MOTHERBOARD),1316)
-# Geeetech GT2560 Rev B for A20(M/D)
+# Geeetech GT2560 Rev B for A10(M/D)
 else ifeq ($(HARDWARE_MOTHERBOARD),1317)
-# Einstart retrofit
+# Geeetech GT2560 Rev B for A20(M/D)
 else ifeq ($(HARDWARE_MOTHERBOARD),1318)
-# Wanhao 0ne+ i3 Mini
+# Einstart retrofit
 else ifeq ($(HARDWARE_MOTHERBOARD),1319)
+# Wanhao 0ne+ i3 Mini
+else ifeq ($(HARDWARE_MOTHERBOARD),1320)
 
 #
 # ATmega1281, ATmega2561
