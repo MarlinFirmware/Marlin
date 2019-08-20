@@ -268,9 +268,9 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
-    const uint8_t old_tool = active_extruder;
+    const extruder_t old_tool = getActiveTool();
     setActiveTool(extruder, true);
-    float pos = flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
+    const float pos = flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
     setActiveTool(old_tool, true);
     return pos;
   }
@@ -813,7 +813,7 @@ namespace ExtUI {
     queue.inject_P(gcode);
   }
 
-  bool commandsInQueue() { return (planner.movesplanned() || queue.has_commands_queued()); }
+  bool commandsInQueue() { return (flags.manual_motion || planner.movesplanned() || queue.has_commands_queued()); }
 
   bool isAxisPositionKnown(const axis_t axis) {
     return TEST(axis_known_position, axis);

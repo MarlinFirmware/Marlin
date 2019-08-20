@@ -335,11 +335,11 @@ void onIdle()
 					AutoHomeIconNum = 0;
 			}
 
-    //if(rtscheck.recdat.addr != DisplayZaxis && rtscheck.recdat.addr != DisplayYaxis && rtscheck.recdat.addr != DisplayZaxis) {
-		//	rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
-		//	rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
-		//	rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
-    //}
+    if(rtscheck.recdat.addr != DisplayZaxis && rtscheck.recdat.addr != DisplayYaxis && rtscheck.recdat.addr != DisplayZaxis) {
+			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
+			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
+			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
+    }
 
 		if (getLevelingActive())
 			rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
@@ -1229,6 +1229,20 @@ void RTSSHOW::RTS_HandleData()
 			targetPos = min;
 		else if (targetPos > max)
 			targetPos = max;
+    SERIAL_ECHOLNPAIR("Target Pos:", targetPos);
+    SERIAL_ECHOLNPAIR("Target Axis:", axis);
+    SERIAL_ECHOLNPAIR("Current X Pos:", getAxisPosition_mm((axis_t)X));
+    SERIAL_ECHOLNPAIR("Current Y Pos:", getAxisPosition_mm((axis_t)Y));
+    SERIAL_ECHOLNPAIR("Current Z Pos:", getAxisPosition_mm((axis_t)Z));
+    //char tmpcmd1[30];
+    //if (axis==X)
+    //  sprintf_P(tmpcmd1, PSTR("G1 X%i F2000"), targetPos);
+   // else if (axis==Y)
+    //  sprintf_P(tmpcmd1, PSTR("G1 Y%i F2000"), targetPos);
+   // else if (axis==Z)
+   //   sprintf_P(tmpcmd1, PSTR("G1 Z%i F2000"), targetPos);
+
+		//injectCommands_P(tmpcmd1);
 		setAxisPosition_mm(targetPos, axis);
 		RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
 		RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
@@ -1236,7 +1250,6 @@ void RTSSHOW::RTS_HandleData()
 
 		delay_ms(1);
 		RTS_SndData(10, FilenameIcon);
-		waitway = 0;
 		break;
 
 	case Filement:
