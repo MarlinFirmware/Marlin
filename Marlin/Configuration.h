@@ -110,8 +110,8 @@
    Requires a sensor from above
    Melzi board users may only select ABL_BI for bilinear leveling
 */
-#define ABL_BI
-//#define ABL_UBL
+//#define ABL_BI
+#define ABL_UBL
 
 //#define POWER_LOSS_RECOVERY //Large and does not fit with any other features on Melzi, or UBL on Atmega
 /*
@@ -1954,7 +1954,9 @@
   //========================= Unified Bed Leveling ============================
   //===========================================================================
 
-  #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
+  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD) || ENABLED(GraphicLCD)
+    #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
+  #endif
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
 
@@ -1986,8 +1988,8 @@
 #if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
 
 #define MESH_INSET 15
-#if(DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4))
-#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
+#if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder4) || ENABLED(GraphicLCD)
+  #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 #endif
 
 #if ENABLED(MachineEnder2)
@@ -2003,6 +2005,13 @@
   #define PROBE_PT_2_X 150
   #define PROBE_PT_2_Y 180
   #define PROBE_PT_3_X 150
+  #define PROBE_PT_3_Y 50
+#elif (ENABLED(MachineCRX))
+  #define PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
+  #define PROBE_PT_1_Y 250
+  #define PROBE_PT_2_X 250
+  #define PROBE_PT_2_Y 250
+  #define PROBE_PT_3_X 250
   #define PROBE_PT_3_Y 50
 #elif (ENABLED(MachineCR10Std))
   #define PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
@@ -2039,7 +2048,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if (DISABLED(ABL_EZABL) && DISABLED(ABL_NCSW) && DISABLED(ABL_BLTOUCH) &&DISABLED(OrigLA))
+#if DISABLED(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH)
 #define LCD_BED_LEVELING
 #endif
 

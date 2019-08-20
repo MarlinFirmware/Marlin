@@ -37,10 +37,6 @@
   #include "runout.h"
 #endif
 
-#if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
-#endif
-
 void host_action(const char * const pstr, const bool eol) {
   SERIAL_ECHOPGM("//action:");
   serialprintPGM(pstr);
@@ -92,7 +88,6 @@ void host_action(const char * const pstr, const bool eol) {
   void host_action_prompt_show() { host_action_prompt(PSTR("show")); }
   void host_prompt_do(const PromptReason reason, const char * const pstr, const char * const pbtn/*=nullptr*/) {
     host_prompt_reason = reason;
-
     host_action_prompt_end();
     host_action_prompt_begin(pstr);
     if (pbtn) host_action_prompt_button(pbtn);

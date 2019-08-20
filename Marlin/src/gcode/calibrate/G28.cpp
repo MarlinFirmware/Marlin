@@ -212,7 +212,6 @@ void GcodeSuite::G28(const bool always_home_all) {
     return;
   }
 
-  ui.set_status_P(PSTR("Homing..."));
   // Wait for planner moves to finish!
   planner.synchronize();
 

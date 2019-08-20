@@ -328,14 +328,13 @@ void GcodeSuite::M43() {
     }
 
     #if HAS_RESUME_CONTINUE
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired("M43 Called");
-      #endif
-
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), PSTR("Continue"));
+      #endif
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onStatusChanged(PSTR("M43 Wait Called"));
       #endif
     #endif
 
