@@ -827,9 +827,9 @@
 
 #if ENABLED(HotendStock)
   #if ANY(MachineCRX, MachineCR10SPro, MachineCR10Max)
-    #define DEFAULT_Kp 20.22
-    #define DEFAULT_Ki 3.43
-    #define DEFAULT_Kd 29.81
+    #define DEFAULT_Kp 24.62
+    #define DEFAULT_Ki 4.01
+    #define DEFAULT_Kd 37.81
   #elif ENABLED(MachineEnder5Plus)
     #define  DEFAULT_Kp 14.72
     #define  DEFAULT_Ki 0.89

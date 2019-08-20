@@ -851,9 +851,12 @@ void RTSSHOW::RTS_HandleData()
 		{
 			babystepAxis_steps((400 * (getZOffset_mm() - tmp_zprobe_offset) * -1), (axis_t)Z);
 			setZOffset_mm(tmp_zprobe_offset);
-			RTS_SndData(getZOffset_mm() * 100, 0x1026);
+      injectCommands_P((PSTR("M500")));
 		}
-		injectCommands_P((PSTR("M500")));
+    else
+    {
+      RTS_SndData(getZOffset_mm() * 100, 0x1026);
+    }
 		break;
 
 	case TempControl:
