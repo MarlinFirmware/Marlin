@@ -120,7 +120,9 @@ public:
       init_MightInline(clock, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
     }
   }
-  SPISettings() { init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT); }
+  SPISettings() {
+    init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
+  }
 private:
   void init_MightInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode, uint32_t dataSize) {
     init_AlwaysInline(clock, bitOrder, dataMode, dataSize);
@@ -205,18 +207,18 @@ public:
   void attachInterrupt();
   void detachInterrupt();
 
- /* Victor Perez. Added to change datasize from 8 to 16 bit modes on the fly.
-  * Input parameter should be SPI_CR1_DFF set to 0 or 1 on a 32bit word.
-  * Requires an added function spi_data_size on STM32F1 / cores / maple / libmaple / spi.c
-  */
+  /* Victor Perez. Added to change datasize from 8 to 16 bit modes on the fly.
+   * Input parameter should be SPI_CR1_DFF set to 0 or 1 on a 32bit word.
+   * Requires an added function spi_data_size on STM32F1 / cores / maple / libmaple / spi.c
+   */
   void setDataSize(uint32_t ds);
 
- /* Victor Perez 2017. Added to set and clear callback functions for callback
-  * on DMA transfer completion.
-  * onReceive used to set the callback in case of dmaTransfer (tx/rx), once rx is completed
-  * onTransmit used to set the callback in case of dmaSend (tx only). That function
-  * will NOT be called in case of TX/RX
-  */
+  /* Victor Perez 2017. Added to set and clear callback functions for callback
+   * on DMA transfer completion.
+   * onReceive used to set the callback in case of dmaTransfer (tx/rx), once rx is completed
+   * onTransmit used to set the callback in case of dmaSend (tx only). That function
+   * will NOT be called in case of TX/RX
+   */
   void onReceive(void(*)(void));
   void onTransmit(void(*)(void));
 
@@ -230,7 +232,7 @@ public:
    * If there is no unread byte/word waiting, this function will block
    * until one is received.
    */
-  uint16 read();
+  uint16_t read();
 
   /**
    * @brief Read length bytes, storing them into buffer.
@@ -239,20 +241,20 @@ public:
    *               function will block until the desired number of
    *               bytes have been read.
    */
-  void read(uint8 *buffer, uint32_t length);
+  void read(uint8_t *buffer, uint32_t length);
 
   /**
    * @brief Transmit one byte/word.
    * @param data to transmit.
    */
-  void write(uint16 data);
-  void write16(uint16 data); // write 2 bytes in 8 bit mode (DFF=0)
+  void write(uint16_t data);
+  void write16(uint16_t data); // write 2 bytes in 8 bit mode (DFF=0)
 
   /**
    * @brief Transmit one byte/word a specified number of times.
    * @param data to transmit.
    */
-  void write(uint16 data, uint32_t n);
+  void write(uint16_t data, uint32_t n);
 
   /**
    * @brief Transmit multiple bytes/words.
@@ -269,7 +271,7 @@ public:
    * @param data Byte to transmit.
    * @return Next unread byte.
    */
-  uint8 transfer(uint8 data) const;
+  uint8_t transfer(uint8_t data) const;
   uint16_t transfer16(uint16_t data) const;
 
   /**
@@ -281,10 +283,10 @@ public:
    * @param transmitBuf buffer Bytes to transmit. If passed as 0, it sends FF repeatedly for "length" bytes
    * @param receiveBuf buffer Bytes to save received data.
    * @param length Number of bytes in buffer to transmit.
- */
-  uint8 dmaTransfer(const void * transmitBuf, void * receiveBuf, uint16 length);
+   */
+  uint8_t dmaTransfer(const void * transmitBuf, void * receiveBuf, uint16_t length);
   void dmaTransferSet(const void *transmitBuf, void *receiveBuf);
-  uint8 dmaTransferRepeat(uint16 length);
+  uint8_t dmaTransferRepeat(uint16_t length);
 
   /**
    * @brief Sets up a DMA Transmit for SPI 8 or 16 bit transfer mode.
@@ -296,11 +298,11 @@ public:
    * @param length Number of bytes in buffer to transmit.
    * @param minc Set to use Memory Increment mode, clear to use Circular mode.
    */
-  uint8 dmaSend(const void * transmitBuf, uint16 length, bool minc = 1);
+  uint8_t dmaSend(const void * transmitBuf, uint16_t length, bool minc = 1);
   void dmaSendSet(const void * transmitBuf, bool minc);
-  uint8 dmaSendRepeat(uint16 length);
+  uint8_t dmaSendRepeat(uint16_t length);
 
-  uint8 dmaSendAsync(const void * transmitBuf, uint16 length, bool minc = 1);
+  uint8_t dmaSendAsync(const void * transmitBuf, uint16_t length, bool minc = 1);
   /*
    * Pin accessors
    */
@@ -308,22 +310,22 @@ public:
   /**
    * @brief Return the number of the MISO (master in, slave out) pin
    */
-  uint8 misoPin();
+  uint8_t misoPin();
 
   /**
    * @brief Return the number of the MOSI (master out, slave in) pin
    */
-  uint8 mosiPin();
+  uint8_t mosiPin();
 
   /**
    * @brief Return the number of the SCK (serial clock) pin
    */
-  uint8 sckPin();
+  uint8_t sckPin();
 
   /**
    * @brief Return the number of the NSS (slave select) pin
    */
-  uint8 nssPin();
+  uint8_t nssPin();
 
   /* Escape hatch */
 
@@ -336,12 +338,12 @@ public:
   spi_dev* dev() { return _currentSetting->spi_d; }
 
   /**
-  * @brief Sets the number of the SPI peripheral to be used by
-  *        this HardwareSPI instance.
-  *
-  * @param spi_num Number of the SPI port. 1-2 in low density devices
-  *     or 1-3 in high density devices.
-  */
+   * @brief Sets the number of the SPI peripheral to be used by
+   *        this HardwareSPI instance.
+   *
+   * @param spi_num Number of the SPI port. 1-2 in low density devices
+   *     or 1-3 in high density devices.
+   */
   void setModule(int spi_num) {
     _currentSetting=&_settings[spi_num-1];// SPI channels are called 1 2 and 3 but the array is zero indexed
   }
@@ -355,7 +357,7 @@ public:
    *
    * @see HardwareSPI::transfer()
    */
-  uint8 send(uint8 data);
+  uint8_t send(uint8_t data);
 
   /**
    * @brief Deprecated.
@@ -367,7 +369,7 @@ public:
    * @see HardwareSPI::read()
    * @see HardwareSPI::transfer()
    */
-  uint8 send(uint8 *data, uint32_t length);
+  uint8_t send(uint8_t *data, uint32_t length);
 
   /**
    * @brief Deprecated.
@@ -376,7 +378,7 @@ public:
    *
    * @see HardwareSPI::read()
    */
-  uint8 recv();
+  uint8_t recv();
 
 private:
 
