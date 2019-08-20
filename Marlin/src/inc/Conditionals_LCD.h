@@ -389,6 +389,7 @@
   || ENABLED(CARTESIO_UI)                 \
   || ENABLED(VIKI2)                       \
   || ENABLED(AZSMZ_12864)                 \
+  || ENABLED(FYSETC_MINI_12864)           \
   || ENABLED(miniVIKI)                    \
   || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
 )
