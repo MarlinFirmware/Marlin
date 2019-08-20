@@ -20,7 +20,7 @@
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
-#ifdef LULZBOT_TOUCH_UI
+#if ENABLED(LULZBOT_TOUCH_UI)
 
 class SPIFlash {
   public:

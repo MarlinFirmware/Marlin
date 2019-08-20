@@ -22,6 +22,8 @@
 
 #pragma once
 
+#if ENABLED(LULZBOT_TOUCH_UI)
+
 #include "../../../../../sd/SdFile.h"
 #include "../../../../../sd/cardreader.h"
 
@@ -42,3 +44,5 @@ class MediaFileReader {
 
     static int16_t read(void *obj, void *buff, size_t bytes);
 };
+
+#endif // LULZBOT_TOUCH_UI
