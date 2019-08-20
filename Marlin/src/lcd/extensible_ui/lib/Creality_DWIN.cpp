@@ -255,29 +255,41 @@ void onIdle()
 
 			if (TPShowStatus && isPrinting()) //need to optimize
 			{
+        rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
 				rtscheck.RTS_SndData(getProgress_seconds_elapsed() / 3600, Timehour);
 				rtscheck.RTS_SndData((getProgress_seconds_elapsed() % 3600) / 60, Timemin);
-					if (getProgress_percent() > 0)
+				if (getProgress_percent() > 0)
+				{
+					Percentrecord = getProgress_percent() + 1;
+					if (Percentrecord <= 50)
 					{
-						Percentrecord = getProgress_percent() + 1;
-						if (Percentrecord <= 50)
-						{
-							rtscheck.RTS_SndData((unsigned int)Percentrecord * 2, PrintscheduleIcon);
-							rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
-						}
-						else
-						{
-							rtscheck.RTS_SndData(100, PrintscheduleIcon);
-							rtscheck.RTS_SndData((unsigned int)Percentrecord * 2 - 100, PrintscheduleIcon + 1);
-						}
-					}
-					else
-					{
-						rtscheck.RTS_SndData(0, PrintscheduleIcon);
+						rtscheck.RTS_SndData((unsigned int)Percentrecord * 2, PrintscheduleIcon);
 						rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
 					}
-					rtscheck.RTS_SndData((unsigned int)getProgress_percent(), Percentage);
+					else
+	  			{
+						rtscheck.RTS_SndData(100, PrintscheduleIcon);
+						rtscheck.RTS_SndData((unsigned int)Percentrecord * 2 - 100, PrintscheduleIcon + 1);
+					}
+				}
+				else
+				{
+					rtscheck.RTS_SndData(0, PrintscheduleIcon);
+					rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
+				}
+				rtscheck.RTS_SndData((unsigned int)getProgress_percent(), Percentage);
 			}
+      else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(H0) < (getTargetTemp_celsius(H0) - THERMAL_PROTECTION_HYSTERESIS)))
+			{
+				rtscheck.RTS_SndData(1 + CEIconGrap, IconPrintstatus); // Heating Status
+				PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 1 : PrinterStatusKey[1]);
+			}
+			else if (getActualTemp_celsius(BED) > (getTargetTemp_celsius(BED) + THERMAL_PROTECTION_BED_HYSTERESIS) || (getActualTemp_celsius(H0) > (getTargetTemp_celsius(H0) + THERMAL_PROTECTION_HYSTERESIS)))
+			{
+				rtscheck.RTS_SndData(8 + CEIconGrap, IconPrintstatus); // Cooling Status
+				PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 2 : PrinterStatusKey[1]);
+			}
+
 
 			rtscheck.RTS_SndData(getZOffset_mm() * 100, 0x1026);
 			//float temp_buf = getActualTemp_celsius(H0);
@@ -285,22 +297,6 @@ void onIdle()
 			rtscheck.RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
       rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
 			rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
-
-				if (isPrinting())
-				{
-					rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
-				}
-				else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(H0) < (getTargetTemp_celsius(H0) - THERMAL_PROTECTION_HYSTERESIS)))
-				{
-					rtscheck.RTS_SndData(1 + CEIconGrap, IconPrintstatus); // Heating Status
-					PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 1 : PrinterStatusKey[1]);
-				}
-				else if (getActualTemp_celsius(BED) > (getTargetTemp_celsius(BED) + THERMAL_PROTECTION_BED_HYSTERESIS) || (getActualTemp_celsius(H0) > (getTargetTemp_celsius(H0) + THERMAL_PROTECTION_HYSTERESIS)))
-				{
-					rtscheck.RTS_SndData(8 + CEIconGrap, IconPrintstatus); // Cooling Status
-					PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 2 : PrinterStatusKey[1]);
-				}
-
 
 			if (NozzleTempStatus[0] || NozzleTempStatus[2]) //statuse of loadfilement and unloadfinement when temperature is less than
 			{
@@ -332,17 +328,6 @@ void onIdle()
 				}
 			}
 
-
-      if (PrinterStatusKey[1] != 4) //paused
-      {
-        if (!WITHIN(last_target_temperature_bed, (getTargetTemp_celsius(BED)-3), (getTargetTemp_celsius(BED)+3)) || !WITHIN(last_target_temperature[0], (getTargetTemp_celsius(H0)-10), (getTargetTemp_celsius(H0)+10)))
-          PrinterStatusKey[1] = 1; //Heating
-        else if (isPrinting())
-          PrinterStatusKey[1] = 3; //Printing
-        else
-          PrinterStatusKey[1] = 0; //Idle
-
-      }
 			if (AutohomeKey)
 			{
 				rtscheck.RTS_SndData(AutoHomeIconNum++, AutoZeroIcon);
@@ -350,10 +335,11 @@ void onIdle()
 					AutoHomeIconNum = 0;
 			}
 
+    if(rtscheck.recdat.addr != DisplayZaxis && rtscheck.recdat.addr != DisplayYaxis && rtscheck.recdat.addr != DisplayZaxis) {
 			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
 			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
 			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
-
+    }
 
 		if (getLevelingActive())
 			rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
