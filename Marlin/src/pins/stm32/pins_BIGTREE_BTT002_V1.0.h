@@ -31,7 +31,6 @@
 
 #define SRAM_EEPROM_EMULATION
 
-
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
@@ -60,7 +59,7 @@
 //
 // Steppers
 //
-#define X_STEP_PIN        PA9
+#define X_STEP_PIN         PA9
 #define X_DIR_PIN          PA10
 #define X_ENABLE_PIN       PA8
 #ifndef X_CS_PIN
@@ -163,27 +162,27 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA2// T1 <-> E0
-#define TEMP_1_PIN         PA0 // T2 <-> E1
-//#define TEMP_2_PIN         PC2  // T3 <-> E2  SKR_PRO
-#define TEMP_BED_PIN       PA1  // T0 <-> Bed
+#define TEMP_0_PIN         PA2   // T1 <-> E0
+#define TEMP_1_PIN         PA0   // T2 <-> E1
+//#define TEMP_2_PIN         PC2   // T3 <-> E2  SKR_PRO
+#define TEMP_BED_PIN       PA1   // T0 <-> Bed
 
 //
-// Heaters / Fans ##
+// Heaters / Fans
 //
 #define HEATER_0_PIN       PE6  // Heater0
-//#define HEATER_1_PIN       PD14 // Heater1
-//#define HEATER_2_PIN       PB0  // Heater1
-#define HEATER_BED_PIN     PE5 // Hotbed
-#define FAN_PIN            PB9  // Fan0
-#define FAN1_PIN           PB8  // Fan1
-//#define FAN2_PIN           PE6  // Fan2
+//#define HEATER_1_PIN       PD14  // Heater1
+//#define HEATER_2_PIN       PB0   // Heater1
+#define HEATER_BED_PIN     PE5   // Hotbed
+#define FAN_PIN            PB9   // Fan0
+#define FAN1_PIN           PB8   // Fan1
+//#define FAN2_PIN           PE6   // Fan2
 
-//hal SPI  pins set
-#define SCK_PIN             PA5//SPI SCLK
-#define MYSSEL             PA4//SPI SSEL
-#define MISO_PIN             PA6//SPI MISO
-#define MOSI_PIN             PA7//SPI MOSI
+// HAL SPI pins group
+#define SCK_PIN            PA5   // SPI SCLK
+#define MYSSEL             PA4   // SPI SSEL
+#define MISO_PIN           PA6   // SPI MISO
+#define MOSI_PIN           PA7   // SPI MOSI
 
 //
 // Misc. Functions
