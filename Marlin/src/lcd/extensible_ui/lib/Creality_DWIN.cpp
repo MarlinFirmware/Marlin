@@ -156,10 +156,10 @@ void onIdle()
 
 		case 3:
       SERIAL_ECHOLN("==waitway 3==");
-      if(isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1))) {
+      //if(isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1))) {
 			  rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
         waitway = 0;
-      }
+      //}
 			break;
 
 		case 4:
@@ -1244,11 +1244,12 @@ void RTSSHOW::RTS_HandleData()
 
 		//injectCommands_P(tmpcmd1);
 		setAxisPosition_mm(targetPos, axis);
+    delay_ms(1);
 		RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
 		RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
 		RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
-
 		delay_ms(1);
+		waitway = 0;
 		RTS_SndData(10, FilenameIcon);
 		break;
 

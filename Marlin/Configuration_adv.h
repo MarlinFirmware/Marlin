@@ -1267,7 +1267,7 @@
 
 // @section leveling
 
-#if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+#if ENABLED(MESH_BED_LEVELING)
   // Override the mesh area if the automatic (max) area is too large
 
     #if( (X_PROBE_OFFSET_FROM_EXTRUDER + 15) > 0 )
