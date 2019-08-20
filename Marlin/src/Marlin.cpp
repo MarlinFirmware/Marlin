@@ -65,7 +65,7 @@
   #include "feature/host_actions.h"
 #endif
 
-#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
+#if USE_BEEPER
   #include "libs/buzzer.h"
 #endif
 
@@ -702,7 +702,7 @@ void idle(
     print_job_timer.tick();
   #endif
 
-  #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER) && DISABLED(PCA9632_BUZZER)
+  #if USE_BEEPER
     buzzer.tick();
   #endif
 

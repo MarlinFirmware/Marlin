@@ -259,15 +259,11 @@ public:
   }
 
   #if HAS_BUZZER
-    static inline void buzz(const long duration, const uint16_t freq) {
-      #if ENABLED(LCD_USE_I2C_BUZZER)
-        lcd.buzz(duration, freq);
-      #elif PIN_EXISTS(BEEPER)
-        buzzer.tone(duration, freq);
-      #elif ENABLED(PCA9632_BUZZER)
-        pca9632_buzz(duration, freq);
-      #endif
-    }
+    static void buzz(const long duration, const uint16_t freq);
+  #endif
+
+  #if ENABLED(LCD_HAS_STATUS_INDICATORS)
+    static void update_indicators();
   #endif
 
   // LCD implementations

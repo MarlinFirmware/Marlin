@@ -102,6 +102,8 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
   }
 }
 
+bool MarlinUI::detected() { return true; }
+
 #if ENABLED(SHOW_BOOTSCREEN)
 
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
