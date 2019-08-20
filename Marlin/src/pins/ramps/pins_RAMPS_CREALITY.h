@@ -35,6 +35,11 @@
 #define MOSFET_D_PIN 7
 
 #define FIL_RUNOUT_PIN 2
+#if NUM_RUNOUT_SENSORS > 1
+  #define FIL_RUNOUT2_PIN 15 // Creality CR-X can use dual runout sensors
+#endif
+
+#define SD_DETECT_PIN 49   // Always define onboard SD detect
 
 #include "pins_RAMPS.h"
 

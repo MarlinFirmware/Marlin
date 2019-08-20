@@ -360,18 +360,45 @@ void MarlinUI::init_lcd() {
   lcd.clear();
 }
 
+bool MarlinUI::detected() {
+  return true
+    #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
+      && lcd.LcdDetected() == 1
+    #endif
+  ;
+}
+
+#if HAS_SLOW_BUTTONS
+  uint8_t MarlinUI::read_slow_buttons() {
+    #if ENABLED(LCD_I2C_TYPE_MCP23017)
+      // Reading these buttons this is likely to be too slow to call inside interrupt context
+      // so they are called during normal lcd_update
+      uint8_t slow_bits = lcd.readButtons()
+        #if !BUTTON_EXISTS(ENC)
+          << B_I2C_BTN_OFFSET
+        #endif
+      ;
+      #if ENABLED(LCD_I2C_VIKI)
+        if ((slow_bits & (B_MI | B_RI)) && PENDING(millis(), next_button_update_ms)) // LCD clicked
+          slow_bits &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
+      #endif // LCD_I2C_VIKI
+      return slow_bits;
+    #endif // LCD_I2C_TYPE_MCP23017
+  }
+#endif
+
 void MarlinUI::clear_lcd() { lcd.clear(); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
-  void lcd_erase_line(const int16_t line) {
+  void lcd_erase_line(const lcd_uint_t line) {
     lcd_moveto(0, line);
     for (uint8_t i = LCD_WIDTH + 1; --i;)
       lcd_put_wchar(' ');
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
-  void lcd_scroll(const uint8_t col, const uint8_t line, PGM_P const text, const uint8_t len, const int16_t time) {
+  void lcd_scroll(const lcd_uint_t col, const lcd_uint_t line, PGM_P const text, const uint8_t len, const int16_t time) {
     uint8_t slen = utf8_strlen_P(text);
     if (slen < len) {
       // Fits into,
@@ -1031,9 +1058,9 @@ void MarlinUI::draw_status_screen() {
     if (value != nullptr) {
       lcd_put_wchar(':');
       int len = utf8_strlen(value);
-      const uint8_t valrow = (utf8_strlen_P(pstr) + 1 + len + 1) > (LCD_WIDTH - 2) ? 2 : 1;   // Value on the next row if it won't fit
-      lcd_moveto((LCD_WIDTH - 1) - (len + 1), valrow);                                        // Right-justified, padded by spaces
-      lcd_put_wchar(' ');                                                                     // Overwrite char if value gets shorter
+      const lcd_uint_t valrow = (utf8_strlen_P(pstr) + 1 + len + 1) > (LCD_WIDTH - 2) ? 2 : 1;   // Value on the next row if it won't fit
+      lcd_moveto((LCD_WIDTH - 1) - (len + 1), valrow);                                           // Right-justified, padded by spaces
+      lcd_put_wchar(' ');                                                                        // Overwrite char if value gets shorter
       lcd_put_u8str(value);
     }
   }
@@ -1063,7 +1090,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
 
-    static void MarlinUI::update_indicators() {
+    void MarlinUI::update_indicators() {
       // Set the LEDS - referred to as backlights by the LiquidTWI2 library
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
@@ -1144,9 +1171,9 @@ void MarlinUI::draw_status_screen() {
     } custom_char;
 
     typedef struct {
-      uint8_t column, row,
-              x_pixel_offset, y_pixel_offset,
-              x_pixel_mask;
+      lcd_uint_t column, row,
+                 x_pixel_offset, y_pixel_offset;
+      uint8_t x_pixel_mask;
     } coordinate;
 
     void add_edges_to_custom_char(custom_char &custom, const coordinate &ul, const coordinate &lr, const coordinate &brc, const uint8_t cell_location);
@@ -1174,16 +1201,16 @@ void MarlinUI::draw_status_screen() {
       return ret_val;
     }
 
-    inline coordinate pixel_location(const uint8_t x, const uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
+    inline coordinate pixel_location(const lcd_uint_t x, const lcd_uint_t y) { return pixel_location((int16_t)x, (int16_t)y); }
 
-    void prep_and_put_map_char(custom_char &chrdata, const coordinate &ul, const coordinate &lr, const coordinate &brc, const uint8_t cl, const char c, const uint8_t x, const uint8_t y) {
+    void prep_and_put_map_char(custom_char &chrdata, const coordinate &ul, const coordinate &lr, const coordinate &brc, const uint8_t cl, const char c, const lcd_uint_t x, const lcd_uint_t y) {
       add_edges_to_custom_char(chrdata, ul, lr, brc, cl);
       lcd.createChar(c, (uint8_t*)&chrdata);
       lcd_moveto(x, y);
       lcd_put_wchar(c);
     }
 
-    void MarlinUI::ubl_plot(const uint8_t x, const uint8_t inverted_y) {
+    void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
 
       #if LCD_WIDTH >= 20
         #define _LCD_W_POS 12
@@ -1209,10 +1236,10 @@ void MarlinUI::draw_status_screen() {
          * Show X and Y positions
          */
         _XLABEL(_PLOT_X, 0);
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
+        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
 
         _YLABEL(_LCD_W_POS, 0);
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
+        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
 
         lcd_moveto(_PLOT_X, 0);
 
@@ -1220,13 +1247,13 @@ void MarlinUI::draw_status_screen() {
 
         coordinate upper_left, lower_right, bottom_right_corner;
         custom_char new_char;
-        uint8_t i, j, k, l, m, n, n_rows, n_cols, y,
-                bottom_line, right_edge,
-                x_map_pixels, y_map_pixels,
-                pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt,
-                suppress_x_offset = 0, suppress_y_offset = 0;
+        uint8_t i, n, n_rows, n_cols;
+        lcd_uint_t j, k, l, m, bottom_line, right_edge,
+                   x_map_pixels, y_map_pixels,
+                   pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt,
+                   suppress_x_offset = 0, suppress_y_offset = 0;
 
-        y = GRID_MAX_POINTS_Y - inverted_y - 1;
+        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y - 1) - y_plot;
 
         upper_left.column  = 0;
         upper_left.row     = 0;
@@ -1310,12 +1337,12 @@ void MarlinUI::draw_status_screen() {
           new_char.custom_char_bits[j] = (uint8_t)_BV(i);                   // Char #3 is used for the box right edge
         lcd.createChar(CHAR_EDGE_R, (uint8_t*)&new_char);
 
-        i = x * pixels_per_x_mesh_pnt - suppress_x_offset;
-        j = y * pixels_per_y_mesh_pnt - suppress_y_offset;
+        i = x_plot * pixels_per_x_mesh_pnt - suppress_x_offset;
+        j = y_plot_inv * pixels_per_y_mesh_pnt - suppress_y_offset;
         upper_left = pixel_location(i, j);
 
-        k = (x + 1) * pixels_per_x_mesh_pnt - 1 - suppress_x_offset;
-        l = (y + 1) * pixels_per_y_mesh_pnt - 1 - suppress_y_offset;
+        k = (x_plot + 1) * pixels_per_x_mesh_pnt - 1 - suppress_x_offset;
+        l = (y_plot_inv + 1) * pixels_per_y_mesh_pnt - 1 - suppress_y_offset;
         lower_right = pixel_location(k, l);
 
         bottom_right_corner = pixel_location(x_map_pixels, y_map_pixels);
@@ -1327,7 +1354,7 @@ void MarlinUI::draw_status_screen() {
          */
 
         clear_custom_char(&new_char);
-        const uint8_t ypix = _MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, HD44780_CHAR_HEIGHT);
+        const lcd_uint_t ypix = _MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, HD44780_CHAR_HEIGHT);
         for (j = upper_left.y_pixel_offset; j < ypix; j++) {
           i = upper_left.x_pixel_mask;
           for (k = 0; k < pixels_per_x_mesh_pnt; k++) {
@@ -1400,9 +1427,9 @@ void MarlinUI::draw_status_screen() {
        */
       lcd_moveto(_LCD_W_POS, 0);
       lcd_put_wchar('(');
-      lcd_put_u8str(ui8tostr3(x));
+      lcd_put_u8str(ui8tostr3(x_plot));
       lcd_put_wchar(',');
-      lcd_put_u8str(ui8tostr3(inverted_y));
+      lcd_put_u8str(ui8tostr3(y_plot));
       lcd_put_wchar(')');
 
       #if LCD_HEIGHT <= 3   // 16x2 or 20x2 display
@@ -1411,8 +1438,8 @@ void MarlinUI::draw_status_screen() {
          * Print Z values
          */
         _ZLABEL(_LCD_W_POS, 1);
-        if (!isnan(ubl.z_values[x][inverted_y]))
-          lcd_put_u8str(ftostr43sign(ubl.z_values[x][inverted_y]));
+        if (!isnan(ubl.z_values[x_plot][y_plot]))
+          lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));
 
@@ -1422,16 +1449,16 @@ void MarlinUI::draw_status_screen() {
          * Show all values at right of screen
          */
         _XLABEL(_LCD_W_POS, 1);
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
+        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
         _YLABEL(_LCD_W_POS, 2);
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
+        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
 
         /**
          * Show the location value
          */
         _ZLABEL(_LCD_W_POS, 3);
-        if (!isnan(ubl.z_values[x][inverted_y]))
-          lcd_put_u8str(ftostr43sign(ubl.z_values[x][inverted_y]));
+        if (!isnan(ubl.z_values[x_plot][y_plot]))
+          lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));
 

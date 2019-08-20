@@ -64,6 +64,19 @@
   uint8_t MarlinUI::progress_bar_percent; // = 0
 #endif
 
+#if HAS_BUZZER
+  #include "../libs/buzzer.h"
+  void MarlinUI::buzz(const long duration, const uint16_t freq) {
+    #if ENABLED(LCD_USE_I2C_BUZZER)
+      lcd.buzz(duration, freq);
+    #elif ENABLED(PCA9632_BUZZER)
+      pca9632_buzz(const long duration, const uint16_t freq) {
+    #elif USE_BEEPER
+      buzzer.tone(duration, freq);
+    #endif
+  }
+#endif
+
 #if HAS_SPI_LCD
 
 #if HAS_GRAPHICAL_LCD
@@ -87,10 +100,6 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../feature/bedlevel/bedlevel.h"
-#endif
-
-#if HAS_BUZZER
-  #include "../libs/buzzer.h"
 #endif
 
 #if HAS_TRINAMIC
@@ -205,13 +214,13 @@ millis_t next_button_update_ms;
 
   #endif
 
-  void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte, bool wordwrap/*=false*/) {
-    SETCURSOR(x, y);
+  void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, bool wordwrap/*=false*/) {
+    SETCURSOR(col, row);
     if (!string) return;
 
-    auto _newline = [&x, &y]() {
-      x = 0; y++;               // move x to string len (plus space)
-      SETCURSOR(0, y);          // simulate carriage return
+    auto _newline = [&col, &row]() {
+      col = 0; row++;                 // Move col to string len (plus space)
+      SETCURSOR(0, row);              // Simulate carriage return
     };
 
     uint8_t *p = (uint8_t*)string;
@@ -227,9 +236,9 @@ millis_t next_button_update_ms;
         if (eol || ch == ' ' || ch == '-' || ch == '+' || ch == '.') {
           if (!c && ch == ' ') { if (wrd) wrd++; continue; } // collapse extra spaces
           // Past the right and the word is not too long?
-          if (x + c > LCD_WIDTH && x >= (LCD_WIDTH) / 4) _newline(); // should it wrap?
+          if (col + c > LCD_WIDTH && col >= (LCD_WIDTH) / 4) _newline(); // should it wrap?
           c += !eol;                  // +1 so the space will be printed
-          x += c;                     // advance x to new position
+          col += c;                   // advance col to new position
           while (c) {                 // character countdown
             --c;                      // count down to zero
             wrd = get_utf8_value_cb(wrd, cb_read_byte, &ch); // get characters again
@@ -246,25 +255,25 @@ millis_t next_button_update_ms;
         p = get_utf8_value_cb(p, cb_read_byte, &ch);
         if (!ch) break;
         lcd_put_wchar(ch);
-        x++;
-        if (x >= LCD_WIDTH) _newline();
+        col++;
+        if (col >= LCD_WIDTH) _newline();
       }
     }
   }
 
   void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
-    uint8_t x = 0, y = 0;
+    uint8_t row = 0, col = 0;
     if (!string && plen + slen <= LCD_WIDTH) {
-      x = (LCD_WIDTH - plen - slen) / 2;
-      y = LCD_HEIGHT > 3 ? 1 : 0;
+      row = (LCD_WIDTH - plen - slen) / 2;
+      col = LCD_HEIGHT > 3 ? 1 : 0;
     }
-    wrap_string_P(x, y, pref, true);
+    wrap_string_P(row, col, pref, true);
     if (string) {
-      if (x) { x = 0; y++; } // Move to the start of the next line
-      wrap_string(x, y, string);
+      if (row) { row = 0; col++; } // Move to the start of the next line
+      wrap_string(row, col, string);
     }
-    if (suff) wrap_string_P(x, y, suff);
+    if (suff) wrap_string_P(row, col, suff);
   }
 
 #endif // HAS_LCD_MENU
@@ -568,7 +577,7 @@ void MarlinUI::status_screen() {
           const millis_t ms = millis();
         #endif
         if (ELAPSED(ms, next_beep)) {
-          BUZZ(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
+          buzz(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
           next_beep = ms + 500UL;
         }
       #endif
@@ -611,13 +620,12 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   #if HAS_BUZZER
     // Buzz and wait. Is the delay needed for buttons to settle?
     buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-  #endif
-
-  #if HAS_LCD_MENU
-    #if ENABLED(LCD_USE_I2C_BUZZER)
-      delay(10);
-    #elif PIN_EXISTS(BEEPER)
-      for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+    #if HAS_LCD_MENU
+      #if USE_BEEPER
+        for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+      #else
+        delay(10);
+      #endif
     #endif
   #endif
 }
@@ -728,16 +736,6 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
  */
 
 LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
-
-bool MarlinUI::detected() {
-  return
-    #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
-      lcd.LcdDetected() == 1
-    #else
-      true
-    #endif
-  ;
-}
 
 void MarlinUI::update() {
 
@@ -1294,23 +1292,6 @@ void MarlinUI::update() {
 
     #endif // HAS_ENCODER_WHEEL
   }
-
-  #if HAS_SLOW_BUTTONS
-
-    uint8_t MarlinUI::read_slow_buttons() {
-      #if ENABLED(LCD_I2C_TYPE_MCP23017)
-        // Reading these buttons this is likely to be too slow to call inside interrupt context
-        // so they are called during normal lcd_update
-        uint8_t slow_bits = lcd.readButtons() << B_I2C_BTN_OFFSET;
-        #if ENABLED(LCD_I2C_VIKI)
-          if ((slow_bits & (B_MI | B_RI)) && PENDING(millis(), next_button_update_ms)) // LCD clicked
-            slow_bits &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
-        #endif // LCD_I2C_VIKI
-        return slow_bits;
-      #endif // LCD_I2C_TYPE_MCP23017
-    }
-
-  #endif
 
 #endif // HAS_ENCODER_ACTION
 

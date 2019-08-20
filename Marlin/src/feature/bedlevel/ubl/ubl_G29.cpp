@@ -752,16 +752,15 @@
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       DEPLOY_PROBE();
 
-      uint8_t count = GRID_MAX_POINTS, current = 1;
+      uint8_t count = GRID_MAX_POINTS;
 
       do {
-        current = (GRID_MAX_POINTS) - count + 1;
-
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
-        SERIAL_ECHOLNPAIR("\nProbing mesh point ", int(current), "/", int(GRID_MAX_POINTS), ".\n");
+        const int current = (GRID_MAX_POINTS) - count + 1;
+        SERIAL_ECHOLNPAIR("\nProbing mesh point ", current, "/", int(GRID_MAX_POINTS), ".\n");
         #if HAS_DISPLAY
-          ui.status_printf_P(0, PSTR(MSG_PROBING_MESH " %i/%i"), int(current), int(GRID_MAX_POINTS));
+          ui.status_printf_P(0, PSTR(MSG_PROBING_MESH " %i/%i"), current, int(GRID_MAX_POINTS));
         #endif
 
         #if HAS_LCD_MENU
@@ -1500,8 +1499,7 @@
                 DEBUG_ECHO_F(rx, 7);
                 DEBUG_CHAR(',');
                 DEBUG_ECHO_F(ry, 7);
-                DEBUG_ECHOPGM(")   logical: ");
-                DEBUG_CHAR('(');
+                DEBUG_ECHOPGM(")   logical: (");
                 DEBUG_ECHO_F(LOGICAL_X_POSITION(rx), 7);
                 DEBUG_CHAR(',');
                 DEBUG_ECHO_F(LOGICAL_Y_POSITION(ry), 7);

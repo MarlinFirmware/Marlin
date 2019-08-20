@@ -877,7 +877,7 @@ static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data
   return hd44780_charmap_compare(&localval, (hd44780_charmap_t *)data_pin);
 }
 
-void lcd_moveto(const uint8_t col, const uint8_t row) { lcd.setCursor(col, row); }
+void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) { lcd.setCursor(col, row); }
 
 void lcd_put_int(const int i) { lcd.print(i); }
 

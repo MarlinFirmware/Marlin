@@ -59,8 +59,9 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       timerConfig[0].IRQ_Id = TIM5_IRQn;
       timerConfig[0].callback = (uint32_t)TC5_Handler;
       HAL_NVIC_SetPriority(timerConfig[0].IRQ_Id, 1, 0);
-      SET_OUTPUT(STEPPER_ENABLE_PIN);
-      WRITE(STEPPER_ENABLE_PIN);
+      #if PIN_EXISTS(STEPPER_ENABLE)
+        OUT_WRITE(STEPPER_ENABLE_PIN, HIGH);
+      #endif
       break;
     case TEMP_TIMER_NUM:
       //TEMP TIMER TIM7 // any available 16bit Timer (1 already used for PWM)
