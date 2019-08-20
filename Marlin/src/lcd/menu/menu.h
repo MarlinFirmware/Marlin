@@ -46,7 +46,7 @@ bool printer_busy();
     static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
   };
 
-DECLARE_MENU_EDIT_TYPE(uint8_t,  percent,     ui8tostr4pct,    1     );   // 100%       right-justified
+DECLARE_MENU_EDIT_TYPE(uint8_t,  percent,     ui8tostr4pct, 100.0/255);   // 100%       right-justified
 DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        i16tostr3,       1     );   // 123, -12   right-justified
 DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        i16tostr4sign,   1     );   // 1234, -123 right-justified
 DECLARE_MENU_EDIT_TYPE(int8_t,   int8,        i8tostr3,        1     );   // 123, -12   right-justified
