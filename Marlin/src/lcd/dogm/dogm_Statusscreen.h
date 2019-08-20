@@ -854,7 +854,7 @@
 
   #elif STATUS_FAN_FRAMES == 3
 
-    #define STATUS_FAN_WIDTH 21
+    #define STATUS_FAN_WIDTH 20
 
     #if ENABLED(STATUS_ALT_FAN_BITMAP)
 
@@ -992,7 +992,7 @@
 
   #elif STATUS_FAN_FRAMES == 4
 
-    #define STATUS_FAN_WIDTH 21
+    #define STATUS_FAN_WIDTH 20
 
     #if ENABLED(STATUS_ALT_FAN_BITMAP)
 
