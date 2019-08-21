@@ -107,5 +107,5 @@
   // This display has adjustable contrast
   #define LCD_CONTRAST_MIN       0
   #define LCD_CONTRAST_MAX     255
-  #define DEFAULT_LCD_CONTRAST 255
+  #define LCD_CONTRAST_INIT LCD_CONTRAST_MAX
 #endif
