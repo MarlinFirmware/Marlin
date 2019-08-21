@@ -25,12 +25,12 @@
  * 3DRAG (and K8200 / K8400) Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "3Drag"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "3Drag"
 #endif
 
 #ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME BOARD_NAME
+  #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 #endif
 
 #ifndef DEFAULT_SOURCE_CODE_URL

@@ -27,7 +27,7 @@
   #error "BIGTREE SKR Pro V1.1 supports up to 3 hotends / E-steppers."
 #endif
 
-#define BOARD_NAME "BIGTREE Btt002 1.0"
+#define BOARD_INFO_NAME "BIGTREE Btt002 1.0"
 
 #define SRAM_EEPROM_EMULATION
 
@@ -35,7 +35,7 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
-// Servos  
+// Servos
 //
 #define SERVO0_PIN         PC3
 
@@ -88,7 +88,7 @@
 #endif
 
 /*
-//SKR_PRO_V1.1 
+//SKR_PRO_V1.1
 #define E1_STEP_PIN        PD15
 #define E1_DIR_PIN         PE7
 #define E1_ENABLE_PIN      PA3
@@ -193,7 +193,7 @@
  * -------------------------------------SKR_MK3-----------------------------------------------
  *               _____                                             _____                      |
  *          PA3 | · · | GND                                    5V | · · | GND                 |
- *       NRESET | · · | PC4(SD_DET)                 (LCD_D7) PE13 | · · | PE12  (LCD_D6)      | 
+ *       NRESET | · · | PC4(SD_DET)                 (LCD_D7) PE13 | · · | PE12  (LCD_D6)      |
  *   (MOSI)PA7  | · · | PB0(BTN_EN2)                (LCD_D5) PE11 | · · | PE10  (LCD_D4)      |
  *  (SD_SS)PA4  | · · | PC5(BTN_EN1)                (LCD_RS) PE8  | · · | PE9   (LCD_EN)      |
  *    (SCK)PA5  | · · | PA6(MISO)                  (BTN_ENC) PB1  | · · | PE7   (BEEPER)      |
@@ -227,7 +227,7 @@
 
     #define LCD_SDSS       PA4
 
-    #define LCD_PINS_ENABLE PE9 
+    #define LCD_PINS_ENABLE PE9
     #define LCD_PINS_D4    PE10
 
     #if ENABLED(ULTIPANEL)

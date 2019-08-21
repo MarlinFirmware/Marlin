@@ -25,7 +25,7 @@
   #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME "BIGTREE SKR 1.3"
+#define BOARD_INFO_NAME "BIGTREE SKR 1.3"
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000

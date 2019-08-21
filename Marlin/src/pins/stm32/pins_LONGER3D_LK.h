@@ -28,7 +28,7 @@
   #error "Longer3D board only supports 1 hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#define BOARD_NAME "Longer3D"
+#define BOARD_INFO_NAME "Longer3D"
 #define ALFAWISE_UX0             // Common to all Longer3D STM32F1 boards (used for Open drain mosfets)
 
 //#define DISABLE_DEBUG          //  We still want to debug with STLINK...

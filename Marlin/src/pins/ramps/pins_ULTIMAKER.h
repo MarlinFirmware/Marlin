@@ -37,8 +37,8 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME              "Ultimaker"
-#define DEFAULT_MACHINE_NAME    BOARD_NAME
+#define BOARD_INFO_NAME         "Ultimaker"
+#define DEFAULT_MACHINE_NAME    BOARD_INFO_NAME
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
 
 //

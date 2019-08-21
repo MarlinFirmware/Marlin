@@ -30,9 +30,9 @@
 #endif
 
 #if MB(MINIRAMBO_10A)
-  #define BOARD_NAME "Mini RAMBo 1.0a"
+  #define BOARD_INFO_NAME "Mini RAMBo 1.0a"
 #else
-  #define BOARD_NAME "Mini RAMBo"
+  #define BOARD_INFO_NAME "Mini RAMBo"
 #endif
 
 //

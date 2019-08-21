@@ -29,7 +29,7 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME        "Selena Compact"
+#define BOARD_INFO_NAME   "Selena Compact"
 #define BOARD_WEBSITE_URL "https://github.com/Ales2-k/Selena"
 
 //

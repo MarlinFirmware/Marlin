@@ -29,7 +29,7 @@
  * 21017 Victor Perez Marlin for stm32f1 test
  */
 
-#define BOARD_NAME           "Beast STM32"
+#define BOARD_INFO_NAME      "Beast STM32"
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
 
 // Enable I2C_EEPROM for testing

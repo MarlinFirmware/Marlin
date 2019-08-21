@@ -29,7 +29,7 @@
   #error "Oops! You must be compiling for STM32."
 #endif
 
-#define BOARD_NAME "Malyan M200"
+#define BOARD_INFO_NAME "Malyan M200"
 
 // Enable EEPROM Emulation for this board
 // This setting should probably be in configuration.h

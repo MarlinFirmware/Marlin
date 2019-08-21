@@ -36,7 +36,7 @@
  * the revisions provided inconsistent information.
  *
  * As best I can determine:
- *   1.5.3 boards should use the pins_ULTIMAKER.h file which means the BOARD_NAME
+ *   1.5.3 boards should use the pins_ULTIMAKER.h file which means the BOARD_INFO_NAME
  *      define in this file should say 1.5.3 rather than 1.5.4
  *   This file is meant for 1.1 - 1.3 boards.
  *   The endstops for the 1.0 boards use different definitions than on the 1.1 - 1.3
@@ -65,13 +65,13 @@
 #endif
 
 #ifdef BOARD_REV_1_1_TO_1_3
-  #define BOARD_NAME            "Ultimaker 1.1-1.3"
+  #define BOARD_INFO_NAME       "Ultimaker 1.1-1.3"
 #elif defined(BOARD_REV_1_0)
-  #define BOARD_NAME            "Ultimaker 1.0"
+  #define BOARD_INFO_NAME       "Ultimaker 1.0"
 #elif defined(BOARD_REV_1_5)
-  #define BOARD_NAME            "Ultimaker 1.5"
+  #define BOARD_INFO_NAME       "Ultimaker 1.5"
 #else
-  #define BOARD_NAME            "Ultimaker 1.5.4+"
+  #define BOARD_INFO_NAME       "Ultimaker 1.5.4+"
 #endif
 #define DEFAULT_MACHINE_NAME    "Ultimaker"
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"

@@ -29,7 +29,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME           "Wanhao i3 Mini 0ne+"
+#define BOARD_INFO_NAME      "Wanhao i3 Mini 0ne+"
 #define DEFAULT_MACHINE_NAME "i3 Mini"
 #define BOARD_WEBSITE_URL    "https://tinyurl.com/yyxw7se7"
 

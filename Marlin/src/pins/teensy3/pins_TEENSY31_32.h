@@ -31,8 +31,8 @@
   #error "Oops! Select 'Teensy 3.1' or 'Teensy 3.2' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Teensy3.2"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Teensy3.2"
 #endif
 
 #define AT90USB 1286   // Disable MarlinSerial etc.
