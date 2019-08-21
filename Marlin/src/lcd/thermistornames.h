@@ -92,6 +92,8 @@
   #define THERMISTOR_NAME "Hephestos 2"
 #elif THERMISTOR_ID == 75
   #define THERMISTOR_NAME "MGB18"
+#elif THERMISTOR_ID == 331
+  #define THERMISTOR_NAME "EPCOS 100K 3.3V"
 
 // Modified thermistors
 #elif THERMISTOR_ID == 51
