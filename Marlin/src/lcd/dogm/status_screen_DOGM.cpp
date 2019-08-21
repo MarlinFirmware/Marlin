@@ -534,6 +534,7 @@ void MarlinUI::draw_status_screen() {
   //
   // XYZ Coordinates
   //
+
   #if ENABLED(XYZ_HOLLOW_FRAME)
     #define XYZ_FRAME_TOP 29
     #define XYZ_FRAME_HEIGHT INFO_FONT_ASCENT + 3
