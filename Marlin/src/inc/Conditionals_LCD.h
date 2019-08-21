@@ -391,6 +391,7 @@
   || ENABLED(AZSMZ_12864)                 \
   || ENABLED(miniVIKI)                    \
   || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+  || ENABLED(FYSETC_MINI_12864_1_2) \
 )
 #if HAS_LCD_CONTRAST
   #ifndef LCD_CONTRAST_MIN
