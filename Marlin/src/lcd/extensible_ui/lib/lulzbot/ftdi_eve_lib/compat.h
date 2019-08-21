@@ -20,13 +20,15 @@
 #include "../config.h"
 
 #ifdef __MARLIN_FIRMWARE__
-  // Marlin will define the I/O functions for us
 
+  // Marlin will define the I/O functions for us
   #if ENABLED(LULZBOT_TOUCH_UI)
     #define FTDI_BASIC
     #define FTDI_EXTENDED
   #endif
-#else
+
+#else // !__MARLIN_FIRMWARE__
+
   #include "Arduino.h"
 
   #if !defined(CLCD_USE_SOFT_SPI)
@@ -216,4 +218,5 @@
       #define UNUSED(x) ((void)(x))
     #endif
   #endif
-#endif //!defined(__MARLIN_FIRMWARE__)
+
+#endif // !__MARLIN_FIRMWARE__
