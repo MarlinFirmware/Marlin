@@ -16,8 +16,8 @@
 //#define MachineCR10
 //#define MachineCR10S
 //#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
-#define MachineCRX
-//#define MachineCR10Max
+//#define MachineCRX
+#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
 
@@ -37,7 +37,7 @@
 #define Force10SProDisplay
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
-#define DualFilSensors //Using dual filament sensors on XMax and YMAX
+//#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 //#define SKR13 // 32 bit board - assumes 2208 drivers
 //#define SKR13_2209
 //#define SKR13_UART // Configure SKR board with drivers in UART mode
