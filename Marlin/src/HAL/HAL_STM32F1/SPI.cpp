@@ -84,43 +84,41 @@ static const spi_pins board_spi_pins[] __FLASH__ = {
 };
 
 #if BOARD_NR_SPI >= 1
-static void (*_spi1_this);
+  static void (*_spi1_this);
 #endif
 #if BOARD_NR_SPI >= 2
-static void (*_spi2_this);
+  static void (*_spi2_this);
 #endif
 #if BOARD_NR_SPI >= 3
-static void (*_spi3_this);
+  static void (*_spi3_this);
 #endif
 
 /**
  * Constructor
  */
-SPIClass::SPIClass(uint32_t spi_num)
-{
+SPIClass::SPIClass(uint32_t spi_num) {
   _currentSetting=&_settings[spi_num-1];// SPI channels are called 1 2 and 3 but the array is zero indexed
 
   switch (spi_num) {
-  #if BOARD_NR_SPI >= 1
-    case 1:
-      _currentSetting->spi_d = SPI1;
-      _spi1_this = (void*) this;
-      break;
-  #endif
-  #if BOARD_NR_SPI >= 2
-    case 2:
-      _currentSetting->spi_d = SPI2;
-      _spi2_this = (void*) this;
-      break;
-  #endif
-  #if BOARD_NR_SPI >= 3
-    case 3:
-      _currentSetting->spi_d = SPI3;
-      _spi3_this = (void*) this;
-      break;
-  #endif
-  default:
-    ASSERT(0);
+    #if BOARD_NR_SPI >= 1
+      case 1:
+        _currentSetting->spi_d = SPI1;
+        _spi1_this = (void*)this;
+        break;
+    #endif
+    #if BOARD_NR_SPI >= 2
+      case 2:
+        _currentSetting->spi_d = SPI2;
+        _spi2_this = (void*)this;
+        break;
+    #endif
+    #if BOARD_NR_SPI >= 3
+      case 3:
+        _currentSetting->spi_d = SPI3;
+        _spi3_this = (void*)this;
+        break;
+    #endif
+    default: ASSERT(0);
   }
 
   // Init things specific to each SPI device
@@ -196,15 +194,13 @@ void SPIClass::end() {
 }
 
 /* Roger Clark added  3 functions */
-void SPIClass::setClockDivider(uint32_t clockDivider)
-{
+void SPIClass::setClockDivider(uint32_t clockDivider) {
   _currentSetting->clockDivider = clockDivider;
   uint32_t cr1 = _currentSetting->spi_d->regs->CR1 & ~(SPI_CR1_BR);
   _currentSetting->spi_d->regs->CR1 = cr1 | (clockDivider & SPI_CR1_BR);
 }
 
-void SPIClass::setBitOrder(BitOrder bitOrder)
-{
+void SPIClass::setBitOrder(BitOrder bitOrder) {
   _currentSetting->bitOrder = bitOrder;
   uint32_t cr1 = _currentSetting->spi_d->regs->CR1 & ~(SPI_CR1_LSBFIRST);
   if (bitOrder == LSBFIRST) cr1 |= SPI_CR1_LSBFIRST;
@@ -215,8 +211,7 @@ void SPIClass::setBitOrder(BitOrder bitOrder)
 * Input parameter should be SPI_CR1_DFF set to 0 or 1 on a 32bit word.
 *
 */
-void SPIClass::setDataSize(uint32_t datasize)
-{
+void SPIClass::setDataSize(uint32_t datasize) {
   _currentSetting->dataSize = datasize;
   uint32_t cr1 = _currentSetting->spi_d->regs->CR1 & ~(SPI_CR1_DFF);
   uint8_t en = spi_is_enabled(_currentSetting->spi_d);
@@ -224,8 +219,7 @@ void SPIClass::setDataSize(uint32_t datasize)
   _currentSetting->spi_d->regs->CR1 = cr1 | (datasize & SPI_CR1_DFF) | en;
 }
 
-void SPIClass::setDataMode(uint8_t dataMode)
-{
+void SPIClass::setDataMode(uint8_t dataMode) {
   /* Notes:
   As far as I can tell, the AVR numbers for dataMode appear to match the numbers required by the STM32
   From the AVR doc http://www.atmel.com/images/doc2585.pdf section 2.4
@@ -254,8 +248,7 @@ void SPIClass::setDataMode(uint8_t dataMode)
   _currentSetting->spi_d->regs->CR1 = cr1 | (dataMode & (SPI_CR1_CPOL|SPI_CR1_CPHA));
 }
 
-void SPIClass::beginTransaction(uint8_t pin, SPISettings settings)
-{
+void SPIClass::beginTransaction(uint8_t pin, SPISettings settings) {
   setBitOrder(settings.bitOrder);
   setDataMode(settings.dataMode);
   setDataSize(settings.dataSize);
@@ -263,31 +256,26 @@ void SPIClass::beginTransaction(uint8_t pin, SPISettings settings)
   begin();
 }
 
-void SPIClass::beginTransactionSlave(SPISettings settings)
-{
+void SPIClass::beginTransactionSlave(SPISettings settings) {
   setBitOrder(settings.bitOrder);
   setDataMode(settings.dataMode);
   setDataSize(settings.dataSize);
   beginSlave();
 }
 
-void SPIClass::endTransaction()
-{
-}
+void SPIClass::endTransaction() { }
 
 
 /*
  * I/O
  */
 
-uint16_t SPIClass::read()
-{
+uint16_t SPIClass::read() {
   while ( spi_is_rx_nonempty(_currentSetting->spi_d)==0 ) ;
   return (uint16)spi_rx_reg(_currentSetting->spi_d);
 }
 
-void SPIClass::read(uint8_t *buf, uint32_t len)
-{
+void SPIClass::read(uint8_t *buf, uint32_t len) {
   if (len == 0) return;
   spi_rx_reg(_currentSetting->spi_d);   // clear the RX buffer in case a byte is waiting on it.
   spi_reg_map * regs = _currentSetting->spi_d->regs;
@@ -307,8 +295,7 @@ void SPIClass::read(uint8_t *buf, uint32_t len)
   *buf++ = (uint8)(regs->DR);  // read and store the received byte
 }
 
-void SPIClass::write(uint16_t data)
-{
+void SPIClass::write(uint16_t data) {
   /* Added for 16bit data Victor Perez. Roger Clark
    * Improved speed by just directly writing the single byte to the SPI data reg and wait for completion,
    * by taking the Tx code from transfer(byte)
@@ -319,8 +306,7 @@ void SPIClass::write(uint16_t data)
   while (spi_is_busy(_currentSetting->spi_d) != 0); // "... and then wait until BSY=0 before disabling the SPI."
 }
 
-void SPIClass::write16(uint16_t data)
-{
+void SPIClass::write16(uint16_t data) {
   // Added by stevestrong: write two consecutive bytes in 8 bit mode (DFF=0)
   spi_tx_reg(_currentSetting->spi_d, data>>8); // write high byte
   while (spi_is_tx_empty(_currentSetting->spi_d) == 0); // Wait until TXE=1
@@ -329,8 +315,7 @@ void SPIClass::write16(uint16_t data)
   while (spi_is_busy(_currentSetting->spi_d) != 0); // wait until BSY=0
 }
 
-void SPIClass::write(uint16_t data, uint32_t n)
-{
+void SPIClass::write(uint16_t data, uint32_t n) {
   // Added by stevstrong: Repeatedly send same data by the specified number of times
   spi_reg_map * regs = _currentSetting->spi_d->regs;
   while ( (n--)>0 ) {
@@ -340,16 +325,14 @@ void SPIClass::write(uint16_t data, uint32_t n)
   while ( (regs->SR & SPI_SR_BSY) != 0); // wait until BSY=0 before returning
 }
 
-void SPIClass::write(const void *data, uint32_t length)
-{
+void SPIClass::write(const void *data, uint32_t length) {
   spi_dev * spi_d = _currentSetting->spi_d;
   spi_tx(spi_d, data, length); // data can be array of bytes or words
   while (spi_is_tx_empty(spi_d) == 0); // "5. Wait until TXE=1 ..."
   while (spi_is_busy(spi_d) != 0); // "... and then wait until BSY=0 before disabling the SPI."
 }
 
-uint8_t SPIClass::transfer(uint8_t byte) const
-{
+uint8_t SPIClass::transfer(uint8_t byte) const {
   spi_dev * spi_d = _currentSetting->spi_d;
   spi_rx_reg(spi_d); // read any previous data
   spi_tx_reg(spi_d, byte); // Write the data item to be transmitted into the SPI_DR register
@@ -358,8 +341,7 @@ uint8_t SPIClass::transfer(uint8_t byte) const
   return (uint8)spi_rx_reg(spi_d); // "... and read the last received data."
 }
 
-uint16_t SPIClass::transfer16(uint16_t data) const
-{
+uint16_t SPIClass::transfer16(uint16_t data) const {
   // Modified by stevestrong: write & read two consecutive bytes in 8 bit mode (DFF=0)
   // This is more effective than two distinct byte transfers
   spi_dev * spi_d = _currentSetting->spi_d;
@@ -386,7 +368,7 @@ void SPIClass::dmaTransferSet(const void *transmitBuf, void *receiveBuf) {
   //spi_rx_dma_enable(_currentSetting->spi_d);
   //spi_tx_dma_enable(_currentSetting->spi_d);
   dma_xfer_size dma_bit_size = (_currentSetting->dataSize==DATA_SIZE_16BIT) ? DMA_SIZE_16BITS : DMA_SIZE_8BITS;
-  dma_setup_transfer(_currentSetting->spiDmaDev, _currentSetting->spiRxDmaChannel, &_currentSetting->spi_d->regs->DR, 
+  dma_setup_transfer(_currentSetting->spiDmaDev, _currentSetting->spiRxDmaChannel, &_currentSetting->spi_d->regs->DR,
       dma_bit_size, receiveBuf, dma_bit_size, (DMA_MINC_MODE | DMA_TRNS_CMPLT ));// receive buffer DMA
   if (!transmitBuf) {
     transmitBuf = &ff;
@@ -668,19 +650,19 @@ uint8_t SPIClass::recv() {
  * DMA call back functions, one per port.
  */
 #if BOARD_NR_SPI >= 1
-void SPIClass::_spi1EventCallback() {
-  reinterpret_cast<class SPIClass*>(_spi1_this)->EventCallback();
-}
+  void SPIClass::_spi1EventCallback() {
+    reinterpret_cast<class SPIClass*>(_spi1_this)->EventCallback();
+  }
 #endif
 #if BOARD_NR_SPI >= 2
-void SPIClass::_spi2EventCallback() {
-  reinterpret_cast<class SPIClass*>(_spi2_this)->EventCallback();
-}
+  void SPIClass::_spi2EventCallback() {
+    reinterpret_cast<class SPIClass*>(_spi2_this)->EventCallback();
+  }
 #endif
 #if BOARD_NR_SPI >= 3
-void SPIClass::_spi3EventCallback() {
-  reinterpret_cast<class SPIClass*>(_spi3_this)->EventCallback();
-}
+  void SPIClass::_spi3EventCallback() {
+    reinterpret_cast<class SPIClass*>(_spi3_this)->EventCallback();
+  }
 #endif
 
 /*
@@ -688,16 +670,16 @@ void SPIClass::_spi3EventCallback() {
  */
 static const spi_pins* dev_to_spi_pins(spi_dev *dev) {
   switch (dev->clk_id) {
-  #if BOARD_NR_SPI >= 1
-    case RCC_SPI1: return board_spi_pins;
-  #endif
-  #if BOARD_NR_SPI >= 2
-    case RCC_SPI2: return board_spi_pins + 1;
-  #endif
-  #if BOARD_NR_SPI >= 3
-    case RCC_SPI3: return board_spi_pins + 2;
-  #endif
-  default: return NULL;
+    #if BOARD_NR_SPI >= 1
+      case RCC_SPI1: return board_spi_pins;
+    #endif
+    #if BOARD_NR_SPI >= 2
+      case RCC_SPI2: return board_spi_pins + 1;
+    #endif
+    #if BOARD_NR_SPI >= 3
+      case RCC_SPI3: return board_spi_pins + 2;
+    #endif
+    default: return NULL;
   }
 }
 
@@ -710,10 +692,10 @@ static void configure_gpios(spi_dev *dev, bool as_master) {
   const spi_pins *pins = dev_to_spi_pins(dev);
   if (!pins) return;
 
-  const stm32_pin_info *nssi = &PIN_MAP[pins->nss];
-  const stm32_pin_info *scki = &PIN_MAP[pins->sck];
-  const stm32_pin_info *misoi = &PIN_MAP[pins->miso];
-  const stm32_pin_info *mosii = &PIN_MAP[pins->mosi];
+  const stm32_pin_info *nssi = &PIN_MAP[pins->nss],
+                       *scki = &PIN_MAP[pins->sck],
+                       *misoi = &PIN_MAP[pins->miso],
+                       *mosii = &PIN_MAP[pins->mosi];
 
   disable_pwm(nssi);
   disable_pwm(scki);
@@ -743,19 +725,14 @@ static const spi_baud_rate baud_rates[8] __FLASH__ = {
 static spi_baud_rate determine_baud_rate(spi_dev *dev, uint32_t freq) {
   uint32_t clock = 0;
   switch (rcc_dev_clk(dev->clk_id)) {
-  case RCC_AHB:
-  case RCC_APB2:
-    clock = STM32_PCLK2; break; // 72 Mhz
-  case RCC_APB1:
-    clock = STM32_PCLK1; break; // 36 Mhz
+    case RCC_AHB:
+    case RCC_APB2: clock = STM32_PCLK2; break; // 72 Mhz
+    case RCC_APB1: clock = STM32_PCLK1; break; // 36 Mhz
   }
-  clock /= 2;
+  clock >>= 1;
 
   uint8_t i = 0;
-  while (i < 7 && freq < clock) {
-    clock /= 2;
-    i++;
-  }
+  while (i < 7 && freq < clock) { clock >>= 1; i++; }
   return baud_rates[i];
 }
 

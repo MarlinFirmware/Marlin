@@ -25,9 +25,6 @@
  *****************************************************************************/
 #pragma once
 
-#ifdef __STM32F1__
-#define _SPI_H_INCLUDED
-
 #include <libmaple/libmaple_types.h>
 #include <libmaple/spi.h>
 #include <libmaple/dma.h>
@@ -71,10 +68,10 @@
 */
 
 #ifndef STM32_LSBFIRST
-#define STM32_LSBFIRST 0
+  #define STM32_LSBFIRST 0
 #endif
 #ifndef STM32_MSBFIRST
-#define STM32_MSBFIRST 1
+  #define STM32_MSBFIRST 1
 #endif
 
 // PC13 or PA4
@@ -100,25 +97,22 @@ typedef enum {
 class SPISettings {
 public:
   SPISettings(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
-    if (__builtin_constant_p(clock)) {
+    if (__builtin_constant_p(clock))
       init_AlwaysInline(clock, bitOrder, dataMode, DATA_SIZE_8BIT);
-    } else {
+    else
       init_MightInline(clock, bitOrder, dataMode, DATA_SIZE_8BIT);
-    }
   }
   SPISettings(uint32_t clock, BitOrder bitOrder, uint8_t dataMode, uint32_t dataSize) {
-    if (__builtin_constant_p(clock)) {
+    if (__builtin_constant_p(clock))
       init_AlwaysInline(clock, bitOrder, dataMode, dataSize);
-    } else {
+    else
       init_MightInline(clock, bitOrder, dataMode, dataSize);
-    }
   }
   SPISettings(uint32_t clock) {
-    if (__builtin_constant_p(clock)) {
+    if (__builtin_constant_p(clock))
       init_AlwaysInline(clock, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
-    } else {
+    else
       init_MightInline(clock, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
-    }
   }
   SPISettings() {
     init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
@@ -395,13 +389,13 @@ private:
   void EventCallback();
 
   #if BOARD_NR_SPI >= 1
-  static void _spi1EventCallback();
+    static void _spi1EventCallback();
   #endif
   #if BOARD_NR_SPI >= 2
-  static void _spi2EventCallback();
+    static void _spi2EventCallback();
   #endif
   #if BOARD_NR_SPI >= 3
-  static void _spi3EventCallback();
+    static void _spi3EventCallback();
   #endif
   /*
   spi_dev *spi_d;
@@ -413,5 +407,3 @@ private:
 };
 
 extern SPIClass SPI;
-
-#endif // __STM32F1__
