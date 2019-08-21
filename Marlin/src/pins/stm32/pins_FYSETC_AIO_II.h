@@ -137,7 +137,7 @@
       #define DOGLCD_CS    PB7
     #endif
 
-    //#define LCD_CONTRAST 190
+    //#define LCD_CONTRAST_INIT 190
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
