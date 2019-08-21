@@ -247,6 +247,19 @@
 #endif
 
 /**
+ * Default LCD contrast for Graphical LCD displays
+ */
+#define HAS_LCD_CONTRAST defined(DEFAULT_LCD_CONTRAST)
+#if HAS_LCD_CONTRAST
+  #ifndef LCD_CONTRAST_MIN
+    #define LCD_CONTRAST_MIN 0
+  #endif
+  #ifndef LCD_CONTRAST_MAX
+    #define LCD_CONTRAST_MAX MAX(63, DEFAULT_LCD_CONTRAST)
+  #endif
+#endif
+
+/**
  * Override here because this is set in Configuration_adv.h
  */
 #if HAS_LCD_MENU && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)

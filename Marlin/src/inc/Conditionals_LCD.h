@@ -382,30 +382,6 @@
 #define HAS_ADC_BUTTONS      ENABLED(ADC_KEYPAD)
 
 /**
- * Default LCD contrast for Graphical LCD displays
- */
-#define HAS_LCD_CONTRAST (                \
-     ENABLED(MAKRPANEL)                   \
-  || ENABLED(CARTESIO_UI)                 \
-  || ENABLED(VIKI2)                       \
-  || ENABLED(AZSMZ_12864)                 \
-  || ENABLED(FYSETC_MINI_12864)           \
-  || ENABLED(miniVIKI)                    \
-  || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
-)
-#if HAS_LCD_CONTRAST
-  #ifndef LCD_CONTRAST_MIN
-    #define LCD_CONTRAST_MIN 0
-  #endif
-  #ifndef LCD_CONTRAST_MAX
-    #define LCD_CONTRAST_MAX 63
-  #endif
-  #ifndef DEFAULT_LCD_CONTRAST
-    #define DEFAULT_LCD_CONTRAST 32
-  #endif
-#endif
-
-/**
  * Extruders have some combination of stepper motors and hotends
  * so we separate these concepts into the defines:
  *
