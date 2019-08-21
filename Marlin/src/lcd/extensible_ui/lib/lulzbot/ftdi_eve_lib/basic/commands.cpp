@@ -1160,7 +1160,7 @@ void CLCD::default_display_orientation() {
       cmd.execute();
     }
     else {
-      #ifdef TOUCH_UI_INVERTED
+      #if ENABLED(TOUCH_UI_INVERTED)
         mem_write_32(REG::ROTATE, 1);
       #endif
     }

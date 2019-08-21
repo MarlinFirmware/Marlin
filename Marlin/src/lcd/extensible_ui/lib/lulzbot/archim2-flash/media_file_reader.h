@@ -22,8 +22,12 @@
 
 #pragma once
 
-#include "../../../../../sd/SdFile.h"
-#include "../../../../../sd/cardreader.h"
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if ENABLED(SDSUPPORT)
+  #include "../../../../../sd/SdFile.h"
+  #include "../../../../../sd/cardreader.h"
+#endif
 
 class MediaFileReader {
   private:

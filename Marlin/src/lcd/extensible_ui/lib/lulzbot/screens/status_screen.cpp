@@ -30,7 +30,7 @@
 #include "../archim2-flash/flash_storage.h"
 
 #if ENABLED(SDSUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
-  #include "../../../../sd/cardreader.h"
+  #include "../../../../../sd/cardreader.h"
 #endif
 
 using namespace FTDI;
