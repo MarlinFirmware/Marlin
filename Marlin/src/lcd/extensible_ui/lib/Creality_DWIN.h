@@ -109,7 +109,7 @@ class RTSSHOW {
     RTSSHOW();
     int RTS_RecData();
     void RTS_SDCardInit(void);
-    void RTS_SDCardUpate(void);
+    void RTS_SDCardUpate(bool, bool);
     int RTS_CheckFilement(int);
     void RTS_SndData(void);
     void RTS_SndData(const String &, unsigned long, unsigned char = VarAddr_W);

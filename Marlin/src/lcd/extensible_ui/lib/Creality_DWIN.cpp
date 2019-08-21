@@ -593,75 +593,79 @@ void RTSSHOW::RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd
 	RTS_SndData();
 }
 
-void RTSSHOW::RTS_SDCardUpate(void)
+void RTSSHOW::RTS_SDCardUpate(bool removed, bool inserted)
 {
+
 	SERIAL_ECHOLN("SDUpdate");
-	if (isMediaInserted() != lcd_sd_status)
+
+  if (inserted || isMediaInserted())
+  {
+	ExtUI::FileList files;
+	files.count();
+
+	int addrnum = 0;
+	int num = 0;
+	for (uint16_t i = 0; i < files.count() && i < (uint16_t)MaxFileNumber + addrnum; i++)
 	{
-		SERIAL_ECHOLN("LCD Status Differs ");
-		if (isMediaInserted()) //sd_status = true
+		files.seek(i);
+		files.filename();
+		const char *pointFilename = files.longFilename();
+		int filenamelen = strlen(files.longFilename());
+		int j = 1;
+		while ((strncmp(&pointFilename[j], ".gcode", 6) && strncmp(&pointFilename[j], ".GCODE", 6)) && (j++) < filenamelen)
+        ;
+		if (j >= filenamelen)
 		{
-			SERIAL_ECHOLN("MediaInserted");
-#if ENABLED(POWER_LOSS_RECOVERY)
-			init_power_off_info();
-#endif
-		}
-		else
-		{
-			if (CardCheckStatus[0] == 1) // heating or printing
-			{
-				stopPrint();
-				CardCheckStatus[0] = 0; //cancel to check card during printing the gcode file
-			}
-
-				RTS_SndData(6 + CEIconGrap, IconPrintstatus);
-			for (int i = 0; i < CardRecbuf.Filesum; i++)
-			{
-				for (int j = 0; j < 10; j++)
-					RTS_SndData(0, CardRecbuf.addr[i] + j);
-				//RTS_SndData(4,FilenameIcon+1+i);
-				RTS_SndData((unsigned long)0xFFFF, FilenameNature + (i + 1) * 16); // white
-			}
-
-			for (int j = 0; j < 10; j++)
-			{
-				RTS_SndData(0, Printfilename + j);  //clean screen.
-				RTS_SndData(0, Choosefilename + j); //clean filename
-			}
-			for (int j = 0; j < 8; j++)
-				RTS_SndData(0, FilenameCount + j);
-			for (int j = 1; j <= 20; j++) //clean filename Icon
-			{
-				RTS_SndData(10, FilenameIcon + j);
-				RTS_SndData(10, FilenameIcon1 + j);
-			}
-			memset(&CardRecbuf, 0, sizeof(CardRecbuf));
+			addrnum++;
+			continue;
 		}
 
-		lcd_sd_status = isMediaInserted();
+		if (j >= TEXTBYTELEN)
+		{
+			//strncpy(&files.longFilename[TEXTBYTELEN -3],"~~",2);
+			//files.longFilename()[TEXTBYTELEN-1] = '\0';
+			j = TEXTBYTELEN - 1;
+		}
+
+		strncpy(CardRecbuf.Cardshowfilename[num], files.longFilename(), j);
+
+		strcpy(CardRecbuf.Cardfilename[num], files.shortFilename());
+		CardRecbuf.addr[num] = SDFILE_ADDR + num * 10;
+		rtscheck.RTS_SndData(CardRecbuf.Cardshowfilename[num], CardRecbuf.addr[num]);
+		CardRecbuf.Filesum = (++num);
+		//SERIAL_ECHO("  CardRecbuf.Filesum ==");
+		//SERIAL_ECHO(CardRecbuf.Filesum);
+		rtscheck.RTS_SndData(1, FilenameIcon + CardRecbuf.Filesum);
 	}
+		rtscheck.RTS_SndData(17, IconPrintstatus);
+	lcd_sd_status = true;
+  return;
+  }
 
-	//SERIAL_ECHOPAIR("\n ***CardUpdate = ",CardUpdate);
-	//SERIAL_ECHOPAIR("\n ***lcd_sd_status = ",lcd_sd_status);
-	//SERIAL_ECHOPAIR("\n ***card.cardOK = ",card.cardOK);
-	if (CardUpdate && lcd_sd_status && isMediaInserted()) // represents to update file list
-	{
-		//SERIAL_PROTOCOLLN("  ***test7*** ");
-		for (int j = 0; j < 10; j++) //clean filename
-			RTS_SndData(0, Choosefilename + j);
-		for (int j = 0; j < 8; j++)
-			RTS_SndData(0, FilenameCount + j);
-		for (int i = 0; i < CardRecbuf.Filesum; i++)
-		{
-			delay_ms(3);
-			RTS_SndData(CardRecbuf.Cardshowfilename[i], CardRecbuf.addr[i]);
-			RTS_SndData(1, FilenameIcon + 1 + i);
-			RTS_SndData((unsigned long)0xFFFF, FilenameNature + (i + 1) * 16); // white
-			RTS_SndData(10, FilenameIcon1 + 1 + i);
-		}
-		CardUpdate = false;
-		SERIAL_ECHO("====end====");
-	}
+  if(removed || !isMediaInserted())
+  {
+    for (int i = 0; i < MaxFileNumber; i++)
+    {
+      for (int j = 0; j < 10; j++)
+        rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
+    }
+
+    for (int j = 0; j < 10; j++)
+    {
+      rtscheck.RTS_SndData(0, Printfilename + j);  //clean screen.
+      rtscheck.RTS_SndData(0, Choosefilename + j); //clean filename
+    }
+    for (int j = 0; j < 8; j++)
+      rtscheck.RTS_SndData(0, FilenameCount + j);
+    for (int j = 1; j <= MaxFileNumber; j++)
+    {
+      rtscheck.RTS_SndData(10, FilenameIcon + j);
+      rtscheck.RTS_SndData(10, FilenameIcon1 + j);
+    }
+    SERIAL_ECHOLN("***Card Removed***");
+    rtscheck.RTS_SndData(18, IconPrintstatus);
+    return;
+  }
 }
 
 void RTSSHOW::RTS_HandleData()
@@ -716,7 +720,7 @@ void RTSSHOW::RTS_HandleData()
 			InforShowStatus = false;
 			CardUpdate = true;
 			CardRecbuf.recordcount = -1;
-			RTS_SDCardUpate();
+			RTS_SDCardUpate(false, false);
 			SERIAL_ECHO("\n Handle Data PrintFile 1 Setting Screen ");
 			RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
 		}
@@ -1551,7 +1555,7 @@ void RTSSHOW::RTS_HandleData()
 				RTS_SndData(10, FilenameIcon1 + j);							 //clean
 			}
 
-			RTS_SndData((unsigned long)0x87F0, FilenameNature + recdat.data[0] * 16); // Light green
+			RTS_SndData((unsigned long)0x87F0, FilenameNature + recdat.data[0] * 16); // Change BG of selected line to Light Green
 			RTS_SndData(6, FilenameIcon1 + recdat.data[0]);							  // show frame
 		}
 		else if (recdat.addr == FilenamePlay)
@@ -1560,24 +1564,8 @@ void RTSSHOW::RTS_HandleData()
 			{
 				if (CardRecbuf.recordcount < 0)
 					break;
-
-					//SERIAL_ECHO("*************suceed1**********");
-					//char cmd[30];
-					//char* c;
-					//sprintf_P(cmd, PSTR("M23 %s"), CardRecbuf.Cardfilename[CardRecbuf.recordcount]);
-					//for (c = &cmd[4]; *c; c++) *c = tolower(*c);
-
-					//FilenamesCount = CardRecbuf.recordcount;
-					//memset(cmdbuf,0,sizeof(cmdbuf));
-					//strcpy(cmdbuf,cmd);
-
-				//InforShowoStatus = true;
-				//FileList files;
-				//files.seek(CardRecbuf.recordcount);
 				printFile(CardRecbuf.Cardfilename[CardRecbuf.recordcount]);
 
-				//enqueue_and_echo_command(cmd);
-				//injectCommands_P(PSTR("M24"));
 				for (int j = 0; j < 10; j++) //clean screen.
 					RTS_SndData(0, Printfilename + j);
 
@@ -1654,95 +1642,20 @@ void onPrinterKilled(PGM_P msg) {
 void onMediaInserted()
 {
 	SERIAL_ECHOLN("***Initing card is OK***");
-	ExtUI::FileList files;
-	files.count();
+  rtscheck.RTS_SDCardUpate(false, true);
+}
 
-	int addrnum = 0;
-	int num = 0;
-	for (uint16_t i = 0; i < files.count() && i < (uint16_t)MaxFileNumber + addrnum; i++)
-	{
-		files.seek(i);
-		files.filename();
-		const char *pointFilename = files.longFilename();
-		int filenamelen = strlen(files.longFilename());
-		int j = 1;
-		while ((strncmp(&pointFilename[j], ".gcode", 6) && strncmp(&pointFilename[j], ".GCODE", 6)) && (j++) < filenamelen)
-        ;
-		if (j >= filenamelen)
-		{
-			addrnum++;
-			continue;
-		}
-
-		if (j >= TEXTBYTELEN)
-		{
-			//strncpy(&files.longFilename[TEXTBYTELEN -3],"~~",2);
-			//files.longFilename()[TEXTBYTELEN-1] = '\0';
-			j = TEXTBYTELEN - 1;
-		}
-
-		delay_ms(3);
-		strncpy(CardRecbuf.Cardshowfilename[num], files.longFilename(), j);
-
-		strcpy(CardRecbuf.Cardfilename[num], files.shortFilename());
-		CardRecbuf.addr[num] = SDFILE_ADDR + num * 10;
-		rtscheck.RTS_SndData(CardRecbuf.Cardshowfilename[num], CardRecbuf.addr[num]);
-		CardRecbuf.Filesum = (++num);
-		//SERIAL_ECHO("  CardRecbuf.Filesum ==");
-		//SERIAL_ECHO(CardRecbuf.Filesum);
-		rtscheck.RTS_SndData(1, FilenameIcon + CardRecbuf.Filesum);
-	}
-		rtscheck.RTS_SndData(17, IconPrintstatus);
-
-	lcd_sd_status = isMediaInserted();
-};
 void onMediaError()
 {
-  for (int i = 0; i < MaxFileNumber; i++)
-	{
-		for (int j = 0; j < 10; j++)
-			rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
-	}
-
-	for (int j = 0; j < 10; j++)
-	{
-		rtscheck.RTS_SndData(0, Printfilename + j);  //clean screen.
-		rtscheck.RTS_SndData(0, Choosefilename + j); //clean filename
-	}
-	for (int j = 0; j < 8; j++)
-		rtscheck.RTS_SndData(0, FilenameCount + j);
-	for (int j = 1; j <= MaxFileNumber; j++)
-	{
-		rtscheck.RTS_SndData(10, FilenameIcon + j);
-		rtscheck.RTS_SndData(10, FilenameIcon1 + j);
-	}
+  rtscheck.RTS_SDCardUpate(true, false);
 	SERIAL_ECHOLN("***Initing card fails***");
-		rtscheck.RTS_SndData(18, IconPrintstatus);
-};
+}
 
 void onMediaRemoved()
 {
-  for (int i = 0; i < MaxFileNumber; i++)
-	{
-		for (int j = 0; j < 10; j++)
-			rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
-	}
-
-	for (int j = 0; j < 10; j++)
-	{
-		rtscheck.RTS_SndData(0, Printfilename + j);  //clean screen.
-		rtscheck.RTS_SndData(0, Choosefilename + j); //clean filename
-	}
-	for (int j = 0; j < 8; j++)
-		rtscheck.RTS_SndData(0, FilenameCount + j);
-	for (int j = 1; j <= MaxFileNumber; j++)
-	{
-		rtscheck.RTS_SndData(10, FilenameIcon + j);
-		rtscheck.RTS_SndData(10, FilenameIcon1 + j);
-	}
+  rtscheck.RTS_SDCardUpate(true, false);
 	SERIAL_ECHOLN("***Card Removed***");
-	rtscheck.RTS_SndData(18, IconPrintstatus);
-};
+}
 
 void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
 
