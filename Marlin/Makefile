@@ -251,7 +251,7 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1141)
 else ifeq ($(HARDWARE_MOTHERBOARD),1142)
 # Overlord/Overlord Pro
 else ifeq ($(HARDWARE_MOTHERBOARD),1143)
-# ADIMLab Granty
+# ADIMLab Granty V2
 else ifeq ($(HARDWARE_MOTHERBOARD),1144)
 
 #
