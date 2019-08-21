@@ -371,7 +371,7 @@ int RTSSHOW::RTS_RecData()
 			}
 			continue;
 		}
-		delay_ms(10);
+		delay_ms(2);
 		recnum++;
 	}
 
@@ -1357,7 +1357,12 @@ void RTSSHOW::RTS_HandleData()
 		{
 			if (FilementStatus[0] == 2) // check filements status during printing
 			{
-        if( (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)) {
+        #if NUM_RUNOUT_SENSORS > 1
+          if( (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)) {
+        #else
+          if( getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) {
+        #endif
+
           setHostResponse(1); //Send Resume host prompt command
 
           RTS_SndData(1 + CEIconGrap, IconPrintstatus);
@@ -1737,7 +1742,7 @@ void onPrintTimerStarted()
 	PrinterStatusKey[1] = 3;
 	InforShowStatus = true;
 	rtscheck.RTS_SndData(4 + CEIconGrap, IconPrintstatus);
-	delay_ms(10);
+	delay_ms(1);
 	rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 	CardCheckStatus[0] = 1; // open the key of  checking card in  printing
 }
