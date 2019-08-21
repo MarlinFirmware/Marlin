@@ -54,6 +54,9 @@ namespace ExtUI
   bool PoweroffContinue = false;
   char commandbuf[30];
 
+  bool reEntryPrevent = false;
+  uint8_t idleThrottling = 0;
+
 void onStartup()
 {
 	Serial2.begin(115200);
@@ -127,6 +130,14 @@ void onStartup()
 
 void onIdle()
 {
+  if (reEntryPrevent)
+    return;
+  if(idleThrottling++ < 100){
+    return;
+  }
+
+  reEntryPrevent = true;
+  idleThrottling = 0;
   if(waitway && !commandsInQueue())
     waitway_lock++;
   else
@@ -136,7 +147,7 @@ void onIdle()
     waitway_lock = 0;
     waitway = 0; //clear waitway if nothing is going on
   }
-
+  void yield();
 	switch (waitway)
 	{
 		case 1:
@@ -211,6 +222,10 @@ void onIdle()
 				}
 				rtscheck.RTS_SndData(VolumeSet, VolumeIcon - 2);
 				rtscheck.RTS_SndData(VolumeSet << 8, SoundAddr + 1);
+        if (getLevelingActive())
+			    rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
+		    else
+			    rtscheck.RTS_SndData(3, AutoLevelIcon); /*On*/
 			}
 			if (startprogress <= 100)
 				rtscheck.RTS_SndData(startprogress, StartIcon);
@@ -242,6 +257,7 @@ void onIdle()
               }
             }
           }
+          reEntryPrevent = false;
           return;
         #endif
           SERIAL_ECHOLN("  startprogress ");
@@ -250,6 +266,7 @@ void onIdle()
           TPShowStatus = false;
           rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
 			}
+      reEntryPrevent = false;
 			return;
     }
 
@@ -335,19 +352,17 @@ void onIdle()
 					AutoHomeIconNum = 0;
 			}
 
-    if(rtscheck.recdat.addr != DisplayZaxis && rtscheck.recdat.addr != DisplayYaxis && rtscheck.recdat.addr != DisplayZaxis) {
-			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
-			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
-			rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
-    }
+    //if(rtscheck.recdat.addr != DisplayZaxis && rtscheck.recdat.addr != DisplayYaxis && rtscheck.recdat.addr != DisplayZaxis) {
+			//rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
+		  //rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
+		  //rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
+    //}
 
-		if (getLevelingActive())
-			rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
-		else
-			rtscheck.RTS_SndData(3, AutoLevelIcon); /*On*/
 	}
+  void yield();
 	if (rtscheck.RTS_RecData() > 0)
 		rtscheck.RTS_HandleData();
+  reEntryPrevent = false;
 }
 
 RTSSHOW::RTSSHOW()
@@ -1349,6 +1364,7 @@ void RTSSHOW::RTS_HandleData()
 		// may at some point use language change screens to save eeprom explicitly
 		break;
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 	case No_Filement:
 		SERIAL_ECHOLN("\n No Filament");
 
@@ -1358,7 +1374,7 @@ void RTSSHOW::RTS_HandleData()
 			if (FilementStatus[0] == 2) // check filements status during printing
 			{
         #if NUM_RUNOUT_SENSORS > 1
-          if( (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)) {
+           if( (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)) {
         #else
           if( getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) {
         #endif
@@ -1402,6 +1418,8 @@ void RTSSHOW::RTS_HandleData()
 			FilementStatus[0] = 0; // recover the status waiting to check filements
 		}
 		break;
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
 	case PwrOffNoF:
 		//SERIAL_ECHO("\n   recdat.data[0] ==");
