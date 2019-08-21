@@ -246,6 +246,7 @@
     #define ABL_BI
   #endif
   #define MeshStd
+  #define lerdgeFilSensor
 #endif
 
 #if ENABLED(MachineCR10Max)
@@ -257,6 +258,7 @@
   #endif
   #define MeshStd
   #define Z_STOP_PIN 19
+  #define lerdgeFilSensor
 #endif
 
 #if ENABLED(MachineEnder5Plus)
