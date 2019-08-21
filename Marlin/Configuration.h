@@ -1881,8 +1881,8 @@
   // split up moves into short segments like a Delta. This follows the
   // contours of the bed more closely than edge-to-edge straight moves.
   #if DISABLED(ABL_UBL)
-    #define SEGMENT_LEVELED_MOVES
-    #define LEVELED_SEGMENT_LENGTH 5.0 // (mm) Length of all segments (except the last one)
+    //#define SEGMENT_LEVELED_MOVES
+    //#define LEVELED_SEGMENT_LENGTH 5.0 // (mm) Length of all segments (except the last one)
   #endif
 
   /**
