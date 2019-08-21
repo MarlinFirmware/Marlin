@@ -70,7 +70,7 @@ else:
               com_CDC = com_last
               description_CDC = description_last
 
-      if  com_CDC == '' and not(com_first == ''):
+      if  com_CDC == '' and com_first != '':
           com_CDC = com_first
           description_CDC = description_first
       elif com_CDC == '':
@@ -97,7 +97,7 @@ else:
       avrdude_exe_path =  'buildroot\\share\\atom\\avrdude_5.10.exe'
 
   #    source_path = env.get("PROJECTBUILD_DIR") + '\\' + env.get("PIOENV") + '\\firmware.hex'
-      source_path =  '.pioenvs\\' + env.get("PIOENV") + '\\firmware.hex'
+      source_path =  '.pio\\build\\' + env.get("PIOENV") + '\\firmware.hex'
 
       upload_string = avrdude_exe_path + ' -p usb1286 -c avr109 -P ' + com_CDC + ' -U flash:w:' + source_path + ':i'
 
@@ -113,7 +113,7 @@ else:
       avrdude_exe_path =  'buildroot/share/atom/avrdude_5.10_macOS'
 
 #      source_path = env.get("PROJECTBUILD_DIR") + '/' + env.get("PIOENV") + '/firmware.hex'
-      source_path = '.pioenvs/' + env.get("PIOENV") + '/firmware.hex'
+      source_path = '.pio/build/' + env.get("PIOENV") + '/firmware.hex'
 
 
 #      upload_string = 'avrdude -p usb1286 -c avr109 -P ' + com_CDC + ' -U flash:w:' + source_path + ':i'
@@ -132,7 +132,7 @@ else:
 
       avrdude_exe_path =  'buildroot/share/atom/avrdude_5.10_linux'
 #      source_path = env.get("PROJECTBUILD_DIR") + '/' + env.get("PIOENV") + '/firmware.hex'
-      source_path = '.pioenvs/' + env.get("PIOENV") + '/firmware.hex'
+      source_path = '.pio/build/' + env.get("PIOENV") + '/firmware.hex'
 
 #      upload_string = 'avrdude -p usb1286 -c avr109 -P ' + com_CDC + ' -U flash:w:' + source_path + ':i'
       upload_string = avrdude_exe_path + ' -p usb1286 -c avr109 -P ' + com_CDC + ' -C ' + avrdude_conf_path  + ' -U flash:w:' + source_path + ':i'

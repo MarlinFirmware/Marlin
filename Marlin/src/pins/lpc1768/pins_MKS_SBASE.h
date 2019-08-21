@@ -29,8 +29,8 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME        "MKS SBASE"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME   "MKS SBASE"
 #endif
 #ifndef BOARD_WEBSITE_URL
   #define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SBASE"
@@ -42,7 +42,7 @@
 #define LED4_PIN           P1_21
 
 //
-// Servo pin
+// Servos
 //
 #define SERVO0_PIN         P1_23   // J8-3 (low jitter)
 #define SERVO1_PIN         P2_12   // J8-4

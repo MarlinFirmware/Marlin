@@ -123,45 +123,47 @@ void GcodeSuite::M48() {
     randomSeed(millis());
 
     for (uint8_t n = 0; n < n_samples; n++) {
+      #if HAS_SPI_LCD
+        // Display M48 progress in the status bar
+        ui.status_printf_P(0, PSTR(MSG_M48_POINT ": %d/%d"), int(n + 1), int(n_samples));
+      #endif
       if (n_legs) {
         const int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
         float angle = random(0, 360);
         const float radius = random(
           #if ENABLED(DELTA)
-            (int) (0.1250000000 * (DELTA_PRINTABLE_RADIUS)),
-            (int) (0.3333333333 * (DELTA_PRINTABLE_RADIUS))
+            int(0.1250000000 * (DELTA_PRINTABLE_RADIUS)),
+            int(0.3333333333 * (DELTA_PRINTABLE_RADIUS))
           #else
-            (int) 5.0, (int) (0.125 * _MIN(X_BED_SIZE, Y_BED_SIZE))
+            int(5), int(0.125 * _MIN(X_BED_SIZE, Y_BED_SIZE))
           #endif
         );
 
         if (verbose_level > 3) {
-          SERIAL_ECHOPAIR("Starting radius: ", radius);
-          SERIAL_ECHOPAIR("   angle: ", angle);
-          SERIAL_ECHOPGM(" Direction: ");
-          if (dir > 0) SERIAL_ECHOPGM("Counter-");
-          SERIAL_ECHOLNPGM("Clockwise");
+          SERIAL_ECHOPAIR("Start radius:", radius, " angle:", angle, " dir:");
+          if (dir > 0) SERIAL_CHAR('C');
+          SERIAL_ECHOLNPGM("CW");
         }
 
         for (uint8_t l = 0; l < n_legs - 1; l++) {
           float delta_angle;
 
-          if (schizoid_flag)
+          if (schizoid_flag) {
             // The points of a 5 point star are 72 degrees apart.  We need to
             // skip a point and go to the next one on the star.
             delta_angle = dir * 2.0 * 72.0;
-
-          else
+          }
+          else {
             // If we do this line, we are just trying to move further
             // around the circle.
             delta_angle = dir * (float) random(25, 45);
+          }
 
           angle += delta_angle;
-
-          while (angle > 360.0)   // We probably do not need to keep the angle between 0 and 2*PI, but the
-            angle -= 360.0;       // Arduino documentation says the trig functions should not be given values
-          while (angle < 0.0)     // outside of this range.   It looks like they behave correctly with
-            angle += 360.0;       // numbers outside of the range, but just to be safe we clamp them.
+          while (angle > 360.0) angle -= 360.0; // We probably do not need to keep the angle between 0 and 2*PI, but the
+                                                // Arduino documentation says the trig functions should not be given values
+          while (angle < 0.0) angle += 360.0;   // outside of this range.   It looks like they behave correctly with
+                                                // numbers outside of the range, but just to be safe we clamp them.
 
           X_current = X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER) + cos(RADIANS(angle)) * radius;
           Y_current = Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER) + sin(RADIANS(angle)) * radius;
@@ -175,18 +177,14 @@ void GcodeSuite::M48() {
             while (!position_is_reachable_by_probe(X_current, Y_current)) {
               X_current *= 0.8;
               Y_current *= 0.8;
-              if (verbose_level > 3) {
-                SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
-                SERIAL_ECHOLNPAIR(", ", Y_current);
-              }
+              if (verbose_level > 3)
+                SERIAL_ECHOLNPAIR("Moving inward: X", X_current, " Y", Y_current);
             }
           #endif
-          if (verbose_level > 3) {
-            SERIAL_ECHOPGM("Going to:");
-            SERIAL_ECHOPAIR(" X", X_current);
-            SERIAL_ECHOPAIR(" Y", Y_current);
-            SERIAL_ECHOLNPAIR(" Z", current_position[Z_AXIS]);
-          }
+
+          if (verbose_level > 3)
+            SERIAL_ECHOLNPAIR("Going to: X", X_current, " Y", Y_current, " Z", current_position[Z_AXIS]);
+
           do_blocking_move_to_xy(X_current, Y_current);
         } // n_legs loop
       } // n_legs
@@ -220,7 +218,7 @@ void GcodeSuite::M48() {
       if (verbose_level > 0) {
         if (verbose_level > 1) {
           SERIAL_ECHO(n + 1);
-          SERIAL_ECHOPAIR(" of ", (int)n_samples);
+          SERIAL_ECHOPAIR(" of ", int(n_samples));
           SERIAL_ECHOPAIR_F(": z: ", sample_set[n], 3);
           if (verbose_level > 2) {
             SERIAL_ECHOPAIR_F(" mean: ", mean, 4);
@@ -254,8 +252,7 @@ void GcodeSuite::M48() {
     #if HAS_SPI_LCD
       // Display M48 results in the status bar
       char sigma_str[8];
-      dtostrf(sigma, 2, 6, sigma_str);
-      ui.status_printf_P(0, PSTR(MSG_M48_DEVIATION ": %s"), sigma_str);
+      ui.status_printf_P(0, PSTR(MSG_M48_DEVIATION ": %s"), dtostrf(sigma, 2, 6, sigma_str));
     #endif
   }
 

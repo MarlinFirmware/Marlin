@@ -65,7 +65,7 @@
   #include "feature/host_actions.h"
 #endif
 
-#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
+#if USE_BEEPER
   #include "libs/buzzer.h"
 #endif
 
@@ -282,6 +282,15 @@ void enable_all_steppers() {
   enable_X();
   enable_Y();
   enable_Z();
+  enable_E0();
+  enable_E1();
+  enable_E2();
+  enable_E3();
+  enable_E4();
+  enable_E5();
+}
+
+void enable_e_steppers() {
   enable_E0();
   enable_E1();
   enable_E2();
@@ -539,28 +548,28 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
       #if ENABLED(SWITCHING_EXTRUDER)
         bool oldstatus;
         switch (active_extruder) {
-          default: oldstatus = E0_ENABLE_READ; enable_E0(); break;
+          default: oldstatus = E0_ENABLE_READ(); enable_E0(); break;
           #if E_STEPPERS > 1
-            case 2: case 3: oldstatus = E1_ENABLE_READ; enable_E1(); break;
+            case 2: case 3: oldstatus = E1_ENABLE_READ(); enable_E1(); break;
             #if E_STEPPERS > 2
-              case 4: case 5: oldstatus = E2_ENABLE_READ; enable_E2(); break;
+              case 4: case 5: oldstatus = E2_ENABLE_READ(); enable_E2(); break;
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
       #else // !SWITCHING_EXTRUDER
         bool oldstatus;
         switch (active_extruder) {
-          default: oldstatus = E0_ENABLE_READ; enable_E0(); break;
+          default: oldstatus = E0_ENABLE_READ(); enable_E0(); break;
           #if E_STEPPERS > 1
-            case 1: oldstatus = E1_ENABLE_READ; enable_E1(); break;
+            case 1: oldstatus = E1_ENABLE_READ(); enable_E1(); break;
             #if E_STEPPERS > 2
-              case 2: oldstatus = E2_ENABLE_READ; enable_E2(); break;
+              case 2: oldstatus = E2_ENABLE_READ(); enable_E2(); break;
               #if E_STEPPERS > 3
-                case 3: oldstatus = E3_ENABLE_READ; enable_E3(); break;
+                case 3: oldstatus = E3_ENABLE_READ(); enable_E3(); break;
                 #if E_STEPPERS > 4
-                  case 4: oldstatus = E4_ENABLE_READ; enable_E4(); break;
+                  case 4: oldstatus = E4_ENABLE_READ(); enable_E4(); break;
                   #if E_STEPPERS > 5
-                    case 5: oldstatus = E5_ENABLE_READ; enable_E5(); break;
+                    case 5: oldstatus = E5_ENABLE_READ(); enable_E5(); break;
                   #endif // E_STEPPERS > 5
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
@@ -659,6 +668,18 @@ void idle(
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
+
+  #if ENABLED(SPI_ENDSTOPS)
+    if (endstops.tmc_spi_homing.any
+      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+        && ELAPSED(millis(), sg_guard_period)
+      #endif
+    ) {
+      for (uint8_t i = 4; i--;) // Read SGT 4 times per idle loop
+        if (endstops.tmc_spi_homing_check()) break;
+    }
+  #endif
+
   #if ENABLED(MAX7219_DEBUG)
     max7219.idle_tasks();
   #endif
@@ -681,7 +702,7 @@ void idle(
     print_job_timer.tick();
   #endif
 
-  #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
+  #if USE_BEEPER
     buzzer.tick();
   #endif
 
@@ -863,6 +884,10 @@ void setup() {
 
   #if HAS_FILAMENT_SENSOR
     runout.setup();
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.setup();
   #endif
 
   setup_killpin();
@@ -1108,6 +1133,10 @@ void setup() {
     init_closedloop();
   #endif
 
+  #ifdef STARTUP_COMMANDS
+    queue.inject_P(PSTR(STARTUP_COMMANDS));
+  #endif
+
   #if ENABLED(INIT_SDCARD_ON_BOOT) && !HAS_SPI_LCD
     card.beginautostart();
   #endif
@@ -1132,6 +1161,8 @@ void setup() {
 void loop() {
 
   for (;;) {
+
+    idle(); // Do an idle first so boot is slightly faster
 
     #if ENABLED(SDSUPPORT)
 
@@ -1164,6 +1195,5 @@ void loop() {
     if (queue.length < BUFSIZE) queue.get_available_commands();
     queue.advance();
     endstops.event_handler();
-    idle();
   }
 }

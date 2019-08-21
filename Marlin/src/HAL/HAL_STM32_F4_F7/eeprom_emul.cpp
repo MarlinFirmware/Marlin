@@ -68,7 +68,7 @@ static uint16_t EE_VerifyPageFullWriteVariable(uint16_t VirtAddress, uint16_t Da
 static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data);
 static uint16_t EE_VerifyPageFullyErased(uint32_t Address);
 
-/**
+ /**
   * @brief  Restore the pages to a known good state in case of page's status
   *   corruption after a power loss.
   * @param  None.
@@ -85,6 +85,8 @@ uint16_t EE_Initialize(void) {
   pEraseInit.Sector = PAGE0_ID;
   pEraseInit.NbSectors = 1;
   pEraseInit.VoltageRange = VOLTAGE_RANGE;
+
+  HAL_StatusTypeDef FlashStatus; // = HAL_OK
 
   /* Check for invalid header states and repair if necessary */
   uint32_t SectorError;
@@ -135,7 +137,7 @@ uint16_t EE_Initialize(void) {
           }
         }
         /* Mark Page0 as valid */
-        HAL_StatusTypeDef FlashStatus = HAL_FLASH_Program(TYPEPROGRAM_HALFWORD, PAGE0_BASE_ADDRESS, VALID_PAGE);
+        FlashStatus = HAL_FLASH_Program(TYPEPROGRAM_HALFWORD, PAGE0_BASE_ADDRESS, VALID_PAGE);
         /* If program operation was failed, a Flash error code is returned */
         if (FlashStatus != HAL_OK) return FlashStatus;
         pEraseInit.Sector = PAGE1_ID;

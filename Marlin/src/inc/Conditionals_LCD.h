@@ -163,6 +163,7 @@
 
 #elif ENABLED(ULTI_CONTROLLER)
 
+  #define IS_ULTIPANEL
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
   #define LCD_CONTRAST_MIN 0
@@ -198,6 +199,24 @@
   #define U8GLIB_SSD1306
 #endif
 
+#if ENABLED(OVERLORD_OLED)
+  #define IS_ULTIPANEL
+  #define U8GLIB_SH1106
+  /**
+   * PCA9632 for buzzer and LEDs via i2c
+   * No auto-inc, red and green leds switched, buzzer
+   */
+  #define PCA9632
+  #define PCA9632_NO_AUTO_INC
+  #define PCA9632_GRN         0x00
+  #define PCA9632_RED         0x02
+  #define PCA9632_BUZZER
+  #define PCA9632_BUZZER_DATA { 0x09, 0x02 }
+
+  #define ENCODER_PULSES_PER_STEP     1 // Overlord uses buttons
+  #define ENCODER_STEPS_PER_MENU_ITEM 1
+#endif
+
 // 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
 #define HAS_SSD1306_OLED_I2C ANY(U8GLIB_SSD1306, U8GLIB_SSD1309, U8GLIB_SH1106)
 #if HAS_SSD1306_OLED_I2C
@@ -205,41 +224,42 @@
   #define DOGLCD
 #endif
 
+// ST7920-based graphical displays
 #if ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, LCD_FOR_MELZI, SILVER_GATE_GLCD_CONTROLLER)
   #define DOGLCD
   #define U8GLIB_ST7920
   #define IS_RRD_SC
 #endif
 
+// RepRapDiscount LCD or Graphical LCD with rotary click encoder
 #if ENABLED(IS_RRD_SC)
   #define REPRAP_DISCOUNT_SMART_CONTROLLER
 #endif
 
-#if ANY(ULTIMAKERCONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER, G3D_PANEL, RIGIDBOT_PANEL, ULTI_CONTROLLER, PANEL_ONE, U8GLIB_SH1106)
+/**
+ * SPI Ultipanels
+ */
+
+// Basic Ultipanel-like displays
+#if ANY(ULTIMAKERCONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER, G3D_PANEL, RIGIDBOT_PANEL, PANEL_ONE, U8GLIB_SH1106)
   #define IS_ULTIPANEL
 #endif
 
-/**
- * SPI PANELS
- */
+// Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
+#if ENABLED(U8GLIB_SH1106_EINSTART)
+  #define DOGLCD
+  #define IS_ULTIPANEL
+#endif
 
- // Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
- #if ENABLED(U8GLIB_SH1106_EINSTART)
-   #define DOGLCD
-   #define IS_ULTIPANEL
- #endif
-
- /**
-  * FSMC/SPI TFT PANELS
-  */
- #if ENABLED(FSMC_GRAPHICAL_TFT)
-   #define DOGLCD
-   #define IS_ULTIPANEL
-   #define DELAYED_BACKLIGHT_INIT
- #endif
+// FSMC/SPI TFT Panels
+#if ENABLED(FSMC_GRAPHICAL_TFT)
+  #define DOGLCD
+  #define IS_ULTIPANEL
+  #define DELAYED_BACKLIGHT_INIT
+#endif
 
 /**
- * I2C PANELS
+ * I2C Panels
  */
 
 #if EITHER(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004)
@@ -348,7 +368,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extensible_ui)
-#if EITHER(MALYAN_LCD, DGUS_LCD)
+#if ANY(MALYAN_LCD, DGUS_LCD, LULZBOT_TOUCH_UI)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
 #endif
@@ -364,7 +384,14 @@
 /**
  * Default LCD contrast for Graphical LCD displays
  */
-#define HAS_LCD_CONTRAST (HAS_GRAPHICAL_LCD && defined(DEFAULT_LCD_CONTRAST))
+#define HAS_LCD_CONTRAST (                \
+     ENABLED(MAKRPANEL)                   \
+  || ENABLED(CARTESIO_UI)                 \
+  || ENABLED(VIKI2)                       \
+  || ENABLED(AZSMZ_12864)                 \
+  || ENABLED(miniVIKI)                    \
+  || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+)
 #if HAS_LCD_CONTRAST
   #ifndef LCD_CONTRAST_MIN
     #define LCD_CONTRAST_MIN 0
@@ -547,7 +574,7 @@
 #define HAS_COLOR_LEDS        ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
 #define HAS_LEDS_OFF_FLAG     (BOTH(PRINTER_EVENT_LEDS, SDSUPPORT) && HAS_RESUME_CONTINUE)
 #define HAS_PRINT_PROGRESS    EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
-#define HAS_SERVICE_INTERVALS (SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0)
+#define HAS_SERVICE_INTERVALS (ENABLED(PRINTCOUNTER) && (SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0))
 #define HAS_FILAMENT_SENSOR   ENABLED(FILAMENT_RUNOUT_SENSOR)
 
 #define Z_MULTI_STEPPER_DRIVERS EITHER(Z_DUAL_STEPPER_DRIVERS, Z_TRIPLE_STEPPER_DRIVERS)
@@ -572,32 +599,6 @@
 #endif
 #ifndef INVERT_E_DIR
   #define INVERT_E_DIR false
-#endif
-
-#if ENABLED(HOST_ACTION_COMMANDS)
-  #ifndef ACTION_ON_PAUSE
-    #define ACTION_ON_PAUSE   "pause"
-  #endif
-  #ifndef ACTION_ON_RESUME
-    #define ACTION_ON_RESUME  "resume"
-  #endif
-  #ifndef ACTION_ON_PAUSED
-    #define ACTION_ON_PAUSED  "paused"
-  #endif
-  #ifndef ACTION_ON_RESUMED
-    #define ACTION_ON_RESUMED "resumed"
-  #endif
-  #ifndef ACTION_ON_CANCEL
-    #define ACTION_ON_CANCEL  "cancel"
-  #endif
-  #if ENABLED(G29_RETRY_AND_RECOVER)
-    #ifndef ACTION_ON_G29_RECOVER
-      #define ACTION_ON_G29_RECOVER "probe_rewipe"
-    #endif
-    #ifndef ACTION_ON_G29_FAILURE
-      #define ACTION_ON_G29_FAILURE "probe_failed"
-    #endif
-  #endif
 #endif
 
 #if ENABLED(SLIM_LCD_MENUS)

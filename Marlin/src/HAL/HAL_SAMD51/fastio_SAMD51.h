@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -243,6 +243,7 @@
   #define DIO5_PIN    PIN_PC21
   #define DIO16_PIN   PIN_PC22
   #define DIO17_PIN   PIN_PC23
+  #define DIO88_PIN   PIN_PC24    // NEOPIXEL
   // PORTD
   #define DIO22_PIN   PIN_PD12
   #define DIO6_PIN    PIN_PD20

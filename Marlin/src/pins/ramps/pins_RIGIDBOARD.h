@@ -25,8 +25,8 @@
  * RIGIDBOARD Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "RigidBoard"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "RigidBoard"
 #endif
 
 //

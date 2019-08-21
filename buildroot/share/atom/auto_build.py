@@ -237,7 +237,7 @@ def resolve_path(path):
           line_num = path[ line_start + 1 : column_start]
           if line_num == '':
             line_num = 1
-        if not(column_start == column_end):
+        if column_start != column_end:
           column_num = path[ column_start + 1 : column_end]
           if column_num == '':
             column_num = 0
@@ -276,7 +276,7 @@ def resolve_path(path):
 
 
             start = path.find('/')
-            if not(0 == start):            # make sure path starts with '/'
+            if start != 0:                  # make sure path starts with '/'
               while 0 == path.find(' '):    # eat any spaces at the beginning
                 path = path[ 1 : ]
               path = '/' + path
@@ -421,17 +421,17 @@ def open_file(path):
 def get_build_last():
       env_last = ''
       DIR_PWD = os.listdir('.')
-      if '.pioenvs' in DIR_PWD:
+      if '.pio' in DIR_PWD:
         date_last = 0.0
-        DIR__pioenvs = os.listdir('.pioenvs')
+        DIR__pioenvs = os.listdir('.pio')
         for name in DIR__pioenvs:
           if 0 <= name.find('.') or 0 <= name.find('-'):   # skip files in listing
             continue
-          DIR_temp = os.listdir('.pioenvs/' + name)
+          DIR_temp = os.listdir('.pio/build/' + name)
           for names_temp in DIR_temp:
 
             if 0 == names_temp.find('firmware.'):
-              date_temp = os.path.getmtime('.pioenvs/' + name + '/' + names_temp)
+              date_temp = os.path.getmtime('.pio/build/' + name + '/' + names_temp)
               if date_temp > date_last:
                 date_last = date_temp
                 env_last = name
@@ -604,7 +604,7 @@ def get_env(board_name, ver_Marlin):
           else:
               invalid_board()
 
-      if build_type == 'traceback' and not(target_env == 'LPC1768_debug_and_upload' or target_env == 'DUE_debug')  and Marlin_ver == 2:
+      if build_type == 'traceback' and target_env != 'LPC1768_debug_and_upload' and target_env != 'DUE_debug' and Marlin_ver == 2:
           print("ERROR - this board isn't setup for traceback")
           print('board_name: ', board_name)
           print('target_env: ', target_env)
@@ -660,7 +660,9 @@ def line_print(line_input):
       platformio_highlights = [
               ['Environment', 0, 'highlight_blue'],
               ['[SKIP]', 1, 'warning'],
+              ['[IGNORED]', 1, 'warning'],
               ['[ERROR]', 1, 'error'],
+              ['[FAILED]', 1, 'error'],
               ['[SUCCESS]', 1, 'highlight_green']
       ]
 
@@ -698,14 +700,15 @@ def line_print(line_input):
               found_right = text.find(']', found + 1)
               write_to_screen_queue(text[               : found + 1   ])
               write_to_screen_queue(text[found + 1      : found_right ], highlight[2])
-              write_to_screen_queue(text[found_right :                ] + '\n')
+              write_to_screen_queue(text[found_right :                ] + '\n' + '\n')
             break
         if did_something == False:
           r_loc = text.find('\r') + 1
           if r_loc > 0 and r_loc < len(text):  # need to split this line
             text = text.split('\r')
             for line in text:
-              write_to_screen_queue(line + '\n')
+              if line != '':
+                write_to_screen_queue(line + '\n')
           else:
             write_to_screen_queue(text + '\n')
       # end - write_to_screen_with_replace
@@ -1064,10 +1067,10 @@ class output_window(Text):
             countVar = tk.IntVar()
             search_position = '1.0'
             search_count = 0
-            while not(search_position == '') and search_count < 100:
+            while search_position != '' and search_count < 100:
                 search_position = self.search("error", search_position, stopindex="end", count=countVar, nocase=1)
                 search_count = search_count + 1
-                if not(search_position == ''):
+                if search_position != '':
                     error_found = True
                     end_pos = '{}+{}c'.format(search_position, 5)
                     self.tag_add("error_highlight_inactive", search_position, end_pos)

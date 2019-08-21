@@ -26,8 +26,11 @@ case $TESTENV in
     lpc9) TESTENV='LPC1769' ;;
     mega) TESTENV='megaatmega2560' ;;
      stm) TESTENV='STM32F1' ;;
+  teensy) TESTENV='teensy31' ;;
+     t31) TESTENV='teensy31' ;;
+     t32) TESTENV='teensy31' ;;
      t35) TESTENV='teensy35' ;;
-  teensy) TESTENV='teensy35' ;;
+     t36) TESTENV='teensy35' ;;
        -) ;;
 esac
 

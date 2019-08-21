@@ -29,8 +29,8 @@
   #error "MKS Robin Lite supports up to 1 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "MKS Robin Lite"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "MKS Robin Lite"
 #endif
 #define BOARD_WEBSITE_URL "https://github.com/makerbase-mks"
 

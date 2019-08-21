@@ -1,7 +1,6 @@
 from os.path import join
+from os.path import expandvars
 Import("env", "projenv")
-
-platform = env.PioPlatform()
 
 # Relocate firmware from 0x08000000 to 0x08002000
 #env['CPPDEFINES'].remove(("VECT_TAB_ADDR", 134217728))
@@ -10,14 +9,11 @@ platform = env.PioPlatform()
 
 # Custom HEX from ELF
 env.AddPostAction(
-	"$BUILD_DIR/${PROGNAME}.elf",
+	join("$BUILD_DIR","${PROGNAME}.elf"),
 	env.VerboseAction(" ".join([
-				"$OBJCOPY",
-				"-O",
-				"ihex",
-				"$BUILD_DIR/${PROGNAME}.elf",
-				"$BUILD_DIR/${PROGNAME}.hex"
-			]), "Building $TARGET"))
+		"$OBJCOPY", "-O ihex", "$TARGET", # TARGET=.pio/build/fysetc_STM32F1/firmware.elf
+		"\"" + join("$BUILD_DIR","${PROGNAME}.hex") + "\"", # Note: $BUILD_DIR is a full path
+	]), "Building $TARGET"))
 
 # please keep $SOURCE variable, it will be replaced with a path to firmware
 
@@ -28,11 +24,15 @@ env.AddPostAction(
 #)
 
 # In-line command with arguments
-env.Replace(
-	UPLOADER=platform.get_package_dir("tool-stm32duino") + '/stm32flash/stm32flash',
-	UPLOADCMD='"${UPLOADER}" -v -i rts,-dtr,dtr,-rts -R -b 115200 -g 0x8000000 -w "${BUILD_DIR}/${PROGNAME}.hex" ${UPLOAD_PORT}'
-)
+UPLOAD_TOOL="stm32flash"
+platform = env.PioPlatform()
+if platform.get_package_dir("tool-stm32duino") != None:
+	UPLOAD_TOOL=expandvars("\"" + join(platform.get_package_dir("tool-stm32duino"),"stm32flash","stm32flash") + "\"")
 
+env.Replace(
+	UPLOADER=UPLOAD_TOOL,
+	UPLOADCMD=expandvars(UPLOAD_TOOL + " -v -i rts,-dtr,dtr $UPLOAD_PORT -R -w \"" + join("$BUILD_DIR","${PROGNAME}.hex")+"\"")
+)
 
 # Python callback
 #def on_upload(source, target, env):

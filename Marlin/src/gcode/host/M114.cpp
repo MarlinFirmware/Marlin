@@ -42,7 +42,7 @@
       SERIAL_CHAR(' ');
       SERIAL_CHAR(axis_codes[i]);
       SERIAL_CHAR(':');
-      SERIAL_ECHO(dtostrf(pos[i], 8, precision, str));
+      SERIAL_ECHO(dtostrf(pos[i], 1, precision, str));
     }
     SERIAL_EOL();
   }

@@ -46,7 +46,7 @@ bool printer_busy();
     static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
   };
 
-DECLARE_MENU_EDIT_TYPE(uint8_t,  percent,     ui8tostr4pct,    1     );   // 100%       right-justified
+DECLARE_MENU_EDIT_TYPE(uint8_t,  percent,     ui8tostr4pct, 100.0/255);   // 100%       right-justified
 DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        i16tostr3,       1     );   // 123, -12   right-justified
 DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        i16tostr4sign,   1     );   // 1234, -123 right-justified
 DECLARE_MENU_EDIT_TYPE(int8_t,   int8,        i8tostr3,        1     );   // 123, -12   right-justified
@@ -144,7 +144,13 @@ DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5_25);         // 12345      right-justif
 
 class MenuItem_back {
   public:
-    static inline void action() { ui.goto_previous_screen(); }
+    static inline void action() {
+      ui.goto_previous_screen(
+        #if ENABLED(TURBO_BACK_MENU_ITEM)
+          true
+        #endif
+      );
+    }
 };
 
 class MenuItem_submenu {
@@ -191,8 +197,8 @@ class TMenuItem : MenuItemBase {
   public:
     static void action_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=nullptr, const bool live=false) {
       // Make sure minv and maxv fit within int16_t
-      const int32_t minv = _MAX(scale(minValue), INT_MIN),
-                    maxv = _MIN(scale(maxValue), INT_MAX);
+      const int32_t minv = _MAX(scale(minValue), INT16_MIN),
+                    maxv = _MIN(scale(maxValue), INT16_MAX);
       init(pstr, ptr, minv, maxv - minv, scale(*ptr) - minv, edit, callback, live);
     }
     static void edit() { MenuItemBase::edit(to_string, load); }
@@ -351,7 +357,7 @@ void menu_main();
 void menu_move();
 
 #if ENABLED(SDSUPPORT)
-  void menu_sdcard();
+  void menu_media();
 #endif
 
 // First Fan Speed title in "Tune" and "Control>Temperature" menus

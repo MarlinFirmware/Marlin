@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -76,7 +76,8 @@
 
 typedef int8_t pin_t;
 
-//#define HAL_SERVO_LIB Servo
+#define SHARED_SERVOS HAS_SERVOS
+#define HAL_SERVO_LIB Servo
 
 //
 // Interrupts
@@ -131,11 +132,17 @@ void noTone(const pin_t _pin);
 
 // Enable hooks into idle and setup for HAL
 void HAL_init(void);
-/*#define HAL_IDLETASK 1
-void HAL_idletask(void);*/
+/*
+#define HAL_IDLETASK 1
+void HAL_idletask(void);
+*/
 
 //
 // Utility functions
 //
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 int freeMemory(void);
+#pragma GCC diagnostic pop

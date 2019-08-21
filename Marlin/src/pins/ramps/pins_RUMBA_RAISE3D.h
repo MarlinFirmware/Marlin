@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define BOARD_NAME           "Raise3D Rumba"
+#define BOARD_INFO_NAME      "Raise3D Rumba"
 #define DEFAULT_MACHINE_NAME "Raise3D N Series"
 
 // Raise3D uses thermocouples on the standard input pins

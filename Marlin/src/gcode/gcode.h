@@ -83,6 +83,7 @@
  * M8   - Turn flood coolant ON. (Requires COOLANT_CONTROL)
  * M9   - Turn coolant OFF. (Requires COOLANT_CONTROL)
  * M12  - Set up closed loop control system. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
+ * M16  - Expected printer check. (Requires EXPECTED_PRINTER_CHECK)
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
  * M20  - List SD card. (Requires SDSUPPORT)
@@ -470,6 +471,10 @@ private:
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
     static void M12();
+  #endif
+
+  #if ENABLED(EXPECTED_PRINTER_CHECK)
+    static void M16();
   #endif
 
   static void M17();

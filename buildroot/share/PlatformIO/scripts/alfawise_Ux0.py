@@ -7,7 +7,7 @@ for define in env['CPPDEFINES']:
 env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08010000"))
 env.Replace(LDSCRIPT_PATH="buildroot/share/PlatformIO/ldscripts/alfawise_Ux0.ld")
 
-# Encrypt ${PROGNAME}.bin and save it as 'project.bin'
+# Rename ${PROGNAME}.bin and save it as 'project.bin' (No encryption on the Longer3D)
 def encrypt(source, target, env):
     import os
 
@@ -23,4 +23,5 @@ def encrypt(source, target, env):
     finally:
         firmware.close()
         marlin_alfa.close()
+
 env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", encrypt);

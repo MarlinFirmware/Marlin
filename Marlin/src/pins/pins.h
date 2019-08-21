@@ -202,6 +202,8 @@
   #include "mega/pins_CNCONTROLS_11.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(CNCONTROLS_12)
   #include "mega/pins_CNCONTROLS_12.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+#elif MB(CNCONTROLS_15)
+  #include "mega/pins_CNCONTROLS_15.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MIGHTYBOARD_REVE)
   #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(CHEAPTRONIC)
@@ -236,6 +238,8 @@
   #include "mega/pins_WANHAO_ONEPLUS.h"         // ATmega2560                             env:megaatmega2560
 #elif MB(OVERLORD)
   #include "mega/pins_OVERLORD.h"               // ATmega2560                             env:megaatmega2560
+#elif MB(HJC2560C_REV2)
+  #include "mega/pins_HJC2560C_REV2.h"          // ATmega2560                             env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561
@@ -349,8 +353,6 @@
   #include "lpc1768/pins_BIQU_B300_V1.0.h"      // LPC1768                                env:LPC1768
 #elif MB(BIGTREE_SKR_V1_3)
   #include "lpc1768/pins_BIGTREE_SKR_V1.3.h"    // LPC1768                                env:LPC1768
-#elif MB(TH3D_EZBOARD)
-  #include "lpc1768/pins_TH3D_EZBOARD.h"        // LPC1768                                env:LPC1768
 #elif MB(GMARSH_X6_REV1)
   #include "lpc1768/pins_GMARSH_X6_REV1.h"      // LPC1768                                env:LPC1768
 
@@ -372,6 +374,8 @@
   #include "lpc1769/pins_COHESION3D_MINI.h"     // LPC1769                                env:LPC1769
 #elif MB(SMOOTHIEBOARD)
   #include "lpc1769/pins_SMOOTHIEBOARD.h"       // LPC1769                                env:LPC1769
+#elif MB(TH3D_EZBOARD)
+  #include "lpc1769/pins_TH3D_EZBOARD.h"        // LPC1769                                env:LPC1769
 
 //
 // Due (ATSAM) boards
@@ -502,6 +506,8 @@
   #include "stm32/pins_STEVAL.h"                // STM32F4                                env:STM32F4
 #elif MB(BIGTREE_SKR_PRO_V1_1)
   #include "stm32/pins_BIGTREE_SKR_PRO_V1.1.h"  // STM32F4                                env:BIGTREE_SKR_PRO
+#elif MB(BIGTREE_BTT002_V1_0)
+  #include "stm32/pins_BIGTREE_BTT002_V1.0.h"   // STM32F4                                env:BIGTREE_BTT002
 
 //
 // ARM Cortex M7
@@ -510,7 +516,7 @@
 #elif MB(THE_BORG)
   #include "stm32/pins_THE_BORG.h"              // STM32F7                                env:STM32F7
 #elif MB(REMRAM_V1)
-  #include "stm32/pins_REMRAM_V1.h"             // STM32F7                                env:STM32F7xx
+  #include "stm32/pins_REMRAM_V1.h"             // STM32F7                                env:STM32F7
 
 //
 // Espressif ESP32
@@ -774,8 +780,8 @@
 #ifndef SD_DETECT_PIN
   #define SD_DETECT_PIN -1
 #endif
-#ifndef SDPOWER
-  #define SDPOWER -1
+#ifndef SDPOWER_PIN
+  #define SDPOWER_PIN -1
 #endif
 #ifndef SDSS
   #define SDSS -1
@@ -938,7 +944,7 @@
   #define LCD_PINS_D4 -1
 #endif
 
-#if HAS_CHARACTER_LCD
+#if HAS_CHARACTER_LCD || TOUCH_UI_ULTIPANEL
   #ifndef LCD_PINS_D5
     #define LCD_PINS_D5 -1
   #endif

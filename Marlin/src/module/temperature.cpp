@@ -68,7 +68,7 @@
   #include "tool_change.h"
 #endif
 
-#if HAS_BUZZER && PIN_EXISTS(BEEPER)
+#if USE_BEEPER
   #include "../libs/buzzer.h"
 #endif
 
@@ -80,10 +80,6 @@
     static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE, (void*)HEATER_4_TEMPTABLE, (void*)HEATER_5_TEMPTABLE);
     static constexpr uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN, HEATER_4_TEMPTABLE_LEN, HEATER_5_TEMPTABLE_LEN);
   #endif
-#endif
-
-#ifndef THERMAL_PROTECTION_GRACE_PERIOD
-  #define THERMAL_PROTECTION_GRACE_PERIOD 0 // No grace period needed on well-behaved boards
 #endif
 
 Temperature thermalManager;
@@ -658,13 +654,6 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
   #define AUTO_5_IS_2 (E5_AUTO_FAN_PIN == E2_AUTO_FAN_PIN)
   #define AUTO_5_IS_3 (E5_AUTO_FAN_PIN == E3_AUTO_FAN_PIN)
   #define AUTO_5_IS_4 (E5_AUTO_FAN_PIN == E4_AUTO_FAN_PIN)
-  #define AUTO_CHAMBER_IS_0 (CHAMBER_AUTO_FAN_PIN == E0_AUTO_FAN_PIN)
-  #define AUTO_CHAMBER_IS_1 (CHAMBER_AUTO_FAN_PIN == E1_AUTO_FAN_PIN)
-  #define AUTO_CHAMBER_IS_2 (CHAMBER_AUTO_FAN_PIN == E2_AUTO_FAN_PIN)
-  #define AUTO_CHAMBER_IS_3 (CHAMBER_AUTO_FAN_PIN == E3_AUTO_FAN_PIN)
-  #define AUTO_CHAMBER_IS_4 (CHAMBER_AUTO_FAN_PIN == E4_AUTO_FAN_PIN)
-  #define AUTO_CHAMBER_IS_5 (CHAMBER_AUTO_FAN_PIN == E5_AUTO_FAN_PIN)
-  #define AUTO_CHAMBER_IS_E (AUTO_CHAMBER_IS_0 || AUTO_CHAMBER_IS_1 || AUTO_CHAMBER_IS_2 || AUTO_CHAMBER_IS_3 || AUTO_CHAMBER_IS_4 || AUTO_CHAMBER_IS_5)
   #define CHAMBER_FAN_INDEX HOTENDS
 
   void Temperature::checkExtruderAutoFans() {
@@ -713,7 +702,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
       if (TEST(fanDone, realFan)) continue;
       const bool fan_on = TEST(fanState, realFan);
       switch (f) {
-        #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
+        #if ENABLED(AUTO_POWER_CHAMBER_FAN)
           case CHAMBER_FAN_INDEX:
             chamberfan_speed = fan_on ? CHAMBER_AUTO_FAN_SPEED : 0;
             break;
@@ -760,7 +749,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
 
 inline void loud_kill(PGM_P const lcd_msg) {
   Running = false;
-  #if HAS_BUZZER && PIN_EXISTS(BEEPER)
+  #if USE_BEEPER
     for (uint8_t i = 20; i--;) {
       WRITE(BEEPER_PIN, HIGH); delay(25);
       WRITE(BEEPER_PIN, LOW); delay(80);
@@ -1036,18 +1025,9 @@ void Temperature::manage_heater() {
     millis_t ms = millis();
   #endif
 
-  #if HAS_THERMAL_PROTECTION
-    #if THERMAL_PROTECTION_GRACE_PERIOD > 0
-      static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD;
-      if (ELAPSED(ms, grace_period)) grace_period = 0UL;
-    #else
-      static constexpr millis_t grace_period = 0UL;
-    #endif
-  #endif
-
   HOTEND_LOOP() {
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-      if (!grace_period && degHotend(e) > temp_range[e].maxtemp)
+      if (degHotend(e) > temp_range[e].maxtemp)
         _temp_error((heater_ind_t)e, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, e));
     #endif
 
@@ -1103,7 +1083,7 @@ void Temperature::manage_heater() {
   #if HAS_HEATED_BED
 
     #if ENABLED(THERMAL_PROTECTION_BED)
-      if (!grace_period && degBed() > BED_MAXTEMP)
+      if (degBed() > BED_MAXTEMP)
         _temp_error(H_BED, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, H_BED));
     #endif
 
@@ -1181,7 +1161,7 @@ void Temperature::manage_heater() {
     #endif
 
     #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-      if (!grace_period && degChamber() > CHAMBER_MAXTEMP)
+      if (degChamber() > CHAMBER_MAXTEMP)
         _temp_error(H_CHAMBER, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, H_CHAMBER));
     #endif
 
@@ -2224,14 +2204,6 @@ void Temperature::set_current_temp_raw() {
 
 void Temperature::readings_ready() {
 
-  #if THERMAL_PROTECTION_GRACE_PERIOD > 0
-    const millis_t ms = millis();
-    static millis_t grace_period = ms + THERMAL_PROTECTION_GRACE_PERIOD; // NOTE: millis() == 0 on reset
-    if (ELAPSED(ms, grace_period)) grace_period = 0;
-  #else
-    static constexpr millis_t grace_period = 0;
-  #endif
-
   // Update the raw values if they've been read. Else we could be updating them during reading.
   if (!temp_meas_ready) set_current_temp_raw();
 
@@ -2241,6 +2213,9 @@ void Temperature::readings_ready() {
   #endif
 
   HOTEND_LOOP() temp_hotend[e].acc = 0;
+  #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+    temp_hotend[1].acc = 0;
+  #endif
 
   #if HAS_HEATED_BED
     temp_bed.acc = 0;
@@ -2276,9 +2251,6 @@ void Temperature::readings_ready() {
       #endif // HOTENDS > 2
     #endif // HOTENDS > 1
   };
-
-  // Give ADC temperature readings time to settle at boot-up before testing
-  if (grace_period) return;
 
   for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
     const int8_t tdir = temp_dir[e];
