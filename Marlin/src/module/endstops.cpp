@@ -387,14 +387,12 @@ void Endstops::event_handler() {
 static void print_es_state(const bool is_hit, PGM_P const label=nullptr, const uint8_t type=0) {
   if (label) serialprintPGM(label);
   SERIAL_ECHOPGM(": ");
-  if(type == 0)           // endstop
-    serialprintPGM(is_hit ? PSTR(MSG_ENDSTOP_HIT) : PSTR(MSG_ENDSTOP_OPEN));
-  else if(type == 1)      // filament
-    serialprintPGM(is_hit ? PSTR(MSG_FILAMENT_HIT) : PSTR(MSG_FILAMENT_OPEN));
-  else if(type == 2)      // probe
-    serialprintPGM(is_hit ? PSTR(MSG_PROBE_HIT) : PSTR(MSG_PROBE_OPEN));
-  else                    // power loss
-    serialprintPGM(is_hit ? PSTR(MSG_ON) : PSTR(MSG_OFF));
+  switch (type) {
+    case 0: serialprintPGM(is_hit ? PSTR(MSG_ENDSTOP_HIT) : PSTR(MSG_ENDSTOP_OPEN)); break;   // endstop
+    case 1: serialprintPGM(is_hit ? PSTR(MSG_FILAMENT_HIT) : PSTR(MSG_FILAMENT_OPEN)); break; // filament
+    case 2: serialprintPGM(is_hit ? PSTR(MSG_PROBE_HIT) : PSTR(MSG_PROBE_OPEN)); break;       // probe
+    default: serialprintPGM(is_hit ? PSTR(MSG_ON) : PSTR(MSG_OFF));                           // other
+  }
   SERIAL_EOL();
 }
 
