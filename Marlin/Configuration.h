@@ -256,6 +256,7 @@
     #define ABL_BI
   #endif
   #define MeshStd
+  #define Z_STOP_PIN 19
 #endif
 
 #if ENABLED(MachineEnder5Plus)
