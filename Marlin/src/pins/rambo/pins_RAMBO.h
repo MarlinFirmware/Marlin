@@ -219,7 +219,7 @@
     // No Beeper added
     #define BEEPER_PIN     33
 
-    // buttons are attached to a shift register
+    // Buttons attached to a shift register
     // Not wired yet
     //#define SHIFT_CLK 38
     //#define SHIFT_LD 42

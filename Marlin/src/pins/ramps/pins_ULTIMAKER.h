@@ -129,7 +129,7 @@
     #define LCD_PINS_D6     5
     #define LCD_PINS_D7     6
 
-    // buttons are directly attached
+    // Buttons directly attached
     #define BTN_EN1 40
     #define BTN_EN2 42
     #define BTN_ENC 19
@@ -138,7 +138,7 @@
 
   #else // !NEWPANEL - Old style panel with shift register
 
-    // buttons are attached to a shift register
+    // Buttons attached to a shift register
     #define SHIFT_CLK 38
     #define SHIFT_LD 42
     #define SHIFT_OUT 40

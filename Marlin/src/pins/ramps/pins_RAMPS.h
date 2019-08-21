@@ -477,7 +477,7 @@
     #endif
 
     #if DISABLED(NEWPANEL)
-      // Buttons are attached to a shift register
+      // Buttons attached to a shift register
       // Not wired yet
       //#define SHIFT_CLK       38
       //#define SHIFT_LD        42
