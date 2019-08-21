@@ -34,8 +34,8 @@
   #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "BIQU Thunder B300 V1.0"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "BIQU Thunder B300 V1.0"
 #endif
 
 //

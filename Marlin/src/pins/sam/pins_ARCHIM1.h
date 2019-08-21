@@ -41,7 +41,7 @@
   #error "Oops! Select 'Archim' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "Archim 1.0"
+#define BOARD_INFO_NAME "Archim 1.0"
 
 //
 // Items marked * have been altered from Archim v1.0

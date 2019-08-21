@@ -29,7 +29,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "Duplicator i3 Plus"
+#define BOARD_INFO_NAME "Duplicator i3 Plus"
 
 //
 // Limit Switches
