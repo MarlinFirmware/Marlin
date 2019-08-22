@@ -168,14 +168,13 @@ bool MarlinUI::detected() { return true; }
     // Determine text space needed
     #ifndef STRING_SPLASH_LINE2
       constexpr u8g_uint_t text_total_height = MENU_FONT_HEIGHT,
-                           text_width_1 = u8g_uint_t(sizeof(STRING_SPLASH_LINE1) - 1) * u8g_uint_t(MENU_FONT_WIDTH),
                            text_width_2 = 0;
     #else
-      constexpr u8g_uint_t text_total_height = u8g_uint_t(MENU_FONT_HEIGHT) * 2,
-                           text_width_1 = u8g_uint_t(sizeof(STRING_SPLASH_LINE1) - 1) * u8g_uint_t(MENU_FONT_WIDTH),
-                           text_width_2 = u8g_uint_t(sizeof(STRING_SPLASH_LINE2) - 1) * u8g_uint_t(MENU_FONT_WIDTH);
+      constexpr u8g_uint_t text_total_height = (MENU_FONT_HEIGHT) * 2,
+                           text_width_2 = u8g_uint_t((sizeof(STRING_SPLASH_LINE2) - 1) * (MENU_FONT_WIDTH));
     #endif
-    constexpr u8g_uint_t text_max_width = _MAX(text_width_1, text_width_2),
+    constexpr u8g_uint_t text_width_1 = u8g_uint_t((sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH)),
+                         text_max_width = _MAX(text_width_1, text_width_2),
                          rspace = width - (START_BMPWIDTH);
 
     u8g_int_t offx, offy, txt_base, txt_offx_1, txt_offx_2;
@@ -199,14 +198,16 @@ bool MarlinUI::detected() { return true; }
     NOLESS(offx, 0);
     NOLESS(offy, 0);
 
-    auto draw_bootscreen_bmp = [offx, offy, txt_base, txt_offx_1, txt_offx_2](const uint8_t *bitmap) {
+    auto draw_bootscreen_bmp = [&](const uint8_t *bitmap) {
       u8g.drawBitmapP(offx, offy, START_BMP_BYTEWIDTH, START_BMPHEIGHT, bitmap);
       set_font(FONT_MENU);
+      const u8g_pgm_uint8_t splash1[] U8G_PROGMEM  = STRING_SPLASH_LINE1;
       #ifndef STRING_SPLASH_LINE2
-        u8g.drawStr(txt_offx_1, txt_base, STRING_SPLASH_LINE1);
+        u8g.drawStrP(txt_offx_1, txt_base, splash1);
       #else
-        u8g.drawStr(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), STRING_SPLASH_LINE1);
-        u8g.drawStr(txt_offx_2, txt_base, STRING_SPLASH_LINE2);
+        const u8g_pgm_uint8_t splash2[] U8G_PROGMEM  = STRING_SPLASH_LINE2;
+        u8g.drawStrP(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), splash1);
+        u8g.drawStrP(txt_offx_2, txt_base, splash2);
       #endif
     };
 
