@@ -169,8 +169,8 @@ void onIdle()
       SERIAL_ECHOLN("==waitway 3==");
       //if(isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1))) {
 			  rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
-        waitway = 2;
-        return;
+        waitway = 7;
+        //return;
       //}
 			break;
 
@@ -195,7 +195,12 @@ void onIdle()
       setAxisPosition_mm(0.0, (axis_t)Z);
       waitway = 0;
       break;
+    case 7:
+      if(!commandsInQueue())
+        waitway = 0;
+      break;
 		}
+
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       if (PoweroffContinue)
@@ -1173,7 +1178,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
 
         case centerData: // Assitant Level ,  Centre 1
         {
-          setFeedrate_mm_s(NOZZLE_PARK_XY_FEEDRATE);
           setAxisPosition_mm(3.0, (axis_t)Z);
           setAxisPosition_mm(X_CENTER, (axis_t)X);
           setAxisPosition_mm(Y_CENTER, (axis_t)Y);
@@ -1182,7 +1186,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         }
         case topLeftData: // Assitant Level , Front Left 2
         {
-          setFeedrate_mm_s(NOZZLE_PARK_XY_FEEDRATE);
           setAxisPosition_mm(3.0, (axis_t)Z);
           setAxisPosition_mm((X_MIN_BED + LEVEL_CORNERS_INSET), (axis_t)X);
           setAxisPosition_mm((Y_MIN_BED + LEVEL_CORNERS_INSET), (axis_t)Y);
@@ -1191,7 +1194,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         }
         case topRightData: // Assitant Level , Front Right 3
         {
-          setFeedrate_mm_s(NOZZLE_PARK_XY_FEEDRATE);
           setAxisPosition_mm(3.0, (axis_t)Z);
           setAxisPosition_mm((X_MAX_BED - LEVEL_CORNERS_INSET), (axis_t)X);
           setAxisPosition_mm((Y_MIN_BED + LEVEL_CORNERS_INSET), (axis_t)Y);
@@ -1200,7 +1202,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         }
         case lowRightData: // Assitant Level , Back Right 4
         {
-          setFeedrate_mm_s(NOZZLE_PARK_XY_FEEDRATE);
           setAxisPosition_mm(3.0, (axis_t)Z);
           setAxisPosition_mm((X_MAX_BED - LEVEL_CORNERS_INSET), (axis_t)X);
           setAxisPosition_mm((Y_MAX_BED - LEVEL_CORNERS_INSET), (axis_t)Y);
@@ -1209,7 +1210,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         }
         case lowLeftData: // Assitant Level , Back Left 5
         {
-          setFeedrate_mm_s(NOZZLE_PARK_XY_FEEDRATE);
           setAxisPosition_mm(3.0, (axis_t)Z);
           setAxisPosition_mm((X_MIN_BED + LEVEL_CORNERS_INSET), (axis_t)X);
           setAxisPosition_mm((Y_MAX_BED - LEVEL_CORNERS_INSET), (axis_t)Y);
@@ -1660,17 +1660,19 @@ void onPrinterKilled(PGM_P msg) {
   delay_ms(3);
   int j = 0;
   char outmsg[40];
-  for (j; j < 4; j++)
+  while (j<4)
 	{
     outmsg[j] = '*';
+    j++;
   }
   while (const char c = pgm_read_byte(msg++)) {
     outmsg[j] = c;
     j++;
   }
-  for (j; j < 40; j++)
+  while(j<40)
 	{
     outmsg[j] = '*';
+    j++;
   }
   rtscheck.RTS_SndData(outmsg, MacVersion);
   delay_ms(10);

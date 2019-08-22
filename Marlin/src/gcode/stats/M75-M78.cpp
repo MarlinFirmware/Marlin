@@ -33,9 +33,6 @@
  */
 void GcodeSuite::M75() {
   print_job_timer.start();
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onPrintTimerStarted();
-  #endif
 }
 
 /**

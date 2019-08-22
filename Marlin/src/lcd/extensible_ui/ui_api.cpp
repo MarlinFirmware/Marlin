@@ -320,7 +320,7 @@ namespace ExtUI {
     #endif
 
     constexpr float max_manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    setFeedrate_mm_s(max_manual_feedrate[axis]);
+    setFeedrate_mm_s(MMM_TO_MMS(max_manual_feedrate[axis]));
 
     if (!flags.manual_motion) set_destination_from_current();
     destination[axis] = clamp(position, min, max);
@@ -331,7 +331,7 @@ namespace ExtUI {
     setActiveTool(extruder, true);
 
     constexpr float max_manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    setFeedrate_mm_s(max_manual_feedrate[E_AXIS]);
+    setFeedrate_mm_s(MMM_TO_MMS(max_manual_feedrate[E_AXIS]));
     if (!flags.manual_motion) set_destination_from_current();
     destination[E_AXIS] = position;
     flags.manual_motion = true;
@@ -813,7 +813,7 @@ namespace ExtUI {
     queue.inject_P(gcode);
   }
 
-  bool commandsInQueue() { return (flags.manual_motion || planner.movesplanned() || queue.has_commands_queued()); }
+  bool commandsInQueue() { return (planner.movesplanned() || queue.has_commands_queued()); }
 
   bool isAxisPositionKnown(const axis_t axis) {
     return TEST(axis_known_position, axis);

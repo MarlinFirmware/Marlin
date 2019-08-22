@@ -2267,11 +2267,11 @@
 #if ENABLED(NOZZLE_PARK_FEATURE)
 // Specify a park position as { X, Y, Z }
 #if(ENABLED(MachineEnder2))
-#define NOZZLE_PARK_POINT { (0), (0), 20 }
+#define NOZZLE_PARK_POINT { (0), (0), 10 }
 #else
-#define NOZZLE_PARK_POINT { (50), (10), 20 }
+#define NOZZLE_PARK_POINT { (50), (10), 10 }
 #endif
-#define NOZZLE_PARK_XY_FEEDRATE 70   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+#define NOZZLE_PARK_XY_FEEDRATE 50   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
 #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
 
@@ -2356,7 +2356,7 @@
  *   M76 - Pause the print job timer
  *   M77 - Stop the print job timer
  */
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if NONE(MachineCR10Orig, LowMemoryBoard)
  #define PRINTJOB_TIMER_AUTOSTART
 #endif
 /**
