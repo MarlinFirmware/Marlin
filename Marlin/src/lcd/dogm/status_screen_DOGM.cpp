@@ -117,7 +117,7 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
     UNUSED(blink);
   #endif
 
-  #if DO_DRAW_BED && (DISABLED(STATUS_COMBINE_HEATERS) || (ENABLED(STATUS_COMBINE_HEATERS) && HOTENDS <= 4))
+  #if DO_DRAW_BED && DISABLED(STATUS_COMBINE_HEATERS) || (HAS_HEATED_BED && ENABLED(STATUS_COMBINE_HEATERS) && HOTENDS <= 4)
     const bool isBed = heater < 0;
     #define IFBED(A,B) (isBed ? (A) : (B))
   #else
@@ -367,7 +367,7 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBitmapP(STATUS_HEATERS_X, STATUS_HEATERS_Y, STATUS_HEATERS_BYTEWIDTH, STATUS_HEATERS_HEIGHT, status_heaters_bmp);
   #endif
 
-  #if DO_DRAW_BED && (DISABLED(STATUS_COMBINE_HEATERS) || (ENABLED(STATUS_COMBINE_HEATERS) && HOTENDS == 4))
+  #if DO_DRAW_BED && DISABLED(STATUS_COMBINE_HEATERS)
     #if ANIM_BED
       #define BED_BITMAP(S) ((S) ? status_bed_on_bmp : status_bed_bmp)
     #else
@@ -424,7 +424,7 @@ void MarlinUI::draw_status_screen() {
       _draw_heater_status((heater_ind_t)e, blink);
 
     // Heated bed
-    #if DO_DRAW_BED
+    #if DO_DRAW_BED && DISABLED(STATUS_COMBINE_HEATERS) || (HAS_HEATED_BED && ENABLED(STATUS_COMBINE_HEATERS) && HOTENDS <= 4)
       _draw_heater_status(H_BED, blink);
     #endif
 
