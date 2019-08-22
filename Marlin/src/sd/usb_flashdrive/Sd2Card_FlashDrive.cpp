@@ -112,7 +112,7 @@ static enum {
 #endif
 
 bool Sd2Card::usbStartup() {
-  if(state <= DO_STARTUP) {
+  if (state <= DO_STARTUP) {
     SERIAL_ECHOPGM("Starting USB host...");
     if (!UHS_START) {
       SERIAL_ECHOLNPGM(" failed.");
@@ -123,7 +123,7 @@ bool Sd2Card::usbStartup() {
     }
 
     // SPI quick test - check revision register
-    switch(usb.regRd(rREVISION)) {
+    switch (usb.regRd(rREVISION)) {
       case 0x01: SERIAL_ECHOLNPGM("rev.01 started"); break;
       case 0x12: SERIAL_ECHOLNPGM("rev.02 started"); break;
       case 0x13: SERIAL_ECHOLNPGM("rev.03 started"); break;
@@ -145,12 +145,12 @@ void Sd2Card::idle() {
   const uint8_t task_state = usb.getUsbTaskState();
 
   #if USB_DEBUG >= 2
-    if(state > DO_STARTUP) {
+    if (state > DO_STARTUP) {
       static uint8_t laststate = 232;
-      if(task_state != laststate) {
+      if (task_state != laststate) {
         laststate = task_state;
         #define UHS_USB_DEBUG(x) case UHS_STATE(x): SERIAL_ECHOLNPGM(#x); break
-        switch(task_state) {
+        switch (task_state) {
           UHS_USB_DEBUG(IDLE);
           UHS_USB_DEBUG(RESET_DEVICE);
           UHS_USB_DEBUG(RESET_NOT_COMPLETE);
@@ -171,12 +171,12 @@ void Sd2Card::idle() {
 
   static millis_t next_state_ms = millis();
 
-  #define GOTO_STATE_AFTER_DELAY(STATE, DELAY) do {state = STATE; next_state_ms  = millis() + DELAY; } while(0)
+  #define GOTO_STATE_AFTER_DELAY(STATE, DELAY) do{ state = STATE; next_state_ms  = millis() + DELAY; }while(0)
 
-  if(ELAPSED(millis(), next_state_ms)) {
+  if (ELAPSED(millis(), next_state_ms)) {
     GOTO_STATE_AFTER_DELAY(state, 250); // Default delay
 
-    switch(state) {
+    switch (state) {
 
       case UNINITIALIZED:
         #ifndef MANUAL_USB_STARTUP
@@ -184,12 +184,10 @@ void Sd2Card::idle() {
         #endif
         break;
 
-      case DO_STARTUP:
-        usbStartup();
-        break;
+      case DO_STARTUP: usbStartup(); break;
 
       case WAIT_FOR_DEVICE:
-        if(task_state == UHS_STATE(RUNNING)) {
+        if (task_state == UHS_STATE(RUNNING)) {
           #if USB_DEBUG >= 1
             SERIAL_ECHOLNPGM("USB device inserted");
           #endif
@@ -200,12 +198,13 @@ void Sd2Card::idle() {
       case WAIT_FOR_LUN:
         /* USB device is inserted, but if it is an SD card,
          * adapter it may not have an SD card in it yet. */
-        if(bulk.LUNIsGood(0)) {
+        if (bulk.LUNIsGood(0)) {
           #if USB_DEBUG >= 1
             SERIAL_ECHOLNPGM("LUN is good");
           #endif
           GOTO_STATE_AFTER_DELAY( MEDIA_READY, 100 );
-        } else {
+        }
+        else {
           #ifdef USB_HOST_MANUAL_POLL
             // Make sure we catch disconnect events
             usb.busprobe();
@@ -221,26 +220,23 @@ void Sd2Card::idle() {
         }
         break;
 
-      case MEDIA_READY:
-        break;
-
-      case MEDIA_ERROR:
-        break;
+      case MEDIA_READY: break;
+      case MEDIA_ERROR: break;
     }
 
-    if(state > WAIT_FOR_DEVICE && task_state != UHS_STATE(RUNNING)) {
+    if (state > WAIT_FOR_DEVICE && task_state != UHS_STATE(RUNNING)) {
       // Handle device removal events
       #if USB_DEBUG >= 1
         SERIAL_ECHOLNPGM("USB device removed");
       #endif
       #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
-        if(state != MEDIA_READY)
+        if (state != MEDIA_READY)
           LCD_MESSAGEPGM("USB device removed");
       #endif
       GOTO_STATE_AFTER_DELAY( WAIT_FOR_DEVICE, 0 );
     }
 
-    else if(state > WAIT_FOR_LUN && !bulk.LUNIsGood(0)) {
+    else if (state > WAIT_FOR_LUN && !bulk.LUNIsGood(0)) {
       // Handle media removal events
       #if USB_DEBUG >= 1
         SERIAL_ECHOLNPGM("Media removed");
@@ -251,7 +247,7 @@ void Sd2Card::idle() {
       GOTO_STATE_AFTER_DELAY( WAIT_FOR_DEVICE, 0 );
     }
 
-    else if(task_state == UHS_STATE(ERROR)) {
+    else if (task_state == UHS_STATE(ERROR)) {
         #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
           LCD_MESSAGEPGM("Media read error");
         #endif
