@@ -25,7 +25,7 @@
  * TH3D EZBoard pin assignments
  */
 
-#ifndef TARGET_LPC1769
+#ifndef LPC1769
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
