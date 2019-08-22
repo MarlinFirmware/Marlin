@@ -29,7 +29,7 @@
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME        "TH3D EZBoard"
+#define BOARD_INFO_NAME   "TH3D EZBoard"
 #define BOARD_WEBSITE_URL "https://www.th3dstudio.com/product/ezboard-lite/"
 
 //

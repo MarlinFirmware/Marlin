@@ -34,8 +34,8 @@
  *  STB_11
  */
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Sanguinololu 1.2"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Sanguinololu 1.2"
 #endif
 
 #define SANGUINOLOLU_V_1_2

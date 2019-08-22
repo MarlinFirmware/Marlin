@@ -157,6 +157,8 @@ void PrintCounter::loadStats() {
     #endif
     #if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0
       if (doBuzz) for (int i = 0; i < SERVICE_WARNING_BUZZES; i++) BUZZ(200, 404);
+    #else
+      UNUSED(doBuzz);
     #endif
   #endif // HAS_SERVICE_INTERVALS
 }

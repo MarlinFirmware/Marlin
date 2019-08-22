@@ -25,7 +25,7 @@
   #error "Oops! Select 'Silvergate' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "Silver Gate"
+#define BOARD_INFO_NAME "Silver Gate"
 
 #define X_STEP_PIN         43
 #define X_DIR_PIN          44

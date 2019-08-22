@@ -409,6 +409,7 @@
  *    -1 : thermocouple with AD595
  *     0 : not used
  *     1 : 100k thermistor - best choice for EPCOS 100k (4.7k pullup)
+ *   331 : (3.3V scaled thermistor 1 table)
  *     2 : 200k thermistor - ATC Semitec 204GT-2 (4.7k pullup)
  *     3 : Mendel-parts thermistor (4.7k pullup)
  *     4 : 10k thermistor !! do not use it for a hotend. It gives bad resolution at high temp. !!
@@ -452,7 +453,7 @@
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  *
- * :{ '0':"Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '501':"100K Zonestar (Tronxy X3A)", '512':"100k RPW-Ultra hotend thermistor", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '18':"ATC Semitec 204GT-2 (4.7k pullup) Dagoma.Fr - MKS_Base_DKU001327" '20':"Pt100 (Ultimainboard V2.x)", '201':"Pt100 (Overlord)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '61':"100k Formbot / Vivedino 3950 350C thermistor 4.7k pullup", '66':"Dyze Design 4.7M High Temperature thermistor", '67':"Slice Engineering 450C High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-4':"Thermocouple + AD8495", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595", '998':"Dummy 1", '999':"Dummy 2", '1000':"Custom thermistor params" }
+ * :{ '0':"Not used", '1':"100k / 4.7k - EPCOS", '331':"(3.3V thermistor 1)", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '501':"100K Zonestar (Tronxy X3A)", '512':"100k RPW-Ultra hotend thermistor", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '18':"ATC Semitec 204GT-2 (4.7k pullup) Dagoma.Fr - MKS_Base_DKU001327" '20':"Pt100 (Ultimainboard V2.x)", '201':"Pt100 (Overlord)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '61':"100k Formbot / Vivedino 3950 350C thermistor 4.7k pullup", '66':"Dyze Design 4.7M High Temperature thermistor", '67':"Slice Engineering 450C High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-4':"Thermocouple + AD8495", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595", '998':"Dummy 1", '999':"Dummy 2", '1000':"Custom thermistor params" }
  */
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
@@ -1379,8 +1380,8 @@
 #if ENABLED(LEVEL_BED_CORNERS)
   #define LEVEL_CORNERS_INSET 30    // (mm) An inset for corner leveling
   #define LEVEL_CORNERS_Z_HOP  4.0  // (mm) Move nozzle up before moving between corners
-  #define LEVEL_CORNERS_HEIGHT 0.0  // (mm) Z height of nozzle at leveling points
-  #define LEVEL_CENTER_TOO        // Move to the center after the last corner
+  #define LEVEL_CORNERS_HEIGHT 0.2  // (mm) Z height of nozzle at leveling points
+  #define LEVEL_CENTER_TOO          // Move to the center after the last corner
 #endif
 
 /**
@@ -1418,7 +1419,7 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (20*60)
+#define HOMING_FEEDRATE_XY (40*60)
 #define HOMING_FEEDRATE_Z  (7*60)
 
 // Validate that endstops are triggered on homing moves
@@ -2124,6 +2125,12 @@
 //#define MALYAN_LCD
 
 //
+// LulzBot Color Touch UI for FTDI EVE (FT800/FT810) displays
+// See Configuration_adv.h for all configuration options.
+//
+//#define LULZBOT_TOUCH_UI
+
+//
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extensible_ui'.
 //
@@ -2151,10 +2158,10 @@
 
   #if ENABLED(TS_V11)
     // Alfawise U20 ILI9341 2.8 TP Ver 1.1 / Green PCB on the back of touchscreen
-    #define XPT2046_X_CALIBRATION 11605
-    #define XPT2046_Y_CALIBRATION 9091
-    #define XPT2046_X_OFFSET -24
-    #define XPT2046_Y_OFFSET -17
+    #define XPT2046_X_CALIBRATION   11605
+    #define XPT2046_Y_CALIBRATION   9091
+    #define XPT2046_X_OFFSET       -24
+    #define XPT2046_Y_OFFSET       -17
   #endif
 
   #if ENABLED(TS_V12)

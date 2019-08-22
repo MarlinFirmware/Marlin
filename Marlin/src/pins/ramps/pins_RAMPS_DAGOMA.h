@@ -25,7 +25,7 @@
   #error "Dagoma3D F5 RAMPS supports only 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_NAME "Dagoma3D F5 RAMPS"
+#define BOARD_INFO_NAME "Dagoma3D F5 RAMPS"
 
 #define X_STOP_PIN          2
 #define Y_STOP_PIN          3

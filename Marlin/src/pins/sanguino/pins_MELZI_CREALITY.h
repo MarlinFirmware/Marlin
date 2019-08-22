@@ -31,7 +31,7 @@
  * See http://www.instructables.com/id/Burn-Arduino-Bootloader-with-Arduino-MEGA/
  */
 
-#define BOARD_NAME "Melzi (Creality)"
+#define BOARD_INFO_NAME "Melzi (Creality)"
 
 #include "pins_MELZI.h"
 

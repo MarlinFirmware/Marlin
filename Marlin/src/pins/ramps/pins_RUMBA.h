@@ -31,11 +31,11 @@
   #error "RUMBA supports up to 3 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Rumba"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Rumba"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME BOARD_NAME
+  #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 #endif
 
 //

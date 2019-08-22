@@ -25,7 +25,7 @@
  * Melzi pin assignments
  */
 
-#define BOARD_NAME "Melzi (Tronxy)"
+#define BOARD_INFO_NAME "Melzi (Tronxy)"
 #include "pins_MELZI.h"
 
 #undef Z_ENABLE_PIN

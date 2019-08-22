@@ -6,7 +6,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "CN Controls V11"
+#define BOARD_INFO_NAME "CN Controls V11"
 
 //
 // Limit Switches

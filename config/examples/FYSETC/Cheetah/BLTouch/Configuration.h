@@ -355,6 +355,7 @@
  *    -1 : thermocouple with AD595
  *     0 : not used
  *     1 : 100k thermistor - best choice for EPCOS 100k (4.7k pullup)
+ *   331 : (3.3V scaled thermistor 1 table)
  *     2 : 200k thermistor - ATC Semitec 204GT-2 (4.7k pullup)
  *     3 : Mendel-parts thermistor (4.7k pullup)
  *     4 : 10k thermistor !! do not use it for a hotend. It gives bad resolution at high temp. !!
@@ -2020,6 +2021,12 @@
 // Touch-screen LCD for Malyan M200 printers
 //
 //#define MALYAN_LCD
+
+//
+// LulzBot Color Touch UI for FTDI EVE (FT800/FT810) displays
+// See Configuration_adv.h for all configuration options.
+//
+//#define LULZBOT_TOUCH_UI
 
 //
 // Third-party or vendor-customized controller interfaces.

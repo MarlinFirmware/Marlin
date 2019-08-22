@@ -25,7 +25,7 @@
  * GT2560 V3.0 pin assignment (for Mecreator 2)
  *****************************************************************/
 
-#define BOARD_NAME "GT2560 V3.0 (MC2)"
+#define BOARD_INFO_NAME "GT2560 V3.0 (MC2)"
 
 #define X_MIN_PIN          22
 #define X_MAX_PIN          24

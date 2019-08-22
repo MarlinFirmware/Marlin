@@ -32,5 +32,6 @@ typedef LEDColor LEDColor;
 void pca9632_set_led_color(const LEDColor &color);
 
 #if ENABLED(PCA9632_BUZZER)
-  void pca9632_buzz(uint16_t const, uint16_t);
+  #include <stdint.h>
+  void pca9632_buzz(const long, const uint16_t);
 #endif

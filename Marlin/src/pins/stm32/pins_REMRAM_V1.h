@@ -25,7 +25,7 @@
   #error "Oops! Select an STM32F7 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME           "RemRam v1"
+#define BOARD_INFO_NAME      "RemRam v1"
 #define DEFAULT_MACHINE_NAME "RemRam"
 
 #define SRAM_EEPROM_EMULATION // Emulate the EEPROM using Backup SRAM
