@@ -105,6 +105,9 @@
   #define BTN_ENC           5
 
   // This display has adjustable contrast
+  #undef LCD_CONTRAST_MIN
+  #undef LCD_CONTRAST_MAX
+  #undef LCD_CONTRAST_INIT
   #define LCD_CONTRAST_MIN       0
   #define LCD_CONTRAST_MAX     255
   #define LCD_CONTRAST_INIT LCD_CONTRAST_MAX
