@@ -930,7 +930,7 @@
   // as SD_DETECT_PIN in your board's pins definitions.
   // This setting should be disabled unless you are using a push button, pulling the pin to ground.
   // Note: This is always disabled for ULTIPANEL (except ELB_FULL_GRAPHIC_CONTROLLER).
-  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus)
+  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max)
     #define SD_DETECT_INVERTED
   #endif
   #define SD_FINISHED_STEPPERRELEASE true          // Disable steppers when SD Print is finished
