@@ -830,9 +830,9 @@
 
 #if ENABLED(HotendStock)
   #if ANY(MachineCRX, MachineCR10SPro, MachineCR10Max)
-    #define DEFAULT_Kp 24.62
-    #define DEFAULT_Ki 4.01
-    #define DEFAULT_Kd 37.81
+    #define DEFAULT_Kp 25.25
+    #define DEFAULT_Ki 2.17
+    #define DEFAULT_Kd 73.44
   #elif ENABLED(MachineEnder5Plus)
     #define  DEFAULT_Kp 14.72
     #define  DEFAULT_Ki 0.89
@@ -2269,9 +2269,9 @@
 #if(ENABLED(MachineEnder2))
 #define NOZZLE_PARK_POINT { (0), (0), 20 }
 #else
-#define NOZZLE_PARK_POINT { (10), (10), 20 }
+#define NOZZLE_PARK_POINT { (50), (10), 20 }
 #endif
-#define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+#define NOZZLE_PARK_XY_FEEDRATE 70   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
 #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
 

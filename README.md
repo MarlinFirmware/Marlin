@@ -9,6 +9,14 @@ This firmware is provided to the public as-is with no warranty or guarantee. Its
 3D Printing Discord - https://discord.gg/MZrsgVU
 Marlin Discord - https://discord.gg/n5NJ59y
 
+## Future Goals
+
+For this branch, we still have some active goals open that we plan to continue working on provided there is continued interest in the project.
+- SD Card sub directory traversal
+- Volume and leveling state EEPROM storage
+- LCD pause messages and responses taken from machine instead of static messages
+
+
 ## Creality Firmware Branches
   - 1.1.9 Firmware (Stable, EOL) [TM_CR10](https://github.com/InsanityAutomation/Marlin/tree/TM_CR10)
   - 2.0 Firmware (Beta, but well tested) [Creality_Marlin2.0.x](https://github.com/InsanityAutomation/Marlin/tree/Creality_Marlin2.0.x)
