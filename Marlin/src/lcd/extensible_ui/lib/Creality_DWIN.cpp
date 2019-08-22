@@ -157,13 +157,12 @@ void onIdle()
         rtscheck.RTS_SndData(4 + CEIconGrap, IconPrintstatus); // 4 for Pause
         rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
         waitway = 0;
-      } else return;
+      }
 			break;
 
 		case 2:
       if (isPositionKnown() && !commandsInQueue())
 			  waitway = 0;
-      else return;
 			break;
 
 		case 3:
@@ -182,7 +181,7 @@ void onIdle()
 				rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
 				AutohomeKey = false;
 				waitway = 0;
-			} else return;
+			}
 			break;
 		case 5:
         if(isPositionKnown() && !commandsInQueue()) {
@@ -190,7 +189,7 @@ void onIdle()
         waitway = 0;
         SERIAL_ECHOLN("==waitway 5==");
         rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); //exchange to 78 page
-      } else return;
+      }
       break;
     case 6:
       setAxisPosition_mm(0.0, (axis_t)Z);
