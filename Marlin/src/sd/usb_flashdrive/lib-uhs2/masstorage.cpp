@@ -762,7 +762,7 @@ uint8_t BulkOnly::Page3F(uint8_t lun) {
                 buf[i] = 0x00;
         }
         WriteOk[lun] = true;
-        #if defined(SKIP_WRITE_PROTECT)
+        #ifdef SKIP_WRITE_PROTECT
           return 0;
         #endif
         uint8_t rc = ModeSense6(lun, 0, 0x3f, 0, 192, buf);
