@@ -30,7 +30,7 @@
 #endif
 
 #define BOARD_INFO_NAME   "MKS SGen"
-#define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SGEN"
+#define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN"
 
 #include "../lpc1768/pins_MKS_SBASE.h"
 

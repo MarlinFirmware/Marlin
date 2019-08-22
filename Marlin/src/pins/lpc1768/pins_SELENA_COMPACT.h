@@ -30,7 +30,7 @@
 #endif
 
 #define BOARD_INFO_NAME   "Selena Compact"
-#define BOARD_WEBSITE_URL "https://github.com/Ales2-k/Selena"
+#define BOARD_WEBSITE_URL "github.com/Ales2-k/Selena"
 
 //
 // Servos

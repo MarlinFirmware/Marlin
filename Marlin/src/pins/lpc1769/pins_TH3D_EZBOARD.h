@@ -30,7 +30,7 @@
 #endif
 
 #define BOARD_INFO_NAME   "TH3D EZBoard"
-#define BOARD_WEBSITE_URL "https://www.th3dstudio.com/product/ezboard-lite/"
+#define BOARD_WEBSITE_URL "th3dstudio.com"
 
 //
 // Servos
