@@ -147,7 +147,7 @@ void onIdle()
     waitway_lock = 0;
     waitway = 0; //clear waitway if nothing is going on
   }
-  void yield();
+
 	switch (waitway)
 	{
 		case 1:
@@ -206,6 +206,8 @@ void onIdle()
         print_job_timer.power_off_start();
       }
     #endif
+
+  void yield();
 
 	if (InforShowStatus)
 	{
