@@ -192,8 +192,10 @@ void onIdle()
       }
       break;
     case 6:
-      setAxisPosition_mm(0.0, (axis_t)Z);
-      waitway = 0;
+      if(!commandsInQueue()) {
+        setAxisPosition_mm(LEVEL_CORNERS_HEIGHT, (axis_t)Z);
+        waitway = 0;
+      }
       break;
     case 7:
       if(!commandsInQueue())
@@ -1178,7 +1180,7 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
 
         case centerData: // Assitant Level ,  Centre 1
         {
-          setAxisPosition_mm(3.0, (axis_t)Z);
+          setAxisPosition_mm(LEVEL_CORNERS_Z_HOP, (axis_t)Z);
           setAxisPosition_mm(X_CENTER, (axis_t)X);
           setAxisPosition_mm(Y_CENTER, (axis_t)Y);
           waitway = 6;
@@ -1186,7 +1188,7 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         }
         case topLeftData: // Assitant Level , Front Left 2
         {
-          setAxisPosition_mm(3.0, (axis_t)Z);
+          setAxisPosition_mm(LEVEL_CORNERS_Z_HOP, (axis_t)Z);
           setAxisPosition_mm((X_MIN_BED + LEVEL_CORNERS_INSET), (axis_t)X);
           setAxisPosition_mm((Y_MIN_BED + LEVEL_CORNERS_INSET), (axis_t)Y);
           waitway = 6;
@@ -1194,7 +1196,7 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         }
         case topRightData: // Assitant Level , Front Right 3
         {
-          setAxisPosition_mm(3.0, (axis_t)Z);
+          setAxisPosition_mm(LEVEL_CORNERS_Z_HOP, (axis_t)Z);
           setAxisPosition_mm((X_MAX_BED - LEVEL_CORNERS_INSET), (axis_t)X);
           setAxisPosition_mm((Y_MIN_BED + LEVEL_CORNERS_INSET), (axis_t)Y);
           waitway = 6;
@@ -1202,7 +1204,7 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         }
         case lowRightData: // Assitant Level , Back Right 4
         {
-          setAxisPosition_mm(3.0, (axis_t)Z);
+          setAxisPosition_mm(LEVEL_CORNERS_Z_HOP, (axis_t)Z);
           setAxisPosition_mm((X_MAX_BED - LEVEL_CORNERS_INSET), (axis_t)X);
           setAxisPosition_mm((Y_MAX_BED - LEVEL_CORNERS_INSET), (axis_t)Y);
           waitway = 6;
@@ -1210,7 +1212,7 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         }
         case lowLeftData: // Assitant Level , Back Left 5
         {
-          setAxisPosition_mm(3.0, (axis_t)Z);
+          setAxisPosition_mm(LEVEL_CORNERS_Z_HOP, (axis_t)Z);
           setAxisPosition_mm((X_MIN_BED + LEVEL_CORNERS_INSET), (axis_t)X);
           setAxisPosition_mm((Y_MAX_BED - LEVEL_CORNERS_INSET), (axis_t)Y);
           waitway = 6;
@@ -1287,20 +1289,7 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         targetPos = min;
       else if (targetPos > max)
         targetPos = max;
-      SERIAL_ECHOLNPAIR("Target Pos:", targetPos);
-      SERIAL_ECHOLNPAIR("Target Axis:", axis);
-      SERIAL_ECHOLNPAIR("Current X Pos:", getAxisPosition_mm((axis_t)X));
-      SERIAL_ECHOLNPAIR("Current Y Pos:", getAxisPosition_mm((axis_t)Y));
-      SERIAL_ECHOLNPAIR("Current Z Pos:", getAxisPosition_mm((axis_t)Z));
-      //char tmpcmd1[30];
-      //if (axis==X)
-      //  sprintf_P(tmpcmd1, PSTR("G1 X%i F2000"), targetPos);
-    // else if (axis==Y)
-      //  sprintf_P(tmpcmd1, PSTR("G1 Y%i F2000"), targetPos);
-    // else if (axis==Z)
-    //   sprintf_P(tmpcmd1, PSTR("G1 Z%i F2000"), targetPos);
 
-      //injectCommands_P(tmpcmd1);
       setAxisPosition_mm(targetPos, axis);
       delay_ms(1);
       RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
@@ -1701,14 +1690,16 @@ void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
 void onPrintTimerStarted()
 {
 	SERIAL_ECHOLN("==onPrintTimerStarted==");
-    #if ENABLED(POWER_LOSS_RECOVERY)
-        if (PoweroffContinue)
-        {
-            injectCommands_P(power_off_commands[0]);
-            injectCommands_P(power_off_commands[1]);
-            injectCommands_P((PSTR("G28 X0 Y0")));
-        }
-    #endif
+  if ( waitway == 7 )
+    return;
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (PoweroffContinue)
+    {
+      injectCommands_P(power_off_commands[0]);
+      injectCommands_P(power_off_commands[1]);
+      injectCommands_P((PSTR("G28 X0 Y0")));
+    }
+  #endif
 	PrinterStatusKey[1] = 3;
 	InforShowStatus = true;
 	rtscheck.RTS_SndData(4 + CEIconGrap, IconPrintstatus);
