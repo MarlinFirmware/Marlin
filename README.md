@@ -7,6 +7,11 @@ This branch is intended specifically for the Creality touchscreen machines and w
 - CR-X
 - Ender 5 Plus (Preliminary, untested)
 
+Any machine with bed leveling should utilize the 10SPro originating screen files. Anything without should use the CR-X Stock scrren files.
+For more notes on supported configurations here, see the Bleeding Edge or Devel branches.
+
+Screen files are archived with [7-Zip](https://www.7-zip.org/) simply because it came out 1/5 the file size of a zip file. That added up fast!
+
 ## About Our Branches
 
 The firmware branches maintained here are made possible by the support of sponsors like [Tiny Machines 3D](https://tinymachines3d.com/) as well as our customer base through our 3D printing Services. Maintaining and developing these branches takes a significant investment, made up of time and machines. To support continued development, please consider your next 3D Printer related purchase from Tiny Machines 3D and thank them for supporting open source development. Or, consider us for printing services outside of your machine’s capabilities. Print service requests can be sent to d.menzel@insanityautomation.com and we will respond typically within 1 working day. If you do not need anything printed or a 3D Printer but still want to contribute, you can support us through [Patreon](https://www.patreon.com/InsanityAutomation).
