@@ -128,6 +128,9 @@ float zprobe_zoffset; // Initialized by settings.load()
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI probe."), PSTR("Continue"));
       #endif
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onUserConfirmRequired(PSTR("Deploy TouchMI probe."));
+      #endif
       while (wait_for_user) idle();
       ui.reset_status();
       ui.goto_screen(prev_screen);
@@ -378,7 +381,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), PSTR("Continue"));
       #endif
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onStatusChanged(PSTR("Stow Probe"));
+        ExtUI::onUserConfirmRequired(PSTR("Stow Probe"));
       #endif
       while (wait_for_user) idle();
       ui.reset_status();

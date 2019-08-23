@@ -98,7 +98,7 @@ void GcodeSuite::M0_M1() {
     host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M0/1 Break Called"), PSTR("Continue"));
   #endif
   #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onStatusChanged(PSTR("M0/1 Break Called"));
+    ExtUI::onUserConfirmRequired(PSTR("M0/1 Break Called"));
   #endif
 
   if (ms > 0) {
