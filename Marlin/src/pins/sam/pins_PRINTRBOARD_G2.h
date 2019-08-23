@@ -29,8 +29,8 @@
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "PRINTRBOARD_G2"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "PRINTRBOARD_G2"
 #endif
 
 //

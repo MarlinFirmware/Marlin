@@ -51,6 +51,6 @@
  */
 
 
-#define BOARD_NAME "Gen6 Deluxe"
+#define BOARD_INFO_NAME "Gen6 Deluxe"
 
 #include "pins_GEN6.h"

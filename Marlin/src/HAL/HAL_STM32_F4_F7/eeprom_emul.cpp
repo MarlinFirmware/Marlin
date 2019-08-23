@@ -86,6 +86,8 @@ uint16_t EE_Initialize(void) {
   pEraseInit.NbSectors = 1;
   pEraseInit.VoltageRange = VOLTAGE_RANGE;
 
+  HAL_StatusTypeDef FlashStatus; // = HAL_OK
+
   /* Check for invalid header states and repair if necessary */
   uint32_t SectorError;
   switch (PageStatus0) {
@@ -135,7 +137,7 @@ uint16_t EE_Initialize(void) {
           }
         }
         /* Mark Page0 as valid */
-        HAL_StatusTypeDef FlashStatus = HAL_FLASH_Program(TYPEPROGRAM_HALFWORD, PAGE0_BASE_ADDRESS, VALID_PAGE);
+        FlashStatus = HAL_FLASH_Program(TYPEPROGRAM_HALFWORD, PAGE0_BASE_ADDRESS, VALID_PAGE);
         /* If program operation was failed, a Flash error code is returned */
         if (FlashStatus != HAL_OK) return FlashStatus;
         pEraseInit.Sector = PAGE1_ID;

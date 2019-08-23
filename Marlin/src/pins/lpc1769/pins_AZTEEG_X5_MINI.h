@@ -29,10 +29,10 @@
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME      "Azteeg X5 MINI"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Azteeg X5 MINI"
 #endif
-#define BOARD_WEBSITE_URL "http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm"
+#define BOARD_WEBSITE_URL "tiny.cc/x5_mini"
 
 //
 // LED

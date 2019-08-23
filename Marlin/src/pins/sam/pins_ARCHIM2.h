@@ -43,7 +43,7 @@
   #error "Archim2 requires Software SPI. Enable TMC_USE_SW_SPI in Configuration_adv.h."
 #endif
 
-#define BOARD_NAME "Archim 2.0"
+#define BOARD_INFO_NAME "Archim 2.0"
 
 //
 // Items marked * have been altered from Archim v1.0

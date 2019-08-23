@@ -828,8 +828,10 @@ void MarlinSettings::postprocess() {
       const int16_t lcd_contrast =
         #if HAS_LCD_CONTRAST
           ui.contrast
+        #elif defined(DEFAULT_LCD_CONTRAST)
+          DEFAULT_LCD_CONTRAST
         #else
-          32
+          127
         #endif
       ;
       EEPROM_WRITE(lcd_contrast);
@@ -2796,12 +2798,6 @@ void MarlinSettings::reset() {
         );
         SERIAL_ECHOLNPAIR_F(" Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]), 3);
       }
-    #endif
-
-    #if HAS_FILAMENT_SENSOR
-      CONFIG_ECHO_HEADING("Filament Runout Sensor:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M412 S", int(runout.enabled));
     #endif
 
     /**

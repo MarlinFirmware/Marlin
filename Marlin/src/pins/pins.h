@@ -202,6 +202,8 @@
   #include "mega/pins_CNCONTROLS_11.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(CNCONTROLS_12)
   #include "mega/pins_CNCONTROLS_12.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+#elif MB(CNCONTROLS_15)
+  #include "mega/pins_CNCONTROLS_15.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MIGHTYBOARD_REVE)
   #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(CHEAPTRONIC)
@@ -236,6 +238,8 @@
   #include "mega/pins_WANHAO_ONEPLUS.h"         // ATmega2560                             env:megaatmega2560
 #elif MB(OVERLORD)
   #include "mega/pins_OVERLORD.h"               // ATmega2560                             env:megaatmega2560
+#elif MB(HJC2560C_REV2)
+  #include "mega/pins_HJC2560C_REV2.h"          // ATmega2560                             env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561
@@ -502,6 +506,8 @@
   #include "stm32/pins_STEVAL.h"                // STM32F4                                env:STM32F4
 #elif MB(BIGTREE_SKR_PRO_V1_1)
   #include "stm32/pins_BIGTREE_SKR_PRO_V1.1.h"  // STM32F4                                env:BIGTREE_SKR_PRO
+#elif MB(BIGTREE_BTT002_V1_0)
+  #include "stm32/pins_BIGTREE_BTT002_V1.0.h"   // STM32F4                                env:BIGTREE_BTT002
 
 //
 // ARM Cortex M7

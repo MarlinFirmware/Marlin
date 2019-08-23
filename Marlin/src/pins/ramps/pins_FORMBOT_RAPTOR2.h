@@ -25,8 +25,8 @@
  * Formbot Raptor 2 pin assignments
  */
 
-#define BOARD_NAME           "Formbot Raptor2"
-#define DEFAULT_MACHINE_NAME BOARD_NAME
+#define BOARD_INFO_NAME      "Formbot Raptor2"
+#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 #define FAN_PIN             6
 

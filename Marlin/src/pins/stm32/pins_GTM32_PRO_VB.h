@@ -30,7 +30,7 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME           "GTM32 Pro VB"
+#define BOARD_INFO_NAME      "GTM32 Pro VB"
 #define DEFAULT_MACHINE_NAME "STM32F103VET6"
 
 //#define DISABLE_DEBUG

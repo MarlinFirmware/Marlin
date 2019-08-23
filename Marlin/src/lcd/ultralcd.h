@@ -259,15 +259,11 @@ public:
   }
 
   #if HAS_BUZZER
-    static inline void buzz(const long duration, const uint16_t freq) {
-      #if ENABLED(LCD_USE_I2C_BUZZER)
-        lcd.buzz(duration, freq);
-      #elif PIN_EXISTS(BEEPER)
-        buzzer.tone(duration, freq);
-      #elif ENABLED(PCA9632_BUZZER)
-        pca9632_buzz(duration, freq);
-      #endif
-    }
+    static void buzz(const long duration, const uint16_t freq);
+  #endif
+
+  #if ENABLED(LCD_HAS_STATUS_INDICATORS)
+    static void update_indicators();
   #endif
 
   // LCD implementations
@@ -451,7 +447,12 @@ public:
     static screenFunc_t currentScreen;
     static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
     static void save_previous_screen();
-    static void goto_previous_screen();
+    static void goto_previous_screen(
+      #if ENABLED(TURBO_BACK_MENU_ITEM)
+        const bool is_back=false
+      #endif
+    );
+
     static void return_to_status();
     static inline bool on_status_screen() { return currentScreen == status_screen; }
     static inline void run_current_screen() { (*currentScreen)(); }

@@ -165,7 +165,7 @@ void menu_info_thermistors() {
 void menu_info_board() {
   if (ui.use_click()) return ui.goto_previous_screen();
   START_SCREEN();
-  STATIC_ITEM(BOARD_NAME, true, true);                           // MyPrinterController
+  STATIC_ITEM(BOARD_INFO_NAME, true, true);                      // MyPrinterController
   STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
   STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION, true);    // Protocol: 1.0
   STATIC_ITEM(MSG_INFO_PSU ": " PSU_NAME, true);
