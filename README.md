@@ -1,6 +1,19 @@
 ﻿## Creality CR10S Pro, CR-X, CR10 Max and Ender 5 Plus Touch Screen supported firmware
 
+This branch is intended specifically for the Creality touchscreen machines and was split off from the standard creality branches due to specific custom changes not found upstream. This includes extensions to the EXTui framework among other smaller tweaks that we have been working towards getting submitted upstream. Primary machines supperted here are :
+
+- CR10S Pro
+- CR10 Max
+- CR-X
+- Ender 5 Plus (Preliminary, untested)
+
+## About Our Branches
+
 The firmware branches maintained here are made possible by the support of sponsors like [Tiny Machines 3D](https://tinymachines3d.com/) as well as our customer base through our 3D printing Services. Maintaining and developing these branches takes a significant investment, made up of time and machines. To support continued development, please consider your next 3D Printer related purchase from Tiny Machines 3D and thank them for supporting open source development. Or, consider us for printing services outside of your machine’s capabilities. Print service requests can be sent to d.menzel@insanityautomation.com and we will respond typically within 1 working day. If you do not need anything printed or a 3D Printer but still want to contribute, you can support us through [Patreon](https://www.patreon.com/InsanityAutomation).
+
+## Setup
+
+All configuration options intended to be adjusted by end users have been placed in the top section of Configuration.h and have been documented there. There is typically a break line to segregate the standard configuration below. Anything aside from the upper options is intended for advanced users only.
 
 ## Support
 
@@ -15,7 +28,7 @@ For this branch, we still have some active goals open that we plan to continue w
 - SD Card sub directory traversal
 - Volume and leveling state EEPROM storage
 - LCD pause messages and responses taken from machine instead of static messages
-
+- Additional Maintenance and tools screens (PID Tuning, Init EEPROM ect)
 
 ## Creality Firmware Branches
   - 1.1.9 Firmware (Stable, EOL) [TM_CR10](https://github.com/InsanityAutomation/Marlin/tree/TM_CR10)
@@ -34,18 +47,19 @@ For this branch, we still have some active goals open that we plan to continue w
   - SX4 Development Branch [TM_SX4_2.0_Devel](https://github.com/InsanityAutomation/Marlin/tree/TM_SX4_2.0_Devel)
 ## Other Firmware
   - Raise 3D N2+ (Dual) 2.0 [Raise3D-N2+-Dual](https://github.com/InsanityAutomation/Marlin/tree/Raise3D-N2+-Dual)
+  - Evnovo Artillery Sidewinder X1 2.0 [Evnovo X1](https://github.com/InsanityAutomation/Marlin/tree/ArtilleryX1_2.0_Devel)
 
 [Marlin Commit History](https://github.com/MarlinFirmware/Marlin/pulls?q=is%3Apr+is%3Aclosed+author%3AInsanityAutomation)
 
 ## Active Projects
   - [Tracing Marlin 2.0 Planner bug causing layer Shifting](https://github.com/MarlinFirmware/Marlin/issues/12403)
-  - Creality Dwin Touchscreen rewrite to ExtUI
+  - Creality Dwin Touchscreen rewrite to ExtUI - DONE
   - [IDEX drifting z offset on tool change with UBL](https://github.com/MarlinFirmware/Marlin/issues/13817)
   - [Multiple touch homing](https://github.com/MarlinFirmware/Marlin/issues/9802)
   - [Tool change offset changes](https://github.com/MarlinFirmware/Marlin/issues/12568)
   - [Hotend offset adjustment clamping](https://github.com/MarlinFirmware/Marlin/pull/13669)
   - [Filament width sensor hang on 32 bit](https://github.com/MarlinFirmware/Marlin/issues/13701)
-  - Probe point output for all leveling types matching incomplete ubl implementation
+  - Probe point output for all leveling types matching incomplete ubl implementation - DONE
   - SKR1.1 Pro integration to Trex2 with TMC2209 Drivers
   - SKR1.3 Integration to Mamorubot SX4
   - Mosquito BMG-M integration to Raptor
@@ -53,6 +67,7 @@ For this branch, we still have some active goals open that we plan to continue w
   - Anet A10 Delta STM32F103 board analysis
   - Smoothing integration and vendor components of Marlin 2.0 (Revision to version.h handling, limit clamping, usability enhancements ect)
   - Consolidate more probing functions, improve G33/4 and G28/29 handling
+  - G34 Z stepper reordering and automatic detection / adjustment of reversed stepper connections
   - Video documentation of firmware branch configuration options and flashing with platformio
 ## Planned Projects
   - Implement Virtual Tools
