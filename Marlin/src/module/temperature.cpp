@@ -3391,23 +3391,22 @@ void Temperature::isr() {
 
     const float net_feed_mm_s = diag_dist / seg_time;  // distance traveled divided by segment time
 
-    // G1 X-0.1234 Y-0.1234 Z-0.1234 F1000*
-
-    char tmp[36+5];  // Should fit (with null) in 36 chars. A bit of margin for safety.
-    strcpy_P(tmp, PSTR("G1 X"));
-    dtostrf(move_dist[X_AXIS], 0, 4, &tmp[strlen(tmp)]);
-    strcat_P(tmp, PSTR(" Y"));
-    dtostrf(move_dist[Y_AXIS], 0, 4, &tmp[strlen(tmp)]);
-    strcat_P(tmp, PSTR(" Z"));
-    dtostrf(move_dist[Z_AXIS], 0, 4, &tmp[strlen(tmp)]);
-    strcat_P(tmp, PSTR(" F"));
-    dtostrf(ceil(net_feed_mm_s * 60), 0, 0, &tmp[strlen(tmp)]);
-
     // Prevent re-entry to this method until done!
     REMEMBER(inj, injecting_now, true);
-    REMEMBER(rm, relative_mode, true);
-    queue.enqueue_one_now(tmp);
-    queue.advance();
+
+    // globals current_position[XYZE], destination[XYZE], and feedrate_mm_s are used to interact with prepare_move_to_destination
+    REMEMBER(saved_feedrate, feedrate_mm_s, net_feed_mm_s);
+    float saved_destination[XYZE];  // save in case it matters (don't think it does)
+    COPY(saved_destination, destination);
+
+    COPY(destination, current_position);  // start with current position, ensures no attempted extruder movement
+    destination[X_AXIS] += move_dist[X_AXIS];
+    destination[Y_AXIS] += move_dist[Y_AXIS];
+    destination[Z_AXIS] += move_dist[Z_AXIS];
+    prepare_move_to_destination();
+
+    COPY(destination, saved_destination);  // restore previous destination
+    // REMEMBER/restorer leaves scope and feedrate_mm_s is set to its previous value
   }
 
 #endif // POLL_JOG
