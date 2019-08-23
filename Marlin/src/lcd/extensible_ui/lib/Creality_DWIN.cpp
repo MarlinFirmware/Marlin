@@ -1645,7 +1645,10 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
 
 void onPrinterKilled(PGM_P msg) {
   SERIAL_ECHOLN("***kill***");
+  //First we send screen available on old versions of software
 	rtscheck.RTS_SndData(ExchangePageBase + 15, ExchangepageAddr);
+  //Then we send the new one Creality added in 1.70.1
+	rtscheck.RTS_SndData(ExchangePageBase + 88, ExchangepageAddr);
   delay_ms(3);
   int j = 0;
   char outmsg[40];
