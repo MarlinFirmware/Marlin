@@ -201,13 +201,11 @@ bool MarlinUI::detected() { return true; }
     auto draw_bootscreen_bmp = [&](const uint8_t *bitmap) {
       u8g.drawBitmapP(offx, offy, START_BMP_BYTEWIDTH, START_BMPHEIGHT, bitmap);
       set_font(FONT_MENU);
-      const u8g_pgm_uint8_t splash1[] U8G_PROGMEM  = STRING_SPLASH_LINE1;
       #ifndef STRING_SPLASH_LINE2
-        u8g.drawStrP(txt_offx_1, txt_base, splash1);
+        lcd_put_u8str_P(txt_offx_1, txt_base, PSTR(STRING_SPLASH_LINE1));
       #else
-        const u8g_pgm_uint8_t splash2[] U8G_PROGMEM  = STRING_SPLASH_LINE2;
-        u8g.drawStrP(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), splash1);
-        u8g.drawStrP(txt_offx_2, txt_base, splash2);
+        lcd_put_u8str_P(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), PSTR(STRING_SPLASH_LINE1));
+        lcd_put_u8str_P(txt_offx_2, txt_base, PSTR(STRING_SPLASH_LINE2));
       #endif
     };
 
@@ -306,12 +304,9 @@ void MarlinUI::draw_kill_screen() {
   u8g.firstPage();
   do {
     set_font(FONT_MENU);
-    lcd_moveto(0, h4 * 1);
-    lcd_put_u8str(status_message);
-    lcd_moveto(0, h4 * 2);
-    lcd_put_u8str_P(PSTR(MSG_HALTED));
-    lcd_moveto(0, h4 * 3);
-    lcd_put_u8str_P(PSTR(MSG_PLEASE_RESET));
+    lcd_put_u8str(0, h4 * 1, status_message);
+    lcd_put_u8str_P(0, h4 * 2, PSTR(MSG_HALTED));
+    lcd_put_u8str_P(0, h4 * 3, PSTR(MSG_PLEASE_RESET));
   } while (u8g.nextPage());
 }
 
@@ -329,8 +324,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
       if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return;
 
-      lcd_moveto(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), row_y2);
-      lcd_put_wchar('E');
+      lcd_put_wchar(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), row_y2, 'E');
       lcd_put_wchar((char)('1' + extruder));
       lcd_put_wchar(' ');
       lcd_put_u8str(i16tostr3(thermalManager.degHotend(extruder)));
@@ -396,8 +390,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       u8g_uint_t n = (LCD_WIDTH - 2) * (MENU_FONT_WIDTH);
       n -= lcd_put_u8str_max_P(pstr, n);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
-      lcd_moveto(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2);
-      lcd_put_wchar(post_char);
+      lcd_put_wchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
       lcd_put_wchar(' ');
     }
   }
@@ -447,10 +440,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     // Assume the label is alpha-numeric (with a descender)
     bool onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline + EDIT_FONT_DESCENT);
-    if (onpage) {
-      lcd_moveto(0, baseline);
-      lcd_put_u8str_P(pstr);
-    }
+    if (onpage) lcd_put_u8str_P(0, baseline, pstr);
 
     // If a value is included, print a colon, then print the value right-justified
     if (value != nullptr) {
@@ -461,8 +451,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }
       if (onpage) {
-        lcd_moveto(((lcd_chr_fit - 1) - (vallen + 1)) * one_chr_width, baseline); // Right-justified, leaving padded by spaces
-        lcd_put_wchar(' '); // overwrite char if value gets shorter
+        lcd_put_wchar(((lcd_chr_fit - 1) - (vallen + 1)) * one_chr_width, baseline, ' '); // Right-justified, padded, add a leading space
         lcd_put_u8str(value);
       }
     }
@@ -476,8 +465,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       u8g.drawBox(bx - 1, by - (MENU_FONT_ASCENT) + 1, bw + 2, MENU_FONT_HEIGHT - 1);
       u8g.setColorIndex(0);
     }
-    lcd_moveto(bx, by);
-    lcd_put_u8str_P(pstr);
+    lcd_put_u8str_P(bx, by, pstr);
     if (inv) u8g.setColorIndex(1);
   }
 
@@ -562,26 +550,22 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       // Show X and Y positions at top of screen
       u8g.setColorIndex(1);
       if (PAGE_UNDER(7)) {
-        lcd_moveto(5, 7);
-        lcd_put_u8str("X:");
+        lcd_put_u8str(5, 7, "X:");
         lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
-        lcd_moveto(74, 7);
-        lcd_put_u8str("Y:");
+        lcd_put_u8str(74, 7, "Y:");
         lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
       }
 
       // Print plot position
       if (PAGE_CONTAINS(LCD_PIXEL_HEIGHT - (INFO_FONT_HEIGHT - 1), LCD_PIXEL_HEIGHT)) {
-        lcd_moveto(5, LCD_PIXEL_HEIGHT);
-        lcd_put_wchar('(');
+        lcd_put_wchar(5, LCD_PIXEL_HEIGHT, '(');
         u8g.print(x_plot);
         lcd_put_wchar(',');
         u8g.print(y_plot);
         lcd_put_wchar(')');
 
         // Show the location value
-        lcd_moveto(74, LCD_PIXEL_HEIGHT);
-        lcd_put_u8str("Z:");
+        lcd_put_u8str(74, LCD_PIXEL_HEIGHT, "Z:");
         if (!isnan(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
