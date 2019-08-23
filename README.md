@@ -15,6 +15,11 @@ The firmware branches maintained here are made possible by the support of sponso
 
 All configuration options intended to be adjusted by end users have been placed in the top section of Configuration.h and have been documented there. There is typically a break line to segregate the standard configuration below. Anything aside from the upper options is intended for advanced users only.
 
+## Known Issues
+ - While auto leveling (measuring) is in progress pressing other buttons on the screen can abort portions of the script depending where it is
+ - Manual move screen has a planner issue with Bilinear. This is caused by a bug in the main Marlin branch. UBL is recommended in most cases.
+
+
 ## Support
 
 This firmware is provided to the public as-is with no warranty or guarantee. Its based on a large open source project and there is no entitelment to support. That said, Tiny Machines customers may obtain support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines customer, you may contact them at support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on the Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
@@ -29,11 +34,17 @@ For this branch, we still have some active goals open that we plan to continue w
 - Volume and leveling state EEPROM storage
 - LCD pause messages and responses taken from machine instead of static messages
 - Additional Maintenance and tools screens (PID Tuning, Init EEPROM ect)
+- Tuning of status message clearing
+- Utilize a few more of the background screens (such as print finished) that are currently not in use but not necessary
+
+If there is any interest in reimplementing the chinese language screens, thats definately possible at this point. In order to put the effort in however I would need to see a notable amount of interest in this.
+
 
 ## Creality Firmware Branches
   - 1.1.9 Firmware (Stable, EOL) [TM_CR10](https://github.com/InsanityAutomation/Marlin/tree/TM_CR10)
-  - 2.0 Firmware (Beta, but well tested) [Creality_Marlin2.0.x](https://github.com/InsanityAutomation/Marlin/tree/Creality_Marlin2.0.x)
-  - 2.0 Development Branch [Creality_2.0_Devel](https://github.com/InsanityAutomation/Marlin/tree/Creality_2.0_Devel)
+  - 2.0 Firmware [Creality_Marlin2.0.x](https://github.com/InsanityAutomation/Marlin/tree/Creality_Marlin2.0.x)
+  - 2.0 Development Branch (Beta, but well tested) [Creality_2.0_Devel](https://github.com/InsanityAutomation/Marlin/tree/Creality_2.0_Devel)
+  - 2.0 Bleeding edge Branch (Here there be dragons!) [Creality_2.0_Bleeding](https://github.com/InsanityAutomation/Marlin/tree/Creality_2.0_Bleeding)
   - Touchscreen Firmware (10SPro and CR-X 1.1.9 Stable) [Creality_DWINTest](https://github.com/InsanityAutomation/Marlin/tree/Creality_DWINTest)
   - Touchscreen Firmware (10SPro and CR-X 2.0 Active Development) [CrealityDwin_2.0](https://github.com/InsanityAutomation/Marlin/tree/CrealityDwin_2.0)
 ## Formbot / Vivedino Firmware Branches
