@@ -60,8 +60,8 @@ For this branch, we still have some active goals open that we plan to continue w
   - [Hotend offset adjustment clamping](https://github.com/MarlinFirmware/Marlin/pull/13669)
   - [Filament width sensor hang on 32 bit](https://github.com/MarlinFirmware/Marlin/issues/13701)
   - Probe point output for all leveling types matching incomplete ubl implementation - DONE
-  - SKR1.1 Pro integration to Trex2 with TMC2209 Drivers
-  - SKR1.3 Integration to Mamorubot SX4
+  - SKR1.1 Pro integration to Trex2 with TMC2209 Drivers - Mostly done, blew an output...
+  - SKR1.3 Integration to Mamorubot SX4 - DONE
   - Mosquito BMG-M integration to Raptor
   - Porting Chithu Touchscreen board to Marlin 2.0 with ExtUI
   - Anet A10 Delta STM32F103 board analysis
