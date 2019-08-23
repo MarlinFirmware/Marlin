@@ -51,10 +51,6 @@
 
 #endif
 
-#if ENABLED(STATUS_COMBINE_HEATERS)
-  #undef STATUS_HOTEND_ANIM
-#endif
-
 //
 // Default Status Screen Heater or Hotends bitmaps
 //
@@ -62,6 +58,7 @@
 
   #if ENABLED(STATUS_COMBINE_HEATERS)
 
+    #undef STATUS_HOTEND_ANIM
     #undef STATUS_BED_ANIM
     #define STATUS_HEATERS_XSPACE 24
 
@@ -92,8 +89,6 @@
 
       #elif HOTENDS == 2
 
-        #define STATUS_BED_WIDTH  24
-
         #define STATUS_HEATERS_WIDTH 96
         #define STATUS_BED_TEXT_X   (STATUS_HEATERS_WIDTH - 10)
 
@@ -113,8 +108,6 @@
         };
 
       #elif HOTENDS == 3
-
-        #define HAS_SPACES 1
 
         #define STATUS_HEATERS_WIDTH 96
         #define STATUS_BED_TEXT_X   (STATUS_HEATERS_WIDTH - 10)
@@ -672,7 +665,8 @@
     #endif
 
   #endif
-
+#else
+  #define STATUS_BED_WIDTH 0
 #endif
 
 #if !STATUS_CHAMBER_WIDTH && HAS_HEATED_CHAMBER && ((HOTENDS <= 4 && !HAS_HEATED_BED) || (HOTENDS <= 3 && HAS_HEATED_BED))
@@ -739,15 +733,17 @@
     };
 
   #endif
+#else // HAS_HEATED_CHAMBER
+  #define STATUS_CHAMBER_WIDTH 0
+#endif
 
-#endif // HAS_HEATED_CHAMBER
+#define BED_CHAM (HAS_HEATED_BED || HAS_HEATED_CHAMBER)
+#define BED_CHAM_FAN (BED_CHAM || HAS_FAN0)
 
 // Can also be overridden in Configuration_adv.h
 // If you can afford it, try the 3-frame fan animation!
 // Don't compile in the fan animation with no fan
-#if !HAS_FAN0 || (HOTENDS == 5 || \
-   (HOTENDS == 4 && (HAS_HEATED_BED || HAS_HEATED_CHAMBER)) || \
-   (HOTENDS == 3 &&  HAS_HEATED_BED && HAS_HEATED_CHAMBER))
+#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && BED_CHAM) || (HOTENDS == 3 && HAS_HEATED_BED && HAS_HEATED_CHAMBER))
   #undef STATUS_FAN_FRAMES
 #elif !STATUS_FAN_FRAMES
   #define STATUS_FAN_FRAMES 2
@@ -756,13 +752,9 @@
 #endif
 
 #if HOTENDS > 4
-  #if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE)
-    #undef STATUS_LOGO_WIDTH
-  #endif
+  #undef STATUS_LOGO_WIDTH
   #undef STATUS_HEATERS_XSPACE
   #define STATUS_HEATERS_XSPACE 24
-#elif (HOTENDS == 4) && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && (HAS_HEATED_BED || HAS_HEATED_CHAMBER || HAS_FAN0)
-  #undef STATUS_LOGO_WIDTH
 #endif
 
 //
@@ -1192,6 +1184,34 @@
   #endif
 #else
   #undef STATUS_FAN_FRAMES
+  #define STATUS_FAN_WIDTH 0
+#endif
+
+#if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE)
+
+  #if STATUS_HOTEND1_WIDTH
+    #define HAS_SPACES ((LCD_PIXEL_WIDTH - (HOTENDS * STATUS_HOTEND1_WIDTH) - STATUS_BED_WIDTH - STATUS_CHAMBER_WIDTH - STATUS_FAN_WIDTH - 24) < STATUS_LOGO_WIDTH ? true : false)
+  #elif STATUS_HEATERS_WIDTH
+    #define HAS_SPACES (((LCD_PIXEL_WIDTH - STATUS_HEATERS_WIDTH - STATUS_BED_WIDTH - STATUS_CHAMBER_WIDTH - STATUS_FAN_WIDTH - 20) < STATUS_LOGO_WIDTH) ? true : false)
+  #endif
+
+  #if HAS_SPACES
+    #undef STATUS_LOGO_WIDTH
+  #endif
+
+  #if (HOTENDS > 1 && STATUS_LOGO_WIDTH && BED_CHAM_FAN) || ( HOTENDS >= 3 && !BED_CHAM_FAN)
+    #define _STATUS_HEATERS_X(H,S,N) (((LCD_PIXEL_WIDTH - (H * (S + N)) - STATUS_LOGO_WIDTH - STATUS_BED_WIDTH - STATUS_CHAMBER_WIDTH - STATUS_FAN_WIDTH) / 2) + STATUS_LOGO_WIDTH)
+    #if STATUS_HOTEND1_WIDTH
+      #if HOTENDS > 2
+        #define STATUS_HEATERS_X _STATUS_HEATERS_X(HOTENDS, STATUS_HOTEND1_WIDTH, 6)
+      #else
+        #define STATUS_HEATERS_X _STATUS_HEATERS_X(HOTENDS, STATUS_HOTEND1_WIDTH, 4)
+      #endif
+    #else
+      #define STATUS_HEATERS_X _STATUS_HEATERS_X(1, STATUS_HEATERS_WIDTH, 4)
+    #endif
+  #endif
+
 #endif
 
 //
@@ -1234,7 +1254,7 @@
 
   #ifndef STATUS_HEATERS_X
     #if STATUS_LOGO_BYTEWIDTH
-      #define STATUS_HEATERS_X ((STATUS_LOGO_BYTEWIDTH + 0) * 8)
+      #define STATUS_HEATERS_X (STATUS_LOGO_BYTEWIDTH * 8)
     #elif ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH) && (STATUS_BED_WIDTH  && STATUS_HOTEND_BITMAPS == 3)) || \
           ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH  ||  STATUS_BED_WIDTH) && STATUS_HOTEND_BITMAPS == 4)
       #define STATUS_HEATERS_X 5
@@ -1416,9 +1436,6 @@
 //
 // Chamber Bitmap Properties
 //
-#ifndef STATUS_CHAMBER_WIDTH
-  #define STATUS_CHAMBER_WIDTH 0
-#endif
 #ifndef STATUS_CHAMBER_BYTEWIDTH
   #define STATUS_CHAMBER_BYTEWIDTH BW(STATUS_CHAMBER_WIDTH)
 #endif
@@ -1460,9 +1477,6 @@
 //
 // Bed Bitmap Properties
 //
-#ifndef STATUS_BED_WIDTH
-  #define STATUS_BED_WIDTH 0
-#endif
 #ifndef STATUS_BED_BYTEWIDTH
   #define STATUS_BED_BYTEWIDTH BW(STATUS_BED_WIDTH)
 #endif
@@ -1503,9 +1517,6 @@
 //
 // Fan Bitmap Properties
 //
-#ifndef STATUS_FAN_WIDTH
-  #define STATUS_FAN_WIDTH 0
-#endif
 #ifndef STATUS_FAN_BYTEWIDTH
   #define STATUS_FAN_BYTEWIDTH BW(STATUS_FAN_WIDTH)
 #endif

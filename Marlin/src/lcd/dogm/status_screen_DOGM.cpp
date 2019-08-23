@@ -63,10 +63,10 @@
 #define EXTRAS_BASELINE (40 + INFO_FONT_ASCENT)
 #define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
 
+#define DO_DRAW_LOGO    (STATUS_LOGO_WIDTH  && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
 #define DO_DRAW_BED     (HAS_HEATED_BED     && STATUS_BED_WIDTH     && HOTENDS <= 4)
 #define DO_DRAW_CHAMBER (HAS_HEATED_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4)
 #define DO_DRAW_FAN     (HAS_FAN0           && STATUS_FAN_WIDTH     && HOTENDS <= 4 && defined(STATUS_FAN_FRAMES))
-#define DO_DRAW_LOGO    (STATUS_LOGO_WIDTH  && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
 
 #define ANIM_HOTEND  (HOTENDS         && ENABLED(STATUS_HOTEND_ANIM))
 #define ANIM_BED     (DO_DRAW_BED     && ENABLED(STATUS_BED_ANIM))
@@ -209,7 +209,7 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
     #endif
 
     // Draw a heating progress bar, if specified
-    #if ENABLED(STATUS_HEAT_PERCENT) && DO_DRAW_BED
+    #if DO_DRAW_BED && ENABLED(STATUS_HEAT_PERCENT)
 
       if (IFBED(true, STATIC_HOTEND) && isHeat) {
         const uint8_t bx = IFBED(STATUS_BED_X + STATUS_BED_WIDTH - 1, STATUS_HOTEND_X(heater) + STATUS_HOTEND_WIDTH(heater)) + 1;
