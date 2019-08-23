@@ -53,9 +53,6 @@
 
 #if ENABLED(STATUS_COMBINE_HEATERS)
   #undef STATUS_HOTEND_ANIM
-  #if HOTENDS <= 3
-    #undef STATUS_BED_ANIM
-  #endif
 #endif
 
 //
