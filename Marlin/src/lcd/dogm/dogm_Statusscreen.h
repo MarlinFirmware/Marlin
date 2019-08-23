@@ -584,11 +584,6 @@
 
 #endif // !STATUS_HEATERS_WIDTH && !STATUS_HOTEND1_WIDTH
 
-#define IS_SPACE_FAN       !(HOTENDS >= 4 && (HAS_HEATED_BED || HAS_HEATED_CHAMBER))
-#define IS_SPACE_CHAM      !(HOTENDS >= 4 &&  HAS_HEATED_BED)
-#define IS_SPACE_BED       !(HOTENDS >  4)
-#define IS_COMBINE_HEATERS (ENABLED(STATUS_COMBINE_HEATERS) && HOTENDS == 4)
-
 //
 // Default Status Screen Bed bitmaps
 //
