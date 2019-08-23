@@ -12,16 +12,11 @@ namespace ExtUI
   uint8_t progress_bar_percent;
   int startprogress = 0;
   CRec CardRecbuf;
-  int temphot = 0;
-  //int tempbed=0;
-  //float pause_z = 0;
   #if DISABLED(POWER_LOSS_RECOVERY)
     int power_off_type_yes = 0;
     int power_off_commands_count = 0;
   #endif
 
-  int last_target_temperature_bed;
-  int last_target_temperature[4] = {0};
   char waitway = 0;
   int recnum = 0;
   unsigned char Percentrecord = 0;
@@ -32,15 +27,11 @@ namespace ExtUI
   bool PrintMode = false; //Eco Mode default off
 
   char PrintStatue[2] = {0};		//PrintStatue[0], 0 represent  to 43 page, 1 represent to 44 page
-  bool CardUpdate = false;		//represents to update file list
-  char CardCheckStatus[2] = {0};  //CardCheckStatus[0] represents to check card in printing and after making sure to begin and to check card in heating with value as 1, but 0 for off
 
   char PrinterStatusKey[2] = {0}; // PrinterStatusKey[1] value: 0 represents to keep temperature, 1 represents  to heating , 2 stands for cooling , 3 stands for printing
                   // PrinterStatusKey[0] value: 0 reprensents 3D printer ready
-  bool lcd_sd_status;				//represents SD-card status, true means SD is available, false means opposite.
 
   char FilenamesCount = 0;
-  char cmdbuf[20] = {0};
   char FilementStatus[2] = {0};
 
   unsigned char AxisPagenum = 0; //0 for 10mm, 1 for 1mm, 2 for 0.1mm
@@ -52,7 +43,6 @@ namespace ExtUI
   unsigned long VolumeSet = 0x80;
   extern char power_off_commands[9][96];
   bool PoweroffContinue = false;
-  char commandbuf[30];
 
   bool reEntryPrevent = false;
   uint8_t idleThrottling = 0;
@@ -75,8 +65,6 @@ void onStartup()
 	else
 		rtscheck.RTS_SndData(2, FanKeyIcon + 1); // normal
 
-	last_target_temperature_bed = getTargetTemp_celsius(BED);
-	last_target_temperature[0] = getTargetTemp_celsius(H0);
 	rtscheck.RTS_SndData(100, FeedrateDisplay);
 
 	/***************turn off motor*****************/
@@ -132,7 +120,7 @@ void onIdle()
 {
   if (reEntryPrevent)
     return;
-  if(idleThrottling++ < 250){
+  if(idleThrottling++ < 1000){
     return;
   }
 
@@ -248,7 +236,7 @@ void onIdle()
       if ((startprogress += 1) > 200)
 			{
         #if ENABLED(POWER_LOSS_RECOVERY)
-          if(lcd_sd_status && (power_off_commands_count > 0)) {
+          if(isMediaInserted() && (power_off_commands_count > 0)) {
             for (uint16_t i = 0; i < CardRecbuf.Filesum; i++)
             {
               if (!strcmp(CardRecbuf.Cardfilename[i], &power_off_info.sd_filename[1]))
@@ -609,54 +597,57 @@ void RTSSHOW::RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd
 
 void RTSSHOW::RTS_SDCardUpate(bool removed, bool inserted)
 {
-
 	SERIAL_ECHOLN("SDUpdate");
+  bool shouldCheck;
+  if(!removed && !inserted)
+    shouldCheck = isMediaInserted();
+  else
+    shouldCheck = false;
 
-  if (inserted || isMediaInserted())
+  if (inserted || shouldCheck)
   {
-	ExtUI::FileList files;
-	files.count();
+    ExtUI::FileList files;
+    files.count();
 
-	int addrnum = 0;
-	int num = 0;
-	for (uint16_t i = 0; i < files.count() && i < (uint16_t)MaxFileNumber + addrnum; i++)
-	{
-		files.seek(i);
-		files.filename();
-		const char *pointFilename = files.longFilename();
-		int filenamelen = strlen(files.longFilename());
-		int j = 1;
-		while ((strncmp(&pointFilename[j], ".gcode", 6) && strncmp(&pointFilename[j], ".GCODE", 6)) && (j++) < filenamelen)
-        ;
-		if (j >= filenamelen)
-		{
-			addrnum++;
-			continue;
-		}
+    int addrnum = 0;
+    int num = 0;
+    for (uint16_t i = 0; i < files.count() && i < (uint16_t)MaxFileNumber + addrnum; i++)
+    {
+      files.seek(i);
+      files.filename();
+      const char *pointFilename = files.longFilename();
+      int filenamelen = strlen(files.longFilename());
+      int j = 1;
+      while ((strncmp(&pointFilename[j], ".gcode", 6) && strncmp(&pointFilename[j], ".GCODE", 6)) && (j++) < filenamelen)
+          ;
+      if (j >= filenamelen)
+      {
+        addrnum++;
+        continue;
+      }
 
-		if (j >= TEXTBYTELEN)
-		{
-			//strncpy(&files.longFilename[TEXTBYTELEN -3],"~~",2);
-			//files.longFilename()[TEXTBYTELEN-1] = '\0';
-			j = TEXTBYTELEN - 1;
-		}
+      if (j >= TEXTBYTELEN)
+      {
+        //strncpy(&files.longFilename[TEXTBYTELEN -3],"~~",2);
+        //files.longFilename()[TEXTBYTELEN-1] = '\0';
+        j = TEXTBYTELEN - 1;
+      }
 
-		strncpy(CardRecbuf.Cardshowfilename[num], files.longFilename(), j);
+      strncpy(CardRecbuf.Cardshowfilename[num], files.longFilename(), j);
 
-		strcpy(CardRecbuf.Cardfilename[num], files.shortFilename());
-		CardRecbuf.addr[num] = SDFILE_ADDR + num * 10;
-		rtscheck.RTS_SndData(CardRecbuf.Cardshowfilename[num], CardRecbuf.addr[num]);
-		CardRecbuf.Filesum = (++num);
-		//SERIAL_ECHO("  CardRecbuf.Filesum ==");
-		//SERIAL_ECHO(CardRecbuf.Filesum);
-		rtscheck.RTS_SndData(1, FilenameIcon + CardRecbuf.Filesum);
-	}
-		rtscheck.RTS_SndData(17, IconPrintstatus);
-	lcd_sd_status = true;
-  return;
+      strcpy(CardRecbuf.Cardfilename[num], files.shortFilename());
+      CardRecbuf.addr[num] = SDFILE_ADDR + num * 10;
+      rtscheck.RTS_SndData(CardRecbuf.Cardshowfilename[num], CardRecbuf.addr[num]);
+      CardRecbuf.Filesum = (++num);
+      //SERIAL_ECHO("  CardRecbuf.Filesum ==");
+      //SERIAL_ECHO(CardRecbuf.Filesum);
+      rtscheck.RTS_SndData(1, FilenameIcon + CardRecbuf.Filesum);
+    }
+      rtscheck.RTS_SndData(17, IconPrintstatus);
+    return;
   }
 
-  if(removed || !isMediaInserted())
+  if(removed || !shouldCheck)
   {
     for (int i = 0; i < MaxFileNumber; i++)
     {
@@ -761,7 +752,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
       if (recdat.data[0] == 1) // card
       {
         InforShowStatus = false;
-        CardUpdate = true;
         CardRecbuf.recordcount = -1;
         RTS_SDCardUpate(false, false);
         SERIAL_ECHO("\n Handle Data PrintFile 1 Setting Screen ");
@@ -861,7 +851,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
         RTS_SndData(0, Timehour);
         RTS_SndData(0, Timemin);
-        CardCheckStatus[0] = 0; // close the key of  checking card in  printing
         stopPrint();
       }
       else if (recdat.addr == Pauseprint)
@@ -882,15 +871,14 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         RTS_SndData(0 + CEIconGrap, IconPrintstatus);
         PrintStatue[1] = 0;
         //PrinterStatusKey[1] = 3;
-        CardCheckStatus[0] = 1; // open the key of  checking card in  printing
         RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
       }
       if (recdat.addr == Resumeprint && recdat.data[0] == 2) // warming
       {
+        resumePrint();
         NozzleTempStatus[2] = 1;
         PrinterStatusKey[1] = 0;
         InforShowStatus = true;
-        setTargetTemp_celsius((float)temphot, H0);
         startprogress = 0;
         RTS_SndData(ExchangePageBase + 82, ExchangepageAddr);
       }
@@ -1413,7 +1401,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
             RTS_SndData(1 + CEIconGrap, IconPrintstatus);
             PrintStatue[1] = 0;
             PrinterStatusKey[1] = 3;
-            CardCheckStatus[0] = 1; // open the key of  checking card in  printing
             RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
             FilementStatus[0] = 0; // recover the status waiting to check filements
           }
@@ -1480,7 +1467,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
           PrinterStatusKey[1] = 3;
           PoweroffContinue = true;
           TPShowStatus = InforShowStatus = true;
-          CardCheckStatus[0] = 1; // open the key of  checking card in  printing
 
           RTS_SndData(1 + CEIconGrap, IconPrintstatus);
           RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
@@ -1538,11 +1524,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
       break;
 
     case Filename:
-      //if(card.cardOK && recdat.data[0] > 0 && recdat.data[0] <= CardRecbuf.Filesum && recdat.addr != 0x20D2)
-      /*SERIAL_ECHO("\n   recdat.data[0] ==");
-        SERIAL_ECHO(recdat.data[0]);
-        SERIAL_ECHO("\n   recdat.addr ==");
-        SERIAL_ECHO(recdat.addr); */
       SERIAL_ECHOLN("Filename");
       if (isMediaInserted() && recdat.addr == FilenameChs)
       {
@@ -1554,18 +1535,18 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         CardRecbuf.recordcount = recdat.data[0] - 1;
         for (int j = 0; j < 10; j++)
           RTS_SndData(0, Choosefilename + j);
-        int filelen = strlen(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
+        int filelen = strlen(CardRecbuf.Cardshowfilename[(int)CardRecbuf.recordcount]);
         filelen = (TEXTBYTELEN - filelen) / 2;
         if (filelen > 0)
         {
           char buf[20];
           memset(buf, 0, sizeof(buf));
           strncpy(buf, "         ", filelen);
-          strcpy(&buf[filelen], CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
+          strcpy(&buf[filelen], CardRecbuf.Cardshowfilename[(int)CardRecbuf.recordcount]);
           RTS_SndData(buf, Choosefilename);
         }
         else
-          RTS_SndData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], Choosefilename);
+          RTS_SndData(CardRecbuf.Cardshowfilename[(int)CardRecbuf.recordcount], Choosefilename);
 
         for (int j = 0; j < 8; j++)
           RTS_SndData(0, FilenameCount + j);
@@ -1589,23 +1570,23 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         {
           if (CardRecbuf.recordcount < 0)
             break;
-          printFile(CardRecbuf.Cardfilename[CardRecbuf.recordcount]);
+          printFile(CardRecbuf.Cardfilename[(int)CardRecbuf.recordcount]);
 
           for (int j = 0; j < 10; j++) //clean screen.
             RTS_SndData(0, Printfilename + j);
 
-          int filelen = strlen(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
+          int filelen = strlen(CardRecbuf.Cardshowfilename[(int)CardRecbuf.recordcount]);
           filelen = (TEXTBYTELEN - filelen) / 2;
           if (filelen > 0)
           {
             char buf[20];
             memset(buf, 0, sizeof(buf));
             strncpy(buf, "         ", filelen);
-            strcpy(&buf[filelen], CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
+            strcpy(&buf[filelen], CardRecbuf.Cardshowfilename[(int)CardRecbuf.recordcount]);
             RTS_SndData(buf, Printfilename);
           }
           else
-            RTS_SndData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], Printfilename);
+            RTS_SndData(CardRecbuf.Cardshowfilename[(int)CardRecbuf.recordcount], Printfilename);
           delay_ms(2);
 
           #if FAN_COUNT > 0
@@ -1622,8 +1603,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
           PrintStatue[1] = 0;
           PrinterStatusKey[0] = 1;
           PrinterStatusKey[1] = 3;
-          CardCheckStatus[0] = 1; // open the key of  checking card in  printing
-                      //Update_Time_Value = 0;
         }
         else if (recdat.data[0] == 0) //	return to main page
         {
@@ -1708,7 +1687,6 @@ void onPrintTimerStarted()
 	rtscheck.RTS_SndData(4 + CEIconGrap, IconPrintstatus);
 	delay_ms(1);
 	rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-	CardCheckStatus[0] = 1; // open the key of  checking card in  printing
 }
 
 void onPrintTimerPaused()

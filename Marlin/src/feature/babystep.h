@@ -30,7 +30,7 @@
   #define BS_TODO_AXIS(A) 0
 #endif
 
-#if HAS_LCD_MENU && ENABLED(BABYSTEP_DISPLAY_TOTAL)
+#if (HAS_LCD_MENU || ENABLED(EXTENSIBLE_UI)) && ENABLED(BABYSTEP_DISPLAY_TOTAL)
   #if ENABLED(BABYSTEP_XY)
     #define BS_TOTAL_AXIS(A) A
   #else
@@ -41,7 +41,7 @@
 class Babystep {
 public:
   static volatile int16_t todo[BS_TODO_AXIS(Z_AXIS) + 1];
-  #if HAS_LCD_MENU
+  #if HAS_LCD_MENU || ENABLED(EXTENSIBLE_UI)
     static int16_t accum;                                     // Total babysteps in current edit
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
       static int16_t axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];   // Total babysteps since G28

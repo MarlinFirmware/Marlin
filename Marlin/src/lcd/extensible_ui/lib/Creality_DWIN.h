@@ -132,23 +132,6 @@ class RTSSHOW {
 
 static RTSSHOW rtscheck;
 
-#if defined(MachineCRX) && !defined(Force10SProDisplay)
-  #define	Addvalue	2
-  #define	PrintChoice_Value	(1+Addvalue)
-  #define	TempControl_Value	(4+Addvalue)
-  #define	Setting_Value		(8+Addvalue)
-  #define	XYZEaxis_Value		(12+Addvalue)
-  #define	Filement_Value		(15+Addvalue)
-  #define	Language_Value		(18+Addvalue)
-  #define	Filename_Value		(21+Addvalue)
-
-  enum PROC_COM {Printfile=0,Ajust,Feedrate,PrintChoice=PrintChoice_Value,TempControl=TempControl_Value,ManualSetTemp,Setting=Setting_Value,
-  ReturnBack,Bedlevel,Autohome,XYZEaxis=XYZEaxis_Value,Filement=Filement_Value,LanguageChoice=Language_Value,PwrOffNoF,Volume,Filename=Filename_Value};
-
-  const unsigned long Addrbuf[] = {0x1002, 0x1004, 0x1006, 0x1008, 0x100A, 0x100C,  0x1030, 0x1032, 0x1034, 0x103A, 0x103E,
-                0x1040, 0x1044, 0x1046, 0x1048, 0x104A, 0x104C, 0x1054, 0x1056, 0x1058, 0x105C,
-                0x105F, 0x1088, 0};
-#else
   #define	Addvalue	3
   #define	PrintChoice_Value	(0+Addvalue)
   #define	Zoffset_Value		(3+Addvalue)
@@ -164,7 +147,7 @@ static RTSSHOW rtscheck;
   const unsigned long Addrbuf[] = {0x1002, 0x1004, 0x1006, 0x1008, 0x100A, 0x100C,  0x1026, 0x1030, 0x1032, 0x1034, 0x103A,
                 0x103E, 0x1040, 0x1044, 0x1046, 0x1048, 0x104A, 0x104C, 0x1054, 0x1056, 0x1058,
                 0x105C, 0x105E, 0x105F, 0x1088, 0};
-#endif
+
 extern void RTSUpdate();
 extern void RTSInit();
 
@@ -188,3 +171,6 @@ extern uint8_t progress_bar_percent;
 extruder_t original_extruder;
 float targetPos;
 }
+#ifndef USER_GCODE_1
+  #define USER_GCODE_1 "G28"
+#endif
