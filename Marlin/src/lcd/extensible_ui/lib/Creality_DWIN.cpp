@@ -30,8 +30,6 @@ namespace ExtUI
 
   char PrinterStatusKey[2] = {0}; // PrinterStatusKey[1] value: 0 represents to keep temperature, 1 represents  to heating , 2 stands for cooling , 3 stands for printing
                   // PrinterStatusKey[0] value: 0 reprensents 3D printer ready
-
-  char FilenamesCount = 0;
   char FilementStatus[2] = {0};
 
   unsigned char AxisPagenum = 0; //0 for 10mm, 1 for 1mm, 2 for 0.1mm
@@ -45,7 +43,7 @@ namespace ExtUI
   bool PoweroffContinue = false;
 
   bool reEntryPrevent = false;
-  uint8_t idleThrottling = 0;
+  uint16_t idleThrottling = 0;
 
 void onStartup()
 {
@@ -120,7 +118,7 @@ void onIdle()
 {
   if (reEntryPrevent)
     return;
-  if(idleThrottling++ < 1000){
+  if(idleThrottling++ < 250){
     return;
   }
 
@@ -915,16 +913,14 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
       }
       else if (recdat.data[0] == 1)
       {
-        /*
-          if(FanStatus)
-            RTS_SndData(ExchangePageBase + 60, ExchangepageAddr); //exchange to 60 page, the fans off
-          else
-            RTS_SndData(ExchangePageBase + 59, ExchangepageAddr); //exchange to 59 page, the fans on
-        */
+        if(FanStatus)
+          RTS_SndData(ExchangePageBase + 60, ExchangepageAddr); //exchange to 60 page, the fans off
+        else
+          RTS_SndData(ExchangePageBase + 59, ExchangepageAddr); //exchange to 59 page, the fans on
       }
       else if (recdat.data[0] == 2)
       {
-        //InforShowStatus = true;
+        InforShowStatus = true;
       }
       else if (recdat.data[0] == 3)
       {
@@ -1380,8 +1376,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         }*/
       // may at some point use language change screens to save eeprom explicitly
       break;
-
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     case No_Filement:
       SERIAL_ECHOLN("\n No Filament");
 
@@ -1390,7 +1384,9 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
       {
         if (FilementStatus[0] == 2) // check filements status during printing
         {
-          #if NUM_RUNOUT_SENSORS > 1
+          #if DISABLED(FILAMENT_RUNOUT_SENSOR)
+            if(true) {
+          #elif NUM_RUNOUT_SENSORS > 1
             if( (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)) {
           #else
             if( getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) {
@@ -1434,7 +1430,6 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
         FilementStatus[0] = 0; // recover the status waiting to check filements
       }
       break;
-  #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     case PwrOffNoF:

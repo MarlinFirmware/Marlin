@@ -15,9 +15,9 @@
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
-//#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
 //#define MachineCRX
-#define MachineCR10Max
+//#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
 
@@ -829,7 +829,7 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
 #if ENABLED(HotendStock)
-  #if ANY(MachineCRX, MachineCR10SPro, MachineCR10Max)
+  #if ANY(MachineCR10SPro, MachineCR10Max)
     #define DEFAULT_Kp 25.25
     #define DEFAULT_Ki 2.17
     #define DEFAULT_Kd 73.44
@@ -837,8 +837,11 @@
     #define  DEFAULT_Kp 14.72
     #define  DEFAULT_Ki 0.89
     #define  DEFAULT_Kd 61.22
+  #elif ENABLED(MachineCRX)
+    #define DEFAULT_Kp 19.00
+    #define DEFAULT_Ki 1.40
+    #define DEFAULT_Kd 66.00
   #else
-    // Stock CR-10 Hotend fan 100%
     #define  DEFAULT_Kp 17.42
     #define  DEFAULT_Ki 1.27
     #define  DEFAULT_Kd 59.93
@@ -1774,7 +1777,7 @@
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
 #if (NONE(MachineCR10Orig, MachineCR20, MachineEnder4, MachineEnder5, MachineCRX) || ANY(AddonFilSensor, lerdgeFilSensor, DualFilSensors  ))
-  #define FILAMENT_RUNOUT_SENSOR
+  //#define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #if ENABLED(DualFilSensors) && DISABLED(SKR13)
