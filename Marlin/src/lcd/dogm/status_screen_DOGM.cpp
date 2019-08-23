@@ -66,15 +66,13 @@
 #define DO_DRAW_BED     (HAS_HEATED_BED     && STATUS_BED_WIDTH     && HOTENDS <= 4)
 #define DO_DRAW_CHAMBER (HAS_HEATED_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4)
 #define DO_DRAW_FAN     (HAS_FAN0           && STATUS_FAN_WIDTH     && HOTENDS <= 4 && defined(STATUS_FAN_FRAMES))
-#define DO_DRAW_LOGO    (defined(STATUS_LOGO_WIDTH) && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
+#define DO_DRAW_LOGO    (STATUS_LOGO_WIDTH  && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
 
 #define ANIM_HOTEND  (HOTENDS         && ENABLED(STATUS_HOTEND_ANIM))
 #define ANIM_BED     (DO_DRAW_BED     && ENABLED(STATUS_BED_ANIM))
 #define ANIM_CHAMBER (DO_DRAW_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM))
 
 #define ANIM_HBC (ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER)
-
-//#define ANIM_CHAMBER_SHOW (ANIM_CHAMBER && (HOTENDS <= 3 || HOTENDS <= 4 && !HAS_HEATED_BED))
 
 #if ANIM_HBC
   uint8_t heat_bits;
@@ -211,10 +209,10 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
     #endif
 
     // Draw a heating progress bar, if specified
-    #if ENABLED(STATUS_HEAT_PERCENT)
+    #if ENABLED(STATUS_HEAT_PERCENT) && DO_DRAW_BED
 
       if (IFBED(true, STATIC_HOTEND) && isHeat) {
-        const uint8_t bx = IFBED(STATUS_BED_X + STATUS_BED_WIDTH, STATUS_HOTEND_X(heater) + STATUS_HOTEND_WIDTH(heater)) + 1;
+        const uint8_t bx = IFBED(STATUS_BED_X + STATUS_BED_WIDTH - 1, STATUS_HOTEND_X(heater) + STATUS_HOTEND_WIDTH(heater)) + 1;
         u8g.drawFrame(bx, STATUS_HEATERS_Y, 3, STATUS_HEATERS_HEIGHT);
         if (tall) {
           const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
@@ -252,8 +250,8 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
 
   FORCE_INLINE void _draw_chamber_status(const bool blink) {
     #if ENABLED(MARLIN_DEV_MODE)
-	    const float temp = 10 + (millis() >> 8) % 55,
-                target = 80;
+	    const float temp = 10 + (millis() >> 8) % CHAMBER_MAXTEMP,
+                target = CHAMBER_MAXTEMP;
     #else
       const float temp = thermalManager.degChamber(),
                 target = thermalManager.degTargetChamber();
@@ -356,7 +354,7 @@ void MarlinUI::draw_status_screen() {
     TCNT5 = 0;
   #endif
 
-  #if DO_DRAW_LOGO && !(STATUS_LOGO_WIDTH > 40 && HOTENDS >= 4) && HOTENDS < 5
+  #if DO_DRAW_LOGO
     if (PAGE_CONTAINS(STATUS_LOGO_Y, STATUS_LOGO_Y + STATUS_LOGO_HEIGHT - 1))
       u8g.drawBitmapP(STATUS_LOGO_X, STATUS_LOGO_Y, STATUS_LOGO_BYTEWIDTH, STATUS_LOGO_HEIGHT, status_logo_bmp);
   #endif
