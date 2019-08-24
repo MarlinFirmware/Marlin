@@ -231,10 +231,7 @@ void SnakeGame::game_screen() {
   u8g.setColorIndex(1);
 
   // Draw Score
-  if (PAGE_UNDER(HEADER_H)) {
-    lcd_moveto(0, HEADER_H - 1);
-    lcd_put_int(score);
-  }
+  if (PAGE_UNDER(HEADER_H)) lcd_put_int(0, HEADER_H - 1, score);
 
   // DRAW THE PLAYFIELD BORDER
   u8g.drawFrame(BOARD_L - 2, BOARD_T - 2, BOARD_R - BOARD_L + 4, BOARD_B - BOARD_T + 4);

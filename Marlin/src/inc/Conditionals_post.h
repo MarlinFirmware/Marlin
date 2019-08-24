@@ -247,6 +247,61 @@
 #endif
 
 /**
+ * LCD Contrast for Graphical Displays
+ */
+#if ENABLED(CARTESIO_UI)
+  #define _LCD_CONTRAST_MIN   60
+  #define _LCD_CONTRAST_INIT  90
+  #define _LCD_CONTRAST_MAX  140
+#elif ENABLED(miniVIKI)
+  #define _LCD_CONTRAST_MIN   75
+  #define _LCD_CONTRAST_INIT  95
+  #define _LCD_CONTRAST_MAX  115
+#elif ENABLED(VIKI2)
+  #define _LCD_CONTRAST_INIT 140
+#elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+  #define _LCD_CONTRAST_MIN   90
+  #define _LCD_CONTRAST_INIT 110
+  #define _LCD_CONTRAST_MAX  130
+#elif ENABLED(AZSMZ_12864)
+  #define _LCD_CONTRAST_MIN  120
+  #define _LCD_CONTRAST_INIT 190
+#elif ENABLED(MKS_MINI_12864)
+  #define _LCD_CONTRAST_INIT 150
+#elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
+  #define _LCD_CONTRAST_INIT 220
+#elif ENABLED(ULTI_CONTROLLER)
+  #define _LCD_CONTRAST_INIT 127
+  #define _LCD_CONTRAST_MAX  254
+#elif EITHER(MAKRPANEL, MINIPANEL)
+  #define _LCD_CONTRAST_INIT  17
+#endif
+
+#define HAS_LCD_CONTRAST defined(_LCD_CONTRAST_INIT)
+#if HAS_LCD_CONTRAST
+  #ifndef LCD_CONTRAST_MIN
+    #ifdef _LCD_CONTRAST_MIN
+      #define LCD_CONTRAST_MIN _LCD_CONTRAST_MIN
+    #else
+      #define LCD_CONTRAST_MIN 0
+    #endif
+  #endif
+  #ifndef LCD_CONTRAST_INIT
+    #define LCD_CONTRAST_INIT _LCD_CONTRAST_INIT
+  #endif
+  #ifndef LCD_CONTRAST_MAX
+    #ifdef _LCD_CONTRAST_MAX
+      #define LCD_CONTRAST_MAX _LCD_CONTRAST_MAX
+    #else
+      #define LCD_CONTRAST_MAX 63
+    #endif
+  #endif
+  #ifndef DEFAULT_LCD_CONTRAST
+    #define DEFAULT_LCD_CONTRAST LCD_CONTRAST_INIT
+  #endif
+#endif
+
+/**
  * Override here because this is set in Configuration_adv.h
  */
 #if HAS_LCD_MENU && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)

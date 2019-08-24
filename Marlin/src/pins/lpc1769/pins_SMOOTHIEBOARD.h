@@ -30,7 +30,7 @@
 #endif
 
 #define BOARD_INFO_NAME   "Smoothieboard"
-#define BOARD_WEBSITE_URL "http://smoothieware.org/smoothieboard"
+#define BOARD_WEBSITE_URL "smoothieware.org/smoothieboard"
 
 //
 // Custom CPU Speed 120MHz

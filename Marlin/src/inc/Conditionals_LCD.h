@@ -30,9 +30,6 @@
 
   #define DOGLCD
   #define IS_ULTIPANEL
-  #define DEFAULT_LCD_CONTRAST 90
-  #define LCD_CONTRAST_MIN 60
-  #define LCD_CONTRAST_MAX 140
 
 #elif ENABLED(ZONESTAR_LCD)
 
@@ -63,25 +60,13 @@
   #define IS_ULTIPANEL
 
   #if ENABLED(miniVIKI)
-    #define LCD_CONTRAST_MIN      75
-    #define LCD_CONTRAST_MAX     115
-    #define DEFAULT_LCD_CONTRAST  95
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(VIKI2)
-    #define LCD_CONTRAST_MIN       0
-    #define LCD_CONTRAST_MAX     255
-    #define DEFAULT_LCD_CONTRAST 140
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-    #define LCD_CONTRAST_MIN      90
-    #define LCD_CONTRAST_MAX     130
-    #define DEFAULT_LCD_CONTRAST 110
     #define U8GLIB_LM6059_AF
     #define SD_DETECT_INVERTED
   #elif ENABLED(AZSMZ_12864)
-    #define LCD_CONTRAST_MIN     120
-    #define LCD_CONTRAST_MAX     255
-    #define DEFAULT_LCD_CONTRAST 190
     #define U8GLIB_ST7565_64128N
   #endif
 
@@ -128,17 +113,12 @@
 #elif ENABLED(MKS_MINI_12864)
 
   #define MINIPANEL
-  #define DEFAULT_LCD_CONTRAST 150
-  #define LCD_CONTRAST_MAX 255
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
 
   #define FYSETC_MINI_12864
   #define DOGLCD
   #define IS_ULTIPANEL
-  #define LCD_CONTRAST_MIN 0
-  #define LCD_CONTRAST_MAX 255
-  #define DEFAULT_LCD_CONTRAST 220
   #define LED_COLORS_REDUCE_GREEN
   #if HAS_POWER_SWITCH && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
     #define LED_BACKLIGHT_TIMEOUT 10000
@@ -166,9 +146,6 @@
   #define IS_ULTIPANEL
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
-  #define LCD_CONTRAST_MIN 0
-  #define LCD_CONTRAST_MAX 254
-  #define DEFAULT_LCD_CONTRAST 127
   #define ENCODER_PULSES_PER_STEP 2
   #define ENCODER_STEPS_PER_MENU_ITEM 2
 
@@ -189,9 +166,6 @@
   #define DOGLCD
   #if ENABLED(MAKRPANEL)
     #define U8GLIB_ST7565_64128N
-  #endif
-  #ifndef DEFAULT_LCD_CONTRAST
-    #define DEFAULT_LCD_CONTRAST 17
   #endif
 #endif
 
@@ -380,29 +354,6 @@
 #define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 #define HAS_ADC_BUTTONS      ENABLED(ADC_KEYPAD)
-
-/**
- * Default LCD contrast for Graphical LCD displays
- */
-#define HAS_LCD_CONTRAST (                \
-     ENABLED(MAKRPANEL)                   \
-  || ENABLED(CARTESIO_UI)                 \
-  || ENABLED(VIKI2)                       \
-  || ENABLED(AZSMZ_12864)                 \
-  || ENABLED(miniVIKI)                    \
-  || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
-)
-#if HAS_LCD_CONTRAST
-  #ifndef LCD_CONTRAST_MIN
-    #define LCD_CONTRAST_MIN 0
-  #endif
-  #ifndef LCD_CONTRAST_MAX
-    #define LCD_CONTRAST_MAX 63
-  #endif
-  #ifndef DEFAULT_LCD_CONTRAST
-    #define DEFAULT_LCD_CONTRAST 32
-  #endif
-#endif
 
 /**
  * Extruders have some combination of stepper motors and hotends

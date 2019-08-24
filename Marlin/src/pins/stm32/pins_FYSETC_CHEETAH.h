@@ -28,7 +28,7 @@
 #define DEFAULT_MACHINE_NAME "3D Printer"
 
 #define BOARD_INFO_NAME   "FYSETC Cheetah"
-#define BOARD_WEBSITE_URL "https://fysetc.com"
+#define BOARD_WEBSITE_URL "fysetc.com"
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
@@ -140,7 +140,7 @@
     #define RGB_LED_B_PIN  PB6
   #endif
 
-  //#define LCD_CONTRAST   190
+  //#define LCD_CONTRAST_INIT 190
 
   #if ENABLED(NEWPANEL)
     #define BTN_EN1        PC11
