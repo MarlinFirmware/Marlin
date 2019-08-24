@@ -294,6 +294,10 @@
       #define LCD_CONTRAST_MAX _LCD_CONTRAST_MAX
     #else
       #define LCD_CONTRAST_MAX 63
+      #if _LCD_CONTRAST_INIT > LCD_CONTRAST_MAX
+        #undef LCD_CONTRAST_MAX
+        #define LCD_CONTRAST_MAX _LCD_CONTRAST_INIT
+      #endif
     #endif
   #endif
   #ifndef DEFAULT_LCD_CONTRAST
