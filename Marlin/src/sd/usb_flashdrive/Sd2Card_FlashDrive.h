@@ -26,12 +26,6 @@
  * \brief Sd2Card class for V2 SD/SDHC cards
  */
 
-/* Uncomment USB_DEBUG to enable debugging.
- *    1 - basic debugging and bounds checking
- *    2 - print each block access
- */
-//#define USB_DEBUG 1
-
 #include "../SdFatConfig.h"
 #include "../SdInfo.h"
 
@@ -52,24 +46,13 @@
 
 class Sd2Card {
   private:
-
-    typedef enum : uint8_t {
-      USB_HOST_UNINITIALIZED,
-      USB_HOST_INITIALIZED,
-      USB_HOST_DELAY_INIT,
-      USB_HOST_WAITING
-    } state_t;
-
-    static state_t state;
-
     uint32_t pos;
-    #ifdef USB_DEBUG
-      uint32_t lun0_capacity;
-    #endif
 
-    static inline bool ready() { return state == USB_HOST_INITIALIZED; }
+    static void usbStateDebug();
 
   public:
+    static bool usbStartup();
+
     bool init(const uint8_t sckRateID=0, const pin_t chipSelectPin=SD_CHIP_SELECT_PIN);
 
     static void idle();
@@ -87,4 +70,5 @@ class Sd2Card {
 
     uint32_t cardSize();
     static bool isInserted();
+    static bool ready();
 };
