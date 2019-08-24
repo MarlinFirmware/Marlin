@@ -22,7 +22,7 @@
   // reduced font (only symbols 1 - 127) - saves about 1278 bytes of FLASH
 
 /*
-  Fontname: -Marlin-Fixed-Medium-R-SemiCondensed--12-90-100-100-C-111-ISO10646-1
+  Fontname: -Marlin6x12-Fixed-Medium-R-SemiCondensed--12-90-100-100-C-111-ISO10646-1
   Copyright: Public domain terminal emulator font.  Share and enjoy. original font -Misc-Fixed-Medium-R-SemiCondensed--12-110-75-75-C-60-ISO10646-1
   Capital A Height: 7, '1' Height: 7
   Calculated Max Values w= 5 h=10 x= 5 y= 5 dx= 6 dy= 0 ascent= 8 len=10
@@ -120,7 +120,7 @@ const u8g_fntpgm_uint8_t ISO10646_1_5x7[1325] U8G_FONT_SECTION("ISO10646_1_5x7")
   // extended (original) font (symbols 1 - 255)
 
 /*
-  Fontname: -Marlin-Fixed-Medium-R-SemiCondensed--12-90-100-100-C-111-ISO10646-1
+  Fontname: -Marlin6x12-Fixed-Medium-R-SemiCondensed--12-90-100-100-C-111-ISO10646-1
   Copyright: Public domain terminal emulator font.  Share and enjoy. original font -Misc-Fixed-Medium-R-SemiCondensed--12-110-75-75-C-60-ISO10646-1
   Capital A Height: 7, '1' Height: 7
   Calculated Max Values w= 6 h=10 x= 5 y= 7 dx= 6 dy= 0 ascent=10 len=10
