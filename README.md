@@ -7,7 +7,7 @@ This branch is intended specifically for the Creality touchscreen machines and w
 - CR-X
 - Ender 5 Plus (Preliminary, untested)
 
-Any machine with bed leveling should utilize the 10SPro originating screen files. Anything without should use the CR-X Stock scrren files.
+Any machine with bed leveling should utilize the 10SPro originating screen files. Anything without should use the CR-X Stock screen files.
 For more notes on supported configurations here, see the Bleeding Edge or Devel branches.
 
 Screen files are archived with [7-Zip](https://www.7-zip.org/) simply because it came out 1/5 the file size of a zip file. That added up fast!
