@@ -1,6 +1,6 @@
 ﻿## Creality CR10S Pro, CR-X, CR10 Max and Ender 5 Plus Touch Screen supported firmware
 
-This branch is intended specifically for the Creality touchscreen machines and was split off from the standard creality branches due to specific custom changes not found upstream. This includes extensions to the EXTui framework among other smaller tweaks that we have been working towards getting submitted upstream. Primary machines supperted here are :
+This branch is intended specifically for the Creality touchscreen machines and was split off from the standard Creality branches due to specific custom changes not found upstream. This includes extensions to the EXTui framework among other smaller tweaks that we have been working towards getting submitted upstream. Primary machines supported here are :
 
 - CR10S Pro
 - CR10 Max
@@ -24,12 +24,12 @@ All configuration options intended to be adjusted by end users have been placed 
  - While auto leveling (measuring) is in progress pressing other buttons on the screen can abort portions of the script depending where it is
  - Manual move screen has a planner issue with Bilinear. This is caused by a bug in the main Marlin branch. UBL is recommended in most cases.
  - UBL functions differently than Bilinear. It currently probes 16 points and extrapolates where the probe cant reach. This is because UBL is designed to build a mesh everywhere the nozzle can reach, instead of bilinear that only works where the probe can reach. These points are intended to be manually tuned however the touchscreen has no interface to do so. We are working on a way to increase the mesh density and feed alternative points to the screen. This is especially important for the CR10Max. Keep the differences with UBL in mind during use.
- - There are some points where the screen accepts input before its really ready to (Measuring on auto leveling for example, wait for message to Set Z Offset) so please be patient! This will essentially overwrite the existing command with the new one.
+ - There are some points where the screen accepts input before it's really ready to (Measuring on auto leveling for example, wait for message to Set Z Offset) so please be patient! This will essentially overwrite the existing command with the new one.
 
 
 ## Support
 
-This firmware is provided to the public as-is with no warranty or guarantee. Its based on a large open source project and there is no entitelment to support. That said, Tiny Machines customers may obtain support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines customer, you may contact them at support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on the Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
+This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. That said, Tiny Machines customers may obtain support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines customer, you may contact them at support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on the Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
 
 3D Printing Discord - https://discord.gg/MZrsgVU
 Marlin Discord - https://discord.gg/n5NJ59y
@@ -44,10 +44,10 @@ For this branch, we still have some active goals open that we plan to continue w
 - Tuning of status message clearing
 - Utilize a few more of the background screens (such as print finished) that are currently not in use but not necessary
 
-If there is any interest in reimplementing the chinese language screens, thats definately possible at this point. In order to put the effort in however I would need to see a notable amount of interest in this.
+If there is any interest in re-implementing the Chinese language screens, that's definitely possible at this point. In order to put the effort in however I would need to see a notable amount of interest in this.
 
 
-## Creality Firmware Branches
+## Firmware Branches
   - 1.1.9 Firmware (Stable, EOL) [TM_CR10](https://github.com/InsanityAutomation/Marlin/tree/TM_CR10)
   - 2.0 Firmware [Creality_Marlin2.0.x](https://github.com/InsanityAutomation/Marlin/tree/Creality_Marlin2.0.x)
   - 2.0 Development Branch (Beta, but well tested) [Creality_2.0_Devel](https://github.com/InsanityAutomation/Marlin/tree/Creality_2.0_Devel)
@@ -98,7 +98,7 @@ If there is any interest in reimplementing the chinese language screens, thats d
   - Video walkthrough of each bed leveling system usage and all functions
 
 ## Marlin
-This is just one of many forks of Marlin. We dont try to bury that behind fancy marketting or anything else. As you can see from the links above, most of the work done here is submitted back to the mainstream Marlin branches. The end goal of every project is to get it to the point where it is merged and maintained there. See marlin resources, including how to contribute to the Marlin Project as well, down below.
+This is just one of many forks of Marlin. We don't try to bury that behind fancy marmarketingketting or anything else. As you can see from the links above, most of the work done here is submitted back to the mainstream Marlin branches. The end goal of every project is to get it to the point where it is merged and maintained there. See marlin resources, including how to contribute to the Marlin Project as well, down below.
 
 ## Building Marlin 2.0
 
