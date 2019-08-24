@@ -7,8 +7,7 @@ This branch is intended specifically for the Creality touchscreen machines and w
 - CR-X
 - Ender 5 Plus (Preliminary, untested)
 
-Any machine with bed leveling should utilize the 10SPro tagged screen files. Anything without should use the CR-X tagged screen files.
-For more notes on supported configurations here, see the Bleeding Edge or Devel branches.
+Any machine with bed leveling should utilize the 10SPro tagged screen files. Anything without should use the CR-X tagged screen files. For more notes on supported configurations here, see the Bleeding Edge or Devel branches.
 
 Screen files are archived with [7-Zip](https://www.7-zip.org/) simply because it came out 1/5 the file size of a zip file. That added up fast!
 
@@ -22,15 +21,20 @@ All configuration options intended to be adjusted by end users have been placed 
 
 ## Known Issues
  - While auto leveling (measuring) is in progress pressing other buttons on the screen can abort portions of the script depending where it is
+ - - The process includes heating the bed before probing, probing then heating the nozzle before moving to Z0.
+
  - Manual move screen has a planner issue with Bilinear when segmented moves is enabled. This is caused by a bug in the main Marlin branch. UBL is recommended in most cases anyway. If you choose to enable Bilinear, segmented moves has been set to a value over the possible manual moves by default to avoid the bug.
- - UBL functions differently than Bilinear. It currently probes 16 points and extrapolates where the probe cant reach. This is because UBL is designed to build a mesh everywhere the nozzle can reach, instead of bilinear that only works where the probe can reach. These points are intended to be manually tuned however the touchscreen has no interface to do so. We are working on a way to increase the mesh density and feed alternative points to the screen. This is especially important for the CR10Max. Keep the differences with UBL in mind during use.
- - There are some points where the screen accepts input before it's really ready to (Measuring on auto leveling for example, wait for message to Set Z Offset) so please be patient! This will essentially overwrite the existing command with the new one.
- - CR-X Non auto leveling screens have the start of babystepping abilities on the adjust screen, however this has not been fully tested yet. Use with caution.
+
+ - UBL functions differently than Bilinear. It currently probes 16 points and extrapolates where the probe cannot reach. This is because UBL is designed to build a mesh everywhere the nozzle can reach, where bilinear only works where the probe can reach. These points are intended to be manually tuned however the touchscreen has no interface to do so. We are working on a way to increase the mesh density and feed alternative points to the screen. This is especially important for the CR-10 Max. Please mind the differences with UBL during use.
+
+ - There are some points where the screen accepts input before it's really ready to (Measuring on Auto Leveling for example, wait for message to Set Z Offset) so please be patient! Sending inputs (pressing buttons) essentially overwrites the existing command with the new one.
+
+ - CR-X Non-Auto Leveling screens have the start of baby-stepping abilities on the adjust screen, however this has not been fully tested yet. Use with caution.
 
 
 ## Support
 
-This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. That said, Tiny Machines customers may obtain support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines customer, you may contact them at support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on the Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
+This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. That said, Tiny Machines 3D customers may obtain support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines customer, you may contact them at support@tinymachines3d.com about purchasing support hours. Aside from this, we are active many Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
 
 3D Printing Discord - https://discord.gg/MZrsgVU
 Marlin Discord - https://discord.gg/n5NJ59y
