@@ -21,7 +21,7 @@ while [ $IND -lt ${#INFO[@]} ]; do
   let IND+=1
 done
 
-[[ $USAGE ]] && { echo "usage: `basename $0` [1|2]" 1>&2 ; exit 1 ; }
+[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2]" 1>&2 ; exit 1 ; }
 
 # If the branch isn't currently the PR target
 if [[ $TARG != $CURR ]]; then
