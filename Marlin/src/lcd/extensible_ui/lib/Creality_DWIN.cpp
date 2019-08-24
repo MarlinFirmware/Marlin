@@ -118,7 +118,7 @@ void onIdle()
 {
   if (reEntryPrevent)
     return;
-  if(idleThrottling++ < 250){
+  if(idleThrottling++ < 1000){
     return;
   }
 
