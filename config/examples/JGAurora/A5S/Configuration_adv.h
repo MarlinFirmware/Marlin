@@ -1030,25 +1030,23 @@
    *    INT              --> SD_DETECT_PIN [1]
    *    SS               --> SDSS
    *
-   * [1] On AVR, it is recommended to use a pin capable of external
-   *     interrupts for compatibility with UHS3.
+   * [1] On AVR an interrupt-capable pin is best for UHS3 compatibility.
    */
   //#define USB_FLASH_DRIVE_SUPPORT
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    #define USB_CS_PIN         SDSS
-    #define USB_INTR_PIN       SD_DETECT_PIN
+    #define USB_CS_PIN    SDSS
+    #define USB_INTR_PIN  SD_DETECT_PIN
 
-    // There are two versions of the USB Host Shield Library:
-    //
-    // - UHS2 does not use interrupts. The code is has been
-    //   production tested on the LulzBot TAZ Pro with a
-    //   32-bit Archim board.
-    //
-    // - UHS3 requires USB_INTR_PIN to be interrupt-capable.
-    //   It is newer code with better USB compatibility. But
-    //   it is less tested and there are known interference
-    //   between it and the servo motor code.
-    //
+    /**
+     * USB Host Shield Library
+     *
+     * - UHS2 uses no interrupts and has been production-tested
+     *   on a LulzBot TAZ Pro with a 32-bit Archim board.
+     *
+     * - UHS3 is newer code with better USB compatibility. But it
+     *   is less tested and is known to interfere with Servos.
+     *   [1] This requires USB_INTR_PIN to be interrupt-capable.
+     */
     //#define USE_UHS3_USB
   #endif
 
