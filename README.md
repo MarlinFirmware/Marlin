@@ -25,6 +25,7 @@ All configuration options intended to be adjusted by end users have been placed 
  - Manual move screen has a planner issue with Bilinear. This is caused by a bug in the main Marlin branch. UBL is recommended in most cases.
  - UBL functions differently than Bilinear. It currently probes 16 points and extrapolates where the probe cant reach. This is because UBL is designed to build a mesh everywhere the nozzle can reach, instead of bilinear that only works where the probe can reach. These points are intended to be manually tuned however the touchscreen has no interface to do so. We are working on a way to increase the mesh density and feed alternative points to the screen. This is especially important for the CR10Max. Keep the differences with UBL in mind during use.
  - There are some points where the screen accepts input before it's really ready to (Measuring on auto leveling for example, wait for message to Set Z Offset) so please be patient! This will essentially overwrite the existing command with the new one.
+ - CR-X Non auto leveling screens have the start of babystepping abilities on the adjust screen, however this has not been fully tested yet. Use with caution.
 
 
 ## Support
