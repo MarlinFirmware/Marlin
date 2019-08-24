@@ -29,11 +29,11 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME        "MKS SGen-L"
-#define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SGEN_L"
+#define BOARD_INFO_NAME   "MKS SGen-L"
+#define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN_L"
 
 //
-// Servo pin
+// Servos
 //
 #define SERVO0_PIN         P1_23   // SERVO P1.23
 #define SERVO1_PIN         P2_00   // SERVO P2.0

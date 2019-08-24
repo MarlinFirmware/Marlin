@@ -32,9 +32,9 @@
 #endif
 
 #if IS_TEENSY35
-  #define BOARD_NAME "Teensy3.5"
+  #define BOARD_INFO_NAME "Teensy3.5"
 #elif IS_TEENSY36
-  #define BOARD_NAME "Teensy3.6"
+  #define BOARD_INFO_NAME "Teensy3.6"
 #endif
 
 #define AT90USB 1286   // Disable MarlinSerial etc.

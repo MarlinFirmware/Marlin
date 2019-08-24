@@ -27,13 +27,19 @@
 
 #define DEFAULT_MACHINE_NAME "3D Printer"
 
-#define BOARD_NAME        "FYSETC Cheetah"
-#define BOARD_WEBSITE_URL "https://fysetc.com"
+#define BOARD_INFO_NAME   "FYSETC Cheetah"
+#define BOARD_WEBSITE_URL "fysetc.com"
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 #define DISABLE_JTAG
+
+#define FLASH_EEPROM_EMULATION
+#define EEPROM_PAGE_SIZE     uint16(0x800) // 2KB
+#define EEPROM_START_ADDRESS uint32(0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE)
+#undef E2END
+#define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
 
 //
 // Servos
@@ -134,7 +140,7 @@
     #define RGB_LED_B_PIN  PB6
   #endif
 
-  //#define LCD_CONTRAST   190
+  //#define LCD_CONTRAST_INIT 190
 
   #if ENABLED(NEWPANEL)
     #define BTN_EN1        PC11

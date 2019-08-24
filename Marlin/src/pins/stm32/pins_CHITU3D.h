@@ -29,7 +29,7 @@
  * 2017 Victor Perez Marlin for stm32f1 test
  */
 
-#define BOARD_NAME           "Chitu3D"
+#define BOARD_INFO_NAME      "Chitu3D"
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
 
 // Enable I2C_EEPROM for testing
@@ -141,12 +141,12 @@
     #define LCD_PINS_D7         PB15
     #if DISABLED(NEWPANEL)
       #define BEEPER_PIN        33
-      // Buttons are attached to a shift register
+      // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK 38
-      //#define SHIFT_LD 42
-      //#define SHIFT_OUT 40
-      //#define SHIFT_EN 17
+      //#define SHIFT_CLK       38
+      //#define SHIFT_LD        42
+      //#define SHIFT_OUT       40
+      //#define SHIFT_EN        17
     #endif
   #endif
 
@@ -252,7 +252,7 @@
       // Beeper on AUX-4
       #define BEEPER_PIN        33
 
-      // buttons are directly attached to AUX-2
+      // Buttons directly attached to AUX-2
       #if ENABLED(REPRAPWORLD_KEYPAD)
         #define BTN_EN1         64
         #define BTN_EN2         59

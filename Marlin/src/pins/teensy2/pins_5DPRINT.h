@@ -73,7 +73,7 @@
 #endif
 
 #define DEFAULT_MACHINE_NAME "Makibox"
-#define BOARD_NAME           "5DPrint D8"
+#define BOARD_INFO_NAME      "5DPrint D8"
 
 //
 // Servos

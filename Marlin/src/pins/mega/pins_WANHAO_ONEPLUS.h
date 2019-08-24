@@ -29,7 +29,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME           "Wanhao i3 Mini 0ne+"
+#define BOARD_INFO_NAME      "Wanhao i3 Mini 0ne+"
 #define DEFAULT_MACHINE_NAME "i3 Mini"
 #define BOARD_WEBSITE_URL    "https://tinyurl.com/yyxw7se7"
 
@@ -92,20 +92,20 @@
 #define KILL_PIN           64
 
 //
-// LCD / Controller
+// LCD / Controller (Integrated MINIPANEL)
 //
-
-#if HAS_SPI_LCD
+#if ENABLED(MINIPANEL)
   #define DOGLCD_A0        40
   #define DOGLCD_CS        41
   #define LCD_BACKLIGHT_PIN 65   // Backlight LED on A11/D65
   #define LCD_RESET_PIN    27
 
-  #define LCD_CONTRAST    255
+  #define BTN_EN1           2
+  #define BTN_EN2           3
+  #define BTN_ENC           5
 
-  #if ENABLED(NEWPANEL)
-    #define BTN_EN1         2
-    #define BTN_EN2         3
-    #define BTN_ENC         5
-  #endif
+  // This display has adjustable contrast
+  #define LCD_CONTRAST_MIN       0
+  #define LCD_CONTRAST_MAX     255
+  #define LCD_CONTRAST_INIT LCD_CONTRAST_MAX
 #endif

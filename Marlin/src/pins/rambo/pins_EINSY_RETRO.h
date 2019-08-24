@@ -29,7 +29,7 @@
   #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "Einsy Retro"
+#define BOARD_INFO_NAME "Einsy Retro"
 
 //
 // TMC2130 Configuration_adv defaults for EinsyRetro
@@ -163,11 +163,11 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_SPI_LCD || TOUCH_UI_ULTIPANEL
 
   #define KILL_PIN         32
 
-  #if ENABLED(NEWPANEL)
+  #if ENABLED(ULTIPANEL) || TOUCH_UI_ULTIPANEL
 
     #if ENABLED(CR10_STOCKDISPLAY)
       #define LCD_PINS_RS     85
@@ -188,7 +188,8 @@
 
     #define BTN_ENC            9   // AUX-2
     #define BEEPER_PIN        84   // AUX-4
+
     #define SD_DETECT_PIN     15
 
-  #endif // NEWPANEL
+  #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
 #endif // HAS_SPI_LCD

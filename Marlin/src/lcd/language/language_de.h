@@ -37,9 +37,9 @@
 #define MSG_YES                             _UxGT("JA")
 #define MSG_NO                              _UxGT("NEIN")
 #define MSG_BACK                            _UxGT("Zurück")
-#define MSG_SD_INSERTED                     _UxGT("SD-Karte erkannt")
-#define MSG_SD_REMOVED                      _UxGT("SD-Karte entfernt")
-#define MSG_SD_RELEASED                     _UxGT("SD-Karte freigeg.")
+#define MSG_MEDIA_INSERTED                  _UxGT("SD-Karte erkannt")
+#define MSG_MEDIA_REMOVED                   _UxGT("SD-Karte entfernt")
+#define MSG_MEDIA_RELEASED                  _UxGT("SD-Karte freigeg.")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstopp") // Max length 8 characters
 #define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Software-Endstopp")
 #define MSG_MAIN                            _UxGT("Hauptmenü")
@@ -276,7 +276,7 @@
 #define MSG_LOAD_EEPROM                     _UxGT("Konfig. laden")
 #define MSG_RESTORE_FAILSAFE                _UxGT("Standardwerte laden")
 #define MSG_INIT_EEPROM                     _UxGT("Werkseinstellungen")
-#define MSG_SD_UPDATE                       _UxGT("SD-Firmware-Update")
+#define MSG_MEDIA_UPDATE                    _UxGT("SD-Firmware-Update")
 #define MSG_RESET_PRINTER                   _UxGT("Drucker neustarten")
 #define MSG_REFRESH                         _UxGT("Aktualisieren")
 #define MSG_WATCH                           _UxGT("Info")
@@ -294,8 +294,8 @@
 #define MSG_RESUME_PRINT                    _UxGT("SD-Druck fortsetzen")
 #define MSG_STOP_PRINT                      _UxGT("SD-Druck abbrechen")
 #define MSG_OUTAGE_RECOVERY                 _UxGT("Wiederh. n. Stroma.")
-#define MSG_CARD_MENU                       _UxGT("Druck v. SD-Karte")
-#define MSG_NO_CARD                         _UxGT("Keine SD-Karte")
+#define MSG_MEDIA_MENU                      _UxGT("Druck v. SD-Karte")
+#define MSG_NO_MEDIA                        _UxGT("Keine SD-Karte")
 #define MSG_DWELL                           _UxGT("Warten...")
 #define MSG_USERWAIT                        _UxGT("Klick zum Fortsetzen")
 #define MSG_PRINT_PAUSED                    _UxGT("Druck pausiert...")
@@ -323,9 +323,9 @@
 #define MSG_FILAMENTLOAD                    _UxGT("Filament laden")
 #define MSG_FILAMENTUNLOAD                  _UxGT("Filament entladen")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Alles entladen")
-#define MSG_INIT_SDCARD                     _UxGT("SD-Karte initial.")  // Manually initialize the SD-card via user interface
-#define MSG_CHANGE_SDCARD                   _UxGT("SD-Karte getauscht") // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
-#define MSG_RELEASE_SDCARD                  _UxGT("SD-Karte freigeben") // if Marlin gets confused - M22
+#define MSG_INIT_MEDIA                      _UxGT("SD-Karte initial.")  // Manually initialize the SD-card via user interface
+#define MSG_CHANGE_MEDIA                    _UxGT("SD-Karte getauscht") // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
+#define MSG_RELEASE_MEDIA                   _UxGT("SD-Karte freigeben") // if Marlin gets confused - M22
 #define MSG_ZPROBE_OUT                      _UxGT("Z-Sonde außerhalb")
 #define MSG_SKEW_FACTOR                     _UxGT("Korrekturfaktor")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
@@ -408,6 +408,8 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokoll")
 #define MSG_CASE_LIGHT                      _UxGT("Beleuchtung")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Helligkeit")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Falscher Drucker")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Gesamte Drucke")

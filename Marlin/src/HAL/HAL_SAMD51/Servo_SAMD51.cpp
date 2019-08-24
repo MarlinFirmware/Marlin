@@ -115,12 +115,12 @@ HAL_SERVO_TIMER_ISR() {
       tc->COUNT16.CC[tcChannel].reg = (uint16_t)(tcCounterValue - 4UL);               // at least REFRESH_INTERVAL has elapsed
   }
   if (tcChannel == 0) {
-    SYNC(tc->COUNT16.SYNCBUSY.bit.CC0); 
+    SYNC(tc->COUNT16.SYNCBUSY.bit.CC0);
     // Clear the interrupt
     tc->COUNT16.INTFLAG.reg = TC_INTFLAG_MC0;
   }
   else {
-    SYNC(tc->COUNT16.SYNCBUSY.bit.CC1); 
+    SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
     // Clear the interrupt
     tc->COUNT16.INTFLAG.reg = TC_INTFLAG_MC1;
   }

@@ -22,7 +22,6 @@
  */
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
-
 #include "../../inc/MarlinConfig.h"
 
 #include <SPI.h>
@@ -73,16 +72,22 @@ void spiInit(uint8_t spiRate) {
   // Use datarates Marlin uses
   uint32_t clock;
   switch (spiRate) {
-  case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
-  case SPI_HALF_SPEED:    clock =  5000000; break;
-  case SPI_QUARTER_SPEED: clock =  2500000; break;
-  case SPI_EIGHTH_SPEED:  clock =  1250000; break;
-  case SPI_SPEED_5:       clock =   625000; break;
-  case SPI_SPEED_6:       clock =   300000; break;
-  default:
-    clock = 4000000; // Default from the SPI library
+    case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
+    case SPI_HALF_SPEED:    clock =  5000000; break;
+    case SPI_QUARTER_SPEED: clock =  2500000; break;
+    case SPI_EIGHTH_SPEED:  clock =  1250000; break;
+    case SPI_SPEED_5:       clock =   625000; break;
+    case SPI_SPEED_6:       clock =   300000; break;
+    default:
+      clock = 4000000; // Default from the SPI library
   }
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
+  #if defined(MISO_PIN) && defined(SDSS) && defined(MOSI_PIN) && defined(SCK_PIN)
+    SPI.setMISO(MISO_PIN);
+    SPI.setSSEL(SDSS);
+    SPI.setMOSI(MOSI_PIN);
+    SPI.setSCLK(SCK_PIN);
+  #endif
   SPI.begin();
 }
 

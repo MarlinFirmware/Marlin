@@ -269,7 +269,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // LCD_PROGRESS_BAR
 
-  #if ENABLED(SDSUPPORT)
+  #if ENABLED(SDSUPPORT) && HAS_LCD_MENU
 
     // CHARSET_MENU
     const static PROGMEM byte refresh[8] = {
@@ -319,7 +319,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
       #endif
         {
           createChar_P(LCD_STR_UPLEVEL[0], uplevel);
-          #if ENABLED(SDSUPPORT)
+          #if ENABLED(SDSUPPORT) && HAS_LCD_MENU
             // SD Card sub-menu special characters
             createChar_P(LCD_STR_REFRESH[0], refresh);
             createChar_P(LCD_STR_FOLDER[0], folder);
@@ -360,23 +360,48 @@ void MarlinUI::init_lcd() {
   lcd.clear();
 }
 
+bool MarlinUI::detected() {
+  return true
+    #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
+      && lcd.LcdDetected() == 1
+    #endif
+  ;
+}
+
+#if HAS_SLOW_BUTTONS
+  uint8_t MarlinUI::read_slow_buttons() {
+    #if ENABLED(LCD_I2C_TYPE_MCP23017)
+      // Reading these buttons this is likely to be too slow to call inside interrupt context
+      // so they are called during normal lcd_update
+      uint8_t slow_bits = lcd.readButtons()
+        #if !BUTTON_EXISTS(ENC)
+          << B_I2C_BTN_OFFSET
+        #endif
+      ;
+      #if ENABLED(LCD_I2C_VIKI)
+        if ((slow_bits & (B_MI | B_RI)) && PENDING(millis(), next_button_update_ms)) // LCD clicked
+          slow_bits &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
+      #endif // LCD_I2C_VIKI
+      return slow_bits;
+    #endif // LCD_I2C_TYPE_MCP23017
+  }
+#endif
+
 void MarlinUI::clear_lcd() { lcd.clear(); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
-  void lcd_erase_line(const int16_t line) {
+  void lcd_erase_line(const lcd_uint_t line) {
     lcd_moveto(0, line);
     for (uint8_t i = LCD_WIDTH + 1; --i;)
       lcd_put_wchar(' ');
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
-  void lcd_scroll(const uint8_t col, const uint8_t line, PGM_P const text, const uint8_t len, const int16_t time) {
+  void lcd_scroll(const lcd_uint_t col, const lcd_uint_t line, PGM_P const text, const uint8_t len, const int16_t time) {
     uint8_t slen = utf8_strlen_P(text);
     if (slen < len) {
-      // Fits into,
-      lcd_moveto(col, line);
-      lcd_put_u8str_max_P(text, len);
+      lcd_put_u8str_max_P(col, line, text, len);
       for (; slen < len; ++slen) lcd_put_wchar(' ');
       safe_delay(time);
     }
@@ -385,11 +410,8 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
       int dly = time / _MAX(slen, 1);
       for (uint8_t i = 0; i <= slen; i++) {
 
-        // Go to the correct place
-        lcd_moveto(col, line);
-
-        // Print the text
-        lcd_put_u8str_max_P(p, len);
+        // Print the text at the correct place
+        lcd_put_u8str_max_P(col, line, p, len);
 
         // Fill with spaces
         for (uint8_t ix = slen - i; ix < len; ++ix) lcd_put_wchar(' ');
@@ -406,9 +428,9 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
 
   static void logo_lines(PGM_P const extra) {
     int16_t indent = (LCD_WIDTH - 8 - utf8_strlen_P(extra)) / 2;
-    lcd_moveto(indent, 0); lcd_put_wchar('\x00'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x01');
-    lcd_moveto(indent, 1);                        lcd_put_u8str_P(PSTR("|Marlin|"));  lcd_put_u8str_P(extra);
-    lcd_moveto(indent, 2); lcd_put_wchar('\x02'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x03');
+    lcd_put_wchar(indent, 0, '\x00'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x01');
+    lcd_put_u8str_P(indent, 1, PSTR("|Marlin|"));  lcd_put_u8str_P(extra);
+    lcd_put_wchar(indent, 2, '\x02'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x03');
   }
 
   void MarlinUI::show_bootscreen() {
@@ -420,8 +442,7 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
     #define CENTER_OR_SCROLL(STRING,DELAY) \
       lcd_erase_line(3); \
       if (utf8_strlen(STRING) <= LCD_WIDTH) { \
-        lcd_moveto((LCD_WIDTH - utf8_strlen_P(PSTR(STRING))) / 2, 3); \
-        lcd_put_u8str_P(PSTR(STRING)); \
+        lcd_put_u8str_P((LCD_WIDTH - utf8_strlen_P(PSTR(STRING))) / 2, 3, PSTR(STRING)); \
         safe_delay(DELAY); \
       } \
       else { \
@@ -491,16 +512,12 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
 #endif // SHOW_BOOTSCREEN
 
 void MarlinUI::draw_kill_screen() {
-  lcd_moveto(0, 0);
-  lcd_put_u8str(status_message);
-  #if LCD_HEIGHT < 4
-    lcd_moveto(0, 2);
-  #else
-    lcd_moveto(0, 2);
-    lcd_put_u8str_P(PSTR(MSG_HALTED));
-    lcd_moveto(0, 3);
+  lcd_put_u8str(0, 0, status_message);
+  lcd_uint_t y = 2;
+  #if LCD_HEIGHT >= 4
+    lcd_put_u8str_P(0, y++, PSTR(MSG_HALTED));
   #endif
-  lcd_put_u8str_P(PSTR(MSG_PLEASE_RESET));
+  lcd_put_u8str_P(0, y, PSTR(MSG_PLEASE_RESET));
 }
 
 //
@@ -859,8 +876,7 @@ void MarlinUI::draw_status_screen() {
 
     #if LCD_HEIGHT > 3
 
-      lcd_moveto(0, 2);
-      lcd_put_wchar(LCD_STR_FEEDRATE[0]);
+      lcd_put_wchar(0, 2, LCD_STR_FEEDRATE[0]);
       lcd_put_u8str(i16tostr3(feedrate_percentage));
       lcd_put_wchar('%');
 
@@ -868,8 +884,7 @@ void MarlinUI::draw_status_screen() {
       duration_t elapsed = print_job_timer.duration();
       const uint8_t len = elapsed.toDigital(buffer),
                     timepos = LCD_WIDTH - len - 1;
-      lcd_moveto(timepos, 2);
-      lcd_put_wchar(LCD_STR_CLOCK[0]);
+      lcd_put_wchar(timepos, 2, LCD_STR_CLOCK[0]);
       lcd_put_u8str(buffer);
 
       #if LCD_WIDTH >= 20
@@ -918,8 +933,7 @@ void MarlinUI::draw_status_screen() {
     _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
 
     #if HAS_LEVELING && (HOTENDS > 1 || !HAS_HEATED_BED)
-      lcd_moveto(LCD_WIDTH - 1, 0);
-      lcd_put_wchar(planner.leveling_active || blink ? '_' : ' ');
+      lcd_put_wchar(LCD_WIDTH - 1, 0, planner.leveling_active || blink ? '_' : ' ');
     #endif
 
     // ========== Line 2 ==========
@@ -934,8 +948,7 @@ void MarlinUI::draw_status_screen() {
       _draw_bed_status(blink);
     #endif
 
-    lcd_moveto(LCD_WIDTH - 9, 1);
-    lcd_put_wchar(LCD_STR_FEEDRATE[0]);
+    lcd_put_wchar(LCD_WIDTH - 9, 1, LCD_STR_FEEDRATE[0]);
     lcd_put_u8str(i16tostr3(feedrate_percentage));
     lcd_put_wchar('%');
 
@@ -1006,8 +1019,7 @@ void MarlinUI::draw_status_screen() {
 
   void draw_menu_item(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
     uint8_t n = LCD_WIDTH - 2;
-    lcd_moveto(0, row);
-    lcd_put_wchar(sel ? pre_char : ' ');
+    lcd_put_wchar(0, row, sel ? pre_char : ' ');
     n -= lcd_put_u8str_max_P(pstr, n);
     for (; n; --n) lcd_put_wchar(' ');
     lcd_put_wchar(post_char);
@@ -1015,8 +1027,7 @@ void MarlinUI::draw_status_screen() {
 
   void _draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P pstr, const char* const data, const bool pgm) {
     uint8_t n = LCD_WIDTH - 2 - (pgm ? utf8_strlen_P(data) : utf8_strlen(data));
-    lcd_moveto(0, row);
-    lcd_put_wchar(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
+    lcd_put_wchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
     n -= lcd_put_u8str_max_P(pstr, n);
     lcd_put_wchar(':');
     for (; n; --n) lcd_put_wchar(' ');
@@ -1026,14 +1037,12 @@ void MarlinUI::draw_status_screen() {
   void draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     ui.encoder_direction_normal();
 
-    lcd_moveto(0, 1);
-    lcd_put_u8str_P(pstr);
+    lcd_put_u8str_P(0, 1, pstr);
     if (value != nullptr) {
       lcd_put_wchar(':');
       int len = utf8_strlen(value);
-      const uint8_t valrow = (utf8_strlen_P(pstr) + 1 + len + 1) > (LCD_WIDTH - 2) ? 2 : 1;   // Value on the next row if it won't fit
-      lcd_moveto((LCD_WIDTH - 1) - (len + 1), valrow);                                        // Right-justified, padded by spaces
-      lcd_put_wchar(' ');                                                                     // Overwrite char if value gets shorter
+      const lcd_uint_t valrow = (utf8_strlen_P(pstr) + 1 + len + 1) > (LCD_WIDTH - 2) ? 2 : 1;   // Value on the next row if it won't fit
+      lcd_put_wchar((LCD_WIDTH - 1) - (len + 1), valrow, ' ');                                   // Right-justified, padded, add a leading space
       lcd_put_u8str(value);
     }
   }
@@ -1051,8 +1060,7 @@ void MarlinUI::draw_status_screen() {
     void draw_sd_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
       UNUSED(pstr);
 
-      lcd_moveto(0, row);
-      lcd_put_wchar(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
+      lcd_put_wchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
       constexpr uint8_t maxlen = LCD_WIDTH - 2;
       uint8_t n = maxlen - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
       for (; n; --n) lcd_put_wchar(' ');
@@ -1063,7 +1071,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
 
-    static void MarlinUI::update_indicators() {
+    void MarlinUI::update_indicators() {
       // Set the LEDS - referred to as backlights by the LiquidTWI2 library
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
@@ -1144,9 +1152,9 @@ void MarlinUI::draw_status_screen() {
     } custom_char;
 
     typedef struct {
-      uint8_t column, row,
-              x_pixel_offset, y_pixel_offset,
-              x_pixel_mask;
+      lcd_uint_t column, row,
+                 x_pixel_offset, y_pixel_offset;
+      uint8_t x_pixel_mask;
     } coordinate;
 
     void add_edges_to_custom_char(custom_char &custom, const coordinate &ul, const coordinate &lr, const coordinate &brc, const uint8_t cell_location);
@@ -1174,22 +1182,21 @@ void MarlinUI::draw_status_screen() {
       return ret_val;
     }
 
-    inline coordinate pixel_location(const uint8_t x, const uint8_t y) { return pixel_location((int16_t)x, (int16_t)y); }
+    inline coordinate pixel_location(const lcd_uint_t x, const lcd_uint_t y) { return pixel_location((int16_t)x, (int16_t)y); }
 
-    void prep_and_put_map_char(custom_char &chrdata, const coordinate &ul, const coordinate &lr, const coordinate &brc, const uint8_t cl, const char c, const uint8_t x, const uint8_t y) {
+    void prep_and_put_map_char(custom_char &chrdata, const coordinate &ul, const coordinate &lr, const coordinate &brc, const uint8_t cl, const char c, const lcd_uint_t x, const lcd_uint_t y) {
       add_edges_to_custom_char(chrdata, ul, lr, brc, cl);
       lcd.createChar(c, (uint8_t*)&chrdata);
-      lcd_moveto(x, y);
-      lcd_put_wchar(c);
+      lcd_put_wchar(x, y, c);
     }
 
-    void MarlinUI::ubl_plot(const uint8_t x, const uint8_t inverted_y) {
+    void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
 
       #if LCD_WIDTH >= 20
         #define _LCD_W_POS 12
         #define _PLOT_X 1
         #define _MAP_X 3
-        #define _LABEL(C,X,Y) lcd_moveto(X, Y); lcd_put_u8str(C)
+        #define _LABEL(C,X,Y) lcd_put_u8str(X, Y, C)
         #define _XLABEL(X,Y) _LABEL("X:",X,Y)
         #define _YLABEL(X,Y) _LABEL("Y:",X,Y)
         #define _ZLABEL(X,Y) _LABEL("Z:",X,Y)
@@ -1197,7 +1204,7 @@ void MarlinUI::draw_status_screen() {
         #define _LCD_W_POS 8
         #define _PLOT_X 0
         #define _MAP_X 1
-        #define _LABEL(X,Y,C) lcd_moveto(X, Y); lcd_put_wchar(C)
+        #define _LABEL(X,Y,C) lcd_put_wchar(X, Y, C)
         #define _XLABEL(X,Y) _LABEL('X',X,Y)
         #define _YLABEL(X,Y) _LABEL('Y',X,Y)
         #define _ZLABEL(X,Y) _LABEL('Z',X,Y)
@@ -1209,10 +1216,10 @@ void MarlinUI::draw_status_screen() {
          * Show X and Y positions
          */
         _XLABEL(_PLOT_X, 0);
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
+        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
 
         _YLABEL(_LCD_W_POS, 0);
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
+        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
 
         lcd_moveto(_PLOT_X, 0);
 
@@ -1220,13 +1227,13 @@ void MarlinUI::draw_status_screen() {
 
         coordinate upper_left, lower_right, bottom_right_corner;
         custom_char new_char;
-        uint8_t i, j, k, l, m, n, n_rows, n_cols, y,
-                bottom_line, right_edge,
-                x_map_pixels, y_map_pixels,
-                pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt,
-                suppress_x_offset = 0, suppress_y_offset = 0;
+        uint8_t i, n, n_rows, n_cols;
+        lcd_uint_t j, k, l, m, bottom_line, right_edge,
+                   x_map_pixels, y_map_pixels,
+                   pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt,
+                   suppress_x_offset = 0, suppress_y_offset = 0;
 
-        y = GRID_MAX_POINTS_Y - inverted_y - 1;
+        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y - 1) - y_plot;
 
         upper_left.column  = 0;
         upper_left.row     = 0;
@@ -1261,17 +1268,13 @@ void MarlinUI::draw_status_screen() {
         n_cols = right_edge / (HD44780_CHAR_WIDTH) + 1;
 
         for (i = 0; i < n_cols; i++) {
-          lcd_moveto(i, 0);
-          lcd_put_wchar(CHAR_LINE_TOP);                                     // Box Top line
-          lcd_moveto(i, n_rows - 1);
-          lcd_put_wchar(CHAR_LINE_BOT);                                     // Box Bottom line
+          lcd_put_wchar(i, 0, CHAR_LINE_TOP);                               // Box Top line
+          lcd_put_wchar(i, n_rows - 1, CHAR_LINE_BOT);                      // Box Bottom line
         }
 
         for (j = 0; j < n_rows; j++) {
-          lcd_moveto(0, j);
-          lcd_put_wchar(CHAR_EDGE_L);                                       // Box Left edge
-          lcd_moveto(n_cols - 1, j);
-          lcd_put_wchar(CHAR_EDGE_R);                                       // Box Right edge
+          lcd_put_wchar(0, j, CHAR_EDGE_L);                                 // Box Left edge
+          lcd_put_wchar(n_cols - 1, j, CHAR_EDGE_R);                        // Box Right edge
         }
 
         /**
@@ -1281,10 +1284,8 @@ void MarlinUI::draw_status_screen() {
         k = pixels_per_y_mesh_pnt * (GRID_MAX_POINTS_Y) + 2;
         l = (HD44780_CHAR_HEIGHT) * n_rows;
         if (l > k && l - k >= (HD44780_CHAR_HEIGHT) / 2) {
-          lcd_moveto(0, n_rows - 1);                                        // Box Left edge
-          lcd_put_wchar(' ');
-          lcd_moveto(n_cols - 1, n_rows - 1);                               // Box Right edge
-          lcd_put_wchar(' ');
+          lcd_put_wchar(0, n_rows - 1, ' ');                                // Box Left edge
+          lcd_put_wchar(n_cols - 1, n_rows - 1, ' ');                       // Box Right edge
         }
 
         clear_custom_char(&new_char);
@@ -1310,12 +1311,12 @@ void MarlinUI::draw_status_screen() {
           new_char.custom_char_bits[j] = (uint8_t)_BV(i);                   // Char #3 is used for the box right edge
         lcd.createChar(CHAR_EDGE_R, (uint8_t*)&new_char);
 
-        i = x * pixels_per_x_mesh_pnt - suppress_x_offset;
-        j = y * pixels_per_y_mesh_pnt - suppress_y_offset;
+        i = x_plot * pixels_per_x_mesh_pnt - suppress_x_offset;
+        j = y_plot_inv * pixels_per_y_mesh_pnt - suppress_y_offset;
         upper_left = pixel_location(i, j);
 
-        k = (x + 1) * pixels_per_x_mesh_pnt - 1 - suppress_x_offset;
-        l = (y + 1) * pixels_per_y_mesh_pnt - 1 - suppress_y_offset;
+        k = (x_plot + 1) * pixels_per_x_mesh_pnt - 1 - suppress_x_offset;
+        l = (y_plot_inv + 1) * pixels_per_y_mesh_pnt - 1 - suppress_y_offset;
         lower_right = pixel_location(k, l);
 
         bottom_right_corner = pixel_location(x_map_pixels, y_map_pixels);
@@ -1327,7 +1328,7 @@ void MarlinUI::draw_status_screen() {
          */
 
         clear_custom_char(&new_char);
-        const uint8_t ypix = _MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, HD44780_CHAR_HEIGHT);
+        const lcd_uint_t ypix = _MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, HD44780_CHAR_HEIGHT);
         for (j = upper_left.y_pixel_offset; j < ypix; j++) {
           i = upper_left.x_pixel_mask;
           for (k = 0; k < pixels_per_x_mesh_pnt; k++) {
@@ -1398,11 +1399,10 @@ void MarlinUI::draw_status_screen() {
       /**
        * Print plot position
        */
-      lcd_moveto(_LCD_W_POS, 0);
-      lcd_put_wchar('(');
-      lcd_put_u8str(ui8tostr3(x));
+      lcd_put_wchar(_LCD_W_POS, 0, '(');
+      lcd_put_u8str(ui8tostr3(x_plot));
       lcd_put_wchar(',');
-      lcd_put_u8str(ui8tostr3(inverted_y));
+      lcd_put_u8str(ui8tostr3(y_plot));
       lcd_put_wchar(')');
 
       #if LCD_HEIGHT <= 3   // 16x2 or 20x2 display
@@ -1411,8 +1411,8 @@ void MarlinUI::draw_status_screen() {
          * Print Z values
          */
         _ZLABEL(_LCD_W_POS, 1);
-        if (!isnan(ubl.z_values[x][inverted_y]))
-          lcd_put_u8str(ftostr43sign(ubl.z_values[x][inverted_y]));
+        if (!isnan(ubl.z_values[x_plot][y_plot]))
+          lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));
 
@@ -1422,16 +1422,16 @@ void MarlinUI::draw_status_screen() {
          * Show all values at right of screen
          */
         _XLABEL(_LCD_W_POS, 1);
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
+        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
         _YLABEL(_LCD_W_POS, 2);
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
+        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
 
         /**
          * Show the location value
          */
         _ZLABEL(_LCD_W_POS, 3);
-        if (!isnan(ubl.z_values[x][inverted_y]))
-          lcd_put_u8str(ftostr43sign(ubl.z_values[x][inverted_y]));
+        if (!isnan(ubl.z_values[x_plot][y_plot]))
+          lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));
 
