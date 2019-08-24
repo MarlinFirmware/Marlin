@@ -455,8 +455,8 @@ public:
 
     #if ENABLED(TURBO_BACK_MENU_ITEM)
       // Various menu items require a "void (*)()" to point to
-      // this function so a default argument will *not* work
-      static void goto_previous_screen() {goto_previous_screen(false);}
+      // this function so a default argument *won't* work
+      static inline void goto_previous_screen() { goto_previous_screen(false); }
     #endif
 
     static void return_to_status();
