@@ -292,8 +292,10 @@
   #ifndef LCD_CONTRAST_MAX
     #ifdef _LCD_CONTRAST_MAX
       #define LCD_CONTRAST_MAX _LCD_CONTRAST_MAX
+    #elif _LCD_CONTRAST_INIT > 63
+      #define LCD_CONTRAST_MAX _LCD_CONTRAST_INIT
     #else
-      #define LCD_CONTRAST_MAX 63
+      #define LCD_CONTRAST_MAX 63   // ST7567 6-bits contrast
     #endif
   #endif
   #ifndef DEFAULT_LCD_CONTRAST
