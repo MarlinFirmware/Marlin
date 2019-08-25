@@ -177,9 +177,12 @@ void menu_info_board() {
     #endif
   );
   START_SCREEN();
-  STATIC_ITEM(BOARD_INFO_NAME, true, true);                      // MyPrinterController
-  STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
-  STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION, true);    // Protocol: 1.0
+  STATIC_ITEM(BOARD_INFO_NAME, true, true);                       // MyPrinterController
+  #ifdef BOARD_WEBSITE_URL
+    STATIC_ITEM(BOARD_WEBSITE_URL, false, false);                 // www.my3dprinter.com
+  #endif
+  STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true);  // Baud: 250000
+  STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION, true);     // Protocol: 1.0
   STATIC_ITEM(MSG_INFO_PSU ": " PSU_NAME, true);
   END_SCREEN();
 }
