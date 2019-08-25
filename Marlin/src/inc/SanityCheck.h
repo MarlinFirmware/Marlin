@@ -1012,8 +1012,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Junction deviation is not compatible with kinematic systems.
  */
-#if (IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION))
-  #error "Junction deviation is not compatible with kinematic systems."
+#if ENABLED(JUNCTION_DEVIATION) && IS_KINEMATIC
+  #error "Junction deviation is only compatible with Cartesians."
 #endif
 
 /**
