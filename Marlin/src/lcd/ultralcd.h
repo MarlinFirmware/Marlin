@@ -215,7 +215,7 @@
 
 #endif
 
-#if BUTTON_EXISTS(BACK)
+#if BUTTON_EXISTS(BACK) || ENABLED(TOUCH_BUTTONS)
   #define BLEN_D 3
   #define EN_D _BV(BLEN_D)
   #define LCD_BACK_CLICKED() (buttons & EN_D)

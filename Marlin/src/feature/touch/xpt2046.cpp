@@ -80,9 +80,10 @@ uint8_t XPT2046::read_buttons() {
 
   if (y < 175 || y > 234) return 0;
 
-  return WITHIN(x,  11, 109) ? EN_A
-       : WITHIN(x, 111, 209) ? EN_B
-       : WITHIN(x, 211, 309) ? EN_C
+  return WITHIN(x,   8,  71) ? EN_D
+       : WITHIN(x,  88, 151) ? EN_A
+       : WITHIN(x, 168, 231) ? EN_B
+       : WITHIN(x, 248, 311) ? EN_C
        : 0;
 }
 
