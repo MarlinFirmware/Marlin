@@ -1,15 +1,4 @@
 
-==== SUMMARY ====
-
-Source Path:                           Repository:                           License:
-------------                           -----------                           --------
-usb_flashdrive/lib                     github.com/felis/USB_Host_Shield_2.0  GPLv2 or later
-usb_flashdrive/lib/masstorage.cpp [1]  github.com/greiman/UsbFat             MIT
-usb_flashdrive/lib/settings.h [1]      github.com/greiman/UsbFat             MIT
-
-[1] Changes related to SKIP_WRITE_PROTECT and DELAY only
-
-
 ==== USB HOST SHIELD 2.0 LIBRARY ====
 
 The lib/ folder contains a subset of the files from the USB Host Shield 2.0
@@ -26,6 +15,15 @@ files needed for Marlin as "GPLv2 or later", as documented in this thread.
 Small modifications have been made to the source. Please search for
 USB_FLASH_DRIVE_SUPPORT or look at the patch file to see what was changed.
 
+==== LICENSE SUMMARY ====
+
+Source Path:                 Repository:                           License:
+------------                 -----------                           --------
+lib-uhs3/                    github.com/felis/USB_Host_Shield_2.0  GPLv2 or later
+lib-uhs3/lib/masstorage.cpp  github.com/greiman/UsbFat [1]         MIT
+lib-uhs3/lib/settings.h      github.com/greiman/UsbFat [1]         MIT
+
+[1] Changes related to SKIP_WRITE_PROTECT and DELAY only
 
 ==== PERFORMANCE ENHANCEMENTS FOR USB DRIVES ====
 

@@ -26,7 +26,7 @@
 #endif
 
 #define BOARD_INFO_NAME   "FYSETC AIO II"
-#define BOARD_WEBSITE_URL "https://fysetc.com"
+#define BOARD_WEBSITE_URL "fysetc.com"
 
 #define DISABLE_JTAG
 

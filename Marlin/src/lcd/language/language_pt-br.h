@@ -150,7 +150,7 @@
 #define MSG_UBL_INVALIDATE_ALL              _UxGT("Invalidar tudo")
 #define MSG_UBL_INVALIDATE_CLOSEST          _UxGT("Invalidar próximo")
 #define MSG_UBL_FINE_TUNE_ALL               _UxGT("Ajuste Fino de Todos")
-#define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Ajuar Mais Próximo")
+#define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Ajustar Mais Próximo")
 #define MSG_UBL_STORAGE_MESH_MENU           _UxGT("Armazenamento Malha")
 #define MSG_UBL_STORAGE_SLOT                _UxGT("Slot de Memória")
 #define MSG_UBL_LOAD_MESH                   _UxGT("Ler Malha")

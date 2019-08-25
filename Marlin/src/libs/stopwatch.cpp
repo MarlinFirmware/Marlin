@@ -60,6 +60,10 @@ bool Stopwatch::start() {
     Stopwatch::debug(PSTR("start"));
   #endif
 
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onPrintTimerStarted();
+  #endif
+
   if (!isRunning()) {
     if (isPaused()) accumulator = duration();
     else reset();

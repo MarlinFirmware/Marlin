@@ -453,12 +453,14 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     #if HAS_BUZZER
       ui.completion_feedback(saved);
     #endif
+    UNUSED(saved);
   }
   void lcd_load_settings() {
     const bool loaded = settings.load();
     #if HAS_BUZZER
       ui.completion_feedback(loaded);
     #endif
+    UNUSED(loaded);
   }
 #endif
 

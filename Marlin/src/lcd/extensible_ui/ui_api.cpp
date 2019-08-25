@@ -320,7 +320,7 @@ namespace ExtUI {
     #endif
 
     constexpr float max_manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    setFeedrate_mm_s(max_manual_feedrate[axis]);
+    setFeedrate_mm_s(MMM_MMS(max_manual_feedrate[axis]));
 
     if (!flags.manual_motion) set_destination_from_current();
     destination[axis] = clamp(position, min, max);
@@ -331,7 +331,7 @@ namespace ExtUI {
     setActiveTool(extruder, true);
 
     constexpr float max_manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    setFeedrate_mm_s(max_manual_feedrate[E_AXIS]);
+    setFeedrate_mm_s(MMM_MMS(max_manual_feedrate[E_AXIS]));
     if (!flags.manual_motion) set_destination_from_current();
     destination[E_AXIS] = position;
     flags.manual_motion = true;
@@ -714,17 +714,26 @@ namespace ExtUI {
     }
   #endif
 
-  #if HAS_BED_PROBE
-    float getZOffset_mm() {
+  float getZOffset_mm() {
+    #if HAS_BED_PROBE
       return zprobe_zoffset;
-    }
+    #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
+      return babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];
+    #else
+      return 0.0;
+    #endif
+  }
 
-    void setZOffset_mm(const float value) {
-      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+  void setZOffset_mm(const float value) {
+    #if HAS_BED_PROBE
+      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
         zprobe_zoffset = value;
-      }
-    }
-  #endif // HAS_BED_PROBE
+    #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
+      babystep.add_mm(Z_AXIS, (value - babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1]));
+    #else
+      UNUSED(value);
+    #endif
+  }
 
   #if HAS_HOTEND_OFFSET
 

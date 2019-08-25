@@ -449,9 +449,15 @@ public:
     static void save_previous_screen();
     static void goto_previous_screen(
       #if ENABLED(TURBO_BACK_MENU_ITEM)
-        const bool is_back=false
+        const bool is_back
       #endif
     );
+
+    #if ENABLED(TURBO_BACK_MENU_ITEM)
+      // Various menu items require a "void (*)()" to point to
+      // this function so a default argument *won't* work
+      static inline void goto_previous_screen() { goto_previous_screen(false); }
+    #endif
 
     static void return_to_status();
     static inline bool on_status_screen() { return currentScreen == status_screen; }

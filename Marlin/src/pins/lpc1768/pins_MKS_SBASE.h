@@ -33,7 +33,7 @@
   #define BOARD_INFO_NAME   "MKS SBASE"
 #endif
 #ifndef BOARD_WEBSITE_URL
-  #define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SBASE"
+  #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SBASE"
 #endif
 
 #define LED_PIN            P1_18   // Used as a status indicator
