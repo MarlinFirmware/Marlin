@@ -334,7 +334,7 @@ void GcodeSuite::M43() {
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), PSTR("Continue"));
       #endif
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onStatusChanged(PSTR("M43 Wait Called"));
+        ExtUI::onUserConfirmRequired(PSTR("M43 Wait Called"));
       #endif
     #endif
 
