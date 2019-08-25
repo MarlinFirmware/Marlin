@@ -42,7 +42,7 @@ applet/
 *.ii
 *.swp
 tags
-
+pio-build
 #
 # C++
 #

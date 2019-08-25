@@ -42,9 +42,11 @@
 #define X_MAX_PIN          P1_28
 #define Y_MIN_PIN          P1_27
 #define Y_MAX_PIN          P1_26
-#define Z_MIN_PIN          P1_25
-#define Z_MAX_PIN          P1_24
 
+// We invert Z_MIN and Z_MAX so that stallguard is connected to Z_MAX and the Bl-Touch
+// to Z_MIN indeed using BlTouch as a z-min switch.
+#define Z_MAX_PIN          P1_25
+#define Z_MIN_PIN          P1_24
 //
 // Z Probe (when not Z_MIN_PIN)
 //
