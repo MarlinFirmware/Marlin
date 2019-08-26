@@ -95,8 +95,8 @@
 #define BOARD_Z_BOLT_X_SERIES         1141  // Z-Bolt X Series
 #define BOARD_TT_OSCAR                1142  // TT OSCAR
 #define BOARD_OVERLORD                1143  // Overlord/Overlord Pro
-#define BOARD_HJC2560C_REV1           1144  // ADIMLab Granty v1
-#define BOARD_HJC2560C_REV2           1145  // ADIMLab Granty v2
+#define BOARD_HJC2560C_REV1           1144  // ADIMLab Gantry v1
+#define BOARD_HJC2560C_REV2           1145  // ADIMLab Gantry v2
 
 //
 // RAMBo and derivatives
