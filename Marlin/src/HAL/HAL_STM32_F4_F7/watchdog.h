@@ -21,7 +21,8 @@
  */
 #pragma once
 
-extern IWDG_HandleTypeDef hiwdg;
+#include <IWatchdog.h>
+//#include <stm32yyxx_ll_iwdg.h>
 
 void watchdog_init();
 void watchdog_reset();
