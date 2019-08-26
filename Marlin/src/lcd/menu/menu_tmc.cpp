@@ -216,9 +216,9 @@ void menu_tmc_current() {
 
   #if X_SENSORLESS
     void refresh_homing_thrs_X()  { stepperX.refresh_homing_thrs();  }
-    #if X2_INDEP_SGT
-      void refresh_homing_thrs_X2() { stepperX2.refresh_homing_thrs();  }
-    #endif
+  #endif
+  #if X2_SENSORLESS
+    void refresh_homing_thrs_X2() { stepperX2.refresh_homing_thrs();  }
   #endif
   #if Y_SENSORLESS
     void refresh_homing_thrs_Y()  { stepperY.refresh_homing_thrs();  }
@@ -232,9 +232,9 @@ void menu_tmc_current() {
     MENU_BACK(MSG_TMC_DRIVERS);
     #if X_SENSORLESS
       TMC_EDIT_STORED_SGT(X);
-      #if X2_INDEP_SGT
-        TMC_EDIT_STORED_SGT(X2);
-      #endif
+    #endif
+    #if X2_SENSORLESS
+      TMC_EDIT_STORED_SGT(X2);
     #endif
     #if Y_SENSORLESS
       TMC_EDIT_STORED_SGT(Y);

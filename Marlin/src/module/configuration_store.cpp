@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V68"
+#define EEPROM_VERSION "V69"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -1032,13 +1032,13 @@ void MarlinSettings::postprocess() {
     // TMC StallGuard threshold
     //
     {
-      tmc_sgt_t tmc_sgt = { 0, 0, 0, 0 };
+      tmc_sgt_t tmc_sgt = { 0 };
       #if USE_SENSORLESS
         #if X_SENSORLESS
           tmc_sgt.X = stepperX.homing_threshold();
-          #if X2_INDEP_SGT
-            tmc_sgt.X2 = stepperX2.homing_threshold();
-          #endif
+        #endif
+        #if X2_SENSORLESS
+          tmc_sgt.X2 = stepperX2.homing_threshold();
         #endif
         #if Y_SENSORLESS
           tmc_sgt.Y = stepperY.homing_threshold();
@@ -1823,13 +1823,12 @@ void MarlinSettings::postprocess() {
               #if AXIS_HAS_STALLGUARD(X)
                 stepperX.homing_threshold(tmc_sgt.X);
               #endif
-              #if AXIS_HAS_STALLGUARD(X2)
-                #if X2_INDEP_SGT
-                  stepperX2.homing_threshold(tmc_sgt.X2);
-                #else
-                  stepperX2.homing_threshold(tmc_sgt.X);
-                #endif
+              #if AXIS_HAS_STALLGUARD(X2) && !X2_SENSORLESS
+                stepperX2.homing_threshold(tmc_sgt.X);
               #endif
+            #endif
+            #if X2_SENSORLESS
+              stepperX2.homing_threshold(tmc_sgt.X2);
             #endif
             #ifdef Y_STALL_SENSITIVITY
               #if AXIS_HAS_STALLGUARD(Y)
