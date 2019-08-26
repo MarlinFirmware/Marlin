@@ -319,7 +319,7 @@ public:
       #endif
 
       #if ENABLED(SHOW_BOOTSCREEN)
-        static void draw_marlin_bootscreen();
+        static void draw_marlin_bootscreen(const bool line2=false);
         static void show_marlin_bootscreen();
         static void show_bootscreen();
       #endif
