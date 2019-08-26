@@ -30,9 +30,6 @@
 
   #define DOGLCD
   #define IS_ULTIPANEL
-  #define LCD_CONTRAST_MIN  60
-  #define LCD_CONTRAST_MAX 140
-  #define LCD_CONTRAST_INIT 90
 
 #elif ENABLED(ZONESTAR_LCD)
 
@@ -63,25 +60,13 @@
   #define IS_ULTIPANEL
 
   #if ENABLED(miniVIKI)
-    #define LCD_CONTRAST_MIN      75
-    #define LCD_CONTRAST_MAX     115
-    #define LCD_CONTRAST_INIT     95
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(VIKI2)
-    #define LCD_CONTRAST_MIN       0
-    #define LCD_CONTRAST_MAX     255
-    #define LCD_CONTRAST_INIT    140
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-    #define LCD_CONTRAST_MIN      90
-    #define LCD_CONTRAST_MAX     130
-    #define LCD_CONTRAST_INIT    110
     #define U8GLIB_LM6059_AF
     #define SD_DETECT_INVERTED
   #elif ENABLED(AZSMZ_12864)
-    #define LCD_CONTRAST_MIN     120
-    #define LCD_CONTRAST_MAX     255
-    #define LCD_CONTRAST_INIT    190
     #define U8GLIB_ST7565_64128N
   #endif
 
@@ -128,17 +113,12 @@
 #elif ENABLED(MKS_MINI_12864)
 
   #define MINIPANEL
-  #define LCD_CONTRAST_MAX  255
-  #define LCD_CONTRAST_INIT 150
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
 
   #define FYSETC_MINI_12864
   #define DOGLCD
   #define IS_ULTIPANEL
-  #define LCD_CONTRAST_MIN    0
-  #define LCD_CONTRAST_MAX  255
-  #define LCD_CONTRAST_INIT 220
   #define LED_COLORS_REDUCE_GREEN
   #if HAS_POWER_SWITCH && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
     #define LED_BACKLIGHT_TIMEOUT 10000
@@ -166,9 +146,6 @@
   #define IS_ULTIPANEL
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
-  #define LCD_CONTRAST_MIN    0
-  #define LCD_CONTRAST_MAX  254
-  #define LCD_CONTRAST_INIT 127
   #define ENCODER_PULSES_PER_STEP 2
   #define ENCODER_STEPS_PER_MENU_ITEM 2
 
@@ -189,9 +166,6 @@
   #define DOGLCD
   #if ENABLED(MAKRPANEL)
     #define U8GLIB_ST7565_64128N
-  #endif
-  #ifndef LCD_CONTRAST_INIT
-    #define LCD_CONTRAST_INIT    17
   #endif
 #endif
 

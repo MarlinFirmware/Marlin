@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
   opt="$1" ; shift ; val="$1"
 
   IFS='=' read -a PARTS <<<"$opt"
-  [[ "${PARTS[1]}" != "" ]] && { HAS_EQUALS=1 ; opt="${PARTS[0]}" ; val="${PARTS[1]}" ; }
+  [[ "${PARTS[1]}" != "" ]] && { EQUALS=1 ; opt="${PARTS[0]}" ; val="${PARTS[1]}" ; }
 
   GOODVAL=1
   if [[ "$val" =~ ^-{1,2}.* || ! "$opt" =~ ^-{1,2}.* ]]; then
@@ -41,7 +41,7 @@ while [[ $# -gt 0 ]]; do
   fi
 
   case "$opt" in
-    -*|--*) MORE="$MORE$opt " ; [[ $HAS_EQUALS ]] && MORE="$MORE=$val" ;;
+    -*|--*) MORE="$MORE$opt " ; [[ $EQUALS == 1 ]] && MORE="$MORE=$val" ;;
        1|2) INDEX=$opt ;;
          *) BRANCH="$opt" ;;
   esac
@@ -55,6 +55,6 @@ esac
 
 [[ $BRANCH =~ ^[0-9]$ ]] && USAGE=1
 
-[[ $USAGE ]] && { echo "usage: `basename $0` [1|2] [branch]" 1>&2 ; exit 1 ; }
+[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2] [branch]" 1>&2 ; exit 1 ; }
 
 echo "$ORG $FORK $REPO $TARG $BRANCH $CURR $MORE"

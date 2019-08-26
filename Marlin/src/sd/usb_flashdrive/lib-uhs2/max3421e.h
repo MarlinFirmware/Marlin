@@ -191,6 +191,15 @@
 #define bmSNDTOG1       0x80
 
 #define rHXFR       0xf0    //30<<3
+
+#undef tokSETUP
+#undef tokIN
+#undef tokOUT
+#undef tokINHS
+#undef tokOUTHS
+#undef tokISOIN
+#undef tokISOOUT
+
 /* Host transfer token values for writing the HXFR register (R30)   */
 /* OR this bit field with the endpoint number in bits 3:0               */
 #define tokSETUP  0x10  // HS=0, ISO=0, OUTNIN=0, SETUP=1

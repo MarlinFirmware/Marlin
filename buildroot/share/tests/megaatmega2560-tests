@@ -249,11 +249,11 @@ exec_test $1 $2 "Many less common options"
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
+#for lang in an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
+#for lang in an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
 
 ######## Example Configurations ##############
 #

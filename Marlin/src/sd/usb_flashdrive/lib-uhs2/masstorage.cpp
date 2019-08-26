@@ -25,7 +25,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && DISABLED(USE_UHS3_USB)
 
 #include "masstorage.h"
 
@@ -762,7 +762,7 @@ uint8_t BulkOnly::Page3F(uint8_t lun) {
                 buf[i] = 0x00;
         }
         WriteOk[lun] = true;
-        #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && defined(SKIP_WRITE_PROTECT)
+        #ifdef SKIP_WRITE_PROTECT
           return 0;
         #endif
         uint8_t rc = ModeSense6(lun, 0, 0x3f, 0, 192, buf);
