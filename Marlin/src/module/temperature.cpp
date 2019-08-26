@@ -715,6 +715,9 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
       }
 
       switch (f) {
+        #if ENABLED(ULTIMAIN_HIDDEN_PJ6)
+          case 0: if (fan_on) PORTJ |= _BV(6); else PORTJ &=~_BV(6); break;
+        #endif
         #if HAS_AUTO_FAN_0
           case 0: _UPDATE_AUTO_FAN(E0, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
@@ -1701,6 +1704,9 @@ void Temperature::init() {
   HAL_timer_start(TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
   ENABLE_TEMPERATURE_INTERRUPT();
 
+  #if ENABLED(ULTIMAIN_HIDDEN_PJ6)
+    DDRJ |= _BV(6);
+  #endif
   #if HAS_AUTO_FAN_0
     INIT_E_AUTO_FAN_PIN(E0_AUTO_FAN_PIN);
   #endif

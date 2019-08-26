@@ -138,3 +138,11 @@
   #undef LED_PIN
   #define CASE_LIGHT_PIN            8
 #endif
+
+//
+// Servos
+//
+#define SERVO0_PIN     30   // EXT/IO pin5(PC7) 
+
+// Extruder cooling fan
+#define ULTIMAIN_HIDDEN_PJ6  // Hacked temperature.cpp tag for hidden PJ6 on UMB2.1.4 
