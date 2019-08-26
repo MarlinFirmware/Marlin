@@ -741,17 +741,21 @@ void idle(
   #endif
 }
 
+// Kill heaters, job timer, and queue
+void kill_activity() {
+  thermalManager.disable_all_heaters();
+  stepper.quick_stop();
+  //queue.stop();
+  //print_job_timer.stop();
+  //queue.clear();
+}
+
 /**
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
 void kill(PGM_P const lcd_msg/*=nullptr*/) {
-  thermalManager.disable_all_heaters();
-  stepper.quick_stop();
-  disable_all_steppers();
-  queue.stop();
-  print_job_timer.stop();
-  queue.clear();
+  kill_activity();
 
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
@@ -778,12 +782,7 @@ void minkill() {
   // Wait to ensure all interrupts stopped
   for (int i = 1000; i--;) DELAY_US(250);
 
-  thermalManager.disable_all_heaters(); // turn off heaters again
-  stepper.quick_stop();
-  disable_all_steppers();
-  queue.stop();
-  print_job_timer.stop();
-  queue.clear();
+  kill_activity();
 
   #if HAS_POWER_SWITCH
     PSU_OFF();
