@@ -47,8 +47,8 @@ env:
   #- TEST_PLATFORM="mks_robin_nano"
   #- TEST_PLATFORM="STM32F103R_bigtree"
   #- TEST_PLATFORM="STM32F103R_fysetc"
-  #- TEST_PLATFORM="STM32F4"
-  #- TEST_PLATFORM="STM32F7"
+  - TEST_PLATFORM="STM32F4"
+  - TEST_PLATFORM="STM32F7"
 
 before_install:
   #

@@ -56,19 +56,19 @@
   #error "SERIAL_PORT must be from -1 to 6"
 #endif
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB
+  #define MYSERIAL0 Serial
 #elif SERIAL_PORT == 1
-  #define MYSERIAL0 SerialUART1
+  #define MYSERIAL0 Serial1
 #elif SERIAL_PORT == 2
-  #define MYSERIAL0 SerialUART2
+  #define MYSERIAL0 Serial2
 #elif SERIAL_PORT == 3
-  #define MYSERIAL0 SerialUART3
+  #define MYSERIAL0 Serial3
 #elif SERIAL_PORT == 4
-  #define MYSERIAL0 SerialUART4
+  #define MYSERIAL0 Serial4
 #elif SERIAL_PORT == 5
-  #define MYSERIAL0 SerialUART5
+  #define MYSERIAL0 Serial5
 #elif SERIAL_PORT == 6
-  #define MYSERIAL0 SerialUART6
+  #define MYSERIAL0 Serial6
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -82,19 +82,19 @@
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 SerialUSB
+    #define MYSERIAL1 Serial
   #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 SerialUART1
+    #define MYSERIAL1 Serial1
   #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 SerialUART2
+    #define MYSERIAL1 Serial2
   #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 SerialUART3
+    #define MYSERIAL1 Serial3
   #elif SERIAL_PORT_2 == 4
-    #define MYSERIAL1 SerialUART4
+    #define MYSERIAL1 Serial4
   #elif SERIAL_PORT_2 == 5
-    #define MYSERIAL1 SerialUART5
+    #define MYSERIAL1 Serial5
   #elif SERIAL_PORT_2 == 6
-    #define MYSERIAL1 SerialUART6
+    #define MYSERIAL1 Serial6
   #endif
 #else
   #define NUM_SERIAL 1

@@ -84,13 +84,15 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     HAL_TIM_Base_Start_IT(&timerConfig[timer_num].timerdef);
 }
 
-//forward the interrupt
-extern "C" void TIM5_IRQHandler() {
-  ((void(*)(void))timerConfig[0].callback)();
-}
-extern "C" void TIM7_IRQHandler() {
-  ((void(*)(void))timerConfig[1].callback)();
-}
+#if 0
+  // Forward the interrupt
+  extern "C" void TIM5_IRQHandler() {
+    ((void(*)(void))timerConfig[0].callback)();
+  }
+  extern "C" void TIM7_IRQHandler() {
+    ((void(*)(void))timerConfig[1].callback)();
+  }
+#endif
 
 void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare) {
   __HAL_TIM_SetAutoreload(&timerConfig[timer_num].timerdef, compare);
