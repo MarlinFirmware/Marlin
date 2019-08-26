@@ -266,17 +266,17 @@ millis_t next_button_update_ms;
 
   void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
-    uint8_t row = 0, col = 0;
+    uint8_t col_x = 0, row_y = 0;
     if (!string && plen + slen <= LCD_WIDTH) {
-      row = (LCD_WIDTH - plen - slen) / 2;
-      col = LCD_HEIGHT > 3 ? 1 : 0;
+      col_x = (LCD_WIDTH - plen - slen) / 2;
+      row_y = LCD_HEIGHT > 3 ? 1 : 0;
     }
-    wrap_string_P(row, col, pref, true);
+    wrap_string_P(col_x, row_y, pref, true);
     if (string) {
-      if (row) { row = 0; col++; } // Move to the start of the next line
-      wrap_string(row, col, string);
+      if (col_x) { col_x = 0; row_y++; } // Move to the start of the next line
+      wrap_string(col_x, row_y, string);
     }
-    if (suff) wrap_string_P(row, col, suff);
+    if (suff) wrap_string_P(col_x, row_y, suff);
   }
 
 #endif // HAS_LCD_MENU
