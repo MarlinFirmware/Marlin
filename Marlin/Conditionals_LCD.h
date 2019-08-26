@@ -1,3 +1,4 @@
+
 /**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -526,3 +527,4 @@
 #define USE_MARLINSERIAL !(defined(__AVR__) && defined(USBCON))
 
 #endif // CONDITIONALS_LCD_H
+

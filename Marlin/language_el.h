@@ -34,159 +34,160 @@
 #define DISPLAY_CHARSET_ISO10646_GREEK
 #define CHARSIZE 2
 
-#define WELCOME_MSG                         MACHINE_NAME _UxGT(" έτοιμο.")
-#define MSG_SD_INSERTED                     _UxGT("Εισαγωγή κάρτας")
-#define MSG_SD_REMOVED                      _UxGT("Αφαίρεση κάρτας")
+#define WELCOME_MSG                         MACHINE_NAME _UxGT(" О­П„ОїО№ОјОї.")
+#define MSG_SD_INSERTED                     _UxGT("О•О№ПѓО±ОіП‰ОіО® ОєО¬ПЃП„О±П‚")
+#define MSG_SD_REMOVED                      _UxGT("О‘П†О±ОЇПЃОµПѓО· ОєО¬ПЃП„О±П‚")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
-#define MSG_MAIN                            _UxGT("Βασική Οθόνη")
-#define MSG_AUTOSTART                       _UxGT("Αυτόματη εκκίνηση")
-#define MSG_DISABLE_STEPPERS                _UxGT("Απενεργοποίηση Μοτέρ")
-#define MSG_AUTO_HOME                       _UxGT("Αυτομ. επαναφορά στο αρχικό σημείο") //SHORTEN
-#define MSG_AUTO_HOME_X                     _UxGT("Αρχικό σημείο X")
-#define MSG_AUTO_HOME_Y                     _UxGT("Αρχικό σημείο Y")
-#define MSG_AUTO_HOME_Z                     _UxGT("Αρχικό σημείο Z")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Βαθμονόμηση Z")
-#define MSG_LEVEL_BED_HOMING                _UxGT("Επαναφορά Επ. Εκτύπωσης") //SHORTEN
-#define MSG_LEVEL_BED_WAITING               _UxGT("Επιπεδοποίηση επ. Εκτύπωσης περιμενει") //SHORTEN
-#define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Επόμενο σημείο")
-#define MSG_LEVEL_BED_DONE                  _UxGT("Ολοκλήρωση επιπεδοποίησης!") //SHORTEN
-#define MSG_SET_HOME_OFFSETS                _UxGT("Ορισμός βασικών μετατοπίσεων") //SHORTEN
-#define MSG_HOME_OFFSETS_APPLIED            _UxGT("Εφαρμόστηκαν οι μετατοπίσεις") //SHORTEN
-#define MSG_SET_ORIGIN                      _UxGT("Ορισμός προέλευσης")
-#define MSG_PREHEAT_1                       _UxGT("Προθέρμανση PLA")
+#define MSG_MAIN                            _UxGT("О’О±ПѓО№ОєО® ОџОёПЊОЅО·")
+#define MSG_AUTOSTART                       _UxGT("О‘П…П„ПЊОјО±П„О· ОµОєОєОЇОЅО·ПѓО·")
+#define MSG_DISABLE_STEPPERS                _UxGT("О‘ПЂОµОЅОµПЃОіОїПЂОїОЇО·ПѓО· ОњОїП„О­ПЃ")
+#define MSG_AUTO_HOME                       _UxGT("О‘П…П„ОїОј. ОµПЂО±ОЅО±П†ОїПЃО¬ ПѓП„Ої О±ПЃП‡О№ОєПЊ ПѓО·ОјОµОЇОї") //SHORTEN
+#define MSG_AUTO_HOME_X                     _UxGT("О‘ПЃП‡О№ОєПЊ ПѓО·ОјОµОЇОї X")
+#define MSG_AUTO_HOME_Y                     _UxGT("О‘ПЃП‡О№ОєПЊ ПѓО·ОјОµОЇОї Y")
+#define MSG_AUTO_HOME_Z                     _UxGT("О‘ПЃП‡О№ОєПЊ ПѓО·ОјОµОЇОї Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("О’О±ОёОјОїОЅПЊОјО·ПѓО· Z")
+#define MSG_LEVEL_BED_HOMING                _UxGT("О•ПЂО±ОЅО±П†ОїПЃО¬ О•ПЂ. О•ОєП„ПЌПЂП‰ПѓО·П‚") //SHORTEN
+#define MSG_LEVEL_BED_WAITING               _UxGT("О•ПЂО№ПЂОµОґОїПЂОїОЇО·ПѓО· ОµПЂ. О•ОєП„ПЌПЂП‰ПѓО·П‚ ПЂОµПЃО№ОјОµОЅОµО№") //SHORTEN
+#define MSG_LEVEL_BED_NEXT_POINT            _UxGT("О•ПЂПЊОјОµОЅОї ПѓО·ОјОµОЇОї")
+#define MSG_LEVEL_BED_DONE                  _UxGT("ОџО»ОїОєО»О®ПЃП‰ПѓО· ОµПЂО№ПЂОµОґОїПЂОїОЇО·ПѓО·П‚!") //SHORTEN
+#define MSG_SET_HOME_OFFSETS                _UxGT("ОџПЃО№ПѓОјПЊП‚ ОІО±ПѓО№ОєПЋОЅ ОјОµП„О±П„ОїПЂОЇПѓОµП‰ОЅ") //SHORTEN
+#define MSG_HOME_OFFSETS_APPLIED            _UxGT("О•П†О±ПЃОјПЊПѓП„О·ОєО±ОЅ ОїО№ ОјОµП„О±П„ОїПЂОЇПѓОµО№П‚") //SHORTEN
+#define MSG_SET_ORIGIN                      _UxGT("ОџПЃО№ПѓОјПЊП‚ ПЂПЃОїО­О»ОµП…ПѓО·П‚")
+#define MSG_PREHEAT_1                       _UxGT("О ПЃОїОёО­ПЃОјО±ОЅПѓО· PLA")
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
-#define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" όλα")
+#define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" ПЊО»О±")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" bed") //SHORTEN
-#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" επιβεβαίωση") //SHORTEN
-#define MSG_PREHEAT_2                       _UxGT("Προθέρμανση ABS")
+#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" ОµПЂО№ОІОµОІО±ОЇП‰ПѓО·") //SHORTEN
+#define MSG_PREHEAT_2                       _UxGT("О ПЃОїОёО­ПЃОјО±ОЅПѓО· ABS")
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
-#define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" όλα")
+#define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" ПЊО»О±")
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" bed") //SHORTEN
-#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" επιβεβαίωση") //SHORTEN
-#define MSG_COOLDOWN                        _UxGT("Μειωση θερμοκρασιας")
-#define MSG_SWITCH_PS_ON                    _UxGT("Ενεργοποίηση")
-#define MSG_SWITCH_PS_OFF                   _UxGT("Απενεργοποίηση")
-#define MSG_EXTRUDE                         _UxGT("Εξώθηση")
-#define MSG_RETRACT                         _UxGT("Ανάσυρση")
-#define MSG_MOVE_AXIS                       _UxGT("Μετακίνηση άξονα")
-#define MSG_BED_LEVELING                    _UxGT("Επιπεδοποίηση Επ. Εκτύπωσης") //SHORTEN
-#define MSG_LEVEL_BED                       _UxGT("Επιπεδοποίηση Επ. Εκτύπωσης") //SHORTEN
-#define MSG_MOVE_X                          _UxGT("Μετακίνηση X")
-#define MSG_MOVE_Y                          _UxGT("Μετακίνηση Y")
-#define MSG_MOVE_Z                          _UxGT("Μετακίνηση Z")
-#define MSG_MOVE_E                          _UxGT("Εξωθητήρας")
-#define MSG_MOVE_01MM                       _UxGT("Μετακίνηση 0,1μμ")
-#define MSG_MOVE_1MM                        _UxGT("Μετακίνηση 1μμ")
-#define MSG_MOVE_10MM                       _UxGT("Μετακίνηση 10μμ")
-#define MSG_SPEED                           _UxGT("Ταχύτητα")
-#define MSG_BED_Z                           _UxGT("Επ. Εκτύπωσης Z")
-#define MSG_NOZZLE                          _UxGT("Ακροφύσιο")
-#define MSG_BED                             _UxGT("Κλίνη")
-#define MSG_FAN_SPEED                       _UxGT("Ταχύτητα ανεμιστήρα")
-#define MSG_FLOW                            _UxGT("Ροή")
-#define MSG_CONTROL                         _UxGT("Έλεγχος")
+#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" ОµПЂО№ОІОµОІО±ОЇП‰ПѓО·") //SHORTEN
+#define MSG_COOLDOWN                        _UxGT("ОњОµО№П‰ПѓО· ОёОµПЃОјОїОєПЃО±ПѓО№О±П‚")
+#define MSG_SWITCH_PS_ON                    _UxGT("О•ОЅОµПЃОіОїПЂОїОЇО·ПѓО·")
+#define MSG_SWITCH_PS_OFF                   _UxGT("О‘ПЂОµОЅОµПЃОіОїПЂОїОЇО·ПѓО·")
+#define MSG_EXTRUDE                         _UxGT("О•ОѕПЋОёО·ПѓО·")
+#define MSG_RETRACT                         _UxGT("О‘ОЅО¬ПѓП…ПЃПѓО·")
+#define MSG_MOVE_AXIS                       _UxGT("ОњОµП„О±ОєОЇОЅО·ПѓО· О¬ОѕОїОЅО±")
+#define MSG_BED_LEVELING                    _UxGT("О•ПЂО№ПЂОµОґОїПЂОїОЇО·ПѓО· О•ПЂ. О•ОєП„ПЌПЂП‰ПѓО·П‚") //SHORTEN
+#define MSG_LEVEL_BED                       _UxGT("О•ПЂО№ПЂОµОґОїПЂОїОЇО·ПѓО· О•ПЂ. О•ОєП„ПЌПЂП‰ПѓО·П‚") //SHORTEN
+#define MSG_MOVE_X                          _UxGT("ОњОµП„О±ОєОЇОЅО·ПѓО· X")
+#define MSG_MOVE_Y                          _UxGT("ОњОµП„О±ОєОЇОЅО·ПѓО· Y")
+#define MSG_MOVE_Z                          _UxGT("ОњОµП„О±ОєОЇОЅО·ПѓО· Z")
+#define MSG_MOVE_E                          _UxGT("О•ОѕП‰ОёО·П„О®ПЃО±П‚")
+#define MSG_MOVE_01MM                       _UxGT("ОњОµП„О±ОєОЇОЅО·ПѓО· 0,1ОјОј")
+#define MSG_MOVE_1MM                        _UxGT("ОњОµП„О±ОєОЇОЅО·ПѓО· 1ОјОј")
+#define MSG_MOVE_10MM                       _UxGT("ОњОµП„О±ОєОЇОЅО·ПѓО· 10ОјОј")
+#define MSG_SPEED                           _UxGT("О¤О±П‡ПЌП„О·П„О±")
+#define MSG_BED_Z                           _UxGT("О•ПЂ. О•ОєП„ПЌПЂП‰ПѓО·П‚ Z")
+#define MSG_NOZZLE                          _UxGT("О‘ОєПЃОїП†ПЌПѓО№Ої")
+#define MSG_BED                             _UxGT("ОљО»ОЇОЅО·")
+#define MSG_FAN_SPEED                       _UxGT("О¤О±П‡ПЌП„О·П„О± О±ОЅОµОјО№ПѓП„О®ПЃО±")
+#define MSG_FLOW                            _UxGT("ОЎОїО®")
+#define MSG_CONTROL                         _UxGT("О€О»ОµОіП‡ОїП‚")
 #define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
-#define MSG_AUTOTEMP                        _UxGT("Αυτομ ρύθμιση θερ/σίας") //SHORTEN
-#define MSG_ON                              _UxGT("Ενεργοποιημένο")
-#define MSG_OFF                             _UxGT("Απενεργοποιημένο")
+#define MSG_AUTOTEMP                        _UxGT("О‘П…П„ОїОј ПЃПЌОёОјО№ПѓО· ОёОµПЃ/ПѓОЇО±П‚") //SHORTEN
+#define MSG_ON                              _UxGT("О•ОЅОµПЃОіОїПЂОїО№О·ОјО­ОЅОї")
+#define MSG_OFF                             _UxGT("О‘ПЂОµОЅОµПЃОіОїПЂОїО№О·ОјО­ОЅОї")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
 #define MSG_PID_C                           _UxGT("PID-C")
-#define MSG_ACC                             _UxGT("Επιτάχυνση")
+#define MSG_ACC                             _UxGT("О•ПЂО№П„О¬П‡П…ОЅПѓО·")
 #define MSG_JERK                            _UxGT("Jerk")
 #if IS_KINEMATIC
-  #define MSG_VA_JERK                       _UxGT("Vαντίδραση A")
-  #define MSG_VB_JERK                       _UxGT("Vαντίδραση B")
-  #define MSG_VC_JERK                       _UxGT("Vαντίδραση C")
+  #define MSG_VA_JERK                       _UxGT("VО±ОЅП„ОЇОґПЃО±ПѓО· A")
+  #define MSG_VB_JERK                       _UxGT("VО±ОЅП„ОЇОґПЃО±ПѓО· B")
+  #define MSG_VC_JERK                       _UxGT("VО±ОЅП„ОЇОґПЃО±ПѓО· C")
 #else
-  #define MSG_VA_JERK                       _UxGT("Vαντίδραση X")
-  #define MSG_VB_JERK                       _UxGT("Vαντίδραση Y")
-  #define MSG_VC_JERK                       _UxGT("Vαντίδραση Z")
+  #define MSG_VA_JERK                       _UxGT("VО±ОЅП„ОЇОґПЃО±ПѓО· X")
+  #define MSG_VB_JERK                       _UxGT("VО±ОЅП„ОЇОґПЃО±ПѓО· Y")
+  #define MSG_VC_JERK                       _UxGT("VО±ОЅП„ОЇОґПЃО±ПѓО· Z")
 #endif
-#define MSG_VE_JERK                         _UxGT("Vαντίδραση E")
-#define MSG_VMAX                            _UxGT("V Μέγιστο")
-#define MSG_VMIN                            _UxGT("V Ελάχιστο")
-#define MSG_VTRAV_MIN                       _UxGT("Vελάχ. μετατόπιση")
+#define MSG_VE_JERK                         _UxGT("VО±ОЅП„ОЇОґПЃО±ПѓО· E")
+#define MSG_VMAX                            _UxGT("V ОњО­ОіО№ПѓП„Ої")
+#define MSG_VMIN                            _UxGT("V О•О»О¬П‡О№ПѓП„Ої")
+#define MSG_VTRAV_MIN                       _UxGT("VОµО»О¬П‡. ОјОµП„О±П„ПЊПЂО№ПѓО·")
 #define MSG_ACCELERATION                    MSG_ACC
-#define MSG_AMAX                            _UxGT("Aμεγ ")
-#define MSG_A_RETRACT                       _UxGT("Α-ανάσυρση")
-#define MSG_A_TRAVEL                        _UxGT("Α-μετατόπιση")
-#define MSG_STEPS_PER_MM                    _UxGT("Bήματα ανά μμ")
+#define MSG_AMAX                            _UxGT("AОјОµОі ")
+#define MSG_A_RETRACT                       _UxGT("О‘-О±ОЅО¬ПѓП…ПЃПѓО·")
+#define MSG_A_TRAVEL                        _UxGT("О‘-ОјОµП„О±П„ПЊПЂО№ПѓО·")
+#define MSG_STEPS_PER_MM                    _UxGT("BО®ОјО±П„О± О±ОЅО¬ ОјОј")
 #if IS_KINEMATIC
-  #define MSG_ASTEPS                        _UxGT("Bήματα A ανά μμ")
-  #define MSG_BSTEPS                        _UxGT("Bήματα B ανά μμ")
-  #define MSG_CSTEPS                        _UxGT("Bήματα C ανά μμ")
+  #define MSG_ASTEPS                        _UxGT("BО®ОјО±П„О± A О±ОЅО¬ ОјОј")
+  #define MSG_BSTEPS                        _UxGT("BО®ОјО±П„О± B О±ОЅО¬ ОјОј")
+  #define MSG_CSTEPS                        _UxGT("BО®ОјО±П„О± C О±ОЅО¬ ОјОј")
 #else
-  #define MSG_ASTEPS                        _UxGT("Bήματα X ανά μμ")
-  #define MSG_BSTEPS                        _UxGT("Bήματα Y ανά μμ")
-  #define MSG_CSTEPS                        _UxGT("Bήματα Z ανά μμ")
+  #define MSG_ASTEPS                        _UxGT("BО®ОјО±П„О± X О±ОЅО¬ ОјОј")
+  #define MSG_BSTEPS                        _UxGT("BО®ОјО±П„О± Y О±ОЅО¬ ОјОј")
+  #define MSG_CSTEPS                        _UxGT("BО®ОјО±П„О± Z О±ОЅО¬ ОјОј")
 #endif
-#define MSG_ESTEPS                          _UxGT("Bήματα Ε ανά μμ")
-#define MSG_E1STEPS                         _UxGT("Bήματα Ε1 ανά μμ")
-#define MSG_E2STEPS                         _UxGT("Bήματα Ε2 ανά μμ")
-#define MSG_E3STEPS                         _UxGT("Bήματα Ε3 ανά μμ")
-#define MSG_E4STEPS                         _UxGT("Bήματα Ε4 ανά μμ")
-#define MSG_E5STEPS                         _UxGT("Bήματα Ε5 ανά μμ")
-#define MSG_TEMPERATURE                     _UxGT("Θερμοκρασία")
-#define MSG_MOTION                          _UxGT("Κίνηση")
-#define MSG_FILAMENT                        _UxGT("Νήμα")
-#define MSG_VOLUMETRIC_ENABLED              _UxGT("Ε σε μμ3")
-#define MSG_FILAMENT_DIAM                   _UxGT("Διάμετρος νήματος")
-#define MSG_CONTRAST                        _UxGT("Κοντράστ LCD")
-#define MSG_STORE_EEPROM                    _UxGT("Αποθήκευση")
-#define MSG_LOAD_EEPROM                     _UxGT("Φόρτωση")
-#define MSG_RESTORE_FAILSAFE                _UxGT("Επαναφορά ασφαλούς αντιγράφου") //SHORTEN
-#define MSG_REFRESH                         _UxGT("Ανανέωση")
-#define MSG_WATCH                           _UxGT("Οθόνη πληροφόρησης")
-#define MSG_PREPARE                         _UxGT("Προετοιμασία")
-#define MSG_TUNE                            _UxGT("Συντονισμός")
-#define MSG_PAUSE_PRINT                     _UxGT("Παύση εκτύπωσης")
-#define MSG_RESUME_PRINT                    _UxGT("Συνέχιση εκτύπωσης")
-#define MSG_STOP_PRINT                      _UxGT("Διακοπή εκτύπωσης")
-#define MSG_CARD_MENU                       _UxGT("Εκτύπωση από SD")
-#define MSG_NO_CARD                         _UxGT("Δεν βρέθηκε SD")
-#define MSG_DWELL                           _UxGT("Αναστολή λειτουργίας")
-#define MSG_USERWAIT                        _UxGT("Αναμονή για χρήστη")
-#define MSG_PRINT_ABORTED                   _UxGT("Διακόπτεται η εκτύπωση") //SHORTEN
-#define MSG_NO_MOVE                         _UxGT("Καμία κίνηση.")
-#define MSG_KILLED                          _UxGT("ΤΕΡΜΑΤΙΣΜΟΣ. ")
-#define MSG_STOPPED                         _UxGT("ΔΙΑΚΟΠΗ. ")
-#define MSG_CONTROL_RETRACT                 _UxGT("Ανάσυρση μμ")
-#define MSG_CONTROL_RETRACT_SWAP            _UxGT("Εναλλαγή ανάσυρσης μμ")  //SHORTEN
-#define MSG_CONTROL_RETRACTF                _UxGT("Ανάσυρση V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Μεταπήδηση μμ")
+#define MSG_ESTEPS                          _UxGT("BО®ОјО±П„О± О• О±ОЅО¬ ОјОј")
+#define MSG_E1STEPS                         _UxGT("BО®ОјО±П„О± О•1 О±ОЅО¬ ОјОј")
+#define MSG_E2STEPS                         _UxGT("BО®ОјО±П„О± О•2 О±ОЅО¬ ОјОј")
+#define MSG_E3STEPS                         _UxGT("BО®ОјО±П„О± О•3 О±ОЅО¬ ОјОј")
+#define MSG_E4STEPS                         _UxGT("BО®ОјО±П„О± О•4 О±ОЅО¬ ОјОј")
+#define MSG_E5STEPS                         _UxGT("BО®ОјО±П„О± О•5 О±ОЅО¬ ОјОј")
+#define MSG_TEMPERATURE                     _UxGT("О�ОµПЃОјОїОєПЃО±ПѓОЇО±")
+#define MSG_MOTION                          _UxGT("ОљОЇОЅО·ПѓО·")
+#define MSG_FILAMENT                        _UxGT("ОќО®ОјО±")
+#define MSG_VOLUMETRIC_ENABLED              _UxGT("О• ПѓОµ ОјОј3")
+#define MSG_FILAMENT_DIAM                   _UxGT("О”О№О¬ОјОµП„ПЃОїП‚ ОЅО®ОјО±П„ОїП‚")
+#define MSG_CONTRAST                        _UxGT("ОљОїОЅП„ПЃО¬ПѓП„ LCD")
+#define MSG_STORE_EEPROM                    _UxGT("О‘ПЂОїОёО®ОєОµП…ПѓО·")
+#define MSG_LOAD_EEPROM                     _UxGT("О¦ПЊПЃП„П‰ПѓО·")
+#define MSG_RESTORE_FAILSAFE                _UxGT("О•ПЂО±ОЅО±П†ОїПЃО¬ О±ПѓП†О±О»ОїПЌП‚ О±ОЅП„О№ОіПЃО¬П†ОїП…") //SHORTEN
+#define MSG_REFRESH                         _UxGT("О‘ОЅО±ОЅО­П‰ПѓО·")
+#define MSG_WATCH                           _UxGT("ОџОёПЊОЅО· ПЂО»О·ПЃОїП†ПЊПЃО·ПѓО·П‚")
+#define MSG_PREPARE                         _UxGT("О ПЃОїОµП„ОїО№ОјО±ПѓОЇО±")
+#define MSG_TUNE                            _UxGT("ОЈП…ОЅП„ОїОЅО№ПѓОјПЊП‚")
+#define MSG_PAUSE_PRINT                     _UxGT("О О±ПЌПѓО· ОµОєП„ПЌПЂП‰ПѓО·П‚")
+#define MSG_RESUME_PRINT                    _UxGT("ОЈП…ОЅО­П‡О№ПѓО· ОµОєП„ПЌПЂП‰ПѓО·П‚")
+#define MSG_STOP_PRINT                      _UxGT("О”О№О±ОєОїПЂО® ОµОєП„ПЌПЂП‰ПѓО·П‚")
+#define MSG_CARD_MENU                       _UxGT("О•ОєП„ПЌПЂП‰ПѓО· О±ПЂПЊ SD")
+#define MSG_NO_CARD                         _UxGT("О”ОµОЅ ОІПЃО­ОёО·ОєОµ SD")
+#define MSG_DWELL                           _UxGT("О‘ОЅО±ПѓП„ОїО»О® О»ОµО№П„ОїП…ПЃОіОЇО±П‚")
+#define MSG_USERWAIT                        _UxGT("О‘ОЅО±ОјОїОЅО® ОіО№О± П‡ПЃО®ПѓП„О·")
+#define MSG_PRINT_ABORTED                   _UxGT("О”О№О±ОєПЊПЂП„ОµП„О±О№ О· ОµОєП„ПЌПЂП‰ПѓО·") //SHORTEN
+#define MSG_NO_MOVE                         _UxGT("ОљО±ОјОЇО± ОєОЇОЅО·ПѓО·.")
+#define MSG_KILLED                          _UxGT("О¤О•ОЎОњО‘О¤О™ОЈОњОџОЈ. ")
+#define MSG_STOPPED                         _UxGT("О”О™О‘ОљОџО О—. ")
+#define MSG_CONTROL_RETRACT                 _UxGT("О‘ОЅО¬ПѓП…ПЃПѓО· ОјОј")
+#define MSG_CONTROL_RETRACT_SWAP            _UxGT("О•ОЅО±О»О»О±ОіО® О±ОЅО¬ПѓП…ПЃПѓО·П‚ ОјОј")  //SHORTEN
+#define MSG_CONTROL_RETRACTF                _UxGT("О‘ОЅО¬ПѓП…ПЃПѓО· V")
+#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("ОњОµП„О±ПЂО®ОґО·ПѓО· ОјОј")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
-#define MSG_AUTORETRACT                     _UxGT("Αυτόματη ανάσυρση")
-#define MSG_FILAMENTCHANGE                  _UxGT("Αλλαγή νήματος")
-#define MSG_INIT_SDCARD                     _UxGT("Προετοιμασία κάρτας SD")  //SHORTEN
-#define MSG_CNG_SDCARD                      _UxGT("Αλλαγή κάρτας SD")
-#define MSG_ZPROBE_OUT                      _UxGT("Διερεύνηση Z εκτός Επ.Εκτύπωσης") //SHORTEN
-#define MSG_YX_UNHOMED                      _UxGT("Επαναφορά Χ/Υ πριν από Ζ") //SHORTEN
-#define MSG_XYZ_UNHOMED                     _UxGT("Επαναφορά ΧΥΖ πρώτα")
-#define MSG_ZPROBE_ZOFFSET                  _UxGT("Μετατόπιση Ζ")
-#define MSG_BABYSTEP_X                      _UxGT("Μικρό βήμα Χ")
-#define MSG_BABYSTEP_Y                      _UxGT("Μικρό βήμα Υ")
-#define MSG_BABYSTEP_Z                      _UxGT("Μικρό βήμα Ζ")
-#define MSG_ENDSTOP_ABORT                   _UxGT("Ακύρωση endstop ")
-#define MSG_HEATING_FAILED_LCD              _UxGT("Ανεπιτυχής θέρμανση")
-#define MSG_ERR_REDUNDANT_TEMP              _UxGT("ΠΛΕΟΝΑΖΟΥΣΑ ΘΕΡΜΟΤΗΤΑ")
-#define MSG_THERMAL_RUNAWAY                 _UxGT("ΔΙΑΦΥΓΗ ΘΕΡΜΟΚΡΑΣΙΑΣ")
-#define MSG_ERR_MAXTEMP                     _UxGT("ΠΕΡΙΤΗ ΘΕΡΜΟΚΡΑΣΙΑ")
-#define MSG_ERR_MINTEMP                     _UxGT("ΜΗ ΕΠΑΡΚΗΣ ΘΕΡΜΟΚΡΑΣΙΑΣ") //SHORTEN
-#define MSG_ERR_MAXTEMP_BED                 _UxGT("ΜΕΓΙΣΤΗ ΘΕΡΜΟΚΡΑΣΙΑΣ ΕΠ. ΕΚΤΥΠΩΣΗΣ") //SHORTEN
-#define MSG_ERR_MINTEMP_BED                 _UxGT("ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΚΡΑΣΙΑΣ ΕΠ. ΕΚΤΥΠΩΣΗΣ") //SHORTEN
-#define MSG_HALTED                          _UxGT("H εκτύπωση διακόπηκε")
-#define MSG_HEATING                         _UxGT("Θερμαίνεται…")
-#define MSG_BED_HEATING                     _UxGT("Θέρμανση ΕΠ. Εκτύπωσης") //SHORTEN
-#define MSG_DELTA_CALIBRATE                 _UxGT("Βαθμονόμηση Delta")
-#define MSG_DELTA_CALIBRATE_X               _UxGT("Βαθμονόμηση X")
-#define MSG_DELTA_CALIBRATE_Y               _UxGT("Βαθμονόμηση Y")
-#define MSG_DELTA_CALIBRATE_Z               _UxGT("Βαθμονόμηση Z")
-#define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Βαθμονόμηση κέντρου")
+#define MSG_AUTORETRACT                     _UxGT("О‘П…П„ПЊОјО±П„О· О±ОЅО¬ПѓП…ПЃПѓО·")
+#define MSG_FILAMENTCHANGE                  _UxGT("О‘О»О»О±ОіО® ОЅО®ОјО±П„ОїП‚")
+#define MSG_INIT_SDCARD                     _UxGT("О ПЃОїОµП„ОїО№ОјО±ПѓОЇО± ОєО¬ПЃП„О±П‚ SD")  //SHORTEN
+#define MSG_CNG_SDCARD                      _UxGT("О‘О»О»О±ОіО® ОєО¬ПЃП„О±П‚ SD")
+#define MSG_ZPROBE_OUT                      _UxGT("О”О№ОµПЃОµПЌОЅО·ПѓО· Z ОµОєП„ПЊП‚ О•ПЂ.О•ОєП„ПЌПЂП‰ПѓО·П‚") //SHORTEN
+#define MSG_YX_UNHOMED                      _UxGT("О•ПЂО±ОЅО±П†ОїПЃО¬ О§/ОҐ ПЂПЃО№ОЅ О±ПЂПЊ О–") //SHORTEN
+#define MSG_XYZ_UNHOMED                     _UxGT("О•ПЂО±ОЅО±П†ОїПЃО¬ О§ОҐО– ПЂПЃПЋП„О±")
+#define MSG_ZPROBE_ZOFFSET                  _UxGT("ОњОµП„О±П„ПЊПЂО№ПѓО· О–")
+#define MSG_BABYSTEP_X                      _UxGT("ОњО№ОєПЃПЊ ОІО®ОјО± О§")
+#define MSG_BABYSTEP_Y                      _UxGT("ОњО№ОєПЃПЊ ОІО®ОјО± ОҐ")
+#define MSG_BABYSTEP_Z                      _UxGT("ОњО№ОєПЃПЊ ОІО®ОјО± О–")
+#define MSG_ENDSTOP_ABORT                   _UxGT("О‘ОєПЌПЃП‰ПѓО· endstop ")
+#define MSG_HEATING_FAILED_LCD              _UxGT("О‘ОЅОµПЂО№П„П…П‡О®П‚ ОёО­ПЃОјО±ОЅПѓО·")
+#define MSG_ERR_REDUNDANT_TEMP              _UxGT("О О›О•ОџОќО‘О–ОџОҐОЈО‘ О�О•ОЎОњОџО¤О—О¤О‘")
+#define MSG_THERMAL_RUNAWAY                 _UxGT("О”О™О‘О¦ОҐО“О— О�О•ОЎОњОџОљОЎО‘ОЈО™О‘ОЈ")
+#define MSG_ERR_MAXTEMP                     _UxGT("О О•ОЎО™О¤О— О�О•ОЎОњОџОљОЎО‘ОЈО™О‘")
+#define MSG_ERR_MINTEMP                     _UxGT("ОњО— О•О О‘ОЎОљО—ОЈ О�О•ОЎОњОџОљОЎО‘ОЈО™О‘ОЈ") //SHORTEN
+#define MSG_ERR_MAXTEMP_BED                 _UxGT("ОњО•О“О™ОЈО¤О— О�О•ОЎОњОџОљОЎО‘ОЈО™О‘ОЈ О•О . О•ОљО¤ОҐО О©ОЈО—ОЈ") //SHORTEN
+#define MSG_ERR_MINTEMP_BED                 _UxGT("О•О›О‘О§О™ОЈО¤О— О�О•ОЎОњОџОљОЎО‘ОЈО™О‘ОЈ О•О . О•ОљО¤ОҐО О©ОЈО—ОЈ") //SHORTEN
+#define MSG_HALTED                          _UxGT("H ОµОєП„ПЌПЂП‰ПѓО· ОґО№О±ОєПЊПЂО·ОєОµ")
+#define MSG_HEATING                         _UxGT("О�ОµПЃОјО±ОЇОЅОµП„О±О№вЂ¦")
+#define MSG_BED_HEATING                     _UxGT("О�О­ПЃОјО±ОЅПѓО· О•О . О•ОєП„ПЌПЂП‰ПѓО·П‚") //SHORTEN
+#define MSG_DELTA_CALIBRATE                 _UxGT("О’О±ОёОјОїОЅПЊОјО·ПѓО· Delta")
+#define MSG_DELTA_CALIBRATE_X               _UxGT("О’О±ОёОјОїОЅПЊОјО·ПѓО· X")
+#define MSG_DELTA_CALIBRATE_Y               _UxGT("О’О±ОёОјОїОЅПЊОјО·ПѓО· Y")
+#define MSG_DELTA_CALIBRATE_Z               _UxGT("О’О±ОёОјОїОЅПЊОјО·ПѓО· Z")
+#define MSG_DELTA_CALIBRATE_CENTER          _UxGT("О’О±ОёОјОїОЅПЊОјО·ПѓО· ОєО­ОЅП„ПЃОїП…")
 
 #endif // LANGUAGE_EL_H
+

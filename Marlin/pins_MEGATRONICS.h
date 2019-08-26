@@ -128,3 +128,4 @@
 #define SPINDLE_LASER_PWM_PIN     3   // MUST BE HARDWARE PWM
 #define SPINDLE_LASER_ENABLE_PIN  4   // Pin should have a pullup!
 #define SPINDLE_DIR_PIN          11
+

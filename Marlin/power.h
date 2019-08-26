@@ -42,3 +42,4 @@ class Power {
 extern Power powerManager;
 
 #endif // POWER_H
+

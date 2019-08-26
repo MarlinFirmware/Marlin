@@ -101,7 +101,7 @@
 #if ANY_THERMISTOR_IS(60) // Maker's Tool Works Kapton Bed Thermistor
   #include "thermistortable_60.h"
 #endif
-#if ANY_THERMISTOR_IS(66) // DyzeDesign 500°C Thermistor
+#if ANY_THERMISTOR_IS(66) // DyzeDesign 500В°C Thermistor
   #include "thermistortable_66.h"
 #endif
 #if ANY_THERMISTOR_IS(12) // 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
@@ -276,3 +276,4 @@ static_assert(HEATER_0_TEMPTABLE_LEN < 256 && HEATER_1_TEMPTABLE_LEN < 256 && HE
 #endif
 
 #endif // THERMISTORTABLES_H_
+

@@ -290,13 +290,13 @@ class Stepper {
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
-      static int32_t bezier_A,     // A coefficient in Bézier speed curve
-                     bezier_B,     // B coefficient in Bézier speed curve
-                     bezier_C;     // C coefficient in Bézier speed curve
-      static uint32_t bezier_F,    // F coefficient in Bézier speed curve
-                      bezier_AV;   // AV coefficient in Bézier speed curve
+      static int32_t bezier_A,     // A coefficient in BГ©zier speed curve
+                     bezier_B,     // B coefficient in BГ©zier speed curve
+                     bezier_C;     // C coefficient in BГ©zier speed curve
+      static uint32_t bezier_F,    // F coefficient in BГ©zier speed curve
+                      bezier_AV;   // AV coefficient in BГ©zier speed curve
       static bool A_negative,      // If A coefficient was negative
-                  bezier_2nd_half; // If Bézier curve has been initialized or not
+                  bezier_2nd_half; // If BГ©zier curve has been initialized or not
     #endif
 
     static uint32_t nextMainISR;   // time remaining for the next Step ISR
@@ -543,3 +543,4 @@ class Stepper {
 extern Stepper stepper;
 
 #endif // STEPPER_H
+

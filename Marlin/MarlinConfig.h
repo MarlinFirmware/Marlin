@@ -46,3 +46,4 @@
 #include "serial.h"
 
 #endif // MARLIN_CONFIG_H
+

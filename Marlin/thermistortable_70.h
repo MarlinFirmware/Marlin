@@ -43,3 +43,4 @@ const short temptable_70[][2] PROGMEM = {
   { OV(1005),   5 },
   { OV(1009),   0 } // safety
 };
+

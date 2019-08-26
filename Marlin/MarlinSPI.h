@@ -55,3 +55,4 @@ class SPI<MISO_PIN, MOSI_PIN, SCK_PIN> {
 };
 
 #endif // __MARLIN_SPI_H__
+

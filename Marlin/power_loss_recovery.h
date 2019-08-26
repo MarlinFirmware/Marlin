@@ -97,3 +97,4 @@ void check_print_job_recovery();
 void save_job_recovery_info();
 
 #endif // _POWER_LOSS_RECOVERY_H_
+

@@ -36,3 +36,4 @@ FORCE_INLINE void bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y
 FORCE_INLINE bool is_bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
 
 #endif // _BITMAP_FLAGS_H_
+

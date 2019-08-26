@@ -103,3 +103,4 @@ const uint8_t PROGMEM digital_pin_to_port_PGM_Teensy[] = {
 // portModeRegister(pin) is OK
 
 #endif // __PINSDEBUG_TEENSYDUINO_H__
+

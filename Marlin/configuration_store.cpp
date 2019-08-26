@@ -2788,3 +2788,4 @@ void MarlinSettings::reset() {
   }
 
 #endif // !DISABLE_M503
+

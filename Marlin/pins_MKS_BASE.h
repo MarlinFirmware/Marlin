@@ -21,7 +21,7 @@
  */
 
 /**
- * MKS BASE 1.0 – Arduino Mega2560 with RAMPS v1.4 pin assignments
+ * MKS BASE 1.0 вЂ“ Arduino Mega2560 with RAMPS v1.4 pin assignments
  *
  * Rev B - Override pin definitions for CASE_LIGHT and M3/M4/M5 spindle control
  */
@@ -48,3 +48,4 @@
 #define SPINDLE_DIR_PIN          19
 
 #include "pins_RAMPS.h"
+

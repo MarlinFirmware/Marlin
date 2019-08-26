@@ -339,3 +339,4 @@ public:
 extern GCodeParser parser;
 
 #endif // _PARSER_H_
+

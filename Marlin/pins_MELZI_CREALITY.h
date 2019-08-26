@@ -115,3 +115,4 @@
   PIN:  30   Port: A1        LCD_PINS_D4                 Output = 1
   PIN:  31   Port: A0        SDSS                        Output = 1
 */
+

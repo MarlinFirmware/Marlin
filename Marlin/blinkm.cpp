@@ -44,3 +44,4 @@ void blinkm_set_led_color(const LEDColor &color) {
 }
 
 #endif // BLINKM
+

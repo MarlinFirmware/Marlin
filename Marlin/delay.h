@@ -75,3 +75,4 @@ FORCE_INLINE static void DELAY_CYCLES(uint16_t x) {
 #define DELAY_US(x) DELAY_CYCLES( (x) * (F_CPU/1000000L) )
 
 #endif // MARLIN_DELAY_H
+

@@ -39,3 +39,4 @@
 #define E0_MS2_PIN          64   // Analog 10  / Pin 87  / PK2
 #define E1_MS1_PIN          57   // Analog 3   / Pin 93  / PF3
 #define E1_MS2_PIN           4   // Digital 4  / Pin 1   / PG5  / SERVO3_PIN
+

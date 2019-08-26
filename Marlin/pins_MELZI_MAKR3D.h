@@ -26,3 +26,4 @@
 
 #define BOARD_NAME "Melzi (ATmega1284)"
 #include "pins_MELZI.h"
+

@@ -22,7 +22,7 @@
 
 // R25 = 100 kOhm, beta25 = 3974 K, 4.7 kOhm pull-up, Honeywell 135-104LAF-J01
 // R0 = 100000 Ohm
-// T0 = 25 °C
+// T0 = 25 В°C
 // Beta = 3974
 // R1 = 0 Ohm
 // R2 = 4700 Ohm
@@ -91,3 +91,4 @@ const short temptable_71[][2] PROGMEM = {
   { OV(1006),   5 },
   { OV(1010),   0 }
 };
+

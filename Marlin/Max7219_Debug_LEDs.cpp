@@ -78,13 +78,13 @@ uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
 #define BIT_7219(X,Y) TEST(led_line[LED_IND(X,Y)], LED_BIT(X,Y))
 
 #ifdef CPU_32_BIT
-  #define SIG_DELAY() DELAY_US(1)   // Approximate a 1µs delay on 32-bit ARM
+  #define SIG_DELAY() DELAY_US(1)   // Approximate a 1Вµs delay on 32-bit ARM
   #undef CRITICAL_SECTION_START
   #undef CRITICAL_SECTION_END
   #define CRITICAL_SECTION_START NOOP
   #define CRITICAL_SECTION_END   NOOP
 #else
-  #define SIG_DELAY() DELAY_NS(188) // Delay for 0.1875µs (16MHz AVR) or 0.15µs (20MHz AVR)
+  #define SIG_DELAY() DELAY_NS(188) // Delay for 0.1875Вµs (16MHz AVR) or 0.15Вµs (20MHz AVR)
 #endif
 
 void Max7219::error(const char * const func, const int32_t v1, const int32_t v2/*=-1*/) {
@@ -285,7 +285,7 @@ void Max7219::clear_column(const uint8_t col) {
 /**
  * Plot the low order bits of val to the specified row of the matrix.
  * With 4 Max7219 units in the chain, it's possible to set 32 bits at once with
- * one call to the function (if rotated 90° or 180°).
+ * one call to the function (if rotated 90В° or 180В°).
  */
 void Max7219::set_row(const uint8_t row, const uint32_t val) {
   if (row >= MAX7219_Y_LEDS) return error(PSTR("set_row"), row);
@@ -300,7 +300,7 @@ void Max7219::set_row(const uint8_t row, const uint32_t val) {
 /**
  * Plot the low order bits of val to the specified column of the matrix.
  * With 4 Max7219 units in the chain, it's possible to set 32 bits at once with
- * one call to the function (if rotated 90° or 180°).
+ * one call to the function (if rotated 90В° or 180В°).
  */
 void Max7219::set_column(const uint8_t col, const uint32_t val) {
   if (col >= MAX7219_X_LEDS) return error(PSTR("set_column"), col);
@@ -591,3 +591,4 @@ void Max7219::idle_tasks() {
 }
 
 #endif // MAX7219_DEBUG
+

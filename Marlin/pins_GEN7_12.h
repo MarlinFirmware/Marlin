@@ -147,3 +147,4 @@
 #else  // Gen7 v1.3 removed the I2C connector & signals so need to get PWM off the PC power supply header
   #define SPINDLE_LASER_PWM_PIN  15   // MUST BE HARDWARE PWM
 #endif
+

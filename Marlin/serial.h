@@ -109,3 +109,4 @@ void serial_spaces(uint8_t count);
 #define SERIAL_PROTOCOL_SP(C) serial_spaces(C)
 
 #endif // __SERIAL_H__
+

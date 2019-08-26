@@ -31,3 +31,4 @@ const short temptable_147[][2] PROGMEM = {
   PtLine(250, 100, 4700)
   PtLine(300, 100, 4700)
 };
+

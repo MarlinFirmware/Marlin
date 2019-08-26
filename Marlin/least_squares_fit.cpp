@@ -69,3 +69,4 @@ int finish_incremental_LSF(struct linear_fit_data *lsf) {
 }
 
 #endif // AUTO_BED_LEVELING_UBL || ENABLED(AUTO_BED_LEVELING_LINEAR)
+

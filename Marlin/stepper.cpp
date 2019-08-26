@@ -70,10 +70,10 @@
  */
 
 /**
- * Jerk controlled movements planner added Apr 2018 by Eduardo José Tagle.
+ * Jerk controlled movements planner added Apr 2018 by Eduardo JosГ© Tagle.
  * Equations based on Synthethos TinyG2 sources, but the fixed-point
  * implementation is new, as we are running the ISR with a variable period.
- * Also implemented the Bézier velocity curve evaluation in ARM assembler,
+ * Also implemented the BГ©zier velocity curve evaluation in ARM assembler,
  * to avoid impacting ISR speed.
  */
 
@@ -152,13 +152,13 @@ uint32_t Stepper::advance_dividend[NUM_AXIS] = { 0 },
 #endif
 
 #if ENABLED(S_CURVE_ACCELERATION)
-  int32_t __attribute__((used)) Stepper::bezier_A __asm__("bezier_A");    // A coefficient in Bézier speed curve with alias for assembler
-  int32_t __attribute__((used)) Stepper::bezier_B __asm__("bezier_B");    // B coefficient in Bézier speed curve with alias for assembler
-  int32_t __attribute__((used)) Stepper::bezier_C __asm__("bezier_C");    // C coefficient in Bézier speed curve with alias for assembler
-  uint32_t __attribute__((used)) Stepper::bezier_F __asm__("bezier_F");   // F coefficient in Bézier speed curve with alias for assembler
-  uint32_t __attribute__((used)) Stepper::bezier_AV __asm__("bezier_AV"); // AV coefficient in Bézier speed curve with alias for assembler
+  int32_t __attribute__((used)) Stepper::bezier_A __asm__("bezier_A");    // A coefficient in BГ©zier speed curve with alias for assembler
+  int32_t __attribute__((used)) Stepper::bezier_B __asm__("bezier_B");    // B coefficient in BГ©zier speed curve with alias for assembler
+  int32_t __attribute__((used)) Stepper::bezier_C __asm__("bezier_C");    // C coefficient in BГ©zier speed curve with alias for assembler
+  uint32_t __attribute__((used)) Stepper::bezier_F __asm__("bezier_F");   // F coefficient in BГ©zier speed curve with alias for assembler
+  uint32_t __attribute__((used)) Stepper::bezier_AV __asm__("bezier_AV"); // AV coefficient in BГ©zier speed curve with alias for assembler
   bool __attribute__((used)) Stepper::A_negative __asm__("A_negative");   // If A coefficient was negative
-  bool Stepper::bezier_2nd_half;    // =false If Bézier curve has been initialized or not
+  bool Stepper::bezier_2nd_half;    // =false If BГ©zier curve has been initialized or not
 #endif
 
 uint32_t Stepper::nextMainISR = 0;
@@ -417,11 +417,11 @@ void Stepper::set_directions() {
 
 #if ENABLED(S_CURVE_ACCELERATION)
   /**
-   *  This uses a quintic (fifth-degree) Bézier polynomial for the velocity curve, giving
+   *  This uses a quintic (fifth-degree) BГ©zier polynomial for the velocity curve, giving
    *  a "linear pop" velocity curve; with pop being the sixth derivative of position:
    *  velocity - 1st, acceleration - 2nd, jerk - 3rd, snap - 4th, crackle - 5th, pop - 6th
    *
-   *  The Bézier curve takes the form:
+   *  The BГ©zier curve takes the form:
    *
    *  V(t) = P_0 * B_0(t) + P_1 * B_1(t) + P_2 * B_2(t) + P_3 * B_3(t) + P_4 * B_4(t) + P_5 * B_5(t)
    *
@@ -444,7 +444,7 @@ void Stepper::set_directions() {
    *        V_f(t) = A*t^5 + B*t^4 + C*t^3 + D*t^2 + E*t + F
    *
    *  Looking at the above B_0(t) through B_5(t) expanded forms, if we take the coefficients of t^5
-   *  through t of the Bézier form of V(t), we can determine that:
+   *  through t of the BГ©zier form of V(t), we can determine that:
    *
    *        A =    -P_0 +  5*P_1 - 10*P_2 + 10*P_3 -  5*P_4 +  P_5
    *        B =   5*P_0 - 20*P_1 + 30*P_2 - 20*P_3 +  5*P_4
@@ -465,14 +465,14 @@ void Stepper::set_directions() {
    *        F = P_i
    *
    *  As the t is evaluated in non uniform steps here, there is no other way rather than evaluating
-   *  the Bézier curve at each point:
+   *  the BГ©zier curve at each point:
    *
    *        V_f(t) = A*t^5 + B*t^4 + C*t^3 + F          [0 <= t <= 1]
    *
    * Floating point arithmetic execution time cost is prohibitive, so we will transform the math to
    * use fixed point values to be able to evaluate it in realtime. Assuming a maximum of 250000 steps
-   * per second (driver pulses should at least be 2µS hi/2µS lo), and allocating 2 bits to avoid
-   * overflows on the evaluation of the Bézier curve, means we can use
+   * per second (driver pulses should at least be 2ВµS hi/2ВµS lo), and allocating 2 bits to avoid
+   * overflows on the evaluation of the BГ©zier curve, means we can use
    *
    *   t: unsigned Q0.32 (0 <= t < 1) |range 0 to 0xFFFFFFFF unsigned
    *   A:   signed Q24.7 ,            |range = +/- 250000 * 6 * 128 = +/- 192000000 = 0x0B71B000 | 28 bits + sign
@@ -481,7 +481,7 @@ void Stepper::set_directions() {
    *   F:   signed Q24.7 ,            |range = +/- 250000     * 128 =      32000000 = 0x01E84800 | 25 bits + sign
    *
    * The trapezoid generator state contains the following information, that we will use to create and evaluate
-   * the Bézier curve:
+   * the BГ©zier curve:
    *
    *  blk->step_event_count [TS] = The total count of steps for this movement. (=distance)
    *  blk->initial_rate     [VI] = The initial steps per second (=velocity)
@@ -555,7 +555,7 @@ void Stepper::set_directions() {
    *
    *  This is rewritten in ARM assembly for optimal performance (43 cycles to execute).
    *
-   *  For AVR, the precision of coefficients is scaled so the Bézier curve can be evaluated in real-time:
+   *  For AVR, the precision of coefficients is scaled so the BГ©zier curve can be evaluated in real-time:
    *  Let's reduce precision as much as possible. After some experimentation we found that:
    *
    *    Assume t and AV with 24 bits is enough
@@ -580,7 +580,7 @@ void Stepper::set_directions() {
    *    And for each curve, estimate its coefficients with:
    *
    *      void _calc_bezier_curve_coeffs(int32_t v0, int32_t v1, uint32_t av) {
-   *       // Calculate the Bézier coefficients
+   *       // Calculate the BГ©zier coefficients
    *       if (v1 < v0) {
    *         A_negative = true;
    *         bezier_A = 6 * (v0 - v1);
@@ -666,7 +666,7 @@ void Stepper::set_directions() {
     register uint8_t r4,r8,r9,r10,r11;
 
     __asm__ __volatile__(
-      /* Calculate the Bézier coefficients */
+      /* Calculate the BГ©zier coefficients */
       /*  %10:%1:%0 = v0*/
       /*  %5:%4:%3 = v1*/
       /*  %7:%6:%10 = temporary*/
@@ -1246,9 +1246,9 @@ void Stepper::isr() {
 
     /**
      * Get the current tick value + margin
-     * Assuming at least 6µs between calls to this ISR...
-     * On AVR the ISR epilogue+prologue is estimated at 100 instructions - Give 8µs as margin
-     * On ARM the ISR epilogue+prologue is estimated at 20 instructions - Give 1µs as margin
+     * Assuming at least 6Вµs between calls to this ISR...
+     * On AVR the ISR epilogue+prologue is estimated at 100 instructions - Give 8Вµs as margin
+     * On ARM the ISR epilogue+prologue is estimated at 20 instructions - Give 1Вµs as margin
      */
     min_ticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t((STEPPER_TIMER_TICKS_PER_US) * 8);
 
@@ -1514,10 +1514,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #if ENABLED(S_CURVE_ACCELERATION)
           // If this is the 1st time we process the 2nd half of the trapezoid...
           if (!bezier_2nd_half) {
-            // Initialize the Bézier speed curve
+            // Initialize the BГ©zier speed curve
             _calc_bezier_curve_coeffs(current_block->cruise_rate, current_block->final_rate, current_block->deceleration_time_inverse);
             bezier_2nd_half = true;
-            // The first point starts at cruise rate. Just save evaluation of the Bézier curve
+            // The first point starts at cruise rate. Just save evaluation of the BГ©zier curve
             step_rate = current_block->cruise_rate;
           }
           else {
@@ -1779,7 +1779,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       #if ENABLED(S_CURVE_ACCELERATION)
-        // Initialize the Bézier speed curve
+        // Initialize the BГ©zier speed curve
         _calc_bezier_curve_coeffs(current_block->initial_rate, current_block->cruise_rate, current_block->acceleration_time_inverse);
         // We haven't started the 2nd half of the trapezoid
         bezier_2nd_half = false;
@@ -2606,3 +2606,4 @@ void Stepper::report_positions() {
   }
 
 #endif // HAS_MICROSTEPS
+

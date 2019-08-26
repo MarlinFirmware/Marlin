@@ -189,3 +189,4 @@ class PrintCounter: public Stopwatch {
 #endif
 
 #endif // PRINTCOUNTER_H
+

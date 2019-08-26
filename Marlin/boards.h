@@ -159,3 +159,4 @@
 #define MB(board) (defined(BOARD_##board) && MOTHERBOARD==BOARD_##board)
 
 #endif // __BOARDS_H
+

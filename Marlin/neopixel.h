@@ -42,3 +42,4 @@ void setup_neopixel();
 void set_neopixel_color(const uint32_t color);
 
 extern Adafruit_NeoPixel pixels;
+

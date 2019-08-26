@@ -317,3 +317,4 @@ enum ClockSource2 : char {
 #define USEABLE_HARDWARE_PWM(p) (PWM_PINS(p) && !PWM_CHK(p))
 
 #endif // _FASTIO_ARDUINO_H_
+

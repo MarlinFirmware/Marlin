@@ -142,3 +142,4 @@
   #define SPINDLE_LASER_PWM_PIN          3   // WARNING - LED & resistor pull up to +12/+24V stepper voltage
   #define SPINDLE_DIR_PIN               53
 #endif
+

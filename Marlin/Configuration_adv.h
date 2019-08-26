@@ -695,7 +695,7 @@
   //#define USE_SMALL_INFOFONT
 
   // Enable this option and reduce the value to optimize screen updates.
-  // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
+  // The normal delay is 10Вµs. Use the lowest value that still gives a reliable display.
   //#define DOGM_SPI_DELAY_US 5
 
   // Swap the CW/CCW indicators in the graphics overlay
@@ -818,7 +818,7 @@
 
 /**
  * Minimum delay after setting the stepper DIR (in ns)
- *     0 : No delay (Expect at least 10µS since one Stepper ISR must transpire)
+ *     0 : No delay (Expect at least 10ВµS since one Stepper ISR must transpire)
  *    20 : Minimum for TMC2xxx drivers
  *   200 : Minimum for A4988 drivers
  *   500 : Minimum for LV8729 drivers (guess, no info in datasheet)
@@ -831,7 +831,7 @@
 //#define MINIMUM_STEPPER_DIR_DELAY 650
 
 /**
- * Minimum stepper driver pulse width (in µs)
+ * Minimum stepper driver pulse width (in Вµs)
  *   0 : Smallest possible width the MCU can produce, compatible with TMC2xxx drivers
  *   1 : Minimum for A4988 stepper drivers
  *   1 : Minimum for LV8729 stepper drivers
@@ -1620,7 +1620,7 @@
   //#define MAX7219_GCODE          // Add the M7219 G-code to control the LED matrix
   #define MAX7219_INIT_TEST    2   // Do a test pattern at initialization (Set to 2 for spiral)
   #define MAX7219_NUMBER_UNITS 1   // Number of Max7219 units in chain.
-  #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90°)
+  #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90В°)
                                    // connector at:  right=0   bottom=-90  top=90  left=180
   /**
    * Sample debug features
@@ -1652,3 +1652,4 @@
 //#define MARLIN_DEV_MODE
 
 #endif // CONFIGURATION_ADV_H
+

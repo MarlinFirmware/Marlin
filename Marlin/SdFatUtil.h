@@ -49,3 +49,4 @@ namespace SdFatUtil {
 using namespace SdFatUtil;  // NOLINT
 
 #endif // _SDFATUTIL_H_
+

@@ -61,3 +61,4 @@
 #undef SPINDLE_LASER_PWM_PIN     // Definitions in pins_RAMPS.h are not valid with this board
 #undef SPINDLE_LASER_ENABLE_PIN
 #undef SPINDLE_DIR_PIN
+

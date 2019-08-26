@@ -985,3 +985,4 @@ void CardReader::printingHasFinished() {
 #endif // POWER_LOSS_RECOVERY
 
 #endif // SDSUPPORT
+

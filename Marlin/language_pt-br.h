@@ -238,7 +238,7 @@
 #define MSG_MOTION                          _UxGT("Movimento")
 #define MSG_FILAMENT                        _UxGT("Filamento")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("Extrusao em mm3")
-#define MSG_FILAMENT_DIAM                   _UxGT("Diâmetro Fil.")
+#define MSG_FILAMENT_DIAM                   _UxGT("DiГўmetro Fil.")
 #define MSG_ADVANCE_K                       _UxGT("Avancar K")
 #define MSG_CONTRAST                        _UxGT("Contraste")
 #define MSG_STORE_EEPROM                    _UxGT("Salvar Configuracao")
@@ -380,3 +380,4 @@
 #endif
 
 #endif // LANGUAGE_PT_BR_H
+

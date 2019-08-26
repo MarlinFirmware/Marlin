@@ -104,3 +104,4 @@ void digipot_i2c_init() {
 }
 
 #endif // DIGIPOT_I2C && DIGIPOT_MCP4018
+

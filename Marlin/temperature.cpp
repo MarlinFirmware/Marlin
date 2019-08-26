@@ -1561,12 +1561,12 @@ void Temperature::disable_all_heaters() {
     uint32_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 7
     #define MAX6675_DISCARD_BITS 18
-    #define MAX6675_SPEED_BITS (_BV(SPR1)) // clock ÷ 64
+    #define MAX6675_SPEED_BITS (_BV(SPR1)) // clock Г· 64
   #else
     uint16_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 4
     #define MAX6675_DISCARD_BITS 3
-    #define MAX6675_SPEED_BITS (_BV(SPR0)) // clock ÷ 16
+    #define MAX6675_SPEED_BITS (_BV(SPR0)) // clock Г· 16
   #endif
 
   int Temperature::read_max6675() {
@@ -2400,3 +2400,4 @@ void Temperature::isr() {
   #endif // AUTO_REPORT_TEMPERATURES
 
 #endif // HAS_TEMP_SENSOR
+

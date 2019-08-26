@@ -42,3 +42,4 @@ void print_hex_word(const uint16_t w);
 void print_hex_address(const void * const w);
 
 #endif // HEX_PRINT_ROUTINES_H
+

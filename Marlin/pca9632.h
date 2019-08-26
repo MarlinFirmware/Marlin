@@ -34,3 +34,4 @@ typedef LEDColor LEDColor;
 void pca9632_set_led_color(const LEDColor &color);
 
 #endif // __PCA9632_H__
+

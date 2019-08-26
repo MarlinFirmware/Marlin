@@ -172,3 +172,4 @@ class Endstops {
 extern Endstops endstops;
 
 #endif // __ENDSTOPS_H__
+

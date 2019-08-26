@@ -30,7 +30,7 @@
 #ifndef LANGUAGE_CA_H
 #define LANGUAGE_CA_H
 
-#define MAPPER_C2C3  // because of "ó"
+#define MAPPER_C2C3  // because of "Гі"
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 
@@ -38,7 +38,7 @@
 #define MSG_SD_INSERTED                     _UxGT("Targeta detectada.")
 #define MSG_SD_REMOVED                      _UxGT("Targeta extreta.")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops")
-#define MSG_MAIN                            _UxGT("Menú principal")
+#define MSG_MAIN                            _UxGT("MenГє principal")
 #define MSG_AUTOSTART                       _UxGT("Inici automatic")
 #define MSG_DISABLE_STEPPERS                _UxGT("Desactiva motors")
 #define MSG_DEBUG_MENU                      _UxGT("Menu de depuracio")
@@ -50,7 +50,7 @@
 #define MSG_TMC_Z_CALIBRATION               _UxGT("Calibra Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Origen XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Premeu per iniciar")
-#define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Següent punt")
+#define MSG_LEVEL_BED_NEXT_POINT            _UxGT("SegГјent punt")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Anivellament fet!")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ajusta decalatge")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Decalatge aplicat")
@@ -223,14 +223,14 @@
   #define MSG_INFO_PRINT_FILAMENT           _UxGT("Extrudit")
 #endif
 
-#define MSG_INFO_MIN_TEMP                   _UxGT("Temp. mínima")
-#define MSG_INFO_MAX_TEMP                   _UxGT("Temp. màxima")
+#define MSG_INFO_MIN_TEMP                   _UxGT("Temp. mГ­nima")
+#define MSG_INFO_MAX_TEMP                   _UxGT("Temp. mГ xima")
 #define MSG_INFO_PSU                        _UxGT("Font alimentacio")
 
-#define MSG_DRIVE_STRENGTH                  _UxGT("Força motor")
+#define MSG_DRIVE_STRENGTH                  _UxGT("ForГ§a motor")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Write")
-#define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Repren impressió")
+#define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Repren impressiГі")
 
 //
 // Filament Change screens show up to 3 lines on a 4-line display
@@ -263,3 +263,4 @@
 #endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_CA_H
+

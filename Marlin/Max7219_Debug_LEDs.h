@@ -56,7 +56,7 @@
   #define MAX7219_X_LEDS          8
   #define MAX7219_Y_LEDS          MAX7219_LINES
 #else
-  #error "MAX7219_ROTATE must be a multiple of +/- 90°."
+  #error "MAX7219_ROTATE must be a multiple of +/- 90В°."
 #endif
 
 //
@@ -152,3 +152,4 @@ private:
 };
 
 extern Max7219 max7219;
+

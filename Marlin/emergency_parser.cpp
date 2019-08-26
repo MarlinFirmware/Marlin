@@ -38,3 +38,4 @@ EmergencyParser::State EmergencyParser::state; // = EP_RESET
 EmergencyParser emergency_parser;
 
 #endif // EMERGENCY_PARSER
+

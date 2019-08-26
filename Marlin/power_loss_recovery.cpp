@@ -282,3 +282,4 @@ void save_job_recovery_info() {
 }
 
 #endif // POWER_LOSS_RECOVERY
+

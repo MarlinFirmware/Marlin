@@ -33,3 +33,4 @@ typedef LEDColor LEDColor;
 void blinkm_set_led_color(const LEDColor &color);
 
 #endif // _BLINKM_H_
+

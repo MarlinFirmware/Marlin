@@ -45,7 +45,7 @@
 inline static float interp(float a, float b, float t) { return (1.0f - t) * a + t * b; }
 
 /**
- * Compute a Bézier curve using the De Casteljau's algorithm (see
+ * Compute a BГ©zier curve using the De Casteljau's algorithm (see
  * https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm), which is
  * easy to code and has good numerical stability (very important,
  * since Arudino works with limited precision real numbers).
@@ -201,3 +201,4 @@ void cubic_b_spline(const float pos[XYZE], const float cart_target[XYZE], const 
 }
 
 #endif // BEZIER_CURVE_SUPPORT
+

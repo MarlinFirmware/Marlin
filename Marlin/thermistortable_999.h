@@ -30,3 +30,4 @@ const short temptable_999[][2] PROGMEM = {
   { OV(   1), DUMMY_THERMISTOR_999_VALUE },
   { OV(1023), DUMMY_THERMISTOR_999_VALUE }
 };
+

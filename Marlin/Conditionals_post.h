@@ -431,7 +431,7 @@
   #elif HAS_TRINAMIC || HAS_DRIVER(TMC2660) || HAS_DRIVER(TMC2130_STANDALONE) || HAS_DRIVER(TMC2208_STANDALONE) || HAS_DRIVER(TMC26X_STANDALONE) || HAS_DRIVER(TMC2660_STANDALONE)
     #define MINIMUM_STEPPER_DIR_DELAY    20
   #else
-    #define MINIMUM_STEPPER_DIR_DELAY   200   // Expect at least 10µS since one Stepper ISR must transpire
+    #define MINIMUM_STEPPER_DIR_DELAY   200   // Expect at least 10ВµS since one Stepper ISR must transpire
   #endif
 #endif
 
@@ -1415,3 +1415,4 @@
 #endif
 
 #endif // CONDITIONALS_POST_H
+

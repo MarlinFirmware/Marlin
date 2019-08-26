@@ -335,3 +335,4 @@ inline void HAL_adc_init(void) {
 #define HAL_SENSITIVE_PINS 0, 1
 
 #endif // _HAL_AVR_H_
+

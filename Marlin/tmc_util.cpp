@@ -629,3 +629,4 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
 #endif // TMC2130
 
 #endif // HAS_TRINAMIC
+

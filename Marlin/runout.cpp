@@ -59,3 +59,4 @@ void FilamentRunoutSensor::setup() {
 }
 
 #endif // FILAMENT_RUNOUT_SENSOR
+

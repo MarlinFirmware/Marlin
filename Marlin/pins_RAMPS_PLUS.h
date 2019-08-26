@@ -85,3 +85,4 @@
   #undef LCD_PINS_D7
   #define LCD_PINS_D7       53   // 3DYMY boards pin 29 -> 53
 #endif
+

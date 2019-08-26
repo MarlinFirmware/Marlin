@@ -497,3 +497,4 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 #endif // STEPPER_INDIRECTION_H
+

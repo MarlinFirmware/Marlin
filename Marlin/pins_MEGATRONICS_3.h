@@ -190,3 +190,4 @@
   #define SPINDLE_LASER_ENABLE_PIN 17   // Pin should have a pullup!
   #define SPINDLE_DIR_PIN           5
 #endif
+

@@ -58,8 +58,8 @@
  *
  * --
  *
- * The fast inverse function needed for Bézier interpolation for AVR
- * was designed, written and tested by Eduardo José Tagle on April/2018
+ * The fast inverse function needed for BГ©zier interpolation for AVR
+ * was designed, written and tested by Eduardo JosГ© Tagle on April/2018
  */
 
 #include "planner.h"
@@ -102,7 +102,7 @@ uint8_t Planner::delay_before_delivering;       // This counter delays delivery 
 
 uint32_t Planner::max_acceleration_mm_per_s2[NUM_AXIS_N],    // (mm/s^2) M201 XYZE
          Planner::max_acceleration_steps_per_s2[NUM_AXIS_N], // (steps/s^2) Derived from mm_per_s2
-         Planner::min_segment_time_us;                       // (µs) M205 Q
+         Planner::min_segment_time_us;                       // (Вµs) M205 Q
 
 float Planner::max_feedrate_mm_s[NUM_AXIS_N], // (mm/s) M203 XYZE - Max speeds
       Planner::axis_steps_per_mm[NUM_AXIS_N], // (steps) M92 XYZE - Steps per millimeter
@@ -204,7 +204,7 @@ float Planner::previous_speed[NUM_AXIS],
 #ifdef XY_FREQUENCY_LIMIT
   // Old direction bits. Used for speed calculations
   unsigned char Planner::old_direction_bits = 0;
-  // Segment times (in µs). Used for speed calculations
+  // Segment times (in Вµs). Used for speed calculations
   uint32_t Planner::axis_segment_time_us[2][3] = { { MAX_FREQ_TIME_US + 1, 0, 0 }, { MAX_FREQ_TIME_US + 1, 0, 0 } };
 #endif
 
@@ -2081,7 +2081,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     if (cs > max_feedrate_mm_s[i]) NOMORE(speed_factor, max_feedrate_mm_s[i] / cs);
   }
 
-  // Max segment time in µs.
+  // Max segment time in Вµs.
   #ifdef XY_FREQUENCY_LIMIT
 
     // Check and limit the xy direction change frequency
@@ -2355,7 +2355,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #else // Classic Jerk Limiting
 
     /**
-     * Adapted from Průša MKS firmware
+     * Adapted from PrЕЇЕЎa MKS firmware
      * https://github.com/prusa3d/Prusa-Firmware
      */
     const float nominal_speed = SQRT(block->nominal_speed_sqr);
@@ -2776,3 +2776,4 @@ void Planner::refresh_positioning() {
   }
 
 #endif
+

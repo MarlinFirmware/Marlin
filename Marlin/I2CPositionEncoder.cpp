@@ -1138,3 +1138,4 @@
   }
 
 #endif // I2C_POSITION_ENCODERS
+

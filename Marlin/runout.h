@@ -83,3 +83,4 @@ class FilamentRunoutSensor {
 extern FilamentRunoutSensor runout;
 
 #endif // _RUNOUT_H_
+

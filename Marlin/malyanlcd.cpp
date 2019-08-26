@@ -494,3 +494,4 @@ void lcd_setalertstatusPGM(const char* message) {
 }
 
 #endif // MALYAN_LCD
+

@@ -27,8 +27,8 @@
  * Modified 23 November 2006 by David A. Mellis
  * Modified 28 September 2010 by Mark Sproul
  * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
- * Modified 01 October 2017 by Eduardo José Tagle (added XON/XOFF)
- * Modified 10 June 2018 by Eduardo José Tagle (See #10991)
+ * Modified 01 October 2017 by Eduardo JosГ© Tagle (added XON/XOFF)
+ * Modified 10 June 2018 by Eduardo JosГ© Tagle (See #10991)
  */
 
 // Disable HardwareSerial.cpp to support chips without a UART (Attiny, etc.)
@@ -738,3 +738,4 @@
 #if !USE_MARLINSERIAL && ENABLED(BLUETOOTH)
   HardwareSerial bluetoothSerial;
 #endif
+

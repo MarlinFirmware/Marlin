@@ -37,3 +37,4 @@ void ST7920_Lite_Status_Screen::sync_dat() {
 void ST7920_Lite_Status_Screen::write_byte(const uint8_t data) {
   ST7920_WRITE_BYTE(data);
 }
+
