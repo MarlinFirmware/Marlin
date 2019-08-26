@@ -94,6 +94,7 @@
 #define COLOR_YELLOW 0xEFC0
 #define COLOR_ORANGE 0xFC00
 #define COLOR_GREEN  0x77E0
+
 #ifndef TFT_MARLINUI_COLOR
   #define TFT_MARLINUI_COLOR COLOR_WHITE
 #endif
@@ -101,13 +102,7 @@
   #define TFT_MARLINBG_COLOR COLOR_BLACK
 #endif
 #ifndef TFT_DISABLED_COLOR
-  #define TFT_DISABLED_COLOR COLOR_DARK
-#endif
-#ifndef TFT_BTSLEFT_COLOR
-  #define TFT_BTSLEFT_COLOR COLOR_BLUE
-#endif
-#ifndef TFT_BTRIGHT_COLOR
-  #define TFT_BTRIGHT_COLOR COLOR_RED
+  #define TFT_DISABLED_COLOR COLOR_GREY
 #endif
 
 static uint32_t lcd_id = 0;
@@ -412,16 +407,16 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         #endif
 
         u8g_WriteEscSeqP(u8g, dev, buttonD_sequence);
-        drawImage(buttonD, u8g, dev, 32, 20, TFT_BTRIGHT_COLOR);
+        drawImage(buttonD, u8g, dev, 32, 20, COLOR_RED);
 
         u8g_WriteEscSeqP(u8g, dev, buttonA_sequence);
-        drawImage(buttonA, u8g, dev, 32, 20, TFT_BTSLEFT_COLOR);
+        drawImage(buttonA, u8g, dev, 32, 20, COLOR_BLUE);
 
         u8g_WriteEscSeqP(u8g, dev, buttonB_sequence);
-        drawImage(buttonB, u8g, dev, 32, 20, TFT_BTSLEFT_COLOR);
+        drawImage(buttonB, u8g, dev, 32, 20, COLOR_BLUE);
 
         u8g_WriteEscSeqP(u8g, dev, buttonC_sequence);
-        drawImage(buttonC, u8g, dev, 32, 20, TFT_BTRIGHT_COLOR);
+        drawImage(buttonC, u8g, dev, 32, 20, COLOR_RED);
       #endif // TOUCH_BUTTONS
 
       return 0;
