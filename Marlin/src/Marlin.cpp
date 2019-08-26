@@ -747,6 +747,11 @@ void idle(
  */
 void kill(PGM_P const lcd_msg/*=nullptr*/) {
   thermalManager.disable_all_heaters();
+  stepper.quick_stop();
+  disable_all_steppers();
+  queue.stop();
+  print_job_timer.stop();
+  queue.clear();
 
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
@@ -774,6 +779,11 @@ void minkill() {
   for (int i = 1000; i--;) DELAY_US(250);
 
   thermalManager.disable_all_heaters(); // turn off heaters again
+  stepper.quick_stop();
+  disable_all_steppers();
+  queue.stop();
+  print_job_timer.stop();
+  queue.clear();
 
   #if HAS_POWER_SWITCH
     PSU_OFF();
