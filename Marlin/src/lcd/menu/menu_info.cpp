@@ -187,7 +187,22 @@ void menu_info_board() {
 //
 // About Printer > Printer Info
 //
-#if DISABLED(LCD_PRINTER_INFO_IS_BOOTSCREEN)
+#if ENABLED(LCD_PRINTER_INFO_IS_BOOTSCREEN)
+
+  void menu_show_marlin_bootscreen() {
+    if (ui.use_click()) { ui.goto_previous_screen_no_defer(); }
+    ui.draw_marlin_bootscreen();
+  }
+
+  #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+    void menu_show_custom_bootscreen() {
+      if (ui.use_click()) { ui.goto_screen(menu_show_marlin_bootscreen); }
+      ui.draw_custom_bootscreen();
+    }
+  #endif
+
+#else
+
   void menu_info_printer() {
     if (ui.use_click()) return ui.goto_previous_screen(
       #if ENABLED(TURBO_BACK_MENU_ITEM)
@@ -214,19 +229,8 @@ void menu_info_board() {
     #endif
     END_SCREEN();
   }
-#else
-  void menu_show_marlin_bootscreen() {
-    if (ui.use_click()) { ui.goto_previous_screen_no_defer(); }
-    ui.draw_marlin_bootscreen();
-  }
 
-  #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-    void menu_show_custom_bootscreen() {
-      if (ui.use_click()) { ui.goto_screen(menu_show_marlin_bootscreen); }
-      ui.draw_custom_bootscreen();
-    }
-  #endif
-#endif // LCD_PRINTER_INFO_IS_BOOTSCREEN
+#endif
 
 //
 // "About Printer" submenu
