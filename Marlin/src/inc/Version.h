@@ -90,7 +90,7 @@
 
   /**
    * The WEBSITE_URL is the location where users can get more information such as
-   * documentation about a specific Marlin release.
+   * documentation about a specific Marlin release. Displayed in the Info Menu.
    */
   #define WEBSITE_URL "http://marlinfw.org"
 
