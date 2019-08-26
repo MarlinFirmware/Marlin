@@ -477,9 +477,9 @@
 
 
 //BW
-#define  DEFAULT_Kp 24.75
-#define  DEFAULT_Ki 4.80
-#define  DEFAULT_Kd 31.94
+#define  DEFAULT_Kp 21.05
+#define  DEFAULT_Ki 1.56
+#define  DEFAULT_Kd 71.22
 
   // Ultimaker
   //#define DEFAULT_Kp 22.2
@@ -736,7 +736,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80, 80, 1600, 446.6 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80, 80, 1600, 464.5 }
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
@@ -926,13 +926,13 @@
  */
 #define X_PROBE_OFFSET_FROM_EXTRUDER 26  // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.90   // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.68   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 0
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 8000
+#define XY_PROBE_SPEED 10000
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
