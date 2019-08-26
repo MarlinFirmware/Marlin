@@ -272,6 +272,9 @@ namespace FTDI_FT810 {
   constexpr uint32_t CMD_SETBASE                      = 0xFFFFFF38;
   constexpr uint32_t CMD_MEDIAFIFO                    = 0xFFFFFF39;
   constexpr uint32_t CMD_PLAYVIDEO                    = 0xFFFFFF3A;
+  constexpr uint32_t CMD_SETFONT2                     = 0xFFFFFF3B;
+  constexpr uint32_t CMD_SETSCRATCH                   = 0xFFFFFF3C;
+  constexpr uint32_t CMD_ROMFONT                      = 0xFFFFFF3F;
   constexpr uint32_t CMD_VIDEOSTART                   = 0xFFFFFF40;
   constexpr uint32_t CMD_VIDEOFRAME                   = 0xFFFFFF41;
   constexpr uint32_t CMD_SETBITMAP                    = 0xFFFFFF43;
