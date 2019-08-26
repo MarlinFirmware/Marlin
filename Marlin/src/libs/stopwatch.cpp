@@ -24,6 +24,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extensible_ui/ui_api.h"
+#endif
+
 Stopwatch::State Stopwatch::state;
 millis_t Stopwatch::accumulator;
 millis_t Stopwatch::startTimestamp;
