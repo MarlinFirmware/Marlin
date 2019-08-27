@@ -29,7 +29,8 @@
 
 /**
  * Select a coordinate system and update the workspace offset.
- * System index -1 is used to specify machine-native.
+ * System index -1 is used to specify machine-
+ ve.
  */
 bool GcodeSuite::select_coordinate_system(const int8_t _new) {
   if (active_coordinate_system == _new) return false;
@@ -62,14 +63,14 @@ void GcodeSuite::G53() {
   planner.synchronize();
   float current_offset[XYZ] = { 0 };
   if (parser.chain()) { // If this command has more following...
-    // Switch to native space, process gcode, reset back to workspace
+    // Switch to native space, process gcode, switch back to selected workspace
     COPY(current_offset, coordinate_system[active_coordinate_system]);
     LOOP_XYZ(i){
       position_shift[i] = 0;
       update_workspace_offset((AxisEnum)i);
     }
     process_parsed_command();
-    SERIAL_ECHOLNPAIR("Switch to natice space ");
+    SERIAL_ECHOLNPAIR("Switch to native space ");
     report_current_position();
     LOOP_XYZ(i){
       position_shift[i] = current_offset[i];
@@ -79,6 +80,7 @@ void GcodeSuite::G53() {
     report_current_position();
   }
   else {
+    //Switch to native space
     LOOP_XYZ(i){
       position_shift[i] = 0;
       update_workspace_offset((AxisEnum)i);
