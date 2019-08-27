@@ -98,9 +98,6 @@
 //#define TS_V11
 //#define TS_V12
 
-// 4 - If you want to tune the UI colors, define custom ones here. RGB 16 bits 5-6-5 format
-// see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
-
 //===========================================================================
 
 // @section info
@@ -2136,7 +2133,7 @@
 //
 // FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, REXYZ A1, etc.)
 //
-//#define FSMC_GRAPHICAL_TFT
+#define FSMC_GRAPHICAL_TFT
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define TFT_MARLINUI_COLOR 0xFFFF // White
   #define TFT_MARLINBG_COLOR 0x0000 // Black
