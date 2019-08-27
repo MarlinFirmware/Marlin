@@ -42,6 +42,11 @@
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
 
 //
+// Servos
+//
+#define SERVO0_PIN         30   // EXT/IO pin5 (PC7)
+
+//
 // Limit Switches
 //
 #define X_STOP_PIN         22
@@ -139,10 +144,5 @@
   #define CASE_LIGHT_PIN            8
 #endif
 
-//
-// Servos
-//
-#define SERVO0_PIN     30   // EXT/IO pin5(PC7) 
-
 // Extruder cooling fan
-#define ULTIMAIN_HIDDEN_PJ6  // Hacked temperature.cpp tag for hidden PJ6 on UMB2.1.4 
+#define ULTIMAIN_HIDDEN_PJ6   // Hacked temperature.cpp tag for hidden PJ6 on UMB2.1.4 
