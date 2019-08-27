@@ -224,8 +224,8 @@
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-//#define HOTEND_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
-//#define HOTEND_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
+#define HOTEND_OFFSET_X {0.0, 41.33} // (in mm) for each extruder, offset of the hotend on the X axis
+#define HOTEND_OFFSET_Y {0.0, 2.6}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 // @section machine
 
@@ -645,8 +645,8 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#define DEFAULT_XJERK                 20.0
-#define DEFAULT_YJERK                 20.0
+#define DEFAULT_XJERK                 9.0
+#define DEFAULT_YJERK                 9.0
 #define DEFAULT_ZJERK                  0.4
 #define DEFAULT_EJERK                  5.0
 
@@ -1128,9 +1128,9 @@
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.
-#define MANUAL_X_HOME_POS -10
-#define MANUAL_Y_HOME_POS -35
-#define MANUAL_Z_HOME_POS -0.2
+#define MANUAL_X_HOME_POS 0//-10
+#define MANUAL_Y_HOME_POS 0//-35
+#define MANUAL_Z_HOME_POS 0//F-0.2
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
@@ -1255,12 +1255,12 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     70
+#define PREHEAT_1_TEMP_HOTEND 210
+#define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_TEMP_HOTEND 245
+#define PREHEAT_2_TEMP_BED    115
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
