@@ -463,6 +463,19 @@ void GcodeSuite::G28(const bool always_home_all) {
       SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
   #endif
 
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    float current_offset[XYZ] = { 0 };
+    if (active_coordinate_system != -1){
+    COPY(current_offset, coordinate_system[active_coordinate_system]);
+    LOOP_XYZ(i){
+      position_shift[i] = current_offset[i];
+      update_workspace_offset((AxisEnum)i);
+    }
+    SERIAL_ECHOLNPAIR("Selected workspace: ", active_coordinate_system);
+    report_current_position();
+    }
+  #endif
+
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G28");
 
   #if HAS_DRIVER(L6470)
