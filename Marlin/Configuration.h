@@ -68,6 +68,49 @@
 // config/examples/SCARA and customize for your machine.
 //
 
+//===========================================================================
+//============================= Alfawise Printer ============================
+//===========================================================================
+
+// Forum link to help with a tutorial, in French! :
+// https://www.lesimprimantes3d.fr/forum/topic/18260-alfawise-u20x-u30-marlin-2x-firmware-alternatif/
+//
+// 1 - Select your Alfawise U30 or U20 or U20+ printer (NO MORE REQUIRED HERE),
+//     These defines are set in platformio.ini build parameters, sample for U20 -DU20 -DTS_V12
+//     U20_PLUS  is not tested, as we do not have a printer to test.
+//     Print bed PID settings MUST be tuned
+
+//#define U20_PLUS
+//#define U20
+//#define U30
+
+// 2 - Select the screen controller type. Most common is ILI9341 - First option. If your screen remains white,
+//     Try the alternate setting - this should enable ST7789V or ILI9328. For other LCDs... code is needed
+//     with the proper boot sequence to be developped.
+
+#define LCD_READ_ID     0xD3   // Read display identification information in reg ID4 0xD3, for ILI9341 screens
+//#define LCD_READ_ID     0x04   // Read display identification information in reg ID1 0x04 - ST7789V / ILI9328 or others
+
+// 3 - Select the touch panel version, either 1.1 or 1.2. Most recent touch panel in France are V 1.2. Blue PCB
+//     V1.1 panels seem to be older, and came with green PCB. This selection only influence the calibration data
+//     Should calibration need to be redone, please follow the French Tutorial! (NO MORE REQUIRED HERE)
+
+//#define TS_V11
+//#define TS_V12
+
+// 4 - If you want to tune the UI colors, define custom ones here. RGB 16 bits 5-6-5 format
+// see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
+
+//#define TFT_MARLINUI_COLOR 0xFFFF // White
+//#define TFT_MARLINBG_COLOR 0x0000 // Black
+//#define TFT_TOPICONS_COLOR 0x21DD // Blue
+//#define TFT_DISABLED_COLOR 0x0003 // Almost black
+//#define TFT_BTCANCEL_COLOR 0xF800 // Red
+//#define TFT_BTARROWS_COLOR 0xDEE6 // 11011 110111 00110 Yellow
+//#define TFT_BTOKMENU_COLOR 0x145F // 00010 100010 11111 Cyan
+
+//===========================================================================
+
 // @section info
 
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
