@@ -1325,8 +1325,14 @@ void set_axis_is_at_home(const AxisEnum axis) {
   SBI(axis_known_position, axis);
   SBI(axis_homed, axis);
 
-  #if HAS_POSITION_SHIFT
-    position_shift[axis] = 0;
+  #if HAS_POSITION_SHIFT && DISABLED(DELTA)
+    position_shift[axis] = (
+      #if ENABLED(CNC_COORDINATE_SYSTEMS)
+        WITHIN(gcode.active_coordinate_system, 0, MAX_COORDINATE_SYSTEMS - 1) ? gcode.coordinate_system[gcode.active_coordinate_system][axis] : 0
+      #else
+        0
+      #endif
+    );
     update_workspace_offset(axis);
   #endif
 
