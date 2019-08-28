@@ -745,7 +745,7 @@ void idle(
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(PGM_P const lcd_msg/*=nullptr*/) {
+void kill(PGM_P const lcd_msg/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
@@ -760,10 +760,10 @@ void kill(PGM_P const lcd_msg/*=nullptr*/) {
     host_action_kill();
   #endif
 
-  minkill();
+  minkill(steppers_off);
 }
 
-void minkill() {
+void minkill(const bool steppers_off/*=false*/) {
 
   // Wait a short time (allows messages to get out before shutting down.
   for (int i = 1000; i--;) DELAY_US(600);
@@ -773,7 +773,11 @@ void minkill() {
   // Wait to ensure all interrupts stopped
   for (int i = 1000; i--;) DELAY_US(250);
 
-  thermalManager.disable_all_heaters(); // turn off heaters again
+  // Reiterate heaters off
+  thermalManager.disable_all_heaters();
+
+  // Power off all steppers (for M112) or just the E steppers
+  steppers_off ? disable_all_steppers() : disable_e_steppers();
 
   #if HAS_POWER_SWITCH
     PSU_OFF();
