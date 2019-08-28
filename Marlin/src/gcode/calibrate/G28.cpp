@@ -191,6 +191,11 @@ void GcodeSuite::G28(const bool always_home_all) {
     log_machine_info();
   }
 
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    const int8_t old_system = active_coordinate_system;
+    select_coordinate_system(-1);
+  #endif
+
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
     DualXMode IDEX_saved_mode = dual_x_carriage_mode;
@@ -453,13 +458,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   ui.refresh();
 
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    if (active_coordinate_system != -1) {
-      LOOP_XYZ(i) {
-        position_shift[i] = coordinate_system[active_coordinate_system][i];
-        update_workspace_offset((AxisEnum)i);
-      }
-      SERIAL_ECHOLNPAIR("Selected workspace: ", active_coordinate_system);
-    }
+    select_coordinate_system(old_system);
   #endif
 
   report_current_position();
