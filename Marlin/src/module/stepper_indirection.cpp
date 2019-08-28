@@ -778,6 +778,90 @@ void reset_stepper_drivers() {
     };
   #endif
 
+ #ifdef TMC_USE_CHAIN
+
+    #if AXIS_HAS_SPI(X)                  // first set chain array to uninitialized
+      stepperX.set_chain_info(1, 0);
+    #endif
+    #if AXIS_HAS_SPI(X2)
+      stepperX2.set_chain_info(2, 0);
+    #endif
+    #if AXIS_HAS_SPI(Y)
+      stepperY.set_chain_info(3, 0);
+    #endif
+    #if AXIS_HAS_SPI(Y2)
+      stepperY2.set_chain_info(4, 0);
+    #endif
+    #if AXIS_HAS_SPI(Z)
+      stepperZ.set_chain_info(5, 0);
+    #endif
+    #if AXIS_HAS_SPI(Z2)
+      stepperZ2.set_chain_info(6, 0);
+    #endif
+    #if AXIS_HAS_SPI(Z3)
+      stepperZ3.set_chain_info(7, 0);
+    #endif
+    #if AXIS_HAS_SPI(E0)
+      stepperE0.set_chain_info(8, 0);
+    #endif
+    #if AXIS_HAS_SPI(E1)
+      stepperE1.set_chain_info(9, 0);
+    #endif
+    #if AXIS_HAS_SPI(E2)
+      stepperE2.set_chain_info(10, 0);
+    #endif
+    #if AXIS_HAS_SPI(E3)
+      stepperE3.set_chain_info(11, 0);
+    #endif
+    #if AXIS_HAS_SPI(E4)
+      stepperE4.set_chain_info(12, 0);
+    #endif
+    #if AXIS_HAS_SPI(E5)
+      stepperE5.set_chain_info(13, 0);
+    #endif
+
+
+    #if AXIS_HAS_SPI(X)                           // now setup the SPI chain
+      stepperX.set_chain_info(1, X_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(X2)
+      stepperX2.set_chain_info(2, X2_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(Y)
+      stepperY.set_chain_info(3, Y_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(Y2)
+      stepperY2.set_chain_info(4, Y2_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(Z)
+      stepperZ.set_chain_info(5, Z_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(Z2)
+      stepperZ2.set_chain_info(6, Z2_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(Z3)
+      stepperZ3.set_chain_info(7, Z3_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(E0)
+      stepperE0.set_chain_info(8, E0_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(E1)
+      stepperE1.set_chain_info(9, E1_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(E2)
+      stepperE2.set_chain_info(10, E2_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(E3)
+      stepperE3.set_chain_info(11, E3_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(E4)
+      stepperE4.set_chain_info(12, E4_CHAIN_POS);
+    #endif
+    #if AXIS_HAS_SPI(E5)
+      stepperE5.set_chain_info(13, E5_CHAIN_POS);
+    #endif
+  #endif // TMC_USE_CHAIN
+
   #if AXIS_IS_TMC(X)
     _TMC_INIT(X, STEALTH_AXIS_XY);
   #endif
