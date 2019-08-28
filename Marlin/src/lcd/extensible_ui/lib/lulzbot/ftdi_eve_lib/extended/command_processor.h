@@ -191,6 +191,7 @@ class CommandProcessor : public CLCD::CommandFifo {
                                                                   {CLCD::CommandFifo::snapshot2(fmt,ptr,x,y,w,h); return *this;}
     inline CommandProcessor& mediafifo (uint32_t p, uint32_t s)   {CLCD::CommandFifo::mediafifo(p, s); return *this;}
     inline CommandProcessor& playvideo(uint32_t options)          {CLCD::CommandFifo::playvideo(options); return *this;}
+    inline CommandProcessor& romfont(uint8_t font, uint8_t slot)  {CLCD::CommandFifo::romfont(font, slot); return *this;}
     #endif
 
     inline CommandProcessor& gradient(int16_t x0, int16_t y0, uint32_t rgb0, int16_t x1, int16_t y1, uint32_t rgb1)
