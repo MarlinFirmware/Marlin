@@ -2029,9 +2029,9 @@
 #elif (ENABLED(MachineEnder5Plus))
   #define PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
   #define PROBE_PT_1_Y 320
-  #define PROBE_PT_2_X 320
+  #define PROBE_PT_2_X 300
   #define PROBE_PT_2_Y 320
-  #define PROBE_PT_3_X 320
+  #define PROBE_PT_3_X 300
   #define PROBE_PT_3_Y 50
 #elif ENABLED( MachineS4)
   #define PROBE_PT_1_X 60       // Probing points for 3-Point leveling of the mesh
