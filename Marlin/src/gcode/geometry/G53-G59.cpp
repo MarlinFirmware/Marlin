@@ -27,23 +27,21 @@
 
 #include "../../module/stepper.h"
 
+//#define DEBUG_M53
+
 /**
  * Select a coordinate system and update the workspace offset.
  * System index -1 is used to specify machine-native.
  */
 bool GcodeSuite::select_coordinate_system(const int8_t _new) {
   if (active_coordinate_system == _new) return false;
-  planner.synchronize();
-  float old_offset[XYZ] = { 0 }, new_offset[XYZ] = { 0 };
-  if (WITHIN(active_coordinate_system, 0, MAX_COORDINATE_SYSTEMS - 1))
-    COPY(old_offset, coordinate_system[active_coordinate_system]);
+  active_coordinate_system = _new;
+  float new_offset[XYZ] = { 0 };
   if (WITHIN(_new, 0, MAX_COORDINATE_SYSTEMS - 1))
     COPY(new_offset, coordinate_system[_new]);
-  active_coordinate_system = _new;
   LOOP_XYZ(i) {
-    const float diff = new_offset[i] - old_offset[i];
-    if (diff) {
-      position_shift[i] += diff;
+    if (position_shift[i] != new_offset[i]) {
+      position_shift[i] = new_offset[i];
       update_workspace_offset((AxisEnum)i);
     }
   }
@@ -60,34 +58,20 @@ bool GcodeSuite::select_coordinate_system(const int8_t _new) {
  * Marlin also uses G53 on a line by itself to go back to native space.
  */
 void GcodeSuite::G53() {
-  planner.synchronize();
-  float current_offset[XYZ] = { 0 };
-  if (parser.chain()) { // If this command has more following...
-    // Switch to native space, process gcode, switch back to selected workspace
-    COPY(current_offset, coordinate_system[active_coordinate_system]);
-    LOOP_XYZ(i) {
-      position_shift[i] = 0;
-      update_workspace_offset((AxisEnum)i);
-    }
-    process_parsed_command();
-    SERIAL_ECHOLNPAIR("Switch to native space");
+  const int8_t old_system = active_coordinate_system;
+  select_coordinate_system(-1);   // Always remove workspace offsets
+  #ifdef DEBUG_M53
+    SERIAL_ECHOLNPGM("Go to native space");
     report_current_position();
-    LOOP_XYZ(i) {
-      position_shift[i] = current_offset[i];
-      update_workspace_offset((AxisEnum)i);
-    }
-    SERIAL_ECHOLNPAIR("Switch back to workspace");
-    report_current_position();
-  }
-  else {
-    // Switch to native space
-    LOOP_XYZ(i) {
-      position_shift[i] = 0;
-      update_workspace_offset((AxisEnum)i);
-    }
-    active_coordinate_system = -1;
-    SERIAL_ECHOLNPAIR("Switch to native space");
-    report_current_position();
+  #endif
+
+  if (parser.chain()) {       // Command to chain?
+    process_parsed_command(); // ...process the chained command
+    select_coordinate_system(old_system);
+    #ifdef DEBUG_M53
+      SERIAL_ECHOLNPAIR("Go back to workspace ", old_system);
+      report_current_position();
+    #endif
   }
 }
 
