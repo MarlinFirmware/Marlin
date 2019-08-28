@@ -1325,17 +1325,6 @@ void set_axis_is_at_home(const AxisEnum axis) {
   SBI(axis_known_position, axis);
   SBI(axis_homed, axis);
 
-  #if HAS_POSITION_SHIFT && DISABLED(DELTA)
-    position_shift[axis] = (
-      #if ENABLED(CNC_COORDINATE_SYSTEMS)
-        WITHIN(gcode.active_coordinate_system, 0, MAX_COORDINATE_SYSTEMS - 1) ? gcode.coordinate_system[gcode.active_coordinate_system][axis] : 0
-      #else
-        0
-      #endif
-    );
-    update_workspace_offset(axis);
-  #endif
-
   #if ENABLED(DUAL_X_CARRIAGE)
     if (axis == X_AXIS && (active_extruder == 1 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
       current_position[X_AXIS] = x_home_pos(active_extruder);
