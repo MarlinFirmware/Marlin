@@ -9,7 +9,6 @@ namespace ExtUI
 {
   uint8_t waitway_lock = 0;
   const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
-  uint8_t progress_bar_percent;
   int startprogress = 0;
   CRec CardRecbuf;
   #if DISABLED(POWER_LOSS_RECOVERY)
@@ -270,7 +269,7 @@ void onIdle()
 			return;
     }
 
-			if (TPShowStatus && isPrinting()) //need to optimize
+			if (isPrinting()) //need to optimize
 			{
         rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
 				rtscheck.RTS_SndData(getProgress_seconds_elapsed() / 3600, Timehour);
@@ -903,6 +902,9 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
       {
         RTS_SndData(getZOffset_mm() * 100, 0x1026);
       }
+      char zOffs[20], tmp1[11];
+      sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
+      onStatusChanged(zOffs);
       break;
 
     case TempControl:
@@ -1099,6 +1101,9 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
             babystepAxis_steps(40, (axis_t)Z);
             setZOffset_mm(getZOffset_mm() + 0.1);
             RTS_SndData(getZOffset_mm() * 100, 0x1026);
+            char zOffs[20], tmp1[11];
+            sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
+            onStatusChanged(zOffs);
             injectCommands_P(PSTR("M500"));
           }
           break;
@@ -1110,6 +1115,9 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
             babystepAxis_steps(-40, (axis_t)Z);
             setZOffset_mm(getZOffset_mm() - 0.1);
             RTS_SndData(getZOffset_mm() * 100, 0x1026);
+            char zOffs[20], tmp1[11];
+            sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
+            onStatusChanged(zOffs);
             injectCommands_P(PSTR("M500"));
           }
           break;
@@ -1379,55 +1387,55 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
     case No_Filement:
       SERIAL_ECHOLN("\n No Filament");
 
-      //injectCommands_P(PSTR("M876P1"));
       if (recdat.data[0] == 1) //Filament is out, resume / cancel selected on screen
       {
         if (FilementStatus[0] == 2) // check filements status during printing
         {
-          #if DISABLED(FILAMENT_RUNOUT_SENSOR)
-            if(true) {
-          #elif NUM_RUNOUT_SENSORS > 1
-            if( (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)) {
-          #else
-            if( getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) {
-          #endif
-
+            SERIAL_ECHOLN("Cancel during print");
             setHostResponse(1); //Send Resume host prompt command
-
+            stopPrint();
             RTS_SndData(1 + CEIconGrap, IconPrintstatus);
             PrintStatue[1] = 0;
             PrinterStatusKey[1] = 3;
             RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
             FilementStatus[0] = 0; // recover the status waiting to check filements
-          }
         }
         else if (FilementStatus[0] == 3)
         {
+          SERIAL_ECHOLN("Cancel other");
           RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
         }
       }
       else if (recdat.data[0] == 0) // Filamet is out, Continue Selected
       {
-        SERIAL_ECHOLN(" Filament Response Yes");
-        if (FilementStatus[0] == 1)
-        {
-          SERIAL_ECHOLN("Filament Stat 0 - 1");
-          RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
-          PrinterStatusKey[0] = 0;
-          injectCommands_P(PSTR("M876P1"));
+        #if DISABLED(FILAMENT_RUNOUT_SENSOR)
+          if(true) {
+        #elif NUM_RUNOUT_SENSORS > 1
+          if( (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)) {
+        #else
+          if( getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) {
+        #endif
+          SERIAL_ECHOLN(" Filament Response Yes");
+          if (FilementStatus[0] == 1)
+          {
+            SERIAL_ECHOLN("Filament Stat 0 - 1");
+            RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
+            PrinterStatusKey[0] = 0;
+            setHostResponse(1);
+          }
+          else if (FilementStatus[0] == 2) // like the pause
+          {
+            SERIAL_ECHOLN("Filament Stat 0 - 2");
+            RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
+            setHostResponse(1);
+          }
+          else if (FilementStatus[0] == 3)
+          {
+            SERIAL_ECHOLN("Filament Stat 0 - 3");
+            RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
+          }
+          FilementStatus[0] = 0; // recover the status waiting to check filements
         }
-        else if (FilementStatus[0] == 2) // like the pause
-        {
-          SERIAL_ECHOLN("Filament Stat 0 - 2");
-          RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
-          injectCommands_P(PSTR("M876P1"));
-        }
-        else if (FilementStatus[0] == 3)
-        {
-          SERIAL_ECHOLN("Filament Stat 0 - 3");
-          RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
-        }
-        FilementStatus[0] = 0; // recover the status waiting to check filements
       }
       break;
 
