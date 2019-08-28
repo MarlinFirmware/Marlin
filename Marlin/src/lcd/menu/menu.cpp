@@ -88,10 +88,21 @@ void MarlinUI::save_previous_screen() {
     screen_history[screen_history_depth++] = { currentScreen, encoderPosition, encoderTopLine, screen_items };
 }
 
-void MarlinUI::goto_previous_screen() {
+void MarlinUI::goto_previous_screen(
+  #if ENABLED(TURBO_BACK_MENU_ITEM)
+    const bool is_back/*=false*/
+  #endif
+) {
+  #if DISABLED(TURBO_BACK_MENU_ITEM)
+    constexpr bool is_back = false;
+  #endif
   if (screen_history_depth > 0) {
     menuPosition &sh = screen_history[--screen_history_depth];
-    goto_screen(sh.menu_function, sh.encoder_position, sh.top_line, sh.items);
+    goto_screen(sh.menu_function,
+      is_back ? 0 : sh.encoder_position,
+      is_back ? 0 : sh.top_line,
+      sh.items
+    );
   }
   else
     return_to_status();
@@ -442,12 +453,14 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     #if HAS_BUZZER
       ui.completion_feedback(saved);
     #endif
+    UNUSED(saved);
   }
   void lcd_load_settings() {
     const bool loaded = settings.load();
     #if HAS_BUZZER
       ui.completion_feedback(loaded);
     #endif
+    UNUSED(loaded);
   }
 #endif
 

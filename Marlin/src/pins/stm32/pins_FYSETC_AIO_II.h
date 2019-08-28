@@ -25,8 +25,8 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME        "FYSETC AIO II"
-#define BOARD_WEBSITE_URL "https://fysetc.com"
+#define BOARD_INFO_NAME   "FYSETC AIO II"
+#define BOARD_WEBSITE_URL "fysetc.com"
 
 #define DISABLE_JTAG
 
@@ -137,7 +137,7 @@
       #define DOGLCD_CS    PB7
     #endif
 
-    //#define LCD_CONTRAST 190
+    //#define LCD_CONTRAST_INIT 190
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270

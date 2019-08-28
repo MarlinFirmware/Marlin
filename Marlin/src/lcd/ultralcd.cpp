@@ -66,11 +66,14 @@
 
 #if HAS_BUZZER
   #include "../libs/buzzer.h"
+  #if ENABLED(PCA9632_BUZZER)
+    #include "../feature/leds/pca9632.h"
+  #endif
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
     #if ENABLED(LCD_USE_I2C_BUZZER)
       lcd.buzz(duration, freq);
     #elif ENABLED(PCA9632_BUZZER)
-      pca9632_buzz(const long duration, const uint16_t freq) {
+      pca9632_buzz(duration, freq);
     #elif USE_BEEPER
       buzzer.tone(duration, freq);
     #endif
@@ -263,17 +266,17 @@ millis_t next_button_update_ms;
 
   void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
-    uint8_t row = 0, col = 0;
+    uint8_t col = 0, row = 0;
     if (!string && plen + slen <= LCD_WIDTH) {
-      row = (LCD_WIDTH - plen - slen) / 2;
-      col = LCD_HEIGHT > 3 ? 1 : 0;
+      col = (LCD_WIDTH - plen - slen) / 2;
+      row = LCD_HEIGHT > 3 ? 1 : 0;
     }
-    wrap_string_P(row, col, pref, true);
+    wrap_string_P(col, row, pref, true);
     if (string) {
-      if (row) { row = 0; col++; } // Move to the start of the next line
-      wrap_string(row, col, string);
+      if (col) { col = 0; row++; } // Move to the start of the next line
+      wrap_string(col, row, string);
     }
-    if (suff) wrap_string_P(row, col, suff);
+    if (suff) wrap_string_P(col, row, suff);
   }
 
 #endif // HAS_LCD_MENU

@@ -93,7 +93,7 @@ uint16_t HAL_adc_result;
 // ------------------------
 STM32ADC adc(ADC1);
 
-uint8_t adc_pins[] = {
+const uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_0
     TEMP_0_PIN,
   #endif
@@ -270,7 +270,7 @@ void HAL_adc_init(void) {
   #else
     adc.setSampleRate(ADC_SMPR_41_5); // 41.5 ADC cycles
   #endif
-  adc.setPins(adc_pins, ADC_PIN_COUNT);
+  adc.setPins((uint8_t *)adc_pins, ADC_PIN_COUNT);
   adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), nullptr);
   adc.setScanMode();
   adc.setContinuous();

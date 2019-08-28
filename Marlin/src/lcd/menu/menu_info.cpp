@@ -42,7 +42,11 @@
   // About Printer > Printer Stats
   //
   void menu_info_stats() {
-    if (ui.use_click()) return ui.goto_previous_screen();
+    if (ui.use_click()) return ui.goto_previous_screen(
+      #if ENABLED(TURBO_BACK_MENU_ITEM)
+        true
+      #endif
+    );
 
     char buffer[21];
     printStatistics stats = print_job_timer.getStats();
@@ -95,7 +99,11 @@
 // About Printer > Thermistors
 //
 void menu_info_thermistors() {
-  if (ui.use_click()) return ui.goto_previous_screen();
+  if (ui.use_click()) return ui.goto_previous_screen(
+    #if ENABLED(TURBO_BACK_MENU_ITEM)
+      true
+    #endif
+  );
   START_SCREEN();
   #define THERMISTOR_ID TEMP_SENSOR_0
   #include "../thermistornames.h"
@@ -163,11 +171,18 @@ void menu_info_thermistors() {
 // About Printer > Board Info
 //
 void menu_info_board() {
-  if (ui.use_click()) return ui.goto_previous_screen();
+  if (ui.use_click()) return ui.goto_previous_screen(
+    #if ENABLED(TURBO_BACK_MENU_ITEM)
+      true
+    #endif
+  );
   START_SCREEN();
-  STATIC_ITEM(BOARD_NAME, true, true);                           // MyPrinterController
-  STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
-  STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION, true);    // Protocol: 1.0
+  STATIC_ITEM(BOARD_INFO_NAME, true, true);                       // MyPrinterController
+  #ifdef BOARD_WEBSITE_URL
+    STATIC_ITEM(BOARD_WEBSITE_URL, false, false);                 // www.my3dprinter.com
+  #endif
+  STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true);  // Baud: 250000
+  STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION, true);     // Protocol: 1.0
   STATIC_ITEM(MSG_INFO_PSU ": " PSU_NAME, true);
   END_SCREEN();
 }
@@ -175,9 +190,28 @@ void menu_info_board() {
 //
 // About Printer > Printer Info
 //
-#if DISABLED(LCD_PRINTER_INFO_IS_BOOTSCREEN)
+#if ENABLED(LCD_PRINTER_INFO_IS_BOOTSCREEN)
+
+  void menu_show_marlin_bootscreen() {
+    if (ui.use_click()) { ui.goto_previous_screen_no_defer(); }
+    ui.draw_marlin_bootscreen();
+  }
+
+  #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+    void menu_show_custom_bootscreen() {
+      if (ui.use_click()) { ui.goto_screen(menu_show_marlin_bootscreen); }
+      ui.draw_custom_bootscreen();
+    }
+  #endif
+
+#else
+
   void menu_info_printer() {
-    if (ui.use_click()) return ui.goto_previous_screen();
+    if (ui.use_click()) return ui.goto_previous_screen(
+      #if ENABLED(TURBO_BACK_MENU_ITEM)
+        true
+      #endif
+    );
     START_SCREEN();
     STATIC_ITEM(MSG_MARLIN, true, true);                             // Marlin
     STATIC_ITEM(SHORT_BUILD_VERSION, true);                          // x.x.x-Branch
@@ -198,19 +232,8 @@ void menu_info_board() {
     #endif
     END_SCREEN();
   }
-#else
-  void menu_show_marlin_bootscreen() {
-    if (ui.use_click()) { ui.goto_previous_screen_no_defer(); }
-    ui.draw_marlin_bootscreen();
-  }
 
-  #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-    void menu_show_custom_bootscreen() {
-      if (ui.use_click()) { ui.goto_screen(menu_show_marlin_bootscreen); }
-      ui.draw_custom_bootscreen();
-    }
-  #endif
-#endif // LCD_PRINTER_INFO_IS_BOOTSCREEN
+#endif
 
 //
 // "About Printer" submenu

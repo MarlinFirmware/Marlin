@@ -81,7 +81,7 @@
   #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega644' or 'ATmega644P' in 'Tools > Processor.'"
 #endif
 
-#define BOARD_NAME "Final OMCA"
+#define BOARD_INFO_NAME "Final OMCA"
 
 //
 // Limit Switches

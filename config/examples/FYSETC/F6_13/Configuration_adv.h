@@ -859,6 +859,9 @@
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
   #endif
 
+  // BACK menu items keep the highlight at the top
+  //#define TURBO_BACK_MENU_ITEM
+
   /**
    * LED Control Menu
    * Add LED Control to the LCD menu
@@ -1024,8 +1027,8 @@
    */
   #define USB_FLASH_DRIVE_SUPPORT
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    #define USB_CS_PIN         SDSS
-    #define USB_INTR_PIN       SD_DETECT_PIN
+    #define USB_CS_PIN    SDSS
+    #define USB_INTR_PIN  SD_DETECT_PIN
   #endif
 
   /**

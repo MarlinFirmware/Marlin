@@ -26,7 +26,7 @@
   #error "Oops! Select 'Adafruit Grand Central M4' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "RuRAMPS4AGCM4 v1.3"
+#define BOARD_INFO_NAME "RuRAMPS4AGCM4 v1.3"
 
 //
 // Servos

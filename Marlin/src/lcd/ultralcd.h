@@ -447,7 +447,18 @@ public:
     static screenFunc_t currentScreen;
     static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
     static void save_previous_screen();
-    static void goto_previous_screen();
+    static void goto_previous_screen(
+      #if ENABLED(TURBO_BACK_MENU_ITEM)
+        const bool is_back
+      #endif
+    );
+
+    #if ENABLED(TURBO_BACK_MENU_ITEM)
+      // Various menu items require a "void (*)()" to point to
+      // this function so a default argument *won't* work
+      static inline void goto_previous_screen() { goto_previous_screen(false); }
+    #endif
+
     static void return_to_status();
     static inline bool on_status_screen() { return currentScreen == status_screen; }
     static inline void run_current_screen() { (*currentScreen)(); }

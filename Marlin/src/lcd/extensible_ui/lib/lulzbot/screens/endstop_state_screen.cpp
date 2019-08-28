@@ -32,16 +32,10 @@ using namespace ExtUI;
 
 void EndstopStatesScreen::onEntry() {
   BaseScreen::onEntry();
-  #ifdef LULZBOT_SET_PROBE_PINS_STATE
-    LULZBOT_SET_PROBE_PINS_STATE(true)
-  #endif
 }
 
 void EndstopStatesScreen::onExit() {
   BaseScreen::onExit();
-  #ifdef LULZBOT_SET_PROBE_PINS_STATE
-    LULZBOT_SET_PROBE_PINS_STATE(false)
-  #endif
 }
 
 void EndstopStatesScreen::onRedraw(draw_mode_t) {

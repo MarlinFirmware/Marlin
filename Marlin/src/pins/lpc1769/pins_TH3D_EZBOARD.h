@@ -25,12 +25,12 @@
  * TH3D EZBoard pin assignments
  */
 
-#ifndef TARGET_LPC1769
+#ifndef LPC1769
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME        "TH3D EZBoard"
-#define BOARD_WEBSITE_URL "https://www.th3dstudio.com/product/ezboard-lite/"
+#define BOARD_INFO_NAME   "TH3D EZBoard"
+#define BOARD_WEBSITE_URL "th3dstudio.com"
 
 //
 // Servos
@@ -93,9 +93,15 @@
 // Temp Sensors
 //  3.3V max when defined as an Analog Input!
 //
-#define TEMP_0_PIN          0   // Analog Input P0_23
+#if TEMP_SENSOR_0 == 20         // PT100 Adapter
+  #define TEMP_0_PIN        7   // Analog Input
+#else
+  #define TEMP_0_PIN        0   // Analog Input P0_23
+#endif
+
 #define TEMP_BED_PIN        1   // Analog Input P0_24
 #define TEMP_1_PIN          2   // Analog Input P0_25
+
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #define FILWIDTH_PIN      3   // Analog Input P0_26
 #else

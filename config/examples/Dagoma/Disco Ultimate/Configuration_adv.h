@@ -859,6 +859,9 @@
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
   #endif
 
+  // BACK menu items keep the highlight at the top
+  //#define TURBO_BACK_MENU_ITEM
+
   /**
    * LED Control Menu
    * Add LED Control to the LCD menu
@@ -1015,17 +1018,31 @@
    * equivalent MAX3421E breakout board. The USB thumb drive will appear
    * to Marlin as an SD card.
    *
-   * The MAX3421E must be assigned the same pins as the SD card reader, with
+   * The MAX3421E can be assigned the same pins as the SD card reader, with
    * the following pin mapping:
    *
    *    SCLK, MOSI, MISO --> SCLK, MOSI, MISO
-   *    INT              --> SD_DETECT_PIN
+   *    INT              --> SD_DETECT_PIN [1]
    *    SS               --> SDSS
+   *
+   * [1] On AVR an interrupt-capable pin is best for UHS3 compatibility.
    */
   //#define USB_FLASH_DRIVE_SUPPORT
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    #define USB_CS_PIN         SDSS
-    #define USB_INTR_PIN       SD_DETECT_PIN
+    #define USB_CS_PIN    SDSS
+    #define USB_INTR_PIN  SD_DETECT_PIN
+
+    /**
+     * USB Host Shield Library
+     *
+     * - UHS2 uses no interrupts and has been production-tested
+     *   on a LulzBot TAZ Pro with a 32-bit Archim board.
+     *
+     * - UHS3 is newer code with better USB compatibility. But it
+     *   is less tested and is known to interfere with Servos.
+     *   [1] This requires USB_INTR_PIN to be interrupt-capable.
+     */
+    //#define USE_UHS3_USB
   #endif
 
   /**

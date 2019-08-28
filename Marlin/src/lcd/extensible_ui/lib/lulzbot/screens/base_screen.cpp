@@ -63,7 +63,7 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
 void BaseScreen::onIdle() {
   #ifdef LCD_TIMEOUT_TO_STATUS
     const uint32_t elapsed = millis() - last_interaction;
-    if (elapsed > uint32_t(LCD_TIMEOUT_TO_STATUS) * 1000) {
+    if (elapsed > uint32_t(LCD_TIMEOUT_TO_STATUS)) {
       reset_menu_timeout();
       GOTO_SCREEN(StatusScreen);
     }

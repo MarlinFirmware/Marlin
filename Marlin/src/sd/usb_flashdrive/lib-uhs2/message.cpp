@@ -25,7 +25,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && DISABLED(USE_UHS3_USB)
 
 #include "Usb.h"
 

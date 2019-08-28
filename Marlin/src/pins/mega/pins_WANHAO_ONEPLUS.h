@@ -29,7 +29,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME           "Wanhao i3 Mini 0ne+"
+#define BOARD_INFO_NAME      "Wanhao i3 Mini 0ne+"
 #define DEFAULT_MACHINE_NAME "i3 Mini"
 #define BOARD_WEBSITE_URL    "https://tinyurl.com/yyxw7se7"
 
@@ -105,9 +105,7 @@
   #define BTN_ENC           5
 
   // This display has adjustable contrast
-  #undef HAS_LCD_CONTRAST
-  #define HAS_LCD_CONTRAST 1
   #define LCD_CONTRAST_MIN       0
   #define LCD_CONTRAST_MAX     255
-  #define DEFAULT_LCD_CONTRAST 255
+  #define LCD_CONTRAST_INIT LCD_CONTRAST_MAX
 #endif

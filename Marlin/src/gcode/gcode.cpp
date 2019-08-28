@@ -407,7 +407,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if DISABLED(EMERGENCY_PARSER)
         case 108: M108(); break;                                  // M108: Cancel Waiting
-        case 112: M112(); break;                                  // M112: Emergency Stop
+        case 112: M112(); break;                                  // M112: Full Shutdown
         case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
         #if ENABLED(HOST_PROMPT_SUPPORT)
           case 876: M876(); break;                                  // M876: Handle Host prompt responses

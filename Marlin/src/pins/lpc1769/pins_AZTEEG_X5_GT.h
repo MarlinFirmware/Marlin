@@ -29,8 +29,8 @@
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME        "Azteeg X5 GT"
-#define BOARD_WEBSITE_URL "https://tinyurl.com/yx8tdqa3"
+#define BOARD_INFO_NAME   "Azteeg X5 GT"
+#define BOARD_WEBSITE_URL "tinyurl.com/yx8tdqa3"
 
 //
 // Custom CPU Speed 120MHz

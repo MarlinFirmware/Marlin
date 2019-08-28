@@ -31,7 +31,7 @@
   #error "Z-Bolt X Series board supports up to 4 hotends / E-steppers."
 #endif
 
-#define BOARD_NAME "Z-Bolt X Series"
+#define BOARD_INFO_NAME "Z-Bolt X Series"
 
 //
 // Servos
