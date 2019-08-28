@@ -19,6 +19,7 @@ TESTENV=${1:-'-'}
 
 # Allow shorthand for test name
 case $TESTENV in
+    tree) platformio run --project-dir . -e include_tree ; exit 1 ;;
      due) TESTENV='DUE' ;;
      esp) TESTENV='esp32' ;;
     lin*) TESTENV='linux_native' ;;
