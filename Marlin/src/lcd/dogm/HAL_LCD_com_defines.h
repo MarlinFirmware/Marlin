@@ -23,6 +23,8 @@
 
 // Use this file to select the com driver for device drivers that are NOT in the U8G library
 
+#include <U8glib.h>
+
 #ifndef U8G_HAL_LINKS
 
   #ifdef __SAM3X8E__
