@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
+#include "../HAL/shared/Marduino.h"
 
 constexpr char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
 
