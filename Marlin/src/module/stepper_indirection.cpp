@@ -823,9 +823,12 @@ void reset_stepper_drivers() {
       #if AXIS_HAS_STALLGUARD(X)
         stepperX.homing_threshold(X_STALL_SENSITIVITY);
       #endif
-      #if AXIS_HAS_STALLGUARD(X2)
+      #if AXIS_HAS_STALLGUARD(X2) && !X2_SENSORLESS
         stepperX2.homing_threshold(X_STALL_SENSITIVITY);
       #endif
+    #endif
+    #if X2_SENSORLESS
+      stepperX2.homing_threshold(X2_STALL_SENSITIVITY);
     #endif
     #if Y_SENSORLESS
       #if AXIS_HAS_STALLGUARD(Y)

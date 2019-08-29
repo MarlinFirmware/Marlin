@@ -453,6 +453,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   ui.refresh();
 
   report_current_position();
+
   #if ENABLED(NANODLP_Z_SYNC)
     #if ENABLED(NANODLP_ALL_AXIS)
       #define _HOME_SYNC true       // For any axis, output sync text.

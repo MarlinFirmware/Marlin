@@ -36,6 +36,8 @@
  *                                                                             *
  * 0x1E0000 0x2FFFFB  1152 kB  ROM_FONT       Font table and bitmap            *
  *                                                                             *
+ * 0x201EE0 0x2029DC  2812  B  ROM_FONT_ROOT  ROM font table                   *
+ *                                                                             *
  * 0x2FFFFC 0x2FFFFF     4  B  ROM_FONT_ADDR  Font table pointer address       *
  *                                                                             *
  * 0x300000 0x301FFF     8 kB  RAM_DL         Display List RAM                 *

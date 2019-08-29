@@ -215,7 +215,7 @@
 
 #endif
 
-#if BUTTON_EXISTS(BACK)
+#if BUTTON_EXISTS(BACK) || ENABLED(TOUCH_BUTTONS)
   #define BLEN_D 3
   #define EN_D _BV(BLEN_D)
   #define LCD_BACK_CLICKED() (buttons & EN_D)
@@ -319,7 +319,7 @@ public:
       #endif
 
       #if ENABLED(SHOW_BOOTSCREEN)
-        static void draw_marlin_bootscreen();
+        static void draw_marlin_bootscreen(const bool line2=false);
         static void show_marlin_bootscreen();
         static void show_bootscreen();
       #endif

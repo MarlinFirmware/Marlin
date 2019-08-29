@@ -266,17 +266,17 @@ millis_t next_button_update_ms;
 
   void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
-    uint8_t row = 0, col = 0;
+    uint8_t col = 0, row = 0;
     if (!string && plen + slen <= LCD_WIDTH) {
-      row = (LCD_WIDTH - plen - slen) / 2;
-      col = LCD_HEIGHT > 3 ? 1 : 0;
+      col = (LCD_WIDTH - plen - slen) / 2;
+      row = LCD_HEIGHT > 3 ? 1 : 0;
     }
-    wrap_string_P(row, col, pref, true);
+    wrap_string_P(col, row, pref, true);
     if (string) {
-      if (row) { row = 0; col++; } // Move to the start of the next line
-      wrap_string(row, col, string);
+      if (col) { col = 0; row++; } // Move to the start of the next line
+      wrap_string(col, row, string);
     }
-    if (suff) wrap_string_P(row, col, suff);
+    if (suff) wrap_string_P(col, row, suff);
   }
 
 #endif // HAS_LCD_MENU
@@ -804,7 +804,7 @@ void MarlinUI::update() {
     }
     else wait_for_unclick = false;
 
-    #if HAS_DIGITAL_BUTTONS && BUTTON_EXISTS(BACK)
+    #if HAS_DIGITAL_BUTTONS && (BUTTON_EXISTS(BACK) || ENABLED(TOUCH_BUTTONS))
       if (LCD_BACK_CLICKED()) {
         quick_feedback();
         goto_previous_screen();
@@ -885,6 +885,11 @@ void MarlinUI::update() {
 
       #if ENABLED(TOUCH_BUTTONS)
         touch_buttons = read_touch_buttons();
+        if (touch_buttons) {
+          #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+          #endif
+        }
       #endif
 
       #if ENABLED(REPRAPWORLD_KEYPAD)
