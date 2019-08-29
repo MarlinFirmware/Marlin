@@ -954,10 +954,6 @@
   #ifndef LCD_PINS_D7
     #define LCD_PINS_D7 -1
   #endif
-#else
-  #undef LCD_PINS_D5
-  #undef LCD_PINS_D6
-  #undef LCD_PINS_D7
 #endif
 
 /**
