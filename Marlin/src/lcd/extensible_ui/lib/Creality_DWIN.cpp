@@ -1412,22 +1412,22 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
           SERIAL_ECHOLN(" Filament Response No");
           if (FilementStatus[0] == 1)
           {
-
             SERIAL_ECHOLN("Filament Stat 0 - 1");
             RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
             PrinterStatusKey[0] = 0;
-            setHostResponse(1);
+            setUserConfirmed();
           }
           else if (FilementStatus[0] == 2) // like the pause
           {
             SERIAL_ECHOLN("Filament Stat 0 - 2");
             RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
-            setHostResponse(1);
+            setUserConfirmed();
           }
           else if (FilementStatus[0] == 3)
           {
             SERIAL_ECHOLN("Filament Stat 0 - 3");
             RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
+            setUserConfirmed();
           }
           FilementStatus[0] = 0; // recover the status waiting to check filements
           stopPrint();
