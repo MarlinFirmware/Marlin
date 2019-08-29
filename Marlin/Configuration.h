@@ -265,6 +265,8 @@
   #if DISABLED(ABL_NCSW) && DISABLED(ABL_EZABL)
     #define ABL_BLTOUCH
   #endif
+  #define Y_STOP_PIN 14
+  #define X_STOP_PIN 3
   #if DISABLED(ABL_UBL)
     #define ABL_BI
   #endif
@@ -1565,7 +1567,7 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 
 
-#if(ANY(MachineEnder4, MachineEnder5, MachineEnder5Plus))
+#if(ANY(MachineEnder4, MachineEnder5))
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR true
@@ -1576,7 +1578,7 @@
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #endif
-#elif ANY(MachineCR10Orig, SKR13_ReverseSteppers)
+#elif ANY(MachineCR10Orig, SKR13_ReverseSteppers, MachineEnder5Plus)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR false
