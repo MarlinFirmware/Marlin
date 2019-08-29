@@ -390,11 +390,11 @@
   #error "STRING_SPLASH_LINE[12] are now obsolete. Please remove them from Configuration.h."
 #endif
 
-#define BOARD_MKS_13        -1109
-#define BOARD_TRIGORILLA    -1131
-#define BOARD_RURAMPS4D     -3020
-#define BOARD_FORMBOT_TREX2 -1125
-#define BOARD_BIQU_SKR_V1_1 -2014
+#define BOARD_MKS_13        -1000
+#define BOARD_TRIGORILLA    -1001
+#define BOARD_RURAMPS4D     -1002
+#define BOARD_FORMBOT_TREX2 -1003
+#define BOARD_BIQU_SKR_V1_1 -1004
 #if MB(MKS_13)
   #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
 #elif MB(TRIGORILLA)
@@ -403,8 +403,8 @@
   #error "BOARD_RURAMPS4D has been renamed BOARD_RURAMPS4D_11. Please update your configuration."
 #elif MB(FORMBOT_TREX2)
   #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
-#elif MB(BOARD_BIQU_SKR_V1_1)
-  #error "BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
+#elif MB(BIQU_SKR_V1_1)
+  #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
 #endif
 #undef BOARD_MKS_13
 #undef BOARD_TRIGORILLA
