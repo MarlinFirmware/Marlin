@@ -804,7 +804,7 @@ void MarlinUI::update() {
     }
     else wait_for_unclick = false;
 
-    #if HAS_DIGITAL_BUTTONS && BUTTON_EXISTS(BACK)
+    #if HAS_DIGITAL_BUTTONS && (BUTTON_EXISTS(BACK) || ENABLED(TOUCH_BUTTONS))
       if (LCD_BACK_CLICKED()) {
         quick_feedback();
         goto_previous_screen();
@@ -885,6 +885,11 @@ void MarlinUI::update() {
 
       #if ENABLED(TOUCH_BUTTONS)
         touch_buttons = read_touch_buttons();
+        if (touch_buttons) {
+          #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+          #endif
+        }
       #endif
 
       #if ENABLED(REPRAPWORLD_KEYPAD)

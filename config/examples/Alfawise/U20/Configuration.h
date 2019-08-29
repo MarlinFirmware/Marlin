@@ -98,16 +98,6 @@
 //#define TS_V11
 //#define TS_V12
 
-// 4 - If you want to tune the UI colors, define custom ones here. RGB 16 bits 5-6-5 format
-// see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
-
-//#define TFT_MARLINUI_COLOR 0xFFFF // White
-//#define TFT_MARLINBG_COLOR 0x0000 // Black
-//#define TFT_TOPICONS_COLOR 0x21DD // Blue
-//#define TFT_DISABLED_COLOR 0x0003 // Almost black
-//#define TFT_BTSLEFT_COLOR  0xDEE6 // 11011 110111 00110 Yellow
-//#define TFT_BTRIGHT_COLOR  0x145F // 00010 100010 11111 Cyan
-
 //===========================================================================
 
 // @section info
@@ -2139,7 +2129,7 @@
 //=============================================================================
 
 //
-// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, A1, etc.)
+// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, REXYZ A1, etc.)
 //
 #define FSMC_GRAPHICAL_TFT
 
