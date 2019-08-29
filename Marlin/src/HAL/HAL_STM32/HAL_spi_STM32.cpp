@@ -82,12 +82,7 @@ void spiInit(uint8_t spiRate) {
       clock = 4000000; // Default from the SPI library
   }
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
-  #if defined(MISO_PIN) && defined(SDSS) && defined(MOSI_PIN) && defined(SCK_PIN)
-    SPI.setMISO(MISO_PIN);
-    SPI.setSSEL(SDSS);
-    SPI.setMOSI(MOSI_PIN);
-    SPI.setSCLK(SCK_PIN);
-  #endif
+
   SPI.begin();
 }
 
