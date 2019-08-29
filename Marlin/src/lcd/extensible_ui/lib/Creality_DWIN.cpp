@@ -1389,30 +1389,22 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
 
       if (recdat.data[0] == 1) //Filament is out, resume / resume selected on screen
       {
-        if (FilementStatus[0] == 2) // check filements status during printing
-        {
-          if(
-          #if DISABLED(FILAMENT_RUNOUT_SENSOR)
-            true
-          #elif NUM_RUNOUT_SENSORS > 1
-            (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)
-          #else
-            getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING
-          #endif
-          ) {
-            SERIAL_ECHOLN("Resume Yes during print");
-            setHostResponse(1); //Send Resume host prompt command
-            RTS_SndData(1 + CEIconGrap, IconPrintstatus);
-            PrintStatue[1] = 0;
-            PrinterStatusKey[1] = 3;
-            RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-            FilementStatus[0] = 0; // recover the status waiting to check filements
-          }
-        }
-        else if (FilementStatus[0] == 3)
-        {
-          SERIAL_ECHOLN("Resume other");
-          RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
+        if(
+        #if DISABLED(FILAMENT_RUNOUT_SENSOR)
+          true
+        #elif NUM_RUNOUT_SENSORS > 1
+          (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)
+        #else
+          getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING
+        #endif
+        ) {
+          SERIAL_ECHOLN("Resume Yes during print");
+          setHostResponse(1); //Send Resume host prompt command
+          RTS_SndData(1 + CEIconGrap, IconPrintstatus);
+          PrintStatue[1] = 0;
+          PrinterStatusKey[1] = 3;
+          RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
+          FilementStatus[0] = 0; // recover the status waiting to check filements
         }
       }
       else if (recdat.data[0] == 0) // Filamet is out, Cancel Selected
@@ -1420,6 +1412,7 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
           SERIAL_ECHOLN(" Filament Response No");
           if (FilementStatus[0] == 1)
           {
+
             SERIAL_ECHOLN("Filament Stat 0 - 1");
             RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
             PrinterStatusKey[0] = 0;
@@ -1437,6 +1430,7 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
             RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
           }
           FilementStatus[0] = 0; // recover the status waiting to check filements
+          stopPrint();
       }
       break;
 
