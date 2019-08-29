@@ -1074,7 +1074,7 @@
      *
      * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
      */
-    #define SDCARD_CONNECTION LCD
+    #define SDCARD_CONNECTION ONBOARD
   #endif
 
 #endif // SDSUPPORT
@@ -1757,7 +1757,7 @@
   #endif
 
   #if AXIS_IS_TMC(E0)
-    #define E0_CURRENT    800
+    #define E0_CURRENT    750
     #define E0_MICROSTEPS  16
     #define E0_RSENSE    0.11
   #endif
