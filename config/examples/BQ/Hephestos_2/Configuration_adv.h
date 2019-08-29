@@ -1953,6 +1953,8 @@
    *  Higher: LESS sensitive. (Too high => failure to trigger)
    *   Lower: MORE sensitive. (Too low  => false positives)
    *
+   * TMC2209s use opposite of above for sensitivity.
+   *
    * It is recommended to set [XYZ]_HOME_BUMP_MM to 0.
    *
    * SPI_ENDSTOPS  *** Beta feature! *** TMC2130 Only ***
