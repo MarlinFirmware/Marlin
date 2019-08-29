@@ -27,11 +27,12 @@
 #if ENABLED(WEBSUPPORT)
 
 #include <SPIFFS.h>
+
 #include "wifi.h"
 
 AsyncEventSource events("/events"); // event source (Server-Sent events)
 
-void onNotFound(AsyncWebServerRequest *request){
+void onNotFound(AsyncWebServerRequest *request) {
   request->send(404);
 }
 

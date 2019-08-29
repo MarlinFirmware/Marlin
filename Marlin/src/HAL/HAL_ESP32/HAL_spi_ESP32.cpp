@@ -27,8 +27,9 @@
 #include "../shared/HAL_SPI.h"
 #include <pins_arduino.h>
 #include "spi_pins.h"
-#include "../../core/macros.h"
 #include <SPI.h>
+
+#include "../../core/macros.h"
 
 // ------------------------
 // Public Variables
