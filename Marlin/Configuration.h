@@ -9,13 +9,13 @@
 //#define MachineEnder3
 //#define MachineEnder4
 //#define MachineEnder5
-//#define MachineEnder5Plus
+#define MachineEnder5Plus
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
-#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+//#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
 //#define MachineCRX
 //#define MachineCR10Max
 //#define MachineS4
@@ -267,6 +267,7 @@
   #endif
   #define Y_STOP_PIN 14
   #define X_STOP_PIN 3
+  #define lerdgeFilSensor
   #if DISABLED(ABL_UBL)
     #define ABL_BI
   #endif
@@ -1123,7 +1124,9 @@
  *
  * :[2,3,4,5,6,7]
  */
-//#define ENDSTOP_NOISE_THRESHOLD 2
+#if ENABLED(MachineEnder5Plus)
+  #define ENDSTOP_NOISE_THRESHOLD 2
+#endif
 
 //=============================================================================
 //============================== Movement Settings ============================
@@ -1578,7 +1581,7 @@
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #endif
-#elif ANY(MachineCR10Orig, SKR13_ReverseSteppers, MachineEnder5Plus)
+#elif ANY(MachineCR10Orig, SKR13_ReverseSteppers)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR false
@@ -1596,7 +1599,11 @@
   #else
     #define INVERT_Y_DIR false
   #endif
-  #define INVERT_Z_DIR true
+  #if ENABLED(MachineEnder5Plus)
+    #define INVERT_Z_DIR false
+  #else
+    #define INVERT_Z_DIR true
+  #endif
   #if(ENABLED(E3DTitan))
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
