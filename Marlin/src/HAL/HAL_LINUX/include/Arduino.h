@@ -49,8 +49,6 @@ typedef uint8_t byte;
 #define PGM_P const char *
 
 // Used for libraries, preprocessor, and constants
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
 #define abs(x) ((x)>0?(x):-(x))
 
 #ifndef isnan
