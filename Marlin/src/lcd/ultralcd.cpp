@@ -1546,10 +1546,13 @@ void MarlinUI::update() {
       #if ENABLED(SDSUPPORT)
         if (IS_SD_PRINTING()) return card.percentDone();
       #endif
-      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        return progress_bar_percent;
-      #endif
-      return 0;
+      return (
+        #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+          progress_bar_percent
+        #else
+          0
+        #endif
+      );
     }
   #endif
 
