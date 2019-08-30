@@ -778,7 +778,7 @@ void reset_stepper_drivers() {
     };
   #endif
 
- #ifdef TMC_USE_CHAIN
+ #if TMC_USE_CHAIN
 
     #if AXIS_HAS_SPI(X)                  // first set chain array to uninitialized
       stepperX.set_chain_info(1, 0);
