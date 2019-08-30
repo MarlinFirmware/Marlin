@@ -84,13 +84,13 @@ static const spi_pins board_spi_pins[] __FLASH__ = {
 };
 
 #if BOARD_NR_SPI >= 1
-  static void (*_spi1_this);
+  static void* _spi1_this;
 #endif
 #if BOARD_NR_SPI >= 2
-  static void (*_spi2_this);
+  static void* _spi2_this;
 #endif
 #if BOARD_NR_SPI >= 3
-  static void (*_spi3_this);
+  static void* _spi3_this;
 #endif
 
 /**
