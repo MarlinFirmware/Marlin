@@ -775,22 +775,30 @@ void MarlinUI::update() {
     };
 
     #if ENABLED(TOUCH_BUTTONS)
+      // Uodate touch buttons after update buttons
+      // This prevent overlaping Encoder Process
+      if (ELAPSED(ms, next_button_update_ms)) {
+        touch_buttons = read_touch_buttons();
+        buttons |= touch_buttons;
+      }
+
       if (touch_buttons) {
+        #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        #endif
         if (buttons & EN_C)
           generate_click();
         else if (buttons & (EN_A | EN_B)) {             // Ignore the encoder if clicked, to prevent "slippage"
-          const millis_t ms = millis();
-          if (ELAPSED(ms, next_button_update_ms)) {
-            next_button_update_ms = ms + 50;
-            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP);
-            if (buttons & EN_A) encoderDiff *= -1;
-            if (!wait_for_unclick) {
-              next_button_update_ms += 250;
-              #if HAS_BUZZER
-                buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-              #endif
-              wait_for_unclick = true;                  //  - Set debounce flag to ignore continous clicks
-            }
+          next_button_update_ms = ms + 50;              // Set delay for continuous click
+          encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection ;
+          if (buttons & EN_B) encoderDiff *= -1;
+          buttons = 0;                                  // Job done, clear buttons to prevent unwanted process.
+          if (!wait_for_unclick) {                      // If begin of click process then
+            next_button_update_ms += 250;               //   add delay time
+            #if HAS_BUZZER                              //   beep if posible
+              buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+            #endif
+            wait_for_unclick = true;                    //  - Set debounce flag to mark continous clicks
           }
         }
       }
@@ -883,15 +891,6 @@ void MarlinUI::update() {
 
       #if HAS_SLOW_BUTTONS
         slow_buttons = read_slow_buttons(); // Buttons that take too long to read in interrupt context
-      #endif
-
-      #if ENABLED(TOUCH_BUTTONS)
-        touch_buttons = read_touch_buttons();
-        if (touch_buttons) {
-          #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
-            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-          #endif
-        }
       #endif
 
       #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -1240,9 +1239,6 @@ void MarlinUI::update() {
         buttons = newbutton
           #if HAS_SLOW_BUTTONS
             | slow_buttons
-          #endif
-          #if ENABLED(TOUCH_BUTTONS)
-            | touch_buttons
           #endif
         ;
       #elif HAS_ADC_BUTTONS
