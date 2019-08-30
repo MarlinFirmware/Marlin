@@ -1730,7 +1730,7 @@
     #define X_CURRENT     800  // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_MICROSTEPS   16  // 0..256
     #define X_RSENSE     0.11
-    #define X_CHAIN_POS     0  // 0 - not daisy chained, 1 - CPU's MOSI connected, 2 - next in chain, ...
+    #define X_CHAIN_POS     0  // 0 - Not chained, 1 - MCU MOSI connected, 2 - next in chain, ...
   #endif
 
   #if AXIS_IS_TMC(X2)
