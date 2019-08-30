@@ -765,6 +765,7 @@ void MarlinUI::update() {
 
     // If the action button is pressed...
     static bool wait_for_unclick; // = 0
+
     auto generate_click = [&]() {
       if (!wait_for_unclick) {                        // If not waiting for a debounce release:
         wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
@@ -775,8 +776,9 @@ void MarlinUI::update() {
     };
 
     #if ENABLED(TOUCH_BUTTONS)
-      // Uodate touch buttons after update buttons
-      // This prevent overlaping Encoder Process
+
+      // Update touch buttons after update buttons
+      // to prevent overlapping Encoder Process
       if (ELAPSED(ms, next_button_update_ms)) {
         touch_buttons = read_touch_buttons();
         buttons |= touch_buttons;
@@ -790,7 +792,7 @@ void MarlinUI::update() {
           generate_click();
         else if (buttons & (EN_A | EN_B)) {             // Ignore the encoder if clicked, to prevent "slippage"
           next_button_update_ms = ms + 50;              // Set delay for continuous click
-          encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection ;
+          encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
           if (buttons & EN_B) encoderDiff *= -1;
           buttons = 0;                                  // Job done, clear buttons to prevent unwanted process.
           if (!wait_for_unclick) {                      // If begin of click process then
@@ -805,9 +807,7 @@ void MarlinUI::update() {
       else
     #endif // TOUCH_BUTTONS
       {
-        //
-        // Integrated LCD click handling via button_pressed()
-        //
+        // Integrated LCD click handling via button_pressed
         if (!external_control && button_pressed())
           generate_click();
         else
