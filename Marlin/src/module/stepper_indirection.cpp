@@ -780,85 +780,88 @@ void reset_stepper_drivers() {
 
  #if TMC_USE_CHAIN
 
-    #if AXIS_HAS_SPI(X)                  // first set chain array to uninitialized
-      stepperX.set_chain_info(1, 0);
+    enum TMC_axis_enum : unsigned char { _, X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 };
+    #define __TMC_CHAIN(Q,V) do{ stepper##Q.set_chain_info(Q,V); }while(0)
+    #define _TMC_CHAIN(Q) __TMC_CHAIN(Q, Q##_CHAIN_POS)
+
+    #if AXIS_HAS_SPI(X)                  // First set chain array to uninitialized
+      __TMC_CHAIN(X, 0);
     #endif
     #if AXIS_HAS_SPI(X2)
-      stepperX2.set_chain_info(2, 0);
+      __TMC_CHAIN(X2, 0);
     #endif
     #if AXIS_HAS_SPI(Y)
-      stepperY.set_chain_info(3, 0);
+      __TMC_CHAIN(Y, 0);
     #endif
     #if AXIS_HAS_SPI(Y2)
-      stepperY2.set_chain_info(4, 0);
+      __TMC_CHAIN(Y2, 0);
     #endif
     #if AXIS_HAS_SPI(Z)
-      stepperZ.set_chain_info(5, 0);
+      __TMC_CHAIN(Z, 0);
     #endif
     #if AXIS_HAS_SPI(Z2)
-      stepperZ2.set_chain_info(6, 0);
+      __TMC_CHAIN(Z2, 0);
     #endif
     #if AXIS_HAS_SPI(Z3)
-      stepperZ3.set_chain_info(7, 0);
+      __TMC_CHAIN(Z3, 0);
     #endif
     #if AXIS_HAS_SPI(E0)
-      stepperE0.set_chain_info(8, 0);
+      __TMC_CHAIN(E0, 0);
     #endif
     #if AXIS_HAS_SPI(E1)
-      stepperE1.set_chain_info(9, 0);
+      __TMC_CHAIN(E1, 0);
     #endif
     #if AXIS_HAS_SPI(E2)
-      stepperE2.set_chain_info(10, 0);
+      __TMC_CHAIN(E2, 0);
     #endif
     #if AXIS_HAS_SPI(E3)
-      stepperE3.set_chain_info(11, 0);
+      __TMC_CHAIN(E3, 0);
     #endif
     #if AXIS_HAS_SPI(E4)
-      stepperE4.set_chain_info(12, 0);
+      __TMC_CHAIN(E4, 0);
     #endif
     #if AXIS_HAS_SPI(E5)
-      stepperE5.set_chain_info(13, 0);
+      __TMC_CHAIN(E5, 0);
     #endif
 
-
-    #if AXIS_HAS_SPI(X)                           // now setup the SPI chain
-      stepperX.set_chain_info(1, X_CHAIN_POS);
+    #if AXIS_HAS_SPI(X) && X_CHAIN_POS             // Now set up the SPI chain
+      _TMC_CHAIN(X);
     #endif
-    #if AXIS_HAS_SPI(X2)
-      stepperX2.set_chain_info(2, X2_CHAIN_POS);
+    #if AXIS_HAS_SPI(X2) && X2_CHAIN_POS
+      _TMC_CHAIN(X2);
     #endif
-    #if AXIS_HAS_SPI(Y)
-      stepperY.set_chain_info(3, Y_CHAIN_POS);
+    #if AXIS_HAS_SPI(Y) && Y_CHAIN_POS
+      _TMC_CHAIN(Y);
     #endif
-    #if AXIS_HAS_SPI(Y2)
-      stepperY2.set_chain_info(4, Y2_CHAIN_POS);
+    #if AXIS_HAS_SPI(Y2) && Y2_CHAIN_POS
+      _TMC_CHAIN(Y2);
     #endif
-    #if AXIS_HAS_SPI(Z)
-      stepperZ.set_chain_info(5, Z_CHAIN_POS);
+    #if AXIS_HAS_SPI(Z) && Z_CHAIN_POS
+      _TMC_CHAIN(Z);
     #endif
-    #if AXIS_HAS_SPI(Z2)
-      stepperZ2.set_chain_info(6, Z2_CHAIN_POS);
+    #if AXIS_HAS_SPI(Z2) && Z2_CHAIN_POS
+      _TMC_CHAIN(Z2);
     #endif
-    #if AXIS_HAS_SPI(Z3)
-      stepperZ3.set_chain_info(7, Z3_CHAIN_POS);
+    #if AXIS_HAS_SPI(Z3) && Z3_CHAIN_POS
+      _TMC_CHAIN(Z3);
     #endif
-    #if AXIS_HAS_SPI(E0)
-      stepperE0.set_chain_info(8, E0_CHAIN_POS);
+    #if AXIS_HAS_SPI(E0) && E0_CHAIN_POS
+      _TMC_CHAIN(E0);
     #endif
-    #if AXIS_HAS_SPI(E1)
-      stepperE1.set_chain_info(9, E1_CHAIN_POS);
+    #if AXIS_HAS_SPI(E1) && E1_CHAIN_POS
+      _TMC_CHAIN(E1);
     #endif
-    #if AXIS_HAS_SPI(E2)
-      stepperE2.set_chain_info(10, E2_CHAIN_POS);
+    #if AXIS_HAS_SPI(E2) && E2_CHAIN_POS
+      _TMC_CHAIN(E2);
     #endif
-    #if AXIS_HAS_SPI(E3)
-      stepperE3.set_chain_info(11, E3_CHAIN_POS);
+    #if AXIS_HAS_SPI(E3) && E3_CHAIN_POS
+      _TMC_CHAIN(E3);
     #endif
-    #if AXIS_HAS_SPI(E4)
-      stepperE4.set_chain_info(12, E4_CHAIN_POS);
+    #if AXIS_HAS_SPI(E4) && E4_CHAIN_POS
+      _TMC_CHAIN(E4);
     #endif
-    #if AXIS_HAS_SPI(E5)
-      stepperE5.set_chain_info(13, E5_CHAIN_POS);
+    #if AXIS_HAS_SPI(E5) && E5_CHAIN_POS
+      _TMC_CHAIN(E5);
     #endif
   #endif // TMC_USE_CHAIN
 
