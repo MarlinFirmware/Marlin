@@ -767,14 +767,28 @@ void MarlinUI::update() {
 
       // Handle touch_buttons which are slow to read
       if (ELAPSED(ms, next_button_update_ms)) {
-        const uint8_t touch_buttons = touch.read_buttons(),
-                      touch_arrows = touch_buttons & (EN_A | EN_B);
+        uint8_t touch_buttons = touch.read_buttons();
         if (touch_buttons) {
-          if (touch_buttons & EN_C) buttons |= EN_C;
           #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
             return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
           #endif
-          if (touch_arrows) {
+          // B1000000 ia a flag that touched area is Menu Item.
+          if (touch_buttons & B10000000) {               // Processing Menu Area touch
+            if (!wait_for_unclick) {                     // If not waiting for a debounce release:
+              wait_for_unclick = true;                   //  - Set debounce flag to ignore continous clicks
+              wait_for_user = false;                     //  - Any click clears wait for user
+              // TODO for next PR.
+              // lcd_menu_touched_coord = touch_buttons; // Safe 7bit touched screen coordinate 
+              next_button_update_ms = millis() + 500;    // Set Delay
+              #if HAS_LCD_MENU
+                refresh();
+              #endif
+            }  
+            touch_buttons = 0;
+          }
+          if (touch_buttons & EN_C) buttons |= EN_C;
+          if (touch_buttons & EN_D) buttons |= EN_D;
+          if (touch_buttons & (EN_A | EN_B)) {
             next_button_update_ms = ms + 50;       // Set delay for repeat
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
             if (touch_buttons & EN_B) encoderDiff *= -1;
@@ -787,7 +801,7 @@ void MarlinUI::update() {
             }
           }
         }
-        if (!touch_arrows) arrow_pressed = false;
+        if (!(touch_buttons & (EN_A | EN_B))) arrow_pressed = false;
       }
 
     #endif // TOUCH_BUTTONS
