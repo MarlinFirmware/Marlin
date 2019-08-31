@@ -25,7 +25,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(U8GLIB_ST7920) && !defined(U8G_HAL_LINKS) && !defined(__SAM3X8E__)
+#if ENABLED(U8GLIB_ST7920) && !defined(U8G_HAL_LINKS) && !defined(__SAM3X8E__) && !defined(__SAMD51__)
 
 #include "ultralcd_st7920_u8glib_rrd_AVR.h"
 
