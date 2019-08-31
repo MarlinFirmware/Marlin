@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * stepper_indirection.h
+ * stepper/indirection.h
  *
  * Stepper motor driver indirection to allow some stepper functions to
  * be done via SPI/I2c instead of direct pin manipulation.
@@ -30,7 +30,7 @@
  * Copyright (c) 2015 Dominik Wenger
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 // TMC26X drivers have STEP/DIR on normal pins, but ENABLE via SPI
 #if HAS_DRIVER(TMC26X)
@@ -76,7 +76,7 @@
 
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI
 #if HAS_DRIVER(L6470)
-  #include "L6470/L6470_Marlin.h"
+  #include "../../libs/L6470/L6470_Marlin.h"
   #define L6470_WRITE_DIR_COMMAND(STATE,Q) do{ L6470_dir_commands[Q] = (STATE ?  dSPIN_STEP_CLOCK_REV : dSPIN_STEP_CLOCK_FWD); }while(0)
 #endif
 

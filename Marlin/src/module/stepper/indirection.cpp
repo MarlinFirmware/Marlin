@@ -21,7 +21,7 @@
  */
 
 /**
- * stepper_indirection.cpp
+ * stepper/indirection.cpp
  *
  * Stepper motor driver indirection to allow some stepper functions to
  * be done via SPI/I2c instead of direct pin manipulation.
@@ -29,14 +29,14 @@
  * Copyright (c) 2015 Dominik Wenger
  */
 
-#include "stepper_indirection.h"
+#include "indirection.h"
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
-#include "stepper.h"
+#include "../stepper.h"
 
 #if HAS_DRIVER(L6470)
-  #include "L6470/L6470_Marlin.h"
+  #include "../../libs/L6470/L6470_Marlin.h"
 #endif
 
 //
