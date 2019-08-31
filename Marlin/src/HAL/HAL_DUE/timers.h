@@ -26,6 +26,8 @@
  * For ARDUINO_ARCH_SAM
  */
 
+#pragma GCC system_header
+
 #include <stdint.h>
 
 // ------------------------

@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#pragma GCC system_header
+
 /**
  * ServoTimers.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
  * Copyright (c) 2009 Michael Margolis.  All right reserved.

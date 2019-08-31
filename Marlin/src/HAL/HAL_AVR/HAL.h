@@ -31,6 +31,8 @@
   #include "MarlinSerial.h"
 #endif
 
+#pragma GCC system_header
+
 #include <stdint.h>
 #include <util/delay.h>
 #include <avr/eeprom.h>

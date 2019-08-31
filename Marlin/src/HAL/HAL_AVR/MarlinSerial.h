@@ -33,6 +33,8 @@
 
 #include "../shared/MarlinSerial.h"
 
+#pragma GCC system_header
+
 #include <WString.h>
 
 #ifndef SERIAL_PORT

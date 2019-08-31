@@ -29,6 +29,8 @@
   #include "../libs/heatshrink/heatshrink_decoder.h"
 #endif
 
+#pragma GCC system_header
+
 inline bool bs_serial_data_available(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.available();

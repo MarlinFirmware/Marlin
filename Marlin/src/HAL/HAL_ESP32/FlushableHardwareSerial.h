@@ -23,6 +23,8 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
+#pragma GCC system_header
+
 #include <HardwareSerial.h>
 
 class FlushableHardwareSerial : public HardwareSerial {

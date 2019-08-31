@@ -30,6 +30,8 @@
 
 #if SERIAL_PORT == -1
 
+#pragma GCC system_header
+
 #include <WString.h>
 
 #define DEC 10
