@@ -11,6 +11,8 @@ set -e
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_BIGTREE_SKR_E3_DIP
+opt_set SERIAL_PORT 1
+opt_set SERIAL_PORT_2 -1
 exec_test $1 $2 "Default Configuration"
 
 # clean up
