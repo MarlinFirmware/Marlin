@@ -765,14 +765,19 @@ void MarlinUI::update() {
 
     // If the action button is pressed...
     static bool wait_for_unclick; // = 0
+    auto generate_click = [&]() {
+      if (!wait_for_unclick) {                        // If not waiting for a debounce release:
+        wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
+        lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
+        wait_for_user = false;                        //  - Any click clears wait for user
+        quick_feedback();                             //  - Always make a click sound
+      }
+    };
+
     #if ENABLED(TOUCH_BUTTONS)
       if (touch_buttons) {
-        if (!wait_for_unclick && (buttons & EN_C)) {    // If not waiting for a debounce release:
-          wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
-          lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
-          wait_for_user = false;                        //  - Any click clears wait for user
-          quick_feedback();                             //  - Always make a click sound
-        }
+        if (buttons & EN_C)
+          generate_click();
         else if (buttons & (EN_A | EN_B)) {             // Ignore the encoder if clicked, to prevent "slippage"
           const millis_t ms = millis();
           if (ELAPSED(ms, next_button_update_ms)) {
@@ -790,19 +795,16 @@ void MarlinUI::update() {
         }
       }
       else
-    #endif //TOUCH_BUTTONS
-    //
-    // Integrated LCD click handling via button_pressed()
-    //
-    if (!external_control && button_pressed()) {
-      if (!wait_for_unclick) {                        // If not waiting for a debounce release:
-        wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
-        lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
-        wait_for_user = false;                        //  - Any click clears wait for user
-        quick_feedback();                             //  - Always make a click sound
+    #endif // TOUCH_BUTTONS
+      {
+        //
+        // Integrated LCD click handling via button_pressed()
+        //
+        if (!external_control && button_pressed())
+          generate_click();
+        else
+          wait_for_unclick = false;
       }
-    }
-    else wait_for_unclick = false;
 
     #if HAS_DIGITAL_BUTTONS && (BUTTON_EXISTS(BACK) || ENABLED(TOUCH_BUTTONS))
       if (LCD_BACK_CLICKED()) {
