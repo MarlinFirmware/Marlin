@@ -116,8 +116,6 @@
   #endif
   #if ENABLED(TOUCH_BUTTONS)
     #include "../feature/touch/xpt2046.h"
-    volatile uint8_t MarlinUI::touch_buttons;
-    uint8_t MarlinUI::read_touch_buttons() { return touch.read_buttons(); }
   #endif
 #endif
 
@@ -344,9 +342,6 @@ void MarlinUI::init() {
   #if HAS_ENCODER_ACTION
     #if HAS_SLOW_BUTTONS
       slow_buttons = 0;
-    #endif
-    #if ENABLED(TOUCH_BUTTONS)
-      touch_buttons = 0;
     #endif
   #endif
 
@@ -764,62 +759,55 @@ void MarlinUI::update() {
     update_buttons();
 
     // If the action button is pressed...
-    static bool wait_for_unclick; // = 0
+    static bool wait_for_unclick; // = false
 
-    auto generate_click = [&]() {
+    #if ENABLED(TOUCH_BUTTONS)
+
+      static bool arrow_pressed; // = false
+
+      // Handle touch_buttons which are slow to read
+      if (ELAPSED(ms, next_button_update_ms)) {
+        const uint8_t touch_buttons = touch.read_buttons(),
+                      touch_arrows = touch_buttons & (EN_A | EN_B);
+        if (touch_buttons) {
+          if (touch_buttons & EN_C) buttons |= EN_C;
+          #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+          #endif
+          if (touch_arrows) {
+            next_button_update_ms = ms + 50;       // Set delay for repeat
+            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
+            if (touch_buttons & EN_B) encoderDiff *= -1;
+            if (!wait_for_unclick && !arrow_pressed) {  // On click prepare for repeat
+              arrow_pressed = true;                     // Mark arrow as pressed
+              next_button_update_ms += 250;             // Longer delay on first press
+              #if HAS_BUZZER
+                buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+              #endif
+            }
+          }
+        }
+        if (!touch_arrows) arrow_pressed = false;
+      }
+
+    #endif // TOUCH_BUTTONS
+
+    // Integrated LCD click handling via button_pressed
+    if (!external_control && button_pressed()) {
       if (!wait_for_unclick) {                        // If not waiting for a debounce release:
         wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
         lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
         wait_for_user = false;                        //  - Any click clears wait for user
         quick_feedback();                             //  - Always make a click sound
       }
-    };
+    }
+    else
+      wait_for_unclick = false;
 
-    #if ENABLED(TOUCH_BUTTONS)
-
-      // Update touch buttons after update buttons
-      // to prevent overlapping Encoder Process
-      if (ELAPSED(ms, next_button_update_ms)) {
-        touch_buttons = read_touch_buttons();
-        buttons |= touch_buttons;
-      }
-
-      if (touch_buttons) {
-        #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
-          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-        #endif
-        if (buttons & EN_C)
-          generate_click();
-        else if (buttons & (EN_A | EN_B)) {             // Ignore the encoder if clicked, to prevent "slippage"
-          next_button_update_ms = ms + 50;              // Set delay for continuous click
-          encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
-          if (buttons & EN_B) encoderDiff *= -1;
-          buttons = 0;                                  // Job done, clear buttons to prevent unwanted process.
-          if (!wait_for_unclick) {                      // If begin of click process then
-            next_button_update_ms += 250;               //   add delay time
-            #if HAS_BUZZER                              //   beep if posible
-              buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-            #endif
-            wait_for_unclick = true;                    //  - Set debounce flag to mark continous clicks
-          }
-        }
-      }
-      else
-    #endif // TOUCH_BUTTONS
-      {
-        // Integrated LCD click handling via button_pressed
-        if (!external_control && button_pressed())
-          generate_click();
-        else
-          wait_for_unclick = false;
-      }
-
-    #if HAS_DIGITAL_BUTTONS && (BUTTON_EXISTS(BACK) || ENABLED(TOUCH_BUTTONS))
-      if (LCD_BACK_CLICKED()) {
-        quick_feedback();
-        goto_previous_screen();
-      }
-    #endif
+    if (LCD_BACK_CLICKED()) {
+      quick_feedback();
+      goto_previous_screen();
+    }
 
   #endif // HAS_LCD_MENU
 
@@ -1241,8 +1229,11 @@ void MarlinUI::update() {
             | slow_buttons
           #endif
         ;
+
       #elif HAS_ADC_BUTTONS
+
         buttons = 0;
+
       #endif
 
       #if HAS_ADC_BUTTONS

@@ -531,10 +531,6 @@ public:
       static volatile uint8_t slow_buttons;
       static uint8_t read_slow_buttons();
     #endif
-    #if ENABLED(TOUCH_BUTTONS)
-      static volatile uint8_t touch_buttons;
-      static uint8_t read_touch_buttons();
-    #endif
 
     static void update_buttons();
     static inline bool button_pressed() { return BUTTON_CLICK(); }
