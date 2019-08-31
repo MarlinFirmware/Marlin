@@ -84,7 +84,7 @@
 #else
   #include <stdint.h>
 
-  #if defined(__AVR__) || defined(ARDUINO_ARCH_SAM) || defined (__SAMD51__)
+  #if defined(__AVR__) || defined(ARDUINO_ARCH_SAM) || defined(__SAMD51__)
     // we're good to go
   #else
     #error "This library only supports boards with an AVR, SAM3X or SAMD51 processor."

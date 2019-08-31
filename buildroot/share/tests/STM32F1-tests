@@ -6,6 +6,9 @@
 # exit on first failure
 set -e
 
+#
+# Build with the default configurations
+#
 restore_configs
 opt_set MOTHERBOARD BOARD_STM32F1R
 opt_set EXTRUDERS 2

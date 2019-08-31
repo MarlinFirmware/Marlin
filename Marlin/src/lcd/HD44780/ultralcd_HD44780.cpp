@@ -449,59 +449,28 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
         lcd_scroll(0, 3, PSTR(STRING), LCD_WIDTH, DELAY); \
       }
 
-    #ifdef STRING_SPLASH_LINE1
+    //
+    // Show the Marlin logo with splash line 1
+    //
+    if (LCD_EXTRA_SPACE >= utf8_strlen(SHORT_BUILD_VERSION) + 1) {
       //
-      // Show the Marlin logo with splash line 1
+      // Show the Marlin logo, splash line1, and splash line 2
       //
-      if (LCD_EXTRA_SPACE >= utf8_strlen(STRING_SPLASH_LINE1) + 1) {
-        //
-        // Show the Marlin logo, splash line1, and splash line 2
-        //
-        logo_lines(PSTR(" " STRING_SPLASH_LINE1));
-        #ifdef STRING_SPLASH_LINE2
-          CENTER_OR_SCROLL(STRING_SPLASH_LINE2, 2000);
-        #else
-          safe_delay(2000);
-        #endif
-      }
-      else {
-        //
-        // Show the Marlin logo with splash line 1
-        // After a delay show splash line 2, if it exists
-        //
-        #ifdef STRING_SPLASH_LINE2
-          #define _SPLASH_WAIT_1 1500
-        #else
-          #define _SPLASH_WAIT_1 2000
-        #endif
-        logo_lines(PSTR(""));
-        CENTER_OR_SCROLL(STRING_SPLASH_LINE1, _SPLASH_WAIT_1);
-        #ifdef STRING_SPLASH_LINE2
-          CENTER_OR_SCROLL(STRING_SPLASH_LINE2, 1500);
-          #ifdef STRING_SPLASH_LINE3
-            CENTER_OR_SCROLL(STRING_SPLASH_LINE3, 1500);
-          #endif
-        #endif
-      }
-    #elif defined(STRING_SPLASH_LINE2)
+      logo_lines(PSTR(" " SHORT_BUILD_VERSION));
+      CENTER_OR_SCROLL(MARLIN_WEBSITE_URL, 2000);
+    }
+    else {
       //
-      // Show splash line 2 only, alongside the logo if possible
-      //
-      if (LCD_EXTRA_SPACE >= utf8_strlen(STRING_SPLASH_LINE2) + 1) {
-        logo_lines(PSTR(" " STRING_SPLASH_LINE2));
-        safe_delay(2000);
-      }
-      else {
-        logo_lines(PSTR(""));
-        CENTER_OR_SCROLL(STRING_SPLASH_LINE2, 2000);
-      }
-    #else
-      //
-      // Show only the Marlin logo
+      // Show the Marlin logo and short build version
+      // After a delay show the website URL
       //
       logo_lines(PSTR(""));
-      safe_delay(2000);
-    #endif
+      CENTER_OR_SCROLL(SHORT_BUILD_VERSION, 1500);
+      CENTER_OR_SCROLL(MARLIN_WEBSITE_URL, 1500);
+      #ifdef STRING_SPLASH_LINE3
+        CENTER_OR_SCROLL(STRING_SPLASH_LINE3, 1500);
+      #endif
+    }
 
     lcd.clear();
     safe_delay(100);
@@ -585,11 +554,13 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char pref
 
 FORCE_INLINE void _draw_bed_status(const bool blink) {
   _draw_heater_status(H_BED, (
-    #if HAS_LEVELING
-      planner.leveling_active && blink ? '_' :
-    #endif
-    LCD_STR_BEDTEMP[0]
-  ), blink);
+      #if HAS_LEVELING
+        planner.leveling_active && blink ? '_' :
+      #endif
+      LCD_STR_BEDTEMP[0]
+    ),
+    blink
+  );
 }
 
 #if HAS_PRINT_PROGRESS

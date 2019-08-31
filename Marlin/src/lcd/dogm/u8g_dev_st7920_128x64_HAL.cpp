@@ -58,7 +58,6 @@
 #if HAS_GRAPHICAL_LCD
 
 #include <U8glib.h>
-
 #include "HAL_LCD_com_defines.h"
 
 #define LCD_PIXEL_WIDTH  128

@@ -778,6 +778,93 @@ void reset_stepper_drivers() {
     };
   #endif
 
+ #if TMC_USE_CHAIN
+
+    enum TMC_axis_enum : unsigned char { _, X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 };
+    #define __TMC_CHAIN(Q,V) do{ stepper##Q.set_chain_info(Q,V); }while(0)
+    #define _TMC_CHAIN(Q) __TMC_CHAIN(Q, Q##_CHAIN_POS)
+
+    #if AXIS_HAS_SPI(X)                  // First set chain array to uninitialized
+      __TMC_CHAIN(X, 0);
+    #endif
+    #if AXIS_HAS_SPI(X2)
+      __TMC_CHAIN(X2, 0);
+    #endif
+    #if AXIS_HAS_SPI(Y)
+      __TMC_CHAIN(Y, 0);
+    #endif
+    #if AXIS_HAS_SPI(Y2)
+      __TMC_CHAIN(Y2, 0);
+    #endif
+    #if AXIS_HAS_SPI(Z)
+      __TMC_CHAIN(Z, 0);
+    #endif
+    #if AXIS_HAS_SPI(Z2)
+      __TMC_CHAIN(Z2, 0);
+    #endif
+    #if AXIS_HAS_SPI(Z3)
+      __TMC_CHAIN(Z3, 0);
+    #endif
+    #if AXIS_HAS_SPI(E0)
+      __TMC_CHAIN(E0, 0);
+    #endif
+    #if AXIS_HAS_SPI(E1)
+      __TMC_CHAIN(E1, 0);
+    #endif
+    #if AXIS_HAS_SPI(E2)
+      __TMC_CHAIN(E2, 0);
+    #endif
+    #if AXIS_HAS_SPI(E3)
+      __TMC_CHAIN(E3, 0);
+    #endif
+    #if AXIS_HAS_SPI(E4)
+      __TMC_CHAIN(E4, 0);
+    #endif
+    #if AXIS_HAS_SPI(E5)
+      __TMC_CHAIN(E5, 0);
+    #endif
+
+    #if AXIS_HAS_SPI(X) && X_CHAIN_POS             // Now set up the SPI chain
+      _TMC_CHAIN(X);
+    #endif
+    #if AXIS_HAS_SPI(X2) && X2_CHAIN_POS
+      _TMC_CHAIN(X2);
+    #endif
+    #if AXIS_HAS_SPI(Y) && Y_CHAIN_POS
+      _TMC_CHAIN(Y);
+    #endif
+    #if AXIS_HAS_SPI(Y2) && Y2_CHAIN_POS
+      _TMC_CHAIN(Y2);
+    #endif
+    #if AXIS_HAS_SPI(Z) && Z_CHAIN_POS
+      _TMC_CHAIN(Z);
+    #endif
+    #if AXIS_HAS_SPI(Z2) && Z2_CHAIN_POS
+      _TMC_CHAIN(Z2);
+    #endif
+    #if AXIS_HAS_SPI(Z3) && Z3_CHAIN_POS
+      _TMC_CHAIN(Z3);
+    #endif
+    #if AXIS_HAS_SPI(E0) && E0_CHAIN_POS
+      _TMC_CHAIN(E0);
+    #endif
+    #if AXIS_HAS_SPI(E1) && E1_CHAIN_POS
+      _TMC_CHAIN(E1);
+    #endif
+    #if AXIS_HAS_SPI(E2) && E2_CHAIN_POS
+      _TMC_CHAIN(E2);
+    #endif
+    #if AXIS_HAS_SPI(E3) && E3_CHAIN_POS
+      _TMC_CHAIN(E3);
+    #endif
+    #if AXIS_HAS_SPI(E4) && E4_CHAIN_POS
+      _TMC_CHAIN(E4);
+    #endif
+    #if AXIS_HAS_SPI(E5) && E5_CHAIN_POS
+      _TMC_CHAIN(E5);
+    #endif
+  #endif // TMC_USE_CHAIN
+
   #if AXIS_IS_TMC(X)
     _TMC_INIT(X, STEALTH_AXIS_XY);
   #endif
@@ -823,9 +910,12 @@ void reset_stepper_drivers() {
       #if AXIS_HAS_STALLGUARD(X)
         stepperX.homing_threshold(X_STALL_SENSITIVITY);
       #endif
-      #if AXIS_HAS_STALLGUARD(X2)
+      #if AXIS_HAS_STALLGUARD(X2) && !X2_SENSORLESS
         stepperX2.homing_threshold(X_STALL_SENSITIVITY);
       #endif
+    #endif
+    #if X2_SENSORLESS
+      stepperX2.homing_threshold(X2_STALL_SENSITIVITY);
     #endif
     #if Y_SENSORLESS
       #if AXIS_HAS_STALLGUARD(Y)

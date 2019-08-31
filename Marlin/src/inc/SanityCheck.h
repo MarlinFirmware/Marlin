@@ -386,13 +386,15 @@
   #error "MKS_ROBIN_TFT is now FSMC_GRAPHICAL_TFT. Please update your configuration."
 #elif defined(SDPOWER)
   #error "SDPOWER is now SDPOWER_PIN. Please update your configuration and/or pins."
+#elif defined(STRING_SPLASH_LINE1) || defined(STRING_SPLASH_LINE2)
+  #error "STRING_SPLASH_LINE[12] are now obsolete. Please remove them from Configuration.h."
 #endif
 
-#define BOARD_MKS_13        -1109
-#define BOARD_TRIGORILLA    -1131
-#define BOARD_RURAMPS4D     -3020
-#define BOARD_FORMBOT_TREX2 -1125
-#define BOARD_BIQU_SKR_V1_1 -2014
+#define BOARD_MKS_13        -1000
+#define BOARD_TRIGORILLA    -1001
+#define BOARD_RURAMPS4D     -1002
+#define BOARD_FORMBOT_TREX2 -1003
+#define BOARD_BIQU_SKR_V1_1 -1004
 #if MB(MKS_13)
   #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
 #elif MB(TRIGORILLA)
@@ -401,8 +403,8 @@
   #error "BOARD_RURAMPS4D has been renamed BOARD_RURAMPS4D_11. Please update your configuration."
 #elif MB(FORMBOT_TREX2)
   #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
-#elif MB(BOARD_BIQU_SKR_V1_1)
-  #error "BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
+#elif MB(BIQU_SKR_V1_1)
+  #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
 #endif
 #undef BOARD_MKS_13
 #undef BOARD_TRIGORILLA
@@ -2125,6 +2127,70 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #elif STEALTHCHOP_ENABLED && !HAS_STEALTHCHOP
   #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, or TMC5160 stepper drivers."
 #endif
+
+#if TMC_USE_CHAIN
+  #if  (X_CHAIN_POS  && !PIN_EXISTS(X_CS) ) \
+    || (Y_CHAIN_POS  && !PIN_EXISTS(Y_CS) ) \
+    || (Z_CHAIN_POS  && !PIN_EXISTS(Z_CS) ) \
+    || (X2_CHAIN_POS && !PIN_EXISTS(X2_CS)) \
+    || (Y2_CHAIN_POS && !PIN_EXISTS(Y2_CS)) \
+    || (Z2_CHAIN_POS && !PIN_EXISTS(Z2_CS)) \
+    || (Z3_CHAIN_POS && !PIN_EXISTS(Z3_CS)) \
+    || (E0_CHAIN_POS && !PIN_EXISTS(E0_CS)) \
+    || (E1_CHAIN_POS && !PIN_EXISTS(E1_CS)) \
+    || (E2_CHAIN_POS && !PIN_EXISTS(E2_CS)) \
+    || (E3_CHAIN_POS && !PIN_EXISTS(E3_CS)) \
+    || (E4_CHAIN_POS && !PIN_EXISTS(E4_CS)) \
+    || (E5_CHAIN_POS && !PIN_EXISTS(E5_CS))
+    #error "With TMC_USE_CHAIN all chained TMC drivers need a CS pin."
+  #else
+    #if X_CHAIN_POS
+      #define CS_COMPARE X_CS_PIN
+    #elif Y_CHAIN_POS
+      #define CS_COMPARE Y_CS_PIN
+    #elif Z_CHAIN_POS
+      #define CS_COMPARE Z_CS_PIN
+    #elif X2_CHAIN_POS
+      #define CS_COMPARE X2_CS_PIN
+    #elif Y2_CHAIN_POS
+      #define CS_COMPARE Y2_CS_PIN
+    #elif Z2_CHAIN_POS
+      #define CS_COMPARE Z2_CS_PIN
+    #elif Z3_CHAIN_POS
+      #define CS_COMPARE Z3_CS_PIN
+    #elif E0_CHAIN_POS
+      #define CS_COMPARE E0_CS_PIN
+    #elif E1_CHAIN_POS
+      #define CS_COMPARE E1_CS_PIN
+    #elif E2_CHAIN_POS
+      #define CS_COMPARE E2_CS_PIN
+    #elif E3_CHAIN_POS
+      #define CS_COMPARE E3_CS_PIN
+    #elif E4_CHAIN_POS
+      #define CS_COMPARE E4_CS_PIN
+    #elif E5_CHAIN_POS
+      #define CS_COMPARE E5_CS_PIN
+    #else
+      #error "With TMC_USE_CHAIN some TMC drivers should be chained."
+    #endif
+    #if  (X_CHAIN_POS  && X_CS_PIN  != CS_COMPARE) \
+      || (Y_CHAIN_POS  && Y_CS_PIN  != CS_COMPARE) \
+      || (Z_CHAIN_POS  && Z_CS_PIN  != CS_COMPARE) \
+      || (X2_CHAIN_POS && X2_CS_PIN != CS_COMPARE) \
+      || (Y2_CHAIN_POS && Y2_CS_PIN != CS_COMPARE) \
+      || (Z2_CHAIN_POS && Z2_CS_PIN != CS_COMPARE) \
+      || (Z3_CHAIN_POS && Z3_CS_PIN != CS_COMPARE) \
+      || (E0_CHAIN_POS && E0_CS_PIN != CS_COMPARE) \
+      || (E1_CHAIN_POS && E1_CS_PIN != CS_COMPARE) \
+      || (E2_CHAIN_POS && E2_CS_PIN != CS_COMPARE) \
+      || (E3_CHAIN_POS && E3_CS_PIN != CS_COMPARE) \
+      || (E4_CHAIN_POS && E4_CS_PIN != CS_COMPARE) \
+      || (E5_CHAIN_POS && E5_CS_PIN != CS_COMPARE)
+      #error "With TMC_USE_CHAIN all TMC drivers must use the same CS pin."
+    #endif
+  #endif
+  #undef CS_COMPARE
+#endif // TMC_USE_CHAIN
 
 #if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
   #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."

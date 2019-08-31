@@ -313,10 +313,12 @@ void TMC26XStepper::setCurrent(uint16_t current) {
     current_scaling = (byte)((resistor_value * mASetting * 32.0 / (0.165 * sq(1000.0))) - 0.5); //theoretically - 1.0 for better rounding it is 0.5
     #ifdef TMC_DEBUG0 // crashes
         SERIAL_ECHOPAIR("\nCS (Vsense=1): ",current_scaling);
-      } else {
-        SERIAL_ECHOPAIR("\nCS: ", current_scaling);
     #endif
   }
+  #ifdef TMC_DEBUG0 // crashes
+    else
+      SERIAL_ECHOPAIR("\nCS: ", current_scaling);
+  #endif
 
   // do some sanity checks
   NOMORE(current_scaling, 31);

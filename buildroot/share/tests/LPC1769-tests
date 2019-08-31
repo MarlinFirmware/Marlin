@@ -6,9 +6,11 @@
 # exit on first failure
 set -e
 
-restore_configs
+#
+# Build with the default configurations
+#
 use_example_configs Azteeg/X5GT
-exec_test $1 $2 "Azteeg X5GT Example Config"
+exec_test $1 $2 "Azteeg X5GT Example Configuration"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_SMOOTHIEBOARD

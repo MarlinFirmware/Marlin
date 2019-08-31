@@ -98,27 +98,12 @@
 //#define TS_V11
 //#define TS_V12
 
-// 4 - If you want to tune the UI colors, define custom ones here. RGB 16 bits 5-6-5 format
-// see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
-
-//#define TFT_MARLINUI_COLOR 0xFFFF // White
-//#define TFT_MARLINBG_COLOR 0x0000 // Black
-//#define TFT_TOPICONS_COLOR 0x21DD // Blue
-//#define TFT_DISABLED_COLOR 0x0003 // Almost black
-//#define TFT_BTSLEFT_COLOR  0xDEE6 // 11011 110111 00110 Yellow
-//#define TFT_BTRIGHT_COLOR  0x145F // 00010 100010 11111 Cyan
-
 //===========================================================================
 
 // @section info
 
-// User-specified version info of this build to display in [Pronterface, etc] terminal window during
-// startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
-// build by the user have been successfully uploaded into firmware.
+// Author info of this build printed to the host during boot and M115
 #define STRING_CONFIG_H_AUTHOR "Hobi, tpruvot"  // Who made the changes.
-#define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -131,10 +116,13 @@
  * respectfully request that you retain the unmodified Marlin boot screen.
  */
 
-// Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
+// Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
+#define SHOW_BOOTSCREEN
+
+// Show the bitmap in Marlin/_Bootscreen.h on startup.
 //#define SHOW_CUSTOM_BOOTSCREEN
 
-// Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
+// Show the bitmap in Marlin/_Statusscreen.h on the status screen.
 #define CUSTOM_STATUS_SCREEN_IMAGE
 
 // @section machine
@@ -2141,7 +2129,7 @@
 //=============================================================================
 
 //
-// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, A1, etc.)
+// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, REXYZ A1, etc.)
 //
 #define FSMC_GRAPHICAL_TFT
 

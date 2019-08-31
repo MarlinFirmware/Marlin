@@ -29,10 +29,10 @@
 
 #else // !__MARLIN_FIRMWARE__
 
-  #include "Arduino.h"
+  #include <Arduino.h>
 
   #if !defined(CLCD_USE_SOFT_SPI)
-    #include "SPI.h"
+    #include <SPI.h>
   #endif
 
   namespace fast_io {

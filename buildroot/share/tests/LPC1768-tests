@@ -6,9 +6,12 @@
 # exit on first failure
 set -e
 
+#
+# Build with the default configurations
+#
 restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
-exec_test $1 $2 "Build Re-ARM Default Configuration"
+exec_test $1 $2 "Default Configuration"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB

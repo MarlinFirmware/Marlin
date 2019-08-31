@@ -6,6 +6,9 @@
 # exit on first failure
 set -e
 
+#
+# Build with the default configurations
+#
 restore_configs
 opt_set MOTHERBOARD BOARD_ESP32
 opt_enable WIFISUPPORT GCODE_MACROS BAUD_RATE_GCODE

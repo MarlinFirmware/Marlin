@@ -27,6 +27,10 @@
  * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
  */
 
+#ifndef PWM
+  #define PWM OUTPUT
+#endif
+
 #define READ(IO)                digitalRead(IO)
 #define WRITE(IO,V)             digitalWrite(IO,V)
 
@@ -61,6 +65,8 @@
 #define PORTC 2
 #define PORTD 3
 #define PORTE 4
+#define PORTF 5
+#define PORTG 6
 
 #define _STM32_PIN(P,PN) ((PORT##P * 16) + PN)
 

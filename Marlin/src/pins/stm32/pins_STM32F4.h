@@ -32,7 +32,9 @@
 
 //#define I2C_EEPROM
 
-#define E2END 0xFFF // 4KB
+#ifndef E2END
+  #define E2END 0xFFF // 4KB
+#endif
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
