@@ -71,7 +71,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(Olli, default config)" // Who made the changes.
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -88,7 +88,7 @@
 #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
-//#define SHOW_CUSTOM_BOOTSCREEN
+#define SHOW_CUSTOM_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
 //#define CUSTOM_STATUS_SCREEN_IMAGE
@@ -685,7 +685,7 @@
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
 #define ENDSTOP_INTERRUPTS_FEATURE
 // Olli: To enable tmcxxxx SPI and ENDSTOP_INTERRUPTS_FEATURE
-// use build_flags = -fmax-errors=5 -D NO_SOFTWARE_SERIAL
+// use build_flags = -fmax-errors=5 -D FORCE_NO_SW_SERIAL
 // in platformio.ini
 /**
  * Endstop Noise Threshold
