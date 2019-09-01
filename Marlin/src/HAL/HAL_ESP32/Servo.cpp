@@ -58,7 +58,7 @@ void Servo::write(int inDegrees) {
 void Servo::move(const int value) {
   constexpr uint16_t servo_delay[] = SERVO_DELAY;
   static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
-  if (this->attach(0) >= 0) {
+  if (this->reattach() >= 0) {
     this->write(value);
     safe_delay(servo_delay[this->channel]);
     #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)

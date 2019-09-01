@@ -63,7 +63,7 @@
  *  readMicroseconds() - Gets the last written servo pulse width in microseconds. (was read_us() in first release)
  *  attached()  - Returns true if there is a servo attached.
  *  detach()    - Stops an attached servos from pulsing its i/o pin.
- *  move(angle) - Sequence of attach(0), write(angle),
+ *  move(angle) - Sequence of reattach(), write(angle),
  *                   With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY and detach.
  */
 
@@ -98,6 +98,7 @@
       int8_t attach(const int pin);      // attach the given pin to the next free channel, set pinMode, return channel number (-1 on fail)
       int8_t attach(const int pin, const int min, const int max); // as above but also sets min and max values for writes.
       void detach();
+      int8_t reattach();                 // re-attach to the given pin without resetting min/max (assumes nothing else needs the pin)
       void write(int value);             // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
       void writeMicroseconds(int value); // write pulse width in microseconds
       void move(const int value);        // attach the servo, then move to value

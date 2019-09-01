@@ -25,12 +25,14 @@
 
 // Inherit and expand on core Servo library
 class libServo : public Servo {
+  typedef Servo super;
   public:
     int8_t attach(const int pin);
     int8_t attach(const int pin, const int min, const int max);
     void move(const int value);
+    int8_t reattach();  // Re-attach to the given pin without resetting min/max (assumes nothing else needs the pin)
   private:
-     uint16_t min_ticks;
-     uint16_t max_ticks;
-     uint8_t servoIndex; // Index into the channel data for this servo
+    int inputmin, inputmax;
+    uint16_t min_ticks, max_ticks;
+    uint8_t servoIndex; // Index into the channel data for this servo
 };

@@ -26,9 +26,11 @@
 
 // Inherit and expand on the official library
 class libServo : public Servo {
+  typedef Servo super;
   public:
     int8_t attach(const int pin);
     int8_t attach(const int pin, const int min, const int max);
+    inline int8_t reattach() { attach(0); }  // re-attach to the given pin without resetting min/max (assumes nothing else needs the pin)
     void move(const int value);
   private:
     uint16_t min_ticks, max_ticks;

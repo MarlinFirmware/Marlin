@@ -36,6 +36,7 @@ class Servo {
 public:
   Servo();
   int8_t attach(const int pin);   // attach the given pin to the next free channel, set pinMode, return channel number (-1 on fail)
+  inline int8_t reattach() { attach(0); }  // reattach to the same pin
   void detach();
   void write(int degrees);        // set angle
   void move(const int degrees);   // attach the servo, then move to value
