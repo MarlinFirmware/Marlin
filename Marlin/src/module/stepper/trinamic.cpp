@@ -21,204 +21,90 @@
  */
 
 /**
- * stepper_indirection.cpp
- *
- * Stepper motor driver indirection to allow some stepper functions to
- * be done via SPI/I2c instead of direct pin manipulation.
- *
- * Copyright (c) 2015 Dominik Wenger
+ * stepper/trinamic.cpp
+ * Stepper driver indirection for Trinamic
  */
 
-#include "stepper_indirection.h"
-
-#include "../inc/MarlinConfig.h"
-
-#include "stepper.h"
-
-#if HAS_DRIVER(L6470)
-  #include "L6470/L6470_Marlin.h"
-#endif
-
-//
-// TMC26X Driver objects and inits
-//
-#if HAS_DRIVER(TMC26X)
-  #include <SPI.h>
-
-  #if defined(STM32GENERIC) && defined(STM32F7)
-    #include "../HAL/HAL_STM32_F4_F7/STM32F7/TMC2660.h"
-  #else
-    #include <TMC26XStepper.h>
-  #endif
-
-  #define _TMC26X_DEFINE(ST) TMC26XStepper stepper##ST(200, ST##_CS_PIN, ST##_STEP_PIN, ST##_DIR_PIN, ST##_MAX_CURRENT, ST##_SENSE_RESISTOR)
-
-  #if AXIS_DRIVER_TYPE_X(TMC26X)
-    _TMC26X_DEFINE(X);
-  #endif
-  #if AXIS_DRIVER_TYPE_X2(TMC26X)
-    _TMC26X_DEFINE(X2);
-  #endif
-  #if AXIS_DRIVER_TYPE_Y(TMC26X)
-    _TMC26X_DEFINE(Y);
-  #endif
-  #if AXIS_DRIVER_TYPE_Y2(TMC26X)
-    _TMC26X_DEFINE(Y2);
-  #endif
-  #if AXIS_DRIVER_TYPE_Z(TMC26X)
-    _TMC26X_DEFINE(Z);
-  #endif
-  #if AXIS_DRIVER_TYPE_Z2(TMC26X)
-    _TMC26X_DEFINE(Z2);
-  #endif
-  #if AXIS_DRIVER_TYPE_Z3(TMC26X)
-    _TMC26X_DEFINE(Z3);
-  #endif
-  #if AXIS_DRIVER_TYPE_E0(TMC26X)
-    _TMC26X_DEFINE(E0);
-  #endif
-  #if AXIS_DRIVER_TYPE_E1(TMC26X)
-    _TMC26X_DEFINE(E1);
-  #endif
-  #if AXIS_DRIVER_TYPE_E2(TMC26X)
-    _TMC26X_DEFINE(E2);
-  #endif
-  #if AXIS_DRIVER_TYPE_E3(TMC26X)
-    _TMC26X_DEFINE(E3);
-  #endif
-  #if AXIS_DRIVER_TYPE_E4(TMC26X)
-    _TMC26X_DEFINE(E4);
-  #endif
-  #if AXIS_DRIVER_TYPE_E5(TMC26X)
-    _TMC26X_DEFINE(E5);
-  #endif
-
-  #define _TMC26X_INIT(A) do{ \
-    stepper##A.setMicrosteps(A##_MICROSTEPS); \
-    stepper##A.start(); \
-  }while(0)
-
-  void tmc26x_init_to_defaults() {
-    #if AXIS_DRIVER_TYPE_X(TMC26X)
-      _TMC26X_INIT(X);
-    #endif
-    #if AXIS_DRIVER_TYPE_X2(TMC26X)
-      _TMC26X_INIT(X2);
-    #endif
-    #if AXIS_DRIVER_TYPE_Y(TMC26X)
-      _TMC26X_INIT(Y);
-    #endif
-    #if AXIS_DRIVER_TYPE_Y2(TMC26X)
-      _TMC26X_INIT(Y2);
-    #endif
-    #if AXIS_DRIVER_TYPE_Z(TMC26X)
-      _TMC26X_INIT(Z);
-    #endif
-    #if AXIS_DRIVER_TYPE_Z2(TMC26X)
-      _TMC26X_INIT(Z2);
-    #endif
-    #if AXIS_DRIVER_TYPE_Z3(TMC26X)
-      _TMC26X_INIT(Z3);
-    #endif
-    #if AXIS_DRIVER_TYPE_E0(TMC26X)
-      _TMC26X_INIT(E0);
-    #endif
-    #if AXIS_DRIVER_TYPE_E1(TMC26X)
-      _TMC26X_INIT(E1);
-    #endif
-    #if AXIS_DRIVER_TYPE_E2(TMC26X)
-      _TMC26X_INIT(E2);
-    #endif
-    #if AXIS_DRIVER_TYPE_E3(TMC26X)
-      _TMC26X_INIT(E3);
-    #endif
-    #if AXIS_DRIVER_TYPE_E4(TMC26X)
-      _TMC26X_INIT(E4);
-    #endif
-    #if AXIS_DRIVER_TYPE_E5(TMC26X)
-      _TMC26X_INIT(E5);
-    #endif
-  }
-#endif // TMC26X
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_TRINAMIC
-  #include <HardwareSerial.h>
-  #include <SPI.h>
-  #include "planner.h"
-  #include "../core/enum.h"
 
-  enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
-  #define _TMC_INIT(ST, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX])
+#include "trinamic.h"
+#include "../stepper.h"
 
-  //   IC = TMC model number
-  //   ST = Stepper object letter
-  //   L  = Label characters
-  //   AI = Axis Enum Index
-  // SWHW = SW/SH UART selection
-  #if ENABLED(TMC_USE_SW_SPI)
-    #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
-  #else
-    #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
-  #endif
+#include <HardwareSerial.h>
+#include <SPI.h>
 
-  #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE, ST##_SLAVE_ADDRESS)
-  #define TMC_UART_SW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_RSENSE, ST##_SLAVE_ADDRESS, ST##_SERIAL_RX_PIN > -1)
+enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
+#define _TMC_INIT(ST, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX])
 
-  #define _TMC_SPI_DEFINE(IC, ST, AI) __TMC_SPI_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
-  #define TMC_SPI_DEFINE(ST, AI) _TMC_SPI_DEFINE(ST##_DRIVER_TYPE, ST, AI##_AXIS)
+//   IC = TMC model number
+//   ST = Stepper object letter
+//   L  = Label characters
+//   AI = Axis Enum Index
+// SWHW = SW/SH UART selection
+#if ENABLED(TMC_USE_SW_SPI)
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+#else
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+#endif
 
-  #define _TMC_UART_DEFINE(SWHW, IC, ST, AI) TMC_UART_##SWHW##_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
-  #define TMC_UART_DEFINE(SWHW, ST, AI) _TMC_UART_DEFINE(SWHW, ST##_DRIVER_TYPE, ST, AI##_AXIS)
+#define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE, ST##_SLAVE_ADDRESS)
+#define TMC_UART_SW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_RSENSE, ST##_SLAVE_ADDRESS, ST##_SERIAL_RX_PIN > -1)
 
-  #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
-    #define TMC_SPI_DEFINE_E(AI) TMC_SPI_DEFINE(E##AI, E##AI)
-    #define TMC_UART_DEFINE_E(SWHW, AI) TMC_UART_DEFINE(SWHW, E##AI, E##AI)
-  #else
-    #define TMC_SPI_DEFINE_E(AI) TMC_SPI_DEFINE(E##AI, E)
-    #define TMC_UART_DEFINE_E(SWHW, AI) TMC_UART_DEFINE(SWHW, E##AI, E)
-  #endif
+#define _TMC_SPI_DEFINE(IC, ST, AI) __TMC_SPI_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
+#define TMC_SPI_DEFINE(ST, AI) _TMC_SPI_DEFINE(ST##_DRIVER_TYPE, ST, AI##_AXIS)
 
-  // Stepper objects of TMC2130/TMC2160/TMC2660/TMC5130/TMC5160 steppers used
-  #if AXIS_HAS_SPI(X)
-    TMC_SPI_DEFINE(X, X);
-  #endif
-  #if AXIS_HAS_SPI(X2)
-    TMC_SPI_DEFINE(X2, X);
-  #endif
-  #if AXIS_HAS_SPI(Y)
-    TMC_SPI_DEFINE(Y, Y);
-  #endif
-  #if AXIS_HAS_SPI(Y2)
-    TMC_SPI_DEFINE(Y2, Y);
-  #endif
-  #if AXIS_HAS_SPI(Z)
-    TMC_SPI_DEFINE(Z, Z);
-  #endif
-  #if AXIS_HAS_SPI(Z2)
-    TMC_SPI_DEFINE(Z2, Z);
-  #endif
-  #if AXIS_HAS_SPI(Z3)
-    TMC_SPI_DEFINE(Z3, Z);
-  #endif
-  #if AXIS_HAS_SPI(E0)
-    TMC_SPI_DEFINE_E(0);
-  #endif
-  #if AXIS_HAS_SPI(E1)
-    TMC_SPI_DEFINE_E(1);
-  #endif
-  #if AXIS_HAS_SPI(E2)
-    TMC_SPI_DEFINE_E(2);
-  #endif
-  #if AXIS_HAS_SPI(E3)
-    TMC_SPI_DEFINE_E(3);
-  #endif
-  #if AXIS_HAS_SPI(E4)
-    TMC_SPI_DEFINE_E(4);
-  #endif
-  #if AXIS_HAS_SPI(E5)
-    TMC_SPI_DEFINE_E(5);
-  #endif
+#define _TMC_UART_DEFINE(SWHW, IC, ST, AI) TMC_UART_##SWHW##_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
+#define TMC_UART_DEFINE(SWHW, ST, AI) _TMC_UART_DEFINE(SWHW, ST##_DRIVER_TYPE, ST, AI##_AXIS)
 
+#if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+  #define TMC_SPI_DEFINE_E(AI) TMC_SPI_DEFINE(E##AI, E##AI)
+  #define TMC_UART_DEFINE_E(SWHW, AI) TMC_UART_DEFINE(SWHW, E##AI, E##AI)
+#else
+  #define TMC_SPI_DEFINE_E(AI) TMC_SPI_DEFINE(E##AI, E)
+  #define TMC_UART_DEFINE_E(SWHW, AI) TMC_UART_DEFINE(SWHW, E##AI, E)
+#endif
+
+// Stepper objects of TMC2130/TMC2160/TMC2660/TMC5130/TMC5160 steppers used
+#if AXIS_HAS_SPI(X)
+  TMC_SPI_DEFINE(X, X);
+#endif
+#if AXIS_HAS_SPI(X2)
+  TMC_SPI_DEFINE(X2, X);
+#endif
+#if AXIS_HAS_SPI(Y)
+  TMC_SPI_DEFINE(Y, Y);
+#endif
+#if AXIS_HAS_SPI(Y2)
+  TMC_SPI_DEFINE(Y2, Y);
+#endif
+#if AXIS_HAS_SPI(Z)
+  TMC_SPI_DEFINE(Z, Z);
+#endif
+#if AXIS_HAS_SPI(Z2)
+  TMC_SPI_DEFINE(Z2, Z);
+#endif
+#if AXIS_HAS_SPI(Z3)
+  TMC_SPI_DEFINE(Z3, Z);
+#endif
+#if AXIS_HAS_SPI(E0)
+  TMC_SPI_DEFINE_E(0);
+#endif
+#if AXIS_HAS_SPI(E1)
+  TMC_SPI_DEFINE_E(1);
+#endif
+#if AXIS_HAS_SPI(E2)
+  TMC_SPI_DEFINE_E(2);
+#endif
+#if AXIS_HAS_SPI(E3)
+  TMC_SPI_DEFINE_E(3);
+#endif
+#if AXIS_HAS_SPI(E4)
+  TMC_SPI_DEFINE_E(4);
+#endif
+#if AXIS_HAS_SPI(E5)
+  TMC_SPI_DEFINE_E(5);
 #endif
 
 #if HAS_DRIVER(TMC2130)
@@ -704,7 +590,7 @@
   }
 #endif // TMC5160
 
-void restore_stepper_drivers() {
+void restore_trinamic_drivers() {
   #if AXIS_IS_TMC(X)
     stepperX.push();
   #endif
@@ -746,39 +632,28 @@ void restore_stepper_drivers() {
   #endif
 }
 
-void reset_stepper_drivers() {
+void reset_trinamic_drivers() {
+  static constexpr bool stealthchop_by_axis[] = {
+    #if ENABLED(STEALTHCHOP_XY)
+      true
+    #else
+      false
+    #endif
+    ,
+    #if ENABLED(STEALTHCHOP_Z)
+      true
+    #else
+      false
+    #endif
+    ,
+    #if ENABLED(STEALTHCHOP_E)
+      true
+    #else
+      false
+    #endif
+  };
 
-  #if HAS_DRIVER(TMC26X)
-    tmc26x_init_to_defaults();
-  #endif
-
-  #if HAS_DRIVER(L6470)
-    L6470.init_to_defaults();
-  #endif
-
-  #if HAS_TRINAMIC
-    static constexpr bool stealthchop_by_axis[] = {
-      #if ENABLED(STEALTHCHOP_XY)
-        true
-      #else
-        false
-      #endif
-      ,
-      #if ENABLED(STEALTHCHOP_Z)
-        true
-      #else
-        false
-      #endif
-      ,
-      #if ENABLED(STEALTHCHOP_E)
-        true
-      #else
-        false
-      #endif
-    };
-  #endif
-
- #if TMC_USE_CHAIN
+  #if TMC_USE_CHAIN
 
     enum TMC_axis_enum : unsigned char { _, X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 };
     #define __TMC_CHAIN(Q,V) do{ stepper##Q.set_chain_info(Q,V); }while(0)
@@ -942,125 +817,7 @@ void reset_stepper_drivers() {
     TMC_ADV()
   #endif
 
-  #if HAS_TRINAMIC
-    stepper.set_directions();
-  #endif
+  stepper.set_directions();
 }
 
-//
-// L6470 Driver objects and inits
-//
-#if HAS_DRIVER(L6470)
-
-  // create stepper objects
-
-  #define _L6470_DEFINE(ST) L6470 stepper##ST((const int)L6470_CHAIN_SS_PIN)
-
-  // L6470 Stepper objects
-  #if AXIS_DRIVER_TYPE_X(L6470)
-    _L6470_DEFINE(X);
-  #endif
-  #if AXIS_DRIVER_TYPE_X2(L6470)
-    _L6470_DEFINE(X2);
-  #endif
-  #if AXIS_DRIVER_TYPE_Y(L6470)
-    _L6470_DEFINE(Y);
-  #endif
-  #if AXIS_DRIVER_TYPE_Y2(L6470)
-    _L6470_DEFINE(Y2);
-  #endif
-  #if AXIS_DRIVER_TYPE_Z(L6470)
-    _L6470_DEFINE(Z);
-  #endif
-  #if AXIS_DRIVER_TYPE_Z2(L6470)
-    _L6470_DEFINE(Z2);
-  #endif
-  #if AXIS_DRIVER_TYPE_Z3(L6470)
-    _L6470_DEFINE(Z3);
-  #endif
-  #if AXIS_DRIVER_TYPE_E0(L6470)
-    _L6470_DEFINE(E0);
-  #endif
-  #if AXIS_DRIVER_TYPE_E1(L6470)
-    _L6470_DEFINE(E1);
-  #endif
-  #if AXIS_DRIVER_TYPE_E2(L6470)
-    _L6470_DEFINE(E2);
-  #endif
-  #if AXIS_DRIVER_TYPE_E3(L6470)
-    _L6470_DEFINE(E3);
-  #endif
-  #if AXIS_DRIVER_TYPE_E4(L6470)
-    _L6470_DEFINE(E4);
-  #endif
-  #if AXIS_DRIVER_TYPE_E5(L6470)
-    _L6470_DEFINE(E5);
-  #endif
-
-  // not using L6470 library's init command because it
-  // briefly sends power to the steppers
-
-  #define _L6470_INIT_CHIP(Q) do{                             \
-    stepper##Q.resetDev();                                    \
-    stepper##Q.softFree();                                    \
-    stepper##Q.SetParam(L6470_CONFIG, CONFIG_PWM_DIV_1        \
-                                    | CONFIG_PWM_MUL_2        \
-                                    | CONFIG_SR_290V_us       \
-                                    | CONFIG_OC_SD_DISABLE    \
-                                    | CONFIG_VS_COMP_DISABLE  \
-                                    | CONFIG_SW_HARD_STOP     \
-                                    | CONFIG_INT_16MHZ);      \
-    stepper##Q.SetParam(L6470_KVAL_RUN, 0xFF);                \
-    stepper##Q.SetParam(L6470_KVAL_ACC, 0xFF);                \
-    stepper##Q.SetParam(L6470_KVAL_DEC, 0xFF);                \
-    stepper##Q.setMicroSteps(Q##_MICROSTEPS);                 \
-    stepper##Q.setOverCurrent(Q##_OVERCURRENT);               \
-    stepper##Q.setStallCurrent(Q##_STALLCURRENT);             \
-    stepper##Q.SetParam(L6470_KVAL_HOLD, Q##_MAX_VOLTAGE);    \
-    stepper##Q.SetParam(L6470_ABS_POS, 0);                    \
-    stepper##Q.getStatus();                                   \
-  }while(0)
-
-  void L6470_Marlin::init_to_defaults() {
-    #if AXIS_DRIVER_TYPE_X(L6470)
-      _L6470_INIT_CHIP(X);
-    #endif
-    #if AXIS_DRIVER_TYPE_X2(L6470)
-      _L6470_INIT_CHIP(X2);
-    #endif
-    #if AXIS_DRIVER_TYPE_Y(L6470)
-      _L6470_INIT_CHIP(Y);
-    #endif
-    #if AXIS_DRIVER_TYPE_Y2(L6470)
-      _L6470_INIT_CHIP(Y2);
-    #endif
-    #if AXIS_DRIVER_TYPE_Z(L6470)
-      _L6470_INIT_CHIP(Z);
-    #endif
-    #if AXIS_DRIVER_TYPE_Z2(L6470)
-      _L6470_INIT_CHIP(Z2);
-    #endif
-    #if AXIS_DRIVER_TYPE_Z3(L6470)
-      _L6470_INIT_CHIP(Z3);
-    #endif
-    #if AXIS_DRIVER_TYPE_E0(L6470)
-      _L6470_INIT_CHIP(E0);
-    #endif
-    #if AXIS_DRIVER_TYPE_E1(L6470)
-      _L6470_INIT_CHIP(E1);
-    #endif
-    #if AXIS_DRIVER_TYPE_E2(L6470)
-      _L6470_INIT_CHIP(E2);
-    #endif
-    #if AXIS_DRIVER_TYPE_E3(L6470)
-      _L6470_INIT_CHIP(E3);
-    #endif
-    #if AXIS_DRIVER_TYPE_E4(L6470)
-      _L6470_INIT_CHIP(E4);
-    #endif
-    #if AXIS_DRIVER_TYPE_E5(L6470)
-      _L6470_INIT_CHIP(E5);
-    #endif
-  }
-
-#endif // L6470
+#endif // HAS_TRINAMIC

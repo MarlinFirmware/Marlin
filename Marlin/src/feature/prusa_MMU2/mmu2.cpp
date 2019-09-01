@@ -35,7 +35,7 @@ MMU2 mmu2;
 #include "../../libs/nozzle.h"
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
-#include "../../module/stepper_indirection.h"
+#include "../../module/stepper/indirection.h"
 #include "../../Marlin.h"
 
 #if ENABLED(HOST_PROMPT_SUPPORT)

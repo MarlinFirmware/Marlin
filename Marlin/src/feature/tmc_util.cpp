@@ -27,7 +27,7 @@
 #include "tmc_util.h"
 #include "../Marlin.h"
 
-#include "../module/stepper_indirection.h"
+#include "../module/stepper/indirection.h"
 #include "../module/printcounter.h"
 #include "../libs/duration_t.h"
 #include "../gcode/gcode.h"
