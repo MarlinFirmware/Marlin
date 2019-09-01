@@ -219,7 +219,7 @@ bool MarlinUI::detected() { return true; }
     #ifndef BOOTSCREEN_TIMEOUT
       #define BOOTSCREEN_TIMEOUT 2500
     #endif
-    for (uint8_t q = 2; q--;) {
+    for (uint8_t q = 1; q--;) {
       #if DISABLED(BOOT_MARLIN_LOGO_ANIMATED)
         u8g.firstPage();
         do { draw_marlin_bootscreen(q == 0); } while (u8g.nextPage());
