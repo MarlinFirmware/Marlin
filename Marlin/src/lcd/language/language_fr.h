@@ -293,7 +293,7 @@
 #define MSG_STOP_PRINT                      _UxGT("Arrêter impr.")
 #define MSG_OUTAGE_RECOVERY                 _UxGT("Récupér. coupure")
 #define MSG_MEDIA_MENU                      _UxGT("Impression SD")
-#define MSG_NO_MEDIA                        _UxGT("Pas de carte")
+#define MSG_NO_MEDIA                        _UxGT("Pas de média")
 #define MSG_DWELL                           _UxGT("Repos...")
 #define MSG_USERWAIT                        _UxGT("Attente utilis.")
 #define MSG_PRINT_PAUSED                    _UxGT("Impr. en pause")
