@@ -371,8 +371,8 @@ bool MarlinUI::detected() {
 #if HAS_SLOW_BUTTONS
   uint8_t MarlinUI::read_slow_buttons() {
     #if ENABLED(LCD_I2C_TYPE_MCP23017)
-      // Reading these buttons this is likely to be too slow to call inside interrupt context
-      // so they are called during normal lcd_update
+      // Reading these buttons is too slow for interrupt context
+      // so they are read during LCD update in the main loop.
       uint8_t slow_bits = lcd.readButtons()
         #if !BUTTON_EXISTS(ENC)
           << B_I2C_BTN_OFFSET
@@ -381,7 +381,7 @@ bool MarlinUI::detected() {
       #if ENABLED(LCD_I2C_VIKI)
         if ((slow_bits & (B_MI | B_RI)) && PENDING(millis(), next_button_update_ms)) // LCD clicked
           slow_bits &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
-      #endif // LCD_I2C_VIKI
+      #endif
       return slow_bits;
     #endif // LCD_I2C_TYPE_MCP23017
   }

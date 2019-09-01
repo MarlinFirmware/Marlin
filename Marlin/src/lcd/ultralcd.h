@@ -306,6 +306,8 @@ public:
 
     #if HAS_SPI_LCD
 
+      static millis_t next_button_update_ms;
+
       static bool detected();
 
       static LCDViewAction lcdDrawUpdate;

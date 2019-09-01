@@ -133,7 +133,7 @@ uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
   millis_t MarlinUI::next_filament_display; // = 0
 #endif
 
-millis_t next_button_update_ms;
+millis_t MarlinUI::next_button_update_ms; // = 0
 
 #if HAS_GRAPHICAL_LCD
   bool MarlinUI::drawing_screen, MarlinUI::first_page; // = false
