@@ -2616,6 +2616,16 @@
 #endif
 
 /**
+ * Servo Stepper options
+ * Axes that use the 'SERVOSTEPPER' driver type are redirected to a servo
+ */
+#if HAS_SERVOSTEPPER
+  #define SERVO_X_INDEX 0
+  #define SERVO_Y_INDEX 1
+  #define SERVO_Z_INDEX 2
+#endif
+
+/**
  * Prusa Multi-Material Unit v2
  * Enable in Configuration.h
  */

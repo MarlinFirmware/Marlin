@@ -28,6 +28,7 @@
 #define _DRV8825            0x003
 #define _LV8729             0x004
 #define _L6470              0x105
+#define _SERVOSTEPPER       0x555
 #define _TB6560             0x006
 #define _TB6600             0x007
 #define _TMC2100            0x008
@@ -75,6 +76,8 @@
                         || AXIS_DRIVER_TYPE_Y(T)  || AXIS_DRIVER_TYPE_Y2(T) \
                         || AXIS_DRIVER_TYPE_Z(T)  || AXIS_DRIVER_TYPE_Z2(T) || AXIS_DRIVER_TYPE_Z3(T) \
                         || HAS_E_DRIVER(T) )
+
+#define HAS_SERVOSTEPPER HAS_DRIVER(SERVOSTEPPER)
 
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations

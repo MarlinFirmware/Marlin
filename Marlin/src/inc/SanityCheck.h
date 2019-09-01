@@ -2262,6 +2262,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
+/**
+ * Servo-based stepper requirements
+ */
+#if HAS_SERVOSTEPPER && NUM_SERVOS < 1
+  #error "SERVOSTEPPER requires NUM_SERVOS > 0."
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY) && DISABLED(ULTIPANEL)
   #error "POWER_LOSS_RECOVERY currently requires an LCD Controller."
 #endif
