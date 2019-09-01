@@ -33,8 +33,10 @@
 
 #define BW(N) ((N + 7) / 8)
 
-#if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE)
+#if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && DISABLED(STATUS_COMBINE_HEATERS)
 
+  #undef STATUS_HEATERS_X
+  #undef STATUS_BED_X
   /**
    * Custom _Statusscreen.h files can define:
    * - A custom logo image
@@ -674,7 +676,9 @@
   #define STATUS_CHAMBER_WIDTH 21
 
   #if STATUS_HEATERS_WIDTH
-    #if HAS_FAN0 && HAS_HEATED_BED && HOTENDS <= 2
+    #if ENABLED(STATUS_COMBINE_HEATERS)
+      #define STATUS_CHAMBER_X (LCD_PIXEL_WIDTH - 2 - (STATUS_CHAMBER_BYTEWIDTH) * 8)
+    #elif HAS_FAN0 && HAS_HEATED_BED && HOTENDS <= 2
       #define STATUS_CHAMBER_X (LCD_PIXEL_WIDTH - 2 - (STATUS_HEATERS_BYTEWIDTH - STATUS_CHAMBER_BYTEWIDTH) * 8)
     #elif HAS_FAN0 && !HAS_HEATED_BED
       #define STATUS_CHAMBER_X (LCD_PIXEL_WIDTH - (STATUS_CHAMBER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8)
@@ -743,7 +747,7 @@
 // Can also be overridden in Configuration_adv.h
 // If you can afford it, try the 3-frame fan animation!
 // Don't compile in the fan animation with no fan
-#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && BED_CHAM) || (HOTENDS == 3 && HAS_HEATED_BED && HAS_HEATED_CHAMBER))
+#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && BED_CHAM) || (ENABLED(STATUS_COMBINE_HEATERS) && HAS_HEATED_CHAMBER))
   #undef STATUS_FAN_FRAMES
 #elif !STATUS_FAN_FRAMES
   #define STATUS_FAN_FRAMES 2
