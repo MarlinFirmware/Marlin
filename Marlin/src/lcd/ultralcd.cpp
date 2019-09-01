@@ -741,15 +741,18 @@ void MarlinUI::update() {
   static millis_t next_lcd_update_ms;
   millis_t ms = millis();
 
+  #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+    static millis_t return_to_status_ms = 0;
+    #define RESET_STATUS_TIMEOUT() (return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS)
+  #else
+    #define RESET_STATUS_TIMEOUT() NOOP
+  #endif
+
   #ifdef LED_BACKLIGHT_TIMEOUT
     leds.update_timeout(powersupply_on);
   #endif
 
   #if HAS_LCD_MENU
-
-    #if LCD_TIMEOUT_TO_STATUS
-      static millis_t return_to_status_ms = 0;
-    #endif
 
     // Handle any queued Move Axis motion
     manage_manual_move();
@@ -769,14 +772,12 @@ void MarlinUI::update() {
       if (ELAPSED(ms, next_button_update_ms)) {
         uint8_t touch_buttons = touch.read_buttons();
         if (touch_buttons) {
-          #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
-            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-          #endif
           // B1000000 ia a flag that touched area is Menu Item.
           if (touch_buttons & B10000000) {               // Processing Menu Area touch
             if (!wait_for_unclick) {                     // If not waiting for a debounce release:
               wait_for_unclick = true;                   //  - Set debounce flag to ignore continous clicks
               wait_for_user = false;                     //  - Any click clears wait for user
+          RESET_STATUS_TIMEOUT();
               // TODO for next PR.
               // lcd_menu_touched_coord = touch_buttons; // Safe 7bit touched screen coordinate 
               next_button_update_ms = millis() + 500;    // Set Delay
@@ -896,13 +897,7 @@ void MarlinUI::update() {
       #endif
 
       #if ENABLED(REPRAPWORLD_KEYPAD)
-
-        if (handle_keypad()) {
-          #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
-            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-          #endif
-        }
-
+        if (handle_keypad()) RESET_STATUS_TIMEOUT();
       #endif
 
       const float abs_diff = ABS(encoderDiff);
@@ -948,9 +943,7 @@ void MarlinUI::update() {
           encoderDiff = 0;
         }
 
-        #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
-          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-        #endif
+        RESET_STATUS_TIMEOUT();
 
         refresh(LCDVIEW_REDRAW_NOW);
 
@@ -983,9 +976,7 @@ void MarlinUI::update() {
           lcd_status_update_delay = 12;
         }
         refresh(LCDVIEW_REDRAW_NOW);
-        #if LCD_TIMEOUT_TO_STATUS
-          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-        #endif
+        RESET_STATUS_TIMEOUT();
       }
     #endif
 
@@ -1059,7 +1050,7 @@ void MarlinUI::update() {
     #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
       // Return to Status Screen after a timeout
       if (on_status_screen() || defer_return_to_status)
-        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        RESET_STATUS_TIMEOUT();
       else if (ELAPSED(ms, return_to_status_ms))
         return_to_status();
     #endif
