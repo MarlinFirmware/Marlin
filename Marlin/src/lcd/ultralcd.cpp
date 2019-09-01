@@ -766,36 +766,36 @@ void MarlinUI::update() {
 
     #if ENABLED(TOUCH_BUTTONS)
 
+      #define TOUCH_MENU_MASK 0x80
+
       static bool arrow_pressed; // = false
 
-      // Handle touch_buttons which are slow to read
+      // Handle touch events which are slow to read
       if (ELAPSED(ms, next_button_update_ms)) {
         uint8_t touch_buttons = touch.read_buttons();
         if (touch_buttons) {
-          // B1000000 ia a flag that touched area is Menu Item.
-          if (touch_buttons & B10000000) {               // Processing Menu Area touch
-            if (!wait_for_unclick) {                     // If not waiting for a debounce release:
-              wait_for_unclick = true;                   //  - Set debounce flag to ignore continous clicks
-              wait_for_user = false;                     //  - Any click clears wait for user
           RESET_STATUS_TIMEOUT();
+          if (touch_buttons & TOUCH_MENU_MASK) {        // Processing Menu Area touch?
+            if (!wait_for_unclick) {                    // If not waiting for a debounce release:
+              wait_for_unclick = true;                  //  - Set debounce flag to ignore continous clicks
+              wait_for_user = false;                    //  - Any click clears wait for user
               // TODO for next PR.
-              // lcd_menu_touched_coord = touch_buttons; // Safe 7bit touched screen coordinate 
-              next_button_update_ms = millis() + 500;    // Set Delay
+              //uint8_t tpos = touch_buttons & ~(TOUCH_MENU_MASK);  // Safe 7bit touched screen coordinate
+              next_button_update_ms = ms + 500;         // Defer next check for 1/2 second
               #if HAS_LCD_MENU
                 refresh();
               #endif
-            }  
-            touch_buttons = 0;
+            }
+            touch_buttons = 0;                          // Swallow the touch
           }
-          if (touch_buttons & EN_C) buttons |= EN_C;
-          if (touch_buttons & EN_D) buttons |= EN_D;
-          if (touch_buttons & (EN_A | EN_B)) {
-            next_button_update_ms = ms + 50;       // Set delay for repeat
+          buttons |= (touch_buttons & (EN_C | EN_D));   // Pass on Click and Back buttons
+          if (touch_buttons & (EN_A | EN_B)) {          // A and/or B button?
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
             if (touch_buttons & EN_B) encoderDiff *= -1;
+            next_button_update_ms = ms + 50;            // Assume the repeat delay
             if (!wait_for_unclick && !arrow_pressed) {  // On click prepare for repeat
-              arrow_pressed = true;                     // Mark arrow as pressed
               next_button_update_ms += 250;             // Longer delay on first press
+              arrow_pressed = true;                     // Mark arrow as pressed
               #if HAS_BUZZER
                 buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
               #endif
