@@ -2281,7 +2281,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   constexpr float sanity_arr_z_align_x[] = Z_STEPPER_ALIGN_X, sanity_arr_z_align_y[] = Z_STEPPER_ALIGN_Y;
   static_assert(
     COUNT(sanity_arr_z_align_x) == Z_STEPPER_COUNT && COUNT(sanity_arr_z_align_y) == Z_STEPPER_COUNT,
-    "Z_STEPPER_ALIGN_[XY]POS settings require one element per Z stepper."
+    "Z_STEPPER_ALIGN_[XY] settings require one element per Z stepper."
   );
 #endif
 
