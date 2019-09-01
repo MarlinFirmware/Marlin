@@ -589,9 +589,9 @@
     #define STATUS_BED_ANIM
     #define STATUS_BED_WIDTH  24
     #ifndef STATUS_BED_X
-      #define STATUS_BED_X    72
+      #define STATUS_BED_X   (LCD_PIXEL_WIDTH - (STATUS_BED_BYTEWIDTH + STATUS_CHAMBER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8)
     #endif
-    #define STATUS_BED_TEXT_X (STATUS_BED_X + 13)
+    #define STATUS_BED_TEXT_X (STATUS_BED_X + 11)
 
     const unsigned char status_bed_bmp[] PROGMEM = {
       B11111111,B11111111,B11000000,
