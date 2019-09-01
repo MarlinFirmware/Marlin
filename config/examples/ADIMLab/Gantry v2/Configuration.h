@@ -71,7 +71,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(ETE-Design, Granty v2)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(ETE-Design, Gantry v2)" // Who made the changes.
 
 /**
  * *** VENDORS PLEASE READ ***
