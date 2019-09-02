@@ -146,3 +146,11 @@ FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 #pragma GCC diagnostic ignored "-Wunused-function"
 int freeMemory(void);
 #pragma GCC diagnostic pop
+
+#ifdef __cplusplus
+  extern "C" {
+#endif
+char *dtostrf(double __val, signed char __width, unsigned char __prec, char *__s);
+#ifdef __cplusplus
+  }
+#endif
