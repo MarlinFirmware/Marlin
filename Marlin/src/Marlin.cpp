@@ -1193,7 +1193,6 @@ void loop() {
 
     #endif // SDSUPPORT
 
-    if (queue.length < BUFSIZE) queue.get_available_commands();
     queue.advance();
     endstops.event_handler();
   }
