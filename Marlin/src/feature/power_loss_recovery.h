@@ -151,6 +151,13 @@ class PrintJobRecovery {
       , const bool save_queue=true
     );
 
+  #if PIN_EXISTS(POWER_LOSS)
+    static inline void outage() {
+      if (enabled && IS_SD_PRINTING() && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
+        _outage();
+    }
+  #endif
+
   static inline bool valid() { return info.valid_head && info.valid_head == info.valid_foot; }
 
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
@@ -161,6 +168,10 @@ class PrintJobRecovery {
 
   private:
     static void write();
+
+  #if PIN_EXISTS(POWER_LOSS)
+    static void _outage();
+  #endif
 };
 
 extern PrintJobRecovery recovery;
