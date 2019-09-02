@@ -816,6 +816,10 @@ void GcodeSuite::process_next_command() {
 
   PORT_REDIRECT(queue.port[queue.index_r]);
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.update_sdpos(queue.index_r);
+  #endif
+
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLN(current_command);

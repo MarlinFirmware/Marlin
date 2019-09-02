@@ -129,6 +129,7 @@ void PrintJobRecovery::load() {
  */
 void PrintJobRecovery::prepare() {
   card.getAbsFilename(info.sd_filename);  // SD filename
+  cmd_sdpos = 0;
 }
 
 /**
@@ -213,16 +214,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     info.relative_mode = relative_mode;
     info.relative_modes_e = gcode.axis_relative_modes[E_AXIS];
 
-    // Commands in the queue
-    info.queue_length = save_queue ? queue.length : 0;
-    info.queue_index_r = queue.index_r;
-    COPY(info.queue_buffer, queue.command_buffer);
-
     // Elapsed print job time
     info.print_job_elapsed = print_job_timer.duration();
-
-    // SD file position
-    info.sdpos = card.getIndex();
 
     write();
   }
@@ -406,11 +399,6 @@ void PrintJobRecovery::resume() {
     }
   #endif
 
-  // Process commands from the old pending queue
-  uint8_t c = info.queue_length, r = info.queue_index_r;
-  for (; c--; r = (r + 1) % BUFSIZE)
-    gcode.process_subcommands_now(info.queue_buffer[r]);
-
   // Resume the SD file from the last position
   char *fn = info.sd_filename;
   sprintf_P(cmd, PSTR("M23 %s"), fn);
@@ -489,9 +477,6 @@ void PrintJobRecovery::resume() {
           DEBUG_EOL();
           DEBUG_ECHOLNPAIR("retract_hop: ", info.retract_hop);
         #endif
-        DEBUG_ECHOLNPAIR("queue_index_r: ", int(info.queue_index_r));
-        DEBUG_ECHOLNPAIR("queue_length: ", int(info.queue_length));
-        for (uint8_t i = 0; i < info.queue_length; i++) DEBUG_ECHOLNPAIR("> ", info.queue_buffer[i]);
         DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
         DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
         DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);

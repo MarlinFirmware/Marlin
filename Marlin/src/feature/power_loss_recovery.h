@@ -90,10 +90,6 @@ typedef struct {
   // Relative mode
   bool relative_mode, relative_modes_e;
 
-  // Command queue
-  uint8_t queue_length, queue_index_r;
-  char queue_buffer[BUFSIZE][MAX_CMD_SIZE];
-
   // SD Filename and position
   char sd_filename[MAXPATHNAMELENGTH];
   uint32_t sdpos;
@@ -112,6 +108,9 @@ class PrintJobRecovery {
     static SdFile file;
     static job_recovery_info_t info;
 
+    static uint32_t cmd_sdpos,        //!< SD position of the next command
+                    sdpos[BUFSIZE];   //!< SD positions of queued commands
+
     static void init();
     static void prepare();
 
@@ -128,6 +127,12 @@ class PrintJobRecovery {
         #endif
       #endif
     }
+
+    // Track each command's file offsets
+    static inline void update_sdpos(const uint8_t index_r) {
+      if (sdpos[index_r]) info.sdpos = sdpos[index_r];
+    }
+    static inline void commit_sdpos(const uint8_t index_w) { sdpos[index_w] = cmd_sdpos; }
 
     static bool enabled;
     static void enable(const bool onoff);
