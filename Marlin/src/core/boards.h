@@ -301,6 +301,7 @@
 #define BOARD_BIGTREE_BTT002_V1_0     4208  // BigTreeTech BTT002 v1.0 (STM32F407VE)
 #define BOARD_LERDGE_K                4209  // Lerdge K (STM32F407ZG)
 #define BOARD_LERDGE_X                4210  // Lerdge X (STM32F407VE)
+#define BOARD_FYSETC_S6               4211  // FYSETC S6 board
 
 //
 // ARM Cortex M7
