@@ -226,7 +226,7 @@ public:
                 }
                 thePool[index].address = addr;
 #if DEBUG_PRINTF_EXTRA_HUGE
-#if defined(UHS_DEBUG_USB_ADDRESS)
+#ifdef UHS_DEBUG_USB_ADDRESS
                 printf("Address: %x (%x.%x.%x)\r\n", addr.devAddress, addr.bmHub, addr.bmParent, addr.bmAddress);
 #endif
 #endif

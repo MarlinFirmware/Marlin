@@ -128,7 +128,7 @@
   // P2_08 E1-Step
   // P2_13 E1-Dir
 
-  #ifndef  X_SERIAL_TX_PIN
+  #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN  P0_01
   #endif
   #ifndef X_SERIAL_RX_PIN

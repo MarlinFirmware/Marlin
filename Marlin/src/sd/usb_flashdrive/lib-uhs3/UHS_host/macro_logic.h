@@ -139,7 +139,7 @@ AJK_IIF(AJK_BITAND(AJK_IS_COMPARABLE(x))(AJK_IS_COMPARABLE(y)) ) \
 
 #define AJK_FUN(AJK_count, AJK_v, AJK_args, AJK_body) AJK_v ## AJK_count (AJK_args) { AJK_body(AJK_count) }
 #define AJK_MAKE_FUNS(AJK_v, AJK_args, AJK_count, AJK_body) AJK_EVAL(AJK_REPEAT(AJK_count, AJK_FUN, AJK_v, AJK_args, AJK_body))
-#if defined(AJK_TEST_MACRO_LOGIC)
+#ifdef AJK_TEST_MACRO_LOGIC
 
 #define BODY(AJKindex) some(C, statement); contaning(a, test[AJKindex]);
 #define ZERO_TIMES_TEST 0

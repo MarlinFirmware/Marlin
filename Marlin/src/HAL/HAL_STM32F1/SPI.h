@@ -58,7 +58,7 @@
 #define SPI_2XCLOCK_MASK 0x01  // SPI2X = bit 0 on SPSR
 
 // define SPI_AVR_EIMSK for AVR boards with external interrupt pins
-#if defined(EIMSK)
+#ifdef EIMSK
   #define SPI_AVR_EIMSK EIMSK
 #elif defined(GICR)
   #define SPI_AVR_EIMSK GICR

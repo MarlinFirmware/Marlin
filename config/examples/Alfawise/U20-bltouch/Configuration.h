@@ -592,7 +592,7 @@
   #define DEFAULT_bedKd 1164.25
 #endif
 
-#if defined(U20_PLUS)
+#ifdef U20_PLUS
   // These PID setting MUST be updated.
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
   #define DEFAULT_bedKp 841.68
@@ -1114,7 +1114,7 @@
 #define Z_MACHINE_MAX 400
 #endif
 
-#if defined(U20_PLUS)
+#ifdef U20_PLUS
 #define X_BED_SIZE 400
 #define Y_BED_SIZE 400
 #define Z_MACHINE_MAX 500

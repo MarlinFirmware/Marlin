@@ -209,7 +209,7 @@ class SpinnerDialogBox : public DialogBoxBaseClass, public CachedScreen<SPINNER_
     static void enqueueAndWait_P(const progmem_str message, const progmem_str commands);
 };
 
-#if !defined(LULZBOT_USE_BIOPRINTER_UI)
+#ifndef LULZBOT_USE_BIOPRINTER_UI
 class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,STATUS_SCREEN_DL_SIZE> {
   private:
     static void draw_axis_position(draw_mode_t);

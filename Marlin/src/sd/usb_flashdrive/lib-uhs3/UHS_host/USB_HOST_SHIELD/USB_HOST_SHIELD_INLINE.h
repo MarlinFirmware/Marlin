@@ -21,7 +21,7 @@ e-mail   :  support@circuitsathome.com
 #define USB_HOST_SHIELD_LOADED
 #include <Arduino.h>
 
-#if !defined(digitalPinToInterrupt)
+#ifndef digitalPinToInterrupt
 #error digitalPinToInterrupt not defined, complain to your board maintainer.
 #endif
 
@@ -49,7 +49,7 @@ void UHS_NI MAX3421E_HOST::resume_host(void) {
                 // Used on MCU that lack control of IRQ priority (AVR).
                 // Resumes ISRs.
                 // NOTE: you must track the state yourself!
-#if defined(__AVR__)
+#ifdef __AVR__
                 noInterrupts();
                 if(irq_pin & 1) {
                         ISRodd = this;
@@ -314,7 +314,7 @@ int16_t UHS_NI MAX3421E_HOST::Init(int16_t mseconds) {
 #if USB_HOST_SHIELD_USE_ISR
         int intr = digitalPinToInterrupt(irq_pin);
         if(intr == NOT_AN_INTERRUPT) {
-#if defined(ARDUINO_AVR_ADK)
+#ifdef ARDUINO_AVR_ADK
                 if(irq_pin == 54)
                         intr = 6;
                 else
@@ -325,7 +325,7 @@ int16_t UHS_NI MAX3421E_HOST::Init(int16_t mseconds) {
 #else
         SPIclass.usingInterrupt(255);
 #endif
-#if !defined(NO_AUTO_SPEED)
+#ifndef NO_AUTO_SPEED
         // test to get to reset acceptance.
         uint32_t spd = UHS_MAX3421E_SPD;
 again:
@@ -901,7 +901,7 @@ void UHS_NI MAX3421E_HOST::ISRTask(void)
 {
         DDSB();
 
-#if !defined(SWI_IRQ_NUM)
+#ifndef SWI_IRQ_NUM
         suspend_host();
 #if USB_HOST_SHIELD_USE_ISR
         // Enable interrupts
@@ -965,7 +965,7 @@ void UHS_NI MAX3421E_HOST::ISRTask(void)
                 //        usb_task_polling_disabled? "T" : "F");
                 DDSB();
                 regWr(rHIRQ, HIRQ_sendback);
-#if !defined(SWI_IRQ_NUM)
+#ifndef SWI_IRQ_NUM
         resume_host();
 #if USB_HOST_SHIELD_USE_ISR
         // Disable interrupts
@@ -981,7 +981,7 @@ void UHS_NI MAX3421E_HOST::ISRTask(void)
                         UHS_PIN_WRITE(USB_HOST_SHIELD_TIMING_PIN, HIGH);
 #endif
 
-#if defined(SWI_IRQ_NUM)
+#ifdef SWI_IRQ_NUM
                         // MAX_HOST_DEBUG(PSTR("--------------- Doing SWI ----------------"));
                         exec_SWI(this);
 #else
