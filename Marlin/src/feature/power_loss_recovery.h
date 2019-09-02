@@ -113,6 +113,7 @@ class PrintJobRecovery {
     static job_recovery_info_t info;
 
     static void init();
+    static void prepare();
 
     static inline void setup() {
       #if PIN_EXISTS(POWER_LOSS)

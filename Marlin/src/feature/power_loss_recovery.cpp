@@ -125,6 +125,13 @@ void PrintJobRecovery::load() {
 }
 
 /**
+ * Set info fields that won't change
+ */
+void PrintJobRecovery::prepare() {
+  card.getAbsFilename(info.sd_filename);  // SD filename
+}
+
+/**
  * Save the current machine state to the power-loss recovery file
  */
 void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=true*/) {
@@ -218,7 +225,6 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     info.print_job_elapsed = print_job_timer.duration();
 
     // SD file position
-    card.getAbsFilename(info.sd_filename);
     info.sdpos = card.getIndex();
 
     write();
