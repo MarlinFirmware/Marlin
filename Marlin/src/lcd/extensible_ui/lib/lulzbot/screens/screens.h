@@ -60,7 +60,7 @@ enum {
 #else
   JERK_SCREEN_CACHE,
 #endif
-#if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
   FILAMENT_MENU_CACHE,
 #endif
 #if ENABLED(LIN_ADVANCE)
@@ -490,7 +490,7 @@ class DefaultAccelerationScreen : public BaseNumericAdjustmentScreen, public Cac
   };
 #endif
 
-#if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
   class FilamentMenu : public BaseNumericAdjustmentScreen, public CachedScreen<FILAMENT_MENU_CACHE> {
     public:
       static void onRedraw(draw_mode_t);
