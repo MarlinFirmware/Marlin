@@ -93,9 +93,15 @@
 // Temp Sensors
 //  3.3V max when defined as an Analog Input!
 //
-#define TEMP_0_PIN          0   // Analog Input P0_23
+#if TEMP_SENSOR_0 == 20         // PT100 Adapter
+  #define TEMP_0_PIN        7   // Analog Input
+#else
+  #define TEMP_0_PIN        0   // Analog Input P0_23
+#endif
+
 #define TEMP_BED_PIN        1   // Analog Input P0_24
 #define TEMP_1_PIN          2   // Analog Input P0_25
+
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #define FILWIDTH_PIN      3   // Analog Input P0_26
 #else

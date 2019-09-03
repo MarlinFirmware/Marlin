@@ -35,7 +35,7 @@ MMU2 mmu2;
 #include "../../libs/nozzle.h"
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
-#include "../../module/stepper_indirection.h"
+#include "../../module/stepper/indirection.h"
 #include "../../Marlin.h"
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -716,7 +716,7 @@ void MMU2::filament_runout() {
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), PSTR("Continue"));
       #endif
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onStatusChanged(PSTR("MMU2 Eject Recover"));
+        ExtUI::onUserConfirmRequired(PSTR("MMU2 Eject Recover"));
       #endif
       while (wait_for_user) idle();
       BUZZ(200, 404);

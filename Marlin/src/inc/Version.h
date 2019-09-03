@@ -51,7 +51,7 @@
    * here we define this default string as the date where the latest release
    * version was tagged.
    */
-  #define STRING_DISTRIBUTION_DATE "2019-08-24"
+  #define STRING_DISTRIBUTION_DATE "2019-09-02"
 
   /**
    * Required minimum Configuration.h and Configuration_adv.h file versions.
@@ -90,7 +90,7 @@
 
   /**
    * The WEBSITE_URL is the location where users can get more information such as
-   * documentation about a specific Marlin release.
+   * documentation about a specific Marlin release. Displayed in the Info Menu.
    */
   #define WEBSITE_URL "http://marlinfw.org"
 

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F1 genericSTM32F103RC
+#
+
+# exit on first failure
+set -e
+
+use_example_configs Mks/Robin
+opt_set MOTHERBOARD BOARD_MKS_ROBIN_LITE
+opt_set EXTRUDERS 1
+opt_set TEMP_SENSOR_1 0
+opt_disable FSMC_GRAPHICAL_TFT
+exec_test $1 $2 "Default Configuration"
+
+# cleanup
+restore_configs

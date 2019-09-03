@@ -50,6 +50,7 @@ void CLCD::turn_on_backlight (void) {
 }
 
 void CLCD::FontMetrics::load(const uint8_t font) {
+  static_assert(sizeof(FontMetrics) == 148, "Sizeof font metrics is incorrect");
   uint32_t rom_fontroot = mem_read_32(MAP::ROM_FONT_ADDR);
   mem_read_bulk(rom_fontroot + 148 * (font - 16), (uint8_t*) this, 148);
 }
@@ -861,6 +862,21 @@ void CLCD::CommandFifo::setrotate (uint8_t rotation) {
   } cmd_data;
 
   cmd_data.rotation = rotation;
+
+  cmd( &cmd_data, sizeof(cmd_data) );
+}
+#endif
+
+#if FTDI_API_LEVEL >= 810
+void CLCD::CommandFifo::romfont (uint8_t font, uint8_t romslot) {
+  struct {
+    uint32_t  type = CMD_ROMFONT;
+    uint32_t  font;
+    uint32_t  romslot;
+  } cmd_data;
+
+  cmd_data.font    = font;
+  cmd_data.romslot = romslot;
 
   cmd( &cmd_data, sizeof(cmd_data) );
 }

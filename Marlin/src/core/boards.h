@@ -95,8 +95,8 @@
 #define BOARD_Z_BOLT_X_SERIES         1141  // Z-Bolt X Series
 #define BOARD_TT_OSCAR                1142  // TT OSCAR
 #define BOARD_OVERLORD                1143  // Overlord/Overlord Pro
-#define BOARD_HJC2560C_REV1           1144  // ADIMLab Granty v1
-#define BOARD_HJC2560C_REV2           1145  // ADIMLab Granty v2
+#define BOARD_HJC2560C_REV1           1144  // ADIMLab Gantry v1
+#define BOARD_HJC2560C_REV2           1145  // ADIMLab Gantry v2
 
 //
 // RAMBo and derivatives
@@ -255,9 +255,9 @@
 // STM32 ARM Cortex-M3
 //
 
-#define BOARD_STM32F1R                4000  // STM32R    Libmaple-based STM32F1 controller
-#define BOARD_MALYAN_M200             4001  // STM32C8T6 Libmaple-based STM32F1 controller
-#define BOARD_STM3R_MINI              4002  // STM32     Libmaple-based STM32F1 controller
+#define BOARD_STM32F103R              4000  // STM32F103R Libmaple-based STM32F1 controller
+#define BOARD_MALYAN_M200             4001  // STM32C8T6  Libmaple-based STM32F1 controller
+#define BOARD_STM3R_MINI              4002  // STM32F103R Libmaple-based STM32F1 controller
 #define BOARD_GTM32_PRO_VB            4003  // STM32F103VET6 controller
 #define BOARD_MORPHEUS                4004  // STM32F103C8 / STM32F103CB  Libmaple-based STM32F1 controller
 #define BOARD_CHITU3D                 4005  // Chitu3D (STM32F103RET6)

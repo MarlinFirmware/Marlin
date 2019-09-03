@@ -24,19 +24,19 @@ Web      :  http://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
-#if !defined(_UHS_host_h_)
+#ifndef _UHS_host_h_
 #error "Never include UHS_usbhost.h directly; include UHS_host.h instead"
 #else
-#if !defined(_USBHOST_H_)
+#ifndef _USBHOST_H_
 #define _USBHOST_H_
 
 // Very early prototypes
-#if defined(UHS_LOAD_BT)
+#ifdef UHS_LOAD_BT
 void UHS_BT_SetUSBInterface(UHS_USB_HOST_BASE *host, ENUMERATION_INFO *ei);
 void UHS_BT_ScanUninitialized(UHS_USB_HOST_BASE *host);
 void UHS_BT_Poll(UHS_USB_HOST_BASE *host);
 #endif
-#if defined(UHS_LOAD_HID)
+#ifdef UHS_LOAD_HID
 void UHS_HID_SetUSBInterface(UHS_USB_HOST_BASE *host, ENUMERATION_INFO *ei);
 void UHS_HID_ScanUninitialized(UHS_USB_HOST_BASE *host);
 void UHS_HID_Poll(UHS_USB_HOST_BASE *host);
@@ -185,10 +185,10 @@ public:
         /////////////////////////////////////////////
         // these two probably will go away, and won't be used, TBD
         inline void Poll_Others(void) {
-#if defined(UHS_LOAD_BT)
+#ifdef UHS_LOAD_BT
                 UHS_BT_Poll(this);
 #endif
-#if defined(UHS_LOAD_HID)
+#ifdef UHS_LOAD_HID
                 UHS_HID_Poll(this);
 #endif
         }

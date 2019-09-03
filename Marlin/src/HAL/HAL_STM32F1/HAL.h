@@ -33,10 +33,10 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_STM32F1.h"
-#include "watchdog_STM32F1.h"
+#include "fastio.h"
+#include "watchdog.h"
 
-#include "HAL_timers_STM32F1.h"
+#include "timers.h"
 
 #include <stdint.h>
 #include <util/atomic.h>

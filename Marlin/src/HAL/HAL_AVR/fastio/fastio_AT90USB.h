@@ -29,7 +29,7 @@
  *            The logical pins 46 and 47 are not supported by Teensyduino, but are supported below as E2 and E3
  */
 
-#include "../fastio_AVR.h"
+#include "../fastio.h"
 
 // change for your board
 #define DEBUG_LED   DIO31 /* led D5 red */

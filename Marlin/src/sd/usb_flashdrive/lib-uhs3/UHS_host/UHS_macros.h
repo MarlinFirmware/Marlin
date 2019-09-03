@@ -24,7 +24,7 @@ Web      :  http://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
-#if !defined(MACROS_H)
+#ifndef MACROS_H
 #define MACROS_H
 #include "macro_logic.h"
 /*
@@ -49,18 +49,18 @@ e-mail   :  support@circuitsathome.com
 
 // Nuke screwed up macro junk from the IDE.
 #ifdef __cplusplus
-#if defined(true)
+#ifdef true
 #undef true
 #endif
-#if defined(false)
+#ifdef false
 #undef false
 #endif
 #endif
 
 
-#if !defined(UHS_DEVICE_WINDOWS_USB_SPEC_VIOLATION_DESCRIPTOR_DEVICE)
+#ifndef UHS_DEVICE_WINDOWS_USB_SPEC_VIOLATION_DESCRIPTOR_DEVICE
 
-#if !defined(UHS_BIG_FLASH)
+#ifndef UHS_BIG_FLASH
 
 #if defined(FLASHEND) && defined(FLASHSTART)
 #if (FLASHEND - FLASHSTART) > 0x0FFFFU
@@ -122,10 +122,10 @@ e-mail   :  support@circuitsathome.com
 // TODO: Fast inline code for AVR and SAM based microcontrollers
 //       This can be done pretty easily.
 //       For now, this will just work out-of-the-box.
-#if !defined(UHS_PIN_WRITE)
+#ifndef UHS_PIN_WRITE
 #define UHS_PIN_WRITE(p, v) digitalWrite(p, v)
 #endif
-#if !defined(UHS_PIN_READ)
+#ifndef UHS_PIN_READ
 #define UHS_PIN_READ(p) digitalRead(p)
 #endif
 
@@ -134,8 +134,8 @@ e-mail   :  support@circuitsathome.com
 #edfine noInterrupts() __builtin_disable_interrupts()
 #endif
 
-#if !defined(ARDUINO_SAMD_ZERO)
-#if defined(ARDUINO_AVR_ADK)
+#ifndef ARDUINO_SAMD_ZERO
+#ifdef ARDUINO_AVR_ADK
 #define UHS_GET_DPI(x) (x == 54 ? 6 : digitalPinToInterrupt(x))
 #else
 #define UHS_GET_DPI(x) digitalPinToInterrupt(x)
@@ -386,7 +386,7 @@ e-mail   :  support@circuitsathome.com
 #define USBTRACE2X(s,r) (USBTRACE3X((s),(r),0x80)); USB_HOST_SERIAL.flush()
 
 #define VOID0 ((void)0)
-#if !defined(NOTUSED)
+#ifndef NOTUSED
 #define NOTUSED(...)  __VA_ARGS__ __attribute__((unused))
 #endif
 #endif /* MACROS_H */

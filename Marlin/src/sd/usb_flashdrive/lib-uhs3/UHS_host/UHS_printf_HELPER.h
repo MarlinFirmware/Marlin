@@ -27,7 +27,7 @@ e-mail   :  support@circuitsathome.com
 #ifndef UHS_PRINTF_HELPER_H
 #define	UHS_PRINTF_HELPER_H
 
-#if defined(LOAD_UHS_PRINTF_HELPER)
+#ifdef LOAD_UHS_PRINTF_HELPER
 #include <Arduino.h>
 #ifdef true
 #undef true
@@ -36,14 +36,14 @@ e-mail   :  support@circuitsathome.com
 #undef false
 #endif
 
-#if !defined(STDIO_IS_OK_TO_USE_AS_IS)
+#ifndef STDIO_IS_OK_TO_USE_AS_IS
 #if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAM_DUE) || defined(ARDUINO_spresense_ast)
 // STDIO patching not required.
 #define STDIO_IS_OK_TO_USE_AS_IS
 #endif
 #endif
 
-#if !defined(STDIO_IS_OK_TO_USE_AS_IS)
+#ifndef STDIO_IS_OK_TO_USE_AS_IS
 // We need to patch STDIO so it can be used.
 
 #ifndef SERIAL_PORT_MONITOR
@@ -64,7 +64,7 @@ e-mail   :  support@circuitsathome.com
 #endif
 #endif
 
-#if !defined(NOTUSED)
+#ifndef NOTUSED
 #define NOTUSED(...)  __VA_ARGS__ __attribute__((unused))
 #endif
 
@@ -74,7 +74,7 @@ e-mail   :  support@circuitsathome.com
 #endif
 #endif
 
-#if defined(ARDUINO_ARCH_PIC32)
+#ifdef ARDUINO_ARCH_PIC32
 /*
  * For printf() output with pic32 Arduino
  */
@@ -169,7 +169,7 @@ extern "C" {
 
 
 
-#if defined(__AVR__)
+#ifdef __AVR__
 // The only wierdo in the bunch...
 void UHS_AVR_printf_HELPER_init(void) {
         // Set up stdio/stderr
@@ -194,7 +194,7 @@ void UHS_AVR_printf_HELPER_init(void) {
 #endif /* STDIO_IS_OK_TO_USE_AS_IS */
 #endif  /* load.... */
 
-#if !defined(UHS_printf_HELPER_init)
+#ifndef UHS_printf_HELPER_init
 #define UHS_printf_HELPER_init() (void(0))
 #endif
 #endif	/* UHS_PRINTF_HELPER_H */

@@ -22,13 +22,13 @@
 
 #pragma once
 
-#if !defined(CLCD_USE_SOFT_SPI)
+#ifndef CLCD_USE_SOFT_SPI
   #include <SPI.h>
 #endif
 
 namespace FTDI {
   namespace SPI {
-    #if !defined(CLCD_USE_SOFT_SPI)
+    #ifndef CLCD_USE_SOFT_SPI
       extern SPISettings spi_settings;
     #endif
 

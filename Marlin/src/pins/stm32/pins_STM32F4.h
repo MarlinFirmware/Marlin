@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * To build with Arduino IDE use "Discovery F407VG"
+ * To build with PlatformIO use environment "STM32F4"
+ */
 #if !defined(STM32F4) && !defined(STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
@@ -32,7 +36,9 @@
 
 //#define I2C_EEPROM
 
-#define E2END 0xFFF // 4KB
+#ifndef E2END
+  #define E2END 0xFFF // 4KB
+#endif
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000

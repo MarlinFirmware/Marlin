@@ -118,7 +118,7 @@
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
 
-    #if ENABLED(FYSETC_MINI_12864) || ENABLED(U8GLIB_ST7920)
+    #if EITHER(FYSETC_MINI_12864, U8GLIB_ST7920)
       #define FORCE_SOFT_SPI
     #endif
   #endif

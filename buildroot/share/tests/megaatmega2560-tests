@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for AVR
+# Build tests for AVR ATmega2560
 #
 
 # exit on first failure
@@ -9,14 +9,15 @@ set -e
 #
 # Build with the default configurations
 #
-restore_configs
-exec_test $1 $2 "Default Configuration"
+#restore_configs
+#exec_test $1 $2 "Default Configuration"
 
 #
 # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
 # Test a "Fix Mounted" Probe with Safe Homing, some arc options,
 # linear bed leveling, M48, leveling debug, and firmware retraction.
 #
+restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS_14_EEB
 opt_set EXTRUDERS 2
 opt_set TEMP_SENSOR_0 -2
@@ -80,13 +81,6 @@ opt_enable ZONESTAR_LCD Z_PROBE_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_
 opt_set NUM_SERVOS 1
 opt_enable NO_VOLUMETRICS EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP G38_PROBE_TARGET
 exec_test $1 $2 "RAMPS with ZONESTAR_LCD, Servo Probe, 3-Point ABL, DEBUG_LEVELING_FEATURE, EEPROM, G38, and more"
-
-#
-# Test MESH_BED_LEVELING feature, with LCD
-#
-restore_configs
-opt_enable SPINDLE_FEATURE MESH_BED_LEVELING G26_MESH_EDITING MESH_G28_REST_ORIGIN LCD_BED_LEVELING MESH_EDIT_MENU ULTIMAKERCONTROLLER
-exec_test $1 $2 "Spindle, MESH_BED_LEVELING, and LCD"
 
 #
 # Test MINIRAMBO with PWM_MOTOR_CURRENT and many features
