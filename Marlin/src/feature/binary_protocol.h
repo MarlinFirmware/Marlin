@@ -228,37 +228,41 @@ public:
                                      PACKET_PROCESS, PACKET_RESEND, PACKET_TIMEOUT, PACKET_ERROR };
 
   struct Packet { // 10 byte protocol overhead, ascii with checksum and line number has a minimum of 7 increasing with line
-    struct [[gnu::packed]]  Header {
-      static constexpr uint16_t HEADER_TOKEN = 0xB5AD;
-      uint16_t token;       // packet start token
-      uint8_t sync;         // stream sync, resend id and packet loss detection
-      uint8_t meta;         // 4 bit protocol,
-                            // 4 bit packet type
-      uint16_t size;        // data length
-      uint16_t checksum;    // header checksum
 
+    union Header {
+      static constexpr uint16_t HEADER_TOKEN = 0xB5AD;
+      struct [[gnu::packed]] {
+        uint16_t token;       // packet start token
+        uint8_t sync;         // stream sync, resend id and packet loss detection
+        uint8_t meta;         // 4 bit protocol,
+                              // 4 bit packet type
+        uint16_t size;        // data length
+        uint16_t checksum;    // header checksum
+      };
       uint8_t protocol() { return (meta >> 4) & 0xF; }
       uint8_t type() { return meta & 0xF; }
       void reset() { token = 0; sync = 0; meta = 0; size = 0; checksum = 0; }
+      uint8_t data[1];
     };
 
-    struct [[gnu::packed]] Footer {
-      uint16_t checksum; // full packet checksum
+    union Footer {
+      struct [[gnu::packed]] {
+        uint16_t checksum; // full packet checksum
+      };
       void reset() { checksum = 0; }
+      uint8_t data[1];
     };
 
-    uint8_t header_data[sizeof(Header)],
-            footer_data[sizeof(Footer)];
+    Header header;
+    Footer footer;
     uint32_t bytes_received;
     uint16_t checksum, header_checksum;
     millis_t timeout;
     char* buffer;
 
-    Header& header() { return *reinterpret_cast<Header*>(header_data); }
-    Footer& footer() { return *reinterpret_cast<Footer*>(footer_data); }
     void reset() {
-      header().reset();
-      footer().reset();
+      header.reset();
+      footer.reset();
       bytes_received = 0;
       checksum = 0;
       header_checksum = 0;
@@ -312,46 +316,46 @@ public:
           stream_state = StreamState::PACKET_WAIT;
         case StreamState::PACKET_WAIT:
           if (!stream_read(data)) { idle(); return; }  // no active packet so don't wait
-          packet.header_data[1] = data;
-          if (packet.header().token == Packet::Header::HEADER_TOKEN) {
+          packet.header.data[1] = data;
+          if (packet.header.token == packet.header.HEADER_TOKEN) {
             packet.bytes_received = 2;
             stream_state = StreamState::PACKET_HEADER;
           }
           else {
             // stream corruption drop data
-            packet.header_data[0] = data;
+            packet.header.data[0] = data;
           }
           break;
         case StreamState::PACKET_HEADER:
           if (!stream_read(data)) break;
 
-          packet.header_data[packet.bytes_received++] = data;
+          packet.header.data[packet.bytes_received++] = data;
           packet.checksum = checksum(packet.checksum, data);
 
           // header checksum calculation can't contain the checksum
-          if (packet.bytes_received == sizeof(Packet::Header) - 2)
+          if (packet.bytes_received == sizeof(Packet::header) - 2)
             packet.header_checksum = packet.checksum;
 
-          if (packet.bytes_received == sizeof(Packet::Header)) {
-            if (packet.header().checksum == packet.header_checksum) {
+          if (packet.bytes_received == sizeof(Packet::header)) {
+            if (packet.header.checksum == packet.header_checksum) {
               // The SYNC control packet is a special case in that it doesn't require the stream sync to be correct
-              if (static_cast<Protocol>(packet.header().protocol()) == Protocol::CONTROL && static_cast<ProtocolControl>(packet.header().type()) == ProtocolControl::SYNC) {
+              if (static_cast<Protocol>(packet.header.protocol()) == Protocol::CONTROL && static_cast<ProtocolControl>(packet.header.type()) == ProtocolControl::SYNC) {
                   SERIAL_ECHOLNPAIR("ss", sync, ",", buffer_size, ",", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
                   stream_state = StreamState::PACKET_RESET;
                   break;
               }
-              if (packet.header().sync == sync) {
+              if (packet.header.sync == sync) {
                 buffer_next_index = 0;
                 packet.bytes_received = 0;
-                if (packet.header().size) {
+                if (packet.header.size) {
                   stream_state = StreamState::PACKET_DATA;
                   packet.buffer = static_cast<char *>(&buffer[0]); // multipacket buffering not implemented, always allocate whole buffer to packet
                 }
                 else
                   stream_state = StreamState::PACKET_PROCESS;
               }
-              else if (packet.header().sync == sync - 1) {           // ok response must have been lost
-                SERIAL_ECHOLNPAIR("ok", packet.header().sync);  // transmit valid packet received and drop the payload
+              else if (packet.header.sync == sync - 1) {           // ok response must have been lost
+                SERIAL_ECHOLNPAIR("ok", packet.header.sync);  // transmit valid packet received and drop the payload
                 stream_state = StreamState::PACKET_RESET;
               }
               else if (packet_retries) {
@@ -364,7 +368,7 @@ public:
             }
             else {
               SERIAL_ECHO_START();
-              SERIAL_ECHOLNPAIR("Packet Header(", packet.header().sync, "?) Corrupt");
+              SERIAL_ECHOLNPAIR("Packet header(", packet.header.sync, "?) corrupt");
               stream_state = StreamState::PACKET_RESEND;
             }
           }
@@ -384,7 +388,7 @@ public:
           packet.bytes_received++;
           buffer_next_index++;
 
-          if (packet.bytes_received == packet.header().size) {
+          if (packet.bytes_received == packet.header.size) {
             stream_state = StreamState::PACKET_FOOTER;
             packet.bytes_received = 0;
           }
@@ -392,14 +396,14 @@ public:
         case StreamState::PACKET_FOOTER:
           if (!stream_read(data)) break;
 
-          packet.footer_data[packet.bytes_received++] = data;
-          if (packet.bytes_received == sizeof(Packet::Footer)) {
-            if (packet.footer().checksum == packet.checksum) {
+          packet.footer.data[packet.bytes_received++] = data;
+          if (packet.bytes_received == sizeof(Packet::footer)) {
+            if (packet.footer.checksum == packet.checksum) {
               stream_state = StreamState::PACKET_PROCESS;
             }
             else {
               SERIAL_ECHO_START();
-              SERIAL_ECHOLNPAIR("Packet(", packet.header().sync, ") Payload Corrupt");
+              SERIAL_ECHOLNPAIR("Packet(", packet.header.sync, ") payload corrupt");
               stream_state = StreamState::PACKET_RESEND;
             }
           }
@@ -407,9 +411,9 @@ public:
         case StreamState::PACKET_PROCESS:
           sync++;
           packet_retries = 0;
-          bytes_received += packet.header().size;
+          bytes_received += packet.header.size;
 
-          SERIAL_ECHOLNPAIR("ok", packet.header().sync); // transmit valid packet received
+          SERIAL_ECHOLNPAIR("ok", packet.header.sync); // transmit valid packet received
           dispatch();
           stream_state = StreamState::PACKET_RESET;
           break;
@@ -429,7 +433,7 @@ public:
           stream_state = StreamState::PACKET_RESEND;
           break;
         case StreamState::PACKET_ERROR:
-          SERIAL_ECHOLNPAIR("fe", packet.header().sync);
+          SERIAL_ECHOLNPAIR("fe", packet.header.sync);
           reset(); // reset everything, resync required
           stream_state = StreamState::PACKET_RESET;
           break;
@@ -438,9 +442,9 @@ public:
   }
 
   void dispatch() {
-    switch(static_cast<Protocol>(packet.header().protocol())) {
+    switch(static_cast<Protocol>(packet.header.protocol())) {
       case Protocol::CONTROL:
-        switch(static_cast<ProtocolControl>(packet.header().type())) {
+        switch(static_cast<ProtocolControl>(packet.header.type())) {
           case ProtocolControl::CLOSE: // revert back to ASCII mode
             card.flag.binary_mode = false;
             break;
@@ -449,7 +453,7 @@ public:
         }
         break;
       case Protocol::FILE_TRANSFER:
-        SDFileTransferProtocol::process(packet.header().type(), packet.buffer, packet.header().size); // send user data to be processed
+        SDFileTransferProtocol::process(packet.header.type(), packet.buffer, packet.header.size); // send user data to be processed
       break;
       default:
         SERIAL_ECHO_MSG("Unsupported Binary Protocol");

@@ -20,9 +20,9 @@
 
 #include "../shared/Marduino.h"
 #include "../shared/HAL_SPI.h"
-#include "fastio_AVR.h"
-#include "watchdog_AVR.h"
-#include "math_AVR.h"
+#include "fastio.h"
+#include "watchdog.h"
+#include "math.h"
 
 #ifdef USBCON
   #include "HardwareSerial.h"

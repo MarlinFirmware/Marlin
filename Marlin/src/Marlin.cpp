@@ -45,7 +45,7 @@
 
 #include "HAL/shared/Delay.h"
 
-#include "module/stepper_indirection.h"
+#include "module/stepper/indirection.h"
 
 #ifdef ARDUINO
   #include <pins_arduino.h>
@@ -1193,7 +1193,6 @@ void loop() {
 
     #endif // SDSUPPORT
 
-    if (queue.length < BUFSIZE) queue.get_available_commands();
     queue.advance();
     endstops.event_handler();
   }

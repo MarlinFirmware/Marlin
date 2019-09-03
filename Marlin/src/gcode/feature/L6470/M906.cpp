@@ -26,7 +26,7 @@
 
 #include "../../gcode.h"
 #include "../../../libs/L6470/L6470_Marlin.h"
-#include "../../../module/stepper_indirection.h"
+#include "../../../module/stepper/indirection.h"
 #include "../../../module/planner.h"
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)

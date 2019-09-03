@@ -230,7 +230,7 @@
 
 /* Define NO_INIT attribute */
 #if 0 //ndef NO_INIT
-#if defined   ( __CC_ARM   )
+#ifdef __CC_ARM
 #   define NO_INIT __attribute__((zero_init))
 #elif defined ( __ICCARM__ )
 #   define NO_INIT __no_init
@@ -262,7 +262,7 @@
 //! @{
 typedef unsigned char           Bool; //!< Boolean.
 #ifndef __cplusplus
-#if !defined(__bool_true_false_are_defined)
+#ifndef __bool_true_false_are_defined
 typedef unsigned char           bool; //!< Boolean.
 #endif
 #endif
@@ -443,7 +443,7 @@ typedef struct
 #define DISABLE   0
 #define ENABLE    1
 #ifndef __cplusplus
-#if !defined(__bool_true_false_are_defined)
+#ifndef __bool_true_false_are_defined
 #define false 0
 #define true 1
 #endif

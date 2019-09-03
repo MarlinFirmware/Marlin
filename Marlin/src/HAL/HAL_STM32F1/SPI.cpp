@@ -31,7 +31,7 @@
 
 #ifdef __STM32F1__
 
-#include "SPI.h"
+#include <SPI.h>
 
 #include <libmaple/timer.h>
 #include <libmaple/util.h>

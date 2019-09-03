@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && ENABLED(JUNCTION_DEVIATION)
+#if BOTH(LULZBOT_TOUCH_UI, JUNCTION_DEVIATION)
 
 #include "screens.h"
 

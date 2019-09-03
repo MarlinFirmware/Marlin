@@ -28,8 +28,8 @@
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
-#include "fastio_STM32.h"
-#include "watchdog_STM32.h"
+#include "fastio.h"
+#include "watchdog.h"
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -96,7 +96,7 @@
   #define NUM_SERIAL 1
 #endif
 
-#include "HAL_timers_STM32.h"
+#include "timers.h"
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
