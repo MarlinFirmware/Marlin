@@ -44,8 +44,8 @@ public:
   static uint8_t read_buttons();
   bool getTouchPoint(uint16_t &x, uint16_t &y);
   static bool isTouched();
-  inline void waitForRelease(void) { while(isTouched()) {/* nada */} }
-  inline void waitForTouch(uint16_t &x, uint16_t &y) { while(!getTouchPoint(x, y)) {} }
+  inline void waitForRelease(void) { while (isTouched()) { /* nada */ } }
+  inline void waitForTouch(uint16_t &x, uint16_t &y) { while (!getTouchPoint(x, y)) { /* nada */ } }
 private:
   static uint16_t getInTouch(const XPTCoordinate coordinate);
 };
