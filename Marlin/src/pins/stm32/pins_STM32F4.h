@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * To build with Arduino IDE use "Discovery F407VG"
+ * To build with PlatformIO use environment "STM32F4"
+ */
 #if !defined(STM32F4) && !defined(STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
