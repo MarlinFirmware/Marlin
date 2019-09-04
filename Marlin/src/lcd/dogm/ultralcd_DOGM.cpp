@@ -81,7 +81,7 @@ U8G_CLASS u8g(U8G_PARAM);
 
 #if HAS_LCD_CONTRAST
 
-  int16_t MarlinUI::contrast; // Initialized by settings.load()
+  int16_t MarlinUI::contrast = DEFAULT_LCD_CONTRAST;
 
   void MarlinUI::set_contrast(const int16_t value) {
     contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
