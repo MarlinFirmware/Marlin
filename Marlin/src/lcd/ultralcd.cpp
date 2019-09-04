@@ -791,7 +791,7 @@ void MarlinUI::update() {
           buttons |= (touch_buttons & (EN_C | EN_D));   // Pass on Click and Back buttons
           if (touch_buttons & (EN_A | EN_B)) {          // A and/or B button?
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
-            if (touch_buttons & EN_B) encoderDiff *= -1;
+            if (touch_buttons & EN_A) encoderDiff *= -1;
             next_button_update_ms = ms + 50;            // Assume the repeat delay
             if (!wait_for_unclick && !arrow_pressed) {  // On click prepare for repeat
               next_button_update_ms += 250;             // Longer delay on first press
