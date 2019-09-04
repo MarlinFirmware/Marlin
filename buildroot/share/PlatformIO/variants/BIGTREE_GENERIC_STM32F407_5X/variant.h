@@ -47,15 +47,15 @@ extern const PinName digitalPin[];
   #define STM32F4X_PIN_NUM  64  //64 pins mcu, 51 gpio
   #define STM32F4X_GPIO_NUM 51
   #define STM32F4X_ADC_NUM  16
-#elif defined STM32F407_5VX
+#elif defined(STM32F407_5VX)
   #define STM32F4X_PIN_NUM  100  //100 pins mcu, 82 gpio
   #define STM32F4X_GPIO_NUM 82
   #define STM32F4X_ADC_NUM  16
-#elif defined STM32F407_5ZX
+#elif defined(STM32F407_5ZX)
   #define STM32F4X_PIN_NUM  144  //144 pins mcu, 114 gpio
   #define STM32F4X_GPIO_NUM 114
   #define STM32F4X_ADC_NUM  24
-#elif defined STM32F407IX
+#elif defined(STM32F407IX)
   #define STM32F4X_PIN_NUM  176  //176 pins mcu, 140 gpio
   #define STM32F4X_GPIO_NUM 140
   #define STM32F4X_ADC_NUM  24

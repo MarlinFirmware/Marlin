@@ -32,9 +32,9 @@
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
-#include "fastio_Due.h"
-#include "watchdog_Due.h"
-#include "HAL_timers_Due.h"
+#include "fastio.h"
+#include "watchdog.h"
+#include "timers.h"
 
 #include <stdint.h>
 
@@ -58,8 +58,8 @@
   #define NUM_SERIAL 1
 #endif
 
-#include "MarlinSerial_Due.h"
-#include "MarlinSerialUSB_Due.h"
+#include "MarlinSerial.h"
+#include "MarlinSerialUSB.h"
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))

@@ -84,6 +84,9 @@
  * respectfully request that you retain the unmodified Marlin boot screen.
  */
 
+// Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
+#define SHOW_BOOTSCREEN
+
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
 //#define SHOW_CUSTOM_BOOTSCREEN
 

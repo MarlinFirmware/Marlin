@@ -24,26 +24,26 @@
 
 
 #if defined(__arm__) || defined(ARDUINO_ARCH_PIC32)
-#if defined(ARDUINO_ARCH_PIC32)
+#ifdef ARDUINO_ARCH_PIC32
 #include <p32xxxx.h>
 #endif
 #ifdef __cplusplus
 
-#if defined(true)
+#ifdef true
 #undef true
 #endif
 
-#if defined(false)
+#ifdef false
 #undef false
 #endif
 
 #endif
 
-#if defined(ARDUINO_spresense_ast)
+#ifdef ARDUINO_spresense_ast
 #define SWI_IRQ_NUM 666 // because this board is totally evil.
 #elif defined(ARDUINO_ARCH_PIC32)
 #ifndef SWI_IRQ_NUM
-#if defined(_DSPI0_IPL_ISR)
+#ifdef _DSPI0_IPL_ISR
 #define SWI_IPL _DSPI0_IPL_ISR
 #define SWI_VECTOR _DSPI0_ERR_IRQ
 #define SWI_IRQ_NUM _DSPI0_ERR_IRQ
@@ -57,7 +57,7 @@
 extern "C"
 {
         void
-#if defined(__PIC32MZXX__)
+#ifdef __PIC32MZXX__
                 __attribute__((nomips16,at_vector(SWI_VECTOR),interrupt(SWI_IPL)))
 #else
                 __attribute__((interrupt(),nomips16))
@@ -69,7 +69,7 @@ extern "C"
 #elif !defined(NVIC_NUM_INTERRUPTS)
 // Assume CMSIS
 #define __USE_CMSIS_VECTORS__
-#if defined(NUMBER_OF_INT_VECTORS)
+#ifdef NUMBER_OF_INT_VECTORS
 #define NVIC_NUM_INTERRUPTS (NUMBER_OF_INT_VECTORS-16)
 #else
 #define NVIC_NUM_INTERRUPTS ((int)PERIPH_COUNT_IRQn)
@@ -114,7 +114,7 @@ extern "C"
 #ifndef NVIC_GET_PENDING
 #define NVIC_GET_PENDING(n)	(*((volatile uint32_t *)0xE000E200 + ((n) >> 5)) & (1 << ((n) & 31)))
 #ifndef SWI_IRQ_NUM
-#if defined(__MK20DX256__)
+#ifdef __MK20DX256__
 #define SWI_IRQ_NUM 17
 #elif defined(__MK20DX128__)
 #define SWI_IRQ_NUM 5
@@ -165,7 +165,7 @@ extern int exec_SWI(const dyn_SWI* klass);
 // if no SWI for CPU (e.g. AVR) make a void stub.
 #ifndef SWI_NO_STUB
 #define Init_dyn_SWI() (void(0))
-#if !defined(DDSB)
+#ifndef DDSB
 #define DDSB() (void(0))
 #endif
 #endif

@@ -43,7 +43,7 @@
 
 #if ENABLED(SENSORLESS_HOMING)
   #include "../feature/tmc_util.h"
-  #include "stepper_indirection.h"
+  #include "stepper/indirection.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)

@@ -6,9 +6,12 @@
 # exit on first failure
 set -e
 
-restore_configs
-opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
-exec_test $1 $2 "Build Re-ARM Default Configuration"
+#
+# Build with the default configurations
+#
+#restore_configs
+#opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+#exec_test $1 $2 "Default Configuration"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
@@ -16,9 +19,9 @@ opt_enable VIKI2 SDSUPPORT SERIAL_PORT2 NEOPIXEL_LED BAUD_RATE_GCODE
 opt_set NEOPIXEL_PIN P1_16
 exec_test $1 $2 "ReARM EFB VIKI2, SDSUPPORT, 2 Serial ports (USB CDC + UART0), NeoPixel"
 
-restore_configs
-use_example_configs Mks/Sbase
-exec_test $1 $2 "MKS SBASE Example Config"
+#restore_configs
+#use_example_configs Mks/Sbase
+#exec_test $1 $2 "MKS SBASE Example Config"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_MKS_SBASE
@@ -43,22 +46,6 @@ opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT ADAPTIVE_FAN_
            LCD_INFO_MENU ARC_SUPPORT BEZIER_CURVE_SUPPORT EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES SDCARD_SORT_ALPHA
 opt_set GRID_MAX_POINTS_X 16
 exec_test $1 $2 "Re-ARM with Many Features"
-
-restore_configs
-opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
-opt_enable COREYX USE_XMAX_PLUG DAC_MOTOR_CURRENT_DEFAULT \
-           REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING \
-           AUTO_BED_LEVELING_UBL RESTORE_LEVELING_AFTER_G28 EEPROM_SETTINGS \
-           FILAMENT_LCD_DISPLAY FILAMENT_WIDTH_SENSOR FAN_SOFT_PWM \
-           SHOW_TEMP_ADC_VALUES HOME_Y_BEFORE_X EMERGENCY_PARSER FAN_KICKSTART_TIME \
-           SD_ABORT_ON_ENDSTOP_HIT ADVANCED_OK GCODE_MACROS \
-           VOLUMETRIC_DEFAULT_ON NO_WORKSPACE_OFFSETS ACTION_ON_KILL \
-           EXTRA_FAN_SPEED FWRETRACT Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS \
-           MENU_ADDAUTOSTART SDCARD_SORT_ALPHA
-opt_set FAN_MIN_PWM 50
-opt_set FAN_KICKSTART_TIME 100
-opt_set XY_FREQUENCY_LIMIT  15
-exec_test $1 $2 "Re-ARM with Many less common options"
 
 # clean up
 restore_configs

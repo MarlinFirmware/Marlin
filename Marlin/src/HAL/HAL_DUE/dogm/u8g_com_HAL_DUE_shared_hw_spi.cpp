@@ -71,7 +71,7 @@ void spiSend(uint8_t b);
 void spiSend(const uint8_t* buf, size_t n);
 
 #include "../../shared/Marduino.h"
-#include "../fastio_Due.h"
+#include "../fastio.h"
 
 void u8g_SetPIOutput_DUE_hw_spi(u8g_t *u8g, uint8_t pin_index) {
    PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,

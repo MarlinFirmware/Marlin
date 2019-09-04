@@ -218,7 +218,7 @@
 // Stepper class definition
 //
 
-#include "stepper_indirection.h"
+#include "stepper/indirection.h"
 
 #ifdef __AVR__
   #include "speed_lookuptable.h"

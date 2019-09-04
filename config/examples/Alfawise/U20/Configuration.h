@@ -75,28 +75,21 @@
 // Forum link to help with a tutorial, in French! :
 // https://www.lesimprimantes3d.fr/forum/topic/18260-alfawise-u20x-u30-marlin-2x-firmware-alternatif/
 //
-// 1 - Select your Alfawise U30 or U20 or U20+ printer (NO MORE REQUIRED HERE),
+// 1 - Select your Alfawise U30 or U20 or U20+ printer (NO MORE REQUIRED HERE)
+//     and the touchscreen version, either 1.1 or 1.2. Most recent in France are v1.2 (blue pcb)
 //     These defines are set in platformio.ini build parameters, sample for U20 -DU20 -DTS_V12
-//     U20_PLUS  is not tested, as we do not have a printer to test.
-//     Print bed PID settings MUST be tuned
+//     U20_PLUS was not tested, as we do not have a printer to test. Print bed PID settings MUST be tuned for it.
 
-//#define U20_PLUS
-//#define U20
-//#define U30
+// Valid platformio.ini submodel values are U20_PLUS U20 U30 LK1 LK2 LK4
+
+// Valid platformio.ini touchscreens are TS_V11 TS_V12
 
 // 2 - Select the screen controller type. Most common is ILI9341 - First option. If your screen remains white,
 //     Try the alternate setting - this should enable ST7789V or ILI9328. For other LCDs... code is needed
 //     with the proper boot sequence to be developped.
 
-#define LCD_READ_ID     0xD3   // Read display identification information in reg ID4 0xD3, for ILI9341 screens
-//#define LCD_READ_ID     0x04   // Read display identification information in reg ID1 0x04 - ST7789V / ILI9328 or others
-
-// 3 - Select the touch panel version, either 1.1 or 1.2. Most recent touch panel in France are V 1.2. Blue PCB
-//     V1.1 panels seem to be older, and came with green PCB. This selection only influence the calibration data
-//     Should calibration need to be redone, please follow the French Tutorial! (NO MORE REQUIRED HERE)
-
-//#define TS_V11
-//#define TS_V12
+#define LCD_READ_ID   0xD3 // Read display identification information in reg ID4 0xD3, for ILI9341 screens
+//#define LCD_READ_ID 0x04 // Read display identification information in reg ID1 0x04 - ST7789V / ILI9328 or others
 
 //===========================================================================
 
@@ -173,6 +166,12 @@
 #define CUSTOM_MACHINE_NAME "Alfawise U30"
 #elif defined(U20_PLUS)
 #define CUSTOM_MACHINE_NAME "Alfawise U20+"
+#elif defined(LK1)
+#define CUSTOM_MACHINE_NAME "Longer3D LK1"
+#elif defined(LK2)
+#define CUSTOM_MACHINE_NAME "Longer3D LK2"
+#elif defined(LK4)
+#define CUSTOM_MACHINE_NAME "Longer3D LK4"
 #endif
 
 // Printer's unique ID, used by some programs to differentiate between machines.
@@ -579,27 +578,28 @@
   //#define DEFAULT_bedKi 1.41
   //#define DEFAULT_bedKd 1675.16
 
-#if ENABLED(U30)
+#if defined(U30) || defined(LK2) || defined(LK4)
   //From M303 command for Alfawise U30 :
   #define DEFAULT_bedKp 338.46
   #define DEFAULT_bedKi 63.96
   #define DEFAULT_bedKd 447.78
 #endif
 
-#if ENABLED(U20)
+#if defined(U20) || defined(LK1)
   //From M303 command for Alfawise U20 :
   #define DEFAULT_bedKp 841.68
   #define DEFAULT_bedKi 152.12
   #define DEFAULT_bedKd 1164.25
 #endif
 
-#if ENABLED(U20_PLUS) // The PID setting MUST be updated.
-  //From M303 command for Alfawise U20 :
+#ifdef U20_PLUS
+  // These PID setting MUST be updated.
+  // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
   #define DEFAULT_bedKp 841.68
   #define DEFAULT_bedKi 152.12
   #define DEFAULT_bedKd 1164.25
 #endif
-  // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
+
 #endif // PIDTEMPBED
 
 // @section extruder
@@ -1102,19 +1102,19 @@
 
 // @section machine
 
-#if ENABLED(U30)
+#if defined(U30) || defined(LK2) || defined(LK4)
 #define X_BED_SIZE 220
 #define Y_BED_SIZE 220
 #define Z_MACHINE_MAX 250
 #endif
 
-#if ENABLED(U20)
+#if defined(U20) || defined(LK1)
 #define X_BED_SIZE 300
 #define Y_BED_SIZE 300
 #define Z_MACHINE_MAX 400
 #endif
 
-#if ENABLED(U20_PLUS)
+#ifdef U20_PLUS
 #define X_BED_SIZE 400
 #define Y_BED_SIZE 400
 #define Z_MACHINE_MAX 500
@@ -1403,7 +1403,7 @@
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_Y_POINT MIN_PROBE_Y           // Y point for Z homing when homing all axes (G28).
 #endif
 
 // Homing speeds (mm/m)

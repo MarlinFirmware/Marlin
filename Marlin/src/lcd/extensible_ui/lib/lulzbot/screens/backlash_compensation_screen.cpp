@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && ENABLED(BACKLASH_GCODE)
+#if BOTH(LULZBOT_TOUCH_UI, BACKLASH_GCODE)
 
 #include "screens.h"
 

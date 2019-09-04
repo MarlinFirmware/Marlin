@@ -31,7 +31,7 @@
   #if HAS_DRIVER(L6470)
     //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\gcode\host\M114.cpp
     //C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\module\bob_L6470.cpp
-    #include "../../module/L6470/L6470_Marlin.h"
+    #include "../../libs/L6470/L6470_Marlin.h"
     #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
     #include "../../core/debug_out.h"
   #endif

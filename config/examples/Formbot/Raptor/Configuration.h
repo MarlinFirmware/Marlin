@@ -82,11 +82,11 @@
  * If a UART connection is used to configure the driver, please select that as well in Configuration_adv.h.
  */
 //#define X_2208
-//#define X_SpreadCycle
+//#define X_SPREADCYCLE
 //#define Y_2208
-//#define Y_SpreadCycle
+//#define Y_SPREADCYCLE
 //#define E_2208
-//#define E_SpreadCycle
+//#define E_SPREADCYCLE
 
 
 /**
@@ -788,25 +788,25 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #if ENABLED(X_2208)
-  #if ENABLED(X_SpreadCycle)
-    #define x_accel 1750
+  #if ENABLED(X_SPREADCYCLE)
+    #define X_ACCEL 1750
   #else
-    #define x_accel 1000
+    #define X_ACCEL 1000
   #endif
 #else
-    #define x_accel 1500
+    #define X_ACCEL 1500
 #endif
 
 #if ENABLED(Y_2208)
-  #if ENABLED(Y_SpreadCycle)
-    #define y_accel 500
+  #if ENABLED(Y_SPREADCYCLE)
+    #define Y_ACCEL 500
   #else
-    #define y_accel 300
+    #define Y_ACCEL 300
   #endif
 #else
-  #define y_accel 500
+  #define Y_ACCEL 500
 #endif
-#define DEFAULT_MAX_ACCELERATION      { x_accel, y_accel, 400, 4000 }
+#define DEFAULT_MAX_ACCELERATION      { X_ACCEL, Y_ACCEL, 400, 4000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -843,12 +843,12 @@
  * value set here, it may happen instantaneously.
  */
 #if DISABLED(JUNCTION_DEVIATION)
-  #if ENABLED(X_SpreadCycle) || DISABLED(X_2208)
+  #if ENABLED(X_SPREADCYCLE) || DISABLED(X_2208)
     #define DEFAULT_XJERK 20.0
   #else
     #define DEFAULT_XJERK 10.0
   #endif
-  #if ENABLED(Y_SpreadCycle) || DISABLED(Y_2208)
+  #if ENABLED(Y_SPREADCYCLE) || DISABLED(Y_2208)
     #define DEFAULT_YJERK 10.0
   #else
     #define DEFAULT_YJERK  5.0

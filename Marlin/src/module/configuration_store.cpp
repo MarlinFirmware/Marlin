@@ -112,7 +112,7 @@
 #endif
 
 #if HAS_TRINAMIC
-  #include "stepper_indirection.h"
+  #include "stepper/indirection.h"
   #include "../feature/tmc_util.h"
 #endif
 

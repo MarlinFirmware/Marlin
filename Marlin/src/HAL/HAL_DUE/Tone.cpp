@@ -31,7 +31,7 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
-#include "HAL_timers_Due.h"
+#include "timers.h"
 
 static pin_t tone_pin;
 volatile static int32_t toggles;

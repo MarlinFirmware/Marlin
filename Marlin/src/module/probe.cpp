@@ -76,7 +76,7 @@ float zprobe_zoffset; // Initialized by settings.load()
 #endif
 
 #if QUIET_PROBING
-  #include "stepper_indirection.h"
+  #include "stepper/indirection.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
