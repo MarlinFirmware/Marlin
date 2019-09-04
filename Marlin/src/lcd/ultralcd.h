@@ -306,6 +306,8 @@ public:
 
     #if HAS_SPI_LCD
 
+      static millis_t next_button_update_ms;
+
       static bool detected();
 
       static LCDViewAction lcdDrawUpdate;
@@ -530,10 +532,6 @@ public:
     #if HAS_SLOW_BUTTONS
       static volatile uint8_t slow_buttons;
       static uint8_t read_slow_buttons();
-    #endif
-    #if ENABLED(TOUCH_BUTTONS)
-      static volatile uint8_t touch_buttons;
-      static uint8_t read_touch_buttons();
     #endif
 
     static void update_buttons();
