@@ -92,7 +92,7 @@ typedef struct {
 
   // SD Filename and position
   char sd_filename[MAXPATHNAMELENGTH];
-  uint32_t sdpos;
+  volatile uint32_t sdpos;
 
   // Job elapsed time
   millis_t print_job_elapsed;
@@ -108,6 +108,7 @@ class PrintJobRecovery {
     static SdFile file;
     static job_recovery_info_t info;
 
+    static uint8_t queue_index_r;     //!< Queue index of the active command
     static uint32_t cmd_sdpos,        //!< SD position of the next command
                     sdpos[BUFSIZE];   //!< SD positions of queued commands
 
@@ -129,9 +130,7 @@ class PrintJobRecovery {
     }
 
     // Track each command's file offsets
-    static inline void update_sdpos(const uint8_t index_r) {
-      if (sdpos[index_r]) info.sdpos = sdpos[index_r];
-    }
+    static inline uint32_t command_sdpos() { return sdpos[queue_index_r]; }
     static inline void commit_sdpos(const uint8_t index_w) { sdpos[index_w] = cmd_sdpos; }
 
     static bool enabled;

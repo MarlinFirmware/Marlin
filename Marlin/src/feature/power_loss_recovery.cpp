@@ -36,6 +36,9 @@ bool PrintJobRecovery::enabled; // Initialized by settings.load()
 SdFile PrintJobRecovery::file;
 job_recovery_info_t PrintJobRecovery::info;
 const char PrintJobRecovery::filename[5] = "/PLR";
+uint8_t PrintJobRecovery::queue_index_r;
+uint32_t PrintJobRecovery::cmd_sdpos, // = 0
+         PrintJobRecovery::sdpos[BUFSIZE];
 
 #include "../sd/cardreader.h"
 #include "../lcd/ultralcd.h"
@@ -249,6 +252,8 @@ void PrintJobRecovery::resume() {
 
   #define RECOVERY_ZRAISE 2
 
+  const uint32_t resume_sdpos = info.sdpos; // Get here before the stepper ISR overwrites it
+
   #if HAS_LEVELING
     // Make sure leveling is off before any G92 and G28
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
@@ -403,7 +408,7 @@ void PrintJobRecovery::resume() {
   char *fn = info.sd_filename;
   sprintf_P(cmd, PSTR("M23 %s"), fn);
   gcode.process_subcommands_now(cmd);
-  sprintf_P(cmd, PSTR("M24 S%ld T%ld"), info.sdpos, info.print_job_elapsed);
+  sprintf_P(cmd, PSTR("M24 S%ld T%ld"), resume_sdpos, info.print_job_elapsed);
   gcode.process_subcommands_now(cmd);
 }
 
