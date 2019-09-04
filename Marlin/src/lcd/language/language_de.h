@@ -37,9 +37,9 @@
 #define MSG_YES                             _UxGT("JA")
 #define MSG_NO                              _UxGT("NEIN")
 #define MSG_BACK                            _UxGT("Zurück")
-#define MSG_MEDIA_INSERTED                  _UxGT("SD-Karte erkannt")
-#define MSG_MEDIA_REMOVED                   _UxGT("SD-Karte entfernt")
-#define MSG_MEDIA_RELEASED                  _UxGT("SD-Karte freigeg.")
+#define MSG_MEDIA_INSERTED                  _UxGT("Medium erkannt")
+#define MSG_MEDIA_REMOVED                   _UxGT("Medium entfernt")
+#define MSG_MEDIA_RELEASED                  _UxGT("Medium freigeg.")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstopp") // Max length 8 characters
 #define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Software-Endstopp")
 #define MSG_MAIN                            _UxGT("Hauptmenü")
@@ -103,6 +103,7 @@
 #define MSG_USER_MENU                       _UxGT("Benutzer-Menü")
 #define MSG_LCD_TILTING_MESH                _UxGT("Berührungspunkt")
 #define MSG_M48_TEST                        _UxGT("M48 Sondentest")
+#define MSG_M48_POINT                       _UxGT("M48 Punkt")
 #define MSG_M48_DEVIATION                   _UxGT("Abweichung")
 #define MSG_IDEX_MENU                       _UxGT("IDEX-Modus")
 #define MSG_OFFSETS_MENU                    _UxGT("Werkzeugversätze")
@@ -276,7 +277,7 @@
 #define MSG_LOAD_EEPROM                     _UxGT("Konfig. laden")
 #define MSG_RESTORE_FAILSAFE                _UxGT("Standardwerte laden")
 #define MSG_INIT_EEPROM                     _UxGT("Werkseinstellungen")
-#define MSG_MEDIA_UPDATE                    _UxGT("SD-Firmware-Update")
+#define MSG_MEDIA_UPDATE                    _UxGT("FW Update vom Medium")
 #define MSG_RESET_PRINTER                   _UxGT("Drucker neustarten")
 #define MSG_REFRESH                         _UxGT("Aktualisieren")
 #define MSG_WATCH                           _UxGT("Info")
@@ -294,8 +295,8 @@
 #define MSG_RESUME_PRINT                    _UxGT("SD-Druck fortsetzen")
 #define MSG_STOP_PRINT                      _UxGT("SD-Druck abbrechen")
 #define MSG_OUTAGE_RECOVERY                 _UxGT("Wiederh. n. Stroma.")
-#define MSG_MEDIA_MENU                      _UxGT("Druck v. SD-Karte")
-#define MSG_NO_MEDIA                        _UxGT("Keine SD-Karte")
+#define MSG_MEDIA_MENU                      _UxGT("Druck vom Medium")
+#define MSG_NO_MEDIA                        _UxGT("Keine Medium")
 #define MSG_DWELL                           _UxGT("Warten...")
 #define MSG_USERWAIT                        _UxGT("Klick zum Fortsetzen")
 #define MSG_PRINT_PAUSED                    _UxGT("Druck pausiert...")
@@ -314,6 +315,7 @@
 #define MSG_CONTROL_RETRACT_RECOVER_SWAPF   _UxGT("S UnRet V")
 #define MSG_AUTORETRACT                     _UxGT("Autom. Einzug")
 #define MSG_FILAMENT_SWAP_LENGTH            _UxGT("Einzugslänge")
+#define MSG_FILAMENT_PURGE_LENGTH           _UxGT("Entladelänge")
 #define MSG_TOOL_CHANGE                     _UxGT("Werkzeugwechsel")
 #define MSG_TOOL_CHANGE_ZLIFT               _UxGT("Z anheben")
 #define MSG_SINGLENOZZLE_PRIME_SPD          _UxGT("Prime-Geschwin.")
@@ -323,9 +325,9 @@
 #define MSG_FILAMENTLOAD                    _UxGT("Filament laden")
 #define MSG_FILAMENTUNLOAD                  _UxGT("Filament entladen")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Alles entladen")
-#define MSG_INIT_MEDIA                      _UxGT("SD-Karte initial.")  // Manually initialize the SD-card via user interface
-#define MSG_CHANGE_MEDIA                    _UxGT("SD-Karte getauscht") // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
-#define MSG_RELEASE_MEDIA                   _UxGT("SD-Karte freigeben") // if Marlin gets confused - M22
+#define MSG_INIT_MEDIA                      _UxGT("Medium initial.")  // Manually initialize the SD-card via user interface
+#define MSG_CHANGE_MEDIA                    _UxGT("Medium getauscht") // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
+#define MSG_RELEASE_MEDIA                   _UxGT("Medium freigeben") // if Marlin gets confused - M22
 #define MSG_ZPROBE_OUT                      _UxGT("Z-Sonde außerhalb")
 #define MSG_SKEW_FACTOR                     _UxGT("Korrekturfaktor")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
