@@ -1879,19 +1879,24 @@ uint32_t Stepper::stepper_block_phase_isr() {
     else
       interval = LA_ADV_NEVER;
 
-      #if ENABLED(MIXING_EXTRUDER)
-        // We don't know which steppers will be stepped because LA loop follows,
-        // with potentially multiple steps. Set all.
-        if (LA_steps >= 0)
-          MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
-        else
-          MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
-      #else
-        if (LA_steps >= 0)
-          NORM_E_DIR(stepper_extruder);
-        else
-          REV_E_DIR(stepper_extruder);
-      #endif
+    #if ENABLED(MIXING_EXTRUDER)
+      // We don't know which steppers will be stepped because LA loop follows,
+      // with potentially multiple steps. Set all.
+      if (LA_steps >= 0)
+        MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
+      else
+        MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
+    #else
+      if (LA_steps >= 0)
+        NORM_E_DIR(stepper_extruder);
+      else
+        REV_E_DIR(stepper_extruder);
+    #endif
+
+    // A small delay may be needed after changing direction
+    #if MINIMUM_STEPPER_DIR_DELAY > 0
+      DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
+    #endif
 
     // Get the timer count and estimate the end of the pulse
     hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);

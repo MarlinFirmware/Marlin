@@ -31,10 +31,10 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_Teensy.h"
-#include "watchdog_Teensy.h"
+#include "fastio.h"
+#include "watchdog.h"
 
-#include "HAL_timers_Teensy.h"
+#include "timers.h"
 
 #include <stdint.h>
 

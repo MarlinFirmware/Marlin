@@ -45,7 +45,7 @@
  *         7 | 11
  */
 
-#if ENABLED(TARGET_LPC1768)
+#ifdef TARGET_LPC1768
   #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
 #elif defined(__STM32F1__)
   #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."

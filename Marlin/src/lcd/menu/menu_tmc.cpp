@@ -29,7 +29,7 @@
 #if HAS_TRINAMIC && HAS_LCD_MENU
 
 #include "menu.h"
-#include "../../module/stepper_indirection.h"
+#include "../../module/stepper/indirection.h"
 #include "../../feature/tmc_util.h"
 
 #define TMC_EDIT_STORED_I_RMS(ST,MSG) MENU_ITEM_EDIT_CALLBACK(uint16_4, MSG, &stepper##ST.val_mA, 100, 3000, refresh_stepper_current_##ST)
@@ -217,6 +217,9 @@ void menu_tmc_current() {
   #if X_SENSORLESS
     void refresh_homing_thrs_X()  { stepperX.refresh_homing_thrs();  }
   #endif
+  #if X2_SENSORLESS
+    void refresh_homing_thrs_X2() { stepperX2.refresh_homing_thrs();  }
+  #endif
   #if Y_SENSORLESS
     void refresh_homing_thrs_Y()  { stepperY.refresh_homing_thrs();  }
   #endif
@@ -229,6 +232,9 @@ void menu_tmc_current() {
     MENU_BACK(MSG_TMC_DRIVERS);
     #if X_SENSORLESS
       TMC_EDIT_STORED_SGT(X);
+    #endif
+    #if X2_SENSORLESS
+      TMC_EDIT_STORED_SGT(X2);
     #endif
     #if Y_SENSORLESS
       TMC_EDIT_STORED_SGT(Y);

@@ -407,7 +407,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if DISABLED(EMERGENCY_PARSER)
         case 108: M108(); break;                                  // M108: Cancel Waiting
-        case 112: M112(); break;                                  // M112: Emergency Stop
+        case 112: M112(); break;                                  // M112: Full Shutdown
         case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
         #if ENABLED(HOST_PROMPT_SUPPORT)
           case 876: M876(); break;                                  // M876: Handle Host prompt responses
@@ -812,7 +812,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
  * This is called from the main loop()
  */
 void GcodeSuite::process_next_command() {
-  char * const current_command = queue.buffer[queue.index_r];
+  char * const current_command = queue.command_buffer[queue.index_r];
 
   PORT_REDIRECT(queue.port[queue.index_r]);
 
@@ -821,7 +821,7 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHOLN(current_command);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
       SERIAL_ECHOPAIR("slot:", queue.index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), queue.buffer, queue.buffer + sizeof(queue.buffer));
+      M100_dump_routine(PSTR("   Command Queue:"), queue.command_buffer, queue.command_buffer + sizeof(queue.command_buffer));
     #endif
   }
 

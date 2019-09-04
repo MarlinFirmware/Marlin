@@ -26,8 +26,8 @@
  * as a part of Marlin or outside it
  */
 
-#if defined __has_include
-  #if __has_include ("../../ui_api.h")
+#ifdef __has_include
+  #if __has_include("../../ui_api.h")
     #include "../../ui_api.h"
   #endif
 #else

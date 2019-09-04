@@ -38,10 +38,10 @@ void GcodeSuite::M108() {
 }
 
 /**
- * M112: Emergency Stop
+ * M112: Full Shutdown
  */
 void GcodeSuite::M112() {
-  kill();
+  kill(PSTR("M112 Shutdown"), true);
 }
 
 /**

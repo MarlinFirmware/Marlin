@@ -200,7 +200,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_ZPos, &current_position[2], nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<2>),
 
   // Print Progress.
-  VPHELPER(VP_PrintProgress_Percentage, &MarlinUI::progress_bar_percent, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay ),
+  VPHELPER(VP_PrintProgress_Percentage, &ui.progress_bar_percent, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay ),
 
   // Print Time
   VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendPrintTimeToDisplay ),

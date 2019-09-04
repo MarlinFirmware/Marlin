@@ -235,6 +235,7 @@ class CLCD::CommandFifo {
       void playvideo (uint32_t options);
       void videostart();
       void videoframe(uint32_t dst, uint32_t ptr);
+      void romfont   (uint8_t font, uint8_t romslot);
     #endif
 
     // All the following must be followed by str()
