@@ -136,11 +136,11 @@ float zprobe_zoffset; // Initialized by settings.load()
       ui.goto_screen(prev_screen);
 
     #elif defined(TOUCH_MI_DEPLOY_XPOS) && defined(TOUCH_MI_DEPLOY_YPOS)
-          do_blocking_move_to_xy(TOUCH_MI_DEPLOY_XPOS,TOUCH_MI_DEPLOY_YPOS);
-    #elif defined(TOUCH_MI_DEPLOY_XPOS) 
-          do_blocking_move_to_x(TOUCH_MI_DEPLOY_XPOS);
+      do_blocking_move_to_xy(TOUCH_MI_DEPLOY_XPOS, TOUCH_MI_DEPLOY_YPOS);
+    #elif defined(TOUCH_MI_DEPLOY_XPOS)
+      do_blocking_move_to_x(TOUCH_MI_DEPLOY_XPOS);
     #elif defined(TOUCH_MI_DEPLOY_YPOS)
-          do_blocking_move_to_y(TOUCH_MI_DEPLOY_YPOS);
+      do_blocking_move_to_y(TOUCH_MI_DEPLOY_YPOS);
     #endif
   }
 
