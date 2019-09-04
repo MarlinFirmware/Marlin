@@ -211,8 +211,7 @@ bool MarlinUI::detected() { return true; }
     #else
       constexpr millis_t d = MARLIN_BOOTSCREEN_FRAME_TIME;
       LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
-        const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]);
-        draw_bootscreen_bmp(bmp);
+        draw_bootscreen_bmp((uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]));
         if (d) safe_delay(d);
       }
     #endif
