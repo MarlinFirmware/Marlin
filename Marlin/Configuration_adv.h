@@ -602,20 +602,43 @@
  */
 //#define Z_STEPPER_AUTO_ALIGN
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-  // Define probe X and Y positions for Z1, Z2 [, Z3]
-  #define Z_STEPPER_ALIGN_XY { {  10, 290 }, { 150,  10 }, { 290, 290 } }
+  // Providing Z stepper positions allows for more rapid convergence when
+  // aligning the bed. Currently available only with triple stepper drivers.
+  //#define Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS
+  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+    // Define stepper X and Y positions for Z1, Z2, Z3
+    // These typically correspond to the position of Z screws in the bed carriage.
+    // Exactly one position must be defined for each Z stepper.
+    // The order must match the Z stepper order.
+    #define Z_STEPPER_ALIGN_STEPPER_X { 210.7, 152.6, 94.5 }
+    #define Z_STEPPER_ALIGN_STEPPER_Y { 102.5, 220.0, 102.5 }
+
+    // X and Y probe positions.
+    // These are used to calculat the plane describing the current bed alignment.
+    // Order is unimportant. At least three points are required.
+    // Providing additional points will cause a least-squares approximation of
+    // the bed's surface to be calculated. This may be helpful when probing an
+    // uneven surface.
+    #define Z_STEPPER_ALIGN_X { { MIN_PROBE_X, MIN_PROBE_Y }, { MAX_PROBE_X / 2, MAX_PROBE_Y }, { MAX_PROBE_X, MIN_PROBE_Y } }
+  #else
+    // Define probe X and Y positions for Z1, Z2 [, Z3]
+    #define Z_STEPPER_ALIGN_XY { { 20.0, 40.0 }, { 100.0, 180.0 }, { 180.0, 40.0 } }
+
+    // Use the amplification factor to de-/increase correction step.
+    // In case the stepper (spindle) position is further out than the test point
+    // Use a value > 1. NOTE: This may cause instability
+    #define Z_STEPPER_ALIGN_AMP 1.0
+  #endif
+
   // Set number of iterations to align
   #define Z_STEPPER_ALIGN_ITERATIONS 3
+
   // Enable to restore leveling setup after operation
   #define RESTORE_LEVELING_AFTER_G34
 
   // On a 300mm bed a 5% grade would give a misalignment of ~1.5cm
   #define G34_MAX_GRADE  5  // (%) Maximum incline G34 will handle
 
-  // Use the amplification factor to de-/increase correction step.
-  // In case the stepper (spindle) position is further out than the test point
-  // Use a value > 1. NOTE: This may cause instability
-  #define Z_STEPPER_ALIGN_AMP 1.0
   // Stop criterion. If the accuracy is better than this stop iterating early
   #define Z_STEPPER_ALIGN_ACC 0.02
 #endif

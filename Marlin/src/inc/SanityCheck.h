@@ -2340,6 +2340,41 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif !HAS_BED_PROBE
     #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
   #endif
+
+  constexpr float sanity_arr_z_align_xy[] = Z_STEPPER_ALIGN_XY;
+
+  #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+
+    static_assert(COUNT(sanity_arr_z_align_xy) == Z_STEPPER_COUNT,
+      "Z_STEPPER_ALIGN_XY settings require one element per Z stepper.");
+
+  #else
+
+    #if DISABLED(Z_TRIPLE_STEPPER_DRIVERS)
+      #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires Z_TRIPLE_STEPPER_DRIVERS"
+    #endif
+
+    #if !defined(Z_STEPPER_ALIGN_STEPPER_X) || !defined(Z_STEPPER_ALIGN_STEPPER_Y)
+      #error "Z_STEPPER_ALIGN_STEPPER_X and Z_STEPPER_ALIGN_STEPPER_Y must be defined together."
+    #endif
+
+    constexpr float sanity_arr_screw_x[] = Z_STEPPER_ALIGN_STEPPER_X,
+                    sanity_arr_screw_y[] = Z_STEPPER_ALIGN_STEPPER_Y;
+
+    static_assert(
+      COUNT(sanity_arr_screw_x) == Z_STEPPER_COUNT && COUNT(sanity_arr_screw_y) == Z_STEPPER_COUNT,
+      "Z_STEPPER_ALIGN_STEPPER_[XY] settings require one element per Z stepper."
+    );
+    static_assert(
+      COUNT(sanity_arr_z_align_xy) >= Z_STEPPER_COUNT,
+      "Z_STEPPER_ALIGN_XY settings require at least one element per Z stepper."
+    );
+    static_assert(
+      Z_STEPPER_ALIGN_AMP == 1.0,
+      "Z_STEPPER_ALIGN_AMP must be 1.0 when used with Z_STEPPER_ALIGN_STEPPER_[XY]."
+    );
+  #endif
+
 #endif
 
 #if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
