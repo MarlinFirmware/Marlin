@@ -998,7 +998,7 @@
 #endif // USE_SENSORLESS
 
 #if TMC_HAS_SPI
-  #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
+  #define SET_CS_PIN(st) digitalWrite(st##_CS_PIN, HIGH)
   void tmc_init_cs_pins() {
     #if AXIS_HAS_SPI(X)
       SET_CS_PIN(X);
