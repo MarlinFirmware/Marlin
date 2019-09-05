@@ -6,7 +6,7 @@
 */
 
 //#define MachineEnder2
-#define MachineEnder3
+//#define MachineEnder3
 //#define MachineEnder4
 //#define MachineEnder5
 //#define MachineEnder5Plus
@@ -15,7 +15,7 @@
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
-//#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
 //#define MachineCRX
 //#define MachineCR10Max
 //#define MachineS4
@@ -31,7 +31,7 @@
 
 //#define Big_UI // Lightweight status screen
 
-#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
+//#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
 //#define ForceCRXDisplay
 #define Force10SProDisplay
 
@@ -40,7 +40,7 @@
 //#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 
 //#define MachineCR10Orig // Forces Melzi board
-#define Melzi_To_SBoardUpgrade // Upgrade Melzi board to 10S board
+//#define Melzi_To_SBoardUpgrade // Upgrade Melzi board to 10S board
 //#define SKR13 // 32 bit board - assumes 2208 drivers
 //#define SKR13_2209
 //#define SKR13_UART // Configure SKR board with drivers in UART mode
@@ -102,7 +102,7 @@
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-#define ABL_BLTOUCH
+//#define ABL_BLTOUCH
 
 //#define CREALITY_ABL_MOUNT //Using creality ABL mount
 //#define E3D_DUALFAN_MOUNT // Using HD Modular mount as above with 2 5015 blowers and sensor on the right
