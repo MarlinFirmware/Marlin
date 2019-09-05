@@ -4,6 +4,7 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +20,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#include <IWatchdog.h>
-//#include <stm32yyxx_ll_iwdg.h>
-//extern IWDG_HandleTypeDef hiwdg;
+#include "../HAL.h"
+#if HAL_IS_STM32_F4_F7
 
-void watchdog_init();
-void watchdog_reset();
+#ifdef __HAL_SD_ENABLE
+
+#include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
+#include "bsp_sd.h"
+
+bool SDIO_Init(void) {
+  if (BSP_SD_Init() == MSD_OK) {
+    return true;
+  }
+  return false;
+}
+
+bool SDIO_ReadBlock(uint32_t blockAddress, uint8_t *data) {
+  return BSP_SD_ReadBlocks(data, blockAddress, 1) == MSD_OK;
+}
+
+bool SDIO_WriteBlock(uint32_t blockAddress, const uint8_t *data) {
+  return BSP_SD_WriteBlocks(data, blockAddress, 1) == MSD_OK;
+}
+
+#endif // __HAL_SD_ENABLE
+#endif

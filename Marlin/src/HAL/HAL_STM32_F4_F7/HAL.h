@@ -130,7 +130,7 @@
 // Types
 // ------------------------
 
-typedef int8_t pin_t;
+typedef int16_t pin_t;
 
 #ifdef STM32F4
   #define HAL_SERVO_LIB libServo
@@ -203,7 +203,7 @@ void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 // ADC
 //
 
-#define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
+#define HAL_ANALOG_SELECT(pin)
 
 inline void HAL_adc_init(void) {}
 
@@ -214,8 +214,12 @@ inline void HAL_adc_init(void) {}
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 uint16_t HAL_adc_get_result(void);
 
+#ifndef GET_PIN_MAP_PIN
 #define GET_PIN_MAP_PIN(index) index
+#endif
+#ifndef GET_PIN_MAP_INDEX
 #define GET_PIN_MAP_INDEX(pin) pin
+#endif
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
 #ifdef STM32F4

@@ -63,22 +63,14 @@ static SPISettings spiConfig;
 // ------------------------
 
 /**
- * VGPV SPI speed start and F_CPU/2, by default 72/2 = 36Mhz
- */
-
-/**
  * @brief  Begin SPI port setup
  *
  * @return Nothing
- *
- * @details Only configures SS pin since libmaple creates and initialize the SPI object
  */
 void spiBegin(void) {
   #if !defined(SS_PIN) || SS_PIN < 0
     #error SS_PIN not defined!
   #endif
-
-  OUT_WRITE(SS_PIN, HIGH);
 }
 
 /** Configure SPI for specified SPI speed */
@@ -126,7 +118,7 @@ void spiRead(uint8_t* buf, uint16_t nbyte) {
   #ifdef USE_SPI_DMA
     SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
   #else
-    SPI.transfer((uint8_t*)buf, nbyte);
+    SPI.transfer(buf, nbyte);
   #endif
   SPI.endTransaction();
 }

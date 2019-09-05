@@ -935,7 +935,7 @@ void setup() {
 
   #if TMC_HAS_SPI
     #if DISABLED(TMC_USE_SW_SPI)
-      SPI.begin();
+      spiBegin();
     #endif
     tmc_init_cs_pins();
   #endif

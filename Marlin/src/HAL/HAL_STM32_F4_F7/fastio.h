@@ -22,31 +22,119 @@
  */
 #pragma once
 
-/**
- * Fast I/O interfaces for STM32F4/7
- * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
- */
-
 #ifndef PWM
   #define PWM OUTPUT
 #endif
 
-#define READ(IO)                digitalRead(IO)
-#define WRITE(IO,V)             digitalWrite(IO,V)
+#define SLOW_PIN(PORT,PN) P##PORT##PN
 
-#define _GET_MODE(IO)
-#define _SET_MODE(IO,M)         pinMode(IO, M)
-#define _SET_OUTPUT(IO)         pinMode(IO, OUTPUT)                               /*!< Output Push Pull Mode & GPIO_NOPULL   */
+#define USE_FAST_IO
+#ifdef USE_FAST_IO
 
-#define OUT_WRITE(IO,V)         do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
+  /**
+   * Fast I/O interfaces for STM32F4/7
+   * Use Direct Port Manipulation
+   */
+  enum PortNumber { PORTA, PORTB, PORTC, PORTD, PORTE, PORTF, PORTG, PORTH, PORTI, PORTJ, PORTK };
+
+  #define FAST_IO_PIN(port, pin_no) (0x7000 | ((port) << 4) | (pin_no & 0x0F))
+  #define IS_FAST_IO_PIN(pin) (((pin) & 0xF000) == 0x7000)
+  #define GET_PORT(fio_pin) ((fio_pin >> 4) & 0x0F)
+  #define GET_PIN_IDX(fio_pin) (fio_pin & 0x0F)
+
+  struct FastIOPin {
+    const intptr_t port_addr_;
+    const uint16_t port_num_;
+    const uint16_t pin_;
+
+    constexpr FastIOPin(const uint32_t fast_io_pin)
+      : port_addr_(AHB1PERIPH_BASE + GET_PORT(fast_io_pin) * 0x400),
+        pin_(1 << GET_PIN_IDX(fast_io_pin)),
+        port_num_(GET_PORT(fast_io_pin)) {}
+
+    void set_mode(const uint32_t ulMode) const {
+      GPIO_InitTypeDef GPIO_InitStructure;
+      GPIO_InitStructure.Pin = pin_;
+      GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+
+      switch (ulMode) {
+        case INPUT:
+          GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+          GPIO_InitStructure.Pull = GPIO_NOPULL;
+          break;
+        case INPUT_PULLUP:
+          GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+          GPIO_InitStructure.Pull = GPIO_PULLUP;
+          break;
+        case INPUT_PULLDOWN:
+          GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+          GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+          break;
+        case OUTPUT:
+          GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
+          GPIO_InitStructure.Pull = GPIO_NOPULL;
+          break;
+        default: return;
+      }
+      set_GPIO_Port_Clock(port_num_);
+      HAL_GPIO_Init(
+        reinterpret_cast<GPIO_TypeDef*>(port_addr_),
+        &GPIO_InitStructure);
+    }
+
+    void set() const {
+      volatile GPIO_TypeDef* const gpio_port = reinterpret_cast<GPIO_TypeDef*>(port_addr_);
+      gpio_port->BSRR = pin_;
+    }
+
+    void reset() const {
+      volatile GPIO_TypeDef* const gpio_port = reinterpret_cast<GPIO_TypeDef*>(port_addr_);
+      gpio_port->BSRR = pin_ << 16;
+    }
+
+    void toggle() const {
+      volatile GPIO_TypeDef* const gpio_port = reinterpret_cast<GPIO_TypeDef*>(port_addr_);
+      gpio_port->ODR ^= pin_;
+    }
+
+    void write(const uint8_t val) const { val ? set() : reset(); }
+
+    uint8_t read() const {
+      volatile  GPIO_TypeDef* gpio_port = reinterpret_cast<GPIO_TypeDef*>(port_addr_);
+      return (gpio_port->IDR & pin_) ? 1 : 0;
+    }
+  };
+
+  #define FAST_PIN(PORT,PN) FAST_IO_PIN(PORT##PORT,PN)
+  #define IO_PIN(PORT,PN)   FAST_PIN(PORT,PN)
+
+  #define READ(IO)          FastIOPin(IO).read()
+  #define WRITE(IO,V)       FastIOPin(IO).write(V)
+  #define TOGGLE(IO)        FastIOPin(IO).toggle()
+  #define _SET_MODE(IO, M)  FastIOPin(IO).set_mode(M)
+
+#else
+
+  #define IO_PIN(PORT,PN)   SLOW_PIN(PORT,PN)
+
+  #define READ(IO)          digitalRead(IO)
+  #define WRITE(IO,V)       digitalWrite(IO,V)
+  #define TOGGLE(IO)        WRITE(IO, !READ(IO))
+  #define _SET_MODE(IO,M)   pinMode(IO, M)
+
+#endif // USE_FAST_IO
+
+//#define _GET_MODE(IO)
+
+#define _SET_OUTPUT(IO)         _SET_MODE(IO, OUTPUT)
 
 #define SET_INPUT(IO)           _SET_MODE(IO, INPUT)                              /*!< Input Floating Mode                   */
 #define SET_INPUT_PULLUP(IO)    _SET_MODE(IO, INPUT_PULLUP)                       /*!< Input with Pull-up activation         */
 #define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLDOWN)                     /*!< Input with Pull-down activation       */
-#define SET_OUTPUT(IO)          OUT_WRITE(IO, LOW)
-#define SET_PWM(IO)             _SET_MODE(IO, PWM)
+#define SET_OUTPUT(IO)          _SET_MODE(IO, OUTPUT)
+#define SET_PWM(IO)             SET_OUTPUT(IO)
 
-#define TOGGLE(IO)              OUT_WRITE(IO, !READ(IO))
+#define OUT_WRITE(IO,V)         do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 
 #define IS_INPUT(IO)
 #define IS_OUTPUT(IO)
@@ -57,6 +145,8 @@
 #define extDigitalRead(IO)    digitalRead(IO)
 #define extDigitalWrite(IO,V) digitalWrite(IO,V)
 
+#ifdef REDEFINE_PIN_NAMES
+
 //
 // Pins Definitions
 //
@@ -65,8 +155,6 @@
 #define PORTC 2
 #define PORTD 3
 #define PORTE 4
-#define PORTF 5
-#define PORTG 6
 
 #define _STM32_PIN(P,PN) ((PORT##P * 16) + PN)
 
@@ -307,4 +395,6 @@
   #undef PG15
   #define PG15 _STM32_PIN(G, 15)
 
-#endif // STM32GENERIC && STM32F7
+#endif // STM32F7
+
+#endif // REDEFINE_PIN_NAMES
