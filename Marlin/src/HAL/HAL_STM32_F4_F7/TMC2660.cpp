@@ -1,5 +1,5 @@
 /**
- * TMC26XStepper.cpp - - TMC26X Stepper library for Wiring/Arduino
+ * TMC2660.cpp - TMC26X Stepper library for Wiring/Arduino
  *
  * based on the stepper library by Tom Igoe, et. al.
  *
@@ -25,27 +25,35 @@
  *
  */
 
-#if defined(STM32GENERIC) && defined(STM32F7)
+#include "../platforms.h"
+#if HAL_IS_STM32_F4_F7
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if HAS_DRIVER(TMC2660)
 
 #include <stdbool.h>
 #include <SPI.h>
+
 #include "TMC2660.h"
 
-#include "../../../inc/MarlinConfig.h"
-#include "../../../Marlin.h"
-#include "../../../module/stepper/indirection.h"
-#include "../../../module/printcounter.h"
-#include "../../../libs/duration_t.h"
-#include "../../../libs/hex_print_routines.h"
+//#include "../../inc/MarlinConfig.h"
+#include "../../Marlin.h"
+#include "../../module/stepper/indirection.h"
+#include "../../module/printcounter.h"
+#include "../../libs/duration_t.h"
 
-//some default values used in initialization
+// Debugging output
+//#define TMC_DEBUG1
+
+#ifdef TMC_DEBUG1
+  #include "../../libs/hex_print_routines.h"
+#endif
+
+// Some default values used in initialization
 #define DEFAULT_MICROSTEPPING_VALUE 32
 
-//TMC26X register definitions
+// TMC26X register definitions
 #define DRIVER_CONTROL_REGISTER 0x0ul
 #define CHOPPER_CONFIG_REGISTER 0x80000ul
 #define COOL_STEP_REGISTER  0xA0000ul
@@ -54,7 +62,7 @@
 
 #define REGISTER_BIT_PATTERN 0xFFFFFul
 
-//definitions for the driver control register
+// Definitions for the driver control register
 #define MICROSTEPPING_PATTERN 0xFul
 #define STEP_INTERPOLATION 0x200ul
 #define DOUBLE_EDGE_STEP 0x100ul
@@ -64,7 +72,7 @@
 #define READ_STALL_GUARD_AND_COOL_STEP 0x20ul
 #define READ_SELECTION_PATTERN 0x30ul
 
-//definitions for the chopper config register
+// Definitions for the chopper config register
 #define CHOPPER_MODE_STANDARD 0x0ul
 #define CHOPPER_MODE_T_OFF_FAST_DECAY 0x4000ul
 #define T_OFF_PATTERN 0xFul
@@ -79,21 +87,21 @@
 #define HYSTERESIS_START_VALUE_SHIFT 4
 #define T_OFF_TIMING_PATERN 0xFul
 
-//definitions for cool step register
+// Definitions for cool step register
 #define MINIMUM_CURRENT_FOURTH 0x8000ul
 #define CURRENT_DOWN_STEP_SPEED_PATTERN 0x6000ul
 #define SE_MAX_PATTERN 0xF00ul
 #define SE_CURRENT_STEP_WIDTH_PATTERN 0x60ul
 #define SE_MIN_PATTERN 0xFul
 
-//definitions for StallGuard2 current register
+// Definitions for StallGuard2 current register
 #define STALL_GUARD_FILTER_ENABLED 0x10000ul
 #define STALL_GUARD_TRESHHOLD_VALUE_PATTERN 0x17F00ul
 #define CURRENT_SCALING_PATTERN 0x1Ful
 #define STALL_GUARD_CONFIG_PATTERN 0x17F00ul
 #define STALL_GUARD_VALUE_PATTERN 0x7F00ul
 
-//definitions for the input from the TMC2660
+// Definitions for the input from the TMC2660
 #define STATUS_STALL_GUARD_STATUS 0x1ul
 #define STATUS_OVER_TEMPERATURE_SHUTDOWN 0x2ul
 #define STATUS_OVER_TEMPERATURE_WARNING 0x4ul
@@ -106,16 +114,12 @@
 
 #define CPU_32_BIT
 
-//default values
+// Default values
 #define INITIAL_MICROSTEPPING 0x3ul //32th microstepping
 
 SPIClass SPI_6(SPI6, SPI6_MOSI_PIN, SPI6_MISO_PIN, SPI6_SCK_PIN);
 
 #define STEPPER_SPI SPI_6
-
-//debuging output
-
-//#define TMC_DEBUG1
 
 uint8_t current_scaling = 0;
 
@@ -283,7 +287,7 @@ uint16_t TMC26XStepper::getStepsLeft(void) { return this->steps_left; }
 
 char TMC26XStepper::stop(void) {
   //note to self if the motor is currently moving
-  char state = isMoving();
+  const char state = isMoving();
   //stop the motor
   this->steps_left = 0;
   this->direction = 0;
@@ -375,9 +379,7 @@ char TMC26XStepper::getStallGuardThreshold(void) {
 }
 
 char TMC26XStepper::getStallGuardFilter(void) {
-  if (stallguard2_current_register_value & STALL_GUARD_FILTER_ENABLED)
-    return -1;
-  return 0;
+  return (stallguard2_current_register_value & STALL_GUARD_FILTER_ENABLED) ? -1 : 0;
 }
 
 /**
@@ -611,7 +613,7 @@ void TMC26XStepper::setCoolStepConfiguration(
   if (started) send262(cool_step_register_value);
 }
 
-void TMC26XStepper::setCoolStepEnabled(boolean enabled) {
+void TMC26XStepper::setCoolStepEnabled(bool enabled) {
   // Simply delete the lower limit to disable the cool step
   cool_step_register_value &= ~SE_MIN_PATTERN;
   // And set it to the proper value if cool step is to be enabled
@@ -623,7 +625,7 @@ void TMC26XStepper::setCoolStepEnabled(boolean enabled) {
   if (started) send262(cool_step_register_value);
 }
 
-boolean TMC26XStepper::isCoolStepEnabled(void) { return this->cool_step_enabled; }
+bool TMC26XStepper::isCoolStepEnabled(void) { return this->cool_step_enabled; }
 
 uint16_t TMC26XStepper::getCoolStepLowerSgThreshold() {
   // We return our internally stored value - in order to provide the correct setting even if cool step is not enabled
@@ -646,7 +648,7 @@ uint8_t TMC26XStepper::getCoolStepLowerCurrentLimit() {
   return uint8_t((cool_step_register_value & MINIMUM_CURRENT_FOURTH) >> 15);
 }
 
-void TMC26XStepper::setEnabled(boolean enabled) {
+void TMC26XStepper::setEnabled(bool enabled) {
   //delete the t_off in the chopper config to get sure
   chopper_config_register &= ~(T_OFF_PATTERN);
   if (enabled) {
@@ -657,7 +659,7 @@ void TMC26XStepper::setEnabled(boolean enabled) {
   if (started) send262(chopper_config_register);
 }
 
-boolean TMC26XStepper::isEnabled() { return !!(chopper_config_register & T_OFF_PATTERN); }
+bool TMC26XStepper::isEnabled() { return !!(chopper_config_register & T_OFF_PATTERN); }
 
 /**
  * reads a value from the TMC26X status register. The value is not obtained directly but can then
@@ -721,7 +723,7 @@ uint16_t TMC26XStepper::getCurrentCurrent(void) {
 /**
  * Return true if the StallGuard threshold has been reached
  */
-boolean TMC26XStepper::isStallGuardOverThreshold(void) {
+bool TMC26XStepper::isStallGuardOverThreshold(void) {
   if (!this->started) return false;
   return (driver_status_result & STATUS_STALL_GUARD_STATUS);
 }
@@ -745,37 +747,37 @@ char TMC26XStepper::getOverTemperature(void) {
 }
 
 // Is motor channel A shorted to ground
-boolean TMC26XStepper::isShortToGroundA(void) {
+bool TMC26XStepper::isShortToGroundA(void) {
   if (!this->started) return false;
   return (driver_status_result & STATUS_SHORT_TO_GROUND_A);
 }
 
 // Is motor channel B shorted to ground
-boolean TMC26XStepper::isShortToGroundB(void) {
+bool TMC26XStepper::isShortToGroundB(void) {
   if (!this->started) return false;
   return (driver_status_result & STATUS_SHORT_TO_GROUND_B);
 }
 
 // Is motor channel A connected
-boolean TMC26XStepper::isOpenLoadA(void) {
+bool TMC26XStepper::isOpenLoadA(void) {
   if (!this->started) return false;
   return (driver_status_result & STATUS_OPEN_LOAD_A);
 }
 
 // Is motor channel B connected
-boolean TMC26XStepper::isOpenLoadB(void) {
+bool TMC26XStepper::isOpenLoadB(void) {
   if (!this->started) return false;
   return (driver_status_result & STATUS_OPEN_LOAD_B);
 }
 
 // Is chopper inactive since 2^20 clock cycles - defaults to ~0,08s
-boolean TMC26XStepper::isStandStill(void) {
+bool TMC26XStepper::isStandStill(void) {
   if (!this->started) return false;
   return (driver_status_result & STATUS_STAND_STILL);
 }
 
 //is chopper inactive since 2^20 clock cycles - defaults to ~0,08s
-boolean TMC26XStepper::isStallGuardReached(void) {
+bool TMC26XStepper::isStallGuardReached(void) {
   if (!this->started) return false;
   return (driver_status_result & STATUS_STALL_GUARD_STATUS);
 }
@@ -788,7 +790,7 @@ int16_t TMC26XStepper::getReadoutValue(void) {
 
 int16_t TMC26XStepper::getResistor() { return this->resistor; }
 
-boolean TMC26XStepper::isCurrentScalingHalfed() {
+bool TMC26XStepper::isCurrentScalingHalfed() {
   return !!(this->driver_configuration_register_value & VSENSE);
 }
 /**
@@ -896,6 +898,5 @@ inline void TMC26XStepper::send262(uint32_t datagram) {
   driver_status_result = i_datagram;
 }
 
-#endif // HAS_DRIVER(TMC2660)
-
-#endif // STM32GENERIC && STM32F7
+#endif // TMC2660
+#endif // HAL_IS_STM32_F4_F7
