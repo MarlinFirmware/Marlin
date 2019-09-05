@@ -1055,7 +1055,7 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
       }
       else if (recdat.data[0] == 4) //Language
       {
-        //Language change not supported
+        //Just loads language screen, now used for tools
       }
       else if (recdat.data[0] == 5) //Printer Information
       {
@@ -1138,33 +1138,40 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
           waitway = 3; //only for prohibiting to receive massage
           RTS_SndData(3, AutolevelIcon);
           bool zig = true;
-                for (uint8_t yCount = 0, showcount = 0; yCount < GRID_MAX_POINTS_Y; yCount++)
-                {
-                    int8_t inStart, inStop, inInc;
+          for (uint8_t yCount = 0, showcount = 0; yCount < GRID_MAX_POINTS_Y; yCount++)
+          {
+            int8_t inStart, inStop, inInc;
+            if (zig)
+            { // away from origin
+              inStart = 0;
+              inStop = GRID_MAX_POINTS_X;
+              inInc = 1;
+            }
+            else
+            { // towards origin
+              inStart = GRID_MAX_POINTS_X - 1;
+              inStop = -1;
+              inInc = -1;
+            }
 
-                    if (zig)
-                    { // away from origin
-                        inStart = 0;
-                        inStop = GRID_MAX_POINTS_X;
-                        inInc = 1;
-                    }
-                    else
-                    { // towards origin
-                        inStart = GRID_MAX_POINTS_X - 1;
-                        inStop = -1;
-                        inInc = -1;
-                    }
-
-                    zig ^= true; // zag
-                    for (int8_t xCount = inStart; xCount != inStop; xCount += inInc)
-                    {
-                        if ((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
-                        {
-                            rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
-                            //rtscheck.RTS_SndData(showcount, AutolevelIcon);
-                        }
-                    }
+            zig ^= true; // zag
+            for (int8_t xCount = inStart; xCount != inStop; xCount += inInc)
+            {
+              if ((showcount+1) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
+              {
+                if (
+                #if ENABLED(ABL_UBL)
+                  xCount != (GRID_MAX_POINTS_X - 1) && yCount != (GRID_MAX_POINTS_Y - 1)
+                #else
+                  true
+                #endif
+                ){
+              showcount++;
+                  rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
                 }
+              }
+            }
+          }
           RTS_SndData(ExchangePageBase + 85, ExchangepageAddr);
           injectCommands_P(PSTR(USER_GCODE_1));
           break;
@@ -1383,6 +1390,34 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
           injectCommands_P(PSTR("M300"));
         }*/
       // may at some point use language change screens to save eeprom explicitly
+      switch(recdat.data[0])
+      {
+        case 0:
+          SERIAL_ECHOLN("Chinese Not Supported");
+          break;
+        case 1:
+          SERIAL_ECHOLN("English Already Set");
+          break;
+        case 2:
+          //PID Hotend
+          injectCommands_P(PSTR("M303E0S215C8U"));
+          break;
+        case 3:
+          //Init EEPROM
+          injectCommands_P(PSTR("M502\nM500"));
+          break;
+        case 4:
+          //BLTouch Reset
+          injectCommands_P(PSTR("M999"));
+          break;
+        case 5:
+          //PID Bed
+          injectCommands_P(PSTR("M303E-1S65C4U"));
+          break;
+        default:
+          SERIAL_ECHOLN("Invalid Option");
+          break;
+      }
       break;
     case No_Filement:
       SERIAL_ECHOLN("\n No Filament");
@@ -1661,7 +1696,11 @@ void onMediaRemoved()
 	SERIAL_ECHOLN("***Card Removed***");
 }
 
-void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
+void onPlayTone(const uint16_t frequency, const uint16_t duration) {
+
+	SERIAL_ECHOLN("***CPlay Tone***");
+  rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
+}
 
 void onPrintTimerStarted()
 {
@@ -1788,10 +1827,18 @@ void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval)
 		zig ^= true; // zag
 		for (int8_t xCount = inStart; xCount != inStop; xCount += inInc)
 		{
-			if ((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
+			if ((showcount+1) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
 			{
-				rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
-				//rtscheck.RTS_SndData(showcount, AutolevelIcon);
+        if (
+        #if ENABLED(ABL_UBL)
+          xCount != (GRID_MAX_POINTS_X - 1) && yCount != (GRID_MAX_POINTS_Y - 1)
+        #else
+          true
+        #endif
+        ){
+          showcount++;
+				  rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
+        }
 			}
 		}
 	}
@@ -1831,46 +1878,54 @@ void onConfigurationStoreWritten(bool success)
 void onConfigurationStoreRead(bool success)
 {
 	SERIAL_ECHOLN("==onConfigurationStoreRead==");
-    #if HAS_MESH && (ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(Force10SProDisplay))
-        if (ExtUI::getMeshValid())
-        {
-            bool zig = true;
-            for (uint8_t yCount = 0, showcount = 0; yCount < GRID_MAX_POINTS_Y; yCount++)
-            {
-                int8_t inStart, inStop, inInc;
+  #if HAS_MESH && (ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(Force10SProDisplay))
+    if (ExtUI::getMeshValid())
+    {
+      bool zig = true;
+      for (uint8_t yCount = 0, showcount = 0; yCount < GRID_MAX_POINTS_Y; yCount++)
+      {
+        int8_t inStart, inStop, inInc;
 
-                if (zig)
-                { // away from origin
-                    inStart = 0;
-                    inStop = GRID_MAX_POINTS_X;
-                    inInc = 1;
-                }
-                else
-                { // towards origin
-                    inStart = GRID_MAX_POINTS_X - 1;
-                    inStop = -1;
-                    inInc = -1;
-                }
-
-                zig ^= true; // zag
-                for (int8_t xCount = inStart; xCount != inStop; xCount += inInc)
-                {
-                    if ((showcount++) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
-                    {
-                        rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
-                        //rtscheck.RTS_SndData(showcount, AutolevelIcon);
-                    }
-                }
-            }
-            rtscheck.RTS_SndData(3, AutoLevelIcon); //2=On, 3=Off
-            setLevelingActive(true);
+        if (zig)
+        { // away from origin
+          inStart = 0;
+          inStop = GRID_MAX_POINTS_X;
+          inInc = 1;
         }
         else
-        {
-            rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
-            setLevelingActive(false);
+        { // towards origin
+          inStart = GRID_MAX_POINTS_X - 1;
+          inStop = -1;
+          inInc = -1;
         }
-    #endif
+
+        zig ^= true; // zag
+        for (int8_t xCount = inStart; xCount != inStop; xCount += inInc)
+        {
+          if ((showcount+1) < (GRID_MAX_POINTS_X * GRID_MAX_POINTS_X))
+          {
+            if (
+            #if ENABLED(ABL_UBL)
+              xCount != (GRID_MAX_POINTS_X - 1) && yCount != (GRID_MAX_POINTS_Y - 1)
+            #else
+              true
+            #endif
+            ){
+              showcount++;
+              rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
+            }
+          }
+        }
+      }
+      rtscheck.RTS_SndData(3, AutoLevelIcon); //2=On, 3=Off
+      setLevelingActive(true);
+    }
+    else
+    {
+      rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
+      setLevelingActive(false);
+    }
+  #endif
 
 	SERIAL_ECHOLNPAIR("\n init zprobe_zoffset = ", getZOffset_mm());
 	rtscheck.RTS_SndData(getZOffset_mm() * 100, 0x1026);

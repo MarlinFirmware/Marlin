@@ -6,10 +6,10 @@
 */
 
 //#define MachineEnder2
-//#define MachineEnder3
+#define MachineEnder3
 //#define MachineEnder4
 //#define MachineEnder5
-#define MachineEnder5Plus
+//#define MachineEnder5Plus
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work
 //#define MachineCR20Pro
@@ -21,7 +21,6 @@
 //#define MachineS4
 //#define MachineS5
 
-//#define MachineCR10Orig // Forces Melzi board
 
 /*
    Enabled this for linear advance instead of mesh leveling on a melzi board
@@ -32,12 +31,16 @@
 
 //#define Big_UI // Lightweight status screen
 
-//#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
+#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
 //#define ForceCRXDisplay
 #define Force10SProDisplay
+
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
 //#define DualFilSensors //Using dual filament sensors on XMax and YMAX
+
+//#define MachineCR10Orig // Forces Melzi board
+#define Melzi_To_SBoardUpgrade // Upgrade Melzi board to 10S board
 //#define SKR13 // 32 bit board - assumes 2208 drivers
 //#define SKR13_2209
 //#define SKR13_UART // Configure SKR board with drivers in UART mode
@@ -275,7 +278,7 @@
 
 #endif
 
-#if ENABLED(MachineEnder2) || ENABLED(MachineEnder3) || ENABLED(MachineCR10)
+#if ANY(MachineEnder2, MachineEnder3, MachineCR10) && NONE(Melzi_To_SBoardUpgrade, SKR13)
   #define MachineCR10Orig
 #endif
 
@@ -450,7 +453,7 @@
 #ifndef MOTHERBOARD
   #if ENABLED(SKR13)
     #define MOTHERBOARD BOARD_BIGTREE_SKR_V1_3
-  #elif(ENABLED(MachineCR10Orig))
+  #elif (ENABLED(MachineCR10Orig) && DISABLED(Melzi_To_SBoardUpgrade))
     #define MOTHERBOARD BOARD_MELZI_CREALITY
   #else
     #define MOTHERBOARD BOARD_RAMPS_CREALITY
@@ -1164,7 +1167,13 @@
   #define EStepsmm 95
 #endif
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, EStepsmm }
+#if ENABLED(MachineEnder5Plus)
+  #define ZStepsmm 800
+#else
+  #define ZStepsmm 400
+#endif
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, ZStepsmm, EStepsmm }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1915,8 +1924,12 @@
 
 #if ENABLED(MeshFast)
 #define GRID_MAX_POINTS_X 3
-#elif (ENABLED(MeshStd) )
-  #define GRID_MAX_POINTS_X 5
+#elif ENABLED(MeshStd)
+  #if ENABLED(ABL_UBL)
+    #define GRID_MAX_POINTS_X 6
+  #else
+    #define GRID_MAX_POINTS_X 5
+  #endif
 #elif ENABLED( MeshFine)
   #define GRID_MAX_POINTS_X 8
 #elif ENABLED(MeshExtreme)
@@ -1968,7 +1981,7 @@
   //===========================================================================
   //========================= Unified Bed Leveling ============================
   //===========================================================================
-
+  #define MESH_INSET 1
   #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD) || ENABLED(GraphicLCD)
     #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
   #endif
@@ -2002,7 +2015,6 @@
  */
 #if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
 
-#define MESH_INSET 15
 #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder4) || ENABLED(GraphicLCD)
   #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 #endif
@@ -2532,8 +2544,8 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define SPEAKER
+#if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineCR10Orig) || ENABLED(GraphicLCD)
+  #define SPEAKER
 #endif
 
 //
