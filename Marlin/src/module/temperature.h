@@ -519,6 +519,9 @@ class Temperature {
         #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
           FORCE_INLINE static void lcd_setFanSpeed2() { lcd_setFanSpeed(2); }
         #endif
+        #if HAS_FAN3 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 3)
+          FORCE_INLINE static void lcd_setFanSpeed3() { lcd_setFanSpeed(3); }
+        #endif
 
       #endif // HAS_LCD_MENU
 

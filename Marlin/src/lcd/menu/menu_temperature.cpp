@@ -371,6 +371,12 @@ void menu_temperature() {
         MENU_MULTIPLIER_ITEM_EDIT(percent, MSG_EXTRA_FAN_SPEED " 3", &thermalManager.new_fan_speed[2], 3, 255);
       #endif
     #endif
+    #if HAS_FAN3 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 3)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(percent, MSG_FAN_SPEED " 4", &thermalManager.lcd_tmpfan_speed[3], 0, 255, thermalManager.lcd_setFanSpeed2);
+      #if ENABLED(EXTRA_FAN_SPEED)
+        MENU_MULTIPLIER_ITEM_EDIT(percent, MSG_EXTRA_FAN_SPEED " 4", &thermalManager.new_fan_speed[3], 3, 255);
+      #endif
+    #endif
   #endif // FAN_COUNT > 0
 
   #if HAS_TEMP_HOTEND

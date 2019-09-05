@@ -697,7 +697,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
       if (PWM_PIN(P##_AUTO_FAN_PIN) && A < 255)          \
         analogWrite(pin_t(P##_AUTO_FAN_PIN), D ? A : 0); \
       else                                               \
-        WRITE(P##_AUTO_FAN_PIN, D);                      \
+        digitalWrite(P##_AUTO_FAN_PIN, D);               \
     }while(0)
 
     uint8_t fanDone = 0;
@@ -1568,12 +1568,20 @@ void Temperature::updateTemperaturesFromRawValues() {
 #endif
 #define INIT_FAN_PIN(P) do{ _INIT_FAN_PIN(P); SET_FAST_PWM_FREQ(P); }while(0)
 #if EXTRUDER_AUTO_FAN_SPEED != 255
-  #define INIT_E_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+  #if HAS_FAN3
+    #define INIT_E_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN || P == FAN3_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+  #else
+    #define INIT_E_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+  #endif
 #else
   #define INIT_E_AUTO_FAN_PIN(P) SET_OUTPUT(P)
 #endif
 #if CHAMBER_AUTO_FAN_SPEED != 255
-  #define INIT_CHAMBER_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+  #if HAS_FAN3
+    #define INIT_CHAMBER_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN || P == FAN3_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+  #else
+    #define INIT_CHAMBER_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+  #endif
 #else
   #define INIT_CHAMBER_AUTO_FAN_PIN(P) SET_OUTPUT(P)
 #endif
@@ -1607,20 +1615,25 @@ void Temperature::init() {
     #ifdef ALFAWISE_UX0
       OUT_WRITE_OD(HEATER_0_PIN, HEATER_0_INVERTING);
     #else
+      SET_OUTPUT(HEATER_0_PIN);
       OUT_WRITE(HEATER_0_PIN, HEATER_0_INVERTING);
     #endif
   #endif
 
   #if HAS_HEATER_1
+    SET_OUTPUT(HEATER_1_PIN);
     OUT_WRITE(HEATER_1_PIN, HEATER_1_INVERTING);
   #endif
   #if HAS_HEATER_2
+    SET_OUTPUT(HEATER_2_PIN);
     OUT_WRITE(HEATER_2_PIN, HEATER_2_INVERTING);
   #endif
   #if HAS_HEATER_3
+    SET_OUTPUT(HEATER_3_PIN);
     OUT_WRITE(HEATER_3_PIN, HEATER_3_INVERTING);
   #endif
   #if HAS_HEATER_4
+    SET_OUTPUT(HEATER_4_PIN);
     OUT_WRITE(HEATER_4_PIN, HEATER_4_INVERTING);
   #endif
   #if HAS_HEATER_5
@@ -1631,6 +1644,7 @@ void Temperature::init() {
     #ifdef ALFAWISE_UX0
       OUT_WRITE_OD(HEATER_BED_PIN, HEATER_BED_INVERTING);
     #else
+      SET_OUTPUT(HEATER_BED_PIN);
       OUT_WRITE(HEATER_BED_PIN, HEATER_BED_INVERTING);
     #endif
   #endif
@@ -1647,6 +1661,9 @@ void Temperature::init() {
   #endif
   #if HAS_FAN2
     INIT_FAN_PIN(FAN2_PIN);
+  #endif
+  #if HAS_FAN3
+    INIT_FAN_PIN(FAN3_PIN);
   #endif
   #if ENABLED(USE_CONTROLLER_FAN)
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
@@ -2472,6 +2489,9 @@ void Temperature::isr() {
         #if HAS_FAN2
           _FAN_PWM(2);
         #endif
+        #if HAS_FAN3
+          _FAN_PWM(3);
+        #endif
       #endif
     }
     else {
@@ -2513,6 +2533,9 @@ void Temperature::isr() {
         #endif
         #if HAS_FAN2
           if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN(2, LOW);
+        #endif
+        #if HAS_FAN3
+          if (soft_pwm_count_fan[3] <= pwm_count_tmp) WRITE_FAN(3, LOW);
         #endif
       #endif
     }
@@ -2606,6 +2629,9 @@ void Temperature::isr() {
         #if HAS_FAN2
           _PWM_FAN(2);
         #endif
+        #if HAS_FAN3
+          _PWM_FAN(3);
+        #endif
       }
       #if HAS_FAN0
         if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0, LOW);
@@ -2615,6 +2641,9 @@ void Temperature::isr() {
       #endif
       #if HAS_FAN2
         if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN(2, LOW);
+      #endif
+      #if HAS_FAN3
+        if (soft_pwm_count_fan[3] <= pwm_count_tmp) WRITE_FAN(3, LOW);
       #endif
     #endif // FAN_SOFT_PWM
 

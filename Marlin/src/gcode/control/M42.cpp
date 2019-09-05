@@ -64,6 +64,9 @@ void GcodeSuite::M42() {
       #if HAS_FAN2
         case FAN2_PIN: thermalManager.fan_speed[2] = pin_status; break;
       #endif
+      #if HAS_FAN3
+        case FAN3_PIN: thermalManager.fan_speed[3] = pin_status; break;
+      #endif
     }
   #endif
 }
