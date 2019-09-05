@@ -40,7 +40,6 @@ void safe_delay(millis_t ms) {
   #include "../module/probe.h"
   #include "../module/motion.h"
   #include "../module/stepper.h"
-  #include "../module/stepper.h"
   #include "../libs/numtostr.h"
   #include "../feature/bedlevel/bedlevel.h"
 
