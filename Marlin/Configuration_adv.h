@@ -2677,7 +2677,6 @@
  */
 //#define JOYSTICK
 #if ENABLED(JOYSTICK)
-  #define POLL_JOG        // Poll-based injection of jogging commands
   #define JOY_X_PIN    5  // RAMPS: Suggested pin A5  on AUX2
   #define JOY_Y_PIN   10  // RAMPS: Suggested pin A10 on AUX2
   #define JOY_Z_PIN   12  // RAMPS: Suggested pin A12 on AUX2
