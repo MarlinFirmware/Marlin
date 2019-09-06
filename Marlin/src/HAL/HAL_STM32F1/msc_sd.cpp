@@ -1,36 +1,57 @@
+/**
+ * Marlin 3D Printer Firmware
+ *
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+#include "../../inc/MarlinConfig.h"
 #include "msc_sd.h"
-#include "../../../src/sd/Sd2Card.h"
+#include "onboard_sd.h"
 #include "spi.h"
 
-Sd2Card sdCard;
+#define PRODUCT_ID 0x29
 
 USBMassStorage MarlinMSC;
 USBCompositeSerial MarlinCompositeSerial;
 
+#ifdef HAS_ONBOARD_SD
+  static bool MSC_Write(const uint8_t *writebuff, uint32_t startSector, uint16_t numSectors) {
+    return (disk_write(0, writebuff, startSector, numSectors) == RES_OK);
+  }
 
-bool MSC_Write(const uint8_t *writebuff, uint32_t startSector, uint16_t numSectors) {
-  for(int i = 0; i < numSectors ; i++)
-    sdCard.writeBlock(startSector, writebuff + i*512);
-  return true;
-}
-
-bool MSC_Read(uint8_t *readbuff, uint32_t startSector, uint16_t numSectors) {
-  for(int i = 0; i < numSectors ; i++)
-    sdCard.readBlock(startSector, readbuff + i*512);
-  return true;
-}
+  static bool MSC_Read(uint8_t *readbuff, uint32_t startSector, uint16_t numSectors) {
+    return (disk_read(0, readbuff, startSector, numSectors) == RES_OK);
+  }
+#endif
 
 void MSC_SD_init() {
-  uint32 cardSize;
-  sdCard.init(SPI_CLOCK_DIV4 ,SDSS);
-  cardSize = sdCard.cardSize();
-  #define PRODUCT_ID 0x29
-  //CompositeSerial.begin();
-  //USBComposite.end();
   USBComposite.setProductId(PRODUCT_ID);
-  MarlinMSC.setDriveData(0, cardSize, MSC_Read, MSC_Write);
-  MarlinMSC.registerComponent();
+  // just for set MarlinCompositeSerial enabled to true
+  // because of MarlinCompositeSerial.begin() will be used in Marlin setup()
+  // it will clear all USBComposite device
+  MarlinCompositeSerial.begin();
+  USBComposite.end();
+	USBComposite.clear();
+  //set api and register mass storage
+  #ifdef HAS_ONBOARD_SD
+    uint32_t cardSize;
+    if (disk_initialize(0) == RES_OK) {
+      if (disk_ioctl(0, GET_SECTOR_COUNT, (void *)(&cardSize)) == RES_OK) {
+        MarlinMSC.setDriveData(0, cardSize, MSC_Read, MSC_Write);
+        MarlinMSC.registerComponent();
+      }
+    }
+  #endif
+  //register composite Serial
   MarlinCompositeSerial.registerComponent();
   USBComposite.begin();
-  while(!USBComposite.isReady());
 }
