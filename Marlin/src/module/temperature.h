@@ -160,6 +160,9 @@ typedef struct TempInfo {
   uint16_t acc;
   int16_t raw;
   float current;
+  inline void reset() { acc = 0; }
+  inline void sample(const uint16_t s) { acc += s; }
+  inline void update() { raw = acc; }
 } temp_info_t;
 
 // A PWM heater with temperature sensor

@@ -2164,23 +2164,23 @@ void Temperature::disable_all_heaters() {
 void Temperature::set_current_temp_raw() {
 
   #if HAS_TEMP_ADC_0 && DISABLED(HEATER_0_USES_MAX6675)
-    temp_hotend[0].raw = temp_hotend[0].acc;
+    temp_hotend[0].update();
   #endif
 
   #if HAS_TEMP_ADC_1
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       redundant_temperature_raw = temp_hotend[1].acc;
     #elif DISABLED(HEATER_1_USES_MAX6675)
-      temp_hotend[1].raw = temp_hotend[1].acc;
+      temp_hotend[1].update();
     #endif
     #if HAS_TEMP_ADC_2
-      temp_hotend[2].raw = temp_hotend[2].acc;
+      temp_hotend[2].update();
       #if HAS_TEMP_ADC_3
-        temp_hotend[3].raw = temp_hotend[3].acc;
+        temp_hotend[3].update();
         #if HAS_TEMP_ADC_4
-          temp_hotend[4].raw = temp_hotend[4].acc;
+          temp_hotend[4].update();
           #if HAS_TEMP_ADC_5
-            temp_hotend[5].raw = temp_hotend[5].acc;
+            temp_hotend[5].update();
           #endif // HAS_TEMP_ADC_5
         #endif // HAS_TEMP_ADC_4
       #endif // HAS_TEMP_ADC_3
@@ -2188,11 +2188,11 @@ void Temperature::set_current_temp_raw() {
   #endif // HAS_TEMP_ADC_1
 
   #if HAS_HEATED_BED
-    temp_bed.raw = temp_bed.acc;
+    temp_bed.update();
   #endif
 
   #if HAS_TEMP_CHAMBER
-    temp_chamber.raw = temp_chamber.acc;
+    temp_chamber.update();
   #endif
 
   temp_meas_ready = true;
@@ -2212,17 +2212,17 @@ void Temperature::readings_ready() {
     current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
   #endif
 
-  HOTEND_LOOP() temp_hotend[e].acc = 0;
+  HOTEND_LOOP() temp_hotend[e].reset();
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-    temp_hotend[1].acc = 0;
+    temp_hotend[1].reset();
   #endif
 
   #if HAS_HEATED_BED
-    temp_bed.acc = 0;
+    temp_bed.reset();
   #endif
 
   #if HAS_TEMP_CHAMBER
-    temp_chamber.acc = 0;
+    temp_chamber.reset();
   #endif
 
   static constexpr int8_t temp_dir[] = {
@@ -2638,7 +2638,7 @@ void Temperature::isr() {
    */
   #define ACCUMULATE_ADC(obj) do{ \
     if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; \
-    else obj.acc += HAL_READ_ADC(); \
+    else obj.sample(HAL_READ_ADC()); \
   }while(0)
 
   ADCSensorState next_sensor_state = adc_sensor_state < SensorsReady ? (ADCSensorState)(int(adc_sensor_state) + 1) : StartSampling;
