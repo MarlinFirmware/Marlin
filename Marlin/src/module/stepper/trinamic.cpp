@@ -44,9 +44,17 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 //   AI = Axis Enum Index
 // SWHW = SW/SH UART selection
 #if ENABLED(TMC_USE_SW_SPI)
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+  #if TMC_USE_CHAIN
+    #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK, ST##_CHAIN_POS)
+  #else
+     #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+  #endif
 #else
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+  #if TMC_USE_CHAIN
+    #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE, ST##_CHAIN_POS)
+  #else
+    #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+  #endif
 #endif
 
 #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE, ST##_SLAVE_ADDRESS)
@@ -652,93 +660,6 @@ void reset_trinamic_drivers() {
       false
     #endif
   };
-
-  #if TMC_USE_CHAIN
-
-    enum TMC_axis_enum : unsigned char { _, X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 };
-    #define __TMC_CHAIN(Q,V) do{ stepper##Q.set_chain_info(Q,V); }while(0)
-    #define _TMC_CHAIN(Q) __TMC_CHAIN(Q, Q##_CHAIN_POS)
-
-    #if AXIS_HAS_SPI(X)                  // First set chain array to uninitialized
-      __TMC_CHAIN(X, 0);
-    #endif
-    #if AXIS_HAS_SPI(X2)
-      __TMC_CHAIN(X2, 0);
-    #endif
-    #if AXIS_HAS_SPI(Y)
-      __TMC_CHAIN(Y, 0);
-    #endif
-    #if AXIS_HAS_SPI(Y2)
-      __TMC_CHAIN(Y2, 0);
-    #endif
-    #if AXIS_HAS_SPI(Z)
-      __TMC_CHAIN(Z, 0);
-    #endif
-    #if AXIS_HAS_SPI(Z2)
-      __TMC_CHAIN(Z2, 0);
-    #endif
-    #if AXIS_HAS_SPI(Z3)
-      __TMC_CHAIN(Z3, 0);
-    #endif
-    #if AXIS_HAS_SPI(E0)
-      __TMC_CHAIN(E0, 0);
-    #endif
-    #if AXIS_HAS_SPI(E1)
-      __TMC_CHAIN(E1, 0);
-    #endif
-    #if AXIS_HAS_SPI(E2)
-      __TMC_CHAIN(E2, 0);
-    #endif
-    #if AXIS_HAS_SPI(E3)
-      __TMC_CHAIN(E3, 0);
-    #endif
-    #if AXIS_HAS_SPI(E4)
-      __TMC_CHAIN(E4, 0);
-    #endif
-    #if AXIS_HAS_SPI(E5)
-      __TMC_CHAIN(E5, 0);
-    #endif
-
-    #if AXIS_HAS_SPI(X) && IN_CHAIN(X)         // Now set up the SPI chain
-      _TMC_CHAIN(X);
-    #endif
-    #if AXIS_HAS_SPI(X2) && IN_CHAIN(X2)
-      _TMC_CHAIN(X2);
-    #endif
-    #if AXIS_HAS_SPI(Y) && IN_CHAIN(Y)
-      _TMC_CHAIN(Y);
-    #endif
-    #if AXIS_HAS_SPI(Y2) && IN_CHAIN(Y2)
-      _TMC_CHAIN(Y2);
-    #endif
-    #if AXIS_HAS_SPI(Z) && IN_CHAIN(Z)
-      _TMC_CHAIN(Z);
-    #endif
-    #if AXIS_HAS_SPI(Z2) && IN_CHAIN(Z2)
-      _TMC_CHAIN(Z2);
-    #endif
-    #if AXIS_HAS_SPI(Z3) && IN_CHAIN(Z3)
-      _TMC_CHAIN(Z3);
-    #endif
-    #if AXIS_HAS_SPI(E0) && IN_CHAIN(E0)
-      _TMC_CHAIN(E0);
-    #endif
-    #if AXIS_HAS_SPI(E1) && IN_CHAIN(E1)
-      _TMC_CHAIN(E1);
-    #endif
-    #if AXIS_HAS_SPI(E2) && IN_CHAIN(E2)
-      _TMC_CHAIN(E2);
-    #endif
-    #if AXIS_HAS_SPI(E3) && IN_CHAIN(E3)
-      _TMC_CHAIN(E3);
-    #endif
-    #if AXIS_HAS_SPI(E4) && IN_CHAIN(E4)
-      _TMC_CHAIN(E4);
-    #endif
-    #if AXIS_HAS_SPI(E5) && IN_CHAIN(E5)
-      _TMC_CHAIN(E5);
-    #endif
-  #endif // TMC_USE_CHAIN
 
   #if AXIS_IS_TMC(X)
     _TMC_INIT(X, STEALTH_AXIS_XY);
