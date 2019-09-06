@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "../ui_api.h"
 
+#if ENABLED(EXTENSIBLE_UI)
 namespace ExtUI
 {
   uint8_t waitway_lock = 0;
@@ -1932,3 +1933,5 @@ void onConfigurationStoreRead(bool success)
 }
 
 } // namespace ExtUI
+
+#endif

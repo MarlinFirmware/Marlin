@@ -3,7 +3,7 @@
 #include "string.h"
 #include <arduino.h>
 #include "../ui_api.h"
-
+#if ENABLED(EXTENSIBLE_UI)
 namespace ExtUI {
 /*********************************/
 #define FHONE   (0x5A)
@@ -173,4 +173,5 @@ float targetPos;
 }
 #ifndef USER_GCODE_1
   #define USER_GCODE_1 "G28"
+#endif
 #endif

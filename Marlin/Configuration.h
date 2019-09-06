@@ -31,7 +31,7 @@
 
 //#define Big_UI // Lightweight status screen
 
-//#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
+#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
 //#define ForceCRXDisplay
 #define Force10SProDisplay
 
@@ -116,7 +116,7 @@
 //#define ABL_BI
 #define ABL_UBL
 
-//#define POWER_LOSS_RECOVERY //Large and does not fit with any other features on Melzi, or UBL on Atmega
+#define POWER_LOSS_RECOVERY //Large and does not fit with any other features on Melzi, or UBL on Atmega
 /*
 
    Choose a probe grid density below. Faster probes less points, but is less accurate.
