@@ -2157,7 +2157,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, or TMC5160 stepper drivers."
 #endif
 
-#if TMC_USE_CHAIN
+#define IN_CHAIN(A) (A##_CHAIN_POS > 0)
+// TMC SPI Chaining
+#if IN_CHAIN(X) || IN_CHAIN(Y) || IN_CHAIN(Z) || IN_CHAIN(X2) || IN_CHAIN(Y2) || IN_CHAIN(Z2) || IN_CHAIN(Z3) || IN_CHAIN(E0) || IN_CHAIN(E1) || IN_CHAIN(E2) || IN_CHAIN(E3) || IN_CHAIN(E4) || IN_CHAIN(E5)
   #if  (IN_CHAIN(X)  && !PIN_EXISTS(X_CS) ) || (IN_CHAIN(Y)  && !PIN_EXISTS(Y_CS) ) \
     || (IN_CHAIN(Z)  && !PIN_EXISTS(Z_CS) ) || (IN_CHAIN(X2) && !PIN_EXISTS(X2_CS)) \
     || (IN_CHAIN(Y2) && !PIN_EXISTS(Y2_CS)) || (IN_CHAIN(Z2) && !PIN_EXISTS(Z2_CS)) \
@@ -2165,7 +2167,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     || (IN_CHAIN(E1) && !PIN_EXISTS(E1_CS)) || (IN_CHAIN(E2) && !PIN_EXISTS(E2_CS)) \
     || (IN_CHAIN(E3) && !PIN_EXISTS(E3_CS)) || (IN_CHAIN(E4) && !PIN_EXISTS(E4_CS)) \
     || (IN_CHAIN(E5) && !PIN_EXISTS(E5_CS))
-    #error "With TMC_USE_CHAIN all chained TMC drivers need a CS pin."
+    #error "All chained TMC drivers need a CS pin."
   #else
     #if IN_CHAIN(X)
       #define CS_COMPARE X_CS_PIN
@@ -2193,8 +2195,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #define CS_COMPARE E4_CS_PIN
     #elif IN_CHAIN(E5)
       #define CS_COMPARE E5_CS_PIN
-    #else
-      #error "With TMC_USE_CHAIN some TMC drivers should be chained."
     #endif
     #if  (IN_CHAIN(X)  && X_CS_PIN  != CS_COMPARE) || (IN_CHAIN(Y)  && Y_CS_PIN  != CS_COMPARE) \
       || (IN_CHAIN(Z)  && Z_CS_PIN  != CS_COMPARE) || (IN_CHAIN(X2) && X2_CS_PIN != CS_COMPARE) \
@@ -2203,11 +2203,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       || (IN_CHAIN(E1) && E1_CS_PIN != CS_COMPARE) || (IN_CHAIN(E2) && E2_CS_PIN != CS_COMPARE) \
       || (IN_CHAIN(E3) && E3_CS_PIN != CS_COMPARE) || (IN_CHAIN(E4) && E4_CS_PIN != CS_COMPARE) \
       || (IN_CHAIN(E5) && E5_CS_PIN != CS_COMPARE)
-      #error "With TMC_USE_CHAIN all TMC drivers must use the same CS pin."
+      #error "All chained TMC drivers must use the same CS pin."
     #endif
   #endif
   #undef CS_COMPARE
-#endif // TMC_USE_CHAIN
+#endif
+#undef IN_CHAIN
 
 #if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
   #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."

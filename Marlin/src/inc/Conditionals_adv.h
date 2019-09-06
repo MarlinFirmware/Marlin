@@ -131,10 +131,6 @@
 // Extensible UI pin mapping for RepRapDiscount
 #define TOUCH_UI_ULTIPANEL ENABLED(LULZBOT_TOUCH_UI) && ANY(AO_EXP1_PINMAP, AO_EXP2_PINMAP, CR10_TFT_PINMAP)
 
-// TMC SPI Chaining
-#define IN_CHAIN(A) (A##_CHAIN_POS > 0)
-#define TMC_USE_CHAIN (IN_CHAIN(X)||IN_CHAIN(Y)||IN_CHAIN(Z)||IN_CHAIN(X2)||IN_CHAIN(Y2)||IN_CHAIN(Z2)||IN_CHAIN(Z3)||IN_CHAIN(E0)||IN_CHAIN(E1)||IN_CHAIN(E2)||IN_CHAIN(E3)||IN_CHAIN(E4)||IN_CHAIN(E5))
-
 // Poll-based jogging for joystick and other devices
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
