@@ -620,7 +620,7 @@
   #define Z_STEPPER_ALIGN_ACC 0.02
 #endif
 
-// @section machine
+// @section motion
 
 #define AXIS_RELATIVE_MODES { false, false, false, false }
 
@@ -646,20 +646,6 @@
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
 
 //#define HOME_AFTER_DEACTIVATE  // Require rehoming after steppers are deactivated
-
-// @section lcd
-
-#if EITHER(ULTIPANEL, EXTENSIBLE_UI)
-  #define MANUAL_FEEDRATE_XYZ 50*60
-  #define MANUAL_FEEDRATE { MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
-  #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
-  #if ENABLED(ULTIPANEL)
-    #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
-    #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
-  #endif
-#endif
-
-// @section motion
 
 // Minimum time that a segment needs to take if the buffer is emptied
 #define DEFAULT_MINSEGMENTTIME        20000   // (ms)
@@ -838,6 +824,16 @@
 //===========================================================================
 
 // @section lcd
+
+#if EITHER(ULTIPANEL, EXTENSIBLE_UI)
+  #define MANUAL_FEEDRATE_XYZ 50*60
+  #define MANUAL_FEEDRATE { MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
+  #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
+  #if ENABLED(ULTIPANEL)
+    #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
+    #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
+  #endif
+#endif
 
 // Change values more rapidly when the encoder is rotated faster
 #define ENCODER_RATE_MULTIPLIER
