@@ -76,5 +76,5 @@ const short temptable_75[][2] PROGMEM = { // Generic Silicon Heat Pad with NTC 1
   { OV(986.70),  20 }, // v=4.818 r=124318.354 res=0.638 degC/count
   { OV(993.94),  15 }, // v=4.853 r=155431.302 res=0.768 degC/count
   { OV(999.96),  10 }, // v=4.883 r=195480.023 res=0.934 degC/count
-  { OV(008.95),   0 }  // v=4.926 r=314997.575 res=1.418 degC/count
+  { OV(1008.95),   0 }  // v=4.926 r=314997.575 res=1.418 degC/count
 };
