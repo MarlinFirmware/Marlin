@@ -28,6 +28,8 @@
 #include "../core/macros.h"
 #include "../module/temperature.h"
 
+//#define JOYSTICK_DEBUG
+
 class Joystick {
   friend class Temperature;
   private:
@@ -41,7 +43,9 @@ class Joystick {
       temp_info_t z;
     #endif
   public:
-    static void report();
+    #if ENABLED(JOYSTICK_DEBUG)
+      static void report();
+    #endif
     static void calculate(float norm_jog[XYZ]);
     static void inject_jog_moves();
 };

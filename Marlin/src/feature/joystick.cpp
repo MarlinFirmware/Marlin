@@ -46,22 +46,24 @@ Joystick joystick;
   temp_info_t Joystick::z; // = { 0 }
 #endif
 
-void Joystick::report() {
-  SERIAL_ECHOPGM("Joystick");
-  #if HAS_JOY_ADC_X
-    SERIAL_ECHOPAIR(" X", x.raw);
-  #endif
-  #if HAS_JOY_ADC_Y
-    SERIAL_ECHOPAIR(" Y", y.raw);
-  #endif
-  #if HAS_JOY_ADC_Z
-    SERIAL_ECHOPAIR(" Z", z.raw);
-  #endif
-  #if HAS_JOY_ADC_EN
-    SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
-  #endif
-  SERIAL_EOL();
-}
+#if ENABLED(JOYSTICK_DEBUG)
+  void Joystick::report() {
+    SERIAL_ECHOPGM("Joystick");
+    #if HAS_JOY_ADC_X
+      SERIAL_ECHOPAIR(" X", x.raw);
+    #endif
+    #if HAS_JOY_ADC_Y
+      SERIAL_ECHOPAIR(" Y", y.raw);
+    #endif
+    #if HAS_JOY_ADC_Z
+      SERIAL_ECHOPAIR(" Z", z.raw);
+    #endif
+    #if HAS_JOY_ADC_EN
+      SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
+    #endif
+    SERIAL_EOL();
+  }
+#endif
 
 void Joystick::calculate(float norm_jog[XYZ]) {
   // Do nothing if enable pin (active-low) is not LOW

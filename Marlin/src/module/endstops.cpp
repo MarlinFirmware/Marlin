@@ -479,7 +479,7 @@ void _O2 Endstops::M119() {
     bltouch._reset_SW_mode();
   #endif
 
-  #if ENABLED(JOYSTICK)
+  #if ENABLED(JOYSTICK_DEBUG)
     joystick.report();
   #endif
 
