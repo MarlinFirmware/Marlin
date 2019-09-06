@@ -13,35 +13,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "../../inc/MarlinConfig.h"
+#ifdef USE_USB_COMPOSITE
+
 #include "msc_sd.h"
-#include "onboard_sd.h"
-#include "spi.h"
+#include "SPI.h"
 
 #define PRODUCT_ID 0x29
 
 USBMassStorage MarlinMSC;
 USBCompositeSerial MarlinCompositeSerial;
 
+#include "../../inc/MarlinConfig.h"
+
 #ifdef HAS_ONBOARD_SD
+
+  #include "onboard_sd.h"
+
   static bool MSC_Write(const uint8_t *writebuff, uint32_t startSector, uint16_t numSectors) {
     return (disk_write(0, writebuff, startSector, numSectors) == RES_OK);
   }
-
   static bool MSC_Read(uint8_t *readbuff, uint32_t startSector, uint16_t numSectors) {
     return (disk_read(0, readbuff, startSector, numSectors) == RES_OK);
   }
+
 #endif
 
 void MSC_SD_init() {
   USBComposite.setProductId(PRODUCT_ID);
-  // just for set MarlinCompositeSerial enabled to true
-  // because of MarlinCompositeSerial.begin() will be used in Marlin setup()
-  // it will clear all USBComposite device
+  // Just set MarlinCompositeSerial enabled to true
+  // because when MarlinCompositeSerial.begin() is used in setup()
+  // it clears all USBComposite devices.
   MarlinCompositeSerial.begin();
   USBComposite.end();
-	USBComposite.clear();
-  //set api and register mass storage
+  USBComposite.clear();
+  // Set api and register mass storage
   #ifdef HAS_ONBOARD_SD
     uint32_t cardSize;
     if (disk_initialize(0) == RES_OK) {
@@ -51,7 +56,9 @@ void MSC_SD_init() {
       }
     }
   #endif
-  //register composite Serial
+  // Register composite Serial
   MarlinCompositeSerial.registerComponent();
   USBComposite.begin();
 }
+
+#endif // USE_USB_COMPOSITE
