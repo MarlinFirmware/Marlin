@@ -351,7 +351,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
 
     long bias, d;
     PID_t tune_pid = { 0, 0, 0 };
-    float max = 0, min = 10000;
+    float maxT = 0, minT = 10000;
 
     const bool isbed = (heater == H_BED);
 
@@ -424,8 +424,8 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
 
         // Get the current temperature and constrain it
         current = GHV(temp_bed.current, temp_hotend[heater].current);
-        NOLESS(max, current);
-        NOMORE(min, current);
+        NOLESS(maxT, current);
+        NOMORE(minT, current);
 
         #if ENABLED(PRINTER_EVENT_LEDS)
           ONHEATING(start_temp, current, target);
@@ -444,7 +444,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
             SHV((bias - d) >> 1, (bias - d) >> 1);
             t1 = ms;
             t_high = t1 - t2;
-            max = target;
+            maxT = target;
           }
         }
 
@@ -459,9 +459,9 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
               LIMIT(bias, 20, max_pow - 20);
               d = (bias > max_pow >> 1) ? max_pow - 1 - bias : bias;
 
-              SERIAL_ECHOPAIR(MSG_BIAS, bias, MSG_D, d, MSG_T_MIN, min, MSG_T_MAX, max);
+              SERIAL_ECHOPAIR(MSG_BIAS, bias, MSG_D, d, MSG_T_MIN, minT, MSG_T_MAX, maxT);
               if (cycles > 2) {
-                const float Ku = (4.0f * d) / (float(M_PI) * (max - min) * 0.5f),
+                const float Ku = (4.0f * d) / (float(M_PI) * (maxT - minT) * 0.5f),
                             Tu = float(t_low + t_high) * 0.001f,
                             pf = isbed ? 0.2f : 0.6f,
                             df = isbed ? 1.0f / 3.0f : 1.0f / 8.0f;
@@ -497,7 +497,7 @@ temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0
             }
             SHV((bias + d) >> 1, (bias + d) >> 1);
             cycles++;
-            min = target;
+            minT = target;
           }
         }
       }
