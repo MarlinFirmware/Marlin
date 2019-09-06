@@ -1847,8 +1847,6 @@
   //#define TMC_SW_MISO       -1
   //#define TMC_SW_SCK        -1
 
-  //#define TMC_USE_CHAIN   // All active xx_CS_PIN defines must be set the same to use SPI daisy chain
-
   /**
    * Four TMC2209 drivers can use the same HW/SW serial port with hardware configured addresses.
    * Set the address using jumpers on pins MS1 and MS2.
