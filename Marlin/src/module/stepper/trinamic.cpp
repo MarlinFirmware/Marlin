@@ -699,43 +699,43 @@ void reset_trinamic_drivers() {
       __TMC_CHAIN(E5, 0);
     #endif
 
-    #if AXIS_HAS_SPI(X) && X_CHAIN_POS             // Now set up the SPI chain
+    #if AXIS_HAS_SPI(X) && IN_CHAIN(X)         // Now set up the SPI chain
       _TMC_CHAIN(X);
     #endif
-    #if AXIS_HAS_SPI(X2) && X2_CHAIN_POS
+    #if AXIS_HAS_SPI(X2) && IN_CHAIN(X2)
       _TMC_CHAIN(X2);
     #endif
-    #if AXIS_HAS_SPI(Y) && Y_CHAIN_POS
+    #if AXIS_HAS_SPI(Y) && IN_CHAIN(Y)
       _TMC_CHAIN(Y);
     #endif
-    #if AXIS_HAS_SPI(Y2) && Y2_CHAIN_POS
+    #if AXIS_HAS_SPI(Y2) && IN_CHAIN(Y2)
       _TMC_CHAIN(Y2);
     #endif
-    #if AXIS_HAS_SPI(Z) && Z_CHAIN_POS
+    #if AXIS_HAS_SPI(Z) && IN_CHAIN(Z)
       _TMC_CHAIN(Z);
     #endif
-    #if AXIS_HAS_SPI(Z2) && Z2_CHAIN_POS
+    #if AXIS_HAS_SPI(Z2) && IN_CHAIN(Z2)
       _TMC_CHAIN(Z2);
     #endif
-    #if AXIS_HAS_SPI(Z3) && Z3_CHAIN_POS
+    #if AXIS_HAS_SPI(Z3) && IN_CHAIN(Z3)
       _TMC_CHAIN(Z3);
     #endif
-    #if AXIS_HAS_SPI(E0) && E0_CHAIN_POS
+    #if AXIS_HAS_SPI(E0) && IN_CHAIN(E0)
       _TMC_CHAIN(E0);
     #endif
-    #if AXIS_HAS_SPI(E1) && E1_CHAIN_POS
+    #if AXIS_HAS_SPI(E1) && IN_CHAIN(E1)
       _TMC_CHAIN(E1);
     #endif
-    #if AXIS_HAS_SPI(E2) && E2_CHAIN_POS
+    #if AXIS_HAS_SPI(E2) && IN_CHAIN(E2)
       _TMC_CHAIN(E2);
     #endif
-    #if AXIS_HAS_SPI(E3) && E3_CHAIN_POS
+    #if AXIS_HAS_SPI(E3) && IN_CHAIN(E3)
       _TMC_CHAIN(E3);
     #endif
-    #if AXIS_HAS_SPI(E4) && E4_CHAIN_POS
+    #if AXIS_HAS_SPI(E4) && IN_CHAIN(E4)
       _TMC_CHAIN(E4);
     #endif
-    #if AXIS_HAS_SPI(E5) && E5_CHAIN_POS
+    #if AXIS_HAS_SPI(E5) && IN_CHAIN(E5)
       _TMC_CHAIN(E5);
     #endif
   #endif // TMC_USE_CHAIN
