@@ -2670,81 +2670,47 @@ void Temperature::isr() {
       break;
 
     #if HAS_TEMP_ADC_0
-      case PrepareTemp_0:
-        HAL_START_ADC(TEMP_0_PIN);
-        break;
-      case MeasureTemp_0:
-        ACCUMULATE_ADC(temp_hotend[0]);
-        break;
+      case PrepareTemp_0: HAL_START_ADC(TEMP_0_PIN); break;
+      case MeasureTemp_0: ACCUMULATE_ADC(temp_hotend[0]); break;
     #endif
 
     #if HAS_HEATED_BED
-      case PrepareTemp_BED:
-        HAL_START_ADC(TEMP_BED_PIN);
-        break;
-      case MeasureTemp_BED:
-        ACCUMULATE_ADC(temp_bed);
-        break;
+      case PrepareTemp_BED: HAL_START_ADC(TEMP_BED_PIN); break;
+      case MeasureTemp_BED: ACCUMULATE_ADC(temp_bed); break;
     #endif
 
     #if HAS_TEMP_CHAMBER
-      case PrepareTemp_CHAMBER:
-        HAL_START_ADC(TEMP_CHAMBER_PIN);
-        break;
-      case MeasureTemp_CHAMBER:
-        ACCUMULATE_ADC(temp_chamber);
-        break;
+      case PrepareTemp_CHAMBER: HAL_START_ADC(TEMP_CHAMBER_PIN); break;
+      case MeasureTemp_CHAMBER: ACCUMULATE_ADC(temp_chamber); break;
     #endif
 
     #if HAS_TEMP_ADC_1
-      case PrepareTemp_1:
-        HAL_START_ADC(TEMP_1_PIN);
-        break;
-      case MeasureTemp_1:
-        ACCUMULATE_ADC(temp_hotend[1]);
-        break;
+      case PrepareTemp_1: HAL_START_ADC(TEMP_1_PIN); break;
+      case MeasureTemp_1: ACCUMULATE_ADC(temp_hotend[1]); break;
     #endif
 
     #if HAS_TEMP_ADC_2
-      case PrepareTemp_2:
-        HAL_START_ADC(TEMP_2_PIN);
-        break;
-      case MeasureTemp_2:
-        ACCUMULATE_ADC(temp_hotend[2]);
-        break;
+      case PrepareTemp_2: HAL_START_ADC(TEMP_2_PIN); break;
+      case MeasureTemp_2: ACCUMULATE_ADC(temp_hotend[2]); break;
     #endif
 
     #if HAS_TEMP_ADC_3
-      case PrepareTemp_3:
-        HAL_START_ADC(TEMP_3_PIN);
-        break;
-      case MeasureTemp_3:
-        ACCUMULATE_ADC(temp_hotend[3]);
-        break;
+      case PrepareTemp_3: HAL_START_ADC(TEMP_3_PIN); break;
+      case MeasureTemp_3: ACCUMULATE_ADC(temp_hotend[3]); break;
     #endif
 
     #if HAS_TEMP_ADC_4
-      case PrepareTemp_4:
-        HAL_START_ADC(TEMP_4_PIN);
-        break;
-      case MeasureTemp_4:
-        ACCUMULATE_ADC(temp_hotend[4]);
-        break;
+      case PrepareTemp_4: HAL_START_ADC(TEMP_4_PIN); break;
+      case MeasureTemp_4: ACCUMULATE_ADC(temp_hotend[4]); break;
     #endif
 
     #if HAS_TEMP_ADC_5
-      case PrepareTemp_5:
-        HAL_START_ADC(TEMP_5_PIN);
-        break;
-      case MeasureTemp_5:
-        ACCUMULATE_ADC(temp_hotend[5]);
-        break;
+      case PrepareTemp_5: HAL_START_ADC(TEMP_5_PIN); break;
+      case MeasureTemp_5: ACCUMULATE_ADC(temp_hotend[5]); break;
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      case Prepare_FILWIDTH:
-        HAL_START_ADC(FILWIDTH_PIN);
-      break;
+      case Prepare_FILWIDTH: HAL_START_ADC(FILWIDTH_PIN); break;
       case Measure_FILWIDTH:
         if (!HAL_ADC_READY())
           next_sensor_state = adc_sensor_state; // redo this state
@@ -2756,9 +2722,7 @@ void Temperature::isr() {
     #endif
 
     #if HAS_ADC_BUTTONS
-      case Prepare_ADC_KEY:
-        HAL_START_ADC(ADC_KEYPAD_PIN);
-        break;
+      case Prepare_ADC_KEY: HAL_START_ADC(ADC_KEYPAD_PIN); break;
       case Measure_ADC_KEY:
         if (!HAL_ADC_READY())
           next_sensor_state = adc_sensor_state; // redo this state
