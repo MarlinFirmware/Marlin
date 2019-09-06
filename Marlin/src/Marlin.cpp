@@ -89,6 +89,10 @@
   #include "feature/bltouch.h"
 #endif
 
+#if ENABLED(POLL_JOG)
+  #include "feature/joystick.h"
+#endif
+
 #if HAS_SERVOS
   #include "module/servo.h"
 #endif
@@ -741,7 +745,7 @@ void idle(
   #endif
 
   #if ENABLED(POLL_JOG)
-    thermalManager.inject_jog_action();
+    joystick.inject_jog_moves();
   #endif
 }
 

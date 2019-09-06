@@ -284,16 +284,6 @@ class Temperature {
       static chamber_info_t temp_chamber;
     #endif
 
-    #if HAS_JOY_ADC_X
-      static temp_info_t joy_x;
-    #endif
-    #if HAS_JOY_ADC_Y
-      static temp_info_t joy_y;
-    #endif
-    #if HAS_JOY_ADC_Z
-      static temp_info_t joy_z;
-    #endif
-
     #if ENABLED(AUTO_POWER_E_FANS)
       static uint8_t autofan_speed[HOTENDS];
     #endif
@@ -803,13 +793,6 @@ class Temperature {
 
     #if HAS_DISPLAY
       static void set_heating_message(const uint8_t e);
-    #endif
-
-    #if ENABLED(POLL_JOG)
-      #if ENABLED(JOYSTICK)
-        static void calculate_joy_value(float norm_jog[XYZ]);
-      #endif
-      static void inject_jog_action();
     #endif
 
   private:

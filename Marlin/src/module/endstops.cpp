@@ -44,6 +44,10 @@
   #include "../feature/bltouch.h"
 #endif
 
+#if ENABLED(JOYSTICK)
+  #include "../feature/joystick.h"
+#endif
+
 Endstops endstops;
 
 // private:
@@ -476,20 +480,7 @@ void _O2 Endstops::M119() {
   #endif
 
   #if ENABLED(JOYSTICK)
-    SERIAL_ECHOPGM("Joystick");
-    #if HAS_JOY_ADC_X
-      SERIAL_ECHOPAIR(" X", thermalManager.joy_x.raw);
-    #endif
-    #if HAS_JOY_ADC_Y
-      SERIAL_ECHOPAIR(" Y", thermalManager.joy_y.raw);
-    #endif
-    #if HAS_JOY_ADC_Z
-      SERIAL_ECHOPAIR(" Z", thermalManager.joy_z.raw);
-    #endif
-    #if HAS_JOY_ADC_EN
-      SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
-    #endif
-    SERIAL_EOL();
+    joystick.report();
   #endif
 
 } // Endstops::M119
