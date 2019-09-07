@@ -62,9 +62,7 @@
 
   #include "SoftwareSPI.h"
 
-  // --------------------------------------------------------------------------
   // Software SPI
-  // --------------------------------------------------------------------------
 
   static uint8_t SPI_speed = 0;
 
@@ -80,26 +78,23 @@
     SPI_speed = swSpiInit(spiRate, SCK_PIN, MOSI_PIN);
   }
 
-  inline uint8_t spiRec() { return spiTransfer(0xFF); }
+  uint8_t spiRec() { return spiTransfer(0xFF); }
 
-  inline void spiRead(uint8_t * const buf, const uint16_t nbyte) {
-    if (nbyte == 0) return;
-    for (int i = 0; i < nbyte; i++)
-      buf[i] = spiTransfer(0xFF);
+  void spiRead(uint8_t*buf, uint16_t nbyte) {
+    if (nbyte)
+      for (int i = 0; i < nbyte; i++)
+        buf[i] = spiTransfer(0xFF);
   }
 
-  inline void spiSend(const uint8_t b) {
-    uint8_t response = spiTransfer(b);
-    UNUSED(response);
+  void spiSend(uint8_t b) { (void)spiTransfer(b); }
+
+  void spiSend(const uint8_t* buf, size_t n) {
+    if (n)
+      for (uint16_t i = 0; i < n; i++)
+        (void)spiTransfer(buf[i]);
   }
 
-  inline void spiSend(const uint8_t* buf, const size_t n) {
-    if (n == 0) return;
-    for (uint16_t i = 0; i < n; i++)
-      (void)spiTransfer(buf[i]);
-  }
-
-  inline void spiSendBlock(const uint8_t token, const uint8_t * const buf) {
+  void spiSendBlock(uint8_t token, const uint8_t* buf) {
     (void)spiTransfer(token);
     for (uint16_t i = 0; i < 512; i++)
       (void)spiTransfer(buf[i]);
@@ -107,7 +102,7 @@
 
 #else
 
-  // hardware SPI
+  // Hardware SPI
 
   #include <lpc17xx_pinsel.h>
   #include <lpc17xx_ssp.h>
@@ -174,18 +169,18 @@
     SSP_Init(LPC_SSPn, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
   }
 
-  static inline uint8_t doio(const uint8_t b) {
+  static uint8_t doio(uint8_t b) {
     /* send and receive a single byte */
     SSP_SendData(LPC_SSPn, b & 0x00FF);
     while (SSP_GetStatus(LPC_SSPn, SSP_STAT_BUSY));  // wait for it to finish
     return SSP_ReceiveData(LPC_SSPn) & 0x00FF;
   }
 
-  inline void spiSend(const uint8_t b) { doio(b); }
+  void spiSend(uint8_t b) { doio(b); }
 
-  inline void spiSend(const uint8_t* buf, const size_t n) {
-    if (n == 0) return;
-    for (uint16_t i = 0; i < n; i++) doio(buf[i]);
+  void spiSend(const uint8_t* buf, size_t n) {
+    if (n)
+      for (uint16_t i = 0; i < n; i++) doio(buf[i]);
   }
 
   inline void spiSend(const uint32_t chan, const byte b) {
@@ -195,22 +190,21 @@
   }
 
   // Read single byte from SPI
-  inline uint8_t spiRec() { return doio(0xFF); }
+  uint8_t spiRec() { return doio(0xFF); }
 
-  inline uint8_t spiRec(const uint32_t chan) { return 0; }
+  uint8_t spiRec(uint32_t chan) { return 0; }
 
   // Read from SPI into buffer
-  inline void spiRead(uint8_t * const buf, const uint16_t nbyte) {
-    if (nbyte == 0) return;
-    for (int i = 0; i < nbyte; i++)
-      buf[i] = doio(0xFF);
+  void spiRead(uint8_t*buf, uint16_t nbyte) {
+    if (nbyte)
+      for (int i = 0; i < nbyte; i++) buf[i] = doio(0xff);
   }
 
   static uint8_t spiTransfer(const uint8_t b) { return doio(b); }
 
   // Write from buffer to SPI
-  inline void spiSendBlock(const uint8_t token, const uint8_t * const buf) {
-    (void)spiTransfer(token);
+  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+   (void)spiTransfer(token);
     for (uint16_t i = 0; i < 512; i++)
       (void)spiTransfer(buf[i]);
   }
