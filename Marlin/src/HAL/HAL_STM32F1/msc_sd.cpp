@@ -16,7 +16,6 @@
 #ifdef USE_USB_COMPOSITE
 
 #include "msc_sd.h"
-#include "SPI.h"
 
 #define PRODUCT_ID 0x29
 
