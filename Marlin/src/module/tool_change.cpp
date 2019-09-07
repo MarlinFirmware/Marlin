@@ -854,8 +854,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     #if HAS_LEVELING
       // Set current position to the physical position
-      const bool leveling_was_enabled = planner.leveling_active;
-      set_bed_leveling_enabled(false);
+      //const bool leveling_was_enabled = planner.leveling_active;
+      //set_bed_leveling_enabled(false);
     #endif
 
     if (new_tool != old_tool) {
@@ -1037,7 +1037,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     planner.synchronize();
     #if HAS_LEVELING
-      set_bed_leveling_enabled(leveling_was_enabled);
+      //set_bed_leveling_enabled(leveling_was_enabled);
     #endif
 
     #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
