@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,10 @@
   #include "../../../module/motion.h"
   #include "../../../feature/bedlevel/bedlevel.h"
 
+  #if ENABLED(EXTENSIBLE_UI)
+    #include "../../../lcd/extensible_ui/ui_api.h"
+  #endif
+
   mesh_bed_leveling mbl;
 
   float mesh_bed_leveling::z_offset,
@@ -47,6 +51,11 @@
   void mesh_bed_leveling::reset() {
     z_offset = 0;
     ZERO(z_values);
+    #if ENABLED(EXTENSIBLE_UI)
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+          ExtUI::onMeshUpdate(x, y, 0);
+    #endif
   }
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
@@ -76,7 +85,7 @@
       #define MBL_SEGMENT_END(A) (current_position[_AXIS(A)] + (destination[_AXIS(A)] - current_position[_AXIS(A)]) * normalized_dist)
 
       float normalized_dist, end[XYZE];
-      const int8_t gcx = MAX(cx1, cx2), gcy = MAX(cy1, cy2);
+      const int8_t gcx = _MAX(cx1, cx2), gcy = _MAX(cy1, cy2);
 
       // Crosses on the X and not already split on this X?
       // The x_splits flags are insurance against rounding errors.

@@ -9,9 +9,9 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD)
-#include "ultralcd.h"
-#include "../Marlin.h"
+#if HAS_SPI_LCD
+  #include "ultralcd.h"
+  #include "../Marlin.h"
 #endif
 
 #include "fontutils.h"

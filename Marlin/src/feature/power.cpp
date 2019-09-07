@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 
 #include "power.h"
 #include "../module/temperature.h"
-#include "../module/stepper_indirection.h"
+#include "../module/stepper/indirection.h"
 #include "../Marlin.h"
 
 Power powerManager;
@@ -46,46 +46,60 @@ bool Power::is_power_needed() {
     HOTEND_LOOP() if (thermalManager.autofan_speed[e]) return true;
   #endif
 
-  #if ENABLED(AUTO_POWER_CONTROLLERFAN) && HAS_CONTROLLER_FAN && ENABLED(USE_CONTROLLER_FAN)
+  #if ENABLED(AUTO_POWER_CONTROLLERFAN, USE_CONTROLLER_FAN) && HAS_CONTROLLER_FAN
     if (controllerfan_speed) return true;
   #endif
 
+  #if ENABLED(AUTO_POWER_CHAMBER_FAN)
+    if (thermalManager.chamberfan_speed) return true;
+  #endif
+
   // If any of the drivers or the bed are enabled...
-  if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON
+  if (X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON || Z_ENABLE_READ() == Z_ENABLE_ON
     #if HAS_HEATED_BED
-      || thermalManager.soft_pwm_amount_bed > 0
+      || thermalManager.temp_bed.soft_pwm_amount > 0
     #endif
       #if HAS_X2_ENABLE
-        || X2_ENABLE_READ == X_ENABLE_ON
+        || X2_ENABLE_READ() == X_ENABLE_ON
       #endif
       #if HAS_Y2_ENABLE
-        || Y2_ENABLE_READ == Y_ENABLE_ON
+        || Y2_ENABLE_READ() == Y_ENABLE_ON
       #endif
       #if HAS_Z2_ENABLE
-        || Z2_ENABLE_READ == Z_ENABLE_ON
+        || Z2_ENABLE_READ() == Z_ENABLE_ON
       #endif
-      || E0_ENABLE_READ == E_ENABLE_ON
-      #if E_STEPPERS > 1
-        || E1_ENABLE_READ == E_ENABLE_ON
-        #if E_STEPPERS > 2
-          || E2_ENABLE_READ == E_ENABLE_ON
-          #if E_STEPPERS > 3
-            || E3_ENABLE_READ == E_ENABLE_ON
-            #if E_STEPPERS > 4
-              || E4_ENABLE_READ == E_ENABLE_ON
-              #if E_STEPPERS > 5
-                || E5_ENABLE_READ == E_ENABLE_ON
-              #endif
-            #endif
-          #endif
-        #endif
-      #endif
+      #if E_STEPPERS
+        || E0_ENABLE_READ() == E_ENABLE_ON
+        #if E_STEPPERS > 1
+          || E1_ENABLE_READ() == E_ENABLE_ON
+          #if E_STEPPERS > 2
+            || E2_ENABLE_READ() == E_ENABLE_ON
+            #if E_STEPPERS > 3
+              || E3_ENABLE_READ() == E_ENABLE_ON
+              #if E_STEPPERS > 4
+                || E4_ENABLE_READ() == E_ENABLE_ON
+                #if E_STEPPERS > 5
+                  || E5_ENABLE_READ() == E_ENABLE_ON
+                #endif // E_STEPPERS > 5
+              #endif // E_STEPPERS > 4
+            #endif // E_STEPPERS > 3
+          #endif // E_STEPPERS > 2
+        #endif // E_STEPPERS > 1
+      #endif // E_STEPPERS
   ) return true;
 
   HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0) return true;
 
   #if HAS_HEATED_BED
     if (thermalManager.degTargetBed() > 0) return true;
+  #endif
+
+  #if HOTENDS && AUTO_POWER_E_TEMP
+    HOTEND_LOOP() if (thermalManager.degHotend(e) >= AUTO_POWER_E_TEMP) return true;
+  #endif
+
+  #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
+    if (thermalManager.degChamber() >= AUTO_POWER_CHAMBER_TEMP) return true;
   #endif
 
   return false;

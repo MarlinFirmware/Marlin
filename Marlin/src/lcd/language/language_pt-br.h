@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,8 +38,8 @@
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")
 
 #define MSG_BACK                            _UxGT("Voltar")
-#define MSG_SD_INSERTED                     _UxGT("Cartão inserido")
-#define MSG_SD_REMOVED                      _UxGT("Cartão removido")
+#define MSG_MEDIA_INSERTED                  _UxGT("Cartão inserido")
+#define MSG_MEDIA_REMOVED                   _UxGT("Cartão removido")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Fins de curso")
 #define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Soft Fins curso")
 #define MSG_MAIN                            _UxGT("Menu principal")
@@ -85,32 +85,30 @@
 #define MSG_LEVEL_BED                       _UxGT("Nivelar Mesa")
 #define MSG_LEVEL_CORNERS                   _UxGT("Nivelar Cantos")
 #define MSG_NEXT_CORNER                     _UxGT("Próximo Canto")
+#define MSG_EDIT_MESH                       _UxGT("Editar Malha")
 #define MSG_EDITING_STOPPED                 _UxGT("Fim da Edição")
 #define MSG_MESH_X                          _UxGT("Índice X")
 #define MSG_MESH_Y                          _UxGT("Índice Y")
 #define MSG_MESH_EDIT_Z                     _UxGT("Valor Z")
 #define MSG_USER_MENU                       _UxGT("Comando customizado")
 
+#define MSG_IDEX_MENU                       _UxGT("Modo IDEX")
+#define MSG_IDEX_MODE_AUTOPARK              _UxGT("Auto-Estacionar")
+#define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplicação")
+#define MSG_IDEX_MODE_MIRRORED_COPY         _UxGT("Cópia espelhada")
+#define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Controle Total")
+#define MSG_X_OFFSET                        _UxGT("2o bico X")
+#define MSG_Y_OFFSET                        _UxGT("2o bico Y")
+#define MSG_Z_OFFSET                        _UxGT("2o bico Z")
+
 #define MSG_UBL_DOING_G29                   _UxGT("Executando G29")
 #define MSG_UBL_UNHOMED                     _UxGT("Fora da Origam")
 #define MSG_UBL_TOOLS                       _UxGT("Ferramentas UBL")
 #define MSG_UBL_LEVEL_BED                   _UxGT("Nivel. Mesa Unif.")
-
-#define MSG_IDEX_MENU                       _UxGT("Modo IDEX")
-#define MSG_IDEX_MODE_AUTOPARK              _UxGT("Auto-Estacionar")
-#define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplicação")
-#define MSG_IDEX_MODE_SCALED_COPY           _UxGT("Cópia em Escala")
-#define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Controle Total")
-#define MSG_IDEX_X_OFFSET                   _UxGT("2o bico X")
-#define MSG_IDEX_Y_OFFSET                   _UxGT("2o bico Y")
-#define MSG_IDEX_Z_OFFSET                   _UxGT("2o bico Z")
-#define MSG_IDEX_SAVE_OFFSETS               _UxGT("Salvar Compensação")
-
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Fazer malha manual")
 #define MSG_UBL_BC_INSERT                   _UxGT("Calçar e calibrar")
 #define MSG_UBL_BC_INSERT2                  _UxGT("Medir")
 #define MSG_UBL_BC_REMOVE                   _UxGT("Remover e calibrar")
-
 #define MSG_UBL_MOVING_TO_NEXT              _UxGT("Movendo para Próximo")
 #define MSG_UBL_ACTIVATE_MESH               _UxGT("Ativar UBL")
 #define MSG_UBL_DEACTIVATE_MESH             _UxGT("Desativar UBL")
@@ -145,7 +143,6 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Salvar Malha CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Salvar Backup")
 #define MSG_UBL_INFO_UBL                    _UxGT("Informação do UBL")
-#define MSG_EDIT_MESH                       _UxGT("Editar Malha")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Qtd de Enchimento")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Enchimento Manual")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Enchimento Smart")
@@ -153,14 +150,14 @@
 #define MSG_UBL_INVALIDATE_ALL              _UxGT("Invalidar tudo")
 #define MSG_UBL_INVALIDATE_CLOSEST          _UxGT("Invalidar próximo")
 #define MSG_UBL_FINE_TUNE_ALL               _UxGT("Ajuste Fino de Todos")
-#define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Ajuar Mais Próximo")
+#define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Ajustar Mais Próximo")
 #define MSG_UBL_STORAGE_MESH_MENU           _UxGT("Armazenamento Malha")
 #define MSG_UBL_STORAGE_SLOT                _UxGT("Slot de Memória")
 #define MSG_UBL_LOAD_MESH                   _UxGT("Ler Malha")
 #define MSG_UBL_SAVE_MESH                   _UxGT("Salvar Malha")
 #define MSG_MESH_LOADED                     _UxGT("Malha %i carregada")
 #define MSG_MESH_SAVED                      _UxGT("Malha %i salva")
-#define MSG_NO_STORAGE                      _UxGT("Sem armazenamento")
+#define MSG_UBL_NO_STORAGE                  _UxGT("Sem armazenamento")
 #define MSG_UBL_SAVE_ERROR                  _UxGT("Erro ao salvar UBL")
 #define MSG_UBL_RESTORE_ERROR               _UxGT("Erro no restauro UBL")
 #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Compensação Z parou")
@@ -190,6 +187,7 @@
 #define MSG_MOVE_Z                          _UxGT("Mover Z")
 #define MSG_MOVE_E                          _UxGT("Mover Extrusor")
 #define MSG_HOTEND_TOO_COLD                 _UxGT("Extrus. mto fria")
+#define MSG_MOVE_Z_DIST                     _UxGT("Mover %smm")
 #define MSG_MOVE_01MM                       _UxGT("Mover 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Mover 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Mover 10mm")
@@ -263,7 +261,7 @@
 #define MSG_LOAD_EEPROM                     _UxGT("Ler Configuração")
 #define MSG_RESTORE_FAILSAFE                _UxGT("Restauro seguro")
 #define MSG_INIT_EEPROM                     _UxGT("Iniciar EEPROM")
-#define MSG_SD_UPDATE                       _UxGT("Atualiz. SD")
+#define MSG_MEDIA_UPDATE                    _UxGT("Atualiz. SD")
 #define MSG_RESET_PRINTER                   _UxGT("Resetar Impressora")
 #define MSG_REFRESH                         _UxGT("Atualização")
 #define MSG_WATCH                           _UxGT("Informações")
@@ -273,8 +271,8 @@
 #define MSG_RESUME_PRINT                    _UxGT("Resumir impressão")
 #define MSG_STOP_PRINT                      _UxGT("Parar impressão")
 #define MSG_OUTAGE_RECOVERY                 _UxGT("Recuperar Impressão")
-#define MSG_CARD_MENU                       _UxGT("Imprimir do SD")
-#define MSG_NO_CARD                         _UxGT("Sem cartão SD")
+#define MSG_MEDIA_MENU                      _UxGT("Imprimir do SD")
+#define MSG_NO_MEDIA                        _UxGT("Sem cartão SD")
 #define MSG_DWELL                           _UxGT("Dormindo...")
 #define MSG_USERWAIT                        _UxGT("Clique para retomar")
 #define MSG_PRINT_PAUSED                    _UxGT("Impressão Pausada")
@@ -301,8 +299,8 @@
 #define MSG_FILAMENTLOAD                    _UxGT("Carregar Filamento")
 #define MSG_FILAMENTUNLOAD                  _UxGT("Descarreg. Filamento")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Descarregar Todos")
-#define MSG_INIT_SDCARD                     _UxGT("Iniciar SD")
-#define MSG_CHANGE_SDCARD                   _UxGT("Trocar SD")
+#define MSG_INIT_MEDIA                      _UxGT("Iniciar SD")
+#define MSG_CHANGE_MEDIA                    _UxGT("Trocar SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda fora da mesa")
 #define MSG_SKEW_FACTOR                     _UxGT("Fator de Cisalho")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
@@ -368,6 +366,8 @@
 #define MSG_CASE_LIGHT                      _UxGT("Luz da Impressora")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Intensidade Brilho")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Impressora Incorreta")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Total de Impressões")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Realizadas")
@@ -396,7 +396,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Purgar mais")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Continuar Impressão")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Bocal: ")
-#define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Sensor filamento")
+#define MSG_RUNOUT_SENSOR                   _UxGT("Sensor filamento")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Falha ao ir à origem")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Falha ao sondar")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: Muito frio")

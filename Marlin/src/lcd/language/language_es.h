@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,8 +34,8 @@
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" lista.")
 #define MSG_BACK                            _UxGT("Atrás")
-#define MSG_SD_INSERTED                     _UxGT("Tarjeta colocada")
-#define MSG_SD_REMOVED                      _UxGT("Tarjeta retirada")
+#define MSG_MEDIA_INSERTED                  _UxGT("Media insertada")
+#define MSG_MEDIA_REMOVED                   _UxGT("Media retirada")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Menú principal")
 #define MSG_AUTOSTART                       _UxGT("Inicio automático")
@@ -80,6 +80,7 @@
 #define MSG_MOVE_Y                          _UxGT("Mover Y")
 #define MSG_MOVE_Z                          _UxGT("Mover Z")
 #define MSG_MOVE_E                          _UxGT("Extrusor")
+#define MSG_MOVE_Z_DIST                     _UxGT("Mover %smm")
 #define MSG_MOVE_01MM                       _UxGT("Mover 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Mover 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Mover 10mm")
@@ -142,8 +143,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pausar impresión")
 #define MSG_RESUME_PRINT                    _UxGT("Reanudar impresión")
 #define MSG_STOP_PRINT                      _UxGT("Detener impresión")
-#define MSG_CARD_MENU                       _UxGT("Menú de SD")
-#define MSG_NO_CARD                         _UxGT("No hay tarjeta SD")
+#define MSG_MEDIA_MENU                      _UxGT("Menú Media")
+#define MSG_NO_MEDIA                        _UxGT("Media no presente")
 #define MSG_DWELL                           _UxGT("Reposo...")
 #define MSG_USERWAIT                        _UxGT("Esperando órdenes")
 #define MSG_PRINT_ABORTED                   _UxGT("Impresión cancelada")
@@ -159,8 +160,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("DesRet V")
 #define MSG_AUTORETRACT                     _UxGT("Retracción Auto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Cambiar filamento")
-#define MSG_INIT_SDCARD                     _UxGT("Iniciando tarjeta")
-#define MSG_CHANGE_SDCARD                   _UxGT("Cambiar tarjeta")
+#define MSG_INIT_MEDIA                      _UxGT("Iniciando Media")
+#define MSG_CHANGE_MEDIA                    _UxGT("Cambiar Media")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z fuera")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Auto-Prueba")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reiniciar BLTouch")
@@ -203,6 +204,8 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocolo")
 #define MSG_CASE_LIGHT                      _UxGT("Luz cabina")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Impresora incorrecta")
+
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Conteo de impresión")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Completadas")
@@ -232,28 +235,25 @@
 #define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Temp Mínima es ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Boquilla: ")
 
-#define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Esperando iniciar")
+#define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Esperando para")
 
-#define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Inserte filamento")
+#define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Inserte el filamento")
 #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("y presione el botón")
 
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("del filamento")
-  #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("cambiar")
+  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("iniciar cambio")
+  #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("de filamento")
   #define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("para continuar...")
 #else // LCD_HEIGHT < 4
   // Up to 2 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("del fil. cambiar")
-  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Inserte filamento")
+  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("iniciar cambio fil.")
 #endif // LCD_HEIGHT < 4
 
-#define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Esperado por")
-#define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("filamento expulsado")
-#define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Esperado por")
-#define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("Cargar filamento")
-#define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Esperado por")
-#define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("Extruir filamento")
+#define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Esperando para")
+#define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("expulsar filamento")
+#define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Esperado para")
+#define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("cargar el filamento")
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando imp.")
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("para resumir")
 #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Oprima botón para")

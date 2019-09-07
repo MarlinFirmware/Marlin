@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,11 +61,11 @@ void GcodeSuite::M201() {
 
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
-      const uint8_t a = (i == E_AXIS ? E_AXIS_N(target_extruder) : i);
+      const uint8_t a = (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i);
       planner.settings.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
     }
   }
-  // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
+
   planner.reset_acceleration_rates();
 }
 
@@ -81,7 +81,7 @@ void GcodeSuite::M203() {
 
   LOOP_XYZE(i)
     if (parser.seen(axis_codes[i])) {
-      const uint8_t a = (i == E_AXIS ? E_AXIS_N(target_extruder) : i);
+      const uint8_t a = (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i);
       planner.settings.max_feedrate_mm_s[a] = parser.value_axis_units((AxisEnum)a);
     }
 }
@@ -161,7 +161,7 @@ void GcodeSuite::M205() {
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
-    #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+    #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
       if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
     #endif
   #endif

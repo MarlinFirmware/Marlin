@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,16 +64,6 @@
               cell_dest_xi  = get_cell_index_x(end[X_AXIS]),
               cell_dest_yi  = get_cell_index_y(end[Y_AXIS]);
 
-    if (g26_debug_flag) {
-      SERIAL_ECHOPAIR(" ubl.line_to_destination_cartesian(xe=", destination[X_AXIS]);
-      SERIAL_ECHOPAIR(", ye=", destination[Y_AXIS]);
-      SERIAL_ECHOPAIR(", ze=", destination[Z_AXIS]);
-      SERIAL_ECHOPAIR(", ee=", destination[E_AXIS]);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-      debug_current_and_destination(PSTR("Start of ubl.line_to_destination_cartesian()"));
-    }
-
     // A move within the same cell needs no splitting
     if (cell_start_xi == cell_dest_xi && cell_start_yi == cell_dest_yi) {
 
@@ -91,9 +81,6 @@
         ;
         planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z_raise, end[E_AXIS], feed_rate, extruder);
         set_current_from_destination();
-
-        if (g26_debug_flag)
-          debug_current_and_destination(PSTR("out of bounds in ubl.line_to_destination_cartesian()"));
 
         return;
       }
@@ -117,9 +104,6 @@
       // Undefined parts of the Mesh in z_values[][] are NAN.
       // Replace NAN corrections with 0.0 to prevent NAN propagation.
       planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + (isnan(z0) ? 0.0 : z0), end[E_AXIS], feed_rate, extruder);
-
-      if (g26_debug_flag)
-        debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination_cartesian()"));
 
       set_current_from_destination();
       return;
@@ -214,9 +198,6 @@
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
-      if (g26_debug_flag)
-        debug_current_and_destination(PSTR("vertical move done in ubl.line_to_destination_cartesian()"));
-
       // At the final destination? Usually not, but when on a Y Mesh Line it's completed.
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
@@ -265,9 +246,6 @@
             break;
         } //else printf("FIRST MOVE PRUNED  ");
       }
-
-      if (g26_debug_flag)
-        debug_current_and_destination(PSTR("horizontal move done in ubl.line_to_destination_cartesian()"));
 
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
@@ -351,9 +329,6 @@
 
       if (xi_cnt < 0 || yi_cnt < 0) break; // Too far! Exit the loop and go to FINAL_MOVE
     }
-
-    if (g26_debug_flag)
-      debug_current_and_destination(PSTR("generic move done in ubl.line_to_destination_cartesian()"));
 
     if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
       goto FINAL_MOVE;
@@ -468,8 +443,8 @@
       int8_t cell_xi = (raw[X_AXIS] - (MESH_MIN_X)) * (1.0f / (MESH_X_DIST)),
              cell_yi = (raw[Y_AXIS] - (MESH_MIN_Y)) * (1.0f / (MESH_Y_DIST));
 
-      cell_xi = constrain(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
-      cell_yi = constrain(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
+      LIMIT(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
+      LIMIT(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
 
       const float x0 = mesh_index_to_xpos(cell_xi),   // 64 byte table lookup avoids mul+add
                   y0 = mesh_index_to_ypos(cell_yi);

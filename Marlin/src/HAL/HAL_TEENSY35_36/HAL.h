@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -27,39 +27,25 @@
 
 #define CPU_32_BIT
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
-// _BV is re-defined in Arduino.h
-#undef _BV
-
-#include <Arduino.h>
-
-// Redefine sq macro defined by teensy3/wiring.h
-#undef sq
-#define sq(x) ((x)*(x))
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_Teensy.h"
-#include "watchdog_Teensy.h"
+#include "fastio.h"
+#include "watchdog.h"
 
-#include "HAL_timers_Teensy.h"
+#include "timers.h"
 
 #include <stdint.h>
+#include <util/atomic.h>
 
 #define ST7920_DELAY_1 DELAY_NS(600)
 #define ST7920_DELAY_2 DELAY_NS(750)
 #define ST7920_DELAY_3 DELAY_NS(750)
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
-
-#undef MOTHERBOARD
-#define MOTHERBOARD BOARD_TEENSY35_36
+// ------------------------
 
 #define IS_32BIT_TEENSY (defined(__MK64FX512__) || defined(__MK66FX1M0__))
 #define IS_TEENSY35 defined(__MK64FX512__)
@@ -87,9 +73,9 @@ typedef int8_t pin_t;
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
 #endif
 
-#define CRITICAL_SECTION_START  uint32_t primask = __get_PRIMASK(); __disable_irq()
+#define CRITICAL_SECTION_START  uint32_t primask = __get_primask(); __disable_irq()
 #define CRITICAL_SECTION_END    if (!primask) __enable_irq()
-#define ISRS_ENABLED() (!__get_PRIMASK())
+#define ISRS_ENABLED() (!__get_primask())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
 
@@ -107,33 +93,22 @@ typedef int8_t pin_t;
 #undef pgm_read_word
 #define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
-#define RST_POWER_ON   1
-#define RST_EXTERNAL   2
-#define RST_BROWN_OUT  4
-#define RST_WATCHDOG   8
-#define RST_JTAG       16
-#define RST_SOFTWARE   32
-#define RST_BACKUP     64
+inline void HAL_init(void) { }
 
-/** clear reset reason */
+// Clear reset reason
 void HAL_clear_reset_source(void);
 
-/** reset reason */
+// Reset reason
 uint8_t HAL_get_reset_source(void);
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 extern "C" {
   int freeMemory(void);
 }
-
-// SPI: Extended functions which take a channel number (hardware SPI only)
-/** Write single byte to specified SPI channel */
-void spiSend(uint32_t chan, byte b);
-/** Write buffer to specified SPI channel */
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-/** Read single byte from specified SPI channel */
-uint8_t spiRec(uint32_t chan);
+#pragma GCC diagnostic pop
 
 // ADC
 
@@ -143,24 +118,10 @@ void HAL_adc_init();
 #define HAL_READ_ADC()      HAL_adc_get_result()
 #define HAL_ADC_READY()     true
 
-#define HAL_ANALOG_SELECT(pin) NOOP;
+#define HAL_ANALOG_SELECT(pin)
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-
 uint16_t HAL_adc_get_result(void);
-
-/*
-  uint16_t HAL_getAdcReading(uint8_t chan);
-
-  void HAL_startAdcConversion(uint8_t chan);
-  uint8_t HAL_pinToAdcChannel(int pin);
-
-  uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
-  //uint16_t HAL_getAdcSuperSample(uint8_t chan);
-
-  void HAL_enable_AdcFreerun(void);
-  //void HAL_disable_AdcFreerun(uint8_t chan);
-*/
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin

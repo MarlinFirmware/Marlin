@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -142,8 +142,6 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 #define  enable_Z() do{ Z_enable; Z2_enable; Z3_enable; }while(0)
 #define disable_Z() do{ Z_disable; Z2_disable; Z3_disable; CBI(axis_known_position, Z_AXIS); }while(0)
 
-// end  X, Y, Z Stepper enable / disable
-
 //
 // Extruder Stepper enable / disable
 //
@@ -220,7 +218,6 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define  E5_enable NOOP
   #define E5_disable NOOP
 #endif
-// end individual enables/disables
 
 #if ENABLED(MIXING_EXTRUDER)
 
@@ -312,20 +309,21 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 #endif
 
 #if ENABLED(G38_PROBE_TARGET)
-  extern bool G38_move,        // flag to tell the interrupt handler that a G38 command is being run
-              G38_endstop_hit; // flag from the interrupt handler to indicate if the endstop went active
+  extern uint8_t G38_move;          // Flag to tell the ISR that G38 is in progress, and the type
+  extern bool G38_did_trigger;      // Flag from the ISR to indicate the endstop changed
 #endif
 
 /**
  * The axis order in all axis related arrays is X, Y, Z, E
  */
+void enable_e_steppers();
 void enable_all_steppers();
 void disable_e_stepper(const uint8_t e);
 void disable_e_steppers();
 void disable_all_steppers();
 
-void kill(PGM_P const lcd_msg=NULL);
-void minkill();
+void kill(PGM_P const lcd_msg=nullptr, const bool steppers_off=false);
+void minkill(const bool steppers_off=false);
 
 void quickstop_stepper();
 
@@ -333,10 +331,10 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-extern volatile bool wait_for_heatup;
+extern bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
-  extern volatile bool wait_for_user;
+  extern bool wait_for_user;
 #endif
 
 #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -352,8 +350,8 @@ extern millis_t max_inactive_time, stepper_inactive_time;
 
 #if HAS_POWER_SWITCH
   extern bool powersupply_on;
-  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); powersupply_on = true; }while(0)
-  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP); powersupply_on = false; }while(0)
+  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_HIGH); powersupply_on = true; }while(0)
+  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_HIGH); powersupply_on = false; }while(0)
   #if ENABLED(AUTO_POWER_CONTROL)
     #define PSU_ON()  powerManager.power_on()
     #define PSU_OFF() powerManager.power_off()
@@ -370,26 +368,11 @@ void protected_pin_err();
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }
 #endif
 
-#if HAS_ACTION_COMMANDS
-  #ifdef ACTION_ON_KILL
-    void host_action_kill();
-  #endif
-  #ifdef ACTION_ON_PAUSE
-    void host_action_pause();
-  #endif
-  #ifdef ACTION_ON_PAUSED
-    void host_action_paused();
-  #endif
-  #ifdef ACTION_ON_RESUME
-    void host_action_resume();
-  #endif
-  #ifdef ACTION_ON_RESUMED
-    void host_action_resumed();
-  #endif
-  #ifdef ACTION_ON_CANCEL
-    void host_action_cancel();
-  #endif
-  #ifdef ACTION_ON_FILAMENT_RUNOUT
-    void host_action_filament_runout(const bool eol=true);
-  #endif
+#if HAS_FILAMENT_SENSOR
+  void event_filament_runout();
+#endif
+
+#if ENABLED(G29_RETRY_AND_RECOVER)
+  void event_probe_recover();
+  void event_probe_failure();
 #endif

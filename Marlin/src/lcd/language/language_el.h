@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,8 +33,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" έτοιμο.")
-#define MSG_SD_INSERTED                     _UxGT("Εισαγωγή κάρτας")
-#define MSG_SD_REMOVED                      _UxGT("Αφαίρεση κάρτας")
+#define MSG_MEDIA_INSERTED                  _UxGT("Εισαγωγή κάρτας")
+#define MSG_MEDIA_REMOVED                   _UxGT("Αφαίρεση κάρτας")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Βασική Οθόνη")
 #define MSG_AUTOSTART                       _UxGT("Αυτόματη εκκίνηση")
@@ -72,9 +72,10 @@
 #define MSG_MOVE_Y                          _UxGT("Μετακίνηση Y")
 #define MSG_MOVE_Z                          _UxGT("Μετακίνηση Z")
 #define MSG_MOVE_E                          _UxGT("Εξωθητήρας")
-#define MSG_MOVE_01MM                       _UxGT("Μετακίνηση 0,1μμ")
-#define MSG_MOVE_1MM                        _UxGT("Μετακίνηση 1μμ")
-#define MSG_MOVE_10MM                       _UxGT("Μετακίνηση 10μμ")
+#define MSG_MOVE_Z_DIST                     _UxGT("Μετακίνηση %s μμ")
+#define MSG_MOVE_01MM                       _UxGT("Μετακίνηση 0,1 μμ")
+#define MSG_MOVE_1MM                        _UxGT("Μετακίνηση 1 μμ")
+#define MSG_MOVE_10MM                       _UxGT("Μετακίνηση 10 μμ")
 #define MSG_SPEED                           _UxGT("Ταχύτητα")
 #define MSG_BED_Z                           _UxGT("Επ. Εκτύπωσης Z")
 #define MSG_NOZZLE                          _UxGT("Ακροφύσιο")
@@ -143,8 +144,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Παύση εκτύπωσης")
 #define MSG_RESUME_PRINT                    _UxGT("Συνέχιση εκτύπωσης")
 #define MSG_STOP_PRINT                      _UxGT("Διακοπή εκτύπωσης")
-#define MSG_CARD_MENU                       _UxGT("Εκτύπωση από SD")
-#define MSG_NO_CARD                         _UxGT("Δεν βρέθηκε SD")
+#define MSG_MEDIA_MENU                      _UxGT("Εκτύπωση από SD")
+#define MSG_NO_MEDIA                        _UxGT("Δεν βρέθηκε SD")
 #define MSG_DWELL                           _UxGT("Αναστολή λειτουργίας")
 #define MSG_USERWAIT                        _UxGT("Αναμονή για χρήστη")
 #define MSG_PRINT_ABORTED                   _UxGT("Διακόπτεται η εκτύπωση") //SHORTEN
@@ -160,8 +161,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
 #define MSG_AUTORETRACT                     _UxGT("Αυτόματη ανάσυρση")
 #define MSG_FILAMENTCHANGE                  _UxGT("Αλλαγή νήματος")
-#define MSG_INIT_SDCARD                     _UxGT("Προετοιμασία κάρτας SD")  //SHORTEN
-#define MSG_CHANGE_SDCARD                   _UxGT("Αλλαγή κάρτας SD")
+#define MSG_INIT_MEDIA                      _UxGT("Προετοιμασία κάρτας SD")  //SHORTEN
+#define MSG_CHANGE_MEDIA                    _UxGT("Αλλαγή κάρτας SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Διερεύνηση Z εκτός Επ.Εκτύπωσης") //SHORTEN
 #define MSG_YX_UNHOMED                      _UxGT("Επαναφορά Χ/Υ πριν από Ζ") //SHORTEN
 #define MSG_XYZ_UNHOMED                     _UxGT("Επαναφορά ΧΥΖ πρώτα")
@@ -185,3 +186,5 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Βαθμονόμηση Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Βαθμονόμηση Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Βαθμονόμηση κέντρου")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Εσφαλμένος εκτυπωτής")

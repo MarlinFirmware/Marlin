@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ bool GCodeParser::volumetric_enabled;
 #endif
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
-  TempUnit GCodeParser::input_temp_units;
+  TempUnit GCodeParser::input_temp_units = TEMPUNIT_C;
 #endif
 
 char *GCodeParser::command_ptr,
@@ -80,7 +80,7 @@ GCodeParser parser;
  * this may be optimized by commenting out ZERO(param)
  */
 void GCodeParser::reset() {
-  string_arg = NULL;                    // No whole line argument
+  string_arg = nullptr;                 // No whole line argument
   command_letter = '?';                 // No command letter
   codenum = 0;                          // No command code
   #if USE_GCODE_SUBCODES
@@ -142,27 +142,23 @@ void GCodeParser::parse(char *p) {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
-      // Bail if there's no command code number
-      // Prusa MMU2 has T?/Tx/Tc commands
-      #if DISABLED(PRUSA_MMU2)
-        if (!NUMERIC(*p)) return;
-      #endif
-
-      // Save the command letter at this point
-      // A '?' signifies an unknown command
-      command_letter = letter;
-
-
       #if ENABLED(PRUSA_MMU2)
         if (letter == 'T') {
           // check for special MMU2 T?/Tx/Tc commands
           if (*p == '?' || *p == 'x' || *p == 'c') {
+            command_letter = letter;
             string_arg = p;
             return;
           }
         }
       #endif
 
+      // Bail if there's no command code number
+      if (!NUMERIC(*p)) return;
+
+      // Save the command letter at this point
+      // A '?' signifies an unknown command
+      command_letter = letter;
 
       // Get the code number - integer digits only
       codenum = 0;
@@ -229,6 +225,9 @@ void GCodeParser::parse(char *p) {
       case 810: case 811: case 812: case 813: case 814:
       case 815: case 816: case 817: case 818: case 819:
     #endif
+    #if ENABLED(EXPECTED_PRINTER_CHECK)
+      case 16:
+    #endif
     case 23: case 28: case 30: case 117: case 118: case 928: string_arg = p; return;
     default: break;
   }
@@ -245,7 +244,7 @@ void GCodeParser::parse(char *p) {
    * This allows M0/M1 with expire time to work: "M0 S5 You Win!"
    * For 'M118' you must use 'E1' and 'A1' rather than just 'E' or 'A'
    */
-  string_arg = NULL;
+  string_arg = nullptr;
   while (const char code = *p++) {                    // Get the next parameter. A NUL ends the loop
 
     // Special handling for M32 [P] !/path/to/file.g#
@@ -272,8 +271,7 @@ void GCodeParser::parse(char *p) {
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-          SERIAL_ECHOPAIR("Got letter ", code);
-          SERIAL_ECHOPAIR(" at index ", (int)(p - command_ptr - 1));
+          SERIAL_ECHOPAIR("Got letter ", code, " at index ", (int)(p - command_ptr - 1));
           if (has_num) SERIAL_ECHOPGM(" (has_num)");
         }
       #endif
@@ -290,7 +288,7 @@ void GCodeParser::parse(char *p) {
       #endif
 
       #if ENABLED(FASTER_GCODE_PARSER)
-        set(code, has_num ? p : NULL);          // Set parameter exists and pointer (NULL for no number)
+        set(code, has_num ? p : nullptr);       // Set parameter exists and pointer (nullptr for no number)
       #endif
     }
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg
@@ -316,7 +314,7 @@ void GCodeParser::parse(char *p) {
       if (next_command) {
         while (*next_command && *next_command != ' ') ++next_command;
         while (*next_command == ' ') ++next_command;
-        if (!*next_command) next_command = NULL;
+        if (!*next_command) next_command = nullptr;
       }
     #else
       const char *next_command = command_args;
@@ -328,51 +326,42 @@ void GCodeParser::parse(char *p) {
 #endif // CNC_COORDINATE_SYSTEMS
 
 void GCodeParser::unknown_command_error() {
-  #if NUM_SERIAL > 1
-    const int16_t port = command_queue_port[cmd_queue_index_r];
-  #endif
-  SERIAL_ECHO_START_P(port);
-  SERIAL_ECHOPAIR_P(port, MSG_UNKNOWN_COMMAND, command_ptr);
-  SERIAL_CHAR_P(port, '"');
-  SERIAL_EOL_P(port);
+  SERIAL_ECHO_START();
+  SERIAL_ECHOLNPAIR(MSG_UNKNOWN_COMMAND, command_ptr, "\"");
 }
 
 #if ENABLED(DEBUG_GCODE_PARSER)
 
   void GCodeParser::debug() {
-    SERIAL_ECHOPAIR("Command: ", command_ptr);
-    SERIAL_ECHOPAIR(" (", command_letter);
+    SERIAL_ECHOPAIR("Command: ", command_ptr, " (", command_letter);
     SERIAL_ECHO(codenum);
     SERIAL_ECHOLNPGM(")");
     #if ENABLED(FASTER_GCODE_PARSER)
-      SERIAL_ECHOPGM(" args: \"");
-      for (char c = 'A'; c <= 'Z'; ++c)
-        if (seen(c)) { SERIAL_CHAR(c); SERIAL_CHAR(' '); }
+      SERIAL_ECHOPGM(" args: { ");
+      for (char c = 'A'; c <= 'Z'; ++c) if (seen(c)) { SERIAL_CHAR(c); SERIAL_CHAR(' '); }
+      SERIAL_CHAR('}');
     #else
-      SERIAL_ECHOPAIR(" args: \"", command_args);
+      SERIAL_ECHOPAIR(" args: { ", command_args, " }");
     #endif
-    SERIAL_CHAR('"');
-    if (string_arg) {
-      SERIAL_ECHOPGM(" string: \"");
-      SERIAL_ECHO(string_arg);
-      SERIAL_CHAR('"');
-    }
+    if (string_arg) SERIAL_ECHOPAIR(" string: \"", string_arg, "\"");
     SERIAL_ECHOLNPGM("\n");
     for (char c = 'A'; c <= 'Z'; ++c) {
       if (seen(c)) {
         SERIAL_ECHOPAIR("Code '", c); SERIAL_ECHOPGM("':");
         if (has_value()) {
-          SERIAL_ECHOPAIR("\n    float: ", value_float());
-          SERIAL_ECHOPAIR("\n     long: ", value_long());
-          SERIAL_ECHOPAIR("\n    ulong: ", value_ulong());
-          SERIAL_ECHOPAIR("\n   millis: ", value_millis());
-          SERIAL_ECHOPAIR("\n   sec-ms: ", value_millis_from_seconds());
-          SERIAL_ECHOPAIR("\n      int: ", value_int());
-          SERIAL_ECHOPAIR("\n   ushort: ", value_ushort());
-          SERIAL_ECHOPAIR("\n     byte: ", (int)value_byte());
-          SERIAL_ECHOPAIR("\n     bool: ", (int)value_bool());
-          SERIAL_ECHOPAIR("\n   linear: ", value_linear_units());
-          SERIAL_ECHOPAIR("\n  celsius: ", value_celsius());
+          SERIAL_ECHOPAIR(
+            "\n    float: ", value_float(),
+            "\n     long: ", value_long(),
+            "\n    ulong: ", value_ulong(),
+            "\n   millis: ", value_millis(),
+            "\n   sec-ms: ", value_millis_from_seconds(),
+            "\n      int: ", value_int(),
+            "\n   ushort: ", value_ushort(),
+            "\n     byte: ", (int)value_byte(),
+            "\n     bool: ", (int)value_bool(),
+            "\n   linear: ", value_linear_units(),
+            "\n  celsius: ", value_celsius()
+          );
         }
         else
           SERIAL_ECHOPGM(" (no value)");

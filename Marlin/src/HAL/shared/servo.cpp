@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,9 +53,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SERVOS && !(IS_32BIT_TEENSY || defined(TARGET_LPC1768) || defined(STM32F1) || defined(STM32F1xx) || defined(STM32F4) || defined(STM32F4xx) || defined(STM32F7xx))
+#if SHARED_SERVOS
 
-//#include <Arduino.h>
 #include "servo.h"
 #include "servo_private.h"
 
@@ -117,9 +116,8 @@ void Servo::detach() {
 }
 
 void Servo::write(int value) {
-  if (value < MIN_PULSE_WIDTH) { // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
+  if (value < MIN_PULSE_WIDTH)    // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
     value = map(constrain(value, 0, 180), 0, 180, SERVO_MIN(), SERVO_MAX());
-  }
   this->writeMicroseconds(value);
 }
 
@@ -141,7 +139,7 @@ void Servo::writeMicroseconds(int value) {
 int Servo::read() { return map(this->readMicroseconds() + 1, SERVO_MIN(), SERVO_MAX(), 0, 180); }
 
 int Servo::readMicroseconds() {
-  return (this->servoIndex == INVALID_SERVO) ? 0 : ticksToUs(servo_info[this->servoIndex].ticks) + TRIM_DURATION;
+  return (this->servoIndex == INVALID_SERVO) ? 0 : ticksToUs(servo_info[this->servoIndex].ticks) + (TRIM_DURATION);
 }
 
 bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
@@ -158,4 +156,4 @@ void Servo::move(const int value) {
   }
 }
 
-#endif // HAS_SERVOS
+#endif // SHARED_SERVOS

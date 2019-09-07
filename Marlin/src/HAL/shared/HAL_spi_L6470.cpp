@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,8 @@
 
 /**
  * Software L6470 SPI functions originally from Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  */
-
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
 
 #include "../../inc/MarlinConfig.h"
 
@@ -35,20 +31,8 @@
 
 #include "Delay.h"
 
-// --------------------------------------------------------------------------
-// Public Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Public functions
-// --------------------------------------------------------------------------
-
 #include "../../core/serial.h"
 #include "../../libs/L6470/L6470_Marlin.h"
-
-// --------------------------------------------------------------------------
-// Software L6470 SPI
-// --------------------------------------------------------------------------
 
 // Make sure GCC optimizes this file.
 // Note that this line triggers a bug in GCC which is fixed by casting.
@@ -99,7 +83,7 @@ uint8_t L6470_transfer(uint8_t data, int16_t ss_pin, const uint8_t chain_positio
   uint8_t data_out = 0;
 
   // first device in chain has data sent last
-  digitalWrite(ss_pin, LOW);
+  extDigitalWrite(ss_pin, LOW);
 
   for (uint8_t i = L6470::chain[0]; (i >= 1) && !spi_abort; i--) {    // stop sending data if spi_abort is active
     DISABLE_ISRS();  // disable interrupts during SPI transfer (can't allow partial command to chips)
@@ -108,7 +92,7 @@ uint8_t L6470_transfer(uint8_t data, int16_t ss_pin, const uint8_t chain_positio
     if (i == chain_position) data_out = temp;
   }
 
-  digitalWrite(ss_pin, HIGH);
+  extDigitalWrite(ss_pin, HIGH);
   return data_out;
 }
 

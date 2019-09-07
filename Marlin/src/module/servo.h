@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,9 +44,18 @@
   #elif ENABLED(SWITCHING_NOZZLE)
     #define SADATA    SWITCHING_NOZZLE_SERVO_ANGLES
     #define ASRC(N,E) (SWITCHING_NOZZLE_SERVO_NR == N ? asrc[E] : 0)
-  #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
-    #define SADATA    Z_SERVO_ANGLES
+  #elif defined(Z_PROBE_SERVO_NR)
     #define ASRC(N,E) (Z_PROBE_SERVO_NR == N ? asrc[E] : 0)
+    #if ENABLED(BLTOUCH)
+      #include "../feature/bltouch.h"
+    #endif
+    #ifdef BLTOUCH_ANGLES
+      #define SADATA  BLTOUCH_ANGLES
+    #elif defined(Z_SERVO_ANGLES)
+      #define SADATA  Z_SERVO_ANGLES
+    #else
+      #error "Servo angles are needed!"
+    #endif
   #endif
 
   #if ENABLED(EDITABLE_SERVO_ANGLES)

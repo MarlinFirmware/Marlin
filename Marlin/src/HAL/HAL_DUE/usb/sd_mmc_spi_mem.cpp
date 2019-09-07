@@ -34,6 +34,7 @@ Ctrl_status sd_mmc_spi_read_capacity(uint32_t *nb_sector) {
 }
 
 bool sd_mmc_spi_unload(bool unload) {
+  UNUSED(unload);
   return true;
 }
 
@@ -65,9 +66,12 @@ Ctrl_status sd_mmc_spi_usb_read_10(uint32_t addr, uint16_t nb_sector) {
     return CTRL_NO_PRESENT;
 
   #ifdef DEBUG_MMC
+  {
     char buffer[80];
     sprintf_P(buffer, PSTR("SDRD: %d @ 0x%08x\n"), nb_sector, addr);
-    SERIAL_ECHO_P(0, buffer);
+    PORT_REDIRECT(0);
+    SERIAL_ECHO(buffer);
+  }
   #endif
 
   // Start reading
@@ -99,9 +103,12 @@ Ctrl_status sd_mmc_spi_usb_write_10(uint32_t addr, uint16_t nb_sector) {
     return CTRL_NO_PRESENT;
 
   #ifdef DEBUG_MMC
+  {
     char buffer[80];
     sprintf_P(buffer, PSTR("SDWR: %d @ 0x%08x\n"), nb_sector, addr);
-    SERIAL_ECHO_P(0, buffer);
+    PORT_REDIRECT(0);
+    SERIAL_ECHO(buffer);
+  }
   #endif
 
   if (!card.getSd2Card().writeStart(addr, nb_sector))

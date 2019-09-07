@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -29,15 +29,14 @@
 
 #define CPU_32_BIT
 
-#include <stdint.h>
-
-#include <Arduino.h>
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
-#include "fastio_Due.h"
-#include "watchdog_Due.h"
-#include "HAL_timers_Due.h"
+#include "fastio.h"
+#include "watchdog.h"
+#include "timers.h"
+
+#include <stdint.h>
 
 // Serial ports
 #if !WITHIN(SERIAL_PORT, -1, 3)
@@ -59,8 +58,8 @@
   #define NUM_SERIAL 1
 #endif
 
-#include "MarlinSerial_Due.h"
-#include "MarlinSerialUSB_Due.h"
+#include "MarlinSerial.h"
+#include "MarlinSerialUSB.h"
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
@@ -69,26 +68,15 @@
   #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
 #endif
 
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
-
 // Fix bug in pgm_read_ptr
 #undef pgm_read_ptr
 #define pgm_read_ptr(addr) (*((void**)(addr)))
 #undef pgm_read_word
 #define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
-#define RST_POWER_ON   1
-#define RST_EXTERNAL   2
-#define RST_BROWN_OUT  4
-#define RST_WATCHDOG   8
-#define RST_JTAG       16
-#define RST_SOFTWARE   32
-#define RST_BACKUP     64
-
 typedef int8_t pin_t;
 
+#define SHARED_SERVOS HAS_SERVOS
 #define HAL_SERVO_LIB Servo
 
 //
@@ -105,19 +93,6 @@ void sei(void);                     // Enable interrupts
 
 void HAL_clear_reset_source(void);  // clear reset reason
 uint8_t HAL_get_reset_source(void); // get reset reason
-
-//
-// SPI: Extended functions taking a channel number (Hardware SPI only)
-//
-
-// Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
-
-// Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-
-// Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
 
 //
 // EEPROM
@@ -146,13 +121,6 @@ inline void HAL_adc_init(void) {}//todo
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 uint16_t HAL_adc_get_result(void);
-uint16_t HAL_getAdcReading(uint8_t chan);
-void HAL_startAdcConversion(uint8_t chan);
-uint8_t HAL_pinToAdcChannel(int pin);
-uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
-//uint16_t HAL_getAdcSuperSample(uint8_t chan);
-void HAL_enable_AdcFreerun(void);
-//void HAL_disable_AdcFreerun(uint8_t chan);
 
 //
 // Pin Map
@@ -170,7 +138,6 @@ void noTone(const pin_t _pin);
 
 // Enable hooks into idle and setup for HAL
 #define HAL_IDLETASK 1
-#define HAL_INIT 1
 void HAL_idletask(void);
 void HAL_init(void);
 
@@ -178,12 +145,16 @@ void HAL_init(void);
 // Utility functions
 //
 void _delay_ms(const int delay);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 int freeMemory(void);
+#pragma GCC diagnostic pop
 
 #ifdef __cplusplus
   extern "C" {
 #endif
-char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__s);
+char *dtostrf(double __val, signed char __width, unsigned char __prec, char *__s);
 #ifdef __cplusplus
   }
 #endif

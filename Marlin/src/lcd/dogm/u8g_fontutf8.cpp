@@ -64,10 +64,10 @@ static const font_t* fontgroup_find(font_group_t * root, wchar_t val) {
   uxg_fontinfo_t vcmp = {(uint16_t)(val / 128), (uint8_t)(val % 128 + 128), (uint8_t)(val % 128 + 128), 0, 0};
   size_t idx = 0;
 
-  if (val < 256) return NULL;
+  if (val < 256) return nullptr;
 
   if (pf_bsearch_r((void*)root->m_fntifo, root->m_fntinfo_num, pf_bsearch_cb_comp_fntifo_pgm, (void*)&vcmp, &idx) < 0)
-    return NULL;
+    return nullptr;
 
   memcpy_P(&vcmp, root->m_fntifo + idx, sizeof(vcmp));
   return vcmp.fntdata;
@@ -97,7 +97,7 @@ static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, 
  * @param utf8_msg : the UTF-8 string
  * @param cb_read_byte : how to read the utf8_msg, from RAM or ROM (call read_byte_ram or pgm_read_byte)
  * @param userdata : User's data
- * @param cb_draw_ram : the callback function of userdata to draw a !RAM! string (actural it is to draw a one byte string in RAM)
+ * @param cb_draw_ram : the callback function of userdata to draw a !RAM! string (actually it is to draw a one byte string in RAM)
  *
  * @return N/A
  *
@@ -114,7 +114,7 @@ static void fontgroup_drawstring(font_group_t *group, const font_t *fnt_default,
 }
 
 static bool flag_fontgroup_was_inited = false;
-static font_group_t g_fontgroup_root = {NULL, 0};
+static font_group_t g_fontgroup_root = { nullptr, 0 };
 
 /**
  * @brief check if font is loaded
@@ -176,7 +176,7 @@ unsigned int uxg_DrawWchar(u8g_t *pu8g, unsigned int x, unsigned int y, wchar_t 
   data.y = y;
   data.adv = 0;
   data.max_width = max_width;
-  data.fnt_prev = NULL;
+  data.fnt_prev = nullptr;
   fontgroup_drawwchar(group, fnt_default, ch, (void*)&data, fontgroup_cb_draw_u8g);
   u8g_SetFont(pu8g, (const u8g_fntpgm_uint8_t*)fnt_default);
 
@@ -210,7 +210,7 @@ unsigned int uxg_DrawUtf8Str(u8g_t *pu8g, unsigned int x, unsigned int y, const 
   data.y = y;
   data.adv = 0;
   data.max_width = max_width;
-  data.fnt_prev = NULL;
+  data.fnt_prev = nullptr;
   fontgroup_drawstring(group, fnt_default, utf8_msg, read_byte_ram, (void*)&data, fontgroup_cb_draw_u8g);
   u8g_SetFont(pu8g, (const u8g_fntpgm_uint8_t*)fnt_default);
 
@@ -244,7 +244,7 @@ unsigned int uxg_DrawUtf8StrP(u8g_t *pu8g, unsigned int x, unsigned int y, PGM_P
   data.y = y;
   data.adv = 0;
   data.max_width = max_width;
-  data.fnt_prev = NULL;
+  data.fnt_prev = nullptr;
   fontgroup_drawstring(group, fnt_default, utf8_msg, read_byte_rom, (void*)&data, fontgroup_cb_draw_u8g);
   u8g_SetFont(pu8g, (const u8g_fntpgm_uint8_t*)fnt_default);
 

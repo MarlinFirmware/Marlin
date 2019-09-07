@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,10 @@
 #include "../../gcode.h"
 #include "../../../feature/bedlevel/abl/abl.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extensible_ui/ui_api.h"
+#endif
+
 /**
  * M421: Set a single Mesh Bed Leveling Z coordinate
  *
@@ -53,6 +57,9 @@ void GcodeSuite::M421() {
     z_values[ix][iy] = parser.value_linear_units() + (hasQ ? z_values[ix][iy] : 0);
     #if ENABLED(ABL_BILINEAR_SUBDIVISION)
       bed_level_virt_interpolate();
+    #endif
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onMeshUpdate(ix, iy, z_values[ix][iy]);
     #endif
   }
 }

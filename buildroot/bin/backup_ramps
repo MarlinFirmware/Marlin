@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+PINS="Marlin/src/pins"
+RAMPS="$PINS/ramps/pins_RAMPS.h"
+BKUP="$PINS/ramps/pins_RAMPS.backup.h"
+
+[[ -f $RAMPS ]] && cp "$RAMPS" "$BKUP"

@@ -112,7 +112,7 @@
  * \def unused
  * \brief Marking \a v as a unused parameter or value.
  */
-#define unused(v)          do { (void)(v); } while(0)
+#define unused(v)          do { (void)(v); }while(0)
 
 /**
  * \def barrier
@@ -169,7 +169,7 @@
  * heuristics and inline the function no matter how big it thinks it
  * becomes.
  */
-#if defined(__CC_ARM)
+#ifdef __CC_ARM
 #   define __always_inline   __forceinline
 #elif (defined __GNUC__)
 #ifdef __always_inline
@@ -187,7 +187,7 @@
  * This annotation instructs the compiler to ignore its inlining
  * heuristics and not inline the function.
  */
-#if defined(__CC_ARM)
+#ifdef __CC_ARM
 #   define __no_inline   __attribute__((noinline))
 #elif (defined __GNUC__)
 #	define __no_inline   __attribute__((__noinline__))
@@ -204,7 +204,7 @@
  *
  * \param expr  Expression to evaluate and supposed to be nonzero.
  */
-#if defined(_ASSERT_ENABLE_)
+#ifdef _ASSERT_ENABLE_
 #  if defined(TEST_SUITE_DEFINE_ASSERT_MACRO)
      // Assert() is defined in unit_test/suite.h
 #    include "unit_test/suite.h"
@@ -230,7 +230,7 @@
 
 /* Define NO_INIT attribute */
 #if 0 //ndef NO_INIT
-#if defined   ( __CC_ARM   )
+#ifdef __CC_ARM
 #   define NO_INIT __attribute__((zero_init))
 #elif defined ( __ICCARM__ )
 #   define NO_INIT __no_init
@@ -262,7 +262,7 @@
 //! @{
 typedef unsigned char           Bool; //!< Boolean.
 #ifndef __cplusplus
-#if !defined(__bool_true_false_are_defined)
+#ifndef __bool_true_false_are_defined
 typedef unsigned char           bool; //!< Boolean.
 #endif
 #endif
@@ -443,7 +443,7 @@ typedef struct
 #define DISABLE   0
 #define ENABLE    1
 #ifndef __cplusplus
-#if !defined(__bool_true_false_are_defined)
+#ifndef __bool_true_false_are_defined
 #define false 0
 #define true 1
 #endif
@@ -998,14 +998,14 @@ typedef U8                  Byte;       //!< 8-bit unsigned integer.
 #endif  // #ifndef __ASSEMBLY__
 
 
-#if defined(__ICCARM__)
+#ifdef __ICCARM__
 #define SHORTENUM           __packed
 #elif defined(__GNUC__)
 #define SHORTENUM           __attribute__((packed))
 #endif
 
 /* No operation */
-#if defined(__ICCARM__)
+#ifdef __ICCARM__
 #define nop()               __no_operation()
 #elif defined(__GNUC__)
 #define nop()               (__NOP())

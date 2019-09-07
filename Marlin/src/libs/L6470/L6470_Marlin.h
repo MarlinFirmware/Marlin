@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2018 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,30 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #include "../../inc/MarlinConfig.h"
 
 #include <L6470.h>
-
-#if ENABLED(L6470_CHITCHAT)
-  #define L6470_EOL()           SERIAL_EOL()
-  #define L6470_CHAR(C)         SERIAL_CHAR(C)
-  #define L6470_ECHO(V)         SERIAL_ECHO(V)
-  #define L6470_ECHOLN(V)       SERIAL_ECHOLN(V)
-  #define L6470_ECHOPGM(S)      SERIAL_ECHOPGM(S)
-  #define L6470_ECHOLNPGM(S)    SERIAL_ECHOLNPGM(S)
-  #define L6470_ECHOPAIR(S,V)   SERIAL_ECHOPAIR(S,V)
-  #define L6470_ECHOLNPAIR(S,V) SERIAL_ECHOLNPAIR(S,V)
-#else
-  #define L6470_EOL()           NOOP
-  #define L6470_CHAR(C)         NOOP
-  #define L6470_ECHO(V)         NOOP
-  #define L6470_ECHOLN(V)       NOOP
-  #define L6470_ECHOPGM(S)      NOOP
-  #define L6470_ECHOLNPGM(S)    NOOP
-  #define L6470_ECHOPAIR(S,V)   NOOP
-  #define L6470_ECHOLNPAIR(S,V) NOOP
-#endif
 
 #define L6470_GETPARAM(P,Q) stepper##Q.GetParam(P)
 
@@ -51,8 +32,6 @@
 #define L6470_ERROR_MASK  (STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD  | STATUS_OCD | STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)
 #define dSPIN_STEP_CLOCK_FWD dSPIN_STEP_CLOCK
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
-#define HAS_L6470_EXTRUDER ( AXIS_DRIVER_TYPE_E0(L6470) || AXIS_DRIVER_TYPE_E1(L6470) || AXIS_DRIVER_TYPE_E2(L6470) \
-                          || AXIS_DRIVER_TYPE_E3(L6470) || AXIS_DRIVER_TYPE_E4(L6470) || AXIS_DRIVER_TYPE_E5(L6470) )
 
 class L6470_Marlin {
 public:
@@ -61,7 +40,7 @@ public:
   static char index_to_axis[MAX_L6470][3];
   static uint8_t dir_commands[MAX_L6470];
 
-  // flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
+  // Flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
   static volatile bool spi_abort;
   static bool spi_active;
 

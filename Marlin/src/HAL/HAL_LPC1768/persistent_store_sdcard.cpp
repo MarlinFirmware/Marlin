@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
@@ -29,7 +29,7 @@
 #include "../../inc/MarlinConfig.h"
 #include "persistent_store_api.h"
 
-#if DISABLED(FLASH_EEPROM)
+#if DISABLED(FLASH_EEPROM_EMULATION)
 
 #include <chanfs/diskio.h>
 #include <chanfs/ff.h>
@@ -125,7 +125,7 @@ static void debug_rw(const bool write, int &pos, const uint8_t *value, const siz
 //    FR_INVALID_PARAMETER     /* (19) Given parameter is invalid */
 //  } FRESULT;
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   if (!eeprom_file_open) return true;
   FRESULT s;
   UINT bytes_written = 0;
@@ -178,6 +178,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
 
 size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
 
-#endif // !FLASH_EEPROM
+#endif // !FLASH_EEPROM_EMULATION
 #endif // EEPROM_SETTINGS
 #endif // TARGET_LPC1768

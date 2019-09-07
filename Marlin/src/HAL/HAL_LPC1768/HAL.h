@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -27,27 +27,26 @@
  */
 
 #define CPU_32_BIT
-#define HAL_INIT
 
-void HAL_init();
+void HAL_init(void);
 
 #include <stdint.h>
 #include <stdarg.h>
 #include <algorithm>
 
-extern "C" volatile millis_t _millis;
+extern "C" volatile uint32_t _millis;
 
-#include <Arduino.h>
-#include <pinmapping.h>
-#include <CDCSerial.h>
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
-#include <adc.h>
 #include "watchdog.h"
-#include "HAL_timers.h"
+#include "timers.h"
 #include "MarlinSerial.h"
+
+#include <adc.h>
+#include <pinmapping.h>
+#include <CDCSerial.h>
 
 //
 // Default graphical display delays
@@ -112,18 +111,10 @@ extern "C" volatile millis_t _millis;
 //
 // Utility functions
 //
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 int freeMemory(void);
-
-//
-// SPI: Extended functions taking a channel number (Hardware SPI only)
-//
-
-// Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
-// Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-// Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
+#pragma GCC diagnostic pop
 
 //
 // ADC API
@@ -134,7 +125,7 @@ uint8_t spiRec(uint32_t chan);
                                     // Memory usage per ADC channel (bytes): (6 * ADC_MEDIAN_FILTER_SIZE) + 16
                                     // 8 * ((6 * 23) + 16 ) = 1232 Bytes for 8 channels
 
-#define ADC_LOWPASS_K_VALUE    (6)  // Higher values increase rise time
+#define ADC_LOWPASS_K_VALUE    (2)  // Higher values increase rise time
                                     // Rise time sample delays for 100% signal convergence on full range step
                                     // (1 : 13, 2 : 32, 3 : 67, 4 : 139, 5 : 281, 6 : 565, 7 : 1135, 8 : 2273)
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
@@ -154,3 +145,22 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 
 #define HAL_IDLETASK 1
 void HAL_idletask(void);
+
+#define PLATFORM_M997_SUPPORT
+void flashFirmware(int16_t value);
+
+/**
+ * set_pwm_frequency
+ *  Set the frequency of the timer corresponding to the provided pin
+ *  All Hardware PWM pins run at the same frequency and all
+ *  Software PWM pins run at the same frequency
+ */
+void set_pwm_frequency(const pin_t pin, int f_desired);
+
+/**
+ * set_pwm_duty
+ *  Set the PWM duty cycle of the provided pin to the provided value
+ *  Optionally allows inverting the duty cycle [default = false]
+ *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+ */
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);

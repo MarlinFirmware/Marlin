@@ -25,17 +25,11 @@
  * \param value   The value to sign extend.
  * \return The signed-11 bit value stored in a 16bit data type.
  */
-static int32_t signExtend11(uint16_t value) {
-
-  if(value & 0x400) {
-    value |= 0xFFFFF800;
-  }
-
-  return value;
+static int32_t signExtend11(const uint16_t value) {
+  return (value & 0x400) ? value | 0xFFFFF800 : value;
 }
 
 UnwResult UnwStartThumb(UnwState * const state) {
-
   bool found = false;
   uint16_t t = UNW_MAX_INSTR_COUNT;
   uint32_t lastJumpAddr = 0;  // Last JUMP address, to try to detect infinite loops
@@ -45,20 +39,19 @@ UnwResult UnwStartThumb(UnwState * const state) {
     uint16_t instr;
 
     /* Attempt to read the instruction */
-    if(!state->cb->readH(state->regData[15].v & (~0x1), &instr)) {
+    if (!state->cb->readH(state->regData[15].v & (~0x1), &instr))
       return UNWIND_IREAD_H_FAIL;
-    }
 
     UnwPrintd4("T %x %x %04x:", state->regData[13].v, state->regData[15].v, instr);
 
     /* Check that the PC is still on Thumb alignment */
-    if(!(state->regData[15].v & 0x1)) {
+    if (!(state->regData[15].v & 0x1)) {
       UnwPrintd1("\nError: PC misalignment\n");
       return UNWIND_INCONSISTENT;
     }
 
     /* Check that the SP and PC have not been invalidated */
-    if(!M_IsOriginValid(state->regData[13].o) || !M_IsOriginValid(state->regData[15].o)) {
+    if (!M_IsOriginValid(state->regData[13].o) || !M_IsOriginValid(state->regData[15].o)) {
       UnwPrintd1("\nError: PC or SP invalidated\n");
       return UNWIND_INCONSISTENT;
     }
@@ -73,9 +66,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
       state->regData[15].v += 2;
 
       /* Attempt to read the 2nd part of the instruction */
-      if(!state->cb->readH(state->regData[15].v & (~0x1), &instr2)) {
+      if (!state->cb->readH(state->regData[15].v & (~0x1), &instr2))
         return UNWIND_IREAD_H_FAIL;
-      }
 
       UnwPrintd3(" %x %04x:", state->regData[15].v, instr2);
 
@@ -84,26 +76,25 @@ UnwResult UnwStartThumb(UnwState * const state) {
        *  PUSH and POP
        */
       if ((instr & 0xFE6F) == 0xE82D) {
-        bool     L     = (instr &  0x10) ? true : false;
+        bool     L     = !!(instr &  0x10);
         uint16_t rList = instr2;
 
-        if(L) {
+        if (L) {
           uint8_t r;
 
           /* Load from memory: POP */
           UnwPrintd1("POP {Rlist}\n");
 
           /* Load registers from stack */
-          for(r = 0; r < 16; r++) {
-            if(rList & (0x1 << r)) {
+          for (r = 0; r < 16; r++) {
+            if (rList & (0x1 << r)) {
 
               /* Read the word */
-              if(!UnwMemReadRegister(state, state->regData[13].v, &state->regData[r])) {
+              if (!UnwMemReadRegister(state, state->regData[13].v, &state->regData[r]))
                 return UNWIND_DREAD_W_FAIL;
-              }
 
               /* Alter the origin to be from the stack if it was valid */
-              if(M_IsOriginValid(state->regData[r].o)) {
+              if (M_IsOriginValid(state->regData[r].o)) {
 
                 state->regData[r].o = REG_VAL_FROM_STACK;
 
@@ -114,7 +105,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
                    *  the caller was from Thumb.  This would allow return
                    *  by BX for interworking APCS.
                    */
-                  if((state->regData[15].v & 0x1) == 0) {
+                  if ((state->regData[15].v & 0x1) == 0) {
                     UnwPrintd2("Warning: Return address not to Thumb: 0x%08x\n", state->regData[15].v);
 
                     /* Pop into the PC will not switch mode */
@@ -122,9 +113,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
                   }
 
                   /* Store the return address */
-                  if(!UnwReportRetAddr(state, state->regData[15].v)) {
+                  if (!UnwReportRetAddr(state, state->regData[15].v))
                     return UNWIND_TRUNCATED;
-                  }
 
                   /* Now have the return address */
                   UnwPrintd2(" Return PC=%x\n", state->regData[15].v);
@@ -155,15 +145,14 @@ UnwResult UnwStartThumb(UnwState * const state) {
           /* Store to memory: PUSH */
           UnwPrintd1("PUSH {Rlist}");
 
-          for(r = 15; r >= 0; r--) {
-            if(rList & (0x1 << r)) {
+          for (r = 15; r >= 0; r--) {
+            if (rList & (0x1 << r)) {
               UnwPrintd4("\n  r%d = 0x%08x\t; %s", r, state->regData[r].v, M_Origin2Str(state->regData[r].o));
 
               state->regData[13].v -= 4;
 
-              if(!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[r])) {
+              if (!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[r]))
                 return UNWIND_DWRITE_W_FAIL;
-              }
             }
           }
         }
@@ -180,9 +169,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
 
         state->regData[13].v -= 4;
 
-        if(!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[r])) {
+        if (!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[r]))
           return UNWIND_DWRITE_W_FAIL;
-        }
       }
       /*
        * POP register
@@ -194,12 +182,11 @@ UnwResult UnwStartThumb(UnwState * const state) {
         UnwPrintd2("POP {R%d}\n", r);
 
         /* Read the word */
-        if(!UnwMemReadRegister(state, state->regData[13].v, &state->regData[r])) {
+        if (!UnwMemReadRegister(state, state->regData[13].v, &state->regData[r]))
           return UNWIND_DREAD_W_FAIL;
-        }
 
         /* Alter the origin to be from the stack if it was valid */
-        if(M_IsOriginValid(state->regData[r].o)) {
+        if (M_IsOriginValid(state->regData[r].o)) {
 
           state->regData[r].o = REG_VAL_FROM_STACK;
 
@@ -210,7 +197,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
              *  the caller was from Thumb.  This would allow return
              *  by BX for interworking APCS.
              */
-            if((state->regData[15].v & 0x1) == 0) {
+            if ((state->regData[15].v & 0x1) == 0) {
               UnwPrintd2("Warning: Return address not to Thumb: 0x%08x\n", state->regData[15].v);
 
               /* Pop into the PC will not switch mode */
@@ -218,9 +205,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
             }
 
             /* Store the return address */
-            if(!UnwReportRetAddr(state, state->regData[15].v)) {
+            if (!UnwReportRetAddr(state, state->regData[15].v))
               return UNWIND_TRUNCATED;
-            }
 
             /* Now have the return address */
             UnwPrintd2(" Return PC=%x\n", state->regData[15].v);
@@ -255,7 +241,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
          * the switch clauses
          */
         uint8_t rn = instr & 0xF;
-        bool H = (instr2 & 0x10) ? true : false;
+        bool H = !!(instr2 & 0x10);
 
         UnwPrintd5("TB%c [r%d,r%d%s]\n", H ? 'H' : 'B', rn, (instr2 & 0xF), H ? ",LSL #1" : "");
 
@@ -263,15 +249,14 @@ UnwResult UnwStartThumb(UnwState * const state) {
         if (rn == 15) {
           if (H) {
             uint16_t rv;
-            if(!state->cb->readH((state->regData[15].v & (~1)) + 2, &rv)) {
+            if (!state->cb->readH((state->regData[15].v & (~1)) + 2, &rv))
               return UNWIND_DREAD_H_FAIL;
-            }
             state->regData[15].v += rv * 2;
-          } else {
+          }
+          else {
             uint8_t rv;
-            if(!state->cb->readB((state->regData[15].v & (~1)) + 2, &rv)) {
+            if (!state->cb->readB((state->regData[15].v & (~1)) + 2, &rv))
               return UNWIND_DREAD_B_FAIL;
-            }
             state->regData[15].v += rv * 2;
           }
         }
@@ -355,12 +340,11 @@ UnwResult UnwStartThumb(UnwState * const state) {
           UnwPrintd2(" Return PC=%x", state->regData[15].v);
 
           /* Report the return address, including mode bit */
-          if(!UnwReportRetAddr(state, state->regData[15].v)) {
+          if (!UnwReportRetAddr(state, state->regData[15].v))
             return UNWIND_TRUNCATED;
-          }
 
           /* Determine the new mode */
-          if(state->regData[15].v & 0x1) {
+          if (state->regData[15].v & 0x1) {
             /* Branching to THUMB */
 
             /* Account for the auto-increment which isn't needed */
@@ -411,10 +395,10 @@ UnwResult UnwStartThumb(UnwState * const state) {
        * PC-relative load
        *  LDR Rd,[PC, #+/-imm]
        */
-      else if((instr & 0xFF7F) == 0xF85F) {
+      else if ((instr & 0xFF7F) == 0xF85F) {
         uint8_t  rt    = (instr2 & 0xF000) >> 12;
         uint8_t  imm12 = (instr2 & 0x0FFF);
-        bool     A     = (instr  & 0x80) ? true : false;
+        bool     A     = !!(instr  & 0x80);
         uint32_t address;
 
         /* Compute load address, adding a word to account for prefetch */
@@ -424,9 +408,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
 
         UnwPrintd4("LDR r%d,[PC #%c0x%08x]", rt, A?'+':'-', address);
 
-        if(!UnwMemReadRegister(state, address, &state->regData[rt])) {
+        if (!UnwMemReadRegister(state, address, &state->regData[rt]))
           return UNWIND_DREAD_W_FAIL;
-        }
       }
       /*
        * LDR immediate.
@@ -441,11 +424,11 @@ UnwResult UnwStartThumb(UnwState * const state) {
         /* If destination is PC and we don't know the source value, then fail */
         if (!M_IsOriginValid(state->regData[rn].o)) {
           state->regData[rt].o = state->regData[rn].o;
-        } else {
+        }
+        else {
           uint32_t address = state->regData[rn].v + imm12;
-          if(!UnwMemReadRegister(state, address, &state->regData[rt])) {
+          if (!UnwMemReadRegister(state, address, &state->regData[rt]))
             return UNWIND_DREAD_W_FAIL;
-          }
         }
       }
       /*
@@ -459,31 +442,20 @@ UnwResult UnwStartThumb(UnwState * const state) {
         uint8_t     rn = (instr  & 0xF);
         uint8_t     rt = (instr2 & 0xF000) >> 12;
         uint16_t  imm8 = (instr2 & 0xFF);
-        bool         P = (instr2 & 0x400) ? true : false;
-        bool         U = (instr2 & 0x200) ? true : false;
-        bool         W = (instr2 & 0x100) ? true : false;
+        bool         P = !!(instr2 & 0x400);
+        bool         U = !!(instr2 & 0x200);
+        bool         W = !!(instr2 & 0x100);
 
-        if (!M_IsOriginValid(state->regData[rn].o)) {
+        if (!M_IsOriginValid(state->regData[rn].o))
           state->regData[rt].o = state->regData[rn].o;
-        } else {
-          uint32_t offaddress = state->regData[rn].v + imm8;
-          if (U) offaddress += imm8;
-          else offaddress -= imm8;
+        else {
+          uint32_t offaddress = state->regData[rn].v + (U ? imm8 + imm8 : 0),
+                   address = P ? offaddress : state->regData[rn].v;
 
-          uint32_t address;
-          if (P) {
-            address = offaddress;
-          } else {
-            address = state->regData[rn].v;
-          }
-
-          if(!UnwMemReadRegister(state, address, &state->regData[rt])) {
+          if (!UnwMemReadRegister(state, address, &state->regData[rt]))
             return UNWIND_DREAD_W_FAIL;
-          }
 
-          if (W) {
-            state->regData[rn].v = offaddress;
-          }
+          if (W) state->regData[rn].v = offaddress;
         }
       }
       /*
@@ -493,30 +465,28 @@ UnwResult UnwStartThumb(UnwState * const state) {
        *  Where Rt is PC, Rn value is known, Rm is not known or unknown
        */
       else if ((instr & 0xFFF0) == 0xF850 && (instr2 & 0x0FC0) == 0x0000) {
-        uint8_t   rn = (instr  & 0xF);
-        uint8_t   rt = (instr2 & 0xF000) >> 12;
-        uint8_t   rm = (instr2 & 0xF);
-        uint8_t imm2 = (instr2 & 0x30) >> 4;
+        const uint8_t rn = (instr  & 0xF),
+                      rt = (instr2 & 0xF000) >> 12,
+                      rm = (instr2 & 0xF),
+                    imm2 = (instr2 & 0x30) >> 4;
 
-        if (!M_IsOriginValid(state->regData[rn].o) ||
-            !M_IsOriginValid(state->regData[rm].o)) {
+        if (!M_IsOriginValid(state->regData[rn].o) || !M_IsOriginValid(state->regData[rm].o)) {
 
           /* If Rt is PC, and Rn is known, then do an exception and assume
              Rm equals 0 => This takes the first case in a switch() */
           if (rt == 15 && M_IsOriginValid(state->regData[rn].o)) {
             uint32_t address = state->regData[rn].v;
-            if(!UnwMemReadRegister(state, address, &state->regData[rt])) {
+            if (!UnwMemReadRegister(state, address, &state->regData[rt]))
               return UNWIND_DREAD_W_FAIL;
-            }
-          } else {
-            /* Propagate unknown value */
+          }
+          else /* Propagate unknown value */
             state->regData[rt].o = state->regData[rn].o;
-          }
-        } else {
+
+        }
+        else {
           uint32_t address = state->regData[rn].v + (state->regData[rm].v << imm2);
-          if(!UnwMemReadRegister(state, address, &state->regData[rt])) {
+          if (!UnwMemReadRegister(state, address, &state->regData[rt]))
             return UNWIND_DREAD_W_FAIL;
-          }
         }
       }
       else {
@@ -533,14 +503,14 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  LSR Rd, Rs, #Offset5
      *  ASR Rd, Rs, #Offset5
      */
-    else if((instr & 0xE000) == 0x0000 && (instr & 0x1800) != 0x1800) {
+    else if ((instr & 0xE000) == 0x0000 && (instr & 0x1800) != 0x1800) {
       bool signExtend;
-      uint8_t op      = (instr & 0x1800) >> 11;
-      uint8_t offset5 = (instr & 0x07C0) >>  6;
-      uint8_t rs      = (instr & 0x0038) >>  3;
-      uint8_t rd      = (instr & 0x0007);
+      const uint8_t op      = (instr & 0x1800) >> 11,
+                    offset5 = (instr & 0x07C0) >>  6,
+                    rs      = (instr & 0x0038) >>  3,
+                    rd      = (instr & 0x0007);
 
-      switch(op) {
+      switch (op) {
         case 0: /* LSL */
           UnwPrintd6("LSL r%d, r%d, #%d\t; r%d %s", rd, rs, offset5, rs, M_Origin2Str(state->regData[rs].o));
           state->regData[rd].v = state->regData[rs].v << offset5;
@@ -558,11 +528,9 @@ UnwResult UnwStartThumb(UnwState * const state) {
         case 2: /* ASR */
           UnwPrintd6("ASL r%d, r%d, #%d\t; r%d %s", rd, rs, offset5, rs, M_Origin2Str(state->regData[rs].o));
 
-          signExtend = (state->regData[rs].v & 0x8000) ? true : false;
+          signExtend = !!(state->regData[rs].v & 0x8000);
           state->regData[rd].v = state->regData[rs].v >> offset5;
-          if(signExtend) {
-            state->regData[rd].v |= 0xFFFFFFFF << (32 - offset5);
-          }
+          if (signExtend) state->regData[rd].v |= 0xFFFFFFFF << (32 - offset5);
           state->regData[rd].o = state->regData[rs].o;
           state->regData[rd].o |= REG_VAL_ARITHMETIC;
           break;
@@ -574,9 +542,9 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  SUB Rd, Rs, Rn
      *  SUB Rd, Rs, #Offset3
      */
-    else if((instr & 0xF800) == 0x1800) {
-      bool    I  = (instr & 0x0400) ? true : false;
-      bool    op = (instr & 0x0200) ? true : false;
+    else if ((instr & 0xF800) == 0x1800) {
+      bool    I  = !!(instr & 0x0400);
+      bool    op = !!(instr & 0x0200);
       uint8_t rn = (instr & 0x01C0) >> 6;
       uint8_t rs = (instr & 0x0038) >> 3;
       uint8_t rd = (instr & 0x0007);
@@ -584,36 +552,24 @@ UnwResult UnwStartThumb(UnwState * const state) {
       /* Print decoding */
       UnwPrintd6("%s r%d, r%d, %c%d\t;",op ? "SUB" : "ADD",rd, rs,I ? '#' : 'r',rn);
       UnwPrintd5("r%d %s, r%d %s",rd, M_Origin2Str(state->regData[rd].o),rs, M_Origin2Str(state->regData[rs].o));
-      if(!I) {
+      if (!I) {
 
         UnwPrintd3(", r%d %s", rn, M_Origin2Str(state->regData[rn].o));
 
         /* Perform calculation */
-        if(op) {
-          state->regData[rd].v = state->regData[rs].v - state->regData[rn].v;
-        }
-        else {
-          state->regData[rd].v = state->regData[rs].v + state->regData[rn].v;
-        }
+        state->regData[rd].v = state->regData[rs].v + (op ? -state->regData[rn].v : state->regData[rn].v);
 
         /* Propagate the origin */
-        if(M_IsOriginValid(state->regData[rs].o) &&
-           M_IsOriginValid(state->regData[rn].o)) {
+        if (M_IsOriginValid(state->regData[rs].o) && M_IsOriginValid(state->regData[rn].o)) {
           state->regData[rd].o = state->regData[rs].o;
           state->regData[rd].o |= REG_VAL_ARITHMETIC;
         }
-        else {
+        else
           state->regData[rd].o = REG_VAL_INVALID;
-        }
       }
       else {
         /* Perform calculation */
-        if(op) {
-          state->regData[rd].v = state->regData[rs].v - rn;
-        }
-        else {
-          state->regData[rd].v = state->regData[rs].v + rn;
-        }
+        state->regData[rd].v = state->regData[rs].v + (op ? -rn : rn);
 
         /* Propagate the origin */
         state->regData[rd].o = state->regData[rs].o;
@@ -626,13 +582,13 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  ADD Rd, #Offset8
      *  SUB Rd, #Offset8
      */
-    else if((instr & 0xE000) == 0x2000) {
+    else if ((instr & 0xE000) == 0x2000) {
 
       uint8_t op      = (instr & 0x1800) >> 11;
       uint8_t rd      = (instr & 0x0700) >>  8;
       uint8_t offset8 = (instr & 0x00FF);
 
-      switch(op) {
+      switch (op) {
         case 0: /* MOV */
           UnwPrintd3("MOV r%d, #0x%x", rd, offset8);
           state->regData[rd].v = offset8;
@@ -675,7 +631,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  BIC Rd, Rs
      *  MVN Rd, Rs
      */
-    else if((instr & 0xFC00) == 0x4000) {
+    else if ((instr & 0xFC00) == 0x4000) {
       uint8_t op = (instr & 0x03C0) >> 6;
       uint8_t rs = (instr & 0x0038) >> 3;
       uint8_t rd = (instr & 0x0007);
@@ -688,7 +644,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
         "ORR", "MUL", "BIC", "MVN" };
 #endif
       /* Print the mnemonic and registers */
-      switch(op) {
+      switch (op) {
         case 0: /* AND */
         case 1: /* EOR */
         case 2: /* LSL */
@@ -720,7 +676,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
       }
 
       /* Perform operation */
-      switch(op) {
+      switch (op) {
         case 0: /* AND */
           state->regData[rd].v &= state->regData[rs].v;
           break;
@@ -738,7 +694,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
           break;
 
         case 4: /* ASR */
-          if(state->regData[rd].v & 0x80000000) {
+          if (state->regData[rd].v & 0x80000000) {
             state->regData[rd].v >>= state->regData[rs].v;
             state->regData[rd].v |= 0xFFFFFFFF << (32 - state->regData[rs].v);
           }
@@ -782,7 +738,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
       }
 
       /* Propagate data origins */
-      switch(op) {
+      switch (op) {
         case 0: /* AND */
         case 1: /* EOR */
         case 2: /* LSL */
@@ -792,13 +748,12 @@ UnwResult UnwStartThumb(UnwState * const state) {
         case 12: /* ORR */
         case 13: /* MUL */
         case 14: /* BIC */
-          if(M_IsOriginValid(state->regData[rd].o) && M_IsOriginValid(state->regData[rs].o)) {
+          if (M_IsOriginValid(state->regData[rd].o) && M_IsOriginValid(state->regData[rs].o)) {
             state->regData[rd].o = state->regData[rs].o;
             state->regData[rd].o |= REG_VAL_ARITHMETIC;
           }
-          else {
+          else
             state->regData[rd].o = REG_VAL_INVALID;
-          }
           break;
 
         case 5: /* ADC */
@@ -825,7 +780,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  CMP Hd, Rs
      *  MOV Hd, Hs
      */
-    else if((instr & 0xFC00) == 0x4400) {
+    else if ((instr & 0xFC00) == 0x4400) {
       uint8_t op  = (instr & 0x0300) >> 8;
       bool    h1  = (instr & 0x0080) ? true: false;
       bool    h2  = (instr & 0x0040) ? true: false;
@@ -833,12 +788,10 @@ UnwResult UnwStartThumb(UnwState * const state) {
       uint8_t rhd = (instr & 0x0007);
 
       /* Adjust the register numbers */
-      if(h2)
-        rhs += 8;
-      if(h1)
-        rhd += 8;
+      if (h2) rhs += 8;
+      if (h1) rhd += 8;
 
-      switch(op) {
+      switch (op) {
         case 0: /* ADD */
           UnwPrintd5("ADD r%d, r%d\t; r%d %s", rhd, rhs, rhs, M_Origin2Str(state->regData[rhs].o));
           state->regData[rhd].v += state->regData[rhs].v;
@@ -861,28 +814,25 @@ UnwResult UnwStartThumb(UnwState * const state) {
           UnwPrintd4("BX r%d\t; r%d %s\n", rhs, rhs, M_Origin2Str(state->regData[rhs].o));
 
           /* Only follow BX if the data was from the stack or BX LR */
-          if(rhs == 14 || state->regData[rhs].o == REG_VAL_FROM_STACK) {
+          if (rhs == 14 || state->regData[rhs].o == REG_VAL_FROM_STACK) {
             UnwPrintd2(" Return PC=0x%x\n", state->regData[rhs].v & (~0x1));
 
             /* Report the return address, including mode bit */
-            if(!UnwReportRetAddr(state, state->regData[rhs].v)) {
+            if (!UnwReportRetAddr(state, state->regData[rhs].v))
               return UNWIND_TRUNCATED;
-            }
 
             /* Update the PC */
             state->regData[15].v = state->regData[rhs].v;
 
             /* Determine the new mode */
-            if(state->regData[rhs].v & 0x1) {
+            if (state->regData[rhs].v & 0x1) {
               /* Branching to THUMB */
 
               /* Account for the auto-increment which isn't needed */
               state->regData[15].v -= 2;
             }
-            else {
-              /* Branch to ARM */
+            else /* Branch to ARM */
               return UnwStartArm(state);
-            }
           }
           else {
             UnwPrintd4("\nError: BX to invalid register: r%d = 0x%x (%s)\n", rhs, state->regData[rhs].o, M_Origin2Str(state->regData[rhs].o));
@@ -893,7 +843,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
     /* Format 9: PC-relative load
      *  LDR Rd,[PC, #imm]
      */
-    else if((instr & 0xF800) == 0x4800) {
+    else if ((instr & 0xF800) == 0x4800) {
       uint8_t  rd    = (instr & 0x0700) >> 8;
       uint8_t  word8 = (instr & 0x00FF);
       uint32_t address;
@@ -903,19 +853,18 @@ UnwResult UnwStartThumb(UnwState * const state) {
 
       UnwPrintd3("LDR r%d, 0x%08x", rd, address);
 
-      if(!UnwMemReadRegister(state, address, &state->regData[rd])) {
+      if (!UnwMemReadRegister(state, address, &state->regData[rd]))
         return UNWIND_DREAD_W_FAIL;
-      }
     }
     /* Format 13: add offset to Stack Pointer
      *  ADD sp,#+imm
      *  ADD sp,#-imm
      */
-    else if((instr & 0xFF00) == 0xB000) {
+    else if ((instr & 0xFF00) == 0xB000) {
       uint8_t value = (instr & 0x7F) * 4;
 
       /* Check the negative bit */
-      if((instr & 0x80) != 0) {
+      if ((instr & 0x80) != 0) {
         UnwPrintd2("SUB sp,#0x%x", value);
         state->regData[13].v -= value;
       }
@@ -930,29 +879,27 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  POP {Rlist}
      *  POP {Rlist, PC}
      */
-    else if((instr & 0xF600) == 0xB400) {
-      bool    L     = (instr & 0x0800) ? true : false;
-      bool    R     = (instr & 0x0100) ? true : false;
+    else if ((instr & 0xF600) == 0xB400) {
+      bool    L     = !!(instr & 0x0800);
+      bool    R     = !!(instr & 0x0100);
       uint8_t rList = (instr & 0x00FF);
 
-      if(L) {
+      if (L) {
         uint8_t r;
 
         /* Load from memory: POP */
         UnwPrintd2("POP {Rlist%s}\n", R ? ", PC" : "");
 
-        for(r = 0; r < 8; r++) {
-          if(rList & (0x1 << r)) {
+        for (r = 0; r < 8; r++) {
+          if (rList & (0x1 << r)) {
 
             /* Read the word */
-            if(!UnwMemReadRegister(state, state->regData[13].v, &state->regData[r])) {
+            if (!UnwMemReadRegister(state, state->regData[13].v, &state->regData[r]))
               return UNWIND_DREAD_W_FAIL;
-            }
 
             /* Alter the origin to be from the stack if it was valid */
-            if(M_IsOriginValid(state->regData[r].o)) {
+            if (M_IsOriginValid(state->regData[r].o))
               state->regData[r].o = REG_VAL_FROM_STACK;
-            }
 
             state->regData[13].v += 4;
 
@@ -961,14 +908,13 @@ UnwResult UnwStartThumb(UnwState * const state) {
         }
 
         /* Check if the PC is to be popped */
-        if(R) {
+        if (R) {
           /* Get the return address */
-          if(!UnwMemReadRegister(state, state->regData[13].v, &state->regData[15])) {
+          if (!UnwMemReadRegister(state, state->regData[13].v, &state->regData[15]))
             return UNWIND_DREAD_W_FAIL;
-          }
 
           /* Alter the origin to be from the stack if it was valid */
-          if(!M_IsOriginValid(state->regData[15].o)) {
+          if (!M_IsOriginValid(state->regData[15].o)) {
             /* Return address is not valid */
             UnwPrintd1("PC popped with invalid address\n");
             return UNWIND_FAILURE;
@@ -978,7 +924,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
              *  the caller was from Thumb.  This would allow return
              *  by BX for interworking APCS.
              */
-            if((state->regData[15].v & 0x1) == 0) {
+            if ((state->regData[15].v & 0x1) == 0) {
               UnwPrintd2("Warning: Return address not to Thumb: 0x%08x\n", state->regData[15].v);
 
               /* Pop into the PC will not switch mode */
@@ -986,9 +932,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
             }
 
             /* Store the return address */
-            if(!UnwReportRetAddr(state, state->regData[15].v)) {
+            if (!UnwReportRetAddr(state, state->regData[15].v))
               return UNWIND_TRUNCATED;
-            }
 
             /* Now have the return address */
             UnwPrintd2(" Return PC=%x\n", state->regData[15].v);
@@ -1008,26 +953,24 @@ UnwResult UnwStartThumb(UnwState * const state) {
         UnwPrintd2("PUSH {Rlist%s}", R ? ", LR" : "");
 
         /* Check if the LR is to be pushed */
-        if(R) {
+        if (R) {
           UnwPrintd3("\n  lr = 0x%08x\t; %s", state->regData[14].v, M_Origin2Str(state->regData[14].o));
 
           state->regData[13].v -= 4;
 
           /* Write the register value to memory */
-          if(!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[14])) {
+          if (!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[14]))
             return UNWIND_DWRITE_W_FAIL;
-          }
         }
 
-        for(r = 7; r >= 0; r--) {
-          if(rList & (0x1 << r)) {
+        for (r = 7; r >= 0; r--) {
+          if (rList & (0x1 << r)) {
             UnwPrintd4("\n  r%d = 0x%08x\t; %s", r, state->regData[r].v, M_Origin2Str(state->regData[r].o));
 
             state->regData[13].v -= 4;
 
-            if(!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[r])) {
+            if (!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[r]))
               return UNWIND_DWRITE_W_FAIL;
-            }
           }
         }
       }
@@ -1037,7 +980,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
      * Conditional branches
      * Bcond
      */
-    else if((instr & 0xF000) == 0xD000) {
+    else if ((instr & 0xF000) == 0xD000) {
       int32_t branchValue = (instr & 0xFF);
       if (branchValue & 0x80) branchValue |= 0xFFFFFF00;
 
@@ -1066,7 +1009,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
     /* Format 18: unconditional branch
      *  B label
      */
-    else if((instr & 0xF800) == 0xE000) {
+    else if ((instr & 0xF800) == 0xE000) {
       uint32_t v;
       int32_t branchValue = signExtend11(instr & 0x07FF);
 
@@ -1106,8 +1049,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
     UnwPrintd1("\n");
 
     /* Should never hit the reset vector */
-    if(state->regData[15].v == 0)
-      return UNWIND_RESET;
+    if (state->regData[15].v == 0) return UNWIND_RESET;
 
     /* Check next address */
     state->regData[15].v += 2;
@@ -1115,11 +1057,9 @@ UnwResult UnwStartThumb(UnwState * const state) {
     /* Garbage collect the memory hash (used only for the stack) */
     UnwMemHashGC(state);
 
-    t--;
-    if(t == 0)
-      return UNWIND_EXHAUSTED;
+    if (--t == 0) return UNWIND_EXHAUSTED;
 
-  } while(!found);
+  } while (!found);
 
   return UNWIND_SUCCESS;
 }

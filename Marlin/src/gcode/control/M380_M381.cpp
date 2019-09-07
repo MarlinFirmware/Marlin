@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EXT_SOLENOID) || ENABLED(MANUAL_SOLENOID_CONTROL)
+#if EITHER(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL)
 
 #include "../gcode.h"
 #include "../../feature/solenoid.h"
@@ -35,15 +35,22 @@
  */
 void GcodeSuite::M380() {
   #if ENABLED(MANUAL_SOLENOID_CONTROL)
-    enable_solenoid(parser.seenval('S') ? parser.value_int() : active_extruder);
+    enable_solenoid(parser.intval('S', active_extruder));
   #else
     enable_solenoid_on_active_extruder();
   #endif
 }
 
 /**
- * M381: Disable all solenoids
+ * M381: Disable all solenoids if EXT_SOLENOID
+ *       Disable selected/active solenoid if MANUAL_SOLENOID_CONTROL
  */
-void GcodeSuite::M381() { disable_all_solenoids(); }
+void GcodeSuite::M381() {
+  #if ENABLED(MANUAL_SOLENOID_CONTROL)
+    disable_solenoid(parser.intval('S', active_extruder));
+  #else
+    disable_all_solenoids();
+  #endif
+}
 
 #endif // EXT_SOLENOID || MANUAL_SOLENOID_CONTROL

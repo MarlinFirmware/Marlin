@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,17 +59,9 @@
 
 #if HAS_GRAPHICAL_LCD
 
-//#include <inttypes.h>
 #include <U8glib.h>
+#include "../../shared/HAL_SPI.h"
 #include "../../shared/Delay.h"
-
-#define SPI_FULL_SPEED 0
-#define SPI_HALF_SPEED 1
-#define SPI_QUARTER_SPEED 2
-#define SPI_EIGHTH_SPEED 3
-#define SPI_SIXTEENTH_SPEED 4
-#define SPI_SPEED_5 5
-#define SPI_SPEED_6 6
 
 void spiBegin();
 void spiInit(uint8_t spiRate);
@@ -91,7 +83,7 @@ static void u8g_com_LPC1768_st7920_write_byte_hw_spi(uint8_t rs, uint8_t val) {
 }
 
 uint8_t u8g_com_HAL_LPC1768_ST7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
-  switch(msg) {
+  switch (msg) {
     case U8G_COM_MSG_INIT:
       u8g_SetPILevel(u8g, U8G_PI_CS, 0);
       u8g_SetPIOutput(u8g, U8G_PI_CS);

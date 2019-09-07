@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "bedlevel.h"
 #include "../../module/planner.h"
 
-#if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
+#if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
   #include "../../module/motion.h"
 #endif
 
@@ -39,8 +39,11 @@
   #include "../../lcd/ultralcd.h"
 #endif
 
-#if ENABLED(G26_MESH_VALIDATION)
-  bool g26_debug_flag; // = false
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../core/debug_out.h"
+
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extensible_ui/ui_api.h"
 #endif
 
 bool leveling_is_valid() {
@@ -97,6 +100,10 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
   }
 }
 
+TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(planner.leveling_active) {
+  set_bed_leveling_enabled(enable);
+}
+
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
   void set_z_fade_height(const float zfh, const bool do_report/*=true*/) {
@@ -122,9 +129,7 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
  * Reset calibration results to zero.
  */
 void reset_bed_level() {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("reset_bed_level");
   set_bed_leveling_enabled(false);
   #if ENABLED(MESH_BED_LEVELING)
     mbl.reset();
@@ -134,14 +139,18 @@ void reset_bed_level() {
     bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
     bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
         z_values[x][y] = NAN;
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(x, y, 0);
+        #endif
+      }
   #elif ABL_PLANAR
     planner.bed_level_matrix.set_to_identity();
   #endif
 }
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
+#if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
 
   /**
    * Enable to produce output in JSON format suitable
@@ -210,16 +219,16 @@ void reset_bed_level() {
 
 #endif // AUTO_BED_LEVELING_BILINEAR || MESH_BED_LEVELING
 
-#if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
+#if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
 
   void _manual_goto_xy(const float &rx, const float &ry) {
 
     #ifdef MANUAL_PROBE_START_Z
       #if MANUAL_PROBE_HEIGHT > 0
         do_blocking_move_to(rx, ry, MANUAL_PROBE_HEIGHT);
-        do_blocking_move_to_z(MAX(0,MANUAL_PROBE_START_Z));
+        do_blocking_move_to_z(_MAX(0,MANUAL_PROBE_START_Z));
       #else
-        do_blocking_move_to(rx, ry, MAX(0,MANUAL_PROBE_START_Z));
+        do_blocking_move_to(rx, ry, _MAX(0,MANUAL_PROBE_START_Z));
       #endif
     #elif MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position[Z_AXIS];

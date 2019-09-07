@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,28 +29,17 @@
 #include <stdint.h>
 
 enum EndstopEnum : char {
-  X_MIN,
-  Y_MIN,
-  Z_MIN,
-  Z_MIN_PROBE,
-  X_MAX,
-  Y_MAX,
-  Z_MAX,
-  X2_MIN,
-  X2_MAX,
-  Y2_MIN,
-  Y2_MAX,
-  Z2_MIN,
-  Z2_MAX,
-  Z3_MIN,
-  Z3_MAX
+  X_MIN,  Y_MIN,  Z_MIN,  Z_MIN_PROBE,
+  X_MAX,  Y_MAX,  Z_MAX,
+  X2_MIN, X2_MAX,
+  Y2_MIN, Y2_MAX,
+  Z2_MIN, Z2_MAX,
+  Z3_MIN, Z3_MAX
 };
 
 class Endstops {
-
   public:
-
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+    #if HAS_EXTRA_ENDSTOPS
       typedef uint16_t esbits_t;
       #if ENABLED(X_DUAL_ENDSTOPS)
         static float x2_endstop_adj;
@@ -96,6 +85,8 @@ class Endstops {
         #endif
       );
     }
+
+    static inline bool global_enabled() { return enabled_globally; }
 
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
@@ -170,6 +161,32 @@ class Endstops {
       static void monitor();
       static void run_monitor();
     #endif
+
+    #if ENABLED(SPI_ENDSTOPS)
+      typedef struct {
+        union {
+          bool any;
+          struct { bool x:1, y:1, z:1; };
+        };
+      } tmc_spi_homing_t;
+      static tmc_spi_homing_t tmc_spi_homing;
+      static void clear_endstop_state();
+      static bool tmc_spi_homing_check();
+    #endif
 };
 
 extern Endstops endstops;
+
+/**
+ * A class to save and change the endstop state,
+ * then restore it when it goes out of scope.
+ */
+class TemporaryGlobalEndstopsState {
+  bool saved;
+
+  public:
+    TemporaryGlobalEndstopsState(const bool enable) : saved(endstops.global_enabled()) {
+      endstops.enable_globally(enable);
+    }
+    ~TemporaryGlobalEndstopsState() { endstops.enable_globally(saved); }
+};

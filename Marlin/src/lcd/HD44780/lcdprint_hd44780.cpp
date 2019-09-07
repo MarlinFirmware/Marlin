@@ -877,7 +877,7 @@ static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data
   return hd44780_charmap_compare(&localval, (hd44780_charmap_t *)data_pin);
 }
 
-void lcd_moveto(const uint8_t col, const uint8_t row) { lcd.setCursor(col, row); }
+void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) { lcd.setCursor(col, row); }
 
 void lcd_put_int(const int i) { lcd.print(i); }
 
@@ -889,7 +889,7 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   int ret;
   size_t idx = 0;
   hd44780_charmap_t pinval;
-  hd44780_charmap_t *copy_address = NULL;
+  hd44780_charmap_t *copy_address = nullptr;
   pinval.uchar = c;
   pinval.idx = -1;
 
@@ -900,7 +900,7 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
     lcd.write((uint8_t)c);
     return 1;
   }
-  copy_address = NULL;
+  copy_address = nullptr;
   ret = pf_bsearch_r((void *)g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
   if (ret >= 0) {
     copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_device + idx);
