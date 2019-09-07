@@ -72,8 +72,8 @@
 
 // Author info of this build printed to the host during boot and M115
 #define STRING_CONFIG_H_AUTHOR "(G3m1n1S3rv3r, Anycubic 4MAX)" // Who made the changes.
-#define STRING_SPLASH_LINE1 "4MAX Marlin 2.0.x"                // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 "https://git.io/fjXzr"
+//#define STRING_SPLASH_LINE1 "4MAX Marlin 2.0.x"                // will be shown during bootup in line 1
+//#define STRING_SPLASH_LINE2 "https://git.io/fjXzr"
 
 /**
  * *** VENDORS PLEASE READ ***
