@@ -294,6 +294,9 @@ bool PrintCounter::stop() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     debug(PSTR("stop"));
   #endif
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onPrintTimerStopped();
+  #endif
 
   if (super::stop()) {
     data.finishedPrints++;
