@@ -34,13 +34,13 @@ class Joystick {
   friend class Temperature;
   private:
     #if HAS_JOY_ADC_X
-      temp_info_t x;
+      static temp_info_t x;
     #endif
     #if HAS_JOY_ADC_Y
-      temp_info_t y;
+      static temp_info_t y;
     #endif
     #if HAS_JOY_ADC_Z
-      temp_info_t z;
+      static temp_info_t z;
     #endif
   public:
     #if ENABLED(JOYSTICK_DEBUG)

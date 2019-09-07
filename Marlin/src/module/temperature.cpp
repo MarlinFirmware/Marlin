@@ -64,6 +64,10 @@
   #include "../feature/leds/printer_event_leds.h"
 #endif
 
+#if ENABLED(JOYSTICK)
+  #include "../feature/joystick.h"
+#endif
+
 #if ENABLED(SINGLENOZZLE)
   #include "tool_change.h"
 #endif
