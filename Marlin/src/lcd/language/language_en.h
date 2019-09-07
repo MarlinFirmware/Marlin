@@ -70,6 +70,18 @@
 #ifndef MSG_MEDIA_RELEASED
   #define MSG_MEDIA_RELEASED                  _UxGT("Media Released")
 #endif
+#ifndef MSG_MEDIA_WAITING
+  #define MSG_MEDIA_WAITING                   _UxGT("Waiting for media")
+#endif
+#ifndef MSG_MEDIA_READ_ERROR
+  #define MSG_MEDIA_READ_ERROR                _UxGT("Media read error")
+#endif
+#ifndef MSG_MEDIA_USB_REMOVED
+  #define MSG_MEDIA_USB_REMOVED               _UxGT("USB device removed")
+#endif
+#ifndef MSG_MEDIA_USB_FAILED
+  #define MSG_MEDIA_USB_FAILED                _UxGT("USB start failed")
+#endif
 #ifndef MSG_LCD_ENDSTOPS
   #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #endif
@@ -381,6 +393,21 @@
 #endif
 #ifndef MSG_UBL_VALIDATE_CUSTOM_MESH
   #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Validate Custom Mesh")
+#endif
+#ifndef MSG_G26_HEATING_BED
+  #define MSG_G26_HEATING_BED                 _UxGT("G26 Heating Bed")
+#endif
+#ifndef MSG_G26_HEATING_NOZZLE
+  #define MSG_G26_HEATING_NOZZLE              _UxGT("G26 Heating Nozzle")
+#endif
+#ifndef MSG_G26_LEAVING
+  #define MSG_G26_LEAVING                     _UxGT("Leaving G26")
+#endif
+#ifndef MSG_G26_FIXED_LENGTH
+  #define MSG_G26_FIXED_LENGTH                _UxGT("Fixed Length Prime")
+#endif
+#ifndef MSG_G26_DONE
+  #define MSG_G26_DONE                        _UxGT("Done Priming")
 #endif
 #ifndef MSG_UBL_CONTINUE_MESH
   #define MSG_UBL_CONTINUE_MESH               _UxGT("Continue Bed Mesh")
@@ -1216,6 +1243,9 @@
 #endif
 #ifndef MSG_DAC_PERCENT
   #define MSG_DAC_PERCENT                     _UxGT("Driver %")
+#endif
+#ifndef MSG_ERROR_TMC
+  #define MSG_ERROR_TMC                       _UxGT("TMC CONNECTION ERROR")
 #endif
 #ifndef MSG_DAC_EEPROM_WRITE
   #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Write")

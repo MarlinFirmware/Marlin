@@ -1117,8 +1117,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
       axis_connection += test_connection(stepperE5);
     #endif
   }
-
-  if (axis_connection) ui.set_status_P(PSTR("TMC CONNECTION ERROR"));
+  if (axis_connection) ui.set_status_P(PSTR(MSG_ERROR_TMC));
 }
 
 #endif // HAS_TRINAMIC
