@@ -28,10 +28,10 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_STM32_F4_F7.h"
-#include "watchdog_STM32_F4_F7.h"
+#include "fastio.h"
+#include "watchdog.h"
 
-#include "HAL_timers_STM32_F4_F7.h"
+#include "timers.h"
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -160,9 +160,6 @@ uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(const int delay);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-
 /*
 extern "C" {
   int freeMemory(void);
@@ -172,30 +169,22 @@ extern "C" {
 extern "C" char* _sbrk(int incr);
 
 /*
-static int freeMemory() {
+int freeMemory() {
   volatile int top;
   top = (int)((char*)&top - reinterpret_cast<char*>(_sbrk(0)));
   return top;
 }
 */
 
-static int freeMemory() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
+static inline int freeMemory(void) {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
 #pragma GCC diagnostic pop
-
-//
-// SPI: Extended functions which take a channel number (hardware SPI only)
-//
-
-// Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
-// Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-// Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
 
 //
 // EEPROM

@@ -52,12 +52,9 @@ void GcodeSuite::G92() {
       case 1: {
         // Zero the G92 values and restore current position
         #if !IS_SCARA
-          LOOP_XYZ(i) {
-            const float v = position_shift[i];
-            if (v) {
-              position_shift[i] = 0;
-              update_workspace_offset((AxisEnum)i);
-            }
+          LOOP_XYZ(i) if (position_shift[i]) {
+            position_shift[i] = 0;
+            update_workspace_offset((AxisEnum)i);
           }
         #endif // Not SCARA
       } return;

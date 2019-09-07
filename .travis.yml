@@ -9,18 +9,46 @@ notifications:
   email: false
 
 env:
-  - TEST_PLATFORM="megaatmega2560"
+  # Base Environments
   - TEST_PLATFORM="DUE"
+  - TEST_PLATFORM="esp32"
+  - TEST_PLATFORM="linux_native"
   - TEST_PLATFORM="LPC1768"
   - TEST_PLATFORM="LPC1769"
-  - TEST_PLATFORM="STM32F1"
+  - TEST_PLATFORM="megaatmega2560"
+  - TEST_PLATFORM="SAMD51_grandcentral_m4"
+  - TEST_PLATFORM="STM32F103R"
   - TEST_PLATFORM="teensy31"
   - TEST_PLATFORM="teensy35"
-  - TEST_PLATFORM="linux_native"
-  - TEST_PLATFORM="esp32"
-  - TEST_PLATFORM="alfawise_U20"
-  - TEST_PLATFORM="black_stm32f407ve"
-  - TEST_PLATFORM="adafruit_grandcentral_m4"
+
+  # Extended AVR Environments
+  - TEST_PLATFORM="fysetc_f6_13"
+  - TEST_PLATFORM="megaatmega1280"
+  - TEST_PLATFORM="rambo"
+  - TEST_PLATFORM="sanguino_atmega1284p"
+  - TEST_PLATFORM="sanguino_atmega644p"
+
+  # Extended STM32 Environments
+  - TEST_PLATFORM="ARMED"
+  - TEST_PLATFORM="BIGTREE_BTT002"
+  - TEST_PLATFORM="BIGTREE_SKR_PRO"
+  - TEST_PLATFORM="STM32F103R_bigtree"
+  - TEST_PLATFORM="jgaurora_a5s_a1"
+  - TEST_PLATFORM="STM32F103V_longer"
+  - TEST_PLATFORM="STM32F407VE_black"
+
+  # Non-working environment tests
+  #- TEST_PLATFORM="at90usb1286_cdc"
+  #- TEST_PLATFORM="at90usb1286_dfu"
+  #- TEST_PLATFORM="malyanm200"
+  #- TEST_PLATFORM="mks_robin"
+  #- TEST_PLATFORM="mks_robin_lite"
+  #- TEST_PLATFORM="mks_robin_mini"
+  #- TEST_PLATFORM="mks_robin_nano"
+  #- TEST_PLATFORM="STM32F103R_bigtree"
+  #- TEST_PLATFORM="STM32F103R_fysetc"
+  #- TEST_PLATFORM="STM32F4"
+  #- TEST_PLATFORM="STM32F7"
 
 before_install:
   #

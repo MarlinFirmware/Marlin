@@ -27,7 +27,7 @@
 /********************************* SPI Functions *********************************/
 
 namespace FTDI {
-  #if !defined(CLCD_USE_SOFT_SPI)
+  #ifndef CLCD_USE_SOFT_SPI
     SPISettings SPI::spi_settings(SPI_FREQUENCY, MSBFIRST, SPI_MODE0);
   #endif
 
@@ -108,7 +108,7 @@ namespace FTDI {
 
   void SPI::spi_read_bulk (void *data, uint16_t len) {
     uint8_t* p = (uint8_t *)data;
-    #if !defined(CLCD_USE_SOFT_SPI)
+    #ifndef CLCD_USE_SOFT_SPI
       ::SPI.transfer(p, len);
     #else
       while (len--) *p++ = spi_recv();
@@ -123,7 +123,7 @@ namespace FTDI {
 
   // CLCD SPI - Chip Select
   void SPI::spi_ftdi_select (void) {
-    #if !defined(CLCD_USE_SOFT_SPI)
+    #ifndef CLCD_USE_SOFT_SPI
       ::SPI.beginTransaction(spi_settings);
     #endif
     WRITE(CLCD_SPI_CS, 0);
@@ -133,7 +133,7 @@ namespace FTDI {
   // CLCD SPI - Chip Deselect
   void SPI::spi_ftdi_deselect (void) {
     WRITE(CLCD_SPI_CS, 1);
-    #if !defined(CLCD_USE_SOFT_SPI)
+    #ifndef CLCD_USE_SOFT_SPI
       ::SPI.endTransaction();
     #endif
   }
@@ -141,7 +141,7 @@ namespace FTDI {
   #ifdef SPI_FLASH_SS
   // Serial SPI Flash SPI - Chip Select
   void SPI::spi_flash_select () {
-    #if !defined(CLCD_USE_SOFT_SPI)
+    #ifndef CLCD_USE_SOFT_SPI
     ::SPI.beginTransaction(spi_settings);
     #endif
     WRITE(SPI_FLASH_SS, 0);
@@ -151,7 +151,7 @@ namespace FTDI {
   // Serial SPI Flash SPI - Chip Deselect
   void SPI::spi_flash_deselect () {
     WRITE(SPI_FLASH_SS, 1);
-    #if !defined(CLCD_USE_SOFT_SPI)
+    #ifndef CLCD_USE_SOFT_SPI
     ::SPI.endTransaction();
     #endif
   }

@@ -6,6 +6,9 @@
 # exit on first failure
 set -e
 
+#
+# Build with the default configurations
+#
 restore_configs
 opt_set MOTHERBOARD BOARD_LINUX_RAMPS
 opt_set TEMP_SENSOR_BED 1

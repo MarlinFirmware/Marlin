@@ -38,7 +38,7 @@ namespace FTDI {
   inline uint32_t ALPHA_FUNC(uint8_t func, uint8_t ref)        {return DL::ALPHA_FUNC|((func&7UL)<<8)|(ref&255UL);}
   inline uint32_t BEGIN(begin_t prim)                          {return DL::BEGIN|(prim&15UL);}
 
-  inline uint32_t BITMAP_SOURCE(uint32_t ram_g_addr)           {return DL::BITMAP_SOURCE|(ram_g_addr & (FTDI::ftdi_memory_map::RAM_G_SIZE-1));}
+  inline uint32_t BITMAP_SOURCE(uint32_t ram_g_addr)           {return DL::BITMAP_SOURCE|(ram_g_addr);}
   inline uint32_t BITMAP_HANDLE(uint8_t handle)                {return DL::BITMAP_HANDLE|(handle&31UL);}
   inline uint32_t BITMAP_LAYOUT(uint8_t format, uint16_t linestride, uint16_t height)
                                                                {return DL::BITMAP_LAYOUT|((format&31UL)<<19)|((linestride&1023UL)<<9)|(height&511UL);}

@@ -90,7 +90,7 @@ void eeprom_read_block(void *__dst, const void *__src, size_t __n) { }
 
 void eeprom_update_block(const void *__src, void *__dst, size_t __n) { }
 
-char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__s) {
+char *dtostrf(double __val, signed char __width, unsigned char __prec, char *__s) {
   char format_string[20];
   snprintf(format_string, 20, "%%%d.%df", __width, __prec);
   sprintf(__s, format_string, __val);

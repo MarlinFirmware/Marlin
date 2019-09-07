@@ -82,11 +82,11 @@
  * If a UART connection is used to configure the driver, please select that as well in Configuration_adv.h.
  */
 //#define X_2208
-//#define X_SpreadCycle
+//#define X_SPREADCYCLE
 //#define Y_2208
-//#define Y_SpreadCycle
+//#define Y_SPREADCYCLE
 //#define E_2208
-//#define E_SpreadCycle
+//#define E_SPREADCYCLE
 
 
 /**
@@ -111,13 +111,8 @@
 
 // @section info
 
-// User-specified version info of this build to display in [Pronterface, etc] terminal window during
-// startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
-// build by the user have been successfully uploaded into firmware.
+// Author info of this build printed to the host during boot and M115
 #define STRING_CONFIG_H_AUTHOR "Tinymachines3D" // Who made the changes.
-#define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -130,10 +125,13 @@
  * respectfully request that you retain the unmodified Marlin boot screen.
  */
 
-// Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
+// Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
+#define SHOW_BOOTSCREEN
+
+// Show the bitmap in Marlin/_Bootscreen.h on startup.
 #define SHOW_CUSTOM_BOOTSCREEN
 
-// Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
+// Show the bitmap in Marlin/_Statusscreen.h on the status screen.
 #define CUSTOM_STATUS_SCREEN_IMAGE
 
 // @section machine
@@ -790,25 +788,25 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #if ENABLED(X_2208)
-  #if ENABLED(X_SpreadCycle)
-    #define x_accel 1750
+  #if ENABLED(X_SPREADCYCLE)
+    #define X_ACCEL 1750
   #else
-    #define x_accel 1000
+    #define X_ACCEL 1000
   #endif
 #else
-    #define x_accel 1500
+    #define X_ACCEL 1500
 #endif
 
 #if ENABLED(Y_2208)
-  #if ENABLED(Y_SpreadCycle)
-    #define y_accel 500
+  #if ENABLED(Y_SPREADCYCLE)
+    #define Y_ACCEL 500
   #else
-    #define y_accel 300
+    #define Y_ACCEL 300
   #endif
 #else
-  #define y_accel 500
+  #define Y_ACCEL 500
 #endif
-#define DEFAULT_MAX_ACCELERATION      { x_accel, y_accel, 400, 4000 }
+#define DEFAULT_MAX_ACCELERATION      { X_ACCEL, Y_ACCEL, 400, 4000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -845,12 +843,12 @@
  * value set here, it may happen instantaneously.
  */
 #if DISABLED(JUNCTION_DEVIATION)
-  #if ENABLED(X_SpreadCycle) || DISABLED(X_2208)
+  #if ENABLED(X_SPREADCYCLE) || DISABLED(X_2208)
     #define DEFAULT_XJERK 20.0
   #else
     #define DEFAULT_XJERK 10.0
   #endif
-  #if ENABLED(Y_SpreadCycle) || DISABLED(Y_2208)
+  #if ENABLED(Y_SPREADCYCLE) || DISABLED(Y_2208)
     #define DEFAULT_YJERK 10.0
   #else
     #define DEFAULT_YJERK  5.0
@@ -2156,7 +2154,7 @@
 //=============================================================================
 
 //
-// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, A1, etc.)
+// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, REXYZ A1, etc.)
 //
 //#define FSMC_GRAPHICAL_TFT
 
@@ -2179,11 +2177,8 @@
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
 // http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
 //
-// REPRAPWORLD_KEYPAD_MOVE_STEP sets how much should the robot move when a key
-// is pressed, a value of 10.0 means 10mm per click.
-//
 //#define REPRAPWORLD_KEYPAD
-//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
+//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
 
 //=============================================================================
 //=============================== Extra Features ==============================

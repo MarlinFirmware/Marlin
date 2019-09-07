@@ -108,11 +108,11 @@ public:
 
   void flush() { receive_buffer.clear(); }
 
-  uint8_t availableForWrite(void){
+  uint8_t availableForWrite(void) {
     return transmit_buffer.free() > 255 ? 255 : (uint8_t)transmit_buffer.free();
   }
 
-  void flushTX(void){
+  void flushTX(void) {
     if (host_connected)
       while (transmit_buffer.available()) { /* nada */ }
   }

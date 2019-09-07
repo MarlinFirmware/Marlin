@@ -58,7 +58,7 @@ e-mail   :  support@circuitsathome.com
 #include "UHS_host_INLINE.h"
 #include "UHS_printf_HELPER.h"
 
-#if defined(LOAD_USB_HOST_SHIELD)
+#ifdef LOAD_USB_HOST_SHIELD
 #include "USB_HOST_SHIELD/USB_HOST_SHIELD.h"
 #endif
 
@@ -72,24 +72,24 @@ e-mail   :  support@circuitsathome.com
 
 // Load USB drivers and multiplexers
 
-#if defined(LOAD_UHS_HUB)
+#ifdef LOAD_UHS_HUB
 #include "UHS_HUB/UHS_HUB.h"
 #endif // HUB loaded
 
-#if defined(LOAD_UHS_BULK_STORAGE)
+#ifdef LOAD_UHS_BULK_STORAGE
 #include "UHS_BULK_STORAGE/UHS_BULK_STORAGE.h"
 #endif
 
-#if defined(LOAD_GENERIC_STORAGE)
+#ifdef LOAD_GENERIC_STORAGE
 #include "../UHS_FS/UHS_FS.h"
 #endif
 // Add BT and optionally HID if directed to do so
-#if defined(LOAD_UHS_BT)
+#ifdef LOAD_UHS_BT
 #include "UHS_BT/UHS_BT.h"
 #endif // BT and optionally HID loaded
 
 // Add HID
-#if defined(LOAD_UHS_HID)
+#ifdef LOAD_UHS_HID
 #include "UHS_HID/UHS_HID.h"
 #endif // HID loaded
 
@@ -98,11 +98,11 @@ e-mail   :  support@circuitsathome.com
 #include "UHS_CDC/UHS_CDC.h"
 #endif // CDC loaded
 
-#if defined(LOAD_UHS_ADK)
+#ifdef LOAD_UHS_ADK
 #include "UHS_ADK/UHS_ADK.h"
 #endif
 
-#if defined(LOAD_UHS_MIDI)
+#ifdef LOAD_UHS_MIDI
 #include "UHS_MIDI/UHS_MIDI.h"
 #endif
 

@@ -33,11 +33,11 @@ e-mail   :  support@circuitsathome.com
 #define                UHS_HOST_MAX_INTERFACE_DRIVERS 0x10U // Default maximum number of USB interface drivers
 #endif
 
-#if !defined(SYSTEM_OR_SPECIAL_YIELD)
+#ifndef SYSTEM_OR_SPECIAL_YIELD
 #define SYSTEM_OR_SPECIAL_YIELD(...) VOID0
 #endif
 
-#if !defined(SYSTEM_OR_SPECIAL_YIELD_FROM_ISR)
+#ifndef SYSTEM_OR_SPECIAL_YIELD_FROM_ISR
 #define SYSTEM_OR_SPECIAL_YIELD_FROM_ISR(...) SYSTEM_OR_SPECIAL_YIELD
 #endif
 

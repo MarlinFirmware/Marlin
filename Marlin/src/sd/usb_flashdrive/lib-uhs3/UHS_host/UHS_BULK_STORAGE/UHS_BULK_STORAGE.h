@@ -24,7 +24,7 @@ Web      :  http://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
-#if !defined(__UHS_BULK_STORAGE_H__)
+#ifndef __UHS_BULK_STORAGE_H__
 #define __UHS_BULK_STORAGE_H__
 
 

@@ -22,7 +22,7 @@
 #pragma once
 
 #ifndef TARGET_LPC1768
-  #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
+  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
 #define BOARD_INFO_NAME "BIGTREE SKR 1.3"

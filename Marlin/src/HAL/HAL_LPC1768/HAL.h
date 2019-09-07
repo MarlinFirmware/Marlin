@@ -41,7 +41,7 @@ extern "C" volatile uint32_t _millis;
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
-#include "HAL_timers.h"
+#include "timers.h"
 #include "MarlinSerial.h"
 
 #include <adc.h>
@@ -115,17 +115,6 @@ extern "C" volatile uint32_t _millis;
 #pragma GCC diagnostic ignored "-Wunused-function"
 int freeMemory(void);
 #pragma GCC diagnostic pop
-
-//
-// SPI: Extended functions taking a channel number (Hardware SPI only)
-//
-
-// Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
-// Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-// Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
 
 //
 // ADC API

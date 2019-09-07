@@ -70,7 +70,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .enabled(0)
       #endif
       .tag(4) .button( BTN_POS(1,2), BTN_SIZE(1,1), F("Nozzle Offset"))
-      #if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
+      #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
       .enabled(1)
       #else
       .enabled(0)
@@ -174,7 +174,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     #endif
     case 9:  GOTO_SCREEN(InterfaceSettingsScreen);  LockScreen::check_passcode(); break;
     case 10: GOTO_SCREEN(RestoreFailsafeDialogBox); LockScreen::check_passcode(); break;
-    #if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
     case 11: GOTO_SCREEN(FilamentMenu); break;
     #endif
     case 12: GOTO_SCREEN(EndstopStatesScreen); break;

@@ -212,7 +212,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     // Commands in the queue
     info.queue_length = save_queue ? queue.length : 0;
     info.queue_index_r = queue.index_r;
-    COPY(info.queue_buffer, queue.buffer);
+    COPY(info.queue_buffer, queue.command_buffer);
 
     // Elapsed print job time
     info.print_job_elapsed = print_job_timer.duration();

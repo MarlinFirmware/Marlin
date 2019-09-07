@@ -25,7 +25,7 @@
 #if ENABLED(USE_CONTROLLER_FAN)
 
 #include "controllerfan.h"
-#include "../module/stepper_indirection.h"
+#include "../module/stepper/indirection.h"
 #include "../module/temperature.h"
 
 ControllerFan fanController;

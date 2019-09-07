@@ -31,10 +31,10 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_Teensy.h"
-#include "watchdog_Teensy.h"
+#include "fastio.h"
+#include "watchdog.h"
 
-#include "HAL_timers_Teensy.h"
+#include "timers.h"
 
 #include <stdint.h>
 
@@ -103,17 +103,6 @@ extern "C" {
   int freeMemory(void);
 }
 #pragma GCC diagnostic pop
-
-// SPI: Extended functions which take a channel number (hardware SPI only)
-
-// Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
-
-// Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-
-// Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
 
 // ADC
 

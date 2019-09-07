@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && ENABLED(LIN_ADVANCE)
+#if BOTH(LULZBOT_TOUCH_UI, LIN_ADVANCE)
 
 #include "screens.h"
 

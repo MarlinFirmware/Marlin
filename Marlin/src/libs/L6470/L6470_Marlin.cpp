@@ -21,7 +21,7 @@
  */
 
 /**
- *  The monitor_driver routines are a close copy of the TMC code
+ * The monitor_driver routines are a close copy of the TMC code
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -32,9 +32,9 @@
 
 L6470_Marlin L6470;
 
-#include "../stepper_indirection.h"
+#include "../../module/stepper/indirection.h"
+#include "../../module/planner.h"
 #include "../../gcode/gcode.h"
-#include "../planner.h"
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
