@@ -153,7 +153,7 @@
 #define MSG_G26_HEATING_NOZZLE              _UxGT("G26 Heating Nozzle")
 #define MSG_G26_HEATING_BED                 _UxGT("G26 heizt Bett")
 #define MSG_G26_LEAVING                     _UxGT("G26 verlassen")
-#define MSG_G26_FIXED_LENGTH                _UxGT("Festelänge Prime")
+#define MSG_G26_FIXED_LENGTH                _UxGT("Feste Länge Prime")
 #define MSG_G26_DONE                        _UxGT("Priming fertig")
 #define MSG_UBL_CONTINUE_MESH               _UxGT("Netzerst. forts.")
 #define MSG_UBL_MESH_LEVELING               _UxGT("Netz-Nivellierung")
