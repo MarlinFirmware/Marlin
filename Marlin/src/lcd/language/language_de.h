@@ -37,6 +37,7 @@
 #define MSG_YES                             _UxGT("JA")
 #define MSG_NO                              _UxGT("NEIN")
 #define MSG_BACK                            _UxGT("Zurück")
+#define MSG_MEDIA_ABORTING                  _UxGT("Abbruch...")
 #define MSG_MEDIA_INSERTED                  _UxGT("Medium erkannt")
 #define MSG_MEDIA_REMOVED                   _UxGT("Medium entfernt")
 #define MSG_MEDIA_RELEASED                  _UxGT("Medium freigegeben")
@@ -98,6 +99,7 @@
 #define MSG_LEVEL_BED                       _UxGT("Bett nivellieren")
 #define MSG_LEVEL_CORNERS                   _UxGT("Ecken nivellieren")
 #define MSG_NEXT_CORNER                     _UxGT("Nächste Ecke")
+#define MSG_MESH_EDITOR                     _UxGT("Netz Editor")
 #define MSG_EDIT_MESH                       _UxGT("Netz bearbeiten")
 #define MSG_EDITING_STOPPED                 _UxGT("Netzbearb. angeh.")
 #define MSG_PROBING_MESH                    _UxGT("Messpunkt")
@@ -182,6 +184,7 @@
 #define MSG_UBL_NO_STORAGE                  _UxGT("Kein Speicher")
 #define MSG_UBL_SAVE_ERROR                  _UxGT("Err:UBL speichern")
 #define MSG_UBL_RESTORE_ERROR               _UxGT("Err:UBL wiederherst.")
+#define MSG_UBL_Z_OFFSET                    _UxGT("Z-Versatz: ")
 #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Z-Versatz angehalten")
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Schrittweises UBL")
 

@@ -61,6 +61,9 @@
 #ifndef MSG_BACK
   #define MSG_BACK                            _UxGT("Back")
 #endif
+#ifndef MSG_MEDIA_ABORTING
+  #define MSG_MEDIA_ABORTING                  _UxGT("Aborting...")
+#endif
 #ifndef MSG_MEDIA_INSERTED
   #define MSG_MEDIA_INSERTED                  _UxGT("Media Inserted")
 #endif
@@ -243,6 +246,9 @@
 #endif
 #ifndef MSG_NEXT_CORNER
   #define MSG_NEXT_CORNER                     _UxGT("Next Corner")
+#endif
+#ifndef MSG_MESH_EDITOR
+  #define MSG_MESH_EDITOR                     _UxGT("Mesh Editor")
 #endif
 #ifndef MSG_EDIT_MESH
   #define MSG_EDIT_MESH                       _UxGT("Edit Mesh")
@@ -498,6 +504,9 @@
 #endif
 #ifndef MSG_UBL_RESTORE_ERROR
   #define MSG_UBL_RESTORE_ERROR               _UxGT("Err: UBL Restore")
+#endif
+#ifndef MSG_UBL_Z_OFFSET
+  #define MSG_UBL_Z_OFFSET                    _UxGT("Z-Offset: ")
 #endif
 #ifndef MSG_UBL_Z_OFFSET_STOPPED
   #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Z-Offset Stopped")
