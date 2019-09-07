@@ -30,7 +30,6 @@ class libServo : public Servo {
     int8_t attach(const int pin, const int min, const int max);
     void move(const int value);
   private:
-     uint16_t min_ticks;
-     uint16_t max_ticks;
-     uint8_t servoIndex;               // index into the channel data for this servo
+    //uint16_t min_ticks, max_ticks;
+    uint8_t servoIndex;   // index into the channel data for this servo
 };

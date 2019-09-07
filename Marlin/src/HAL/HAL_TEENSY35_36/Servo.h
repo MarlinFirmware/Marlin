@@ -23,6 +23,8 @@
 
 #include <Servo.h>
 
+#define SIMPLE_REATTACH
+
 // Inherit and expand on core Servo library
 class libServo : public Servo {
   typedef Servo super;
@@ -30,9 +32,16 @@ class libServo : public Servo {
     int8_t attach(const int pin);
     int8_t attach(const int pin, const int min, const int max);
     void move(const int value);
-    int8_t reattach();  // Re-attach to the given pin without resetting min/max (assumes nothing else needs the pin)
+    // Re-attach to the given pin without resetting min/max (assumes nothing else needs the pin)
+    #ifdef SIMPLE_REATTACH
+      int8_t reattach() { return attach(0); }
+    #else
+      int8_t reattach();
+    #endif
   private:
-    int inputmin, inputmax;
-    uint16_t min_ticks, max_ticks;
+    #ifndef SIMPLE_REATTACH
+      int inputmin, inputmax;
+    #endif
+    //uint16_t min_ticks, max_ticks;
     uint8_t servoIndex; // Index into the channel data for this servo
 };

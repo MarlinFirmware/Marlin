@@ -33,6 +33,6 @@ class libServo : public Servo {
     inline int8_t reattach() { attach(0); }  // re-attach to the given pin without resetting min/max (assumes nothing else needs the pin)
     void move(const int value);
   private:
-    uint16_t min_ticks, max_ticks;
+    //uint16_t min_ticks, max_ticks;
     uint8_t servoIndex;               // index into the channel data for this servo
 };

@@ -25,7 +25,7 @@
  * Teensy3.6 __MK66FX1M0__
  */
 
-#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__) // Teensy 3.5/3.6
 
 #include "HAL.h"
 #include "timers.h"
