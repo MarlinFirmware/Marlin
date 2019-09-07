@@ -394,6 +394,9 @@
 #ifndef MSG_UBL_VALIDATE_CUSTOM_MESH
   #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Validate Custom Mesh")
 #endif
+#ifndef MSG_G26_USER_CONTROLLED
+  #define MSG_G26_USER_CONTROLLED             _UxGT("User-Controlled Prime")
+#endif
 #ifndef MSG_G26_HEATING_BED
   #define MSG_G26_HEATING_BED                 _UxGT("G26 Heating Bed")
 #endif
