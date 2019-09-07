@@ -63,13 +63,18 @@
 #define EXTRAS_BASELINE (40 + INFO_FONT_ASCENT)
 #define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
 
-#define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 3 && DISABLED(STATUS_COMBINE_HEATERS))
-#define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && STATUS_FAN_FRAMES)
+#define DO_DRAW_LOGO (STATUS_LOGO_WIDTH && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
+#define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 4)
+#define DO_DRAW_CHAMBER (HAS_HEATED_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4)
+#define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && HOTENDS <= 4 && defined(STATUS_FAN_FRAMES))
+
 #define ANIM_HOTEND (HOTENDS && ENABLED(STATUS_HOTEND_ANIM))
 #define ANIM_BED (DO_DRAW_BED && ENABLED(STATUS_BED_ANIM))
-#define ANIM_CHAMBER (HAS_HEATED_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM))
+#define ANIM_CHAMBER (DO_DRAW_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM))
 
-#if ANIM_HOTEND || ANIM_BED
+#define ANIM_HBC (ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER)
+
+#if ANIM_HBC
   uint8_t heat_bits;
 #endif
 #if ANIM_HOTEND
@@ -109,7 +114,7 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
     UNUSED(blink);
   #endif
 
-  #if HAS_HEATED_BED
+  #if DO_DRAW_BED && DISABLED(STATUS_COMBINE_HEATERS) || (HAS_HEATED_BED && ENABLED(STATUS_COMBINE_HEATERS) && HOTENDS <= 4)
     const bool isBed = heater < 0;
     #define IFBED(A,B) (isBed ? (A) : (B))
   #else
@@ -125,11 +130,11 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
   const uint8_t tx = IFBED(STATUS_BED_TEXT_X, STATUS_HOTEND_TEXT_X(heater));
 
   #if ENABLED(MARLIN_DEV_MODE)
-    const float temp = 20 + (millis() >> 8) % IFBED(100, 200);
-    const float target = IFBED(100, 200);
+    const float temp = 20 + (millis() >> 8) % IFBED(100, 200),
+              target = IFBED(100, 200);
   #else
     const float temp = IFBED(thermalManager.degBed(), thermalManager.degHotend(heater)),
-                target = IFBED(thermalManager.degTargetBed(), thermalManager.degTargetHotend(heater));
+              target = IFBED(thermalManager.degTargetBed(), thermalManager.degTargetHotend(heater));
   #endif
 
   #if DISABLED(STATUS_HOTEND_ANIM)
@@ -140,7 +145,7 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
     #define HOTEND_DOT    false
   #endif
 
-  #if HAS_HEATED_BED && DISABLED(STATUS_BED_ANIM)
+  #if DO_DRAW_BED && DISABLED(STATUS_BED_ANIM)
     #define STATIC_BED    true
     #define BED_DOT       isHeat
   #else
@@ -148,7 +153,13 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
     #define BED_DOT       false
   #endif
 
-  #if ANIM_HOTEND && ENABLED(STATUS_HOTEND_INVERTED)
+  #if ANIM_HOTEND && BOTH(STATUS_HOTEND_INVERTED, STATUS_HOTEND_NUMBERLESS)
+    #define OFF_BMP(N) status_hotend_b_bmp
+    #define ON_BMP(N)  status_hotend_a_bmp
+  #elif ANIM_HOTEND && DISABLED(STATUS_HOTEND_INVERTED) && ENABLED(STATUS_HOTEND_NUMBERLESS)
+    #define OFF_BMP(N) status_hotend_a_bmp
+    #define ON_BMP(N)  status_hotend_b_bmp
+  #elif ANIM_HOTEND && ENABLED(STATUS_HOTEND_INVERTED)
     #define OFF_BMP(N) status_hotend##N##_b_bmp
     #define ON_BMP(N)  status_hotend##N##_a_bmp
   #else
@@ -179,10 +190,11 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
     uint8_t tall = uint8_t(perc * BAR_TALL + 0.5f);
     NOMORE(tall, BAR_TALL);
 
-    #ifdef STATUS_HOTEND_ANIM
+    #if ANIM_HOTEND
       // Draw hotend bitmap, either whole or split by the heating percent
       if (IFBED(0, 1)) {
-        const uint8_t hx = STATUS_HOTEND_X(heater), bw = STATUS_HOTEND_BYTEWIDTH(heater);
+        const uint8_t hx = STATUS_HOTEND_X(heater),
+                      bw = STATUS_HOTEND_BYTEWIDTH(heater);
         #if ENABLED(STATUS_HEAT_PERCENT)
           if (isHeat && tall <= BAR_TALL) {
             const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
@@ -196,10 +208,10 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
     #endif
 
     // Draw a heating progress bar, if specified
-    #if ENABLED(STATUS_HEAT_PERCENT)
+    #if DO_DRAW_BED && ENABLED(STATUS_HEAT_PERCENT)
 
       if (IFBED(true, STATIC_HOTEND) && isHeat) {
-        const uint8_t bx = IFBED(STATUS_BED_X + STATUS_BED_WIDTH, STATUS_HOTEND_X(heater) + STATUS_HOTEND_WIDTH(heater)) + 1;
+        const uint8_t bx = IFBED(STATUS_BED_X + STATUS_BED_WIDTH - 1, STATUS_HOTEND_X(heater) + STATUS_HOTEND_WIDTH(heater)) + 1;
         u8g.drawFrame(bx, STATUS_HEATERS_Y, 3, STATUS_HEATERS_HEIGHT);
         if (tall) {
           const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
@@ -233,11 +245,16 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
 
 }
 
-#if HAS_HEATED_CHAMBER
+#if DO_DRAW_CHAMBER
 
   FORCE_INLINE void _draw_chamber_status(const bool blink) {
-    const float temp = thermalManager.degChamber(),
+    #if ENABLED(MARLIN_DEV_MODE)
+	    const float temp = 10 + (millis() >> 8) % CHAMBER_MAXTEMP,
+                target = CHAMBER_MAXTEMP;
+    #else
+      const float temp = thermalManager.degChamber(),
                 target = thermalManager.degTargetChamber();
+    #endif
     #if !HEATER_IDLE_HANDLER
       UNUSED(blink);
     #endif
@@ -299,7 +316,7 @@ void MarlinUI::draw_status_screen() {
 
   // At the first page, generate new display values
   if (first_page) {
-    #if ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER
+    #if ANIM_HBC
       uint8_t new_bits = 0;
       #if ANIM_HOTEND
         HOTEND_LOOP() if (thermalManager.isHeatingHotend(e) ^ SHOW_ON_STATE) SBI(new_bits, e);
@@ -307,14 +324,14 @@ void MarlinUI::draw_status_screen() {
       #if ANIM_BED
         if (thermalManager.isHeatingBed() ^ SHOW_ON_STATE) SBI(new_bits, 7);
       #endif
-      #if ANIM_CHAMBER
+      #if DO_DRAW_CHAMBER
         if (thermalManager.isHeatingChamber() ^ SHOW_ON_STATE) SBI(new_bits, 6);
       #endif
       heat_bits = new_bits;
     #endif
     strcpy(xstring, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
     strcpy(ystring, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
-    strcpy(zstring, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])));
+    strcpy(zstring, ftostr52sp( LOGICAL_Z_POSITION(current_position[Z_AXIS])));
     #if ENABLED(FILAMENT_LCD_DISPLAY)
       strcpy(wstring, ftostr12ns(filament_width_meas));
       strcpy(mstring, i16tostr3(100.0 * (
@@ -335,7 +352,7 @@ void MarlinUI::draw_status_screen() {
     TCNT5 = 0;
   #endif
 
-  #if STATUS_LOGO_WIDTH
+  #if DO_DRAW_LOGO
     if (PAGE_CONTAINS(STATUS_LOGO_Y, STATUS_LOGO_Y + STATUS_LOGO_HEIGHT - 1))
       u8g.drawBitmapP(STATUS_LOGO_X, STATUS_LOGO_Y, STATUS_LOGO_BYTEWIDTH, STATUS_LOGO_HEIGHT, status_logo_bmp);
   #endif
@@ -346,13 +363,14 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBitmapP(STATUS_HEATERS_X, STATUS_HEATERS_Y, STATUS_HEATERS_BYTEWIDTH, STATUS_HEATERS_HEIGHT, status_heaters_bmp);
   #endif
 
-  #if DO_DRAW_BED
+  #if DO_DRAW_BED && DISABLED(STATUS_COMBINE_HEATERS)
     #if ANIM_BED
       #define BED_BITMAP(S) ((S) ? status_bed_on_bmp : status_bed_bmp)
     #else
       #define BED_BITMAP(S) status_bed_bmp
     #endif
-    const uint8_t bedy = STATUS_BED_Y(BED_ALT()), bedh = STATUS_BED_HEIGHT(BED_ALT());
+    const uint8_t bedy = STATUS_BED_Y(BED_ALT()),
+                  bedh = STATUS_BED_HEIGHT(BED_ALT());
     if (PAGE_CONTAINS(bedy, bedy + bedh - 1))
       u8g.drawBitmapP(STATUS_BED_X, bedy, STATUS_BED_BYTEWIDTH, bedh, BED_BITMAP(BED_ALT()));
   #endif
@@ -363,12 +381,10 @@ void MarlinUI::draw_status_screen() {
     #else
       #define CHAMBER_BITMAP(S) status_chamber_bmp
     #endif
-    if (PAGE_CONTAINS(STATUS_CHAMBER_Y, STATUS_CHAMBER_Y + STATUS_CHAMBER_HEIGHT - 1))
-      u8g.drawBitmapP(
-        STATUS_CHAMBER_X, STATUS_CHAMBER_Y,
-        STATUS_CHAMBER_BYTEWIDTH, STATUS_CHAMBER_HEIGHT,
-        CHAMBER_BITMAP(CHAMBER_ALT())
-      );
+    const uint8_t chambery = STATUS_CHAMBER_Y(CHAMBER_ALT()),
+                  chamberh = STATUS_CHAMBER_HEIGHT(CHAMBER_ALT());
+    if (PAGE_CONTAINS(chambery, chambery + chamberh - 1))
+      u8g.drawBitmapP(STATUS_CHAMBER_X, chambery, STATUS_CHAMBER_BYTEWIDTH, chamberh, CHAMBER_BITMAP(CHAMBER_ALT()));
   #endif
 
   #if DO_DRAW_FAN
@@ -381,9 +397,7 @@ void MarlinUI::draw_status_screen() {
       }
     #endif
     if (PAGE_CONTAINS(STATUS_FAN_Y, STATUS_FAN_Y + STATUS_FAN_HEIGHT - 1))
-      u8g.drawBitmapP(
-        STATUS_FAN_X, STATUS_FAN_Y,
-        STATUS_FAN_BYTEWIDTH, STATUS_FAN_HEIGHT,
+      u8g.drawBitmapP(STATUS_FAN_X, STATUS_FAN_Y, STATUS_FAN_BYTEWIDTH, STATUS_FAN_HEIGHT,
         #if STATUS_FAN_FRAMES > 2
           fan_frame == 1 ? status_fan1_bmp :
           fan_frame == 2 ? status_fan2_bmp :
@@ -400,18 +414,17 @@ void MarlinUI::draw_status_screen() {
   //
   // Temperature Graphics and Info
   //
-
   if (PAGE_UNDER(6 + 1 + 12 + 1 + 6 + 1)) {
     // Extruders
     for (uint8_t e = 0; e < MAX_HOTEND_DRAW; ++e)
       _draw_heater_status((heater_ind_t)e, blink);
 
     // Heated bed
-    #if HAS_HEATED_BED && HOTENDS < 4
+    #if DO_DRAW_BED && DISABLED(STATUS_COMBINE_HEATERS) || (HAS_HEATED_BED && ENABLED(STATUS_COMBINE_HEATERS) && HOTENDS <= 4)
       _draw_heater_status(H_BED, blink);
     #endif
 
-    #if HAS_HEATED_CHAMBER
+    #if DO_DRAW_CHAMBER
       _draw_chamber_status(blink);
     #endif
 
@@ -575,7 +588,6 @@ void MarlinUI::draw_status_screen() {
   //
   // Feedrate
   //
-
   #define EXTRAS_2_BASELINE (EXTRAS_BASELINE + 3)
 
   if (PAGE_CONTAINS(EXTRAS_2_BASELINE - INFO_FONT_ASCENT, EXTRAS_2_BASELINE - 1)) {
@@ -602,7 +614,6 @@ void MarlinUI::draw_status_screen() {
   //
   // Status line
   //
-
   if (PAGE_CONTAINS(STATUS_BASELINE - INFO_FONT_ASCENT, STATUS_BASELINE + INFO_FONT_DESCENT)) {
     lcd_moveto(0, STATUS_BASELINE);
 
