@@ -648,7 +648,7 @@
       };
 
     #else
-
+  
       const unsigned char status_bed_bmp[] PROGMEM = {
         B00000100,B00010000,B01000000,
         B00000010,B00001000,B00100000,
@@ -671,10 +671,8 @@
   #define STATUS_BED_WIDTH 0
 #endif
 
-#if !STATUS_CHAMBER_WIDTH && HAS_HEATED_CHAMBER && ((HOTENDS <= 4 && !HAS_HEATED_BED) || (HOTENDS <= 3 && HAS_HEATED_BED))
-
+#if !STATUS_CHAMBER_WIDTH && HAS_TEMP_CHAMBER && ((HOTENDS <= 4 && !HAS_HEATED_BED) || (HOTENDS <= 3 && HAS_HEATED_BED))
   #define STATUS_CHAMBER_WIDTH 21
-
   #if STATUS_HEATERS_WIDTH
     #if ENABLED(STATUS_COMBINE_HEATERS)
       #define STATUS_CHAMBER_X (LCD_PIXEL_WIDTH - 2 - (STATUS_CHAMBER_BYTEWIDTH) * 8)
@@ -686,7 +684,6 @@
       #define STATUS_CHAMBER_X (LCD_PIXEL_WIDTH - (STATUS_CHAMBER_BYTEWIDTH) * 8)
     #endif
   #endif
-
   #ifdef STATUS_CHAMBER_ANIM
 
     const unsigned char status_chamber_bmp[] PROGMEM = {
@@ -703,7 +700,6 @@
       B00011111,B11111111,B11111000,
       B00011111,B11111111,B11111000
     };
-
     const unsigned char status_chamber_on_bmp[] PROGMEM = {
       B00011111,B11111111,B11111000,
       B00010000,B00000000,B00001000,
@@ -741,7 +737,7 @@
   #define STATUS_CHAMBER_WIDTH 0
 #endif
 
-#define BED_CHAM (HAS_HEATED_BED || HAS_HEATED_CHAMBER)
+#define BED_CHAM (HAS_HEATED_BED || HAS_TEMP_CHAMBER)
 #define BED_CHAM_FAN (BED_CHAM || HAS_FAN0)
 
 // Can also be overridden in Configuration_adv.h

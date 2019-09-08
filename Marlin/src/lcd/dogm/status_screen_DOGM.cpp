@@ -65,7 +65,7 @@
 
 #define DO_DRAW_LOGO (STATUS_LOGO_WIDTH && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
 #define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 4)
-#define DO_DRAW_CHAMBER (HAS_HEATED_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4)
+#define DO_DRAW_CHAMBER ((HAS_TEMP_CHAMBER || HAS_HEATED_CHAMBER) && STATUS_CHAMBER_WIDTH && HOTENDS <= 4)
 #define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && HOTENDS <= 4 && defined(STATUS_FAN_FRAMES))
 
 #define ANIM_HOTEND (HOTENDS && ENABLED(STATUS_HOTEND_ANIM))
@@ -251,26 +251,31 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
     #if ENABLED(MARLIN_DEV_MODE)
 	    const float temp = 10 + (millis() >> 8) % CHAMBER_MAXTEMP,
                 target = CHAMBER_MAXTEMP;
-    #else
+    #elif HAS_HEATED_CHAMBER
       const float temp = thermalManager.degChamber(),
                 target = thermalManager.degTargetChamber();
+    #else
+      const float temp = thermalManager.degChamber();
     #endif
+
     #if !HEATER_IDLE_HANDLER
       UNUSED(blink);
     #endif
+    
     if (PAGE_UNDER(7)) {
       #if HEATER_IDLE_HANDLER
         const bool is_idle = false, // thermalManager.chamber_idle.timed_out,
-                   dodraw = (blink || !is_idle);
+                  dodraw = (blink || !is_idle);
       #else
         constexpr bool dodraw = true;
       #endif
+      #if HAS_HEATED_CHAMBER
       if (dodraw) _draw_centered_temp(target + 0.5, STATUS_CHAMBER_TEXT_X, 7);
+      #endif
     }
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
       _draw_centered_temp(temp + 0.5f, STATUS_CHAMBER_TEXT_X, 28);
   }
-
 #endif
 
 //
@@ -324,7 +329,7 @@ void MarlinUI::draw_status_screen() {
       #if ANIM_BED
         if (thermalManager.isHeatingBed() ^ SHOW_ON_STATE) SBI(new_bits, 7);
       #endif
-      #if DO_DRAW_CHAMBER
+      #if DO_DRAW_CHAMBER && HAS_HEATED_CHAMBER
         if (thermalManager.isHeatingChamber() ^ SHOW_ON_STATE) SBI(new_bits, 6);
       #endif
       heat_bits = new_bits;
@@ -349,7 +354,7 @@ void MarlinUI::draw_status_screen() {
   set_font(FONT_STATUSMENU);
 
   #if ENABLED(MARLIN_DEV_MODE)
-    TCNT5 = 0;
+    uint32_t TCNT5 = 0;
   #endif
 
   #if DO_DRAW_LOGO
