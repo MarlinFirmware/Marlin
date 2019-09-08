@@ -23,7 +23,9 @@
 // NOTE - the HAL version of the rrd device uses a generic ST7920 device.  See the
 // file u8g_dev_st7920_128x64_HAL.cpp for the HAL version.
 
-#if defined(__AVR__) && !defined(U8G_HAL_LINKS)
+#include "../../inc/MarlinConfigPre.h"
+
+#if !defined(U8G_HAL_LINKS) && ANY(__AVR__, ARDUINO_ARCH_STM32)
 
 #include "../../inc/MarlinConfig.h"
 

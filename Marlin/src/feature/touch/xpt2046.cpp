@@ -135,4 +135,12 @@ uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {
   return (data[1] + data[2]) >> 1;
 }
 
+bool XPT2046::getTouchPoint(uint16_t &x, uint16_t &y) {
+  if (isTouched()) {
+    x = getInTouch(XPT2046_X);
+    y = getInTouch(XPT2046_Y);
+  }
+  return isTouched();
+}
+
 #endif // TOUCH_BUTTONS
