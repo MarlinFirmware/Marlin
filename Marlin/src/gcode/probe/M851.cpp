@@ -28,17 +28,43 @@
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/probe.h"
 
+/**
+ * M851: Set the nozzle-to-probe offsets in current units
+ */
 void GcodeSuite::M851() {
-  if (parser.seenval('Z')) {
-    const float value = parser.value_linear_units();
-    if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
-      zprobe_zoffset = value;
-    else
-      SERIAL_ERROR_MSG("?Z out of range (" STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " to " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX) ")");
+
+  // Show usage with no parameters
+  if (!parser.seen("XYZ")) {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET " X", zprobe_offset[X_AXIS],
+                                       " Y", zprobe_offset[Y_AXIS],
+                                       " Z", zprobe_offset[Z_AXIS]);
     return;
   }
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
+
+  // Get the modified offsets
+  const float offs[] = {
+    parser.floatval('X', zprobe_offset[X_AXIS]),
+    parser.floatval('Y', zprobe_offset[Y_AXIS]),
+    parser.floatval('Z', zprobe_offset[Z_AXIS])
+  };
+
+  // Error-check
+  if (!WITHIN(offs[X_AXIS], -(X_BED_SIZE), X_BED_SIZE)) {
+    SERIAL_ERROR_MSG("?X out of range (-" STRINGIFY(X_BED_SIZE) " to " STRINGIFY(X_BED_SIZE) ")");
+    return;
+  }
+  if (!WITHIN(offs[Y_AXIS], -(Y_BED_SIZE), Y_BED_SIZE)) {
+    SERIAL_ERROR_MSG("?Y out of range (-" STRINGIFY(Y_BED_SIZE) " to " STRINGIFY(Y_BED_SIZE) ")");
+    return;
+  }
+  if (!WITHIN(offs[Z_AXIS], Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+    SERIAL_ERROR_MSG("?Z out of range (" STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " to " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX) ")");
+    return;
+  }
+
+  // Save the new offsets
+  LOOP_XYZ(a) zprobe_offset[a] = offs[a];
 }
 
 #endif // HAS_BED_PROBE

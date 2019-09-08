@@ -290,7 +290,7 @@
    *   especially better for Delta printers, since it populates the center of the mesh first, allowing for
    *   a quicker test print to verify settings. You don't need to populate the entire mesh to use it.
    *   After all, you don't want to spend a lot of time generating a mesh only to realize the resolution
-   *   or zprobe_zoffset are incorrect. Mesh-generation gathers points starting closest to the nozzle unless
+   *   or probe offsets are incorrect. Mesh-generation gathers points starting closest to the nozzle unless
    *   an (X,Y) coordinate pair is given.
    *
    *   Unified Bed Leveling uses a lot of EEPROM storage to hold its data, and it takes some effort to get
@@ -453,7 +453,7 @@
               SERIAL_ECHO(g29_y_pos);
               SERIAL_ECHOLNPGM(").\n");
             }
-            probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
+            probe_entire_mesh(g29_x_pos + zprobe_offset[X_AXIS], g29_y_pos + zprobe_offset[Y_AXIS],
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
             report_current_position();
@@ -482,8 +482,8 @@
                 g29_x_pos = X_HOME_POS;
                 g29_y_pos = Y_HOME_POS;
               #else // cartesian
-                g29_x_pos = X_PROBE_OFFSET_FROM_EXTRUDER > 0 ? X_BED_SIZE : 0;
-                g29_y_pos = Y_PROBE_OFFSET_FROM_EXTRUDER < 0 ? Y_BED_SIZE : 0;
+                g29_x_pos = zprobe_offset[X_AXIS] > 0 ? X_BED_SIZE : 0;
+                g29_y_pos = zprobe_offset[Y_AXIS] < 0 ? Y_BED_SIZE : 0;
               #endif
             }
 
@@ -800,8 +800,8 @@
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(
-        constrain(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), MESH_MIN_X, MESH_MAX_X),
-        constrain(ry - (Y_PROBE_OFFSET_FROM_EXTRUDER), MESH_MIN_Y, MESH_MAX_Y)
+        constrain(rx - zprobe_offset[X_AXIS], MESH_MIN_X, MESH_MAX_X),
+        constrain(ry - zprobe_offset[Y_AXIS], MESH_MIN_Y, MESH_MAX_Y)
       );
     }
 
@@ -1281,8 +1281,8 @@
     out_mesh.distance = -99999.9f;
 
     // Get our reference position. Either the nozzle or probe location.
-    const float px = rx + (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
-                py = ry + (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
+    const float px = rx + (probe_as_reference == USE_PROBE_AS_REFERENCE ? zprobe_offset[X_AXIS] : 0),
+                py = ry + (probe_as_reference == USE_PROBE_AS_REFERENCE ? zprobe_offset[Y_AXIS] : 0);
 
     float best_so_far = 99999.99f;
 
@@ -1384,10 +1384,17 @@
     #include "../../../libs/vector_3.h"
 
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
-      constexpr int16_t x_min = _MAX(MIN_PROBE_X, MESH_MIN_X),
+      #if ENABLED(DELTA) || IS_SCARA
+        int16_t x_min = _MAX(MIN_PROBE_X, MESH_MIN_X),
                         x_max = _MIN(MAX_PROBE_X, MESH_MAX_X),
                         y_min = _MAX(MIN_PROBE_Y, MESH_MIN_Y),
                         y_max = _MIN(MAX_PROBE_Y, MESH_MAX_Y);
+      #else
+        int16_t x_min = (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + zprobe_offset[X_AXIS])),
+                        x_max = (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + zprobe_offset[X_AXIS])),
+                        y_min = (_MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + zprobe_offset[Y_AXIS])),
+                        y_max = (_MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + zprobe_offset[Y_AXIS]));
+      #endif
 
       bool abort_flag = false;
 
@@ -1505,7 +1512,7 @@
                 DEBUG_ECHOPAIR_F("   correction: ", get_z_correction(rx, ry), 7);
               }
 
-              measured_z -= get_z_correction(rx, ry) /* + zprobe_zoffset */ ;
+              measured_z -= get_z_correction(rx, ry) /* + zprobe_offset[Z_AXIS] */ ;
 
               if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_F("   final >>>---> ", measured_z, 7);
 
@@ -1711,13 +1718,13 @@
       serial_delay(50);
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        SERIAL_ECHOLNPAIR_F("planner.z_fade_height : ", planner.z_fade_height, 4);
+        SERIAL_ECHOLNPAIR_F("Fade Height M420 Z", planner.z_fade_height, 4);
       #endif
 
       adjust_mesh_to_mean(g29_c_flag, g29_constant);
 
       #if HAS_BED_PROBE
-        SERIAL_ECHOLNPAIR_F("zprobe_zoffset: ", zprobe_zoffset, 7);
+        SERIAL_ECHOLNPAIR_F("Probe Offset M851 Z", zprobe_offset[Z_AXIS], 7);
       #endif
 
       SERIAL_ECHOLNPAIR("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); serial_delay(50);

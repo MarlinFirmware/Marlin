@@ -28,7 +28,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if HAS_BED_PROBE
-  extern float zprobe_zoffset;
+  extern float zprobe_offset[XYZ];
   bool set_probe_deployed(const bool deploy);
   #ifdef Z_AFTER_PROBING
     void move_z_after_probing();
@@ -46,6 +46,7 @@
     extern const char msg_wait_for_bed_heating[25];
   #endif
 #else
+  constexpr float zprobe_offset[XYZ] = { 0 };
   #define DEPLOY_PROBE()
   #define STOW_PROBE()
 #endif

@@ -229,7 +229,7 @@
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
- * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
+ * M851 - Set Z probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=down)
  * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, and SKEW_CORRECTION_FOR_Z for IJ)
  * M860 - Report the position of position encoder modules.
  * M861 - Report the status of position encoder modules.
