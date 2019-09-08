@@ -59,7 +59,6 @@
 
 #if HAS_GRAPHICAL_LCD && PIN_EXISTS(FSMC_CS)
 
-#include <U8glib.h>
 #include "HAL_LCD_com_defines.h"
 
 #include <string.h>

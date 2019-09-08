@@ -221,7 +221,7 @@ void plan_arc(
   #endif
 
   apply_motion_limits(raw);
-  
+
   #if HAS_LEVELING && !PLANNER_LEVELING
     planner.apply_leveling(raw);
   #endif

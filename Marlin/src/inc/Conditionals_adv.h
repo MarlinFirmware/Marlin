@@ -105,3 +105,8 @@
 
 // TMC SPI Chaining
 #define TMC_USE_CHAIN (X_CHAIN_POS||Y_CHAIN_POS||Z_CHAIN_POS||X2_CHAIN_POS||Y2_CHAIN_POS||Z2_CHAIN_POS||Z3_CHAIN_POS||E0_CHAIN_POS||E1_CHAIN_POS||E2_CHAIN_POS||E3_CHAIN_POS||E4_CHAIN_POS||E5_CHAIN_POS)
+
+// Poll-based jogging for joystick and other devices
+#if ENABLED(JOYSTICK)
+  #define POLL_JOG
+#endif

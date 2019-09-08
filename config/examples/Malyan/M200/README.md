@@ -1,6 +1,6 @@
 ### Malyan M200 Build Instructions
 
-Malyan M200 series firmware currently builds using the Arduino IDE. These instructions should 
+Malyan M200 series firmware currently builds using the Arduino IDE. These instructions should
 guide you through the configuration and compilation.
 
 1. Install the Arduino IDE from your favorite source (arduino.cc, windows store, app store)
@@ -27,7 +27,7 @@ guide you through the configuration and compilation.
   The file `Marlin.ino.bin` is your firmware binary. M200 (v1-3) and M300 printers require flashing via SD card. Use the SD card that came with the printer if possible. The bootloader is very picky about SD cards. Copy `Marlin.ino.bin` to your SD card under three names: `firmware.bin`, `update.bin`, and `fcupdate.flg`.
 16. Insert the SD card into your printer. Make sure the X and Y axes are centered in the middle of the bed. (When X and Y endstops are closed this signals a UI upgrade to the bootloader.)
 17. Power-cycle the printer. The first flash may take longer. Don't be surprised if the .99 version number doesn't show up until after the UI has launched the default screen.
-18. Remove the SD card and delete the `fcupdate.flg` file from the card to prevent an accidental re-flash. 
+18. Remove the SD card and delete the `fcupdate.flg` file from the card to prevent an accidental re-flash.
 19. Test the endstops and homing directions, run M303 PID autotune, and verify all features are working correctly.
 
 Welcome to Marlin 2.x...
