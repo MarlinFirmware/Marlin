@@ -623,25 +623,6 @@ class Temperature {
       start_watching_hotend(ee);
     }
 
-    #if WATCH_CHAMBER
-      static void start_watching_chamber();
-    #else
-      static inline void start_watching_chamber() {}
-    #endif
-
-    #if HAS_HEATED_CHAMBER
-      static void setTargetChamber(const int16_t celsius) {
-        temp_chamber.target =
-          #ifdef CHAMBER_MAXTEMP
-            _MIN(celsius, CHAMBER_MAXTEMP)
-          #else
-            celsius
-          #endif
-        ;
-        start_watching_chamber();
-      }
-    #endif // HAS_HEATED_CHAMBER
-
     FORCE_INLINE static bool isHeatingHotend(const uint8_t e) {
       E_UNUSED();
       return temp_hotend[HOTEND_INDEX].target > temp_hotend[HOTEND_INDEX].current;
@@ -659,6 +640,10 @@ class Temperature {
         #endif
       );
     #endif
+
+    FORCE_INLINE static bool still_heating(const uint8_t e) {
+      return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
+    }
 
     #if HAS_HEATED_BED
 
@@ -712,9 +697,24 @@ class Temperature {
       #endif
     #endif // HAS_TEMP_CHAMBER
 
-    FORCE_INLINE static bool still_heating(const uint8_t e) {
-      return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
-    }
+    #if WATCH_CHAMBER
+      static void start_watching_chamber();
+    #else
+      static inline void start_watching_chamber() {}
+    #endif
+
+    #if HAS_HEATED_CHAMBER
+      static void setTargetChamber(const int16_t celsius) {
+        temp_chamber.target =
+          #ifdef CHAMBER_MAXTEMP
+            _MIN(celsius, CHAMBER_MAXTEMP)
+          #else
+            celsius
+          #endif
+        ;
+        start_watching_chamber();
+      }
+    #endif // HAS_HEATED_CHAMBER
 
     /**
      * The software PWM power for a heater
