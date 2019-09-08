@@ -225,6 +225,9 @@ void GCodeParser::parse(char *p) {
       case 810: case 811: case 812: case 813: case 814:
       case 815: case 816: case 817: case 818: case 819:
     #endif
+    #if ENABLED(EXPECTED_PRINTER_CHECK)
+      case 16:
+    #endif
     case 23: case 28: case 30: case 117: case 118: case 928: string_arg = p; return;
     default: break;
   }

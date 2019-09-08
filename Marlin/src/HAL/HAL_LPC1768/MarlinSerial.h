@@ -49,6 +49,8 @@ public:
     {
     }
 
+  void end() { }
+
   #if ENABLED(EMERGENCY_PARSER)
     bool recv_callback(const char c) override {
       emergency_parser.update(emergency_state, c);

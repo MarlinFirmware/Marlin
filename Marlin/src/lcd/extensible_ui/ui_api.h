@@ -42,8 +42,6 @@
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
-#pragma once
-
 #include "../../inc/MarlinConfig.h"
 
 namespace ExtUI {
@@ -68,6 +66,7 @@ namespace ExtUI {
 
   bool isMoving();
   bool isAxisPositionKnown(const axis_t);
+  bool isAxisPositionKnown(const extruder_t);
   bool isPositionKnown(); // Axis position guaranteed, steppers active since homing
   bool isMachineHomed(); // Axis position most likely correct, steppers may have deactivated
   bool canMove(const axis_t);
@@ -199,10 +198,8 @@ namespace ExtUI {
     void normalizeNozzleOffset(const axis_t axis);
   #endif
 
-  #if HAS_BED_PROBE
-    float getZOffset_mm();
-    void setZOffset_mm(const float);
-  #endif
+  float getZOffset_mm();
+  void setZOffset_mm(const float);
 
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t);

@@ -30,11 +30,11 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_ESP32.h"
-#include "watchdog_ESP32.h"
+#include "fastio.h"
+#include "watchdog.h"
 #include "i2s.h"
 
-#include "HAL_timers_ESP32.h"
+#include "timers.h"
 
 #include "WebSocketSerial.h"
 #include "FlushableHardwareSerial.h"
@@ -92,7 +92,10 @@ uint8_t HAL_get_reset_source(void);
 
 void _delay_ms(int delay);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 int freeMemory(void);
+#pragma GCC diagnostic pop
 
 void analogWrite(pin_t pin, int value);
 

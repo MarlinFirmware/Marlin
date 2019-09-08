@@ -240,14 +240,14 @@ jobs:
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
             echo testing STM32F1 targets...
-            export TEST_PLATFORM="-e STM32F1"
+            export TEST_PLATFORM="-e STM32F103R"
             restore_configs
-            echo use_example_configs STM32F10
-            use_example_configs STM32F10
+            echo use_example_configs STM32/STM32F103R
+            use_example_configs STM32/STM32F103R
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
-            echo use_example_configs stm32f103ret6
-            use_example_configs stm32f103ret6
+            echo use_example_configs STM32/stm32f103ret6
+            use_example_configs STM32/stm32f103ret6
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
 

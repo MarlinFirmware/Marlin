@@ -83,8 +83,9 @@ public:
 
   HalSerial() { host_connected = true; }
 
-  void begin(int32_t baud) {
-  }
+  void begin(int32_t baud) { }
+
+  void end() { }
 
   int peek() {
     uint8_t value;
@@ -107,11 +108,11 @@ public:
 
   void flush() { receive_buffer.clear(); }
 
-  uint8_t availableForWrite(void){
+  uint8_t availableForWrite(void) {
     return transmit_buffer.free() > 255 ? 255 : (uint8_t)transmit_buffer.free();
   }
 
-  void flushTX(void){
+  void flushTX(void) {
     if (host_connected)
       while (transmit_buffer.available()) { /* nada */ }
   }
@@ -141,10 +142,10 @@ public:
   void print_bin(uint32_t value, uint8_t num_digits) {
     uint32_t mask = 1 << (num_digits -1);
     for (uint8_t i = 0; i < num_digits; i++) {
-      if (!(i % 4) && i)    write(' ');
-      if (!(i % 16)  && i)  write(' ');
-      if (value & mask)     write('1');
-      else                  write('0');
+      if (!(i %  4) && i) write(' ');
+      if (!(i % 16) && i) write(' ');
+      if (value & mask)   write('1');
+      else                write('0');
       value <<= 1;
     }
   }

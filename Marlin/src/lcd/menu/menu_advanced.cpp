@@ -648,6 +648,7 @@ void menu_backlash();
           #if HAS_BUZZER
             ui.completion_feedback(inited);
           #endif
+          UNUSED(inited);
         },
         ui.goto_previous_screen,
         PSTR(MSG_INIT_EEPROM), nullptr, PSTR("?")
@@ -739,7 +740,7 @@ void menu_advanced_settings() {
 
   #if ENABLED(SD_FIRMWARE_UPDATE)
     bool sd_update_state = settings.sd_update_status();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_SD_UPDATE, &sd_update_state, []{
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_MEDIA_UPDATE, &sd_update_state, []{
       //
       // Toggle the SD Firmware Update state in EEPROM
       //

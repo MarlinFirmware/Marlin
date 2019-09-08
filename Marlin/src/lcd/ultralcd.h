@@ -76,11 +76,11 @@
       #define LCDWRITE(c) lcd_put_wchar(c)
     #endif
 
-    #include "fontutils.h"
+    #include "lcdprint.h"
 
-    void _wrap_string(uint8_t &x, uint8_t &y, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
-    inline void wrap_string_P(uint8_t &x, uint8_t &y, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(x, y, pstr, read_byte_rom, wordwrap); }
-    inline void wrap_string(uint8_t &x, uint8_t &y, const char * const string, const bool wordwrap=false) { _wrap_string(x, y, string, read_byte_ram, wordwrap); }
+    void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
+    inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
+    inline void wrap_string(uint8_t &col, uint8_t &row, const char * const string, const bool wordwrap=false) { _wrap_string(col, row, string, read_byte_ram, wordwrap); }
 
     #if ENABLED(SDSUPPORT)
       #include "../sd/cardreader.h"
@@ -151,7 +151,7 @@
 
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  #if BUTTON_EXISTS(ENC)
+  #if BUTTON_EXISTS(ENC) || ENABLED(TOUCH_BUTTONS)
     #define BLEN_C 2
     #define EN_C _BV(BLEN_C)
   #endif
@@ -215,7 +215,7 @@
 
 #endif
 
-#if BUTTON_EXISTS(BACK)
+#if BUTTON_EXISTS(BACK) || ENABLED(TOUCH_BUTTONS)
   #define BLEN_D 3
   #define EN_D _BV(BLEN_D)
   #define LCD_BACK_CLICKED() (buttons & EN_D)
@@ -259,13 +259,11 @@ public:
   }
 
   #if HAS_BUZZER
-    static inline void buzz(const long duration, const uint16_t freq) {
-      #if ENABLED(LCD_USE_I2C_BUZZER)
-        lcd.buzz(duration, freq);
-      #elif PIN_EXISTS(BEEPER)
-        buzzer.tone(duration, freq);
-      #endif
-    }
+    static void buzz(const long duration, const uint16_t freq);
+  #endif
+
+  #if ENABLED(LCD_HAS_STATUS_INDICATORS)
+    static void update_indicators();
   #endif
 
   // LCD implementations
@@ -308,6 +306,8 @@ public:
 
     #if HAS_SPI_LCD
 
+      static millis_t next_button_update_ms;
+
       static bool detected();
 
       static LCDViewAction lcdDrawUpdate;
@@ -321,7 +321,7 @@ public:
       #endif
 
       #if ENABLED(SHOW_BOOTSCREEN)
-        static void draw_marlin_bootscreen();
+        static void draw_marlin_bootscreen(const bool line2=false);
         static void show_marlin_bootscreen();
         static void show_bootscreen();
       #endif
@@ -342,7 +342,7 @@ public:
           static millis_t progress_bar_ms;  // Start time for the current progress bar cycle
           static void draw_progress_bar(const uint8_t percent);
           #if PROGRESS_MSG_EXPIRE > 0
-            static millis_t MarlinUI::expire_status_ms; // = 0
+            static millis_t expire_status_ms; // = 0
             static inline void reset_progress_bar_timeout() { expire_status_ms = 0; }
           #endif
         #endif
@@ -393,6 +393,7 @@ public:
     static inline void init() {}
     static inline void update() {}
     static inline void refresh() {}
+    static inline void return_to_status() {}
     static inline void set_alert_status_P(PGM_P message) { UNUSED(message); }
     static inline void set_status(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
     static inline void set_status_P(PGM_P const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
@@ -448,7 +449,18 @@ public:
     static screenFunc_t currentScreen;
     static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
     static void save_previous_screen();
-    static void goto_previous_screen();
+    static void goto_previous_screen(
+      #if ENABLED(TURBO_BACK_MENU_ITEM)
+        const bool is_back
+      #endif
+    );
+
+    #if ENABLED(TURBO_BACK_MENU_ITEM)
+      // Various menu items require a "void (*)()" to point to
+      // this function so a default argument *won't* work
+      static inline void goto_previous_screen() { goto_previous_screen(false); }
+    #endif
+
     static void return_to_status();
     static inline bool on_status_screen() { return currentScreen == status_screen; }
     static inline void run_current_screen() { (*currentScreen)(); }
@@ -483,7 +495,7 @@ public:
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      static void ubl_plot(const uint8_t x, const uint8_t inverted_y);
+      static void ubl_plot(const uint8_t x_plot, const uint8_t y_plot);
     #endif
 
     static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
@@ -521,10 +533,6 @@ public:
       static volatile uint8_t slow_buttons;
       static uint8_t read_slow_buttons();
     #endif
-    #if ENABLED(TOUCH_BUTTONS)
-      static volatile uint8_t touch_buttons;
-      static uint8_t read_touch_buttons();
-    #endif
 
     static void update_buttons();
     static inline bool button_pressed() { return BUTTON_CLICK(); }
@@ -539,14 +547,24 @@ public:
     #else
       #define ENCODERBASE +1
     #endif
-    #if ENABLED(REVERSE_MENU_DIRECTION)
+
+    #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
       static int8_t encoderDirection;
-      static inline void encoder_direction_normal() { encoderDirection = +(ENCODERBASE); }
-      static inline void encoder_direction_menus()  { encoderDirection = -(ENCODERBASE); }
+      static inline void encoder_direction_normal() { encoderDirection = ENCODERBASE; }
     #else
       static constexpr int8_t encoderDirection = ENCODERBASE;
       static inline void encoder_direction_normal() {}
+    #endif
+
+    #if ENABLED(REVERSE_MENU_DIRECTION)
+      static inline void encoder_direction_menus()  { encoderDirection = -(ENCODERBASE); }
+    #else
       static inline void encoder_direction_menus()  {}
+    #endif
+    #if ENABLED(REVERSE_SELECT_DIRECTION)
+      static inline void encoder_direction_select()  { encoderDirection = -(ENCODERBASE); }
+    #else
+      static inline void encoder_direction_select()  {}
     #endif
 
   #else

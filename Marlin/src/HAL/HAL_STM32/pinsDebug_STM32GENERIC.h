@@ -29,9 +29,11 @@
 #ifdef BOARD_NR_GPIO_PINS  // Only in STM32GENERIC (Maple)
 
 #ifdef __STM32F1__
-  #include "../HAL_STM32F1/fastio_STM32F1.h"
+  #include "../HAL_STM32F1/fastio.h"
 #elif defined(STM32F4) || defined(STM32F7)
-  #include "../HAL_STM32_F4_F7/fastio_STM32_F4_F7.h"
+  #include "../HAL_STM32_F4_F7/fastio.h"
+#else
+  #include "fastio.h"
 #endif
 
 extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
@@ -88,6 +90,8 @@ static inline bool GET_ARRAY_IS_DIGITAL(const int16_t array_pin) {
     #endif
   );
 }
+
+#include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
 
 static inline void pwm_details(const pin_t pin) {
   if (PWM_PIN(pin)) {

@@ -65,7 +65,7 @@ Timer get_pwm_timer(const pin_t pin) {
             /*n, q*/      2, 0
           };
         }
-      #elif defined TCCR2A
+      #elif defined(TCCR2A)
         #if ENABLED(USE_OCR2A_AS_TOP)
           case TIMER2A:   break; // protect TIMER2A
           case TIMER2B: {

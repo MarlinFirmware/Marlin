@@ -47,8 +47,10 @@
   #include "../HAL_AVR/ServoTimers.h"
 #elif defined(ARDUINO_ARCH_SAM)
   #include "../HAL_DUE/ServoTimers.h"
+#elif defined(__SAMD51__)
+  #include "../HAL_SAMD51/ServoTimers.h"
 #else
-  #error "This library only supports boards with an AVR or SAM3X processor."
+  #error "This library only supports boards with an AVR, SAM3X or SAMD51 processor."
 #endif
 
 // Macros
@@ -64,10 +66,8 @@
 #define INVALID_SERVO         255     // flag indicating an invalid servo index
 
 // Convert microseconds to ticks and back (PRESCALER depends on architecture)
-#define usToTicks(_us)    (clockCyclesPerMicrosecond() * (_us) / (PRESCALER))
-#define ticksToUs(_ticks) (unsigned(_ticks) * (PRESCALER) / clockCyclesPerMicrosecond())
-
-//#define NBR_TIMERS        ((MAX_SERVOS) / (SERVOS_PER_TIMER))
+#define usToTicks(_us)    (clockCyclesPerMicrosecond() * (_us) / (SERVO_TIMER_PRESCALER))
+#define ticksToUs(_ticks) (unsigned(_ticks) * (SERVO_TIMER_PRESCALER) / clockCyclesPerMicrosecond())
 
 // convenience macros
 #define SERVO_INDEX_TO_TIMER(_servo_nbr) ((timer16_Sequence_t)(_servo_nbr / (SERVOS_PER_TIMER))) // returns the timer controlling this servo
@@ -78,7 +78,7 @@
 // Types
 
 typedef struct {
-  uint8_t nbr        : 6 ;            // a pin number from 0 to 63
+  uint8_t nbr        : 7 ;            // a pin number from 0 to 127
   uint8_t isActive   : 1 ;            // true if this channel is enabled, pin not pulsed if false
 } ServoPin_t;
 

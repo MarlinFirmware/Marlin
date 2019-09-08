@@ -24,24 +24,24 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if ENABLED(EEPROM_SETTINGS) && ANY(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
 
 #include "../shared/persistent_store_api.h"
 
-#if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+#if ENABLED(FLASH_EEPROM_EMULATION)
   #include <EEPROM.h>
   static bool eeprom_data_written = false;
 #endif
 
 bool PersistentStore::access_start() {
-  #if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+  #if ENABLED(FLASH_EEPROM_EMULATION)
     eeprom_buffer_fill();
   #endif
   return true;
 }
 
 bool PersistentStore::access_finish() {
-  #if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+  #if ENABLED(FLASH_EEPROM_EMULATION)
     if (eeprom_data_written) {
       eeprom_buffer_flush();
       eeprom_data_written = false;
@@ -66,7 +66,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
           return true;
         }
       }
-    #elif DISABLED(SRAM_EEPROM_EMULATION)
+    #elif ENABLED(FLASH_EEPROM_EMULATION)
       eeprom_buffered_write_byte(pos, v);
     #else
       *(__IO uint8_t *)(BKPSRAM_BASE + (uint8_t * const)pos) = v;
@@ -76,7 +76,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     pos++;
     value++;
   };
-  #if NONE(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+  #if ENABLED(FLASH_EEPROM_EMULATION)
     eeprom_data_written = true;
   #endif
 
@@ -89,7 +89,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
     const uint8_t c = (
       #if EITHER(SPI_EEPROM, I2C_EEPROM)
         eeprom_read_byte((uint8_t*)pos)
-      #elif DISABLED(SRAM_EEPROM_EMULATION)
+      #elif ENABLED(FLASH_EEPROM_EMULATION)
         eeprom_buffered_read_byte(pos)
       #else
         (*(__IO uint8_t *)(BKPSRAM_BASE + ((uint8_t*)pos)))
@@ -105,14 +105,14 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 }
 
 size_t PersistentStore::capacity() {
-  #if EITHER(SPI_EEPROM, I2C_EEPROM)
-    return E2END + 1;
-  #elif DISABLED(SRAM_EEPROM_EMULATION)
-    return E2END + 1;
-  #else
-    return 4096; // 4kB
-  #endif
+  return (
+    #if ENABLED(SRAM_EEPROM_EMULATION)
+      4096 // 4kB
+    #else
+      E2END + 1
+    #endif
+  );
 }
 
-#endif // EEPROM_SETTINGS
+#endif // EEPROM_SETTINGS && (FLASH_EEPROM_EMULATION || SRAM_EEPROM_EMULATION || SPI_EEPROM || I2C_EEPROM)
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

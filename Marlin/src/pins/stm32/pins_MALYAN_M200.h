@@ -25,11 +25,11 @@
  * MALYAN M200 pin assignments
  */
 
-#if !defined(__STM32F1__) && !defined(STM32F1xx) && !defined(STM32F0xx)
-  #error "Oops! You must be compiling for STM32."
+#if NONE(__STM32F1__, STM32F1xx, STM32F0xx)
+  #error "Oops! Select an STM32 board in your IDE."
 #endif
 
-#define BOARD_NAME "Malyan M200"
+#define BOARD_INFO_NAME "Malyan M200"
 
 // Enable EEPROM Emulation for this board
 // This setting should probably be in configuration.h

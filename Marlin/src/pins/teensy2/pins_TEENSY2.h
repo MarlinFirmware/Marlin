@@ -111,7 +111,7 @@
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "Teensy++2.0"
+#define BOARD_INFO_NAME "Teensy++2.0"
 
 //
 // Limit Switches

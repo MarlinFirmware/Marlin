@@ -29,6 +29,9 @@
 #undef M_PI           // Redefined by all
 #undef _BV            // Redefined by some
 #undef sq             // Redefined by teensy3/wiring.h
+#undef SBI            // Redefined by arduino/const_functions.h
+#undef CBI            // Redefined by arduino/const_functions.h
+#undef UNUSED         // Redefined by stm32f4xx_hal_def.h
 
 #include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
 
@@ -71,4 +74,9 @@
 
 #ifndef M_PI
   #define M_PI 3.14159265358979323846f
+#endif
+
+// Remove compiler warning on an unused variable
+#ifndef UNUSED
+  #define UNUSED(x) ((void)(x))
 #endif

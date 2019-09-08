@@ -45,7 +45,7 @@
  *         7 | 11
  */
 
-#if ENABLED(TARGET_LPC1768)
+#ifdef TARGET_LPC1768
   #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
 #elif defined(__STM32F1__)
   #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
@@ -57,8 +57,8 @@
   #endif
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "RAMPS 1.4"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
 
 //
@@ -477,7 +477,7 @@
     #endif
 
     #if DISABLED(NEWPANEL)
-      // Buttons are attached to a shift register
+      // Buttons attached to a shift register
       // Not wired yet
       //#define SHIFT_CLK       38
       //#define SHIFT_LD        42

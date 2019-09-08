@@ -37,10 +37,9 @@ static int16_t ubl_storage_slot = 0,
                custom_hotend_temp = 190,
                side_points = 3,
                ubl_fillin_amount = 5,
-               ubl_height_amount = 1,
-               n_edit_pts = 1,
-               x_plot = 0,
-               y_plot = 0;
+               ubl_height_amount = 1;
+
+static uint8_t n_edit_pts = 1, x_plot = 0, y_plot = 0;
 
 #if HAS_HEATED_BED
   static int16_t custom_bed_temp = 50;
@@ -80,7 +79,7 @@ void _lcd_mesh_edit_NOP() {
 float lcd_mesh_edit() {
   ui.goto_screen(_lcd_mesh_edit_NOP);
   ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-  _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
+  _lcd_mesh_fine_tune(PSTR(MSG_MESH_EDITOR));
   return mesh_edit_value;
 }
 
@@ -90,7 +89,7 @@ void lcd_mesh_edit_setup(const float &initial) {
 }
 
 void _lcd_z_offset_edit() {
-  _lcd_mesh_fine_tune(PSTR("Z-Offset: "));
+  _lcd_mesh_fine_tune(PSTR(MSG_UBL_Z_OFFSET));
 }
 
 float lcd_z_offset_edit() {
@@ -392,7 +391,7 @@ void _lcd_ubl_storage_mesh() {
   START_MENU();
   MENU_BACK(MSG_UBL_LEVEL_BED);
   if (!WITHIN(ubl_storage_slot, 0, a - 1)) {
-    STATIC_ITEM(MSG_NO_STORAGE);
+    STATIC_ITEM(MSG_UBL_NO_STORAGE);
   }
   else {
     MENU_ITEM_EDIT(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, a - 1);
@@ -423,7 +422,7 @@ void _lcd_ubl_map_lcd_edit_cmd() {
   char ubl_lcd_gcode[50], str[10], str2[10];
   dtostrf(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]), 0, 2, str);
   dtostrf(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]), 0, 2, str2);
-  snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29 P4 X%s Y%s R%i"), str, str2, n_edit_pts);
+  snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29 P4 X%s Y%s R%i"), str, str2, int(n_edit_pts));
   lcd_enqueue_one_now(ubl_lcd_gcode);
 }
 

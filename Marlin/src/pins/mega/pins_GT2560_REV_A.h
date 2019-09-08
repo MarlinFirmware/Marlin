@@ -31,8 +31,8 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "GT2560 Rev.A"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "GT2560 Rev.A"
 #endif
 #define DEFAULT_MACHINE_NAME "Prusa i3 Pro B"
 
@@ -89,7 +89,6 @@
 //
 // Misc. Functions
 //
-#define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
 #define PS_ON_PIN          12

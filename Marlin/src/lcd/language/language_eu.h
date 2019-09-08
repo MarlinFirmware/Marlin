@@ -34,8 +34,8 @@
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" prest.")
 #define MSG_BACK                            _UxGT("Atzera")
-#define MSG_SD_INSERTED                     _UxGT("Txartela sartuta")
-#define MSG_SD_REMOVED                      _UxGT("Txartela kenduta")
+#define MSG_MEDIA_INSERTED                  _UxGT("Txartela sartuta")
+#define MSG_MEDIA_REMOVED                   _UxGT("Txartela kenduta")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Menu nagusia")
 #define MSG_AUTOSTART                       _UxGT("Auto hasiera")
@@ -76,6 +76,7 @@
 #define MSG_LEVEL_BED                       _UxGT("Ohea berdindu")
 #define MSG_LEVEL_CORNERS                   _UxGT("Ertzak berdindu")
 #define MSG_NEXT_CORNER                     _UxGT("Hurrengo ertza")
+#define MSG_EDIT_MESH                       _UxGT("Sarea editatu")
 //#define MSG_EDITING_STOPPED               _UxGT("Mesh Editing Stopped")
 //#define MSG_USER_MENU                     _UxGT("Custom Commands")
 
@@ -121,7 +122,6 @@
 //#define MSG_UBL_OUTPUT_MAP_CSV            _UxGT("Output for CSV")
 //#define MSG_UBL_OUTPUT_MAP_BACKUP         _UxGT("Off Printer Backup")
 //#define MSG_UBL_INFO_UBL                  _UxGT("Output UBL Info")
-#define MSG_EDIT_MESH                       _UxGT("Sarea editatu")
 //#define MSG_UBL_FILLIN_AMOUNT             _UxGT("Fill-in Amount")
 //#define MSG_UBL_MANUAL_FILLIN             _UxGT("Manual Fill-in")
 //#define MSG_UBL_SMART_FILLIN              _UxGT("Smart Fill-in")
@@ -136,7 +136,7 @@
 //#define MSG_UBL_SAVE_MESH                 _UxGT("Save Bed Mesh")
 //#define MSG_MESH_LOADED                   _UxGT("Mesh %i loaded")
 //#define MSG_MESH_SAVED                    _UxGT("Mesh %i saved")
-//#define MSG_NO_STORAGE                    _UxGT("No storage")
+//#define MSG_UBL_NO_STORAGE                _UxGT("No storage")
 //#define MSG_UBL_SAVE_ERROR                _UxGT("Err: UBL Save")
 //#define MSG_UBL_RESTORE_ERROR             _UxGT("Err: UBL Restore")
 //#define MSG_UBL_Z_OFFSET_STOPPED          _UxGT("Z-Offset Stopped")
@@ -166,7 +166,7 @@
 #define MSG_MOVE_Y                          _UxGT("Mugitu Y")
 #define MSG_MOVE_Z                          _UxGT("Mugitu Z")
 #define MSG_MOVE_E                          _UxGT("Estrusorea")
-#define MSG_MOVE_0025MM                     _UxGT("Mugitu 0.025mm")
+#define MSG_MOVE_Z_DIST                     _UxGT("Mugitu %smm")
 #define MSG_MOVE_01MM                       _UxGT("Mugitu 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Mugitu 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Mugitu 10mm")
@@ -246,8 +246,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pausatu inprimak.")
 #define MSG_RESUME_PRINT                    _UxGT("Jarraitu inprima.")
 #define MSG_STOP_PRINT                      _UxGT("Gelditu inprima.")
-#define MSG_CARD_MENU                       _UxGT("SD-tik inprimatu")
-#define MSG_NO_CARD                         _UxGT("Ez dago SD-rik")
+#define MSG_MEDIA_MENU                      _UxGT("SD-tik inprimatu")
+#define MSG_NO_MEDIA                        _UxGT("Ez dago SD-rik")
 #define MSG_DWELL                           _UxGT("Lo egin...")
 #define MSG_USERWAIT                        _UxGT("Aginduak zain...")
 #define MSG_PRINT_PAUSED                    _UxGT("Inprim. geldi.")
@@ -268,8 +268,8 @@
 #define MSG_FILAMENTLOAD                    _UxGT("Harizpia kargatu")
 #define MSG_FILAMENTUNLOAD                  _UxGT("Harizpia deskargatu")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Erabat deskargatu")
-#define MSG_INIT_SDCARD                     _UxGT("Hasieratu SD-a")
-#define MSG_CHANGE_SDCARD                   _UxGT("Aldatu txartela")
+#define MSG_INIT_MEDIA                      _UxGT("Hasieratu SD-a")
+#define MSG_CHANGE_MEDIA                    _UxGT("Aldatu txartela")
 #define MSG_ZPROBE_OUT                      _UxGT("Z zunda kanpora")
 #define MSG_SKEW_FACTOR                     _UxGT("Okertze faktorea")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
@@ -354,6 +354,9 @@
 #define MSG_ERR_HOMING_FAILED               _UxGT("Hasi. huts egin du")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Neurketak huts egin du")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: hotzegi")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Inprimagailu okerra")
+
 //
 // Filament Change screens show up to 3 lines on a 4-line display
 //                        ...or up to 2 lines on a 3-line display

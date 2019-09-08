@@ -37,8 +37,8 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME              "Ultimaker"
-#define DEFAULT_MACHINE_NAME    BOARD_NAME
+#define BOARD_INFO_NAME         "Ultimaker"
+#define DEFAULT_MACHINE_NAME    BOARD_INFO_NAME
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
 
 //
@@ -129,7 +129,7 @@
     #define LCD_PINS_D6     5
     #define LCD_PINS_D7     6
 
-    // buttons are directly attached
+    // Buttons directly attached
     #define BTN_EN1 40
     #define BTN_EN2 42
     #define BTN_ENC 19
@@ -138,7 +138,7 @@
 
   #else // !NEWPANEL - Old style panel with shift register
 
-    // buttons are attached to a shift register
+    // Buttons attached to a shift register
     #define SHIFT_CLK 38
     #define SHIFT_LD 42
     #define SHIFT_OUT 40

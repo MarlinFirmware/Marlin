@@ -155,7 +155,9 @@ typedef struct block_t {
     uint8_t valve_pressure, e_to_p_pressure;
   #endif
 
-  uint32_t segment_time_us;
+  #if HAS_SPI_LCD
+    uint32_t segment_time_us;
+  #endif
 
 } block_t;
 
@@ -717,8 +719,8 @@ class Planner {
       FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
     #endif
 
-    // Called to force a quick stop of the machine (for example, when an emergency
-    // stop is required, or when endstops are hit)
+    // Called to force a quick stop of the machine (for example, when
+    // a Full Shutdown is required, or when endstops are hit)
     static void quick_stop();
 
     // Called when an endstop is triggered. Causes the machine to stop inmediately

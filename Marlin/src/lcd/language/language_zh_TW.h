@@ -33,8 +33,8 @@
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT("已就緒.")  //" ready."
 #define MSG_BACK                            _UxGT("返回")         // ”Back“
-#define MSG_SD_INSERTED                     _UxGT("記憶卡已插入")  //"Card inserted"
-#define MSG_SD_REMOVED                      _UxGT("記憶卡被拔出")  //"Card removed"
+#define MSG_MEDIA_INSERTED                  _UxGT("記憶卡已插入")  //"Card inserted"
+#define MSG_MEDIA_REMOVED                   _UxGT("記憶卡被拔出")  //"Card removed"
 #define MSG_LCD_ENDSTOPS                    _UxGT("擋塊")  //"Endstops" // Max length 8 characters
 #define MSG_MAIN                            _UxGT("主選單")  //"Main"
 #define MSG_AUTOSTART                       _UxGT("自動開始")  //"Autostart"
@@ -74,6 +74,7 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("調平邊角") // "Level corners"
 
 #define MSG_NEXT_CORNER                     _UxGT("下个邊角") // "Next corner"
+#define MSG_EDIT_MESH                       _UxGT("編輯網格") // "Edit Mesh"
 #define MSG_EDITING_STOPPED                 _UxGT("網格編輯已停止") // "Mesh Editing Stopped"
 #define MSG_USER_MENU                       _UxGT("客制命令") // "Custom Commands"
 
@@ -82,7 +83,6 @@
 #define MSG_UBL_TOOLS                       _UxGT("UBL工具") // "UBL Tools"
 #define MSG_UBL_LEVEL_BED                   _UxGT("統一熱床調平(UBL)") // "Unified Bed Leveling"
 #define MSG_UBL_MANUAL_MESH                 _UxGT("手工建网") // "Manually Build Mesh"
-
 #define MSG_UBL_BC_INSERT                   _UxGT("放置墊片並測量") // "Place shim & measure"
 #define MSG_UBL_BC_INSERT2                  _UxGT("測量") // "Measure"
 #define MSG_UBL_BC_REMOVE                   _UxGT("移除並測量熱床") // "Remove & measure bed"
@@ -118,7 +118,6 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("輸出到CSV") // "Output for CSV"
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("輸出到備份") // "Off Printer Backup"
 #define MSG_UBL_INFO_UBL                    _UxGT("輸出UBL信息") // "Output UBL Info"
-#define MSG_EDIT_MESH                       _UxGT("編輯網格") // "Edit Mesh"
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("填充合計") // "Fill-in Amount"
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("手工填充") // "Manual Fill-in"
 #define MSG_UBL_SMART_FILLIN                _UxGT("聰明填充") // "Smart Fill-in"
@@ -133,7 +132,7 @@
 #define MSG_UBL_SAVE_MESH                   _UxGT("保存熱床網格") // "Save Bed Mesh"
 #define MSG_MESH_LOADED                     _UxGT("網格 %i 已裝載") // "Mesh %i loaded"
 #define MSG_MESH_SAVED                      _UxGT("網格 %i 已保存") // "Mesh %i saved"
-#define MSG_NO_STORAGE                      _UxGT("沒有存儲") // "No storage"
+#define MSG_UBL_NO_STORAGE                  _UxGT("沒有存儲") // "No storage"
 #define MSG_UBL_SAVE_ERROR                  _UxGT("錯誤: UBL保存") // "Err: UBL Save"
 #define MSG_UBL_RESTORE_ERROR               _UxGT("錯誤: UBL還原") // "Err: UBL Restore"
 #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Z偏移已停止") // "Z-Offset Stopped"
@@ -164,7 +163,7 @@
 #define MSG_MOVE_Y                          _UxGT("移動Y")  //"Move Y"
 #define MSG_MOVE_Z                          _UxGT("移動Z")  //"Move Z"
 #define MSG_MOVE_E                          _UxGT("擠出機")  //"Extruder"
-#define MSG_MOVE_0025MM                     _UxGT("移動 0.025 mm")  //"Move 0.025mm"
+#define MSG_MOVE_Z_DIST                     _UxGT("移動 %s mm")  //"Move 0.025mm"
 #define MSG_MOVE_01MM                       _UxGT("移動 0.1 mm")  //"Move 0.1mm"
 #define MSG_MOVE_1MM                        _UxGT("移動 1 mm")  //"Move 1mm"
 #define MSG_MOVE_10MM                       _UxGT("移動 10 mm")  //"Move 10mm"
@@ -244,8 +243,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("暫停列印")  //"Pause print"
 #define MSG_RESUME_PRINT                    _UxGT("恢復列印")  //"Resume print"
 #define MSG_STOP_PRINT                      _UxGT("停止列印")  //"Stop print"
-#define MSG_CARD_MENU                       _UxGT("從記憶卡上列印")  //"Print from SD"
-#define MSG_NO_CARD                         _UxGT("無記憶卡")  //"No SD card"
+#define MSG_MEDIA_MENU                      _UxGT("從記憶卡上列印")  //"Print from SD"
+#define MSG_NO_MEDIA                        _UxGT("無記憶卡")  //"No SD card"
 #define MSG_DWELL                           _UxGT("休眠 ...")  //"Sleep..."
 #define MSG_USERWAIT                        _UxGT("點擊繼續 ...")  //"Click to resume..."
 #define MSG_PRINT_PAUSED                    _UxGT("列印已暫停") // "Print paused"
@@ -266,8 +265,8 @@
 #define MSG_FILAMENTLOAD                    _UxGT("裝載絲料") // "Load filament"
 #define MSG_FILAMENTUNLOAD                  _UxGT("卸載絲料") // "Unload filament"
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("卸載全部") // "Unload All"
-#define MSG_INIT_SDCARD                     _UxGT("初始化記憶卡")  //"Init. SD card"
-#define MSG_CHANGE_SDCARD                   _UxGT("更換記憶卡")  //"Change SD card"
+#define MSG_INIT_MEDIA                      _UxGT("初始化記憶卡")  //"Init. SD card"
+#define MSG_CHANGE_MEDIA                    _UxGT("更換記憶卡")  //"Change SD card"
 #define MSG_ZPROBE_OUT                      _UxGT("Z探針在熱床之外")  //"Z probe out. bed" Z probe is not within the physical limits
 #define MSG_SKEW_FACTOR                     _UxGT("偏斜因數") // "Skew Factor"
 #define MSG_BLTOUCH                         _UxGT("BLTouch")     // "BLTouch"
@@ -323,6 +322,8 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("協議")  //"Protocol"
 #define MSG_CASE_LIGHT                      _UxGT("外殼燈") // "Case light"
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("燈亮度") // "Light BRIGHTNESS"
+
+#define MSG_EXPECTED_PRINTER                _UxGT("打印機不正確") // "The printer is incorrect"
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("列印計數")  //"Print Count"

@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,8 +20,8 @@
  */
 #pragma once
 
-#define SYNC(sc)    while (sc) {   \
-                      asm("");     \
+#define SYNC(sc)    while (sc) {  \
+                      asm("");    \
                     }
 
 // Get SAMD port/pin from specified arduino pin

@@ -53,15 +53,6 @@
 // Nanoseconds per cycle
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
-// Remove compiler warning on an unused variable
-#ifndef UNUSED
-  #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
-    #define UNUSED(X) (void)X
-  #else
-    #define UNUSED(x) ((void)(x))
-  #endif
-#endif
-
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
@@ -118,24 +109,24 @@
   // Using GCC extensions, but Travis GCC version does not like it and gives
   //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
   #define NOLESS(v, n) \
-    do { \
+    do{ \
       __typeof__(n) _n = (n); \
       if (v < _n) v = _n; \
-    } while(0)
+    }while(0)
 
   #define NOMORE(v, n) \
-    do { \
+    do{ \
       __typeof__(n) _n = (n); \
       if (v > _n) v = _n; \
-    } while(0)
+    }while(0)
 
   #define LIMIT(v, n1, n2) \
-    do { \
+    do{ \
       __typeof__(n1) _n1 = (n1); \
       __typeof__(n2) _n2 = (n2); \
       if (v < _n1) v = _n1; \
       else if (v > _n2) v = _n2; \
-    } while(0)
+    }while(0)
 
 #endif
 

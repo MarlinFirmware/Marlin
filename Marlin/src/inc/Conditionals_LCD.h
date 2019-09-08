@@ -30,9 +30,6 @@
 
   #define DOGLCD
   #define IS_ULTIPANEL
-  #define DEFAULT_LCD_CONTRAST 90
-  #define LCD_CONTRAST_MIN 60
-  #define LCD_CONTRAST_MAX 140
 
 #elif ENABLED(ZONESTAR_LCD)
 
@@ -63,25 +60,13 @@
   #define IS_ULTIPANEL
 
   #if ENABLED(miniVIKI)
-    #define LCD_CONTRAST_MIN      75
-    #define LCD_CONTRAST_MAX     115
-    #define DEFAULT_LCD_CONTRAST  95
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(VIKI2)
-    #define LCD_CONTRAST_MIN       0
-    #define LCD_CONTRAST_MAX     255
-    #define DEFAULT_LCD_CONTRAST 140
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-    #define LCD_CONTRAST_MIN      90
-    #define LCD_CONTRAST_MAX     130
-    #define DEFAULT_LCD_CONTRAST 110
     #define U8GLIB_LM6059_AF
     #define SD_DETECT_INVERTED
   #elif ENABLED(AZSMZ_12864)
-    #define LCD_CONTRAST_MIN     120
-    #define LCD_CONTRAST_MAX     255
-    #define DEFAULT_LCD_CONTRAST 190
     #define U8GLIB_ST7565_64128N
   #endif
 
@@ -128,17 +113,12 @@
 #elif ENABLED(MKS_MINI_12864)
 
   #define MINIPANEL
-  #define DEFAULT_LCD_CONTRAST 150
-  #define LCD_CONTRAST_MAX 255
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
 
   #define FYSETC_MINI_12864
   #define DOGLCD
   #define IS_ULTIPANEL
-  #define LCD_CONTRAST_MIN 0
-  #define LCD_CONTRAST_MAX 255
-  #define DEFAULT_LCD_CONTRAST 220
   #define LED_COLORS_REDUCE_GREEN
   #if HAS_POWER_SWITCH && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
     #define LED_BACKLIGHT_TIMEOUT 10000
@@ -163,11 +143,9 @@
 
 #elif ENABLED(ULTI_CONTROLLER)
 
+  #define IS_ULTIPANEL
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
-  #define LCD_CONTRAST_MIN 0
-  #define LCD_CONTRAST_MAX 254
-  #define DEFAULT_LCD_CONTRAST 127
   #define ENCODER_PULSES_PER_STEP 2
   #define ENCODER_STEPS_PER_MENU_ITEM 2
 
@@ -189,13 +167,28 @@
   #if ENABLED(MAKRPANEL)
     #define U8GLIB_ST7565_64128N
   #endif
-  #ifndef DEFAULT_LCD_CONTRAST
-    #define DEFAULT_LCD_CONTRAST 17
-  #endif
 #endif
 
 #if ENABLED(IS_U8GLIB_SSD1306)
   #define U8GLIB_SSD1306
+#endif
+
+#if ENABLED(OVERLORD_OLED)
+  #define IS_ULTIPANEL
+  #define U8GLIB_SH1106
+  /**
+   * PCA9632 for buzzer and LEDs via i2c
+   * No auto-inc, red and green leds switched, buzzer
+   */
+  #define PCA9632
+  #define PCA9632_NO_AUTO_INC
+  #define PCA9632_GRN         0x00
+  #define PCA9632_RED         0x02
+  #define PCA9632_BUZZER
+  #define PCA9632_BUZZER_DATA { 0x09, 0x02 }
+
+  #define ENCODER_PULSES_PER_STEP     1 // Overlord uses buttons
+  #define ENCODER_STEPS_PER_MENU_ITEM 1
 #endif
 
 // 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
@@ -205,41 +198,42 @@
   #define DOGLCD
 #endif
 
+// ST7920-based graphical displays
 #if ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, LCD_FOR_MELZI, SILVER_GATE_GLCD_CONTROLLER)
   #define DOGLCD
   #define U8GLIB_ST7920
   #define IS_RRD_SC
 #endif
 
+// RepRapDiscount LCD or Graphical LCD with rotary click encoder
 #if ENABLED(IS_RRD_SC)
   #define REPRAP_DISCOUNT_SMART_CONTROLLER
 #endif
 
-#if ANY(ULTIMAKERCONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER, G3D_PANEL, RIGIDBOT_PANEL, ULTI_CONTROLLER, PANEL_ONE, U8GLIB_SH1106)
+/**
+ * SPI Ultipanels
+ */
+
+// Basic Ultipanel-like displays
+#if ANY(ULTIMAKERCONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER, G3D_PANEL, RIGIDBOT_PANEL, PANEL_ONE, U8GLIB_SH1106)
   #define IS_ULTIPANEL
 #endif
 
-/**
- * SPI PANELS
- */
+// Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
+#if ENABLED(U8GLIB_SH1106_EINSTART)
+  #define DOGLCD
+  #define IS_ULTIPANEL
+#endif
 
- // Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
- #if ENABLED(U8GLIB_SH1106_EINSTART)
-   #define DOGLCD
-   #define IS_ULTIPANEL
- #endif
-
- /**
-  * FSMC/SPI TFT PANELS
-  */
- #if ENABLED(MKS_ROBIN_TFT)
-   #define DOGLCD
-   #define IS_ULTIPANEL
-   #define DELAYED_BACKLIGHT_INIT
- #endif
+// FSMC/SPI TFT Panels
+#if ENABLED(FSMC_GRAPHICAL_TFT)
+  #define DOGLCD
+  #define IS_ULTIPANEL
+  #define DELAYED_BACKLIGHT_INIT
+#endif
 
 /**
- * I2C PANELS
+ * I2C Panels
  */
 
 #if EITHER(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004)
@@ -294,7 +288,11 @@
 #endif
 
 #ifndef STD_ENCODER_PULSES_PER_STEP
-  #define STD_ENCODER_PULSES_PER_STEP 5
+  #if ENABLED(TOUCH_BUTTONS)
+    #define STD_ENCODER_PULSES_PER_STEP 1
+  #else
+    #define STD_ENCODER_PULSES_PER_STEP 5
+  #endif
 #endif
 #ifndef STD_ENCODER_STEPS_PER_MENU_ITEM
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
@@ -348,7 +346,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extensible_ui)
-#if EITHER(MALYAN_LCD, DGUS_LCD)
+#if ANY(MALYAN_LCD, DGUS_LCD, LULZBOT_TOUCH_UI)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
 #endif
@@ -360,22 +358,6 @@
 #define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 #define HAS_ADC_BUTTONS      ENABLED(ADC_KEYPAD)
-
-/**
- * Default LCD contrast for Graphical LCD displays
- */
-#define HAS_LCD_CONTRAST (HAS_GRAPHICAL_LCD && defined(DEFAULT_LCD_CONTRAST))
-#if HAS_LCD_CONTRAST
-  #ifndef LCD_CONTRAST_MIN
-    #define LCD_CONTRAST_MIN 0
-  #endif
-  #ifndef LCD_CONTRAST_MAX
-    #define LCD_CONTRAST_MAX 63
-  #endif
-  #ifndef DEFAULT_LCD_CONTRAST
-    #define DEFAULT_LCD_CONTRAST 32
-  #endif
-#endif
 
 /**
  * Extruders have some combination of stepper motors and hotends
@@ -547,7 +529,7 @@
 #define HAS_COLOR_LEDS        ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
 #define HAS_LEDS_OFF_FLAG     (BOTH(PRINTER_EVENT_LEDS, SDSUPPORT) && HAS_RESUME_CONTINUE)
 #define HAS_PRINT_PROGRESS    EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
-#define HAS_SERVICE_INTERVALS (SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0)
+#define HAS_SERVICE_INTERVALS (ENABLED(PRINTCOUNTER) && (SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0))
 #define HAS_FILAMENT_SENSOR   ENABLED(FILAMENT_RUNOUT_SENSOR)
 
 #define Z_MULTI_STEPPER_DRIVERS EITHER(Z_DUAL_STEPPER_DRIVERS, Z_TRIPLE_STEPPER_DRIVERS)
@@ -572,32 +554,6 @@
 #endif
 #ifndef INVERT_E_DIR
   #define INVERT_E_DIR false
-#endif
-
-#if ENABLED(HOST_ACTION_COMMANDS)
-  #ifndef ACTION_ON_PAUSE
-    #define ACTION_ON_PAUSE   "pause"
-  #endif
-  #ifndef ACTION_ON_RESUME
-    #define ACTION_ON_RESUME  "resume"
-  #endif
-  #ifndef ACTION_ON_PAUSED
-    #define ACTION_ON_PAUSED  "paused"
-  #endif
-  #ifndef ACTION_ON_RESUMED
-    #define ACTION_ON_RESUMED "resumed"
-  #endif
-  #ifndef ACTION_ON_CANCEL
-    #define ACTION_ON_CANCEL  "cancel"
-  #endif
-  #if ENABLED(G29_RETRY_AND_RECOVER)
-    #ifndef ACTION_ON_G29_RECOVER
-      #define ACTION_ON_G29_RECOVER "probe_rewipe"
-    #endif
-    #ifndef ACTION_ON_G29_FAILURE
-      #define ACTION_ON_G29_FAILURE "probe_failed"
-    #endif
-  #endif
 #endif
 
 #if ENABLED(SLIM_LCD_MENUS)

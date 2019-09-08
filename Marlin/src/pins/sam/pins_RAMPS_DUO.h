@@ -47,7 +47,7 @@
   #error "Oops! Select 'Arduino Due' or 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "RAMPS Duo"
+#define BOARD_INFO_NAME "RAMPS Duo"
 
 #define IS_RAMPS_DUO
 #include "pins_RAMPS.h"

@@ -25,13 +25,19 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "BIGTREE SKR Mini E3"
+#define BOARD_INFO_NAME "BIGTREE SKR Mini E3"
 
 // Release PB3/PB4 (E0 STP/DIR) from JTAG pins
 #define DISABLE_JTAG
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+
+#define FLASH_EEPROM_EMULATION
+#define EEPROM_PAGE_SIZE     uint16(0x800) // 2KB
+#define EEPROM_START_ADDRESS uint32(0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE)
+#undef E2END
+#define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
 
 //
 // Servos
@@ -136,3 +142,15 @@
   #endif
 
 #endif // HAS_SPI_LCD
+
+//
+// SD Support
+//
+#define HAS_ONBOARD_SD
+
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION ONBOARD
+#endif
+
+#define ON_BOARD_SPI_DEVICE 1    //SPI1
+#define ONBOARD_SD_CS_PIN  PA4   // Chip select for "System" SD card
