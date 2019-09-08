@@ -648,7 +648,7 @@
       };
 
     #else
-  
+
       const unsigned char status_bed_bmp[] PROGMEM = {
         B00000100,B00010000,B01000000,
         B00000010,B00001000,B00100000,
@@ -684,6 +684,7 @@
       #define STATUS_CHAMBER_X (LCD_PIXEL_WIDTH - (STATUS_CHAMBER_BYTEWIDTH) * 8)
     #endif
   #endif
+
   #ifdef STATUS_CHAMBER_ANIM
 
     const unsigned char status_chamber_bmp[] PROGMEM = {
@@ -737,13 +738,12 @@
   #define STATUS_CHAMBER_WIDTH 0
 #endif
 
-#define BED_CHAM (HAS_HEATED_BED || HAS_TEMP_CHAMBER)
-#define BED_CHAM_FAN (BED_CHAM || HAS_FAN0)
+#define BED_OR_CHAMBER_OR_FAN (BED_OR_CHAMBER || HAS_FAN0)
 
 // Can also be overridden in Configuration_adv.h
 // If you can afford it, try the 3-frame fan animation!
 // Don't compile in the fan animation with no fan
-#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && BED_CHAM) || (ENABLED(STATUS_COMBINE_HEATERS) && HAS_HEATED_CHAMBER))
+#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && BED_OR_CHAMBER) || (ENABLED(STATUS_COMBINE_HEATERS) && HAS_HEATED_CHAMBER))
   #undef STATUS_FAN_FRAMES
 #elif !STATUS_FAN_FRAMES
   #define STATUS_FAN_FRAMES 2
@@ -1199,7 +1199,7 @@
     #undef STATUS_LOGO_WIDTH
   #endif
 
-  #if (HOTENDS > 1 && STATUS_LOGO_WIDTH && BED_CHAM_FAN) || ( HOTENDS >= 3 && !BED_CHAM_FAN)
+  #if (HOTENDS > 1 && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN)
     #define _STATUS_HEATERS_X(H,S,N) (((LCD_PIXEL_WIDTH - (H * (S + N)) - STATUS_LOGO_WIDTH - STATUS_BED_WIDTH - STATUS_CHAMBER_WIDTH - STATUS_FAN_WIDTH) / 2) + STATUS_LOGO_WIDTH)
     #if STATUS_HOTEND1_WIDTH
       #if HOTENDS > 2
