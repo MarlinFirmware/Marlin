@@ -15,8 +15,8 @@
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
-//#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
-#define MachineCRX
+#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+//#define MachineCRX
 //#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
@@ -33,7 +33,7 @@
 
 //#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
 //#define ForceCRXDisplay
-#define Force10SProDisplay
+//#define Force10SProDisplay
 
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
@@ -102,7 +102,7 @@
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-#define ABL_BLTOUCH
+//#define ABL_BLTOUCH
 
 //#define CREALITY_ABL_MOUNT //Using creality ABL mount
 //#define E3D_DUALFAN_MOUNT // Using HD Modular mount as above with 2 5015 blowers and sensor on the right
@@ -225,8 +225,6 @@
 #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
   #define SHOW_BOOTSCREEN
 #endif
-#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -1981,7 +1979,7 @@
   //===========================================================================
   //========================= Unified Bed Leveling ============================
   //===========================================================================
-  #define MIN_PROBE_EDGE 1
+  #define MESH_INSET MIN_PROBE_EDGE
   #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD) || ENABLED(GraphicLCD)
     #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
   #endif
