@@ -121,6 +121,15 @@ const uint8_t adc_pins[] = {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
   #endif
+  #if HAS_JOY_ADC_X
+    JOY_X_PIN,
+  #endif
+  #if HAS_JOY_ADC_Y
+    JOY_Y_PIN,
+  #endif
+  #if HAS_JOY_ADC_Z
+    JOY_Z_PIN,
+  #endif
 };
 
 enum TEMP_PINS : char {
@@ -151,14 +160,19 @@ enum TEMP_PINS : char {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
   #endif
+  #if HAS_JOY_ADC_X
+    JOY_X,
+  #endif
+  #if HAS_JOY_ADC_Y
+    JOY_Y,
+  #endif
+  #if HAS_JOY_ADC_Z
+    JOY_Z,
+  #endif
   ADC_PIN_COUNT
 };
 
 uint16_t HAL_adc_results[ADC_PIN_COUNT];
-
-// ------------------------
-// Function prototypes
-// ------------------------
 
 // ------------------------
 // Private functions
@@ -304,6 +318,15 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #endif
     #if HAS_TEMP_ADC_5
       case TEMP_5_PIN: pin_index = TEMP_5; break;
+    #endif
+    #if HAS_JOY_ADC_X
+      case JOY_X_PIN: pin_index = JOY_X; break;
+    #endif
+    #if HAS_JOY_ADC_Y
+      case JOY_Y_PIN: pin_index = JOY_Y; break;
+    #endif
+    #if HAS_JOY_ADC_Z
+      case JOY_Z_PIN: pin_index = JOY_Z; break;
     #endif
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;
