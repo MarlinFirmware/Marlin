@@ -233,7 +233,7 @@ bool I2CPositionEncoder::passes_test(const bool report) {
     switch (H) {
       case I2CPE_MAG_SIG_GOOD:
       case I2CPE_MAG_SIG_MID:
-        serial_ternary(H == I2CPE_MAG_SIG_GOOD, PSTR("passes test; field strength "), PSTR("good"), PSTR("fair"), PSTR(".\n"));
+        SERIAL_ECHO_TERNARY(H == I2CPE_MAG_SIG_GOOD, "passes test; field strength ", "good", "fair", ".\n");
         break;
       default:
         SERIAL_ECHOLNPGM("not detected!");

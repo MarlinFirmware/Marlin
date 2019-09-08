@@ -77,7 +77,7 @@
 #define UHS_VID_OPTI 0x03fbU // OPTi, Inc.
 #define UHS_VID_ELITEGROUP_COMPUTER_SYSTEMS 0x03fcU // Elitegroup Computer Systems
 #define UHS_VID_XILINX 0x03fdU // Xilinx, Inc.
-#define UHS_VID_FARALLON_COMUNICATIONS 0x03feU // Farallon Comunications
+#define UHS_VID_FARALLON_COMUNICATIONS 0x03feU // Farallon Communications
 #define UHS_VID_NATIONAL_SEMICONDUCTOR 0x0400U // National Semiconductor Corp.
 #define UHS_VID_NATIONAL_REGISTRY 0x0401U // National Registry, Inc.
 #define UHS_VID_ALI 0x0402U // ALi Corp.

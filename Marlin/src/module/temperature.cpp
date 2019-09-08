@@ -64,6 +64,10 @@
   #include "../feature/leds/printer_event_leds.h"
 #endif
 
+#if ENABLED(JOYSTICK)
+  #include "../feature/joystick.h"
+#endif
+
 #if ENABLED(SINGLENOZZLE)
   #include "tool_change.h"
 #endif
@@ -1685,6 +1689,18 @@ void Temperature::init() {
   #if HAS_TEMP_ADC_5
     HAL_ANALOG_SELECT(TEMP_5_PIN);
   #endif
+  #if HAS_JOY_ADC_X
+    HAL_ANALOG_SELECT(JOY_X_PIN);
+  #endif
+  #if HAS_JOY_ADC_Y
+    HAL_ANALOG_SELECT(JOY_Y_PIN);
+  #endif
+  #if HAS_JOY_ADC_Z
+    HAL_ANALOG_SELECT(JOY_Z_PIN);
+  #endif
+  #if HAS_JOY_ADC_EN
+    SET_INPUT_PULLUP(JOY_EN_PIN);
+  #endif
   #if HAS_HEATED_BED
     HAL_ANALOG_SELECT(TEMP_BED_PIN);
   #endif
@@ -2195,6 +2211,16 @@ void Temperature::set_current_temp_raw() {
     temp_chamber.update();
   #endif
 
+  #if HAS_JOY_ADC_X
+    joystick.x.update();
+  #endif
+  #if HAS_JOY_ADC_Y
+    joystick.y.update();
+  #endif
+  #if HAS_JOY_ADC_Z
+    joystick.z.update();
+  #endif
+
   temp_meas_ready = true;
 }
 
@@ -2223,6 +2249,16 @@ void Temperature::readings_ready() {
 
   #if HAS_TEMP_CHAMBER
     temp_chamber.reset();
+  #endif
+
+  #if HAS_JOY_ADC_X
+    joystick.x.reset();
+  #endif
+  #if HAS_JOY_ADC_Y
+    joystick.y.reset();
+  #endif
+  #if HAS_JOY_ADC_Z
+    joystick.z.reset();
   #endif
 
   static constexpr int8_t temp_dir[] = {
@@ -2719,6 +2755,21 @@ void Temperature::isr() {
           raw_filwidth_value += uint32_t(HAL_READ_ADC()) << 7; // Add new ADC reading, scaled by 128
         }
       break;
+    #endif
+
+    #if HAS_JOY_ADC_X
+      case PrepareJoy_X: HAL_START_ADC(JOY_X_PIN); break;
+      case MeasureJoy_X: ACCUMULATE_ADC(joystick.x); break;
+    #endif
+
+    #if HAS_JOY_ADC_Y
+      case PrepareJoy_Y: HAL_START_ADC(JOY_Y_PIN); break;
+      case MeasureJoy_Y: ACCUMULATE_ADC(joystick.y); break;
+    #endif
+
+    #if HAS_JOY_ADC_Z
+      case PrepareJoy_Z: HAL_START_ADC(JOY_Z_PIN); break;
+      case MeasureJoy_Z: ACCUMULATE_ADC(joystick.z); break;
     #endif
 
     #if HAS_ADC_BUTTONS

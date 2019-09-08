@@ -2584,10 +2584,10 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   const int32_t target[ABCE] = {
-    LROUND(a * settings.axis_steps_per_mm[A_AXIS]),
-    LROUND(b * settings.axis_steps_per_mm[B_AXIS]),
-    LROUND(c * settings.axis_steps_per_mm[C_AXIS]),
-    LROUND(e * settings.axis_steps_per_mm[E_AXIS_N(extruder)])
+    int32_t(LROUND(a * settings.axis_steps_per_mm[A_AXIS])),
+    int32_t(LROUND(b * settings.axis_steps_per_mm[B_AXIS])),
+    int32_t(LROUND(c * settings.axis_steps_per_mm[C_AXIS])),
+    int32_t(LROUND(e * settings.axis_steps_per_mm[E_AXIS_N(extruder)]))
   };
 
   #if HAS_POSITION_FLOAT
