@@ -27,7 +27,7 @@
 #include "tmc_util.h"
 #include "../Marlin.h"
 
-#include "../module/stepper_indirection.h"
+#include "../module/stepper/indirection.h"
 #include "../module/printcounter.h"
 #include "../libs/duration_t.h"
 #include "../gcode/gcode.h"
@@ -1118,7 +1118,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
     #endif
   }
 
-  if (axis_connection) ui.set_status_P(PSTR("TMC CONNECTION ERROR"));
+  if (axis_connection) ui.set_status_P(PSTR(MSG_ERROR_TMC));
 }
 
 #endif // HAS_TRINAMIC

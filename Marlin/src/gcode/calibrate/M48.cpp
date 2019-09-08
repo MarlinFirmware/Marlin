@@ -77,8 +77,8 @@ void GcodeSuite::M48() {
   float X_current = current_position[X_AXIS],
         Y_current = current_position[Y_AXIS];
 
-  const float X_probe_location = parser.linearval('X', X_current + X_PROBE_OFFSET_FROM_EXTRUDER),
-              Y_probe_location = parser.linearval('Y', Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER);
+  const float X_probe_location = parser.linearval('X', X_current + zprobe_offset[X_AXIS]),
+              Y_probe_location = parser.linearval('Y', Y_current + zprobe_offset[Y_AXIS]);
 
   if (!position_is_reachable_by_probe(X_probe_location, Y_probe_location)) {
     SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
@@ -165,8 +165,8 @@ void GcodeSuite::M48() {
           while (angle < 0.0) angle += 360.0;   // outside of this range.   It looks like they behave correctly with
                                                 // numbers outside of the range, but just to be safe we clamp them.
 
-          X_current = X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER) + cos(RADIANS(angle)) * radius;
-          Y_current = Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER) + sin(RADIANS(angle)) * radius;
+          X_current = X_probe_location - (zprobe_offset[X_AXIS]) + cos(RADIANS(angle)) * radius;
+          Y_current = Y_probe_location - (zprobe_offset[Y_AXIS]) + sin(RADIANS(angle)) * radius;
 
           #if DISABLED(DELTA)
             LIMIT(X_current, X_MIN_POS, X_MAX_POS);

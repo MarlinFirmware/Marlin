@@ -233,7 +233,7 @@ void menu_tune() {
       MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
     #endif
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+      MENU_ITEM(submenu, MSG_zprobe_zoffset, lcd_babystep_zoffset);
     #else
       MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
     #endif

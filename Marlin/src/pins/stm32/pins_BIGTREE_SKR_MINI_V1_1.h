@@ -25,7 +25,7 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "BIGTREE SKR Mini 1.1"
+#define BOARD_INFO_NAME "BIGTREE SKR Mini 1.1"
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
@@ -160,20 +160,20 @@
 //
 
 // By default the onboard SD is enabled.
-// To disable it and use an external SD (connected to LCD)
-// enable STM32_SD_LCD.
+// set SDCARD_CONNECTION form 'ONBOARD' to 'LCD' and use an external SD (connected to LCD)
+#define HAS_ONBOARD_SD
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION ONBOARD
+#endif
 
-//#define STM32_SD_LCD
-
-#if ENABLED(STM32_SD_LCD)
+#if SD_CONNECTION_IS(LCD)
   #define ENABLE_SPI3
   #define SD_DETECT_PIN    PB9
   #define SCK_PIN          PB3
   #define MISO_PIN         PB4
   #define MOSI_PIN         PB5
   #define SS_PIN           PA15
-#else
-  #define SDCARD_CONNECTION ONBOARD
+#if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI1
   #define SD_DETECT_PIN    PA3
   #define SCK_PIN          PA5
@@ -181,6 +181,8 @@
   #define MOSI_PIN         PA7
   #define SS_PIN           PA4
 #endif
+#define ON_BOARD_SPI_DEVICE 1    //SPI1
+#define ONBOARD_SD_CS_PIN  PA4   // Chip select for "System" SD card
 
 #ifndef ST7920_DELAY_1
   #define ST7920_DELAY_1 DELAY_NS(125)

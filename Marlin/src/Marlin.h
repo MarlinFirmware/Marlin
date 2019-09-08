@@ -322,8 +322,8 @@ void disable_e_stepper(const uint8_t e);
 void disable_e_steppers();
 void disable_all_steppers();
 
-void kill(PGM_P const lcd_msg=nullptr);
-void minkill();
+void kill(PGM_P const lcd_msg=nullptr, const bool steppers_off=false);
+void minkill(const bool steppers_off=false);
 
 void quickstop_stepper();
 

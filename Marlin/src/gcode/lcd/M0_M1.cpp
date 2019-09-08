@@ -108,10 +108,6 @@ void GcodeSuite::M0_M1() {
   else
     while (wait_for_user) idle();
 
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onUserConfirmRequired(nullptr);
-  #endif
-
   #if HAS_LEDS_OFF_FLAG
     printerEventLEDs.onResumeAfterWait();
   #endif

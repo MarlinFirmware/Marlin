@@ -311,7 +311,7 @@
 #define MSG_MANUAL_STOW                     _UxGT("Z-Sensör Kapat")
 #define MSG_HOME                            _UxGT("Sıfırla")
 #define MSG_FIRST                           _UxGT("Önce")
-#define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Offset")
+#define MSG_zprobe_zoffset                  _UxGT("Z Offset")
 #define MSG_BABYSTEP_X                      _UxGT("Miniadım X")
 #define MSG_BABYSTEP_Y                      _UxGT("Miniadım Y")
 #define MSG_BABYSTEP_Z                      _UxGT("Miniadım Z")

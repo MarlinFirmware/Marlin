@@ -29,8 +29,8 @@
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME        "Smoothieboard"
-#define BOARD_WEBSITE_URL "http://smoothieware.org/smoothieboard"
+#define BOARD_INFO_NAME   "Smoothieboard"
+#define BOARD_WEBSITE_URL "smoothieware.org/smoothieboard"
 
 //
 // Custom CPU Speed 120MHz

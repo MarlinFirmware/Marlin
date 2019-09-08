@@ -58,7 +58,7 @@
 
   void unified_bed_leveling::report_state() {
     echo_name();
-    serial_ternary(planner.leveling_active, PSTR(" System v" UBL_VERSION " "), PSTR(""), PSTR("in"), PSTR("active\n"));
+    SERIAL_ECHO_TERNARY(planner.leveling_active, " System v" UBL_VERSION " ", "", "in", "active\n");
     serial_delay(50);
   }
 
@@ -168,8 +168,8 @@
     // Add XY_PROBE_OFFSET_FROM_EXTRUDER because probe_pt() subtracts these when
     // moving to the xy position to be measured. This ensures better agreement between
     // the current Z position after G28 and the mesh values.
-    const float current_xi = find_closest_x_index(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
-                current_yi = find_closest_y_index(current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
+    const float current_xi = find_closest_x_index(current_position[X_AXIS] + zprobe_offset[X_AXIS]),
+                current_yi = find_closest_y_index(current_position[Y_AXIS] + zprobe_offset[Y_AXIS]);
 
     if (!lcd) SERIAL_EOL();
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {

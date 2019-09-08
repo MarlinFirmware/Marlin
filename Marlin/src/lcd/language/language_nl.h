@@ -178,7 +178,7 @@
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("Eerst")
-#define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Offset")  //accepted English term in Dutch
+#define MSG_zprobe_zoffset                  _UxGT("Z Offset")  //accepted English term in Dutch
 #define MSG_BABYSTEP_X                      _UxGT("Babystap X")
 #define MSG_BABYSTEP_Y                      _UxGT("Babystap Y")
 #define MSG_BABYSTEP_Z                      _UxGT("Babystap Z")

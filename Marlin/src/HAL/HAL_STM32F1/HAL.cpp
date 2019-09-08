@@ -82,7 +82,7 @@
 // Public Variables
 // ------------------------
 
-#ifdef SERIAL_USB
+#if (!defined(SERIAL_USB) && !defined(USE_USB_COMPOSITE))
   USBSerial SerialUSB;
 #endif
 
@@ -93,7 +93,7 @@ uint16_t HAL_adc_result;
 // ------------------------
 STM32ADC adc(ADC1);
 
-uint8_t adc_pins[] = {
+const uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_0
     TEMP_0_PIN,
   #endif
@@ -120,6 +120,15 @@ uint8_t adc_pins[] = {
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
+  #endif
+  #if HAS_JOY_ADC_X
+    JOY_X_PIN,
+  #endif
+  #if HAS_JOY_ADC_Y
+    JOY_Y_PIN,
+  #endif
+  #if HAS_JOY_ADC_Z
+    JOY_Z_PIN,
   #endif
 };
 
@@ -151,14 +160,19 @@ enum TEMP_PINS : char {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
   #endif
+  #if HAS_JOY_ADC_X
+    JOY_X,
+  #endif
+  #if HAS_JOY_ADC_Y
+    JOY_Y,
+  #endif
+  #if HAS_JOY_ADC_Z
+    JOY_Z,
+  #endif
   ADC_PIN_COUNT
 };
 
 uint16_t HAL_adc_results[ADC_PIN_COUNT];
-
-// ------------------------
-// Function prototypes
-// ------------------------
 
 // ------------------------
 // Private functions
@@ -201,10 +215,31 @@ void HAL_init(void) {
   #if PIN_EXISTS(LED)
     OUT_WRITE(LED_PIN, LOW);
   #endif
+  #ifdef USE_USB_COMPOSITE
+    MSC_SD_init();
+  #endif
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
     delay(1000);                                         // Give OS time to notice
     OUT_WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
+  #endif
+}
+
+// HAL idle task
+void HAL_idletask(void) {
+  #ifdef USE_USB_COMPOSITE
+    #if ENABLED(SHARED_SD_CARD)
+      // If Marlin is using the SD card we need to lock it to prevent access from
+      // a PC via USB.
+      // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
+      // this will not reliably detect delete operations. To be safe we will lock
+      // the disk if Marlin has it mounted. Unfortuately there is currently no way
+      // to unmount the disk from the LCD menu.
+      // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
+      /* copy from lpc1768 framework, should be fixed later for process SHARED_SD_CARD*/
+    #endif
+    // process USB mass storage device class loop
+    MarlinMSC.loop();
   #endif
 }
 
@@ -270,7 +305,7 @@ void HAL_adc_init(void) {
   #else
     adc.setSampleRate(ADC_SMPR_41_5); // 41.5 ADC cycles
   #endif
-  adc.setPins(adc_pins, ADC_PIN_COUNT);
+  adc.setPins((uint8_t *)adc_pins, ADC_PIN_COUNT);
   adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), nullptr);
   adc.setScanMode();
   adc.setContinuous();
@@ -304,6 +339,15 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #endif
     #if HAS_TEMP_ADC_5
       case TEMP_5_PIN: pin_index = TEMP_5; break;
+    #endif
+    #if HAS_JOY_ADC_X
+      case JOY_X_PIN: pin_index = JOY_X; break;
+    #endif
+    #if HAS_JOY_ADC_Y
+      case JOY_Y_PIN: pin_index = JOY_Y; break;
+    #endif
+    #if HAS_JOY_ADC_Z
+      case JOY_Z_PIN: pin_index = JOY_Z; break;
     #endif
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;

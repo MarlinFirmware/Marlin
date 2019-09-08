@@ -548,7 +548,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       #endif
 
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onStatusChanged(PSTR("HeaterTimeout"));
+        ExtUI::onUserConfirmRequired(PSTR("HeaterTimeout"));
       #endif
 
       // Wait for LCD click or M108
@@ -558,7 +558,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheating"));
       #endif
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired(PSTR("Reheating..."));
+        ExtUI::onStatusChanged(PSTR("Reheating..."));
       #endif
 
       // Re-enable the heaters if they timed out

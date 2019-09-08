@@ -276,7 +276,7 @@
 #define MSG_BLTOUCH_STOW                    _UxGT("裝載BLTouch")   // "Stow BLTouch"
 #define MSG_HOME                            _UxGT("歸位")  //"Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("先")  //"first"
-#define MSG_ZPROBE_ZOFFSET                  _UxGT("Z偏移")  //"Z Offset"
+#define MSG_zprobe_zoffset                  _UxGT("Z偏移")  //"Z Offset"
 #define MSG_BABYSTEP_X                      _UxGT("微量調整X軸")  //"Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
 #define MSG_BABYSTEP_Y                      _UxGT("微量調整Y軸")  //"Babystep Y"
 #define MSG_BABYSTEP_Z                      _UxGT("微量調整Z軸")  //"Babystep Z"

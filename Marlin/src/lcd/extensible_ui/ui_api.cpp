@@ -77,7 +77,7 @@
 
 #if HAS_TRINAMIC
   #include "../../feature/tmc_util.h"
-  #include "../../module/stepper_indirection.h"
+  #include "../../module/stepper/indirection.h"
 #endif
 
 #include "ui_api.h"
@@ -678,7 +678,7 @@ namespace ExtUI {
           #if EXTRUDERS > 1
             && (linked_nozzles || active_extruder == 0)
           #endif
-        ) zprobe_zoffset += mm;
+        ) zprobe_offset[Z_AXIS] += mm;
       #else
         UNUSED(mm);
       #endif
@@ -716,17 +716,18 @@ namespace ExtUI {
 
   float getZOffset_mm() {
     #if HAS_BED_PROBE
-      return zprobe_zoffset;
+      return zprobe_offset[Z_AXIS];
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
       return babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];
+    #else
+      return 0.0;
     #endif
   }
 
   void setZOffset_mm(const float value) {
     #if HAS_BED_PROBE
-      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        zprobe_zoffset = value;
-      }
+      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+        zprobe_offset[Z_AXIS] = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
       babystep.add_mm(Z_AXIS, (value - babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1]));
     #else

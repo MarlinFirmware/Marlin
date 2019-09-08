@@ -29,8 +29,8 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME        "MKS SGen-L"
-#define BOARD_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SGEN_L"
+#define BOARD_INFO_NAME   "MKS SGen-L"
+#define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN_L"
 
 //
 // Servos
@@ -215,7 +215,7 @@
     #if ENABLED(FYSETC_MINI_12864)
       #define DOGLCD_CS    P0_18
       #define DOGLCD_A0    P0_16
-      #define DOGLCD_SCK   P0_7
+      #define DOGLCD_SCK   P0_07
       #define DOGLCD_MOSI  P1_20
       #define FORCE_SOFT_SPI
 
@@ -231,7 +231,7 @@
           #define RGB_LED_R_PIN P0_17
         #endif
         #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN P1_0
+          #define RGB_LED_G_PIN P1_00
         #endif
         #ifndef RGB_LED_B_PIN
           #define RGB_LED_B_PIN P1_22
@@ -244,12 +244,12 @@
 
       #if ENABLED(MKS_MINI_12864)
         #define DOGLCD_CS  P0_17
-        #define DOGLCD_A0  P1_0
+        #define DOGLCD_A0  P1_00
       #endif
 
       #if ENABLED(ULTIPANEL)
         #define LCD_PINS_D5 P0_17
-        #define LCD_PINS_D6 P1_0
+        #define LCD_PINS_D6 P1_00
         #define LCD_PINS_D7 P1_22
       #endif
 

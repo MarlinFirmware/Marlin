@@ -48,8 +48,8 @@ void GcodeSuite::G42() {
     if (hasI) destination[X_AXIS] = _GET_MESH_X(ix);
     if (hasJ) destination[Y_AXIS] = _GET_MESH_Y(iy);
     if (parser.boolval('P')) {
-      if (hasI) destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
-      if (hasJ) destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+      if (hasI) destination[X_AXIS] -= zprobe_offset[X_AXIS];
+      if (hasJ) destination[Y_AXIS] -= zprobe_offset[Y_AXIS];
     }
 
     const float fval = parser.linearval('F');

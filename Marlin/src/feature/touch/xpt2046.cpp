@@ -80,9 +80,10 @@ uint8_t XPT2046::read_buttons() {
 
   if (y < 175 || y > 234) return 0;
 
-  return WITHIN(x,  11, 109) ? EN_A
-       : WITHIN(x, 111, 209) ? EN_B
-       : WITHIN(x, 211, 309) ? EN_C
+  return WITHIN(x,  14,  77) ? EN_D
+       : WITHIN(x,  90, 153) ? EN_A
+       : WITHIN(x, 166, 229) ? EN_B
+       : WITHIN(x, 242, 305) ? EN_C
        : 0;
 }
 
@@ -132,6 +133,14 @@ uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {
     return (data[0] + data[2]) >> 1;
 
   return (data[1] + data[2]) >> 1;
+}
+
+bool XPT2046::getTouchPoint(uint16_t &x, uint16_t &y) {
+  if (isTouched()) {
+    x = getInTouch(XPT2046_X);
+    y = getInTouch(XPT2046_Y);
+  }
+  return isTouched();
 }
 
 #endif // TOUCH_BUTTONS

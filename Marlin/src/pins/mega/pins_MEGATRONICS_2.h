@@ -29,7 +29,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "Megatronics v2.0"
+#define BOARD_INFO_NAME "Megatronics v2.0"
 //
 // Limit Switches
 //
@@ -116,31 +116,37 @@
 #define CASE_LIGHT_PIN      2
 
 //
-// LCD / Controller
-//
-#define BEEPER_PIN         64
-
-#define LCD_PINS_RS        14
-#define LCD_PINS_ENABLE    15
-#define LCD_PINS_D4        30
-#define LCD_PINS_D5        31
-#define LCD_PINS_D6        32
-#define LCD_PINS_D7        33
-
-// Buttons are directly attached using keypad
-#define BTN_EN1            61
-#define BTN_EN2            59
-#define BTN_ENC            43
-
-// Buttons that are attached using shift register of reprapworld keypad  v1.1
-#define SHIFT_CLK 63
-#define SHIFT_LD 42
-#define SHIFT_OUT 17
-#define SHIFT_EN 17
-
-//
 // M3/M4/M5 - Spindle/Laser Control
 //
 #define SPINDLE_LASER_PWM_PIN     3   // Hardware PWM
 #define SPINDLE_LASER_ENA_PIN    16   // Pullup!
 #define SPINDLE_DIR_PIN          11
+
+//
+// LCD / Controller
+//
+#define BEEPER_PIN         64
+
+#if HAS_SPI_LCD
+
+  #define LCD_PINS_RS      14
+  #define LCD_PINS_ENABLE  15
+  #define LCD_PINS_D4      30
+  #define LCD_PINS_D5      31
+  #define LCD_PINS_D6      32
+  #define LCD_PINS_D7      33
+
+  #if ENABLED(NEWPANEL)
+    // Buttons are directly attached using keypad
+    #define BTN_EN1        61
+    #define BTN_EN2        59
+    #define BTN_ENC        43
+  #else
+    // Buttons attached to shift register of reprapworld keypad v1.1
+    #define SHIFT_CLK      63
+    #define SHIFT_LD       42
+    #define SHIFT_OUT      17
+    #define SHIFT_EN       17
+  #endif
+
+#endif // HAS_SPI_LCD

@@ -88,10 +88,21 @@ void MarlinUI::save_previous_screen() {
     screen_history[screen_history_depth++] = { currentScreen, encoderPosition, encoderTopLine, screen_items };
 }
 
-void MarlinUI::goto_previous_screen() {
+void MarlinUI::goto_previous_screen(
+  #if ENABLED(TURBO_BACK_MENU_ITEM)
+    const bool is_back/*=false*/
+  #endif
+) {
+  #if DISABLED(TURBO_BACK_MENU_ITEM)
+    constexpr bool is_back = false;
+  #endif
   if (screen_history_depth > 0) {
     menuPosition &sh = screen_history[--screen_history_depth];
-    goto_screen(sh.menu_function, sh.encoder_position, sh.top_line, sh.items);
+    goto_screen(sh.menu_function,
+      is_back ? 0 : sh.encoder_position,
+      is_back ? 0 : sh.top_line,
+      sh.items
+    );
   }
   else
     return_to_status();
@@ -384,7 +395,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       ui.encoderPosition = 0;
 
       const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
-                  new_probe_offset = zprobe_zoffset + diff,
+                  new_probe_offset = zprobe_offset[Z_AXIS] + diff,
                   new_offs =
                     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
                       do_probe ? new_probe_offset : hotend_offset[Z_AXIS][active_extruder] - diff
@@ -396,7 +407,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
         babystep.add_steps(Z_AXIS, babystep_increment);
 
-        if (do_probe) zprobe_zoffset = new_offs;
+        if (do_probe) zprobe_offset[Z_AXIS] = new_offs;
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
           else hotend_offset[Z_AXIS][active_extruder] = new_offs;
         #endif
@@ -410,10 +421,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
           draw_edit_screen(PSTR(MSG_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
         else
       #endif
-          draw_edit_screen(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+          draw_edit_screen(PSTR(MSG_zprobe_zoffset), ftostr43sign(zprobe_offset[Z_AXIS]));
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-        if (do_probe) _lcd_zoffset_overlay_gfx(zprobe_zoffset);
+        if (do_probe) _lcd_zoffset_overlay_gfx(zprobe_offset[Z_AXIS]);
       #endif
     }
   }
@@ -442,12 +453,14 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     #if HAS_BUZZER
       ui.completion_feedback(saved);
     #endif
+    UNUSED(saved);
   }
   void lcd_load_settings() {
     const bool loaded = settings.load();
     #if HAS_BUZZER
       ui.completion_feedback(loaded);
     #endif
+    UNUSED(loaded);
   }
 #endif
 

@@ -134,7 +134,7 @@
 #define MSG_INIT_MEDIA                      _UxGT("Иниц. SD-Карта")
 #define MSG_CHANGE_MEDIA                    _UxGT("Смяна SD-Карта")
 #define MSG_ZPROBE_OUT                      _UxGT("Z-сондата е извадена")
-#define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Отстояние")
+#define MSG_zprobe_zoffset                  _UxGT("Z Отстояние")
 #define MSG_BABYSTEP_X                      _UxGT("Министъпка X")
 #define MSG_BABYSTEP_Y                      _UxGT("Министъпка Y")
 #define MSG_BABYSTEP_Z                      _UxGT("Министъпка Z")

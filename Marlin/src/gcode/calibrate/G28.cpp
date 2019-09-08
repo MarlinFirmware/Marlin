@@ -136,8 +136,8 @@
     destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
     #if HOMING_Z_WITH_PROBE
-      destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
-      destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+      destination[X_AXIS] -= zprobe_offset[X_AXIS];
+      destination[Y_AXIS] -= zprobe_offset[Y_AXIS];
     #endif
 
     if (position_is_reachable(destination[X_AXIS], destination[Y_AXIS])) {
@@ -453,6 +453,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   ui.refresh();
 
   report_current_position();
+
   #if ENABLED(NANODLP_Z_SYNC)
     #if ENABLED(NANODLP_ALL_AXIS)
       #define _HOME_SYNC true       // For any axis, output sync text.

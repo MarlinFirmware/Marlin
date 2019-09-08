@@ -279,7 +279,7 @@
 #define MSG_BLTOUCH_STOW                    _UxGT("BLTouch igo/jaso")
 #define MSG_HOME                            _UxGT("Etxera")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("lehenengo")
-#define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Konpentsatu")
+#define MSG_zprobe_zoffset                  _UxGT("Z Konpentsatu")
 #define MSG_BABYSTEP_X                      _UxGT("Mikro-urratsa X")
 #define MSG_BABYSTEP_Y                      _UxGT("Mikro-urratsa Y")
 #define MSG_BABYSTEP_Z                      _UxGT("Mikro-urratsa Z")

@@ -295,7 +295,7 @@
 //#define MSG_MANUAL_STOW                   _UxGT("Stow Z-Probe")
 //#define MSG_HOME                          _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 //#define MSG_FIRST                         _UxGT("first")
-//#define MSG_ZPROBE_ZOFFSET                _UxGT("Probe Z Offset")
+//#define MSG_zprobe_zoffset                _UxGT("Probe Z Offset")
 //#define MSG_BABYSTEP_X                    _UxGT("Babystep X")
 //#define MSG_BABYSTEP_Y                    _UxGT("Babystep Y")
 //#define MSG_BABYSTEP_Z                    _UxGT("Babystep Z")

@@ -28,8 +28,8 @@
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
-#include "fastio_STM32.h"
-#include "watchdog_STM32.h"
+#include "fastio.h"
+#include "watchdog.h"
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -96,7 +96,7 @@
   #define NUM_SERIAL 1
 #endif
 
-#include "HAL_timers_STM32.h"
+#include "timers.h"
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -168,17 +168,6 @@ static inline int freeMemory() {
 }
 
 #pragma GCC diagnostic pop
-
-//
-// SPI: Extended functions which take a channel number (hardware SPI only)
-//
-
-// Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
-// Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-// Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
 
 //
 // EEPROM

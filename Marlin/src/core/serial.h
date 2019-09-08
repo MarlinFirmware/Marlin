@@ -156,6 +156,8 @@ extern uint8_t marlin_debug_flags;
 
 #define SERIAL_ECHO_SP(C)           serial_spaces(C)
 
+#define SERIAL_ECHO_TERNARY(TF, PRE, ON, OFF, POST) serial_ternary(TF, PSTR(PRE), PSTR(ON), PSTR(OFF), PSTR(POST))
+
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //

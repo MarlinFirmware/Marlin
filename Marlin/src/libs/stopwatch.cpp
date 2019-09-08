@@ -38,11 +38,10 @@ bool Stopwatch::stop() {
     Stopwatch::debug(PSTR("stop"));
   #endif
 
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onPrintTimerStopped();
-  #endif
-
   if (isRunning() || isPaused()) {
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onPrintTimerStopped();
+    #endif
     state = STOPPED;
     stopTimestamp = millis();
     return true;
@@ -54,10 +53,11 @@ bool Stopwatch::pause() {
   #if ENABLED(DEBUG_STOPWATCH)
     Stopwatch::debug(PSTR("pause"));
   #endif
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onPrintTimerPaused();
-  #endif
+
   if (isRunning()) {
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onPrintTimerPaused();
+    #endif
     state = PAUSED;
     stopTimestamp = millis();
     return true;

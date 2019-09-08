@@ -76,8 +76,7 @@ static void lcd_factory_settings() {
     LIMIT(bar_percent, 0, 100);
     ui.encoderPosition = 0;
     draw_menu_item_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
-    lcd_moveto((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
-    lcd_put_int(bar_percent); lcd_put_wchar('%');
+    lcd_put_int((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2, bar_percent); lcd_put_wchar('%');
     lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }
 
@@ -236,7 +235,7 @@ static void lcd_factory_settings() {
     ui.defer_status_screen();
     MENU_BACK(MSG_CONFIGURATION);
     MENU_ITEM(gcode, MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nG1 F200 Z0"));
-    MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    MENU_ITEM(submenu, MSG_zprobe_zoffset, lcd_babystep_zoffset);
     MENU_ITEM(gcode, MSG_TOUCHMI_SAVE, PSTR("M500\nG1 F200 Z10"));
     MENU_ITEM(gcode, MSG_TOUCHMI_ZTEST, PSTR("G28\nG1 F200 Z0"));
     END_MENU();
@@ -346,9 +345,9 @@ void menu_configuration() {
   MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, menu_advanced_settings);
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    MENU_ITEM(submenu, MSG_zprobe_zoffset, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
-    MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    MENU_ITEM_EDIT(float52, MSG_zprobe_zoffset, &zprobe_offset[Z_AXIS], Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   const bool busy = printer_busy();

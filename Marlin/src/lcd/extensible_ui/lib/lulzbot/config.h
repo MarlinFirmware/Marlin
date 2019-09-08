@@ -80,9 +80,8 @@
 // This is a recommended for smaller displays.
 //#define TOUCH_UI_PASSCODE
 
-// Define number of seconds after which the menu screens
-// timeout and returns the user to the status screen
-//#define LCD_TIMEOUT_TO_STATUS 120
+// The timeout (in ms) to return to the status screen from sub-menus
+//#define LCD_TIMEOUT_TO_STATUS 15000
 
 // Enable this to debug the event framework
 //#define UI_FRAMEWORK_DEBUG

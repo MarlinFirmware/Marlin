@@ -272,9 +272,6 @@ bool PrintCounter::start() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     debug(PSTR("start"));
   #endif
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onPrintTimerStarted();
-  #endif
 
   bool paused = isPaused();
 
@@ -293,9 +290,6 @@ bool PrintCounter::start() {
 bool PrintCounter::stop() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     debug(PSTR("stop"));
-  #endif
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onPrintTimerStopped();
   #endif
 
   if (super::stop()) {

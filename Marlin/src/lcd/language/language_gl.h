@@ -169,7 +169,7 @@
 #define MSG_BLTOUCH_SELFTEST                _UxGT("Comprobar BLTouch")
 #define MSG_BLTOUCH_RESET                   _UxGT("Iniciar BLTouch")
 #define MSG_FIRST                           _UxGT("first")
-#define MSG_ZPROBE_ZOFFSET                  _UxGT("Offset Z")
+#define MSG_zprobe_zoffset                  _UxGT("Offset Z")
 #define MSG_BABYSTEP_X                      _UxGT("Micropaso X")
 #define MSG_BABYSTEP_Y                      _UxGT("Micropaso Y")
 #define MSG_BABYSTEP_Z                      _UxGT("Micropaso Z")
