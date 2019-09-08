@@ -1733,7 +1733,6 @@ void onPrintTimerStopped()
 	SERIAL_ECHOLN("==onPrintTimerStopped==");
   if(waitway == 3)
     return;
-	stopPrint();
 	SERIAL_ECHOLN("stopping ==");
 	SERIAL_ECHOLN("//action:cancel");
 	//setTargetTemp_celsius(0, E0);
