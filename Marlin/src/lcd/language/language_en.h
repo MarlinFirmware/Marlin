@@ -400,23 +400,26 @@
 #ifndef MSG_UBL_VALIDATE_CUSTOM_MESH
   #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Validate Custom Mesh")
 #endif
-#ifndef MSG_G26_USER_CONTROLLED
-  #define MSG_G26_USER_CONTROLLED             _UxGT("User-Controlled Prime")
-#endif
 #ifndef MSG_G26_HEATING_BED
   #define MSG_G26_HEATING_BED                 _UxGT("G26 Heating Bed")
 #endif
 #ifndef MSG_G26_HEATING_NOZZLE
   #define MSG_G26_HEATING_NOZZLE              _UxGT("G26 Heating Nozzle")
 #endif
-#ifndef MSG_G26_LEAVING
-  #define MSG_G26_LEAVING                     _UxGT("Leaving G26")
+#ifndef MSG_G26_MANUAL_PRIME
+  #define MSG_G26_MANUAL_PRIME                _UxGT("Manual priming...")
 #endif
 #ifndef MSG_G26_FIXED_LENGTH
   #define MSG_G26_FIXED_LENGTH                _UxGT("Fixed Length Prime")
 #endif
-#ifndef MSG_G26_DONE
-  #define MSG_G26_DONE                        _UxGT("Done Priming")
+#ifndef MSG_G26_PRIME_DONE
+  #define MSG_G26_PRIME_DONE                  _UxGT("Done Priming")
+#endif
+#ifndef MSG_G26_CANCELED
+  #define MSG_G26_CANCELED                    _UxGT("G26 Canceled")
+#endif
+#ifndef MSG_G26_LEAVING
+  #define MSG_G26_LEAVING                     _UxGT("Leaving G26")
 #endif
 #ifndef MSG_UBL_CONTINUE_MESH
   #define MSG_UBL_CONTINUE_MESH               _UxGT("Continue Bed Mesh")

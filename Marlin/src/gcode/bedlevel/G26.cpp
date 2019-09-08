@@ -168,7 +168,7 @@ int8_t g26_prime_flag;
    */
   bool user_canceled() {
     if (!ui.button_pressed()) return false; // Return if the button isn't pressed
-    ui.set_status_P(PSTR("Mesh Validation Stopped."), 99);
+    ui.set_status_P(PSTR(MSG_G26_CANCELED), 99);
     #if HAS_LCD_MENU
       ui.quick_feedback();
     #endif
@@ -441,7 +441,7 @@ inline bool prime_nozzle() {
     if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
 
       ui.capture();
-      ui.set_status_P(PSTR(MSG_G26_USER_CONTROLLED), 99);
+      ui.set_status_P(PSTR(MSG_G26_MANUAL_PRIME), 99);
       ui.chirp();
 
       set_destination_from_current();
@@ -465,7 +465,7 @@ inline bool prime_nozzle() {
 
       ui.wait_for_release();
 
-      ui.set_status_P(PSTR(MSG_G26_DONE), 99);
+      ui.set_status_P(PSTR(MSG_G26_PRIME_DONE), 99);
       ui.quick_feedback();
       ui.release();
     }
