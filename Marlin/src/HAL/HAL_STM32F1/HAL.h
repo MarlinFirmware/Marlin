@@ -42,21 +42,30 @@
 #include <util/atomic.h>
 
 #include "../../inc/MarlinConfigPre.h"
+#include "msc_sd.h"
 
 // ------------------------
 // Defines
 // ------------------------
 
 #ifdef SERIAL_USB
-  #define UsbSerial Serial
+  #ifndef USE_USB_COMPOSITE
+    #define UsbSerial Serial
+  #else
+    #define UsbSerial MarlinCompositeSerial
+  #endif
   #define MSerial1  Serial1
   #define MSerial2  Serial2
   #define MSerial3  Serial3
   #define MSerial4  Serial4
   #define MSerial5  Serial5
 #else
-  extern USBSerial SerialUSB;
-  #define UsbSerial SerialUSB
+  #ifndef USE_USB_COMPOSITE
+    extern USBSerial SerialUSB;
+    #define UsbSerial SerialUSB
+  #else
+    #define UsbSerial MarlinCompositeSerial
+  #endif
   #define MSerial1  Serial
   #define MSerial2  Serial1
   #define MSerial3  Serial2
@@ -111,6 +120,8 @@
 
 // Set interrupt grouping for this MCU
 void HAL_init(void);
+#define HAL_IDLETASK 1
+void HAL_idletask(void);
 
 /**
  * TODO: review this to return 1 for pins that are not analog input

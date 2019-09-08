@@ -82,7 +82,7 @@
 // Public Variables
 // ------------------------
 
-#ifdef SERIAL_USB
+#if (!defined(SERIAL_USB) && !defined(USE_USB_COMPOSITE))
   USBSerial SerialUSB;
 #endif
 
@@ -215,10 +215,31 @@ void HAL_init(void) {
   #if PIN_EXISTS(LED)
     OUT_WRITE(LED_PIN, LOW);
   #endif
+  #ifdef USE_USB_COMPOSITE
+    MSC_SD_init();
+  #endif
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
     delay(1000);                                         // Give OS time to notice
     OUT_WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
+  #endif
+}
+
+// HAL idle task
+void HAL_idletask(void) {
+  #ifdef USE_USB_COMPOSITE
+    #if ENABLED(SHARED_SD_CARD)
+      // If Marlin is using the SD card we need to lock it to prevent access from
+      // a PC via USB.
+      // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
+      // this will not reliably detect delete operations. To be safe we will lock
+      // the disk if Marlin has it mounted. Unfortuately there is currently no way
+      // to unmount the disk from the LCD menu.
+      // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
+      /* copy from lpc1768 framework, should be fixed later for process SHARED_SD_CARD*/
+    #endif
+    // process USB mass storage device class loop
+    MarlinMSC.loop();
   #endif
 }
 
