@@ -114,14 +114,33 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
  */
 void GcodeSuite::get_destination_from_command() {
   xyze_bool_t seen = { false, false, false, false };
-  LOOP_XYZE(i) {
+
+  #if ENABLED(CANCEL_OBJECTS)
+    const bool &skip_move = cancelable.skipping;
+  #else
+    constexpr bool skip_move = false;
+  #endif
+
+  // Get new XYZ position, whether absolute or relative
+  LOOP_XYZ(i) {
     if ( (seen[i] = parser.seenval(axis_codes[i])) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
-      destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : (i == E_AXIS) ? v : LOGICAL_TO_NATIVE(v, i);
+      if (skip_move)
+        destination[i] = current_position[i];
+      else
+        destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
     }
     else
       destination[i] = current_position[i];
   }
+
+  // Get new E position, whether absolute or relative
+  if ( (seen.e = parser.seenval('E')) ) {
+    const float v = parser.value_axis_units(E_AXIS);
+    destination.e = axis_is_relative(E_AXIS) ? current_position.e + v : v;
+  }
+  else
+    destination.e = current_position.e;
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
@@ -133,7 +152,7 @@ void GcodeSuite::get_destination_from_command() {
     feedrate_mm_s = parser.value_feedrate();
 
   #if ENABLED(PRINTCOUNTER)
-    if (!DEBUGGING(DRYRUN))
+    if (!DEBUGGING(DRYRUN) && !skip_move)
       print_job_timer.incFilamentUsed(destination.e - current_position.e);
   #endif
 
@@ -322,6 +341,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     break;
 
     case 'M': switch (parser.codenum) {
+
       #if HAS_RESUME_CONTINUE
         case 0:                                                   // M0: Unconditional stop - Wait for user button press on LCD
         case 1: M0_M1(); break;                                   // M1: Conditional stop - Wait for user button press on LCD
@@ -665,6 +685,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_M206_COMMAND
         case 428: M428(); break;                                  // M428: Apply current_position to home_offset
+      #endif
+
+      #if ENABLED(CANCEL_OBJECTS)
+        case 486: M486(); break;                                  // M486: Identify and cancel objects
       #endif
 
       case 500: M500(); break;                                    // M500: Store settings in EEPROM

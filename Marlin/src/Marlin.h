@@ -333,6 +333,7 @@ inline bool IsStopped() { return !Running; }
 
 bool printingIsActive();
 bool printingIsPaused();
+void startOrResumeJob();
 
 extern bool wait_for_heatup;
 
