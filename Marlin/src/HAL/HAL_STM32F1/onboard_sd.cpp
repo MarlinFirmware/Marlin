@@ -17,7 +17,7 @@
 #ifdef HAS_ONBOARD_SD
 
 #include "onboard_sd.h"
-#include "spi.h"
+#include "SPI.h"
 #include "fastio.h"
 
 #ifdef SHARED_SD_CARD
