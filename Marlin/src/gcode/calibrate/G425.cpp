@@ -645,7 +645,7 @@ void GcodeSuite::G425() {
   #endif
   else
     calibrate_all();
-  planner.sychronize();
+  planner.synchronize();
   #if HAS_LEVELING
     set_bed_leveling_enabled(leveling_was_enabled);
   #endif
