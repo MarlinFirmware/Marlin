@@ -62,7 +62,7 @@ void GcodeSuite::G12() {
   #endif
 
   nozzle.clean(pattern, strokes, radius, objects, cleans);
-  planner.sychronize();
+  planner.synchronize();
   #if HAS_LEVELING
     set_bed_leveling_enabled(leveling_was_enabled);
   #endif
