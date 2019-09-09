@@ -612,7 +612,11 @@ inline void calibrate_all() {
  */
 void GcodeSuite::G425() {
   TEMPORARY_SOFT_ENDSTOP_STATE(false);
-  TEMPORARY_BED_LEVELING_STATE(false);
+  #if HAS_LEVELING
+    // Set current position to the physical position
+    const bool leveling_was_enabled = planner.leveling_active;
+    set_bed_leveling_enabled(false);
+  #endif
 
   if (axis_unhomed_error()) return;
 
@@ -641,6 +645,10 @@ void GcodeSuite::G425() {
   #endif
   else
     calibrate_all();
+  planner.sychronize();
+  #if HAS_LEVELING
+    set_bed_leveling_enabled(leveling_was_enabled);
+  #endif
 }
 
 #endif // CALIBRATION_GCODE
