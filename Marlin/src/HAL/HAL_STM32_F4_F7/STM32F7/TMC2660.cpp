@@ -831,9 +831,8 @@ void TMC26XStepper::debugLastStatus() {
         SERIAL_ECHOPAIR("\n  Stall Guard value:", value);
       }
       else if (readout_config == READ_STALL_GUARD_AND_COOL_STEP) {
-        int16_t stallGuard = value & 0xF, current = value & 0x1F0;
-        SERIAL_ECHOPAIR("\n  Approx Stall Guard: ", stallGuard);
-        SERIAL_ECHOPAIR("\n  Current level", current);
+        SERIAL_ECHOPAIR("\n  Approx Stall Guard: ", value & 0xF);
+        SERIAL_ECHOPAIR("\n  Current level", value & 0x1F0);
       }
     }
   #endif
