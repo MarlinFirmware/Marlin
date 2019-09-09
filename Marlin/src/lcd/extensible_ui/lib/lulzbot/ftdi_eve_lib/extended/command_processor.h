@@ -286,23 +286,29 @@ class CommandProcessor : public CLCD::CommandFifo {
       return *this;
     }
 
+    void apply_text_alignment(int16_t &x, int16_t &y, int16_t w, int16_t h, uint16_t options) {
+      using namespace FTDI;
+      x += ((options & OPT_CENTERX) ? w/2 : ((options & OPT_RIGHTX) ? w : 0));
+      y += ((options & OPT_CENTERY) ? h/2 : h);
+    }
+
     CommandProcessor& number(int16_t x, int16_t y, int16_t w, int16_t h, int32_t n, uint16_t options = FTDI::OPT_CENTER) {
       using namespace FTDI;
-      CLCD::CommandFifo::number(
-        x + ((options & OPT_CENTERX) ? w/2 : ((options & OPT_RIGHTX) ? w : 0)),
-        y + ((options & OPT_CENTERY) ? h/2 : h),
-        _font, options, n);
+      apply_text_alignment(x, y, w, h, options);
+      CLCD::CommandFifo::number(x, y, _font, options, n);
       return *this;
     }
 
     template<typename T> FORCEDINLINE
     CommandProcessor& text(int16_t x, int16_t y, int16_t w, int16_t h, T text, uint16_t options = FTDI::OPT_CENTER) {
       using namespace FTDI;
-      CLCD::CommandFifo::text(
-        x + ((options & OPT_CENTERX) ? w/2 : ((options & OPT_RIGHTX) ? w : 0)),
-        y + ((options & OPT_CENTERY) ? h/2 : h),
-        _font, options);
-      CLCD::CommandFifo::str(text);
+      apply_text_alignment(x, y, w, h, options);
+      #ifdef TOUCH_UI_USE_UTF8
+        draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(_font), options);
+      #else
+        CLCD::CommandFifo::text(x, y, _font, options);
+        CLCD::CommandFifo::str(text);
+      #endif
       return *this;
     }
 
@@ -328,7 +334,13 @@ class CommandProcessor : public CLCD::CommandFifo {
       bool styleModified = false;
       if (_btn_style_callback) styleModified = _btn_style_callback(*this, _tag, _style, options, false);
       CLCD::CommandFifo::button(x, y, w, h, _font, options);
-      CLCD::CommandFifo::str(text);
+      #ifdef TOUCH_UI_USE_UTF8
+        apply_text_alignment(x, y, w, h, OPT_CENTER);
+        CLCD::CommandFifo::str(F(""));
+        draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(_font), OPT_CENTER);
+      #else
+        CLCD::CommandFifo::str(text);
+      #endif
       if (_btn_style_callback && styleModified) _btn_style_callback(*this, _tag, _style, options, true);
       return *this;
     }
