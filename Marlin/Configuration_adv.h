@@ -946,7 +946,7 @@
    * point in the file.
    */
    #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
-    #define POWER_LOSS_RECOVERY
+    //#define POWER_LOSS_RECOVERY
    #else // ANYCUBIC_4MAX_DEFAULT
     //#define POWER_LOSS_RECOVERY
    #endif
@@ -1179,7 +1179,7 @@
   #define MARLIN_BRICKOUT
   #define MARLIN_INVADERS
   #define MARLIN_SNAKE
-  #define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
+  //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
 #endif // HAS_GRAPHICAL_LCD
 
