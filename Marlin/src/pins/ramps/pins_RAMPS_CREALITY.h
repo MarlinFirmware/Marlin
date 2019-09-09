@@ -40,6 +40,7 @@
 #endif
 
 #define SD_DETECT_PIN 49   // Always define onboard SD detect
+#define BEEPER_PIN        37 // Always define beeper to avoid compile issue with ExtUI speaker
 
 #include "pins_RAMPS.h"
 

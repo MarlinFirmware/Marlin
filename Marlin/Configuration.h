@@ -15,8 +15,8 @@
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
-#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
-//#define MachineCRX
+//#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+#define MachineCRX
 //#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
@@ -31,13 +31,14 @@
 
 //#define Big_UI // Lightweight status screen
 
+//#define OrigLCD // Upgraded mainboard with single cable Ender LCD
 //#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
 //#define ForceCRXDisplay
-//#define Force10SProDisplay
+#define Force10SProDisplay
 
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
-//#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
-//#define DualFilSensors //Using dual filament sensors on XMax and YMAX
+#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
+#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 
 //#define MachineCR10Orig // Forces Melzi board
 //#define Melzi_To_SBoardUpgrade // Upgrade Melzi board to 10S board
@@ -91,18 +92,12 @@
 //#define SolidBedMounts //Removed a few LCD options to save some memory since not needed with solid mounts
 
 /*
-   If you have upgraded to an S board but kept the original display
-   then enable this line
-*/
-//#define OrigLCD
-
-/*
    Choose ABL sensor type below
    Leave all disabled if no sensor is available
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-//#define ABL_BLTOUCH
+#define ABL_BLTOUCH
 
 //#define CREALITY_ABL_MOUNT //Using creality ABL mount
 //#define E3D_DUALFAN_MOUNT // Using HD Modular mount as above with 2 5015 blowers and sensor on the right
@@ -113,8 +108,8 @@
    Requires a sensor from above
    Melzi board users may only select ABL_BI for bilinear leveling
 */
-#define ABL_BI
-//#define ABL_UBL
+//#define ABL_BI
+#define ABL_UBL
 
 //#define POWER_LOSS_RECOVERY //Large and does not fit with any other features on Melzi, or UBL on Atmega
 /*
@@ -2542,9 +2537,8 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-#if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineCR10Orig) || ENABLED(GraphicLCD)
-  #define SPEAKER
-#endif
+#define SPEAKER
+
 
 //
 // The duration and frequency for the UI feedback sound.
