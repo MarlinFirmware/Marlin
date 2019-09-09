@@ -61,9 +61,6 @@ void GcodeSuite::M24() {
   }
 
   #if ENABLED(HOST_ACTION_COMMANDS)
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_open(PROMPT_INFO, PSTR("Resume SD"));
-    #endif
     #ifdef ACTION_ON_RESUME
       host_action_resume();
     #endif
