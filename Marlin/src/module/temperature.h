@@ -158,7 +158,7 @@ enum ADCSensorState : char {
 typedef struct TempInfo {
   uint16_t acc;
   int16_t raw;
-  float current;
+  float celsius;
   inline void reset() { acc = 0; }
   inline void sample(const uint16_t s) { acc += s; }
   inline void update() { raw = acc; }
@@ -577,7 +577,7 @@ class Temperature {
 
     FORCE_INLINE static float degHotend(const uint8_t e) {
       E_UNUSED();
-      return temp_hotend[HOTEND_INDEX].current;
+      return temp_hotend[HOTEND_INDEX].celsius;
     }
 
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -625,12 +625,12 @@ class Temperature {
 
     FORCE_INLINE static bool isHeatingHotend(const uint8_t e) {
       E_UNUSED();
-      return temp_hotend[HOTEND_INDEX].target > temp_hotend[HOTEND_INDEX].current;
+      return temp_hotend[HOTEND_INDEX].target > temp_hotend[HOTEND_INDEX].celsius;
     }
 
     FORCE_INLINE static bool isCoolingHotend(const uint8_t e) {
       E_UNUSED();
-      return temp_hotend[HOTEND_INDEX].target < temp_hotend[HOTEND_INDEX].current;
+      return temp_hotend[HOTEND_INDEX].target < temp_hotend[HOTEND_INDEX].celsius;
     }
 
     #if HAS_TEMP_HOTEND
@@ -650,10 +650,10 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawBedTemp()  { return temp_bed.raw; }
       #endif
-      FORCE_INLINE static float degBed()          { return temp_bed.current; }
+      FORCE_INLINE static float degBed()          { return temp_bed.celsius; }
       FORCE_INLINE static int16_t degTargetBed()  { return temp_bed.target; }
-      FORCE_INLINE static bool isHeatingBed()     { return temp_bed.target > temp_bed.current; }
-      FORCE_INLINE static bool isCoolingBed()     { return temp_bed.target < temp_bed.current; }
+      FORCE_INLINE static bool isHeatingBed()     { return temp_bed.target > temp_bed.celsius; }
+      FORCE_INLINE static bool isCoolingBed()     { return temp_bed.target < temp_bed.celsius; }
 
       #if WATCH_BED
         static void start_watching_bed();
@@ -687,11 +687,11 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawChamberTemp()    { return temp_chamber.raw; }
       #endif
-      FORCE_INLINE static float degChamber()            { return temp_chamber.current; }
+      FORCE_INLINE static float degChamber()            { return temp_chamber.celsius; }
       #if HAS_HEATED_CHAMBER
         FORCE_INLINE static int16_t degTargetChamber()  { return temp_chamber.target; }
-        FORCE_INLINE static bool isHeatingChamber()     { return temp_chamber.target > temp_chamber.current; }
-        FORCE_INLINE static bool isCoolingChamber()     { return temp_chamber.target < temp_chamber.current; }
+        FORCE_INLINE static bool isHeatingChamber()     { return temp_chamber.target > temp_chamber.celsius; }
+        FORCE_INLINE static bool isCoolingChamber()     { return temp_chamber.target < temp_chamber.celsius; }
 
         static bool wait_for_chamber(const bool no_wait_for_cooling=true);
       #endif
