@@ -271,6 +271,8 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
       #endif
       #if HAS_HEATED_CHAMBER
         if (dodraw) _draw_centered_temp(target + 0.5, STATUS_CHAMBER_TEXT_X, 7);
+      #else
+        UNUSED(dodraw);
       #endif
     }
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
