@@ -173,7 +173,7 @@
   #define MISO_PIN         PB4
   #define MOSI_PIN         PB5
   #define SS_PIN           PA15
-#if SD_CONNECTION_IS(ONBOARD)
+#elif SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI1
   #define SD_DETECT_PIN    PA3
   #define SCK_PIN          PA5

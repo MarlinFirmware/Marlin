@@ -1,23 +1,23 @@
-/*------------------------------------------------------------------------*/
-/* STM32F1: MMCv3/SDv1/SDv2 (SPI mode) control module                     */
-/*------------------------------------------------------------------------*/
-/*
-/ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-/ * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
-/ * Copyright (C) 2015, ChaN, all right reserved.
-/
-/ * This software is a free software and there is NO WARRANTY.
-/ * No restriction on use. You can use, modify and redistribute it for
-/   personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.
-/ * Redistributions of source code must retain the above copyright notice.
-/
-/-------------------------------------------------------------------------*/
+/**
+ * STM32F1: MMCv3/SDv1/SDv2 (SPI mode) control module
+ *
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
+ * Copyright (C) 2015, ChaN, all right reserved.
+ *
+ * This software is a free software and there is NO WARRANTY.
+ * No restriction on use. You can use, modify and redistribute it for
+ * personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.
+ * Redistributions of source code must retain the above copyright notice.
+ *
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #ifdef HAS_ONBOARD_SD
 
 #include "onboard_sd.h"
-#include "spi.h"
+#include "SPI.h"
 #include "fastio.h"
 
 #ifdef SHARED_SD_CARD
@@ -26,7 +26,7 @@
   #endif
   #define ONBOARD_SD_SPI SPI
 #else
-  SPIClass OnBoardSPI(ON_BOARD_SPI_DEVICE)
+  SPIClass OnBoardSPI(ON_BOARD_SPI_DEVICE);
   #define ONBOARD_SD_SPI OnBoardSPI
 #endif
 
@@ -45,8 +45,6 @@
 /*--------------------------------------------------------------------------
    Module Private Functions
 ---------------------------------------------------------------------------*/
-
-#include "onboard_sd.h"
 
 /* MMC/SD command */
 #define CMD0  (0)     /* GO_IDLE_STATE */
