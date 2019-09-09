@@ -1733,11 +1733,6 @@ void onPrintTimerStopped()
 	SERIAL_ECHOLN("==onPrintTimerStopped==");
   if(waitway == 3)
     return;
-	SERIAL_ECHOLN("stopping ==");
-	SERIAL_ECHOLN("//action:cancel");
-	//setTargetTemp_celsius(0, E0);
-	//setTargetTemp_celsius(0, E1);
-	//setTargetTemp_celsius(0, BED);
 
 #if ENABLED(SDSUPPORT) && ENABLED(POWEROFF_SAVE_SD_FILE)
 	card.openPowerOffFile(power_off_info.power_off_filename, O_CREAT | O_WRITE | O_TRUNC | O_SYNC);
