@@ -124,8 +124,10 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
 #if HAS_HOTEND_OFFSET
   extern float hotend_offset[XYZ][HOTENDS];
   void reset_hotend_offsets();
-#else
+#elif HOTENDS > 0
   constexpr float hotend_offset[XYZ][HOTENDS] = { { 0 }, { 0 }, { 0 } };
+#else
+  constexpr float hotend_offset[XYZ][1] = { { 0 }, { 0 }, { 0 } };
 #endif
 
 typedef struct { float min, max; } axis_limits_t;
