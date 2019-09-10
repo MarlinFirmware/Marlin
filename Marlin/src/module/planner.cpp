@@ -96,6 +96,10 @@
   #include "../feature/backlash.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/power_loss_recovery.h"
+#endif
+
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
@@ -2505,6 +2509,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if ENABLED(GRADIENT_MIX)
     mixer.gradient_control(target_float[Z_AXIS]);
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    block->sdpos = recovery.command_sdpos();
   #endif
 
   // Movement was accepted

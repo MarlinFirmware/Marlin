@@ -118,7 +118,7 @@ void GcodeSuite::get_destination_from_command() {
       destination[i] = current_position[i];
   }
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
+  #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
     if (recovery.enabled && IS_SD_PRINTING() && seen[E_AXIS] && (seen[X_AXIS] || seen[Y_AXIS]))
       recovery.save();
@@ -822,6 +822,10 @@ void GcodeSuite::process_next_command() {
   char * const current_command = queue.command_buffer[queue.index_r];
 
   PORT_REDIRECT(queue.port[queue.index_r]);
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.queue_index_r = queue.index_r;
+  #endif
 
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START();
