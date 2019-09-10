@@ -622,14 +622,9 @@ void MarlinUI::draw_status_message(const bool blink) {
     // Alternate Status message and Filament display
     if (ELAPSED(millis(), next_filament_display)) {
       lcd_put_u8str_P(PSTR("Dia "));
-      lcd_put_u8str(ftostr12ns(filament_width_meas));
+      lcd_put_u8str(ftostr12ns(filwidth.measured_mm));
       lcd_put_u8str_P(PSTR(" V"));
-      lcd_put_u8str(i16tostr3(100.0 * (
-          parser.volumetric_enabled
-            ? planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
-            : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
-        )
-      ));
+      lcd_put_u8str(i16tostr3(planner.volumetric_percent(parser.volumetric_enabled)));
       lcd_put_wchar('%');
       return;
     }
