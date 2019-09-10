@@ -175,7 +175,9 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       info.active_extruder = active_extruder;
     #endif
 
-    HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
+    #if EXTRUDERS
+      HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
+    #endif
 
     #if HAS_HEATED_BED
       info.target_temperature_bed = thermalManager.temp_bed.target;
@@ -297,17 +299,19 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Restore all hotend temperatures
-  HOTEND_LOOP() {
-    const int16_t et = info.target_temperature[e];
-    if (et) {
-      #if HOTENDS > 1
-        sprintf_P(cmd, PSTR("T%i"), e);
+  #if HOTENDS
+    HOTEND_LOOP() {
+      const int16_t et = info.target_temperature[e];
+      if (et) {
+        #if HOTENDS > 1
+          sprintf_P(cmd, PSTR("T%i"), e);
+          gcode.process_subcommands_now(cmd);
+        #endif
+        sprintf_P(cmd, PSTR("M109 S%i"), et);
         gcode.process_subcommands_now(cmd);
-      #endif
-      sprintf_P(cmd, PSTR("M109 S%i"), et);
-      gcode.process_subcommands_now(cmd);
+      }
     }
-  }
+  #endif
 
   // Restore print cooling fan speeds
   FANS_LOOP(i) {
@@ -452,12 +456,14 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHOLNPAIR("active_extruder: ", int(info.active_extruder));
         #endif
 
-        DEBUG_ECHOPGM("target_temperature: ");
-        HOTEND_LOOP() {
-          DEBUG_ECHO(info.target_temperature[e]);
-          if (e < HOTENDS - 1) DEBUG_CHAR(',');
-        }
-        DEBUG_EOL();
+        #if HOTENDS
+          DEBUG_ECHOPGM("target_temperature: ");
+          HOTEND_LOOP() {
+            DEBUG_ECHO(info.target_temperature[e]);
+            if (e < HOTENDS - 1) DEBUG_CHAR(',');
+          }
+          DEBUG_EOL();
+        #endif
 
         #if HAS_HEATED_BED
           DEBUG_ECHOLNPAIR("target_temperature_bed: ", info.target_temperature_bed);

@@ -757,10 +757,10 @@
       do {
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
-        const int current = (GRID_MAX_POINTS) - count + 1;
-        SERIAL_ECHOLNPAIR("\nProbing mesh point ", current, "/", int(GRID_MAX_POINTS), ".\n");
+        const int point_num = (GRID_MAX_POINTS) - count + 1;
+        SERIAL_ECHOLNPAIR("\nProbing mesh point ", point_num, "/", int(GRID_MAX_POINTS), ".\n");
         #if HAS_DISPLAY
-          ui.status_printf_P(0, PSTR(MSG_PROBING_MESH " %i/%i"), current, int(GRID_MAX_POINTS));
+          ui.status_printf_P(0, PSTR(MSG_PROBING_MESH " %i/%i"), point_num, int(GRID_MAX_POINTS));
         #endif
 
         #if HAS_LCD_MENU
@@ -1477,7 +1477,7 @@
 
         bool zig_zag = false;
 
-        uint16_t total_points = g29_grid_size * g29_grid_size, current = 1;
+        uint16_t total_points = g29_grid_size * g29_grid_size, point_num = 1;
 
         for (uint8_t ix = 0; ix < g29_grid_size; ix++) {
           const float rx = float(x_min) + ix * dx;
@@ -1485,9 +1485,9 @@
             const float ry = float(y_min) + dy * (zig_zag ? g29_grid_size - 1 - iy : iy);
 
             if (!abort_flag) {
-              SERIAL_ECHOLNPAIR("Tilting mesh point ", current, "/", total_points, "\n");
+              SERIAL_ECHOLNPAIR("Tilting mesh point ", point_num, "/", total_points, "\n");
               #if HAS_DISPLAY
-                ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " %i/%i"), current, total_points);
+                ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " %i/%i"), point_num, total_points);
               #endif
 
               measured_z = probe_pt(rx, ry, parser.seen('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
@@ -1518,7 +1518,7 @@
               incremental_LSF(&lsf_results, rx, ry, measured_z);
             }
 
-            current++;
+            point_num++;
           }
 
           zig_zag ^= true;

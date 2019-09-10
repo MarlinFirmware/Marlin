@@ -95,8 +95,8 @@
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       void lcd_pause_show_message(const PauseMessage message,
-                                           const PauseMode mode=PAUSE_MODE_SAME,
-                                           const uint8_t extruder=active_extruder);
+                                  const PauseMode mode=PAUSE_MODE_SAME,
+                                  const uint8_t extruder=active_extruder);
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)

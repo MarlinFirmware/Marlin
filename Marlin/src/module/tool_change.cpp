@@ -695,11 +695,13 @@ inline void fast_line_to_current(const AxisEnum fr_axis) {
 
 #endif // ELECTROMAGNETIC_SWITCHING_TOOLHEAD
 
-inline void invalid_extruder_error(const uint8_t e) {
-  SERIAL_ECHO_START();
-  SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
-  SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
-}
+#if EXTRUDERS
+  inline void invalid_extruder_error(const uint8_t e) {
+    SERIAL_ECHO_START();
+    SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
+    SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
+  }
+#endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -787,6 +789,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     UNUSED(no_move);
 
     mmu2.tool_change(new_tool);
+
+  #elif EXTRUDERS == 0
+
+    // Nothing to do
+    UNUSED(new_tool); UNUSED(no_move);
 
   #elif EXTRUDERS < 2
 

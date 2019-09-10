@@ -543,10 +543,17 @@ private:
     static void M100();
   #endif
 
-  static void M104();
+  #if EXTRUDERS
+    static void M104();
+    static void M109();
+  #endif
+
   static void M105();
-  static void M106();
-  static void M107();
+
+  #if FAN_COUNT > 0
+    static void M106();
+    static void M107();
+  #endif
 
   #if DISABLED(EMERGENCY_PARSER)
     static void M108();
@@ -556,8 +563,6 @@ private:
       static void M876();
     #endif
   #endif
-
-  static void M109();
 
   static void M110();
   static void M111();
@@ -599,7 +604,7 @@ private:
     //static void M191();
   #endif
 
-  #if HAS_LCD_MENU
+  #if HOTENDS && HAS_LCD_MENU
     static void M145();
   #endif
 
@@ -660,7 +665,11 @@ private:
   #endif
 
   static void M220();
-  static void M221();
+
+  #if EXTRUDERS
+    static void M221();
+  #endif
+
   static void M226();
 
   #if ENABLED(PHOTO_GCODE)
