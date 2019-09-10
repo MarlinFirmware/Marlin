@@ -39,7 +39,8 @@
   #define FIL_RUNOUT2_PIN 15 // Creality CR-X can use dual runout sensors
 #endif
 
-#define SD_DETECT_PIN 49   // Always define onboard SD detect
+#define SD_DETECT_PIN 49  // Always define onboard SD detect
+#define BEEPER_PIN    37  // Always define beeper pin so Play Tone works with ExtUI
 
 #include "pins_RAMPS.h"
 
