@@ -59,7 +59,9 @@ typedef struct {
     uint8_t active_extruder;
   #endif
 
-  int16_t target_temperature[HOTENDS];
+  #if HOTENDS
+    int16_t target_temperature[HOTENDS];
+  #endif
 
   #if HAS_HEATED_BED
     int16_t target_temperature_bed;

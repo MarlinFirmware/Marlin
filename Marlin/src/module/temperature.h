@@ -270,11 +270,14 @@ class Temperature {
 
     static volatile bool in_temp_isr;
 
-    static hotend_info_t temp_hotend[HOTENDS
+    #if HOTENDS
       #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-        + 1
+        #define HOTEND_TEMPS (HOTENDS + 1)
+      #else
+        #define HOTEND_TEMPS HOTENDS
       #endif
-    ];
+      static hotend_info_t temp_hotend[HOTEND_TEMPS];
+    #endif
 
     #if HAS_HEATED_BED
       static bed_info_t temp_bed;
@@ -349,7 +352,9 @@ class Temperature {
       static lpq_ptr_t lpq_ptr;
     #endif
 
-    static temp_range_t temp_range[HOTENDS];
+    #if HOTENDS
+      static temp_range_t temp_range[HOTENDS];
+    #endif
 
     #if HAS_HEATED_BED
       #if WATCH_BED
@@ -417,8 +422,6 @@ class Temperature {
      * Instance Methods
      */
 
-    Temperature();
-
     void init();
 
     /**
@@ -456,7 +459,9 @@ class Temperature {
       }
     #endif
 
-    static float analog_to_celsius_hotend(const int raw, const uint8_t e);
+    #if HOTENDS
+      static float analog_to_celsius_hotend(const int raw, const uint8_t e);
+    #endif
 
     #if HAS_HEATED_BED
       static float analog_to_celsius_bed(const int raw);
@@ -577,19 +582,31 @@ class Temperature {
 
     FORCE_INLINE static float degHotend(const uint8_t e) {
       E_UNUSED();
-      return temp_hotend[HOTEND_INDEX].celsius;
+      #if HOTENDS
+        return temp_hotend[HOTEND_INDEX].celsius;
+      #else
+        return 0;
+      #endif
     }
 
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       FORCE_INLINE static int16_t rawHotendTemp(const uint8_t e) {
         E_UNUSED();
-        return temp_hotend[HOTEND_INDEX].raw;
+        #if HOTENDS
+          return temp_hotend[HOTEND_INDEX].raw;
+        #else
+          return 0;
+        #endif
       }
     #endif
 
     FORCE_INLINE static int16_t degTargetHotend(const uint8_t e) {
       E_UNUSED();
-      return temp_hotend[HOTEND_INDEX].target;
+      #if HOTENDS
+        return temp_hotend[HOTEND_INDEX].target;
+      #else
+        return 0;
+      #endif
     }
 
     #if WATCH_HOTENDS
@@ -598,52 +615,56 @@ class Temperature {
       static inline void start_watching_hotend(const uint8_t e=0) { UNUSED(e); }
     #endif
 
-    #if HAS_LCD_MENU
-      static inline void start_watching_E0() { start_watching_hotend(0); }
-      static inline void start_watching_E1() { start_watching_hotend(1); }
-      static inline void start_watching_E2() { start_watching_hotend(2); }
-      static inline void start_watching_E3() { start_watching_hotend(3); }
-      static inline void start_watching_E4() { start_watching_hotend(4); }
-      static inline void start_watching_E5() { start_watching_hotend(5); }
-    #endif
+    #if HOTENDS
 
-    static void setTargetHotend(const int16_t celsius, const uint8_t e) {
-      E_UNUSED();
-      const uint8_t ee = HOTEND_INDEX;
-      #ifdef MILLISECONDS_PREHEAT_TIME
-        if (celsius == 0)
-          reset_preheat_time(ee);
-        else if (temp_hotend[ee].target == 0)
-          start_preheat_time(ee);
+      #if HAS_LCD_MENU
+        static inline void start_watching_E0() { start_watching_hotend(0); }
+        static inline void start_watching_E1() { start_watching_hotend(1); }
+        static inline void start_watching_E2() { start_watching_hotend(2); }
+        static inline void start_watching_E3() { start_watching_hotend(3); }
+        static inline void start_watching_E4() { start_watching_hotend(4); }
+        static inline void start_watching_E5() { start_watching_hotend(5); }
       #endif
-      #if ENABLED(AUTO_POWER_CONTROL)
-        powerManager.power_on();
-      #endif
-      temp_hotend[ee].target = _MIN(celsius, temp_range[ee].maxtemp - 15);
-      start_watching_hotend(ee);
-    }
 
-    FORCE_INLINE static bool isHeatingHotend(const uint8_t e) {
-      E_UNUSED();
-      return temp_hotend[HOTEND_INDEX].target > temp_hotend[HOTEND_INDEX].celsius;
-    }
-
-    FORCE_INLINE static bool isCoolingHotend(const uint8_t e) {
-      E_UNUSED();
-      return temp_hotend[HOTEND_INDEX].target < temp_hotend[HOTEND_INDEX].celsius;
-    }
-
-    #if HAS_TEMP_HOTEND
-      static bool wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling=true
-        #if G26_CLICK_CAN_CANCEL
-          , const bool click_to_cancel=false
+      static void setTargetHotend(const int16_t celsius, const uint8_t e) {
+        E_UNUSED();
+        const uint8_t ee = HOTEND_INDEX;
+        #ifdef MILLISECONDS_PREHEAT_TIME
+          if (celsius == 0)
+            reset_preheat_time(ee);
+          else if (temp_hotend[ee].target == 0)
+            start_preheat_time(ee);
         #endif
-      );
-    #endif
+        #if ENABLED(AUTO_POWER_CONTROL)
+          powerManager.power_on();
+        #endif
+        temp_hotend[ee].target = _MIN(celsius, temp_range[ee].maxtemp - 15);
+        start_watching_hotend(ee);
+      }
 
-    FORCE_INLINE static bool still_heating(const uint8_t e) {
-      return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
-    }
+      FORCE_INLINE static bool isHeatingHotend(const uint8_t e) {
+        E_UNUSED();
+        return temp_hotend[HOTEND_INDEX].target > temp_hotend[HOTEND_INDEX].celsius;
+      }
+
+      FORCE_INLINE static bool isCoolingHotend(const uint8_t e) {
+        E_UNUSED();
+        return temp_hotend[HOTEND_INDEX].target < temp_hotend[HOTEND_INDEX].celsius;
+      }
+
+      #if HAS_TEMP_HOTEND
+        static bool wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling=true
+          #if G26_CLICK_CAN_CANCEL
+            , const bool click_to_cancel=false
+          #endif
+        );
+      #endif
+
+      FORCE_INLINE static bool still_heating(const uint8_t e) {
+        return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
+      }
+
+    #endif // HOTENDS
 
     #if HAS_HEATED_BED
 

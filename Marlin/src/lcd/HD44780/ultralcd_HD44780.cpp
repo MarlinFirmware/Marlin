@@ -866,7 +866,11 @@ void MarlinUI::draw_status_screen() {
           char c;
           uint16_t per;
           #if HAS_FAN0
-            if (blink || thermalManager.fan_speed_scaler[0] < 128) {
+            if (true
+              #if EXTRUDERS
+                && (blink || thermalManager.fan_speed_scaler[0] < 128)
+              #endif
+            ) {
               uint16_t spd = thermalManager.fan_speed[0];
               if (blink) c = 'F';
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
@@ -877,8 +881,10 @@ void MarlinUI::draw_status_screen() {
             else
           #endif
             {
-              c = 'E';
-              per = planner.flow_percentage[0];
+              #if EXTRUDERS
+                c = 'E';
+                per = planner.flow_percentage[0];
+              #endif
             }
           lcd_put_wchar(c);
           lcd_put_u8str(i16tostr3(per));

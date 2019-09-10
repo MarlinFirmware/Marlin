@@ -309,7 +309,9 @@ typedef struct SettingsDataStruct {
   //
   // ADVANCED_PAUSE_FEATURE
   //
-  fil_change_settings_t fc_settings[EXTRUDERS];         // M603 T U L
+  #if EXTRUDERS
+    fil_change_settings_t fc_settings[EXTRUDERS];       // M603 T U L
+  #endif
 
   //
   // Tool-change settings
@@ -367,7 +369,7 @@ void MarlinSettings::postprocess() {
 
   #if DISABLED(NO_VOLUMETRICS)
     planner.calculate_volumetric_multipliers();
-  #else
+  #elif EXTRUDERS
     for (uint8_t i = COUNT(planner.e_factor); i--;)
       planner.refresh_e_factor(i);
   #endif
@@ -759,7 +761,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(ui_preheat_hotend_temp);
 
-      #if HAS_LCD_MENU
+      #if HOTENDS && HAS_LCD_MENU
         const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                       (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
         const uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
@@ -1164,6 +1166,7 @@ void MarlinSettings::postprocess() {
     //
     // Advanced Pause filament load & unload lengths
     //
+    #if EXTRUDERS
     {
       #if DISABLED(ADVANCED_PAUSE_FEATURE)
         const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
@@ -1171,6 +1174,7 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(fc_settings);
       EEPROM_WRITE(fc_settings);
     }
+    #endif
 
     //
     // Multiple Extruders
@@ -1560,7 +1564,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(ui_preheat_hotend_temp);
 
-        #if HAS_LCD_MENU
+        #if HOTENDS && HAS_LCD_MENU
           int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                   (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
           uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
@@ -1968,6 +1972,7 @@ void MarlinSettings::postprocess() {
       //
       // Advanced Pause filament load & unload lengths
       //
+      #if EXTRUDERS
       {
         #if DISABLED(ADVANCED_PAUSE_FEATURE)
           fil_change_settings_t fc_settings[EXTRUDERS];
@@ -1975,6 +1980,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(fc_settings);
         EEPROM_READ(fc_settings);
       }
+      #endif
 
       //
       // Tool-change settings
@@ -2410,7 +2416,7 @@ void MarlinSettings::reset() {
   // Preheat parameters
   //
 
-  #if HAS_LCD_MENU
+  #if HOTENDS && HAS_LCD_MENU
     ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
     ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
     ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
@@ -2956,7 +2962,7 @@ void MarlinSettings::reset() {
 
     #endif // [XYZ]_DUAL_ENDSTOPS
 
-    #if HAS_LCD_MENU
+    #if HOTENDS && HAS_LCD_MENU
 
       CONFIG_ECHO_HEADING("Material heatup parameters:");
       for (uint8_t i = 0; i < COUNT(ui.preheat_hotend_temp); i++) {
