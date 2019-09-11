@@ -228,9 +228,9 @@
     alt_fm.stride = 19;
     alt_fm.width  = 38;
     alt_fm.height = 49;
-    for (uint8_t i = 0; i < 127; i++) {
+    for (uint8_t i = 0; i < 127; i++)
       alt_fm.char_widths[i] = 0;
-    }
+
     // For special characters, copy the character widths from the char tables
     for (uint8_t i = 0; i < NUM_ELEMENTS(char_recipe); i++) {
       uint8_t std_char, alt_char, alt_data;
