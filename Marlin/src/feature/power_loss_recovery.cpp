@@ -215,9 +215,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       info.retract_hop = fwretract.current_hop;
     #endif
 
-    // Relative mode
-    info.relative_mode = relative_mode;
-    info.relative_modes_e = gcode.axis_relative_modes[E_AXIS];
+    // Relative axis modes
+    info.axis_relative = gcode.axis_relative;
 
     // Elapsed print job time
     info.print_job_elapsed = print_job_timer.duration();
@@ -392,9 +391,8 @@ void PrintJobRecovery::resume() {
   sprintf_P(cmd, PSTR("G92.9 E%s"), dtostrf(info.current_position[E_AXIS], 1, 3, str_1));
   gcode.process_subcommands_now(cmd);
 
-  // Relative mode
-  relative_mode = info.relative_mode;
-  gcode.axis_relative_modes[E_AXIS] = info.relative_modes_e;
+  // Relative axis modes
+  gcode.axis_relative = info.axis_relative;
 
   #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
     LOOP_XYZ(i) {

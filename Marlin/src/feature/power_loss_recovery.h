@@ -89,8 +89,8 @@ typedef struct {
     #endif
   #endif
 
-  // Relative mode
-  bool relative_mode, relative_modes_e;
+  // Relative axis modes
+  uint8_t axis_relative;
 
   // SD Filename and position
   char sd_filename[MAXPATHNAMELENGTH];

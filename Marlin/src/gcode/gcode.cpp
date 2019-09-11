@@ -49,7 +49,13 @@ GcodeSuite gcode;
 
 millis_t GcodeSuite::previous_move_ms;
 
-bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
+static constexpr bool ar_init[XYZE] = AXIS_RELATIVE_MODES;
+uint8_t GcodeSuite::axis_relative = (
+    (ar_init[X_AXIS] ? _BV(REL_X) : 0)
+  | (ar_init[Y_AXIS] ? _BV(REL_Y) : 0)
+  | (ar_init[Z_AXIS] ? _BV(REL_Z) : 0)
+  | (ar_init[E_AXIS] ? _BV(REL_E) : 0)
+);
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
   GcodeSuite::MarlinBusyState GcodeSuite::busy_state = NOT_BUSY;
@@ -110,9 +116,7 @@ void GcodeSuite::get_destination_from_command() {
   LOOP_XYZE(i) {
     if ( (seen[i] = parser.seenval(axis_codes[i])) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
-      destination[i] = (axis_relative_modes[i] || relative_mode)
-        ? current_position[i] + v
-        : (i == E_AXIS) ? v : LOGICAL_TO_NATIVE(v, i);
+      destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : (i == E_AXIS) ? v : LOGICAL_TO_NATIVE(v, i);
     }
     else
       destination[i] = current_position[i];
@@ -295,8 +299,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
 
-      case 90: relative_mode = false; break;                      // G90: Relative Mode
-      case 91: relative_mode = true; break;                       // G91: Absolute Mode
+      case 90: set_relative_mode(false); break;                   // G90: Absolute Mode
+      case 91: set_relative_mode(true);  break;                   // G91: Relative Mode
 
       case 92: G92(); break;                                      // G92: Set current axis position(s)
 
