@@ -41,7 +41,7 @@ namespace FTDI {
           end   = (c == '\0') ? p-1 : p;
           result = lw;
         }
-        if(c == '\0' || c == '\n') break;
+        if (c == '\0' || c == '\n') break;
       }
       lw += fm.get_char_width(c);
     }

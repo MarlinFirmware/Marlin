@@ -173,7 +173,7 @@ class UncachedScreen {
 template<uint8_t DL_SLOT,uint32_t DL_SIZE = 0>
 class CachedScreen {
   protected:
-    static bool storeBackground(){
+    static bool storeBackground() {
       DLCache dlcache(DL_SLOT);
       if (!dlcache.store(DL_SIZE)) {
         SERIAL_ECHO_START();
@@ -183,7 +183,7 @@ class CachedScreen {
       return true;
     }
 
-    static void repaintBackground(){
+    static void repaintBackground() {
       using namespace FTDI;
       DLCache dlcache(DL_SLOT);
       CommandProcessor cmd;
@@ -198,7 +198,7 @@ class CachedScreen {
     }
 
   public:
-    static void onRefresh(){
+    static void onRefresh() {
       using namespace FTDI;
       DLCache dlcache(DL_SLOT);
       CommandProcessor cmd;

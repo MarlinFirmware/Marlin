@@ -41,7 +41,7 @@ namespace FTDI {
   }
 
   void ext_vertex2ii(CommandProcessor &cmd, int x, int y, uint8_t handle, uint8_t cell) {
-    if(x < 0 || y < 0 || x > 511 || y > 511) {
+    if (x < 0 || y < 0 || x > 511 || y > 511) {
       cmd.cmd(BITMAP_HANDLE(handle));
       cmd.cmd(CELL(cell));
       cmd.cmd(VERTEX2F(x * 16, y * 16));
@@ -49,6 +49,7 @@ namespace FTDI {
       cmd.cmd(VERTEX2II(x, y, handle, cell));
     }
   }
+
 } // namespace FTDI
 
 #endif // FTDI_EXTENDED

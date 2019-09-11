@@ -43,4 +43,4 @@ namespace FTDI {
   }
 }
 
-#endif // FTDI_EXTENDED
+#endif // FTDI_EXTENDED && TOUCH_UI_USE_UTF8

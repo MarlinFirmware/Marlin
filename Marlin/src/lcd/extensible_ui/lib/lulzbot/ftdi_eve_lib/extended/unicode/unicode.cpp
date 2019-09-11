@@ -26,7 +26,7 @@
   using namespace FTDI;
 
   /**
-   * Returns a character in a UTF8 string and increments the
+   * Return a character in a UTF8 string and increment the
    * pointer to the next character
    *
    * Parameters:
@@ -45,7 +45,7 @@
   }
 
   /**
-   * Helper function for drawing and/or measuring an UTF8 string
+   * Helper function to draw and/or measure a UTF8 string
    *
    * Parameters:
    *
@@ -72,8 +72,7 @@
   }
 
   /**
-   * Load the font bitmap data into RAMG. This function is called once at
-   * the start of the program.
+   * Load the font bitmap data into RAMG. Called once at program start.
    *
    * Parameters:
    *
@@ -88,8 +87,8 @@
   }
 
   /**
-   * Populates the bitmap handles for the custom fonts into the display list.
-   * This function is called once at the start of each display list.
+   * Populate the bitmap handles for the custom fonts into the display list.
+   * Called once at the start of each display list.
    *
    * Parameters:
    *
@@ -104,7 +103,7 @@
   }
 
    /**
-    * Measures an utf8 text character
+    * Measure a UTF8 text character
     *
     * Parameters:
     *
@@ -125,7 +124,7 @@
   }
 
    /**
-    * Measures an utf8 text string
+    * Measure a UTF8 text string
     *
     * Parameters:
     *
@@ -147,7 +146,7 @@
   }
 
    /**
-    * Draws an utf8 text string
+    * Draw a UTF8 text string
     *
     * Parameters:
     *
@@ -174,7 +173,7 @@
       x -= get_utf8_text_width(str, fs) / 2;
     else if (options & OPT_RIGHTX)
       x -= get_utf8_text_width(str, fs);
-    if(options & OPT_CENTERY)
+    if (options & OPT_CENTERY)
       y -= fs.get_height()/2;
 
     // Render the text
@@ -188,4 +187,4 @@
     draw_utf8_text(cmd, x, y, (const char*) str, fs, options);
   }
 
-#endif // FTDI_EXTENDED
+#endif // FTDI_EXTENDED && TOUCH_UI_USE_UTF8

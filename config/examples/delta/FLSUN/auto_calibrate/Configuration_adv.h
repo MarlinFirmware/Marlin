@@ -1213,7 +1213,7 @@
 
   // Enable UTF8 rendering capabilities.
   //#define TOUCH_UI_USE_UTF8
-  #ifdef  TOUCH_UI_USE_UTF8
+  #if ENABLED(TOUCH_UI_USE_UTF8)
     #define TOUCH_UI_UTF8_WESTERN_CHARSET
   #endif
 

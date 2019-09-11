@@ -289,10 +289,8 @@
 
   bool FTDI::WesternCharSet::render_glyph(CommandProcessor* cmd, int &x, int &y, font_size_t fs, utf8_char_t c) {
 
-    // Check to see whether this is a character we support
-    if (c < UTF8('¡') || c > UTF8('ÿ')) {
-      return false;
-    }
+    // A supported character?
+    if (c < UTF8('¡') || c > UTF8('ÿ')) return false;
 
     int8_t index = find_char_data(c);
     if (index == -1) return false;
@@ -321,21 +319,13 @@
       accent_dy   = isupper(std_char) ? -7 : 0;
       accent_char = alt_char;
       base_width  = StandardCharSet::std_char_width(std_char);
-      if (std_char == 'i') {
-        base_special = true;
-        base_char    = NO_DOT_I;
-      } else {
-        base_special = false;
-        base_char    = std_char;
-      }
+      base_special = std_char == 'i';
+      base_char   = base_special ? NO_DOT_I : std_char;
     }
 
     // If cmd != NULL, draw the glyph to the screen
-    if(cmd) {
-      if (base_special)
-        ext_vertex2ii(*cmd, x, y, alt_font, base_char);
-      else
-        ext_vertex2ii(*cmd, x, y, std_font, base_char);
+    if (cmd) {
+      ext_vertex2ii(*cmd, x, y, base_special ? alt_font : std_font, base_char);
       if (accent_char)
         ext_vertex2ii(*cmd, x + fs.scale(accent_dx), y + fs.scale(accent_dy), alt_font, accent_char);
     }
@@ -345,4 +335,4 @@
     return true;
   }
 
-#endif // FTDI_EXTENDED
+#endif // FTDI_EXTENDED && TOUCH_UI_USE_UTF8 && TOUCH_UI_UTF8_WESTERN_CHARSET

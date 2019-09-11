@@ -90,7 +90,7 @@
     uint8_t width = std_char_width(which);
 
     // Draw the character
-    if(cmd) ext_vertex2ii(*cmd, x, y, std_font, which);
+    if (cmd) ext_vertex2ii(*cmd, x, y, std_font, which);
 
     // Increment X to the next character position
     x += fs.scale(width);
