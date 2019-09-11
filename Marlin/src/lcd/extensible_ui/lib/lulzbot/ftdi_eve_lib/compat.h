@@ -31,7 +31,7 @@
 
   #include <Arduino.h>
 
-  #if !defined(CLCD_USE_SOFT_SPI)
+  #ifndef CLCD_USE_SOFT_SPI
     #include <SPI.h>
   #endif
 

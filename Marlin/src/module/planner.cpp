@@ -994,23 +994,23 @@ void Planner::forward_pass() {
   //  pass will never modify the values at the tail.
   uint8_t block_index = block_buffer_planned;
 
-  block_t *current;
+  block_t *block;
   const block_t * previous = nullptr;
   while (block_index != block_buffer_head) {
 
     // Perform the forward pass
-    current = &block_buffer[block_index];
+    block = &block_buffer[block_index];
 
     // Skip SYNC blocks
-    if (!TEST(current->flag, BLOCK_BIT_SYNC_POSITION)) {
+    if (!TEST(block->flag, BLOCK_BIT_SYNC_POSITION)) {
       // If there's no previous block or the previous block is not
       // BUSY (thus, modifiable) run the forward_pass_kernel. Otherwise,
       // the previous block became BUSY, so assume the current block's
       // entry speed can't be altered (since that would also require
       // updating the exit speed of the previous block).
       if (!previous || !stepper.is_block_busy(previous))
-        forward_pass_kernel(previous, current, block_index);
-      previous = current;
+        forward_pass_kernel(previous, block, block_index);
+      previous = block;
     }
     // Advance to the previous
     block_index = next_block_index(block_index);
@@ -1045,7 +1045,7 @@ void Planner::recalculate_trapezoids() {
   }
 
   // Go from the tail (currently executed block) to the first block, without including it)
-  block_t *current = nullptr, *next = nullptr;
+  block_t *block = nullptr, *next = nullptr;
   float current_entry_speed = 0.0, next_entry_speed = 0.0;
   while (block_index != head_block_index) {
 
@@ -1055,41 +1055,41 @@ void Planner::recalculate_trapezoids() {
     if (!TEST(next->flag, BLOCK_BIT_SYNC_POSITION)) {
       next_entry_speed = SQRT(next->entry_speed_sqr);
 
-      if (current) {
+      if (block) {
         // Recalculate if current block entry or exit junction speed has changed.
-        if (TEST(current->flag, BLOCK_BIT_RECALCULATE) || TEST(next->flag, BLOCK_BIT_RECALCULATE)) {
+        if (TEST(block->flag, BLOCK_BIT_RECALCULATE) || TEST(next->flag, BLOCK_BIT_RECALCULATE)) {
 
           // Mark the current block as RECALCULATE, to protect it from the Stepper ISR running it.
           // Note that due to the above condition, there's a chance the current block isn't marked as
           // RECALCULATE yet, but the next one is. That's the reason for the following line.
-          SBI(current->flag, BLOCK_BIT_RECALCULATE);
+          SBI(block->flag, BLOCK_BIT_RECALCULATE);
 
           // But there is an inherent race condition here, as the block maybe
           // became BUSY, just before it was marked as RECALCULATE, so check
           // if that is the case!
-          if (!stepper.is_block_busy(current)) {
+          if (!stepper.is_block_busy(block)) {
             // Block is not BUSY, we won the race against the Stepper ISR:
 
             // NOTE: Entry and exit factors always > 0 by all previous logic operations.
-            const float current_nominal_speed = SQRT(current->nominal_speed_sqr),
+            const float current_nominal_speed = SQRT(block->nominal_speed_sqr),
                         nomr = 1.0f / current_nominal_speed;
-            calculate_trapezoid_for_block(current, current_entry_speed * nomr, next_entry_speed * nomr);
+            calculate_trapezoid_for_block(block, current_entry_speed * nomr, next_entry_speed * nomr);
             #if ENABLED(LIN_ADVANCE)
-              if (current->use_advance_lead) {
-                const float comp = current->e_D_ratio * extruder_advance_K[active_extruder] * settings.axis_steps_per_mm[E_AXIS];
-                current->max_adv_steps = current_nominal_speed * comp;
-                current->final_adv_steps = next_entry_speed * comp;
+              if (block->use_advance_lead) {
+                const float comp = block->e_D_ratio * extruder_advance_K[active_extruder] * settings.axis_steps_per_mm[E_AXIS];
+                block->max_adv_steps = current_nominal_speed * comp;
+                block->final_adv_steps = next_entry_speed * comp;
               }
             #endif
           }
 
           // Reset current only to ensure next trapezoid is computed - The
           // stepper is free to use the block from now on.
-          CBI(current->flag, BLOCK_BIT_RECALCULATE);
+          CBI(block->flag, BLOCK_BIT_RECALCULATE);
         }
       }
 
-      current = next;
+      block = next;
       current_entry_speed = next_entry_speed;
     }
 
@@ -1107,7 +1107,7 @@ void Planner::recalculate_trapezoids() {
     // But there is an inherent race condition here, as the block maybe
     // became BUSY, just before it was marked as RECALCULATE, so check
     // if that is the case!
-    if (!stepper.is_block_busy(current)) {
+    if (!stepper.is_block_busy(block)) {
       // Block is not BUSY, we won the race against the Stepper ISR:
 
       const float next_nominal_speed = SQRT(next->nominal_speed_sqr),
@@ -2584,10 +2584,10 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   const int32_t target[ABCE] = {
-    LROUND(a * settings.axis_steps_per_mm[A_AXIS]),
-    LROUND(b * settings.axis_steps_per_mm[B_AXIS]),
-    LROUND(c * settings.axis_steps_per_mm[C_AXIS]),
-    LROUND(e * settings.axis_steps_per_mm[E_AXIS_N(extruder)])
+    int32_t(LROUND(a * settings.axis_steps_per_mm[A_AXIS])),
+    int32_t(LROUND(b * settings.axis_steps_per_mm[B_AXIS])),
+    int32_t(LROUND(c * settings.axis_steps_per_mm[C_AXIS])),
+    int32_t(LROUND(e * settings.axis_steps_per_mm[E_AXIS_N(extruder)]))
   };
 
   #if HAS_POSITION_FLOAT
@@ -2815,6 +2815,69 @@ void Planner::refresh_positioning() {
   LOOP_XYZE_N(i) steps_to_mm[i] = 1.0f / settings.axis_steps_per_mm[i];
   set_position_mm(current_position);
   reset_acceleration_rates();
+}
+
+void Planner::set_max_acceleration(uint8_t axis, float targetValue) {
+  #if DISABLED(MAX_ACCELERATION_CAP)
+    planner.settings.max_acceleration_mm_per_s2[axis] = targetValue;
+  #else
+    #ifdef MAX_ACCELERATION_MANUAL
+      static constexpr float max_accel[] = MAX_ACCELERATION_MANUAL;
+      static uint8_t ac_multiplier = 1;
+    #else
+      static constexpr float max_accel[] = DEFAULT_MAX_ACCELERATION;
+      static uint8_t ac_multiplier = 2;
+    #endif
+    if(targetValue > max_accel[(AxisEnum)axis] * ac_multiplier)
+      SERIAL_ECHOLNPAIR("Max acceleration clamped to ",  (max_accel[(AxisEnum)axis] * ac_multiplier));
+    planner.settings.max_acceleration_mm_per_s2[axis] = constrain(targetValue, 1, max_accel[(AxisEnum)axis] * ac_multiplier);
+  #endif
+
+  // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
+  planner.reset_acceleration_rates();
+}
+
+void Planner::set_max_feedrate(uint8_t axis, float targetValue) {
+  #if DISABLED(MAX_FEEDRATE_CAP)
+    planner.settings.max_feedrate_mm_s[axis] = targetValue;
+  #else
+    #ifdef MAX_FEEDRATE_MANUAL
+      static constexpr float max_feedrates[] = MAX_FEEDRATE_MANUAL;
+      static uint8_t fr_multiplier = 1;
+    #else
+      static constexpr float max_feedrates[] = DEFAULT_MAX_FEEDRATE;
+      static uint8_t fr_multiplier = 2;
+    #endif
+    if(targetValue > max_feedrates[(AxisEnum)axis] * fr_multiplier)
+      SERIAL_ECHOLNPAIR("Max feedrate clamped to ",  (max_feedrates[(AxisEnum)axis] * fr_multiplier));
+    planner.settings.max_feedrate_mm_s[axis] = constrain(targetValue, 1, max_feedrates[(AxisEnum)axis] * fr_multiplier);
+  #endif
+}
+
+void Planner::set_max_jerk(AxisEnum axis, float targetValue) {
+  #if HAS_CLASSIC_JERK
+    #if DISABLED(MAX_JERK_CAP)
+        planner.max_jerk[axis] = targetValue;
+    #else
+        #ifdef MAX_JERK_MANUAL
+        static constexpr float max_jerk_limit[] = MAX_JERK_MANUAL;
+        static float jrk_limit = max_jerk_limit[axis];
+        #else
+        static float jrk_limit;
+        if( axis == X_AXIS)
+            jrk_limit = (DEFAULT_XJERK * 2);
+        else if (axis == Y_AXIS)
+            jrk_limit = (DEFAULT_YJERK * 2);
+        else if (axis == Z_AXIS)
+            jrk_limit = (DEFAULT_ZJERK * 2);
+        else if (axis == E_AXIS)
+            jrk_limit = (DEFAULT_EJERK * 2);
+        #endif
+        if(targetValue > jrk_limit)
+        SERIAL_ECHOLNPAIR("Jerk clamped to ",  jrk_limit);
+        planner.max_jerk[axis] = constrain(targetValue, 1, jrk_limit);
+    #endif
+  #endif
 }
 
 #if ENABLED(AUTOTEMP)

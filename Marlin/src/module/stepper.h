@@ -164,7 +164,7 @@
 // adding the "start stepper pulse" code section execution cycles to account for that not all
 // pulses start at the beginning of the loop, so an extra time must be added to compensate so
 // the last generated pulse (usually the extruder stepper) has the right length
-#if HAS_DRIVER(LV8729)
+#if HAS_DRIVER(LV8729) && MINIMUM_STEPPER_PULSE == 0
   #define MIN_PULSE_TICKS ((((PULSE_TIMER_TICKS_PER_US) + 1) / 2) + ((MIN_ISR_START_LOOP_CYCLES) / uint32_t(PULSE_TIMER_PRESCALE)))
 #else
   #define MIN_PULSE_TICKS (((PULSE_TIMER_TICKS_PER_US) * uint32_t(MINIMUM_STEPPER_PULSE)) + ((MIN_ISR_START_LOOP_CYCLES) / uint32_t(PULSE_TIMER_PRESCALE)))
@@ -218,7 +218,7 @@
 // Stepper class definition
 //
 
-#include "stepper_indirection.h"
+#include "stepper/indirection.h"
 
 #ifdef __AVR__
   #include "speed_lookuptable.h"

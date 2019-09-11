@@ -395,6 +395,7 @@
 #define BOARD_RURAMPS4D     -1002
 #define BOARD_FORMBOT_TREX2 -1003
 #define BOARD_BIQU_SKR_V1_1 -1004
+#define BOARD_STM32F1R      -1005
 #if MB(MKS_13)
   #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
 #elif MB(TRIGORILLA)
@@ -405,12 +406,15 @@
   #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
 #elif MB(BIQU_SKR_V1_1)
   #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
+#elif MB(STM32F1R)
+  #error "BOARD_STM32F1R has been renamed BOARD_STM32F103R. Please update your configuration."
 #endif
 #undef BOARD_MKS_13
 #undef BOARD_TRIGORILLA
 #undef BOARD_RURAMPS4D
 #undef BOARD_FORMBOT_TREX2
 #undef BOARD_BIQU_SKR_V1_1
+#undef BOARD_STM32F1R
 
 /**
  * Marlin release, version and default string
@@ -892,7 +896,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Switching Toolhead requirements
  */
 #if ENABLED(SWITCHING_TOOLHEAD)
-  #if !defined(SWITCHING_TOOLHEAD_SERVO_NR)
+  #ifndef SWITCHING_TOOLHEAD_SERVO_NR
     #error "SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_SERVO_NR."
   #elif EXTRUDERS < 2
     #error "SWITCHING_TOOLHEAD requires at least 2 EXTRUDERS."
@@ -1108,6 +1112,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "TOUCH_MI_PROBE requires Z_MIN_PROBE_ENDSTOP_INVERTING to be set to false."
     #elif DISABLED(BABYSTEP_ZPROBE_OFFSET)
       #error "TOUCH_MI_PROBE requires BABYSTEPPING with BABYSTEP_ZPROBE_OFFSET."
+    #elif !HAS_RESUME_CONTINUE
+      #error "TOUCH_MI_PROBE currently requires an LCD controller or EMERGENCY_PARSER."
     #endif
   #endif
 
@@ -2026,18 +2032,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * TMC2208/2209 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
  */
 #if HAS_TMC220x && !defined(TARGET_LPC1768) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
-       defined(X_HARDWARE_SERIAL ) \
-    || defined(X2_HARDWARE_SERIAL) \
-    || defined(Y_HARDWARE_SERIAL ) \
-    || defined(Y2_HARDWARE_SERIAL) \
-    || defined(Z_HARDWARE_SERIAL ) \
-    || defined(Z2_HARDWARE_SERIAL) \
-    || defined(Z3_HARDWARE_SERIAL) \
-    || defined(E0_HARDWARE_SERIAL) \
-    || defined(E1_HARDWARE_SERIAL) \
-    || defined(E2_HARDWARE_SERIAL) \
-    || defined(E3_HARDWARE_SERIAL) \
-    || defined(E4_HARDWARE_SERIAL) \
+       defined(X_HARDWARE_SERIAL ) || defined(X2_HARDWARE_SERIAL) \
+    || defined(Y_HARDWARE_SERIAL ) || defined(Y2_HARDWARE_SERIAL) \
+    || defined(Z_HARDWARE_SERIAL ) || defined(Z2_HARDWARE_SERIAL) \
+    || defined(Z3_HARDWARE_SERIAL) || defined(E0_HARDWARE_SERIAL) \
+    || defined(E1_HARDWARE_SERIAL) || defined(E2_HARDWARE_SERIAL) \
+    || defined(E3_HARDWARE_SERIAL) || defined(E4_HARDWARE_SERIAL) \
     || defined(E5_HARDWARE_SERIAL) )
   #error "Select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
 #endif
@@ -2046,18 +2046,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * TMC2208/2209 software UART is only supported on AVR, LPC, STM32F1 and STM32F4
  */
 #if HAS_TMC220x && !defined(__AVR__) && !defined(TARGET_LPC1768) && !defined(TARGET_STM32F1) && !defined(TARGET_STM32F4) && !( \
-       defined(X_HARDWARE_SERIAL ) \
-    || defined(X2_HARDWARE_SERIAL) \
-    || defined(Y_HARDWARE_SERIAL ) \
-    || defined(Y2_HARDWARE_SERIAL) \
-    || defined(Z_HARDWARE_SERIAL ) \
-    || defined(Z2_HARDWARE_SERIAL) \
-    || defined(Z3_HARDWARE_SERIAL) \
-    || defined(E0_HARDWARE_SERIAL) \
-    || defined(E1_HARDWARE_SERIAL) \
-    || defined(E2_HARDWARE_SERIAL) \
-    || defined(E3_HARDWARE_SERIAL) \
-    || defined(E4_HARDWARE_SERIAL) \
+       defined(X_HARDWARE_SERIAL ) || defined(X2_HARDWARE_SERIAL) \
+    || defined(Y_HARDWARE_SERIAL ) || defined(Y2_HARDWARE_SERIAL) \
+    || defined(Z_HARDWARE_SERIAL ) || defined(Z2_HARDWARE_SERIAL) \
+    || defined(Z3_HARDWARE_SERIAL) || defined(E0_HARDWARE_SERIAL) \
+    || defined(E1_HARDWARE_SERIAL) || defined(E2_HARDWARE_SERIAL) \
+    || defined(E3_HARDWARE_SERIAL) || defined(E4_HARDWARE_SERIAL) \
     || defined(E5_HARDWARE_SERIAL) )
   #error "TMC2208 Software Serial is supported only on AVR, LPC1768, STM32F1 and STM32F4 platforms."
 #endif
@@ -2128,6 +2122,70 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, or TMC5160 stepper drivers."
 #endif
 
+#if TMC_USE_CHAIN
+  #if  (X_CHAIN_POS  && !PIN_EXISTS(X_CS) ) \
+    || (Y_CHAIN_POS  && !PIN_EXISTS(Y_CS) ) \
+    || (Z_CHAIN_POS  && !PIN_EXISTS(Z_CS) ) \
+    || (X2_CHAIN_POS && !PIN_EXISTS(X2_CS)) \
+    || (Y2_CHAIN_POS && !PIN_EXISTS(Y2_CS)) \
+    || (Z2_CHAIN_POS && !PIN_EXISTS(Z2_CS)) \
+    || (Z3_CHAIN_POS && !PIN_EXISTS(Z3_CS)) \
+    || (E0_CHAIN_POS && !PIN_EXISTS(E0_CS)) \
+    || (E1_CHAIN_POS && !PIN_EXISTS(E1_CS)) \
+    || (E2_CHAIN_POS && !PIN_EXISTS(E2_CS)) \
+    || (E3_CHAIN_POS && !PIN_EXISTS(E3_CS)) \
+    || (E4_CHAIN_POS && !PIN_EXISTS(E4_CS)) \
+    || (E5_CHAIN_POS && !PIN_EXISTS(E5_CS))
+    #error "With TMC_USE_CHAIN all chained TMC drivers need a CS pin."
+  #else
+    #if X_CHAIN_POS
+      #define CS_COMPARE X_CS_PIN
+    #elif Y_CHAIN_POS
+      #define CS_COMPARE Y_CS_PIN
+    #elif Z_CHAIN_POS
+      #define CS_COMPARE Z_CS_PIN
+    #elif X2_CHAIN_POS
+      #define CS_COMPARE X2_CS_PIN
+    #elif Y2_CHAIN_POS
+      #define CS_COMPARE Y2_CS_PIN
+    #elif Z2_CHAIN_POS
+      #define CS_COMPARE Z2_CS_PIN
+    #elif Z3_CHAIN_POS
+      #define CS_COMPARE Z3_CS_PIN
+    #elif E0_CHAIN_POS
+      #define CS_COMPARE E0_CS_PIN
+    #elif E1_CHAIN_POS
+      #define CS_COMPARE E1_CS_PIN
+    #elif E2_CHAIN_POS
+      #define CS_COMPARE E2_CS_PIN
+    #elif E3_CHAIN_POS
+      #define CS_COMPARE E3_CS_PIN
+    #elif E4_CHAIN_POS
+      #define CS_COMPARE E4_CS_PIN
+    #elif E5_CHAIN_POS
+      #define CS_COMPARE E5_CS_PIN
+    #else
+      #error "With TMC_USE_CHAIN some TMC drivers should be chained."
+    #endif
+    #if  (X_CHAIN_POS  && X_CS_PIN  != CS_COMPARE) \
+      || (Y_CHAIN_POS  && Y_CS_PIN  != CS_COMPARE) \
+      || (Z_CHAIN_POS  && Z_CS_PIN  != CS_COMPARE) \
+      || (X2_CHAIN_POS && X2_CS_PIN != CS_COMPARE) \
+      || (Y2_CHAIN_POS && Y2_CS_PIN != CS_COMPARE) \
+      || (Z2_CHAIN_POS && Z2_CS_PIN != CS_COMPARE) \
+      || (Z3_CHAIN_POS && Z3_CS_PIN != CS_COMPARE) \
+      || (E0_CHAIN_POS && E0_CS_PIN != CS_COMPARE) \
+      || (E1_CHAIN_POS && E1_CS_PIN != CS_COMPARE) \
+      || (E2_CHAIN_POS && E2_CS_PIN != CS_COMPARE) \
+      || (E3_CHAIN_POS && E3_CS_PIN != CS_COMPARE) \
+      || (E4_CHAIN_POS && E4_CS_PIN != CS_COMPARE) \
+      || (E5_CHAIN_POS && E5_CS_PIN != CS_COMPARE)
+      #error "With TMC_USE_CHAIN all TMC drivers must use the same CS pin."
+    #endif
+  #endif
+  #undef CS_COMPARE
+#endif // TMC_USE_CHAIN
+
 #if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
   #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
 #endif
@@ -2171,6 +2229,42 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
               && _ARR_TEST(3,3) && _ARR_TEST(3,4) && _ARR_TEST(3,5)
               && _ARR_TEST(3,6) && _ARR_TEST(3,7) && _ARR_TEST(3,8),
               "DEFAULT_MAX_ACCELERATION values must be positive.");
+
+#if ENABLED(MAX_ACCELERATION_CAP)
+  #ifdef MAX_ACCELERATION_MANUAL
+    constexpr float sanity_arr_4[] = MAX_ACCELERATION_MANUAL;
+    static_assert(COUNT(sanity_arr_4) >= XYZE, "MAX_ACCELERATION_MANUAL requires X, Y, Z and E elements.");
+    static_assert(COUNT(sanity_arr_4) <= XYZE_N, "MAX_ACCELERATION_MANUAL has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+    static_assert(   _ARR_TEST(4,0) && _ARR_TEST(4,1) && _ARR_TEST(4,2)
+                  && _ARR_TEST(4,3) && _ARR_TEST(4,4) && _ARR_TEST(4,5)
+                  && _ARR_TEST(4,6) && _ARR_TEST(4,7) && _ARR_TEST(4,8),
+                  "MAX_ACCELERATION_MANUAL values must be positive.");
+  #endif
+#endif
+
+#if ENABLED(MAX_FEEDRATE_CAP)
+  #ifdef MAX_FEEDRATE_MANUAL
+    constexpr float sanity_arr_5[] = MAX_FEEDRATE_MANUAL;
+    static_assert(COUNT(sanity_arr_5) >= XYZE, "MAX_FEEDRATE_MANUAL requires X, Y, Z and E elements.");
+    static_assert(COUNT(sanity_arr_5) <= XYZE_N, "MAX_FEEDRATE_MANUAL has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+    static_assert(   _ARR_TEST(5,0) && _ARR_TEST(5,1) && _ARR_TEST(5,2)
+                  && _ARR_TEST(5,3) && _ARR_TEST(5,4) && _ARR_TEST(5,5)
+                  && _ARR_TEST(5,6) && _ARR_TEST(5,7) && _ARR_TEST(5,8),
+                  "MAX_FEEDRATE_MANUAL values must be positive.");
+  #endif
+#endif
+
+#if ENABLED(MAX_JERK_CAP)
+  #ifdef MAX_JERK_MANUAL
+    constexpr float sanity_arr_6[] = MAX_JERK_MANUAL;
+    static_assert(COUNT(sanity_arr_6) >= XYZE, "MAX_JERK_MANUAL requires X, Y, Z and E elements.");
+    static_assert(COUNT(sanity_arr_6) <= XYZE, "MAX_JERK_MANUAL has too many elements, requires X, Y, Z and E elements only.");
+    static_assert(   _ARR_TEST(6,0) && _ARR_TEST(6,1) && _ARR_TEST(6,2)
+                  && _ARR_TEST(6,3) && _ARR_TEST(6,4) && _ARR_TEST(6,5)
+                  && _ARR_TEST(6,6) && _ARR_TEST(6,7) && _ARR_TEST(6,8),
+                  "MAX_JERK_MANUAL values must be positive.");
+  #endif
+#endif
 
 #undef _ARR_TEST
 
@@ -2217,7 +2311,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   constexpr float sanity_arr_z_align_x[] = Z_STEPPER_ALIGN_X, sanity_arr_z_align_y[] = Z_STEPPER_ALIGN_Y;
   static_assert(
     COUNT(sanity_arr_z_align_x) == Z_STEPPER_COUNT && COUNT(sanity_arr_z_align_y) == Z_STEPPER_COUNT,
-    "Z_STEPPER_ALIGN_[XY]POS settings require one element per Z stepper."
+    "Z_STEPPER_ALIGN_[XY] settings require one element per Z stepper."
   );
 #endif
 

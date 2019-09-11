@@ -82,11 +82,11 @@
  * If a UART connection is used to configure the driver, please select that as well in Configuration_adv.h.
  */
 //#define X_2208
-//#define X_SpreadCycle
+//#define X_SPREADCYCLE
 //#define Y_2208
-//#define Y_SpreadCycle
+//#define Y_SPREADCYCLE
 //#define E_2208
-//#define E_SpreadCycle
+//#define E_SPREADCYCLE
 
 
 /**
@@ -781,6 +781,11 @@
  */
 #define DEFAULT_MAX_FEEDRATE          { 250, 150, 5, 25 }
 
+//#define MAX_FEEDRATE_CAP // Define limit that M203 cannot exceed as 2x default
+#if ENABLED(MAX_FEEDRATE_CAP)
+  //#define MAX_FEEDRATE_MANUAL { 600, 600, 10, 50 } // Overide default limits with manual values
+#endif
+
 /**
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
@@ -788,25 +793,40 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #if ENABLED(X_2208)
-  #if ENABLED(X_SpreadCycle)
-    #define x_accel 1750
+  #if ENABLED(X_SPREADCYCLE)
+    #define X_ACCEL 1750
   #else
-    #define x_accel 1000
+    #define X_ACCEL 1000
   #endif
 #else
-    #define x_accel 1500
+    #define X_ACCEL 1500
 #endif
 
 #if ENABLED(Y_2208)
-  #if ENABLED(Y_SpreadCycle)
-    #define y_accel 500
+  #if ENABLED(Y_SPREADCYCLE)
+    #define Y_ACCEL 500
   #else
-    #define y_accel 300
+    #define Y_ACCEL 300
   #endif
 #else
-  #define y_accel 500
+  #define Y_ACCEL 500
 #endif
-#define DEFAULT_MAX_ACCELERATION      { x_accel, y_accel, 400, 4000 }
+#define DEFAULT_MAX_ACCELERATION      { X_ACCEL, Y_ACCEL, 400, 4000 }
+
+//#define MAX_ACCELERATION_CAP // Define limit that M201 cannot exceed as 2x default
+#if ENABLED(MAX_ACCELERATION_CAP)
+  //#define MAX_ACCELERATION_MANUAL { 6000, 6000, 200, 20000 } // Overide default limits with manual values
+#endif
+
+/**
+ * Prevents M201 from writing values over these limits
+ * Defaults to 2x DEFAULT_MAX_ACCELERATION
+ * Override default with explicit values below
+ */
+//#define LIMIT_MAX_ACCELERATION
+#if ENABLED(LIMIT_MAX_ACCELERATION)
+  //#define MAX_ACCELERATION_LIMITS { 6000, 6000, 200, 20000 }
+#endif
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -843,17 +863,22 @@
  * value set here, it may happen instantaneously.
  */
 #if DISABLED(JUNCTION_DEVIATION)
-  #if ENABLED(X_SpreadCycle) || DISABLED(X_2208)
+  #if ENABLED(X_SPREADCYCLE) || DISABLED(X_2208)
     #define DEFAULT_XJERK 20.0
   #else
     #define DEFAULT_XJERK 10.0
   #endif
-  #if ENABLED(Y_SpreadCycle) || DISABLED(Y_2208)
+  #if ENABLED(Y_SPREADCYCLE) || DISABLED(Y_2208)
     #define DEFAULT_YJERK 10.0
   #else
     #define DEFAULT_YJERK  5.0
   #endif
   #define DEFAULT_ZJERK  0.4
+
+  //#define MAX_JERK_CAP // Define limit that M205 cannot exceed as 2x default
+  #if ENABLED(MAX_JERK_CAP)
+    //#define MAX_JERK_MANUAL { 20, 20, .6, 10 } // Overide default limits with manual values
+  #endif
 #endif
 
 #define DEFAULT_EJERK    5.0  // May be used by Linear Advance
@@ -2154,7 +2179,7 @@
 //=============================================================================
 
 //
-// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, A1, etc.)
+// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, REXYZ A1, etc.)
 //
 //#define FSMC_GRAPHICAL_TFT
 
@@ -2177,11 +2202,8 @@
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
 // http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
 //
-// REPRAPWORLD_KEYPAD_MOVE_STEP sets how much should the robot move when a key
-// is pressed, a value of 10.0 means 10mm per click.
-//
 //#define REPRAPWORLD_KEYPAD
-//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
+//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
 
 //=============================================================================
 //=============================== Extra Features ==============================

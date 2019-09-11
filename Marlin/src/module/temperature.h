@@ -92,44 +92,43 @@ typedef struct { float Kp, Ki, Kd, Kc; } PIDC_t;
 enum ADCSensorState : char {
   StartSampling,
   #if HAS_TEMP_ADC_0
-    PrepareTemp_0,
-    MeasureTemp_0,
+    PrepareTemp_0, MeasureTemp_0,
   #endif
   #if HAS_HEATED_BED
-    PrepareTemp_BED,
-    MeasureTemp_BED,
+    PrepareTemp_BED, MeasureTemp_BED,
   #endif
   #if HAS_TEMP_CHAMBER
-    PrepareTemp_CHAMBER,
-    MeasureTemp_CHAMBER,
+    PrepareTemp_CHAMBER, MeasureTemp_CHAMBER,
   #endif
   #if HAS_TEMP_ADC_1
-    PrepareTemp_1,
-    MeasureTemp_1,
+    PrepareTemp_1, MeasureTemp_1,
   #endif
   #if HAS_TEMP_ADC_2
-    PrepareTemp_2,
-    MeasureTemp_2,
+    PrepareTemp_2, MeasureTemp_2,
   #endif
   #if HAS_TEMP_ADC_3
-    PrepareTemp_3,
-    MeasureTemp_3,
+    PrepareTemp_3, MeasureTemp_3,
   #endif
   #if HAS_TEMP_ADC_4
-    PrepareTemp_4,
-    MeasureTemp_4,
+    PrepareTemp_4, MeasureTemp_4,
   #endif
   #if HAS_TEMP_ADC_5
-    PrepareTemp_5,
-    MeasureTemp_5,
+    PrepareTemp_5, MeasureTemp_5,
+  #endif
+  #if HAS_JOY_ADC_X
+    PrepareJoy_X, MeasureJoy_X,
+  #endif
+  #if HAS_JOY_ADC_Y
+    PrepareJoy_Y, MeasureJoy_Y,
+  #endif
+  #if HAS_JOY_ADC_Z
+    PrepareJoy_Z, MeasureJoy_Z,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    Prepare_FILWIDTH,
-    Measure_FILWIDTH,
+    Prepare_FILWIDTH, Measure_FILWIDTH,
   #endif
   #if HAS_ADC_BUTTONS
-    Prepare_ADC_KEY,
-    Measure_ADC_KEY,
+    Prepare_ADC_KEY, Measure_ADC_KEY,
   #endif
   SensorsReady, // Temperatures ready. Delay the next round of readings to let ADC pins settle.
   StartupDelay  // Startup, delay initial temp reading a tiny bit so the hardware can settle
@@ -159,7 +158,10 @@ enum ADCSensorState : char {
 typedef struct TempInfo {
   uint16_t acc;
   int16_t raw;
-  float current;
+  float celsius;
+  inline void reset() { acc = 0; }
+  inline void sample(const uint16_t s) { acc += s; }
+  inline void update() { raw = acc; }
 } temp_info_t;
 
 // A PWM heater with temperature sensor
@@ -575,7 +577,7 @@ class Temperature {
 
     FORCE_INLINE static float degHotend(const uint8_t e) {
       E_UNUSED();
-      return temp_hotend[HOTEND_INDEX].current;
+      return temp_hotend[HOTEND_INDEX].celsius;
     }
 
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -621,33 +623,14 @@ class Temperature {
       start_watching_hotend(ee);
     }
 
-    #if WATCH_CHAMBER
-      static void start_watching_chamber();
-    #else
-      static inline void start_watching_chamber() {}
-    #endif
-
-    #if HAS_HEATED_CHAMBER
-      static void setTargetChamber(const int16_t celsius) {
-        temp_chamber.target =
-          #ifdef CHAMBER_MAXTEMP
-            _MIN(celsius, CHAMBER_MAXTEMP)
-          #else
-            celsius
-          #endif
-        ;
-        start_watching_chamber();
-      }
-    #endif // HAS_HEATED_CHAMBER
-
     FORCE_INLINE static bool isHeatingHotend(const uint8_t e) {
       E_UNUSED();
-      return temp_hotend[HOTEND_INDEX].target > temp_hotend[HOTEND_INDEX].current;
+      return temp_hotend[HOTEND_INDEX].target > temp_hotend[HOTEND_INDEX].celsius;
     }
 
     FORCE_INLINE static bool isCoolingHotend(const uint8_t e) {
       E_UNUSED();
-      return temp_hotend[HOTEND_INDEX].target < temp_hotend[HOTEND_INDEX].current;
+      return temp_hotend[HOTEND_INDEX].target < temp_hotend[HOTEND_INDEX].celsius;
     }
 
     #if HAS_TEMP_HOTEND
@@ -658,15 +641,19 @@ class Temperature {
       );
     #endif
 
+    FORCE_INLINE static bool still_heating(const uint8_t e) {
+      return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
+    }
+
     #if HAS_HEATED_BED
 
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawBedTemp()  { return temp_bed.raw; }
       #endif
-      FORCE_INLINE static float degBed()          { return temp_bed.current; }
+      FORCE_INLINE static float degBed()          { return temp_bed.celsius; }
       FORCE_INLINE static int16_t degTargetBed()  { return temp_bed.target; }
-      FORCE_INLINE static bool isHeatingBed()     { return temp_bed.target > temp_bed.current; }
-      FORCE_INLINE static bool isCoolingBed()     { return temp_bed.target < temp_bed.current; }
+      FORCE_INLINE static bool isHeatingBed()     { return temp_bed.target > temp_bed.celsius; }
+      FORCE_INLINE static bool isCoolingBed()     { return temp_bed.target < temp_bed.celsius; }
 
       #if WATCH_BED
         static void start_watching_bed();
@@ -700,19 +687,34 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawChamberTemp()    { return temp_chamber.raw; }
       #endif
-      FORCE_INLINE static float degChamber()            { return temp_chamber.current; }
+      FORCE_INLINE static float degChamber()            { return temp_chamber.celsius; }
       #if HAS_HEATED_CHAMBER
         FORCE_INLINE static int16_t degTargetChamber()  { return temp_chamber.target; }
-        FORCE_INLINE static bool isHeatingChamber()     { return temp_chamber.target > temp_chamber.current; }
-        FORCE_INLINE static bool isCoolingChamber()     { return temp_chamber.target < temp_chamber.current; }
+        FORCE_INLINE static bool isHeatingChamber()     { return temp_chamber.target > temp_chamber.celsius; }
+        FORCE_INLINE static bool isCoolingChamber()     { return temp_chamber.target < temp_chamber.celsius; }
 
         static bool wait_for_chamber(const bool no_wait_for_cooling=true);
       #endif
     #endif // HAS_TEMP_CHAMBER
 
-    FORCE_INLINE static bool still_heating(const uint8_t e) {
-      return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
-    }
+    #if WATCH_CHAMBER
+      static void start_watching_chamber();
+    #else
+      static inline void start_watching_chamber() {}
+    #endif
+
+    #if HAS_HEATED_CHAMBER
+      static void setTargetChamber(const int16_t celsius) {
+        temp_chamber.target =
+          #ifdef CHAMBER_MAXTEMP
+            _MIN(celsius, CHAMBER_MAXTEMP)
+          #else
+            celsius
+          #endif
+        ;
+        start_watching_chamber();
+      }
+    #endif // HAS_HEATED_CHAMBER
 
     /**
      * The software PWM power for a heater

@@ -166,10 +166,10 @@ typedef struct block_t {
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
 typedef struct {
-  uint32_t max_acceleration_mm_per_s2[XYZE_N],  // (mm/s^2) M201 XYZE
-           min_segment_time_us;                 // (µs) M205 B
+  uint32_t min_segment_time_us;                 // (µs) M205 B
   float axis_steps_per_mm[XYZE_N],              // (steps) M92 XYZE - Steps per millimeter
         max_feedrate_mm_s[XYZE_N],              // (mm/s) M203 XYZE - Max speeds
+        max_acceleration_mm_per_s2[XYZE_N],     // (mm/s^2) M201 XYZE
         acceleration,                           // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
         retract_acceleration,                   // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
         travel_acceleration,                    // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
@@ -356,6 +356,10 @@ class Planner {
 
     static void reset_acceleration_rates();
     static void refresh_positioning();
+    static void set_max_acceleration(uint8_t axis, float targetValue);
+    static void set_max_feedrate(uint8_t axis, float targetValue);
+    static void set_max_jerk(AxisEnum axis, float targetValue);
+
 
     FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
       e_factor[e] = (flow_percentage[e] * 0.01f

@@ -54,7 +54,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     #ifdef TOUCH_UI_PORTRAIT
        .tag(2).enabled(1)      .button( BTN_POS(1,1), BTN_SIZE(2,1), F("Temperature"))
        .tag(3).enabled(!isPrinting()).button( BTN_POS(1,2), BTN_SIZE(2,1), F("Change Filament"))
-       #if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
+        #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
           .enabled(1)
         #else
           .enabled(0)
@@ -118,7 +118,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
         .enabled(0)
       #endif
        .tag(8).           button( BTN_POS(2,3), BTN_SIZE(1,1), F("Cancel Print"))
-       #if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
+        #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
           .enabled(1)
         #else
           .enabled(0)
@@ -141,10 +141,8 @@ bool TuneMenu::onTouchEnd(uint8_t tag) {
     case 4:
       #if ENABLED(BABYSTEPPING)
         GOTO_SCREEN(NudgeNozzleScreen);
-      #else
-        #if HAS_BED_PROBE
-          GOTO_SCREEN(ZOffsetScreen);
-        #endif
+      #elif HAS_BED_PROBE
+        GOTO_SCREEN(ZOffsetScreen);
       #endif
       break;
     case 5:  GOTO_SCREEN(FeedratePercentScreen);     break;
@@ -155,7 +153,7 @@ bool TuneMenu::onTouchEnd(uint8_t tag) {
       current_screen.forget();
       PUSH_SCREEN(StatusScreen);
       break;
-    #if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
     case 9:  GOTO_SCREEN(FilamentMenu); break;
     #endif
     default:

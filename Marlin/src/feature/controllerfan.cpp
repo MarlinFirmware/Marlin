@@ -24,7 +24,7 @@
 
 #if ENABLED(USE_CONTROLLER_FAN)
 
-#include "../module/stepper_indirection.h"
+#include "../module/stepper/indirection.h"
 #include "../module/temperature.h"
 
 uint8_t controllerfan_speed;

@@ -32,9 +32,9 @@
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
-#include "fastio_Due.h"
-#include "watchdog_Due.h"
-#include "HAL_timers_Due.h"
+#include "fastio.h"
+#include "watchdog.h"
+#include "timers.h"
 
 #include <stdint.h>
 
@@ -58,8 +58,8 @@
   #define NUM_SERIAL 1
 #endif
 
-#include "MarlinSerial_Due.h"
-#include "MarlinSerialUSB_Due.h"
+#include "MarlinSerial.h"
+#include "MarlinSerialUSB.h"
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
@@ -93,17 +93,6 @@ void sei(void);                     // Enable interrupts
 
 void HAL_clear_reset_source(void);  // clear reset reason
 uint8_t HAL_get_reset_source(void); // get reset reason
-
-//
-// SPI: Extended functions taking a channel number (Hardware SPI only)
-//
-
-// Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
-// Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-// Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
 
 //
 // EEPROM

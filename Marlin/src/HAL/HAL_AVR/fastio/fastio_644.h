@@ -54,7 +54,7 @@
  *                        +--------+
  */
 
-#include "../fastio_AVR.h"
+#include "../fastio.h"
 
 #define DEBUG_LED   DIO0
 
