@@ -59,7 +59,7 @@ void GcodeSuite::M48() {
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 4)) {
-    SERIAL_ECHOLNPGM("?(V)erbose level is implausible (0-4).");
+    SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-4).");
     return;
   }
 
