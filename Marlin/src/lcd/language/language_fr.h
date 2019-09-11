@@ -119,7 +119,7 @@
 #define MSG_G26_HEATING_BED                 _UxGT("G26 Chauffe lit")
 #define MSG_G26_HEATING_NOZZLE              _UxGT("G26 Chauffe buse")
 #define MSG_G26_MANUAL_PRIME                _UxGT("Amorce manuelle...")
-#define MSG_G26_FIXED_LENGTH                _UxGT("Longueur amorce")
+#define MSG_G26_FIXED_LENGTH                _UxGT("Amorce longueur fixe")
 #define MSG_G26_PRIME_DONE                  _UxGT("Amorce terminée")
 #define MSG_G26_CANCELED                    _UxGT("G26 annulé")
 #define MSG_G26_LEAVING                     _UxGT("Sortie G26")
