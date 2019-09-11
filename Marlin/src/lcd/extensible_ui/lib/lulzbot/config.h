@@ -76,6 +76,12 @@
 //#define TOUCH_UI_PORTRAIT
 //#define TOUCH_UI_MIRRORED
 
+// Enable UTF8 rendering capabilities.
+//#define TOUCH_UI_USE_UTF8
+#ifdef  TOUCH_UI_USE_UTF8
+  #define TOUCH_UI_UTF8_WESTERN_CHARSET
+#endif
+
 // Use a numeric passcode for "Parental lock".
 // This is a recommended for smaller displays.
 //#define TOUCH_UI_PASSCODE
@@ -90,7 +96,7 @@
 //#define DEVELOPER_SCREENS
 
 // Maximum feed rate for manual extrusion (mm/s)
-//#define MAX_MANUAL_FEEDRATE 240
+#define MAX_MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60}
 
 // Sets the SPI speed in Hz
 

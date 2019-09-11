@@ -1207,6 +1207,12 @@
   //#define TOUCH_UI_PORTRAIT
   //#define TOUCH_UI_MIRRORED
 
+  // Enable UTF8 rendering capabilities.
+  //#define TOUCH_UI_USE_UTF8
+  #if ENABLED(TOUCH_UI_USE_UTF8)
+    #define TOUCH_UI_UTF8_WESTERN_CHARSET
+  #endif
+
   // Use a numeric passcode for "Screen lock" keypad.
   // (recommended for smaller displays)
   //#define TOUCH_UI_PASSCODE

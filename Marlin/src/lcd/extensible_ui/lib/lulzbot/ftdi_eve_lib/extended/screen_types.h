@@ -156,8 +156,11 @@ class UncachedScreen {
   public:
     static void onRefresh() {
       using namespace FTDI;
-      CLCD::CommandFifo cmd;
+      CommandProcessor cmd;
       cmd.cmd(CMD_DLSTART);
+      #ifdef TOUCH_UI_USE_UTF8
+        load_utf8_bitmaps(cmd);
+      #endif
 
       current_screen.onRedraw(BOTH);
 
@@ -183,9 +186,12 @@ class CachedScreen {
     static void repaintBackground() {
       using namespace FTDI;
       DLCache dlcache(DL_SLOT);
-      CLCD::CommandFifo cmd;
+      CommandProcessor cmd;
 
       cmd.cmd(CMD_DLSTART);
+      #ifdef TOUCH_UI_USE_UTF8
+        load_utf8_bitmaps(cmd);
+      #endif
       current_screen.onRedraw(BACKGROUND);
 
       dlcache.store(DL_SIZE);
@@ -195,14 +201,16 @@ class CachedScreen {
     static void onRefresh() {
       using namespace FTDI;
       DLCache dlcache(DL_SLOT);
-      CLCD::CommandFifo cmd;
+      CommandProcessor cmd;
 
       cmd.cmd(CMD_DLSTART);
 
       if (dlcache.has_data()) {
         dlcache.append();
-      }
-      else {
+      } else {
+        #ifdef TOUCH_UI_USE_UTF8
+          load_utf8_bitmaps(cmd);
+        #endif
         current_screen.onRedraw(BACKGROUND);
         dlcache.store(DL_SIZE);
       }
