@@ -2279,12 +2279,15 @@ void clean_up_after_endstop_or_probe_move() {
       #else
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOLNPAIR("last_written_mode - ", (int)bltouch_last_written_mode);
-            #if ENABLED(BLTOUCH_SET_5V_MODE)
-              SERIAL_ECHOLNPGM("config mode - BLTOUCH_SET_5V_MODE");
-            #else
-              SERIAL_ECHOLNPGM("config mode - OD");
-            #endif
+            SERIAL_ECHOLNPAIR(
+              "last_written_mode - ", int(bltouch_last_written_mode),
+              "config mode - "
+              #if ENABLED(BLTOUCH_SET_5V_MODE)
+                "BLTOUCH_SET_5V_MODE"
+              #else
+                "OD"
+              #endif
+            );
           }
         #endif
 
