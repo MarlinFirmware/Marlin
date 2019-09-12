@@ -403,9 +403,16 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     }
   }
 
-  void draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+  void draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/, const uint8_t tdelay/*=50*/) {
     ui.encoder_direction_normal();
 
+    #if ENABLED(FSMC_GRAPHICAL_TFT)
+      ui.screen_mode = SCRMODE_MENU_EDIT;
+      #if ENABLED(TOUCH_BUTTONS)
+        ui.touch_delay = tdelay;
+      #endif
+    #endif
+    
     const u8g_uint_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
     bool extra_row = labellen > LCD_WIDTH - 2 - vallen;
 

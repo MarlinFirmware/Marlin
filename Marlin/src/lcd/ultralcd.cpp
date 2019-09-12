@@ -203,6 +203,12 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     lcd_clicked = false;
     return click;
   }
+  #if ENABLED(FSMC_GRAPHICAL_TFT)
+    uint8_t MarlinUI::screen_mode;
+    #if ENABLED(TOUCH_BUTTONS)
+      uint8_t MarlinUI::touch_delay;
+    #endif  
+  #endif  
 
   #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
 
@@ -792,7 +798,13 @@ void MarlinUI::update() {
           if (touch_buttons & (EN_A | EN_B)) {          // A and/or B button?
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
             if (touch_buttons & EN_A) encoderDiff *= -1;
-            next_button_update_ms = ms + 50;            // Assume the repeat delay
+
+            if (ui.screen_mode == SCRMODE_STATUS) 
+              ui.touch_delay = 50;
+            else if (ui.screen_mode != SCRMODE_MENU_EDIT) // else ui.touch_delay already defined in draw_edit_screen
+              ui.touch_delay = 250;
+
+            next_button_update_ms = ms + touch_delay;            // Assume the repeat delay
             if (!wait_for_unclick && !arrow_pressed) {  // On click prepare for repeat
               next_button_update_ms += 250;             // Longer delay on first press
               arrow_pressed = true;                     // Mark arrow as pressed

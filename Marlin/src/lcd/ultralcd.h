@@ -443,6 +443,12 @@ public:
 
     static bool lcd_clicked;
     static bool use_click();
+    #if ENABLED(FSMC_GRAPHIC_TFT)
+      static uint8_t screen_mode;
+      #if ENABLED(TOUCH_BUTTONS)
+        static uint8_t touch_delay;
+      #endif
+    #endif  
 
     static void synchronize(PGM_P const msg=nullptr);
 

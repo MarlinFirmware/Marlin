@@ -152,7 +152,7 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
         + manual_move_offset
       #endif
     , axis);
-    draw_edit_screen(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
+    draw_edit_screen(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos), 250);
   }
 }
 void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
@@ -214,7 +214,7 @@ void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS); }
         #if ENABLED(MANUAL_E_MOVES_RELATIVE)
           - manual_move_e_origin
         #endif
-      ));
+      ), 250);
     }
   }
 
