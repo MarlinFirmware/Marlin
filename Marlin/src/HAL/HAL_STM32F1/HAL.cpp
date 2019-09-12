@@ -82,7 +82,7 @@
 // Public Variables
 // ------------------------
 
-#if (!defined(SERIAL_USB) && !defined(USE_USB_COMPOSITE))
+#if (defined(SERIAL_USB) && !defined(USE_USB_COMPOSITE))
   USBSerial SerialUSB;
 #endif
 
