@@ -349,7 +349,7 @@ G29_TYPE GcodeSuite::G29() {
 
     verbose_level = parser.intval('V');
     if (!WITHIN(verbose_level, 0, 4)) {
-      SERIAL_ECHOLNPGM("?(V)erbose level is implausible (0-4).");
+      SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-4).");
       G29_RETURN(false);
     }
 
@@ -370,11 +370,11 @@ G29_TYPE GcodeSuite::G29() {
       if (parser.seenval('P')) abl_grid_points_x = abl_grid_points_y = parser.value_int();
 
       if (!WITHIN(abl_grid_points_x, 2, GRID_MAX_POINTS_X)) {
-        SERIAL_ECHOLNPGM("?Probe points (X) is implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ").");
+        SERIAL_ECHOLNPGM("?Probe points (X) implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ").");
         G29_RETURN(false);
       }
       if (!WITHIN(abl_grid_points_y, 2, GRID_MAX_POINTS_Y)) {
-        SERIAL_ECHOLNPGM("?Probe points (Y) is implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
+        SERIAL_ECHOLNPGM("?Probe points (Y) implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
         G29_RETURN(false);
       }
 

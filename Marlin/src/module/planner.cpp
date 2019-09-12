@@ -96,6 +96,10 @@
   #include "../feature/backlash.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/power_loss_recovery.h"
+#endif
+
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
@@ -1328,14 +1332,14 @@ void Planner::check_axes_activity() {
    * into a volumetric multiplier. Conversion differs when using
    * linear extrusion vs volumetric extrusion.
    */
-  void Planner::calculate_volumetric_for_width_sensor(const int8_t encoded_ratio) {
+  void Planner::apply_filament_width_sensor(const int8_t encoded_ratio) {
     // Reconstitute the nominal/measured ratio
     const float nom_meas_ratio = 1 + 0.01f * encoded_ratio,
                 ratio_2 = sq(nom_meas_ratio);
 
     volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = parser.volumetric_enabled
-      ? ratio_2 / CIRCLE_AREA(filament_width_nominal * 0.5f) // Volumetric uses a true volumetric multiplier
-      : ratio_2;                                             // Linear squares the ratio, which scales the volume
+      ? ratio_2 / CIRCLE_AREA(filwidth.nominal_mm * 0.5f) // Volumetric uses a true volumetric multiplier
+      : ratio_2;                                          // Linear squares the ratio, which scales the volume
 
     refresh_e_factor(FILAMENT_SENSOR_EXTRUDER_NUM);
   }
@@ -2069,37 +2073,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->nominal_rate = CEIL(block->step_event_count * inverse_secs); // (step/sec) Always > 0
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    static float filwidth_e_count = 0, filwidth_delay_dist = 0;
-
-    //FMM update ring buffer used for delay with filament measurements
-    if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM && filwidth_delay_index[1] >= 0) {  //only for extruder with filament sensor and if ring buffer is initialized
-
-      constexpr int MMD_CM = MAX_MEASUREMENT_DELAY + 1, MMD_MM = MMD_CM * 10;
-
-      // increment counters with next move in e axis
-      filwidth_e_count += delta_mm[E_AXIS];
-      filwidth_delay_dist += delta_mm[E_AXIS];
-
-      // Only get new measurements on forward E movement
-      if (!UNEAR_ZERO(filwidth_e_count)) {
-
-        // Loop the delay distance counter (modulus by the mm length)
-        while (filwidth_delay_dist >= MMD_MM) filwidth_delay_dist -= MMD_MM;
-
-        // Convert into an index into the measurement array
-        filwidth_delay_index[0] = int8_t(filwidth_delay_dist * 0.1f);
-
-        // If the index has changed (must have gone forward)...
-        if (filwidth_delay_index[0] != filwidth_delay_index[1]) {
-          filwidth_e_count = 0; // Reset the E movement counter
-          const int8_t meas_sample = thermalManager.widthFil_to_size_ratio();
-          do {
-            filwidth_delay_index[1] = (filwidth_delay_index[1] + 1) % MMD_CM; // The next unused slot
-            measurement_delay[filwidth_delay_index[1]] = meas_sample;         // Store the measurement
-          } while (filwidth_delay_index[0] != filwidth_delay_index[1]);       // More slots to fill?
-        }
-      }
-    }
+    if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM)   // Only for extruder with filament sensor
+      filwidth.advance_e(delta_mm[E_AXIS]);
   #endif
 
   // Calculate and limit speed in mm/sec for each axis
@@ -2534,6 +2509,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if ENABLED(GRADIENT_MIX)
     mixer.gradient_control(target_float[Z_AXIS]);
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    block->sdpos = recovery.command_sdpos();
   #endif
 
   // Movement was accepted

@@ -411,7 +411,7 @@ void GcodeSuite::G33() {
 
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
-    SERIAL_ECHOLNPGM("?(P)oints is implausible (0-10).");
+    SERIAL_ECHOLNPGM("?(P)oints implausible (0-10).");
     return;
   }
 
@@ -419,19 +419,19 @@ void GcodeSuite::G33() {
 
   const float calibration_precision = parser.floatval('C', 0.0);
   if (calibration_precision < 0) {
-    SERIAL_ECHOLNPGM("?(C)alibration precision is implausible (>=0).");
+    SERIAL_ECHOLNPGM("?(C)alibration precision implausible (>=0).");
     return;
   }
 
   const int8_t force_iterations = parser.intval('F', 0);
   if (!WITHIN(force_iterations, 0, 30)) {
-    SERIAL_ECHOLNPGM("?(F)orce iteration is implausible (0-30).");
+    SERIAL_ECHOLNPGM("?(F)orce iteration implausible (0-30).");
     return;
   }
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 3)) {
-    SERIAL_ECHOLNPGM("?(V)erbose level is implausible (0-3).");
+    SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-3).");
     return;
   }
 
@@ -475,7 +475,7 @@ void GcodeSuite::G33() {
       const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
                   r = delta_calibration_radius;
       if (!position_is_reachable(cos(a) * r, sin(a) * r)) {
-        SERIAL_ECHOLNPGM("?(M665 B)ed radius is implausible.");
+        SERIAL_ECHOLNPGM("?(M665 B)ed radius implausible.");
         return;
       }
     }

@@ -32,7 +32,14 @@ using namespace ExtUI;
 
 void TemperatureScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(0).color(temp).units(PSTR("C"));
+  w.precision(0).color(temp).units(
+    PSTR(
+    #if defined(TOUCH_UI_USE_UTF8) && defined(TOUCH_UI_UTF8_WESTERN_CHARSET)
+      u8"°C"
+    #else
+      "C"
+    #endif
+  ));
   w.heading(         PSTR("Temperature:"));
   w.button(30, PSTR("Cooldown (All Off)"));
   #ifndef LULZBOT_DISABLE_TOOLHEAD_HEATER

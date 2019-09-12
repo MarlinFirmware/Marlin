@@ -672,6 +672,9 @@ void idle(
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
+  #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
+    recovery.outage();
+  #endif
 
   #if ENABLED(SPI_ENDSTOPS)
     if (endstops.tmc_spi_homing.any

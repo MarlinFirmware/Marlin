@@ -726,8 +726,8 @@
   //#define CALIBRATION_REPORTING
 
   // The true location and dimension the cube/bolt/washer on the bed.
-  #define CALIBRATION_OBJECT_CENTER     { 264.0, -22.0,  -2.0} // mm
-  #define CALIBRATION_OBJECT_DIMENSIONS {  10.0,  10.0,  10.0} // mm
+  #define CALIBRATION_OBJECT_CENTER     { 264.0, -22.0,  -2.0 } // mm
+  #define CALIBRATION_OBJECT_DIMENSIONS {  10.0,  10.0,  10.0 } // mm
 
   // Comment out any sides which are unreachable by the probe. For best
   // auto-calibration results, all sides must be reachable.
@@ -1204,6 +1204,12 @@
   //#define TOUCH_UI_INVERTED
   //#define TOUCH_UI_PORTRAIT
   //#define TOUCH_UI_MIRRORED
+
+  // Enable UTF8 rendering capabilities.
+  //#define TOUCH_UI_USE_UTF8
+  #if ENABLED(TOUCH_UI_USE_UTF8)
+    #define TOUCH_UI_UTF8_WESTERN_CHARSET
+  #endif
 
   // Use a numeric passcode for "Screen lock" keypad.
   // (recommended for smaller displays)

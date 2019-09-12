@@ -392,16 +392,8 @@ class Temperature {
       static millis_t preheat_end_time[HOTENDS];
     #endif
 
-    #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      static int8_t meas_shift_index;  // Index of a delayed sample in buffer
-    #endif
-
     #if HAS_AUTO_FAN
       static millis_t next_auto_fan_check_ms;
-    #endif
-
-    #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      static uint16_t current_raw_filwidth; // Measured filament diameter - one extruder only
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
@@ -569,12 +561,6 @@ class Temperature {
     #else
       #define is_preheating(n) (false)
     #endif
-
-    #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      static float analog_to_mm_fil_width();         // Convert raw Filament Width to millimeters
-      static int8_t widthFil_to_size_ratio(); // Convert Filament Width (mm) to an extrusion ratio
-    #endif
-
 
     //high level conversion routines, for use outside of temperature.cpp
     //inline so that there is no performance decrease.
