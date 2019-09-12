@@ -134,7 +134,7 @@ void menu_media() {
   #else
     const uint16_t fileCnt = card.get_num_Files();
     card.getWorkDirName();
-  #endif  
+  #endif
 
   START_MENU();
   MENU_BACK(MSG_MAIN);
