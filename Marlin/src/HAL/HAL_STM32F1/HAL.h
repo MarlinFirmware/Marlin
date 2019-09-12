@@ -42,7 +42,10 @@
 #include <util/atomic.h>
 
 #include "../../inc/MarlinConfigPre.h"
-#include "msc_sd.h"
+
+#ifdef USE_USB_COMPOSITE
+  #include "msc_sd.h"
+#endif
 
 // ------------------------
 // Defines
