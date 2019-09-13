@@ -2067,10 +2067,17 @@
   #define TOUCH_DELAY_MENU 100 // Delay to repeat menu arrows on finger hold
   #define TOUCH_DELAY_EDIT 50  // Delay to repeat values increments on hold
 
-  #define XPT2046_X_CALIBRATION   12316
-  #define XPT2046_Y_CALIBRATION  -8981
-  #define XPT2046_X_OFFSET       -43
-  #define XPT2046_Y_OFFSET        257
+  /* MKS Robin TFT v2.0 */
+  #define XPT2046_X_CALIBRATION    12013
+  #define XPT2046_Y_CALIBRATION    -8711
+  #define XPT2046_X_OFFSET           -32
+  #define XPT2046_Y_OFFSET           256
+
+  /* MKS Robin TFT v1.1 */
+  //#define XPT2046_X_CALIBRATION -11792
+  //#define XPT2046_Y_CALIBRATION   8947
+  //#define XPT2046_X_OFFSET         342
+  //#define XPT2046_Y_OFFSET         -19
 #endif
 
 //
