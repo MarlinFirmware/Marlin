@@ -45,23 +45,23 @@ void MoveAxisScreen::onEntry() {
 void MoveAxisScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(1);
-  w.units(PSTR("mm"));
-  w.heading(                                PSTR("Move Axis"));
+  w.units(GET_TEXTF(UNITS_MM));
+  w.heading(                                GET_TEXTF(MOVE_AXIS));
   w.home_buttons(20);
-  w.color(Theme::x_axis  )   .adjuster(  2, PSTR("X:"),  getAxisPosition_mm(X), canMove(X));
-  w.color(Theme::y_axis  )   .adjuster(  4, PSTR("Y:"),  getAxisPosition_mm(Y), canMove(Y));
-  w.color(Theme::z_axis  )   .adjuster(  6, PSTR("Z:"),  getAxisPosition_mm(Z), canMove(Z));
+  w.color(Theme::x_axis  )   .adjuster(  2, GET_TEXTF(AXIS_X),  getAxisPosition_mm(X), canMove(X));
+  w.color(Theme::y_axis  )   .adjuster(  4, GET_TEXTF(AXIS_Y),  getAxisPosition_mm(Y), canMove(Y));
+  w.color(Theme::z_axis  )   .adjuster(  6, GET_TEXTF(AXIS_Z),  getAxisPosition_mm(Z), canMove(Z));
 
   #if EXTRUDERS == 1
-    w.color(Theme::e_axis)   .adjuster(  8, PSTR("E:"),  screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
+    w.color(Theme::e_axis)   .adjuster(  8, GET_TEXTF(AXIS_E),  screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
   #elif EXTRUDERS > 1
-    w.color(Theme::e_axis)   .adjuster(  8, PSTR("E1:"), screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
-    w.color(Theme::e_axis)   .adjuster( 10, PSTR("E2:"), screen_data.MoveAxisScreen.e_rel[1], canMove(E1));
+    w.color(Theme::e_axis)   .adjuster(  8, GET_TEXTF(AXIS_E1), screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
+    w.color(Theme::e_axis)   .adjuster( 10, GET_TEXTF(AXIS_E2), screen_data.MoveAxisScreen.e_rel[1], canMove(E1));
     #if EXTRUDERS > 2
-      w.color(Theme::e_axis) .adjuster( 12, PSTR("E3:"), screen_data.MoveAxisScreen.e_rel[2], canMove(E2));
+      w.color(Theme::e_axis) .adjuster( 12, GET_TEXTF(AXIS_E3), screen_data.MoveAxisScreen.e_rel[2], canMove(E2));
     #endif
     #if EXTRUDERS > 3
-      w.color(Theme::e_axis) .adjuster( 14, PSTR("E4:"), screen_data.MoveAxisScreen.e_rel[3], canMove(E3));
+      w.color(Theme::e_axis) .adjuster( 14, GET_TEXTF(AXIS_E4), screen_data.MoveAxisScreen.e_rel[3], canMove(E3));
     #endif
   #endif
   w.increments();

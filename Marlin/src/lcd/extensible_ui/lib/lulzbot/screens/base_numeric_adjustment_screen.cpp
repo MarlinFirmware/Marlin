@@ -50,15 +50,15 @@ BaseNumericAdjustmentScreen::widgets_t::widgets_t(draw_mode_t what) : _what(what
     cmd.font(font_medium)
        .colors(action_btn)
     #ifdef TOUCH_UI_PORTRAIT
-       .tag(1).button( BTN_POS(1,10), BTN_SIZE(13,1), F("Back"))
+       .tag(1).button( BTN_POS(1,10), BTN_SIZE(13,1), GET_TEXTF(BACK))
     #else
-       .tag(1).button( BTN_POS(15,7), BTN_SIZE(4,1),  F("Back"))
+       .tag(1).button( BTN_POS(15,7), BTN_SIZE(4,1),  GET_TEXTF(BACK))
     #endif
        .colors(normal_btn);
   }
 
   _line = 1;
-  _units = PSTR("");
+  _units = F("");
 }
 
 BaseNumericAdjustmentScreen::widgets_t &BaseNumericAdjustmentScreen::widgets_t::precision(uint8_t decimals, precision_default_t initial) {
@@ -69,14 +69,14 @@ BaseNumericAdjustmentScreen::widgets_t &BaseNumericAdjustmentScreen::widgets_t::
   return *this;
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::heading(const char *label) {
+void BaseNumericAdjustmentScreen::widgets_t::heading(progmem_str label) {
   CommandProcessor cmd;
   cmd.font(font_medium).cmd(COLOR_RGB(bg_text_enabled));
   if (_what & BACKGROUND) {
     #ifdef TOUCH_UI_PORTRAIT
-      cmd.tag(0).fgcolor(bg_color).button( BTN_POS(1, _line), BTN_SIZE(12,1), progmem_str(label), OPT_FLAT);
+      cmd.tag(0).fgcolor(bg_color).button( BTN_POS(1, _line), BTN_SIZE(12,1), label, OPT_FLAT);
     #else
-      cmd.tag(0).fgcolor(bg_color).button( BTN_POS(5, _line), BTN_SIZE(8,1),  progmem_str(label), OPT_FLAT);
+      cmd.tag(0).fgcolor(bg_color).button( BTN_POS(5, _line), BTN_SIZE(8,1),  label, OPT_FLAT);
     #endif
   }
 
@@ -140,9 +140,9 @@ void BaseNumericAdjustmentScreen::widgets_t::increments() {
     cmd.fgcolor(bg_color)
        .tag(0)
     #ifdef TOUCH_UI_PORTRAIT
-       .font(font_small).button( BTN_POS(1, _line),  BTN_SIZE(4,1), F("Increment:"), OPT_FLAT);
+       .font(font_small).button( BTN_POS(1, _line),  BTN_SIZE(4,1), GET_TEXTF(INCREMENT), OPT_FLAT);
     #else
-       .font(font_medium).button( BTN_POS(15,1),     BTN_SIZE(4,1), F("Increment:"), OPT_FLAT);
+       .font(font_medium).button( BTN_POS(15,1),     BTN_SIZE(4,1), GET_TEXTF(INCREMENT), OPT_FLAT);
     #endif
   }
 
@@ -157,7 +157,7 @@ void BaseNumericAdjustmentScreen::widgets_t::increments() {
   #endif
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::adjuster_sram_val(uint8_t tag, const char *label, const char *value, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::adjuster_sram_val(uint8_t tag, progmem_str label, const char *value, bool is_enabled) {
   CommandProcessor cmd;
 
   if (_what & BACKGROUND) {
@@ -179,7 +179,7 @@ void BaseNumericAdjustmentScreen::widgets_t::adjuster_sram_val(uint8_t tag, cons
   _line++;
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, const char *label, const char *value, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, progmem_str label, const char *value, bool is_enabled) {
   if (_what & BACKGROUND) {
     adjuster_sram_val(tag, label, nullptr);
   }
@@ -191,7 +191,7 @@ void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, const char *l
   }
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, const char *label, float value, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, progmem_str label, float value, bool is_enabled) {
   if (_what & BACKGROUND) {
     adjuster_sram_val(tag, label, nullptr);
   }
@@ -205,7 +205,7 @@ void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, const char *l
   }
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::button(uint8_t tag, const char *label, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::button(uint8_t tag, progmem_str label, bool is_enabled) {
   if (_what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
@@ -216,13 +216,13 @@ void BaseNumericAdjustmentScreen::widgets_t::button(uint8_t tag, const char *lab
     #else
        .font(font_medium)
     #endif
-    .button(BTN_POS(5,_line), BTN_SIZE(9,1), progmem_str(label));
+    .button(BTN_POS(5,_line), BTN_SIZE(9,1), label);
   }
 
   _line++;
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::text_field(uint8_t tag, const char *label, const char *value, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::text_field(uint8_t tag, progmem_str label, const char *value, bool is_enabled) {
   CommandProcessor cmd;
 
   if (_what & BACKGROUND) {
@@ -230,7 +230,7 @@ void BaseNumericAdjustmentScreen::widgets_t::text_field(uint8_t tag, const char 
        .font(font_small)
        .cmd(COLOR_RGB(bg_text_enabled))
        .fgcolor(_color).tag(0).button( BTN_POS(5,_line), BTN_SIZE(9,1), F(""),               OPT_FLAT)
-       .fgcolor(bg_color) .tag(0).button( BTN_POS(1,_line), BTN_SIZE(4,1), (progmem_str) label, OPT_FLAT);
+       .fgcolor(bg_color) .tag(0).button( BTN_POS(1,_line), BTN_SIZE(4,1), label, OPT_FLAT);
   }
 
   if (_what & FOREGROUND) {
@@ -242,7 +242,7 @@ void BaseNumericAdjustmentScreen::widgets_t::text_field(uint8_t tag, const char 
   _line++;
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::two_buttons(uint8_t tag1, const char *label1, uint8_t tag2, const char *label2, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::two_buttons(uint8_t tag1, progmem_str label1, uint8_t tag2, progmem_str label2, bool is_enabled) {
   if (_what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.enabled(is_enabled)
@@ -251,23 +251,23 @@ void BaseNumericAdjustmentScreen::widgets_t::two_buttons(uint8_t tag1, const cha
     #else
        .font(font_medium)
     #endif
-    .tag(is_enabled ? tag1: 0).button(BTN_POS(5,_line),   BTN_SIZE(4.5,1), progmem_str(label1))
-    .tag(is_enabled ? tag2: 0).button(BTN_POS(9.5,_line), BTN_SIZE(4.5,1), progmem_str(label2));
+    .tag(is_enabled ? tag1: 0).button(BTN_POS(5,_line),   BTN_SIZE(4.5,1), label1)
+    .tag(is_enabled ? tag2: 0).button(BTN_POS(9.5,_line), BTN_SIZE(4.5,1), label2);
   }
 
   _line++;
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, const char *label, const char *text, bool value, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, progmem_str label, bool value, bool is_enabled) {
   if (_what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.fgcolor(bg_color)
        .tag(0)
        .font(font_small)
     #ifdef TOUCH_UI_PORTRAIT
-       .button( BTN_POS(1, _line), BTN_SIZE( 8,1), progmem_str(label), OPT_FLAT);
+       .button( BTN_POS(1, _line), BTN_SIZE( 8,1), label, OPT_FLAT);
     #else
-       .button( BTN_POS(1, _line), BTN_SIZE(10,1), progmem_str(label), OPT_FLAT);
+       .button( BTN_POS(1, _line), BTN_SIZE(10,1), label, OPT_FLAT);
     #endif
   }
 
@@ -278,9 +278,9 @@ void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, const char *lab
        .font(font_small)
        .colors(ui_toggle)
     #ifdef TOUCH_UI_PORTRAIT
-      .toggle(BTN_POS( 9,_line), BTN_SIZE(5,1), progmem_str(text), value);
+      .toggle2(BTN_POS( 9,_line), BTN_SIZE(5,1), GET_TEXTF(NO), GET_TEXTF(YES), value);
     #else
-      .toggle(BTN_POS(10,_line), BTN_SIZE(4,1), progmem_str(text), value);
+      .toggle2(BTN_POS(10,_line), BTN_SIZE(4,1), GET_TEXTF(NO), GET_TEXTF(YES), value);
     #endif
   }
 
@@ -293,7 +293,7 @@ void BaseNumericAdjustmentScreen::widgets_t::home_buttons(uint8_t tag) {
     cmd.fgcolor(bg_color)
        .tag(0)
        .font(font_small)
-       .button( BTN_POS(1, _line),  BTN_SIZE(4,1), F("Home:"), OPT_FLAT);
+       .button( BTN_POS(1, _line),  BTN_SIZE(4,1), GET_TEXTF(HOME), OPT_FLAT);
   }
 
   if (_what & FOREGROUND) {
@@ -304,10 +304,10 @@ void BaseNumericAdjustmentScreen::widgets_t::home_buttons(uint8_t tag) {
     #else
        .font(font_medium)
     #endif
-       .tag(tag+0).button(BTN_POS(5,_line),  BTN_SIZE(2,1), F("X"))
-       .tag(tag+1).button(BTN_POS(7,_line),  BTN_SIZE(2,1), F("Y"))
-       .tag(tag+2).button(BTN_POS(9,_line),  BTN_SIZE(2,1), F("Z"))
-       .tag(tag+3).button(BTN_POS(11,_line), BTN_SIZE(3,1), F("All"));
+       .tag(tag+0).button(BTN_POS(5,_line),  BTN_SIZE(2,1), GET_TEXTF(AXIS_X))
+       .tag(tag+1).button(BTN_POS(7,_line),  BTN_SIZE(2,1), GET_TEXTF(AXIS_Y))
+       .tag(tag+2).button(BTN_POS(9,_line),  BTN_SIZE(2,1), GET_TEXTF(AXIS_Z))
+       .tag(tag+3).button(BTN_POS(11,_line), BTN_SIZE(3,1), GET_TEXTF(AXIS_ALL));
   }
 
   _line++;

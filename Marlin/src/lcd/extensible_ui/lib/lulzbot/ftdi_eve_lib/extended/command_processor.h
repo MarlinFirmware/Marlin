@@ -220,6 +220,14 @@ class CommandProcessor : public CLCD::CommandFifo {
       return *this;
     }
 
+    CommandProcessor& toggle2(int16_t x, int16_t y, int16_t w, int16_t h, progmem_str no, progmem_str yes, bool state, uint16_t options = FTDI::OPT_3D) {
+      char text[strlen_P((const char *)no) + strlen_P((const char *)yes) + 2];
+      strcpy_P(text, (const char *)no);
+      strcat(text, "\xFF");
+      strcat_P(text, (const char *)yes);
+      return toggle(x, y, w, h, text, state, options);
+    }
+
     // Contrained drawing routines. These constrain the widget inside a box for easier layout.
     // The FORCEDINLINE ensures that the code is inlined so that all the math is done at compile time.
 
@@ -288,8 +296,28 @@ class CommandProcessor : public CLCD::CommandFifo {
 
     void apply_text_alignment(int16_t &x, int16_t &y, int16_t w, int16_t h, uint16_t options) {
       using namespace FTDI;
-      x += ((options & OPT_CENTERX) ? w / 2 : ((options & OPT_RIGHTX) ? w : 0));
-      y += ((options & OPT_CENTERY) ? h / 2 : h);
+      x += ((options & OPT_CENTERX) ? w/2 : ((options & OPT_RIGHTX) ? w : 0));
+      y += ((options & OPT_CENTERY) ? h/2 : h);
+    }
+
+    // Reduce font size until text fits the enclosing box.
+    template<typename T>
+    int8_t apply_fit_text(int16_t w, int16_t h, T text) {
+      using namespace FTDI;
+      int8_t font = _font;
+      for (;;) {
+        #ifdef TOUCH_UI_USE_UTF8
+          const int16_t width  = get_utf8_text_width(text, font_size_t::from_romfont(font));
+          const int16_t height = font_size_t::from_romfont(font).get_height();
+        #else
+          CLCD::FontMetrics fm(font);
+          const int16_t width  = fm.get_text_width(text);
+          const int16_t height = fm.height;
+        #endif
+        if ((width < w && height < h) || font == 26) break;
+        font--;
+      }
+      return font;
     }
 
     CommandProcessor& number(int16_t x, int16_t y, int16_t w, int16_t h, int32_t n, uint16_t options = FTDI::OPT_CENTER) {
@@ -299,14 +327,19 @@ class CommandProcessor : public CLCD::CommandFifo {
       return *this;
     }
 
-    template<typename T> FORCEDINLINE
+    template<typename T>
     CommandProcessor& text(int16_t x, int16_t y, int16_t w, int16_t h, T text, uint16_t options = FTDI::OPT_CENTER) {
       using namespace FTDI;
       apply_text_alignment(x, y, w, h, options);
-      #ifdef TOUCH_UI_USE_UTF8
-        draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(_font), options);
+      #ifdef TOUCH_UI_FIT_TEXT
+        const int8_t font = apply_fit_text(w, h, text);
       #else
-        CLCD::CommandFifo::text(x, y, _font, options);
+        const int8_t font = _font;
+      #endif
+      #ifdef TOUCH_UI_USE_UTF8
+        draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(font), options);
+      #else
+        CLCD::CommandFifo::text(x, y, font, options);
         CLCD::CommandFifo::str(text);
       #endif
       return *this;
@@ -319,8 +352,8 @@ class CommandProcessor : public CLCD::CommandFifo {
         cmd(BITMAP_TRANSFORM_A(uint32_t(float(256)/scale)));
         cmd(BITMAP_TRANSFORM_E(uint32_t(float(256)/scale)));
       }
-      cmd(BITMAP_SIZE(info.filter, info.wrapx, info.wrapy, info.width * scale, info.height * scale));
-      cmd(VERTEX2F((x + w / 2 - info.width * scale / 2) * 16, (y + h / 2 - info.height * scale / 2) * 16));
+      cmd(BITMAP_SIZE(info.filter, info.wrapx, info.wrapy, info.width*scale, info.height*scale));
+      cmd(VERTEX2F((x + w/2 - info.width*scale/2)*16, (y + h/2 - info.height*scale/2)*16));
       if (scale != 1) {
         cmd(BITMAP_TRANSFORM_A(256));
         cmd(BITMAP_TRANSFORM_E(256));
@@ -333,11 +366,16 @@ class CommandProcessor : public CLCD::CommandFifo {
       using namespace FTDI;
       bool styleModified = false;
       if (_btn_style_callback) styleModified = _btn_style_callback(*this, _tag, _style, options, false);
-      CLCD::CommandFifo::button(x, y, w, h, _font, options);
+      #ifdef TOUCH_UI_FIT_TEXT
+        const int8_t font = apply_fit_text(w, h, text);
+      #else
+        const int8_t font = _font;
+      #endif
+      CLCD::CommandFifo::button(x, y, w, h, font, options);
       #ifdef TOUCH_UI_USE_UTF8
         apply_text_alignment(x, y, w, h, OPT_CENTER);
         CLCD::CommandFifo::str(F(""));
-        draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(_font), OPT_CENTER);
+        draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(font), OPT_CENTER);
       #else
         CLCD::CommandFifo::str(text);
       #endif

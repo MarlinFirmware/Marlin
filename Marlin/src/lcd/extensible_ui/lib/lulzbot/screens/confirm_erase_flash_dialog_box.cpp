@@ -31,17 +31,17 @@
 using namespace FTDI;
 
 void ConfirmEraseFlashDialogBox::onRedraw(draw_mode_t) {
-  drawMessage(F("Are you sure? SPI flash will be erased."));
+  drawMessage(GET_TEXTF(ERASE_FLASH_WARNING));
   drawYesNoButtons();
 }
 
 bool ConfirmEraseFlashDialogBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      SpinnerDialogBox::show(F("Erasing..."));
+      SpinnerDialogBox::show(GET_TEXTF(ERASING));
       UIFlashStorage::format_flash();
       SpinnerDialogBox::hide();
-      AlertDialogBox::show(F("SPI flash erased"));
+      AlertDialogBox::show(GET_TEXTF(ERASED));
       // Remove ConfirmEraseFlashDialogBox from the stack
       // so the alert box doesn't return to me.
       current_screen.forget();

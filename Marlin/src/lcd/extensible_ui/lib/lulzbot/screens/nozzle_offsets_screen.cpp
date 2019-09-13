@@ -39,14 +39,14 @@ void NozzleOffsetScreen::onEntry() {
 
 void NozzleOffsetScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(2).units(PSTR("mm"));
+  w.precision(2).units(GET_TEXTF(UNITS_MM));
 
-  w.heading(                          PSTR("Nozzle Offset"));
-  w.color(Theme::x_axis).adjuster(2,  PSTR("X:"), ExtUI::getNozzleOffset_mm(X, E1));
-  w.color(Theme::y_axis).adjuster(4,  PSTR("Y:"), ExtUI::getNozzleOffset_mm(Y, E1));
-  w.color(Theme::z_axis).adjuster(6,  PSTR("Z:"), ExtUI::getNozzleOffset_mm(Z, E1));
+  w.heading(                          GET_TEXTF(TOOL_OFFSETS));
+  w.color(Theme::x_axis).adjuster(2,  GET_TEXTF(AXIS_X), ExtUI::getNozzleOffset_mm(X, E1));
+  w.color(Theme::y_axis).adjuster(4,  GET_TEXTF(AXIS_Y), ExtUI::getNozzleOffset_mm(Y, E1));
+  w.color(Theme::z_axis).adjuster(6,  GET_TEXTF(AXIS_Z), ExtUI::getNozzleOffset_mm(Z, E1));
   #if ENABLED(CALIBRATION_GCODE)
-  w.button(8, PSTR("Measure automatically"), !isPrinting());
+  w.button(8, GET_TEXTF(MEASURE_AUTOMATICALLY), !isPrinting());
   #endif
   w.increments();
 }
