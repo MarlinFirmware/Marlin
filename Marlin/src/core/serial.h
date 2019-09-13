@@ -75,7 +75,9 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_PRINTF(V...)     SERIAL_OUT(printf, V)
 #define SERIAL_FLUSH()          SERIAL_OUT(flush)
 
-#if TX_BUFFER_SIZE > 0
+#ifdef __STM32F1__
+  #define SERIAL_FLUSHTX()      SERIAL_OUT(flush)
+#elif TX_BUFFER_SIZE > 0
   #define SERIAL_FLUSHTX()      SERIAL_OUT(flushTX)
 #else
   #define SERIAL_FLUSHTX()
