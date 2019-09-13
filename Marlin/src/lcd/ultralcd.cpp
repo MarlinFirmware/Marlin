@@ -195,6 +195,10 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     int8_t MarlinUI::encoderDirection = ENCODERBASE;
   #endif
 
+  #if ENABLED(TOUCH_BUTTONS)
+    uint8_t MarlinUI::repeat_delay;
+  #endif
+
   bool MarlinUI::lcd_clicked;
   float move_menu_scale;
 
@@ -792,7 +796,7 @@ void MarlinUI::update() {
           if (touch_buttons & (EN_A | EN_B)) {          // A and/or B button?
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
             if (touch_buttons & EN_A) encoderDiff *= -1;
-            next_button_update_ms = ms + 50;            // Assume the repeat delay
+            next_button_update_ms = ms + repeat_delay;  // Assume the repeat delay
             if (!wait_for_unclick && !arrow_pressed) {  // On click prepare for repeat
               next_button_update_ms += 250;             // Longer delay on first press
               arrow_pressed = true;                     // Mark arrow as pressed
