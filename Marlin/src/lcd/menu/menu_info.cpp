@@ -105,7 +105,7 @@ void menu_info_thermistors() {
     #endif
   );
   START_SCREEN();
-  #if EXTRUDERS > 0
+  #if EXTRUDERS
     #define THERMISTOR_ID TEMP_SENSOR_0
     #include "../thermistornames.h"
     STATIC_ITEM("T0: " THERMISTOR_NAME, false, true);
@@ -254,7 +254,7 @@ void menu_info() {
   #else
     MENU_ITEM(submenu, MSG_INFO_PRINTER_MENU, menu_info_printer);        // Printer Info >
     MENU_ITEM(submenu, MSG_INFO_BOARD_MENU, menu_info_board);            // Board Info >
-    #if EXTRUDERS > 0
+    #if EXTRUDERS
       MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, menu_info_thermistors); // Thermistors >
     #endif
   #endif
