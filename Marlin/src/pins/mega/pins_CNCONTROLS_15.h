@@ -49,7 +49,10 @@
 //
 #define TEMP_0_PIN          2   // Analog Input
 #define TEMP_BED_PIN        4   // Analog Input
-#define TEMP_CHAMBER_PIN    5   // Analog Input
+
+#ifndef TEMP_CHAMBER_PIN
+  #define TEMP_CHAMBER_PIN  5   // Analog Input
+#endif
 
 //
 // Heaters
