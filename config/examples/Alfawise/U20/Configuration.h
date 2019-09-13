@@ -2143,6 +2143,8 @@
 #define TOUCH_BUTTONS
 #if ENABLED(TOUCH_BUTTONS)
   #define TOUCH_CALIBRATION // Include user calibration widget in menus (Alfawise)
+  #define TOUCH_DELAY_MENU 100 // Delay to repeat menu arrows on finger hold
+  #define TOUCH_DELAY_EDIT 50  // Delay to repeat values increments on hold
 
   #if ENABLED(TS_V11)
     // Alfawise U20 ILI9341 2.8 TP Ver 1.1 / Green PCB on the back of touchscreen
