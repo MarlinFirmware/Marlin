@@ -219,6 +219,7 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
     static void draw_status_message(draw_mode_t, const char * const);
 
   public:
+    static void loadBitmaps();
     static void setStatusMessage(const char *);
     static void setStatusMessage(progmem_str);
     static void onRedraw(draw_mode_t);
