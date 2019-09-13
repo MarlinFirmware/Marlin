@@ -245,20 +245,6 @@
   };
 #endif
 
-#if ENABLED(FSMC_GRAPHICAL_TFT)
-  enum MarlinScreenMode : uint8_t {
-    SCRMODE_STATUS = 1,
-    SCRMODE_MENU_2X4,
-    SCRMODE_MENU_H_2X3,
-    SCRMODE_MENU_1X4,
-    SCRMODE_MENU_1X6,
-    SCRMODE_MENU_SELECT,
-    SCRMODE_MENU_EDIT,
-    SCRMODE_SCREEN_1X6,
-    SCRMODE_SCREEN_1X8
-  };
-#endif
-
 ////////////////////////////////////////////
 //////////// MarlinUI Singleton ////////////
 ////////////////////////////////////////////
@@ -420,6 +406,10 @@ public:
 
   #if HAS_LCD_MENU
 
+    #if ENABLED(TOUCH_BUTTONS)
+      static uint8_t repeat_delay;
+    #endif
+
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
       static bool encoderRateMultiplierEnabled;
       static millis_t lastEncoderMovementMillis;
@@ -457,12 +447,6 @@ public:
 
     static bool lcd_clicked;
     static bool use_click();
-    #if ENABLED(FSMC_GRAPHICAL_TFT)
-      static uint8_t screen_mode;
-      #if ENABLED(TOUCH_BUTTONS)
-        static uint8_t touch_delay;
-      #endif
-    #endif  
 
     static void synchronize(PGM_P const msg=nullptr);
 

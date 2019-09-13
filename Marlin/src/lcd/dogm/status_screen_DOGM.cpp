@@ -321,10 +321,6 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 void MarlinUI::draw_status_screen() {
 
-  #if ENABLED(FSMC_GRAPHICAL_TFT)
-    ui.screen_mode = SCRMODE_STATUS;
-  #endif
-  
   #if ENABLED(MARLIN_DEV_MODE)
     if (first_page) count_renders++;
   #endif

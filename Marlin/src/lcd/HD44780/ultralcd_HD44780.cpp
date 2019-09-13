@@ -1006,7 +1006,7 @@ void MarlinUI::draw_status_screen() {
     if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str(data);
   }
 
-  void draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/, const uint8_t tdelay/*=50*/) {
+  void draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     ui.encoder_direction_normal();
 
     lcd_put_u8str_P(0, 1, pstr);
