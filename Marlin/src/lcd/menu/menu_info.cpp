@@ -105,11 +105,13 @@ void menu_info_thermistors() {
     #endif
   );
   START_SCREEN();
-  #define THERMISTOR_ID TEMP_SENSOR_0
-  #include "../thermistornames.h"
-  STATIC_ITEM("T0: " THERMISTOR_NAME, false, true);
-  STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_0_MINTEMP), false);
-  STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_0_MAXTEMP), false);
+  #if EXTRUDERS
+    #define THERMISTOR_ID TEMP_SENSOR_0
+    #include "../thermistornames.h"
+    STATIC_ITEM("T0: " THERMISTOR_NAME, false, true);
+    STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_0_MINTEMP), false);
+    STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_0_MAXTEMP), false);
+  #endif
 
   #if TEMP_SENSOR_1 != 0
     #undef THERMISTOR_ID
@@ -252,7 +254,9 @@ void menu_info() {
   #else
     MENU_ITEM(submenu, MSG_INFO_PRINTER_MENU, menu_info_printer);        // Printer Info >
     MENU_ITEM(submenu, MSG_INFO_BOARD_MENU, menu_info_board);            // Board Info >
-    MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, menu_info_thermistors); // Thermistors >
+    #if EXTRUDERS
+      MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, menu_info_thermistors); // Thermistors >
+    #endif
   #endif
 
   #if ENABLED(PRINTCOUNTER)
