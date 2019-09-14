@@ -166,7 +166,7 @@
   U8GLIB_ST7920_128X64_RRD u8g(0); // Number of stripes can be adjusted in ultralcd_st7920_u8glib_rrd.h with PAGE_HEIGHT
 #elif ENABLED(CARTESIO_UI)
   // The CartesioUI display
-  #if defined(DOGLCD_MOSI) && DOGLCD_MOSI > -1 && defined(DOGLCD_MOSI) && DOGLCD_SCK > -1
+  #if defined(DOGLCD_MOSI) && DOGLCD_MOSI > -1 && defined(DOGLCD_SCK) && DOGLCD_SCK > -1
     // using SW-SPI
     //U8GLIB_DOGM128 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);  // 8 stripes
     U8GLIB_DOGM128_2X u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0); // 4 stripes
@@ -204,7 +204,7 @@
   U8GLIB_SSD1309_128X64 u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST);
 #elif ENABLED(MINIPANEL)
   // The MINIPanel display
-  #if DOGLCD_MOSI != -1 && DOGLCD_SCK != -1
+  #if defined(DOGLCD_MOSI) && DOGLCD_MOSI > -1 && defined(DOGLCD_SCK) && DOGLCD_SCK > -1
     // using SW-SPI
     //U8GLIB_MINI12864 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);  // 8 stripes
     U8GLIB_MINI12864_2X u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0); // 4 stripes
