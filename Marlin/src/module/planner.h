@@ -507,8 +507,7 @@ class Planner {
           skew(pos);
         #endif
         #if HAS_LEVELING
-          if (leveling)
-            apply_leveling(pos);
+          if (leveling) apply_leveling(pos);
         #endif
         #if ENABLED(FWRETRACT)
           apply_retract(pos);
@@ -529,8 +528,7 @@ class Planner {
           unapply_retract(pos);
         #endif
         #if HAS_LEVELING
-          if (leveling)
-            unapply_leveling(pos);
+          if (leveling) unapply_leveling(pos);
         #endif
         #if ENABLED(SKEW_CORRECTION)
           unskew(pos);

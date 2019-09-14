@@ -321,6 +321,9 @@ class Stepper {
       static uint32_t acc_step_rate; // needed for deceleration start point
     #endif
 
+    //
+    // Exact steps at which an endstop was triggered
+    //
     static volatile int32_t endstops_trigsteps[XYZ];
 
     //

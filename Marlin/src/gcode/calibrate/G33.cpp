@@ -369,10 +369,11 @@ static float auto_tune_a() {
         delta_r = {0.0},
         delta_t[ABC] = {0.0};
 
+  ZERO(delta_t);
   LOOP_XYZ(axis) {
-    LOOP_XYZ(axis_2) delta_t[axis_2] = 0.0;
     delta_t[axis] = diff;
     calc_kinematics_diff_probe_points(z_pt, delta_e, delta_r, delta_t);
+    delta_t[axis] = 0;
     a_fac += z_pt[uint8_t((axis * _4P_STEP) - _7P_STEP + NPP) % NPP + 1] / 6.0;
     a_fac -= z_pt[uint8_t((axis * _4P_STEP) + 1 + _7P_STEP)] / 6.0;
   }

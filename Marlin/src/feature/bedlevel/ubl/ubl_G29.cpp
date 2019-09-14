@@ -441,7 +441,7 @@
 
         #if HAS_BED_PROBE
 
-          case 1:
+          case 1: {
             //
             // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
             //
@@ -460,7 +460,7 @@
 
             report_current_position();
             probe_deployed = true;
-            break;
+          } break;
 
         #endif // HAS_BED_PROBE
 
