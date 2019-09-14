@@ -313,7 +313,7 @@ void DGUSScreenVariableHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable 
       DEBUG_ECHOPAIR("new topfile calculated:", top_file);
       if (top_file < 0) {
         top_file = 0;
-        DEBUG_ECHOLN("Top of filelist reached");
+        DEBUG_ECHOLNPGM("Top of filelist reached");
       }
       else {
         int16_t max_top = filelist.count() -  DGUS_SD_FILESPERSCREEN;
@@ -579,7 +579,7 @@ void DGUSScreenVariableHandler::HandleManualMove(DGUS_VP_Variable &var, void *va
     buf[4] = axiscode;
     //DEBUG_ECHOPAIR(" ", buf);
     while (!enqueue_and_echo_command(buf)) idle();
-    //DEBUG_ECHOLN(" ✓");
+    //DEBUG_ECHOLNPGM(" ✓");
     ScreenHandler.ForceCompleteUpdate();
     return;
   }
@@ -588,7 +588,7 @@ void DGUSScreenVariableHandler::HandleManualMove(DGUS_VP_Variable &var, void *va
     DEBUG_ECHOPAIR(" move ", axiscode);
     bool old_relative_mode = relative_mode;
     if (!relative_mode) {
-      //DEBUG_ECHO(" G91");
+      //DEBUG_ECHOPGM(" G91");
       while (!enqueue_and_echo_command("G91")) idle();
       //DEBUG_ECHOPGM(" ✓ ");
     }
@@ -601,18 +601,18 @@ void DGUSScreenVariableHandler::HandleManualMove(DGUS_VP_Variable &var, void *va
     snprintf_P(buf, 32, PSTR("G0 %c%s%d.%02d F%d"), axiscode, sign, value, fraction, speed);
     //DEBUG_ECHOPAIR(" ", buf);
     while (!enqueue_and_echo_command(buf)) idle();
-    //DEBUG_ECHOLN(" ✓ ");
+    //DEBUG_ECHOLNPGM(" ✓ ");
     if (backup_speed != speed) {
       snprintf_P(buf, 32, PSTR("G0 F%d"), backup_speed);
       while (!enqueue_and_echo_command(buf)) idle();
       //DEBUG_ECHOPAIR(" ", buf);
     }
     //while (!enqueue_and_echo_command(buf)) idle();
-    //DEBUG_ECHOLN(" ✓ ");
+    //DEBUG_ECHOLNPGM(" ✓ ");
     if (!old_relative_mode) {
-      //DEBUG_ECHO("G90");
+      //DEBUG_ECHOPGM("G90");
       while (!enqueue_and_echo_command("G90")) idle();
-      //DEBUG_ECHO(" ✓ ");
+      //DEBUG_ECHOPGM(" ✓ ");
     }
   }
 
