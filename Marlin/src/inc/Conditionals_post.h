@@ -1818,13 +1818,13 @@
   #endif
 #endif
 
-//
-// The external SD card is not used. Hardware SPI is used to access the card.
-// When sharing the SD card with a PC we want the menu options to
-// mount/unmount the card and refresh it. So we disable card detect.
-//
 #if ENABLED(SDSUPPORT)
   #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE)
+    //
+    // The external SD card is not used. Hardware SPI is used to access the card.
+    // When sharing the SD card with a PC we want the menu options to
+    // mount/unmount the card and refresh it. So we disable card detect.
+    //
     #undef SD_DETECT_PIN
     #define SHARED_SD_CARD
   #endif
