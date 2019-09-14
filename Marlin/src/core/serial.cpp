@@ -68,7 +68,7 @@ void print_bin(const uint16_t val) {
   }
 }
 
-void print_xyz(PGM_P const prefix, PGM_P const suffix, const float x, const float y, const float z) {
+void print_xyz(PGM_P const prefix, PGM_P const suffix, const float &x, const float &y, const float &z) {
   serialprintPGM(prefix);
   SERIAL_CHAR('(');
   SERIAL_ECHO(x);

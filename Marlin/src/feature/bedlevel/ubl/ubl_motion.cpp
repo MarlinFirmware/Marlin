@@ -88,7 +88,7 @@
       FINAL_MOVE:
 
       // The distance is always MESH_X_DIST so multiply by the constant reciprocal.
-      const float xratio = (end[X_AXIS] - mesh_index_to_xpos(cell_dest_xi)) * (1.0f / (MESH_X_DIST));
+      const float xratio = (end[X_AXIS] - mesh_index_to_xpos(cell_dest_xi)) * RECIPROCAL(MESH_X_DIST);
 
       float z1 = z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
                 (z_values[cell_dest_xi + 1][cell_dest_yi    ] - z_values[cell_dest_xi][cell_dest_yi    ]),
@@ -98,7 +98,7 @@
       if (cell_dest_xi >= GRID_MAX_POINTS_X - 1) z1 = z2 = 0.0;
 
       // X cell-fraction done. Interpolate the two Z offsets with the Y fraction for the final Z offset.
-      const float yratio = (end[Y_AXIS] - mesh_index_to_ypos(cell_dest_yi)) * (1.0f / (MESH_Y_DIST)),
+      const float yratio = (end[Y_AXIS] - mesh_index_to_ypos(cell_dest_yi)) * RECIPROCAL(MESH_Y_DIST),
                   z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * planner.fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
 
       // Undefined parts of the Mesh in z_values[][] are NAN.
@@ -373,10 +373,10 @@
     #if IS_KINEMATIC
       const float seconds = cartesian_xy_mm / feedrate;                                  // seconds to move xy distance at requested rate
       uint16_t segments = LROUND(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
-               seglimit = LROUND(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // number of segments at minimum segment length
+               seglimit = LROUND(cartesian_xy_mm * RECIPROCAL(DELTA_SEGMENT_MIN_LENGTH)); // number of segments at minimum segment length
       NOMORE(segments, seglimit);                                                        // limit to minimum segment length (fewer segments)
     #else
-      uint16_t segments = LROUND(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
+      uint16_t segments = LROUND(cartesian_xy_mm * RECIPROCAL(DELTA_SEGMENT_MIN_LENGTH)); // cartesian fixed segment length
     #endif
 
     NOLESS(segments, 1U);                        // must have at least one segment
@@ -440,8 +440,8 @@
       // in top of loop and again re-find same adjacent cell and use it, just less efficient
       // for mesh inset area.
 
-      int8_t cell_xi = (raw[X_AXIS] - (MESH_MIN_X)) * (1.0f / (MESH_X_DIST)),
-             cell_yi = (raw[Y_AXIS] - (MESH_MIN_Y)) * (1.0f / (MESH_Y_DIST));
+      int8_t cell_xi = (raw[X_AXIS] - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST),
+             cell_yi = (raw[Y_AXIS] - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
 
       LIMIT(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
       LIMIT(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
@@ -462,15 +462,15 @@
       float cx = raw[X_AXIS] - x0,   // cell-relative x and y
             cy = raw[Y_AXIS] - y0;
 
-      const float z_xmy0 = (z_x1y0 - z_x0y0) * (1.0f / (MESH_X_DIST)),   // z slope per x along y0 (lower left to lower right)
-                  z_xmy1 = (z_x1y1 - z_x0y1) * (1.0f / (MESH_X_DIST));   // z slope per x along y1 (upper left to upper right)
+      const float z_xmy0 = (z_x1y0 - z_x0y0) * RECIPROCAL(MESH_X_DIST),   // z slope per x along y0 (lower left to lower right)
+                  z_xmy1 = (z_x1y1 - z_x0y1) * RECIPROCAL(MESH_X_DIST);   // z slope per x along y1 (upper left to upper right)
 
             float z_cxy0 = z_x0y0 + z_xmy0 * cx;            // z height along y0 at cx (changes for each cx in cell)
 
       const float z_cxy1 = z_x0y1 + z_xmy1 * cx,            // z height along y1 at cx
                   z_cxyd = z_cxy1 - z_cxy0;                 // z height difference along cx from y0 to y1
 
-            float z_cxym = z_cxyd * (1.0f / (MESH_Y_DIST));  // z slope per y along cx from y0 to y1 (changes for each cx in cell)
+            float z_cxym = z_cxyd * RECIPROCAL(MESH_Y_DIST);  // z slope per y along cx from y0 to y1 (changes for each cx in cell)
 
       //    float z_cxcy = z_cxy0 + z_cxym * cy;            // interpolated mesh z height along cx at cy (do inside the segment loop)
 
@@ -479,7 +479,7 @@
       // each change by a constant for fixed segment lengths.
 
       const float z_sxy0 = z_xmy0 * diff[X_AXIS],                                     // per-segment adjustment to z_cxy0
-                  z_sxym = (z_xmy1 - z_xmy0) * (1.0f / (MESH_Y_DIST)) * diff[X_AXIS];  // per-segment adjustment to z_cxym
+                  z_sxym = (z_xmy1 - z_xmy0) * RECIPROCAL(MESH_Y_DIST) * diff[X_AXIS];  // per-segment adjustment to z_cxym
 
       for (;;) {  // for all segments within this mesh cell
 

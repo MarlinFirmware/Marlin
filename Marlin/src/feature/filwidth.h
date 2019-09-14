@@ -66,7 +66,7 @@ public:
   }
 
   // Convert raw measurement to mm
-  static inline float raw_to_mm(const uint16_t v) { return v * 5.0f * (1.0f / 16383.0f); }
+  static inline float raw_to_mm(const uint16_t v) { return v * 5.0f * RECIPROCAL(16383.0f); }
   static inline float raw_to_mm() { return raw_to_mm(raw); }
 
   // A scaled reading is ready

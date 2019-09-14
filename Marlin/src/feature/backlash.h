@@ -60,27 +60,27 @@ public:
       static void measure_with_probe();
   #endif
 
-  static inline float get_measurement(const uint8_t e) {
+  static inline float get_measurement(const AxisEnum a) {
     // Return the measurement averaged over all readings
     return (
       #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-        measured_count[e] > 0 ? measured_mm[e] / measured_count[e] :
+        measured_count[a] > 0 ? measured_mm[a] / measured_count[a] :
       #endif
       0
     );
     #if DISABLED(MEASURE_BACKLASH_WHEN_PROBING)
-      UNUSED(e);
+      UNUSED(a);
     #endif
   }
 
-  static inline bool has_measurement(const uint8_t e) {
+  static inline bool has_measurement(const AxisEnum a) {
     return (false
       #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-        || (measured_count[e] > 0)
+        || (measured_count[a] > 0)
       #endif
     );
     #if DISABLED(MEASURE_BACKLASH_WHEN_PROBING)
-      UNUSED(e);
+      UNUSED(a);
     #endif
   }
 
