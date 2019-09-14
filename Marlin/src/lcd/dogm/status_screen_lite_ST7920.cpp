@@ -658,7 +658,7 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
   #endif
 }
 
-void ST7920_Lite_Status_Screen::draw_position(const float x, const float y, const float z, bool position_known) {
+void ST7920_Lite_Status_Screen::draw_position(const float (&pos)[XYZE], const bool position_known) {
   char str[7];
   set_ddram_address(DDRAM_LINE_4);
   begin_data();
@@ -667,13 +667,13 @@ void ST7920_Lite_Status_Screen::draw_position(const float x, const float y, cons
   const unsigned char alt_label = position_known ? 0 : (ui.get_blink() ? ' ' : 0);
 
   write_byte(alt_label ? alt_label : 'X');
-  write_str(dtostrf(x, -4, 0, str), 4);
+  write_str(dtostrf(pos[X_AXIS], -4, 0, str), 4);
 
   write_byte(alt_label ? alt_label : 'Y');
-  write_str(dtostrf(y, -4, 0, str), 4);
+  write_str(dtostrf(pos[Y_AXIS], -4, 0, str), 4);
 
   write_byte(alt_label ? alt_label : 'Z');
-  write_str(dtostrf(z, -5, 1, str), 5);
+  write_str(dtostrf(pos[Z_AXIS], -5, 1, str), 5);
 }
 
 bool ST7920_Lite_Status_Screen::indicators_changed() {
@@ -826,16 +826,14 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
       }
     }
 
-    if (countdown == 0 && (forceUpdate || position_changed() ||
+    if (countdown == 0 && (forceUpdate || position_changed()
       #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        blink_changed()
+        || blink_changed()
       #endif
     )) {
-      draw_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
-        #if ENABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-          true
-        #else
-          all_axes_known()
+      draw_position(current_position, true
+        #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+          && all_axes_known()
         #endif
       );
     }
