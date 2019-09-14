@@ -125,11 +125,19 @@ class MenuItem_sdfolder {
 void menu_media() {
   ui.encoder_direction_menus();
 
-  const uint16_t fileCnt = card.get_num_Files();
+  #if HAS_GRAPHICAL_LCD
+    static uint16_t fileCnt;
+    if (ui.first_page) {
+      fileCnt = card.get_num_Files();
+      card.getWorkDirName();
+    }
+  #else
+    const uint16_t fileCnt = card.get_num_Files();
+    card.getWorkDirName();
+  #endif
 
   START_MENU();
   MENU_BACK(MSG_MAIN);
-  card.getWorkDirName();
   if (card.filename[0] == '/') {
     #if !PIN_EXISTS(SD_DETECT)
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
