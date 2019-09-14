@@ -69,17 +69,19 @@
 #if ENABLED(BED_CENTER_AT_0_0)
   #define X_CENTER 0
   #define Y_CENTER 0
+  #define X_MIN_BED (-(X_BED_SIZE) / 2)
+  #define X_MAX_BED ( (X_BED_SIZE) / 2)
+  #define Y_MIN_BED (-(Y_BED_SIZE) / 2)
+  #define Y_MAX_BED ( (Y_BED_SIZE) / 2)
 #else
   #define X_CENTER ((X_BED_SIZE) / 2)
   #define Y_CENTER ((Y_BED_SIZE) / 2)
+  #define X_MIN_BED 0
+  #define X_MAX_BED (X_BED_SIZE)
+  #define Y_MIN_BED 0
+  #define Y_MAX_BED (Y_BED_SIZE)
 #endif
 #define Z_CENTER ((Z_MIN_POS + Z_MAX_POS) / 2)
-
-// Get the linear boundaries of the bed
-#define X_MIN_BED (X_CENTER - (X_BED_SIZE) / 2)
-#define X_MAX_BED (X_CENTER + (X_BED_SIZE) / 2)
-#define Y_MIN_BED (Y_CENTER - (Y_BED_SIZE) / 2)
-#define Y_MAX_BED (Y_CENTER + (Y_BED_SIZE) / 2)
 
 /**
  * Dual X Carriage
