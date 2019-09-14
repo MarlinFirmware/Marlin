@@ -52,6 +52,10 @@ struct vector_3 {
 
   vector_3 operator+(const vector_3 &v);
   vector_3 operator-(const vector_3 &v);
+
+  vector_3  operator* (const float &v);
+  vector_3& operator*=(const float &v);
+
   void normalize();
   float get_length() const;
   vector_3 get_normal() const;
