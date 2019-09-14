@@ -29,15 +29,15 @@
 using namespace ExtUI;
 
 void RestoreFailsafeDialogBox::onRedraw(draw_mode_t) {
-  drawMessage(F("Are you sure? Customizations will be lost."));
+  drawMessage(GET_TEXTF(EEPROM_RESET_WARNING));
   drawYesNoButtons();
 }
 
 bool RestoreFailsafeDialogBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      ExtUI::injectCommands_P(PSTR("M502\nM117 Factory settings restored."));
-      AlertDialogBox::show(F("Factory settings restored."));
+      ExtUI::injectCommands_P(PSTR("M502"));
+      AlertDialogBox::show(GET_TEXTF(EEPROM_RESET));
       // Remove RestoreFailsafeDialogBox from the stack
       // so the alert box doesn't return to it.
       current_screen.forget();

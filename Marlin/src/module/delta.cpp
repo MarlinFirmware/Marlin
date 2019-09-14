@@ -101,12 +101,8 @@ void recalc_delta_settings() {
  */
 
 #define DELTA_DEBUG(VAR) do { \
-    SERIAL_ECHOPAIR("cartesian X:", VAR[X_AXIS]); \
-    SERIAL_ECHOPAIR(" Y:", VAR[Y_AXIS]);          \
-    SERIAL_ECHOLNPAIR(" Z:", VAR[Z_AXIS]);        \
-    SERIAL_ECHOPAIR("delta A:", delta[A_AXIS]);   \
-    SERIAL_ECHOPAIR(" B:", delta[B_AXIS]);        \
-    SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
+    SERIAL_ECHOLNPAIR("Cartesian X", VAR[X_AXIS], " Y", VAR[Y_AXIS], " Z", VAR[Z_AXIS]);   \
+    SERIAL_ECHOLNPAIR("Delta A", delta[A_AXIS], " B", delta[B_AXIS], " C", delta[C_AXIS]); \
   }while(0)
 
 void inverse_kinematics(const float (&raw)[XYZ]) {

@@ -49,22 +49,33 @@ void AboutScreen::onRedraw(draw_mode_t) {
       #ifdef LULZBOT_LCD_MACHINE_NAME
       LULZBOT_LCD_MACHINE_NAME
       #else
-      "Color Touch Panel"
+      GET_TEXTF(COLOR_TOUCH_PANEL)
       #endif
     ), OPT_CENTER, font_xlarge);
 
+  #ifdef LULZBOT_LCD_TOOLHEAD_NAME
+   char about_str[
+     strlen_P(GET_TEXT(FIRMWARE_FOR_TOOLHEAD)) +
+     strlen_P(LULZBOT_LCD_TOOLHEAD_NAME) +
+     strlen_P(GET_TEXT(ABOUT_ALEPH_OBJECTS)) + 1];
+
+   sprintf_P(about_str, GET_TEXT(FIRMWARE_FOR_TOOLHEAD), LULZBOT_LCD_TOOLHEAD_NAME);
+   strcat_P(about_str,  GET_TEXT(ABOUT_ALEPH_OBJECTS));
+  #endif
+
   cmd.tag(2);
-  draw_text_box(cmd, BTN_POS(1,3), BTN_SIZE(4,3), F(
+  draw_text_box(cmd, BTN_POS(1,3), BTN_SIZE(4,3),
       #ifdef LULZBOT_LCD_TOOLHEAD_NAME
-        "Firmware for toolhead:\n" LULZBOT_LCD_TOOLHEAD_NAME "\n\n"
+        about_str
+      #else
+        GET_TEXTF(ABOUT_ALEPH_OBJECTS)
       #endif
-      "(C) 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com"
-  ), OPT_CENTER, font_medium);
+  , OPT_CENTER, font_medium);
 
   cmd.tag(0);
   draw_text_box(cmd, BTN_POS(1,6), BTN_SIZE(4,2), progmem_str(getFirmwareName_str()), OPT_CENTER, font_medium);
 
-  cmd.font(font_medium).colors(action_btn).tag(1).button(BTN_POS(2,8), BTN_SIZE(2,1), F("Okay"));
+  cmd.font(font_medium).colors(action_btn).tag(1).button(BTN_POS(2,8), BTN_SIZE(2,1), GET_TEXTF(OKAY));
 }
 
 bool AboutScreen::onTouchEnd(uint8_t tag) {

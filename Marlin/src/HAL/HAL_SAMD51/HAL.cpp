@@ -373,7 +373,8 @@ void HAL_init(void) {
     dma_init();
   #endif
   #if ENABLED(SDSUPPORT)
-    #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)    // SD_DETECT_PIN may be remove when NO_SD_HOST_DRIVE is not defined in configuration_adv
+    // SD_DETECT_PIN may be removed if NO_SD_HOST_DRIVE is not defined in Configuration_adv.h
+    #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)
       SET_INPUT_PULLUP(SD_DETECT_PIN);
     #endif
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up

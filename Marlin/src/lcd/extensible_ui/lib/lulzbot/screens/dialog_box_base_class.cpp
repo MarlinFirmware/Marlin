@@ -45,19 +45,19 @@ void DialogBoxBaseClass::drawMessage(const T message, int16_t font) {
 }
 
 template void DialogBoxBaseClass::drawMessage(const char *, int16_t font);
-template void DialogBoxBaseClass::drawMessage(const progmem_str, int16_t font);
+template void DialogBoxBaseClass::drawMessage(progmem_str, int16_t font);
 
 void DialogBoxBaseClass::drawYesNoButtons(uint8_t default_btn) {
   CommandProcessor cmd;
   cmd.font(font_medium)
-     .colors(default_btn == 1 ? action_btn : normal_btn).tag(1).button( BTN_POS(1,8), BTN_SIZE(1,1), F("Yes"))
-     .colors(default_btn == 2 ? action_btn : normal_btn).tag(2).button( BTN_POS(2,8), BTN_SIZE(1,1), F("No"));
+     .colors(default_btn == 1 ? action_btn : normal_btn).tag(1).button( BTN_POS(1,8), BTN_SIZE(1,1), GET_TEXTF(YES))
+     .colors(default_btn == 2 ? action_btn : normal_btn).tag(2).button( BTN_POS(2,8), BTN_SIZE(1,1), GET_TEXTF(NO));
 }
 
 void DialogBoxBaseClass::drawOkayButton() {
   CommandProcessor cmd;
   cmd.font(font_medium)
-     .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), F("Okay"));
+     .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(OKAY));
 }
 
 void DialogBoxBaseClass::drawButton(const progmem_str label) {

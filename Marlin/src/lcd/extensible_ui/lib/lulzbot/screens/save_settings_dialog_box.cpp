@@ -31,7 +31,7 @@ using namespace ExtUI;
 bool SaveSettingsDialogBox::needs_save = false;
 
 void SaveSettingsDialogBox::onRedraw(draw_mode_t) {
-  drawMessage(F("Do you wish to save these settings as defaults?"));
+  drawMessage(GET_TEXTF(EEPROM_SAVE_PROMPT));
   drawYesNoButtons();
 }
 
@@ -40,7 +40,7 @@ bool SaveSettingsDialogBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
       injectCommands_P(PSTR("M500"));
-      AlertDialogBox::show(F("Settings saved!"));
+      AlertDialogBox::show(GET_TEXTF(EEPROM_SAVED));
       // Remove SaveSettingsDialogBox from the stack
       // so the alert box doesn't return to me.
       current_screen.forget();

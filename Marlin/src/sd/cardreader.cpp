@@ -313,7 +313,7 @@ void CardReader::ls() {
 void CardReader::printFilename() {
   if (file.isOpen()) {
     char dosFilename[FILENAME_LENGTH];
-    file.getFilename(dosFilename);
+    file.getDosName(dosFilename);
     SERIAL_ECHO(dosFilename);
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
       getfilename(0, dosFilename);
@@ -404,7 +404,7 @@ void CardReader::openLogFile(char * const path) {
 }
 
 void appendAtom(SdFile &file, char *& dst, uint8_t &cnt) {
-  file.getFilename(dst);
+  file.getDosName(dst);
   while (*dst && cnt < MAXPATHNAMELENGTH) { dst++; cnt++; }
   if (cnt < MAXPATHNAMELENGTH) { *dst = '/'; dst++; cnt++; }
 }

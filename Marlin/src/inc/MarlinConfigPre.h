@@ -43,3 +43,5 @@
 
 #include "Conditionals_adv.h"
 #include HAL_PATH(../HAL, inc/Conditionals_adv.h)
+
+#include <stdint.h>

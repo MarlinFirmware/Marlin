@@ -42,17 +42,17 @@ void MainMenu::onRedraw(draw_mode_t what) {
   if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.cmd(COLOR_RGB(bg_text_enabled))
-       .font(font_large).text( BTN_POS(1,1), BTN_SIZE(2,1), F("Main Menu"))
+       .font(font_large).text( BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXTF(MAIN_MENU))
        .colors(normal_btn)
        .font(font_medium)
-       .tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), F("Load Syringe"))
-       .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), F("Unlock XY Axis"))
-       .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), F("Bed Temperature"))
-       .tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), F("Interface Settings"))
-       .tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), F("Advanced Settings"))
-       .tag(7).button( BTN_POS(1,7), BTN_SIZE(2,1), F("About Printer"))
+       .tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXTF(LOAD_SYRINGE))
+       .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXTF(UNLOCK_XY_AXIS))
+       .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXTF(BED_TEMPERATURE))
+       .tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXTF(INTERFACE_SETTINGS))
+       .tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(ADVANCED_SETTINGS))
+       .tag(7).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(ABOUT_PRINTER))
        .colors(action_btn)
-       .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), F("Back"));
+       .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(BACK));
   }
 
   #undef GRID_COLS
