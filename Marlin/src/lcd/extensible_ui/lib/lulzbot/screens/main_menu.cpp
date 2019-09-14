@@ -43,53 +43,53 @@ void MainMenu::onRedraw(draw_mode_t what) {
     #ifdef TOUCH_UI_PORTRAIT
       #define GRID_ROWS 8
       #define GRID_COLS 2
-        .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), F("Auto Home"))
+        .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXTF(AUTO_HOME))
         #ifdef NOZZLE_CLEAN_FEATURE
          .enabled(1)
         #else
          .enabled(0)
         #endif
-        .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), F("Clean Nozzle"))
-        .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), F("Move Axis"))
-        .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), F("Motors Off"))
-        .tag(6).button( BTN_POS(1,3), BTN_SIZE(2,1), F("Temperature"))
-        .tag(7).button( BTN_POS(1,4), BTN_SIZE(2,1), F("Change Filament"))
-        .tag(8).button( BTN_POS(1,5), BTN_SIZE(2,1), F("Advanced Settings"))
+        .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXTF(CLEAN_NOZZLE))
+        .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXTF(MOVE_AXIS))
+        .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXTF(MOTORS_OFF))
+        .tag(6).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXTF(TEMPERATURE))
+        .tag(7).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXTF(CHANGE_FILAMENT))
+        .tag(8).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXTF(ADVANCED_SETTINGS))
         #ifdef PRINTCOUNTER
          .enabled(1)
         #else
          .enabled(0)
         #endif
-        .tag(9).button( BTN_POS(1,7), BTN_SIZE(2,1), F("Printer Statistics"))
-        .tag(10).button( BTN_POS(1,6), BTN_SIZE(2,1), F("About Printer"))
+        .tag(9).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(PRINTER_STATISTICS))
+        .tag(10).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(ABOUT_PRINTER))
         .colors(action_btn)
-        .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), F("Back"));
+        .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(BACK));
       #undef GRID_COLS
       #undef GRID_ROWS
     #else
       #define GRID_ROWS 5
       #define GRID_COLS 2
-        .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), F("Auto Home"))
+        .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT(AUTO_HOME))
         #if ENABLED(NOZZLE_CLEAN_FEATURE)
          .enabled(1)
         #else
          .enabled(0)
         #endif
-        .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), F("Clean Nozzle"))
-        .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), F("Move Axis"))
-        .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), F("Motors Off"))
-        .tag(6).button( BTN_POS(1,3), BTN_SIZE(1,1), F("Temperature"))
-        .tag(7).button( BTN_POS(2,3), BTN_SIZE(1,1), F("Change Filament"))
-        .tag(8).button( BTN_POS(1,4), BTN_SIZE(1,1), F("Advanced Settings"))
+        .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXTF(CLEAN_NOZZLE))
+        .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXTF(MOVE_AXIS))
+        .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXTF(MOTORS_OFF))
+        .tag(6).button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXTF(TEMPERATURE))
+        .tag(7).button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXTF(CHANGE_FILAMENT))
+        .tag(8).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXTF(ADVANCED_SETTINGS))
         #ifdef PRINTCOUNTER
          .enabled(1)
         #else
          .enabled(0)
         #endif
-        .tag(9).button( BTN_POS(2,4), BTN_SIZE(1,1), F("Printer Statistics"))
-        .tag(10).button( BTN_POS(1,5), BTN_SIZE(1,1), F("About Printer"))
+        .tag(9).button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(PRINTER_STATISTICS))
+        .tag(10).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXTF(ABOUT_PRINTER))
         .colors(action_btn)
-        .tag(1).button( BTN_POS(2,5), BTN_SIZE(1,1), F("Back"));
+        .tag(1).button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXTF(BACK));
       #undef GRID_COLS
       #undef GRID_ROWS
     #endif

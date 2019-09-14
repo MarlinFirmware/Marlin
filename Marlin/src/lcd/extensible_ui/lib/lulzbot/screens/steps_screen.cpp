@@ -33,21 +33,21 @@ using namespace Theme;
 void StepsScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0);
-  w.units(PSTR("st/mm"));
-  w.heading(                               PSTR("Steps/mm"));
-  w.color(x_axis)     .adjuster( 2, PSTR("X:"),  getAxisSteps_per_mm(X) );
-  w.color(y_axis)     .adjuster( 4, PSTR("Y:"),  getAxisSteps_per_mm(Y) );
-  w.color(z_axis)     .adjuster( 6, PSTR("Z:"),  getAxisSteps_per_mm(Z) );
+  w.units(GET_TEXTF(UNITS_STEP_MM));
+  w.heading(                        GET_TEXTF(STEPS_PER_MM));
+  w.color(x_axis)     .adjuster( 2, GET_TEXTF(AXIS_X),  getAxisSteps_per_mm(X) );
+  w.color(y_axis)     .adjuster( 4, GET_TEXTF(AXIS_Y),  getAxisSteps_per_mm(Y) );
+  w.color(z_axis)     .adjuster( 6, GET_TEXTF(AXIS_Z),  getAxisSteps_per_mm(Z) );
   #if EXTRUDERS == 1 || DISABLED(DISTINCT_E_FACTORS)
-    w.color(e_axis)   .adjuster( 8, PSTR("E:"),  getAxisSteps_per_mm(E0) );
+    w.color(e_axis)   .adjuster( 8, GET_TEXTF(AXIS_E),  getAxisSteps_per_mm(E0) );
   #elif EXTRUDERS > 1
-    w.color(e_axis)   .adjuster( 8, PSTR("E1:"), getAxisSteps_per_mm(E0) );
-    w.color(e_axis)   .adjuster(10, PSTR("E2:"), getAxisSteps_per_mm(E1) );
+    w.color(e_axis)   .adjuster( 8, GET_TEXTF(AXIS_E1), getAxisSteps_per_mm(E0) );
+    w.color(e_axis)   .adjuster(10, GET_TEXTF(AXIS_E2), getAxisSteps_per_mm(E1) );
     #if EXTRUDERS > 2
-      w.color(e_axis) .adjuster(12, PSTR("E3:"), getAxisSteps_per_mm(E2) );
+      w.color(e_axis) .adjuster(12, GET_TEXTF(AXIS_E3), getAxisSteps_per_mm(E2) );
     #endif
     #if EXTRUDERS > 3
-      w.color(e_axis) .adjuster(14, PSTR("E4:"), getAxisSteps_per_mm(E3) );
+      w.color(e_axis) .adjuster(14, GET_TEXTF(AXIS_E4), getAxisSteps_per_mm(E3) );
     #endif
   #endif
   w.increments();

@@ -165,13 +165,13 @@ void FilesScreen::drawFooter() {
   cmd.colors(normal_btn)
      .font(font_medium)
      .colors(has_selection ? normal_btn : action_btn)
-     .tag(back_tag).button( BTN_POS(4,y), BTN_SIZE(3,h), F("Back"))
+     .tag(back_tag).button( BTN_POS(4,y), BTN_SIZE(3,h), GET_TEXTF(BACK))
      .enabled(has_selection)
      .colors(has_selection ? action_btn : normal_btn);
   if (screen_data.FilesScreen.flags.is_dir) {
-    cmd.tag(244).button( BTN_POS(1, y), BTN_SIZE(3,h), F("Open"));
+    cmd.tag(244).button( BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXTF(OPEN_DIR));
   } else {
-    cmd.tag(243).button( BTN_POS(1, y), BTN_SIZE(3,h), F("Print"));
+    cmd.tag(243).button( BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXTF(PRINT_FILE));
   }
 }
 
@@ -210,7 +210,7 @@ bool FilesScreen::onTouchEnd(uint8_t tag) {
       break;
     case 243:
       printFile(getSelectedShortFilename());
-      StatusScreen::setStatusMessage(F("Print Starting"));
+      StatusScreen::setStatusMessage(GET_TEXTF(PRINT_STARTING));
       GOTO_SCREEN(StatusScreen);
       return true;
     case 244:
