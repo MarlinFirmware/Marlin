@@ -33,7 +33,7 @@
 #define I2C_EEPROM
 
 // Ignore temp readings during develpment.
-//#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
 // Servos
