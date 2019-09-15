@@ -276,7 +276,7 @@ class I2CPositionEncodersMgr {
       CHECK_IDX();
       encoders[idx].set_ec_enabled(enabled);
       SERIAL_ECHOPAIR("Error correction on ", axis_codes[axis]);
-      serial_ternary(encoders[idx].get_ec_enabled(), PSTR(" axis is "), PSTR("en"), PSTR("dis"), PSTR("abled.\n"));
+      SERIAL_ECHO_TERNARY(encoders[idx].get_ec_enabled(), " axis is ", "en", "dis", "abled.\n");
     }
 
     static void set_ec_threshold(const int8_t idx, const float newThreshold, const AxisEnum axis) {

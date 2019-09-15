@@ -27,7 +27,7 @@
 
 #define L6470_GETPARAM(P,Q) stepper##Q.GetParam(P)
 
-#define MAX_L6470  (7 + MAX_EXTRUDERS) // Maximum number of axes in Marlin
+enum L6470_driver_enum : unsigned char { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5, MAX_L6470 };
 
 #define L6470_ERROR_MASK  (STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD  | STATUS_OCD | STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)
 #define dSPIN_STEP_CLOCK_FWD dSPIN_STEP_CLOCK

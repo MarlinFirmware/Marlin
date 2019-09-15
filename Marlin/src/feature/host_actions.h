@@ -53,8 +53,7 @@ void host_action(const char * const pstr, const bool eol=true);
     PROMPT_FILAMENT_RUNOUT,
     PROMPT_USER_CONTINUE,
     PROMPT_FILAMENT_RUNOUT_REHEAT,
-    PROMPT_PAUSE_RESUME,
-    PROMPT_INFO
+    PROMPT_PAUSE_RESUME
   };
 
   extern PromptReason host_prompt_reason;

@@ -33,21 +33,21 @@ using namespace Theme;
 void MaxAccelerationScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0);
-  w.units(PSTR("mm/s^2"));
-  w.heading(                     PSTR("Maximum Acceleration"));
-  w.color(x_axis)  .adjuster( 2, PSTR("X:"),  getAxisMaxAcceleration_mm_s2(X) );
-  w.color(y_axis)  .adjuster( 4, PSTR("Y:"),  getAxisMaxAcceleration_mm_s2(Y) );
-  w.color(z_axis)  .adjuster( 6, PSTR("Z:"),  getAxisMaxAcceleration_mm_s2(Z) );
+  w.units(GET_TEXTF(UNITS_MM_S2));
+  w.heading(GET_TEXTF(ACCELERATION));
+  w.color(x_axis)  .adjuster( 2, GET_TEXTF(AMAX_X),  getAxisMaxAcceleration_mm_s2(X) );
+  w.color(y_axis)  .adjuster( 4, GET_TEXTF(AMAX_Y),  getAxisMaxAcceleration_mm_s2(Y) );
+  w.color(z_axis)  .adjuster( 6, GET_TEXTF(AMAX_Z),  getAxisMaxAcceleration_mm_s2(Z) );
   #if EXTRUDERS == 1 || DISABLED(DISTINCT_E_FACTORS)
-    w.color(e_axis).adjuster( 8, PSTR("E:"),  getAxisMaxAcceleration_mm_s2(E0) );
+    w.color(e_axis).adjuster( 8, GET_TEXTF(AMAX_E1), getAxisMaxAcceleration_mm_s2(E0) );
   #elif EXTRUDERS > 1
-    w.color(e_axis).adjuster( 8, PSTR("E1:"), getAxisMaxAcceleration_mm_s2(E0) );
-    w.color(e_axis).adjuster(10, PSTR("E2:"), getAxisMaxAcceleration_mm_s2(E1) );
+    w.color(e_axis).adjuster( 8, GET_TEXTF(AMAX_E1), getAxisMaxAcceleration_mm_s2(E0) );
+    w.color(e_axis).adjuster(10, GET_TEXTF(AMAX_E2), getAxisMaxAcceleration_mm_s2(E1) );
     #if EXTRUDERS > 2
-    w.color(e_axis).adjuster(12, PSTR("E3:"), getAxisMaxAcceleration_mm_s2(E2) );
+    w.color(e_axis).adjuster(12, GET_TEXTF(AMAX_E3), getAxisMaxAcceleration_mm_s2(E2) );
     #endif
     #if EXTRUDERS > 3
-    w.color(e_axis).adjuster(14, PSTR("E4:"), getAxisMaxAcceleration_mm_s2(E3) );
+    w.color(e_axis).adjuster(14, GET_TEXTF(AMAX_E4), getAxisMaxAcceleration_mm_s2(E3) );
     #endif
   #endif
   w.increments();

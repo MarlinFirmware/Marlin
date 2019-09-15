@@ -34,21 +34,21 @@ void MaxVelocityScreen::onRedraw(draw_mode_t what) {
   using namespace ExtUI;
   widgets_t w(what);
   w.precision(0);
-  w.units(PSTR("mm/s"));
-  w.heading(                        PSTR("Maximum Velocity"));
-  w.color(x_axis)    .adjuster(  2, PSTR("X:"),  getAxisMaxFeedrate_mm_s(X) );
-  w.color(y_axis)    .adjuster(  4, PSTR("Y:"),  getAxisMaxFeedrate_mm_s(Y) );
-  w.color(z_axis)    .adjuster(  6, PSTR("Z:"),  getAxisMaxFeedrate_mm_s(Z) );
+  w.units(GET_TEXTF(UNITS_MM_S));
+  w.heading(                        GET_TEXTF(VELOCITY));
+  w.color(x_axis)    .adjuster(  2, GET_TEXTF(VMAX_X), getAxisMaxFeedrate_mm_s(X) );
+  w.color(y_axis)    .adjuster(  4, GET_TEXTF(VMAX_Y), getAxisMaxFeedrate_mm_s(Y) );
+  w.color(z_axis)    .adjuster(  6, GET_TEXTF(VMAX_Z), getAxisMaxFeedrate_mm_s(Z) );
   #if EXTRUDERS == 1 || DISABLED(DISTINCT_E_FACTORS)
-    w.color(e_axis)  .adjuster(  8, PSTR("E:"),  getAxisMaxFeedrate_mm_s(E0) );
+    w.color(e_axis)  .adjuster(  8, GET_TEXTF(VMAX_E1), getAxisMaxFeedrate_mm_s(E0) );
   #elif EXTRUDERS > 1
-    w.color(e_axis)  .adjuster(  8, PSTR("E1:"), getAxisMaxFeedrate_mm_s(E0) );
-    w.color(e_axis)  .adjuster( 10, PSTR("E2:"), getAxisMaxFeedrate_mm_s(E1) );
+    w.color(e_axis)  .adjuster(  8, GET_TEXTF(VMAX_E1), getAxisMaxFeedrate_mm_s(E0) );
+    w.color(e_axis)  .adjuster( 10, GET_TEXTF(VMAX_E2), getAxisMaxFeedrate_mm_s(E1) );
     #if EXTRUDERS > 2
-      w.color(e_axis).adjuster( 12, PSTR("E3:"), getAxisMaxFeedrate_mm_s(E2) );
+      w.color(e_axis).adjuster( 12, GET_TEXTF(VMAX_E3), getAxisMaxFeedrate_mm_s(E2) );
     #endif
     #if EXTRUDERS > 3
-      w.color(e_axis).adjuster( 14, PSTR("E4:"), getAxisMaxFeedrate_mm_s(E3) );
+      w.color(e_axis).adjuster( 14, GET_TEXTF(VMAX_E4), getAxisMaxFeedrate_mm_s(E3) );
     #endif
   #endif
   w.increments();

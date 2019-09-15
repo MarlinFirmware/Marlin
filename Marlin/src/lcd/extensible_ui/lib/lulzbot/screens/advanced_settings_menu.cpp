@@ -49,52 +49,52 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #else
         .enabled(0)
       #endif
-      .tag(2) .button( BTN_POS(1,1), BTN_SIZE(1,1), F("Z Offset "))
+      .tag(2) .button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXTF(ZPROBE_ZOFFSET))
       .enabled(1)
-      .tag(3) .button( BTN_POS(2,1), BTN_SIZE(1,1), F("Steps/mm"))
+      .tag(3) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXTF(STEPS_PER_MM))
       #if HAS_TRINAMIC
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(13).button( BTN_POS(1,5), BTN_SIZE(1,1), F("Motor mA"))
+      .tag(13).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXTF(MOTOR_CURRENT))
       #if HAS_TRINAMIC
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(14).button( BTN_POS(1,4), BTN_SIZE(1,1), F("Bump Sense"))
+      .tag(14).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXTF(HOME_SENSE))
       #if HOTENDS > 1
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(4) .button( BTN_POS(1,2), BTN_SIZE(1,1), F("Nozzle Offset"))
+      .tag(4) .button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXTF(TOOL_OFFSETS))
       #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(11).button( BTN_POS(1,3), BTN_SIZE(1,1), F("Filament"))
-      .tag(12).button( BTN_POS(1,6), BTN_SIZE(1,1), F("Endstops"))
-      .tag(15).button( BTN_POS(2,6), BTN_SIZE(1,1), F("Display"))
-      .tag(9) .button( BTN_POS(1,7), BTN_SIZE(2,1), F("Interface Settings"))
-      .tag(10).button( BTN_POS(1,8), BTN_SIZE(2,1), F("Restore Factory Defaults"))
-      .tag(5) .button( BTN_POS(2,2), BTN_SIZE(1,1), F("Velocity "))
-      .tag(6) .button( BTN_POS(2,3), BTN_SIZE(1,1), F("Acceleration"))
+      .tag(11).button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXTF(FILAMENT))
+      .tag(12).button( BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXTF(ENDSTOPS))
+      .tag(15).button( BTN_POS(2,6), BTN_SIZE(1,1), GET_TEXTF(DISPLAY_MENU))
+      .tag(9) .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(INTERFACE_SETTINGS))
+      .tag(10).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(RESTORE_DEFAULTS))
+      .tag(5) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXTF(VELOCITY))
+      .tag(6) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXTF(ACCELERATION))
       #if ENABLED(JUNCTION_DEVIATION)
-      .tag(7) .button( BTN_POS(2,4), BTN_SIZE(1,1), F("Junc Dev"))
+      .tag(7) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JUNCTION_DEVIATION))
       #else
-      .tag(7) .button( BTN_POS(2,4), BTN_SIZE(1,1), F("Jerk"))
+      .tag(7) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JERK))
       #endif
       #if ENABLED(BACKLASH_GCODE)
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(8).button( BTN_POS(2,5), BTN_SIZE(1,1), F("Backlash"))
+      .tag(8).button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXTF(BACKLASH))
       .colors(action_btn)
-      .tag(1) .button( BTN_POS(1,9), BTN_SIZE(2,1), F("Back"));
+      .tag(1) .button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXTF(BACK));
       #undef GRID_COLS
       #undef GRID_ROWS
     #else
@@ -105,47 +105,47 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #else
         .enabled(0)
       #endif
-      .tag(2) .button( BTN_POS(1,1),  BTN_SIZE(1,2), F("Z Offset "))
+      .tag(2) .button( BTN_POS(1,1),  BTN_SIZE(1,2), GET_TEXTF(ZPROBE_ZOFFSET))
       .enabled(1)
-      .tag(3) .button( BTN_POS(2,1),  BTN_SIZE(1,1), F("Steps/mm"))
+      .tag(3) .button( BTN_POS(2,1),  BTN_SIZE(1,1), GET_TEXTF(STEPS_PER_MM))
       #if HAS_TRINAMIC
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(13).button( BTN_POS(3,1), BTN_SIZE(1,1), F("Motor mA"))
+      .tag(13).button( BTN_POS(3,1), BTN_SIZE(1,1), GET_TEXTF(MOTOR_CURRENT))
       #if HAS_TRINAMIC
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(14).button( BTN_POS(3,2), BTN_SIZE(1,1), F("Bump Sense"))
+      .tag(14).button( BTN_POS(3,2), BTN_SIZE(1,1), GET_TEXTF(HOME_SENSE))
       #if ENABLED(BACKLASH_GCODE)
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(8).button( BTN_POS(3,3),  BTN_SIZE(1,1), F("Backlash"))
+      .tag(8).button( BTN_POS(3,3),  BTN_SIZE(1,1), GET_TEXTF(BACKLASH))
       #if HOTENDS > 1
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(4) .button( BTN_POS(1,3),  BTN_SIZE(1,1), F("Nozzle Offsets"))
-      .tag(12).button( BTN_POS(3,4),  BTN_SIZE(1,1), F("Endstops"))
-      .tag(5) .button( BTN_POS(2,2),  BTN_SIZE(1,1), F("Velocity "))
-      .tag(6) .button( BTN_POS(2,3),  BTN_SIZE(1,1), F("Acceleration"))
+      .tag(4) .button( BTN_POS(1,3),  BTN_SIZE(1,1), GET_TEXTF(TOOL_OFFSETS))
+      .tag(12).button( BTN_POS(3,4),  BTN_SIZE(1,1), GET_TEXTF(ENDSTOPS))
+      .tag(5) .button( BTN_POS(2,2),  BTN_SIZE(1,1), GET_TEXTF(VELOCITY))
+      .tag(6) .button( BTN_POS(2,3),  BTN_SIZE(1,1), GET_TEXTF(ACCELERATION))
       #if ENABLED(JUNCTION_DEVIATION)
-      .tag(7) .button( BTN_POS(2,4),  BTN_SIZE(1,1), F("Junc Dev"))
+      .tag(7) .button( BTN_POS(2,4),  BTN_SIZE(1,1), GET_TEXTF(JUNCTION_DEVIATION))
       #else
-      .tag(7) .button( BTN_POS(2,4),  BTN_SIZE(1,1), F("Jerk"))
+      .tag(7) .button( BTN_POS(2,4),  BTN_SIZE(1,1), GET_TEXTF(JERK))
       #endif
-      .tag(11).button( BTN_POS(1,4),  BTN_SIZE(1,1), F("Filament"))
-      .tag(15).button( BTN_POS(3,5),  BTN_SIZE(1,1), F("Display"))
-      .tag(9) .button( BTN_POS(1,5),  BTN_SIZE(2,1), F("Interface Settings"))
-      .tag(10).button( BTN_POS(1,6),  BTN_SIZE(2,1), F("Restore Defaults"))
+      .tag(11).button( BTN_POS(1,4),  BTN_SIZE(1,1), GET_TEXTF(FILAMENT))
+      .tag(15).button( BTN_POS(3,5),  BTN_SIZE(1,1), GET_TEXTF(DISPLAY_MENU))
+      .tag(9) .button( BTN_POS(1,5),  BTN_SIZE(2,1), GET_TEXTF(INTERFACE_SETTINGS))
+      .tag(10).button( BTN_POS(1,6),  BTN_SIZE(2,1), GET_TEXTF(RESTORE_DEFAULTS))
       .colors(action_btn)
-      .tag(1) .button( BTN_POS(3,6),  BTN_SIZE(1,1), F("Back"));
+      .tag(1) .button( BTN_POS(3,6),  BTN_SIZE(1,1), GET_TEXTF(BACK));
     #endif
   }
 }

@@ -79,7 +79,7 @@ void _lcd_mesh_edit_NOP() {
 float lcd_mesh_edit() {
   ui.goto_screen(_lcd_mesh_edit_NOP);
   ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-  _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
+  _lcd_mesh_fine_tune(PSTR(MSG_MESH_EDITOR));
   return mesh_edit_value;
 }
 
@@ -89,7 +89,7 @@ void lcd_mesh_edit_setup(const float &initial) {
 }
 
 void _lcd_z_offset_edit() {
-  _lcd_mesh_fine_tune(PSTR("Z-Offset: "));
+  _lcd_mesh_fine_tune(PSTR(MSG_UBL_Z_OFFSET));
 }
 
 float lcd_z_offset_edit() {

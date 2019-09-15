@@ -168,7 +168,7 @@ void I2CPositionEncoder::update() {
           if (errPrstIdx >= I2CPE_ERR_PRST_ARRAY_SIZE) {
             float sumP = 0;
             LOOP_L_N(i, I2CPE_ERR_PRST_ARRAY_SIZE) sumP += errPrst[i];
-            const int32_t errorP = int32_t(sumP * (1.0f / (I2CPE_ERR_PRST_ARRAY_SIZE)));
+            const int32_t errorP = int32_t(sumP * RECIPROCAL(I2CPE_ERR_PRST_ARRAY_SIZE));
             SERIAL_ECHO(axis_codes[encoderAxis]);
             SERIAL_ECHOLNPAIR(" - err detected: ", errorP * planner.steps_to_mm[encoderAxis], "mm; correcting!");
             babystep.add_steps(encoderAxis, -LROUND(errorP));
@@ -233,7 +233,7 @@ bool I2CPositionEncoder::passes_test(const bool report) {
     switch (H) {
       case I2CPE_MAG_SIG_GOOD:
       case I2CPE_MAG_SIG_MID:
-        serial_ternary(H == I2CPE_MAG_SIG_GOOD, PSTR("passes test; field strength "), PSTR("good"), PSTR("fair"), PSTR(".\n"));
+        SERIAL_ECHO_TERNARY(H == I2CPE_MAG_SIG_GOOD, "passes test; field strength ", "good", "fair", ".\n");
         break;
       default:
         SERIAL_ECHOLNPGM("not detected!");
@@ -440,7 +440,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
       total += new_steps_mm;
 
       // swap start and end points so next loop runs from current position
-      float tempCoord = startCoord[encoderAxis];
+      const float tempCoord = startCoord[encoderAxis];
       startCoord[encoderAxis] = endCoord[encoderAxis];
       endCoord[encoderAxis] = tempCoord;
     }

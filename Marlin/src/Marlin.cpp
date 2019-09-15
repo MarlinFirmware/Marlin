@@ -89,6 +89,10 @@
   #include "feature/bltouch.h"
 #endif
 
+#if ENABLED(POLL_JOG)
+  #include "feature/joystick.h"
+#endif
+
 #if HAS_SERVOS
   #include "module/servo.h"
 #endif
@@ -668,6 +672,9 @@ void idle(
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
+  #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
+    recovery.outage();
+  #endif
 
   #if ENABLED(SPI_ENDSTOPS)
     if (endstops.tmc_spi_homing.any
@@ -738,6 +745,10 @@ void idle(
 
   #if ENABLED(PRUSA_MMU2)
     mmu2.mmu_loop();
+  #endif
+
+  #if ENABLED(POLL_JOG)
+    joystick.inject_jog_moves();
   #endif
 }
 

@@ -91,12 +91,12 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .cmd(COLOR_RGB(bg_text_enabled));
 
     if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0) {
-      sprintf_P(bed_str, PSTR("%-3d C"), ROUND(getTargetTemp_celsius(BED)));
+      sprintf_P(bed_str, F("%3d%S"), ROUND(getTargetTemp_celsius(BED), GET_TEXT(UNITS_C)));
       ui.bounds(POLY(target_temp), x, y, h, v);
       cmd.text(x, y, h, v, bed_str);
     }
 
-    sprintf_P(bed_str, PSTR("%-3d C"), ROUND(getActualTemp_celsius(BED)));
+    sprintf_P(bed_str, F("%3d%S"), ROUND(getActualTemp_celsius(BED)), GET_TEXT(UNITS_C));
     ui.bounds(POLY(actual_temp), x, y, h, v);
     cmd.text(x, y, h, v, bed_str);
   }
@@ -175,13 +175,13 @@ void StatusScreen::draw_fine_motion(draw_mode_t what) {
 
     ui.bounds(POLY(fine_label), x, y, h, v);
     cmd.cmd(COLOR_RGB(bg_text_enabled))
-       .text(x, y, h, v, F("Fine motion:"));
+       .text(x, y, h, v, GET_TEXTF(FINE_MOTION));
   }
 
   if (what & FOREGROUND) {
     ui.bounds(POLY(fine_toggle), x, y, h, v);
     cmd.colors(ui_toggle)
-       .toggle(x, y, h, v, F("no\xFFyes"), fine_motion);
+       .toggle2(x, y, h, v, GET_TEXTF(NO), GET_TEXTF(YES), fine_motion);
   }
 }
 
@@ -226,16 +226,12 @@ void StatusScreen::draw_buttons(draw_mode_t) {
      .colors(has_media ? action_btn : normal_btn)
      .tag(9).button(BTN_POS(1,9), BTN_SIZE(1,1),
         isPrintingFromMedia() ?
-          F("Printing") :
-      #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+          GET_TEXTF(PRINTING) :
         #ifdef LULZBOT_MANUAL_USB_STARTUP
-        (Sd2Card::ready() ? F("USB Drive") : F("Enable USB"))
+        (Sd2Card::ready() ? GET_TEXTF(MEDIA) : GET_TEXTF(ENABLE_MEDIA))
         #else
-        F("USB Drive")
+        GET_TEXTF(MEDIA)
         #endif
-      #else
-        F("SD Card")
-      #endif
       );
 
   cmd.colors(!has_media ? action_btn : normal_btn).tag(10).button(BTN_POS(2,9), BTN_SIZE(1,1), F("Menu"));
@@ -282,7 +278,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case 9:
       #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
       if (!Sd2Card::ready()) {
-        StatusScreen::setStatusMessage(F("Insert USB drive..."));
+        StatusScreen::setStatusMessage(GET_TEXTF(INSERT_MEDIA));
         Sd2Card::usbStartup();
       } else {
         GOTO_SCREEN(FilesScreen);

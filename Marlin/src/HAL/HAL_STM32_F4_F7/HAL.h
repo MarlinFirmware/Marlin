@@ -187,17 +187,6 @@ static inline int freeMemory(void) {
 #pragma GCC diagnostic pop
 
 //
-// SPI: Extended functions which take a channel number (hardware SPI only)
-//
-
-// Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
-// Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-// Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
-
-//
 // EEPROM
 //
 

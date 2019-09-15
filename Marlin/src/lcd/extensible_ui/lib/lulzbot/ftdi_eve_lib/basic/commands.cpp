@@ -66,7 +66,7 @@ uint16_t CLCD::FontMetrics::get_text_width(const char *str, size_t n) const {
   return width;
 }
 
-uint16_t CLCD::FontMetrics::get_text_width_P(const char *str, size_t n) const {
+uint16_t CLCD::FontMetrics::get_text_width(progmem_str str, size_t n) const {
   uint16_t width = 0;
   const uint8_t *p = (const uint8_t *) str;
   for(;;) {
@@ -1105,9 +1105,9 @@ void CLCD::init (void) {
   mem_write_8(REG::CSPREAD,  FTDI::CSpread);
 
   /* write a basic display-list to get things started */
-	mem_write_32(MAP::RAM_DL,      DL::CLEAR_COLOR_RGB);
-	mem_write_32(MAP::RAM_DL + 4, (DL::CLEAR | 0x07)); /* clear color, stencil and tag buffer */
-	mem_write_32(MAP::RAM_DL + 8,  DL::DL_DISPLAY);	/* end of display list */
+  mem_write_32(MAP::RAM_DL,      DL::CLEAR_COLOR_RGB);
+  mem_write_32(MAP::RAM_DL + 4, (DL::CLEAR | 0x07)); /* clear color, stencil and tag buffer */
+  mem_write_32(MAP::RAM_DL + 8,  DL::DL_DISPLAY);    /* end of display list */
 
   mem_write_8(REG::DLSWAP, 0x02); // activate display list, Bad Magic Cookie 2 = switch to new list after current frame is scanned out
 

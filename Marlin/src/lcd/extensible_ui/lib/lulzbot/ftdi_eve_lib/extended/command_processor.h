@@ -67,14 +67,14 @@ class CommandProcessor : public CLCD::CommandFifo {
     }
 
     FORCEDINLINE void linear_widget_box(int16_t &x, int16_t &y, int16_t &w, int16_t &h, bool tracker = false) {
-      const uint16_t th = widget_thickness()/2;
+      const uint16_t th = widget_thickness() / 2;
       if (w > h) {
         x += tracker ? th * 2.5 : th;
-        y += h/2  - th/2;
+        y += (h - th) / 2;
         w -= tracker ? th * 5.0 : th * 2;
         h  = th;
       } else {
-        x += w/2  - th/2;
+        x += (w - th) / 2;
         y += tracker ? th * 2.5 : th;
         w  = th;
         h -= tracker ? th * 5.0 : th * 2;
@@ -82,9 +82,9 @@ class CommandProcessor : public CLCD::CommandFifo {
     }
 
     FORCEDINLINE uint16_t circular_widget_box(int16_t &x, int16_t &y, int16_t &w, int16_t &h) {
-      const uint16_t r = min(w,h)/2;
-      x += w/2;
-      y += h/2;
+      const uint16_t r = min(w,h) / 2;
+      x += w / 2;
+      y += h / 2;
       w  = 1;
       h  = 1;
       return r;
@@ -200,24 +200,32 @@ class CommandProcessor : public CLCD::CommandFifo {
     inline CommandProcessor& rectangle(int16_t x, int16_t y, int16_t w, int16_t h) {
       using namespace FTDI;
       CLCD::CommandFifo::cmd(BEGIN(RECTS));
-      CLCD::CommandFifo::cmd(VERTEX2F(x*16,y*16));
-      CLCD::CommandFifo::cmd(VERTEX2F((x+w)*16,(y+h)*16));
+      CLCD::CommandFifo::cmd(VERTEX2F(x * 16, y * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16, (y + h) * 16));
       return *this;
     }
 
     template<typename T>
     FORCEDINLINE CommandProcessor& toggle(int16_t x, int16_t y, int16_t w, int16_t h, T text, bool state, uint16_t options = FTDI::OPT_3D) {
       CLCD::FontMetrics fm(_font);
-      const int16_t widget_h = fm.height * 20.0/16;
+      const int16_t widget_h = fm.height * 20.0 / 16;
       //const int16_t outer_bar_r = widget_h / 2;
       //const int16_t knob_r      = outer_bar_r - 1.5;
       // The y coordinate of the toggle is the baseline of the text,
       // so we must introduce a fudge factor based on the line height to
       // actually center the control.
-      const int16_t fudge_y = fm.height*5/16;
-      CLCD::CommandFifo::toggle(x + h/2, y + h/2 - widget_h/2 + fudge_y, w - h, _font, options, state);
+      const int16_t fudge_y = fm.height * 5 / 16;
+      CLCD::CommandFifo::toggle(x + h / 2, y + (h - widget_h) / 2 + fudge_y, w - h, _font, options, state);
       CLCD::CommandFifo::str(text);
       return *this;
+    }
+
+    CommandProcessor& toggle2(int16_t x, int16_t y, int16_t w, int16_t h, progmem_str no, progmem_str yes, bool state, uint16_t options = FTDI::OPT_3D) {
+      char text[strlen_P((const char *)no) + strlen_P((const char *)yes) + 2];
+      strcpy_P(text, (const char *)no);
+      strcat(text, "\xFF");
+      strcat_P(text, (const char *)yes);
+      return toggle(x, y, w, h, text, state, options);
     }
 
     // Contrained drawing routines. These constrain the widget inside a box for easier layout.
@@ -286,23 +294,54 @@ class CommandProcessor : public CLCD::CommandFifo {
       return *this;
     }
 
+    void apply_text_alignment(int16_t &x, int16_t &y, int16_t w, int16_t h, uint16_t options) {
+      using namespace FTDI;
+      x += ((options & OPT_CENTERX) ? w/2 : ((options & OPT_RIGHTX) ? w : 0));
+      y += ((options & OPT_CENTERY) ? h/2 : h);
+    }
+
+    // Reduce font size until text fits the enclosing box.
+    template<typename T>
+    int8_t apply_fit_text(int16_t w, int16_t h, T text) {
+      using namespace FTDI;
+      int8_t font = _font;
+      for (;;) {
+        #ifdef TOUCH_UI_USE_UTF8
+          const int16_t width  = get_utf8_text_width(text, font_size_t::from_romfont(font));
+          const int16_t height = font_size_t::from_romfont(font).get_height();
+        #else
+          CLCD::FontMetrics fm(font);
+          const int16_t width  = fm.get_text_width(text);
+          const int16_t height = fm.height;
+        #endif
+        if ((width < w && height < h) || font == 26) break;
+        font--;
+      }
+      return font;
+    }
+
     CommandProcessor& number(int16_t x, int16_t y, int16_t w, int16_t h, int32_t n, uint16_t options = FTDI::OPT_CENTER) {
       using namespace FTDI;
-      CLCD::CommandFifo::number(
-        x + ((options & OPT_CENTERX) ? w/2 : ((options & OPT_RIGHTX) ? w : 0)),
-        y + ((options & OPT_CENTERY) ? h/2 : h),
-        _font, options, n);
+      apply_text_alignment(x, y, w, h, options);
+      CLCD::CommandFifo::number(x, y, _font, options, n);
       return *this;
     }
 
-    template<typename T> FORCEDINLINE
+    template<typename T>
     CommandProcessor& text(int16_t x, int16_t y, int16_t w, int16_t h, T text, uint16_t options = FTDI::OPT_CENTER) {
       using namespace FTDI;
-      CLCD::CommandFifo::text(
-        x + ((options & OPT_CENTERX) ? w/2 : ((options & OPT_RIGHTX) ? w : 0)),
-        y + ((options & OPT_CENTERY) ? h/2 : h),
-        _font, options);
-      CLCD::CommandFifo::str(text);
+      apply_text_alignment(x, y, w, h, options);
+      #ifdef TOUCH_UI_FIT_TEXT
+        const int8_t font = apply_fit_text(w, h, text);
+      #else
+        const int8_t font = _font;
+      #endif
+      #ifdef TOUCH_UI_USE_UTF8
+        draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(font), options);
+      #else
+        CLCD::CommandFifo::text(x, y, font, options);
+        CLCD::CommandFifo::str(text);
+      #endif
       return *this;
     }
 
@@ -327,8 +366,19 @@ class CommandProcessor : public CLCD::CommandFifo {
       using namespace FTDI;
       bool styleModified = false;
       if (_btn_style_callback) styleModified = _btn_style_callback(*this, _tag, _style, options, false);
-      CLCD::CommandFifo::button(x, y, w, h, _font, options);
-      CLCD::CommandFifo::str(text);
+      #ifdef TOUCH_UI_FIT_TEXT
+        const int8_t font = apply_fit_text(w, h, text);
+      #else
+        const int8_t font = _font;
+      #endif
+      CLCD::CommandFifo::button(x, y, w, h, font, options);
+      #ifdef TOUCH_UI_USE_UTF8
+        apply_text_alignment(x, y, w, h, OPT_CENTER);
+        CLCD::CommandFifo::str(F(""));
+        draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(font), OPT_CENTER);
+      #else
+        CLCD::CommandFifo::str(text);
+      #endif
       if (_btn_style_callback && styleModified) _btn_style_callback(*this, _tag, _style, options, true);
       return *this;
     }

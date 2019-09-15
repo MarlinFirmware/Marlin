@@ -67,7 +67,7 @@ union screen_data_t {
     struct base_numeric_adjustment_t placeholder;
     int16_t rel[XYZ];
     #if EXTRUDERS > 1
-      bool  link_nozzles;
+      bool link_nozzles;
     #endif
     bool show_offsets;
   } NudgeNozzleScreen;
