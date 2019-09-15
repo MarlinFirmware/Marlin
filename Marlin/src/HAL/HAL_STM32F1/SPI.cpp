@@ -393,7 +393,7 @@ uint8_t SPIClass::dmaTransferRepeat(uint16_t length) {
     if ((millis() - m) > DMA_TIMEOUT) { b = 2; break; }
   }
 
-  waitSpiTxEnd(_currentSetting->spi_d);  // "5. Wait until TXE=1 and then wait until BSY=0 before disabling the SPI."
+  waitSpiTxEnd(_currentSetting->spi_d); // until TXE=1 and BSY=0
   spi_tx_dma_disable(_currentSetting->spi_d);
   spi_rx_dma_disable(_currentSetting->spi_d);
   dma_disable(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel);
@@ -448,7 +448,7 @@ uint8_t SPIClass::dmaSendRepeat(uint16_t length) {
     // Avoid interrupts and just loop waiting for the flag to be set.
     if ((millis() - m) > DMA_TIMEOUT) { b = 2; break; }
   }
-  waitSpiTxEnd(_currentSetting->spi_d); // "5. Wait until TXE=1 and then wait until BSY=0 before disabling the SPI."
+  waitSpiTxEnd(_currentSetting->spi_d); // until TXE=1 and BSY=0
   spi_tx_dma_disable(_currentSetting->spi_d);
   dma_disable(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel);
   dma_clear_isr_bits(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel);
@@ -471,7 +471,7 @@ uint8_t SPIClass::dmaSendAsync(const void * transmitBuf, uint16_t length, bool m
       //delayMicroseconds(10);
       if ((millis() - m) > DMA_TIMEOUT) { b = 2; break; }
     }
-    waitSpiTxEnd(_currentSetting->spi_d); // "5. Wait until TXE=1 and then wait until BSY=0 before disabling the SPI."
+    waitSpiTxEnd(_currentSetting->spi_d); // until TXE=1 and BSY=0
     spi_tx_dma_disable(_currentSetting->spi_d);
     dma_disable(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel);
     _currentSetting->state = SPI_STATE_READY;

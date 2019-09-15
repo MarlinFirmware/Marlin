@@ -407,7 +407,7 @@ private:
 };
 
 /**
- * @brief Waits unti TXE (tx empy) flag set and BSY (busy) flag unset.
+ * @brief Wait until TXE (tx empty) flag is set and BSY (busy) flag unset.
  */
 static inline void waitSpiTxEnd(spi_dev *spi_d)
 {
