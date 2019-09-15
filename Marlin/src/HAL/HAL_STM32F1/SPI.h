@@ -406,4 +406,13 @@ private:
   */
 };
 
+/**
+ * @brief Waits unti TXE (tx empy) flag set and BSY (busy) flag unset.
+ */
+static inline void waitSpiTxEnd(spi_dev *spi_d)
+{
+  while (spi_is_tx_empty(spi_d) == 0) { /* nada */ } // wait until TXE=1
+  while (spi_is_busy(spi_d) != 0) { /* nada */ }     // wait until BSY=0
+}
+
 extern SPIClass SPI;
