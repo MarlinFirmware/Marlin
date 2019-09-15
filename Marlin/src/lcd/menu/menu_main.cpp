@@ -101,7 +101,7 @@ void menu_main() {
 
   const bool busy = IS_SD_PRINTING() || print_job_timer.isRunning()
     #if ENABLED(SDSUPPORT)
-      , card_detected = card.isDetected()
+      , card_detected = card.isMounted()
       , card_open = card_detected && card.isFileOpen()
     #endif
   ;

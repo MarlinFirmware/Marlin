@@ -34,7 +34,7 @@
 #if !PIN_EXISTS(SD_DETECT)
   void lcd_sd_refresh() {
     encoderTopLine = 0;
-    card.initsd();
+    card.mount();
   }
 #endif
 
@@ -146,7 +146,7 @@ void menu_media() {
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
     #endif
   }
-  else if (card.isDetected())
+  else if (card.isMounted())
     MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {

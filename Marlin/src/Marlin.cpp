@@ -982,8 +982,7 @@ void setup() {
   #endif
 
   #if ENABLED(SDSUPPORT)
-    // Auto-mount the SD
-    card.initsd();
+    card.mount(); // Mount the SD card before settings.first_load
   #endif
 
   // Load data from EEPROM if available (or use defaults)

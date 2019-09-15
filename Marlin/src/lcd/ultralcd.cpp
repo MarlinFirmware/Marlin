@@ -842,7 +842,7 @@ void MarlinUI::update() {
 
       if (sd_status) {
         safe_delay(500); // Some boards need a delay to get settled
-        card.initsd();
+        card.mount();
         if (old_sd_status == 2)
           card.beginautostart();  // Initial boot
         else
