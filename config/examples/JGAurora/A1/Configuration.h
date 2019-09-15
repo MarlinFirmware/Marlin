@@ -2071,7 +2071,7 @@
 //
 #define TOUCH_BUTTONS
 #if ENABLED(TOUCH_BUTTONS)
-  #define TOUCH_DELAY_MENU 100 // Delay to repeat menu arrows on finger hold
+  #define TOUCH_DELAY_MENU 250 // Delay to repeat menu arrows on finger hold
   #define TOUCH_DELAY_EDIT 50  // Delay to repeat values increments on hold
 
   #define XPT2046_X_CALIBRATION   12316
