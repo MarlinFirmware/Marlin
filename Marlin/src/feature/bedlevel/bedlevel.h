@@ -56,7 +56,7 @@ class TemporaryBedLevelingState {
     TemporaryBedLevelingState(const bool enable);
     ~TemporaryBedLevelingState() { set_bed_leveling_enabled(saved); }
 };
-#define TEMPORARY_BED_LEVELING_STATE(enable) TemporaryBedLevelingState tbls(enable)
+#define TEMPORARY_BED_LEVELING_STATE(enable) const TemporaryBedLevelingState tbls(enable)
 
 #if HAS_MESH
 

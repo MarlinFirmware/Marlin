@@ -88,7 +88,10 @@
 #define TEMP_0_PIN         PC0  // T0
 #define TEMP_1_PIN         PC1  // T1
 #define TEMP_BED_PIN       PC2  // TB
-#define TEMP_CHAMBER_PIN   PC3  // TC
+
+#ifndef TEMP_CHAMBER_PIN
+  #define TEMP_CHAMBER_PIN PC3  // TC
+#endif
 
 //
 // Heaters / Fans

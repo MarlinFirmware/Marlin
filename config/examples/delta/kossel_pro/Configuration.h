@@ -958,44 +958,28 @@
   // if servo actuated touch probe is not defined. Uncomment as appropriate for your printer/probe.
 
   // Kossel Pro
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_1_X -105.00 // Move left but not quite so far that we'll bump the belt
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y 0.00
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_1 { -105.00, 0.00, 100.0 } // Move left but not quite so far that we'll bump the belt
   #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE XY_PROBE_SPEED
 
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_X -110.00 // Move outward to position deploy pin to the left of the arm
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y -125.00
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z Z_PROBE_ALLEN_KEY_DEPLOY_1_Z
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_2 { -110.00, -125.00, 100.0 } // Move outward to position deploy pin to the left of the arm
   #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE XY_PROBE_SPEED
 
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X Z_PROBE_ALLEN_KEY_DEPLOY_2_X * 0.75
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Y Z_PROBE_ALLEN_KEY_DEPLOY_2_Y * 0.75
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Z Z_PROBE_ALLEN_KEY_DEPLOY_2_Z
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_3 { -110.00 * 0.75, -125.00 * 0.75, 100.0 }
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE XY_PROBE_SPEED
 
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_X 45.00 // Move right to trigger deploy pin
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_Y -125.00
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_4_Z Z_PROBE_ALLEN_KEY_DEPLOY_3_Z
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_4 { 45.00, -125.00, 100.0 } // Move right to trigger deploy pin
   #define Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE (XY_PROBE_SPEED)/2
 
-  #define Z_PROBE_ALLEN_KEY_STOW_1_X 36.00 // Line up with bed retaining clip
-  #define Z_PROBE_ALLEN_KEY_STOW_1_Y -125.00
-  #define Z_PROBE_ALLEN_KEY_STOW_1_Z 75.0
+  #define Z_PROBE_ALLEN_KEY_STOW_1 { 36.00, -125.00, 75.0 } // Line up with bed retaining clip
   #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE XY_PROBE_SPEED
 
-  #define Z_PROBE_ALLEN_KEY_STOW_2_X Z_PROBE_ALLEN_KEY_STOW_1_X // move down to retract probe
-  #define Z_PROBE_ALLEN_KEY_STOW_2_Y Z_PROBE_ALLEN_KEY_STOW_1_Y
-  #define Z_PROBE_ALLEN_KEY_STOW_2_Z 0.0
+  #define Z_PROBE_ALLEN_KEY_STOW_2 { 36.00, -125.00, 0.0 } // move down to retract probe
   #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (XY_PROBE_SPEED)/2
 
-  #define Z_PROBE_ALLEN_KEY_STOW_3_X 0.0  // return to 0,0,100
-  #define Z_PROBE_ALLEN_KEY_STOW_3_Y 0.0
-  #define Z_PROBE_ALLEN_KEY_STOW_3_Z 100.0
+  #define Z_PROBE_ALLEN_KEY_STOW_3 { 0.0, 0.0, 100.0 } // return to 0,0,100
   #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE XY_PROBE_SPEED
 
-  #define Z_PROBE_ALLEN_KEY_STOW_4_X 0.0
-  #define Z_PROBE_ALLEN_KEY_STOW_4_Y 0.0
-  #define Z_PROBE_ALLEN_KEY_STOW_4_Z Z_PROBE_ALLEN_KEY_STOW_3_Z
+  #define Z_PROBE_ALLEN_KEY_STOW_4 { 0.0, 0.0, 100.0 }
   #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE XY_PROBE_SPEED
 
 #endif // Z_PROBE_ALLEN_KEY
@@ -1637,7 +1621,7 @@
   #define NOZZLE_CLEAN_TRIANGLES  3
 
   // Specify positions as { X, Y, Z }
-  #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
+  #define NOZZLE_CLEAN_START_POINT {  30, 30, (Z_MIN_POS + 1) }
   #define NOZZLE_CLEAN_END_POINT   { 100, 60, (Z_MIN_POS + 1) }
 
   // Circular pattern radius

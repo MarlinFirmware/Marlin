@@ -57,12 +57,14 @@ void BootScreen::onIdle() {
     // in case the display is borked.
     InterfaceSettingsScreen::failSafeSettings();
 
+    StatusScreen::loadBitmaps();
     GOTO_SCREEN(TouchCalibrationScreen);
     current_screen.forget();
     PUSH_SCREEN(StatusScreen);
   } else {
     if (!UIFlashStorage::is_valid()) {
-      SpinnerDialogBox::show(F("Please wait..."));
+      StatusScreen::loadBitmaps();
+      SpinnerDialogBox::show(GET_TEXTF(PLEASE_WAIT));
       UIFlashStorage::format_flash();
       SpinnerDialogBox::hide();
     }
@@ -73,12 +75,19 @@ void BootScreen::onIdle() {
       if (!MediaPlayerScreen::playBootMedia())
         showSplashScreen();
     }
+
+    StatusScreen::loadBitmaps();
+
     #ifdef LULZBOT_USE_BIOPRINTER_UI
       GOTO_SCREEN(BioConfirmHomeXYZ);
       current_screen.forget();
       PUSH_SCREEN(StatusScreen);
       PUSH_SCREEN(BioConfirmHomeE);
+    #elif defined(TOUCH_UI_LANGUAGE_MENU)
+      StatusScreen::setStatusMessage(F(WELCOME_MSG));
+      GOTO_SCREEN(LanguageMenu);
     #else
+      StatusScreen::setStatusMessage(F(WELCOME_MSG));
       GOTO_SCREEN(StatusScreen);
     #endif
   }

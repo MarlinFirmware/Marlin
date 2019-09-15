@@ -159,6 +159,10 @@ typedef struct block_t {
     uint32_t segment_time_us;
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    uint32_t sdpos;
+  #endif
+
 } block_t;
 
 #define HAS_POSITION_FLOAT ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX)
@@ -226,9 +230,10 @@ class Planner {
       static uint8_t last_extruder;                 // Respond to extruder change
     #endif
 
-    static int16_t flow_percentage[EXTRUDERS];      // Extrusion factor for each extruder
-
-    static float e_factor[EXTRUDERS];               // The flow percentage and volumetric multiplier combine to scale E movement
+    #if EXTRUDERS
+      static int16_t flow_percentage[EXTRUDERS];    // Extrusion factor for each extruder
+      static float e_factor[EXTRUDERS];             // The flow percentage and volumetric multiplier combine to scale E movement
+    #endif
 
     #if DISABLED(NO_VOLUMETRICS)
       static float filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
@@ -357,13 +362,15 @@ class Planner {
     static void reset_acceleration_rates();
     static void refresh_positioning();
 
-    FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-      e_factor[e] = (flow_percentage[e] * 0.01f
-        #if DISABLED(NO_VOLUMETRICS)
-          * volumetric_multiplier[e]
-        #endif
-      );
-    }
+    #if EXTRUDERS
+      FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
+        e_factor[e] = (flow_percentage[e] * 0.01f
+          #if DISABLED(NO_VOLUMETRICS)
+            * volumetric_multiplier[e]
+          #endif
+        );
+      }
+    #endif
 
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
@@ -372,7 +379,14 @@ class Planner {
     static void calculate_volumetric_multipliers();
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      void calculate_volumetric_for_width_sensor(const int8_t encoded_ratio);
+      void apply_filament_width_sensor(const int8_t encoded_ratio);
+
+      static inline float volumetric_percent(const bool vol) {
+        return 100.0f * (vol
+            ? volumetric_area_nominal / volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
+            : volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
+        );
+      }
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
@@ -493,8 +507,7 @@ class Planner {
           skew(pos);
         #endif
         #if HAS_LEVELING
-          if (leveling)
-            apply_leveling(pos);
+          if (leveling) apply_leveling(pos);
         #endif
         #if ENABLED(FWRETRACT)
           apply_retract(pos);
@@ -515,8 +528,7 @@ class Planner {
           unapply_retract(pos);
         #endif
         #if HAS_LEVELING
-          if (leveling)
-            unapply_leveling(pos);
+          if (leveling) unapply_leveling(pos);
         #endif
         #if ENABLED(SKEW_CORRECTION)
           unskew(pos);

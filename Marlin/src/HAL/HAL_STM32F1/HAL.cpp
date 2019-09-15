@@ -82,7 +82,7 @@
 // Public Variables
 // ------------------------
 
-#if (!defined(SERIAL_USB) && !defined(USE_USB_COMPOSITE))
+#if (defined(SERIAL_USB) && !defined(USE_USB_COMPOSITE))
   USBSerial SerialUSB;
 #endif
 
@@ -368,5 +368,7 @@ void analogWrite(pin_t pin, int pwm_val8) {
   if (PWM_PIN(pin))
     analogWrite(uint8_t(pin), pwm_val8);
 }
+
+void flashFirmware(int16_t value) { nvic_sys_reset(); }
 
 #endif // __STM32F1__

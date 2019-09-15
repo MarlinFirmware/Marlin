@@ -59,7 +59,7 @@ public:
   inline void restore() { ref_ = val_; }
 };
 
-#define REMEMBER(N,X, ...) restorer<typeof(X)> restorer_##N(X, ##__VA_ARGS__)
+#define REMEMBER(N,X, ...) const restorer<typeof(X)> restorer_##N(X, ##__VA_ARGS__)
 #define RESTORE(N) restorer_##N.restore()
 
 // Converts from an uint8_t in the range of 0-255 to an uint8_t

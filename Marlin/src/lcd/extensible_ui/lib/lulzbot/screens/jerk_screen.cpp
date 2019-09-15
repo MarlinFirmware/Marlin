@@ -34,12 +34,12 @@ void JerkScreen::onRedraw(draw_mode_t what) {
 
   widgets_t w(what);
   w.precision(1);
-  w.units(PSTR("mm/s"));
-  w.heading(                           PSTR("Maximum Jerk"));
-  w.color(x_axis) .adjuster( 2, PSTR("X:"), getAxisMaxJerk_mm_s(X) );
-  w.color(y_axis) .adjuster( 4, PSTR("Y:"), getAxisMaxJerk_mm_s(Y) );
-  w.color(z_axis) .adjuster( 6, PSTR("Z:"), getAxisMaxJerk_mm_s(Z) );
-  w.color(e_axis) .adjuster( 8, PSTR("E:"), getAxisMaxJerk_mm_s(E0) );
+  w.units(GET_TEXTF(UNITS_MM_S));
+  w.heading(GET_TEXTF(JERK));
+  w.color(x_axis) .adjuster( 2, GET_TEXTF(AXIS_X), getAxisMaxJerk_mm_s(X) );
+  w.color(y_axis) .adjuster( 4, GET_TEXTF(AXIS_Y), getAxisMaxJerk_mm_s(Y) );
+  w.color(z_axis) .adjuster( 6, GET_TEXTF(AXIS_Z), getAxisMaxJerk_mm_s(Z) );
+  w.color(e_axis) .adjuster( 8, GET_TEXTF(AXIS_E), getAxisMaxJerk_mm_s(E0) );
   w.increments();
 }
 

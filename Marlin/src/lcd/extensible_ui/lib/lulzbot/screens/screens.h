@@ -23,6 +23,7 @@
 #pragma once
 
 #include "../ftdi_eve_lib/ftdi_eve_lib.h"
+#include "../language/languages.h"
 #include "../theme/theme.h"
 
 #define ROUND(val) uint16_t((val)+0.5)
@@ -219,6 +220,7 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
     static void draw_status_message(draw_mode_t, const char * const);
 
   public:
+    static void loadBitmaps();
     static void setStatusMessage(const char *);
     static void setStatusMessage(progmem_str);
     static void onRedraw(draw_mode_t);
@@ -350,7 +352,7 @@ class BaseNumericAdjustmentScreen : public BaseScreen {
         uint8_t     _line;
         uint32_t    _color;
         uint8_t     _decimals;
-        const char *_units;
+        progmem_str _units;
 
       protected:
         void _draw_increment_btn(uint8_t line, const uint8_t tag);
@@ -359,19 +361,19 @@ class BaseNumericAdjustmentScreen : public BaseScreen {
         widgets_t(draw_mode_t);
 
         widgets_t &color(uint32_t color)       {_color = color; return *this;}
-        widgets_t &units(const char *units)    {_units = units; return *this;}
+        widgets_t &units(progmem_str units)    {_units = units; return *this;}
         widgets_t &draw_mode(draw_mode_t what) {_what  = what;  return *this;}
         widgets_t &precision(uint8_t decimals, precision_default_t = DEFAULT_HIGHEST);
 
-        void heading       (const char *label);
-        void adjuster_sram_val (uint8_t tag,  const char *label, const char *value,  bool is_enabled = true);
-        void adjuster          (uint8_t tag,  const char *label, const char *value,  bool is_enabled = true);
-        void adjuster          (uint8_t tag,  const char *label, float value=0,      bool is_enabled = true);
-        void button            (uint8_t tag,  const char *label,                     bool is_enabled = true);
-        void text_field        (uint8_t tag,  const char *label, const char *value,  bool is_enabled = true);
-        void two_buttons       (uint8_t tag1, const char *label1,
-                                uint8_t tag2, const char *label2,                    bool is_enabled = true);
-        void toggle            (uint8_t tag,  const char *label, const char *text, bool value, bool is_enabled = true);
+        void heading           (progmem_str label);
+        void adjuster_sram_val (uint8_t tag,  progmem_str label, const char *value,  bool is_enabled = true);
+        void adjuster          (uint8_t tag,  progmem_str label, const char *value,  bool is_enabled = true);
+        void adjuster          (uint8_t tag,  progmem_str label, float value=0,      bool is_enabled = true);
+        void button            (uint8_t tag,  progmem_str label,                     bool is_enabled = true);
+        void text_field        (uint8_t tag,  progmem_str label, const char *value,  bool is_enabled = true);
+        void two_buttons       (uint8_t tag1, progmem_str label1,
+                                uint8_t tag2, progmem_str label2,                    bool is_enabled = true);
+        void toggle            (uint8_t tag,  progmem_str label,                     bool value, bool is_enabled = true);
         void home_buttons      (uint8_t tag);
         void increments        ();
     };
@@ -710,3 +712,11 @@ class MediaPlayerScreen : public BaseScreen, public UncachedScreen {
 
     static void playStream(void *obj, media_streamer_func_t*);
 };
+
+#if ENABLED(TOUCH_UI_LANGUAGE_MENU)
+  class LanguageMenu : public BaseScreen, public UncachedScreen {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+  };
+#endif

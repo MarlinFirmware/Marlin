@@ -33,22 +33,22 @@ using namespace Theme;
 void StepperBumpSensitivityScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0, BaseNumericAdjustmentScreen::DEFAULT_LOWEST);
-  w.heading(                     PSTR("TMC Bump Sensitivity"));
-  w.color(x_axis)  .adjuster( 2, PSTR("X:"),  getTMCBumpSensitivity(X),
+  w.heading(                     GET_TEXTF(HOME_SENSE));
+  w.color(x_axis)  .adjuster( 2, GET_TEXTF(AXIS_X),  getTMCBumpSensitivity(X),
   #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
     true
   #else
     false
   #endif
   );
-  w.color(y_axis)  .adjuster( 4, PSTR("Y:"),  getTMCBumpSensitivity(Y),
+  w.color(y_axis)  .adjuster( 4, GET_TEXTF(AXIS_Y),  getTMCBumpSensitivity(Y),
    #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
      true
    #else
      false
    #endif
   );
-  w.color(z_axis)  .adjuster( 6, PSTR("Z:"),  getTMCBumpSensitivity(Z),
+  w.color(z_axis)  .adjuster( 6, GET_TEXTF(AXIS_Z),  getTMCBumpSensitivity(Z),
    #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
      true
    #else

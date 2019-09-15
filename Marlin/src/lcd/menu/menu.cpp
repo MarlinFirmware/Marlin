@@ -143,6 +143,9 @@ void MenuItem_gcode::action(PGM_P const pgcode) { queue.inject_P(pgcode); }
  *       MenuItem_int3::action_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  */
 void MenuItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
+  #if ENABLED(TOUCH_BUTTONS)
+    ui.repeat_delay = 50;
+  #endif
   if (int16_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (int16_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
   if (ui.should_draw())
@@ -211,6 +214,10 @@ bool printer_busy() {
  */
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
+
+    #if ENABLED(TOUCH_BUTTONS)
+      repeat_delay = 250;
+    #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       // Shadow for editing the fade height

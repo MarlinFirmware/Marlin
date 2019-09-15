@@ -66,7 +66,7 @@ uint16_t CLCD::FontMetrics::get_text_width(const char *str, size_t n) const {
   return width;
 }
 
-uint16_t CLCD::FontMetrics::get_text_width_P(const char *str, size_t n) const {
+uint16_t CLCD::FontMetrics::get_text_width(progmem_str str, size_t n) const {
   uint16_t width = 0;
   const uint8_t *p = (const uint8_t *) str;
   for(;;) {
