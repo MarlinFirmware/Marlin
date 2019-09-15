@@ -1213,8 +1213,7 @@
   // When labels do not fit buttons, use smaller font
   #define TOUCH_UI_FIT_TEXT
 
-  // Enable support for selection of languages at run-time
-  // (otherwise will use the value of LCD_LANGUAGE)
+  // Runtime language selection (otherwise LCD_LANGUAGE)
   //#define TOUCH_UI_LANGUAGE_MENU
 
   // Use a numeric passcode for "Screen lock" keypad.
