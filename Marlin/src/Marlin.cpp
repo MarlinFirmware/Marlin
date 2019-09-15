@@ -981,9 +981,9 @@ void setup() {
     ui.show_bootscreen();
   #endif
 
-  #if ENABLED(SDIO_SUPPORT) && !PIN_EXISTS(SD_DETECT)
-    // Auto-mount the SD for EEPROM.dat emulation
-    if (!card.isDetected()) card.initsd();
+  #if ENABLED(SDSUPPORT)
+    // Auto-mount the SD
+    card.initsd();
   #endif
 
   // Load data from EEPROM if available (or use defaults)
