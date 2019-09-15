@@ -1,6 +1,6 @@
 ﻿# Marlin 3D Printer Firmware
 
-[![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=bugfix-2.0.x)](https://travis-ci.org/MarlinFirmware/Marlin)
+[![Build Status](https://travis-ci.org/GeminiServer/Marlin.svg?branch=4MAX-2.0.x)](https://travis-ci.org/GeminiServer/Marlin)
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
 ![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
 ![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
@@ -10,7 +10,7 @@
 Additional documentation can be found at the [Marlin Home Page](http://marlinfw.org/).
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
-## Marlin 2.0 Bugfix Branch
+## 4MAX Marlin 2.0 Bugfix Branch 
 
 __Not for production use. Use with caution!__
 
