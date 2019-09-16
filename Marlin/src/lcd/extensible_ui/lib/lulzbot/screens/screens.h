@@ -243,12 +243,12 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
       static void draw_fine_motion(draw_mode_t what);
       static void draw_buttons(draw_mode_t what);
     public:
+      static void loadBitmaps();
       static void unlockMotors();
 
       static void setStatusMessage(const char *);
       static void setStatusMessage(progmem_str);
 
-      static void onStartup();
       static void onRedraw(draw_mode_t);
 
       static bool onTouchStart(uint8_t tag);

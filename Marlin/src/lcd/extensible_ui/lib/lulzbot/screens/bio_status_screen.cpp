@@ -91,12 +91,12 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .cmd(COLOR_RGB(bg_text_enabled));
 
     if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0) {
-      sprintf_P(bed_str, F("%3d%S"), ROUND(getTargetTemp_celsius(BED), GET_TEXT(UNITS_C)));
+      sprintf_P(bed_str, PSTR("%3d%S"), ROUND(getTargetTemp_celsius(BED)), GET_TEXT(UNITS_C));
       ui.bounds(POLY(target_temp), x, y, h, v);
       cmd.text(x, y, h, v, bed_str);
     }
 
-    sprintf_P(bed_str, F("%3d%S"), ROUND(getActualTemp_celsius(BED)), GET_TEXT(UNITS_C));
+    sprintf_P(bed_str, PSTR("%3d%S"), ROUND(getActualTemp_celsius(BED)), GET_TEXT(UNITS_C));
     ui.bounds(POLY(actual_temp), x, y, h, v);
     cmd.text(x, y, h, v, bed_str);
   }
@@ -237,7 +237,7 @@ void StatusScreen::draw_buttons(draw_mode_t) {
   cmd.colors(!has_media ? action_btn : normal_btn).tag(10).button(BTN_POS(2,9), BTN_SIZE(1,1), F("Menu"));
 }
 
-void StatusScreen::onStartup() {
+void StatusScreen::loadBitmaps() {
   // Load the bitmaps for the status screen
   constexpr uint32_t base = ftdi_memory_map::RAM_G;
   CLCD::mem_write_pgm(base + Bed_Heat_Icon_Info.RAMG_offset, Bed_Heat_Icon, sizeof(Bed_Heat_Icon));
