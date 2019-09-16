@@ -33,7 +33,7 @@
 #include <lpc17xx_pinsel.h>
 #include <lpc17xx_libcfg_default.h>
 
-typedef uint32_t millis_t;
+#include "../../../core/millis_t.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
 
