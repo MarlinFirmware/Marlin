@@ -66,8 +66,7 @@ void BaseScreen::onIdle() {
     if ((millis() - last_interaction) > LCD_TIMEOUT_TO_STATUS) {
       reset_menu_timeout();
       #ifdef UI_FRAMEWORK_DEBUG
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM("Returning to status due to menu timeout");
+        SERIAL_ECHO_MSG("Returning to status due to menu timeout");
       #endif
       GOTO_SCREEN(StatusScreen);
     }
