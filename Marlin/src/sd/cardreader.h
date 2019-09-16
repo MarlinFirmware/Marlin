@@ -80,7 +80,7 @@ public:
   #endif
 
   static void getfilename(uint16_t nr, const char* const match=nullptr);
-  static uint16_t getnrfilenames();
+  static uint16_t countFilesInWorkDir();
 
   static void getAbsFilename(char *t);
 

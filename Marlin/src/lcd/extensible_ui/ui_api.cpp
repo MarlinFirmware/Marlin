@@ -968,8 +968,7 @@ namespace ExtUI {
 
   bool FileList::isAtRootDir() {
     #if ENABLED(SDSUPPORT)
-      card.getWorkDirName();
-      return card.filename[0] == '/';
+      card.flag.workDirIsRoot;
     #else
       return true;
     #endif

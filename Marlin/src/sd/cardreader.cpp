@@ -629,7 +629,7 @@ void CardReader::getfilename(uint16_t nr, const char * const match/*=nullptr*/) 
   lsDive(nullptr, workDir, match);
 }
 
-uint16_t CardReader::getnrfilenames() {
+uint16_t CardReader::countFilesInWorkDir() {
   lsAction = LS_Count;
   nrFiles = 0;
   workDir.rewind();
@@ -718,8 +718,6 @@ void CardReader::chdir(const char * relpath) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_SD_CANT_ENTER_SUBDIR, relpath);
   }
-  getnrfilenames();
-  getWorkDirName();
 }
 
 int8_t CardReader::updir() {
@@ -730,8 +728,6 @@ int8_t CardReader::updir() {
     #endif
   }
   if (!workDirDepth) flag.workDirIsRoot = true;
-  getnrfilenames();
-  getWorkDirName();
   return workDirDepth;
 }
 
@@ -741,8 +737,6 @@ void CardReader::setroot() {
   #if ENABLED(SDCARD_SORT_ALPHA)
     presort();
   #endif
-  getnrfilenames();
-  getWorkDirName();
 }
 
 #if ENABLED(SDCARD_SORT_ALPHA)
@@ -807,7 +801,7 @@ void CardReader::setroot() {
     #endif
 
     // If there are files, sort up to the limit
-    uint16_t fileCnt = getnrfilenames();
+    uint16_t fileCnt = countFilesInWorkDir();
     if (fileCnt > 0) {
 
       // Never sort more than the max allowed
@@ -987,7 +981,7 @@ uint16_t CardReader::get_num_Files() {
     #if ENABLED(SDCARD_SORT_ALPHA) && SDSORT_USES_RAM && SDSORT_CACHE_NAMES
       nrFiles // no need to access the SD card for filenames
     #else
-      getnrfilenames()
+      countFilesInWorkDir()
     #endif
   ;
 }
