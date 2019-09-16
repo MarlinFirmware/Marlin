@@ -80,4 +80,8 @@ bool DialogBoxBaseClass::onTouchEnd(uint8_t tag) {
   }
 }
 
+void DialogBoxBaseClass::onIdle() {
+  reset_menu_timeout();
+}
+
 #endif // LULZBOT_TOUCH_UI

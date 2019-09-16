@@ -142,7 +142,7 @@
   uint16_t FTDI::get_utf8_text_width(progmem_str pstr, font_size_t fs) {
     char str[strlen_P((const char*)pstr) + 1];
     strcpy_P(str, (const char*)pstr);
-    return get_utf8_text_width((const char*) pstr, fs);
+    return get_utf8_text_width(str, fs);
   }
 
    /**

@@ -32,6 +32,7 @@ using namespace Theme;
 void BaseScreen::onEntry() {
   CommandProcessor cmd;
   cmd.set_button_style_callback(buttonStyleCallback);
+  reset_menu_timeout();
   UIScreen::onEntry();
 }
 
@@ -62,9 +63,11 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
 
 void BaseScreen::onIdle() {
   #ifdef LCD_TIMEOUT_TO_STATUS
-    const uint32_t elapsed = millis() - last_interaction;
-    if (elapsed > uint32_t(LCD_TIMEOUT_TO_STATUS)) {
+    if ((millis() - last_interaction) > LCD_TIMEOUT_TO_STATUS) {
       reset_menu_timeout();
+      #ifdef UI_FRAMEWORK_DEBUG
+        SERIAL_ECHO_MSG("Returning to status due to menu timeout");
+      #endif
       GOTO_SCREEN(StatusScreen);
     }
   #endif

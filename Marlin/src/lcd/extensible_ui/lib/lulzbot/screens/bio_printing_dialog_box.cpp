@@ -113,8 +113,8 @@ bool BioPrintingDialogBox::onTouchEnd(uint8_t tag) {
 }
 
 void BioPrintingDialogBox::setStatusMessage(progmem_str message) {
-  char buff[strlen_P((const char * const)message)+1];
-  strcpy_P(buff, (const char * const) message);
+  char buff[strlen_P((const char*)message)+1];
+  strcpy_P(buff, (const char*) message);
   setStatusMessage(buff);
 }
 

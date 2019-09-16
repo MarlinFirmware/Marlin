@@ -108,7 +108,8 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   #if HAS_SOFTWARE_ENDSTOPS
     #undef EDGE_R
     #define EDGE_R 30
-    cmd.font(font_small)
+    cmd.cmd(COLOR_RGB(bg_text_enabled))
+       .font(font_small)
        .text         (BTN_POS(1,5), BTN_SIZE(3,1), GET_TEXTF(SOFT_ENDSTOPS), OPT_RIGHTX | OPT_CENTERY)
        .colors(ui_toggle)
        .tag(2).toggle2(BTN_POS(4,5), BTN_SIZE(3,1), GET_TEXTF(NO), GET_TEXTF(YES), getSoftEndstopState());
