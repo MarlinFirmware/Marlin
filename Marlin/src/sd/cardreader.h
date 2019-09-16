@@ -41,6 +41,7 @@ typedef struct {
        sdprinting:1,
        mounted:1,
        filenameIsDir:1,
+       workDirIsRoot:1,
        abort_sd_printing:1
        #if ENABLED(BINARY_FILE_TRANSFER)
          , binary_mode:1
@@ -142,7 +143,6 @@ public:
 
 public:
   static card_flags_t flag;
-  static bool isWorkDirAtRoot;
   static char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   static int8_t autostart_index;
   static SdFile getroot() { return root; }

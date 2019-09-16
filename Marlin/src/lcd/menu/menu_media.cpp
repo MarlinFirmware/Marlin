@@ -136,7 +136,7 @@ void menu_media() {
 
   START_MENU();
   MENU_BACK(MSG_MAIN);
-  if (card.isWorkDirAtRoot) {
+  if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
     #endif
