@@ -2,7 +2,7 @@
   "build": {
     "core": "stm32",
     "cpu": "cortex-m4",
-    "extra_flags": "-DSTM32F407xx",
+    "extra_flags": "-DSTM32F4 -DSTM32F407xx -DSTM32F40_41xxx",
     "f_cpu": "168000000L",
     "hwids": [
       [
@@ -43,6 +43,7 @@
   },
   "frameworks": [
     "arduino",
+    "cmsis",
     "stm32cube"
   ],
   "name": "STM32F407ZG (192k RAM. 1024k Flash)",
