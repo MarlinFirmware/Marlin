@@ -65,7 +65,9 @@ inline void toggle_pins() {
       SERIAL_EOL();
     }
     else {
-      watchdog_reset();
+      #if ENABLED(USE_WATCHDOG)
+        watchdog_reset();
+      #endif
       report_pin_state_extended(pin, ignore_protection, true, "Pulsing   ");
       #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
         if (pin == TEENSY_E2) {
@@ -89,10 +91,24 @@ inline void toggle_pins() {
       {
         pinMode(pin, OUTPUT);
         for (int16_t j = 0; j < repeat; j++) {
-          watchdog_reset(); extDigitalWrite(pin, 0); safe_delay(wait);
-          watchdog_reset(); extDigitalWrite(pin, 1); safe_delay(wait);
-          watchdog_reset(); extDigitalWrite(pin, 0); safe_delay(wait);
-          watchdog_reset();
+          #if ENABLED(USE_WATCHDOG)
+            watchdog_reset();
+          #endif
+          extDigitalWrite(pin, 0);
+          safe_delay(wait);
+          #if ENABLED(USE_WATCHDOG)
+            watchdog_reset();
+          #endif
+          extDigitalWrite(pin, 1);
+          safe_delay(wait);
+          #if ENABLED(USE_WATCHDOG)
+            watchdog_reset();
+          #endif
+          extDigitalWrite(pin, 0);
+          safe_delay(wait);
+          #if ENABLED(USE_WATCHDOG)
+            watchdog_reset();
+          #endif
         }
       }
     }
