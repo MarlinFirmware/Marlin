@@ -148,6 +148,7 @@ class DialogBoxBaseClass : public BaseScreen {
     static void onRedraw(draw_mode_t) {};
   public:
     static bool onTouchEnd(uint8_t tag);
+    static void onIdle();
 };
 
 class AlertDialogBox : public DialogBoxBaseClass, public CachedScreen<ALERT_BOX_CACHE,ALERT_BOX_DL_SIZE> {
