@@ -127,9 +127,7 @@ void menu_media() {
 
   #if HAS_GRAPHICAL_LCD
     static uint16_t fileCnt;
-    if (ui.first_page) {
-      fileCnt = card.get_num_Files();
-    }
+    if (ui.first_page) fileCnt = card.get_num_Files();
   #else
     const uint16_t fileCnt = card.get_num_Files();
   #endif
