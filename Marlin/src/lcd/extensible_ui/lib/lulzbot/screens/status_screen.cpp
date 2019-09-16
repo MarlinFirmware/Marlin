@@ -181,6 +181,10 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .cmd(BITMAP_LAYOUT(Fan_Icon_Info))
        .cmd(BITMAP_SIZE  (Fan_Icon_Info))
        .icon  (BTN_POS(5,2), BTN_SIZE(1,1), Fan_Icon_Info, icon_scale);
+
+    #ifdef TOUCH_UI_USE_UTF8
+      load_utf8_bitmaps(cmd); // Restore font bitmap handles
+    #endif
   }
 
   if (what & FOREGROUND) {
@@ -342,9 +346,6 @@ void StatusScreen::setStatusMessage(const char* message) {
      .cmd(CLEAR(true,true,true));
 
   draw_temperature(BACKGROUND);
-  #ifdef TOUCH_UI_USE_UTF8
-    load_utf8_bitmaps(cmd);
-  #endif
   draw_progress(BACKGROUND);
   draw_axis_position(BACKGROUND);
   draw_status_message(BACKGROUND, message);
