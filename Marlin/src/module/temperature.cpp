@@ -1518,10 +1518,8 @@ void Temperature::updateTemperaturesFromRawValues() {
     filwidth.update_measured_mm();
   #endif
 
-  #if ENABLED(USE_WATCHDOG)
-    // Reset the watchdog after we know we have a temperature measurement.
-    watchdog_reset();
-  #endif
+  // Reset the watchdog on good temperature measurement
+  watchdog_reset();
 
   temp_meas_ready = false;
 }
