@@ -40,19 +40,25 @@
 
 class Babystep {
 public:
-  static volatile int16_t todo[BS_TODO_AXIS(Z_AXIS) + 1];
+  static volatile int16_t steps[BS_TODO_AXIS(Z_AXIS) + 1];
+
   #if HAS_LCD_MENU || ENABLED(EXTENSIBLE_UI)
+
     static int16_t accum;                                     // Total babysteps in current edit
+
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
       static int16_t axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];   // Total babysteps since G28
       static inline void reset_total(const AxisEnum axis) {
-        #if ENABLED(BABYSTEP_XY)
-          if (axis == Z_AXIS)
-        #endif
-            axis_total[BS_TOTAL_AXIS(axis)] = 0;
+        if (true
+          #if ENABLED(BABYSTEP_XY)
+            && axis == Z_AXIS
+          #endif
+        ) axis_total[BS_TOTAL_AXIS(axis)] = 0;
       }
     #endif
+
   #endif
+
   static void add_steps(const AxisEnum axis, const int16_t distance);
   static void add_mm(const AxisEnum axis, const float &mm);
   static void task();
