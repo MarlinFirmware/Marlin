@@ -41,6 +41,7 @@ typedef struct {
        sdprinting:1,
        mounted:1,
        filenameIsDir:1,
+       workDirIsRoot:1,
        abort_sd_printing:1
        #if ENABLED(BINARY_FILE_TRANSFER)
          , binary_mode:1
@@ -79,7 +80,7 @@ public:
   #endif
 
   static void getfilename(uint16_t nr, const char* const match=nullptr);
-  static uint16_t getnrfilenames();
+  static uint16_t countFilesInWorkDir();
 
   static void getAbsFilename(char *t);
 

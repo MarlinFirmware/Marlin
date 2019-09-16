@@ -127,21 +127,14 @@ void menu_media() {
 
   #if HAS_GRAPHICAL_LCD
     static uint16_t fileCnt;
-    static bool at_root;
-    if (ui.first_page) {
-      fileCnt = card.get_num_Files();
-      card.getWorkDirName();
-      at_root = card.filename[0] == '/';
-    }
+    if (ui.first_page) fileCnt = card.get_num_Files();
   #else
     const uint16_t fileCnt = card.get_num_Files();
-    card.getWorkDirName();
-    const bool at_root = card.filename[0] == '/';
   #endif
 
   START_MENU();
   MENU_BACK(MSG_MAIN);
-  if (at_root) {
+  if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
     #endif
