@@ -49,6 +49,7 @@
 // public:
 
 card_flags_t CardReader::flag;
+bool CardReader::isWorkDirAtRoot;
 char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
 int8_t CardReader::autostart_index;
 
@@ -707,6 +708,7 @@ void CardReader::chdir(const char * relpath) {
 
   if (newDir.open(parent, relpath, O_READ)) {
     workDir = newDir;
+    isWorkDirAtRoot = false;
     if (workDirDepth < MAX_DIR_DEPTH)
       workDirParents[workDirDepth++] = workDir;
     #if ENABLED(SDCARD_SORT_ALPHA)
@@ -717,6 +719,8 @@ void CardReader::chdir(const char * relpath) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_SD_CANT_ENTER_SUBDIR, relpath);
   }
+  getnrfilenames();
+  getWorkDirName();
 }
 
 int8_t CardReader::updir() {
@@ -726,6 +730,9 @@ int8_t CardReader::updir() {
       presort();
     #endif
   }
+  isWorkDirAtRoot = workDirDepth ? false : true;
+  getnrfilenames();
+  getWorkDirName();
   return workDirDepth;
 }
 
@@ -734,9 +741,12 @@ void CardReader::setroot() {
     SERIAL_ECHOLNPGM(MSG_SD_WORKDIR_FAIL);
   }*/
   workDir = root;
+  isWorkDirAtRoot = true;
   #if ENABLED(SDCARD_SORT_ALPHA)
     presort();
   #endif
+  getnrfilenames();
+  getWorkDirName();
 }
 
 #if ENABLED(SDCARD_SORT_ALPHA)
