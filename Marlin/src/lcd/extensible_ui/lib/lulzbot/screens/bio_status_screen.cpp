@@ -36,10 +36,6 @@
 
 #define POLY(A) PolyUI::poly_reader_t(A, sizeof(A)/sizeof(A[0]))
 
-#if ENABLED(SDSUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
-  #include "../../../../sd/cardreader.h"
-#endif
-
 const uint8_t shadow_depth = 5;
 
 using namespace FTDI;
@@ -214,20 +210,12 @@ void StatusScreen::draw_buttons(draw_mode_t) {
 
   cmd.font(font_medium)
      .colors(normal_btn)
-    #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
-      .enabled(!Sd2Card::ready() || has_media)
-    #else
-      .enabled(has_media)
-    #endif
+     .enabled(has_media)
      .colors(has_media ? action_btn : normal_btn)
      .tag(9).button(BTN_POS(1,9), BTN_SIZE(1,1),
         isPrintingFromMedia() ?
           GET_TEXTF(PRINTING) :
-        #ifdef LULZBOT_MANUAL_USB_STARTUP
-          (Sd2Card::ready() ? GET_TEXTF(MEDIA) : GET_TEXTF(ENABLE_MEDIA))
-        #else
           GET_TEXTF(MEDIA)
-        #endif
       );
 
   cmd.colors(!has_media ? action_btn : normal_btn).tag(10).button(BTN_POS(2,9), BTN_SIZE(1,1), GET_TEXTF(MENU));
@@ -276,18 +264,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
         injectCommands_P(PSTR("M17"));
       }
       break;
-    case 9:
-      #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
-      if (!Sd2Card::ready()) {
-        StatusScreen::setStatusMessage(GET_TEXTF(INSERT_MEDIA));
-        Sd2Card::usbStartup();
-      } else {
-        GOTO_SCREEN(FilesScreen);
-      }
-      #else
-        GOTO_SCREEN(FilesScreen);
-      #endif
-      break;
+    case 9:  GOTO_SCREEN(FilesScreen); break;
     case 10: GOTO_SCREEN(MainMenu); break;
     case 13: SpinnerDialogBox::enqueueAndWait_P(F("G112"));  break;
     case 14: SpinnerDialogBox::enqueueAndWait_P(F("G28 Z")); break;
