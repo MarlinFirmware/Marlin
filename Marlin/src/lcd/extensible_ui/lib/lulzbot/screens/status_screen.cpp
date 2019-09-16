@@ -22,14 +22,14 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && !defined(LULZBOT_USE_BIOPRINTER_UI)
+#if ENABLED(LULZBOT_TOUCH_UI) && DISABLED(LULZBOT_USE_BIOPRINTER_UI)
 
 #include "screens.h"
 #include "screen_data.h"
 
 #include "../archim2-flash/flash_storage.h"
 
-#if ENABLED(SDSUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
+#if BOTH(SDSUPPORT, LULZBOT_MANUAL_USB_STARTUP)
   #include "../../../../../sd/cardreader.h"
 #endif
 
@@ -57,9 +57,9 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
                          .button( BTN_POS(1,7), BTN_SIZE(2,1), F(""), OPT_FLAT)
 
         .font(Theme::font_small)
-                         .text  ( BTN_POS(1,5), BTN_SIZE(1,1), F("X"))
-                         .text  ( BTN_POS(1,6), BTN_SIZE(1,1), F("Y"))
-                         .text  ( BTN_POS(1,7), BTN_SIZE(1,1), F("Z"))
+                         .text  ( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXTF(AXIS_X))
+                         .text  ( BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXTF(AXIS_Y))
+                         .text  ( BTN_POS(1,7), BTN_SIZE(1,1), GET_TEXTF(AXIS_Z))
 
         .font(Theme::font_medium)
         .fgcolor(Theme::x_axis) .button( BTN_POS(2,5), BTN_SIZE(2,1), F(""), OPT_FLAT)
@@ -73,9 +73,9 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
                          .button( BTN_POS(3,5), BTN_SIZE(1,2), F(""),  OPT_FLAT)
 
         .font(Theme::font_small)
-                         .text  ( BTN_POS(1,5), BTN_SIZE(1,1), F("X"))
-                         .text  ( BTN_POS(2,5), BTN_SIZE(1,1), F("Y"))
-                         .text  ( BTN_POS(3,5), BTN_SIZE(1,1), F("Z"))
+                         .text  ( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXTF(AXIS_X))
+                         .text  ( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXTF(AXIS_Y))
+                         .text  ( BTN_POS(3,5), BTN_SIZE(1,1), GET_TEXTF(AXIS_Z))
                          .font(Theme::font_medium)
 
         .fgcolor(Theme::x_axis) .button( BTN_POS(1,6), BTN_SIZE(1,1), F(""), OPT_FLAT)
@@ -92,21 +92,24 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
 
     if (isAxisPositionKnown(X)) {
       dtostrf(getAxisPosition_mm(X), 5, 1, x_str);
-      strcat_P(x_str, PSTR(" mm"));
+      strcat_P(x_str, " ");
+      strcat_P(x_str, GET_TEXT(UNITS_MM));
     } else {
       strcpy_P(x_str, PSTR("?"));
     }
 
     if (isAxisPositionKnown(Y)) {
       dtostrf(getAxisPosition_mm(Y), 5, 1, y_str);
-      strcat_P(y_str, PSTR(" mm"));
+      strcat_P(y_str, " ");
+      strcat_P(y_str, GET_TEXT(UNITS_MM));
     } else {
       strcpy_P(y_str, PSTR("?"));
     }
 
     if (isAxisPositionKnown(Z)) {
       dtostrf(getAxisPosition_mm(Z), 5, 1, z_str);
-      strcat_P(z_str, PSTR(" mm"));
+      strcat_P(z_str, " ");
+      strcat_P(z_str, GET_TEXT(UNITS_MM));
     } else {
       strcpy_P(z_str, PSTR("?"));
     }
@@ -182,10 +185,10 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
   if (what & FOREGROUND) {
     using namespace ExtUI;
-    char e0_str[15];
-    char e1_str[15];
-    char bed_str[15];
-    char fan_str[15];
+    char e0_str[20];
+    char e1_str[20];
+    char bed_str[20];
+    char fan_str[20];
 
     sprintf_P(
       fan_str,
@@ -193,30 +196,21 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       int8_t(getActualFan_percent(FAN0))
     );
 
-    const char *idle = PSTR("%-3d C / idle");
-    const char *not_idle = PSTR("%-3d / %-3d C");
+    if (isHeaterIdle(BED))
+      sprintf_P(bed_str, PSTR("%3d%S / %S"), ROUND(getActualTemp_celsius(BED)), GET_TEXT(UNITS_C), GET_TEXT(TEMP_IDLE));
+    else
+      sprintf_P(bed_str, PSTR("%3d / %3d%S"), ROUND(getActualTemp_celsius(BED)), ROUND(getTargetTemp_celsius(BED)), GET_TEXT(UNITS_C));
 
-    sprintf_P(
-      bed_str,
-      isHeaterIdle(BED) ? idle : not_idle,
-      ROUND(getActualTemp_celsius(BED)),
-      ROUND(getTargetTemp_celsius(BED))
-    );
-
-    sprintf_P(
-      e0_str,
-      isHeaterIdle(H0) ? idle : not_idle,
-      ROUND(getActualTemp_celsius(H0)),
-      ROUND(getTargetTemp_celsius(H0))
-    );
+    if (isHeaterIdle(H0))
+      sprintf_P(e0_str, PSTR("%3d%S / %S"), ROUND(getActualTemp_celsius(H0)), GET_TEXT(UNITS_C), GET_TEXT(TEMP_IDLE));
+    else
+      sprintf_P(e0_str, PSTR("%3d / %3d%S"), ROUND(getActualTemp_celsius(H0)), ROUND(getTargetTemp_celsius(H0)), GET_TEXT(UNITS_C));
 
     #if EXTRUDERS == 2
-      sprintf_P(
-        e1_str,
-        isHeaterIdle(H1) ? idle : not_idle,
-        ROUND(getActualTemp_celsius(H1)),
-        ROUND(getTargetTemp_celsius(H1))
-      );
+      if (isHeaterIdle(H1))
+        sprintf_P(e1_str, PSTR("%3d%S / %S"), ROUND(getActualTemp_celsius(H1)), PSTR(GET_TEXT(UNITS_C)), GET_TEXT(TEMP_IDLE));
+      else
+        sprintf_P(e1_str, PSTR("%3d / %3d%S"), ROUND(getActualTemp_celsius(H1)), ROUND(getTargetTemp_celsius(H1)), GET_TEXT(UNITS_C));
     #else
       strcpy_P(
         e1_str,
@@ -285,7 +279,7 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
-    #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
+    #if BOTH(SDSUPPORT, LULZBOT_MANUAL_USB_STARTUP)
       .enabled(!Sd2Card::ready() || has_media)
     #else
       .enabled(has_media)
@@ -296,22 +290,17 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
       #else
          .tag(3).button( BTN_POS(1,7), BTN_SIZE(2,2),
       #endif
-      isPrintingFromMedia() ? F("Printing") :
-      #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-        #ifdef LULZBOT_MANUAL_USB_STARTUP
-        (Sd2Card::ready() ? F("USB Drive") : F("Enable USB"))
-        #else
-        F("USB Drive")
-        #endif
-        )
+      isPrintingFromMedia() ? GET_TEXTF(PRINTING) :
+      #if BOTH(SDSUPPORT, LULZBOT_MANUAL_USB_STARTUP)
+      (!Sd2Card::ready() ? GET_TEXTF(ENABLE_MEDIA) :
       #else
-        F("SD Card"))
+      GET_TEXTF(MEDIA))
       #endif
       .colors(!has_media ? action_btn : normal_btn)
       #ifdef TOUCH_UI_PORTRAIT
-       .tag(4).button( BTN_POS(3,8), BTN_SIZE(2,1), F("MENU"));
+       .tag(4).button( BTN_POS(3,8), BTN_SIZE(2,1), GET_TEXTF(MENU));
       #else
-       .tag(4).button( BTN_POS(3,7), BTN_SIZE(2,2), F("MENU"));
+       .tag(4).button( BTN_POS(3,7), BTN_SIZE(2,2), GET_TEXTF(MENU));
     #endif
   }
   #undef  GRID_COLS
@@ -353,10 +342,14 @@ void StatusScreen::setStatusMessage(const char* message) {
      .cmd(CLEAR(true,true,true));
 
   draw_temperature(BACKGROUND);
+  #ifdef TOUCH_UI_USE_UTF8
+    load_utf8_bitmaps(cmd);
+  #endif
   draw_progress(BACKGROUND);
   draw_axis_position(BACKGROUND);
   draw_status_message(BACKGROUND, message);
   draw_interaction_buttons(BACKGROUND);
+
   storeBackground();
 
   #ifdef UI_FRAMEWORK_DEBUG
@@ -369,9 +362,8 @@ void StatusScreen::setStatusMessage(const char* message) {
   }
 }
 
-void StatusScreen::onStartup() {
+void StatusScreen::loadBitmaps() {
   // Load the bitmaps for the status screen
-
   using namespace Theme;
   constexpr uint32_t base = ftdi_memory_map::RAM_G;
   CLCD::mem_write_pgm(base + TD_Icon_Info.RAMG_offset,       TD_Icon,       sizeof(TD_Icon));
@@ -379,8 +371,13 @@ void StatusScreen::onStartup() {
   CLCD::mem_write_pgm(base + Bed_Heat_Icon_Info.RAMG_offset, Bed_Heat_Icon, sizeof(Bed_Heat_Icon));
   CLCD::mem_write_pgm(base + Fan_Icon_Info.RAMG_offset,      Fan_Icon,      sizeof(Fan_Icon));
 
-  setStatusMessage(F(WELCOME_MSG));
+  // Load fonts for internationalization
+  #ifdef TOUCH_UI_USE_UTF8
+    load_utf8_data(base + UTF8_FONT_OFFSET);
+  #endif
+}
 
+void StatusScreen::onStartup() {
   UIFlashStorage::initialize();
 }
 
@@ -410,9 +407,9 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 
   switch (tag) {
     case 3:
-      #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
+      #if BOTH(SDSUPPORT, LULZBOT_MANUAL_USB_STARTUP)
       if (!Sd2Card::ready()) {
-        StatusScreen::setStatusMessage(F("Insert USB drive..."));
+        StatusScreen::setStatusMessage(GET_TEXTF(INSERT_MEDIA));
         Sd2Card::usbStartup();
       } else {
         GOTO_SCREEN(FilesScreen);

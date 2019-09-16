@@ -39,7 +39,7 @@ typedef struct {
   bool saving:1,
        logging:1,
        sdprinting:1,
-       detected:1,
+       mounted:1,
        filenameIsDir:1,
        abort_sd_printing:1
        #if ENABLED(BINARY_FILE_TRANSFER)
@@ -52,7 +52,7 @@ class CardReader {
 public:
   CardReader();
 
-  static void initsd();
+  static void mount();
   static void write_command(char *buf);
 
   static void beginautostart();
@@ -111,8 +111,8 @@ public:
   #endif
 
   static inline void pauseSDPrint() { flag.sdprinting = false; }
-  static inline bool isDetected() { return flag.detected; }
-  static inline bool isFileOpen() { return isDetected() && file.isOpen(); }
+  static inline bool isMounted() { return flag.mounted; }
+  static inline bool isFileOpen() { return isMounted() && file.isOpen(); }
   static inline bool isPaused() { return isFileOpen() && !flag.sdprinting; }
   static inline bool isPrinting() { return flag.sdprinting; }
   static inline bool eof() { return sdpos >= filesize; }
@@ -120,7 +120,7 @@ public:
   static inline void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
   static inline uint32_t getIndex() { return sdpos; }
   static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
-  static inline char* getWorkDirName() { workDir.getFilename(filename); return filename; }
+  static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }
   static inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
   static inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 

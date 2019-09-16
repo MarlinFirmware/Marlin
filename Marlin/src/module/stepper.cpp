@@ -121,6 +121,10 @@ Stepper stepper; // Singleton
   #include "../libs/L6470/L6470_Marlin.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/power_loss_recovery.h"
+#endif
+
 // public:
 
 #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -170,8 +174,8 @@ int32_t Stepper::delta_error[XYZE] = { 0 };
 uint32_t Stepper::advance_dividend[XYZE] = { 0 },
          Stepper::advance_divisor = 0,
          Stepper::step_events_completed = 0, // The number of step events executed in the current block
-         Stepper::accelerate_until,          // The point from where we need to stop acceleration
-         Stepper::decelerate_after,          // The point from where we need to start decelerating
+         Stepper::accelerate_until,          // The count at which to stop accelerating
+         Stepper::decelerate_after,          // The count at which to start decelerating
          Stepper::step_event_count;          // The total event count for the current block
 
 #if EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
@@ -1663,6 +1667,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
           return interval; // No more queued movements!
       }
 
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        recovery.info.sdpos = current_block->sdpos;
+      #endif
+
       // Flag all moving axes for proper endstop handling
 
       #if IS_CORE
@@ -2231,19 +2239,16 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
 
   const bool was_enabled = STEPPER_ISR_ENABLED();
   if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-
-  #if IS_CORE
-
-    endstops_trigsteps[axis] = 0.5f * (
-      axis == CORE_AXIS_2 ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
-                          : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
-    );
-
-  #else // !COREXY && !COREXZ && !COREYZ
-
-    endstops_trigsteps[axis] = count_position[axis];
-
-  #endif // !COREXY && !COREXZ && !COREYZ
+  endstops_trigsteps[axis] = (
+    #if IS_CORE
+      (axis == CORE_AXIS_2
+        ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
+        : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
+      ) * 0.5f
+    #else // !IS_CORE
+      count_position[axis]
+    #endif
+  );
 
   // Discard the rest of the move if there is a current block
   quick_stop();
@@ -2271,15 +2276,19 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 
 void Stepper::report_positions() {
 
-  // Protect the access to the position.
-  const bool was_enabled = STEPPER_ISR_ENABLED();
-  if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+  #ifdef __AVR__
+    // Protect the access to the position.
+    const bool was_enabled = STEPPER_ISR_ENABLED();
+    if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+  #endif
 
   const int32_t xpos = count_position[X_AXIS],
                 ypos = count_position[Y_AXIS],
                 zpos = count_position[Z_AXIS];
 
-  if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+  #ifdef __AVR__
+    if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+  #endif
 
   #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
     SERIAL_ECHOPGM(MSG_COUNT_A);

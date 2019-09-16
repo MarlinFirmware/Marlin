@@ -44,41 +44,42 @@ void NudgeNozzleScreen::onEntry() {
 
 void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(2, BaseNumericAdjustmentScreen::DEFAULT_MIDRANGE).units(PSTR("mm"));
+  w.precision(2, BaseNumericAdjustmentScreen::DEFAULT_MIDRANGE).units(GET_TEXTF(UNITS_MM));
 
-  w.heading(                          PSTR("Nudge Nozzle"));
+  w.heading(                   GET_TEXTF(NUDGE_NOZZLE));
   #if ENABLED(BABYSTEP_XY)
-  w.color(x_axis).adjuster(2,  PSTR("X:"), screen_data.NudgeNozzleScreen.rel[0] / getAxisSteps_per_mm(X));
-  w.color(y_axis).adjuster(4,  PSTR("Y:"), screen_data.NudgeNozzleScreen.rel[1] / getAxisSteps_per_mm(Y));
+  w.color(x_axis).adjuster(2,  GET_TEXTF(AXIS_X), screen_data.NudgeNozzleScreen.rel[0] / getAxisSteps_per_mm(X));
+  w.color(y_axis).adjuster(4,  GET_TEXTF(AXIS_Y), screen_data.NudgeNozzleScreen.rel[1] / getAxisSteps_per_mm(Y));
   #endif
-  w.color(z_axis).adjuster(6,  PSTR("Z:"), screen_data.NudgeNozzleScreen.rel[2] / getAxisSteps_per_mm(Z));
+  w.color(z_axis).adjuster(6,  GET_TEXTF(AXIS_Z), screen_data.NudgeNozzleScreen.rel[2] / getAxisSteps_per_mm(Z));
   w.increments();
   #if EXTRUDERS > 1
-    w.toggle  (8,  PSTR("Adjust Both Nozzles:"), PSTR("no\xFFyes"), screen_data.NudgeNozzleScreen.link_nozzles, PSTR("Yes\nNo"));
+    w.toggle  (8,  GET_TEXTF(ADJUST_BOTH_NOZZLES), screen_data.NudgeNozzleScreen.link_nozzles);
   #endif
 
   #if EXTRUDERS > 1 || HAS_BED_PROBE
-    w.toggle  (9,  PSTR("Show Offsets:"), PSTR("no\xFFyes"), screen_data.NudgeNozzleScreen.show_offsets, PSTR("Yes\nNo"));
+    w.toggle  (9,  GET_TEXTF(SHOW_OFFSETS), screen_data.NudgeNozzleScreen.show_offsets);
 
     if (screen_data.NudgeNozzleScreen.show_offsets) {
-      char str[19], num1[7];
+      char str[19];
 
       w.draw_mode(BOTH);
       w.color(other);
 
       #if HAS_BED_PROBE
-        dtostrf(getZOffset_mm(), 4, 2, num1);
-        sprintf_P(str, PSTR("%s mm"), num1);
-        w.text_field  (0,  PSTR("Z Offset"), str);
+        dtostrf(getZOffset_mm(), 4, 2, str);
+        strcat(str, " ");
+        strcat_P(str, GET_TEXT(UNITS_MM));
+        w.text_field  (0,  GET_TEXTF(ZPROBE_ZOFFSET), str);
       #endif
 
       #if EXTRUDERS > 1
-        char num2[7], num3[7];
+        char num1[7], num2[7], num3[7];
         dtostrf(getNozzleOffset_mm(X, E1), 4, 2, num1);
         dtostrf(getNozzleOffset_mm(Y, E1), 4, 2, num2);
         dtostrf(getNozzleOffset_mm(Z, E1), 4, 2, num3);
-        sprintf_P(str, PSTR("%s; %s; %s mm"), num1, num2, num3);
-        w.text_field  (0,  PSTR("Noz. Offset"), str);
+        sprintf_P(str, PSTR("%s; %s; %s %S"), num1, num2, num3, GET_TEXT(UNITS_MM));
+        w.text_field  (0, GET_TEXTF(TOOL_OFFSETS), str);
       #endif
     }
   #endif

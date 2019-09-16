@@ -27,7 +27,8 @@
 
 #include "../sd/cardreader.h"
 #include "../module/printcounter.h"
-#include "../module/stepper.h"
+#include "../module/planner.h"
+#include "../module/stepper.h" // for block_t
 #include "../gcode/queue.h"
 
 #include "../inc/MarlinConfig.h"

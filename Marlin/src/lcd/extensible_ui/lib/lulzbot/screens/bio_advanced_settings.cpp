@@ -43,52 +43,52 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
     #define GRID_ROWS 9
     #define GRID_COLS 2
 
-      .tag(2) .button( BTN_POS(1,1), BTN_SIZE(1,1), F("Display"))
+      .tag(2) .button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXTF(DISPLAY_MENU))
       #if HAS_TRINAMIC
        .enabled(1)
       #else
        .enabled(0)
       #endif
-      .tag(3) .button( BTN_POS(1,2), BTN_SIZE(1,1), F("Motor mA"))
+      .tag(3) .button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXTF(MOTOR_CURRENT))
       #if HAS_TRINAMIC
        .enabled(1)
       #else
        .enabled(0)
       #endif
-      .tag(4) .button( BTN_POS(1,3), BTN_SIZE(1,1), F("Bump Sense"))
-      .tag(5) .button( BTN_POS(1,4), BTN_SIZE(1,1), F("Endstops"))
+      .tag(4) .button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXTF(BUMP_SENSE))
+      .tag(5) .button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXTF(ENDSTOPS))
       #if HOTENDS > 1
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(6) .button( BTN_POS(1,5), BTN_SIZE(1,1), F("Nozzle Offset"))
+      .tag(6) .button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXTF(NOZZLE_OFFSETS))
 
 
-      .tag(7) .button( BTN_POS(2,1), BTN_SIZE(1,1), F("Steps/mm"))
-      .tag(8) .button( BTN_POS(2,2), BTN_SIZE(1,1), F("Velocity "))
-      .tag(9) .button( BTN_POS(2,3), BTN_SIZE(1,1), F("Acceleration"))
+      .tag(7) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXTF(STEPS_PER_MM))
+      .tag(8) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXTF(MAX_VELOCITY))
+      .tag(9) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXTF(MAX_ACCELERATION))
       #if ENABLED(JUNCTION_DEVIATION)
-        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), F("Junc Dev"))
+        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JUNCTION_DEVIATION))
       #else
-        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), F("Jerk"))
+        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(MAX_JERK))
       #endif
       #if ENABLED(BACKLASH_GCODE)
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(11) .button( BTN_POS(2,5), BTN_SIZE(1,1), F("Backlash"))
+      .tag(11) .button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXTF(BACKLASH))
       #if ENABLED(LIN_ADVANCE)
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(12) .button( BTN_POS(1,6), BTN_SIZE(2,1), F("Linear Advance"))
-      .tag(13) .button( BTN_POS(1,7), BTN_SIZE(2,1), F("Interface Settings"))
-      .tag(14) .button( BTN_POS(1,8), BTN_SIZE(2,1), F("Restore Factory Defaults"))
+      .tag(12) .button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(LINEAR_ADVANCE))
+      .tag(13) .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(INTERFACE_SETTINGS))
+      .tag(14) .button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(RESTORE_FAILSAFE))
       .colors(action_btn)
-      .tag(1). button( BTN_POS(1,9), BTN_SIZE(2,1), F("Back"));
+      .tag(1). button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXTF(BACK));
     #undef GRID_COLS
     #undef GRID_ROWS
   }

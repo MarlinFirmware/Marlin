@@ -159,13 +159,14 @@ class CLCD::FontMetrics {
     uint32_t  height;
     uint32_t  ptr;
 
+    FontMetrics() {}
     FontMetrics(uint8_t font) {load(font);}
 
     void load(uint8_t font);
 
     // Returns width of string, up to a maximum of n characters.
     uint16_t get_text_width(const char *str, size_t n = SIZE_MAX) const;
-    uint16_t get_text_width_P(const char *str, size_t n = SIZE_MAX) const;
+    uint16_t get_text_width(progmem_str str, size_t n = SIZE_MAX) const;
 };
 
 /******************* FT800/810 Graphic Commands *********************************/

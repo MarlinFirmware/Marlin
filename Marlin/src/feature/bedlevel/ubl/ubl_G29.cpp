@@ -441,7 +441,7 @@
 
         #if HAS_BED_PROBE
 
-          case 1:
+          case 1: {
             //
             // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
             //
@@ -460,7 +460,7 @@
 
             report_current_position();
             probe_deployed = true;
-            break;
+          } break;
 
         #endif // HAS_BED_PROBE
 
@@ -1091,7 +1091,7 @@
 
     g29_verbose_level = parser.seen('V') ? parser.value_int() : 0;
     if (!WITHIN(g29_verbose_level, 0, 4)) {
-      SERIAL_ECHOLNPGM("?(V)erbose level is implausible (0-4).\n");
+      SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-4).\n");
       err_flag = true;
     }
 

@@ -30,7 +30,9 @@
 extern int8_t encoderLine, encoderTopLine, screen_items;
 extern bool screen_changed;
 
-constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
+#if HOTENDS
+  constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
+#endif
 
 void scroll_screen(const uint8_t limit, const bool is_menu);
 bool printer_busy();

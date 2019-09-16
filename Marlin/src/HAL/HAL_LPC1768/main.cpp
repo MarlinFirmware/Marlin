@@ -158,7 +158,7 @@ void HAL_idletask(void) {
     // the disk if Marlin has it mounted. Unfortuately there is currently no way
     // to unmount the disk from the LCD menu.
     // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
-    if (card.isDetected())
+    if (card.isMounted())
       MSC_Aquire_Lock();
     else
       MSC_Release_Lock();

@@ -309,7 +309,9 @@ typedef struct SettingsDataStruct {
   //
   // ADVANCED_PAUSE_FEATURE
   //
-  fil_change_settings_t fc_settings[EXTRUDERS];         // M603 T U L
+  #if EXTRUDERS
+    fil_change_settings_t fc_settings[EXTRUDERS];       // M603 T U L
+  #endif
 
   //
   // Tool-change settings
@@ -367,7 +369,7 @@ void MarlinSettings::postprocess() {
 
   #if DISABLED(NO_VOLUMETRICS)
     planner.calculate_volumetric_multipliers();
-  #else
+  #elif EXTRUDERS
     for (uint8_t i = COUNT(planner.e_factor); i--;)
       planner.refresh_e_factor(i);
   #endif
@@ -759,7 +761,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(ui_preheat_hotend_temp);
 
-      #if HAS_LCD_MENU
+      #if HOTENDS && HAS_LCD_MENU
         const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                       (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
         const uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
@@ -1164,6 +1166,7 @@ void MarlinSettings::postprocess() {
     //
     // Advanced Pause filament load & unload lengths
     //
+    #if EXTRUDERS
     {
       #if DISABLED(ADVANCED_PAUSE_FEATURE)
         const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
@@ -1171,6 +1174,7 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(fc_settings);
       EEPROM_WRITE(fc_settings);
     }
+    #endif
 
     //
     // Multiple Extruders
@@ -1201,9 +1205,7 @@ void MarlinSettings::postprocess() {
         const float backlash_smoothing_mm = 3;
       #endif
       _FIELD_TEST(backlash_distance_mm);
-      EEPROM_WRITE(backlash_distance_mm[X_AXIS]);
-      EEPROM_WRITE(backlash_distance_mm[Y_AXIS]);
-      EEPROM_WRITE(backlash_distance_mm[Z_AXIS]);
+      EEPROM_WRITE(backlash_distance_mm);
       EEPROM_WRITE(backlash_correction);
       EEPROM_WRITE(backlash_smoothing_mm);
     }
@@ -1560,7 +1562,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(ui_preheat_hotend_temp);
 
-        #if HAS_LCD_MENU
+        #if HOTENDS && HAS_LCD_MENU
           int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                   (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
           uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
@@ -1968,6 +1970,7 @@ void MarlinSettings::postprocess() {
       //
       // Advanced Pause filament load & unload lengths
       //
+      #if EXTRUDERS
       {
         #if DISABLED(ADVANCED_PAUSE_FEATURE)
           fil_change_settings_t fc_settings[EXTRUDERS];
@@ -1975,6 +1978,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(fc_settings);
         EEPROM_READ(fc_settings);
       }
+      #endif
 
       //
       // Tool-change settings
@@ -2004,9 +2008,7 @@ void MarlinSettings::postprocess() {
           float backlash_smoothing_mm;
         #endif
         _FIELD_TEST(backlash_distance_mm);
-        EEPROM_READ(backlash_distance_mm[X_AXIS]);
-        EEPROM_READ(backlash_distance_mm[Y_AXIS]);
-        EEPROM_READ(backlash_distance_mm[Z_AXIS]);
+        EEPROM_READ(backlash_distance_mm);
         EEPROM_READ(backlash_correction);
         EEPROM_READ(backlash_smoothing_mm);
       }
@@ -2410,7 +2412,7 @@ void MarlinSettings::reset() {
   // Preheat parameters
   //
 
-  #if HAS_LCD_MENU
+  #if HOTENDS && HAS_LCD_MENU
     ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
     ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
     ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
@@ -2799,9 +2801,8 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       for (uint8_t e = 1; e < HOTENDS; e++) {
         SERIAL_ECHOPAIR(
-            "  M218 T", (int)e
-          , " X", LINEAR_UNIT(hotend_offset[X_AXIS][e])
-          , " Y", LINEAR_UNIT(hotend_offset[Y_AXIS][e])
+          "  M218 T", (int)e,
+          " X", LINEAR_UNIT(hotend_offset[X_AXIS][e]), " Y", LINEAR_UNIT(hotend_offset[Y_AXIS][e])
         );
         SERIAL_ECHOLNPAIR_F(" Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]), 3);
       }
@@ -2916,9 +2917,9 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("Endstop adjustment:");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
-          "  M666 X", LINEAR_UNIT(delta_endstop_adj[X_AXIS])
-        , " Y", LINEAR_UNIT(delta_endstop_adj[Y_AXIS])
-        , " Z", LINEAR_UNIT(delta_endstop_adj[Z_AXIS])
+          "  M666 X", LINEAR_UNIT(delta_endstop_adj[A_AXIS])
+        , " Y", LINEAR_UNIT(delta_endstop_adj[B_AXIS])
+        , " Z", LINEAR_UNIT(delta_endstop_adj[C_AXIS])
       );
 
       CONFIG_ECHO_HEADING("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> B<calibration radius> XYZ<tower angle corrections>");
@@ -2956,7 +2957,7 @@ void MarlinSettings::reset() {
 
     #endif // [XYZ]_DUAL_ENDSTOPS
 
-    #if HAS_LCD_MENU
+    #if HOTENDS && HAS_LCD_MENU
 
       CONFIG_ECHO_HEADING("Material heatup parameters:");
       for (uint8_t i = 0; i < COUNT(ui.preheat_hotend_temp); i++) {

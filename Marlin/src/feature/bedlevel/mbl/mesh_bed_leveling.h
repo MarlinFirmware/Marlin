@@ -73,22 +73,22 @@ public:
   }
 
   static int8_t cell_index_x(const float &x) {
-    int8_t cx = (x - (MESH_MIN_X)) * (1.0f / (MESH_X_DIST));
+    int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);
     return constrain(cx, 0, (GRID_MAX_POINTS_X) - 2);
   }
 
   static int8_t cell_index_y(const float &y) {
-    int8_t cy = (y - (MESH_MIN_Y)) * (1.0f / (MESH_Y_DIST));
+    int8_t cy = (y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
     return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 2);
   }
 
   static int8_t probe_index_x(const float &x) {
-    int8_t px = (x - (MESH_MIN_X) + 0.5f * (MESH_X_DIST)) * (1.0f / (MESH_X_DIST));
+    int8_t px = (x - (MESH_MIN_X) + 0.5f * (MESH_X_DIST)) * RECIPROCAL(MESH_X_DIST);
     return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
   }
 
   static int8_t probe_index_y(const float &y) {
-    int8_t py = (y - (MESH_MIN_Y) + 0.5f * (MESH_Y_DIST)) * (1.0f / (MESH_Y_DIST));
+    int8_t py = (y - (MESH_MIN_Y) + 0.5f * (MESH_Y_DIST)) * RECIPROCAL(MESH_Y_DIST);
     return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
   }
 

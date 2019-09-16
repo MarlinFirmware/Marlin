@@ -30,14 +30,19 @@
 #endif
 
 #ifdef FTDI_EXTENDED
+  #include "unicode/font_size_t.h"
+  #include "unicode/unicode.h"
+  #include "unicode/standard_char_set.h"
+  #include "unicode/western_char_set.h"
+  #include "unicode/font_bitmaps.h"
   #include "rgb_t.h"
   #include "bitmap_info.h"
   #include "tiny_timer.h"
   #include "grid_layout.h"
   #include "dl_cache.h"
-  #include "screen_types.h"
   #include "event_loop.h"
   #include "command_processor.h"
+  #include "screen_types.h"
   #include "sound_player.h"
   #include "sound_list.h"
   #include "polygon.h"

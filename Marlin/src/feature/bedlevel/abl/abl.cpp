@@ -282,11 +282,9 @@ float bilinear_z_offset(const float raw[XYZ]) {
               ry = raw[Y_AXIS] - bilinear_start[Y_AXIS];
 
   #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
-    // Keep using the last grid box
-    #define FAR_EDGE_OR_BOX 2
+    #define FAR_EDGE_OR_BOX 2   // Keep using the last grid box
   #else
-    // Just use the grid far edge
-    #define FAR_EDGE_OR_BOX 1
+    #define FAR_EDGE_OR_BOX 1   // Just use the grid far edge
   #endif
 
   if (last_x != rx) {

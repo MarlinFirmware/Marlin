@@ -49,7 +49,13 @@ GcodeSuite gcode;
 
 millis_t GcodeSuite::previous_move_ms;
 
-bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
+static constexpr bool ar_init[XYZE] = AXIS_RELATIVE_MODES;
+uint8_t GcodeSuite::axis_relative = (
+    (ar_init[X_AXIS] ? _BV(REL_X) : 0)
+  | (ar_init[Y_AXIS] ? _BV(REL_Y) : 0)
+  | (ar_init[Z_AXIS] ? _BV(REL_Z) : 0)
+  | (ar_init[E_AXIS] ? _BV(REL_E) : 0)
+);
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
   GcodeSuite::MarlinBusyState GcodeSuite::busy_state = NOT_BUSY;
@@ -110,15 +116,13 @@ void GcodeSuite::get_destination_from_command() {
   LOOP_XYZE(i) {
     if ( (seen[i] = parser.seenval(axis_codes[i])) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
-      destination[i] = (axis_relative_modes[i] || relative_mode)
-        ? current_position[i] + v
-        : (i == E_AXIS) ? v : LOGICAL_TO_NATIVE(v, i);
+      destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : (i == E_AXIS) ? v : LOGICAL_TO_NATIVE(v, i);
     }
     else
       destination[i] = current_position[i];
   }
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
+  #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
     if (recovery.enabled && IS_SD_PRINTING() && seen[E_AXIS] && (seen[X_AXIS] || seen[Y_AXIS]))
       recovery.save();
@@ -295,8 +299,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
 
-      case 90: relative_mode = false; break;                      // G90: Relative Mode
-      case 91: relative_mode = true; break;                       // G91: Absolute Mode
+      case 90: set_relative_mode(false); break;                   // G90: Absolute Mode
+      case 91: set_relative_mode(true);  break;                   // G91: Relative Mode
 
       case 92: G92(); break;                                      // G92: Set current axis position(s)
 
@@ -400,8 +404,18 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 100: M100(); break;                                  // M100: Free Memory Report
       #endif
 
-      case 104: M104(); break;                                    // M104: Set hot end temperature
-      case 109: M109(); break;                                    // M109: Wait for hotend temperature to reach target
+      #if EXTRUDERS
+        case 104: M104(); break;                                  // M104: Set hot end temperature
+        case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
+      #endif
+
+      case 105: M105(); return;                                   // M105: Report Temperatures (and say "ok")
+
+      #if FAN_COUNT > 0
+        case 106: M106(); break;                                  // M106: Fan On
+        case 107: M107(); break;                                  // M107: Fan Off
+      #endif
+
       case 110: M110(); break;                                    // M110: Set Current Line Number
       case 111: M111(); break;                                    // M111: Set debug level
 
@@ -410,7 +424,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 112: M112(); break;                                  // M112: Full Shutdown
         case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
         #if ENABLED(HOST_PROMPT_SUPPORT)
-          case 876: M876(); break;                                  // M876: Handle Host prompt responses
+          case 876: M876(); break;                                // M876: Handle Host prompt responses
         #endif
       #else
         case 108: case 112: case 410:
@@ -434,15 +448,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         //case 191: M191(); break;                                // M191: Wait for chamber temperature to reach target
       #endif
 
-      case 105: M105(); return;                                   // M105: Report Temperatures (and say "ok")
-
       #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
         case 155: M155(); break;                                  // M155: Set temperature auto-report interval
-      #endif
-
-      #if FAN_COUNT > 0
-        case 106: M106(); break;                                  // M106: Fan On
-        case 107: M107(); break;                                  // M107: Fan Off
       #endif
 
       #if ENABLED(PARK_HEAD_ON_PAUSE)
@@ -481,7 +488,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 120: M120(); break;                                    // M120: Enable endstops
       case 121: M121(); break;                                    // M121: Disable endstops
 
-      #if HAS_LCD_MENU
+      #if HOTENDS && HAS_LCD_MENU
         case 145: M145(); break;                                  // M145: Set material heatup parameters
       #endif
 
@@ -553,7 +560,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       case 220: M220(); break;                                    // M220: Set Feedrate Percentage: S<percent> ("FR" on your LCD)
-      case 221: M221(); break;                                    // M221: Set Flow Percentage
+
+      #if EXTRUDERS
+        case 221: M221(); break;                                  // M221: Set Flow Percentage
+      #endif
+
       case 226: M226(); break;                                    // M226: Wait until a pin reaches a state
 
       #if HAS_SERVOS
@@ -815,6 +826,10 @@ void GcodeSuite::process_next_command() {
   char * const current_command = queue.command_buffer[queue.index_r];
 
   PORT_REDIRECT(queue.port[queue.index_r]);
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.queue_index_r = queue.index_r;
+  #endif
 
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START();
