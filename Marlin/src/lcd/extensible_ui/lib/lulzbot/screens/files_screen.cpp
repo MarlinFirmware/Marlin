@@ -91,7 +91,11 @@ void FilesScreen::drawFileButton(const char* filename, uint8_t tag, bool is_dir,
       cmd.cmd(MACRO(0));
     }
   #endif
-  cmd.text  (BTN_POS(1,header_h+line), BTN_SIZE(6,1), filename, OPT_CENTERY);
+  cmd.text  (BTN_POS(1,header_h+line), BTN_SIZE(6,1), filename, OPT_CENTERY
+    #if ENABLED(SCROLL_LONG_FILENAMES)
+      | OPT_NOFIT
+    #endif
+  );
   if (is_dir) {
     cmd.text(BTN_POS(1,header_h+line), BTN_SIZE(6,1), F("> "),  OPT_CENTERY | OPT_RIGHTX);
   }
@@ -234,8 +238,8 @@ bool FilesScreen::onTouchEnd(uint8_t tag) {
           if (FTDI::ftdi_chip >= 810) {
             const char *longFilename = getSelectedLongFilename();
             if (longFilename[0]) {
-              CLCD::FontMetrics fm(font_medium);
-              uint16_t text_width = fm.get_text_width(longFilename);
+              CommandProcessor cmd;
+              uint16_t text_width = cmd.font(font_medium).text_width(longFilename);
               screen_data.FilesScreen.scroll_pos = 0;
               if (text_width > display_width)
                 screen_data.FilesScreen.scroll_max = text_width - display_width + MARGIN_L + MARGIN_R;
