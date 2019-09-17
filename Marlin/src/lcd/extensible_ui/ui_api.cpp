@@ -529,12 +529,18 @@ namespace ExtUI {
       switch (axis) {
         #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
           case X: stepperX.homing_threshold(value); break;
+        #else
+          UNUSED(value);
         #endif
         #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
           case Y: stepperY.homing_threshold(value); break;
+        #else
+          UNUSED(value);
         #endif
         #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
           case Z: stepperZ.homing_threshold(value); break;
+        #else
+          UNUSED(value);
         #endif
         default: break;
       }
