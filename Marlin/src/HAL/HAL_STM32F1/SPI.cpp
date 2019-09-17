@@ -499,7 +499,7 @@ uint8_t SPIClass::dmaSendAsync(const void * transmitBuf, uint16_t length, bool m
  *  New functions added to manage callbacks.
  *  Victor Perez 2017
  */
-void SPIClass::onReceive(void(*callback)(void)) {
+void SPIClass::onReceive(void(*callback)()) {
   _currentSetting->receiveCallback = callback;
   if (callback) {
     switch (_currentSetting->spi_d->clk_id) {
@@ -527,7 +527,7 @@ void SPIClass::onReceive(void(*callback)(void)) {
   }
 }
 
-void SPIClass::onTransmit(void(*callback)(void)) {
+void SPIClass::onTransmit(void(*callback)()) {
   _currentSetting->transmitCallback = callback;
   if (callback) {
     switch (_currentSetting->spi_d->clk_id) {

@@ -216,7 +216,7 @@
 	}
 #  endif
 #else
-#  define Assert(expr) ((void) 0)
+#  define Assert(expr) (() 0)
 #endif
 
 /* Define WEAK attribute */
@@ -796,7 +796,7 @@ typedef struct
  *
  * \note It may be used as a long jump opcode in some special cases.
  */
-#define Long_call(addr)                   ((*(void (*)(void))(addr))())
+#define Long_call(addr)                   ((*(void (*)())(addr))())
 
 
 /*! \name MCU Endianism Handling

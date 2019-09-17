@@ -38,14 +38,14 @@
 #include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts
-void endstop_ISR(void) { endstops.update(); }
+void endstop_ISR() { endstops.update(); }
 
 /**
  *  Endstop interrupts for Due based targets.
  *  On Due, all pins support external interrupt capability.
  */
 
-void setup_endstop_interrupts(void) {
+void setup_endstop_interrupts() {
   #define _ATTACH(P) attachInterrupt(digitalPinToInterrupt(P), endstop_ISR, CHANGE)
   #if HAS_X_MAX
     _ATTACH(X_MAX_PIN);

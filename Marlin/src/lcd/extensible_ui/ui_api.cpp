@@ -901,7 +901,7 @@ namespace ExtUI {
     feedrate_percentage = clamp(value, 10, 500);
   }
 
-  void setUserConfirmed(void) {
+  void setUserConfirmed() {
     #if HAS_RESUME_CONTINUE
       wait_for_user = false;
     #endif

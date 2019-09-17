@@ -43,7 +43,7 @@
 XPT2046 touch;
 extern int8_t encoderDiff;
 
-void XPT2046::init(void) {
+void XPT2046::init() {
   SET_INPUT(TOUCH_MISO_PIN);
   SET_OUTPUT(TOUCH_MOSI_PIN);
   SET_OUTPUT(TOUCH_SCK_PIN);

@@ -165,7 +165,7 @@ namespace ExtUI {
   void setRetractAcceleration_mm_s2(const float);
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
-  void setUserConfirmed(void);
+  void setUserConfirmed();
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t);

@@ -41,7 +41,7 @@
 #include <stdint.h>
 
 // One ISR for all EXT-Interrupts
-void endstop_ISR(void) { endstops.update(); }
+void endstop_ISR() { endstops.update(); }
 
 /**
  * Patch for pins_arduino.h (...\Arduino\hardware\arduino\avr\variants\mega\pins_arduino.h)
@@ -102,7 +102,7 @@ void pciSetup(const int8_t pin) {
   ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
 #endif
 
-void setup_endstop_interrupts(void) {
+void setup_endstop_interrupts() {
   #define _ATTACH(P) attachInterrupt(digitalPinToInterrupt(P), endstop_ISR, CHANGE)
   #if HAS_X_MAX
     #if (digitalPinToInterrupt(X_MAX_PIN) != NOT_AN_INTERRUPT)

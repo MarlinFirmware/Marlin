@@ -38,9 +38,9 @@
 #include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts
-void ICACHE_RAM_ATTR endstop_ISR(void) { endstops.update(); }
+void ICACHE_RAM_ATTR endstop_ISR() { endstops.update(); }
 
-void setup_endstop_interrupts(void) {
+void setup_endstop_interrupts() {
   #define _ATTACH(P) attachInterrupt(digitalPinToInterrupt(P), endstop_ISR, CHANGE)
   #if HAS_X_MAX
     _ATTACH(X_MAX_PIN);

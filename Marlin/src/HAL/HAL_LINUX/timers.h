@@ -59,16 +59,16 @@ typedef uint32_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define HAL_STEP_TIMER_ISR()  extern "C" void TIMER0_IRQHandler(void)
-#define HAL_TEMP_TIMER_ISR()  extern "C" void TIMER1_IRQHandler(void)
+#define HAL_STEP_TIMER_ISR()  extern "C" void TIMER0_IRQHandler()
+#define HAL_TEMP_TIMER_ISR()  extern "C" void TIMER1_IRQHandler()
 
 // PWM timer
 #define HAL_PWM_TIMER
-#define HAL_PWM_TIMER_ISR()   extern "C" void TIMER3_IRQHandler(void)
+#define HAL_PWM_TIMER_ISR()   extern "C" void TIMER3_IRQHandler()
 #define HAL_PWM_TIMER_IRQn
 
 
-void HAL_timer_init(void);
+void HAL_timer_init();
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare);

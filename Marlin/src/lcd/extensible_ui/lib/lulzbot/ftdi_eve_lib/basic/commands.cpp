@@ -29,11 +29,11 @@
 using namespace FTDI;
 using namespace FTDI::SPI;
 
-void CLCD::enable(void) {
+void CLCD::enable() {
   mem_write_8(REG::PCLK, Pclk);
 }
 
-void CLCD::disable(void) {
+void CLCD::disable() {
   mem_write_8(REG::PCLK, 0x00);
 }
 
@@ -45,7 +45,7 @@ uint8_t CLCD::get_brightness() {
   return mem_read_8(REG::PWM_DUTY);
 }
 
-void CLCD::turn_on_backlight(void) {
+void CLCD::turn_on_backlight() {
   mem_write_8(REG::PWM_DUTY, 128);
 }
 
@@ -1052,7 +1052,7 @@ void CLCD::CommandFifo::str(progmem_str data) {
 
 /******************* LCD INITIALIZATION ************************/
 
-void CLCD::init(void) {
+void CLCD::init() {
   spi_init();                                  // Set Up I/O Lines for SPI and FT800/810 Control
   ftdi_reset();                                // Power down/up the FT8xx with the apropriate delays
 

@@ -66,15 +66,15 @@ ring_buffer_pos_t RingBuffer::write(const uint8_t *buffer, ring_buffer_pos_t siz
   return written;
 }
 
-int RingBuffer::available(void) {
+int RingBuffer::available() {
   return (size - read_index + write_index) & (size - 1);
 }
 
-int RingBuffer::peek(void) {
+int RingBuffer::peek() {
   return available() ? data[read_index] : -1;
 }
 
-int RingBuffer::read(void) {
+int RingBuffer::read() {
   if (available()) {
     const int ret = data[read_index];
     read_index = NEXT_INDEX(read_index, size);
@@ -94,7 +94,7 @@ ring_buffer_pos_t RingBuffer::read(uint8_t *buffer) {
   return len;
 }
 
-void RingBuffer::flush(void) { read_index = write_index; }
+void RingBuffer::flush() { read_index = write_index; }
 
 // WebSocketSerial impl
 WebSocketSerial::WebSocketSerial()
@@ -120,10 +120,10 @@ void WebSocketSerial::begin(const long baud_setting) {
 }
 
 void WebSocketSerial::end() { }
-int WebSocketSerial::peek(void) { return rx_buffer.peek(); }
-int WebSocketSerial::read(void) { return rx_buffer.read(); }
-int WebSocketSerial::available(void) { return rx_buffer.available(); }
-void WebSocketSerial::flush(void) { rx_buffer.flush(); }
+int WebSocketSerial::peek() { return rx_buffer.peek(); }
+int WebSocketSerial::read() { return rx_buffer.read(); }
+int WebSocketSerial::available() { return rx_buffer.available(); }
+void WebSocketSerial::flush() { rx_buffer.flush(); }
 
 size_t WebSocketSerial::write(const uint8_t c) {
   size_t ret = tx_buffer.write(c);
@@ -145,7 +145,7 @@ size_t WebSocketSerial::write(const uint8_t* buffer, size_t size) {
   return written;
 }
 
-void WebSocketSerial::flushTX(void) {
+void WebSocketSerial::flushTX() {
   // No need to do anything as there's no benefit to sending partial lines over the websocket connection.
 }
 

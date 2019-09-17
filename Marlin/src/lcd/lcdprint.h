@@ -22,7 +22,7 @@
 
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
 
-int lcd_glyph_height(void);
+int lcd_glyph_height();
 
 int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length);
 

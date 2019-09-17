@@ -31,7 +31,7 @@ namespace FTDI {
     SPISettings SPI::spi_settings(SPI_FREQUENCY, MSBFIRST, SPI_MODE0);
   #endif
 
-  void SPI::spi_init(void) {
+  void SPI::spi_init() {
     SET_OUTPUT(CLCD_MOD_RESET); // Module Reset (a.k.a. PD, not SPI)
     WRITE(CLCD_MOD_RESET, 0); // start with module in power-down
 
@@ -106,7 +106,7 @@ namespace FTDI {
   }
 
   // CLCD SPI - Chip Select
-  void SPI::spi_ftdi_select(void) {
+  void SPI::spi_ftdi_select() {
     #ifndef CLCD_USE_SOFT_SPI
       ::SPI.beginTransaction(spi_settings);
     #endif
@@ -115,7 +115,7 @@ namespace FTDI {
   }
 
   // CLCD SPI - Chip Deselect
-  void SPI::spi_ftdi_deselect(void) {
+  void SPI::spi_ftdi_deselect() {
     WRITE(CLCD_SPI_CS, 1);
     #ifndef CLCD_USE_SOFT_SPI
       ::SPI.endTransaction();
@@ -142,7 +142,7 @@ namespace FTDI {
   #endif
 
   // Not really a SPI signal...
-  void SPI::ftdi_reset(void) {
+  void SPI::ftdi_reset() {
     WRITE(CLCD_MOD_RESET, 0);
     delay(6); /* minimum time for power-down is 5ms */
     WRITE(CLCD_MOD_RESET, 1);
@@ -150,7 +150,7 @@ namespace FTDI {
   }
 
   // Not really a SPI signal...
-  void SPI::test_pulse(void) {
+  void SPI::test_pulse() {
     #ifdef CLCD_AUX_0
       WRITE(CLCD_AUX_0, 1);
       delayMicroseconds(10);

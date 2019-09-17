@@ -993,7 +993,7 @@ void eeprom_read_block(void* __dst, const void* __src, size_t __n) {
   }
 }
 
-void eeprom_flush(void) {
+void eeprom_flush() {
   ee_Flush();
 }
 

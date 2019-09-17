@@ -39,11 +39,11 @@
 
 // Imports from Atmel USB Stack/CDC implementation
 extern "C" {
-  bool usb_task_cdc_isenabled(void);
-  bool usb_task_cdc_dtr_active(void);
-  bool udi_cdc_is_rx_ready(void);
-  int udi_cdc_getc(void);
-  bool udi_cdc_is_tx_ready(void);
+  bool usb_task_cdc_isenabled();
+  bool usb_task_cdc_dtr_active();
+  bool udi_cdc_is_rx_ready();
+  int udi_cdc_getc();
+  bool udi_cdc_is_tx_ready();
   int udi_cdc_putc(int value);
 };
 
@@ -62,7 +62,7 @@ void MarlinSerialUSB::begin(const long baud_setting) {
 void MarlinSerialUSB::end() {
 }
 
-int MarlinSerialUSB::peek(void) {
+int MarlinSerialUSB::peek() {
   if (pending_char >= 0)
     return pending_char;
 
@@ -83,7 +83,7 @@ int MarlinSerialUSB::peek(void) {
   return pending_char;
 }
 
-int MarlinSerialUSB::read(void) {
+int MarlinSerialUSB::read() {
   if (pending_char >= 0) {
     int ret = pending_char;
     pending_char = -1;
@@ -107,7 +107,7 @@ int MarlinSerialUSB::read(void) {
   return c;
 }
 
-bool MarlinSerialUSB::available(void) {
+bool MarlinSerialUSB::available() {
     /* If Pending chars */
   return pending_char >= 0 ||
     /* or USB CDC enumerated and configured on the PC side and some
@@ -115,8 +115,8 @@ bool MarlinSerialUSB::available(void) {
       (usb_task_cdc_isenabled() && udi_cdc_is_rx_ready());
 }
 
-void MarlinSerialUSB::flush(void) { }
-void MarlinSerialUSB::flushTX(void) { }
+void MarlinSerialUSB::flush() { }
+void MarlinSerialUSB::flushTX() { }
 
 void MarlinSerialUSB::write(const uint8_t c) {
 
@@ -186,7 +186,7 @@ void MarlinSerialUSB::print(double n, int digits) {
   printFloat(n, digits);
 }
 
-void MarlinSerialUSB::println(void) {
+void MarlinSerialUSB::println() {
   print('\r');
   print('\n');
 }

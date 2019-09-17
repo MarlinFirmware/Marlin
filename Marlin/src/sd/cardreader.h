@@ -128,7 +128,7 @@ public:
   static Sd2Card& getSd2Card() { return sd2card; }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
-    static void auto_report_sd_status(void);
+    static void auto_report_sd_status();
     static inline void set_auto_report_interval(uint8_t v) {
       #if NUM_SERIAL > 1
         auto_report_port = serial_port_index;
