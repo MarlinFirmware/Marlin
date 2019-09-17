@@ -98,6 +98,15 @@ void format_temp_and_material(char *str, float t1, const char *material) {
 }
 
 /**
+ * Formats a position value (e.g. "10 mm")
+ */
+void format_position(char *str, float p) {
+  dtostrf(p, 5, 1, str);
+  strcat_P(str, PSTR(" "));
+  strcat_P(str, GET_TEXT(UNITS_MM));
+}
+
+/**
  * Formats a position vector (e.g. "10; 20; 30 mm")
  */
 void format_position(char *str, float x, float y, float z) {

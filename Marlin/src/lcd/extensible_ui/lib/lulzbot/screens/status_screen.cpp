@@ -86,29 +86,20 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
     char y_str[15];
     char z_str[15];
 
-    if (isAxisPositionKnown(X)) {
-      dtostrf(getAxisPosition_mm(X), 5, 1, x_str);
-      strcat_P(x_str, " ");
-      strcat_P(x_str, GET_TEXT(UNITS_MM));
-    } else {
+    if (isAxisPositionKnown(X))
+      format_position(x_str, getAxisPosition_mm(X));
+    else
       strcpy_P(x_str, PSTR("?"));
-    }
 
-    if (isAxisPositionKnown(Y)) {
-      dtostrf(getAxisPosition_mm(Y), 5, 1, y_str);
-      strcat_P(y_str, " ");
-      strcat_P(y_str, GET_TEXT(UNITS_MM));
-    } else {
+    if (isAxisPositionKnown(Y))
+      format_position(y_str, getAxisPosition_mm(Y));
+    else
       strcpy_P(y_str, PSTR("?"));
-    }
 
-    if (isAxisPositionKnown(Z)) {
-      dtostrf(getAxisPosition_mm(Z), 5, 1, z_str);
-      strcat_P(z_str, " ");
-      strcat_P(z_str, GET_TEXT(UNITS_MM));
-    } else {
+    if (isAxisPositionKnown(Z))
+      format_position(z_str, getAxisPosition_mm(Z));
+    else
       strcpy_P(z_str, PSTR("?"));
-    }
 
     cmd.tag(6).font(Theme::font_medium)
     #ifdef TOUCH_UI_PORTRAIT
