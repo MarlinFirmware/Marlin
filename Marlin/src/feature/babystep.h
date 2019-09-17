@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
-#include "../core/enum.h"
 
 #if IS_CORE || EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
   #define BS_TODO_AXIS(A) A

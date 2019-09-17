@@ -29,8 +29,8 @@
  *  DELAY_US(count): Delay execution in microseconds
  */
 
-#include "../../core/macros.h"
 #include "../../core/millis_t.h"
+#include "../../core/macros.h"
 
 #if defined(__arm__) || defined(__thumb__)
 
