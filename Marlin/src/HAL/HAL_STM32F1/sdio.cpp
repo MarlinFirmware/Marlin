@@ -107,7 +107,7 @@ bool SDIO_ReadBlock_DMA(uint32_t blockAddress, uint8_t *data) {
   dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
 
   if (SDIO->STA & SDIO_STA_RXDAVL) {
-    while (SDIO->STA & SDIO_STA_RXDAVL) (void) SDIO->FIFO;
+    while (SDIO->STA & SDIO_STA_RXDAVL) (void)SDIO->FIFO;
     SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
     return false;
   }

@@ -85,7 +85,7 @@ extern uint16_t HAL_adc_result;
 // ------------------------
 
 // clear reset reason
-void HAL_clear_reset_source (void);
+void HAL_clear_reset_source(void);
 
 // reset reason
 uint8_t HAL_get_reset_source(void);
