@@ -1,7 +1,7 @@
 #pragma once
 
 #include "string.h"
-#include <arduino.h>
+#include <Arduino.h>
 #include "../ui_api.h"
 #if ENABLED(EXTENSIBLE_UI)
 namespace ExtUI {
