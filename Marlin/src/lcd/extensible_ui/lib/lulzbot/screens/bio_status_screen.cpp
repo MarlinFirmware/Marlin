@@ -91,12 +91,12 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .cmd(COLOR_RGB(bg_text_enabled));
 
     if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0) {
-      sprintf_P(bed_str, PSTR("%3d%S"), ROUND(getTargetTemp_celsius(BED)), GET_TEXT(UNITS_C));
+      format_temp(bed_str, getTargetTemp_celsius(BED));
       ui.bounds(POLY(target_temp), x, y, h, v);
       cmd.text(x, y, h, v, bed_str);
     }
 
-    sprintf_P(bed_str, PSTR("%3d%S"), ROUND(getActualTemp_celsius(BED)), GET_TEXT(UNITS_C));
+    format_temp(bed_str, getActualTemp_celsius(BED));
     ui.bounds(POLY(actual_temp), x, y, h, v);
     cmd.text(x, y, h, v, bed_str);
   }

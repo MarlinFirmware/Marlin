@@ -74,11 +74,7 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
       #endif
 
       #if EXTRUDERS > 1
-        char num1[7], num2[7], num3[7];
-        dtostrf(getNozzleOffset_mm(X, E1), 4, 2, num1);
-        dtostrf(getNozzleOffset_mm(Y, E1), 4, 2, num2);
-        dtostrf(getNozzleOffset_mm(Z, E1), 4, 2, num3);
-        sprintf_P(str, PSTR("%s; %s; %s %S"), num1, num2, num3, GET_TEXT(UNITS_MM));
+        format_position(str, getNozzleOffset_mm(X, E1), getNozzleOffset_mm(Y, E1), getNozzleOffset_mm(Z, E1));
         w.text_field  (0, GET_TEXTF(TOOL_OFFSETS), str);
       #endif
     }

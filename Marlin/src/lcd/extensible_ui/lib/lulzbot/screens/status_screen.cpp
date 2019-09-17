@@ -197,20 +197,21 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     );
 
     if (isHeaterIdle(BED))
-      sprintf_P(bed_str, PSTR("%3d%S / %S"), ROUND(getActualTemp_celsius(BED)), GET_TEXT(UNITS_C), GET_TEXT(TEMP_IDLE));
+      format_temp_and_idle(bed_str, getActualTemp_celsius(BED));
     else
-      sprintf_P(bed_str, PSTR("%3d / %3d%S"), ROUND(getActualTemp_celsius(BED)), ROUND(getTargetTemp_celsius(BED)), GET_TEXT(UNITS_C));
+      format_temp_and_temp(bed_str, getActualTemp_celsius(BED), getTargetTemp_celsius(BED));
 
     if (isHeaterIdle(H0))
-      sprintf_P(e0_str, PSTR("%3d%S / %S"), ROUND(getActualTemp_celsius(H0)), GET_TEXT(UNITS_C), GET_TEXT(TEMP_IDLE));
+      format_temp_and_idle(e0_str, getActualTemp_celsius(H0));
     else
-      sprintf_P(e0_str, PSTR("%3d / %3d%S"), ROUND(getActualTemp_celsius(H0)), ROUND(getTargetTemp_celsius(H0)), GET_TEXT(UNITS_C));
+      format_temp_and_temp(e0_str, getActualTemp_celsius(H0), getTargetTemp_celsius(H0));
+
 
     #if EXTRUDERS == 2
       if (isHeaterIdle(H1))
-        sprintf_P(e1_str, PSTR("%3d%S / %S"), ROUND(getActualTemp_celsius(H1)), PSTR(GET_TEXT(UNITS_C)), GET_TEXT(TEMP_IDLE));
+        format_temp_and_idle(e1_str, getActualTemp_celsius(H1));
       else
-        sprintf_P(e1_str, PSTR("%3d / %3d%S"), ROUND(getActualTemp_celsius(H1)), ROUND(getTargetTemp_celsius(H1)), GET_TEXT(UNITS_C));
+        format_temp_and_temp(e1_str, getActualTemp_celsius(H1), getTargetTemp_celsius(H1));
     #else
       strcpy_P(
         e1_str,
