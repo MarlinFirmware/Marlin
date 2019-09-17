@@ -166,12 +166,20 @@
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
 #if(ENABLED(BedDC))
+  #if EITHER(MachineS5, MachineCR10Max)
+    #define THERMAL_PROTECTION_BED_PERIOD 240    // Seconds
+    #define THERMAL_PROTECTION_BED_HYSTERESIS 4 // Degrees Celsius
 
-  #define THERMAL_PROTECTION_BED_PERIOD 50    // Seconds
-  #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+    #define WATCH_BED_TEMP_PERIOD 240                // Seconds
+    #define WATCH_BED_TEMP_INCREASE 4               // Degrees Celsius
 
-  #define WATCH_BED_TEMP_PERIOD 180                // Seconds
-  #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
+  #else
+    #define THERMAL_PROTECTION_BED_PERIOD 50    // Seconds
+    #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+
+    #define WATCH_BED_TEMP_PERIOD 180                // Seconds
+    #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
+  #endif
 #else
 
   #define THERMAL_PROTECTION_BED_PERIOD 30    // Seconds
