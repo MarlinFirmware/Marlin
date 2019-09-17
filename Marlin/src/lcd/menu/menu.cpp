@@ -379,8 +379,8 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 #if HAS_LINE_TO_Z
 
   void line_to_z(const float &z) {
-    current_position[Z_AXIS] = z;
-    planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[Z_AXIS]), active_extruder);
+    current_position.z = z;
+    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m.z));
   }
 
 #endif
@@ -402,10 +402,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       ui.encoderPosition = 0;
 
       const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
-                  new_probe_offset = probe_offset[Z_AXIS] + diff,
+                  new_probe_offset = probe_offset.z + diff,
                   new_offs =
                     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-                      do_probe ? new_probe_offset : hotend_offset[Z_AXIS][active_extruder] - diff
+                      do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
                     #else
                       new_probe_offset
                     #endif
@@ -414,9 +414,9 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
         babystep.add_steps(Z_AXIS, babystep_increment);
 
-        if (do_probe) probe_offset[Z_AXIS] = new_offs;
+        if (do_probe) probe_offset.z = new_offs;
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          else hotend_offset[Z_AXIS][active_extruder] = new_offs;
+          else hotend_offset[active_extruder].z = new_offs;
         #endif
 
         ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
@@ -425,13 +425,13 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          draw_edit_screen(PSTR(MSG_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
+          draw_edit_screen(PSTR(MSG_Z_OFFSET), ftostr43sign(hotend_offset[active_extruder].z));
         else
       #endif
-          draw_edit_screen(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe_offset[Z_AXIS]));
+          draw_edit_screen(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe_offset.z));
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-        if (do_probe) _lcd_zoffset_overlay_gfx(probe_offset[Z_AXIS]);
+        if (do_probe) _lcd_zoffset_overlay_gfx(probe_offset.z);
       #endif
     }
   }

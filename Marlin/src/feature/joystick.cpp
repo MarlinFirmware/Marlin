@@ -71,35 +71,35 @@ Joystick joystick;
 
 #if HAS_JOY_ADC_X || HAS_JOY_ADC_Y || HAS_JOY_ADC_Z
 
-  void Joystick::calculate(float (&norm_jog)[XYZ]) {
+  void Joystick::calculate(xyz_float_t &norm_jog) {
     // Do nothing if enable pin (active-low) is not LOW
     #if HAS_JOY_ADC_EN
       if (READ(JOY_EN_PIN)) return;
     #endif
 
-    auto _normalize_joy = [](float &norm_jog, const int16_t raw, const int16_t (&joy_limits)[4]) {
+    auto _normalize_joy = [](float &axis_jog, const int16_t raw, const int16_t (&joy_limits)[4]) {
       if (WITHIN(raw, joy_limits[0], joy_limits[3])) {
         // within limits, check deadzone
         if (raw > joy_limits[2])
-          norm_jog = (raw - joy_limits[2]) / float(joy_limits[3] - joy_limits[2]);
+          axis_jog = (raw - joy_limits[2]) / float(joy_limits[3] - joy_limits[2]);
         else if (raw < joy_limits[1])
-          norm_jog = (raw - joy_limits[1]) / float(joy_limits[1] - joy_limits[0]);  // negative value
+          axis_jog = (raw - joy_limits[1]) / float(joy_limits[1] - joy_limits[0]);  // negative value
         // Map normal to jog value via quadratic relationship
-        norm_jog = SIGN(norm_jog) * sq(norm_jog);
+        axis_jog = SIGN(axis_jog) * sq(axis_jog);
       }
     };
 
     #if HAS_JOY_ADC_X
       static constexpr int16_t joy_x_limits[4] = JOY_X_LIMITS;
-      _normalize_joy(norm_jog[X_AXIS], x.raw, joy_x_limits);
+      _normalize_joy(norm_jog.x, x.raw, joy_x_limits);
     #endif
     #if HAS_JOY_ADC_Y
       static constexpr int16_t joy_y_limits[4] = JOY_Y_LIMITS;
-      _normalize_joy(norm_jog[Y_AXIS], y.raw, joy_y_limits);
+      _normalize_joy(norm_jog.y, y.raw, joy_y_limits);
     #endif
     #if HAS_JOY_ADC_Z
       static constexpr int16_t joy_z_limits[4] = JOY_Z_LIMITS;
-      _normalize_joy(norm_jog[Z_AXIS], z.raw, joy_z_limits);
+      _normalize_joy(norm_jog.z, z.raw, joy_z_limits);
     #endif
   }
 
@@ -129,7 +129,7 @@ Joystick joystick;
     // Normalized jog values are 0 for no movement and -1 or +1 for as max feedrate (nonlinear relationship)
     // Jog are initialized to zero and handling input can update values but doesn't have to
     // You could use a two-axis joystick and a one-axis keypad and they might work together
-    float norm_jog[XYZ] = { 0 };
+    xyz_float_t norm_jog{0};
 
     // Use ADC values and defined limits. The active zone is normalized: -1..0 (dead) 0..1
     #if HAS_JOY_ADC_X || HAS_JOY_ADC_Y || HAS_JOY_ADC_Z
@@ -143,16 +143,13 @@ Joystick joystick;
       ExtUI::_joystick_update(norm_jog);
     #endif
 
-    #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
-      constexpr float manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    #endif
-
     // norm_jog values of [-1 .. 1] maps linearly to [-feedrate .. feedrate]
-    float move_dist[XYZ] = { 0 }, hypot2 = 0;
+    xyz_float_t move_dist{0};
+    float hypot2 = 0;
     LOOP_XYZ(i) if (norm_jog[i]) {
       move_dist[i] = seg_time * norm_jog[i] *
         #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
-          MMM_TO_MMS(manual_feedrate[i]);
+          MMM_TO_MMS(manual_feedrate_mm_m[i]);
         #else
           planner.settings.max_feedrate_mm_s[i];
         #endif
@@ -160,7 +157,7 @@ Joystick joystick;
     }
 
     if (!UNEAR_ZERO(hypot2)) {
-      LOOP_XYZ(i) current_position[i] += move_dist[i];
+      current_position += move_dist;
       const float length = sqrt(hypot2);
       injecting_now = true;
       planner.buffer_line(current_position, length / seg_time, active_extruder, length);

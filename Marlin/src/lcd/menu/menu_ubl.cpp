@@ -432,18 +432,16 @@ void _lcd_ubl_map_lcd_edit_cmd() {
 void ubl_map_move_to_xy() {
   const feedRate_t fr_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
 
-  set_destination_from_current(); // sync destination at the start
+  destination = current_position;          // sync destination at the start
 
   #if ENABLED(DELTA)
-    if (current_position[Z_AXIS] > delta_clip_start_height) {
-      destination[Z_AXIS] = delta_clip_start_height;
+    if (current_position.z > delta_clip_start_height) {
+      destination.z = delta_clip_start_height;
       prepare_internal_move_to_destination(fr_mm_s);
     }
   #endif
 
-  destination[X_AXIS] = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]);
-  destination[Y_AXIS] = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
-
+  destination.set(ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot));
   prepare_internal_move_to_destination(fr_mm_s);
 }
 
@@ -491,9 +489,8 @@ void _lcd_ubl_output_map_lcd() {
     if (y_plot < 0) y_plot = GRID_MAX_POINTS_Y - 1;
 
     #if IS_KINEMATIC
-      const float x = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]),
-                  y = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
-      if (position_is_reachable(x, y)) break; // Found a valid point
+      const xy_pos_t xy = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) };
+      if (position_is_reachable(xy)) break; // Found a valid point
       x_plot += (step_scaler < 0) ? -1 : 1;
     #endif
 

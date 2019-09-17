@@ -305,8 +305,8 @@ bool ChangeFilamentScreen::onTouchEnd(uint8_t tag) {
 bool ChangeFilamentScreen::onTouchHeld(uint8_t tag) {
   if (ExtUI::isMoving()) return false; // Don't allow moves to accumulate
   constexpr float increment = 1;
-  #define UI_INCREMENT_AXIS(axis) MoveAxisScreen::setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
-  #define UI_DECREMENT_AXIS(axis) MoveAxisScreen::setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
+  #define UI_INCREMENT_AXIS(axis) UI_INCREMENT(AxisPosition_mm, axis);
+  #define UI_DECREMENT_AXIS(axis) UI_DECREMENT(AxisPosition_mm, axis);
   switch (tag) {
     case 5: case 7: UI_DECREMENT_AXIS(getExtruder()); break;
     case 6: case 8: UI_INCREMENT_AXIS(getExtruder()); break;

@@ -62,7 +62,7 @@
 #define G26_ERR true
 
 #if ENABLED(ARC_SUPPORT)
-  void plan_arc(const float (&cart)[XYZE], const float (&offset)[2], const uint8_t clockwise);
+  void plan_arc(const xyze_pos_t &cart, const ab_float_t &offset, const uint8_t clockwise);
 #endif
 
 /**
@@ -142,7 +142,7 @@
 
 // Private functions
 
-static uint16_t circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16];
+static MeshFlags circle_flags, horizontal_mesh_line_flags, vertical_mesh_line_flags;
 float g26_e_axis_feedrate = 0.025,
       random_deviation = 0.0;
 
@@ -154,7 +154,7 @@ float g26_extrusion_multiplier,
       g26_layer_height,
       g26_prime_length;
 
-float g26_x_pos = 0, g26_y_pos = 0;
+xy_pos_t g26_pos; // = { 0, 0 }
 
 int16_t g26_bed_temp,
         g26_hotend_temp;
@@ -178,85 +178,85 @@ int8_t g26_prime_flag;
 
 #endif
 
-mesh_index_pair find_closest_circle_to_print(const float &X, const float &Y) {
+mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
   float closest = 99999.99;
-  mesh_index_pair return_val;
+  mesh_index_pair out_point;
 
-  return_val.x_index = return_val.y_index = -1;
+  out_point.pos = -1;
 
   for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
     for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
-      if (!is_bitmap_set(circle_flags, i, j)) {
-        const float mx = _GET_MESH_X(i),  // We found a circle that needs to be printed
-                    my = _GET_MESH_Y(j);
+      if (!circle_flags.marked(i, j)) {
+        // We found a circle that needs to be printed
+        const xy_pos_t m = { _GET_MESH_X(i), _GET_MESH_Y(j) };
 
         // Get the distance to this intersection
-        float f = HYPOT(X - mx, Y - my);
+        float f = (pos - m).magnitude();
 
         // It is possible that we are being called with the values
         // to let us find the closest circle to the start position.
         // But if this is not the case, add a small weighting to the
         // distance calculation to help it choose a better place to continue.
-        f += HYPOT(g26_x_pos - mx, g26_y_pos - my) / 15.0;
+        f += (g26_pos - m).magnitude() / 15.0f;
 
-        // Add in the specified amount of Random Noise to our search
-        if (random_deviation > 1.0)
-          f += random(0.0, random_deviation);
+        // Add the specified amount of Random Noise to our search
+        if (random_deviation > 1.0) f += random(0.0, random_deviation);
 
         if (f < closest) {
-          closest = f;              // We found a closer location that is still
-          return_val.x_index = i;   // un-printed  --- save the data for it
-          return_val.y_index = j;
-          return_val.distance = closest;
+          closest = f;          // Found a closer un-printed location
+          out_point.pos.set(i, j);  // Save its data
+          out_point.distance = closest;
         }
       }
     }
   }
-  bitmap_set(circle_flags, return_val.x_index, return_val.y_index);   // Mark this location as done.
-  return return_val;
+  circle_flags.mark(out_point); // Mark this location as done.
+  return out_point;
 }
 
 void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
   static float last_z = -999.99;
 
-  bool has_xy_component = (rx != current_position[X_AXIS] || ry != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
+  const xy_pos_t dest = { rx, ry };
+
+  const bool has_xy_component = dest != current_position; // Check if X or Y is involved in the movement.
+
+  destination = current_position;
 
   if (z != last_z) {
-    last_z = z;
+    last_z = destination.z = z;
     const feedRate_t feed_value = planner.settings.max_feedrate_mm_s[Z_AXIS] * 0.5f; // Use half of the Z_AXIS max feed rate
-
-    destination[X_AXIS] = current_position[X_AXIS];
-    destination[Y_AXIS] = current_position[Y_AXIS];
-    destination[Z_AXIS] = z;                          // We know the last_z!=z or we wouldn't be in this block of code.
-    destination[E_AXIS] = current_position[E_AXIS];
-
     prepare_internal_move_to_destination(feed_value);
-    set_destination_from_current();
+    destination = current_position;
   }
 
   // If X or Y is involved do a 'normal' move. Otherwise retract/recover/hop.
+  destination = dest;
+  destination.e += e_delta;
   const feedRate_t feed_value = has_xy_component ? feedRate_t(G26_XY_FEEDRATE) : planner.settings.max_feedrate_mm_s[E_AXIS] * 0.666f;
-
-  destination[X_AXIS] = rx;
-  destination[Y_AXIS] = ry;
-  destination[E_AXIS] += e_delta;
-
   prepare_internal_move_to_destination(feed_value);
-  set_destination_from_current();
+  destination = current_position;
 }
 
-FORCE_INLINE void move_to(const float (&where)[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
+FORCE_INLINE void move_to(const xyz_pos_t &where, const float &de) { move_to(where.x, where.y, where.z, de); }
 
-void retract_filament(const float (&where)[XYZE]) {
+void retract_filament(const xyz_pos_t &where) {
   if (!g26_retracted) { // Only retract if we are not already retracted!
     g26_retracted = true;
-    move_to(where, -1.0 * g26_retraction_multiplier);
+    move_to(where, -1.0f * g26_retraction_multiplier);
   }
 }
 
-void recover_filament(const float (&where)[XYZE]) {
+// TODO: Parameterize the Z lift with a define
+void retract_lift_move(const xyz_pos_t &s) {
+  retract_filament(destination);
+  move_to(current_position.x, current_position.y, current_position.z + 0.5f, 0.0);  // Z lift to minimize scraping
+  move_to(s.x, s.y, s.z + 0.5f, 0.0);  // Get to the starting point with no extrusion while lifted
+}
+
+void recover_filament(const xyz_pos_t &where) {
   if (g26_retracted) { // Only un-retract if we are retracted.
-    move_to(where, 1.2 * g26_retraction_multiplier);
+    move_to(where, 1.2f * g26_retraction_multiplier);
     g26_retracted = false;
   }
 }
@@ -276,41 +276,34 @@ void recover_filament(const float (&where)[XYZE]) {
  * segment of a 'circle'. The time this requires is very short and is easily saved by the other
  * cases where the optimization comes into play.
  */
-void print_line_from_here_to_there(const float &sx, const float &sy, const float &sz, const float &ex, const float &ey, const float &ez) {
-  const float dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual line segment
-              dy_s = current_position[Y_AXIS] - sy,
-              dist_start = HYPOT2(dx_s, dy_s),        // We don't need to do a sqrt(), we can compare the distance^2
-                                                      // to save computation time
-              dx_e = current_position[X_AXIS] - ex,   // find our distance from the end of the actual line segment
-              dy_e = current_position[Y_AXIS] - ey,
-              dist_end = HYPOT2(dx_e, dy_e),
+void print_line_from_here_to_there(const xyz_pos_t &s, const xyz_pos_t &e) {
 
-              line_length = HYPOT(ex - sx, ey - sy);
+  // Distances to the start / end of the line
+  xy_float_t svec = current_position - s, evec = current_position - e;
+
+  const float dist_start = HYPOT2(svec.x, svec.y),
+              dist_end = HYPOT2(evec.x, evec.y),
+              line_length = HYPOT(e.x - s.x, e.y - s.y);
 
   // If the end point of the line is closer to the nozzle, flip the direction,
   // moving from the end to the start. On very small lines the optimization isn't worth it.
   if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < ABS(line_length))
-    return print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
+    return print_line_from_here_to_there(e, s);
 
-  // Decide whether to retract & bump
+  // Decide whether to retract & lift
+  if (dist_start > 2.0) retract_lift_move(s);
 
-  if (dist_start > 2.0) {
-    retract_filament(destination);
-    //todo:  parameterize the bump height with a define
-    move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 0.500, 0.0);  // Z bump to minimize scraping
-    move_to(sx, sy, sz + 0.500, 0.0); // Get to the starting point with no extrusion while bumped
-  }
-
-  move_to(sx, sy, sz, 0.0); // Get to the starting point with no extrusion / un-Z bump
+  move_to(s, 0.0); // Get to the starting point with no extrusion / un-Z lift
 
   const float e_pos_delta = line_length * g26_e_axis_feedrate * g26_extrusion_multiplier;
 
   recover_filament(destination);
-  move_to(ex, ey, ez, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
+  move_to(e, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
 }
 
 inline bool look_for_lines_to_connect() {
-  float sx, sy, ex, ey;
+  xyz_pos_t s, e;
+  s.z = e.z = g26_layer_height;
 
   for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
     for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
@@ -319,43 +312,43 @@ inline bool look_for_lines_to_connect() {
         if (user_canceled()) return true;
       #endif
 
-      if (i < GRID_MAX_POINTS_X) { // Can't connect to anything to the right than GRID_MAX_POINTS_X.
-                                   // Already a half circle at the edge of the bed.
+      if (i < GRID_MAX_POINTS_X) {  // Can't connect to anything farther to the right than GRID_MAX_POINTS_X.
+                                    // Already a half circle at the edge of the bed.
 
-        if (is_bitmap_set(circle_flags, i, j) && is_bitmap_set(circle_flags, i + 1, j)) { // check if we can do a line to the left
-          if (!is_bitmap_set(horizontal_mesh_line_flags, i, j)) {
+        if (circle_flags.marked(i, j) && circle_flags.marked(i + 1, j)) {   // Test whether a leftward line can be done
+          if (!horizontal_mesh_line_flags.marked(i, j)) {
             // Two circles need a horizontal line to connect them
-            sx = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
-            ex = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
+            s.x = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
+            e.x = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
 
-            LIMIT(sx, X_MIN_POS + 1, X_MAX_POS - 1);
-            sy = ey = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
-            LIMIT(ex, X_MIN_POS + 1, X_MAX_POS - 1);
+            LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
+            s.y = e.y = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
+            LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
 
-            if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey))
-              print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
+            if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
+              print_line_from_here_to_there(s, e);
 
-            bitmap_set(horizontal_mesh_line_flags, i, j); // Mark done, even if skipped
+            horizontal_mesh_line_flags.mark(i, j); // Mark done, even if skipped
           }
         }
 
         if (j < GRID_MAX_POINTS_Y) {  // Can't connect to anything further back than GRID_MAX_POINTS_Y.
                                       // Already a half circle at the edge of the bed.
 
-          if (is_bitmap_set(circle_flags, i, j) && is_bitmap_set(circle_flags, i, j + 1)) { // check if we can do a line straight down
-            if (!is_bitmap_set( vertical_mesh_line_flags, i, j)) {
+          if (circle_flags.marked(i, j) && circle_flags.marked(i, j + 1)) {   // Test whether a downward line can be done
+            if (!vertical_mesh_line_flags.marked(i, j)) {
               // Two circles that need a vertical line to connect them
-              sy = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
-              ey = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
+              s.y = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
+              e.y = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
 
-              sx = ex = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
-              LIMIT(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
-              LIMIT(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
+              s.x = e.x = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
+              LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+              LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
-              if (position_is_reachable(sx, sy) && position_is_reachable(ex, ey))
-                print_line_from_here_to_there(sx, sy, g26_layer_height, ex, ey, g26_layer_height);
+              if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
+                print_line_from_here_to_there(s, e);
 
-              bitmap_set(vertical_mesh_line_flags, i, j); // Mark done, even if skipped
+              vertical_mesh_line_flags.mark(i, j); // Mark done, even if skipped
             }
           }
         }
@@ -436,19 +429,19 @@ inline bool prime_nozzle() {
       ui.set_status_P(PSTR(MSG_G26_MANUAL_PRIME), 99);
       ui.chirp();
 
-      set_destination_from_current();
+      destination = current_position;
 
       recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
 
       while (!ui.button_pressed()) {
         ui.chirp();
-        destination[E_AXIS] += 0.25;
+        destination.e += 0.25;
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           Total_Prime += 0.25;
           if (Total_Prime >= EXTRUDE_MAXLENGTH) return G26_ERR;
         #endif
         prepare_internal_move_to_destination(fr_slow_e);
-        set_destination_from_current();
+        destination = current_position;
         planner.synchronize();    // Without this synchronize, the purge is more consistent,
                                   // but because the planner has a buffer, we won't be able
                                   // to stop as quickly. So we put up with the less smooth
@@ -468,10 +461,10 @@ inline bool prime_nozzle() {
       ui.set_status_P(PSTR(MSG_G26_FIXED_LENGTH), 99);
       ui.quick_feedback();
     #endif
-    set_destination_from_current();
-    destination[E_AXIS] += g26_prime_length;
+    destination = current_position;
+    destination.e += g26_prime_length;
     prepare_internal_move_to_destination(fr_slow_e);
-    set_destination_from_current();
+    destination.e -= g26_prime_length;
     retract_filament(destination);
   }
 
@@ -630,9 +623,9 @@ void GcodeSuite::G26() {
     return;
   }
 
-  g26_x_pos = parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position[X_AXIS];
-  g26_y_pos = parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position[Y_AXIS];
-  if (!position_is_reachable(g26_x_pos, g26_y_pos)) {
+  g26_pos.set(parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
+              parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y);
+  if (!position_is_reachable(g26_pos.x, g26_pos.y)) {
     SERIAL_ECHOLNPGM("?Specified X,Y coordinate out of bounds.");
     return;
   }
@@ -642,9 +635,9 @@ void GcodeSuite::G26() {
    */
   set_bed_leveling_enabled(!parser.seen('D'));
 
-  if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
+  if (current_position.z < Z_CLEARANCE_BETWEEN_PROBES) {
     do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-    set_current_from_destination();
+    current_position = destination;
   }
 
   #if DISABLED(NO_VOLUMETRICS)
@@ -655,7 +648,7 @@ void GcodeSuite::G26() {
 
   if (turn_on_heaters() != G26_OK) goto LEAVE;
 
-  current_position[E_AXIS] = 0.0;
+  current_position.e = 0.0;
   sync_plan_position_e();
 
   if (g26_prime_flag && prime_nozzle() != G26_OK) goto LEAVE;
@@ -670,13 +663,13 @@ void GcodeSuite::G26() {
    *  It's  "Show Time" !!!
    */
 
-  ZERO(circle_flags);
-  ZERO(horizontal_mesh_line_flags);
-  ZERO(vertical_mesh_line_flags);
+  circle_flags.reset();
+  horizontal_mesh_line_flags.reset();
+  vertical_mesh_line_flags.reset();
 
   // Move nozzle to the specified height for the first layer
-  set_destination_from_current();
-  destination[Z_AXIS] = g26_layer_height;
+  destination = current_position;
+  destination.z = g26_layer_height;
   move_to(destination, 0.0);
   move_to(destination, g26_ooze_amount);
 
@@ -706,71 +699,68 @@ void GcodeSuite::G26() {
 
   mesh_index_pair location;
   do {
-     location = g26_continue_with_closest
-      ? find_closest_circle_to_print(current_position[X_AXIS], current_position[Y_AXIS])
-      : find_closest_circle_to_print(g26_x_pos, g26_y_pos); // Find the closest Mesh Intersection to where we are now.
+    // Find the nearest confluence
+    location = find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(current_position) : g26_pos);
 
-    if (location.x_index >= 0 && location.y_index >= 0) {
-      const float circle_x = _GET_MESH_X(location.x_index),
-                  circle_y = _GET_MESH_Y(location.y_index);
+    if (location.valid()) {
+      const xy_pos_t circle = _GET_MESH_POS(location.pos);
 
       // If this mesh location is outside the printable_radius, skip it.
-      if (!position_is_reachable(circle_x, circle_y)) continue;
+      if (!position_is_reachable(circle)) continue;
 
       // Determine where to start and end the circle,
       // which is always drawn counter-clockwise.
-      const uint8_t xi = location.x_index, yi = location.y_index;
-      const bool f = yi == 0, r = xi >= GRID_MAX_POINTS_X - 1, b = yi >= GRID_MAX_POINTS_Y - 1;
+      const xy_int8_t st = location;
+      const bool f = st.y == 0,
+                 r = st.x >= GRID_MAX_POINTS_X - 1,
+                 b = st.y >= GRID_MAX_POINTS_Y - 1;
 
       #if ENABLED(ARC_SUPPORT)
 
         #define ARC_LENGTH(quarters)  (INTERSECTION_CIRCLE_RADIUS * M_PI * (quarters) / 2)
         #define INTERSECTION_CIRCLE_DIAM  ((INTERSECTION_CIRCLE_RADIUS) * 2)
-        float sx = circle_x + INTERSECTION_CIRCLE_RADIUS,   // default to full circle
-              ex = circle_x + INTERSECTION_CIRCLE_RADIUS,
-              sy = circle_y, ey = circle_y,
-              arc_length = ARC_LENGTH(4);
+
+        xy_float_t e = { circle.x + INTERSECTION_CIRCLE_RADIUS, circle.y };
+        xyz_float_t s = e;
 
         // Figure out where to start and end the arc - we always print counterclockwise
-        if (xi == 0) {                             // left edge
-          if (!f) { sx = circle_x; sy -= INTERSECTION_CIRCLE_RADIUS; }
-          if (!b) { ex = circle_x; ey += INTERSECTION_CIRCLE_RADIUS; }
+        float arc_length = ARC_LENGTH(4);
+        if (st.x == 0) {                             // left edge
+          if (!f) { s.x = circle.x; s.y -= INTERSECTION_CIRCLE_RADIUS; }
+          if (!b) { e.x = circle.x; e.y += INTERSECTION_CIRCLE_RADIUS; }
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (r) {                             // right edge
-          sx = b ? circle_x - (INTERSECTION_CIRCLE_RADIUS) : circle_x;
-          ex = f ? circle_x - (INTERSECTION_CIRCLE_RADIUS) : circle_x;
-          sy = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
-          ey = f ? circle_y : circle_y - (INTERSECTION_CIRCLE_RADIUS);
+          if (b) s.set(circle.x - (INTERSECTION_CIRCLE_RADIUS), circle.y);
+          else   s.set(circle.x, circle.y + INTERSECTION_CIRCLE_RADIUS);
+          if (f) e.set(circle.x - (INTERSECTION_CIRCLE_RADIUS), circle.y);
+          else   e.set(circle.x, circle.y - (INTERSECTION_CIRCLE_RADIUS));
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (f) {
-          ex -= INTERSECTION_CIRCLE_DIAM;
+          e.x -= INTERSECTION_CIRCLE_DIAM;
           arc_length = ARC_LENGTH(2);
         }
         else if (b) {
-          sx -= INTERSECTION_CIRCLE_DIAM;
+          s.x -= INTERSECTION_CIRCLE_DIAM;
           arc_length = ARC_LENGTH(2);
         }
 
-        const float arc_offset[2] = { circle_x - sx, circle_y - sy },
-                    dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual circle
-                    dy_s = current_position[Y_AXIS] - sy,
-                    dist_start = HYPOT2(dx_s, dy_s),
-                    endpoint[XYZE] = {
-                      ex, ey,
-                      g26_layer_height,
-                      current_position[E_AXIS] + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
-                    };
+        const ab_float_t arc_offset = circle - s;
+        const xy_float_t dist = current_position - s;   // Distance from the start of the actual circle
+        const float dist_start = HYPOT2(dist.x, dist.y);
+        const xyze_pos_t endpoint = {
+          e.x, e.y, g26_layer_height,
+          current_position.e + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
+        };
 
         if (dist_start > 2.0) {
-          retract_filament(destination);
-          //todo:  parameterize the bump height with a define
-          move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 0.500, 0.0);  // Z bump to minimize scraping
-          move_to(sx, sy, g26_layer_height + 0.500, 0.0); // Get to the starting point with no extrusion while bumped
+          s.z = g26_layer_height + 0.5f;
+          retract_lift_move(s);
         }
 
-        move_to(sx, sy, g26_layer_height, 0.0); // Get to the starting point with no extrusion / un-Z bump
+        s.z = g26_layer_height;
+        move_to(s, 0.0);  // Get to the starting point with no extrusion / un-Z lift
 
         recover_filament(destination);
 
@@ -778,7 +768,7 @@ void GcodeSuite::G26() {
         feedrate_mm_s = PLANNER_XY_FEEDRATE() * 0.1f;
         plan_arc(endpoint, arc_offset, false);  // Draw a counter-clockwise arc
         feedrate_mm_s = old_feedrate;
-        set_destination_from_current();
+        destination = current_position;
 
         #if HAS_LCD_MENU
           if (user_canceled()) goto LEAVE; // Check if the user wants to stop the Mesh Validation
@@ -787,7 +777,7 @@ void GcodeSuite::G26() {
       #else // !ARC_SUPPORT
 
         int8_t start_ind = -2, end_ind = 9; // Assume a full circle (from 5:00 to 5:00)
-        if (xi == 0) {                      // Left edge? Just right half.
+        if (st.x == 0) {                    // Left edge? Just right half.
           start_ind = f ? 0 : -3;           //  03:00 to 12:00 for front-left
           end_ind = b ? 0 : 2;              //  06:00 to 03:00 for back-left
         }
@@ -810,23 +800,21 @@ void GcodeSuite::G26() {
             if (user_canceled()) goto LEAVE;          // Check if the user wants to stop the Mesh Validation
           #endif
 
-          float rx = circle_x + _COS(ind),            // For speed, these are now a lookup table entry
-                ry = circle_y + _SIN(ind),
-                xe = circle_x + _COS(ind + 1),
-                ye = circle_y + _SIN(ind + 1);
+          xy_float_t p = { circle.x + _COS(ind    ), circle.y + _SIN(ind    ), g26_layer_height },
+                     q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26_layer_height };
 
           #if IS_KINEMATIC
             // Check to make sure this segment is entirely on the bed, skip if not.
-            if (!position_is_reachable(rx, ry) || !position_is_reachable(xe, ye)) continue;
-          #else                                               // not, we need to skip
-            LIMIT(rx, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
-            LIMIT(ry, Y_MIN_POS + 1, Y_MAX_POS - 1);
-            LIMIT(xe, X_MIN_POS + 1, X_MAX_POS - 1);
-            LIMIT(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
+            if (!position_is_reachable(p) || !position_is_reachable(q)) continue;
+          #else
+            LIMIT(p.x, X_MIN_POS + 1, X_MAX_POS - 1); // Prevent hitting the endstops
+            LIMIT(p.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+            LIMIT(q.x, X_MIN_POS + 1, X_MAX_POS - 1);
+            LIMIT(q.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
           #endif
 
-          print_line_from_here_to_there(rx, ry, g26_layer_height, xe, ye, g26_layer_height);
-          SERIAL_FLUSH();  // Prevent host M105 buffer overrun.
+          print_line_from_here_to_there(p, q);
+          SERIAL_FLUSH();   // Prevent host M105 buffer overrun.
         }
 
       #endif // !ARC_SUPPORT
@@ -836,19 +824,18 @@ void GcodeSuite::G26() {
 
     SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
-  } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
+  } while (--g26_repeats && location.valid());
 
   LEAVE:
   ui.set_status_P(PSTR(MSG_G26_LEAVING), -1);
 
   retract_filament(destination);
-  destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
+  destination.z = Z_CLEARANCE_BETWEEN_PROBES;
 
   move_to(destination, 0); // Raise the nozzle
 
-  destination[X_AXIS] = g26_x_pos;                            // Move back to the starting position
-  destination[Y_AXIS] = g26_y_pos;
-  //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;         // Keep the nozzle where it is
+  destination.set(g26_pos.x, g26_pos.y);                      // Move back to the starting position
+  //destination.z = Z_CLEARANCE_BETWEEN_PROBES;               // Keep the nozzle where it is
 
   move_to(destination, 0);                                    // Move back to the starting position
 

@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
+#include "../core/types.h"
 
 #if EXTRUDERS > 1
 
@@ -31,7 +32,7 @@
       int16_t prime_speed, retract_speed;
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
-      struct { float x, y; } change_point;
+      xy_pos_t change_point;
     #endif
     float z_raise;
   } toolchange_settings_t;

@@ -81,8 +81,8 @@ namespace ExtUI {
   void enableHeater(const extruder_t);
 
   #if ENABLED(JOYSTICK)
-    void jog(float dx, float dy, float dz);
-    void _joystick_update(float (&norm_jog)[XYZ]);
+    void jog(const xyz_float_t &dir);
+    void _joystick_update(xyz_float_t &norm_jog);
   #endif
 
   /**
@@ -135,9 +135,10 @@ namespace ExtUI {
     bool getMeshValid();
     #if HAS_MESH
       bed_mesh_t& getMeshArray();
-      float getMeshPoint(const uint8_t xpos, const uint8_t ypos);
-      void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
+      float getMeshPoint(const xy_uint8_t &pos);
+      void setMeshPoint(const xy_uint8_t &pos, const float zval);
       void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);
+      inline void onMeshUpdate(const xy_uint8_t &pos, const float zval) { setMeshPoint(pos, zval); }
     #endif
   #endif
 

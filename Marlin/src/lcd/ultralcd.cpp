@@ -671,7 +671,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         #endif
 
         // Set movement on a single axis
-        set_destination_from_current();
+        destination = current_position;
         destination[manual_move_axis] += manual_move_offset;
 
         // Reset for the next move
