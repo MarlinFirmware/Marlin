@@ -29,11 +29,6 @@
  */
 #pragma once
 
-/*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
-#include <PeripheralPins.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -41,7 +36,6 @@ extern "C" {
 /*----------------------------------------------------------------------------
  *        Pins
  *----------------------------------------------------------------------------*/
-extern const PinName digitalPin[];
 
 #ifdef STM32F405RX
   #define STM32F4X_PIN_NUM  64  //64 pins mcu, 51 gpio
@@ -214,6 +208,10 @@ extern const PinName digitalPin[];
   #define PI7   (115+STM32F4X_ADC_NUM) //1:TIM8_CH3
 #endif
 
+#ifdef HAL_GPIO_MODULE_ENABLED
+#error foo
+#endif
+
 
 // This must be a literal
 #define NUM_DIGITAL_PINS        (STM32F4X_GPIO_NUM)
@@ -265,6 +263,9 @@ extern const PinName digitalPin[];
 // Mandatory for Firmata
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
+
+/* Extra HAL modules */
+#define HAL_PCD_MODULE_ENABLED
 
 #ifdef __cplusplus
 } // extern "C"

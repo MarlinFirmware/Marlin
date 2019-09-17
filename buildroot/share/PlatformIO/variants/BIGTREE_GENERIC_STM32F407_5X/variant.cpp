@@ -28,7 +28,7 @@
  *******************************************************************************
  */
 
-#include "variant.h"
+#include "pins_arduino.h"
 
 #ifdef __cplusplus
 extern "C" {
