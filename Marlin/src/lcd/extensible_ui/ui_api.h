@@ -61,7 +61,7 @@ namespace ExtUI {
   constexpr uint8_t fanCount      = FAN_COUNT;
 
   #if HAS_MESH
-    typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+    typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   #endif
 
   bool isMoving();
@@ -128,7 +128,7 @@ namespace ExtUI {
     void setLevelingActive(const bool);
     bool getMeshValid();
     #if HAS_MESH
-      bed_mesh_t getMeshArray();
+      bed_mesh_t& getMeshArray();
       float getMeshPoint(const uint8_t xpos, const uint8_t ypos);
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
       void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);

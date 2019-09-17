@@ -32,8 +32,8 @@ enum MeshLevelingState : char {
   MeshReset       // G29 S5
 };
 
-#define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_POINTS_X - 1))
-#define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y)) / (GRID_MAX_POINTS_Y - 1))
+#define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
+#define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
 #define _GET_MESH_X(I) mbl.index_to_xpos[I]
 #define _GET_MESH_Y(J) mbl.index_to_ypos[J]
 #define Z_VALUES_ARR mbl.z_values

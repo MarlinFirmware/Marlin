@@ -52,7 +52,7 @@ void GcodeSuite::G30() {
   setup_for_endstop_or_probe_move();
 
   const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
-  const float measured_z = probe_pt(xpos, ypos, raise_after, 1);
+  const float measured_z = probe_at_point(xpos, ypos, raise_after, 1);
 
   if (!isnan(measured_z))
     SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(xpos), " Y: ", FIXFLOAT(ypos), " Z: ", FIXFLOAT(measured_z));

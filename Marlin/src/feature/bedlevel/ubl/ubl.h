@@ -23,11 +23,7 @@
 
 //#define UBL_DEVEL_DEBUGGING
 
-#include "../bedlevel.h"
-#include "../../../module/planner.h"
 #include "../../../module/motion.h"
-#include "../../../lcd/ultralcd.h"
-#include "../../../Marlin.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
@@ -108,31 +104,9 @@ class unified_bed_leveling {
 
     static int8_t storage_slot;
 
-    static float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-
-    // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
-    // until determinism prevails
-    static constexpr float _mesh_index_to_xpos[16] PROGMEM = {
-                              MESH_MIN_X +  0 * (MESH_X_DIST), MESH_MIN_X +  1 * (MESH_X_DIST),
-                              MESH_MIN_X +  2 * (MESH_X_DIST), MESH_MIN_X +  3 * (MESH_X_DIST),
-                              MESH_MIN_X +  4 * (MESH_X_DIST), MESH_MIN_X +  5 * (MESH_X_DIST),
-                              MESH_MIN_X +  6 * (MESH_X_DIST), MESH_MIN_X +  7 * (MESH_X_DIST),
-                              MESH_MIN_X +  8 * (MESH_X_DIST), MESH_MIN_X +  9 * (MESH_X_DIST),
-                              MESH_MIN_X + 10 * (MESH_X_DIST), MESH_MIN_X + 11 * (MESH_X_DIST),
-                              MESH_MIN_X + 12 * (MESH_X_DIST), MESH_MIN_X + 13 * (MESH_X_DIST),
-                              MESH_MIN_X + 14 * (MESH_X_DIST), MESH_MIN_X + 15 * (MESH_X_DIST)
-                            };
-
-    static constexpr float _mesh_index_to_ypos[16] PROGMEM = {
-                              MESH_MIN_Y +  0 * (MESH_Y_DIST), MESH_MIN_Y +  1 * (MESH_Y_DIST),
-                              MESH_MIN_Y +  2 * (MESH_Y_DIST), MESH_MIN_Y +  3 * (MESH_Y_DIST),
-                              MESH_MIN_Y +  4 * (MESH_Y_DIST), MESH_MIN_Y +  5 * (MESH_Y_DIST),
-                              MESH_MIN_Y +  6 * (MESH_Y_DIST), MESH_MIN_Y +  7 * (MESH_Y_DIST),
-                              MESH_MIN_Y +  8 * (MESH_Y_DIST), MESH_MIN_Y +  9 * (MESH_Y_DIST),
-                              MESH_MIN_Y + 10 * (MESH_Y_DIST), MESH_MIN_Y + 11 * (MESH_Y_DIST),
-                              MESH_MIN_Y + 12 * (MESH_Y_DIST), MESH_MIN_Y + 13 * (MESH_Y_DIST),
-                              MESH_MIN_Y + 14 * (MESH_Y_DIST), MESH_MIN_Y + 15 * (MESH_Y_DIST)
-                            };
+    static bed_mesh_t z_values;
+    static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
+                       _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
 
     #if HAS_LCD_MENU
       static bool lcd_map_control;

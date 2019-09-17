@@ -190,7 +190,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
  */
 static float calibration_probe(const float &nx, const float &ny, const bool stow) {
   #if HAS_BED_PROBE
-    return probe_pt(nx, ny, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, false);
+    return probe_at_point(nx, ny, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, false);
   #else
     UNUSED(stow);
     return lcd_probe_pt(nx, ny);

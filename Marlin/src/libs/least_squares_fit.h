@@ -44,11 +44,11 @@ struct linear_fit_data {
         A, B, D, N;
 };
 
-void inline incremental_LSF_reset(struct linear_fit_data *lsf) {
+inline void incremental_LSF_reset(struct linear_fit_data *lsf) {
   memset(lsf, 0, sizeof(linear_fit_data));
 }
 
-void inline incremental_WLSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z, const float &w) {
+inline void incremental_WLSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z, const float &w) {
   // weight each accumulator by factor w, including the "number" of samples
   // (analogous to calling inc_LSF twice with same values to weight it by 2X)
   const float wx = w * x, wy = w * y, wz = w * z;
@@ -66,7 +66,7 @@ void inline incremental_WLSF(struct linear_fit_data *lsf, const float &x, const 
   lsf->max_absy = _MAX(ABS(wy), lsf->max_absy);
 }
 
-void inline incremental_LSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z) {
+inline void incremental_LSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z) {
   lsf->xbar += x;
   lsf->ybar += y;
   lsf->zbar += z;
