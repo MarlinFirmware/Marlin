@@ -47,7 +47,7 @@ void XPT2046::init() {
   SET_INPUT(TOUCH_MISO_PIN);
   SET_OUTPUT(TOUCH_MOSI_PIN);
   SET_OUTPUT(TOUCH_SCK_PIN);
-  OUT_WRITE(TOUCH_CS_PIN, 1);
+  OUT_WRITE(TOUCH_CS_PIN, HIGH);
 
   #if PIN_EXISTS(TOUCH_INT)
     // Optional Pendrive interrupt pin

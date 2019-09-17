@@ -45,6 +45,14 @@
 #define _O2          __attribute__((optimize("O2")))
 #define _O3          __attribute__((optimize("O3")))
 
+#ifndef UNUSED
+  #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+    #define UNUSED(X) (void)X
+  #else
+    #define UNUSED(x) ((void)(x))
+  #endif
+#endif
+
 // Clock speed factors
 #if !defined(CYCLES_PER_MICROSECOND) && !defined(__STM32F1__)
   #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20 on AVR
