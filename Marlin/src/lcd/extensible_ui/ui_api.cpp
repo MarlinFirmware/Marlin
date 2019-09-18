@@ -980,11 +980,11 @@ namespace ExtUI {
   }
 
   bool FileList::isAtRootDir() {
-    #if ENABLED(SDSUPPORT)
-      card.flag.workDirIsRoot;
-    #else
-      return true;
-    #endif
+    return (true
+      #if ENABLED(SDSUPPORT)
+        && card.flag.workDirIsRoot
+      #endif
+    );
   }
 
   void FileList::upDir() {
