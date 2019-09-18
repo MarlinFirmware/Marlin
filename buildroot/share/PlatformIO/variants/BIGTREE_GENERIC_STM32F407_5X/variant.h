@@ -208,10 +208,6 @@ extern "C" {
   #define PI7   (115+STM32F4X_ADC_NUM) //1:TIM8_CH3
 #endif
 
-#ifdef HAL_GPIO_MODULE_ENABLED
-#error foo
-#endif
-
 
 // This must be a literal
 #define NUM_DIGITAL_PINS        (STM32F4X_GPIO_NUM)

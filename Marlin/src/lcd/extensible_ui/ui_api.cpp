@@ -102,10 +102,6 @@
   #include "../../feature/host_actions.h"
 #endif
 
-inline float clamp(const float value, const float minimum, const float maximum) {
-  return _MAX(_MIN(value, maximum), minimum);
-}
-
 static struct {
   uint8_t printer_killed  : 1;
   uint8_t manual_motion : 1;
@@ -339,7 +335,7 @@ namespace ExtUI {
     setFeedrate_mm_s(MMM_TO_MMS(max_manual_feedrate[axis]));
 
     if (!flags.manual_motion) set_destination_from_current();
-    destination[axis] = clamp(position, min, max);
+    destination[axis] = constrain(position, min, max);
     flags.manual_motion = true;
   }
 
@@ -474,13 +470,13 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float mA, const axis_t axis) {
       switch (axis) {
         #if AXIS_IS_TMC(X)
-          case X: stepperX.rms_current(clamp(mA, 500, 1500)); break;
+          case X: stepperX.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(Y)
-          case Y: stepperY.rms_current(clamp(mA, 500, 1500)); break;
+          case Y: stepperY.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(Z)
-          case Z: stepperZ.rms_current(clamp(mA, 500, 1500)); break;
+          case Z: stepperZ.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         default: break;
       };
@@ -489,22 +485,22 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float mA, const extruder_t extruder) {
       switch (extruder) {
         #if AXIS_IS_TMC(E0)
-          case E0: stepperE0.rms_current(clamp(mA, 500, 1500)); break;
+          case E0: stepperE0.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E1)
-          case E1: stepperE1.rms_current(clamp(mA, 500, 1500)); break;
+          case E1: stepperE1.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E2)
-          case E2: stepperE2.rms_current(clamp(mA, 500, 1500)); break;
+          case E2: stepperE2.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E3)
-          case E3: stepperE3.rms_current(clamp(mA, 500, 1500)); break;
+          case E3: stepperE3.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E4)
-          case E4: stepperE4.rms_current(clamp(mA, 500, 1500)); break;
+          case E4: stepperE4.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E5)
-          case E5: stepperE5.rms_current(clamp(mA, 500, 1500)); break;
+          case E5: stepperE5.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         default: break;
       };
@@ -607,7 +603,7 @@ namespace ExtUI {
 
     #ifdef FILAMENT_RUNOUT_DISTANCE_MM
       float getFilamentRunoutDistance_mm()                 { return runout.runout_distance(); }
-      void setFilamentRunoutDistance_mm(const float value) { runout.set_runout_distance(clamp(value, 0, 999)); }
+      void setFilamentRunoutDistance_mm(const float value) { runout.set_runout_distance(constrain(value, 0, 999)); }
     #endif
   #endif
 
@@ -618,7 +614,7 @@ namespace ExtUI {
 
     void setLinearAdvance_mm_mm_s(const float value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
-        planner.extruder_advance_K[extruder - E0] = clamp(value, 0, 999);
+        planner.extruder_advance_K[extruder - E0] = constrain(value, 0, 999);
     }
   #endif
 
@@ -629,7 +625,7 @@ namespace ExtUI {
     }
 
     void setJunctionDeviation_mm(const float value) {
-      planner.junction_deviation_mm = clamp(value, 0.01, 0.3);
+      planner.junction_deviation_mm = constrain(value, 0.01, 0.3);
       #if ENABLED(LIN_ADVANCE)
         planner.recalculate_max_e_jerk();
       #endif
@@ -784,14 +780,14 @@ namespace ExtUI {
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t axis)       { return backlash.distance_mm[axis]; }
     void setAxisBacklash_mm(const float value, const axis_t axis)
-                                                      { backlash.distance_mm[axis] = clamp(value,0,5); }
+                                                      { backlash.distance_mm[axis] = constrain(value,0,5); }
 
     float getBacklashCorrection_percent()             { return ui8_to_percent(backlash.correction); }
-    void setBacklashCorrection_percent(const float value) { backlash.correction = map(clamp(value, 0, 100), 0, 100, 0, 255); }
+    void setBacklashCorrection_percent(const float value) { backlash.correction = map(constrain(value, 0, 100), 0, 100, 0, 255); }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash.smoothing_mm; }
-      void setBacklashSmoothing_mm(const float value) { backlash.smoothing_mm = clamp(value, 0, 999); }
+      void setBacklashSmoothing_mm(const float value) { backlash.smoothing_mm = constrain(value, 0, 999); }
     #endif
   #endif
 
@@ -869,14 +865,14 @@ namespace ExtUI {
     enableHeater(heater);
     #if HAS_HEATED_BED
       if (heater == BED)
-        thermalManager.setTargetBed(clamp(value, 0, BED_MAXTEMP - 10));
+        thermalManager.setTargetBed(constrain(value, 0, BED_MAXTEMP - 10));
       else
     #endif
       {
         #if HOTENDS
           static constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
           const int16_t e = heater - H0;
-          thermalManager.setTargetHotend(clamp(value, 0, heater_maxtemp[e] - 15), e);
+          thermalManager.setTargetHotend(constrain(value, 0, heater_maxtemp[e] - 15), e);
         #endif
       }
   }
@@ -886,14 +882,14 @@ namespace ExtUI {
       constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
       const int16_t e = extruder - E0;
       enableHeater(extruder);
-      thermalManager.setTargetHotend(clamp(value, 0, heater_maxtemp[e] - 15), e);
+      thermalManager.setTargetHotend(constrain(value, 0, heater_maxtemp[e] - 15), e);
     #endif
   }
 
   void setTargetFan_percent(const float value, const fan_t fan) {
     #if FAN_COUNT > 0
       if (fan < FAN_COUNT)
-        thermalManager.set_fan_speed(fan - FAN0, map(clamp(value, 0, 100), 0, 100, 0, 255));
+        thermalManager.set_fan_speed(fan - FAN0, map(constrain(value, 0, 100), 0, 100, 0, 255));
     #else
       UNUSED(value);
       UNUSED(fan);
@@ -901,7 +897,7 @@ namespace ExtUI {
   }
 
   void setFeedrate_percent(const float value) {
-    feedrate_percentage = clamp(value, 10, 500);
+    feedrate_percentage = constrain(value, 10, 500);
   }
 
   void setUserConfirmed() {
