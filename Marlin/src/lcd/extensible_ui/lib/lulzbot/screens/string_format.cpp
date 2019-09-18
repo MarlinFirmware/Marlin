@@ -30,71 +30,38 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wno-format"
 
+#ifdef __AVR__
+  #define S_FMT "%S"
+#else
+  #define S_FMT "%s"
+#endif
+
 /**
  * Formats a temperature string (e.g. "100°C")
  */
 void format_temp(char *str, float t1) {
-  sprintf_P(
-    str,
-    #if __AVR__
-      PSTR("%3d%S"),
-    #else
-      PSTR("%3d%s"),
-    #endif
-    ROUND(t1),
-    GET_TEXT(UNITS_C)
-  );
+  sprintf_P(str, PSTR("%3d" S_FMT), ROUND(t1), GET_TEXT(UNITS_C));
 }
 
 /**
  * Formats a temperature string for an idle heater (e.g. "100 °C / idle")
  */
 void format_temp_and_idle(char *str, float t1) {
-  sprintf_P(
-    str,
-    #if __AVR__
-      PSTR("%3d%S / %S"),
-    #else
-      PSTR("%3d%s / %s"),
-    #endif
-    ROUND(t1),
-    GET_TEXT(UNITS_C),
-    GET_TEXT(TEMP_IDLE)
-  );
+  sprintf_P(str, PSTR("%3d" S_FMT " / " S_FMT), ROUND(t1), GET_TEXT(UNITS_C), GET_TEXT(TEMP_IDLE));
 }
 
 /**
  * Formats a temperature string for an active heater (e.g. "100 / 200°C")
  */
 void format_temp_and_temp(char *str, float t1, float t2) {
-  sprintf_P(
-    str,
-    #if __AVR__
-      PSTR("%3d / %3d%S"),
-    #else
-      PSTR("%3d / %3d%s"),
-    #endif
-    ROUND(t1),
-    ROUND(t2),
-    GET_TEXT(UNITS_C)
-  );
+  sprintf_P(str, PSTR("%3d / %3d" S_FMT), ROUND(t1), ROUND(t2), GET_TEXT(UNITS_C));
 }
 
 /**
  * Formats a temperature string for a material (e.g. "100°C (PLA)")
  */
 void format_temp_and_material(char *str, float t1, const char *material) {
-  sprintf_P(
-    str,
-    #ifdef __AVR__
-      PSTR("%3d%S (%S)"),
-    #else
-      PSTR("%3d%s (%s)"),
-    #endif
-    ROUND(t1),
-    GET_TEXT(UNITS_C),
-    material
-  );
+  sprintf_P(str, PSTR("%3d" S_FMT " (" S_FMT ")"), ROUND(t1), GET_TEXT(UNITS_C), material);
 }
 
 /**
@@ -114,16 +81,7 @@ void format_position(char *str, float x, float y, float z) {
   dtostrf(x, 4, 2, num1);
   dtostrf(y, 4, 2, num2);
   dtostrf(z, 4, 2, num3);
-  sprintf_P(
-    str,
-    #ifdef __AVR__
-      PSTR("%s; %s; %s %S"),
-    #else
-      PSTR("%s; %s; %s %s"),
-    #endif
-    num1, num2, num3,
-    GET_TEXT(UNITS_MM)
-  );
+  sprintf_P(str, PSTR("%s; %s; %s " S_FMT), num1, num2, num3, GET_TEXT(UNITS_MM));
 }
 
 #pragma GCC diagnostic pop
