@@ -104,7 +104,7 @@ void simulation_loop() {
   }
 }
 
-int main(void) {
+int main() {
   std::thread write_serial (write_serial_thread);
   std::thread read_serial (read_serial_thread);
 

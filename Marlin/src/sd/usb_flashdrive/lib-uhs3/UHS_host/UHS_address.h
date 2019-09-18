@@ -158,7 +158,7 @@ class AddressPool {
                 InitEntry(index);
         }
 
-        void InitAllAddresses(void) {
+        void InitAllAddresses() {
                 for(uint8_t i = 1; i < UHS_HOST_MAX_INTERFACE_DRIVERS; i++) InitEntry(i);
                 hubCounter = 0;
         };

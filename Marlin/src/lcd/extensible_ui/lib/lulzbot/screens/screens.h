@@ -25,8 +25,7 @@
 #include "../ftdi_eve_lib/ftdi_eve_lib.h"
 #include "../language/languages.h"
 #include "../theme/theme.h"
-
-#define ROUND(val) uint16_t((val)+0.5)
+#include "string_format.h"
 
 extern tiny_timer_t refresh_timer;
 
@@ -148,6 +147,7 @@ class DialogBoxBaseClass : public BaseScreen {
     static void onRedraw(draw_mode_t) {};
   public:
     static bool onTouchEnd(uint8_t tag);
+    static void onIdle();
 };
 
 class AlertDialogBox : public DialogBoxBaseClass, public CachedScreen<ALERT_BOX_CACHE,ALERT_BOX_DL_SIZE> {
@@ -243,12 +243,12 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
       static void draw_fine_motion(draw_mode_t what);
       static void draw_buttons(draw_mode_t what);
     public:
+      static void loadBitmaps();
       static void unlockMotors();
 
       static void setStatusMessage(const char *);
       static void setStatusMessage(progmem_str);
 
-      static void onStartup();
       static void onRedraw(draw_mode_t);
 
       static bool onTouchStart(uint8_t tag);

@@ -48,7 +48,7 @@ static DeviceVectors ram_tab = { nullptr };
  * If it is not, then it copies the ROM table to the SRAM and relocates the table
  * by reprogramming the NVIC registers
  */
-static pfnISR_Handler* get_relocated_table_addr(void) {
+static pfnISR_Handler* get_relocated_table_addr() {
   // Get the address of the interrupt/exception table
   uint32_t isrtab = SCB->VTOR;
 

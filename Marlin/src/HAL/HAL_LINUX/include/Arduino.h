@@ -63,9 +63,9 @@ typedef uint8_t byte;
 #define constrain(value, arg_min, arg_max) ((value) < (arg_min) ? (arg_min) :((value) > (arg_max) ? (arg_max) : (value)))
 
 //Interrupts
-void cli(void); // Disable
-void sei(void); // Enable
-void attachInterrupt(uint32_t pin, void (*callback)(void), uint32_t mode);
+void cli(); // Disable
+void sei(); // Enable
+void attachInterrupt(uint32_t pin, void (*callback)(), uint32_t mode);
 void detachInterrupt(uint32_t pin);
 extern "C" void GpioEnableInt(uint32_t port, uint32_t pin, uint32_t mode);
 extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);

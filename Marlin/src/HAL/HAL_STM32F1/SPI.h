@@ -137,8 +137,8 @@ private:
   spi_dev *spi_d;
   dma_channel spiRxDmaChannel, spiTxDmaChannel;
   dma_dev* spiDmaDev;
-  void (*receiveCallback)(void) = NULL;
-  void (*transmitCallback)(void) = NULL;
+  void (*receiveCallback)() = NULL;
+  void (*transmitCallback)() = NULL;
 
   friend class SPIClass;
 };
@@ -213,8 +213,8 @@ public:
    * onTransmit used to set the callback in case of dmaSend (tx only). That function
    * will NOT be called in case of TX/RX
    */
-  void onReceive(void(*)(void));
-  void onTransmit(void(*)(void));
+  void onReceive(void(*)());
+  void onTransmit(void(*)());
 
   /*
    * I/O
@@ -327,7 +327,7 @@ public:
    * @brief Get a pointer to the underlying libmaple spi_dev for
    *        this HardwareSPI instance.
    */
-  spi_dev* c_dev(void) { return _currentSetting->spi_d; }
+  spi_dev* c_dev() { return _currentSetting->spi_d; }
 
   spi_dev* dev() { return _currentSetting->spi_d; }
 

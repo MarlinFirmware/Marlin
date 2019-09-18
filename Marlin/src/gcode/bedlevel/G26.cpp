@@ -486,12 +486,6 @@ inline bool prime_nozzle() {
   return G26_OK;
 }
 
-float valid_trig_angle(float d) {
-  while (d > 360.0) d -= 360.0;
-  while (d < 0.0) d += 360.0;
-  return d;
-}
-
 /**
  * G26: Mesh Validation Pattern generation.
  *

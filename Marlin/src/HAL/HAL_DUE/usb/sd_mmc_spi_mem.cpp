@@ -15,10 +15,10 @@ extern "C" {
 
 #define SD_MMC_BLOCK_SIZE 512
 
-void sd_mmc_spi_mem_init(void) {
+void sd_mmc_spi_mem_init() {
 }
 
-Ctrl_status sd_mmc_spi_test_unit_ready(void) {
+Ctrl_status sd_mmc_spi_test_unit_ready() {
   if (!IS_SD_INSERTED() || IS_SD_PRINTING() || IS_SD_FILE_OPEN() || !card.isMounted())
     return CTRL_NO_PRESENT;
   return CTRL_GOOD;
@@ -38,11 +38,11 @@ bool sd_mmc_spi_unload(bool unload) {
   return true;
 }
 
-bool sd_mmc_spi_wr_protect(void) {
+bool sd_mmc_spi_wr_protect() {
   return false;
 }
 
-bool sd_mmc_spi_removal(void) {
+bool sd_mmc_spi_removal() {
   if (!IS_SD_INSERTED() || IS_SD_PRINTING() || IS_SD_FILE_OPEN() || !card.isMounted())
     return true;
   return false;

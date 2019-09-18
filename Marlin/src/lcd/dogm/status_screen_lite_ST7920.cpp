@@ -612,6 +612,8 @@ void ST7920_Lite_Status_Screen::draw_feedrate_percentage(const uint16_t percenta
     begin_data();
     write_number(percentage, 3);
     write_byte('%');
+  #else
+    UNUSED(percentage);
   #endif
 }
 

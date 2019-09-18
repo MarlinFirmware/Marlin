@@ -33,7 +33,7 @@
 #include <lpc17xx_pinsel.h>
 #include <lpc17xx_libcfg_default.h>
 
-typedef uint32_t millis_t;
+#include "../../../core/millis_t.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -163,7 +163,7 @@ uint8_t u8g_i2c_send_byte(uint8_t data) {
   return 1;
 }
 
-void u8g_i2c_stop(void) {
+void u8g_i2c_stop() {
 }
 
 

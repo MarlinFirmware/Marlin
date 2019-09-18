@@ -61,7 +61,7 @@ private:
   static void check_version();
 
   static void command(const uint8_t cmd);
-  static bool get_response(void);
+  static bool get_response();
   static void manage_response(const bool move_axes, const bool turn_off_nozzle);
 
   #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)

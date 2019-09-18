@@ -103,7 +103,7 @@ public:
   // ISR for Rx
   void store_rxd_char();
   // ISR for Tx (UDRE vector)
-  void tx_udr_empty_irq(void);
+  void tx_udr_empty_irq();
 
   inline volatile bool is_rx_overrun() {
     return dgus_rx_overrun;
@@ -1013,7 +1013,7 @@ FORCE_INLINE void DGUSSerial::store_rxd_char() {
 }
 
 // (called with TX irqs disabled)
-FORCE_INLINE void DGUSSerial::tx_udr_empty_irq(void) {
+FORCE_INLINE void DGUSSerial::tx_udr_empty_irq() {
   // Read positions
   uint8_t t = tx_buffer.tail;
   const uint8_t h = tx_buffer.head;
@@ -1039,7 +1039,7 @@ FORCE_INLINE void DGUSSerial::tx_udr_empty_irq(void) {
   if (h == t) CBI(DGUS_UCSRxB, UDRIEx);
 }
 
-r_ring_buffer_pos_t DGUSSerial::available(void) {
+r_ring_buffer_pos_t DGUSSerial::available() {
   const r_ring_buffer_pos_t h = atomic_read_rx_head(), t = rx_buffer.tail;
   return (r_ring_buffer_pos_t) (DGUS_RX_BUFFER_SIZE + h - t) & (DGUS_RX_BUFFER_SIZE - 1);
 }

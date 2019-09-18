@@ -201,16 +201,16 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
     #if SERIAL_PORT > 0
       #if SERIAL_PORT2
         #if SERIAL_PORT2 > 0
-          void board_setup_usb(void) {}
+          void board_setup_usb() {}
         #endif
       #else
-        void board_setup_usb(void) {}
+        void board_setup_usb() {}
       #endif
     #endif
   } }
 #endif
 
-void HAL_init(void) {
+void HAL_init() {
   NVIC_SetPriorityGrouping(0x3);
   #if PIN_EXISTS(LED)
     OUT_WRITE(LED_PIN, LOW);
@@ -226,7 +226,7 @@ void HAL_init(void) {
 }
 
 // HAL idle task
-void HAL_idletask(void) {
+void HAL_idletask() {
   #ifdef USE_USB_COMPOSITE
     #if ENABLED(SHARED_SD_CARD)
       // If Marlin is using the SD card we need to lock it to prevent access from
@@ -245,19 +245,19 @@ void HAL_idletask(void) {
 
 /* VGPV Done with defines
 // disable interrupts
-void cli(void) { noInterrupts(); }
+void cli() { noInterrupts(); }
 
 // enable interrupts
-void sei(void) { interrupts(); }
+void sei() { interrupts(); }
 */
 
-void HAL_clear_reset_source(void) { }
+void HAL_clear_reset_source() { }
 
 /**
  * TODO: Check this and change or remove.
  * currently returns 1 that's equal to poweron reset.
  */
-uint8_t HAL_get_reset_source(void) { return 1; }
+uint8_t HAL_get_reset_source() { return 1; }
 
 void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
@@ -297,7 +297,7 @@ extern "C" {
 // ADC
 // ------------------------
 // Init the AD in continuous capture mode
-void HAL_adc_init(void) {
+void HAL_adc_init() {
   // configure the ADC
   adc.calibrate();
   #if F_CPU > 72000000
@@ -356,7 +356,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
 }
 
-uint16_t HAL_adc_get_result(void) { return HAL_adc_result; }
+uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
 uint16_t analogRead(pin_t pin) {
   const bool is_analog = _GET_MODE(pin) == GPIO_INPUT_ANALOG;

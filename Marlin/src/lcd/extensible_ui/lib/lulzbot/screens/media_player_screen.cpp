@@ -163,6 +163,9 @@ void MediaPlayerScreen::playStream(void *obj, media_streamer_func_t *data_stream
       DLCache::init();
       StatusScreen::loadBitmaps();
     }
+  #else
+    UNUSED(obj);
+    UNUSED(data_stream);
   #endif // FTDI_API_LEVEL >= 810
 }
 

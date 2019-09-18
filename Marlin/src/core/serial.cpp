@@ -70,10 +70,7 @@ void print_bin(const uint16_t val) {
 
 void print_xyz(PGM_P const prefix, PGM_P const suffix, const float &x, const float &y, const float &z) {
   serialprintPGM(prefix);
-  SERIAL_CHAR('(');
-  SERIAL_ECHO(x);
-  SERIAL_ECHOPAIR(", ", y, ", ", z);
-  SERIAL_CHAR(')');
+  SERIAL_ECHOPAIR(" " MSG_X, x, " " MSG_Y, y, " " MSG_Z, z);
   if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
 }
 

@@ -1,6 +1,6 @@
-/**************
- * usb_host.h *
- **************/
+/*******************
+ * string_format.h *
+ *******************/
 
 /****************************************************************************
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
@@ -21,38 +21,9 @@
 
 #pragma once
 
-/* This the following comes from "lib/usbhost.h", but has been rewritten
- * to use the SPI functions from Marlin's HAL */
-
-class MAX3421e {
-  private:
-    static uint8_t vbusState;
-    void cs();
-    void ncs();
-
-    uint8_t GpxHandler();
-    uint8_t IntHandler();
-
-  public:
-    bool      start();
-
-    void      regWr(uint8_t reg, uint8_t data);
-    uint8_t*  bytesWr(uint8_t reg, uint8_t nbytes, uint8_t* data_p);
-    void      gpioWr(uint8_t data);
-    uint8_t   regRd(uint8_t reg);
-    uint8_t*  bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* data_p);
-    uint8_t   gpioRd();
-    bool      reset();
-
-    uint8_t   getVbusState()   {return vbusState;};
-
-    void busprobe();
-
-    uint8_t Task();
-};
-
-#define USE_MARLIN_MAX3421E
-
-#if defined(__SAM3X8E__) && !defined(ARDUINO_SAM_DUE)
-  #define ARDUINO_SAM_DUE // Spoof the USB library that this is a DUE
-#endif
+void format_temp(char *str, float t1);
+void format_temp_and_idle(char *str, float t1);
+void format_temp_and_temp(char *str, float t1, float t2);
+void format_temp_and_material(char *str, float t1, const char *material);
+void format_position(char *str, float p);
+void format_position(char *str, float x, float y, float z);

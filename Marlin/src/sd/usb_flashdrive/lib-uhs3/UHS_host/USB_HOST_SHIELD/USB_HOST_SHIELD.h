@@ -330,7 +330,7 @@ public:
         uint8_t irq_pin;
         // Will use the defaults UHS_MAX3421E_SS, UHS_MAX3421E_INT and speed
 
-        UHS_NI MAX3421E_HOST(void) {
+        UHS_NI MAX3421E_HOST() {
                 sof_countdown = 0;
                 busevent = false;
                 doingreset = false;
@@ -394,7 +394,7 @@ public:
                 regWr(rPINCTL, (bmFDUPSPI | bmIRQ_SENSE) | (uint8_t)(state));
         };
 
-        void UHS_NI Task(void);
+        void UHS_NI Task();
 
         virtual uint8_t SetAddress(uint8_t addr, uint8_t ep, UHS_EpInfo **ppep, uint16_t &nak_limit);
         virtual uint8_t OutTransfer(UHS_EpInfo *pep, uint16_t nak_limit, uint16_t nbytes, uint8_t *data);
@@ -403,7 +403,7 @@ public:
         virtual uint8_t ctrlReqRead(UHS_EpInfo *pep, uint16_t *left, uint16_t *read, uint16_t nbytes, uint8_t *dataptr);
         virtual uint8_t dispatchPkt(uint8_t token, uint8_t ep, uint16_t nak_limit);
 
-        void UHS_NI ReleaseChildren(void) {
+        void UHS_NI ReleaseChildren() {
                 for(uint8_t i = 0; i < UHS_HOST_MAX_INTERFACE_DRIVERS; i++)
                         if(devConfig[i])
                                 devConfig[i]->Release();
@@ -418,9 +418,9 @@ public:
                 return false;
         };
 
-        virtual void VBUS_changed(void);
+        virtual void VBUS_changed();
 
-        virtual void UHS_NI doHostReset(void) {
+        virtual void UHS_NI doHostReset() {
 #if USB_HOST_SHIELD_USE_ISR
                 // Enable interrupts
                 noInterrupts();
@@ -469,32 +469,32 @@ public:
 
         int16_t UHS_NI Init(int16_t mseconds);
 
-        int16_t UHS_NI Init(void) {
+        int16_t UHS_NI Init() {
                 return Init(INT16_MIN);
         };
 
-        void ISRTask(void);
-        void ISRbottom(void);
-        void busprobe(void);
-        uint16_t reset(void);
+        void ISRTask();
+        void ISRbottom();
+        void busprobe();
+        uint16_t reset();
 
         // MAX3421e specific
         void regWr(uint8_t reg, uint8_t data);
         void gpioWr(uint8_t data);
         uint8_t regRd(uint8_t reg);
-        uint8_t gpioRd(void);
+        uint8_t gpioRd();
         uint8_t* bytesWr(uint8_t reg, uint8_t nbytes, uint8_t* data_p);
         uint8_t* bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* data_p);
 
         // ARM/NVIC specific, used to emulate reentrant ISR.
 #ifdef SWI_IRQ_NUM
 
-        void dyn_SWISR(void) {
+        void dyn_SWISR() {
                 ISRbottom();
         };
 #endif
 
-        virtual void UHS_NI suspend_host(void) {
+        virtual void UHS_NI suspend_host() {
                 // Used on MCU that lack control of IRQ priority (AVR).
                 // Suspends ISRs, for critical code. IRQ will be serviced after it is resumed.
                 // NOTE: you must track the state yourself!
@@ -505,7 +505,7 @@ public:
 #endif
         };
 
-        virtual void UHS_NI resume_host(void);
+        virtual void UHS_NI resume_host();
 };
 #ifndef SPIclass
 #define SPIclass SPI

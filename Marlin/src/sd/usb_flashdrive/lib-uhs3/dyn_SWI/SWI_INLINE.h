@@ -42,12 +42,12 @@ extern "C" {
 }
 #else
 
-__attribute__((always_inline)) static inline void __DSB(void) {
+__attribute__((always_inline)) static inline void __DSB() {
         __asm__ volatile ("dsb");
 }
 #endif // defined(__USE_CMSIS_VECTORS__)
 #else // defined(__arm__)
-__attribute__((always_inline)) static inline void __DSB(void) {
+__attribute__((always_inline)) static inline void __DSB() {
         __asm__ volatile ("sync" : : : "memory");
 }
 #endif // defined(__arm__)
@@ -66,12 +66,12 @@ void
 #else
         __attribute__((interrupt(),nomips16))
 #endif
-        softISR(void) {
+        softISR() {
 #else
 #ifdef ARDUINO_spresense_ast
-unsigned int softISR(void) {
+unsigned int softISR() {
 #else
-void softISR(void) {
+void softISR() {
 #endif
 #endif
 
@@ -121,9 +121,9 @@ void softISR(void) {
 #ifdef __arm__
 #ifndef interruptsStatus
 #define interruptsStatus() __interruptsStatus()
-static inline unsigned char __interruptsStatus(void) __attribute__((always_inline, unused));
+static inline unsigned char __interruptsStatus() __attribute__((always_inline, unused));
 
-static inline unsigned char __interruptsStatus(void) {
+static inline unsigned char __interruptsStatus() {
         unsigned int primask;
         asm volatile ("mrs %0, primask" : "=r" (primask));
         if(primask) return 0;
@@ -134,7 +134,7 @@ static inline unsigned char __interruptsStatus(void) {
 /**
  * Initialize the Dynamic (class) Software Interrupt
  */
-static void Init_dyn_SWI(void) {
+static void Init_dyn_SWI() {
         if(!dyn_SWI_initied) {
 #ifdef __USE_CMSIS_VECTORS__
                 uint32_t *X_Vectors = (uint32_t*)SCB->VTOR;
@@ -201,7 +201,7 @@ int exec_SWI(const dyn_SWI* klass) {
 /**
  * Initialize the Dynamic (class) Software Interrupt
  */
-static void Init_dyn_SWI(void) {
+static void Init_dyn_SWI() {
         if(!dyn_SWI_initied) {
                 uint32_t sreg = disableInterrupts();
 

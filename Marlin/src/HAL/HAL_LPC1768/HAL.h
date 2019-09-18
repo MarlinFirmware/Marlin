@@ -28,7 +28,7 @@
 
 #define CPU_32_BIT
 
-void HAL_init(void);
+void HAL_init();
 
 #include <stdint.h>
 #include <stdarg.h>
@@ -113,7 +113,7 @@ extern "C" volatile uint32_t _millis;
 //
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
-int freeMemory(void);
+int freeMemory();
 #pragma GCC diagnostic pop
 
 //
@@ -144,7 +144,7 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 #define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09
 
 #define HAL_IDLETASK 1
-void HAL_idletask(void);
+void HAL_idletask();
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(int16_t value);
