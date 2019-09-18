@@ -447,7 +447,7 @@ namespace ExtUI {
   void onPrintTimerStarted() {}
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
-  void onFilamentRunout() {}
+  void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const msg) { UNUSED(msg); }
   void onFactoryReset() {}
   void onStoreSettings(char *buff) { UNUSED(buff); }
