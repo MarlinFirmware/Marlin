@@ -70,7 +70,8 @@ Joystick joystick;
 #endif
 
 #if HAS_JOY_ADC_X || HAS_JOY_ADC_Y || HAS_JOY_ADC_Z
-  void Joystick::calculate(float norm_jog[XYZ]) {
+
+  void Joystick::calculate(float (&norm_jog)[XYZ]) {
     // Do nothing if enable pin (active-low) is not LOW
     #if HAS_JOY_ADC_EN
       if (READ(JOY_EN_PIN)) return;
@@ -99,6 +100,7 @@ Joystick joystick;
       _normalize_joy(norm_jog[Z_AXIS], z.raw, joy_z_limits);
     #endif
   }
+
 #endif
 
 #if ENABLED(POLL_JOG)
