@@ -179,10 +179,10 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
         S2 += sq(z_pt[rad]);
         N++;
       }
-      return LROUND(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
+      return LROUND(SQRT(S2 / N) * 1000.0f) / 1000.0f + 0.00001f;
     }
   }
-  return 0.00001;
+  return 0.00001f;
 }
 
 /**
@@ -218,7 +218,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
              _7p_6_center         = probe_points >= 5 && probe_points <= 7,
              _7p_9_center         = probe_points >= 8;
 
-  LOOP_CAL_ALL(rad) z_pt[rad] = 0.0;
+  LOOP_CAL_ALL(rad) z_pt[rad] = 0.0f;
 
   if (!_0p_calibration) {
 
@@ -228,8 +228,8 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
     }
 
     if (_7p_calibration) { // probe extra center points
-      const float start  = _7p_9_center ? float(_CA) + _7P_STEP / 3.0 : _7p_6_center ? float(_CA) : float(__C),
-                  steps  = _7p_9_center ? _4P_STEP / 3.0 : _7p_6_center ? _7P_STEP : _4P_STEP;
+      const float start  = _7p_9_center ? float(_CA) + _7P_STEP / 3.0f : _7p_6_center ? float(_CA) : float(__C),
+                  steps  = _7p_9_center ? _4P_STEP / 3.0f : _7p_6_center ? _7P_STEP : _4P_STEP;
       I_LOOP_CAL_PT(rad, start, steps) {
         const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
                     r = delta_calibration_radius * 0.1;
@@ -241,13 +241,13 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
 
     if (!_1p_calibration) {  // probe the radius
       const CalEnum start  = _4p_opposite_points ? _AB : __A;
-      const float   steps  = _7p_14_intermediates ? _7P_STEP / 15.0 : // 15r * 6 + 10c = 100
-                             _7p_11_intermediates ? _7P_STEP / 12.0 : // 12r * 6 +  9c = 81
-                             _7p_8_intermediates  ? _7P_STEP /  9.0 : //  9r * 6 + 10c = 64
-                             _7p_6_intermediates  ? _7P_STEP /  7.0 : //  7r * 6 +  7c = 49
-                             _7p_4_intermediates  ? _7P_STEP /  5.0 : //  5r * 6 +  6c = 36
-                             _7p_2_intermediates  ? _7P_STEP /  3.0 : //  3r * 6 +  7c = 25
-                             _7p_1_intermediates  ? _7P_STEP /  2.0 : //  2r * 6 +  4c = 16
+      const float   steps  = _7p_14_intermediates ? _7P_STEP / 15.0f : // 15r * 6 + 10c = 100
+                             _7p_11_intermediates ? _7P_STEP / 12.0f : // 12r * 6 +  9c = 81
+                             _7p_8_intermediates  ? _7P_STEP /  9.0f : //  9r * 6 + 10c = 64
+                             _7p_6_intermediates  ? _7P_STEP /  7.0f : //  7r * 6 +  7c = 49
+                             _7p_4_intermediates  ? _7P_STEP /  5.0f : //  5r * 6 +  6c = 36
+                             _7p_2_intermediates  ? _7P_STEP /  3.0f : //  3r * 6 +  7c = 25
+                             _7p_1_intermediates  ? _7P_STEP /  2.0f : //  2r * 6 +  4c = 16
                              _7p_no_intermediates ? _7P_STEP :        //  1r * 6 +  3c = 9
                              _4P_STEP;                                // .5r * 6 +  1c = 4
       bool zig_zag = true;
@@ -269,7 +269,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
         LOOP_CAL_RAD(rad)
           z_pt[rad] /= _7P_STEP / steps;
 
-      do_blocking_move_to_xy(0.0, 0.0);
+      do_blocking_move_to_xy(0.0f, 0.0f);
     }
   }
   return true;
@@ -286,7 +286,7 @@ static void reverse_kinematics_probe_points(float z_pt[NPP + 1], float mm_at_pt_
 
   LOOP_CAL_ALL(rad) {
     const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
-                r = (rad == CEN ? 0.0 : delta_calibration_radius);
+                r = (rad == CEN ? 0.0f : delta_calibration_radius);
     pos[X_AXIS] = cos(a) * r;
     pos[Y_AXIS] = sin(a) * r;
     pos[Z_AXIS] = z_pt[rad];
@@ -298,7 +298,7 @@ static void reverse_kinematics_probe_points(float z_pt[NPP + 1], float mm_at_pt_
 static void forward_kinematics_probe_points(float mm_at_pt_axis[NPP + 1][ABC], float z_pt[NPP + 1]) {
   const float r_quot = delta_calibration_radius / delta_radius;
 
-  #define ZPP(N,I,A) ((1 / 3.0 + r_quot * (N) / 3.0 ) * mm_at_pt_axis[I][A])
+  #define ZPP(N,I,A) ((1 / 3.0f + r_quot * (N) / 3.0f ) * mm_at_pt_axis[I][A])
   #define Z00(I, A) ZPP( 0, I, A)
   #define Zp1(I, A) ZPP(+1, I, A)
   #define Zm1(I, A) ZPP(-1, I, A)
@@ -339,45 +339,45 @@ static void calc_kinematics_diff_probe_points(float z_pt[NPP + 1], float delta_e
 
 static float auto_tune_h() {
   const float r_quot = delta_calibration_radius / delta_radius;
-  float h_fac = 0.0;
+  float h_fac = 0.0f;
 
-  h_fac = r_quot / (2.0 / 3.0);
+  h_fac = r_quot / (2.0f / 3.0f);
   h_fac = 1.0f / h_fac; // (2/3)/CR
   return h_fac;
 }
 
 static float auto_tune_r() {
-  const float diff = 0.01;
-  float r_fac = 0.0,
-        z_pt[NPP + 1] = { 0.0 },
-        delta_e[ABC] = {0.0},
-        delta_r = {0.0},
-        delta_t[ABC] = {0.0};
+  const float diff = 0.01f;
+  float r_fac = 0.0f,
+        z_pt[NPP + 1] = { 0.0f },
+        delta_e[ABC] = { 0.0f },
+        delta_r = { 0.0f },
+        delta_t[ABC] = { 0.0f };
 
   delta_r = diff;
   calc_kinematics_diff_probe_points(z_pt, delta_e, delta_r, delta_t);
-  r_fac = -(z_pt[__A] + z_pt[__B] + z_pt[__C] + z_pt[_BC] + z_pt[_CA] + z_pt[_AB]) / 6.0;
-  r_fac = diff / r_fac / 3.0; // 1/(3*delta_Z)
+  r_fac = -(z_pt[__A] + z_pt[__B] + z_pt[__C] + z_pt[_BC] + z_pt[_CA] + z_pt[_AB]) / 6.0f;
+  r_fac = diff / r_fac / 3.0f; // 1/(3*delta_Z)
   return r_fac;
 }
 
 static float auto_tune_a() {
-  const float diff = 0.01;
-  float a_fac = 0.0,
-        z_pt[NPP + 1] = { 0.0 },
-        delta_e[ABC] = {0.0},
-        delta_r = {0.0},
-        delta_t[ABC] = {0.0};
+  const float diff = 0.01f;
+  float a_fac = 0.0f,
+        z_pt[NPP + 1] = { 0.0f },
+        delta_e[ABC] = { 0.0f },
+        delta_r = { 0.0f },
+        delta_t[ABC] = { 0.0f };
 
   ZERO(delta_t);
   LOOP_XYZ(axis) {
     delta_t[axis] = diff;
     calc_kinematics_diff_probe_points(z_pt, delta_e, delta_r, delta_t);
     delta_t[axis] = 0;
-    a_fac += z_pt[uint8_t((axis * _4P_STEP) - _7P_STEP + NPP) % NPP + 1] / 6.0;
-    a_fac -= z_pt[uint8_t((axis * _4P_STEP) + 1 + _7P_STEP)] / 6.0;
+    a_fac += z_pt[uint8_t((axis * _4P_STEP) - _7P_STEP + NPP) % NPP + 1] / 6.0f;
+    a_fac -= z_pt[uint8_t((axis * _4P_STEP) + 1 + _7P_STEP)] / 6.0f;
   }
-  a_fac = diff / a_fac / 3.0; // 1/(3*delta_Z)
+  a_fac = diff / a_fac / 3.0f; // 1/(3*delta_Z)
   return a_fac;
 }
 
@@ -418,7 +418,7 @@ void GcodeSuite::G33() {
 
   const bool towers_set = !parser.seen('T');
 
-  const float calibration_precision = parser.floatval('C', 0.0);
+  const float calibration_precision = parser.floatval('C', 0.0f);
   if (calibration_precision < 0) {
     SERIAL_ECHOLNPGM("?(C)alibration precision implausible (>=0).");
     return;
@@ -450,7 +450,7 @@ void GcodeSuite::G33() {
   static const char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
   int8_t iterations = 0;
   float test_precision,
-        zero_std_dev = (verbose_level ? 999.0 : 0.0), // 0.0 in dry-run mode : forced end
+        zero_std_dev = (verbose_level ? 999.0f : 0.0f), // 0.0 in dry-run mode : forced end
         zero_std_dev_min = zero_std_dev,
         zero_std_dev_old = zero_std_dev,
         h_factor,
@@ -497,9 +497,9 @@ void GcodeSuite::G33() {
 
   do { // start iterations
 
-    float z_at_pt[NPP + 1] = { 0.0 };
+    float z_at_pt[NPP + 1] = { 0.0f };
 
-    test_precision = zero_std_dev_old != 999.0 ? (zero_std_dev + zero_std_dev_old) / 2 : zero_std_dev;
+    test_precision = zero_std_dev_old != 999.0f ? (zero_std_dev + zero_std_dev_old) / 2.0f : zero_std_dev;
     iterations++;
 
     // Probe the points
@@ -515,7 +515,7 @@ void GcodeSuite::G33() {
     if ((zero_std_dev < test_precision || iterations <= force_iterations) && zero_std_dev > calibration_precision) {
 
       #if !HAS_BED_PROBE
-        test_precision = 0.00; // forced end
+        test_precision = 0.0f; // forced end
       #endif
 
       if (zero_std_dev < zero_std_dev_min) {
@@ -526,9 +526,9 @@ void GcodeSuite::G33() {
         COPY(a_old, delta_tower_angle_trim);
       }
 
-      float e_delta[ABC] = { 0.0 },
-            r_delta = 0.0,
-            t_delta[ABC] = { 0.0 };
+      float e_delta[ABC] = { 0.0f },
+            r_delta = 0.0f,
+            t_delta[ABC] = { 0.0f };
 
       /**
        * convergence matrices:
@@ -536,7 +536,7 @@ void GcodeSuite::G33() {
        *  - definition of the matrix scaling parameters
        *  - matrices for 4 and 7 point calibration
        */
-      #define ZP(N,I) ((N) * z_at_pt[I] / 4.0) // 4.0 = divider to normalize to integers
+      #define ZP(N,I) ((N) * z_at_pt[I] / 4.0f) // 4.0 = divider to normalize to integers
       #define Z12(I) ZP(12, I)
       #define Z4(I) ZP(4, I)
       #define Z2(I) ZP(2, I)
@@ -545,7 +545,7 @@ void GcodeSuite::G33() {
 
       // calculate factors
       const float cr_old = delta_calibration_radius;
-      if (_7p_9_center) delta_calibration_radius *= 0.9;
+      if (_7p_9_center) delta_calibration_radius *= 0.9f;
       h_factor = auto_tune_h();
       r_factor = auto_tune_r();
       a_factor = auto_tune_a();
@@ -553,11 +553,11 @@ void GcodeSuite::G33() {
 
       switch (probe_points) {
         case 0:
-          test_precision = 0.00; // forced end
+          test_precision = 0.0f; // forced end
           break;
 
         case 1:
-          test_precision = 0.00; // forced end
+          test_precision = 0.0f; // forced end
           LOOP_XYZ(axis) e_delta[axis] = +Z4(CEN);
           break;
 
@@ -605,9 +605,9 @@ void GcodeSuite::G33() {
 
       // Normalize angles to least-squares
       if (_angle_results) {
-        float a_sum = 0.0;
+        float a_sum = 0.0f;
         LOOP_XYZ(axis) a_sum += delta_tower_angle_trim[axis];
-        LOOP_XYZ(axis) delta_tower_angle_trim[axis] -= a_sum / 3.0;
+        LOOP_XYZ(axis) delta_tower_angle_trim[axis] -= a_sum / 3.0f;
       }
 
       // adjust delta_height and endstops by the max amount
@@ -639,7 +639,7 @@ void GcodeSuite::G33() {
         char mess[21];
         strcpy_P(mess, PSTR("Calibration sd:"));
         if (zero_std_dev_min < 1)
-          sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0));
+          sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0f));
         else
           sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev_min));
         ui.set_status(mess);
@@ -671,7 +671,7 @@ void GcodeSuite::G33() {
       strcpy_P(mess, enddryrun);
       strcpy_P(&mess[11], PSTR(" sd:"));
       if (zero_std_dev < 1)
-        sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev * 1000.0));
+        sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev * 1000.0f));
       else
         sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev));
       ui.set_status(mess);
