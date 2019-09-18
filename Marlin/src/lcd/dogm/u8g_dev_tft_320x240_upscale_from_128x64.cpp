@@ -60,6 +60,7 @@
 #if HAS_GRAPHICAL_LCD && PIN_EXISTS(FSMC_CS)
 
 #include "HAL_LCD_com_defines.h"
+#include "ultralcd_DOGM.h"
 
 #include <string.h>
 
@@ -70,12 +71,12 @@
   extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
 #endif
 
-#define WIDTH 128
-#define HEIGHT 64
+#define WIDTH LCD_PIXEL_WIDTH
+#define HEIGHT LCD_PIXEL_HEIGHT
 #define PAGE_HEIGHT 8
 
-#define X_LO 32
-#define Y_LO 32
+#define X_LO LCD_PIXEL_OFFSET_X
+#define Y_LO LCD_PIXEL_OFFSET_Y
 #define X_HI (X_LO + 2 * WIDTH  - 1)
 #define Y_HI (Y_LO + 2 * HEIGHT - 1)
 
@@ -142,8 +143,8 @@ static const uint8_t page_first_sequence[] = {
 };
 
 static const uint8_t clear_screen_sequence[] = {
-  U8G_ESC_ADR(0), LCD_COLUMN, U8G_ESC_ADR(1), 0x00, 0x00, 0x01, 0x3F,
-  U8G_ESC_ADR(0), LCD_ROW,    U8G_ESC_ADR(1), 0x00, 0x00, 0x00, 0xEF,
+  U8G_ESC_ADR(0), LCD_COLUMN, U8G_ESC_ADR(1), 0x00, 0x00, U8G_ESC_DATA(LCD_FULL_PIXEL_WIDTH),
+  U8G_ESC_ADR(0), LCD_ROW,    U8G_ESC_ADR(1), 0x00, 0x00, U8G_ESC_DATA(LCD_FULL_PIXEL_HEIGHT),
   U8G_ESC_ADR(0), LCD_WRITE_RAM, U8G_ESC_ADR(1),
   U8G_ESC_END
 };
