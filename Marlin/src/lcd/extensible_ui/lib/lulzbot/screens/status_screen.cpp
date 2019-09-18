@@ -86,29 +86,20 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
     char y_str[15];
     char z_str[15];
 
-    if (isAxisPositionKnown(X)) {
-      dtostrf(getAxisPosition_mm(X), 5, 1, x_str);
-      strcat_P(x_str, " ");
-      strcat_P(x_str, GET_TEXT(UNITS_MM));
-    } else {
+    if (isAxisPositionKnown(X))
+      format_position(x_str, getAxisPosition_mm(X));
+    else
       strcpy_P(x_str, PSTR("?"));
-    }
 
-    if (isAxisPositionKnown(Y)) {
-      dtostrf(getAxisPosition_mm(Y), 5, 1, y_str);
-      strcat_P(y_str, " ");
-      strcat_P(y_str, GET_TEXT(UNITS_MM));
-    } else {
+    if (isAxisPositionKnown(Y))
+      format_position(y_str, getAxisPosition_mm(Y));
+    else
       strcpy_P(y_str, PSTR("?"));
-    }
 
-    if (isAxisPositionKnown(Z)) {
-      dtostrf(getAxisPosition_mm(Z), 5, 1, z_str);
-      strcat_P(z_str, " ");
-      strcat_P(z_str, GET_TEXT(UNITS_MM));
-    } else {
+    if (isAxisPositionKnown(Z))
+      format_position(z_str, getAxisPosition_mm(Z));
+    else
       strcpy_P(z_str, PSTR("?"));
-    }
 
     cmd.tag(6).font(Theme::font_medium)
     #ifdef TOUCH_UI_PORTRAIT
@@ -197,20 +188,21 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     );
 
     if (isHeaterIdle(BED))
-      sprintf_P(bed_str, PSTR("%3d%S / %S"), ROUND(getActualTemp_celsius(BED)), GET_TEXT(UNITS_C), GET_TEXT(TEMP_IDLE));
+      format_temp_and_idle(bed_str, getActualTemp_celsius(BED));
     else
-      sprintf_P(bed_str, PSTR("%3d / %3d%S"), ROUND(getActualTemp_celsius(BED)), ROUND(getTargetTemp_celsius(BED)), GET_TEXT(UNITS_C));
+      format_temp_and_temp(bed_str, getActualTemp_celsius(BED), getTargetTemp_celsius(BED));
 
     if (isHeaterIdle(H0))
-      sprintf_P(e0_str, PSTR("%3d%S / %S"), ROUND(getActualTemp_celsius(H0)), GET_TEXT(UNITS_C), GET_TEXT(TEMP_IDLE));
+      format_temp_and_idle(e0_str, getActualTemp_celsius(H0));
     else
-      sprintf_P(e0_str, PSTR("%3d / %3d%S"), ROUND(getActualTemp_celsius(H0)), ROUND(getTargetTemp_celsius(H0)), GET_TEXT(UNITS_C));
+      format_temp_and_temp(e0_str, getActualTemp_celsius(H0), getTargetTemp_celsius(H0));
+
 
     #if EXTRUDERS == 2
       if (isHeaterIdle(H1))
-        sprintf_P(e1_str, PSTR("%3d%S / %S"), ROUND(getActualTemp_celsius(H1)), PSTR(GET_TEXT(UNITS_C)), GET_TEXT(TEMP_IDLE));
+        format_temp_and_idle(e1_str, getActualTemp_celsius(H1));
       else
-        sprintf_P(e1_str, PSTR("%3d / %3d%S"), ROUND(getActualTemp_celsius(H1)), ROUND(getTargetTemp_celsius(H1)), GET_TEXT(UNITS_C));
+        format_temp_and_temp(e1_str, getActualTemp_celsius(H1), getTargetTemp_celsius(H1));
     #else
       strcpy_P(
         e1_str,

@@ -25,8 +25,7 @@
 #include "../ftdi_eve_lib/ftdi_eve_lib.h"
 #include "../language/languages.h"
 #include "../theme/theme.h"
-
-#define ROUND(val) uint16_t((val)+0.5)
+#include "string_format.h"
 
 extern tiny_timer_t refresh_timer;
 
