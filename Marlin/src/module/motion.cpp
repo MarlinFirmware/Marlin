@@ -1069,13 +1069,6 @@ float get_homing_bump_feedrate(const AxisEnum axis) {
   return homing_feedrate(axis) / hbd;
 }
 
-float get_homing_backoff_feedrate(const AxisEnum axis) {
-  #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_SPEED_FAST);
-  #endif
-  return homing_feedrate(axis);
-}
-
 #if ENABLED(SENSORLESS_HOMING)
   /**
    * Set sensorless homing if the axis has it, accounting for Core Kinematics.
@@ -1665,7 +1658,12 @@ void homeaxis(const AxisEnum axis) {
     ];
     if (backoff_mm) {
       current_position[axis] -= ABS(backoff_mm) * axis_home_dir;
-      line_to_current_position(get_homing_backoff_feedrate(axis));
+      line_to_current_position(
+        #if HOMING_Z_WITH_PROBE
+          (axis == Z_AXIS) ? MMM_TO_MMS(Z_PROBE_SPEED_FAST) :
+        #endif
+        homing_feedrate(axis)
+      );
     }
   #endif
 
