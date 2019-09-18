@@ -21,7 +21,7 @@
 
 #include "../ftdi_extended.h"
 
-#if defined(FTDI_EXTENDED) && defined(TOUCH_UI_USE_UTF8)
+#if defined(FTDI_EXTENDED) && ENABLED(TOUCH_UI_USE_UTF8)
 
   using namespace FTDI;
 

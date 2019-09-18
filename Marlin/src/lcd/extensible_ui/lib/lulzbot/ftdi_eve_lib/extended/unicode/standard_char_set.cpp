@@ -21,7 +21,7 @@
 
 #include "../ftdi_extended.h"
 
-#if defined(FTDI_EXTENDED) && defined(TOUCH_UI_USE_UTF8)
+#if defined(FTDI_EXTENDED) && ENABLED(TOUCH_UI_USE_UTF8)
 
   constexpr static uint8_t std_font = 31;
 
@@ -89,6 +89,12 @@
     uint8_t which = (c >= ' ' && c < 128) ? c : '?';
     uint8_t width = std_char_width(which);
 
+    if (c == '\t') {
+      // Special handling for the tab character
+      which = ' ';
+      width = std_char_width(' ');
+    }
+
     // Draw the character
     if (cmd) ext_vertex2ii(*cmd, x, y, std_font, which);
 
@@ -97,4 +103,4 @@
     return true;
   }
 
-#endif // FTDI_EXTENDED
+#endif // FTDI_EXTENDED && TOUCH_UI_USE_UTF8
