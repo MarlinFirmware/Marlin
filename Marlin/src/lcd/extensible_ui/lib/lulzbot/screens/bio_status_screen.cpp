@@ -37,6 +37,9 @@
 #define POLY(A) PolyUI::poly_reader_t(A, sizeof(A)/sizeof(A[0]))
 
 const uint8_t shadow_depth = 5;
+const float   max_speed = 0.30;
+const float   min_speed = 0.05;
+const uint8_t num_speeds = 10;
 
 using namespace FTDI;
 using namespace Theme;
@@ -248,7 +251,7 @@ void StatusScreen::onRedraw(draw_mode_t what) {
 }
 
 bool StatusScreen::onTouchStart(uint8_t) {
-  increment = fine_motion ? 0.25 : 1;
+  increment = min_speed;
   return true;
 }
 
@@ -263,6 +266,11 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
         jog_xy = true;
         injectCommands_P(PSTR("M17"));
       }
+      jog(0,  0,  0);
+      break;
+    case 5:
+    case 6:
+      jog(0,  0,  0);
       break;
     case 9:  GOTO_SCREEN(FilesScreen); break;
     case 10: GOTO_SCREEN(MainMenu); break;
@@ -280,25 +288,31 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 
 bool StatusScreen::onTouchHeld(uint8_t tag) {
   if (tag >= 1 && tag <= 4 && !jog_xy) return false;
-  if (ExtUI::isMoving()) return false; // Don't allow moves to accumulate
-  #define UI_INCREMENT_AXIS(axis) MoveAxisScreen::setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
-  #define UI_DECREMENT_AXIS(axis) MoveAxisScreen::setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
+  const float s = fine_motion ? min_speed : increment;
   switch (tag) {
-    case 1: UI_DECREMENT_AXIS(X);  break;
-    case 2: UI_INCREMENT_AXIS(X);  break;
-    case 4: UI_DECREMENT_AXIS(Y);  break; // NOTE: Y directions inverted because bed rather than needle moves
-    case 3: UI_INCREMENT_AXIS(Y);  break;
-    case 5: UI_DECREMENT_AXIS(Z);  break;
-    case 6: UI_INCREMENT_AXIS(Z);  break;
-    case 7: UI_DECREMENT_AXIS(E0); break;
-    case 8: UI_INCREMENT_AXIS(E0); break;
-    default: return false;
+    case 1: jog(-s,  0,  0); break;
+    case 2: jog( s,  0,  0); break;
+    case 4: jog( 0, -s,  0); break; // NOTE: Y directions inverted because bed rather than needle moves
+    case 3: jog( 0,  s,  0); break;
+    case 5: jog( 0,  0, -s); break;
+    case 6: jog( 0,  0,  s); break;
+    case 7:
+      if (ExtUI::isMoving()) return false;
+      MoveAxisScreen::setManualFeedrate(E0, 1);
+      UI_INCREMENT(AxisPosition_mm, E0);
+      current_screen.onRefresh();
+      break;
+    case 8:
+      if (ExtUI::isMoving()) return false;
+      MoveAxisScreen::setManualFeedrate(E0, 1);
+      UI_DECREMENT(AxisPosition_mm, E0);
+      current_screen.onRefresh();
+      break;
+    default:
+      return false;
   }
-  #undef UI_DECREMENT_AXIS
-  #undef UI_INCREMENT_AXIS
-  if (increment < 10 && !fine_motion)
-    increment += 0.5;
-  current_screen.onRefresh();
+  if (increment < max_speed)
+    increment += (max_speed - min_speed) / num_speeds;
   return false;
 }
 

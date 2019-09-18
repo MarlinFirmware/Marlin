@@ -36,13 +36,7 @@ void BioConfirmHomeE::onRedraw(draw_mode_t) {
 bool BioConfirmHomeE::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      SpinnerDialogBox::enqueueAndWait_P(F(
-        "G112\n"                            /* Home extruder */
-        LULZBOT_AXIS_LEVELING_COMMANDS      /* Level X axis */
-        "G0 X115 Z50 F6000\n"               /* Goto loading position */
-        "M400\n"                            /* Wait for moves to finish */
-        "M18 X Y"                           /* Unlock motors */
-      ));
+      SpinnerDialogBox::enqueueAndWait_P(F(LULZBOT_HOME_E_COMMANDS));
       current_screen.forget();
       break;
     case 2:

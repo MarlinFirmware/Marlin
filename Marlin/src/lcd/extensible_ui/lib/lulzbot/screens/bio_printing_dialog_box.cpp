@@ -141,6 +141,7 @@ void BioPrintingDialogBox::setStatusMessage(const char* message) {
 }
 
 void BioPrintingDialogBox::onIdle() {
+  reset_menu_timeout();
   if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     onRefresh();
     refresh_timer.start();
