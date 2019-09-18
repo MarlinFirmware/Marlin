@@ -102,12 +102,16 @@
   #include "../../feature/host_actions.h"
 #endif
 
-static struct {
-  uint8_t printer_killed  : 1;
-  uint8_t manual_motion : 1;
-} flags;
-
 namespace ExtUI {
+  static struct {
+    uint8_t printer_killed  : 1;
+    uint8_t manual_motion   : 1;
+  } flags;
+
+  #if ENABLED(JOYSTICK)
+    float norm_jog[XYZ];
+  #endif
+
   #ifdef __SAM3X8E__
     /**
      * Implement a special millis() to allow time measurement
@@ -190,6 +194,14 @@ namespace ExtUI {
       }
     #else
       UNUSED(heater);
+    #endif
+  }
+
+  void jog(float dx, float dy, float dz) {
+    #if ENABLED(JOYSTICK)
+      norm_jog[X] = dx;
+      norm_jog[Y] = dy;
+      norm_jog[Z] = dz;
     #endif
   }
 
@@ -1037,9 +1049,10 @@ void MarlinUI::update() {
 }
 
 void MarlinUI::kill_screen(PGM_P const msg) {
+  using namespace ExtUI;
   if (!flags.printer_killed) {
     flags.printer_killed = true;
-    ExtUI::onPrinterKilled(msg);
+    onPrinterKilled(msg);
   }
 }
 
