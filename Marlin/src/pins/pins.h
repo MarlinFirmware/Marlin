@@ -789,10 +789,10 @@
 #if DISABLED(PSU_CONTROL) || !PIN_EXISTS(PS_ON)
   #undef PS_ON_PIN
 #endif
-#if !PIN_EXISTS(KILL_PIN)
+#if !PIN_EXISTS(KILL)
   #undef KILL_PIN
 #endif
-#if !PIN_EXISTS(SUICIDE_PIN)
+#if !PIN_EXISTS(SUICIDE)
   #undef SUICIDE_PIN
 #endif
 
