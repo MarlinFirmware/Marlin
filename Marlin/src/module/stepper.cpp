@@ -358,6 +358,10 @@ void Stepper::set_directions() {
     uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
   #endif
 
+  #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
+    DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);
+  #endif
+
   #define SET_STEP_DIR(A)                       \
     if (motor_direction(_AXIS(A))) {            \
       A##_APPLY_DIR(INVERT_## A##_DIR, false);  \
@@ -426,8 +430,8 @@ void Stepper::set_directions() {
   #endif
 
   // A small delay may be needed after changing direction
-  #if MINIMUM_STEPPER_DIR_DELAY > 0
-    DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
+  #if MINIMUM_STEPPER_POST_DIR_DELAY > 0
+    DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
   #endif
 }
 
@@ -1887,6 +1891,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
     else
       interval = LA_ADV_NEVER;
 
+    #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
+      DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);
+    #endif
+
     #if ENABLED(MIXING_EXTRUDER)
       // We don't know which steppers will be stepped because LA loop follows,
       // with potentially multiple steps. Set all.
@@ -1902,8 +1910,8 @@ uint32_t Stepper::stepper_block_phase_isr() {
     #endif
 
     // A small delay may be needed after changing direction
-    #if MINIMUM_STEPPER_DIR_DELAY > 0
-      DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
+    #if MINIMUM_STEPPER_POST_DIR_DELAY > 0
+      DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
     #endif
 
     // Get the timer count and estimate the end of the pulse
@@ -2353,8 +2361,9 @@ void Stepper::report_positions() {
   #define BABYSTEP_AXIS(AXIS, INVERT, DIR) {            \
       const uint8_t old_dir = _READ_DIR(AXIS);          \
       _ENABLE(AXIS);                                    \
+      DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);              \
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INVERT);   \
-      DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);              \
+      DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);              \
       _SAVE_START;                                      \
       _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
       _PULSE_WAIT;                                      \
@@ -2418,6 +2427,10 @@ void Stepper::report_positions() {
           enable_Y();
           enable_Z();
 
+          #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
+            DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);
+          #endif
+
           const uint8_t old_x_dir_pin = X_DIR_READ(),
                         old_y_dir_pin = Y_DIR_READ(),
                         old_z_dir_pin = Z_DIR_READ();
@@ -2426,8 +2439,8 @@ void Stepper::report_positions() {
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
           Z_DIR_WRITE(INVERT_Z_DIR ^ z_direction);
 
-          #if MINIMUM_STEPPER_DIR_DELAY > 0
-            DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
+          #if MINIMUM_STEPPER_POST_DIR_DELAY > 0
+            DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
           #endif
 
           _SAVE_START;
