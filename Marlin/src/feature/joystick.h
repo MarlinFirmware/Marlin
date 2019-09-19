@@ -46,7 +46,7 @@ class Joystick {
     #if ENABLED(JOYSTICK_DEBUG)
       static void report();
     #endif
-    static void calculate(float norm_jog[XYZ]);
+    static void calculate(float (&norm_jog)[XYZ]);
     static void inject_jog_moves();
 };
 

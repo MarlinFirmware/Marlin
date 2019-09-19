@@ -42,7 +42,7 @@ static uint8_t eeprom_device_address = 0x50;
 // Public functions
 // ------------------------
 
-static void eeprom_init(void) {
+static void eeprom_init() {
   static bool eeprom_initialized = false;
   if (!eeprom_initialized) {
     Wire.begin();

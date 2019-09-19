@@ -57,6 +57,7 @@ void SpinnerDialogBox::enqueueAndWait_P(const progmem_str message, const progmem
 }
 
 void SpinnerDialogBox::onIdle() {
+  reset_menu_timeout();
   if (screen_data.SpinnerDialogBox.auto_hide && !commandsInQueue()) {
     screen_data.SpinnerDialogBox.auto_hide = false;
     hide();

@@ -138,7 +138,7 @@ uint8_t u8g_i2c_start_sw(uint8_t sla) {  // assert start condition and then send
 }
 
 
-void u8g_i2c_stop_sw(void) { }
+void u8g_i2c_stop_sw() { }
 
 void u8g_i2c_init_sw(uint8_t clock_option) { u8g_i2c_start(0); } // send slave address and write bit
 

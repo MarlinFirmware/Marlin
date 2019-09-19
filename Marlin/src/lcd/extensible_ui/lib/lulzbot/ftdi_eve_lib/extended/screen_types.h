@@ -54,11 +54,11 @@ typedef enum {
 
 class ScreenRef {
   protected:
-    typedef void onStartup_func_t(void);
-    typedef void onEntry_func_t(void);
-    typedef void onExit_func_t(void);
-    typedef void onIdle_func_t(void);
-    typedef void onRefresh_func_t(void);
+    typedef void onStartup_func_t();
+    typedef void onEntry_func_t();
+    typedef void onExit_func_t();
+    typedef void onIdle_func_t();
+    typedef void onRefresh_func_t();
     typedef void onRedraw_func_t(draw_mode_t);
     typedef bool onTouchStart_func_t(uint8_t);
     typedef bool onTouchHeld_func_t(uint8_t);

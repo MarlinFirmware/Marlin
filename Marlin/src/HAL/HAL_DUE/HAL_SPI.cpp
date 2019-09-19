@@ -428,7 +428,7 @@
 
   static void spiTxBlockX(const uint8_t* buf, uint32_t todo) {
     do {
-      (void) spiTransferTx(*buf++);
+      (void)spiTransferTx(*buf++);
     } while (--todo);
   }
 

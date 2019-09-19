@@ -126,14 +126,15 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
+    const extruder_t e = getExtruder();
+
     char e_str[15];
-
-      if (isHeaterIdle(getExtruder()))
-      sprintf_P(e_str, PSTR("%3d%S / %S"), ROUND(getActualTemp_celsius(getExtruder())), GET_TEXT(UNITS_C), GET_TEXT(TEMP_IDLE));
+    if (isHeaterIdle(e))
+      format_temp_and_idle(e_str, getActualTemp_celsius(e));
     else
-      sprintf_P(e_str, PSTR("%3d / %3d%S"), ROUND(getActualTemp_celsius(getExtruder())), ROUND(getTargetTemp_celsius(getExtruder())), GET_TEXT(UNITS_C));
+      format_temp_and_temp(e_str, getActualTemp_celsius(e), getTargetTemp_celsius(e));
 
-    const rgb_t tcol = getWarmColor(getActualTemp_celsius(getExtruder()), COOL_TEMP, LOW_TEMP, MED_TEMP, HIGH_TEMP);
+    const rgb_t tcol = getWarmColor(getActualTemp_celsius(e), COOL_TEMP, LOW_TEMP, MED_TEMP, HIGH_TEMP);
     cmd.cmd(COLOR_RGB(tcol))
        .tag(15)
     #ifdef TOUCH_UI_PORTRAIT
@@ -150,11 +151,11 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     #endif
        .colors(normal_btn);
 
-    const bool t_ok = getActualTemp_celsius(getExtruder()) > getSoftenTemp() - 10;
+    const bool t_ok = getActualTemp_celsius(e) > getSoftenTemp() - 10;
 
     if (screen_data.ChangeFilamentScreen.t_tag && !t_ok) {
       cmd.text(BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXTF(HEATING));
-    } else if (getActualTemp_celsius(getExtruder()) > 100) {
+    } else if (getActualTemp_celsius(e) > 100) {
       cmd.cmd(COLOR_RGB(0xFF0000))
          .text(BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXTF(CAUTION))
          .colors(normal_btn)
@@ -198,17 +199,14 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     #endif
     {
       char str[30];
-      sprintf_P(str, PSTR("%3d%S (%S)"), LOW_TEMP, GET_TEXT(UNITS_C), GET_TEXT(MATERIAL_PLA));
+
+      format_temp_and_material(str, LOW_TEMP, GET_TEXT(MATERIAL_PLA));
       cmd.tag(2) .TOG_STYLE(tog2) .button (BTN_POS(2,6), BTN_SIZE(1,1), str);
-    }
-    {
-      char str[30];
-      sprintf_P(str, PSTR("%3d%S (%S)"), MED_TEMP, GET_TEXT(UNITS_C), GET_TEXT(MATERIAL_ABS));
+
+      format_temp_and_material(str, MED_TEMP, GET_TEXT(MATERIAL_ABS));
       cmd.tag(3) .TOG_STYLE(tog3) .button (BTN_POS(2,5), BTN_SIZE(1,1), str);
-    }
-    {
-      char str[30];
-      sprintf_P(str, PSTR("%3d%S (%S)"), HIGH_TEMP, GET_TEXT(UNITS_C), GET_TEXT(MATERIAL_HIGH_TEMP));
+
+      format_temp_and_material(str, HIGH_TEMP, GET_TEXT(MATERIAL_HIGH_TEMP));
       cmd.tag(4) .TOG_STYLE(tog4) .button (BTN_POS(2,4), BTN_SIZE(1,1), str);
     }
     cmd.colors(normal_btn)

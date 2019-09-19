@@ -82,10 +82,10 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 }
 
 extern "C" void TIM5_IRQHandler() {
-  ((void(*)(void))TimerHandle[0].callback)();
+  ((void(*)())TimerHandle[0].callback)();
 }
 extern "C" void TIM7_IRQHandler() {
-  ((void(*)(void))TimerHandle[1].callback)();
+  ((void(*)())TimerHandle[1].callback)();
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {

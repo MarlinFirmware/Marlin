@@ -43,6 +43,12 @@
 
 #include "../inc/MarlinConfig.h"
 
+#include "planner.h"
+#include "stepper/indirection.h"
+#ifdef __AVR__
+  #include "speed_lookuptable.h"
+#endif
+
 // Disable multiple steps per ISR
 //#define DISABLE_MULTI_STEPPING
 
@@ -217,16 +223,6 @@
 //
 // Stepper class definition
 //
-
-#include "stepper/indirection.h"
-
-#ifdef __AVR__
-  #include "speed_lookuptable.h"
-#endif
-
-#include "planner.h"
-#include "../core/language.h"
-
 class Stepper {
 
   public:

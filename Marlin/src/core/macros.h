@@ -45,6 +45,14 @@
 #define _O2          __attribute__((optimize("O2")))
 #define _O3          __attribute__((optimize("O3")))
 
+#ifndef UNUSED
+  #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+    #define UNUSED(X) (void)X
+  #else
+    #define UNUSED(x) ((void)(x))
+  #endif
+#endif
+
 // Clock speed factors
 #if !defined(CYCLES_PER_MICROSECOND) && !defined(__STM32F1__)
   #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20 on AVR
@@ -63,7 +71,7 @@
 // Macros for bit masks
 #undef _BV
 #define _BV(n) (1<<(n))
-#define TEST(n,b) !!((n)&_BV(b))
+#define TEST(n,b) (!!((n)&_BV(b)))
 #define SET_BIT_TO(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
 
 #ifndef SBI
@@ -95,14 +103,14 @@
 
   // C++11 solution that is standards compliant.
   template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
-    if (v < n) v = n;
+    if (n > v) v = n;
   }
   template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
-    if (v > n) v = n;
+    if (n < v) v = n;
   }
   template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
-    if (v < n1) v = n1;
-    else if (v > n2) v = n2;
+    if (n1 > v) v = n1;
+    else if (n2 < v) v = n2;
   }
 
 #else
@@ -112,21 +120,21 @@
   #define NOLESS(v, n) \
     do{ \
       __typeof__(n) _n = (n); \
-      if (v < _n) v = _n; \
+      if (_n > v) v = _n; \
     }while(0)
 
   #define NOMORE(v, n) \
     do{ \
       __typeof__(n) _n = (n); \
-      if (v > _n) v = _n; \
+      if (_n < v) v = _n; \
     }while(0)
 
   #define LIMIT(v, n1, n2) \
     do{ \
       __typeof__(n1) _n1 = (n1); \
       __typeof__(n2) _n2 = (n2); \
-      if (v < _n1) v = _n1; \
-      else if (v > _n2) v = _n2; \
+      if (_n1 > v) v = _n1; \
+      else if (_n2 < v) v = _n2; \
     }while(0)
 
 #endif
@@ -190,12 +198,22 @@
   }while(0)
 
 // Macros for initializing arrays
-#define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
-#define ARRAY_5(v1, v2, v3, v4, v5, ...)     { v1, v2, v3, v4, v5 }
-#define ARRAY_4(v1, v2, v3, v4, ...)         { v1, v2, v3, v4 }
-#define ARRAY_3(v1, v2, v3, ...)             { v1, v2, v3 }
-#define ARRAY_2(v1, v2, ...)                 { v1, v2 }
-#define ARRAY_1(v1, ...)                     { v1 }
+#define ARRAY_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) { A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P }
+#define ARRAY_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) { A,B,C,D,E,F,G,H,I,J,K,L,M,N,O }
+#define ARRAY_14(A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) { A,B,C,D,E,F,G,H,I,J,K,L,M,N }
+#define ARRAY_13(A,B,C,D,E,F,G,H,I,J,K,L,M,...) { A,B,C,D,E,F,G,H,I,J,K,L,M }
+#define ARRAY_12(A,B,C,D,E,F,G,H,I,J,K,L,...) { A,B,C,D,E,F,G,H,I,J,K,L }
+#define ARRAY_11(A,B,C,D,E,F,G,H,I,J,K,...) { A,B,C,D,E,F,G,H,I,J,K }
+#define ARRAY_10(A,B,C,D,E,F,G,H,I,J,...) { A,B,C,D,E,F,G,H,I,J }
+#define ARRAY_9( A,B,C,D,E,F,G,H,I,...) { A,B,C,D,E,F,G,H,I }
+#define ARRAY_8( A,B,C,D,E,F,G,H,...) { A,B,C,D,E,F,G,H }
+#define ARRAY_7( A,B,C,D,E,F,G,...) { A,B,C,D,E,F,G }
+#define ARRAY_6( A,B,C,D,E,F,...) { A,B,C,D,E,F }
+#define ARRAY_5( A,B,C,D,E,...) { A,B,C,D,E }
+#define ARRAY_4( A,B,C,D,...) { A,B,C,D }
+#define ARRAY_3( A,B,C,...) { A,B,C }
+#define ARRAY_2( A,B,...) { A,B }
+#define ARRAY_1( A,...) { A }
 
 #define _ARRAY_N(N,V...) ARRAY_##N(V)
 #define ARRAY_N(N,V...) _ARRAY_N(N,V)

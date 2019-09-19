@@ -36,11 +36,10 @@
 
 #define POLY(A) PolyUI::poly_reader_t(A, sizeof(A)/sizeof(A[0]))
 
-#if ENABLED(SDSUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
-  #include "../../../../sd/cardreader.h"
-#endif
-
 const uint8_t shadow_depth = 5;
+const float   max_speed = 0.30;
+const float   min_speed = 0.05;
+const uint8_t num_speeds = 10;
 
 using namespace FTDI;
 using namespace Theme;
@@ -82,6 +81,10 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .icon (x + 2, y + 2, h, v, Bed_Heat_Icon_Info, icon_scale * 2)
        .cmd(COLOR_RGB(bg_text_enabled))
        .icon (x, y, h, v, Bed_Heat_Icon_Info, icon_scale * 2);
+
+    #ifdef TOUCH_UI_USE_UTF8
+      load_utf8_bitmaps(cmd); // Restore font bitmap handles
+    #endif
   }
 
   if (what & FOREGROUND) {
@@ -91,12 +94,12 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .cmd(COLOR_RGB(bg_text_enabled));
 
     if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0) {
-      sprintf_P(bed_str, F("%3d%S"), ROUND(getTargetTemp_celsius(BED), GET_TEXT(UNITS_C)));
+      format_temp(bed_str, getTargetTemp_celsius(BED));
       ui.bounds(POLY(target_temp), x, y, h, v);
       cmd.text(x, y, h, v, bed_str);
     }
 
-    sprintf_P(bed_str, F("%3d%S"), ROUND(getActualTemp_celsius(BED)), GET_TEXT(UNITS_C));
+    format_temp(bed_str, getActualTemp_celsius(BED));
     ui.bounds(POLY(actual_temp), x, y, h, v);
     cmd.text(x, y, h, v, bed_str);
   }
@@ -197,17 +200,9 @@ void StatusScreen::draw_overlay_icons(draw_mode_t what) {
     ui.button_stroke(stroke_rgb, 28);
     ui.button_shadow(shadow_rgb, shadow_depth);
 
-    if (!jog_xy) {
-      ui.button(12, POLY(padlock));
-    }
-
-    if (!e_homed) {
-      ui.button(13, POLY(home_e));
-    }
-
-    if (!z_homed) {
-      ui.button(14, POLY(home_z));
-    }
+    if (!jog_xy)  ui.button(12, POLY(padlock));
+    if (!e_homed) ui.button(13, POLY(home_e));
+    if (!z_homed) ui.button(14, POLY(home_z));
   }
 }
 
@@ -218,29 +213,26 @@ void StatusScreen::draw_buttons(draw_mode_t) {
 
   cmd.font(font_medium)
      .colors(normal_btn)
-    #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
-      .enabled(!Sd2Card::ready() || has_media)
-    #else
-      .enabled(has_media)
-    #endif
+     .enabled(has_media)
      .colors(has_media ? action_btn : normal_btn)
      .tag(9).button(BTN_POS(1,9), BTN_SIZE(1,1),
         isPrintingFromMedia() ?
           GET_TEXTF(PRINTING) :
-        #ifdef LULZBOT_MANUAL_USB_STARTUP
-        (Sd2Card::ready() ? GET_TEXTF(MEDIA) : GET_TEXTF(ENABLE_MEDIA))
-        #else
-        GET_TEXTF(MEDIA)
-        #endif
+          GET_TEXTF(MEDIA)
       );
 
-  cmd.colors(!has_media ? action_btn : normal_btn).tag(10).button(BTN_POS(2,9), BTN_SIZE(1,1), F("Menu"));
+  cmd.colors(!has_media ? action_btn : normal_btn).tag(10).button(BTN_POS(2,9), BTN_SIZE(1,1), GET_TEXTF(MENU));
 }
 
-void StatusScreen::onStartup() {
+void StatusScreen::loadBitmaps() {
   // Load the bitmaps for the status screen
   constexpr uint32_t base = ftdi_memory_map::RAM_G;
   CLCD::mem_write_pgm(base + Bed_Heat_Icon_Info.RAMG_offset, Bed_Heat_Icon, sizeof(Bed_Heat_Icon));
+
+  // Load fonts for internationalization
+  #ifdef TOUCH_UI_USE_UTF8
+    load_utf8_data(base + UTF8_FONT_OFFSET);
+  #endif
 }
 
 void StatusScreen::onRedraw(draw_mode_t what) {
@@ -259,7 +251,7 @@ void StatusScreen::onRedraw(draw_mode_t what) {
 }
 
 bool StatusScreen::onTouchStart(uint8_t) {
-  increment = fine_motion ? 0.25 : 1;
+  increment = min_speed;
   return true;
 }
 
@@ -274,19 +266,13 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
         jog_xy = true;
         injectCommands_P(PSTR("M17"));
       }
+      jog(0,  0,  0);
       break;
-    case 9:
-      #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && defined(LULZBOT_MANUAL_USB_STARTUP)
-      if (!Sd2Card::ready()) {
-        StatusScreen::setStatusMessage(GET_TEXTF(INSERT_MEDIA));
-        Sd2Card::usbStartup();
-      } else {
-        GOTO_SCREEN(FilesScreen);
-      }
-      #else
-        GOTO_SCREEN(FilesScreen);
-      #endif
+    case 5:
+    case 6:
+      jog(0,  0,  0);
       break;
+    case 9:  GOTO_SCREEN(FilesScreen); break;
     case 10: GOTO_SCREEN(MainMenu); break;
     case 13: SpinnerDialogBox::enqueueAndWait_P(F("G112"));  break;
     case 14: SpinnerDialogBox::enqueueAndWait_P(F("G28 Z")); break;
@@ -302,25 +288,31 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 
 bool StatusScreen::onTouchHeld(uint8_t tag) {
   if (tag >= 1 && tag <= 4 && !jog_xy) return false;
-  if (ExtUI::isMoving()) return false; // Don't allow moves to accumulate
-  #define UI_INCREMENT_AXIS(axis) MoveAxisScreen::setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
-  #define UI_DECREMENT_AXIS(axis) MoveAxisScreen::setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
+  const float s = fine_motion ? min_speed : increment;
   switch (tag) {
-    case 1: UI_DECREMENT_AXIS(X);  break;
-    case 2: UI_INCREMENT_AXIS(X);  break;
-    case 4: UI_DECREMENT_AXIS(Y);  break; // NOTE: Y directions inverted because bed rather than needle moves
-    case 3: UI_INCREMENT_AXIS(Y);  break;
-    case 5: UI_DECREMENT_AXIS(Z);  break;
-    case 6: UI_INCREMENT_AXIS(Z);  break;
-    case 7: UI_DECREMENT_AXIS(E0); break;
-    case 8: UI_INCREMENT_AXIS(E0); break;
-    default: return false;
+    case 1: jog(-s,  0,  0); break;
+    case 2: jog( s,  0,  0); break;
+    case 4: jog( 0, -s,  0); break; // NOTE: Y directions inverted because bed rather than needle moves
+    case 3: jog( 0,  s,  0); break;
+    case 5: jog( 0,  0, -s); break;
+    case 6: jog( 0,  0,  s); break;
+    case 7:
+      if (ExtUI::isMoving()) return false;
+      MoveAxisScreen::setManualFeedrate(E0, 1);
+      UI_INCREMENT(AxisPosition_mm, E0);
+      current_screen.onRefresh();
+      break;
+    case 8:
+      if (ExtUI::isMoving()) return false;
+      MoveAxisScreen::setManualFeedrate(E0, 1);
+      UI_DECREMENT(AxisPosition_mm, E0);
+      current_screen.onRefresh();
+      break;
+    default:
+      return false;
   }
-  #undef UI_DECREMENT_AXIS
-  #undef UI_INCREMENT_AXIS
-  if (increment < 10 && !fine_motion)
-    increment += 0.5;
-  current_screen.onRefresh();
+  if (increment < max_speed)
+    increment += (max_speed - min_speed) / num_speeds;
   return false;
 }
 

@@ -29,7 +29,7 @@
 #include "lpc17xx_wdt.h"
 #include "watchdog.h"
 
-void watchdog_init(void) {
+void watchdog_init() {
   #if ENABLED(WATCHDOG_RESET_MANUAL)
     // We enable the watchdog timer, but only for the interrupt.
 
@@ -56,11 +56,11 @@ void watchdog_init(void) {
   WDT_Start(WDT_TIMEOUT);
 }
 
-void HAL_clear_reset_source(void) {
+void HAL_clear_reset_source() {
   WDT_ClrTimeOutFlag();
 }
 
-uint8_t HAL_get_reset_source(void) {
+uint8_t HAL_get_reset_source() {
   if (TEST(WDT_ReadTimeOutFlag(), 0)) return RST_WATCHDOG;
   return RST_POWER_ON;
 }
@@ -74,10 +74,10 @@ void watchdog_reset() {
 
 #else
 
-void watchdog_init(void) {}
-void watchdog_reset(void) {}
-void HAL_clear_reset_source(void) {}
-uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
+void watchdog_init() {}
+void watchdog_reset() {}
+void HAL_clear_reset_source() {}
+uint8_t HAL_get_reset_source() { return RST_POWER_ON; }
 
 #endif // USE_WATCHDOG
 

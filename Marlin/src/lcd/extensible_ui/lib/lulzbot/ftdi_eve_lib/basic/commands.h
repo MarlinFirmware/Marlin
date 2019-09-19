@@ -124,12 +124,12 @@ class CLCD {
     class CommandFifo;
     class FontMetrics;
 
-    static void init (void);
-    static void default_touch_transform (void);
-    static void default_display_orientation (void);
-    static void turn_on_backlight (void);
-    static void enable (void);
-    static void disable (void);
+    static void init();
+    static void default_touch_transform();
+    static void default_display_orientation();
+    static void turn_on_backlight();
+    static void enable();
+    static void disable();
     static void set_brightness (uint8_t brightness);
     static uint8_t get_brightness();
     static void host_cmd (unsigned char host_command, unsigned char byte2);
@@ -179,7 +179,7 @@ class CLCD::CommandFifo {
       static uint32_t command_write_ptr;
       template <class T> bool _write_unaligned(T data, uint16_t len);
     #endif
-    void start(void);
+    void start();
 
   public:
     template <class T> bool write(T data, uint16_t len);
@@ -187,11 +187,11 @@ class CLCD::CommandFifo {
   public:
     CommandFifo() {start();}
 
-    static void reset (void);
+    static void reset();
     static bool is_processing();
     static bool has_fault();
 
-    void execute(void);
+    void execute();
 
     void cmd(uint32_t cmd32);
     void cmd(void* data, uint16_t len);

@@ -84,14 +84,14 @@
  *
  * @{
  */
-bool udi_cdc_comm_enable(void);
-void udi_cdc_comm_disable(void);
-bool udi_cdc_comm_setup(void);
-bool udi_cdc_data_enable(void);
-void udi_cdc_data_disable(void);
-bool udi_cdc_data_setup(void);
-uint8_t udi_cdc_getsetting(void);
-void udi_cdc_data_sof_notify(void);
+bool udi_cdc_comm_enable();
+void udi_cdc_comm_disable();
+bool udi_cdc_comm_setup();
+bool udi_cdc_data_enable();
+void udi_cdc_data_disable();
+bool udi_cdc_data_setup();
+uint8_t udi_cdc_getsetting();
+void udi_cdc_data_sof_notify();
 UDC_DESC_STORAGE udi_api_t udi_api_cdc_comm = {
 	.enable = udi_cdc_comm_enable,
 	.disable = udi_cdc_comm_disable,
@@ -130,14 +130,14 @@ UDC_DESC_STORAGE udi_api_t udi_api_cdc_data = {
  *
  * \return port number
  */
-static uint8_t udi_cdc_setup_to_port(void);
+static uint8_t udi_cdc_setup_to_port();
 
 /**
  * \brief Sends line coding to application
  *
  * Called after SETUP request when line coding data is received.
  */
-static void udi_cdc_line_coding_received(void);
+static void udi_cdc_line_coding_received();
 
 /**
  * \brief Records new state
@@ -267,7 +267,7 @@ static volatile bool udi_cdc_tx_both_buf_to_send[UDI_CDC_PORT_NB];
 
 //@}
 
-bool udi_cdc_comm_enable(void)
+bool udi_cdc_comm_enable()
 {
 	uint8_t port;
 	uint8_t iface_comm_num;
@@ -321,7 +321,7 @@ bool udi_cdc_comm_enable(void)
 	return true;
 }
 
-bool udi_cdc_data_enable(void)
+bool udi_cdc_data_enable()
 {
 	uint8_t port;
 
@@ -360,13 +360,13 @@ bool udi_cdc_data_enable(void)
 	return true;
 }
 
-void udi_cdc_comm_disable(void)
+void udi_cdc_comm_disable()
 {
 	Assert(udi_cdc_nb_comm_enabled != 0);
 	udi_cdc_nb_comm_enabled--;
 }
 
-void udi_cdc_data_disable(void)
+void udi_cdc_data_disable()
 {
 	uint8_t port;
 
@@ -377,7 +377,7 @@ void udi_cdc_data_disable(void)
 	udi_cdc_data_running = false;
 }
 
-bool udi_cdc_comm_setup(void)
+bool udi_cdc_comm_setup()
 {
 	uint8_t port = udi_cdc_setup_to_port();
 
@@ -433,17 +433,17 @@ bool udi_cdc_comm_setup(void)
 	return false;  // request Not supported
 }
 
-bool udi_cdc_data_setup(void)
+bool udi_cdc_data_setup()
 {
 	return false;  // request Not supported
 }
 
-uint8_t udi_cdc_getsetting(void)
+uint8_t udi_cdc_getsetting()
 {
 	return 0;      // CDC don't have multiple alternate setting
 }
 
-void udi_cdc_data_sof_notify(void)
+void udi_cdc_data_sof_notify()
 {
 	static uint8_t port_notify = 0;
 
@@ -461,7 +461,7 @@ void udi_cdc_data_sof_notify(void)
 // ------------------------
 //------- Internal routines to control serial line
 
-static uint8_t udi_cdc_setup_to_port(void)
+static uint8_t udi_cdc_setup_to_port()
 {
 	uint8_t port;
 
@@ -479,7 +479,7 @@ static uint8_t udi_cdc_setup_to_port(void)
 	return port;
 }
 
-static void udi_cdc_line_coding_received(void)
+static void udi_cdc_line_coding_received()
 {
 	uint8_t port = udi_cdc_setup_to_port();
 	UNUSED(port);
@@ -797,17 +797,17 @@ void udi_cdc_ctrl_signal_dsr(bool b_set)
 	udi_cdc_ctrl_state_change(0, b_set, CDC_SERIAL_STATE_DSR);
 }
 
-void udi_cdc_signal_framing_error(void)
+void udi_cdc_signal_framing_error()
 {
 	udi_cdc_ctrl_state_change(0, true, CDC_SERIAL_STATE_FRAMING);
 }
 
-void udi_cdc_signal_parity_error(void)
+void udi_cdc_signal_parity_error()
 {
 	udi_cdc_ctrl_state_change(0, true, CDC_SERIAL_STATE_PARITY);
 }
 
-void udi_cdc_signal_overrun(void)
+void udi_cdc_signal_overrun()
 {
 	udi_cdc_ctrl_state_change(0, true, CDC_SERIAL_STATE_OVERRUN);
 }
@@ -853,7 +853,7 @@ iram_size_t udi_cdc_multi_get_nb_received_data(uint8_t port)
 	return nb_received;
 }
 
-iram_size_t udi_cdc_get_nb_received_data(void)
+iram_size_t udi_cdc_get_nb_received_data()
 {
 	return udi_cdc_multi_get_nb_received_data(0);
 }
@@ -863,7 +863,7 @@ bool udi_cdc_multi_is_rx_ready(uint8_t port)
 	return (udi_cdc_multi_get_nb_received_data(port) > 0);
 }
 
-bool udi_cdc_is_rx_ready(void)
+bool udi_cdc_is_rx_ready()
 {
 	return udi_cdc_multi_is_rx_ready(0);
 }
@@ -912,7 +912,7 @@ udi_cdc_getc_process_one_byte:
 	return rx_data;
 }
 
-int udi_cdc_getc(void)
+int udi_cdc_getc()
 {
 	return udi_cdc_multi_getc(0);
 }
@@ -1041,7 +1041,7 @@ iram_size_t __attribute__((optimize("O0"))) udi_cdc_multi_get_free_tx_buffer(uin
 	return retval;
 }
 
-iram_size_t udi_cdc_get_free_tx_buffer(void)
+iram_size_t udi_cdc_get_free_tx_buffer()
 {
 	return udi_cdc_multi_get_free_tx_buffer(0);
 }
@@ -1051,7 +1051,7 @@ bool udi_cdc_multi_is_tx_ready(uint8_t port)
 	return (udi_cdc_multi_get_free_tx_buffer(port) != 0);
 }
 
-bool udi_cdc_is_tx_ready(void)
+bool udi_cdc_is_tx_ready()
 {
 	return udi_cdc_multi_is_tx_ready(0);
 }

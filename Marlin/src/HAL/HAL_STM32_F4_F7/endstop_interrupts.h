@@ -25,9 +25,9 @@
 #include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts
-void endstop_ISR(void) { endstops.update(); }
+void endstop_ISR() { endstops.update(); }
 
-void setup_endstop_interrupts(void) {
+void setup_endstop_interrupts() {
   #if HAS_X_MAX
     attachInterrupt(X_MAX_PIN, endstop_ISR, CHANGE);
   #endif

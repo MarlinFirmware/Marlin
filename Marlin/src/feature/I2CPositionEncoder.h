@@ -168,15 +168,15 @@ class I2CPositionEncoder {
 
     bool passes_test(const bool report);
 
-    bool test_axis(void);
+    bool test_axis();
 
-    FORCE_INLINE int get_error_count(void) { return errorCount; }
+    FORCE_INLINE int get_error_count() { return errorCount; }
     FORCE_INLINE void set_error_count(const int newCount) { errorCount = newCount; }
 
     FORCE_INLINE uint8_t get_address() { return i2cAddress; }
     FORCE_INLINE void set_address(const uint8_t addr) { i2cAddress = addr; }
 
-    FORCE_INLINE bool get_active(void) { return active; }
+    FORCE_INLINE bool get_active() { return active; }
     FORCE_INLINE void set_active(const bool a) { active = a; }
 
     FORCE_INLINE void set_inverted(const bool i) { invert = i; }
@@ -219,10 +219,10 @@ class I2CPositionEncodersMgr {
 
   public:
 
-    static void init(void);
+    static void init();
 
     // consider only updating one endoder per call / tick if encoders become too time intensive
-    static void update(void) { LOOP_PE(i) encoders[i].update(); }
+    static void update() { LOOP_PE(i) encoders[i].update(); }
 
     static void homed(const AxisEnum axis) {
       LOOP_PE(i)

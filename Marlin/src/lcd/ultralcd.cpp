@@ -1123,7 +1123,7 @@ void MarlinUI::update() {
        ADC_BUTTON_VALUE(ADC_BUTTONS_MIDDLE_R_PULLDOWN) + 100, 1 + BLEN_KEYPAD_MIDDLE }, // ENTER (1205 ... 1405)
   };
 
-  uint8_t get_ADC_keyValue(void) {
+  uint8_t get_ADC_keyValue() {
     if (thermalManager.ADCKey_count >= 16) {
       const uint16_t currentkpADCValue = thermalManager.current_ADCKey_raw << 2;
       thermalManager.current_ADCKey_raw = 1024;

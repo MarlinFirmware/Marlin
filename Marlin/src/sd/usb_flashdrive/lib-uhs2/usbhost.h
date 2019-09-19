@@ -44,7 +44,7 @@ class MAX3421e {
     uint8_t   gpioRd();
     bool      reset();
 
-    uint8_t   getVbusState(void)   {return vbusState;};
+    uint8_t   getVbusState()   {return vbusState;};
 
     void busprobe();
 

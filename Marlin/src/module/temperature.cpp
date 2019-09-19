@@ -245,7 +245,7 @@ Temperature thermalManager;
       int16_t Temperature::maxtemp_raw_CHAMBER = HEATER_CHAMBER_RAW_HI_TEMP;
     #endif
     #if WATCH_CHAMBER
-      heater_watch_t Temperature::watch_chamber = { 0 };
+      heater_watch_t Temperature::watch_chamber{0};
     #endif
     millis_t Temperature::next_chamber_check_ms;
   #endif // HAS_HEATED_CHAMBER
@@ -930,7 +930,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
 
     #if DISABLED(PID_OPENLOOP)
 
-      static PID_t work_pid = { 0 };
+      static PID_t work_pid{0};
       static float temp_iState = 0, temp_dState = 0;
       static bool pid_reset = true;
       float pid_output = 0;
