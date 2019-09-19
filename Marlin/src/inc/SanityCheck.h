@@ -2324,8 +2324,16 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
-#if ENABLED(BACKLASH_COMPENSATION) && IS_CORE
-  #error "BACKLASH_COMPENSATION is incompatible with CORE kinematics."
+#if ENABLED(BACKLASH_COMPENSATION)
+  #if IS_CORE
+    #error "BACKLASH_COMPENSATION is incompatible with CORE kinematics."
+  #endif
+  #ifndef BACKLASH_DISTANCE_MM
+    #error "BACKLASH_COMPENSATION requires BACKLASH_DISTANCE_MM"
+  #endif
+  #ifndef BACKLASH_CORRECTION
+    #error "BACKLASH_COMPENSATION requires BACKLASH_CORRECTION"
+  #endif
 #endif
 
 #if ENABLED(GRADIENT_MIX) && MIXING_VIRTUAL_TOOLS < 2

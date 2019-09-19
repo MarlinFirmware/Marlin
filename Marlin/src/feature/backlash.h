@@ -28,28 +28,21 @@ constexpr uint8_t all_on = 0xFF, all_off = 0x00;
 
 class Backlash {
 public:
-  #ifdef BACKLASH_DISTANCE_MM
-    #if ENABLED(BACKLASH_GCODE)
-      static float distance_mm[XYZ];
-    #else
-      static const float distance_mm[XYZ];
-      //static constexpr float distance_mm[XYZ] = BACKLASH_DISTANCE_MM; // compiler barks at this
-    #endif
-  #endif
   #if ENABLED(BACKLASH_GCODE)
+    static float distance_mm[XYZ];
     static uint8_t correction;
     #ifdef BACKLASH_SMOOTHING_MM
       static float smoothing_mm;
     #endif
+
     static inline void set_correction(const float &v) { correction = _MAX(0, _MIN(1.0, v)) * all_on; }
     static inline float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
   #else
     static constexpr uint8_t correction = (BACKLASH_CORRECTION) * 0xFF;
+    static const float distance_mm[XYZ];
     #ifdef BACKLASH_SMOOTHING_MM
       static constexpr float smoothing_mm = BACKLASH_SMOOTHING_MM;
     #endif
-    static inline void set_correction(float) { }
-    static inline float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
   #endif
 
   #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
