@@ -36,10 +36,7 @@ void BioConfirmHomeXYZ::onRedraw(draw_mode_t) {
 bool BioConfirmHomeXYZ::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      SpinnerDialogBox::enqueueAndWait_P(F(
-        "G28 X Y Z\n"             /* Home all axis */
-        "G0 X115 Z50 F6000"       /* Move to park position */
-      ));
+      SpinnerDialogBox::enqueueAndWait_P(F(LULZBOT_HOME_XYZ_COMMANDS));
       current_screen.forget();
       break;
     case 2:
