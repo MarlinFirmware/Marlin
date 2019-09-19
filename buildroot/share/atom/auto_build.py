@@ -149,6 +149,7 @@ def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
           kill_session_()
 
         root_get_answer = tk.Tk()
+        root_get_answer.attributes("-topmost", True)
 
         root_get_answer.chk_state_1 = 1   # declare variables used by TK and enable
 
