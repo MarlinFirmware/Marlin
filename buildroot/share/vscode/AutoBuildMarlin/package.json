@@ -2,8 +2,9 @@
   "name": "auto-build",
   "displayName": "Auto Build Marlin",
   "description": "Auto Build Marlin for VS code",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "publisher": "marlinfirmware",
+  "icon": "logo.svg",
   "engines": {
     "vscode": "^1.23.0"
   },
@@ -24,7 +25,7 @@
         {
           "id": "auto-build",
           "title": "Auto Build Marlin",
-          "icon": "media/AB.svg"
+          "icon": "resources/AB.svg"
         }
       ]
     },
@@ -40,22 +41,34 @@
       {
         "command": "piobuild",
         "title": "PIO Build",
-        "icon": "resources/B32x32_white.svg"
+        "icon": {
+          "light": "resources/B48x48_light.svg",
+          "dark": "resources/B48x48_dark.svg"
+        }
       },
       {
         "command": "pioclean",
         "title": "PIO Clean",
-        "icon": "resources/C32x32_white.svg"
+        "icon": {
+          "light": "resources/C48x48_light.svg",
+          "dark": "resources/C48x48_dark.svg"
+        }
       },
       {
         "command": "pioupload",
         "title": "PIO Upload",
-        "icon": "resources/U32x32_white.svg"
+        "icon": {
+          "light": "resources/U48x48_light.svg",
+          "dark": "resources/U48x48_dark.svg"
+        }
       },
       {
         "command": "piotraceback",
         "title": "PIO Upload (traceback)",
-        "icon": "resources/Ut32x32_white.svg"
+        "icon": {
+          "light": "resources/T48x48_light.svg",
+          "dark": "resources/T48x48_dark.svg"
+        }
       }
     ],
     "menus": {
