@@ -532,7 +532,7 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-  static bool buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters, const ExtraData& extra_data);
+    static bool buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters, const ExtraData& extra_data);
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
@@ -549,11 +549,11 @@ class Planner {
      *  extruder     - target extruder
      *  millimeters  - the length of the movement, if known
      */
-  FORCE_INLINE static bool buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters, const ExtraData& extra_data) {
+    FORCE_INLINE static bool buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters, const ExtraData& extra_data) {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(rx, ry, rz);
       #endif
-        return buffer_segment(rx, ry, rz, e, fr_mm_s, extruder, millimeters, extra_data);
+      return buffer_segment(rx, ry, rz, e, fr_mm_s, extruder, millimeters, extra_data);
     }
 
     /**
@@ -770,6 +770,7 @@ class Planner {
         #endif
       }
     #endif
+
   private:
 
     /**

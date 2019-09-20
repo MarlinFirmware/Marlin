@@ -1182,6 +1182,7 @@ void Planner::recalculate() {
  */
 void Planner::check_axes_activity() {
   unsigned char axis_active[NUM_AXIS] = { 0 };
+                //tail_fan_speed[FAN_COUNT];
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
