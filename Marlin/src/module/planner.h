@@ -113,12 +113,15 @@ typedef struct {
   uint32_t accelerate_until,                // The index of the step event on which to stop acceleration
            decelerate_after;                // The index of the step event on which to start decelerating
 
-  uint32_t cruise_rate,                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
-           acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
-           deceleration_time,
-           acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
-           deceleration_time_inverse;
-  uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
+  #if ENABLED(S_CURVE_ACCELERATION)
+    uint32_t cruise_rate,                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
+             acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
+             deceleration_time,
+             acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
+             deceleration_time_inverse;
+  //#else
+    uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
+  #endif
 
   uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
@@ -204,15 +207,18 @@ class Planner {
                  travel_acceleration,           // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
                  min_travel_feedrate_mm_s;      // (mm/s) M205 T - Minimum travel feedrate
 
-    static float junction_deviation_mm;       // (mm) M205 J
-    #if ENABLED(LIN_ADVANCE)
-      #if ENABLED(DISTINCT_E_FACTORS)
-        static float max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
-      #else
-        static float max_e_jerk;
+    #if ENABLED(JUNCTION_DEVIATION)
+      static float junction_deviation_mm;       // (mm) M205 J
+      #if ENABLED(LIN_ADVANCE)
+        #if ENABLED(DISTINCT_E_FACTORS)
+          static float max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
+        #else
+          static float max_e_jerk;
+        #endif
       #endif
+    //#else
+      static float max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
     #endif
-    static float max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
 
     #if HAS_LEVELING
       static bool leveling_active;          // Flag that bed leveling is enabled
@@ -527,7 +533,7 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-  static bool buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters, const ExtraData& extra_data);
+    static bool buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters, const ExtraData& extra_data);
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
@@ -544,11 +550,11 @@ class Planner {
      *  extruder     - target extruder
      *  millimeters  - the length of the movement, if known
      */
-  FORCE_INLINE static bool buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters, const ExtraData& extra_data) {
+    FORCE_INLINE static bool buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters, const ExtraData& extra_data) {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(rx, ry, rz);
       #endif
-        return buffer_segment(rx, ry, rz, e, fr_mm_s, extruder, millimeters, extra_data);
+      return buffer_segment(rx, ry, rz, e, fr_mm_s, extruder, millimeters, extra_data);
     }
 
     /**
@@ -752,17 +758,19 @@ class Planner {
       static void autotemp_M104_M109();
     #endif
 
-    FORCE_INLINE static void recalculate_max_e_jerk() {
-      #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
-      if (linear_advance) {
-        #if ENABLED(DISTINCT_E_FACTORS)
-          for (uint8_t i = 0; i < EXTRUDERS; i++)
-            max_e_jerk[i] = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS + i]);
-        #else
-          max_e_jerk = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS]);
-        #endif
+    #if ENABLED(JUNCTION_DEVIATION)
+      FORCE_INLINE static void recalculate_max_e_jerk() {
+        #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
+        if (linear_advance) {
+          #if ENABLED(DISTINCT_E_FACTORS)
+            for (uint8_t i = 0; i < EXTRUDERS; i++)
+              max_e_jerk[i] = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS + i]);
+          #else
+            max_e_jerk = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS]);
+          #endif
+        }
       }
-    }
+    #endif
 
   private:
 
@@ -803,12 +811,14 @@ class Planner {
       return target_velocity_sqr - 2 * accel * distance;
     }
 
-    /**
-     * Calculate the speed reached given initial speed, acceleration and distance
-     */
-    static float final_speed(const float &initial_velocity, const float &accel, const float &distance) {
-      return SQRT(sq(initial_velocity) + 2 * accel * distance);
-    }
+    #if ENABLED(S_CURVE_ACCELERATION)
+      /**
+       * Calculate the speed reached given initial speed, acceleration and distance
+       */
+      static float final_speed(const float &initial_velocity, const float &accel, const float &distance) {
+        return SQRT(sq(initial_velocity) + 2 * accel * distance);
+      }
+    #endif
 
     static void calculate_trapezoid_for_block(block_t* const block, const float &entry_factor, const float &exit_factor);
 
@@ -822,19 +832,23 @@ class Planner {
 
     static void recalculate();
 
-    FORCE_INLINE static void normalize_junction_vector(float (&vector)[XYZE]) {
-      float magnitude_sq = 0;
-      LOOP_XYZE(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
-      const float inv_magnitude = RSQRT(magnitude_sq);
-      LOOP_XYZE(idx) vector[idx] *= inv_magnitude;
-    }
+    #if ENABLED(JUNCTION_DEVIATION)
 
-    FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[XYZE]) {
-      float limit_value = max_value;
-      LOOP_XYZE(idx) if (unit_vec[idx]) // Avoid divide by zero
-        NOMORE(limit_value, ABS(max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
-      return limit_value;
-    }
+      FORCE_INLINE static void normalize_junction_vector(float (&vector)[XYZE]) {
+        float magnitude_sq = 0;
+        LOOP_XYZE(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
+        const float inv_magnitude = RSQRT(magnitude_sq);
+        LOOP_XYZE(idx) vector[idx] *= inv_magnitude;
+      }
+
+      FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[XYZE]) {
+        float limit_value = max_value;
+        LOOP_XYZE(idx) if (unit_vec[idx]) // Avoid divide by zero
+          NOMORE(limit_value, ABS(max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
+        return limit_value;
+      }
+
+    #endif // JUNCTION_DEVIATION
 };
 
 #define PLANNER_XY_FEEDRATE() (MIN(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
