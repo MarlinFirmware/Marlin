@@ -46,10 +46,6 @@
 
 namespace ExtUI {
 
-  #if ENABLED(JOYSTICK)
-    extern float norm_jog[];
-  #endif
-
   // The ExtUI implementation can store up to this many bytes
   // in the EEPROM when the methods onStoreSettings and
   // onLoadSettings are called.
@@ -84,7 +80,10 @@ namespace ExtUI {
   void enableHeater(const heater_t);
   void enableHeater(const extruder_t);
 
-  void jog(float dx, float dy, float dz);
+  #if ENABLED(JOYSTICK)
+    void jog(float dx, float dy, float dz);
+    void _joystick_update(float (&norm_jog)[XYZ]);
+  #endif
 
   /**
    * Getters and setters
