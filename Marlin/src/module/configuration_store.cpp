@@ -1189,17 +1189,14 @@ void MarlinSettings::postprocess() {
     // Backlash Compensation
     //
     {
-      #ifdef BACKLASH_DISTANCE_MM
+      #if ENABLED(BACKLASH_GCODE)
         const float (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
-      #else
-        const float backlash_distance_mm[XYZ] = { 0 };
-      #endif
-      #if ENABLED(BACKLASH_COMPENSATION)
         const uint8_t &backlash_correction = backlash.correction;
       #else
+        const float backlash_distance_mm[XYZ] = { 0 };
         const uint8_t backlash_correction = 0;
       #endif
-      #ifdef BACKLASH_SMOOTHING_MM
+      #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
         const float &backlash_smoothing_mm = backlash.smoothing_mm;
       #else
         const float backlash_smoothing_mm = 3;
@@ -1992,17 +1989,14 @@ void MarlinSettings::postprocess() {
       // Backlash Compensation
       //
       {
-        #ifdef BACKLASH_DISTANCE_MM
+        #if ENABLED(BACKLASH_GCODE)
           float (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
-        #else
-          float backlash_distance_mm[XYZ];
-        #endif
-        #if ENABLED(BACKLASH_COMPENSATION)
           uint8_t &backlash_correction = backlash.correction;
         #else
+          float backlash_distance_mm[XYZ];
           uint8_t backlash_correction;
         #endif
-        #ifdef BACKLASH_SMOOTHING_MM
+        #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
           float &backlash_smoothing_mm = backlash.smoothing_mm;
         #else
           float backlash_smoothing_mm;
@@ -2293,12 +2287,10 @@ void MarlinSettings::reset() {
 
   #if ENABLED(BACKLASH_GCODE)
     backlash.correction = (BACKLASH_CORRECTION) * 255;
-    #ifdef BACKLASH_DISTANCE_MM
-      constexpr float tmp[XYZ] = BACKLASH_DISTANCE_MM;
-      backlash.distance_mm[X_AXIS] = tmp[X_AXIS];
-      backlash.distance_mm[Y_AXIS] = tmp[Y_AXIS];
-      backlash.distance_mm[Z_AXIS] = tmp[Z_AXIS];
-    #endif
+    constexpr float tmp[XYZ] = BACKLASH_DISTANCE_MM;
+    backlash.distance_mm[X_AXIS] = tmp[X_AXIS];
+    backlash.distance_mm[Y_AXIS] = tmp[Y_AXIS];
+    backlash.distance_mm[Z_AXIS] = tmp[Z_AXIS];
     #ifdef BACKLASH_SMOOTHING_MM
       backlash.smoothing_mm = BACKLASH_SMOOTHING_MM;
     #endif
