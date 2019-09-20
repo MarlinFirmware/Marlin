@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  */
 
 /**
- * u8g_dev_st7920_128x64_HAL.c
+ * Based on u8g_dev_st7920_128x64.c
  *
  * Universal 8bit Graphics Library
  *
@@ -55,15 +55,13 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DOGLCD)
-
-#include <U8glib.h>
+#if HAS_GRAPHICAL_LCD
 
 #include "HAL_LCD_com_defines.h"
 
-#define WIDTH 128
-#define HEIGHT 64
-#define PAGE_HEIGHT 8
+#define LCD_PIXEL_WIDTH  128
+#define LCD_PIXEL_HEIGHT  64
+#define PAGE_HEIGHT        8
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */
 static const uint8_t u8g_dev_st7920_128x64_HAL_init_seq[] PROGMEM = {
@@ -85,17 +83,17 @@ static const uint8_t u8g_dev_st7920_128x64_HAL_init_seq[] PROGMEM = {
   U8G_ESC_END         // end of sequence
 };
 
-void clear_graphics_DRAM(u8g_t *u8g, u8g_dev_t *dev){
+void clear_graphics_DRAM(u8g_t *u8g, u8g_dev_t *dev) {
   u8g_SetChipSelect(u8g, dev, 1);
   u8g_Delay(1);
   u8g_SetAddress(u8g, dev, 0);         // cmd mode
   u8g_WriteByte(u8g, dev, 0x08);       //display off, cursor+blink off
   u8g_WriteByte(u8g, dev, 0x3E);       //extended mode + GDRAM active
-  for (uint8_t y = 0; y < (HEIGHT) / 2; y++) { //clear GDRAM
+  for (uint8_t y = 0; y < (LCD_PIXEL_HEIGHT) / 2; y++) { //clear GDRAM
     u8g_WriteByte(u8g, dev, 0x80 | y); //set y
     u8g_WriteByte(u8g, dev, 0x80);     //set x = 0
     u8g_SetAddress(u8g, dev, 1);                  /* data mode */
-    for (uint8_t i = 0; i < 2 * (WIDTH) / 8; i++) //2x width clears both segments
+    for (uint8_t i = 0; i < 2 * (LCD_PIXEL_WIDTH) / 8; i++) //2x width clears both segments
       u8g_WriteByte(u8g, dev, 0);
     u8g_SetAddress(u8g, dev, 0);           /* cmd mode */
   }
@@ -106,7 +104,7 @@ void clear_graphics_DRAM(u8g_t *u8g, u8g_dev_t *dev){
 }
 
 uint8_t u8g_dev_st7920_128x64_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
-  switch(msg) {
+  switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7920_128x64_HAL_init_seq);
@@ -137,8 +135,8 @@ uint8_t u8g_dev_st7920_128x64_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
         }
 
         u8g_SetAddress(u8g, dev, 1);                  /* data mode */
-        u8g_WriteSequence(u8g, dev, WIDTH/8, ptr);
-        ptr += WIDTH/8;
+        u8g_WriteSequence(u8g, dev, (LCD_PIXEL_WIDTH) / 8, ptr);
+        ptr += (LCD_PIXEL_WIDTH) / 8;
         y++;
       }
       u8g_SetChipSelect(u8g, dev, 0);
@@ -149,7 +147,7 @@ uint8_t u8g_dev_st7920_128x64_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
 }
 
 uint8_t u8g_dev_st7920_128x64_HAL_4x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
-  switch(msg) {
+  switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7920_128x64_HAL_init_seq);
@@ -182,8 +180,8 @@ uint8_t u8g_dev_st7920_128x64_HAL_4x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
         }
 
         u8g_SetAddress(u8g, dev, 1);                  /* data mode */
-        u8g_WriteSequence(u8g, dev, WIDTH/8, ptr);
-        ptr += WIDTH/8;
+        u8g_WriteSequence(u8g, dev, (LCD_PIXEL_WIDTH) / 8, ptr);
+        ptr += (LCD_PIXEL_WIDTH) / 8;
         y++;
       }
       u8g_SetChipSelect(u8g, dev, 0);
@@ -193,20 +191,20 @@ uint8_t u8g_dev_st7920_128x64_HAL_4x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
   return u8g_dev_pb32h1_base_fn(u8g, dev, msg, arg);
 }
 
-U8G_PB_DEV(u8g_dev_st7920_128x64_HAL_sw_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7920_128x64_HAL_fn, U8G_COM_ST7920_HAL_SW_SPI);
+U8G_PB_DEV(u8g_dev_st7920_128x64_HAL_sw_spi, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT, PAGE_HEIGHT, u8g_dev_st7920_128x64_HAL_fn, U8G_COM_ST7920_HAL_SW_SPI);
 
-#define QWIDTH (WIDTH*4)
+#define QWIDTH ((LCD_PIXEL_WIDTH) * 4)
 uint8_t u8g_dev_st7920_128x64_HAL_4x_buf[QWIDTH] U8G_NOCOMMON ;
-u8g_pb_t u8g_dev_st7920_128x64_HAL_4x_pb = { {32, HEIGHT, 0, 0, 0},  WIDTH, u8g_dev_st7920_128x64_HAL_4x_buf};
+u8g_pb_t u8g_dev_st7920_128x64_HAL_4x_pb = { { 32, LCD_PIXEL_HEIGHT, 0, 0, 0 }, LCD_PIXEL_WIDTH, u8g_dev_st7920_128x64_HAL_4x_buf};
 u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_sw_spi = { u8g_dev_st7920_128x64_HAL_4x_fn, &u8g_dev_st7920_128x64_HAL_4x_pb, U8G_COM_ST7920_HAL_SW_SPI };
 
-U8G_PB_DEV(u8g_dev_st7920_128x64_HAL_hw_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7920_128x64_HAL_fn, U8G_COM_ST7920_HAL_HW_SPI);
+U8G_PB_DEV(u8g_dev_st7920_128x64_HAL_hw_spi, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT, PAGE_HEIGHT, u8g_dev_st7920_128x64_HAL_fn, U8G_COM_ST7920_HAL_HW_SPI);
 u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_hw_spi = { u8g_dev_st7920_128x64_HAL_4x_fn, &u8g_dev_st7920_128x64_HAL_4x_pb, U8G_COM_ST7920_HAL_HW_SPI };
 
-#if defined(U8G_HAL_LINKS) || defined(__SAM3X8E__)
+#if NONE(__AVR__, ARDUINO_ARCH_STM32) || defined(U8G_HAL_LINKS)
   // Also use this device for HAL version of rrd class. This results in the same device being used
   // for the ST7920 for HAL systems no matter what is selected in ultralcd_impl_DOGM.h.
   u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = { u8g_dev_st7920_128x64_HAL_4x_fn, &u8g_dev_st7920_128x64_HAL_4x_pb, U8G_COM_ST7920_HAL_SW_SPI };
 #endif
 
-#endif // DOGLCD
+#endif // HAS_GRAPHICAL_LCD

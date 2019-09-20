@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Incremental Least Squares Best Fit  By Roxy and Ed Williams
@@ -32,9 +33,6 @@
  *
  */
 
-#ifndef _LEAST_SQUARES_FIT_H_
-#define _LEAST_SQUARES_FIT_H_
-
 #include "../inc/MarlinConfig.h"
 #include <math.h>
 
@@ -46,28 +44,29 @@ struct linear_fit_data {
         A, B, D, N;
 };
 
-void inline incremental_LSF_reset(struct linear_fit_data *lsf) {
+inline void incremental_LSF_reset(struct linear_fit_data *lsf) {
   memset(lsf, 0, sizeof(linear_fit_data));
 }
 
-void inline incremental_WLSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z, const float &w) {
+inline void incremental_WLSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z, const float &w) {
   // weight each accumulator by factor w, including the "number" of samples
   // (analogous to calling inc_LSF twice with same values to weight it by 2X)
-  lsf->xbar  += w * x;
-  lsf->ybar  += w * y;
-  lsf->zbar  += w * z;
-  lsf->x2bar += w * x * x;  // don't use sq(x) -- let compiler re-use w*x four times
-  lsf->y2bar += w * y * y;
-  lsf->z2bar += w * z * z;
-  lsf->xybar += w * x * y;
-  lsf->xzbar += w * x * z;
-  lsf->yzbar += w * y * z;
+  const float wx = w * x, wy = w * y, wz = w * z;
+  lsf->xbar  += wx;
+  lsf->ybar  += wy;
+  lsf->zbar  += wz;
+  lsf->x2bar += wx * x;
+  lsf->y2bar += wy * y;
+  lsf->z2bar += wz * z;
+  lsf->xybar += wx * y;
+  lsf->xzbar += wx * z;
+  lsf->yzbar += wy * z;
   lsf->N     += w;
-  lsf->max_absx = MAX(ABS(w * x), lsf->max_absx);
-  lsf->max_absy = MAX(ABS(w * y), lsf->max_absy);
+  lsf->max_absx = _MAX(ABS(wx), lsf->max_absx);
+  lsf->max_absy = _MAX(ABS(wy), lsf->max_absy);
 }
 
-void inline incremental_LSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z) {
+inline void incremental_LSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z) {
   lsf->xbar += x;
   lsf->ybar += y;
   lsf->zbar += z;
@@ -77,11 +76,9 @@ void inline incremental_LSF(struct linear_fit_data *lsf, const float &x, const f
   lsf->xybar += x * y;
   lsf->xzbar += x * z;
   lsf->yzbar += y * z;
-  lsf->max_absx = MAX(ABS(x), lsf->max_absx);
-  lsf->max_absy = MAX(ABS(y), lsf->max_absy);
+  lsf->max_absx = _MAX(ABS(x), lsf->max_absx);
+  lsf->max_absy = _MAX(ABS(y), lsf->max_absy);
   lsf->N += 1.0;
 }
 
 int finish_incremental_LSF(struct linear_fit_data *);
-
-#endif // _LEAST_SQUARES_FIT_H_

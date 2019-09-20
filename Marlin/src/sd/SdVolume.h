@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * \file
@@ -27,18 +28,25 @@
 
 /**
  * Arduino SdFat Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef _SDVOLUME_H_
-#define _SDVOLUME_H_
-
-#include "SdFatConfig.h"
-#include "Sd2Card.h"
-#include "SdFatStructs.h"
 
 #include <stdint.h>
+
+#include "../inc/MarlinConfigPre.h"
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #include "usb_flashdrive/Sd2Card_FlashDrive.h"
+#elif ENABLED(SDIO_SUPPORT)
+  #include "Sd2Card_sdio.h"
+#else
+  #include "Sd2Card.h"
+#endif
+
+#include "SdFatConfig.h"
+#include "SdFatStructs.h"
 
 //==============================================================================
 // SdVolume class
@@ -191,5 +199,3 @@ class SdVolume {
   bool readBlock(uint32_t block, uint8_t* dst) { return sdCard_->readBlock(block, dst); }
   bool writeBlock(uint32_t block, const uint8_t* dst) { return sdCard_->writeBlock(block, dst); }
 };
-
-#endif // _SDVOLUME_H_

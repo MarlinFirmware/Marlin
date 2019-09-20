@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * probe.h - Move, deploy, enable, etc.
  */
-
-#ifndef PROBE_H
-#define PROBE_H
 
 #include "../inc/MarlinConfig.h"
 
@@ -41,7 +39,7 @@
     PROBE_PT_RAISE, // Raise to "between" clearance after run_z_probe
     PROBE_PT_BIG_RAISE  // Raise to big clearance after run_z_probe
   };
-  float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true);
+  float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
   #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
@@ -53,27 +51,9 @@
 #endif
 
 #if HAS_Z_SERVO_PROBE
-  extern const int z_servo_angle[2];
   void servo_probe_init();
 #endif
 
 #if QUIET_PROBING
   void probing_pause(const bool p);
 #endif
-
-#if ENABLED(PROBING_FANS_OFF)
-  void fans_pause(const bool p);
-#endif
-
-#if ENABLED(BLTOUCH)
-  void bltouch_command(int angle);
-  bool set_bltouch_deployed(const bool deploy);
-  FORCE_INLINE void bltouch_init() {
-    // Make sure any BLTouch error condition is cleared
-    bltouch_command(BLTOUCH_RESET);
-    set_bltouch_deployed(true);
-    set_bltouch_deployed(false);
-  }
-#endif
-
-#endif // PROBE_H

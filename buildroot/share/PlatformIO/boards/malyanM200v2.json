@@ -8,6 +8,7 @@
     "vec_tab_addr": "0x8002000"
   },
   "debug": {
+    "jlink_device": "STM32F070RB",
     "default_tools": [
       "stlink"
     ],
@@ -17,10 +18,11 @@
     "openocd_board": "st_nucleo_f0",
     "openocd_target": "stm32f0x"
   },
+  "platform": "ststm32",
   "frameworks": [
     "mbed",
     "stm32cube",
-    "arduinoSTM32GENERIC"
+    "arduino"
   ],
   "name": "Malyan M200 V2/Delta",
   "upload": {

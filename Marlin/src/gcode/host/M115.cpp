@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,16 +23,12 @@
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
 
-#if NUM_SERIAL > 1
-  #include "../../gcode/queue.h"
-#endif
-
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
-  static void cap_line(const char * const name, bool ena=false) {
-    SERIAL_PROTOCOLPGM("Cap:");
+  static void cap_line(PGM_P const name, bool ena=false) {
+    SERIAL_ECHOPGM("Cap:");
     serialprintPGM(name);
     SERIAL_CHAR(':');
-    SERIAL_PROTOCOLLN(int(ena ? 1 : 0));
+    SERIAL_ECHOLN(int(ena ? 1 : 0));
   }
 #endif
 
@@ -40,20 +36,21 @@
  * M115: Capabilities string
  */
 void GcodeSuite::M115() {
-  #if NUM_SERIAL > 1
-    const int8_t port = command_queue_port[cmd_queue_index_r];
-    #define CAPLINE(STR,...) cap_line(PSTR(STR), port, __VA_ARGS__)
-  #else
-    #define CAPLINE(STR,...) cap_line(PSTR(STR), __VA_ARGS__)
-  #endif
 
-  SERIAL_PROTOCOLLNPGM_P(port, MSG_M115_REPORT);
+  SERIAL_ECHOLNPGM(MSG_M115_REPORT);
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
     // SERIAL_XON_XOFF
     cap_line(PSTR("SERIAL_XON_XOFF")
       #if ENABLED(SERIAL_XON_XOFF)
+        , true
+      #endif
+    );
+
+    // BINARY_FILE_TRANSFER (M28 B1)
+    cap_line(PSTR("BINARY_FILE_TRANSFER")
+      #if ENABLED(BINARY_FILE_TRANSFER)
         , true
       #endif
     );
@@ -128,13 +125,20 @@ void GcodeSuite::M115() {
     );
     cap_line(PSTR("CASE_LIGHT_BRIGHTNESS")
       #if HAS_CASE_LIGHT
-        , USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)
+        , PWM_PIN(CASE_LIGHT_PIN)
       #endif
     );
 
-    // EMERGENCY_PARSER (M108, M112, M410)
+    // EMERGENCY_PARSER (M108, M112, M410, M876)
     cap_line(PSTR("EMERGENCY_PARSER")
       #if ENABLED(EMERGENCY_PARSER)
+        , true
+      #endif
+    );
+
+    // PROMPT SUPPORT (M876)
+    cap_line(PSTR("PROMPT_SUPPORT")
+      #if ENABLED(HOST_PROMPT_SUPPORT)
         , true
       #endif
     );
@@ -148,10 +152,25 @@ void GcodeSuite::M115() {
 
     // THERMAL_PROTECTION
     cap_line(PSTR("THERMAL_PROTECTION")
-      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(THERMAL_PROTECTION_BED)
+      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && (ENABLED(THERMAL_PROTECTION_BED) || !HAS_HEATED_BED) && (ENABLED(THERMAL_PROTECTION_CHAMBER) || !HAS_HEATED_CHAMBER)
         , true
       #endif
     );
+
+    // MOTION_MODES (M80-M89)
+    cap_line(PSTR("MOTION_MODES")
+      #if ENABLED(GCODE_MOTION_MODES)
+        , true
+      #endif
+    );
+
+    // CHAMBER_TEMPERATURE (M141, M191)
+    cap_line(PSTR("CHAMBER_TEMPERATURE")
+      #if HAS_HEATED_CHAMBER
+        , true
+      #endif
+    );
+
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }

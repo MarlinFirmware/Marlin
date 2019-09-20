@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * scara.h - SCARA-specific functions
  */
-
-#ifndef __SCARA_H__
-#define __SCARA_H__
 
 #include "../core/macros.h"
 
@@ -38,9 +36,11 @@ float constexpr L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
 
 void scara_set_axis_is_at_home(const AxisEnum axis);
 
-void inverse_kinematics(const float raw[XYZ]);
+void inverse_kinematics(const float (&raw)[XYZ]);
+FORCE_INLINE void inverse_kinematics(const float (&raw)[XYZE]) {
+  const float raw_xyz[XYZ] = { raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS] };
+  inverse_kinematics(raw_xyz);
+}
 void forward_kinematics_SCARA(const float &a, const float &b);
 
 void scara_report_positions();
-
-#endif // __SCARA_H__

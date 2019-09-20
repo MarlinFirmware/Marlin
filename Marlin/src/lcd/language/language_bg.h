@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Bulgarian
@@ -27,31 +28,28 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_BG_H
-#define LANGUAGE_BG_H
-
 #define DISPLAY_CHARSET_ISO10646_5
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Готов.")
-#define MSG_SD_INSERTED                     _UxGT("Картата е поставена")
-#define MSG_SD_REMOVED                      _UxGT("Картата е извадена")
+#define MSG_MEDIA_INSERTED                  _UxGT("Картата е поставена")
+#define MSG_MEDIA_REMOVED                   _UxGT("Картата е извадена")
 #define MSG_MAIN                            _UxGT("Меню")
 #define MSG_AUTOSTART                       _UxGT("Автостарт")
 #define MSG_DISABLE_STEPPERS                _UxGT("Изкл. двигатели")
 #define MSG_AUTO_HOME                       _UxGT("Паркиране")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Задай Начало")
 #define MSG_SET_ORIGIN                      _UxGT("Изходна точка")
-#define MSG_PREHEAT_1                       _UxGT("Подгряване PLA")
-#define MSG_PREHEAT_1_N                     _UxGT("Подгряване PLA")
-#define MSG_PREHEAT_1_ALL                   _UxGT("Подгр. PLA Всички")
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("Подгр. PLA Легло")
-#define MSG_PREHEAT_1_SETTINGS              _UxGT("Настройки PLA")
-#define MSG_PREHEAT_2                       _UxGT("Подгряване ABS")
-#define MSG_PREHEAT_2_N                     _UxGT("Подгряване ABS")
-#define MSG_PREHEAT_2_ALL                   _UxGT("Подгр. ABS Всички")
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("Подгр. ABS Легло")
-#define MSG_PREHEAT_2_SETTINGS              _UxGT("Настройки ABS")
+#define MSG_PREHEAT_1                       _UxGT("Подгряване " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_1_N                     _UxGT("Подгряване " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_1_ALL                   _UxGT("Подгр. " PREHEAT_1_LABEL " Всички")
+#define MSG_PREHEAT_1_BEDONLY               _UxGT("Подгр. " PREHEAT_1_LABEL " Легло")
+#define MSG_PREHEAT_1_SETTINGS              _UxGT("Настройки " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_2                       _UxGT("Подгряване " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_N                     _UxGT("Подгряване " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_ALL                   _UxGT("Подгр. " PREHEAT_2_LABEL " Всички")
+#define MSG_PREHEAT_2_BEDONLY               _UxGT("Подгр. " PREHEAT_2_LABEL " Легло")
+#define MSG_PREHEAT_2_SETTINGS              _UxGT("Настройки " PREHEAT_2_LABEL)
 #define MSG_COOLDOWN                        _UxGT("Охлаждане")
 #define MSG_SWITCH_PS_ON                    _UxGT("Вкл. захранване")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Изкл. захранване")
@@ -64,6 +62,7 @@
 #define MSG_MOVE_Y                          _UxGT("Движение по Y")
 #define MSG_MOVE_Z                          _UxGT("Движение по Z")
 #define MSG_MOVE_E                          _UxGT("Екструдер")
+#define MSG_MOVE_Z_DIST                     _UxGT("Премести с %smm")
 #define MSG_MOVE_01MM                       _UxGT("Премести с 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Премести с 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Премести с 10mm")
@@ -78,8 +77,8 @@
 #define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Максимум")
 #define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Фактор")
 #define MSG_AUTOTEMP                        _UxGT("Авто-темп.")
-#define MSG_ON                              _UxGT("Вкл. ")
-#define MSG_OFF                             _UxGT("Изкл. ")
+#define MSG_LCD_ON                          _UxGT("Вкл.")
+#define MSG_LCD_OFF                         _UxGT("Изкл.")
 #define MSG_A_RETRACT                       _UxGT("A-откат")
 #define MSG_A_TRAVEL                        _UxGT("A-travel")
 #define MSG_STEPS_PER_MM                    _UxGT("Стъпки/mm")
@@ -98,6 +97,7 @@
 #define MSG_E3STEPS                         _UxGT("E3 стъпки/mm")
 #define MSG_E4STEPS                         _UxGT("E4 стъпки/mm")
 #define MSG_E5STEPS                         _UxGT("E5 стъпки/mm")
+#define MSG_E6STEPS                         _UxGT("E6 стъпки/mm")
 #define MSG_TEMPERATURE                     _UxGT("Температура")
 #define MSG_MOTION                          _UxGT("Движение")
 #define MSG_FILAMENT                        _UxGT("Нишка")
@@ -114,8 +114,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Пауза")
 #define MSG_RESUME_PRINT                    _UxGT("Възобнови печата")
 #define MSG_STOP_PRINT                      _UxGT("Спри печата")
-#define MSG_CARD_MENU                       _UxGT("Меню карта")
-#define MSG_NO_CARD                         _UxGT("Няма карта")
+#define MSG_MEDIA_MENU                      _UxGT("Меню карта")
+#define MSG_NO_MEDIA                        _UxGT("Няма карта")
 #define MSG_DWELL                           _UxGT("Почивка...")
 #define MSG_USERWAIT                        _UxGT("Изчакване")
 #define MSG_PRINT_ABORTED                   _UxGT("Печатът е прекъснат")
@@ -125,14 +125,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Откат mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Смяна Откат mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Откат  V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Скок mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Скок mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Възврат mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Смяна Възврат mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Възврат  V")
 #define MSG_AUTORETRACT                     _UxGT("Автоoткат")
 #define MSG_FILAMENTCHANGE                  _UxGT("Смяна нишка")
-#define MSG_INIT_SDCARD                     _UxGT("Иниц. SD-Карта")
-#define MSG_CNG_SDCARD                      _UxGT("Смяна SD-Карта")
+#define MSG_INIT_MEDIA                      _UxGT("Иниц. SD-Карта")
+#define MSG_CHANGE_MEDIA                    _UxGT("Смяна SD-Карта")
 #define MSG_ZPROBE_OUT                      _UxGT("Z-сондата е извадена")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Отстояние")
 #define MSG_BABYSTEP_X                      _UxGT("Министъпка X")
@@ -144,5 +144,4 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Калибровка Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Калибровка Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Калибровка Център")
-
-#endif // LANGUAGE_BG_H
+#define MSG_EXPECTED_PRINTER                _UxGT("Неправилен принтер")

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,13 +68,10 @@ void GcodeSuite::M261() {
 
   uint8_t bytes = parser.byteval('B', 1);
 
-  if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE) {
+  if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE)
     i2c.relay(bytes);
-  }
-  else {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM("Bad i2c request");
-  }
+  else
+    SERIAL_ERROR_MSG("Bad i2c request");
 }
 
 #endif

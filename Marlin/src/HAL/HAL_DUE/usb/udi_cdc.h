@@ -55,7 +55,7 @@
 #include "udi.h"
 
 // Check the number of port
-#ifndef  UDI_CDC_PORT_NB
+#ifndef UDI_CDC_PORT_NB
 # define  UDI_CDC_PORT_NB 1
 #endif
 #if (UDI_CDC_PORT_NB < 1) || (UDI_CDC_PORT_NB > 7)
@@ -366,38 +366,38 @@ void udi_cdc_ctrl_signal_dsr(bool b_set);
 /**
  * \brief Notify a framing error
  */
-void udi_cdc_signal_framing_error(void);
+void udi_cdc_signal_framing_error();
 
 /**
  * \brief Notify a parity error
  */
-void udi_cdc_signal_parity_error(void);
+void udi_cdc_signal_parity_error();
 
 /**
  * \brief Notify a overrun
  */
-void udi_cdc_signal_overrun(void);
+void udi_cdc_signal_overrun();
 
 /**
  * \brief Gets the number of byte received
  *
  * \return the number of data available
  */
-iram_size_t udi_cdc_get_nb_received_data(void);
+iram_size_t udi_cdc_get_nb_received_data();
 
 /**
  * \brief This function checks if a character has been received on the CDC line
  *
  * \return \c 1 if a byte is ready to be read.
  */
-bool udi_cdc_is_rx_ready(void);
+bool udi_cdc_is_rx_ready();
 
 /**
  * \brief Waits and gets a value on CDC line
  *
  * \return value read on CDC line
  */
-int udi_cdc_getc(void);
+int udi_cdc_getc();
 
 /**
  * \brief Reads a RAM buffer on CDC line
@@ -425,7 +425,7 @@ iram_size_t udi_cdc_read_no_polling(void* buf, iram_size_t size);
  *
  * \return the number of free byte in TX buffer
  */
-iram_size_t udi_cdc_get_free_tx_buffer(void);
+iram_size_t udi_cdc_get_free_tx_buffer();
 
 /**
  * \brief This function checks if a new character sent is possible
@@ -433,7 +433,7 @@ iram_size_t udi_cdc_get_free_tx_buffer(void);
  *
  * \return \c 1 if a new character can be sent
  */
-bool udi_cdc_is_tx_ready(void);
+bool udi_cdc_is_tx_ready();
 
 /**
  * \brief Puts a byte on CDC line
@@ -611,9 +611,9 @@ iram_size_t udi_cdc_multi_write_buf(uint8_t port, const void* buf, iram_size_t s
  * Content of conf_usb.h:
  * \code
 	 #define UDI_CDC_ENABLE_EXT(port) my_callback_cdc_enable()
-	 extern bool my_callback_cdc_enable(void);
+	 extern bool my_callback_cdc_enable();
 	 #define UDI_CDC_DISABLE_EXT(port) my_callback_cdc_disable()
-	 extern void my_callback_cdc_disable(void);
+	 extern void my_callback_cdc_disable();
 	 #define  UDI_CDC_LOW_RATE
 
 	 #define  UDI_CDC_DEFAULT_RATE             115200
@@ -627,17 +627,17 @@ iram_size_t udi_cdc_multi_write_buf(uint8_t port, const void* buf, iram_size_t s
  * Add to application C-file:
  * \code
 	 static bool my_flag_autorize_cdc_transfert = false;
-	 bool my_callback_cdc_enable(void)
+	 bool my_callback_cdc_enable()
 	 {
 	    my_flag_autorize_cdc_transfert = true;
 	    return true;
 	 }
-	 void my_callback_cdc_disable(void)
+	 void my_callback_cdc_disable()
 	 {
 	    my_flag_autorize_cdc_transfert = false;
 	 }
 
-	 void task(void)
+	 void task()
 	 {
 	    if (my_flag_autorize_cdc_transfert) {
 	        udi_cdc_putc('A');
@@ -652,14 +652,14 @@ iram_size_t udi_cdc_multi_write_buf(uint8_t port, const void* buf, iram_size_t s
  *   - \code #define USB_DEVICE_SERIAL_NAME  "12...EF" // Disk SN for CDC \endcode
  *     \note The USB serial number is mandatory when a CDC interface is used.
  *   - \code #define UDI_CDC_ENABLE_EXT(port) my_callback_cdc_enable()
-	 extern bool my_callback_cdc_enable(void); \endcode
+	 extern bool my_callback_cdc_enable(); \endcode
  *     \note After the device enumeration (detecting and identifying USB devices),
  *     the USB host starts the device configuration. When the USB CDC interface
  *     from the device is accepted by the host, the USB host enables this interface and the
  *     UDI_CDC_ENABLE_EXT() callback function is called and return true.
  *     Thus, when this event is received, the data transfer on CDC interface are authorized.
  *   - \code #define UDI_CDC_DISABLE_EXT(port) my_callback_cdc_disable()
-	 extern void my_callback_cdc_disable(void); \endcode
+	 extern void my_callback_cdc_disable(); \endcode
  *     \note When the USB device is unplugged or is reset by the USB host, the USB
  *     interface is disabled and the UDI_CDC_DISABLE_EXT() callback function
  *     is called. Thus, the data transfer must be stopped on CDC interface.
@@ -673,7 +673,7 @@ iram_size_t udi_cdc_multi_write_buf(uint8_t port, const void* buf, iram_size_t s
  *     \note Default configuration of communication port at startup.
  * -# Send or wait data on CDC line:
  *   - \code // Waits and gets a value on CDC line
-	int udi_cdc_getc(void);
+	int udi_cdc_getc();
 	// Reads a RAM buffer on CDC line
 	iram_size_t udi_cdc_read_buf(int* buf, iram_size_t size);
 	// Puts a byte on CDC line

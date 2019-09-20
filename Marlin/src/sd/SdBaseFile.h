@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * \file
@@ -27,13 +28,10 @@
 
 /**
  * Arduino SdFat Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef _SDBASEFILE_H_
-#define _SDBASEFILE_H_
-
 
 #include "SdFatConfig.h"
 #include "SdVolume.h"
@@ -110,7 +108,7 @@ static inline uint16_t FAT_YEAR(uint16_t fatDate) { return 1980 + (fatDate >> 9)
  *
  * \return Extracted month [1,12]
  */
-static inline uint8_t FAT_MONTH(uint16_t fatDate) { return (fatDate >> 5) & 0XF; }
+static inline uint8_t FAT_MONTH(uint16_t fatDate) { return (fatDate >> 5) & 0xF; }
 
 /**
  * day part of FAT directory date field
@@ -288,7 +286,7 @@ class SdBaseFile {
    */
   bool isRoot() const { return type_ == FAT_FILE_TYPE_ROOT_FIXED || type_ == FAT_FILE_TYPE_ROOT32; }
 
-  bool getFilename(char * const name);
+  bool getDosName(char * const name);
   void ls(uint8_t flags = 0, uint8_t indent = 0);
 
   bool mkdir(SdBaseFile* dir, const char* path, bool pFlag = true);
@@ -387,5 +385,3 @@ class SdBaseFile {
   bool openCachedEntry(uint8_t cacheIndex, uint8_t oflags);
   dir_t* readDirCache();
 };
-
-#endif // _SDBASEFILE_H_

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,22 +26,20 @@
 
 #if HAS_CASE_LIGHT
   #include "../../../feature/caselight.h"
-#endif
 
-/**
- * M355: Turn case light on/off and set brightness
- *
- *   P<byte>  Set case light brightness (PWM pin required - ignored otherwise)
- *
- *   S<bool>  Set case light on/off
- *
- *   When S turns on the light on a PWM pin then the current brightness level is used/restored
- *
- *   M355 P200 S0 turns off the light & sets the brightness level
- *   M355 S1 turns on the light with a brightness of 200 (assuming a PWM pin)
- */
-void GcodeSuite::M355() {
-  #if HAS_CASE_LIGHT
+  /**
+   * M355: Turn case light on/off and set brightness
+   *
+   *   P<byte>  Set case light brightness (PWM pin required - ignored otherwise)
+   *
+   *   S<bool>  Set case light on/off
+   *
+   *   When S turns on the light on a PWM pin then the current brightness level is used/restored
+   *
+   *   M355 P200 S0 turns off the light & sets the brightness level
+   *   M355 S1 turns on the light with a brightness of 200 (assuming a PWM pin)
+   */
+  void GcodeSuite::M355() {
     uint8_t args = 0;
     if (parser.seenval('P')) {
       ++args, case_light_brightness = parser.value_byte();
@@ -59,11 +57,8 @@ void GcodeSuite::M355() {
       SERIAL_ECHOLNPGM("Case light: off");
     }
     else {
-      if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM("Case light: on");
+      if (!PWM_PIN(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM("Case light: on");
       else SERIAL_ECHOLNPAIR("Case light: ", case_light_brightness);
     }
-  #else
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_M355_NONE);
-  #endif
-}
+  }
+#endif // HAS_CASE_LIGHT

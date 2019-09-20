@@ -1,17 +1,30 @@
 #!/usr/bin/env bash
 #
-# mfqp
+# mfqp [-q|--quick] [1|2]
 #
 # Add all changed files, commit as "patch", do `mfrb` and `git push -f`
 #
-
-[[ $# < 2 && $1 != "-h" && $1 != "--help" ]] || { echo "Usage: `basename $0` [1|2]" 1>&2 ; exit 1; }
 
 MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
 REPO=${INFO[2]}
 TARG=${INFO[3]}
 CURR=${INFO[5]}
+
+IND=6
+while [ $IND -lt ${#INFO[@]} ]; do
+  ARG=${INFO[$IND]}
+  case "$ARG" in
+    -q|--quick ) QUICK="-q" ;;
+     -h|--help ) USAGE=1 ;;
+             * ) USAGE=1 ; echo "unknown option: $ARG" ;;
+  esac
+  let IND+=1
+done
+
+[[ ${INFO[4]} =~ [0-9] ]] && USAGE=1
+
+[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [-hq] [1|2]" 1>&2 ; exit 1 ; }
 
 git add .
 git commit -m "patch"
@@ -23,5 +36,5 @@ if [[ $CURR == $TARG ]]; then
     echo "Don't alter the PR Target branch."; exit 1
   fi
 else
-  mfrb "$@" && git push -f
+  mfrb $QUICK "$@" && git push -f
 fi

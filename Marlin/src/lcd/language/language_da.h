@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Danish
@@ -27,15 +28,13 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_DA_H
-#define LANGUAGE_DA_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" er klar")
-#define MSG_SD_INSERTED                     _UxGT("Kort isat")
-#define MSG_SD_REMOVED                      _UxGT("Kort fjernet")
+#define MSG_MEDIA_INSERTED                  _UxGT("Kort isat")
+#define MSG_MEDIA_REMOVED                   _UxGT("Kort fjernet")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Menu")
 #define MSG_AUTOSTART                       _UxGT("Autostart")
@@ -51,16 +50,16 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Sæt forsk. af home")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Forsk. er nu aktiv")
 #define MSG_SET_ORIGIN                      _UxGT("Sæt origin")
-#define MSG_PREHEAT_1                       _UxGT("Forvarm PLA")
-#define MSG_PREHEAT_1_N                     _UxGT("Forvarm PLA ")
-#define MSG_PREHEAT_1_ALL                   _UxGT("Forvarm PLA Alle")
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("Forvarm PLA Bed")
-#define MSG_PREHEAT_1_SETTINGS              _UxGT("Forvarm PLA conf")
-#define MSG_PREHEAT_2                       _UxGT("Forvarm ABS")
-#define MSG_PREHEAT_2_N                     _UxGT("Forvarm ABS ")
-#define MSG_PREHEAT_2_ALL                   _UxGT("Forvarm ABS Alle")
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("Forvarm ABS Bed")
-#define MSG_PREHEAT_2_SETTINGS              _UxGT("Forvarm ABS conf")
+#define MSG_PREHEAT_1                       _UxGT("Forvarm " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_1_N                     _UxGT("Forvarm " PREHEAT_1_LABEL " ")
+#define MSG_PREHEAT_1_ALL                   _UxGT("Forvarm " PREHEAT_1_LABEL " Alle")
+#define MSG_PREHEAT_1_BEDONLY               _UxGT("Forvarm " PREHEAT_1_LABEL " Bed")
+#define MSG_PREHEAT_1_SETTINGS              _UxGT("Forvarm " PREHEAT_1_LABEL " conf")
+#define MSG_PREHEAT_2                       _UxGT("Forvarm " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_N                     _UxGT("Forvarm " PREHEAT_2_LABEL " ")
+#define MSG_PREHEAT_2_ALL                   _UxGT("Forvarm " PREHEAT_2_LABEL " Alle")
+#define MSG_PREHEAT_2_BEDONLY               _UxGT("Forvarm " PREHEAT_2_LABEL " Bed")
+#define MSG_PREHEAT_2_SETTINGS              _UxGT("Forvarm " PREHEAT_2_LABEL " conf")
 #define MSG_COOLDOWN                        _UxGT("Afkøl")
 #define MSG_SWITCH_PS_ON                    _UxGT("Slå strøm til")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Slå strøm fra")
@@ -73,6 +72,7 @@
 #define MSG_MOVE_Y                          _UxGT("Flyt Y")
 #define MSG_MOVE_Z                          _UxGT("Flyt Z")
 #define MSG_MOVE_E                          _UxGT("Extruder")
+#define MSG_MOVE_Z_DIST                     _UxGT("Flyt %smm")
 #define MSG_MOVE_01MM                       _UxGT("Flyt 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Flyt 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Flyt 10mm")
@@ -88,8 +88,8 @@
 #define MSG_MAX                             _UxGT(" \002 Max")
 #define MSG_FACTOR                          _UxGT(" \002 Fact")
 #define MSG_AUTOTEMP                        _UxGT("Autotemp")
-#define MSG_ON                              _UxGT("Til ")
-#define MSG_OFF                             _UxGT("Fra")
+#define MSG_LCD_ON                          _UxGT("Til")
+#define MSG_LCD_OFF                         _UxGT("Fra")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -129,6 +129,7 @@
 #define MSG_E3STEPS                         _UxGT("E3steps/mm")
 #define MSG_E4STEPS                         _UxGT("E4steps/mm")
 #define MSG_E5STEPS                         _UxGT("E5steps/mm")
+#define MSG_E6STEPS                         _UxGT("E6steps/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatur")
 #define MSG_MOTION                          _UxGT("Bevægelse")
 #define MSG_FILAMENT                        _UxGT("Filament")
@@ -145,8 +146,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pause printet")
 #define MSG_RESUME_PRINT                    _UxGT("Forsæt printet")
 #define MSG_STOP_PRINT                      _UxGT("Stop printet")
-#define MSG_CARD_MENU                       _UxGT("Print fra SD")
-#define MSG_NO_CARD                         _UxGT("Intet SD kort")
+#define MSG_MEDIA_MENU                      _UxGT("Print fra SD")
+#define MSG_NO_MEDIA                        _UxGT("Intet SD kort")
 #define MSG_DWELL                           _UxGT("Dvale...")
 #define MSG_USERWAIT                        _UxGT("Venter på bruger...")
 #define MSG_PRINT_ABORTED                   _UxGT("Print annulleret")
@@ -156,14 +157,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Tilbagetræk mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Skift Re.mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Tilbagetræk V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Hop mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Skift UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Skift filament")
-#define MSG_INIT_SDCARD                     _UxGT("Init. SD card")
-#define MSG_CNG_SDCARD                      _UxGT("Skift SD kort")
+#define MSG_INIT_MEDIA                      _UxGT("Init. SD card")
+#define MSG_CHANGE_MEDIA                    _UxGT("Skift SD kort")
 #define MSG_ZPROBE_OUT                      _UxGT("Probe udenfor plade")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Selv-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
@@ -228,6 +229,8 @@
 
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Forsæt print")
 
+#define MSG_EXPECTED_PRINTER                _UxGT("Forkert printer")
+
 #if LCD_HEIGHT >= 4
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Vent på start")
   #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("af filament")
@@ -248,5 +251,3 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Indtager...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Fortsætter...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_DA_H

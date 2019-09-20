@@ -9,9 +9,9 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD)
-#include "ultralcd.h"
-#include "../Marlin.h"
+#if HAS_SPI_LCD
+  #include "ultralcd.h"
+  #include "../Marlin.h"
 #endif
 
 #include "fontutils.h"
@@ -177,7 +177,6 @@ uint8_t utf8_strlen(const char *pstart) {
   return utf8_strlen_cb(pstart, read_byte_ram);
 }
 
-uint8_t utf8_strlen_P(const char *pstart) {
+uint8_t utf8_strlen_P(PGM_P pstart) {
   return utf8_strlen_cb(pstart, read_byte_rom);
 }
-

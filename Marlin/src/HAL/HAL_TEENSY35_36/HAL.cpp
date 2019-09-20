@@ -1,23 +1,24 @@
-/* **************************************************************************
-
- Marlin 3D Printer Firmware
- Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-****************************************************************************/
-
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 /**
  * Description: HAL for Teensy35 (MK64FX512)
@@ -26,11 +27,11 @@
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 #include "HAL.h"
-#include "../Delay.h"
+#include "../shared/Delay.h"
 
 #include <Wire.h>
 
-uint16_t HAL_adc_result;
+uint16_t HAL_adc_result, HAL_adc_select;
 
 static const uint8_t pin2sc1a[] = {
   5, 14, 8, 9, 13, 12, 6, 7, 15, 4, 3, 19+128, 14+128, 15+128, // 0-13 -> A0-A13
@@ -50,21 +51,22 @@ static const uint8_t pin2sc1a[] = {
 
 /*
   // disable interrupts
-  void cli(void) { noInterrupts(); }
+  void cli() { noInterrupts(); }
 
   // enable interrupts
-  void sei(void) { interrupts(); }
+  void sei() { interrupts(); }
 */
 
 void HAL_adc_init() {
   analog_init();
   while (ADC0_SC3 & ADC_SC3_CAL) {}; // Wait for calibration to finish
+  while (ADC1_SC3 & ADC_SC3_CAL) {}; // Wait for calibration to finish
   NVIC_ENABLE_IRQ(IRQ_FTM1);
 }
 
-void HAL_clear_reset_source(void) { }
+void HAL_clear_reset_source() { }
 
-uint8_t HAL_get_reset_source(void) {
+uint8_t HAL_get_reset_source() {
   switch (RCM_SRS0) {
     case 128: return RST_POWER_ON; break;
     case 64: return RST_EXTERNAL; break;
@@ -91,8 +93,28 @@ extern "C" {
   }
 }
 
-void HAL_adc_start_conversion(const uint8_t adc_pin) { ADC0_SC1A = pin2sc1a[adc_pin]; }
+void HAL_adc_start_conversion(const uint8_t adc_pin) {
+  uint16_t pin = pin2sc1a[adc_pin];
+  if (pin == 0xFF) {
+    // Digital only
+    HAL_adc_select = -1;
+  }
+  else if (pin & 0x80) {
+    HAL_adc_select = 1;
+    ADC1_SC1A = pin & 0x7F;
+  }
+  else {
+    HAL_adc_select = 0;
+    ADC0_SC1A = pin;
+  }
+}
 
-uint16_t HAL_adc_get_result(void) { return ADC0_RA; }
+uint16_t HAL_adc_get_result() {
+  switch (HAL_adc_select) {
+    case 0: return ADC0_RA;
+    case 1: return ADC1_RA;
+  }
+  return 0;
+}
 
 #endif // __MK64FX512__ || __MK66FX1M0__

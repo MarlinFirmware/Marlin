@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,12 +49,11 @@
      * as possible to determine if this is the case. If this move is within the same cell, we will
      * just do the required Z-Height correction, call the Planner's buffer_line() routine, and leave
      */
-    #if ENABLED(SKEW_CORRECTION)
-      // For skew correction just adjust the destination point and we're done
+    #if HAS_POSITION_MODIFIERS
       float start[XYZE] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS] },
             end[XYZE] = { destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS] };
-      planner.skew(start[X_AXIS], start[Y_AXIS], start[Z_AXIS]);
-      planner.skew(end[X_AXIS], end[Y_AXIS], end[Z_AXIS]);
+      planner.apply_modifiers(start);
+      planner.apply_modifiers(end);
     #else
       const float (&start)[XYZE] = current_position,
                     (&end)[XYZE] = destination;
@@ -64,16 +63,6 @@
               cell_start_yi = get_cell_index_y(start[Y_AXIS]),
               cell_dest_xi  = get_cell_index_x(end[X_AXIS]),
               cell_dest_yi  = get_cell_index_y(end[Y_AXIS]);
-
-    if (g26_debug_flag) {
-      SERIAL_ECHOPAIR(" ubl.line_to_destination_cartesian(xe=", destination[X_AXIS]);
-      SERIAL_ECHOPAIR(", ye=", destination[Y_AXIS]);
-      SERIAL_ECHOPAIR(", ze=", destination[Z_AXIS]);
-      SERIAL_ECHOPAIR(", ee=", destination[E_AXIS]);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-      debug_current_and_destination(PSTR("Start of ubl.line_to_destination_cartesian()"));
-    }
 
     // A move within the same cell needs no splitting
     if (cell_start_xi == cell_dest_xi && cell_start_yi == cell_dest_yi) {
@@ -93,16 +82,13 @@
         planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z_raise, end[E_AXIS], feed_rate, extruder);
         set_current_from_destination();
 
-        if (g26_debug_flag)
-          debug_current_and_destination(PSTR("out of bounds in ubl.line_to_destination_cartesian()"));
-
         return;
       }
 
       FINAL_MOVE:
 
       // The distance is always MESH_X_DIST so multiply by the constant reciprocal.
-      const float xratio = (end[X_AXIS] - mesh_index_to_xpos(cell_dest_xi)) * (1.0f / (MESH_X_DIST));
+      const float xratio = (end[X_AXIS] - mesh_index_to_xpos(cell_dest_xi)) * RECIPROCAL(MESH_X_DIST);
 
       float z1 = z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
                 (z_values[cell_dest_xi + 1][cell_dest_yi    ] - z_values[cell_dest_xi][cell_dest_yi    ]),
@@ -112,15 +98,12 @@
       if (cell_dest_xi >= GRID_MAX_POINTS_X - 1) z1 = z2 = 0.0;
 
       // X cell-fraction done. Interpolate the two Z offsets with the Y fraction for the final Z offset.
-      const float yratio = (end[Y_AXIS] - mesh_index_to_ypos(cell_dest_yi)) * (1.0f / (MESH_Y_DIST)),
+      const float yratio = (end[Y_AXIS] - mesh_index_to_ypos(cell_dest_yi)) * RECIPROCAL(MESH_Y_DIST),
                   z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * planner.fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
 
       // Undefined parts of the Mesh in z_values[][] are NAN.
       // Replace NAN corrections with 0.0 to prevent NAN propagation.
       planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + (isnan(z0) ? 0.0 : z0), end[E_AXIS], feed_rate, extruder);
-
-      if (g26_debug_flag)
-        debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination_cartesian()"));
 
       set_current_from_destination();
       return;
@@ -215,9 +198,6 @@
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
-      if (g26_debug_flag)
-        debug_current_and_destination(PSTR("vertical move done in ubl.line_to_destination_cartesian()"));
-
       // At the final destination? Usually not, but when on a Y Mesh Line it's completed.
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
@@ -266,9 +246,6 @@
             break;
         } //else printf("FIRST MOVE PRUNED  ");
       }
-
-      if (g26_debug_flag)
-        debug_current_and_destination(PSTR("horizontal move done in ubl.line_to_destination_cartesian()"));
 
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
@@ -353,9 +330,6 @@
       if (xi_cnt < 0 || yi_cnt < 0) break; // Too far! Exit the loop and go to FINAL_MOVE
     }
 
-    if (g26_debug_flag)
-      debug_current_and_destination(PSTR("generic move done in ubl.line_to_destination_cartesian()"));
-
     if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
       goto FINAL_MOVE;
 
@@ -363,47 +337,6 @@
   }
 
 #else // UBL_SEGMENTED
-
-  #if IS_SCARA // scale the feed rate from mm/s to degrees/s
-    static float scara_feed_factor, scara_oldA, scara_oldB;
-  #endif
-
-  // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
-  // so we call buffer_segment directly here.  Per-segmented leveling and kinematics performed first.
-
-  inline void _O2 ubl_buffer_segment_raw(const float (&in_raw)[XYZE], const float &fr) {
-
-    #if ENABLED(SKEW_CORRECTION)
-      float raw[XYZE] = { in_raw[X_AXIS], in_raw[Y_AXIS], in_raw[Z_AXIS] };
-      planner.skew(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]);
-    #else
-      const float (&raw)[XYZE] = in_raw;
-    #endif
-
-    #if ENABLED(DELTA)  // apply delta inverse_kinematics
-
-      DELTA_IK(raw);
-      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], fr, active_extruder);
-
-    #elif IS_SCARA  // apply scara inverse_kinematics (should be changed to save raw->logical->raw)
-
-      inverse_kinematics(raw);  // this writes delta[ABC] from raw[XYZE]
-                                // should move the feedrate scaling to scara inverse_kinematics
-
-      const float adiff = ABS(delta[A_AXIS] - scara_oldA),
-                  bdiff = ABS(delta[B_AXIS] - scara_oldB);
-      scara_oldA = delta[A_AXIS];
-      scara_oldB = delta[B_AXIS];
-      float s_feedrate = MAX(adiff, bdiff) * scara_feed_factor;
-
-      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], s_feedrate, active_extruder);
-
-    #else // CARTESIAN
-
-      planner.buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], in_raw[E_AXIS], fr, active_extruder);
-
-    #endif
-  }
 
   #if IS_SCARA
     #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
@@ -439,20 +372,19 @@
 
     #if IS_KINEMATIC
       const float seconds = cartesian_xy_mm / feedrate;                                  // seconds to move xy distance at requested rate
-      uint16_t segments = lroundf(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
-               seglimit = lroundf(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // number of segments at minimum segment length
+      uint16_t segments = LROUND(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
+               seglimit = LROUND(cartesian_xy_mm * RECIPROCAL(DELTA_SEGMENT_MIN_LENGTH)); // number of segments at minimum segment length
       NOMORE(segments, seglimit);                                                        // limit to minimum segment length (fewer segments)
     #else
-      uint16_t segments = lroundf(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
+      uint16_t segments = LROUND(cartesian_xy_mm * RECIPROCAL(DELTA_SEGMENT_MIN_LENGTH)); // cartesian fixed segment length
     #endif
 
     NOLESS(segments, 1U);                        // must have at least one segment
     const float inv_segments = 1.0f / segments;  // divide once, multiply thereafter
 
-    #if IS_SCARA // scale the feed rate from mm/s to degrees/s
-      scara_feed_factor = cartesian_xy_mm * inv_segments * feedrate;
-      scara_oldA = planner.get_axis_position_degrees(A_AXIS);
-      scara_oldB = planner.get_axis_position_degrees(B_AXIS);
+    const float segment_xyz_mm = HYPOT(cartesian_xy_mm, total[Z_AXIS]) * inv_segments;   // length of each segment
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
+      const float inv_duration = feedrate / segment_xyz_mm;
     #endif
 
     const float diff[XYZE] = {
@@ -476,9 +408,17 @@
     if (!planner.leveling_active || !planner.leveling_active_at_z(rtarget[Z_AXIS])) {   // no mesh leveling
       while (--segments) {
         LOOP_XYZE(i) raw[i] += diff[i];
-        ubl_buffer_segment_raw(raw, feedrate);
+        planner.buffer_line(raw, feedrate, active_extruder, segment_xyz_mm
+          #if ENABLED(SCARA_FEEDRATE_SCALING)
+            , inv_duration
+          #endif
+        );
       }
-      ubl_buffer_segment_raw(rtarget, feedrate);
+      planner.buffer_line(rtarget, feedrate, active_extruder, segment_xyz_mm
+        #if ENABLED(SCARA_FEEDRATE_SCALING)
+          , inv_duration
+        #endif
+      );
       return false; // moved but did not set_current_from_destination();
     }
 
@@ -500,11 +440,11 @@
       // in top of loop and again re-find same adjacent cell and use it, just less efficient
       // for mesh inset area.
 
-      int8_t cell_xi = (raw[X_AXIS] - (MESH_MIN_X)) * (1.0f / (MESH_X_DIST)),
-             cell_yi = (raw[Y_AXIS] - (MESH_MIN_Y)) * (1.0f / (MESH_Y_DIST));
+      int8_t cell_xi = (raw[X_AXIS] - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST),
+             cell_yi = (raw[Y_AXIS] - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
 
-      cell_xi = constrain(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
-      cell_yi = constrain(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
+      LIMIT(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
+      LIMIT(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
 
       const float x0 = mesh_index_to_xpos(cell_xi),   // 64 byte table lookup avoids mul+add
                   y0 = mesh_index_to_ypos(cell_yi);
@@ -522,15 +462,15 @@
       float cx = raw[X_AXIS] - x0,   // cell-relative x and y
             cy = raw[Y_AXIS] - y0;
 
-      const float z_xmy0 = (z_x1y0 - z_x0y0) * (1.0f / (MESH_X_DIST)),   // z slope per x along y0 (lower left to lower right)
-                  z_xmy1 = (z_x1y1 - z_x0y1) * (1.0f / (MESH_X_DIST));   // z slope per x along y1 (upper left to upper right)
+      const float z_xmy0 = (z_x1y0 - z_x0y0) * RECIPROCAL(MESH_X_DIST),   // z slope per x along y0 (lower left to lower right)
+                  z_xmy1 = (z_x1y1 - z_x0y1) * RECIPROCAL(MESH_X_DIST);   // z slope per x along y1 (upper left to upper right)
 
             float z_cxy0 = z_x0y0 + z_xmy0 * cx;            // z height along y0 at cx (changes for each cx in cell)
 
       const float z_cxy1 = z_x0y1 + z_xmy1 * cx,            // z height along y1 at cx
                   z_cxyd = z_cxy1 - z_cxy0;                 // z height difference along cx from y0 to y1
 
-            float z_cxym = z_cxyd * (1.0f / (MESH_Y_DIST));  // z slope per y along cx from y0 to y1 (changes for each cx in cell)
+            float z_cxym = z_cxyd * RECIPROCAL(MESH_Y_DIST);  // z slope per y along cx from y0 to y1 (changes for each cx in cell)
 
       //    float z_cxcy = z_cxy0 + z_cxym * cy;            // interpolated mesh z height along cx at cy (do inside the segment loop)
 
@@ -539,7 +479,7 @@
       // each change by a constant for fixed segment lengths.
 
       const float z_sxy0 = z_xmy0 * diff[X_AXIS],                                     // per-segment adjustment to z_cxy0
-                  z_sxym = (z_xmy1 - z_xmy0) * (1.0f / (MESH_Y_DIST)) * diff[X_AXIS];  // per-segment adjustment to z_cxym
+                  z_sxym = (z_xmy1 - z_xmy0) * RECIPROCAL(MESH_Y_DIST) * diff[X_AXIS];  // per-segment adjustment to z_cxym
 
       for (;;) {  // for all segments within this mesh cell
 
@@ -554,7 +494,11 @@
 
         const float z = raw[Z_AXIS];
         raw[Z_AXIS] += z_cxcy;
-        ubl_buffer_segment_raw(raw, feedrate);
+        planner.buffer_line(raw, feedrate, active_extruder, segment_xyz_mm
+          #if ENABLED(SCARA_FEEDRATE_SCALING)
+            , inv_duration
+          #endif
+        );
         raw[Z_AXIS] = z;
 
         if (segments == 0)                        // done with last segment
