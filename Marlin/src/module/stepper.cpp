@@ -311,7 +311,7 @@ void Stepper::set_directions() {
     SET_STEP_DIR(Z); // C
   #endif
 
-  #if DISABLED(LIN_ADVANCE)
+  if (!linear_advance) {
     #if ENABLED(MIXING_EXTRUDER)
       if (motor_direction(E_AXIS)) {
         MIXING_STEPPERS_LOOP(j) REV_E_DIR(j);
@@ -331,7 +331,7 @@ void Stepper::set_directions() {
         count_direction[E_AXIS] = 1;
       }
     #endif
-  #endif // !LIN_ADVANCE
+  }
 
   // A small delay may be needed after changing direction
   #if MINIMUM_STEPPER_DIR_DELAY > 0
@@ -1191,10 +1191,10 @@ void Stepper::isr() {
     // Run main stepping pulse phase ISR if we have to
     if (!nextMainISR) Stepper::stepper_pulse_phase_isr();
 
-    #if ENABLED(LIN_ADVANCE)
+    if (linear_advance) {
       // Run linear advance stepper ISR if we have to
       if (!nextAdvanceISR) nextAdvanceISR = Stepper::advance_isr();
-    #endif
+    }
 
     // ^== Time critical. NOTHING besides pulse generation should be above here!!!
 
@@ -1202,11 +1202,11 @@ void Stepper::isr() {
     if (!nextMainISR) nextMainISR = Stepper::stepper_block_phase_isr();
 
     uint32_t interval =
-      #if ENABLED(LIN_ADVANCE)
+      linear_advance ?
         MIN(nextAdvanceISR, nextMainISR)  // Nearest time interval
-      #else
+      :
         nextMainISR                       // Remaining stepper ISR time
-      #endif
+      ;
     ;
 
     // Limit the value to the maximum possible value of the timer
@@ -1215,10 +1215,10 @@ void Stepper::isr() {
     // Compute the time remaining for the main isr
     nextMainISR -= interval;
 
-    #if ENABLED(LIN_ADVANCE)
+    if (linear_advance) {
       // Compute the time remaining for the advance isr
       if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval;
-    #endif
+    }
 
     /**
      * This needs to avoid a race-condition caused by interleaving
@@ -1361,7 +1361,7 @@ void Stepper::stepper_pulse_phase_isr() {
     #endif
 
     // Pulse E/Mixing extruders
-    #if ENABLED(LIN_ADVANCE)
+    if (linear_advance) {
       // Tick the E axis, correct error term and update position
       delta_error[E_AXIS] += advance_dividend[E_AXIS];
       if (delta_error[E_AXIS] >= 0) {
@@ -1371,7 +1371,7 @@ void Stepper::stepper_pulse_phase_isr() {
         // Don't step E here - But remember the number of steps to perform
         motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
       }
-    #else // !LIN_ADVANCE - use linear interpolation for E also
+    } else {
       #if ENABLED(MIXING_EXTRUDER)
 
         // Tick the E axis
@@ -1392,7 +1392,7 @@ void Stepper::stepper_pulse_phase_isr() {
       #else // !MIXING_EXTRUDER
         PULSE_START(E);
       #endif
-    #endif // !LIN_ADVANCE
+    }
 
     #if MINIMUM_STEPPER_PULSE
       // Just wait for the requested pulse duration
@@ -1413,7 +1413,7 @@ void Stepper::stepper_pulse_phase_isr() {
       PULSE_STOP(Z);
     #endif
 
-    #if DISABLED(LIN_ADVANCE)
+    if (!linear_advance) {
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(j) {
           if (delta_error_m[j] >= 0) {
@@ -1424,7 +1424,7 @@ void Stepper::stepper_pulse_phase_isr() {
       #else // !MIXING_EXTRUDER
         PULSE_STOP(E);
       #endif
-    #endif // !LIN_ADVANCE
+    }
 
     // Decrement the count of pending pulses to do
     --events_to_do;
@@ -1483,7 +1483,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         interval = calc_timer_interval(acc_step_rate, oversampling_factor, &steps_per_isr);
         acceleration_time += interval;
 
-        #if ENABLED(LIN_ADVANCE)
+        if (linear_advance) {
           if (LA_use_advance_lead) {
             // Wake up eISR on first acceleration loop and fire ISR if final adv_rate is reached
             if (step_events_completed == steps_per_isr || (LA_steps && LA_isr_rate != current_block->advance_speed)) {
@@ -1495,7 +1495,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
             LA_isr_rate = LA_ADV_NEVER;
             if (LA_steps) nextAdvanceISR = 0;
           }
-        #endif // LIN_ADVANCE
+        }
       }
       // Are we in Deceleration phase ?
       else if (step_events_completed > decelerate_after) {
@@ -1534,7 +1534,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         interval = calc_timer_interval(step_rate, oversampling_factor, &steps_per_isr);
         deceleration_time += interval;
 
-        #if ENABLED(LIN_ADVANCE)
+        if (linear_advance) {
           if (LA_use_advance_lead) {
             if (step_events_completed <= decelerate_after + steps_per_isr ||
                (LA_steps && LA_isr_rate != current_block->advance_speed)
@@ -1547,15 +1547,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
             LA_isr_rate = LA_ADV_NEVER;
             if (LA_steps) nextAdvanceISR = 0;
           }
-        #endif // LIN_ADVANCE
+        }
       }
       // We must be in cruise phase otherwise
       else {
 
-        #if ENABLED(LIN_ADVANCE)
+        if (linear_advance) {
           // If there are any esteps, fire the next advance_isr "now"
           if (LA_steps && LA_isr_rate != current_block->advance_speed) nextAdvanceISR = 0;
-        #endif
+        }
 
         // Calculate the ticks_nominal for this nominal speed, if not done yet
         if (ticks_nominal < 0) {
@@ -1701,11 +1701,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       #if ENABLED(MIXING_EXTRUDER)
         const uint32_t e_steps = (
-          #if ENABLED(LIN_ADVANCE)
+          linear_advance ?
             current_block->steps[E_AXIS]
-          #else
+          :
             step_event_count
-          #endif
         );
         MIXING_STEPPERS_LOOP(i) {
           delta_error_m[i] = -int32_t(e_steps);
@@ -1717,7 +1716,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       // Initialize the trapezoid generator from the current block.
-      #if ENABLED(LIN_ADVANCE)
+      if (linear_advance) {
         #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
           // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
           if (active_extruder != last_moved_extruder) LA_current_adv_steps = 0;
@@ -1727,7 +1726,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
           LA_final_adv_steps = current_block->final_adv_steps;
           LA_max_adv_steps = current_block->max_adv_steps;
         }
-      #endif
+      }
 
       if (current_block->direction_bits != last_direction_bits
         #if DISABLED(MIXING_EXTRUDER)

@@ -33,6 +33,7 @@
 #define PLANNER_H
 
 #include "hax.h"
+#include "calc.h"
 //#include "../Marlin.h"
 
 //#include "motion.h"
@@ -753,14 +754,14 @@ class Planner {
 
     FORCE_INLINE static void recalculate_max_e_jerk() {
       #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
-      #if ENABLED(LIN_ADVANCE)
+      if (linear_advance) {
         #if ENABLED(DISTINCT_E_FACTORS)
           for (uint8_t i = 0; i < EXTRUDERS; i++)
             max_e_jerk[i] = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS + i]);
         #else
           max_e_jerk = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS]);
         #endif
-      #endif
+      }
     }
 
   private:

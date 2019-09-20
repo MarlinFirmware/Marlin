@@ -70,11 +70,7 @@
   #define ISR_BASE_CYCLES  792UL
 
   // Linear advance base time is 64 cycles
-  #if ENABLED(LIN_ADVANCE)
-    #define ISR_LA_BASE_CYCLES 64UL
-  #else
-    #define ISR_LA_BASE_CYCLES 0UL
-  #endif
+  #define ISR_LA_BASE_CYCLES (linear_advance ? 64UL : 0UL)
 
   // S curve interpolation adds 40 cycles
   #if ENABLED(S_CURVE_ACCELERATION)
@@ -98,11 +94,7 @@
   #define ISR_BASE_CYCLES  752UL
 
   // Linear advance base time is 32 cycles
-  #if ENABLED(LIN_ADVANCE)
-    #define ISR_LA_BASE_CYCLES 32UL
-  #else
-    #define ISR_LA_BASE_CYCLES 0UL
-  #endif
+  #define ISR_LA_BASE_CYCLES (linear_advance ? 32UL : 0UL)
 
   // S curve interpolation adds 160 cycles
   #if ENABLED(S_CURVE_ACCELERATION)
@@ -150,9 +142,9 @@
 #define ISR_E_STEPPER_CYCLES         ISR_STEPPER_CYCLES
 
 // If linear advance is disabled, then the loop also handles them
-#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
-  #define ISR_START_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_START_STEPPER_CYCLES))
-  #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
+#if ENABLED(MIXING_EXTRUDER)
+  #define ISR_START_MIXING_STEPPER_CYCLES (linear_advance ? 0UL : ((MIXING_STEPPERS) * (ISR_START_STEPPER_CYCLES)))
+  #define ISR_MIXING_STEPPER_CYCLES (linear_advance ? 0UL : ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES)))
 #else
   #define ISR_START_MIXING_STEPPER_CYCLES 0UL
   #define ISR_MIXING_STEPPER_CYCLES  0UL
