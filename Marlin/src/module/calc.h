@@ -9,6 +9,7 @@ extern int feedmultiply;
 extern int extrudemultiply; // Sets extrude multiply factor (in percent) for all extruders
 extern float add_homing[3];
 extern bool junction_deviation;
+extern bool linear_advance;
 extern bool s_curve_acceleration;
 extern bool volumetric_enabled;
 #ifdef DELTA

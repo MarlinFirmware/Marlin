@@ -1071,13 +1071,13 @@ void Planner::recalculate_trapezoids() {
             const float current_nominal_speed = SQRT(current->nominal_speed_sqr),
                         nomr = 1.0f / current_nominal_speed;
             calculate_trapezoid_for_block(current, current_entry_speed * nomr, next_entry_speed * nomr);
-            #if ENABLED(LIN_ADVANCE)
+            if (linear_advance) {
               if (current->use_advance_lead) {
                 const float comp = current->e_D_ratio * extruder_advance_K * axis_steps_per_mm[E_AXIS];
                 current->max_adv_steps = current_nominal_speed * comp;
                 current->final_adv_steps = next_entry_speed * comp;
               }
-            #endif
+            }
           }
 
           // Reset current only to ensure next trapezoid is computed - The
@@ -1110,13 +1110,13 @@ void Planner::recalculate_trapezoids() {
       const float next_nominal_speed = SQRT(next->nominal_speed_sqr),
                   nomr = 1.0f / next_nominal_speed;
       calculate_trapezoid_for_block(next, next_entry_speed * nomr, float(MINIMUM_PLANNER_SPEED) * nomr);
-      #if ENABLED(LIN_ADVANCE)
+      if (linear_advance) {
         if (next->use_advance_lead) {
           const float comp = next->e_D_ratio * extruder_advance_K * axis_steps_per_mm[E_AXIS];
           next->max_adv_steps = next_nominal_speed * comp;
           next->final_adv_steps = (MINIMUM_PLANNER_SPEED) * comp;
         }
-      #endif
+      }
     }
 
     // Reset next only to ensure its trapezoid is computed - The stepper is free to use
@@ -1727,11 +1727,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #if ENABLED(MIXING_EXTRUDER)
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
       block->mix_steps[i] = mixing_factor[i] * (
-        #if ENABLED(LIN_ADVANCE)
+        linear_advance ?
           esteps
-        #else
+        :
           block->step_event_count
-        #endif
       );
   #endif
 
@@ -2075,9 +2074,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   if (!block->steps[A_AXIS] && !block->steps[B_AXIS] && !block->steps[C_AXIS]) {
     // convert to: acceleration steps/sec^2
     accel = CEIL(retract_acceleration * steps_per_mm);
-    #if ENABLED(LIN_ADVANCE)
+    if (linear_advance) {
       block->use_advance_lead = false;
-    #endif
+    }
   }
   else {
     #define LIMIT_ACCEL_LONG(AXIS,INDX) do{ \
@@ -2097,18 +2096,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     // Start with print or travel acceleration
     accel = CEIL((esteps ? acceleration : travel_acceleration) * steps_per_mm);
 
-    #if ENABLED(LIN_ADVANCE)
-
-      if (junction_deviation) {
-        #if ENABLED(DISTINCT_E_FACTORS)
-          #define MAX_E_JERK max_e_jerk[extruder]
-        #else
-          #define MAX_E_JERK max_e_jerk
-        #endif
-      } else {
-        #define MAX_E_JERK max_jerk[E_AXIS]
-      }
-
+    if (linear_advance) {
+      #if ENABLED(DISTINCT_E_FACTORS)
+        #define MAX_E_JERK (junction_deviation ? max_e_jerk[extruder] : max_jerk[E_AXIS])
+      #else
+        #define MAX_E_JERK (junction_deviation ? max_e_jerk : max_jerk[E_AXIS])
+      #endif
       /**
        *
        * Use LIN_ADVANCE for blocks if all these are true:
@@ -2146,7 +2139,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           NOMORE(accel, max_accel_steps_per_s2);
         }
       }
-    #endif
+    }
 
     #if ENABLED(DISTINCT_E_FACTORS)
       #define ACCEL_IDX extruder
@@ -2173,7 +2166,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   if (!s_curve_acceleration) {
     block->acceleration_rate = (uint32_t)(accel * (4096.0f * 4096.0f / (STEPPER_TIMER_RATE)));
   }
-  #if ENABLED(LIN_ADVANCE)
+  if (linear_advance) {
     if (block->use_advance_lead) {
       block->advance_speed = (STEPPER_TIMER_RATE) / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS_N]);
       #if ENABLED(LA_DEBUG)
@@ -2183,7 +2176,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           SERIAL_ECHOLNPGM("eISR running at > 10kHz.");
       #endif
     }
-  #endif
+  }
 
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
 
@@ -2607,9 +2600,9 @@ void Planner::reset_acceleration_rates() {
   }
   cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
   if (junction_deviation) {
-    #if ENABLED(LIN_ADVANCE)
+    if (linear_advance) {
       recalculate_max_e_jerk();
-    #endif
+    }
   }
 }
 

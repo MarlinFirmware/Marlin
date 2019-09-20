@@ -28,6 +28,7 @@ double min_pos_extruded[3] = { std::numeric_limits<double>::infinity(), std::num
 double max_pos_extruded[3] = { -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity()};
 uint8_t active_extruder = 0;
 bool junction_deviation = false; // This replaces the JUNCTION_DEVIATION constant.
+bool linear_advance = false; // This replaces the LIN_ADVANCE constant.
 bool s_curve_acceleration = true; // This replaces the S_CURVE_ACCELERATION constant.
 double filament_diameter[MAX_EXTRUDERS] = {
   DEFAULT_NOMINAL_FILAMENT_DIA,
