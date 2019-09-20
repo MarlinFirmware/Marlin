@@ -102,7 +102,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
           || did_pause_print
         #endif
-        )) {
+      )) {
         #ifdef FILAMENT_RUNOUT_DISTANCE_MM
           cli(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         #endif
