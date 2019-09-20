@@ -230,6 +230,15 @@ void set_junction_deviation(bool new_value) {
           junction_deviation ? "enabled" : "disabled");
 }
 
+void set_linear_advance(bool new_value) {
+  if (new_value == linear_advance) {
+    return;
+  }
+  linear_advance = new_value;
+  fprintf(stderr, "Linear advance %s\n",
+          linear_advance ? "enabled" : "disabled");
+}
+
 // Return the axis from the axis code accounting for T codes that might
 // temporarily change the target tool.  get_axis calls code_seen so be careful
 // if you call it between code_seen and code_value.
@@ -438,6 +447,16 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           }
           if(code_seen('S')) {
             Planner::flow_percentage[target_extruder] = code_value();
+          }
+        }
+        break;
+      case 900:
+        {
+          if (code_seen('K')) {
+            auto new_value = code_value();
+            set_linear_advance(new_value != 0);
+            planner.synchronize();
+            planner.extruder_advance_K = new_value;
           }
         }
         break;
