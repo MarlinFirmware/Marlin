@@ -127,16 +127,18 @@ float Planner::max_feedrate_mm_s[XYZE_N],     // (mm/s) M203 XYZE - Max speeds
       Planner::travel_acceleration,           // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
       Planner::min_travel_feedrate_mm_s;      // (mm/s) M205 T - Minimum travel feedrate
 
-float Planner::junction_deviation_mm;       // (mm) M205 J
-#if ENABLED(LIN_ADVANCE)
-  #if ENABLED(DISTINCT_E_FACTORS)
-    float Planner::max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
-  #else
-    float Planner::max_e_jerk;
+#if ENABLED(JUNCTION_DEVIATION)
+  float Planner::junction_deviation_mm;       // (mm) M205 J
+  #if ENABLED(LIN_ADVANCE)
+    #if ENABLED(DISTINCT_E_FACTORS)
+      float Planner::max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
+    #else
+      float Planner::max_e_jerk;
+    #endif
   #endif
+//#else
+  float Planner::max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
 #endif
-
-float Planner::max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   bool Planner::abort_on_endstop_hit = false;
