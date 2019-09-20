@@ -187,10 +187,7 @@
   #endif
 
   // And the real loop time
-  #define ISR_LA_LOOP_CYCLES MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LA_LOOP_CYCLES)
-
-#else
-  #define ISR_LA_LOOP_CYCLES 0UL
+  #define ISR_LA_LOOP_CYCLES (linear_advance ? MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LA_LOOP_CYCLES) : 0UL)
 #endif
 
 // Now estimate the total ISR execution time in cycles given a step per ISR multiplier
