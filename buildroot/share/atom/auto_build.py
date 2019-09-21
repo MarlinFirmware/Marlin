@@ -654,9 +654,6 @@ def line_print(line_input):
       global warning_continue
       global line_counter
 
-
-
-
       # all '0' elements must precede all '1' elements or they'll be skipped
       platformio_highlights = [
               ['Environment', 0, 'highlight_blue'],
@@ -713,7 +710,6 @@ def line_print(line_input):
           else:
             write_to_screen_queue(text + '\n')
       # end - write_to_screen_with_replace
-
 
 
     # scan the line
@@ -810,25 +806,76 @@ def line_print(line_input):
 # end - line_print
 
 
+##########################################################################
+#                                                                        #
+# run Platformio                                                         #
+#                                                                        #
+##########################################################################
+
+
+#  build      platformio run -e  target_env
+#  clean      platformio run --target clean -e  target_env
+#  upload     platformio run --target upload -e  target_env
+#  traceback  platformio run --target upload -e  target_env
+#  program    platformio run --target program -e  target_env
+#  test       platformio test upload -e  target_env
+#  remote     platformio remote run --target upload -e  target_env
+#  debug      platformio debug -e  target_env
+
+
+def sys_PIO():
+
+    ##########################################################################
+    #                                                                        #
+    # run Platformio inside the same shell as this Python script             #
+    #                                                                        #
+    ##########################################################################
+
+    global build_type
+    global target_env
+
+    import os
+
+    print('build_type: ', build_type)
+    print('starting platformio')
+
+    if   build_type == 'build':
+          # pio_result = os.system("echo -en '\033c'")
+          pio_result = os.system('platformio run -e ' + target_env)
+    elif build_type == 'clean':
+          pio_result = os.system('platformio run --target clean -e ' + target_env)
+    elif build_type == 'upload':
+          pio_result = os.system('platformio run --target upload -e ' + target_env)
+    elif build_type == 'traceback':
+          pio_result = os.system('platformio run --target upload -e ' + target_env)
+    elif build_type == 'program':
+          pio_result = os.system('platformio run --target program -e ' + target_env)
+    elif build_type == 'test':
+          pio_result = os.system('platformio test upload -e ' + target_env)
+    elif build_type == 'remote':
+          pio_result = os.system('platformio remote run --target program -e ' + target_env)
+    elif build_type == 'debug':
+          pio_result = os.system('platformio debug -e ' + target_env)
+    else:
+          print('ERROR - unknown build type:  ', build_type)
+          raise SystemExit(0)     # kill everything
+
+    # stream output from subprocess and split it into lines
+      #for line in iter(pio_subprocess.stdout.readline, ''):
+      #      line_print(line.replace('\n', ''))
+
+
+    # append info used to run PlatformIO
+    #  write_to_screen_queue('\nBoard name: ' + board_name  + '\n')  # put build info at the bottom of the screen
+    #  write_to_screen_queue('Build type: ' + build_type  + '\n')
+    #  write_to_screen_queue('Environment used: ' + target_env  + '\n')
+    #  write_to_screen_queue(str(datetime.now()) + '\n')
+
+# end - sys_PIO
+
+
 
 def run_PIO(dummy):
-
-    ##########################################################################
-    #                                                                        #
-    # run Platformio                                                         #
-    #                                                                        #
-    ##########################################################################
-
-
-    #  build      platformio run -e  target_env
-    #  clean      platformio run --target clean -e  target_env
-    #  upload     platformio run --target upload -e  target_env
-    #  traceback  platformio run --target upload -e  target_env
-    #  program    platformio run --target program -e  target_env
-    #  test       platformio test upload -e  target_env
-    #  remote     platformio remote run --target upload -e  target_env
-    #  debug      platformio debug -e  target_env
-
 
     global build_type
     global target_env
@@ -906,6 +953,7 @@ def run_PIO(dummy):
 # end - run_PIO
 
 
+
 ########################################################################
 
 import time
@@ -924,7 +972,6 @@ from tkMessageBox import askokcancel
 import tkFileDialog
 from tkMessageBox import askokcancel
 import tkFileDialog
-
 
 
 class output_window(Text):
@@ -1238,10 +1285,14 @@ def main():
         os.environ["TARGET_ENV"] = target_env
         os.environ["BOARD_NAME"] = board_name
 
-        auto_build = output_window()
-        auto_build.start_thread()  # executes the "run_PIO" function
+        # Re-use the VSCode terminal, if possible
+        if os.environ.get('PLATFORMIO_CALLER', '') == 'vscode':
+            sys_PIO()
+        else:
+           auto_build = output_window()
+           auto_build.start_thread()  # executes the "run_PIO" function
 
-        auto_build.root.mainloop()
+           auto_build.root.mainloop()
 
 
 
