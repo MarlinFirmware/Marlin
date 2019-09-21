@@ -1293,8 +1293,6 @@ def main():
 
         auto_build.root.mainloop()
 
-    auto_build.root.mainloop()
-
 
 
 if __name__ == '__main__':
