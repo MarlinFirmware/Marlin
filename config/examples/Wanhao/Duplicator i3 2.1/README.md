@@ -16,6 +16,6 @@ Inspirations:
 - https://www.thingiverse.com/thing:3378807 (Custom firmware 2.x by Remotheman)
 
 Instructions:
-- Copy the Configuration.h, _Bootscreen.h (or Chippy_Bootscreen.h; rename it _Bootscreen.h), and Configuration_adv.h to the Marlin/ directory
-- Copy the thermistor_99.h and thermistors.h files to the Marlin/src/modules/thermistors directory
+- Copy the `Configuration.h`, `_Bootscreen.h` (or `Chippy_Bootscreen.h`; rename it `_Bootscreen.h`), and `Configuration_adv.h` to the `Marlin/ directory`
+- Copy the `thermistor_99.h` and `thermistors.h` files to the `Marlin/src/modules/thermistors` directory
 - Flash the firmware onto your Melzi (https://www.fission3d.com/guides/flash-bootloader-and-install-firmware-with-raspberry-pi might help)
