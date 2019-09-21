@@ -181,7 +181,7 @@ void reset_trinamic_drivers();
 
 // E2 Stepper
 #if AXIS_IS_TMC(E2)
-  extern TMC_CLASS_E(1) stepperE2;
+  extern TMC_CLASS_E(2) stepperE2;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2)
     #define E2_ENABLE_INIT NOOP
     #define E2_ENABLE_WRITE(STATE) stepperE2.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
@@ -194,7 +194,7 @@ void reset_trinamic_drivers();
 
 // E3 Stepper
 #if AXIS_IS_TMC(E3)
-  extern TMC_CLASS_E(1) stepperE3;
+  extern TMC_CLASS_E(3) stepperE3;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3)
     #define E3_ENABLE_INIT NOOP
     #define E3_ENABLE_WRITE(STATE) stepperE3.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
@@ -207,7 +207,7 @@ void reset_trinamic_drivers();
 
 // E4 Stepper
 #if AXIS_IS_TMC(E4)
-  extern TMC_CLASS_E(1) stepperE4;
+  extern TMC_CLASS_E(4) stepperE4;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4)
     #define E4_ENABLE_INIT NOOP
     #define E4_ENABLE_WRITE(STATE) stepperE4.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
@@ -220,7 +220,7 @@ void reset_trinamic_drivers();
 
 // E5 Stepper
 #if AXIS_IS_TMC(E5)
-  extern TMC_CLASS_E(1) stepperE5;
+  extern TMC_CLASS_E(5) stepperE5;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5)
     #define E5_ENABLE_INIT NOOP
     #define E5_ENABLE_WRITE(STATE) stepperE5.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
