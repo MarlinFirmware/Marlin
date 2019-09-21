@@ -943,6 +943,7 @@ class output_window(Text):
 
 
         self.root = tk.Tk()
+        self.root.attributes("-topmost", True)
         self.frame = tk.Frame(self.root)
         self.frame.pack(fill='both', expand=True)
 
