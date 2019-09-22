@@ -9,7 +9,7 @@
 # any permanent changes to 'master'.
 #
 
-[[ $# < 2 && $1 != "-h" && $1 != "--help" ]] || { echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1; }
+[[ $# < 2 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` [branch]" 1>&2 ; exit 1; }
 
 MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
@@ -24,13 +24,13 @@ if [[ $ORG != "MarlinFirmware" || $REPO != "MarlinDocumentation" ]]; then
   exit
 fi
 
-# Check out the named branch (or stay in current)
-git checkout $BRANCH
-
 if [[ $BRANCH == "gh-pages" ]]; then
   echo "Can't build from 'gh-pages.' Only the Jekyll branches (based on 'master')."
   exit
 fi
+
+# Check out the named branch (or stay in current)
+git checkout $BRANCH
 
 echo "Stashing any changes to files..."
 echo "Don't forget to update and push 'master'!"
@@ -69,7 +69,7 @@ if [[ $BRANCH == "master" ]]; then
 
 else
 
-  if [ -z "$(git branch -vv | grep ^\* | grep \\[origin)" ]; then
+  if [ -z "$(git branch -vv | grep ^\* | grep \\\[origin)" ]; then
     firstpush
   else
     echo
@@ -97,6 +97,8 @@ fi
 echo
 echo "Generating MarlinDocumentation..."
 
+rm -rf _site
+
 # build the site statically and proof it
 bundle exec jekyll build --profile --trace --no-watch
 bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --check-favicon --check-html --url-swap ".*marlinfw.org/:/"
@@ -110,13 +112,31 @@ git reset --hard
 git clean -d -f
 
 # Copy built-site into the gh-pages branch
-git checkout gh-pages
+git checkout gh-pages || { echo "Something went wrong!"; exit 1; }
 rsync -av ${TMPFOLDER}/ ./
+
+opensite() {
+  TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
+  URL="http://marlinfw.org/"
+  if [ -z "$TOOL" ]; then
+    echo "Can't find a tool to open the URL:"
+    echo $URL
+  else
+    echo "Opening the site in the browser..."
+    "$TOOL" "$URL"
+  fi
+}
 
 # Commit and push the new live site directly
 git add --all
 git commit --message "Built from ${COMMIT}"
-git push upstream
+git push upstream | {
+  while IFS= read -r line
+  do
+    [[ $line =~ "gh-pages -> gh-pages" ]] && opensite
+    echo "$line"
+  done
+}
 
 # remove the temporary folder
 rm -rf ${TMPFOLDER}

@@ -157,7 +157,7 @@ uint8_t* get_utf8_value(uint8_t *pstart, wchar_t *pval) {
 }
 
 void usage(char* progname) {
-  fprintf(stderr, "Usage: %s\n", progname);
+  fprintf(stderr, "usage: %s\n", progname);
   fprintf(stderr, "   read data from stdin\n");
 }
 

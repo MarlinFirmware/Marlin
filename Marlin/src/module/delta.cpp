@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,9 +37,17 @@
 #include "../lcd/ultralcd.h"
 #include "../Marlin.h"
 
+#if HAS_BED_PROBE
+  #include "probe.h"
+#endif
+
 #if ENABLED(SENSORLESS_HOMING)
   #include "../feature/tmc_util.h"
+  #include "stepper/indirection.h"
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../core/debug_out.h"
 
 // Initialized by settings.load()
 float delta_height,
@@ -73,7 +81,7 @@ void recalc_delta_settings() {
   delta_diagonal_rod_2_tower[B_AXIS] = sq(delta_diagonal_rod + drt[B_AXIS]);
   delta_diagonal_rod_2_tower[C_AXIS] = sq(delta_diagonal_rod + drt[C_AXIS]);
   update_software_endstops(Z_AXIS);
-  axis_homed = 0;
+  set_all_unhomed();
 }
 
 /**
@@ -93,16 +101,12 @@ void recalc_delta_settings() {
  */
 
 #define DELTA_DEBUG(VAR) do { \
-    SERIAL_ECHOPAIR("cartesian X:", VAR[X_AXIS]); \
-    SERIAL_ECHOPAIR(" Y:", VAR[Y_AXIS]);          \
-    SERIAL_ECHOLNPAIR(" Z:", VAR[Z_AXIS]);        \
-    SERIAL_ECHOPAIR("delta A:", delta[A_AXIS]);   \
-    SERIAL_ECHOPAIR(" B:", delta[B_AXIS]);        \
-    SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
+    SERIAL_ECHOLNPAIR("Cartesian X", VAR[X_AXIS], " Y", VAR[Y_AXIS], " Z", VAR[Z_AXIS]);   \
+    SERIAL_ECHOLNPAIR("Delta A", delta[A_AXIS], " B", delta[B_AXIS], " C", delta[C_AXIS]); \
   }while(0)
 
-void inverse_kinematics(const float raw[XYZ]) {
-  #if HOTENDS > 1
+void inverse_kinematics(const float (&raw)[XYZ]) {
+  #if HAS_HOTEND_OFFSET
     // Delta hotend offsets must be applied in Cartesian space with no "spoofing"
     const float pos[XYZ] = {
       raw[X_AXIS] - hotend_offset[X_AXIS][active_extruder],
@@ -206,40 +210,40 @@ void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3)
   cartes[Z_AXIS] =                          z1 + ex[2] * Xnew + ey[2] * Ynew - ez[2] * Znew;
 }
 
-#if ENABLED(SENSORLESS_HOMING)
-  inline void delta_sensorless_homing(const bool on=true) {
-    sensorless_homing_per_axis(A_AXIS, on);
-    sensorless_homing_per_axis(B_AXIS, on);
-    sensorless_homing_per_axis(C_AXIS, on);
-  }
-#endif
-
 /**
  * A delta can only safely home all axes at the same time
  * This is like quick_home_xy() but for 3 towers.
  */
 void home_delta() {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS(">>> home_delta", current_position);
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_POS(">>> home_delta", current_position);
   // Init the current position of all carriages to 0,0,0
   ZERO(current_position);
+  ZERO(destination);
   sync_plan_position();
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    delta_sensorless_homing();
+    sensorless_t stealth_states {
+      tmc_enable_stallguard(stepperX),
+      tmc_enable_stallguard(stepperY),
+      tmc_enable_stallguard(stepperZ)
+    };
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
-  feedrate_mm_s = homing_feedrate(X_AXIS);
-  line_to_current_position();
+  destination[Z_AXIS] = (delta_height
+    #if HAS_BED_PROBE
+      - zprobe_zoffset
+    #endif
+    + 10);
+  buffer_line_to_destination(homing_feedrate(X_AXIS));
   planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    delta_sensorless_homing(false);
+    tmc_disable_stallguard(stepperX, stealth_states.x);
+    tmc_disable_stallguard(stepperY, stealth_states.y);
+    tmc_disable_stallguard(stepperZ, stealth_states.z);
   #endif
 
   endstops.validate_homing_move();
@@ -256,11 +260,9 @@ void home_delta() {
   // give the impression that they are the same.
   LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
 
-  SYNC_PLAN_POSITION_KINEMATIC();
+  sync_plan_position();
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);
 }
 
 #endif // DELTA

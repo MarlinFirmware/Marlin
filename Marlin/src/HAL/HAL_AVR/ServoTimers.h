@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * ServoTimers.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
@@ -39,9 +40,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef _SERVOTIMERS_H_
-#define _SERVOTIMERS_H_
-
 /**
  * Defines for 16 bit timers used with  Servo library
  *
@@ -55,8 +53,8 @@
  * --------------------
  */
 
-#define TRIM_DURATION       2   // compensation ticks to trim adjust for digitalWrite delays
-#define PRESCALER           8   // timer prescaler
+#define TRIM_DURATION           2   // compensation ticks to trim adjust for digitalWrite delays
+#define SERVO_TIMER_PRESCALER   8   // timer prescaler
 
 // Say which 16 bit timers can be used and in what order
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
@@ -77,19 +75,17 @@
 #endif
 
 typedef enum {
-  #if ENABLED(_useTimer1)
+  #ifdef _useTimer1
     _timer1,
   #endif
-  #if ENABLED(_useTimer3)
+  #ifdef _useTimer3
     _timer3,
   #endif
-  #if ENABLED(_useTimer4)
+  #ifdef _useTimer4
     _timer4,
   #endif
-  #if ENABLED(_useTimer5)
+  #ifdef _useTimer5
     _timer5,
   #endif
   _Nbr_16timers
 } timer16_Sequence_t;
-
-#endif // _SERVOTIMERS_H_

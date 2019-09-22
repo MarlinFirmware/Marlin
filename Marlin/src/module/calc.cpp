@@ -95,18 +95,18 @@ void Config_ResetDefault()
     long tmp3[]=DEFAULT_MAX_ACCELERATION;
     for (short i=0;i<4;i++)
     {
-      Planner::axis_steps_per_mm[i]=tmp1[i];
+      Planner::settings.axis_steps_per_mm[i]=tmp1[i];
       Planner::steps_to_mm[i]=1/tmp1[i];
-      Planner::max_feedrate_mm_s[i]=tmp2[i];
-      Planner::max_acceleration_mm_per_s2[i]=tmp3[i];
+      Planner::settings.max_feedrate_mm_s[i]=tmp2[i];
+      Planner::settings.max_acceleration_mm_per_s2[i]=tmp3[i];
     }
 
-    Planner::acceleration=DEFAULT_ACCELERATION;
-    Planner::travel_acceleration=DEFAULT_TRAVEL_ACCELERATION;
-    Planner::retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
-    Planner::min_feedrate_mm_s=DEFAULT_MINIMUMFEEDRATE;
-    Planner::min_segment_time_us=DEFAULT_MINSEGMENTTIME;
-    Planner::min_travel_feedrate_mm_s=DEFAULT_MINTRAVELFEEDRATE;
+    Planner::settings.acceleration=DEFAULT_ACCELERATION;
+    Planner::settings.travel_acceleration=DEFAULT_TRAVEL_ACCELERATION;
+    Planner::settings.retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
+    Planner::settings.min_feedrate_mm_s=DEFAULT_MINIMUMFEEDRATE;
+    Planner::settings.min_segment_time_us=DEFAULT_MINSEGMENTTIME;
+    Planner::settings.min_travel_feedrate_mm_s=DEFAULT_MINTRAVELFEEDRATE;
     Planner::max_jerk[X_AXIS] = DEFAULT_XJERK;
     Planner::max_jerk[Y_AXIS] = DEFAULT_YJERK;
     Planner::max_jerk[Z_AXIS] = DEFAULT_ZJERK;
@@ -303,10 +303,16 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       }
       break;
     case 92: // G92
-      for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) {
-          current_position[i] = code_value();
-          Planner::set_position_mm(AxisEnum(i), current_position[i]);
+      {
+        bool found_one = false;
+        for(int8_t i=0; i < NUM_AXIS; i++) {
+          if(code_seen(axis_codes[i])) {
+            current_position[i] = code_value();
+            found_one = true;
+          }
+        }
+        if (found_one) {
+          Planner::set_position_mm(current_position[0], current_position[1], current_position[2], current_position[3]);
         }
       }
       break;
@@ -325,7 +331,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           for (int i = 0; i < NUM_AXIS; i++) {
             int axis = get_axis(i);
             if (code_seen(axis_codes[i])) {
-              Planner::axis_steps_per_mm[axis] = code_value();
+              Planner::settings.axis_steps_per_mm[axis] = code_value();
             }
           }
         }
@@ -356,7 +362,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           for(int i = 0; i < NUM_AXIS; i++) {
             int axis = get_axis(i);
             if(code_seen(axis_codes[i])) {
-              Planner::max_acceleration_mm_per_s2[axis] = code_value();
+              Planner::settings.max_acceleration_mm_per_s2[axis] = code_value();
             }
           }
         }
@@ -366,7 +372,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           for(int i=0; i < NUM_AXIS; i++) {
             int axis = get_axis(i);
             if(code_seen(axis_codes[i])) {
-              Planner::max_feedrate_mm_s[axis] = code_value();
+              Planner::settings.max_feedrate_mm_s[axis] = code_value();
             }
           }
         }
@@ -374,24 +380,24 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       case 204: // M204 acclereration S normal moves T filmanent only moves
         {
           if(code_seen('S')) {
-            Planner::acceleration = code_value();
-            Planner::travel_acceleration = code_value();
+            Planner::settings.acceleration = code_value();
+            Planner::settings.travel_acceleration = code_value();
           }
           if(code_seen('P')) {
-            Planner::acceleration = code_value();
+            Planner::settings.acceleration = code_value();
           }
           if(code_seen('R')) {
-            Planner::retract_acceleration = code_value();
+            Planner::settings.retract_acceleration = code_value();
           }
           if(code_seen('T')) {
-            Planner::travel_acceleration = code_value();
+            Planner::settings.travel_acceleration = code_value();
           }
         }
         break;
       case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
-        if(code_seen('B')) Planner::min_segment_time_us = code_value();
-        if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
-        if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
+        if(code_seen('B')) Planner::settings.min_segment_time_us = code_value();
+        if(code_seen('S')) Planner::settings.min_feedrate_mm_s = code_value();
+        if(code_seen('T')) Planner::settings.min_travel_feedrate_mm_s = code_value();
 
         // jdev handling below taken from:
         // Marlin/Marlin/src/gcode/config/M200-M205.cpp
@@ -408,21 +414,23 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           const float junc_dev = code_value();
           if (WITHIN(junc_dev, 0.01f, 0.3f)) {
             Planner::junction_deviation_mm = junc_dev;
-            planner.recalculate_max_e_jerk();
+            #if ENABLED(LIN_ADVANCE)
+              planner.recalculate_max_e_jerk();
+            #endif
           }
         }
         break;
       case 207: //from M207-M209.cpp
-        if (code_seen('S')) fwretract.retract_length = code_value();
-        if (code_seen('F')) fwretract.retract_feedrate_mm_s = MMM_TO_MMS(code_value());
-        if (code_seen('Z')) fwretract.retract_zlift = code_value();
-        if (code_seen('W')) fwretract.swap_retract_length = code_value();
+        if (code_seen('S')) fwretract.settings.retract_length = code_value();
+        if (code_seen('F')) fwretract.settings.retract_feedrate_mm_s = MMM_TO_MMS(code_value());
+        if (code_seen('Z')) fwretract.settings.retract_zraise = code_value();
+        if (code_seen('W')) fwretract.settings.swap_retract_length = code_value();
         break;
       case 208: //from M207-M209.cpp
-        if (code_seen('S')) fwretract.retract_recover_length = code_value();
-        if (code_seen('F')) fwretract.retract_recover_feedrate_mm_s = MMM_TO_MMS(code_value());
-        if (code_seen('R')) fwretract.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(code_value());
-        if (code_seen('W')) fwretract.swap_retract_recover_length = code_value();
+        if (code_seen('S')) fwretract.settings.retract_recover_extra = code_value();
+        if (code_seen('F')) fwretract.settings.retract_recover_feedrate_mm_s = MMM_TO_MMS(code_value());
+        if (code_seen('R')) fwretract.settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(code_value());
+        if (code_seen('W')) fwretract.settings.swap_retract_recover_extra = code_value();
         break;
       case 209: //from M207-M209.cpp
         if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
@@ -452,11 +460,15 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         break;
       case 900:
         {
+          int target_extruder = active_extruder;
+          if (code_seen('T')) {
+            target_extruder = code_value();
+          }
           if (code_seen('K')) {
             auto new_value = code_value();
             set_linear_advance(new_value != 0);
             planner.synchronize();
-            planner.extruder_advance_K = new_value;
+            planner.extruder_advance_K[target_extruder] = new_value;
           }
         }
         break;
@@ -471,6 +483,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
 int blocks = 0;
 
 uint8_t last_direction_bits = 0;
+uint8_t last_moved_extruder = 0;
 
 // Returns true if we found a block.
 bool idle2() {
@@ -496,10 +509,16 @@ bool idle2() {
     double tt3 = d*2/(block->final_rate + block->cruise_rate);
 
     double tt4 = 0;
-    if (block->direction_bits != last_direction_bits) {
+    if (
+        #if HAS_DRIVER(L6470)
+          true  // Always set direction for L6470 (This also enables the chips)
+        #else
+          block->direction_bits != last_direction_bits
+        #endif
+        ) {
       last_direction_bits = block->direction_bits;
       // MINIMUM_STEPPER_DIR_DELAY is in ns, described in Configuration_adv.h
-      tt4 += double(MINIMUM_STEPPER_DIR_DELAY)/1000/1000/1000;
+      tt4 += double(MINIMUM_STEPPER_PRE_DIR_DELAY + MINIMUM_STEPPER_POST_DIR_DELAY)/1000/1000/1000;
     }
     total_time += tt1+tt2+tt3+tt4;
     printf("Progress: %.17f, %.17f, %.17f\n", block->extra_data.filepos,
@@ -545,7 +564,7 @@ int main(int argc, char *argv[]) {
   while(new_command.size() > 0) {
     ExtraData extra_data;
     extra_data.filepos = (((double) in.tellg())/total_file_size);
-    extra_data.extruder_position = extruder_position;
+    extra_data.extruder_position = extruder_position - fwretract.current_retract[active_extruder];
     process_commands(new_command, extra_data);
     new_command = get_command(in);
   }

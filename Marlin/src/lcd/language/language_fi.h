@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Finnish
@@ -27,15 +28,13 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_FI_H
-#define LANGUAGE_FI_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" valmis.")
-#define MSG_SD_INSERTED                     _UxGT("Kortti asetettu")
-#define MSG_SD_REMOVED                      _UxGT("Kortti poistettu")
+#define MSG_MEDIA_INSERTED                  _UxGT("Kortti asetettu")
+#define MSG_MEDIA_REMOVED                   _UxGT("Kortti poistettu")
 #define MSG_MAIN                            _UxGT("Palaa")
 #define MSG_AUTOSTART                       _UxGT("Automaatti")
 #define MSG_DISABLE_STEPPERS                _UxGT("Vapauta moottorit")
@@ -46,16 +45,16 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Set home offsets")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offsets applied")
 #define MSG_SET_ORIGIN                      _UxGT("Aseta origo")
-#define MSG_PREHEAT_1                       _UxGT("Esilämmitä PLA")
-#define MSG_PREHEAT_1_N                     _UxGT("Esilämmitä PLA ")
-#define MSG_PREHEAT_1_ALL                   _UxGT("Esilä. PLA Kaikki")
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("Esilä. PLA Alusta")
-#define MSG_PREHEAT_1_SETTINGS              _UxGT("Esilämm. PLA konf")
-#define MSG_PREHEAT_2                       _UxGT("Esilämmitä ABS")
-#define MSG_PREHEAT_2_N                     _UxGT("Esilämmitä ABS ")
-#define MSG_PREHEAT_2_ALL                   _UxGT("Esilä. ABS Kaikki")
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("Esilä. ABS Alusta")
-#define MSG_PREHEAT_2_SETTINGS              _UxGT("Esilämm. ABS konf")
+#define MSG_PREHEAT_1                       _UxGT("Esilämmitä " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_1_N                     _UxGT("Esilämmitä " PREHEAT_1_LABEL " ")
+#define MSG_PREHEAT_1_ALL                   _UxGT("Esilä. " PREHEAT_1_LABEL " Kaikki")
+#define MSG_PREHEAT_1_BEDONLY               _UxGT("Esilä. " PREHEAT_1_LABEL " Alusta")
+#define MSG_PREHEAT_1_SETTINGS              _UxGT("Esilämm. " PREHEAT_1_LABEL " konf")
+#define MSG_PREHEAT_2                       _UxGT("Esilämmitä " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_N                     _UxGT("Esilämmitä " PREHEAT_2_LABEL " ")
+#define MSG_PREHEAT_2_ALL                   _UxGT("Esilä. " PREHEAT_2_LABEL " Kaikki")
+#define MSG_PREHEAT_2_BEDONLY               _UxGT("Esilä. " PREHEAT_2_LABEL " Alusta")
+#define MSG_PREHEAT_2_SETTINGS              _UxGT("Esilämm. " PREHEAT_2_LABEL " konf")
 #define MSG_COOLDOWN                        _UxGT("Jäähdytä")
 #define MSG_SWITCH_PS_ON                    _UxGT("Virta päälle")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Virta pois")
@@ -66,6 +65,7 @@
 #define MSG_MOVE_Y                          _UxGT("Liikuta Y")
 #define MSG_MOVE_Z                          _UxGT("Liikuta Z")
 #define MSG_MOVE_E                          _UxGT("Extruder")
+#define MSG_MOVE_Z_DIST                     _UxGT("Liikuta %smm")
 #define MSG_MOVE_01MM                       _UxGT("Liikuta 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Liikuta 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Liikuta 10mm")
@@ -79,8 +79,8 @@
 #define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Kerr")
 #define MSG_AUTOTEMP                        _UxGT("Autotemp")
-#define MSG_ON                              _UxGT("On ")
-#define MSG_OFF                             _UxGT("Off")
+#define MSG_LCD_ON                          _UxGT("On")
+#define MSG_LCD_OFF                         _UxGT("Off")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -119,6 +119,7 @@
 #define MSG_E3STEPS                         _UxGT("E3steps/mm")
 #define MSG_E4STEPS                         _UxGT("E4steps/mm")
 #define MSG_E5STEPS                         _UxGT("E5steps/mm")
+#define MSG_E6STEPS                         _UxGT("E6steps/mm")
 #define MSG_TEMPERATURE                     _UxGT("Lämpötila")
 #define MSG_MOTION                          _UxGT("Liike")
 #define MSG_FILAMENT                        _UxGT("Filament")
@@ -135,8 +136,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Keskeytä tulostus")
 #define MSG_RESUME_PRINT                    _UxGT("Jatka tulostusta")
 #define MSG_STOP_PRINT                      _UxGT("Pysäytä tulostus")
-#define MSG_CARD_MENU                       _UxGT("Korttivalikko")
-#define MSG_NO_CARD                         _UxGT("Ei korttia")
+#define MSG_MEDIA_MENU                      _UxGT("Korttivalikko")
+#define MSG_NO_MEDIA                        _UxGT("Ei korttia")
 #define MSG_DWELL                           _UxGT("Nukkumassa...")
 #define MSG_USERWAIT                        _UxGT("Odotet. valintaa")
 #define MSG_PRINT_ABORTED                   _UxGT("Print aborted")
@@ -146,14 +147,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Vedä mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Va. Vedä mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Vedä V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Z mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Z mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Va. UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
 #define MSG_AUTORETRACT                     _UxGT("AutoVeto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Change filament")
-#define MSG_INIT_SDCARD                     _UxGT("Init. SD-Card")
-#define MSG_CNG_SDCARD                      _UxGT("Change SD-Card")
+#define MSG_INIT_MEDIA                      _UxGT("Init. SD-Card")
+#define MSG_CHANGE_MEDIA                    _UxGT("Change SD-Card")
 #define MSG_ZPROBE_OUT                      _UxGT("Z probe out. bed")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("first")
@@ -168,4 +169,4 @@
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Kalibroi Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Kalibroi Center")
 
-#endif // LANGUAGE_FI_H
+#define MSG_EXPECTED_PRINTER                _UxGT("Väärä tulostin")

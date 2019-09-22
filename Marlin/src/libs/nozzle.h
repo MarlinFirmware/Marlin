@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __NOZZLE_H__
-#define __NOZZLE_H__
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 #include "point_t.h"
@@ -80,7 +78,7 @@ class Nozzle {
      * @param pattern one of the available patterns
      * @param argument depends on the cleaning pattern
      */
-    static void clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects=0) _Os;
+    static void clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const uint8_t cleans) _Os;
 
   #endif // NOZZLE_CLEAN_FEATURE
 
@@ -91,4 +89,4 @@ class Nozzle {
   #endif
 };
 
-#endif // __NOZZLE_H__
+extern Nozzle nozzle;

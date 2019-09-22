@@ -5,7 +5,7 @@
 # Create the upstream remote for a forked repository
 #
 
-[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
+[[ $# == 0 ]] || { echo "usage: `basename $0`" 1>&2 ; exit 1; }
 
 [[ -z $(git branch 2>/dev/null | grep ^* | sed 's/\* //g') ]] && { echo "No git repository here!" 1>&2 ; exit 1; }
 

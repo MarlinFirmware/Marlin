@@ -66,13 +66,13 @@ extern "C" {
  *
  * \return \c true if the ID pin management has been started, otherwise \c false.
  */
-bool otg_dual_enable(void);
+bool otg_dual_enable();
 
 /**
  * \brief Uninitialize the dual role
  * This function is implemented in uotghs_host.c file.
  */
-void otg_dual_disable(void);
+void otg_dual_disable();
 
 
 //! @name UOTGHS OTG ID pin management

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,8 +38,12 @@
 #include "../../../module/motion.h"
 #include "../../../module/stepper.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extensible_ui/ui_api.h"
+#endif
+
 // Save 130 bytes with non-duplication of PSTR
-void echo_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
+inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
 
 /**
  * G29: Mesh-based Z probe, probes a grid and produces a
@@ -47,65 +51,59 @@ void echo_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
  *
  * Parameters With MESH_BED_LEVELING:
  *
- *  S0              Produce a mesh report
+ *  S0              Report the current mesh values
  *  S1              Start probing mesh points
  *  S2              Probe the next mesh point
- *  S3 Xn Yn Zn.nn  Manually modify a single point
+ *  S3 In Jn Zn.nn  Manually modify a single point
  *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
  *  S5              Reset and disable mesh
- *
- * The S0 report the points as below
- *
- *  +----> X-axis  1-n
- *  |
- *  |
- *  v Y-axis  1-n
  *
  */
 void GcodeSuite::G29() {
 
   static int mbl_probe_index = -1;
   #if HAS_SOFTWARE_ENDSTOPS
-    static bool enable_soft_endstops;
+    static bool saved_soft_endstops_state;
   #endif
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
   if (!WITHIN(state, 0, 5)) {
-    SERIAL_PROTOCOLLNPGM("S out of range (0-5).");
+    SERIAL_ECHOLNPGM("S out of range (0-5).");
     return;
   }
 
-  int8_t px, py;
+  int8_t ix, iy;
 
   switch (state) {
     case MeshReport:
+      SERIAL_ECHOPGM("Mesh Bed Leveling ");
       if (leveling_is_valid()) {
-        SERIAL_PROTOCOLLNPAIR("State: ", planner.leveling_active ? MSG_ON : MSG_OFF);
+        serialprintln_onoff(planner.leveling_active);
         mbl.report_mesh();
       }
       else
-        SERIAL_PROTOCOLLNPGM("Mesh bed leveling has no data.");
+        SERIAL_ECHOLNPGM("has no data.");
       break;
 
     case MeshStart:
       mbl.reset();
       mbl_probe_index = 0;
-      if (!lcd_wait_for_move) {
-        enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
+      if (!ui.wait_for_bl_move) {
+        queue.inject_P(PSTR("G28\nG29 S2"));
         return;
       }
       state = MeshNext;
 
     case MeshNext:
       if (mbl_probe_index < 0) {
-        SERIAL_PROTOCOLLNPGM("Start mesh probing with \"G29 S1\" first.");
+        SERIAL_ECHOLNPGM("Start mesh probing with \"G29 S1\" first.");
         return;
       }
       // For each G29 S2...
       if (mbl_probe_index == 0) {
         #if HAS_SOFTWARE_ENDSTOPS
           // For the initial G29 S2 save software endstop state
-          enable_soft_endstops = soft_endstops_enabled;
+          saved_soft_endstops_state = soft_endstops_enabled;
         #endif
         // Move close to the bed before the first point
         do_blocking_move_to_z(0);
@@ -114,7 +112,7 @@ void GcodeSuite::G29() {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
         #if HAS_SOFTWARE_ENDSTOPS
-          soft_endstops_enabled = enable_soft_endstops;
+          soft_endstops_enabled = saved_soft_endstops_state;
         #endif
       }
       // If there's another point to sample, move there with optional lift.
@@ -125,8 +123,8 @@ void GcodeSuite::G29() {
           soft_endstops_enabled = false;
         #endif
 
-        mbl.zigzag(mbl_probe_index++, px, py);
-        _manual_goto_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
+        mbl.zigzag(mbl_probe_index++, ix, iy);
+        _manual_goto_xy(mbl.index_to_xpos[ix], mbl.index_to_ypos[iy]);
       }
       else {
         // One last "return to the bed" (as originally coded) at completion
@@ -136,11 +134,11 @@ void GcodeSuite::G29() {
 
         // After recording the last point, activate home and activate
         mbl_probe_index = -1;
-        SERIAL_PROTOCOLLNPGM("Mesh probing done.");
+        SERIAL_ECHOLNPGM("Mesh probing done.");
         BUZZ(100, 659);
         BUZZ(100, 698);
 
-        gcode.home_all_axes();
+        home_all_axes();
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
@@ -151,51 +149,49 @@ void GcodeSuite::G29() {
         #endif
 
         #if ENABLED(LCD_BED_LEVELING)
-          lcd_wait_for_move = false;
+          ui.wait_for_bl_move = false;
         #endif
       }
       break;
 
     case MeshSet:
-      if (parser.seenval('X')) {
-        px = parser.value_int() - 1;
-        if (!WITHIN(px, 0, GRID_MAX_POINTS_X - 1)) {
-          SERIAL_PROTOCOLLNPGM("X out of range (1-" STRINGIFY(GRID_MAX_POINTS_X) ").");
+      if (parser.seenval('I')) {
+        ix = parser.value_int();
+        if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) {
+          SERIAL_ECHOPAIR("I out of range (0-", int(GRID_MAX_POINTS_X - 1));
+          SERIAL_ECHOLNPGM(")");
           return;
         }
       }
-      else {
-        SERIAL_CHAR('X'); echo_not_entered();
-        return;
-      }
+      else
+        return echo_not_entered('J');
 
-      if (parser.seenval('Y')) {
-        py = parser.value_int() - 1;
-        if (!WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
-          SERIAL_PROTOCOLLNPGM("Y out of range (1-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
+      if (parser.seenval('J')) {
+        iy = parser.value_int();
+        if (!WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
+          SERIAL_ECHOPAIR("J out of range (0-", int(GRID_MAX_POINTS_Y - 1));
+          SERIAL_ECHOLNPGM(")");
           return;
         }
       }
-      else {
-        SERIAL_CHAR('Y'); echo_not_entered();
-        return;
-      }
+      else
+        return echo_not_entered('J');
 
-      if (parser.seenval('Z'))
-        mbl.z_values[px][py] = parser.value_linear_units();
-      else {
-        SERIAL_CHAR('Z'); echo_not_entered();
-        return;
+      if (parser.seenval('Z')) {
+        mbl.z_values[ix][iy] = parser.value_linear_units();
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]);
+        #endif
       }
+      else
+        return echo_not_entered('Z');
       break;
 
     case MeshSetZOffset:
       if (parser.seenval('Z'))
         mbl.z_offset = parser.value_linear_units();
-      else {
-        SERIAL_CHAR('Z'); echo_not_entered();
-        return;
-      }
+      else
+        return echo_not_entered('Z');
       break;
 
     case MeshReset:
@@ -205,8 +201,8 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
-    SERIAL_PROTOCOLPAIR("MBL G29 point ", MIN(mbl_probe_index, GRID_MAX_POINTS));
-    SERIAL_PROTOCOLLNPAIR(" of ", int(GRID_MAX_POINTS));
+    SERIAL_ECHOPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS));
+    SERIAL_ECHOLNPAIR(" of ", int(GRID_MAX_POINTS));
   }
 
   report_current_position();

@@ -6,17 +6,11 @@
 #
 #   - Remote (upstream) Org name (MarlinFirmware)
 #   - Remote (origin) Org name (your Github username)
-#   - Repo Name (Marlin, MarlinDev, MarlinDocumentation)
-#   - PR Target branch (bugfix-1.1.x, bugfix-2.0.x, or master)
+#   - Repo Name (Marlin, MarlinDocumentation)
+#   - PR Target branch (bugfix-1.1.x, bugfix-2.0.x, etc.)
 #   - Branch Arg (the branch argument or current branch)
 #   - Current Branch
 #
-
-usage() {
-  echo "Usage: `basename $0` [1|2] [branch]" 1>&2
-}
-
-[[ $# < 3 && $1 != "-h" && $1 != "--help" ]] || { usage; exit 1; }
 
 CURR=$(git branch 2>/dev/null | grep ^* | sed 's/\* //g')
 [[ -z $CURR ]] && { echo "No git repository here!" 1>&2 ; exit 1; }
@@ -28,30 +22,39 @@ REPO=$(git remote get-url upstream 2>/dev/null | sed -E 's/.*\/(.*)\.git/\1/')
 ORG=$(git remote get-url upstream 2>/dev/null | sed -E 's/.*[\/:](.*)\/.*$/\1/')
 [[ $ORG == MarlinFirmware ]] || { echo "`basename $0`: Not a Marlin repository." 1>&2 ; exit 1; }
 
+FORK=$(git remote get-url origin 2>/dev/null | sed -E 's/.*[\/:](.*)\/.*$/\1/')
+
+# Defaults if no arguments given
+BRANCH=$CURR
+INDEX=1
+
+while [[ $# -gt 0 ]]; do
+  opt="$1" ; shift ; val="$1"
+
+  IFS='=' read -a PARTS <<<"$opt"
+  [[ "${PARTS[1]}" != "" ]] && { EQUALS=1 ; opt="${PARTS[0]}" ; val="${PARTS[1]}" ; }
+
+  GOODVAL=1
+  if [[ "$val" =~ ^-{1,2}.* || ! "$opt" =~ ^-{1,2}.* ]]; then
+    GOODVAL=0
+    val=""
+  fi
+
+  case "$opt" in
+    -*|--*) MORE="$MORE$opt " ; [[ $EQUALS == 1 ]] && MORE="$MORE=$val" ;;
+       1|2) INDEX=$opt ;;
+         *) BRANCH="$opt" ;;
+  esac
+
+done
+
 case "$REPO" in
-  Marlin              ) TARG=bugfix-1.1.x ;
-                        [[ $# > 0 ]] && [[ $1 == 2 ]] && TARG=bugfix-2.0.x
-                        ;;
+  Marlin              ) TARG=bugfix-1.1.x ; [[ $INDEX == 2 ]] && TARG=bugfix-2.0.x ;;
   MarlinDocumentation ) TARG=master ;;
 esac
 
-FORK=$(git remote get-url origin 2>/dev/null | sed -E 's/.*[\/:](.*)\/.*$/\1/')
+[[ $BRANCH =~ ^[0-9]$ ]] && USAGE=1
 
-# BRANCH can be given as the last argument
-case "$#" in
-  0 ) BRANCH=$CURR ;;
-  1 )
-    case "$1" in
-      1|2) BRANCH=$CURR ;;
-      *) BRANCH=$1 ;;
-    esac
-    ;;
-  2 )
-    case "$1" in
-      1|2) BRANCH=$2 ;;
-      *) usage ; exit 1 ;;
-    esac
-    ;;
-esac
+[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2] [branch]" 1>&2 ; exit 1 ; }
 
-echo "$ORG $FORK $REPO $TARG $BRANCH $CURR"
+echo "$ORG $FORK $REPO $TARG $BRANCH $CURR $MORE"

@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-eval "echo \"#define ${1} ${2}\" >>Marlin/Configuration_adv.h"

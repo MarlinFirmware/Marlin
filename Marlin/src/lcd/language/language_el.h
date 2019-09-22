@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Greek
@@ -27,15 +28,13 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_EL_H
-#define LANGUAGE_EL_H
 
 #define DISPLAY_CHARSET_ISO10646_GREEK
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" έτοιμο.")
-#define MSG_SD_INSERTED                     _UxGT("Εισαγωγή κάρτας")
-#define MSG_SD_REMOVED                      _UxGT("Αφαίρεση κάρτας")
+#define MSG_MEDIA_INSERTED                  _UxGT("Εισαγωγή κάρτας")
+#define MSG_MEDIA_REMOVED                   _UxGT("Αφαίρεση κάρτας")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Βασική Οθόνη")
 #define MSG_AUTOSTART                       _UxGT("Αυτόματη εκκίνηση")
@@ -51,12 +50,12 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ορισμός βασικών μετατοπίσεων") //SHORTEN
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Εφαρμόστηκαν οι μετατοπίσεις") //SHORTEN
 #define MSG_SET_ORIGIN                      _UxGT("Ορισμός προέλευσης")
-#define MSG_PREHEAT_1                       _UxGT("Προθέρμανση PLA")
+#define MSG_PREHEAT_1                       _UxGT("Προθέρμανση " PREHEAT_1_LABEL)
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" όλα")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" bed") //SHORTEN
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" επιβεβαίωση") //SHORTEN
-#define MSG_PREHEAT_2                       _UxGT("Προθέρμανση ABS")
+#define MSG_PREHEAT_2                       _UxGT("Προθέρμανση " PREHEAT_2_LABEL)
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" όλα")
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" bed") //SHORTEN
@@ -73,9 +72,10 @@
 #define MSG_MOVE_Y                          _UxGT("Μετακίνηση Y")
 #define MSG_MOVE_Z                          _UxGT("Μετακίνηση Z")
 #define MSG_MOVE_E                          _UxGT("Εξωθητήρας")
-#define MSG_MOVE_01MM                       _UxGT("Μετακίνηση 0,1μμ")
-#define MSG_MOVE_1MM                        _UxGT("Μετακίνηση 1μμ")
-#define MSG_MOVE_10MM                       _UxGT("Μετακίνηση 10μμ")
+#define MSG_MOVE_Z_DIST                     _UxGT("Μετακίνηση %s μμ")
+#define MSG_MOVE_01MM                       _UxGT("Μετακίνηση 0,1 μμ")
+#define MSG_MOVE_1MM                        _UxGT("Μετακίνηση 1 μμ")
+#define MSG_MOVE_10MM                       _UxGT("Μετακίνηση 10 μμ")
 #define MSG_SPEED                           _UxGT("Ταχύτητα")
 #define MSG_BED_Z                           _UxGT("Επ. Εκτύπωσης Z")
 #define MSG_NOZZLE                          _UxGT("Ακροφύσιο")
@@ -87,8 +87,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Αυτομ ρύθμιση θερ/σίας") //SHORTEN
-#define MSG_ON                              _UxGT("Ενεργοποιημένο")
-#define MSG_OFF                             _UxGT("Απενεργοποιημένο")
+#define MSG_LCD_ON                          _UxGT("Ενεργοποιημένο")
+#define MSG_LCD_OFF                         _UxGT("Απενεργοποιημένο")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -144,8 +144,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Παύση εκτύπωσης")
 #define MSG_RESUME_PRINT                    _UxGT("Συνέχιση εκτύπωσης")
 #define MSG_STOP_PRINT                      _UxGT("Διακοπή εκτύπωσης")
-#define MSG_CARD_MENU                       _UxGT("Εκτύπωση από SD")
-#define MSG_NO_CARD                         _UxGT("Δεν βρέθηκε SD")
+#define MSG_MEDIA_MENU                      _UxGT("Εκτύπωση από SD")
+#define MSG_NO_MEDIA                        _UxGT("Δεν βρέθηκε SD")
 #define MSG_DWELL                           _UxGT("Αναστολή λειτουργίας")
 #define MSG_USERWAIT                        _UxGT("Αναμονή για χρήστη")
 #define MSG_PRINT_ABORTED                   _UxGT("Διακόπτεται η εκτύπωση") //SHORTEN
@@ -155,14 +155,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Ανάσυρση μμ")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Εναλλαγή ανάσυρσης μμ")  //SHORTEN
 #define MSG_CONTROL_RETRACTF                _UxGT("Ανάσυρση V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Μεταπήδηση μμ")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Μεταπήδηση μμ")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
 #define MSG_AUTORETRACT                     _UxGT("Αυτόματη ανάσυρση")
 #define MSG_FILAMENTCHANGE                  _UxGT("Αλλαγή νήματος")
-#define MSG_INIT_SDCARD                     _UxGT("Προετοιμασία κάρτας SD")  //SHORTEN
-#define MSG_CNG_SDCARD                      _UxGT("Αλλαγή κάρτας SD")
+#define MSG_INIT_MEDIA                      _UxGT("Προετοιμασία κάρτας SD")  //SHORTEN
+#define MSG_CHANGE_MEDIA                    _UxGT("Αλλαγή κάρτας SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Διερεύνηση Z εκτός Επ.Εκτύπωσης") //SHORTEN
 #define MSG_YX_UNHOMED                      _UxGT("Επαναφορά Χ/Υ πριν από Ζ") //SHORTEN
 #define MSG_XYZ_UNHOMED                     _UxGT("Επαναφορά ΧΥΖ πρώτα")
@@ -187,4 +187,4 @@
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Βαθμονόμηση Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Βαθμονόμηση κέντρου")
 
-#endif // LANGUAGE_EL_H
+#define MSG_EXPECTED_PRINTER                _UxGT("Εσφαλμένος εκτυπωτής")

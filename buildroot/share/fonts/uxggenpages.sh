@@ -169,6 +169,6 @@ cat <<EOF >fontutf8-data.h
  */
 #include <U8glib.h>
 $TMPA
-#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
+#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {$TMPB};
 EOF

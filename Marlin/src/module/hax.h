@@ -135,4 +135,14 @@ typedef struct ExtraData {
 
 #define DRYRUN 1
 #define DEBUGGING(F) false
+
+// From src/HAL/HAL_LINUX/include/Arduino.h
+#define PGM_P const char *
+
+// From motion.h for fwretract.*
+extern int16_t feedrate_percentage;
+
+// From motion.cpp for fwretract.cpp
+#define sync_plan_position_e() Planner::set_e_position_mm(current_position[E_AXIS]);
+
 #endif

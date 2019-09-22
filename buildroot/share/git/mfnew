@@ -6,7 +6,7 @@
 #
 
 usage() {
-  echo "Usage: `basename $0` [1|2] [name]" 1>&2
+  echo "usage: `basename $0` [1|2] [name]" 1>&2
 }
 
 [[ $# < 3 && $1 != "-h" && $1 != "--help" ]] || { usage; exit 1; }

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,38 +26,36 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
 
 #include "runout.h"
 
-FilamentRunoutSensor runout;
+FilamentMonitor runout;
 
-bool FilamentRunoutSensor::filament_ran_out; // = false
-uint8_t FilamentRunoutSensor::runout_count; // = 0
+bool FilamentMonitorBase::enabled = true,
+     FilamentMonitorBase::filament_ran_out;  // = false
 
-void FilamentRunoutSensor::setup() {
+#if ENABLED(HOST_ACTION_COMMANDS)
+  bool FilamentMonitorBase::host_handling; // = false
+#endif
 
-  #if ENABLED(FIL_RUNOUT_PULLUP)
-    #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLUP(P)
-  #elif ENABLED(FIL_RUNOUT_PULLDOWN)
-    #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLDOWN(P)
-  #else
-    #define INIT_RUNOUT_PIN(P) SET_INPUT(P)
-  #endif
-
-  INIT_RUNOUT_PIN(FIL_RUNOUT_PIN);
-  #if NUM_RUNOUT_SENSORS > 1
-    INIT_RUNOUT_PIN(FIL_RUNOUT2_PIN);
-    #if NUM_RUNOUT_SENSORS > 2
-      INIT_RUNOUT_PIN(FIL_RUNOUT3_PIN);
-      #if NUM_RUNOUT_SENSORS > 3
-        INIT_RUNOUT_PIN(FIL_RUNOUT4_PIN);
-        #if NUM_RUNOUT_SENSORS > 4
-          INIT_RUNOUT_PIN(FIL_RUNOUT5_PIN);
-        #endif
-      #endif
-    #endif
-  #endif
+/**
+ * Called by FilamentSensorSwitch::run when filament is detected.
+ * Called by FilamentSensorEncoder::block_completed when motion is detected.
+ */
+void FilamentSensorBase::filament_present(const uint8_t extruder) {
+  runout.filament_present(extruder); // calls response.filament_present(extruder)
 }
 
-#endif // FILAMENT_RUNOUT_SENSOR
+#if ENABLED(FILAMENT_MOTION_SENSOR)
+  uint8_t FilamentSensorEncoder::motion_detected;
+#endif
+
+#ifdef FILAMENT_RUNOUT_DISTANCE_MM
+  float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
+  volatile float RunoutResponseDelayed::runout_mm_countdown[EXTRUDERS];
+#else
+  int8_t RunoutResponseDebounced::runout_count; // = 0
+#endif
+
+#endif // HAS_FILAMENT_SENSOR

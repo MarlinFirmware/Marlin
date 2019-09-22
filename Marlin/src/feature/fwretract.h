@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,16 +19,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * fwretract.h - Define firmware-based retraction interface
  */
 
-#ifndef FWRETRACT_H
-#define FWRETRACT_H
-
 #include "../module/hax.h"
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
+
+#pragma pack(push, 1) // No padding between fields
+
+typedef struct {
+  float retract_length,                     // M207 S - G10 Retract length
+        retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
+        retract_zraise,                     // M207 Z - G10 Retract hop size
+        retract_recover_extra,              // M208 S - G11 Recover length
+        retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
+        swap_retract_length,                // M207 W - G10 Swap Retract length
+        swap_retract_recover_extra,         // M208 W - G11 Swap Recover length
+        swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
+} fwretract_settings_t;
+
+#pragma pack(pop)
+
+#if ENABLED(FWRETRACT)
 
 class FWRetract {
 private:
@@ -37,29 +52,31 @@ private:
   #endif
 
 public:
-  static bool autoretract_enabled,                 // M209 S - Autoretract switch
-              retracted[EXTRUDERS];                // Which extruders are currently retracted
-  static float retract_length,                     // M207 S - G10 Retract length
-               retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
-               retract_zlift,                      // M207 Z - G10 Retract hop size
-               retract_recover_length,             // M208 S - G11 Recover length
-               retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
-               swap_retract_length,                // M207 W - G10 Swap Retract length
-               swap_retract_recover_length,        // M208 W - G11 Swap Recover length
-               swap_retract_recover_feedrate_mm_s, // M208 R - G11 Swap Recover feedrate
-               hop_amount;
+  static fwretract_settings_t settings;
+
+  #if ENABLED(FWRETRACT_AUTORETRACT)
+    static bool autoretract_enabled;               // M209 S - Autoretract switch
+  #else
+    static constexpr bool autoretract_enabled = false;
+  #endif
+
+  static bool retracted[EXTRUDERS];                // Which extruders are currently retracted
+  static float current_retract[EXTRUDERS],         // Retract value used by planner
+               current_hop;                        // Hop value used by planner
 
   FWRetract() { reset(); }
 
   static void reset();
 
   static void refresh_autoretract() {
-    for (uint8_t i = 0; i < EXTRUDERS; i++) retracted[i] = false;
+    LOOP_L_N(i, EXTRUDERS) retracted[i] = false;
   }
 
   static void enable_autoretract(const bool enable) {
-    autoretract_enabled = enable;
-    refresh_autoretract();
+    #if ENABLED(FWRETRACT_AUTORETRACT)
+      autoretract_enabled = enable;
+      refresh_autoretract();
+    #endif
   }
 
   static void retract(const bool retracting, const ExtraData& extra_data
@@ -71,4 +88,4 @@ public:
 
 extern FWRetract fwretract;
 
-#endif // FWRETRACT_H
+#endif // FWRETRACT

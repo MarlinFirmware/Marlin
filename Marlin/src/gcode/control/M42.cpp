@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,10 @@
 #include "../../Marlin.h" // for pin_is_protected
 #include "../../inc/MarlinConfig.h"
 
+#if FAN_COUNT > 0
+  #include "../../module/temperature.h"
+#endif
+
 /**
  * M42: Change pin status via GCode
  *
@@ -32,6 +36,7 @@
  *                                  P1_20 as M42 P120, etc.
  *
  *  S<byte> Pin status from 0 - 255
+ *  I       Flag to ignore Marlin's pin protection
  */
 void GcodeSuite::M42() {
   if (!parser.seenval('S')) return;
@@ -42,22 +47,22 @@ void GcodeSuite::M42() {
 
   const pin_t pin = GET_PIN_MAP_PIN(pin_index);
 
-  if (pin_is_protected(pin)) return protected_pin_err();
+  if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
 
   pinMode(pin, OUTPUT);
-  digitalWrite(pin, pin_status);
+  extDigitalWrite(pin, pin_status);
   analogWrite(pin, pin_status);
 
   #if FAN_COUNT > 0
     switch (pin) {
       #if HAS_FAN0
-        case FAN_PIN: fanSpeeds[0] = pin_status; break;
+        case FAN0_PIN: thermalManager.fan_speed[0] = pin_status; break;
       #endif
       #if HAS_FAN1
-        case FAN1_PIN: fanSpeeds[1] = pin_status; break;
+        case FAN1_PIN: thermalManager.fan_speed[1] = pin_status; break;
       #endif
       #if HAS_FAN2
-        case FAN2_PIN: fanSpeeds[2] = pin_status; break;
+        case FAN2_PIN: thermalManager.fan_speed[2] = pin_status; break;
       #endif
     }
   #endif

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,12 @@
 #include "emergency_parser.h"
 
 // Static data members
-bool EmergencyParser::killed_by_M112; // = false
+bool EmergencyParser::killed_by_M112, // = false
+     EmergencyParser::enabled;
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  uint8_t EmergencyParser::M876_reason; // = 0
+#endif
 
 // Global instance
 EmergencyParser emergency_parser;

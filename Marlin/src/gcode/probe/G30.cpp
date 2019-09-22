@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,13 +52,10 @@ void GcodeSuite::G30() {
   setup_for_endstop_or_probe_move();
 
   const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
-  const float measured_z = probe_pt(xpos, ypos, raise_after, 1);
+  const float measured_z = probe_at_point(xpos, ypos, raise_after, 1);
 
-  if (!isnan(measured_z)) {
-    SERIAL_PROTOCOLPAIR_F("Bed X: ", xpos);
-    SERIAL_PROTOCOLPAIR_F(" Y: ", ypos);
-    SERIAL_PROTOCOLLNPAIR_F(" Z: ", measured_z);
-  }
+  if (!isnan(measured_z))
+    SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(xpos), " Y: ", FIXFLOAT(ypos), " Z: ", FIXFLOAT(measured_z));
 
   clean_up_after_endstop_or_probe_move();
 

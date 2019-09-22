@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+#if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
 
 #include "../gcode.h"
 
@@ -31,77 +31,72 @@
   #include "../../module/delta.h"
   #include "../../module/motion.h"
 
+  #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+  #include "../../core/debug_out.h"
+
   /**
    * M666: Set delta endstop adjustment
    */
   void GcodeSuite::M666() {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM(">>> M666");
-      }
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> M666");
     LOOP_XYZ(i) {
       if (parser.seen(axis_codes[i])) {
         const float v = parser.value_linear_units();
         if (v * Z_HOME_DIR <= 0) delta_endstop_adj[i] = v;
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("delta_endstop_adj[", axis_codes[i]);
-            SERIAL_ECHOLNPAIR("] = ", delta_endstop_adj[i]);
-          }
-        #endif
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", axis_codes[i], "] = ", delta_endstop_adj[i]);
       }
     }
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM("<<< M666");
-      }
-    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< M666");
   }
 
-#elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+#elif HAS_EXTRA_ENDSTOPS
 
   #include "../../module/endstops.h"
 
   /**
    * M666: Set Dual Endstops offsets for X, Y, and/or Z.
    *       With no parameters report current offsets.
+   *
+   * For Triple Z Endstops:
+   *   Set Z2 Only: M666 S2 Z<offset>
+   *   Set Z3 Only: M666 S3 Z<offset>
+   *      Set Both: M666 Z<offset>
    */
   void GcodeSuite::M666() {
-    bool report = true;
     #if ENABLED(X_DUAL_ENDSTOPS)
-      if (parser.seen('X')) {
-        endstops.x_endstop_adj = parser.value_linear_units();
-        report = false;
-      }
+      if (parser.seenval('X')) endstops.x2_endstop_adj = parser.value_linear_units();
     #endif
     #if ENABLED(Y_DUAL_ENDSTOPS)
-      if (parser.seen('Y')) {
-        endstops.y_endstop_adj = parser.value_linear_units();
-        report = false;
-      }
+      if (parser.seenval('Y')) endstops.y2_endstop_adj = parser.value_linear_units();
     #endif
-    #if ENABLED(Z_DUAL_ENDSTOPS)
-      if (parser.seen('Z')) {
-        endstops.z_endstop_adj = parser.value_linear_units();
-        report = false;
+    #if ENABLED(Z_TRIPLE_ENDSTOPS)
+      if (parser.seenval('Z')) {
+        const float z_adj = parser.value_linear_units();
+        const int ind = parser.intval('S');
+        if (!ind || ind == 2) endstops.z2_endstop_adj = z_adj;
+        if (!ind || ind == 3) endstops.z3_endstop_adj = z_adj;
       }
+    #elif Z_MULTI_ENDSTOPS
+      if (parser.seen('Z')) endstops.z2_endstop_adj = parser.value_linear_units();
     #endif
-    if (report) {
+    if (!parser.seen("XYZ")) {
       SERIAL_ECHOPGM("Dual Endstop Adjustment (mm): ");
       #if ENABLED(X_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" X", endstops.x_endstop_adj);
+        SERIAL_ECHOPAIR(" X2:", endstops.x2_endstop_adj);
       #endif
       #if ENABLED(Y_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" Y", endstops.y_endstop_adj);
+        SERIAL_ECHOPAIR(" Y2:", endstops.y2_endstop_adj);
       #endif
-      #if ENABLED(Z_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" Z", endstops.z_endstop_adj);
+      #if Z_MULTI_ENDSTOPS
+        SERIAL_ECHOPAIR(" Z2:", endstops.z2_endstop_adj);
+      #endif
+      #if ENABLED(Z_TRIPLE_ENDSTOPS)
+        SERIAL_ECHOPAIR(" Z3:", endstops.z3_endstop_adj);
       #endif
       SERIAL_EOL();
     }
   }
 
-#endif // X_DUAL_ENDSTOPS || Y_DUAL_ENDSTOPS || Z_DUAL_ENDSTOPS
+#endif // HAS_EXTRA_ENDSTOPS
 
-#endif // DELTA || X_DUAL_ENDSTOPS || Y_DUAL_ENDSTOPS || Z_DUAL_ENDSTOPS
+#endif // DELTA || HAS_EXTRA_ENDSTOPS
