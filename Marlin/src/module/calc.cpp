@@ -540,7 +540,7 @@ int main(int argc, char *argv[]) {
   while(new_command.size() > 0) {
     ExtraData extra_data;
     extra_data.filepos = (((double) in.tellg())/total_file_size);
-    extra_data.extruder_position = extruder_position;
+    extra_data.extruder_position = extruder_position - fwretract.current_retract[active_extruder];
     process_commands(new_command, extra_data);
     new_command = get_command(in);
   }
