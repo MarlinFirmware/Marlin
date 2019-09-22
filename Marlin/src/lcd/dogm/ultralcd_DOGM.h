@@ -112,8 +112,17 @@
   // MINIPanel display
   //#define U8G_CLASS U8GLIB_MINI12864
   //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 8 stripes
-  #define U8G_CLASS U8GLIB_MINI12864_2X
-  #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 8 stripes
+  #if ENABLED(MKS_MINI_12864)
+    /*Due The MKS_MINI_12864 V1 and V2 are not excact copy of the MiniPanel
+      The panel management has mooved to HAL implementation that was modded to add the requires delays that
+      remove the glitched related with fast MCU
+    */
+    #define U8G_CLASS U8GLIB_MINI12864_2X_HAL
+    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 8 stripes
+  #else
+    #define U8G_CLASS U8GLIB_MINI12864_2X
+    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 8 stripes
+  #endif
 #elif ENABLED(FYSETC_MINI_12864)
   // The FYSETC_MINI_12864 display
   #define U8G_CLASS U8GLIB_MINI12864_2X_HAL

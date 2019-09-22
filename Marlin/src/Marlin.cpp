@@ -974,6 +974,13 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
+  /*
+  Turn on The backlight of led or Neopixel Based Panels
+  */
+  #if HAS_COLOR_LEDS
+    leds.setup();
+  #endif
+  
   ui.init();
   ui.reset_status();
 
@@ -1067,10 +1074,13 @@ void setup() {
   #if PIN_EXISTS(STAT_LED_BLUE)
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
-
-  #if HAS_COLOR_LEDS
-    leds.setup();
-  #endif
+  /*
+  Moved from this place to a pomt inmediately before the ui_init() in order to turn on the backlight before to display 
+  any objects
+  */
+  //#if HAS_COLOR_LEDS
+  //  leds.setup();
+  //#endif
 
   #if HAS_CASE_LIGHT
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
