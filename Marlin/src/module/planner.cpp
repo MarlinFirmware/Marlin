@@ -822,6 +822,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     uint32_t deceleration_time_inverse = get_period_inverse(deceleration_time);
   #endif
 
+
   // Store new block parameters
   block->accelerate_until = accelerate_steps;
   block->decelerate_after = accelerate_steps + plateau_steps;
@@ -834,6 +835,51 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     block->cruise_rate = cruise_rate;
   #endif
   block->final_rate = final_rate;
+
+  /**
+   * Laser trapezoid calculations
+   * 
+   * Approximates the trapezoid with the laser, by incremening the power every `entry_power_per` while accelerating
+   * and decrementing it every `exit_power_per` while decelerating, thus ensuring power is related to feedrate.
+   * 
+   * LASER_POWER_INLINE_TRAPEZOID_CONT doesn't need this as it continuously approximates
+   * 
+   * Note this may behave unreliably when running with S_CURVE_ACCELERATION
+   */
+  #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+    if (block->laser.power > 0) { // No need to care if power == 0
+      uint8_t entry_power = block->laser.power*entry_factor; // Power on block entry
+      #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+        //Deceleration steps
+        uint32_t decelstep = block->step_event_count-block->decelerate_after;
+        //Speedup power
+        uint8_t entry_power_difference = block->laser.power-entry_power;
+        if (entry_power_difference != 0) {
+          uint32_t entry_power_per = accelerate_steps/entry_power_difference;
+          block->laser.power_entry = entry_power;
+          block->laser.entry_per = entry_power_per;
+        }
+        else {
+          block->laser.power_entry = block->laser.power;
+          block->laser.entry_per = 0;
+        }
+        //Slowdown power
+        uint8_t exit_power = block->laser.power*exit_factor; // Power on block entry
+        uint8_t exit_power_difference = block->laser.power-exit_power;
+        if (exit_power_difference  != 0) {
+          uint32_t exit_power_per = decelstep/exit_power_difference;
+          block->laser.power_exit = exit_power;
+          block->laser.exit_per = exit_power_per;
+        }
+        else {
+          block->laser.power_exit = block->laser.power;
+          block->laser.exit_per = 0;
+        }
+      #else
+        block->laser.power_entry = entry_power;
+      #endif
+    }
+  #endif
 }
 
 /*                            PLANNER SPEED DEFINITION
@@ -1816,6 +1862,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Set direction bits
   block->direction_bits = dm;
+
+  // Update block laser power
+  #if ENABLED(LASER_POWER_INLINE)
+    block->laser.status = settings.laser.status;
+    block->laser.power = settings.laser.power;
+  #endif
 
   // Number of steps for each axis
   // See http://www.corexy.com/theory.html

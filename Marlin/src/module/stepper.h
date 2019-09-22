@@ -354,6 +354,41 @@ class Stepper {
     //
     static xyze_int8_t count_direction;
 
+    #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+      typedef struct {
+        //
+        // Is laser trapezoid needed (i.e. laser is powered on, and planner is in control)
+        //
+        bool trap_en;
+
+        //
+        // The current power on the laser
+        //
+        uint8_t cur_power;
+
+        //
+        //  Have we set up the laser power for cruising
+        //
+        bool cruise_set;
+
+        #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+          /**
+           * last_step_count is the step count from when the last update was called
+           * 
+           * acc_step_count is the accumulation of steps up to the steps_per currently being used
+           * 
+           */ 
+          uint32_t last_step_count, acc_step_count;
+        #else
+          /**
+           * Count until next update
+           */
+          uint16_t till_update;
+        #endif
+      } stepper_laser_t;
+      static stepper_laser_t laser;
+    #endif
+
   public:
 
     // Initialize stepper hardware

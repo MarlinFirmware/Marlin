@@ -248,6 +248,12 @@ void plan_arc(
   current_position = raw;
 } // plan_arc
 
+
+#if ENABLED(LASER_MOVE_POWER)
+  #include "../../feature/spindle_laser.h"
+#endif
+
+
 /**
  * G2: Clockwise Arc
  * G3: Counterclockwise Arc
@@ -284,6 +290,19 @@ void GcodeSuite::G2_G3(const bool clockwise) {
     #endif
 
     get_destination_from_command();
+
+    #if ENABLED(LASER_MOVE_POWER)
+      //Set the laser power in the planner to configure this move
+      #if ENABLED(SPEED_POWER_FLOAT)
+        if (parser.seen('S')) {
+          cutter.inline_power(parser.value_float());
+        }
+      #else
+        if (parser.seen('S')) {
+          cutter.inline_power(parser.value_int());
+        }
+      #endif
+    #endif
 
     #if ENABLED(SF_ARC_FIX)
       relative_mode = relative_mode_backup;

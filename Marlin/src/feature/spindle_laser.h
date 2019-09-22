@@ -35,12 +35,21 @@
 #endif
 #define MSG_CUTTER(M) _MSG_CUTTER(M)
 
-#if SPEED_POWER_MAX > 255
-  typedef uint16_t cutter_power_t;
-  #define CUTTER_MENU_TYPE uint16_5
+#if DISABLED(SPEED_POWER_FLOAT)
+  #if SPEED_POWER_MAX > 255
+    #define cutter_power_t   uint16_t
+    #define CUTTER_MENU_TYPE uint16_5
+  #else
+    #define cutter_power_t   uint8_t
+    #define CUTTER_MENU_TYPE uint8
+  #endif
 #else
-  typedef uint8_t cutter_power_t;
-  #define CUTTER_MENU_TYPE uint8
+  #define cutter_power_t   float
+  #define CUTTER_MENU_TYPE float52
+#endif
+
+#if ENABLED(LASER_POWER_INLINE)
+  #include "../module/planner.h"
 #endif
 
 class SpindleLaser {
@@ -50,19 +59,14 @@ public:
 
   static void init();
 
-  static inline bool enabled() { return !!power; }
+  static inline bool enabled() { return enabled(power); }
 
-  static inline void set_power(const cutter_power_t pwr) { power = pwr; }
+  //Modifying this function should update everywhere
+  static inline bool enabled(cutter_power_t pwr) { return power > 0; }
 
-  static inline void refresh() { apply_power(power); }
+  static inline void set_power(const cutter_power_t pwr) { power = pwr; update_output(); }
 
-  static inline void set_enabled(const bool enable) {
-    const bool was = enabled();
-    set_power(enable ? 255 : 0);
-    if (was != enable) power_delay();
-  }
-
-  static void apply_power(const cutter_power_t inpow);
+  static inline void set_enabled(const bool enable) { set_power(enable ? SPEED_POWER_STARTUP : 0); }
 
   //static bool active() { return READ(SPINDLE_LASER_ENA_PIN) == SPINDLE_LASER_ACTIVE_HIGH; }
 
@@ -70,13 +74,14 @@ public:
 
   #if ENABLED(SPINDLE_LASER_PWM)
     static void set_ocr(const uint8_t ocr);
-    static inline void set_ocr_power(const cutter_power_t pwr) { power = pwr; set_ocr(pwr); }
+    static inline void set_ocr_power(const uint8_t pwr) { power = pwr; set_ocr(pwr); }
+    static uint8_t translate_power(const cutter_power_t pwr); // Used by update output for power->OCR translation
   #endif
 
   // Wait for spindle to spin up or spin down
-  static inline void power_delay() {
-    #if SPINDLE_LASER_POWERUP_DELAY || SPINDLE_LASER_POWERDOWN_DELAY
-      safe_delay(enabled() ? SPINDLE_LASER_POWERUP_DELAY : SPINDLE_LASER_POWERDOWN_DELAY);
+  static inline void power_delay(const bool on) {
+    #if DISABLED(LASER_POWER_INLINE)
+      safe_delay(on ? SPINDLE_LASER_POWERUP_DELAY : SPINDLE_LASER_POWERDOWN_DELAY);
     #endif
   }
 
@@ -90,6 +95,35 @@ public:
   static inline void enable_forward() { set_direction(false); set_enabled(true); }
   static inline void enable_reverse() { set_direction(true); set_enabled(true); }
 
+  #if ENABLED(LASER_POWER_INLINE)
+    // Force disengage planner power control
+    static inline void inline_disable() { planner.settings.laser.status = 0; planner.settings.laser.power = 0; }
+
+    // Inline modes of all other functions; all enable planner inline power control
+    static inline void inline_enabled(const bool enable) { enable ? inline_power(translate_power(SPEED_POWER_STARTUP)) : inline_ocr_power(0); }
+
+    static void inline_power(const cutter_power_t pwr) {
+      #if ENABLED(SPINDLE_LASER_PWM)
+        inline_ocr_power(translate_power(pwr));
+      #else
+        planner.settings.laser.status |= 1; // Enable planner power control
+        planner.settings.laser.status &= ~2; // Unset power
+        planner.settings.laser.status |= enabled(pwr) << 1; // Setup planer laser state
+        planner.settings.laser.power = pwr;
+      #endif
+    }
+
+    static inline void inline_direction(const bool reverse) { UNUSED(reverse); } //TODO is this ever going to be needed
+
+    #if ENABLED(SPINDLE_LASER_PWM)
+    static inline void inline_ocr_power(const uint8_t pwr) {
+      planner.settings.laser.status |= 1; // Enable planner power control
+      planner.settings.laser.status &= ~2; // Unset power
+      planner.settings.laser.status |= (pwr>0) << 1; // Setup planer laser state
+      planner.settings.laser.power = pwr;
+    }
+    #endif
+  #endif
 };
 
 extern SpindleLaser cutter;

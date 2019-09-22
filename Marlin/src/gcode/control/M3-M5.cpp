@@ -71,9 +71,33 @@
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
 
-  #if ENABLED(SPINDLE_FEATURE)
-    planner.synchronize();   // Wait for movement to complete before changing power
+  #if ENABLED(LASER_POWER_INLINE)
+    #if ENABLED(LASER_POWER_INLINE_INVERT)
+      if (!parser.seen('I')) {
+    #else
+      if (parser.seen('I')) {
+    #endif
+      //Laser power is in inline mode
+
+      cutter.inline_direction(is_M4); // Should always be unused
+
+      #if ENABLED(SPINDLE_LASER_PWM)
+        if (parser.seen('O'))
+          cutter.inline_ocr_power(parser.value_byte()); // The OCR is a value from 0 to 255 (uint8_t)
+        else
+          #if ENABLED(SPEED_POWER_FLOAT)
+            cutter.inline_power(parser.floatval('S', SPEED_POWER_STARTUP));
+          #else
+            cutter.inline_power(parser.intval('S', SPEED_POWER_STARTUP));
+          #endif
+      #else
+        cutter.inline_enabled(true);
+      #endif
+    } else {
+      //Non-inline, standard case
+      cutter.inline_disable(); // Take control away from planner so future blocks don't re-set the power after this command
   #endif
+  planner.synchronize();   // Wait for previous movement commands (G0/G0/G2/G3) to complete before changing power
 
   cutter.set_direction(is_M4);
 
@@ -81,9 +105,16 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     if (parser.seenval('O'))
       cutter.set_ocr_power(parser.value_byte()); // The OCR is a value from 0 to 255 (uint8_t)
     else
-      cutter.set_power(parser.intval('S', 255));
+      #if ENABLED(SPEED_POWER_FLOAT)
+        cutter.set_power(parser.floatval('S', SPEED_POWER_STARTUP));
+      #else
+        cutter.set_power(parser.intval('S', SPEED_POWER_STARTUP));
+      #endif
   #else
     cutter.set_enabled(true);
+  #endif
+  #if ENABLED(LASER_POWER_INLINE)
+    }
   #endif
 }
 
@@ -91,10 +122,23 @@ void GcodeSuite::M3_M4(const bool is_M4) {
  * M5 - Cutter OFF
  */
 void GcodeSuite::M5() {
-  #if ENABLED(SPINDLE_FEATURE)
-    planner.synchronize();
+  #if ENABLED(LASER_POWER_INLINE)
+    #if ENABLED(LASER_POWER_INLINE_INVERT)
+      if (!parser.seen('I')) {
+    #else
+      if (parser.seen('I')) {
+    #endif
+      //Laser power is in inline mode
+      cutter.inline_enabled(false);
+    } else {
+      //Non-inline, standard case
+      cutter.inline_disable(); // Take control away from planner so future blocks don't re-set the power after this command
   #endif
-  cutter.set_enabled(false);
+    planner.synchronize();
+    cutter.set_enabled(false);
+  #if ENABLED(LASER_POWER_INLINE)
+    }
+  #endif
 }
 
 #endif // HAS_CUTTER

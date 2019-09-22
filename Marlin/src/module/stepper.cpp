@@ -133,6 +133,10 @@ Stepper stepper; // Singleton
   #include "../feature/powerloss.h"
 #endif
 
+#if ENABLED(LASER_POWER_INLINE)
+  #include "../feature/spindle_laser.h"
+#endif
+
 // public:
 
 #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -235,6 +239,20 @@ int32_t Stepper::ticks_nominal = -1;
 xyz_long_t Stepper::endstops_trigsteps;
 xyze_long_t Stepper::count_position{0};
 xyze_int8_t Stepper::count_direction{0};
+
+#if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+  Stepper::stepper_laser_t Stepper::laser = {
+    .trap_en = false,
+    .cur_power = 0,
+    .cruise_set = false,
+    #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+      .last_step_count = 0,
+      .acc_step_count = 0
+    #else
+      .till_update=0
+    #endif
+  };
+#endif
 
 #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
   if (separate_multi_axis) {                                                                                                \
@@ -1690,9 +1708,45 @@ uint32_t Stepper::block_phase_isr() {
         acceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
-          // Fire ISR if final adv_rate is reached
-          if (LA_steps && (!LA_use_advance_lead || LA_isr_rate != current_block->advance_speed))
-            initiateLA();
+          if (LA_use_advance_lead) {
+            // Fire ISR if final adv_rate is reached
+            if (LA_steps && LA_isr_rate != current_block->advance_speed) nextAdvanceISR = 0;
+          }
+          else if (LA_steps) nextAdvanceISR = 0;
+        #endif // LIN_ADVANCE
+
+        // Update laser - Accelerating
+        #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+          if (laser.trap_en 
+            #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+            && current_block->laser.entry_per) {
+              laser.acc_step_count += step_events_completed-laser.last_step_count;
+              laser.last_step_count = step_events_completed;
+
+              bool powerChanged = false;
+              // Should be faster than a divide, since this should trip lequal to once
+              while (laser.acc_step_count > current_block->laser.entry_per) { 
+                laser.acc_step_count -= current_block->laser.entry_per;
+                if (laser.cur_power < current_block->laser.power) {
+                  laser.cur_power++;
+                }
+                powerChanged = true;
+              }
+
+              if (powerChanged) {
+                cutter.set_ocr_power(laser.cur_power);
+              }
+            #else
+            ) {
+              if (laser.till_update == 0) {
+                laser.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
+                laser.cur_power = (current_block->laser.power * acc_step_rate)/current_block->nominal_rate;
+                cutter.set_ocr_power(laser.cur_power); // Cycle efficiency isn't relevent when the last line was many cycles
+              } else {
+                laser.till_update--;
+              }
+            #endif
+          }
         #endif
       }
       // Are we in Deceleration phase ?
@@ -1740,7 +1794,41 @@ uint32_t Stepper::block_phase_isr() {
               LA_isr_rate = current_block->advance_speed;
             }
           }
-          else if (LA_steps) initiateLA();
+          else if (LA_steps) nextAdvanceISR = 0;
+        #endif // LIN_ADVANCE
+
+        // Update laser - Decelerating
+        #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+          if (laser.trap_en 
+            #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+            && current_block->laser.exit_per) {
+              laser.acc_step_count += step_events_completed-laser.last_step_count;
+              laser.last_step_count = step_events_completed;
+
+              bool powerChanged = false;
+              // Should be faster than a divide, since this should trip lequal to once
+              while (laser.acc_step_count > current_block->laser.exit_per) { 
+                laser.acc_step_count -= current_block->laser.exit_per;
+                if (laser.cur_power > current_block->laser.power_exit) {
+                  laser.cur_power--;
+                }
+                powerChanged = true;
+              }
+
+              if (powerChanged) {
+                cutter.set_ocr_power(laser.cur_power);
+              }
+            #else
+            ) {
+              if (laser.till_update == 0) {
+                laser.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
+                laser.cur_power = (current_block->laser.power * step_rate)/current_block->nominal_rate;
+                cutter.set_ocr_power(laser.cur_power); // Cycle efficiency isn't relevent when the last line was many cycles
+              } else {
+                laser.till_update--;
+              }
+            #endif
+          }
         #endif
       }
       // We must be in cruise phase otherwise
@@ -1759,6 +1847,22 @@ uint32_t Stepper::block_phase_isr() {
 
         // The timer interval is just the nominal value for the nominal speed
         interval = ticks_nominal;
+
+        // Update laser - Cruising
+        #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+          if (laser.trap_en) {
+            if (!laser.cruise_set) {
+              laser.cur_power = current_block->laser.power;
+              cutter.set_ocr_power(laser.cur_power);
+              laser.cruise_set = true;
+            }
+            #if ENABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+              laser.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
+            #else
+              laser.last_step_count = step_events_completed;
+            #endif
+          }
+        #endif
       }
     }
   }
@@ -1938,6 +2042,45 @@ uint32_t Stepper::block_phase_isr() {
         set_directions();
       }
 
+      #if ENABLED(LASER_POWER_INLINE)
+        #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+        //RESET STATE
+        laser.cur_power = current_block->laser.power_entry;
+        #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+          laser.last_step_count = 0;
+          laser.acc_step_count = 0;
+        #else
+          laser.till_update = 0;
+        #endif
+        laser.cruise_set = false;
+        laser.trap_en = (current_block->laser.status & 1) && (current_block->laser.status & 2);
+        //Always have pwm in this case
+        if (current_block->laser.status & 1) {
+          //Planner is controlling laser
+          if (current_block->laser.status & 2) {
+            //Laser is on
+            cutter.set_ocr_power(laser.cur_power);
+          } else {
+            cutter.set_power(0);
+          }
+        }
+      #else
+        if (current_block->laser.status & 1) {
+          //Planner is controlling laser
+          #if ENABLED(SPINDLE_LASER_PWM)
+            if (current_block->laser.status & 2) {
+              //Laser is on
+              cutter.set_ocr_power(current_block->laser.power);
+            } else {
+              cutter.set_power(0);
+            }
+          #else
+            cutter.set_enabled((current_block->laser.status & 2)>>1);
+          #endif
+        }
+      #endif
+    #endif
+
       // At this point, we must ensure the movement about to execute isn't
       // trying to force the head against a limit switch. If using interrupt-
       // driven change detection, and already against a limit then no call to
@@ -1972,6 +2115,24 @@ uint32_t Stepper::block_phase_isr() {
       // Calculate the initial timer interval
       interval = calc_timer_interval(current_block->initial_rate, &steps_per_isr);
     }
+    #if ENABLED(LASER_POWER_INLINE_CONTINUOUS)
+      else { // No new block found; so apply inline laser parameters
+        //This should mean ending file with M5 I will stop the laser; thus the inline flag isn't needed
+        if (planner.settings.laser.status & 1) {
+          //Planner is controlling laser
+          #if ENABLED(SPINDLE_LASER_PWM)
+            if (planner.settings.laser.status & 2) {
+              //Laser is on
+              cutter.set_ocr_power(planner.settings.laser.power);
+            } else {
+              cutter.set_power(0);
+            }
+          #else
+            cutter.set_enabled((planner.settings.laser.status & 2)>>1);
+          #endif
+        }
+      }
+    #endif
   }
 
   // Return the interval to wait

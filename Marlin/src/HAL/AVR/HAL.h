@@ -395,6 +395,8 @@ inline void HAL_adc_init() {
 // AVR compatibility
 #define strtof strtod
 
+#define HAL_PWM_FREQ //Declare that the HAL supports PWM Frequency adjustment
+
 /**
  *  set_pwm_frequency
  *  Sets the frequency of the timer corresponding to the provided pin
