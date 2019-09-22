@@ -2360,13 +2360,14 @@
   #define SPINDLE_LASER_ACTIVE_HIGH     false  // Set to "true" if the on/off function is active HIGH
   #define SPINDLE_LASER_PWM             true   // Set to "true" if your controller supports setting the speed/power
   #define SPINDLE_LASER_PWM_INVERT      true   // Set to "true" if the speed/power goes up when you want it to go slower
-  #define SPINDLE_LASER_POWERUP_DELAY   5000   // (ms) Delay to allow the spindle/laser to come up to speed/power
-  #define SPINDLE_LASER_POWERDOWN_DELAY 5000   // (ms) Delay to allow the spindle to stop
 
   #if ENABLED(SPINDLE_FEATURE)
     //#define SPINDLE_CHANGE_DIR               // Enable if your spindle controller can change spindle direction
     #define SPINDLE_CHANGE_DIR_STOP            // Enable if the spindle should stop before changing spin direction
     #define SPINDLE_INVERT_DIR          false  // Set to "true" if the spin direction is reversed
+
+    #define SPINDLE_LASER_POWERUP_DELAY   5000   // (ms) Delay to allow the spindle/laser to come up to speed/power
+    #define SPINDLE_LASER_POWERDOWN_DELAY 5000   // (ms) Delay to allow the spindle to stop
 
     /**
      *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
@@ -2380,11 +2381,48 @@
     #define SPEED_POWER_INTERCEPT  0
     #define SPEED_POWER_MIN     5000
     #define SPEED_POWER_MAX    30000    // SuperPID router controller 0 - 30,000 RPM
+    #define SPEED_POWER_STARTUP  SPEED_POWER_MAX // The default value for speed power when M3 is called without arguments
+    //#define SPEED_POWER_FLOAT // Handles and parses the speed/power as a floating point value
+    
+    //#define SPINDLE_LASER_FREQUENCY 20000 //Set the spindle/laser frequency on supported HALs (currently AVR and LPC)
   #else
     #define SPEED_POWER_SLOPE      0.3922
     #define SPEED_POWER_INTERCEPT  0
     #define SPEED_POWER_MIN       10
     #define SPEED_POWER_MAX      100    // 0-100%
+    #define SPEED_POWER_STARTUP  SPEED_POWER_MAX // The default value for speed power when M3 is called without arguments
+
+    //#define SPEED_POWER_FLOAT // Handles and parses the speed/power as a floating point value
+
+    //#define SPINDLE_LASER_FREQUENCY 20000 //Set the spindle/laser frequency on supported HALs (currently AVR and LPC)
+
+    /**
+     * Allows for laser power changes to be buffered into the laser planner block
+     * 
+     * This means that the laser doesn't stall whenever a power change is requested due to
+     * having to catch up to the planner
+     * 
+     * This also diables the powerup/down delay
+     */
+    //#define LASER_POWER_INLINE
+
+    #if ENABLED(LASER_POWER_INLINE)
+      #define LASER_POWER_INLINE_TRAPEZOID //Automatically varies power with a the relation of current feed to target feed avoiding overburn
+
+      #define LASER_MOVE_POWER // Allows the laser power to be set with a G0/1 Command using the S parameter
+      //#define LASER_MOVE_G0_OFF // Requires LASER_MOVE_POWER
+
+      /**
+       * Invert the inline flag; 
+       * 
+       * WARNING: M5 will now NOT turn off the laser unless another 
+       * move is called (so end files with `M5 I`)
+       */
+      //#define  LASER_POWER_INLINE_INVERT
+    #else
+      #define SPINDLE_LASER_POWERUP_DELAY   50   // (ms) Delay to allow the spindle/laser to come up to speed/power
+      #define SPINDLE_LASER_POWERDOWN_DELAY 50   // (ms) Delay to allow the spindle to stop
+    #endif
   #endif
 #endif
 

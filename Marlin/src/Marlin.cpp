@@ -181,6 +181,10 @@
   #include "libs/L6470/L6470_Marlin.h"
 #endif
 
+#if HAS_CUTTER
+  #include "feature/spindle_laser.h"
+#endif
+
 const char G28_STR[] PROGMEM = "G28",
            M21_STR[] PROGMEM = "M21",
            M23_STR[] PROGMEM = "M23 %s",
@@ -717,6 +721,13 @@ void idle(
 void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
+  #if HAS_CUTTER
+    #if ENABLED(LASER_POWER_INLINE)
+      cutter.inline_disable(); // Disable all stepper isr control of cutter incase bad things
+    #endif
+    cutter.disable(); // Shutdown spindle/laser
+  #endif
+
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
   #if HAS_DISPLAY
@@ -745,6 +756,13 @@ void minkill(const bool steppers_off/*=false*/) {
 
   // Reiterate heaters off
   thermalManager.disable_all_heaters();
+
+  #if HAS_CUTTER
+    #if ENABLED(LASER_POWER_INLINE)
+      cutter.inline_disable();
+    #endif
+    cutter.disable(); // Reiterate spindle/laser shutdown
+  #endif
 
   // Power off all steppers (for M112) or just the E steppers
   steppers_off ? disable_all_steppers() : disable_e_steppers();
