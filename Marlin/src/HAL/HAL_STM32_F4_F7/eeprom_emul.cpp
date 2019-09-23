@@ -62,7 +62,7 @@ uint16_t VirtAddVarTab[NB_OF_VAR];
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-static HAL_StatusTypeDef EE_Format(void);
+static HAL_StatusTypeDef EE_Format();
 static uint16_t EE_FindValidPage(uint8_t Operation);
 static uint16_t EE_VerifyPageFullWriteVariable(uint16_t VirtAddress, uint16_t Data);
 static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data);
@@ -75,7 +75,7 @@ static uint16_t EE_VerifyPageFullyErased(uint32_t Address);
   * @retval - Flash error code: on write Flash error
   *         - FLASH_COMPLETE: on success
   */
-uint16_t EE_Initialize(void) {
+uint16_t EE_Initialize() {
   /* Get Page0 and Page1 status */
   uint16_t PageStatus0 = (*(__IO uint16_t*)PAGE0_BASE_ADDRESS),
            PageStatus1 = (*(__IO uint16_t*)PAGE1_BASE_ADDRESS);
@@ -331,7 +331,7 @@ uint16_t EE_WriteVariable(uint16_t VirtAddress, uint16_t Data) {
  * @retval Status of the last operation (Flash write or erase) done during
  *         EEPROM formating
  */
-static HAL_StatusTypeDef EE_Format(void) {
+static HAL_StatusTypeDef EE_Format() {
   FLASH_EraseInitTypeDef pEraseInit;
   pEraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
   pEraseInit.Sector = PAGE0_ID;

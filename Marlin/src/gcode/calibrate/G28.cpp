@@ -124,7 +124,7 @@
       return;
     }
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z_SAFE_HOMING >>>");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("home_z_safely >>>");
 
     sync_plan_position();
 
@@ -142,7 +142,7 @@
 
     if (position_is_reachable(destination[X_AXIS], destination[Y_AXIS])) {
 
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", destination);
 
       // This causes the carriage on Dual X to unpark
       #if ENABLED(DUAL_X_CARRIAGE)
@@ -161,7 +161,7 @@
       SERIAL_ECHO_MSG(MSG_ZPROBE_OUT);
     }
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< Z_SAFE_HOMING");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< home_z_safely");
   }
 
 #endif // Z_SAFE_HOMING

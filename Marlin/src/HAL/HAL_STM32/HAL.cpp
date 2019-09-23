@@ -60,7 +60,7 @@ uint16_t HAL_adc_result;
 #endif
 
 // HAL initialization task
-void HAL_init(void) {
+void HAL_init() {
   FastIO_init();
 
   #if ENABLED(SDSUPPORT)
@@ -84,9 +84,9 @@ void HAL_init(void) {
   #endif // EEPROM_EMULATED_SRAM
 }
 
-void HAL_clear_reset_source(void) { __HAL_RCC_CLEAR_RESET_FLAGS(); }
+void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
-uint8_t HAL_get_reset_source(void) {
+uint8_t HAL_get_reset_source() {
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET) return RST_WATCHDOG;
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != RESET)  return RST_SOFTWARE;
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST) != RESET)  return RST_EXTERNAL;
@@ -108,7 +108,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   HAL_adc_result = analogRead(adc_pin);
 }
 
-uint16_t HAL_adc_get_result(void) {
+uint16_t HAL_adc_get_result() {
   return HAL_adc_result;
 }
 

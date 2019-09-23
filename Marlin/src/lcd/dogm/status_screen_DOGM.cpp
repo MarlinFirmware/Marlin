@@ -349,13 +349,8 @@ void MarlinUI::draw_status_screen() {
     strcpy(ystring, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
     strcpy(zstring, ftostr52sp( LOGICAL_Z_POSITION(current_position[Z_AXIS])));
     #if ENABLED(FILAMENT_LCD_DISPLAY)
-      strcpy(wstring, ftostr12ns(filament_width_meas));
-      strcpy(mstring, i16tostr3(100.0 * (
-          parser.volumetric_enabled
-            ? planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
-            : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
-        )
-      ));
+      strcpy(wstring, ftostr12ns(filwidth.measured_mm));
+      strcpy(mstring, i16tostr3(planner.volumetric_percent(parser.volumetric_enabled)));
     #endif
   }
 

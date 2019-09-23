@@ -42,7 +42,7 @@
 void GcodeSuite::M32() {
   if (IS_SD_PRINTING()) planner.synchronize();
 
-  if (card.isDetected()) {
+  if (card.isMounted()) {
     const bool call_procedure = parser.boolval('P');
 
     card.openFile(parser.string_arg, true, call_procedure);

@@ -384,8 +384,8 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
     } break;
 
     case 'Z': {
-      position_min = center[E_AXIS] - displacement;
-      position_max = center[E_AXIS] + displacement;
+      position_min = center[Z_AXIS] - displacement;
+      position_max = center[Z_AXIS] + displacement;
       echo_min_max('Z', position_min, position_max);
       if (false
         #ifdef Z_MIN_POS

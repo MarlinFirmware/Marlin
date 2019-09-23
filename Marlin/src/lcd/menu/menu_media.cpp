@@ -34,7 +34,7 @@
 #if !PIN_EXISTS(SD_DETECT)
   void lcd_sd_refresh() {
     encoderTopLine = 0;
-    card.initsd();
+    card.mount();
   }
 #endif
 
@@ -125,17 +125,21 @@ class MenuItem_sdfolder {
 void menu_media() {
   ui.encoder_direction_menus();
 
-  const uint16_t fileCnt = card.get_num_Files();
+  #if HAS_GRAPHICAL_LCD
+    static uint16_t fileCnt;
+    if (ui.first_page) fileCnt = card.get_num_Files();
+  #else
+    const uint16_t fileCnt = card.get_num_Files();
+  #endif
 
   START_MENU();
   MENU_BACK(MSG_MAIN);
-  card.getWorkDirName();
-  if (card.filename[0] == '/') {
+  if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
     #endif
   }
-  else if (card.isDetected())
+  else if (card.isMounted())
     MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {

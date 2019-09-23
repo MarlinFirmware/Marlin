@@ -54,11 +54,11 @@ typedef enum {
 
 class ScreenRef {
   protected:
-    typedef void onStartup_func_t(void);
-    typedef void onEntry_func_t(void);
-    typedef void onExit_func_t(void);
-    typedef void onIdle_func_t(void);
-    typedef void onRefresh_func_t(void);
+    typedef void onStartup_func_t();
+    typedef void onEntry_func_t();
+    typedef void onExit_func_t();
+    typedef void onIdle_func_t();
+    typedef void onRefresh_func_t();
     typedef void onRedraw_func_t(draw_mode_t);
     typedef bool onTouchStart_func_t(uint8_t);
     typedef bool onTouchHeld_func_t(uint8_t);
@@ -156,8 +156,11 @@ class UncachedScreen {
   public:
     static void onRefresh() {
       using namespace FTDI;
-      CLCD::CommandFifo cmd;
+      CommandProcessor cmd;
       cmd.cmd(CMD_DLSTART);
+      #ifdef TOUCH_UI_USE_UTF8
+        load_utf8_bitmaps(cmd);
+      #endif
 
       current_screen.onRedraw(BOTH);
 
@@ -183,9 +186,12 @@ class CachedScreen {
     static void repaintBackground() {
       using namespace FTDI;
       DLCache dlcache(DL_SLOT);
-      CLCD::CommandFifo cmd;
+      CommandProcessor cmd;
 
       cmd.cmd(CMD_DLSTART);
+      #ifdef TOUCH_UI_USE_UTF8
+        load_utf8_bitmaps(cmd);
+      #endif
       current_screen.onRedraw(BACKGROUND);
 
       dlcache.store(DL_SIZE);
@@ -195,14 +201,16 @@ class CachedScreen {
     static void onRefresh() {
       using namespace FTDI;
       DLCache dlcache(DL_SLOT);
-      CLCD::CommandFifo cmd;
+      CommandProcessor cmd;
 
       cmd.cmd(CMD_DLSTART);
 
       if (dlcache.has_data()) {
         dlcache.append();
-      }
-      else {
+      } else {
+        #ifdef TOUCH_UI_USE_UTF8
+          load_utf8_bitmaps(cmd);
+        #endif
         current_screen.onRedraw(BACKGROUND);
         dlcache.store(DL_SIZE);
       }

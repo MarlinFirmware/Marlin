@@ -20,7 +20,7 @@
 #include "u8g_fontutf8.h"
 #include "../lcdprint.h"
 
-int lcd_glyph_height(void) { return u8g_GetFontBBXHeight(u8g.getU8g()); }
+int lcd_glyph_height() { return u8g_GetFontBBXHeight(u8g.getU8g()); }
 
 void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) { u8g.setPrintPos(col, row); }
 

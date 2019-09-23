@@ -27,7 +27,8 @@
 
 #include "../sd/cardreader.h"
 #include "../module/printcounter.h"
-#include "../module/stepper.h"
+#include "../module/planner.h"
+#include "../module/stepper.h" // for block_t
 #include "../gcode/queue.h"
 
 #include "../inc/MarlinConfig.h"
@@ -97,7 +98,11 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static inline void run() {
-      if (enabled && !filament_ran_out && (IS_SD_PRINTING() || print_job_timer.isRunning() || did_pause_print)) {
+      if (enabled && !filament_ran_out && (IS_SD_PRINTING() || print_job_timer.isRunning()
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          || did_pause_print
+        #endif
+      )) {
         #ifdef FILAMENT_RUNOUT_DISTANCE_MM
           cli(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         #endif

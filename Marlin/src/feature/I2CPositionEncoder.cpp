@@ -168,7 +168,7 @@ void I2CPositionEncoder::update() {
           if (errPrstIdx >= I2CPE_ERR_PRST_ARRAY_SIZE) {
             float sumP = 0;
             LOOP_L_N(i, I2CPE_ERR_PRST_ARRAY_SIZE) sumP += errPrst[i];
-            const int32_t errorP = int32_t(sumP * (1.0f / (I2CPE_ERR_PRST_ARRAY_SIZE)));
+            const int32_t errorP = int32_t(sumP * RECIPROCAL(I2CPE_ERR_PRST_ARRAY_SIZE));
             SERIAL_ECHO(axis_codes[encoderAxis]);
             SERIAL_ECHOLNPAIR(" - err detected: ", errorP * planner.steps_to_mm[encoderAxis], "mm; correcting!");
             babystep.add_steps(encoderAxis, -LROUND(errorP));
@@ -334,11 +334,10 @@ bool I2CPositionEncoder::test_axis() {
 
   ec = false;
 
-  LOOP_NA(i) {
+  LOOP_XYZ(i) {
     startCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
     endCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
   }
-
   startCoord[encoderAxis] = startPosition;
   endCoord[encoderAxis] = endPosition;
 
@@ -393,9 +392,9 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
   endDistance = soft_endstop[encoderAxis].max - 20;
   travelDistance = endDistance - startDistance;
 
-  LOOP_NA(i) {
-    startCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
-    endCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
+  LOOP_XYZ(a) {
+    startCoord[a] = planner.get_axis_position_mm((AxisEnum)a);
+    endCoord[a] = planner.get_axis_position_mm((AxisEnum)a);
   }
 
   startCoord[encoderAxis] = startDistance;
@@ -440,7 +439,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
       total += new_steps_mm;
 
       // swap start and end points so next loop runs from current position
-      float tempCoord = startCoord[encoderAxis];
+      const float tempCoord = startCoord[encoderAxis];
       startCoord[encoderAxis] = endCoord[encoderAxis];
       endCoord[encoderAxis] = tempCoord;
     }

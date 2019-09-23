@@ -34,12 +34,12 @@
  * M404: Display or set (in current units) the nominal filament width (3mm, 1.75mm ) W<3.0>
  */
 void GcodeSuite::M404() {
-  if (parser.seen('W')) {
-    filament_width_nominal = parser.value_linear_units();
-    planner.volumetric_area_nominal = CIRCLE_AREA(filament_width_nominal * 0.5);
+  if (parser.seenval('W')) {
+    filwidth.nominal_mm = parser.value_linear_units();
+    planner.volumetric_area_nominal = CIRCLE_AREA(filwidth.nominal_mm * 0.5);
   }
   else
-    SERIAL_ECHOLNPAIR("Filament dia (nominal mm):", filament_width_nominal);
+    SERIAL_ECHOLNPAIR("Filament dia (nominal mm):", filwidth.nominal_mm);
 }
 
 /**
@@ -48,28 +48,17 @@ void GcodeSuite::M404() {
 void GcodeSuite::M405() {
   // This is technically a linear measurement, but since it's quantized to centimeters and is a different
   // unit than everything else, it uses parser.value_byte() instead of parser.value_linear_units().
-  if (parser.seen('D')) {
-    meas_delay_cm = parser.value_byte();
-    NOMORE(meas_delay_cm, MAX_MEASUREMENT_DELAY);
-  }
+  if (parser.seenval('D'))
+    filwidth.set_delay_cm(parser.value_byte());
 
-  if (filwidth_delay_index[1] == -1) { // Initialize the ring buffer if not done since startup
-    const int8_t temp_ratio = thermalManager.widthFil_to_size_ratio();
-
-    for (uint8_t i = 0; i < COUNT(measurement_delay); ++i)
-      measurement_delay[i] = temp_ratio;
-
-    filwidth_delay_index[0] = filwidth_delay_index[1] = 0;
-  }
-
-  filament_sensor = true;
+  filwidth.enable(true);
 }
 
 /**
  * M406: Turn off filament sensor for control
  */
 void GcodeSuite::M406() {
-  filament_sensor = false;
+  filwidth.enable(false);
   planner.calculate_volumetric_multipliers();   // Restore correct 'volumetric_multiplier' value
 }
 
@@ -77,7 +66,7 @@ void GcodeSuite::M406() {
  * M407: Get measured filament diameter on serial output
  */
 void GcodeSuite::M407() {
-  SERIAL_ECHOLNPAIR("Filament dia (measured mm):", filament_width_meas);
+  SERIAL_ECHOLNPAIR("Filament dia (measured mm):", filwidth.measured_mm);
 }
 
 #endif // FILAMENT_WIDTH_SENSOR

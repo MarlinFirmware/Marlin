@@ -105,19 +105,19 @@ typedef int8_t pin_t;
 // Public functions
 // ------------------------
 
-void HAL_init(void);
+void HAL_init();
 
-//void cli(void);
+//void cli();
 
 //void _delay_ms(const int delay);
 
-inline void HAL_clear_reset_source(void) { MCUSR = 0; }
-inline uint8_t HAL_get_reset_source(void) { return MCUSR; }
+inline void HAL_clear_reset_source() { MCUSR = 0; }
+inline uint8_t HAL_get_reset_source() { return MCUSR; }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 extern "C" {
-  int freeMemory(void);
+  int freeMemory();
 }
 #pragma GCC diagnostic pop
 
@@ -199,9 +199,9 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t freque
 
 /* 18 cycles maximum latency */
 #define HAL_STEP_TIMER_ISR() \
-extern "C" void TIMER1_COMPA_vect (void) __attribute__ ((signal, naked, used, externally_visible)); \
-extern "C" void TIMER1_COMPA_vect_bottom (void) asm ("TIMER1_COMPA_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
-void TIMER1_COMPA_vect (void) { \
+extern "C" void TIMER1_COMPA_vect() __attribute__ ((signal, naked, used, externally_visible)); \
+extern "C" void TIMER1_COMPA_vect_bottom() asm ("TIMER1_COMPA_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
+void TIMER1_COMPA_vect() { \
   __asm__ __volatile__ ( \
     A("push r16")                      /* 2 Save R16 */ \
     A("in r16, __SREG__")              /* 1 Get SREG */ \
@@ -268,13 +268,13 @@ void TIMER1_COMPA_vect (void) { \
     : \
   ); \
 } \
-void TIMER1_COMPA_vect_bottom(void)
+void TIMER1_COMPA_vect_bottom()
 
 /* 14 cycles maximum latency */
 #define HAL_TEMP_TIMER_ISR() \
-extern "C" void TIMER0_COMPB_vect (void) __attribute__ ((signal, naked, used, externally_visible)); \
-extern "C" void TIMER0_COMPB_vect_bottom(void)  asm ("TIMER0_COMPB_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
-void TIMER0_COMPB_vect (void) { \
+extern "C" void TIMER0_COMPB_vect() __attribute__ ((signal, naked, used, externally_visible)); \
+extern "C" void TIMER0_COMPB_vect_bottom()  asm ("TIMER0_COMPB_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
+void TIMER0_COMPB_vect() { \
   __asm__ __volatile__ ( \
     A("push r16")                       /* 2 Save R16 */ \
     A("in r16, __SREG__")               /* 1 Get SREG */ \
@@ -334,7 +334,7 @@ void TIMER0_COMPB_vect (void) { \
     : \
   ); \
 } \
-void TIMER0_COMPB_vect_bottom(void)
+void TIMER0_COMPB_vect_bottom()
 
 // ADC
 #ifdef DIDR2
@@ -343,7 +343,7 @@ void TIMER0_COMPB_vect_bottom(void)
   #define HAL_ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
 #endif
 
-inline void HAL_adc_init(void) {
+inline void HAL_adc_init() {
   ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
   DIDR0 = 0;
   #ifdef DIDR2

@@ -44,22 +44,9 @@ void TouchCalibrationScreen::onEntry() {
     cmd.cmd(CMD_DLSTART)
        .cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
-       .cmd(COLOR_RGB(bg_text_enabled))
-    #ifdef TOUCH_UI_PORTRAIT
-       .font(font_large)
-       .text  ( BTN_POS(1,8), BTN_SIZE(4,1), F("Release to begin"))
-       .text  ( BTN_POS(1,9), BTN_SIZE(4,1), F("screen calibration"))
-    #else
-       .font(
-        #ifdef TOUCH_UI_800x480
-          font_large
-        #else
-          font_medium
-        #endif
-        )
-       .text  ( BTN_POS(1,1), BTN_SIZE(4,16), F("Release to calibrate"))
-    #endif
-       .cmd(DL::DL_DISPLAY)
+       .cmd(COLOR_RGB(bg_text_enabled));
+    draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,16), GET_TEXTF(TOUCH_CALIBRATION_START), OPT_CENTER, font_large);
+    cmd.cmd(DL::DL_DISPLAY)
        .cmd(CMD_SWAP)
        .execute();
 
@@ -88,23 +75,10 @@ void TouchCalibrationScreen::onRedraw(draw_mode_t) {
   CommandProcessor cmd;
   cmd.cmd(CLEAR_COLOR_RGB(bg_color))
      .cmd(CLEAR(true,true,true))
-     .cmd(COLOR_RGB(bg_text_enabled))
+     .cmd(COLOR_RGB(bg_text_enabled));
 
-  #ifdef TOUCH_UI_PORTRAIT
-     .font(font_large)
-     .text  ( BTN_POS(1,8), BTN_SIZE(4,1), F("Touch the dots"))
-     .text  ( BTN_POS(1,9), BTN_SIZE(4,1), F("to calibrate"))
-  #else
-     .font(
-       #ifdef TOUCH_UI_800x480
-         font_large
-       #else
-         font_medium
-       #endif
-     )
-     .text  ( BTN_POS(1,1), BTN_SIZE(4,16), F("Touch the dots to calibrate"))
-  #endif
-     .cmd(CMD_CALIBRATE);
+  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,16), GET_TEXTF(TOUCH_CALIBRATION_PROMPT), OPT_CENTER, font_large);
+  cmd.cmd(CMD_CALIBRATE);
 }
 
 void TouchCalibrationScreen::onIdle() {

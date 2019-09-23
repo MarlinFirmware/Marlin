@@ -500,6 +500,8 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
   #if HAS_BUZZER
     filament_change_beep(max_beep_count, true);
+  #else
+    UNUSED(max_beep_count);
   #endif
 
   // Start the heater idle timers

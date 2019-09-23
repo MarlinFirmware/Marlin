@@ -42,7 +42,7 @@ uint16_t HAL_adc_result;
 // ------------------------
 
 // HAL initialization task
-void HAL_init(void) {
+void HAL_init() {
   // Initialize the USB stack
   #if ENABLED(SDSUPPORT)
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
@@ -51,20 +51,20 @@ void HAL_init(void) {
 }
 
 // HAL idle task
-void HAL_idletask(void) {
+void HAL_idletask() {
   // Perform USB stack housekeeping
   usb_task_idle();
 }
 
 // Disable interrupts
-void cli(void) { noInterrupts(); }
+void cli() { noInterrupts(); }
 
 // Enable interrupts
-void sei(void) { interrupts(); }
+void sei() { interrupts(); }
 
-void HAL_clear_reset_source(void) { }
+void HAL_clear_reset_source() { }
 
-uint8_t HAL_get_reset_source(void) {
+uint8_t HAL_get_reset_source() {
   switch ((RSTC->RSTC_SR >> 8) & 0x07) {
     case 0: return RST_POWER_ON;
     case 1: return RST_BACKUP;
@@ -98,7 +98,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   HAL_adc_result = analogRead(adc_pin);
 }
 
-uint16_t HAL_adc_get_result(void) {
+uint16_t HAL_adc_get_result() {
   // nop
   return HAL_adc_result;
 }

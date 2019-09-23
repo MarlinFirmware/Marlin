@@ -357,41 +357,41 @@ static uint16_t udd_ctrl_payload_buf_cnt;
  *
  * Called after a USB line reset or when UDD is enabled
  */
-static void udd_reset_ep_ctrl(void);
+static void udd_reset_ep_ctrl();
 
 /**
  * \brief Reset control endpoint management
  *
  * Called after a USB line reset or at the end of SETUP request (after ZLP)
  */
-static void udd_ctrl_init(void);
+static void udd_ctrl_init();
 
 //! \brief Managed reception of SETUP packet on control endpoint
-static void udd_ctrl_setup_received(void);
+static void udd_ctrl_setup_received();
 
 //! \brief Managed reception of IN packet on control endpoint
-static void udd_ctrl_in_sent(void);
+static void udd_ctrl_in_sent();
 
 //! \brief Managed reception of OUT packet on control endpoint
-static void udd_ctrl_out_received(void);
+static void udd_ctrl_out_received();
 
 //! \brief Managed underflow event of IN packet on control endpoint
-static void udd_ctrl_underflow(void);
+static void udd_ctrl_underflow();
 
 //! \brief Managed overflow event of OUT packet on control endpoint
-static void udd_ctrl_overflow(void);
+static void udd_ctrl_overflow();
 
 //! \brief Managed stall event of IN/OUT packet on control endpoint
-static void udd_ctrl_stall_data(void);
+static void udd_ctrl_stall_data();
 
 //! \brief Send a ZLP IN on control endpoint
-static void udd_ctrl_send_zlp_in(void);
+static void udd_ctrl_send_zlp_in();
 
 //! \brief Send a ZLP OUT on control endpoint
-static void udd_ctrl_send_zlp_out(void);
+static void udd_ctrl_send_zlp_out();
 
 //! \brief Call callback associated to setup request
-static void udd_ctrl_endofrequest(void);
+static void udd_ctrl_endofrequest();
 
 
 /**
@@ -401,7 +401,7 @@ static void udd_ctrl_endofrequest(void);
  *
  * \return \c 1 if an event about control endpoint is occured, otherwise \c 0.
  */
-static bool udd_ctrl_interrupt(void);
+static bool udd_ctrl_interrupt();
 
 //@}
 
@@ -448,10 +448,10 @@ typedef struct {
 static udd_ep_job_t udd_ep_job[USB_DEVICE_MAX_EP];
 
 //! \brief Reset all job table
-static void udd_ep_job_table_reset(void);
+static void udd_ep_job_table_reset();
 
 //! \brief Abort all endpoint jobs on going
-static void udd_ep_job_table_kill(void);
+static void udd_ep_job_table_kill();
 
 #ifdef UDD_EP_FIFO_SUPPORTED
 	/**
@@ -500,7 +500,7 @@ static void udd_ep_finish_job(udd_ep_job_t * ptr_job, bool b_abort, uint8_t ep_n
  *
  * \return \c 1 if an event about bulk/interrupt/isochronous endpoints has occured, otherwise \c 0.
  */
-static bool udd_ep_interrupt(void);
+static bool udd_ep_interrupt();
 
 #endif // (0!=USB_DEVICE_MAX_EP)
 //@}
@@ -524,8 +524,8 @@ static bool udd_ep_interrupt(void);
  * See Technical reference $3.8.3 Masking interrupt requests in peripheral modules.
  */
 #ifdef UHD_ENABLE
-void udd_interrupt(void);
-void udd_interrupt(void)
+void udd_interrupt();
+void udd_interrupt()
 #else
 ISR(UDD_USB_INT_FUN)
 #endif
@@ -643,13 +643,13 @@ udd_interrupt_sof_end:
 }
 
 
-bool udd_include_vbus_monitoring(void)
+bool udd_include_vbus_monitoring()
 {
 	return true;
 }
 
 
-void udd_enable(void)
+void udd_enable()
 {
 	irqflags_t flags;
 
@@ -736,7 +736,7 @@ void udd_enable(void)
 }
 
 
-void udd_disable(void)
+void udd_disable()
 {
 	irqflags_t flags;
 
@@ -777,7 +777,7 @@ void udd_disable(void)
 }
 
 
-void udd_attach(void)
+void udd_attach()
 {
 	irqflags_t flags;
 	flags = cpu_irq_save();
@@ -818,7 +818,7 @@ void udd_attach(void)
 }
 
 
-void udd_detach(void)
+void udd_detach()
 {
 	otg_unfreeze_clock();
 
@@ -829,7 +829,7 @@ void udd_detach(void)
 }
 
 
-bool udd_is_high_speed(void)
+bool udd_is_high_speed()
 {
 #ifdef USB_DEVICE_HS_SUPPORT
 	return !Is_udd_full_speed_mode();
@@ -847,23 +847,23 @@ void udd_set_address(uint8_t address)
 }
 
 
-uint8_t udd_getaddress(void)
+uint8_t udd_getaddress()
 {
 	return udd_get_configured_address();
 }
 
 
-uint16_t udd_get_frame_number(void)
+uint16_t udd_get_frame_number()
 {
 	return udd_frame_number();
 }
 
-uint16_t udd_get_micro_frame_number(void)
+uint16_t udd_get_micro_frame_number()
 {
 	return udd_micro_frame_number();
 }
 
-void udd_send_remotewakeup(void)
+void udd_send_remotewakeup()
 {
 #ifndef UDD_NO_SLEEP_MGR
 	if (!udd_b_idle)
@@ -1242,27 +1242,27 @@ bool udd_ep_wait_stall_clear(udd_ep_id_t ep,
 
 #ifdef USB_DEVICE_HS_SUPPORT
 
-void udd_test_mode_j(void)
+void udd_test_mode_j()
 {
 	udd_enable_hs_test_mode();
 	udd_enable_hs_test_mode_j();
 }
 
 
-void udd_test_mode_k(void)
+void udd_test_mode_k()
 {
 	udd_enable_hs_test_mode();
 	udd_enable_hs_test_mode_k();
 }
 
 
-void udd_test_mode_se0_nak(void)
+void udd_test_mode_se0_nak()
 {
 	udd_enable_hs_test_mode();
 }
 
 
-void udd_test_mode_packet(void)
+void udd_test_mode_packet()
 {
 	uint8_t i;
 	uint8_t *ptr_dest;
@@ -1310,7 +1310,7 @@ void udd_test_mode_packet(void)
 // ------------------------
 //--- INTERNAL ROUTINES TO MANAGED THE CONTROL ENDPOINT
 
-static void udd_reset_ep_ctrl(void)
+static void udd_reset_ep_ctrl()
 {
 	irqflags_t flags;
 
@@ -1334,7 +1334,7 @@ static void udd_reset_ep_ctrl(void)
 	cpu_irq_restore(flags);
 }
 
-static void udd_ctrl_init(void)
+static void udd_ctrl_init()
 {
 	irqflags_t flags;
 	flags = cpu_irq_save();
@@ -1357,7 +1357,7 @@ static void udd_ctrl_init(void)
 }
 
 
-static void udd_ctrl_setup_received(void)
+static void udd_ctrl_setup_received()
 {
 	irqflags_t flags;
 	uint8_t i;
@@ -1419,7 +1419,7 @@ static void udd_ctrl_setup_received(void)
 }
 
 
-static void udd_ctrl_in_sent(void)
+static void udd_ctrl_in_sent()
 {
 	static bool b_shortpacket = false;
 	uint16_t nb_remain;
@@ -1503,7 +1503,7 @@ static void udd_ctrl_in_sent(void)
 }
 
 
-static void udd_ctrl_out_received(void)
+static void udd_ctrl_out_received()
 {
 	irqflags_t flags;
 	uint8_t i;
@@ -1594,7 +1594,7 @@ static void udd_ctrl_out_received(void)
 }
 
 
-static void udd_ctrl_underflow(void)
+static void udd_ctrl_underflow()
 {
 	if (Is_udd_out_received(0))
 		return; // Underflow ignored if OUT data is received
@@ -1611,7 +1611,7 @@ static void udd_ctrl_underflow(void)
 }
 
 
-static void udd_ctrl_overflow(void)
+static void udd_ctrl_overflow()
 {
 	if (Is_udd_in_send(0))
 		return; // Overflow ignored if IN data is received
@@ -1627,7 +1627,7 @@ static void udd_ctrl_overflow(void)
 }
 
 
-static void udd_ctrl_stall_data(void)
+static void udd_ctrl_stall_data()
 {
 	// Stall all packets on IN & OUT control endpoint
 	udd_ep_control_state = UDD_EPCTRL_STALL_REQ;
@@ -1635,7 +1635,7 @@ static void udd_ctrl_stall_data(void)
 }
 
 
-static void udd_ctrl_send_zlp_in(void)
+static void udd_ctrl_send_zlp_in()
 {
 	irqflags_t flags;
 
@@ -1653,7 +1653,7 @@ static void udd_ctrl_send_zlp_in(void)
 }
 
 
-static void udd_ctrl_send_zlp_out(void)
+static void udd_ctrl_send_zlp_out()
 {
 	irqflags_t flags;
 
@@ -1669,7 +1669,7 @@ static void udd_ctrl_send_zlp_out(void)
 }
 
 
-static void udd_ctrl_endofrequest(void)
+static void udd_ctrl_endofrequest()
 {
 	// If a callback is registered then call it
 	if (udd_g_ctrlreq.callback) {
@@ -1678,7 +1678,7 @@ static void udd_ctrl_endofrequest(void)
 }
 
 
-static bool udd_ctrl_interrupt(void)
+static bool udd_ctrl_interrupt()
 {
 
 	if (!Is_udd_endpoint_interrupt(0)) {
@@ -1734,7 +1734,7 @@ static bool udd_ctrl_interrupt(void)
 
 #if (0 != USB_DEVICE_MAX_EP)
 
-static void udd_ep_job_table_reset(void)
+static void udd_ep_job_table_reset()
 {
 	uint8_t i;
 	for (i = 0; i < USB_DEVICE_MAX_EP; i++) {
@@ -1744,7 +1744,7 @@ static void udd_ep_job_table_reset(void)
 }
 
 
-static void udd_ep_job_table_kill(void)
+static void udd_ep_job_table_kill()
 {
 	uint8_t i;
 
@@ -1970,7 +1970,7 @@ static void udd_ep_out_received(udd_ep_id_t ep)
 }
 #endif // #ifdef UDD_EP_FIFO_SUPPORTED
 
-static bool udd_ep_interrupt(void)
+static bool udd_ep_interrupt()
 {
 	udd_ep_id_t ep;
 	udd_ep_job_t *ptr_job;

@@ -1189,25 +1189,20 @@ void MarlinSettings::postprocess() {
     // Backlash Compensation
     //
     {
-      #ifdef BACKLASH_DISTANCE_MM
+      #if ENABLED(BACKLASH_GCODE)
         const float (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
-      #else
-        const float backlash_distance_mm[XYZ] = { 0 };
-      #endif
-      #if ENABLED(BACKLASH_COMPENSATION)
         const uint8_t &backlash_correction = backlash.correction;
       #else
+        const float backlash_distance_mm[XYZ] = { 0 };
         const uint8_t backlash_correction = 0;
       #endif
-      #ifdef BACKLASH_SMOOTHING_MM
+      #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
         const float &backlash_smoothing_mm = backlash.smoothing_mm;
       #else
         const float backlash_smoothing_mm = 3;
       #endif
       _FIELD_TEST(backlash_distance_mm);
-      EEPROM_WRITE(backlash_distance_mm[X_AXIS]);
-      EEPROM_WRITE(backlash_distance_mm[Y_AXIS]);
-      EEPROM_WRITE(backlash_distance_mm[Z_AXIS]);
+      EEPROM_WRITE(backlash_distance_mm);
       EEPROM_WRITE(backlash_correction);
       EEPROM_WRITE(backlash_smoothing_mm);
     }
@@ -1994,25 +1989,20 @@ void MarlinSettings::postprocess() {
       // Backlash Compensation
       //
       {
-        #ifdef BACKLASH_DISTANCE_MM
+        #if ENABLED(BACKLASH_GCODE)
           float (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
-        #else
-          float backlash_distance_mm[XYZ];
-        #endif
-        #if ENABLED(BACKLASH_COMPENSATION)
           uint8_t &backlash_correction = backlash.correction;
         #else
+          float backlash_distance_mm[XYZ];
           uint8_t backlash_correction;
         #endif
-        #ifdef BACKLASH_SMOOTHING_MM
+        #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
           float &backlash_smoothing_mm = backlash.smoothing_mm;
         #else
           float backlash_smoothing_mm;
         #endif
         _FIELD_TEST(backlash_distance_mm);
-        EEPROM_READ(backlash_distance_mm[X_AXIS]);
-        EEPROM_READ(backlash_distance_mm[Y_AXIS]);
-        EEPROM_READ(backlash_distance_mm[Z_AXIS]);
+        EEPROM_READ(backlash_distance_mm);
         EEPROM_READ(backlash_correction);
         EEPROM_READ(backlash_smoothing_mm);
       }
@@ -2297,12 +2287,10 @@ void MarlinSettings::reset() {
 
   #if ENABLED(BACKLASH_GCODE)
     backlash.correction = (BACKLASH_CORRECTION) * 255;
-    #ifdef BACKLASH_DISTANCE_MM
-      constexpr float tmp[XYZ] = BACKLASH_DISTANCE_MM;
-      backlash.distance_mm[X_AXIS] = tmp[X_AXIS];
-      backlash.distance_mm[Y_AXIS] = tmp[Y_AXIS];
-      backlash.distance_mm[Z_AXIS] = tmp[Z_AXIS];
-    #endif
+    constexpr float tmp[XYZ] = BACKLASH_DISTANCE_MM;
+    backlash.distance_mm[X_AXIS] = tmp[X_AXIS];
+    backlash.distance_mm[Y_AXIS] = tmp[Y_AXIS];
+    backlash.distance_mm[Z_AXIS] = tmp[Z_AXIS];
     #ifdef BACKLASH_SMOOTHING_MM
       backlash.smoothing_mm = BACKLASH_SMOOTHING_MM;
     #endif
@@ -2805,9 +2793,8 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       for (uint8_t e = 1; e < HOTENDS; e++) {
         SERIAL_ECHOPAIR(
-            "  M218 T", (int)e
-          , " X", LINEAR_UNIT(hotend_offset[X_AXIS][e])
-          , " Y", LINEAR_UNIT(hotend_offset[Y_AXIS][e])
+          "  M218 T", (int)e,
+          " X", LINEAR_UNIT(hotend_offset[X_AXIS][e]), " Y", LINEAR_UNIT(hotend_offset[Y_AXIS][e])
         );
         SERIAL_ECHOLNPAIR_F(" Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]), 3);
       }
@@ -2922,9 +2909,9 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("Endstop adjustment:");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
-          "  M666 X", LINEAR_UNIT(delta_endstop_adj[X_AXIS])
-        , " Y", LINEAR_UNIT(delta_endstop_adj[Y_AXIS])
-        , " Z", LINEAR_UNIT(delta_endstop_adj[Z_AXIS])
+          "  M666 X", LINEAR_UNIT(delta_endstop_adj[A_AXIS])
+        , " Y", LINEAR_UNIT(delta_endstop_adj[B_AXIS])
+        , " Z", LINEAR_UNIT(delta_endstop_adj[C_AXIS])
       );
 
       CONFIG_ECHO_HEADING("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> B<calibration radius> XYZ<tower angle corrections>");

@@ -195,6 +195,10 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     int8_t MarlinUI::encoderDirection = ENCODERBASE;
   #endif
 
+  #if ENABLED(TOUCH_BUTTONS)
+    uint8_t MarlinUI::repeat_delay;
+  #endif
+
   bool MarlinUI::lcd_clicked;
   float move_menu_scale;
 
@@ -681,7 +685,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         // previous invocation is being blocked. Modifications to manual_move_offset shouldn't be made while
         // processing_manual_move is true or the planner will get out of sync.
         processing_manual_move = true;
-        prepare_move_to_destination(); // will call set_current_from_destination()
+        prepare_move_to_destination(); // will set current_position from destination
         processing_manual_move = false;
 
         feedrate_mm_s = old_feedrate;
@@ -792,7 +796,7 @@ void MarlinUI::update() {
           if (touch_buttons & (EN_A | EN_B)) {          // A and/or B button?
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
             if (touch_buttons & EN_A) encoderDiff *= -1;
-            next_button_update_ms = ms + 50;            // Assume the repeat delay
+            next_button_update_ms = ms + repeat_delay;  // Assume the repeat delay
             if (!wait_for_unclick && !arrow_pressed) {  // On click prepare for repeat
               next_button_update_ms += 250;             // Longer delay on first press
               arrow_pressed = true;                     // Mark arrow as pressed
@@ -838,7 +842,7 @@ void MarlinUI::update() {
 
       if (sd_status) {
         safe_delay(500); // Some boards need a delay to get settled
-        card.initsd();
+        card.mount();
         if (old_sd_status == 2)
           card.beginautostart();  // Initial boot
         else
@@ -1119,7 +1123,7 @@ void MarlinUI::update() {
        ADC_BUTTON_VALUE(ADC_BUTTONS_MIDDLE_R_PULLDOWN) + 100, 1 + BLEN_KEYPAD_MIDDLE }, // ENTER (1205 ... 1405)
   };
 
-  uint8_t get_ADC_keyValue(void) {
+  uint8_t get_ADC_keyValue() {
     if (thermalManager.ADCKey_count >= 16) {
       const uint16_t currentkpADCValue = thermalManager.current_ADCKey_raw << 2;
       thermalManager.current_ADCKey_raw = 1024;

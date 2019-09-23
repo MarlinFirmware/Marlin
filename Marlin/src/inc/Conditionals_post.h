@@ -66,20 +66,21 @@
 #endif
 
 // Define center values for future use
+#define _X_HALF_BED ((X_BED_SIZE) / 2)
+#define _Y_HALF_BED ((Y_BED_SIZE) / 2)
 #if ENABLED(BED_CENTER_AT_0_0)
   #define X_CENTER 0
   #define Y_CENTER 0
 #else
-  #define X_CENTER ((X_BED_SIZE) / 2)
-  #define Y_CENTER ((Y_BED_SIZE) / 2)
+  #define X_CENTER _X_HALF_BED
+  #define Y_CENTER _Y_HALF_BED
 #endif
-#define Z_CENTER ((Z_MIN_POS + Z_MAX_POS) / 2)
 
 // Get the linear boundaries of the bed
-#define X_MIN_BED (X_CENTER - (X_BED_SIZE) / 2)
-#define X_MAX_BED (X_CENTER + (X_BED_SIZE) / 2)
-#define Y_MIN_BED (Y_CENTER - (Y_BED_SIZE) / 2)
-#define Y_MAX_BED (Y_CENTER + (Y_BED_SIZE) / 2)
+#define X_MIN_BED (X_CENTER - _X_HALF_BED)
+#define X_MAX_BED (X_MIN_BED + X_BED_SIZE)
+#define Y_MIN_BED (Y_CENTER - _Y_HALF_BED)
+#define Y_MAX_BED (Y_MIN_BED + Y_BED_SIZE)
 
 /**
  * Dual X Carriage
@@ -546,24 +547,28 @@
 
 #define TRINAMICS (HAS_TRINAMIC || HAS_DRIVER(TMC2130_STANDALONE) || HAS_DRIVER(TMC2208_STANDALONE) || HAS_DRIVER(TMC2209_STANDALONE) || HAS_DRIVER(TMC26X_STANDALONE) || HAS_DRIVER(TMC2660_STANDALONE) || HAS_DRIVER(TMC5130_STANDALONE) || HAS_DRIVER(TMC5160_STANDALONE) || HAS_DRIVER(TMC2160_STANDALONE))
 
-#ifndef MINIMUM_STEPPER_DIR_DELAY
+#ifndef MINIMUM_STEPPER_POST_DIR_DELAY
   #if HAS_DRIVER(TB6560)
-    #define MINIMUM_STEPPER_DIR_DELAY 15000
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 15000
   #elif HAS_DRIVER(TB6600)
-    #define MINIMUM_STEPPER_DIR_DELAY 1500
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 1500
   #elif HAS_DRIVER(DRV8825)
-    #define MINIMUM_STEPPER_DIR_DELAY 650
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 650
   #elif HAS_DRIVER(LV8729)
-    #define MINIMUM_STEPPER_DIR_DELAY 500
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 500
   #elif HAS_DRIVER(A5984)
-    #define MINIMUM_STEPPER_DIR_DELAY 400
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 400
   #elif HAS_DRIVER(A4988)
-    #define MINIMUM_STEPPER_DIR_DELAY 200
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 200
   #elif TRINAMICS
-    #define MINIMUM_STEPPER_DIR_DELAY 20
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 20
   #else
-    #define MINIMUM_STEPPER_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
   #endif
+#endif
+
+#ifndef MINIMUM_STEPPER_PRE_DIR_DELAY
+  #define MINIMUM_STEPPER_PRE_DIR_DELAY MINIMUM_STEPPER_POST_DIR_DELAY
 #endif
 
 #ifndef MINIMUM_STEPPER_PULSE
@@ -1817,13 +1822,13 @@
   #endif
 #endif
 
-//
-// The external SD card is not used. Hardware SPI is used to access the card.
-// When sharing the SD card with a PC we want the menu options to
-// mount/unmount the card and refresh it. So we disable card detect.
-//
 #if ENABLED(SDSUPPORT)
   #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE)
+    //
+    // The external SD card is not used. Hardware SPI is used to access the card.
+    // When sharing the SD card with a PC we want the menu options to
+    // mount/unmount the card and refresh it. So we disable card detect.
+    //
     #undef SD_DETECT_PIN
     #define SHARED_SD_CARD
   #endif

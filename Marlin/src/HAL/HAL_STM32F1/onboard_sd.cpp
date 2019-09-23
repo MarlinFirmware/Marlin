@@ -128,7 +128,7 @@ static int wait_ready (  /* 1:Ready, 0:Timeout */
 /* Deselect card and release SPI                                         */
 /*-----------------------------------------------------------------------*/
 
-static void deselect(void) {
+static void deselect() {
   CS_HIGH();    /* CS = H */
   xchg_spi(0xFF); /* Dummy clock (force DO hi-z for multiple slave SPI) */
 }
@@ -137,7 +137,7 @@ static void deselect(void) {
 /* Select card and wait for ready                                        */
 /*-----------------------------------------------------------------------*/
 
-static int select(void) { /* 1:OK, 0:Timeout */
+static int select() { /* 1:OK, 0:Timeout */
   CS_LOW();   /* CS = L */
   xchg_spi(0xFF); /* Dummy clock (force DO enabled) */
 
@@ -151,7 +151,7 @@ static int select(void) { /* 1:OK, 0:Timeout */
 /* Control SPI module (Platform dependent)                               */
 /*-----------------------------------------------------------------------*/
 
-static void power_on(void) {  /* Enable SSP module and attach it to I/O pads */
+static void power_on() {  /* Enable SSP module and attach it to I/O pads */
   ONBOARD_SD_SPI.setModule(ON_BOARD_SPI_DEVICE);
   ONBOARD_SD_SPI.begin();
   ONBOARD_SD_SPI.setBitOrder(MSBFIRST);
@@ -159,7 +159,7 @@ static void power_on(void) {  /* Enable SSP module and attach it to I/O pads */
   OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH); /* Set CS# high */
 }
 
-static void power_off(void) {   /* Disable SPI function */
+static void power_off() {   /* Disable SPI function */
   select();       /* Wait for card ready */
   deselect();
 }

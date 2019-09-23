@@ -159,6 +159,10 @@ typedef struct block_t {
     uint32_t segment_time_us;
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    uint32_t sdpos;
+  #endif
+
 } block_t;
 
 #define HAS_POSITION_FLOAT ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX)
@@ -375,7 +379,14 @@ class Planner {
     static void calculate_volumetric_multipliers();
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      void calculate_volumetric_for_width_sensor(const int8_t encoded_ratio);
+      void apply_filament_width_sensor(const int8_t encoded_ratio);
+
+      static inline float volumetric_percent(const bool vol) {
+        return 100.0f * (vol
+            ? volumetric_area_nominal / volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
+            : volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
+        );
+      }
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
@@ -496,8 +507,7 @@ class Planner {
           skew(pos);
         #endif
         #if HAS_LEVELING
-          if (leveling)
-            apply_leveling(pos);
+          if (leveling) apply_leveling(pos);
         #endif
         #if ENABLED(FWRETRACT)
           apply_retract(pos);
@@ -518,8 +528,7 @@ class Planner {
           unapply_retract(pos);
         #endif
         #if HAS_LEVELING
-          if (leveling)
-            unapply_leveling(pos);
+          if (leveling) unapply_leveling(pos);
         #endif
         #if ENABLED(SKEW_CORRECTION)
           unskew(pos);

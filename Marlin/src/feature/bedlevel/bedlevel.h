@@ -23,11 +23,6 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-typedef struct {
-  int8_t x_index, y_index;
-  float distance; // When populated, the distance from the search location
-} mesh_index_pair;
-
 #if ENABLED(PROBE_MANUALLY)
   extern bool g29_in_progress;
 #else
@@ -56,11 +51,16 @@ class TemporaryBedLevelingState {
     TemporaryBedLevelingState(const bool enable);
     ~TemporaryBedLevelingState() { set_bed_leveling_enabled(saved); }
 };
-#define TEMPORARY_BED_LEVELING_STATE(enable) TemporaryBedLevelingState tbls(enable)
+#define TEMPORARY_BED_LEVELING_STATE(enable) const TemporaryBedLevelingState tbls(enable)
 
 #if HAS_MESH
 
-  typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+
+  typedef struct {
+    int8_t x_index, y_index;
+    float distance; // When populated, the distance from the search location
+  } mesh_index_pair;
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #include "abl/abl.h"

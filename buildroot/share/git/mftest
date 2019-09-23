@@ -25,6 +25,8 @@ case $TESTENV in
     lin*) TESTENV='linux_native' ;;
  lpc?(8)) TESTENV='LPC1768' ;;
     lpc9) TESTENV='LPC1769' ;;
+    m128) TESTENV='megaatmega1280' ;;
+    m256) TESTENV='megaatmega2560' ;;
     mega) TESTENV='megaatmega2560' ;;
      stm) TESTENV='STM32F103R' ;;
      f1)  TESTENV='STM32F103R' ;;

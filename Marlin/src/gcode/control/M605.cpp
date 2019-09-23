@@ -137,8 +137,8 @@
         DEBUG_EOL();
 
         HOTEND_LOOP() {
-          DEBUG_ECHOPAIR(" nozzle:", int(e));
-          LOOP_XYZ(j) DEBUG_ECHOPAIR("  hotend_offset[", axis_codes[j], "_AXIS][", int(e), "]=", hotend_offset[j][e]);
+          DEBUG_ECHOPAIR(" T", int(e));
+          LOOP_XYZ(a) DEBUG_ECHOPAIR("  hotend_offset[", axis_codes[a], "_AXIS][", int(e), "]=", hotend_offset[a][e]);
           DEBUG_EOL();
         }
         DEBUG_EOL();

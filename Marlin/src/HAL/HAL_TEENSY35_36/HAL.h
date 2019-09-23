@@ -93,20 +93,20 @@ typedef int8_t pin_t;
 #undef pgm_read_word
 #define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
-inline void HAL_init(void) { }
+inline void HAL_init() { }
 
 // Clear reset reason
-void HAL_clear_reset_source(void);
+void HAL_clear_reset_source();
 
 // Reset reason
-uint8_t HAL_get_reset_source(void);
+uint8_t HAL_get_reset_source();
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 extern "C" {
-  int freeMemory(void);
+  int freeMemory();
 }
 #pragma GCC diagnostic pop
 
@@ -121,7 +121,7 @@ void HAL_adc_init();
 #define HAL_ANALOG_SELECT(pin)
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-uint16_t HAL_adc_get_result(void);
+uint16_t HAL_adc_get_result();
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin

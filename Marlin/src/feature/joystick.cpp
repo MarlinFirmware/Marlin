@@ -36,6 +36,10 @@
 
 Joystick joystick;
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extensible_ui/ui_api.h"
+#endif
+
 #if HAS_JOY_ADC_X
   temp_info_t Joystick::x; // = { 0 }
 #endif
@@ -65,35 +69,39 @@ Joystick joystick;
   }
 #endif
 
-void Joystick::calculate(float norm_jog[XYZ]) {
-  // Do nothing if enable pin (active-low) is not LOW
-  #if HAS_JOY_ADC_EN
-    if (READ(JOY_EN_PIN)) return;
-  #endif
+#if HAS_JOY_ADC_X || HAS_JOY_ADC_Y || HAS_JOY_ADC_Z
 
-  auto _normalize_joy = [](float &adc, const int16_t raw, const int16_t (&joy_limits)[4]) {
-    if (WITHIN(raw, joy_limits[0], joy_limits[3])) {
-      // within limits, check deadzone
-      if (raw > joy_limits[2])
-        adc = (raw - joy_limits[2]) / float(joy_limits[3] - joy_limits[2]);
-      else if (raw < joy_limits[1])
-        adc = (raw - joy_limits[1]) / float(joy_limits[1] - joy_limits[0]);  // negative value
-    }
-  };
+  void Joystick::calculate(float (&norm_jog)[XYZ]) {
+    // Do nothing if enable pin (active-low) is not LOW
+    #if HAS_JOY_ADC_EN
+      if (READ(JOY_EN_PIN)) return;
+    #endif
 
-  #if HAS_JOY_ADC_X
-    static constexpr int16_t joy_x_limits[4] = JOY_X_LIMITS;
-    _normalize_joy(norm_jog[X_AXIS], x.raw, joy_x_limits);
-  #endif
-  #if HAS_JOY_ADC_Y
-    static constexpr int16_t joy_y_limits[4] = JOY_Y_LIMITS;
-    _normalize_joy(norm_jog[Y_AXIS], y.raw, joy_y_limits);
-  #endif
-  #if HAS_JOY_ADC_Z
-    static constexpr int16_t joy_z_limits[4] = JOY_Z_LIMITS;
-    _normalize_joy(norm_jog[Z_AXIS], z.raw, joy_z_limits);
-  #endif
-}
+    auto _normalize_joy = [](float &adc, const int16_t raw, const int16_t (&joy_limits)[4]) {
+      if (WITHIN(raw, joy_limits[0], joy_limits[3])) {
+        // within limits, check deadzone
+        if (raw > joy_limits[2])
+          adc = (raw - joy_limits[2]) / float(joy_limits[3] - joy_limits[2]);
+        else if (raw < joy_limits[1])
+          adc = (raw - joy_limits[1]) / float(joy_limits[1] - joy_limits[0]);  // negative value
+      }
+    };
+
+    #if HAS_JOY_ADC_X
+      static constexpr int16_t joy_x_limits[4] = JOY_X_LIMITS;
+      _normalize_joy(norm_jog[X_AXIS], x.raw, joy_x_limits);
+    #endif
+    #if HAS_JOY_ADC_Y
+      static constexpr int16_t joy_y_limits[4] = JOY_Y_LIMITS;
+      _normalize_joy(norm_jog[Y_AXIS], y.raw, joy_y_limits);
+    #endif
+    #if HAS_JOY_ADC_Z
+      static constexpr int16_t joy_z_limits[4] = JOY_Z_LIMITS;
+      _normalize_joy(norm_jog[Z_AXIS], z.raw, joy_z_limits);
+    #endif
+  }
+
+#endif
 
 #if ENABLED(POLL_JOG)
 
@@ -122,10 +130,18 @@ void Joystick::calculate(float norm_jog[XYZ]) {
     float norm_jog[XYZ] = { 0 };
 
     // Use ADC values and defined limits. The active zone is normalized: -1..0 (dead) 0..1
-    joystick.calculate(norm_jog);
+    #if HAS_JOY_ADC_X || HAS_JOY_ADC_Y || HAS_JOY_ADC_Z
+      joystick.calculate(norm_jog);
+    #endif
 
     // Other non-joystick poll-based jogging could be implemented here
     // with "jogging" encapsulated as a more general class.
+
+    #if ENABLED(EXTENSIBLE_UI)
+      norm_jog[X_AXIS] = ExtUI::norm_jog[X_AXIS];
+      norm_jog[Y_AXIS] = ExtUI::norm_jog[Y_AXIS];
+      norm_jog[Z_AXIS] = ExtUI::norm_jog[Z_AXIS];
+    #endif
 
     // Jogging value maps continuously (quadratic relationship) to feedrate
     float move_dist[XYZ] = { 0 }, hypot2 = 0;
