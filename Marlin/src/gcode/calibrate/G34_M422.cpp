@@ -277,7 +277,7 @@ void GcodeSuite::G34() {
     // After this operation the z position needs correction
     set_axis_is_not_at_home(Z_AXIS);
 
-    // Stow the probe, as the last call to probe_pt(...) left
+    // Stow the probe, as the last call to probe_at_point(...) left
     // the probe deployed if it was successful.
     STOW_PROBE();
 
