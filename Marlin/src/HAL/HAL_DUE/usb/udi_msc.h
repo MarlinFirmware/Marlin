@@ -148,7 +148,7 @@ typedef struct {
  *
  * Routine called by the main loop
  */
-bool udi_msc_process_trans(void);
+bool udi_msc_process_trans();
 
 /**
  * \brief Transfers data to/from USB MSC endpoints
@@ -206,26 +206,26 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
 	#define UDI_MSC_GLOBAL_PRODUCT_VERSION \
 	   '1', '.', '0', '0'
 	#define UDI_MSC_ENABLE_EXT() my_callback_msc_enable()
-	extern bool my_callback_msc_enable(void);
+	extern bool my_callback_msc_enable();
 	#define UDI_MSC_DISABLE_EXT() my_callback_msc_disable()
-	extern void my_callback_msc_disable(void);
+	extern void my_callback_msc_disable();
 	#include "udi_msc_conf.h" // At the end of conf_usb.h file
 \endcode
  *
  * Add to application C-file:
  * \code
 	 static bool my_flag_autorize_msc_transfert = false;
-	 bool my_callback_msc_enable(void)
+	 bool my_callback_msc_enable()
 	 {
 	    my_flag_autorize_msc_transfert = true;
 	    return true;
 	 }
-	 void my_callback_msc_disable(void)
+	 void my_callback_msc_disable()
 	 {
 	    my_flag_autorize_msc_transfert = false;
 	 }
 
-	 void task(void)
+	 void task()
 	 {
 	    udi_msc_process_trans();
 	 }
@@ -244,7 +244,7 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  *     \note The USB MSC interface requires a vendor ID (8 ASCII characters)
  *     and a product version (4 ASCII characters).
  *   - \code #define UDI_MSC_ENABLE_EXT() my_callback_msc_enable()
-	extern bool my_callback_msc_enable(void); \endcode
+	extern bool my_callback_msc_enable(); \endcode
  *     \note After the device enumeration (detecting and identifying USB devices),
  *     the USB host starts the device configuration. When the USB MSC interface
  *     from the device is accepted by the host, the USB host enables this interface and the
@@ -252,7 +252,7 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  *     Thus, when this event is received, the tasks which call
  *     udi_msc_process_trans() must be enabled.
  *   - \code #define UDI_MSC_DISABLE_EXT() my_callback_msc_disable()
-	extern void my_callback_msc_disable(void); \endcode
+	extern void my_callback_msc_disable(); \endcode
  *     \note When the USB device is unplugged or is reset by the USB host, the USB
  *     interface is disabled and the UDI_MSC_DISABLE_EXT() callback function
  *     is called. Thus, it is recommended to disable the task which is called udi_msc_process_trans().
@@ -260,14 +260,14 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  * which provides the memories interfaces. However, the memory data transfers
  * must be done outside USB interrupt routine. This is done in the MSC process
  * ("udi_msc_process_trans()") called by main loop:
- *   - \code  * void task(void) {
+ *   - \code  * void task() {
 	udi_msc_process_trans();
 	} \endcode
  * -# The MSC speed depends on task periodicity. To get the best speed
  * the notification callback "UDI_MSC_NOTIFY_TRANS_EXT" can be used to wakeup
  * this task (Example, through a mutex):
  *   - \code #define  UDI_MSC_NOTIFY_TRANS_EXT()    msc_notify_trans()
-	void msc_notify_trans(void) {
+	void msc_notify_trans() {
 	wakeup_my_task();
 	} \endcode
  *

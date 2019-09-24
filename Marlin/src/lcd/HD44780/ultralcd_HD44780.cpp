@@ -47,7 +47,7 @@
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../../feature/bedlevel/ubl/ubl.h"
+  #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 //

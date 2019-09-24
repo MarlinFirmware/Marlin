@@ -53,7 +53,7 @@
 
 #define _HAL_TIMER(T) _CAT(LPC_TIM, T)
 #define _HAL_TIMER_IRQ(T) TIMER##T##_IRQn
-#define __HAL_TIMER_ISR(T) extern "C" void TIMER##T##_IRQHandler(void)
+#define __HAL_TIMER_ISR(T) extern "C" void TIMER##T##_IRQHandler()
 #define _HAL_TIMER_ISR(T)  __HAL_TIMER_ISR(T)
 
 typedef uint32_t hal_timer_t;
@@ -94,7 +94,7 @@ typedef uint32_t hal_timer_t;
 // ------------------------
 // Public functions
 // ------------------------
-void HAL_timer_init(void);
+void HAL_timer_init();
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {

@@ -35,7 +35,7 @@
 
 Babystep babystep;
 
-volatile int16_t Babystep::todo[BS_TODO_AXIS(Z_AXIS) + 1];
+volatile int16_t Babystep::steps[BS_TODO_AXIS(Z_AXIS) + 1];
 
 #if HAS_LCD_MENU || ENABLED(EXTENSIBLE_UI)
   int16_t Babystep::accum;
@@ -45,10 +45,10 @@ volatile int16_t Babystep::todo[BS_TODO_AXIS(Z_AXIS) + 1];
 #endif
 
 void Babystep::step_axis(const AxisEnum axis) {
-  const int16_t curTodo = todo[BS_TODO_AXIS(axis)]; // get rid of volatile for performance
+  const int16_t curTodo = steps[BS_TODO_AXIS(axis)]; // get rid of volatile for performance
   if (curTodo) {
     stepper.babystep((AxisEnum)axis, curTodo > 0);
-    if (curTodo > 0) todo[BS_TODO_AXIS(axis)]--; else todo[BS_TODO_AXIS(axis)]++;
+    if (curTodo > 0) steps[BS_TODO_AXIS(axis)]--; else steps[BS_TODO_AXIS(axis)]++;
   }
 }
 
@@ -94,30 +94,30 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
         case CORE_AXIS_1: // X on CoreXY and CoreXZ, Y on CoreYZ
           BSA_ENABLE(CORE_AXIS_1);
           BSA_ENABLE(CORE_AXIS_2);
-          todo[CORE_AXIS_1] += distance * 2;
-          todo[CORE_AXIS_2] += distance * 2;
+          steps[CORE_AXIS_1] += distance * 2;
+          steps[CORE_AXIS_2] += distance * 2;
           break;
         case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ and CoreYZ
           BSA_ENABLE(CORE_AXIS_1);
           BSA_ENABLE(CORE_AXIS_2);
-          todo[CORE_AXIS_1] += CORESIGN(distance * 2);
-          todo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+          steps[CORE_AXIS_1] += CORESIGN(distance * 2);
+          steps[CORE_AXIS_2] -= CORESIGN(distance * 2);
           break;
         case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
         default:
           BSA_ENABLE(NORMAL_AXIS);
-          todo[NORMAL_AXIS] += distance;
+          steps[NORMAL_AXIS] += distance;
           break;
       }
     #elif CORE_IS_XZ || CORE_IS_YZ
       // Only Z stepping needs to be handled here
       BSA_ENABLE(CORE_AXIS_1);
       BSA_ENABLE(CORE_AXIS_2);
-      todo[CORE_AXIS_1] += CORESIGN(distance * 2);
-      todo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+      steps[CORE_AXIS_1] += CORESIGN(distance * 2);
+      steps[CORE_AXIS_2] -= CORESIGN(distance * 2);
     #else
       BSA_ENABLE(Z_AXIS);
-      todo[Z_AXIS] += distance;
+      steps[Z_AXIS] += distance;
     #endif
   #else
     #if ENABLED(BABYSTEP_XY)
@@ -125,7 +125,7 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
     #else
       BSA_ENABLE(Z_AXIS);
     #endif
-    todo[BS_TODO_AXIS(axis)] += distance;
+    steps[BS_TODO_AXIS(axis)] += distance;
   #endif
   #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
     gcode.reset_stepper_timeout();

@@ -27,7 +27,7 @@
 
   #include "watchdog.h"
 
-  void watchdog_init(void) {
+  void watchdog_init() {
     // The low-power oscillator used by the WDT runs at 32,768 Hz with
     // a 1:32 prescale, thus 1024 Hz, though probably not super precise.
 

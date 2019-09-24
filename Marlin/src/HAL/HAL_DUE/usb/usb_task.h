@@ -58,12 +58,12 @@ extern "C" {
  *
  * \retval true if MSC startup is ok
  */
-bool usb_task_msc_enable(void);
+bool usb_task_msc_enable();
 
 /*! \brief Called by MSC interface
  * Callback running when USB Host disable MSC interface
  */
-void usb_task_msc_disable(void);
+void usb_task_msc_disable();
 
 /*! \brief Opens the communication port
  * This is called by CDC interface when USB Host enable it.
@@ -84,25 +84,25 @@ void usb_task_cdc_set_dtr(const uint8_t port, const bool b_enable);
 
 /*! \brief Check if MSC is enumerated and configured on the PC side
  */
-bool usb_task_msc_isenabled(void);
+bool usb_task_msc_isenabled();
 
 /*! \brief Check if CDC is enumerated and configured on the PC side
  */
-bool usb_task_cdc_isenabled(void);
+bool usb_task_cdc_isenabled();
 
 /*! \brief Check if CDC is actually OPEN by an application on the PC side
  *  assuming DTR signal means a program is listening to messages
  */
-bool usb_task_cdc_dtr_active(void);
+bool usb_task_cdc_dtr_active();
 
 /*! \brief Called by UDC when USB Host request a extra string different
  * of this specified in USB device descriptor
  */
-bool usb_task_extra_string(void);
+bool usb_task_extra_string();
 
 /*! \brief Called by UDC when USB Host performs unknown requests
  */
-bool usb_task_other_requests(void);
+bool usb_task_other_requests();
 
 /*! \brief Called by CDC interface
  * Callback running when CDC device have received data
@@ -117,15 +117,15 @@ void usb_task_cdc_config(const uint8_t port, usb_cdc_line_coding_t *cfg);
 
 /*! \brief The USB device interrupt
  */
-void USBD_ISR(void);
+void USBD_ISR();
 
 /*! \brief USB task init
  */
-void usb_task_init(void);
+void usb_task_init();
 
 /*! \brief USB task idle
  */
-void usb_task_idle(void);
+void usb_task_idle();
 
 #ifdef __cplusplus
 }

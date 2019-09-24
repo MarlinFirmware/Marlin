@@ -33,7 +33,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-void spiBegin(void) {
+void spiBegin() {
   OUT_WRITE(SS_PIN, HIGH);
   SET_OUTPUT(SCK_PIN);
   SET_INPUT(MISO_PIN);
@@ -81,7 +81,7 @@ void spiBegin(void) {
   }
 
   /** SPI receive a byte */
-  uint8_t spiRec(void) {
+  uint8_t spiRec() {
     SPDR = 0xFF;
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
     return SPDR;

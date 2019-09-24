@@ -21,6 +21,8 @@
  */
 
 #include "numtostr.h"
+
+#include "../inc/MarlinConfigPre.h"
 #include "../core/utility.h"
 
 char conv[8] = { 0 };
@@ -183,7 +185,7 @@ char* ftostr52(const float &f) {
     return &conv[3];
   }
 
-#endif // LCD_DECIMAL_SMALL_XY
+#endif
 
 // Convert float to fixed-length string with +123.4 / -123.4 format
 char* ftostr41sign(const float &f) {

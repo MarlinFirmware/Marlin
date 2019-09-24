@@ -273,7 +273,7 @@ int16_t SdBaseFile::fgets(char* str, int16_t num, char* delim) {
  *
  * \return true for success, false for failure.
  */
-bool SdBaseFile::getFilename(char * const name) {
+bool SdBaseFile::getDosName(char * const name) {
   if (!isOpen()) return false;
 
   if (isRoot()) {
@@ -957,7 +957,7 @@ void SdBaseFile::printFatTime(uint16_t fatTime) {
  */
 bool SdBaseFile::printName() {
   char name[FILENAME_LENGTH];
-  if (!getFilename(name)) return false;
+  if (!getDosName(name)) return false;
   SERIAL_ECHO(name);
   return true;
 }

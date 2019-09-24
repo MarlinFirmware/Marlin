@@ -40,7 +40,7 @@ public:
         HexDumper() : byteCount(0), byteTotal(0) {
         };
 
-        void Initialize(void) {
+        void Initialize() {
                 byteCount = 0;
                 byteTotal = 0;
         };

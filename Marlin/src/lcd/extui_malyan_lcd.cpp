@@ -298,7 +298,7 @@ void process_lcd_s_command(const char* command) {
 
     case 'L': {
       #if ENABLED(SDSUPPORT)
-        if (!card.isDetected()) card.initsd();
+        if (!card.isMounted()) card.mount();
 
         // A more efficient way to do this would be to
         // implement a callback in the ls_SerialPrint code, but
@@ -447,7 +447,7 @@ namespace ExtUI {
   void onPrintTimerStarted() {}
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
-  void onFilamentRunout() {}
+  void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const msg) { UNUSED(msg); }
   void onFactoryReset() {}
   void onStoreSettings(char *buff) { UNUSED(buff); }

@@ -98,8 +98,8 @@ void PrintJobRecovery::changed() {
  */
 void PrintJobRecovery::check() {
   if (enabled) {
-    if (!card.isDetected()) card.initsd();
-    if (card.isDetected()) {
+    if (!card.isMounted()) card.mount();
+    if (card.isMounted()) {
       load();
       if (!valid()) return purge();
       queue.inject_P(PSTR("M1000 S"));

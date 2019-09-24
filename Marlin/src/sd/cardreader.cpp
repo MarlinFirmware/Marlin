@@ -123,7 +123,7 @@ CardReader::CardReader() {
       //sort_reverse = false;
     #endif
   #endif
-  flag.sdprinting = flag.detected = flag.saving = flag.logging = false;
+  flag.sdprinting = flag.mounted = flag.saving = flag.logging = false;
   filesize = sdpos = 0;
   file_subcall_ctr = 0;
 
@@ -313,7 +313,7 @@ void CardReader::ls() {
 void CardReader::printFilename() {
   if (file.isOpen()) {
     char dosFilename[FILENAME_LENGTH];
-    file.getFilename(dosFilename);
+    file.getDosName(dosFilename);
     SERIAL_ECHO(dosFilename);
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
       getfilename(0, dosFilename);
@@ -329,8 +329,8 @@ void CardReader::printFilename() {
   SERIAL_EOL();
 }
 
-void CardReader::initsd() {
-  flag.detected = false;
+void CardReader::mount() {
+  flag.mounted = false;
   if (root.isOpen()) root.close();
 
   #ifndef SPI_SPEED
@@ -350,7 +350,7 @@ void CardReader::initsd() {
   else if (!root.openRoot(&volume))
     SERIAL_ERROR_MSG(MSG_SD_OPENROOT_FAIL);
   else {
-    flag.detected = true;
+    flag.mounted = true;
     SERIAL_ECHO_MSG(MSG_SD_CARD_OK);
     #if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
       settings.first_load();
@@ -363,7 +363,7 @@ void CardReader::initsd() {
 
 void CardReader::release() {
   stopSDPrint();
-  flag.detected = false;
+  flag.mounted = false;
 }
 
 void CardReader::openAndPrintFile(const char *name) {
@@ -375,7 +375,7 @@ void CardReader::openAndPrintFile(const char *name) {
 }
 
 void CardReader::startFileprint() {
-  if (isDetected()) {
+  if (isMounted()) {
     flag.sdprinting = true;
     #if SD_RESORT
       flush_presort();
@@ -404,7 +404,7 @@ void CardReader::openLogFile(char * const path) {
 }
 
 void appendAtom(SdFile &file, char *& dst, uint8_t &cnt) {
-  file.getFilename(dst);
+  file.getDosName(dst);
   while (*dst && cnt < MAXPATHNAMELENGTH) { dst++; cnt++; }
   if (cnt < MAXPATHNAMELENGTH) { *dst = '/'; dst++; cnt++; }
 }
@@ -425,7 +425,7 @@ void CardReader::getAbsFilename(char *t) {
 
 void CardReader::openFile(char * const path, const bool read, const bool subcall/*=false*/) {
 
-  if (!isDetected()) return;
+  if (!isMounted()) return;
 
   uint8_t doing = 0;
   if (isFileOpen()) {                     // Replacing current file or doing a subroutine
@@ -499,7 +499,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
 }
 
 void CardReader::removeFile(const char * const name) {
-  if (!isDetected()) return;
+  if (!isMounted()) return;
 
   //stopSDPrint();
 
@@ -558,12 +558,12 @@ void CardReader::checkautostart() {
 
   if (autostart_index < 0 || flag.sdprinting) return;
 
-  if (!isDetected()) initsd();
+  if (!isMounted()) mount();
   #if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
     else settings.first_load();
   #endif
 
-  if (isDetected()
+  if (isMounted()
     #if ENABLED(POWER_LOSS_RECOVERY)
       && !recovery.valid() // Don't run auto#.g when a resume file exists
     #endif
@@ -629,7 +629,7 @@ void CardReader::getfilename(uint16_t nr, const char * const match/*=nullptr*/) 
   lsDive(nullptr, workDir, match);
 }
 
-uint16_t CardReader::getnrfilenames() {
+uint16_t CardReader::countFilesInWorkDir() {
   lsAction = LS_Count;
   nrFiles = 0;
   workDir.rewind();
@@ -707,6 +707,7 @@ void CardReader::chdir(const char * relpath) {
 
   if (newDir.open(parent, relpath, O_READ)) {
     workDir = newDir;
+    flag.workDirIsRoot = false;
     if (workDirDepth < MAX_DIR_DEPTH)
       workDirParents[workDirDepth++] = workDir;
     #if ENABLED(SDCARD_SORT_ALPHA)
@@ -726,14 +727,13 @@ int8_t CardReader::updir() {
       presort();
     #endif
   }
+  if (!workDirDepth) flag.workDirIsRoot = true;
   return workDirDepth;
 }
 
 void CardReader::setroot() {
-  /*if (!workDir.openRoot(&volume)) {
-    SERIAL_ECHOLNPGM(MSG_SD_WORKDIR_FAIL);
-  }*/
   workDir = root;
+  flag.workDirIsRoot = true;
   #if ENABLED(SDCARD_SORT_ALPHA)
     presort();
   #endif
@@ -801,7 +801,7 @@ void CardReader::setroot() {
     #endif
 
     // If there are files, sort up to the limit
-    uint16_t fileCnt = getnrfilenames();
+    uint16_t fileCnt = countFilesInWorkDir();
     if (fileCnt > 0) {
 
       // Never sort more than the max allowed
@@ -981,7 +981,7 @@ uint16_t CardReader::get_num_Files() {
     #if ENABLED(SDCARD_SORT_ALPHA) && SDSORT_USES_RAM && SDSORT_CACHE_NAMES
       nrFiles // no need to access the SD card for filenames
     #else
-      getnrfilenames()
+      countFilesInWorkDir()
     #endif
   ;
 }
@@ -1049,7 +1049,7 @@ void CardReader::printingHasFinished() {
   }
 
   void CardReader::openJobRecoveryFile(const bool read) {
-    if (!isDetected()) return;
+    if (!isMounted()) return;
     if (recovery.file.isOpen()) return;
     if (!recovery.file.open(&root, recovery.filename, read ? O_READ : O_CREAT | O_WRITE | O_TRUNC | O_SYNC))
       SERIAL_ECHOLNPAIR(MSG_SD_OPEN_FILE_FAIL, recovery.filename, ".");

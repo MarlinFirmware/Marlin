@@ -71,7 +71,7 @@ extern "C" {
  * \param pll_id Source of the USB clock.
  * \param div Actual clock divisor. Must be superior to 0.
  */
-void sysclk_enable_usb(void)
+void sysclk_enable_usb()
 {
 	Assert(CONFIG_USBCLK_DIV > 0);
 
@@ -103,7 +103,7 @@ void sysclk_enable_usb(void)
  *
  * \note This implementation does not switch off the PLL, it just turns off the USB clock.
  */
-void sysclk_disable_usb(void)
+void sysclk_disable_usb()
 {
 	pmc_disable_udpck();
 }

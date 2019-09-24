@@ -175,16 +175,9 @@ Nozzle nozzle;
     if (!TEST(cleans, Z_AXIS)) start.z = end.z = current_position[Z_AXIS];
 
     switch (pattern) {
-      case 1:
-        zigzag(start, end, strokes, objects);
-        break;
-
-      case 2:
-        circle(start, end, strokes, radius);
-        break;
-
-      default:
-        stroke(start, end, strokes);
+       case 1: zigzag(start, end, strokes, objects); break;
+       case 2: circle(start, end, strokes, radius);  break;
+      default: stroke(start, end, strokes);
     }
   }
 
@@ -193,8 +186,7 @@ Nozzle nozzle;
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
   void Nozzle::park(const uint8_t z_action, const point_t &park/*=NOZZLE_PARK_POINT*/) {
-    const float fr_xy = NOZZLE_PARK_XY_FEEDRATE,
-                fr_z = NOZZLE_PARK_Z_FEEDRATE;
+    constexpr float fr_xy = NOZZLE_PARK_XY_FEEDRATE, fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
     switch (z_action) {
       case 1: // Go to Z-park height

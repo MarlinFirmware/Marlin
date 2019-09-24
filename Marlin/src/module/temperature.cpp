@@ -245,7 +245,7 @@ Temperature thermalManager;
       int16_t Temperature::maxtemp_raw_CHAMBER = HEATER_CHAMBER_RAW_HI_TEMP;
     #endif
     #if WATCH_CHAMBER
-      heater_watch_t Temperature::watch_chamber = { 0 };
+      heater_watch_t Temperature::watch_chamber{0};
     #endif
     millis_t Temperature::next_chamber_check_ms;
   #endif // HAS_HEATED_CHAMBER
@@ -930,7 +930,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
 
     #if DISABLED(PID_OPENLOOP)
 
-      static PID_t work_pid = { 0 };
+      static PID_t work_pid{0};
       static float temp_iState = 0, temp_dState = 0;
       static bool pid_reset = true;
       float pid_output = 0;
@@ -1320,13 +1320,14 @@ void Temperature::manage_heater() {
 
     if (!WITHIN(t_index, 0, COUNT(user_thermistor) - 1)) return 25;
 
-    if (user_thermistor[t_index].pre_calc) {
-      // pre-calculate some variables
-      user_thermistor[t_index].pre_calc = false;
-      user_thermistor[t_index].res_25_recip = 1.0f / user_thermistor[t_index].res_25;
-      user_thermistor[t_index].res_25_log = logf(user_thermistor[t_index].res_25);
-      user_thermistor[t_index].beta_recip = 1.0f / user_thermistor[t_index].beta;
-      user_thermistor[t_index].sh_alpha = (1.0f / (THERMISTOR_RESISTANCE_NOMINAL_C - THERMISTOR_ABS_ZERO_C)) - (user_thermistor[t_index].beta_recip * user_thermistor[t_index].res_25_log) - (user_thermistor[t_index].sh_c_coeff * user_thermistor[t_index].res_25_log * user_thermistor[t_index].res_25_log * user_thermistor[t_index].res_25_log);
+    user_thermistor_t &t = user_thermistor[t_index];
+    if (t.pre_calc) { // pre-calculate some variables
+      t.pre_calc     = false;
+      t.res_25_recip = 1.0f / t.res_25;
+      t.res_25_log   = logf(t.res_25);
+      t.beta_recip   = 1.0f / t.beta;
+      t.sh_alpha     = RECIPROCAL(THERMISTOR_RESISTANCE_NOMINAL_C - (THERMISTOR_ABS_ZERO_C))
+                        - (t.beta_recip * t.res_25_log) - (t.sh_c_coeff * cu(t.res_25_log));
     }
 
     // maximum adc value .. take into account the over sampling
@@ -1334,13 +1335,13 @@ void Temperature::manage_heater() {
               adc_raw = constrain(raw, 1, adc_max - 1); // constrain to prevent divide-by-zero
 
     const float adc_inverse = (adc_max - adc_raw) - 0.5f,
-                resistance = user_thermistor[t_index].series_res * (adc_raw + 0.5f) / adc_inverse,
+                resistance = t.series_res * (adc_raw + 0.5f) / adc_inverse,
                 log_resistance = logf(resistance);
 
-    float value = user_thermistor[t_index].sh_alpha;
-    value += log_resistance * user_thermistor[t_index].beta_recip;
-    if (user_thermistor[t_index].sh_c_coeff != 0)
-      value += user_thermistor[t_index].sh_c_coeff * log_resistance * log_resistance * log_resistance;
+    float value = t.sh_alpha;
+    value += log_resistance * t.beta_recip;
+    if (t.sh_c_coeff != 0)
+      value += t.sh_c_coeff * cu(log_resistance);
     value = 1.0f / value;
 
     //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)

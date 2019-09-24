@@ -85,16 +85,16 @@ extern uint16_t HAL_adc_result;
 // ------------------------
 
 // clear reset reason
-void HAL_clear_reset_source (void);
+void HAL_clear_reset_source();
 
 // reset reason
-uint8_t HAL_get_reset_source(void);
+uint8_t HAL_get_reset_source();
 
 void _delay_ms(int delay);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
-int freeMemory(void);
+int freeMemory();
 #pragma GCC diagnostic pop
 
 void analogWrite(pin_t pin, int value);
@@ -108,7 +108,7 @@ void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 // ADC
 #define HAL_ANALOG_SELECT(pin)
 
-void HAL_adc_init(void);
+void HAL_adc_init();
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
@@ -123,6 +123,6 @@ void HAL_adc_start_conversion(uint8_t adc_pin);
 // Enable hooks into idle and setup for HAL
 #define HAL_IDLETASK 1
 #define BOARD_INIT() HAL_init_board();
-void HAL_idletask(void);
-void HAL_init(void);
-void HAL_init_board(void);
+void HAL_idletask();
+void HAL_init();
+void HAL_init_board();

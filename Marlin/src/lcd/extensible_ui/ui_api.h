@@ -45,6 +45,11 @@
 #include "../../inc/MarlinConfig.h"
 
 namespace ExtUI {
+
+  #if ENABLED(JOYSTICK)
+    extern float norm_jog[];
+  #endif
+
   // The ExtUI implementation can store up to this many bytes
   // in the EEPROM when the methods onStoreSettings and
   // onLoadSettings are called.
@@ -61,7 +66,7 @@ namespace ExtUI {
   constexpr uint8_t fanCount      = FAN_COUNT;
 
   #if HAS_MESH
-    typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+    typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   #endif
 
   bool isMoving();
@@ -78,6 +83,8 @@ namespace ExtUI {
   bool isHeaterIdle(const extruder_t);
   void enableHeater(const heater_t);
   void enableHeater(const extruder_t);
+
+  void jog(float dx, float dy, float dz);
 
   /**
    * Getters and setters
@@ -96,7 +103,7 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float, const axis_t);
     void  setAxisCurrent_mA(const float, const extruder_t);
 
-    int getTMCBumpSensitivity(const axis_t);
+     int getTMCBumpSensitivity(const axis_t);
     void setTMCBumpSensitivity(const float, const axis_t);
   #endif
 
@@ -128,7 +135,7 @@ namespace ExtUI {
     void setLevelingActive(const bool);
     bool getMeshValid();
     #if HAS_MESH
-      bed_mesh_t getMeshArray();
+      bed_mesh_t& getMeshArray();
       float getMeshPoint(const uint8_t xpos, const uint8_t ypos);
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
       void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);
@@ -165,7 +172,7 @@ namespace ExtUI {
   void setRetractAcceleration_mm_s2(const float);
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
-  void setUserConfirmed(void);
+  void setUserConfirmed();
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t);
@@ -272,7 +279,7 @@ namespace ExtUI {
       void changeDir(const char * const dirname);
       void upDir();
       bool isAtRootDir();
-      uint16_t    count();
+      uint16_t count();
   };
 
   /**

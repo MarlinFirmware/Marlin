@@ -162,7 +162,7 @@ void GcodeSuite::G34() {
         if (iteration == 0 || izstepper > 0) do_blocking_move_to_z(z_probe);
 
         // Probe a Z height for each stepper.
-        const float z_probed_height = probe_pt(z_auto_align_xpos[zstepper], z_auto_align_ypos[zstepper], raise_after, 0, true);
+        const float z_probed_height = probe_at_point(z_auto_align_xpos[zstepper], z_auto_align_ypos[zstepper], raise_after, 0, true);
         if (isnan(z_probed_height)) {
           SERIAL_ECHOLNPGM("Probing failed.");
           err_break = true;

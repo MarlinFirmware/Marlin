@@ -62,7 +62,7 @@ extern "C"
 #else
                 __attribute__((interrupt(),nomips16))
 #endif
-                softISR(void);
+                softISR();
 }
 #endif
 #endif
@@ -149,7 +149,7 @@ public:
         /**
          * Override this method with your code.
          */
-        virtual void dyn_SWISR(void) {
+        virtual void dyn_SWISR() {
         };
 };
 

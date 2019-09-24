@@ -789,7 +789,7 @@ class Temperature {
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         static uint8_t auto_report_temp_interval;
         static millis_t next_temp_report_ms;
-        static void auto_report_temperatures(void);
+        static void auto_report_temperatures();
         static inline void set_auto_report_interval(uint8_t v) {
           NOMORE(v, 60);
           auto_report_temp_interval = v;

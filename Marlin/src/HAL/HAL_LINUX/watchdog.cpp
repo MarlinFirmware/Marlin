@@ -28,19 +28,19 @@
 
 #include "watchdog.h"
 
-void watchdog_init(void) {}
+void watchdog_init() {}
 
-void HAL_clear_reset_source(void) {}
+void HAL_clear_reset_source() {}
 
-uint8_t HAL_get_reset_source(void) {
+uint8_t HAL_get_reset_source() {
   return RST_POWER_ON;
 }
 
 void watchdog_reset() {}
 
 #else
-  void HAL_clear_reset_source(void) {}
-  uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
+  void HAL_clear_reset_source() {}
+  uint8_t HAL_get_reset_source() { return RST_POWER_ON; }
 #endif // USE_WATCHDOG
 
 #endif // __PLAT_LINUX__
