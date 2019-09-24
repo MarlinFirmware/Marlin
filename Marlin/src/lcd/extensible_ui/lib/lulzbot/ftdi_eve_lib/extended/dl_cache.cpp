@@ -128,14 +128,14 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
 
   if (dl_size > free_space) {
     // Not enough memory to cache the display list.
-    #ifdef UI_FRAMEWORK_DEBUG
+    #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR("Not enough space in GRAM to cache display list, free space: ", free_space);
       SERIAL_ECHOLNPAIR(" Required: ", dl_size);
     #endif
     return false;
   } else {
-    #ifdef UI_FRAMEWORK_DEBUG
+    #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR("Saving DL to RAMG cache, bytes: ", dl_size);
       SERIAL_ECHOLNPAIR(" Free space: ", free_space);
@@ -164,7 +164,7 @@ void DLCache::load_slot() {
 void DLCache::append() {
   CLCD::CommandFifo cmd;
   cmd.append(dl_addr, dl_size);
-  #ifdef UI_FRAMEWORK_DEBUG
+  #if ENABLED(TOUCH_UI_DEBUG)
     cmd.execute();
     wait_until_idle();
     SERIAL_ECHO_START();

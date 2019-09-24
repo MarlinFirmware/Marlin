@@ -51,7 +51,7 @@ void TouchCalibrationScreen::onEntry() {
        .execute();
 
     while (CLCD::is_touching()) {
-      #ifdef UI_FRAMEWORK_DEBUG
+      #if ENABLED(TOUCH_UI_DEBUG)
         SERIAL_ECHO_START();
         SERIAL_ECHOLNPGM("Waiting for touch release");
       #endif

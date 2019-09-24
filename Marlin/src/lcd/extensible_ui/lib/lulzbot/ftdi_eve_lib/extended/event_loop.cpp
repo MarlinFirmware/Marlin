@@ -124,7 +124,7 @@ namespace FTDI {
     switch (pressed_tag) {
       case UNPRESSED:
         if (tag != 0) {
-          #ifdef UI_FRAMEWORK_DEBUG
+          #if ENABLED(TOUCH_UI_DEBUG)
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPAIR("Touch start: ", tag);
           #endif
@@ -189,7 +189,7 @@ namespace FTDI {
 
             if (UIData::flags.bits.touch_end_sound) sound.play(unpress_sound);
 
-            #ifdef UI_FRAMEWORK_DEBUG
+            #if ENABLED(TOUCH_UI_DEBUG)
               SERIAL_ECHO_START();
               SERIAL_ECHOLNPAIR("Touch end: ", tag);
             #endif
