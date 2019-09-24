@@ -85,17 +85,16 @@ extern float cartes[XYZ];
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-extern const float homing_feedrate_mm_s[XYZ];
-FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
-float get_homing_bump_feedrate(const AxisEnum axis);
+extern const feedRate_t homing_feedrate_mm_s[XYZ];
+FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
+feedRate_t get_homing_bump_feedrate(const AxisEnum axis);
 
-extern float feedrate_mm_s;
+extern feedRate_t feedrate_mm_s;
 
 /**
- * Feedrate scaling and conversion
+ * Feedrate scaling
  */
 extern int16_t feedrate_percentage;
-#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01f)
 
 // The active extruder (tool). Set with T<extruder> command.
 #if EXTRUDERS > 1
@@ -172,34 +171,42 @@ void sync_plan_position_e();
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-void line_to_current_position(const float &fr_mm_s=feedrate_mm_s);
-
-/**
- * Move the planner to the position stored in the destination array, which is
- * used by G0/G1/G2/G3/G5 and many other functions to set a destination.
- */
-void buffer_line_to_destination(const float fr_mm_s);
-
-#if IS_KINEMATIC
-  void prepare_uninterpolated_move_to_destination(const float &fr_mm_s=0);
-#endif
+void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
 
 void prepare_move_to_destination();
+
+void _internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f
+  #if IS_KINEMATIC
+    , const bool is_fast=false
+  #endif
+);
+
+inline void prepare_internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f) {
+  _internal_move_to_destination(fr_mm_s);
+}
+
+#if IS_KINEMATIC
+  void prepare_fast_move_to_destination(const feedRate_t &scaled_fr_mm_s=MMS_SCALED(feedrate_mm_s));
+
+  inline void prepare_internal_fast_move_to_destination(const feedRate_t &fr_mm_s=0.0f) {
+    _internal_move_to_destination(fr_mm_s, true);
+  }
+#endif
 
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s=0);
-void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0);
-void do_blocking_move_to_y(const float &ry, const float &fr_mm_s=0);
-void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0);
-void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0);
+void do_blocking_move_to(const float rx, const float ry, const float rz, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_x(const float &rx, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_y(const float &ry, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_z(const float &rz, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_xy(const float &rx, const float &ry, const feedRate_t &fr_mm_s=0.0f);
 
-FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s=0) {
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const feedRate_t &fr_mm_s=0) {
   do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
 }
 
-FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const float &fr_mm_s=0) {
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const feedRate_t &fr_mm_s=0) {
   do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
 }
 

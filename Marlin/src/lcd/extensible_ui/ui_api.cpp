@@ -338,6 +338,8 @@ namespace ExtUI {
     return pos;
   }
 
+  constexpr feedRate_t manual_feedrate_mm_m[XYZE] = MANUAL_FEEDRATE;
+
   void setAxisPosition_mm(const float position, const axis_t axis) {
     // Start with no limits to movement
     float min = current_position[axis] - 1000,
@@ -382,23 +384,15 @@ namespace ExtUI {
       }
     #endif
 
-    constexpr float manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    setFeedrate_mm_s(MMM_TO_MMS(manual_feedrate[axis]));
-
-    set_destination_from_current();
-    destination[axis] = constrain(position, min, max);
-    prepare_move_to_destination();
+    current_position[axis] = constrain(position, min, max);
+    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m[axis]));
   }
 
   void setAxisPosition_mm(const float position, const extruder_t extruder) {
     setActiveTool(extruder, true);
 
-    constexpr float manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    setFeedrate_mm_s(MMM_TO_MMS(manual_feedrate[E_AXIS]));
-
-    set_destination_from_current();
-    destination[E_AXIS] = position;
-    prepare_move_to_destination();
+    current_position[E_AXIS] = position;
+    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m[E_AXIS]));
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
@@ -581,20 +575,20 @@ namespace ExtUI {
     planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = value;
   }
 
-  float getAxisMaxFeedrate_mm_s(const axis_t axis) {
+  feedRate_t getAxisMaxFeedrate_mm_s(const axis_t axis) {
     return planner.settings.max_feedrate_mm_s[axis];
   }
 
-  float getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
+  feedRate_t getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
     UNUSED_E(extruder);
     return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
   }
 
-  void setAxisMaxFeedrate_mm_s(const float value, const axis_t axis) {
+  void setAxisMaxFeedrate_mm_s(const feedRate_t value, const axis_t axis) {
     planner.settings.max_feedrate_mm_s[axis] = value;
   }
 
-  void setAxisMaxFeedrate_mm_s(const float value, const extruder_t extruder) {
+  void setAxisMaxFeedrate_mm_s(const feedRate_t value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = value;
   }
@@ -670,15 +664,15 @@ namespace ExtUI {
     }
   #endif
 
-  float getFeedrate_mm_s()                            { return feedrate_mm_s; }
-  float getMinFeedrate_mm_s()                         { return planner.settings.min_feedrate_mm_s; }
-  float getMinTravelFeedrate_mm_s()                   { return planner.settings.min_travel_feedrate_mm_s; }
+  feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
+  feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
+  feedRate_t getMinTravelFeedrate_mm_s()              { return planner.settings.min_travel_feedrate_mm_s; }
   float getPrintingAcceleration_mm_s2()               { return planner.settings.acceleration; }
   float getRetractAcceleration_mm_s2()                { return planner.settings.retract_acceleration; }
   float getTravelAcceleration_mm_s2()                 { return planner.settings.travel_acceleration; }
-  void setFeedrate_mm_s(const float fr)               { feedrate_mm_s = fr; }
-  void setMinFeedrate_mm_s(const float fr)            { planner.settings.min_feedrate_mm_s = fr; }
-  void setMinTravelFeedrate_mm_s(const float fr)      { planner.settings.min_travel_feedrate_mm_s = fr; }
+  void setFeedrate_mm_s(const feedRate_t fr)          { feedrate_mm_s = fr; }
+  void setMinFeedrate_mm_s(const feedRate_t fr)       { planner.settings.min_feedrate_mm_s = fr; }
+  void setMinTravelFeedrate_mm_s(const feedRate_t fr) { planner.settings.min_travel_feedrate_mm_s = fr; }
   void setPrintingAcceleration_mm_s2(const float acc) { planner.settings.acceleration = acc; }
   void setRetractAcceleration_mm_s2(const float acc)  { planner.settings.retract_acceleration = acc; }
   void setTravelAcceleration_mm_s2(const float acc)   { planner.settings.travel_acceleration = acc; }

@@ -244,8 +244,11 @@
 #define DECREMENT_(n) DEC_##n
 #define DECREMENT(n) DECREMENT_(n)
 
+// Feedrate
+typedef float feedRate_t;
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0f)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0f)
+#define MMS_SCALED(V)    ((V) * 0.01f * feedrate_percentage)
 
 #define NOOP (void(0))
 

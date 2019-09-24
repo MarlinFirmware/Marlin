@@ -1570,7 +1570,7 @@ bool Planner::_buffer_steps(const int32_t (&target)[XYZE]
   #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
     , const float (&delta_mm_cart)[XYZE]
   #endif
-  , float fr_mm_s, const uint8_t extruder, const float &millimeters
+  , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -1634,7 +1634,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
     , const float (&delta_mm_cart)[XYZE]
   #endif
-  , float fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
+  , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
 ) {
 
   const int32_t da = target[A_AXIS] - position[A_AXIS],
@@ -2091,7 +2091,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #else
       const float delta_mm_i = delta_mm[i];
     #endif
-    const float cs = ABS(current_speed[i] = delta_mm_i * inverse_secs);
+    const feedRate_t cs = ABS(current_speed[i] = delta_mm_i * inverse_secs);
     #if ENABLED(DISTINCT_E_FACTORS)
       if (i == E_AXIS) i += extruder;
     #endif
@@ -2569,7 +2569,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
   #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
     , const float (&delta_mm_cart)[XYZE]
   #endif
-  , const float &fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
+  , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -2651,9 +2651,8 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
 
 /**
  * Add a new linear movement to the buffer.
- * The target is cartesian, it's translated to delta/scara if
- * needed.
- *
+ * The target is cartesian. It's translated to
+ * delta/scara if needed.
  *
  *  rx,ry,rz,e   - target position in mm or degrees
  *  fr_mm_s      - (target) speed of the move (mm/s)
@@ -2661,7 +2660,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
  *  millimeters  - the length of the movement, if known
  *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
  */
-bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters
+bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const feedRate_t &fr_mm_s, const uint8_t extruder, const float millimeters
   #if ENABLED(SCARA_FEEDRATE_SCALING)
     , const float &inv_duration
   #endif
@@ -2690,10 +2689,10 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
-      const float duration_recip = inv_duration ? inv_duration : fr_mm_s / mm,
-                  feedrate = HYPOT(delta[A_AXIS] - position_float[A_AXIS], delta[B_AXIS] - position_float[B_AXIS]) * duration_recip;
+      const float duration_recip = inv_duration ? inv_duration : fr_mm_s / mm;
+      const feedRate_t feedrate = HYPOT(delta[A_AXIS] - position_float[A_AXIS], delta[B_AXIS] - position_float[B_AXIS]) * duration_recip;
     #else
-      const float feedrate = fr_mm_s;
+      const feedRate_t feedrate = fr_mm_s;
     #endif
     if (buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS]
       #if ENABLED(JUNCTION_DEVIATION)

@@ -146,10 +146,10 @@ void plan_arc(
   // Initialize the extruder axis
   raw[E_AXIS] = current_position[E_AXIS];
 
-  const float fr_mm_s = MMS_SCALED(feedrate_mm_s);
+  const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float inv_duration = fr_mm_s / MM_PER_ARC_SEGMENT;
+    const float inv_duration = scaled_fr_mm_s / MM_PER_ARC_SEGMENT;
   #endif
 
   millis_t next_idle_ms = millis() + 200UL;
@@ -206,7 +206,7 @@ void plan_arc(
       planner.apply_leveling(raw);
     #endif
 
-    if (!planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+    if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , inv_duration
       #endif
@@ -226,7 +226,7 @@ void plan_arc(
     planner.apply_leveling(raw);
   #endif
 
-  planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       , inv_duration
     #endif
