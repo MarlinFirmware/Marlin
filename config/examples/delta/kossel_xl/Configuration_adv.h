@@ -1207,38 +1207,30 @@
   //#define TOUCH_UI_PORTRAIT
   //#define TOUCH_UI_MIRRORED
 
-  // Enable UTF8 processing and rendering. Unsupported characters
-  // will be shown as '?'.
+  // UTF8 processing and rendering.
+  // Unsupported characters are shown as '?'.
   //#define TOUCH_UI_USE_UTF8
   #if ENABLED(TOUCH_UI_USE_UTF8)
-
-    // Enable TOUCH_UI_UTF8_WESTERN_CHARSET to add support for
-    // these characters:
-    //
-    //  ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöùúûüýÿ°
-    //
-    // These are made from a few combining bitmaps (`´¸¨°~ı)
-    // and require a comparatively small amount of storage.
-    //
+    // Western accents support. These accented characters use
+    // combined bitmaps and require relatively little storage.
     #define TOUCH_UI_UTF8_WESTERN_CHARSET
     #if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
-      // Enable additional character groups. These characters
-      // require full bitmaps and take up considerable storage:
-
-      //#define TOUCH_UI_UTF8_SUPERSCRIPTS    // ¹ ² ³
-      //#define TOUCH_UI_UTF8_COPYRIGHT       // © ®
-      //#define TOUCH_UI_UTF8_GERMANIC        // ß
-      //#define TOUCH_UI_UTF8_SCANDINAVIAN    // Æ Ð Ø Þ æ ð ø þ
-      //#define TOUCH_UI_UTF8_PUNCTUATION     // « » ¿ ¡
-      //#define TOUCH_UI_UTF8_CURRENCY        // ¢ £ ¤ ¥
-      //#define TOUCH_UI_UTF8_ORDINALS        // º ª
-      //#define TOUCH_UI_UTF8_MATHEMATICS     // ± × ÷
-      //#define TOUCH_UI_UTF8_FRACTIONS       // ¼ ½ ¾
-      //#define TOUCH_UI_UTF8_SYMBOLS         // µ ¶ ¦ § ¬
+      // Additional character groups. These characters require
+      // full bitmaps and take up considerable storage:
+      //#define TOUCH_UI_UTF8_SUPERSCRIPTS  // ¹ ² ³
+      //#define TOUCH_UI_UTF8_COPYRIGHT     // © ®
+      //#define TOUCH_UI_UTF8_GERMANIC      // ß
+      //#define TOUCH_UI_UTF8_SCANDINAVIAN  // Æ Ð Ø Þ æ ð ø þ
+      //#define TOUCH_UI_UTF8_PUNCTUATION   // « » ¿ ¡
+      //#define TOUCH_UI_UTF8_CURRENCY      // ¢ £ ¤ ¥
+      //#define TOUCH_UI_UTF8_ORDINALS      // º ª
+      //#define TOUCH_UI_UTF8_MATHEMATICS   // ± × ÷
+      //#define TOUCH_UI_UTF8_FRACTIONS     // ¼ ½ ¾
+      //#define TOUCH_UI_UTF8_SYMBOLS       // µ ¶ ¦ § ¬
     #endif
   #endif
 
-  // When labels do not fit buttons, use smaller font
+  // Use a smaller font when labels don't fit buttons
   #define TOUCH_UI_FIT_TEXT
 
   // Runtime language selection (otherwise LCD_LANGUAGE)
@@ -1248,7 +1240,7 @@
   // (recommended for smaller displays)
   //#define TOUCH_UI_PASSCODE
 
-  // Enable this for additional debugging information
+  // Output extra debug info for Touch UI events
   //#define TOUCH_UI_DEBUG
 #endif
 

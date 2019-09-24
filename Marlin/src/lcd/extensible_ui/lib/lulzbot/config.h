@@ -79,21 +79,13 @@
 // Enable UTF8 processing and rendering. Unsupported characters
 // will be shown as '?'.
 //#define TOUCH_UI_USE_UTF8
-#ifdef  TOUCH_UI_USE_UTF8
-
-  // Enable TOUCH_UI_UTF8_WESTERN_CHARSET to add support for
-  // these characters:
-  //
-  //  ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöùúûüýÿ°
-  //
-  // These are made from a few combining bitmaps (`´¸¨°~ı)
-  // and require a comparatively small amount of storage.
-  //
+#ifdef TOUCH_UI_USE_UTF8
+  // Western accents support. These accented characters use
+  // combined bitmaps and require relatively little storage.
   #define TOUCH_UI_UTF8_WESTERN_CHARSET
   #ifdef TOUCH_UI_UTF8_WESTERN_CHARSET
-    // Enable additional character groups. These characters
-    // require full bitmaps and take up considerable storage:
-
+    // Additional character groups. These characters require
+    // full bitmaps and take up considerable storage:
     //#define TOUCH_UI_UTF8_SUPERSCRIPTS    // ¹ ² ³
     //#define TOUCH_UI_UTF8_COPYRIGHT       // © ®
     //#define TOUCH_UI_UTF8_GERMANIC        // ß
