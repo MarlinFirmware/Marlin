@@ -261,11 +261,6 @@ void homeaxis(const AxisEnum axis);
  */
 
 #if IS_KINEMATIC // (DELTA or SCARA)
-
-  #if IS_SCARA
-    extern const float L1, L2;
-  #endif
-
   #if HAS_SCARA_OFFSET
     extern float scara_home_offset[ABC]; // A and B angular offsets, Z mm offset
   #endif
