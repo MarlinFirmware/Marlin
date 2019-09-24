@@ -325,7 +325,7 @@ void StatusScreen::setStatusMessage(const char * const str) {
 
 void StatusScreen::onIdle() {
   if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
-    if(!EventLoop::is_touch_held())
+    if (!EventLoop::is_touch_held())
       onRefresh();
     if (isPrintingFromMedia())
       BioPrintingDialogBox::show();
