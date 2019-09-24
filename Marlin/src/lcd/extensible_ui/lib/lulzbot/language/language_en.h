@@ -303,9 +303,9 @@ namespace Language_en {
 
   PROGMEM Language_Str COLOR_TOUCH_PANEL        = u8"Color Touch Panel";
   #if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
-    PROGMEM Language_Str ABOUT_ALEPH_OBJECTS      = u8"© 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
+    PROGMEM Language_Str ABOUT_ALEPH_OBJECTS    = u8"© 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
   #else
-    PROGMEM Language_Str ABOUT_ALEPH_OBJECTS      = u8"(C) 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
+    PROGMEM Language_Str ABOUT_ALEPH_OBJECTS    = u8"(C) 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
   #endif
 
   PROGMEM Language_Str FIRMWARE_FOR_TOOLHEAD    = u8"Firmware for toolhead:\n%s\n\n";
