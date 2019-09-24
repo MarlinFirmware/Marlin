@@ -197,7 +197,7 @@
 #else
   #define LULZBOT_BIOPRINTER_STRINGS ,\
     MAIN_MENU, \
-    UNLOCK_XY_AXIS, \
+    RELEASE_XY_AXIS, \
     LOAD_SYRINGE, \
     BED_TEMPERATURE, \
     LOADING_WARNING, \
@@ -302,7 +302,11 @@ namespace Language_en {
   PROGMEM Language_Str PLEASE_RESET             = u8"Please reset";
 
   PROGMEM Language_Str COLOR_TOUCH_PANEL        = u8"Color Touch Panel";
-  PROGMEM Language_Str ABOUT_ALEPH_OBJECTS      = u8"(C) 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
+  #if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
+    PROGMEM Language_Str ABOUT_ALEPH_OBJECTS    = u8"© 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
+  #else
+    PROGMEM Language_Str ABOUT_ALEPH_OBJECTS    = u8"(C) 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
+  #endif
 
   PROGMEM Language_Str FIRMWARE_FOR_TOOLHEAD    = u8"Firmware for toolhead:\n%s\n\n";
 
@@ -327,10 +331,14 @@ namespace Language_en {
   PROGMEM Language_Str UNITS_MILLIAMP           = u8"mA";
   PROGMEM Language_Str UNITS_MM                 = u8"mm";
   PROGMEM Language_Str UNITS_MM_S               = u8"mm/s";
-  PROGMEM Language_Str UNITS_MM_S2              = u8"mm/s^2";
+  #if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
+    PROGMEM Language_Str UNITS_MM_S2            = u8"mm/s²";
+  #else
+    PROGMEM Language_Str UNITS_MM_S2            = u8"mm/s^2";
+  #endif
   PROGMEM Language_Str UNITS_STEP_MM            = u8"st/mm";
   PROGMEM Language_Str UNITS_PERCENT            = u8"%";
-  #if defined(TOUCH_UI_USE_UTF8) && defined(TOUCH_UI_UTF8_WESTERN_CHARSET)
+  #if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
     PROGMEM Language_Str UNITS_C                = u8"°C";
   #else
     PROGMEM Language_Str UNITS_C                = u8" C";
@@ -399,10 +407,10 @@ namespace Language_en {
 
   #ifdef LULZBOT_USE_BIOPRINTER_UI
     PROGMEM Language_Str MAIN_MENU              = u8"Main Menu";
-    PROGMEM Language_Str UNLOCK_XY_AXIS         = u8"Unlock XY Axis";
+    PROGMEM Language_Str RELEASE_XY_AXIS        = u8"Release XY Axis";
     PROGMEM Language_Str LOAD_SYRINGE           = u8"Load Syringe";
     PROGMEM Language_Str BED_TEMPERATURE        = u8"Bed Temperature";
-    PROGMEM Language_Str LOADING_WARNING        = u8"About to home to loading position.\nEnsure the top and the bed of the printer are clear.\n\nContinue?";
+    PROGMEM Language_Str LOADING_WARNING        = u8"About to home to loading position. Ensure the top and the bed of the printer are clear.\n\nContinue?";
     PROGMEM Language_Str HOMING_WARNING         = u8"About to re-home plunger and auto-level. Remove syringe prior to proceeding.\n\nContinue?";
   #endif
 

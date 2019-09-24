@@ -46,7 +46,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
        .colors(normal_btn)
        .font(font_medium)
        .tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXTF(LOAD_SYRINGE))
-       .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXTF(UNLOCK_XY_AXIS))
+       .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXTF(RELEASE_XY_AXIS))
        .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXTF(BED_TEMPERATURE))
        .tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXTF(INTERFACE_SETTINGS))
        .tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(ADVANCED_SETTINGS))
