@@ -439,12 +439,15 @@ void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm
 //
 static float saved_feedrate_mm_s;
 static int16_t saved_feedrate_percentage;
-void setup_for_endstop_or_probe_move() {
+void remember_feedrate_and_scaling() {
   saved_feedrate_mm_s = feedrate_mm_s;
   saved_feedrate_percentage = feedrate_percentage;
+}
+void remember_feedrate_scaling_off() {
+  remember_feedrate_and_scaling();
   feedrate_percentage = 100;
 }
-void clean_up_after_endstop_or_probe_move() {
+void restore_feedrate_and_scaling() {
   feedrate_mm_s = saved_feedrate_mm_s;
   feedrate_percentage = saved_feedrate_percentage;
 }

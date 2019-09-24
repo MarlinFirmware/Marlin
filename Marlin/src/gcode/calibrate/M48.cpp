@@ -111,7 +111,7 @@ void GcodeSuite::M48() {
     set_bed_leveling_enabled(false);
   #endif
 
-  setup_for_endstop_or_probe_move();
+  remember_feedrate_scaling_off();
 
   float mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
 
@@ -256,7 +256,7 @@ void GcodeSuite::M48() {
     #endif
   }
 
-  clean_up_after_endstop_or_probe_move();
+  restore_feedrate_and_scaling();
 
   // Re-enable bed level correction if it had been on
   #if HAS_LEVELING
