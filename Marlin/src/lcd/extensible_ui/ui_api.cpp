@@ -328,11 +328,12 @@ namespace ExtUI {
   float getAxisPosition_mm(const extruder_t extruder) {
     const extruder_t old_tool = getActiveTool();
     setActiveTool(extruder, true);
-    const float pos =
-    #if ENABLED(JOYSTICK)
-      flags.jogging ? destination[E_AXIS] :
-    #endif
-    current_position[E_AXIS];
+    const float pos = (
+      #if ENABLED(JOYSTICK)
+        flags.jogging ? destination[E_AXIS] :
+      #endif
+      current_position[E_AXIS]
+    );
     setActiveTool(old_tool, true);
     return pos;
   }
