@@ -496,17 +496,17 @@ bool idle2() {
 
   if (block->step_event_count > 0) {
     // Useful equations: https://quizlet.com/45763821/sat-physics-equations-2-flash-cards/
-    double d = block->accelerate_until; // Accelerate until this distance is past.
-    d = max(d, 0);
-    double tt1 = d * 2 / (block->cruise_rate + block->initial_rate);
+    double d1 = block->accelerate_until; // Accelerate until this distance is past.
+    d1 = max(d1, 0);
+    double tt1 = d1 * 2 / (block->cruise_rate + block->initial_rate);
 
-    d = min(block->decelerate_after, block->step_event_count) - d;
-    d = max(d, 0);
-    double tt2 = d / block->cruise_rate;
+    double d2 = min(block->decelerate_after, block->step_event_count) - d1;
+    d2 = max(d2, 0);
+    double tt2 = d2 / block->cruise_rate;
 
-    d = block->step_event_count - d;
-    d = max(d, 0);
-    double tt3 = d*2/(block->final_rate + block->cruise_rate);
+    double d3 = block->step_event_count - d2 - d1;
+    d3 = max(d3, 0);
+    double tt3 = d3 * 2 / (block->final_rate + block->cruise_rate);
 
     double tt4 = 0;
     if (
