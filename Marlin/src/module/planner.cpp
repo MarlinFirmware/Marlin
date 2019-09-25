@@ -2375,7 +2375,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     COPY(previous_unit_vec, unit_vec);
 
   }
-  #if HAS_CLASSIC_JERK
+  #if IS_KINEMATIC
+    const bool is_kinematic = true;
+  #else
+    const bool is_kinematic = false;
+  #endif
+  if (is_kinematic || !junction_deviation) {
 
     /**
      * Adapted from Průša MKS firmware
@@ -2390,11 +2395,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     float safe_speed = nominal_speed;
 
     uint8_t limited = 0;
-    #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
-      LOOP_XYZ(i)
-    #else
-      LOOP_XYZE(i)
-    #endif
+    for (uint8_t i=X_AXIS;
+         i <= ((junction_deviation && linear_advance) ? Z_AXIS : E_AXIS);
+         i++)
     {
       const float jerk = ABS(current_speed[i]),   // cs : Starting from zero, change in speed for this axis
                   maxj = max_jerk[i];             // mj : The max jerk setting for this axis
@@ -2427,11 +2430,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       // Now limit the jerk in all axes.
       const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
-      #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
-        LOOP_XYZ(axis)
-      #else
-        LOOP_XYZE(axis)
-      #endif
+      for (uint8_t axis=X_AXIS;
+           axis <= ((junction_deviation && linear_advance) ? Z_AXIS : E_AXIS);
+           axis++)
       {
         // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
         float v_exit = previous_speed[axis] * smaller_speed_factor,
@@ -2465,13 +2466,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     previous_safe_speed = safe_speed;
 
-    #if ENABLED(JUNCTION_DEVIATION)
+    if (junction_deviation) {
       vmax_junction_sqr = _MIN(vmax_junction_sqr, sq(vmax_junction));
-    #else
+    } else {
       vmax_junction_sqr = sq(vmax_junction);
-    #endif
-
-  #endif // Classic Jerk Limiting
+    }
+  }
 
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
