@@ -1403,17 +1403,17 @@
           ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 1/3"));
         #endif
 
-        measured_z = probe_at_point(PROBE_PT_1_X, PROBE_PT_1_Y, PROBE_PT_RAISE, g29_verbose_level);
+        measured_z = probe_at_point(probe_min_x(), probe_min_y(), PROBE_PT_RAISE, g29_verbose_level);
         if (isnan(measured_z))
           abort_flag = true;
         else {
-          measured_z -= get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y);
+          measured_z -= get_z_correction(probe_min_x(), probe_min_y());
           //z1 = measured_z;
           if (g29_verbose_level > 3) {
             serial_spaces(16);
             SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
           }
-          incremental_LSF(&lsf_results, PROBE_PT_1_X, PROBE_PT_1_Y, measured_z);
+          incremental_LSF(&lsf_results, probe_min_x(), probe_min_y(), measured_z);
         }
 
         if (!abort_flag) {
@@ -1422,17 +1422,17 @@
             ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 2/3"));
           #endif
 
-          measured_z = probe_at_point(PROBE_PT_2_X, PROBE_PT_2_Y, PROBE_PT_RAISE, g29_verbose_level);
+          measured_z = probe_at_point(probe_max_x(), probe_min_y(), PROBE_PT_RAISE, g29_verbose_level);
           //z2 = measured_z;
           if (isnan(measured_z))
             abort_flag = true;
           else {
-            measured_z -= get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y);
+            measured_z -= get_z_correction(probe_max_x(), probe_min_y());
             if (g29_verbose_level > 3) {
               serial_spaces(16);
               SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
             }
-            incremental_LSF(&lsf_results, PROBE_PT_2_X, PROBE_PT_2_Y, measured_z);
+            incremental_LSF(&lsf_results, probe_max_x(), probe_min_y(), measured_z);
           }
         }
 
@@ -1442,17 +1442,18 @@
             ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 3/3"));
           #endif
 
-          measured_z = probe_at_point(PROBE_PT_3_X, PROBE_PT_3_Y, PROBE_PT_STOW, g29_verbose_level);
+          float center_probe = (probe_max_x() - probe_min_x()) / 2;
+          measured_z = probe_at_point(center_probe, probe_max_y(), PROBE_PT_STOW, g29_verbose_level);
           //z3 = measured_z;
           if (isnan(measured_z))
             abort_flag = true;
           else {
-            measured_z -= get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y);
+            measured_z -= get_z_correction(center_probe, probe_max_y());
             if (g29_verbose_level > 3) {
               serial_spaces(16);
               SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
             }
-            incremental_LSF(&lsf_results, PROBE_PT_3_X, PROBE_PT_3_Y, measured_z);
+            incremental_LSF(&lsf_results, center_probe, probe_max_y(), measured_z);
           }
         }
 
@@ -1600,21 +1601,21 @@
          */
         #if 0
         float t, t1, d;
-        t = normal.x * (PROBE_PT_1_X) + normal.y * (PROBE_PT_1_Y);
+        t = normal.x * (probe_min_x()) + normal.y * (probe_min_y());
         d = t + normal.z * z1;
         DEBUG_ECHOPAIR_F("D from 1st point: ", d, 6);
-        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z1-get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y), 6);
+        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z1-get_z_correction(probe_min_x(), probe_min_y()), 6);
 
-        t = normal.x * (PROBE_PT_2_X) + normal.y * (PROBE_PT_2_Y);
+        t = normal.x * (probe_max_x()) + normal.y * (probe_min_y());
         d = t + normal.z * z2;
         DEBUG_EOL();
         DEBUG_ECHOPAIR_F("D from 2nd point: ", d, 6);
-        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z2-get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y), 6);
+        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z2-get_z_correction(probe_max_x(), probe_min_y()), 6);
 
-        t = normal.x * (PROBE_PT_3_X) + normal.y * (PROBE_PT_3_Y);
+        t = normal.x * ((probe_max_x() - probe_min_x()) / 2) + normal.y * (probe_min_y());
         d = t + normal.z * z3;
         DEBUG_ECHOPAIR_F("D from 3rd point: ", d, 6);
-        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z3-get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y), 6);
+        DEBUG_ECHOLNPAIR_F("   Z error: ", normal.z*z3-get_z_correction((probe_max_x() - probe_min_x()) / 2, probe_max_y()), 6);
 
         t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
         d = t + normal.z * 0;

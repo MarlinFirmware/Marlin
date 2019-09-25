@@ -266,10 +266,11 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     // Probe at 3 arbitrary points
+    float center_probe = (probe_max_x() - probe_min_x()) / 2;
     ABL_VAR vector_3 points[3] = {
-      vector_3(PROBE_PT_1_X, PROBE_PT_1_Y, 0),
-      vector_3(PROBE_PT_2_X, PROBE_PT_2_Y, 0),
-      vector_3(PROBE_PT_3_X, PROBE_PT_3_Y, 0)
+      vector_3(probe_min_x(), probe_min_y(), 0),
+      vector_3(probe_max_x(), probe_min_y(), 0),
+      vector_3(center_probe, probe_max_y(), 0)
     };
 
   #endif // AUTO_BED_LEVELING_3POINT
