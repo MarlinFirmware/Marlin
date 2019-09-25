@@ -1356,7 +1356,7 @@
  * to allow leveling to avoid plate clamps on only specific
  * sides of the bed.
  */
-#if PROBE_SELECTED
+#if PROBE_SELECTED && !IS_KINEMATIC
   //#define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE
   //#define MIN_PROBE_EDGE_RIGHT MIN_PROBE_EDGE
   //#define MIN_PROBE_EDGE_FRONT MIN_PROBE_EDGE
