@@ -35,13 +35,13 @@ void GcodeSuite::M851() {
 
   // Show usage with no parameters
   if (!parser.seen("XYZ")) {
-    SERIAL_ECHO_MSG(MSG_PROBE_OFFSET " X", probe_offset[X_AXIS], " Y", probe_offset[Y_AXIS], " Z", probe_offset[Z_AXIS]);
+    SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET " X", probe_offset[X_AXIS], " Y", probe_offset[Y_AXIS], " Z", probe_offset[Z_AXIS]);
     return;
   }
 
   float offs[XYZ] = { probe_offset[X_AXIS], probe_offset[Y_AXIS], probe_offset[Z_AXIS] };
 
-  const bool ok = true;
+  bool ok = true;
 
   if (parser.seenval('X')) {
     const float x = parser.value_float();
