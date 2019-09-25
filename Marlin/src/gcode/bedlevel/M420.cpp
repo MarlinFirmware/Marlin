@@ -76,11 +76,11 @@ void GcodeSuite::M420() {
             ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
           #endif
         }
-      SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_X) " mesh ");
       SERIAL_ECHOPAIR(" (", (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + zprobe_offset[X_AXIS])));
       SERIAL_CHAR(','); SERIAL_ECHO((_MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + zprobe_offset[Y_AXIS])));
       SERIAL_ECHOPAIR(")-(", (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + zprobe_offset[X_AXIS])));
       SERIAL_CHAR(','); SERIAL_ECHO((_MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + zprobe_offset[Y_AXIS])));
+      SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh ");
       SERIAL_ECHOLNPGM(")");
     }
   #endif
