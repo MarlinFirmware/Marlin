@@ -29,7 +29,10 @@
 
 #if HAS_BED_PROBE
 
+  constexpr float nozzle_to_probe_offset[XYZ] = NOZZLE_TO_PROBE_OFFSET;
+
   extern float probe_offset[XYZ];
+
   bool set_probe_deployed(const bool deploy);
   #ifdef Z_AFTER_PROBING
     void move_z_after_probing();
