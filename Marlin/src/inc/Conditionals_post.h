@@ -1477,27 +1477,27 @@ constexpr float nozzle_to_probe_offset[XYZ] = NOZZLE_TO_PROBE_OFFSET;
   // Probing points may be verified at compile time within the radius
   // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
   // so that may be added to SanityCheck.h in the future.
-  #define MIN_PROBE_X (X_CENTER - (_PROBE_RADIUS))
-  #define MIN_PROBE_Y (Y_CENTER - (_PROBE_RADIUS))
-  #define MAX_PROBE_X (X_CENTER + _PROBE_RADIUS)
-  #define MAX_PROBE_Y (Y_CENTER + _PROBE_RADIUS)
+  #define PROBE_X_MIN (X_CENTER - (_PROBE_RADIUS))
+  #define PROBE_Y_MIN (Y_CENTER - (_PROBE_RADIUS))
+  #define PROBE_X_MAX (X_CENTER + _PROBE_RADIUS)
+  #define PROBE_Y_MAX (Y_CENTER + _PROBE_RADIUS)
 
 #elif IS_SCARA
 
   #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
   #define _PROBE_RADIUS (SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-  #define MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
-  #define MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
-  #define MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-  #define MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+  #define PROBE_X_MIN (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
+  #define PROBE_Y_MIN (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
+  #define PROBE_X_MAX (X_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+  #define PROBE_Y_MAX (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
 
 #else
 
   // Boundaries for Cartesian probing based on bed limits
-  #define MIN_PROBE_X (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + nozzle_to_probe_offset[X_AXIS]))
-  #define MIN_PROBE_Y (_MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + nozzle_to_probe_offset[Y_AXIS]))
-  #define MAX_PROBE_X (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + nozzle_to_probe_offset[X_AXIS]))
-  #define MAX_PROBE_Y (_MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + nozzle_to_probe_offset[Y_AXIS]))
+  #define PROBE_X_MIN (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + nozzle_to_probe_offset[X_AXIS]))
+  #define PROBE_Y_MIN (_MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + nozzle_to_probe_offset[Y_AXIS]))
+  #define PROBE_X_MAX (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + nozzle_to_probe_offset[X_AXIS]))
+  #define PROBE_Y_MAX (_MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + nozzle_to_probe_offset[Y_AXIS]))
 
 #endif
 
@@ -1576,38 +1576,38 @@ constexpr float nozzle_to_probe_offset[XYZ] = NOZZLE_TO_PROBE_OFFSET;
     #endif
   #else
     #ifndef PROBE_PT_1_X
-      #define PROBE_PT_1_X MIN_PROBE_X
+      #define PROBE_PT_1_X PROBE_X_MIN
     #endif
     #ifndef PROBE_PT_1_Y
-      #define PROBE_PT_1_Y MIN_PROBE_Y
+      #define PROBE_PT_1_Y PROBE_Y_MIN
     #endif
     #ifndef PROBE_PT_2_X
-      #define PROBE_PT_2_X MAX_PROBE_X
+      #define PROBE_PT_2_X PROBE_X_MAX
     #endif
     #ifndef PROBE_PT_2_Y
-      #define PROBE_PT_2_Y MIN_PROBE_Y
+      #define PROBE_PT_2_Y PROBE_Y_MIN
     #endif
     #ifndef PROBE_PT_3_X
       #define PROBE_PT_3_X X_CENTER
     #endif
     #ifndef PROBE_PT_3_Y
-      #define PROBE_PT_3_Y MAX_PROBE_Y
+      #define PROBE_PT_3_Y PROBE_Y_MAX
     #endif
   #endif
 #endif
 
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   #ifndef LEFT_PROBE_BED_POSITION
-    #define LEFT_PROBE_BED_POSITION MIN_PROBE_X
+    #define LEFT_PROBE_BED_POSITION PROBE_X_MIN
   #endif
   #ifndef RIGHT_PROBE_BED_POSITION
-    #define RIGHT_PROBE_BED_POSITION MAX_PROBE_X
+    #define RIGHT_PROBE_BED_POSITION PROBE_X_MAX
   #endif
   #ifndef FRONT_PROBE_BED_POSITION
-    #define FRONT_PROBE_BED_POSITION MIN_PROBE_Y
+    #define FRONT_PROBE_BED_POSITION PROBE_Y_MIN
   #endif
   #ifndef BACK_PROBE_BED_POSITION
-    #define BACK_PROBE_BED_POSITION MAX_PROBE_Y
+    #define BACK_PROBE_BED_POSITION PROBE_Y_MAX
   #endif
 #endif
 

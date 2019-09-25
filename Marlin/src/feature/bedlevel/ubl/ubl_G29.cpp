@@ -1385,10 +1385,10 @@
 
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
       #if ENABLED(DELTA) || IS_SCARA
-        int16_t x_min = _MAX(MIN_PROBE_X, MESH_MIN_X),
-                        x_max = _MIN(MAX_PROBE_X, MESH_MAX_X),
-                        y_min = _MAX(MIN_PROBE_Y, MESH_MIN_Y),
-                        y_max = _MIN(MAX_PROBE_Y, MESH_MAX_Y);
+        int16_t x_min = _MAX(PROBE_X_MIN, MESH_MIN_X),
+                        x_max = _MIN(PROBE_X_MAX, MESH_MAX_X),
+                        y_min = _MAX(PROBE_Y_MIN, MESH_MIN_Y),
+                        y_max = _MIN(PROBE_Y_MAX, MESH_MAX_Y);
       #else
         int16_t x_min = (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + zprobe_offset[X_AXIS])),
                         x_max = (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + zprobe_offset[X_AXIS])),
