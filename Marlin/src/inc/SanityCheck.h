@@ -1206,14 +1206,18 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Bed Leveling Requirements
  */
 
-#if EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT)
-  static_assert(WITHIN(PROBE_PT_1_X, PROBE_X_MIN, PROBE_X_MAX), "PROBE_PT_1_X is outside the probe region.");
-  static_assert(WITHIN(PROBE_PT_2_X, PROBE_X_MIN, PROBE_X_MAX), "PROBE_PT_2_X is outside the probe region.");
-  static_assert(WITHIN(PROBE_PT_3_X, PROBE_X_MIN, PROBE_X_MAX), "PROBE_PT_3_X is outside the probe region.");
-  static_assert(WITHIN(PROBE_PT_1_Y, PROBE_Y_MIN, PROBE_Y_MAX), "PROBE_PT_1_Y is outside the probe region.");
-  static_assert(WITHIN(PROBE_PT_2_Y, PROBE_Y_MIN, PROBE_Y_MAX), "PROBE_PT_2_Y is outside the probe region.");
-  static_assert(WITHIN(PROBE_PT_3_Y, PROBE_Y_MIN, PROBE_Y_MAX), "PROBE_PT_3_Y is outside the probe region.");
-#endif
+//
+// !! TODO: REPLACE WITH TESTS IN THE 3-POINT LEVELING CODE !!
+//
+
+//#if EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT)
+//  static_assert(WITHIN(PROBE_PT_1_X, PROBE_X_MIN, PROBE_X_MAX), "PROBE_PT_1_X is outside the probe region.");
+//  static_assert(WITHIN(PROBE_PT_2_X, PROBE_X_MIN, PROBE_X_MAX), "PROBE_PT_2_X is outside the probe region.");
+//  static_assert(WITHIN(PROBE_PT_3_X, PROBE_X_MIN, PROBE_X_MAX), "PROBE_PT_3_X is outside the probe region.");
+//  static_assert(WITHIN(PROBE_PT_1_Y, PROBE_Y_MIN, PROBE_Y_MAX), "PROBE_PT_1_Y is outside the probe region.");
+//  static_assert(WITHIN(PROBE_PT_2_Y, PROBE_Y_MIN, PROBE_Y_MAX), "PROBE_PT_2_Y is outside the probe region.");
+//  static_assert(WITHIN(PROBE_PT_3_Y, PROBE_Y_MIN, PROBE_Y_MAX), "PROBE_PT_3_Y is outside the probe region.");
+//#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
