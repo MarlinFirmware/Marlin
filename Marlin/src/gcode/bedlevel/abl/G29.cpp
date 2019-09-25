@@ -393,16 +393,16 @@ G29_TYPE GcodeSuite::G29() {
 
       if (parser.seen('H')) {
         const int16_t size = (int16_t)parser.value_linear_units();
-        left_probe_bed_position  = _MAX(X_CENTER - size / 2, MIN_PROBE_X);
-        right_probe_bed_position = _MIN(left_probe_bed_position + size, MAX_PROBE_X);
-        front_probe_bed_position = _MAX(Y_CENTER - size / 2, MIN_PROBE_Y);
-        back_probe_bed_position  = _MIN(front_probe_bed_position + size, MAX_PROBE_Y);
+        left_probe_bed_position  = _MAX(X_CENTER - size / 2, probe_min_x());
+        right_probe_bed_position = _MIN(left_probe_bed_position + size, probe_max_x());
+        front_probe_bed_position = _MAX(Y_CENTER - size / 2, probe_min_y());
+        back_probe_bed_position  = _MIN(front_probe_bed_position + size, probe_max_y());
       }
       else {
-        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : LEFT_PROBE_BED_POSITION;
-        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : RIGHT_PROBE_BED_POSITION;
-        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
-        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
+        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MAX(X_CENTER - X_BED_SIZE / 2, probe_min_x());
+        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MIN(left_probe_bed_position + X_BED_SIZE, probe_max_x());
+        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MAX(Y_CENTER - Y_BED_SIZE / 2, probe_min_y());
+        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MIN(front_probe_bed_position + Y_BED_SIZE, probe_max_y());
       }
 
       if (
@@ -947,8 +947,8 @@ G29_TYPE GcodeSuite::G29() {
         planner.leveling_active = false;
 
         // Use the last measured distance to the bed, if possible
-        if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
-          && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
+        if ( NEAR(current_position[X_AXIS], xProbe - zprobe_offset[X_AXIS])
+          && NEAR(current_position[Y_AXIS], yProbe - zprobe_offset[Y_AXIS])
         ) {
           const float simple_z = current_position[Z_AXIS] - measured_z;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probed Z", simple_z, "  Matrix Z", converted[Z_AXIS], "  Discrepancy ", simple_z - converted[Z_AXIS]);
