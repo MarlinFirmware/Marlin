@@ -974,6 +974,12 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
+
+  // Set up LEDs early
+  #if HAS_COLOR_LEDS
+    leds.setup();
+  #endif
+
   ui.init();
   ui.reset_status();
 
@@ -1066,10 +1072,6 @@ void setup() {
 
   #if PIN_EXISTS(STAT_LED_BLUE)
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
-  #endif
-
-  #if HAS_COLOR_LEDS
-    leds.setup();
   #endif
 
   #if HAS_CASE_LIGHT
