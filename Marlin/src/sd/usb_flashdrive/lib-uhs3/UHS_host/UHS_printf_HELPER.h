@@ -198,4 +198,3 @@ void UHS_AVR_printf_HELPER_init() {
 #define UHS_printf_HELPER_init() (void(0))
 #endif
 #endif	/* UHS_PRINTF_HELPER_H */
-

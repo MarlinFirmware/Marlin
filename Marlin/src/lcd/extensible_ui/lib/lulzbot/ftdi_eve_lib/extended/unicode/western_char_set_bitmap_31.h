@@ -1313,4 +1313,3 @@ const unsigned char font[] PROGMEM = {
   0xff, 0x00, 0x34, 0x00
 #endif // TOUCH_UI_UTF8_SYMBOLS
 };
-
