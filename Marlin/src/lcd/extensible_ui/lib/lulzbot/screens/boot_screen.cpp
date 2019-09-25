@@ -83,7 +83,7 @@ void BootScreen::onIdle() {
       current_screen.forget();
       PUSH_SCREEN(StatusScreen);
       PUSH_SCREEN(BioConfirmHomeE);
-    #elif defined(TOUCH_UI_LANGUAGE_MENU)
+    #elif NUM_LANGUAGES > 1
       StatusScreen::setStatusMessage(F(WELCOME_MSG));
       GOTO_SCREEN(LanguageMenu);
     #else

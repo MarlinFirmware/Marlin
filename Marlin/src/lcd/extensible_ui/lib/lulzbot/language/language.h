@@ -18,29 +18,72 @@
  *   To view a copy of the GNU General Public License, go to the following  *
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
-
 #pragma once
 
-enum class String_Indices { LANGUAGE_STRINGS, COUNT };
-
 typedef const char Language_Str[];
-typedef const char* const Language_Strings[int(String_Indices::COUNT)];
-typedef const Language_Strings* const Language_List[];
 
-#ifndef TOUCH_UI_LANGUAGE_MENU
-  // Default mode, support only one language.
-  #define __GET_TEXTF(MSG,LANG) Language_##LANG::MSG
-  #define _GET_TEXTF(MSG,LANG) __GET_TEXTF(MSG,LANG)
-  #define GET_TEXTF(MSG) reinterpret_cast<const __FlashStringHelper *>(_GET_TEXTF(MSG,LCD_LANGUAGE))
-  #define GET_TEXT(MSG) _GET_TEXTF(MSG,LCD_LANGUAGE)
-  #define MAKE_LANGUAGE_STRINGS()
+// Count how many languages are defined.
+
+#if defined(LCD_LANGUAGE_5)
+  #define NUM_LANGUAGES 5
+#elif defined(LCD_LANGUAGE_4)
+  #define NUM_LANGUAGES 4
+#elif defined(LCD_LANGUAGE_3)
+  #define NUM_LANGUAGES 3
+#elif defined(LCD_LANGUAGE_2)
+  #define NUM_LANGUAGES 2
 #else
-  // Support multiple languages at run-time.
-  uint8_t get_language_count();
-  void set_language(uint8_t index);
-  const char *get_text(String_Indices index);
-  const char *get_text(uint8_t lang, String_Indices index);
-  #define GET_TEXT(MSG) get_text(String_Indices::MSG)
-  #define GET_TEXTF(MSG) reinterpret_cast<const __FlashStringHelper *>(get_text(String_Indices::MSG))
-  #define MAKE_LANGUAGE_STRINGS() PROGMEM Language_Strings strings = { LANGUAGE_STRINGS }
+  #define NUM_LANGUAGES 1
 #endif
+
+// Set undefined languages equal to the last and
+// let the compiler optimize out the duplicates
+
+#ifndef LCD_LANGUAGE_1
+  #define LCD_LANGUAGE_1 LCD_LANGUAGE
+#endif
+
+#ifndef LCD_LANGUAGE_2
+  #define LCD_LANGUAGE_2 LCD_LANGUAGE_1
+#endif
+
+#ifndef LCD_LANGUAGE_3
+  #define LCD_LANGUAGE_3 LCD_LANGUAGE_2
+#endif
+
+#ifndef LCD_LANGUAGE_4
+  #define LCD_LANGUAGE_4 LCD_LANGUAGE_3
+#endif
+
+#ifndef LCD_LANGUAGE_5
+  #define LCD_LANGUAGE_5 LCD_LANGUAGE_4
+#endif
+
+// Indirection required to paste together the namespace name
+
+#define _GET_LANG(LANG) Language_##LANG
+#define GET_LANG(LANG) _GET_LANG(LANG)
+
+#if NUM_LANGUAGES > 1
+  extern uint8_t lang;
+  // The compiler does a good job of "flattening" out this
+  // if statement when there are fewer than five languages.
+  #define GET_TEXT(MSG) ( \
+    lang == 0 ? GET_LANG(LCD_LANGUAGE_1)::MSG : \
+    lang == 1 ? GET_LANG(LCD_LANGUAGE_2)::MSG : \
+    lang == 2 ? GET_LANG(LCD_LANGUAGE_3)::MSG : \
+    lang == 3 ? GET_LANG(LCD_LANGUAGE_4)::MSG : \
+                GET_LANG(LCD_LANGUAGE_5)::MSG \
+    )
+#else
+  #define GET_TEXT(MSG) GET_LANG(LCD_LANGUAGE_1)::MSG
+#endif
+#define GET_TEXTF(MSG) reinterpret_cast<const __FlashStringHelper *>(GET_TEXT(MSG))
+
+#define GET_LANGUAGE_NAME(N) GET_LANG(LCD_LANGUAGE_##N)::LANGUAGE
+
+// All the language tables go here
+
+#include "language_en.h"
+#include "language_de.h"
+#include "language_fr.h"

@@ -31,7 +31,7 @@ screen_data_t screen_data;
 
 SCREEN_TABLE {
   DECL_SCREEN(BootScreen),
-  #if ENABLED(TOUCH_UI_LANGUAGE_MENU)
+  #if NUM_LANGUAGES > 1
     DECL_SCREEN(LanguageMenu),
   #endif
   DECL_SCREEN(TouchCalibrationScreen),

@@ -23,7 +23,7 @@
 #pragma once
 
 #include "../ftdi_eve_lib/ftdi_eve_lib.h"
-#include "../language/languages.h"
+#include "../language/language.h"
 #include "../theme/theme.h"
 #include "string_format.h"
 
@@ -723,7 +723,7 @@ class MediaPlayerScreen : public BaseScreen, public UncachedScreen {
     static void playStream(void *obj, media_streamer_func_t*);
 };
 
-#if ENABLED(TOUCH_UI_LANGUAGE_MENU)
+#if NUM_LANGUAGES > 1
   class LanguageMenu : public BaseScreen, public UncachedScreen {
     public:
       static void onRedraw(draw_mode_t);
