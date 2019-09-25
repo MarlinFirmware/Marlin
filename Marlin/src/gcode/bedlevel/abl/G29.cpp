@@ -391,18 +391,21 @@ G29_TYPE GcodeSuite::G29() {
 
       xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_SPEED));
 
+      const float x_min = probe_min_x(), x_max = probe_max_x(),
+                  y_min = probe_min_y(), y_max = probe_max_y();
+
       if (parser.seen('H')) {
         const int16_t size = (int16_t)parser.value_linear_units();
-        left_probe_bed_position  = _MAX(X_CENTER - size / 2, probe_min_x());
-        right_probe_bed_position = _MIN(left_probe_bed_position + size, probe_max_x());
-        front_probe_bed_position = _MAX(Y_CENTER - size / 2, probe_min_y());
-        back_probe_bed_position  = _MIN(front_probe_bed_position + size, probe_max_y());
+        left_probe_bed_position  = _MAX(X_CENTER - size / 2, x_min);
+        right_probe_bed_position = _MIN(left_probe_bed_position + size, x_max);
+        front_probe_bed_position = _MAX(Y_CENTER - size / 2, y_min);
+        back_probe_bed_position  = _MIN(front_probe_bed_position + size, y_max);
       }
       else {
-        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MAX(X_CENTER - X_BED_SIZE / 2, probe_min_x());
-        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MIN(left_probe_bed_position + X_BED_SIZE, probe_max_x());
-        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MAX(Y_CENTER - Y_BED_SIZE / 2, probe_min_y());
-        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MIN(front_probe_bed_position + Y_BED_SIZE, probe_max_y());
+        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MAX(X_CENTER - X_BED_SIZE / 2, x_min);
+        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MIN(left_probe_bed_position + X_BED_SIZE, x_max);
+        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MAX(Y_CENTER - Y_BED_SIZE / 2, y_min);
+        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MIN(front_probe_bed_position + Y_BED_SIZE, y_max);
       }
 
       if (
