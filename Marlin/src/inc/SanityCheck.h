@@ -248,9 +248,11 @@
 #elif defined(UBL_MESH_MIN_X) || defined(UBL_MESH_MIN_Y) || defined(UBL_MESH_MAX_X) || defined(UBL_MESH_MAX_Y)
   #error "UBL_MESH_(MIN|MAX)_[XY] is now just MESH_(MIN|MAX)_[XY]. Please update your configuration."
 #elif defined(ABL_PROBE_PT_1_X) || defined(ABL_PROBE_PT_1_Y) || defined(ABL_PROBE_PT_2_X) || defined(ABL_PROBE_PT_2_Y) || defined(ABL_PROBE_PT_3_X) || defined(ABL_PROBE_PT_3_Y)
-  #error "ABL_PROBE_PT_[123]_[XY] is now PROBE_PT_[123]_[XY]. Please update your configuration."
+  #error "ABL_PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
 #elif defined(UBL_PROBE_PT_1_X) || defined(UBL_PROBE_PT_1_Y) || defined(UBL_PROBE_PT_2_X) || defined(UBL_PROBE_PT_2_Y) || defined(UBL_PROBE_PT_3_X) || defined(UBL_PROBE_PT_3_Y)
-  #error "UBL_PROBE_PT_[123]_[XY] is now PROBE_PT_[123]_[XY]. Please update your configuration."
+  #error "UBL_PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
+#elif defined(PROBE_PT_1_X) || defined(PROBE_PT_1_Y) || defined(PROBE_PT_2_X) || defined(PROBE_PT_2_Y) || defined(PROBE_PT_3_X) || defined(PROBE_PT_3_Y)
+  #error "PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
 #elif defined(ENABLE_MESH_EDIT_GFX_OVERLAY)
   #error "ENABLE_MESH_EDIT_GFX_OVERLAY is now MESH_EDIT_GFX_OVERLAY. Please update your configuration."
 #elif defined(BABYSTEP_ZPROBE_GFX_REVERSE)
@@ -1206,19 +1208,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Bed Leveling Requirements
  */
 
-//
-// !! TODO: REPLACE WITH TESTS IN THE 3-POINT LEVELING CODE !!
-//
-
-//#if EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT)
-//  static_assert(WITHIN(PROBE_PT_1_X, PROBE_X_MIN, PROBE_X_MAX), "PROBE_PT_1_X is outside the probe region.");
-//  static_assert(WITHIN(PROBE_PT_2_X, PROBE_X_MIN, PROBE_X_MAX), "PROBE_PT_2_X is outside the probe region.");
-//  static_assert(WITHIN(PROBE_PT_3_X, PROBE_X_MIN, PROBE_X_MAX), "PROBE_PT_3_X is outside the probe region.");
-//  static_assert(WITHIN(PROBE_PT_1_Y, PROBE_Y_MIN, PROBE_Y_MAX), "PROBE_PT_1_Y is outside the probe region.");
-//  static_assert(WITHIN(PROBE_PT_2_Y, PROBE_Y_MIN, PROBE_Y_MAX), "PROBE_PT_2_Y is outside the probe region.");
-//  static_assert(WITHIN(PROBE_PT_3_Y, PROBE_Y_MIN, PROBE_Y_MAX), "PROBE_PT_3_Y is outside the probe region.");
-//#endif
-
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
   /**
@@ -1318,12 +1307,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Make sure Z_SAFE_HOMING point is reachable
  */
 #if ENABLED(Z_SAFE_HOMING)
-  #if HAS_BED_PROBE
-    //
-    // !! TODO: REPLACE WITH TESTS IN THE Z_SAFE_HOMING CODE !!
-    //
-    //static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, PROBE_X_MIN, PROBE_X_MAX), "Z_SAFE_HOMING_X_POINT is outside the probe region.");
-    //static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, PROBE_Y_MIN, PROBE_Y_MAX), "Z_SAFE_HOMING_Y_POINT is outside the probe region.");
+  #if HAS_BED_PROBE && (ENABLED(DELTA) || IS_SCARA)
+    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, PROBE_X_MIN, PROBE_X_MAX), "Z_SAFE_HOMING_X_POINT is outside the probe region.");
+    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, PROBE_Y_MIN, PROBE_Y_MAX), "Z_SAFE_HOMING_Y_POINT is outside the probe region.");
   #else
     static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
     static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
