@@ -86,6 +86,43 @@ float zprobe_offset[XYZ]; // Initialized by settings.load()
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
+float probe_min_x() {
+  return _MAX(
+    #if ENABLED(DELTA) || IS_SCARA
+      PROBE_X_MIN, MESH_MIN_X
+    #else
+      (X_MIN_BED) + (MIN_PROBE_EDGE), (X_MIN_POS) + zprobe_offset[X_AXIS]
+    #endif
+  );
+}
+float probe_max_x() {
+  return _MIN(
+    #if ENABLED(DELTA) || IS_SCARA
+      PROBE_X_MAX, MESH_MAX_X
+    #else
+      (X_MAX_BED) - (MIN_PROBE_EDGE), (X_MAX_POS) + zprobe_offset[X_AXIS]
+    #endif
+  );
+}
+float probe_min_y() {
+  return _MAX(
+    #if ENABLED(DELTA) || IS_SCARA
+      PROBE_Y_MIN, MESH_MIN_Y
+    #else
+      (Y_MIN_BED) + (MIN_PROBE_EDGE), (Y_MIN_POS) + zprobe_offset[Y_AXIS]
+    #endif
+  );
+}
+float probe_max_y() {
+  return _MIN(
+    #if ENABLED(DELTA) || IS_SCARA
+      PROBE_Y_MAX, MESH_MAX_Y
+    #else
+      (Y_MAX_BED) - (MIN_PROBE_EDGE), (Y_MAX_POS) + zprobe_offset[Y_AXIS]
+    #endif
+  );
+}
+
 #if ENABLED(Z_PROBE_SLED)
 
   #ifndef SLED_DOCKING_OFFSET
