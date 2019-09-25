@@ -1441,28 +1441,13 @@
  * Bed Probing rectangular bounds
  * These can be further constrained in code for Delta and SCARA
  */
-
-#ifdef MIN_PROBE_X
-  #error "MIN_PROBE_X is now calculated at runtime and cannot be defined."
-#endif
-#ifdef MIN_PROBE_Y
-  #error "MIN_PROBE_Y is now calculated at runtime and cannot be defined."
-#endif
-#ifdef MAX_PROBE_X
-  #error "MAX_PROBE_X is now calculated at runtime and cannot be defined."
-#endif
-#ifdef MAX_PROBE_Y
-  #error "MAX_PROBE_Y is now calculated at runtime and cannot be defined."
-#endif
-
 #ifndef MIN_PROBE_EDGE
   #define MIN_PROBE_EDGE 0
 #endif
-#if defined(NOZZLE_TO_PROBE_OFFSET)
-  constexpr float probe_offset_sanity_arr[] = NOZZLE_TO_PROBE_OFFSET;
-#else
-  constexpr float probe_offset_sanity_arr[] = {0, 0, 0};
+#ifndef NOZZLE_TO_PROBE_OFFSET
+  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
 #endif
+constexpr float nozzle_to_probe_offset[XYZ] = NOZZLE_TO_PROBE_OFFSET;
 
 #if ENABLED(DELTA)
   /**
@@ -1471,7 +1456,7 @@
   #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
   #ifndef DELTA_CALIBRATION_RADIUS
     #ifdef NOZZLE_TO_PROBE_OFFSET
-      #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(ABS(probe_offset_sanity_arr[0]), ABS(probe_offset_sanity_arr[1]), ABS(MIN_PROBE_EDGE)))
+      #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(ABS(nozzle_to_probe_offset[X_AXIS]), ABS(nozzle_to_probe_offset[Y_AXIS]), ABS(MIN_PROBE_EDGE)))
     #else
       #define DELTA_CALIBRATION_RADIUS _PROBE_RADIUS
     #endif
@@ -1509,10 +1494,10 @@
 #else
 
   // Boundaries for Cartesian probing based on bed limits
-  #define MIN_PROBE_X (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + probe_offset_sanity_arr[0]))
-  #define MIN_PROBE_Y (_MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + probe_offset_sanity_arr[1]))
-  #define MAX_PROBE_X (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + probe_offset_sanity_arr[0]))
-  #define MAX_PROBE_Y (_MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + probe_offset_sanity_arr[1]))
+  #define MIN_PROBE_X (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + nozzle_to_probe_offset[X_AXIS]))
+  #define MIN_PROBE_Y (_MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + nozzle_to_probe_offset[Y_AXIS]))
+  #define MAX_PROBE_X (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + nozzle_to_probe_offset[X_AXIS]))
+  #define MAX_PROBE_Y (_MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + nozzle_to_probe_offset[Y_AXIS]))
 
 #endif
 
@@ -1540,10 +1525,10 @@
       #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
       #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
     #else
-      #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS + probe_offset_sanity_arr[0]))
-      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS + probe_offset_sanity_arr[1]))
-      #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS + probe_offset_sanity_arr[0]))
-      #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + probe_offset_sanity_arr[1]))
+      #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS + nozzle_to_probe_offset[X_AXIS]))
+      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS + nozzle_to_probe_offset[Y_AXIS]))
+      #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS + nozzle_to_probe_offset[X_AXIS]))
+      #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + nozzle_to_probe_offset[Y_AXIS]))
     #endif
   #endif
 
