@@ -233,7 +233,7 @@ void home_delta() {
   // Move all carriages together linearly until an endstop is hit.
   destination[Z_AXIS] = (delta_height
     #if HAS_BED_PROBE
-      - zprobe_zoffset
+      - probe_offset[Z_AXIS]
     #endif
     + 10);
   buffer_line_to_destination(homing_feedrate(X_AXIS));

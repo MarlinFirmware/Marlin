@@ -199,6 +199,9 @@ class CachedScreen {
 
   public:
     static void onRefresh() {
+      #if ENABLED(TOUCH_UI_DEBUG)
+        const uint32_t start_time = millis();
+      #endif
       using namespace FTDI;
       DLCache dlcache(DL_SLOT);
       CommandProcessor cmd;
@@ -220,5 +223,8 @@ class CachedScreen {
       cmd.cmd(DL::DL_DISPLAY);
       cmd.cmd(CMD_SWAP);
       cmd.execute();
+      #if ENABLED(TOUCH_UI_DEBUG)
+        SERIAL_ECHOLNPAIR("Time to draw screen (ms): ", millis() - start_time);
+      #endif
     }
 };

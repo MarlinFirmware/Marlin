@@ -821,7 +821,6 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
     #endif
     E_UNUSED();
     const uint8_t ee = HOTEND_INDEX;
-    float pid_output;
     #if ENABLED(PIDTEMP)
       #if DISABLED(PID_OPENLOOP)
         static hotend_pid_t work_pid[HOTENDS];
@@ -829,6 +828,8 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
                      temp_dState[HOTENDS] = { 0 };
         static bool pid_reset[HOTENDS] = { false };
         const float pid_error = temp_hotend[ee].target - temp_hotend[ee].celsius;
+
+        float pid_output;
 
         if (temp_hotend[ee].target == 0
           || pid_error < -(PID_FUNCTIONAL_RANGE)
@@ -914,7 +915,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
       #else
         #define _TIMED_OUT_TEST false
       #endif
-      pid_output = (!_TIMED_OUT_TEST && temp_hotend[ee].celsius < temp_hotend[ee].target) ? BANG_MAX : 0;
+      const float pid_output = (!_TIMED_OUT_TEST && temp_hotend[ee].celsius < temp_hotend[ee].target) ? BANG_MAX : 0;
       #undef _TIMED_OUT_TEST
 
     #endif

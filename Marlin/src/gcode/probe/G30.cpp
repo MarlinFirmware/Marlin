@@ -39,8 +39,8 @@
  *   E   Engage the probe for each probe (default 1)
  */
 void GcodeSuite::G30() {
-  const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
-              ypos = parser.linearval('Y', current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
+  const float xpos = parser.linearval('X', current_position[X_AXIS] + probe_offset[X_AXIS]),
+              ypos = parser.linearval('Y', current_position[Y_AXIS] + probe_offset[Y_AXIS]);
 
   if (!position_is_reachable_by_probe(xpos, ypos)) return;
 
@@ -49,7 +49,7 @@ void GcodeSuite::G30() {
     set_bed_leveling_enabled(false);
   #endif
 
-  setup_for_endstop_or_probe_move();
+  remember_feedrate_scaling_off();
 
   const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
   const float measured_z = probe_at_point(xpos, ypos, raise_after, 1);
@@ -57,7 +57,7 @@ void GcodeSuite::G30() {
   if (!isnan(measured_z))
     SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(xpos), " Y: ", FIXFLOAT(ypos), " Z: ", FIXFLOAT(measured_z));
 
-  clean_up_after_endstop_or_probe_move();
+  restore_feedrate_and_scaling();
 
   #ifdef Z_AFTER_PROBING
     if (raise_after == PROBE_PT_STOW) move_z_after_probing();

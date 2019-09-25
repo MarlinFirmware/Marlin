@@ -84,7 +84,7 @@ void ac_setup(const bool reset_bed) {
   #endif
 
   planner.synchronize();
-  setup_for_endstop_or_probe_move();
+  remember_feedrate_scaling_off();
 
   #if HAS_LEVELING
     if (reset_bed) reset_bed_level(); // After full calibration bed-level data is no longer valid
@@ -102,7 +102,7 @@ void ac_cleanup(
   #if HAS_BED_PROBE
     STOW_PROBE();
   #endif
-  clean_up_after_endstop_or_probe_move();
+  restore_feedrate_and_scaling();
   #if HOTENDS > 1
     tool_change(old_tool_index, true);
   #endif

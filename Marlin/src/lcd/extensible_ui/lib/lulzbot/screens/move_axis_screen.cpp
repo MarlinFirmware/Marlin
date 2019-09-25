@@ -46,30 +46,31 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(1);
   w.units(GET_TEXTF(UNITS_MM));
-  w.heading(                                GET_TEXTF(MOVE_AXIS));
+  w.heading(                           GET_TEXTF(MOVE_AXIS));
   w.home_buttons(20);
-  w.color(Theme::x_axis  )   .adjuster(  2, GET_TEXTF(AXIS_X),  getAxisPosition_mm(X), canMove(X));
-  w.color(Theme::y_axis  )   .adjuster(  4, GET_TEXTF(AXIS_Y),  getAxisPosition_mm(Y), canMove(Y));
-  w.color(Theme::z_axis  )   .adjuster(  6, GET_TEXTF(AXIS_Z),  getAxisPosition_mm(Z), canMove(Z));
+  w.color(Theme::x_axis).adjuster(  2, GET_TEXTF(AXIS_X),  getAxisPosition_mm(X), canMove(X));
+  w.color(Theme::y_axis).adjuster(  4, GET_TEXTF(AXIS_Y),  getAxisPosition_mm(Y), canMove(Y));
+  w.color(Theme::z_axis).adjuster(  6, GET_TEXTF(AXIS_Z),  getAxisPosition_mm(Z), canMove(Z));
 
+  w.color(Theme::e_axis);
   #if EXTRUDERS == 1
-    w.color(Theme::e_axis)   .adjuster(  8, GET_TEXTF(AXIS_E),  screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
+    w.adjuster(  8, GET_TEXTF(AXIS_E),  screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
   #elif EXTRUDERS > 1
-    w.color(Theme::e_axis)   .adjuster(  8, GET_TEXTF(AXIS_E1), screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
-    w.color(Theme::e_axis)   .adjuster( 10, GET_TEXTF(AXIS_E2), screen_data.MoveAxisScreen.e_rel[1], canMove(E1));
+    w.adjuster(  8, GET_TEXTF(AXIS_E1), screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
+    w.adjuster( 10, GET_TEXTF(AXIS_E2), screen_data.MoveAxisScreen.e_rel[1], canMove(E1));
     #if EXTRUDERS > 2
-      w.color(Theme::e_axis) .adjuster( 12, GET_TEXTF(AXIS_E3), screen_data.MoveAxisScreen.e_rel[2], canMove(E2));
+      w.adjuster( 12, GET_TEXTF(AXIS_E3), screen_data.MoveAxisScreen.e_rel[2], canMove(E2));
     #endif
     #if EXTRUDERS > 3
-      w.color(Theme::e_axis) .adjuster( 14, GET_TEXTF(AXIS_E4), screen_data.MoveAxisScreen.e_rel[3], canMove(E3));
+      w.adjuster( 14, GET_TEXTF(AXIS_E4), screen_data.MoveAxisScreen.e_rel[3], canMove(E3));
     #endif
   #endif
   w.increments();
 }
 
 bool MoveAxisScreen::onTouchHeld(uint8_t tag) {
-  #define UI_INCREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
-  #define UI_DECREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
+  #define UI_INCREMENT_AXIS(axis) UI_INCREMENT(AxisPosition_mm, axis);
+  #define UI_DECREMENT_AXIS(axis) UI_DECREMENT(AxisPosition_mm, axis);
   const float increment = getIncrement();
   switch (tag) {
     case  2: UI_DECREMENT_AXIS(X); break;
@@ -93,10 +94,10 @@ bool MoveAxisScreen::onTouchHeld(uint8_t tag) {
     case 14: UI_DECREMENT_AXIS(E3); screen_data.MoveAxisScreen.e_rel[3] -= increment; break;
     case 15: UI_INCREMENT_AXIS(E3); screen_data.MoveAxisScreen.e_rel[3] += increment; break;
     #endif
-    case 20: injectCommands_P(PSTR("G28 X")); break;
-    case 21: injectCommands_P(PSTR("G28 Y")); break;
-    case 22: injectCommands_P(PSTR("G28 Z")); break;
-    case 23: injectCommands_P(PSTR("G28"));   break;
+    case 20: SpinnerDialogBox::enqueueAndWait_P(F("G28 X")); break;
+    case 21: SpinnerDialogBox::enqueueAndWait_P(F("G28 Y")); break;
+    case 22: SpinnerDialogBox::enqueueAndWait_P(F("G28 Z")); break;
+    case 23: SpinnerDialogBox::enqueueAndWait_P(F("G28"));   break;
     default:
       return false;
   }
@@ -109,9 +110,8 @@ float MoveAxisScreen::getManualFeedrate(uint8_t axis, float increment_mm) {
   // Compute feedrate so that the tool lags the adjuster when it is
   // being held down, this allows enough margin for the planner to
   // connect segments and even out the motion.
-  constexpr float max_manual_feedrate[XYZE] = MAX_MANUAL_FEEDRATE;
-  return min(max_manual_feedrate[axis]/60, abs(increment_mm * TOUCH_REPEATS_PER_SECOND * 0.80));
-  return min(max_manual_feedrate[axis] / 60, abs(increment_mm * TOUCH_REPEATS_PER_SECOND * 0.80));
+  constexpr float manual_feedrate[XYZE] = MANUAL_FEEDRATE;
+  return min(manual_feedrate[axis] / 60.0f, abs(increment_mm * (TOUCH_REPEATS_PER_SECOND) * 0.80f));
 }
 
 void MoveAxisScreen::setManualFeedrate(ExtUI::axis_t axis, float increment_mm) {

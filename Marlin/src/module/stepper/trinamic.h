@@ -27,8 +27,8 @@
  */
 
 #include <TMCStepper.h>
-#if TMCSTEPPER_VERSION < 0x000405
-  #error "Update TMCStepper library to 0.4.5 or newer."
+#if TMCSTEPPER_VERSION < 0x000500
+  #error "Update TMCStepper library to 0.5.0 or newer."
 #endif
 
 #include "../../inc/MarlinConfig.h"

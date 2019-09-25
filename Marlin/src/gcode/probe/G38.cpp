@@ -109,7 +109,7 @@ void GcodeSuite::G38(const int8_t subcode) {
   // Get X Y Z E F
   get_destination_from_command();
 
-  setup_for_endstop_or_probe_move();
+  remember_feedrate_scaling_off();
 
   const bool error_on_fail =
     #if ENABLED(G38_PROBE_AWAY)
@@ -128,7 +128,7 @@ void GcodeSuite::G38(const int8_t subcode) {
       break;
     }
 
-  clean_up_after_endstop_or_probe_move();
+  restore_feedrate_and_scaling();
 }
 
 #endif // G38_PROBE_TARGET

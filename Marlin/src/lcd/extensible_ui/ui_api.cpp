@@ -708,7 +708,7 @@ namespace ExtUI {
           #if EXTRUDERS > 1
             && (linked_nozzles || active_extruder == 0)
           #endif
-        ) zprobe_zoffset += mm;
+        ) probe_offset[Z_AXIS] += mm;
       #else
         UNUSED(mm);
       #endif
@@ -746,7 +746,7 @@ namespace ExtUI {
 
   float getZOffset_mm() {
     #if HAS_BED_PROBE
-      return zprobe_zoffset;
+      return probe_offset[Z_AXIS];
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
       return babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];
     #else
@@ -757,7 +757,7 @@ namespace ExtUI {
   void setZOffset_mm(const float value) {
     #if HAS_BED_PROBE
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
-        zprobe_zoffset = value;
+        probe_offset[Z_AXIS] = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
       babystep.add_mm(Z_AXIS, (value - babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1]));
     #else
