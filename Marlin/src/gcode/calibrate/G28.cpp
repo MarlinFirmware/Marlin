@@ -136,8 +136,8 @@
     destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
     #if HOMING_Z_WITH_PROBE
-      destination[X_AXIS] -= zprobe_offset[X_AXIS];
-      destination[Y_AXIS] -= zprobe_offset[Y_AXIS];
+      destination[X_AXIS] -= probe_offset[X_AXIS];
+      destination[Y_AXIS] -= probe_offset[Y_AXIS];
     #endif
 
     if (position_is_reachable(destination[X_AXIS], destination[Y_AXIS])) {

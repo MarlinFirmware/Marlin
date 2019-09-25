@@ -453,7 +453,7 @@
               SERIAL_ECHO(g29_y_pos);
               SERIAL_ECHOLNPGM(").\n");
             }
-            probe_entire_mesh(g29_x_pos + zprobe_offset[X_AXIS], g29_y_pos + zprobe_offset[Y_AXIS],
+            probe_entire_mesh(g29_x_pos + probe_offset[X_AXIS], g29_y_pos + probe_offset[Y_AXIS],
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
             report_current_position();
@@ -482,8 +482,8 @@
                 g29_x_pos = X_HOME_POS;
                 g29_y_pos = Y_HOME_POS;
               #else // cartesian
-                g29_x_pos = zprobe_offset[X_AXIS] > 0 ? X_BED_SIZE : 0;
-                g29_y_pos = zprobe_offset[Y_AXIS] < 0 ? Y_BED_SIZE : 0;
+                g29_x_pos = probe_offset[X_AXIS] > 0 ? X_BED_SIZE : 0;
+                g29_y_pos = probe_offset[Y_AXIS] < 0 ? Y_BED_SIZE : 0;
               #endif
             }
 
@@ -800,8 +800,8 @@
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(
-        constrain(rx - zprobe_offset[X_AXIS], MESH_MIN_X, MESH_MAX_X),
-        constrain(ry - zprobe_offset[Y_AXIS], MESH_MIN_Y, MESH_MAX_Y)
+        constrain(rx - probe_offset[X_AXIS], MESH_MIN_X, MESH_MAX_X),
+        constrain(ry - probe_offset[Y_AXIS], MESH_MIN_Y, MESH_MAX_Y)
       );
     }
 
@@ -1281,8 +1281,8 @@
     out_mesh.distance = -99999.9f;
 
     // Get our reference position. Either the nozzle or probe location.
-    const float px = rx + (probe_as_reference == USE_PROBE_AS_REFERENCE ? zprobe_offset[X_AXIS] : 0),
-                py = ry + (probe_as_reference == USE_PROBE_AS_REFERENCE ? zprobe_offset[Y_AXIS] : 0);
+    const float px = rx + (probe_as_reference == USE_PROBE_AS_REFERENCE ? probe_offset[X_AXIS] : 0),
+                py = ry + (probe_as_reference == USE_PROBE_AS_REFERENCE ? probe_offset[Y_AXIS] : 0);
 
     float best_so_far = 99999.99f;
 
@@ -1500,7 +1500,7 @@
                 DEBUG_ECHOPAIR_F("   correction: ", get_z_correction(rx, ry), 7);
               }
 
-              measured_z -= get_z_correction(rx, ry) /* + zprobe_offset[Z_AXIS] */ ;
+              measured_z -= get_z_correction(rx, ry) /* + probe_offset[Z_AXIS] */ ;
 
               if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_F("   final >>>---> ", measured_z, 7);
 
@@ -1712,7 +1712,7 @@
       adjust_mesh_to_mean(g29_c_flag, g29_constant);
 
       #if HAS_BED_PROBE
-        SERIAL_ECHOLNPAIR_F("Probe Offset M851 Z", zprobe_offset[Z_AXIS], 7);
+        SERIAL_ECHOLNPAIR_F("Probe Offset M851 Z", probe_offset[Z_AXIS], 7);
       #endif
 
       SERIAL_ECHOLNPAIR("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); serial_delay(50);

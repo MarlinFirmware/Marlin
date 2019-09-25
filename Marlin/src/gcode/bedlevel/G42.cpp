@@ -49,8 +49,8 @@ void GcodeSuite::G42() {
     if (hasJ) destination[Y_AXIS] = _GET_MESH_Y(iy);
     #if HAS_BED_PROBE
       if (parser.boolval('P')) {
-        if (hasI) destination[X_AXIS] -= zprobe_offset[X_AXIS];
-        if (hasJ) destination[Y_AXIS] -= zprobe_offset[Y_AXIS];
+        if (hasI) destination[X_AXIS] -= probe_offset[X_AXIS];
+        if (hasJ) destination[Y_AXIS] -= probe_offset[Y_AXIS];
       }
     #endif
 

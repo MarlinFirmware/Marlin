@@ -36,17 +36,17 @@ void GcodeSuite::M851() {
   // Show usage with no parameters
   if (!parser.seen("XYZ")) {
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET " X", zprobe_offset[X_AXIS],
-                                       " Y", zprobe_offset[Y_AXIS],
-                                       " Z", zprobe_offset[Z_AXIS]);
+    SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET " X", probe_offset[X_AXIS],
+                                       " Y", probe_offset[Y_AXIS],
+                                       " Z", probe_offset[Z_AXIS]);
     return;
   }
 
   // Get the modified offsets
   const float offs[] = {
-    parser.floatval('X', zprobe_offset[X_AXIS]),
-    parser.floatval('Y', zprobe_offset[Y_AXIS]),
-    parser.floatval('Z', zprobe_offset[Z_AXIS])
+    parser.floatval('X', probe_offset[X_AXIS]),
+    parser.floatval('Y', probe_offset[Y_AXIS]),
+    parser.floatval('Z', probe_offset[Z_AXIS])
   };
 
   // Error-check
@@ -64,7 +64,7 @@ void GcodeSuite::M851() {
   }
 
   // Save the new offsets
-  LOOP_XYZ(a) zprobe_offset[a] = offs[a];
+  LOOP_XYZ(a) probe_offset[a] = offs[a];
 }
 
 #endif // HAS_BED_PROBE

@@ -29,7 +29,7 @@
 
 #if HAS_BED_PROBE
 
-  extern float zprobe_offset[XYZ];
+  extern float probe_offset[XYZ];
   bool set_probe_deployed(const bool deploy);
   #ifdef Z_AFTER_PROBING
     void move_z_after_probing();
@@ -51,7 +51,7 @@
 
 #else
 
-  constexpr float zprobe_offset[XYZ] = { 0 };
+  constexpr float probe_offset[XYZ] = { 0 };
   #define DEPLOY_PROBE()
   #define STOW_PROBE()
 

@@ -176,7 +176,7 @@ typedef struct SettingsDataStruct {
   // HAS_BED_PROBE
   //
 
-  float zprobe_offset[XYZ];
+  float probe_offset[XYZ];
 
   //
   // ABL_PLANAR
@@ -613,8 +613,8 @@ void MarlinSettings::postprocess() {
     // Probe Z Offset
     //
     {
-      _FIELD_TEST(zprobe_offset[Z_AXIS]);
-      EEPROM_WRITE(zprobe_offset);
+      _FIELD_TEST(probe_offset[Z_AXIS]);
+      EEPROM_WRITE(probe_offset);
     }
 
     //
@@ -1415,10 +1415,10 @@ void MarlinSettings::postprocess() {
       // Probe Z Offset
       //
       {
-        _FIELD_TEST(zprobe_offset[Z_AXIS]);
+        _FIELD_TEST(probe_offset[Z_AXIS]);
 
         #if HAS_BED_PROBE
-          float (&zpo)[XYZ] = zprobe_offset;
+          float (&zpo)[XYZ] = probe_offset;
         #else
           float zpo[XYZ];
         #endif
@@ -2322,7 +2322,7 @@ void MarlinSettings::reset() {
     #endif
     constexpr float dpo[XYZ] = NOZZLE_TO_PROBE_OFFSET;
     static_assert(COUNT(dpo) == 3, "NOZZLE_TO_PROBE_OFFSET must contain offsets for X, Y, and Z.");
-    LOOP_XYZ(a) zprobe_offset[a] = dpo[a];
+    LOOP_XYZ(a) probe_offset[a] = dpo[a];
   #endif
 
   //
@@ -3071,9 +3071,9 @@ void MarlinSettings::reset() {
         say_units(true);
       }
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M851 X", LINEAR_UNIT(zprobe_offset[X_AXIS]),
-                              " Y", LINEAR_UNIT(zprobe_offset[Y_AXIS]),
-                              " Z", LINEAR_UNIT(zprobe_offset[Z_AXIS]));
+      SERIAL_ECHOLNPAIR("  M851 X", LINEAR_UNIT(probe_offset[X_AXIS]),
+                              " Y", LINEAR_UNIT(probe_offset[Y_AXIS]),
+                              " Z", LINEAR_UNIT(probe_offset[Z_AXIS]));
     #endif
 
     /**
