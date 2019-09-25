@@ -2808,10 +2808,8 @@ void Planner::reset_acceleration_rates() {
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
   cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
-  if (junction_deviation) {
-    if (linear_advance) {
-      recalculate_max_e_jerk();
-    }
+  if (junction_deviation && linear_advance) {
+    recalculate_max_e_jerk();
   }
 }
 

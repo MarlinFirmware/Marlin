@@ -590,7 +590,7 @@ class Planner {
       #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
         , const float (&delta_mm_cart)[XYZE]
       #endif
-      , float fr_mm_s, const uint8_t extruder, const float &millimeters
+      , float fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
       , const ExtraData& extra_data
     );
 
