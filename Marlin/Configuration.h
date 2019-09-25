@@ -2166,13 +2166,10 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-
-//Moved to Configuration Advance in order to implement Fystec Mini 12864 Easy Configuration
-/*
 #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
   #define PRINTER_EVENT_LEDS
 #endif
-*/
+
 /**
  * R/C SERVO support
  * Sponsored by TrinityLabs, Reworked by codexmas
