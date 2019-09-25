@@ -177,8 +177,8 @@
       serialprintPGM(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
     }
 
-    // Add XY probe offset from extruder because probe_pt() subtracts them when
-    // moving to the xy position to be measured. This ensures better agreement between
+    // Add XY probe offset from extruder because probe_at_point() subtracts them when
+    // moving to the XY position to be measured. This ensures better agreement between
     // the current Z position after G28 and the mesh values.
     const float current_xi = find_closest_x_index(current_position[X_AXIS] + probe_offset[X_AXIS]),
                 current_yi = find_closest_y_index(current_position[Y_AXIS] + probe_offset[Y_AXIS]);

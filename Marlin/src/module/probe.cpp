@@ -532,7 +532,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 /**
  * @brief Probe at the current XY (possibly more than once) to find the bed Z.
  *
- * @details Used by probe_pt to get the bed Z height at the current XY.
+ * @details Used by probe_at_point to get the bed Z height at the current XY.
  *          Leaves current_position[Z_AXIS] at the height where the probe triggered.
  *
  * @return The Z position of the bed at the current XY or NAN on error.
@@ -686,7 +686,7 @@ static float run_z_probe() {
 float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/) {
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPAIR(
-      ">>> probe_pt(", LOGICAL_X_POSITION(rx), ", ", LOGICAL_Y_POSITION(ry),
+      ">>> probe_at_point(", LOGICAL_X_POSITION(rx), ", ", LOGICAL_Y_POSITION(ry),
       ", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none",
       ", ", int(verbose_level),
       ", ", probe_relative ? "probe" : "nozzle", "_relative)"
@@ -743,7 +743,7 @@ float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_
     SERIAL_ERROR_MSG(MSG_ERR_PROBING_FAILED);
   }
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< probe_pt");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< probe_at_point");
 
   return measured_z;
 }
