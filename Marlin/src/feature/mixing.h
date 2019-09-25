@@ -142,7 +142,17 @@ class Mixer {
     static inline void copy_mix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]) {
       // Scale each component to the largest one in terms of COLOR_A_MASK
       // So the largest component will be COLOR_A_MASK and the other will be in proportion to it
-      const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1])));
+      #if MIXING_STEPPERS == 2
+      const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1])));      
+      #elif MIXING_STEPPERS == 3
+      const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1],mix[2])));      
+      #elif MIXING_STEPPERS == 4
+      const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1],mix[2],mix[3])));
+      #elif MIXING_STEPPERS == 5
+      const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1],mix[2],mix[3],mix[4])));
+      #elif MIXING_STEPPERS == 6
+      const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1],mix[2],mix[3],mix[4],mix[5])));
+      #endif
 
       // Scale all values so their maximum is COLOR_A_MASK
       MIXER_STEPPER_LOOP(i) tcolor[i] = mix[i] * scale;
