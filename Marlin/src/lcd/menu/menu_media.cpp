@@ -82,10 +82,13 @@ inline void sdcard_start_selected_file() {
 #if ENABLED(SD_MENU_CONFIRM_START)
 
   void menu_sd_confirm() {
+    char buffer[strlen(card.longest_filename())+2];
+    strcpy_P(buffer, PSTR(" "));
+    strcat(buffer, card.longest_filename());
     do_select_screen(
       PSTR(MSG_BUTTON_PRINT), PSTR(MSG_BUTTON_CANCEL),
       sdcard_start_selected_file, ui.goto_previous_screen,
-      PSTR(MSG_START_PRINT " "), card.longest_filename(), PSTR("?")
+      PSTR(MSG_START_PRINT), buffer, PSTR("?")
     );
   }
 

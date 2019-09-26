@@ -144,7 +144,7 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_ECHOLNPAIR(V...) _SELP_N(NUM_ARGS(V),V)
 
 #define SERIAL_ECHOPGM(S)           (serialprintPGM(PSTR(S)))
-#define SERIAL_ECHOLNPGM(S)         (serialprintPGM(PSTR(S "\n")))
+#define SERIAL_ECHOLNPGM(S)         do{ SERIAL_ECHOPGM(S); SERIAL_EOL(); }while(0)
 
 #define SERIAL_ECHOPAIR_F(S, V...)  do{ SERIAL_ECHOPGM(S); SERIAL_ECHO_F(V); }while(0)
 #define SERIAL_ECHOLNPAIR_F(V...)   do{ SERIAL_ECHOPAIR_F(V); SERIAL_EOL(); }while(0)
