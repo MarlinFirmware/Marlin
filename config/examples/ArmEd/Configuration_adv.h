@@ -218,7 +218,7 @@
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
-// Show extra position information in M114
+// Show extra position information with 'M114 D'
 //#define M114_DETAIL
 
 // Show Temperature ADC value

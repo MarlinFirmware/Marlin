@@ -104,13 +104,11 @@
 
 namespace ExtUI {
   static struct {
-    uint8_t printer_killed  : 1;
-    uint8_t manual_motion   : 1;
+    uint8_t printer_killed : 1;
+    #if ENABLED(JOYSTICK)
+      uint8_t jogging : 1;
+    #endif
   } flags;
-
-  #if ENABLED(JOYSTICK)
-    float norm_jog[XYZ];
-  #endif
 
   #ifdef __SAM3X8E__
     /**
@@ -197,13 +195,45 @@ namespace ExtUI {
     #endif
   }
 
-  void jog(float dx, float dy, float dz) {
-    #if ENABLED(JOYSTICK)
-      norm_jog[X] = dx;
-      norm_jog[Y] = dy;
-      norm_jog[Z] = dz;
-    #endif
-  }
+  #if ENABLED(JOYSTICK)
+    /**
+     * Jogs in the direction given by the vector (dx, dy, dz).
+     * The values range from -1 to 1 mapping to the maximum
+     * feedrate for an axis.
+     *
+     * The axis will continue to jog until this function is
+     * called with all zeros.
+     */
+    void jog(float dx, float dy, float dz) {
+      // The "destination" variable is used as a scratchpad in
+      // Marlin by GCODE routines, but should remain untouched
+      // during manual jogging, allowing us to reuse the space
+      // for our direction vector.
+      destination[X] = dx;
+      destination[Y] = dy;
+      destination[Z] = dz;
+      flags.jogging = !NEAR_ZERO(dx) || !NEAR_ZERO(dy) || !NEAR_ZERO(dz);
+    }
+
+    // Called by the polling routine in "joystick.cpp"
+    void _joystick_update(float (&norm_jog)[XYZ]) {
+      if (flags.jogging) {
+        #define OUT_OF_RANGE(VALUE) (VALUE < -1.0f || VALUE > 1.0f)
+
+        if (OUT_OF_RANGE(destination[X_AXIS]) || OUT_OF_RANGE(destination[Y_AXIS]) || OUT_OF_RANGE(destination[Z_AXIS])) {
+          // If destination[] on any axis is out of range, it
+          // probably means the UI forgot to stop jogging and
+          // ran GCODE that wrote a position to destination[].
+          // To prevent a disaster, stop jogging.
+          flags.jogging = false;
+          return;
+        }
+        norm_jog[X_AXIS] = destination[X_AXIS];
+        norm_jog[Y_AXIS] = destination[Y_AXIS];
+        norm_jog[Z_AXIS] = destination[Z_AXIS];
+      }
+    }
+  #endif
 
   bool isHeaterIdle(const extruder_t extruder) {
     return false
@@ -288,13 +318,22 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const axis_t axis) {
-    return flags.manual_motion ? destination[axis] : current_position[axis];
+    return
+      #if ENABLED(JOYSTICK)
+        flags.jogging ? destination[axis] :
+      #endif
+      current_position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
     const extruder_t old_tool = getActiveTool();
     setActiveTool(extruder, true);
-    const float pos = flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
+    const float pos = (
+      #if ENABLED(JOYSTICK)
+        flags.jogging ? destination[E_AXIS] :
+      #endif
+      current_position[E_AXIS]
+    );
     setActiveTool(old_tool, true);
     return pos;
   }
@@ -343,54 +382,23 @@ namespace ExtUI {
       }
     #endif
 
-    constexpr float max_manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    setFeedrate_mm_s(MMM_TO_MMS(max_manual_feedrate[axis]));
+    constexpr float manual_feedrate[XYZE] = MANUAL_FEEDRATE;
+    setFeedrate_mm_s(MMM_TO_MMS(manual_feedrate[axis]));
 
-    if (!flags.manual_motion) set_destination_from_current();
+    set_destination_from_current();
     destination[axis] = constrain(position, min, max);
-    flags.manual_motion = true;
+    prepare_move_to_destination();
   }
 
   void setAxisPosition_mm(const float position, const extruder_t extruder) {
     setActiveTool(extruder, true);
 
-    constexpr float max_manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    setFeedrate_mm_s(MMM_TO_MMS(max_manual_feedrate[E_AXIS]));
-    if (!flags.manual_motion) set_destination_from_current();
+    constexpr float manual_feedrate[XYZE] = MANUAL_FEEDRATE;
+    setFeedrate_mm_s(MMM_TO_MMS(manual_feedrate[E_AXIS]));
+
+    set_destination_from_current();
     destination[E_AXIS] = position;
-    flags.manual_motion = true;
-  }
-
-  void _processManualMoveToDestination() {
-    // Lower max_response_lag makes controls more responsive, but makes CPU work harder
-    constexpr float   max_response_lag = 0.1; // seconds
-    constexpr uint8_t segments_to_buffer = 4; // keep planner filled with this many segments
-
-    if (flags.manual_motion && planner.movesplanned() < segments_to_buffer) {
-      float saved_destination[XYZ];
-      COPY(saved_destination, destination);
-      // Compute direction vector from current_position towards destination.
-      destination[X_AXIS] -= current_position[X_AXIS];
-      destination[Y_AXIS] -= current_position[Y_AXIS];
-      destination[Z_AXIS] -= current_position[Z_AXIS];
-      const float inv_length = RSQRT(sq(destination[X_AXIS]) + sq(destination[Y_AXIS]) + sq(destination[Z_AXIS]));
-      // Find move segment length so that all segments can execute in less time than max_response_lag
-      const float scale = inv_length * feedrate_mm_s * max_response_lag / segments_to_buffer;
-      if (scale < 1) {
-        // Move a small bit towards the destination.
-        destination[X_AXIS] = scale * destination[X_AXIS] + current_position[X_AXIS];
-        destination[Y_AXIS] = scale * destination[Y_AXIS] + current_position[Y_AXIS];
-        destination[Z_AXIS] = scale * destination[Z_AXIS] + current_position[Z_AXIS];
-        prepare_move_to_destination();
-        COPY(destination, saved_destination);
-      }
-      else {
-        // We are close enough to finish off the move.
-        COPY(destination, saved_destination);
-        prepare_move_to_destination();
-        flags.manual_motion = false;
-      }
-    }
+    prepare_move_to_destination();
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
@@ -1044,7 +1052,6 @@ void MarlinUI::update() {
       }
     }
   #endif // SDSUPPORT
-  ExtUI::_processManualMoveToDestination();
   ExtUI::onIdle();
 }
 

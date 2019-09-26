@@ -21,7 +21,7 @@
  */
 
 /**
- * ultralcd_DOGM.cpp
+ * lcd/dogm/ultralcd_DOGM.h
  *
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
@@ -30,9 +30,9 @@
  * License: http://opensource.org/licenses/BSD-3-Clause
  *
  * With the use of:
- * u8glib by Oliver Kraus
- * https://github.com/olikraus/U8glib_Arduino
- * License: http://opensource.org/licenses/BSD-3-Clause
+ *  u8glib by Oliver Kraus
+ *  https://github.com/olikraus/U8glib_Arduino
+ *  License: http://opensource.org/licenses/BSD-3-Clause
  */
 
 #include "../../inc/MarlinConfigPre.h"
