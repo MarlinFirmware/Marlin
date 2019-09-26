@@ -94,11 +94,11 @@ typedef struct {
 	uint16_t payload_size;
 
 	//! Callback called after reception of ZLP from setup request
-	void (*callback)();
+	void (*callback)(void);
 
 	//! Callback called when the buffer given (.payload) is full or empty.
 	//! This one return false to abort data transfer, or true with a new buffer in .payload.
-	bool (*over_under_run)();
+	bool (*over_under_run)(void);
 } udd_ctrl_request_t;
 extern udd_ctrl_request_t udd_g_ctrlreq;
 
@@ -123,7 +123,7 @@ extern udd_ctrl_request_t udd_g_ctrlreq;
  * Registered by routine udd_ep_wait_stall_clear()
  * Callback called when endpoint stall is cleared.
  */
-typedef void (*udd_callback_halt_cleared_t)();
+typedef void (*udd_callback_halt_cleared_t)(void);
 
 /**
  * \brief End of transfer callback function type.
@@ -142,17 +142,17 @@ typedef void (*udd_callback_trans_t) (udd_ep_status_t status,
  *
  * \return true, if the VBUS monitoring is possible.
  */
-bool udd_include_vbus_monitoring();
+bool udd_include_vbus_monitoring(void);
 
 /**
  * \brief Enables the USB Device mode
  */
-void udd_enable();
+void udd_enable(void);
 
 /**
  * \brief Disables the USB Device mode
  */
-void udd_disable();
+void udd_disable(void);
 
 /**
  * \brief Attach device to the bus when possible
@@ -161,14 +161,14 @@ void udd_disable();
  * then it will attach device when an acceptable Vbus
  * level from the host is detected.
  */
-void udd_attach();
+void udd_attach(void);
 
 /**
  * \brief Detaches the device from the bus
  *
  * The driver must remove pull-up on USB line D- or D+.
  */
-void udd_detach();
+void udd_detach(void);
 
 /**
  * \brief Test whether the USB Device Controller is running at high
@@ -176,7 +176,7 @@ void udd_detach();
  *
  * \return \c true if the Device is running at high speed mode, otherwise \c false.
  */
-bool udd_is_high_speed();
+bool udd_is_high_speed(void);
 
 /**
  * \brief Changes the USB address of device
@@ -190,25 +190,25 @@ void udd_set_address(uint8_t address);
  *
  * \return USB address
  */
-uint8_t udd_getaddress();
+uint8_t udd_getaddress(void);
 
 /**
  * \brief Returns the current start of frame number
  *
  * \return current start of frame number.
  */
-uint16_t udd_get_frame_number();
+uint16_t udd_get_frame_number(void);
 
 /**
  * \brief Returns the current micro start of frame number
  *
  * \return current micro start of frame number required in high speed mode.
  */
-uint16_t udd_get_micro_frame_number();
+uint16_t udd_get_micro_frame_number(void);
 
 /*! \brief The USB driver sends a resume signal called Upstream Resume
  */
-void udd_send_remotewakeup();
+void udd_send_remotewakeup(void);
 
 /**
  * \brief Load setup payload
@@ -346,10 +346,10 @@ void udd_ep_abort(udd_ep_id_t ep);
  * The following functions allow the device to jump to a specific test mode required in high speed mode.
  */
 //@{
-void udd_test_mode_j();
-void udd_test_mode_k();
-void udd_test_mode_se0_nak();
-void udd_test_mode_packet();
+void udd_test_mode_j(void);
+void udd_test_mode_k(void);
+void udd_test_mode_se0_nak(void);
+void udd_test_mode_packet(void);
 //@}
 
 
@@ -370,21 +370,21 @@ void udd_test_mode_packet();
  *
  * \return \c 1 if the request is accepted, otherwise \c 0.
  */
-extern bool udc_process_setup();
+extern bool udc_process_setup(void);
 
 /**
  * \brief Reset the UDC
  *
  * The UDC must reset all configuration.
  */
-extern void udc_reset();
+extern void udc_reset(void);
 
 /**
  * \brief To signal that a SOF is occurred
  *
  * The UDC must send the signal to all UDIs enabled
  */
-extern void udc_sof_notify();
+extern void udc_sof_notify(void);
 
 //@}
 
