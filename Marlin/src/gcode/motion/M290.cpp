@@ -105,7 +105,7 @@ void GcodeSuite::M290() {
     #if ENABLED(MESH_BED_LEVELING)
       SERIAL_ECHOLNPAIR(MSG_Z_OFFSET ": ", mbl.z_offset);
     #endif
-    #if ENABLED(BABYSTEP_DISPLAY_TOTAL) && (HAS_LCD_MENU || ENABLED(EXTENSIBLE_UI))
+    #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
       #if ENABLED(BABYSTEP_XY)
         SERIAL_ECHOLNPAIR(MSG_BABYSTEP_X ": ", babystep.axis_total[X_AXIS]);
         SERIAL_ECHOLNPAIR(MSG_BABYSTEP_Y ": ", babystep.axis_total[Y_AXIS]);
