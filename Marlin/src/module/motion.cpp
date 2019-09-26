@@ -1053,7 +1053,7 @@ bool axis_unhomed_error(uint8_t axis_bits/*=0x07*/) {
       TEST(axis_bits, Z_AXIS) ? "Z" : ""
     );
     SERIAL_ECHO_START();
-    SERIAL_ECHO(msg);
+    SERIAL_ECHOLN(msg);
     #if HAS_DISPLAY
       ui.set_status(msg);
     #endif
