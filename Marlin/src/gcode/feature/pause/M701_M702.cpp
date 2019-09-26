@@ -60,8 +60,8 @@ void GcodeSuite::M701() {
   point_t park_point = NOZZLE_PARK_POINT;
 
   #if ENABLED(NO_MOTION_BEFORE_HOMING)
-    // Only raise Z if the machine is homed
-    if (axis_unhomed_error()) park_point.z = 0;
+    // Don't raise Z if the machine isn't homed
+    if (axes_need_homing()) park_point.z = 0;
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
@@ -149,8 +149,8 @@ void GcodeSuite::M702() {
   point_t park_point = NOZZLE_PARK_POINT;
 
   #if ENABLED(NO_MOTION_BEFORE_HOMING)
-    // Only raise Z if the machine is homed
-    if (axis_unhomed_error()) park_point.z = 0;
+    // Don't raise Z if the machine isn't homed
+    if (axes_need_homing()) park_point.z = 0;
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)

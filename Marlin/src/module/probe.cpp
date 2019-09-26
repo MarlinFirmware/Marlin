@@ -373,12 +373,11 @@ bool set_probe_deployed(const bool deploy) {
     do_probe_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
-    #if ENABLED(Z_PROBE_SLED)
-      #define _AUE_ARGS true, false, false
-    #else
-      #define _AUE_ARGS
-    #endif
-    if (axis_unhomed_error(_AUE_ARGS)) {
+    if (axis_unhomed_error(
+      #if ENABLED(Z_PROBE_SLED)
+        _BV(X_AXIS)
+      #endif
+    )) {
       SERIAL_ERROR_MSG(MSG_STOP_UNHOMED);
       stop();
       return true;

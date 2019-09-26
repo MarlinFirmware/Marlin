@@ -124,7 +124,6 @@
 #define MSG_G26_CANCELED                    _UxGT("G26 annulé")
 #define MSG_G26_LEAVING                     _UxGT("Sortie G26")
 #define MSG_UBL_DOING_G29                   _UxGT("G29 en cours")
-#define MSG_UBL_UNHOMED                     _UxGT("Origine XYZ requise")
 #define MSG_UBL_TOOLS                       _UxGT("Outils UBL")
 #define MSG_UBL_LEVEL_BED                   _UxGT("Niveau lit unifié")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Maillage manuel")
@@ -360,8 +359,7 @@
 #define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("Déployer TouchMI")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Déployer Sonde Z")
 #define MSG_MANUAL_STOW                     _UxGT("Ranger Sonde Z")
-#define MSG_HOME                            _UxGT("Origine")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("Premier")
+#define MSG_HOME_FIRST                      _UxGT("Origine %s%s%s Premier")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Décalage Z")
 #define MSG_BABYSTEP_X                      _UxGT("Babystep X")
 #define MSG_BABYSTEP_Y                      _UxGT("Babystep Y")
@@ -381,7 +379,7 @@
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err TEMP. MIN LIT")
 #define MSG_ERR_MAXTEMP_CHAMBER             _UxGT("Err MAXTEMP CAISSON")
 #define MSG_ERR_MINTEMP_CHAMBER             _UxGT("Err MINTEMP CAISSON")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Origine XY Premier")
 
 #define MSG_HALTED                          _UxGT("IMPR. STOPPÉE")
 #define MSG_PLEASE_RESET                    _UxGT("Redémarrer SVP")

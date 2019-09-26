@@ -113,7 +113,6 @@
 #define MSG_Y_OFFSET                        _UxGT("2° ugello Y")
 #define MSG_Z_OFFSET                        _UxGT("2° ugello Z")
 #define MSG_UBL_DOING_G29                   _UxGT("G29 in corso")
-#define MSG_UBL_UNHOMED                     _UxGT("Home XYZ prima")
 #define MSG_UBL_TOOLS                       _UxGT("Strumenti UBL")
 #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Mesh Manuale")
@@ -348,8 +347,7 @@
 #define MSG_MANUAL_DEPLOY                   _UxGT("Estendi Sonda-Z")
 #define MSG_BLTOUCH_STOW                    _UxGT("Ritrai BLTouch")
 #define MSG_MANUAL_STOW                     _UxGT("Ritrai Sonda-Z")
-#define MSG_HOME                            _UxGT("Home")  // Usato come MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("prima")
+#define MSG_HOME_FIRST                      _UxGT("Home %s%s%s prima")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Offset sonda Z")
 #define MSG_BABYSTEP_X                      _UxGT("Babystep X")
 #define MSG_BABYSTEP_Y                      _UxGT("Babystep Y")
@@ -369,7 +367,7 @@
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: TEMP MIN PIATTO")
 #define MSG_ERR_MAXTEMP_CHAMBER             _UxGT("Err: TEMP MAX CAMERA")
 #define MSG_ERR_MINTEMP_CHAMBER             _UxGT("Err: TEMP MIN CAMERA")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Home XY prima")
 #define MSG_HALTED                          _UxGT("STAMPANTE FERMATA")
 #define MSG_PLEASE_RESET                    _UxGT("Riavviare prego")
 #define MSG_SHORT_DAY                       _UxGT("g") // Un solo carattere
