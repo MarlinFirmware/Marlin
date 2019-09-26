@@ -25,9 +25,9 @@
 
 void report_M92(const bool echo=true, const int8_t e=-1) {
   if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
-  SERIAL_ECHOPAIR(" M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
-  SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
-  SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
+  SERIAL_ECHOPAIR(" M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
+                  " Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
+                  " Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
   #if DISABLED(DISTINCT_E_FACTORS)
     SERIAL_ECHOPAIR(" E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
   #endif
@@ -37,8 +37,8 @@ void report_M92(const bool echo=true, const int8_t e=-1) {
     for (uint8_t i = 0; i < E_STEPPERS; i++) {
       if (e >= 0 && i != e) continue;
       if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
-      SERIAL_ECHOPAIR(" M92 T", (int)i);
-      SERIAL_ECHOLNPAIR(" E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
+      SERIAL_ECHOLNPAIR(" M92 T", (int)i,
+                        " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
     }
   #endif
 
@@ -101,12 +101,10 @@ void GcodeSuite::M92() {
                      micro_steps = argH ? argH : Z_MICROSTEPS;
       const float z_full_step_mm = micro_steps * planner.steps_to_mm[Z_AXIS];
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("{ micro_steps:", micro_steps);
-      SERIAL_ECHOPAIR(", z_full_step_mm:", z_full_step_mm);
+      SERIAL_ECHOPAIR("{ micro_steps:", micro_steps, ", z_full_step_mm:", z_full_step_mm);
       if (wanted) {
         const float best = uint16_t(wanted / z_full_step_mm) * z_full_step_mm;
-        SERIAL_ECHOPGM(", best:[");
-        SERIAL_ECHO(best);
+        SERIAL_ECHOPAIR(", best:[", best);
         if (best != wanted) { SERIAL_CHAR(','); SERIAL_ECHO(best + z_full_step_mm); }
         SERIAL_CHAR(']');
       }

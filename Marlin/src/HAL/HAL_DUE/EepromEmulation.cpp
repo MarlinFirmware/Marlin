@@ -922,8 +922,7 @@ static void ee_Init() {
       if (!ee_IsPageClean(grp * PagesPerGroup + page)) {
         #ifdef EE_EMU_DEBUG
           SERIAL_ECHO_START();
-          SERIAL_ECHOPAIR("EEPROM Page ",page);
-          SERIAL_ECHOLNPAIR(" not clean on group ",grp);
+          SERIAL_ECHOLNPAIR("EEPROM Page ", page, " not clean on group ", grp);
           SERIAL_FLUSH();
         #endif
         ee_PageErase(grp * PagesPerGroup + page);
@@ -944,7 +943,7 @@ static void ee_Init() {
 
   #ifdef EE_EMU_DEBUG
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM Active page: ",curPage);
+    SERIAL_ECHOLNPAIR("EEPROM Active page: ", curPage);
     SERIAL_FLUSH();
   #endif
 
@@ -953,8 +952,7 @@ static void ee_Init() {
     if (!ee_IsPageClean(curGroup * PagesPerGroup + page)) {
       #ifdef EE_EMU_DEBUG
         SERIAL_ECHO_START();
-        SERIAL_ECHOPAIR("EEPROM Page ",page);
-        SERIAL_ECHOLNPAIR(" not clean on active group ",curGroup);
+        SERIAL_ECHOLNPAIR("EEPROM Page ", page, " not clean on active group ", curGroup);
         SERIAL_FLUSH();
         ee_Dump(curGroup * PagesPerGroup + page, getFlashStorage(curGroup * PagesPerGroup + page));
       #endif
