@@ -97,9 +97,6 @@
     const bool was_enabled = planner.leveling_active;
     set_bed_leveling_enabled(false);
     storage_slot = -1;
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      planner.set_z_fade_height(10.0);
-    #endif
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)

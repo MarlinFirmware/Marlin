@@ -2061,7 +2061,7 @@ void MarlinSettings::postprocess() {
           }
           else {
             ubl.reset();
-            DEBUG_ECHOLNPGM("UBL System reset()");
+            DEBUG_ECHOLNPGM("UBL reset");
           }
         }
       #endif
