@@ -329,8 +329,8 @@ bool I2CPositionEncoder::test_axis() {
   float startCoord[NUM_AXIS] = { 0 }, endCoord[NUM_AXIS] = { 0 };
 
   const float startPosition = soft_endstop[encoderAxis].min + 10,
-              endPosition = soft_endstop[encoderAxis].max - 10,
-              feedrate = FLOOR(MMM_TO_MMS((encoderAxis == Z_AXIS) ? HOMING_FEEDRATE_Z : HOMING_FEEDRATE_XY));
+              endPosition = soft_endstop[encoderAxis].max - 10;
+  const feedRate_t fr_mm_s = FLOOR(MMM_TO_MMS((encoderAxis == Z_AXIS) ? HOMING_FEEDRATE_Z : HOMING_FEEDRATE_XY));
 
   ec = false;
 
@@ -344,7 +344,7 @@ bool I2CPositionEncoder::test_axis() {
   planner.synchronize();
 
   planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
-                      planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+                      planner.get_axis_position_mm(E_AXIS), fr_mm_s, 0);
   planner.synchronize();
 
   // if the module isn't currently trusted, wait until it is (or until it should be if things are working)
@@ -356,7 +356,7 @@ bool I2CPositionEncoder::test_axis() {
 
   if (trusted) { // if trusted, commence test
     planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
-                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+                        planner.get_axis_position_mm(E_AXIS), fr_mm_s, 0);
     planner.synchronize();
   }
 
@@ -379,11 +379,9 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
         travelDistance, travelledDistance, total = 0,
         startCoord[NUM_AXIS] = { 0 }, endCoord[NUM_AXIS] = { 0 };
 
-  float feedrate;
-
   int32_t startCount, stopCount;
 
-  feedrate = MMM_TO_MMS((encoderAxis == Z_AXIS) ? HOMING_FEEDRATE_Z : HOMING_FEEDRATE_XY);
+  const feedRate_t fr_mm_s = MMM_TO_MMS((encoderAxis == Z_AXIS) ? HOMING_FEEDRATE_Z : HOMING_FEEDRATE_XY);
 
   bool oldec = ec;
   ec = false;
@@ -404,7 +402,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
   LOOP_L_N(i, iter) {
     planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
-                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+                        planner.get_axis_position_mm(E_AXIS), fr_mm_s, 0);
     planner.synchronize();
 
     delay(250);
@@ -413,7 +411,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     //do_blocking_move_to(endCoord[X_AXIS],endCoord[Y_AXIS],endCoord[Z_AXIS]);
 
     planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
-                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+                        planner.get_axis_position_mm(E_AXIS), fr_mm_s, 0);
     planner.synchronize();
 
     //Read encoder distance

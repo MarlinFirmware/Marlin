@@ -186,7 +186,7 @@ Nozzle nozzle;
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
   void Nozzle::park(const uint8_t z_action, const point_t &park/*=NOZZLE_PARK_POINT*/) {
-    constexpr float fr_xy = NOZZLE_PARK_XY_FEEDRATE, fr_z = NOZZLE_PARK_Z_FEEDRATE;
+    constexpr feedRate_t fr_xy = NOZZLE_PARK_XY_FEEDRATE, fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
     switch (z_action) {
       case 1: // Go to Z-park height

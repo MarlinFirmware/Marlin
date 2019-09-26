@@ -662,10 +662,8 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
     if (manual_move_axis != (int8_t)NO_AXIS && ELAPSED(millis(), manual_move_start_time) && !planner.is_full()) {
 
+      const feedRate_t fr_mm_s = MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]);
       #if IS_KINEMATIC
-
-        const float old_feedrate = feedrate_mm_s;
-        feedrate_mm_s = MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]);
 
         #if EXTRUDERS > 1
           const int8_t old_extruder = active_extruder;
@@ -685,17 +683,16 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         // previous invocation is being blocked. Modifications to manual_move_offset shouldn't be made while
         // processing_manual_move is true or the planner will get out of sync.
         processing_manual_move = true;
-        prepare_move_to_destination(); // will set current_position from destination
+        prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
         processing_manual_move = false;
 
-        feedrate_mm_s = old_feedrate;
         #if EXTRUDERS > 1
           active_extruder = old_extruder;
         #endif
 
       #else
 
-        planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
+        planner.buffer_line(current_position, fr_mm_s, manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
         manual_move_axis = (int8_t)NO_AXIS;
 
       #endif

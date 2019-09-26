@@ -171,17 +171,16 @@ inline bool read_calibration_pin() {
  *   fast         in - Fast vs. precise measurement
  */
 float measuring_movement(const AxisEnum axis, const int dir, const bool stop_state, const bool fast) {
-  const float step  =            fast ? 0.25                      : CALIBRATION_MEASUREMENT_RESOLUTION;
-  const float mms   = MMM_TO_MMS(fast ? CALIBRATION_FEEDRATE_FAST : CALIBRATION_FEEDRATE_SLOW);
-  const float limit =            fast ? 50                        : 5;
+  const float step     = fast ? 0.25 : CALIBRATION_MEASUREMENT_RESOLUTION;
+  const feedRate_t mms = fast ? MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST) : MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW);
+  const float limit    = fast ? 50 : 5;
 
   set_destination_from_current();
   for (float travel = 0; travel < limit; travel += step) {
     destination[axis] += dir * step;
     do_blocking_move_to(destination, mms);
     planner.synchronize();
-    if (read_calibration_pin() == stop_state)
-      break;
+    if (read_calibration_pin() == stop_state) break;
   }
   return destination[axis];
 }

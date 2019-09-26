@@ -122,7 +122,7 @@ static bool ensure_safe_temperature(const PauseMode mode=PAUSE_MODE_SAME) {
   return thermalManager.wait_for_hotend(active_extruder);
 }
 
-void do_pause_e_move(const float &length, const float &fr_mm_s) {
+void do_pause_e_move(const float &length, const feedRate_t &fr_mm_s) {
   #if HAS_FILAMENT_SENSOR
     runout.reset();
   #endif
@@ -648,16 +648,16 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   #endif
 
   // If resume_position is negative
-  if (resume_position[E_AXIS] < 0) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
+  if (resume_position[E_AXIS] < 0) do_pause_e_move(resume_position[E_AXIS], feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
   // Move XY to starting position, then Z
-  do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
+  do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
   // Move Z_AXIS to saved position
-  do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
+  do_blocking_move_to_z(resume_position[Z_AXIS], feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
   #if ADVANCED_PAUSE_RESUME_PRIME != 0
-    do_pause_e_move(ADVANCED_PAUSE_RESUME_PRIME, ADVANCED_PAUSE_PURGE_FEEDRATE);
+    do_pause_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
   #endif
 
   // Now all extrusion positions are resumed and ready to be confirmed

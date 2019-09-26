@@ -116,7 +116,7 @@ public:
   }
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
-    static void line_to_destination(const float fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
+    static void line_to_destination(const feedRate_t &scaled_fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
   #endif
 };
 
