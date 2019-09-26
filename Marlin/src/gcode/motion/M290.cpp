@@ -34,6 +34,10 @@
   #include "../../core/serial.h"
 #endif
 
+#if ENABLED(MESH_BED_LEVELING)
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
   FORCE_INLINE void mod_zprobe_zoffset(const float &offs) {
@@ -87,6 +91,28 @@ void GcodeSuite::M290() {
       #endif
     }
   #endif
+
+  if (!parser.seen("XYZ")) {
+    SERIAL_ECHO_START();
+    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+      SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET MSG_Z ": ", probe_offset[Z_AXIS]);
+      #if ENABLED(BABYSTEP_XY)
+        SERIAL_ECHOLNPAIR(MSG_X_OFFSET ": ", hotend_offset[X_AXIS][active_extruder]);
+        SERIAL_ECHOLNPAIR(MSG_Y_OFFSET ": ", hotend_offset[Y_AXIS][active_extruder]);
+      #endif
+      SERIAL_ECHOLNPAIR(MSG_Z_OFFSET ": ", hotend_offset[Z_AXIS][active_extruder]);
+    #endif
+    #if ENABLED(MESH_BED_LEVELING)
+      SERIAL_ECHOLNPAIR(MSG_Z_OFFSET ": ", mbl.z_offset);
+    #endif
+    #if ENABLED(BABYSTEP_DISPLAY_TOTAL) && (HAS_LCD_MENU || ENABLED(EXTENSIBLE_UI))
+      #if ENABLED(BABYSTEP_XY)
+        SERIAL_ECHOLNPAIR(MSG_BABYSTEP_X ": ", babystep.axis_total[X_AXIS]);
+        SERIAL_ECHOLNPAIR(MSG_BABYSTEP_Y ": ", babystep.axis_total[Y_AXIS]);
+      #endif
+      SERIAL_ECHOLNPAIR(MSG_BABYSTEP_Z ": ", babystep.axis_total[Z_AXIS]);
+    #endif
+  }
 }
 
 #endif // BABYSTEPPING

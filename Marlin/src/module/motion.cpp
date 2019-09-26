@@ -1370,7 +1370,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
     I2CPEM.homed(axis);
   #endif
 
-  #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
+  #if ENABLED(BABYSTEP_DISPLAY_TOTAL) && (HAS_LCD_MENU || ENABLED(EXTENSIBLE_UI))
     babystep.reset_total(axis);
   #endif
 
