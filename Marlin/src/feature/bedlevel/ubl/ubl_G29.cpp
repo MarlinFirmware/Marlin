@@ -1391,7 +1391,7 @@
                   dx = (x_max - x_min) / (g29_grid_size - 1),
                   dy = (y_max - y_min) / (g29_grid_size - 1);
 
-    ABL_VAR vector_3 points[3] = {
+    vector_3 points[3] = {
     #if HAS_FIXED_3POINT
       vector_3(PROBE_PT_1_X, PROBE_PT_1_Y, 0),
       vector_3(PROBE_PT_2_X, PROBE_PT_2_Y, 0),
