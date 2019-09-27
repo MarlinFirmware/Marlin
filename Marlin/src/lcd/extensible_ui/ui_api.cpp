@@ -1002,14 +1002,14 @@ namespace ExtUI {
 
   void FileList::upDir() {
     #if ENABLED(SDSUPPORT)
-      card.updir();
+      card.cdup();
       num_files = 0xFFFF;
     #endif
   }
 
   void FileList::changeDir(const char * const dirname) {
     #if ENABLED(SDSUPPORT)
-      card.chdir(dirname);
+      card.cd(dirname);
       num_files = 0xFFFF;
     #endif
   }
