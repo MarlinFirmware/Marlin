@@ -112,4 +112,8 @@ uint16_t HAL_adc_get_result() {
   return HAL_adc_result;
 }
 
+void flashFirmware(int16_t value) {
+  NVIC_SystemReset();
+}
+
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
