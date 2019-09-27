@@ -81,7 +81,7 @@ extern uint8_t did_pause_print;
   #define DXC_PASS
 #endif
 
-void do_pause_e_move(const float &length, const float &fr_mm_s);
+void do_pause_e_move(const float &length, const feedRate_t &fr_mm_s);
 
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
 

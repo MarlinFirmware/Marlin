@@ -56,7 +56,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
         #endif
                               .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXTF(NUDGE_NOZZLE))
        .enabled(!isPrinting()).tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXTF(LOAD_SYRINGE))
-       .enabled(!isPrinting()).tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(UNLOCK_XY_AXIS))
+       .enabled(!isPrinting()).tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(RELEASE_XY_AXIS))
        .colors(action_btn)    .tag(1).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(BACK));
   }
   #undef GRID_COLS

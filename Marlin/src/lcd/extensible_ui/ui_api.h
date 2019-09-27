@@ -46,10 +46,6 @@
 
 namespace ExtUI {
 
-  #if ENABLED(JOYSTICK)
-    extern float norm_jog[];
-  #endif
-
   // The ExtUI implementation can store up to this many bytes
   // in the EEPROM when the methods onStoreSettings and
   // onLoadSettings are called.
@@ -84,7 +80,10 @@ namespace ExtUI {
   void enableHeater(const heater_t);
   void enableHeater(const extruder_t);
 
-  void jog(float dx, float dy, float dz);
+  #if ENABLED(JOYSTICK)
+    void jog(float dx, float dy, float dz);
+    void _joystick_update(float (&norm_jog)[XYZ]);
+  #endif
 
   /**
    * Getters and setters
@@ -117,12 +116,12 @@ namespace ExtUI {
   float getAxisPosition_mm(const extruder_t);
   float getAxisSteps_per_mm(const axis_t);
   float getAxisSteps_per_mm(const extruder_t);
-  float getAxisMaxFeedrate_mm_s(const axis_t);
-  float getAxisMaxFeedrate_mm_s(const extruder_t);
+  feedRate_t getAxisMaxFeedrate_mm_s(const axis_t);
+  feedRate_t getAxisMaxFeedrate_mm_s(const extruder_t);
   float getAxisMaxAcceleration_mm_s2(const axis_t);
   float getAxisMaxAcceleration_mm_s2(const extruder_t);
-  float getMinFeedrate_mm_s();
-  float getMinTravelFeedrate_mm_s();
+  feedRate_t getMinFeedrate_mm_s();
+  feedRate_t getMinTravelFeedrate_mm_s();
   float getPrintingAcceleration_mm_s2();
   float getRetractAcceleration_mm_s2();
   float getTravelAcceleration_mm_s2();
@@ -161,13 +160,13 @@ namespace ExtUI {
   void setAxisPosition_mm(const float, const extruder_t);
   void setAxisSteps_per_mm(const float, const axis_t);
   void setAxisSteps_per_mm(const float, const extruder_t);
-  void setAxisMaxFeedrate_mm_s(const float, const axis_t);
-  void setAxisMaxFeedrate_mm_s(const float, const extruder_t);
+  void setAxisMaxFeedrate_mm_s(const feedRate_t, const axis_t);
+  void setAxisMaxFeedrate_mm_s(const feedRate_t, const extruder_t);
   void setAxisMaxAcceleration_mm_s2(const float, const axis_t);
   void setAxisMaxAcceleration_mm_s2(const float, const extruder_t);
-  void setFeedrate_mm_s(const float);
-  void setMinFeedrate_mm_s(const float);
-  void setMinTravelFeedrate_mm_s(const float);
+  void setFeedrate_mm_s(const feedRate_t);
+  void setMinFeedrate_mm_s(const feedRate_t);
+  void setMinTravelFeedrate_mm_s(const feedRate_t);
   void setPrintingAcceleration_mm_s2(const float);
   void setRetractAcceleration_mm_s2(const float);
   void setTravelAcceleration_mm_s2(const float);

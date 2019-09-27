@@ -176,8 +176,7 @@ class CachedScreen {
     static bool storeBackground() {
       DLCache dlcache(DL_SLOT);
       if (!dlcache.store(DL_SIZE)) {
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM("CachedScreen::storeBackground() failed: not enough DL cache space");
+        SERIAL_ECHO_MSG("CachedScreen::storeBackground() failed: not enough DL cache space");
         return false;
       }
       return true;
@@ -199,6 +198,9 @@ class CachedScreen {
 
   public:
     static void onRefresh() {
+      #if ENABLED(TOUCH_UI_DEBUG)
+        const uint32_t start_time = millis();
+      #endif
       using namespace FTDI;
       DLCache dlcache(DL_SLOT);
       CommandProcessor cmd;
@@ -220,5 +222,8 @@ class CachedScreen {
       cmd.cmd(DL::DL_DISPLAY);
       cmd.cmd(CMD_SWAP);
       cmd.execute();
+      #if ENABLED(TOUCH_UI_DEBUG)
+        SERIAL_ECHOLNPAIR("Time to draw screen (ms): ", millis() - start_time);
+      #endif
     }
 };

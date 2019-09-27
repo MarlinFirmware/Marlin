@@ -39,9 +39,7 @@
   #include "../../feature/tmc_util.h"
 #endif
 
-#if HOMING_Z_WITH_PROBE || ENABLED(BLTOUCH)
-  #include "../../module/probe.h"
-#endif
+#include "../../module/probe.h"
 
 #if ENABLED(BLTOUCH)
   #include "../../feature/bltouch.h"
@@ -136,8 +134,8 @@
     destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
     #if HOMING_Z_WITH_PROBE
-      destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
-      destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+      destination[X_AXIS] -= probe_offset[X_AXIS];
+      destination[Y_AXIS] -= probe_offset[Y_AXIS];
     #endif
 
     if (position_is_reachable(destination[X_AXIS], destination[Y_AXIS])) {

@@ -921,10 +921,9 @@ template <class T> bool CLCD::CommandFifo::_write_unaligned(T data, uint16_t len
   uint32_t bytes_tail, bytes_head;
   uint32_t command_read_ptr;
 
-  #ifdef UI_FRAMEWORK_DEBUG
+  #if ENABLED(TOUCH_UI_DEBUG)
   if (command_write_ptr == 0xFFFFFFFFul) {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPGM("Attempt to write to FIFO before CommandFifo::Cmd_Start().");
+    SERIAL_ECHO_MSG("Attempt to write to FIFO before CommandFifo::Cmd_Start().");
   }
   #endif
 
@@ -940,7 +939,7 @@ template <class T> bool CLCD::CommandFifo::_write_unaligned(T data, uint16_t len
     }
     // Check for faults which can lock up the command processor
     if (has_fault()) {
-      #ifdef UI_FRAMEWORK_DEBUG
+      #if ENABLED(TOUCH_UI_DEBUG)
         SERIAL_ECHOLNPGM("Fault waiting for space in the command processor");
       #endif
       return false;
@@ -985,7 +984,7 @@ void CLCD::CommandFifo::execute() {
 }
 
 void CLCD::CommandFifo::reset() {
-  #ifdef UI_FRAMEWORK_DEBUG
+  #if ENABLED(TOUCH_UI_DEBUG)
     SERIAL_ECHOLNPGM("Resetting command processor");
   #endif
   safe_delay(100);
@@ -1004,7 +1003,7 @@ template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
   const uint8_t padding = MULTIPLE_OF_4(len) - len;
 
   if (has_fault()) {
-    #ifdef UI_FRAMEWORK_DEBUG
+    #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHOLNPGM("Faulted... ignoring write.");
     #endif
     return false;
@@ -1014,21 +1013,21 @@ template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
   // management.
   uint16_t Command_Space = mem_read_32(REG::CMDB_SPACE) & 0x0FFF;
   if (Command_Space < (len + padding)) {
-    #ifdef UI_FRAMEWORK_DEBUG
+    #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("Waiting for ", len + padding);
-      SERIAL_ECHOPAIR(" bytes in command queue, now free: ", Command_Space);
+      SERIAL_ECHOPAIR("Waiting for ", len + padding,
+                      " bytes in command queue, now free: ", Command_Space);
     #endif
     do {
       Command_Space = mem_read_32(REG::CMDB_SPACE) & 0x0FFF;
       if (has_fault()) {
-        #ifdef UI_FRAMEWORK_DEBUG
+        #if ENABLED(TOUCH_UI_DEBUG)
           SERIAL_ECHOLNPGM("... fault");
         #endif
         return false;
       }
     } while (Command_Space < len + padding);
-    #ifdef UI_FRAMEWORK_DEBUG
+    #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHOLNPGM("... done");
     #endif
   }
@@ -1070,9 +1069,8 @@ void CLCD::init() {
   for(counter = 0; counter < 250; counter++) {
    uint8_t device_id = mem_read_8(REG::ID);            // Read Device ID, Should Be 0x7C;
    if (device_id == 0x7c) {
-     #ifdef UI_FRAMEWORK_DEBUG
-       SERIAL_ECHO_START();
-       SERIAL_ECHOLNPGM("FTDI chip initialized ");
+     #if ENABLED(TOUCH_UI_DEBUG)
+       SERIAL_ECHO_MSG("FTDI chip initialized ");
      #endif
      break;
    }
@@ -1080,7 +1078,7 @@ void CLCD::init() {
      delay(1);
    }
    if (counter == 249) {
-     #ifdef UI_FRAMEWORK_DEBUG
+     #if ENABLED(TOUCH_UI_DEBUG)
        SERIAL_ECHO_START();
        SERIAL_ECHOLNPAIR("Timeout waiting for device ID, should be 124, got ", device_id);
      #endif

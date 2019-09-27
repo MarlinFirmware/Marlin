@@ -77,13 +77,15 @@ Joystick joystick;
       if (READ(JOY_EN_PIN)) return;
     #endif
 
-    auto _normalize_joy = [](float &adc, const int16_t raw, const int16_t (&joy_limits)[4]) {
+    auto _normalize_joy = [](float &norm_jog, const int16_t raw, const int16_t (&joy_limits)[4]) {
       if (WITHIN(raw, joy_limits[0], joy_limits[3])) {
         // within limits, check deadzone
         if (raw > joy_limits[2])
-          adc = (raw - joy_limits[2]) / float(joy_limits[3] - joy_limits[2]);
+          norm_jog = (raw - joy_limits[2]) / float(joy_limits[3] - joy_limits[2]);
         else if (raw < joy_limits[1])
-          adc = (raw - joy_limits[1]) / float(joy_limits[1] - joy_limits[0]);  // negative value
+          norm_jog = (raw - joy_limits[1]) / float(joy_limits[1] - joy_limits[0]);  // negative value
+        // Map normal to jog value via quadratic relationship
+        norm_jog = SIGN(norm_jog) * sq(norm_jog);
       }
     };
 
@@ -138,18 +140,22 @@ Joystick joystick;
     // with "jogging" encapsulated as a more general class.
 
     #if ENABLED(EXTENSIBLE_UI)
-      norm_jog[X_AXIS] = ExtUI::norm_jog[X_AXIS];
-      norm_jog[Y_AXIS] = ExtUI::norm_jog[Y_AXIS];
-      norm_jog[Z_AXIS] = ExtUI::norm_jog[Z_AXIS];
+      ExtUI::_joystick_update(norm_jog);
     #endif
 
-    // Jogging value maps continuously (quadratic relationship) to feedrate
+    #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
+      constexpr float manual_feedrate[XYZE] = MANUAL_FEEDRATE;
+    #endif
+
+    // norm_jog values of [-1 .. 1] maps linearly to [-feedrate .. feedrate]
     float move_dist[XYZ] = { 0 }, hypot2 = 0;
     LOOP_XYZ(i) if (norm_jog[i]) {
-      move_dist[i] = seg_time * sq(norm_jog[i]) * planner.settings.max_feedrate_mm_s[i];
-      // Very small movements disappear when printed as decimal with 4 digits of precision
-      NOLESS(move_dist[i], 0.0002f);
-      if (norm_jog[i] < 0) move_dist[i] *= -1;  // preserve sign
+      move_dist[i] = seg_time * norm_jog[i] *
+        #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
+          MMM_TO_MMS(manual_feedrate[i]);
+        #else
+          planner.settings.max_feedrate_mm_s[i];
+        #endif
       hypot2 += sq(move_dist[i]);
     }
 

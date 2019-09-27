@@ -120,7 +120,6 @@
 #define MSG_Y_OFFSET                        _UxGT("2ª Boquilla Y")
 #define MSG_Z_OFFSET                        _UxGT("2ª Boquilla Z")
 #define MSG_UBL_DOING_G29                   _UxGT("Hacer G29")
-#define MSG_UBL_UNHOMED                     _UxGT("Inicio XYZ Primero")
 #define MSG_UBL_TOOLS                       _UxGT("Herramientas UBL")
 #define MSG_UBL_LEVEL_BED                   _UxGT("Nivel.Cama.Uni.(UBL)")
 #define MSG_LCD_TILTING_MESH                _UxGT("Punto de inclinación")
@@ -364,8 +363,7 @@
 #define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("Subir TouchMI")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Subir Sonda Z")
 #define MSG_MANUAL_STOW                     _UxGT("Bajar Sonda Z")
-#define MSG_HOME                            _UxGT("Origen")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("Primero")
+#define MSG_HOME_FIRST                      _UxGT("Origen %s%s%s Primero")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Desfase Z")
 #define MSG_BABYSTEP_X                      _UxGT("Micropaso X")
 #define MSG_BABYSTEP_Y                      _UxGT("Micropaso Y")
@@ -385,7 +383,7 @@
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err:TEMP. MIN CAMA")
 #define MSG_ERR_MAXTEMP_CHAMBER             _UxGT("Err:TEMP. MÁX CÁMARA")
 #define MSG_ERR_MINTEMP_CHAMBER             _UxGT("Err:TEMP. MIN CÁMARA")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Origen XY Primero")
 #define MSG_HALTED                          _UxGT("IMPRESORA DETENIDA")
 #define MSG_PLEASE_RESET                    _UxGT("Por favor, reinicie")
 #define MSG_SHORT_DAY                       _UxGT("d") // One character only

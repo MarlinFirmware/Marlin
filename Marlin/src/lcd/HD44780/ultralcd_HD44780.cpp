@@ -965,6 +965,8 @@ void MarlinUI::draw_status_screen() {
 
 #if HAS_LCD_MENU
 
+  #include "../menu/menu.h"
+
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
@@ -976,11 +978,10 @@ void MarlinUI::draw_status_screen() {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
-  void draw_menu_item_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char *valstr/*=nullptr*/) {
-    UNUSED(invert);
+  void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_CENTER*/, const char * const valstr/*=nullptr*/) {
     int8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
-    if (center && !valstr) {
+    if ((style & SS_CENTER) && !valstr) {
       int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd_put_wchar(' '); n--; }
     }

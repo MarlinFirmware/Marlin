@@ -34,7 +34,7 @@ void JunctionDeviationScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(2);
   w.units(GET_TEXTF(UNITS_MM));
-  w.heading(GET_TEXTF(JUNCTION_DEVIATION));
+  w.heading(GET_TEXTF(JUNC_DEVIATION));
   w.color(other) .adjuster( 2, PSTR(""), getJunctionDeviation_mm() );
   w.increments();
 }

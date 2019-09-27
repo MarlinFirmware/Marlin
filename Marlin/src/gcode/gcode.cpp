@@ -129,7 +129,7 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   if (parser.linearval('F') > 0)
-    feedrate_mm_s = MMM_TO_MMS(parser.value_feedrate());
+    feedrate_mm_s = parser.value_feedrate();
 
   #if ENABLED(PRINTCOUNTER)
     if (!DEBUGGING(DRYRUN))

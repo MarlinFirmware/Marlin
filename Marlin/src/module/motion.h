@@ -30,12 +30,12 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if IS_SCARA
-  #include "scara.h"
-#endif
-
 #if HAS_BED_PROBE
   #include "probe.h"
+#endif
+
+#if IS_SCARA
+  #include "scara.h"
 #endif
 
 // Axis homed and known-position states
@@ -85,17 +85,16 @@ extern float cartes[XYZ];
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-extern const float homing_feedrate_mm_s[XYZ];
-FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
-float get_homing_bump_feedrate(const AxisEnum axis);
+extern const feedRate_t homing_feedrate_mm_s[XYZ];
+FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
+feedRate_t get_homing_bump_feedrate(const AxisEnum axis);
 
-extern float feedrate_mm_s;
+extern feedRate_t feedrate_mm_s;
 
 /**
- * Feedrate scaling and conversion
+ * Feedrate scaling
  */
 extern int16_t feedrate_percentage;
-#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01f)
 
 // The active extruder (tool). Set with T<extruder> command.
 #if EXTRUDERS > 1
@@ -172,34 +171,42 @@ void sync_plan_position_e();
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-void line_to_current_position(const float &fr_mm_s=feedrate_mm_s);
-
-/**
- * Move the planner to the position stored in the destination array, which is
- * used by G0/G1/G2/G3/G5 and many other functions to set a destination.
- */
-void buffer_line_to_destination(const float fr_mm_s);
-
-#if IS_KINEMATIC
-  void prepare_uninterpolated_move_to_destination(const float &fr_mm_s=0);
-#endif
+void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
 
 void prepare_move_to_destination();
+
+void _internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f
+  #if IS_KINEMATIC
+    , const bool is_fast=false
+  #endif
+);
+
+inline void prepare_internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f) {
+  _internal_move_to_destination(fr_mm_s);
+}
+
+#if IS_KINEMATIC
+  void prepare_fast_move_to_destination(const feedRate_t &scaled_fr_mm_s=MMS_SCALED(feedrate_mm_s));
+
+  inline void prepare_internal_fast_move_to_destination(const feedRate_t &fr_mm_s=0.0f) {
+    _internal_move_to_destination(fr_mm_s, true);
+  }
+#endif
 
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s=0);
-void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0);
-void do_blocking_move_to_y(const float &ry, const float &fr_mm_s=0);
-void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0);
-void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0);
+void do_blocking_move_to(const float rx, const float ry, const float rz, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_x(const float &rx, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_y(const float &ry, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_z(const float &rz, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_xy(const float &rx, const float &ry, const feedRate_t &fr_mm_s=0.0f);
 
-FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s=0) {
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const feedRate_t &fr_mm_s=0) {
   do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
 }
 
-FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const float &fr_mm_s=0) {
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const feedRate_t &fr_mm_s=0) {
   do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
 }
 
@@ -211,7 +218,8 @@ void restore_feedrate_and_scaling();
 // Homing
 //
 
-bool axis_unhomed_error(const bool x=true, const bool y=true, const bool z=true);
+uint8_t axes_need_homing(uint8_t axis_bits=0x07);
+bool axis_unhomed_error(uint8_t axis_bits=0x07);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
   #define MOTION_CONDITIONS (IsRunning() && !axis_unhomed_error())
@@ -261,11 +269,6 @@ void homeaxis(const AxisEnum axis);
  */
 
 #if IS_KINEMATIC // (DELTA or SCARA)
-
-  #if IS_SCARA
-    extern const float L1, L2;
-  #endif
-
   #if HAS_SCARA_OFFSET
     extern float scara_home_offset[ABC]; // A and B angular offsets, Z mm offset
   #endif
@@ -289,7 +292,7 @@ void homeaxis(const AxisEnum axis);
     // Return true if the both nozzle and the probe can reach the given point.
     // Note: This won't work on SCARA since the probe offset rotates with the arm.
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
+      return position_is_reachable(rx - probe_offset[X_AXIS], ry - probe_offset[Y_AXIS])
              && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
     }
   #endif
@@ -318,9 +321,9 @@ void homeaxis(const AxisEnum axis);
      *          nozzle must be be able to reach +10,-10.
      */
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
-          && WITHIN(rx, MIN_PROBE_X - slop, MAX_PROBE_X + slop)
-          && WITHIN(ry, MIN_PROBE_Y - slop, MAX_PROBE_Y + slop);
+      return position_is_reachable(rx - probe_offset[X_AXIS], ry - probe_offset[Y_AXIS])
+          && WITHIN(rx, probe_min_x() - slop, probe_max_x() + slop)
+          && WITHIN(ry, probe_min_y() - slop, probe_max_y() + slop);
     }
   #endif
 

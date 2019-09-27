@@ -500,7 +500,7 @@ volatile bool Temperature::temp_meas_ready = false;
 
       // Did the temperature overshoot very far?
       #ifndef MAX_OVERSHOOT_PID_AUTOTUNE
-        #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+        #define MAX_OVERSHOOT_PID_AUTOTUNE 30
       #endif
       if (current_temp > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_ECHOLNPGM(MSG_PID_TEMP_TOO_HIGH);
@@ -821,7 +821,6 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
     #endif
     E_UNUSED();
     const uint8_t ee = HOTEND_INDEX;
-    float pid_output;
     #if ENABLED(PIDTEMP)
       #if DISABLED(PID_OPENLOOP)
         static hotend_pid_t work_pid[HOTENDS];
@@ -829,6 +828,8 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
                      temp_dState[HOTENDS] = { 0 };
         static bool pid_reset[HOTENDS] = { false };
         const float pid_error = temp_hotend[ee].target - temp_hotend[ee].celsius;
+
+        float pid_output;
 
         if (temp_hotend[ee].target == 0
           || pid_error < -(PID_FUNCTIONAL_RANGE)
@@ -914,7 +915,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
       #else
         #define _TIMED_OUT_TEST false
       #endif
-      pid_output = (!_TIMED_OUT_TEST && temp_hotend[ee].celsius < temp_hotend[ee].target) ? BANG_MAX : 0;
+      const float pid_output = (!_TIMED_OUT_TEST && temp_hotend[ee].celsius < temp_hotend[ee].target) ? BANG_MAX : 0;
       #undef _TIMED_OUT_TEST
 
     #endif
@@ -2932,11 +2933,14 @@ void Temperature::isr() {
   #if HOTENDS && HAS_DISPLAY
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
-      #if HOTENDS > 1
-        ui.status_printf_P(0, heating ? PSTR("E%c " MSG_HEATING) : PSTR("E%c " MSG_COOLING), '1' + e);
-      #else
-        ui.set_status_P(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
-      #endif
+      ui.status_printf_P(0,
+        #if HOTENDS > 1
+          PSTR("E%c " S_FMT), '1' + e
+        #else
+          PSTR("E " S_FMT)
+        #endif
+        , heating ? PSTR(MSG_HEATING) : PSTR(MSG_COOLING)
+      );
     }
   #endif
 

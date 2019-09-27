@@ -285,9 +285,9 @@ class unified_bed_leveling {
     }
 
     #if UBL_SEGMENTED
-      static bool prepare_segmented_line_to(const float (&rtarget)[XYZE], const float &feedrate);
+      static bool line_to_destination_segmented(const feedRate_t &scaled_fr_mm_s);
     #else
-      static void line_to_destination_cartesian(const float &fr, const uint8_t e);
+      static void line_to_destination_cartesian(const feedRate_t &scaled_fr_mm_s, const uint8_t e);
     #endif
 
     static inline bool mesh_is_valid() {

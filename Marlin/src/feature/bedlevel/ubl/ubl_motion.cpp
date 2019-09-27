@@ -43,7 +43,7 @@
 
 #if !UBL_SEGMENTED
 
-  void unified_bed_leveling::line_to_destination_cartesian(const float &feed_rate, const uint8_t extruder) {
+  void unified_bed_leveling::line_to_destination_cartesian(const feedRate_t &scaled_fr_mm_s, const uint8_t extruder) {
     /**
      * Much of the nozzle movement will be within the same cell. So we will do as little computation
      * as possible to determine if this is the case. If this move is within the same cell, we will
@@ -79,9 +79,8 @@
             + UBL_Z_RAISE_WHEN_OFF_MESH
           #endif
         ;
-        planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z_raise, end[E_AXIS], feed_rate, extruder);
+        planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z_raise, end[E_AXIS], scaled_fr_mm_s, extruder);
         set_current_from_destination();
-
         return;
       }
 
@@ -103,8 +102,7 @@
 
       // Undefined parts of the Mesh in z_values[][] are NAN.
       // Replace NAN corrections with 0.0 to prevent NAN propagation.
-      planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + (isnan(z0) ? 0.0 : z0), end[E_AXIS], feed_rate, extruder);
-
+      planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + (isnan(z0) ? 0.0 : z0), end[E_AXIS], scaled_fr_mm_s, extruder);
       set_current_from_destination();
       return;
     }
@@ -194,7 +192,7 @@
             z_position = end[Z_AXIS];
           }
 
-          planner.buffer_segment(rx, ry, z_position + z0, e_position, feed_rate, extruder);
+          planner.buffer_segment(rx, ry, z_position + z0, e_position, scaled_fr_mm_s, extruder);
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -242,7 +240,7 @@
             z_position = end[Z_AXIS];
           }
 
-          if (!planner.buffer_segment(rx, ry, z_position + z0, e_position, feed_rate, extruder))
+          if (!planner.buffer_segment(rx, ry, z_position + z0, e_position, scaled_fr_mm_s, extruder))
             break;
         } //else printf("FIRST MOVE PRUNED  ");
       }
@@ -297,7 +295,7 @@
           e_position = end[E_AXIS];
           z_position = end[Z_AXIS];
         }
-        if (!planner.buffer_segment(rx, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder))
+        if (!planner.buffer_segment(rx, next_mesh_line_y, z_position + z0, e_position, scaled_fr_mm_s, extruder))
           break;
         current_yi += dyi;
         yi_cnt--;
@@ -321,7 +319,7 @@
           z_position = end[Z_AXIS];
         }
 
-        if (!planner.buffer_segment(next_mesh_line_x, ry, z_position + z0, e_position, feed_rate, extruder))
+        if (!planner.buffer_segment(next_mesh_line_x, ry, z_position + z0, e_position, scaled_fr_mm_s, extruder))
           break;
         current_xi += dxi;
         xi_cnt--;
@@ -356,25 +354,25 @@
    * Returns true if did NOT move, false if moved (requires current_position update).
    */
 
-  bool _O2 unified_bed_leveling::prepare_segmented_line_to(const float (&rtarget)[XYZE], const float &feedrate) {
+  bool _O2 unified_bed_leveling::line_to_destination_segmented(const feedRate_t &scaled_fr_mm_s) {
 
-    if (!position_is_reachable(rtarget[X_AXIS], rtarget[Y_AXIS]))  // fail if moving outside reachable boundary
+    if (!position_is_reachable(destination[X_AXIS], destination[Y_AXIS]))  // fail if moving outside reachable boundary
       return true; // did not move, so current_position still accurate
 
     const float total[XYZE] = {
-      rtarget[X_AXIS] - current_position[X_AXIS],
-      rtarget[Y_AXIS] - current_position[Y_AXIS],
-      rtarget[Z_AXIS] - current_position[Z_AXIS],
-      rtarget[E_AXIS] - current_position[E_AXIS]
+      destination[X_AXIS] - current_position[X_AXIS],
+      destination[Y_AXIS] - current_position[Y_AXIS],
+      destination[Z_AXIS] - current_position[Z_AXIS],
+      destination[E_AXIS] - current_position[E_AXIS]
     };
 
     const float cartesian_xy_mm = HYPOT(total[X_AXIS], total[Y_AXIS]);  // total horizontal xy distance
 
     #if IS_KINEMATIC
-      const float seconds = cartesian_xy_mm / feedrate;                                  // seconds to move xy distance at requested rate
-      uint16_t segments = LROUND(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
-               seglimit = LROUND(cartesian_xy_mm * RECIPROCAL(DELTA_SEGMENT_MIN_LENGTH)); // number of segments at minimum segment length
-      NOMORE(segments, seglimit);                                                        // limit to minimum segment length (fewer segments)
+      const float seconds = cartesian_xy_mm / scaled_fr_mm_s;                             // Duration of XY move at requested rate
+      uint16_t segments = LROUND(delta_segments_per_second * seconds),                    // Preferred number of segments for distance @ feedrate
+               seglimit = LROUND(cartesian_xy_mm * RECIPROCAL(DELTA_SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
+      NOMORE(segments, seglimit);                                                         // Limit to minimum segment length (fewer segments)
     #else
       uint16_t segments = LROUND(cartesian_xy_mm * RECIPROCAL(DELTA_SEGMENT_MIN_LENGTH)); // cartesian fixed segment length
     #endif
@@ -384,7 +382,7 @@
 
     const float segment_xyz_mm = HYPOT(cartesian_xy_mm, total[Z_AXIS]) * inv_segments;   // length of each segment
     #if ENABLED(SCARA_FEEDRATE_SCALING)
-      const float inv_duration = feedrate / segment_xyz_mm;
+      const float inv_duration = scaled_fr_mm_s / segment_xyz_mm;
     #endif
 
     const float diff[XYZE] = {
@@ -404,17 +402,17 @@
       current_position[E_AXIS]
     };
 
-    // Only compute leveling per segment if ubl active and target below z_fade_height.
-    if (!planner.leveling_active || !planner.leveling_active_at_z(rtarget[Z_AXIS])) {   // no mesh leveling
+    // Just do plain segmentation if UBL is inactive or the target is above the fade height
+    if (!planner.leveling_active || !planner.leveling_active_at_z(destination[Z_AXIS])) {
       while (--segments) {
         LOOP_XYZE(i) raw[i] += diff[i];
-        planner.buffer_line(raw, feedrate, active_extruder, segment_xyz_mm
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm
           #if ENABLED(SCARA_FEEDRATE_SCALING)
             , inv_duration
           #endif
         );
       }
-      planner.buffer_line(rtarget, feedrate, active_extruder, segment_xyz_mm
+      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, segment_xyz_mm
         #if ENABLED(SCARA_FEEDRATE_SCALING)
           , inv_duration
         #endif
@@ -425,7 +423,7 @@
     // Otherwise perform per-segment leveling
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      const float fade_scaling_factor = planner.fade_scaling_factor_for_z(rtarget[Z_AXIS]);
+      const float fade_scaling_factor = planner.fade_scaling_factor_for_z(destination[Z_AXIS]);
     #endif
 
     // increment to first segment destination
@@ -483,8 +481,7 @@
 
       for (;;) {  // for all segments within this mesh cell
 
-        if (--segments == 0)                      // if this is last segment, use rtarget for exact
-          COPY(raw, rtarget);
+        if (--segments == 0) COPY(raw, destination); // if this is last segment, use destination for exact
 
         const float z_cxcy = (z_cxy0 + z_cxym * cy) // interpolated mesh z height along cx at cy
           #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -494,7 +491,7 @@
 
         const float z = raw[Z_AXIS];
         raw[Z_AXIS] += z_cxcy;
-        planner.buffer_line(raw, feedrate, active_extruder, segment_xyz_mm
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm
           #if ENABLED(SCARA_FEEDRATE_SCALING)
             , inv_duration
           #endif

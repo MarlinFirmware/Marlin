@@ -79,7 +79,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   _change_filament_temp_mode = mode;
   _change_filament_temp_extruder = extruder;
   START_MENU();
-  if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), true, true);
+  if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_CENTER|SS_INVERT);
   MENU_BACK(MSG_BACK);
   MENU_ITEM(function, MSG_PREHEAT_1, _lcd_change_filament_temp_1_func);
   MENU_ITEM(function, MSG_PREHEAT_2, _lcd_change_filament_temp_2_func);
@@ -328,7 +328,7 @@ static PGM_P pause_header() {
 #define HOTEND_STATUS_ITEM() do { \
   if (_menuLineNr == _thisItemNr) { \
     if (ui.should_draw()) { \
-      draw_menu_item_static(_lcdLineNr, PSTR(MSG_FILAMENT_CHANGE_NOZZLE), false, true); \
+      draw_menu_item_static(_lcdLineNr, PSTR(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT); \
       ui.draw_hotend_status(_lcdLineNr, hotend_status_extruder); \
     } \
     if (_skipStatic && encoderLine <= _thisItemNr) { \
@@ -351,7 +351,7 @@ void lcd_pause_extrude_more() {
 void menu_pause_option() {
   START_MENU();
   #if LCD_HEIGHT > 2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER, true, false);
+    STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER);
   #endif
   MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_PURGE, lcd_pause_extrude_more);
   #if HAS_FILAMENT_SENSOR
@@ -369,7 +369,7 @@ void menu_pause_option() {
 
 void _lcd_pause_message(PGM_P const msg1, PGM_P const msg2=nullptr, PGM_P const msg3=nullptr) {
   START_SCREEN();
-  STATIC_ITEM_P(pause_header(), true, true);
+  STATIC_ITEM_P(pause_header(), SS_CENTER|SS_INVERT);
   STATIC_ITEM_P(msg1);
   if (msg2) STATIC_ITEM_P(msg2);
   if (msg3 && (LCD_HEIGHT) >= 5) STATIC_ITEM_P(msg3);

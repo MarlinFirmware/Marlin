@@ -128,10 +128,7 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 
-  const float old_feedrate_mm_s = feedrate_mm_s,
-              unscale_e = RECIPROCAL(planner.e_factor[active_extruder]),
-              unscale_fr = 100.0 / feedrate_percentage, // Disable feedrate scaling for retract moves
-              base_retract = (
+  const float base_retract = (
                 (swapping ? settings.swap_retract_length : settings.retract_length)
                 #if ENABLED(RETRACT_SYNC_MIXING)
                   * (MIXING_STEPPERS)
@@ -146,53 +143,53 @@ void FWRetract::retract(const bool retracting
     mixer.T(MIXER_AUTORETRACT_TOOL);
   #endif
 
+  const feedRate_t fr_max_z = planner.settings.max_feedrate_mm_s[Z_AXIS];
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
-    feedrate_mm_s = (
-      settings.retract_feedrate_mm_s * unscale_fr
+    current_retract[active_extruder] = base_retract;
+    prepare_internal_move_to_destination(  // set_current_to_destination
+      settings.retract_feedrate_mm_s
       #if ENABLED(RETRACT_SYNC_MIXING)
         * (MIXING_STEPPERS)
       #endif
     );
-    current_retract[active_extruder] = base_retract * unscale_e;
-    prepare_move_to_destination();                        // set_current_to_destination
 
     // Is a Z hop set, and has the hop not yet been done?
-    if (settings.retract_zraise > 0.01 && !current_hop) {           // Apply hop only once
-      current_hop += settings.retract_zraise;                       // Add to the hop total (again, only once)
-      feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Maximum Z feedrate
-      prepare_move_to_destination();                      // Raise up, set_current_to_destination
+    if (!current_hop && settings.retract_zraise > 0.01f) {  // Apply hop only once
+      current_hop += settings.retract_zraise;               // Add to the hop total (again, only once)
+      // Raise up, set_current_to_destination. Maximum Z feedrate
+      prepare_internal_move_to_destination(fr_max_z);
     }
   }
   else {
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (current_hop) {
-      current_hop = 0.0;
-      feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Z feedrate to max
-      prepare_move_to_destination();                      // Lower Z, set_current_to_destination
+      current_hop = 0;
+      // Lower Z, set_current_to_destination. Maximum Z feedrate
+      prepare_internal_move_to_destination(fr_max_z);
     }
 
     const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
-    if (extra_recover != 0.0) {
+    if (extra_recover) {
       current_position[E_AXIS] -= extra_recover;          // Adjust the current E position by the extra amount to recover
       sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
     }
 
-    current_retract[active_extruder] = 0.0;
-    feedrate_mm_s = (
-      (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s) * unscale_fr
+    current_retract[active_extruder] = 0;
+
+    const feedRate_t fr_mm_s = (
+      (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s)
       #if ENABLED(RETRACT_SYNC_MIXING)
         * (MIXING_STEPPERS)
       #endif
     );
-    prepare_move_to_destination();                        // Recover E, set_current_to_destination
+    prepare_internal_move_to_destination(fr_mm_s);        // Recover E, set_current_to_destination
   }
 
   #if ENABLED(RETRACT_SYNC_MIXING)
     mixer.T(old_mixing_tool);                             // Restore original mixing tool
   #endif
 
-  feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate
   retracted[active_extruder] = retracting;                // Active extruder now retracted / recovered
 
   // If swap retract/recover update the retracted_swap flag too

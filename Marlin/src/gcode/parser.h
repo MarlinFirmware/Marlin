@@ -364,7 +364,7 @@ public:
 
   #endif // !TEMPERATURE_UNITS_SUPPORT
 
-  static inline float value_feedrate() { return value_linear_units(); }
+  static inline feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
 
   void unknown_command_error();
 

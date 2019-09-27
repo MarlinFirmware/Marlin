@@ -176,8 +176,7 @@
 #define MSG_ZPROBE_OUT                      _UxGT("Z probe uit. bed")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Zelf-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
-#define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("Eerst")
+#define MSG_HOME_FIRST                      _UxGT("Home %s%s%s Eerst")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Offset")  //accepted English term in Dutch
 #define MSG_BABYSTEP_X                      _UxGT("Babystap X")
 #define MSG_BABYSTEP_Y                      _UxGT("Babystap Y")
@@ -190,7 +189,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err: Min. temp")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: Max.tmp bed")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: Min.tmp bed")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Home XY Eerst")
 #define MSG_HALTED                          _UxGT("PRINTER GESTOPT")
 #define MSG_PLEASE_RESET                    _UxGT("Reset A.U.B.")
 #define MSG_SHORT_DAY                       _UxGT("d") //  One character only. Keep English standard
