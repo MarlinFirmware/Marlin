@@ -91,7 +91,6 @@
 //#define MSG_Y_OFFSET                      _UxGT("2nd nozzle Y")
 //#define MSG_Z_OFFSET                      _UxGT("2nd nozzle Z")
 #define MSG_UBL_DOING_G29                   _UxGT("오토레벨링 하기")
-//#define MSG_UBL_UNHOMED                   _UxGT("Home XYZ first")
 //#define MSG_UBL_TOOLS                     _UxGT("UBL Tools")
 //#define MSG_UBL_LEVEL_BED                 _UxGT("Unified Bed Leveling")
 //#define MSG_UBL_MANUAL_MESH               _UxGT("Manually Build Mesh")
@@ -293,8 +292,7 @@
 //#define MSG_BLTOUCH_STOW                  _UxGT("Stow BLTouch")
 //#define MSG_MANUAL_DEPLOY                 _UxGT("Deploy Z-Probe")
 //#define MSG_MANUAL_STOW                   _UxGT("Stow Z-Probe")
-//#define MSG_HOME                          _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-//#define MSG_FIRST                         _UxGT("first")
+//#define MSG_HOME_FIRST                    _UxGT("Home %s%s%s first")
 //#define MSG_ZPROBE_ZOFFSET                _UxGT("Probe Z Offset")
 //#define MSG_BABYSTEP_X                    _UxGT("Babystep X")
 //#define MSG_BABYSTEP_Y                    _UxGT("Babystep Y")
@@ -309,7 +307,7 @@
 //#define MSG_ERR_MINTEMP                   _UxGT("Err: MINTEMP")
 //#define MSG_ERR_MAXTEMP_BED               _UxGT("Err: MAXTEMP BED")
 //#define MSG_ERR_MINTEMP_BED               _UxGT("Err: MINTEMP BED")
-//#define MSG_ERR_Z_HOMING                  MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+//#define MSG_ERR_Z_HOMING                  _UxGT("Home XY first")
 //#define MSG_HALTED                        _UxGT("PRINTER HALTED")
 //#define MSG_PLEASE_RESET                  _UxGT("Please reset")
 //#define MSG_SHORT_DAY                     _UxGT("d") // One character only

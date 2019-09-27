@@ -91,8 +91,8 @@ typedef int8_t pin_t;
 #define cli() __disable_irq()       // Disable interrupts
 #define sei() __enable_irq()        // Enable interrupts
 
-void HAL_clear_reset_source(void);  // clear reset reason
-uint8_t HAL_get_reset_source(void); // get reset reason
+void HAL_clear_reset_source();  // clear reset reason
+uint8_t HAL_get_reset_source(); // get reset reason
 
 //
 // EEPROM
@@ -107,14 +107,14 @@ extern uint16_t HAL_adc_result;     // result of last ADC conversion
 
 #define HAL_ANALOG_SELECT(pin)
 
-void HAL_adc_init(void);
+void HAL_adc_init();
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-uint16_t HAL_adc_get_result(void);
+uint16_t HAL_adc_get_result();
 
 //
 // Pin Map
@@ -131,10 +131,10 @@ void tone(const pin_t _pin, const unsigned int frequency, const unsigned long du
 void noTone(const pin_t _pin);
 
 // Enable hooks into idle and setup for HAL
-void HAL_init(void);
+void HAL_init();
 /*
 #define HAL_IDLETASK 1
-void HAL_idletask(void);
+void HAL_idletask();
 */
 
 //
@@ -144,7 +144,7 @@ FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
-int freeMemory(void);
+int freeMemory();
 #pragma GCC diagnostic pop
 
 #ifdef __cplusplus

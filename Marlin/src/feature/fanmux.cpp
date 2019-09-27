@@ -41,7 +41,7 @@ void fanmux_switch(const uint8_t e) {
   #endif
 }
 
-void fanmux_init(void) {
+void fanmux_init() {
   SET_OUTPUT(FANMUX0_PIN);
   #if PIN_EXISTS(FANMUX1)
     SET_OUTPUT(FANMUX1_PIN);

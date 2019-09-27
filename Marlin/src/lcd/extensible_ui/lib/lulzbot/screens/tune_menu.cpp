@@ -52,79 +52,79 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     cmd.colors(normal_btn)
        .font(font_medium)
     #ifdef TOUCH_UI_PORTRAIT
-       .tag(2).enabled(1)      .button( BTN_POS(1,1), BTN_SIZE(2,1), F("Temperature"))
-       .tag(3).enabled(!isPrinting()).button( BTN_POS(1,2), BTN_SIZE(2,1), F("Change Filament"))
-        #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+       .tag(2).enabled(1)      .button( BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXTF(TEMPERATURE))
+       .tag(3).enabled(!isPrinting()).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXTF(CHANGE_FILAMENT))
+       #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
           .enabled(1)
         #else
           .enabled(0)
         #endif
-       .tag(9).button( BTN_POS(1,3), BTN_SIZE(2,1), F("Filament Options"))
+       .tag(9).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXTF(FILAMENT))
       #if ENABLED(BABYSTEPPING)
-       .tag(4).enabled(1)      .button( BTN_POS(1,4), BTN_SIZE(2,1), F("Nudge Nozzle"))
+       .tag(4).enabled(1)      .button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXTF(NUDGE_NOZZLE))
       #else
         #if HAS_BED_PROBE
           .enabled(1)
         #else
           .enabled(0)
         #endif
-       .tag(4)                 .button( BTN_POS(1,4), BTN_SIZE(2,1), F("Adjust Z-Offset"))
+       .tag(4)                 .button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXTF(ZPROBE_ZOFFSET))
       #endif
-       .tag(5).enabled(1)      .button( BTN_POS(1,5), BTN_SIZE(2,1), F("Print Speed"))
+       .tag(5).enabled(1)      .button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXTF(PRINT_SPEED))
        .tag(isPrintingFromMediaPaused() ? 7 : 6)
       #if ENABLED(SDSUPPORT)
         .enabled(isPrintingFromMedia())
       #else
         .enabled(0)
       #endif
-        .button( BTN_POS(1,6), BTN_SIZE(2,1), isPrintingFromMediaPaused() ? F("Resume Print") : F("Pause Print"))
+        .button( BTN_POS(1,6), BTN_SIZE(2,1), isPrintingFromMediaPaused() ? GET_TEXTF(RESUME_PRINT) : GET_TEXTF(PAUSE_PRINT))
       #if ENABLED(SDSUPPORT)
         .enabled(isPrintingFromMedia())
       #else
         .enabled(0)
       #endif
-      .tag(8)             .button( BTN_POS(1,7), BTN_SIZE(2,1), F("Cancel Print"))
+      .tag(8)             .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(STOP_PRINT))
       .tag(1).colors(action_btn)
-                          .button( BTN_POS(1,8), BTN_SIZE(2,1), F("Back"));
+                          .button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(BACK));
     #else // TOUCH_UI_PORTRAIT
-       .tag(2).enabled(1) .button( BTN_POS(1,1), BTN_SIZE(1,1), F("Temperature"))
-       .tag(3).enabled(!isPrinting()).button( BTN_POS(1,2), BTN_SIZE(1,1), F("Change Filament"))
+       .tag(2).enabled(1) .button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXTF(TEMPERATURE))
+       .tag(3).enabled(!isPrinting()).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXTF(CHANGE_FILAMENT))
       #if ENABLED(BABYSTEPPING)
        .enabled(1)
       #else
        .enabled(0)
       #endif
         #if ENABLED(BABYSTEPPING)
-          .tag(4)         .button( BTN_POS(2,1), BTN_SIZE(1,1), F("Nudge Nozzle"))
+          .tag(4)         .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXTF(NUDGE_NOZZLE))
         #else
           #if HAS_BED_PROBE
             .enabled(1)
           #else
             .enabled(0)
           #endif
-          .tag(4)         .button( BTN_POS(1,4), BTN_SIZE(2,1), F("Adjust Z-Offset"))
+          .tag(4)         .button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXTF(ZPROBE_ZOFFSET))
         #endif
-       .tag(5).enabled(1) .button( BTN_POS(2,2), BTN_SIZE(1,1), F("Print Speed"))
+       .tag(5).enabled(1) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXTF(PRINT_SPEED))
        .tag(isPrintingFromMediaPaused() ? 7 : 6)
       #if ENABLED(SDSUPPORT)
         .enabled(isPrintingFromMedia())
       #else
         .enabled(0)
       #endif
-                          .button( BTN_POS(1,3), BTN_SIZE(1,1), isPrintingFromMediaPaused() ? F("Resume Print") : F("Pause Print"))
+                          .button( BTN_POS(1,3), BTN_SIZE(1,1), isPrintingFromMediaPaused() ? GET_TEXTF(RESUME_PRINT) : GET_TEXTF(PAUSE_PRINT))
       #if ENABLED(SDSUPPORT)
         .enabled(isPrintingFromMedia())
       #else
         .enabled(0)
       #endif
-       .tag(8).           button( BTN_POS(2,3), BTN_SIZE(1,1), F("Cancel Print"))
-        #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+       .tag(8).           button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXTF(STOP_PRINT))
+       #if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
           .enabled(1)
         #else
           .enabled(0)
         #endif
-       .tag(9).button( BTN_POS(1,4), BTN_SIZE(1,1), F("Filament Options"))
-       .tag(1).colors(action_btn) .button( BTN_POS(2,4), BTN_SIZE(1,1), F("Back"));
+       .tag(9).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXTF(FILAMENT))
+       .tag(1).colors(action_btn) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(BACK));
     #endif
   }
   #undef GRID_COLS

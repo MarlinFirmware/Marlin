@@ -171,17 +171,16 @@ inline bool read_calibration_pin() {
  *   fast         in - Fast vs. precise measurement
  */
 float measuring_movement(const AxisEnum axis, const int dir, const bool stop_state, const bool fast) {
-  const float step  =            fast ? 0.25                      : CALIBRATION_MEASUREMENT_RESOLUTION;
-  const float mms   = MMM_TO_MMS(fast ? CALIBRATION_FEEDRATE_FAST : CALIBRATION_FEEDRATE_SLOW);
-  const float limit =            fast ? 50                        : 5;
+  const float step     = fast ? 0.25 : CALIBRATION_MEASUREMENT_RESOLUTION;
+  const feedRate_t mms = fast ? MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST) : MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW);
+  const float limit    = fast ? 50 : 5;
 
   set_destination_from_current();
   for (float travel = 0; travel < limit; travel += step) {
     destination[axis] += dir * step;
     do_blocking_move_to(destination, mms);
     planner.synchronize();
-    if (read_calibration_pin() == stop_state)
-      break;
+    if (read_calibration_pin() == stop_state) break;
   }
   return destination[axis];
 }
@@ -314,18 +313,16 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 
   // The difference between the known and the measured location
   // of the calibration object is the positional error
-  m.pos_error[X_AXIS] =
-  #if HAS_X_CENTER
-    m.true_center[X_AXIS] - m.obj_center[X_AXIS];
-  #else
-    0;
-  #endif
-  m.pos_error[Y_AXIS] =
-  #if HAS_Y_CENTER
-    m.true_center[Y_AXIS] - m.obj_center[Y_AXIS];
-  #else
-    0;
-  #endif
+  m.pos_error[X_AXIS] = (0
+    #if HAS_X_CENTER
+      + m.true_center[X_AXIS] - m.obj_center[X_AXIS]
+    #endif
+  );
+  m.pos_error[Y_AXIS] = (0
+    #if HAS_Y_CENTER
+      + m.true_center[Y_AXIS] - m.obj_center[Y_AXIS]
+    #endif
+  );
   m.pos_error[Z_AXIS] = m.true_center[Z_AXIS] - m.obj_center[Z_AXIS];
 }
 
@@ -394,13 +391,13 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 
   inline void report_measured_nozzle_dimensions(const measurements_t &m) {
     SERIAL_ECHOLNPGM("Nozzle Tip Outer Dimensions:");
-    #if HAS_X_CENTER
-      SERIAL_ECHOLNPAIR(" X", m.nozzle_outer_dimension[X_AXIS]);
-    #else
-      UNUSED(m);
-    #endif
-    #if HAS_Y_CENTER
-      SERIAL_ECHOLNPAIR(" Y", m.nozzle_outer_dimension[Y_AXIS]);
+    #if HAS_X_CENTER || HAS_Y_CENTER
+      #if HAS_X_CENTER
+        SERIAL_ECHOLNPAIR(" X", m.nozzle_outer_dimension[X_AXIS]);
+      #endif
+      #if HAS_Y_CENTER
+        SERIAL_ECHOLNPAIR(" Y", m.nozzle_outer_dimension[Y_AXIS]);
+      #endif
     #else
       UNUSED(m);
     #endif
@@ -412,16 +409,11 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     // This function requires normalize_hotend_offsets() to be called
     //
     inline void report_hotend_offsets() {
-      for (uint8_t e = 1; e < HOTENDS; e++) {
-        SERIAL_ECHOPAIR("T", int(e));
-        SERIAL_ECHOLNPGM(" Hotend Offset:");
-        SERIAL_ECHOLNPAIR("  X: ", hotend_offset[X_AXIS][e]);
-        SERIAL_ECHOLNPAIR("  Y: ", hotend_offset[Y_AXIS][e]);
-        SERIAL_ECHOLNPAIR("  Z: ", hotend_offset[Z_AXIS][e]);
-        SERIAL_EOL();
-      }
+      for (uint8_t e = 1; e < HOTENDS; e++)
+        SERIAL_ECHOLNPAIR("T", int(e), " Hotend Offset X", hotend_offset[X_AXIS][e], " Y", hotend_offset[Y_AXIS][e], " Z", hotend_offset[Z_AXIS][e]);
     }
   #endif
+
 #endif // CALIBRATION_REPORTING
 
 /**

@@ -56,7 +56,7 @@
 static volatile bool main_b_cdc_enable = false;
 static volatile bool main_b_dtr_active = false;
 
-void usb_task_idle(void) {
+void usb_task_idle() {
   #if ENABLED(SDSUPPORT)
     // Attend SD card access from the USB MSD -- Prioritize access to improve speed
     int delay = 2;
@@ -70,14 +70,14 @@ void usb_task_idle(void) {
 }
 
 #if ENABLED(SDSUPPORT)
-  bool usb_task_msc_enable(void)                { return ((main_b_msc_enable = true)); }
-  void usb_task_msc_disable(void)               { main_b_msc_enable = false; }
-  bool usb_task_msc_isenabled(void)             { return main_b_msc_enable; }
+  bool usb_task_msc_enable()                { return ((main_b_msc_enable = true)); }
+  void usb_task_msc_disable()               { main_b_msc_enable = false; }
+  bool usb_task_msc_isenabled()             { return main_b_msc_enable; }
 #endif
 
 bool usb_task_cdc_enable(const uint8_t port)  { UNUSED(port); return ((main_b_cdc_enable = true)); }
 void usb_task_cdc_disable(const uint8_t port) { UNUSED(port); main_b_cdc_enable = false; main_b_dtr_active = false; }
-bool usb_task_cdc_isenabled(void)             { return main_b_cdc_enable; }
+bool usb_task_cdc_isenabled()             { return main_b_cdc_enable; }
 
 /*! \brief Called by CDC interface
  * Callback running when CDC device have received data
@@ -121,7 +121,7 @@ void usb_task_cdc_set_dtr(const uint8_t port, const bool b_enable) {
   }
 }
 
-bool usb_task_cdc_dtr_active(void)             { return main_b_dtr_active; }
+bool usb_task_cdc_dtr_active()             { return main_b_dtr_active; }
 
 /// Microsoft WCID descriptor
 typedef struct USB_MicrosoftCompatibleDescriptor_Interface {
@@ -202,7 +202,7 @@ static USB_MicrosoftExtendedPropertiesDescriptor microsoft_extended_properties_d
 ** WCID configuration information
 ** Hooked into UDC via UDC_GET_EXTRA_STRING #define.
 */
-bool usb_task_extra_string(void) {
+bool usb_task_extra_string() {
   static uint8_t udi_msft_magic[] = "MSFT100\xEE";
   static uint8_t udi_cdc_name[] = "CDC interface";
   #if ENABLED(SDSUPPORT)
@@ -262,7 +262,7 @@ bool usb_task_extra_string(void) {
 /**************************************************************************************************
 ** Handle device requests that the ASF stack doesn't
 */
-bool usb_task_other_requests(void) {
+bool usb_task_other_requests() {
   uint8_t* ptr = 0;
   uint16_t size = 0;
 
@@ -297,7 +297,7 @@ bool usb_task_other_requests(void) {
   return true;
 }
 
-void usb_task_init(void) {
+void usb_task_init() {
 
   uint16_t *ptr;
 

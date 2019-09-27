@@ -79,13 +79,13 @@ typedef uint64_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler(void)
-#define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler(void)
-#define HAL_PWM_TIMER_ISR() extern "C" void pwmTC_Handler(void)
+#define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler()
+#define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler()
+#define HAL_PWM_TIMER_ISR() extern "C" void pwmTC_Handler()
 
-extern "C" void tempTC_Handler(void);
-extern "C" void stepTC_Handler(void);
-extern "C" void pwmTC_Handler(void);
+extern "C" void tempTC_Handler();
+extern "C" void stepTC_Handler();
+extern "C" void pwmTC_Handler();
 
 // ------------------------
 // Types
@@ -95,7 +95,7 @@ typedef struct {
   timer_group_t  group;
   timer_idx_t    idx;
   uint32_t       divider;
-  void           (*fn)(void);
+  void           (*fn)();
 } tTimerConfig;
 
 // ------------------------

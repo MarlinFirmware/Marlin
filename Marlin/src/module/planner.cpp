@@ -96,6 +96,10 @@
   #include "../feature/backlash.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/power_loss_recovery.h"
+#endif
+
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
@@ -147,9 +151,10 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
 #endif
 
-int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
-
-float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0f); // The flow percentage and volumetric multiplier combine to scale E movement
+#if EXTRUDERS
+  int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
+  float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0f); // The flow percentage and volumetric multiplier combine to scale E movement
+#endif
 
 #if DISABLED(NO_VOLUMETRICS)
   float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
@@ -1169,7 +1174,10 @@ void Planner::recalculate() {
  * Maintain fans, paste extruder pressure,
  */
 void Planner::check_axes_activity() {
-  uint8_t axis_active[NUM_AXIS] = { 0 };
+
+  #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_E)
+    uint8_t axis_active[NUM_AXIS] = { 0 };
+  #endif
 
   #if FAN_COUNT > 0
     uint8_t tail_fan_speed[FAN_COUNT];
@@ -1185,10 +1193,9 @@ void Planner::check_axes_activity() {
   #endif
 
   if (has_blocks_queued()) {
-    block_t* block;
 
     #if FAN_COUNT > 0 || ENABLED(BARICUDA)
-      block = &block_buffer[block_buffer_tail];
+      block_t *block = &block_buffer[block_buffer_tail];
     #endif
 
     #if FAN_COUNT > 0
@@ -1205,10 +1212,12 @@ void Planner::check_axes_activity() {
       #endif
     #endif
 
-    for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
-      block = &block_buffer[b];
-      LOOP_XYZE(i) if (block->steps[i]) axis_active[i]++;
-    }
+    #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_E)
+      for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
+        block_t *block = &block_buffer[b];
+        LOOP_XYZE(i) if (block->steps[i]) axis_active[i] = true;
+      }
+    #endif
   }
   else {
     #if FAN_COUNT > 0
@@ -1327,14 +1336,14 @@ void Planner::check_axes_activity() {
    * into a volumetric multiplier. Conversion differs when using
    * linear extrusion vs volumetric extrusion.
    */
-  void Planner::calculate_volumetric_for_width_sensor(const int8_t encoded_ratio) {
+  void Planner::apply_filament_width_sensor(const int8_t encoded_ratio) {
     // Reconstitute the nominal/measured ratio
     const float nom_meas_ratio = 1 + 0.01f * encoded_ratio,
                 ratio_2 = sq(nom_meas_ratio);
 
     volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = parser.volumetric_enabled
-      ? ratio_2 / CIRCLE_AREA(filament_width_nominal * 0.5f) // Volumetric uses a true volumetric multiplier
-      : ratio_2;                                             // Linear squares the ratio, which scales the volume
+      ? ratio_2 / CIRCLE_AREA(filwidth.nominal_mm * 0.5f) // Volumetric uses a true volumetric multiplier
+      : ratio_2;                                          // Linear squares the ratio, which scales the volume
 
     refresh_e_factor(FILAMENT_SENSOR_EXTRUDER_NUM);
   }
@@ -1512,14 +1521,14 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
       const bool was_enabled = STEPPER_ISR_ENABLED();
       if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
 
-      // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
-      // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
-      axis_steps = 0.5f * (
-        axis == CORE_AXIS_2 ? CORESIGN(stepper.position(CORE_AXIS_1) - stepper.position(CORE_AXIS_2))
-                            : stepper.position(CORE_AXIS_1) + stepper.position(CORE_AXIS_2)
-      );
+      const int32_t p1 = stepper.position(CORE_AXIS_1),
+                    p2 = stepper.position(CORE_AXIS_2);
 
       if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+
+      // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
+      // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
+      axis_steps = (axis == CORE_AXIS_2 ? CORESIGN(p1 - p2) : p1 + p2) * 0.5f;
     }
     else
       axis_steps = stepper.position(axis);
@@ -1546,11 +1555,11 @@ void Planner::synchronize() {
  *
  * Add a new linear movement to the planner queue (in terms of steps).
  *
- *  target      - target position in steps units
- *  target_float - target position in direct (mm, degrees) units. optional
- *  fr_mm_s     - (target) speed of the move
- *  extruder    - target extruder
- *  millimeters - the length of the movement, if known
+ *  target        - target position in steps units
+ *  target_float  - target position in direct (mm, degrees) units. optional
+ *  fr_mm_s       - (target) speed of the move
+ *  extruder      - target extruder
+ *  millimeters   - the length of the movement, if known
  *
  * Returns true if movement was properly queued, false otherwise
  */
@@ -1561,7 +1570,7 @@ bool Planner::_buffer_steps(const int32_t (&target)[XYZE]
   #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
     , const float (&delta_mm_cart)[XYZE]
   #endif
-  , float fr_mm_s, const uint8_t extruder, const float &millimeters
+  , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -1625,26 +1634,28 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
     , const float (&delta_mm_cart)[XYZE]
   #endif
-  , float fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
+  , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
 ) {
 
   const int32_t da = target[A_AXIS] - position[A_AXIS],
                 db = target[B_AXIS] - position[B_AXIS],
                 dc = target[C_AXIS] - position[C_AXIS];
 
-  int32_t de = target[E_AXIS] - position[E_AXIS];
+  #if EXTRUDERS
+    int32_t de = target[E_AXIS] - position[E_AXIS];
+  #else
+    constexpr int32_t de = 0;
+  #endif
 
   /* <-- add a slash to enable
-    SERIAL_ECHOPAIR("  _populate_block FR:", fr_mm_s);
-    SERIAL_ECHOPAIR(" A:", target[A_AXIS]);
-    SERIAL_ECHOPAIR(" (", da);
-    SERIAL_ECHOPAIR(" steps) B:", target[B_AXIS]);
-    SERIAL_ECHOPAIR(" (", db);
-    SERIAL_ECHOPAIR(" steps) C:", target[C_AXIS]);
-    SERIAL_ECHOPAIR(" (", dc);
-    SERIAL_ECHOPAIR(" steps) E:", target[E_AXIS]);
-    SERIAL_ECHOPAIR(" (", de);
-    SERIAL_ECHOLNPGM(" steps)");
+    SERIAL_ECHOLNPAIR("  _populate_block FR:", fr_mm_s,
+                      " A:", target[A_AXIS], " (", da, " steps)"
+                      " B:", target[B_AXIS], " (", db, " steps)"
+                      " C:", target[C_AXIS], " (", dc, " steps)"
+                      #if EXTRUDERS
+                        " E:", target[E_AXIS], " (", de, " steps)"
+                      #endif
+                    );
   //*/
 
   #if EITHER(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
@@ -1712,8 +1723,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
   if (de < 0) SBI(dm, E_AXIS);
 
-  const float esteps_float = de * e_factor[extruder];
-  const uint32_t esteps = ABS(esteps_float) + 0.5f;
+  #if EXTRUDERS
+    const float esteps_float = de * e_factor[extruder];
+    const uint32_t esteps = ABS(esteps_float) + 0.5f;
+  #else
+    constexpr uint32_t esteps = 0;
+  #endif
 
   // Clear all flags, including the "busy" bit
   block->flag = 0x00;
@@ -1781,10 +1796,17 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     delta_mm[B_AXIS] = db * steps_to_mm[B_AXIS];
     delta_mm[C_AXIS] = dc * steps_to_mm[C_AXIS];
   #endif
-  delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
+
+  #if EXTRUDERS
+    delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
+  #endif
 
   if (block->steps[A_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[B_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[C_AXIS] < MIN_STEPS_PER_SEGMENT) {
-    block->millimeters = ABS(delta_mm[E_AXIS]);
+    block->millimeters = (0
+      #if EXTRUDERS
+        + ABS(delta_mm[E_AXIS])
+      #endif
+    );
   }
   else {
     if (millimeters)
@@ -1816,7 +1838,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #endif
   }
 
-  block->steps[E_AXIS] = esteps;
+  #if EXTRUDERS
+    block->steps[E_AXIS] = esteps;
+  #endif
+
   block->step_event_count = _MAX(block->steps[A_AXIS], block->steps[B_AXIS], block->steps[C_AXIS], esteps);
 
   // Bail if this is a zero-length block
@@ -1874,129 +1899,131 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   // Enable extruder(s)
-  if (esteps) {
-    #if ENABLED(AUTO_POWER_CONTROL)
-      powerManager.power_on();
-    #endif
+  #if EXTRUDERS
+    if (esteps) {
+      #if ENABLED(AUTO_POWER_CONTROL)
+        powerManager.power_on();
+      #endif
 
-    #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
+      #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
-      #define DISABLE_IDLE_E(N) if (!g_uc_extruder_last_move[N]) disable_E##N();
+        #define DISABLE_IDLE_E(N) if (!g_uc_extruder_last_move[N]) disable_E##N();
 
-      for (uint8_t i = 0; i < EXTRUDERS; i++)
-        if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
+        for (uint8_t i = 0; i < EXTRUDERS; i++)
+          if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
 
-      switch (extruder) {
-        case 0:
+        switch (extruder) {
+          case 0:
+            #if EXTRUDERS > 1
+              DISABLE_IDLE_E(1);
+              #if EXTRUDERS > 2
+                DISABLE_IDLE_E(2);
+                #if EXTRUDERS > 3
+                  DISABLE_IDLE_E(3);
+                  #if EXTRUDERS > 4
+                    DISABLE_IDLE_E(4);
+                    #if EXTRUDERS > 5
+                      DISABLE_IDLE_E(5);
+                    #endif // EXTRUDERS > 5
+                  #endif // EXTRUDERS > 4
+                #endif // EXTRUDERS > 3
+              #endif // EXTRUDERS > 2
+            #endif // EXTRUDERS > 1
+            enable_E0();
+            g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
+            #if HAS_DUPLICATION_MODE
+              if (extruder_duplication_enabled) {
+                enable_E1();
+                g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
+              }
+            #endif
+          break;
           #if EXTRUDERS > 1
-            DISABLE_IDLE_E(1);
+            case 1:
+              DISABLE_IDLE_E(0);
+              #if EXTRUDERS > 2
+                DISABLE_IDLE_E(2);
+                #if EXTRUDERS > 3
+                  DISABLE_IDLE_E(3);
+                  #if EXTRUDERS > 4
+                    DISABLE_IDLE_E(4);
+                    #if EXTRUDERS > 5
+                      DISABLE_IDLE_E(5);
+                    #endif // EXTRUDERS > 5
+                  #endif // EXTRUDERS > 4
+                #endif // EXTRUDERS > 3
+              #endif // EXTRUDERS > 2
+              enable_E1();
+              g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
+            break;
             #if EXTRUDERS > 2
-              DISABLE_IDLE_E(2);
+              case 2:
+                DISABLE_IDLE_E(0);
+                DISABLE_IDLE_E(1);
+                #if EXTRUDERS > 3
+                  DISABLE_IDLE_E(3);
+                  #if EXTRUDERS > 4
+                    DISABLE_IDLE_E(4);
+                    #if EXTRUDERS > 5
+                      DISABLE_IDLE_E(5);
+                    #endif
+                  #endif
+                #endif
+                enable_E2();
+                g_uc_extruder_last_move[2] = (BLOCK_BUFFER_SIZE) * 2;
+              break;
               #if EXTRUDERS > 3
-                DISABLE_IDLE_E(3);
+                case 3:
+                  DISABLE_IDLE_E(0);
+                  DISABLE_IDLE_E(1);
+                  DISABLE_IDLE_E(2);
+                  #if EXTRUDERS > 4
+                    DISABLE_IDLE_E(4);
+                    #if EXTRUDERS > 5
+                      DISABLE_IDLE_E(5);
+                    #endif
+                  #endif
+                  enable_E3();
+                  g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
+                break;
                 #if EXTRUDERS > 4
-                  DISABLE_IDLE_E(4);
+                  case 4:
+                    DISABLE_IDLE_E(0);
+                    DISABLE_IDLE_E(1);
+                    DISABLE_IDLE_E(2);
+                    DISABLE_IDLE_E(3);
+                    #if EXTRUDERS > 5
+                      DISABLE_IDLE_E(5);
+                    #endif
+                    enable_E4();
+                    g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
+                  break;
                   #if EXTRUDERS > 5
-                    DISABLE_IDLE_E(5);
+                    case 5:
+                      DISABLE_IDLE_E(0);
+                      DISABLE_IDLE_E(1);
+                      DISABLE_IDLE_E(2);
+                      DISABLE_IDLE_E(3);
+                      DISABLE_IDLE_E(4);
+                      enable_E5();
+                      g_uc_extruder_last_move[5] = (BLOCK_BUFFER_SIZE) * 2;
+                    break;
                   #endif // EXTRUDERS > 5
                 #endif // EXTRUDERS > 4
               #endif // EXTRUDERS > 3
             #endif // EXTRUDERS > 2
           #endif // EXTRUDERS > 1
-          enable_E0();
-          g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
-          #if HAS_DUPLICATION_MODE
-            if (extruder_duplication_enabled) {
-              enable_E1();
-              g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-            }
-          #endif
-        break;
-        #if EXTRUDERS > 1
-          case 1:
-            DISABLE_IDLE_E(0);
-            #if EXTRUDERS > 2
-              DISABLE_IDLE_E(2);
-              #if EXTRUDERS > 3
-                DISABLE_IDLE_E(3);
-                #if EXTRUDERS > 4
-                  DISABLE_IDLE_E(4);
-                  #if EXTRUDERS > 5
-                    DISABLE_IDLE_E(5);
-                  #endif // EXTRUDERS > 5
-                #endif // EXTRUDERS > 4
-              #endif // EXTRUDERS > 3
-            #endif // EXTRUDERS > 2
-            enable_E1();
-            g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-          break;
-          #if EXTRUDERS > 2
-            case 2:
-              DISABLE_IDLE_E(0);
-              DISABLE_IDLE_E(1);
-              #if EXTRUDERS > 3
-                DISABLE_IDLE_E(3);
-                #if EXTRUDERS > 4
-                  DISABLE_IDLE_E(4);
-                  #if EXTRUDERS > 5
-                    DISABLE_IDLE_E(5);
-                  #endif
-                #endif
-              #endif
-              enable_E2();
-              g_uc_extruder_last_move[2] = (BLOCK_BUFFER_SIZE) * 2;
-            break;
-            #if EXTRUDERS > 3
-              case 3:
-                DISABLE_IDLE_E(0);
-                DISABLE_IDLE_E(1);
-                DISABLE_IDLE_E(2);
-                #if EXTRUDERS > 4
-                  DISABLE_IDLE_E(4);
-                  #if EXTRUDERS > 5
-                    DISABLE_IDLE_E(5);
-                  #endif
-                #endif
-                enable_E3();
-                g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
-              break;
-              #if EXTRUDERS > 4
-                case 4:
-                  DISABLE_IDLE_E(0);
-                  DISABLE_IDLE_E(1);
-                  DISABLE_IDLE_E(2);
-                  DISABLE_IDLE_E(3);
-                  #if EXTRUDERS > 5
-                    DISABLE_IDLE_E(5);
-                  #endif
-                  enable_E4();
-                  g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
-                break;
-                #if EXTRUDERS > 5
-                  case 5:
-                    DISABLE_IDLE_E(0);
-                    DISABLE_IDLE_E(1);
-                    DISABLE_IDLE_E(2);
-                    DISABLE_IDLE_E(3);
-                    DISABLE_IDLE_E(4);
-                    enable_E5();
-                    g_uc_extruder_last_move[5] = (BLOCK_BUFFER_SIZE) * 2;
-                  break;
-                #endif // EXTRUDERS > 5
-              #endif // EXTRUDERS > 4
-            #endif // EXTRUDERS > 3
-          #endif // EXTRUDERS > 2
-        #endif // EXTRUDERS > 1
-      }
-    #else
-      enable_E0();
-      enable_E1();
-      enable_E2();
-      enable_E3();
-      enable_E4();
-      enable_E5();
-    #endif
-  }
+        }
+      #else
+        enable_E0();
+        enable_E1();
+        enable_E2();
+        enable_E3();
+        enable_E4();
+        enable_E5();
+      #endif
+    }
+  #endif // EXTRUDERS
 
   if (esteps)
     NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
@@ -2046,37 +2073,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->nominal_rate = CEIL(block->step_event_count * inverse_secs); // (step/sec) Always > 0
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    static float filwidth_e_count = 0, filwidth_delay_dist = 0;
-
-    //FMM update ring buffer used for delay with filament measurements
-    if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM && filwidth_delay_index[1] >= 0) {  //only for extruder with filament sensor and if ring buffer is initialized
-
-      constexpr int MMD_CM = MAX_MEASUREMENT_DELAY + 1, MMD_MM = MMD_CM * 10;
-
-      // increment counters with next move in e axis
-      filwidth_e_count += delta_mm[E_AXIS];
-      filwidth_delay_dist += delta_mm[E_AXIS];
-
-      // Only get new measurements on forward E movement
-      if (!UNEAR_ZERO(filwidth_e_count)) {
-
-        // Loop the delay distance counter (modulus by the mm length)
-        while (filwidth_delay_dist >= MMD_MM) filwidth_delay_dist -= MMD_MM;
-
-        // Convert into an index into the measurement array
-        filwidth_delay_index[0] = int8_t(filwidth_delay_dist * 0.1f);
-
-        // If the index has changed (must have gone forward)...
-        if (filwidth_delay_index[0] != filwidth_delay_index[1]) {
-          filwidth_e_count = 0; // Reset the E movement counter
-          const int8_t meas_sample = thermalManager.widthFil_to_size_ratio();
-          do {
-            filwidth_delay_index[1] = (filwidth_delay_index[1] + 1) % MMD_CM; // The next unused slot
-            measurement_delay[filwidth_delay_index[1]] = meas_sample;         // Store the measurement
-          } while (filwidth_delay_index[0] != filwidth_delay_index[1]);       // More slots to fill?
-        }
-      }
-    }
+    if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM)   // Only for extruder with filament sensor
+      filwidth.advance_e(delta_mm[E_AXIS]);
   #endif
 
   // Calculate and limit speed in mm/sec for each axis
@@ -2093,7 +2091,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #else
       const float delta_mm_i = delta_mm[i];
     #endif
-    const float cs = ABS(current_speed[i] = delta_mm_i * inverse_secs);
+    const feedRate_t cs = ABS(current_speed[i] = delta_mm_i * inverse_secs);
     #if ENABLED(DISTINCT_E_FACTORS)
       if (i == E_AXIS) i += extruder;
     #endif
@@ -2513,6 +2511,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     mixer.gradient_control(target_float[Z_AXIS]);
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    block->sdpos = recovery.command_sdpos();
+  #endif
+
   // Movement was accepted
   return true;
 } // _populate_block()
@@ -2567,7 +2569,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
   #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
     , const float (&delta_mm_cart)[XYZE]
   #endif
-  , const float &fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
+  , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -2631,7 +2633,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
   //*/
 
   // Queue the movement
-    if (
+  if (
     !_buffer_steps(target
       #if HAS_POSITION_FLOAT
         , target_float
@@ -2649,9 +2651,8 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
 
 /**
  * Add a new linear movement to the buffer.
- * The target is cartesian, it's translated to delta/scara if
- * needed.
- *
+ * The target is cartesian. It's translated to
+ * delta/scara if needed.
  *
  *  rx,ry,rz,e   - target position in mm or degrees
  *  fr_mm_s      - (target) speed of the move (mm/s)
@@ -2659,7 +2660,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
  *  millimeters  - the length of the movement, if known
  *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
  */
-bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters
+bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const feedRate_t &fr_mm_s, const uint8_t extruder, const float millimeters
   #if ENABLED(SCARA_FEEDRATE_SCALING)
     , const float &inv_duration
   #endif
@@ -2688,10 +2689,10 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
-      const float duration_recip = inv_duration ? inv_duration : fr_mm_s / mm,
-                  feedrate = HYPOT(delta[A_AXIS] - position_float[A_AXIS], delta[B_AXIS] - position_float[B_AXIS]) * duration_recip;
+      const float duration_recip = inv_duration ? inv_duration : fr_mm_s / mm;
+      const feedRate_t feedrate = HYPOT(delta[A_AXIS] - position_float[A_AXIS], delta[B_AXIS] - position_float[B_AXIS]) * duration_recip;
     #else
-      const float feedrate = fr_mm_s;
+      const feedRate_t feedrate = fr_mm_s;
     #endif
     if (buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS]
       #if ENABLED(JUNCTION_DEVIATION)

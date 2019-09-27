@@ -108,7 +108,7 @@
 #define NB_OF_VAR             uint16_t(4096)
 
 /* Exported functions ------------------------------------------------------- */
-uint16_t EE_Initialize(void);
+uint16_t EE_Initialize();
 uint16_t EE_ReadVariable(uint16_t VirtAddress, uint16_t* Data);
 uint16_t EE_WriteVariable(uint16_t VirtAddress, uint16_t Data);
 

@@ -159,6 +159,10 @@ typedef struct block_t {
     uint32_t segment_time_us;
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    uint32_t sdpos;
+  #endif
+
 } block_t;
 
 #define HAS_POSITION_FLOAT ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX)
@@ -166,15 +170,15 @@ typedef struct block_t {
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
 typedef struct {
-  uint32_t min_segment_time_us;                 // (µs) M205 B
-  float axis_steps_per_mm[XYZE_N],              // (steps) M92 XYZE - Steps per millimeter
-        max_feedrate_mm_s[XYZE_N],              // (mm/s) M203 XYZE - Max speeds
-        max_acceleration_mm_per_s2[XYZE_N],     // (mm/s^2) M201 XYZE
-        acceleration,                           // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
-        retract_acceleration,                   // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
-        travel_acceleration,                    // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
-        min_feedrate_mm_s,                      // (mm/s) M205 S - Minimum linear feedrate
-        min_travel_feedrate_mm_s;               // (mm/s) M205 T - Minimum travel feedrate
+   uint32_t max_acceleration_mm_per_s2[XYZE_N], // (mm/s^2) M201 XYZE
+            min_segment_time_us;                // (µs) M205 B
+      float axis_steps_per_mm[XYZE_N];          // (steps) M92 XYZE - Steps per millimeter
+ feedRate_t max_feedrate_mm_s[XYZE_N];          // (mm/s) M203 XYZE - Max speeds
+      float acceleration,                       // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
+            retract_acceleration,               // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
+            travel_acceleration;                // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
+ feedRate_t min_feedrate_mm_s,                  // (mm/s) M205 S - Minimum linear feedrate
+            min_travel_feedrate_mm_s;           // (mm/s) M205 T - Minimum travel feedrate
 } planner_settings_t;
 
 #if DISABLED(SKEW_CORRECTION)
@@ -226,9 +230,10 @@ class Planner {
       static uint8_t last_extruder;                 // Respond to extruder change
     #endif
 
-    static int16_t flow_percentage[EXTRUDERS];      // Extrusion factor for each extruder
-
-    static float e_factor[EXTRUDERS];               // The flow percentage and volumetric multiplier combine to scale E movement
+    #if EXTRUDERS
+      static int16_t flow_percentage[EXTRUDERS];    // Extrusion factor for each extruder
+      static float e_factor[EXTRUDERS];             // The flow percentage and volumetric multiplier combine to scale E movement
+    #endif
 
     #if DISABLED(NO_VOLUMETRICS)
       static float filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
@@ -361,13 +366,15 @@ class Planner {
     static void set_max_jerk(AxisEnum axis, float targetValue);
 
 
-    FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-      e_factor[e] = (flow_percentage[e] * 0.01f
-        #if DISABLED(NO_VOLUMETRICS)
-          * volumetric_multiplier[e]
-        #endif
-      );
-    }
+    #if EXTRUDERS
+      FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
+        e_factor[e] = (flow_percentage[e] * 0.01f
+          #if DISABLED(NO_VOLUMETRICS)
+            * volumetric_multiplier[e]
+          #endif
+        );
+      }
+    #endif
 
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
@@ -376,7 +383,14 @@ class Planner {
     static void calculate_volumetric_multipliers();
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      void calculate_volumetric_for_width_sensor(const int8_t encoded_ratio);
+      void apply_filament_width_sensor(const int8_t encoded_ratio);
+
+      static inline float volumetric_percent(const bool vol) {
+        return 100.0f * (vol
+            ? volumetric_area_nominal / volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
+            : volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
+        );
+      }
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
@@ -401,15 +415,13 @@ class Planner {
        */
       static inline float fade_scaling_factor_for_z(const float &rz) {
         static float z_fade_factor = 1;
-        if (z_fade_height) {
-          if (rz >= z_fade_height) return 0;
-          if (last_fade_z != rz) {
-            last_fade_z = rz;
-            z_fade_factor = 1 - rz * inverse_z_fade_height;
-          }
-          return z_fade_factor;
+        if (!z_fade_height) return 1;
+        if (rz >= z_fade_height) return 0;
+        if (last_fade_z != rz) {
+          last_fade_z = rz;
+          z_fade_factor = 1 - rz * inverse_z_fade_height;
         }
-        return 1;
+        return z_fade_factor;
       }
 
       FORCE_INLINE static void force_fade_recalc() { last_fade_z = -999.999f; }
@@ -497,8 +509,7 @@ class Planner {
           skew(pos);
         #endif
         #if HAS_LEVELING
-          if (leveling)
-            apply_leveling(pos);
+          if (leveling) apply_leveling(pos);
         #endif
         #if ENABLED(FWRETRACT)
           apply_retract(pos);
@@ -519,8 +530,7 @@ class Planner {
           unapply_retract(pos);
         #endif
         #if HAS_LEVELING
-          if (leveling)
-            unapply_leveling(pos);
+          if (leveling) unapply_leveling(pos);
         #endif
         #if ENABLED(SKEW_CORRECTION)
           unskew(pos);
@@ -579,7 +589,7 @@ class Planner {
       #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
         , const float (&delta_mm_cart)[XYZE]
       #endif
-      , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
 
     /**
@@ -602,7 +612,7 @@ class Planner {
       #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
         , const float (&delta_mm_cart)[XYZE]
       #endif
-      , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
 
     /**
@@ -615,7 +625,7 @@ class Planner {
     private:
 
       // Allow do_homing_move to access internal functions, such as buffer_segment.
-      friend void do_homing_move(const AxisEnum, const float, const float);
+      friend void do_homing_move(const AxisEnum, const float, const feedRate_t);
   #endif
 
     /**
@@ -634,14 +644,14 @@ class Planner {
       #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
         , const float (&delta_mm_cart)[XYZE]
       #endif
-      , const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
 
     FORCE_INLINE static bool buffer_segment(const float (&abce)[ABCE]
       #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
         , const float (&delta_mm_cart)[XYZE]
       #endif
-      , const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     ) {
       return buffer_segment(abce[A_AXIS], abce[B_AXIS], abce[C_AXIS], abce[E_AXIS]
         #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
@@ -654,9 +664,8 @@ class Planner {
 
     /**
      * Add a new linear movement to the buffer.
-     * The target is cartesian, it's translated to delta/scara if
-     * needed.
-     *
+     * The target is cartesian. It's translated to
+     * delta/scara if needed.
      *
      *  rx,ry,rz,e   - target position in mm or degrees
      *  fr_mm_s      - (target) speed of the move (mm/s)
@@ -664,13 +673,13 @@ class Planner {
      *  millimeters  - the length of the movement, if known
      *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
      */
-    static bool buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters=0.0
+    static bool buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const feedRate_t &fr_mm_s, const uint8_t extruder, const float millimeters=0.0
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , const float &inv_duration=0.0
       #endif
     );
 
-    FORCE_INLINE static bool buffer_line(const float (&cart)[XYZE], const float &fr_mm_s, const uint8_t extruder, const float millimeters=0.0
+    FORCE_INLINE static bool buffer_line(const float (&cart)[XYZE], const feedRate_t &fr_mm_s, const uint8_t extruder, const float millimeters=0.0
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , const float &inv_duration=0.0
       #endif

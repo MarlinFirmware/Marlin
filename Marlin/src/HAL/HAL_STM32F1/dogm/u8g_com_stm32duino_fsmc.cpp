@@ -113,7 +113,7 @@ uint8_t u8g_com_stm32duino_fsmc_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, voi
 #define __ASM __asm
 #define __STATIC_INLINE static inline
 
-__attribute__((always_inline)) __STATIC_INLINE void __DSB(void) {
+__attribute__((always_inline)) __STATIC_INLINE void __DSB() {
   __ASM volatile ("dsb 0xF":::"memory");
 }
 

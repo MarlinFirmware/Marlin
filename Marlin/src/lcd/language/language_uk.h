@@ -159,8 +159,7 @@
 #define MSG_ZPROBE_OUT                      _UxGT("Z дет. не в межах")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Само-Тест")
 #define MSG_BLTOUCH_RESET                   _UxGT("Скинути BLTouch")
-#define MSG_HOME                            _UxGT("Дім")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("перший")
+#define MSG_HOME_FIRST                      _UxGT("Дім %s%s%s перший")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Зміщення Z")
 #define MSG_BABYSTEP_X                      _UxGT("Мікрокрок X")
 #define MSG_BABYSTEP_Y                      _UxGT("Мікрокрок Y")
@@ -168,7 +167,7 @@
 #define MSG_ENDSTOP_ABORT                   _UxGT("невдача кінцевика")
 #define MSG_HEATING_FAILED_LCD              _UxGT("Невдалий нагрів")
 #define MSG_THERMAL_RUNAWAY                 _UxGT("ЗБІЙ ТЕМПЕРАТУРИ")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Дім XY перший")
 #define MSG_HALTED                          _UxGT("ПРИНТЕР ЗУПИНЕНО")
 #define MSG_PLEASE_RESET                    _UxGT("Перезавантажте")
 #define MSG_SHORT_DAY                       _UxGT("д") // One character only

@@ -57,8 +57,11 @@ vector_3 vector_3::cross(const vector_3 &left, const vector_3 &right) {
                   left.x * right.y - left.y * right.x);
 }
 
-vector_3 vector_3::operator+(const vector_3 &v) { return vector_3((x + v.x), (y + v.y), (z + v.z)); }
-vector_3 vector_3::operator-(const vector_3 &v) { return vector_3((x - v.x), (y - v.y), (z - v.z)); }
+vector_3 vector_3::operator+(const vector_3 &v) { return vector_3(x + v.x, y + v.y, z + v.z); }
+vector_3 vector_3::operator-(const vector_3 &v) { return vector_3(x - v.x, y - v.y, z - v.z); }
+
+vector_3  vector_3::operator* (const float &v) { return vector_3(x * v, y * v, z * v); }
+vector_3& vector_3::operator*=(const float &v) { x *= v; y *= v; z *= v; return *this; }
 
 vector_3 vector_3::get_normal() const {
   vector_3 normalized = vector_3(x, y, z);

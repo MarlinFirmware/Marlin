@@ -81,7 +81,6 @@
 //#define MSG_USER_MENU                     _UxGT("Custom Commands")
 
 #define MSG_UBL_DOING_G29                   _UxGT("G29 exekutatzen")
-#define MSG_UBL_UNHOMED                     _UxGT("XYZ etxeratu lehenengo")
 #define MSG_UBL_TOOLS                       _UxGT("UBL Tresnak")
 #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Sarea eskuz sortu")
@@ -277,8 +276,7 @@
 #define MSG_BLTOUCH_RESET                   _UxGT("BLTouch berrabia.")
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("BLTouch jaitsi/luzatu")
 #define MSG_BLTOUCH_STOW                    _UxGT("BLTouch igo/jaso")
-#define MSG_HOME                            _UxGT("Etxera")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("lehenengo")
+#define MSG_HOME_FIRST                      _UxGT("Etxera %s%s%s lehenengo")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Konpentsatu")
 #define MSG_BABYSTEP_X                      _UxGT("Mikro-urratsa X")
 #define MSG_BABYSTEP_Y                      _UxGT("Mikro-urratsa Y")
@@ -291,7 +289,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err: Tenp Minimoa")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: Ohe Tenp Max")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: Ohe Tenp Min")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Etxera XY lehenengo")
 #define MSG_HALTED                          _UxGT("INPRIMA. GELDIRIK")
 #define MSG_PLEASE_RESET                    _UxGT("Berrabia. Mesedez")
 #define MSG_SHORT_DAY                       _UxGT("d") // One character only

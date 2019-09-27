@@ -61,14 +61,3 @@ enum AxisEnum : unsigned char {
 #define LOOP_ABC(VAR) LOOP_S_LE_N(VAR, A_AXIS, C_AXIS)
 #define LOOP_ABCE(VAR) LOOP_S_LE_N(VAR, A_AXIS, E_AXIS)
 #define LOOP_ABCE_N(VAR) LOOP_S_L_N(VAR, A_AXIS, XYZE_N)
-
-typedef enum {
-  LINEARUNIT_MM,
-  LINEARUNIT_INCH
-} LinearUnit;
-
-typedef enum {
-  TEMPUNIT_C,
-  TEMPUNIT_K,
-  TEMPUNIT_F
-} TempUnit;

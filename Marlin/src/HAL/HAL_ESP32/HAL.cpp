@@ -78,11 +78,11 @@ volatile int numPWMUsed = 0,
 // Public functions
 // ------------------------
 
-void HAL_init(void) {
+void HAL_init() {
   i2s_init();
 }
 
-void HAL_init_board(void) {
+void HAL_init_board() {
   #if EITHER(EEPROM_SETTINGS, WEBSUPPORT)
     spiffs_init();
   #endif
@@ -99,15 +99,15 @@ void HAL_init_board(void) {
   #endif
 }
 
-void HAL_idletask(void) {
+void HAL_idletask() {
   #if ENABLED(OTASUPPORT)
     OTA_handle();
   #endif
 }
 
-void HAL_clear_reset_source(void) { }
+void HAL_clear_reset_source() { }
 
-uint8_t HAL_get_reset_source(void) { return rtc_get_reset_reason(1); }
+uint8_t HAL_get_reset_source() { return rtc_get_reset_reason(1); }
 
 void _delay_ms(int delay_ms) { delay(delay_ms); }
 

@@ -44,7 +44,7 @@
 #define sw_barrier() __asm__ volatile("": : :"memory");
 
 // (re)initialize UART0 as a monitor output to 250000,n,8,1
-static void TXBegin(void) {
+static void TXBegin() {
 }
 
 // Send character through UART with no interrupts
@@ -210,7 +210,7 @@ void HardFault_HandlerC(unsigned long *sp, unsigned long lr, unsigned long cause
 }
 
 extern "C" {
-__attribute__((naked)) void NMI_Handler(void) {
+__attribute__((naked)) void NMI_Handler() {
   __asm__ __volatile__ (
     ".syntax unified" "\n\t"
     A("tst lr, #4")
@@ -223,7 +223,7 @@ __attribute__((naked)) void NMI_Handler(void) {
   );
 }
 
-__attribute__((naked)) void HardFault_Handler(void) {
+__attribute__((naked)) void HardFault_Handler() {
   __asm__ __volatile__ (
     ".syntax unified" "\n\t"
     A("tst lr, #4")
@@ -236,7 +236,7 @@ __attribute__((naked)) void HardFault_Handler(void) {
   );
 }
 
-__attribute__((naked)) void MemManage_Handler(void) {
+__attribute__((naked)) void MemManage_Handler() {
   __asm__ __volatile__ (
     ".syntax unified" "\n\t"
     A("tst lr, #4")
@@ -249,7 +249,7 @@ __attribute__((naked)) void MemManage_Handler(void) {
   );
 }
 
-__attribute__((naked)) void BusFault_Handler(void) {
+__attribute__((naked)) void BusFault_Handler() {
   __asm__ __volatile__ (
     ".syntax unified" "\n\t"
     A("tst lr, #4")
@@ -262,7 +262,7 @@ __attribute__((naked)) void BusFault_Handler(void) {
   );
 }
 
-__attribute__((naked)) void UsageFault_Handler(void) {
+__attribute__((naked)) void UsageFault_Handler() {
   __asm__ __volatile__ (
     ".syntax unified" "\n\t"
     A("tst lr, #4")
@@ -275,7 +275,7 @@ __attribute__((naked)) void UsageFault_Handler(void) {
   );
 }
 
-__attribute__((naked)) void DebugMon_Handler(void) {
+__attribute__((naked)) void DebugMon_Handler() {
   __asm__ __volatile__ (
     ".syntax unified" "\n\t"
     A("tst lr, #4")
@@ -289,7 +289,7 @@ __attribute__((naked)) void DebugMon_Handler(void) {
 }
 
 /* This is NOT an exception, it is an interrupt handler - Nevertheless, the framing is the same */
-__attribute__((naked)) void WDT_IRQHandler(void) {
+__attribute__((naked)) void WDT_IRQHandler() {
   __asm__ __volatile__ (
     ".syntax unified" "\n\t"
     A("tst lr, #4")
@@ -302,7 +302,7 @@ __attribute__((naked)) void WDT_IRQHandler(void) {
   );
 }
 
-__attribute__((naked)) void RSTC_Handler(void) {
+__attribute__((naked)) void RSTC_Handler() {
   __asm__ __volatile__ (
     ".syntax unified" "\n\t"
     A("tst lr, #4")

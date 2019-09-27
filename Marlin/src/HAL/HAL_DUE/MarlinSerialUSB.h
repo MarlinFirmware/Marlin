@@ -43,11 +43,11 @@ public:
   MarlinSerialUSB() {};
   static void begin(const long);
   static void end();
-  static int peek(void);
-  static int read(void);
-  static void flush(void);
-  static void flushTX(void);
-  static bool available(void);
+  static int peek();
+  static int read();
+  static void flush();
+  static void flushTX();
+  static bool available();
   static void write(const uint8_t c);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
@@ -80,7 +80,7 @@ public:
   static void println(long, int = DEC);
   static void println(unsigned long, int = DEC);
   static void println(double, int = 2);
-  static void println(void);
+  static void println();
   operator bool() { return true; }
 
 private:

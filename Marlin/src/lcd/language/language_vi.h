@@ -88,7 +88,6 @@
 #define MSG_MESH_EDIT_Z                     _UxGT("Giá trị Z")                            // Z Value
 #define MSG_USER_MENU                       _UxGT("Các lệnh tự chọn")                     // Custom Commands
 #define MSG_UBL_DOING_G29                   _UxGT("Đang chạy G29")                        // Doing G29
-#define MSG_UBL_UNHOMED                     _UxGT("Về nhà XYZ trước")
 #define MSG_UBL_TOOLS                       _UxGT("Công cụ UBL")                          // UBL tools
 #define MSG_UBL_LEVEL_BED                   _UxGT("San Lấp Bàn Thống Nhất (UBL)")         // Unified Bed Leveling
 #define MSG_IDEX_MENU                       _UxGT("chế độ IDEX")                          // IDEX Mode
@@ -307,8 +306,7 @@
 #define MSG_BLTOUCH_STOW                    _UxGT("Cất BLTouch")                          // Stow BLTouch
 #define MSG_MANUAL_DEPLOY                   _UxGT("Đem Đầu Dò-Z")                         // Deploy Z-Probe
 #define MSG_MANUAL_STOW                     _UxGT("Cất Đầu Dò-Z")                         // Stow Z-Probe
-#define MSG_HOME                            _UxGT("Về nhà") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("Trước")
+#define MSG_HOME_FIRST                      _UxGT("Về nhà %s%s%s Trước")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Đầu Dò Bù Đắp Z")                      // Probe Z Offset
 #define MSG_BABYSTEP_X                      _UxGT("Nhít X")                               // Babystep X
 #define MSG_BABYSTEP_Y                      _UxGT("Nhít Y")
@@ -323,7 +321,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Điều sai: nhiệt độ tối thiểu")         // Err: MINTEMP
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Điều sai: nhiệt độ bàn tối đa")        // Err: MAXTEMP BED
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Điều sai: nhiệt độ bàn tối thiểu")     // Err: MINTEMP BED
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Về nhà XY Trước")                      // Home XY First
 #define MSG_HALTED                          _UxGT("MÁY IN ĐÃ DỪNG LẠI")                   // PRINTER HALTED
 #define MSG_PLEASE_RESET                    _UxGT("Xin bặt lại")                          // Please reset
 #define MSG_SHORT_DAY                       _UxGT("n")                                    // d - ngày - One character only

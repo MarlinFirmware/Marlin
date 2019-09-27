@@ -30,15 +30,12 @@
 #include "../../../feature/mixing.h"
 
 inline void echo_mix() {
-  SERIAL_ECHOPAIR(" (", int(mixer.mix[0]));
-  SERIAL_ECHOPAIR("%|", int(mixer.mix[1]));
-  SERIAL_ECHOPGM("%)");
+  SERIAL_ECHOPAIR(" (", int(mixer.mix[0]), "%|", int(mixer.mix[1]), "%)");
 }
 
 inline void echo_zt(const int t, const float &z) {
   mixer.update_mix_from_vtool(t);
-  SERIAL_ECHOPAIR(" Z", z);
-  SERIAL_ECHOPAIR(" T", t);
+  SERIAL_ECHOPAIR(" Z", z, " T", t);
   echo_mix();
 }
 

@@ -996,11 +996,10 @@
 
 /**
  * Z Probe to nozzle (X,Y) offset, relative to (0, 0).
- * X and Y offsets must be integers.
  *
  * In the following example the X and Y offsets are both positive:
- * #define X_PROBE_OFFSET_FROM_EXTRUDER 10
- * #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
+ *
+ *   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
  *
  *     +-- BACK ---+
  *     |           |
@@ -1012,10 +1011,10 @@
  *     |           |
  *     O-- FRONT --+
  *   (0,0)
+ *
+ * Specify a Probe position as { X, Y, Z }
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER -22  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 0  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.5   // Z offset: -below +above  [the nozzle]
+#define NOZZLE_TO_PROBE_OFFSET { -22, 0, -1.5 }
 #define MIN_PROBE_EDGE 10
 
 // X and Y axis travel speed (mm/m) between probes
@@ -1047,7 +1046,7 @@
  *
  * Use these settings to specify the distance (mm) to raise the probe (or
  * lower the bed). The values set here apply over and above any (negative)
- * probe Z Offset set with Z_PROBE_OFFSET_FROM_EXTRUDER, M851, or the LCD.
+ * probe Z Offset set with NOZZLE_TO_PROBE_OFFSET, M851, or the LCD.
  * Only integer values >= 1 are valid here.
  *
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
@@ -1325,12 +1324,6 @@
   // Set the number of grid points per dimension.
   #define GRID_MAX_POINTS_X 6
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
-
-  // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 30
-  #define RIGHT_PROBE_BED_POSITION 365
-  #define FRONT_PROBE_BED_POSITION 30
-  #define BACK_PROBE_BED_POSITION 365
 
   // The Z probe minimum outer margin (to validate G29 parameters).
   #define MIN_PROBE_EDGE 10
@@ -1649,7 +1642,7 @@
   #define NOZZLE_CLEAN_TRIANGLES  3
 
   // Specify positions as { X, Y, Z }
-  #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
+  #define NOZZLE_CLEAN_START_POINT {  30, 30, (Z_MIN_POS + 1) }
   #define NOZZLE_CLEAN_END_POINT   { 100, 60, (Z_MIN_POS + 1) }
 
   // Circular pattern radius
@@ -2192,6 +2185,9 @@
 //
 //#define TOUCH_BUTTONS
 #if ENABLED(TOUCH_BUTTONS)
+  #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
+  #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
+
   #define XPT2046_X_CALIBRATION   12316
   #define XPT2046_Y_CALIBRATION  -8981
   #define XPT2046_X_OFFSET       -43
@@ -2331,7 +2327,7 @@
  */
 //#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
 
-// Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
+// (ms) Delay  before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
 #define SERVO_DELAY { 300 }

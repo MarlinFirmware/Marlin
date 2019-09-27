@@ -43,6 +43,9 @@ GCodeQueue queue;
   #include "../feature/binary_protocol.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/power_loss_recovery.h"
+#endif
 
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
@@ -119,6 +122,9 @@ void GCodeQueue::_commit_command(bool say_ok
   send_ok[index_w] = say_ok;
   #if NUM_SERIAL > 1
     port[index_w] = p;
+  #endif
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.commit_sdpos(index_w);
   #endif
   if (++index_w >= BUFSIZE) index_w = 0;
   length++;
@@ -557,6 +563,10 @@ void GCodeQueue::get_serial_commands() {
         sd_count = 0; // clear sd line buffer
 
         _commit_command(false);
+
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          recovery.cmd_sdpos = card.getIndex(); // Prime for the next _commit_command
+        #endif
       }
       else if (sd_count >= MAX_CMD_SIZE - 1) {
         /**

@@ -69,10 +69,28 @@
     //
     #if HAS_HEATED_BED && HOTENDS <= 4
 
-      #if HOTENDS == 1
+      #if HOTENDS == 0
 
         #define STATUS_HEATERS_WIDTH 96
-        #define STATUS_BED_TEXT_X   (STATUS_HEATERS_WIDTH - 10)
+
+        const unsigned char status_heaters_bmp[] PROGMEM = {
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000100,B00010000,B01000000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000010,B00001000,B00100000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000010,B00001000,B00100000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000100,B00010000,B01000000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00001000,B00100000,B10000000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00010000,B01000001,B00000000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00010000,B01000001,B00000000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00001000,B00100000,B10000000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000100,B00010000,B01000000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00011111,B11111111,B11111000,
+          B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00011111,B11111111,B11111000
+        };
+
+      #elif HOTENDS == 1
+
+        #define STATUS_HEATERS_WIDTH 96
 
         const unsigned char status_heaters_bmp[] PROGMEM = {
           B00011111,B11100000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000100,B00010000,B01000000,
@@ -92,7 +110,6 @@
       #elif HOTENDS == 2
 
         #define STATUS_HEATERS_WIDTH 96
-        #define STATUS_BED_TEXT_X   (STATUS_HEATERS_WIDTH - 10)
 
         const unsigned char status_heaters_bmp[] PROGMEM = {
           B00011111,B11100000,B00000000,B00011111,B11100000,B00000000,B00000000,B00000000,B00000000,B00000100,B00010000,B01000000,
@@ -112,7 +129,6 @@
       #elif HOTENDS == 3
 
         #define STATUS_HEATERS_WIDTH 96
-        #define STATUS_BED_TEXT_X   (STATUS_HEATERS_WIDTH - 10)
 
         const unsigned char status_heaters_bmp[] PROGMEM = {
           B00011111,B11100000,B00000000,B00011111,B11100000,B00000000,B00011111,B11100000,B00000000,B00000100,B00010000,B01000000,
@@ -132,7 +148,6 @@
       #else // HOTENDS > 3
 
         #define STATUS_HEATERS_WIDTH 120
-        #define STATUS_BED_TEXT_X   (STATUS_HEATERS_WIDTH - 10)
 
         const unsigned char status_heaters_bmp[] PROGMEM = {
           B00011111,B11100000,B00000000,B00011111,B11100000,B00000000,B00011111,B11100000,B00000000,B00011111,B11100000,B00000000,B00000100,B00010000,B01000000,
@@ -151,9 +166,15 @@
 
       #endif // HOTENDS
 
+      #define STATUS_BED_TEXT_X (STATUS_HEATERS_WIDTH - 10)
+
     #else // !HAS_HEATED_BED || HOTENDS > 3
 
-      #if HOTENDS == 1
+      #if HOTENDS == 0
+
+        #define STATUS_HEATERS_WIDTH  0
+
+      #elif HOTENDS == 1
 
         #define STATUS_HEATERS_WIDTH  12
 
@@ -229,7 +250,7 @@
           B00000011,B00000000,B00000000,B00000011,B00000000,B00000000,B00000011,B00000000,B00000000,B00000011,B00000000
         };
 
-      #elif HOTENDS > 4
+      #else // HOTENDS > 4
 
         #define STATUS_HEATERS_WIDTH  108
 
@@ -304,105 +325,101 @@
 
         #endif
 
-      #else
+      #elif HOTENDS >= 2
 
-        #if HOTENDS >= 2
+        #ifdef STATUS_HOTEND_ANIM
 
-          #ifdef STATUS_HOTEND_ANIM
+          const unsigned char status_hotend1_a_bmp[] PROGMEM = {
+            B00011111,B11100000,
+            B00111111,B11110000,
+            B00111110,B11110000,
+            B00111100,B11110000,
+            B00011010,B11100000,
+            B00011110,B11100000,
+            B00111110,B11110000,
+            B00111110,B11110000,
+            B00111110,B11110000,
+            B00001111,B11000000,
+            B00000111,B10000000,
+            B00000011,B00000000
+          };
 
-            const unsigned char status_hotend1_a_bmp[] PROGMEM = {
-              B00011111,B11100000,
-              B00111111,B11110000,
-              B00111110,B11110000,
-              B00111100,B11110000,
-              B00011010,B11100000,
-              B00011110,B11100000,
-              B00111110,B11110000,
-              B00111110,B11110000,
-              B00111110,B11110000,
-              B00001111,B11000000,
-              B00000111,B10000000,
-              B00000011,B00000000
-            };
+          const unsigned char status_hotend1_b_bmp[] PROGMEM = {
+            B00011111,B11100000,
+            B00100000,B00010000,
+            B00100001,B00010000,
+            B00100011,B00010000,
+            B00010101,B00100000,
+            B00010001,B00100000,
+            B00100001,B00010000,
+            B00100001,B00010000,
+            B00110001,B00110000,
+            B00001000,B01000000,
+            B00000100,B10000000,
+            B00000011,B00000000
+          };
 
-            const unsigned char status_hotend1_b_bmp[] PROGMEM = {
-              B00011111,B11100000,
-              B00100000,B00010000,
-              B00100001,B00010000,
-              B00100011,B00010000,
-              B00010101,B00100000,
-              B00010001,B00100000,
-              B00100001,B00010000,
-              B00100001,B00010000,
-              B00110001,B00110000,
-              B00001000,B01000000,
-              B00000100,B10000000,
-              B00000011,B00000000
-            };
+          const unsigned char status_hotend2_a_bmp[] PROGMEM = {
+            B00011111,B11100000,
+            B00111111,B11110000,
+            B00111100,B11110000,
+            B00111011,B01110000,
+            B00011111,B01100000,
+            B00011110,B11100000,
+            B00111101,B11110000,
+            B00111011,B11110000,
+            B00111000,B01110000,
+            B00001111,B11000000,
+            B00000111,B10000000,
+            B00000011,B00000000
+          };
 
-            const unsigned char status_hotend2_a_bmp[] PROGMEM = {
-              B00011111,B11100000,
-              B00111111,B11110000,
-              B00111100,B11110000,
-              B00111011,B01110000,
-              B00011111,B01100000,
-              B00011110,B11100000,
-              B00111101,B11110000,
-              B00111011,B11110000,
-              B00111000,B01110000,
-              B00001111,B11000000,
-              B00000111,B10000000,
-              B00000011,B00000000
-            };
+          const unsigned char status_hotend2_b_bmp[] PROGMEM = {
+            B00011111,B11100000,
+            B00100000,B00010000,
+            B00100011,B00010000,
+            B00100100,B10010000,
+            B00010000,B10100000,
+            B00010001,B00100000,
+            B00100010,B00010000,
+            B00100100,B00010000,
+            B00110111,B10110000,
+            B00001000,B01000000,
+            B00000100,B10000000,
+            B00000011,B00000000
+          };
 
-            const unsigned char status_hotend2_b_bmp[] PROGMEM = {
-              B00011111,B11100000,
-              B00100000,B00010000,
-              B00100011,B00010000,
-              B00100100,B10010000,
-              B00010000,B10100000,
-              B00010001,B00100000,
-              B00100010,B00010000,
-              B00100100,B00010000,
-              B00110111,B10110000,
-              B00001000,B01000000,
-              B00000100,B10000000,
-              B00000011,B00000000
-            };
+        #else
 
-          #else
+          const unsigned char status_hotend1_a_bmp[] PROGMEM = {
+            B00011111,B11100000,
+            B00111110,B11110000,
+            B00111100,B11110000,
+            B00111010,B11110000,
+            B00011110,B11100000,
+            B00011110,B11100000,
+            B00111110,B11110000,
+            B00111110,B11110000,
+            B00111111,B11110000,
+            B00001111,B11000000,
+            B00000111,B10000000,
+            B00000011,B00000000
+          };
 
-            const unsigned char status_hotend1_a_bmp[] PROGMEM = {
-              B00011111,B11100000,
-              B00111110,B11110000,
-              B00111100,B11110000,
-              B00111010,B11110000,
-              B00011110,B11100000,
-              B00011110,B11100000,
-              B00111110,B11110000,
-              B00111110,B11110000,
-              B00111111,B11110000,
-              B00001111,B11000000,
-              B00000111,B10000000,
-              B00000011,B00000000
-            };
-
-            const unsigned char status_hotend2_a_bmp[] PROGMEM = {
-              B00011111,B11100000,
-              B00111100,B11110000,
-              B00111011,B01110000,
-              B00111111,B01110000,
-              B00011110,B11100000,
-              B00011101,B11100000,
-              B00111011,B11110000,
-              B00111000,B01110000,
-              B00111111,B11110000,
-              B00001111,B11000000,
-              B00000111,B10000000,
-              B00000011,B00000000
-            };
-
-          #endif
+          const unsigned char status_hotend2_a_bmp[] PROGMEM = {
+            B00011111,B11100000,
+            B00111100,B11110000,
+            B00111011,B01110000,
+            B00111111,B01110000,
+            B00011110,B11100000,
+            B00011101,B11100000,
+            B00111011,B11110000,
+            B00111000,B01110000,
+            B00111111,B11110000,
+            B00001111,B11000000,
+            B00000111,B10000000,
+            B00000011,B00000000
+          };
 
         #endif
 
@@ -573,6 +590,8 @@
 
       #endif
 
+    #else
+      #define STATUS_HEATERS_HEIGHT 20
     #endif
 
   #endif
@@ -1187,20 +1206,42 @@
   #define STATUS_FAN_WIDTH 0
 #endif
 
+#define _EXTRA_WIDTH (STATUS_FAN_WIDTH + STATUS_CHAMBER_WIDTH + STATUS_BED_WIDTH)
+
+//
+// Heater Bitmap X Space Requirements
+//
+#if !defined(STATUS_HEATERS_XSPACE) && (STATUS_HOTEND1_WIDTH || STATUS_HEATERS_WIDTH)
+  #if (HOTENDS == 3 || HOTENDS == 4) && ENABLED(STATUS_COMBINE_HEATERS)
+    // If more heaters or they're combined, 3 bytes
+    #define STATUS_HEATERS_XSPACE 24
+  #elif STATUS_LOGO_WIDTH > (LCD_PIXEL_WIDTH - (_EXTRA_WIDTH) - 26 * (HOTENDS)) // 128 - (20 + 24 + 26) == 58
+    // If the logo won't fit at 26 width
+    #define STATUS_HEATERS_XSPACE 24
+  #else
+    #define STATUS_HEATERS_XSPACE 26
+  #endif
+#endif
+
 #if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE)
 
-  #if STATUS_HOTEND1_WIDTH
-    #define HAS_SPACES ((LCD_PIXEL_WIDTH - (HOTENDS * STATUS_HOTEND1_WIDTH) - STATUS_BED_WIDTH - STATUS_CHAMBER_WIDTH - STATUS_FAN_WIDTH - 24) < STATUS_LOGO_WIDTH ? true : false)
+  //
+  // Disable the logo bitmap if insufficient space
+  //
+  #if STATUS_HEATERS_XSPACE
+    #define _HEATERS_WIDTH (HOTENDS * (STATUS_HEATERS_XSPACE)) // as many hotends as possible
   #elif STATUS_HEATERS_WIDTH
-    #define HAS_SPACES (((LCD_PIXEL_WIDTH - STATUS_HEATERS_WIDTH - STATUS_BED_WIDTH - STATUS_CHAMBER_WIDTH - STATUS_FAN_WIDTH - 20) < STATUS_LOGO_WIDTH) ? true : false)
+    #define _HEATERS_WIDTH STATUS_HEATERS_WIDTH
+  #else
+    #error "Status screen heaters region was not specified."
   #endif
-
-  #if HAS_SPACES
+  #if STATUS_LOGO_WIDTH > (LCD_PIXEL_WIDTH - (_EXTRA_WIDTH + _HEATERS_WIDTH))
+    #warning "Unable to fit custom Status Screen logo. Disabling."
     #undef STATUS_LOGO_WIDTH
   #endif
 
   #if (HOTENDS > 1 && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN)
-    #define _STATUS_HEATERS_X(H,S,N) (((LCD_PIXEL_WIDTH - (H * (S + N)) - STATUS_LOGO_WIDTH - STATUS_BED_WIDTH - STATUS_CHAMBER_WIDTH - STATUS_FAN_WIDTH) / 2) + STATUS_LOGO_WIDTH)
+    #define _STATUS_HEATERS_X(H,S,N) ((LCD_PIXEL_WIDTH - (H * (S + N)) - (_EXTRA_WIDTH) + (STATUS_LOGO_WIDTH)) / 2)
     #if STATUS_HOTEND1_WIDTH
       #if HOTENDS > 2
         #define STATUS_HEATERS_X _STATUS_HEATERS_X(HOTENDS, STATUS_HOTEND1_WIDTH, 6)
@@ -1240,33 +1281,21 @@
 #endif
 
 //
-// Heater Bitmap Properties
+// Hotend Heater Bitmap starting X position
 //
-#if STATUS_HOTEND1_WIDTH || STATUS_HEATERS_WIDTH
-
-  #ifndef STATUS_HEATERS_XSPACE
-    #if (HOTENDS == 3 || HOTENDS == 4) && ENABLED(STATUS_COMBINE_HEATERS)
-      #define STATUS_HEATERS_XSPACE 24
-    #else
-      #define STATUS_HEATERS_XSPACE 26 // Like the included bitmaps
-    #endif
-  #endif
-
-  #ifndef STATUS_HEATERS_X
-    #if STATUS_LOGO_BYTEWIDTH
-      #define STATUS_HEATERS_X (STATUS_LOGO_BYTEWIDTH * 8)
-    #elif ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH) && (STATUS_BED_WIDTH  && STATUS_HOTEND_BITMAPS == 3)) || \
-          ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH  ||  STATUS_BED_WIDTH) && STATUS_HOTEND_BITMAPS == 4)
+#if !defined(STATUS_HEATERS_X) && (STATUS_HOTEND1_WIDTH || STATUS_HEATERS_WIDTH)
+  #if STATUS_LOGO_BYTEWIDTH
+    #define STATUS_HEATERS_X (STATUS_LOGO_BYTEWIDTH * 8)
+  #elif ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH) && (STATUS_BED_WIDTH  && STATUS_HOTEND_BITMAPS == 3)) || \
+        ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH  ||  STATUS_BED_WIDTH) && STATUS_HOTEND_BITMAPS == 4)
+    #define STATUS_HEATERS_X 5
+  #else
+    #if ENABLED(STATUS_COMBINE_HEATERS) && HAS_HEATED_BED && HOTENDS <= 4
       #define STATUS_HEATERS_X 5
     #else
-      #if ENABLED(STATUS_COMBINE_HEATERS) && HAS_HEATED_BED && HOTENDS <= 4
-        #define STATUS_HEATERS_X 5
-      #else
-        #define STATUS_HEATERS_X 8 // Like the included bitmaps
-      #endif
+      #define STATUS_HEATERS_X 8 // Like the included bitmaps
     #endif
   #endif
-
 #endif
 
 #if STATUS_HOTEND1_WIDTH
@@ -1430,6 +1459,10 @@
     sizeof(status_heaters_bmp) == (STATUS_HEATERS_BYTEWIDTH) * (STATUS_HEATERS_HEIGHT),
     "Status heaters bitmap (status_heaters_bmp) dimensions don't match data."
   );
+
+#else // HOTENDS == 0
+
+  //#error "Incomplete status header"
 
 #endif
 

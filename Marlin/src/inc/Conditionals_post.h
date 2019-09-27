@@ -43,16 +43,6 @@
   #define NOT_A_PIN 0 // For PINS_DEBUGGING
 #endif
 
-#if EXTRUDERS == 0
-  #define NO_VOLUMETRICS
-  #undef FWRETRACT
-  #undef LIN_ADVANCE
-  #undef ADVANCED_PAUSE_FEATURE
-  #undef DISABLE_INACTIVE_EXTRUDER
-  #undef EXTRUDER_RUNOUT_PREVENT
-  #undef FILAMENT_LOAD_UNLOAD_GCODES
-#endif
-
 #define HAS_CLASSIC_JERK (IS_KINEMATIC || DISABLED(JUNCTION_DEVIATION))
 
 /**
@@ -76,20 +66,21 @@
 #endif
 
 // Define center values for future use
+#define _X_HALF_BED ((X_BED_SIZE) / 2)
+#define _Y_HALF_BED ((Y_BED_SIZE) / 2)
 #if ENABLED(BED_CENTER_AT_0_0)
   #define X_CENTER 0
   #define Y_CENTER 0
 #else
-  #define X_CENTER ((X_BED_SIZE) / 2)
-  #define Y_CENTER ((Y_BED_SIZE) / 2)
+  #define X_CENTER _X_HALF_BED
+  #define Y_CENTER _Y_HALF_BED
 #endif
-#define Z_CENTER ((Z_MIN_POS + Z_MAX_POS) / 2)
 
 // Get the linear boundaries of the bed
-#define X_MIN_BED (X_CENTER - (X_BED_SIZE) / 2)
-#define X_MAX_BED (X_CENTER + (X_BED_SIZE) / 2)
-#define Y_MIN_BED (Y_CENTER - (Y_BED_SIZE) / 2)
-#define Y_MAX_BED (Y_CENTER + (Y_BED_SIZE) / 2)
+#define X_MIN_BED (X_CENTER - _X_HALF_BED)
+#define X_MAX_BED (X_MIN_BED + X_BED_SIZE)
+#define Y_MIN_BED (Y_CENTER - _Y_HALF_BED)
+#define Y_MAX_BED (Y_MIN_BED + Y_BED_SIZE)
 
 /**
  * Dual X Carriage
@@ -207,6 +198,10 @@
 #if ENABLED(DELTA)
   #undef Z_SAFE_HOMING
   #undef SLOWDOWN
+#endif
+
+#ifndef MESH_INSET
+  #define MESH_INSET 0
 #endif
 
 /**
@@ -539,13 +534,13 @@
 /**
  * ARRAY_BY_EXTRUDERS based on EXTRUDERS
  */
-#define ARRAY_BY_EXTRUDERS(...) ARRAY_N(EXTRUDERS, __VA_ARGS__)
+#define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1, v1, v1)
 
 /**
  * ARRAY_BY_HOTENDS based on HOTENDS
  */
-#define ARRAY_BY_HOTENDS(...) ARRAY_N(HOTENDS, __VA_ARGS__)
+#define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1, v1, v1)
 
 /**
@@ -556,24 +551,28 @@
 
 #define TRINAMICS (HAS_TRINAMIC || HAS_DRIVER(TMC2130_STANDALONE) || HAS_DRIVER(TMC2208_STANDALONE) || HAS_DRIVER(TMC2209_STANDALONE) || HAS_DRIVER(TMC26X_STANDALONE) || HAS_DRIVER(TMC2660_STANDALONE) || HAS_DRIVER(TMC5130_STANDALONE) || HAS_DRIVER(TMC5160_STANDALONE) || HAS_DRIVER(TMC2160_STANDALONE))
 
-#ifndef MINIMUM_STEPPER_DIR_DELAY
+#ifndef MINIMUM_STEPPER_POST_DIR_DELAY
   #if HAS_DRIVER(TB6560)
-    #define MINIMUM_STEPPER_DIR_DELAY 15000
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 15000
   #elif HAS_DRIVER(TB6600)
-    #define MINIMUM_STEPPER_DIR_DELAY 1500
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 1500
   #elif HAS_DRIVER(DRV8825)
-    #define MINIMUM_STEPPER_DIR_DELAY 650
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 650
   #elif HAS_DRIVER(LV8729)
-    #define MINIMUM_STEPPER_DIR_DELAY 500
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 500
   #elif HAS_DRIVER(A5984)
-    #define MINIMUM_STEPPER_DIR_DELAY 400
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 400
   #elif HAS_DRIVER(A4988)
-    #define MINIMUM_STEPPER_DIR_DELAY 200
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 200
   #elif TRINAMICS
-    #define MINIMUM_STEPPER_DIR_DELAY 20
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 20
   #else
-    #define MINIMUM_STEPPER_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
   #endif
+#endif
+
+#ifndef MINIMUM_STEPPER_PRE_DIR_DELAY
+  #define MINIMUM_STEPPER_PRE_DIR_DELAY MINIMUM_STEPPER_POST_DIR_DELAY
 #endif
 
 #ifndef MINIMUM_STEPPER_PULSE
@@ -1047,6 +1046,10 @@
 #define BED_OR_CHAMBER (HAS_HEATED_BED || HAS_TEMP_CHAMBER)
 #define HAS_TEMP_SENSOR (HAS_TEMP_HOTEND || BED_OR_CHAMBER)
 
+#if !HAS_TEMP_SENSOR
+  #undef AUTO_REPORT_TEMPERATURES
+#endif
+
 // PID heating
 #if !HAS_HEATED_BED
   #undef PIDTEMPBED
@@ -1349,12 +1352,7 @@
     #endif
   #endif
 #else
-  #undef X_PROBE_OFFSET_FROM_EXTRUDER
-  #undef Y_PROBE_OFFSET_FROM_EXTRUDER
-  #undef Z_PROBE_OFFSET_FROM_EXTRUDER
-  #define X_PROBE_OFFSET_FROM_EXTRUDER 0
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
+  #undef NOZZLE_TO_PROBE_OFFSET
 #endif
 
 /**
@@ -1447,9 +1445,12 @@
  * Bed Probing rectangular bounds
  * These can be further constrained in code for Delta and SCARA
  */
-
 #ifndef MIN_PROBE_EDGE
   #define MIN_PROBE_EDGE 0
+#endif
+
+#ifndef NOZZLE_TO_PROBE_OFFSET
+  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
 #endif
 
 #if ENABLED(DELTA)
@@ -1458,8 +1459,8 @@
    */
   #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
   #ifndef DELTA_CALIBRATION_RADIUS
-    #ifdef X_PROBE_OFFSET_FROM_EXTRUDER
-      #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(ABS(X_PROBE_OFFSET_FROM_EXTRUDER), ABS(Y_PROBE_OFFSET_FROM_EXTRUDER), ABS(MIN_PROBE_EDGE)))
+    #ifdef NOZZLE_TO_PROBE_OFFSET
+      #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(ABS(nozzle_to_probe_offset[X_AXIS]), ABS(nozzle_to_probe_offset[Y_AXIS]), ABS(MIN_PROBE_EDGE)))
     #else
       #define DELTA_CALIBRATION_RADIUS _PROBE_RADIUS
     #endif
@@ -1468,64 +1469,41 @@
     #define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
   #endif
   #ifndef DELTA_TOWER_ANGLE_TRIM
-    #define DELTA_TOWER_ANGLE_TRIM {0, 0, 0}
+    #define DELTA_TOWER_ANGLE_TRIM { 0, 0, 0 }
   #endif
   #ifndef DELTA_RADIUS_TRIM_TOWER
-    #define DELTA_RADIUS_TRIM_TOWER {0, 0, 0}
+    #define DELTA_RADIUS_TRIM_TOWER { 0, 0, 0 }
   #endif
   #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER
-    #define DELTA_DIAGONAL_ROD_TRIM_TOWER {0, 0, 0}
+    #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0, 0, 0 }
   #endif
 
   // Probing points may be verified at compile time within the radius
   // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
   // so that may be added to SanityCheck.h in the future.
-  #define _MIN_PROBE_X (X_CENTER - (_PROBE_RADIUS))
-  #define _MIN_PROBE_Y (Y_CENTER - (_PROBE_RADIUS))
-  #define _MAX_PROBE_X (X_CENTER + _PROBE_RADIUS)
-  #define _MAX_PROBE_Y (Y_CENTER + _PROBE_RADIUS)
+  #define PROBE_X_MIN (X_CENTER - (_PROBE_RADIUS))
+  #define PROBE_Y_MIN (Y_CENTER - (_PROBE_RADIUS))
+  #define PROBE_X_MAX (X_CENTER + _PROBE_RADIUS)
+  #define PROBE_Y_MAX (Y_CENTER + _PROBE_RADIUS)
 
 #elif IS_SCARA
 
   #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
   #define _PROBE_RADIUS (SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-  #define _MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
-  #define _MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
-  #define _MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-  #define _MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-
-#else
-
-  // Boundaries for Cartesian probing based on bed limits
-  #define _MIN_PROBE_X (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define _MIN_PROBE_Y (_MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-  #define _MAX_PROBE_X (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define _MAX_PROBE_Y (_MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-
+  #define PROBE_X_MIN (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
+  #define PROBE_Y_MIN (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
+  #define PROBE_X_MAX (X_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+  #define PROBE_Y_MAX (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
 #endif
 
 #if ENABLED(SEGMENT_LEVELED_MOVES) && !defined(LEVELED_SEGMENT_LENGTH)
   #define LEVELED_SEGMENT_LENGTH 5
 #endif
 
-// These may be overridden in Configuration.h if a smaller area is desired
-#ifndef MIN_PROBE_X
-  #define MIN_PROBE_X _MIN_PROBE_X
-#endif
-#ifndef MIN_PROBE_Y
-  #define MIN_PROBE_Y _MIN_PROBE_Y
-#endif
-#ifndef MAX_PROBE_X
-  #define MAX_PROBE_X _MAX_PROBE_X
-#endif
-#ifndef MAX_PROBE_Y
-  #define MAX_PROBE_Y _MAX_PROBE_Y
-#endif
-
 /**
  * Default mesh area is an area with an inset margin on the print area.
  */
-#if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+#if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_BILINEAR)
   #if IS_KINEMATIC
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
@@ -1536,16 +1514,16 @@
     #define _MESH_MAX_Y (Y_MAX_BED - (MESH_INSET))
   #else
     // Boundaries for Cartesian probing based on set limits
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
       #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
-      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need *_PROBE_OFFSET_FROM_EXTRUDER in the mesh dimensions
+      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions
       #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
       #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
     #else
-      #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-      #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-      #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+      #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS + nozzle_to_probe_offset[X_AXIS]))
+      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS + nozzle_to_probe_offset[Y_AXIS]))
+      #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS + nozzle_to_probe_offset[X_AXIS]))
+      #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + nozzle_to_probe_offset[Y_AXIS]))
     #endif
   #endif
 
@@ -1564,69 +1542,6 @@
   #endif
 
 #endif // MESH_BED_LEVELING || AUTO_BED_LEVELING_UBL
-
-#if EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT)
-  #if IS_KINEMATIC
-    #define SIN0    0.0
-    #define SIN120  0.866025
-    #define SIN240 -0.866025
-    #define COS0    1.0
-    #define COS120 -0.5
-    #define COS240 -0.5
-    #ifndef PROBE_PT_1_X
-      #define PROBE_PT_1_X (X_CENTER + (_PROBE_RADIUS) * COS0)
-    #endif
-    #ifndef PROBE_PT_1_Y
-      #define PROBE_PT_1_Y (Y_CENTER + (_PROBE_RADIUS) * SIN0)
-    #endif
-    #ifndef PROBE_PT_2_X
-      #define PROBE_PT_2_X (X_CENTER + (_PROBE_RADIUS) * COS120)
-    #endif
-    #ifndef PROBE_PT_2_Y
-      #define PROBE_PT_2_Y (Y_CENTER + (_PROBE_RADIUS) * SIN120)
-    #endif
-    #ifndef PROBE_PT_3_X
-      #define PROBE_PT_3_X (X_CENTER + (_PROBE_RADIUS) * COS240)
-    #endif
-    #ifndef PROBE_PT_3_Y
-      #define PROBE_PT_3_Y (Y_CENTER + (_PROBE_RADIUS) * SIN240)
-    #endif
-  #else
-    #ifndef PROBE_PT_1_X
-      #define PROBE_PT_1_X MIN_PROBE_X
-    #endif
-    #ifndef PROBE_PT_1_Y
-      #define PROBE_PT_1_Y MIN_PROBE_Y
-    #endif
-    #ifndef PROBE_PT_2_X
-      #define PROBE_PT_2_X MAX_PROBE_X
-    #endif
-    #ifndef PROBE_PT_2_Y
-      #define PROBE_PT_2_Y MIN_PROBE_Y
-    #endif
-    #ifndef PROBE_PT_3_X
-      #define PROBE_PT_3_X X_CENTER
-    #endif
-    #ifndef PROBE_PT_3_Y
-      #define PROBE_PT_3_Y MAX_PROBE_Y
-    #endif
-  #endif
-#endif
-
-#if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
-  #ifndef LEFT_PROBE_BED_POSITION
-    #define LEFT_PROBE_BED_POSITION MIN_PROBE_X
-  #endif
-  #ifndef RIGHT_PROBE_BED_POSITION
-    #define RIGHT_PROBE_BED_POSITION MAX_PROBE_X
-  #endif
-  #ifndef FRONT_PROBE_BED_POSITION
-    #define FRONT_PROBE_BED_POSITION MIN_PROBE_Y
-  #endif
-  #ifndef BACK_PROBE_BED_POSITION
-    #define BACK_PROBE_BED_POSITION MAX_PROBE_Y
-  #endif
-#endif
 
 /**
  * Buzzer/Speaker
@@ -1823,13 +1738,13 @@
   #endif
 #endif
 
-//
-// The external SD card is not used. Hardware SPI is used to access the card.
-// When sharing the SD card with a PC we want the menu options to
-// mount/unmount the card and refresh it. So we disable card detect.
-//
 #if ENABLED(SDSUPPORT)
   #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE)
+    //
+    // The external SD card is not used. Hardware SPI is used to access the card.
+    // When sharing the SD card with a PC we want the menu options to
+    // mount/unmount the card and refresh it. So we disable card detect.
+    //
     #undef SD_DETECT_PIN
     #define SHARED_SD_CARD
   #endif
