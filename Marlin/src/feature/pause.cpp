@@ -401,6 +401,10 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
     #endif
   #endif
 
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    host_prompt_open(PROMPT_INFO, PSTR("Pause"), PSTR("Dismiss"));
+  #endif
+
   if (!DEBUGGING(DRYRUN) && unload_length && thermalManager.targetTooColdToExtrude(active_extruder)) {
     SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
 
@@ -554,7 +558,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       while (wait_for_user) idle(true);
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheating"));
+        host_prompt_do(PROMPT_INFO, PSTR("Reheating"));
       #endif
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onStatusChanged(PSTR("Reheating..."));
@@ -675,6 +679,10 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   #endif
 
   --did_pause_print;
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    host_prompt_open(PROMPT_INFO, PSTR("Resuming"), PSTR("Dismiss"));
+  #endif
 
   #if ENABLED(SDSUPPORT)
     if (did_pause_print) {
