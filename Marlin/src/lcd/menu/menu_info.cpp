@@ -34,8 +34,8 @@
   #include "game/game.h"
 #endif
 
-#define STATIC_PAIR(MSG, VALUE, CNTR)    do {strcpy_P(buffer, PSTR(": ")); strcpy(buffer, VALUE); STATIC_ITEM(MSG, CNTR, false, buffer);} while(0)
-#define STATIC_PAIR_P(MSG, PVALUE, CNTR) do {strcpy_P(buffer, PSTR(": ")); strcpy_P(buffer, PSTR(PVALUE)); STATIC_ITEM(MSG, CNTR, false, buffer);} while(0)
+#define STATIC_PAIR(MSG, VALUE, CNTR)    do{ strcpy_P(buffer, PSTR(": ")); strcpy(buffer + 2, VALUE); STATIC_ITEM(MSG, CNTR, false, buffer); }while(0)
+#define STATIC_PAIR_P(MSG, PVALUE, CNTR) do{ strcpy_P(buffer, PSTR(": ")); strcpy_P(buffer + 2, PSTR(PVALUE)); STATIC_ITEM(MSG, CNTR, false, buffer); }while(0)
 
 #if ENABLED(PRINTCOUNTER)
 
@@ -56,8 +56,8 @@
     printStatistics stats = print_job_timer.getStats();
 
     START_SCREEN();                                                                                // 12345678901234567890
-    STATIC_PAIR(MSG_INFO_PRINT_COUNT, i16tostr3left(stats.totalPrints), false, false);             // Print Count: 999
-    STATIC_PAIR(MSG_INFO_COMPLETED_PRINTS, i16tostr3left(stats.finishedPrints), false, false);     // Completed  : 666
+    STATIC_PAIR(MSG_INFO_PRINT_COUNT, i16tostr3left(stats.totalPrints), false);                    // Print Count: 999
+    STATIC_PAIR(MSG_INFO_COMPLETED_PRINTS, i16tostr3left(stats.finishedPrints), false);            // Completed  : 666
 
     duration_t elapsed = stats.printTime;
     elapsed.toString(buffer);
