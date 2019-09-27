@@ -309,6 +309,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #if HAS_LCD_MENU
 
+  #include "../menu/menu.h"
+
   u8g_uint_t row_y1, row_y2;
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -361,13 +363,13 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void draw_menu_item_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char* valstr/*=nullptr*/) {
+  void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_CENTER*/, const char * const valstr/*=nullptr*/) {
 
-    if (mark_as_selected(row, invert)) {
+    if (mark_as_selected(row, (style & SS_INVERT))) {
 
       u8g_uint_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
 
-      if (center && !valstr) {
+      if ((style & SS_CENTER) && !valstr) {
         int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
         while (--pad >= 0) { lcd_put_wchar(' '); n--; }
       }

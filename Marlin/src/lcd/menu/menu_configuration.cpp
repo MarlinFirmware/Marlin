@@ -75,7 +75,7 @@ static void lcd_factory_settings() {
     bar_percent += (int8_t)ui.encoderPosition;
     LIMIT(bar_percent, 0, 100);
     ui.encoderPosition = 0;
-    draw_menu_item_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
+    draw_menu_item_static(0, PSTR(MSG_PROGRESS_BAR_TEST), SS_CENTER|SS_INVERT);
     lcd_put_int((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2, bar_percent); lcd_put_wchar('%');
     lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }

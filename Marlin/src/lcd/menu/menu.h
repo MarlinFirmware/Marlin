@@ -78,9 +78,13 @@ inline void do_select_screen_yn(selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P
   do_select_screen(PSTR(MSG_YES), PSTR(MSG_NO), yesFunc, noFunc, pref, string, suff);
 }
 
+#define SS_LEFT   0x00
+#define SS_CENTER 0x01
+#define SS_INVERT 0x02
+
 void draw_edit_screen(PGM_P const pstr, const char* const value=nullptr);
 void draw_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
-void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const bool center=true, const bool invert=false, const char *valstr=nullptr);
+void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style=SS_CENTER, const char * const valstr=nullptr);
 void _draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm);
 FORCE_INLINE void draw_menu_item_back(const bool sel, const uint8_t row, PGM_P const pstr) { draw_menu_item(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]); }
 FORCE_INLINE void draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data) { _draw_menu_item_edit(sel, row, pstr, data, false); }
