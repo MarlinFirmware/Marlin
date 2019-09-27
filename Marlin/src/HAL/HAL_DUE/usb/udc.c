@@ -132,14 +132,14 @@ static uint8_t udc_string_product_name[] = USB_DEVICE_PRODUCT_NAME;
  * define USB_DEVICE_GET_SERIAL_NAME_LENGTH.
  */
 #if defined USB_DEVICE_GET_SERIAL_NAME_POINTER
-	static const uint8_t *udc_get_string_serial_name()
+	static const uint8_t *udc_get_string_serial_name(void)
 	{
 		return (const uint8_t *)USB_DEVICE_GET_SERIAL_NAME_POINTER;
 	}
 #  define USB_DEVICE_SERIAL_NAME_SIZE \
 	USB_DEVICE_GET_SERIAL_NAME_LENGTH
 #elif defined USB_DEVICE_SERIAL_NAME
-	static const uint8_t *udc_get_string_serial_name()
+	static const uint8_t *udc_get_string_serial_name(void)
 	{
 		return (const uint8_t *)USB_DEVICE_SERIAL_NAME;
 	}
@@ -164,7 +164,7 @@ static UDC_DESC_STORAGE struct udc_string_desc_t udc_string_desc = {
 };
 //! @}
 
-usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc()
+usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc(void)
 {
 	return udc_ptr_iface;
 }
@@ -174,7 +174,7 @@ usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc()
  *
  * \return address after the last byte of USB Configuration descriptor
  */
-static usb_conf_desc_t UDC_DESC_STORAGE *udc_get_eof_conf()
+static usb_conf_desc_t UDC_DESC_STORAGE *udc_get_eof_conf(void)
 {
 	return (UDC_DESC_STORAGE usb_conf_desc_t *) ((uint8_t *)
 			udc_ptr_conf->desc +
@@ -360,14 +360,14 @@ static bool udc_iface_enable(uint8_t iface_num, uint8_t setting_num)
 
 /*! \brief Start the USB Device stack
  */
-void udc_start()
+void udc_start(void)
 {
 	udd_enable();
 }
 
 /*! \brief Stop the USB Device stack
  */
-void udc_stop()
+void udc_stop(void)
 {
 	udd_disable();
 	udc_reset();
@@ -377,7 +377,7 @@ void udc_stop()
  * \brief Reset the current configuration of the USB device,
  * This routines can be called by UDD when a RESET on the USB line occurs.
  */
-void udc_reset()
+void udc_reset(void)
 {
 	uint8_t iface_num;
 
@@ -404,7 +404,7 @@ void udc_reset()
 #endif
 }
 
-void udc_sof_notify()
+void udc_sof_notify(void)
 {
 	uint8_t iface_num;
 
@@ -424,7 +424,7 @@ void udc_sof_notify()
  *
  * \return true if success
  */
-static bool udc_req_std_dev_get_status()
+static bool udc_req_std_dev_get_status(void)
 {
 	if (udd_g_ctrlreq.req.wLength != sizeof(udc_device_status)) {
 		return false;
@@ -441,7 +441,7 @@ static bool udc_req_std_dev_get_status()
  *
  * \return true if success
  */
-static bool udc_req_std_ep_get_status()
+static bool udc_req_std_ep_get_status(void)
 {
 	static le16_t udc_ep_status;
 
@@ -463,7 +463,7 @@ static bool udc_req_std_ep_get_status()
  *
  * \return true if success
  */
-static bool udc_req_std_dev_clear_feature()
+static bool udc_req_std_dev_clear_feature(void)
 {
 	if (udd_g_ctrlreq.req.wLength) {
 		return false;
@@ -486,7 +486,7 @@ static bool udc_req_std_dev_clear_feature()
  *
  * \return true if success
  */
-static bool udc_req_std_ep_clear_feature()
+static bool udc_req_std_ep_clear_feature(void)
 {
 	if (udd_g_ctrlreq.req.wLength) {
 		return false;
@@ -504,7 +504,7 @@ static bool udc_req_std_ep_clear_feature()
  *
  * \return true if success
  */
-static bool udc_req_std_dev_set_feature()
+static bool udc_req_std_dev_set_feature(void)
 {
 	if (udd_g_ctrlreq.req.wLength) {
 		return false;
@@ -567,7 +567,7 @@ static bool udc_req_std_dev_set_feature()
  * \return true if success
  */
 #if (0!=USB_DEVICE_MAX_EP)
-static bool udc_req_std_ep_set_feature()
+static bool udc_req_std_ep_set_feature(void)
 {
 	if (udd_g_ctrlreq.req.wLength) {
 		return false;
@@ -584,7 +584,7 @@ static bool udc_req_std_ep_set_feature()
  * \brief Change the address of device
  * Callback called at the end of request set address
  */
-static void udc_valid_address()
+static void udc_valid_address(void)
 {
 	udd_set_address(udd_g_ctrlreq.req.wValue & 0x7F);
 }
@@ -594,7 +594,7 @@ static void udc_valid_address()
  *
  * \return true if success
  */
-static bool udc_req_std_dev_set_address()
+static bool udc_req_std_dev_set_address(void)
 {
 	if (udd_g_ctrlreq.req.wLength) {
 		return false;
@@ -611,7 +611,7 @@ static bool udc_req_std_dev_set_address()
  *
  * \return true if success
  */
-static bool udc_req_std_dev_get_str_desc()
+static bool udc_req_std_dev_get_str_desc(void)
 {
 	uint8_t i;
 	const uint8_t *str;
@@ -670,7 +670,7 @@ static bool udc_req_std_dev_get_str_desc()
  *
  * \return true if success
  */
-static bool udc_req_std_dev_get_descriptor()
+static bool udc_req_std_dev_get_descriptor(void)
 {
 	uint8_t conf_num;
 
@@ -787,7 +787,7 @@ static bool udc_req_std_dev_get_descriptor()
  *
  * \return true if success
  */
-static bool udc_req_std_dev_get_configuration()
+static bool udc_req_std_dev_get_configuration(void)
 {
 	if (udd_g_ctrlreq.req.wLength != 1) {
 		return false;
@@ -802,7 +802,7 @@ static bool udc_req_std_dev_get_configuration()
  *
  * \return true if success
  */
-static bool udc_req_std_dev_set_configuration()
+static bool udc_req_std_dev_set_configuration(void)
 {
 	uint8_t iface_num;
 
@@ -867,7 +867,7 @@ static bool udc_req_std_dev_set_configuration()
  *
  * \return true if success
  */
-static bool udc_req_std_iface_get_setting()
+static bool udc_req_std_iface_get_setting(void)
 {
 	uint8_t iface_num;
 	udi_api_t UDC_DESC_STORAGE *udi_api;
@@ -905,7 +905,7 @@ static bool udc_req_std_iface_get_setting()
  *
  * \return true if success
  */
-static bool udc_req_std_iface_set_setting()
+static bool udc_req_std_iface_set_setting(void)
 {
 	uint8_t iface_num, setting_num;
 
@@ -933,7 +933,7 @@ static bool udc_req_std_iface_set_setting()
  *
  * \return true if the request is supported
  */
-static bool udc_reqstd()
+static bool udc_reqstd(void)
 {
 	if (Udd_setup_is_in()) {
 		// GET Standard Requests
@@ -1027,7 +1027,7 @@ static bool udc_reqstd()
  *
  * \return true if the request is supported
  */
-static bool udc_req_iface()
+static bool udc_req_iface(void)
 {
 	uint8_t iface_num;
 	udi_api_t UDC_DESC_STORAGE *udi_api;
@@ -1062,7 +1062,7 @@ static bool udc_req_iface()
  *
  * \return true if the request is supported
  */
-static bool udc_req_ep()
+static bool udc_req_ep(void)
 {
 	uint8_t iface_num;
 	udi_api_t UDC_DESC_STORAGE *udi_api;
@@ -1101,7 +1101,7 @@ static bool udc_req_ep()
  *
  * \return true if the request is supported, else the request is stalled by UDD
  */
-bool udc_process_setup()
+bool udc_process_setup(void)
 {
 	// By default no data (receive/send) and no callbacks registered
 	udd_g_ctrlreq.payload_size = 0;

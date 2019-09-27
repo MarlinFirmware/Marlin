@@ -82,7 +82,7 @@ typedef struct {
 	 *
 	 * \return \c 1 if function was successfully done, otherwise \c 0.
 	 */
-	bool (*enable)();
+	bool (*enable)(void);
 
 	/**
 	 * \brief Disable the interface.
@@ -95,7 +95,7 @@ typedef struct {
 	 * - the device is detached from the host (i.e. Vbus is no
 	 *   longer present)
 	 */
-	void (*disable)();
+	void (*disable)(void);
 
 	/**
 	 * \brief Handle a control request directed at an interface.
@@ -108,7 +108,7 @@ typedef struct {
 	 *
 	 * \return \c 1 if this interface supports the SETUP request, otherwise \c 0.
 	 */
-	bool (*setup)();
+	bool (*setup)(void);
 
 	/**
 	 * \brief Returns the current setting of the selected interface.
@@ -117,12 +117,12 @@ typedef struct {
 	 *
 	 * \return alternate setting of selected interface
 	 */
-	uint8_t (*getsetting)();
+	uint8_t (*getsetting)(void);
 
 	/**
 	 * \brief To signal that a SOF is occurred
 	 */
-	void (*sof_notify)();
+	void (*sof_notify)(void);
 } udi_api_t;
 
 //@}
