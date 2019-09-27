@@ -46,13 +46,13 @@
       SERIAL_ECHO_START();
       SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET MSG_Z ": ", probe_offset[Z_AXIS]);
     }
-    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-      else {
+    else {
+      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         hotend_offset[Z_AXIS][active_extruder] -= offs;
         SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR(MSG_Z_OFFSET ": ", hotend_offset[Z_AXIS][active_extruder]);
-      }
-    #endif
+        SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET MSG_Z ": ", hotend_offset[Z_AXIS][active_extruder]);
+      #endif
+    }
   }
 
 #endif

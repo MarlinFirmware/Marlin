@@ -715,7 +715,7 @@ G29_TYPE GcodeSuite::G29() {
 
           if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", int(pt_index), "/", int(GRID_MAX_POINTS), ".");
           #if HAS_DISPLAY
-            ui.status_printf_P(0, PSTR(MSG_PROBING_MESH " %i/%i"), int(pt_index), int(GRID_MAX_POINTS));
+            ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), PSTR(MSG_PROBING_MESH), int(pt_index), int(GRID_MAX_POINTS));
           #endif
 
           measured_z = faux ? 0.001 * random(-100, 101) : probe_at_point(xProbe, yProbe, raise_after, verbose_level);

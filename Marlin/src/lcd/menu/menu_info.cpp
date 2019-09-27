@@ -34,6 +34,9 @@
   #include "game/game.h"
 #endif
 
+#define STATIC_PAIR(MSG, VALUE, CNTR)    do{ strcpy_P(buffer, PSTR(": ")); strcpy(buffer + 2, VALUE); STATIC_ITEM(MSG, CNTR, false, buffer); }while(0)
+#define STATIC_PAIR_P(MSG, PVALUE, CNTR) do{ strcpy_P(buffer, PSTR(": ")); strcpy_P(buffer + 2, PSTR(PVALUE)); STATIC_ITEM(MSG, CNTR, false, buffer); }while(0)
+
 #if ENABLED(PRINTCOUNTER)
 
   #include "../../module/printcounter.h"
@@ -48,27 +51,27 @@
       #endif
     );
 
-    char buffer[21];
+    char buffer[21];  // for STATIC_PAIR_P
+
     printStatistics stats = print_job_timer.getStats();
 
     START_SCREEN();                                                                                // 12345678901234567890
-    STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, i16tostr3left(stats.totalPrints));        // Print Count: 999
-    STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS": ", false, false, i16tostr3left(stats.finishedPrints)); // Completed  : 666
+    STATIC_PAIR(MSG_INFO_PRINT_COUNT, i16tostr3left(stats.totalPrints), false);                    // Print Count: 999
+    STATIC_PAIR(MSG_INFO_COMPLETED_PRINTS, i16tostr3left(stats.finishedPrints), false);            // Completed  : 666
 
     duration_t elapsed = stats.printTime;
     elapsed.toString(buffer);
 
-    STATIC_ITEM(MSG_INFO_PRINT_TIME ":", false, false);                                            // Total print Time:
+    STATIC_PAIR_P(MSG_INFO_PRINT_TIME, "", false);                                                 // Total print Time:
     STATIC_ITEM("> ", false, false, buffer);                                                       // > 99y 364d 23h 59m 59s
 
+    STATIC_PAIR_P(MSG_INFO_PRINT_LONGEST, "", false);                                              // Longest job time:
     elapsed = stats.longestPrint;
     elapsed.toString(buffer);
-
-    STATIC_ITEM(MSG_INFO_PRINT_LONGEST ":", false, false);                                         // Longest job time:
     STATIC_ITEM("> ", false, false, buffer);                                                       // > 99y 364d 23h 59m 59s
 
+    STATIC_PAIR_P(MSG_INFO_PRINT_FILAMENT, "", false);                                             // Extruded total:
     sprintf_P(buffer, PSTR("%ld.%im"), long(stats.filamentUsed / 1000), int16_t(stats.filamentUsed / 100) % 10);
-    STATIC_ITEM(MSG_INFO_PRINT_FILAMENT ":", false, false);                                        // Extruded total:
     STATIC_ITEM("> ", false, false, buffer);                                                       // > 125m
 
     #if SERVICE_INTERVAL_1 > 0
@@ -77,12 +80,14 @@
       STATIC_ITEM(SERVICE_NAME_1 MSG_SERVICE_IN, false, false);                                    // Service X in:
       STATIC_ITEM("> ", false, false, buffer);                                                     // > 7d 12h 11m 10s
     #endif
+
     #if SERVICE_INTERVAL_2 > 0
       elapsed = stats.nextService2;
       elapsed.toString(buffer);
       STATIC_ITEM(SERVICE_NAME_2 MSG_SERVICE_IN, false, false);
       STATIC_ITEM("> ", false, false, buffer);
     #endif
+
     #if SERVICE_INTERVAL_3 > 0
       elapsed = stats.nextService3;
       elapsed.toString(buffer);
@@ -104,13 +109,16 @@ void menu_info_thermistors() {
       true
     #endif
   );
+
+  char buffer[21];  // for STATIC_PAIR_P
+
   START_SCREEN();
   #if EXTRUDERS
     #define THERMISTOR_ID TEMP_SENSOR_0
     #include "../thermistornames.h"
     STATIC_ITEM("T0: " THERMISTOR_NAME, false, true);
-    STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_0_MINTEMP), false);
-    STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_0_MAXTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_0_MINTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_0_MAXTEMP), false);
   #endif
 
   #if TEMP_SENSOR_1 != 0
@@ -118,8 +126,8 @@ void menu_info_thermistors() {
     #define THERMISTOR_ID TEMP_SENSOR_1
     #include "../thermistornames.h"
     STATIC_ITEM("T1: " THERMISTOR_NAME, false, true);
-    STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_1_MINTEMP), false);
-    STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_1_MAXTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_1_MINTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_1_MAXTEMP), false);
   #endif
 
   #if TEMP_SENSOR_2 != 0
@@ -127,8 +135,8 @@ void menu_info_thermistors() {
     #define THERMISTOR_ID TEMP_SENSOR_2
     #include "../thermistornames.h"
     STATIC_ITEM("T2: " THERMISTOR_NAME, false, true);
-    STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_2_MINTEMP), false);
-    STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_2_MAXTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_2_MINTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_2_MAXTEMP), false);
   #endif
 
   #if TEMP_SENSOR_3 != 0
@@ -136,8 +144,8 @@ void menu_info_thermistors() {
     #define THERMISTOR_ID TEMP_SENSOR_3
     #include "../thermistornames.h"
     STATIC_ITEM("T3: " THERMISTOR_NAME, false, true);
-    STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_3_MINTEMP), false);
-    STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_3_MAXTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_3_MINTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_3_MAXTEMP), false);
   #endif
 
   #if TEMP_SENSOR_4 != 0
@@ -145,8 +153,8 @@ void menu_info_thermistors() {
     #define THERMISTOR_ID TEMP_SENSOR_4
     #include "../thermistornames.h"
     STATIC_ITEM("T4: " THERMISTOR_NAME, false, true);
-    STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_4_MINTEMP), false);
-    STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_4_MAXTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_4_MINTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_4_MAXTEMP), false);
   #endif
 
   #if TEMP_SENSOR_5 != 0
@@ -154,8 +162,8 @@ void menu_info_thermistors() {
     #define THERMISTOR_ID TEMP_SENSOR_5
     #include "../thermistornames.h"
     STATIC_ITEM("T5: " THERMISTOR_NAME, false, true);
-    STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_5_MINTEMP), false);
-    STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_5_MAXTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_5_MINTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_5_MAXTEMP), false);
   #endif
 
   #if HAS_HEATED_BED
@@ -163,8 +171,8 @@ void menu_info_thermistors() {
     #define THERMISTOR_ID TEMP_SENSOR_BED
     #include "../thermistornames.h"
     STATIC_ITEM("TBed:" THERMISTOR_NAME, false, true);
-    STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(BED_MINTEMP), false);
-    STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(BED_MAXTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MIN_TEMP, STRINGIFY(BED_MINTEMP), false);
+    STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(BED_MAXTEMP), false);
   #endif
   END_SCREEN();
 }
@@ -178,14 +186,17 @@ void menu_info_board() {
       true
     #endif
   );
+
+  char buffer[21];  // for STATIC_PAIR_P
+
   START_SCREEN();
   STATIC_ITEM(BOARD_INFO_NAME, true, true);                       // MyPrinterController
   #ifdef BOARD_WEBSITE_URL
     STATIC_ITEM(BOARD_WEBSITE_URL, false, false);                 // www.my3dprinter.com
   #endif
-  STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true);  // Baud: 250000
-  STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION, true);     // Protocol: 1.0
-  STATIC_ITEM(MSG_INFO_PSU ": " PSU_NAME, true);
+  STATIC_PAIR_P(MSG_INFO_BAUDRATE, STRINGIFY(BAUDRATE), true);    // Baud: 250000
+  STATIC_PAIR_P(MSG_INFO_PROTOCOL, PROTOCOL_VERSION, true);       // Protocol: 1.0
+  STATIC_PAIR_P(MSG_INFO_PSU,      PSU_NAME, true);
   END_SCREEN();
 }
 
