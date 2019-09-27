@@ -59,40 +59,29 @@
     STATIC_PAIR(MSG_INFO_PRINT_COUNT, i16tostr3left(stats.totalPrints), false);                    // Print Count: 999
     STATIC_PAIR(MSG_INFO_COMPLETED_PRINTS, i16tostr3left(stats.finishedPrints), false);            // Completed  : 666
 
-    duration_t elapsed = stats.printTime;
-    elapsed.toString(buffer);
-
     STATIC_PAIR_P(MSG_INFO_PRINT_TIME, "", false);                                                 // Total print Time:
-    STATIC_ITEM("> ", false, false, buffer);                                                       // > 99y 364d 23h 59m 59s
+    STATIC_ITEM("> ", false, false, duration_t(stats.printTime).toString(buffer));                 // > 99y 364d 23h 59m 59s
 
     STATIC_PAIR_P(MSG_INFO_PRINT_LONGEST, "", false);                                              // Longest job time:
-    elapsed = stats.longestPrint;
-    elapsed.toString(buffer);
-    STATIC_ITEM("> ", false, false, buffer);                                                       // > 99y 364d 23h 59m 59s
+    STATIC_ITEM("> ", false, false, duration_t(stats.longestPrint).toString(buffer));              // > 99y 364d 23h 59m 59s
 
     STATIC_PAIR_P(MSG_INFO_PRINT_FILAMENT, "", false);                                             // Extruded total:
     sprintf_P(buffer, PSTR("%ld.%im"), long(stats.filamentUsed / 1000), int16_t(stats.filamentUsed / 100) % 10);
     STATIC_ITEM("> ", false, false, buffer);                                                       // > 125m
 
     #if SERVICE_INTERVAL_1 > 0
-      elapsed = stats.nextService1;
-      elapsed.toString(buffer);
       STATIC_ITEM(SERVICE_NAME_1 MSG_SERVICE_IN, false, false);                                    // Service X in:
-      STATIC_ITEM("> ", false, false, buffer);                                                     // > 7d 12h 11m 10s
+      STATIC_ITEM("> ", false, false, duration_t(stats.nextService1).toString(buffer));            // > 7d 12h 11m 10s
     #endif
 
     #if SERVICE_INTERVAL_2 > 0
-      elapsed = stats.nextService2;
-      elapsed.toString(buffer);
       STATIC_ITEM(SERVICE_NAME_2 MSG_SERVICE_IN, false, false);
-      STATIC_ITEM("> ", false, false, buffer);
+      STATIC_ITEM("> ", false, false, duration_t(stats.nextService2).toString(buffer));
     #endif
 
     #if SERVICE_INTERVAL_3 > 0
-      elapsed = stats.nextService3;
-      elapsed.toString(buffer);
       STATIC_ITEM(SERVICE_NAME_3 MSG_SERVICE_IN, false, false);
-      STATIC_ITEM("> ", false, false, buffer);
+      STATIC_ITEM("> ", false, false, duration_t(stats.nextService3).toString(buffer));
     #endif
 
     END_SCREEN();

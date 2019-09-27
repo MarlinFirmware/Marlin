@@ -31,8 +31,8 @@
  */
 void GcodeSuite::M31() {
   char buffer[21];
-  duration_t elapsed = print_job_timer.duration();
-  elapsed.toString(buffer);
+  duration_t(print_job_timer.duration()).toString(buffer);
+
   ui.set_status(buffer);
 
   SERIAL_ECHO_START();
