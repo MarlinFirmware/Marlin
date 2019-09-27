@@ -34,6 +34,9 @@
   #include "game/game.h"
 #endif
 
+#define STATIC_PAIR(MSG, VALUE, CNTR)    do {strcpy_P(buffer, PSTR(": ")); strcpy(buffer, VALUE); STATIC_ITEM(MSG, CNTR, false, buffer);} while(0)
+#define STATIC_PAIR_P(MSG, PVALUE, CNTR) do {strcpy_P(buffer, PSTR(": ")); strcpy_P(buffer, PSTR(PVALUE)); STATIC_ITEM(MSG, CNTR, false, buffer);} while(0)
+
 #if ENABLED(PRINTCOUNTER)
 
   #include "../../module/printcounter.h"
@@ -48,12 +51,9 @@
       #endif
     );
 
-    char buffer[21];
+    char buffer[21];  // for STATIC_PAIR_P
 
     printStatistics stats = print_job_timer.getStats();
-
-    #define STATIC_PAIR(MSG, VALUE, CNTR)    do {strcpy_P(buffer, PSTR(": ")); strcpy(buffer, VALUE); STATIC_ITEM(MSG, CNTR, false, buffer);} while(0)
-    #define STATIC_PAIR_P(MSG, PVALUE, CNTR) do {strcpy_P(buffer, PSTR(": ")); strcpy_P(buffer, PSTR(PVALUE)); STATIC_ITEM(MSG, CNTR, false, buffer);} while(0)
 
     START_SCREEN();                                                                                // 12345678901234567890
     STATIC_PAIR(MSG_INFO_PRINT_COUNT, i16tostr3left(stats.totalPrints), false, false);             // Print Count: 999
@@ -80,12 +80,14 @@
       STATIC_ITEM(SERVICE_NAME_1 MSG_SERVICE_IN, false, false);                                    // Service X in:
       STATIC_ITEM("> ", false, false, buffer);                                                     // > 7d 12h 11m 10s
     #endif
+
     #if SERVICE_INTERVAL_2 > 0
       elapsed = stats.nextService2;
       elapsed.toString(buffer);
       STATIC_ITEM(SERVICE_NAME_2 MSG_SERVICE_IN, false, false);
       STATIC_ITEM("> ", false, false, buffer);
     #endif
+
     #if SERVICE_INTERVAL_3 > 0
       elapsed = stats.nextService3;
       elapsed.toString(buffer);
@@ -108,7 +110,7 @@ void menu_info_thermistors() {
     #endif
   );
 
-  char buffer[21];
+  char buffer[21];  // for STATIC_PAIR_P
 
   START_SCREEN();
   #if EXTRUDERS
@@ -185,7 +187,7 @@ void menu_info_board() {
     #endif
   );
 
-  char buffer[21];
+  char buffer[21];  // for STATIC_PAIR_P
 
   START_SCREEN();
   STATIC_ITEM(BOARD_INFO_NAME, true, true);                       // MyPrinterController

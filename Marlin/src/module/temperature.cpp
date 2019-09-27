@@ -2935,11 +2935,11 @@ void Temperature::isr() {
       const bool heating = isHeatingHotend(e);
       ui.status_printf_P(0,
         #if HOTENDS > 1
-          PSTR("E%c " S_FMT), '1' + e,
+          PSTR("E%c " S_FMT), '1' + e
         #else
-          PSTR("E " S_FMT),
+          PSTR("E " S_FMT)
         #endif
-        heating ? PSTR(MSG_HEATING) : PSTR(MSG_COOLING)
+        , heating ? PSTR(MSG_HEATING) : PSTR(MSG_COOLING)
       );
     }
   #endif
