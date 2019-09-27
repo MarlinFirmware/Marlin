@@ -102,6 +102,7 @@ void menu_info_thermistors() {
   char buffer[21];  // for STATIC_PAIR_P
 
   START_SCREEN();
+
   #if EXTRUDERS
     #define THERMISTOR_ID TEMP_SENSOR_0
     #include "../thermistornames.h"
@@ -110,7 +111,7 @@ void menu_info_thermistors() {
     STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_0_MAXTEMP), SS_LEFT);
   #endif
 
-  #if TEMP_SENSOR_1
+  #if TEMP_SENSOR_1 != 0
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_1
     #include "../thermistornames.h"
@@ -119,7 +120,7 @@ void menu_info_thermistors() {
     STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_1_MAXTEMP), SS_LEFT);
   #endif
 
-  #if TEMP_SENSOR_2
+  #if TEMP_SENSOR_2 != 0
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_2
     #include "../thermistornames.h"
@@ -128,7 +129,7 @@ void menu_info_thermistors() {
     STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_2_MAXTEMP), SS_LEFT);
   #endif
 
-  #if TEMP_SENSOR_3
+  #if TEMP_SENSOR_3 != 0
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_3
     #include "../thermistornames.h"
@@ -137,7 +138,7 @@ void menu_info_thermistors() {
     STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_3_MAXTEMP), SS_LEFT);
   #endif
 
-  #if TEMP_SENSOR_4
+  #if TEMP_SENSOR_4 != 0
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_4
     #include "../thermistornames.h"
@@ -146,7 +147,7 @@ void menu_info_thermistors() {
     STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_4_MAXTEMP), SS_LEFT);
   #endif
 
-  #if TEMP_SENSOR_5
+  #if TEMP_SENSOR_5 != 0
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_5
     #include "../thermistornames.h"
@@ -163,7 +164,7 @@ void menu_info_thermistors() {
       #else
         MSG_INFO_RUNAWAY_OFF
       #endif
-      , false, true
+      , SS_INVERT
     );
   }
   #endif
@@ -182,7 +183,7 @@ void menu_info_thermistors() {
       #else
         MSG_INFO_RUNAWAY_OFF
       #endif
-      , false, true
+      , SS_INVERT
     );
   }
   #endif
@@ -192,16 +193,16 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_CHAMBER
     #include "../thermistornames.h"
-    STATIC_ITEM("TCham:" THERMISTOR_NAME, false, true);
-    STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(CHAMBER_MINTEMP), false);
-    STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(CHAMBER_MAXTEMP), false);
+    STATIC_ITEM("TCham:" THERMISTOR_NAME, SS_INVERT);
+    STATIC_PAIR_P(MSG_INFO_MIN_TEMP, STRINGIFY(CHAMBER_MINTEMP), SS_LEFT);
+    STATIC_PAIR_P(MSG_INFO_MAX_TEMP, STRINGIFY(CHAMBER_MAXTEMP), SS_LEFT);
     STATIC_ITEM(
       #if WATCH_CHAMBER
         MSG_INFO_RUNAWAY_ON
       #else
         MSG_INFO_RUNAWAY_OFF
       #endif
-      , false, true
+      , SS_INVERT
     );
   }
   #endif
