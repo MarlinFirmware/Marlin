@@ -169,4 +169,6 @@
   #define LCD_PINS_ENABLE  P0_18
   #define LCD_PINS_D4      P0_15
   #define KILL_PIN         P2_11
+#elif HAS_SPI_LCD
+  #error "Only the CR10_STOCKDISPLAY is supported with TH3D EZBoard."
 #endif
