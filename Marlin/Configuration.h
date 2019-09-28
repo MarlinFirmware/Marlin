@@ -2009,6 +2009,8 @@
 
 #if(ENABLED(MachineEnder3))
   #define MESH_INSET 40          // Set Mesh bounds as an inset region of the bed
+#elif ENABLED(MachineCR10SV2)
+  #define MESH_INSET 30
 #else
   #define MESH_INSET 20          // Set Mesh bounds as an inset region of the bed
 #endif
