@@ -1953,7 +1953,7 @@
 
   // Set the number of grid points per dimension.
 
-#if ENABLED(MachineCR10Max)
+#if ENABLED(MachineCR10Max, MachineCR10SV2)
   #define MESH_INSET 15
 #else
   #define MESH_INSET 5
