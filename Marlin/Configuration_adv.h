@@ -1266,7 +1266,7 @@
  * See http://marlinfw.org/docs/features/lin_advance.html for full instructions.
  * Mention @Sebastianv650 on GitHub to alert the author of any issues.
  */
-#if NONE(MachineCR10Orig, LowMemoryBoard, MachineCR10SPro, MachineCR10Max, SKR13) || ENABLED(OrigLA) || ENABLED(SKR13, SKR13_UART)
+#if NONE(MachineCR10Orig, LowMemoryBoard, MachineCR10SPro, MachineCR10Max, SKR13, MachineCR10SV2) || ENABLED(OrigLA) || ENABLED(SKR13, SKR13_UART)
   #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)

@@ -15,8 +15,9 @@
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
+#define MachineCR10SV2
 //#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
-#define MachineCRX
+//#define MachineCRX
 //#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
@@ -34,11 +35,11 @@
 //#define OrigLCD // Upgraded mainboard with single cable Ender LCD
 //#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
 //#define ForceCRXDisplay
-#define Force10SProDisplay
+//#define Force10SProDisplay
 
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
-#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
-#define DualFilSensors //Using dual filament sensors on XMax and YMAX
+//#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
+//#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 
 //#define MachineCR10Orig // Forces Melzi board
 //#define Melzi_To_SBoardUpgrade // Upgrade Melzi board to 10S board
@@ -275,7 +276,7 @@
   #define MachineCR10Orig
 #endif
 
-#if ENABLED(MachineCR10) || ENABLED(MachineCR10S)
+#if ANY(MachineCR10, MachineCR10S, MachineCR10SV2)
   #define MachineCR10Std
 #endif
 
@@ -336,6 +337,8 @@
 #define CUSTOM_MACHINE_NAME "TM3D 10S Pro"
 #elif(ENABLED(MachineCR10Max))
 #define CUSTOM_MACHINE_NAME "TM3D Max"
+#elif(ENABLED(MachineCR10SV2))
+#define CUSTOM_MACHINE_NAME "Tm3D CR10V2"
 #elif(ENABLED(MachineCR10Std))
 #define CUSTOM_MACHINE_NAME "300 SuPeR"
 #elif(ENABLED(MachineS4))
@@ -840,6 +843,10 @@
     #define DEFAULT_Kp 19.00
     #define DEFAULT_Ki 1.40
     #define DEFAULT_Kd 66.00
+  #elif ENABLED(MachineCR10SV2)
+    #define  DEFAULT_Kp 19.47
+    #define  DEFAULT_Ki 1.59
+    #define  DEFAULT_Kd 59.40
   #else
     #define  DEFAULT_Kp 17.42
     #define  DEFAULT_Ki 1.27
@@ -888,7 +895,7 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
- #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+ #if(DISABLED(MachineCR10Orig, LowMemoryBoard))
 #define PIDTEMPBED
 #endif
 //#define BED_LIMIT_SWITCHING
@@ -1059,7 +1066,7 @@
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
 
-#if ENABLED(SKR13) && DISABLED(SKR13_UART)
+#if ANY(SKR13, MachineCR10SV2) && DISABLED(SKR13_UART)
   #if ENABLED(SKR13_2209)
     #define X_DRIVER_TYPE  TMC2209_STANDALONE
     #define Y_DRIVER_TYPE  TMC2209_STANDALONE
@@ -1152,7 +1159,7 @@
 
 #if(ENABLED(Bondtech) || ENABLED(E3DTitan))
   #define EStepsmm 415
-#elif ENABLED(EZRstruder)
+#elif ANY(EZRstruder, MachineCR10SV2)
   #define EStepsmm 93
 #elif ANY(MachineCR10SPro, MachineCR10Max)
   #define EStepsmm 140
@@ -1176,37 +1183,37 @@
 #if ENABLED(MachineCR20Pro)
   #define DEFAULT_MAX_FEEDRATE          { 7500, 7500, 10, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 75 }
-  #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif (ANY(MachineMini, MachineCR20, MachineEnder2, MachineEnder3, MachineEnder4, MachineEnder5, MachineEnder5Plus))
   #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 75 }
-  #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif (ENABLED(MachineCR10SPro))
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 70 }
   #define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 60 }
-  #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif (ENABLED(MachineCR10Std))
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 1500, 1500, 100, 75 }
-  #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif ENABLED( MachineS4)
   #define DEFAULT_MAX_FEEDRATE          { 500, 400, 10, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 1000, 750, 100, 75 }
-  #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif ANY(MachineS5, MachineCR10Max)
   #define DEFAULT_MAX_FEEDRATE          { 500, 400, 15, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 1000, 700, 100, 75 }
-  #define DEFAULT_ACCELERATION          400    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #endif
@@ -1262,7 +1269,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-//#define S_CURVE_ACCELERATION
+#define S_CURVE_ACCELERATION
 
 //===========================================================================
 //============================= Z Probe Options =============================
