@@ -1391,17 +1391,17 @@
                   dx = (x_max - x_min) / (g29_grid_size - 1),
                   dy = (y_max - y_min) / (g29_grid_size - 1);
 
-    vector_3 points[3] = {
-    #if ENABLED(HAS_FIXED_3POINT)
-      vector_3(PROBE_PT_1_X, PROBE_PT_1_Y, 0),
-      vector_3(PROBE_PT_2_X, PROBE_PT_2_Y, 0),
-      vector_3(PROBE_PT_3_X, PROBE_PT_3_Y, 0)
-    #else
-      vector_3(x_min, y_min, 0),
-      vector_3(x_max, y_min, 0),
-      vector_3((x_max - x_min) / 2, y_max, 0)
-    #endif
-    };
+      vector_3 points[3] = {
+        #if ENABLED(HAS_FIXED_3POINT)
+          vector_3(PROBE_PT_1_X, PROBE_PT_1_Y, 0),
+          vector_3(PROBE_PT_2_X, PROBE_PT_2_Y, 0),
+          vector_3(PROBE_PT_3_X, PROBE_PT_3_Y, 0)
+        #else
+          vector_3(x_min, y_min, 0),
+          vector_3(x_max, y_min, 0),
+          vector_3((x_max - x_min) / 2, y_max, 0)
+        #endif
+      };
 
       float measured_z;
       bool abort_flag = false;
