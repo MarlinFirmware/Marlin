@@ -113,6 +113,7 @@ uint16_t HAL_adc_get_result() {
 }
 
 void flashFirmware(int16_t value) {
+  UNUSED(value);
   NVIC_SystemReset();
 }
 
