@@ -164,7 +164,7 @@ void menu_info_thermistors() {
       #else
         MSG_INFO_RUNAWAY_OFF
       #endif
-      , SS_INVERT
+      , SS_LEFT
     );
   }
   #endif
@@ -183,7 +183,7 @@ void menu_info_thermistors() {
       #else
         MSG_INFO_RUNAWAY_OFF
       #endif
-      , SS_INVERT
+      , SS_LEFT
     );
   }
   #endif
@@ -202,7 +202,7 @@ void menu_info_thermistors() {
       #else
         MSG_INFO_RUNAWAY_OFF
       #endif
-      , SS_INVERT
+      , SS_LEFT
     );
   }
   #endif
