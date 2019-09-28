@@ -254,7 +254,6 @@
     #define ABL_BI
   #endif
   #define MeshStd
-  #define Z_STOP_PIN 19
   #define lerdgeFilSensor
 #endif
 
@@ -270,6 +269,10 @@
   #endif
   #define MeshStd
 
+#endif
+
+#if ANY(MachineCR10SV2, MachineCR10Max)
+  #define Z_STOP_PIN 19
 #endif
 
 #if ANY(MachineEnder2, MachineEnder3, MachineCR10) && NONE(Melzi_To_SBoardUpgrade, SKR13)
