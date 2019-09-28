@@ -69,7 +69,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(8) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXTF(VELOCITY))
       .tag(9) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXTF(ACCELERATION))
       #if ENABLED(JUNCTION_DEVIATION)
-        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JUNCTION_DEVIATION))
+        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JUNC_DEVIATION))
       #else
         .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JERK))
       #endif

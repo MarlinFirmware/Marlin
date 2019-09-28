@@ -66,7 +66,7 @@ namespace Language_en {
   PROGMEM Language_Str AMAX_E3                  = u8"Amax E3";
   PROGMEM Language_Str AMAX_E4                  = u8"Amax E4";
   PROGMEM Language_Str JERK                     = u8"Jerk";
-  PROGMEM Language_Str JUNCTION_DEVIATION       = u8"Junc Dev";
+  PROGMEM Language_Str JUNC_DEVIATION           = u8"Junc Dev";
   PROGMEM Language_Str BACKLASH                 = u8"Backlash";
   PROGMEM Language_Str SMOOTHING                = u8"Smoothing";
   PROGMEM Language_Str CORRECTION               = u8"Correction";
