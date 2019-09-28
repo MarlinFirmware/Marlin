@@ -310,9 +310,6 @@
 #ifndef MSG_UBL_DOING_G29
   #define MSG_UBL_DOING_G29                   _UxGT("Doing G29")
 #endif
-#ifndef MSG_UBL_UNHOMED
-  #define MSG_UBL_UNHOMED                     _UxGT("Home XYZ First")
-#endif
 #ifndef MSG_UBL_TOOLS
   #define MSG_UBL_TOOLS                       _UxGT("UBL Tools")
 #endif
@@ -1026,11 +1023,8 @@
 #ifndef MSG_MANUAL_STOW
   #define MSG_MANUAL_STOW                     _UxGT("Stow Z-Probe")
 #endif
-#ifndef MSG_HOME
-  #define MSG_HOME                            _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#endif
-#ifndef MSG_FIRST
-  #define MSG_FIRST                           _UxGT("First")
+#ifndef MSG_HOME_FIRST
+  #define MSG_HOME_FIRST                      _UxGT("Home %s%s%s First")
 #endif
 #ifndef MSG_ZPROBE_ZOFFSET
   #define MSG_ZPROBE_ZOFFSET                  _UxGT("Probe Z Offset")
@@ -1090,7 +1084,7 @@
   #define MSG_ERR_MINTEMP_CHAMBER             _UxGT("Err: MINTEMP CHAMBER")
 #endif
 #ifndef MSG_ERR_Z_HOMING
-  #define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+  #define MSG_ERR_Z_HOMING                    _UxGT("Home XY First")
 #endif
 #ifndef MSG_HALTED
   #define MSG_HALTED                          _UxGT("PRINTER HALTED")

@@ -414,7 +414,7 @@ void disable_all_steppers() {
 
   void event_probe_recover() {
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"));
+      host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), PSTR("Dismiss"));
     #endif
     #ifdef ACTION_ON_G29_RECOVER
       host_action(PSTR(ACTION_ON_G29_RECOVER));
@@ -962,10 +962,11 @@ void setup() {
   SERIAL_EOL();
 
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
-    SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
-    SERIAL_ECHOPGM(STRING_DISTRIBUTION_DATE);
-    SERIAL_ECHOLNPGM(MSG_AUTHOR STRING_CONFIG_H_AUTHOR);
+    SERIAL_ECHO_MSG(
+      MSG_CONFIGURATION_VER
+      STRING_DISTRIBUTION_DATE
+      MSG_AUTHOR STRING_CONFIG_H_AUTHOR
+    );
     SERIAL_ECHO_MSG("Compiled: " __DATE__);
   #endif
 
@@ -974,6 +975,12 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
+
+  // Set up LEDs early
+  #if HAS_COLOR_LEDS
+    leds.setup();
+  #endif
+
   ui.init();
   ui.reset_status();
 
@@ -1068,10 +1075,6 @@ void setup() {
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
 
-  #if HAS_COLOR_LEDS
-    leds.setup();
-  #endif
-
   #if HAS_CASE_LIGHT
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
       if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
@@ -1150,6 +1153,10 @@ void setup() {
 
   #if ENABLED(INIT_SDCARD_ON_BOOT) && !HAS_SPI_LCD
     card.beginautostart();
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    host_action_prompt_end();
   #endif
 
   #if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)

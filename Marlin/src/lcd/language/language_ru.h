@@ -96,7 +96,6 @@
 #define MSG_Z_OFFSET                        _UxGT("2-е сопло Z")
 
 #define MSG_UBL_DOING_G29                   _UxGT("Выполняем G29")
-#define MSG_UBL_UNHOMED                     _UxGT("Паркуем сначала XYZ")
 #define MSG_UBL_TOOLS                       _UxGT("Утилиты UBL")
 #define MSG_UBL_LEVEL_BED                   _UxGT("Калибровка UBL")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Постр. сетку от руки")
@@ -316,8 +315,7 @@
 
 // TODO: TouchMI Probe, Manual deploy/stow
 
-#define MSG_HOME                            _UxGT("Паркуй") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("сначала")
+#define MSG_HOME_FIRST                      _UxGT("Паркуй %s%s%s сначала")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Смещение Z")
 #define MSG_BABYSTEP_X                      _UxGT("Микрошаг X")
 #define MSG_BABYSTEP_Y                      _UxGT("Микрошаг Y")
@@ -334,7 +332,7 @@
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Ошибка: Т стола макс")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Ошибка: Т стола мин.")
 // TODO: Heated chamber
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Паркуй XY сначала")
 #define MSG_HALTED                          _UxGT("ПРИНТЕР ОСТАНОВЛЕН")
 #define MSG_PLEASE_RESET                    _UxGT("Сделайте сброс")
 #define MSG_SHORT_DAY                       _UxGT("д") // One character only

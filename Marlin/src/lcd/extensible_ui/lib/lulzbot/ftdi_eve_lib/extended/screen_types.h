@@ -176,8 +176,7 @@ class CachedScreen {
     static bool storeBackground() {
       DLCache dlcache(DL_SLOT);
       if (!dlcache.store(DL_SIZE)) {
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM("CachedScreen::storeBackground() failed: not enough DL cache space");
+        SERIAL_ECHO_MSG("CachedScreen::storeBackground() failed: not enough DL cache space");
         return false;
       }
       return true;

@@ -213,8 +213,8 @@ extern "C" {
 #endif
 
 
-extern void sysclk_enable_usb();
-extern void sysclk_disable_usb();
+extern void sysclk_enable_usb(void);
+extern void sysclk_disable_usb(void);
 
 //! @}
 

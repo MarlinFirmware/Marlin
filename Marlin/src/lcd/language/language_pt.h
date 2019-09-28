@@ -162,8 +162,7 @@
 #define MSG_INIT_MEDIA                      _UxGT("Inici. cartão SD")
 #define MSG_CHANGE_MEDIA                    _UxGT("Trocar cartão SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sensor fora/base")
-#define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("first")
+#define MSG_HOME_FIRST                      _UxGT("Home %s%s%s first")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Desvio Z")
 #define MSG_BABYSTEP_X                      _UxGT("Babystep X")
 #define MSG_BABYSTEP_Y                      _UxGT("Babystep Y")

@@ -158,7 +158,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
                   #endif
                 );
 
-    if (axis_unhomed_error(true, false, false)) return;
+    if (axis_unhomed_error(_BV(X_AXIS))) return;
 
     /**
      * Z Lift and Nozzle Offset shift ar defined in caller method to work equal with any Multi Hotend realization

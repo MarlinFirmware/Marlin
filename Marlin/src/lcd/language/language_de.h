@@ -121,7 +121,6 @@
 #define MSG_Y_OFFSET                        _UxGT("2. Düse Y")
 #define MSG_Z_OFFSET                        _UxGT("2. Düse Z")
 #define MSG_UBL_DOING_G29                   _UxGT("G29 ausführen")
-#define MSG_UBL_UNHOMED                     _UxGT("Home XYZ zuerst")
 #define MSG_UBL_TOOLS                       _UxGT("UBL-Werkzeuge")
 #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Netz manuell erst.")
@@ -363,8 +362,7 @@
 #define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("TouchMI ausfahren")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Z-Sonde ausfahren")
 #define MSG_MANUAL_STOW                     _UxGT("Z-Sonde einfahren")
-#define MSG_HOME                            _UxGT("Vorher") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("homen")
+#define MSG_HOME_FIRST                      _UxGT("Vorher %s%s%s homen")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Sondenversatz Z")
 #define MSG_BABYSTEP_X                      _UxGT("Babystep X")
 #define MSG_BABYSTEP_Y                      _UxGT("Babystep Y")
@@ -384,7 +382,7 @@
 #define MSG_ERR_MINTEMP_BED                 _UxGT("BETT ") LCD_STR_THERMOMETER _UxGT(" UNTERSCHRITTEN")
 #define MSG_ERR_MAXTEMP_CHAMBER             _UxGT("Err:Gehäuse max Temp")
 #define MSG_ERR_MINTEMP_CHAMBER             _UxGT("Err:Gehäuse min Temp")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Vorher XY vorher")
 #define MSG_HALTED                          _UxGT("DRUCKER GESTOPPT")
 #define MSG_PLEASE_RESET                    _UxGT("Bitte neustarten")
 #define MSG_SHORT_DAY                       _UxGT("t") // One character only

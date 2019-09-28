@@ -79,7 +79,6 @@
 #define MSG_USER_MENU                       _UxGT("客制命令") // "Custom Commands"
 
 #define MSG_UBL_DOING_G29                   _UxGT("执行G29") // "Doing G29"
-#define MSG_UBL_UNHOMED                     _UxGT("先回XYZ原點") // "Home XYZ first"
 #define MSG_UBL_TOOLS                       _UxGT("UBL工具") // "UBL Tools"
 #define MSG_UBL_LEVEL_BED                   _UxGT("統一熱床調平(UBL)") // "Unified Bed Leveling"
 #define MSG_UBL_MANUAL_MESH                 _UxGT("手工建网") // "Manually Build Mesh"
@@ -274,8 +273,7 @@
 #define MSG_BLTOUCH_RESET                   _UxGT("重置BLTouch")  // "Reset BLTouch"
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("部署BLTouch") // "Deploy BLTouch"
 #define MSG_BLTOUCH_STOW                    _UxGT("裝載BLTouch")   // "Stow BLTouch"
-#define MSG_HOME                            _UxGT("歸位")  //"Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("先")  //"first"
+#define MSG_HOME_FIRST                      _UxGT("歸位 %s%s%s 先")  //"Home ... first"
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z偏移")  //"Z Offset"
 #define MSG_BABYSTEP_X                      _UxGT("微量調整X軸")  //"Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
 #define MSG_BABYSTEP_Y                      _UxGT("微量調整Y軸")  //"Babystep Y"
@@ -288,7 +286,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("錯誤：最低溫度")  //"Err: MINTEMP"
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("錯誤：最高熱床溫度")  //"Err: MAXTEMP BED"
 #define MSG_ERR_MINTEMP_BED                 _UxGT("錯誤：最低熱床溫度")  //"Err: MINTEMP BED"
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("歸位 XY 先")  //"Home XY First"
 #define MSG_HALTED                          _UxGT("印表機停機")  //"PRINTER HALTED"
 #define MSG_PLEASE_RESET                    _UxGT("請重置")  //"Please reset"
 #define MSG_SHORT_DAY                       _UxGT("天")  //"d" // One character only

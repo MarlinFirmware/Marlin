@@ -127,7 +127,7 @@ void GcodeSuite::M420() {
     }
 
     // L or V display the map info
-    if (parser.seen('L') || parser.seen('V')) {
+    if (parser.seen("LV")) {
       ubl.display_map(parser.byteval('T'));
       SERIAL_ECHOPGM("Mesh is ");
       if (!ubl.mesh_is_valid()) SERIAL_ECHOPGM("in");

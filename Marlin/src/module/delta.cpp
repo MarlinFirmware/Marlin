@@ -231,12 +231,12 @@ void home_delta() {
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  destination[Z_AXIS] = (delta_height
+  current_position[Z_AXIS] = (delta_height + 10
     #if HAS_BED_PROBE
       - probe_offset[Z_AXIS]
     #endif
-    + 10);
-  buffer_line_to_destination(homing_feedrate(X_AXIS));
+  );
+  line_to_current_position(homing_feedrate(X_AXIS));
   planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.

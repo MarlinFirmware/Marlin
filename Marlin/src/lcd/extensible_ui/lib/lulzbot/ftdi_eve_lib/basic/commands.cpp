@@ -923,8 +923,7 @@ template <class T> bool CLCD::CommandFifo::_write_unaligned(T data, uint16_t len
 
   #if ENABLED(TOUCH_UI_DEBUG)
   if (command_write_ptr == 0xFFFFFFFFul) {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPGM("Attempt to write to FIFO before CommandFifo::Cmd_Start().");
+    SERIAL_ECHO_MSG("Attempt to write to FIFO before CommandFifo::Cmd_Start().");
   }
   #endif
 
@@ -1016,8 +1015,8 @@ template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
   if (Command_Space < (len + padding)) {
     #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("Waiting for ", len + padding);
-      SERIAL_ECHOPAIR(" bytes in command queue, now free: ", Command_Space);
+      SERIAL_ECHOPAIR("Waiting for ", len + padding,
+                      " bytes in command queue, now free: ", Command_Space);
     #endif
     do {
       Command_Space = mem_read_32(REG::CMDB_SPACE) & 0x0FFF;
@@ -1071,8 +1070,7 @@ void CLCD::init() {
    uint8_t device_id = mem_read_8(REG::ID);            // Read Device ID, Should Be 0x7C;
    if (device_id == 0x7c) {
      #if ENABLED(TOUCH_UI_DEBUG)
-       SERIAL_ECHO_START();
-       SERIAL_ECHOLNPGM("FTDI chip initialized ");
+       SERIAL_ECHO_MSG("FTDI chip initialized ");
      #endif
      break;
    }

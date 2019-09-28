@@ -66,8 +66,7 @@ bool MediaPlayerScreen::playCardMedia() {
     if (!reader.open(fname))
       return false;
 
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPGM("Starting to play STARTUP.AVI");
+    SERIAL_ECHO_MSG("Starting to play STARTUP.AVI");
     playStream(&reader, MediaFileReader::read);
     reader.close();
   #endif
@@ -79,8 +78,7 @@ bool MediaPlayerScreen::playBootMedia() {
   UIFlashStorage::BootMediaReader reader;
   if (!reader.isAvailable()) return false;
 
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPGM("Starting to play boot video");
+  SERIAL_ECHO_MSG("Starting to play boot video");
   playStream(&reader, UIFlashStorage::BootMediaReader::read);
   return true;
 }
@@ -138,8 +136,7 @@ void MediaPlayerScreen::playStream(void *obj, media_streamer_func_t *data_stream
             t = millis();
             timeouts--;
             if (timeouts == 0) {
-              SERIAL_ECHO_START();
-              SERIAL_ECHOLNPGM("Timeout playing video");
+              SERIAL_ECHO_MSG("Timeout playing video");
               cmd.reset();
               goto exit;
             }
@@ -151,8 +148,7 @@ void MediaPlayerScreen::playStream(void *obj, media_streamer_func_t *data_stream
         CLCD::mem_write_32(CLCD::REG::MEDIAFIFO_WRITE, writePtr);
       } while (nBytes == block_size);
 
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPGM("Done playing video");
+      SERIAL_ECHO_MSG("Done playing video");
 
     exit:
       spiInit(SPI_SPEED); // Restore default speed

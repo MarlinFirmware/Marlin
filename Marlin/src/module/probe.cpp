@@ -373,12 +373,11 @@ bool set_probe_deployed(const bool deploy) {
     do_probe_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
-    #if ENABLED(Z_PROBE_SLED)
-      #define _AUE_ARGS true, false, false
-    #else
-      #define _AUE_ARGS
-    #endif
-    if (axis_unhomed_error(_AUE_ARGS)) {
+    if (axis_unhomed_error(
+      #if ENABLED(Z_PROBE_SLED)
+        _BV(X_AXIS)
+      #endif
+    )) {
       SERIAL_ERROR_MSG(MSG_STOP_UNHOMED);
       stop();
       return true;
@@ -447,7 +446,7 @@ bool set_probe_deployed(const bool deploy) {
   const char msg_wait_for_bed_heating[25] PROGMEM = "Wait for bed heating...\n";
 #endif
 
-static bool do_probe_move(const float z, const float fr_mm_s) {
+static bool do_probe_move(const float z, const feedRate_t fr_mm_s) {
   if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
 
   #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)

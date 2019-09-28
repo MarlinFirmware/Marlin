@@ -289,7 +289,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 
 bool StatusScreen::onTouchHeld(uint8_t tag) {
   if (tag >= 1 && tag <= 4 && !jog_xy) return false;
-  const float s  = min_speed  + (fine_motion ? 0 : (max_speed  - min_speed)  * sq(increment));
+  const float s = min_speed + (fine_motion ? 0 : (max_speed - min_speed) * sq(increment));
   switch (tag) {
     case 1: jog(-s,  0,  0); break;
     case 2: jog( s,  0,  0); break;
@@ -301,7 +301,7 @@ bool StatusScreen::onTouchHeld(uint8_t tag) {
     case 8:
     {
       if (ExtUI::isMoving()) return false;
-      const float feedrate  =  emin_speed + (fine_motion ? 0 : (emax_speed - emin_speed) * sq(increment));
+      const feedRate_t feedrate = emin_speed + (fine_motion ? 0 : (emax_speed - emin_speed) * sq(increment));
       const float increment = 0.25 * feedrate * (tag == 7 ? -1 : 1);
       MoveAxisScreen::setManualFeedrate(E0, feedrate);
       UI_INCREMENT(AxisPosition_mm, E0);

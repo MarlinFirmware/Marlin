@@ -47,14 +47,6 @@
         }
       },
       {
-        "command": "pioclean",
-        "title": "PIO Clean",
-        "icon": {
-          "light": "resources/C48x48_light.svg",
-          "dark": "resources/C48x48_dark.svg"
-        }
-      },
-      {
         "command": "pioupload",
         "title": "PIO Upload",
         "icon": {
@@ -69,6 +61,14 @@
           "light": "resources/T48x48_light.svg",
           "dark": "resources/T48x48_dark.svg"
         }
+      },
+      {
+        "command": "pioclean",
+        "title": "PIO Clean",
+        "icon": {
+          "light": "resources/C48x48_light.svg",
+          "dark": "resources/C48x48_dark.svg"
+        }
       }
     ],
     "menus": {
@@ -78,15 +78,15 @@
           "group": "navigation@1"
         },
         {
-          "command": "pioclean",
+          "command": "pioupload",
           "group": "navigation@2"
         },
         {
-          "command": "pioupload",
+          "command": "piotraceback",
           "group": "navigation@3"
         },
         {
-          "command": "piotraceback",
+          "command": "pioclean",
           "group": "navigation@4"
         }
       ]

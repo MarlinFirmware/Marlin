@@ -78,7 +78,7 @@
 //!
 //! @brief This function initializes the hw/sw resources required to drive the SD_MMC_SPI.
 //!/
-extern void           sd_mmc_spi_mem_init();
+extern void           sd_mmc_spi_mem_init(void);
 
 //!
 //! @brief This function tests the state of the SD_MMC memory and sends it to the Host.
@@ -91,7 +91,7 @@ extern void           sd_mmc_spi_mem_init();
 //!   Media not present    ->    CTRL_NO_PRESENT
 //!   Media has changed    ->    CTRL_BUSY
 //!/
-extern Ctrl_status    sd_mmc_spi_test_unit_ready();
+extern Ctrl_status    sd_mmc_spi_test_unit_ready(void);
 
 //!
 //! @brief This function gives the address of the last valid sector.
@@ -124,14 +124,14 @@ extern bool sd_mmc_spi_unload(bool unload);
 //!
 //! @return false  -> the memory is not write-protected (always)
 //!/
-extern bool           sd_mmc_spi_wr_protect();
+extern bool           sd_mmc_spi_wr_protect(void);
 
 //!
 //! @brief This function tells if the memory has been removed or not.
 //!
 //! @return false  -> The memory isn't removed
 //!
-extern bool           sd_mmc_spi_removal();
+extern bool           sd_mmc_spi_removal(void);
 
 
 //---- ACCESS DATA FONCTIONS ----
