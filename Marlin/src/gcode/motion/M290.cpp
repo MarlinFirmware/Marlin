@@ -94,23 +94,37 @@ void GcodeSuite::M290() {
 
   if (!parser.seen("XYZ")) {
     SERIAL_ECHO_START();
+
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET " " MSG_Z, probe_offset[Z_AXIS]);
+    #endif
+
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-      SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET MSG_Z ": ", probe_offset[Z_AXIS]);
-      #if ENABLED(BABYSTEP_XY)
-        SERIAL_ECHOLNPAIR(MSG_X_OFFSET ": ", hotend_offset[X_AXIS][active_extruder]);
-        SERIAL_ECHOLNPAIR(MSG_Y_OFFSET ": ", hotend_offset[Y_AXIS][active_extruder]);
-      #endif
-      SERIAL_ECHOLNPAIR(MSG_Z_OFFSET ": ", hotend_offset[Z_AXIS][active_extruder]);
+    {
+      SERIAL_ECHOLNPAIR("Hotend ", int(active_extruder), "Offset"
+        #if ENABLED(BABYSTEP_XY)
+          " X", hotend_offset[X_AXIS][active_extruder],
+          " Y", hotend_offset[Y_AXIS][active_extruder],
+        #endif
+        " Z", hotend_offset[Z_AXIS][active_extruder]
+      );
+    }
     #endif
+
     #if ENABLED(MESH_BED_LEVELING)
-      SERIAL_ECHOLNPAIR(MSG_Z_OFFSET ": ", mbl.z_offset);
+      SERIAL_ECHOLNPAIR("MBL Adjust Z", mbl.z_offset);
     #endif
+
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-      #if ENABLED(BABYSTEP_XY)
-        SERIAL_ECHOLNPAIR(MSG_BABYSTEP_X ": ", babystep.axis_total[X_AXIS]);
-        SERIAL_ECHOLNPAIR(MSG_BABYSTEP_Y ": ", babystep.axis_total[Y_AXIS]);
-      #endif
-      SERIAL_ECHOLNPAIR(MSG_BABYSTEP_Z ": ", babystep.axis_total[Z_AXIS]);
+    {
+      SERIAL_ECHOLNPAIR("Babystep"
+        #if ENABLED(BABYSTEP_XY)
+          " X", babystep.axis_total[X_AXIS],
+          " Y", babystep.axis_total[Y_AXIS],
+        #endif
+        " Z", babystep.axis_total[Z_AXIS]
+      );
+    }
     #endif
   }
 }
