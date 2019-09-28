@@ -1360,12 +1360,12 @@
  * Useful to get probe points to exact positions on targets or
  * to allow leveling to avoid plate clamps on only specific
  * sides of the bed.
- * 
+ *
  * If you are replacing the prior *_PROBE_BED_POSITION options,
  * LEFT and FRONT values in most cases will map directly over
- * RIGHT and REAR would be the inverse such as 
+ * RIGHT and REAR would be the inverse such as
  * (X/Y_BED_SIZE - RIGHT/BACK_PROBE_BED_POSITION)
- * 
+ *
  * This will allow all positions to match at compilation, however
  * should the probe position be modified with M851XY then the
  * probe points will follow. This prevents any change from causing
