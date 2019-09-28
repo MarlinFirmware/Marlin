@@ -796,6 +796,21 @@
 
 // @section lcd
 
+// @section Dithering
+
+/**
+* Dithering seeks to improve mechanical in the z axis by oscillating the axis about it's intended position 
+* after each z move for a small amount of time and with a decaying amplitude. 
+* This allows the axis to 'average out' and settle more accurately on the intended position.
+* When using dithering babysteps must also be enabled. 
+*/
+
+#define DITHERING
+
+#if ENABLED(DITHERING)
+  #define BABYSTEPPING //dither requires babystepping
+#endif
+
 /**
  * Babystepping enables movement of the axes by tiny increments without changing
  * the current position values. This feature is used primarily to adjust the Z
