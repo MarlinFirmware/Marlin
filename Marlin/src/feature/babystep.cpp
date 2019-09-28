@@ -36,13 +36,10 @@
 Babystep babystep;
 
 volatile int16_t Babystep::steps[BS_TODO_AXIS(Z_AXIS) + 1];
-
-
-int16_t Babystep::accum;
 #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
   int16_t Babystep::axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];
 #endif
-
+int16_t Babystep::accum;
 
 void Babystep::step_axis(const AxisEnum axis) {
   const int16_t curTodo = steps[BS_TODO_AXIS(axis)]; // get rid of volatile for performance
