@@ -165,6 +165,7 @@
             S<print> T<travel> minimum speeds
             Q<minimum segment time>
             X<max X jerk>, Y<max Y jerk>, Z<max Z jerk>, E<max E jerk>
+            D<Dither Amplitude> T<Dither Time> H<Dither Minimum Layer Height>
  * M206 - Set additional homing offset. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M207 - Set Retract Length: S<length>, Feedrate: F<units/min>, and Z lift: Z<distance>. (Requires FWRETRACT)
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>. (Requires FWRETRACT)
@@ -372,6 +373,11 @@
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
   int8_t active_coordinate_system = -1; // machine space
   float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+#endif
+
+#if ENABLED(DITHERING)
+ #include "dither.h"
+ Dithering Dither;
 #endif
 
 bool Running = true;
@@ -3636,6 +3642,13 @@ inline void gcode_G0_G1(
       fast_move ? prepare_uninterpolated_move_to_destination() : prepare_move_to_destination();
     #else
       prepare_move_to_destination();
+    #endif
+
+    #if ENABLED(DITHERING)
+      if (parser.seenval('Z')) {
+        planner.synchronize();
+        Dither.Handle(parser.value_linear_units());
+      }
     #endif
 
     #if ENABLED(NANODLP_Z_SYNC)
@@ -9696,11 +9709,21 @@ inline void gcode_M204() {
  *    Z = Max Z Jerk (units/sec^2)
  *    E = Max E Jerk (units/sec^2)
  *    J = Junction Deviation (mm) (Requires JUNCTION_DEVIATION)
+ *    D = Dither Amplitude (steps) inital amplitude of dither, set to ~0.5-1.5 times the numer of mircosteps (Requires Dither and Babysteps)
+ *    T = Dither Time (ms) how long to dither for (Requires Dither and Babysteps)
+ *    H = Dither Minimum layer height (mm) minimum layer height interval where dither will be used (ensure compatibility with vase mode) (Requires Dither and Babysteps)
  */
 inline void gcode_M205() {
   if (parser.seen('Q')) planner.min_segment_time_us = parser.value_ulong();
   if (parser.seen('S')) planner.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.min_travel_feedrate_mm_s = parser.value_linear_units();
+
+  #if ENABLED(DITHERING)
+    if (parser.seen('D')) {Dither.Amplitude = parser.value_linear_units(); Dither.CalculateParameters(); SERIAL_ECHOLNPAIR("Dither Amplitude: ", Dither.Amplitude);};
+    if (parser.seen('T')) {Dither.TimeMS = parser.value_linear_units(); Dither.CalculateParameters(); SERIAL_ECHOLNPAIR("Dither Time: ", Dither.TimeMS);};
+    if (parser.seen('H')) {Dither.MinLayerInterval = (parser.value_linear_units()); Dither.CalculateParameters(); SERIAL_ECHOLNPAIR("Dither MinLayerHeight: ", Dither.MinLayerInterval);};
+  #endif
+
   #if ENABLED(JUNCTION_DEVIATION)
     if (parser.seen('J')) {
       const float junc_dev = parser.value_linear_units();
