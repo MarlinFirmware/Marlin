@@ -64,13 +64,15 @@
 /**
  * M290: Babystepping
  *
+ * Send 'R' or no parameters for a report.
+ *
  *  X<linear> - Distance to step X
  *  Y<linear> - Distance to step Y
  *  Z<linear> - Distance to step Z
  *  S<linear> - Distance to step Z (alias for Z)
  *
  * With BABYSTEP_ZPROBE_OFFSET:
- *         P0 - Don't adjust the Z probe offset.
+ *  P0 - Don't adjust the Z probe offset
  */
 void GcodeSuite::M290() {
   #if ENABLED(BABYSTEP_XY)
@@ -92,7 +94,7 @@ void GcodeSuite::M290() {
     }
   #endif
 
-  if (!parser.seen("XYZ")) {
+  if (!parser.seen("XYZ") || parser.seen('R')) {
     SERIAL_ECHO_START();
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
