@@ -251,8 +251,14 @@
   #error "ABL_PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
 #elif defined(UBL_PROBE_PT_1_X) || defined(UBL_PROBE_PT_1_Y) || defined(UBL_PROBE_PT_2_X) || defined(UBL_PROBE_PT_2_Y) || defined(UBL_PROBE_PT_3_X) || defined(UBL_PROBE_PT_3_Y)
   #error "UBL_PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
-#elif defined(PROBE_PT_1_X) || defined(PROBE_PT_1_Y) || defined(PROBE_PT_2_X) || defined(PROBE_PT_2_Y) || defined(PROBE_PT_3_X) || defined(PROBE_PT_3_Y)
-  #error "PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
+#elif defined(LEFT_PROBE_BED_POSITION)
+  #error LEFT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_LEFT. Please note the differences and update your configuration."
+#elif defined(RIGHT_PROBE_BED_POSITION)
+  #error RIGHT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_RIGHT. Please note the differences and update your configuration."
+#elif defined(FRONT_PROBE_BED_POSITION)
+  #error FRONT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_FRONT. Please note the differences and update your configuration."
+#elif defined(BACK_PROBE_BED_POSITION)
+  #error BACK_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_BACK. Please note the differences and update your configuration."
 #elif defined(ENABLE_MESH_EDIT_GFX_OVERLAY)
   #error "ENABLE_MESH_EDIT_GFX_OVERLAY is now MESH_EDIT_GFX_OVERLAY. Please update your configuration."
 #elif defined(BABYSTEP_ZPROBE_GFX_REVERSE)
