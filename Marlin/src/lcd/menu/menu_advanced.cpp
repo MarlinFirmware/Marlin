@@ -55,7 +55,7 @@ void menu_backlash();
 
   #include "../../feature/dac/stepper_dac.h"
 
-  uint8_t driverPercent[XYZE];
+  xyze_uint8_t driverPercent;
   inline void dac_driver_getValues() { LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i); }
   static void dac_driver_commit() { dac_current_set_percents(driverPercent); }
 
@@ -552,7 +552,7 @@ void menu_backlash();
       #if ENABLED(DELTA)
         EDIT_JERK(C);
       #else
-        MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1f, 990);
+        MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk.c, 0.1f, 990);
       #endif
       #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
         EDIT_JERK(E);

@@ -382,7 +382,7 @@
 #define MSG_ERR_MINTEMP_BED                 _UxGT("BETT ") LCD_STR_THERMOMETER _UxGT(" UNTERSCHRITTEN")
 #define MSG_ERR_MAXTEMP_CHAMBER             _UxGT("Err:Gehäuse max Temp")
 #define MSG_ERR_MINTEMP_CHAMBER             _UxGT("Err:Gehäuse min Temp")
-#define MSG_ERR_Z_HOMING                    _UxGT("Vorher XY vorher")
+#define MSG_ERR_Z_HOMING                    _UxGT("Vorher XY homen")
 #define MSG_HALTED                          _UxGT("DRUCKER GESTOPPT")
 #define MSG_PLEASE_RESET                    _UxGT("Bitte neustarten")
 #define MSG_SHORT_DAY                       _UxGT("t") // One character only

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F1 FYSETC
+# Build tests for STM32F103RC FYSETC
 #
 
 # exit on first failure

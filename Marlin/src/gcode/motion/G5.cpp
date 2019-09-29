@@ -27,11 +27,6 @@
 #include "../../module/motion.h"
 #include "../../module/planner_bezier.h"
 
-void plan_cubic_move(const float (&cart)[XYZE], const float (&offset)[4]) {
-  cubic_b_spline(current_position, cart, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
-  COPY(current_position, cart);
-}
-
 /**
  * Parameters interpreted according to:
  * http://linuxcnc.org/docs/2.6/html/gcode/parser.html#sec:G5-Cubic-Spline
@@ -57,14 +52,13 @@ void GcodeSuite::G5() {
 
     get_destination_from_command();
 
-    const float offset[4] = {
-      parser.linearval('I'),
-      parser.linearval('J'),
-      parser.linearval('P'),
-      parser.linearval('Q')
+    const xy_pos_t offsets[2] = {
+      { parser.linearval('I'), parser.linearval('J') },
+      { parser.linearval('P'), parser.linearval('Q') }
     };
 
-    plan_cubic_move(destination, offset);
+    cubic_b_spline(current_position, destination, offsets, MMS_SCALED(feedrate_mm_s), active_extruder);
+    current_position = destination;
   }
 }
 

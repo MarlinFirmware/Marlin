@@ -671,7 +671,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         #endif
 
         // Set movement on a single axis
-        set_destination_from_current();
+        destination = current_position;
         destination[manual_move_axis] += manual_move_offset;
 
         // Reset for the next move
@@ -1480,6 +1480,9 @@ void MarlinUI::update() {
     #endif
     #ifdef ACTION_ON_CANCEL
       host_action_cancel();
+    #endif
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), PSTR("Dismiss"));
     #endif
     print_job_timer.stop();
     set_status_P(PSTR(MSG_PRINT_ABORTED));

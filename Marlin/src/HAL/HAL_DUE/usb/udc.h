@@ -172,18 +172,18 @@ extern "C" {
 	}
 \endcode
  */
-static inline bool udc_include_vbus_monitoring()
+static inline bool udc_include_vbus_monitoring(void)
 {
 	return udd_include_vbus_monitoring();
 }
 
 /*! \brief Start the USB Device stack
  */
-void udc_start();
+void udc_start(void);
 
 /*! \brief Stop the USB Device stack
  */
-void udc_stop();
+void udc_stop(void);
 
 /**
  * \brief Attach device to the bus when possible
@@ -192,7 +192,7 @@ void udc_stop();
  * then it will attach device when an acceptable Vbus
  * level from the host is detected.
  */
-static inline void udc_attach()
+static inline void udc_attach(void)
 {
 	udd_attach();
 }
@@ -203,7 +203,7 @@ static inline void udc_attach()
  *
  * The driver must remove pull-up on USB line D- or D+.
  */
-static inline void udc_detach()
+static inline void udc_detach(void)
 {
 	udd_detach();
 }
@@ -212,7 +212,7 @@ static inline void udc_detach()
 /*! \brief The USB driver sends a resume signal called \e "Upstream Resume"
  * This is authorized only when the remote wakeup feature is enabled by host.
  */
-static inline void udc_remotewakeup()
+static inline void udc_remotewakeup(void)
 {
 	udd_send_remotewakeup();
 }
@@ -223,7 +223,7 @@ static inline void udc_remotewakeup()
  *
  * \return pointer on the current interface descriptor.
  */
-usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc();
+usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc(void);
 
 //@}
 
@@ -334,7 +334,7 @@ usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc();
  *
  * Add to application C-file:
  * \code
-	void usb_init()
+	void usb_init(void)
 	{
 	  udc_start();
 	}
@@ -551,23 +551,23 @@ usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc();
 	#define  USB_DEVICE_ATTR \
 	  (USB_CONFIG_ATTR_REMOTE_WAKEUP | USB_CONFIG_ATTR_..._POWERED)
 	#define UDC_REMOTEWAKEUP_ENABLE() my_callback_remotewakeup_enable()
-	extern void my_callback_remotewakeup_enable();
+	extern void my_callback_remotewakeup_enable(void);
 	#define UDC_REMOTEWAKEUP_DISABLE() my_callback_remotewakeup_disable()
-	extern void my_callback_remotewakeup_disable();
+	extern void my_callback_remotewakeup_disable(void);
 \endcode
  *
  * Add to application C-file:
  * \code
-	 void my_callback_remotewakeup_enable()
+	 void my_callback_remotewakeup_enable(void)
 	 {
 	    // Enable application wakeup events (e.g. enable GPIO interrupt)
 	 }
-	 void my_callback_remotewakeup_disable()
+	 void my_callback_remotewakeup_disable(void)
 	 {
 	    // Disable application wakeup events (e.g. disable GPIO interrupt)
 	 }
 
-	 void my_interrupt_event()
+	 void my_interrupt_event(void)
 	 {
 	    udc_remotewakeup();
 	 }
@@ -580,10 +580,10 @@ usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc();
 	     #define  USB_DEVICE_ATTR (USB_CONFIG_ATTR_REMOTE_WAKEUP | USB_CONFIG_ATTR_..._POWERED) \endcode
  *   - \code // Define callback called when the host enables the remotewakeup feature
 	#define UDC_REMOTEWAKEUP_ENABLE() my_callback_remotewakeup_enable()
-	extern void my_callback_remotewakeup_enable(); \endcode
+	extern void my_callback_remotewakeup_enable(void); \endcode
  *   - \code // Define callback called when the host disables the remotewakeup feature
 	#define UDC_REMOTEWAKEUP_DISABLE() my_callback_remotewakeup_disable()
-	extern void my_callback_remotewakeup_disable(); \endcode
+	extern void my_callback_remotewakeup_disable(void); \endcode
  * -# Send a remote wakeup (USB upstream):
  *   - \code udc_remotewakeup(); \endcode
  */
@@ -605,18 +605,18 @@ usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc();
  * \code
 	#define  USB_DEVICE_ATTR (USB_CONFIG_ATTR_BUS_POWERED)
 	#define  UDC_SUSPEND_EVENT()         user_callback_suspend_action()
-	extern void user_callback_suspend_action()
+	extern void user_callback_suspend_action(void)
 	#define  UDC_RESUME_EVENT()          user_callback_resume_action()
-	extern void user_callback_resume_action()
+	extern void user_callback_resume_action(void)
 \endcode
  *
  * Add to application C-file:
  * \code
-	void user_callback_suspend_action()
+	void user_callback_suspend_action(void)
 	{
 	   // Disable hardware component to reduce power consumption
 	}
-	void user_callback_resume_action()
+	void user_callback_resume_action(void)
 	{
 	   // Re-enable hardware component
 	}
@@ -628,12 +628,12 @@ usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc();
 	#define  USB_DEVICE_ATTR (USB_CONFIG_ATTR_BUS_POWERED) \endcode
  *   - \code // Define callback called when the host suspend the USB line
 	#define UDC_SUSPEND_EVENT() user_callback_suspend_action()
-	extern void user_callback_suspend_action(); \endcode
+	extern void user_callback_suspend_action(void); \endcode
  *   - \code // Define callback called when the host or device resume the USB line
 	#define UDC_RESUME_EVENT() user_callback_resume_action()
-	extern void user_callback_resume_action(); \endcode
+	extern void user_callback_resume_action(void); \endcode
  * -# Reduce power consumption in suspend mode (max. 2.5mA on Vbus):
- *   - \code void user_callback_suspend_action()
+ *   - \code void user_callback_suspend_action(void)
 	{
 	turn_off_components();
 	} \endcode
@@ -664,7 +664,7 @@ usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc();
  * \code
 	 uint8_t serial_number[USB_DEVICE_GET_SERIAL_NAME_LENGTH];
 
-	 void init_build_usb_serial_number()
+	 void init_build_usb_serial_number(void)
 	 {
 	 serial_number[0] = 'A';
 	 serial_number[1] = 'B';
@@ -683,7 +683,7 @@ usb_iface_desc_t UDC_DESC_STORAGE *udc_get_interface_desc();
  *   - \code
 	 uint8_t serial_number[USB_DEVICE_GET_SERIAL_NAME_LENGTH];
 
-	 void init_build_usb_serial_number()
+	 void init_build_usb_serial_number(void)
 	 {
 	 serial_number[0] = 'A';
 	 serial_number[1] = 'B';

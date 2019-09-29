@@ -39,7 +39,7 @@
 #endif
 
 void lcd_sd_updir() {
-  ui.encoderPosition = card.updir() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
+  ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
   screen_changed = true;
   ui.refresh();
@@ -115,7 +115,7 @@ class MenuItem_sdfile {
 class MenuItem_sdfolder {
   public:
     static void action(CardReader &theCard) {
-      card.chdir(theCard.filename);
+      card.cd(theCard.filename);
       encoderTopLine = 0;
       ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
       screen_changed = true;

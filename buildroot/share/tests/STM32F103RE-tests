@@ -10,7 +10,7 @@ set -e
 # Build with the default configurations
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_STM32F103R
+opt_set MOTHERBOARD BOARD_STM32F103RE
 opt_set EXTRUDERS 2
 opt_set SERIAL_PORT -1
 opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT \

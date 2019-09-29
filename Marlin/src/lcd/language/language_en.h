@@ -1194,6 +1194,13 @@
 #ifndef MSG_INFO_PROTOCOL
   #define MSG_INFO_PROTOCOL                   _UxGT("Protocol")
 #endif
+#ifndef MSG_INFO_RUNAWAY_OFF
+  #define MSG_INFO_RUNAWAY_OFF                _UxGT("Runaway Watch: OFF")
+#endif
+#ifndef MSG_INFO_RUNAWAY_ON
+  #define MSG_INFO_RUNAWAY_ON                 _UxGT("Runaway Watch: ON")
+#endif
+
 #ifndef MSG_CASE_LIGHT
   #define MSG_CASE_LIGHT                      _UxGT("Case Light")
 #endif

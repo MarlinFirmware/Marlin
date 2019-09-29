@@ -174,11 +174,11 @@ static xSemaphoreHandle ctrl_access_semphr = NULL;
 //! LUN descriptor table.
 static const struct
 {
-  Ctrl_status (*test_unit_ready)();
+  Ctrl_status (*test_unit_ready)(void);
   Ctrl_status (*read_capacity)(U32 *);
   bool (*unload)(bool);
-  bool (*wr_protect)();
-  bool (*removal)();
+  bool (*wr_protect)(void);
+  bool (*removal)(void);
 #if ACCESS_USB == true
   Ctrl_status (*usb_read_10)(U32, U16);
   Ctrl_status (*usb_write_10)(U32, U16);
@@ -255,7 +255,7 @@ bool g_wr_protect;
 
 #ifdef FREERTOS_USED
 
-bool ctrl_access_init()
+bool ctrl_access_init(void)
 {
   // If the handle to the protecting semaphore is not valid,
   if (!ctrl_access_semphr)
@@ -275,7 +275,7 @@ bool ctrl_access_init()
  *
  * \return \c true if the access was successfully locked, else \c false.
  */
-static bool ctrl_access_lock()
+static bool ctrl_access_lock(void)
 {
   // If the semaphore could not be created, there is no backup solution.
   if (!ctrl_access_semphr) return false;
@@ -289,7 +289,7 @@ static bool ctrl_access_lock()
 #endif  // FREERTOS_USED
 
 
-U8 get_nb_lun()
+U8 get_nb_lun(void)
 {
 #if MEM_USB == ENABLE
 #  ifndef Lun_usb_get_lun
@@ -310,7 +310,7 @@ U8 get_nb_lun()
 }
 
 
-U8 get_cur_lun()
+U8 get_cur_lun(void)
 {
   return LUN_ID_0;
 }

@@ -251,8 +251,14 @@
   #error "ABL_PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
 #elif defined(UBL_PROBE_PT_1_X) || defined(UBL_PROBE_PT_1_Y) || defined(UBL_PROBE_PT_2_X) || defined(UBL_PROBE_PT_2_Y) || defined(UBL_PROBE_PT_3_X) || defined(UBL_PROBE_PT_3_Y)
   #error "UBL_PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
-#elif defined(PROBE_PT_1_X) || defined(PROBE_PT_1_Y) || defined(PROBE_PT_2_X) || defined(PROBE_PT_2_Y) || defined(PROBE_PT_3_X) || defined(PROBE_PT_3_Y)
-  #error "PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
+#elif defined(LEFT_PROBE_BED_POSITION)
+  #error "LEFT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_LEFT. Please update your configuration."
+#elif defined(RIGHT_PROBE_BED_POSITION)
+  #error "RIGHT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_RIGHT. Please update your configuration."
+#elif defined(FRONT_PROBE_BED_POSITION)
+  #error "FRONT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_FRONT. Please update your configuration."
+#elif defined(BACK_PROBE_BED_POSITION)
+  #error "BACK_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_BACK. Please update your configuration."
 #elif defined(ENABLE_MESH_EDIT_GFX_OVERLAY)
   #error "ENABLE_MESH_EDIT_GFX_OVERLAY is now MESH_EDIT_GFX_OVERLAY. Please update your configuration."
 #elif defined(BABYSTEP_ZPROBE_GFX_REVERSE)
@@ -396,6 +402,8 @@
   #error "[XYZ]_PROBE_OFFSET_FROM_EXTRUDER is now NOZZLE_TO_PROBE_OFFSET. Please update your configuration."
 #elif defined(MIN_PROBE_X) || defined(MIN_PROBE_Y) || defined(MAX_PROBE_X) || defined(MAX_PROBE_Y)
   #error "(MIN|MAX)_PROBE_[XY] are now calculated at runtime. Please remove them from Configuration.h."
+#elif defined(Z_STEPPER_ALIGN_X) || defined(Z_STEPPER_ALIGN_X)
+  #error "Z_STEPPER_ALIGN_X and Z_STEPPER_ALIGN_Y are now combined as Z_STEPPER_ALIGN_XY. Please update your Configuration_adv.h."
 #endif
 
 #define BOARD_MKS_13        -1000
@@ -404,6 +412,7 @@
 #define BOARD_FORMBOT_TREX2 -1003
 #define BOARD_BIQU_SKR_V1_1 -1004
 #define BOARD_STM32F1R      -1005
+#define BOARD_STM32F103R    -1006
 #if MB(MKS_13)
   #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
 #elif MB(TRIGORILLA)
@@ -415,7 +424,9 @@
 #elif MB(BIQU_SKR_V1_1)
   #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
 #elif MB(STM32F1R)
-  #error "BOARD_STM32F1R has been renamed BOARD_STM32F103R. Please update your configuration."
+  #error "BOARD_STM32F1R has been renamed BOARD_STM32F103RE. Please update your configuration."
+#elif MB(STM32F103R)
+  #error "BOARD_STM32F103R has been renamed BOARD_STM32F103RE. Please update your configuration."
 #endif
 #undef BOARD_MKS_13
 #undef BOARD_TRIGORILLA
@@ -423,6 +434,7 @@
 #undef BOARD_FORMBOT_TREX2
 #undef BOARD_BIQU_SKR_V1_1
 #undef BOARD_STM32F1R
+#undef BOARD_STM32F103R
 
 /**
  * Marlin release, version and default string
@@ -2145,69 +2157,58 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, or TMC5160 stepper drivers."
 #endif
 
-#if TMC_USE_CHAIN
-  #if  (X_CHAIN_POS  && !PIN_EXISTS(X_CS) ) \
-    || (Y_CHAIN_POS  && !PIN_EXISTS(Y_CS) ) \
-    || (Z_CHAIN_POS  && !PIN_EXISTS(Z_CS) ) \
-    || (X2_CHAIN_POS && !PIN_EXISTS(X2_CS)) \
-    || (Y2_CHAIN_POS && !PIN_EXISTS(Y2_CS)) \
-    || (Z2_CHAIN_POS && !PIN_EXISTS(Z2_CS)) \
-    || (Z3_CHAIN_POS && !PIN_EXISTS(Z3_CS)) \
-    || (E0_CHAIN_POS && !PIN_EXISTS(E0_CS)) \
-    || (E1_CHAIN_POS && !PIN_EXISTS(E1_CS)) \
-    || (E2_CHAIN_POS && !PIN_EXISTS(E2_CS)) \
-    || (E3_CHAIN_POS && !PIN_EXISTS(E3_CS)) \
-    || (E4_CHAIN_POS && !PIN_EXISTS(E4_CS)) \
-    || (E5_CHAIN_POS && !PIN_EXISTS(E5_CS))
-    #error "With TMC_USE_CHAIN all chained TMC drivers need a CS pin."
+#define IN_CHAIN(A) (A##_CHAIN_POS > 0)
+// TMC SPI Chaining
+#if IN_CHAIN(X) || IN_CHAIN(Y) || IN_CHAIN(Z) || IN_CHAIN(X2) || IN_CHAIN(Y2) || IN_CHAIN(Z2) || IN_CHAIN(Z3) || IN_CHAIN(E0) || IN_CHAIN(E1) || IN_CHAIN(E2) || IN_CHAIN(E3) || IN_CHAIN(E4) || IN_CHAIN(E5)
+  #if  (IN_CHAIN(X)  && !PIN_EXISTS(X_CS) ) || (IN_CHAIN(Y)  && !PIN_EXISTS(Y_CS) ) \
+    || (IN_CHAIN(Z)  && !PIN_EXISTS(Z_CS) ) || (IN_CHAIN(X2) && !PIN_EXISTS(X2_CS)) \
+    || (IN_CHAIN(Y2) && !PIN_EXISTS(Y2_CS)) || (IN_CHAIN(Z2) && !PIN_EXISTS(Z2_CS)) \
+    || (IN_CHAIN(Z3) && !PIN_EXISTS(Z3_CS)) || (IN_CHAIN(E0) && !PIN_EXISTS(E0_CS)) \
+    || (IN_CHAIN(E1) && !PIN_EXISTS(E1_CS)) || (IN_CHAIN(E2) && !PIN_EXISTS(E2_CS)) \
+    || (IN_CHAIN(E3) && !PIN_EXISTS(E3_CS)) || (IN_CHAIN(E4) && !PIN_EXISTS(E4_CS)) \
+    || (IN_CHAIN(E5) && !PIN_EXISTS(E5_CS))
+    #error "All chained TMC drivers need a CS pin."
   #else
-    #if X_CHAIN_POS
+    #if IN_CHAIN(X)
       #define CS_COMPARE X_CS_PIN
-    #elif Y_CHAIN_POS
+    #elif IN_CHAIN(Y)
       #define CS_COMPARE Y_CS_PIN
-    #elif Z_CHAIN_POS
+    #elif IN_CHAIN(Z)
       #define CS_COMPARE Z_CS_PIN
-    #elif X2_CHAIN_POS
+    #elif IN_CHAIN(X2)
       #define CS_COMPARE X2_CS_PIN
-    #elif Y2_CHAIN_POS
+    #elif IN_CHAIN(Y2)
       #define CS_COMPARE Y2_CS_PIN
-    #elif Z2_CHAIN_POS
+    #elif IN_CHAIN(Z2)
       #define CS_COMPARE Z2_CS_PIN
-    #elif Z3_CHAIN_POS
+    #elif IN_CHAIN(Z3)
       #define CS_COMPARE Z3_CS_PIN
-    #elif E0_CHAIN_POS
+    #elif IN_CHAIN(E0)
       #define CS_COMPARE E0_CS_PIN
-    #elif E1_CHAIN_POS
+    #elif IN_CHAIN(E1)
       #define CS_COMPARE E1_CS_PIN
-    #elif E2_CHAIN_POS
+    #elif IN_CHAIN(E2)
       #define CS_COMPARE E2_CS_PIN
-    #elif E3_CHAIN_POS
+    #elif IN_CHAIN(E3)
       #define CS_COMPARE E3_CS_PIN
-    #elif E4_CHAIN_POS
+    #elif IN_CHAIN(E4)
       #define CS_COMPARE E4_CS_PIN
-    #elif E5_CHAIN_POS
+    #elif IN_CHAIN(E5)
       #define CS_COMPARE E5_CS_PIN
-    #else
-      #error "With TMC_USE_CHAIN some TMC drivers should be chained."
     #endif
-    #if  (X_CHAIN_POS  && X_CS_PIN  != CS_COMPARE) \
-      || (Y_CHAIN_POS  && Y_CS_PIN  != CS_COMPARE) \
-      || (Z_CHAIN_POS  && Z_CS_PIN  != CS_COMPARE) \
-      || (X2_CHAIN_POS && X2_CS_PIN != CS_COMPARE) \
-      || (Y2_CHAIN_POS && Y2_CS_PIN != CS_COMPARE) \
-      || (Z2_CHAIN_POS && Z2_CS_PIN != CS_COMPARE) \
-      || (Z3_CHAIN_POS && Z3_CS_PIN != CS_COMPARE) \
-      || (E0_CHAIN_POS && E0_CS_PIN != CS_COMPARE) \
-      || (E1_CHAIN_POS && E1_CS_PIN != CS_COMPARE) \
-      || (E2_CHAIN_POS && E2_CS_PIN != CS_COMPARE) \
-      || (E3_CHAIN_POS && E3_CS_PIN != CS_COMPARE) \
-      || (E4_CHAIN_POS && E4_CS_PIN != CS_COMPARE) \
-      || (E5_CHAIN_POS && E5_CS_PIN != CS_COMPARE)
-      #error "With TMC_USE_CHAIN all TMC drivers must use the same CS pin."
+    #if  (IN_CHAIN(X)  && X_CS_PIN  != CS_COMPARE) || (IN_CHAIN(Y)  && Y_CS_PIN  != CS_COMPARE) \
+      || (IN_CHAIN(Z)  && Z_CS_PIN  != CS_COMPARE) || (IN_CHAIN(X2) && X2_CS_PIN != CS_COMPARE) \
+      || (IN_CHAIN(Y2) && Y2_CS_PIN != CS_COMPARE) || (IN_CHAIN(Z2) && Z2_CS_PIN != CS_COMPARE) \
+      || (IN_CHAIN(Z3) && Z3_CS_PIN != CS_COMPARE) || (IN_CHAIN(E0) && E0_CS_PIN != CS_COMPARE) \
+      || (IN_CHAIN(E1) && E1_CS_PIN != CS_COMPARE) || (IN_CHAIN(E2) && E2_CS_PIN != CS_COMPARE) \
+      || (IN_CHAIN(E3) && E3_CS_PIN != CS_COMPARE) || (IN_CHAIN(E4) && E4_CS_PIN != CS_COMPARE) \
+      || (IN_CHAIN(E5) && E5_CS_PIN != CS_COMPARE)
+      #error "All chained TMC drivers must use the same CS pin."
     #endif
   #endif
   #undef CS_COMPARE
-#endif // TMC_USE_CHAIN
+#endif
+#undef IN_CHAIN
 
 #if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
   #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
@@ -2295,11 +2296,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif !HAS_BED_PROBE
     #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
   #endif
-  constexpr float sanity_arr_z_align_x[] = Z_STEPPER_ALIGN_X, sanity_arr_z_align_y[] = Z_STEPPER_ALIGN_Y;
-  static_assert(
-    COUNT(sanity_arr_z_align_x) == Z_STEPPER_COUNT && COUNT(sanity_arr_z_align_y) == Z_STEPPER_COUNT,
-    "Z_STEPPER_ALIGN_[XY] settings require one element per Z stepper."
-  );
 #endif
 
 #if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
@@ -2361,7 +2357,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  * Photo G-code requirements
  */
 #if ENABLED(PHOTO_GCODE)
-  #if (PIN_EXISTS(CHDK) + PIN_EXISTS(PHOTOGRAPH_PIN) + defined(PHOTO_SWITCH_POSITION)) > 1
+  #if (PIN_EXISTS(CHDK) + PIN_EXISTS(PHOTOGRAPH) + defined(PHOTO_SWITCH_POSITION)) > 1
     #error "Please define only one of CHDK_PIN, PHOTOGRAPH_PIN, or PHOTO_SWITCH_POSITION."
   #elif defined(PHOTO_SWITCH_POSITION) && !defined(PHOTO_POSITION)
     #error "PHOTO_SWITCH_POSITION requires PHOTO_POSITION. Please update your Configuration_adv.h."
