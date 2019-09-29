@@ -1505,7 +1505,7 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
 }
 
 void Planner::finish_and_disable() {
-  while (has_blocks_queued() || cleaning_buffer_counter) idle();
+  while (has_blocks_queued() || cleaning_buffer_counter) idle2();
   disable_all_steppers();
 }
 
@@ -1549,7 +1549,7 @@ void Planner::synchronize() {
     #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
       || (READ(CLOSED_LOOP_ENABLE_PIN) && !READ(CLOSED_LOOP_MOVE_COMPLETE_PIN))
     #endif
-  ) idle();
+  ) idle2();
 }
 
 /**

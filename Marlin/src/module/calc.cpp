@@ -458,7 +458,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           }
         }
         break;
-      case 900:
+      case 900: // M900 linear_advance LIN_ADVANCE linear advance
         {
           int target_extruder = active_extruder;
           if (code_seen('T')) {
@@ -568,6 +568,7 @@ int main(int argc, char *argv[]) {
     process_commands(new_command, extra_data);
     new_command = get_command(in);
   }
+  fprintf(stderr, "Read up all remaining commands\n");
   while(idle2())
     ; // Keep going.
   in.close();

@@ -39,7 +39,6 @@ extern float current_position[XYZE];
 
 //From "../Marlin.cpp"
 extern bool idle2();
-#define idle()
 
 //#define FORCE_INLINE inline __attribute__((always_inline)) 
 #define NUM_AXIS 4
