@@ -29,7 +29,7 @@
 #include "watchdog.h"
 
 void watchdog_init() {}
-void HAL_watchdog_reset() {}
+void HAL_watchdog_refresh() {}
 
 #endif
 

@@ -1000,7 +1000,7 @@ void Temperature::manage_heater() {
 
   #if EARLY_WATCHDOG
     // If thermal manager is still not running, make sure to at least reset the watchdog!
-    if (!inited) return watchdog_reset();
+    if (!inited) return watchdog_refresh();
   #endif
 
   #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
@@ -1519,7 +1519,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif
 
   // Reset the watchdog on good temperature measurement
-  watchdog_reset();
+  watchdog_refresh();
 
   temp_meas_ready = false;
 }

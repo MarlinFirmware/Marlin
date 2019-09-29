@@ -56,7 +56,7 @@ void watchdog_init() {
   WDT_Start(WDT_TIMEOUT);
 }
 
-void HAL_watchdog_reset() {
+void HAL_watchdog_refresh() {
   WDT_Feed();
   #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
     TOGGLE(LED_PIN);  // heartbeat indicator

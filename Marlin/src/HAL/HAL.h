@@ -25,8 +25,8 @@
 
 #include HAL_PATH(.,HAL.h)
 
-inline void watchdog_reset() {
+inline void watchdog_refresh() {
   #if ENABLED(USE_WATCHDOG)
-    HAL_watchdog_reset();
+    HAL_watchdog_refresh();
   #endif
 }
