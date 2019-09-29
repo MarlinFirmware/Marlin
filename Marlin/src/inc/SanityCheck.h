@@ -410,6 +410,7 @@
 #define BOARD_FORMBOT_TREX2 -1003
 #define BOARD_BIQU_SKR_V1_1 -1004
 #define BOARD_STM32F1R      -1005
+#define BOARD_STM32F103R    -1006
 #if MB(MKS_13)
   #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
 #elif MB(TRIGORILLA)
@@ -421,7 +422,9 @@
 #elif MB(BIQU_SKR_V1_1)
   #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
 #elif MB(STM32F1R)
-  #error "BOARD_STM32F1R has been renamed BOARD_STM32F103R. Please update your configuration."
+  #error "BOARD_STM32F1R has been renamed BOARD_STM32F103RE. Please update your configuration."
+#elif MB(STM32F103R)
+  #error "BOARD_STM32F103R has been renamed BOARD_STM32F103RE. Please update your configuration."
 #endif
 #undef BOARD_MKS_13
 #undef BOARD_TRIGORILLA
@@ -429,6 +432,7 @@
 #undef BOARD_FORMBOT_TREX2
 #undef BOARD_BIQU_SKR_V1_1
 #undef BOARD_STM32F1R
+#undef BOARD_STM32F103R
 
 /**
  * Marlin release, version and default string
