@@ -25,4 +25,4 @@
 void watchdog_init();
 
 // Reset watchdog.
-inline void watchdog_reset() { }
+inline void HAL_watchdog_refresh() { }
