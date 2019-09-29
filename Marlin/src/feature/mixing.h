@@ -142,35 +142,19 @@ class Mixer {
     static inline void copy_mix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]) {
       // Scale each component to the largest one in terms of COLOR_A_MASK
       // So the largest component will be COLOR_A_MASK and the other will be in proportion to it
-      #if MIXING_STEPPERS == 2
-        const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1])));
-      #elif MIXING_STEPPERS == 3
-        const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1],mix[2])));
-      #elif MIXING_STEPPERS == 4
-        const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1],mix[2],mix[3])));
-      #elif MIXING_STEPPERS == 5
-        const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1],mix[2],mix[3],mix[4])));
-      #elif MIXING_STEPPERS == 6
-        const float scale = (COLOR_A_MASK) * RECIPROCAL(float(_MAX(mix[0], mix[1],mix[2],mix[3],mix[4],mix[5])));
-      #endif
+      const float scale = (COLOR_A_MASK) * RECIPROCAL(_MAX(
+        LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5])
+      ));
 
       // Scale all values so their maximum is COLOR_A_MASK
       MIXER_STEPPER_LOOP(i) tcolor[i] = mix[i] * scale;
 
       #ifdef MIXER_NORMALIZER_DEBUG
-
-        #if MIXING_STEPPERS == 2
-          SERIAL_ECHOLNPAIR("Mix [", int(mix[0]), ", ", int(mix[1]),  "] to Color [", int(tcolor[0]), ", ", int(tcolor[1]), "]");
-        #elif MIXING_STEPPERS == 3
-          SERIAL_ECHOLNPAIR("Mix [", int(mix[0]), ", ", int(mix[1]), ", ", int(mix[2]),   "] to Color [", int(tcolor[0]), ", ", int(tcolor[1]),  ", ", int(tcolor[2]), "]");
-        #elif MIXING_STEPPERS == 4
-          SERIAL_ECHOLNPAIR("Mix [", int(mix[0]), ", ", int(mix[1]), ", ", int(mix[2]),  ", ", int(mix[3]),   "] to Color [", int(tcolor[0]), ", ", int(tcolor[1]),  ", ", int(tcolor[21]),  ", ", int(tcolor[3]), "]");
-        #elif MIXING_STEPPERS == 5
-          SERIAL_ECHOLNPAIR("Mix [", int(mix[0]), ", ", int(mix[1]), ", ", int(mix[2]),  ", ", int(mix[3]),  ", ", int(mix[4]),   "] to Color [", int(tcolor[0]), ", ", int(tcolor[1]),  ", ", int(tcolor[2]),  ", ", int(tcolor[3]),  ", ", int(tcolor[4]), "]");
-        #elif MIXING_STEPPERS == 6
-          SERIAL_ECHOLNPAIR("Mix [", int(mix[0]), ", ", int(mix[1]), ", ", int(mix[2]),  ", ", int(mix[3]),  ", ", int(mix[4]),  ", ", int(mix[5]),   "] to Color [", int(tcolor[0]), ", ", int(tcolor[1]),  ", ", int(tcolor[2]),  ", ", int(tcolor[3]),  ", ", int(tcolor[4]),  ", ", int(tcolor[5]), "]");
-        #endif
-
+        SERIAL_ECHOPGM("Mix [ ");
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(mix[0]), int(mix[1]), int(mix[2]), int(mix[3]), int(mix[4]), int(mix[5]));
+        SERIAL_ECHOPGM(" ] to Color [ ");
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(tcolor[0]), int(tcolor[1]), int(tcolor[2]), int(tcolor[3]), int(tcolor[4]), int(tcolor[5]));
+        SERIAL_ECHOLNPGM(" ]");
       #endif
     }
 
@@ -181,19 +165,11 @@ class Mixer {
       MIXER_STEPPER_LOOP(i) mix[i] = mixer_perc_t(100.0f * color[j][i] / ctot);
 
       #ifdef MIXER_NORMALIZER_DEBUG
-
-        #if MIXING_STEPPERS == 2
-          SERIAL_ECHOLNPAIR("V-tool ", int(j), " [", int(color[j][0]), ", ", int(color[j][1]), "] to Mix [", int(mix[0]), ", ", int(mix[1]), "]");
-        #elif MIXING_STEPPERS == 3
-          SERIAL_ECHOLNPAIR("V-tool ", int(j), " [", int(color[j][0]), ", ", int(color[j][1]), ", ", int(color[j][2]),"] to Mix [", int(mix[0]), ", ", int(mix[1]), ", ", int(mix[2]), "]");
-        #elif MIXING_STEPPERS == 4
-          SERIAL_ECHOLNPAIR("V-tool ", int(j), " [", int(color[j][0]), ", ", int(color[j][1]), ", ", int(color[j][2]), ", ", int(color[j][3]),"] to Mix [", int(mix[0]), ", ", int(mix[1]), ", ", int(mix[2]),  ", ", int(mix[3]), "]");
-        #elif MIXING_STEPPERS == 5
-          SERIAL_ECHOLNPAIR("V-tool ", int(j), " [", int(color[j][0]), ", ", int(color[j][1]), ", ", int(color[j][2]),", ", int(color[j][3]),", ", int(color[j][4]),"] to Mix [", int(mix[0]), ", ", int(mix[1]), ", ", int(mix[2]),  ", ", int(mix[3]),  ", ", int(mix[4]), "]");
-        #elif MIXING_STEPPERS == 6
-          SERIAL_ECHOLNPAIR("V-tool ", int(j), " [", int(color[j][0]), ", ", int(color[j][1]), ", ", int(color[j][2]),", ", int(color[j][3]),", ", int(color[j][4]),", ", int(color[j][5]),"] to Mix [", int(mix[0]), ", ", int(mix[1]), ", ", int(mix[2]),  ", ", int(mix[3]),  ", ", int(mix[4]),  ", ", int(mix[5]), "]");
-        #endif
-
+        SERIAL_ECHOPAIR("V-tool ", int(j), " [ ");
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(color[j][0]), int(color[j][1]), int(color[j][2]), int(color[j][3]), int(color[j][4]), int(color[j][5]));
+        SERIAL_ECHOPGM(" ] to Mix [ ");
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(mix[0]), int(mix[1]), int(mix[2]), int(mix[3]), int(mix[4]), int(mix[5]));
+        SERIAL_ECHOLNPGM(" ]");
       #endif
     }
 
@@ -236,19 +212,11 @@ class Mixer {
       MIXER_STEPPER_LOOP(i) mix[i] = (mixer_perc_t)CEIL(100.0f * gradient.color[i] / ctot);
 
       #ifdef MIXER_NORMALIZER_DEBUG
-
-        #if MIXING_STEPPERS == 2
-          SERIAL_ECHOLNPAIR("Gradient [", int(gradient.color[0]), ", ", int(gradient.color[1]), "] to Mix [", int(mix[0]), ", ", int(mix[1]), "]");
-        #elif MIXING_STEPPERS == 3
-          SERIAL_ECHOLNPAIR("Gradient [", int(gradient.color[0]), ", ", int(gradient.color[1]), ", ", int(gradient.color[2]),"] to Mix [", int(mix[0]), ", ", int(mix[1]),  ", ", int(mix[2]), "]");
-        #elif MIXING_STEPPERS == 4
-          SERIAL_ECHOLNPAIR("Gradient [", int(gradient.color[0]), ", ", int(gradient.color[1]), ", ", int(gradient.color[2]), ", ", int(gradient.color[3]), "] to Mix [", int(mix[0]), ", ", int(mix[1]),  ", ", int(mix[2]),  ", ", int(mix[3]), "]");
-        #elif MIXING_STEPPERS == 5
-          SERIAL_ECHOLNPAIR("Gradient [", int(gradient.color[0]), ", ", int(gradient.color[1]), ", ", int(gradient.color[2]), ", ", int(gradient.color[3]),  ", ", int(gradient.color[4]), "] to Mix [", int(mix[0]), ", ", int(mix[1]),  ", ", int(mix[2]),  ", ", int(mix[3]),  ", ", int(mix[4]), "]");
-        #elif MIXING_STEPPERS == 6
-          SERIAL_ECHOLNPAIR("Gradient [", int(gradient.color[0]), ", ", int(gradient.color[1]), ", ", int(gradient.color[2]), ", ", int(gradient.color[3]), ", ", int(gradient.color[4]),  ", ", int(gradient.color[5]), "] to Mix [", int(mix[0]), ", ", int(mix[1]),  ", ", int(mix[2]),  ", ", int(mix[3]),  ", ", int(mix[4]),  ", ", int(mix[5]), "]");
-        #endif
-
+        SERIAL_ECHOPGM("Gradient [ ");
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(gradient.color[0]), int(gradient.color[1]), int(gradient.color[2]), int(gradient.color[3]), int(gradient.color[4]), int(gradient.color[5]));
+        SERIAL_ECHOPGM(" ] to Mix [ ");
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(mix[0]), int(mix[1]), int(mix[2]), int(mix[3]), int(mix[4]), int(mix[5]));
+        SERIAL_ECHOLNPGM(" ]");
       #endif
     }
 
