@@ -292,16 +292,16 @@ void GcodeSuite::G2_G3(const bool clockwise) {
     get_destination_from_command();
 
     #if ENABLED(LASER_MOVE_POWER)
-      //Set the laser power in the planner to configure this move
-      #if ENABLED(SPEED_POWER_FLOAT)
-        if (parser.seen('S')) {
-          cutter.inline_power(parser.value_float());
-        }
-      #else
-        if (parser.seen('S')) {
-          cutter.inline_power(parser.value_int());
-        }
-      #endif
+      // Set the laser power in the planner to configure this move
+      if (parser.seen('S')) {
+        cutter.inline_power(
+          #if ENABLED(SPEED_POWER_FLOAT)
+            parser.value_float()
+          #else
+            parser.value_int()
+          #endif
+        );
+      }
     #endif
 
     #if ENABLED(SF_ARC_FIX)

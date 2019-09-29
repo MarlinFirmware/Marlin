@@ -84,6 +84,23 @@ enum BlockFlag : char {
   BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
 };
 
+#if ENABLED(LASER_POWER_INLINE)
+
+  typedef struct {
+    uint8_t status, //See planner settings for meaning
+            power; //Ditto; When in trapezoid mode becomes nominal
+    #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+      uint8_t   power_entry; //Entry power for the laser
+      #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+        uint8_t   power_exit; //Exit power for the laser
+        uint32_t  entry_per,  //Steps per power increment to avoid floats in stepper calcs
+                  exit_per;  //Steps per power decrement to avoid floats in stepper calcs
+      #endif
+    #endif
+  } block_laser_t;
+
+#endif
+
 /**
  * struct block_t
  *
@@ -171,18 +188,6 @@ typedef struct block_t {
   #endif
 
   #if ENABLED(LASER_POWER_INLINE)
-    typedef struct {
-      uint8_t status, //See planner settings for meaning
-              power; //Ditto; When in trapezoid mode becomes nominal
-      #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
-        uint8_t   power_entry; //Entry power for the laser
-        #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
-          uint8_t   power_exit; //Exit power for the laser
-          uint32_t  entry_per,  //Steps per power increment to avoid floats in stepper calcs
-                    exit_per;  //Steps per power decrement to avoid floats in stepper calcs
-        #endif
-      #endif
-    } block_laser_t;
     block_laser_t laser;
   #endif
 
@@ -205,12 +210,14 @@ typedef struct {
   #if ENABLED(LASER_POWER_INLINE)
     typedef struct {
       /**
-       * The laser status bitmask; most bits are unused;
-       * bit 0 is planner buffering enable; bit 1 is laser enable;
-       * bit 2 is reserved direction if needed
+       * Laser status bitmask; most bits are unused;
+       *  0: Planner buffer enable
+       *  1: Laser enable
+       *  2: Reserved for direction
        */
       uint8_t status,
-      /**Laser power; either 0 or 255 in case of pwm-less laser,
+      /**
+       * Laser power: 0 or 255 in case of PWM-less laser,
        * or the OCR value;
        *
        * Using OCR instead of raw power,

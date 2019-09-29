@@ -815,13 +815,11 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   #if ENABLED(S_CURVE_ACCELERATION)
     // Jerk controlled speed requires to express speed versus time, NOT steps
     uint32_t acceleration_time = ((float)(cruise_rate - initial_rate) / accel) * (STEPPER_TIMER_RATE),
-             deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (STEPPER_TIMER_RATE);
-
+             deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (STEPPER_TIMER_RATE),
     // And to offload calculations from the ISR, we also calculate the inverse of those times here
-    uint32_t acceleration_time_inverse = get_period_inverse(acceleration_time);
-    uint32_t deceleration_time_inverse = get_period_inverse(deceleration_time);
+             acceleration_time_inverse = get_period_inverse(acceleration_time),
+             deceleration_time_inverse = get_period_inverse(deceleration_time);
   #endif
-
 
   // Store new block parameters
   block->accelerate_until = accelerate_steps;
@@ -838,42 +836,38 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
 
   /**
    * Laser trapezoid calculations
-   * 
-   * Approximates the trapezoid with the laser, by incremening the power every `entry_power_per` while accelerating
+   *
+   * Approximate the trapezoid with the laser, incrementing the power every `entry_per` while accelerating
    * and decrementing it every `exit_power_per` while decelerating, thus ensuring power is related to feedrate.
-   * 
+   *
    * LASER_POWER_INLINE_TRAPEZOID_CONT doesn't need this as it continuously approximates
-   * 
+   *
    * Note this may behave unreliably when running with S_CURVE_ACCELERATION
    */
   #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
     if (block->laser.power > 0) { // No need to care if power == 0
-      uint8_t entry_power = block->laser.power*entry_factor; // Power on block entry
+      const uint8_t entry_power = block->laser.power * entry_factor; // Power on block entry
       #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
-        //Deceleration steps
-        uint32_t decelstep = block->step_event_count-block->decelerate_after;
-        //Speedup power
-        uint8_t entry_power_difference = block->laser.power-entry_power;
-        if (entry_power_difference != 0) {
-          uint32_t entry_power_per = accelerate_steps/entry_power_difference;
+        // Speedup power
+        const uint8_t entry_power_diff = block->laser.power - entry_power;
+        if (entry_power_diff) {
+          block->laser.entry_per = accelerate_steps / entry_power_diff;
           block->laser.power_entry = entry_power;
-          block->laser.entry_per = entry_power_per;
         }
         else {
-          block->laser.power_entry = block->laser.power;
           block->laser.entry_per = 0;
+          block->laser.power_entry = block->laser.power;
         }
-        //Slowdown power
-        uint8_t exit_power = block->laser.power*exit_factor; // Power on block entry
-        uint8_t exit_power_difference = block->laser.power-exit_power;
-        if (exit_power_difference  != 0) {
-          uint32_t exit_power_per = decelstep/exit_power_difference;
+        // Slowdown power
+        const uint8_t exit_power = block->laser.power * exit_factor, // Power on block entry
+                      exit_power_diff = block->laser.power - exit_power;
+        if (exit_power_diff) {
+          block->laser.exit_per = (block->step_event_count - block->decelerate_after) / exit_power_diff;
           block->laser.power_exit = exit_power;
-          block->laser.exit_per = exit_power_per;
         }
         else {
-          block->laser.power_exit = block->laser.power;
           block->laser.exit_per = 0;
+          block->laser.power_exit = block->laser.power;
         }
       #else
         block->laser.power_entry = entry_power;

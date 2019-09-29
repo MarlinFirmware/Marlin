@@ -339,54 +339,32 @@ class Stepper {
       static uint32_t acc_step_rate; // needed for deceleration start point
     #endif
 
-    //
     // Exact steps at which an endstop was triggered
-    //
     static xyz_long_t endstops_trigsteps;
 
-    //
     // Positions of stepper motors, in step units
-    //
     static xyze_long_t count_position;
 
-    //
-    // Current direction of stepper motors (+1 or -1)
-    //
+    // Current stepper motor directions (+1 or -1)
     static xyze_int8_t count_direction;
 
     #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+
       typedef struct {
-        //
-        // Is laser trapezoid needed (i.e. laser is powered on, and planner is in control)
-        //
-        bool trap_en;
-
-        //
-        // The current power on the laser
-        //
-        uint8_t cur_power;
-
-        //
-        //  Have we set up the laser power for cruising
-        //
-        bool cruise_set;
+        bool trap_en;       // Trapezoid needed flag (i.e., laser on, planner in control)
+        uint8_t cur_power;  // Current laser power
+        bool cruise_set;    // Power set up for cruising?
 
         #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
-          /**
-           * last_step_count is the step count from when the last update was called
-           * 
-           * acc_step_count is the accumulation of steps up to the steps_per currently being used
-           * 
-           */ 
-          uint32_t last_step_count, acc_step_count;
+          uint32_t last_step_count, // Step count from the last update
+                   acc_step_count;  // Bresenham counter for laser accel/decel
         #else
-          /**
-           * Count until next update
-           */
-          uint16_t till_update;
+          uint16_t till_update;     // Countdown to the next update
         #endif
       } stepper_laser_t;
+
       static stepper_laser_t laser;
+
     #endif
 
   public:

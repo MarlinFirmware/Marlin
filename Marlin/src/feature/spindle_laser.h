@@ -59,10 +59,9 @@ public:
 
   static void init();
 
+  // Modifying this function should update everywhere
+  static inline bool enabled(const cutter_power_t pwr) { return pwr > 0; }
   static inline bool enabled() { return enabled(power); }
-
-  //Modifying this function should update everywhere
-  static inline bool enabled(cutter_power_t pwr) { return power > 0; }
 
   static inline void set_power(const cutter_power_t pwr) { power = pwr; update_output(); }
 
@@ -106,22 +105,18 @@ public:
       #if ENABLED(SPINDLE_LASER_PWM)
         inline_ocr_power(translate_power(pwr));
       #else
-        planner.settings.laser.status |= 1; // Enable planner power control
-        planner.settings.laser.status &= ~2; // Unset power
-        planner.settings.laser.status |= enabled(pwr) << 1; // Setup planer laser state
+        planner.settings.laser.status = enabled(pwr) ? 0x03 : 0x01;
         planner.settings.laser.power = pwr;
       #endif
     }
 
-    static inline void inline_direction(const bool reverse) { UNUSED(reverse); } //TODO is this ever going to be needed
+    static inline void inline_direction(const bool reverse) { UNUSED(reverse); } // TODO is this ever going to be needed
 
     #if ENABLED(SPINDLE_LASER_PWM)
-    static inline void inline_ocr_power(const uint8_t pwr) {
-      planner.settings.laser.status |= 1; // Enable planner power control
-      planner.settings.laser.status &= ~2; // Unset power
-      planner.settings.laser.status |= (pwr>0) << 1; // Setup planer laser state
-      planner.settings.laser.power = pwr;
-    }
+      static inline void inline_ocr_power(const uint8_t pwr) {
+        planner.settings.laser.status = pwr ? 0x03 : 0x01;
+        planner.settings.laser.power = pwr;
+      }
     #endif
   #endif
 };

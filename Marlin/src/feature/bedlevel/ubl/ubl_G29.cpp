@@ -995,8 +995,9 @@
 
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
       #if HAS_LCD_MENU
-        ui.capture();                                         // Take over control of the LCD encoder
+        ui.capture();                                       // Take over the LCD encoder
       #endif
+
       do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES); // Move to the given XY with probe clearance
 
       #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
