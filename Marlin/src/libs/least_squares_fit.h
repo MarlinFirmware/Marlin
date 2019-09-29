@@ -65,6 +65,9 @@ inline void incremental_WLSF(struct linear_fit_data *lsf, const float &x, const 
   lsf->max_absx = _MAX(ABS(wx), lsf->max_absx);
   lsf->max_absy = _MAX(ABS(wy), lsf->max_absy);
 }
+inline void incremental_WLSF(struct linear_fit_data *lsf, const xy_pos_t &pos, const float &z, const float &w) {
+  incremental_WLSF(lsf, pos.x, pos.y, z, w);
+}
 
 inline void incremental_LSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z) {
   lsf->xbar += x;
@@ -79,6 +82,9 @@ inline void incremental_LSF(struct linear_fit_data *lsf, const float &x, const f
   lsf->max_absx = _MAX(ABS(x), lsf->max_absx);
   lsf->max_absy = _MAX(ABS(y), lsf->max_absy);
   lsf->N += 1.0;
+}
+inline void incremental_LSF(struct linear_fit_data *lsf, const xy_pos_t &pos, const float &z) {
+  incremental_LSF(lsf, pos.x, pos.y, z);
 }
 
 int finish_incremental_LSF(struct linear_fit_data *);

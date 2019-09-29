@@ -660,7 +660,7 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
   #endif
 }
 
-void ST7920_Lite_Status_Screen::draw_position(const float (&pos)[XYZE], const bool position_known) {
+void ST7920_Lite_Status_Screen::draw_position(const xyz_pos_t &pos, const bool position_known) {
   char str[7];
   set_ddram_address(DDRAM_LINE_4);
   begin_data();
@@ -669,13 +669,13 @@ void ST7920_Lite_Status_Screen::draw_position(const float (&pos)[XYZE], const bo
   const unsigned char alt_label = position_known ? 0 : (ui.get_blink() ? ' ' : 0);
 
   write_byte(alt_label ? alt_label : 'X');
-  write_str(dtostrf(pos[X_AXIS], -4, 0, str), 4);
+  write_str(dtostrf(pos.x, -4, 0, str), 4);
 
   write_byte(alt_label ? alt_label : 'Y');
-  write_str(dtostrf(pos[Y_AXIS], -4, 0, str), 4);
+  write_str(dtostrf(pos.y, -4, 0, str), 4);
 
   write_byte(alt_label ? alt_label : 'Z');
-  write_str(dtostrf(pos[Z_AXIS], -5, 1, str), 5);
+  write_str(dtostrf(pos.z, -5, 1, str), 5);
 }
 
 bool ST7920_Lite_Status_Screen::indicators_changed() {
@@ -750,8 +750,8 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
 }
 
 bool ST7920_Lite_Status_Screen::position_changed() {
-  const float x_pos = current_position[X_AXIS], y_pos = current_position[Y_AXIS], z_pos = current_position[Z_AXIS];
-  const uint8_t checksum = uint8_t(x_pos) ^ uint8_t(y_pos) ^ uint8_t(z_pos);
+  const xyz_pos_t pos = current_position;
+  const uint8_t checksum = uint8_t(pos.x) ^ uint8_t(pos.y) ^ uint8_t(pos.z);
   static uint8_t last_checksum = 0, changed = last_checksum != checksum;
   if (changed) last_checksum = checksum;
   return changed;

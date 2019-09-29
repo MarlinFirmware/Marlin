@@ -40,21 +40,21 @@
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-  FORCE_INLINE void mod_zprobe_zoffset(const float &offs) {
+  FORCE_INLINE void mod_probe_offset(const float &offs) {
     if (true
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         && active_extruder == 0
       #endif
     ) {
-      probe_offset[Z_AXIS] += offs;
+      probe_offset.z += offs;
       SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET MSG_Z ": ", probe_offset[Z_AXIS]);
+      SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET MSG_Z ": ", probe_offset.z);
     }
     else {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        hotend_offset[Z_AXIS][active_extruder] -= offs;
+        hotend_offset[active_extruder].z -= offs;
         SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET MSG_Z ": ", hotend_offset[Z_AXIS][active_extruder]);
+        SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET MSG_Z ": ", hotend_offset[active_extruder].z);
       #endif
     }
   }
@@ -81,7 +81,7 @@ void GcodeSuite::M290() {
         const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
         babystep.add_mm((AxisEnum)a, offs);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_zprobe_zoffset(offs);
+          if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_probe_offset(offs);
         #endif
       }
   #else
@@ -89,7 +89,7 @@ void GcodeSuite::M290() {
       const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
       babystep.add_mm(Z_AXIS, offs);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        if (!parser.seen('P') || parser.value_bool()) mod_zprobe_zoffset(offs);
+        if (!parser.seen('P') || parser.value_bool()) mod_probe_offset(offs);
       #endif
     }
   #endif
@@ -98,17 +98,17 @@ void GcodeSuite::M290() {
     SERIAL_ECHO_START();
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET " " MSG_Z, probe_offset[Z_AXIS]);
+      SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET " " MSG_Z, probe_offset.z);
     #endif
 
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
     {
       SERIAL_ECHOLNPAIR("Hotend ", int(active_extruder), "Offset"
         #if ENABLED(BABYSTEP_XY)
-          " X", hotend_offset[X_AXIS][active_extruder],
-          " Y", hotend_offset[Y_AXIS][active_extruder],
+          " X", hotend_offset[active_extruder].x,
+          " Y", hotend_offset[active_extruder].y,
         #endif
-        " Z", hotend_offset[Z_AXIS][active_extruder]
+        " Z", hotend_offset[active_extruder].z
       );
     }
     #endif

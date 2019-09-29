@@ -52,7 +52,7 @@
 #include "temperature.h"
 #include "../lcd/ultralcd.h"
 #include "../core/language.h"
-#include "../libs/vector_3.h"
+#include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
 #include "../Marlin.h"
 
@@ -146,13 +146,13 @@ typedef struct SettingsDataStruct {
 
   planner_settings_t planner_settings;
 
-  float planner_max_jerk[XYZE],                         // M205 XYZE  planner.max_jerk[XYZE]
-        planner_junction_deviation_mm;                  // M205 J     planner.junction_deviation_mm
+  xyze_float_t planner_max_jerk;                        // M205 XYZE  planner.max_jerk
+  float planner_junction_deviation_mm;                  // M205 J     planner.junction_deviation_mm
 
-  float home_offset[XYZ];                               // M206 XYZ / M665 TPZ
+  xyz_pos_t home_offset;                                // M206 XYZ / M665 TPZ
 
   #if HAS_HOTEND_OFFSET
-    float hotend_offset[XYZ][HOTENDS - 1];              // M218 XYZ
+    xyz_pos_t hotend_offset[HOTENDS - 1];               // M218 XYZ
   #endif
 
   //
@@ -181,7 +181,7 @@ typedef struct SettingsDataStruct {
   // HAS_BED_PROBE
   //
 
-  float probe_offset[XYZ];
+  xyz_pos_t probe_offset;
 
   //
   // ABL_PLANAR
@@ -192,10 +192,9 @@ typedef struct SettingsDataStruct {
   // AUTO_BED_LEVELING_BILINEAR
   //
   uint8_t grid_max_x, grid_max_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
-  int bilinear_grid_spacing[2],
-      bilinear_start[2];                                // G29 L F
+  xy_int_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y]; // G29
+    bed_mesh_t z_values;                                // G29
   #else
     float z_values[3][3];
   #endif
@@ -220,13 +219,13 @@ typedef struct SettingsDataStruct {
   // DELTA / [XYZ]_DUAL_ENDSTOPS
   //
   #if ENABLED(DELTA)
-    float delta_height,                                 // M666 H
-          delta_endstop_adj[ABC],                       // M666 XYZ
-          delta_radius,                                 // M665 R
+    float delta_height;                                 // M666 H
+    abc_float_t delta_endstop_adj;                      // M666 XYZ
+    float delta_radius,                                 // M665 R
           delta_diagonal_rod,                           // M665 L
           delta_segments_per_second,                    // M665 S
-          delta_calibration_radius,                     // M665 B
-          delta_tower_angle_trim[ABC];                  // M665 XYZ
+          delta_calibration_radius;                     // M665 B
+    abc_float_t delta_tower_angle_trim;                 // M665 XYZ
   #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
     float x2_endstop_adj,                               // M666 X
           y2_endstop_adj,                               // M666 Y
@@ -302,7 +301,7 @@ typedef struct SettingsDataStruct {
   //
   // CNC_COORDINATE_SYSTEMS
   //
-  float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ]; // G54-G59.3
+  xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS];  // G54-G59.3
 
   //
   // SKEW_CORRECTION
@@ -326,7 +325,7 @@ typedef struct SettingsDataStruct {
   //
   // BACKLASH_COMPENSATION
   //
-  float backlash_distance_mm[XYZ];                      // M425 X Y Z
+  xyz_float_t backlash_distance_mm;                     // M425 X Y Z
   uint8_t backlash_correction;                          // M425 F
   float backlash_smoothing_mm;                          // M425 S
 
@@ -355,7 +354,7 @@ uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 #endif
 
 void MarlinSettings::postprocess() {
-  const float oldpos[XYZE] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS] };
+  xyze_pos_t oldpos = current_position;
 
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
@@ -408,7 +407,7 @@ void MarlinSettings::postprocess() {
   planner.refresh_positioning();
 
   // Various factors can change the current position
-  if (memcmp(oldpos, current_position, sizeof(oldpos)))
+  if (oldpos != current_position)
     report_current_position();
 }
 
@@ -522,7 +521,7 @@ void MarlinSettings::postprocess() {
           EEPROM_WRITE(dummy);
         #endif
       #else
-        const float planner_max_jerk[XYZE] = { float(DEFAULT_EJERK) };
+        const xyze_pos_t planner_max_jerk = { 10, 10, 0.4, float(DEFAULT_EJERK) };
         EEPROM_WRITE(planner_max_jerk);
       #endif
 
@@ -544,7 +543,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(scara_home_offset);
       #else
         #if !HAS_HOME_OFFSET
-          const float home_offset[XYZ] = { 0 };
+          const xyz_pos_t home_offset{0};
         #endif
         EEPROM_WRITE(home_offset);
       #endif
@@ -552,7 +551,7 @@ void MarlinSettings::postprocess() {
       #if HAS_HOTEND_OFFSET
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; e++)
-          LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
+          EEPROM_WRITE(hotend_offset[e]);
       #endif
     }
 
@@ -618,7 +617,7 @@ void MarlinSettings::postprocess() {
     // Probe Z Offset
     //
     {
-      _FIELD_TEST(probe_offset[Z_AXIS]);
+      _FIELD_TEST(probe_offset.z);
       EEPROM_WRITE(probe_offset);
     }
 
@@ -653,7 +652,7 @@ void MarlinSettings::postprocess() {
       #else
         // For disabled Bilinear Grid write an empty 3x3 grid
         const uint8_t grid_max_x = 3, grid_max_y = 3;
-        const int bilinear_start[2] = { 0 }, bilinear_grid_spacing[2] = { 0 };
+        const xy_int_t bilinear_start{0}, bilinear_grid_spacing{0};
         dummy = 0;
         EEPROM_WRITE(grid_max_x);
         EEPROM_WRITE(grid_max_y);
@@ -1033,7 +1032,7 @@ void MarlinSettings::postprocess() {
     // TMC StallGuard threshold
     //
     {
-      tmc_sgt_t tmc_sgt = { 0 };
+      tmc_sgt_t tmc_sgt{0};
       #if USE_SENSORLESS
         #if X_SENSORLESS
           tmc_sgt.X = stepperX.homing_threshold();
@@ -1138,8 +1137,8 @@ void MarlinSettings::postprocess() {
       #if HAS_MOTOR_CURRENT_PWM
         EEPROM_WRITE(stepper.motor_current_setting);
       #else
-        const uint32_t dummyui32[XYZ] = { 0 };
-        EEPROM_WRITE(dummyui32);
+        const xyz_ulong_t no_current{0};
+        EEPROM_WRITE(no_current);
       #endif
     }
 
@@ -1152,7 +1151,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(CNC_COORDINATE_SYSTEMS)
       EEPROM_WRITE(gcode.coordinate_system);
     #else
-      const float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ] = { { 0 } };
+      const xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS] = { { 0 } };
       EEPROM_WRITE(coordinate_system);
     #endif
 
@@ -1189,10 +1188,10 @@ void MarlinSettings::postprocess() {
     //
     {
       #if ENABLED(BACKLASH_GCODE)
-        const float (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
+        const xyz_float_t &backlash_distance_mm = backlash.distance_mm;
         const uint8_t &backlash_correction = backlash.correction;
       #else
-        const float backlash_distance_mm[XYZ] = { 0 };
+        const xyz_float_t backlash_distance_mm{0};
         const uint8_t backlash_correction = 0;
       #endif
       #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
@@ -1341,7 +1340,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(scara_home_offset);
         #else
           #if !HAS_HOME_OFFSET
-            float home_offset[XYZ];
+            xyz_pos_t home_offset;
           #endif
           EEPROM_READ(home_offset);
         #endif
@@ -1354,7 +1353,7 @@ void MarlinSettings::postprocess() {
         #if HAS_HOTEND_OFFSET
           // Skip hotend 0 which must be 0
           for (uint8_t e = 1; e < HOTENDS; e++)
-            LOOP_XYZ(i) EEPROM_READ(hotend_offset[i][e]);
+            EEPROM_READ(hotend_offset[e]);
         #endif
       }
 
@@ -1418,12 +1417,11 @@ void MarlinSettings::postprocess() {
       // Probe Z Offset
       //
       {
-        _FIELD_TEST(probe_offset[Z_AXIS]);
-
+        _FIELD_TEST(probe_offset);
         #if HAS_BED_PROBE
-          float (&zpo)[XYZ] = probe_offset;
+          xyz_pos_t &zpo = probe_offset;
         #else
-          float zpo[XYZ];
+          xyz_pos_t zpo;
         #endif
         EEPROM_READ(zpo);
       }
@@ -1457,7 +1455,7 @@ void MarlinSettings::postprocess() {
         #endif // AUTO_BED_LEVELING_BILINEAR
           {
             // Skip past disabled (or stale) Bilinear Grid data
-            int bgs[2], bs[2];
+            xy_int_t bgs, bs;
             EEPROM_READ(bgs);
             EEPROM_READ(bs);
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummy);
@@ -1940,7 +1938,7 @@ void MarlinSettings::postprocess() {
           if (!validating) (void)gcode.select_coordinate_system(-1); // Go back to machine space
           EEPROM_READ(gcode.coordinate_system);
         #else
-          float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+          xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS];
           EEPROM_READ(coordinate_system);
         #endif
       }
@@ -1989,7 +1987,7 @@ void MarlinSettings::postprocess() {
       //
       {
         #if ENABLED(BACKLASH_GCODE)
-          float (&backlash_distance_mm)[XYZ] = backlash.distance_mm;
+          xyz_float_t &backlash_distance_mm = backlash.distance_mm;
           uint8_t &backlash_correction = backlash.correction;
         #else
           float backlash_distance_mm[XYZ];
@@ -2231,11 +2229,9 @@ void MarlinSettings::reset() {
     #ifndef DEFAULT_ZJERK
       #define DEFAULT_ZJERK 0
     #endif
-    planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
-    planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
-    planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
+    planner.max_jerk.set(DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK);
     #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
-      planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
+      planner.max_jerk.e = DEFAULT_EJERK;
     #endif
   #endif
 
@@ -2244,9 +2240,9 @@ void MarlinSettings::reset() {
   #endif
 
   #if HAS_SCARA_OFFSET
-    ZERO(scara_home_offset);
+    scara_home_offset.reset();
   #elif HAS_HOME_OFFSET
-    ZERO(home_offset);
+    home_offset.reset();
   #endif
 
   #if HAS_HOTEND_OFFSET
@@ -2277,17 +2273,16 @@ void MarlinSettings::reset() {
       toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
-      toolchange_settings.change_point = TOOLCHANGE_PARK_XY;
+      constexpr xyz_pos_t tpxy = TOOLCHANGE_PARK_XY;
+      toolchange_settings.change_point = tpxy;
     #endif
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
     backlash.correction = (BACKLASH_CORRECTION) * 255;
-    constexpr float tmp[XYZ] = BACKLASH_DISTANCE_MM;
-    backlash.distance_mm[X_AXIS] = tmp[X_AXIS];
-    backlash.distance_mm[Y_AXIS] = tmp[Y_AXIS];
-    backlash.distance_mm[Z_AXIS] = tmp[Z_AXIS];
+    constexpr xyz_float_t tmp = BACKLASH_DISTANCE_MM;
+    backlash.distance_mm = tmp;
     #ifdef BACKLASH_SMOOTHING_MM
       backlash.smoothing_mm = BACKLASH_SMOOTHING_MM;
     #endif
@@ -2346,14 +2341,14 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(DELTA)
-    const float adj[ABC] = DELTA_ENDSTOP_ADJ, dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
+    const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM;
     delta_height = DELTA_HEIGHT;
-    COPY(delta_endstop_adj, adj);
+    delta_endstop_adj = adj;
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_calibration_radius = DELTA_CALIBRATION_RADIUS;
-    COPY(delta_tower_angle_trim, dta);
+    delta_tower_angle_trim = dta;
 
   #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
 
@@ -2769,11 +2764,11 @@ void MarlinSettings::reset() {
         , " J", LINEAR_UNIT(planner.junction_deviation_mm)
       #endif
       #if HAS_CLASSIC_JERK
-        , " X", LINEAR_UNIT(planner.max_jerk[X_AXIS])
-        , " Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS])
-        , " Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS])
+        , " X", LINEAR_UNIT(planner.max_jerk.x)
+        , " Y", LINEAR_UNIT(planner.max_jerk.y)
+        , " Z", LINEAR_UNIT(planner.max_jerk.z)
         #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
-          , " E", LINEAR_UNIT(planner.max_jerk[E_AXIS])
+          , " E", LINEAR_UNIT(planner.max_jerk.e)
         #endif
       #endif
     );
@@ -2783,10 +2778,10 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR("  M206"
         #if IS_CARTESIAN
-          " X", LINEAR_UNIT(home_offset[X_AXIS]),
-          " Y", LINEAR_UNIT(home_offset[Y_AXIS]),
+          " X", LINEAR_UNIT(home_offset.x),
+          " Y", LINEAR_UNIT(home_offset.y),
         #endif
-        " Z", LINEAR_UNIT(home_offset[Z_AXIS])
+        " Z", LINEAR_UNIT(home_offset.z)
       );
     #endif
 
@@ -2796,9 +2791,9 @@ void MarlinSettings::reset() {
       for (uint8_t e = 1; e < HOTENDS; e++) {
         SERIAL_ECHOPAIR(
           "  M218 T", (int)e,
-          " X", LINEAR_UNIT(hotend_offset[X_AXIS][e]), " Y", LINEAR_UNIT(hotend_offset[Y_AXIS][e])
+          " X", LINEAR_UNIT(hotend_offset[e].x), " Y", LINEAR_UNIT(hotend_offset[e].y)
         );
-        SERIAL_ECHOLNPAIR_F(" Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]), 3);
+        SERIAL_ECHOLNPAIR_F(" Z", LINEAR_UNIT(hotend_offset[e].z), 3);
       }
     #endif
 
@@ -2901,9 +2896,9 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
           "  M665 S", delta_segments_per_second
-        , " P", scara_home_offset[A_AXIS]
-        , " T", scara_home_offset[B_AXIS]
-        , " Z", LINEAR_UNIT(scara_home_offset[Z_AXIS])
+        , " P", scara_home_offset.a
+        , " T", scara_home_offset.b
+        , " Z", LINEAR_UNIT(scara_home_offset.z)
       );
 
     #elif ENABLED(DELTA)
@@ -2911,9 +2906,9 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("Endstop adjustment:");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
-          "  M666 X", LINEAR_UNIT(delta_endstop_adj[A_AXIS])
-        , " Y", LINEAR_UNIT(delta_endstop_adj[B_AXIS])
-        , " Z", LINEAR_UNIT(delta_endstop_adj[C_AXIS])
+          "  M666 X", LINEAR_UNIT(delta_endstop_adj.a)
+        , " Y", LINEAR_UNIT(delta_endstop_adj.b)
+        , " Z", LINEAR_UNIT(delta_endstop_adj.c)
       );
 
       CONFIG_ECHO_HEADING("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> B<calibration radius> XYZ<tower angle corrections>");
@@ -2924,9 +2919,9 @@ void MarlinSettings::reset() {
         , " H", LINEAR_UNIT(delta_height)
         , " S", delta_segments_per_second
         , " B", LINEAR_UNIT(delta_calibration_radius)
-        , " X", LINEAR_UNIT(delta_tower_angle_trim[A_AXIS])
-        , " Y", LINEAR_UNIT(delta_tower_angle_trim[B_AXIS])
-        , " Z", LINEAR_UNIT(delta_tower_angle_trim[C_AXIS])
+        , " X", LINEAR_UNIT(delta_tower_angle_trim.a)
+        , " Y", LINEAR_UNIT(delta_tower_angle_trim.b)
+        , " Z", LINEAR_UNIT(delta_tower_angle_trim.c)
       );
 
     #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
@@ -3072,9 +3067,9 @@ void MarlinSettings::reset() {
         say_units(true);
       }
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M851 X", LINEAR_UNIT(probe_offset[X_AXIS]),
-                              " Y", LINEAR_UNIT(probe_offset[Y_AXIS]),
-                              " Z", LINEAR_UNIT(probe_offset[Z_AXIS]));
+      SERIAL_ECHOLNPAIR("  M851 X", LINEAR_UNIT(probe_offset.x),
+                              " Y", LINEAR_UNIT(probe_offset.y),
+                              " Z", LINEAR_UNIT(probe_offset.z));
     #endif
 
     /**
@@ -3421,9 +3416,9 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
         "  M425 F", backlash.get_correction(),
-        " X", LINEAR_UNIT(backlash.distance_mm[X_AXIS]),
-        " Y", LINEAR_UNIT(backlash.distance_mm[Y_AXIS]),
-        " Z", LINEAR_UNIT(backlash.distance_mm[Z_AXIS])
+        " X", LINEAR_UNIT(backlash.distance_mm.x),
+        " Y", LINEAR_UNIT(backlash.distance_mm.y),
+        " Z", LINEAR_UNIT(backlash.distance_mm.z)
         #ifdef BACKLASH_SMOOTHING_MM
           , " S", LINEAR_UNIT(backlash.smoothing_mm)
         #endif

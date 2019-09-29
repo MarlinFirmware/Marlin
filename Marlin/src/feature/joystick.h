@@ -25,6 +25,8 @@
  * joystick.h - joystick input / jogging
  */
 
+#include "../inc/MarlinConfigPre.h"
+#include "../core/types.h"
 #include "../core/macros.h"
 #include "../module/temperature.h"
 
@@ -46,7 +48,7 @@ class Joystick {
     #if ENABLED(JOYSTICK_DEBUG)
       static void report();
     #endif
-    static void calculate(float (&norm_jog)[XYZ]);
+    static void calculate(xyz_float_t &norm_jog);
     static void inject_jog_moves();
 };
 

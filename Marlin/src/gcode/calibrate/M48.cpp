@@ -74,13 +74,14 @@ void GcodeSuite::M48() {
 
   const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
-  float X_current = current_position[X_AXIS],
-        Y_current = current_position[Y_AXIS];
+  xy_float_t next_pos = current_position;
 
-  const float X_probe_location = parser.linearval('X', X_current + probe_offset[X_AXIS]),
-              Y_probe_location = parser.linearval('Y', Y_current + probe_offset[Y_AXIS]);
+  const xy_pos_t probe_pos = {
+    parser.linearval('X', next_pos.x + probe_offset.x),
+    parser.linearval('Y', next_pos.y + probe_offset.y)
+  };
 
-  if (!position_is_reachable_by_probe(X_probe_location, Y_probe_location)) {
+  if (!position_is_reachable_by_probe(probe_pos)) {
     SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
     return;
   }
@@ -116,7 +117,7 @@ void GcodeSuite::M48() {
   float mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
 
   // Move to the first point, deploy, and probe
-  const float t = probe_at_point(X_probe_location, Y_probe_location, raise_after, verbose_level);
+  const float t = probe_at_point(probe_pos, raise_after, verbose_level);
   bool probing_good = !isnan(t);
 
   if (probing_good) {
@@ -165,32 +166,31 @@ void GcodeSuite::M48() {
           while (angle < 0.0) angle += 360.0;   // outside of this range.   It looks like they behave correctly with
                                                 // numbers outside of the range, but just to be safe we clamp them.
 
-          X_current = X_probe_location - probe_offset[X_AXIS] + cos(RADIANS(angle)) * radius;
-          Y_current = Y_probe_location - probe_offset[Y_AXIS] + sin(RADIANS(angle)) * radius;
+          next_pos.set(probe_pos.x - probe_offset.x + cos(RADIANS(angle)) * radius,
+                       probe_pos.y - probe_offset.y + sin(RADIANS(angle)) * radius);
 
           #if DISABLED(DELTA)
-            LIMIT(X_current, X_MIN_POS, X_MAX_POS);
-            LIMIT(Y_current, Y_MIN_POS, Y_MAX_POS);
+            LIMIT(next_pos.x, X_MIN_POS, X_MAX_POS);
+            LIMIT(next_pos.y, Y_MIN_POS, Y_MAX_POS);
           #else
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
-            while (!position_is_reachable_by_probe(X_current, Y_current)) {
-              X_current *= 0.8;
-              Y_current *= 0.8;
+            while (!position_is_reachable_by_probe(next_pos)) {
+              next_pos *= 0.8;
               if (verbose_level > 3)
-                SERIAL_ECHOLNPAIR("Moving inward: X", X_current, " Y", Y_current);
+                SERIAL_ECHOLNPAIR("Moving inward: X", next_pos.x, " Y", next_pos.y);
             }
           #endif
 
           if (verbose_level > 3)
-            SERIAL_ECHOLNPAIR("Going to: X", X_current, " Y", Y_current, " Z", current_position[Z_AXIS]);
+            SERIAL_ECHOLNPAIR("Going to: X", next_pos.x, " Y", next_pos.y);
 
-          do_blocking_move_to_xy(X_current, Y_current);
+          do_blocking_move_to_xy(next_pos);
         } // n_legs loop
       } // n_legs
 
       // Probe a single point
-      sample_set[n] = probe_at_point(X_probe_location, Y_probe_location, raise_after, 0);
+      sample_set[n] = probe_at_point(probe_pos, raise_after, 0);
 
       // Break the loop if the probe fails
       probing_good = !isnan(sample_set[n]);

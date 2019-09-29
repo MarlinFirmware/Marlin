@@ -29,7 +29,7 @@ constexpr uint8_t all_on = 0xFF, all_off = 0x00;
 class Backlash {
 public:
   #if ENABLED(BACKLASH_GCODE)
-    static float distance_mm[XYZ];
+    static xyz_float_t distance_mm;
     static uint8_t correction;
     #ifdef BACKLASH_SMOOTHING_MM
       static float smoothing_mm;
@@ -39,7 +39,7 @@ public:
     static inline float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
   #else
     static constexpr uint8_t correction = (BACKLASH_CORRECTION) * 0xFF;
-    static const float distance_mm[XYZ];
+    static const xyz_float_t distance_mm;
     #ifdef BACKLASH_SMOOTHING_MM
       static constexpr float smoothing_mm = BACKLASH_SMOOTHING_MM;
     #endif
@@ -47,8 +47,8 @@ public:
 
   #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
     private:
-      static float measured_mm[XYZ];
-      static uint8_t measured_count[XYZ];
+      static xyz_float_t measured_mm;
+      static xyz_uint8_t measured_count;
     public:
       static void measure_with_probe();
   #endif
