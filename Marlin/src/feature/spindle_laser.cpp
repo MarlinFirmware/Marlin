@@ -45,10 +45,8 @@ void SpindleLaser::init() {
     SET_PWM(SPINDLE_LASER_PWM_PIN);
     analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);  // set to lowest speed
   #endif
-  #if ENABLED(HAL_PWM_FREQ)
-    #ifdef SPINDLE_LASER_FREQUENCY
-      set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
-    #endif
+  #if ENABLED(HAL_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
+    set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
   #endif
 }
 
@@ -82,12 +80,11 @@ void SpindleLaser::apply_power(const cutter_power_t inpow) {
   if (inpow == last_power_applied) return;
   last_power_applied = inpow;
   #if ENABLED(SPINDLE_LASER_PWM)
-    if (ena) {
+    if (ena)
       set_ocr(translate_power(power));
-    }
-    else {
-      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);   // Turn spindle off (active low)
-      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);  // Only write low byte
+    else {                                                                                // Convert RPM to PWM duty cycle
+      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);                           // Turn spindle off (active low)
+      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_INVERT ? 255 : 0);      // Only write low byte
     }
   #else
     WRITE(SPINDLE_LASER_ENA_PIN, (SPINDLE_LASER_ACTIVE_HIGH) ? enabled() : !enabled());

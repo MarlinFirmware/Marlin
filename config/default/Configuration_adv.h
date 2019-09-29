@@ -2383,7 +2383,7 @@
     #define SPEED_POWER_MAX    30000    // SuperPID router controller 0 - 30,000 RPM
     #define SPEED_POWER_STARTUP  SPEED_POWER_MAX // The default value for speed power when M3 is called without arguments
     //#define SPEED_POWER_FLOAT // Handles and parses the speed/power as a floating point value
-    
+
     //#define SPINDLE_LASER_FREQUENCY 20000 //Set the spindle/laser frequency on supported HALs (currently AVR and LPC)
   #else
     #define SPEED_POWER_SLOPE      0.3922
@@ -2398,10 +2398,10 @@
 
     /**
      * Allows for laser power changes to be buffered into the laser planner block
-     * 
+     *
      * This means that the laser doesn't stall whenever a power change is requested due to
      * having to catch up to the planner
-     * 
+     *
      * This also diables the powerup/down delay
      */
     //#define LASER_POWER_INLINE
@@ -2413,9 +2413,9 @@
       //#define LASER_MOVE_G0_OFF // Requires LASER_MOVE_POWER
 
       /**
-       * Invert the inline flag; 
-       * 
-       * WARNING: M5 will now NOT turn off the laser unless another 
+       * Invert the inline flag;
+       *
+       * WARNING: M5 will now NOT turn off the laser unless another
        * move is called (so end files with `M5 I`)
        */
       //#define  LASER_POWER_INLINE_INVERT
