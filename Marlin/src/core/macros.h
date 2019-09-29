@@ -205,25 +205,26 @@
   }while(0)
 
 // Macros for initializing arrays
-#define ARRAY_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) { A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P }
-#define ARRAY_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) { A,B,C,D,E,F,G,H,I,J,K,L,M,N,O }
-#define ARRAY_14(A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) { A,B,C,D,E,F,G,H,I,J,K,L,M,N }
-#define ARRAY_13(A,B,C,D,E,F,G,H,I,J,K,L,M,...) { A,B,C,D,E,F,G,H,I,J,K,L,M }
-#define ARRAY_12(A,B,C,D,E,F,G,H,I,J,K,L,...) { A,B,C,D,E,F,G,H,I,J,K,L }
-#define ARRAY_11(A,B,C,D,E,F,G,H,I,J,K,...) { A,B,C,D,E,F,G,H,I,J,K }
-#define ARRAY_10(A,B,C,D,E,F,G,H,I,J,...) { A,B,C,D,E,F,G,H,I,J }
-#define ARRAY_9( A,B,C,D,E,F,G,H,I,...) { A,B,C,D,E,F,G,H,I }
-#define ARRAY_8( A,B,C,D,E,F,G,H,...) { A,B,C,D,E,F,G,H }
-#define ARRAY_7( A,B,C,D,E,F,G,...) { A,B,C,D,E,F,G }
-#define ARRAY_6( A,B,C,D,E,F,...) { A,B,C,D,E,F }
-#define ARRAY_5( A,B,C,D,E,...) { A,B,C,D,E }
-#define ARRAY_4( A,B,C,D,...) { A,B,C,D }
-#define ARRAY_3( A,B,C,...) { A,B,C }
-#define ARRAY_2( A,B,...) { A,B }
-#define ARRAY_1( A,...) { A }
+#define LIST_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P
+#define LIST_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O
+#define LIST_14(A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N
+#define LIST_13(A,B,C,D,E,F,G,H,I,J,K,L,M,...) A,B,C,D,E,F,G,H,I,J,K,L,M
+#define LIST_12(A,B,C,D,E,F,G,H,I,J,K,L,...) A,B,C,D,E,F,G,H,I,J,K,L
+#define LIST_11(A,B,C,D,E,F,G,H,I,J,K,...) A,B,C,D,E,F,G,H,I,J,K
+#define LIST_10(A,B,C,D,E,F,G,H,I,J,...) A,B,C,D,E,F,G,H,I,J
+#define LIST_9( A,B,C,D,E,F,G,H,I,...) A,B,C,D,E,F,G,H,I
+#define LIST_8( A,B,C,D,E,F,G,H,...) A,B,C,D,E,F,G,H
+#define LIST_7( A,B,C,D,E,F,G,...) A,B,C,D,E,F,G
+#define LIST_6( A,B,C,D,E,F,...) A,B,C,D,E,F
+#define LIST_5( A,B,C,D,E,...) A,B,C,D,E
+#define LIST_4( A,B,C,D,...) A,B,C,D
+#define LIST_3( A,B,C,...) A,B,C
+#define LIST_2( A,B,...) A,B
+#define LIST_1( A,...) A
 
-#define _ARRAY_N(N,V...) ARRAY_##N(V)
-#define ARRAY_N(N,V...) _ARRAY_N(N,V)
+#define _LIST_N(N,V...) LIST_##N(V)
+#define LIST_N(N,V...) _LIST_N(N,V)
+#define ARRAY_N(N,V...) { _LIST_N(N,V) }
 
 // Macros for adding
 #define INC_0 1
