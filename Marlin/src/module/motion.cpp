@@ -573,7 +573,7 @@ void restore_feedrate_and_scaling() {
    */
   void apply_motion_limits(float target[XYZ]) {
 
-    if (!soft_endstops_enabled) return;
+    if (!soft_endstops_enabled || !all_axes_homed()) return;
 
     #if IS_KINEMATIC
 
