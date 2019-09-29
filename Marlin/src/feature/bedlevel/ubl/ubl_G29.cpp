@@ -1391,6 +1391,18 @@
                   dx = (x_max - x_min) / (g29_grid_size - 1),
                   dy = (y_max - y_min) / (g29_grid_size - 1);
 
+      vector_3 points[3] = {
+        #if ENABLED(HAS_FIXED_3POINT)
+          vector_3(PROBE_PT_1_X, PROBE_PT_1_Y, 0),
+          vector_3(PROBE_PT_2_X, PROBE_PT_2_Y, 0),
+          vector_3(PROBE_PT_3_X, PROBE_PT_3_Y, 0)
+        #else
+          vector_3(x_min, y_min, 0),
+          vector_3(x_max, y_min, 0),
+          vector_3((x_max - x_min) / 2, y_max, 0)
+        #endif
+      };
+
       float measured_z;
       bool abort_flag = false;
 
@@ -1407,11 +1419,11 @@
           ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 1/3"));
         #endif
 
-        measured_z = probe_at_point(x_min, y_min, PROBE_PT_RAISE, g29_verbose_level);
+        measured_z = probe_at_point(points[0].x, points[0].y, PROBE_PT_RAISE, g29_verbose_level);
         if (isnan(measured_z))
           abort_flag = true;
         else {
-          measured_z -= get_z_correction(x_min, y_min);
+          measured_z -= get_z_correction(points[0].x, points[0].y);
           #ifdef VALIDATE_MESH_TILT
             z1 = measured_z;
           #endif
@@ -1419,7 +1431,7 @@
             serial_spaces(16);
             SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
           }
-          incremental_LSF(&lsf_results, x_min, y_min, measured_z);
+          incremental_LSF(&lsf_results, points[0].x, points[0].y, measured_z);
         }
 
         if (!abort_flag) {
@@ -1428,19 +1440,19 @@
             ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 2/3"));
           #endif
 
-          measured_z = probe_at_point(x_max, y_min, PROBE_PT_RAISE, g29_verbose_level);
+          measured_z = probe_at_point(points[1].x, points[1].y, PROBE_PT_RAISE, g29_verbose_level);
           #ifdef VALIDATE_MESH_TILT
             z2 = measured_z;
           #endif
           if (isnan(measured_z))
             abort_flag = true;
           else {
-            measured_z -= get_z_correction(x_max, y_min);
+            measured_z -= get_z_correction(points[1].x, points[1].y);
             if (g29_verbose_level > 3) {
               serial_spaces(16);
               SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
             }
-            incremental_LSF(&lsf_results, x_max, y_min, measured_z);
+            incremental_LSF(&lsf_results, points[1].x, points[1].y, measured_z);
           }
         }
 
@@ -1450,20 +1462,19 @@
             ui.status_printf_P(0, PSTR(MSG_LCD_TILTING_MESH " 3/3"));
           #endif
 
-          const float center_probe = (x_max - x_min) / 2;
-          measured_z = probe_at_point(center_probe, y_max, PROBE_PT_STOW, g29_verbose_level);
+          measured_z = probe_at_point(points[2].x, points[2].y, PROBE_PT_STOW, g29_verbose_level);
           #ifdef VALIDATE_MESH_TILT
             z3 = measured_z;
           #endif
           if (isnan(measured_z))
             abort_flag = true;
           else {
-            measured_z -= get_z_correction(center_probe, y_max);
+            measured_z -= get_z_correction(points[2].x, points[2].y);
             if (g29_verbose_level > 3) {
               serial_spaces(16);
               SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
             }
-            incremental_LSF(&lsf_results, center_probe, y_max, measured_z);
+            incremental_LSF(&lsf_results, points[2].x, points[2].y, measured_z);
           }
         }
 

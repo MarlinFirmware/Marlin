@@ -198,3 +198,6 @@ uint16_t HAL_adc_get_result();
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+#define PLATFORM_M997_SUPPORT
+void flashFirmware(int16_t value);
