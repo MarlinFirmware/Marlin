@@ -34,12 +34,12 @@
 #if !PIN_EXISTS(SD_DETECT)
   void lcd_sd_refresh() {
     encoderTopLine = 0;
-    card.initsd();
+    card.mount();
   }
 #endif
 
 void lcd_sd_updir() {
-  ui.encoderPosition = card.updir() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
+  ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
   screen_changed = true;
   ui.refresh();
@@ -82,10 +82,14 @@ inline void sdcard_start_selected_file() {
 #if ENABLED(SD_MENU_CONFIRM_START)
 
   void menu_sd_confirm() {
+    char * const longest = card.longest_filename();
+    char buffer[strlen(longest) + 2];
+    buffer[0] = ' ';
+    strcpy(buffer + 1, longest);
     do_select_screen(
       PSTR(MSG_BUTTON_PRINT), PSTR(MSG_BUTTON_CANCEL),
       sdcard_start_selected_file, ui.goto_previous_screen,
-      PSTR(MSG_START_PRINT " "), card.longest_filename(), PSTR("?")
+      PSTR(MSG_START_PRINT), buffer, PSTR("?")
     );
   }
 
@@ -111,7 +115,7 @@ class MenuItem_sdfile {
 class MenuItem_sdfolder {
   public:
     static void action(CardReader &theCard) {
-      card.chdir(theCard.filename);
+      card.cd(theCard.filename);
       encoderTopLine = 0;
       ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
       screen_changed = true;
@@ -125,17 +129,21 @@ class MenuItem_sdfolder {
 void menu_media() {
   ui.encoder_direction_menus();
 
-  const uint16_t fileCnt = card.get_num_Files();
+  #if HAS_GRAPHICAL_LCD
+    static uint16_t fileCnt;
+    if (ui.first_page) fileCnt = card.get_num_Files();
+  #else
+    const uint16_t fileCnt = card.get_num_Files();
+  #endif
 
   START_MENU();
   MENU_BACK(MSG_MAIN);
-  card.getWorkDirName();
-  if (card.filename[0] == '/') {
+  if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
     #endif
   }
-  else if (card.isDetected())
+  else if (card.isMounted())
     MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {

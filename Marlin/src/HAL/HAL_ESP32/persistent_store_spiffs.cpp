@@ -72,7 +72,7 @@ bool PersistentStore::access_finish() {
   return true;
 }
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
   if (!eeprom_file.seek(pos)) return true; // return true for any error
   if (eeprom_file.write(value, size) != size) return true;
 

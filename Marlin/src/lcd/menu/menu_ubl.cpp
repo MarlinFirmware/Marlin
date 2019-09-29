@@ -420,8 +420,8 @@ void _lcd_ubl_map_homing() {
  */
 void _lcd_ubl_map_lcd_edit_cmd() {
   char ubl_lcd_gcode[50], str[10], str2[10];
-  dtostrf(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]), 0, 2, str);
-  dtostrf(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]), 0, 2, str2);
+  dtostrf(ubl.mesh_index_to_xpos(x_plot), 0, 2, str);
+  dtostrf(ubl.mesh_index_to_ypos(y_plot), 0, 2, str2);
   snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29 P4 X%s Y%s R%i"), str, str2, int(n_edit_pts));
   lcd_enqueue_one_now(ubl_lcd_gcode);
 }
@@ -430,21 +430,21 @@ void _lcd_ubl_map_lcd_edit_cmd() {
  * UBL LCD Map Movement
  */
 void ubl_map_move_to_xy() {
-  REMEMBER(fr, feedrate_mm_s, MMM_TO_MMS(XY_PROBE_SPEED));
+  const feedRate_t fr_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
 
-  set_destination_from_current();          // sync destination at the start
+  set_destination_from_current(); // sync destination at the start
 
   #if ENABLED(DELTA)
     if (current_position[Z_AXIS] > delta_clip_start_height) {
       destination[Z_AXIS] = delta_clip_start_height;
-      prepare_move_to_destination();
+      prepare_internal_move_to_destination(fr_mm_s);
     }
   #endif
 
   destination[X_AXIS] = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]);
   destination[Y_AXIS] = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
 
-  prepare_move_to_destination();
+  prepare_internal_move_to_destination(fr_mm_s);
 }
 
 /**

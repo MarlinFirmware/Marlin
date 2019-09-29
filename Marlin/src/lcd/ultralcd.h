@@ -90,13 +90,13 @@
     typedef void (*menuAction_t)();
 
     // Manual Movement
-    constexpr float manual_feedrate_mm_m[XYZE] = MANUAL_FEEDRATE;
+    constexpr feedRate_t manual_feedrate_mm_m[XYZE] = MANUAL_FEEDRATE;
     extern float move_menu_scale;
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       void lcd_pause_show_message(const PauseMessage message,
-                                           const PauseMode mode=PAUSE_MODE_SAME,
-                                           const uint8_t extruder=active_extruder);
+                                  const PauseMode mode=PAUSE_MODE_SAME,
+                                  const uint8_t extruder=active_extruder);
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -405,6 +405,10 @@ public:
   #endif
 
   #if HAS_LCD_MENU
+
+    #if ENABLED(TOUCH_BUTTONS)
+      static uint8_t repeat_delay;
+    #endif
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
       static bool encoderRateMultiplierEnabled;

@@ -102,8 +102,8 @@ char MMU2::rx_buffer[16], MMU2::tx_buffer[16];
 #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
 
   struct E_Step {
-    float extrude;    //!< extrude distance in mm
-    float feedRate;   //!< feed rate in mm/s
+    float extrude;        //!< extrude distance in mm
+    feedRate_t feedRate;  //!< feed rate in mm/s
   };
 
   static constexpr E_Step ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE };
@@ -432,9 +432,7 @@ bool MMU2::rx_ok() {
  */
 void MMU2::check_version() {
   if (buildnr < MMU_REQUIRED_FW_BUILDNR) {
-    SERIAL_ERROR_START();
-    SERIAL_ECHOPGM("MMU2 firmware version invalid. Required version >= ");
-    SERIAL_ECHOLN(MMU_REQUIRED_FW_BUILDNR);
+    SERIAL_ERROR_MSG("Invalid MMU2 firmware. Version >= " STRINGIFY(MMU_REQUIRED_FW_BUILDNR) " required.");
     kill(MSG_MMU2_WRONG_FIRMWARE);
   }
 }
@@ -533,7 +531,7 @@ void MMU2::command(const uint8_t mmu_cmd) {
 /**
  * Wait for response from MMU
  */
-bool MMU2::get_response(void) {
+bool MMU2::get_response() {
   while (cmd != MMU_CMD_NONE) idle();
 
   while (!ready) {
@@ -606,10 +604,10 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         BUZZ(200, 404);
 
         // Move XY to starting position, then Z
-        do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
+        do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
         // Move Z_AXIS to saved position
-        do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
+        do_blocking_move_to_z(resume_position[Z_AXIS], feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
       }
       else {
         BUZZ(200, 404);
@@ -698,8 +696,6 @@ void MMU2::filament_runout() {
     }
 
     LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
-    const bool saved_e_relative_mode = gcode.axis_relative_modes[E_AXIS];
-    gcode.axis_relative_modes[E_AXIS] = true;
 
     enable_E0();
     current_position[E_AXIS] -= MMU2_FILAMENTCHANGE_EJECT_FEED;
@@ -734,8 +730,6 @@ void MMU2::filament_runout() {
     set_runout_valid(false);
 
     BUZZ(200, 404);
-
-    gcode.axis_relative_modes[E_AXIS] = saved_e_relative_mode;
 
     disable_E0();
 
@@ -784,27 +778,21 @@ void MMU2::filament_runout() {
     planner.synchronize();
     enable_E0();
 
-    const bool saved_e_relative_mode = gcode.axis_relative_modes[E_AXIS];
-    gcode.axis_relative_modes[E_AXIS] = true;
-
     const E_Step* step = sequence;
 
     for (uint8_t i = 0; i < steps; i++) {
-      const float es = pgm_read_float(&(step->extrude)),
-                  fr = pgm_read_float(&(step->feedRate));
+      const float es = pgm_read_float(&(step->extrude));
+      const feedRate_t fr_mm_m = pgm_read_float(&(step->feedRate));
 
       DEBUG_ECHO_START();
-      DEBUG_ECHOLNPAIR("E step ", es, "/", fr);
+      DEBUG_ECHOLNPAIR("E step ", es, "/", fr_mm_m);
 
       current_position[E_AXIS] += es;
-      planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
-                          current_position[E_AXIS], MMM_TO_MMS(fr), active_extruder);
+      line_to_current_position(MMM_TO_MMS(fr_mm_m));
       planner.synchronize();
 
       step++;
     }
-
-    gcode.axis_relative_modes[E_AXIS] = saved_e_relative_mode;
 
     disable_E0();
   }

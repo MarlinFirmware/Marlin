@@ -214,7 +214,7 @@
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
-// Show extra position information in M114
+// Show extra position information with 'M114 D'
 //#define M114_DETAIL
 
 // Show Temperature ADC value
@@ -594,8 +594,8 @@
 //#define Z_STEPPER_AUTO_ALIGN
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   // Define probe X and Y positions for Z1, Z2 [, Z3]
-  #define Z_STEPPER_ALIGN_X { 10, 150, 290 }
-  #define Z_STEPPER_ALIGN_Y { 290, 10, 290 }
+  #define Z_STEPPER_ALIGN_X {  10, 150, 290 }
+  #define Z_STEPPER_ALIGN_Y { 290,  10, 290 }
   // Set number of iterations to align
   #define Z_STEPPER_ALIGN_ITERATIONS 3
   // Enable to restore leveling setup after operation
@@ -612,7 +612,7 @@
   #define Z_STEPPER_ALIGN_ACC 0.02
 #endif
 
-// @section machine
+// @section motion
 
 #define AXIS_RELATIVE_MODES { false, false, false, false }
 
@@ -638,19 +638,6 @@
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
 
 //#define HOME_AFTER_DEACTIVATE  // Require rehoming after steppers are deactivated
-
-// @section lcd
-
-#if EITHER(ULTIPANEL, EXTENSIBLE_UI)
-  #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
-  #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
-  #if ENABLED(ULTIPANEL)
-    #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
-    #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
-  #endif
-#endif
-
-// @section extras
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.
 #define DEFAULT_MINSEGMENTTIME        20000
@@ -731,8 +718,8 @@
   //#define CALIBRATION_REPORTING
 
   // The true location and dimension the cube/bolt/washer on the bed.
-  #define CALIBRATION_OBJECT_CENTER     { 264.0, -22.0,  -2.0} // mm
-  #define CALIBRATION_OBJECT_DIMENSIONS {  10.0,  10.0,  10.0} // mm
+  #define CALIBRATION_OBJECT_CENTER     { 264.0, -22.0,  -2.0 } // mm
+  #define CALIBRATION_OBJECT_DIMENSIONS {  10.0,  10.0,  10.0 } // mm
 
   // Comment out any sides which are unreachable by the probe. For best
   // auto-calibration results, all sides must be reachable.
@@ -828,6 +815,15 @@
 //===========================================================================
 
 // @section lcd
+
+#if EITHER(ULTIPANEL, EXTENSIBLE_UI)
+  #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
+  #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
+  #if ENABLED(ULTIPANEL)
+    #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
+    #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
+  #endif
+#endif
 
 // Change values more rapidly when the encoder is rotated faster
 #define ENCODER_RATE_MULTIPLIER
@@ -1002,17 +998,31 @@
    * equivalent MAX3421E breakout board. The USB thumb drive will appear
    * to Marlin as an SD card.
    *
-   * The MAX3421E must be assigned the same pins as the SD card reader, with
+   * The MAX3421E can be assigned the same pins as the SD card reader, with
    * the following pin mapping:
    *
    *    SCLK, MOSI, MISO --> SCLK, MOSI, MISO
-   *    INT              --> SD_DETECT_PIN
+   *    INT              --> SD_DETECT_PIN [1]
    *    SS               --> SDSS
+   *
+   * [1] On AVR an interrupt-capable pin is best for UHS3 compatibility.
    */
   //#define USB_FLASH_DRIVE_SUPPORT
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    #define USB_CS_PIN         SDSS
-    #define USB_INTR_PIN       SD_DETECT_PIN
+    #define USB_CS_PIN    SDSS
+    #define USB_INTR_PIN  SD_DETECT_PIN
+
+    /**
+     * USB Host Shield Library
+     *
+     * - UHS2 uses no interrupts and has been production-tested
+     *   on a LulzBot TAZ Pro with a 32-bit Archim board.
+     *
+     * - UHS3 is newer code with better USB compatibility. But it
+     *   is less tested and is known to interfere with Servos.
+     *   [1] This requires USB_INTR_PIN to be interrupt-capable.
+     */
+    //#define USE_UHS3_USB
   #endif
 
   /**
@@ -1136,6 +1146,97 @@
 
 #endif // HAS_GRAPHICAL_LCD
 
+//
+// Lulzbot Touch UI
+//
+#if ENABLED(LULZBOT_TOUCH_UI)
+  // Display board used
+  //#define LCD_FTDI_VM800B35A        // FTDI 3.5" with FT800 (320x240)
+  //#define LCD_4DSYSTEMS_4DLCD_FT843 // 4D Systems 4.3" (480x272)
+  //#define LCD_HAOYU_FT800CB         // Haoyu with 4.3" or 5" (480x272)
+  //#define LCD_HAOYU_FT810CB         // Haoyu with 5" (800x480)
+  //#define LCD_ALEPHOBJECTS_CLCD_UI  // Aleph Objects Color LCD UI
+
+  // Correct the resolution if not using the stock TFT panel.
+  //#define TOUCH_UI_320x240
+  //#define TOUCH_UI_480x272
+  //#define TOUCH_UI_800x480
+
+  // Mappings for boards with a standard RepRapDiscount Display connector
+  //#define AO_EXP1_PINMAP    // AlephObjects CLCD UI EXP1 mapping
+  //#define AO_EXP2_PINMAP    // AlephObjects CLCD UI EXP2 mapping
+  //#define CR10_TFT_PINMAP   // Rudolph Riedel's CR10 pin mapping
+  //#define OTHER_PIN_LAYOUT  // Define pins manually below
+  #if ENABLED(OTHER_PIN_LAYOUT)
+    // The pins for CS and MOD_RESET (PD) must be chosen.
+    #define CLCD_MOD_RESET  9
+    #define CLCD_SPI_CS    10
+
+    // If using software SPI, specify pins for SCLK, MOSI, MISO
+    //#define CLCD_USE_SOFT_SPI
+    #if ENABLED(CLCD_USE_SOFT_SPI)
+      #define CLCD_SOFT_SPI_MOSI 11
+      #define CLCD_SOFT_SPI_MISO 12
+      #define CLCD_SOFT_SPI_SCLK 13
+    #endif
+  #endif
+
+  // Display Orientation. An inverted (i.e. upside-down) display
+  // is supported on the FT800. The FT810 and beyond also support
+  // portrait and mirrored orientations.
+  //#define TOUCH_UI_INVERTED
+  //#define TOUCH_UI_PORTRAIT
+  //#define TOUCH_UI_MIRRORED
+
+  // UTF8 processing and rendering.
+  // Unsupported characters are shown as '?'.
+  //#define TOUCH_UI_USE_UTF8
+  #if ENABLED(TOUCH_UI_USE_UTF8)
+    // Western accents support. These accented characters use
+    // combined bitmaps and require relatively little storage.
+    #define TOUCH_UI_UTF8_WESTERN_CHARSET
+    #if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
+      // Additional character groups. These characters require
+      // full bitmaps and take up considerable storage:
+      //#define TOUCH_UI_UTF8_SUPERSCRIPTS  // ¹ ² ³
+      //#define TOUCH_UI_UTF8_COPYRIGHT     // © ®
+      //#define TOUCH_UI_UTF8_GERMANIC      // ß
+      //#define TOUCH_UI_UTF8_SCANDINAVIAN  // Æ Ð Ø Þ æ ð ø þ
+      //#define TOUCH_UI_UTF8_PUNCTUATION   // « » ¿ ¡
+      //#define TOUCH_UI_UTF8_CURRENCY      // ¢ £ ¤ ¥
+      //#define TOUCH_UI_UTF8_ORDINALS      // º ª
+      //#define TOUCH_UI_UTF8_MATHEMATICS   // ± × ÷
+      //#define TOUCH_UI_UTF8_FRACTIONS     // ¼ ½ ¾
+      //#define TOUCH_UI_UTF8_SYMBOLS       // µ ¶ ¦ § ¬
+    #endif
+  #endif
+
+  // Use a smaller font when labels don't fit buttons
+  #define TOUCH_UI_FIT_TEXT
+
+  // Runtime language selection (otherwise LCD_LANGUAGE)
+  //#define TOUCH_UI_LANGUAGE_MENU
+
+  // Use a numeric passcode for "Screen lock" keypad.
+  // (recommended for smaller displays)
+  //#define TOUCH_UI_PASSCODE
+
+  // Output extra debug info for Touch UI events
+  //#define TOUCH_UI_DEBUG
+#endif
+
+//
+// FSMC Graphical TFT
+//
+#if ENABLED(FSMC_GRAPHICAL_TFT)
+  //#define TFT_MARLINUI_COLOR 0xFFFF // White
+  //#define TFT_MARLINBG_COLOR 0x0000 // Black
+  //#define TFT_DISABLED_COLOR 0x0003 // Almost black
+  //#define TFT_BTCANCEL_COLOR 0xF800 // Red
+  //#define TFT_BTARROWS_COLOR 0xDEE6 // 11011 110111 00110 Yellow
+  //#define TFT_BTOKMENU_COLOR 0x145F // 00010 100010 11111 Cyan
+#endif
+
 // @section safety
 
 /**
@@ -1215,6 +1316,42 @@
 
 // @section leveling
 
+/**
+ * Points to probe for all 3-point Leveling procedures.
+ * Override if the automatically selected points are inadequate.
+ */
+#if EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
+  //#define PROBE_PT_1_X 15
+  //#define PROBE_PT_1_Y 180
+  //#define PROBE_PT_2_X 15
+  //#define PROBE_PT_2_Y 20
+  //#define PROBE_PT_3_X 170
+  //#define PROBE_PT_3_Y 20
+#endif
+
+/**
+ * Override MIN_PROBE_EDGE for each side of the build plate
+ * Useful to get probe points to exact positions on targets or
+ * to allow leveling to avoid plate clamps on only specific
+ * sides of the bed.
+ *
+ * If you are replacing the prior *_PROBE_BED_POSITION options,
+ * LEFT and FRONT values in most cases will map directly over
+ * RIGHT and REAR would be the inverse such as
+ * (X/Y_BED_SIZE - RIGHT/BACK_PROBE_BED_POSITION)
+ *
+ * This will allow all positions to match at compilation, however
+ * should the probe position be modified with M851XY then the
+ * probe points will follow. This prevents any change from causing
+ * the probe to be unable to reach any points.
+ */
+#if PROBE_SELECTED && !IS_KINEMATIC
+  //#define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE
+  //#define MIN_PROBE_EDGE_RIGHT MIN_PROBE_EDGE
+  //#define MIN_PROBE_EDGE_FRONT MIN_PROBE_EDGE
+  //#define MIN_PROBE_EDGE_BACK MIN_PROBE_EDGE
+#endif
+
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   // Override the mesh area if the automatic (max) area is too large
   //#define MESH_MIN_X MESH_INSET
@@ -1275,7 +1412,7 @@
 #define MIN_STEPS_PER_SEGMENT 6
 
 /**
- * Minimum delay after setting the stepper DIR (in ns)
+ * Minimum delay before and after setting the stepper DIR (in ns)
  *     0 : No delay (Expect at least 10µS since one Stepper ISR must transpire)
  *    20 : Minimum for TMC2xxx drivers
  *   200 : Minimum for A4988 drivers
@@ -1287,7 +1424,8 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MINIMUM_STEPPER_DIR_DELAY 650
+//#define MINIMUM_STEPPER_POST_DIR_DELAY 650
+//#define MINIMUM_STEPPER_PRE_DIR_DELAY 650
 
 /**
  * Minimum stepper driver pulse width (in µs)
@@ -1422,19 +1560,19 @@
  */
 //#define FWRETRACT
 #if ENABLED(FWRETRACT)
-  #define FWRETRACT_AUTORETRACT           // costs ~500 bytes of PROGMEM
+  #define FWRETRACT_AUTORETRACT           // Override slicer retractions
   #if ENABLED(FWRETRACT_AUTORETRACT)
-    #define MIN_AUTORETRACT 0.1           // When auto-retract is on, convert E moves of this length and over
-    #define MAX_AUTORETRACT 10.0          // Upper limit for auto-retract conversion
+    #define MIN_AUTORETRACT 0.1           // (mm) Don't convert E moves under this length
+    #define MAX_AUTORETRACT 10.0          // (mm) Don't convert E moves over this length
   #endif
-  #define RETRACT_LENGTH 3                // Default retract length (positive mm)
-  #define RETRACT_LENGTH_SWAP 13          // Default swap retract length (positive mm), for extruder change
-  #define RETRACT_FEEDRATE 45             // Default feedrate for retracting (mm/s)
-  #define RETRACT_ZRAISE 0                // Default retract Z-raise (mm)
-  #define RETRACT_RECOVER_LENGTH 0        // Default additional recover length (mm, added to retract length when recovering)
-  #define RETRACT_RECOVER_LENGTH_SWAP 0   // Default additional swap recover length (mm, added to retract length when recovering from extruder change)
-  #define RETRACT_RECOVER_FEEDRATE 8      // Default feedrate for recovering from retraction (mm/s)
-  #define RETRACT_RECOVER_FEEDRATE_SWAP 8 // Default feedrate for recovering from swap retraction (mm/s)
+  #define RETRACT_LENGTH 3                // (mm) Default retract length (positive value)
+  #define RETRACT_LENGTH_SWAP 13          // (mm) Default swap retract length (positive value)
+  #define RETRACT_FEEDRATE 45             // (mm/s) Default feedrate for retracting
+  #define RETRACT_ZRAISE 0                // (mm) Default retract Z-raise
+  #define RETRACT_RECOVER_LENGTH 0        // (mm) Default additional recover length (added to retract length on recover)
+  #define RETRACT_RECOVER_LENGTH_SWAP 0   // (mm) Default additional swap recover length (added to retract length on recover from toolchange)
+  #define RETRACT_RECOVER_FEEDRATE 8      // (mm/s) Default feedrate for recovering from retraction
+  #define RETRACT_RECOVER_FEEDRATE_SWAP 8 // (mm/s) Default feedrate for recovering from swap retraction
   #if ENABLED(MIXING_EXTRUDER)
     //#define RETRACT_SYNC_MIXING         // Retract and restore all mixing steppers simultaneously
   #endif
@@ -1640,78 +1778,91 @@
     #define X_CURRENT     800  // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_MICROSTEPS   16  // 0..256
     #define X_RSENSE     0.11
+    #define X_CHAIN_POS     0  // 0 - Not chained, 1 - MCU MOSI connected, 2 - next in chain, ...
   #endif
 
   #if AXIS_IS_TMC(X2)
     #define X2_CURRENT    800
     #define X2_MICROSTEPS  16
     #define X2_RSENSE    0.11
+    #define X2_CHAIN_POS    0
   #endif
 
   #if AXIS_IS_TMC(Y)
     #define Y_CURRENT     800
     #define Y_MICROSTEPS   16
     #define Y_RSENSE     0.11
+    #define Y_CHAIN_POS     0
   #endif
 
   #if AXIS_IS_TMC(Y2)
     #define Y2_CURRENT    800
     #define Y2_MICROSTEPS  16
     #define Y2_RSENSE    0.11
+    #define Y2_CHAIN_POS    0
   #endif
 
   #if AXIS_IS_TMC(Z)
     #define Z_CURRENT     800
     #define Z_MICROSTEPS   16
     #define Z_RSENSE     0.11
+    #define Z_CHAIN_POS     0
   #endif
 
   #if AXIS_IS_TMC(Z2)
     #define Z2_CURRENT    800
     #define Z2_MICROSTEPS  16
     #define Z2_RSENSE    0.11
+    #define Z2_CHAIN_POS    0
   #endif
 
   #if AXIS_IS_TMC(Z3)
     #define Z3_CURRENT    800
     #define Z3_MICROSTEPS  16
     #define Z3_RSENSE    0.11
+    #define Z3_CHAIN_POS    0
   #endif
 
   #if AXIS_IS_TMC(E0)
     #define E0_CURRENT    800
     #define E0_MICROSTEPS  16
     #define E0_RSENSE    0.11
+    #define E0_CHAIN_POS    0
   #endif
 
   #if AXIS_IS_TMC(E1)
     #define E1_CURRENT    800
     #define E1_MICROSTEPS  16
     #define E1_RSENSE    0.11
+    #define E1_CHAIN_POS    0
   #endif
 
   #if AXIS_IS_TMC(E2)
     #define E2_CURRENT    800
     #define E2_MICROSTEPS  16
     #define E2_RSENSE    0.11
+    #define E2_CHAIN_POS    0
   #endif
 
   #if AXIS_IS_TMC(E3)
     #define E3_CURRENT    800
     #define E3_MICROSTEPS  16
     #define E3_RSENSE    0.11
+    #define E3_CHAIN_POS    0
   #endif
 
   #if AXIS_IS_TMC(E4)
     #define E4_CURRENT    800
     #define E4_MICROSTEPS  16
     #define E4_RSENSE    0.11
+    #define E4_CHAIN_POS    0
   #endif
 
   #if AXIS_IS_TMC(E5)
     #define E5_CURRENT    800
     #define E5_MICROSTEPS  16
     #define E5_RSENSE    0.11
+    #define E5_CHAIN_POS    0
   #endif
 
   /**
@@ -1850,10 +2001,12 @@
    * Connect the stepper driver's DIAG1 pin to the X/Y endstop pin.
    * X, Y, and Z homing will always be done in spreadCycle mode.
    *
-   * X/Y/Z_STALL_SENSITIVITY is used to tune the trigger sensitivity.
-   * Use M914 X Y Z to live-adjust the sensitivity.
-   *  Higher: LESS sensitive. (Too high => failure to trigger)
-   *   Lower: MORE sensitive. (Too low  => false positives)
+   * X/Y/Z_STALL_SENSITIVITY is the default stall threshold.
+   * Use M914 X Y Z to set the stall threshold at runtime:
+   *
+   *  Sensitivity   TMC2209   Others
+   *    HIGHEST       255      -64    (Too sensitive => False positive)
+   *    LOWEST         0        63    (Too insensitive => No trigger)
    *
    * It is recommended to set [XYZ]_HOME_BUMP_MM to 0.
    *
@@ -1877,6 +2030,7 @@
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
     #define X_STALL_SENSITIVITY  8
+    #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
     #define Y_STALL_SENSITIVITY  8
     //#define Z_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
@@ -2346,10 +2500,6 @@
   //#define HOST_PROMPT_SUPPORT
 #endif
 
-//===========================================================================
-//====================== I2C Position Encoder Settings ======================
-//===========================================================================
-
 /**
  * I2C position encoders for closed loop control.
  * Developed by Chris Barr at Aus3D.
@@ -2429,6 +2579,22 @@
   #define I2CPE_ERR_ROLLING_AVERAGE
 
 #endif // I2C_POSITION_ENCODERS
+
+/**
+ * Analog Joystick(s)
+ */
+//#define JOYSTICK
+#if ENABLED(JOYSTICK)
+  #define JOY_X_PIN    5  // RAMPS: Suggested pin A5  on AUX2
+  #define JOY_Y_PIN   10  // RAMPS: Suggested pin A10 on AUX2
+  #define JOY_Z_PIN   12  // RAMPS: Suggested pin A12 on AUX2
+  #define JOY_EN_PIN  44  // RAMPS: Suggested pin D44 on AUX2
+
+  // Use M119 to find reasonable values after connecting your hardware:
+  #define JOY_X_LIMITS { 5600, 8190-100, 8190+100, 10800 } // min, deadzone start, deadzone end, max
+  #define JOY_Y_LIMITS { 5600, 8250-100, 8250+100, 11000 }
+  #define JOY_Z_LIMITS { 4800, 8080-100, 8080+100, 11550 }
+#endif
 
 /**
  * MAX7219 Debug Matrix

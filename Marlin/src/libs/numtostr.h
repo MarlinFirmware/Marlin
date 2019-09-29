@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfigPre.h"
+#include <stdint.h>
 
 // Convert a full-range unsigned 8bit int to a percentage
 char* ui8tostr4pct(const uint8_t i);
@@ -83,8 +83,12 @@ char* ftostr52sign(const float &x);
 // Convert unsigned float to string with 1234.5 format omitting trailing zeros
 char* ftostr51rj(const float &x);
 
+#include "../core/macros.h"
+
 // Convert float to rj string with 123 or -12 format
 FORCE_INLINE char* ftostr3(const float &x) { return i16tostr3(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
+
+#include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(LCD_DECIMAL_SMALL_XY)
   // Convert float to rj string with 1234, _123, 12.3, _1.2, -123, _-12, or -1.2 format

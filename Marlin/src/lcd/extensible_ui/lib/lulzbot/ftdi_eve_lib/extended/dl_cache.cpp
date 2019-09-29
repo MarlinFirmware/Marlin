@@ -78,8 +78,7 @@ bool DLCache::wait_until_idle() {
   const unsigned long startTime = millis();
   do {
     if ((millis() - startTime) > 250) {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPGM("Timeout on DL_Cache::Wait_Until_Idle()");
+      SERIAL_ECHO_MSG("Timeout on DL_Cache::Wait_Until_Idle()");
       CLCD::CommandFifo::reset();
       return false;
     }
@@ -128,17 +127,17 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
 
   if (dl_size > free_space) {
     // Not enough memory to cache the display list.
-    #ifdef UI_FRAMEWORK_DEBUG
+    #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("Not enough space in GRAM to cache display list, free space: ", free_space);
-      SERIAL_ECHOLNPAIR(" Required: ", dl_size);
+      SERIAL_ECHOLNPAIR("Not enough space in GRAM to cache display list, free space: ", free_space,
+                        " Required: ", dl_size);
     #endif
     return false;
   } else {
-    #ifdef UI_FRAMEWORK_DEBUG
+    #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("Saving DL to RAMG cache, bytes: ", dl_size);
-      SERIAL_ECHOLNPAIR(" Free space: ", free_space);
+      SERIAL_ECHOLNPAIR("Saving DL to RAMG cache, bytes: ", dl_size,
+                        " Free space: ", free_space);
     #endif
     cmd.memcpy(dl_addr, MAP::RAM_DL, dl_size);
     cmd.execute();
@@ -164,12 +163,12 @@ void DLCache::load_slot() {
 void DLCache::append() {
   CLCD::CommandFifo cmd;
   cmd.append(dl_addr, dl_size);
-  #ifdef UI_FRAMEWORK_DEBUG
+  #if ENABLED(TOUCH_UI_DEBUG)
     cmd.execute();
     wait_until_idle();
     SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR("Appending to DL from RAMG cache, bytes: ", dl_size);
-    SERIAL_ECHOLNPAIR(" REG_CMD_DL: ", CLCD::mem_read_32(REG::CMD_DL));
+    SERIAL_ECHOLNPAIR("Appending to DL from RAMG cache, bytes: ", dl_size,
+                      " REG_CMD_DL: ", CLCD::mem_read_32(REG::CMD_DL));
   #endif
 }
 

@@ -21,11 +21,14 @@
  */
 #pragma once
 
+#ifndef __MARLIN_FIRMWARE__
 #define __MARLIN_FIRMWARE__
+#endif
 
 //
 // Prefix header to acquire configurations
 //
+#include <stdint.h>
 
 #include "../HAL/platforms.h"
 

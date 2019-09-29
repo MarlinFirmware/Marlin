@@ -28,35 +28,53 @@
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/probe.h"
 
+/**
+ * M851: Set the nozzle-to-probe offsets in current units
+ */
 void GcodeSuite::M851() {
-  if (parser.seenval('Z')) {
-    const float value = parser.value_linear_units();
-    if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
-      zprobe_offset[Z_AXIS] = value;
-    else
-      SERIAL_ERROR_MSG("?Z out of range (" STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " to " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX) ")");
+
+  // Show usage with no parameters
+  if (!parser.seen("XYZ")) {
+    SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET " X", probe_offset[X_AXIS], " Y", probe_offset[Y_AXIS], " Z", probe_offset[Z_AXIS]);
     return;
   }
+
+  float offs[XYZ] = { probe_offset[X_AXIS], probe_offset[Y_AXIS], probe_offset[Z_AXIS] };
+
+  bool ok = true;
+
   if (parser.seenval('X')) {
-    const float value = parser.value_linear_units();
-    if (WITHIN(value, 0-X_BED_SIZE, X_BED_SIZE))
-      zprobe_offset[X_AXIS] = value;
-    else
-      SERIAL_ERROR_MSG("?X out of range (" STRINGIFY(0-X_BED_SIZE) " to " STRINGIFY(X_BED_SIZE) ")");
-    return;
+    const float x = parser.value_float();
+    if (WITHIN(x, -(X_BED_SIZE), X_BED_SIZE))
+      offs[X_AXIS] = x;
+    else {
+      SERIAL_ECHOLNPAIR("?X out of range (-", int(X_BED_SIZE), " to ", int(X_BED_SIZE), ")");
+      ok = false;
+    }
   }
+
   if (parser.seenval('Y')) {
-    const float value = parser.value_linear_units();
-    if (WITHIN(value, 0-Y_BED_SIZE, Y_BED_SIZE))
-      zprobe_offset[Y_AXIS] = value;
-    else
-      SERIAL_ERROR_MSG("?Y out of range (" STRINGIFY(0-Y_BED_SIZE) " to " STRINGIFY(Y_BED_SIZE) ")");
-    return;
+    const float y = parser.value_float();
+    if (WITHIN(y, -(Y_BED_SIZE), Y_BED_SIZE))
+      offs[Y_AXIS] = y;
+    else {
+      SERIAL_ECHOLNPAIR("?Y out of range (-", int(Y_BED_SIZE), " to ", int(Y_BED_SIZE), ")");
+      ok = false;
+    }
   }
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR(MSG_PROBE_X_OFFSET ": ", zprobe_offset[X_AXIS]);
-  SERIAL_ECHOLNPAIR(MSG_PROBE_Y_OFFSET ": ", zprobe_offset[Y_AXIS]);
-  SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_offset[Z_AXIS]);
+
+  if (parser.seenval('Z')) {
+    const float z = parser.value_float();
+    if (WITHIN(z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+      offs[Z_AXIS] = z;
+    else {
+      SERIAL_ECHOLNPAIR("?Z out of range (", int(Z_PROBE_OFFSET_RANGE_MIN), " to ", int(Z_PROBE_OFFSET_RANGE_MAX), ")");
+      ok = false;
+    }
+  }
+
+  // Save the new offsets
+  if (ok) COPY(probe_offset, offs);
 }
 
 #endif // HAS_BED_PROBE

@@ -29,7 +29,7 @@
 #endif
 extern LCD_CLASS lcd;
 
-int lcd_glyph_height(void) { return 1; }
+int lcd_glyph_height() { return 1; }
 
 typedef struct _hd44780_charmap_t {
   wchar_t uchar; // the unicode char
@@ -1012,7 +1012,7 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
     return 0;
   }
 
-  int test_hd44780_charmap_all(void) {
+  int test_hd44780_charmap_all() {
     int flg_error = 0;
     if (test_hd44780_charmap(g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
       flg_error = 1;

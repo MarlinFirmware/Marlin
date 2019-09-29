@@ -166,7 +166,7 @@
 #define MSG_ZPROBE_OUT                      _UxGT("Διερεύνηση Z εκτός Επ.Εκτύπωσης") //SHORTEN
 #define MSG_YX_UNHOMED                      _UxGT("Επαναφορά Χ/Υ πριν από Ζ") //SHORTEN
 #define MSG_XYZ_UNHOMED                     _UxGT("Επαναφορά ΧΥΖ πρώτα")
-#define MSG_zprobe_zoffset                  _UxGT("Μετατόπιση Ζ")
+#define MSG_ZPROBE_ZOFFSET                  _UxGT("Μετατόπιση Ζ")
 #define MSG_BABYSTEP_X                      _UxGT("Μικρό βήμα Χ")
 #define MSG_BABYSTEP_Y                      _UxGT("Μικρό βήμα Υ")
 #define MSG_BABYSTEP_Z                      _UxGT("Μικρό βήμα Ζ")

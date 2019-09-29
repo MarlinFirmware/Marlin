@@ -82,11 +82,11 @@
  * If a UART connection is used to configure the driver, please select that as well in Configuration_adv.h.
  */
 //#define X_2208
-//#define X_SpreadCycle
+//#define X_SPREADCYCLE
 //#define Y_2208
-//#define Y_SpreadCycle
+//#define Y_SPREADCYCLE
 //#define E_2208
-//#define E_SpreadCycle
+//#define E_SPREADCYCLE
 
 
 /**
@@ -111,13 +111,8 @@
 
 // @section info
 
-// User-specified version info of this build to display in [Pronterface, etc] terminal window during
-// startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
-// build by the user have been successfully uploaded into firmware.
+// Author info of this build printed to the host during boot and M115
 #define STRING_CONFIG_H_AUTHOR "Tinymachines3D" // Who made the changes.
-#define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -130,10 +125,13 @@
  * respectfully request that you retain the unmodified Marlin boot screen.
  */
 
-// Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
+// Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
+#define SHOW_BOOTSCREEN
+
+// Show the bitmap in Marlin/_Bootscreen.h on startup.
 #define SHOW_CUSTOM_BOOTSCREEN
 
-// Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
+// Show the bitmap in Marlin/_Statusscreen.h on the status screen.
 #define CUSTOM_STATUS_SCREEN_IMAGE
 
 // @section machine
@@ -790,25 +788,25 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #if ENABLED(X_2208)
-  #if ENABLED(X_SpreadCycle)
-    #define x_accel 1750
+  #if ENABLED(X_SPREADCYCLE)
+    #define X_ACCEL 1750
   #else
-    #define x_accel 1000
+    #define X_ACCEL 1000
   #endif
 #else
-    #define x_accel 1500
+    #define X_ACCEL 1500
 #endif
 
 #if ENABLED(Y_2208)
-  #if ENABLED(Y_SpreadCycle)
-    #define y_accel 500
+  #if ENABLED(Y_SPREADCYCLE)
+    #define Y_ACCEL 500
   #else
-    #define y_accel 300
+    #define Y_ACCEL 300
   #endif
 #else
-  #define y_accel 500
+  #define Y_ACCEL 500
 #endif
-#define DEFAULT_MAX_ACCELERATION      { x_accel, y_accel, 400, 4000 }
+#define DEFAULT_MAX_ACCELERATION      { X_ACCEL, Y_ACCEL, 400, 4000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -845,12 +843,12 @@
  * value set here, it may happen instantaneously.
  */
 #if DISABLED(JUNCTION_DEVIATION)
-  #if ENABLED(X_SpreadCycle) || DISABLED(X_2208)
+  #if ENABLED(X_SPREADCYCLE) || DISABLED(X_2208)
     #define DEFAULT_XJERK 20.0
   #else
     #define DEFAULT_XJERK 10.0
   #endif
-  #if ENABLED(Y_SpreadCycle) || DISABLED(Y_2208)
+  #if ENABLED(Y_SPREADCYCLE) || DISABLED(Y_2208)
     #define DEFAULT_YJERK 10.0
   #else
     #define DEFAULT_YJERK  5.0
@@ -973,11 +971,10 @@
 
 /**
  * Z Probe to nozzle (X,Y) offset, relative to (0, 0).
- * X and Y offsets must be integers.
  *
  * In the following example the X and Y offsets are both positive:
- * #define X_PROBE_OFFSET_FROM_EXTRUDER 10
- * #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
+ *
+ *   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
  *
  *     +-- BACK ---+
  *     |           |
@@ -989,10 +986,10 @@
  *     |           |
  *     O-- FRONT --+
  *   (0,0)
+ *
+ * Specify a Probe position as { X, Y, Z }
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER -22  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 0  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.5   // Z offset: -below +above  [the nozzle]
+#define NOZZLE_TO_PROBE_OFFSET { -22, 0, -1.5 }
 #define MIN_PROBE_EDGE 10
 
 // X and Y axis travel speed (mm/m) between probes
@@ -1024,7 +1021,7 @@
  *
  * Use these settings to specify the distance (mm) to raise the probe (or
  * lower the bed). The values set here apply over and above any (negative)
- * probe Z Offset set with Z_PROBE_OFFSET_FROM_EXTRUDER, M851, or the LCD.
+ * probe Z Offset set with NOZZLE_TO_PROBE_OFFSET, M851, or the LCD.
  * Only integer values >= 1 are valid here.
  *
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
@@ -1302,12 +1299,6 @@
   // Set the number of grid points per dimension.
   #define GRID_MAX_POINTS_X 6
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
-
-  // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 30
-  #define RIGHT_PROBE_BED_POSITION 365
-  #define FRONT_PROBE_BED_POSITION 30
-  #define BACK_PROBE_BED_POSITION 365
 
   // The Z probe minimum outer margin (to validate G29 parameters).
   #define MIN_PROBE_EDGE 10
@@ -1626,7 +1617,7 @@
   #define NOZZLE_CLEAN_TRIANGLES  3
 
   // Specify positions as { X, Y, Z }
-  #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
+  #define NOZZLE_CLEAN_START_POINT {  30, 30, (Z_MIN_POS + 1) }
   #define NOZZLE_CLEAN_END_POINT   { 100, 60, (Z_MIN_POS + 1) }
 
   // Circular pattern radius
@@ -1685,10 +1676,10 @@
  *
  * Select the language to display on the LCD. These languages are available:
  *
- *    en, an, bg, ca, cz, da, de, el, el-gr, es, eu, fi, fr, gl, hr, it,
- *    jp-kana, ko_KR, nl, pl, pt, pt-br, ru, sk, tr, uk, zh_CN, zh_TW, test
+ *   en, an, bg, ca, cz, da, de, el, el-gr, es, eu, fi, fr, gl, hr, it, jp-kana,
+ *   ko_KR, nl, pl, pt, pt-br, ru, sk, tr, uk, vi, zh_CN, zh_TW, test
  *
- * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'jp-kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
+ * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'jp-kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
  */
 #define LCD_LANGUAGE en
 
@@ -2156,7 +2147,7 @@
 //=============================================================================
 
 //
-// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, A1, etc.)
+// FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, REXYZ A1, etc.)
 //
 //#define FSMC_GRAPHICAL_TFT
 
@@ -2169,6 +2160,9 @@
 //
 //#define TOUCH_BUTTONS
 #if ENABLED(TOUCH_BUTTONS)
+  #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
+  #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
+
   #define XPT2046_X_CALIBRATION   12316
   #define XPT2046_Y_CALIBRATION  -8981
   #define XPT2046_X_OFFSET       -43
@@ -2179,11 +2173,8 @@
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
 // http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
 //
-// REPRAPWORLD_KEYPAD_MOVE_STEP sets how much should the robot move when a key
-// is pressed, a value of 10.0 means 10mm per click.
-//
 //#define REPRAPWORLD_KEYPAD
-//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
+//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
 
 //=============================================================================
 //=============================== Extra Features ==============================
@@ -2311,7 +2302,7 @@
  */
 //#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
 
-// Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
+// (ms) Delay  before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
 #define SERVO_DELAY { 300 }

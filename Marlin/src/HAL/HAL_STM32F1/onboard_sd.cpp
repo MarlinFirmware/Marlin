@@ -1,23 +1,23 @@
-/*------------------------------------------------------------------------*/
-/* STM32F1: MMCv3/SDv1/SDv2 (SPI mode) control module                     */
-/*------------------------------------------------------------------------*/
-/*
-/ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-/ * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
-/ * Copyright (C) 2015, ChaN, all right reserved.
-/
-/ * This software is a free software and there is NO WARRANTY.
-/ * No restriction on use. You can use, modify and redistribute it for
-/   personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.
-/ * Redistributions of source code must retain the above copyright notice.
-/
-/-------------------------------------------------------------------------*/
+/**
+ * STM32F1: MMCv3/SDv1/SDv2 (SPI mode) control module
+ *
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
+ * Copyright (C) 2015, ChaN, all right reserved.
+ *
+ * This software is a free software and there is NO WARRANTY.
+ * No restriction on use. You can use, modify and redistribute it for
+ * personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.
+ * Redistributions of source code must retain the above copyright notice.
+ *
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #ifdef HAS_ONBOARD_SD
 
 #include "onboard_sd.h"
-#include "spi.h"
+#include "SPI.h"
 #include "fastio.h"
 
 #ifdef SHARED_SD_CARD
@@ -26,7 +26,7 @@
   #endif
   #define ONBOARD_SD_SPI SPI
 #else
-  SPIClass OnBoardSPI(ON_BOARD_SPI_DEVICE)
+  SPIClass OnBoardSPI(ON_BOARD_SPI_DEVICE);
   #define ONBOARD_SD_SPI OnBoardSPI
 #endif
 
@@ -45,8 +45,6 @@
 /*--------------------------------------------------------------------------
    Module Private Functions
 ---------------------------------------------------------------------------*/
-
-#include "onboard_sd.h"
 
 /* MMC/SD command */
 #define CMD0  (0)     /* GO_IDLE_STATE */
@@ -130,7 +128,7 @@ static int wait_ready (  /* 1:Ready, 0:Timeout */
 /* Deselect card and release SPI                                         */
 /*-----------------------------------------------------------------------*/
 
-static void deselect(void) {
+static void deselect() {
   CS_HIGH();    /* CS = H */
   xchg_spi(0xFF); /* Dummy clock (force DO hi-z for multiple slave SPI) */
 }
@@ -139,7 +137,7 @@ static void deselect(void) {
 /* Select card and wait for ready                                        */
 /*-----------------------------------------------------------------------*/
 
-static int select(void) { /* 1:OK, 0:Timeout */
+static int select() { /* 1:OK, 0:Timeout */
   CS_LOW();   /* CS = L */
   xchg_spi(0xFF); /* Dummy clock (force DO enabled) */
 
@@ -153,7 +151,7 @@ static int select(void) { /* 1:OK, 0:Timeout */
 /* Control SPI module (Platform dependent)                               */
 /*-----------------------------------------------------------------------*/
 
-static void power_on(void) {  /* Enable SSP module and attach it to I/O pads */
+static void power_on() {  /* Enable SSP module and attach it to I/O pads */
   ONBOARD_SD_SPI.setModule(ON_BOARD_SPI_DEVICE);
   ONBOARD_SD_SPI.begin();
   ONBOARD_SD_SPI.setBitOrder(MSBFIRST);
@@ -161,7 +159,7 @@ static void power_on(void) {  /* Enable SSP module and attach it to I/O pads */
   OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH); /* Set CS# high */
 }
 
-static void power_off(void) {   /* Disable SPI function */
+static void power_off() {   /* Disable SPI function */
   select();       /* Wait for card ready */
   deselect();
 }

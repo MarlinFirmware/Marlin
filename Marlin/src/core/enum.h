@@ -49,10 +49,6 @@ enum AxisEnum : unsigned char {
   NO_AXIS   = 0xFF
 };
 
-#if HAS_DRIVER(L6470)
-  enum L6470_driver_enum : unsigned char { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 };
-#endif
-
 #define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
 #define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
 #define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
@@ -65,14 +61,3 @@ enum AxisEnum : unsigned char {
 #define LOOP_ABC(VAR) LOOP_S_LE_N(VAR, A_AXIS, C_AXIS)
 #define LOOP_ABCE(VAR) LOOP_S_LE_N(VAR, A_AXIS, E_AXIS)
 #define LOOP_ABCE_N(VAR) LOOP_S_L_N(VAR, A_AXIS, XYZE_N)
-
-typedef enum {
-  LINEARUNIT_MM,
-  LINEARUNIT_INCH
-} LinearUnit;
-
-typedef enum {
-  TEMPUNIT_C,
-  TEMPUNIT_K,
-  TEMPUNIT_F
-} TempUnit;

@@ -47,7 +47,7 @@
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../../feature/bedlevel/ubl/ubl.h"
+  #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 //
@@ -622,14 +622,9 @@ void MarlinUI::draw_status_message(const bool blink) {
     // Alternate Status message and Filament display
     if (ELAPSED(millis(), next_filament_display)) {
       lcd_put_u8str_P(PSTR("Dia "));
-      lcd_put_u8str(ftostr12ns(filament_width_meas));
+      lcd_put_u8str(ftostr12ns(filwidth.measured_mm));
       lcd_put_u8str_P(PSTR(" V"));
-      lcd_put_u8str(i16tostr3(100.0 * (
-          parser.volumetric_enabled
-            ? planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
-            : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
-        )
-      ));
+      lcd_put_u8str(i16tostr3(planner.volumetric_percent(parser.volumetric_enabled)));
       lcd_put_wchar('%');
       return;
     }
@@ -866,7 +861,11 @@ void MarlinUI::draw_status_screen() {
           char c;
           uint16_t per;
           #if HAS_FAN0
-            if (blink || thermalManager.fan_speed_scaler[0] < 128) {
+            if (true
+              #if EXTRUDERS
+                && (blink || thermalManager.fan_speed_scaler[0] < 128)
+              #endif
+            ) {
               uint16_t spd = thermalManager.fan_speed[0];
               if (blink) c = 'F';
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
@@ -877,8 +876,10 @@ void MarlinUI::draw_status_screen() {
             else
           #endif
             {
-              c = 'E';
-              per = planner.flow_percentage[0];
+              #if EXTRUDERS
+                c = 'E';
+                per = planner.flow_percentage[0];
+              #endif
             }
           lcd_put_wchar(c);
           lcd_put_u8str(i16tostr3(per));
@@ -964,6 +965,8 @@ void MarlinUI::draw_status_screen() {
 
 #if HAS_LCD_MENU
 
+  #include "../menu/menu.h"
+
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
@@ -975,11 +978,10 @@ void MarlinUI::draw_status_screen() {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
-  void draw_menu_item_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char *valstr/*=nullptr*/) {
-    UNUSED(invert);
+  void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_CENTER*/, const char * const valstr/*=nullptr*/) {
     int8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
-    if (center && !valstr) {
+    if ((style & SS_CENTER) && !valstr) {
       int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd_put_wchar(' '); n--; }
     }

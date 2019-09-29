@@ -45,11 +45,11 @@ public:
   RingBuffer(ring_buffer_pos_t size);
   ~RingBuffer();
 
-  int available(void);
-  int peek(void);
-  int read(void);
+  int available();
+  int peek();
+  int read();
   ring_buffer_pos_t read(uint8_t *buffer);
-  void flush(void);
+  void flush();
   ring_buffer_pos_t write(const uint8_t c);
   ring_buffer_pos_t write(const uint8_t* buffer, ring_buffer_pos_t size);
 };
@@ -62,11 +62,11 @@ public:
   WebSocketSerial();
   void begin(const long);
   void end();
-  int available(void);
-  int peek(void);
-  int read(void);
-  void flush(void);
-  void flushTX(void);
+  int available();
+  int peek();
+  int read();
+  void flush();
+  void flushTX();
   size_t write(const uint8_t c);
   size_t write(const uint8_t* buffer, size_t size);
 

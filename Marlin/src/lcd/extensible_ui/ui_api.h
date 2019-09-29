@@ -45,6 +45,7 @@
 #include "../../inc/MarlinConfig.h"
 
 namespace ExtUI {
+
   // The ExtUI implementation can store up to this many bytes
   // in the EEPROM when the methods onStoreSettings and
   // onLoadSettings are called.
@@ -61,7 +62,7 @@ namespace ExtUI {
   constexpr uint8_t fanCount      = FAN_COUNT;
 
   #if HAS_MESH
-    typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+    typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   #endif
 
   bool isMoving();
@@ -78,6 +79,11 @@ namespace ExtUI {
   bool isHeaterIdle(const extruder_t);
   void enableHeater(const heater_t);
   void enableHeater(const extruder_t);
+
+  #if ENABLED(JOYSTICK)
+    void jog(float dx, float dy, float dz);
+    void _joystick_update(float (&norm_jog)[XYZ]);
+  #endif
 
   /**
    * Getters and setters
@@ -96,7 +102,7 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float, const axis_t);
     void  setAxisCurrent_mA(const float, const extruder_t);
 
-    int getTMCBumpSensitivity(const axis_t);
+     int getTMCBumpSensitivity(const axis_t);
     void setTMCBumpSensitivity(const float, const axis_t);
   #endif
 
@@ -110,12 +116,12 @@ namespace ExtUI {
   float getAxisPosition_mm(const extruder_t);
   float getAxisSteps_per_mm(const axis_t);
   float getAxisSteps_per_mm(const extruder_t);
-  float getAxisMaxFeedrate_mm_s(const axis_t);
-  float getAxisMaxFeedrate_mm_s(const extruder_t);
+  feedRate_t getAxisMaxFeedrate_mm_s(const axis_t);
+  feedRate_t getAxisMaxFeedrate_mm_s(const extruder_t);
   float getAxisMaxAcceleration_mm_s2(const axis_t);
   float getAxisMaxAcceleration_mm_s2(const extruder_t);
-  float getMinFeedrate_mm_s();
-  float getMinTravelFeedrate_mm_s();
+  feedRate_t getMinFeedrate_mm_s();
+  feedRate_t getMinTravelFeedrate_mm_s();
   float getPrintingAcceleration_mm_s2();
   float getRetractAcceleration_mm_s2();
   float getTravelAcceleration_mm_s2();
@@ -128,7 +134,7 @@ namespace ExtUI {
     void setLevelingActive(const bool);
     bool getMeshValid();
     #if HAS_MESH
-      bed_mesh_t getMeshArray();
+      bed_mesh_t& getMeshArray();
       float getMeshPoint(const uint8_t xpos, const uint8_t ypos);
       void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zval);
       void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);
@@ -154,18 +160,18 @@ namespace ExtUI {
   void setAxisPosition_mm(const float, const extruder_t);
   void setAxisSteps_per_mm(const float, const axis_t);
   void setAxisSteps_per_mm(const float, const extruder_t);
-  void setAxisMaxFeedrate_mm_s(const float, const axis_t);
-  void setAxisMaxFeedrate_mm_s(const float, const extruder_t);
+  void setAxisMaxFeedrate_mm_s(const feedRate_t, const axis_t);
+  void setAxisMaxFeedrate_mm_s(const feedRate_t, const extruder_t);
   void setAxisMaxAcceleration_mm_s2(const float, const axis_t);
   void setAxisMaxAcceleration_mm_s2(const float, const extruder_t);
-  void setFeedrate_mm_s(const float);
-  void setMinFeedrate_mm_s(const float);
-  void setMinTravelFeedrate_mm_s(const float);
+  void setFeedrate_mm_s(const feedRate_t);
+  void setMinFeedrate_mm_s(const feedRate_t);
+  void setMinTravelFeedrate_mm_s(const feedRate_t);
   void setPrintingAcceleration_mm_s2(const float);
   void setRetractAcceleration_mm_s2(const float);
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
-  void setUserConfirmed(void);
+  void setUserConfirmed();
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t);
@@ -272,7 +278,7 @@ namespace ExtUI {
       void changeDir(const char * const dirname);
       void upDir();
       bool isAtRootDir();
-      uint16_t    count();
+      uint16_t count();
   };
 
   /**

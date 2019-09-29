@@ -43,7 +43,7 @@
   #include "../../module/temperature.h"
 #endif
 
-#ifdef FILAMENT_RUNOUT_DISTANCE_MM
+#if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
   #include "../../feature/runout.h"
   float lcd_runout_distance_mm;
 #endif
@@ -178,7 +178,7 @@ void menu_backlash();
 
       #if EXTRUDERS == 1
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &fc_settings[0].unload_length, 0, extrude_maxlength);
-      #else // EXTRUDERS > 1
+      #elif EXTRUDERS > 1
         #define EDIT_FIL_UNLOAD(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E##N, &fc_settings[N-1].unload_length, 0, extrude_maxlength)
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
         EDIT_FIL_UNLOAD(1);
@@ -199,7 +199,7 @@ void menu_backlash();
 
       #if EXTRUDERS == 1
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &fc_settings[0].load_length, 0, extrude_maxlength);
-      #else // EXTRUDERS > 1
+      #elif EXTRUDERS > 1
         #define EDIT_FIL_LOAD(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E##N, &fc_settings[N-1].load_length, 0, extrude_maxlength)
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
         EDIT_FIL_LOAD(1);
@@ -219,7 +219,7 @@ void menu_backlash();
       #endif // EXTRUDERS > 1
     #endif
 
-    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    #if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
       MENU_ITEM_EDIT_CALLBACK(float3, MSG_RUNOUT_DISTANCE_MM, &lcd_runout_distance_mm, 1, 30, []{
         runout.set_runout_distance(lcd_runout_distance_mm);
       });
@@ -620,7 +620,7 @@ void menu_backlash();
 #endif // !SLIM_LCD_MENUS
 
 void menu_advanced_settings() {
-  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
     lcd_runout_distance_mm = runout.runout_distance();
   #endif
   START_MENU();

@@ -112,9 +112,9 @@
                                  && !MATCH_Z_MIN_PROBE_EILINE(P))
 
 // One ISR for all EXT-Interrupts
-void endstop_ISR(void) { endstops.update(); }
+void endstop_ISR() { endstops.update(); }
 
-void setup_endstop_interrupts(void) {
+void setup_endstop_interrupts() {
   #if HAS_X_MAX
     #if !AVAILABLE_EILINE(X_MAX_PIN)
       static_assert(false, "X_MAX_PIN has no EXTINT line available.");

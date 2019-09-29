@@ -38,11 +38,11 @@
 
   void report_xyze(const float pos[], const uint8_t n = 4, const uint8_t precision = 3) {
     char str[12];
-    for (uint8_t i = 0; i < n; i++) {
+    for (uint8_t a = 0; a < n; a++) {
       SERIAL_CHAR(' ');
-      SERIAL_CHAR(axis_codes[i]);
+      SERIAL_CHAR(axis_codes[a]);
       SERIAL_CHAR(':');
-      SERIAL_ECHO(dtostrf(pos[i], 1, precision, str));
+      SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
     }
     SERIAL_EOL();
   }

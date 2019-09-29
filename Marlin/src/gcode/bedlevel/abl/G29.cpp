@@ -266,10 +266,18 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     // Probe at 3 arbitrary points
+    const float x_min = probe_min_x(), x_max = probe_max_x(), y_min = probe_min_y(), y_max = probe_max_y();
+
     ABL_VAR vector_3 points[3] = {
+    #if ENABLED(HAS_FIXED_3POINT)
       vector_3(PROBE_PT_1_X, PROBE_PT_1_Y, 0),
       vector_3(PROBE_PT_2_X, PROBE_PT_2_Y, 0),
       vector_3(PROBE_PT_3_X, PROBE_PT_3_Y, 0)
+    #else
+      vector_3(x_min, y_min, 0),
+      vector_3(x_max, y_min, 0),
+      vector_3((x_max - x_min) / 2, y_max, 0)
+    #endif
     };
 
   #endif // AUTO_BED_LEVELING_3POINT
@@ -349,7 +357,7 @@ G29_TYPE GcodeSuite::G29() {
 
     verbose_level = parser.intval('V');
     if (!WITHIN(verbose_level, 0, 4)) {
-      SERIAL_ECHOLNPGM("?(V)erbose level is implausible (0-4).");
+      SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-4).");
       G29_RETURN(false);
     }
 
@@ -370,11 +378,11 @@ G29_TYPE GcodeSuite::G29() {
       if (parser.seenval('P')) abl_grid_points_x = abl_grid_points_y = parser.value_int();
 
       if (!WITHIN(abl_grid_points_x, 2, GRID_MAX_POINTS_X)) {
-        SERIAL_ECHOLNPGM("?Probe points (X) is implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ").");
+        SERIAL_ECHOLNPGM("?Probe points (X) implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ").");
         G29_RETURN(false);
       }
       if (!WITHIN(abl_grid_points_y, 2, GRID_MAX_POINTS_Y)) {
-        SERIAL_ECHOLNPGM("?Probe points (Y) is implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
+        SERIAL_ECHOLNPGM("?Probe points (Y) implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
         G29_RETURN(false);
       }
 
@@ -391,18 +399,21 @@ G29_TYPE GcodeSuite::G29() {
 
       xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_SPEED));
 
+      const float x_min = probe_min_x(), x_max = probe_max_x(),
+                  y_min = probe_min_y(), y_max = probe_max_y();
+
       if (parser.seen('H')) {
         const int16_t size = (int16_t)parser.value_linear_units();
-        left_probe_bed_position  = _MAX(X_CENTER - size / 2, (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + zprobe_offset[X_AXIS])));
-        right_probe_bed_position = _MIN(left_probe_bed_position + size, (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + zprobe_offset[X_AXIS])));
-        front_probe_bed_position = _MAX(Y_CENTER - size / 2, (_MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + zprobe_offset[Y_AXIS])));
-        back_probe_bed_position  = _MIN(front_probe_bed_position + size, (_MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + zprobe_offset[Y_AXIS])));
+        left_probe_bed_position  = _MAX(X_CENTER - size / 2, x_min);
+        right_probe_bed_position = _MIN(left_probe_bed_position + size, x_max);
+        front_probe_bed_position = _MAX(Y_CENTER - size / 2, y_min);
+        back_probe_bed_position  = _MIN(front_probe_bed_position + size, y_max);
       }
       else {
-        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MAX(X_CENTER - X_BED_SIZE / 2, (_MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + zprobe_offset[X_AXIS])));
-        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MIN(left_probe_bed_position + X_BED_SIZE, (_MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + zprobe_offset[X_AXIS])));
-        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MAX(Y_CENTER - Y_BED_SIZE / 2, (_MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + zprobe_offset[Y_AXIS])));
-        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MIN(front_probe_bed_position + Y_BED_SIZE, (_MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + zprobe_offset[Y_AXIS])));
+        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MAX(X_CENTER - X_BED_SIZE / 2, x_min);
+        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MIN(left_probe_bed_position + X_BED_SIZE, x_max);
+        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MAX(Y_CENTER - Y_BED_SIZE / 2, y_min);
+        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MIN(front_probe_bed_position + Y_BED_SIZE, y_max);
       }
 
       if (
@@ -446,7 +457,7 @@ G29_TYPE GcodeSuite::G29() {
       }
     #endif
 
-    if (!faux) setup_for_endstop_or_probe_move();
+    if (!faux) remember_feedrate_scaling_off();
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -711,10 +722,10 @@ G29_TYPE GcodeSuite::G29() {
 
           if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", int(pt_index), "/", int(GRID_MAX_POINTS), ".");
           #if HAS_DISPLAY
-            ui.status_printf_P(0, PSTR(MSG_PROBING_MESH " %i/%i"), int(pt_index), int(GRID_MAX_POINTS));
+            ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), PSTR(MSG_PROBING_MESH), int(pt_index), int(GRID_MAX_POINTS));
           #endif
 
-          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, raise_after, verbose_level);
+          measured_z = faux ? 0.001 * random(-100, 101) : probe_at_point(xProbe, yProbe, raise_after, verbose_level);
 
           if (isnan(measured_z)) {
             set_bed_leveling_enabled(abl_should_enable);
@@ -759,7 +770,7 @@ G29_TYPE GcodeSuite::G29() {
         // Retain the last probe position
         xProbe = points[i].x;
         yProbe = points[i].y;
-        measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, raise_after, verbose_level);
+        measured_z = faux ? 0.001 * random(-100, 101) : probe_at_point(xProbe, yProbe, raise_after, verbose_level);
         if (isnan(measured_z)) {
           set_bed_leveling_enabled(abl_should_enable);
           break;
@@ -769,11 +780,7 @@ G29_TYPE GcodeSuite::G29() {
 
       if (!dryrun && !isnan(measured_z)) {
         vector_3 planeNormal = vector_3::cross(points[0] - points[1], points[2] - points[1]).get_normal();
-        if (planeNormal.z < 0) {
-          planeNormal.x *= -1;
-          planeNormal.y *= -1;
-          planeNormal.z *= -1;
-        }
+        if (planeNormal.z < 0) planeNormal *= -1;
         planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
 
         // Can't re-enable (on error) until the new grid is written
@@ -951,8 +958,8 @@ G29_TYPE GcodeSuite::G29() {
         planner.leveling_active = false;
 
         // Use the last measured distance to the bed, if possible
-        if ( NEAR(current_position[X_AXIS], xProbe - (zprobe_offset[X_AXIS]))
-          && NEAR(current_position[Y_AXIS], yProbe - (zprobe_offset[Y_AXIS]))
+        if ( NEAR(current_position[X_AXIS], xProbe - probe_offset[X_AXIS])
+          && NEAR(current_position[Y_AXIS], yProbe - probe_offset[Y_AXIS])
         ) {
           const float simple_z = current_position[Z_AXIS] - measured_z;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probed Z", simple_z, "  Matrix Z", converted[Z_AXIS], "  Discrepancy ", simple_z - converted[Z_AXIS]);
@@ -984,7 +991,7 @@ G29_TYPE GcodeSuite::G29() {
   } // !isnan(measured_z)
 
   // Restore state after probing
-  if (!faux) clean_up_after_endstop_or_probe_move();
+  if (!faux) restore_feedrate_and_scaling();
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G29");
 

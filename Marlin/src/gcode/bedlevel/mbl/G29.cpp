@@ -143,8 +143,7 @@ void GcodeSuite::G29() {
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
           current_position[Z_AXIS] = 0;
-          set_destination_from_current();
-          buffer_line_to_destination(homing_feedrate(Z_AXIS));
+          line_to_current_position(homing_feedrate(Z_AXIS));
           planner.synchronize();
         #endif
 

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#
+# Build tests for Adafruit Grand Central M4 (ATMEL ARM Cortex-M4)
+#
+
+# exit on first failure
+set -e
+
+# clean up
+restore_configs

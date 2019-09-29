@@ -130,23 +130,25 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
  */
 void reset_bed_level() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("reset_bed_level");
-  set_bed_leveling_enabled(false);
-  #if ENABLED(MESH_BED_LEVELING)
-    mbl.reset();
-  #elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
     ubl.reset();
-  #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
-    bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-        z_values[x][y] = NAN;
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(x, y, 0);
-        #endif
-      }
-  #elif ABL_PLANAR
-    planner.bed_level_matrix.set_to_identity();
+  #else
+    set_bed_leveling_enabled(false);
+    #if ENABLED(MESH_BED_LEVELING)
+      mbl.reset();
+    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
+      bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+          z_values[x][y] = NAN;
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(x, y, 0);
+          #endif
+        }
+    #elif ABL_PLANAR
+      planner.bed_level_matrix.set_to_identity();
+    #endif
   #endif
 }
 

@@ -62,7 +62,7 @@ OLDWD=`pwd`
 #
 # By default loop through all languages
 #
-LANGS_DEFAULT="an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana ko_KR nl pl pt pt-br ru sk tr uk zh_CN zh_TW test"
+LANGS_DEFAULT="an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana ko_KR nl pl pt pt-br ru sk tr uk vi zh_CN zh_TW test"
 
 #
 # Generate data for language list MARLIN_LANGS or all if not provided
@@ -104,9 +104,6 @@ if [ 1 = 1 ]; then
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

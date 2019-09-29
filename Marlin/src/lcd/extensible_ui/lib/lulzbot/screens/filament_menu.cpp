@@ -43,43 +43,43 @@ void FilamentMenu::onRedraw(draw_mode_t what) {
     #ifdef TOUCH_UI_PORTRAIT
       #define GRID_ROWS 9
       #define GRID_COLS 2
-         .text  ( BTN_POS(1,1),      BTN_SIZE(2,1), F("Filament Options:"))
+         .text  ( BTN_POS(1,1),      BTN_SIZE(2,1), GET_TEXTF(FILAMENT))
          .font(font_medium).colors(normal_btn)
       #if ENABLED(FILAMENT_RUNOUT_SENSOR)
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(2).button( BTN_POS(1,2),  BTN_SIZE(2,1), F("Runout Sensor"))
+      .tag(2).button( BTN_POS(1,2),  BTN_SIZE(2,1), GET_TEXTF(RUNOUT_SENSOR))
       #if ENABLED(LIN_ADVANCE)
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(3).button( BTN_POS(1,3),  BTN_SIZE(2,1), F("Linear Advance"))
+      .tag(3).button( BTN_POS(1,3),  BTN_SIZE(2,1), GET_TEXTF(LINEAR_ADVANCE))
       .colors(action_btn)
-      .tag(1) .button( BTN_POS(1,9), BTN_SIZE(2,1), F("Back"));
+      .tag(1) .button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXTF(BACK));
       #undef GRID_COLS
       #undef GRID_ROWS
     #else
       #define GRID_ROWS 6
       #define GRID_COLS 3
-         .text  ( BTN_POS(1,1),      BTN_SIZE(3,1), F("Filament Options:"))
+         .text  ( BTN_POS(1,1),      BTN_SIZE(3,1), GET_TEXTF(FILAMENT))
          .font(font_medium).colors(normal_btn)
       #if ENABLED(FILAMENT_RUNOUT_SENSOR)
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(2).button( BTN_POS(1,2),  BTN_SIZE(3,1), F("Filament Runout"))
+      .tag(2).button( BTN_POS(1,2),  BTN_SIZE(3,1), GET_TEXTF(RUNOUT_SENSOR))
       #if ENABLED(LIN_ADVANCE)
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(3).button( BTN_POS(1,3),  BTN_SIZE(3,1), F("Linear Advance"))
+      .tag(3).button( BTN_POS(1,3),  BTN_SIZE(3,1), GET_TEXTF(LINEAR_ADVANCE))
       .colors(action_btn)
-      .tag(1) .button( BTN_POS(1,6), BTN_SIZE(3,1), F("Back"));
+      .tag(1) .button( BTN_POS(1,6), BTN_SIZE(3,1), GET_TEXTF(BACK));
     #endif
   }
 }

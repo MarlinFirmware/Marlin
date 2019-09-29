@@ -59,8 +59,8 @@ Timer get_pwm_timer(const pin_t pin) {
       #ifdef TCCR2
         case TIMER2: {
           Timer timer = {
-            /*TCCRnQ*/  { &TCCR2, nullptr, nullptr},
-            /*OCRnQ*/   { (uint16_t*)&OCR2, nullptr, nullptr},
+            /*TCCRnQ*/  { &TCCR2, nullptr, nullptr },
+            /*OCRnQ*/   { (uint16_t*)&OCR2, nullptr, nullptr },
             /*ICRn*/      nullptr,
             /*n, q*/      2, 0
           };
@@ -70,8 +70,8 @@ Timer get_pwm_timer(const pin_t pin) {
           case TIMER2A:   break; // protect TIMER2A
           case TIMER2B: {
             Timer timer = {
-              /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr},
-              /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr},
+              /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr },
+              /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
               /*ICRn*/      nullptr,
               /*n, q*/      2, 1
             };
@@ -81,8 +81,8 @@ Timer get_pwm_timer(const pin_t pin) {
           case TIMER2B:   ++q;
           case TIMER2A: {
             Timer timer = {
-              /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr},
-              /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr},
+              /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr },
+              /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
               /*ICRn*/      nullptr,
                             2, q
             };
@@ -91,13 +91,24 @@ Timer get_pwm_timer(const pin_t pin) {
         #endif
       #endif
     #endif
-    #ifdef TCCR3A
+    #ifdef OCR3C
       case TIMER3C:   ++q;
       case TIMER3B:   ++q;
       case TIMER3A: {
         Timer timer = {
-          /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  &TCCR3C},
-          /*OCRnQ*/   { &OCR3A,   &OCR3B,   &OCR3C},
+          /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  &TCCR3C },
+          /*OCRnQ*/   { &OCR3A,   &OCR3B,   &OCR3C },
+          /*ICRn*/      &ICR3,
+          /*n, q*/      3, q
+        };
+        return timer;
+      }
+    #elif defined(OCR3B)
+      case TIMER3B:   ++q;
+      case TIMER3A: {
+        Timer timer = {
+          /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  nullptr },
+          /*OCRnQ*/   { &OCR3A,   &OCR3B,  nullptr },
           /*ICRn*/      &ICR3,
           /*n, q*/      3, q
         };
@@ -109,8 +120,8 @@ Timer get_pwm_timer(const pin_t pin) {
       case TIMER4B:   ++q;
       case TIMER4A: {
         Timer timer = {
-          /*TCCRnQ*/  { &TCCR4A,  &TCCR4B,  &TCCR4C},
-          /*OCRnQ*/   { &OCR4A,   &OCR4B,   &OCR4C},
+          /*TCCRnQ*/  { &TCCR4A,  &TCCR4B,  &TCCR4C },
+          /*OCRnQ*/   { &OCR4A,   &OCR4B,   &OCR4C },
           /*ICRn*/      &ICR4,
           /*n, q*/      4, q
         };
@@ -122,7 +133,7 @@ Timer get_pwm_timer(const pin_t pin) {
       case TIMER5B:   ++q;
       case TIMER5A: {
         Timer timer = {
-          /*TCCRnQ*/  { &TCCR5A,  &TCCR5B,  &TCCR5C},
+          /*TCCRnQ*/  { &TCCR5A,  &TCCR5B,  &TCCR5C },
           /*OCRnQ*/   { &OCR5A,   &OCR5B,   &OCR5C },
           /*ICRn*/      &ICR5,
           /*n, q*/      5, q
@@ -132,8 +143,8 @@ Timer get_pwm_timer(const pin_t pin) {
     #endif
   }
   Timer timer = {
-      /*TCCRnQ*/  { nullptr, nullptr, nullptr},
-      /*OCRnQ*/   { nullptr, nullptr, nullptr},
+      /*TCCRnQ*/  { nullptr, nullptr, nullptr },
+      /*OCRnQ*/   { nullptr, nullptr, nullptr },
       /*ICRn*/      nullptr,
                     0, 0
   };

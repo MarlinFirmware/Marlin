@@ -148,7 +148,7 @@ namespace FTDI {
   constexpr uint8_t STENCIL_OP_DECR                    = 4;
   constexpr uint8_t STENCIL_OP_INVERT                  = 5;
 
-  typedef enum: uint32_t {
+  typedef enum : uint32_t {
    BITMAPS                                             = 1,
    POINTS                                              = 2,
    LINES                                               = 3,
@@ -281,7 +281,7 @@ namespace FTDI_FT810 {
 }
 
 namespace FTDI {
-  enum effect_t {
+  enum effect_t : unsigned char {
     SILENCE                                         = 0x00,
     SQUARE_WAVE                                     = 0x01,
     SINE_WAVE                                       = 0x02,
@@ -342,7 +342,7 @@ namespace FTDI {
     UNMUTE                                          = 0x61
   };
 
-  enum note_t {
+  enum note_t : unsigned char {
     END_SONG                                        = 0xFF,
     REST                                            = 0x00,
 
