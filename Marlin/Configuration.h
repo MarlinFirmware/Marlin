@@ -916,7 +916,10 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -31, 10, -2.10 }
+//old olli-style
+#define X_PROBE_OFFSET -31
+#define Y_PROBE_OFFSET 10
+#define NOZZLE_TO_PROBE_OFFSET { X_PROBE_OFFSET,Y_PROBE_OFFSET, -2.10 }
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 10
@@ -1051,8 +1054,8 @@
 #define Y_BED_SIZE 210
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS (0-40-X_PROBE_OFFSET_FROM_EXTRUDER)
-#define Y_MIN_POS (0-62-Y_PROBE_OFFSET_FROM_EXTRUDER)
+#define X_MIN_POS (0-40-X_PROBE_OFFSET)
+#define Y_MIN_POS (0-62-Y_PROBE_OFFSET)
 #define Z_MIN_POS 0
 #define X_MAX_POS (X_MIN_POS+290)
 #define Y_MAX_POS (Y_MIN_POS+300)
