@@ -184,6 +184,7 @@ namespace Language_en {
   PROGMEM Language_Str ERASING                  = u8"Erasing...";
   PROGMEM Language_Str ERASED                   = u8"SPI flash erased";
   PROGMEM Language_Str CALIBRATION_WARNING      = u8"For best results, unload the filament and clean the hotend prior to starting calibration. Continue?";
+  PROGMEM Language_Str START_PRINT_CONFIRMATION = u8"Start printing %s?";
   PROGMEM Language_Str ABORT_WARNING            = u8"Are you sure you want to cancel the print?";
   PROGMEM Language_Str EXTRUDER_SELECTION       = u8"Extruder Selection";
   PROGMEM Language_Str CURRENT_TEMPERATURE      = u8"Current Temp";
@@ -222,10 +223,12 @@ namespace Language_en {
 
   #ifdef LULZBOT_USE_BIOPRINTER_UI
     PROGMEM Language_Str MAIN_MENU              = u8"Main Menu";
-    PROGMEM Language_Str RELEASE_XY_AXIS        = u8"Release XY Axis";
-    PROGMEM Language_Str LOAD_SYRINGE           = u8"Load Syringe";
+    PROGMEM Language_Str MOVE_TO_HOME           = u8"Move To Home";
+    PROGMEM Language_Str RAISE_PLUNGER          = u8"Raise Plunger";
+    PROGMEM Language_Str RELEASE_XY_AXIS        = u8"Release X and Y Axis";
+    PROGMEM Language_Str AUTOLEVEL_X_AXIS       = u8"Auto-level X Axis";
     PROGMEM Language_Str BED_TEMPERATURE        = u8"Bed Temperature";
-    PROGMEM Language_Str LOADING_WARNING        = u8"About to home to loading position. Ensure the top and the bed of the printer are clear.\n\nContinue?";
-    PROGMEM Language_Str HOMING_WARNING         = u8"About to re-home plunger and auto-level. Remove syringe prior to proceeding.\n\nContinue?";
+    PROGMEM Language_Str HOME_XYZ_WARNING       = u8"About to move to home position. Ensure the top and the bed of the printer are clear.\n\nContinue?";
+    PROGMEM Language_Str HOME_E_WARNING         = u8"About to re-home plunger and auto-level. Remove syringe prior to proceeding.\n\nContinue?";
   #endif
 }; // namespace Language_en
