@@ -435,7 +435,7 @@ def get_build_last():
 
 
 # gets the board being built from the Configuration.h file
-#   returns: board name, major version of Marlin being used (1 or 2)
+#   return: board name, major version of Marlin being used (1 or 2)
 def get_board_name():
       board_name = ''
       # get board name
@@ -470,7 +470,7 @@ def get_board_name():
 
 
 # extract first environment name it finds after the start position
-#   returns: environment name and position to start the next search from
+#   return: environment name and position to start the next search from
 def get_env_from_line(line, start_position):
       env = ''
       next_position = -1
@@ -485,7 +485,7 @@ def get_env_from_line(line, start_position):
 
 
 
-#scans pins.h for board name and returns the environment(s) it finds
+# Scan pins.h for board name and returns the environment(s) it finds
 def get_starting_env(board_name_full, version):
       # get environment starting point
 
@@ -530,8 +530,8 @@ def get_starting_env(board_name_full, version):
       return env_A, env_B, env_C
 
 
-# scans input string for CPUs that the users may need to select from
-#   returns: CPU name
+# Scan input string for CPUs that the users may need to select from
+#   return: CPU name
 def get_CPU_name(environment):
           CPU_list = ('1280', '2560','644', '1284', 'LPC1768', 'DUE')
           CPU_name = ''
@@ -541,7 +541,7 @@ def get_CPU_name(environment):
 
 
 # get environment to be used for the build
-#  returns: environment
+#  return: environment
 def get_env(board_name, ver_Marlin):
       def no_environment():
             print('ERROR - no environment for this board')
@@ -625,7 +625,7 @@ def write_to_screen_queue(text, format_tag = 'normal'):
 #  send one line to the terminal screen with syntax highlighting
 #
 # input: unformatted text, flags from previous run
-# returns: formatted text ready to go to the terminal, flags from this run
+# return: formatted text ready to go to the terminal, flags from this run
 #
 # This routine remembers the status from call to call because previous
 # lines can affect how the current line is highlighted
