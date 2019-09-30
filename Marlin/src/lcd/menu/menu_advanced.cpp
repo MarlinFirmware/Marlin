@@ -509,13 +509,13 @@ void menu_backlash();
 
     static float max_accel = _MAX(planner.settings.max_acceleration_mm_per_s2[_AXIS(A)], planner.settings.max_acceleration_mm_per_s2[_AXIS(B)], planner.settings.max_acceleration_mm_per_s2[_AXIS(C)]);
     // M204 P Acceleration
-    MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_ACC, &planner.settings.acceleration, 25, max_accel);
+    MENU_MULTIPLIER_ITEM_EDIT(long5_25, MSG_ACC, &planner.settings.acceleration, 25, max_accel);
 
     // M204 R Retract Acceleration
-    MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_A_RETRACT, &planner.settings.retract_acceleration, 100, max_accel);
+    MENU_MULTIPLIER_ITEM_EDIT(long5, MSG_A_RETRACT, &planner.settings.retract_acceleration, 100, max_accel);
 
     // M204 T Travel Acceleration
-    MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, max_accel);
+    MENU_MULTIPLIER_ITEM_EDIT(long5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, max_accel);
 
     // M201 settings
     static constexpr float max_accel_arr[] =
