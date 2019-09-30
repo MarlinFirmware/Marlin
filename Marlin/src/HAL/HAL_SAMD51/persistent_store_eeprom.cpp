@@ -58,7 +58,7 @@ bool PersistentStore::access_finish() {
   return true;
 }
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   #if NONE(SPI_EEPROM, I2C_EEPROM)
     if (NVMCTRL->SEESTAT.bit.RLOCK)
       NVMCTRL_CMD(NVMCTRL_CTRLB_CMD_USEE);    // Unlock E2P data write access

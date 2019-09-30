@@ -158,13 +158,13 @@ void GcodeSuite::M205() {
     if (parser.seen('Z')) {
       planner.set_max_jerk(Z_AXIS, parser.value_linear_units());
       #if HAS_MESH
-        if (planner.max_jerk[Z_AXIS] <= 0.1f)
+        if (planner.max_jerk.z <= 0.1f)
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
 
     #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
-      if (parser.seen('E')) planner.set_max_jerk(E_AXIS, parser.value_linear_units());
+      if (parser.seen('E')) planner.max_jerk.e = parser.value_linear_units();
 
     #endif
   #endif

@@ -90,7 +90,6 @@
     typedef void (*menuAction_t)();
 
     // Manual Movement
-    constexpr feedRate_t manual_feedrate_mm_m[XYZE] = MANUAL_FEEDRATE;
     extern float move_menu_scale;
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)

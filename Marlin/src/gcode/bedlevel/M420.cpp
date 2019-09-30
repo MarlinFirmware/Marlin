@@ -66,10 +66,9 @@ void GcodeSuite::M420() {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         const float x_min = probe_min_x(), x_max = probe_max_x(),
                     y_min = probe_min_y(), y_max = probe_max_y();
-        bilinear_start[X_AXIS] = x_min;
-        bilinear_start[Y_AXIS] = y_min;
-        bilinear_grid_spacing[X_AXIS] = (x_max - x_min) / (GRID_MAX_POINTS_X - 1);
-        bilinear_grid_spacing[Y_AXIS] = (y_max - y_min) / (GRID_MAX_POINTS_Y - 1);
+        bilinear_start.set(x_min, y_min);
+        bilinear_grid_spacing.set((x_max - x_min) / (GRID_MAX_POINTS_X - 1),
+                                  (y_max - y_min) / (GRID_MAX_POINTS_Y - 1));
       #endif
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
         for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
@@ -91,7 +90,7 @@ void GcodeSuite::M420() {
   // (Don't disable for just M420 or M420 V)
   if (seen_S && !to_enable) set_bed_leveling_enabled(false);
 
-  const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+  xyz_pos_t oldpos = current_position;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -251,7 +250,7 @@ void GcodeSuite::M420() {
   #endif
 
   // Report change in position
-  if (memcmp(oldpos, current_position, sizeof(oldpos)))
+  if (oldpos != current_position)
     report_current_position();
 }
 

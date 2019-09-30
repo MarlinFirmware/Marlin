@@ -55,7 +55,7 @@ void menu_backlash();
 
   #include "../../feature/dac/stepper_dac.h"
 
-  uint8_t driverPercent[XYZE];
+  xyze_uint8_t driverPercent;
   inline void dac_driver_getValues() { LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i); }
   static void dac_driver_commit() { dac_current_set_percents(driverPercent); }
 
@@ -586,13 +586,12 @@ void menu_backlash();
         #endif
       ;
 
-      #define EDIT_JERK(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_V##N##_JERK, &planner.max_jerk[_AXIS(N)], 1, max_jerk_arr[_AXIS(N)])
-      EDIT_JERK(A);
-      EDIT_JERK(B);
+      MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VA_JERK, &planner.max_jerk.x, 0.1f,  max_jerk_arr[A_AXIS]);
+      MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VB_JERK, &planner.max_jerk.y, 0.1f,  max_jerk_arr[B_AXIS]);
       #if ENABLED(DELTA)
-        EDIT_JERK(C);
+        MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk.z, 0.1f,  max_jerk_arr[C_AXIS]);
       #else
-        MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1f,  max_jerk_arr[C_AXIS]);
+        MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk.z, 0.1f,  max_jerk_arr[C_AXIS]);
       #endif
       #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
         EDIT_JERK(E);

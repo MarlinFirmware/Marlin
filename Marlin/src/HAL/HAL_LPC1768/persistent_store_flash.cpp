@@ -109,7 +109,7 @@ bool PersistentStore::access_finish() {
   return true;
 }
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   for (size_t i = 0; i < size; i++) ram_eeprom[pos + i] = value[i];
   eeprom_dirty = true;
   crc16(crc, value, size);

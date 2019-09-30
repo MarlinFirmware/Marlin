@@ -176,8 +176,7 @@
     // Add XY probe offset from extruder because probe_at_point() subtracts them when
     // moving to the XY position to be measured. This ensures better agreement between
     // the current Z position after G28 and the mesh values.
-    const float current_xi = find_closest_x_index(current_position[X_AXIS] + probe_offset[X_AXIS]),
-                current_yi = find_closest_y_index(current_position[Y_AXIS] + probe_offset[Y_AXIS]);
+    const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + xy_pos_t(probe_offset));
 
     if (!lcd) SERIAL_EOL();
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
@@ -193,7 +192,7 @@
       for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
 
         // Opening Brace or Space
-        const bool is_current = i == current_xi && j == current_yi;
+        const bool is_current = i == curr.x && j == curr.y;
         if (human) SERIAL_CHAR(is_current ? '[' : ' ');
 
         // Z Value at current I, J

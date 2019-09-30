@@ -56,7 +56,7 @@
   #include "../feature/backlash.h"
 #endif
 
-float probe_offset[XYZ]; // Initialized by settings.load()
+xyz_pos_t probe_offset; // Initialized by settings.load()
 
 #if ENABLED(BLTOUCH)
   #include "../feature/bltouch.h"
@@ -146,10 +146,10 @@ float probe_offset[XYZ]; // Initialized by settings.load()
 
   // Move down to the bed to stow the probe
   void run_stow_moves_script() {
-    const float old_pos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+    const xyz_pos_t oldpos = current_position;
     endstops.enable_z_probe(false);
     do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, MMM_TO_MMS(HOMING_FEEDRATE_Z));
-    do_blocking_move_to(old_pos, MMM_TO_MMS(HOMING_FEEDRATE_Z));
+    do_blocking_move_to(oldpos, MMM_TO_MMS(HOMING_FEEDRATE_Z));
   }
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
@@ -159,35 +159,35 @@ float probe_offset[XYZ]; // Initialized by settings.load()
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE 0.0
       #endif
-      constexpr float deploy_1[] = Z_PROBE_ALLEN_KEY_DEPLOY_1;
+      constexpr xyz_pos_t deploy_1 = Z_PROBE_ALLEN_KEY_DEPLOY_1;
       do_blocking_move_to(deploy_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_2
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE 0.0
       #endif
-      constexpr float deploy_2[] = Z_PROBE_ALLEN_KEY_DEPLOY_2;
+      constexpr xyz_pos_t deploy_2 = Z_PROBE_ALLEN_KEY_DEPLOY_2;
       do_blocking_move_to(deploy_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_3
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE 0.0
       #endif
-      constexpr float deploy_3[] = Z_PROBE_ALLEN_KEY_DEPLOY_3;
+      constexpr xyz_pos_t deploy_3 = Z_PROBE_ALLEN_KEY_DEPLOY_3;
       do_blocking_move_to(deploy_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_4
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE 0.0
       #endif
-      constexpr float deploy_4[] = Z_PROBE_ALLEN_KEY_DEPLOY_4;
+      constexpr xyz_pos_t deploy_4 = Z_PROBE_ALLEN_KEY_DEPLOY_4;
       do_blocking_move_to(deploy_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_5
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE 0.0
       #endif
-      constexpr float deploy_5[] = Z_PROBE_ALLEN_KEY_DEPLOY_5;
+      constexpr xyz_pos_t deploy_5 = Z_PROBE_ALLEN_KEY_DEPLOY_5;
       do_blocking_move_to(deploy_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE));
     #endif
   }
@@ -197,35 +197,35 @@ float probe_offset[XYZ]; // Initialized by settings.load()
       #ifndef Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE 0.0
       #endif
-      constexpr float stow_1[] = Z_PROBE_ALLEN_KEY_STOW_1;
+      constexpr xyz_pos_t stow_1 = Z_PROBE_ALLEN_KEY_STOW_1;
       do_blocking_move_to(stow_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_2
       #ifndef Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE 0.0
       #endif
-      constexpr float stow_2[] = Z_PROBE_ALLEN_KEY_STOW_2;
+      constexpr xyz_pos_t stow_2 = Z_PROBE_ALLEN_KEY_STOW_2;
       do_blocking_move_to(stow_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_3
       #ifndef Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE 0.0
       #endif
-      constexpr float stow_3[] = Z_PROBE_ALLEN_KEY_STOW_3;
+      constexpr xyz_pos_t stow_3 = Z_PROBE_ALLEN_KEY_STOW_3;
       do_blocking_move_to(stow_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_4
       #ifndef Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE 0.0
       #endif
-      constexpr float stow_4[] = Z_PROBE_ALLEN_KEY_STOW_4;
+      constexpr xyz_pos_t stow_4 = Z_PROBE_ALLEN_KEY_STOW_4;
       do_blocking_move_to(stow_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_5
       #ifndef Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE 0.0
       #endif
-      constexpr float stow_5[] = Z_PROBE_ALLEN_KEY_STOW_5;
+      constexpr xyz_pos_t stow_5 = Z_PROBE_ALLEN_KEY_STOW_5;
       do_blocking_move_to(stow_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE));
     #endif
   }
@@ -263,11 +263,11 @@ inline void do_probe_raise(const float z_raise) {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("do_probe_raise(", z_raise, ")");
 
   float z_dest = z_raise;
-  if (probe_offset[Z_AXIS] < 0) z_dest -= probe_offset[Z_AXIS];
+  if (probe_offset.z < 0) z_dest -= probe_offset.z;
 
   NOMORE(z_dest, Z_MAX_POS);
 
-  if (z_dest > current_position[Z_AXIS])
+  if (z_dest > current_position.z)
     do_blocking_move_to_z(z_dest);
 }
 
@@ -384,8 +384,7 @@ bool set_probe_deployed(const bool deploy) {
     }
   #endif
 
-  const float oldXpos = current_position[X_AXIS],
-              oldYpos = current_position[Y_AXIS];
+  const xy_pos_t old_xy = current_position;
 
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
     #if USES_Z_MIN_PROBE_ENDSTOP
@@ -419,7 +418,7 @@ bool set_probe_deployed(const bool deploy) {
 
   #endif
 
-  do_blocking_move_to(oldXpos, oldYpos, current_position[Z_AXIS]); // return to position before deploy
+  do_blocking_move_to(old_xy);
   endstops.enable_z_probe(deploy);
   return false;
 }
@@ -427,9 +426,9 @@ bool set_probe_deployed(const bool deploy) {
 #ifdef Z_AFTER_PROBING
   // After probing move to a preferred Z position
   void move_z_after_probing() {
-    if (current_position[Z_AXIS] != Z_AFTER_PROBING) {
+    if (current_position.z != Z_AFTER_PROBING) {
       do_blocking_move_to_z(Z_AFTER_PROBING);
-      current_position[Z_AXIS] = Z_AFTER_PROBING;
+      current_position.z = Z_AFTER_PROBING;
     }
   }
 #endif
@@ -532,7 +531,7 @@ static bool do_probe_move(const float z, const feedRate_t fr_mm_s) {
  * @brief Probe at the current XY (possibly more than once) to find the bed Z.
  *
  * @details Used by probe_at_point to get the bed Z height at the current XY.
- *          Leaves current_position[Z_AXIS] at the height where the probe triggered.
+ *          Leaves current_position.z at the height where the probe triggered.
  *
  * @return The Z position of the bed at the current XY or NAN on error.
  */
@@ -542,7 +541,7 @@ static float run_z_probe() {
 
   // Stop the probe before it goes too low to prevent damage.
   // If Z isn't known then probe to -10mm.
-  const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -probe_offset[Z_AXIS] + Z_PROBE_LOW_POINT : -10.0;
+  const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -probe_offset.z + Z_PROBE_LOW_POINT : -10.0;
 
   // Double-probing does a fast probe followed by a slow probe
   #if TOTAL_PROBING == 2
@@ -556,22 +555,22 @@ static float run_z_probe() {
       return NAN;
     }
 
-    const float first_probe_z = current_position[Z_AXIS];
+    const float first_probe_z = current_position.z;
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("1st Probe Z:", first_probe_z);
 
     // Raise to give the probe clearance
-    do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+    do_blocking_move_to_z(current_position.z + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
   #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
 
     // If the nozzle is well over the travel height then
     // move down quickly before doing the slow probe
-    const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (probe_offset[Z_AXIS] < 0 ? -probe_offset[Z_AXIS] : 0);
-    if (current_position[Z_AXIS] > z) {
+    const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (probe_offset.z < 0 ? -probe_offset.z : 0);
+    if (current_position.z > z) {
       // Probe down fast. If the probe never triggered, raise for probe clearance
       if (!do_probe_move(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
-        do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+        do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
   #endif
 
@@ -603,7 +602,7 @@ static float run_z_probe() {
         backlash.measure_with_probe();
       #endif
 
-      const float z = current_position[Z_AXIS];
+      const float z = current_position.z;
 
       #if EXTRA_PROBING
         // Insert Z measurement into probes[]. Keep it sorted ascending.
@@ -654,7 +653,7 @@ static float run_z_probe() {
 
   #elif TOTAL_PROBING == 2
 
-    const float z2 = current_position[Z_AXIS];
+    const float z2 = current_position.z;
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("2nd Probe Z:", z2, " Discrepancy:", first_probe_z - z2);
 
@@ -664,7 +663,7 @@ static float run_z_probe() {
   #else
 
     // Return the single probe result
-    const float measured_z = current_position[Z_AXIS];
+    const float measured_z = current_position.z;
 
   #endif
 
@@ -694,20 +693,19 @@ float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_
   }
 
   // TODO: Adapt for SCARA, where the offset rotates
-  float nx = rx, ny = ry;
+  xyz_pos_t npos = { rx, ry };
   if (probe_relative) {
-    if (!position_is_reachable_by_probe(rx, ry)) return NAN;  // The given position is in terms of the probe
-    nx -= probe_offset[X_AXIS];                     // Get the nozzle position
-    ny -= probe_offset[Y_AXIS];
+    if (!position_is_reachable_by_probe(npos)) return NAN;  // The given position is in terms of the probe
+    npos -= probe_offset;                                   // Get the nozzle position
   }
-  else if (!position_is_reachable(nx, ny)) return NAN;        // The given position is in terms of the nozzle
+  else if (!position_is_reachable(npos)) return NAN;        // The given position is in terms of the nozzle
 
-  const float nz =
+  npos.z =
     #if ENABLED(DELTA)
       // Move below clip height or xy move will be aborted by do_blocking_move_to
-      _MIN(current_position[Z_AXIS], delta_clip_start_height)
+      _MIN(current_position.z, delta_clip_start_height)
     #else
-      current_position[Z_AXIS]
+      current_position.z
     #endif
   ;
 
@@ -715,15 +713,15 @@ float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_
   feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
 
   // Move the probe to the starting XYZ
-  do_blocking_move_to(nx, ny, nz);
+  do_blocking_move_to(npos);
 
   float measured_z = NAN;
   if (!DEPLOY_PROBE()) {
-    measured_z = run_z_probe() + probe_offset[Z_AXIS];
+    measured_z = run_z_probe() + probe_offset.z;
 
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
     if (big_raise || raise_after == PROBE_PT_RAISE)
-      do_blocking_move_to_z(current_position[Z_AXIS] + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     else if (raise_after == PROBE_PT_STOW)
       if (STOW_PROBE()) measured_z = NAN;
   }

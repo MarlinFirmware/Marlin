@@ -63,7 +63,7 @@ void GcodeSuite::M206() {
 void GcodeSuite::M428() {
   if (axis_unhomed_error()) return;
 
-  float diff[XYZ];
+  xyz_float_t diff;
   LOOP_XYZ(i) {
     diff[i] = base_home_pos((AxisEnum)i) - current_position[i];
     if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)

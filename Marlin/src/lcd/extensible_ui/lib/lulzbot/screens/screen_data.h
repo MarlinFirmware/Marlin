@@ -65,7 +65,7 @@ union screen_data_t {
 #if ENABLED(BABYSTEPPING)
   struct {
     struct base_numeric_adjustment_t placeholder;
-    int16_t rel[XYZ];
+    xyz_int_t rel;
     #if EXTRUDERS > 1
       bool link_nozzles;
     #endif
