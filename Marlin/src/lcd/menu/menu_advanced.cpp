@@ -518,7 +518,7 @@ void menu_backlash();
     MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, max_accel);
 
     // M201 settings
-    static constexpr float max_accel_arr[] =
+    static constexpr uint32_t max_accel_arr[] =
       #ifdef MAX_ACCELERATION_MANUAL
         MAX_ACCELERATION_MANUAL
       #elif ENABLED(MAX_ACCELERATION_CAP)
@@ -533,15 +533,15 @@ void menu_backlash();
       static constexpr uint8_t ac_mult = 1;
     #endif
 
-    #define EDIT_AMAX(Q,L) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float5_25, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, (max_accel_arr[_AXIS(Q)] * ac_mult), _reset_acceleration_rates)
+    #define EDIT_AMAX(Q,L) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, (uint32_t)(max_accel_arr[_AXIS(Q)] * ac_mult), _reset_acceleration_rates)
 
     EDIT_AMAX(A,100);
     EDIT_AMAX(B,100);
     EDIT_AMAX(C, 10);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_AMAX_E(N,E) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float5_25, MSG_AMAX MSG_E##N, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(E)], 100, (max_accel_arr[3] * ac_mult), _reset_e##E##_acceleration_rate)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float5_25, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, (max_accel_arr[3] * ac_mult), _reset_acceleration_rates);
+      #define EDIT_AMAX_E(N,E) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_E##N, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(E)], 100, (uint32_t)(max_accel_arr[3] * ac_mult), _reset_e##E##_acceleration_rate)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, (uint32_t)(max_accel_arr[3] * ac_mult), _reset_acceleration_rates);
       EDIT_AMAX_E(1,0);
       EDIT_AMAX_E(2,1);
       #if E_STEPPERS > 2
@@ -557,7 +557,7 @@ void menu_backlash();
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
     #elif E_STEPPERS
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float5_25, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, (max_accel_arr[3] * ac_mult), _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, (uint32_t)(max_accel_arr[3] * ac_mult), _reset_acceleration_rates);
     #endif
 
     END_MENU();
@@ -594,7 +594,7 @@ void menu_backlash();
         MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk.z, 0.1f,  max_jerk_arr[C_AXIS]);
       #endif
       #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
-        EDIT_JERK(E);
+        MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VE_JERK, &planner.max_jerk.e, 0.1f,  max_jerk_arr[E_AXIS]);
       #endif
     #endif
 
