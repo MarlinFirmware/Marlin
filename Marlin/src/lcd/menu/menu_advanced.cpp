@@ -507,7 +507,7 @@ void menu_backlash();
     START_MENU();
     MENU_BACK(MSG_ADVANCED_SETTINGS);
 
-    static xy_ulong_t max_accel = _MAX(planner.settings.max_acceleration_mm_per_s2[_AXIS(A)], planner.settings.max_acceleration_mm_per_s2[_AXIS(B)], planner.settings.max_acceleration_mm_per_s2[_AXIS(C)]);
+    static uint32_t max_accel = _MAX(planner.settings.max_acceleration_mm_per_s2[_AXIS(A)], planner.settings.max_acceleration_mm_per_s2[_AXIS(B)], planner.settings.max_acceleration_mm_per_s2[_AXIS(C)]);
     // M204 P Acceleration
     MENU_MULTIPLIER_ITEM_EDIT(long5_25, MSG_ACC, &planner.settings.acceleration, 25, max_accel);
 
@@ -518,7 +518,7 @@ void menu_backlash();
     MENU_MULTIPLIER_ITEM_EDIT(long5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, max_accel);
 
     // M201 settings
-    static constexpr xy_ulong_t max_accel_arr[] =
+    static constexpr uint32_t max_accel_arr[] =
       #ifdef MAX_ACCELERATION_MANUAL
         MAX_ACCELERATION_MANUAL
       #elif ENABLED(MAX_ACCELERATION_CAP)
