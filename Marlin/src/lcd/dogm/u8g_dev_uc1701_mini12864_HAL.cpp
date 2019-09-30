@@ -116,26 +116,26 @@ static const uint8_t u8g_dev_uc1701_mini12864_HAL_init_seq[] PROGMEM = {
 };
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_data_start[] PROGMEM = {
-    U8G_ESC_ADR(0), // instruction mode
-    U8G_ESC_CS(1),  // enable chip
-    #if ENABLED(MKS_MINI_12864)
-      UC1701_START_LINE(0),      // set display start line to 0
-      UC1701_ADC_REVERSE(0),     // ADC set to reverse
-      UC1701_OUT_MODE(1),        // common output mode
-      UC1701_INVERTED(0),        // display normal, bit val 0: LCD pixel off
-      UC1701_BIAS_MODE(0),       // LCD bias 1/9
-      UC1701_POWER_CONTROL(0x7), // all power control circuits on
-      UC1701_BOOST_RATIO(0x0),   // set booster ratio to 4x
-      UC1701_V5_RATIO(3),        // set V0 voltage resistor ratio to large
-      UC1701_INDICATOR(0),       // indicator disable
-      UC1701_ON(1),              // display on
-      UC1701_COLUMN_HI(0),       // set upper 4 bit of the col adr to 0
-      U8G_ESC_END,               // end of sequence
-      U8G_ESC_DLY(5)             // delay 5 ms
-    #else
-      UC1701_COLUMN_ADR(0), // address 0
-      U8G_ESC_END           // end of sequence
-    #endif
+  U8G_ESC_ADR(0),             // instruction mode
+  U8G_ESC_CS(1),              // enable chip
+  #if ENABLED(MKS_MINI_12864)
+    UC1701_START_LINE(0),     // set display start line to 0
+    UC1701_ADC_REVERSE(0),    // ADC set to reverse
+    UC1701_OUT_MODE(1),       // common output mode
+    UC1701_INVERTED(0),       // display normal, bit val 0: LCD pixel off
+    UC1701_BIAS_MODE(0),      // LCD bias 1/9
+    UC1701_POWER_CONTROL(0x7),// all power control circuits on
+    UC1701_BOOST_RATIO(0x0),  // set booster ratio to 4x
+    UC1701_V5_RATIO(3),       // set V0 voltage resistor ratio to large
+    UC1701_INDICATOR(0),      // indicator disable
+    UC1701_ON(1),             // display on
+    UC1701_COLUMN_HI(0),      // set upper 4 bit of the col adr to 0
+    U8G_ESC_END,              // end of sequence
+    U8G_ESC_DLY(5)            // delay 5 ms
+  #else
+    UC1701_COLUMN_ADR(0),     // address 0
+    U8G_ESC_END               // end of sequence
+  #endif
 };
 
 uint8_t u8g_dev_uc1701_mini12864_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
