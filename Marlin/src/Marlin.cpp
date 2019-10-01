@@ -414,7 +414,7 @@ void disable_all_steppers() {
 
   void event_probe_recover() {
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"));
+      host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), PSTR("Dismiss"));
     #endif
     #ifdef ACTION_ON_G29_RECOVER
       host_action(PSTR(ACTION_ON_G29_RECOVER));
@@ -582,10 +582,10 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
         }
       #endif // !SWITCHING_EXTRUDER
 
-      const float olde = current_position[E_AXIS];
-      current_position[E_AXIS] += EXTRUDER_RUNOUT_EXTRUDE;
-      planner.buffer_line(current_position, MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder);
-      current_position[E_AXIS] = olde;
+      const float olde = current_position.e;
+      current_position.e += EXTRUDER_RUNOUT_EXTRUDE;
+      line_to_current_position(MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED));
+      current_position.e = olde;
       planner.set_e_position_mm(olde);
       planner.synchronize();
 
@@ -629,7 +629,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     if (delayed_move_time && ELAPSED(ms, delayed_move_time + 1000UL) && IsRunning()) {
       // travel moves have been received so enact them
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
-      set_destination_from_current();
+      destination = current_position;
       prepare_move_to_destination();
     }
   #endif
@@ -801,29 +801,17 @@ void minkill(const bool steppers_off/*=false*/) {
   #if HAS_KILL
 
     // Wait for kill to be released
-    while (!READ(KILL_PIN)) {
-      #if ENABLED(USE_WATCHDOG)
-        watchdog_reset();
-      #endif
-    }
+    while (!READ(KILL_PIN)) watchdog_refresh();
 
     // Wait for kill to be pressed
-    while (READ(KILL_PIN)) {
-      #if ENABLED(USE_WATCHDOG)
-        watchdog_reset();
-      #endif
-    }
+    while (READ(KILL_PIN)) watchdog_refresh();
 
-    void(*resetFunc)(void) = 0; // Declare resetFunc() at address 0
-    resetFunc();                // Jump to address 0
+    void (*resetFunc)() = 0;  // Declare resetFunc() at address 0
+    resetFunc();                  // Jump to address 0
 
   #else // !HAS_KILL
 
-    for (;;) {
-      #if ENABLED(USE_WATCHDOG)
-        watchdog_reset();
-      #endif
-    } // Wait for reset
+    for (;;) watchdog_refresh(); // Wait for reset
 
   #endif // !HAS_KILL
 }
@@ -962,10 +950,11 @@ void setup() {
   SERIAL_EOL();
 
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
-    SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
-    SERIAL_ECHOPGM(STRING_DISTRIBUTION_DATE);
-    SERIAL_ECHOLNPGM(MSG_AUTHOR STRING_CONFIG_H_AUTHOR);
+    SERIAL_ECHO_MSG(
+      MSG_CONFIGURATION_VER
+      STRING_DISTRIBUTION_DATE
+      MSG_AUTHOR STRING_CONFIG_H_AUTHOR
+    );
     SERIAL_ECHO_MSG("Compiled: " __DATE__);
   #endif
 
@@ -974,6 +963,12 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
+
+  // Set up LEDs early
+  #if HAS_COLOR_LEDS
+    leds.setup();
+  #endif
+
   ui.init();
   ui.reset_status();
 
@@ -981,9 +976,8 @@ void setup() {
     ui.show_bootscreen();
   #endif
 
-  #if ENABLED(SDIO_SUPPORT) && !PIN_EXISTS(SD_DETECT)
-    // Auto-mount the SD for EEPROM.dat emulation
-    if (!card.isDetected()) card.initsd();
+  #if ENABLED(SDSUPPORT)
+    card.mount(); // Mount the SD card before settings.first_load
   #endif
 
   // Load data from EEPROM if available (or use defaults)
@@ -996,7 +990,7 @@ void setup() {
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
-    LOOP_XYZ(a) current_position[a] += home_offset[a];
+    current_position += home_offset;
   #endif
 
   // Vital to init stepper/planner equivalent for current_position
@@ -1067,10 +1061,6 @@ void setup() {
 
   #if PIN_EXISTS(STAT_LED_BLUE)
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
-  #endif
-
-  #if HAS_COLOR_LEDS
-    leds.setup();
   #endif
 
   #if HAS_CASE_LIGHT
@@ -1151,6 +1141,10 @@ void setup() {
 
   #if ENABLED(INIT_SDCARD_ON_BOOT) && !HAS_SPI_LCD
     card.beginautostart();
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    host_action_prompt_end();
   #endif
 
   #if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)

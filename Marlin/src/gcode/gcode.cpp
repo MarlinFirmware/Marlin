@@ -49,12 +49,13 @@ GcodeSuite gcode;
 
 millis_t GcodeSuite::previous_move_ms;
 
-static constexpr bool ar_init[XYZE] = AXIS_RELATIVE_MODES;
+// Relative motion mode for each logical axis
+static constexpr xyze_bool_t ar_init = AXIS_RELATIVE_MODES;
 uint8_t GcodeSuite::axis_relative = (
-    (ar_init[X_AXIS] ? _BV(REL_X) : 0)
-  | (ar_init[Y_AXIS] ? _BV(REL_Y) : 0)
-  | (ar_init[Z_AXIS] ? _BV(REL_Z) : 0)
-  | (ar_init[E_AXIS] ? _BV(REL_E) : 0)
+    (ar_init.x ? _BV(REL_X) : 0)
+  | (ar_init.y ? _BV(REL_Y) : 0)
+  | (ar_init.z ? _BV(REL_Z) : 0)
+  | (ar_init.e ? _BV(REL_E) : 0)
 );
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -68,7 +69,7 @@ uint8_t GcodeSuite::axis_relative = (
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
   int8_t GcodeSuite::active_coordinate_system = -1; // machine space
-  float GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+  xyz_pos_t GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS];
 #endif
 
 /**
@@ -112,7 +113,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
  *  - Set the feedrate, if included
  */
 void GcodeSuite::get_destination_from_command() {
-  bool seen[XYZE] = { false, false, false, false };
+  xyze_bool_t seen = { false, false, false, false };
   LOOP_XYZE(i) {
     if ( (seen[i] = parser.seenval(axis_codes[i])) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
@@ -124,16 +125,16 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
-    if (recovery.enabled && IS_SD_PRINTING() && seen[E_AXIS] && (seen[X_AXIS] || seen[Y_AXIS]))
+    if (recovery.enabled && IS_SD_PRINTING() && seen.e && (seen.x || seen.y))
       recovery.save();
   #endif
 
   if (parser.linearval('F') > 0)
-    feedrate_mm_s = MMM_TO_MMS(parser.value_feedrate());
+    feedrate_mm_s = parser.value_feedrate();
 
   #if ENABLED(PRINTCOUNTER)
     if (!DEBUGGING(DRYRUN))
-      print_job_timer.incFilamentUsed(destination[E_AXIS] - current_position[E_AXIS]);
+      print_job_timer.incFilamentUsed(destination.e - current_position.e);
   #endif
 
   // Get ABCDHI mixing factors

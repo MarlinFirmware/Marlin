@@ -112,7 +112,7 @@ void MarlinUI::goto_previous_screen(
 /////////// Common Menu Actions ////////////
 ////////////////////////////////////////////
 
-void MenuItem_gcode::action(PGM_P const pgcode) { queue.inject_P(pgcode); }
+void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pgcode); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
@@ -144,7 +144,7 @@ void MenuItem_gcode::action(PGM_P const pgcode) { queue.inject_P(pgcode); }
  */
 void MenuItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   #if ENABLED(TOUCH_BUTTONS)
-    ui.repeat_delay = 50;
+    ui.repeat_delay = BUTTON_DELAY_EDIT;
   #endif
   if (int16_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (int16_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
@@ -216,7 +216,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
   if (currentScreen != screen) {
 
     #if ENABLED(TOUCH_BUTTONS)
-      repeat_delay = 250;
+      repeat_delay = BUTTON_DELAY_MENU;
     #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -379,8 +379,8 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 #if HAS_LINE_TO_Z
 
   void line_to_z(const float &z) {
-    current_position[Z_AXIS] = z;
-    planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[Z_AXIS]), active_extruder);
+    current_position.z = z;
+    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m.z));
   }
 
 #endif
@@ -402,10 +402,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       ui.encoderPosition = 0;
 
       const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
-                  new_probe_offset = zprobe_zoffset + diff,
+                  new_probe_offset = probe_offset.z + diff,
                   new_offs =
                     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-                      do_probe ? new_probe_offset : hotend_offset[Z_AXIS][active_extruder] - diff
+                      do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
                     #else
                       new_probe_offset
                     #endif
@@ -414,9 +414,9 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
         babystep.add_steps(Z_AXIS, babystep_increment);
 
-        if (do_probe) zprobe_zoffset = new_offs;
+        if (do_probe) probe_offset.z = new_offs;
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          else hotend_offset[Z_AXIS][active_extruder] = new_offs;
+          else hotend_offset[active_extruder].z = new_offs;
         #endif
 
         ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
@@ -425,13 +425,13 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          draw_edit_screen(PSTR(MSG_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
+          draw_edit_screen(PSTR(MSG_Z_OFFSET), ftostr43sign(hotend_offset[active_extruder].z));
         else
       #endif
-          draw_edit_screen(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+          draw_edit_screen(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe_offset.z));
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-        if (do_probe) _lcd_zoffset_overlay_gfx(zprobe_zoffset);
+        if (do_probe) _lcd_zoffset_overlay_gfx(probe_offset.z);
       #endif
     }
   }

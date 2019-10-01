@@ -38,6 +38,11 @@ namespace FTDI {
                             (0xF0808080 | ((c & 0b000111000000000000000000) << 6) | ((c & 0b111111000000000000) << 4) | ((c & 0b111111000000) << 2) | (c & 0b111111));
     }
 
+    /* Returns true if the string has UTF8 string characters */
+
+    bool has_utf8_chars(progmem_str str);
+    bool has_utf8_chars(const char *str);
+
     /* Returns the next character in a UTF8 string and increments the
      * pointer to the next character */
 

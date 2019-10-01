@@ -58,26 +58,24 @@ static inline void _lcd_goto_next_corner() {
   line_to_z(LEVEL_CORNERS_Z_HOP);
   switch (bed_corner) {
     case 0:
-      current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
-      current_position[Y_AXIS] = Y_MIN_BED + LEVEL_CORNERS_INSET;
+      current_position.set(X_MIN_BED + LEVEL_CORNERS_INSET, Y_MIN_BED + LEVEL_CORNERS_INSET);
       break;
     case 1:
-      current_position[X_AXIS] = X_MAX_BED - LEVEL_CORNERS_INSET;
+      current_position.x = X_MAX_BED - (LEVEL_CORNERS_INSET);
       break;
     case 2:
-      current_position[Y_AXIS] = Y_MAX_BED - LEVEL_CORNERS_INSET;
+      current_position.y = Y_MAX_BED - (LEVEL_CORNERS_INSET);
       break;
     case 3:
-      current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
+      current_position.x = X_MIN_BED + LEVEL_CORNERS_INSET;
       break;
     #if ENABLED(LEVEL_CENTER_TOO)
       case 4:
-        current_position[X_AXIS] = X_CENTER;
-        current_position[Y_AXIS] = Y_CENTER;
+        current_position.set(X_CENTER, Y_CENTER);
         break;
     #endif
   }
-  planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
+  line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m.x));
   line_to_z(LEVEL_CORNERS_HEIGHT);
   if (++bed_corner > 3
     #if ENABLED(LEVEL_CENTER_TOO)

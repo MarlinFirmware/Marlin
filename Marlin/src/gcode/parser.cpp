@@ -245,7 +245,7 @@ void GCodeParser::parse(char *p) {
    * For 'M118' you must use 'E1' and 'A1' rather than just 'E' or 'A'
    */
   string_arg = nullptr;
-  while (const char code = *p++) {                    // Get the next parameter. A NUL ends the loop
+  while (const char code = *p++) {              // Get the next parameter. A NUL ends the loop
 
     // Special handling for M32 [P] !/path/to/file.g#
     // The path must be the last parameter

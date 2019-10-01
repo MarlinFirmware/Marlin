@@ -95,12 +95,7 @@ print('\nWorking\n')
 
 python_ver = sys.version_info[0] # major version - 2 or 3
 
-if python_ver == 2:
-  print("python version " + str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2]))
-else:
-  print("python version " + str(sys.version_info[0]))
-  print("This script only runs under python 2")
-  exit()
+print("python version " + str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2]))
 
 import platform
 current_OS = platform.system()
@@ -135,9 +130,9 @@ def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
 
 
         if python_ver == 2:
-          import Tkinter as tk
+            import Tkinter as tk
         else:
-          import tkinter as tk
+            import tkinter as tk
 
         def CPU_exit_3():   # forward declare functions
 
@@ -149,6 +144,7 @@ def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
           kill_session_()
 
         root_get_answer = tk.Tk()
+        root_get_answer.attributes("-topmost", True)
 
         root_get_answer.chk_state_1 = 1   # declare variables used by TK and enable
 
@@ -614,9 +610,12 @@ def get_env(board_name, ver_Marlin):
 # end - get_env
 
 # puts screen text into queue so that the parent thread can fetch the data from this thread
-import Queue
-IO_queue = Queue.Queue()
-PIO_queue = Queue.Queue()
+if python_ver == 2:
+    import Queue as queue
+else:
+    import queue as queue
+IO_queue = queue.Queue()
+#PIO_queue = queue.Queue()    not used!
 def write_to_screen_queue(text, format_tag = 'normal'):
       double_in = [text, format_tag]
       IO_queue.put(double_in, block = False)
@@ -652,9 +651,6 @@ def line_print(line_input):
       global next_line_warning
       global warning_continue
       global line_counter
-
-
-
 
       # all '0' elements must precede all '1' elements or they'll be skipped
       platformio_highlights = [
@@ -712,7 +708,6 @@ def line_print(line_input):
           else:
             write_to_screen_queue(text + '\n')
       # end - write_to_screen_with_replace
-
 
 
     # scan the line
@@ -809,25 +804,76 @@ def line_print(line_input):
 # end - line_print
 
 
+##########################################################################
+#                                                                        #
+# run Platformio                                                         #
+#                                                                        #
+##########################################################################
+
+
+#  build      platformio run -e  target_env
+#  clean      platformio run --target clean -e  target_env
+#  upload     platformio run --target upload -e  target_env
+#  traceback  platformio run --target upload -e  target_env
+#  program    platformio run --target program -e  target_env
+#  test       platformio test upload -e  target_env
+#  remote     platformio remote run --target upload -e  target_env
+#  debug      platformio debug -e  target_env
+
+
+def sys_PIO():
+
+    ##########################################################################
+    #                                                                        #
+    # run Platformio inside the same shell as this Python script             #
+    #                                                                        #
+    ##########################################################################
+
+    global build_type
+    global target_env
+
+    import os
+
+    print('build_type: ', build_type)
+    print('starting platformio')
+
+    if   build_type == 'build':
+          # pio_result = os.system("echo -en '\033c'")
+          pio_result = os.system('platformio run -e ' + target_env)
+    elif build_type == 'clean':
+          pio_result = os.system('platformio run --target clean -e ' + target_env)
+    elif build_type == 'upload':
+          pio_result = os.system('platformio run --target upload -e ' + target_env)
+    elif build_type == 'traceback':
+          pio_result = os.system('platformio run --target upload -e ' + target_env)
+    elif build_type == 'program':
+          pio_result = os.system('platformio run --target program -e ' + target_env)
+    elif build_type == 'test':
+          pio_result = os.system('platformio test upload -e ' + target_env)
+    elif build_type == 'remote':
+          pio_result = os.system('platformio remote run --target program -e ' + target_env)
+    elif build_type == 'debug':
+          pio_result = os.system('platformio debug -e ' + target_env)
+    else:
+          print('ERROR - unknown build type:  ', build_type)
+          raise SystemExit(0)     # kill everything
+
+    # stream output from subprocess and split it into lines
+      #for line in iter(pio_subprocess.stdout.readline, ''):
+      #      line_print(line.replace('\n', ''))
+
+
+    # append info used to run PlatformIO
+    #  write_to_screen_queue('\nBoard name: ' + board_name  + '\n')  # put build info at the bottom of the screen
+    #  write_to_screen_queue('Build type: ' + build_type  + '\n')
+    #  write_to_screen_queue('Environment used: ' + target_env  + '\n')
+    #  write_to_screen_queue(str(datetime.now()) + '\n')
+
+# end - sys_PIO
+
+
 
 def run_PIO(dummy):
-
-    ##########################################################################
-    #                                                                        #
-    # run Platformio                                                         #
-    #                                                                        #
-    ##########################################################################
-
-
-    #  build      platformio run -e  target_env
-    #  clean      platformio run --target clean -e  target_env
-    #  upload     platformio run --target upload -e  target_env
-    #  traceback  platformio run --target upload -e  target_env
-    #  program    platformio run --target program -e  target_env
-    #  test       platformio test upload -e  target_env
-    #  remote     platformio remote run --target upload -e  target_env
-    #  debug      platformio debug -e  target_env
-
 
     global build_type
     global target_env
@@ -892,9 +938,13 @@ def run_PIO(dummy):
           raise SystemExit(0)     # kill everything
 
   # stream output from subprocess and split it into lines
-    for line in iter(pio_subprocess.stdout.readline, ''):
-          line_print(line.replace('\n', ''))
-
+    if python_ver == 2:
+        for line in iter(pio_subprocess.stdout.readline, ''):
+            line_print(line.replace('\n', ''))
+    else:
+        for line in iter(pio_subprocess.stdout.readline, b''):
+            line = line.decode('utf-8')
+            line_print(line.replace('\n', ''))
 
   # append info used to run PlatformIO
     write_to_screen_queue('\nBoard name: ' + board_name  + '\n')  # put build info at the bottom of the screen
@@ -905,26 +955,27 @@ def run_PIO(dummy):
 # end - run_PIO
 
 
+
 ########################################################################
 
 import time
 import threading
-import Tkinter as tk
-import ttk
-import Queue
+if python_ver == 2:
+    import Tkinter as tk
+    import Queue as queue
+    import ttk
+    from Tkinter import Tk, Frame, Text, Scrollbar, Menu
+    #from tkMessageBox import askokcancel      this is not used: removed
+    import tkFileDialog as fileDialog
+else:
+    import tkinter as tk
+    import queue as queue
+    from tkinter import ttk, Tk, Frame, Text, Scrollbar, Menu
+    from tkinter import filedialog
 import subprocess
 import sys
-que = Queue.Queue()
-#IO_queue = Queue.Queue()
-
-from Tkinter import Tk, Frame, Text, Scrollbar, Menu
-from tkMessageBox import askokcancel
-
-import tkFileDialog
-from tkMessageBox import askokcancel
-import tkFileDialog
-
-
+que = queue.Queue()
+#IO_queue = queue.Queue()
 
 class output_window(Text):
  # based on Super Text
@@ -942,6 +993,7 @@ class output_window(Text):
 
 
         self.root = tk.Tk()
+        self.root.attributes("-topmost", True)
         self.frame = tk.Frame(self.root)
         self.frame.pack(fill='both', expand=True)
 
@@ -1128,7 +1180,7 @@ class output_window(Text):
 
 
     def _file_save_as(self):
-        self.filename = tkFileDialog.asksaveasfilename(defaultextension = '.txt')
+        self.filename = fileDialog.asksaveasfilename(defaultextension = '.txt')
         f = open(self.filename, 'w')
         f.write(self.get('1.0', 'end'))
         f.close()
@@ -1218,29 +1270,28 @@ class output_window(Text):
 def main():
 
 
-  ##########################################################################
-  #                                                                        #
-  # main program                                                           #
-  #                                                                        #
-  ##########################################################################
+    ##########################################################################
+    #                                                                        #
+    # main program                                                           #
+    #                                                                        #
+    ##########################################################################
 
-        global build_type
-        global target_env
-        global board_name
+    global build_type
+    global target_env
+    global board_name
 
-        board_name, Marlin_ver = get_board_name()
+    board_name, Marlin_ver = get_board_name()
 
-        target_env = get_env(board_name, Marlin_ver)
+    target_env = get_env(board_name, Marlin_ver)
 
-        os.environ["BUILD_TYPE"] = build_type   # let sub processes know what is happening
-        os.environ["TARGET_ENV"] = target_env
-        os.environ["BOARD_NAME"] = board_name
-
+    # Re-use the VSCode terminal, if possible
+    if os.environ.get('PLATFORMIO_CALLER', '') == 'vscode':
+        sys_PIO()
+    else:
         auto_build = output_window()
         auto_build.start_thread()  # executes the "run_PIO" function
 
         auto_build.root.mainloop()
-
 
 
 

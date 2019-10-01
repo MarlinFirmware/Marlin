@@ -124,7 +124,7 @@ namespace FTDI {
     switch (pressed_tag) {
       case UNPRESSED:
         if (tag != 0) {
-          #ifdef UI_FRAMEWORK_DEBUG
+          #if ENABLED(TOUCH_UI_DEBUG)
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPAIR("Touch start: ", tag);
           #endif
@@ -156,9 +156,11 @@ namespace FTDI {
         if (!UIData::flags.bits.touch_debouncing) {
           if (tag == pressed_tag) {
             // The user is holding down a button.
-            if (touch_timer.elapsed(1000 / TOUCH_REPEATS_PER_SECOND) && current_screen.onTouchHeld(tag)) {
-              current_screen.onRefresh();
-              if (UIData::flags.bits.touch_repeat_sound) sound.play(repeat_sound);
+            if (touch_timer.elapsed(1000 / TOUCH_REPEATS_PER_SECOND)) {
+              if (current_screen.onTouchHeld(tag)) {
+                current_screen.onRefresh();
+                if (UIData::flags.bits.touch_repeat_sound) sound.play(repeat_sound);
+              }
               touch_timer.start();
             }
           }
@@ -187,7 +189,7 @@ namespace FTDI {
 
             if (UIData::flags.bits.touch_end_sound) sound.play(unpress_sound);
 
-            #ifdef UI_FRAMEWORK_DEBUG
+            #if ENABLED(TOUCH_UI_DEBUG)
               SERIAL_ECHO_START();
               SERIAL_ECHOLNPAIR("Touch end: ", tag);
             #endif

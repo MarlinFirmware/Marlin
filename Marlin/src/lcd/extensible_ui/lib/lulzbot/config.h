@@ -76,10 +76,27 @@
 //#define TOUCH_UI_PORTRAIT
 //#define TOUCH_UI_MIRRORED
 
-// Enable UTF8 rendering capabilities.
+// Enable UTF8 processing and rendering. Unsupported characters
+// will be shown as '?'.
 //#define TOUCH_UI_USE_UTF8
-#ifdef  TOUCH_UI_USE_UTF8
+#ifdef TOUCH_UI_USE_UTF8
+  // Western accents support. These accented characters use
+  // combined bitmaps and require relatively little storage.
   #define TOUCH_UI_UTF8_WESTERN_CHARSET
+  #ifdef TOUCH_UI_UTF8_WESTERN_CHARSET
+    // Additional character groups. These characters require
+    // full bitmaps and take up considerable storage:
+    //#define TOUCH_UI_UTF8_SUPERSCRIPTS    // ¹ ² ³
+    //#define TOUCH_UI_UTF8_COPYRIGHT       // © ®
+    //#define TOUCH_UI_UTF8_GERMANIC        // ß
+    //#define TOUCH_UI_UTF8_SCANDINAVIAN    // Æ Ð Ø Þ æ ð ø þ
+    //#define TOUCH_UI_UTF8_PUNCTUATION     // « » ¿ ¡
+    //#define TOUCH_UI_UTF8_CURRENCY        // ¢ £ ¤ ¥
+    //#define TOUCH_UI_UTF8_ORDINALS        // º ª
+    //#define TOUCH_UI_UTF8_MATHEMATICS     // ± × ÷
+    //#define TOUCH_UI_UTF8_FRACTIONS       // ¼ ½ ¾
+    //#define TOUCH_UI_UTF8_SYMBOLS         // µ ¶ ¦ § ¬
+  #endif
 #endif
 
 // When labels do not fit buttons, use smaller font
@@ -97,13 +114,10 @@
 //#define LCD_TIMEOUT_TO_STATUS 15000
 
 // Enable this to debug the event framework
-//#define UI_FRAMEWORK_DEBUG
+//#define TOUCH_UI_DEBUG
 
 // Enable the developer's menu and screens
 //#define DEVELOPER_SCREENS
-
-// Maximum feed rate for manual extrusion (mm/s)
-#define MAX_MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60}
 
 // Sets the SPI speed in Hz
 

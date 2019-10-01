@@ -21,192 +21,7 @@
 
 #pragma once
 
-// The list LANGUAGE_STRINGS should define all the strings used in the default
-// language (Language_en). Translations do *not* need to re-define this.
-
-#define LANGUAGE_STRINGS \
-  LANGUAGE, \
-  YES, \
-  NO, \
-  BACK, \
-  COLOR_TOUCH_PANEL, \
-  ABOUT_ALEPH_OBJECTS, OKAY, \
-  FIRMWARE_FOR_TOOLHEAD, \
-  AUTO_HOME, \
-  CLEAN_NOZZLE, \
-  CHANGE_FILAMENT, \
-  ADVANCED_SETTINGS, \
-  PRINTER_STATISTICS, \
-  ABOUT_PRINTER, \
-  MOTORS_OFF, \
-  ZPROBE_ZOFFSET, \
-  STEPS_PER_MM, \
-  HOME_SENSE, \
-  TOOL_OFFSETS, \
-  MOTOR_CURRENT, \
-  FILAMENT, \
-  ENDSTOPS, \
-  X_MAX, \
-  X_MIN, \
-  Y_MAX, \
-  Y_MIN, \
-  Z_MAX, \
-  Z_MIN, \
-  Z_PROBE, \
-  RUNOUT_1, \
-  RUNOUT_2, \
-  SOFT_ENDSTOPS, \
-  DISPLAY_MENU, \
-  INTERFACE_SETTINGS, \
-  RESTORE_DEFAULTS, \
-  VELOCITY, \
-  VMAX_X, \
-  VMAX_Y, \
-  VMAX_Z, \
-  VMAX_E1, \
-  VMAX_E2, \
-  VMAX_E3, \
-  VMAX_E4, \
-  ACCELERATION, \
-  ACCEL_PRINTING, \
-  ACCEL_TRAVEL, \
-  ACCEL_RETRACT, \
-  AMAX_X, \
-  AMAX_Y, \
-  AMAX_Z, \
-  AMAX_E1, \
-  AMAX_E2, \
-  AMAX_E3, \
-  AMAX_E4, \
-  JERK, \
-  JUNCTION_DEVIATION, \
-  BACKLASH, \
-  MEASURE_AUTOMATICALLY, \
-  H_OFFSET, \
-  V_OFFSET, \
-  TOUCH_SCREEN, \
-  CALIBRATE, \
-  HOME, \
-  UNITS_MILLIAMP, \
-  UNITS_MM, \
-  UNITS_MM_S, \
-  UNITS_MM_S2, \
-  UNITS_STEP_MM, \
-  UNITS_PERCENT, \
-  UNITS_C, \
-  TEMP_IDLE, \
-  MATERIAL_PLA, \
-  MATERIAL_ABS, \
-  MATERIAL_HIGH_TEMP, \
-  AXIS_X, \
-  AXIS_Y, \
-  AXIS_Z, \
-  AXIS_E, \
-  AXIS_E1, \
-  AXIS_E2, \
-  AXIS_E3, \
-  AXIS_E4, \
-  AXIS_ALL, \
-  HOTEND, \
-  HOTEND1, \
-  HOTEND2, \
-  HOTEND3, \
-  HOTEND4, \
-  BED, \
-  SMOOTHING, \
-  CORRECTION, \
-  PRINTING, \
-  SET_MAXIMUM, \
-  RUNOUT_SENSOR, \
-  DETECTION_THRESHOLD, \
-  DISTANCE, \
-  TEMPERATURE, \
-  COOLDOWN, \
-  FAN_SPEED, \
-  PRINT_SPEED, \
-  SPEED, \
-  MOVE_AXIS, \
-  LINEAR_ADVANCE, \
-  LINEAR_ADVANCE_K, \
-  LINEAR_ADVANCE_K1, \
-  LINEAR_ADVANCE_K2, \
-  LINEAR_ADVANCE_K3, \
-  LINEAR_ADVANCE_K4, \
-  NUDGE_NOZZLE, \
-  ADJUST_BOTH_NOZZLES, \
-  SHOW_OFFSETS, \
-  INCREMENT, \
-  ERASE_FLASH_WARNING, \
-  ERASING, \
-  ERASED, \
-  CALIBRATION_WARNING, \
-  ABORT_WARNING, \
-  EXTRUDER_SELECTION, \
-  CURRENT_TEMPERATURE, \
-  REMOVAL_TEMPERATURE, \
-  HEATING, \
-  CAUTION, \
-  HOT, \
-  UNLOAD_FILAMENT, \
-  LOAD_FILAMENT, \
-  MOMENTARY, \
-  CONTINUOUS, \
-  PLEASE_WAIT, \
-  PRINT_MENU, \
-  FINE_MOTION, \
-  MEDIA, \
-  ENABLE_MEDIA, \
-  INSERT_MEDIA, \
-  MENU, \
-  LCD_BRIGHTNESS, \
-  SOUND_VOLUME, \
-  SCREEN_LOCK, \
-  BOOT_SCREEN, \
-  INTERFACE_SOUNDS, \
-  EEPROM_RESTORED, \
-  EEPROM_RESET, \
-  EEPROM_SAVED, \
-  EEPROM_SAVE_PROMPT, \
-  EEPROM_RESET_WARNING, \
-  OPEN_DIR, \
-  PRINT_FILE, \
-  PRINT_STARTING, \
-  PRINT_FINISHED, \
-  PRINT_ERROR, \
-  PASSCODE_REJECTED, \
-  PASSCODE_ACCEPTED, \
-  PASSCODE_SELECT, \
-  PASSCODE_REQUEST, \
-  PRINTER_HALTED, \
-  PLEASE_RESET, \
-  CLICK_SOUNDS, \
-  INFO_PRINT_COUNT, \
-  INFO_COMPLETED_PRINTS, \
-  INFO_PRINT_TIME, \
-  INFO_PRINT_LONGEST, \
-  INFO_PRINT_FILAMENT, \
-  RESUME_PRINT, \
-  PAUSE_PRINT, \
-  STOP_PRINT, \
-  TOUCH_CALIBRATION_START, \
-  TOUCH_CALIBRATION_PROMPT \
-  LULZBOT_BIOPRINTER_STRINGS
-
-#ifndef LULZBOT_USE_BIOPRINTER_UI
-  #define LULZBOT_BIOPRINTER_STRINGS
-#else
-  #define LULZBOT_BIOPRINTER_STRINGS ,\
-    MAIN_MENU, \
-    UNLOCK_XY_AXIS, \
-    LOAD_SYRINGE, \
-    BED_TEMPERATURE, \
-    LOADING_WARNING, \
-    HOMING_WARNING
-#endif
-
-#include "language.h" // This must be included after LANGUAGE_STRINGS
-
-// The string table for this language.
+#include "language.h"
 
 namespace Language_en {
   PROGMEM Language_Str LANGUAGE                 = u8"English";
@@ -251,7 +66,7 @@ namespace Language_en {
   PROGMEM Language_Str AMAX_E3                  = u8"Amax E3";
   PROGMEM Language_Str AMAX_E4                  = u8"Amax E4";
   PROGMEM Language_Str JERK                     = u8"Jerk";
-  PROGMEM Language_Str JUNCTION_DEVIATION       = u8"Junc Dev";
+  PROGMEM Language_Str JUNC_DEVIATION           = u8"Junc Dev";
   PROGMEM Language_Str BACKLASH                 = u8"Backlash";
   PROGMEM Language_Str SMOOTHING                = u8"Smoothing";
   PROGMEM Language_Str CORRECTION               = u8"Correction";
@@ -302,7 +117,11 @@ namespace Language_en {
   PROGMEM Language_Str PLEASE_RESET             = u8"Please reset";
 
   PROGMEM Language_Str COLOR_TOUCH_PANEL        = u8"Color Touch Panel";
-  PROGMEM Language_Str ABOUT_ALEPH_OBJECTS      = u8"(C) 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
+  #if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
+    PROGMEM Language_Str ABOUT_ALEPH_OBJECTS    = u8"© 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
+  #else
+    PROGMEM Language_Str ABOUT_ALEPH_OBJECTS    = u8"(C) 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
+  #endif
 
   PROGMEM Language_Str FIRMWARE_FOR_TOOLHEAD    = u8"Firmware for toolhead:\n%s\n\n";
 
@@ -327,10 +146,14 @@ namespace Language_en {
   PROGMEM Language_Str UNITS_MILLIAMP           = u8"mA";
   PROGMEM Language_Str UNITS_MM                 = u8"mm";
   PROGMEM Language_Str UNITS_MM_S               = u8"mm/s";
-  PROGMEM Language_Str UNITS_MM_S2              = u8"mm/s^2";
+  #if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
+    PROGMEM Language_Str UNITS_MM_S2            = u8"mm/s²";
+  #else
+    PROGMEM Language_Str UNITS_MM_S2            = u8"mm/s^2";
+  #endif
   PROGMEM Language_Str UNITS_STEP_MM            = u8"st/mm";
   PROGMEM Language_Str UNITS_PERCENT            = u8"%";
-  #if defined(TOUCH_UI_USE_UTF8) && defined(TOUCH_UI_UTF8_WESTERN_CHARSET)
+  #if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
     PROGMEM Language_Str UNITS_C                = u8"°C";
   #else
     PROGMEM Language_Str UNITS_C                = u8" C";
@@ -361,6 +184,7 @@ namespace Language_en {
   PROGMEM Language_Str ERASING                  = u8"Erasing...";
   PROGMEM Language_Str ERASED                   = u8"SPI flash erased";
   PROGMEM Language_Str CALIBRATION_WARNING      = u8"For best results, unload the filament and clean the hotend prior to starting calibration. Continue?";
+  PROGMEM Language_Str START_PRINT_CONFIRMATION = u8"Start printing %s?";
   PROGMEM Language_Str ABORT_WARNING            = u8"Are you sure you want to cancel the print?";
   PROGMEM Language_Str EXTRUDER_SELECTION       = u8"Extruder Selection";
   PROGMEM Language_Str CURRENT_TEMPERATURE      = u8"Current Temp";
@@ -399,12 +223,12 @@ namespace Language_en {
 
   #ifdef LULZBOT_USE_BIOPRINTER_UI
     PROGMEM Language_Str MAIN_MENU              = u8"Main Menu";
-    PROGMEM Language_Str UNLOCK_XY_AXIS         = u8"Unlock XY Axis";
-    PROGMEM Language_Str LOAD_SYRINGE           = u8"Load Syringe";
+    PROGMEM Language_Str MOVE_TO_HOME           = u8"Move To Home";
+    PROGMEM Language_Str RAISE_PLUNGER          = u8"Raise Plunger";
+    PROGMEM Language_Str RELEASE_XY_AXIS        = u8"Release X and Y Axis";
+    PROGMEM Language_Str AUTOLEVEL_X_AXIS       = u8"Auto-level X Axis";
     PROGMEM Language_Str BED_TEMPERATURE        = u8"Bed Temperature";
-    PROGMEM Language_Str LOADING_WARNING        = u8"About to home to loading position.\nEnsure the top and the bed of the printer are clear.\n\nContinue?";
-    PROGMEM Language_Str HOMING_WARNING         = u8"About to re-home plunger and auto-level. Remove syringe prior to proceeding.\n\nContinue?";
+    PROGMEM Language_Str HOME_XYZ_WARNING       = u8"About to move to home position. Ensure the top and the bed of the printer are clear.\n\nContinue?";
+    PROGMEM Language_Str HOME_E_WARNING         = u8"About to re-home plunger and auto-level. Remove syringe prior to proceeding.\n\nContinue?";
   #endif
-
-  MAKE_LANGUAGE_STRINGS();
 }; // namespace Language_en

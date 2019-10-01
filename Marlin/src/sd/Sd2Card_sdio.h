@@ -25,7 +25,7 @@
 
 #if ENABLED(SDIO_SUPPORT)
 
-bool SDIO_Init(void);
+bool SDIO_Init();
 bool SDIO_ReadBlock(uint32_t block, uint8_t *dst);
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src);
 

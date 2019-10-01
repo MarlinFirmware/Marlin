@@ -49,7 +49,7 @@ public:
     {
     }
 
-  void end() { }
+  void end() {}
 
   #if ENABLED(EMERGENCY_PARSER)
     bool recv_callback(const char c) override {

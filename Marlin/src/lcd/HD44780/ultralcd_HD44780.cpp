@@ -47,7 +47,7 @@
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../../feature/bedlevel/ubl/ubl.h"
+  #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 //
@@ -817,11 +817,10 @@ void MarlinUI::draw_status_screen() {
 
           #else
 
-            _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink);
-
+            xy_pos_t lpos = current_position; toLogical(lpos);
+            _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
             lcd_put_wchar(' ');
-
-            _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink);
+            _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
 
           #endif
 
@@ -830,7 +829,7 @@ void MarlinUI::draw_status_screen() {
       #endif // LCD_WIDTH >= 20
 
       lcd_moveto(LCD_WIDTH - 8, 1);
-      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
+      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
 
       #if HAS_LEVELING && !HAS_HEATED_BED
         lcd_put_wchar(planner.leveling_active || blink ? '_' : ' ');
@@ -902,7 +901,7 @@ void MarlinUI::draw_status_screen() {
     // Z Coordinate
     //
     lcd_moveto(LCD_WIDTH - 9, 0);
-    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
+    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
 
     #if HAS_LEVELING && (HOTENDS > 1 || !HAS_HEATED_BED)
       lcd_put_wchar(LCD_WIDTH - 1, 0, planner.leveling_active || blink ? '_' : ' ');
@@ -965,6 +964,8 @@ void MarlinUI::draw_status_screen() {
 
 #if HAS_LCD_MENU
 
+  #include "../menu/menu.h"
+
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
@@ -976,11 +977,10 @@ void MarlinUI::draw_status_screen() {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
-  void draw_menu_item_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char *valstr/*=nullptr*/) {
-    UNUSED(invert);
+  void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_CENTER*/, const char * const valstr/*=nullptr*/) {
     int8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
-    if (center && !valstr) {
+    if ((style & SS_CENTER) && !valstr) {
       int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd_put_wchar(' '); n--; }
     }
@@ -1188,10 +1188,9 @@ void MarlinUI::draw_status_screen() {
          * Show X and Y positions
          */
         _XLABEL(_PLOT_X, 0);
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
-
+        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(ubl.mesh_index_to_xpos(x_plot))));
         _YLABEL(_LCD_W_POS, 0);
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(ubl.mesh_index_to_ypos(y_plot))));
 
         lcd_moveto(_PLOT_X, 0);
 
@@ -1394,9 +1393,9 @@ void MarlinUI::draw_status_screen() {
          * Show all values at right of screen
          */
         _XLABEL(_LCD_W_POS, 1);
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(ubl.mesh_index_to_xpos(x_plot))));
         _YLABEL(_LCD_W_POS, 2);
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(ubl.mesh_index_to_ypos(y_plot))));
 
         /**
          * Show the location value

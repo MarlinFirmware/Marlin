@@ -27,7 +27,7 @@
 
 void watchdog_init();
 
-inline void watchdog_reset() {
+inline void HAL_watchdog_refresh() {
   // Watchdog refresh sequence
   WDOG_REFRESH = 0xA602;
   WDOG_REFRESH = 0xB480;

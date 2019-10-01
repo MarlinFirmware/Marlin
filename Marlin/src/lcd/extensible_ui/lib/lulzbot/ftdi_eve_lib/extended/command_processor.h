@@ -28,6 +28,11 @@ typedef struct {
   uint32_t rgb;
 } btn_colors;
 
+// Disable TOUCH_UI_FIT_TEXT on a case-by-case basis
+namespace FTDI {
+  constexpr uint16_t OPT_NOFIT = OPT_NOTICKS;
+}
+
 /**************************** Enhanced Command Processor **************************/
 
 /* The CommandProcessor class wraps the CommandFifo with several features to make
@@ -305,16 +310,21 @@ class CommandProcessor : public CLCD::CommandFifo {
     int8_t apply_fit_text(int16_t w, int16_t h, T text) {
       using namespace FTDI;
       int8_t font = _font;
-      for (;;) {
+      const bool is_utf8 = has_utf8_chars(text);
+      for (;font >= 26;) {
+        int16_t width, height;
         #ifdef TOUCH_UI_USE_UTF8
-          const int16_t width  = get_utf8_text_width(text, font_size_t::from_romfont(font));
-          const int16_t height = font_size_t::from_romfont(font).get_height();
-        #else
-          CLCD::FontMetrics fm(font);
-          const int16_t width  = fm.get_text_width(text);
-          const int16_t height = fm.height;
+          if (is_utf8) {
+            width  = get_utf8_text_width(text, font_size_t::from_romfont(font));
+            height = font_size_t::from_romfont(font).get_height();
+          } else
         #endif
-        if ((width < w && height < h) || font == 26) break;
+          {
+            CLCD::FontMetrics fm(font);
+            width  = fm.get_text_width(text);
+            height = fm.height;
+          }
+        if (width < w && height < h) break;
         font--;
       }
       return font;
@@ -328,20 +338,34 @@ class CommandProcessor : public CLCD::CommandFifo {
     }
 
     template<typename T>
+    uint16_t text_width(T text) {
+      using namespace FTDI;
+      #ifdef TOUCH_UI_USE_UTF8
+        if (has_utf8_chars(text))
+          return get_utf8_text_width(text, font_size_t::from_romfont(_font));
+      #endif
+      CLCD::FontMetrics fm(_font);
+      return fm.get_text_width(text);
+    }
+
+    template<typename T>
     CommandProcessor& text(int16_t x, int16_t y, int16_t w, int16_t h, T text, uint16_t options = FTDI::OPT_CENTER) {
       using namespace FTDI;
       apply_text_alignment(x, y, w, h, options);
       #ifdef TOUCH_UI_FIT_TEXT
-        const int8_t font = apply_fit_text(w, h, text);
+        const int8_t font = (options & OPT_NOFIT) ? _font : apply_fit_text(w, h, text);
       #else
         const int8_t font = _font;
       #endif
       #ifdef TOUCH_UI_USE_UTF8
-        draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(font), options);
-      #else
+        if (has_utf8_chars(text))
+          draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(font), options);
+        else
+      #endif
+      {
         CLCD::CommandFifo::text(x, y, font, options);
         CLCD::CommandFifo::str(text);
-      #endif
+      }
       return *this;
     }
 
@@ -367,18 +391,28 @@ class CommandProcessor : public CLCD::CommandFifo {
       bool styleModified = false;
       if (_btn_style_callback) styleModified = _btn_style_callback(*this, _tag, _style, options, false);
       #ifdef TOUCH_UI_FIT_TEXT
-        const int8_t font = apply_fit_text(w, h, text);
+        const int8_t font = (options & OPT_NOFIT) ? _font : apply_fit_text(w, h, text);
       #else
         const int8_t font = _font;
       #endif
       CLCD::CommandFifo::button(x, y, w, h, font, options);
       #ifdef TOUCH_UI_USE_UTF8
-        apply_text_alignment(x, y, w, h, OPT_CENTER);
-        CLCD::CommandFifo::str(F(""));
-        draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(font), OPT_CENTER);
-      #else
-        CLCD::CommandFifo::str(text);
+        if (has_utf8_chars(text)) {
+          CLCD::CommandFifo::str(F(""));
+          apply_text_alignment(x, y, w, h, OPT_CENTER);
+          if (!(options & FTDI::OPT_FLAT)) {
+            // Reproduce the black "shadow" the FTDI adds to the button label
+            CLCD::CommandFifo::cmd(SAVE_CONTEXT());
+            CLCD::CommandFifo::cmd(COLOR_RGB(0x00000));
+            draw_utf8_text(*this, x-1, y-1, text, font_size_t::from_romfont(font), OPT_CENTER);
+            CLCD::CommandFifo::cmd(RESTORE_CONTEXT());
+          }
+          // Draw the button label
+          draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(font), OPT_CENTER);
+        }
+        else
       #endif
+        CLCD::CommandFifo::str(text);
       if (_btn_style_callback && styleModified) _btn_style_callback(*this, _tag, _style, options, true);
       return *this;
     }

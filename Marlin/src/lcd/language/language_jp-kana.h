@@ -161,8 +161,7 @@
 #define MSG_ZPROBE_OUT                      _UxGT("Zプローブ ベッドガイ")            // "Z probe out. bed"
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch ジコシンダン")          // "BLTouch Self-Test"
 #define MSG_BLTOUCH_RESET                   _UxGT("BLTouch リセット")             // "Reset BLTouch"
-#define MSG_HOME                            _UxGT("サキニ")                      // "Home" // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("ヲフッキサセテクダサイ")           // "first"
+#define MSG_HOME_FIRST                      _UxGT("サキニ %s%s%s ヲフッキサセテクダサイ") // "Home ... first"
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Zオフセット")                   // "Z Offset"
 #define MSG_BABYSTEP_X                      _UxGT("Xジク ビドウ")                  // "Babystep X"
 #define MSG_BABYSTEP_Y                      _UxGT("Yジク ビドウ")                  // "Babystep Y"
@@ -175,7 +174,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("エラー:サイテイオンミマン")          // "Err: MINTEMP"
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("エラー:ベッド サイコウオンチョウカ")    // "Err: MAXTEMP BED"
 #define MSG_ERR_MINTEMP_BED                 _UxGT("エラー:ベッド サイテイオンミマン")     // "Err: MINTEMP BED"
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST // "Home XY first"
+#define MSG_ERR_Z_HOMING                    _UxGT("サキニ XY ヲフッキサセテクダサイ")     // "Home XY first"
 #define MSG_HALTED                          _UxGT("プリンターハテイシシマシタ")         // "PRINTER HALTED"
 #define MSG_PLEASE_RESET                    _UxGT("リセットシテクダサイ")              // "Please reset"
 #define MSG_SHORT_DAY                       _UxGT("d")                          // One character only

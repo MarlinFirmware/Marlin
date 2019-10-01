@@ -54,11 +54,11 @@ typedef enum {
 
 class ScreenRef {
   protected:
-    typedef void onStartup_func_t(void);
-    typedef void onEntry_func_t(void);
-    typedef void onExit_func_t(void);
-    typedef void onIdle_func_t(void);
-    typedef void onRefresh_func_t(void);
+    typedef void onStartup_func_t();
+    typedef void onEntry_func_t();
+    typedef void onExit_func_t();
+    typedef void onIdle_func_t();
+    typedef void onRefresh_func_t();
     typedef void onRedraw_func_t(draw_mode_t);
     typedef bool onTouchStart_func_t(uint8_t);
     typedef bool onTouchHeld_func_t(uint8_t);
@@ -176,8 +176,7 @@ class CachedScreen {
     static bool storeBackground() {
       DLCache dlcache(DL_SLOT);
       if (!dlcache.store(DL_SIZE)) {
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM("CachedScreen::storeBackground() failed: not enough DL cache space");
+        SERIAL_ECHO_MSG("CachedScreen::storeBackground() failed: not enough DL cache space");
         return false;
       }
       return true;
@@ -199,6 +198,9 @@ class CachedScreen {
 
   public:
     static void onRefresh() {
+      #if ENABLED(TOUCH_UI_DEBUG)
+        const uint32_t start_time = millis();
+      #endif
       using namespace FTDI;
       DLCache dlcache(DL_SLOT);
       CommandProcessor cmd;
@@ -220,5 +222,8 @@ class CachedScreen {
       cmd.cmd(DL::DL_DISPLAY);
       cmd.cmd(CMD_SWAP);
       cmd.execute();
+      #if ENABLED(TOUCH_UI_DEBUG)
+        SERIAL_ECHOLNPAIR("Time to draw screen (ms): ", millis() - start_time);
+      #endif
     }
 };

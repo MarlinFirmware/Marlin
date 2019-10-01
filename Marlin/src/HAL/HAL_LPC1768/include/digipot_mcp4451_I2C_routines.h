@@ -45,7 +45,7 @@
 #include <lpc17xx_libcfg_default.h>
 
 uint8_t digipot_mcp4451_start(uint8_t sla);
-void digipot_mcp4451_init(void);
+void digipot_mcp4451_init();
 uint8_t digipot_mcp4451_send_byte(uint8_t data);
 
 #ifdef __cplusplus

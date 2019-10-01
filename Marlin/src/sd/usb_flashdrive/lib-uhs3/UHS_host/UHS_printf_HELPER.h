@@ -171,7 +171,7 @@ extern "C" {
 
 #ifdef __AVR__
 // The only wierdo in the bunch...
-void UHS_AVR_printf_HELPER_init(void) {
+void UHS_AVR_printf_HELPER_init() {
         // Set up stdio/stderr
         tty_stdio.put = tty_std_putc;
         tty_stdio.get = tty_std_getc;
@@ -198,4 +198,3 @@ void UHS_AVR_printf_HELPER_init(void) {
 #define UHS_printf_HELPER_init() (void(0))
 #endif
 #endif	/* UHS_PRINTF_HELPER_H */
-

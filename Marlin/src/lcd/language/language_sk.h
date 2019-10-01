@@ -120,7 +120,6 @@
 #define MSG_Y_OFFSET                        _UxGT("2. tryska Y")
 #define MSG_Z_OFFSET                        _UxGT("2. tryska Z")
 #define MSG_UBL_DOING_G29                   _UxGT("Vykonávam G29")
-#define MSG_UBL_UNHOMED                     _UxGT("Prejdite domov")
 #define MSG_UBL_TOOLS                       _UxGT("Nástroje UBL")
 #define MSG_UBL_LEVEL_BED                   _UxGT("UBL rovnanie")
 #define MSG_LCD_TILTING_MESH                _UxGT("Vyrovnávam bod")
@@ -357,8 +356,7 @@
 #define MSG_MANUAL_DEPLOY_TOUCHMI           _UxGT("Zasunúť TouchMI")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Zasunúť sondu Z")
 #define MSG_MANUAL_STOW                     _UxGT("Vysunúť sondu Z")
-#define MSG_HOME                            _UxGT("Najskôr os")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("domov")
+#define MSG_HOME_FIRST                      _UxGT("Najskôr os %s%s%s domov")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Ofset sondy Z")
 #define MSG_BABYSTEP_X                      _UxGT("Babystep X")
 #define MSG_BABYSTEP_Y                      _UxGT("Babystep Y")
@@ -378,7 +376,7 @@
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Chyba: MINTEMP PODL.")
 #define MSG_ERR_MAXTEMP_CHAMBER             _UxGT("Chyba: MAXTEMP KOMO.")
 #define MSG_ERR_MINTEMP_CHAMBER             _UxGT("Chyba: MINTEMP KOMO.")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Najskôr os XY domov")
 #define MSG_HALTED                          _UxGT("TLAČIAREŇ ZASTAVENÁ")
 #define MSG_PLEASE_RESET                    _UxGT("Reštartuje ju")
 #define MSG_SHORT_DAY                       _UxGT("d")

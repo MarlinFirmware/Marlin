@@ -34,7 +34,7 @@ static SPISettings spiConfig;
  */
 
 // Initialize SPI bus
-void spiBegin(void) {
+void spiBegin() {
   #if !PIN_EXISTS(SS)
     #error "SS_PIN not defined!"
   #endif
@@ -71,7 +71,7 @@ void spiInit(uint8_t spiRate) {
 }
 
 // SPI receive a byte
-uint8_t spiRec(void) {
+uint8_t spiRec() {
   SPI.beginTransaction(spiConfig);
   const uint8_t returnByte = SPI.transfer(0xFF);
   SPI.endTransaction();

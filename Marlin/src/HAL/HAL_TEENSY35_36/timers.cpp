@@ -35,7 +35,7 @@
   so that all instructions following the ISB are fetched from cache or
   memory, after the instruction has been completed.
 */
-FORCE_INLINE static void __ISB(void) {
+FORCE_INLINE static void __ISB() {
   __asm__ __volatile__("isb 0xF":::"memory");
 }
 
@@ -43,7 +43,7 @@ FORCE_INLINE static void __ISB(void) {
   This function acts as a special kind of Data Memory Barrier.
   It completes when all explicit memory accesses before this instruction complete.
 */
-FORCE_INLINE static void __DSB(void) {
+FORCE_INLINE static void __DSB() {
   __asm__ __volatile__("dsb 0xF":::"memory");
 }
 

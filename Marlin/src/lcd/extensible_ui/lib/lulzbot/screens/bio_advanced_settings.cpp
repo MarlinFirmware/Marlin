@@ -55,23 +55,23 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #else
        .enabled(0)
       #endif
-      .tag(4) .button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXTF(BUMP_SENSE))
+      .tag(4) .button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXTF(HOME_SENSE))
       .tag(5) .button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXTF(ENDSTOPS))
       #if HOTENDS > 1
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(6) .button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXTF(NOZZLE_OFFSETS))
+      .tag(6) .button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXTF(TOOL_OFFSETS))
 
 
       .tag(7) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXTF(STEPS_PER_MM))
-      .tag(8) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXTF(MAX_VELOCITY))
-      .tag(9) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXTF(MAX_ACCELERATION))
+      .tag(8) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXTF(VELOCITY))
+      .tag(9) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXTF(ACCELERATION))
       #if ENABLED(JUNCTION_DEVIATION)
-        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JUNCTION_DEVIATION))
+        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JUNC_DEVIATION))
       #else
-        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(MAX_JERK))
+        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JERK))
       #endif
       #if ENABLED(BACKLASH_GCODE)
       .enabled(1)
@@ -86,7 +86,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #endif
       .tag(12) .button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(LINEAR_ADVANCE))
       .tag(13) .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(INTERFACE_SETTINGS))
-      .tag(14) .button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(RESTORE_FAILSAFE))
+      .tag(14) .button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(RESTORE_DEFAULTS))
       .colors(action_btn)
       .tag(1). button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXTF(BACK));
     #undef GRID_COLS

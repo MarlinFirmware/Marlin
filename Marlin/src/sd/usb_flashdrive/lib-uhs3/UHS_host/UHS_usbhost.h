@@ -69,7 +69,7 @@ public:
         volatile uint8_t usb_host_speed;
         volatile uint8_t hub_present;
 
-        UHS_USB_HOST_BASE(void) {
+        UHS_USB_HOST_BASE() {
                 for(uint16_t i = 0; i < UHS_HOST_MAX_INTERFACE_DRIVERS; i++) {
                         devConfig[i] = NULL;
                 }
@@ -110,7 +110,7 @@ public:
         virtual void UHS_NI vbusPower(NOTUSED(VBUS_t state)) {
         };
 
-        virtual void UHS_NI Task(void) {
+        virtual void UHS_NI Task() {
         };
 
         virtual uint8_t UHS_NI SetAddress(NOTUSED(uint8_t addr), NOTUSED(uint8_t ep), NOTUSED(UHS_EpInfo **ppep), NOTUSED(uint16_t &nak_limit)) {
@@ -137,27 +137,27 @@ public:
                 return UHS_HOST_ERROR_NOT_IMPLEMENTED;
         };
 
-        virtual uint8_t UHS_NI init(void) {
+        virtual uint8_t UHS_NI init() {
                 return 0;
         };
 
-        virtual void UHS_NI doHostReset(void) {
+        virtual void UHS_NI doHostReset() {
         };
 
         virtual int16_t UHS_NI Init(NOTUSED(int16_t mseconds)) {
                 return -1;
         };
 
-        virtual int16_t UHS_NI Init(void) {
+        virtual int16_t UHS_NI Init() {
                 return Init(INT16_MIN);
         };
 
-        virtual uint8_t hwlPowerUp(void) {
+        virtual uint8_t hwlPowerUp() {
                 /* This is for machine specific support to enable/power up the USB HW to operate*/
                 return UHS_HOST_ERROR_NOT_IMPLEMENTED;
         };
 
-        virtual uint8_t hwPowerDown(void) {
+        virtual uint8_t hwPowerDown() {
                 /* This is for machine specific support to disable/powerdown the USB Hw */
                 return UHS_HOST_ERROR_NOT_IMPLEMENTED;
         };
@@ -166,13 +166,13 @@ public:
                 return (klass == UHS_USB_CLASS_HUB);
         };
 
-        virtual void UHS_NI suspend_host(void) {
+        virtual void UHS_NI suspend_host() {
                 // Used on MCU that lack control of IRQ priority (AVR).
                 // Suspends ISRs, for critical code. IRQ will be serviced after it is resumed.
                 // NOTE: you must track the state yourself!
         };
 
-        virtual void UHS_NI resume_host(void) {
+        virtual void UHS_NI resume_host() {
                 // Used on MCU that lack control of IRQ priority (AVR).
                 // Resumes ISRs.
                 // NOTE: you must track the state yourself!
@@ -184,7 +184,7 @@ public:
         //
         /////////////////////////////////////////////
         // these two probably will go away, and won't be used, TBD
-        inline void Poll_Others(void) {
+        inline void Poll_Others() {
 #ifdef UHS_LOAD_BT
                 UHS_BT_Poll(this);
 #endif
@@ -193,14 +193,14 @@ public:
 #endif
         }
 
-        inline void DisablePoll(void) {
+        inline void DisablePoll() {
                 noInterrupts();
                 usb_task_polling_disabled++;
                 DDSB();
                 interrupts();
         }
 
-        inline void EnablePoll(void) {
+        inline void EnablePoll() {
                 noInterrupts();
                 usb_task_polling_disabled--;
                 DDSB();
@@ -233,11 +233,11 @@ public:
 
         UHS_EpInfo* UHS_NI getEpInfoEntry(uint8_t addr, uint8_t ep);
 
-        inline uint8_t getUsbTaskState(void) {
+        inline uint8_t getUsbTaskState() {
                 return ( usb_task_state);
         };
 
-        inline AddressPool* GetAddressPool(void) {
+        inline AddressPool* GetAddressPool() {
                 return &addrPool;
         };
 
@@ -289,7 +289,7 @@ public:
          * Resets interface driver to unused state. You should override this in
          * your driver if it requires extra class variable cleanup.
          */
-        virtual void DriverDefaults(void) {
+        virtual void DriverDefaults() {
                 printf("Default driver defaults.\r\n");
                 pUsb->DeviceDefaults(bNumEP, this);
         };
@@ -325,7 +325,7 @@ public:
          *
          * @return zero on success
          */
-        virtual uint8_t Finalize(void) {
+        virtual uint8_t Finalize() {
                 return 0;
         };
 
@@ -334,7 +334,7 @@ public:
          *
          * @return 0 on success
          */
-        virtual uint8_t OnStart(void) {
+        virtual uint8_t OnStart() {
                 return 0;
         };
 
@@ -342,7 +342,7 @@ public:
          * Start interface polling
          * @return
          */
-        virtual uint8_t Start(void) {
+        virtual uint8_t Start() {
                 uint8_t rcode = OnStart();
                 if(!rcode) bPollEnable = true;
                 return rcode;
@@ -352,7 +352,7 @@ public:
          * Executed before anything else in Release().
          *
          */
-        virtual void OnRelease(void) {
+        virtual void OnRelease() {
                 return;
         };
 
@@ -360,7 +360,7 @@ public:
          * Release resources when device is disconnected.
          * Normally this does not need to be overridden.
          */
-        virtual void Release(void) {
+        virtual void Release() {
                 OnRelease();
                 DriverDefaults();
                 return;
@@ -375,7 +375,7 @@ public:
          * Button state/joystick position/etc changes on a HID device.
          * Flow control status change on a communication device, e.g. CTS on serial
          */
-        virtual void OnPoll(void) {
+        virtual void OnPoll() {
                 return;
         };
 
@@ -389,7 +389,7 @@ public:
                 qNextPollTime = millis() + 100;
         };
 
-        virtual bool UHS_NI Polling(void) {
+        virtual bool UHS_NI Polling() {
                 return bPollEnable;
         }
 
@@ -434,10 +434,10 @@ public:
         UHS_VSI(UHS_USB_HOST_BASE *p);
         bool OKtoEnumerate(ENUMERATION_INFO *ei);
         uint8_t SetInterface(ENUMERATION_INFO *ei);
-        virtual void DriverDefaults(void);
-        virtual void Release(void);
+        virtual void DriverDefaults();
+        virtual void Release();
 
-        uint8_t GetAddress(void) {
+        uint8_t GetAddress() {
                 return bAddress;
         };
 

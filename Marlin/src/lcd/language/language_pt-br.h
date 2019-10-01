@@ -102,7 +102,6 @@
 #define MSG_Z_OFFSET                        _UxGT("2o bico Z")
 
 #define MSG_UBL_DOING_G29                   _UxGT("Executando G29")
-#define MSG_UBL_UNHOMED                     _UxGT("Fora da Origam")
 #define MSG_UBL_TOOLS                       _UxGT("Ferramentas UBL")
 #define MSG_UBL_LEVEL_BED                   _UxGT("Nivel. Mesa Unif.")
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Fazer malha manual")
@@ -311,8 +310,7 @@
 #define MSG_MANUAL_DEPLOY                   _UxGT("Estender Sonda-Z")
 #define MSG_MANUAL_STOW                     _UxGT("Recolher Sonda-Z")
 
-#define MSG_HOME                            _UxGT("Home")
-#define MSG_FIRST                           _UxGT("Primeiro")
+#define MSG_HOME_FIRST                      _UxGT("Home %s%s%s Primeiro")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Compensar Sonda em Z")
 #define MSG_BABYSTEP_X                      _UxGT("Passinho X")
 #define MSG_BABYSTEP_Y                      _UxGT("Passinho Y")
@@ -327,7 +325,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Erro:Temp Mínima")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Erro:Temp Mesa Máx")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Erro:Temp Mesa Mín")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Home XY Primeiro")
 #define MSG_HALTED                          _UxGT("IMPRESSORA PAROU")
 #define MSG_PLEASE_RESET                    _UxGT("Favor resetar")
 #define MSG_SHORT_DAY                       _UxGT("d")

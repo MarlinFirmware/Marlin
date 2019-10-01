@@ -103,8 +103,14 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     TMCMarlin(const uint16_t cs_pin, const float RS) :
       TMC(cs_pin, RS)
       {}
+    TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t axis_chain_index) :
+      TMC(cs_pin, RS, axis_chain_index)
+      {}
     TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK) :
       TMC(CS, RS, pinMOSI, pinMISO, pinSCK)
+      {}
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t axis_chain_index) :
+      TMC(CS, RS, pinMOSI, pinMISO, pinSCK,  axis_chain_index)
       {}
     inline uint16_t rms_current() { return TMC::rms_current(); }
     inline void rms_current(uint16_t mA) {
@@ -267,10 +273,10 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2660Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
-    TMCMarlin(const uint16_t cs_pin, const float RS) :
+    TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t) :
       TMC2660Stepper(cs_pin, RS)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK) :
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t) :
       TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK)
       {}
     inline uint16_t rms_current() { return TMC2660Stepper::rms_current(); }
@@ -367,9 +373,9 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
     constexpr uint16_t default_sg_guard_duration = 400;
 
     struct slow_homing_t {
-      struct { uint32_t x, y; } acceleration;
+      xy_ulong_t acceleration;
       #if HAS_CLASSIC_JERK
-        struct { float x, y; } jerk;
+        xy_float_t jerk_xy;
       #endif
     };
   #endif

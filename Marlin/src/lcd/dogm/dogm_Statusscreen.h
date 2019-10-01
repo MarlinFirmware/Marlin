@@ -1206,20 +1206,42 @@
   #define STATUS_FAN_WIDTH 0
 #endif
 
+#define _EXTRA_WIDTH (STATUS_FAN_WIDTH + STATUS_CHAMBER_WIDTH + STATUS_BED_WIDTH)
+
+//
+// Heater Bitmap X Space Requirements
+//
+#if !defined(STATUS_HEATERS_XSPACE) && (STATUS_HOTEND1_WIDTH || STATUS_HEATERS_WIDTH)
+  #if (HOTENDS == 3 || HOTENDS == 4) && ENABLED(STATUS_COMBINE_HEATERS)
+    // If more heaters or they're combined, 3 bytes
+    #define STATUS_HEATERS_XSPACE 24
+  #elif STATUS_LOGO_WIDTH > (LCD_PIXEL_WIDTH - (_EXTRA_WIDTH) - 26 * (HOTENDS)) // 128 - (20 + 24 + 26) == 58
+    // If the logo won't fit at 26 width
+    #define STATUS_HEATERS_XSPACE 24
+  #else
+    #define STATUS_HEATERS_XSPACE 26
+  #endif
+#endif
+
 #if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE)
 
-  #if STATUS_HOTEND1_WIDTH
-    #define HAS_SPACES ((LCD_PIXEL_WIDTH - (HOTENDS * STATUS_HOTEND1_WIDTH) - STATUS_BED_WIDTH - STATUS_CHAMBER_WIDTH - STATUS_FAN_WIDTH - 24) < STATUS_LOGO_WIDTH ? true : false)
+  //
+  // Disable the logo bitmap if insufficient space
+  //
+  #if STATUS_HEATERS_XSPACE
+    #define _HEATERS_WIDTH (HOTENDS * (STATUS_HEATERS_XSPACE)) // as many hotends as possible
   #elif STATUS_HEATERS_WIDTH
-    #define HAS_SPACES (((LCD_PIXEL_WIDTH - STATUS_HEATERS_WIDTH - STATUS_BED_WIDTH - STATUS_CHAMBER_WIDTH - STATUS_FAN_WIDTH - 20) < STATUS_LOGO_WIDTH) ? true : false)
+    #define _HEATERS_WIDTH STATUS_HEATERS_WIDTH
+  #else
+    #error "Status screen heaters region was not specified."
   #endif
-
-  #if HAS_SPACES
+  #if STATUS_LOGO_WIDTH > (LCD_PIXEL_WIDTH - (_EXTRA_WIDTH + _HEATERS_WIDTH))
+    #warning "Unable to fit custom Status Screen logo. Disabling."
     #undef STATUS_LOGO_WIDTH
   #endif
 
   #if (HOTENDS > 1 && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN)
-    #define _STATUS_HEATERS_X(H,S,N) (((LCD_PIXEL_WIDTH - (H * (S + N)) - STATUS_LOGO_WIDTH - STATUS_BED_WIDTH - STATUS_CHAMBER_WIDTH - STATUS_FAN_WIDTH) / 2) + STATUS_LOGO_WIDTH)
+    #define _STATUS_HEATERS_X(H,S,N) ((LCD_PIXEL_WIDTH - (H * (S + N)) - (_EXTRA_WIDTH) + (STATUS_LOGO_WIDTH)) / 2)
     #if STATUS_HOTEND1_WIDTH
       #if HOTENDS > 2
         #define STATUS_HEATERS_X _STATUS_HEATERS_X(HOTENDS, STATUS_HOTEND1_WIDTH, 6)
@@ -1259,33 +1281,21 @@
 #endif
 
 //
-// Heater Bitmap Properties
+// Hotend Heater Bitmap starting X position
 //
-#if STATUS_HOTEND1_WIDTH || STATUS_HEATERS_WIDTH
-
-  #ifndef STATUS_HEATERS_XSPACE
-    #if (HOTENDS == 3 || HOTENDS == 4) && ENABLED(STATUS_COMBINE_HEATERS)
-      #define STATUS_HEATERS_XSPACE 24
-    #else
-      #define STATUS_HEATERS_XSPACE 26 // Like the included bitmaps
-    #endif
-  #endif
-
-  #ifndef STATUS_HEATERS_X
-    #if STATUS_LOGO_BYTEWIDTH
-      #define STATUS_HEATERS_X (STATUS_LOGO_BYTEWIDTH * 8)
-    #elif ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH) && (STATUS_BED_WIDTH  && STATUS_HOTEND_BITMAPS == 3)) || \
-          ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH  ||  STATUS_BED_WIDTH) && STATUS_HOTEND_BITMAPS == 4)
+#if !defined(STATUS_HEATERS_X) && (STATUS_HOTEND1_WIDTH || STATUS_HEATERS_WIDTH)
+  #if STATUS_LOGO_BYTEWIDTH
+    #define STATUS_HEATERS_X (STATUS_LOGO_BYTEWIDTH * 8)
+  #elif ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH) && (STATUS_BED_WIDTH  && STATUS_HOTEND_BITMAPS == 3)) || \
+        ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH  ||  STATUS_BED_WIDTH) && STATUS_HOTEND_BITMAPS == 4)
+    #define STATUS_HEATERS_X 5
+  #else
+    #if ENABLED(STATUS_COMBINE_HEATERS) && HAS_HEATED_BED && HOTENDS <= 4
       #define STATUS_HEATERS_X 5
     #else
-      #if ENABLED(STATUS_COMBINE_HEATERS) && HAS_HEATED_BED && HOTENDS <= 4
-        #define STATUS_HEATERS_X 5
-      #else
-        #define STATUS_HEATERS_X 8 // Like the included bitmaps
-      #endif
+      #define STATUS_HEATERS_X 8 // Like the included bitmaps
     #endif
   #endif
-
 #endif
 
 #if STATUS_HOTEND1_WIDTH

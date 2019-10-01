@@ -154,6 +154,9 @@ void host_action(const char * const pstr, const bool eol) {
           queue.inject_P(PSTR("M24"));
         #endif
         break;
+      case PROMPT_INFO:
+        msg = PSTR("GCODE_INFO");
+        break;
       default: break;
     }
     say_m876_response(msg);

@@ -38,40 +38,41 @@
 #include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts
-void ICACHE_RAM_ATTR endstop_ISR(void) { endstops.update(); }
+void ICACHE_RAM_ATTR endstop_ISR() { endstops.update(); }
 
-void setup_endstop_interrupts(void) {
+void setup_endstop_interrupts() {
+  #define _ATTACH(P) attachInterrupt(digitalPinToInterrupt(P), endstop_ISR, CHANGE)
   #if HAS_X_MAX
-    attachInterrupt(digitalPinToInterrupt(X_MAX_PIN), endstop_ISR, CHANGE);
+    _ATTACH(X_MAX_PIN);
   #endif
   #if HAS_X_MIN
-    attachInterrupt(digitalPinToInterrupt(X_MIN_PIN), endstop_ISR, CHANGE);
+    _ATTACH(X_MIN_PIN);
   #endif
   #if HAS_Y_MAX
-    attachInterrupt(digitalPinToInterrupt(Y_MAX_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Y_MAX_PIN);
   #endif
   #if HAS_Y_MIN
-    attachInterrupt(digitalPinToInterrupt(Y_MIN_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Y_MIN_PIN);
   #endif
   #if HAS_Z_MAX
-    attachInterrupt(digitalPinToInterrupt(Z_MAX_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Z_MAX_PIN);
   #endif
   #if HAS_Z_MIN
-     attachInterrupt(digitalPinToInterrupt(Z_MIN_PIN), endstop_ISR, CHANGE);
+     _ATTACH(Z_MIN_PIN);
   #endif
   #if HAS_Z2_MAX
-    attachInterrupt(digitalPinToInterrupt(Z2_MAX_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Z2_MAX_PIN);
   #endif
   #if HAS_Z2_MIN
-    attachInterrupt(digitalPinToInterrupt(Z2_MIN_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Z2_MIN_PIN);
   #endif
   #if HAS_Z3_MAX
-    attachInterrupt(digitalPinToInterrupt(Z3_MAX_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Z3_MAX_PIN);
   #endif
   #if HAS_Z3_MIN
-    attachInterrupt(digitalPinToInterrupt(Z3_MIN_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Z3_MIN_PIN);
   #endif
   #if HAS_Z_MIN_PROBE_PIN
-    attachInterrupt(digitalPinToInterrupt(Z_MIN_PROBE_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Z_MIN_PROBE_PIN);
   #endif
 }

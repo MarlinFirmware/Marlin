@@ -38,7 +38,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .font(font_medium);
   }
 
-  #define GRID_ROWS 7
+  #define GRID_ROWS 8
   #define GRID_COLS 2
 
   if (what & FOREGROUND) {
@@ -55,9 +55,10 @@ void TuneMenu::onRedraw(draw_mode_t what) {
           .enabled(false)
         #endif
                               .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXTF(NUDGE_NOZZLE))
-       .enabled(!isPrinting()).tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXTF(LOAD_SYRINGE))
-       .enabled(!isPrinting()).tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(UNLOCK_XY_AXIS))
-       .colors(action_btn)    .tag(1).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(BACK));
+       .enabled(!isPrinting()).tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXTF(MOVE_TO_HOME))
+       .enabled(!isPrinting()).tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(RAISE_PLUNGER))
+       .enabled(!isPrinting()).tag(7).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(RELEASE_XY_AXIS))
+       .colors(action_btn)    .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(BACK));
   }
   #undef GRID_COLS
   #undef GRID_ROWS
@@ -65,12 +66,13 @@ void TuneMenu::onRedraw(draw_mode_t what) {
 
 bool TuneMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    case 1: GOTO_PREVIOUS();                    break;
-    case 2: GOTO_SCREEN(FeedratePercentScreen); break;
-    case 3: GOTO_SCREEN(TemperatureScreen);     break;
-    case 4: GOTO_SCREEN(NudgeNozzleScreen);     break;
-    case 5: GOTO_SCREEN(BioConfirmHomeXYZ);     break;
-    case 6: StatusScreen::unlockMotors();       break;
+    case 1: GOTO_PREVIOUS();                                     break;
+    case 2: GOTO_SCREEN(FeedratePercentScreen);                  break;
+    case 3: GOTO_SCREEN(TemperatureScreen);                      break;
+    case 4: GOTO_SCREEN(NudgeNozzleScreen);                      break;
+    case 5: GOTO_SCREEN(BioConfirmHomeXYZ);                      break;
+    case 6: SpinnerDialogBox::enqueueAndWait_P(F("G0 E0 F120")); break;
+    case 7: StatusScreen::unlockMotors();                        break;
     default:
       return false;
   }

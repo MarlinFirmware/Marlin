@@ -194,7 +194,7 @@ void MAX3421e::busprobe() {
 }
 
 // MAX3421 state change task and interrupt handler
-uint8_t MAX3421e::Task(void) {
+uint8_t MAX3421e::Task() {
   return READ(USB_INTR_PIN) ? 0 : IntHandler();
 }
 
