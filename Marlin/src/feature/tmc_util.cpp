@@ -778,7 +778,7 @@
     #if HAS_DRIVER(TMC2209)
       TMC_REPORT("Address\t",        TMC_UART_ADDR);
     #endif
-    TMC_REPORT("Enabled\t",          TMC_ENABLED);
+    TMC_REPORT("Enabled",          TMC_ENABLED);
     TMC_REPORT("Set current",        TMC_CURRENT);
     TMC_REPORT("RMS current",        TMC_RMS_CURRENT);
     TMC_REPORT("MAX current",        TMC_MAX_CURRENT);
@@ -795,14 +795,14 @@
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
     TMC_REPORT("msteps\t",           TMC_MICROSTEPS);
     TMC_REPORT("tstep\t",            TMC_TSTEP);
-    TMC_REPORT("pwm\nthreshold",     TMC_TPWMTHRS);
+    TMC_REPORT("pwm\nthreshold\t",   TMC_TPWMTHRS);
     TMC_REPORT("[mm/s]\t",           TMC_TPWMTHRS_MMS);
     TMC_REPORT("OT prewarn",         TMC_OTPW);
     #if ENABLED(MONITOR_DRIVER_STATUS)
       TMC_REPORT("OT prewarn has\n"
                  "been triggered",   TMC_OTPW_TRIGGERED);
     #endif
-    TMC_REPORT("off time",           TMC_TOFF);
+    TMC_REPORT("off time\t",         TMC_TOFF);
     TMC_REPORT("blank time",         TMC_TBL);
     TMC_REPORT("hysteresis\n-end\t", TMC_HEND);
     TMC_REPORT("-start\t",           TMC_HSTRT);
@@ -829,7 +829,7 @@
       DRV_REPORT("s2vsa\t",          TMC_S2VSA);
       DRV_REPORT("s2vsb\t",          TMC_S2VSB);
     #endif
-    DRV_REPORT("Driver registers:\n",TMC_DRV_STATUS_HEX);
+    DRV_REPORT("Driver Status registers:\n",TMC_DRV_STATUS_HEX);
     SERIAL_EOL();
   }
 
