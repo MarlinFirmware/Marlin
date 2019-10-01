@@ -78,7 +78,7 @@ extern HalSerial usb_serial;
 #define ENABLE_ISRS()
 #define DISABLE_ISRS()
 
-inline void HAL_init() { }
+inline void HAL_init() {}
 
 // Utility functions
 #pragma GCC diagnostic push
@@ -96,6 +96,10 @@ void HAL_adc_init();
 void HAL_adc_enable_channel(int pin);
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 uint16_t HAL_adc_get_result();
+
+// Reset source
+inline void HAL_clear_reset_source(void) {}
+inline uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
 
 /* ---------------- Delay in cycles */
 FORCE_INLINE static void DELAY_CYCLES(uint64_t x) {

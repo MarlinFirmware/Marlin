@@ -164,3 +164,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired);
  *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
  */
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+
+// Reset source
+void HAL_clear_reset_source(void);
+uint8_t HAL_get_reset_source(void);

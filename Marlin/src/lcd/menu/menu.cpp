@@ -112,7 +112,7 @@ void MarlinUI::goto_previous_screen(
 /////////// Common Menu Actions ////////////
 ////////////////////////////////////////////
 
-void MenuItem_gcode::action(PGM_P const pgcode) { queue.inject_P(pgcode); }
+void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pgcode); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////

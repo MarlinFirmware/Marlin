@@ -113,7 +113,7 @@ FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_by
 #define XYZ_DEFS(T, NAME, OPT) \
   extern const XYZval<T> NAME##_P; \
   FORCE_INLINE T NAME(AxisEnum axis) { return pgm_read_any(&NAME##_P[axis]); } \
-  typedef void __void_##OPT##__
+  typedef void __void_##OPT##__ /* for semicolon */
 
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
 XYZ_DEFS(float, base_max_pos,   MAX_POS);
@@ -200,10 +200,6 @@ inline void prepare_internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f)
  * Blocking movement and shorthand functions
  */
 void do_blocking_move_to(const float rx, const float ry, const float rz, const feedRate_t &fr_mm_s=0.0f);
-void do_blocking_move_to_x(const float &rx, const feedRate_t &fr_mm_s=0.0f);
-void do_blocking_move_to_y(const float &ry, const feedRate_t &fr_mm_s=0.0f);
-void do_blocking_move_to_z(const float &rz, const feedRate_t &fr_mm_s=0.0f);
-void do_blocking_move_to_xy(const float &rx, const float &ry, const feedRate_t &fr_mm_s=0.0f);
 
 FORCE_INLINE void do_blocking_move_to(const xy_pos_t &raw, const feedRate_t &fr_mm_s=0.0f) {
   do_blocking_move_to(raw.x, raw.y, current_position.z, fr_mm_s);
@@ -214,9 +210,22 @@ FORCE_INLINE void do_blocking_move_to(const xyz_pos_t &raw, const feedRate_t &fr
 FORCE_INLINE void do_blocking_move_to(const xyze_pos_t &raw, const feedRate_t &fr_mm_s=0.0f) {
   do_blocking_move_to(raw.x, raw.y, raw.z, fr_mm_s);
 }
+
+void do_blocking_move_to_xy(const float &rx, const float &ry, const feedRate_t &fr_mm_s=0.0f);
+
 FORCE_INLINE void do_blocking_move_to_xy(const xy_pos_t &raw, const feedRate_t &fr_mm_s=0.0f) {
   do_blocking_move_to_xy(raw.x, raw.y, fr_mm_s);
 }
+FORCE_INLINE void do_blocking_move_to_xy(const xyz_pos_t &raw, const feedRate_t &fr_mm_s=0.0f) {
+  do_blocking_move_to_xy(raw.x, raw.y, fr_mm_s);
+}
+FORCE_INLINE void do_blocking_move_to_xy(const xyze_pos_t &raw, const feedRate_t &fr_mm_s=0.0f) {
+  do_blocking_move_to_xy(raw.x, raw.y, fr_mm_s);
+}
+
+void do_blocking_move_to_x(const float &rx, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_y(const float &ry, const feedRate_t &fr_mm_s=0.0f);
+void do_blocking_move_to_z(const float &rz, const feedRate_t &fr_mm_s=0.0f);
 
 void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
@@ -270,12 +279,12 @@ void homeaxis(const AxisEnum axis);
 #else
   #define NATIVE_TO_LOGICAL(POS, AXIS) (POS)
   #define LOGICAL_TO_NATIVE(POS, AXIS) (POS)
-  FORCE_INLINE void toLogical(xy_pos_t &raw)   { UNUSED(raw); }
-  FORCE_INLINE void toLogical(xyz_pos_t &raw)  { UNUSED(raw); }
-  FORCE_INLINE void toLogical(xyze_pos_t &raw) { UNUSED(raw); }
-  FORCE_INLINE void toNative(xy_pos_t &raw)    { UNUSED(raw); }
-  FORCE_INLINE void toNative(xyz_pos_t &raw)   { UNUSED(raw); }
-  FORCE_INLINE void toNative(xyze_pos_t &raw)  { UNUSED(raw); }
+  FORCE_INLINE void toLogical(xy_pos_t&)   {}
+  FORCE_INLINE void toLogical(xyz_pos_t&)  {}
+  FORCE_INLINE void toLogical(xyze_pos_t&) {}
+  FORCE_INLINE void toNative(xy_pos_t&)    {}
+  FORCE_INLINE void toNative(xyz_pos_t&)   {}
+  FORCE_INLINE void toNative(xyze_pos_t&)  {}
 #endif
 #define LOGICAL_X_POSITION(POS) NATIVE_TO_LOGICAL(POS, X_AXIS)
 #define LOGICAL_Y_POSITION(POS) NATIVE_TO_LOGICAL(POS, Y_AXIS)

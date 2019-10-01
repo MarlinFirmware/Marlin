@@ -655,7 +655,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   if (resume_position.e < 0) do_pause_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
   // Move XY to starting position, then Z
-  do_blocking_move_to_xy(xy_pos_t(resume_position), feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
+  do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
   // Move Z_AXIS to saved position
   do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));

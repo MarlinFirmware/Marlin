@@ -53,7 +53,7 @@
 
     FORCE_INLINE static void DELAY_CYCLES(const uint32_t x) {
       const uint32_t endCycles = getCycleCount() + x;
-      while (PENDING(getCycleCount(), endCycles)) { }
+      while (PENDING(getCycleCount(), endCycles)) {}
     }
 
   #else
