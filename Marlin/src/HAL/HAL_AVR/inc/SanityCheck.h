@@ -56,6 +56,6 @@
 /**
  * The Trinamic library includes SoftwareSerial.h, leading to a compile error.
  */
-#if HAS_TRINAMIC && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !defined(FORCE_NO_SW_SERIAL)
+#if HAS_TRINAMIC && ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   #error "TMCStepper includes SoftwareSerial.h which is incompatible with ENDSTOP_INTERRUPTS_FEATURE. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
 #endif
