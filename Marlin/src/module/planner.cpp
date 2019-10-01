@@ -2772,98 +2772,65 @@ void Planner::refresh_positioning() {
   reset_acceleration_rates();
 }
 
-void Planner::set_max_acceleration(uint8_t axis, float targetValue) {
-  #if DISABLED(MAX_ACCELERATION_CAP)
-    planner.settings.max_acceleration_mm_per_s2[axis] = targetValue;
-  #else
-    #ifdef MAX_ACCELERATION_MANUAL
-      static constexpr float max_accel[] = MAX_ACCELERATION_MANUAL;
-      static uint8_t ac_multiplier = 1;
-    #else
-      static constexpr float max_accel[] = DEFAULT_MAX_ACCELERATION;
-      static uint8_t ac_multiplier = 2;
-    #endif
-    if(targetValue > max_accel[(AxisEnum)axis] * ac_multiplier)
-      SERIAL_ECHOLNPAIR("Max acceleration clamped to ",  (max_accel[(AxisEnum)axis] * ac_multiplier));
-    planner.settings.max_acceleration_mm_per_s2[axis] = constrain(targetValue, 1, max_accel[(AxisEnum)axis] * ac_multiplier);
-  #endif
-
-  // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
-  planner.reset_acceleration_rates();
+inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_name, const xyze_float_t &max_limit) {
+  const uint8_t lim_axis = axis > E_AXIS ? E_AXIS : axis;
+  const float before = val;
+  LIMIT(val, 1, max_limit[lim_axis]);
+  if (before != val) {
+    SERIAL_CHAR(axis_codes[lim_axis]);
+    SERIAL_ECHOPGM(" Max ");
+    serialprintPGM(setting_name);
+    SERIAL_ECHOLNPAIR(" limited to ", val);
+  }
 }
 
-void Planner::set_max_feedrate(uint8_t axis, float targetValue) {
-  #if DISABLED(MAX_FEEDRATE_CAP)
-    planner.settings.max_feedrate_mm_s[axis] = targetValue;
-  #else
-    #ifdef MAX_FEEDRATE_MANUAL
-      static constexpr float max_feedrates[] = MAX_FEEDRATE_MANUAL;
-      static uint8_t fr_multiplier = 1;
+void Planner::set_max_acceleration(const uint8_t axis, float targetValue) {
+  #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
+    #ifdef MAX_ACCEL_EDIT_VALUES
+      constexpr xyze_float_t max_accel_edit = MAX_ACCEL_EDIT_VALUES;
+      const xyze_float_t &max_acc_edit_scaled = max_accel_edit;
     #else
-      static constexpr float max_feedrates[] = DEFAULT_MAX_FEEDRATE;
-      static uint8_t fr_multiplier = 2;
+      constexpr xyze_float_t max_accel_edit = DEFAULT_MAX_ACCELERATION,
+                             max_acc_edit_scaled = max_accel_edit * 2;
     #endif
-    if(targetValue > max_feedrates[(AxisEnum)axis] * fr_multiplier)
-      SERIAL_ECHOLNPAIR("Max feedrate clamped to ",  (max_feedrates[(AxisEnum)axis] * fr_multiplier));
-    planner.settings.max_feedrate_mm_s[axis] = constrain(targetValue, 1, max_feedrates[(AxisEnum)axis] * fr_multiplier);
+    limit_and_warn(targetValue, axis, PSTR("Acceleration"), max_acc_edit_scaled);
   #endif
+  settings.max_acceleration_mm_per_s2[axis] = targetValue;
+
+  // Update steps per s2 to agree with the units per s2 (since they are used in the planner)
+  reset_acceleration_rates();
 }
 
-void Planner::set_max_jerk(AxisEnum axis, float targetValue) {
+void Planner::set_max_feedrate(const uint8_t axis, float targetValue) {
+  #if ENABLED(LIMITED_MAX_FR_EDITING)
+    #ifdef MAX_FEEDRATE_EDIT_VALUES
+      constexpr xyze_float_t max_fr_edit = MAX_FEEDRATE_EDIT_VALUES;
+      const xyze_float_t &max_fr_edit_scaled = max_fr_edit;
+    #else
+      constexpr xyze_float_t max_fr_edit = DEFAULT_MAX_FEEDRATE,
+                             max_fr_edit_scaled = max_fr_edit * 2;
+    #endif
+    limit_and_warn(targetValue, axis, PSTR("Feedrate"), max_fr_edit_scaled);
+  #endif
+  settings.max_feedrate_mm_s[axis] = targetValue;
+}
+
+void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
   #if HAS_CLASSIC_JERK
-    #if DISABLED(MAX_JERK_CAP)
-      switch (axis)
-      {
-      case X_AXIS:
-        planner.max_jerk.x = targetValue;
-        break;
-      case Y_AXIS:
-        planner.max_jerk.x = targetValue;
-        break;
-      case Z_AXIS:
-        planner.max_jerk.x = targetValue;
-        break;
-      case E_AXIS:
-        planner.max_jerk.x = targetValue;
-        break;
-      default:
-        break;
-      }
-    #else
-      #ifdef MAX_JERK_MANUAL
-      static constexpr float max_jerk_limit[] = MAX_JERK_MANUAL;
-      static float jrk_limit = max_jerk_limit[axis];
-      #else
-      static float jrk_limit;
-      if( axis == X_AXIS)
-          jrk_limit = (DEFAULT_XJERK * 2);
-      else if (axis == Y_AXIS)
-        jrk_limit = (DEFAULT_YJERK * 2);
-      else if (axis == Z_AXIS)
-        jrk_limit = (DEFAULT_ZJERK * 2);
-      else if (axis == E_AXIS)
-        jrk_limit = (DEFAULT_EJERK * 2);
-      #endif
-      if(targetValue > jrk_limit)
-      SERIAL_ECHOLNPAIR("Jerk clamped to ",  jrk_limit);
-      switch (axis)
-      {
-      case X_AXIS:
-        planner.max_jerk.x = constrain(targetValue, 1, jrk_limit);;
-        break;
-      case Y_AXIS:
-        planner.max_jerk.x = constrain(targetValue, 1, jrk_limit);;
-        break;
-      case Z_AXIS:
-        planner.max_jerk.x = constrain(targetValue, 1, jrk_limit);;
-        break;
-      case E_AXIS:
-        planner.max_jerk.x = constrain(targetValue, 1, jrk_limit);;
-        break;
-      default:
-        break;
-      }
+    #if ENABLED(LIMITED_JERK_EDITING)
+      constexpr xyze_float_t max_jerk_edit =
+        #ifdef MAX_JERK_EDIT_VALUES
+          MAX_JERK_EDIT_VALUES
+        #else
+          { (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2,
+            (DEFAULT_ZJERK) * 2, (DEFAULT_EJERK) * 2 }
+        #endif
+      ;
+      limit_and_warn(targetValue, axis, PSTR("Jerk"), max_jerk_edit);
     #endif
+    max_jerk[axis] = targetValue;
+  #else
+    UNUSED(axis); UNUSED(targetValue);
   #endif
 }
 

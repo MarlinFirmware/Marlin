@@ -157,7 +157,7 @@ void GcodeSuite::M205() {
       planner.set_max_jerk(Y_AXIS, parser.value_linear_units());
     if (parser.seen('Z')) {
       planner.set_max_jerk(Z_AXIS, parser.value_linear_units());
-      #if HAS_MESH
+      #if HAS_MESH && DISABLED(LIMITED_JERK_EDITING)
         if (planner.max_jerk.z <= 0.1f)
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
