@@ -120,7 +120,7 @@ public:
     lenSize(0),
     valSize(0),
     pBuf(nullptr),
-    prsMode(modeArray) { }
+    prsMode(modeArray) {}
   ;
 
   void Initialize(const uint8_t len_size, const uint8_t val_size, MultiValueBuffer * const p, const uint8_t mode = modeArray) {

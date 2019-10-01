@@ -431,12 +431,9 @@ class Planner {
 
     #else
 
-      FORCE_INLINE static float fade_scaling_factor_for_z(const float &rz) {
-        UNUSED(rz);
-        return 1;
-      }
+      FORCE_INLINE static float fade_scaling_factor_for_z(const float&) { return 1; }
 
-      FORCE_INLINE static bool leveling_active_at_z(const float &rz) { UNUSED(rz); return true; }
+      FORCE_INLINE static bool leveling_active_at_z(const float&) { return true; }
 
     #endif
 

@@ -279,12 +279,12 @@ void homeaxis(const AxisEnum axis);
 #else
   #define NATIVE_TO_LOGICAL(POS, AXIS) (POS)
   #define LOGICAL_TO_NATIVE(POS, AXIS) (POS)
-  FORCE_INLINE void toLogical(xy_pos_t &raw)   { UNUSED(raw); }
-  FORCE_INLINE void toLogical(xyz_pos_t &raw)  { UNUSED(raw); }
-  FORCE_INLINE void toLogical(xyze_pos_t &raw) { UNUSED(raw); }
-  FORCE_INLINE void toNative(xy_pos_t &raw)    { UNUSED(raw); }
-  FORCE_INLINE void toNative(xyz_pos_t &raw)   { UNUSED(raw); }
-  FORCE_INLINE void toNative(xyze_pos_t &raw)  { UNUSED(raw); }
+  FORCE_INLINE void toLogical(xy_pos_t&)   {}
+  FORCE_INLINE void toLogical(xyz_pos_t&)  {}
+  FORCE_INLINE void toLogical(xyze_pos_t&) {}
+  FORCE_INLINE void toNative(xy_pos_t&)    {}
+  FORCE_INLINE void toNative(xyz_pos_t&)   {}
+  FORCE_INLINE void toNative(xyze_pos_t&)  {}
 #endif
 #define LOGICAL_X_POSITION(POS) NATIVE_TO_LOGICAL(POS, X_AXIS)
 #define LOGICAL_Y_POSITION(POS) NATIVE_TO_LOGICAL(POS, Y_AXIS)

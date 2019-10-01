@@ -78,7 +78,7 @@ extern HalSerial usb_serial;
 #define ENABLE_ISRS()
 #define DISABLE_ISRS()
 
-inline void HAL_init() { }
+inline void HAL_init() {}
 
 // Utility functions
 #pragma GCC diagnostic push

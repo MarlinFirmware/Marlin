@@ -266,7 +266,7 @@ class FilamentSensorBase {
       }
 
     public:
-      static inline void block_completed(const block_t* const b) { UNUSED(b); }
+      static inline void block_completed(const block_t* const) {}
 
       static inline void run() {
         const bool out = poll_runout_state(active_extruder);
@@ -353,8 +353,8 @@ class FilamentSensorBase {
       static inline void reset()                                  { runout_count = runout_threshold; }
       static inline void run()                                    { if (runout_count >= 0) runout_count--; }
       static inline bool has_run_out()                            { return runout_count < 0; }
-      static inline void block_completed(const block_t* const b)  { UNUSED(b); }
-      static inline void filament_present(const uint8_t extruder) { runout_count = runout_threshold; UNUSED(extruder); }
+      static inline void block_completed(const block_t* const)    { }
+      static inline void filament_present(const uint8_t)          { runout_count = runout_threshold; }
   };
 
 #endif // !FILAMENT_RUNOUT_DISTANCE_MM

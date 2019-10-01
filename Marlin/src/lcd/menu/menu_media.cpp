@@ -108,6 +108,7 @@ class MenuItem_sdfile {
         MenuItem_submenu::action(pstr, menu_sd_confirm);
       #else
         sdcard_start_selected_file();
+        UNUSED(pstr);
       #endif
     }
 };
