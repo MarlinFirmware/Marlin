@@ -313,7 +313,7 @@ class MenuItem_bool {
 #define _MENU_ITEM_VARIANT_P(TYPE, VARIANT, USE_MULTIPLIER, PLABEL, V...) do { \
     _skipStatic = false; \
     if (_menuLineNr == _thisItemNr) { \
-      PGM_P plabel = PLABEL; \
+      PGM_P const plabel = PLABEL; \
       if (encoderLine == _thisItemNr && ui.use_click()) { \
         _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER); \
         MenuItem_##TYPE ::action ## VARIANT(plabel, ##V); \
