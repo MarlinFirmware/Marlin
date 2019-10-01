@@ -943,7 +943,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
         pid_reset = true;
       }
       else if (pid_error > PID_FUNCTIONAL_RANGE) {
-        pid_output = BANG_MAX;
+        pid_output = MAX_BED_POWER;
         pid_reset = true;
       }
       else {
