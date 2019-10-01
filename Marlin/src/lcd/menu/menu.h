@@ -308,33 +308,34 @@ class MenuItem_bool {
  *     MenuItem_int3::action_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  */
-#define _MENU_ITEM_VARIANT_P(TYPE, VARIANT, USE_MULTIPLIER, PLABEL, V...) do { \
-    _skipStatic = false; \
-    if (_menuLineNr == _thisItemNr) { \
-      PGM_P const plabel = PLABEL; \
-      if (encoderLine == _thisItemNr && ui.use_click()) { \
-        _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER); \
-        MenuItem_##TYPE ::action ## VARIANT(plabel, ##V); \
-        if (screen_changed) return; \
-      } \
-      if (ui.should_draw()) \
-        draw_menu_item ## VARIANT ## _ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, plabel, ##V); \
-    } \
-  ++_thisItemNr; \
+#define _MENU_ITEM_VARIANT_P(TYPE, VARIANT, USE_MULTIPLIER, PLABEL, V...) do {  \
+    _skipStatic = false;                                          \
+    if (_menuLineNr == _thisItemNr) {                             \
+      PGM_P const plabel = PLABEL;                                \
+      if (encoderLine == _thisItemNr && ui.use_click()) {         \
+        _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);              \
+        MenuItem_##TYPE ::action ## VARIANT(plabel, ##V);         \
+        if (screen_changed) return;                               \
+      }                                                           \
+      if (ui.should_draw())                                       \
+        draw_menu_item ## VARIANT ## _ ## TYPE                    \
+          (encoderLine == _thisItemNr, _lcdLineNr, plabel, ##V);  \
+    }                                                             \
+  ++_thisItemNr;                                                  \
 }while(0)
 
 // Used to print static text with no visible cursor.
 // Parameters: label [, bool center [, bool invert [, char *value] ] ]
-#define STATIC_ITEM_P(PLABEL, V...) do{ \
-  if (_menuLineNr == _thisItemNr) { \
-    if (_skipStatic && encoderLine <= _thisItemNr) { \
-      ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
-      ++encoderLine; \
-    } \
-    if (ui.should_draw()) \
-      draw_menu_item_static(_lcdLineNr, PLABEL, ##V); \
-  } \
-  ++_thisItemNr; \
+#define STATIC_ITEM_P(PLABEL, V...) do{                   \
+  if (_menuLineNr == _thisItemNr) {                       \
+    if (_skipStatic && encoderLine <= _thisItemNr) {      \
+      ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;  \
+      ++encoderLine;                                      \
+    }                                                     \
+    if (ui.should_draw())                                 \
+      draw_menu_item_static(_lcdLineNr, PLABEL, ##V);     \
+  }                                                       \
+  ++_thisItemNr;                                          \
 } while(0)
 
 #define MENU_ITEM_ADDON_START(X) do{ \
