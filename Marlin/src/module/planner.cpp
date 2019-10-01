@@ -2653,7 +2653,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
-      const float duration_recip = inv_duration ? inv_duration : fr_mm_s / mm;
+      const float duration_recip = inv_duration ?: fr_mm_s / mm;
       const feedRate_t feedrate = HYPOT(delta.a - position_float.a, delta.b - position_float.b) * duration_recip;
     #else
       const feedRate_t feedrate = fr_mm_s;
