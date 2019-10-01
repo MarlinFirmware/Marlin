@@ -717,9 +717,9 @@
  */
 #define DEFAULT_MAX_FEEDRATE          { 250, 250, 20, 100 }
 
-//#define MAX_FEEDRATE_CAP // Define limit that M203 cannot exceed as 2x default
-#if ENABLED(MAX_FEEDRATE_CAP)
-  //#define MAX_FEEDRATE_MANUAL { 600, 600, 10, 50 } // Overide default limits with manual values
+//#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
+#if ENABLED(LIMITED_MAX_FR_EDITING)
+  #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 10, 50 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -730,19 +730,9 @@
  */
 #define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 100, 5000 }
 
-//#define MAX_ACCELERATION_CAP // Define limit that M201 cannot exceed as 2x default
-#if ENABLED(MAX_ACCELERATION_CAP)
-  //#define MAX_ACCELERATION_MANUAL { 6000, 6000, 200, 20000 } // Overide default limits with manual values
-#endif
-
-/**
- * Prevents M201 from writing values over these limits
- * Defaults to 2x DEFAULT_MAX_ACCELERATION
- * Override default with explicit values below
- */
-//#define LIMIT_MAX_ACCELERATION
-#if ENABLED(LIMIT_MAX_ACCELERATION)
-  //#define MAX_ACCELERATION_LIMITS { 6000, 6000, 200, 20000 }
+//#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
+#if ENABLED(LIMITED_MAX_ACCEL_EDITING)
+  #define MAX_ACCEL_EDIT_VALUES       { 6000, 6000, 200, 20000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -784,9 +774,9 @@
 #define DEFAULT_YJERK                 20.0
 #define DEFAULT_ZJERK                  0.4
 
-  //#define MAX_JERK_CAP // Define limit that M205 cannot exceed as 2x default
-  #if ENABLED(MAX_JERK_CAP)
-    //#define MAX_JERK_MANUAL { 20, 20, .6, 10 } // Overide default limits with manual values
+  //#define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
+  #if ENABLED(LIMITED_JERK_EDITING)
+    #define MAX_JERK_EDIT_VALUES { 20, 20, 0.6, 10 } // ...or, set your own edit limits
   #endif
 #endif
 
