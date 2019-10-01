@@ -581,8 +581,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const extruder_t extruder) {
-    UNUSED_E(extruder);
-    planner.set_max_feedrate(E_AXIS_N(axis - E0), value);
+    planner.set_max_feedrate(E_AXIS_N(extruder - E0), value);
   }
 
   float getAxisMaxAcceleration_mm_s2(const axis_t axis) {
@@ -599,7 +598,6 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
-    UNUSED_E(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
   }
 
@@ -653,7 +651,6 @@ namespace ExtUI {
 
     void setAxisMaxJerk_mm_s(const float value, const extruder_t) {
       planner.set_max_jerk(E_AXIS, value);
-
     }
   #endif
 

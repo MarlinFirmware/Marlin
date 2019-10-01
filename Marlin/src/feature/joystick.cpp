@@ -112,10 +112,10 @@ Joystick joystick;
     static bool injecting_now; // = false;
     if (injecting_now) return;
 
-    static constexpr int QUEUE_DEPTH = 5;                                 // Insert up to this many movements
-    static constexpr float target_lag = 0.25f,                            // Aim for 1/4 second lag
-                           seg_time = target_lag / QUEUE_DEPTH;           // 0.05 seconds, short segments inserted every 1/20th of a second
-    static constexpr millis_t timer_limit_ms = millis_t(seg_time * 500);  // 25 ms minimum delay between insertions
+    static constexpr int QUEUE_DEPTH = 5;                                // Insert up to this many movements
+    static constexpr float target_lag = 0.25f,                           // Aim for 1/4 second lag
+                           seg_time = target_lag / QUEUE_DEPTH;          // 0.05 seconds, short segments inserted every 1/20th of a second
+    static constexpr millis_t timer_limit_ms = millis_t(seg_time * 500); // 25 ms minimum delay between insertions
 
     // The planner can merge/collapse small moves, so the movement queue is unreliable to control the lag
     static millis_t next_run = 0;

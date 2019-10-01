@@ -150,11 +150,8 @@ void GcodeSuite::M205() {
     }
   #endif
   #if HAS_CLASSIC_JERK
-    if (parser.seen('X'))
-     planner.set_max_jerk(X_AXIS, parser.value_linear_units());
-
-    if (parser.seen('Y'))
-      planner.set_max_jerk(Y_AXIS, parser.value_linear_units());
+    if (parser.seen('X')) planner.set_max_jerk(X_AXIS, parser.value_linear_units());
+    if (parser.seen('Y')) planner.set_max_jerk(Y_AXIS, parser.value_linear_units());
     if (parser.seen('Z')) {
       planner.set_max_jerk(Z_AXIS, parser.value_linear_units());
       #if HAS_MESH && DISABLED(LIMITED_JERK_EDITING)
@@ -162,10 +159,8 @@ void GcodeSuite::M205() {
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
-
     #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
-      if (parser.seen('E')) planner.max_jerk.e = parser.value_linear_units();
-
+      if (parser.seen('E')) planner.set_max_jerk(E_AXIS, parser.value_linear_units());
     #endif
   #endif
 }
