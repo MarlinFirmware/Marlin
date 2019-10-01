@@ -3246,27 +3246,23 @@ void MarlinSettings::reset() {
           SERIAL_EOL();
         #endif
 
-        #define HAS_X2_SENSORLESS (defined(X_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(X2))
-        #define HAS_Y2_SENSORLESS (defined(Y_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y2))
-        #define HAS_Z2_SENSORLESS (defined(Z_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z2))
-        #define HAS_Z3_SENSORLESS (defined(Z_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z3))
-        #if HAS_X2_SENSORLESS || HAS_Y2_SENSORLESS || HAS_Z2_SENSORLESS
+        #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS
           CONFIG_ECHO_START();
           say_M914();
           SERIAL_ECHOPGM(" I1");
-          #if HAS_X2_SENSORLESS
+          #if X2_SENSORLESS
             SERIAL_ECHOPAIR(" X", stepperX2.homing_threshold());
           #endif
-          #if HAS_Y2_SENSORLESS
+          #if Y2_SENSORLESS
             SERIAL_ECHOPAIR(" Y", stepperY2.homing_threshold());
           #endif
-          #if HAS_Z2_SENSORLESS
+          #if Z2_SENSORLESS
             SERIAL_ECHOPAIR(" Z", stepperZ2.homing_threshold());
           #endif
           SERIAL_EOL();
         #endif
 
-        #if HAS_Z3_SENSORLESS
+        #if Z3_SENSORLESS
           CONFIG_ECHO_START();
           say_M914();
           SERIAL_ECHOLNPAIR(" I2 Z", stepperZ3.homing_threshold());
