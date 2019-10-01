@@ -231,7 +231,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     slow_homing_t slow_homing{0};
-    slow_homing.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS];
+    slow_homing.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
                                  planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;

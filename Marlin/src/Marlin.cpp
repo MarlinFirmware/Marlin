@@ -801,29 +801,17 @@ void minkill(const bool steppers_off/*=false*/) {
   #if HAS_KILL
 
     // Wait for kill to be released
-    while (!READ(KILL_PIN)) {
-      #if ENABLED(USE_WATCHDOG)
-        watchdog_reset();
-      #endif
-    }
+    while (!READ(KILL_PIN)) watchdog_refresh();
 
     // Wait for kill to be pressed
-    while (READ(KILL_PIN)) {
-      #if ENABLED(USE_WATCHDOG)
-        watchdog_reset();
-      #endif
-    }
+    while (READ(KILL_PIN)) watchdog_refresh();
 
     void (*resetFunc)() = 0;  // Declare resetFunc() at address 0
     resetFunc();                  // Jump to address 0
 
   #else // !HAS_KILL
 
-    for (;;) {
-      #if ENABLED(USE_WATCHDOG)
-        watchdog_reset();
-      #endif
-    } // Wait for reset
+    for (;;) watchdog_refresh(); // Wait for reset
 
   #endif // !HAS_KILL
 }

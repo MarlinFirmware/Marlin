@@ -56,28 +56,16 @@ void watchdog_init() {
   WDT_Start(WDT_TIMEOUT);
 }
 
-void HAL_clear_reset_source() {
-  WDT_ClrTimeOutFlag();
-}
-
-uint8_t HAL_get_reset_source() {
-  if (TEST(WDT_ReadTimeOutFlag(), 0)) return RST_WATCHDOG;
-  return RST_POWER_ON;
-}
-
-void watchdog_reset() {
+void HAL_watchdog_refresh() {
   WDT_Feed();
   #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
     TOGGLE(LED_PIN);  // heartbeat indicator
   #endif
 }
 
-#else
-
-void watchdog_init() {}
-void watchdog_reset() {}
-void HAL_clear_reset_source() {}
-uint8_t HAL_get_reset_source() { return RST_POWER_ON; }
+// Timeout state
+bool watchdog_timed_out() { return TEST(WDT_ReadTimeOutFlag(), 0); }
+void watchdog_clear_timeout_flag() { WDT_ClrTimeOutFlag(); }
 
 #endif // USE_WATCHDOG
 

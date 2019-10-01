@@ -44,7 +44,7 @@
     }
   }
 
-  void watchdog_reset() {
+  void HAL_watchdog_refresh() {
     /* Refresh IWDG: reload counter */
     if (HAL_IWDG_Refresh(&hiwdg) != HAL_OK) {
       /* Refresh Error */

@@ -337,7 +337,7 @@ class Stepper {
     //
     // Constructor / initializer
     //
-    Stepper() { };
+    Stepper() {};
 
     // Initialize stepper hardware
     static void init();

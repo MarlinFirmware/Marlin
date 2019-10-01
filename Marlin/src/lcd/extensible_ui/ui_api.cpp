@@ -516,13 +516,13 @@ namespace ExtUI {
 
     int getTMCBumpSensitivity(const axis_t axis) {
       switch (axis) {
-        #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
+        #if X_SENSORLESS
           case X: return stepperX.homing_threshold();
         #endif
-        #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
+        #if Y_SENSORLESS
           case Y: return stepperY.homing_threshold();
         #endif
-        #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
+        #if Z_SENSORLESS
           case Z: return stepperZ.homing_threshold();
         #endif
         default: return 0;
@@ -531,18 +531,16 @@ namespace ExtUI {
 
     void setTMCBumpSensitivity(const float value, const axis_t axis) {
       switch (axis) {
-        #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
-          case X: stepperX.homing_threshold(value); break;
-        #else
-          UNUSED(value);
-        #endif
-        #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
-          case Y: stepperY.homing_threshold(value); break;
-        #else
-          UNUSED(value);
-        #endif
-        #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
-          case Z: stepperZ.homing_threshold(value); break;
+        #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
+          #if X_SENSORLESS
+            case X: stepperX.homing_threshold(value); break;
+          #endif
+          #if Y_SENSORLESS
+            case Y: stepperY.homing_threshold(value); break;
+          #endif
+          #if Z_SENSORLESS
+            case Z: stepperZ.homing_threshold(value); break;
+          #endif
         #else
           UNUSED(value);
         #endif

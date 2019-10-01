@@ -43,6 +43,7 @@ SCREEN_TABLE {
   DECL_SCREEN(ConfirmUserRequestAlertBox),
   DECL_SCREEN(RestoreFailsafeDialogBox),
   DECL_SCREEN(SaveSettingsDialogBox),
+  DECL_SCREEN(ConfirmStartPrintDialogBox),
   DECL_SCREEN(ConfirmAbortPrintDialogBox),
 #if ENABLED(CALIBRATION_GCODE)
   DECL_SCREEN(ConfirmAutoCalibrationDialogBox),

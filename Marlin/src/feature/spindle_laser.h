@@ -70,7 +70,7 @@ public:
   #if ENABLED(SPINDLE_CHANGE_DIR)
     static void set_direction(const bool reverse);
   #else
-    static inline void set_direction(const bool reverse) { UNUSED(reverse); }
+    static inline void set_direction(const bool) {}
   #endif
 
   static inline void disable() { set_enabled(false); }

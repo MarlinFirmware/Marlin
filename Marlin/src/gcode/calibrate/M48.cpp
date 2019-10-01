@@ -176,7 +176,7 @@ void GcodeSuite::M48() {
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
             while (!position_is_reachable_by_probe(next_pos)) {
-              next_pos *= 0.8;
+              next_pos *= 0.8f;
               if (verbose_level > 3)
                 SERIAL_ECHOLNPAIR("Moving inward: X", next_pos.x, " Y", next_pos.y);
             }

@@ -169,7 +169,7 @@ class PrintJobRecovery {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     static void debug(PGM_P const prefix);
   #else
-    static inline void debug(PGM_P const prefix) { UNUSED(prefix); }
+    static inline void debug(PGM_P const) {}
   #endif
 
   private:

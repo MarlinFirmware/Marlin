@@ -2580,9 +2580,9 @@ void Stepper::report_positions() {
 
   #endif
 
-#else
+#else // PRINTRBOARD_G2
 
-  #include "../HAL/HAL_DUE/G2_PWM.h"
+  #include HAL_PATH(../HAL, fastio/G2_PWM.h)
 
 #endif
 

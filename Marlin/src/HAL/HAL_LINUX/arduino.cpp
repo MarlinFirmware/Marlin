@@ -29,7 +29,7 @@
 
 // Interrupts
 void cli() { } // Disable
-void sei() { }  // Enable
+void sei() { } // Enable
 
 // Time functions
 void _delay_ms(const int delay_ms) {

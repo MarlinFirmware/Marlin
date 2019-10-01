@@ -33,7 +33,7 @@
 #include <libmaple/iwdg.h>
 #include "watchdog.h"
 
-void watchdog_reset() {
+void HAL_watchdog_refresh() {
   #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
     TOGGLE(LED_PIN);  // heartbeat indicator
   #endif
