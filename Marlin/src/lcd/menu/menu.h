@@ -149,12 +149,13 @@ DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5_25);         // 12345      right-justif
 
 class MenuItem_back {
   public:
-    static inline void action(PGM_P const) {
+    static inline void action(PGM_P const dummy=nullptr) {
       ui.goto_previous_screen(
         #if ENABLED(TURBO_BACK_MENU_ITEM)
           true
         #endif
       );
+      UNUSED(dummy);
     }
 };
 
