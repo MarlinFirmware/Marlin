@@ -111,8 +111,7 @@ FORCE_INLINE void draw_menu_item_edit_P(const bool sel, const uint8_t row, PGM_P
 ////////////////////////////////////////////
 
 #define _DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(TYPE, NAME, STRFUNC) \
-  FORCE_INLINE void draw_menu_item_edit_##NAME (const bool sel, const uint8_t row, PGM_P const pstr, PGM_P const pstr2, TYPE * const data, ...) { \
-    UNUSED(pstr2); \
+  FORCE_INLINE void draw_menu_item_edit_##NAME (const bool sel, const uint8_t row, PGM_P const pstr, TYPE * const data, ...) { \
     DRAW_MENU_ITEM_SETTING_EDIT_GENERIC(STRFUNC(*(data))); \
   } \
   FORCE_INLINE void draw_menu_item_edit_accessor_##NAME (const bool sel, const uint8_t row, PGM_P const pstr, PGM_P const pstr2, TYPE (*pget)(), void (*pset)(TYPE), ...) { \
@@ -141,8 +140,8 @@ DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52sign);      // +123.45
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5);            // 12345      right-justified
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5_25);         // 12345      right-justified (25 increment)
 
-#define draw_menu_item_edit_bool(sel, row, pstr, pstr2, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
-#define draw_menu_item_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
+#define draw_menu_item_edit_bool(sel, row, pstr, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
+#define draw_menu_item_edit_accessor_bool(sel, row, pstr, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
 
 ////////////////////////////////////////////
 /////////////// Menu Actions ///////////////
@@ -150,28 +149,29 @@ DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5_25);         // 12345      right-justif
 
 class MenuItem_back {
   public:
-    static inline void action() {
+    static inline void action(PGM_P const dummy=nullptr) {
       ui.goto_previous_screen(
         #if ENABLED(TURBO_BACK_MENU_ITEM)
           true
         #endif
       );
+      UNUSED(dummy);
     }
 };
 
 class MenuItem_submenu {
   public:
-    static inline void action(const screenFunc_t func) { ui.save_previous_screen(); ui.goto_screen(func); }
+    static inline void action(PGM_P const, const screenFunc_t func) { ui.save_previous_screen(); ui.goto_screen(func); }
 };
 
 class MenuItem_gcode {
   public:
-    static void action(const char * const pgcode);
+    static void action(PGM_P const, const char * const pgcode);
 };
 
 class MenuItem_function {
   public:
-    static inline void action(const menuAction_t func) { (*func)(); };
+    static inline void action(PGM_P const, const menuAction_t func) { (*func)(); };
 };
 
 ////////////////////////////////////////////
@@ -306,20 +306,21 @@ class MenuItem_bool {
  *     MenuItem_function::action(lcd_sdcard_pause)
  *
  *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
- *     draw_menu_item_edit_int3(sel, row, PSTR(MSG_SPEED), PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *     draw_menu_item_edit_int3(sel, row, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *     MenuItem_int3::action_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  */
 #define _MENU_ITEM_VARIANT_P(TYPE, VARIANT, USE_MULTIPLIER, PLABEL, V...) do { \
     _skipStatic = false; \
     if (_menuLineNr == _thisItemNr) { \
+      PGM_P const plabel = PLABEL; \
       if (encoderLine == _thisItemNr && ui.use_click()) { \
         _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER); \
-        MenuItem_##TYPE ::action ## VARIANT(V); \
+        MenuItem_##TYPE ::action ## VARIANT(plabel, ##V); \
         if (screen_changed) return; \
       } \
       if (ui.should_draw()) \
-        draw_menu_item ## VARIANT ## _ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PLABEL, ##V); \
+        draw_menu_item ## VARIANT ## _ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, plabel, ##V); \
     } \
   ++_thisItemNr; \
 }while(0)
@@ -348,12 +349,12 @@ class MenuItem_bool {
 
 #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL)
 #define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
-#define MENU_ITEM_P(TYPE, PLABEL, V...)                       _MENU_ITEM_VARIANT_P(TYPE,      , false, PLABEL,                   ##V)
-#define MENU_ITEM(TYPE, LABEL, V...)                          _MENU_ITEM_VARIANT_P(TYPE,      , false, PSTR(LABEL),              ##V)
-#define MENU_ITEM_EDIT(TYPE, LABEL, V...)                     _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), PSTR(LABEL), ##V)
-#define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, V...)            _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), PSTR(LABEL), ##V)
-#define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, V...)          _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), PSTR(LABEL), ##V)
-#define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, V...) _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), PSTR(LABEL), ##V)
+#define MENU_ITEM_P(TYPE, PLABEL, V...)                       _MENU_ITEM_VARIANT_P(TYPE,      , false, PLABEL,      ##V)
+#define MENU_ITEM(TYPE, LABEL, V...)                          _MENU_ITEM_VARIANT_P(TYPE,      , false, PSTR(LABEL), ##V)
+#define MENU_ITEM_EDIT(TYPE, LABEL, V...)                     _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), ##V)
+#define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, V...)            _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), ##V)
+#define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, V...)          _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), ##V)
+#define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, V...) _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), ##V)
 
 ////////////////////////////////////////////
 /////////////// Menu Screens ///////////////
