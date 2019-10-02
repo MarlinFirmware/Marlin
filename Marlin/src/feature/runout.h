@@ -46,6 +46,8 @@
   #define FILAMENT_RUNOUT_THRESHOLD 5
 #endif
 
+void event_filament_runout();
+
 class FilamentMonitorBase {
   public:
     static bool enabled, filament_ran_out;

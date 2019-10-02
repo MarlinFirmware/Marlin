@@ -102,15 +102,20 @@ void GcodeSuite::M701() {
   #if ENABLED(PRUSA_MMU2)
     mmu2.load_filament_to_nozzle(target_extruder);
   #else
-    constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
-    const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
-                                                        : fc_settings[active_extruder].load_length);
-    load_filament(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS,
-                  true, thermalManager.still_heating(target_extruder), PAUSE_MODE_LOAD_FILAMENT
-                  #if ENABLED(DUAL_X_CARRIAGE)
-                    , target_extruder
-                  #endif
-                );
+    constexpr float     purge_length = ADVANCED_PAUSE_PURGE_LENGTH,
+                    slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
+        const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
+                                                            : fc_settings[active_extruder].load_length);
+    load_filament(
+      slow_load_length, fast_load_length, purge_length,
+      FILAMENT_CHANGE_ALERT_BEEPS,
+      true,                                           // show_lcd
+      thermalManager.still_heating(target_extruder),  // pause_for_user
+      PAUSE_MODE_LOAD_FILAMENT                        // pause_mode
+      #if ENABLED(DUAL_X_CARRIAGE)
+        , target_extruder                             // Dual X target
+      #endif
+    );
   #endif
 
   // Restore Z axis

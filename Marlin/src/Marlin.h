@@ -371,10 +371,6 @@ void protected_pin_err();
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }
 #endif
 
-#if HAS_FILAMENT_SENSOR
-  void event_filament_runout();
-#endif
-
 #if ENABLED(G29_RETRY_AND_RECOVER)
   void event_probe_recover();
   void event_probe_failure();
