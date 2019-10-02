@@ -87,7 +87,7 @@ extern "C" {
 // Return free memory between end of heap (or end bss) and whatever is current
 int freeMemory() {
   int free_memory, heap_end = (int)_sbrk(0);
-  return (int)&free_memory - (heap_end ? heap_end : (int)&_ebss);
+  return (int)&free_memory - (heap_end ?: (int)&_ebss);
 }
 
 // ------------------------

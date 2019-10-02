@@ -2653,7 +2653,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
-      const float duration_recip = inv_duration ? inv_duration : fr_mm_s / mm;
+      const float duration_recip = inv_duration ?: fr_mm_s / mm;
       const feedRate_t feedrate = HYPOT(delta.a - position_float.a, delta.b - position_float.b) * duration_recip;
     #else
       const feedRate_t feedrate = fr_mm_s;
@@ -2770,6 +2770,68 @@ void Planner::refresh_positioning() {
   LOOP_XYZE_N(i) steps_to_mm[i] = 1.0f / settings.axis_steps_per_mm[i];
   set_position_mm(current_position);
   reset_acceleration_rates();
+}
+
+inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_name, const xyze_float_t &max_limit) {
+  const uint8_t lim_axis = axis > E_AXIS ? E_AXIS : axis;
+  const float before = val;
+  LIMIT(val, 1, max_limit[lim_axis]);
+  if (before != val) {
+    SERIAL_CHAR(axis_codes[lim_axis]);
+    SERIAL_ECHOPGM(" Max ");
+    serialprintPGM(setting_name);
+    SERIAL_ECHOLNPAIR(" limited to ", val);
+  }
+}
+
+void Planner::set_max_acceleration(const uint8_t axis, float targetValue) {
+  #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
+    #ifdef MAX_ACCEL_EDIT_VALUES
+      constexpr xyze_float_t max_accel_edit = MAX_ACCEL_EDIT_VALUES;
+      const xyze_float_t &max_acc_edit_scaled = max_accel_edit;
+    #else
+      constexpr xyze_float_t max_accel_edit = DEFAULT_MAX_ACCELERATION,
+                             max_acc_edit_scaled = max_accel_edit * 2;
+    #endif
+    limit_and_warn(targetValue, axis, PSTR("Acceleration"), max_acc_edit_scaled);
+  #endif
+  settings.max_acceleration_mm_per_s2[axis] = targetValue;
+
+  // Update steps per s2 to agree with the units per s2 (since they are used in the planner)
+  reset_acceleration_rates();
+}
+
+void Planner::set_max_feedrate(const uint8_t axis, float targetValue) {
+  #if ENABLED(LIMITED_MAX_FR_EDITING)
+    #ifdef MAX_FEEDRATE_EDIT_VALUES
+      constexpr xyze_float_t max_fr_edit = MAX_FEEDRATE_EDIT_VALUES;
+      const xyze_float_t &max_fr_edit_scaled = max_fr_edit;
+    #else
+      constexpr xyze_float_t max_fr_edit = DEFAULT_MAX_FEEDRATE,
+                             max_fr_edit_scaled = max_fr_edit * 2;
+    #endif
+    limit_and_warn(targetValue, axis, PSTR("Feedrate"), max_fr_edit_scaled);
+  #endif
+  settings.max_feedrate_mm_s[axis] = targetValue;
+}
+
+void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
+  #if HAS_CLASSIC_JERK
+    #if ENABLED(LIMITED_JERK_EDITING)
+      constexpr xyze_float_t max_jerk_edit =
+        #ifdef MAX_JERK_EDIT_VALUES
+          MAX_JERK_EDIT_VALUES
+        #else
+          { (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2,
+            (DEFAULT_ZJERK) * 2, (DEFAULT_EJERK) * 2 }
+        #endif
+      ;
+      limit_and_warn(targetValue, axis, PSTR("Jerk"), max_jerk_edit);
+    #endif
+    max_jerk[axis] = targetValue;
+  #else
+    UNUSED(axis); UNUSED(targetValue);
+  #endif
 }
 
 #if ENABLED(AUTOTEMP)

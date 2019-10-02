@@ -762,7 +762,7 @@ void kill(PGM_P const lcd_msg/*=nullptr*/, const bool steppers_off/*=false*/) {
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
   #if HAS_DISPLAY
-    ui.kill_screen(lcd_msg ? lcd_msg : PSTR(MSG_KILLED));
+    ui.kill_screen(lcd_msg ?: PSTR(MSG_KILLED));
   #else
     UNUSED(lcd_msg);
   #endif

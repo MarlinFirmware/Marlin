@@ -344,8 +344,8 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
 void do_blocking_move_to(const float rx, const float ry, const float rz, const feedRate_t &fr_mm_s/*=0.0*/) {
   if (DEBUGGING(LEVELING)) DEBUG_XYZ(">>> do_blocking_move_to", rx, ry, rz);
 
-  const feedRate_t z_feedrate = fr_mm_s ? fr_mm_s : homing_feedrate(Z_AXIS),
-                  xy_feedrate = fr_mm_s ? fr_mm_s : feedRate_t(XY_PROBE_FEEDRATE_MM_S);
+  const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS),
+                  xy_feedrate = fr_mm_s ?: feedRate_t(XY_PROBE_FEEDRATE_MM_S);
 
   #if ENABLED(DELTA)
 
@@ -1255,7 +1255,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     #endif
   }
 
-  const feedRate_t real_fr_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate(axis);
+  const feedRate_t real_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
   #if IS_SCARA
     // Tell the planner the axis is at 0
     current_position[axis] = 0;
