@@ -135,7 +135,7 @@
 #define MSG_UBL_INVALIDATE_ALL              _UxGT("Invalidar tudo")
 #define MSG_UBL_INVALIDATE_CLOSEST          _UxGT("Invalidar próximo")
 #define MSG_UBL_FINE_TUNE_ALL               _UxGT("Ajuste Fino de Todos")
-#define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Ajuar Mais Próximo")
+#define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Ajustar Mais Próximo")
 #define MSG_UBL_STORAGE_MESH_MENU           _UxGT("Armazenamento Malha")
 #define MSG_UBL_STORAGE_SLOT                _UxGT("Slot de Memória")
 #define MSG_UBL_LOAD_MESH                   _UxGT("Ler Malha")
@@ -326,7 +326,7 @@
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Intensidade Brilho")
 #define MSG_INFO_PRINT_COUNT                _UxGT("Qtd Impressões")
 #define MSG_INFO_COMPLETED_PRINTS           _UxGT("Completas")
-#define MSG_INFO_PRINT_TIME                 _UxGT("Tempo de Imprimindo")
+#define MSG_INFO_PRINT_TIME                 _UxGT("Tempo de Impressão")
 #define MSG_INFO_PRINT_LONGEST              _UxGT("Impressão Mais Longa")
 #define MSG_INFO_PRINT_FILAMENT             _UxGT("Depositado")
 #define MSG_INFO_MIN_TEMP                   _UxGT("Temp Min")
@@ -371,7 +371,7 @@
 
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Esperando impressão")
   #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("continuar")
-#else LCD_HEIGHT < 4
+#else // LCD_HEIGHT < 4
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Aguarde...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Ejetando...")
   #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Insira e Clique")

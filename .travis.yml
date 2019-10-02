@@ -1,4 +1,4 @@
-dist: trusty
+dist: bionic
 sudo: true
   #
 language: c
@@ -23,9 +23,9 @@ before_install:
 install:
   #
   # Install arduino 1.8.5
-  - wget http://downloads-02.arduino.cc/arduino-1.8.5-linux64.tar.xz
-  - tar xf arduino-1.8.5-linux64.tar.xz
-  - sudo mv arduino-1.8.5 /usr/local/share/arduino
+  - wget http://downloads.arduino.cc/arduino-1.8.9-linux64.tar.xz
+  - tar xf arduino-1.8.9-linux64.tar.xz
+  - sudo mv arduino-1.8.9 /usr/local/share/arduino
   - ln -s /usr/local/share/arduino/arduino ${TRAVIS_BUILD_DIR}/buildroot/bin/arduino
   #
   # Install: LiquidCrystal_I2C library
