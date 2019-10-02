@@ -801,7 +801,7 @@ void GcodeSuite::G26() {
           #endif
 
           xyz_float_t p = { circle.x + _COS(ind    ), circle.y + _SIN(ind    ), g26_layer_height },
-                     q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26_layer_height };
+                      q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26_layer_height };
 
           #if IS_KINEMATIC
             // Check to make sure this segment is entirely on the bed, skip if not.
