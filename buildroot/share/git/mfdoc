@@ -16,14 +16,16 @@ BRANCH=${INFO[5]}
 [[ $ORG == "MarlinFirmware" && $REPO == "MarlinDocumentation" ]] || { echo "Wrong repository." 1>&2; exit 1; }
 
 opensite() {
-  TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
+  which xdg-open >/dev/null && TOOL=xdg-open
+  which gnome-open >/dev/null && TOOL=gnome-open
+  which open >/dev/null && TOOL=open
   URL="http://127.0.0.1:4000/"
-  if [ -z "$TOOL" ]; then
+  if [ -z "$OPEN" ]; then
     echo "Can't find a tool to open the URL:"
     echo $URL
   else
     echo "Opening preview site in the browser..."
-    "$TOOL" "$URL"
+    "$OPEN" "$URL"
   fi
 }
 
