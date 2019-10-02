@@ -381,7 +381,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
  * - Park the nozzle at the given position
  * - Call unload_filament (if a length was specified)
  *
- * Returns 'true' if pause was completed, 'false' for abort
+ * Return 'true' if pause was completed, 'false' for abort
  */
 uint8_t did_pause_print = 0;
 
@@ -603,7 +603,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 /**
  * Resume or Start print procedure
  *
- * - Abort if not paused
+ * - If not paused, do nothing and return
  * - Reset heater idle timers
  * - Load filament if specified, but only if:
  *   - a nozzle timed out, or

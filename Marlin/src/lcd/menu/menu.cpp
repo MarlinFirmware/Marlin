@@ -30,7 +30,7 @@
 #include "../../module/motion.h"
 #include "../../module/printcounter.h"
 #include "../../gcode/queue.h"
-#include "../../sd/cardreader.h"
+
 #if HAS_BUZZER
   #include "../../libs/buzzer.h"
 #endif
@@ -206,8 +206,10 @@ void MenuItem_bool::action(PGM_P pstr, bool *ptr, screenFunc_t callback) {
   void _lcd_set_z_fade_height() { set_z_fade_height(lcd_z_fade_height); }
 #endif
 
+#include "../../Marlin.h"
+
 bool printer_busy() {
-  return planner.movesplanned() || IS_SD_PRINTING() || print_job_timer.isRunning();
+  return planner.movesplanned() || printingIsActive();
 }
 
 /**

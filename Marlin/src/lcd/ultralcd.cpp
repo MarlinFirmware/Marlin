@@ -1427,11 +1427,12 @@ void MarlinUI::update() {
 
   #include "../module/printcounter.h"
 
+  static const char print_paused[] PROGMEM = MSG_PRINT_PAUSED;
+
   /**
    * Reset the status message
    */
   void MarlinUI::reset_status() {
-    static const char paused[] PROGMEM = MSG_PRINT_PAUSED;
     static const char printing[] PROGMEM = MSG_PRINTING;
     static const char welcome[] PROGMEM = WELCOME_MSG;
     #if SERVICE_INTERVAL_1 > 0
@@ -1444,8 +1445,8 @@ void MarlinUI::update() {
       static const char service3[] PROGMEM = { "> " SERVICE_NAME_3 "!" };
     #endif
     PGM_P msg;
-    if (!IS_SD_PRINTING() && print_job_timer.isPaused())
-      msg = paused;
+    if (printingIsPaused())
+      msg = print_paused;
     #if ENABLED(SDSUPPORT)
       else if (IS_SD_PRINTING())
         return set_status(card.longest_filename(), true);
@@ -1508,7 +1509,7 @@ void MarlinUI::update() {
       host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume"));
     #endif
 
-    set_status_P(PSTR(MSG_PRINT_PAUSED));
+    set_status_P(print_paused); // MSG_PRINT_PAUSED
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       #if HAS_SPI_LCD
@@ -1527,9 +1528,7 @@ void MarlinUI::update() {
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       wait_for_heatup = wait_for_user = false;
     #endif
-    #if ENABLED(SDSUPPORT)
-      if (card.isPaused()) queue.inject_P(PSTR("M24"));
-    #endif
+    if (IS_SD_PAUSED()) queue.inject_P(PSTR("M24"));
     #ifdef ACTION_ON_RESUME
       host_action_resume();
     #endif

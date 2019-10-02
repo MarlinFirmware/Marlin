@@ -427,6 +427,20 @@ void disable_all_steppers() {
 #endif
 
 /**
+ * Printing is active when the print job timer is running
+ */
+bool printingIsActive() {
+  return print_job_timer.isRunning() || IS_SD_PRINTING();
+}
+
+/**
+ * Printing is paused according to SD or host indicators
+ */
+bool printingIsPaused() {
+  return print_job_timer.isPaused() || IS_SD_PAUSED();
+}
+
+/**
  * Manage several activities:
  *  - Check for Filament Runout
  *  - Keep the command buffer full

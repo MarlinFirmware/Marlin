@@ -331,6 +331,9 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
+bool printingIsActive();
+bool printingIsPaused();
+
 extern bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
