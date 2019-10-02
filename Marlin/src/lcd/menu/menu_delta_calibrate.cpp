@@ -94,14 +94,13 @@ void _man_probe_pt(const xy_pos_t &xy) {
 
 #endif
 
-void _recalc_delta_settings() {
-  #if HAS_LEVELING
-    reset_bed_level(); // After changing kinematics bed-level data is no longer valid
-  #endif
-  recalc_delta_settings();
-}
-
 void lcd_delta_settings() {
+  auto _recalc_delta_settings = []() {
+    #if HAS_LEVELING
+      reset_bed_level(); // After changing kinematics bed-level data is no longer valid
+    #endif
+    recalc_delta_settings();
+  };
   START_MENU();
   BACK_ITEM(MSG_DELTA_CALIBRATE);
   EDIT_ITEM(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);

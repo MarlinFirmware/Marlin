@@ -224,15 +224,6 @@ void _lcd_ubl_validate_mesh() {
 }
 
 /**
- * UBL Grid Leveling Command
- */
-void _lcd_ubl_grid_level_cmd() {
-  char ubl_lcd_gcode[12];
-  sprintf_P(ubl_lcd_gcode, PSTR("G29 J%i"), side_points);
-  lcd_enqueue_one_now(ubl_lcd_gcode);
-}
-
-/**
  * UBL Grid Leveling submenu
  *
  * << UBL Tools
@@ -243,7 +234,11 @@ void _lcd_ubl_grid_level() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
   EDIT_ITEM(int3, MSG_UBL_SIDE_POINTS, &side_points, 2, 6);
-  ACTION_ITEM(MSG_UBL_MESH_LEVEL, _lcd_ubl_grid_level_cmd);
+  ACTION_ITEM(MSG_UBL_MESH_LEVEL, [](){
+    char ubl_lcd_gcode[12];
+    sprintf_P(ubl_lcd_gcode, PSTR("G29 J%i"), side_points);
+    lcd_enqueue_one_now(ubl_lcd_gcode);
+  });
   END_MENU();
 }
 

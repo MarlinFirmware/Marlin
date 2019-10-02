@@ -54,13 +54,6 @@ void menu_advanced_settings();
   void menu_delta_calibrate();
 #endif
 
-static void lcd_factory_settings() {
-  settings.reset();
-  #if HAS_BUZZER
-    ui.completion_feedback();
-  #endif
-}
-
 #if ENABLED(LCD_PROGRESS_BAR_TEST)
 
   #include "../lcdprint.h"
@@ -166,12 +159,10 @@ static void lcd_factory_settings() {
 
     GCODES_ITEM(MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
     const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
-
     GCODES_ITEM(MSG_IDEX_MODE_DUPLICATE, need_g28
       ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
       : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
     );
-
     GCODES_ITEM(MSG_IDEX_MODE_MIRRORED_COPY, need_g28
       ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
       : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
@@ -408,7 +399,12 @@ void menu_configuration() {
   #endif
 
   if (!busy)
-    ACTION_ITEM(MSG_RESTORE_FAILSAFE, lcd_factory_settings);
+    ACTION_ITEM(MSG_RESTORE_FAILSAFE, [](){
+      settings.reset();
+      #if HAS_BUZZER
+        ui.completion_feedback();
+      #endif
+    });
 
   END_MENU();
 }

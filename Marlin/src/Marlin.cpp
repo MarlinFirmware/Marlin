@@ -275,6 +275,10 @@ void quickstop_stepper() {
   sync_plan_position();
 }
 
+void enable_e_steppers() {
+  enable_E0(); enable_E1(); enable_E2(); enable_E3(); enable_E4(); enable_E5();
+}
+
 void enable_all_steppers() {
   #if ENABLED(AUTO_POWER_CONTROL)
     powerManager.power_on();
@@ -282,30 +286,11 @@ void enable_all_steppers() {
   enable_X();
   enable_Y();
   enable_Z();
-  enable_E0();
-  enable_E1();
-  enable_E2();
-  enable_E3();
-  enable_E4();
-  enable_E5();
-}
-
-void enable_e_steppers() {
-  enable_E0();
-  enable_E1();
-  enable_E2();
-  enable_E3();
-  enable_E4();
-  enable_E5();
+  enable_e_steppers();
 }
 
 void disable_e_steppers() {
-  disable_E0();
-  disable_E1();
-  disable_E2();
-  disable_E3();
-  disable_E4();
-  disable_E5();
+  disable_E0(); disable_E1(); disable_E2(); disable_E3(); disable_E4(); disable_E5();
 }
 
 void disable_e_stepper(const uint8_t e) {

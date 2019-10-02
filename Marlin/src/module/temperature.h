@@ -595,15 +595,6 @@ class Temperature {
 
     #if HOTENDS
 
-      #if HAS_LCD_MENU
-        static inline void start_watching_E0() { start_watching_hotend(0); }
-        static inline void start_watching_E1() { start_watching_hotend(1); }
-        static inline void start_watching_E2() { start_watching_hotend(2); }
-        static inline void start_watching_E3() { start_watching_hotend(3); }
-        static inline void start_watching_E4() { start_watching_hotend(4); }
-        static inline void start_watching_E5() { start_watching_hotend(5); }
-      #endif
-
       static void setTargetHotend(const int16_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
         #ifdef MILLISECONDS_PREHEAT_TIME
