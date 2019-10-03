@@ -293,17 +293,17 @@ class MenuItem_bool {
  *   MenuItem_<type>::action[_variant](arg3...)
  *
  * Examples:
- *   MENU_ITEM(back, MSG_WATCH, 0 [dummy parameter] )
- *   or
- *   MENU_BACK(MSG_WATCH)
+ *   BACK_ITEM(MSG_WATCH)
+ *   MENU_ITEM(back, MSG_WATCH)
  *     draw_menu_item_back(sel, row, PSTR(MSG_WATCH))
  *     MenuItem_back::action()
  *
+ *   ACTION_ITEM(MSG_PAUSE_PRINT, lcd_sdcard_pause)
  *   MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause)
  *     draw_menu_item_function(sel, row, PSTR(MSG_PAUSE_PRINT), lcd_sdcard_pause)
  *     MenuItem_function::action(lcd_sdcard_pause)
  *
- *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
+ *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
  *     draw_menu_item_edit_int3(sel, row, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *     MenuItem_int3::action_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
@@ -346,14 +346,16 @@ class MenuItem_bool {
 
 #define STATIC_ITEM(LABEL, V...) STATIC_ITEM_P(PSTR(LABEL), ##V)
 
-#define MENU_BACK(LABEL) MENU_ITEM(back, LABEL)
-#define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
-#define MENU_ITEM_P(TYPE, PLABEL, V...)                       _MENU_ITEM_VARIANT_P(TYPE,      , false, PLABEL,      ##V)
-#define MENU_ITEM(TYPE, LABEL, V...)                          _MENU_ITEM_VARIANT_P(TYPE,      , false, PSTR(LABEL), ##V)
-#define MENU_ITEM_EDIT(TYPE, LABEL, V...)                     _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), ##V)
-#define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, V...)            _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), ##V)
-#define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, V...)          _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), ##V)
-#define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, V...) _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), ##V)
+#define MENU_ITEM_P(TYPE, PLABEL, V...)   _MENU_ITEM_VARIANT_P(TYPE,      , false, PLABEL,      ##V)
+#define MENU_ITEM(TYPE, LABEL, V...)      _MENU_ITEM_VARIANT_P(TYPE,      , false, PSTR(LABEL), ##V)
+#define EDIT_ITEM(TYPE, LABEL, V...)      _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), ##V)
+#define EDIT_ITEM_FAST(TYPE, LABEL, V...) _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), ##V)
+
+#define SKIP_ITEM()                 (_thisItemNr++)
+#define BACK_ITEM(LABEL)            MENU_ITEM(back,LABEL)
+#define SUBMENU(LABEL, DEST)        MENU_ITEM(submenu, LABEL, DEST)
+#define GCODES_ITEM(LABEL, GCODES)  MENU_ITEM(gcode, LABEL, GCODES)
+#define ACTION_ITEM(LABEL, ACTION)  MENU_ITEM(function, LABEL, ACTION)
 
 ////////////////////////////////////////////
 /////////////// Menu Screens ///////////////

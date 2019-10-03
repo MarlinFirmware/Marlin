@@ -32,7 +32,7 @@
 #include "../../module/stepper/indirection.h"
 #include "../../feature/tmc_util.h"
 
-#define TMC_EDIT_STORED_I_RMS(ST,MSG) MENU_ITEM_EDIT_CALLBACK(uint16_4, MSG, &stepper##ST.val_mA, 100, 3000, refresh_stepper_current_##ST)
+#define TMC_EDIT_STORED_I_RMS(ST,MSG) EDIT_ITEM(uint16_4, MSG, &stepper##ST.val_mA, 100, 3000, refresh_stepper_current_##ST)
 
 #if AXIS_IS_TMC(X)
   void refresh_stepper_current_X()  { stepperX.refresh_stepper_current();  }
@@ -76,7 +76,7 @@
 
 void menu_tmc_current() {
   START_MENU();
-  MENU_BACK(MSG_TMC_DRIVERS);
+  BACK_ITEM(MSG_TMC_DRIVERS);
   #if AXIS_IS_TMC(X)
     TMC_EDIT_STORED_I_RMS(X, MSG_X);
   #endif
@@ -121,7 +121,7 @@ void menu_tmc_current() {
 
 #if ENABLED(HYBRID_THRESHOLD)
 
-  #define TMC_EDIT_STORED_HYBRID_THRS(ST, MSG) MENU_ITEM_EDIT_CALLBACK(uint8, MSG, &stepper##ST.stored.hybrid_thrs, 0, 255, refresh_hybrid_thrs_##ST);
+  #define TMC_EDIT_STORED_HYBRID_THRS(ST, MSG) EDIT_ITEM(uint8, MSG, &stepper##ST.stored.hybrid_thrs, 0, 255, refresh_hybrid_thrs_##ST);
 
   #if AXIS_HAS_STEALTHCHOP(X)
     void refresh_hybrid_thrs_X()  {  stepperX.refresh_hybrid_thrs(); }
@@ -165,7 +165,7 @@ void menu_tmc_current() {
 
   void menu_tmc_hybrid_thrs() {
     START_MENU();
-    MENU_BACK(MSG_TMC_DRIVERS);
+    BACK_ITEM(MSG_TMC_DRIVERS);
     #if AXIS_HAS_STEALTHCHOP(X)
       TMC_EDIT_STORED_HYBRID_THRS(X, MSG_X);
     #endif
@@ -212,7 +212,7 @@ void menu_tmc_current() {
 
 #if ENABLED(SENSORLESS_HOMING)
 
-  #define TMC_EDIT_STORED_SGT(ST) MENU_ITEM_EDIT_CALLBACK(int4, MSG_##ST, &stepper##ST.stored.homing_thrs, stepper##ST.sgt_min, stepper##ST.sgt_max, refresh_homing_thrs_##ST);
+  #define TMC_EDIT_STORED_SGT(ST) EDIT_ITEM(int4, MSG_##ST, &stepper##ST.stored.homing_thrs, stepper##ST.sgt_min, stepper##ST.sgt_max, refresh_homing_thrs_##ST);
 
   #if X_SENSORLESS
     void refresh_homing_thrs_X()  { stepperX.refresh_homing_thrs();  }
@@ -229,7 +229,7 @@ void menu_tmc_current() {
 
   void menu_tmc_homing_thrs() {
     START_MENU();
-    MENU_BACK(MSG_TMC_DRIVERS);
+    BACK_ITEM(MSG_TMC_DRIVERS);
     #if X_SENSORLESS
       TMC_EDIT_STORED_SGT(X);
     #endif
@@ -249,7 +249,7 @@ void menu_tmc_current() {
 
 #if HAS_STEALTHCHOP
 
-  #define TMC_EDIT_STEP_MODE(ST, MSG) MENU_ITEM_EDIT_CALLBACK(bool, MSG, &stepper##ST.stored.stealthChop_enabled, refresh_stepping_mode_##ST)
+  #define TMC_EDIT_STEP_MODE(ST, MSG) EDIT_ITEM(bool, MSG, &stepper##ST.stored.stealthChop_enabled, refresh_stepping_mode_##ST)
 
   #if AXIS_HAS_STEALTHCHOP(X)
     void refresh_stepping_mode_X()  { stepperX.refresh_stepping_mode();  }
@@ -294,7 +294,7 @@ void menu_tmc_current() {
   void menu_tmc_step_mode() {
     START_MENU();
     STATIC_ITEM(MSG_TMC_STEALTH_ENABLED);
-    MENU_BACK(MSG_TMC_DRIVERS);
+    BACK_ITEM(MSG_TMC_DRIVERS);
     #if AXIS_HAS_STEALTHCHOP(X)
       TMC_EDIT_STEP_MODE(X, MSG_X);
     #endif
@@ -341,16 +341,16 @@ void menu_tmc_current() {
 
 void menu_tmc() {
   START_MENU();
-  MENU_BACK(MSG_CONTROL);
-  MENU_ITEM(submenu, MSG_TMC_CURRENT, menu_tmc_current);
+  BACK_ITEM(MSG_CONTROL);
+  SUBMENU(MSG_TMC_CURRENT, menu_tmc_current);
   #if ENABLED(HYBRID_THRESHOLD)
-    MENU_ITEM(submenu, MSG_TMC_HYBRID_THRS, menu_tmc_hybrid_thrs);
+    SUBMENU(MSG_TMC_HYBRID_THRS, menu_tmc_hybrid_thrs);
   #endif
   #if ENABLED(SENSORLESS_HOMING)
-    MENU_ITEM(submenu, MSG_TMC_HOMING_THRS, menu_tmc_homing_thrs);
+    SUBMENU(MSG_TMC_HOMING_THRS, menu_tmc_homing_thrs);
   #endif
   #if HAS_STEALTHCHOP
-    MENU_ITEM(submenu, MSG_TMC_STEPPING_MODE, menu_tmc_step_mode);
+    SUBMENU(MSG_TMC_STEPPING_MODE, menu_tmc_step_mode);
   #endif
   END_MENU();
 }

@@ -92,10 +92,10 @@ static void lcd_factory_settings() {
   void menu_debug() {
     START_MENU();
 
-    MENU_BACK(MSG_CONFIGURATION);
+    BACK_ITEM(MSG_CONFIGURATION);
 
     #if ENABLED(LCD_PROGRESS_BAR_TEST)
-      MENU_ITEM(submenu, MSG_PROGRESS_BAR_TEST, _progress_bar_test);
+      SUBMENU(MSG_PROGRESS_BAR_TEST, _progress_bar_test);
     #endif
 
     END_MENU();
@@ -109,7 +109,7 @@ static void lcd_factory_settings() {
 
   void menu_tool_change() {
     START_MENU();
-    MENU_BACK(MSG_CONFIGURATION);
+    BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       static constexpr float max_extrude =
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
@@ -118,12 +118,12 @@ static void lcd_factory_settings() {
           500
         #endif
       ;
-      MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, max_extrude);
-      MENU_ITEM_EDIT(float3, MSG_FILAMENT_PURGE_LENGTH, &toolchange_settings.extra_prime, 0, max_extrude);
-      MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
-      MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);
+      EDIT_ITEM(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, max_extrude);
+      EDIT_ITEM(float3, MSG_FILAMENT_PURGE_LENGTH, &toolchange_settings.extra_prime, 0, max_extrude);
+      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
+      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);
     #endif
-    MENU_ITEM_EDIT(float3, MSG_TOOL_CHANGE_ZLIFT, &toolchange_settings.z_raise, 0, 10);
+    EDIT_ITEM(float3, MSG_TOOL_CHANGE_ZLIFT, &toolchange_settings.z_raise, 0, 10);
     END_MENU();
   }
 
@@ -143,16 +143,16 @@ static void lcd_factory_settings() {
     };
 
     START_MENU();
-    MENU_BACK(MSG_CONFIGURATION);
+    BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(DUAL_X_CARRIAGE)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_X_OFFSET, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
+      EDIT_ITEM_FAST(float51, MSG_X_OFFSET, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
     #else
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52sign, MSG_X_OFFSET, &hotend_offset[1].x, -99.0, 99.0, _recalc_offsets);
+      EDIT_ITEM_FAST(float52sign, MSG_X_OFFSET, &hotend_offset[1].x, -99.0, 99.0, _recalc_offsets);
     #endif
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52sign, MSG_Y_OFFSET, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52sign, MSG_Z_OFFSET, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
+    EDIT_ITEM_FAST(float52sign, MSG_Y_OFFSET, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
+    EDIT_ITEM_FAST(float52sign, MSG_Z_OFFSET, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
+      ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
     #endif
     END_MENU();
   }
@@ -162,19 +162,21 @@ static void lcd_factory_settings() {
 
   void menu_idex() {
     START_MENU();
-    MENU_BACK(MSG_CONFIGURATION);
+    BACK_ITEM(MSG_CONFIGURATION);
 
-    MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
+    GCODES_ITEM(MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
     const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
-    MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, need_g28
+
+    GCODES_ITEM(MSG_IDEX_MODE_DUPLICATE, need_g28
       ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
       : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
     );
-    MENU_ITEM(gcode, MSG_IDEX_MODE_MIRRORED_COPY, need_g28
+
+    GCODES_ITEM(MSG_IDEX_MODE_MIRRORED_COPY, need_g28
       ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
       : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
     );
-    MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
+    GCODES_ITEM(MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
     END_MENU();
   }
 
@@ -202,27 +204,27 @@ static void lcd_factory_settings() {
 
   void menu_bltouch() {
     START_MENU();
-    MENU_BACK(MSG_CONFIGURATION);
-    MENU_ITEM(function, MSG_BLTOUCH_RESET, bltouch._reset);
-    MENU_ITEM(function, MSG_BLTOUCH_SELFTEST, bltouch._selftest);
-    MENU_ITEM(function, MSG_BLTOUCH_DEPLOY, bltouch._deploy);
-    MENU_ITEM(function, MSG_BLTOUCH_STOW, bltouch._stow);
-    MENU_ITEM(function, MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
+    BACK_ITEM(MSG_CONFIGURATION);
+    ACTION_ITEM(MSG_BLTOUCH_RESET, bltouch._reset);
+    ACTION_ITEM(MSG_BLTOUCH_SELFTEST, bltouch._selftest);
+    ACTION_ITEM(MSG_BLTOUCH_DEPLOY, bltouch._deploy);
+    ACTION_ITEM(MSG_BLTOUCH_STOW, bltouch._stow);
+    ACTION_ITEM(MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
     #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
-      MENU_ITEM(submenu, MSG_BLTOUCH_5V_MODE, []{
+      SUBMENU(MSG_BLTOUCH_5V_MODE, []{
         do_select_screen(PSTR(MSG_BLTOUCH_5V_MODE), PSTR(MSG_BUTTON_CANCEL), bltouch._set_5V_mode, ui.goto_previous_screen, PSTR(MSG_BLTOUCH_MODE_CHANGE));
       });
-      MENU_ITEM(submenu, MSG_BLTOUCH_OD_MODE, []{
+      SUBMENU(MSG_BLTOUCH_OD_MODE, []{
         do_select_screen(PSTR(MSG_BLTOUCH_OD_MODE), PSTR(MSG_BUTTON_CANCEL), bltouch._set_OD_mode, ui.goto_previous_screen, PSTR(MSG_BLTOUCH_MODE_CHANGE));
       });
-      MENU_ITEM(function, MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
-      MENU_ITEM(submenu, MSG_BLTOUCH_MODE_STORE_5V, []{
+      ACTION_ITEM(MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
+      SUBMENU(MSG_BLTOUCH_MODE_STORE_5V, []{
         do_select_screen(PSTR(MSG_BLTOUCH_MODE_STORE_5V), PSTR(MSG_BUTTON_CANCEL), bltouch.mode_conv_5V, ui.goto_previous_screen, PSTR(MSG_BLTOUCH_MODE_CHANGE));
       });
-      MENU_ITEM(submenu, MSG_BLTOUCH_MODE_STORE_OD, []{
+      SUBMENU(MSG_BLTOUCH_MODE_STORE_OD, []{
         do_select_screen(PSTR(MSG_BLTOUCH_MODE_STORE_OD), PSTR(MSG_BUTTON_CANCEL), bltouch.mode_conv_OD, ui.goto_previous_screen, PSTR(MSG_BLTOUCH_MODE_CHANGE));
       });
-      MENU_ITEM(function, MSG_BLTOUCH_MODE_ECHO, bltouch_report);
+      ACTION_ITEM(MSG_BLTOUCH_MODE_ECHO, bltouch_report);
     #endif
     END_MENU();
   }
@@ -233,11 +235,11 @@ static void lcd_factory_settings() {
   void menu_touchmi() {
     START_MENU();
     ui.defer_status_screen();
-    MENU_BACK(MSG_CONFIGURATION);
-    MENU_ITEM(gcode, MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nG1 F200 Z0"));
-    MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-    MENU_ITEM(gcode, MSG_TOUCHMI_SAVE, PSTR("M500\nG1 F200 Z10"));
-    MENU_ITEM(gcode, MSG_TOUCHMI_ZTEST, PSTR("G28\nG1 F200 Z0"));
+    BACK_ITEM(MSG_CONFIGURATION);
+    GCODES_ITEM(MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nG1 F200 Z0"));
+    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    GCODES_ITEM(MSG_TOUCHMI_SAVE, PSTR("M500\nG1 F200 Z10"));
+    GCODES_ITEM(MSG_TOUCHMI_ZTEST, PSTR("G28\nG1 F200 Z0"));
     END_MENU();
   }
 #endif
@@ -250,9 +252,9 @@ static void lcd_factory_settings() {
 
     void menu_case_light() {
       START_MENU();
-      MENU_BACK(MSG_CONFIGURATION);
-      MENU_ITEM_EDIT_CALLBACK(uint8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
+      BACK_ITEM(MSG_CONFIGURATION);
+      EDIT_ITEM(uint8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
+      EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
       END_MENU();
     }
 
@@ -266,23 +268,23 @@ static void lcd_factory_settings() {
 
   void menu_config_retract() {
     START_MENU();
-    MENU_BACK(MSG_CONFIGURATION);
+    BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(FWRETRACT_AUTORETRACT)
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
+      EDIT_ITEM(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
     #endif
-    MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT, &fwretract.settings.retract_length, 0, 100);
+    EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT, &fwretract.settings.retract_length, 0, 100);
     #if EXTRUDERS > 1
-      MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_SWAP, &fwretract.settings.swap_retract_length, 0, 100);
+      EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT_SWAP, &fwretract.settings.swap_retract_length, 0, 100);
     #endif
-    MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &fwretract.settings.retract_feedrate_mm_s, 1, 999);
-    MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_ZHOP, &fwretract.settings.retract_zraise, 0, 999);
-    MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_RECOVER, &fwretract.settings.retract_recover_extra, -100, 100);
+    EDIT_ITEM(float3, MSG_CONTROL_RETRACTF, &fwretract.settings.retract_feedrate_mm_s, 1, 999);
+    EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT_ZHOP, &fwretract.settings.retract_zraise, 0, 999);
+    EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT_RECOVER, &fwretract.settings.retract_recover_extra, -100, 100);
     #if EXTRUDERS > 1
-      MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_RECOVER_SWAP, &fwretract.settings.swap_retract_recover_extra, -100, 100);
+      EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT_RECOVER_SWAP, &fwretract.settings.swap_retract_recover_extra, -100, 100);
     #endif
-    MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &fwretract.settings.retract_recover_feedrate_mm_s, 1, 999);
+    EDIT_ITEM(float3, MSG_CONTROL_RETRACT_RECOVERF, &fwretract.settings.retract_recover_feedrate_mm_s, 1, 999);
     #if EXTRUDERS > 1
-      MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVER_SWAPF, &fwretract.settings.swap_retract_recover_feedrate_mm_s, 1, 999);
+      EDIT_ITEM(float3, MSG_CONTROL_RETRACT_RECOVER_SWAPF, &fwretract.settings.swap_retract_recover_feedrate_mm_s, 1, 999);
     #endif
     END_MENU();
   }
@@ -312,16 +314,16 @@ static void lcd_factory_settings() {
       #define MAXTEMP_ALL HEATER_0_MAXTEMP
     #endif
     START_MENU();
-    MENU_BACK(MSG_CONFIGURATION);
-    MENU_ITEM_EDIT(percent, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
+    BACK_ITEM(MSG_CONFIGURATION);
+    EDIT_ITEM(percent, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
     #if HAS_TEMP_HOTEND
-      MENU_ITEM_EDIT(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
+      EDIT_ITEM(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
     #endif
     #if HAS_HEATED_BED
-      MENU_ITEM_EDIT(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 10);
+      EDIT_ITEM(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 10);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
+      ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
     #endif
     END_MENU();
   }
@@ -333,21 +335,21 @@ static void lcd_factory_settings() {
 
 void menu_configuration() {
   START_MENU();
-  MENU_BACK(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN);
 
   //
   // Debug Menu when certain options are enabled
   //
   #if HAS_DEBUG_MENU
-    MENU_ITEM(submenu, MSG_DEBUG_MENU, menu_debug);
+    SUBMENU(MSG_DEBUG_MENU, menu_debug);
   #endif
 
-  MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, menu_advanced_settings);
+  SUBMENU(MSG_ADVANCED_SETTINGS, menu_advanced_settings);
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
-    MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &probe_offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    EDIT_ITEM(float52, MSG_ZPROBE_ZOFFSET, &probe_offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   const bool busy = printer_busy();
@@ -356,23 +358,23 @@ void menu_configuration() {
     // Delta Calibration
     //
     #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, menu_delta_calibrate);
+      SUBMENU(MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 
     #if HAS_HOTEND_OFFSET
-      MENU_ITEM(submenu, MSG_OFFSETS_MENU, menu_tool_offsets);
+      SUBMENU(MSG_OFFSETS_MENU, menu_tool_offsets);
     #endif
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      MENU_ITEM(submenu, MSG_IDEX_MENU, menu_idex);
+      SUBMENU(MSG_IDEX_MENU, menu_idex);
     #endif
 
     #if ENABLED(BLTOUCH)
-      MENU_ITEM(submenu, MSG_BLTOUCH, menu_bltouch);
+      SUBMENU(MSG_BLTOUCH, menu_bltouch);
     #endif
 
     #if ENABLED(TOUCH_MI_PROBE)
-      MENU_ITEM(submenu, MSG_TOUCHMI_PROBE, menu_touchmi);
+      SUBMENU(MSG_TOUCHMI_PROBE, menu_touchmi);
     #endif
   }
 
@@ -380,7 +382,7 @@ void menu_configuration() {
   // Set single nozzle filament retract and prime length
   //
   #if EXTRUDERS > 1
-    MENU_ITEM(submenu, MSG_TOOL_CHANGE, menu_tool_change);
+    SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
   #endif
 
   //
@@ -389,41 +391,41 @@ void menu_configuration() {
   #if ENABLED(CASE_LIGHT_MENU)
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
       if (PWM_PIN(CASE_LIGHT_PIN))
-        MENU_ITEM(submenu, MSG_CASE_LIGHT, menu_case_light);
+        SUBMENU(MSG_CASE_LIGHT, menu_case_light);
       else
     #endif
-        MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
+        EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
   #endif
 
   #if HAS_LCD_CONTRAST
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &ui.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, ui.refresh_contrast, true);
+    EDIT_ITEM(int3, MSG_CONTRAST, &ui.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, ui.refresh_contrast, true);
   #endif
   #if ENABLED(FWRETRACT)
-    MENU_ITEM(submenu, MSG_RETRACT, menu_config_retract);
+    SUBMENU(MSG_RETRACT, menu_config_retract);
   #endif
 
   #if HAS_FILAMENT_SENSOR
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+    EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_OUTAGE_RECOVERY, &recovery.enabled, recovery.changed);
+    EDIT_ITEM(bool, MSG_OUTAGE_RECOVERY, &recovery.enabled, recovery.changed);
   #endif
 
   #if DISABLED(SLIM_LCD_MENUS)
     // Preheat configurations
-    MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, menu_preheat_material1_settings);
-    MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
+    SUBMENU(MSG_PREHEAT_1_SETTINGS, menu_preheat_material1_settings);
+    SUBMENU(MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)
-    MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
+    ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
     if (!busy)
-      MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+      ACTION_ITEM(MSG_LOAD_EEPROM, lcd_load_settings);
   #endif
 
   if (!busy)
-    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
+    ACTION_ITEM(MSG_RESTORE_FAILSAFE, lcd_factory_settings);
 
   END_MENU();
 }

@@ -103,42 +103,42 @@ void _recalc_delta_settings() {
 
 void lcd_delta_settings() {
   START_MENU();
-  MENU_BACK(MSG_DELTA_CALIBRATE);
-  MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
-  #define EDIT_ENDSTOP_ADJ(LABEL,N) MENU_ITEM_EDIT_CALLBACK(float43, LABEL, &delta_endstop_adj.N, -5, 5, _recalc_delta_settings)
+  BACK_ITEM(MSG_DELTA_CALIBRATE);
+  EDIT_ITEM(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
+  #define EDIT_ENDSTOP_ADJ(LABEL,N) EDIT_ITEM(float43, LABEL, &delta_endstop_adj.N, -5, 5, _recalc_delta_settings)
   EDIT_ENDSTOP_ADJ("Ex",a);
   EDIT_ENDSTOP_ADJ("Ey",b);
   EDIT_ENDSTOP_ADJ("Ez",c);
-  MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta_settings);
-  #define EDIT_ANGLE_TRIM(LABEL,N) MENU_ITEM_EDIT_CALLBACK(float43, LABEL, &delta_tower_angle_trim.N, -5, 5, _recalc_delta_settings)
+  EDIT_ITEM(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta_settings);
+  #define EDIT_ANGLE_TRIM(LABEL,N) EDIT_ITEM(float43, LABEL, &delta_tower_angle_trim.N, -5, 5, _recalc_delta_settings)
   EDIT_ANGLE_TRIM("Tx",a);
   EDIT_ANGLE_TRIM("Ty",b);
   EDIT_ANGLE_TRIM("Tz",c);
-  MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5, delta_diagonal_rod + 5, _recalc_delta_settings);
+  EDIT_ITEM(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5, delta_diagonal_rod + 5, _recalc_delta_settings);
   END_MENU();
 }
 
 void menu_delta_calibrate() {
   START_MENU();
-  MENU_BACK(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
-    MENU_ITEM(gcode, MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
+    GCODES_ITEM(MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
     #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
-      MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+      ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
+      ACTION_ITEM(MSG_LOAD_EEPROM, lcd_load_settings);
     #endif
   #endif
 
-  MENU_ITEM(submenu, MSG_DELTA_SETTINGS, lcd_delta_settings);
+  SUBMENU(MSG_DELTA_SETTINGS, lcd_delta_settings);
 
   #if ENABLED(DELTA_CALIBRATION_MENU)
-    MENU_ITEM(submenu, MSG_AUTO_HOME, _lcd_delta_calibrate_home);
+    SUBMENU(MSG_AUTO_HOME, _lcd_delta_calibrate_home);
     if (all_axes_homed()) {
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_X, _goto_tower_x);
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_Y, _goto_tower_y);
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_Z, _goto_tower_z);
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_CENTER, _goto_center);
+      SUBMENU(MSG_DELTA_CALIBRATE_X, _goto_tower_x);
+      SUBMENU(MSG_DELTA_CALIBRATE_Y, _goto_tower_y);
+      SUBMENU(MSG_DELTA_CALIBRATE_Z, _goto_tower_z);
+      SUBMENU(MSG_DELTA_CALIBRATE_CENTER, _goto_center);
     }
   #endif
 

@@ -62,13 +62,13 @@ void menu_backlash();
   void menu_dac() {
     dac_driver_getValues();
     START_MENU();
-    MENU_BACK(MSG_ADVANCED_SETTINGS);
-    #define EDIT_DAC_PERCENT(N) MENU_ITEM_EDIT_CALLBACK(uint8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+    #define EDIT_DAC_PERCENT(N) EDIT_ITEM(uint8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, dac_driver_commit)
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
     EDIT_DAC_PERCENT(Z);
     EDIT_DAC_PERCENT(E);
-    MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_commit_eeprom);
+    ACTION_ITEM(MSG_DAC_EEPROM_WRITE, dac_commit_eeprom);
     END_MENU();
   }
 
@@ -80,8 +80,8 @@ void menu_backlash();
 
   void menu_pwm() {
     START_MENU();
-    MENU_BACK(MSG_ADVANCED_SETTINGS);
-    #define EDIT_CURRENT_PWM(LABEL,I) MENU_ITEM_EDIT_CALLBACK(long5, LABEL, &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+    #define EDIT_CURRENT_PWM(LABEL,I) EDIT_ITEM(long5, LABEL, &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
       EDIT_CURRENT_PWM(MSG_X MSG_Y, 0);
     #endif
@@ -116,13 +116,13 @@ void menu_backlash();
   //
   void menu_advanced_filament() {
     START_MENU();
-    MENU_BACK(MSG_ADVANCED_SETTINGS);
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     #if ENABLED(LIN_ADVANCE)
       #if EXTRUDERS == 1
-        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+        EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
       #elif EXTRUDERS > 1
-        #define EDIT_ADVANCE_K(N) MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N-1], 0, 999)
+        #define EDIT_ADVANCE_K(N) EDIT_ITEM(float52, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N-1], 0, 999)
         EDIT_ADVANCE_K(1);
         EDIT_ADVANCE_K(2);
         #if EXTRUDERS > 2
@@ -141,14 +141,14 @@ void menu_backlash();
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
+      EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
 
       if (parser.volumetric_enabled) {
         #if EXTRUDERS == 1
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM, &planner.filament_size[0], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+          EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[0], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #else // EXTRUDERS > 1
-          #define EDIT_FIL_DIAM(N) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E##N, &planner.filament_size[N-1], 1.5f, 3.25f, planner.calculate_volumetric_multipliers)
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+          #define EDIT_FIL_DIAM(N) EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM MSG_DIAM_E##N, &planner.filament_size[N-1], 1.5f, 3.25f, planner.calculate_volumetric_multipliers)
+          EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
           EDIT_FIL_DIAM(1);
           EDIT_FIL_DIAM(2);
           #if EXTRUDERS > 2
@@ -177,10 +177,10 @@ void menu_backlash();
       ;
 
       #if EXTRUDERS == 1
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &fc_settings[0].unload_length, 0, extrude_maxlength);
+        EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD, &fc_settings[0].unload_length, 0, extrude_maxlength);
       #elif EXTRUDERS > 1
-        #define EDIT_FIL_UNLOAD(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E##N, &fc_settings[N-1].unload_length, 0, extrude_maxlength)
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
+        #define EDIT_FIL_UNLOAD(N) EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E##N, &fc_settings[N-1].unload_length, 0, extrude_maxlength)
+        EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
         EDIT_FIL_UNLOAD(1);
         EDIT_FIL_UNLOAD(2);
         #if EXTRUDERS > 2
@@ -198,10 +198,10 @@ void menu_backlash();
       #endif // EXTRUDERS > 1
 
       #if EXTRUDERS == 1
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &fc_settings[0].load_length, 0, extrude_maxlength);
+        EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD, &fc_settings[0].load_length, 0, extrude_maxlength);
       #elif EXTRUDERS > 1
-        #define EDIT_FIL_LOAD(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E##N, &fc_settings[N-1].load_length, 0, extrude_maxlength)
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
+        #define EDIT_FIL_LOAD(N) EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD MSG_DIAM_E##N, &fc_settings[N-1].load_length, 0, extrude_maxlength)
+        EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
         EDIT_FIL_LOAD(1);
         EDIT_FIL_LOAD(2);
         #if EXTRUDERS > 2
@@ -220,7 +220,7 @@ void menu_backlash();
     #endif
 
     #if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
-      MENU_ITEM_EDIT_CALLBACK(float3, MSG_RUNOUT_DISTANCE_MM, &lcd_runout_distance_mm, 1, 30, []{
+      EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &lcd_runout_distance_mm, 1, 30, []{
         runout.set_runout_distance(lcd_runout_distance_mm);
       });
     #endif
@@ -328,15 +328,15 @@ void menu_backlash();
 
   void menu_advanced_temperature() {
     START_MENU();
-    MENU_BACK(MSG_ADVANCED_SETTINGS);
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
     //
     // Autotemp, Min, Max, Fact
     //
     #if ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND
-      MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
-      MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, float(HEATER_0_MAXTEMP) - 15);
-      MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, float(HEATER_0_MAXTEMP) - 15);
-      MENU_ITEM_EDIT(float52, MSG_FACTOR, &planner.autotemp_factor, 0, 10);
+      EDIT_ITEM(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
+      EDIT_ITEM(float3, MSG_MIN, &planner.autotemp_min, 0, float(HEATER_0_MAXTEMP) - 15);
+      EDIT_ITEM(float3, MSG_MAX, &planner.autotemp_max, 0, float(HEATER_0_MAXTEMP) - 15);
+      EDIT_ITEM(float52, MSG_FACTOR, &planner.autotemp_factor, 0, 10);
     #endif
 
     //
@@ -352,14 +352,14 @@ void menu_backlash();
       #define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
         raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
-        MENU_ITEM_EDIT(float52sign, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
-        MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_PID_I ELABEL, &raw_Ki, 0.01f, 9990, copy_and_scalePID_i_E ## eindex); \
-        MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
+        EDIT_ITEM(float52sign, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
+        EDIT_ITEM(float52sign, MSG_PID_I ELABEL, &raw_Ki, 0.01f, 9990, copy_and_scalePID_i_E ## eindex); \
+        EDIT_ITEM(float52sign, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
 
       #if ENABLED(PID_EXTRUSION_SCALING)
         #define _PID_EDIT_MENU_ITEMS(ELABEL, eindex) \
           _PID_BASE_MENU_ITEMS(ELABEL, eindex); \
-          MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
+          EDIT_ITEM(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
       #else
         #define _PID_EDIT_MENU_ITEMS(ELABEL, eindex) _PID_BASE_MENU_ITEMS(ELABEL, eindex)
       #endif
@@ -373,7 +373,7 @@ void menu_backlash();
     #if ENABLED(PID_AUTOTUNE_MENU)
       #define PID_EDIT_MENU_ITEMS(ELABEL, eindex) \
         _PID_EDIT_MENU_ITEMS(ELABEL, eindex); \
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PID_AUTOTUNE ELABEL, &autotune_temp[eindex], 150, heater_maxtemp[eindex] - 15, lcd_autotune_callback_E ## eindex)
+        EDIT_ITEM_FAST(int3, MSG_PID_AUTOTUNE ELABEL, &autotune_temp[eindex], 150, heater_maxtemp[eindex] - 15, lcd_autotune_callback_E ## eindex)
     #else
       #define PID_EDIT_MENU_ITEMS(ELABEL, eindex) _PID_EDIT_MENU_ITEMS(ELABEL, eindex)
     #endif
@@ -450,7 +450,7 @@ void menu_backlash();
   // M203 / M205 Velocity options
   void menu_advanced_velocity() {
     START_MENU();
-    MENU_BACK(MSG_ADVANCED_SETTINGS);
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     // M203 Max Feedrate
     constexpr xyze_feedrate_t max_fr_edit =
@@ -467,14 +467,14 @@ void menu_backlash();
     #else
       const xyze_feedrate_t &max_fr_edit_scaled = max_fr_edit;
     #endif
-    #define EDIT_VMAX(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_##N, &planner.settings.max_feedrate_mm_s[_AXIS(N)], 1, max_fr_edit_scaled[_AXIS(N)])
+    #define EDIT_VMAX(N) EDIT_ITEM_FAST(float3, MSG_VMAX MSG_##N, &planner.settings.max_feedrate_mm_s[_AXIS(N)], 1, max_fr_edit_scaled[_AXIS(N)])
     EDIT_VMAX(A);
     EDIT_VMAX(B);
     EDIT_VMAX(C);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_VMAX_E(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E##N, &planner.settings.max_feedrate_mm_s[E_AXIS_N(N-1)], 1, max_fr_edit_scaled.e)
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS_N(active_extruder)], 1, max_fr_edit_scaled.e);
+      #define EDIT_VMAX_E(N) EDIT_ITEM_FAST(float3, MSG_VMAX MSG_E##N, &planner.settings.max_feedrate_mm_s[E_AXIS_N(N-1)], 1, max_fr_edit_scaled.e)
+      EDIT_ITEM_FAST(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS_N(active_extruder)], 1, max_fr_edit_scaled.e);
       EDIT_VMAX_E(1);
       EDIT_VMAX_E(2);
       #if E_STEPPERS > 2
@@ -490,14 +490,14 @@ void menu_backlash();
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
     #elif E_STEPPERS
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS], 1, max_fr_edit_scaled.e);
+      EDIT_ITEM_FAST(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS], 1, max_fr_edit_scaled.e);
     #endif
 
     // M205 S Min Feedrate
-    MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMIN, &planner.settings.min_feedrate_mm_s, 0, 999);
+    EDIT_ITEM_FAST(float3, MSG_VMIN, &planner.settings.min_feedrate_mm_s, 0, 999);
 
     // M205 T Min Travel Feedrate
-    MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VTRAV_MIN, &planner.settings.min_travel_feedrate_mm_s, 0, 999);
+    EDIT_ITEM_FAST(float3, MSG_VTRAV_MIN, &planner.settings.min_travel_feedrate_mm_s, 0, 999);
 
     END_MENU();
   }
@@ -505,17 +505,17 @@ void menu_backlash();
   // M201 / M204 Accelerations
   void menu_advanced_acceleration() {
     START_MENU();
-    MENU_BACK(MSG_ADVANCED_SETTINGS);
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     static float max_accel = _MAX(planner.settings.max_acceleration_mm_per_s2[A_AXIS], planner.settings.max_acceleration_mm_per_s2[B_AXIS], planner.settings.max_acceleration_mm_per_s2[C_AXIS]);
     // M204 P Acceleration
-    MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_ACC, &planner.settings.acceleration, 25, max_accel);
+    EDIT_ITEM_FAST(float5_25, MSG_ACC, &planner.settings.acceleration, 25, max_accel);
 
     // M204 R Retract Acceleration
-    MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_A_RETRACT, &planner.settings.retract_acceleration, 100, max_accel);
+    EDIT_ITEM_FAST(float5, MSG_A_RETRACT, &planner.settings.retract_acceleration, 100, max_accel);
 
     // M204 T Travel Acceleration
-    MENU_MULTIPLIER_ITEM_EDIT(float5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, max_accel);
+    EDIT_ITEM_FAST(float5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, max_accel);
 
     // M201 settings
     constexpr xyze_ulong_t max_accel_edit =
@@ -533,15 +533,15 @@ void menu_backlash();
       const xyze_ulong_t &max_accel_edit_scaled = max_accel_edit;
     #endif
 
-    #define EDIT_AMAX(Q,L) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, max_accel_edit_scaled[_AXIS(Q)], _reset_acceleration_rates)
+    #define EDIT_AMAX(Q,L) EDIT_ITEM_FAST(long5_25, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, max_accel_edit_scaled[_AXIS(Q)], _reset_acceleration_rates)
 
     EDIT_AMAX(A,100);
     EDIT_AMAX(B,100);
     EDIT_AMAX(C, 10);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_AMAX_E(N,E) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_E##N, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(E)], 100, max_accel_edit_scaled.e, _reset_e##E##_acceleration_rate)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, max_accel_edit_scaled.e, _reset_acceleration_rates);
+      #define EDIT_AMAX_E(N,E) EDIT_ITEM_FAST(long5_25, MSG_AMAX MSG_E##N, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(E)], 100, max_accel_edit_scaled.e, _reset_e##E##_acceleration_rate)
+      EDIT_ITEM_FAST(long5_25, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, max_accel_edit_scaled.e, _reset_acceleration_rates);
       EDIT_AMAX_E(1,0);
       EDIT_AMAX_E(2,1);
       #if E_STEPPERS > 2
@@ -557,7 +557,7 @@ void menu_backlash();
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
     #elif E_STEPPERS
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_25, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, _reset_acceleration_rates);
+      EDIT_ITEM_FAST(long5_25, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, _reset_acceleration_rates);
     #endif
 
     END_MENU();
@@ -566,13 +566,13 @@ void menu_backlash();
   // M205 Jerk
   void menu_advanced_jerk() {
     START_MENU();
-    MENU_BACK(MSG_ADVANCED_SETTINGS);
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     #if ENABLED(JUNCTION_DEVIATION)
       #if ENABLED(LIN_ADVANCE)
-        MENU_ITEM_EDIT_CALLBACK(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f, planner.recalculate_max_e_jerk);
+        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f, planner.recalculate_max_e_jerk);
       #else
-        MENU_ITEM_EDIT(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f);
+        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f);
       #endif
     #endif
     #if HAS_CLASSIC_JERK
@@ -585,16 +585,16 @@ void menu_backlash();
           { 990, 990, 990, 990 }
         #endif
       ;
-      #define EDIT_JERK(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_V##N##_JERK, &planner.max_jerk[_AXIS(N)], 1, max_jerk_edit[_AXIS(N)])
+      #define EDIT_JERK(N) EDIT_ITEM_FAST(float3, MSG_V##N##_JERK, &planner.max_jerk[_AXIS(N)], 1, max_jerk_edit[_AXIS(N)])
       EDIT_JERK(A);
       EDIT_JERK(B);
       #if ENABLED(DELTA)
         EDIT_JERK(C);
       #else
-        MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk.c, 0.1f, max_jerk_edit.c);
+        EDIT_ITEM_FAST(float52sign, MSG_VC_JERK, &planner.max_jerk.c, 0.1f, max_jerk_edit.c);
       #endif
       #if !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
-        MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VE_JERK, &planner.max_jerk.e, 0.1f, max_jerk_edit.e);
+        EDIT_ITEM_FAST(float52sign, MSG_VE_JERK, &planner.max_jerk.e, 0.1f, max_jerk_edit.e);
       #endif
     #endif
 
@@ -604,16 +604,16 @@ void menu_backlash();
   // M92 Steps-per-mm
   void menu_advanced_steps_per_mm() {
     START_MENU();
-    MENU_BACK(MSG_ADVANCED_SETTINGS);
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-    #define EDIT_QSTEPS(Q) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_##Q##STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, _planner_refresh_positioning)
+    #define EDIT_QSTEPS(Q) EDIT_ITEM_FAST(float51, MSG_##Q##STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, _planner_refresh_positioning)
     EDIT_QSTEPS(A);
     EDIT_QSTEPS(B);
     EDIT_QSTEPS(C);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_ESTEPS(N,E) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_E##N##STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(E)], 5, 9999, _planner_refresh_e##E##_positioning)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, _planner_refresh_positioning);
+      #define EDIT_ESTEPS(N,E) EDIT_ITEM_FAST(float51, MSG_E##N##STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(E)], 5, 9999, _planner_refresh_e##E##_positioning)
+      EDIT_ITEM_FAST(float51, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, _planner_refresh_positioning);
       EDIT_ESTEPS(1,0);
       EDIT_ESTEPS(2,1);
       #if E_STEPPERS > 2
@@ -629,7 +629,7 @@ void menu_backlash();
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
     #elif E_STEPPERS
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float51, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
+      EDIT_ITEM_FAST(float51, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
     #endif
 
     END_MENU();
@@ -663,7 +663,7 @@ void menu_advanced_settings() {
     lcd_runout_distance_mm = runout.runout_distance();
   #endif
   START_MENU();
-  MENU_BACK(MSG_CONFIGURATION);
+  BACK_ITEM(MSG_CONFIGURATION);
 
   #if DISABLED(SLIM_LCD_MENUS)
 
@@ -671,50 +671,50 @@ void menu_advanced_settings() {
       //
       // Set Home Offsets
       //
-      MENU_ITEM(function, MSG_SET_HOME_OFFSETS, _lcd_set_home_offsets);
+      ACTION_ITEM(MSG_SET_HOME_OFFSETS, _lcd_set_home_offsets);
     #endif
 
     // M203 / M205 - Feedrate items
-    MENU_ITEM(submenu, MSG_VELOCITY, menu_advanced_velocity);
+    SUBMENU(MSG_VELOCITY, menu_advanced_velocity);
 
     // M201 - Acceleration items
-    MENU_ITEM(submenu, MSG_ACCELERATION, menu_advanced_acceleration);
+    SUBMENU(MSG_ACCELERATION, menu_advanced_acceleration);
 
     // M205 - Max Jerk
-    MENU_ITEM(submenu, MSG_JERK, menu_advanced_jerk);
+    SUBMENU(MSG_JERK, menu_advanced_jerk);
 
     if (!printer_busy()) {
       // M92 - Steps Per mm
-      MENU_ITEM(submenu, MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
+      SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
     }
   #endif // !SLIM_LCD_MENUS
 
   #if ENABLED(BACKLASH_GCODE)
-    MENU_ITEM(submenu, MSG_BACKLASH, menu_backlash);
+    SUBMENU(MSG_BACKLASH, menu_backlash);
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)
-    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_dac);
+    SUBMENU(MSG_DRIVE_STRENGTH, menu_dac);
   #endif
   #if HAS_MOTOR_CURRENT_PWM
-    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_pwm);
+    SUBMENU(MSG_DRIVE_STRENGTH, menu_pwm);
   #endif
 
   #if HAS_TRINAMIC
-    MENU_ITEM(submenu, MSG_TMC_DRIVERS, menu_tmc);
+    SUBMENU(MSG_TMC_DRIVERS, menu_tmc);
   #endif
 
   #if SHOW_MENU_ADVANCED_TEMPERATURE
-    MENU_ITEM(submenu, MSG_TEMPERATURE, menu_advanced_temperature);
+    SUBMENU(MSG_TEMPERATURE, menu_advanced_temperature);
   #endif
 
   #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
-    MENU_ITEM(submenu, MSG_FILAMENT, menu_advanced_filament);
+    SUBMENU(MSG_FILAMENT, menu_advanced_filament);
   #elif ENABLED(LIN_ADVANCE)
     #if EXTRUDERS == 1
-      MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+      EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
     #elif EXTRUDERS > 1
-      #define EDIT_ADVANCE_K(N) MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N-1], 0, 999)
+      #define EDIT_ADVANCE_K(N) EDIT_ITEM(float52, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N-1], 0, 999)
       EDIT_ADVANCE_K(1);
       EDIT_ADVANCE_K(2);
       #if EXTRUDERS > 2
@@ -734,12 +734,12 @@ void menu_advanced_settings() {
 
   // M540 S - Abort on endstop hit when SD printing
   #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
-    MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
+    EDIT_ITEM(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
   #endif
 
   #if ENABLED(SD_FIRMWARE_UPDATE)
     bool sd_update_state = settings.sd_update_status();
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_MEDIA_UPDATE, &sd_update_state, []{
+    EDIT_ITEM(bool, MSG_MEDIA_UPDATE, &sd_update_state, []{
       //
       // Toggle the SD Firmware Update state in EEPROM
       //
@@ -754,7 +754,7 @@ void menu_advanced_settings() {
   #endif
 
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
-    MENU_ITEM(submenu, MSG_INIT_EEPROM, lcd_init_eeprom_confirm);
+    SUBMENU(MSG_INIT_EEPROM, lcd_init_eeprom_confirm);
   #endif
 
   END_MENU();

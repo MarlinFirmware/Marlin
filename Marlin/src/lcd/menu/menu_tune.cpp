@@ -124,18 +124,18 @@
 
 void menu_tune() {
   START_MENU();
-  MENU_BACK(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN);
 
   //
   // Speed:
   //
-  MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999);
+  EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999);
 
   //
   // Manual bed leveling, Bed Z:
   //
   #if BOTH(MESH_BED_LEVELING, LCD_BED_LEVELING)
-    MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+    EDIT_ITEM(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
   #endif
 
   //
@@ -143,9 +143,9 @@ void menu_tune() {
   // Nozzle [1-4]:
   //
   #if HOTENDS == 1
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, thermalManager.start_watching_E0);
+    EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, thermalManager.start_watching_E0);
   #elif HOTENDS > 1
-    #define EDIT_NOZZLE(N) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_LCD_N##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, thermalManager.start_watching_E##N)
+    #define EDIT_NOZZLE(N) EDIT_ITEM_FAST(int3, MSG_NOZZLE MSG_LCD_N##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, thermalManager.start_watching_E##N)
     EDIT_NOZZLE(0);
     EDIT_NOZZLE(1);
     #if HOTENDS > 2
@@ -163,14 +163,14 @@ void menu_tune() {
   #endif // HOTENDS > 1
 
   #if ENABLED(SINGLENOZZLE)
-    MENU_MULTIPLIER_ITEM_EDIT(uint16_3, MSG_NOZZLE_STANDBY, &singlenozzle_temp[active_extruder ? 0 : 1], 0, HEATER_0_MAXTEMP - 15);
+    EDIT_ITEM_FAST(uint16_3, MSG_NOZZLE_STANDBY, &singlenozzle_temp[active_extruder ? 0 : 1], 0, HEATER_0_MAXTEMP - 15);
   #endif
 
   //
   // Bed:
   //
   #if HAS_HEATED_BED
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAXTEMP - 10, thermalManager.start_watching_bed);
+    EDIT_ITEM_FAST(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAXTEMP - 10, thermalManager.start_watching_bed);
   #endif
 
   //
@@ -178,21 +178,21 @@ void menu_tune() {
   //
   #if FAN_COUNT > 0
     #if HAS_FAN0
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(uint8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &thermalManager.lcd_tmpfan_speed[0], 0, 255, thermalManager.lcd_setFanSpeed0);
+      EDIT_ITEM_FAST(uint8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &thermalManager.lcd_tmpfan_speed[0], 0, 255, thermalManager.lcd_setFanSpeed0);
       #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(uint8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &thermalManager.new_fan_speed[0], 3, 255);
+        EDIT_ITEM_FAST(uint8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
     #endif
     #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(uint8, MSG_FAN_SPEED " 2", &thermalManager.lcd_tmpfan_speed[1], 0, 255, thermalManager.lcd_setFanSpeed1);
+      EDIT_ITEM_FAST(uint8, MSG_FAN_SPEED " 2", &thermalManager.lcd_tmpfan_speed[1], 0, 255, thermalManager.lcd_setFanSpeed1);
       #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(uint8, MSG_EXTRA_FAN_SPEED " 2", &thermalManager.new_fan_speed[1], 3, 255);
+        EDIT_ITEM_FAST(uint8, MSG_EXTRA_FAN_SPEED " 2", &thermalManager.new_fan_speed[1], 3, 255);
       #endif
     #endif
     #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(uint8, MSG_FAN_SPEED " 3", &thermalManager.lcd_tmpfan_speed[2], 0, 255, thermalManager.lcd_setFanSpeed2);
+      EDIT_ITEM_FAST(uint8, MSG_FAN_SPEED " 3", &thermalManager.lcd_tmpfan_speed[2], 0, 255, thermalManager.lcd_setFanSpeed2);
       #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(uint8, MSG_EXTRA_FAN_SPEED " 3", &thermalManager.new_fan_speed[2], 3, 255);
+        EDIT_ITEM_FAST(uint8, MSG_EXTRA_FAN_SPEED " 3", &thermalManager.new_fan_speed[2], 3, 255);
       #endif
     #endif
   #endif // FAN_COUNT > 0
@@ -202,10 +202,10 @@ void menu_tune() {
   // Flow [1-5]:
   //
   #if EXTRUDERS == 1
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
+    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
   #elif EXTRUDERS
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, _lcd_refresh_e_factor);
-    #define EDIT_FLOW(N) MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_LCD_N##N, &planner.flow_percentage[N], 10, 999, _lcd_refresh_e_factor_##N)
+    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, _lcd_refresh_e_factor);
+    #define EDIT_FLOW(N) EDIT_ITEM(int3, MSG_FLOW MSG_LCD_N##N, &planner.flow_percentage[N], 10, 999, _lcd_refresh_e_factor_##N)
     EDIT_FLOW(0);
     EDIT_FLOW(1);
     #if EXTRUDERS > 2
@@ -229,13 +229,13 @@ void menu_tune() {
   //
   #if ENABLED(BABYSTEPPING)
     #if ENABLED(BABYSTEP_XY)
-      MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
-      MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
+      SUBMENU(MSG_BABYSTEP_X, lcd_babystep_x);
+      SUBMENU(MSG_BABYSTEP_Y, lcd_babystep_y);
     #endif
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
     #else
-      MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
+      SUBMENU(MSG_BABYSTEP_Z, lcd_babystep_z);
     #endif
   #endif
 

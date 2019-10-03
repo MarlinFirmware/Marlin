@@ -286,9 +286,9 @@ void menu_info_board() {
 //
 void menu_info() {
   START_MENU();
-  MENU_BACK(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN);
   #if ENABLED(LCD_PRINTER_INFO_IS_BOOTSCREEN)
-    MENU_ITEM(submenu, MSG_INFO_PRINTER_MENU, (
+    SUBMENU(MSG_INFO_PRINTER_MENU, (
       #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
         menu_show_custom_bootscreen
       #else
@@ -296,24 +296,24 @@ void menu_info() {
       #endif
     ));
   #else
-    MENU_ITEM(submenu, MSG_INFO_PRINTER_MENU, menu_info_printer);           // Printer Info >
-    MENU_ITEM(submenu, MSG_INFO_BOARD_MENU, menu_info_board);               // Board Info >
+    SUBMENU(MSG_INFO_PRINTER_MENU, menu_info_printer);           // Printer Info >
+    SUBMENU(MSG_INFO_BOARD_MENU, menu_info_board);               // Board Info >
     #if EXTRUDERS
-      MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, menu_info_thermistors);  // Thermistors >
+      SUBMENU(MSG_INFO_THERMISTOR_MENU, menu_info_thermistors);  // Thermistors >
     #endif
   #endif
 
   #if ENABLED(PRINTCOUNTER)
-    MENU_ITEM(submenu, MSG_INFO_STATS_MENU, menu_info_stats);               // Printer Stats >
+    SUBMENU(MSG_INFO_STATS_MENU, menu_info_stats);               // Printer Stats >
   #endif
 
   #if HAS_GAMES
     #if ENABLED(GAMES_EASTER_EGG)
-      MENU_ITEM_DUMMY();
-      MENU_ITEM_DUMMY();
-      MENU_ITEM_DUMMY();
+      SKIP_ITEM();
+      SKIP_ITEM();
+      SKIP_ITEM();
     #endif
-    MENU_ITEM(submenu, MSG_GAMES, (
+    SUBMENU(MSG_GAMES, (
       #if HAS_GAME_MENU
         menu_game
       #elif ENABLED(MARLIN_BRICKOUT)
