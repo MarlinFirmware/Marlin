@@ -42,7 +42,7 @@ bool printer_busy();
 ////////////////////////////////////////////
 
 #define DECLARE_MENU_EDIT_TYPE(TYPE, NAME, STRFUNC, SCALE) \
-  struct MenuItemInfo_##NAME { \
+  struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
     static constexpr float scale = SCALE; \
     static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
@@ -111,14 +111,14 @@ FORCE_INLINE void draw_menu_item_edit_P(const bool sel, const uint8_t row, PGM_P
 ////////////////////////////////////////////
 
 #define _DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(TYPE, NAME, STRFUNC) \
-  FORCE_INLINE void draw_menu_item_edit_##NAME (const bool sel, const uint8_t row, PGM_P const pstr, TYPE * const data, ...) { \
+  FORCE_INLINE void draw_menu_item_##NAME (const bool sel, const uint8_t row, PGM_P const pstr, TYPE * const data, ...) { \
     DRAW_MENU_ITEM_SETTING_EDIT_GENERIC(STRFUNC(*(data))); \
   } \
-  FORCE_INLINE void draw_menu_item_edit_accessor_##NAME (const bool sel, const uint8_t row, PGM_P const pstr, PGM_P const, TYPE (*pget)(), void (*)(TYPE), ...) { \
+  FORCE_INLINE void draw_menu_item_accessor_##NAME (const bool sel, const uint8_t row, PGM_P const pstr, PGM_P const, TYPE (*pget)(), void (*)(TYPE), ...) { \
     DRAW_MENU_ITEM_SETTING_EDIT_GENERIC(STRFUNC(pget())); \
   } \
   typedef void NAME##_void
-#define DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(NAME) _DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(MenuItemInfo_##NAME::type_t, NAME, MenuItemInfo_##NAME::strfunc)
+#define DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(NAME) _DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(MenuEditItemInfo_##NAME::type_t, NAME, MenuEditItemInfo_##NAME::strfunc)
 
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(percent);          // 100%       right-justified
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int3);             // 123, -12   right-justified
@@ -139,8 +139,8 @@ DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52sign);      // +123.45
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5);            // 12345      right-justified
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(long5_25);         // 12345      right-justified (25 increment)
 
-#define draw_menu_item_edit_bool(sel, row, pstr, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
-#define draw_menu_item_edit_accessor_bool(sel, row, pstr, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
+#define draw_menu_item_bool(sel, row, pstr, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
+#define draw_menu_item_accessor_bool(sel, row, pstr, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
 
 ////////////////////////////////////////////
 /////////////// Menu Actions ///////////////
@@ -176,11 +176,12 @@ class MenuItem_function {
 /////////// Menu Editing Actions ///////////
 ////////////////////////////////////////////
 
-class MenuItemBase {
+// Edit items use long integer encoder units
+class MenuEditItemBase {
   private:
     static PGM_P editLabel;
     static void *editValue;
-    static int32_t minEditValue, maxEditValue;
+    static int32_t minEditValue, maxEditValue;  // Encoder value range
     static screenFunc_t callbackFunc;
     static bool liveEdit;
   protected:
@@ -191,7 +192,7 @@ class MenuItemBase {
 };
 
 template<typename NAME>
-class TMenuItem : MenuItemBase {
+class TMenuEditItem : MenuEditItemBase {
   private:
     typedef typename NAME::type_t type_t;
     static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
@@ -199,16 +200,23 @@ class TMenuItem : MenuItemBase {
     static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
     static char* to_string(const int32_t value)       { return NAME::strfunc(unscale(value)); }
   public:
-    static void action_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=nullptr, const bool live=false) {
-      // Make sure minv and maxv fit within int16_t
-      const int32_t minv = _MAX(scale(minValue), INT16_MIN),
-                    maxv = _MIN(scale(maxValue), INT16_MAX);
+    static void action(
+      PGM_P const pstr,                     // Edit label
+      type_t * const ptr,                   // Value pointer
+      const type_t minValue,                // Value range
+      const type_t maxValue,
+      const screenFunc_t callback=nullptr,  // Value update callback
+      const bool live=false                 // Callback during editing
+    ) {
+      // Make sure minv and maxv fit within int32_t
+      const int32_t minv = _MAX(scale(minValue), INT32_MIN),
+                    maxv = _MIN(scale(maxValue), INT32_MAX);
       init(pstr, ptr, minv, maxv - minv, scale(*ptr) - minv, edit, callback, live);
     }
-    static void edit() { MenuItemBase::edit(to_string, load); }
+    static void edit() { MenuEditItemBase::edit(to_string, load); }
 };
 
-#define DECLARE_MENU_EDIT_ITEM(NAME) typedef TMenuItem<MenuItemInfo_##NAME> MenuItem_##NAME;
+#define DECLARE_MENU_EDIT_ITEM(NAME) typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME;
 
 DECLARE_MENU_EDIT_ITEM(percent);
 DECLARE_MENU_EDIT_ITEM(int3);
@@ -231,7 +239,7 @@ DECLARE_MENU_EDIT_ITEM(long5_25);
 
 class MenuItem_bool {
   public:
-    static void action_edit(PGM_P const pstr, bool* ptr, const screenFunc_t callbackFunc=nullptr);
+    static void action(PGM_P const pstr, bool* ptr, const screenFunc_t callbackFunc=nullptr);
 };
 
 ////////////////////////////////////////////
@@ -289,8 +297,8 @@ class MenuItem_bool {
 /**
  * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
  *
- *   draw_menu_item_<type>[_variant](sel, row, label, arg3...)
- *   MenuItem_<type>::action[_variant](arg3...)
+ *   draw_menu_item_<type>(sel, row, label, arg3...)
+ *   MenuItem_<type>::action(arg3...)
  *
  * Examples:
  *   BACK_ITEM(MSG_WATCH)
@@ -304,21 +312,21 @@ class MenuItem_bool {
  *     MenuItem_function::action(lcd_sdcard_pause)
  *
  *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
- *     draw_menu_item_edit_int3(sel, row, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
- *     MenuItem_int3::action_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *     draw_menu_item_int3(sel, row, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *     MenuItem_int3::action(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  */
-#define _MENU_ITEM_VARIANT_P(TYPE, VARIANT, USE_MULTIPLIER, PLABEL, V...) do {  \
+#define _MENU_ITEM_P(TYPE, USE_MULTIPLIER, PLABEL, V...) do {  \
     _skipStatic = false;                                          \
     if (_menuLineNr == _thisItemNr) {                             \
       PGM_P const plabel = PLABEL;                                \
       if (encoderLine == _thisItemNr && ui.use_click()) {         \
         _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);              \
-        MenuItem_##TYPE ::action ## VARIANT(plabel, ##V);         \
+        MenuItem_##TYPE ::action(plabel, ##V);                    \
         if (screen_changed) return;                               \
       }                                                           \
       if (ui.should_draw())                                       \
-        draw_menu_item ## VARIANT ## _ ## TYPE                    \
+        draw_menu_item_ ## TYPE                                   \
           (encoderLine == _thisItemNr, _lcdLineNr, plabel, ##V);  \
     }                                                             \
   ++_thisItemNr;                                                  \
@@ -346,10 +354,10 @@ class MenuItem_bool {
 
 #define STATIC_ITEM(LABEL, V...) STATIC_ITEM_P(PSTR(LABEL), ##V)
 
-#define MENU_ITEM_P(TYPE, PLABEL, V...)   _MENU_ITEM_VARIANT_P(TYPE,      , false, PLABEL,      ##V)
-#define MENU_ITEM(TYPE, LABEL, V...)      _MENU_ITEM_VARIANT_P(TYPE,      , false, PSTR(LABEL), ##V)
-#define EDIT_ITEM(TYPE, LABEL, V...)      _MENU_ITEM_VARIANT_P(TYPE, _edit, false, PSTR(LABEL), ##V)
-#define EDIT_ITEM_FAST(TYPE, LABEL, V...) _MENU_ITEM_VARIANT_P(TYPE, _edit,  true, PSTR(LABEL), ##V)
+#define MENU_ITEM_P(TYPE, PLABEL, V...)   _MENU_ITEM_P(TYPE, false, PLABEL,      ##V)
+#define MENU_ITEM(TYPE, LABEL, V...)      _MENU_ITEM_P(TYPE, false, PSTR(LABEL), ##V)
+#define EDIT_ITEM(TYPE, LABEL, V...)      _MENU_ITEM_P(TYPE, false, PSTR(LABEL), ##V)
+#define EDIT_ITEM_FAST(TYPE, LABEL, V...) _MENU_ITEM_P(TYPE,  true, PSTR(LABEL), ##V)
 
 #define SKIP_ITEM()                 (_thisItemNr++)
 #define BACK_ITEM(LABEL)            MENU_ITEM(back,LABEL)
