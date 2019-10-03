@@ -1425,6 +1425,7 @@ void MarlinUI::update() {
     #endif
   }
 
+  #include "../Marlin.h"
   #include "../module/printcounter.h"
 
   static const char print_paused[] PROGMEM = MSG_PRINT_PAUSED;
