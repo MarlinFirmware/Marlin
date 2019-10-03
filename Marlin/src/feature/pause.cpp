@@ -240,10 +240,10 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 
     wait_for_user = true;
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Continuous Purge Running..."), PSTR("Continue"));
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Filament Purge Running..."), PSTR("Continue"));
     #endif
     #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onUserConfirmRequired(PSTR("Continuous Purge Running..."));
+      ExtUI::onUserConfirmRequired(PSTR("Filament Purge Running..."));
     #endif
     for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
       do_pause_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);

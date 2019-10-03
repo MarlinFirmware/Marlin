@@ -1266,6 +1266,9 @@
 #ifndef MSG_DAC_EEPROM_WRITE
   #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Write")
 #endif
+#ifndef MSG_FILAMENT_CHANGE_HEADER
+  #define MSG_FILAMENT_CHANGE_HEADER          _UxGT("FILAMENT CHANGE")
+#endif
 #ifndef MSG_FILAMENT_CHANGE_HEADER_PAUSE
   #define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("PRINT PAUSED")
 #endif
@@ -1493,20 +1496,20 @@
     #define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("Please wait...")
   #endif
   #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
-    #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Wait for")
-    #define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("filament unload")
+    #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Wait for filament")
+    #define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("to fully unload")
   #endif
   #ifndef MSG_FILAMENT_CHANGE_LOAD_1
-    #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Wait for")
-    #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("filament load")
+    #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Wait for filament")
+    #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("to load to nozzle")
   #endif
   #ifndef MSG_FILAMENT_CHANGE_PURGE_1
-    #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Wait for")
-    #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("filament purge")
+    #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Wait for filament")
+    #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("purge to finish")
   #endif
   #ifndef MSG_FILAMENT_CHANGE_CONT_PURGE_1
-    #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Click to finish")
-    #define MSG_FILAMENT_CHANGE_CONT_PURGE_2  _UxGT("filament purge")
+    #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Click to stop")
+    #define MSG_FILAMENT_CHANGE_CONT_PURGE_2  _UxGT("purging filament")
   #endif
   #ifndef MSG_FILAMENT_CHANGE_RESUME_1
     #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Wait for print")

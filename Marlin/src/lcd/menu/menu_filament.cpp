@@ -47,6 +47,7 @@ inline PGM_P _change_filament_temp_command() {
       return PSTR("M701 T%d");
     case PAUSE_MODE_UNLOAD_FILAMENT:
       return _change_filament_temp_extruder >= 0 ? PSTR("M702 T%d") : PSTR("M702 ;%d");
+    case PAUSE_MODE_CHANGE_FILAMENT:
     case PAUSE_MODE_PAUSE_PRINT:
     default:
       return PSTR("M600 B0 T%d");
@@ -75,7 +76,9 @@ static PGM_P change_filament_header(const PauseMode mode) {
   return PSTR(MSG_FILAMENTCHANGE);
 }
 
-void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
+void _menu_temp_filament_op(const PauseMode inMode, const int8_t extruder) {
+  // If no print is active, just label as "filament change"
+  const PauseMode mode = (inMode != PAUSE_MODE_PAUSE_PRINT || printingIsPaused()) ? inMode : PAUSE_MODE_CHANGE_FILAMENT;
   _change_filament_temp_mode = mode;
   _change_filament_temp_extruder = extruder;
   START_MENU();
@@ -315,10 +318,13 @@ static uint8_t hotend_status_extruder = 0;
 
 static PGM_P pause_header() {
   switch (pause_mode) {
+    case PAUSE_MODE_CHANGE_FILAMENT:
+      return PSTR(MSG_FILAMENT_CHANGE_HEADER);
     case PAUSE_MODE_LOAD_FILAMENT:
       return PSTR(MSG_FILAMENT_CHANGE_HEADER_LOAD);
     case PAUSE_MODE_UNLOAD_FILAMENT:
       return PSTR(MSG_FILAMENT_CHANGE_HEADER_UNLOAD);
+    case PAUSE_MODE_PAUSE_PRINT:
     default: break;
   }
   return PSTR(MSG_FILAMENT_CHANGE_HEADER_PAUSE);
