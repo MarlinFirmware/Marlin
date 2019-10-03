@@ -39,7 +39,9 @@ typedef uint32_t hal_timer_t;
 
 #define HAL_TIMER_RATE         ((F_CPU) / 2)    // frequency of timers peripherals
 
+#ifndef STEP_TIMER_NUM
 #define STEP_TIMER_NUM 2  // index of timer to use for stepper
+#endif
 #define TEMP_TIMER_NUM 4  // index of timer to use for temperature
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
 #define TONE_TIMER_NUM 6  // index of timer to use for beeper tones
@@ -61,7 +63,9 @@ typedef uint32_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
+#ifndef HAL_STEP_TIMER_ISR()
 #define HAL_STEP_TIMER_ISR()  void TC2_Handler()
+#endif
 #define HAL_TEMP_TIMER_ISR()  void TC4_Handler()
 #define HAL_TONE_TIMER_ISR()  void TC6_Handler()
 
