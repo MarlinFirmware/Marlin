@@ -69,51 +69,32 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
 }
 
 #if HAS_TEMP_HOTEND
-  inline void _preheat_end(const uint8_t e, const uint8_t t) {
-    _lcd_preheat(e, ui.preheat_hotend_temp[t], -1, ui.preheat_fan_speed[t]);
+  inline void _preheat_end(const uint8_t m, const uint8_t e) {
+    _lcd_preheat(e, ui.preheat_hotend_temp[m], -1, ui.preheat_fan_speed[m]);
   }
   #if HAS_HEATED_BED
-    inline void _preheat_both(const uint8_t e, const uint8_t t) {
-      _lcd_preheat(e, ui.preheat_hotend_temp[t], ui.preheat_bed_temp[t], ui.preheat_fan_speed[t]);
+    inline void _preheat_both(const uint8_t m, const uint8_t e) {
+      _lcd_preheat(e, ui.preheat_hotend_temp[m], ui.preheat_bed_temp[m], ui.preheat_fan_speed[m]);
     }
   #endif
 #endif
 #if HAS_HEATED_BED
-  inline void _preheat_bed(const uint8_t t) {
-    _lcd_preheat(0, 0, ui.preheat_bed_temp[t], ui.preheat_fan_speed[t]);
+  inline void _preheat_bed(const uint8_t m) {
+    _lcd_preheat(0, 0, ui.preheat_bed_temp[m], ui.preheat_fan_speed[m]);
   }
 #endif
 
-#if HOTENDS > 1
-
-  void lcd_preheat_m1_all() {
-    #if HAS_HEATED_BED
-      _preheat_bed(0, 0);
-    #endif
-    HOTEND_LOOP(e)
-      thermalManager.setTargetHotend(ui.preheat_hotend_temp[0], e);
-  }
-
-  void lcd_preheat_m2_all() {
-    #if HAS_HEATED_BED
-      _preheat_bed(0, 1);
-    #endif
-    HOTEND_LOOP(e)
-      thermalManager.setTargetHotend(ui.preheat_hotend_temp[1], e);
-  }
-
-#endif // HOTENDS > 1
-
 #if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
+  #define _PREHEAT_ITEMS(M,N) do{ \
+    ACTION_ITEM(MSG_PREHEAT_##M##_N LCD_STR_N##N, [](){ _preheat_both(M-1, N); }); \
+    ACTION_ITEM(MSG_PREHEAT_##M##_END " " LCD_STR_E##N, [](){ _preheat_end(M-1, N); }); \
+  }while(0)
   #if HAS_HEATED_BED
-    #define PREHEAT_ITEMS(M,N) do{ \
-      ACTION_ITEM(MSG_PREHEAT_##M##_N MSG_H##N, [](){ _preheat_both(N, M-1); }); \
-      ACTION_ITEM(MSG_PREHEAT_##M##_END " " MSG_E##N, [](){ _preheat_end(N, M-1); }); \
-    }while(0)
+    #define PREHEAT_ITEMS(M,N) _PREHEAT_ITEMS(M,N)
   #else
     #define PREHEAT_ITEMS(M,N) \
-      ACTION_ITEM(MSG_PREHEAT_##M##_N MSG_H##N, [](){ _preheat_end(N, M-1); })
+      ACTION_ITEM(MSG_PREHEAT_##M##_N LCD_STR_N##N, [](){ _preheat_end(M-1, N); })
   #endif
 
   void menu_preheat_m1() {
@@ -128,8 +109,7 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
       #endif
     #elif HOTENDS > 1
       #if HAS_HEATED_BED
-        ACTION_ITEM(MSG_PREHEAT_1_N MSG_H1, [](){ _preheat_both(0, 0); });
-        ACTION_ITEM(MSG_PREHEAT_1_END " " MSG_E1, [](){ _preheat_end(0, 0); });
+        _PREHEAT_ITEMS(1,0);
       #endif
       PREHEAT_ITEMS(1,1);
       #if HOTENDS > 2
@@ -144,7 +124,12 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
-      ACTION_ITEM(MSG_PREHEAT_1_ALL, lcd_preheat_m1_all);
+      ACTION_ITEM(MSG_PREHEAT_1_ALL, []() {
+        #if HAS_HEATED_BED
+          _preheat_bed(0);
+        #endif
+        HOTEND_LOOP() thermalManager.setTargetHotend(ui.preheat_hotend_temp[0], e);
+      });
     #endif // HOTENDS > 1
     #if HAS_HEATED_BED
       ACTION_ITEM(MSG_PREHEAT_1_BEDONLY, [](){ _preheat_bed(0); });
@@ -157,15 +142,14 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
     BACK_ITEM(MSG_TEMPERATURE);
     #if HOTENDS == 1
       #if HAS_HEATED_BED
-        ACTION_ITEM(MSG_PREHEAT_2, [](){ _preheat_both(0, 1); });
-        ACTION_ITEM(MSG_PREHEAT_2_END, [](){ _preheat_end(0, 1); });
+        ACTION_ITEM(MSG_PREHEAT_2, [](){ _preheat_both(1, 0); });
+        ACTION_ITEM(MSG_PREHEAT_2_END, [](){ _preheat_end(1, 0); });
       #else
-        ACTION_ITEM(MSG_PREHEAT_2, [](){ _preheat_end(0, 1); });
+        ACTION_ITEM(MSG_PREHEAT_2, [](){ _preheat_end(1, 0); });
       #endif
     #elif HOTENDS > 1
       #if HAS_HEATED_BED
-        ACTION_ITEM(MSG_PREHEAT_2_N MSG_H1, [](){ _preheat_both(0, 1); });
-        ACTION_ITEM(MSG_PREHEAT_2_END " " MSG_E1, [](){ _preheat_end(0, 1); });
+        _PREHEAT_ITEMS(2,0);
       #endif
       PREHEAT_ITEMS(2,1);
       #if HOTENDS > 2
@@ -180,7 +164,12 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
-      ACTION_ITEM(MSG_PREHEAT_2_ALL, lcd_preheat_m2_all);
+      ACTION_ITEM(MSG_PREHEAT_2_ALL, []() {
+        #if HAS_HEATED_BED
+          _preheat_bed(1);
+        #endif
+        HOTEND_LOOP() thermalManager.setTargetHotend(ui.preheat_hotend_temp[1], e);
+      });
     #endif // HOTENDS > 1
     #if HAS_HEATED_BED
       ACTION_ITEM(MSG_PREHEAT_2_BEDONLY, [](){ _preheat_bed(1); });
@@ -207,7 +196,7 @@ void menu_temperature() {
   #if HOTENDS == 1
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(0); });
   #elif HOTENDS > 1
-    #define EDIT_TARGET(N) EDIT_ITEM_FAST(int3, MSG_NOZZLE MSG_LCD_N##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(N); })
+    #define EDIT_TARGET(N) EDIT_ITEM_FAST(int3, MSG_NOZZLE LCD_STR_N##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(N); })
     EDIT_TARGET(0);
     EDIT_TARGET(1);
     #if HOTENDS > 2
@@ -279,7 +268,7 @@ void menu_temperature() {
       SUBMENU(MSG_PREHEAT_2, menu_preheat_m2);
     #else
       ACTION_ITEM(MSG_PREHEAT_1, [](){ _preheat_end(0, 0); });
-      ACTION_ITEM(MSG_PREHEAT_2, [](){ _preheat_end(0, 1); });
+      ACTION_ITEM(MSG_PREHEAT_2, [](){ _preheat_end(1, 0); });
     #endif
 
     //

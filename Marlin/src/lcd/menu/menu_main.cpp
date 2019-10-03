@@ -170,6 +170,10 @@ void menu_main() {
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
   #if ENABLED(CUSTOM_USER_MENUS)
+    #ifdef CUSTOM_USER_MENU_TITLE
+      #undef MSG_USER_MENU
+      #define MSG_USER_MENU CUSTOM_USER_MENU_TITLE
+    #endif
     SUBMENU(MSG_USER_MENU, menu_user);
   #endif
 

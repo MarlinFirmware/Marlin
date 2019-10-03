@@ -190,16 +190,16 @@ void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS); }
         pos_label = PSTR(MSG_MOVE_E);
       #else
         switch (eindex) {
-          default: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E1); break;
-          case 1: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E2); break;
+          default: pos_label = PSTR(MSG_MOVE_E LCD_STR_N0); break;
+          case 1: pos_label = PSTR(MSG_MOVE_E LCD_STR_N1); break;
           #if E_MANUAL > 2
-            case 2: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E3); break;
+            case 2: pos_label = PSTR(MSG_MOVE_E LCD_STR_N2); break;
             #if E_MANUAL > 3
-              case 3: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E4); break;
+              case 3: pos_label = PSTR(MSG_MOVE_E LCD_STR_N3); break;
               #if E_MANUAL > 4
-                case 4: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E5); break;
+                case 4: pos_label = PSTR(MSG_MOVE_E LCD_STR_N4); break;
                 #if E_MANUAL > 5
-                  case 5: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E6); break;
+                  case 5: pos_label = PSTR(MSG_MOVE_E LCD_STR_N5); break;
                 #endif // E_MANUAL > 5
               #endif // E_MANUAL > 4
             #endif // E_MANUAL > 3
@@ -316,35 +316,35 @@ void menu_move() {
 
     #if EXTRUDERS >= 4
       switch (active_extruder) {
-        case 0: GCODES_ITEM(MSG_SELECT " " MSG_E2, PSTR("T1")); break;
-        case 1: GCODES_ITEM(MSG_SELECT " " MSG_E1, PSTR("T0")); break;
-        case 2: GCODES_ITEM(MSG_SELECT " " MSG_E4, PSTR("T3")); break;
-        case 3: GCODES_ITEM(MSG_SELECT " " MSG_E3, PSTR("T2")); break;
+        case 0: GCODES_ITEM(MSG_SELECT " " LCD_STR_E1, PSTR("T1")); break;
+        case 1: GCODES_ITEM(MSG_SELECT " " LCD_STR_E0, PSTR("T0")); break;
+        case 2: GCODES_ITEM(MSG_SELECT " " LCD_STR_E3, PSTR("T3")); break;
+        case 3: GCODES_ITEM(MSG_SELECT " " LCD_STR_E2, PSTR("T2")); break;
         #if EXTRUDERS == 6
-          case 4: GCODES_ITEM(MSG_SELECT " " MSG_E6, PSTR("T5")); break;
-          case 5: GCODES_ITEM(MSG_SELECT " " MSG_E5, PSTR("T4")); break;
+          case 4: GCODES_ITEM(MSG_SELECT " " LCD_STR_E5, PSTR("T5")); break;
+          case 5: GCODES_ITEM(MSG_SELECT " " LCD_STR_E4, PSTR("T4")); break;
         #endif
       }
     #elif EXTRUDERS == 3
       if (active_extruder < 2) {
         if (active_extruder)
-          GCODES_ITEM(MSG_SELECT " " MSG_E1, PSTR("T0"));
+          GCODES_ITEM(MSG_SELECT " " LCD_STR_E0, PSTR("T0"));
         else
-          GCODES_ITEM(MSG_SELECT " " MSG_E2, PSTR("T1"));
+          GCODES_ITEM(MSG_SELECT " " LCD_STR_E1, PSTR("T1"));
       }
     #else
       if (active_extruder)
-        GCODES_ITEM(MSG_SELECT " " MSG_E1, PSTR("T0"));
+        GCODES_ITEM(MSG_SELECT " " LCD_STR_E0, PSTR("T0"));
       else
-        GCODES_ITEM(MSG_SELECT " " MSG_E2, PSTR("T1"));
+        GCODES_ITEM(MSG_SELECT " " LCD_STR_E1, PSTR("T1"));
     #endif
 
   #elif ENABLED(DUAL_X_CARRIAGE)
 
     if (active_extruder)
-      GCODES_ITEM(MSG_SELECT " " MSG_E1, PSTR("T0"));
+      GCODES_ITEM(MSG_SELECT " " LCD_STR_E0, PSTR("T0"));
     else
-      GCODES_ITEM(MSG_SELECT " " MSG_E2, PSTR("T1"));
+      GCODES_ITEM(MSG_SELECT " " LCD_STR_E1, PSTR("T1"));
 
   #endif
 
@@ -353,7 +353,7 @@ void menu_move() {
     // The current extruder
     SUBMENU(MSG_MOVE_E, [](){ _menu_move_distance(E_AXIS, [](){ lcd_move_e(); }, -1); });
 
-    #define SUBMENU_MOVE_E(N) SUBMENU(MSG_MOVE_E MSG_MOVE_E##N, [](){ _menu_move_distance(E_AXIS, [](){ lcd_move_e(N); }, N); });
+    #define SUBMENU_MOVE_E(N) SUBMENU(MSG_MOVE_E LCD_STR_N##N, [](){ _menu_move_distance(E_AXIS, [](){ lcd_move_e(N); }, N); });
 
     #if EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
 

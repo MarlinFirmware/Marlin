@@ -122,7 +122,7 @@ void menu_tune() {
   #if HOTENDS == 1
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(0); });
   #elif HOTENDS > 1
-    #define EDIT_NOZZLE(N) EDIT_ITEM_FAST(int3, MSG_NOZZLE MSG_LCD_N##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(N); })
+    #define EDIT_NOZZLE(N) EDIT_ITEM_FAST(int3, MSG_NOZZLE LCD_STR_N##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(N); })
     EDIT_NOZZLE(0);
     EDIT_NOZZLE(1);
     #if HOTENDS > 2
@@ -185,7 +185,7 @@ void menu_tune() {
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, [](){ planner.refresh_e_factor(0); });
   #elif EXTRUDERS
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, [](){ planner.refresh_e_factor(active_extruder); });
-    #define EDIT_FLOW(N) EDIT_ITEM(int3, MSG_FLOW MSG_LCD_N##N, &planner.flow_percentage[N], 10, 999, [](){ planner.refresh_e_factor(N); })
+    #define EDIT_FLOW(N) EDIT_ITEM(int3, MSG_FLOW LCD_STR_N##N, &planner.flow_percentage[N], 10, 999, [](){ planner.refresh_e_factor(N); })
     EDIT_FLOW(0);
     EDIT_FLOW(1);
     #if EXTRUDERS > 2

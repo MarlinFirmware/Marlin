@@ -60,7 +60,7 @@ void menu_backlash();
     LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i);
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
-    #define EDIT_DAC_PERCENT(N) EDIT_ITEM(uint8, MSG_##N " " MSG_DAC_PERCENT, &driverPercent[_AXIS(N)], 0, 100, [](){ dac_current_set_percents(driverPercent); })
+    #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_##A " " MSG_DAC_PERCENT, &driverPercent[_AXIS(A)], 0, 100, [](){ dac_current_set_percents(driverPercent); })
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
     EDIT_DAC_PERCENT(Z);
@@ -109,7 +109,7 @@ void menu_backlash();
       #if EXTRUDERS == 1
         EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
       #elif EXTRUDERS > 1
-        #define EDIT_ADVANCE_K(N) EDIT_ITEM(float52, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N], 0, 999)
+        #define EDIT_ADVANCE_K(N) EDIT_ITEM(float52, MSG_ADVANCE_K LCD_STR_E##N, &planner.extruder_advance_K[N], 0, 999)
         EDIT_ADVANCE_K(0);
         EDIT_ADVANCE_K(1);
         #if EXTRUDERS > 2
@@ -134,7 +134,7 @@ void menu_backlash();
         #if EXTRUDERS == 1
           EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[0], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #else // EXTRUDERS > 1
-          #define EDIT_FIL_DIAM(N) EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM MSG_DIAM_E##N, &planner.filament_size[N], 1.5f, 3.25f, planner.calculate_volumetric_multipliers)
+          #define EDIT_FIL_DIAM(N) EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM LCD_STR_N##N, &planner.filament_size[N], 1.5f, 3.25f, planner.calculate_volumetric_multipliers)
           EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
           EDIT_FIL_DIAM(0);
           EDIT_FIL_DIAM(1);
@@ -166,7 +166,7 @@ void menu_backlash();
       #if EXTRUDERS == 1
         EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD, &fc_settings[0].unload_length, 0, extrude_maxlength);
       #elif EXTRUDERS > 1
-        #define EDIT_FIL_UNLOAD(N) EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E##N, &fc_settings[N].unload_length, 0, extrude_maxlength)
+        #define EDIT_FIL_UNLOAD(N) EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD LCD_STR_N##N, &fc_settings[N].unload_length, 0, extrude_maxlength)
         EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
         EDIT_FIL_UNLOAD(0);
         EDIT_FIL_UNLOAD(1);
@@ -187,7 +187,7 @@ void menu_backlash();
       #if EXTRUDERS == 1
         EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD, &fc_settings[0].load_length, 0, extrude_maxlength);
       #elif EXTRUDERS > 1
-        #define EDIT_FIL_LOAD(N) EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD MSG_DIAM_E##N, &fc_settings[N].load_length, 0, extrude_maxlength)
+        #define EDIT_FIL_LOAD(N) EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD LCD_STR_N##N, &fc_settings[N].load_length, 0, extrude_maxlength)
         EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
         EDIT_FIL_LOAD(0);
         EDIT_FIL_LOAD(1);
@@ -330,16 +330,16 @@ void menu_backlash();
     #endif
 
     #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
-      PID_EDIT_MENU_ITEMS(" " MSG_E0, 0);
-      PID_EDIT_MENU_ITEMS(" " MSG_E1, 1);
+      PID_EDIT_MENU_ITEMS(" " LCD_STR_E0, 0);
+      PID_EDIT_MENU_ITEMS(" " LCD_STR_E1, 1);
       #if HOTENDS > 2
-        PID_EDIT_MENU_ITEMS(" " MSG_E2, 2);
+        PID_EDIT_MENU_ITEMS(" " LCD_STR_E2, 2);
         #if HOTENDS > 3
-          PID_EDIT_MENU_ITEMS(" " MSG_E3, 3);
+          PID_EDIT_MENU_ITEMS(" " LCD_STR_E3, 3);
           #if HOTENDS > 4
-            PID_EDIT_MENU_ITEMS(" " MSG_E4, 4);
+            PID_EDIT_MENU_ITEMS(" " LCD_STR_E4, 4);
             #if HOTENDS > 5
-              PID_EDIT_MENU_ITEMS(" " MSG_E5, 5);
+              PID_EDIT_MENU_ITEMS(" " LCD_STR_E5, 5);
             #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
@@ -391,7 +391,7 @@ void menu_backlash();
     EDIT_VMAX(C);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_VMAX_E(N) EDIT_ITEM_FAST(float3, MSG_VMAX MSG_E##N, &planner.settings.max_feedrate_mm_s[E_AXIS_N(N)], 1, max_fr_edit_scaled.e)
+      #define EDIT_VMAX_E(N) EDIT_ITEM_FAST(float3, MSG_VMAX LCD_STR_E##N, &planner.settings.max_feedrate_mm_s[E_AXIS_N(N)], 1, max_fr_edit_scaled.e)
       EDIT_ITEM_FAST(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS_N(active_extruder)], 1, max_fr_edit_scaled.e);
       EDIT_VMAX_E(0);
       EDIT_VMAX_E(1);
@@ -458,7 +458,7 @@ void menu_backlash();
     EDIT_AMAX(C, 10);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_AMAX_E(N) EDIT_ITEM_FAST(long5_25, MSG_AMAX MSG_E##N, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(N)], 100, max_accel_edit_scaled.e, [](){ _reset_e_acceleration_rate(N); })
+      #define EDIT_AMAX_E(N) EDIT_ITEM_FAST(long5_25, MSG_AMAX LCD_STR_E##N, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(N)], 100, max_accel_edit_scaled.e, [](){ _reset_e_acceleration_rate(N); })
       EDIT_ITEM_FAST(long5_25, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, max_accel_edit_scaled.e, [](){ planner.reset_acceleration_rates(); });
       EDIT_AMAX_E(0);
       EDIT_AMAX_E(1);
@@ -530,7 +530,7 @@ void menu_backlash();
     EDIT_QSTEPS(C);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_ESTEPS(N) EDIT_ITEM_FAST(float51, MSG_E##N ##STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(N)], 5, 9999, [](){ _planner_refresh_e_positioning(N); })
+      #define EDIT_ESTEPS(N) EDIT_ITEM_FAST(float51, MSG_E##N##STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(N)], 5, 9999, [](){ _planner_refresh_e_positioning(N); })
       EDIT_ITEM_FAST(float51, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, [](){ planner.refresh_positioning(); });
       EDIT_ESTEPS(0);
       EDIT_ESTEPS(1);
@@ -632,7 +632,7 @@ void menu_advanced_settings() {
     #if EXTRUDERS == 1
       EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
     #elif EXTRUDERS > 1
-      #define EDIT_ADVANCE_K(N) EDIT_ITEM(float52, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N], 0, 999)
+      #define EDIT_ADVANCE_K(N) EDIT_ITEM(float52, MSG_ADVANCE_K LCD_STR_E##N, &planner.extruder_advance_K[N], 0, 999)
       EDIT_ADVANCE_K(0);
       EDIT_ADVANCE_K(1);
       #if EXTRUDERS > 2
