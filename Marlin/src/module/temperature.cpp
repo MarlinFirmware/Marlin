@@ -157,18 +157,6 @@ Temperature thermalManager;
     uint8_t Temperature::fan_speed_scaler[FAN_COUNT] = ARRAY_N(FAN_COUNT, 128, 128, 128, 128, 128, 128);
   #endif
 
-  #if HAS_LCD_MENU
-
-    uint8_t Temperature::lcd_tmpfan_speed[
-      #if ENABLED(SINGLENOZZLE)
-        _MAX(EXTRUDERS, FAN_COUNT)
-      #else
-        FAN_COUNT
-      #endif
-    ]; // = { 0 }
-
-  #endif
-
   /**
    * Set the print fan speed for a target extruder
    */
@@ -187,9 +175,6 @@ Temperature thermalManager;
     if (target >= FAN_COUNT) return;
 
     fan_speed[target] = speed;
-    #if HAS_LCD_MENU
-      lcd_tmpfan_speed[target] = speed;
-    #endif
   }
 
   #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)

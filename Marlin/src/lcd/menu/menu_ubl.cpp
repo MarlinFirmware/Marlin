@@ -616,7 +616,8 @@ void _lcd_ubl_level_bed() {
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);
   GCODES_ITEM(MSG_UBL_INFO_UBL, PSTR("G29 W"));
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &lcd_z_fade_height, 0, 100, _lcd_set_z_fade_height);
+    editable.decimal = planner.z_fade_height;
+    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, [](){ set_z_fade_height(editable.decimal); });
   #endif
   END_MENU();
 }

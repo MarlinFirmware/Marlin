@@ -78,9 +78,7 @@ inline PGM_P change_filament_header(const PauseMode mode) {
   return PSTR(MSG_FILAMENTCHANGE);
 }
 
-void _menu_temp_filament_op(const PauseMode inMode, const int8_t extruder) {
-  // If no print is active, just label as "filament change"
-  const PauseMode mode = (inMode != PAUSE_MODE_PAUSE_PRINT || printingIsPaused()) ? inMode : PAUSE_MODE_CHANGE_FILAMENT;
+void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   _change_filament_temp_mode = mode;
   _change_filament_temp_extruder = extruder;
   START_MENU();
@@ -104,46 +102,49 @@ void _menu_temp_filament_op(const PauseMode inMode, const int8_t extruder) {
     START_MENU();
     BACK_ITEM(MSG_MAIN);
 
+    // Say "filament change" when no print is active
+    editable.int8 = printingIsPaused() ? PAUSE_MODE_PAUSE_PRINT : PAUSE_MODE_CHANGE_FILAMENT;
+
     // Change filament
     #if E_STEPPERS == 1
       PGM_P msg0 = PSTR(MSG_FILAMENTCHANGE);
       if (thermalManager.targetTooColdToExtrude(active_extruder))
-        MENU_ITEM_P(submenu, msg0, [](){ _menu_temp_filament_op(PAUSE_MODE_PAUSE_PRINT, 0); });
+        MENU_ITEM_P(submenu, msg0, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 0); });
       else
         MENU_ITEM_P(gcode, msg0, PSTR("M600 B0"));
     #else
       PGM_P msg0 = PSTR(MSG_FILAMENTCHANGE " " MSG_E1);
       PGM_P msg1 = PSTR(MSG_FILAMENTCHANGE " " MSG_E2);
       if (thermalManager.targetTooColdToExtrude(0))
-        MENU_ITEM_P(submenu, msg0, [](){ _menu_temp_filament_op(PAUSE_MODE_PAUSE_PRINT, 0); });
+        MENU_ITEM_P(submenu, msg0, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 0); });
       else
         MENU_ITEM_P(gcode, msg0, PSTR("M600 B0 T0"));
       if (thermalManager.targetTooColdToExtrude(1))
-        MENU_ITEM_P(submenu, msg1, [](){ _menu_temp_filament_op(PAUSE_MODE_PAUSE_PRINT, 1); });
+        MENU_ITEM_P(submenu, msg1, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 1); });
       else
         MENU_ITEM_P(gcode, msg1, PSTR("M600 B0 T1"));
       #if E_STEPPERS > 2
         PGM_P msg2 = PSTR(MSG_FILAMENTCHANGE " " MSG_E3);
         if (thermalManager.targetTooColdToExtrude(2))
-          MENU_ITEM_P(submenu, msg2, [](){ _menu_temp_filament_op(PAUSE_MODE_PAUSE_PRINT, 2); });
+          MENU_ITEM_P(submenu, msg2, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 2); });
         else
           MENU_ITEM_P(gcode, msg2, PSTR("M600 B0 T2"));
         #if E_STEPPERS > 3
           PGM_P msg3 = PSTR(MSG_FILAMENTCHANGE " " MSG_E4);
           if (thermalManager.targetTooColdToExtrude(3))
-            MENU_ITEM_P(submenu, msg3, [](){ _menu_temp_filament_op(PAUSE_MODE_PAUSE_PRINT, 3); });
+            MENU_ITEM_P(submenu, msg3, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 3); });
           else
             MENU_ITEM_P(gcode, msg3, PSTR("M600 B0 T3"));
           #if E_STEPPERS > 4
             PGM_P msg4 = PSTR(MSG_FILAMENTCHANGE " " MSG_E5);
             if (thermalManager.targetTooColdToExtrude(4))
-              MENU_ITEM_P(submenu, msg4, [](){ _menu_temp_filament_op(PAUSE_MODE_PAUSE_PRINT, 4); });
+              MENU_ITEM_P(submenu, msg4, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 4); });
             else
               MENU_ITEM_P(gcode, msg4, PSTR("M600 B0 T4"));
             #if E_STEPPERS > 5
               PGM_P msg5 = PSTR(MSG_FILAMENTCHANGE " " MSG_E6);
               if (thermalManager.targetTooColdToExtrude(5))
-                MENU_ITEM_P(submenu, msg5, [](){ _menu_temp_filament_op(PAUSE_MODE_PAUSE_PRINT, 5); });
+                MENU_ITEM_P(submenu, msg5, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 5); });
               else
                 MENU_ITEM_P(gcode, msg5, PSTR("M600 B0 T5"));
             #endif // E_STEPPERS > 5

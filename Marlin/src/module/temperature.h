@@ -493,30 +493,6 @@ class Temperature {
         static void set_temp_fan_speed(const uint8_t fan, const uint16_t tmp_temp);
       #endif
 
-      #if HAS_LCD_MENU
-
-        static uint8_t lcd_tmpfan_speed[
-          #if ENABLED(SINGLENOZZLE)
-            _MAX(EXTRUDERS, FAN_COUNT)
-          #else
-            FAN_COUNT
-          #endif
-        ];
-
-        static inline void lcd_setFanSpeed(const uint8_t target) { set_fan_speed(target, lcd_tmpfan_speed[target]); }
-
-        #if HAS_FAN0
-          FORCE_INLINE static void lcd_setFanSpeed0() { lcd_setFanSpeed(0); }
-        #endif
-        #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
-          FORCE_INLINE static void lcd_setFanSpeed1() { lcd_setFanSpeed(1); }
-        #endif
-        #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
-          FORCE_INLINE static void lcd_setFanSpeed2() { lcd_setFanSpeed(2); }
-        #endif
-
-      #endif // HAS_LCD_MENU
-
       #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         void set_fans_paused(const bool p);
       #endif

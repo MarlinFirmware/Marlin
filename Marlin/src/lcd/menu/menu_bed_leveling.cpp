@@ -260,13 +260,15 @@ void menu_bed_leveling() {
 
   // Homed and leveling is valid? Then leveling can be toggled.
   if (is_homed && leveling_is_valid()) {
-    bool new_level_state = planner.leveling_active;
-    EDIT_ITEM(bool, MSG_BED_LEVELING, &new_level_state, _lcd_toggle_bed_leveling);
+    bool show_state = planner.leveling_active;
+    EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
   }
 
   // Z Fade Height
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &lcd_z_fade_height, 0, 100, _lcd_set_z_fade_height);
+    // Shadow for editing the fade height
+    editable.decimal = planner.z_fade_height;
+    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, [](){ set_z_fade_height(editable.decimal); });
   #endif
 
   //
