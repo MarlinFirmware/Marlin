@@ -253,24 +253,14 @@ void _menu_temp_filament_op(const PauseMode inMode, const int8_t extruder) {
             SUBMENU(MSG_FILAMENTUNLOAD, menu_temp_e0_filament_unload);
         #else
           #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
-            if (thermalManager.targetHotEnoughToExtrude(0)
-              #if E_STEPPERS > 1
-                && thermalManager.targetHotEnoughToExtrude(1)
-                #if E_STEPPERS > 2
-                  && thermalManager.targetHotEnoughToExtrude(2)
-                  #if E_STEPPERS > 3
-                    && thermalManager.targetHotEnoughToExtrude(3)
-                    #if E_STEPPERS > 4
-                      && thermalManager.targetHotEnoughToExtrude(4)
-                      #if E_STEPPERS > 5
-                        && thermalManager.targetHotEnoughToExtrude(5)
-                      #endif // E_STEPPERS > 5
-                    #endif // E_STEPPERS > 4
-                  #endif // E_STEPPERS > 3
-                #endif // E_STEPPERS > 2
-              #endif // E_STEPPERS > 1
-            )
-              GCODES_ITEM(MSG_FILAMENTUNLOAD_ALL, PSTR("M702"));
+            if (JOIN_N(E_STEPPERS, &&,
+              thermalManager.targetHotEnoughToExtrude(0),
+              thermalManager.targetHotEnoughToExtrude(1),
+              thermalManager.targetHotEnoughToExtrude(2),
+              thermalManager.targetHotEnoughToExtrude(3),
+              thermalManager.targetHotEnoughToExtrude(4),
+              thermalManager.targetHotEnoughToExtrude(5))
+            ) GCODES_ITEM(MSG_FILAMENTUNLOAD_ALL, PSTR("M702"));
           else
             SUBMENU(MSG_FILAMENTUNLOAD_ALL, menu_unload_filament_all_temp);
           #endif

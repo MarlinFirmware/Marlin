@@ -227,6 +227,9 @@
 #define LIST_N(N,V...) _LIST_N(N,V)
 #define ARRAY_N(N,V...) { _LIST_N(N,V) }
 
+#define _JOIN_1(O)         (O)
+#define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
+
 // Macros for adding
 #define INC_0 1
 #define INC_1 2
