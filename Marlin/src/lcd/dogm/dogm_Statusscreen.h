@@ -1232,7 +1232,7 @@
     #define _HEATERS_WIDTH (HOTENDS * (STATUS_HEATERS_XSPACE)) // as many hotends as possible
   #elif STATUS_HEATERS_WIDTH
     #define _HEATERS_WIDTH STATUS_HEATERS_WIDTH
-  #else
+  #elif HOTENDS
     #error "Status screen heaters region was not specified."
   #endif
   #if STATUS_LOGO_WIDTH > (LCD_PIXEL_WIDTH - (_EXTRA_WIDTH + _HEATERS_WIDTH))
