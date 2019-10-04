@@ -45,10 +45,10 @@ inline void _service_reset(const int index) {
     char sram[30];
     strncpy_P(sram, PSTR(SERVICE_NAME_1), 29);
     do_select_screen(
-      PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
+      GET_TEXT(MSG_BUTTON_RESET), GET_TEXT(MSG_BUTTON_CANCEL),
       []{ _service_reset(1); },
       ui.goto_previous_screen,
-      PSTR(MSG_SERVICE_RESET), sram, PSTR("?")
+      GET_TEXT(MSG_SERVICE_RESET), sram, PSTR("?")
     );
   }
 #endif
@@ -58,10 +58,10 @@ inline void _service_reset(const int index) {
     char sram[30];
     strncpy_P(sram, PSTR(SERVICE_NAME_2), 29);
     do_select_screen(
-      PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
+      GET_TEXT(MSG_BUTTON_RESET), GET_TEXT(MSG_BUTTON_CANCEL),
       []{ _service_reset(2); },
       ui.goto_previous_screen,
-      PSTR(MSG_SERVICE_RESET), sram, PSTR("?")
+      GET_TEXT(MSG_SERVICE_RESET), sram, PSTR("?")
     );
   }
 #endif
@@ -71,10 +71,10 @@ inline void _service_reset(const int index) {
     char sram[30];
     strncpy_P(sram, PSTR(SERVICE_NAME_3), 29);
     do_select_screen(
-      PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
+      GET_TEXT(MSG_BUTTON_RESET), GET_TEXT(MSG_BUTTON_CANCEL),
       []{ _service_reset(3); },
       ui.goto_previous_screen,
-      PSTR(MSG_SERVICE_RESET), sram, PSTR("?")
+      GET_TEXT(MSG_SERVICE_RESET), sram, PSTR("?")
     );
   }
 #endif

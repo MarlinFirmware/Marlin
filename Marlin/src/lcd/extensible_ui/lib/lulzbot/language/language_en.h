@@ -24,8 +24,6 @@
 #include "language.h"
 
 namespace Language_en {
-  PROGMEM Language_Str LANGUAGE                 = u8"English";
-
   PROGMEM Language_Str YES                      = u8"Yes";
   PROGMEM Language_Str NO                       = u8"No";
   PROGMEM Language_Str BACK                     = u8"Back";

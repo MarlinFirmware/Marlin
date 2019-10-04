@@ -464,9 +464,11 @@ namespace ExtUI {
   }
 
   // {E:<msg>} is for error states.
-  void onPrinterKilled(PGM_P msg) {
+  void onPrinterKilled(PGM_P error, PGM_P component) {
     write_to_lcd_P(PSTR("{E:"));
-    write_to_lcd_P(msg);
+    write_to_lcd_P(error);
+    write_to_lcd_P(PSTR(" "));
+    write_to_lcd_P(component);
     write_to_lcd_P("}");
   }
 

@@ -138,7 +138,7 @@ void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pg
  *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
  *
  * This expands into a more primitive menu item:
- *  _MENU_ITEM_P(int3, false, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *  _MENU_ITEM_P(int3, false, GET_TEXT(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  * ...which calls:
  *       MenuItem_int3::action(plabel, &feedrate_percentage, 10, 999)
@@ -324,8 +324,7 @@ void MarlinUI::_synchronize() {
 // Display the synchronize screen with a custom message
 // ** This blocks the command queue! **
 void MarlinUI::synchronize(PGM_P const msg/*=nullptr*/) {
-  static const char moving[] PROGMEM = MSG_MOVING;
-  sync_message = msg ? msg : moving;
+  sync_message = msg ?: GET_TEXT(MSG_MOVING);
   _synchronize();
 }
 
@@ -419,10 +418,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          draw_edit_screen(PSTR(MSG_Z_OFFSET), ftostr43sign(hotend_offset[active_extruder].z));
+          draw_edit_screen(GET_TEXT(MSG_Z_OFFSET), ftostr43sign(hotend_offset[active_extruder].z));
         else
       #endif
-          draw_edit_screen(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe_offset.z));
+          draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe_offset.z));
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
         if (do_probe) _lcd_zoffset_overlay_gfx(probe_offset.z);
@@ -467,7 +466,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 void _lcd_draw_homing() {
   constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;
-  if (ui.should_draw()) draw_menu_item_static(line, PSTR(MSG_LEVEL_BED_HOMING));
+  if (ui.should_draw()) draw_menu_item_static(line, GET_TEXT(MSG_LEVEL_BED_HOMING));
   ui.refresh(LCDVIEW_CALL_NO_REDRAW);
 }
 

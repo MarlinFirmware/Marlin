@@ -1036,11 +1036,11 @@ void MarlinUI::update() {
   ExtUI::onIdle();
 }
 
-void MarlinUI::kill_screen(PGM_P const msg) {
+void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
   using namespace ExtUI;
   if (!flags.printer_killed) {
     flags.printer_killed = true;
-    onPrinterKilled(msg);
+    onPrinterKilled(error, component);
   }
 }
 

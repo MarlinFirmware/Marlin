@@ -38,7 +38,7 @@ void menu_backlash() {
 
   EDIT_ITEM_FAST(percent, MSG_BACKLASH_CORRECTION, &backlash.correction, all_off, all_on);
 
-  #define EDIT_BACKLASH_DISTANCE(N) EDIT_ITEM_FAST(float43, MSG_##N, &backlash.distance_mm[_AXIS(N)], 0.0f, 9.9f);
+  #define EDIT_BACKLASH_DISTANCE(N) EDIT_ITEM_FAST(float43, MSG_BACKLASH_##N, &backlash.distance_mm[_AXIS(N)], 0.0f, 9.9f);
   EDIT_BACKLASH_DISTANCE(A);
   EDIT_BACKLASH_DISTANCE(B);
   EDIT_BACKLASH_DISTANCE(C);

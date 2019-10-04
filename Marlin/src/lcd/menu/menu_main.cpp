@@ -44,7 +44,7 @@
 
 #if MACHINE_CAN_STOP
   void menu_abort_confirm() {
-    do_select_screen(PSTR(MSG_BUTTON_STOP), PSTR(MSG_BACK), ui.abort_print, ui.goto_previous_screen, PSTR(MSG_STOP_PRINT), nullptr, PSTR("?"));
+    do_select_screen(GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK), ui.abort_print, ui.goto_previous_screen, GET_TEXT(MSG_STOP_PRINT), nullptr, PSTR("?"));
   }
 #endif // MACHINE_CAN_STOP
 
@@ -238,13 +238,13 @@ void menu_main() {
 
   #if HAS_SERVICE_INTERVALS
     #if SERVICE_INTERVAL_1 > 0
-      SUBMENU(SERVICE_NAME_1, menu_service1);
+      SUBMENU_P(PSTR(SERVICE_NAME_1), menu_service1);
     #endif
     #if SERVICE_INTERVAL_2 > 0
-      SUBMENU(SERVICE_NAME_2, menu_service2);
+      SUBMENU_P(PSTR(SERVICE_NAME_2), menu_service2);
     #endif
     #if SERVICE_INTERVAL_3 > 0
-      SUBMENU(SERVICE_NAME_3, menu_service3);
+      SUBMENU_P(PSTR(SERVICE_NAME_3), menu_service3);
     #endif
   #endif
 

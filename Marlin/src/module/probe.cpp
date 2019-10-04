@@ -281,7 +281,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       BUZZ(100, 659);
       BUZZ(100, 698);
 
-      PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
+      PGM_P const ds_str = deploy ? GET_TEXT(MSG_MANUAL_DEPLOY) : GET_TEXT(MSG_MANUAL_STOW);
       ui.return_to_status();       // To display the new status message
       ui.set_status_P(ds_str, 99);
       serialprintPGM(ds_str);
@@ -736,7 +736,7 @@ float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_
 
   if (isnan(measured_z)) {
     STOW_PROBE();
-    LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
+    LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
     SERIAL_ERROR_MSG(MSG_ERR_PROBING_FAILED);
   }
 

@@ -110,6 +110,6 @@ void GcodeSuite::M81() {
   #endif
 
   #if HAS_LCD_MENU
-    LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
+    LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " MSG_OFF "."));
   #endif
 }

@@ -74,14 +74,14 @@
       #if MANUAL_PROBE_HEIGHT > 0 && DISABLED(MESH_BED_LEVELING)
         // Display "Done" screen and wait for moves to complete
         line_to_z(MANUAL_PROBE_HEIGHT);
-        ui.synchronize(PSTR(MSG_LEVEL_BED_DONE));
+        ui.synchronize(GET_TEXT(MSG_LEVEL_BED_DONE));
       #endif
       ui.goto_previous_screen_no_defer();
       #if HAS_BUZZER
         ui.completion_feedback();
       #endif
     }
-    if (ui.should_draw()) draw_menu_item_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_LEVEL_BED_DONE));
+    if (ui.should_draw()) draw_menu_item_static(LCD_HEIGHT >= 4 ? 1 : 0, GET_TEXT(MSG_LEVEL_BED_DONE));
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
   }
 
@@ -132,7 +132,7 @@
     //
     if (ui.should_draw()) {
       const float v = current_position.z;
-      draw_edit_screen(PSTR(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
+      draw_edit_screen(GET_TEXT(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
     }
   }
 
@@ -143,7 +143,7 @@
     if (ui.should_draw()) {
       char msg[10];
       sprintf_P(msg, PSTR("%i / %u"), (int)(manual_probe_index + 1), total_probe_points);
-      draw_edit_screen(PSTR(MSG_LEVEL_BED_NEXT_POINT), msg);
+      draw_edit_screen(GET_TEXT(MSG_LEVEL_BED_NEXT_POINT), msg);
     }
     ui.refresh(LCDVIEW_CALL_NO_REDRAW);
     if (!ui.wait_for_bl_move) ui.goto_screen(_lcd_level_bed_get_z);
@@ -169,7 +169,7 @@
   //         Move to the first probe position
   //
   void _lcd_level_bed_homing_done() {
-    if (ui.should_draw()) draw_edit_screen(PSTR(MSG_LEVEL_BED_WAITING));
+    if (ui.should_draw()) draw_edit_screen(GET_TEXT(MSG_LEVEL_BED_WAITING));
     if (ui.use_click()) {
       manual_probe_index = 0;
       _lcd_level_goto_next_point();

@@ -168,7 +168,7 @@ int8_t g26_prime_flag;
    */
   bool user_canceled() {
     if (!ui.button_pressed()) return false; // Return if the button isn't pressed
-    ui.set_status_P(PSTR(MSG_G26_CANCELED), 99);
+    ui.set_status_P(GET_TEXT(MSG_G26_CANCELED), 99);
     #if HAS_LCD_MENU
       ui.quick_feedback();
     #endif
@@ -370,7 +370,7 @@ inline bool turn_on_heaters() {
 
     if (g26_bed_temp > 25) {
       #if HAS_SPI_LCD
-        ui.set_status_P(PSTR(MSG_G26_HEATING_BED), 99);
+        ui.set_status_P(GET_TEXT(MSG_G26_HEATING_BED), 99);
         ui.quick_feedback();
         #if HAS_LCD_MENU
           ui.capture();
@@ -391,7 +391,7 @@ inline bool turn_on_heaters() {
 
   // Start heating the active nozzle
   #if HAS_SPI_LCD
-    ui.set_status_P(PSTR(MSG_G26_HEATING_NOZZLE), 99);
+    ui.set_status_P(GET_TEXT(MSG_G26_HEATING_NOZZLE), 99);
     ui.quick_feedback();
   #endif
   thermalManager.setTargetHotend(g26_hotend_temp, active_extruder);
@@ -426,7 +426,7 @@ inline bool prime_nozzle() {
     if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
 
       ui.capture();
-      ui.set_status_P(PSTR(MSG_G26_MANUAL_PRIME), 99);
+      ui.set_status_P(GET_TEXT(MSG_G26_MANUAL_PRIME), 99);
       ui.chirp();
 
       destination = current_position;
@@ -450,7 +450,7 @@ inline bool prime_nozzle() {
 
       ui.wait_for_release();
 
-      ui.set_status_P(PSTR(MSG_G26_PRIME_DONE), 99);
+      ui.set_status_P(GET_TEXT(MSG_G26_PRIME_DONE), 99);
       ui.quick_feedback();
       ui.release();
     }
@@ -458,7 +458,7 @@ inline bool prime_nozzle() {
   #endif
   {
     #if HAS_SPI_LCD
-      ui.set_status_P(PSTR(MSG_G26_FIXED_LENGTH), 99);
+      ui.set_status_P(GET_TEXT(MSG_G26_FIXED_LENGTH), 99);
       ui.quick_feedback();
     #endif
     destination = current_position;
@@ -827,7 +827,7 @@ void GcodeSuite::G26() {
   } while (--g26_repeats && location.valid());
 
   LEAVE:
-  ui.set_status_P(PSTR(MSG_G26_LEAVING), -1);
+  ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
 
   retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;

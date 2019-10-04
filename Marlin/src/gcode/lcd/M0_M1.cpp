@@ -80,7 +80,10 @@ void GcodeSuite::M0_M1() {
 
   #elif ENABLED(EXTENSIBLE_UI)
 
-    ExtUI::onUserConfirmRequired(has_message ? args : MSG_USERWAIT); // SRAM string
+    if (has_message)
+      ExtUI::onUserConfirmRequired(args); // Can this take an SRAM string??
+    else
+      ExtUI::onUserConfirmRequired(GET_TEXT(MSG_USERWAIT));
 
   #else
 

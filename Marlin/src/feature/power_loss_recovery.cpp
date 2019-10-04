@@ -228,7 +228,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
 #if PIN_EXISTS(POWER_LOSS)
   void PrintJobRecovery::_outage() {
     save(true);
-    kill(PSTR(MSG_OUTAGE_RECOVERY));
+    kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
   }
 #endif
 
