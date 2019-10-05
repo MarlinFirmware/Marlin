@@ -30,16 +30,18 @@
  *
  */
 
-#define DISPLAY_CHARSET_ISO10646_KANA
+//#define DISPLAY_CHARSET_ISO10646_KANA
 #define CHARSIZE 3
 
 // This just to show the potential benefit of unicode.
 // This translation can be improved by using the full charset of unicode codeblock U+30A0 to U+30FF.
 
 // 片仮名表示定義
-#define WELCOME_MSG                         MACHINE_NAME _UxGT(" ready.")
-#define MSG_MEDIA_INSERTED                  _UxGT("カードガソウニュウサレマシタ")        // "Card inserted"
-#define MSG_MEDIA_REMOVED                   _UxGT("カードガアリマセン")               // "Card removed"
+#define WELCOME_MSG                         MACHINE_NAME _UxGT(" ジュンビカンリョウ")
+#define MSG_MEDIA_INSERTED                  _UxGT("メディアガソウニュウサレマシタ")        // "Card inserted"
+#define MSG_MEDIA_REMOVED                   _UxGT("メディアガアリマセン")               // "Card removed"
+#define MSG_RELEASE_MEDIA                   _UxGT("メディアノトリダシ")
+#define MSG_MEDIA_RELEASED                  _UxGT("メディアガアリマセン")
 #define MSG_LCD_ENDSTOPS                    _UxGT("エンドストップ")                  // "Endstops" // Max length 8 characters
 #define MSG_MAIN                            _UxGT("メイン")                       // "Main"
 #define MSG_AUTOSTART                       _UxGT("ジドウカイシ")                   // "Autostart"
@@ -104,16 +106,22 @@
 #define MSG_PID_D                           _UxGT("PID-D")
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_SELECT                          _UxGT("センタク")                     // "Select"
-#define MSG_ACC                             _UxGT("カソクド mm/s2")               // "Accel"
-#define MSG_JERK                            _UxGT("ヤクド mm/s")                  // "Jerk"
+#define MSG_ACC                             _UxGT("カソクド mm/s²")               // "Accel"
+#define MSG_JERK                            _UxGT("ヤクドウ mm/s")                  // "Jerk"
 #if IS_KINEMATIC
-  #define MSG_VA_JERK                       _UxGT("Aジク ヤクド mm/s")             // "Va-jerk"
-  #define MSG_VB_JERK                       _UxGT("Bジク ヤクド mm/s")             // "Vb-jerk"
-  #define MSG_VC_JERK                       _UxGT("Cジク ヤクド mm/s")             // "Vc-jerk"
+  #define MSG_VA_JERK                       _UxGT("Aジク ヤクドウ mm/s")             // "Va-jerk"
+  #define MSG_VB_JERK                       _UxGT("Bジク ヤクドウ mm/s")             // "Vb-jerk"
+  #define MSG_VC_JERK                       _UxGT("Cジク ヤクドウ mm/s")             // "Vc-jerk"
+  #define MSG_ASTEPS                        _UxGT("Aステップ/mm")
+  #define MSG_BSTEPS                        _UxGT("Bステップ/mm")
+  #define MSG_CSTEPS                        _UxGT("Cステップ/mm")
 #else
-  #define MSG_VA_JERK                       _UxGT("Xジク ヤクド mm/s")             // "Vx-jerk"
-  #define MSG_VB_JERK                       _UxGT("Yジク ヤクド mm/s")             // "Vy-jerk"
-  #define MSG_VC_JERK                       _UxGT("Zジク ヤクド mm/s")             // "Vz-jerk"
+  #define MSG_VA_JERK                       _UxGT("Xジク ヤクドウ mm/s")             // "Vx-jerk"
+  #define MSG_VB_JERK                       _UxGT("Yジク ヤクドウ mm/s")             // "Vy-jerk"
+  #define MSG_VC_JERK                       _UxGT("Zジク ヤクドウ mm/s")             // "Vz-jerk"
+  #define MSG_ASTEPS                        _UxGT("Xステップ/mm")
+  #define MSG_BSTEPS                        _UxGT("Yステップ/mm")
+  #define MSG_CSTEPS                        _UxGT("Zステップ/mm")
 #endif
 #define MSG_VE_JERK                         _UxGT("エクストルーダー ヤクド")          // "Ve-jerk"
 #define MSG_VMAX                            _UxGT("サイダイオクリソクド ")            // "Vmax "
@@ -126,11 +134,11 @@
 #define MSG_TEMPERATURE                     _UxGT("オンド")                      // "Temperature"
 #define MSG_MOTION                          _UxGT("ウゴキセッテイ")                // "Motion"
 #define MSG_FILAMENT                        _UxGT("フィラメント")                   // "Filament"
-#define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
+#define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm³")
 #define MSG_FILAMENT_DIAM                   _UxGT("フィラメントチョッケイ")            // "Fil. Dia."
 #define MSG_CONTRAST                        _UxGT("LCDコントラスト")               // "LCD contrast"
-#define MSG_STORE_EEPROM                    _UxGT("メモリヘカクノウ")               // "Store memory"
-#define MSG_LOAD_EEPROM                     _UxGT("メモリカラヨミコミ")               // "Load memory"
+#define MSG_STORE_EEPROM                    _UxGT("EEPROMヘホゾン")               // "Store memory"
+#define MSG_LOAD_EEPROM                     _UxGT("EEPROMカラヨミコミ")               // "Load memory"
 #define MSG_RESTORE_FAILSAFE                _UxGT("セッテイリセット")               // "Restore failsafe"
 #define MSG_REFRESH                         _UxGT("リフレッシュ")                  // "Refresh"
 #define MSG_WATCH                           _UxGT("ジョウホウガメン")               // "Info screen"
@@ -139,8 +147,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("イチジテイシ")                  // "Pause print"
 #define MSG_RESUME_PRINT                    _UxGT("プリントサイカイ")                // "Resume print"
 #define MSG_STOP_PRINT                      _UxGT("プリントテイシ")                 // "Stop print"
-#define MSG_MEDIA_MENU                      _UxGT("SDカードカラプリント")            // "Print from SD"
-#define MSG_NO_MEDIA                        _UxGT("SDカードガアリマセン")            // "No SD card"
+#define MSG_MEDIA_MENU                      _UxGT("メディアカラプリント")            // "Print from SD"
+#define MSG_NO_MEDIA                        _UxGT("メディアガアリマセン")            // "No SD card"
 #define MSG_DWELL                           _UxGT("キュウシ")                     // "Sleep..."
 #define MSG_USERWAIT                        _UxGT("シバラクオマチクダサイ")           // "Wait for user..."
 #define MSG_PRINT_ABORTED                   _UxGT("プリントガチュウシサレマシタ")       // "Print aborted"
@@ -156,8 +164,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("ホショウソクド mm/s")            // "UnRet  V"
 #define MSG_AUTORETRACT                     _UxGT("ジドウヒキコミ")                 // "AutoRetr."
 #define MSG_FILAMENTCHANGE                  _UxGT("フィラメントコウカン")              // "Change filament"
-#define MSG_INIT_MEDIA                      _UxGT("SDカードサイヨミコミ")             // "Init. SD card"
-#define MSG_CHANGE_MEDIA                    _UxGT("SDカードコウカン")               // "Change SD card"
+#define MSG_INIT_MEDIA                      _UxGT("メディアサイヨミコミ")             // "Init. SD card"
+#define MSG_CHANGE_MEDIA                    _UxGT("メディアコウカン")               // "Change SD card"
 #define MSG_ZPROBE_OUT                      _UxGT("Zプローブ ベッドガイ")            // "Z probe out. bed"
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch ジコシンダン")          // "BLTouch Self-Test"
 #define MSG_BLTOUCH_RESET                   _UxGT("BLTouch リセット")             // "Reset BLTouch"
@@ -207,6 +215,7 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("モータークドウリョク")              // "Drive Strength"
 #define MSG_DAC_PERCENT                     _UxGT("DACシュツリョク %")               // "Driver %"
 #define MSG_DAC_EEPROM_WRITE                MSG_STORE_EEPROM                    // "DAC EEPROM Write"
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("イチジテイシ")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("プリントサイカイ")                // "Resume print"
 #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("コウカンヲカイシシマス")            // "Wait for start"
 #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("シバラクオマチクダサイ")            // "of the filament"
@@ -219,4 +228,28 @@
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("プリントヲサイカイシマス")           // "Wait for print"
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("シバラクオマチクダサイ")            // "to resume"
 
-#define MSG_EXPECTED_PRINTER                _UxGT("間違ったプリンター")               // "Wrong printer"
+#define MSG_EXPECTED_PRINTER                _UxGT("マチガッタプリンター")               // "Wrong printer"
+
+#define MSG_CONFIGURATION                   _UxGT("セッテイカンリ")
+#define MSG_ADVANCED_SETTINGS               _UxGT("ショウサイセッテイ")
+#define MSG_OUTAGE_RECOVERY                 _UxGT("コショカイフク")
+#define MSG_INIT_EEPROM                     _UxGT("EEPROMショキカ")
+
+#define MSG_BUTTON_NEXT                     _UxGT("ツギヘ")
+#define MSG_BUTTON_INIT                     _UxGT("ショキカ")
+#define MSG_BUTTON_STOP                     _UxGT("ストップ")
+#define MSG_BUTTON_PRINT                    _UxGT("プリント")
+#define MSG_BUTTON_RESET                    _UxGT("リセット")
+#define MSG_BUTTON_CANCEL                   _UxGT("キャンセル")
+#define MSG_BUTTON_DONE                     _UxGT("カンリョウ")
+
+#define MSG_YES                             _UxGT("ハイ")
+#define MSG_NO                              _UxGT("イイエ")
+#define MSG_BACK                            _UxGT("モドリ")
+#define MSG_VELOCITY                        _UxGT("ソクド")
+#define MSG_STEPS_PER_MM                    _UxGT("ステップ/mm")
+#define MSG_USERWAIT                        _UxGT("ツヅケルニハクリックシテクダサイ")
+#define MSG_USER_MENU                       _UxGT("ユーザーコマンド")
+#define MSG_PRINT_PAUSED                    _UxGT("プリントガイチジテイシサレマシタ")
+#define MSG_PRINTING                        _UxGT("プリントチュウ...")
+#define MSG_PRINT_ABORTED                   _UxGT("プリントガチュウシサレマシタ")
