@@ -222,8 +222,8 @@
 #define MSG_NOZZLE                          _UxGT("Ugello")
 #define MSG_BED                             _UxGT("Piatto")
 #define MSG_CHAMBER                         _UxGT("Camera")
-#define MSG_FAN_SPEED                       _UxGT("Velocità ventola")
-#define MSG_EXTRA_FAN_SPEED                 _UxGT("Extra vel. ventola")
+#define MSG_FAN_SPEED                       _UxGT("Vel. ventola") // Max 15 caratteri
+#define MSG_EXTRA_FAN_SPEED                 _UxGT("Extra vel.vent.") // Max 15 caratteri
 #define MSG_FLOW                            _UxGT("Flusso")
 #define MSG_CONTROL                         _UxGT("Controllo")
 #define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" Min")

@@ -253,7 +253,7 @@ static void lcd_factory_settings() {
     void menu_case_light() {
       START_MENU();
       BACK_ITEM(MSG_CONFIGURATION);
-      EDIT_ITEM(uint8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
+      EDIT_ITEM(percent, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
       EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
       END_MENU();
     }
