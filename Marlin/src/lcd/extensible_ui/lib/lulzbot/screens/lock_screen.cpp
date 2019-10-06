@@ -65,16 +65,16 @@ void LockScreen::onRedraw(draw_mode_t what) {
     progmem_str message;
     switch (message_style()) {
       case 'w':
-        message = GET_TEXTF(PASSCODE_REJECTED);
+        message = GET_TEXT_F(PASSCODE_REJECTED);
         break;
       case 'g':
-        message = GET_TEXTF(PASSCODE_ACCEPTED);
+        message = GET_TEXT_F(PASSCODE_ACCEPTED);
         break;
       default:
         if (passcode == 0) {
-          message = GET_TEXTF(PASSCODE_SELECT);
+          message = GET_TEXT_F(PASSCODE_SELECT);
         } else {
-          message = GET_TEXTF(PASSCODE_REQUEST);
+          message = GET_TEXT_F(PASSCODE_REQUEST);
         }
     }
     message_style() = '\0'; // Terminate the string.

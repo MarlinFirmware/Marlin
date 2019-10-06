@@ -78,7 +78,7 @@ typedef const char Language_Str[];
 #else
   #define GET_TEXT(MSG) GET_LANG(LCD_LANGUAGE_1)::MSG
 #endif
-#define GET_TEXTF(MSG) reinterpret_cast<const __FlashStringHelper *>(GET_TEXT(MSG))
+#define GET_TEXT_F(MSG) reinterpret_cast<const __FlashStringHelper *>(GET_TEXT(MSG))
 
 #define GET_LANGUAGE_NAME(N) GET_LANG(LCD_LANGUAGE_##N)::LANGUAGE
 

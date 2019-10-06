@@ -29,7 +29,7 @@
 using namespace FTDI;
 
 void BioConfirmHomeE::onRedraw(draw_mode_t) {
-  drawMessage(GET_TEXTF(HOME_E_WARNING));
+  drawMessage(GET_TEXT_F(HOME_E_WARNING));
   drawYesNoButtons(1);
 }
 

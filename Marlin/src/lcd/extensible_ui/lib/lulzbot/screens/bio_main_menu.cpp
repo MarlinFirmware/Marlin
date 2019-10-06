@@ -42,19 +42,19 @@ void MainMenu::onRedraw(draw_mode_t what) {
   if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.cmd(COLOR_RGB(bg_text_enabled))
-       .font(font_large).text( BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXTF(MAIN_MENU))
+       .font(font_large).text( BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(MAIN_MENU))
        .colors(normal_btn)
        .font(font_medium)
-       .tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXTF(MOVE_TO_HOME))
-       .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXTF(RAISE_PLUNGER))
-       .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXTF(RELEASE_XY_AXIS))
-       .tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXTF(AUTOLEVEL_X_AXIS))
-       .tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(BED_TEMPERATURE))
-       .tag(7).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(INTERFACE_SETTINGS))
-       .tag(8).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(ADVANCED_SETTINGS))
-       .tag(9).button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXTF(ABOUT_PRINTER))
+       .tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MOVE_TO_HOME))
+       .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(RAISE_PLUNGER))
+       .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(RELEASE_XY_AXIS))
+       .tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(AUTOLEVEL_X_AXIS))
+       .tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(BED_TEMPERATURE))
+       .tag(7).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(INTERFACE_SETTINGS))
+       .tag(8).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(ADVANCED_SETTINGS))
+       .tag(9).button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(ABOUT_PRINTER))
        .colors(action_btn)
-       .tag(1).button( BTN_POS(1,10), BTN_SIZE(2,1), GET_TEXTF(BACK));
+       .tag(1).button( BTN_POS(1,10), BTN_SIZE(2,1), GET_TEXT_F(BACK));
   }
 
   #undef GRID_COLS

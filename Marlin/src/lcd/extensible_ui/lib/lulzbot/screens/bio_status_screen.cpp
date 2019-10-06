@@ -179,13 +179,13 @@ void StatusScreen::draw_fine_motion(draw_mode_t what) {
 
     ui.bounds(POLY(fine_label), x, y, h, v);
     cmd.cmd(COLOR_RGB(bg_text_enabled))
-       .text(x, y, h, v, GET_TEXTF(FINE_MOTION));
+       .text(x, y, h, v, GET_TEXT_F(FINE_MOTION));
   }
 
   if (what & FOREGROUND) {
     ui.bounds(POLY(fine_toggle), x, y, h, v);
     cmd.colors(ui_toggle)
-       .toggle2(x, y, h, v, GET_TEXTF(NO), GET_TEXTF(YES), fine_motion);
+       .toggle2(x, y, h, v, GET_TEXT_F(NO), GET_TEXT_F(YES), fine_motion);
   }
 }
 
@@ -218,11 +218,11 @@ void StatusScreen::draw_buttons(draw_mode_t) {
      .colors(has_media ? action_btn : normal_btn)
      .tag(9).button(BTN_POS(1,9), BTN_SIZE(1,1),
         isPrintingFromMedia() ?
-          GET_TEXTF(PRINTING) :
-          GET_TEXTF(MEDIA)
+          GET_TEXT_F(PRINTING) :
+          GET_TEXT_F(MEDIA)
       );
 
-  cmd.colors(!has_media ? action_btn : normal_btn).tag(10).button(BTN_POS(2,9), BTN_SIZE(1,1), GET_TEXTF(MENU));
+  cmd.colors(!has_media ? action_btn : normal_btn).tag(10).button(BTN_POS(2,9), BTN_SIZE(1,1), GET_TEXT_F(MENU));
 }
 
 void StatusScreen::loadBitmaps() {

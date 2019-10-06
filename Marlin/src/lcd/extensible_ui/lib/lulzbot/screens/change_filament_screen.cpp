@@ -114,14 +114,14 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     #else
        .font(font_medium)
     #endif
-       .text(BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXTF(EXTRUDER_SELECTION))
+       .text(BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(EXTRUDER_SELECTION))
     #ifdef TOUCH_UI_PORTRAIT
        .text(BTN_POS(1,7), BTN_SIZE(1,1), F(""))
     #else
-       .text(BTN_POS(3,1), BTN_SIZE(2,1), GET_TEXTF(CURRENT_TEMPERATURE))
+       .text(BTN_POS(3,1), BTN_SIZE(2,1), GET_TEXT_F(CURRENT_TEMPERATURE))
        .font(font_small)
     #endif
-       .text(BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXTF(REMOVAL_TEMPERATURE));
+       .text(BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(REMOVAL_TEMPERATURE));
     drawTempGradient(BTN_POS(1,4), BTN_SIZE(1,3));
   }
 
@@ -154,12 +154,12 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     const bool t_ok = getActualTemp_celsius(e) > getSoftenTemp() - 10;
 
     if (screen_data.ChangeFilamentScreen.t_tag && !t_ok) {
-      cmd.text(BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXTF(HEATING));
+      cmd.text(BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXT_F(HEATING));
     } else if (getActualTemp_celsius(e) > 100) {
       cmd.cmd(COLOR_RGB(0xFF0000))
-         .text(BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXTF(CAUTION))
+         .text(BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(CAUTION))
          .colors(normal_btn)
-         .text(BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXTF(HOT));
+         .text(BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXT_F(HOT));
     }
 
     #define TOG_STYLE(A) colors(A ? action_btn : normal_btn)
@@ -221,23 +221,23 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     .cmd(COLOR_RGB(t_ok ? bg_text_enabled : bg_text_disabled))
     #ifdef TOUCH_UI_PORTRAIT
        .font(font_large)
-       .tag(0)                              .text   (BTN_POS(1,8),  BTN_SIZE(1,1), GET_TEXTF(UNLOAD_FILAMENT))
-                                            .text   (BTN_POS(2,8),  BTN_SIZE(1,1), GET_TEXTF(LOAD_FILAMENT))
-       .tag(5)                .enabled(t_ok).button (BTN_POS(1,9),  BTN_SIZE(1,1), GET_TEXTF(MOMENTARY))
-       .tag(6)                .enabled(t_ok).button (BTN_POS(2,9),  BTN_SIZE(1,1), GET_TEXTF(MOMENTARY))
-       .tag(7).TOG_STYLE(tog7).enabled(t_ok).button (BTN_POS(1,10), BTN_SIZE(1,1), GET_TEXTF(CONTINUOUS))
-       .tag(8).TOG_STYLE(tog8).enabled(t_ok).button (BTN_POS(2,10), BTN_SIZE(1,1), GET_TEXTF(CONTINUOUS))
-       .tag(1).colors(action_btn)           .button (BTN_POS(1,11), BTN_SIZE(2,1), GET_TEXTF(BACK));
+       .tag(0)                              .text   (BTN_POS(1,8),  BTN_SIZE(1,1), GET_TEXT_F(UNLOAD_FILAMENT))
+                                            .text   (BTN_POS(2,8),  BTN_SIZE(1,1), GET_TEXT_F(LOAD_FILAMENT))
+       .tag(5)                .enabled(t_ok).button (BTN_POS(1,9),  BTN_SIZE(1,1), GET_TEXT_F(MOMENTARY))
+       .tag(6)                .enabled(t_ok).button (BTN_POS(2,9),  BTN_SIZE(1,1), GET_TEXT_F(MOMENTARY))
+       .tag(7).TOG_STYLE(tog7).enabled(t_ok).button (BTN_POS(1,10), BTN_SIZE(1,1), GET_TEXT_F(CONTINUOUS))
+       .tag(8).TOG_STYLE(tog8).enabled(t_ok).button (BTN_POS(2,10), BTN_SIZE(1,1), GET_TEXT_F(CONTINUOUS))
+       .tag(1).colors(action_btn)           .button (BTN_POS(1,11), BTN_SIZE(2,1), GET_TEXT_F(BACK));
     #else
        .font(font_small)
-       .tag(0)                              .text   (BTN_POS(3,3),  BTN_SIZE(1,1), GET_TEXTF(UNLOAD_FILAMENT))
-                                            .text   (BTN_POS(4,3),  BTN_SIZE(1,1), GET_TEXTF(LOAD_FILAMENT))
-       .tag(5)                .enabled(t_ok).button (BTN_POS(3,4),  BTN_SIZE(1,1), GET_TEXTF(MOMENTARY))
-       .tag(6)                .enabled(t_ok).button (BTN_POS(4,4),  BTN_SIZE(1,1), GET_TEXTF(MOMENTARY))
-       .tag(7).TOG_STYLE(tog7).enabled(t_ok).button (BTN_POS(3,5),  BTN_SIZE(1,1), GET_TEXTF(CONTINUOUS))
-       .tag(8).TOG_STYLE(tog8).enabled(t_ok).button (BTN_POS(4,5),  BTN_SIZE(1,1), GET_TEXTF(CONTINUOUS))
+       .tag(0)                              .text   (BTN_POS(3,3),  BTN_SIZE(1,1), GET_TEXT_F(UNLOAD_FILAMENT))
+                                            .text   (BTN_POS(4,3),  BTN_SIZE(1,1), GET_TEXT_F(LOAD_FILAMENT))
+       .tag(5)                .enabled(t_ok).button (BTN_POS(3,4),  BTN_SIZE(1,1), GET_TEXT_F(MOMENTARY))
+       .tag(6)                .enabled(t_ok).button (BTN_POS(4,4),  BTN_SIZE(1,1), GET_TEXT_F(MOMENTARY))
+       .tag(7).TOG_STYLE(tog7).enabled(t_ok).button (BTN_POS(3,5),  BTN_SIZE(1,1), GET_TEXT_F(CONTINUOUS))
+       .tag(8).TOG_STYLE(tog8).enabled(t_ok).button (BTN_POS(4,5),  BTN_SIZE(1,1), GET_TEXT_F(CONTINUOUS))
        .font(font_medium)
-       .tag(1).colors(action_btn)           .button (BTN_POS(3,6),  BTN_SIZE(2,1), GET_TEXTF(BACK));
+       .tag(1).colors(action_btn)           .button (BTN_POS(3,6),  BTN_SIZE(2,1), GET_TEXT_F(BACK));
     #endif
   }
   #undef GRID_COLS
