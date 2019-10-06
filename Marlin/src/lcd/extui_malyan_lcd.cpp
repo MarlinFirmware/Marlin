@@ -117,7 +117,7 @@ void write_to_lcd(const char * const message) {
  * the command portion begins after the :
  */
 void process_lcd_c_command(const char* command) {
-  int target_val = command[1]?atoi(command + 1):-1;
+  const int target_val = command[1] ? atoi(command + 1) : -1;
   if (target_val < 0) {
     DEBUG_ECHOLNPAIR("UNKNOWN C COMMAND ", command);
     return;
@@ -130,11 +130,10 @@ void process_lcd_c_command(const char* command) {
       break;
 
     case 'T':
-      //sometimes the LCD will seend commands to turn off both extruder and bed
-      //though this should not happen since we show the printing screen. better safe than sorry
-      if(!print_job_timer.isRunning() || target_val > 0){
+      // Sometimes the LCD will send commands to turn off both extruder and bed, though
+      // this should not happen since the printing screen is up. Better safe than sorry.
+      if (!print_job_timer.isRunning() || target_val > 0)
         ExtUI::setTargetTemp_celsius(target_val, ExtUI::extruder_t::E0);
-      }
       break;
 
     #if HAS_HEATED_BED
@@ -154,7 +153,7 @@ void process_lcd_c_command(const char* command) {
  */
 void process_lcd_eb_command(const char* command) {
   char elapsed_buffer[10];
-  static uint8_t itteration = 0;
+  static uint8_t iteration = 0;
   duration_t elapsed;
   switch (command[0]) {
     case '0': {
@@ -162,12 +161,11 @@ void process_lcd_eb_command(const char* command) {
       sprintf_P(elapsed_buffer, PSTR("%02u%02u%02u"), uint16_t(elapsed.hour()), uint16_t(elapsed.minute()) % 60, uint16_t(elapsed.second()) % 60);
 
       char message_buffer[MAX_CURLY_COMMAND];
-      uint8_t done_pct = print_job_timer.isRunning()?(itteration * 10):100;
-      itteration = (itteration+1) % 10; //provide progress animation
+      uint8_t done_pct = print_job_timer.isRunning() ? (iteration * 10) : 100;
+      iteration = (iteration + 1) % 10; // Provide progress animation
       #if ENABLED(SDSUPPORT)
-        if(ExtUI::isPrintingFromMedia() || ExtUI::isPrintingFromMediaPaused()){
+        if (ExtUI::isPrintingFromMedia() || ExtUI::isPrintingFromMediaPaused())
           done_pct = card.percentDone();
-        }
       #endif
 
       sprintf_P(message_buffer,
@@ -369,45 +367,29 @@ void process_lcd_command(const char* command) {
     DEBUG_ECHOLNPAIR("UNKNOWN COMMAND FORMAT ", command);
 }
 
-//Properly parse mixed in LCD commands with G-Code
+// Parse LCD commands mixed with G-Code
 void parse_lcd_byte(byte b) {
   static bool parsing_lcd_cmd = false;
   static char inbound_buffer[MAX_CURLY_COMMAND];
 
-  if (!parsing_lcd_cmd && b == '{') {
-    if(inbound_count){
-      inbound_buffer[inbound_count] = '\0';
-      queue.enqueue_one_now(inbound_buffer);
+  if (!parsing_lcd_cmd) {
+    if (b == '{' || b == '\n' || b == '\r') {   // A line-ending or opening brace
+      parsing_lcd_cmd = b == '{';               // Brace opens an LCD command
+      if (inbound_count) {                      // Looks like a G-code is in the buffer
+        inbound_buffer[inbound_count] = '\0';   // Reset before processing
+        inbound_count = 0;
+        queue.enqueue_one_now(inbound_buffer);  // Handle the G-code command
+      }
     }
-    parsing_lcd_cmd = true;
+  }
+  else if (b == '}') {                          // Closing brace on an LCD command
+    parsing_lcd_cmd = false;                    // Unflag and...
+    inbound_buffer[inbound_count] = '\0';       // reset before processing
     inbound_count = 0;
-    inbound_buffer[0] = 0;
-    return;
+    process_lcd_command(inbound_buffer);        // Handle the LCD command
   }
-
-  if (parsing_lcd_cmd) {
-    if (b != '}') {
-      inbound_buffer[inbound_count++] = b;
-    }
-    if (b == '}' || inbound_count == sizeof(inbound_buffer) - 1) {
-      inbound_buffer[inbound_count] = '\0';
-      process_lcd_command(inbound_buffer);
-      inbound_count = 0;
-      inbound_buffer[0] = 0;
-      parsing_lcd_cmd = (b != '}');
-    }
-  } else {
-    //pass through G-Code
-    if (b != '\n' && b != '\r') {
-      inbound_buffer[inbound_count++] = b;
-    }
-    if (b == '\n' || inbound_count == sizeof(inbound_buffer) - 1) {
-      inbound_buffer[inbound_count] = '\0';
-      queue.enqueue_one_now(inbound_buffer);
-      inbound_count = 0;
-      inbound_buffer[0] = 0;
-    }
-  }
+  else if (inbound_count < MAX_CURLY_COMMAND - 2)
+    inbound_buffer[inbound_count++] = b;        // Buffer only if space remains
 }
 
 /**
@@ -490,13 +472,9 @@ namespace ExtUI {
     write_to_lcd_P("}");
   }
 
-  void onPrintTimerStarted() {
-    write_to_lcd_P(PSTR("{SYS:BUILD}"));
-  }
+  void onPrintTimerStarted() { write_to_lcd_P(PSTR("{SYS:BUILD}")); }
   void onPrintTimerPaused() {}
-  void onPrintTimerStopped() {
-    write_to_lcd_P(PSTR("{TQ:100}"));
-  }
+  void onPrintTimerStopped() { write_to_lcd_P(PSTR("{TQ:100}")); }
 
   // Not needed for Malyan LCD
   void onStatusChanged(const char * const msg) { UNUSED(msg); }
