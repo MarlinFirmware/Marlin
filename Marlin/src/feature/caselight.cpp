@@ -77,7 +77,7 @@ void update_case_light() {
           #else
             map(n10ct, 0, 255, 0, CASE_LIGHT_MAX_PWM)
           #endif
-        )
+        );
       else
     #endif
       {
