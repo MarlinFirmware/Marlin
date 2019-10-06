@@ -433,8 +433,6 @@ namespace ExtUI {
     /**
      * - from printer on startup:
      * {SYS:STARTED}{VER:29}{SYS:STARTED}{R:UD}
-     * The optimize attribute fixes a register Compile
-     * error for amtel.
      */
 
     // First report USB status.
