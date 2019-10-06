@@ -128,24 +128,27 @@
 
 #if ENABLED(TOUCH_BUTTONS)
   #define TOUCH_CS_PIN     PB1   // SPI2_NSS
+  #define TOUCH_SCK_PIN    PB13  // SPI2_SCK
+  #define TOUCH_MISO_PIN   PB14  // SPI2_MISO
+  #define TOUCH_MOSI_PIN   PB15  // SPI2_MOSI
 #endif
 
 // SPI1(PA7) & SPI3(PB5) not available
 #define ENABLE_SPI2
 
 #if ENABLED(SDIO_SUPPORT)
-  #define SCK_PIN          PB13  // SPI2
-  #define MISO_PIN         PB14  // SPI2
-  #define MOSI_PIN         PB15  // SPI2
-  #define SS_PIN           -1    // PB12 is X-
-  #define SD_DETECT_PIN    PF12  // SD_CD
+  #define SCK_PIN           PB13 // SPI2
+  #define MISO_PIN          PB14 // SPI2
+  #define MOSI_PIN          PB15 // SPI2
+  #define SS_PIN            -1   // PB12 is X-
+  #define SD_DETECT_PIN     PF12 // SD_CD
 #else
   // SD as custom software SPI (SDIO pins)
-  #define SCK_PIN          PC12
-  #define MISO_PIN         PC8
-  #define MOSI_PIN         PD2
-  #define SS_PIN           -1
-  #define ONBOARD_SD_CS    PC11
-  #define SDSS             PD2
-  #define SD_DETECT_PIN    -1
+  #define SCK_PIN           PC12
+  #define MISO_PIN          PC8
+  #define MOSI_PIN          PD2
+  #define SS_PIN            -1
+  #define ONBOARD_SD_CS_PIN PC11
+  #define SDSS              PD2
+  #define SD_DETECT_PIN     -1
 #endif
