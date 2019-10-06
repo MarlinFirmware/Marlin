@@ -124,6 +124,10 @@
 #define FSMC_CS_PIN        PG12  // NE4
 #define FSMC_RS_PIN        PF0   // A0
 
+#if ENABLED(TOUCH_BUTTONS)
+  #define TOUCH_CS_PIN     PB1
+#endif
+
 //
 // Custom SPI pins
 //

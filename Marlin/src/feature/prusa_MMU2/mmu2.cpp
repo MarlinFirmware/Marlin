@@ -550,10 +550,10 @@ bool MMU2::get_response() {
  */
 void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
 
+  constexpr xyz_pos_t park_point = NOZZLE_PARK_POINT;
   bool response = false;
   mmu_print_saved = false;
-  point_t park_point = NOZZLE_PARK_POINT;
-  float resume_position[XYZE];
+  xyz_pos_t resume_position;
   int16_t resume_hotend_temp;
 
   KEEPALIVE_STATE(PAUSED_FOR_USER);
@@ -572,7 +572,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         SERIAL_ECHOLNPGM("MMU not responding");
 
         resume_hotend_temp = thermalManager.degTargetHotend(active_extruder);
-        COPY(resume_position, current_position);
+        resume_position = current_position;
 
         if (move_axes && all_axes_homed())
           nozzle.park(2, park_point /*= NOZZLE_PARK_POINT*/);
@@ -604,10 +604,10 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         BUZZ(200, 404);
 
         // Move XY to starting position, then Z
-        do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
+        do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
         // Move Z_AXIS to saved position
-        do_blocking_move_to_z(resume_position[Z_AXIS], feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+        do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
       }
       else {
         BUZZ(200, 404);
@@ -698,8 +698,8 @@ void MMU2::filament_runout() {
     LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
 
     enable_E0();
-    current_position[E_AXIS] -= MMU2_FILAMENTCHANGE_EJECT_FEED;
-    planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 2500 / 60, active_extruder);
+    current_position.e -= MMU2_FILAMENTCHANGE_EJECT_FEED;
+    line_to_current_position(2500 / 60);
     planner.synchronize();
     command(MMU_CMD_E0 + index);
     manage_response(false, false);
@@ -787,7 +787,7 @@ void MMU2::filament_runout() {
       DEBUG_ECHO_START();
       DEBUG_ECHOLNPAIR("E step ", es, "/", fr_mm_m);
 
-      current_position[E_AXIS] += es;
+      current_position.e += es;
       line_to_current_position(MMM_TO_MMS(fr_mm_m));
       planner.synchronize();
 

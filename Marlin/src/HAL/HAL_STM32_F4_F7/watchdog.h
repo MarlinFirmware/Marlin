@@ -24,4 +24,4 @@
 extern IWDG_HandleTypeDef hiwdg;
 
 void watchdog_init();
-void watchdog_reset();
+void HAL_watchdog_refresh();

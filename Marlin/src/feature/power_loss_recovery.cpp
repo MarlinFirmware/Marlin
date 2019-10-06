@@ -156,7 +156,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
         || ELAPSED(ms, next_save_ms)
       #endif
       // Save if Z is above the last-saved position by some minimum height
-      || current_position[Z_AXIS] > info.current_position[Z_AXIS] + POWER_LOSS_MIN_Z_CHANGE
+      || current_position.z > info.current_position.z + POWER_LOSS_MIN_Z_CHANGE
     #endif
   ) {
 
@@ -170,12 +170,12 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     info.valid_foot = info.valid_head;
 
     // Machine state
-    COPY(info.current_position, current_position);
+    info.current_position = current_position;
     #if HAS_HOME_OFFSET
-      COPY(info.home_offset, home_offset);
+      info.home_offset = home_offset;
     #endif
     #if HAS_POSITION_SHIFT
-      COPY(info.position_shift, position_shift);
+      info.position_shift = position_shift;
     #endif
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
 
@@ -361,13 +361,13 @@ void PrintJobRecovery::resume() {
 
   // Move back to the saved XY
   sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"),
-    dtostrf(info.current_position[X_AXIS], 1, 3, str_1),
-    dtostrf(info.current_position[Y_AXIS], 1, 3, str_2)
+    dtostrf(info.current_position.x, 1, 3, str_1),
+    dtostrf(info.current_position.y, 1, 3, str_2)
   );
   gcode.process_subcommands_now(cmd);
 
   // Move back to the saved Z
-  dtostrf(info.current_position[Z_AXIS], 1, 3, str_1);
+  dtostrf(info.current_position.z, 1, 3, str_1);
   #if Z_HOME_DIR > 0
     sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
   #else
@@ -388,22 +388,20 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Restore E position with G92.9
-  sprintf_P(cmd, PSTR("G92.9 E%s"), dtostrf(info.current_position[E_AXIS], 1, 3, str_1));
+  sprintf_P(cmd, PSTR("G92.9 E%s"), dtostrf(info.current_position.e, 1, 3, str_1));
   gcode.process_subcommands_now(cmd);
 
   // Relative axis modes
   gcode.axis_relative = info.axis_relative;
 
+  #if HAS_HOME_OFFSET
+    home_offset = info.home_offset;
+  #endif
+  #if HAS_POSITION_SHIFT
+    position_shift = info.position_shift;
+  #endif
   #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
-    LOOP_XYZ(i) {
-      #if HAS_HOME_OFFSET
-        home_offset[i] = info.home_offset[i];
-      #endif
-      #if HAS_POSITION_SHIFT
-        position_shift[i] = info.position_shift[i];
-      #endif
-      update_workspace_offset((AxisEnum)i);
-    }
+    LOOP_XYZ(i) update_workspace_offset((AxisEnum)i);
   #endif
 
   // Resume the SD file from the last position

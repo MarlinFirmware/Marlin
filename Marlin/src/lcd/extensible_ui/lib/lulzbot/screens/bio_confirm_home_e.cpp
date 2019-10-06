@@ -29,14 +29,18 @@
 using namespace FTDI;
 
 void BioConfirmHomeE::onRedraw(draw_mode_t) {
-  drawMessage(GET_TEXTF(HOMING_WARNING));
+  drawMessage(GET_TEXTF(HOME_E_WARNING));
   drawYesNoButtons(1);
 }
 
 bool BioConfirmHomeE::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      SpinnerDialogBox::enqueueAndWait_P(F(LULZBOT_HOME_E_COMMANDS));
+      SpinnerDialogBox::enqueueAndWait_P(F(
+        "G112\n"
+        LULZBOT_AXIS_LEVELING_COMMANDS "\n"
+        LULZBOT_PARK_AND_RELEASE_COMMANDS
+      ));
       current_screen.forget();
       break;
     case 2:

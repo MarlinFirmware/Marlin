@@ -64,7 +64,7 @@
 
 // private:
 
-static float resume_position[XYZE];
+static xyze_pos_t resume_position;
 
 PauseMode pause_mode = PAUSE_MODE_PAUSE_PRINT;
 
@@ -126,8 +126,8 @@ void do_pause_e_move(const float &length, const feedRate_t &fr_mm_s) {
   #if HAS_FILAMENT_SENSOR
     runout.reset();
   #endif
-  current_position[E_AXIS] += length / planner.e_factor[active_extruder];
-  planner.buffer_line(current_position, fr_mm_s, active_extruder);
+  current_position.e += length / planner.e_factor[active_extruder];
+  line_to_current_position(fr_mm_s);
   planner.synchronize();
 }
 
@@ -240,10 +240,10 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 
     wait_for_user = true;
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Continuous Purge Running..."), PSTR("Continue"));
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Filament Purge Running..."), PSTR("Continue"));
     #endif
     #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onUserConfirmRequired(PSTR("Continuous Purge Running..."));
+      ExtUI::onUserConfirmRequired(PSTR("Filament Purge Running..."));
     #endif
     for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
       do_pause_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
@@ -381,11 +381,11 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
  * - Park the nozzle at the given position
  * - Call unload_filament (if a length was specified)
  *
- * Returns 'true' if pause was completed, 'false' for abort
+ * Return 'true' if pause was completed, 'false' for abort
  */
 uint8_t did_pause_print = 0;
 
-bool pause_print(const float &retract, const point_t &park_point, const float &unload_length/*=0*/, const bool show_lcd/*=false*/ DXC_ARGS) {
+bool pause_print(const float &retract, const xyz_pos_t &park_point, const float &unload_length/*=0*/, const bool show_lcd/*=false*/ DXC_ARGS) {
 
   #if !HAS_LCD_MENU
     UNUSED(show_lcd);
@@ -432,7 +432,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   print_job_timer.pause();
 
   // Save current position
-  COPY(resume_position, current_position);
+  resume_position = current_position;
 
   // Wait for buffered blocks to complete
   planner.synchronize();
@@ -603,7 +603,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 /**
  * Resume or Start print procedure
  *
- * - Abort if not paused
+ * - If not paused, do nothing and return
  * - Reset heater idle timers
  * - Load filament if specified, but only if:
  *   - a nozzle timed out, or
@@ -611,10 +611,10 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
  * - Display "wait for print to resume"
  * - Re-prime the nozzle...
  *   -  FWRETRACT: Recover/prime from the prior G10.
- *   - !FWRETRACT: Retract by resume_position[E], if negative.
+ *   - !FWRETRACT: Retract by resume_position.e, if negative.
  *                 Not sure how this logic comes into use.
  * - Move the nozzle back to resume_position
- * - Sync the planner E to resume_position[E]
+ * - Sync the planner E to resume_position.e
  * - Send host action for resume, if configured
  * - Resume the current SD print job, if any
  */
@@ -652,13 +652,13 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   #endif
 
   // If resume_position is negative
-  if (resume_position[E_AXIS] < 0) do_pause_e_move(resume_position[E_AXIS], feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+  if (resume_position.e < 0) do_pause_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
   // Move XY to starting position, then Z
-  do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
+  do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
   // Move Z_AXIS to saved position
-  do_blocking_move_to_z(resume_position[Z_AXIS], feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+  do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
   #if ADVANCED_PAUSE_RESUME_PRIME != 0
     do_pause_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
@@ -666,7 +666,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
 
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
-  planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS]));
+  planner.set_e_position_mm((destination.e = current_position.e = resume_position.e));
 
   #if HAS_LCD_MENU
     lcd_pause_show_message(PAUSE_MESSAGE_STATUS);

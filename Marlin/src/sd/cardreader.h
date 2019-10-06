@@ -282,6 +282,7 @@ private:
 #endif
 
 #define IS_SD_PRINTING()  card.flag.sdprinting
+#define IS_SD_PAUSED()    card.isPaused()
 #define IS_SD_FILE_OPEN() card.isFileOpen()
 
 extern CardReader card;
@@ -289,6 +290,7 @@ extern CardReader card;
 #else // !SDSUPPORT
 
 #define IS_SD_PRINTING()  false
+#define IS_SD_PAUSED()    false
 #define IS_SD_FILE_OPEN() false
 
 #endif // !SDSUPPORT

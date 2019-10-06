@@ -5,7 +5,7 @@ for define in env['CPPDEFINES']:
     if define[0] == "VECT_TAB_ADDR":
         env['CPPDEFINES'].remove(define)
 env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08010000"))
-env.Replace(LDSCRIPT_PATH="buildroot/share/PlatformIO/ldscripts/longer_STM32.ld")
+env.Replace(LDSCRIPT_PATH="buildroot/share/PlatformIO/ldscripts/STM32F103VE_longer.ld")
 
 # Rename ${PROGNAME}.bin and save it as 'project.bin' (No encryption on the Longer3D)
 def encrypt(source, target, env):

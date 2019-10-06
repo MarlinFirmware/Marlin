@@ -25,6 +25,8 @@
  * Arduino library for MicroChip MCP4728 I2C D/A converter.
  */
 
+#include "../../core/types.h"
+
 #include <Wire.h>
 
 #define defaultVDD     DAC_STEPPER_MAX //was 5000 but differs with internal Vref
@@ -54,4 +56,4 @@ uint16_t mcp4728_getValue(const uint8_t channel);
 uint8_t mcp4728_fastWrite();
 uint8_t mcp4728_simpleCommand(const byte simpleCommand);
 uint8_t mcp4728_getDrvPct(const uint8_t channel);
-void mcp4728_setDrvPct(uint8_t pct[XYZE]);
+void mcp4728_setDrvPct(xyze_uint8_t &pct);

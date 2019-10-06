@@ -60,7 +60,6 @@
  *  Default values are used for omitted arguments.
  */
 void GcodeSuite::M600() {
-  point_t park_point = NOZZLE_PARK_POINT;
 
   #if ENABLED(MIXING_EXTRUDER)
     const int8_t target_e_stepper = get_target_e_stepper_from_command();
@@ -119,6 +118,8 @@ void GcodeSuite::M600() {
     #endif
   );
 
+  xyz_pos_t park_point NOZZLE_PARK_POINT;
+
   // Lift Z axis
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
@@ -127,8 +128,7 @@ void GcodeSuite::M600() {
   if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
-    park_point.x += hotend_offset[X_AXIS][active_extruder];
-    park_point.y += hotend_offset[Y_AXIS][active_extruder];
+    park_point += hotend_offset[active_extruder];
   #endif
 
   #if ENABLED(MMU2_MENUS)

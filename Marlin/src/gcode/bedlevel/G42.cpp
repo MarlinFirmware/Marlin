@@ -27,6 +27,7 @@
 #include "../gcode.h"
 #include "../../Marlin.h" // for IsRunning()
 #include "../../module/motion.h"
+#include "../../module/probe.h" // for probe_offset
 #include "../../feature/bedlevel/bedlevel.h"
 
 /**
@@ -44,15 +45,15 @@ void GcodeSuite::G42() {
       return;
     }
 
-    set_destination_from_current();
+    destination = current_position;
 
-    if (hasI) destination[X_AXIS] = _GET_MESH_X(ix);
-    if (hasJ) destination[Y_AXIS] = _GET_MESH_Y(iy);
+    if (hasI) destination.x = _GET_MESH_X(ix);
+    if (hasJ) destination.y = _GET_MESH_Y(iy);
 
     #if HAS_BED_PROBE
       if (parser.boolval('P')) {
-        if (hasI) destination[X_AXIS] -= probe_offset[X_AXIS];
-        if (hasJ) destination[Y_AXIS] -= probe_offset[Y_AXIS];
+        if (hasI) destination.x -= probe_offset.x;
+        if (hasJ) destination.y -= probe_offset.y;
       }
     #endif
 

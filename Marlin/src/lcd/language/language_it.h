@@ -418,6 +418,8 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Estrusori")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baud")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocollo")
+#define MSG_INFO_RUNAWAY_OFF                _UxGT("Controllo fuga: OFF")
+#define MSG_INFO_RUNAWAY_ON                 _UxGT("Controllo fuga: ON")
 #define MSG_CASE_LIGHT                      _UxGT("Luci Case")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Luminosità Luci")
 #if LCD_WIDTH >= 20

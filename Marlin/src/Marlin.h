@@ -331,6 +331,9 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
+bool printingIsActive();
+bool printingIsPaused();
+
 extern bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
@@ -366,10 +369,6 @@ void protected_pin_err();
 
 #if HAS_SUICIDE
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }
-#endif
-
-#if HAS_FILAMENT_SENSOR
-  void event_filament_runout();
 #endif
 
 #if ENABLED(G29_RETRY_AND_RECOVER)

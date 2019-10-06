@@ -255,9 +255,9 @@
 // STM32 ARM Cortex-M3
 //
 
-#define BOARD_STM32F103R              4000  // STM32F103R Libmaple-based STM32F1 controller
+#define BOARD_STM32F103RE             4000  // STM32F103RE Libmaple-based STM32F1 controller
 #define BOARD_MALYAN_M200             4001  // STM32C8T6  Libmaple-based STM32F1 controller
-#define BOARD_STM3R_MINI              4002  // STM32F103R Libmaple-based STM32F1 controller
+#define BOARD_STM3R_MINI              4002  // STM32F103RE Libmaple-based STM32F1 controller
 #define BOARD_GTM32_PRO_VB            4003  // STM32F103VET6 controller
 #define BOARD_MORPHEUS                4004  // STM32F103C8 / STM32F103CB  Libmaple-based STM32F1 controller
 #define BOARD_CHITU3D                 4005  // Chitu3D (STM32F103RET6)

@@ -507,7 +507,7 @@
         case TMC_GLOBAL_SCALER:
           {
             uint16_t value = st.GLOBAL_SCALER();
-            SERIAL_PRINT(value ? value : 256, DEC);
+            SERIAL_PRINT(value ?: 256, DEC);
             SERIAL_ECHOPGM("/256");
           }
           break;

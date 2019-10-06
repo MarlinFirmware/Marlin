@@ -1166,8 +1166,9 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
                   true
                 #endif
                 ){
-              showcount++;
-                  rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
+                  showcount++;
+                  xy_uint8_t point = {xCount, yCount};
+                  rtscheck.RTS_SndData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (showcount - 1) * 2);
                 }
               }
             }
@@ -1831,7 +1832,8 @@ void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval)
         #endif
         ){
           showcount++;
-				  rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
+          xy_uint8_t point = {xCount, yCount};
+				  rtscheck.RTS_SndData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (showcount - 1) * 2);
         }
 			}
 		}
@@ -1906,7 +1908,8 @@ void onConfigurationStoreRead(bool success)
             #endif
             ){
               showcount++;
-              rtscheck.RTS_SndData(ExtUI::getMeshPoint(xCount, yCount) * 1000, AutolevelVal + (showcount - 1) * 2);
+              xy_uint8_t point = {xCount, yCount};
+              rtscheck.RTS_SndData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (showcount - 1) * 2);
             }
           }
         }

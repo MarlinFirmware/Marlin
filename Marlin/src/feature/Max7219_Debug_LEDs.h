@@ -75,7 +75,7 @@ class Max7219 {
 public:
   static uint8_t led_line[MAX7219_LINES];
 
-  Max7219() { }
+  Max7219() {}
 
   static void init();
   static void register_setup();
