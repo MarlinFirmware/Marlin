@@ -151,6 +151,7 @@
 #define MSG_NO_MEDIA                        _UxGT("メディアガアリマセン")            // "No SD card"
 #define MSG_DWELL                           _UxGT("キュウシ")                     // "Sleep..."
 #define MSG_USERWAIT                        _UxGT("シバラクオマチクダサイ")           // "Wait for user..."
+//#define MSG_USERWAIT                      _UxGT("ツヅケルニハクリックシテクダサイ")
 #define MSG_PRINT_ABORTED                   _UxGT("プリントガチュウシサレマシタ")       // "Print aborted"
 #define MSG_NO_MOVE                         _UxGT("ウゴキマセン")                  // "No move."
 #define MSG_KILLED                          _UxGT("ヒジョウテイシ")                  // "KILLED. "
@@ -248,8 +249,6 @@
 #define MSG_BACK                            _UxGT("モドリ")
 #define MSG_VELOCITY                        _UxGT("ソクド")
 #define MSG_STEPS_PER_MM                    _UxGT("ステップ/mm")
-#define MSG_USERWAIT                        _UxGT("ツヅケルニハクリックシテクダサイ")
 #define MSG_USER_MENU                       _UxGT("ユーザーコマンド")
 #define MSG_PRINT_PAUSED                    _UxGT("プリントガイチジテイシサレマシタ")
 #define MSG_PRINTING                        _UxGT("プリントチュウ...")
-#define MSG_PRINT_ABORTED                   _UxGT("プリントガチュウシサレマシタ")
