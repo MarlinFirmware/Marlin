@@ -819,9 +819,6 @@ namespace ExtUI {
           #endif
         }
       }
-      void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval) {
-        UNUSED(xpos); UNUSED(ypos); UNUSED(zval);
-      }
     #endif
   #endif
 

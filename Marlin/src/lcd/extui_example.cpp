@@ -88,6 +88,10 @@ namespace ExtUI {
     // This is called after the entire EEPROM has been read,
     // whether successful or not.
   }
+
+  void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval) {
+    // This is called when any mesh points are updated
+  }
 }
 
 #endif // EXTUI_EXAMPLE && EXTENSIBLE_UI
