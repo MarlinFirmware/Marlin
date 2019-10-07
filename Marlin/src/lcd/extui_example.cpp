@@ -90,8 +90,8 @@ namespace ExtUI {
   }
 
   void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval) {
-        // This is called when any mesh points are updated
-      }
+    // This is called when any mesh points are updated
+  }
 }
 
 #endif // EXTUI_EXAMPLE && EXTENSIBLE_UI
