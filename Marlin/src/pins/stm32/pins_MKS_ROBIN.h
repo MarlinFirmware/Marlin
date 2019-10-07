@@ -23,6 +23,8 @@
 
 /**
  * MKS Robin (STM32F130ZET6) board pin assignments
+ *
+ * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  */
 
 #ifndef __STM32F1__
@@ -36,7 +38,7 @@
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
-#define DISABLE_DEBUG
+#define DISABLE_JTAG
 
 //
 // Servos
@@ -110,7 +112,7 @@
 
 /**
  * Note: MKS Robin TFT screens use various TFT controllers. Supported screens
- * are based on the ILI9342, ILI9328 and ST7798V. Define init sequences for
+ * are based on the ILI9341, ILI9328 and ST7798V. Define init sequences for
  * other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
  *
  * If the screen stays white, disable 'LCD_RESET_PIN'
@@ -125,21 +127,28 @@
 #define FSMC_RS_PIN        PF0   // A0
 
 #if ENABLED(TOUCH_BUTTONS)
-  #define TOUCH_CS_PIN     PB1
+  #define TOUCH_CS_PIN     PB1   // SPI2_NSS
+  #define TOUCH_SCK_PIN    PB13  // SPI2_SCK
+  #define TOUCH_MISO_PIN   PB14  // SPI2_MISO
+  #define TOUCH_MOSI_PIN   PB15  // SPI2_MOSI
 #endif
 
-//
-// Custom SPI pins
-//
-#define SCK_PIN            PC12
-#define MISO_PIN           PC8
-#define MOSI_PIN           PD2
-#define SS_PIN              -1
+// SPI1(PA7) & SPI3(PB5) not available
+#define ENABLE_SPI2
 
-//
-// Onboard SD Card
-//
-#define ONBOARD_SD_CS      PC11
-#define SDSS               PD2
-
-#define SD_DETECT_PIN       -1   // PF12
+#if ENABLED(SDIO_SUPPORT)
+  #define SCK_PIN           PB13 // SPI2
+  #define MISO_PIN          PB14 // SPI2
+  #define MOSI_PIN          PB15 // SPI2
+  #define SS_PIN            -1   // PB12 is X-
+  #define SD_DETECT_PIN     PF12 // SD_CD
+#else
+  // SD as custom software SPI (SDIO pins)
+  #define SCK_PIN           PC12
+  #define MISO_PIN          PC8
+  #define MOSI_PIN          PD2
+  #define SS_PIN            -1
+  #define ONBOARD_SD_CS_PIN PC11
+  #define SDSS              PD2
+  #define SD_DETECT_PIN     -1
+#endif
