@@ -58,7 +58,11 @@
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  uint8_t MarlinUI::progress_override; // = 0
+  #if HAS_PRINT_PROGRESS_PERMYRIAD
+    uint16_t MarlinUI::progress_override; // = 0
+  #elif HAS_PRINT_PROGRESS_PERCENT
+    uint8_t MarlinUI::progress_override; // = 0
+  #endif
 #endif
 
 #if HAS_BUZZER
@@ -1536,18 +1540,37 @@ void MarlinUI::update() {
   }
 
   #if HAS_PRINT_PROGRESS
-    uint8_t MarlinUI::get_progress() {
-      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        const uint8_t p = progress_override & 0x7F;
-      #else
-        constexpr uint8_t p = 0;
-      #endif
-      return (p
-        #if ENABLED(SDSUPPORT)
-          ?: card.percentDone()
+    #if HAS_PRINT_PROGRESS_PERMYRIAD
+      uint16_t MarlinUI::get_progress_permyriad() {
+        #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+          const uint16_t p = progress_override & 0x3FFF;
+        #else
+          constexpr uint16_t p = 0;
         #endif
-      );
-    }
+        return (p
+          #if ENABLED(SDSUPPORT)
+            ?: card.permyriadDone()
+          #endif
+        );
+      }
+
+      uint8_t MarlinUI::get_progress() {
+        return get_progress_permyriad() / 100;
+      }
+    #elif HAS_PRINT_PROGRESS_PERCENT
+      uint8_t MarlinUI::get_progress() {
+        #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+          const uint8_t p = progress_override & 0x7F;
+        #else
+          constexpr uint8_t p = 0;
+        #endif
+        return (p
+          #if ENABLED(SDSUPPORT)
+            ?: card.percentDone()
+          #endif
+        );
+      }
+    #endif
   #endif
 
 #endif // HAS_DISPLAY

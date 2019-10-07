@@ -289,10 +289,21 @@ public:
 
     #if HAS_PRINT_PROGRESS
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        static uint8_t progress_override;
-        static void set_progress(const uint8_t progress) { progress_override = _MIN(progress, 100); }
-        static void set_progress_done() { set_progress(0x80 + 100); }
-        static void progress_reset() { if (progress_override & 0x80) set_progress(0); }
+        #if HAS_PRINT_PROGRESS_PERMYRIAD
+          static uint16_t progress_override;
+          static void set_progress_permyriad(const uint16_t progress) { progress_override = _MIN(progress, 10000); }
+          static void set_progress(const uint8_t progress) { set_progress_permyriad(progress * 100); }
+          static void set_progress_done() { progress_override = 0x8000 + 10000; }
+          static void progress_reset() { if (progress_override & 0x8000) set_progress_permyriad(0); }
+        #elif HAS_PRINT_PROGRESS_PERCENT
+          static uint8_t progress_override;
+          static void set_progress(const uint8_t progress) { progress_override = _MIN(progress, 100); }
+          static void set_progress_done() { progress_override = 0x80 + 100; }
+          static void progress_reset() { if (progress_override & 0x80) set_progress(0); }
+        #endif
+      #endif
+      #if HAS_PRINT_PROGRESS_PERMYRIAD
+        static uint16_t get_progress_permyriad();
       #endif
       static uint8_t get_progress();
     #else

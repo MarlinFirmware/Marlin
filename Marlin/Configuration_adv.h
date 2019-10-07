@@ -888,6 +888,14 @@
 // Add an 'M73' G-code to set the current percentage
 //#define LCD_SET_PROGRESS_MANUALLY
 
+#if HAS_PRINT_PROGRESS
+  // Calculate and display print progress with decimal digits (only graphical LCDs)
+  //#define PRINT_PROGRESS_SHOW_DECIMALS
+
+  // Calculate and display time estimation to job completion (only graphical LCDs)
+  //#define PRINT_PROGRESS_ESTIMATE_TIME_TO_COMPLETION
+#endif
+
 #if HAS_CHARACTER_LCD && HAS_PRINT_PROGRESS
   //#define LCD_PROGRESS_BAR              // Show a progress bar on HD44780 LCDs for SD printing
   #if ENABLED(LCD_PROGRESS_BAR)

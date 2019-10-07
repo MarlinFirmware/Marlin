@@ -118,6 +118,9 @@ public:
   static inline void pauseSDPrint() { flag.sdprinting = false; }
   static inline bool isPaused() { return isFileOpen() && !flag.sdprinting; }
   static inline bool isPrinting() { return flag.sdprinting; }
+  #if HAS_PRINT_PROGRESS_PERMYRIAD
+    static inline uint16_t permyriadDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 9999) / 10000) : 0; }
+  #endif
   static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
 
   // Helper for open and remove

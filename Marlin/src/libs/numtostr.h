@@ -32,6 +32,11 @@ char* ui8tostr3(const uint8_t i);
 // Convert int8_t to string with 123 format
 char* i8tostr3(const int8_t x);
 
+#if HAS_PRINT_PROGRESS_PERMYRIAD
+  // Convert unsigned 16bit fixed-point float (in hundredth parts of int) to string 100 / 23 / 23.4 / 3.45 format
+  char* ui16fptostr4(const uint16_t xx);
+#endif
+
 // Convert uint16_t to string with 12345 format
 char* ui16tostr5(const uint16_t x);
 
