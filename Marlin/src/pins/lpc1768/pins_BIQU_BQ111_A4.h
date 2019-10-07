@@ -34,7 +34,7 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME "BIQU BQ111-A4"
+#define BOARD_INFO_NAME "BIQU BQ111-A4"
 
 //
 // Limit Switches

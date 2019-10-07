@@ -30,8 +30,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
-#define MSG_SD_INSERTED                     _UxGT("Karta włożona")
-#define MSG_SD_REMOVED                      _UxGT("Karta usunięta")
+#define MSG_MEDIA_INSERTED                  _UxGT("Karta włożona")
+#define MSG_MEDIA_REMOVED                   _UxGT("Karta usunięta")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Kranców.") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Menu główne")
 #define MSG_AUTOSTART                       _UxGT("Autostart")
@@ -144,8 +144,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pauza")
 #define MSG_RESUME_PRINT                    _UxGT("Wznowienie")
 #define MSG_STOP_PRINT                      _UxGT("Stop")
-#define MSG_CARD_MENU                       _UxGT("Karta SD")
-#define MSG_NO_CARD                         _UxGT("Brak karty")
+#define MSG_MEDIA_MENU                      _UxGT("Karta SD")
+#define MSG_NO_MEDIA                        _UxGT("Brak karty")
 #define MSG_DWELL                           _UxGT("Uśpij...")
 #define MSG_USERWAIT                        _UxGT("Oczekiwanie...")
 #define MSG_PRINT_ABORTED                   _UxGT("Druk przerwany")
@@ -161,13 +161,12 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Cof. wycof.  V")
 #define MSG_AUTORETRACT                     _UxGT("Auto. wycofanie")
 #define MSG_FILAMENTCHANGE                  _UxGT("Zmień filament")
-#define MSG_INIT_SDCARD                     _UxGT("Inicjal. karty SD")
-#define MSG_CHANGE_SDCARD                   _UxGT("Zmiana karty SD")
+#define MSG_INIT_MEDIA                      _UxGT("Inicjal. karty SD")
+#define MSG_CHANGE_MEDIA                    _UxGT("Zmiana karty SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z za stołem")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
-#define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("first")
+#define MSG_HOME_FIRST                      _UxGT("Home %s%s%s first")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Offset Z")
 #define MSG_BABYSTEP_X                      _UxGT("Babystep X")
 #define MSG_BABYSTEP_Y                      _UxGT("Babystep Y")
@@ -180,7 +179,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err min temp")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err max temp stołu")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err min temp stołu")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Home XY first")
 #define MSG_HALTED                          _UxGT("Drukarka zatrzym.")
 #define MSG_PLEASE_RESET                    _UxGT("Proszę zresetować")
 #define MSG_SHORT_DAY                       _UxGT("d") // One character only
@@ -203,6 +202,8 @@
 #define MSG_INFO_BAUDRATE                   _UxGT("Predkość USB")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokół")
 #define MSG_CASE_LIGHT                      _UxGT("Oświetlenie")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Niepoprawna drukarka")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Wydrukowano")

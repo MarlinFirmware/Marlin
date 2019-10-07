@@ -24,7 +24,7 @@
 
 #if ENABLED(USE_CONTROLLER_FAN)
 
-#include "../module/stepper_indirection.h"
+#include "../module/stepper/indirection.h"
 #include "../module/temperature.h"
 
 uint8_t controllerfan_speed;
@@ -36,35 +36,37 @@ void controllerfan_update() {
   if (ELAPSED(ms, nextMotorCheck)) {
     nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
 
+    const bool xory = X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON;
+
     // If any of the drivers or the bed are enabled...
-    if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON
+    if (xory || Z_ENABLE_READ() == Z_ENABLE_ON
       #if HAS_HEATED_BED
         || thermalManager.temp_bed.soft_pwm_amount > 0
       #endif
         #if HAS_X2_ENABLE
-          || X2_ENABLE_READ == X_ENABLE_ON
+          || X2_ENABLE_READ() == X_ENABLE_ON
         #endif
         #if HAS_Y2_ENABLE
-          || Y2_ENABLE_READ == Y_ENABLE_ON
+          || Y2_ENABLE_READ() == Y_ENABLE_ON
         #endif
         #if HAS_Z2_ENABLE
-          || Z2_ENABLE_READ == Z_ENABLE_ON
+          || Z2_ENABLE_READ() == Z_ENABLE_ON
         #endif
         #if HAS_Z3_ENABLE
-          || Z3_ENABLE_READ == Z_ENABLE_ON
+          || Z3_ENABLE_READ() == Z_ENABLE_ON
         #endif
         #if E_STEPPERS
-          || E0_ENABLE_READ == E_ENABLE_ON
+          || E0_ENABLE_READ() == E_ENABLE_ON
           #if E_STEPPERS > 1
-            || E1_ENABLE_READ == E_ENABLE_ON
+            || E1_ENABLE_READ() == E_ENABLE_ON
             #if E_STEPPERS > 2
-              || E2_ENABLE_READ == E_ENABLE_ON
+              || E2_ENABLE_READ() == E_ENABLE_ON
               #if E_STEPPERS > 3
-                || E3_ENABLE_READ == E_ENABLE_ON
+                || E3_ENABLE_READ() == E_ENABLE_ON
                 #if E_STEPPERS > 4
-                  || E4_ENABLE_READ == E_ENABLE_ON
+                  || E4_ENABLE_READ() == E_ENABLE_ON
                   #if E_STEPPERS > 5
-                    || E5_ENABLE_READ == E_ENABLE_ON
+                    || E5_ENABLE_READ() == E_ENABLE_ON
                   #endif // E_STEPPERS > 5
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
@@ -76,12 +78,17 @@ void controllerfan_update() {
     }
 
     // Fan off if no steppers have been enabled for CONTROLLERFAN_SECS seconds
-    uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
-    controllerfan_speed = speed;
+    controllerfan_speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : (
+      #ifdef CONTROLLERFAN_SPEED_Z_ONLY
+        xory ? CONTROLLERFAN_SPEED : CONTROLLERFAN_SPEED_Z_ONLY
+      #else
+        CONTROLLERFAN_SPEED
+      #endif
+    );
 
-    // allows digital or PWM fan output to be used (see M42 handling)
-    WRITE(CONTROLLER_FAN_PIN, speed);
-    analogWrite(pin_t(CONTROLLER_FAN_PIN), speed);
+    // Allow digital or PWM fan output (see M42 handling)
+    WRITE(CONTROLLER_FAN_PIN, controllerfan_speed);
+    analogWrite(pin_t(CONTROLLER_FAN_PIN), controllerfan_speed);
   }
 }
 

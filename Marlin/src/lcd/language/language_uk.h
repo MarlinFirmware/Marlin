@@ -33,8 +33,8 @@
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" готовий.")
-#define MSG_SD_INSERTED                     _UxGT("Картка вставлена")
-#define MSG_SD_REMOVED                      _UxGT("Картка видалена")
+#define MSG_MEDIA_INSERTED                  _UxGT("Картка вставлена")
+#define MSG_MEDIA_REMOVED                   _UxGT("Картка видалена")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Кінцевик") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Меню")
 #define MSG_AUTOSTART                       _UxGT("Автостарт")
@@ -145,8 +145,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Призупинити друк")
 #define MSG_RESUME_PRINT                    _UxGT("Відновити друк")
 #define MSG_STOP_PRINT                      _UxGT("Скасувати друк")
-#define MSG_CARD_MENU                       _UxGT("Друкувати з SD")
-#define MSG_NO_CARD                         _UxGT("Відсутня SD карт.")
+#define MSG_MEDIA_MENU                      _UxGT("Друкувати з SD")
+#define MSG_NO_MEDIA                        _UxGT("Відсутня SD карт.")
 #define MSG_DWELL                           _UxGT("Сплячка...")
 #define MSG_USERWAIT                        _UxGT("Очікування дій...")
 #define MSG_PRINT_ABORTED                   _UxGT("Друк скасовано")
@@ -154,13 +154,12 @@
 #define MSG_KILLED                          _UxGT("ПЕРЕРВАНО. ")
 #define MSG_STOPPED                         _UxGT("ЗУПИНЕНО. ")
 #define MSG_FILAMENTCHANGE                  _UxGT("Зміна волокна")
-#define MSG_INIT_SDCARD                     _UxGT("Старт SD картки")
-#define MSG_CHANGE_SDCARD                   _UxGT("Заміна SD карти")
+#define MSG_INIT_MEDIA                      _UxGT("Старт SD картки")
+#define MSG_CHANGE_MEDIA                    _UxGT("Заміна SD карти")
 #define MSG_ZPROBE_OUT                      _UxGT("Z дет. не в межах")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Само-Тест")
 #define MSG_BLTOUCH_RESET                   _UxGT("Скинути BLTouch")
-#define MSG_HOME                            _UxGT("Дім")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("перший")
+#define MSG_HOME_FIRST                      _UxGT("Дім %s%s%s перший")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Зміщення Z")
 #define MSG_BABYSTEP_X                      _UxGT("Мікрокрок X")
 #define MSG_BABYSTEP_Y                      _UxGT("Мікрокрок Y")
@@ -168,7 +167,7 @@
 #define MSG_ENDSTOP_ABORT                   _UxGT("невдача кінцевика")
 #define MSG_HEATING_FAILED_LCD              _UxGT("Невдалий нагрів")
 #define MSG_THERMAL_RUNAWAY                 _UxGT("ЗБІЙ ТЕМПЕРАТУРИ")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Дім XY перший")
 #define MSG_HALTED                          _UxGT("ПРИНТЕР ЗУПИНЕНО")
 #define MSG_PLEASE_RESET                    _UxGT("Перезавантажте")
 #define MSG_SHORT_DAY                       _UxGT("д") // One character only
@@ -191,6 +190,8 @@
 #define MSG_INFO_BAUDRATE                   _UxGT("біт/с")
 #define MSG_INFO_PROTOCOL                   _UxGT("Протокол")
 #define MSG_CASE_LIGHT                      _UxGT("Підсвітка")
+
+#define MSG_EXPECTED_PRINTER                _UxGT("Неправильний принтер")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("К-сть друків")

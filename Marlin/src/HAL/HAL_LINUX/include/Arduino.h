@@ -49,8 +49,6 @@ typedef uint8_t byte;
 #define PGM_P const char *
 
 // Used for libraries, preprocessor, and constants
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
 #define abs(x) ((x)>0?(x):-(x))
 
 #ifndef isnan
@@ -65,9 +63,9 @@ typedef uint8_t byte;
 #define constrain(value, arg_min, arg_max) ((value) < (arg_min) ? (arg_min) :((value) > (arg_max) ? (arg_max) : (value)))
 
 //Interrupts
-void cli(void); // Disable
-void sei(void); // Enable
-void attachInterrupt(uint32_t pin, void (*callback)(void), uint32_t mode);
+void cli(); // Disable
+void sei(); // Enable
+void attachInterrupt(uint32_t pin, void (*callback)(), uint32_t mode);
 void detachInterrupt(uint32_t pin);
 extern "C" void GpioEnableInt(uint32_t port, uint32_t pin, uint32_t mode);
 extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
@@ -111,13 +109,13 @@ uint16_t analogRead(pin_t);
 // EEPROM
 void eeprom_write_byte(unsigned char *pos, unsigned char value);
 unsigned char eeprom_read_byte(unsigned char *pos);
-void eeprom_read_block (void *__dst, const void *__src, size_t __n);
-void eeprom_update_block (const void *__src, void *__dst, size_t __n);
+void eeprom_read_block(void *__dst, const void *__src, size_t __n);
+void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 int32_t random(int32_t);
 int32_t random(int32_t, int32_t);
 void randomSeed(uint32_t);
 
-char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__s);
+char *dtostrf(double __val, signed char __width, unsigned char __prec, char *__s);
 
 int map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max);

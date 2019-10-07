@@ -67,7 +67,7 @@ void GcodeSuite::M575() {
       #endif
 
     } break;
-    default: SERIAL_ECHO_MSG("?(B)aud rate is implausible.");
+    default: SERIAL_ECHO_MSG("?(B)aud rate implausible.");
   }
 }
 

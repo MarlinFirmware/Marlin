@@ -222,8 +222,10 @@ void GCodeParser::parse(char *p) {
   // Only use string_arg for these M codes
   if (letter == 'M') switch (codenum) {
     #if ENABLED(GCODE_MACROS)
-      case 810: case 811: case 812: case 813: case 814:
-      case 815: case 816: case 817: case 818: case 819:
+      case 810 ... 819:
+    #endif
+    #if ENABLED(EXPECTED_PRINTER_CHECK)
+      case 16:
     #endif
     case 23: case 28: case 30: case 117: case 118: case 928: string_arg = p; return;
     default: break;
@@ -242,7 +244,7 @@ void GCodeParser::parse(char *p) {
    * For 'M118' you must use 'E1' and 'A1' rather than just 'E' or 'A'
    */
   string_arg = nullptr;
-  while (const char code = *p++) {                    // Get the next parameter. A NUL ends the loop
+  while (const char code = *p++) {              // Get the next parameter. A NUL ends the loop
 
     // Special handling for M32 [P] !/path/to/file.g#
     // The path must be the last parameter

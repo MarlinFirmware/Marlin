@@ -25,7 +25,7 @@
   #error "Creality3D RAMPS supports only 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_NAME "Creality3D RAMPS"
+#define BOARD_INFO_NAME "Creality3D RAMPS"
 
 //
 // Heaters / Fans
@@ -35,6 +35,12 @@
 #define MOSFET_D_PIN 7
 
 #define FIL_RUNOUT_PIN 2
+#if NUM_RUNOUT_SENSORS > 1
+  #define FIL_RUNOUT2_PIN 15 // Creality CR-X can use dual runout sensors
+#endif
+
+#define SD_DETECT_PIN 49  // Always define onboard SD detect
+#define BEEPER_PIN    37  // Always define beeper pin so Play Tone works with ExtUI
 
 #include "pins_RAMPS.h"
 

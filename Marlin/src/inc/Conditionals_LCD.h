@@ -30,9 +30,6 @@
 
   #define DOGLCD
   #define IS_ULTIPANEL
-  #define DEFAULT_LCD_CONTRAST 90
-  #define LCD_CONTRAST_MIN 60
-  #define LCD_CONTRAST_MAX 140
 
 #elif ENABLED(ZONESTAR_LCD)
 
@@ -63,25 +60,13 @@
   #define IS_ULTIPANEL
 
   #if ENABLED(miniVIKI)
-    #define LCD_CONTRAST_MIN      75
-    #define LCD_CONTRAST_MAX     115
-    #define DEFAULT_LCD_CONTRAST  95
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(VIKI2)
-    #define LCD_CONTRAST_MIN       0
-    #define LCD_CONTRAST_MAX     255
-    #define DEFAULT_LCD_CONTRAST 140
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-    #define LCD_CONTRAST_MIN      90
-    #define LCD_CONTRAST_MAX     130
-    #define DEFAULT_LCD_CONTRAST 110
     #define U8GLIB_LM6059_AF
     #define SD_DETECT_INVERTED
   #elif ENABLED(AZSMZ_12864)
-    #define LCD_CONTRAST_MIN     120
-    #define LCD_CONTRAST_MAX     255
-    #define DEFAULT_LCD_CONTRAST 190
     #define U8GLIB_ST7565_64128N
   #endif
 
@@ -128,17 +113,12 @@
 #elif ENABLED(MKS_MINI_12864)
 
   #define MINIPANEL
-  #define DEFAULT_LCD_CONTRAST 150
-  #define LCD_CONTRAST_MAX 255
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
 
   #define FYSETC_MINI_12864
   #define DOGLCD
   #define IS_ULTIPANEL
-  #define LCD_CONTRAST_MIN 0
-  #define LCD_CONTRAST_MAX 255
-  #define DEFAULT_LCD_CONTRAST 220
   #define LED_COLORS_REDUCE_GREEN
   #if HAS_POWER_SWITCH && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
     #define LED_BACKLIGHT_TIMEOUT 10000
@@ -148,6 +128,7 @@
   #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
     #define RGB_LED
   #elif ENABLED(FYSETC_MINI_12864_2_1)
+    #define LED_CONTROL_MENU
     #define NEOPIXEL_LED
     #undef NEOPIXEL_TYPE
     #define NEOPIXEL_TYPE       NEO_RGB
@@ -166,9 +147,6 @@
   #define IS_ULTIPANEL
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
-  #define LCD_CONTRAST_MIN 0
-  #define LCD_CONTRAST_MAX 254
-  #define DEFAULT_LCD_CONTRAST 127
   #define ENCODER_PULSES_PER_STEP 2
   #define ENCODER_STEPS_PER_MENU_ITEM 2
 
@@ -189,9 +167,6 @@
   #define DOGLCD
   #if ENABLED(MAKRPANEL)
     #define U8GLIB_ST7565_64128N
-  #endif
-  #ifndef DEFAULT_LCD_CONTRAST
-    #define DEFAULT_LCD_CONTRAST 17
   #endif
 #endif
 
@@ -314,7 +289,11 @@
 #endif
 
 #ifndef STD_ENCODER_PULSES_PER_STEP
-  #define STD_ENCODER_PULSES_PER_STEP 5
+  #if ENABLED(TOUCH_BUTTONS)
+    #define STD_ENCODER_PULSES_PER_STEP 1
+  #else
+    #define STD_ENCODER_PULSES_PER_STEP 5
+  #endif
 #endif
 #ifndef STD_ENCODER_STEPS_PER_MENU_ITEM
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
@@ -368,7 +347,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extensible_ui)
-#if EITHER(MALYAN_LCD, DGUS_LCD)
+#if ANY(MALYAN_LCD, DGUS_LCD, LULZBOT_TOUCH_UI)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
 #endif
@@ -380,22 +359,6 @@
 #define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 #define HAS_ADC_BUTTONS      ENABLED(ADC_KEYPAD)
-
-/**
- * Default LCD contrast for Graphical LCD displays
- */
-#define HAS_LCD_CONTRAST (HAS_GRAPHICAL_LCD && defined(DEFAULT_LCD_CONTRAST))
-#if HAS_LCD_CONTRAST
-  #ifndef LCD_CONTRAST_MIN
-    #define LCD_CONTRAST_MIN 0
-  #endif
-  #ifndef LCD_CONTRAST_MAX
-    #define LCD_CONTRAST_MAX 63
-  #endif
-  #ifndef DEFAULT_LCD_CONTRAST
-    #define DEFAULT_LCD_CONTRAST 32
-  #endif
-#endif
 
 /**
  * Extruders have some combination of stepper motors and hotends
@@ -567,7 +530,7 @@
 #define HAS_COLOR_LEDS        ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
 #define HAS_LEDS_OFF_FLAG     (BOTH(PRINTER_EVENT_LEDS, SDSUPPORT) && HAS_RESUME_CONTINUE)
 #define HAS_PRINT_PROGRESS    EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
-#define HAS_SERVICE_INTERVALS (SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0)
+#define HAS_SERVICE_INTERVALS (ENABLED(PRINTCOUNTER) && (SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0))
 #define HAS_FILAMENT_SENSOR   ENABLED(FILAMENT_RUNOUT_SENSOR)
 
 #define Z_MULTI_STEPPER_DRIVERS EITHER(Z_DUAL_STEPPER_DRIVERS, Z_TRIPLE_STEPPER_DRIVERS)
@@ -592,32 +555,6 @@
 #endif
 #ifndef INVERT_E_DIR
   #define INVERT_E_DIR false
-#endif
-
-#if ENABLED(HOST_ACTION_COMMANDS)
-  #ifndef ACTION_ON_PAUSE
-    #define ACTION_ON_PAUSE   "pause"
-  #endif
-  #ifndef ACTION_ON_RESUME
-    #define ACTION_ON_RESUME  "resume"
-  #endif
-  #ifndef ACTION_ON_PAUSED
-    #define ACTION_ON_PAUSED  "paused"
-  #endif
-  #ifndef ACTION_ON_RESUMED
-    #define ACTION_ON_RESUMED "resumed"
-  #endif
-  #ifndef ACTION_ON_CANCEL
-    #define ACTION_ON_CANCEL  "cancel"
-  #endif
-  #if ENABLED(G29_RETRY_AND_RECOVER)
-    #ifndef ACTION_ON_G29_RECOVER
-      #define ACTION_ON_G29_RECOVER "probe_rewipe"
-    #endif
-    #ifndef ACTION_ON_G29_FAILURE
-      #define ACTION_ON_G29_FAILURE "probe_failed"
-    #endif
-  #endif
 #endif
 
 #if ENABLED(SLIM_LCD_MENUS)

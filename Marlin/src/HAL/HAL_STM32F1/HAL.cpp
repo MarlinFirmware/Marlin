@@ -82,7 +82,7 @@
 // Public Variables
 // ------------------------
 
-#ifdef SERIAL_USB
+#if (defined(SERIAL_USB) && !defined(USE_USB_COMPOSITE))
   USBSerial SerialUSB;
 #endif
 
@@ -93,7 +93,7 @@ uint16_t HAL_adc_result;
 // ------------------------
 STM32ADC adc(ADC1);
 
-uint8_t adc_pins[] = {
+const uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_0
     TEMP_0_PIN,
   #endif
@@ -120,6 +120,15 @@ uint8_t adc_pins[] = {
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
+  #endif
+  #if HAS_JOY_ADC_X
+    JOY_X_PIN,
+  #endif
+  #if HAS_JOY_ADC_Y
+    JOY_Y_PIN,
+  #endif
+  #if HAS_JOY_ADC_Z
+    JOY_Z_PIN,
   #endif
 };
 
@@ -151,14 +160,19 @@ enum TEMP_PINS : char {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
   #endif
+  #if HAS_JOY_ADC_X
+    JOY_X,
+  #endif
+  #if HAS_JOY_ADC_Y
+    JOY_Y,
+  #endif
+  #if HAS_JOY_ADC_Z
+    JOY_Z,
+  #endif
   ADC_PIN_COUNT
 };
 
 uint16_t HAL_adc_results[ADC_PIN_COUNT];
-
-// ------------------------
-// Function prototypes
-// ------------------------
 
 // ------------------------
 // Private functions
@@ -187,19 +201,22 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
     #if SERIAL_PORT > 0
       #if SERIAL_PORT2
         #if SERIAL_PORT2 > 0
-          void board_setup_usb(void) {}
+          void board_setup_usb() {}
         #endif
       #else
-        void board_setup_usb(void) {}
+        void board_setup_usb() {}
       #endif
     #endif
   } }
 #endif
 
-void HAL_init(void) {
+void HAL_init() {
   NVIC_SetPriorityGrouping(0x3);
   #if PIN_EXISTS(LED)
     OUT_WRITE(LED_PIN, LOW);
+  #endif
+  #ifdef USE_USB_COMPOSITE
+    MSC_SD_init();
   #endif
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
@@ -208,21 +225,39 @@ void HAL_init(void) {
   #endif
 }
 
+// HAL idle task
+void HAL_idletask() {
+  #ifdef USE_USB_COMPOSITE
+    #if ENABLED(SHARED_SD_CARD)
+      // If Marlin is using the SD card we need to lock it to prevent access from
+      // a PC via USB.
+      // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
+      // this will not reliably detect delete operations. To be safe we will lock
+      // the disk if Marlin has it mounted. Unfortunately there is currently no way
+      // to unmount the disk from the LCD menu.
+      // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
+      /* copy from lpc1768 framework, should be fixed later for process SHARED_SD_CARD*/
+    #endif
+    // process USB mass storage device class loop
+    MarlinMSC.loop();
+  #endif
+}
+
 /* VGPV Done with defines
 // disable interrupts
-void cli(void) { noInterrupts(); }
+void cli() { noInterrupts(); }
 
 // enable interrupts
-void sei(void) { interrupts(); }
+void sei() { interrupts(); }
 */
 
-void HAL_clear_reset_source(void) { }
+void HAL_clear_reset_source() { }
 
 /**
  * TODO: Check this and change or remove.
  * currently returns 1 that's equal to poweron reset.
  */
-uint8_t HAL_get_reset_source(void) { return 1; }
+uint8_t HAL_get_reset_source() { return 1; }
 
 void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
@@ -262,7 +297,7 @@ extern "C" {
 // ADC
 // ------------------------
 // Init the AD in continuous capture mode
-void HAL_adc_init(void) {
+void HAL_adc_init() {
   // configure the ADC
   adc.calibrate();
   #if F_CPU > 72000000
@@ -270,7 +305,7 @@ void HAL_adc_init(void) {
   #else
     adc.setSampleRate(ADC_SMPR_41_5); // 41.5 ADC cycles
   #endif
-  adc.setPins(adc_pins, ADC_PIN_COUNT);
+  adc.setPins((uint8_t *)adc_pins, ADC_PIN_COUNT);
   adc.setDMA(HAL_adc_results, (uint16_t)ADC_PIN_COUNT, (uint32_t)(DMA_MINC_MODE | DMA_CIRC_MODE), nullptr);
   adc.setScanMode();
   adc.setContinuous();
@@ -305,6 +340,15 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_TEMP_ADC_5
       case TEMP_5_PIN: pin_index = TEMP_5; break;
     #endif
+    #if HAS_JOY_ADC_X
+      case JOY_X_PIN: pin_index = JOY_X; break;
+    #endif
+    #if HAS_JOY_ADC_Y
+      case JOY_Y_PIN: pin_index = JOY_Y; break;
+    #endif
+    #if HAS_JOY_ADC_Z
+      case JOY_Z_PIN: pin_index = JOY_Z; break;
+    #endif
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;
     #endif
@@ -312,7 +356,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
 }
 
-uint16_t HAL_adc_get_result(void) { return HAL_adc_result; }
+uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
 uint16_t analogRead(pin_t pin) {
   const bool is_analog = _GET_MODE(pin) == GPIO_INPUT_ANALOG;
@@ -324,5 +368,7 @@ void analogWrite(pin_t pin, int pwm_val8) {
   if (PWM_PIN(pin))
     analogWrite(uint8_t(pin), pwm_val8);
 }
+
+void flashFirmware(int16_t value) { nvic_sys_reset(); }
 
 #endif // __STM32F1__

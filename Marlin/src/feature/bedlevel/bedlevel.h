@@ -23,11 +23,6 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-typedef struct {
-  int8_t x_index, y_index;
-  float distance; // When populated, the distance from the search location
-} mesh_index_pair;
-
 #if ENABLED(PROBE_MANUALLY)
   extern bool g29_in_progress;
 #else
@@ -43,7 +38,7 @@ void reset_bed_level();
 #endif
 
 #if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
-  void _manual_goto_xy(const float &x, const float &y);
+  void _manual_goto_xy(const xy_pos_t &pos);
 #endif
 
 /**
@@ -56,11 +51,11 @@ class TemporaryBedLevelingState {
     TemporaryBedLevelingState(const bool enable);
     ~TemporaryBedLevelingState() { set_bed_leveling_enabled(saved); }
 };
-#define TEMPORARY_BED_LEVELING_STATE(enable) TemporaryBedLevelingState tbls(enable)
+#define TEMPORARY_BED_LEVELING_STATE(enable) const TemporaryBedLevelingState tbls(enable)
 
 #if HAS_MESH
 
-  typedef float (&bed_mesh_t)[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #include "abl/abl.h"
@@ -71,6 +66,7 @@ class TemporaryBedLevelingState {
   #endif
 
   #define Z_VALUES(X,Y) Z_VALUES_ARR[X][Y]
+  #define _GET_MESH_POS(M) { _GET_MESH_X(M.a), _GET_MESH_Y(M.b) }
 
   #if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
 
@@ -84,5 +80,19 @@ class TemporaryBedLevelingState {
     void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, element_2d_fn fn);
 
   #endif
+
+  struct mesh_index_pair {
+    xy_int8_t pos;
+    float distance;   // When populated, the distance from the search location
+    void invalidate() { pos = -1; }
+    bool valid() const { return pos.x >= 0 && pos.y >= 0; }
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      xy_pos_t meshpos() {
+        return { ubl.mesh_index_to_xpos(pos.x), ubl.mesh_index_to_ypos(pos.y) };
+      }
+    #endif
+    operator xy_int8_t&() { return pos; }
+    operator const xy_int8_t&() const { return pos; }
+  };
 
 #endif

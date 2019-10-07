@@ -32,8 +32,8 @@
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "RAMPS-FD v1"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "RAMPS-FD v1"
 #endif
 
 #define INVERTED_HEATER_PINS

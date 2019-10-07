@@ -6,7 +6,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "CN Controls V12"
+#define BOARD_INFO_NAME "CN Controls V12"
 
 //
 // Limit Switches
@@ -54,7 +54,10 @@
 #define TEMP_2_PIN         13   // Analog Input. 10 for tool3 -> 13 for chambertemp
 #define TEMP_3_PIN         11   // Analog Input. 11 for tool4 -> 13 for chambertemp
 #define TEMP_BED_PIN       14   // Analog Input
-//#define TEMP_CHAMBER_PIN   13   // Analog Input
+
+#ifndef TEMP_CHAMBER_PIN
+  //#define TEMP_CHAMBER_PIN 13 // Analog Input
+#endif
 
 //
 // Heaters / Fans

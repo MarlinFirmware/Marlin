@@ -30,7 +30,7 @@
 
 #include "power.h"
 #include "../module/temperature.h"
-#include "../module/stepper_indirection.h"
+#include "../module/stepper/indirection.h"
 #include "../Marlin.h"
 
 Power powerManager;
@@ -55,31 +55,31 @@ bool Power::is_power_needed() {
   #endif
 
   // If any of the drivers or the bed are enabled...
-  if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON
+  if (X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON || Z_ENABLE_READ() == Z_ENABLE_ON
     #if HAS_HEATED_BED
       || thermalManager.temp_bed.soft_pwm_amount > 0
     #endif
       #if HAS_X2_ENABLE
-        || X2_ENABLE_READ == X_ENABLE_ON
+        || X2_ENABLE_READ() == X_ENABLE_ON
       #endif
       #if HAS_Y2_ENABLE
-        || Y2_ENABLE_READ == Y_ENABLE_ON
+        || Y2_ENABLE_READ() == Y_ENABLE_ON
       #endif
       #if HAS_Z2_ENABLE
-        || Z2_ENABLE_READ == Z_ENABLE_ON
+        || Z2_ENABLE_READ() == Z_ENABLE_ON
       #endif
       #if E_STEPPERS
-        || E0_ENABLE_READ == E_ENABLE_ON
+        || E0_ENABLE_READ() == E_ENABLE_ON
         #if E_STEPPERS > 1
-          || E1_ENABLE_READ == E_ENABLE_ON
+          || E1_ENABLE_READ() == E_ENABLE_ON
           #if E_STEPPERS > 2
-            || E2_ENABLE_READ == E_ENABLE_ON
+            || E2_ENABLE_READ() == E_ENABLE_ON
             #if E_STEPPERS > 3
-              || E3_ENABLE_READ == E_ENABLE_ON
+              || E3_ENABLE_READ() == E_ENABLE_ON
               #if E_STEPPERS > 4
-                || E4_ENABLE_READ == E_ENABLE_ON
+                || E4_ENABLE_READ() == E_ENABLE_ON
                 #if E_STEPPERS > 5
-                  || E5_ENABLE_READ == E_ENABLE_ON
+                  || E5_ENABLE_READ() == E_ENABLE_ON
                 #endif // E_STEPPERS > 5
               #endif // E_STEPPERS > 4
             #endif // E_STEPPERS > 3

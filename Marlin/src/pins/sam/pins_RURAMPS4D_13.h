@@ -36,7 +36,7 @@
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "RuRAMPS4Due v1.3"
+#define BOARD_INFO_NAME "RuRAMPS4Due v1.3"
 
 //
 // Servos

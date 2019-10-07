@@ -38,15 +38,15 @@ extern "C" {
 #include "../../sd/cardreader.h"
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
-#include "HAL_timers.h"
+#include "timers.h"
 
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
 extern "C" int isLPC1769();
-extern "C" void disk_timerproc(void);
+extern "C" void disk_timerproc();
 
 void SysTick_Callback() { disk_timerproc(); }
 
-void HAL_init(void) {
+void HAL_init() {
 
   // Init LEDs
   #if PIN_EXISTS(LED)
@@ -149,16 +149,16 @@ void HAL_init(void) {
 }
 
 // HAL idle task
-void HAL_idletask(void) {
+void HAL_idletask() {
   #if ENABLED(SHARED_SD_CARD)
     // If Marlin is using the SD card we need to lock it to prevent access from
     // a PC via USB.
     // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
     // this will not reliably detect delete operations. To be safe we will lock
-    // the disk if Marlin has it mounted. Unfortuately there is currently no way
+    // the disk if Marlin has it mounted. Unfortunately there is currently no way
     // to unmount the disk from the LCD menu.
     // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
-    if (card.isDetected())
+    if (card.isMounted())
       MSC_Aquire_Lock();
     else
       MSC_Release_Lock();

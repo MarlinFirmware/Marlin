@@ -33,8 +33,8 @@
 #define NOT_EXTENDED_ISO10646_1_5X7
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" parada.")
-#define MSG_SD_INSERTED                     _UxGT("Tarcheta mesa")
-#define MSG_SD_REMOVED                      _UxGT("Tarcheta sacada")
+#define MSG_MEDIA_INSERTED                  _UxGT("Tarcheta mesa")
+#define MSG_MEDIA_REMOVED                   _UxGT("Tarcheta sacada")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #define MSG_MAIN                            _UxGT("Menu prencipal")
 #define MSG_AUTOSTART                       _UxGT("Inicio automatico")
@@ -146,8 +146,8 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pausar impresion")
 #define MSG_RESUME_PRINT                    _UxGT("Contin. impresion")
 #define MSG_STOP_PRINT                      _UxGT("Detener Impresion")
-#define MSG_CARD_MENU                       _UxGT("Menu de SD")
-#define MSG_NO_CARD                         _UxGT("No i hai tarcheta")
+#define MSG_MEDIA_MENU                      _UxGT("Menu de SD")
+#define MSG_NO_MEDIA                        _UxGT("No i hai tarcheta")
 #define MSG_DWELL                           _UxGT("Reposo...")
 #define MSG_USERWAIT                        _UxGT("Aguardand ordines")
 #define MSG_PRINT_ABORTED                   _UxGT("Impres. cancelada")
@@ -163,13 +163,12 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("DesRet F")
 #define MSG_AUTORETRACT                     _UxGT("Retraccion auto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Cambear filamento")
-#define MSG_INIT_SDCARD                     _UxGT("Encetan. tarcheta")
-#define MSG_CHANGE_SDCARD                   _UxGT("Cambiar tarcheta")
+#define MSG_INIT_MEDIA                      _UxGT("Encetan. tarcheta")
+#define MSG_CHANGE_MEDIA                    _UxGT("Cambiar tarcheta")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z fuera")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Auto-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
-#define MSG_HOME                            _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           _UxGT("first")
+#define MSG_HOME_FIRST                      _UxGT("Home %s%s%s first")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Desfase Z")
 #define MSG_BABYSTEP_X                      _UxGT("Micropaso X")
 #define MSG_BABYSTEP_Y                      _UxGT("Micropaso Y")
@@ -182,7 +181,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Error: Temp Menima")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Error: Temp Max base")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Error: Temp Min base")
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_ERR_Z_HOMING                    _UxGT("Home XY first")
 #define MSG_HALTED                          _UxGT("IMPRESORA ATURADA")
 #define MSG_PLEASE_RESET                    _UxGT("Per favor reinic.")
 #define MSG_SHORT_DAY                       _UxGT("d")

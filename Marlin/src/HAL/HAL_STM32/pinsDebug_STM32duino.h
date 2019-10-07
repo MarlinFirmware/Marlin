@@ -145,19 +145,19 @@ uint8_t get_pin_mode(const pin_t Ard_num) {
     case 'D' : mode_all = GPIOD->MODER; break;
     #ifdef PE_0
       case 'E' : mode_all = GPIOE->MODER; break;
-    #elif defined (PF_0)
+    #elif defined(PF_0)
       case 'F' : mode_all = GPIOF->MODER; break;
-    #elif defined (PG_0)
+    #elif defined(PG_0)
       case 'G' : mode_all = GPIOG->MODER; break;
-    #elif defined (PH_0)
+    #elif defined(PH_0)
       case 'H' : mode_all = GPIOH->MODER; break;
-    #elif defined (PI_0)
+    #elif defined(PI_0)
       case 'I' : mode_all = GPIOI->MODER; break;
-    #elif defined (PJ_0)
+    #elif defined(PJ_0)
       case 'J' : mode_all = GPIOJ->MODER; break;
-    #elif defined (PK_0)
+    #elif defined(PK_0)
       case 'K' : mode_all = GPIOK->MODER; break;
-    #elif defined (PL_0)
+    #elif defined(PL_0)
       case 'L' : mode_all = GPIOL->MODER; break;
     #endif
   }
@@ -189,7 +189,7 @@ void port_print(const pin_t Ard_num) {
   for (Index = 0; Index < NUMBER_PINS_TOTAL; Index++)
     if (Ard_num == GET_PIN_MAP_PIN_M43(Index)) break;
 
-  char * const ppa = pin_xref[Index].Port_pin_alpha;
+  const char * ppa = pin_xref[Index].Port_pin_alpha;
   sprintf_P(buffer, PSTR("%s"), ppa);
   SERIAL_ECHO(buffer);
   if (ppa[3] == '\0') SERIAL_CHAR(' ');

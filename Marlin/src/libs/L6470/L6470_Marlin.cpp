@@ -21,7 +21,7 @@
  */
 
 /**
- *  The monitor_driver routines are a close copy of the TMC code
+ * The monitor_driver routines are a close copy of the TMC code
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -32,9 +32,9 @@
 
 L6470_Marlin L6470;
 
-#include "../stepper_indirection.h"
+#include "../../module/stepper/indirection.h"
+#include "../../module/planner.h"
 #include "../../gcode/gcode.h"
-#include "../planner.h"
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
@@ -339,19 +339,19 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
   // Position calcs & checks
   //
 
-  const float center[] = {
-    LOGICAL_X_POSITION(current_position[X_AXIS]),
-    LOGICAL_Y_POSITION(current_position[Y_AXIS]),
-    LOGICAL_Z_POSITION(current_position[Z_AXIS]),
-    current_position[E_AXIS]
+  const xyze_pos_t center = {
+    LOGICAL_X_POSITION(current_position.x),
+    LOGICAL_Y_POSITION(current_position.y),
+    LOGICAL_Z_POSITION(current_position.z),
+    current_position.e
   };
 
   switch (axis_mon[0][0]) {
     default: position_max = position_min = 0; break;
 
     case 'X': {
-      position_min = center[X_AXIS] - displacement;
-      position_max = center[X_AXIS] + displacement;
+      position_min = center.x - displacement;
+      position_max = center.x + displacement;
       echo_min_max('X', position_min, position_max);
       if (false
         #ifdef X_MIN_POS
@@ -367,8 +367,8 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
     } break;
 
     case 'Y': {
-      position_min = center[Y_AXIS] - displacement;
-      position_max = center[Y_AXIS] + displacement;
+      position_min = center.y - displacement;
+      position_max = center.y + displacement;
       echo_min_max('Y', position_min, position_max);
       if (false
         #ifdef Y_MIN_POS
@@ -384,8 +384,8 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
     } break;
 
     case 'Z': {
-      position_min = center[E_AXIS] - displacement;
-      position_max = center[E_AXIS] + displacement;
+      position_min = center.z - displacement;
+      position_max = center.z + displacement;
       echo_min_max('Z', position_min, position_max);
       if (false
         #ifdef Z_MIN_POS
@@ -401,8 +401,8 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
     } break;
 
     case 'E': {
-      position_min = center[E_AXIS] - displacement;
-      position_max = center[E_AXIS] + displacement;
+      position_min = center.e - displacement;
+      position_max = center.e + displacement;
       echo_min_max('E', position_min, position_max);
     } break;
   }

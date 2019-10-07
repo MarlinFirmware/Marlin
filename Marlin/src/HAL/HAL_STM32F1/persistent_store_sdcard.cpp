@@ -48,11 +48,11 @@ static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
   #define EEPROM_FILENAME "eeprom.dat"
 
   bool PersistentStore::access_start() {
-    if (!card.isDetected()) return false;
+    if (!card.isMounted()) return false;
 
     SdFile file, root = card.getroot();
     if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
-      return false;
+      return true; // false aborts the save
 
     int bytes_read = file.read(HAL_eeprom_data, HAL_EEPROM_SIZE);
     if (bytes_read < 0) return false;
@@ -63,7 +63,7 @@ static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
   }
 
   bool PersistentStore::access_finish() {
-    if (!card.isDetected()) return false;
+    if (!card.isMounted()) return false;
 
     SdFile file, root = card.getroot();
     int bytes_written = 0;

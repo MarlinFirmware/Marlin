@@ -1,52 +1,40 @@
-# Auto Build support for Visual Studio Code
-This `Visual Studio Code` extension provides access to the `Auto Build` script.
+# Auto Build Marlin
 
-## Installation
+"AutoBuildMarlin" is a *Visual Studio Code* extension that provides a one-button interface to build and upload Marlin Firmware to your selected `MOTHERBOARD`, removing the need to edit your `platformio.ini` file or scroll through a long list of Marlin environments.
 
-Get the MarlinFirmware repository from GitHub. Open the directory `buildroot/share/vscode` and copy the `AutoBuildMarlin` folder to the `Visual Studio Code` extension directory. Relaunch `Visual Studio Code` to complete the installation.
+## Get PlatformIO
 
-To find the `Visual Studio Code` extension directory:
+Before you install AutoBuildMarlin you'll first need to [Install PlatformIO in VSCode](http://marlinfw.org/docs/basics/install_platformio_vscode.html). Once you have followed these instructions, continue below.
 
-- Windows - Use Windows Explorer's address bar to open `C:/Users/USERNAME/.vscode/extensions`.
-- Mac - Use the Finder's `Go` menu to open `~/.vscode/extensions`.
-- Linux - In the Terminal type `open ~/.vscode/extensions`.
+## Installing This Extension
 
-### 3. Install the PlatformIO extension
-Click on `View` > `Command Palette...`
+- [Download Marlin Firmware](http://marlinfw.org/meta/download/) and unzip it to your documents folder.
+- Open the directory `buildroot/share/vscode` and copy the "`AutoBuildMarlin`" folder to **the *Visual Studio Code* `extensions` directory**.
+- Relaunch *Visual Studio Code* to complete the installation.
 
-![](./resources/view_command_palette.png)
+### To find your `extensions` directory:
 
-Find and click on `Extensions: Install Extensions`
-
-![](./resources/install_extensions.png)
-
-Type `platformio` into the search box and click on `Install` under `PlatformIO IDE`.
-
-![](./resources/platformio_install.png)
+- **Windows** - Use Windows Explorer's address bar to open `C:/Users/USERNAME/.vscode/extensions`.
+- **Mac** - Use the Finder's `Go` menu to open `~/.vscode/extensions`.
+- **Linux** - In the Terminal type `open ~/.vscode/extensions`.
 
 ## Usage
 
-This extension adds the Auto Build icon ![](./media/AB.svg) to the Activities bar.
+- Open up the downloaded *Marlin Firmware* project folder (***NOT the "Marlin" folder within***) in *Visual Studio Code*. (You may also use the **Import Project…** option from the "PlaformIO Home" page.)
 
-### 1. Open the Marlin folder
-Click on `File` > `Open Folder...`
+- With Marlin open, the "File Explorer" should be firmly rooted in your Marlin Firmware folder:
 
-![](./resources/Open_Folder.png)
+  ![](https://github.com/MarlinFirmware/Marlin/raw/bugfix-2.0.x/buildroot/share/vscode/AutoBuildMarlin/img/Activity_bar.png)
 
-This brings up the `Open Folder` dialog. Select the folder that has the `platformio.ini` file in it.
+- Click the **Marlin Auto Build** icon ![AutoBuild Icon](https://github.com/MarlinFirmware/Marlin/raw/bugfix-2.0.x/buildroot/share/vscode/AutoBuildMarlin/img/AB_icon.png) in the Activities Bar (on the left side of *Visual Studio Code* window) to bring up the **Marlin Auto Build** options bar.
 
-![](./resources/Open_Marlin.png)
+  ![](https://github.com/MarlinFirmware/Marlin/raw/bugfix-2.0.x/buildroot/share/vscode/AutoBuildMarlin/img/AB_menu.png)
 
-You should see something like the following. If not, click on the Explorer icon in the Activities bar.
+- Click one of the four icons
 
-![](./resources/Activity_bar.png)
-
-### 2. Click on the Auto Build Icon ![](./media/AB.svg)
-This brings up the Auto Build menu icon bar.
-![](./resources/AB_menu.png)
-
-### 3. Click on one of the four icons
-- ![](./resources/B_small.svg) - Clicking on it starts `PIO Build`
-- ![](./resources/C_small.svg) - Clicking on it starts `PIO Clean`
-- ![](./resources/U_small.svg) - Clicking on it starts `PIO Upload`
-- ![](./resources/Ut_small.svg) - Clicking on it starts `PIO Upload (traceback)`
+  Icon|Action
+  ----|------
+  ![](https://github.com/MarlinFirmware/Marlin/raw/bugfix-2.0.x/buildroot/share/vscode/AutoBuildMarlin/img/B_small.png)|Start **Marlin Build** to test your Marlin build
+  ![](https://github.com/MarlinFirmware/Marlin/raw/bugfix-2.0.x/buildroot/share/vscode/AutoBuildMarlin/img/U_small.png)|Start **Marlin Upload** to install Marlin on your board
+  ![](https://github.com/MarlinFirmware/Marlin/raw/bugfix-2.0.x/buildroot/share/vscode/AutoBuildMarlin/img/T_small.png)|Start **Marlin Upload (traceback)** to install Marlin with debugging
+  ![](https://github.com/MarlinFirmware/Marlin/raw/bugfix-2.0.x/buildroot/share/vscode/AutoBuildMarlin/img/C_small.png)|Start **Marlin Clean** to delete old build files

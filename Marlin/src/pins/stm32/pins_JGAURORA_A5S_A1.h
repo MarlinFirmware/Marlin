@@ -33,7 +33,7 @@
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "JGAurora 32-bit board only supports 1 hotend / E-stepper. Comment out this line to continue."
 #endif
-#define BOARD_NAME "JGAurora A5S A1 board"
+#define BOARD_INFO_NAME "JGAurora A5S A1 board"
 
 #define STM32_XL_DENSITY
 // #define MCU_STM32F103ZE // not yet required
@@ -122,7 +122,6 @@
 // Touch support
 //
 #if ENABLED(TOUCH_BUTTONS)
-  #define BTN_ENC          PA11   // Real pin needed to enable encoder's push button functionality used by touch screen. PA11 gives stable value.
   #define TOUCH_CS_PIN     PA4
   #define TOUCH_INT_PIN    PC4
 #endif
