@@ -464,6 +464,8 @@
   #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
 #elif MB(BIGTREE_SKR_MINI_V1_1)
   #include "stm32/pins_BIGTREE_SKR_MINI_V1_1.h" // STM32F1                                env:STM32F103RC_bigtree
+#elif MB(BTT_SKR_MINI_E3_V1_2)
+  #include "stm32/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                                env:STM32F103RC_bigtree
 #elif MB(BIGTREE_SKR_MINI_E3)
   #include "stm32/pins_BIGTREE_SKR_MINI_E3.h"   // STM32F1                                env:STM32F103RC_bigtree
 #elif MB(BIGTREE_SKR_E3_DIP)
