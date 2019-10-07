@@ -892,7 +892,7 @@
       ui.capture();
 
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
-      do_blocking_move_to(current_position.x, current_position.y, z_clearance);
+      do_blocking_move_to_xy_z(current_position, z_clearance);
 
       ui.return_to_status();
 
@@ -948,7 +948,7 @@
       if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
       restore_ubl_active_state_and_leave();
-      do_blocking_move_to(pos, Z_CLEARANCE_DEPLOY_PROBE);
+      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_DEPLOY_PROBE);
     }
 
     inline void set_message_with_feedback(PGM_P const msg_P) {
@@ -986,7 +986,7 @@
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
       ui.capture();                                         // Take over control of the LCD encoder
 
-      do_blocking_move_to(pos, Z_CLEARANCE_BETWEEN_PROBES); // Move to the given XY with probe clearance
+      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES); // Move to the given XY with probe clearance
 
       #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
         do_blocking_move_to_z(h_offset);                    // Move Z to the given 'H' offset
@@ -1055,7 +1055,7 @@
       if (do_ubl_mesh_map) display_map(g29_map_type);
       restore_ubl_active_state_and_leave();
 
-      do_blocking_move_to(pos, Z_CLEARANCE_BETWEEN_PROBES);
+      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES);
 
       LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
       SERIAL_ECHOLNPGM("Done Editing Mesh");

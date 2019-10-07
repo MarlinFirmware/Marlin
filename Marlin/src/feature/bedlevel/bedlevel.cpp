@@ -228,14 +228,14 @@ void reset_bed_level() {
     #ifdef MANUAL_PROBE_START_Z
       constexpr float startz = _MAX(0, MANUAL_PROBE_START_Z);
       #if MANUAL_PROBE_HEIGHT > 0
-        do_blocking_move_to(pos, MANUAL_PROBE_HEIGHT);
+        do_blocking_move_to_xy_z(pos, MANUAL_PROBE_HEIGHT);
         do_blocking_move_to_z(startz);
       #else
-        do_blocking_move_to(pos, startz);
+        do_blocking_move_to_xy_z(pos, startz);
       #endif
     #elif MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position.z;
-      do_blocking_move_to(pos, MANUAL_PROBE_HEIGHT);
+      do_blocking_move_to_xy_z(pos, MANUAL_PROBE_HEIGHT);
       do_blocking_move_to_z(prev_z);
     #else
       do_blocking_move_to_xy(pos);
