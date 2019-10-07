@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && DISABLED(JUNCTION_DEVIATION)
+#if BOTH(LULZBOT_TOUCH_UI, CLASSIC_JERK)
 
 #include "screens.h"
 
@@ -62,4 +62,4 @@ bool JerkScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // LULZBOT_TOUCH_UI && CLASSIC_JERK

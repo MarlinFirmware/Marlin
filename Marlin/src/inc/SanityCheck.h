@@ -310,7 +310,7 @@
   #error "LEVEL_BED_CORNERS requires a LEVEL_CORNERS_INSET value. Please update your Configuration.h."
 #elif defined(BEZIER_JERK_CONTROL)
   #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION. Please update your configuration."
-#elif defined(JUNCTION_DEVIATION_FACTOR)
+#elif DISABLED(CLASSIC_JERK) && defined(JUNCTION_DEVIATION_FACTOR)
   #error "JUNCTION_DEVIATION_FACTOR is now JUNCTION_DEVIATION_MM. Please update your configuration."
 #elif defined(JUNCTION_ACCELERATION_FACTOR)
   #error "JUNCTION_ACCELERATION_FACTOR is obsolete. Delete it from Configuration_adv.h."
@@ -404,6 +404,8 @@
   #error "(MIN|MAX)_PROBE_[XY] are now calculated at runtime. Please remove them from Configuration.h."
 #elif defined(Z_STEPPER_ALIGN_X) || defined(Z_STEPPER_ALIGN_X)
   #error "Z_STEPPER_ALIGN_X and Z_STEPPER_ALIGN_Y are now combined as Z_STEPPER_ALIGN_XY. Please update your Configuration_adv.h."
+#elif defined(JUNCTION_DEVIATION)
+  #error "JUNCTION_DEVIATION is no longer required. (See CLASSIC_JERK). Please remove it from Configuration.h."
 #endif
 
 #define BOARD_MKS_13        -1000
@@ -1040,10 +1042,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Junction deviation is not compatible with kinematic systems.
+ * Junction deviation is incompatible with kinematic systems.
  */
-#if ENABLED(JUNCTION_DEVIATION) && IS_KINEMATIC
-  #error "Junction deviation is only compatible with Cartesians."
+#if DISABLED(CLASSIC_JERK) && IS_KINEMATIC
+  #error "CLASSIC_JERK is required for DELTA and SCARA."
 #endif
 
 /**
@@ -1270,7 +1272,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 #if HAS_MESH
-  #if DISABLED(JUNCTION_DEVIATION)
+  #if HAS_CLASSIC_JERK
     static_assert(DEFAULT_ZJERK > 0.1, "Low DEFAULT_ZJERK values are incompatible with mesh-based leveling.");
   #endif
 #elif ENABLED(G26_MESH_VALIDATION)
