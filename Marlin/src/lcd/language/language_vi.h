@@ -238,12 +238,12 @@
   #define MSG_CSTEPS                        _UxGT("BướcZ/mm")
 #endif
 #define MSG_ESTEPS                          _UxGT("BướcE/mm")
-#define MSG_E0STEPS                         _UxGT("Bước" LCD_STR_E0 "/mm")
-#define MSG_E1STEPS                         _UxGT("Bước" LCD_STR_E1 "/mm")
-#define MSG_E2STEPS                         _UxGT("Bước" LCD_STR_E2 "/mm")
-#define MSG_E3STEPS                         _UxGT("Bước" LCD_STR_E3 "/mm")
-#define MSG_E4STEPS                         _UxGT("Bước" LCD_STR_E4 "/mm")
-#define MSG_E5STEPS                         _UxGT("Bước" LCD_STR_E5 "/mm")
+#define MSG_E1STEPS                         _UxGT("BướcE1/mm")
+#define MSG_E2STEPS                         _UxGT("BướcE2/mm")
+#define MSG_E3STEPS                         _UxGT("BướcE3/mm")
+#define MSG_E4STEPS                         _UxGT("BướcE4/mm")
+#define MSG_E5STEPS                         _UxGT("BướcE5/mm")
+#define MSG_E6STEPS                         _UxGT("BướcE6/mm")
 #define MSG_TEMPERATURE                     _UxGT("Nhiệt độ")                             // Temperature
 #define MSG_MOTION                          _UxGT("Chuyển động")                          // Motion
 #define MSG_FILAMENT                        _UxGT("Vật liệu in")                          // dây nhựa

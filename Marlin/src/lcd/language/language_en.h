@@ -747,23 +747,23 @@
 #ifndef MSG_ESTEPS
   #define MSG_ESTEPS                          _UxGT("Esteps/mm")
 #endif
-#ifndef MSG_E0STEPS
-  #define MSG_E0STEPS                         _UxGT(LCD_STR_E0 "steps/mm")
-#endif
 #ifndef MSG_E1STEPS
-  #define MSG_E1STEPS                         _UxGT(LCD_STR_E1 "steps/mm")
+  #define MSG_E1STEPS                         _UxGT("E1steps/mm")
 #endif
 #ifndef MSG_E2STEPS
-  #define MSG_E2STEPS                         _UxGT(LCD_STR_E2 "steps/mm")
+  #define MSG_E2STEPS                         _UxGT("E2steps/mm")
 #endif
 #ifndef MSG_E3STEPS
-  #define MSG_E3STEPS                         _UxGT(LCD_STR_E3 "steps/mm")
+  #define MSG_E3STEPS                         _UxGT("E3steps/mm")
 #endif
 #ifndef MSG_E4STEPS
-  #define MSG_E4STEPS                         _UxGT(LCD_STR_E4 "steps/mm")
+  #define MSG_E4STEPS                         _UxGT("E4steps/mm")
 #endif
 #ifndef MSG_E5STEPS
-  #define MSG_E5STEPS                         _UxGT(LCD_STR_E5 "steps/mm")
+  #define MSG_E5STEPS                         _UxGT("E5steps/mm")
+#endif
+#ifndef MSG_E6STEPS
+  #define MSG_E6STEPS                         _UxGT("E6steps/mm")
 #endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     _UxGT("Temperature")
