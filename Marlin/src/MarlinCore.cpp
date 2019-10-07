@@ -407,7 +407,14 @@ void startOrResumeJob() {
     #if DISABLED(SD_ABORT_NO_COOLDOWN)
       thermalManager.disable_all_heaters();
     #endif
-    thermalManager.zero_fan_speeds();
+    #if !HAS_CUTTER
+      thermalManager.zero_fan_speeds();
+    #else
+      #if ENABLED(LASER_POWER_INLINE)
+        cutter.inline_disable();  // Disable all stepper ISR control of cutter to prevent bad things
+      #endif
+      cutter.disable();           // Shut down spindle/laser
+    #endif
     wait_for_heatup = false;
     #if ENABLED(POWER_LOSS_RECOVERY)
       recovery.purge();

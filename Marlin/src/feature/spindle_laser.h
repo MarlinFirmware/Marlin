@@ -55,17 +55,20 @@
 class SpindleLaser {
 public:
   static cutter_power_t power;
-  static inline uint8_t powerPercent(const uint8_t pp) { return ui8_to_percent(pp); } // for display
+  static cutter_power_t isOn;
+
 
   static void init();
 
   // Modifying this function should update everywhere
   static inline bool enabled(const cutter_power_t pwr) { return pwr > 0; }
-  static inline bool enabled() { return enabled(power); }
+  static inline bool enabled() { return enabled(power && isOn); }
 
   static inline void set_power(const cutter_power_t pwr) { power = pwr; update_output(); }
 
-  static inline void set_enabled(const bool enable) { set_power(enable ? SPEED_POWER_STARTUP : 0); }
+//   static inline void set_enabled(const bool enable) { set_power(enable ? SPEED_POWER_STARTUP : 0); } //before
+    static inline void set_enabled(const bool enable) { set_power(enable && isOn ? (power ? power : SPEED_POWER_STARTUP) : (power ? power : 0));}
+
 
   //static bool active() { return READ(SPINDLE_LASER_ENA_PIN) == SPINDLE_LASER_ACTIVE_HIGH; }
 
@@ -90,9 +93,9 @@ public:
     static inline void set_direction(const bool) {}
   #endif
 
-  static inline void disable() { set_enabled(false); }
-  static inline void enable_forward() { set_direction(false); set_enabled(true); }
-  static inline void enable_reverse() { set_direction(true); set_enabled(true); }
+  static inline void disable() { isOn = false; set_enabled(false); }
+  static inline void enable_forward() { isOn = true; set_direction(false); set_enabled(true); }
+  static inline void enable_reverse() { isOn = true; set_direction(true); set_enabled(true); }
 
   #if ENABLED(LASER_POWER_INLINE)
     // Force disengage planner power control
