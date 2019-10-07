@@ -59,8 +59,8 @@ void plan_arc(
     switch (gcode.workspace_plane) {
       default:
       case GcodeSuite::PLANE_XY: p_axis = X_AXIS; q_axis = Y_AXIS; l_axis = Z_AXIS; break;
-      case GcodeSuite::PLANE_ZX: p_axis = Z_AXIS; q_axis = X_AXIS; l_axis = Y_AXIS; break;
       case GcodeSuite::PLANE_YZ: p_axis = Y_AXIS; q_axis = Z_AXIS; l_axis = X_AXIS; break;
+      case GcodeSuite::PLANE_ZX: p_axis = Z_AXIS; q_axis = X_AXIS; l_axis = Y_AXIS; break;
     }
   #else
     constexpr AxisEnum p_axis = X_AXIS, q_axis = Y_AXIS, l_axis = Z_AXIS;
@@ -242,19 +242,20 @@ void plan_arc(
  * G2: Clockwise Arc
  * G3: Counterclockwise Arc
  *
- * This command has two forms: IJ-form and R-form.
+ * This command has two forms: IJ-form (JK, KI) and R-form.
  *
- *  - I specifies an X offset. J specifies a Y offset.
- *    At least one of the IJ parameters is required.
- *    X and Y can be omitted to do a complete circle.
- *    The given XY is not error-checked. The arc ends
- *     based on the angle of the destination.
- *    Mixing I or J with R will throw an error.
+ *  - Depending on the current Workspace Plane orientation,
+ *    use parameters IJ/JK/KI to specify the XY/YZ/ZX offsets.
+ *    At least one of the IJ/JK/KI parameters is required.
+ *    XY/YZ/ZX can be omitted to do a complete circle.
+ *    The given XY/YZ/ZX is not error-checked. The arc ends
+ *    based on the angle of the destination.
+ *    Mixing IJ/JK/KI with R will throw an error.
  *
- *  - R specifies the radius. X or Y is required.
- *    Omitting both X and Y will throw an error.
- *    X or Y must differ from the current XY.
- *    Mixing R with I or J will throw an error.
+ *  - R specifies the radius. X or Y (Y or Z / Z or X) is required.
+ *    Omitting both XY/YZ/ZX will throw an error.
+ *    XY/YZ/ZX must differ from the current XY/YZ/ZX.
+ *    Mixing R with IJ/JK/KI will throw an error.
  *
  *  - P specifies the number of full circles to do
  *    before the specified arc move.
@@ -294,8 +295,19 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       }
     }
     else {
-      if (parser.seenval('I')) arc_offset.a = parser.value_linear_units();
-      if (parser.seenval('J')) arc_offset.b = parser.value_linear_units();
+      #if ENABLED(CNC_WORKSPACE_PLANES)
+        char achar, bchar;
+        switch (gcode.workspace_plane) {
+          default:
+          case GcodeSuite::PLANE_XY: achar = 'I'; bchar = 'J'; break;
+          case GcodeSuite::PLANE_YZ: achar = 'J'; bchar = 'K'; break;
+          case GcodeSuite::PLANE_ZX: achar = 'K'; bchar = 'I'; break;
+        }
+      #else
+        constexpr char achar = 'I', bchar = 'J';
+      #endif
+      if (parser.seenval(achar)) arc_offset.a = parser.value_linear_units();
+      if (parser.seenval(bchar)) arc_offset.b = parser.value_linear_units();
     }
 
     if (arc_offset) {
