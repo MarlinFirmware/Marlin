@@ -75,21 +75,21 @@
 #define MSG_LEVEL_BED                       _UxGT("調平熱床")  //"Level bed"
 #define MSG_LEVEL_CORNERS                   _UxGT("調平邊角") // "Level corners"
 
-#define MSG_NEXT_CORNER                     _UxGT("下个邊角") // "Next corner"
+#define MSG_NEXT_CORNER                     _UxGT("下個邊角") // "Next corner"
 #define MSG_EDITING_STOPPED                 _UxGT("網格編輯已停止") // "Mesh Editing Stopped"
 
 #define MSG_USER_MENU                       _UxGT("客制命令") // "Custom Commands"
-#define MSG_UBL_DOING_G29                   _UxGT("执行G29") // "Doing G29"
+#define MSG_UBL_DOING_G29                   _UxGT("執行G29") // "Doing G29"
 #define MSG_UBL_UNHOMED                     _UxGT("先回XYZ原點") // "Home XYZ first"
 #define MSG_UBL_TOOLS                       _UxGT("UBL工具") // "UBL Tools"
 #define MSG_UBL_LEVEL_BED                   _UxGT("統一熱床調平(UBL)") // "Unified Bed Leveling"
-#define MSG_UBL_MANUAL_MESH                 _UxGT("手工建网") // "Manually Build Mesh"
+#define MSG_UBL_MANUAL_MESH                 _UxGT("手工建網") // "Manually Build Mesh"
 
 #define MSG_UBL_BC_INSERT                   _UxGT("放置墊片並測量") // "Place shim & measure"
 #define MSG_UBL_BC_INSERT2                  _UxGT("測量") // "Measure"
 #define MSG_UBL_BC_REMOVE                   _UxGT("移除並測量熱床") // "Remove & measure bed"
 #define MSG_UBL_MOVING_TO_NEXT              _UxGT("移動到下一個") // "Moving to next"
-#define MSG_UBL_ACTIVATE_MESH               _UxGT("激活UBL") // "Activate UBL"
+#define MSG_UBL_ACTIVATE_MESH               _UxGT("啟動UBL") // "Activate UBL"
 #define MSG_UBL_DEACTIVATE_MESH             _UxGT("關閉UBL") // "Deactivate UBL"
 #define MSG_UBL_SET_BED_TEMP                _UxGT("設置熱床溫度") // "Bed Temp"
 #define MSG_UBL_SET_HOTEND_TEMP             _UxGT("熱端溫度") // "Hotend Temp"
@@ -141,26 +141,26 @@
 #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Z偏移已停止") // "Z-Offset Stopped"
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("一步步UBL") // "Step-By-Step UBL"
 
-#define MSG_LED_CONTROL                     _UxGT("灯管控制") // "LED Control")
-#define MSG_LEDS                            _UxGT("灯") // "Lights")
-#define MSG_LED_PRESETS                     _UxGT("灯预置") // "Light Presets")
-#define MSG_SET_LEDS_RED                    _UxGT("红") // "Red")
+#define MSG_LED_CONTROL                     _UxGT("燈管控制") // "LED Control")
+#define MSG_LEDS                            _UxGT("燈") // "Lights")
+#define MSG_LED_PRESETS                     _UxGT("燈預置") // "Light Presets")
+#define MSG_SET_LEDS_RED                    _UxGT("紅") // "Red")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("橙") // "Orange")
-#define MSG_SET_LEDS_YELLOW                 _UxGT("黄") // "Yellow")
-#define MSG_SET_LEDS_GREEN                  _UxGT("绿") // "Green")
-#define MSG_SET_LEDS_BLUE                   _UxGT("蓝") // "Blue")
+#define MSG_SET_LEDS_YELLOW                 _UxGT("黃") // "Yellow")
+#define MSG_SET_LEDS_GREEN                  _UxGT("綠") // "Green")
+#define MSG_SET_LEDS_BLUE                   _UxGT("藍") // "Blue")
 #define MSG_SET_LEDS_INDIGO                 _UxGT("青") // "Indigo")
 #define MSG_SET_LEDS_VIOLET                 _UxGT("紫") // "Violet")
 #define MSG_SET_LEDS_WHITE                  _UxGT("白") // "White")
 #define MSG_SET_LEDS_DEFAULT                _UxGT("缺省") // "Default")
-#define MSG_CUSTOM_LEDS                     _UxGT("定制灯") // "Custom Lights")
-#define MSG_INTENSITY_R                     _UxGT("红飽和度") // "Red Intensity")
-#define MSG_INTENSITY_G                     _UxGT("绿飽和度") // "Green Intensity")
-#define MSG_INTENSITY_B                     _UxGT("蓝飽和度") // "Blue Intensity")
+#define MSG_CUSTOM_LEDS                     _UxGT("定制燈") // "Custom Lights")
+#define MSG_INTENSITY_R                     _UxGT("紅飽和度") // "Red Intensity")
+#define MSG_INTENSITY_G                     _UxGT("綠飽和度") // "Green Intensity")
+#define MSG_INTENSITY_B                     _UxGT("藍飽和度") // "Blue Intensity")
 #define MSG_INTENSITY_W                     _UxGT("白飽和度") // "White Intensity")
 #define MSG_LED_BRIGHTNESS                  _UxGT("亮度") // "Brightness")
-#define MSG_MOVING                          _UxGT("移动 ...") // "Moving...")
-#define MSG_FREE_XY                         _UxGT("释放 XY") // "Free XY")
+#define MSG_MOVING                          _UxGT("移動 ...") // "Moving...")
+#define MSG_FREE_XY                         _UxGT("釋放 XY") // "Free XY")
 
 #define MSG_MOVE_X                          _UxGT("移動X")  //"Move X"
 #define MSG_MOVE_Y                          _UxGT("移動Y")  //"Move Y"
@@ -353,7 +353,7 @@
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  噴嘴: ") // "  Nozzle: "
 #define MSG_ERR_HOMING_FAILED               _UxGT("歸原位失敗") // "Homing failed"
 #define MSG_ERR_PROBING_FAILED              _UxGT("探針探測失敗") // "Probing failed"
-#define MSG_M600_TOO_COLD                   _UxGT("M600: 太涼") // "M600: Too cold"
+#define MSG_M600_TOO_COLD                   _UxGT("M600: 太冷") // "M600: Too cold"
 
 #if LCD_HEIGHT >= 4
 #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("等待開始")  //"Wait for start"
