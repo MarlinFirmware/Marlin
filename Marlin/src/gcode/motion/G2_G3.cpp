@@ -287,7 +287,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
           const xy_pos_t d = p2 - p1, m = (p1 + p2) * 0.5f;   // XY distance and midpoint
           const float e = clockwise ^ (r < 0) ? -1 : 1,       // clockwise -1/1, counterclockwise 1/-1
                       len = d.magnitude(),                    // Total move length
-                      h = SQRT(sq(r) - sq(len * 0.5f));       // Distance to the arc pivot-point
+                      h = SQRT((r - d * 0.5f) * (r + d * 0.5f)); // Distance to the arc pivot-point
           const xy_pos_t s = { d.x, -d.y };                   // Inverse Slope of the perpendicular bisector
           arc_offset = m + s * RECIPROCAL(len) * e * h - p1;  // The calculated offset
         }
