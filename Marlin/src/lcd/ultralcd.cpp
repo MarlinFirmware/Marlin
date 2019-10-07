@@ -1546,7 +1546,7 @@ void MarlinUI::update() {
         uint8_t progress = 0;
       #endif
       #if ENABLED(SDSUPPORT)
-        if (IS_SD_PRINTING()) progress = card.percentDone();
+        if (!_PLIMIT(progress)) progress = card.percentDone();
       #endif
       return _PLIMIT(progress);
     }

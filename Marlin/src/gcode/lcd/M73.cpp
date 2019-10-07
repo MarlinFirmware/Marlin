@@ -38,7 +38,7 @@
  *   This has no effect during an SD print job
  */
 void GcodeSuite::M73() {
-  if (parser.seen('P') && !IS_SD_PRINTING())
+  if (parser.seen('P'))
     ui.set_progress(parser.value_byte());
 }
 
