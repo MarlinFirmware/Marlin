@@ -149,7 +149,7 @@
     #define LCD_PINS_D4    PB9
 
   #else
-    #error "Only CR10_STOCKDISPLAY is currently supported on the BIGTREE_SKR_MINI_E3 V1.1."
+    #error "Only CR10_STOCKDISPLAY is currently supported on the BIGTREE_SKR_MINI_E3 V1.2."
   #endif
 
 #endif // HAS_SPI_LCD
