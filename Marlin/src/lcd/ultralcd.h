@@ -293,10 +293,10 @@ public:
 
     #if HAS_PRINT_PROGRESS
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        static uint8_t progress_bar_percent;
-        static void set_progress(const uint8_t progress) { progress_bar_percent = _MIN(progress, 100); }
+        static uint8_t progress_override;
+        static void set_progress(const uint8_t progress) { progress_override = _MIN(progress, 100); }
         static void set_progress_done() { set_progress(0x80 + 100); }
-        static void progress_reset() { if (progress_bar_percent & 0x80) set_progress(0); }
+        static void progress_reset() { if (progress_override & 0x80) set_progress(0); }
       #endif
       static uint8_t get_progress();
     #else

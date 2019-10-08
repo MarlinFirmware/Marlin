@@ -61,7 +61,7 @@
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  uint8_t MarlinUI::progress_bar_percent; // = 0
+  uint8_t MarlinUI::progress_override; // = 0
 #endif
 
 #if HAS_BUZZER
@@ -1539,16 +1539,15 @@ void MarlinUI::update() {
   #if HAS_PRINT_PROGRESS
     uint8_t MarlinUI::get_progress() {
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        uint8_t &progress = progress_bar_percent;
-        #define _PLIMIT(P) ((P) & 0x7F)
+        const uint8_t p = progress_override & 0x7F;
       #else
-        #define _PLIMIT(P) P
-        uint8_t progress = 0;
+        constexpr uint8_t p = 0;
       #endif
-      #if ENABLED(SDSUPPORT)
-        if (!_PLIMIT(progress)) progress = card.percentDone();
-      #endif
-      return _PLIMIT(progress);
+      return (p
+        #if ENABLED(SDSUPPORT)
+          ?: card.percentDone()
+        #endif
+      );
     }
   #endif
 
