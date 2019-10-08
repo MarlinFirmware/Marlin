@@ -13,8 +13,6 @@ env:
   - TEST_PLATFORM="DUE"
   - TEST_PLATFORM="esp32"
   - TEST_PLATFORM="linux_native"
-  - TEST_PLATFORM="LPC1768"
-  - TEST_PLATFORM="LPC1769"
   - TEST_PLATFORM="megaatmega2560"
   - TEST_PLATFORM="STM32F103RE"
   - TEST_PLATFORM="teensy31"
@@ -35,6 +33,10 @@ env:
   - TEST_PLATFORM="jgaurora_a5s_a1"
   - TEST_PLATFORM="STM32F103VE_longer"
   - TEST_PLATFORM="STM32F407VE_black"
+
+  # Put lengthy tests last
+  - TEST_PLATFORM="LPC1768"
+  - TEST_PLATFORM="LPC1769"
 
   # Non-working environment tests
   #- TEST_PLATFORM="at90usb1286_cdc"
