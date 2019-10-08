@@ -530,7 +530,7 @@ void menu_backlash();
     EDIT_QSTEPS(C);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_ESTEPS(N) EDIT_ITEM_FAST(float51, MSG_E##N##STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(N)], 5, 9999, [](){ _planner_refresh_e_positioning(N); })
+      #define EDIT_ESTEPS(N) EDIT_ITEM_FAST(float51, MSG_E##N##_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(N)], 5, 9999, [](){ _planner_refresh_e_positioning(N); })
       EDIT_ITEM_FAST(float51, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, [](){ planner.refresh_positioning(); });
       EDIT_ESTEPS(0);
       EDIT_ESTEPS(1);
