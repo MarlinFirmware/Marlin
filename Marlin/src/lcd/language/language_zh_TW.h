@@ -87,20 +87,20 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("調平熱床");  //"Level bed"
   PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("調平邊角"); // "Level corners"
 
-  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("下个邊角"); // "Next corner"
+  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("下個邊角"); // "Next corner"
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("編輯網格"); // "Edit Mesh"
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("網格編輯已停止"); // "Mesh Editing Stopped"
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("客制命令"); // "Custom Commands"
 
-  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("执行G29"); // "Doing G29"
+  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("執行G29"); // "Doing G29"
   PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("UBL工具"); // "UBL Tools"
   PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("統一熱床調平(UBL)"); // "Unified Bed Leveling"
-  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("手工建网"); // "Manually Build Mesh"
+  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("手工建網"); // "Manually Build Mesh"
   PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("放置墊片並測量"); // "Place shim & measure"
   PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("測量"); // "Measure"
   PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("移除並測量熱床"); // "Remove & measure bed"
   PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("移動到下一個"); // "Moving to next"
-  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("激活UBL"); // "Activate UBL"
+  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("啟動UBL"); // "Activate UBL"
   PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("關閉UBL"); // "Deactivate UBL"
   PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("設置熱床溫度"); // "Bed Temp"
   PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("熱端溫度"); // "Hotend Temp"
@@ -158,27 +158,27 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_UBL_6_FINE_TUNE_ALL             = _UxGT("6. 細調所有的");
   PROGMEM Language_Str MSG_UBL_7_SAVE_MESH                 = _UxGT("7. 保存熱床網格");
 
-  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("灯管控制"); // "LED Control")
-  PROGMEM Language_Str MSG_LEDS                            = _UxGT("灯"); // "Lights")
-  PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("灯预置"); // "Light Presets")
+  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("燈管控制"); // "LED Control")
+  PROGMEM Language_Str MSG_LEDS                            = _UxGT("燈"); // "Lights")
+  PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("燈預置"); // "Light Presets")
   PROGMEM Language_Str MSG_SET_LEDS_RED                    = _UxGT("红"); // "Red")
   PROGMEM Language_Str MSG_SET_LEDS_ORANGE                 = _UxGT("橙"); // "Orange")
-  PROGMEM Language_Str MSG_SET_LEDS_YELLOW                 = _UxGT("黄"); // "Yellow")
-  PROGMEM Language_Str MSG_SET_LEDS_GREEN                  = _UxGT("绿"); // "Green")
-  PROGMEM Language_Str MSG_SET_LEDS_BLUE                   = _UxGT("蓝"); // "Blue")
+  PROGMEM Language_Str MSG_SET_LEDS_YELLOW                 = _UxGT("黃"); // "Yellow")
+  PROGMEM Language_Str MSG_SET_LEDS_GREEN                  = _UxGT("綠"); // "Green")
+  PROGMEM Language_Str MSG_SET_LEDS_BLUE                   = _UxGT("藍"); // "Blue")
   PROGMEM Language_Str MSG_SET_LEDS_INDIGO                 = _UxGT("青"); // "Indigo")
   PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("紫"); // "Violet")
   PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("白"); // "White")
   PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("缺省"); // "Default")
-  PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("定制灯"); // "Custom Lights")
-  PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("红飽和度"); // "Red Intensity")
-  PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("绿飽和度"); // "Green Intensity")
-  PROGMEM Language_Str MSG_INTENSITY_B                     = _UxGT("蓝飽和度"); // "Blue Intensity")
+  PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("定制燈"); // "Custom Lights")
+  PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("紅飽和度"); // "Red Intensity")
+  PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("綠飽和度"); // "Green Intensity")
+  PROGMEM Language_Str MSG_INTENSITY_B                     = _UxGT("藍飽和度"); // "Blue Intensity")
   PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("白飽和度"); // "White Intensity")
   PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("亮度"); // "Brightness")
 
-  PROGMEM Language_Str MSG_MOVING                          = _UxGT("移动 ..."); // "Moving...")
-  PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("释放 XY"); // "Free XY")
+  PROGMEM Language_Str MSG_MOVING                          = _UxGT("移動 ..."); // "Moving...")
+  PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("釋放 XY"); // "Free XY")
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("移動X");  //"Move X"
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("移動Y");  //"Move Y"
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("移動Z");  //"Move Z"
@@ -455,7 +455,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  噴嘴: "); // "  Nozzle: "
   PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("歸原位失敗"); // "Homing failed"
   PROGMEM Language_Str MSG_ERR_PROBING_FAILED              = _UxGT("探針探測失敗"); // "Probing failed"
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太涼"); // "M600: Too cold"
+  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太冷"); // "M600: Too cold"
 
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("等待開始", "絲料", "變更"));  //"Wait for start of the filament change"
