@@ -2964,38 +2964,23 @@ void MarlinSettings::reset() {
     #if HAS_PID_HEATING
 
       CONFIG_ECHO_HEADING("PID settings:");
+
       #if ENABLED(PIDTEMP)
-        #if HOTENDS > 1
-          if (forReplay) {
-            HOTEND_LOOP() {
-              CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR(
-                  "  M301 E", e
-                , " P", PID_PARAM(Kp, e)
-                , " I", unscalePID_i(PID_PARAM(Ki, e))
-                , " D", unscalePID_d(PID_PARAM(Kd, e))
-              );
-              #if ENABLED(PID_EXTRUSION_SCALING)
-                SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
-                if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
-              #endif
-              SERIAL_EOL();
-            }
-          }
-          else
-        #endif // HOTENDS > 1
-        // !forReplay || HOTENDS == 1
-        {
+        HOTEND_LOOP() {
           CONFIG_ECHO_START();
-          SERIAL_ECHOLNPAIR(
-              "  M301 P", PID_PARAM(Kp, 0) // for compatibility with hosts, only echo values for E0
-            , " I", unscalePID_i(PID_PARAM(Ki, 0))
-            , " D", unscalePID_d(PID_PARAM(Kd, 0))
-            #if ENABLED(PID_EXTRUSION_SCALING)
-              , " C", PID_PARAM(Kc, 0)
-              , " L", thermalManager.lpq_len
+          SERIAL_ECHOPAIR("  M301"
+            #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
+              " E", e,
             #endif
+              " P", PID_PARAM(Kp, e)
+            , " I", unscalePID_i(PID_PARAM(Ki, e))
+            , " D", unscalePID_d(PID_PARAM(Kd, e))
           );
+          #if ENABLED(PID_EXTRUSION_SCALING)
+            SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
+            if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
+          #endif
+          SERIAL_EOL();
         }
       #endif // PIDTEMP
 
