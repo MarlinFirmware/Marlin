@@ -62,7 +62,7 @@ void menu_configuration();
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void menu_temp_e0_filament_change();
+  void _menu_temp_filament_op(const PauseMode, const int8_t);
   void menu_change_filament();
 #endif
 
@@ -170,6 +170,10 @@ void menu_main() {
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
   #if ENABLED(CUSTOM_USER_MENUS)
+    #ifdef CUSTOM_USER_MENU_TITLE
+      #undef MSG_USER_MENU
+      #define MSG_USER_MENU CUSTOM_USER_MENU_TITLE
+    #endif
     SUBMENU(MSG_USER_MENU, menu_user);
   #endif
 
@@ -178,7 +182,7 @@ void menu_main() {
       if (thermalManager.targetHotEnoughToExtrude(active_extruder))
         GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
       else
-        SUBMENU(MSG_FILAMENTCHANGE, menu_temp_e0_filament_change);
+        SUBMENU(MSG_FILAMENTCHANGE, [](){ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 0); });
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
     #endif

@@ -176,6 +176,24 @@ class MenuItem_function {
 /////////// Menu Editing Actions ///////////
 ////////////////////////////////////////////
 
+//
+// The Menu Edit shadow value
+// Only one edit value is needed at a time
+//
+
+typedef union {
+  bool     state;
+  float    decimal;
+  int8_t   int8;
+  int16_t  int16;
+  int32_t  int32;
+  uint8_t  uint8;
+  uint16_t uint16;
+  uint32_t uint32;
+} chimera_t;
+
+extern chimera_t editable;
+
 // Edit items use long integer encoder units
 class MenuEditItemBase {
   private:
@@ -405,11 +423,6 @@ void _lcd_draw_homing();
 
 #if ENABLED(LEVEL_BED_CORNERS)
   void _lcd_level_bed_corners();
-#endif
-
-#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  extern float lcd_z_fade_height;
-  void _lcd_set_z_fade_height();
 #endif
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))

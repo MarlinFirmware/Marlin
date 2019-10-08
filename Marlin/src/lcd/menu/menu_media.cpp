@@ -31,13 +31,6 @@
 #include "menu.h"
 #include "../../sd/cardreader.h"
 
-#if !PIN_EXISTS(SD_DETECT)
-  void lcd_sd_refresh() {
-    encoderTopLine = 0;
-    card.mount();
-  }
-#endif
-
 void lcd_sd_updir() {
   ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
@@ -141,7 +134,7 @@ void menu_media() {
   BACK_ITEM(MSG_MAIN);
   if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
-      ACTION_ITEM(LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
+      ACTION_ITEM(LCD_STR_REFRESH MSG_REFRESH, [](){ encoderTopLine = 0; card.mount(); });
     #endif
   }
   else if (card.isMounted())

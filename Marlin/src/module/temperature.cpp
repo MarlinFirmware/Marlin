@@ -103,8 +103,8 @@ Temperature thermalManager;
 #else
   #define _CHAMBER_PSTR(M,E)
 #endif
-#define _E_PSTR(M,E,N) ((HOTENDS) >= (N) && (E) == (N)-1) ? PSTR(MSG_E##N " " M) :
-#define TEMP_ERR_PSTR(M,E) _BED_PSTR(M##_BED,E) _CHAMBER_PSTR(M##_CHAMBER,E) _E_PSTR(M,E,2) _E_PSTR(M,E,3) _E_PSTR(M,E,4) _E_PSTR(M,E,5) _E_PSTR(M,E,6) PSTR(MSG_E1 " " M)
+#define _E_PSTR(M,E,N) ((HOTENDS) > (N) && (E) == (N)) ? PSTR(LCD_STR_E##N " " M) :
+#define TEMP_ERR_PSTR(M,E) _BED_PSTR(M##_BED,E) _CHAMBER_PSTR(M##_CHAMBER,E) _E_PSTR(M,E,1) _E_PSTR(M,E,2) _E_PSTR(M,E,3) _E_PSTR(M,E,4) _E_PSTR(M,E,5) PSTR(LCD_STR_E0 " " M)
 
 // public:
 
@@ -157,18 +157,6 @@ Temperature thermalManager;
     uint8_t Temperature::fan_speed_scaler[FAN_COUNT] = ARRAY_N(FAN_COUNT, 128, 128, 128, 128, 128, 128);
   #endif
 
-  #if HAS_LCD_MENU
-
-    uint8_t Temperature::lcd_tmpfan_speed[
-      #if ENABLED(SINGLENOZZLE)
-        _MAX(EXTRUDERS, FAN_COUNT)
-      #else
-        FAN_COUNT
-      #endif
-    ]; // = { 0 }
-
-  #endif
-
   /**
    * Set the print fan speed for a target extruder
    */
@@ -187,9 +175,6 @@ Temperature thermalManager;
     if (target >= FAN_COUNT) return;
 
     fan_speed[target] = speed;
-    #if HAS_LCD_MENU
-      lcd_tmpfan_speed[target] = speed;
-    #endif
   }
 
   #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)

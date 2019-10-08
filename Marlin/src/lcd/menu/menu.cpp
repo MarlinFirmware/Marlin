@@ -68,6 +68,7 @@ uint8_t screen_history_depth = 0;
 bool screen_changed;
 
 // Value Editing
+chimera_t editable;
 PGM_P MenuEditItemBase::editLabel;
 void* MenuEditItemBase::editValue;
 int32_t MenuEditItemBase::minEditValue, MenuEditItemBase::maxEditValue;
@@ -201,11 +202,6 @@ void MenuItem_bool::action(PGM_P pstr, bool *ptr, screenFunc_t callback) {
 ///////////////// Menu Tree ////////////////
 ////////////////////////////////////////////
 
-#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  float lcd_z_fade_height;
-  void _lcd_set_z_fade_height() { set_z_fade_height(lcd_z_fade_height); }
-#endif
-
 #include "../../Marlin.h"
 
 bool printer_busy() {
@@ -220,11 +216,6 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
     #if ENABLED(TOUCH_BUTTONS)
       repeat_delay = BUTTON_DELAY_MENU;
-    #endif
-
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      // Shadow for editing the fade height
-      lcd_z_fade_height = planner.z_fade_height;
     #endif
 
     #if ENABLED(LCD_SET_PROGRESS_MANUALLY)

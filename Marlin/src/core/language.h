@@ -337,36 +337,38 @@
 #define MSG_Y2 "Y2"
 #define MSG_Z2 "Z2"
 #define MSG_Z3 "Z3"
-#define MSG_H1 "1"
-#define MSG_H2 "2"
-#define MSG_H3 "3"
-#define MSG_H4 "4"
-#define MSG_H5 "5"
-#define MSG_H6 "6"
-#define MSG_LCD_N0 " 1"
-#define MSG_LCD_N1 " 2"
-#define MSG_LCD_N2 " 3"
-#define MSG_LCD_N3 " 4"
-#define MSG_LCD_N4 " 5"
-#define MSG_LCD_N5 " 6"
-#define MSG_E1 "E1"
-#define MSG_E2 "E2"
-#define MSG_E3 "E3"
-#define MSG_E4 "E4"
-#define MSG_E5 "E5"
-#define MSG_E6 "E6"
-#define MSG_MOVE_E1 "1"
-#define MSG_MOVE_E2 "2"
-#define MSG_MOVE_E3 "3"
-#define MSG_MOVE_E4 "4"
-#define MSG_MOVE_E5 "5"
-#define MSG_MOVE_E6 "6"
-#define MSG_DIAM_E1 " 1"
-#define MSG_DIAM_E2 " 2"
-#define MSG_DIAM_E3 " 3"
-#define MSG_DIAM_E4 " 4"
-#define MSG_DIAM_E5 " 5"
-#define MSG_DIAM_E6 " 6"
+
+/**
+ * Tool indexes for LCD display only
+ *
+ * By convention the LCD shows "E1" for the first extruder.
+ * However, internal to Marlin E0/T0 is the first tool, and
+ * most board silkscreens say "E0." Zero-based labels will
+ * make these indexes consistent but this defies expectation.
+ *
+ */
+#if ENABLED(NUMBER_TOOLS_FROM_0)
+  #define LCD_STR_N0 "0"
+  #define LCD_STR_N1 "1"
+  #define LCD_STR_N2 "2"
+  #define LCD_STR_N3 "3"
+  #define LCD_STR_N4 "4"
+  #define LCD_STR_N5 "5"
+#else
+  #define LCD_STR_N0 "1"
+  #define LCD_STR_N1 "2"
+  #define LCD_STR_N2 "3"
+  #define LCD_STR_N3 "4"
+  #define LCD_STR_N4 "5"
+  #define LCD_STR_N5 "6"
+#endif
+
+#define LCD_STR_E0 "E" LCD_STR_N0
+#define LCD_STR_E1 "E" LCD_STR_N1
+#define LCD_STR_E2 "E" LCD_STR_N2
+#define LCD_STR_E3 "E" LCD_STR_N3
+#define LCD_STR_E4 "E" LCD_STR_N4
+#define LCD_STR_E5 "E" LCD_STR_N5
 
 #include INCLUDE_LANGUAGE
 
@@ -383,8 +385,3 @@
 #endif
 
 #include "../lcd/language/language_en.h"
-
-#ifdef CUSTOM_USER_MENU_TITLE
-  #undef MSG_USER_MENU
-  #define MSG_USER_MENU CUSTOM_USER_MENU_TITLE
-#endif
