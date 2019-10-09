@@ -81,7 +81,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_PREHEAT_1_H3                    = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N3;
   PROGMEM Language_Str MSG_PREHEAT_1_H4                    = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N4;
   PROGMEM Language_Str MSG_PREHEAT_1_H5                    = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N5;
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end")
+  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end");
   PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N0;
   PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N1;
   PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N2;
@@ -98,7 +98,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_PREHEAT_2_H3                    = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N3;
   PROGMEM Language_Str MSG_PREHEAT_2_H4                    = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N4;
   PROGMEM Language_Str MSG_PREHEAT_2_H5                    = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N5;
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end")
+  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end");
   PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N0;
   PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N1;
   PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N2;
