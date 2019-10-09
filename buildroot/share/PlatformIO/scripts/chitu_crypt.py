@@ -1,7 +1,7 @@
 Import("env")
 import struct
 
-# Relocate firmware from 0x08000000 to 0x08007000
+# Relocate firmware from 0x08000000 to 0x08008800
 for define in env['CPPDEFINES']:
     if define[0] == "VECT_TAB_ADDR":
         env['CPPDEFINES'].remove(define)
