@@ -65,7 +65,6 @@ def encrypt_file(input, output_file, file_length):
     input_file = bytearray(input.read())
     block_size = 0x800
     key_length = 0x18
-    file_key = 0x947FB2DA
     file_key = 0xDAB27F94
 
     xor_crc = 0xef3d4323;
@@ -75,7 +74,6 @@ def encrypt_file(input, output_file, file_length):
     while len(input_file) % block_size != 0:
         input_file.extend(b'0x0')
 
-    print "File Size", len(input_file)
     # write the file header
     output_file.write(struct.pack(">I", 0x443D2D3F))
     # encrypt the contents using a known file header key
@@ -93,11 +91,11 @@ def encrypt_file(input, output_file, file_length):
         xor_block(block_array, block_array, block_number, block_size, file_key)
         for n in range (0, block_size):
             input_file[block_offset + n] = block_array[n]
+
         # update the expected CRC value.
         xor_crc = calculate_crc(block_array, xor_crc)
 
-    # and then CRC
-    # write the file_key
+    # write CRC
     output_file.write(struct.pack("<I", xor_crc))
 
     # finally, append the encrypted results.
