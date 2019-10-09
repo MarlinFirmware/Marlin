@@ -49,7 +49,7 @@
 // da         Danish
 // de         German
 // el         Greek
-// el-gr      Greek (Greece)
+// el_gr      Greek (Greece)
 // en         English
 // es         Spanish
 // eu         Basque-Euskera
@@ -58,12 +58,12 @@
 // gl         Galician
 // hr         Croatian
 // it         Italian
-// jp-kana    Japanese
+// jp_kana    Japanese
 // ko_KR      Korean (South Korea)
 // nl         Dutch
 // pl         Polish
 // pt         Portuguese
-// pt-br      Portuguese (Brazilian)
+// pt_br      Portuguese (Brazilian)
 // ru         Russian
 // sk         Slovak
 // tr         Turkish

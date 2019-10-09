@@ -69,7 +69,7 @@ exec_test $1 $2 "Azteeg X3 Pro with 5 extruders, RRDFGSC, probeless UBL, Linear 
 # Add a Sled Z Probe, use UBL Cartesian moves, use Japanese language
 #
 opt_enable Z_PROBE_SLED SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
-opt_set LCD_LANGUAGE jp-kana
+opt_set LCD_LANGUAGE jp_kana
 opt_disable SEGMENT_LEVELED_MOVES
 opt_enable BABYSTEPPING BABYSTEP_XY BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING BABYSTEP_HOTEND_Z_OFFSET BABYSTEP_DISPLAY_TOTAL M114_DETAIL
 exec_test $1 $2 "... Sled Z Probe, Skew, UBL Cartesian moves, Japanese, and Z probe BABYSTEPPING"
@@ -246,11 +246,11 @@ exec_test $1 $2 "Many less common options"
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
+#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr it jp_kana nl pl pt pt_br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
+#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr it jp_kana nl pl pt pt_br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
 
 ######## Example Configurations ##############
 #
