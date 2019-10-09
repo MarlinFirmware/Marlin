@@ -68,7 +68,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(7) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(STEPS_PER_MM))
       .tag(8) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(VELOCITY))
       .tag(9) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(ACCELERATION))
-      #if ENABLED(JUNCTION_DEVIATION)
+      #if DISABLED(CLASSIC_JERK)
         .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(JUNC_DEVIATION))
       #else
         .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(JERK))
@@ -113,7 +113,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 8: GOTO_SCREEN(MaxVelocityScreen);                break;
     case 9: GOTO_SCREEN(DefaultAccelerationScreen);        break;
     case 10:
-      #if ENABLED(JUNCTION_DEVIATION)
+      #if DISABLED(CLASSIC_JERK)
         GOTO_SCREEN(JunctionDeviationScreen);
       #else
         GOTO_SCREEN(JerkScreen);
