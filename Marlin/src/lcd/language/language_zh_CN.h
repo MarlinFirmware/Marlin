@@ -470,9 +470,9 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太凉");     // "M600: Too cold"
 
   #if LCD_HEIGHT >= 4
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_2_LINE("等待开始", "丝料", "变更"));     // "Wait for start of the filament change"
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("等待开始", "丝料", "变更"));     // "Wait for start of the filament change"
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_2_LINE("等待", "卸下丝料"));     // "Wait for filament unload"
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_2_LINE("插入丝料", "并按键", "来继续 ..."));     // "Insert filament and press button to continue..."
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("插入丝料", "并按键", "来继续 ..."));     // "Insert filament and press button to continue..."
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("按下按钮来", "加热喷嘴."));     // "Press button to heat nozzle."
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT(MSG_2_LINE("加热喷嘴", "请等待 ..."));     // "Heating nozzle Please wait..."
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_2_LINE("等待", "进料"));     // "Wait for filament load"
