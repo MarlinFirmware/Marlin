@@ -747,23 +747,23 @@
 #ifndef MSG_ESTEPS
   #define MSG_ESTEPS                          _UxGT("Esteps/mm")
 #endif
-#ifndef MSG_E1STEPS
-  #define MSG_E1STEPS                         _UxGT("E1steps/mm")
+#ifndef MSG_E0_STEPS
+  #define MSG_E0_STEPS                        _UxGT("E1steps/mm")
 #endif
-#ifndef MSG_E2STEPS
-  #define MSG_E2STEPS                         _UxGT("E2steps/mm")
+#ifndef MSG_E1_STEPS
+  #define MSG_E1_STEPS                        _UxGT("E2steps/mm")
 #endif
-#ifndef MSG_E3STEPS
-  #define MSG_E3STEPS                         _UxGT("E3steps/mm")
+#ifndef MSG_E2_STEPS
+  #define MSG_E2_STEPS                        _UxGT("E3steps/mm")
 #endif
-#ifndef MSG_E4STEPS
-  #define MSG_E4STEPS                         _UxGT("E4steps/mm")
+#ifndef MSG_E3_STEPS
+  #define MSG_E3_STEPS                        _UxGT("E4steps/mm")
 #endif
-#ifndef MSG_E5STEPS
-  #define MSG_E5STEPS                         _UxGT("E5steps/mm")
+#ifndef MSG_E4_STEPS
+  #define MSG_E4_STEPS                        _UxGT("E5steps/mm")
 #endif
-#ifndef MSG_E6STEPS
-  #define MSG_E6STEPS                         _UxGT("E6steps/mm")
+#ifndef MSG_E5_STEPS
+  #define MSG_E5_STEPS                        _UxGT("E6steps/mm")
 #endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     _UxGT("Temperature")

@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, JUNCTION_DEVIATION)
+#if ENABLED(LULZBOT_TOUCH_UI) && DISABLED(CLASSIC_JERK)
 
 #include "screens.h"
 
@@ -51,4 +51,4 @@ bool JunctionDeviationScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // LULZBOT_TOUCH_UI && !CLASSIC_JERK

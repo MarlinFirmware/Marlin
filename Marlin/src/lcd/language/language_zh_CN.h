@@ -216,12 +216,12 @@
   #define MSG_CSTEPS                        _UxGT("Z轴步数/mm")  //"Zsteps/mm"
 #endif
 #define MSG_ESTEPS                          _UxGT("挤出机步数/mm")  //"Esteps/mm"
-#define MSG_E1STEPS                         _UxGT("挤出机1步数/mm") //"E1steps/mm"
-#define MSG_E2STEPS                         _UxGT("挤出机2步数/mm") //"E2steps/mm"
-#define MSG_E3STEPS                         _UxGT("挤出机3步数/mm") //"E3steps/mm"
-#define MSG_E4STEPS                         _UxGT("挤出机4步数/mm") //"E4steps/mm"
-#define MSG_E5STEPS                         _UxGT("挤出机5步数/mm") //"E5steps/mm"
-#define MSG_E6STEPS                         _UxGT("挤出机6步数/mm") //"E6steps/mm"
+#define MSG_E0_STEPS                        _UxGT("挤出机1步数/mm") //"E1steps/mm"
+#define MSG_E1_STEPS                        _UxGT("挤出机2步数/mm") //"E2steps/mm"
+#define MSG_E2_STEPS                        _UxGT("挤出机3步数/mm") //"E3steps/mm"
+#define MSG_E3_STEPS                        _UxGT("挤出机4步数/mm") //"E4steps/mm"
+#define MSG_E4_STEPS                        _UxGT("挤出机5步数/mm") //"E5steps/mm"
+#define MSG_E5_STEPS                        _UxGT("挤出机6步数/mm") //"E6steps/mm"
 #define MSG_TEMPERATURE                     _UxGT("温度")  //"Temperature"
 #define MSG_MOTION                          _UxGT("运动")  //"Motion"
 #define MSG_FILAMENT                        _UxGT("丝料测容")  //"Filament" menu_advanced_filament

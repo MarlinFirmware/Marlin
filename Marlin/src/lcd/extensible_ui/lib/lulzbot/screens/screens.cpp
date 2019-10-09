@@ -75,7 +75,7 @@ SCREEN_TABLE {
   DECL_SCREEN(MaxVelocityScreen),
   DECL_SCREEN(MaxAccelerationScreen),
   DECL_SCREEN(DefaultAccelerationScreen),
-#if ENABLED(JUNCTION_DEVIATION)
+#if DISABLED(CLASSIC_JERK)
   DECL_SCREEN(JunctionDeviationScreen),
 #else
   DECL_SCREEN(JerkScreen),
