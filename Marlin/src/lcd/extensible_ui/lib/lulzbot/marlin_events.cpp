@@ -124,7 +124,7 @@ namespace ExtUI {
       ConfirmUserRequestAlertBox::hide();
   }
 
-  #if BOTH(HAS_LEVELING, HAS_MESH)
+  #if HAS_LEVELING && HAS_MESH
     void onMeshUpdate(const uint8_t, const uint8_t, const float) {
     }
   #endif
