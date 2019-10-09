@@ -162,7 +162,7 @@ void lcd_mixer_mix_edit() {
 
   #if CHANNEL_MIX_EDITING
 
-    #define EDIT_COLOR(N) EDIT_ITEM_FAST(float52, MSG_MIX_COMPONENT " " STRINGIFY(N), &mixer.collector[N-1], 0, 10);
+    #define EDIT_COLOR(N) EDIT_ITEM_FAST(float52, MSG_MIX_COMPONENT_##N, &mixer.collector[N-1], 0, 10);
 
     START_MENU();
     BACK_ITEM(MSG_MIXER);

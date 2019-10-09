@@ -35,8 +35,6 @@
 #endif
 #undef en
 
-#define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("³")
-
 namespace Language_en {
   constexpr uint8_t    CHARSIZE                            = 2;
   PROGMEM Language_Str LANGUAGE                            = _UxGT("English");
@@ -88,14 +86,14 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PREHEAT_1_H3                    = _UxGT("Preheat ") PREHEAT_1_LABEL " " LCD_STR_N3;
   PROGMEM Language_Str MSG_PREHEAT_1_H4                    = _UxGT("Preheat ") PREHEAT_1_LABEL " " LCD_STR_N4;
   PROGMEM Language_Str MSG_PREHEAT_1_H5                    = _UxGT("Preheat ") PREHEAT_1_LABEL " " LCD_STR_N5;
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" All");
   PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_E0;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_E1;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_E2;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_E3;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_E5;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" All");
   PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Bed");
   PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Conf");
   PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Preheat ") PREHEAT_2_LABEL;
@@ -105,14 +103,14 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PREHEAT_2_H3                    = _UxGT("Preheat ") PREHEAT_2_LABEL " " LCD_STR_N3;
   PROGMEM Language_Str MSG_PREHEAT_2_H4                    = _UxGT("Preheat ") PREHEAT_2_LABEL " " LCD_STR_N4;
   PROGMEM Language_Str MSG_PREHEAT_2_H5                    = _UxGT("Preheat ") PREHEAT_2_LABEL " " LCD_STR_N5;
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" All");
   PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_E0;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_E1;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_E2;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_E3;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_E5;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" All");
   PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" Bed");
   PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" Conf");
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Preheat Custom");
@@ -471,12 +469,12 @@ namespace Language_en {
   PROGMEM Language_Str MSG_FILAMENTLOAD_E4                 = _UxGT("Load Filament ") LCD_STR_E4;
   PROGMEM Language_Str MSG_FILAMENTLOAD_E5                 = _UxGT("Load Filament ") LCD_STR_E5;
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Unload Filament");
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Unload Filament ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Unload Filament ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Unload Filament ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Unload Filament ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Unload Filament ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Unload Filament ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Unload Filament ") LCD_STR_E0;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Unload Filament ") LCD_STR_E1;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Unload Filament ") LCD_STR_E2;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Unload Filament ") LCD_STR_E3;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Unload Filament ") LCD_STR_E4;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Unload Filament ") LCD_STR_E5;
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Unload All");
   PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Init. Media");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Change Media");
@@ -632,7 +630,12 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Remove, click");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Mix");
-  PROGMEM Language_Str MSG_MIX_COMPONENT                   = _UxGT("Component");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_1                 = _UxGT("Component 1");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_2                 = _UxGT("Component 2");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_3                 = _UxGT("Component 3");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_4                 = _UxGT("Component 4");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_5                 = _UxGT("Component 5");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_6                 = _UxGT("Component 6");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixer");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradient");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Full Gradient");

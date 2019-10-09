@@ -28,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("àạậẵắấầđẻểếềìỉởộỗợúự")
-
 namespace Language_vi {
   using namespace Language_en; // Inherit undefined strings from English
 
@@ -63,32 +61,39 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Bù đắp được áp dụng");                  // Offsets applied
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Đặt nguồn gốc");                        // Set origin
   PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước");   // Preheat
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Làm nóng ") PREHEAT_1_LABEL " " LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Làm nóng ") PREHEAT_1_LABEL " " LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Làm nóng ") PREHEAT_1_LABEL " " LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Làm nóng ") PREHEAT_1_LABEL " " LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Làm nóng ") PREHEAT_1_LABEL " " LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Làm nóng ") PREHEAT_1_LABEL " " LCD_STR_N5;
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Tất cả");                // all
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_E0;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_E1;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_E2;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_E3;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_E5;
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Bàn");                   // bed -- using vietnamese term for 'table' instead
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Cấu hình");              // conf
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Làm nóng ") PREHEAT_2_LABEL " " LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Làm nóng ") PREHEAT_2_LABEL " " LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Làm nóng ") PREHEAT_2_LABEL " " LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Làm nóng ") PREHEAT_2_LABEL " " LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Làm nóng ") PREHEAT_2_LABEL " " LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Làm nóng ") PREHEAT_2_LABEL " " LCD_STR_N5;
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Tất cả");
+  PROGMEM Language_Str MSG_PREHEAT_1_H0                    = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ") LCD_STR_N0;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_1_H1                    = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ") LCD_STR_N1;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_1_H2                    = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ") LCD_STR_N2;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_1_H3                    = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ") LCD_STR_N3;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_1_H4                    = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ") LCD_STR_N4;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_1_H5                    = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ") LCD_STR_N5;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu");
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Tất cả");    // all
+  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Bàn");       // bed -- using vietnamese term for 'table' instead
+  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Cấu hình");  // conf
+  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước");   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_2_H0                    = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước ") LCD_STR_N0;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_2_H1                    = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước ") LCD_STR_N1;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_2_H2                    = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước ") LCD_STR_N2;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_2_H3                    = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước ") LCD_STR_N3;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_2_H4                    = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước ") LCD_STR_N4;   // Preheat
+  PROGMEM Language_Str MSG_PREHEAT_2_H5                    = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước ") LCD_STR_N5;   // Preheat
   PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Bàn");     // bed -- using vietnamese term for 'table' instead
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Cấu hình");
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu ") LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu ") LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu ") LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu ") LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu ") LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Tất cả");    // all
+  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Bàn");       // bed -- using vietnamese term for 'table' instead
+  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Cấu hình");  // conf
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Sự nóng trước tự chọn");                // Preheat Custom
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Nguội xuống");                          // Cooldown
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Bật nguồn");                            // Switch power on
@@ -221,12 +226,12 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Tốc độ");                               // Speed
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z Bàn");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Đầu phun");                             // Nozzle
-  PROGMEM Language_Str MSG_NOZZLE_0                        = _UxGT("Đầu phun ") LCD_STR_N0;                  // Nozzle
-  PROGMEM Language_Str MSG_NOZZLE_1                        = _UxGT("Đầu phun ") LCD_STR_N1;                  // Nozzle
-  PROGMEM Language_Str MSG_NOZZLE_2                        = _UxGT("Đầu phun ") LCD_STR_N2;                  // Nozzle
-  PROGMEM Language_Str MSG_NOZZLE_3                        = _UxGT("Đầu phun ") LCD_STR_N3;                  // Nozzle
-  PROGMEM Language_Str MSG_NOZZLE_4                        = _UxGT("Đầu phun ") LCD_STR_N4;                  // Nozzle
-  PROGMEM Language_Str MSG_NOZZLE_5                        = _UxGT("Đầu phun ") LCD_STR_N5;                  // Nozzle
+  PROGMEM Language_Str MSG_NOZZLE_0                        = _UxGT("Đầu phun ") LCD_STR_N0;                 // Nozzle
+  PROGMEM Language_Str MSG_NOZZLE_1                        = _UxGT("Đầu phun ") LCD_STR_N1;                 // Nozzle
+  PROGMEM Language_Str MSG_NOZZLE_2                        = _UxGT("Đầu phun ") LCD_STR_N2;                 // Nozzle
+  PROGMEM Language_Str MSG_NOZZLE_3                        = _UxGT("Đầu phun ") LCD_STR_N3;                 // Nozzle
+  PROGMEM Language_Str MSG_NOZZLE_4                        = _UxGT("Đầu phun ") LCD_STR_N4;                 // Nozzle
+  PROGMEM Language_Str MSG_NOZZLE_5                        = _UxGT("Đầu phun ") LCD_STR_N5;                 // Nozzle
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bàn");                                  // bed
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Tốc độ quạt");                          // fan speed
   PROGMEM Language_Str MSG_FAN_SPEED_1                     = _UxGT("Tốc độ quạt 1");                        // fan speed
@@ -319,9 +324,9 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("TT-Rút");                               // A-retract
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("TT-Chuyển");                            // A-travel
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Bước/mm");                              // Steps
-  PROGMEM Language_Str MSG_A_STEPS                         = _UxGT("Bước") LCD_STR_A ("/mm");               // Asteps/mm
-  PROGMEM Language_Str MSG_B_STEPS                         = _UxGT("Bước") LCD_STR_B ("/mm");
-  PROGMEM Language_Str MSG_C_STEPS                         = _UxGT("Bước") LCD_STR_C ("/mm");
+  PROGMEM Language_Str MSG_A_STEPS                         = _UxGT("Bước") LCD_STR_A _UxGT("/mm");               // Asteps/mm
+  PROGMEM Language_Str MSG_B_STEPS                         = _UxGT("Bước") LCD_STR_B _UxGT("/mm");
+  PROGMEM Language_Str MSG_C_STEPS                         = _UxGT("Bước") LCD_STR_C _UxGT("/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("BướcE/mm");
   PROGMEM Language_Str MSG_E0_STEPS                        = _UxGT("Bước ") LCD_STR_E0 _UxGT("/mm");
   PROGMEM Language_Str MSG_E1_STEPS                        = _UxGT("Bước ") LCD_STR_E1 _UxGT("/mm");
@@ -396,18 +401,18 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E4               = _UxGT("Thay dây nhựa ") LCD_STR_E4;            // change filament
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E5               = _UxGT("Thay dây nhựa ") LCD_STR_E5;            // change filament
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Nạp dây nhựa");                         // load filament
-  PROGMEM Language_Str MSG_FILAMENTLOAD_E0                 = _UxGT("Nạp dây nhựa ") LCD_STR_E0;              // load filament
-  PROGMEM Language_Str MSG_FILAMENTLOAD_E1                 = _UxGT("Nạp dây nhựa ") LCD_STR_E1;              // load filament
-  PROGMEM Language_Str MSG_FILAMENTLOAD_E2                 = _UxGT("Nạp dây nhựa ") LCD_STR_E2;              // load filament
-  PROGMEM Language_Str MSG_FILAMENTLOAD_E3                 = _UxGT("Nạp dây nhựa ") LCD_STR_E3;              // load filament
-  PROGMEM Language_Str MSG_FILAMENTLOAD_E4                 = _UxGT("Nạp dây nhựa ") LCD_STR_E4;              // load filament
-  PROGMEM Language_Str MSG_FILAMENTLOAD_E5                 = _UxGT("Nạp dây nhựa ") LCD_STR_E5;              // load filament
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Dỡ dây nhựa ") LCD_STR_N0;               // unload filament
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Dỡ dây nhựa ") LCD_STR_N1;               // unload filament
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Dỡ dây nhựa ") LCD_STR_N2;               // unload filament
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Dỡ dây nhựa ") LCD_STR_N3;               // unload filament
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Dỡ dây nhựa ") LCD_STR_N4;               // unload filament
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Dỡ dây nhựa ") LCD_STR_N5;               // unload filament
+  PROGMEM Language_Str MSG_FILAMENTLOAD_E0                 = _UxGT("Nạp dây nhựa ") LCD_STR_E0;             // load filament
+  PROGMEM Language_Str MSG_FILAMENTLOAD_E1                 = _UxGT("Nạp dây nhựa ") LCD_STR_E1;             // load filament
+  PROGMEM Language_Str MSG_FILAMENTLOAD_E2                 = _UxGT("Nạp dây nhựa ") LCD_STR_E2;             // load filament
+  PROGMEM Language_Str MSG_FILAMENTLOAD_E3                 = _UxGT("Nạp dây nhựa ") LCD_STR_E3;             // load filament
+  PROGMEM Language_Str MSG_FILAMENTLOAD_E4                 = _UxGT("Nạp dây nhựa ") LCD_STR_E4;             // load filament
+  PROGMEM Language_Str MSG_FILAMENTLOAD_E5                 = _UxGT("Nạp dây nhựa ") LCD_STR_E5;             // load filament
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Dỡ dây nhựa ") LCD_STR_E0;              // unload filament
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Dỡ dây nhựa ") LCD_STR_E1;              // unload filament
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Dỡ dây nhựa ") LCD_STR_E2;              // unload filament
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Dỡ dây nhựa ") LCD_STR_E3;              // unload filament
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Dỡ dây nhựa ") LCD_STR_E4;              // unload filament
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Dỡ dây nhựa ") LCD_STR_E5;              // unload filament
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Dỡ tất cả");                            // Unload All
   PROGMEM Language_Str MSG_INIT_SDCARD                     = _UxGT("Khởi tạo thẻ SD ");                     // Init. SD card
   PROGMEM Language_Str MSG_CHANGE_SDCARD                   = _UxGT("Thay thẻ SD");                          // Change SD card
@@ -500,7 +505,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Đầu Phun: ");                         // Nozzle
   PROGMEM Language_Str MSG_RUNOUT_SENSOR_ENABLE            = _UxGT("Cảm Biến Hết");                         // Runout Sensor
   PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Sự nhà không thành công");              // Homing failed
-  PROGMEM Language_Str MSG_ERR_PROBING_FAILED              = _UxGT(" không thành công");                    // Probing failed
+  PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT(" không thành công");                    // Probing failed
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Quá lạnh");
 
   //
@@ -511,11 +516,11 @@ namespace Language_vi {
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Nhấn nút", "để tiếp tục in")); // Press button to resume print
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Chờ cho sự", "thay đổi dây nhựa", "bắt đầu")); // wait for filament change to start
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Đút dây nhựa vào", "và nhấn nút", "để tiếp tục")); // insert filament and press button to continue                       //
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("Nhấn nút", "để làm nóng đầu phun")); // Press button to heat nozzle
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Nhấn nút", "để làm nóng đầu phun")); // Press button to heat nozzle
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT(MSG_2_LINE("Đầu phun đang nóng lên", "Xin chờ...")); // Nozzle heating Please wait
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_2_LINE("Chờ tro", "dây nhựa ra"));    // Wait for filament unload
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_2_LINE("Chờ tro", "dây nhựa ra"));   // Wait for filament unload
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_2_LINE("Chờ tro", "dây nhựa vào"));  // Wait for filament load
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_2_LINE("Chờ tro", "xả dây nhựa"));    // wait for filament purge
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_2_LINE("Chờ tro", "xả dây nhựa"));   // wait for filament purge
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_2_LINE("Nhấn nút để kết thúc", "xả dây nhựa")); // Click to finish dây nhựa purge
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Chờ tro in", "tiếp tục...")); // Wait for print to resume
   #else // LCD_HEIGHT < 4

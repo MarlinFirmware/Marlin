@@ -31,8 +31,6 @@
 
 #define CHARSIZE 2
 
-#define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("ÄäÖöÜüß²³")
-
 namespace Language_de {
   using namespace Language_en; // Inherit undefined strings from English
 
@@ -70,24 +68,36 @@ namespace Language_de {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Homeversatz aktiv");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
   PROGMEM Language_Str MSG_PREHEAT_1                       = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
+  PROGMEM Language_Str MSG_PREHEAT_1_H0                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_1_H1                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_1_H2                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_1_H3                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_1_H4                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_1_H5                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_1_END                   = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = PREHEAT_1_LABEL " " LCD_STR_N0 _UxGT(" Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = PREHEAT_1_LABEL " " LCD_STR_N1 _UxGT(" Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = PREHEAT_1_LABEL " " LCD_STR_N2 _UxGT(" Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = PREHEAT_1_LABEL " " LCD_STR_N3 _UxGT(" Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = PREHEAT_1_LABEL " " LCD_STR_N4 _UxGT(" Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = PREHEAT_1_LABEL " " LCD_STR_N5 _UxGT(" Vorwärmen");
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = PREHEAT_1_LABEL _UxGT(" Alles Vorwärmen");
   PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = PREHEAT_1_LABEL _UxGT(" Bett Vorwärmen");
   PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = PREHEAT_1_LABEL _UxGT(" Einstellungen");
   PROGMEM Language_Str MSG_PREHEAT_2                       = PREHEAT_2_LABEL _UxGT(" Vorwärmen");
+  PROGMEM Language_Str MSG_PREHEAT_2_H0                    = PREHEAT_2_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_2_H1                    = PREHEAT_2_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_2_H2                    = PREHEAT_2_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_2_H3                    = PREHEAT_2_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_2_H4                    = PREHEAT_2_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_2_H5                    = PREHEAT_2_LABEL _UxGT(" Vorwärmen") " " LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_2_END                   = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = PREHEAT_2_LABEL " " LCD_STR_N0 _UxGT(" Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = PREHEAT_2_LABEL " " LCD_STR_N1 _UxGT(" Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = PREHEAT_2_LABEL " " LCD_STR_N2 _UxGT(" Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = PREHEAT_2_LABEL " " LCD_STR_N3 _UxGT(" Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = PREHEAT_2_LABEL " " LCD_STR_N4 _UxGT(" Vorwärmen");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = PREHEAT_2_LABEL " " LCD_STR_N5 _UxGT(" Vorwärmen");
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärm. ") LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = PREHEAT_2_LABEL _UxGT(" Alles Vorwärmen");
   PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = PREHEAT_2_LABEL _UxGT(" Bett Vorwärmen");
   PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = PREHEAT_2_LABEL _UxGT(" Einstellungen");
@@ -439,12 +449,12 @@ namespace Language_de {
   PROGMEM Language_Str MSG_FILAMENTLOAD_E3                 = _UxGT("Filament laden ") LCD_STR_E3;
   PROGMEM Language_Str MSG_FILAMENTLOAD_E4                 = _UxGT("Filament laden ") LCD_STR_E4;
   PROGMEM Language_Str MSG_FILAMENTLOAD_E5                 = _UxGT("Filament laden ") LCD_STR_E5;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Filament entladen ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Filament entladen ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Filament entladen ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Filament entladen ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Filament entladen ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Filament entladen ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Filament entladen ") LCD_STR_E0;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Filament entladen ") LCD_STR_E1;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Filament entladen ") LCD_STR_E2;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Filament entladen ") LCD_STR_E3;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Filament entladen ") LCD_STR_E4;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Filament entladen ") LCD_STR_E5;
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Alles entladen");
   PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Medium initial.");  // Manually initialize the SD-card via user interface
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Medium getauscht"); // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
@@ -565,7 +575,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout-Sensor");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout-Weg mm");
   PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Homing gescheitert");
-  PROGMEM Language_Str MSG_ERR_PROBING_FAILED              = _UxGT("Probing gescheitert");
+  PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing gescheitert");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: zu kalt");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("FILAMENT WÄHLEN");
@@ -598,7 +608,12 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Entfernen, klicken");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Mix");
-  PROGMEM Language_Str MSG_MIX_COMPONENT                   = _UxGT("Komponente");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_1                 = _UxGT("Komponente 1");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_2                 = _UxGT("Komponente 2");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_3                 = _UxGT("Komponente 3");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_4                 = _UxGT("Komponente 4");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_5                 = _UxGT("Komponente 5");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_6                 = _UxGT("Komponente 6");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixer");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradient"); // equal Farbverlauf
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Volle Gradient");

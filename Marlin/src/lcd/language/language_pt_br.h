@@ -29,10 +29,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-
-// Put characters here that should be displayed with M117
-#define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("áãàçÉéêíóõ")
-
 namespace Language_pt_br {
   using namespace Language_en; // Inherit undefined strings from English
 
@@ -67,30 +63,37 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Alteração aplicada");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Ajustar Origem");
   PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_H0                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_1_H1                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_1_H2                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_1_H3                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_1_H4                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_1_H5                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " " LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Extrusora ") PREHEAT_1_LABEL;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Extrusora ") PREHEAT_1_LABEL " " LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Extrusora ") PREHEAT_1_LABEL " " LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Extrusora ") PREHEAT_1_LABEL " " LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Extrusora ") PREHEAT_1_LABEL " " LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Extrusora ") PREHEAT_1_LABEL " " LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Extrusora ") PREHEAT_1_LABEL " " LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Pre-aq.Todo ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Extrusora ") PREHEAT_1_LABEL" " LCD_STR_E0;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Extrusora ") PREHEAT_1_LABEL" " LCD_STR_E1;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Extrusora ") PREHEAT_1_LABEL" " LCD_STR_E2;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Extrusora ") PREHEAT_1_LABEL" " LCD_STR_E3;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Extrusora ") PREHEAT_1_LABEL" " LCD_STR_E4;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Extrusora ") PREHEAT_1_LABEL" " LCD_STR_E5;
   PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Pre-aq.Mesa ") PREHEAT_1_LABEL;
   PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Ajustar ") PREHEAT_1_LABEL;
   PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N5;
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Pre-aq.Todo ") PREHEAT_2_LABEL;
+  PROGMEM Language_Str MSG_PREHEAT_2_H0                    = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_2_H1                    = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_2_H2                    = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_2_H3                    = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_2_H4                    = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_2_H5                    = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " " LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Extrusora ") PREHEAT_2_LABEL;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Extrusora ") PREHEAT_2_LABEL " " LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Extrusora ") PREHEAT_2_LABEL " " LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Extrusora ") PREHEAT_2_LABEL " " LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Extrusora ") PREHEAT_2_LABEL " " LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Extrusora ") PREHEAT_2_LABEL " " LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Extrusora ") PREHEAT_2_LABEL " " LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Pre-aq.Todo ") PREHEAT_2_LABEL;
   PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Pre-aq.Mesa ") PREHEAT_2_LABEL;
   PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Ajustar ") PREHEAT_2_LABEL;
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Customizar Pre-aq.");
@@ -275,9 +278,9 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("Retrair A");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("Movimento A");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Passo/mm");
-  PROGMEM Language_Str MSG_A_STEPS                         = _UxGT("Passo ") LCD_STR_A ("/mm");
-  PROGMEM Language_Str MSG_B_STEPS                         = _UxGT("Passo ") LCD_STR_B ("/mm");
-  PROGMEM Language_Str MSG_C_STEPS                         = _UxGT("Passo ") LCD_STR_C ("/mm");
+  PROGMEM Language_Str MSG_A_STEPS                         = _UxGT("Passo ") LCD_STR_A _UxGT("/mm");
+  PROGMEM Language_Str MSG_B_STEPS                         = _UxGT("Passo ") LCD_STR_B _UxGT("/mm");
+  PROGMEM Language_Str MSG_C_STEPS                         = _UxGT("Passo ") LCD_STR_C _UxGT("/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E/mm");
   PROGMEM Language_Str MSG_E0_STEPS                        = LCD_STR_E0 _UxGT("/mm");
   PROGMEM Language_Str MSG_E1_STEPS                        = LCD_STR_E1 _UxGT("/mm");
@@ -357,12 +360,12 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_FILAMENTLOAD_E3                 = _UxGT("Carregar Filamento ") LCD_STR_E3;
   PROGMEM Language_Str MSG_FILAMENTLOAD_E4                 = _UxGT("Carregar Filamento ") LCD_STR_E4;
   PROGMEM Language_Str MSG_FILAMENTLOAD_E5                 = _UxGT("Carregar Filamento ") LCD_STR_E5;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Descarreg. Filamento ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Descarreg. Filamento ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Descarreg. Filamento ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Descarreg. Filamento ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Descarreg. Filamento ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Descarreg. Filamento ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Descarreg. Filamento ") LCD_STR_E0;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Descarreg. Filamento ") LCD_STR_E1;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Descarreg. Filamento ") LCD_STR_E2;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Descarreg. Filamento ") LCD_STR_E3;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Descarreg. Filamento ") LCD_STR_E4;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Descarreg. Filamento ") LCD_STR_E5;
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Descarregar Todos");
   PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Iniciar SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Trocar SD");
@@ -461,7 +464,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Bocal: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Sensor filamento");
   PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Falha ao ir à origem");
-  PROGMEM Language_Str MSG_ERR_PROBING_FAILED              = _UxGT("Falha ao sondar");
+  PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Falha ao sondar");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Muito frio");
 
   #if LCD_HEIGHT >= 4

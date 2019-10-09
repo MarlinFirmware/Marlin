@@ -35,7 +35,6 @@
  */
 
 #define DISPLAY_CHARSET_ISO10646_CZ
-#define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("áÁčČďĎéÉěĚíÍňŇóÓřŘšŠťŤúÚůŮýÝžŽ³")
 
 namespace Language_cz {
   using namespace Language_en; // Inherit undefined strings from English
@@ -76,24 +75,36 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Ofsety nastaveny");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Nastavit počátek");
   PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Zahřát ") PREHEAT_1_LABEL;
+  PROGMEM Language_Str MSG_PREHEAT_1_H0                    = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_1_H1                    = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_1_H2                    = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_1_H3                    = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_1_H4                    = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_1_H5                    = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end")
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Zahřát ") PREHEAT_1_LABEL " " LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" vše");
   PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" podlož");
   PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" nast");
   PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Zahřát ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_H0                    = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_2_H1                    = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_2_H2                    = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_2_H3                    = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_2_H4                    = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_2_H5                    = _UxGT("Zahřát ") PREHEAT_2_LABEL " " LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end")
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" vše");
   PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" podlož");
   PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" nast");
@@ -368,12 +379,12 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_FILAMENTLOAD_E3                 = _UxGT("Zavést filament ") LCD_STR_E3;
   PROGMEM Language_Str MSG_FILAMENTLOAD_E4                 = _UxGT("Zavést filament ") LCD_STR_E4;
   PROGMEM Language_Str MSG_FILAMENTLOAD_E5                 = _UxGT("Zavést filament ") LCD_STR_E5;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Vysunout filament ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Vysunout filament ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Vysunout filament ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Vysunout filament ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Vysunout filament ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Vysunout filament ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Vysunout filament ") LCD_STR_E0;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Vysunout filament ") LCD_STR_E1;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Vysunout filament ") LCD_STR_E2;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Vysunout filament ") LCD_STR_E3;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Vysunout filament ") LCD_STR_E4;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Vysunout filament ") LCD_STR_E5;
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Vysunout vše");
 
   PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Načíst SD kartu");
@@ -484,7 +495,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Tryska: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Senzor filamentu");
   PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Parkování selhalo");
-  PROGMEM Language_Str MSG_ERR_PROBING_FAILED              = _UxGT("Kalibrace selhala");
+  PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Kalibrace selhala");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Moc studený");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("VYBERTE FILAMENT");
@@ -517,7 +528,12 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Vytáhněte, klikněte");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Mix");
-  PROGMEM Language_Str MSG_MIX_COMPONENT                   = _UxGT("Komponenta");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_1                 = _UxGT("Komponenta 1");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_2                 = _UxGT("Komponenta 2");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_3                 = _UxGT("Komponenta 3");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_4                 = _UxGT("Komponenta 4");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_5                 = _UxGT("Komponenta 5");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_6                 = _UxGT("Komponenta 6");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixér");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Přechod");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Celý přechod");

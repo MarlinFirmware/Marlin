@@ -34,7 +34,6 @@
  */
 
 #define DISPLAY_CHARSET_ISO10646_TR
-#define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("İÖÇğüşöç³")
 
 namespace Language_tr {
   using namespace Language_en; // Inherit undefined strings from English
@@ -69,25 +68,37 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offset Tamam");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Sıfır Belirle");
   PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
+  PROGMEM Language_Str MSG_PREHEAT_1_H0                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_1_H1                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_1_H2                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_1_H3                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_1_H4                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_1_H5                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " " LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ") LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ") LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ") LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ") LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ") LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
   PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
   PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
   PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Ön Isınma ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Tüm");
+  PROGMEM Language_Str MSG_PREHEAT_2_H0                    = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_2_H1                    = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_2_H2                    = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_2_H3                    = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_2_H4                    = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_2_H5                    = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N5;
   PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " " LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul ") LCD_STR_N0;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul ") LCD_STR_N1;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul ") LCD_STR_N2;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul ") LCD_STR_N3;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul ") LCD_STR_N4;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Tüm");
   PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Tabla");
   PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Ayarlar");
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Özel Ön Isınma");
@@ -259,9 +270,9 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_SELECT_E5                       = _UxGT("Seç ") LCD_STR_E5;
   PROGMEM Language_Str MSG_ACC                             = _UxGT("İvme");
   PROGMEM Language_Str MSG_JERK                            = _UxGT("Sarsım");
-  PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("V") LCD_STR_A ("-Sarsım");
-  PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("V") LCD_STR_B ("-Sarsım");
-  PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("V") LCD_STR_C ("-Sarsım");
+  PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("V") LCD_STR_A _UxGT("-Sarsım");
+  PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("V") LCD_STR_B _UxGT("-Sarsım");
+  PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("V") LCD_STR_C _UxGT("-Sarsım");
   PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("Ve-Sarsım");
   PROGMEM Language_Str MSG_JUNCTION_DEVIATION              = _UxGT("Jonksiyon Sapması");
   PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("Hız Vektörü");
@@ -373,12 +384,12 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_FILAMENTLOAD_E3                 = _UxGT("Filaman Yükle ") LCD_STR_E3;
   PROGMEM Language_Str MSG_FILAMENTLOAD_E4                 = _UxGT("Filaman Yükle ") LCD_STR_E4;
   PROGMEM Language_Str MSG_FILAMENTLOAD_E5                 = _UxGT("Filaman Yükle ") LCD_STR_E5;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Filaman Çıkart ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Filaman Çıkart ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Filaman Çıkart ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Filaman Çıkart ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Filaman Çıkart ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Filaman Çıkart ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E0               = _UxGT("Filaman Çıkart ") LCD_STR_E0;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E1               = _UxGT("Filaman Çıkart ") LCD_STR_E1;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Filaman Çıkart ") LCD_STR_E2;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Filaman Çıkart ") LCD_STR_E3;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Filaman Çıkart ") LCD_STR_E4;
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Filaman Çıkart ") LCD_STR_E5;
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Tümünü Çıkart");
   PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("SD Kart Başlatılıyor");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("SD Kart Değiştir");
@@ -473,7 +484,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Nozul: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout Sensörü");
   PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Sıfırlama Başarısız");
-  PROGMEM Language_Str MSG_ERR_PROBING_FAILED              = _UxGT("Probing Başarısız");
+  PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Başarısız");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Çok Soğuk");
   //
   // Filament Değiştirme ekranları, 4 satırlı bir ekranda 3 satıra kadar gösterilir

@@ -406,7 +406,7 @@ bool set_probe_deployed(const bool deploy) {
     if (PROBE_STOWED() == deploy) {                // Unchanged after deploy/stow action?
       if (IsRunning()) {
         SERIAL_ERROR_MSG("Z-Probe failed");
-        LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+        LCD_ALERTMESSAGEPGM_P(PSTR("Err: ZPROBE"));
       }
       stop();
       return true;
