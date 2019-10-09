@@ -268,7 +268,6 @@ class Planner {
       static bool leveling_active;          // Flag that bed leveling is enabled
       #if ABL_PLANAR
         static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
-        static constexpr xy_pos_t level_fulcrum = { X_TILT_FULCRUM, Y_TILT_FULCRUM };
       #endif
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         static float z_fade_height, inverse_z_fade_height;

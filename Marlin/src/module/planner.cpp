@@ -1350,6 +1350,15 @@ void Planner::check_axes_activity() {
 #endif
 
 #if HAS_LEVELING
+
+  constexpr xy_pos_t level_fulcrum = {
+    #if ENABLED(Z_SAFE_HOMING)
+      Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT
+    #else
+      X_HOME_POS, Y_HOME_POS
+    #endif
+  };
+
   /**
    * rx, ry, rz - Cartesian positions in mm
    *              Leveled XYZ on completion
